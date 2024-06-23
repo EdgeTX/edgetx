@@ -23,6 +23,6 @@
 
 #include <stdint.h>
 
-void setFSLedOFF(uint8_t index);
-void setFSLedON(uint8_t index);
+void setFSLedOff(uint8_t index);
+void setFSLedOn(uint8_t index);
 bool getFSLedState(uint8_t index);

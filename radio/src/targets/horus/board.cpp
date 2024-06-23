@@ -69,11 +69,11 @@ void boardInit()
 
 #if defined(FUNCTION_SWITCHES) && !defined(DEBUG_SEGGER_RTT)
 #if defined(RADIO_T15)
-#define LEDCHARGEON(x)   setFSLedOFF(x)
-#define LEDCHARGEOFF(x)  setFSLedON(x)
+#define LEDCHARGEON(x)   setFSLedOff(x)
+#define LEDCHARGEOFF(x)  setFSLedOn(x)
 #else
-#define LEDCHARGEON(x)   setFSLedON(x)
-#define LEDCHARGEOFF(x)  setFSLedOFF(x)
+#define LEDCHARGEON(x)   setFSLedOn(x)
+#define LEDCHARGEOFF(x)  setFSLedOff(x)
 #endif
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();

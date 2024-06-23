@@ -159,7 +159,7 @@ void evalFunctionSwitches()
   uint8_t fct_switches = switchGetMaxFctSwitches();
   for (uint8_t i = 0; i < fct_switches; i++) {
     if (FSWITCH_CONFIG(i) == SWITCH_NONE) {
-      setFSLedOFF(i);
+      setFSLedOff(i);
       continue;
     }
 
@@ -192,9 +192,9 @@ void evalFunctionSwitches()
 
     if (!pwrPressed()) {
       if (getFSLogicalState(i))
-        setFSLedON(i);
+        setFSLedOn(i);
       else
-        setFSLedOFF(i);
+        setFSLedOff(i);
     }
   }
 }

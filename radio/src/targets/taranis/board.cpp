@@ -138,12 +138,12 @@ void boardInit()
       delay_ms(20);
 #if defined(FUNCTION_SWITCHES)
       // Support for FS Led to indicate battery charge level
-      if (getBatteryVoltage() >= 660) setFSLedON(0);
-      if (getBatteryVoltage() >= 700) setFSLedON(1);
-      if (getBatteryVoltage() >= 740) setFSLedON(2);
-      if (getBatteryVoltage() >= 780) setFSLedON(3);
-      if (getBatteryVoltage() >= 820) setFSLedON(4);
-      if (getBatteryVoltage() >= 842) setFSLedON(5);
+      if (getBatteryVoltage() >= 660) setFSLedOn(0);
+      if (getBatteryVoltage() >= 700) setFSLedOn(1);
+      if (getBatteryVoltage() >= 740) setFSLedOn(2);
+      if (getBatteryVoltage() >= 780) setFSLedOn(3);
+      if (getBatteryVoltage() >= 820) setFSLedOn(4);
+      if (getBatteryVoltage() >= 842) setFSLedOn(5);
 #elif defined(STATUS_LEDS)
       // Use Status LED to indicate battery charge level instead
       if (getBatteryVoltage() <= 660) ledRed();         // low discharge

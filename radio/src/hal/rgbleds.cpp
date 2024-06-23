@@ -19,34 +19,32 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
 #include "rgbleds.h"
-#include "definitions.h"
+
 #include "dataconstants.h"
+#include "definitions.h"
+#include "opentx.h"
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-void setFSLedOFF(uint8_t index) {
-  fsLedOff(index,g_model.functionSwitchLedOFFColor[index]);
+void setFSLedOff(uint8_t index)
+{
+  fsLedOff(index, g_model.functionSwitchLedOFFColor[index]);
 }
 
-void setFSLedON(uint8_t index) {
-  fsLedOn(index,g_model.functionSwitchLedONColor[index]);
+void setFSLedOn(uint8_t index)
+{
+  fsLedOn(index, g_model.functionSwitchLedONColor[index]);
 }
 
 extern uint8_t getFSLogicalState(uint8_t index);
-bool getFSLedState(uint8_t index) {
-  return getFSLogicalState(index); // TODO: read and compare colors
+bool getFSLedState(uint8_t index)
+{
+  return getFSLogicalState(index);  // TODO: read and compare colors
 }
 #else
-void setFSLedOFF(uint8_t index) {
-  fsLedOff(index);
-}
+void setFSLedOff(uint8_t index) { fsLedOff(index); }
 
-void setFSLedON(uint8_t index) {
-  fsLedOn(index);
-}
+void setFSLedOn(uint8_t index) { fsLedOn(index); }
 
-bool getFSLedState(uint8_t index) {
-  return fsLedState(index);
-}
+bool getFSLedState(uint8_t index) { return fsLedState(index); }
 #endif

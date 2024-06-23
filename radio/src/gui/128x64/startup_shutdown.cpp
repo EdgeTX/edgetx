@@ -53,9 +53,9 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
 
   for (uint8_t j = 0; j < steps; j++) {
     if (index2 > j) {
-      setFSLedON(j);
+      setFSLedOn(j);
 #if defined(RADIO_FAMILY_T20)
-      setFSLedON(j + steps);
+      setFSLedOn(j + steps);
 #endif
     }
   }
@@ -89,14 +89,14 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
       steps);
 
   for (uint8_t j = 0; j < steps; j++) {
-    setFSLedOFF(j);
+    setFSLedOff(j);
 #if defined(RADIO_FAMILY_T20)
-    setFSLedOFF(j + steps);
+    setFSLedOff(j + steps);
 #endif
     if (steps - index2 > j) {
-      setFSLedON(j);
+      setFSLedOn(j);
 #if defined(RADIO_FAMILY_T20)
-      setFSLedON(j + steps);
+      setFSLedOn(j + steps);
 #endif
     }
   }
