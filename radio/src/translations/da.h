@@ -293,7 +293,6 @@
 #define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
 #define TR_GROUP                       "Gruppe"
 #define TR_GROUP_ALWAYS_ON             "Altid til"
-#define TR_GROUPS                      "Altid til gruppe"
 #define TR_LAST                        "Sidste"
 #define TR_MORE_INFO                   "Mere info"
 #define TR_SWITCH_TYPE                 "Type"

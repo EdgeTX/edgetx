@@ -286,7 +286,6 @@
 #define TR_FS_ON_COLOR                 TR("ON:","ON Color")
 #define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"
 #define TR_SWITCH_TYPE                 "Type"

@@ -293,7 +293,6 @@ extern const char STR_FS_ON_COLOR[];
 extern const char STR_FS_OFF_COLOR[];
 extern const char* const STR_FS_COLOR_LIST[];
 extern const char STR_GROUP_ALWAYS_ON[];
-extern const char STR_GROUPS[];
 extern const char STR_LAST[];
 extern const char STR_MORE_INFO[];
 extern const char STR_SWITCH_TYPE[];
