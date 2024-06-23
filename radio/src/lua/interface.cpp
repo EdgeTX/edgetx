@@ -729,7 +729,9 @@ void displayLuaError(bool firstCall = false)
   }
 
 #if defined(COLORLCD)
-  StandaloneLuaWindow::instance()->showError(firstCall, title, lua_warning_info);
+  if (StandaloneLuaWindow::instance()) {
+    StandaloneLuaWindow::instance()->showError(firstCall, title, lua_warning_info);
+  }
 #else
   if (!luaLcdAllowed)
     return;
@@ -891,6 +893,9 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = SCRIPT_STANDALONE;
         if (luaLoad(filename, sid)) {
+#if defined(COLORLCD)
+          StandaloneLuaWindow::setup(true);
+#endif
           luaError(lsScripts, sid.state);
           continue;
         }
@@ -933,6 +938,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
               lua_getfield(lsScripts, -1, "useLvgl");
               sid.useLvgl = lua_toboolean(lsScripts, -1);
               lua_pop(lsScripts, 1);
+              StandaloneLuaWindow::setup(sid.useLvgl);
             }
 #endif
             if (sid.run == LUA_NOREF) {
@@ -956,6 +962,10 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           else {
             snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): The script did not return a table\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             sid.state = SCRIPT_SYNTAX_ERROR;
+#if defined(COLORLCD)
+            if (sid.reference == SCRIPT_STANDALONE)
+              StandaloneLuaWindow::setup(true);
+#endif
             initFunction = LUA_NOREF;
           }
          
@@ -967,9 +977,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
             lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, initFunction);
             if (ref == SCRIPT_STANDALONE) {
               luaLcdAllowed = true;
-#if defined(COLORLCD)
-              StandaloneLuaWindow::setup(sid.useLvgl);
-#endif
             }
           }
         }
