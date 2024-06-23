@@ -164,6 +164,8 @@ class StaticImage : public Window
   lv_obj_t *image = nullptr;
 };
 
+//-----------------------------------------------------------------------------
+
 class StaticBitmap : public Window
 {
  public:
@@ -183,6 +185,8 @@ class StaticBitmap : public Window
   BitmapBuffer *img = nullptr;
 };
 
+//-----------------------------------------------------------------------------
+
 class StaticLZ4Image : public Window
 {
  public:
@@ -197,4 +201,18 @@ class StaticLZ4Image : public Window
   uint8_t *imgData = nullptr;
 
   void deleteLater(bool detach, bool trash) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class QRCode : public Window
+{
+ public:
+  QRCode(Window *parent, coord_t x, coord_t y, coord_t sz, std::string data);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "QRCode"; }
+#endif
+
+ protected:
 };

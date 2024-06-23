@@ -248,6 +248,21 @@ class LvglWidgetImage : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
+class LvglWidgetQRCode : public LvglWidgetObject
+{
+ public:
+  LvglWidgetQRCode() : LvglWidgetObject() {}
+
+  void build(lua_State *L) override;
+
+ protected:
+  std::string data;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetMeterScale;
 
 class LvglWidgetMeter : public LvglWidgetRoundObject

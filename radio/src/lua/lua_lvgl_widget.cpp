@@ -581,6 +581,22 @@ void LvglWidgetImage::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetQRCode::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "data")) {
+    data = luaL_checkstring(L, -1);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetQRCode::build(lua_State *L)
+{
+  window = new QRCode(lvglManager->getCurrentParent(), x, y, w, data);
+}
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetScaleIndicator : public LvglWidgetObjectBase
 {
  public:
