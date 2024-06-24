@@ -46,6 +46,7 @@ class StickCalibrationWindow : public Window
   {
     new StaticLZ4Image(this, 0, 0, (LZ4Bitmap *)stick_background);
     calibStick = new StaticLZ4Image(this, 0, 0, (LZ4Bitmap *)stick_pointer);
+    checkEvents();
   }
 
   void checkEvents() override
@@ -103,10 +104,7 @@ void RadioCalibrationPage::buildBody(Window *window)
         3, 2);
   }
 
-  std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window));
-  deco->setTrimsVisible(false);
-  deco->setSlidersVisible(true);
-  deco->setFlightModeVisible(false);
+  std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window, false, true, false));
 
 #if defined(PCBNV14) || defined(PCBPL18)
   new TextButton(window, {LCD_W - 120, LCD_H - 140, 90, 40}, "Next",
