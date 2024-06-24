@@ -102,34 +102,10 @@ class BitmapBuffer
                       uint8_t pat = SOLID, LcdFlags flags = 0,
                       uint8_t opacity = 0);
 
-  void invertRect(coord_t x, coord_t y, coord_t w, coord_t h,
-                  LcdFlags flags = 0);
-
-  void drawFilledTriangle(coord_t x1, coord_t y1, coord_t x2, coord_t y2,
-                          coord_t x3, coord_t y3, LcdFlags flags = 0,
-                          uint8_t opacity = 0);
-
-  void drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags = 0, coord_t thickness = 1);
-
-  void drawFilledCircle(coord_t x, coord_t y, coord_t radius,
-                        LcdFlags flags = 0);
-
-  void drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadius,
-                         coord_t externalRadius, int startAngle, int endAngle,
-                         LcdFlags flags = 0);
-
-  void drawBitmapPatternPie(coord_t x0, coord_t y0, const MaskBitmap* img,
-                            LcdFlags flags, int startAngle, int endAngle);
-
   static BitmapBuffer* loadBitmap(const char* filename,
                                   BitmapFormats fmt = BMP_INVALID);
 
   void resizeToLVGL(coord_t w, coord_t h);
-
-  MaskBitmap* to8bitMask(size_t* size) const;
-
-  void drawBitmapPattern(coord_t x, coord_t y, const MaskBitmap* bmp,
-                         LcdFlags flags, coord_t offset = 0, coord_t width = 0);
 
   coord_t drawSizedText(coord_t x, coord_t y, const char* s, uint8_t len,
                         LcdFlags flags = 0);
@@ -140,50 +116,60 @@ class BitmapBuffer
     return drawSizedText(x, y, s, strlen(s), flags);
   }
 
-  coord_t drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags = 0,
-                     uint8_t len = 0, const char* prefix = nullptr,
-                     const char* suffix = nullptr);
-
   void drawBitmap(coord_t x, coord_t y, const BitmapBuffer* bmp,
                   coord_t srcx = 0, coord_t srcy = 0, coord_t srcw = 0,
                   coord_t srch = 0, float scale = 0);
 
-  void drawScaledBitmap(const BitmapBuffer* bitmap, coord_t x, coord_t y,
-                        coord_t w, coord_t h);
-
-  void drawTextLines(coord_t left, coord_t top, coord_t width, coord_t height,
-                     const char* str, LcdFlags flags);
-
-  void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags flags = 0);
-
-  coord_t drawSwitch(coord_t x, coord_t y, int32_t idx, LcdFlags flags = 0);
-
-  void drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags flags = 0);
-
-  void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor,
-                             int32_t value, LcdFlags flags = 0);
-
   void clearClippingRect();
-
-  void setClippingRect(coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax);
-
-  void getClippingRect(coord_t& xmin, coord_t& xmax, coord_t& ymin,
-                       coord_t& ymax);
 
   inline void reset()
   {
     clearClippingRect();
   }
 
-  inline uint8_t getFormat() const { return format; }
-
   inline uint16_t width() const { return _width; }
-
   inline uint16_t height() const { return _height; }
 
   inline pixel_t* getData() const { return data; }
 
   uint32_t getDataSize() const { return _width * _height * sizeof(pixel_t); }
+
+  // Lua API functions
+  void setClippingRect(coord_t xmin, coord_t xmax, coord_t ymin, coord_t ymax);
+  void getClippingRect(coord_t& xmin, coord_t& xmax, coord_t& ymin,
+                       coord_t& ymax);
+
+  uint8_t* to8bitMask(size_t* size) const;
+
+  void invertRect(coord_t x, coord_t y, coord_t w, coord_t h,
+                  LcdFlags flags = 0);
+
+  void drawFilledTriangle(coord_t x1, coord_t y1, coord_t x2, coord_t y2,
+                          coord_t x3, coord_t y3, LcdFlags flags = 0,
+                          uint8_t opacity = 0);
+  void drawCircle(coord_t x, coord_t y, coord_t radius, LcdFlags flags = 0, coord_t thickness = 1);
+  void drawFilledCircle(coord_t x, coord_t y, coord_t radius,
+                        LcdFlags flags = 0);
+  void drawAnnulusSector(coord_t x, coord_t y, coord_t internalRadius,
+                         coord_t externalRadius, int startAngle, int endAngle,
+                         LcdFlags flags = 0);
+
+  void drawBitmapPatternPie(coord_t x0, coord_t y0, const MaskBitmap* img,
+                            LcdFlags flags, int startAngle, int endAngle);
+  void drawBitmapPattern(coord_t x, coord_t y, const MaskBitmap* bmp,
+                         LcdFlags flags, coord_t offset = 0, coord_t width = 0);
+  void drawScaledBitmap(const BitmapBuffer* bitmap, coord_t x, coord_t y,
+                        coord_t w, coord_t h);
+  coord_t drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags = 0,
+                     uint8_t len = 0, const char* prefix = nullptr,
+                     const char* suffix = nullptr);
+  void drawTextLines(coord_t left, coord_t top, coord_t width, coord_t height,
+                     const char* str, LcdFlags flags);
+  void drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags flags = 0);
+  void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags flags = 0);
+  coord_t drawSwitch(coord_t x, coord_t y, int32_t idx, LcdFlags flags = 0);
+  void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor,
+                             int32_t value, LcdFlags flags = 0);
 
  protected:
   void drawValueWithUnit(coord_t x, coord_t y, int val, uint8_t unit,
@@ -198,37 +184,8 @@ class BitmapBuffer
   void drawDate(coord_t x, coord_t y, TelemetryItem& telemetryItem,
                 LcdFlags att);
 
-  inline bool applyClippingRect(coord_t& x, coord_t& y, coord_t& w,
-                                coord_t& h) const
-  {
-    if (h < 0) {
-      y += h;
-      h = -h;
-    }
-
-    if (w < 0) {
-      x += w;
-      w = -w;
-    }
-
-    if (x >= xmax || y >= ymax) return false;
-
-    if (y < ymin) {
-      h += y - ymin;
-      y = ymin;
-    }
-
-    if (x < xmin) {
-      w += x - xmin;
-      x = xmin;
-    }
-
-    if (y + h > ymax) h = ymax - y;
-
-    if (x + w > xmax) w = xmax - x;
-
-    return data && h > 0 && w > 0;
-  }
+  bool applyClippingRect(coord_t& x, coord_t& y, coord_t& w,
+                         coord_t& h) const;
 
   inline void drawPixel(pixel_t* p, pixel_t value)
   {

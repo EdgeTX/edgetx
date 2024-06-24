@@ -119,6 +119,38 @@ void BitmapBuffer::getClippingRect(coord_t &xmin, coord_t &xmax, coord_t &ymin,
   ymax = this->ymax;
 }
 
+bool BitmapBuffer::applyClippingRect(coord_t& x, coord_t& y, coord_t& w,
+                                     coord_t& h) const
+{
+  if (h < 0) {
+    y += h;
+    h = -h;
+  }
+
+  if (w < 0) {
+    x += w;
+    w = -w;
+  }
+
+  if (x >= xmax || y >= ymax) return false;
+
+  if (y < ymin) {
+    h += y - ymin;
+    y = ymin;
+  }
+
+  if (x < xmin) {
+    w += x - xmin;
+    x = xmin;
+  }
+
+  if (y + h > ymax) h = ymax - y;
+
+  if (x + w > xmax) w = xmax - x;
+
+  return data && h > 0 && w > 0;
+}
+
 void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
                               coord_t srcx, coord_t srcy, coord_t srcw,
                               coord_t srch, float scale)
@@ -175,7 +207,7 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
   }
 
   if (scale == 0) {
-    if (bmp->getFormat() == BMP_ARGB4444) {
+    if (bmp->format == BMP_ARGB4444) {
       DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), bmpw,
                          bmph, srcx, srcy, srcw, srch);
     } else {
@@ -204,11 +236,11 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
           const pixel_t *q = qstart;
           MOVE_PIXEL_RIGHT(q, int(j / scale));
 
-          if (bmp->getFormat() == BMP_RGB565) {
+          if (bmp->format == BMP_RGB565) {
             RGB_SPLIT(*q, r, g, b);
             drawPixel(p, ARGB_JOIN(0xF, r >> 1, g >> 2, b >> 1));
 
-          } else {  // bmp->getFormat() == BMP_ARGB4444
+          } else {  // bmp->format == BMP_ARGB4444
             drawPixel(p, *q);
           }
           MOVE_TO_NEXT_RIGHT_PIXEL(p);
@@ -225,9 +257,9 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
           const pixel_t *q = qstart;
           MOVE_PIXEL_RIGHT(q, int(j / scale));
 
-          if (bmp->getFormat() == BMP_RGB565) {
+          if (bmp->format == BMP_RGB565) {
             drawPixel(p, *q);
-          } else {  // bmp->getFormat() == BMP_ARGB4444
+          } else {  // bmp->format == BMP_ARGB4444
             ARGB_SPLIT(*q, a, r, g, b);
             drawAlphaPixel(p, a, RGB_JOIN(r << 1, g << 2, b << 1));
           }
