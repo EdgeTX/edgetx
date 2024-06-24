@@ -50,8 +50,6 @@ static lv_disp_drv_t disp_drv;
 static lv_disp_t disp;
 #endif
 
-static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
-
 // Call backs
 static void (*lcd_wait_cb)(lv_disp_drv_t*) = nullptr;
 static void (*lcd_flush_cb)(lv_disp_drv_t*, uint16_t* buffer,
@@ -222,8 +220,11 @@ void lcdInitDisplayDriver()
   lcdFront->setDrawCtx(draw_ctx);
 }
 
+#if defined(BOOT)
 void lcdInitDirectDrawing()
 {
+  static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
+
   lv_draw_ctx_t* draw_ctx = disp_drv.draw_ctx;
   draw_ctx->buf = disp_drv.draw_buf->buf_act;
   draw_ctx->buf_area = &screen_area;
@@ -285,6 +286,7 @@ void lcdRefresh()
   lv_disp_t* d = _lv_refr_get_disp_refreshing();
   _draw_buf_flush(d);
 }
+#endif
 
 void lcdClear() { lcd->clear(); }
 

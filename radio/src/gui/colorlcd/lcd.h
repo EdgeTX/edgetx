@@ -45,10 +45,13 @@ void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&));
 // Init LVGL and its display driver
 void lcdInitDisplayDriver();
 
+void lcdClear();
+
+#if defined(BOOT)
 // Patch the draw context to allow for direct drawing
 void lcdInitDirectDrawing();
 
-void lcdClear();
-
 void lcdRefresh();
+#endif
+
 void lcdFlushed();
