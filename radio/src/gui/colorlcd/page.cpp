@@ -52,7 +52,7 @@ PageHeader::PageHeader(Window* parent, const char* iconFile) :
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
                           LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::PAGE_LINE_HEIGHT},
-                         "", COLOR_THEME_PRIMARY2);
+                         "", COLOR_THEME_PRIMARY2_INDEX);
 }
 
 StaticText* PageHeader::setTitle2(std::string txt)

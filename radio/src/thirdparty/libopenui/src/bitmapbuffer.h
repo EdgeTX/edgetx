@@ -139,7 +139,7 @@ class BitmapBuffer
   void getClippingRect(coord_t& xmin, coord_t& xmax, coord_t& ymin,
                        coord_t& ymax);
 
-  uint8_t* to8bitMask(size_t* size) const;
+  MaskBitmap* to8bitMask(size_t* size) const;
 
   void invertRect(coord_t x, coord_t y, coord_t w, coord_t h,
                   LcdFlags flags = 0);

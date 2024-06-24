@@ -717,7 +717,7 @@ MaskBitmap *BitmapBuffer::to8bitMask(size_t *size) const
 
   const pixel_t *p = getPixelPtrAbs(0, 0);
   int ofs = 0;
-  if (getFormat() == BMP_ARGB4444) {
+  if (format == BMP_ARGB4444) {
     for (int i = width() * height(); i > 0; i--) {
       ARGB_SPLIT(*p, a __attribute__((unused)), r, g, b);
       int v = (r + g + b) / 3;

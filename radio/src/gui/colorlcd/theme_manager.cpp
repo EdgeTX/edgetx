@@ -545,9 +545,9 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :
 }
 
 HeaderIcon::HeaderIcon(Window* parent, const char* iconFile) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS)
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
 {
-  (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2))->center(width(), height());
+  (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
 }
 
 UsbSDConnected::UsbSDConnected() :
