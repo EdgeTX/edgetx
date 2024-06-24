@@ -39,6 +39,7 @@ class MainViewTrim : public Window
   bool isVertical;
   bool showChange = false;
   int trimMin = 0, trimMax = 0;
+  bool extendedTrims = false;
   bool hidden = false;
   TrimIcon* trimIcon = nullptr;
   DynamicNumber<int16_t>* trimValue = nullptr;

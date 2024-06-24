@@ -67,8 +67,10 @@ SliderIcon::SliderIcon(Window* parent) :
 
 MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
                                bool isVertical) :
-    Window(parent, rect), idx(idx), isVertical(isVertical)
+    Window(parent, rect), isVertical(isVertical)
 {
+  potIdx = adcGetInputOffset(ADC_INPUT_FLEX) + idx;
+
   if (isVertical) {
     int sliderTicksCount = (height() - LayoutFactory::TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
     tickPoints = new lv_point_t[(sliderTicksCount + 1) * 2];
@@ -108,14 +110,8 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
   }
 
   sliderIcon = new SliderIcon(this);
-  coord_t x = 0, y = 0;
-  if (isVertical)
-    y = (height() - LayoutFactory::TRIM_SQUARE_SIZE) / 2;
-  else
-    y = (width() - LayoutFactory::TRIM_SQUARE_SIZE) / 2;
-  lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
 
-  checkEvents();
+  setPos();
 }
 
 void MainViewSlider::deleteLater(bool detach, bool trash)
@@ -126,24 +122,27 @@ void MainViewSlider::deleteLater(bool detach, bool trash)
   }
 }
 
+void MainViewSlider::setPos()
+{
+  coord_t x = 0, y = 0;
+  if (isVertical) {
+    y = divRoundClosest((height() - LayoutFactory::TRIM_SQUARE_SIZE) * (-value + RESX),
+                        2 * RESX);
+  } else {
+    x = divRoundClosest((width() - LayoutFactory::TRIM_SQUARE_SIZE) * (value + RESX),
+                        2 * RESX);
+  }
+  lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
+}
+
 void MainViewSlider::checkEvents()
 {
   Window::checkEvents();
 
-  auto pot_idx = adcGetInputOffset(ADC_INPUT_FLEX) + idx;
-  int16_t newValue = calibratedAnalogs[pot_idx];
+  int16_t newValue = calibratedAnalogs[potIdx];
   if (value != newValue) {
     value = newValue;
-
-    coord_t x = 0, y = 0;
-    if (isVertical) {
-      y = divRoundClosest((height() - LayoutFactory::TRIM_SQUARE_SIZE) * (-value + RESX),
-                          2 * RESX);
-    } else {
-      x = divRoundClosest((width() - LayoutFactory::TRIM_SQUARE_SIZE) * (value + RESX),
-                          2 * RESX);
-    }
-    lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
+    setPos();
   }
 }
 

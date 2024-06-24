@@ -37,7 +37,6 @@ class MainViewSlider : public Window
  public:
   MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
                  bool isVertical);
-  void checkEvents() override;
 
   static LAYOUT_VAL(SLIDER_TICKS_COUNT, 40, 30)
   static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4)
@@ -49,11 +48,15 @@ class MainViewSlider : public Window
   static LAYOUT_VAL(SL_SZ, 15, 15)
 
  protected:
-  uint8_t idx;
-  int16_t value = -10000;
+  uint8_t potIdx;
+  int16_t value = 0;
   bool isVertical;
   SliderIcon* sliderIcon = nullptr;
   lv_point_t* tickPoints = nullptr;
+
+  void setPos();
+
+  void checkEvents() override;
 
   void deleteLater(bool detach = true, bool trash = true) override;
 };
