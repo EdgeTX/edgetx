@@ -33,15 +33,16 @@ function make_font() {
   local name=$1
   local ttf=$2
   local size=$3
-  local chars=$4
-  local arg=$5
+  local sfx=$4
+  local chars=$5
+  local arg=$6
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --font ${ARROWS_FONT} -r ${ARROWS} \
                --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
-               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
+               --format lvgl -o lv_font_${name}_${sfx}.c --force-fast-kern-format ${arg}
 }
 
 function compress_font() {
@@ -55,8 +56,9 @@ function make_font_lz4() {
   local name=$1
   local ttf=$2
   local size=$3
-  local chars=$4
-  local arg=$5
+  local sfx=$4
+  local chars=$5
+  local arg=$6
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
@@ -64,34 +66,36 @@ function make_font_lz4() {
                --font ${ARROWS_FONT} -r ${ARROWS} \
                --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
                --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
-  compress_font lv_font_${name}_${size}
+  compress_font lv_font_${name}_${sfx}
 }
 
 function make_font_w_extra_sym() {
   local name=$1
   local ttf=$2
   local size=$3
-  local chars=$4
-  local arg=$5
+  local sfx=$4
+  local chars=$5
+  local arg=$6
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
-  compress_font lv_font_${name}_${size}
+  compress_font lv_font_${name}_${sfx}
 }
 
 function make_font_no_sym() {
   local name=$1
   local ttf=$2
   local size=$3
-  local chars=$4
-  local arg=$5
+  local sfx=$4
+  local chars=$5
+  local arg=$6
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
                --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
-  compress_font lv_font_${name}_${size}
+  compress_font lv_font_${name}_${sfx}
 }
 
 # LV_SYMBOL_CHARGE, LV_SYMBOL_NEW_LINE, LV_SYMBOL_SD_CARD, LV_SYMBOL_CLOSE
@@ -114,13 +118,22 @@ function make_font_set() {
   local ttf_bold=$3
   local chars=$4
 
-  make_font_lz4 "${name}" "${ttf_normal}" 9 ${chars} --no-compress
-  make_font_lz4 "${name}" "${ttf_normal}" 13 ${chars} --no-compress
-  make_font "${name}" "${ttf_normal}" 16 ${chars} --no-compress
-  make_font_lz4 "${name}_bold" "${ttf_bold}" 16 ${chars} --no-compress
-  make_font_w_extra_sym "${name}" "${ttf_normal}" 24 ${chars} --no-compress
-  make_font_no_sym "${name}_bold" "${ttf_bold}" 32 ${chars} --no-compress
-  make_font_no_sym "${name}_bold" "${ttf_bold}" 64 "" --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 9 "XXS" ${chars} --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 13 "XS" ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 16 "STD" ${chars} --no-compress
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 16 "STD" ${chars} --no-compress
+  make_font_w_extra_sym "${name}" "${ttf_normal}" 24 "L" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 32 "XL" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 64 "XXL" "" --no-compress
+
+  # 320x240 LCD fonts
+  make_font_lz4 "${name}" "${ttf_normal}" 8 "XXS_s" ${chars} --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 9 "XS_s" ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 11 "STD_s" ${chars} --no-compress
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 11 "STD_s" ${chars} --no-compress
+  make_font_w_extra_sym "${name}" "${ttf_normal}" 15 "L_s" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 20 "XL_s" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 40 "XXL_s" "" --no-compress
 }
 
 # Regular fonts

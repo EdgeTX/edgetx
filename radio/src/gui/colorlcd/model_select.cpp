@@ -41,11 +41,11 @@ struct ModelButtonLayout {
   uint16_t columns;
 };
 
-static LAYOUT_VAL(L0_W, 165, 147)
-static LAYOUT_VAL(L0_H, 92, 92)
-static LAYOUT_VAL(L1_W, 108, 96)
-static LAYOUT_VAL(L1_H, 61, 61)
-static LAYOUT_VAL(L3_W, 336, 300)
+static LAYOUT_VAL(L0_W, 165, 147, LS(165))
+static LAYOUT_VAL(L0_H, 92, 92, LS(92))
+static LAYOUT_VAL(L1_W, 108, 96, LS(108))
+static LAYOUT_VAL(L1_H, 61, 61, LS(61))
+static LAYOUT_VAL(L3_W, 336, 300, LS(336))
 
 ModelButtonLayout modelLayouts[] = {
     {L0_W, L0_H, true, FONT(STD), 2},

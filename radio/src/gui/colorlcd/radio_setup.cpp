@@ -74,9 +74,9 @@ class DateTimeWindow : public Window
 
   // Absolute layout for date/time setion due to slow performance
   // of lv_textarea in a flex layout.
-  static LAYOUT_VAL(DT_EDT_W, 80, 52)
-  static LAYOUT_VAL(DT_Y1, PAD_TINY, PAD_TINY)
-  static LAYOUT_VAL(DT_Y2, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM)
+  static LAYOUT_VAL(DT_EDT_W, 80, 52, LS(80))
+  static LAYOUT_VAL(DT_Y1, PAD_TINY_GAP, PAD_TINY_GAP, PAD_TINY_GAP)
+  static LAYOUT_VAL(DT_Y2, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM)
 
  protected:
   bool init = false;
@@ -121,7 +121,7 @@ class DateTimeWindow : public Window
     m_last_tm = m_tm;
 
     // Date
-    new StaticText(this, rect_t{PAD_TINY, DT_Y1 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_DATE);
+    new StaticText(this, rect_t{PAD_TINY_GAP, DT_Y1 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY_GAP - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_DATE);
     year = new NumberEdit(
         this, rect_t{SubPage::EDT_X, DT_Y1, DT_EDT_W, 0}, 2023, 2037,
         [=]() -> int32_t { return TM_YEAR_BASE + m_tm.tm_year; },
@@ -132,7 +132,7 @@ class DateTimeWindow : public Window
         });
 
     month = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y1, DT_EDT_W, 0}, 1, 12,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY_GAP, DT_Y1, DT_EDT_W, 0}, 1, 12,
         [=]() -> int32_t { return 1 + m_tm.tm_mon; },
         [=](int32_t newValue) {
           m_last_tm.tm_mon = m_tm.tm_mon = newValue - 1;
@@ -153,7 +153,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     // Time
-    new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_TIME);
+    new StaticText(this, rect_t{PAD_TINY_GAP, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY_GAP - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_TIME);
     hour = new NumberEdit(
         this, rect_t{SubPage::EDT_X, DT_Y2, DT_EDT_W, 0}, 0, 23,
         [=]() -> int32_t { return m_tm.tm_hour; },
@@ -165,7 +165,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     minutes = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y2, DT_EDT_W, 0}, 0, 59,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY_GAP, DT_Y2, DT_EDT_W, 0}, 0, 59,
         [=]() -> int32_t { return m_tm.tm_min; },
         [=](int32_t newValue) {
           m_last_tm.tm_min = m_tm.tm_min = newValue;

@@ -33,6 +33,16 @@
  *      Layout
  *********************/
 
+#if LANDSCAPE_LCD_SMALL
+enum PaddingSize {
+  PAD_ZERO = 0,
+  PAD_TINY = 1,
+  PAD_TINY_GAP = 2,
+  PAD_SMALL = 3,
+  PAD_MEDIUM = 4,
+  PAD_LARGE = 6
+};
+#else
 enum PaddingSize {
   PAD_ZERO = 0,
   PAD_TINY = 2,
@@ -41,15 +51,21 @@ enum PaddingSize {
   PAD_MEDIUM = 6,
   PAD_LARGE = 8
 };
+#endif
 
 // Macros for setting up layout values
-//  LAYOUT_VAL - 2 values - landscape, portrait
+//  LS - scaling factor to convert 480 wide landscape to 320 wide landscape
+//  LAYOUT_VAL - 3 values - landscape, portrait, landscape small
 
+#define LS(val) ((val * 4 + 3) / 6)
 #if LANDSCAPE_LCD
-#define LAYOUT_VAL(name, landscape, portrait) \
+#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
   constexpr coord_t name = landscape;
+#elif LANDSCAPE_LCD_SMALL
+#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
+  constexpr coord_t name = landscape_small;
 #else
-#define LAYOUT_VAL(name, landscape, portrait) \
+#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
   constexpr coord_t name = portrait;
 #endif
 
@@ -150,6 +166,9 @@ class EdgeTxStyles
   // Static styles
   static const lv_style_t pad_zero;
   static const lv_style_t pad_tiny;
+#if LANDSCAPE_LCD_SMALL
+  static const lv_style_t pad_tiny_gap;
+#endif
   static const lv_style_t pad_small;
   static const lv_style_t pad_medium;
   static const lv_style_t pad_large;
@@ -182,9 +201,9 @@ class EdgeTxStyles
   void init();
   void applyColors();
 
-  static LAYOUT_VAL(PAGE_LINE_HEIGHT, 20, 20)
-  static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32)
-  static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45)
+  static LAYOUT_VAL(PAGE_LINE_HEIGHT, 20, 20, LS(20))
+  static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32, 24)
+  static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45, LS(45))
 
  protected:
   bool initDone = false;
