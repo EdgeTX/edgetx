@@ -90,7 +90,8 @@ std::string Choice::getLabelText()
 
 void ChoiceBase::update()
 {
-  lv_label_set_text(label, getLabelText().c_str());
+  if (!deleted())
+    lv_label_set_text(label, getLabelText().c_str());
 }
 
 Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,

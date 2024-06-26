@@ -517,7 +517,13 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       new StaticText(line, rect_t{}, STR_MODE);
       auto modechoice = new Choice(line, rect_t{}, FUNC_ADJUST_GVAR_CONSTANT,
                                    FUNC_ADJUST_GVAR_INCDEC,
-                                   GET_DEFAULT(CFN_GVAR_MODE(cfn)), nullptr);
+                                   GET_DEFAULT(CFN_GVAR_MODE(cfn)),
+                                   [=](int32_t newValue) {
+                                     CFN_GVAR_MODE(cfn) = newValue;
+                                     CFN_PARAM(cfn) = 0;
+                                     SET_DIRTY();
+                                     updateSpecialFunctionOneWindow();
+                                   });
       line = specialFunctionOneWindow->newLine(grid);
 
       modechoice->setTextHandler([](int32_t value) {
@@ -532,13 +538,6 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
             return std::string(STR_INCDEC);
         }
         return std::string("---");
-      });
-
-      modechoice->setSetValueHandler([=](int32_t newValue) {
-        CFN_GVAR_MODE(cfn) = newValue;
-        CFN_PARAM(cfn) = 0;
-        SET_DIRTY();
-        updateSpecialFunctionOneWindow();
       });
 
       switch (CFN_GVAR_MODE(cfn)) {
