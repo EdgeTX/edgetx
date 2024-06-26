@@ -22,6 +22,7 @@
 #include "curve_param.h"
 
 #include "gvar_numberedit.h"
+#include "source_numberedit.h"
 #include "model_curves.h"
 #include "opentx.h"
 
@@ -92,7 +93,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
-  auto gv = new GVarNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue);
+  auto gv = new SourceNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue);
   gv->setSuffix("%");
   value_edit = gv;
 

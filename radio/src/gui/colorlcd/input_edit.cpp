@@ -24,6 +24,7 @@
 #include "curve_param.h"
 #include "curveedit.h"
 #include "gvar_numberedit.h"
+#include "source_numberedit.h"
 #include "input_edit_adv.h"
 #include "input_source.h"
 #include "opentx.h"
@@ -106,23 +107,23 @@ void InputEditWindow::buildBody(Window* form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto gvar =
-      new GVarNumberEdit(line, -100, 100, GET_DEFAULT(input->weight),
-                         [=](int32_t newValue) {
-                           input->weight = newValue;
-                           preview->update();
-                           SET_DIRTY();
-                         });
+      new SourceNumberEdit(line, -100, 100, GET_DEFAULT(input->weight),
+                           [=](int32_t newValue) {
+                             input->weight = newValue;
+                             preview->update();
+                             SET_DIRTY();
+                           });
   gvar->setSuffix("%");
 
   // Offset
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_OFFSET);
-  gvar = new GVarNumberEdit(line, -100, 100,
-                            GET_DEFAULT(input->offset), [=](int32_t newValue) {
-                              input->offset = newValue;
-                              preview->update();
-                              SET_DIRTY();
-                            });
+  gvar = new SourceNumberEdit(line, -100, 100,
+                              GET_DEFAULT(input->offset), [=](int32_t newValue) {
+                                input->offset = newValue;
+                                preview->update();
+                                SET_DIRTY();
+                              });
   gvar->setSuffix("%");
 
   // Switch
@@ -163,4 +164,45 @@ void InputEditWindow::deleteLater(bool detach, bool trash)
     CurveEdit::SetCurrentSource(0);
     Page::deleteLater(detach, trash);
   }
+}
+
+void InputEditWindow::checkEvents()
+{
+  ExpoData* input = expoAddress(index);
+
+  bool updatePreview = false;
+  getvalue_t val;
+  SourceNumVal v;
+
+  v.rawValue = input->weight;
+  if (v.isSource) {
+    val = getValue(v.value);
+    if (val != lastWeightVal) {
+      lastWeightVal = val;
+      updatePreview = true;
+    }
+  }
+
+  v.rawValue = input->offset;
+  if (v.isSource) {
+    val = getValue(v.value);
+    if (val != lastOffsetVal) {
+      lastOffsetVal = val;
+      updatePreview = true;
+    }
+  }
+
+  v.rawValue = input->curve.value;
+  if (v.isSource) {
+    val = getValue(v.value);
+    if (val != lastCurveVal) {
+      lastCurveVal = val;
+      updatePreview = true;
+    }
+  }
+
+  if (updatePreview)
+    preview->update();
+
+  Page::checkEvents();
 }

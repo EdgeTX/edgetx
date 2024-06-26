@@ -419,21 +419,22 @@ static const struct YamlNode struct_TimerData[] = {
   YAML_END
 };
 static const struct YamlNode struct_CurveRef[] = {
-  YAML_UNSIGNED( "type", 8 ),
-  YAML_SIGNED_CUST( "value", 8, in_read_weight, in_write_weight ),
+  YAML_UNSIGNED( "type", 5 ),
+  YAML_SIGNED_CUST( "value", 11, in_read_sourcenumval, in_write_sourcenumval ),
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
-  YAML_SIGNED_CUST( "weight", 11, in_read_weight, in_write_weight ),
+  YAML_SIGNED_CUST( "weight", 11, in_read_sourcenumval, in_write_sourcenumval ),
   YAML_UNSIGNED( "destCh", 5 ),
   YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_UNSIGNED( "carryTrim", 1 ),
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
   YAML_UNSIGNED( "speedPrec", 1 ),
-  YAML_SIGNED_CUST( "offset", 13, in_read_weight, in_write_weight ),
+  YAML_SIGNED_CUST( "offset", 11, in_read_sourcenumval, in_write_sourcenumval ),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
+  YAML_UNSIGNED( "spare", 2 ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_UNSIGNED( "delayUp", 8 ),
   YAML_UNSIGNED( "delayDown", 8 ),
@@ -461,13 +462,14 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_CUSTOM("carryTrim",r_carryTrim,nullptr),
   YAML_SIGNED( "trimSource", 6 ),
   YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_UNSIGNED( "chn", 5 ),
+  YAML_SIGNED_CUST( "weight", 11, in_read_sourcenumval, in_write_sourcenumval ),
+  YAML_SIGNED_CUST( "offset", 11, in_read_sourcenumval, in_write_sourcenumval ),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
-  YAML_SIGNED_CUST( "weight", 8, in_read_weight, in_write_weight ),
-  YAML_STRING("name", 6),
-  YAML_SIGNED_CUST( "offset", 8, in_read_weight, in_write_weight ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
+  YAML_UNSIGNED( "chn", 5 ),
+  YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
+  YAML_UNSIGNED( "spare", 2 ),
+  YAML_STRING("name", 6),
   YAML_END
 };
 static const struct YamlNode struct_CurveHeader[] = {
@@ -833,7 +835,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
   YAML_ARRAY("limitData", 104, 32, struct_LimitData, NULL),
-  YAML_ARRAY("expoData", 136, 64, struct_ExpoData, NULL),
+  YAML_ARRAY("expoData", 144, 64, struct_ExpoData, NULL),
   YAML_ARRAY("curves", 32, 32, struct_CurveHeader, NULL),
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),

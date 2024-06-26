@@ -153,7 +153,8 @@ void Choice::setValue(int val)
 
 void Choice::onClicked()
 {
-  openMenu();
+  if (!deleted())
+    openMenu();
 }
 
 void Choice::fillMenu(Menu* menu, const FilterFct& filter)

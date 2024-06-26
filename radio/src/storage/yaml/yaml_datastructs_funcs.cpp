@@ -463,6 +463,40 @@ static bool w_mixSrcRawEx(const YamlNode* node, uint32_t val, yaml_writer_func w
   return wf(opaque, "\"", 1);
 }
 
+static uint32_t in_read_sourcenumval(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  SourceNumVal v;
+
+  if (((val[0] == '-') && (val[1] >= '0' && val[1] <= '9')) || (val[0] >= '0' && val[0] <= '9')) {
+    v.isSource = 0;
+    v.value = (uint32_t)yaml_str2int(val, val_len);
+  } else if ((val[0] == '-') && (val[1] == 'G')) {
+    v.isSource = 1;
+    v.value = -((val[3] - '0') + MIXSRC_FIRST_GVAR - 1);
+  } else if (val[0] == 'G') {
+    v.isSource = 1;
+    v.value = (val[2] - '0') + MIXSRC_FIRST_GVAR - 1;
+  } else {
+    v.isSource = 1;
+    v.value = r_mixSrcRawEx(node, val, val_len);
+  }
+
+  return v.rawValue;
+}
+
+bool in_write_sourcenumval(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                     void* opaque)
+{
+  SourceNumVal v;
+  v.rawValue = val;
+
+  if (v.isSource)
+    return w_mixSrcRawEx(node, v.value, wf, opaque);
+
+  char* s = yaml_signed2str(v.value);
+  return wf(opaque, s, strlen(s));
+}
+
 static void r_rssiDisabled(void* user, uint8_t* data, uint32_t bitoffs,
                            const char* val, uint8_t val_len)
 {
