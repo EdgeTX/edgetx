@@ -98,6 +98,9 @@ char *getGVarString(int idx);
 char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
                            gvar_t vmax, LcdFlags flags = 0,
                            const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
+char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
+                             gvar_t vmax, LcdFlags flags = 0,
+                             const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
 const char *getSwitchWarnSymbol(uint8_t pos);
 const char *getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, swsrc_t idx);

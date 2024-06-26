@@ -129,29 +129,29 @@ class InputLineButton : public InputMixButtonBase
       }
     }
 
-    if (line.swtch || line.curve.value) {
-      if (line.swtch) {
-        char* sw_pos = getSwitchPositionName(line.swtch);
-        int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
-        if ((size_t)cnt >= maxlen)
-          maxlen = 0;
-        else {
-          maxlen -= cnt;
-          s += cnt;
-        }
-      }
-      if (line.curve.value != 0) {
-        getCurveRefString(s, maxlen, line.curve);
-        int cnt = strnlen(s, maxlen);
-        if ((size_t)cnt >= maxlen)
-          maxlen = 0;
-        else {
-          maxlen -= cnt;
-          s += cnt;
-        }
+    if (line.swtch) {
+      char* sw_pos = getSwitchPositionName(line.swtch);
+      int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
+      if ((size_t)cnt >= maxlen)
+        maxlen = 0;
+      else {
+        maxlen -= cnt;
+        s += cnt;
       }
     }
-    lv_label_set_text_fmt(opts, "%.*s", (int)sizeof(tmp_str), tmp_str);
+
+    if (line.curve.value != 0) {
+      getCurveRefString(s, maxlen, line.curve);
+      int cnt = strnlen(s, maxlen);
+      if ((size_t)cnt >= maxlen)
+        maxlen = 0;
+      else {
+        maxlen -= cnt;
+        s += cnt;
+      }
+    }
+
+    setOpts(s);
 
     setFlightModes(line.flightModes);
   }
