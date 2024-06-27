@@ -72,7 +72,9 @@ PACK(union SourceNumVal {
 
 inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
 {
-  SourceNumVal v = { .value = val, .isSource= isSource };
+  SourceNumVal v;
+  v.value = val;
+  v.isSource= isSource;
   return v.rawValue;
 }
 
