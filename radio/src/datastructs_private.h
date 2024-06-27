@@ -70,6 +70,12 @@ PACK(union SourceNumVal {
   uint16_t rawValue:11;
 });
 
+inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
+{
+  SourceNumVal v = { .value = val, .isSource= isSource };
+  return v.rawValue;
+}
+
 /*
  * Mixer structure
  */

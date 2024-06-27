@@ -56,19 +56,20 @@ int16_t cyc_anas[3] = {0};
 // TOOD: find better home for this.
 int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
 {
+  int32_t result;
   SourceNumVal v; v.rawValue = val;
   if (v.isSource) {
-    val = getValue(v.value);
+    result = getValue(v.value);
     if (v.value >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
       // Mimic behviour of GET_GVAR_PREC1
-      val = val * 10;
+      result = result * 10;
     } else {
-      val = calcRESXto1000(val);
+      result = calcRESXto1000(val);
     }
   } else {
-    val = v.value * 10;
+    result = v.value * 10;
   }
-  return limit<int>(min * 10, val, max * 10);
+  return limit<int>(min * 10, result, max * 10);
 }
 
 // #define EXTENDED_EXPO
