@@ -2630,6 +2630,16 @@
 
 // Serial Port
 #if (defined(PCBX7) && !defined(AUX_SERIAL)) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019)
+#elif defined(RADIO_GX12)
+  #define HARDWARE_TRAINER_AUX_SERIAL
+  #define AUX_SERIAL_GPIO                   GPIOD
+  #define AUX_SERIAL_TX_GPIO                GPIO_PIN(GPIOD, 8) // PD.08
+  #define AUX_SERIAL_RX_GPIO                GPIO_PIN(GPIOD, 9) // PD.09
+  #define AUX_SERIAL_USART                  USART3
+  #define AUX_SERIAL_USART_IRQn             USART3_IRQn
+  #define AUX_SERIAL_DMA_RX                 DMA1
+  #define AUX_SERIAL_DMA_RX_STREAM          LL_DMA_STREAM_1
+  #define AUX_SERIAL_DMA_RX_CHANNEL         LL_DMA_CHANNEL_4
 #else
   #define HARDWARE_TRAINER_AUX_SERIAL
   #define AUX_SERIAL_GPIO                   GPIOB
@@ -3086,7 +3096,7 @@
   #define HAPTIC_GPIO                   GPIO_PIN(GPIOC, 12) // PC.12
 #endif
 
-#if defined(RADIO_BOXER) || defined(RADIO_FAMILY_T20) || defined(RADIO_X9DP2019) || defined (RADIO_V14)
+#if defined(RADIO_BOXER) || defined(RADIO_FAMILY_T20) || defined(RADIO_X9DP2019) || defined (RADIO_V14) || defined(RADIO_GX12)
   // Flysky Hall Stick
   #define FLYSKY_HALL_SERIAL_USART                 UART4
   #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
