@@ -61,6 +61,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncSetScreen, "SET_SCREEN"},
   {  FuncDisableAudioAmp, "DISABLE_AUDIO_AMP"  },
   {  FuncRGBLed, "RGB_LED"  },
+  {  FuncLCDtoVideo, "LCD_TO_VIDEO"  },
 };
 
 static const YamlLookupTable trainerLut = {
