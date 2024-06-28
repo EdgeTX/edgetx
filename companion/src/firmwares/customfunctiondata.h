@@ -74,6 +74,7 @@ enum AssignFunc {
   FuncSetScreen,
   FuncDisableAudioAmp,
   FuncRGBLed,
+  FuncLCDtoVideo,
   FuncCount,
   FuncReserve = -1
 };

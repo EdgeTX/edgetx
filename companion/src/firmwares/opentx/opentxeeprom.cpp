@@ -1642,6 +1642,7 @@ class CustomFunctionsConversionTable: public ConversionTable {
         addConversion(FuncRacingMode, val++);
         addConversion(FuncDisableTouch, val++);
         addConversion(FuncSetScreen, val++);
+        addConversion(FuncLCDtoVideo, val++);
       }
     }
 };
