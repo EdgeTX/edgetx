@@ -55,6 +55,11 @@
   short tapCount = 0;
 #endif
 
+#if defined(VIDEO_SWITCH)
+void switchToRadio() {};
+void switchToVideo() {};
+#endif
+
 class OpenTxSim: public FXMainWindow
 {
   FXDECLARE(OpenTxSim)
