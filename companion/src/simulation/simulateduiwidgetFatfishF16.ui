@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>825</width>
-    <height>292</height>
+    <width>868</width>
+    <height>428</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,25 +18,34 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>825</width>
-    <height>292</height>
+    <width>868</width>
+    <height>428</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>825</width>
-    <height>292</height>
+    <width>868</width>
+    <height>428</height>
    </size>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="2" rowspan="3">
-    <widget class="ButtonsWidget" name="rightbuttons" native="true">
+   <item row="0" column="1">
+    <widget class="QWidget" name="top" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -45,18 +54,54 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>174</width>
-       <height>292</height>
+       <width>480</width>
+       <height>116</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>174</width>
-       <height>292</height>
+       <width>480</width>
+       <height>116</height>
       </size>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>5</pointsize>
+      </font>
+     </property>
      <property name="styleSheet">
-      <string notr="true">background:url(:/images/simulator/Fatfish/F16/right.png)</string>
+      <string notr="true">background:url(:/images/simulator/Fatfish/F16/top.png)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QWidget" name="bottom" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>480</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>480</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>5</pointsize>
+       <kerning>false</kerning>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:url(:/images/simulator/Fatfish/F16/bottom.png)</string>
      </property>
     </widget>
    </item>
@@ -87,6 +132,31 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="2" rowspan="3">
+    <widget class="ButtonsWidget" name="rightbuttons" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>194</width>
+       <height>428</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>194</width>
+       <height>428</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:url(:/images/simulator/Fatfish/F16/right.png)</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" rowspan="3">
     <widget class="ButtonsWidget" name="leftbuttons" native="true">
      <property name="sizePolicy">
@@ -97,14 +167,14 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>174</width>
-       <height>292</height>
+       <width>194</width>
+       <height>428</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>174</width>
-       <height>292</height>
+       <width>194</width>
+       <height>428</height>
       </size>
      </property>
      <property name="mouseTracking">
@@ -112,67 +182,6 @@
      </property>
      <property name="styleSheet">
       <string notr="true">background:url(:/images/simulator/Fatfish/F16/left.png);</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QWidget" name="top" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>480</width>
-       <height>10</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>480</width>
-       <height>10</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>5</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background:url(:/images/simulator/Fatfish/F16/top.png)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QWidget" name="bottom" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>480</width>
-       <height>10</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>480</width>
-       <height>10</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>5</pointsize>
-       <kerning>false</kerning>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background:url(:/images/simulator/Fatfish/F16/bottom.png)</string>
      </property>
     </widget>
    </item>
@@ -192,6 +201,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../companion.qrc"/>
+ </resources>
  <connections/>
 </ui>

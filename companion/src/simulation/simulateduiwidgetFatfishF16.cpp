@@ -34,26 +34,26 @@ SimulatedUIWidgetFatfishF16::SimulatedUIWidgetFatfishF16(SimulatorInterface *sim
   // add actions in order of appearance on the help menu
 
   act = new RadioUiAction(KEY_SYS, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
-  addRadioWidget(ui->leftbuttons->addArea(QRect(50, 10, 81, 41), "Fatfish/F16/left_sys.png", act));
+  addRadioWidget(ui->leftbuttons->addArea(QRect(60, 10, 90, 50), "Fatfish/F16/left.png", act));
 
   act = new RadioUiAction(KEY_MODEL, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
-  addRadioWidget(ui->leftbuttons->addArea(QRect(70, 80, 61, 30), "Fatfish/F16/left_mdl.png", act));
+  addRadioWidget(ui->leftbuttons->addArea(QRect(75, 107, 80, 30), "Fatfish/F16/left.png", act));
 
   act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
-  addRadioWidget(ui->leftbuttons->addArea(QRect(70, 130, 61, 30), "Fatfish/F16/left_page.png", act));
+  addRadioWidget(ui->leftbuttons->addArea(QRect(75, 172, 80, 30), "Fatfish/F16/left.png", act));
 
   act = new RadioUiAction(KEY_PAGEUP, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
-  addRadioWidget(ui->leftbuttons->addArea(QRect(70, 170, 61, 30), "Fatfish/F16/left_page2.png", act));
+  addRadioWidget(ui->leftbuttons->addArea(QRect(75, 237, 80, 30), "Fatfish/F16/left.png", act));
 
   act = new RadioUiAction(KEY_TELE, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE);
-  addRadioWidget(ui->leftbuttons->addArea(QRect(70, 210, 61, 30), "Fatfish/F16/left_tele.png", act));
+  addRadioWidget(ui->leftbuttons->addArea(QRect(75, 302, 80, 30), "Fatfish/F16/left.png", act));
 
   m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
-  addRadioWidget(ui->rightbuttons->addArea(QRect(50, 110, 51, 101), "Fatfish/F16/right_ent.png", m_mouseMidClickAction));
+  addRadioWidget(ui->rightbuttons->addArea(QRect(45, 170, 65, 125), "Fatfish/F16/right.png", m_mouseMidClickAction));
 
   act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace,
                           SIMU_STR_HLP_KEY_DN % "<br>" % SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_RTN);
-  addRadioWidget(ui->rightbuttons->addArea(QRect(40, 10, 81, 41), "Fatfish/F16/right_rtn.png", act));
+  addRadioWidget(ui->rightbuttons->addArea(QRect(50, 10, 90, 50), "Fatfish/F16/right.png", act));
 
   m_scrollUpAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Minus, SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT);
   m_scrollDnAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Equal, SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT);
