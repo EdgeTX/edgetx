@@ -649,7 +649,11 @@ void checkAll(bool isBootCheck)
 
   if (g_model.displayChecklist && modelHasNotes()) {
     cancelSplash();
+#if defined(COLORLCD)
+    readChecklist();
+#else
     readModelNotes();
+#endif
   }
 
 #if defined(MULTIMODULE)

@@ -71,3 +71,4 @@ class ViewTextWindow : public Page
 };
 
 void readModelNotes(bool fromMenu = false);
+void readChecklist();
