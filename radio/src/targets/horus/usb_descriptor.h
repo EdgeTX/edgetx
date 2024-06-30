@@ -42,6 +42,10 @@
   #define USB_NAME                     "Radiomaster TX16S"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '6', 'S'  /* 8 Bytes */
+#elif defined(RADIO_F16)
+  #define USB_NAME                     "Fatfish F16"
+  #define USB_MANUFACTURER             'F', 'A', 'T', 'F', 'I', 'S', 'H', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'F', 'F', ' ', 'F', '1', '6', ' ', ' '  /* 8 Bytes */
 #elif defined(PCBX10)
   #define USB_NAME                     "FrSky X10"
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */

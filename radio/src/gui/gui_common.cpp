@@ -568,6 +568,10 @@ bool isAssignableFunctionAvailable(int function, CustomFunctionData * functions)
     case FUNC_RGB_LED:
       return false;
 #endif
+#if !defined(VIDEO_SWITCH)
+    case FUNC_LCD_TO_VIDEO:
+      return false;
+#endif
     default:
       return true;
   }

@@ -194,6 +194,9 @@ do
         tx16s)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
             ;;
+        f16)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=F16"
+            ;;
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;

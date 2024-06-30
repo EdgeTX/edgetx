@@ -257,6 +257,10 @@
     <file>images/simulator/T8/right-dn.png</file>
     <file>images/simulator/T8/bottom.png</file>
     <file>images/simulator/T8/top.png</file>
+    <file>images/simulator/Fatfish/F16/left.png</file>
+    <file>images/simulator/Fatfish/F16/right.png</file>
+    <file>images/simulator/Fatfish/F16/top.png</file>
+    <file>images/simulator/Fatfish/F16/bottom.png</file>
     <file>images/simulator/JumperT14/bottom.png</file>
     <file>images/simulator/JumperT14/left.png</file>
     <file>images/simulator/JumperT14/right.png</file>

@@ -118,6 +118,7 @@
 #define TR_SF_DISABLE_TOUCH            "Kein Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Verst. Aus"
 #define TR_SF_SET_SCREEN               "Set Main Screen"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")
 #define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"

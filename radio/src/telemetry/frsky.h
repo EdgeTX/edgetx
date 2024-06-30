@@ -36,7 +36,7 @@ enum FrSkyDataState {
 };
 
 #define FRSKY_SPORT_BAUDRATE          57600
-#if defined(RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
 #define FRSKY_TELEM_MIRROR_BAUDRATE   115200
 #else
 #define FRSKY_TELEM_MIRROR_BAUDRATE   FRSKY_SPORT_BAUDRATE

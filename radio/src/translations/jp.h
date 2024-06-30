@@ -119,6 +119,7 @@
 #define TR_SF_DISABLE_TOUCH            "非タッチ"
 #define TR_SF_DISABLE_AUDIO_AMP        "オーディオアンプ OFF"
 #define TR_SF_SET_SCREEN               "メイン画面設定"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "テレメトリー")
 #define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
