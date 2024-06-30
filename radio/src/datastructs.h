@@ -42,7 +42,7 @@ static inline void check_struct()
   CHKSIZE(CurveRef, 2);
   CHKSIZE(VarioData, 5);
   CHKSIZE(MixData, 20);
-  CHKSIZE(ExpoData, 17);
+  CHKSIZE(ExpoData, 18);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(CurveHeader, 4);
   CHKSIZE(LogicalSwitchData, 9);
@@ -91,23 +91,23 @@ static inline void check_struct()
 #endif
 
 #if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
-  CHKSIZE(ModelData, 6290);
+  CHKSIZE(ModelData, 6354);
 #elif defined(RADIO_FAMILY_T20)
-  CHKSIZE(ModelData, 6326);
+  CHKSIZE(ModelData, 6390);
 #elif defined(PCBX9E)
-  CHKSIZE(ModelData, 6707);
+  CHKSIZE(ModelData, 6771);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(ModelData, 6706);
+  CHKSIZE(ModelData, 6770);
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
-  CHKSIZE(ModelData, 6265);
+  CHKSIZE(ModelData, 6329);
 #elif defined(PCBNV14)
-  CHKSIZE(ModelData, 15591);
+  CHKSIZE(ModelData, 15655);
 #elif defined(PCBPL18)
-  CHKSIZE(ModelData, 15771);
+  CHKSIZE(ModelData, 15835);
 #elif defined(RADIO_T15)
-  CHKSIZE(ModelData, 15760);
+  CHKSIZE(ModelData, 15824);
 #elif defined(PCBHORUS)
-  CHKSIZE(ModelData, 15735);
+  CHKSIZE(ModelData, 15799);
 #else
   #error CHKSIZE not set up
 #endif
