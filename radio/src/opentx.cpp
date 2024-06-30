@@ -653,7 +653,11 @@ void checkAll(bool isBootCheck)
   disableVBatBridge();
 
   if (g_model.displayChecklist && modelHasNotes()) {
+#if defined(COLORLCD)
+    readChecklist();
+#else
     readModelNotes();
+#endif
   }
 
 #if defined(MULTIMODULE)
