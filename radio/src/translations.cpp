@@ -202,6 +202,7 @@ const char STR_SF_RACING_MODE[] = TR_SF_RACING_MODE;
 const char STR_SF_SAFETY[] = TR_SF_SAFETY;
 const char STR_SF_SET_SCREEN[] = TR_SF_SET_SCREEN;
 const char STR_SF_SCREENSHOT[] = TR_SF_SCREENSHOT;
+const char STR_SF_LCD_TO_VIDEO[] = TR_SF_LCD_TO_VIDEO;
 const char STR_SF_TEST[] = TR_SF_TEST;
 const char STR_TRIMS[] = TR_TRIMS;
 const char STR_MIRROR[]  = TR_MIRROR;

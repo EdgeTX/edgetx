@@ -51,6 +51,15 @@
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
 
+#if defined(VIDEO_SWITCH)
+#include "videoswitch_driver.h"
+
+void boardBootloaderInit()
+{
+  videoSwitchInit();
+}
+#endif
+
 #if !defined(BOOT)
 #include "opentx.h"
 
@@ -160,6 +169,9 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
+#if defined(VIDEO_SWITCH)
+  videoSwitchInit();
+#endif
 
 #if defined(DEBUG)
   // DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM4_STOP|DBGMCU_TIM5_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM7_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM9_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM11_STOP|DBGMCU_TIM12_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);
@@ -179,6 +191,10 @@ void boardInit()
   ledBlue();
 #if !defined(LCD_VERTICAL_INVERT)
   lcdSetInitalFrameBuffer(lcdFront->getData());
+#elif defined(RADIO_F16)
+  if(hardwareOptions.pcbrev > 0) {
+    lcdSetInitalFrameBuffer(lcdFront->getData());
+  }
 #endif
 }
 #endif

@@ -26,6 +26,7 @@
 
 #include "opentx_types.h"
 #include "dma2d.h"
+#include "board.h"
 #include "hal.h"
 #include "delays_driver.h"
 
@@ -137,6 +138,13 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
 #if defined(LCD_VERTICAL_INVERT)
+#if defined(RADIO_F16)
+  if(hardwareOptions.pcbrev > 0) {
+    // Direct mode
+    _update_frame_buffer_addr(buffer);
+  } else
+#endif 
+  {
   _copy_rotate_180(_back_buffer, buffer, copy_area);
 
   if (lv_disp_flush_is_last(disp_drv)) {
@@ -176,6 +184,7 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                     src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
                     area_w, area_h);
     }
+  }
   }
 #else
   // Direct mode
@@ -279,7 +288,7 @@ void LCD_Init_LTDC()
   clkConfig.PLLSAI.PLLSAIN = 192;
   clkConfig.PLLSAI.PLLSAIR = 3;
   clkConfig.PLLSAIDivQ = 6;
-  #if defined(RADIO_TX16S)
+  #if defined(RADIO_TX16S) || defined(RADIO_F16)
     clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_8;
   #else
     clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_4;
@@ -373,7 +382,13 @@ void LCD_LayerInit()
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
 #if defined(LCD_VERTICAL_INVERT)
-  intptr_t layer_address = (intptr_t)_LCD_BUF_1;
+  intptr_t layer_address;
+#if defined(RADIO_F16)
+  if (hardwareOptions.pcbrev > 0)
+    layer_address = (intptr_t)initialFrameBuffer;
+  else
+#endif
+    layer_address = (intptr_t)_LCD_BUF_1;
 #else
   intptr_t layer_address = (intptr_t)initialFrameBuffer;
 #endif

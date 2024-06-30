@@ -122,6 +122,7 @@
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Desl"
 #define TR_SF_SET_SCREEN               "Def Tela Princ"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetria")
 #define TR_FSW_RESET_TIMERS          "Tmr1","Tmr2","Tmr3"

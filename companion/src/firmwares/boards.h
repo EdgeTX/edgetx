@@ -83,6 +83,7 @@ namespace Board {
     BOARD_JUMPER_TPROV2,
     BOARD_RADIOMASTER_POCKET,
     BOARD_JUMPER_T20V2,
+    BOARD_FATFISH_F16,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -490,15 +491,19 @@ inline bool IS_RADIOMASTER_POCKET(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_POCKET;
 }
 
-
 inline bool IS_RADIOMASTER_T8(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_T8;
 }
 
+inline bool IS_FATFISH_F16(Board::Type board)
+{
+  return board == Board::BOARD_FATFISH_F16;
+}
+
 inline bool IS_FAMILY_T16(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T15 || board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18;
+  return board == Board::BOARD_JUMPER_T15 || board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18 || board == Board::BOARD_FATFISH_F16;
 }
 
 inline bool IS_FAMILY_T12(Board::Type board)

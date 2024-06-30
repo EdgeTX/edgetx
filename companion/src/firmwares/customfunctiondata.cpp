@@ -129,6 +129,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Audio Amp Off");
   else if (func == FuncRGBLed)
     return tr("RGB leds");
+  else if (func == FuncLCDtoVideo)
+    return tr("LCD to Video");
   else {
     return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -253,9 +255,10 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
         ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
-        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd)) ||
+        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd))) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
-        ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))))
+        ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))) ||
+        ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard())))
         );
   return !ret;
 }

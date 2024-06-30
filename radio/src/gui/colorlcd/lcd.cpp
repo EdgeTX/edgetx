@@ -69,11 +69,16 @@ static lv_disp_drv_t* refr_disp = nullptr;
 static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
                      lv_color_t* color_p)
 {
-#if !defined(LCD_VERTICAL_INVERT) && !defined(BOOT)
-  // we're only interested in the last flush in direct mode
-  if (!lv_disp_flush_is_last(disp_drv)) {
-    lv_disp_flush_ready(disp_drv);
-    return;
+#if (!defined(LCD_VERTICAL_INVERT) || defined(RADIO_F16)) && !defined(BOOT) 
+#if defined(RADIO_F16)
+  if (hardwareOptions.pcbrev > 0)
+#endif
+  {
+    // we're only interested in the last flush in direct mode
+    if (!lv_disp_flush_is_last(disp_drv)) {
+      lv_disp_flush_ready(disp_drv);
+      return;
+    }
   }
 #endif
 
@@ -95,7 +100,11 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
 
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
 
-#if !defined(LCD_VERTICAL_INVERT) && !defined(BOOT)
+#if (!defined(LCD_VERTICAL_INVERT) || defined(RADIO_F16)) && !defined(BOOT)
+#if defined(RADIO_F16)
+  if (hardwareOptions.pcbrev > 0)
+#endif
+{
     uint16_t* src = (uint16_t*)color_p;
     uint16_t* dst = nullptr;
     if ((uint16_t*)color_p == LCD_FIRST_FRAME_BUFFER)
@@ -117,6 +126,7 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
     }
     DMAWait();  // wait for the last DMACopyBitmap to be completed before
                 // sending completion message
+}
 #endif
   }
 
@@ -145,6 +155,8 @@ static void init_lvgl_disp_drv()
 
 #if !defined(LCD_VERTICAL_INVERT)
   disp_drv.direct_mode = 1;
+#elif defined(RADIO_F16)
+  disp_drv.direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
 #else
   disp_drv.direct_mode = 0;
 #endif

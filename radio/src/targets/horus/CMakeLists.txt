@@ -112,6 +112,18 @@ if (PCB STREQUAL X10)
     set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
     set(FLYSKY_GIMBAL ON)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
+  elseif (PCBREV STREQUAL F16)
+    set(FLAVOUR f16)
+    add_definitions(-DRADIO_F16)
+    add_definitions(-DRADIO_FAMILY_T16)
+    set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+    option(BLUETOOTH "Support for bluetooth module" OFF)
+    option(INTERNAL_GPS "Support for internal NMEA GPS" OFF)
+    set(DEFAULT_THEME "DARKBLUE")
+    add_definitions(-DMANUFACTURER_FATFISH)
+    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+    set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
+    set(VIDEO_SWITCH ON)
   elseif (PCBREV STREQUAL T18)
     set(FLAVOUR t18)
     add_definitions(-DRADIO_T18)
@@ -271,6 +283,14 @@ set(FIRMWARE_SRC
   targets/common/arm/stm32/diskio_spi_flash.cpp
   drivers/frftl.cpp
   )
+
+if (VIDEO_SWITCH)
+  add_definitions(-DVIDEO_SWITCH)
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    targets/horus/videoswitch_driver.cpp
+  )
+endif()
 
 if(BOOTLOADER)
   set(FIRMWARE_SRC

@@ -71,6 +71,12 @@ if(PCB STREQUAL X10 OR PCB STREQUAL X12S OR PCB STREQUAL NV14 OR PCB STREQUAL PL
       ../../../../../targets/pl18/key_driver.cpp
     )    
   endif()
+
+  if(PCBREV STREQUAL F16)
+    set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+      ../../../../../targets/horus/videoswitch_driver.cpp
+    )    
+  endif()
   
   # Add LVGL sources
   foreach(LVGL_FILE ${LVGL_SRC_FILES_MINIMAL})

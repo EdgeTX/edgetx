@@ -115,6 +115,7 @@
 #define TR_SF_DISABLE_TOUCH            "禁用觸摸"
 #define TR_SF_DISABLE_AUDIO_AMP        "關閉音頻功放"
 #define TR_SF_SET_SCREEN               "選擇主屏"
+#define TR_SF_LCD_TO_VIDEO             "屏幕顯示圖傳"
 
 #define TR_FSW_RESET_TELEM             "回傳參數"
 
