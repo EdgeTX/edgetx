@@ -229,7 +229,7 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   adcRegInit.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
 
   if (nconv > 1) {
-    adcRegInit.SequencerLength = nconv - 1;
+    adcRegInit.SequencerLength = (nconv - 1) << ADC_SQR1_L_Pos;
 #if defined(STM32H7)
     adcRegInit.DataTransferMode = LL_ADC_REG_DMA_TRANSFER_LIMITED;
 #else
