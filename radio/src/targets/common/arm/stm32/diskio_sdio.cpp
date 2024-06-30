@@ -222,13 +222,13 @@ static DSTATUS sdio_initialize(BYTE lun)
   sdio.Instance = SD_SDIO;
   sdio.Init.ClockEdge = SD_SDIO_CLOCK_EDGE_RISING;
   sdio.Init.ClockPowerSave = SD_SDIO_CLOCK_POWER_SAVE_DISABLE;
-  sdio.Init.BusWide = SD_SDIO_BUS_WIDE_4B;
-  sdio.Init.HardwareFlowControl = SD_SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
+  sdio.Init.BusWide = SD_SDIO_BUS_WIDE_1B;
+  sdio.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
 #if ( USE_SD_TRANSCEIVER > 0U )
   sdio.Init.TranceiverPresent = SDMMC_TRANSCEIVER_PRESENT;
 #endif
 #if defined(SD_SDIO_CLOCK_BYPASS_DISABLE)
-  sdio.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
+  sdio.Init.ClockBypass = SD_SDIO_CLOCK_BYPASS_DISABLE;
 #endif
   sdio.Init.ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
 
@@ -239,10 +239,16 @@ static DSTATUS sdio_initialize(BYTE lun)
     return STA_NOINIT;
   }
 
-
   HAL_StatusTypeDef es = HAL_SD_GetCardInfo(&sdio, &cardInfo);
   if(es != HAL_OK) {
     return STA_NOINIT;
+  }
+
+  halStatus = HAL_SD_ConfigWideBusOperation(&sdio, SD_SDIO_BUS_WIDE_4B);
+  if (halStatus != HAL_OK) {
+    TRACE("HAL_SD_ConfigWideBusOperation() status=%d", halStatus);
+  } else {
+    TRACE("SD Bus width successfully set to 4 bits");
   }
 
   TRACE("SD card info:");
