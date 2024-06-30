@@ -112,7 +112,7 @@ void ff_mutex_delete(int vol) { }
 DSTATUS disk_initialize(BYTE pdrv)
 {
   if (pdrv >= _fatfs_n_drives) {
-    return STA_NOINIT;
+    return STA_NODISK;
   }
 
   DSTATUS stat = RES_OK;
