@@ -967,9 +967,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t modelSFDisabled:1);
   NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
   NOBACKUP(uint8_t modelTelemetryDisabled:1);
-
   NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
-
   NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
 
 #if defined(COLORLCD)
@@ -981,6 +979,8 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t spare:4 SKIP);
 #endif
 
+  NOBACKUP(uint8_t pwrOffIfInactive);
+
   NOBACKUP(uint8_t getBrightness() const
   {
 #if defined(OLED_SCREEN)
@@ -989,6 +989,7 @@ PACK(struct RadioData {
     return backlightBright;
 #endif
   });
+
 });
 
 #undef SWITCHES_WARNING_DATA
