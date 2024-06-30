@@ -45,8 +45,8 @@ static void slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
   etx_obj_add_style(obj, styles->bg_opacity_cover, LV_PART_KNOB);
   etx_obj_add_style(obj, slider_knob, LV_PART_KNOB);
-  etx_obj_add_style(obj, styles->border_color_dark, LV_PART_KNOB);
-  etx_obj_add_style(obj, styles->border_color_focus,
+  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_FOCUS_INDEX],
                     LV_PART_KNOB | LV_STATE_FOCUSED);
 }
 

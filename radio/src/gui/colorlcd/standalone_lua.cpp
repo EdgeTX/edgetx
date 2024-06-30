@@ -23,31 +23,7 @@
 
 #include "translations.h"
 #include "view_main.h"
-
-constexpr uint32_t FIELD_PADDING_LEFT = 3;
-constexpr coord_t POPUP_HEADER_HEIGHT = 30;
-
-extern BitmapBuffer* luaLcdBuffer;
-
-void LuaPopup::paint(BitmapBuffer* dc, uint8_t type, const char* text,
-                     const char* info)
-{
-  // popup background
-  dc->drawSolidFilledRect(0, 0, rect.w, POPUP_HEADER_HEIGHT, COLOR_THEME_FOCUS);
-
-  const char* title = text;  // TODO: based on 'type'
-
-  // title bar
-  dc->drawText(FIELD_PADDING_LEFT,
-               (POPUP_HEADER_HEIGHT - getFontHeight(FONT(STD))) / 2, title,
-               COLOR_THEME_PRIMARY2);
-
-  dc->drawSolidFilledRect(0, POPUP_HEADER_HEIGHT, rect.w,
-                          rect.h - POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
-
-  dc->drawText(FIELD_PADDING_LEFT, POPUP_HEADER_HEIGHT + EdgeTxStyles::PAGE_LINE_HEIGHT, info,
-               COLOR_THEME_SECONDARY1);
-}
+#include "dma2d.h"
 
 void StandaloneLuaWindow::redraw_cb(lv_event_t* e)
 {
@@ -59,26 +35,15 @@ void StandaloneLuaWindow::redraw_cb(lv_event_t* e)
   if (widget) {
     lv_draw_ctx_t* draw_ctx = lv_event_get_draw_ctx(e);
 
-    lv_area_t a, clipping, obj_coords;
-    lv_area_copy(&a, draw_ctx->buf_area);
-    lv_area_copy(&clipping, draw_ctx->clip_area);
-    lv_obj_get_coords(target, &obj_coords);
-
-    auto w = a.x2 - a.x1 + 1;
-    auto h = a.y2 - a.y1 + 1;
+    auto w = draw_ctx->buf_area->x2 - draw_ctx->buf_area->x1 + 1;
+    auto h = draw_ctx->buf_area->y2 - draw_ctx->buf_area->y1 + 1;
 
     TRACE_WINDOWS("Draw %s", widget->getWindowDebugString().c_str());
 
-    BitmapBuffer buf = {BMP_RGB565, (uint16_t)w, (uint16_t)h,
-                        (uint16_t*)draw_ctx->buf};
-
-    buf.setDrawCtx(draw_ctx);
-
-    buf.setOffset(obj_coords.x1 - a.x1, obj_coords.y1 - a.y1);
-    buf.setClippingRect(clipping.x1 - a.x1, clipping.x2 + 1 - a.x1,
-                        clipping.y1 - a.y1, clipping.y2 + 1 - a.y1);
-
-    buf.drawBitmap(0 - buf.getOffsetX(), 0 - buf.getOffsetY(), &widget->lcdBuffer);
+    // Standalone script always redraws full screen
+    DMAWait();
+    DMACopyBitmap((uint16_t*)draw_ctx->buf, w, h, 0, 0,
+                  widget->lcdBuffer->getData(), w, h, 0, 0, w, h);
   }
 }
 
@@ -87,9 +52,7 @@ StandaloneLuaWindow* StandaloneLuaWindow::_instance;
 
 StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
     Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
-    useLvgl(useLvgl),
-    lcdBuffer(BMP_RGB565, LCD_W, LCD_H),
-    popup({50, 73, LCD_W - 100, LCD_H - 146})
+    useLvgl(useLvgl)
 {
   setWindowFlag(OPAQUE);
 
@@ -98,6 +61,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
   if (useLvglLayout()) {
     padAll(PAD_ZERO);
     etx_scrollbar(lvobj);
+
     lv_obj_t* lbl = lv_label_create(lvobj);
     lv_obj_set_pos(lbl, 0, 0);
     lv_obj_set_size(lbl, LCD_W, LCD_H);
@@ -109,8 +73,10 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
 
     luaLvglManager = this;
   } else {
-    lcdBuffer.clear();
-    lcdBuffer.drawText(LCD_W / 2, LCD_H / 2 - 20, STR_LOADING,
+    lcdBuffer = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
+
+    lcdBuffer->clear();
+    lcdBuffer->drawText(LCD_W / 2, LCD_H / 2 - 20, STR_LOADING,
                       FONT(L) | COLOR_THEME_PRIMARY2 | CENTERED);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
@@ -155,6 +121,9 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 {
   if (_deleted) return;
 
+  if (lcdBuffer) delete lcdBuffer;
+  lcdBuffer = nullptr;
+
   luaLvglManager = nullptr;
 
   Layer::pop(this);
@@ -176,14 +145,13 @@ void StandaloneLuaWindow::checkEvents()
   Window::checkEvents();
 
   // Set global LUA LCD buffer
-  luaLcdBuffer = &lcdBuffer;
+  luaLcdBuffer = lcdBuffer;
 
   if (luaState != INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
-    // if LUA finished a full cycle,
-    // invalidate to display the screen buffer
-    bool useLvgl = useLvglLayout();
     if (luaTask(true)) {
-      if (useLvgl && !hasError) {
+      if (useLvglLayout() && !hasError) {
+        // if LUA finished a full cycle,
+        // call update functions
         PROTECT_LUA() {
           if (!callRefs(lsScripts)) {
             luaShowError();
@@ -193,6 +161,8 @@ void StandaloneLuaWindow::checkEvents()
         }
         UNPROTECT_LUA();
       } else {
+        // if LUA finished a full cycle,
+        // invalidate to display the screen buffer
         invalidate();
       }
     }
@@ -217,23 +187,37 @@ void StandaloneLuaWindow::onEvent(event_t evt)
   LuaEventHandler::onEvent(evt);
 }
 
+void StandaloneLuaWindow::popupPaint(BitmapBuffer* dc, coord_t x, coord_t y, coord_t w, coord_t h,
+                                     const char* text, const char* info)
+{
+  // popup background
+  dc->drawSolidFilledRect(x, y, w, POPUP_HEADER_HEIGHT, COLOR_THEME_FOCUS);
+
+  // title bar
+  dc->drawText(x + PAD_SMALL,
+               y + (POPUP_HEADER_HEIGHT - getFontHeight(FONT(STD))) / 2, text,
+               COLOR_THEME_PRIMARY2);
+
+  dc->drawSolidFilledRect(x, y + POPUP_HEADER_HEIGHT, w,
+                          h - POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
+
+  dc->drawText(x + PAD_SMALL, y + POPUP_HEADER_HEIGHT + EdgeTxStyles::PAGE_LINE_HEIGHT, info,
+               COLOR_THEME_SECONDARY1);
+}
+
 bool StandaloneLuaWindow::displayPopup(event_t event, uint8_t type,
                                        const char* text, const char* info,
                                        bool& result)
 {
+  if (useLvgl) return true;
+
   // transparent background
-  lcdBuffer.drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_THEME_PRIMARY1,
-                           OPACITY(5));
+  lcdBuffer->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID, COLOR_THEME_PRIMARY1,
+                            OPACITY(5));
 
-  // center pop-up
-  lcdBuffer.setOffset(LCD_W / 2 - popup.rect.w / 2,
-                      LCD_H / 2 - popup.rect.h / 2);
+  popupPaint(lcdBuffer, POPUP_X, POPUP_Y, LCD_W - POPUP_X * 2, LCD_H - POPUP_Y * 2, text, info);
 
-  // draw it, then clear the offset
-  popup.paint(&lcdBuffer, type, text, info);
-  lcdBuffer.clearOffset();
-
-  TRACE("displayPopup(event = 0x%x)", event);
+  // TRACE("displayPopup(event = 0x%x)", event);
   if (event == EVT_KEY_BREAK(KEY_EXIT)) {
     result = false;
     return true;

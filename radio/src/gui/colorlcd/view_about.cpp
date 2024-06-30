@@ -41,14 +41,11 @@ const std::string edgetx_url = "https://edgetx.org";
 AboutUs::AboutUs() :
     BaseDialog(MainWindow::instance(), STR_ABOUT_US, true, 220, LV_SIZE_CONTENT)
 {
-  new StaticText(form, rect_t{0, 0, LV_PCT(100), LV_SIZE_CONTENT},
+  new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
                  about_str + "\n" + copyright_str,
                  COLOR_THEME_SECONDARY1 | CENTERED);
 
-  auto qrBox = new Window(form, {0, 0, LV_PCT(100), 160});
-  auto qr = lv_qrcode_create(qrBox->getLvObj(), 150,
-                             makeLvColor(COLOR_THEME_SECONDARY1),
-                             makeLvColor(COLOR_THEME_SECONDARY3));
-  lv_qrcode_update(qr, edgetx_url.c_str(), edgetx_url.length());
-  lv_obj_center(qr);
+  auto qrBox = new Window(form, {0, 0, LV_PCT(100), QR_SZ});
+  auto qr = new QRCode(qrBox, 0, 0, QR_SZ, edgetx_url);
+  lv_obj_center(qr->getLvObj());
 }

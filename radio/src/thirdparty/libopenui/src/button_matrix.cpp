@@ -32,7 +32,7 @@ static void btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 
   etx_std_style(obj, LV_PART_ITEMS, PAD_LARGE);
 
-  etx_obj_add_style(obj, styles->border_color_focus,
+  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_FOCUS_INDEX],
                     LV_PART_ITEMS | LV_STATE_EDITED);
 }
 

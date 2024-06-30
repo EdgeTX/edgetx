@@ -30,7 +30,8 @@ class Page;
 class PageHeader : public Window
 {
  public:
-  PageHeader(Page* parent, EdgeTxIcon icon);
+  PageHeader(Window* parent, EdgeTxIcon icon);
+  PageHeader(Window* parent, const char* iconFile);
 
   void setTitle(std::string txt) { title->setText(std::move(txt)); }
   StaticText* setTitle2(std::string txt);
@@ -39,7 +40,6 @@ class PageHeader : public Window
   static constexpr coord_t PAGE_TITLE_TOP = 2;
 
  protected:
-  EdgeTxIcon icon;
   StaticText* title;
   StaticText* title2 = nullptr;
 };

@@ -142,7 +142,7 @@ class BitmapBuffer
 
   void resizeToLVGL(coord_t w, coord_t h);
 
-  uint8_t* to8bitMask(size_t* size) const;
+  MaskBitmap* to8bitMask(size_t* size) const;
 
   void drawBitmapPattern(coord_t x, coord_t y, const MaskBitmap* bmp,
                          LcdFlags flags, coord_t offset = 0, coord_t width = 0);

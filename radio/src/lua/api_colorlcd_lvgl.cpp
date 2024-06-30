@@ -69,6 +69,11 @@ static int luaLvglImage(lua_State *L)
   return luaLvglObj(L, [=]() { return new LvglWidgetImage(); });
 }
 
+static int luaLvglQRCode(lua_State *L)
+{
+  return luaLvglObj(L, [=]() { return new LvglWidgetQRCode(); });
+}
+
 static int luaLvglMeter(lua_State *L)
 {
   return luaLvglObj(L, [=]() { return new LvglWidgetMeter(); });
@@ -217,6 +222,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
       lvobj = new LvglWidgetArc();
     else if (strcasecmp(p.type, "image") == 0)
       lvobj = new LvglWidgetImage();
+    else if (strcasecmp(p.type, "qrcode") == 0)
+      lvobj = new LvglWidgetQRCode();
     else if (strcasecmp(p.type, "meter") == 0)
       lvobj = new LvglWidgetMeter();
     else if (!luaLvglManager->isWidget()) {
@@ -232,6 +239,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         lvobj = new LvglWidgetChoice();
       else if (strcasecmp(p.type, "slider") == 0)
         lvobj = new LvglWidgetSlider();
+      else if (strcasecmp(p.type, "page") == 0)
+        lvobj = new LvglWidgetPage();
     }
     if (lvobj) {
       lvobj->getParams(L, -1);
@@ -278,6 +287,7 @@ LROT_FUNCENTRY(rectangle, luaLvglRectangle)
 LROT_FUNCENTRY(circle, luaLvglCircle)
 LROT_FUNCENTRY(arc, luaLvglArc)
 LROT_FUNCENTRY(image, luaLvglImage)
+LROT_FUNCENTRY(qrcode, luaLvglQRCode)
 LROT_FUNCENTRY(meter, luaLvglMeter)
 LROT_FUNCENTRY(button, luaLvglButton)
 LROT_FUNCENTRY(toggle, luaLvglToggle)

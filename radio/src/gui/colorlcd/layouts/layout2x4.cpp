@@ -25,9 +25,9 @@
 const ZoneOption OPTIONS_LAYOUT_2x4[] = {
     LAYOUT_COMMON_OPTIONS,
     {"Panel1 background", ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {"  Color", ZoneOption::Color, OPTION_VALUE_UNSIGNED(RGB(77, 112, 203))},
+    {"  Color", ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
     {"Panel2 background", ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {"  Color", ZoneOption::Color, OPTION_VALUE_UNSIGNED(RGB(77, 112, 203))},
+    {"  Color", ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
     LAYOUT_OPTIONS_END};
 
 class Layout2x4 : public Layout
@@ -92,17 +92,8 @@ class Layout2x4 : public Layout
         lv_obj_add_flag(panel2, LV_OBJ_FLAG_HIDDEN);
     }
 
-    LcdFlags color =
-        COLOR2FLAGS(getOptionValue(OPTION_PANEL1_COLOR)->unsignedValue);
-    if (color != panel1Color) {
-      panel1Color = color;
-      lv_obj_set_style_bg_color(panel1, makeLvColor(panel1Color), LV_PART_MAIN);
-    }
-    color = COLOR2FLAGS(getOptionValue(OPTION_PANEL2_COLOR)->unsignedValue);
-    if (color != panel2Color) {
-      panel2Color = color;
-      lv_obj_set_style_bg_color(panel2, makeLvColor(panel2Color), LV_PART_MAIN);
-    }
+    etx_bg_color_from_flags(panel1, getOptionValue(OPTION_PANEL1_COLOR)->unsignedValue);
+    etx_bg_color_from_flags(panel2, getOptionValue(OPTION_PANEL2_COLOR)->unsignedValue);
   }
 };
 

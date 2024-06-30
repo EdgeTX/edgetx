@@ -54,7 +54,7 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
   });
 
   etx_obj_add_style(lvobj, styles->border, LV_STATE_FOCUSED);
-  etx_obj_add_style(lvobj, styles->border_color_focus, LV_STATE_FOCUSED);
+  etx_obj_add_style(lvobj, styles->border_color[COLOR_THEME_FOCUS_INDEX], LV_STATE_FOCUSED);
 
   lv_style_init(&borderStyle);
   lv_style_set_line_width(&borderStyle, 2);

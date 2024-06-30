@@ -26,14 +26,14 @@
 class ColorPicker : public Button
 {
   uint32_t color;
-  std::function<void(uint16_t)> setValue;
+  std::function<void(uint32_t)> setValue;
 
   void updateColor(uint32_t c);
 
 public:
   ColorPicker(Window* parent, const rect_t& rect,
-              std::function<uint16_t()> getValue,
-              std::function<void(uint16_t)> setValue = nullptr);
+              std::function<uint32_t()> getValue,
+              std::function<void(uint32_t)> setValue = nullptr);
 
   void setColor(uint32_t c);
   uint32_t getColor() const { return color; }

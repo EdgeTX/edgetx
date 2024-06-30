@@ -157,6 +157,37 @@ StaticIcon::StaticIcon(Window* parent, coord_t x, coord_t y, EdgeTxIcon icon,
   etx_img_color(lvobj, currentColor, LV_PART_MAIN);
 }
 
+StaticIcon::StaticIcon(Window* parent, coord_t x, coord_t y, const char* filename,
+                       LcdFlags color) :
+    Window(parent, rect_t{x, y, 0, 0}, lv_canvas_create),
+    currentColor(indexFromColor(color))
+{
+  setWindowFlag(NO_FOCUS);
+
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+
+  auto bm = BitmapBuffer::loadBitmap(filename, BMP_RGB565);
+  if (bm) {
+    size_t size;
+    mask = bm->to8bitMask(&size);
+    if (mask) {
+      setSize(mask->width, mask->height);
+      lv_canvas_set_buffer(lvobj, (void*)mask->data, mask->width, mask->height,
+                           LV_IMG_CF_ALPHA_8BIT);
+    }
+    delete bm;
+  }
+
+  etx_img_color(lvobj, currentColor, LV_PART_MAIN);
+}
+
+void StaticIcon::deleteLater(bool detach, bool trash)
+{
+  if (_deleted) return;
+  if (mask) free(mask);
+  mask = nullptr;
+}
+
 void StaticIcon::setColor(LcdColorIndex color)
 {
   if (currentColor != color) {
@@ -324,4 +355,14 @@ void StaticLZ4Image::deleteLater(bool detach, bool trash)
     imgData = nullptr;
     Window::deleteLater(detach, trash);
   }
+}
+
+//-----------------------------------------------------------------------------
+
+QRCode::QRCode(Window *parent, coord_t x, coord_t y, coord_t sz, std::string data,
+               LcdFlags color, LcdFlags bgColor) :
+    Window(parent, {x, y, sz, sz})
+{
+  auto qr = lv_qrcode_create(lvobj, sz, makeLvColor(color), makeLvColor(bgColor));
+  lv_qrcode_update(qr, data.c_str(), data.length());
 }

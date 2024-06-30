@@ -48,7 +48,10 @@ class ColorEditorPopup : public BaseDialog
   void updateColor(uint32_t c)
   {
     m_color = c;
-    uint8_t r = GET_RED(c), g = GET_GREEN(c), b = GET_BLUE(c);
+
+    auto rgb = COLOR_VAL(colorToRGB(m_color));
+
+    uint8_t r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
 
     colorPad->setColor(r, g, b);
 
@@ -157,8 +160,8 @@ class ColorEditorPopup : public BaseDialog
 };
 
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
-                         std::function<uint16_t()> getValue,
-                         std::function<void(uint16_t)> setValue) :
+                         std::function<uint32_t()> getValue,
+                         std::function<void(uint32_t)> setValue) :
     Button(parent, {rect.x, rect.y, ColorEditorPopup::COLOR_PAD_WIDTH, ColorEditorPopup::COLOR_PAD_HEIGHT}),
     setValue(std::move(setValue))
 {
@@ -180,7 +183,8 @@ void ColorPicker::updateColor(uint32_t c)
 {
   color = c;
 
+  auto rgb = COLOR_VAL(colorToRGB(color));
   auto lvcolor =
-      lv_color_make(GET_RED(color), GET_GREEN(color), GET_BLUE(color));
+      lv_color_make(GET_RED(rgb), GET_GREEN(rgb), GET_BLUE(rgb));
   lv_obj_set_style_bg_color(lvobj, lvcolor, LV_PART_MAIN);
 }

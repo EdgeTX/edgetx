@@ -708,27 +708,29 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y,
 #endif
 }
 
-uint8_t *BitmapBuffer::to8bitMask(size_t *size) const
+MaskBitmap *BitmapBuffer::to8bitMask(size_t *size) const
 {
+  static uint8_t grayScale[16] = {255, 238, 221, 204, 187, 170, 153, 136, 119, 102, 85, 68, 51, 34, 17, 0};
+
   *size = width() * height() + 4;
-  uint8_t *mask = (uint8_t *)malloc(*size);
-  ((uint16_t *)mask)[0] = width();
-  ((uint16_t *)mask)[1] = height();
+  MaskBitmap *mask = (MaskBitmap*)malloc(*size);
+  mask->width = width();
+  mask->height = height();
+
   const pixel_t *p = getPixelPtrAbs(0, 0);
+  int ofs = 0;
   if (getFormat() == BMP_ARGB4444) {
-    auto ofs = 4u;
     for (int i = width() * height(); i > 0; i--) {
       ARGB_SPLIT(*p, a __attribute__((unused)), r, g, b);
-      auto v = ((uint32_t)r + (uint32_t)g + (uint32_t)b) / 3;
-      mask[ofs++] = ((OPACITY_MAX - v) << 4);
+      int v = (r + g + b) / 3;
+      mask->data[ofs++] = grayScale[v];
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
     }
   } else {  // BMP_RGB565
-    auto ofs = 4u;
     for (int i = width() * height(); i > 0; i--) {
-      auto v =
-          ((GET_RED(*p) >> 1) + (GET_GREEN(*p) >> 2) + (GET_BLUE(*p) >> 1)) / 3;
-      mask[ofs++] = ((OPACITY_MAX - v) << 4);
+      RGB_SPLIT(*p, r, g, b);
+      int v = ((r + (g >> 1) + b) / 3) >> 1;
+      mask->data[ofs++] = grayScale[v];
       MOVE_TO_NEXT_RIGHT_PIXEL(p);
     }
   }

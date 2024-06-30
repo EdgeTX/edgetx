@@ -168,12 +168,11 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
       case ZoneOption::Color:
         new ColorPicker(
             line, rect_t{},
-            [=]() -> int {  // getValue
-              return (int)widget->getOptionValue(optIdx)->unsignedValue;
+            [=]() -> uint32_t {  // getValue
+              return widget->getOptionValue(optIdx)->unsignedValue;
             },
-            [=](int newValue) {  // setValue
-              widget->getOptionValue(optIdx)->unsignedValue =
-                  (uint32_t)newValue;
+            [=](uint32_t newValue) {  // setValue
+              widget->getOptionValue(optIdx)->unsignedValue = newValue;
               SET_DIRTY();
             });
         break;

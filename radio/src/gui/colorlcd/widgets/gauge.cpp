@@ -39,9 +39,6 @@ class GaugeWidget : public Widget
     etx_obj_add_style(valueText->getLvObj(), styles->text_align_right,
                       LV_STATE_USER_1);
 
-    lv_style_init(&style);
-    lv_style_set_bg_opa(&style, LV_OPA_COVER);
-
     auto box = lv_obj_create(lvobj);
     lv_obj_set_pos(box, 0, 16);
     lv_obj_set_size(box, lv_pct(100), 16);
@@ -51,7 +48,7 @@ class GaugeWidget : public Widget
     bar = lv_obj_create(box);
     lv_obj_set_pos(bar, 0, 0);
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_style(bar, &style, LV_PART_MAIN);
+    etx_obj_add_style(bar, styles->bg_opacity_cover, LV_PART_MAIN);
 
     update();
   }
@@ -84,9 +81,7 @@ class GaugeWidget : public Widget
     else
       lv_obj_clear_state(valueText->getLvObj(), LV_STATE_USER_1);
 
-    lv_color_t color;
-    color.full = persistentData->options[3].value.unsignedValue;
-    lv_style_set_bg_color(&style, color);
+    etx_bg_color_from_flags(bar, persistentData->options[3].value.unsignedValue);
   }
 
   static const ZoneOption options[];
@@ -96,7 +91,6 @@ class GaugeWidget : public Widget
   StaticText* sourceText = nullptr;
   DynamicNumber<int16_t>* valueText = nullptr;
   lv_obj_t* bar = nullptr;
-  lv_style_t style;
 
   void checkEvents() override
   {
@@ -118,8 +112,7 @@ const ZoneOption GaugeWidget::options[] = {
      OPTION_VALUE_SIGNED(-RESX), OPTION_VALUE_SIGNED(RESX)},
     {STR_MAX, ZoneOption::Integer, OPTION_VALUE_SIGNED(RESX),
      OPTION_VALUE_SIGNED(-RESX), OPTION_VALUE_SIGNED(RESX)},
-    {STR_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_WARNING >> 16)},
+    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_WARNING_INDEX)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<GaugeWidget> gaugeWidget("Gauge", GaugeWidget::options,

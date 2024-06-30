@@ -541,33 +541,45 @@ bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
 void r_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
                  const char* val, uint8_t val_len)
 {
-  if (val_len < sizeof("0xFFFFFF")-1
-      || val[0] != '0'
-      || val[1] != 'x')
-    return;
-
-  val += 2; val_len -= 2;
-
   data += bitoffs >> 3UL;
   auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
 
-  auto rgb24 = yaml_hex2uint(val, val_len);
-  p_val->unsignedValue =
-      RGB((rgb24 & 0xFF0000) >> 16, (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
+  if (strncmp(val, "COLIDX", 6) == 0) {
+    val += 6; val_len -= 6;
+    p_val->unsignedValue = COLOR2FLAGS(yaml_str2uint(val, val_len));
+  } else {
+    if (val_len < sizeof("0xFFFFFF")-1
+        || val[0] != '0'
+        || val[1] != 'x')
+      return;
+
+    val += 2; val_len -= 2;
+
+    auto rgb24 = yaml_hex2uint(val, val_len);
+    p_val->unsignedValue =
+        RGB2FLAGS((rgb24 & 0xFF0000) >> 16, (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
+  }
 }
 
 bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
                  yaml_writer_func wf, void* opaque)
 {
   data += bitoffs >> 3UL;
-  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
+  auto p_val = (reinterpret_cast<ZoneOptionValue*>(data))->unsignedValue;
 
-  uint32_t color = (uint32_t)GET_RED(p_val->unsignedValue) << 16 |
-                   (uint32_t)GET_GREEN(p_val->unsignedValue) << 8 |
-                   (uint32_t)GET_BLUE(p_val->unsignedValue);
+  if (p_val & RGB_FLAG) {
+    p_val = COLOR_VAL(p_val);
+    uint32_t color = (uint32_t)GET_RED(p_val) << 16 |
+                     (uint32_t)GET_GREEN(p_val) << 8 |
+                     (uint32_t)GET_BLUE(p_val);
 
-  if (!wf(opaque, "0x", 2)) return false;
-  return wf(opaque, yaml_rgb2hex(color), 3 * 2);
+    if (!wf(opaque, "0x", 2)) return false;
+    return wf(opaque, yaml_rgb2hex(color), 3 * 2);
+  } else {
+    if (!wf(opaque, "COLIDX", 6)) return false;
+    const char* str = yaml_unsigned2str(COLOR_VAL(p_val));
+    return wf(opaque, str, strlen(str));
+  }
 }
 #endif
 

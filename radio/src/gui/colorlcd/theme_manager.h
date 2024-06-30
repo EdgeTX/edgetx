@@ -163,7 +163,7 @@ class HeaderDateTime : public Window
  public:
   HeaderDateTime(Window* parent, int x, int y);
 
-  void setColor(uint32_t color);
+  void setColor(LcdFlags color);
 
   static LAYOUT_VAL(HDR_DATE_WIDTH, 45, 45)
   static LAYOUT_VAL(HDR_DATE_HEIGHT, 12, 12)
@@ -181,6 +181,7 @@ class HeaderIcon : public StaticIcon
 {
  public:
   HeaderIcon(Window *parent, EdgeTxIcon icon);
+  HeaderIcon(Window *parent, const char* iconFile);
 };
 
 class UsbSDConnected : public Window
@@ -189,7 +190,4 @@ class UsbSDConnected : public Window
   UsbSDConnected();
 
   static LAYOUT_VAL(HDR_DATE_Y, 6, 6)
-
- protected:
-  HeaderDateTime* dateTime = nullptr;
 };

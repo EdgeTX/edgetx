@@ -34,9 +34,6 @@ class ModelBitmapWidget : public Widget
                     Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
-    lv_style_init(&style);
-    lv_obj_add_style(lvobj, &style, LV_PART_MAIN);
-
     etx_obj_add_style(lvobj, styles->bg_opacity_transparent, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
                       LV_PART_MAIN | ETX_STATE_BG_FILL);
@@ -66,8 +63,6 @@ class ModelBitmapWidget : public Widget
 
   void update() override
   {
-    lv_color_t color;
-
     isLarge = rect.h >= 96 && rect.w >= 120;
 
     // get font size from options[1]
@@ -79,8 +74,7 @@ class ModelBitmapWidget : public Widget
       etx_txt_color(label->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
                     LV_PART_MAIN);
     } else {
-      color.full = persistentData->options[0].value.unsignedValue;
-      lv_obj_set_style_text_color(label->getLvObj(), color, LV_PART_MAIN);
+      etx_txt_color_from_flags(label->getLvObj(), persistentData->options[0].value.unsignedValue);
     }
 
     // Set label position
@@ -89,9 +83,8 @@ class ModelBitmapWidget : public Widget
     else
       lv_obj_set_pos(label->getLvObj(), 0, 0);
 
-    // get font color from options[3]
-    color.full = persistentData->options[3].value.unsignedValue;
-    lv_style_set_bg_color(&style, color);
+    // get fill color from options[3]
+    etx_bg_color_from_flags(lvobj, persistentData->options[3].value.unsignedValue);
 
     // Set background opacity from options[2]
     if (persistentData->options[2].value.boolValue)
@@ -127,7 +120,6 @@ class ModelBitmapWidget : public Widget
   bool isLarge = false;
   // std::unique_ptr<BitmapBuffer> buffer;
   uint32_t deps_hash = 0;
-  lv_style_t style;
   StaticText* label = nullptr;
   StaticImage* image = nullptr;
 
@@ -135,12 +127,10 @@ class ModelBitmapWidget : public Widget
 };
 
 const ZoneOption ModelBitmapWidget::options[] = {
-    {STR_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY1 >> 16)},
+    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
     {STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(FONT_STD_INDEX)},
     {STR_FILL_BACKGROUND, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
-    {STR_BG_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY3 >> 16)},
+    {STR_BG_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
     {STR_USE_THEME_COLOR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
     {nullptr, ZoneOption::Bool}};
 

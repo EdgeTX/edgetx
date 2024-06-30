@@ -53,7 +53,7 @@ static void sf_enable_state_constructor(const lv_obj_class_t *class_p,
   etx_obj_add_style(obj, sf_enable_state_style, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->outline_color_light, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->border, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->border_color_dark, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_MAIN);
   etx_obj_add_style(obj, styles->bg_opacity_cover, LV_PART_MAIN);
   etx_bg_color(obj, COLOR_THEME_ACTIVE_INDEX, LV_STATE_CHECKED);
 }

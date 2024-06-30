@@ -25,4 +25,6 @@ class AboutUs : public BaseDialog
 {
  public:
   AboutUs();
+
+  static LAYOUT_VAL(QR_SZ, 150, 150)
 };

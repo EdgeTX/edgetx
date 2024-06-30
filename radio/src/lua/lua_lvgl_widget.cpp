@@ -21,8 +21,10 @@
 
 #include "lua_widget.h"
 #include "opentx.h"
+#include "page.h"
 #include "slider.h"
 #include "toggleswitch.h"
+#include "lua_event.h"
 
 //-----------------------------------------------------------------------------
 
@@ -200,7 +202,6 @@ void LvglWidgetObject::parseParam(lua_State *L, const char *key)
       getColorFunction = luaL_ref(L, LUA_REGISTRYINDEX);
     } else {
       color = luaL_checkunsigned(L, -1);
-      color = flagsRGB(color);
     }
   } else if (!strcmp(key, "visible")) {
     getVisibleFunction = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -278,12 +279,17 @@ void LvglWidgetBorderedObject::setColor(LcdFlags color)
 {
   if (color != currentColor) {
     currentColor = color;
-    if (filled)
-      lv_obj_set_style_bg_color(window->getLvObj(),
-                                makeLvColor(flagsRGB(color)), LV_PART_MAIN);
-    else
-      lv_obj_set_style_border_color(window->getLvObj(),
-                                    makeLvColor(flagsRGB(color)), LV_PART_MAIN);
+    if (filled) {
+      etx_bg_color_from_flags(window->getLvObj(), color);
+    } else {
+      if (color & RGB_FLAG) {
+        etx_remove_border_color(window->getLvObj());
+        lv_obj_set_style_border_color(window->getLvObj(),
+                                      makeLvColor(colorToRGB(color)), LV_PART_MAIN);
+      } else {
+        etx_border_color(window->getLvObj(), (LcdColorIndex)COLOR_VAL(color));
+      }
+    }
   }
 }
 
@@ -407,8 +413,13 @@ void LvglWidgetLabel::setColor(LcdFlags color)
 {
   if (color != currentColor) {
     currentColor = color;
-    lv_obj_set_style_text_color(window->getLvObj(),
-                                makeLvColor(flagsRGB(color)), LV_PART_MAIN);
+    if (color & RGB_FLAG) {
+      etx_remove_txt_color(window->getLvObj());
+      lv_obj_set_style_text_color(window->getLvObj(),
+                                  makeLvColor(colorToRGB(color)), LV_PART_MAIN);
+    } else {
+      etx_txt_color(window->getLvObj(), (LcdColorIndex)COLOR_VAL(color));
+    }
   }
 }
 
@@ -488,8 +499,13 @@ void LvglWidgetArc::setColor(LcdFlags color)
 {
   if (color != currentColor) {
     currentColor = color;
-    lv_obj_set_style_arc_color(window->getLvObj(), makeLvColor(flagsRGB(color)),
-                               LV_PART_INDICATOR);
+    if (color & RGB_FLAG) {
+      etx_remove_arc_color(window->getLvObj());
+      lv_obj_set_style_arc_color(window->getLvObj(), makeLvColor(colorToRGB(color)),
+                                 LV_PART_INDICATOR);
+    } else {
+      etx_arc_color(window->getLvObj(), (LcdColorIndex)COLOR_VAL(color), LV_PART_INDICATOR);
+    }
   }
 }
 
@@ -565,6 +581,24 @@ void LvglWidgetImage::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetQRCode::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "data")) {
+    data = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "bgColor")) {
+    bgColor = luaL_checkunsigned(L, -1);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetQRCode::build(lua_State *L)
+{
+  window = new QRCode(lvglManager->getCurrentParent(), x, y, w, data, colorToRGB(color), colorToRGB(bgColor));
+}
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetScaleIndicator : public LvglWidgetObjectBase
 {
  public:
@@ -606,7 +640,7 @@ class LvglWidgetScaleArc : public LvglWidgetScaleIndicator
     meter = parent;
 
     indic =
-        lv_meter_add_arc(meter, scale, w, makeLvColor(flagsRGB(color)), rmod);
+        lv_meter_add_arc(meter, scale, w, makeLvColor(colorToRGB(color)), rmod);
     if (hasStart) lv_meter_set_indicator_start_value(meter, indic, startPos);
     if (hasEnd) lv_meter_set_indicator_end_value(meter, indic, endPos);
   }
@@ -614,7 +648,7 @@ class LvglWidgetScaleArc : public LvglWidgetScaleIndicator
  protected:
   uint8_t w = 0;
   int8_t rmod = 0;
-  LcdFlags color = COLOR_THEME_PRIMARY1;
+  LcdFlags color = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
   bool hasStart = false, hasEnd = false;
   int16_t startPos = 0, endPos = 0;
 
@@ -676,15 +710,16 @@ class LvglWidgetScaleLines : public LvglWidgetScaleIndicator
     meter = parent;
 
     indic = lv_meter_add_scale_lines(
-        meter, scale, makeLvColor(flagsRGB(startColor)),
-        makeLvColor(flagsRGB(endColor)), localFade, wmod);
+        meter, scale, makeLvColor(colorToRGB(startColor)),
+        makeLvColor(colorToRGB(endColor)), localFade, wmod);
     if (hasStart) lv_meter_set_indicator_start_value(meter, indic, startPos);
     if (hasEnd) lv_meter_set_indicator_end_value(meter, indic, endPos);
   }
 
  protected:
   int8_t wmod = 0;
-  LcdFlags startColor = COLOR_THEME_PRIMARY1, endColor = COLOR_THEME_PRIMARY1;
+  LcdFlags startColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
+  LcdFlags endColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
   bool hasStart = false, hasEnd = false;
   int16_t startPos = 0, endPos = 0;
   bool localFade = false;
@@ -741,13 +776,13 @@ class LvglWidgetScaleNeedle : public LvglWidgetScaleIndicator
     meter = parent;
 
     indic = lv_meter_add_needle_line(meter, scale, w,
-                                     makeLvColor(flagsRGB(color)), rmod);
+                                     makeLvColor(colorToRGB(color)), rmod);
   }
 
  protected:
   uint8_t w = 0;
   int8_t rmod = 0;
-  LcdFlags color = COLOR_THEME_PRIMARY1;
+  LcdFlags color = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
 
   int getPosFunction = 0;
 
@@ -792,11 +827,11 @@ class LvglWidgetMeterScale : public LvglWidgetObjectBase
 
     if (ticks) {
       lv_meter_set_scale_ticks(meter, scale, ticks, tickWidth, tickLen,
-                               makeLvColor(flagsRGB(tickColor)));
+                               makeLvColor(colorToRGB(tickColor)));
       if (majorNth)
         lv_meter_set_scale_major_ticks(
             meter, scale, majorNth, majorWidth, majorLen,
-            makeLvColor(flagsRGB(majorColor)), labelGap);
+            makeLvColor(colorToRGB(majorColor)), labelGap);
     }
 
     lv_meter_set_scale_range(meter, scale, scaleMin, scaleMax, scaleAngle,
@@ -804,8 +839,7 @@ class LvglWidgetMeterScale : public LvglWidgetObjectBase
 
     if (centerDotSize > 0) {
       lv_obj_set_style_size(meter, centerDotSize, LV_PART_INDICATOR);
-      lv_obj_set_style_bg_color(meter, makeLvColor(flagsRGB(centerDotColor)),
-                                LV_PART_INDICATOR);
+      etx_bg_color_from_flags(meter, centerDotColor, LV_PART_INDICATOR);
       lv_obj_set_style_bg_opa(meter, LV_OPA_COVER, LV_PART_INDICATOR);
       lv_obj_set_style_radius(meter, LV_RADIUS_CIRCLE, LV_PART_INDICATOR);
     }
@@ -823,9 +857,10 @@ class LvglWidgetMeterScale : public LvglWidgetObjectBase
   uint8_t ticks = 0, majorNth = 0;
   uint8_t tickWidth = 0, majorWidth = 0;
   uint8_t tickLen = 0, majorLen = 0;
-  LcdFlags tickColor = COLOR_THEME_PRIMARY1, majorColor = COLOR_THEME_PRIMARY1;
+  LcdFlags tickColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1);
+  LcdFlags majorColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1);
   uint8_t labelGap = 0, centerDotSize = 0;
-  LcdFlags centerDotColor = COLOR_THEME_PRIMARY1;
+  LcdFlags centerDotColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
 
   void parseParam(lua_State *L, const char *key) override
   {
@@ -952,6 +987,7 @@ void LvglWidgetTextButton::setText(const char *s)
 
 void LvglWidgetTextButton::build(lua_State *L)
 {
+  if (h == LV_SIZE_CONTENT) h = 0;
   window =
       new TextButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt, [=]() {
         pcallSimpleFunc(L, pressFunction);
@@ -1158,6 +1194,7 @@ void LvglWidgetChoice::clearRefs(lua_State *L)
 
 void LvglWidgetChoice::build(lua_State *L)
 {
+  if (h == LV_SIZE_CONTENT) h = 0;
   window = new Choice(
       lvglManager->getCurrentParent(), {x, y, w, h}, values, 0,
       values.size() - 1, [=]() { return pcallGetIntVal(L, getFunction) - 1; },
@@ -1195,6 +1232,89 @@ void LvglWidgetSlider::build(lua_State *L)
       [=]() { return pcallGetIntVal(L, getValueFunction); },
       [=](uint8_t val) { pcallSetIntVal(L, setValueFunction, val); });
   window->setPos(x, y);
+}
+
+//-----------------------------------------------------------------------------
+
+class WidgetPage : public NavWindow, public LuaEventHandler
+{
+ public:
+  WidgetPage(Window *parent, std::function<void()> backAction,
+             std::string title, std::string subtitle, std::string iconFile) :
+      NavWindow(parent, {0, 0, LCD_W, LCD_H}), backAction(std::move(backAction))
+  {
+    if (iconFile.empty())
+      header = new PageHeader(this, ICON_EDGETX);
+    else
+      header = new PageHeader(this, iconFile.c_str());
+
+    body = new Window(
+        this, {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
+    body->setWindowFlag(NO_FOCUS);
+
+    header->setTitle(title);
+    header->setTitle2(subtitle);
+
+    etx_solid_bg(lvobj);
+    lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT,
+                                LV_PART_MAIN);
+    etx_scrollbar(body->getLvObj());
+
+    body->padAll(PAD_ZERO);
+
+#if defined(HARDWARE_TOUCH)
+    addBackButton();
+#endif
+  }
+
+  Window *getBody() { return body; }
+
+ protected:
+  std::function<void()> backAction;
+  PageHeader *header = nullptr;
+  Window *body = nullptr;
+
+  bool bubbleEvents() override { return true; }
+
+  void onClicked() override { Keyboard::hide(false); LuaEventHandler::onClicked(); }
+
+  void onCancel() override { backAction(); }
+
+  void onEvent(event_t evt) override
+  {
+    LuaEventHandler::onEvent(evt);
+  }
+
+ protected:
+};
+
+void LvglWidgetPage::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "back")) {
+    backActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "title")) {
+    title = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "subtitle")) {
+    subtitle = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "icon")) {
+    iconFile = luaL_checkstring(L, -1);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetPage::clearRefs(lua_State *L)
+{
+  clearRef(L, backActionFunction);
+  LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetPage::build(lua_State *L)
+{
+  auto page = new WidgetPage(
+      lvglManager->getCurrentParent(),
+      [=]() { pcallSimpleFunc(L, backActionFunction); }, title, subtitle, iconFile);
+  window = page->getBody();
 }
 
 //-----------------------------------------------------------------------------

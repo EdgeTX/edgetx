@@ -26,13 +26,6 @@
 #include "lua/lua_api.h"
 #include "lua/lua_widget.h"
 
-struct LuaPopup
-{
-  rect_t rect;
-  LuaPopup(rect_t r) : rect(r) {}
-  void paint(BitmapBuffer* dc, uint8_t type, const char* text, const char* info);
-};
-
 class StandaloneLuaWindow : public Window, public LuaEventHandler, public LuaLvglManager
 {
   static StandaloneLuaWindow* _instance;
@@ -64,6 +57,10 @@ public:
 
   bool isWidget() override { return false; }
 
+  static LAYOUT_VAL(POPUP_HEADER_HEIGHT, 30, 30);
+  static LAYOUT_VAL(POPUP_X, 50, 40);
+  static LAYOUT_VAL(POPUP_Y, 70, 110);
+
 protected:
   lv_obj_t* prevScreen = nullptr;
   lv_obj_t* errorModal = nullptr;
@@ -73,10 +70,11 @@ protected:
   bool useLvgl = false;
 
   // GFX
-  BitmapBuffer lcdBuffer;
+  BitmapBuffer *lcdBuffer = nullptr;
 
   // pop-ups
-  LuaPopup popup;
+  void popupPaint(BitmapBuffer* dc, coord_t x, coord_t y, coord_t w, coord_t h,
+                  const char* text, const char* info);
 
   // run LUA code
   void runLua(event_t evt);

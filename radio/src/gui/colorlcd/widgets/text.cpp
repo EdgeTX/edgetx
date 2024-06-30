@@ -61,9 +61,7 @@ class TextWidget : public Widget
     lv_label_set_text(label, persistentData->options[0].value.stringValue);
 
     // get font color from options[1]
-    lv_color_t color;
-    color.full = persistentData->options[1].value.unsignedValue;
-    lv_style_set_text_color(&style, color);
+    etx_txt_color_from_flags(label, persistentData->options[1].value.unsignedValue);
     // get font size from options[2]
     lv_style_set_text_font(
         &style, getFont(persistentData->options[2].value.unsignedValue << 8));
@@ -85,8 +83,7 @@ class TextWidget : public Widget
 const ZoneOption TextWidget::options[] = {
     {STR_TEXT, ZoneOption::String,
      OPTION_VALUE_STRING(TEXT_WIDGET_DEFAULT_LABEL)},
-    {STR_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_SECONDARY1 >> 16)},
+    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
     {STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(0)},
     {STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
     {STR_ALIGNMENT, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},

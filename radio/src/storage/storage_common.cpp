@@ -160,8 +160,6 @@ void postModelLoad(bool alarms)
   // Load 'date time' widget if slot is empty
   if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
     strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time", WIDGET_NAME_LEN);
-    g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetData.options[0].type = ZOV_Color;
-    g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetData.options[0].value.unsignedValue = 0xFFFFFF;
     storageDirty(EE_MODEL);
   }
   // Load 'radio info' widget if slot is empty

@@ -87,7 +87,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
   LcdFlags currentColor = -1;
 
   coord_t x = 0, y = 0, w = LV_SIZE_CONTENT, h = LV_SIZE_CONTENT;
-  LcdFlags color = COLOR_THEME_SECONDARY1;
+  LcdFlags color = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX);
   int getColorFunction = 0;
   int getVisibleFunction = 0;
   int getSizeFunction = 0;
@@ -248,6 +248,22 @@ class LvglWidgetImage : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
+class LvglWidgetQRCode : public LvglWidgetObject
+{
+ public:
+  LvglWidgetQRCode() : LvglWidgetObject() {}
+
+  void build(lua_State *L) override;
+
+ protected:
+  std::string data;
+  LcdFlags bgColor = COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX);
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetMeterScale;
 
 class LvglWidgetMeter : public LvglWidgetRoundObject
@@ -398,6 +414,25 @@ class LvglWidgetSlider : public LvglWidgetObject
   int32_t vmax = 100;
   int getValueFunction = 0;
   int setValueFunction = 0;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetPage : public LvglWidgetObject
+{
+ public:
+  LvglWidgetPage() : LvglWidgetObject() {}
+
+  void build(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  int backActionFunction = 0;
+  std::string title;
+  std::string subtitle;
+  std::string iconFile;
 
   void parseParam(lua_State *L, const char *key) override;
 };

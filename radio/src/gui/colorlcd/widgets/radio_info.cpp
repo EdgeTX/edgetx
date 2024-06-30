@@ -107,17 +107,10 @@ class RadioInfoWidget : public TopBarWidget
 
   void update() override
   {
-    lv_color_t color;
-
     // get colors from options
-    color.full = persistentData->options[2].value.unsignedValue;
-    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN);
-
-    color.full = persistentData->options[1].value.unsignedValue;
-    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN | LV_STATE_USER_1);
-
-    color.full = persistentData->options[0].value.unsignedValue;
-    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN | LV_STATE_USER_2);
+    etx_bg_color_from_flags(batteryFill, persistentData->options[2].value.unsignedValue, LV_PART_MAIN);
+    etx_bg_color_from_flags(batteryFill, persistentData->options[1].value.unsignedValue, LV_STATE_USER_1);
+    etx_bg_color_from_flags(batteryFill, persistentData->options[0].value.unsignedValue, LV_STATE_USER_2);
   }
 
   void checkEvents() override
@@ -230,9 +223,9 @@ class RadioInfoWidget : public TopBarWidget
 };
 
 const ZoneOption RadioInfoWidget::options[] = {
-    {STR_LOW_BATT_COLOR, ZoneOption::Color, RGB(0xF4, 0x43, 0x36)},
-    {STR_MID_BATT_COLOR, ZoneOption::Color, RGB(0xFF, 0xC1, 0x07)},
-    {STR_HIGH_BATT_COLOR, ZoneOption::Color, RGB(0x4C, 0xAF, 0x50)},
+    {STR_LOW_BATT_COLOR, ZoneOption::Color, RGB2FLAGS(0xF4, 0x43, 0x36)},
+    {STR_MID_BATT_COLOR, ZoneOption::Color, RGB2FLAGS(0xFF, 0xC1, 0x07)},
+    {STR_HIGH_BATT_COLOR, ZoneOption::Color, RGB2FLAGS(0x4C, 0xAF, 0x50)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", RadioInfoWidget::options,
@@ -252,9 +245,7 @@ class DateTimeWidget : public TopBarWidget
   void update() override
   {
     // get color from options
-    LcdFlags color =
-        COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
-    dateTime->setColor(color);
+    dateTime->setColor(persistentData->options[0].value.unsignedValue);
   }
 
   HeaderDateTime* dateTime = nullptr;
@@ -268,8 +259,7 @@ class DateTimeWidget : public TopBarWidget
 };
 
 const ZoneOption DateTimeWidget::options[] = {
-    {STR_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2 >> 16)},
+    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<DateTimeWidget> DateTimeWidget("Date Time",

@@ -45,7 +45,7 @@ class ColorBar : public FormField
                         nullptr);
 
     etx_std_style(lvobj, LV_PART_MAIN, PAD_ZERO);
-    etx_obj_add_style(lvobj, styles->border_color_edit, LV_PART_MAIN | LV_STATE_EDITED);
+    etx_obj_add_style(lvobj, styles->border_color[COLOR_THEME_EDIT_INDEX], LV_PART_MAIN | LV_STATE_EDITED);
     etx_obj_add_style(lvobj, styles->outline_color_edit, LV_PART_MAIN | LV_STATE_EDITED);
   }
 
@@ -289,7 +289,9 @@ class HSVColorType : public BarColorType
  public:
   HSVColorType(Window* parent, uint32_t color) : BarColorType(parent)
   {
-    auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
+    auto rgb = COLOR_VAL(colorToRGB(color));
+
+    auto r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
     float values[MAX_BARS];
     RGBtoHSV(r, g, b, values[0], values[1], values[2]);
     values[1] *= MAX_SATURATION;  // convert the proper base
@@ -322,7 +324,7 @@ class HSVColorType : public BarColorType
 
   uint32_t getRGB() override
   {
-    return HSVtoRGB(bars[0]->value, bars[1]->value, bars[2]->value);
+    return COLOR2FLAGS(HSVtoRGB(bars[0]->value, bars[1]->value, bars[2]->value)) | RGB_FLAG;
   }
 
  protected:
@@ -335,7 +337,9 @@ class RGBColorType : public BarColorType
  public:
   RGBColorType(Window* parent, uint32_t color) : BarColorType(parent)
   {
-    auto r = GET_RED(color), g = GET_GREEN(color), b = GET_BLUE(color);
+    auto rgb = COLOR_VAL(colorToRGB(color));
+
+    auto r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
     float values[MAX_BARS];
     values[0] = r;
     values[1] = g;
@@ -354,7 +358,7 @@ class RGBColorType : public BarColorType
 
   uint32_t getRGB() override
   {
-    return RGB(bars[0]->value, bars[1]->value, bars[2]->value);
+    return RGB2FLAGS(bars[0]->value, bars[1]->value, bars[2]->value);
   }
 
  protected:
@@ -392,8 +396,7 @@ class ThemeColorType : public ColorType
     auto btn = new TextButton(parent, rect_t{}, "       ");
     etx_bg_color(btn->getLvObj(), (LcdColorIndex)color);
     btn->setPressHandler([=]() {
-      auto cv = lcdColorTable[color];
-      m_color = RGB(GET_RED(cv), GET_GREEN(cv), GET_BLUE(cv));
+      m_color = COLOR2FLAGS(color);
       lv_event_send(parent->getParent()->getParent()->getLvObj(),
                     LV_EVENT_VALUE_CHANGED, nullptr);
       return 0;
