@@ -24,6 +24,10 @@
 #include "opentx.h"
 #include "sdcard.h"
 #include "themes/etx_lv_theme.h"
+#include "fullscreen_dialog.h"
+
+// Used on startup to block until checlist is closed.
+static bool checkListOpen = false;
 
 // Check Box
 const lv_style_const_prop_t cb_marker_checked_props[] = {
@@ -84,7 +88,11 @@ void ViewTextWindow::on_draw(lv_event_t* e)
   }
 }
 
-void ViewTextWindow::onCancel() { Page::onCancel(); }
+void ViewTextWindow::onCancel()
+{
+  Page::onCancel();
+  checkListOpen = false;
+}
 
 void ViewTextWindow::extractNameSansExt()
 {
@@ -423,16 +431,51 @@ static void replaceSpaceWithUnderscore(std::string& name)
 #define MODEL_FILE_EXT MODELS_EXT
 #endif
 
-static bool openNotes(const char buf[], std::string modelNotesName,
+static bool checkNotesFile(std::string modelNotesName)
+{
+  std::string fullPath = std::string(MODELS_PATH) + PATH_SEPARATOR + modelNotesName;
+  return isFileAvailable(fullPath.c_str());
+}
+
+static std::string getModelNotesFile()
+{
+  std::string modelNotesName(g_model.header.name);
+  modelNotesName.append(TEXT_EXT);
+
+  if (checkNotesFile(modelNotesName))
+    return modelNotesName;
+
+  replaceSpaceWithUnderscore(modelNotesName);
+  if (checkNotesFile(modelNotesName))
+    return modelNotesName;
+
+#if !defined(EEPROM)
+  modelNotesName.assign(g_eeGeneral.currModelFilename);
+  size_t index = modelNotesName.find(MODEL_FILE_EXT);
+  if (index != std::string::npos) {
+    modelNotesName.erase(index);
+    modelNotesName.append(TEXT_EXT);
+    if (checkNotesFile(modelNotesName))
+      return modelNotesName;
+  }
+  replaceSpaceWithUnderscore(modelNotesName);
+  if (checkNotesFile(modelNotesName))
+    return modelNotesName;
+#endif
+
+  return std::string("");
+}
+
+static bool openNotes(std::string modelNotesName,
                       bool fromMenu = false)
 {
-  std::string fullPath = std::string(buf) + PATH_SEPARATOR + modelNotesName;
+  std::string fullPath = std::string(MODELS_PATH) + PATH_SEPARATOR + modelNotesName;
 
   if (isFileAvailable(fullPath.c_str())) {
     if (fromMenu || !g_model.checklistInteractive)
-      new ViewTextWindow(std::string(buf), modelNotesName, ICON_MODEL);
+      new ViewTextWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
     else
-      new ViewChecklistWindow(std::string(buf), modelNotesName, ICON_MODEL);
+      new ViewChecklistWindow(std::string(MODELS_PATH), modelNotesName, ICON_MODEL);
     return true;
   } else {
     return false;
@@ -441,34 +484,44 @@ static bool openNotes(const char buf[], std::string modelNotesName,
 
 void readModelNotes(bool fromMenu)
 {
-  bool notesFound = false;
-  LED_ERROR_BEGIN();
+  std::string modelNotesName = getModelNotesFile();
+  if (!modelNotesName.empty()) {
+    openNotes(modelNotesName, fromMenu);
+  }
+}
 
-  std::string modelNotesName(g_model.header.name);
-  modelNotesName.append(TEXT_EXT);
-  const char buf[] = {MODELS_PATH};
-
-  notesFound = openNotes(buf, modelNotesName, fromMenu);
-  if (!notesFound) {
-    replaceSpaceWithUnderscore(modelNotesName);
-    notesFound = openNotes(buf, modelNotesName, fromMenu);
+class CheckListDialog : public FullScreenDialog
+{
+ public:
+  CheckListDialog() :
+      FullScreenDialog(WARNING_TYPE_ALERT, "", "", "")
+  {
+    LED_ERROR_BEGIN();
+    checkListOpen = true;
+    setCloseCondition(std::bind(&CheckListDialog::warningInactive, this));
+    readModelNotes();
   }
 
-#if !defined(EEPROM)
-  if (!notesFound) {
-    modelNotesName.assign(g_eeGeneral.currModelFilename);
-    size_t index = modelNotesName.find(MODEL_FILE_EXT);
-    if (index != std::string::npos) {
-      modelNotesName.erase(index);
-      modelNotesName.append(TEXT_EXT);
-      notesFound = openNotes(buf, modelNotesName, fromMenu);
-    }
-    if (!notesFound) {
-      replaceSpaceWithUnderscore(modelNotesName);
-      notesFound = openNotes(buf, modelNotesName, fromMenu);
-    }
-  }
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "CheckListDialog"; }
 #endif
 
-  LED_ERROR_END();
+ protected:
+
+  bool warningInactive()
+  {
+    if (!checkListOpen)
+      LED_ERROR_END();
+    return !checkListOpen;
+  }
+};
+
+// Blocking version of readModelNotes.
+void readChecklist()
+{
+  std::string s = getModelNotesFile();
+  if (!s.empty()) {
+    auto dialog = new CheckListDialog();
+    dialog->runForever();
+  }
 }
