@@ -20,7 +20,6 @@ set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
-set(WIRELESS_CHARGER YES)
 
 #option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 #option(AFHDS2 "Support for AFHDS2" OFF)
@@ -42,12 +41,21 @@ add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DSPI_FLASH)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
-if(PCBREV STREQUAL PL18EV)
+if(PCBREV STREQUAL NB4P)
+  set(FLAVOUR nb4p)
+  add_definitions(-DRADIO_NB4P)
+  set(WIRELESS_CHARGER NO)
+  set(ROTARY_ENCODER YES)
+elseif(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
-  add_definitions(-DRADIO_PL18EV)
+  add_definitions(-DRADIO_PL18EV -DUSE_HATS_AS_KEYS)
+  set(WIRELESS_CHARGER YES)
+  set(FLYSKY_GIMBAL ON)
 else()
   set(FLAVOUR pl18)
-  add_definitions(-DRADIO_PL18)
+  add_definitions(-DRADIO_PL18 -DUSE_HATS_AS_KEYS)
+  set(WIRELESS_CHARGER YES)
+  set(FLYSKY_GIMBAL ON)
 
   # Defines internal modules for PL18 via UART7
   set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
@@ -64,13 +72,12 @@ set(FIRMWARE_DEPENDENCIES datacopy)
 
 set(HARDWARE_TOUCH ON)
 set(SOFTWARE_KEYBOARD ON)
-set(FLYSKY_GIMBAL ON)
 
 add_definitions(
   -DSTM32F429_439xx -DSTM32F429xx
   -DSDRAM -DCCMRAM -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_TOUCH -DHARDWARE_KEYS
-  -DSOFTWARE_KEYBOARD -DUSE_HATS_AS_KEYS)
+  -DSOFTWARE_KEYBOARD)
 
 set(SDRAM ON)
 
@@ -117,6 +124,13 @@ set(FIRMWARE_TARGET_SRC
   led_driver.cpp
   )
 
+if(PCBREV STREQUAL NB4P)
+  set(FIRMWARE_TARGET_SRC  
+    ${FIRMWARE_TARGET_SRC}
+    switch_driver.cpp
+  )
+endif()
+
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   targets/common/arm/stm32/sdram_driver.cpp
@@ -128,6 +142,13 @@ set(FIRMWARE_SRC
   boards/generic_stm32/rgb_leds.cpp
   drivers/frftl.cpp
   )
+
+if(ROTARY_ENCODER)
+  set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  targets/common/arm/stm32/rotary_encoder_driver.cpp
+  )
+endif()
 
 if(BOOTLOADER)
   set(FIRMWARE_SRC

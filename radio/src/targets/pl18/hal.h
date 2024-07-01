@@ -65,6 +65,7 @@
 #define TRIMS_GPIO_REG_LVU
 #define TRIMS_GPIO_PIN_LVU
 
+#if !defined(RADIO_NB4P)
 #define TRIMS_GPIO_REG_RHL
 #define TRIMS_GPIO_PIN_RHL
 
@@ -304,16 +305,74 @@
   }
 #endif
 
+#else
+  #define ADC_RCC_AHB1Periph            (RCC_AHB1Periph_DMA2)
+  #define ADC_RCC_APB1Periph            0
+  #define ADC_RCC_APB2Periph            0
+  #define ADC_GPIO_PIN_STICK_TH         LL_GPIO_PIN_3       // PA.03
+  #define ADC_GPIO_PIN_STICK_ST         LL_GPIO_PIN_2       // PA.02
+  #define ADC_CHANNEL_STICK_TH          LL_ADC_CHANNEL_3    // ADC123_IN3 -> ADC1_IN3
+  #define ADC_CHANNEL_STICK_ST          LL_ADC_CHANNEL_2    // ADC123_IN2 -> ADC1_IN2
+//  #define ADC_GPIO_PIN_SWA              LL_GPIO_PIN_1       //PC.01
+  #define ADC_GPIO_EXT2                  GPIOC
+//  #define ADC_GPIO_PIN_SWB              LL_GPIO_PIN_0       //PC.00
+//  #define ADC_CHANNEL_SWA               LL_ADC_CHANNEL_11   // ADC123_IN11 -> ADC1_IN11
+//  #define ADC_CHANNEL_SWB               LL_ADC_CHANNEL_10   // ADC123_IN10 -> ADC1_IN10  
+  #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_7       // PA.07
+  #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_2       // PC.02
+  #define ADC_GPIO_PIN_EXT1             LL_GPIO_PIN_1       // PC.01 (SW1)
+  #define ADC_GPIO_PIN_EXT2             LL_GPIO_PIN_0       // PC.00 (SW2 SW3)
+  #define ADC_GPIO_PIN_EXT3             LL_GPIO_PIN_6       // PA.06 (TR1)
+  #define ADC_GPIO_PIN_EXT4             LL_GPIO_PIN_4       // PC.04 (TR2)
+  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_5       // PC.05
+  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_7    // ADC12_IN7 -> ADC1_IN7
+  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_12   // ADC123_IN12 -> ADC1_IN12
+  #define ADC_CHANNEL_EXT1              LL_ADC_CHANNEL_11   // ADC123_IN11 -> ADC1_IN11
+  #define ADC_CHANNEL_EXT2              LL_ADC_CHANNEL_10   // ADC123_IN10 -> ADC1_IN10  
+  #define ADC_CHANNEL_EXT3              LL_ADC_CHANNEL_6    // ADC12_IN6 -> ADC1_IN6
+  #define ADC_CHANNEL_EXT4              LL_ADC_CHANNEL_14   // ADC12_IN14 -> ADC1_IN14
+  #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_15   // ADC12_IN15  -> ADC1_IN15
+  #define ADC_CHANNEL_RTC_BAT           LL_ADC_CHANNEL_VBAT // ADC1_IN18
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_TH | ADC_GPIO_PIN_STICK_ST | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_EXT3)
+  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_EXT1 | ADC_GPIO_PIN_EXT2 | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_EXT4 | ADC_GPIO_PIN_BATT)
+
+#define ADC_MAIN                        ADC1
+#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_28CYCLES
+#define ADC_DMA                         DMA2
+#define ADC_DMA_CHANNEL                 LL_DMA_CHANNEL_0
+#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
+#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
+#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
+
+#define ADC_VREF_PREC2                  660
+
+#define ADC_DIRECTION {       \
+    0,0, /* gimbals */    \
+    0,0,0,0,   /* pots */       \
+    0,	     /* vbat */       \
+    0,       /* rtc_bat */    \
+    0,      /* SWA */        \
+    0      /* SWB */        \
+  }
+
+#endif
+
+
 // Power
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOI, 11)  // PI.11
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOI, 14)  // PI.14
 
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14) // PB.14 input
-
 #define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13) // PB.13 input
+#if defined(RADIO_NB4P)
+  #define UCHARGER_GPIO_PIN_INV
+  #define UCHARGER_CHARGE_END_GPIO_PIN_INV
+#endif
 
-#define UCHARGER_EN_GPIO            GPIO_PIN(GPIOG, 3)  // PG.03 output
+#if defined(RADIO_PL18) || defined(RADIO_PL18EV)
+  #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)  // PG.03 output
+#endif
 
 #if defined (WIRELESS_CHARGER)
   #define WCHARGER_GPIO               GPIO_PIN(GPIOI, 9)  // PI.09 input
@@ -419,7 +478,26 @@
 //used in BOOTLOADER
 #define SERIAL_RCC_AHB1Periph           0
 #define SERIAL_RCC_APB1Periph           0
-#define ROTARY_ENCODER_RCC_APB1Periph   0
+
+#if defined(RADIO_NB4P)
+// Rotary Encoder
+#define ROTARY_ENCODER_GPIO             GPIOH
+#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_11 // PH.11
+#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_10 // PH.10
+#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x03)
+#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_11
+#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_10
+#if !defined(USE_EXTI15_10_IRQ)
+  #define USE_EXTI15_10_IRQ
+  #define EXTI15_10_IRQ_Priority 5
+#endif
+#define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTH
+#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE11
+#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE10
+#define ROTARY_ENCODER_TIMER            TIM12
+#define ROTARY_ENCODER_TIMER_IRQn       TIM8_BRK_TIM12_IRQn
+#define ROTARY_ENCODER_TIMER_IRQHandler TIM8_BRK_TIM12_IRQHandler
+#endif
 
 // SPI NOR Flash
 #define FLASH_SPI                      SPI6
@@ -451,6 +529,14 @@
 #define AUDIO_TIMER                     TIM6
 #define AUDIO_DMA                       DMA1
 
+#if defined(RADIO_NB4P)
+  #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 9) // PH.09 audio amp control pin
+  #define AUDIO_UNMUTE_DELAY            120  // ms
+  #define AUDIO_MUTE_DELAY              500  // ms
+  #define INVERTED_MUTE_PIN
+  #define VOICE_CHIP_EN_GPIO            GPIO_PIN(GPIOI, 5) // PI.05
+#endif
+
 // I2C Bus
 #define I2C_B1                          I2C1
 #define I2C_B1_GPIO                     GPIOB
@@ -474,13 +560,23 @@
 #endif
 
 // Haptic: TIM1_CH1
+#if defined(RADIO_NB4P)
+#define HAPTIC_PWM
+#define HAPTIC_GPIO                     GPIO_PIN(GPIOB, 0) // PB.00
+#define HAPTIC_GPIO_TIMER               TIM1
+#define HAPTIC_GPIO_AF                  GPIO_AF1
+#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2NE
+#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
+#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
+#else
 #define HAPTIC_PWM
 #define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 8) // PA.08
 #define HAPTIC_GPIO_TIMER               TIM1
 #define HAPTIC_GPIO_AF                  GPIO_AF1
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC1E | TIM_CCER_CC1NE;
+#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC1E | TIM_CCER_CC1NE
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR1
+#endif
 
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
@@ -555,8 +651,13 @@
 #define EXTMODULE_RX_GPIO_AF_USART      GPIO_AF_USART6
 #define EXTMODULE_TIMER                 TIM8
 #define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
+#if defined(RADIO_NB4P)
+#define EXTMODULE_TIMER_IRQn            TIM5_IRQn
+#define EXTMODULE_TIMER_IRQHandler      TIM5_IRQHandler
+#else
 #define EXTMODULE_TIMER_IRQn            TIM8_UP_TIM13_IRQn
 #define EXTMODULE_TIMER_IRQHandler      TIM8_UP_TIM13_IRQHandler
+#endif
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_3
 //USART
@@ -636,19 +737,33 @@
 #define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
 
 // Mixer scheduler timer
+#if defined(RADIO_NB4P)
+#define MIXER_SCHEDULER_TIMER                TIM13
+#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_UP_TIM13_IRQn
+#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_UP_TIM13_IRQHandler
+#else
 #define MIXER_SCHEDULER_TIMER                TIM12
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
+#endif
 
 // SDRAM
 #define SDRAM_BANK1
 
+#if defined(RADIO_NB4P)
+#define LCD_W                           320
+#define LCD_H                           480
+#define PORTRAIT_LCD true
+#define LANDSCAPE_LCD false
+#else
 #define PORTRAIT_LCD false
 #define LANDSCAPE_LCD true
 
 #define LCD_W                           480
 #define LCD_H                           320
+#endif
 
 #define LCD_PHYS_W                      320
 #define LCD_PHYS_H                      480

@@ -31,32 +31,34 @@
 
 #include <stdlib.h>
 
-void boardInitSwitches()
+#define __weak __attribute__((weak))
+
+__weak void boardInitSwitches()
 {
   _init_switches();
 }
 
-SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
+__weak SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
 {
   return stm32_switch_get_position(&_switch_offsets[cat][idx]);
 }
 
-const char* boardSwitchGetName(uint8_t cat, uint8_t idx)
+__weak const char* boardSwitchGetName(uint8_t cat, uint8_t idx)
 {
   return _switch_offsets[cat][idx].name;
 }
 
-SwitchHwType boardSwitchGetType(uint8_t cat, uint8_t idx)
+__weak SwitchHwType boardSwitchGetType(uint8_t cat, uint8_t idx)
 {
   return _switch_offsets[cat][idx].type;
 }
 
-uint8_t boardGetMaxSwitches() { return n_switches; }
-uint8_t boardGetMaxFctSwitches() { return n_fct_switches; }
+__weak uint8_t boardGetMaxSwitches() { return n_switches; }
+__weak uint8_t boardGetMaxFctSwitches() { return n_fct_switches; }
 
-swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }
+__weak swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }
 
-switch_display_pos_t switchGetDisplayPosition(uint8_t idx)
+__weak switch_display_pos_t switchGetDisplayPosition(uint8_t idx)
 {
   // TODO: find a solution for FLEX switches so they can be displayed on main view
   if (idx >= DIM(_switch_display)) return {0, 0};
