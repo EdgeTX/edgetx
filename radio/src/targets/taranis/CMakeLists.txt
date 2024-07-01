@@ -490,7 +490,7 @@ endif()
 
 if(INTERNAL_MODULE_SERIAL)
 
-  if("${PCBREV}" STREQUAL 2019 OR "${PCBREV}" STREQUAL ACCESS)
+  if(DEFAULT_INTERNAL_MODULE STREQUAL ISRM_PXX2)
     # defines existing internal modules
     set(INTERNAL_MODULES PXX2 CACHE STRING "Internal modules")
   else()
