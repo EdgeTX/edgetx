@@ -164,8 +164,10 @@ static void init_lvgl_disp_drv()
 
 void lcdInitDisplayDriver()
 {
+  static bool lcdDriverStarted = false;
   // we already have a display: exit
-  // if (disp != nullptr) return;
+  if (lcdDriverStarted) return;
+  lcdDriverStarted = true;
 
 #if !defined(BOOT)
   // Full LVGL init in firmware mode
