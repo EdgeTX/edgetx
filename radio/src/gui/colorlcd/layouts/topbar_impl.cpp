@@ -50,24 +50,25 @@ TopBar::TopBar(Window * parent) :
 
 unsigned int TopBar::getZonesCount() const
 {
-  return MAX_TOPBAR_ZONES;
+  unsigned int zoneCount = 0;
+  for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
+    if (g_model.topbarWidgetWidth[i] > 0)
+      zoneCount += 1;
+  return zoneCount;
 }
 
 rect_t TopBar::getZone(unsigned int index) const
 {
-#if PORTRAIT_LCD
-  if (index == MAX_TOPBAR_ZONES - 1) {
-    coord_t size = LCD_W - HDR_DATE_XO - (MAX_TOPBAR_ZONES - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN);
-    return {LCD_W - size, TOPBAR_ZONE_VMARGIN, size, TOPBAR_ZONE_HEIGHT};
-  }
-#endif
+  coord_t x = MENU_HEADER_BUTTONS_LEFT + 1;
 
-  return {
-    coord_t(MENU_HEADER_BUTTONS_LEFT + 1 + (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN) * index),
-    TOPBAR_ZONE_VMARGIN,
-    TOPBAR_ZONE_WIDTH,
-    TOPBAR_ZONE_HEIGHT
-  };
+  for (int i = 0; i < index; i += 1)
+    x += (g_model.topbarWidgetWidth[i] * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN));
+
+  coord_t size = ((g_model.topbarWidgetWidth[index] - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN) + TOPBAR_ZONE_WIDTH);
+
+  if ((x + size) > LCD_W) size = LCD_W - x;
+
+  return {x, TOPBAR_ZONE_VMARGIN, size, TOPBAR_ZONE_HEIGHT};
 }
 
 void TopBar::setVisible(float visible) // 0.0 -> 1.0

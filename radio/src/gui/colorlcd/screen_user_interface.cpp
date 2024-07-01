@@ -24,6 +24,8 @@
 #include "file_preview.h"
 #include "menu_screen.h"
 #include "theme_manager.h"
+#include "topbar_impl.h"
+#include "view_main.h"
 
 #if !PORTRAIT_LCD  // landscape
 
@@ -146,12 +148,64 @@ void ScreenUserInterfacePage::build(Window* window)
   auto line = window->newLine(grid);
   new StaticText(line, rect_t{}, STR_TOP_BAR);
 
-  auto setupTopbarWidgets = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS);
-  setupTopbarWidgets->setPressHandler([=]() -> uint8_t {
-    menu->deleteLater();
-    new SetupTopBarWidgetsPage();
-    return 0;
-  });
+  auto setupTopbarWidgets = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
+            [=]() -> uint8_t {
+                menu->deleteLater();
+                new SetupTopBarWidgetsPage();
+                return 0;
+            });
+
+  line = window->newLine(grid);
+  new StaticText(line, rect_t{}, "Widget width");
+  line = window->newLine(grid);
+  auto box = new Window(line, rect_t{});
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY);
+  box->padAll(PAD_TINY);
+  box->padLeft(PAD_MEDIUM);
+  for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1) {
+    coord_t w = (g_model.topbarWidgetWidth[i] * (WWBTN_W + PAD_TINY)) - PAD_TINY;
+    if (w < WWBTN_W) w = WWBTN_W;
+    widths[i] = new Choice(box, {0, 0, w, 0}, 0, MAX_TOPBAR_ZONES,
+              [=]() {
+                return g_model.topbarWidgetWidth[i];
+              },
+              [=](int value) {
+                g_model.topbarWidgetWidth[i] = value;
+                coord_t w = (g_model.topbarWidgetWidth[i] * (WWBTN_W + PAD_TINY)) - PAD_TINY;
+                widths[i]->setWidth(w);
+                int remaining = MAX_TOPBAR_ZONES;
+                for (int n = 0; n < MAX_TOPBAR_ZONES; n += 1) {
+                  if (n > i) {
+                    if (remaining > 0) {
+                      if (g_model.topbarWidgetWidth[n] == 0) {
+                        g_model.topbarWidgetWidth[n] = 1;
+                        widths[n]->setWidth(WWBTN_W);
+                        widths[n]->show();
+                        widths[n]->update();
+                      }
+                    } else {
+                      if (g_model.topbarWidgetWidth[n] != 0) {
+                        g_model.topbarWidgetWidth[n] = 0;
+                        widths[n]->setWidth(WWBTN_W);
+                        widths[n]->hide();
+                        ViewMain::instance()->getTopbar()->removeWidget(n);
+                      }
+                    }
+                  }
+                  ViewMain::instance()->getTopbar()->load();
+                  remaining -= g_model.topbarWidgetWidth[n];
+                }
+                storageDirty(EE_MODEL);
+              }, "Widget width");
+    widths[i]->setAvailableHandler([=](int value) {
+      int remaining = MAX_TOPBAR_ZONES;
+      for (int n = 0; n < i; n += 1)
+        remaining -= g_model.topbarWidgetWidth[n];
+      return value > 0 && value <= remaining;
+    });
+    if (g_model.topbarWidgetWidth[i] == 0)
+      widths[i]->hide();
+  }
 
   // Theme choice
   line = window->newLine(grid);

@@ -862,6 +862,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 6816, 10, struct_CustomScreenData, NULL),
   YAML_STRUCT("topbarData", 3552, struct_TopBarPersistentData, NULL),
+  YAML_ARRAY("topbarWidgetWidth", 8, 6, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
