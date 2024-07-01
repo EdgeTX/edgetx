@@ -1302,3 +1302,5 @@
 #define TR_LOW_BATT_COLOR         "Rozładowana bateria"
 #define TR_MID_BATT_COLOR         "Średni stan baterii"
 #define TR_HIGH_BATT_COLOR        "Naładowana bateria"
+
+#define TR_WIDGET_SIZE            "Widget size"

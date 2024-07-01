@@ -1307,3 +1307,5 @@
 #define TR_LOW_BATT_COLOR         "低電量"
 #define TR_MID_BATT_COLOR         "中電量"
 #define TR_HIGH_BATT_COLOR        "高電量"
+
+#define TR_WIDGET_SIZE            "Widget size"

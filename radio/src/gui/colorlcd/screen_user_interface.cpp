@@ -156,7 +156,7 @@ void ScreenUserInterfacePage::build(Window* window)
             });
 
   line = window->newLine(grid);
-  new StaticText(line, rect_t{}, "Widget width");
+  new StaticText(line, rect_t{}, STR_WIDGET_SIZE);
   line = window->newLine(grid);
   auto box = new Window(line, rect_t{});
   box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY);
@@ -196,7 +196,7 @@ void ScreenUserInterfacePage::build(Window* window)
                   remaining -= g_model.topbarWidgetWidth[n];
                 }
                 storageDirty(EE_MODEL);
-              }, "Widget width");
+              }, STR_WIDGET_SIZE);
     widths[i]->setAvailableHandler([=](int value) {
       int remaining = MAX_TOPBAR_ZONES;
       for (int n = 0; n < i; n += 1)

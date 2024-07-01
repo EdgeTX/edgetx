@@ -1337,3 +1337,5 @@
 #define TR_LOW_BATT_COLOR               "Lågt batteri"
 #define TR_MID_BATT_COLOR               "Medium batteri"
 #define TR_HIGH_BATT_COLOR              "Högt batteri"
+
+#define TR_WIDGET_SIZE            "Widget size"

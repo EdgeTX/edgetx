@@ -1306,3 +1306,5 @@
 #define TR_LOW_BATT_COLOR         "Farbe Akku fast leer"
 #define TR_MID_BATT_COLOR         "Farbe Akku mittel"
 #define TR_HIGH_BATT_COLOR        "Farbe Akku voll"
+
+#define TR_WIDGET_SIZE            "Widget size"
