@@ -185,68 +185,44 @@ static bool _lenIsSane(uint8_t len)
 static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
                                   uint8_t* buf, uint8_t* p_len)
 {
+ 
   if (frame_len < MIN_FRAME_LEN) return;
 
-  // De-Fragmentation:
-  //   It is assumed here that a continuation chunk
-  //   will not belong to multiple CRSF frames.
-
   uint8_t& len = *p_len;
-  if (len > 0) {
-    uint8_t unfrag_len = buf[1] + 2;
-    uint8_t defrag_len = len + frame_len;
 
-    if (defrag_len <= unfrag_len && defrag_len <= TELEMETRY_RX_PACKET_SIZE) {
-      // If we're not going to overshoot
-      // the intended frame length,
-      // let's reassemble it
-      memcpy(buf + len, frame, frame_len);
-      len = defrag_len;
-      frame_len = 0;
-
-      // frame complete?
-      if (defrag_len < unfrag_len) {
-        TRACE("[XF] frag cont frame (%d < %d)", defrag_len, unfrag_len);
-        return;
-      } else {
-        TRACE("[XF] frame complete");
-      }
-    } else {
-      TRACE("[XF] overshoot (%d > %d)", defrag_len, unfrag_len);
-    }
-  }
-
-  if (frame_len > 0) {
-    memcpy(buf, frame, frame_len);
-    len = frame_len;
-
-    uint8_t unfrag_len = buf[1] + 2;
-    if (!_lenIsSane(unfrag_len)) {
-      TRACE("[XF] pkt len error (%d)", unfrag_len);
-      len = 0;
-      return;
-    }
-
-    if (len < unfrag_len) {
-      TRACE("[XF] frag frame (%d < %d)", len, unfrag_len);
-      return;
-    }
+  if (frame_len + len> TELEMETRY_RX_PACKET_SIZE) {
+    TRACE("[XF] buffer overfill, discarding");
+    len=0;
+  }else if (frame_len>0){
+    memcpy(buf+len,frame,frame_len);
+    len+=frame_len;
   }
 
   uint8_t* p_buf = buf;
-  while (len >= MIN_FRAME_LEN) {
-    uint8_t pkt_len = p_buf[1] + 2;
-    if (pkt_len > len) {
-      TRACE("[XF] length error (%d > %d)", pkt_len, len);
-      len = 0;
-      return;
-    }
-
+  while (len >= MIN_FRAME_LEN)
+  {
+    uint8_t pkt_len = p_buf[1]+2;
     if (p_buf[0] != RADIO_ADDRESS && p_buf[0] != UART_SYNC) {
       TRACE("[XF] address 0x%02X error", p_buf[0]);
-    } else if (!_checkFrameCRC(p_buf)) {
+      p_buf += 1;
+      len -= 1;
+      continue;
+    }else if(p_buf[1]>62){//should it be 62 (2+62) or 61 (2+61+1)
+      TRACE("[XF] length error (%d > 62)", p_buf[1]);
+      p_buf += 1;
+      len -= 1;
+      continue;
+    }else if(pkt_len > len){
+      TRACE("[XF] Preserving trailing %d bytes)", len);
+      memmove(buf, p_buf, len); //do not discard trailing packet beginning //memmove because there is a risk of an overlap
+      p_buf=buf;
+      break;
+    }else if (!_checkFrameCRC(p_buf)){
       TRACE("[XF] CRC error ");
-    } else {
+      p_buf += 1;
+      len -= 1;
+      continue;
+    }else{
 #if defined(BLUETOOTH)
       // TODO: generic telemetry mirror to BT
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
@@ -254,13 +230,13 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
         bluetooth.write(p_buf, pkt_len);
       }
 #endif
+      TRACE("Packet %02X len: %u handled",p_buf[2],p_buf[1]);
       auto mod_st = (etx_module_state_t*)ctx;
       auto module = modulePortGetModule(mod_st);
       processCrossfireTelemetryFrame(module, p_buf, pkt_len);
+      p_buf += pkt_len;
+      len -= pkt_len;
     }
-
-    p_buf += pkt_len;
-    len -= pkt_len;
   }
 }
 
