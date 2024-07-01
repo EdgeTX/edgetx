@@ -230,7 +230,7 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
         bluetooth.write(p_buf, pkt_len);
       }
 #endif
-      TRACE("Packet %02X len: %u handled",p_buf[2],p_buf[1]);
+      TRACE(" [XF] Packet %02X len: %u handled",p_buf[2],p_buf[1]);
       auto mod_st = (etx_module_state_t*)ctx;
       auto module = modulePortGetModule(mod_st);
       processCrossfireTelemetryFrame(module, p_buf, pkt_len);
