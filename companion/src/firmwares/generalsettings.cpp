@@ -335,7 +335,7 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
       Board::InputInfo info =  Boards::getInputInfo(i, board);
       inputConfig[i].type = info.type;
       inputConfig[i].flexType = info.flexType;
-      inputConfig[i].inverted = info.inverted;
+      inputConfig[i].inverted = false; //info.inverted;
     }
   }
 
