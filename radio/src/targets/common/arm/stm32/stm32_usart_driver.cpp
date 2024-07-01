@@ -170,10 +170,13 @@ static gpio_speed_t _get_pin_speed(uint32_t baudrate)
 }
 
 #if defined(STM32H7)
-#define _AF7_USART(x) \
-  (x == USART1 || x == USART2 || x == USART3 || x == USART6)
-#else
-#define _AF7_USART(x) \
+# define _AF7_USART(x) \
+  (x == USART1 || x == USART2 || x == USART3 || x == USART6 || x == UART7)
+#elif defined(STM32H7RS)
+# define _AF7_USART(x) \
+  (x == USART1 || x == USART2 || x == USART3 || x == UART7)
+#else // F2, F4
+# define _AF7_USART(x) \
   (x == USART1 || x == USART2 || x == USART3)
 #endif
 
