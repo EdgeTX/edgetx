@@ -186,8 +186,6 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
                                   uint8_t* buf, uint8_t* p_len)
 {
  
-  if (frame_len < MIN_FRAME_LEN) return;
-
   uint8_t& len = *p_len;
 
   if (frame_len + len> TELEMETRY_RX_PACKET_SIZE) {
@@ -213,7 +211,7 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
       len -= 1;
       continue;
     }else if(pkt_len > len){
-      TRACE("[XF] Preserving trailing %d bytes)", len);
+      TRACE("[XF] Preserving trailing %d bytes", len);
       memmove(buf, p_buf, len); //do not discard trailing packet beginning //memmove because there is a risk of an overlap
       p_buf=buf;
       break;
