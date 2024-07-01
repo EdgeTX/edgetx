@@ -1178,7 +1178,8 @@ Node convert<ModelData>::encode(const ModelData& rhs)
       node["topbarData"] = topbarData;
     }
     for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
-      node["topbarWidgetWidth"][std::to_string(i)]["val"] = (int)rhs.topbarWidgetWidth[i];
+      if (rhs.topbarWidgetWidth[i] > 0)
+        node["topbarWidgetWidth"][std::to_string(i)]["val"] = (int)rhs.topbarWidgetWidth[i];
     node["view"] = rhs.view;
   }
 
