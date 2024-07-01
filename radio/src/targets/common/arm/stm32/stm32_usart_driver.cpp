@@ -169,7 +169,7 @@ static gpio_speed_t _get_pin_speed(uint32_t baudrate)
   return GPIO_PIN_SPEED_LOW;
 }
 
-#if defined(USART6)
+#if defined(STM32H7)
 #define _AF7_USART(x) \
   (x == USART1 || x == USART2 || x == USART3 || x == USART6)
 #else
