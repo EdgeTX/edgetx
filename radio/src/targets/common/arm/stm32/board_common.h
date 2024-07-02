@@ -26,7 +26,9 @@
 #include "cpu_id.h"
 
 #if !defined(SIMU) && !defined(BACKUP)
-#if defined(STM32F4)
+#if defined(STM32H7)
+  #include "stm32h7xx.h"
+#elif defined(STM32F4)
   #include "stm32f4xx.h"
 #else
   #include "stm32f2xx.h"

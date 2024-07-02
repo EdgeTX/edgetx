@@ -21,13 +21,27 @@
 
 #pragma once
 
+#include "stm32_cmsis.h"
+#include "stm32_gpio.h"
+#include "hal/gpio.h"
+
 #include <stdint.h>
 
+// Maxmimum 2 I2C bus instances
 enum { I2C_Bus_1 = 0, I2C_Bus_2 };
+
+typedef struct {
+  I2C_TypeDef* I2Cx;
+  gpio_t       SCL_GPIO;
+  gpio_t       SDA_GPIO;
+  uint32_t     GPIO_AF;
+  void (*set_pwr)(bool enable);
+} stm32_i2c_hw_def_t;
 
 // Init I2C bus
 // @return -1 if error, 0 if already running, 1 otherwise
-int stm32_i2c_init(uint8_t bus, uint32_t clock_rate);
+int stm32_i2c_init(uint8_t bus, uint32_t clock_rate,
+                   const stm32_i2c_hw_def_t* hw_def);
 
 // DeInit I2C bus
 // @return -1 if error, 0 otherwise

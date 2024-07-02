@@ -21,7 +21,9 @@
 
 #if !defined(SOFTWARE_VOLUME)
 
+#include "hal/i2c_driver.h"
 #include "stm32_i2c_driver.h"
+
 #include "board.h"
 
 static const uint8_t volumeScale[VOLUME_LEVEL_MAX+1] = {
@@ -32,7 +34,7 @@ static const uint8_t volumeScale[VOLUME_LEVEL_MAX+1] = {
 int32_t getVolume()
 {
   uint8_t value = 0;
-  if (stm32_i2c_read(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &value, 1, 10) < 0)
+  if (i2c_read(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &value, 1) < 0)
     return -1;
 
   return value;
@@ -40,8 +42,8 @@ int32_t getVolume()
 
 void setVolume(uint8_t volume)
 {
-  stm32_i2c_init(VOLUME_I2C_BUS, I2C_B1_CLK_RATE);
-  stm32_i2c_write(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &volume, 1, 10);
+  i2c_init(VOLUME_I2C_BUS);
+  i2c_write(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &volume, 1);
 }
 
 void setScaledVolume(uint8_t volume)

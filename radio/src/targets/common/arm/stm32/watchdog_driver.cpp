@@ -22,6 +22,10 @@
 #include "hal/watchdog_driver.h"
 #include "stm32_hal_ll.h"
 
+#ifdef IWDG1
+  #define IWDG IWDG1
+#endif
+
 void watchdogInit(unsigned int duration)
 {
   LL_IWDG_EnableWriteAccess(IWDG);

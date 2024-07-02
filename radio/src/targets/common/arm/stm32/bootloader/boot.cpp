@@ -19,8 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#if !defined(SIMU)
 #include "stm32_hal_ll.h"
 #include "stm32_timer.h"
+#endif
+
 #include "hal/usb_driver.h"
 
 #if defined(BLUETOOTH)
@@ -178,10 +181,9 @@ int menuFlashFile(uint32_t index, event_t event)
 void flashWriteBlock()
 {
   uint32_t blockOffset = 0;
-  while (BlockCount) {
 #if !defined(SIMU)
+  while (BlockCount) {
     flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
-#endif
     blockOffset += FLASH_PAGESIZE;
     firmwareAddress += FLASH_PAGESIZE;
     if (BlockCount > FLASH_PAGESIZE) {
@@ -191,6 +193,7 @@ void flashWriteBlock()
       BlockCount = 0;
     }
   }
+#endif // SIMU
 }
 
 #if defined(EEPROM)
@@ -225,7 +228,7 @@ void bootloaderInitApp()
   // wait a bit for the inputs to stabilize...
   if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     for (uint32_t i = 0; i < 150000; i++) {
-      __ASM volatile ("nop");
+      __ASM volatile("nop");
     }
   }
 
@@ -592,6 +595,3 @@ int  bootloaderMain()
   return 0;
 }
 
-#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBFLYSKY))
-void *__dso_handle = nullptr;
-#endif
