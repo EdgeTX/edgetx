@@ -1021,7 +1021,7 @@
   #define TR_WIDGET_VALUE              "Wartość"
 #endif
 
-// Bootloader common - Ascii only
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB polaczone"
 #define TR_BL_USB_PLUGIN              "lub podlacz kabel USB"
 #define TR_BL_USB_MASS_STORE          "dla trybu danych"
@@ -1051,19 +1051,23 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Przywroc EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Nacisnij przycisk Power"
     #define TR_BL_FLASH_EXIT          "Wyjdz z trybu flashowania"
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] aby wybrac plik"
   #define TR_BL_FLASH_KEY             "Przytrzymaj [ENT] aby flashowac"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] aby wyjsc"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "Dostep RF USB"
   #define TR_BL_CURRENT_FW            "Obecny firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] aby wybrac plik"
@@ -1072,7 +1076,7 @@
   #define TR_BL_ENABLE                "Enable"
   #define TR_BL_DISABLE               "Disable"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"

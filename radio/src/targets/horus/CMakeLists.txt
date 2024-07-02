@@ -100,6 +100,10 @@ if (PCB STREQUAL X10)
     set(FLAVOUR tx16s)
     add_definitions(-DRADIO_TX16S)
     add_definitions(-DRADIO_FAMILY_T16)
+
+#   Uncomment the line below to enable bootloader support for SPI flash
+#    add_definitions(-DSPI_FLASH)
+
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     option(BLUETOOTH "Support for bluetooth module" OFF)
     option(INTERNAL_GPS "Support for internal GPS" ON)
