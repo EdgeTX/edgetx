@@ -164,8 +164,10 @@ static void init_lvgl_disp_drv()
 
 void lcdInitDisplayDriver()
 {
+  static bool lcdDriverStarted = false;
   // we already have a display: exit
-  // if (disp != nullptr) return;
+  if (lcdDriverStarted) return;
+  lcdDriverStarted = true;
 
 #if !defined(BOOT)
   // Full LVGL init in firmware mode
@@ -198,6 +200,9 @@ void lcdInitDisplayDriver()
   //  - this prevents LVGL overwritting things drawn directly into the bitmap
   //  buffer
   lv_disp_set_bg_opa(d, LV_OPA_TRANSP);
+
+  // allow drawing at any moment
+  _lv_refr_set_disp_refreshing(d);
 #else
   // allow drawing at any moment
   lv_memset_00(&disp, sizeof(lv_disp_t));
