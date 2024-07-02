@@ -98,32 +98,25 @@ class MixLineButton : public InputMixButtonBase
     setSource(line.srcRaw);
 
     char tmp_str[64];
-    size_t maxlen = sizeof(tmp_str);
-
     char *s = tmp_str;
     *s = '\0';
 
     if (line.name[0]) {
-      int cnt = lv_snprintf(s, maxlen, "%.*s ", (int)sizeof(line.name), line.name);
-      if ((size_t)cnt >= maxlen) maxlen = 0;
-      else { maxlen -= cnt; s += cnt; }
+      s = strAppend(s, line.name, LEN_EXPOMIX_NAME);
     }
 
-    if (line.swtch || line.curve.value) {
-      if (line.swtch) {
-        char* sw_pos = getSwitchPositionName(line.swtch);
-        int cnt = lv_snprintf(s, maxlen, "%s ", sw_pos);
-        if ((size_t)cnt >= maxlen) maxlen = 0;
-        else { maxlen -= cnt; s += cnt; }
-      }
-      if (line.curve.value != 0) {
-        getCurveRefString(s, maxlen, line.curve);
-        int cnt = strnlen(s, maxlen);
-        if ((size_t)cnt >= maxlen) maxlen = 0;
-        else { maxlen -= cnt; s += cnt; }
-      }
+    if (line.swtch) {
+      if (tmp_str[0]) s = strAppend(s, " ");
+      char* sw_pos = getSwitchPositionName(line.swtch);
+      s = strAppend(s, sw_pos);
     }
-    lv_label_set_text_fmt(opts, "%.*s", (int)sizeof(tmp_str), tmp_str);
+
+    if (line.curve.value != 0) {
+      if (tmp_str[0]) s = strAppend(s, " ");
+      getCurveRefString(s, sizeof(tmp_str) - (s - tmp_str), line.curve);
+    }
+
+    setOpts(tmp_str);
 
     mplex->refresh();
 

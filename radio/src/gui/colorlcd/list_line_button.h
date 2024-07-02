@@ -54,6 +54,7 @@ class InputMixButtonBase : public ListLineButton
 
   void setWeight(gvar_t value, gvar_t min, gvar_t max);
   void setSource(mixsrc_t idx);
+  void setOpts(const char* s);
   void setFlightModes(uint16_t modes);
 
   virtual void updatePos(coord_t x, coord_t y) = 0;
@@ -66,7 +67,7 @@ class InputMixButtonBase : public ListLineButton
   static LAYOUT_VAL(BTN_W, 389, 229)
   static constexpr coord_t WGT_X = PAD_TINY;
   static constexpr coord_t WGT_Y = PAD_TINY;
-  static LAYOUT_VAL(WGT_W, 43, 43)
+  static LAYOUT_VAL(WGT_W, 50, 50)
   static LAYOUT_VAL(WGT_H, 21, 21)
   static constexpr coord_t SRC_X = WGT_X + WGT_W + PAD_TINY;
   static constexpr coord_t SRC_Y = WGT_Y;
@@ -74,7 +75,7 @@ class InputMixButtonBase : public ListLineButton
   static constexpr coord_t SRC_H = WGT_H;
   static constexpr coord_t OPT_X = SRC_X + SRC_W + PAD_TINY;
   static constexpr coord_t OPT_Y = WGT_Y;
-  static LAYOUT_VAL(OPT_W, 171, 106)
+  static LAYOUT_VAL(OPT_W, 164, 99)
   static constexpr coord_t OPT_H = WGT_H;
   static LAYOUT_VAL(LN_X, 73, 73)
   static LAYOUT_VAL(FM_X, (OPT_X + OPT_W + PAD_TINY), 12)

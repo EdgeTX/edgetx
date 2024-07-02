@@ -429,6 +429,24 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
   formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
   return dest;
 }
+
+char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
+                           gvar_t vmax, LcdFlags flags, const char *suffix,
+                           gvar_t offset, bool usePPMUnit)
+{
+  SourceNumVal v;
+  v.rawValue = value;
+  if (v.isSource) {
+    const char* s = getSourceString(v.value);
+    strncpy(dest, s, len);
+  } else {
+    value += offset;
+    if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
+      value = value * 128 / 25;
+    formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
+  }
+  return dest;
+}
 #endif
 
 char *getFlightModeString(char *dest, int8_t idx)
