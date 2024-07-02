@@ -531,8 +531,6 @@ int  bootloaderMain()
       } else if (state == ST_CLEAR_FLASH) {
         bootloaderDrawScreen(state, 0);
         lcdRefresh();
-        if(event != EVT_KEY_BREAK(KEY_ENTER))
-          continue;
         sdDone();
         spiFlashDiskEraseAll();
         sdInit();
