@@ -42,7 +42,7 @@ add_definitions(-DBATTERY_CHARGE -DUSE_HATS_AS_KEYS)
 if (PCBREV STREQUAL EL18)
     set(FLAVOUR el18)
     # defines existing internal modules
-    set(INTERNAL_MODULES AFHDS3 CACHE STRING "Internal modules")
+    set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")
     set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS3 CACHE STRING "Default internal module")
     set(AFHDS3 ON)
 else()
