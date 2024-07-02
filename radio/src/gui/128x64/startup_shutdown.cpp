@@ -20,6 +20,7 @@
  */
 
 #include "opentx.h"
+#include "hal/rgbleds.h"
 
 
 #define SLEEP_BITMAP_WIDTH             42
@@ -52,9 +53,9 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
 
   for (uint8_t j = 0; j < steps; j++) {
     if (index2 > j) {
-      fsLedOn(j);
+      setFSLedOn(j);
 #if defined(RADIO_FAMILY_T20)
-      fsLedOn(j + steps);
+      setFSLedOn(j + steps);
 #endif
     }
   }
@@ -88,14 +89,14 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
       steps);
 
   for (uint8_t j = 0; j < steps; j++) {
-    fsLedOff(j);
+    setFSLedOff(j);
 #if defined(RADIO_FAMILY_T20)
-    fsLedOff(j + steps);
+    setFSLedOff(j + steps);
 #endif
     if (steps - index2 > j) {
-      fsLedOn(j);
+      setFSLedOn(j);
 #if defined(RADIO_FAMILY_T20)
-      fsLedOn(j + steps);
+      setFSLedOn(j + steps);
 #endif
     }
   }

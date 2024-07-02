@@ -23,6 +23,7 @@
 
 #include "radio_diagcustswitches.h"
 
+#include "hal/rgbleds.h"
 #include "board.h"
 #include "libopenui.h"
 #include "opentx.h"
