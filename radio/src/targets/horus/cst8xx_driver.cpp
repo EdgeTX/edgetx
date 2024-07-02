@@ -20,19 +20,20 @@
  */
 
 #include "cst8xx_driver.h"
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
+
+#include "stm32_exti_driver.h"
+#include "stm32_gpio.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_i2c_driver.h"
+#include "timers_driver.h"
 
 #include "debug.h"
 #include "delays_driver.h"
 #include "hal.h"
 #include "hal/gpio.h"
 #include "rtos.h"
-#include "stm32_exti_driver.h"
-#include "stm32_gpio.h"
-#include "stm32_gpio_driver.h"
-#include "stm32_hal.h"
-#include "stm32_hal_ll.h"
-#include "stm32_i2c_driver.h"
-#include "timers_driver.h"
 
 volatile static bool touchEventOccured;
 

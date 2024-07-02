@@ -6,7 +6,7 @@ if(HARWARE_TOUCH)
   add_definitions(-DHARDWARE_TOUCH)
 endif()
 
-set(LIBOPENUI_SRC
+set(LIBOPENUI_SOURCES
   libopenui_file.cpp
   bitmapbuffer.cpp
   bitmapbuffer_fileio.cpp
@@ -35,10 +35,8 @@ set(LIBOPENUI_SRC
   keyboard_base.cpp
   )
 
-foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
-  set(LIBOPENUI_SRC_FILES ${LIBOPENUI_SRC_FILES} ${LIBOPENUI_SRC_DIR}/src/${LIBOPENUI_FILE})
-endforeach()
+list(TRANSFORM LIBOPENUI_SOURCES PREPEND ${LIBOPENUI_SRC_DIR}/src/)
 
-set(SRC ${SRC} ${LIBOPENUI_SRC_FILES}
+set(LIBOPENUI_SOURCES ${LIBOPENUI_SOURCES}
   ${LIBOPENUI_SRC_DIR}/thirdparty/lz4/lz4.c
-  )
+)

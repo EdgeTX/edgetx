@@ -46,6 +46,18 @@ void rotaryEncoderCheck();
 
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
+#if defined(PCBXLITE)
+# define BOOTLOADER_KEYS                0x0F
+#elif defined(RADIO_MT12)
+# define BOOTLOADER_KEYS                0x06
+#else
+# define BOOTLOADER_KEYS                0x42
+#endif
+
+#if defined(RADIO_FAMILY_T20)
+# define SECONDARY_BOOTLOADER_KEYS      0x1200
+#endif
+
 extern uint16_t sessionTimer;
 
 // Board driver

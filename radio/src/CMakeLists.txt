@@ -250,6 +250,11 @@ if(SDCARD)
   set(FIRMWARE_SRC ${FIRMWARE_SRC})
 endif()
 
+if(BLUETOOTH)
+  add_definitions(-DBLUETOOTH)
+  set(SRC ${SRC} bluetooth.cpp)
+endif()
+
 if(SHUTDOWN_CONFIRMATION)
   add_definitions(-DSHUTDOWN_CONFIRMATION)
 endif()
@@ -427,11 +432,11 @@ endif()
 
 if(USBJ_EX)
   add_definitions(-DUSBJ_EX)
-  set(SRC
-    ${SRC}
+  set(SRC ${SRC}
     usb_joystick.cpp
-    )
+  )
 endif()
+
 foreach(FILE ${TARGET_SRC})
   set(SRC targets/${TARGET_DIR}/${FILE} ${SRC})
 endforeach()
@@ -459,7 +464,6 @@ else()
 endif()
 
 if(NATIVE_BUILD)
-
   set(RADIOLIB_NATIVE_SRC ${SRC})
   if(SIMU_DISKIO)
     set(RADIOLIB_NATIVE_SRC ${RADIOLIB_NATIVE_SRC}
@@ -468,7 +472,8 @@ if(NATIVE_BUILD)
 
   # Pack all radio sources into an object lib
   add_library(radiolib_native OBJECT EXCLUDE_FROM_ALL
-    ${RADIOLIB_NATIVE_SRC})
+    ${RADIOLIB_NATIVE_SRC}
+  )
 
   # Add -DSIMU here PUBLIC, so it can be imported by other targets
   # via INTERFACE_COMPILE_OPTIONS
