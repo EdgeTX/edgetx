@@ -1632,6 +1632,27 @@ static int luaPlayTone(lua_State * L)
 }
 
 /*luadoc
+@function screenshot()
+
+Takes a screenshot
+
+@retval none 
+
+@status current Introduced in 2.11
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// screenshot()
+*/
+static int luaScreenshot(lua_State * L)
+{
+  UNUSED(L);
+  writeScreenshot();
+  return 0;
+}
+
+/*luadoc
 @function playHaptic(duration, pause [, flags])
 
 Generate haptic feedback
@@ -2930,6 +2951,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( playTone, luaPlayTone )
   LROT_FUNCENTRY( playHaptic, luaPlayHaptic )
   LROT_FUNCENTRY( flushAudio, luaFlushAudio )
+  LROT_FUNCENTRY( screenshot, luaScreenshot )
 #if defined(ENABLE_LUA_POPUP_INPUT)
   LROT_FUNCENTRY( popupInput, luaPopupInput )
 #endif
