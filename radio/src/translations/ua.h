@@ -1301,3 +1301,5 @@
 #define TR_LOW_BATT_COLOR         "Розряджена батарея"
 #define TR_MID_BATT_COLOR         "Середній заряд батареї"
 #define TR_HIGH_BATT_COLOR        "Заряджена батарея"
+
+#define TR_WIDGET_SIZE            "Widget size"

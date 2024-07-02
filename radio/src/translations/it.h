@@ -1294,3 +1294,5 @@
 #define TR_LOW_BATT_COLOR         "Batteria scarica"
 #define TR_MID_BATT_COLOR         "Batteria media"
 #define TR_HIGH_BATT_COLOR        "Batteria carica"
+
+#define TR_WIDGET_SIZE            "Widget size"

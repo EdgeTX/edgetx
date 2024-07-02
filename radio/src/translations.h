@@ -1272,6 +1272,7 @@ extern const char STR_RADIO_INFO_WIDGET[];
 extern const char STR_LOW_BATT_COLOR[];
 extern const char STR_MID_BATT_COLOR[];
 extern const char STR_HIGH_BATT_COLOR[];
+extern const char STR_WIDGET_SIZE[];
 #endif
 
 extern const char STR_MIX_SLOW_PREC[];

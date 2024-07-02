@@ -578,6 +578,7 @@ PACK(struct CustomScreenData {
 #define CUSTOM_SCREENS_DATA \
   NOBACKUP(CustomScreenData screenData[MAX_CUSTOM_SCREENS]); \
   NOBACKUP(TopBarPersistentData topbarData); \
+  NOBACKUP(uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES]); \
   NOBACKUP(uint8_t view);
 #else
 #define CUSTOM_SCREENS_DATA \
