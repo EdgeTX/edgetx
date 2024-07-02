@@ -175,7 +175,7 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
   drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
 }
 
-static bool _lenIsSane(uint8_t len)
+static bool _lenIsSane(uint32_t len)
 {
   // packet len must be at least 3 bytes (type + payload + crc)
   // and 2 bytes < MAX (hdr + len)
@@ -191,21 +191,22 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
   //   It is assumed here that a continuation chunk
   //   will not belong to multiple CRSF frames.
 
-  uint8_t& len = *p_len;
+  uint8_t& len = *p_len; // TODO: uint16_t
   if (len > 0) {
-    uint8_t unfrag_len = buf[1] + 2;
-    uint8_t defrag_len = len + frame_len;
+    uint32_t unfrag_len = buf[1] + 2;
+    uint32_t defrag_len = (uint32_t)len + (uint32_t)frame_len;
 
     if (defrag_len <= unfrag_len && defrag_len <= TELEMETRY_RX_PACKET_SIZE) {
       // If we're not going to overshoot
       // the intended frame length,
       // let's reassemble it
       memcpy(buf + len, frame, frame_len);
-      len = defrag_len;
+      len = (uint8_t)defrag_len; // TODO: remove downcast
       frame_len = 0;
 
       // frame complete?
       if (defrag_len < unfrag_len) {
+        // TODO: possibly remove
         TRACE("[XF] frag cont frame (%d < %d)", defrag_len, unfrag_len);
         return;
       } else {
@@ -220,7 +221,7 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
     memcpy(buf, frame, frame_len);
     len = frame_len;
 
-    uint8_t unfrag_len = buf[1] + 2;
+    uint32_t unfrag_len = buf[1] + 2;
     if (!_lenIsSane(unfrag_len)) {
       TRACE("[XF] pkt len error (%d)", unfrag_len);
       len = 0;
@@ -235,10 +236,16 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
 
   uint8_t* p_buf = buf;
   while (len >= MIN_FRAME_LEN) {
-    uint8_t pkt_len = p_buf[1] + 2;
-    if (pkt_len > len) {
-      TRACE("[XF] length error (%d > %d)", pkt_len, len);
+    uint32_t pkt_len = p_buf[1] + 2;
+    if (pkt_len == 0) {
+      TRACE("[XF] zero length");
       len = 0;
+      return;
+    }
+
+    if (pkt_len > (uint32_t)len) {
+      // Packet continued later...
+      if (p_buf != buf) memmove(buf, p_buf, len);
       return;
     }
 
