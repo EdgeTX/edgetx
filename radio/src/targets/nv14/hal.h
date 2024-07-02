@@ -222,6 +222,7 @@
 #define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
 #define TELEMETRY_DMA_Channel_TX        LL_DMA_CHANNEL_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
+#define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
 // #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_5
 // #define TELEMETRY_DMA_Channel_RX        LL_DMA_CHANNEL_4
 
