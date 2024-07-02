@@ -113,6 +113,7 @@ set(FIRMWARE_TARGET_SRC
   ${TOUCH_DRIVER}
   battery_driver.cpp
   backlight_driver.cpp
+  haptic_driver.cpp
   )
 
 set(FIRMWARE_SRC

@@ -79,23 +79,23 @@ class Layout: public LayoutBase
     }
   
     bool hasTopbar() const {
-      return getOptionValue(LAYOUT_OPTION_TOPBAR)->boolValue;
+      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_TOPBAR)->boolValue))[0];
     }
 
     bool hasFlightMode() const {
-      return getOptionValue(LAYOUT_OPTION_FM)->boolValue;
+      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_FM)->boolValue))[0];
     }
 
     bool hasSliders() const {
-      return getOptionValue(LAYOUT_OPTION_SLIDERS)->boolValue;
+      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_SLIDERS)->boolValue))[0];
     }
 
     bool hasTrims() const {
-      return getOptionValue(LAYOUT_OPTION_TRIMS)->boolValue;
+      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_TRIMS)->boolValue))[0];
     }
 
     bool isMirrored() const {
-      return getOptionValue(LAYOUT_OPTION_MIRRORED)->boolValue;
+      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_MIRRORED)->boolValue))[0];
     }
 
     // Set decoration visibility

@@ -20,103 +20,38 @@
  */
 
 #include "stm32_timer.h"
+#include "stm32_hal.h"
 
 void stm32_timer_enable_clock(TIM_TypeDef *TIMx)
 {
-  if (TIMx == TIM1) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM1);
-  } else if (TIMx == TIM2) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
-  } else if (TIMx == TIM3) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
-  } else if (TIMx == TIM4) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
-  } else if (TIMx == TIM5) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM5);
-  } else if (TIMx == TIM6) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM6);
-  } else if (TIMx == TIM7) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM7);
-  } else if (TIMx == TIM8) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM8);
-  } else if (TIMx == TIM9) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM9);
-  } else if (TIMx == TIM10) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM10);
-  } else if (TIMx == TIM11) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM11);
-  } else if (TIMx == TIM12) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM12);
-  } else if (TIMx == TIM13) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM13);
-  } else if (TIMx == TIM14) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM14);
-  }  
+  if (((intptr_t)TIMx & 0xFFFF0000) == APB1PERIPH_BASE) {
+    uint32_t offset = ((intptr_t)TIMx - APB1PERIPH_BASE) >> 10;
+    LL_APB1_GRP1_EnableClock(1U << offset);
+  } else if (((intptr_t)TIMx & 0xFFFF0000) == APB2PERIPH_BASE) {
+    uint32_t offset = ((intptr_t)TIMx - APB2PERIPH_BASE) >> 10;
+    LL_APB2_GRP1_EnableClock(1U << offset);
+  }
 }
 
 void stm32_timer_disable_clock(TIM_TypeDef *TIMx)
 {
-  if (TIMx == TIM1) {
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM1);
-  } else if (TIMx == TIM2) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
-  } else if (TIMx == TIM3) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM3);
-  } else if (TIMx == TIM4) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM4);
-  } else if (TIMx == TIM5) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM5);
-  } else if (TIMx == TIM6) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM6);
-  } else if (TIMx == TIM7) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM7);
-  } else if (TIMx == TIM8) {
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM8);
-  } else if (TIMx == TIM9) {
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM9);
-  } else if (TIMx == TIM10) {
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM10);
-  } else if (TIMx == TIM11) {
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM11);
-  } else if (TIMx == TIM12) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM12);
-  } else if (TIMx == TIM13) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM13);
-  } else if (TIMx == TIM14) {
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM14);
+  if (((intptr_t)TIMx & 0xFFFF0000) == APB1PERIPH_BASE) {
+    uint32_t offset = ((intptr_t)TIMx - APB1PERIPH_BASE) >> 10;
+    LL_APB1_GRP1_DisableClock(1U << offset);
+  } else if (((intptr_t)TIMx & 0xFFFF0000) == APB2PERIPH_BASE) {
+    uint32_t offset = ((intptr_t)TIMx - APB2PERIPH_BASE) >> 10;
+    LL_APB2_GRP1_DisableClock(1U << offset);
   }
 }
 
 bool stm32_timer_is_clock_enabled(TIM_TypeDef *TIMx)
 {
-  if (TIMx == TIM1) {
-    return LL_APB2_GRP1_IsEnabledClock(LL_APB2_GRP1_PERIPH_TIM1) != 0;
-  } else if (TIMx == TIM2) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM2) != 0;
-  } else if (TIMx == TIM3) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM3) != 0;
-  } else if (TIMx == TIM4) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM4) != 0;
-  } else if (TIMx == TIM5) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM5) != 0;
-  } else if (TIMx == TIM6) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM6) != 0;
-  } else if (TIMx == TIM7) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM7) != 0;
-  } else if (TIMx == TIM8) {
-    return LL_APB2_GRP1_IsEnabledClock(LL_APB2_GRP1_PERIPH_TIM8) != 0;
-  } else if (TIMx == TIM9) {
-    return LL_APB2_GRP1_IsEnabledClock(LL_APB2_GRP1_PERIPH_TIM9) != 0;
-  } else if (TIMx == TIM10) {
-    return LL_APB2_GRP1_IsEnabledClock(LL_APB2_GRP1_PERIPH_TIM10) != 0;
-  } else if (TIMx == TIM11) {
-    return LL_APB2_GRP1_IsEnabledClock(LL_APB2_GRP1_PERIPH_TIM11) != 0;
-  } else if (TIMx == TIM12) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM12) != 0;
-  } else if (TIMx == TIM13) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM13) != 0;
-  } else if (TIMx == TIM14) {
-    return LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM14) != 0;
+  if (((intptr_t)TIMx & 0xFFFF0000) == APB1PERIPH_BASE) {
+    uint32_t offset = ((intptr_t)TIMx - APB1PERIPH_BASE) >> 10;
+    return LL_APB1_GRP1_IsEnabledClock(1U << offset);
+  } else if (((intptr_t)TIMx & 0xFFFF0000) == APB2PERIPH_BASE) {
+    uint32_t offset = ((intptr_t)TIMx - APB2PERIPH_BASE) >> 10;
+    return LL_APB2_GRP1_IsEnabledClock(1U << offset);
   }
 
   // not supported
