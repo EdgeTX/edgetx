@@ -47,11 +47,9 @@ void lcdInitDisplayDriver();
 
 void lcdClear();
 
-#if defined(BOOT)
 // Patch the draw context to allow for direct drawing
 void lcdInitDirectDrawing();
 
 void lcdRefresh();
-#endif
 
 void lcdFlushed();

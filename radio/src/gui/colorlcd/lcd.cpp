@@ -220,7 +220,18 @@ void lcdInitDisplayDriver()
   lcdFront->setDrawCtx(draw_ctx);
 }
 
-#if defined(BOOT)
+void lcdClear() { lcd->clear(); }
+
+void lcdFlushed()
+{
+  // its possible to get here before flushLcd is ever called.
+  // so check for nullptr first. (Race condition if you put breakpoints in
+  // startup code)
+  if (refr_disp != nullptr) lv_disp_flush_ready(refr_disp);
+}
+
+// Direct drawing - used by boot loader and battery charging state
+
 void lcdInitDirectDrawing()
 {
   static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
@@ -285,15 +296,4 @@ void lcdRefresh()
 {
   lv_disp_t* d = _lv_refr_get_disp_refreshing();
   _draw_buf_flush(d);
-}
-#endif
-
-void lcdClear() { lcd->clear(); }
-
-void lcdFlushed()
-{
-  // its possible to get here before flushLcd is ever called.
-  // so check for nullptr first. (Race condition if you put breakpoints in
-  // startup code)
-  if (refr_disp != nullptr) lv_disp_flush_ready(refr_disp);
 }
