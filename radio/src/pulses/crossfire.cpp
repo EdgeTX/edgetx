@@ -211,9 +211,7 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
       len -= 1;
       continue;
     }else if(pkt_len > len){
-      TRACE("[XF] Preserving trailing %d bytes", len);
-      memmove(buf, p_buf, len); //do not discard trailing packet beginning //memmove because there is a risk of an overlap
-      p_buf=buf;
+      TRACE("[XF] Incomplete packet, missing %d bytes",pkt_len-len);
       break;
     }else if (!_checkFrameCRC(p_buf)){
       TRACE("[XF] CRC error ");
@@ -235,6 +233,11 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
       p_buf += pkt_len;
       len -= pkt_len;
     }
+  }
+  if(len>0){
+    TRACE("[XF] Preserving trailing %d bytes", len);
+    memmove(buf, p_buf, len); //do not discard trailing packet beginning //memmove because there is a risk of an overlap
+    p_buf=buf;
   }
 }
 
