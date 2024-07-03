@@ -46,6 +46,7 @@ TEST(Crossfire, crc8)
   ASSERT_EQ(frame[frame[1]+1], crc);
 }
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 #include "pulses/crossfire.h"
 
 static uint8_t telemetry_rx_buffer[TELEMETRY_RX_PACKET_SIZE];
@@ -80,7 +81,9 @@ static void init_lua_fifo() {
 
 TEST(Crossfire, frameParser)
 {
-  void* ctx = CrossfireDriver.init(0);
+  void* ctx = CrossfireDriver.init(EXTERNAL_MODULE);
+  if (!ctx) return;
+
   init_lua_fifo();
 
   uint8_t len = 0;
@@ -123,7 +126,9 @@ static uint8_t length_error2[] = {
 
 TEST(Crossfire, frameParser_fail)
 {
-  void* ctx = CrossfireDriver.init(0);
+  void* ctx = CrossfireDriver.init(EXTERNAL_MODULE);
+  if (!ctx) return;
+
   init_lua_fifo();
 
   uint8_t len = 0;
@@ -140,6 +145,6 @@ TEST(Crossfire, frameParser_fail)
 
   CrossfireDriver.deinit(ctx);
 }
-
+#endif // HARDWARE_EXTERNAL_MODULE
 #endif
 
