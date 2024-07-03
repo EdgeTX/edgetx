@@ -154,6 +154,7 @@ static bool _checkFrameCRC(uint8_t* rxBuffer)
 {
   uint8_t len = rxBuffer[1];
   uint8_t crc = crc8(&rxBuffer[2], len - 1);
+  // TRACE("[XF] crc = %d; pkt = %d", crc, rxBuffer[len + 1]);
   return (crc == rxBuffer[len + 1]);
 }
 
@@ -187,11 +188,7 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
 {
   if (frame_len < MIN_FRAME_LEN) return;
 
-  // De-Fragmentation:
-  //   It is assumed here that a continuation chunk
-  //   will not belong to multiple CRSF frames.
-
-  uint8_t& len = *p_len; // TODO: uint16_t
+  uint8_t& len = *p_len;
   if (len > 0) {
     uint32_t unfrag_len = buf[1] + 2;
     uint32_t defrag_len = (uint32_t)len + (uint32_t)frame_len;
@@ -201,16 +198,13 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
       // the intended frame length,
       // let's reassemble it
       memcpy(buf + len, frame, frame_len);
-      len = (uint8_t)defrag_len; // TODO: remove downcast
+      len = (uint8_t)defrag_len;
       frame_len = 0;
 
       // frame complete?
       if (defrag_len < unfrag_len) {
-        // TODO: possibly remove
         TRACE("[XF] frag cont frame (%d < %d)", defrag_len, unfrag_len);
         return;
-      } else {
-        TRACE("[XF] frame complete");
       }
     } else {
       TRACE("[XF] overshoot (%d > %d)", defrag_len, unfrag_len);
@@ -222,23 +216,23 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
     len = frame_len;
 
     uint32_t unfrag_len = buf[1] + 2;
-    if (!_lenIsSane(unfrag_len)) {
-      TRACE("[XF] pkt len error (%d)", unfrag_len);
-      len = 0;
-      return;
-    }
-
     if (len < unfrag_len) {
-      TRACE("[XF] frag frame (%d < %d)", len, unfrag_len);
+      if (!_lenIsSane(unfrag_len)) {
+        TRACE("[XF] pkt len error (%d)", unfrag_len);
+        len = 0;
+      } else {
+        TRACE("[XF] frag frame (%d < %d)", len, unfrag_len);
+      }
       return;
     }
   }
 
   uint8_t* p_buf = buf;
   while (len >= MIN_FRAME_LEN) {
+
     uint32_t pkt_len = p_buf[1] + 2;
-    if (pkt_len == 0) {
-      TRACE("[XF] zero length");
+    if (!_lenIsSane(pkt_len)) {
+      TRACE("[XF] pkt len error (%d)", pkt_len);
       len = 0;
       return;
     }

@@ -116,7 +116,7 @@ static uint8_t length_error[] = {
 
 static uint8_t length_error2[] = {
     // first frame
-    0xEA, 0x09, 0xFF, 0x11, 0xFD, 0x05, 0x00, 0x00, 0x13, 0x01, 0x01,
+    0xEA, 0x09, 0xFF, 0x11, 0xFD, 0x05, 0x00, 0x00, 0x13, 0x01, 0x8C,
     // 2nd incomplete frame
     0x2A, 0xFE, 0x5F, 0x00,
 };
@@ -127,14 +127,16 @@ TEST(Crossfire, frameParser_fail)
   init_lua_fifo();
 
   uint8_t len = 0;
+  // Check that a frame that is too big is rejected even if incomplete
   CrossfireDriver.processFrame(ctx, length_error, sizeof(length_error),
                                telemetry_rx_buffer, &len);
   EXPECT_EQ(len, 0);
 
-  // TODO: we might want to reject the 2nd chunk
+  // Check that a frame that is too big is rejected if positioned
+  // after a complete frame
   CrossfireDriver.processFrame(ctx, length_error2, sizeof(length_error2),
                                telemetry_rx_buffer, &len);
-  EXPECT_EQ(len, 4);
+  EXPECT_EQ(len, 0);
 
   CrossfireDriver.deinit(ctx);
 }
