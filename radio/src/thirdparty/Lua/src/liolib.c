@@ -24,15 +24,15 @@
 
 #include "FatFs/ff.h"
 
-#define l_getc(f)         fatfs_getc(f)
-#define l_lockfile(f)     ((void)0)
-#define l_unlockfile(f)   ((void)0)
+// #define l_getc(f)         fatfs_getc(f)
+// #define l_lockfile(f)     ((void)0)
+// #define l_unlockfile(f)   ((void)0)
 
-static int fatfs_getc(FIL* f) {
-  char c; UINT result;
-  if (f_read(f, &c, 1, &result) == FR_OK && result == 1) return c;
-  return -1;
-}
+// static int fatfs_getc(FIL* f) {
+//   char c; UINT result;
+//   if (f_read(f, &c, 1, &result) == FR_OK && result == 1) return c;
+//   return -1;
+// }
 
 /*
 ** Change this macro to accept other modes for 'fopen' besides
@@ -61,48 +61,50 @@ static int l_checkmode (const char *mode) {
 ** =======================================================
 */
 
-// #if !defined(l_popen)		/* { */
+#if 0
+#if !defined(l_popen)		/* { */
 
-// #if defined(LUA_USE_POSIX)	/* { */
+#if defined(LUA_USE_POSIX)	/* { */
 
-// #define l_popen(L,c,m)		(fflush(NULL), popen(c,m))
-// #define l_pclose(L,file)	(pclose(file))
+#define l_popen(L,c,m)		(fflush(NULL), popen(c,m))
+#define l_pclose(L,file)	(pclose(file))
 
-// #elif defined(LUA_USE_WINDOWS)	/* }{ */
+#elif defined(LUA_USE_WINDOWS)	/* }{ */
 
-// #define l_popen(L,c,m)		(_popen(c,m))
-// #define l_pclose(L,file)	(_pclose(file))
+#define l_popen(L,c,m)		(_popen(c,m))
+#define l_pclose(L,file)	(_pclose(file))
 
-// #else				/* }{ */
+#else				/* }{ */
 
-// /* ISO C definitions */
-// #define l_popen(L,c,m)  \
-// 	  ((void)((void)c, m), \
-// 	  luaL_error(L, "'popen' not supported"), \
-// 	  (FILE*)0)
-// #define l_pclose(L,file)		((void)L, (void)file, -1)
+/* ISO C definitions */
+#define l_popen(L,c,m)  \
+	  ((void)((void)c, m), \
+	  luaL_error(L, "'popen' not supported"), \
+	  (FILE*)0)
+#define l_pclose(L,file)		((void)L, (void)file, -1)
 
-// #endif				/* } */
+#endif				/* } */
 
-// #endif				/* } */
+#endif				/* } */
+#endif
 
 /* }====================================================== */
 
+#if 0
+#if !defined(l_getc)		/* { */
 
-// #if !defined(l_getc)		/* { */
+#if defined(LUA_USE_POSIX)
+#define l_getc(f)		getc_unlocked(f)
+#define l_lockfile(f)		flockfile(f)
+#define l_unlockfile(f)		funlockfile(f)
+#else
+#define l_getc(f)		getc(f)
+#define l_lockfile(f)		((void)0)
+#define l_unlockfile(f)		((void)0)
+#endif
 
-// #if defined(LUA_USE_POSIX)
-// #define l_getc(f)		getc_unlocked(f)
-// #define l_lockfile(f)		flockfile(f)
-// #define l_unlockfile(f)		funlockfile(f)
-// #else
-// #define l_getc(f)		getc(f)
-// #define l_lockfile(f)		((void)0)
-// #define l_unlockfile(f)		((void)0)
-// #endif
-
-// #endif				/* } */
-
+#endif				/* } */
+#endif
 
 /*
 ** {======================================================
@@ -110,34 +112,36 @@ static int l_checkmode (const char *mode) {
 ** =======================================================
 */
 
-// #if !defined(l_fseek)		/* { */
+#if 0
+#if !defined(l_fseek)		/* { */
 
-// #if defined(LUA_USE_POSIX)	/* { */
+#if defined(LUA_USE_POSIX)	/* { */
 
-// #include <sys/types.h>
+#include <sys/types.h>
 
-// #define l_fseek(f,o,w)		fseeko(f,o,w)
-// #define l_ftell(f)		ftello(f)
-// #define l_seeknum		off_t
+#define l_fseek(f,o,w)		fseeko(f,o,w)
+#define l_ftell(f)		ftello(f)
+#define l_seeknum		off_t
 
-// #elif defined(LUA_USE_WINDOWS) && !defined(_CRTIMP_TYPEINFO) \
-//    && defined(_MSC_VER) && (_MSC_VER >= 1400)	/* }{ */
+#elif defined(LUA_USE_WINDOWS) && !defined(_CRTIMP_TYPEINFO) \
+   && defined(_MSC_VER) && (_MSC_VER >= 1400)	/* }{ */
 
-// /* Windows (but not DDK) and Visual C++ 2005 or higher */
-// #define l_fseek(f,o,w)		_fseeki64(f,o,w)
-// #define l_ftell(f)		_ftelli64(f)
-// #define l_seeknum		__int64
+/* Windows (but not DDK) and Visual C++ 2005 or higher */
+#define l_fseek(f,o,w)		_fseeki64(f,o,w)
+#define l_ftell(f)		_ftelli64(f)
+#define l_seeknum		__int64
 
-// #else				/* }{ */
+#else				/* }{ */
 
-// /* ISO C definitions */
-// #define l_fseek(f,o,w)		fseek(f,o,w)
-// #define l_ftell(f)		ftell(f)
-// #define l_seeknum		long
+/* ISO C definitions */
+#define l_fseek(f,o,w)		fseek(f,o,w)
+#define l_ftell(f)		ftell(f)
+#define l_seeknum		long
 
-// #endif				/* } */
+#endif				/* } */
 
-// #endif				/* } */
+#endif				/* } */
+#endif
 
 /* }====================================================== */
 
@@ -206,12 +210,12 @@ static LStream *newprefile (lua_State *L) {
 ** a bug in some versions of the Clang compiler (e.g., clang 3.0 for
 ** 32 bits).
 */
-static int aux_close (lua_State *L) {
-  LStream *p = tolstream(L);
-  volatile lua_CFunction cf = p->closef;
-  p->closef = NULL;  /* mark stream as closed */
-  return (*cf)(L);  /* close it */
-}
+// static int aux_close (lua_State *L) {
+//   LStream *p = tolstream(L);
+//   volatile lua_CFunction cf = p->closef;
+//   p->closef = NULL;  /* mark stream as closed */
+//   return (*cf)(L);  /* close it */
+// }
 
 
 // static int file_close (lua_State *L) {
@@ -285,14 +289,14 @@ static int io_open (lua_State *L) {
              ? luaL_fileresult(L, 0, filename) : 1;
 }
 
-static FIL *getiofile (lua_State *L, const char *findex) {
-  LStream *p;
-  lua_getfield(L, LUA_REGISTRYINDEX, findex);
-  p = (LStream *)lua_touserdata(L, -1);
-  if (isclosed(p))
-    luaL_error(L, "standard %s file is closed", findex + IOPREF_LEN);
-  return &p->f;
-}
+// static FIL *getiofile (lua_State *L, const char *findex) {
+//   LStream *p;
+//   lua_getfield(L, LUA_REGISTRYINDEX, findex);
+//   p = (LStream *)lua_touserdata(L, -1);
+//   if (isclosed(p))
+//     luaL_error(L, "standard %s file is closed", findex + IOPREF_LEN);
+//   return &p->f;
+// }
 
 
 // static int g_iofile (lua_State *L, const char *f, const char *mode) {
@@ -375,44 +379,44 @@ static FIL *getiofile (lua_State *L, const char *findex) {
 */
 
 
-static int test_eof (lua_State *L, FIL *f) {
-  lua_pushliteral(L, "");
-  return !f_eof(f);
-}
+// static int test_eof (lua_State *L, FIL *f) {
+//   lua_pushliteral(L, "");
+//   return !f_eof(f);
+// }
 
 
-static int read_line (lua_State *L, FIL *f, int chop) {
-  luaL_Buffer b;
-  int c = '\0';
-  luaL_buffinit(L, &b);
-  while (c != EOF && c != '\n') {  /* repeat until end of line */
-    char *buff = luaL_prepbuffer(&b);  /* preallocate buffer */
-    int i = 0;
-    l_lockfile(f);  /* no memory errors can happen inside the lock */
-    while (i < LUAL_BUFFERSIZE && (c = l_getc(f)) != EOF && c != '\n')
-      buff[i++] = c;
-    l_unlockfile(f);
-    luaL_addsize(&b, i);
-  }
-  if (!chop && c == '\n')  /* want a newline and have one? */
-    luaL_addchar(&b, c);  /* add ending newline to result */
-  luaL_pushresult(&b);  /* close buffer */
-  /* return ok if read something (either a newline or something else) */
-  return (c == '\n' || lua_rawlen(L, -1) > 0);
-}
+// static int read_line (lua_State *L, FIL *f, int chop) {
+//   luaL_Buffer b;
+//   int c = '\0';
+//   luaL_buffinit(L, &b);
+//   while (c != EOF && c != '\n') {  /* repeat until end of line */
+//     char *buff = luaL_prepbuffer(&b);  /* preallocate buffer */
+//     int i = 0;
+//     l_lockfile(f);  /* no memory errors can happen inside the lock */
+//     while (i < LUAL_BUFFERSIZE && (c = l_getc(f)) != EOF && c != '\n')
+//       buff[i++] = c;
+//     l_unlockfile(f);
+//     luaL_addsize(&b, i);
+//   }
+//   if (!chop && c == '\n')  /* want a newline and have one? */
+//     luaL_addchar(&b, c);  /* add ending newline to result */
+//   luaL_pushresult(&b);  /* close buffer */
+//   /* return ok if read something (either a newline or something else) */
+//   return (c == '\n' || lua_rawlen(L, -1) > 0);
+// }
 
 
-static void read_all (lua_State *L, FIL *f) {
-  UINT nr;
-  luaL_Buffer b;
-  luaL_buffinit(L, &b);
-  do {  /* read file in chunks of LUAL_BUFFERSIZE bytes */
-    char *p = luaL_prepbuffer(&b);
-    if (f_read(f, p, LUAL_BUFFERSIZE, &nr) != FR_OK) nr = 0;
-    luaL_addsize(&b, nr);
-  } while (nr == LUAL_BUFFERSIZE);
-  luaL_pushresult(&b);  /* close buffer */
-}
+// static void read_all (lua_State *L, FIL *f) {
+//   UINT nr;
+//   luaL_Buffer b;
+//   luaL_buffinit(L, &b);
+//   do {  /* read file in chunks of LUAL_BUFFERSIZE bytes */
+//     char *p = luaL_prepbuffer(&b);
+//     if (f_read(f, p, LUAL_BUFFERSIZE, &nr) != FR_OK) nr = 0;
+//     luaL_addsize(&b, nr);
+//   } while (nr == LUAL_BUFFERSIZE);
+//   luaL_pushresult(&b);  /* close buffer */
+// }
 
 
 static int read_chars (lua_State *L, FIL *f, size_t n) {
@@ -428,51 +432,51 @@ static int read_chars (lua_State *L, FIL *f, size_t n) {
 }
 
 
-static int g_read (lua_State *L, FIL *f, int first) {
-  int nargs = lua_gettop(L) - 1;
-  int success;
-  int n;
-  f_error(f) = 0;
-  if (nargs == 0) {  /* no arguments? */
-    success = read_line(L, f, 1);
-    n = first+1;  /* to return 1 result */
-  }
-  else {  /* ensure stack space for all results and for auxlib's buffer */
-    luaL_checkstack(L, nargs+LUA_MINSTACK, "too many arguments");
-    success = 1;
-    for (n = first; nargs-- && success; n++) {
-      if (lua_type(L, n) == LUA_TNUMBER) {
-        size_t l = (size_t)luaL_checkinteger(L, n);
-        success = (l == 0) ? test_eof(L, f) : read_chars(L, f, l);
-      }
-      else {
-        const char *p = luaL_checkstring(L, n);
-        if (*p == '*') p++;  /* skip optional '*' (for compatibility) */
-        switch (*p) {
-          case 'l':  /* line */
-            success = read_line(L, f, 1);
-            break;
-          case 'L':  /* line with end-of-line */
-            success = read_line(L, f, 0);
-            break;
-          case 'a':  /* file */
-            read_all(L, f);  /* read entire file */
-            success = 1; /* always success */
-            break;
-          default:
-            return luaL_argerror(L, n, "invalid format");
-        }
-      }
-    }
-  }
-  if (f_error(f))
-    return luaL_fileresult(L, 0, NULL);
-  if (!success) {
-    lua_pop(L, 1);  /* remove last result */
-    lua_pushnil(L);  /* push nil instead */
-  }
-  return n - first;
-}
+// static int g_read (lua_State *L, FIL *f, int first) {
+//   int nargs = lua_gettop(L) - 1;
+//   int success;
+//   int n;
+//   f_error(f) = 0;
+//   if (nargs == 0) {  /* no arguments? */
+//     success = read_line(L, f, 1);
+//     n = first+1;  /* to return 1 result */
+//   }
+//   else {  /* ensure stack space for all results and for auxlib's buffer */
+//     luaL_checkstack(L, nargs+LUA_MINSTACK, "too many arguments");
+//     success = 1;
+//     for (n = first; nargs-- && success; n++) {
+//       if (lua_type(L, n) == LUA_TNUMBER) {
+//         size_t l = (size_t)luaL_checkinteger(L, n);
+//         success = (l == 0) ? test_eof(L, f) : read_chars(L, f, l);
+//       }
+//       else {
+//         const char *p = luaL_checkstring(L, n);
+//         if (*p == '*') p++;  /* skip optional '*' (for compatibility) */
+//         switch (*p) {
+//           case 'l':  /* line */
+//             success = read_line(L, f, 1);
+//             break;
+//           case 'L':  /* line with end-of-line */
+//             success = read_line(L, f, 0);
+//             break;
+//           case 'a':  /* file */
+//             read_all(L, f);  /* read entire file */
+//             success = 1; /* always success */
+//             break;
+//           default:
+//             return luaL_argerror(L, n, "invalid format");
+//         }
+//       }
+//     }
+//   }
+//   if (f_error(f))
+//     return luaL_fileresult(L, 0, NULL);
+//   if (!success) {
+//     lua_pop(L, 1);  /* remove last result */
+//     lua_pushnil(L);  /* push nil instead */
+//   }
+//   return n - first;
+// }
 
 
 // static int io_read (lua_State *L) {

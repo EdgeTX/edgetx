@@ -92,7 +92,8 @@ void LuaEventHandler::event_cb(lv_event_t* e)
 
       // If we already have a SLIDE going, then accumulate slide values instead
       // of allocating an empty slot
-      if (LuaEventData* const es = luaGetEventSlot(EVT_TOUCH_SLIDE); es) {
+      LuaEventData* const es = luaGetEventSlot(EVT_TOUCH_SLIDE);
+      if (es) {
         es->event = EVT_TOUCH_SLIDE;
         es->touchX = rel_pos.x;
         es->touchY = rel_pos.y;
@@ -103,7 +104,8 @@ void LuaEventHandler::event_cb(lv_event_t* e)
         TRACE("EVT_TOUCH_SLIDE [%d,%d]", rel_pos.x, rel_pos.y);
       }
     } else {
-      if (LuaEventData* const es = luaGetEventSlot(); es) {
+      LuaEventData* const es = luaGetEventSlot();
+      if (es) {
         es->event = EVT_TOUCH_FIRST;
         es->touchX = rel_pos.x;
         es->touchY = rel_pos.y;
@@ -116,7 +118,8 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       downTime = RTOS_GET_MS();
     }
   } else if (code == LV_EVENT_RELEASED) {
-    if (LuaEventData* const es = luaGetEventSlot(); es) {
+    LuaEventData* const es = luaGetEventSlot();
+    if (es) {
       es->event = EVT_TOUCH_BREAK;
       TRACE("EVT_TOUCH_BREAK");
     }

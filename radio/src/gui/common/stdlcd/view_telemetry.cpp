@@ -102,7 +102,7 @@ void showTelemScreen(uint8_t index)
       chainMenu(menuMainView);
     } else {
       index -= 1;
-      if ((index >= 0 && index <= TELEMETRY_SCREEN_TYPE_MAX) && (TELEMETRY_SCREEN_TYPE(index) != TELEMETRY_SCREEN_TYPE_NONE)) {
+      if ((index <= TELEMETRY_SCREEN_TYPE_MAX) && (TELEMETRY_SCREEN_TYPE(index) != TELEMETRY_SCREEN_TYPE_NONE)) {
         selectedTelemView = index;
         chainMenu(menuViewTelemetry);
       }

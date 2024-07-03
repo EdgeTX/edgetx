@@ -92,7 +92,6 @@ void checkTrainerSignalWarning()
 
 static void trainer_init_module_sbus();
 static void trainer_stop_module_sbus();
-static int sbus_trainer_get_byte(uint8_t* data);
 
 void stopTrainer()
 {

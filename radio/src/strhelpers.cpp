@@ -697,19 +697,16 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
 
       if (g_model.scriptsData[qr.quot].name[0] != '\0') {
         // instance Name is not empty : dest = InstanceName/OutputName
-        snprintf(pos, dest_len, "%.*s/%.*s",
-                 (int)sizeof(g_model.scriptsData[qr.quot].name),
-                 g_model.scriptsData[qr.quot].name,
-                 (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name),
-                 scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+        pos = strAppend(pos, g_model.scriptsData[qr.quot].name, LEN_SCRIPT_NAME);
       } else {
         // instance Name is empty : dest = n-ScriptFileName/OutputName
-        snprintf(pos, dest_len, "%d-%.*s/%.*s", qr.quot + 1,
-                 (int)sizeof(g_model.scriptsData[qr.quot].file),
-                 g_model.scriptsData[qr.quot].file,
-                 (int)sizeof(scriptInputsOutputs[qr.quot].outputs[qr.rem].name),
-                 scriptInputsOutputs[qr.quot].outputs[qr.rem].name);
+        pos = strAppendUnsigned(pos, qr.quot + 1);
+        pos = strAppend(pos, "-");
+        pos = strAppend(pos, g_model.scriptsData[qr.quot].file, LEN_SCRIPT_FILENAME);
       }
+      pos = strAppend(pos, "/");
+      dest_len = L - (pos - dest);
+      strAppend(pos, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, dest_len);
     }
 #else
     strncpy(dest, "N/A", dest_len-1);
