@@ -73,7 +73,7 @@ static inline void check_struct()
   CHKSIZE(TimerData, 17);
   CHKSIZE(ModelHeader, 131);
   CHKSIZE(CustomScreenData, 852);
-  #if defined(PCBNV14)
+  #if defined(PCBNV14) || defined(RADIO_NB4P)
     CHKTYPE(TopBarPersistentData, 300);
   #else
     CHKTYPE(TopBarPersistentData, 444);
@@ -103,7 +103,11 @@ static inline void check_struct()
 #elif defined(PCBNV14)
   CHKSIZE(ModelData, 15591);
 #elif defined(PCBPL18)
-  CHKSIZE(ModelData, 15771);
+  #if defined(RADIO_NB4P)
+    CHKSIZE(ModelData, 15627);
+  #else
+    CHKSIZE(ModelData, 15771);
+  #endif
 #elif defined(RADIO_T15)
   CHKSIZE(ModelData, 15760);
 #elif defined(PCBHORUS)
