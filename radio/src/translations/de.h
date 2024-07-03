@@ -1011,7 +1011,7 @@
   #define TR_WIDGET_VALUE              "Wert"
 #endif
 
-// Bootloader common - Ascii only
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB verbunden"
 #define TR_BL_USB_PLUGIN              "oder USB-Kabel anschl."
 #define TR_BL_USB_MASS_STORE          "für den SD-Speicher an"
@@ -1041,19 +1041,23 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "EEPROM wiederherstellen"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Drücke den Power Knopf."
     #define TR_BL_FLASH_EXIT          "Verlasse den Flashmodus."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] um Datei auszuwählen"
   #define TR_BL_FLASH_KEY             "Halte [ENT] gedrückt, zum schreiben"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] zum beenden"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB Zugriff"
   #define TR_BL_CURRENT_FW            "Aktuelle Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] um Datei auszuwählen"
@@ -1062,7 +1066,7 @@
   #define TR_BL_ENABLE                "Aktivieren"
   #define TR_BL_DISABLE               "Deaktivieren"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
