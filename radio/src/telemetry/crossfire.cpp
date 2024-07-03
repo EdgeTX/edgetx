@@ -259,9 +259,8 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       }
       break;
 
-#if defined(LUA)
-    default:
-      if (id == DEVICE_INFO_ID && rxBuffer[4]== MODULE_ADDRESS) {
+    case DEVICE_INFO_ID:
+      if (rxBuffer[4]== MODULE_ADDRESS) {
         uint8_t nameSize = rxBuffer[1] - 18;
         strncpy((char *)&crossfireModuleStatus[module].name, (const char *)&rxBuffer[5], CRSF_NAME_MAXSIZE);
         crossfireModuleStatus[module].name[CRSF_NAME_MAXSIZE -1] = 0; // For some reason, GH din't like strlcpy
@@ -272,15 +271,18 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         crossfireModuleStatus[module].revision = rxBuffer[16 + nameSize];
         crossfireModuleStatus[module].queryCompleted = true;
       }
-
+      break;
+      
+    default:
+#if defined(LUA)
       if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(rxBufferCount - 2)) {
         for (uint8_t i = 1; i < rxBufferCount - 1; i++) {
           // destination address and CRC are skipped
           luaInputTelemetryFifo->push(rxBuffer[i]);
         }
       }
-      break;
 #endif
+      break;
   }
 }
 
