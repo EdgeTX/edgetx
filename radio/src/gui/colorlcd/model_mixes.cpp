@@ -429,10 +429,10 @@ void ModelMixesPage::pasteMixAfter(uint8_t dst_idx)
 
 void ModelMixesPage::build(Window * window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   form = new Window(window, rect_t{});
-  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, 3);
+  form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   auto box = new Window(window, rect_t{});
   box->padAll(PAD_TINY);

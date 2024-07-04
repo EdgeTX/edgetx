@@ -211,9 +211,9 @@ void ModelCurvesPage::build(Window *window)
 #endif
   static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-  window->setFlexLayout();
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-  FlexGridLayout grid(col_dsc, row_dsc);
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
   FormLine *line = nullptr;
 

@@ -38,7 +38,7 @@ class ListLineButton : public ButtonBase
   virtual void refresh() = 0;
 
   static LAYOUT_VAL(BTN_H, 29, 29)
-  static constexpr coord_t GRP_W = LCD_W - PAD_MEDIUM * 2;
+  static constexpr coord_t GRP_W = LCD_W - PAD_SMALL * 2;
 
  protected:
   uint8_t index;
@@ -64,7 +64,7 @@ class InputMixButtonBase : public ListLineButton
   static LAYOUT_VAL(FM_CANVAS_HEIGHT, 17, 17)
   static LAYOUT_VAL(FM_CANVAS_WIDTH, 90, 90)
 
-  static LAYOUT_VAL(BTN_W, 389, 229)
+  static LAYOUT_VAL(BTN_W, 395, 235)
   static constexpr coord_t WGT_X = PAD_TINY;
   static constexpr coord_t WGT_Y = PAD_TINY;
   static LAYOUT_VAL(WGT_W, 50, 50)

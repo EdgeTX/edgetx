@@ -741,14 +741,8 @@ void FunctionsPage::plusPopup(Window *window)
 
 void FunctionsPage::build(Window *window)
 {
-  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
-  window->padAll(PAD_SMALL);
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
-
-  FlexGridLayout grid(l_col_dsc, row_dsc, PAD_TINY);
-
-  FormLine *line;
   bool hasEmptyFunction = false;
 
   // Reset focusIndex after switching tabs
@@ -760,10 +754,8 @@ void FunctionsPage::build(Window *window)
     bool isActive = (cfn->swtch != 0);
 
     if (isActive) {
-      line = window->newLine(grid);
-
       auto button = functionButton(
-          line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, i);
+          window, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, i);
 
       lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1,
                            LV_GRID_ALIGN_CENTER, 0, 1);
@@ -862,9 +854,8 @@ void FunctionsPage::build(Window *window)
   }
 
   if (hasEmptyFunction) {
-    line = window->newLine(grid);
     addButton =
-        new TextButton(line, rect_t{0, 0, window->width() - 12, SF_BUTTON_H},
+        new TextButton(window, rect_t{0, 0, window->width() - 12, SF_BUTTON_H},
                        LV_SYMBOL_PLUS, [=]() {
                          plusPopup(window);
                          return 0;
