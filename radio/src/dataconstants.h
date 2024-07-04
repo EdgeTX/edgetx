@@ -541,6 +541,7 @@ enum MixSources {
   MIXSRC_LAST_TELEM SKIP = MIXSRC_FIRST_TELEM + 3 * MAX_TELEMETRY_SENSORS - 1,
 
   MIXSRC_INVERT SKIP,
+  MIXSRC_VALUE SKIP,  // Special case to trigger source as value conversion
 };
 
 

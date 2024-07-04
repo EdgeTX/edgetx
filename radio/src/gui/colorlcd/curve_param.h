@@ -43,5 +43,6 @@ class CurveParam : public Window
  public:
   CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
              std::function<void(int32_t)> setRefValue,
+             int16_t sourceMin,
              std::function<void(void)> refreshView = nullptr);
 };

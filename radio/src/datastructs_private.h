@@ -84,21 +84,21 @@ inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
 
 PACK(struct CurveRef {
   uint16_t type:5;
-  int16_t  value:11 CUST(in_read_sourcenumval,in_write_sourcenumval);
+  int16_t  value:11 CUST(r_sourceNumVal,w_sourceNumVal);
 });
 
 PACK(struct MixData {
-  int16_t  weight:11 CUST(in_read_sourcenumval,in_write_sourcenumval);
   uint16_t destCh:5;
   int16_t  srcRaw:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx); // srcRaw=0 means not used
   uint16_t carryTrim:1;
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
   uint16_t speedPrec:1;
-  int32_t  offset:11 CUST(in_read_sourcenumval,in_write_sourcenumval);
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   uint32_t spare:2;
+  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   CurveRef curve;
   uint8_t  delayUp;
   uint8_t  delayDown;
@@ -117,8 +117,8 @@ PACK(struct ExpoData {
   CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
   int16_t  trimSource:6;
   int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
-  int32_t  weight:11 CUST(in_read_sourcenumval,in_write_sourcenumval);
-  int32_t  offset:11 CUST(in_read_sourcenumval,in_write_sourcenumval);
+  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
   int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   CurveRef curve;
   uint16_t chn:5;

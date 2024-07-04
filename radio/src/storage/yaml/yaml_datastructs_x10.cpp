@@ -420,21 +420,21 @@ static const struct YamlNode struct_TimerData[] = {
 };
 static const struct YamlNode struct_CurveRef[] = {
   YAML_UNSIGNED( "type", 5 ),
-  YAML_SIGNED_CUST( "value", 11, in_read_sourcenumval, in_write_sourcenumval ),
+  YAML_SIGNED_CUST( "value", 11, r_sourceNumVal, w_sourceNumVal ),
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
-  YAML_SIGNED_CUST( "weight", 11, in_read_sourcenumval, in_write_sourcenumval ),
   YAML_UNSIGNED( "destCh", 5 ),
   YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_UNSIGNED( "carryTrim", 1 ),
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
   YAML_UNSIGNED( "speedPrec", 1 ),
-  YAML_SIGNED_CUST( "offset", 11, in_read_sourcenumval, in_write_sourcenumval ),
-  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
   YAML_UNSIGNED( "spare", 2 ),
+  YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_UNSIGNED( "delayUp", 8 ),
   YAML_UNSIGNED( "delayDown", 8 ),
@@ -462,8 +462,8 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_CUSTOM("carryTrim",r_carryTrim,nullptr),
   YAML_SIGNED( "trimSource", 6 ),
   YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
-  YAML_SIGNED_CUST( "weight", 11, in_read_sourcenumval, in_write_sourcenumval ),
-  YAML_SIGNED_CUST( "offset", 11, in_read_sourcenumval, in_write_sourcenumval ),
+  YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_UNSIGNED( "chn", 5 ),

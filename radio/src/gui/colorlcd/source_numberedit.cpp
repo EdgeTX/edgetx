@@ -37,6 +37,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
                                    int32_t vmin, int32_t vmax,
                                    std::function<int32_t()> getValue,
                                    std::function<void(int32_t)> setValue,
+                                   int16_t sourceMin,
                                    LcdFlags textFlags, int32_t voffset,
                                    int32_t vdefault) :
     Window(parent, {0, 0, NUM_EDIT_W + SRC_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
@@ -54,7 +55,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
 
   // Source field
   source_field = new SourceChoice(
-      this, {0, 0, NUM_EDIT_W, 0}, 0, INPUTSRC_LAST,
+      this, {0, 0, NUM_EDIT_W, 0}, sourceMin, INPUTSRC_LAST,
       [=]() {
         SourceNumVal v;
         v.rawValue = getValue();

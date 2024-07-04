@@ -60,6 +60,18 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   }
 #endif
 
+  bool isSource = false;
+  bool origIsSource = false;
+  if (i_flags & INCDEC_SOURCE_VALUE) {
+    SourceNumVal v;
+    v.rawValue = val;
+    // Save isSource flag;
+    origIsSource = isSource = v.isSource;
+    // Remove isSource flag;
+    val = v.value;
+    newval = v.value;
+  }
+
   if (s_editMode > 0) {
     bool invert = false;
     if ((i_flags & INCDEC_SOURCE_INVERT) && (newval < 0)) {
@@ -111,10 +123,17 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 #endif
 
 #if defined(AUTOSOURCE)
-    if (i_flags & INCDEC_SOURCE) {
+    if (i_flags & (INCDEC_SOURCE|INCDEC_SOURCE_VALUE)) {
       int source = GET_MOVED_SOURCE(i_min, i_max);
       if (source) {
-        newval = source;
+        if (i_flags & INCDEC_SOURCE_VALUE) {
+          if (isSource) {
+            // Only use moved source if already a source value
+            newval = source;
+          }
+        } else {
+          newval = source;
+        }
       }
 #if defined(AUTOSWITCH)
       else {
@@ -139,9 +158,13 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
     newval = !val;
   }
 
-  if (i_flags & INCDEC_SOURCE) {
+  if (i_flags & (INCDEC_SOURCE | INCDEC_SOURCE_VALUE)) {
     if (event == EVT_KEY_LONG(KEY_ENTER)) {
       checkIncDecSelection = MIXSRC_NONE;
+
+      if (i_flags & INCDEC_SOURCE_VALUE && isSource) {
+        POPUP_MENU_ADD_ITEM(STR_CONSTANT);
+      }
 
       if (i_min <= MIXSRC_FIRST_INPUT && i_max >= MIXSRC_FIRST_INPUT) {
         if (getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isInputAvailable) != MIXSRC_NONE) {
@@ -185,7 +208,18 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       POPUP_MENU_START(onSourceLongEnterPress);
     }
     if (checkIncDecSelection != 0) {
-      newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
+      if (i_flags & INCDEC_SOURCE_VALUE) {
+        if (checkIncDecSelection == MIXSRC_VALUE) {
+          newval = 0;
+          isSource = false;
+        } else {
+          newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
+          if (checkIncDecSelection != MIXSRC_INVERT)
+            isSource = true;
+        }
+      } else {
+        newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
+      }
       if (checkIncDecSelection != MIXSRC_MIN && checkIncDecSelection != MIXSRC_MAX)
         s_editMode = EDIT_MODIFY_FIELD;
       checkIncDecSelection = 0;
@@ -216,12 +250,19 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
     }
   }
 
-  if (newval != val) {
+  if (newval != val || isSource != origIsSource) {
     storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
     checkIncDec_Ret = (newval > val ? 1 : -1);
   }
   else {
     checkIncDec_Ret = 0;
+  }
+
+  if (i_flags & INCDEC_SOURCE_VALUE) {
+    SourceNumVal v;
+    v.isSource = isSource;
+    v.value = newval;
+    newval = v.rawValue;
   }
 
   return newval;

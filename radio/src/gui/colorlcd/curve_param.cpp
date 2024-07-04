@@ -73,7 +73,8 @@ class CurveChoice : public Choice
 };
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
+                       std::function<void(int32_t)> setRefValue, int16_t sourceMin,
+                       std::function<void(void)> refreshView) :
     Window(parent, rect), ref(ref)
 {
   padAll(PAD_TINY);
@@ -93,7 +94,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
-  auto gv = new SourceNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue);
+  auto gv = new SourceNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue, sourceMin);
   gv->setSuffix("%");
   value_edit = gv;
 

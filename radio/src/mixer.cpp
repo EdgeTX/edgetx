@@ -64,7 +64,7 @@ int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
       // Mimic behviour of GET_GVAR_PREC1
       result = result * 10;
     } else {
-      result = calcRESXto1000(val);
+      result = calcRESXto1000(result);
     }
   } else {
     result = v.value * 10;

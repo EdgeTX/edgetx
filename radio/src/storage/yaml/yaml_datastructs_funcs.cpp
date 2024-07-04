@@ -463,7 +463,7 @@ static bool w_mixSrcRawEx(const YamlNode* node, uint32_t val, yaml_writer_func w
   return wf(opaque, "\"", 1);
 }
 
-static uint32_t in_read_sourcenumval(const YamlNode* node, const char* val, uint8_t val_len)
+static uint32_t r_sourceNumVal(const YamlNode* node, const char* val, uint8_t val_len)
 {
   SourceNumVal v;
 
@@ -484,7 +484,7 @@ static uint32_t in_read_sourcenumval(const YamlNode* node, const char* val, uint
   return v.rawValue;
 }
 
-bool in_write_sourcenumval(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+bool w_sourceNumVal(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
   SourceNumVal v;

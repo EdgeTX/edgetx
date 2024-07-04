@@ -112,7 +112,7 @@ void InputEditWindow::buildBody(Window* form)
                              input->weight = newValue;
                              preview->update();
                              SET_DIRTY();
-                           });
+                           }, INPUTSRC_FIRST);
   gvar->setSuffix("%");
 
   // Offset
@@ -123,7 +123,7 @@ void InputEditWindow::buildBody(Window* form)
                                 input->offset = newValue;
                                 preview->update();
                                 SET_DIRTY();
-                              });
+                              }, INPUTSRC_FIRST);
   gvar->setSuffix("%");
 
   // Switch
@@ -141,7 +141,7 @@ void InputEditWindow::buildBody(Window* form)
           input->curve.value = newValue;
           preview->update();
           SET_DIRTY();
-        },
+        }, INPUTSRC_FIRST,
         [=]() {
           preview->update();
         });

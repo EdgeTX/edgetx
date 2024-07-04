@@ -96,7 +96,8 @@ void menuModelCurvesAll(event_t event)
   }
 }
 
-void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags)
+void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
+                  IsValueAvailable isValueAvailable, int16_t sourceMin)
 {
   coord_t x1 = x;
   LcdFlags flags1 = flags;
@@ -126,7 +127,7 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
   switch (curve.type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
-      curve.value = GVAR_MENU_ITEM(x, y, curve.value, -100, 100, LEFT | flags, 0, event);
+      curve.value = editSrcVarFieldValue(x, y, nullptr, curve.value, -100, 100, flags, event, isValueAvailable, sourceMin);
       break;
     case CURVE_REF_FUNC:
       lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, curve.value, flags);

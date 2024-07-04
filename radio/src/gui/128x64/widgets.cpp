@@ -162,6 +162,28 @@ void drawSlider(coord_t x, coord_t y, uint8_t value, uint8_t max, uint8_t attr)
   drawSlider(x, y, 5*FW - 1, value, max, attr);
 }
 
+uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
+                              int16_t min, int16_t max, LcdFlags attr, event_t event,
+                              IsValueAvailable isValueAvailable, int16_t sourceMin)
+{
+  if (title)
+    lcdDrawTextAlignedLeft(y, title);
+  SourceNumVal v;
+  v.rawValue = value;
+  if (v.isSource) {
+    drawSource(x, y, v.value, attr);
+    if (attr & (~RIGHT)) {
+      value = checkIncDec(event, value, sourceMin, MIXSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_VALUE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isValueAvailable);
+    }
+  } else {
+    lcdDrawNumber(x, y, v.value, attr);
+    if (attr & (~RIGHT)) {
+      value = checkIncDec(event, value, min, max, EE_MODEL|INCDEC_SOURCE_VALUE|NO_INCDEC_MARKS);
+    }
+  }
+  return value;
+}
+
 #if defined(GVARS)
 void drawGVarValue(coord_t x, coord_t y, uint8_t gvar, gvar_t value, LcdFlags flags)
 {
