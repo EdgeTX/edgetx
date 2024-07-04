@@ -134,7 +134,9 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(-56, g_model.expoData[0].weight);
+  SourceNumVal v;
+  v.rawValue = g_model.expoData[0].weight;
+  EXPECT_EQ(-56, v.value);
   EXPECT_EQ(0, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
@@ -155,7 +157,8 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(-56, g_model.expoData[0].weight);
+  v.rawValue = g_model.expoData[0].weight;
+  EXPECT_EQ(-56, v.value);
   EXPECT_EQ(0, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 

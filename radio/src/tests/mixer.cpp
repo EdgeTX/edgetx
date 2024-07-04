@@ -463,8 +463,8 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithTrimIdle)
   // Trim idle only
   g_model.thrTrim = 1;
   anaSetFiltered(THR_STICK,  THR_STICK_MIN_THR_POS);  // Min stick
-  g_model.limitData[THR_CHAN].offset = makeSourceNumVal(0);
-  g_model.limitData[ELE_CHAN].offset = makeSourceNumVal(0);
+  g_model.limitData[THR_CHAN].offset = 0;
+  g_model.limitData[ELE_CHAN].offset = 0;
   setTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM, 100);
   setTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM, -100);
   evalMixes(1);
@@ -497,8 +497,8 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   // No trim idle only
   // Cross trims
   g_model.thrTrim = 0;
-  g_model.limitData[THR_CHAN].offset = makeSourceNumVal(0);
-  g_model.limitData[ELE_CHAN].offset = makeSourceNumVal(0);
+  g_model.limitData[THR_CHAN].offset = 0;
+  g_model.limitData[ELE_CHAN].offset = 0;
   g_model.setThrottleStickTrimSource(MIXSRC_TRIMELE);
   ExpoData *expo = expoAddress(THR_CHAN);
   expo->trimSource = ELE_TRIM_SOURCE;
@@ -529,8 +529,8 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
 {
   // Trim idle only
   // Cross trims
-  g_model.limitData[THR_CHAN].offset = makeSourceNumVal(0);
-  g_model.limitData[ELE_CHAN].offset = makeSourceNumVal(0);
+  g_model.limitData[THR_CHAN].offset = 0;
+  g_model.limitData[ELE_CHAN].offset = 0;
   g_model.thrTrim = 1;
   g_model.thrTrimSw = ELE_THRTRIMSW;
   ExpoData *expo = expoAddress(THR_CHAN);
