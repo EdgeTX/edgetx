@@ -336,7 +336,9 @@ void menuModelMixAll(event_t event)
             lcdDrawText(MIX_LINE_WEIGHT_POS, y, "MULT!", RIGHT | attr | (isMixActive(i) ? BOLD : 0));
           }
           else {
-            gvarWeightItem(MIX_LINE_WEIGHT_POS, y, md, RIGHT | attr | (isMixActive(i) ? BOLD : 0), 0);
+            editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight, 
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | attr | (isMixActive(i) ? BOLD : 0),
+                        0, 0, 0);
           }
 
 #if LCD_W >= 212
