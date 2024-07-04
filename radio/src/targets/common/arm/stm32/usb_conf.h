@@ -95,7 +95,7 @@
 #endif
 
 /****************** USB OTG MISC CONFIGURATION ********************************/
-#if defined(USB_GPIO_PIN_VBUS)
+#if defined(USB_GPIO_VBUS)
 #define VBUS_SENSING_ENABLED
 #endif
 

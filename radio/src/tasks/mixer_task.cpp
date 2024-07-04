@@ -164,8 +164,8 @@ TASK_FUNCTION(mixerTask)
     }
 
 #if defined(DEBUG_MIXER_SCHEDULER)
-    GPIO_SetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
-    GPIO_ResetBits(EXTMODULE_TX_GPIO, EXTMODULE_TX_GPIO_PIN);
+    gpio_set(EXTMODULE_TX_GPIO);
+    gpio_clear(EXTMODULE_TX_GPIO);
 #endif
 
     // re-enable trigger

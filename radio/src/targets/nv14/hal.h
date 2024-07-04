@@ -235,7 +235,7 @@
 // USB
 #define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA,9)   // PA.09
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10

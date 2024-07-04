@@ -83,7 +83,11 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 
 #if defined(TRAINER_DETECT_GPIO)
   // Trainer detect is a switch on the jack
-  #define TRAINER_CONNECTED()           (gpio_read(TRAINER_DETECT_GPIO) == TRAINER_DETECT_GPIO_PIN_VALUE)
+  #if defined(TRAINER_DETECT_INVERTED)
+    #define TRAINER_CONNECTED()           (gpio_read(TRAINER_DETECT_GPIO) ? 0 : 1)
+  #else
+    #define TRAINER_CONNECTED()           (gpio_read(TRAINER_DETECT_GPIO) ? 1 : 0)
+  #endif
 #elif defined(PCBXLITES)
   // Trainer is on the same connector than Headphones
   enum JackState
