@@ -1354,7 +1354,7 @@ void edgeTxInit()
 
   switchInit();
 
-#if defined(STARTUP_ANIMATION)
+#if defined(GUI) && !defined(COLORLCD)
   lcdRefreshWait();
   lcdClear();
   lcdRefresh();
