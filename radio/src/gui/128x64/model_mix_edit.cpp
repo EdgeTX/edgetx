@@ -139,11 +139,13 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_WEIGHT:
-        md2->weight = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1);
+        md2->weight = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight, 
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1);
         break;
 
       case MIX_FIELD_OFFSET:
-        md2->offset = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset, MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1);
+        md2->offset = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset,
+                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1);
         drawOffsetBar(LCD_W - 33, y, md2);
         break;
 

@@ -117,11 +117,13 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_WEIGHT:
-        ed->weight = editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, ed->weight, -100, 100, attr | RIGHT, event, isSourceAvailableInInputs, INPUTSRC_FIRST);
+        ed->weight = editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, ed->weight,
+                        -100, 100, attr | RIGHT, event, isSourceAvailableInInputs, INPUTSRC_FIRST);
         break;
 
       case EXPO_FIELD_OFFSET:
-        ed->offset = editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_OFFSET, ed->offset, -100, 100, attr | RIGHT, event, isSourceAvailableInInputs, INPUTSRC_FIRST);
+        ed->offset = editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_OFFSET, ed->offset,
+                        -100, 100, attr | RIGHT, event, isSourceAvailableInInputs, INPUTSRC_FIRST);
         break;
 
       case EXPO_FIELD_CURVE_LABEL:
