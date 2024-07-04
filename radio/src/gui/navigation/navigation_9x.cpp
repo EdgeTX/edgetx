@@ -51,7 +51,26 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 {
   int newval = val;
 
+  bool isSource = false;
+  bool origIsSource = false;
+  if (i_flags & INCDEC_SOURCE_VALUE) {
+    SourceNumVal v;
+    v.rawValue = val;
+    // Save isSource flag;
+    origIsSource = isSource = v.isSource;
+    // Remove isSource flag;
+    val = v.value;
+    newval = v.value;
+  }
+
   if (s_editMode > 0) {
+    bool invert = false;
+    if ((i_flags & INCDEC_SOURCE_INVERT) && (newval < 0)) {
+      invert = true;
+      newval = -newval;
+      val = -val;
+    }
+
     if (event == EVT_KEY_FIRST(KEY_UP) || event == EVT_KEY_REPT(KEY_UP) ||
         event == EVT_KEY_FIRST(KEY_RIGHT) || event == EVT_KEY_REPT(KEY_RIGHT)) {
       do {
@@ -94,10 +113,17 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 #endif
 
 #if defined(AUTOSOURCE)
-    if (i_flags & INCDEC_SOURCE) {
-      int8_t source = GET_MOVED_SOURCE(i_min, i_max);
+    if (i_flags & (INCDEC_SOURCE|INCDEC_SOURCE_VALUE)) {
+      int source = GET_MOVED_SOURCE(i_min, i_max);
       if (source) {
-        newval = source;
+        if (i_flags & INCDEC_SOURCE_VALUE) {
+          if (isSource) {
+            // Only use moved source if already a source value
+            newval = source;
+          }
+        } else {
+          newval = source;
+        }
       }
 #if defined(AUTOSWITCH)
       else {
@@ -109,12 +135,85 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 #endif
     }
 #endif
+
+    if (invert) {
+      newval = -newval;
+      val = -val;
+    }
   }
 
   if (i_min == 0 && i_max == 1 &&
       (event == EVT_KEY_BREAK(KEY_ENTER))) {
     s_editMode = 0;
     newval = !val;
+  }
+
+  if (i_flags & (INCDEC_SOURCE | INCDEC_SOURCE_VALUE)) {
+    if (event == EVT_KEY_LONG(KEY_ENTER)) {
+      checkIncDecSelection = MIXSRC_NONE;
+
+      if (i_flags & INCDEC_SOURCE_VALUE && isSource) {
+        POPUP_MENU_ADD_ITEM(STR_CONSTANT);
+      }
+
+      if (i_min <= MIXSRC_FIRST_INPUT && i_max >= MIXSRC_FIRST_INPUT) {
+        if (getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isInputAvailable) != MIXSRC_NONE) {
+          POPUP_MENU_ADD_ITEM(STR_MENU_INPUTS);
+        }
+      }
+#if defined(LUA_MODEL_SCRIPTS)
+      if (i_min <= MIXSRC_FIRST_LUA && i_max >= MIXSRC_FIRST_LUA) {
+        if (getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable) != MIXSRC_NONE) {
+          POPUP_MENU_ADD_ITEM(STR_MENU_LUA);
+        }
+      }
+#endif
+      if (i_min <= MIXSRC_FIRST_STICK && i_max >= MIXSRC_FIRST_STICK)      POPUP_MENU_ADD_ITEM(STR_MENU_STICKS);
+      if (i_min <= MIXSRC_FIRST_POT && i_max >= MIXSRC_FIRST_POT)          POPUP_MENU_ADD_ITEM(STR_MENU_POTS);
+      if (i_min <= MIXSRC_MIN && i_max >= MIXSRC_MIN)                      POPUP_MENU_ADD_ITEM(STR_MENU_MIN);
+      if (i_min <= MIXSRC_MAX && i_max >= MIXSRC_MAX)                      POPUP_MENU_ADD_ITEM(STR_MENU_MAX);
+#if defined(HELI)
+      if (modelHeliEnabled())
+        if (i_min <= MIXSRC_FIRST_HELI && i_max >= MIXSRC_FIRST_HELI && isValueAvailable && isValueAvailable(MIXSRC_FIRST_HELI))
+          POPUP_MENU_ADD_ITEM(STR_MENU_HELI);
+#endif
+      if (i_min <= MIXSRC_FIRST_TRIM && i_max >= MIXSRC_FIRST_TRIM)        POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
+      if (i_min <= MIXSRC_FIRST_SWITCH && i_max >= MIXSRC_FIRST_SWITCH)    POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
+      if (i_min <= MIXSRC_FIRST_TRAINER && i_max >= MIXSRC_FIRST_TRAINER)  POPUP_MENU_ADD_ITEM(STR_MENU_TRAINER);
+      if (i_min <= MIXSRC_FIRST_CH && i_max >= MIXSRC_FIRST_CH)            POPUP_MENU_ADD_ITEM(STR_MENU_CHANNELS);
+      if (i_min <= MIXSRC_FIRST_GVAR && i_max >= MIXSRC_FIRST_GVAR && isValueAvailable && isValueAvailable(MIXSRC_FIRST_GVAR)) {
+        POPUP_MENU_ADD_ITEM(STR_MENU_GVARS);
+      }
+
+      if (modelTelemetryEnabled() && i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
+        for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+          TelemetrySensor * sensor = & g_model.telemetrySensors[i];
+          if (sensor->isAvailable()) {
+            POPUP_MENU_ADD_ITEM(STR_MENU_TELEMETRY);
+            break;
+          }
+        }
+      }
+      if (i_flags & INCDEC_SOURCE_INVERT) POPUP_MENU_ADD_ITEM(STR_MENU_INVERT);
+      POPUP_MENU_START(onSourceLongEnterPress);
+    }
+    if (checkIncDecSelection != 0) {
+      if (i_flags & INCDEC_SOURCE_VALUE) {
+        if (checkIncDecSelection == MIXSRC_VALUE) {
+          newval = 0;
+          isSource = false;
+        } else {
+          newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
+          if (checkIncDecSelection != MIXSRC_INVERT)
+            isSource = true;
+        }
+      } else {
+        newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
+      }
+      if (checkIncDecSelection != MIXSRC_MIN && checkIncDecSelection != MIXSRC_MAX)
+        s_editMode = EDIT_MODIFY_FIELD;
+      checkIncDecSelection = 0;
+    }
   }
 
   if (newval != val) {
@@ -134,6 +233,13 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   }
   else {
     checkIncDec_Ret = 0;
+  }
+
+  if (i_flags & INCDEC_SOURCE_VALUE) {
+    SourceNumVal v;
+    v.isSource = isSource;
+    v.value = newval;
+    newval = v.rawValue;
   }
 
   return newval;
