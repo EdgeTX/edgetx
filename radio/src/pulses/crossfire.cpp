@@ -188,54 +188,30 @@ static bool _validHdr(uint8_t* buf)
   return buf[0] == RADIO_ADDRESS || buf[0] == UART_SYNC;
 }
 
-static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
-                                  uint8_t* buf, uint8_t* p_len)
+static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
 {
-  if (frame_len < MIN_FRAME_LEN) return;
-
-  uint8_t& len = *p_len;
-  uint32_t defrag_len = (uint32_t)len + (uint32_t)frame_len;
-  if (len == 0) {
-    // buffer is empty: no re-assembly
-    if (!_validHdr(frame) || !_lenIsSane(frame[1] + 2)) {
-      TRACE("[XF] invalid frame");
-      return;
-    }
-  } else if (defrag_len > TELEMETRY_RX_PACKET_SIZE) {
-    TRACE("[XF] overflow (%d > %d)", defrag_len, TELEMETRY_RX_PACKET_SIZE);
-    frame_len = TELEMETRY_RX_PACKET_SIZE - len;
-    defrag_len = (uint32_t)len + (uint32_t)frame_len;
-  }
-
-  memcpy(buf + len, frame, frame_len);
-  len = (uint8_t)defrag_len;
-
-  // 1st frame complete?
-  uint32_t unfrag_len = buf[1] + 2;
-  if (len < unfrag_len) {
-    TRACE("[XF] frag cont frame (%d < %d)", len, unfrag_len);
-    return;
-  }
-
   uint8_t* p_buf = buf;
   while (len >= MIN_FRAME_LEN) {
+
+    if (!_validHdr(p_buf)) {
+      TRACE("[XF] skipping invalid start bytes");
+      do { p_buf++; len--; } while(len > 0 && !_validHdr(p_buf));
+      if (len < MIN_FRAME_LEN) break;
+    }
 
     uint32_t pkt_len = p_buf[1] + 2;
     if (!_lenIsSane(pkt_len)) {
       TRACE("[XF] pkt len error (%d)", pkt_len);
       len = 0;
-      return;
+      break;
     }
 
     if (pkt_len > (uint32_t)len) {
-      // Packet continued later...
-      if (p_buf != buf) memmove(buf, p_buf, len);
-      return;
+      // incomplete packet
+      break;
     }
 
-    if (!_validHdr(p_buf)) {
-      TRACE("[XF] address 0x%02X error", p_buf[0]);
-    } else if (!_checkFrameCRC(p_buf)) {
+    if (!_checkFrameCRC(p_buf)) {
       TRACE("[XF] CRC error ");
     } else {
 #if defined(BLUETOOTH)
@@ -252,6 +228,45 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
 
     p_buf += pkt_len;
     len -= pkt_len;
+  }
+  
+  return p_buf;
+}
+
+static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
+                                  uint8_t* buf, uint8_t* p_len)
+{
+  if (frame_len < MIN_FRAME_LEN) return;
+
+  uint8_t& len = *p_len;
+  if (len == 0) {
+    // buffer is empty: no re-assembly
+    if (!_validHdr(frame)) {
+      TRACE("[XF] invalid frame start");
+      return;
+    }
+
+    // process frames directly out of RX buffer
+    uint8_t* p_buf = _processFrames(ctx, frame, frame_len);
+    if (frame_len > 0) {
+      memcpy(buf, p_buf, frame_len);
+      len = frame_len;
+    }
+  } else {
+    uint32_t defrag_len = (uint32_t)len + (uint32_t)frame_len;
+    if (defrag_len > TELEMETRY_RX_PACKET_SIZE) {
+      TRACE("[XF] overflow (%d > %d)", defrag_len, TELEMETRY_RX_PACKET_SIZE);
+      frame_len = TELEMETRY_RX_PACKET_SIZE - len;
+      defrag_len = (uint32_t)len + (uint32_t)frame_len;
+    }
+
+    memcpy(buf + len, frame, frame_len);
+    len = (uint8_t)defrag_len;
+
+    uint8_t* p_buf = _processFrames(ctx, buf, len);
+    if ((len > 0) && (p_buf != buf)) {
+      memmove(buf, p_buf, len);
+    }
   }
 }
 
