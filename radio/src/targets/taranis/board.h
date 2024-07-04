@@ -202,16 +202,16 @@ extern "C" {
 
 // Power driver
 #define SOFT_PWR_CTRL
+#if defined(PWR_BUTTON_PRESS) && !defined(RADIO_COMMANDO8)
+#  define STARTUP_ANIMATION
+#endif
+
 void pwrInit();
 uint32_t pwrCheck();
 void pwrOn();
 void pwrOff();
 bool pwrPressed();
 bool pwrOffPressed();
-#if defined(PWR_BUTTON_PRESS)
-#define STARTUP_ANIMATION
-uint32_t pwrPressedDuration();
-#endif
 void pwrResetHandler();
 #define pwrForcePressed()   false
 
