@@ -26,7 +26,7 @@
 #elif defined(NAVIGATION_9X)
   #include "navigation_9x.cpp"
 #elif defined(NAVIGATION_XLITE)
-  #include "navigation_xlite"
+  #include "navigation_xlite.cpp"
 #elif defined(NAVIGATION_X7)
   #include "navigation_x7.cpp"
 #else
