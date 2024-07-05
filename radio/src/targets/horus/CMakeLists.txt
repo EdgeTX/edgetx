@@ -274,6 +274,7 @@ set(FIRMWARE_TARGET_SRC
   board.cpp
   backlight_driver.cpp
   led_driver.cpp
+  haptic_driver.cpp
   )
 
 set(FIRMWARE_SRC
@@ -318,9 +319,3 @@ endif()
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
 
-set(STM32LIB_SRC
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fmc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_ltdc.c
-  STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
-  )

@@ -123,8 +123,10 @@ class ADCInputParser:
     def _parse_dirs(self):
 
         ret = []
-        dirs = self.hw_defs['ADC_DIRECTION'].strip('{} ').split(',')
-        #eprint(dirs)
+        dirs = self.hw_defs.get('ADC_DIRECTION') or ''
+        if dirs:
+            dirs = dirs.strip('{} ').split(',')
+        eprint(dirs)
         for i in dirs:
             ret.append(int(i))
 

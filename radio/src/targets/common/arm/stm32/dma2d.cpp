@@ -32,6 +32,10 @@ void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
 {
   DMAWait();
 
+#if __CORTEX_M >= 0x07
+  SCB_CleanInvalidateDCache();
+#endif
+
   LL_DMA2D_DeInit(DMA2D);
 
   LL_DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -53,6 +57,7 @@ void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
 
   /* Start Transfer */
   LL_DMA2D_Start(DMA2D);
+
 }
 
 void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
@@ -61,6 +66,11 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
                         uint16_t srcy, uint16_t w, uint16_t h)
 {
   DMAWait();
+
+#if __CORTEX_M >= 0x07
+  SCB_CleanInvalidateDCache();
+#endif
+
   LL_DMA2D_DeInit(DMA2D);
 
   LL_DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -88,6 +98,7 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
 
   /* Start Transfer */
   LL_DMA2D_Start(DMA2D);
+
 }
 
 // same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
@@ -97,6 +108,11 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
                       uint16_t h, uint16_t bg_color)
 {
   DMAWait();
+
+#if __CORTEX_M >= 0x07
+  SCB_CleanInvalidateDCache();
+#endif
+
   LL_DMA2D_DeInit(DMA2D);
 
   LL_DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -127,12 +143,16 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
 
   /* Start Transfer */
   LL_DMA2D_Start(DMA2D);
-  DMAWait();
+
 }
 
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format)
 {
   DMAWait();
+#if __CORTEX_M >= 0x07
+  SCB_CleanInvalidateDCache();
+#endif
+
   LL_DMA2D_DeInit(DMA2D);
 
   LL_DMA2D_InitTypeDef DMA2D_InitStruct;
@@ -153,4 +173,5 @@ void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t
 
   /* Start Transfer */
   LL_DMA2D_Start(DMA2D);
+
 }

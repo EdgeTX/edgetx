@@ -290,7 +290,11 @@ static void _crsf_extmodule_frame_received()
 // FreeRTOS methods from ISR with prio 0
 static void _soft_irq_trigger(void*)
 {
+#ifndef STM32H7
   EXTI->SWIER = TELEMETRY_RX_FRAME_EXTI_LINE;
+#else
+  EXTI->SWIER1 = TELEMETRY_RX_FRAME_EXTI_LINE;
+#endif
 }
 #endif
 
@@ -358,9 +362,10 @@ static void crossfireDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
 
-  memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0, sizeof(crossfireModuleStatus[modulePortGetModule(mod_st)]));
+  memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0,
+         sizeof(CrossfireModuleStatus));
 
-#if !defined(SIMU)
+#if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
   if (mod_st && (modulePortGetModule(mod_st) == EXTERNAL_MODULE)) {
     auto drv = modulePortGetSerialDrv(mod_st->rx);
     auto ctx = modulePortGetCtx(mod_st->rx);

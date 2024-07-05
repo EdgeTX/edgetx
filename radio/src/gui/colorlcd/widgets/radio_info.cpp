@@ -245,7 +245,9 @@ class DateTimeWidget : public TopBarWidget
   void update() override
   {
     // get color from options
-    dateTime->setColor(persistentData->options[0].value.unsignedValue);
+    uint32_t color;
+    memcpy(&color, &persistentData->options[0].value.unsignedValue, sizeof(color));
+    dateTime->setColor(color);
   }
 
   HeaderDateTime* dateTime = nullptr;

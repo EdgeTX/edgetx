@@ -258,11 +258,15 @@ static const stm32_pulse_timer_t trainerModuleTimer = {
 
 static void _set_sport_input(uint8_t enable)
 {
+#if defined(TELEMETRY_DIR_GPIO)
   if (TELEMETRY_SET_INPUT) {
     gpio_write(TELEMETRY_DIR_GPIO, enable);
   } else {
     gpio_write(TELEMETRY_DIR_GPIO, !enable);
   }
+#else
+  (void)enable;
+#endif
 }
 
 #if defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)
@@ -283,6 +287,7 @@ static void _sport_init_inverter()
 }
 #endif
 
+#if defined(TELEMETRY_USART)
 static const stm32_usart_t sportUSART = {
   .USARTx = TELEMETRY_USART,
   .txGPIO = TELEMETRY_TX_GPIO,
@@ -307,10 +312,13 @@ extern "C" void TELEMETRY_DMA_TX_IRQHandler(void)
 
 DEFINE_STM32_SERIAL_PORT(SportModule, sportUSART, TELEMETRY_FIFO_SIZE, 0);
 
+#if defined(TELEMETRY_DIR_GPIO)
 static void _sport_direction_init()
 {
   gpio_init(TELEMETRY_DIR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
 }
+#endif
+#endif
 
 #if defined(TELEMETRY_TIMER)
 static const stm32_softserial_rx_port sportSoftRX = {
@@ -551,7 +559,10 @@ uint32_t __pxx1_get_inverter_comp() { return 1; }
 
 void boardInitModulePorts()
 {
+#if defined(TELEMETRY_USART) && defined(TELEMETRY_DIR_GPIO)
   _sport_direction_init();
+#endif
+
 #if defined(SPORT_UPDATE_PWR_GPIO)
   sportUpdateInit();
 #endif

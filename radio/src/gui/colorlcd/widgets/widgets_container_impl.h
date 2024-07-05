@@ -164,5 +164,5 @@ class WidgetsContainerImpl : public WidgetsContainer
 
  protected:
   PersistentData* persistentData;
-  Widget* widgets[N] = {};
+  Widget* widgets[N] = {nullptr};
 };
