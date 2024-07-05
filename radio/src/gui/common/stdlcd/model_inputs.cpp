@@ -427,7 +427,7 @@ void menuModelExposAll(event_t event)
           }
         }
         cur++; y+=FH; mixCnt++; i++; ed++;
-        if (sub == cur) {
+        if (sub == cur && ed->chn+1 == ch) {
           lcdDrawText(INDENT_WIDTH, y, "->", ((s_copyMode || sub != cur) ? 0 : INVERS));
         }
       } while (i<MAX_EXPOS && ed->chn+1 == ch && EXPO_VALID(ed));
