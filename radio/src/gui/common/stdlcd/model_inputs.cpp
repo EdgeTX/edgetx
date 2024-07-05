@@ -410,7 +410,7 @@ void menuModelExposAll(event_t event)
           s_currIdx = i;
         }
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-          editSrcVarFieldValue(EXPO_LINE_WEIGHT_POS, y, nullptr, ed->weight, 
+          editSrcVarFieldValue(EXPO_LINE_WEIGHT_POS, y, nullptr, ed->weight,
                         -100, 100, 0 | (isExpoActive(i) ? BOLD : 0),
                         0, 0, 0);
           displayExpoLine(y, ed, 0);
@@ -427,6 +427,9 @@ void menuModelExposAll(event_t event)
           }
         }
         cur++; y+=FH; mixCnt++; i++; ed++;
+        if (sub == cur) {
+          lcdDrawText(INDENT_WIDTH, y, "->", ((s_copyMode || sub != cur) ? 0 : INVERS));
+        }
       } while (i<MAX_EXPOS && ed->chn+1 == ch && EXPO_VALID(ed));
       if (s_copyMode == MOVE_MODE && cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES && s_copySrcCh == ch && i == (s_copySrcIdx + (s_copyTgtOfs<0))) {
         lcdDrawRect(EXPO_LINE_SELECT_POS, y-1, LCD_W-EXPO_LINE_SELECT_POS, 9, DOTTED);

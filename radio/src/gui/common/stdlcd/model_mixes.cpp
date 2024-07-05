@@ -326,7 +326,7 @@ void menuModelMixAll(event_t event)
           s_currIdx = i;
         }
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-          if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, 0);
+          if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, ((s_copyMode || sub != cur) ? 0 : INVERS));
 
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
