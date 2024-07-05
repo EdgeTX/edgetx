@@ -173,12 +173,14 @@ uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t 
   if (v.isSource) {
     drawSource(x, y, v.value, attr);
     if (attr & (~RIGHT)) {
-      value = checkIncDec(event, value, sourceMin, MIXSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_VALUE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isValueAvailable);
+      value = checkIncDec(event, value, sourceMin, MIXSRC_LAST,
+                EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_VALUE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isValueAvailable);
     }
   } else {
     lcdDrawNumber(x, y, v.value, attr);
     if (attr & (~RIGHT)) {
-      value = checkIncDec(event, value, min, max, EE_MODEL|INCDEC_SOURCE_VALUE|NO_INCDEC_MARKS, isValueAvailable);
+      value = checkIncDec(event, value, min, max,
+                EE_MODEL|INCDEC_SOURCE_VALUE|NO_INCDEC_MARKS|(sourceMin == INPUTSRC_FIRST ? INCDEC_SOURCE_NOINPUTS : 0));
     }
   }
   return value;

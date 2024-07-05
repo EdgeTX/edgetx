@@ -75,6 +75,7 @@ extern int8_t s_editMode; // global editmode
 #define NO_DBLKEYS                     0x80
 #define INCDEC_SOURCE_INVERT           0x100
 #define INCDEC_SOURCE_VALUE            0x200  // Field can be source or value
+#define INCDEC_SOURCE_NOINPUTS         0x400  // Do not allow Inputs in source selection
 
 int checkIncDec(event_t event, int val, int i_min, int i_max,
                 unsigned int i_flags = 0, IsValueAvailable isValueAvailable = nullptr,
