@@ -78,25 +78,27 @@ class Layout: public LayoutBase
       return factory;
     }
   
-    bool hasTopbar() const {
+    virtual bool hasTopbar() const {
       return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_TOPBAR)->boolValue))[0];
     }
 
-    bool hasFlightMode() const {
+    virtual bool hasFlightMode() const {
       return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_FM)->boolValue))[0];
     }
 
-    bool hasSliders() const {
+    virtual bool hasSliders() const {
       return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_SLIDERS)->boolValue))[0];
     }
 
-    bool hasTrims() const {
+    virtual bool hasTrims() const {
       return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_TRIMS)->boolValue))[0];
     }
 
-    bool isMirrored() const {
+    virtual bool isMirrored() const {
       return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_MIRRORED)->boolValue))[0];
     }
+
+    virtual bool isAppMode() const { return false; }
 
     // Set decoration visibility
     void setTrimsVisible(bool visible);
@@ -108,8 +110,6 @@ class Layout: public LayoutBase
     void show(bool visible = true) override;
 
     bool isLayout() override { return true; }
-
-    bool isAppMode() { return decorationSettings == DECORATION_NONE && zoneCount == 1; }
   
     static LAYOUT_VAL(MAIN_ZONE_BORDER, 10, 10)
 

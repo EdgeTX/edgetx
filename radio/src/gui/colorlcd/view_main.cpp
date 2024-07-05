@@ -353,10 +353,11 @@ bool ViewMain::onLongPress()
 
 void ViewMain::show(bool visible)
 {
+  if (deleted()) return;
   isVisible = visible;
   int view = getCurrentMainView();
   setTopbarVisible(visible && ::hasTopbar(view));
-  if (visible)
+  if (visible && (::hasTopbar(view) || isAppMode()))
     topbar->showEdgeTxButton();
   else
     topbar->hideEdgeTxButton();
