@@ -167,7 +167,8 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       }
 
       if (i_min <= MIXSRC_FIRST_INPUT && i_max >= MIXSRC_FIRST_INPUT) {
-        if (getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isInputAvailable) != MIXSRC_NONE) {
+        if (getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isInputAvailable) != MIXSRC_NONE &&
+            (!isValueAvailable || isValueAvailable(MIXSRC_FIRST_INPUT))) {
           POPUP_MENU_ADD_ITEM(STR_MENU_INPUTS);
         }
       }
