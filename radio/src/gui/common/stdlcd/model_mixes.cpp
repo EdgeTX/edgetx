@@ -307,7 +307,7 @@ void menuModelMixAll(event_t event)
     MixData * md = mixAddress(i);
     if (i < getMixCount() && (md->destCh + 1 == ch)) {
       if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-        putsChn(0, y, ch, 0); // show CHx
+        putsChn(0, y, ch, ((s_copyMode || sub != cur) ? 0 : INVERS)); // show CHx
       }
       uint8_t mixCnt = 0;
       do {
@@ -326,18 +326,16 @@ void menuModelMixAll(event_t event)
           s_currIdx = i;
         }
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-          LcdFlags attr = ((s_copyMode || sub != cur) ? 0 : INVERS);
-
           if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, 0);
 
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
           if (mixCnt == 0 && md->mltpx == 1) {
-            lcdDrawText(MIX_LINE_WEIGHT_POS, y, "MULT!", attr | (isMixActive(i) ? BOLD : 0));
+            lcdDrawText(MIX_LINE_WEIGHT_POS, y, "MULT!", (isMixActive(i) ? BOLD : 0));
           }
           else {
             editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight, 
-                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr | (isMixActive(i) ? BOLD : 0),
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, (isMixActive(i) ? BOLD : 0),
                         0, 0, 0);
           }
 
@@ -354,7 +352,7 @@ void menuModelMixAll(event_t event)
             }
             if (cur == sub) {
               /* invert the raw when it's the current one */
-              lcdDrawSolidFilledRect(23, y, LCD_W-24, 7);
+              lcdDrawSolidFilledRect(0, y, LCD_W, 7);
             }
           }
         }
