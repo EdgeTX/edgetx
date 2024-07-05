@@ -25,6 +25,10 @@
 #include "mixes.h"
 #include "switches.h"
 
+#if defined(COLORLCD)
+#include "view_main.h"
+#endif
+
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
 #endif
@@ -281,6 +285,7 @@ if(g_model.rssiSource) {
 
 #if defined(COLORLCD)
   LayoutFactory::loadCustomScreens();
+  ViewMain::instance()->show(true);
 #else
   LOAD_MODEL_BITMAP();
 #endif
