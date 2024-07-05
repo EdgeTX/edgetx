@@ -168,7 +168,7 @@ void onExposMenu(const char * result)
 }
 
 #if LCD_W >= 212
-#define EXPO_LINE_WEIGHT_POS           8*FW+8
+#define EXPO_LINE_WEIGHT_POS           4*FW+3
 #define EXPO_LINE_SRC_POS              9*FW+3
 #define EXPO_LINE_CURVE_POS            12*FW+11
 #define EXPO_LINE_TRIM_POS             19*FW-2
@@ -213,7 +213,7 @@ void displayExpoLine(coord_t y, ExpoData * ed, LcdFlags attr)
 #endif
 }
 #else // LCD_W < 212
-#define EXPO_LINE_WEIGHT_POS           7*FW+8
+#define EXPO_LINE_WEIGHT_POS           4*FW+3
 #define EXPO_LINE_SRC_POS              8*FW+3
 #define EXPO_LINE_INFOS_POS            11*FW+11
 #define EXPO_LINE_CURVE_POS            11*FW+11
@@ -412,7 +412,9 @@ void menuModelExposAll(event_t event)
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
           LcdFlags attr = ((s_copyMode || sub != cur) ? 0 : INVERS);
           
-          GVAR_MENU_ITEM(EXPO_LINE_WEIGHT_POS, y, ed->weight, -100, 100, RIGHT | attr | (isExpoActive(i) ? BOLD : 0), 0, 0);
+          editSrcVarFieldValue(EXPO_LINE_WEIGHT_POS, y, nullptr, ed->weight, 
+                        -100, 100, attr | (isExpoActive(i) ? BOLD : 0),
+                        0, 0, 0);
           displayExpoLine(y, ed, attr);
           
           if (s_copyMode) {

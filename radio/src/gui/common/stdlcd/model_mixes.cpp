@@ -64,7 +64,7 @@ void onMixesMenu(const char * result)
 }
 
 #if LCD_W >= 212
-#define MIX_LINE_WEIGHT_POS            2*FW+34
+#define MIX_LINE_WEIGHT_POS            3*FW+1
 #define MIX_LINE_SRC_POS               7*FW+5
 #define MIX_LINE_CURVE_POS             13*FW+3
 #define MIX_LINE_SWITCH_POS            19*FW+1
@@ -106,7 +106,7 @@ void displayMixLine(coord_t y, MixData * md)
   lcdDrawChar(MIX_LINE_DELAY_POS, y, cs);
 }
 #else // LCD_W >= 212
-#define MIX_LINE_WEIGHT_POS            6*FW+8
+#define MIX_LINE_WEIGHT_POS            3*FW+1
 #define MIX_LINE_SRC_POS               7*FW+3
 #define MIX_LINE_CURVE_POS             12*FW+3
 #define MIX_LINE_SWITCH_POS            16*FW+5
@@ -333,11 +333,11 @@ void menuModelMixAll(event_t event)
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
           if (mixCnt == 0 && md->mltpx == 1) {
-            lcdDrawText(MIX_LINE_WEIGHT_POS, y, "MULT!", RIGHT | attr | (isMixActive(i) ? BOLD : 0));
+            lcdDrawText(MIX_LINE_WEIGHT_POS, y, "MULT!", attr | (isMixActive(i) ? BOLD : 0));
           }
           else {
             editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight, 
-                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | attr | (isMixActive(i) ? BOLD : 0),
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr | (isMixActive(i) ? BOLD : 0),
                         0, 0, 0);
           }
 
