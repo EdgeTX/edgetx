@@ -454,13 +454,13 @@
 // I2C Bus
 #define I2C_B1                          I2C1
 #define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOB, 8)  // PB.08
-#define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOB, 9)  // PB.09
+#define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOB, 7)  // PB.07
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
-#define I2C_B1_CLK_RATE               400000
+#define I2C_B1_CLK_RATE                 400000
 
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1
-#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOB, 9)  // PB.09
+#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOB, 9)   // PB.09
 #define TOUCH_RST_GPIO                  GPIO_PIN(GPIOB, 12)  // PB.12
 
 #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_9
