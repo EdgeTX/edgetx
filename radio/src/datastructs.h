@@ -68,7 +68,7 @@ static inline void check_struct()
   CHKSIZE(FrSkyLineData, 6);
   CHKTYPE(TelemetryScreenData, 24);
   CHKSIZE(ModelHeader, 24);
-#elif defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
+#elif defined(COLORLCD)
   CHKSIZE(LimitData, 13);
   CHKSIZE(TimerData, 17);
   CHKSIZE(ModelHeader, 131);
