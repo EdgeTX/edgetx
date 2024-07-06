@@ -80,10 +80,13 @@ FRESULT openBinFile(MemoryType mt, unsigned int index);
 
 struct VersionTag
 {
-    char        flavour[8];
+    char        flavour[11];
     const char* version;
     const char* fork;
 };
+// Ensure flavour can hold FLAVOUR defined in target cmakefile
+static_assert(sizeof(((VersionTag){}).flavour) >= sizeof(FLAVOUR), "VersionTag flavour size too small");
+
 
 // Can be called right after openBinFile() to extract the version information
 // from a firmware file
