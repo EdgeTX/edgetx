@@ -136,8 +136,8 @@ do
         x10)
             BUILD_OPTIONS+="-DPCB=X10"
             ;;
-        x10-access)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=ACCESS -DPXX1=YES"
+        x10express)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
             ;;
         x12s)
             BUILD_OPTIONS+="-DPCB=X12S"

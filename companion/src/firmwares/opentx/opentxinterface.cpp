@@ -1306,7 +1306,7 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, EU + FLEX);
 
   /* FrSky Horus X10 Express board */
-  firmware = new OpenTxFirmware(FIRMWAREID("x10express"), Firmware::tr("FrSky Horus X10 Express / X10S Express"), BOARD_X10_EXPRESS, "x10-access");
+  firmware = new OpenTxFirmware(FIRMWAREID("x10express"), Firmware::tr("FrSky Horus X10 Express / X10S Express"), BOARD_X10_EXPRESS, "x10express");
   addOpenTxFrskyOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);

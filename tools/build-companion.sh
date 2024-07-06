@@ -71,7 +71,7 @@ declare -a simulator_plugins=(x9lite x9lites
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
                               nv14 el18 pl18 pl18ev
-                              x10 x10-access x12s
+                              x10 x10express x12s
                               t15 t16 t18 t20 t20v2 tx16s f16)
 
 for plugin in "${simulator_plugins[@]}"
@@ -158,7 +158,7 @@ do
         x10)
             BUILD_OPTIONS+="-DPCB=X10"
             ;;
-        x10-access)
+        x10express)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
             ;;
         x12s)
