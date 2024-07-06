@@ -35,7 +35,7 @@ do
         x7)
             BUILD_OPTIONS+="-DPCB=X7"
             ;;
-        x7-access)
+        x7access)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
             ;;
         t12)

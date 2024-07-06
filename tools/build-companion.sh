@@ -64,7 +64,7 @@ mkdir build
 cd build
 
 declare -a simulator_plugins=(x9lite x9lites
-                              x7 x7-access
+                              x7 x7access
                               t8 t12 tx12 tx12mk2
                               zorro commando8 boxer pocket
                               tlite tpro tprov2 lr3pro t14
@@ -89,7 +89,7 @@ do
         x7)
             BUILD_OPTIONS+="-DPCB=X7"
             ;;
-        x7-access)
+        x7access)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
             ;;
         t12)

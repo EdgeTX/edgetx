@@ -28,7 +28,7 @@ jobs:
           - f16
           - x10;x10express
           - x12s
-          - x7;x7-access
+          - x7;x7access
           - x9d;x9dp;x9dp2019
           - x9e;x9e-hall
           - x9lite;x9lites
