@@ -370,6 +370,7 @@ void ViewMain::show(bool visible)
 bool ViewMain::isAppMode()
 {
   int view = getCurrentMainView();
+  if (!customScreens[view]) return false;
   return ((Layout*)customScreens[view])->isAppMode();
 }
 
