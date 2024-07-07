@@ -47,11 +47,11 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       val = -val;
     }
 
-    if (event == EVT_KEY_FIRST(KEY_RIGHT) || event == EVT_KEY_REPT(KEY_RIGHT) ||
-        event == EVT_KEY_FIRST(KEY_UP) || event == EVT_KEY_REPT(KEY_UP)) {
+    if (event == EVT_KEY_FIRST(KEY_UP) || event == EVT_KEY_REPT(KEY_UP) ||
+        event == EVT_KEY_FIRST(KEY_RIGHT) || event == EVT_KEY_REPT(KEY_RIGHT)) {
       do {
         if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
-          newval += min(10, i_max-val);
+          newval += min(10, i_max - val);
         }
         else {
           newval++;
@@ -64,18 +64,16 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
         killEvents(event);
         AUDIO_KEY_ERROR();
       }
-    } else if (event == EVT_KEY_FIRST(KEY_LEFT) ||
-               event == EVT_KEY_REPT(KEY_LEFT) ||
-               event == EVT_KEY_FIRST(KEY_DOWN) ||
-               event == EVT_KEY_REPT(KEY_DOWN)) {
+    } else if (event == EVT_KEY_FIRST(KEY_DOWN) || event == EVT_KEY_REPT(KEY_DOWN) ||
+               event == EVT_KEY_FIRST(KEY_LEFT) || event == EVT_KEY_REPT(KEY_LEFT)) {
       do {
         if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
-          newval -= min(10, val-i_min);
-        }
-        else {
+          newval -= min(10, val - i_min);
+        } else {
           newval--;
         }
-      } while (isValueAvailable && !isValueAvailable(newval) && newval>=i_min);
+      } while (isValueAvailable && !isValueAvailable(newval) &&
+               newval >= i_min);
 
       if (newval < i_min) {
         newval = val;
@@ -121,7 +119,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   }
 
   if (i_min == 0 && i_max == 1 &&
-      event == EVT_KEY_BREAK(KEY_ENTER)) {
+      (event == EVT_KEY_BREAK(KEY_ENTER))) {
     s_editMode = 0;
     newval = !val;
   }
@@ -250,7 +248,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       break;
 
     case EVT_KEY_REPT(KEY_LEFT):  //dec
-      if (l_posHorz==0) break;
+      if (l_posHorz == 0) break;
       // no break
 
     case EVT_KEY_FIRST(KEY_LEFT)://dec
