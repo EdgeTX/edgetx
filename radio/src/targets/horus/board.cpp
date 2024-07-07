@@ -54,7 +54,7 @@ bool boardBacklightOn = false;
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
 
-void boardBootloaderInit()
+void boardBLInit()
 {
   videoSwitchInit();
 }
