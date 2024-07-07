@@ -21,6 +21,7 @@
 
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
+#include "stm32_gpio_driver.h"
 
 #include "lcd_st7796s_driver.h"
 
@@ -71,6 +72,10 @@ static void LCD_AF_GPIOConfig(void)
    |                     | LCD_G4 <-> PJ.11 | LCD_DE <-> PK.07
    |                     | LCD_B3 <-> PJ.15 |
    */
+  stm32_gpio_enable_clock(GPIOG);
+  stm32_gpio_enable_clock(GPIOI);
+  stm32_gpio_enable_clock(GPIOJ);
+  stm32_gpio_enable_clock(GPIOK);
 
   LL_GPIO_InitTypeDef GPIO_InitStructure;
   LL_GPIO_StructInit(&GPIO_InitStructure);
@@ -103,6 +108,9 @@ static void LCD_AF_GPIOConfig(void)
 
 static void lcdSpiConfig(void)
 {
+  stm32_gpio_enable_clock(LCD_SPI_GPIO);
+  stm32_gpio_enable_clock(LCD_NRST_GPIO);
+
   LL_GPIO_InitTypeDef GPIO_InitStructure;
   LL_GPIO_StructInit(&GPIO_InitStructure);
 
@@ -321,6 +329,7 @@ void LCD_ST7796S_Off(void) { lcdWriteCommand(0x28); }
 
 void LCD_Init_LTDC()
 {
+  __HAL_RCC_LTDC_CLK_ENABLE();
   hltdc.Instance = LTDC;
 
   /* Configure PLLSAI prescalers for LCD */

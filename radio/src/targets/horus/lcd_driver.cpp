@@ -273,6 +273,7 @@ static void lcdReset(void)
 
 void LCD_Init_LTDC()
 {
+  __HAL_RCC_LTDC_CLK_ENABLE();
   hltdc.Instance = LTDC;
 
   /* Configure PLLSAI prescalers for LCD */
