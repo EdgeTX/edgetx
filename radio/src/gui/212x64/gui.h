@@ -172,8 +172,7 @@ void menuChannelsView(event_t event);
 
 void repeatLastCursorMove(event_t event);
 
-#define POS_HORZ_INIT(posVert)         ((COLATTR(posVert) & NAVIGATION_LINE_BY_LINE) ? -1 : 0)
-#define EDIT_MODE_INIT                 0 // TODO enum
+#define EDIT_MODE_INIT                 0
 
 void onSwitchLongEnterPress(const char *result);
 void onSourceLongEnterPress(const char *result);
