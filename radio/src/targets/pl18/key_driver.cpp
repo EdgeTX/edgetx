@@ -72,7 +72,7 @@ void keysInit()
   stm32_gpio_enable_clock(GPIOB);
   stm32_gpio_enable_clock(GPIOC);
   stm32_gpio_enable_clock(GPIOD);
-  stm32_gpio_enable_clock(GPIOF);
+  stm32_gpio_enable_clock(GPIOG);
   stm32_gpio_enable_clock(GPIOH);
   stm32_gpio_enable_clock(GPIOJ);
 
