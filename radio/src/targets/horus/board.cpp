@@ -54,7 +54,7 @@ bool boardBacklightOn = false;
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
 
-void boardBootloaderInit()
+void boardBLInit()
 {
   videoSwitchInit();
 }
@@ -65,9 +65,6 @@ void boardBootloaderInit()
 
 void boardInit()
 {
-  LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
-  LL_APB2_GRP1_EnableClock(LCD_RCC_APB2Periph);
-
 #if defined(RADIO_FAMILY_T16)
   void board_set_bor_level();
   board_set_bor_level();

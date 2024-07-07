@@ -30,6 +30,8 @@
 // Defines used in board_common.h
 #define ROTARY_ENCODER_NAVIGATION
 
+#define BOOTLOADER_KEYS 0x42
+
 #include "board_common.h"
 #include "hal.h"
 
@@ -60,12 +62,6 @@ extern HardwareOptions hardwareOptions;
 extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                   (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-
-#if defined(RADIO_F16)
-// initilizes the board for the bootloader
-#define HAVE_BOARD_BOOTLOADER_INIT 1
-void boardBootloaderInit();
-#endif
 
 // Board driver
 void boardInit();

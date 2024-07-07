@@ -2690,6 +2690,7 @@ void LCD_NT35310_Off( void )
 }
 
 void LCD_Init_LTDC() {
+  __HAL_RCC_LTDC_CLK_ENABLE();
   hltdc.Instance = LTDC;
 
   /* Configure PLLSAI prescalers for LCD */

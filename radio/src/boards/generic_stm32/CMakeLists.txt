@@ -13,6 +13,7 @@ set(MINIMAL_BOARD_LIB_SRC
 
   boards/generic_stm32/inputs.cpp
   boards/generic_stm32/i2c_bus.cpp
+  boards/generic_stm32/bl_keys.cpp
 )
 
 # Dependencies only used in firmware
