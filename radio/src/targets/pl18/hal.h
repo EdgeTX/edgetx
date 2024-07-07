@@ -398,8 +398,6 @@
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
-#define LCD_RCC_AHB1Periph              LL_AHB1_GRP1_PERIPH_DMA2D
-#define LCD_RCC_APB2Periph              LL_APB2_GRP1_PERIPH_LTDC
 #define LCD_NRST_GPIO                   GPIO_PIN(GPIOG, 9) // PG.09
 #define LCD_SPI_CS_GPIO                 GPIO_PIN(GPIOE, 4)  // PE.04
 #define LCD_SPI_SCK_GPIO                GPIO_PIN(GPIOE, 2)  // PE.02

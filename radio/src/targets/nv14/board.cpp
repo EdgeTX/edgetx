@@ -67,9 +67,6 @@ void delay_self(int count)
    }
 }
 
-#define RCC_AHB1PeriphMinimum (LCD_RCC_AHB1Periph)
-#define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)
-
 static uint8_t boardGetPcbRev()
 {
   gpio_init(INTMODULE_PWR_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
@@ -107,9 +104,6 @@ void boardInit()
 #endif
 
 #if !defined(SIMU)
-  LL_AHB1_GRP1_EnableClock(RCC_AHB1PeriphMinimum);
-  LL_APB2_GRP1_EnableClock(RCC_APB2PeriphMinimum);
-
   // enable interrupts
   __enable_irq();
 #endif

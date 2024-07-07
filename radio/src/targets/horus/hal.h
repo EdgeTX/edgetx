@@ -663,9 +663,6 @@
 
 // LCD
 #if defined(RADIO_T15)
-  #define LCD_RCC_AHB1Periph              (LL_AHB1_GRP1_PERIPH_GPIOE | LL_AHB1_GRP1_PERIPH_GPIOG | LL_AHB1_GRP1_PERIPH_GPIOI | LL_AHB1_GRP1_PERIPH_GPIOJ | LL_AHB1_GRP1_PERIPH_GPIOK | LL_AHB1_GRP1_PERIPH_DMA2D)
-  #define LCD_RCC_APB1Periph              0
-  #define LCD_RCC_APB2Periph              LL_APB2_GRP1_PERIPH_LTDC
   #define LCD_NRST_GPIO                   GPIOG
   #define LCD_NRST_GPIO_PIN               LL_GPIO_PIN_10 // PG.10
   #define LCD_SPI_GPIO                    GPIOE
@@ -676,8 +673,6 @@
   #define LTDC_IRQ_PRIO                   4
   #define DMA_SCREEN_IRQ_PRIO             6
 #else
-#define LCD_RCC_AHB1Periph              LL_AHB1_GRP1_PERIPH_DMA2D
-#define LCD_RCC_APB2Periph              LL_APB2_GRP1_PERIPH_LTDC
 #if defined(PCBX12S)
   #define LCD_GPIO_NRST                 GPIO_PIN(GPIOF, 10) // PF.10
 #elif defined(PCBX10)

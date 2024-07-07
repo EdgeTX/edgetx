@@ -22,6 +22,7 @@
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
 #include "stm32_spi.h"
+#include "stm32_dma.h"
 
 #include "board.h"
 #include "debug.h"
@@ -89,6 +90,7 @@ void lcdHardwareInit()
   gpio_init(LCD_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
   gpio_init(LCD_A0_GPIO, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
 
+  stm32_dma_enable_clock(LCD_DMA);
   LCD_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
   LCD_DMA->HIFCR = LCD_DMA_FLAGS; // Write ones to clear bits
   LCD_DMA_Stream->CR =  DMA_SxCR_PL_0 | DMA_SxCR_MINC | DMA_SxCR_DIR_0;
