@@ -103,6 +103,7 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
   ${TARGET_SRC_DIR}/led_driver.cpp
+  ${TARGET_SRC_DIR}/key_driver.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/${LCD_DRIVER}
