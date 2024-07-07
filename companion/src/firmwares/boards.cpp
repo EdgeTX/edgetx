@@ -621,9 +621,12 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
   } else if (IS_FLYSKY_NV14(board)) {
     modules.append({(int)MODULE_TYPE_FLYSKY_AFHDS2A});
   } else if (IS_FLYSKY_EL18(board)) {
-    modules.append({(int)MODULE_TYPE_FLYSKY_AFHDS3});
-  } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board)
-             || (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
+    modules.append({
+        (int)MODULE_TYPE_FLYSKY_AFHDS3,
+        (int)MODULE_TYPE_CROSSFIRE,
+    });
+  } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
+             (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
     modules.append({
         (int)MODULE_TYPE_XJT_PXX1,
         (int)MODULE_TYPE_ISRM_PXX2,
