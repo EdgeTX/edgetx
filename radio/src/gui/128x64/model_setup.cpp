@@ -563,6 +563,7 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
 void menuModelSetup(event_t event)
 {
   int8_t old_editMode = s_editMode;
+  bool CURSOR_ON_CELL = (menuHorizontalPosition >= 0);
 
 #if defined(PCBTARANIS)
   int8_t old_posHorz = menuHorizontalPosition;
@@ -587,10 +588,10 @@ void menuModelSetup(event_t event)
 
     0,   // Preflight section
       PREFLIGHT_ROW(0), // Checklist
-      PREFLIGHT_ROW(0), // Checklist interactive
+      PREFLIGHT_ROW(g_model.displayChecklist ? 0 : HIDDEN_ROW), // Checklist interactive
       PREFLIGHT_ROW(0), // Throttle warning
-      PREFLIGHT_ROW(0), // Custom position for throttle warning enable
-      PREFLIGHT_ROW(0), // Custom position for throttle warning value
+      PREFLIGHT_ROW(!g_model.disableThrottleWarning ? 0 : HIDDEN_ROW), // Custom position for throttle warning enable
+      PREFLIGHT_ROW(!g_model.disableThrottleWarning && g_model.enableCustomThrottleWarning ? 0 : HIDDEN_ROW), // Custom position for throttle warning value
       WARN_ROWS
 
     uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_FLEX + 1) - 1)), // Center beeps
@@ -1109,17 +1110,23 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_BEEP_CENTER: {
         lcdDrawTextAlignedLeft(y, STR_BEEPCTR);
+        uint8_t pot_offset = adcGetInputOffset(ADC_INPUT_FLEX);
         uint8_t input_max = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_FLEX);
+        coord_t x = MODEL_SETUP_2ND_COLUMN;
         for (uint8_t i = 0; i < input_max; i++) {
-          coord_t x = MODEL_SETUP_2ND_COLUMN + i*FW;
+          if ( i >= pot_offset && (IS_POT_MULTIPOS(i - pot_offset) || !IS_POT_SLIDER_AVAILABLE(i - pot_offset)) ) {
+            if (attr && menuHorizontalPosition == i) repeatLastCursorMove(event);
+            continue;
+          }
           LcdFlags flags = 0;
           if ((menuHorizontalPosition == i) && attr)
             flags = BLINK | INVERS;
           else if (ANALOG_CENTER_BEEP(i) || (attr && CURSOR_ON_LINE()))
             flags = INVERS;
           lcdDrawText(x, y, getAnalogShortLabel(i), flags);
+          x = lcdNextPos;
         }
-        if (attr) {
+        if (attr && CURSOR_ON_CELL) {
           if (event == EVT_KEY_BREAK(KEY_ENTER)) {
             if (READ_ONLY_UNLOCKED()) {
               s_editMode = 0;

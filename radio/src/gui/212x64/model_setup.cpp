@@ -531,10 +531,10 @@ void menuModelSetup(event_t event)
 
     0,   // ITEM_MODEL_SETUP_PREFLIGHT_LABEL
       PREFLIGHT_ROW(0), // ITEM_MODEL_SETUP_CHECKLIST_DISPLAY
-      PREFLIGHT_ROW(0), // ITEM_MODEL_SETUP_CHECKLIST_INTERACTIVE
-      PREFLIGHT_ROW(0), // ITEM_MODEL_SETUP_THROTTLE_WARNING
-      PREFLIGHT_ROW(0), // ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING
-      PREFLIGHT_ROW(0), // ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE
+      PREFLIGHT_ROW(g_model.displayChecklist ? 0 : HIDDEN_ROW), // Checklist interactive
+      PREFLIGHT_ROW(0), // Throttle warning
+      PREFLIGHT_ROW(!g_model.disableThrottleWarning ? 0 : HIDDEN_ROW), // Custom position for throttle warning enable
+      PREFLIGHT_ROW(!g_model.disableThrottleWarning && g_model.enableCustomThrottleWarning ? 0 : HIDDEN_ROW), // Custom position for throttle warning value
       SW_WARN_ROWS, // ITEM_MODEL_SETUP_SWITCHES_WARNING1
       POT_WARN_ROWS, // ITEM_MODEL_SETUP_POTS_WARNING
 
@@ -1015,7 +1015,7 @@ void menuModelSetup(event_t event)
         uint8_t max_inputs = adcGetMaxInputs(ADC_INPUT_MAIN) + adcGetMaxInputs(ADC_INPUT_FLEX);
         coord_t x = MODEL_SETUP_2ND_COLUMN;
         for (uint8_t i = 0; i < max_inputs; i++) {
-          if ( i >= pot_offset && IS_POT_MULTIPOS(i - pot_offset) ) {
+          if ( i >= pot_offset && (IS_POT_MULTIPOS(i - pot_offset) || !IS_POT_SLIDER_AVAILABLE(i - pot_offset)) ) {
             if (attr && menuHorizontalPosition == i) repeatLastCursorMove(event);
             continue;
           }
