@@ -139,6 +139,19 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   newval = showPopupMenus(event, newval, i_min, i_max, i_flags, isValueAvailable);
 
   if (newval != val) {
+#if !defined(ROTARY_ENCODER_NAVIGATION)
+    if (!(i_flags & NO_INCDEC_MARKS) && (newval != i_max) &&
+        (newval != i_min) && stops.contains(newval)) {
+      bool pause = (newval > val ? !stops.contains(newval + 1)
+                                 : !stops.contains(newval - 1));
+      if (pause) {
+        pauseEvents(event);  // delay before auto-repeat continues
+      }
+    }
+    if (!IS_KEY_REPT(event)) {
+      AUDIO_KEY_PRESS();
+    }
+#endif
     storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
     checkIncDec_Ret = (newval > val ? 1 : -1);
   }
@@ -277,7 +290,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
           INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         }
 #else
-        INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        INC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
 #endif
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 
@@ -319,7 +332,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
           DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         }
 #else
-        DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount-1);
+        DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
 #endif
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 

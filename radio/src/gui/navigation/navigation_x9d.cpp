@@ -363,7 +363,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
           DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
         }
 #else
-          DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
+        DEC(l_posVert, MENU_FIRST_LINE_EDIT(horTab, horTabMax), rowcount - 1);
 #endif
       } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
 
@@ -379,7 +379,10 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 
   int linesCount = rowcount;
 
-  if (l_posVert == 0 || (l_posVert==1 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW) || (l_posVert==2 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW && MAXCOL(vertpos_t(1)) >= HIDDEN_ROW)) {
+  if (l_posVert == 0 ||
+      (l_posVert == 1 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW) ||
+      (l_posVert == 2 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW &&
+       MAXCOL(vertpos_t(1)) >= HIDDEN_ROW)) {
     menuVerticalOffset = 0;
     if (horTab) {
       linesCount = 0;
@@ -389,8 +392,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
         }
       }
     }
-  }
-  else if (horTab) {
+  } else if (horTab) {
     if (rowcount > NUM_BODY_LINES) {
       while (1) {
         vertpos_t firstLine = 0;
@@ -424,8 +426,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
         }
       }
     }
-  }
-  else {
+  } else {
     if (l_posVert>=NUM_BODY_LINES+menuVerticalOffset) {
       menuVerticalOffset = l_posVert-NUM_BODY_LINES+1;
     }
