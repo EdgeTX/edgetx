@@ -861,8 +861,8 @@
 // Second I2C Bus
 #if !defined(AUX_SERIAL) && defined(IMU_LSM6DS33)
   #define I2C_B2                      I2C2
-  #define I2C_B2_SCL_GPIO_PIN         GPIO_PIN(GPIOB, 10)  // PB.10
-  #define I2C_B2_SDA_GPIO_PIN         GPIO_PIN(GPIOB, 11)  // PB.11
+  #define I2C_B2_SCL_GPIO             GPIO_PIN(GPIOB, 10)  // PB.10
+  #define I2C_B2_SDA_GPIO             GPIO_PIN(GPIOB, 11)  // PB.11
   #define I2C_B2_GPIO_AF              LL_GPIO_AF_4    // I2C2
   #define I2C_B2_CLK_RATE             400000
   #if defined(RADIO_TX16S) || defined(RADIO_F16)
