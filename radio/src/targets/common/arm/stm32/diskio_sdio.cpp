@@ -127,9 +127,15 @@
 
 #if defined(STM32H7) || defined(STM32H7RS) || defined(STM32F4)
 extern uint32_t _sram;
-extern uint32_t _eram;
+extern uint32_t _heap_start;
+#if defined(SDRAM)
+#define _IS_DMA_BUFFER(addr)                                           \
+  (((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000)) || \
+   ((((intptr_t)(addr)) & 0xFC000000) == (((intptr_t)&_heap_start) & 0xFC000000)))
+#else
 #define _IS_DMA_BUFFER(addr) \
-  ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
+  ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000))
+#endif
 #else
 #define _IS_DMA_BUFFER(addr) (true)
 #endif
