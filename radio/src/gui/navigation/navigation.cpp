@@ -171,12 +171,10 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
 
 #if defined(NAVIGATION_X9D)
   #include "navigation_x9d.cpp"
-#elif defined(NAVIGATION_9X)
-  #include "navigation_9x.cpp"
-#elif defined(NAVIGATION_XLITE)
-  #include "navigation_xlite.cpp"
 #elif defined(NAVIGATION_X7)
   #include "navigation_x7.cpp"
+#elif defined(NAVIGATION_9X) || defined(NAVIGATION_XLITE)
+  #include "navigation_9x.cpp"
 #else
   static_assert("navigation not defined");
 #endif

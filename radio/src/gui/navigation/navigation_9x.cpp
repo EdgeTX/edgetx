@@ -155,6 +155,38 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   return newval;
 }
 
+vertpos_t prevRow(vertpos_t l_posVert, vertpos_t maxrow, bool wrap,
+                  horzpos_t& l_posHorz, const uint8_t *horTab, uint8_t horTabMax)
+{
+  if (s_editMode <= 0) {
+    vertpos_t origPos = l_posVert;
+    do {
+      DEC(l_posVert, 0, maxrow - 1);
+    } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
+    if (origPos == 0 && !wrap) {
+      l_posVert = origPos;
+    }
+  }
+  l_posHorz = min<horzpos_t>(l_posHorz, MAXCOL(l_posVert));
+  return l_posVert;
+}
+
+vertpos_t nextRow(vertpos_t l_posVert, vertpos_t maxrow, bool wrap,
+                  horzpos_t& l_posHorz, const uint8_t *horTab, uint8_t horTabMax)
+{
+  if (s_editMode <= 0) {
+    vertpos_t origPos = l_posVert;
+    do {
+      INC(l_posVert, 0, maxrow - 1);
+    } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
+    if (l_posVert == 0 && !wrap) {
+      l_posVert = origPos;
+    }
+  }
+  l_posHorz = min<horzpos_t>(l_posHorz, MAXCOL(l_posVert));
+  return l_posVert;
+}
+
 void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
            uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax,
            vertpos_t maxrow, uint8_t flags)
@@ -236,15 +268,11 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       break;
 
     case EVT_KEY_REPT(KEY_DOWN):
-      if (l_posVert == maxrow) break;
-      // no break
+      l_posVert = nextRow(l_posVert, maxrow, false, l_posHorz, horTab, horTabMax);
+      break;
 
     case EVT_KEY_FIRST(KEY_DOWN):
-      if (s_editMode > 0) break;
-      do {
-        INC(l_posVert, 0, maxrow - 1);
-      } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
-      l_posHorz = min<horzpos_t>(l_posHorz, MAXCOL(l_posVert));
+      l_posVert = nextRow(l_posVert, maxrow, true, l_posHorz, horTab, horTabMax);
       break;
 
     case EVT_KEY_REPT(KEY_LEFT):  //dec
@@ -257,14 +285,11 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       break;
 
     case EVT_KEY_REPT(KEY_UP):
-      if (l_posVert == 0) break;
-      // no break
+      l_posVert = prevRow(l_posVert, maxrow, false, l_posHorz, horTab, horTabMax);
+      break;
+
     case EVT_KEY_FIRST(KEY_UP):
-      if (s_editMode > 0) break;
-      do {
-        DEC(l_posVert, 0, maxrow - 1);
-      } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
-      l_posHorz = min((uint8_t)l_posHorz, MAXCOL(l_posVert));
+      l_posVert = prevRow(l_posVert, maxrow, true, l_posHorz, horTab, horTabMax);
       break;
   }
 
