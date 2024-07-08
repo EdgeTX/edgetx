@@ -60,37 +60,27 @@
   #include "flysky_ibus.h"
 #endif
 
-uint8_t telemetryStreaming = 0;
-uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
-uint8_t telemetryRxBufferCount = 0;
+struct telemetry_buffer {
+  uint8_t buffer[TELEMETRY_RX_PACKET_SIZE];
+  uint8_t length;
+};
 
+uint8_t telemetryStreaming = 0;
 uint8_t telemetryState = TELEMETRY_INIT;
 
 TelemetryData telemetryData;
-
-#if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
-static uint8_t intTelemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];
-static uint8_t intTelemetryRxBufferCount;
-#endif
-
 static rxStatStruct rxStat;
 
-uint8_t * getTelemetryRxBuffer(uint8_t moduleIdx)
+telemetry_buffer _telemetry_rx_buffer[NUM_MODULES];
+
+uint8_t* getTelemetryRxBuffer(uint8_t moduleIdx)
 {
-#if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
-  if (moduleIdx == INTERNAL_MODULE)
-    return intTelemetryRxBuffer;
-#endif
-  return telemetryRxBuffer;
+  return _telemetry_rx_buffer[moduleIdx].buffer;
 }
 
 uint8_t &getTelemetryRxBufferCount(uint8_t moduleIdx)
 {
-#if defined(INTERNAL_MODULE_SERIAL_TELEMETRY)
-  if (moduleIdx == INTERNAL_MODULE)
-    return intTelemetryRxBufferCount;
-#endif
-  return telemetryRxBufferCount;
+  return _telemetry_rx_buffer[moduleIdx].length;
 }
 
 rxStatStruct *getRxStatLabels() {
