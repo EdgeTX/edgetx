@@ -99,35 +99,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       }
     }
 
-#if defined(AUTOSWITCH)
-    if (i_flags & INCDEC_SWITCH) {
-      newval = checkIncDecMovedSwitch(newval);
-    }
-#endif
-
-#if defined(AUTOSOURCE)
-    if (i_flags & (INCDEC_SOURCE|INCDEC_SOURCE_VALUE)) {
-      int source = GET_MOVED_SOURCE(i_min, i_max);
-      if (source) {
-        if (i_flags & INCDEC_SOURCE_VALUE) {
-          if (isSource) {
-            // Only use moved source if already a source value
-            newval = source;
-          }
-        } else {
-          newval = source;
-        }
-      }
-#if defined(AUTOSWITCH)
-      else {
-        unsigned int swtch = abs(getMovedSwitch());
-        if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
-          newval = switchToMix(swtch);
-        }
-      }
-#endif
-    }
-#endif
+    newval = checkMovedInput(newval, i_min, i_max, i_flags);
 
     if (invert) {
       newval = -newval;
@@ -135,34 +107,11 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
     }
   }
 
-  if (i_min == 0 && i_max == 1 &&
-      event == EVT_KEY_BREAK(KEY_ENTER)) {
-    s_editMode = 0;
-    newval = !val;
-  }
+  newval = checkBoolean(event, i_min, i_max, newval, val);
 
   newval = showPopupMenus(event, newval, i_min, i_max, i_flags, isValueAvailable);
 
-  if (newval != val) {
-#if !defined(ROTARY_ENCODER_NAVIGATION)
-    if (!(i_flags & NO_INCDEC_MARKS) && (newval != i_max) &&
-        (newval != i_min) && stops.contains(newval)) {
-      bool pause = (newval > val ? !stops.contains(newval + 1)
-                                 : !stops.contains(newval - 1));
-      if (pause) {
-        pauseEvents(event);  // delay before auto-repeat continues
-      }
-    }
-    if (!IS_KEY_REPT(event)) {
-      AUDIO_KEY_PRESS();
-    }
-#endif
-    storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
-    checkIncDec_Ret = (newval > val ? 1 : -1);
-  }
-  else {
-    checkIncDec_Ret = 0;
-  }
+  finishCheckIncDec(event, i_min, i_max, i_flags, newval, val, stops);
 
   if (i_flags & INCDEC_SOURCE_VALUE) {
     SourceNumVal v;
