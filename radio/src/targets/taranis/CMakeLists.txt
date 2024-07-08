@@ -528,11 +528,12 @@ endif()
 
 if(INTERNAL_MODULE_SERIAL)
 
-  if(DEFAULT_INTERNAL_MODULE STREQUAL ISRM_PXX2)
-    # defines existing internal modules
+  # defines default internal modules
+  if(DEFAULT_INTERNAL_MODULE STREQUAL XJT_PXX1)
+    set(INTERNAL_MODULES PXX1 CACHE STRING "Internal modules")
+  elseif(DEFAULT_INTERNAL_MODULE STREQUAL ISRM_PXX2)
     set(INTERNAL_MODULES PXX2 CACHE STRING "Internal modules")
   else()
-    # defines existing internal modules
     set(INTERNAL_MODULES MULTI;CRSF CACHE STRING "Internal modules")
   endif()
 
