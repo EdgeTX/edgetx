@@ -33,7 +33,6 @@
 #define HEADER_LINE                    0
 #define HEADER_LINE_COLUMNS
 
-#define DEFAULT_SCROLLBAR_X            (LCD_W-1)
 #define NUM_BODY_LINES                 (LCD_LINES-1)
 #define TEXT_VIEWER_LINES              NUM_BODY_LINES
 #define MENU_HEADER_HEIGHT             FH

@@ -24,6 +24,11 @@
 #define COLATTR(row)                   (MAXCOL_RAW(row) == (uint8_t)-1 ? (const uint8_t)0 : (const uint8_t)(MAXCOL_RAW(row) & NAVIGATION_LINE_BY_LINE))
 #define POS_HORZ_INIT(posVert)         ((COLATTR(posVert) & NAVIGATION_LINE_BY_LINE) ? -1 : 0)
 
+#if LCD_W >= 212
+#define DEFAULT_SCROLLBAR_X (LCD_W-1)
+coord_t scrollbar_X = DEFAULT_SCROLLBAR_X;
+#endif
+
 int checkIncDec(event_t event, int val, int i_min, int i_max,
                 unsigned int i_flags, IsValueAvailable isValueAvailable,
                 const CheckIncDecStops &stops)
@@ -169,6 +174,16 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   return newval;
 }
 
+void onLongMenuPress(const char * result)
+{
+  if (result == STR_VIEW_CHANNELS) {
+    pushMenu(menuChannelsView);
+  }
+  else if (result == STR_VIEW_NOTES) {
+    pushModelNotes();
+  }
+}
+
 void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
            uint8_t menuTabSize, const uint8_t *horTab, uint8_t horTabMax,
            vertpos_t rowcount, uint8_t flags)
@@ -181,6 +196,20 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
   if (menuTab) {
     int cc = curr;
     switch (event) {
+      case EVT_KEY_LONG(KEY_MENU):
+      case EVT_KEY_LONG(KEY_MODEL):
+        if (menuTab == menuTabModel) {
+          if (modelHasNotes()) {
+            POPUP_MENU_ADD_SD_ITEM(STR_VIEW_CHANNELS);
+            POPUP_MENU_ADD_ITEM(STR_VIEW_NOTES);
+            POPUP_MENU_START(onLongMenuPress);
+          }
+          else {
+            pushMenu(menuChannelsView);
+          }
+        }
+        break;
+
       case EVT_KEY_BREAK(KEY_PAGEUP):
         if (s_editMode>0)
           break;
@@ -200,7 +229,13 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       chainMenu(menuTab[cc].menuFunc);
     }
 
-    drawScreenIndex(menuIdx(menuTab, curr), menuSize(menuTab, menuTabSize), 0);
+    if (!(flags&CHECK_FLAG_NO_SCREEN_INDEX)) {
+      drawScreenIndex(menuIdx(menuTab, curr), menuSize(menuTab, menuTabSize), 0);
+    }
+
+#if LCD_W >= 212
+    lcdDrawFilledRect(0, 0, LCD_W, MENU_HEADER_HEIGHT, SOLID, FILL_WHITE|GREY_DEFAULT);
+#endif
   }
 
   switch (event) {
@@ -209,12 +244,18 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       s_editMode = EDIT_MODE_INIT;
       l_posVert = MENU_FIRST_LINE_EDIT(horTab, horTabMax);
       l_posHorz = POS_HORZ_INIT(l_posVert);
+#if LCD_W >= 212
+      scrollbar_X = DEFAULT_SCROLLBAR_X;
+#endif
       break;
 
     case EVT_ENTRY_UP:
       menuEntryTime = get_tmr10ms();
       s_editMode = 0;
       l_posHorz = POS_HORZ_INIT(l_posVert);
+#if LCD_W >= 212
+      scrollbar_X = DEFAULT_SCROLLBAR_X;
+#endif
       break;
 
     case EVT_KEY_BREAK(KEY_ENTER):
@@ -264,7 +305,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
     case EVT_KEY_FIRST(KEY_MINUS):
     case EVT_KEY_REPT(KEY_MINUS):
       AUDIO_KEY_PRESS();
-      if (s_editMode > 0) break; // TODO it was !=
+      if (s_editMode > 0) break;
       if ((COLATTR(l_posVert) & NAVIGATION_LINE_BY_LINE)) {
         if (l_posHorz >= 0) {
           INC(l_posHorz, 0, maxcol);
@@ -303,7 +344,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
     case EVT_KEY_FIRST(KEY_PLUS):
     case EVT_KEY_REPT(KEY_PLUS):
       AUDIO_KEY_PRESS();
-      if (s_editMode > 0) break; // TODO it was !=
+      if (s_editMode > 0) break;
       if ((COLATTR(l_posVert) & NAVIGATION_LINE_BY_LINE)) {
         if (l_posHorz >= 0) {
           DEC(l_posHorz, 0, maxcol);
@@ -403,6 +444,12 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       menuVerticalOffset = l_posVert;
     }
   }
+
+#if LCD_W >= 212
+  if (scrollbar_X && linesCount > NUM_BODY_LINES) {
+    drawVerticalScrollbar(scrollbar_X, MENU_HEADER_HEIGHT, LCD_H-MENU_HEADER_HEIGHT, menuVerticalOffset, linesCount, NUM_BODY_LINES);
+  }
+#endif
 
   menuVerticalPosition = l_posVert;
   menuHorizontalPosition = l_posHorz;
