@@ -116,7 +116,7 @@ endif()
 if(ARCH STREQUAL ARM)
   include(targets/common/arm/CMakeLists.txt)
   if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "13.2.1")
-    message(FATAL_ERROR "Only arm gnu toolchain 13.2.rel1 is currently supported")
+    message(WARNING "Only arm gnu toolchain 13.2.rel1 is supported")
   endif()
 endif()
 
