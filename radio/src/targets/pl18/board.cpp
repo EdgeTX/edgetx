@@ -85,6 +85,14 @@ void ledStripOff()
   ws2812_update(&_led_timer);
 }
 
+#if defined(RADIO_NB4P)
+void disableVoiceChip()
+{
+  gpio_init(VOICE_CHIP_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_clear(VOICE_CHIP_EN_GPIO);
+}
+#endif
+
 void boardBLInit()
 {
   // USB charger status pins
@@ -161,6 +169,9 @@ void boardInit()
 
   keysInit();
   switchInit();
+#if defined(RADIO_NB4P)
+  disableVoiceChip();
+#endif
   audioInit();
   adcInit(&_adc_driver);
   hapticInit();
