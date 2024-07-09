@@ -529,6 +529,7 @@
   #define AUDIO_UNMUTE_DELAY            120  // ms
   #define AUDIO_MUTE_DELAY              500  // ms
   #define INVERTED_MUTE_PIN
+  #define VOICE_CHIP_EN_GPIO            GPIO_PIN(GPIOI, 5) // PI.05
 #endif
 
 // I2C Bus
