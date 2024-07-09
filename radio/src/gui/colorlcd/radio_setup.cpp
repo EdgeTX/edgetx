@@ -609,8 +609,8 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
   {
     STR_MODEL_MENU_TABS, nullptr,
   },
-  {
 #if defined(HELI)
+  {
     STR_MENUHELISETUP,
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
