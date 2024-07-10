@@ -56,7 +56,9 @@ extern BitmapBuffer * lcd;
 void bootloaderInitScreen()
 {
   lcdInitDisplayDriver();
+#if defined(USE_HATS_AS_KEYS)
   setHatsAsKeys(true);
+#endif
 }
 
 static void bootloaderDrawTitle(const char* text)
