@@ -135,6 +135,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/vs1053b.cpp
+  targets/common/arm/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 

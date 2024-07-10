@@ -7,7 +7,6 @@ option(INTERNAL_MODULE_PPM "Support for PPM internal module" OFF)
 option(AUTOUPDATE "Auto update internal chips from SD" OFF)
 option(BIND_KEY "Enable bind button" OFF)
 option(BLUETOOTH "FrSky BT module support" OFF)
-option(WS2812 "Support for ws2812 RGB leds" OFF)
 
 set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
@@ -148,7 +147,6 @@ elseif(PCB STREQUAL X7)
     set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
     set(MODULE_SIZE_SML YES)
-    set(WS2812 YES)
     set(FLAVOUR t14)
     set(ROTARY_ENCODER YES)
     set(CPU_TYPE_FULL STM32F407xG)
@@ -251,7 +249,6 @@ elseif(PCB STREQUAL X7)
     set(CPU_TYPE_FULL STM32F407xG)
     set(ROTARY_ENCODER YES)
     set(BLUETOOTH NO)
-    set(WS2812 YES)
     set(USB_CHARGER YES)
     set(HELI NO)
     add_definitions(-DRADIO_MT12)
@@ -562,6 +559,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
+  targets/common/arm/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
@@ -613,13 +611,6 @@ if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
   set(FIRMWARE_SRC
     ${FIRMWARE_SRC}
     targets/common/arm/stm32/sticks_pwm_driver.cpp)
-endif()
-
-if(WS2812)
-  set(FIRMWARE_SRC
-          ${FIRMWARE_SRC}
-          targets/common/arm/stm32/stm32_ws2812.cpp
-          boards/generic_stm32/rgb_leds.cpp)
 endif()
 
 set(FIRMWARE_SRC
