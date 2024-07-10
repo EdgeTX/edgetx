@@ -36,6 +36,7 @@
 #include "hal/watchdog_driver.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/rotary_encoder.h"
 
 #include "globals.h"
 #include "sdcard.h"
@@ -169,6 +170,9 @@ void boardInit()
 
   keysInit();
   switchInit();
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
+  rotaryEncoderInit();
+#endif
 #if defined(RADIO_NB4P)
   disableVoiceChip();
 #endif
