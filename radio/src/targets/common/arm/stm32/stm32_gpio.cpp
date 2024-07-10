@@ -141,6 +141,18 @@ void gpio_init_af(gpio_t pin, gpio_af_t af, gpio_speed_t speed)
   _set_mode(port, pin_num, 2);
 }
 
+void gpio_set_af(gpio_t pin, gpio_af_t af)
+{
+  GPIO_TypeDef* port = _port(pin);
+  int pin_num = _pin_num(pin);
+
+  // set selected function
+  port->AFR[(pin_num > 7) ? 1 : 0] &= ~(0xf << ((pin_num & 0x07) * 4));
+  port->AFR[(pin_num > 7) ? 1 : 0] |= (af << ((pin_num & 0x07) * 4));
+
+  _set_mode(port, pin_num, 2);
+}
+
 void gpio_init_analog(gpio_t pin)
 {
   GPIO_TypeDef* port = _port(pin);

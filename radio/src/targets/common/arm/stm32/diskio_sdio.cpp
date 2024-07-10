@@ -127,9 +127,15 @@
 
 #if defined(STM32H7) || defined(STM32H7RS) || defined(STM32F4)
 extern uint32_t _sram;
-extern uint32_t _eram;
+extern uint32_t _heap_start;
+#if defined(SDRAM)
+#define _IS_DMA_BUFFER(addr)                                           \
+  (((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000)) || \
+   ((((intptr_t)(addr)) & 0xFC000000) == (((intptr_t)&_heap_start) & 0xFC000000)))
+#else
 #define _IS_DMA_BUFFER(addr) \
-  ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
+  ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000))
+#endif
 #else
 #define _IS_DMA_BUFFER(addr) (true)
 #endif
@@ -164,12 +170,24 @@ static void sdio_low_level_init(void)
 {
   _sd_sdio_clk_enable(SD_SDIO);
 
-  gpio_init_af(SD_SDIO_PIN_D0, SD_SDIO_AF_D0, GPIO_PIN_SPEED_HIGH);
-  gpio_init_af(SD_SDIO_PIN_D1, SD_SDIO_AF_D1, GPIO_PIN_SPEED_HIGH);
-  gpio_init_af(SD_SDIO_PIN_D2, SD_SDIO_AF_D2, GPIO_PIN_SPEED_HIGH);
-  gpio_init_af(SD_SDIO_PIN_D3, SD_SDIO_AF_D3, GPIO_PIN_SPEED_HIGH);
-  gpio_init_af(SD_SDIO_PIN_CMD, SD_SDIO_AF_CMD, GPIO_PIN_SPEED_HIGH);
-  gpio_init_af(SD_SDIO_PIN_CLK, SD_SDIO_AF_CLK, GPIO_PIN_SPEED_HIGH);
+  // data pins
+  gpio_init(SD_SDIO_PIN_D0, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(SD_SDIO_PIN_D0, SD_SDIO_AF_D0);
+
+  gpio_init(SD_SDIO_PIN_D1, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(SD_SDIO_PIN_D1, SD_SDIO_AF_D1);
+  
+  gpio_init(SD_SDIO_PIN_D2, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(SD_SDIO_PIN_D2, SD_SDIO_AF_D2);
+
+  gpio_init(SD_SDIO_PIN_D3, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(SD_SDIO_PIN_D3, SD_SDIO_AF_D3);
+
+  gpio_init(SD_SDIO_PIN_CMD, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(SD_SDIO_PIN_CMD, SD_SDIO_AF_CMD);
+  
+  gpio_init(SD_SDIO_PIN_CLK, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(SD_SDIO_PIN_CLK, SD_SDIO_AF_CLK);
 
 #if defined(SD_SDIO_HAS_TRANSCEIVER)
   gpio_init_af(SD_SDIO_PIN_CKIN, SD_SDIO_AF_CKIN, GPIO_PIN_SPEED_HIGH);
