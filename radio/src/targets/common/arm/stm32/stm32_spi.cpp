@@ -164,7 +164,7 @@ static void _config_dma_streams(const stm32_spi_t* spi)
 }
 #endif
 
-void stm32_spi_init(const stm32_spi_t* spi)
+void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width)
 {
   _init_gpios(spi);
 
@@ -178,6 +178,7 @@ void stm32_spi_init(const stm32_spi_t* spi)
   spiInit.TransferDirection = LL_SPI_FULL_DUPLEX;
   spiInit.Mode = LL_SPI_MODE_MASTER;
   spiInit.NSS = LL_SPI_NSS_SOFT;
+  spiInit.DataWidth = data_width;
 
   LL_SPI_Init(SPIx, &spiInit);
   LL_SPI_Enable(SPIx);

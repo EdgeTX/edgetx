@@ -41,9 +41,8 @@ void ads79xx_init(const stm32_spi_adc_t* adc)
 {
   const auto* spi = &adc->spi;
 
-  stm32_spi_init(spi);
+  stm32_spi_init(spi, LL_SPI_DATAWIDTH_16BIT);
   stm32_spi_set_max_baudrate(spi, ADS79XX_MAX_FREQ);
-  LL_SPI_SetDataWidth(spi->SPIx, LL_SPI_DATAWIDTH_16BIT);
   
   stm32_spi_unselect(spi);
   delay_01us(1);
