@@ -295,6 +295,9 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
   if (value < ++step)
     return tr("Telemetry");
 
+  if (value < ++step)
+    return tr("Trims");
+
   if (value < step + firmware->getCapability(Sensors))
     return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step + 1)).toString(model);
 
@@ -320,7 +323,7 @@ bool CustomFunctionData::isResetParamAvailable(const int index, const ModelData 
     else
       return false;
   }
-  else if (index < CPN_MAX_TIMERS + 2)
+  else if (index < CPN_MAX_TIMERS + 3)
     return true;
   else if (model && index < resetParamCount())
     return model->sensorData[index - (CPN_MAX_TIMERS + 2)].isAvailable();
