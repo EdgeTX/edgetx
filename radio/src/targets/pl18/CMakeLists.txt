@@ -42,15 +42,15 @@ add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 if(PCBREV STREQUAL NB4P)
   set(FLAVOUR nb4p)
   add_definitions(-DRADIO_NB4P)
+  set(ROTARY_ENCODER YES)
 elseif(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
-  add_definitions(-DRADIO_PL18EV)
+  add_definitions(-DRADIO_PL18EV -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
-  set(ROTARY_ENCODER YES)
 else()
   set(FLAVOUR pl18)
-  add_definitions(-DRADIO_PL18)
+  add_definitions(-DRADIO_PL18 -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
 
@@ -74,7 +74,7 @@ add_definitions(
   -DSTM32F429_439xx -DSTM32F429xx
   -DSDRAM -DCCMRAM -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_TOUCH -DHARDWARE_KEYS
-  -DSOFTWARE_KEYBOARD -DUSE_HATS_AS_KEYS)
+  -DSOFTWARE_KEYBOARD)
 
 set(SDRAM ON)
 
@@ -123,6 +123,12 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/watchdog_driver.cpp
   drivers/frftl.cpp
 )
+
+if(ROTARY_ENCODER)
+  list(APPEND BOARD_COMMON_SRC
+    targets/common/arm/stm32/rotary_encoder_driver.cpp
+  )
+endif()
 
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
