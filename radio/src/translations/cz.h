@@ -128,11 +128,11 @@
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TRIMS             "Trims"
-#define TR_FSW_RESET_TIMERS          "Stopky1","Stopky2","Stopky3"
+  #define TR_FSW_RESET_TRIMS           "Trims"
+#define TR_FSW_RESET_TIMERS            "Stopky1","Stopky2","Stopky3"
 #else
-  #define TR_FSW_RESET_TRIMS             "Trims"
-#define TR_FSW_RESET_TIMERS          "Čas1","Čas2","Čas3"
+  #define TR_FSW_RESET_TRIMS           "Trims"
+#define TR_FSW_RESET_TIMERS            "Čas1","Čas2","Čas3"
 #endif
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,"Vše",TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS,

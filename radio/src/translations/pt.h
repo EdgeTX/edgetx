@@ -126,7 +126,7 @@
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetria")
 #define TR_FSW_RESET_TRIMS             "Trims"
-#define TR_FSW_RESET_TIMERS          "Tmr1","Tmr2","Tmr3"
+#define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("All","Flight"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS,
 

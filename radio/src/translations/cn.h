@@ -115,11 +115,11 @@
 #define TR_FSW_RESET_TELEM             "回传参数"
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TRIMS             "Trims"
-#define TR_FSW_RESET_TIMERS          "计时器1","计时器2","计时器3"
+  #define TR_FSW_RESET_TRIMS           "Trims"
+  #define TR_FSW_RESET_TIMERS          "计时器1","计时器2","计时器3"
 #else
-  #define TR_FSW_RESET_TRIMS             "Trims"
-#define TR_FSW_RESET_TIMERS          "计时1","计时2","计时3"
+  #define TR_FSW_RESET_TRIMS           "Trims"
+  #define TR_FSW_RESET_TIMERS          "计时1","计时2","计时3"
 #endif
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("全部","飞行"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS,
