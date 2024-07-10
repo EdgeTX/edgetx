@@ -399,13 +399,20 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
     LL_DMA_StructInit(&dmaInit);
 
 #if !defined(STM32H7RS)
+
+#if defined(STM32H7)
+    dmaInit.PeriphRequest = usart->txDMA_Channel;
+#else
     dmaInit.Channel = usart->txDMA_Channel;
+#endif
+
 #if defined(LL_USART_DMA_REG_DATA_RECEIVE)
     dmaInit.PeriphOrM2MSrcAddress =
         LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_RECEIVE);
 #else
     dmaInit.PeriphOrM2MSrcAddress = LL_USART_DMA_GetRegAddr(usart->USARTx);
 #endif
+
     dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
     dmaInit.MemoryOrM2MDstAddress = (uint32_t)data;
     dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
@@ -418,7 +425,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
       LL_DMA_EnableIT_TC(usart->txDMA, usart->txDMA_Stream);
     }
     LL_DMA_EnableStream(usart->txDMA, usart->txDMA_Stream);
-#endif
+#endif // !STM32H7RS
 
     return;
   } else {
