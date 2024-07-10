@@ -215,6 +215,13 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
               case FUNC_RESET_TELEMETRY:
                 telemetryReset();
                 break;
+
+              case FUNC_RESET_TRIMS: {
+                for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
+                  setTrimValue(mixerCurrentFlightMode, i, 0);
+                }
+                break;
+              }
             }
             if (CFN_PARAM(cfn) >= FUNC_RESET_PARAM_FIRST_TELEM) {
               uint8_t item = CFN_PARAM(cfn) - FUNC_RESET_PARAM_FIRST_TELEM;

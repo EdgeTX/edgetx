@@ -124,6 +124,7 @@
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Телем", "Телеметрия")
+#define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS            "Тмр1","Трм2","Трм3"
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS, TR("Все","Полетн"), TR_FSW_RESET_TELEM

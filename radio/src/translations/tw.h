@@ -120,12 +120,14 @@
 #define TR_FSW_RESET_TELEM             "回傳參數"
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "計時器1","計時器2","計時器3"
+  #define TR_FSW_RESET_TRIMS             "Trims"
+#define TR_FSW_RESET_TIMERS          "計時器1","計時器2","計時器3"
 #else
-  #define TR_FSW_RESET_TIMERS          "計時1","計時2","計時3"
+  #define TR_FSW_RESET_TRIMS             "Trims"
+#define TR_FSW_RESET_TIMERS          "計時1","計時2","計時3"
 #endif
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("全部","飛行"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("全部","飛行"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS,
 
 #define TR_FUNCSOUNDS                  TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 

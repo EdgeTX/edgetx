@@ -123,6 +123,7 @@
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Télem.", "Télémétrie")
+#define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS          "Chr1","Chr2","Chr3"
 
 

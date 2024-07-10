@@ -1456,7 +1456,7 @@ static bool w_flightModes(const YamlNode* node, uint32_t val,
 }
 
 static const char* const _func_reset_param_lookup[] = {
-  "Tmr1","Tmr2","Tmr3","All","Tele"
+  "Tmr1","Tmr2","Tmr3","All","Tele","Trims"
 };
 
 static const char* const _func_failsafe_lookup[] = {
@@ -1545,6 +1545,13 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                && val[2] == 'l'
                && val[3] == 'e') {
       CFN_PARAM(cfn) = FUNC_RESET_TELEMETRY;
+    } else if (l_sep == 5
+             && val[0] == 'T'
+             && val[1] == 'r'
+             && val[2] == 'i'
+             && val[3] == 'm'
+             && val[4] == 's') {
+      CFN_PARAM(cfn) = FUNC_RESET_TRIMS;
     } else {
       uint32_t sensor = yaml_str2uint(val, l_sep);
       CFN_PARAM(cfn) = sensor + FUNC_RESET_PARAM_FIRST_TELEM;
@@ -1764,7 +1771,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   case FUNC_RESET:
     if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
-      // Tmr1,Tmr2,Tmr3,All
+      // Tmr1,Tmr2,Tmr3,All,Tele, Trims
       str = _func_reset_param_lookup[CFN_PARAM(cfn)];
     } else {
       // sensor index

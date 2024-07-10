@@ -98,6 +98,7 @@ static const YamlLookupTable resetLut = {
   { 2, "Tmr3" },
   { 3, "All" },
   { 4, "Tele" },
+  { 5, "Trims" },
 };
 
 static const YamlLookupTable gvarModeLut = {
