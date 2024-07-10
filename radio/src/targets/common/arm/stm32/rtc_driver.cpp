@@ -60,7 +60,13 @@ void rtcGetTime(struct gtm * t)
 void rtcInit()
 {
   rtc.Instance = RTC;
+
+#if !defined(STM32H7) && !defined(STM32H7RS)
+  // Power management peripheral is active by default at startup level in
+  // STM32h7xx lines.
   __HAL_RCC_PWR_CLK_ENABLE();
+#endif
+
   HAL_PWR_EnableBkUpAccess();
 
   // Enable LSE Oscillator
