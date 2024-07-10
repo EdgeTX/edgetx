@@ -145,7 +145,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
-  boards/generic_stm32/rgb_leds.cpp
   drivers/frftl.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
