@@ -26,6 +26,7 @@
 typedef uint8_t etx_i2c_bus_t;
 
 int i2c_init(etx_i2c_bus_t bus);
+int i2c_deinit(etx_i2c_bus_t bus);
 
 int i2c_dev_ready(etx_i2c_bus_t bus, uint16_t addr);
 
