@@ -60,7 +60,11 @@ void stm32_spi_enable_clock(SPI_TypeDef *SPIx)
 #endif
 #if defined(SPI6)
   else if (SPIx == SPI6) {
+#if defined(LL_APB2_GRP1_PERIPH_SPI6)
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI6);
+#elif defined(LL_APB4_GRP1_PERIPH_SPI6)
+    LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SPI6);
+#endif
   }
 #endif
 }
@@ -147,8 +151,11 @@ static void _config_dma_streams(const stm32_spi_t* spi)
   LL_DMA_InitTypeDef dmaInit;
   LL_DMA_StructInit(&dmaInit);
 
+#if !defined(STM32H7) && !defined(STM32H7RS)
   dmaInit.Channel = spi->DMA_Channel;
-  dmaInit.PeriphOrM2MSrcAddress = (uint32_t)&spi->SPIx->DR;
+  dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetRegAddr(spi->SPIx);
+#endif
+
   dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
   dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
   dmaInit.FIFOMode = spi->DMA_FIFOMode;
@@ -156,8 +163,18 @@ static void _config_dma_streams(const stm32_spi_t* spi)
   dmaInit.MemoryOrM2MDstDataSize = spi->DMA_MemoryOrM2MDstDataSize;
   dmaInit.MemBurst = spi->DMA_MemBurst;
 
+#if defined(STM32H7) || defined(STM32H7RS)
+  dmaInit.PeriphRequest = spi->rxDMA_PeriphRequest;
+  dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetRxRegAddr(spi->SPIx);
+#endif
+
   dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
   LL_DMA_Init(spi->DMA, spi->rxDMA_Stream, &dmaInit);
+
+#if defined(STM32H7) || defined(STM32H7RS)
+  dmaInit.PeriphRequest = spi->txDMA_PeriphRequest;
+  dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetTxRegAddr(spi->SPIx);
+#endif
 
   dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
   LL_DMA_Init(spi->DMA, spi->txDMA_Stream, &dmaInit);
@@ -212,10 +229,18 @@ void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate)
 uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out)
 {
   auto* SPIx = spi->SPIx;
+#if defined(STM32H7) || defined(STM32H7RS)
+  while (!LL_SPI_IsActiveFlag_TXP(SPIx));
+#else
   while (!LL_SPI_IsActiveFlag_TXE(SPIx));
+#endif
   LL_SPI_TransmitData8(SPIx, out);
 
+#if defined(STM32H7) || defined(STM32H7RS)
+  while (!LL_SPI_IsActiveFlag_RXP(SPIx));
+#else
   while (!LL_SPI_IsActiveFlag_RXNE(SPIx));
+#endif
   return LL_SPI_ReceiveData8(SPIx);
 }
 
@@ -242,16 +267,35 @@ uint16_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
 uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out)
 {
   auto* SPIx = spi->SPIx;
+#if defined(STM32H7) || defined(STM32H7RS)
+  while (!LL_SPI_IsActiveFlag_TXP(SPIx));
+#else
   while (!LL_SPI_IsActiveFlag_TXE(SPIx));
+#endif
   LL_SPI_TransmitData16(SPIx, out);
 
-  while (!LL_SPI_IsActiveFlag_RXNE(SPIx));
+#if defined(STM32H7) || defined(STM32H7RS)
+  while (!LL_SPI_IsActiveFlag_TXP(SPIx));
+#else
+  while (!LL_SPI_IsActiveFlag_TXE(SPIx));
+#endif
   return LL_SPI_ReceiveData16(SPIx);
 }
 
 #if defined(USE_SPI_DMA)
 static uint16_t _scratch_byte __DMA;
 static uint8_t _scratch_buffer[512] __DMA;
+
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32F4)
+extern uint32_t _sram;
+extern uint32_t _eram;
+#define _IS_DMA_BUFFER(addr) \
+  ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
+#else
+#define _IS_DMA_BUFFER(addr) (true)
+#endif
+
+#define _IS_ALIGNED(addr) (((intptr_t)(addr) & 3U) == 0U)
 
 static void _dma_enable_stream(DMA_TypeDef* DMAx, uint32_t stream,
 			       const void* data, uint32_t length)
@@ -271,7 +315,8 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
     return stm32_spi_transfer_bytes(spi, nullptr, data, length);
   }
 
-  if (((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
+  bool use_scratch_buffer = !_IS_DMA_BUFFER(data) || !_IS_ALIGNED(data);
+  if (use_scratch_buffer) {
     _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, _scratch_buffer, length);
   } else {
     _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, data, length);
@@ -286,16 +331,23 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
   // Wait for end of DMA transfer
   while(!stm32_dma_check_tc_flag(spi->DMA, spi->rxDMA_Stream));
 
-  // Disable SPI TX/RX DMA requests
-  CLEAR_BIT(spi->SPIx->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
-
+#if !defined(STM32H7) && !defined(STM32H7RS)
   // Wait for TXE=1
-  while(!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
+  while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
   
   // Wait for BSY=0
   while(LL_SPI_IsActiveFlag_BSY(spi->SPIx));
+#else
+  // Wait for EOT=1
+  while (!LL_SPI_IsActiveFlag_EOT(spi->SPIx));
+  LL_SPI_ClearFlag_EOT(spi->SPIx);
+#endif
 
-  if (((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
+  // Disable SPI TX/RX DMA requests
+  LL_SPI_DisableDMAReq_TX(spi->SPIx);
+  LL_SPI_DisableDMAReq_RX(spi->SPIx);
+
+  if (use_scratch_buffer) {
     memcpy(data, _scratch_buffer, length);
   }
   
@@ -313,7 +365,8 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
     return stm32_spi_transfer_bytes(spi, data, nullptr, length);
   }
 
-  if (((uintptr_t)data < SRAM_BASE) || ((uintptr_t)data & 3)) {
+  bool use_scratch_buffer = !_IS_DMA_BUFFER(data) || !_IS_ALIGNED(data);
+  if (use_scratch_buffer) {
     memcpy(_scratch_buffer, data, length);
     data = _scratch_buffer;
   }
@@ -325,9 +378,7 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
   // Wait for end of DMA transfer
   while (!stm32_dma_check_tc_flag(spi->DMA, spi->txDMA_Stream));
 
-  // Disable SPI TX DMA requests
-  CLEAR_BIT(spi->SPIx->CR2, SPI_CR2_TXDMAEN);
-
+#if !defined(STM32H7) && !defined(STM32H7RS)
   // Wait for TXE=1
   while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
 
@@ -338,6 +389,19 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
   if (LL_SPI_IsActiveFlag_RXNE(spi->SPIx)) {
     (void)LL_SPI_ReceiveData8(spi->SPIx);
   }
+#else
+  // Wait for EOT=1
+  while (!LL_SPI_IsActiveFlag_EOT(spi->SPIx));
+  LL_SPI_ClearFlag_EOT(spi->SPIx);
+
+  // Clear RX FIFO
+  while (LL_SPI_IsActiveFlag_RXP(spi->SPIx)) {
+    (void)LL_SPI_ReceiveData8(spi->SPIx);
+  }
+#endif
+
+  // Disable SPI TX DMA requests
+  LL_SPI_DisableDMAReq_TX(spi->SPIx);
 
   return length;
 #else
