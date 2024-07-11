@@ -309,7 +309,7 @@ int CustomFunctionData::resetParamCount()
 {
   Firmware * firmware = getCurrentFirmware();
 
-  return CPN_MAX_TIMERS + 2 + firmware->getCapability(Sensors);
+  return CPN_MAX_TIMERS + CPN_MAX_RESET_FUNCTIONS + firmware->getCapability(Sensors);
 }
 
 //  static
@@ -323,10 +323,10 @@ bool CustomFunctionData::isResetParamAvailable(const int index, const ModelData 
     else
       return false;
   }
-  else if (index < CPN_MAX_TIMERS + 3)
+  else if (index < CPN_MAX_TIMERS + CPN_MAX_RESET_FUNCTIONS)
     return true;
   else if (model && index < resetParamCount())
-    return model->sensorData[index - (CPN_MAX_TIMERS + 2)].isAvailable();
+    return model->sensorData[index - (CPN_MAX_TIMERS + CPN_MAX_RESET_FUNCTIONS)].isAvailable();
 
   return false;
 }

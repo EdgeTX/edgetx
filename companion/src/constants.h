@@ -23,6 +23,7 @@
 #include <QCoreApplication>
 
 #define CPN_MAX_TIMERS                 3
+#define CPN_MAX_RESET_FUNCTIONS        3
 #define CPN_MAX_FLIGHT_MODES           9
 #define CPN_MAX_MIXERS                 64
 #define CPN_MAX_INPUTS                 32
