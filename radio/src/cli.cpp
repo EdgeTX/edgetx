@@ -969,7 +969,7 @@ int cliSet(const char **argv)
       return -1;
     }
   }
-#if !defined(SOFTWARE_VOLUME)
+#if !defined(SOFTWARE_VOLUME) && defined(AUDIO)
   else if (!strcmp(argv[1], "volume")) {
     int level = 0;
     if (toInt(argv, 2, &level) > 0) {

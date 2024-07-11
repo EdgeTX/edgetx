@@ -44,6 +44,13 @@ enum PaddingSize {
 
 // Macros for setting up layout values
 //  LAYOUT_VAL - 2 values - landscape, portrait
+#if !defined(LANDSCAPE_LCD)
+# error "LANDSCAPE_LCD must be defined"
+#endif
+
+#if !defined(PORTRAIT_LCD)
+# error "PORTRAIT_LCD must be defined"
+#endif
 
 #if LANDSCAPE_LCD
 #define LAYOUT_VAL(name, landscape, portrait) \

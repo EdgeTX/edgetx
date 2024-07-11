@@ -241,7 +241,7 @@ static DSTATUS sdio_initialize(BYTE lun)
   sdio.Init.ClockEdge = SD_SDIO_CLOCK_EDGE_RISING;
   sdio.Init.ClockPowerSave = SD_SDIO_CLOCK_POWER_SAVE_DISABLE;
   sdio.Init.BusWide = SD_SDIO_BUS_WIDE_1B;
-  sdio.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
+  sdio.Init.HardwareFlowControl = SD_SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
 #if ( USE_SD_TRANSCEIVER > 0U )
   sdio.Init.TranceiverPresent = SDMMC_TRANSCEIVER_PRESENT;
 #endif
