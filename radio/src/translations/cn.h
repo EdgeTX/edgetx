@@ -57,7 +57,7 @@
 #define TR_USBMODES                    "询问","游戏柄","U盘","串行"
 #define TR_JACK_MODES                  "询问","音频","教练"
 
-#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
+#define TR_SBUS_INVERSION_VALUES       "正常","未反相"
 #define TR_MULTI_CUSTOM                "自定义"
 #define TR_VTRIMINC                    "指数","很小","较小","中等","较大"
 #define TR_VDISPLAYTRIMS               "不显示","改变时","始终显示"
@@ -89,7 +89,7 @@
 #define TR_SF_FAILSAFE                 "设置失控保护"
 #define TR_SF_RANGE_CHECK              "测距模式"
 #define TR_SF_MOD_BIND                 "模块对频"
-#define TR_SF_RGBLEDS                  "RGB led灯"
+#define TR_SF_RGBLEDS                  "RGB LED 灯"
 
 #define TR_SOUND                       "播放声音"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "播放音频文件")
@@ -316,7 +316,7 @@
 #define TR_SUBTYPE                     "子类型"
 #define TR_NOFREEEXPO                  "指数曲线已满!"
 #define TR_NOFREEMIXER                 "混控数量已满!"
-#define TR_SOURCE                       "输入源"
+#define TR_SOURCE                      "输入源"
 #define TR_WEIGHT                      "比例"
 #define TR_SIDE                        "单边"
 #define TR_OFFSET                      "偏移量"
@@ -437,9 +437,9 @@
 #define TR_HZ                          "Hz"
 #define TR_TMIXMAXMS                   "Tmix max"
 #define TR_FREE_STACK                  "Free stack"
-#define TR_INT_GPS_LABEL               "Internal GPS"
+#define TR_INT_GPS_LABEL               "内置 GPS"
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
-#define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
+#define TR_LUA_SCRIPTS_LABEL           "Lua 脚本"
 #define TR_FREE_MEM_LABEL              "Free mem"
 #define TR_DURATION_MS                 TR("[D]","持续时间(ms): ")
 #define TR_INTERVAL_MS                 TR("[I]","间隔时间(ms): ")
@@ -594,7 +594,7 @@
 #define TR_LABELS                      "分组"
 #define TR_CURRENT_MODEL               "当前模型"
 #define TR_ACTIVE                      "当前模型"
-#define TR_NEW                         "新建分组"
+#define TR_NEW                         "新建"
 #define TR_NEW_LABEL                   "新建分组"
 #define TR_RENAME_LABEL                "分组改名"
 #define TR_DELETE_LABEL                "删除分组"
