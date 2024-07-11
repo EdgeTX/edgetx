@@ -146,6 +146,10 @@ void boardInit()
   switchInit();
   rotaryEncoderInit();
 
+#if defined(HARDWARE_TOUCH)
+  touchPanelInit();
+#endif
+
 #if defined(PWM_STICKS)
   sticksPwmDetect();
 #endif
