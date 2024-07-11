@@ -247,7 +247,7 @@ void flashSpiSync()
 
 bool flashSpiInit(void)
 {
-  stm32_spi_init(&_flash_spi);
+  stm32_spi_init(&_flash_spi, LL_SPI_DATAWIDTH_8BIT);
   delay_ms(1);
   flashSpiSync();
 
