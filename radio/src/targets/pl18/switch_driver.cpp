@@ -33,7 +33,7 @@
 #define __weak __attribute__((weak))
 
 static const stm32_switch_t _switch_defs[] = {
-  {
+/*  {
     "S1A",
     nullptr, 0,
     nullptr, 0,
@@ -44,7 +44,7 @@ static const stm32_switch_t _switch_defs[] = {
     nullptr, 0,
     nullptr, 0,
     SWITCH_HW_2POS, 0
-  },
+  },*/
   {
     "S2",
     nullptr, 0,
@@ -59,34 +59,35 @@ static const stm32_switch_t _switch_defs[] = {
   }
 };
 
-constexpr uint8_t n_switches = 4;
+constexpr uint8_t n_switches = 2;
 constexpr uint8_t n_fct_switches = 0;
 
 constexpr swconfig_t _switch_default_config = (swconfig_t)0
     | ((swconfig_t)SWITCH_2POS << (0 * SW_CFG_BITS))
     | ((swconfig_t)SWITCH_2POS << (1 * SW_CFG_BITS))
-    | ((swconfig_t)SWITCH_2POS << (2 * SW_CFG_BITS))
-    | ((swconfig_t)SWITCH_2POS << (3 * SW_CFG_BITS))
+/*    | ((swconfig_t)SWITCH_2POS << (2 * SW_CFG_BITS))
+    | ((swconfig_t)SWITCH_2POS << (3 * SW_CFG_BITS))*/
 ;
 
 const switch_display_pos_t _switch_display[] = {
     { 0, 0 },
     { 0, 0 },
-    { 0, 0 },
-    { 0, 0 },
+/*    { 0, 0 },
+    { 0, 0 },*/
 };
 
 SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
 {
   if (idx <= 1) {
-    uint16_t swVal = getAnalogValue(4);
+//    uint16_t swVal = getAnalogValue(4);
+    uint16_t swVal = getAnalogValue(5);
     if (idx == 0 && (swVal < 512 || (swVal >= 1536 && swVal < 2560))) {
       return SWITCH_HW_DOWN;
     }
     if (idx == 1 && (swVal >= 3584 || (swVal >= 1536 && swVal < 2560))) {
       return SWITCH_HW_DOWN;
     }
-  } else if (idx <= 3) {
+  } /*else if (idx <= 3) {
     uint16_t swVal = getAnalogValue(5);
     if (idx == 3 && (swVal < 512 || (swVal >= 1536 && swVal < 2560))) {
       return SWITCH_HW_DOWN;
@@ -94,7 +95,7 @@ SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
     if (idx == 2 && (swVal >= 3584 || (swVal >= 1536 && swVal < 2560))) {
       return SWITCH_HW_DOWN;
     }
-  }
+  }*/
   return SWITCH_HW_UP;
 }
 

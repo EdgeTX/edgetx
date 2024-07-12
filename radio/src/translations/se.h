@@ -1102,10 +1102,10 @@
   #define TR_BL_ENABLE                  "Aktivera"
   #define TR_BL_DISABLE                 "Inaktivera"
   #if defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY          "[SW2] för att vaelja fil"
-    #define TR_BL_FLASH_KEY           "Haall [SW2] foer att flasha"
-    #define TR_BL_ERASE_KEY           "Haall [SW2] foer att radera"
-    #define TR_BL_EXIT_KEY            "[SW3] to exit"
+    #define TR_BL_SELECT_KEY          "[SW1A] för att vaelja fil"
+    #define TR_BL_FLASH_KEY           "Haall [SW1A] foer att flasha"
+    #define TR_BL_ERASE_KEY           "Haall [SW1A] foer att radera"
+    #define TR_BL_EXIT_KEY            "[SW1B] to exit"
   #else
     #define TR_BL_SELECT_KEY          "[TR4 Ner] för att vaelja fil"
     #define TR_BL_FLASH_KEY           "Haall [TR4 Ner] foer att flasha"

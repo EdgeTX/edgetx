@@ -1074,10 +1074,10 @@
   #define TR_BL_ENABLE                 "Enable"
   #define TR_BL_DISABLE                "Disable"
   #if defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY          "[SW2] aby wybrac plik"
-    #define TR_BL_FLASH_KEY           "Przytrzymaj [SW2] aby flashowac"
-    #define TR_BL_ERASE_KEY           "Przytrzymaj [SW2] long to erase"
-    #define TR_BL_EXIT_KEY            "[SW3] aby wyjsc"
+    #define TR_BL_SELECT_KEY          "[SW1A] aby wybrac plik"
+    #define TR_BL_FLASH_KEY           "Przytrzymaj [SW1A] aby flashowac"
+    #define TR_BL_ERASE_KEY           "Przytrzymaj [SW1A] long to erase"
+    #define TR_BL_EXIT_KEY            "[SW1B] aby wyjsc"
   #else
     #define TR_BL_SELECT_KEY          "[TR4 Dn] aby wybrac plik"
     #define TR_BL_FLASH_KEY           "Przytrzymaj [TR4 Dn] aby flashowac"
