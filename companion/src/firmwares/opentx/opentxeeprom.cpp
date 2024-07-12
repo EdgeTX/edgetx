@@ -1855,6 +1855,8 @@ class ArmCustomFunctionField: public TransformedField {
       }
       else if (fn.func == FuncReset) {
         fn.param = value;
+        if (fn.param > 4) // EdgeTx 2.11 Trims inserted before telemetry
+          fn.param += 1;
       }
       else {
         fn.param = value;
