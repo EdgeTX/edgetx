@@ -284,7 +284,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
 
   if (value < step) {
     if (value < firmware->getCapability(Timers))
-      return RawSource(SOURCE_TYPE_TIMER, value).toString(model);
+      return RawSource(SOURCE_TYPE_TIMER, value + 1).toString(model);
     else
       return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -296,7 +296,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
     return tr("Telemetry");
 
   if (value < step + firmware->getCapability(Sensors))
-    return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step + 1)).toString(model);
+    return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step) + 1).toString(model);
 
   return QString(CPN_STR_UNKNOWN_ITEM);
 }
