@@ -59,11 +59,11 @@ void keysInit()
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   
-  pinInit.Pin = ADC_GPIO_PIN_EXT2;
+  pinInit.Pin = ADC_GPIO_PIN_EXT1;
   pinInit.Mode = LL_GPIO_MODE_ANALOG;
   pinInit.Pull = LL_GPIO_PULL_NO;
-  stm32_gpio_enable_clock(ADC_GPIO_EXT2);
-  LL_GPIO_Init(ADC_GPIO_EXT2, &pinInit);
+  stm32_gpio_enable_clock(ADC_GPIO_EXT1);
+  LL_GPIO_Init(ADC_GPIO_EXT1, &pinInit);
 
   // Init ADC clock
   uint32_t adc_idx = (((uint32_t) ADC_MAIN) - ADC1_BASE) / 0x100UL;
@@ -102,8 +102,8 @@ void keysInit()
 uint16_t _adcRead()
 {
   // Configure ADC channel
-  LL_ADC_REG_SetSequencerRanks(ADC_MAIN, LL_ADC_REG_RANK_1, ADC_CHANNEL_EXT2);
-  LL_ADC_SetChannelSamplingTime(ADC_MAIN, ADC_CHANNEL_EXT2, LL_ADC_SAMPLINGTIME_3CYCLES);
+  LL_ADC_REG_SetSequencerRanks(ADC_MAIN, LL_ADC_REG_RANK_1, ADC_CHANNEL_EXT1);
+  LL_ADC_SetChannelSamplingTime(ADC_MAIN, ADC_CHANNEL_EXT1, LL_ADC_SAMPLINGTIME_3CYCLES);
 
   // Start ADC conversion
   LL_ADC_REG_StartConversionSWStart(ADC_MAIN);
@@ -128,6 +128,11 @@ uint32_t readKeys()
   else if (value < 512)
     result |= 1 << KEY_ENTER;
 #else
+  uint16_t value = getAnalogValue(4);
+  if (value >= 3584)
+    result |= 1 << KEY_EXIT;
+  else if (value < 512)
+    result |= 1 << KEY_ENTER;
 #endif
 
   return result;

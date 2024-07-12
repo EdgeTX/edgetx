@@ -1087,10 +1087,10 @@
   #define TR_BL_ERASE_FLASH           "Slet flash lager"
   #define TR_BL_ERASE_FLASH_MSG       "Dette kan vare op til 200s"
   #if defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY            " [SW2] for at bruge fil"
-    #define TR_BL_FLASH_KEY             " Hold [SW2] længe, for brænding"
-    #define TR_BL_ERASE_KEY             " Hold [SW2] længe, for sletning"
-    #define TR_BL_EXIT_KEY              " [SW3] for at forlade"
+    #define TR_BL_SELECT_KEY            " [SW1A] for at bruge fil"
+    #define TR_BL_FLASH_KEY             " Hold [SW1A] længe, for brænding"
+    #define TR_BL_ERASE_KEY             " Hold [SW1A] længe, for sletning"
+    #define TR_BL_EXIT_KEY              " [SW1B] for at forlade"
   #else
     #define TR_BL_SELECT_KEY            " [TR4 Dn] for at bruge fil"
     #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] længe, for brænding"
