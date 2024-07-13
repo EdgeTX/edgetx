@@ -382,7 +382,7 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
 #endif
 
-    {MIXSRC_MAX, "min", "MIN"},
+    {MIXSRC_MIN, "min", "MIN"},
     {MIXSRC_MAX, "max", "MAX"},
 
     {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
