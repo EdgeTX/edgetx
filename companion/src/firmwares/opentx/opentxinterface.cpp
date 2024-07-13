@@ -68,6 +68,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for Jumper T-Pro";
     case BOARD_JUMPER_TPROV2:
       return "EdgeTX for Jumper T-Pro V2";
+    case BOARD_JUMPER_T12MAX:
+      return "EdgeTX for Jumper T12 MAX";
     case BOARD_JUMPER_T14:
       return "EdgeTX for Jumper T14";
     case BOARD_JUMPER_T15:
@@ -1447,6 +1449,13 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
+
+  /* Jumper T12 MAX board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t12max"), Firmware::tr("Jumper T12 MAX"), BOARD_JUMPER_T12MAX);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption("internalelrs", Firmware::tr("Select if internal ELRS module is installed"));
+  addOpenTxRfOptions(firmware, NONE);
+  registerOpenTxFirmware(firmware);
 
   /* Jumper T14 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t14"), Firmware::tr("Jumper T14"), BOARD_JUMPER_T14);

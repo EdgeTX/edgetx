@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SimulatedUIWidgetJumperT12max</class>
+ <widget class="QWidget" name="SimulatedUIWidgetJumperT12max">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>714</width>
+    <height>308</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>714</width>
+    <height>308</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>714</width>
+    <height>308</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Jumper T12 MAX Simulator</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(255, 255, 255, 255), stop:0.757062 rgba(241, 238, 238, 255), stop:1 rgba(247, 245, 245, 255));</string>
+  </property>
+  <widget class="ButtonsWidget" name="leftbuttons" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>229</width>
+     <height>308</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>229</width>
+     <height>308</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>229</width>
+     <height>308</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:url(:/images/simulator/JumperT12max/left.png);</string>
+   </property>
+  </widget>
+  <widget class="LcdWidget" name="lcd" native="true">
+   <property name="geometry">
+    <rect>
+     <x>229</x>
+     <y>90</y>
+     <width>256</width>
+     <height>128</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>256</width>
+     <height>128</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>256</width>
+     <height>128</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(215, 243, 255);</string>
+   </property>
+  </widget>
+  <widget class="ButtonsWidget" name="rightbuttons" native="true">
+   <property name="geometry">
+    <rect>
+     <x>485</x>
+     <y>0</y>
+     <width>229</width>
+     <height>308</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>229</width>
+     <height>308</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>229</width>
+     <height>308</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:url(:/images/simulator/JumperT12max/right.png)</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="top" native="true">
+   <property name="geometry">
+    <rect>
+     <x>229</x>
+     <y>0</y>
+     <width>256</width>
+     <height>90</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>256</width>
+     <height>90</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>256</width>
+     <height>90</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:url(:/images/simulator/JumperT12max/top.png)</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="bottom" native="true">
+   <property name="geometry">
+    <rect>
+     <x>229</x>
+     <y>218</y>
+     <width>256</width>
+     <height>90</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>256</width>
+     <height>90</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>256</width>
+     <height>90</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:url(:/images/simulator/JumperT12max/bottom.png)</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LcdWidget</class>
+   <extends>QWidget</extends>
+   <header>lcdwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ButtonsWidget</class>
+   <extends>QWidget</extends>
+   <header>buttonswidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../companion.qrc"/>
+ </resources>
+ <connections/>
+</ui>
