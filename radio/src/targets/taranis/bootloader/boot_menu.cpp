@@ -39,7 +39,11 @@ void bootloaderInitScreen()
   lcdSetContrast(true);
 
   backlightInit();
+#if defined(LCD_BRIGHTNESS_DEFAULT)
+  backlightEnable(LCD_BRIGHTNESS_DEFAULT);
+#else
   backlightFullOn();
+#endif
 }
 
 static void bootloaderDrawMsg(unsigned int x, const char *str, uint8_t line, bool inverted)

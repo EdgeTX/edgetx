@@ -130,7 +130,7 @@ static inline void check_struct()
 #elif defined(RADIO_TPROV2)
   CHKSIZE(RadioData, 869);
   CHKSIZE(ModelData, 6290);
-#elif defined(RADIO_T14)
+#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
   CHKSIZE(RadioData, 869);
   CHKSIZE(ModelData, 6265);
 #elif defined(RADIO_FAMILY_T20)
