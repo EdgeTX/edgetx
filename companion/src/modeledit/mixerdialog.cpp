@@ -58,7 +58,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(md->srcRaw.toValue()));
   if (ui->sourceCB->currentIndex() < 0 && md->srcRaw.toValue() == 0)
-    ui->sourceCB->setCurrentIndex(ui->sourceCB->count() / 2); // '----' not in list so set to first positive entry
+    ui->sourceCB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->sourceCB));
 
   int limit = firmware->getCapability(OffsetWeight);
 

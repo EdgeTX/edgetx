@@ -113,7 +113,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
     ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));
     if (ui->sourceCB->currentIndex() < 0 && ed->srcRaw.toValue() == 0)
-      ui->sourceCB->setCurrentIndex(ui->sourceCB->count() / 2); // '----' not in list so set to first positive entry
+      ui->sourceCB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->sourceCB));
     ui->inputName->setValidator(new NameValidator(board, this));
     ui->inputName->setText(inputName);
   }

@@ -56,7 +56,7 @@ class SourceNumRef {
 
     const bool isNumber() const { return srcNum.type == SOURCE_TYPE_NONE; }
     const bool isSource() const { return srcNum.type != SOURCE_TYPE_NONE; }
-    static int getDefault(int useSource, int dflt = 0);
+    static int getDefault(int useSource, int dflt);
 
   private:
     RawSource srcNum;
@@ -88,6 +88,6 @@ class SourceNumRefEditor : public QObject {
     QSpinBox *sbxValue;
     QComboBox *cboValue;
     int defValue;
-    ModelData & model;
+    ModelData &model;
     bool lock;
 };

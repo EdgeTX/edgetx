@@ -21,6 +21,7 @@
 
 #include "sourcenumref.h"
 #include "filtereditemmodels.h"
+#include "helpers.h"
 
 QString SourceNumRef::toString(const ModelData * model, const GeneralSettings * const generalSettings,
                      Board::Type board, bool prefixCustomName) const
@@ -35,7 +36,7 @@ QString SourceNumRef::toString(const ModelData * model, const GeneralSettings * 
 int SourceNumRef::getDefault(int useSource, int dflt)
 {
   if (useSource)
-    return RawSource(SOURCE_TYPE_GVAR, 1).toValue();  // backwards compatibility
+    return 0;
   else
     return dflt;
 }
@@ -73,7 +74,7 @@ SourceNumRefEditor::SourceNumRefEditor(int & srcNumValue, QCheckBox * chkUseSour
     cboValue->setModel(sourceItemModel);
     cboValue->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     cboValue->setMaxVisibleItems(10);
-    cboValue->setCurrentIndex(cboValue->count() / 2); // '----' not in list so set to first positive entry
+    cboValue->setCurrentIndex(Helpers::getFirstPosValueIndex(cboValue));
     connect(cboValue, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SourceNumRefEditor::cboValueChanged);
   }
 
@@ -84,10 +85,15 @@ void SourceNumRefEditor::chkUseSourceChanged(int state)
 {
   if (!lock) {
     srcNumValue = SourceNumRef::getDefault(state, defValue);
-    if (SourceNumRef(srcNumValue).isSource())
+
+    if (state == Qt::Checked) {
       cboValue->setCurrentIndex(cboValue->findData(srcNumValue));
+      if (cboValue->currentIndex() < 0)
+        cboValue->setCurrentIndex(Helpers::getFirstPosValueIndex(cboValue));
+    }
     else
       sbxValue->setValue(srcNumValue);
+
     update();
   }
 }
