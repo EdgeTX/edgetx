@@ -66,17 +66,19 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
                                                                            (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup)),
                                                      "EditorSource");
 
+  FilteredItemModel *esMdl = dialogFilteredItemModels->getItemModel(imId);
+
   weightEditor = new SourceNumRefEditor(md->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -limit, limit, 1,
-                                        model, dialogFilteredItemModels->getItemModel(imId));
+                                        model, esMdl, this);
 
   offsetEditor = new SourceNumRefEditor(md->sOffset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -limit, limit, 1,
-                                        model, dialogFilteredItemModels->getItemModel(imId));
+                                        model, esMdl, this);
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
 
-  curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveFunc, ui->imgCurve, md->curve,
-                                           model, sharedItemModels, curveRefFilteredItemModels, this);
+  curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveSource, ui->cboCurveFunc, ui->imgCurve, md->curve,
+                                           model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);
 
   connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {
           this->adjustSize();

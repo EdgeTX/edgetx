@@ -73,11 +73,14 @@ class SourceNumRefEditor : public QObject {
 
     virtual ~SourceNumRefEditor() {}
 
+    void setLock(bool state) { lock = state; }
+    void setVisible(bool state);
+    void update();
+
   signals:
     void resized();
 
   protected slots:
-    void update();
     void chkUseSourceChanged(int state);
     void sbxValueChanged();
     void cboValueChanged(int index);

@@ -55,17 +55,19 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
                                 (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup & ~RawSource::InputsGroup)),
                                 "EditorSource");
 
+  FilteredItemModel *esMdl = dialogFilteredItemModels->getItemModel(imId);
+
   weightEditor = new SourceNumRefEditor(ed->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -100, 100, 1.0,
-                                        model, dialogFilteredItemModels->getItemModel(imId));
+                                        model, esMdl);
 
   offsetEditor = new SourceNumRefEditor(ed->offset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -100, 100, 1.0,
-                                        model, dialogFilteredItemModels->getItemModel(imId));
+                                        model, esMdl);
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasInputDiff) ? 0 : FilteredItemModel::PositiveFilter);
 
-  curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveFunc, ui->imgCurve, ed->curve, model,
-                                           sharedItemModels, curveRefFilteredItemModels, this);
+  curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveSource, ui->cboCurveFunc,
+                                           ui->imgCurve, ed->curve, model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);
 
 
   connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {

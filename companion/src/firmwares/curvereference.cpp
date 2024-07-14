@@ -25,6 +25,7 @@
 #include "filtereditemmodels.h"
 #include "curveimagewidget.h"
 #include "curvedialog.h"
+#include "sourcenumref.h"
 
 const QString CurveReference::toString(const ModelData * model, bool verbose) const
 {
@@ -146,54 +147,44 @@ int CurveReference::functionCount()
  * CurveReferenceUIManager
 */
 
-CurveReferenceUIManager::CurveReferenceUIManager(QComboBox * curveTypeCB, QCheckBox * curveGVarCB, QSpinBox * curveValueSB,
-                                                 QComboBox * curveValueCB, QLabel * curveLabelImage,
+CurveReferenceUIManager::CurveReferenceUIManager(QComboBox * cboType, QCheckBox * chkUseSource, QSpinBox * sbxValue,
+                                                 QComboBox * cboSource, QComboBox * cboCurveFunc, CurveImageWidget * curveImage,
                                                  CurveReference & curveRef, ModelData & model, CompoundItemModelFactory * sharedItemModels,
-                                                 CurveRefFilteredFactory * curveRefFilteredFactory, QObject * parent) :
+                                                 CurveRefFilteredFactory * curveRefFilteredFactory, FilteredItemModel * sourceItemModel,
+                                                 QObject * parent) :
   QObject(parent),
-  curveTypeCB(curveTypeCB),
-  curveGVarCB(curveGVarCB),
-  curveValueSB(curveValueSB),
-  curveValueCB(curveValueCB),
+  cboType(cboType),
+  chkUseSource(chkUseSource),
+  sbxValue(sbxValue),
+  cboSource(cboSource),
+  cboCurveFunc(cboCurveFunc),
+  curveImage(curveImage),
   curveRef(curveRef),
   model(model),
-  sharedItemModels(sharedItemModels),
   filteredModelFactory(curveRefFilteredFactory),
-  lock(false),
-  curveImageWidget(nullptr)
+  lock(false)
 {
   connectItemModelEvents(filteredModelFactory->getItemModel(CurveRefFilteredFactory::CRFIM_CURVE));
 
-  hasCapabilityGvars = getCurrentFirmware()->getCapability(Gvars);
+  srcNumRefEditor = new SourceNumRefEditor(curveRef.value, chkUseSource, sbxValue, cboSource, 0, -100, 100, 1, model, sourceItemModel);
 
-  if (curveTypeCB) {
-    curveTypeCB->setModel(filteredModelFactory->getItemModel(CurveRefFilteredFactory::CRFIM_TYPE));
-    curveTypeCB->setCurrentIndex(curveTypeCB->findData((int)curveRef.type));
-    connect(curveTypeCB, SIGNAL(currentIndexChanged(int)), this, SLOT(typeChanged(int)));
+  if (cboType) {
+    cboType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    cboType->setModel(filteredModelFactory->getItemModel(CurveRefFilteredFactory::CRFIM_TYPE));
+    cboType->setCurrentIndex(cboType->findData((int)curveRef.type));
+    connect(cboType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CurveReferenceUIManager::cboTypeChanged);
   }
 
-  if (curveGVarCB)
-    connect(curveGVarCB, SIGNAL(stateChanged(int)), this, SLOT(gvarCBChanged(int)));
-
-  if (curveValueSB) {
-    curveValueSB->setMinimum(-100);
-    curveValueSB->setMaximum(100);
-    connect(curveValueSB, SIGNAL(editingFinished()), this, SLOT(valueSBChanged()));
+  if (cboCurveFunc) {
+    cboCurveFunc->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    cboCurveFunc->setMaxVisibleItems(10);
+    connect(cboCurveFunc, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CurveReferenceUIManager::cboCurveFuncChanged);
   }
 
-  if (curveValueCB) {
-    curveValueCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    curveValueCB->setMaxVisibleItems(10);
-    connect(curveValueCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valueCBChanged()));
-
-    if (curveLabelImage) {
-      curveImageWidget = qobject_cast<CurveImageWidget *>(curveLabelImage);
-      if (curveImageWidget) {
-        curveImageWidget->set(&model, getCurrentFirmware(), sharedItemModels, abs(curveRef.value) - 1, Qt::black, 3);
-        curveImageWidget->setGrid(Qt::gray, 2);
-        connect(curveImageWidget, &CurveImageWidget::doubleClicked, this, &CurveReferenceUIManager::curveImageDoubleClicked);
-      }
-    }
+  if (curveImage) {
+    curveImage->set(&model, getCurrentFirmware(), sharedItemModels, abs(curveRef.value) - 1, Qt::black, 3);
+    curveImage->setGrid(Qt::gray, 2);
+    connect(curveImage, &CurveImageWidget::doubleClicked, this, &CurveReferenceUIManager::curveImageDoubleClicked);
   }
 
   update();
@@ -201,10 +192,10 @@ CurveReferenceUIManager::CurveReferenceUIManager(QComboBox * curveTypeCB, QCheck
 
 CurveReferenceUIManager::~CurveReferenceUIManager()
 {
-
+  delete srcNumRefEditor;
 }
 
-#define CURVE_REF_UI_GVAR_SHOW  (1 << 0)
+#define CURVE_REF_UI_SRC_SHOW   (1 << 0)
 #define CURVE_REF_UI_VALUE_SHOW (1 << 1)
 #define CURVE_REF_UI_REF_SHOW   (1 << 2)
 #define CURVE_REF_UI_CURVE_SHOW (1 << 3)
@@ -212,89 +203,71 @@ CurveReferenceUIManager::~CurveReferenceUIManager()
 void CurveReferenceUIManager::update()
 {
   lock = true;
+  srcNumRefEditor->setLock(true);
+
   int widgetsMask = 0;
 
   if (curveRef.type == CurveReference::CURVE_REF_DIFF || curveRef.type == CurveReference::CURVE_REF_EXPO) {
-    if (hasCapabilityGvars)
-      widgetsMask |= CURVE_REF_UI_GVAR_SHOW;
-    if (curveRef.isValueNumber()) {
-      curveGVarCB->setChecked(false);
-      curveValueSB->setValue(curveRef.value);
-      widgetsMask |= CURVE_REF_UI_VALUE_SHOW;
-    }
-    else {
-      curveGVarCB->setChecked(true);
-      widgetsMask |= CURVE_REF_UI_REF_SHOW;
-    }
+    srcNumRefEditor->setVisible(true);
+    srcNumRefEditor->update();
   }
   else {
+    srcNumRefEditor->setVisible(false);
     widgetsMask |= CURVE_REF_UI_REF_SHOW;
   }
 
   if (curveRef.type == CurveReference::CURVE_REF_CUSTOM)
     widgetsMask |= CURVE_REF_UI_CURVE_SHOW;
 
+  if (cboType)
+    cboType->setCurrentIndex(cboType->findData(curveRef.type));
 
-  if (curveTypeCB) {
-    curveTypeCB->setCurrentIndex(curveTypeCB->findData(curveRef.type));
-    curveTypeCB->show();
-  }
 
-  if (curveGVarCB)
-    curveGVarCB->setVisible(widgetsMask & CURVE_REF_UI_GVAR_SHOW);
+/*
+  if (chkUseSource)
+    chkUseSource->setVisible(widgetsMask & CURVE_REF_UI_SRC_SHOW);
 
-  if (curveValueSB)
-    curveValueSB->setVisible(widgetsMask & CURVE_REF_UI_VALUE_SHOW);
+  if (cboSource)
+    cboSource->setVisible(widgetsMask & CURVE_REF_UI_SRC_SHOW);
 
-  if (curveValueCB) {
+  if (sbxValue)
+    sbxValue->setVisible(widgetsMask & CURVE_REF_UI_VALUE_SHOW);
+*/
+
+  if (cboCurveFunc) {
     if (curveRef.isValueReference())
-      populateValueCB(curveValueCB);
-    curveValueCB->setVisible(widgetsMask & CURVE_REF_UI_REF_SHOW);
+      populateValueCB(cboCurveFunc);
+    cboCurveFunc->setVisible(widgetsMask & CURVE_REF_UI_REF_SHOW);
   }
 
-  if (curveValueCB && curveImageWidget) {
-    curveImageWidget->draw();
-    curveImageWidget->setVisible(widgetsMask & CURVE_REF_UI_CURVE_SHOW);
+  if (curveImage) {
+    curveImage->draw();
+    curveImage->setVisible(widgetsMask & CURVE_REF_UI_CURVE_SHOW);
   }
 
   emit resized();
 
+  srcNumRefEditor->setLock(false);
   lock = false;
 }
 
-void CurveReferenceUIManager::gvarCBChanged(int state)
+void CurveReferenceUIManager::cboTypeChanged(int index)
 {
   if (!lock) {
-    curveRef.value = CurveReference::getDefaultValue(curveRef.type, state);
-    update();
-  }
-}
-
-void CurveReferenceUIManager::typeChanged(int value)
-{
-  if (!lock) {
-    CurveReference::CurveRefType type = (CurveReference::CurveRefType)curveTypeCB->itemData(curveTypeCB->currentIndex()).toInt();
+    CurveReference::CurveRefType type = (CurveReference::CurveRefType)cboType->itemData(cboType->currentIndex()).toInt();
     curveRef = CurveReference(type, CurveReference::getDefaultValue(type));
-    if (curveImageWidget && curveRef.type == CurveReference::CURVE_REF_CUSTOM)
-      curveImageWidget->setIndex(abs(curveRef.value) - 1);
+    if (curveImage && curveRef.type == CurveReference::CURVE_REF_CUSTOM)
+      curveImage->setIndex(abs(curveRef.value) - 1);
     update();
   }
 }
 
-void CurveReferenceUIManager::valueSBChanged()
+void CurveReferenceUIManager::cboCurveFuncChanged(int index)
 {
   if (!lock) {
-    curveRef.value = curveValueSB->value();
-    update();
-  }
-}
-
-void CurveReferenceUIManager::valueCBChanged()
-{
-  if (!lock) {
-    curveRef.value = curveValueCB->itemData(curveValueCB->currentIndex()).toInt();
-    if (curveImageWidget && curveRef.type == CurveReference::CURVE_REF_CUSTOM)
-      curveImageWidget->setIndex(abs(curveRef.value) - 1);
+    curveRef.value = cboCurveFunc->itemData(cboCurveFunc->currentIndex()).toInt();
+    if (curveImage && curveRef.type == CurveReference::CURVE_REF_CUSTOM)
+      curveImage->setIndex(abs(curveRef.value) - 1);
     update();
   }
 }
@@ -303,10 +276,6 @@ void CurveReferenceUIManager::populateValueCB(QComboBox * cb)
 {
   if (cb) {
     switch (curveRef.type) {
-      case CurveReference::CURVE_REF_DIFF:
-      case CurveReference::CURVE_REF_EXPO:
-        cb->setModel(filteredModelFactory->getItemModel(CurveRefFilteredFactory::CRFIM_GVARREF));
-        break;
       case CurveReference::CURVE_REF_FUNC:
         cb->setModel(filteredModelFactory->getItemModel(CurveRefFilteredFactory::CRFIM_FUNC));
         break;
@@ -324,7 +293,7 @@ void CurveReferenceUIManager::populateValueCB(QComboBox * cb)
 void CurveReferenceUIManager::curveImageDoubleClicked()
 {
   if (curveRef.type == CurveReference::CURVE_REF_CUSTOM && abs(curveRef.value) > 0)
-    curveImageWidget->edit();
+    curveImage->edit();
 }
 
 void CurveReferenceUIManager::connectItemModelEvents(const FilteredItemModel * itemModel)

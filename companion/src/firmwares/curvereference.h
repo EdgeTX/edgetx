@@ -32,6 +32,7 @@ class CurveRefFilteredFactory;
 class CompoundItemModelFactory;
 class FilteredItemModel;
 class CurveImageWidget;
+class SourceNumRefEditor;
 
 class CurveReference {
 
@@ -91,13 +92,17 @@ class CurveReferenceUIManager : public QObject {
   Q_OBJECT
 
   public:
-    explicit CurveReferenceUIManager(QComboBox *curveTypeCB, QCheckBox *curveGVarCB, QSpinBox *curveValueSB, QComboBox *curveValueCB,
-                            QLabel *curveImage, CurveReference & curve, ModelData & model, CompoundItemModelFactory * sharedItemModels,
-                            CurveRefFilteredFactory * curveRefFilteredFactory, QObject * parent = nullptr);
+    explicit CurveReferenceUIManager(QComboBox * cboType, QCheckBox * chkUseSource, QSpinBox * sbxValue, QComboBox * cboSource,
+                                     QComboBox * cboCurveFunc, CurveImageWidget * curveImage, CurveReference & curveRef,
+                                     ModelData & model, CompoundItemModelFactory * sharedItemModels,
+                                     CurveRefFilteredFactory * curveRefFilteredFactory, FilteredItemModel * sourceItemModel,
+                                     QObject * parent = nullptr);
 
-    explicit CurveReferenceUIManager(QComboBox *curveValueCB, CurveReference & curve, ModelData & model, CompoundItemModelFactory * sharedItemModels,
-                            CurveRefFilteredFactory * curveRefFilteredFactory, QObject * parent = nullptr) :
-                CurveReferenceUIManager(nullptr, nullptr, nullptr, curveValueCB, nullptr, curve, model, sharedItemModels, curveRefFilteredFactory, parent) {}
+    explicit CurveReferenceUIManager(QComboBox *cboCurveFunc, CurveReference & curveRef, ModelData & model,
+                                     CompoundItemModelFactory * sharedItemModels, CurveRefFilteredFactory * curveRefFilteredFactory,
+                                     FilteredItemModel * sourceItemModel, QObject * parent = nullptr) :
+                CurveReferenceUIManager(nullptr, nullptr, nullptr, nullptr, cboCurveFunc, nullptr, curveRef, model, sharedItemModels,
+                                        curveRefFilteredFactory, nullptr, parent) {}
 
     virtual ~CurveReferenceUIManager();
 
@@ -105,28 +110,25 @@ class CurveReferenceUIManager : public QObject {
     void resized();
 
   protected slots:
-    void gvarCBChanged(int);
-    void typeChanged(int);
-    void valueSBChanged();
-    void valueCBChanged();
+    void cboTypeChanged(int);
+    void cboCurveFuncChanged(int);
     void update();
     void curveImageDoubleClicked();
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
 
   private:
-    QComboBox *curveTypeCB;
-    QCheckBox *curveGVarCB;
-    QSpinBox *curveValueSB;
-    QComboBox *curveValueCB;
-    CurveReference & curveRef;
-    ModelData & model;
-    CompoundItemModelFactory *sharedItemModels;
+    QComboBox *cboType;
+    QCheckBox *chkUseSource;
+    QSpinBox *sbxValue;
+    QComboBox *cboSource;
+    QComboBox *cboCurveFunc;
+    CurveImageWidget *curveImage;
+    CurveReference &curveRef;
+    ModelData &model;
     CurveRefFilteredFactory *filteredModelFactory;
     bool lock;
-    CurveImageWidget *curveImageWidget = nullptr;
-
-    bool hasCapabilityGvars;
+    SourceNumRefEditor *srcNumRefEditor;
 
     void connectItemModelEvents(const FilteredItemModel * itemModel);
     void populateValueCB(QComboBox * cb);
