@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>442</width>
-    <height>411</height>
+    <width>643</width>
+    <height>485</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -52,17 +52,29 @@
    <item row="8" column="1">
     <layout class="QHBoxLayout" name="offsetLayout" stretch="0,0,1,0">
      <item>
-      <widget class="QCheckBox" name="offsetGV">
+      <widget class="QCheckBox" name="chkOffsetUseSource">
        <property name="text">
-        <string>GV</string>
+        <string>Source</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="offsetSB"/>
+      <widget class="QSpinBox" name="sbOffsetValue"/>
      </item>
      <item>
-      <widget class="QComboBox" name="offsetCB">
+      <widget class="QComboBox" name="cboOffsetSource">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="whatsThis">
         <string>The source for the mixer</string>
        </property>
@@ -73,9 +85,12 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>120</width>
          <height>0</height>
         </size>
        </property>
@@ -150,17 +165,29 @@
    <item row="7" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,1,0">
      <item>
-      <widget class="QCheckBox" name="weightGV">
+      <widget class="QCheckBox" name="chkWeightUseSource">
        <property name="text">
-        <string>GV</string>
+        <string>Source</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="weightSB"/>
+      <widget class="QSpinBox" name="sbWeightValue"/>
      </item>
      <item>
-      <widget class="QComboBox" name="weightCB">
+      <widget class="QComboBox" name="cboWeightSource">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>350</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="whatsThis">
         <string/>
        </property>
@@ -173,7 +200,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>120</width>
          <height>20</height>
         </size>
        </property>
@@ -426,9 +453,9 @@ If blank then the input is considered to be &quot;ON&quot; all the time.</string
     </widget>
    </item>
    <item row="9" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,1,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0,1,0,0,0">
      <item>
-      <widget class="QComboBox" name="curveTypeCB">
+      <widget class="QComboBox" name="cboCurveType">
        <property name="toolTip">
         <string/>
        </property>
@@ -438,24 +465,27 @@ If blank then the input is considered to be &quot;ON&quot; all the time.</string
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="curveGVarCB">
+      <widget class="QCheckBox" name="chkCurveUseSource">
        <property name="text">
-        <string>GV</string>
+        <string>Source</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="curveValueCB">
+      <widget class="QComboBox" name="cboCurveSource">
        <property name="whatsThis">
         <string/>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="curveValueSB"/>
+      <widget class="QSpinBox" name="sbCurveValue"/>
      </item>
      <item>
-      <widget class="CurveImageWidget" name="curveImage">
+      <widget class="QComboBox" name="cboCurveFunc"/>
+     </item>
+     <item>
+      <widget class="CurveImageWidget" name="imgCurve">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -504,16 +534,16 @@ If blank then the input is considered to be &quot;ON&quot; all the time.</string
   <tabstop>sourceCB</tabstop>
   <tabstop>dsbScale</tabstop>
   <tabstop>trimCB</tabstop>
-  <tabstop>weightGV</tabstop>
-  <tabstop>weightSB</tabstop>
-  <tabstop>weightCB</tabstop>
-  <tabstop>offsetGV</tabstop>
-  <tabstop>offsetSB</tabstop>
-  <tabstop>offsetCB</tabstop>
-  <tabstop>curveTypeCB</tabstop>
-  <tabstop>curveGVarCB</tabstop>
-  <tabstop>curveValueCB</tabstop>
-  <tabstop>curveValueSB</tabstop>
+  <tabstop>chkWeightUseSource</tabstop>
+  <tabstop>sbWeightValue</tabstop>
+  <tabstop>cboWeightSource</tabstop>
+  <tabstop>chkOffsetUseSource</tabstop>
+  <tabstop>sbOffsetValue</tabstop>
+  <tabstop>cboOffsetSource</tabstop>
+  <tabstop>cboCurveType</tabstop>
+  <tabstop>chkCurveUseSource</tabstop>
+  <tabstop>cboCurveSource</tabstop>
+  <tabstop>sbCurveValue</tabstop>
   <tabstop>cb_FP0</tabstop>
   <tabstop>cb_FP1</tabstop>
   <tabstop>cb_FP2</tabstop>

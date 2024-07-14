@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -24,6 +25,7 @@
 #include "filtereditemmodels.h"
 #include "helpers.h"
 #include "namevalidator.h"
+#include "sourcenumref.h"
 
 MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, GeneralSettings & generalSettings, Firmware * firmware,
                          CompoundItemModelFactory * sharedItemModels) :
@@ -40,7 +42,6 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   Board::Type board = firmware->getBoard();
 
   dialogFilteredItemModels = new FilteredItemModelFactory();
-  int id;
 
   QLabel * lb_fp[CPN_MAX_FLIGHT_MODES] = {ui->lb_FP0, ui->lb_FP1, ui->lb_FP2, ui->lb_FP3, ui->lb_FP4, ui->lb_FP5, ui->lb_FP6, ui->lb_FP7, ui->lb_FP8 };
   QCheckBox * tmp[CPN_MAX_FLIGHT_MODES] = {ui->cb_FP0, ui->cb_FP1, ui->cb_FP2, ui->cb_FP3, ui->cb_FP4, ui->cb_FP5, ui->cb_FP6, ui->cb_FP7, ui->cb_FP8 };
@@ -50,28 +51,31 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 
   this->setWindowTitle(tr("DEST -> %1").arg(RawSource(SOURCE_TYPE_CH, md->destCh - 1).toString(&model, &generalSettings)));
 
-  id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                                         (RawSource::InputSourceGroups & ~RawSource::NoneGroup) | RawSource::ScriptsGroup),
-                                                   "RawSource");
-  ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
+  int imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                                                              (RawSource::InputSourceGroups & ~RawSource::NoneGroup) | RawSource::ScriptsGroup),
+                                                         "RawSource");
+
+  ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(md->srcRaw.toValue()));
   if (ui->sourceCB->currentIndex() < 0 && md->srcRaw.toValue() == 0)
     ui->sourceCB->setCurrentIndex(ui->sourceCB->count() / 2); // '----' not in list so set to first positive entry
 
   int limit = firmware->getCapability(OffsetWeight);
 
-  id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
+  imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                                                                           (RawSource::InputSourceGroups & ~RawSource::NoneGroup)),
+                                                     "EditorSource");
 
-  gvWeightGroup = new GVarGroup(ui->weightGV, ui->weightSB, ui->weightCB, md->weight, model, 100, -limit, limit, 1.0,
-                                dialogFilteredItemModels->getItemModel(id));
+  weightEditor = new SourceNumRefEditor(md->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -limit, limit, 1,
+                                        model, dialogFilteredItemModels->getItemModel(imId));
 
-  gvOffsetGroup = new GVarGroup(ui->offsetGV, ui->offsetSB, ui->offsetCB, md->sOffset, model, 0, -limit, limit, 1.0,
-                                dialogFilteredItemModels->getItemModel(id));
+  offsetEditor = new SourceNumRefEditor(md->sOffset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -limit, limit, 1,
+                                        model, dialogFilteredItemModels->getItemModel(imId));
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
 
-  curveGroup = new CurveReferenceUIManager(ui->curveTypeCB, ui->curveGVarCB, ui->curveValueSB, ui->curveValueCB, ui->curveImage, md->curve,
+  curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveFunc, ui->imgCurve, md->curve,
                                            model, sharedItemModels, curveRefFilteredItemModels, this);
 
   connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {
@@ -129,9 +133,10 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
     }
   }
 
-  id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
-                                                                         RawSwitch::MixesContext), "RawSwitch");
-  ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(id));
+  imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
+                                                                           RawSwitch::MixesContext),
+                                                     "RawSwitch");
+  ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(md->swtch.toValue()));
   ui->warningCB->setCurrentIndex(md->mixWarn);
   ui->mltpxCB->setCurrentIndex(md->mltpx);
@@ -161,21 +166,21 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 
   valuesChanged();
 
-  connect(ui->mixerName,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
-  connect(ui->sourceCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->trimCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->MixDR_CB,SIGNAL(toggled(bool)),this,SLOT(valuesChanged()));
-  connect(ui->switchesCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->warningCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->mltpxCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->delayDownSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
-  connect(ui->delayUpSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
-  connect(ui->speedPrecCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->slowDownSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
-  connect(ui->slowUpSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
+  connect(ui->mixerName, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
+  connect(ui->sourceCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->trimCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->MixDR_CB, SIGNAL(toggled(bool)), this, SLOT(valuesChanged()));
+  connect(ui->switchesCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->warningCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->mltpxCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->delayDownSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
+  connect(ui->delayUpSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
+  connect(ui->speedPrecCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->slowDownSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
+  connect(ui->slowUpSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
 
-  for (int i=0; i<CPN_MAX_FLIGHT_MODES; i++) {
-    connect(cb_fp[i],SIGNAL(toggled(bool)),this,SLOT(valuesChanged()));
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    connect(cb_fp[i], SIGNAL(toggled(bool)), this, SLOT(valuesChanged()));
   }
 
   adjustSize();
@@ -184,8 +189,8 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 MixerDialog::~MixerDialog()
 {
   delete ui;
-  delete gvWeightGroup;
-  delete gvOffsetGroup;
+  delete weightEditor;
+  delete offsetEditor;
   delete dialogFilteredItemModels;
 }
 

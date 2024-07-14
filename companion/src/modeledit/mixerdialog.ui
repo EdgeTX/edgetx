@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
+    <width>650</width>
     <height>623</height>
    </rect>
   </property>
@@ -54,21 +54,21 @@ If blank then the mix is considered to be &quot;ON&quot; all the time.</string>
      <item row="2" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1">
        <item>
-        <widget class="QCheckBox" name="weightGV">
+        <widget class="QCheckBox" name="chkWeightUseSource">
          <property name="text">
-          <string>GV</string>
+          <string>Source</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="weightCB">
+        <widget class="QComboBox" name="cboWeightSource">
          <property name="whatsThis">
           <string>The source for the mixer</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="weightSB"/>
+        <widget class="QSpinBox" name="sbWeightValue"/>
        </item>
        <item>
         <spacer name="horizontalSpacer_2">
@@ -116,21 +116,21 @@ This determines how mixer values are added.
      <item row="3" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,1">
        <item>
-        <widget class="QCheckBox" name="offsetGV">
+        <widget class="QCheckBox" name="chkOffsetUseSource">
          <property name="text">
-          <string>GV</string>
+          <string>Source</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="offsetCB">
+        <widget class="QComboBox" name="cboOffsetSource">
          <property name="whatsThis">
           <string>The source for the mixer</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="offsetSB"/>
+        <widget class="QSpinBox" name="sbOffsetValue"/>
        </item>
        <item>
         <spacer name="horizontalSpacer">
@@ -225,7 +225,7 @@ Setting this value will cause a beep to be emmitted when this value is active.</
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QComboBox" name="curveTypeCB">
+      <widget class="QComboBox" name="cboCurveType">
        <property name="whatsThis">
         <string>The curve used by the mix</string>
        </property>
@@ -438,26 +438,29 @@ Setting this value will cause a beep to be emmitted when this value is active.</
       </widget>
      </item>
      <item row="4" column="2">
-      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0,0">
        <item>
-        <widget class="QCheckBox" name="curveGVarCB">
+        <widget class="QCheckBox" name="chkCurveUseSource">
          <property name="text">
-          <string>GV</string>
+          <string>Source</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="curveValueCB">
+        <widget class="QComboBox" name="cboCurveSource">
          <property name="whatsThis">
           <string>The source for the mixer</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="curveValueSB"/>
+        <widget class="QSpinBox" name="sbCurveValue"/>
        </item>
        <item>
-        <widget class="CurveImageWidget" name="curveImage">
+        <widget class="QComboBox" name="cboCurveFunc"/>
+       </item>
+       <item>
+        <widget class="CurveImageWidget" name="imgCurve">
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -670,16 +673,16 @@ p, li { white-space: pre-wrap; }
  <tabstops>
   <tabstop>mixerName</tabstop>
   <tabstop>sourceCB</tabstop>
-  <tabstop>weightGV</tabstop>
-  <tabstop>weightCB</tabstop>
-  <tabstop>weightSB</tabstop>
-  <tabstop>offsetGV</tabstop>
-  <tabstop>offsetCB</tabstop>
-  <tabstop>offsetSB</tabstop>
-  <tabstop>curveTypeCB</tabstop>
-  <tabstop>curveGVarCB</tabstop>
-  <tabstop>curveValueCB</tabstop>
-  <tabstop>curveValueSB</tabstop>
+  <tabstop>chkWeightUseSource</tabstop>
+  <tabstop>cboWeightSource</tabstop>
+  <tabstop>sbWeightValue</tabstop>
+  <tabstop>chkOffsetUseSource</tabstop>
+  <tabstop>cboOffsetSource</tabstop>
+  <tabstop>sbOffsetValue</tabstop>
+  <tabstop>cboCurveType</tabstop>
+  <tabstop>chkCurveUseSource</tabstop>
+  <tabstop>cboCurveSource</tabstop>
+  <tabstop>sbCurveValue</tabstop>
   <tabstop>trimCB</tabstop>
   <tabstop>MixDR_CB</tabstop>
   <tabstop>cb_FP0</tabstop>

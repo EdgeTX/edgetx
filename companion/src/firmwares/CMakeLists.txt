@@ -28,6 +28,7 @@ set(${PROJECT_NAME}_NAMES
   rawsource
   rawswitch
   sensordata
+  sourcenumref
   telem_data
   timerdata
   ersky9x/ersky9xeeprom
