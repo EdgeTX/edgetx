@@ -32,12 +32,12 @@ QString SourceNumRef::toString(const ModelData * model, const GeneralSettings * 
 }
 
 // static
-int SourceNumRef::getDefault(int useSource)
+int SourceNumRef::getDefault(int useSource, int dflt)
 {
   if (useSource)
     return RawSource(SOURCE_TYPE_GVAR, 1).toValue();  // backwards compatibility
   else
-    return 0;
+    return dflt;
 }
 
 
@@ -53,6 +53,7 @@ SourceNumRefEditor::SourceNumRefEditor(int & srcNumValue, QCheckBox * chkUseSour
   chkUseSource(chkUseSource),
   sbxValue(sbxValue),
   cboValue(cboValue),
+  defValue(defValue),
   model(model),
   lock(false)
 {
@@ -82,9 +83,11 @@ SourceNumRefEditor::SourceNumRefEditor(int & srcNumValue, QCheckBox * chkUseSour
 void SourceNumRefEditor::chkUseSourceChanged(int state)
 {
   if (!lock) {
-    srcNumValue = SourceNumRef::getDefault(state);
+    srcNumValue = SourceNumRef::getDefault(state, defValue);
     if (SourceNumRef(srcNumValue).isSource())
-      cboValue->setCurrentIndex(cboValue->count() / 2);
+      cboValue->setCurrentIndex(cboValue->findData(srcNumValue));
+    else
+      sbxValue->setValue(srcNumValue);
     update();
   }
 }

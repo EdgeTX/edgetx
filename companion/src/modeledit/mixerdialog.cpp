@@ -63,7 +63,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   int limit = firmware->getCapability(OffsetWeight);
 
   imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                                                           (RawSource::InputSourceGroups & ~RawSource::NoneGroup)),
+                                                                           (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup)),
                                                      "EditorSource");
 
   weightEditor = new SourceNumRefEditor(md->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -limit, limit, 1,

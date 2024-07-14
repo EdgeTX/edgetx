@@ -52,8 +52,8 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
   setWindowTitle(tr("Edit %1").arg(RawSource(srcType, ed->chn).toString(&model, &generalSettings)));
 
   int imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                                                           (RawSource::InputSourceGroups & ~RawSource::NoneGroup)),
-                                                     "EditorSource");
+                                (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup & ~RawSource::InputsGroup)),
+                                "EditorSource");
 
   weightEditor = new SourceNumRefEditor(ed->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -100, 100, 1.0,
                                         model, dialogFilteredItemModels->getItemModel(imId));
