@@ -55,6 +55,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
                                                               (RawSource::InputSourceGroups & ~RawSource::NoneGroup) | RawSource::ScriptsGroup),
                                                          "RawSource");
 
+  ui->sourceCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(md->srcRaw.toValue()));
   if (ui->sourceCB->currentIndex() < 0 && md->srcRaw.toValue() == 0)
@@ -71,8 +72,18 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   weightEditor = new SourceNumRefEditor(md->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -limit, limit, 1,
                                         model, esMdl, this);
 
+  connect(weightEditor, &SourceNumRefEditor::resized, this, [=] () {
+          this->adjustSize();
+          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
+  });
+
   offsetEditor = new SourceNumRefEditor(md->sOffset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -limit, limit, 1,
                                         model, esMdl, this);
+
+  connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () {
+          this->adjustSize();
+          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
+  });
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
@@ -138,6 +149,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
                                                                            RawSwitch::MixesContext),
                                                      "RawSwitch");
+  ui->switchesCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(md->swtch.toValue()));
   ui->warningCB->setCurrentIndex(md->mixWarn);
