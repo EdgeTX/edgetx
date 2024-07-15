@@ -22,12 +22,14 @@
 #include "adjustmentreference.h"
 #include "helpers.h"
 #include "modeldata.h"
+#include "generalsettings.h"
 #include "filtereditemmodels.h"
 #include "curveimagewidget.h"
 #include "curvedialog.h"
 #include "sourcenumref.h"
 
-const QString CurveReference::toString(const ModelData * model, bool verbose) const
+const QString CurveReference::toString(const ModelData * model, bool verbose, const GeneralSettings * const generalSettings,
+                                       Board::Type board, bool prefixCustomName) const
 {
   if (value == 0)
     return CPN_STR_NONE_ITEM;
@@ -38,7 +40,7 @@ const QString CurveReference::toString(const ModelData * model, bool verbose) co
   switch(type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
-      ret = AdjustmentReference(value).toString(model);
+      ret = SourceNumRef(value).toString(model, generalSettings, board, prefixCustomName);
       break;
     case CURVE_REF_FUNC:
       ret = functionToString(value);
