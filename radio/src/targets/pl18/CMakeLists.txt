@@ -128,17 +128,9 @@ set(BOARD_COMMON_SRC
 )
 
 if(ROTARY_ENCODER)
-  list(APPEND BOARD_COMMON_SRC
+  set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
     targets/common/arm/stm32/rotary_encoder_driver.cpp
   )
-endif()
-
-if(PCBREV STREQUAL NB4P)
-  set(BOARD_SPECIFIC_SRC
-    ${TARGET_SRC_DIR}/switch_driver.cpp
-  )
-#else()
-#  set(BOARD_SPECIFIC_SRC)
 endif()
 
 # Bootloader board library
@@ -167,11 +159,13 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
-  drivers/frftl.cpp
-  
+  drivers/frftl.cpp  
 )
-
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(PCBREV STREQUAL NB4P)
+  target_sources(board PRIVATE ${TARGET_SRC_DIR}/switch_driver.cpp)
+endif()
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
