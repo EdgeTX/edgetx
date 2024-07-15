@@ -60,8 +60,18 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
   weightEditor = new SourceNumRefEditor(ed->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -100, 100, 1.0,
                                         model, esMdl);
 
+  connect(weightEditor, &SourceNumRefEditor::resized, this, [=] () {
+          this->adjustSize();
+          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
+  });
+
   offsetEditor = new SourceNumRefEditor(ed->offset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -100, 100, 1.0,
                                         model, esMdl);
+
+  connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () {
+          this->adjustSize();
+          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
+  });
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasInputDiff) ? 0 : FilteredItemModel::PositiveFilter);
@@ -77,6 +87,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
 
   imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
                                                                          RawSwitch::MixesContext), "RawSwitch");
+  ui->switchesCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(ed->swtch.toValue()));
 
@@ -112,6 +123,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     flags |= RawSource::GVarsGroup | RawSource::TelemGroup;
     imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
                                                      flags), "RawSource");
+    ui->sourceCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
     ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));
     if (ui->sourceCB->currentIndex() < 0 && ed->srcRaw.toValue() == 0)
