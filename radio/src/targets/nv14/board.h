@@ -32,6 +32,7 @@
 #include "hal/watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
+#define FLASH_PAGESIZE                  256
 #define BOOTLOADER_SIZE                 0x20000
 #define FIRMWARE_ADDRESS                0x08000000
 #define FIRMWARE_LEN(fsize)             (fsize - BOOTLOADER_SIZE)
@@ -55,14 +56,6 @@ void boardOff();
 // CPU Unique ID
 #define LEN_CPU_UID                     (3*8+2)
 void getCPUUniqueID(char * s);
-
-// Flash Write driver
-#define FLASH_PAGESIZE 256
-void unlockFlash();
-void lockFlash();
-void flashWrite(uint32_t * address, const uint32_t * buffer);
-uint32_t isFirmwareStart(const uint8_t * buffer);
-uint32_t isBootloaderStart(const uint8_t * buffer);
 
 enum {
   PCBREV_NV14 = 0,

@@ -24,6 +24,8 @@
 
 #include "bootloader_flash.h"
 #include "timers_driver.h"
+#include "flash_driver.h"
+
 #include "hal/watchdog_driver.h"
 
 #if defined(LIBOPENUI)
