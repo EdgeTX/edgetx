@@ -808,7 +808,8 @@ class CurveReferenceField: public TransformedField {
       curve.type = (CurveReference::CurveRefType)_curve_type;
       curve.value = smallGvarExport(_curve_value);
       //  2,11 num or gvar changed to SourceNumRef
-      if ((curve.type == CurveReference::CURVE_REF_DIFF || curve.type == CurveReference::CURVE_REF_EXPO) && curve.isValueReference())
+      if ((curve.type == CurveReference::CURVE_REF_DIFF || curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
         curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(curve.value).value).toValue();
 
       qCDebug(eepromImport) << QString("imported CurveReference(%1)").arg(curve.toString());
@@ -1121,7 +1122,8 @@ class MixField: public TransformedField {
       }
 
       //  2.11
-      if ((mix.curve.type == CurveReference::CURVE_REF_DIFF || mix.curve.type == CurveReference::CURVE_REF_EXPO) && mix.curve.isValueReference())
+      if ((mix.curve.type == CurveReference::CURVE_REF_DIFF || mix.curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(mix.curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
         mix.curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(mix.curve.value).value).toValue();
 
       importGvarParam(mix.weight, _weight, version);
@@ -1260,7 +1262,8 @@ class InputField: public TransformedField {
       }
 
       //  2.11
-      if ((expo.curve.type == CurveReference::CURVE_REF_DIFF || expo.curve.type == CurveReference::CURVE_REF_EXPO) && expo.curve.isValueReference())
+      if ((expo.curve.type == CurveReference::CURVE_REF_DIFF || expo.curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(expo.curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
         expo.curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(expo.curve.value).value).toValue();
 
 
