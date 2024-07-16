@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#if !defined(SIMU)
-#include "stm32_hal_ll.h"
-#include "stm32_hal.h"
-#include "stm32_timer.h"
-#endif
+// #if !defined(SIMU)
+// #include "stm32_hal_ll.h"
+// #include "stm32_hal.h"
+// #include "stm32_timer.h"
+// #endif
 
 #include "hal/usb_driver.h"
 
@@ -39,6 +39,8 @@
 #include "debug.h"
 
 #include "timers_driver.h"
+#include "flash_driver.h"
+
 #include "hal/abnormal_reboot.h"
 #include "hal/rotary_encoder.h"
 
@@ -62,6 +64,12 @@
 // -> used to detect valid bootloader files
 const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
   {'B', 'O', 'O', 'T', '1', '0'};
+#endif
+
+#if defined(SIMU)
+  #define __weak
+#elif !defined(__weak)
+  #define __weak __attribute__((weak))
 #endif
 
 volatile tmr10ms_t g_tmr10ms;

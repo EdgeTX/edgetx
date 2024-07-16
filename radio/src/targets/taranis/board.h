@@ -41,6 +41,7 @@ void rotaryEncoderCheck();
 #else
 #define FLASHSIZE                       0x80000  // 512k
 #endif
+#define FLASH_PAGESIZE                  256
 #define BOOTLOADER_SIZE                 0x8000
 #define FIRMWARE_ADDRESS                0x08000000
 #define FIRMWARE_LEN(fsize)             (fsize - BOOTLOADER_SIZE)
@@ -73,14 +74,6 @@ enum {
   PCBREV_X7_STD = 0,
   PCBREV_X7_40 = 1,
 };
-
-// Flash Write driver
-#define FLASH_PAGESIZE 256
-void unlockFlash();
-void lockFlash();
-void flashWrite(uint32_t * address, const uint32_t * buffer);
-uint32_t isFirmwareStart(const uint8_t * buffer);
-uint32_t isBootloaderStart(const uint8_t * buffer);
 
 // Pulses driver
 #define INTERNAL_MODULE_ON()   gpio_set(INTMODULE_PWR_GPIO)

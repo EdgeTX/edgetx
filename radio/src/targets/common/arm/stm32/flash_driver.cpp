@@ -22,168 +22,182 @@
 #include "stm32_cmsis.h"
 #include "stm32_hal.h"
 
-#include "board.h"
-#include "hal/watchdog_driver.h"
-
-
-#if defined(STM32H7)
-  #define FLASH_CR FLASH->CR1
-  #define FLASH_SR FLASH->SR1
-#else
-  #define FLASH_CR FLASH->CR
-  #define FLASH_SR FLASH->SR
-#endif
-
-#if !defined(FLASH_CR_START)
-#  define FLASH_CR_START FLASH_CR_STRT
-#endif
-
-#if !defined(FLASH_SR_BUSY)
-#  define FLASH_SR_BUSY FLASH_SR_BSY
-#endif
-
-void waitFlashIdle()
+uint32_t stm32_flash_get_size_kb()
 {
-  do {
-    WDG_RESET();
-  } while (FLASH_SR & FLASH_SR_BUSY);
+  uint32_t flash_size_kb = *(const uint32_t*)FLASHSIZE_BASE;
+  return flash_size_kb;
 }
 
-//After reset, write is not allowed in the Flash control register (FLASH_CR) to protect the
-//Flash memory against possible unwanted operations due, for example, to electric
-//disturbances. The following sequence is used to unlock this register:
-//1. Write KEY1 = 0x45670123 in the Flash key register (FLASH_KEYR)
-//2. Write KEY2 = 0xCDEF89AB in the Flash key register (FLASH_KEYR)
-//Any wrong sequence will return a bus error and lock up the FLASH_CR register until the
-//next reset.
-//The FLASH_CR register can be locked again by software by setting the LOCK bit in the
-//FLASH_CR register.
-void unlockFlash()
+#if defined(STM32F2) || defined(STM32F4)
+
+uint32_t stm32_flash_get_sector(uint32_t address)
 {
-#if defined(STM32H7)
-  FLASH->KEYR1 = FLASH_KEY1;
-  FLASH->KEYR1 = FLASH_KEY2;
-#else
-  FLASH->KEYR = FLASH_KEY1;
-  FLASH->KEYR = FLASH_KEY2;
-#endif
-}
+  uint32_t sector;
+  uint32_t sector_addr = address & 0xFFFFF;
 
-void lockFlash()
-{
-  waitFlashIdle();
-  FLASH_CR |= FLASH_CR_LOCK;
-}
-
-#define SECTOR_MASK ((uint32_t)0xFFFFFF07)
-
-void eraseSector(uint32_t sector)
-{
-  waitFlashIdle();
-
-#if defined(FLASH_CR_PSIZE)
-  FLASH_CR &= ~FLASH_CR_PSIZE;
-  FLASH_CR |= FLASH_CR_PSIZE_1;
-#endif
-  FLASH_CR &= SECTOR_MASK;
-  FLASH_CR |= FLASH_CR_SER | (sector << 3);
-  FLASH_CR |= FLASH_CR_START;
-
-  /* Wait for operation to be completed */
-  waitFlashIdle();
-
-  /* if the erase operation is completed, disable the SER Bit */
-  FLASH_CR &= (~FLASH_CR_SER);
-  FLASH_CR &= SECTOR_MASK;
-}
-
-void flashWrite(uint32_t * address, const uint32_t * buffer) // page size is 256 bytes
-{
-#define SECTOR_ADDRESS  (((uint32_t)address) &  0xFFFFF)
-
-// Please note that there is an offset of 4 between
-// sector 11 and 12
-#define FLASH_BANK     ((((uint32_t)address) & 0x100000) ? 16 : 0)
-
-    // test for possible flash sector boundary
-    if ((((uint32_t)address) & 0x1FFFF) == 0) {
-        // test first 16KB sectors
-        if (SECTOR_ADDRESS == 0x00000) {
-            eraseSector(0 + FLASH_BANK);
-        }
-        // test 128KB sectors
-        else if (SECTOR_ADDRESS == 0x20000) {
-            eraseSector(5 + FLASH_BANK);
-        }
-        else if (SECTOR_ADDRESS == 0x40000) {
-            eraseSector(6 + FLASH_BANK);
-        }
-        else if (SECTOR_ADDRESS == 0x60000) {
-            eraseSector(7 + FLASH_BANK);
-        }
-        else if (SECTOR_ADDRESS == 0x80000) {
-            eraseSector(8 + FLASH_BANK);
-        }
-        else if (SECTOR_ADDRESS == 0xA0000) {
-            eraseSector(9 + FLASH_BANK);
-        }
-        else if (SECTOR_ADDRESS == 0xC0000) {
-            eraseSector(10 + FLASH_BANK);
-        }
-        else if (SECTOR_ADDRESS == 0xE0000) {
-            eraseSector(11 + FLASH_BANK);
-        }
-    }
-    // test 64KB sector
-    else if (SECTOR_ADDRESS == 0x10000) {
-        eraseSector(4 + FLASH_BANK);
-    }
-    else if ((((uint32_t)address) & 0x3FFF) == 0) {
-        // test other 16KB sectors
-        if (SECTOR_ADDRESS == 0x04000) {
-            eraseSector(1 + FLASH_BANK);
-        }
-        else if (SECTOR_ADDRESS == 0x08000) {
-            eraseSector(2 + FLASH_BANK);
-        }
-        else if (SECTOR_ADDRESS == 0x0C000) {
-            eraseSector(3 + FLASH_BANK);
-        }
-    }
-
-#undef SECTOR_ADDRESS
-#undef FLASH_BANK
-
-  for (uint32_t i=0; i<FLASH_PAGESIZE/4; i++) {
-    /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
-     be done by word */
-
-    // Wait for last operation to be completed
-    waitFlashIdle();
-
-#if defined(FLASH_CR_PSIZE)
-    FLASH_CR &= ~FLASH_CR_PSIZE;
-    FLASH_CR |= FLASH_CR_PSIZE_1;
-#endif
-    FLASH_CR |= FLASH_CR_PG;
-
-    *address = *buffer;
-
-    /* Wait for operation to be completed */
-    waitFlashIdle();
-    FLASH_CR &= ~FLASH_CR_PG;
-
-    /* Check the written value */
-    if (*address != *buffer) {
-      /* Flash content doesn't match SRAM content */
-      return;
-    }
-    /* Increment FLASH destination address */
-    address += 1;
-    buffer += 1;
+  if (sector_addr < 0x10000) {
+    sector = sector_addr / 0x4000;
+  } else {
+    sector = (sector_addr / 0x20000) + 4;
   }
+
+  // bank 2
+  if (address & 0x100000) {
+    sector += 12;
+  }
+
+  return sector;  
 }
 
+static uint32_t _flash_sector_address(uint32_t sector, uint32_t bank)
+{
+  (void)bank;
+  
+  uint32_t addr = FLASH_BASE;
+  if (sector >= 12) {
+    addr += 0x100000;
+    sector -= 12;
+  }
+  
+  if (sector <= 4) {
+    addr += sector * 0x4000;
+  } else {
+    addr += (sector - 4) * 0x20000;
+  }
+
+  return addr;
+}
+
+uint32_t stm32_flash_get_sector_size(uint32_t sector)
+{
+  // bank 2
+  if (sector >= 12) sector -= 12;
+
+  // first 4: 16KB  
+  if (sector < 4) return 16 * 1024;
+  // sector 4: 64KB
+  if (sector == 4) return 64 * 1024;
+  // others: 128KB
+  return 128 * 1024;
+}
+
+#elif defined(STM32H7) || defined(STM32H7RS)
+
+uint32_t stm32_flash_get_sector(uint32_t address)
+{
+  uint32_t sector_addr = address & 0xFFFFF;
+  return sector_addr / FLASH_SECTOR_SIZE;
+}
+
+static uint32_t _flash_sector_address(uint32_t sector, uint32_t bank)
+{
+  uint32_t addr = FLASH_BASE;
+#if defined(DUAL_BANK)
+  if (bank != FLASH_BANK_1) addr += 0x100000;
+#endif
+  addr += sector * FLASH_SECTOR_SIZE;
+  return addr;
+}
+
+uint32_t stm32_flash_get_sector_size(uint32_t sector)
+{
+  (void)sector;
+  return FLASH_SECTOR_SIZE;
+}
+
+#endif
+
+uint32_t stm32_flash_get_bank(uint32_t address)
+{
+#if defined(DUAL_BANK)
+  return ((address & 0x100000) != 0x100000) ? FLASH_BANK_1 : FLASH_BANK_2;
+#elif defined(FLASH_BANK_1)
+  (void)address;
+  return FLASH_BANK_1;
+#else
+  (void)address;
+  return 1UL;
+#endif
+}
+
+void stm32_flash_unlock() { HAL_FLASH_Unlock(); }
+void stm32_flash_lock() { HAL_FLASH_Lock(); }
+
+int stm32_flash_erase_sector(uint32_t address)
+{
+  FLASH_EraseInitTypeDef eraseInit;
+  eraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
+  eraseInit.Sector = stm32_flash_get_sector(address);
+  eraseInit.NbSectors = 1UL;
+
+#if defined(FLASH_BANK_1)
+  eraseInit.Banks = stm32_flash_get_bank(address);
+#endif
+
+#if defined(FLASH_VOLTAGE_RANGE_3)
+  eraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+#endif
+
+  uint32_t sector_errors = 0;
+  if (HAL_FLASHEx_Erase(&eraseInit, &sector_errors) != HAL_OK) {
+    return -1;
+  }
+
+  return 0;
+}
+
+#if defined(STM32H7)
+  #define FLASH_PROG_WORDS FLASH_NB_32BITWORD_IN_FLASHWORD
+  #define _FLASH_PROGRAM(address, p_data) \
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uintptr_t)p_data)
+#elif defined(STM32H7RS)
+  #define FLASH_PROG_WORDS 4UL
+  #define _FLASH_PROGRAM(address, p_data) \
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_QUADWORD, address, (uintptr_t)p_data)
+#else
+  #define FLASH_PROG_WORDS 1UL
+  #define _FLASH_PROGRAM(address, p_data) \
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *p_data)
+#endif
+
+int stm32_flash_program(uint32_t address, uint8_t* data, uint32_t len)
+{
+  uint32_t* p_data = (uint32_t*)data;
+  uint32_t end_addr = address + len;
+
+  while (address < end_addr) {
+    if (_FLASH_PROGRAM(address, p_data) != HAL_OK) {
+      return -1;
+    }
+
+    address += sizeof(uint32_t) * FLASH_PROG_WORDS;
+    p_data += FLASH_PROG_WORDS;
+  }
+
+  return 0;
+}
+
+// Legacy API
+
+#define FLASH_PAGESIZE 256
+
+void unlockFlash() { stm32_flash_unlock(); }
+void lockFlash() { stm32_flash_lock(); }
+
+void flashWrite(uint32_t* address, const uint32_t* buffer)
+{
+  // check first if the address is on a sector boundary
+  uint32_t sector = stm32_flash_get_sector((uintptr_t)address);
+  uint32_t bank = stm32_flash_get_bank((uintptr_t)address);
+
+  if ((uintptr_t)address == _flash_sector_address(sector, bank)) {
+    if (stm32_flash_erase_sector((uintptr_t)address) < 0) return;
+  }
+
+  stm32_flash_program((uintptr_t)address, (uint8_t*)buffer, FLASH_PAGESIZE);
+}
+
+// TODO: move this somewhere else, as it depends on firmware layout
 uint32_t isFirmwareStart(const uint8_t * buffer)
 {
   const uint32_t * block = (const uint32_t *)buffer;
