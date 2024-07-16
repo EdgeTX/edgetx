@@ -130,21 +130,33 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
       curve.value = editSrcVarFieldValue(x, y, nullptr, curve.value, -100, 100, flags, event, isValueAvailable, sourceMin);
       break;
     case CURVE_REF_FUNC:
-      lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, curve.value, flags);
-      if (active && menuHorizontalPosition==1) CHECK_INCDEC_MODELVAR_ZERO(event, curve.value, CURVE_BASE-1);
+    {
+      SourceNumVal v;
+      v.rawValue = curve.value;
+      lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, v.value, flags);
+      if (active && menuHorizontalPosition==1) {
+        CHECK_INCDEC_MODELVAR_ZERO(event, v.value, CURVE_BASE-1);
+        curve.value = v.rawValue;
+      }
       break;
+    }
     case CURVE_REF_CUSTOM:
-      drawCurveName(x, y, curve.value, flags);
+    {
+      SourceNumVal v;
+      v.rawValue = curve.value;
+      drawCurveName(x, y, v.value, flags);
       if (active && menuHorizontalPosition == 1) {
-        if (event == EVT_KEY_LONG(KEY_ENTER) && curve.value != 0) {
+        if (event == EVT_KEY_LONG(KEY_ENTER) && v.value != 0) {
           s_currIdxSubMenu = abs(curve.value) - 1;
           pushMenu(menuModelCurveOne);
         }
         else {
-          CHECK_INCDEC_MODELVAR(event, curve.value, -MAX_CURVES, MAX_CURVES);
+          CHECK_INCDEC_MODELVAR(event, v.value, -MAX_CURVES, MAX_CURVES);
+          curve.value = v.rawValue;
         }
       }
       break;
+    }
   }
 }
 

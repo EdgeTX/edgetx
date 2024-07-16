@@ -50,9 +50,9 @@ void CurveParam::value_changed(lv_event_t* e)
 class CurveChoice : public Choice
 {
  public:
-  CurveChoice(Window* parent, CurveRef* ref, std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
-    Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, GET_DEFAULT(ref->value), setRefValue),
-    ref(ref), refreshView(refreshView)
+  CurveChoice(Window* parent, std::function<int()> getRefValue, std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
+    Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
+    refreshView(refreshView)
     {
       setTextHandler([](int value) { return getCurveString(value); });
     }
@@ -60,15 +60,14 @@ class CurveChoice : public Choice
   bool onLongPress() override
   {
     if (modelCurvesEnabled()) {
-      if (ref->value) {
-        ModelCurvesPage::pushEditCurve(abs(ref->value) - 1, refreshView);
+      if (_getValue()) {
+        ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView);
       }
     }
     return true;
   }
 
  protected:
-  CurveRef* ref;
   std::function<void(void)> refreshView;
 };
 
@@ -100,10 +99,31 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
 
   // CURVE_REF_FUNC
   func_choice = new Choice(this, rect_t{}, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
-                           GET_DEFAULT(ref->value), setRefValue);
+                           [=]() {
+                             SourceNumVal v;
+                             v.rawValue = ref->value;
+                             return v.value;
+                           },
+                           [=](int32_t newValue) {
+                             SourceNumVal v;
+                             v.isSource = false;
+                             v.value = newValue;
+                             setRefValue(v.rawValue);
+                           });
 
   // CURVE_REF_CUSTOM
-  cust_choice = new CurveChoice(this, ref, setRefValue, refreshView);
+  cust_choice = new CurveChoice(this, 
+                                [=]() {
+                                  SourceNumVal v;
+                                  v.rawValue = ref->value;
+                                  return v.value;
+                                },
+                                [=](int32_t newValue) {
+                                  SourceNumVal v;
+                                  v.isSource = false;
+                                  v.value = newValue;
+                                  setRefValue(v.rawValue);
+                                }, refreshView);
 
   update();
 }
