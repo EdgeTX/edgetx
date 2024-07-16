@@ -33,48 +33,6 @@ static const YamlLookupTable mixMultiplexLut = {
 #define GVAR_SMALL 128
 #define CPN_GV1 1024
 
-int32_t YamlReadMixWeight(const YAML::Node& node)
-{
-  std::string val = node.as<std::string>();
-  if ((val.size() >= 4)
-      && (val[0] == '-')
-      && (val[1] == 'G')
-      && (val[2] == 'V')
-      && (val[3] >= '1')
-      && (val[3] <= '9')) {
-
-      return -10000 - std::stoi(val.substr(3));
-  }
-
-  if ((val.size() >= 3)
-      && (val[0] == 'G')
-      && (val[1] == 'V')
-      && (val[2] >= '1')
-      && (val[2] <= '9')) {
-
-    return 10000 + std::stoi(val.substr(2));
-  }
-
-  try {
-    return std::stoi(val);
-  } catch(...) {
-    throw YAML::TypedBadConversion<int>(node.Mark());
-  }
-}
-
-std::string YamlWriteMixWeight(int32_t sval)
-{
-  if (sval < -10000) {
-    int n = -sval - 10000;
-    return std::string("-GV") + std::to_string(n);
-  } else if (sval > 10000) {
-    int n = sval - 10000;
-    return std::string("GV") + std::to_string(n);
-  }
-
-  return std::to_string(sval);
-}
-
 int32_t YamlSourceNumRefDecode(const YAML::Node& node)
 {
   std::string val = node.as<std::string>();

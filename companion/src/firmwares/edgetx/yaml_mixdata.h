@@ -21,9 +21,6 @@
 #include "yaml_ops.h"
 #include "mixdata.h"
 
-int32_t YamlReadMixWeight(const YAML::Node& node);
-std::string YamlWriteMixWeight(int32_t sval);
-
 int32_t YamlSourceNumRefDecode(const YAML::Node& node);
 std::string YamlSourceNumRefEncode(int32_t sval);
 
