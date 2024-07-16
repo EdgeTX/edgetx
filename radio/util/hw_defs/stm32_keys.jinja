@@ -3,15 +3,18 @@
 //   This file has been generated from the target's JSON hardware description
 //
 
+{% set hw_keys = keys | rejectattr('pin', 'none') | rejectattr('gpio', 'none') | list %}
 static inline void _init_keys()
 {
 {% for key_gpio, pins in key_gpios | dictsort %}
-  stm32_gpio_enable_clock({{ key_gpio }});
+  {% if key_gpio %}
+    stm32_gpio_enable_clock({{ key_gpio }});
+  {% endif %}
 {% endfor %}
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Mode = LL_GPIO_MODE_INPUT;
-{% for key in keys %}
+{% for key in hw_keys %}
   pinInit.Pin = {{ key.pin }};
   pinInit.Pull = {{ 'LL_GPIO_PULL_UP' if key.active_low else 'LL_GPIO_PULL_DOWN' }};
   LL_GPIO_Init({{ key.gpio }}, &pinInit);
@@ -21,7 +24,7 @@ static inline void _init_keys()
 static inline uint32_t _read_keys()
 {
   uint32_t keys = 0;
-{% for key in keys %}
+{% for key in hw_keys %}
   if ({{'!' if key.active_low }}LL_GPIO_IsInputPinSet({{ key.gpio }}, {{ key.pin }}))
     keys |= (1 << {{ key.key }});
 {% endfor %}
