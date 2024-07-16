@@ -19,7 +19,6 @@
  */
 
 #include "curvereference.h"
-#include "adjustmentreference.h"
 #include "helpers.h"
 #include "modeldata.h"
 #include "generalsettings.h"
@@ -65,7 +64,7 @@ const QString CurveReference::toString(const ModelData * model, bool verbose, co
 
 const bool CurveReference::isValueNumber() const
 {
-  return (type == CURVE_REF_DIFF || type == CURVE_REF_EXPO) && AdjustmentReference(value).type == AdjustmentReference::ADJUST_REF_VALUE;
+  return (type == CURVE_REF_DIFF || type == CURVE_REF_EXPO) && SourceNumRef(value).isNumber();
 }
 
 const bool CurveReference::isAvailable() const
@@ -77,7 +76,7 @@ const bool CurveReference::isAvailable() const
 int CurveReference::getDefaultValue(const CurveRefType type, const bool isGVar)
 {
   if (isGVar && (type == CURVE_REF_DIFF || type == CURVE_REF_EXPO))
-    return AdjustmentReference(AdjustmentReference::ADJUST_REF_GVAR, 1).toValue();
+    return SourceNumRef(SOURCE_TYPE_GVAR, 1).toValue();
   else if (type == CURVE_REF_FUNC)
     return 1;
   else
@@ -223,18 +222,6 @@ void CurveReferenceUIManager::update()
 
   if (cboType)
     cboType->setCurrentIndex(cboType->findData(curveRef.type));
-
-
-/*
-  if (chkUseSource)
-    chkUseSource->setVisible(widgetsMask & CURVE_REF_UI_SRC_SHOW);
-
-  if (cboSource)
-    cboSource->setVisible(widgetsMask & CURVE_REF_UI_SRC_SHOW);
-
-  if (sbxValue)
-    sbxValue->setVisible(widgetsMask & CURVE_REF_UI_VALUE_SHOW);
-*/
 
   if (cboCurveFunc) {
     if (curveRef.isValueReference())
