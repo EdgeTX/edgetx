@@ -22,6 +22,7 @@
 #include "yaml_rawswitch.h"
 #include "yaml_rawsource.h"
 #include "curvereference.h"
+#include "sourcenumref.h"
 
 static const YamlLookupTable mixMultiplexLut = {
   {  MLTPX_ADD, "ADD"  },
@@ -74,6 +75,51 @@ std::string YamlWriteMixWeight(int32_t sval)
   return std::to_string(sval);
 }
 
+int32_t YamlSourceNumRefDecode(const YAML::Node& node)
+{
+  std::string val = node.as<std::string>();
+
+  // start legacy for pre 2.11
+  if ((val.size() >= 4)
+    && (val[0] == '-')
+    && (val[1] == 'G')
+    && (val[2] == 'V')
+    && (val[3] >= '1')
+    && (val[3] <= '9')) {
+
+    return RawSource(SOURCE_TYPE_GVAR, val[3]).toValue();
+  }
+
+  if ((val.size() >= 3)
+    && (val[0] == 'G')
+    && (val[1] == 'V')
+    && (val[2] >= '1')
+    && (val[2] <= '9')) {
+
+    return RawSource(SOURCE_TYPE_GVAR, val[2]).toValue();
+  }
+  // end legacy for pre 2.11
+
+  int i = val[0] == '-' ? 1 : 0;
+
+  if (val[i] >= '0' && val[i] <= '9')
+    try {
+      return std::stoi(val);
+    } catch(...) {
+      throw YAML::TypedBadConversion<int>(node.Mark());
+    }
+  else
+    return YamlRawSourceDecode(val).toValue();
+}
+
+std::string YamlSourceNumRefEncode(int32_t sval)
+{
+  if (SourceNumRef(sval).isNumber())
+    return std::to_string(sval);
+  else
+    return YamlRawSourceEncode(RawSource(sval));
+}
+
 uint32_t YamlReadFlightModes(const YAML::Node& node)
 {
   std::string fm_str = node.as<std::string>();
@@ -108,7 +154,7 @@ Node convert<CurveReference>::encode(const CurveReference& rhs)
 {
   Node node;
   node["type"] = (int)rhs.type;
-  node["value"] = YamlWriteMixWeight(rhs.value);
+  node["value"] = YamlSourceNumRefEncode(rhs.value);
   return node;
 }
 
@@ -119,7 +165,7 @@ bool convert<CurveReference>::decode(const Node& node, CurveReference& rhs)
   node["type"] >> type;
   rhs.type = (CurveReference::CurveRefType)type;
   if (node["value"]) {
-    rhs.value = YamlReadMixWeight(node["value"]);
+    rhs.value = YamlSourceNumRefDecode(node["value"]);
   }
   return true;
 }
@@ -129,7 +175,7 @@ Node convert<MixData>::encode(const MixData& rhs)
   Node node;
   node["destCh"] = rhs.destCh - 1;
   node["srcRaw"] = rhs.srcRaw;
-  node["weight"] = YamlWriteMixWeight(rhs.weight);
+  node["weight"] = YamlSourceNumRefEncode(rhs.weight);
   node["swtch"] = rhs.swtch;
   node["curve"] = rhs.curve;
   node["delayUp"] = rhs.delayUp;
@@ -141,7 +187,7 @@ Node convert<MixData>::encode(const MixData& rhs)
   node["mltpx"] = rhs.mltpx;
   node["mixWarn"] = rhs.mixWarn;
   node["flightModes"] = YamlWriteFlightModes(rhs.flightModes);
-  node["offset"] = YamlWriteMixWeight(rhs.sOffset);
+  node["offset"] = YamlSourceNumRefEncode(rhs.sOffset);
   node["name"] = rhs.name;
   return node;
 }
@@ -151,7 +197,7 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
   node["destCh"] >> ioffset_int((int&)rhs.destCh, -1);
   node["srcRaw"] >> rhs.srcRaw;
   if (node["weight"]) {
-    rhs.weight = YamlReadMixWeight(node["weight"]);
+    rhs.weight = YamlSourceNumRefDecode(node["weight"]);
   }
   node["swtch"] >> rhs.swtch;
   node["curve"] >> rhs.curve;
@@ -167,7 +213,7 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
     rhs.flightModes = YamlReadFlightModes(node["flightModes"]);
   }
   if (node["offset"]) {
-    rhs.sOffset = YamlReadMixWeight(node["offset"]);
+    rhs.sOffset = YamlSourceNumRefDecode(node["offset"]);
   }
   node["name"] >> rhs.name;
   return true;
