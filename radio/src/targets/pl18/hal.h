@@ -305,6 +305,11 @@
 #endif
 
 #else
+  #define KEYS_GPIO_PIN_ENTER
+  #define KEYS_GPIO_REG_ENTER
+  #define KEYS_GPIO_PIN_EXIT
+  #define KEYS_GPIO_REG_EXIT
+
   #define ADC_GPIO_PIN_STICK_TH         LL_GPIO_PIN_3       // PA.03
   #define ADC_GPIO_PIN_STICK_ST         LL_GPIO_PIN_2       // PA.02
   #define ADC_CHANNEL_STICK_TH          LL_ADC_CHANNEL_3    // ADC123_IN3 -> ADC1_IN3
