@@ -53,6 +53,10 @@
   #include "flysky_gimbal_driver.h"
 #endif
 
+#if defined(CSD203_SENSOR)
+  #include "csd203_sensor.h"
+#endif
+
 #if defined(LED_STRIP_GPIO)
 // Common LED driver
 extern const stm32_pulse_timer_t _led_timer;
@@ -218,6 +222,14 @@ void boardInit()
     TRACE("adcInit failed");
 
   timersInit();
+
+#if defined(HARDWARE_TOUCH) && !defined(SIMU)
+  touchPanelInit();
+#endif
+
+#if defined(CSD203_SENSOR)
+  csd203Init();
+#endif
 
   usbInit();
   hapticInit();
