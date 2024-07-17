@@ -425,7 +425,10 @@ char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
   if (!len) return dest;
   char *s = dest;
 
-  if (curve.value != 0) {
+  SourceNumVal v;
+  v.rawValue = curve.value;
+
+  if (v.value != 0) {
     switch (curve.type) {
       case CURVE_REF_DIFF:
         *(s++) = 'D'; if (--len == 0) return dest;
@@ -438,11 +441,11 @@ char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
         return dest;
 
       case CURVE_REF_FUNC:
-        strAppend(dest, STR_VCURVEFUNC[curve.value], len);
+        strAppend(dest, STR_VCURVEFUNC[v.value], len);
         return dest;
 
       case CURVE_REF_CUSTOM:
-        return getCurveString(dest, curve.value);
+        return getCurveString(dest, v.value);
     }
   }
 
