@@ -61,6 +61,10 @@
 #include "telemetry/crossfire.h"
 #endif
 
+#if defined(CSD203_SENSOR)
+  #include "csd203_sensor.h"
+#endif
+
 #if !defined(SIMU)
 #include <malloc.h>
 #endif
@@ -205,6 +209,10 @@ void per10ms()
   if (rotaryEncoderPollingCycle()) {
     inactivityTimerReset(ActivitySource::Keys);
   }
+#endif
+
+#if defined(CSD203_SENSOR)
+  Getcsd203();
 #endif
 
   telemetryInterrupt10ms();
@@ -1342,10 +1350,6 @@ void edgeTxInit()
 
   // Show splash screen (color LCD)
   startSplash();
-
-#if defined(HARDWARE_TOUCH) && !defined(PCBFLYSKY) && !defined(SIMU)
-  touchPanelInit();
-#endif
 
 #if defined(LIBOPENUI)
   // create ViewMain
