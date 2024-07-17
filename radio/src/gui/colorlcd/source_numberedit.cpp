@@ -109,10 +109,6 @@ void SourceNumberEdit::switchSourceMode()
   // TODO: convert value???
   v.value = 0;
   setValue(v.rawValue);
-  if (v.isSource)
-    source_field->update();
-  else
-    num_field->update();
 
   // update field type based on value
   update();
@@ -134,11 +130,13 @@ void SourceNumberEdit::update()
     // Source mode
     act_field = source_field;
     source_field->show();
+    source_field->update();
     lv_event_send(source_field->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   } else {
     // number edit mode
     act_field = num_field;
     num_field->show();
+    num_field->update();
   }
 
   m_srcBtn->check(isSource());
