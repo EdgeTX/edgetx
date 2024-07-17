@@ -43,6 +43,8 @@ class SourceNumberEdit : public Window
   void setFastStep(int value) { num_field->setFastStep(value); }
   void setAccelFactor(int value) { num_field->setAccelFactor(value); }
 
+  void update();
+
   static LAYOUT_VAL(NUM_EDIT_W, 84, 74)
   static LAYOUT_VAL(SRC_BTN_W, 38, 38)
 
@@ -60,8 +62,6 @@ class SourceNumberEdit : public Window
   int32_t voffset;
 
   bool isSource();
-
-  void update();
 
   static void value_changed(lv_event_t* e);
 };

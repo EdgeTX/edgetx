@@ -243,7 +243,11 @@ void Curve::clearPoints()
   update();
 }
 
-void Curve::update() { base.update(); }
+void Curve::update()
+{
+  base.update();
+  updatePosition();
+}
 
 void Curve::checkEvents()
 {

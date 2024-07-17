@@ -139,11 +139,13 @@ void InputEditWindow::buildBody(Window* form)
       new CurveParam(line, rect_t{}, &input->curve,
         [=](int32_t newValue) {
           input->curve.value = newValue;
-          preview->update();
+          if (preview)
+            preview->update();
           SET_DIRTY();
         }, INPUTSRC_FIRST,
         [=]() {
-          preview->update();
+          if (preview)
+            preview->update();
         });
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);

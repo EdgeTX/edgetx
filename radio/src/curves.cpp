@@ -320,6 +320,9 @@ int intpol(int x, uint8_t idx) // -100, -75, -50, -25, 0 ,25 ,50, 75, 100
 
 int applyCurve(int x, CurveRef & curve)
 {
+  SourceNumVal v;
+  v.rawValue = curve.value;
+
   switch (curve.type) {
     case CURVE_REF_DIFF:
     {
@@ -338,7 +341,7 @@ int applyCurve(int x, CurveRef & curve)
     }
 
     case CURVE_REF_FUNC:
-      switch (curve.value) {
+      switch (v.value) {
         case CURVE_X_GT0:
           if (x < 0) x = 0; //x|x>0
           return x;
@@ -358,7 +361,7 @@ int applyCurve(int x, CurveRef & curve)
 
     case CURVE_REF_CUSTOM:
     {
-      int curveParam = curve.value;
+      int curveParam = v.value;
       if (curveParam < 0) {
         x = -x;
         curveParam = -curveParam;

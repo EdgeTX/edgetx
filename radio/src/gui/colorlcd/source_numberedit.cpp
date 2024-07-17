@@ -114,8 +114,6 @@ void SourceNumberEdit::switchSourceMode()
   else
     num_field->update();
 
-  m_srcBtn->check(isSource());
-
   // update field type based on value
   update();
 }
@@ -142,6 +140,8 @@ void SourceNumberEdit::update()
     act_field = num_field;
     num_field->show();
   }
+
+  m_srcBtn->check(isSource());
 
   if (has_focus) {
     lv_group_focus_obj(act_field->getLvObj());

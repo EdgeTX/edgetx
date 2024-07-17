@@ -38,21 +38,12 @@ void CurveParam::LongPressHandler(void* data)
   }
 }
 
-void CurveParam::value_changed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto param = (CurveParam*)lv_obj_get_user_data(obj);
-  if (!param) return;
-
-  param->update();
-}
-
 class CurveChoice : public Choice
 {
  public:
   CurveChoice(Window* parent, std::function<int()> getRefValue, std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
     Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
-    refreshView(refreshView)
+    refreshView(std::move(refreshView))
     {
       setTextHandler([](int value) { return getCurveString(value); });
     }
@@ -74,7 +65,7 @@ class CurveChoice : public Choice
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                        std::function<void(int32_t)> setRefValue, int16_t sourceMin,
                        std::function<void(void)> refreshView) :
-    Window(parent, rect), ref(ref)
+    Window(parent, rect), ref(ref), refreshView(std::move(refreshView))
 {
   padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
@@ -86,10 +77,8 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                ref->type = newValue;
                ref->value = 0;
                SET_DIRTY();
-               lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+               update();
              });
-  lv_obj_add_event_cb(lvobj, CurveParam::value_changed, LV_EVENT_VALUE_CHANGED,
-                      nullptr);
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
@@ -139,14 +128,17 @@ void CurveParam::update()
   switch (ref->type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
+      value_edit->update();
       act_field = value_edit;
       break;
 
     case CURVE_REF_FUNC:
+      func_choice->update();
       act_field = func_choice;
       break;
 
     case CURVE_REF_CUSTOM:
+      cust_choice->update();
       act_field = cust_choice;
       break;
 
@@ -155,10 +147,11 @@ void CurveParam::update()
   }
 
   act_field->show();
+  if (refreshView)
+    refreshView();
 
   auto act_obj = act_field->getLvObj();
   if (has_focus) {
     lv_group_focus_obj(act_obj);
   }
-  lv_event_send(act_obj, LV_EVENT_VALUE_CHANGED, nullptr);
 }
