@@ -37,26 +37,32 @@ int32_t YamlSourceNumRefDecode(const YAML::Node& node)
 {
   std::string val = node.as<std::string>();
 
-  // start legacy for pre 2.11
-  if ((val.size() >= 4)
-    && (val[0] == '-')
-    && (val[1] == 'G')
-    && (val[2] == 'V')
-    && (val[3] >= '1')
-    && (val[3] <= '9')) {
+  if (modelSettingsVersion < SemanticVersion(QString("2.11.0"))) {
+    if ((val.size() >= 4)
+      && (val[0] == '-')
+      && (val[1] == 'G')
+      && (val[2] == 'V')
+      && (val[3] >= '1')
+      && (val[3] <= '9')) {
 
-    return RawSource(SOURCE_TYPE_GVAR, val[3]).toValue();
+      std::stringstream src(val.substr(3));
+      int gv = 0;
+      src >> gv;
+      return RawSource(SOURCE_TYPE_GVAR, gv).toValue() * -1;
+    }
+
+    if ((val.size() >= 3)
+      && (val[0] == 'G')
+      && (val[1] == 'V')
+      && (val[2] >= '1')
+      && (val[2] <= '9')) {
+
+      std::stringstream src(val.substr(2));
+      int gv = 0;
+      src >> gv;
+      return RawSource(SOURCE_TYPE_GVAR, gv).toValue();
+    }
   }
-
-  if ((val.size() >= 3)
-    && (val[0] == 'G')
-    && (val[1] == 'V')
-    && (val[2] >= '1')
-    && (val[2] <= '9')) {
-
-    return RawSource(SOURCE_TYPE_GVAR, val[2]).toValue();
-  }
-  // end legacy for pre 2.11
 
   int i = val[0] == '-' ? 1 : 0;
 
