@@ -26,10 +26,11 @@
 #define SYSTEM_TICKS_1US  ((CPU_FREQ + 500000)  / 1000000)
 #define SYSTEM_TICKS_01US ((CPU_FREQ + 5000000) / 10000000)
 
+#define ticksNow() ((uint32_t)(DWT->CYCCNT))
+
 void delaysInit()
 {
   CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-  DWT->CYCCNT = 0;
   DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
