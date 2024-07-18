@@ -91,7 +91,7 @@
   #define KEYS_GPIO_REG_RIGHT           GPIOD
   #define KEYS_GPIO_PIN_RIGHT           LL_GPIO_PIN_3 // PD.03
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_GX12)
-#if defined(RADIO_MT12)
+#if defined(RADIO_MT12) || defined(RADIO_GX12)
   #define KEYS_GPIO_REG_PAGEUP          GPIOD
   #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PD.07
   #define KEYS_GPIO_REG_PAGEDN          GPIOD
@@ -633,48 +633,30 @@
 
 // Switches
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A_H         GPIOD
   #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_10 // PD.10
   #define SWITCHES_GPIO_REG_A_L         GPIOD
   #define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_14 // PD.14
 #elif defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_MT12)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A_H         GPIOE
   #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_1  // PE.01
   #define SWITCHES_GPIO_REG_A_L         GPIOE
   #define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_0  // PE.00
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A           GPIOC
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_13  // PC.13
 #elif defined(RADIO_GX12)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
-  #define SWITCHES_GPIO_REG_A           GPIOA
-  #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_8   // FAKE PA.08 (TRAINER DETECT)
+  #define SWITCHES_A
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A           GPIOC
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_5   // PC.05
 #elif defined(RADIO_T8)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A           GPIOE
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_14  // PE.14
 #elif defined(RADIO_COMMANDO8)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A           GPIOE
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_3  // PE.03
 #elif defined(RADIO_TPRO) || defined(RADIO_TPROV2)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A_L         GPIOE
   #define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_13 // PE.13
   #define SWITCHES_GPIO_REG_A_H         GPIOE
@@ -694,23 +676,17 @@
   #define SWITCHES_GPIO_REG_A_H         GPIOD
   #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_1  // PD.01
 #elif defined(RADIO_FAMILY_T20)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_A_INVERTED
   #define SWITCHES_GPIO_REG_A           GPIOD
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_0  // PD.00
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
 #elif defined(PCBX7)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A_L         GPIOE
   #define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_7  // PE.07
   #define SWITCHES_GPIO_REG_A_H         GPIOE
   #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_13 // PE.13
 #else
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A_H         GPIOB
   #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_5  // PB.05
   #define SWITCHES_GPIO_REG_A_L         GPIOE
@@ -718,36 +694,26 @@
 #endif
 
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_H         GPIOG
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_11 // PG.11
   #define SWITCHES_GPIO_REG_B_L         GPIOG
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_10 // PG.10
 #elif defined(PCBXLITE)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOA
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_6  // PA.06
   #define SWITCHES_GPIO_REG_B_H         GPIOA
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_5  // PA.05
 #elif defined(RADIO_T8)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOE
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_7  // PE.07
   #define SWITCHES_GPIO_REG_B_H         GPIOE
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_13 // PE.13
 #elif defined(RADIO_COMMANDO8)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOE
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_5  // PE.05
   #define SWITCHES_GPIO_REG_B_H         GPIOE
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_4  // PE.04
 #elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TPROV2)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOE
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_1  // PE.01
   #define SWITCHES_GPIO_REG_B_H         GPIOE
@@ -767,33 +733,23 @@
   #define SWITCHES_GPIO_REG_B_L         GPIOE
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_1  // PE.01
 #elif defined(RADIO_FAMILY_T20)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_B_INVERTED
   #define SWITCHES_GPIO_REG_B           GPIOE
   #define SWITCHES_GPIO_PIN_B           LL_GPIO_PIN_2  // PE.02
 #elif (RADIO_LR3PRO)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOE
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_15  // PE.15
   #define SWITCHES_GPIO_REG_B_H         GPIOA
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_5   // PA.05
 #elif defined(RADIO_BOXER)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOE
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_15  // PE.15
   #define SWITCHES_GPIO_REG_B_H         GPIOE
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_7   // PE.07
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B           GPIOE
   #define SWITCHES_GPIO_PIN_B           LL_GPIO_PIN_7  // PE.07
 #elif defined(RADIO_MT12)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B           GPIOD
   #define SWITCHES_GPIO_PIN_B           LL_GPIO_PIN_11 // PD.11
 #elif defined(RADIO_GX12)
@@ -806,22 +762,16 @@
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
 #elif defined(PCBX7)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOE
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_15 // PE.15
   #define SWITCHES_GPIO_REG_B_H         GPIOA
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_5  // PA.05
 #elif defined(PCBX9LITE)
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_L         GPIOB
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_4  // PB.04
   #define SWITCHES_GPIO_REG_B_H         GPIOB
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_5  // PB.05
 #else
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
   #define SWITCHES_GPIO_REG_B_H         GPIOE
   #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_1  // PE.01
   #define SWITCHES_GPIO_REG_B_L         GPIOE
@@ -829,64 +779,46 @@
 #endif
 
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_H         GPIOF
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_13 // PF.13
   #define SWITCHES_GPIO_REG_C_L         GPIOF
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_14 // PF.14
 #elif defined(PCBXLITE) || defined(PCBX9LITE)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_L         GPIOE
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_2  // PE.02
   #define SWITCHES_GPIO_REG_C_H         GPIOE
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_3  // PE.03
 #elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_L         GPIOE
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_0   // PE.00
   #define SWITCHES_GPIO_REG_C_H         GPIOD
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_11  // PD.11
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_H         GPIOE
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_0   // PE.00
   #define SWITCHES_GPIO_REG_C_L         GPIOD
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_11  // PD.11
 #elif defined(RADIO_TX12)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_L         GPIOD
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_11  // PD.11
   #define SWITCHES_GPIO_REG_C_H         GPIOE
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_0  // PE.00
 #elif defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_L         GPIOE
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_0  // PE.00
   #define SWITCHES_GPIO_REG_C_H         GPIOD
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_11  // PD.11
 #elif defined(RADIO_T8)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_L         GPIOE
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_2  // PE.02
   #define SWITCHES_GPIO_REG_C_H         GPIOE
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_1  // PE.01
 #elif defined(RADIO_COMMANDO8)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_L         GPIOC
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_4  // PC.04 
   #define SWITCHES_GPIO_REG_C_H         GPIOA
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_6  // PA.06   
 #elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_LR3PRO)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C           GPIOE
   #define SWITCHES_GPIO_PIN_C           LL_GPIO_PIN_14 // PE.14
 #elif defined(RADIO_TPROS)
@@ -900,15 +832,11 @@
   #define SWITCHES_GPIO_REG_C           GPIOD
   #define SWITCHES_GPIO_PIN_C           LL_GPIO_PIN_0  // PD.00
 #elif defined(RADIO_FAMILY_T20)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_L         GPIOD
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_2  // PD.02
   #define SWITCHES_GPIO_REG_C_H         GPIOD
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_1  // PD.01
 #elif defined(RADIO_MT12)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C           GPIOC
   #define SWITCHES_GPIO_PIN_C           LL_GPIO_PIN_13 // PC.13
 #elif defined(RADIO_GX12)
@@ -921,8 +849,6 @@
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
 #elif defined(PCBX7)
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_L         GPIOD
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_11 // PD.11
   #if defined(PCBX7ACCESS)    
@@ -933,8 +859,6 @@
     #define SWITCHES_GPIO_PIN_C_H       LL_GPIO_PIN_0  // PE.00
   #endif
 #else
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
   #define SWITCHES_GPIO_REG_C_H         GPIOE
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_15 // PE.15
   #define SWITCHES_GPIO_REG_C_L         GPIOA
@@ -942,44 +866,30 @@
 #endif
 
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D_H         GPIOE
   #define SWITCHES_GPIO_PIN_D_H         LL_GPIO_PIN_1  // PE.01
   #define SWITCHES_GPIO_REG_D_L         GPIOE
   #define SWITCHES_GPIO_PIN_D_L         LL_GPIO_PIN_2  // PE.02
 #elif defined(PCBX9DP)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D_H         GPIOE
   #define SWITCHES_GPIO_PIN_D_H         LL_GPIO_PIN_7  // PE.07
   #define SWITCHES_GPIO_REG_D_L         GPIOE
   #define SWITCHES_GPIO_PIN_D_L         LL_GPIO_PIN_13 // PE.13
 #elif defined(PCBXLITE)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D_L         GPIOB
   #define SWITCHES_GPIO_PIN_D_L         LL_GPIO_PIN_4  // PB.04
   #define SWITCHES_GPIO_REG_D_H         GPIOB
   #define SWITCHES_GPIO_PIN_D_H         LL_GPIO_PIN_5  // PB.05
 #elif defined(RADIO_T8)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D           GPIOD
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_14  // PD.14
 #elif defined(RADIO_COMMANDO8)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D           GPIOA
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_5  // PA.05
 #elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D           GPIOE
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_8  // PE.08
 #elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_LR3PRO)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D           GPIOD
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_14 // PD.14
 #elif defined(RADIO_TPROS)
@@ -988,8 +898,6 @@
   #define SWITCHES_GPIO_REG_D           GPIOC
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_13// PC.13
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D_L         GPIOA
   #define SWITCHES_GPIO_PIN_D_L         LL_GPIO_PIN_5  // PA.05
   #define SWITCHES_GPIO_REG_D_H         GPIOE
@@ -1000,15 +908,11 @@
   #define SWITCHES_GPIO_REG_D           GPIOE
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_2  // PE.02
 #elif defined(RADIO_FAMILY_T20)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D_L         GPIOE
   #define SWITCHES_GPIO_PIN_D_L         LL_GPIO_PIN_0  // PE.00
   #define SWITCHES_GPIO_REG_D_H         GPIOE
   #define SWITCHES_GPIO_PIN_D_H         LL_GPIO_PIN_1  // PE.01
 #elif defined(RADIO_MT12)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D           GPIOC
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_3  // PC.03
 #elif defined(RADIO_GX12)
@@ -1019,27 +923,19 @@
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
 #elif defined(PCBX7) && !defined(RADIO_COMMANDO8)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D_L         GPIOE
   #define SWITCHES_GPIO_PIN_D_L         LL_GPIO_PIN_1  // PE.01
   #define SWITCHES_GPIO_REG_D_H         GPIOE
   #define SWITCHES_GPIO_PIN_D_H         LL_GPIO_PIN_2  // PE.02
 #elif defined(PCBX7) && defined(RADIO_COMMANDO8)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D_L         GPIOE
   #define SWITCHES_GPIO_PIN_D_L         LL_GPIO_PIN_1  // PE.01
   #define SWITCHES_GPIO_REG_D_H         GPIOE
   #define SWITCHES_GPIO_PIN_D_H         LL_GPIO_PIN_2  // PE.02
 #elif defined(PCBX9LITE)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D           GPIOC
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_13 // PC.13
 #else
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D_H         GPIOE
   #define SWITCHES_GPIO_PIN_D_H         LL_GPIO_PIN_7  // PE.07
   #define SWITCHES_GPIO_REG_D_L         GPIOB
@@ -1047,45 +943,30 @@
 #endif
 
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E_H         GPIOE
   #define SWITCHES_GPIO_PIN_E_H         LL_GPIO_PIN_7  // PE.07
   #define SWITCHES_GPIO_REG_E_L         GPIOE
   #define SWITCHES_GPIO_PIN_E_L         LL_GPIO_PIN_13 // PE.13
 #elif defined(PCBXLITES)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOE
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_5  // PE.05
 #elif defined(PCBXLITE)
   // no SWE but we want to remain compatible with XLiteS
-  #define STORAGE_SWITCH_E
 #elif defined(PCBX9LITE)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOA
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_5  // PA.05
 #elif defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOE
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_7  // PE.07
 #elif defined(RADIO_BOXER)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOE
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_14 // PE.14
 #elif defined(RADIO_TX12)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E_H         GPIOE
   #define SWITCHES_GPIO_PIN_E_H         LL_GPIO_PIN_13 // PE.13
   #define SWITCHES_GPIO_REG_E_L         GPIOE
   #define SWITCHES_GPIO_PIN_E_L         LL_GPIO_PIN_7  // PE.07
 #elif defined(RADIO_TX12MK2)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E_H         GPIOE
   #define SWITCHES_GPIO_PIN_E_H         LL_GPIO_PIN_14 // PE.14
   #define SWITCHES_GPIO_REG_E_L         GPIOE
@@ -1101,23 +982,15 @@
   #define SWITCHES_GPIO_REG_E           GPIOG
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_10  // PG.10
 #elif defined(RADIO_TPROV2)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOG
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_0  // PG.00
 #elif defined(RADIO_BUMBLEBEE)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOD
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_3  // PD.03
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOE
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_8  // PE.08
 #elif defined(RADIO_FAMILY_T20)
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E           GPIOD
   #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_3  // PD.03
 #elif defined(RADIO_MT12)
@@ -1135,8 +1008,6 @@
 #elif defined(PCBX7)
   // no SWE
 #else
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
   #define SWITCHES_GPIO_REG_E_H         GPIOB
   #define SWITCHES_GPIO_PIN_E_H         LL_GPIO_PIN_3  // PB.03
   #define SWITCHES_GPIO_REG_E_L         GPIOB
@@ -1144,40 +1015,27 @@
 #endif
 
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOE
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_11 // PE.11
 #elif defined(PCBXLITES)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOC
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_3  // PC.03
 #elif defined(PCBXLITE)
   // no SWF but we want to remain compatible with XLiteS
-  #define STORAGE_SWITCH_F
 #elif defined(PCBX9LITES)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOC
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_3 // PC.03
 #elif defined(PCBX9LITE)
 // no SWF
 #elif defined(RADIO_ZORRO) || defined(RADIO_BOXER)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOE
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_1 // PE.01
 #elif defined(RADIO_TX12)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F_L         GPIOE
   #define SWITCHES_GPIO_PIN_F_L         LL_GPIO_PIN_1  // PE.01
   #define SWITCHES_GPIO_REG_F_H         GPIOE
   #define SWITCHES_GPIO_PIN_F_H         LL_GPIO_PIN_2 // PE.02
 #elif defined(RADIO_TX12MK2)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F_L         GPIOD
   #define SWITCHES_GPIO_PIN_F_L         LL_GPIO_PIN_14 // PD.14
   #define SWITCHES_GPIO_REG_F_H         GPIOE
@@ -1193,30 +1051,21 @@
   #define SWITCHES_GPIO_REG_F           GPIOG
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_9  // PG.09
 #elif defined(RADIO_TPROV2)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOG
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_1  // PG.01
 #elif defined(RADIO_BUMBLEBEE)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOB
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_5  // PB.05
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOC
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_13// PC.13
 #elif defined(RADIO_FAMILY_T20)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOB
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_5 // PB.05
 #elif defined(RADIO_MT12)
   // ADC based switch/pot
 #elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_TPROV2) || defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_POCKET)
   // no SWF
-  #define STORAGE_SWITCH_F
 #elif defined(RADIO_T12)
   // no SWF
 #elif defined(RADIO_GX12)
@@ -1230,46 +1079,32 @@
   #define SWITCHES_GPIO_REG_F           GPIOE
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_8 // PE.08
 #elif defined(PCBX7)
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOE
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_14 // PE.14
 #else
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
   #define SWITCHES_GPIO_REG_F           GPIOE
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_14 // PE.14
 #endif
 
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G_H         GPIOF
   #define SWITCHES_GPIO_PIN_G_H         LL_GPIO_PIN_3  // PF.03
   #define SWITCHES_GPIO_REG_G_L         GPIOF
   #define SWITCHES_GPIO_PIN_G_L         LL_GPIO_PIN_4  // PF.04
 #elif defined(PCBX9LITES)
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G           GPIOC
   #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_2 // PC.02
 #elif defined(RADIO_T12) || defined(RADIO_ZORRO)
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G           GPIOE
   #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_14 // PE.14
 #elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_V14) || defined(RADIO_V12)
   #define STORAGE_SWITCH_G
 #elif defined(RADIO_TPROV2)
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G           GPIOG
   #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_10 // PG.10
 #elif defined(RADIO_TPRO)
   // SW1
   #define FUNCTION_SWITCH_1             SG
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G           GPIOG
   #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_7  // PG.07
 #elif defined(RADIO_BUMBLEBEE)
@@ -1279,16 +1114,13 @@
   #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_15// PD.15 - Left trim push
 #elif defined(RADIO_FAMILY_T20)
   //TRIM left low
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G           GPIOD
   #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_15  // PD.15
 #elif defined(RADIO_GX12)
+  #define SWITCHES_G
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)  || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
   // no SWG
 #else
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G_H         GPIOE
   #define SWITCHES_GPIO_PIN_G_H         LL_GPIO_PIN_9  // PE.09
   #define SWITCHES_GPIO_REG_G_L         GPIOE
@@ -1296,33 +1128,24 @@
 #endif
 
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
   #define SWITCHES_GPIO_REG_H           GPIOF
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_1  // PF.01
 #elif defined(PCBX9DP)
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
   #define SWITCHES_GPIO_REG_H           GPIOD
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_14 // PD.14
 #elif defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_POCKET)
   // no SWH
 #elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define STORAGE_SWITCH_H
   // no SWH
 #elif defined(RADIO_TX12) || defined(RADIO_MT12)
 #elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_V14) || defined(RADIO_V12)
 #define STORAGE_SWITCH_H
 #elif defined(RADIO_TPROV2)
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
   #define SWITCHES_GPIO_REG_H           GPIOG
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_9 // PG.09
 #elif defined(RADIO_TPRO)
   // SW2
   #define FUNCTION_SWITCH_2             SH
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
   #define SWITCHES_GPIO_REG_H           GPIOG
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_6  // PG.06
 #elif defined(RADIO_BUMBLEBEE)
@@ -1332,99 +1155,67 @@
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_0  // PF.00 - Right trim push
 #elif defined(RADIO_FAMILY_T20)
   //TRIM right low
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
   #define SWITCHES_GPIO_REG_H           GPIOF
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_0  // PF.00
 #elif defined(RADIO_TLITE) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_LR3PRO)
   // no SWH
-  #define STORAGE_SWITCH_H
 #elif defined(RADIO_GX12)
+  #define SWITCHES_H
 #elif defined(PCBX7)
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
   #define SWITCHES_GPIO_REG_H           GPIOD
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_14 // PD.14
 #else
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
   #define SWITCHES_GPIO_REG_H           GPIOE
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_13 // PE.13
 #endif
 
 #if defined(RADIO_X9DP2019)
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOD
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_10 // PD.10
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  #define STORAGE_SWITCH_I
 #endif
 
 // X7 P400 P401 headers additionnal momentary switches
 #if defined(PCBX7ACCESS)
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOC
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_13  // PC.13
-  #define STORAGE_SWITCH_J
 #elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define STORAGE_SWITCH_I
-  #define STORAGE_SWITCH_J
   // no SWI/J
 #elif defined(RADIO_TX12)
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOE
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_14  // PE.14
-  #define STORAGE_SWITCH_J
-  #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J           GPIOD
   #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_14  // PD.14
 #elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_V14) || defined(RADIO_V12)
   // no headers
 #elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
   // no SWI
-  #define STORAGE_SWITCH_I
   // no SWJ
-  #define STORAGE_SWITCH_J
 #elif defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
 // No I/J
 #elif defined(RADIO_TPROV2)
   // SW1
   #define FUNCTION_SWITCH_1             SI
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOG
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_7  // PG.07
   // SW2
   #define FUNCTION_SWITCH_2             SJ
-  #define STORAGE_SWITCH_J
-  #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J           GPIOG
   #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_6  // PG.06
   // SW3
   #define FUNCTION_SWITCH_3             SK
-  #define STORAGE_SWITCH_K
-  #define HARDWARE_SWITCH_K
   #define SWITCHES_GPIO_REG_K           GPIOG
   #define SWITCHES_GPIO_PIN_K           LL_GPIO_PIN_5  // PG.05
   // SW4
   #define FUNCTION_SWITCH_4             SL
-  #define STORAGE_SWITCH_L
-  #define HARDWARE_SWITCH_L
   #define SWITCHES_GPIO_REG_L           GPIOG
   #define SWITCHES_GPIO_PIN_L           LL_GPIO_PIN_4  // PG.04
   // SW5
   #define FUNCTION_SWITCH_5             SM
-  #define STORAGE_SWITCH_M
-  #define HARDWARE_SWITCH_M
   #define SWITCHES_GPIO_REG_M           GPIOG
   #define SWITCHES_GPIO_PIN_M           LL_GPIO_PIN_3  // PG.03
   // SW6
   #define FUNCTION_SWITCH_6             SO
-  #define STORAGE_SWITCH_O
-  #define HARDWARE_SWITCH_O
   #define SWITCHES_GPIO_REG_O           GPIOG
   #define SWITCHES_GPIO_PIN_O           LL_GPIO_PIN_2  // PG.02
 #elif defined(RADIO_BUMBLEBEE)
@@ -1467,48 +1258,32 @@
 #elif defined(RADIO_TPRO)
   // SW3
   #define FUNCTION_SWITCH_3             SI
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOG
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_5  // PG.05
   // SW4
   #define FUNCTION_SWITCH_4             SJ
-  #define STORAGE_SWITCH_J
-  #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J           GPIOG
   #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_4  // PG.04
   // SW5
   #define FUNCTION_SWITCH_5             SK
-  #define STORAGE_SWITCH_K
-  #define HARDWARE_SWITCH_K
   #define SWITCHES_GPIO_REG_K           GPIOG
   #define SWITCHES_GPIO_PIN_K           LL_GPIO_PIN_3  // PG.03
   // SW6
   #define FUNCTION_SWITCH_6             SL
-  #define STORAGE_SWITCH_L
-  #define HARDWARE_SWITCH_L
   #define SWITCHES_GPIO_REG_L           GPIOG
   #define SWITCHES_GPIO_PIN_L           LL_GPIO_PIN_2  // PG.02
 #elif defined(RADIO_FAMILY_T20)
   //TRIM left up
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOG
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_11  // PG.11
   //TRIM right up
-  #define STORAGE_SWITCH_J
-  #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J           GPIOG
   #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_14  // PG.14
 #elif defined(RADIO_GX12)
   // I and J are part of function switches bellow
 #elif defined(PCBX7)
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOC
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_13  // PC.13
-  #define STORAGE_SWITCH_J
-  #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J           GPIOD
   #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_10  // PD.10
 #endif
@@ -1516,126 +1291,82 @@
 #if defined(RADIO_FAMILY_T20)
   //SW1
   #define FUNCTION_SWITCH_1             SK
-  #define STORAGE_SWITCH_K
-  #define HARDWARE_SWITCH_K
   #define SWITCHES_GPIO_REG_K           GPIOE
   #define SWITCHES_GPIO_PIN_K           LL_GPIO_PIN_10  // PE.10
   //SW2
   #define FUNCTION_SWITCH_2             SL
-  #define STORAGE_SWITCH_L
-  #define HARDWARE_SWITCH_L
   #define SWITCHES_GPIO_REG_L           GPIOE
   #define SWITCHES_GPIO_PIN_L           LL_GPIO_PIN_8   // PE.08
   //SW3
   #define FUNCTION_SWITCH_3             SM
-  #define STORAGE_SWITCH_M
-  #define HARDWARE_SWITCH_M
   #define SWITCHES_GPIO_REG_M           GPIOE
   #define SWITCHES_GPIO_PIN_M           LL_GPIO_PIN_12  // PE.12
   //SW4
   #define FUNCTION_SWITCH_4             SN
-  #define STORAGE_SWITCH_N
-  #define HARDWARE_SWITCH_N
   #define SWITCHES_GPIO_REG_N           GPIOE
   #define SWITCHES_GPIO_PIN_N           LL_GPIO_PIN_13  // PE.13
   //SW5
   #define FUNCTION_SWITCH_5             SO
-  #define STORAGE_SWITCH_O
-  #define HARDWARE_SWITCH_O
   #define SWITCHES_GPIO_REG_O           GPIOE
   #define SWITCHES_GPIO_PIN_O           LL_GPIO_PIN_14  // PE.14
   //SW6
   #define FUNCTION_SWITCH_6             SP
-  #define STORAGE_SWITCH_P
-  #define HARDWARE_SWITCH_P
   #define SWITCHES_GPIO_REG_P           GPIOE
   #define SWITCHES_GPIO_PIN_P           LL_GPIO_PIN_15  // PE.15
 #endif
 
-#if 0 //TODO GX12
+#if defined(RADIO_GX12)
   //SW1
-  #define FUNCTION_SWITCH_1             SI
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
+  #define FUNCTION_SWITCH_1
   //SW2
-  #define FUNCTION_SWITCH_2             SJ
-  #define STORAGE_SWITCH_J
-  #define HARDWARE_SWITCH_J
+  #define FUNCTION_SWITCH_2
   //SW3
-  #define FUNCTION_SWITCH_3             SK
-  #define STORAGE_SWITCH_K
-  #define HARDWARE_SWITCH_K
+  #define FUNCTION_SWITCH_3
   //SW4
-  #define FUNCTION_SWITCH_4             SL²
-  #define STORAGE_SWITCH_L
-  #define HARDWARE_SWITCH_J
+  #define FUNCTION_SWITCH_4
   //SW5
-  #define FUNCTION_SWITCH_5             SM
-  #define STORAGE_SWITCH_M
-  #define HARDWARE_SWITCH_M
+  #define FUNCTION_SWITCH_5
   //SW6
-  #define FUNCTION_SWITCH_6             SN
-  #define STORAGE_SWITCH_N
-  #define HARDWARE_SWITCH_N
+  #define FUNCTION_SWITCH_6
 #endif
 
 #if defined(PCBX9E)
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I_H         GPIOF
   #define SWITCHES_GPIO_PIN_I_H         LL_GPIO_PIN_15 // PF.15
   #define SWITCHES_GPIO_REG_I_L         GPIOE
   #define SWITCHES_GPIO_PIN_I_L         LL_GPIO_PIN_14 // PE.14
-  #define STORAGE_SWITCH_J
-  #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J_H         GPIOG
   #define SWITCHES_GPIO_PIN_J_H         LL_GPIO_PIN_7  // PG.07
   #define SWITCHES_GPIO_REG_J_L         GPIOG
   #define SWITCHES_GPIO_PIN_J_L         LL_GPIO_PIN_8  // PG.08
-  #define STORAGE_SWITCH_K
-  #define HARDWARE_SWITCH_K
   #define SWITCHES_GPIO_REG_K_H         GPIOG
   #define SWITCHES_GPIO_PIN_K_H         LL_GPIO_PIN_13 // PG.13
   #define SWITCHES_GPIO_REG_K_L         GPIOG
   #define SWITCHES_GPIO_PIN_K_L         LL_GPIO_PIN_12 // PG.12
-  #define STORAGE_SWITCH_L
-  #define HARDWARE_SWITCH_L
   #define SWITCHES_GPIO_REG_L_H         GPIOE
   #define SWITCHES_GPIO_PIN_L_H         LL_GPIO_PIN_9  // PE.09
   #define SWITCHES_GPIO_REG_L_L         GPIOE
   #define SWITCHES_GPIO_PIN_L_L         LL_GPIO_PIN_8  // PE.08
-  #define STORAGE_SWITCH_M
-  #define HARDWARE_SWITCH_M
   #define SWITCHES_GPIO_REG_M_H         GPIOE
   #define SWITCHES_GPIO_PIN_M_H         LL_GPIO_PIN_15 // PE.15
   #define SWITCHES_GPIO_REG_M_L         GPIOA
   #define SWITCHES_GPIO_PIN_M_L         LL_GPIO_PIN_5  // PA.05
-  #define STORAGE_SWITCH_N
-  #define HARDWARE_SWITCH_N
   #define SWITCHES_GPIO_REG_N_H         GPIOB
   #define SWITCHES_GPIO_PIN_N_H         LL_GPIO_PIN_3  // PB.03
   #define SWITCHES_GPIO_REG_N_L         GPIOB
   #define SWITCHES_GPIO_PIN_N_L         LL_GPIO_PIN_4  // PB.04
-  #define STORAGE_SWITCH_O
-  #define HARDWARE_SWITCH_O
   #define SWITCHES_GPIO_REG_O_H         GPIOF
   #define SWITCHES_GPIO_PIN_O_H         LL_GPIO_PIN_7  // PF.07
   #define SWITCHES_GPIO_REG_O_L         GPIOE
   #define SWITCHES_GPIO_PIN_O_L         LL_GPIO_PIN_10 // PE.10
-  #define STORAGE_SWITCH_P
-  #define HARDWARE_SWITCH_P
   #define SWITCHES_GPIO_REG_P_H         GPIOF
   #define SWITCHES_GPIO_PIN_P_H         LL_GPIO_PIN_11 // PF.11
   #define SWITCHES_GPIO_REG_P_L         GPIOF
   #define SWITCHES_GPIO_PIN_P_L         LL_GPIO_PIN_12 // PF.12
-  #define STORAGE_SWITCH_Q
-  #define HARDWARE_SWITCH_Q
   #define SWITCHES_GPIO_REG_Q_H         GPIOF
   #define SWITCHES_GPIO_PIN_Q_H         LL_GPIO_PIN_5  // PF.05
   #define SWITCHES_GPIO_REG_Q_L         GPIOF
   #define SWITCHES_GPIO_PIN_Q_L         LL_GPIO_PIN_6  // PF.06
-  #define STORAGE_SWITCH_R
-  #define HARDWARE_SWITCH_R
   #define SWITCHES_GPIO_REG_R_H         GPIOB
   #define SWITCHES_GPIO_PIN_R_H         LL_GPIO_PIN_5  // PB.05
   #define SWITCHES_GPIO_REG_R_L         GPIOE
@@ -2300,7 +2031,11 @@
 
   // LED Strip
 #if defined(RADIO_MT12) || defined(RADIO_GX12)
-  #define LED_STRIP_LENGTH                  7
+  #if defined(RADIO_GX12)
+    #define LED_STRIP_LENGTH                8
+  #else
+    #define LED_STRIP_LENGTH                7
+  #endif
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 8) // PA.08 / TIM1_CH1
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1   // TIM1 / TIM2
   #define LED_STRIP_TIMER                   TIM1
@@ -2345,9 +2080,6 @@
   #define FSLED_GPIO_PIN_5              GPIO_PIN(FSLED_GPIO, 9)
   #define FSLED_GPIO_PIN_6              GPIO_PIN(FSLED_GPIO, 8)
 #elif defined(RADIO_FAMILY_T20)
-  #define GPIO_FSLED_GPIO_ON            GPIO_SetBits
-  #define GPIO_FSLED_GPIO_OFF           GPIO_ResetBits
-  #define FSLED_GPIO                    GPIOF
   #define FSLED_GPIO_PIN_1              GPIO_PIN(FSLED_GPIO, 10)
   #define FSLED_GPIO_PIN_2              GPIO_PIN(FSLED_GPIO, 9)
   #define FSLED_GPIO_PIN_3              GPIO_PIN(FSLED_GPIO, 8)
@@ -2355,9 +2087,6 @@
   #define FSLED_GPIO_PIN_5              GPIO_PIN(FSLED_GPIO, 6)
   #define FSLED_GPIO_PIN_6              GPIO_PIN(FSLED_GPIO, 13)
 #else
-  #define GPIO_FSLED_GPIO_ON            GPIO_SetBits
-  #define GPIO_FSLED_GPIO_OFF           GPIO_ResetBits
-  #define FSLED_GPIO                    GPIOF
   #define FSLED_GPIO_PIN_1              GPIO_PIN(FSLED_GPIO, 5)
   #define FSLED_GPIO_PIN_2              GPIO_PIN(FSLED_GPIO, 4)
   #define FSLED_GPIO_PIN_3              GPIO_PIN(FSLED_GPIO, 3)
@@ -2951,7 +2680,8 @@
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 
 #if defined(PCBXLITE) || defined(PCBX9LITE) || defined(PCBX7ACCESS) || \
-    defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_X9DP2019) || defined(RADIO_GX12)
+    defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_X9DP2019) || \
+    defined(RADIO_GX12)
   #define I2C_B1_SCL_GPIO               GPIO_PIN(GPIOB, 8)  // PB.08
   #define I2C_B1_SDA_GPIO               GPIO_PIN(GPIOB, 9)  // PB.09
 #else
@@ -2966,7 +2696,8 @@
 #elif defined(PCBX7ACCESS)
   #define EEPROM_WP_GPIO                GPIOB
   #define EEPROM_WP_GPIO_PIN            LL_GPIO_PIN_5  // PB.05
-#elif defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2)|| defined(RADIO_BOXER)
+#elif defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2)|| \
+      defined(RADIO_BOXER) || defined(RADIO_GX12)
   #define EEPROM_WP_GPIO                GPIOD
   #define EEPROM_WP_GPIO_PIN            LL_GPIO_PIN_10  // PD.10
 #elif defined(RADIO_X9DP2019)
@@ -3001,6 +2732,14 @@
 
   #define IMU_I2C_BUS                   I2C_Bus_2
   #define IMU_I2C_ADDRESS               0x6B
+#endif
+
+#if defined(RADIO_GX12)
+  #define I2C_B2                        I2C2
+  #define I2C_B2_SCL_GPIO               GPIO_PIN(GPIOB, 10) // PB.10
+  #define I2C_B2_SDA_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
+  #define I2C_B2_GPIO_AF                LL_GPIO_AF_4
+  #define I2C_B2_CLK_RATE               400000
 #endif
 
 // SD - SPI2

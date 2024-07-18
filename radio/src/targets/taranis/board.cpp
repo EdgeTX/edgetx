@@ -217,15 +217,15 @@ void boardInit()
   }
 #endif
 
+  delaysInit();
+  __enable_irq();
+
   keysInit();
   switchInit();
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotaryEncoderInit();
 #endif
-
-  delaysInit();
-  __enable_irq();
 
 #if defined(PWM_STICKS)
   sticksPwmDetect();

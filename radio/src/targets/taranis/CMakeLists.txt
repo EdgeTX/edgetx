@@ -674,6 +674,13 @@ if(USE_RTC_CLOCK)
   add_definitions(-DRTCLOCK)
 endif()
 
+if(FLAVOUR STREQUAL gx12)
+  target_sources(board PRIVATE
+    drivers/pca95xx.cpp
+    ${TARGET_SRC_DIR}/gx12/bsp_io.cpp
+  )
+  target_include_directories(board PRIVATE ${TARGET_SRC_DIR}/gx12)
+endif()
 
 set(SRC ${SRC}
   io/frsky_firmware_update.cpp
