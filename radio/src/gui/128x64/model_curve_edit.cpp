@@ -161,7 +161,6 @@ void menuModelCurveOne(event_t event)
     case EVT_KEY_FIRST(KEY_ENTER):
       if (!keysGetState(KEY_SHIFT))
         break;
-      killEvents(event);
 #else
     case EVT_KEY_BREAK(KEY_MODEL):
     case EVT_KEY_BREAK(KEY_MENU):

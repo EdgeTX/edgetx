@@ -182,6 +182,7 @@ void runPopupRegister(event_t event)
       // no break
 
     case EVT_KEY_LONG(KEY_EXIT):
+      killEvents(event);
       s_editMode = 0;
       // no break;
 

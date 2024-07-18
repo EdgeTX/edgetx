@@ -204,6 +204,7 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
   // TRACE("editGVarFieldValue(val=%d min=%d max=%d)", value, min, max);
 
   if (modelGVEnabled() && invers && event == EVT_KEY_LONG(KEY_ENTER)) {
+    killEvents(event);
     s_editMode = !s_editMode;
     if (attr & PREC1)
       value = (GV_IS_GV_VALUE(value, min, max) ? GET_GVAR(value, min, max, mixerCurrentFlightMode)*10 : delta);

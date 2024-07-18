@@ -60,7 +60,6 @@ void menuModelExpoOne(event_t event)
 #if defined(NAVIGATION_XLITE)
   if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
     pushMenu(menuChannelsView);
-    killEvents(event);
   }
 #else
   if (event == EVT_KEY_BREAK(KEY_MODEL) || event == EVT_KEY_BREAK(KEY_MENU)) {

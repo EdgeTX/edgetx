@@ -766,6 +766,7 @@ void menuModelSetup(event_t event)
         if (attr && menuHorizontalPosition>0) {
           s_editMode = 0;
           if (event==EVT_KEY_LONG(KEY_ENTER)) {
+            killEvents(event);
             START_NO_HIGHLIGHT();
             for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
               memclear(&g_model.flightModeData[i], TRIMS_ARRAY_SIZE);
@@ -877,10 +878,8 @@ void menuModelSetup(event_t event)
         if (attr) {
           s_editMode = 0;
           switch (event) {
-            case EVT_KEY_BREAK(KEY_ENTER):
-              break;
-
             case EVT_KEY_LONG(KEY_ENTER):
+              killEvents(event);
               if (menuHorizontalPosition < 0) {
                 START_NO_HIGHLIGHT();
                 getMovedSwitch();
@@ -958,6 +957,7 @@ void menuModelSetup(event_t event)
           if (menuHorizontalPosition > 0) {
             switch (event) {
               case EVT_KEY_LONG(KEY_ENTER):
+                killEvents(event);
                 if (g_model.potsWarnMode == POTS_WARN_MANUAL) {
                   SAVE_POT_POSITION(menuHorizontalPosition-1);
                   AUDIO_WARNING1();
@@ -1278,16 +1278,6 @@ void menuModelSetup(event_t event)
         lcdDrawTextIndented(y, STR_STATUS);
         lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerPeriod(), LEFT | attr);
         lcdDrawText(lcdNextPos, y, "Hz ", attr);
-        // lcdDrawNumber(lcdNextPos, y, telemetryErrors, attr);
-        // lcdDrawText(lcdNextPos + 1, y, "Err", attr);
-        // if (attr) {
-        //   s_editMode = 0;
-        //   if (event == EVT_KEY_LONG(KEY_ENTER)) {
-        //     START_NO_HIGHLIGHT();
-        //     telemetryErrors = 0;
-        //     AUDIO_WARNING1();
-        //   }
-        // }
         break;
 #endif
 
@@ -1657,6 +1647,7 @@ void menuModelSetup(event_t event)
             s_editMode = 0;
             if (moduleData.failsafeMode == FAILSAFE_CUSTOM) {
               if (event == EVT_KEY_LONG(KEY_ENTER)) {
+                killEvents(event);
                 setCustomFailsafe(moduleIdx);
                 AUDIO_WARNING1();
                 SEND_FAILSAFE_NOW(moduleIdx);

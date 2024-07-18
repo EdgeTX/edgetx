@@ -112,6 +112,7 @@ void menuRadioTrainer(event_t event)
   if (attr) {
     s_editMode = 0;
     if (event==EVT_KEY_LONG(KEY_ENTER)){
+      killEvents(event);
       memcpy(g_eeGeneral.trainer.calib, trainerInput, sizeof(g_eeGeneral.trainer.calib));
       storageDirty(EE_GENERAL);
       AUDIO_WARNING1();

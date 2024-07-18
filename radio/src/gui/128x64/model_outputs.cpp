@@ -123,8 +123,9 @@ void menuModelLimitsOne(event_t event)
       case ITEM_OUTPUTONE_MIN:
         lcdDrawTextAlignedLeft(y, STR_MIN);
         if (GV_IS_GV_VALUE(ld->min, -GV_RANGELARGE, GV_RANGELARGE) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-           ld->min = GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, ld->min, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1, 0, event);
-           break;
+          killEvents(event);
+          ld->min = GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, ld->min, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1, 0, event);
+          break;
         }
         lcdDrawNumber(LIMITS_ONE_2ND_COLUMN, y, minMaxDisplay(ld->min-LIMITS_MIN_MAX_OFFSET), attr|PREC1);
         if (active) {
@@ -135,8 +136,9 @@ void menuModelLimitsOne(event_t event)
       case ITEM_OUTPUTONE_MAX:
         lcdDrawTextAlignedLeft(y, STR_MAX);
         if (GV_IS_GV_VALUE(ld->max, -GV_RANGELARGE, GV_RANGELARGE) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            ld->max = GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, ld->max, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1, 0, event);
-            break;
+          killEvents(event);
+          ld->max = GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, ld->max, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1, 0, event);
+          break;
         }
         lcdDrawNumber(LIMITS_ONE_2ND_COLUMN, y, minMaxDisplay(ld->max+LIMITS_MIN_MAX_OFFSET), attr|PREC1);
         if (active) {
@@ -232,8 +234,7 @@ void menuModelLimits(event_t event)
     LcdFlags attr = (sub==MAX_OUTPUT_CHANNELS) ? INVERS : 0;
 
     if (sub == k &&
-        ((event == EVT_KEY_BREAK(KEY_ENTER)) ||
-         (event == EVT_KEY_LONG(KEY_ENTER))) &&
+        (event == EVT_KEY_BREAK(KEY_ENTER)) &&
         (k != MAX_OUTPUT_CHANNELS)) {
       s_editMode = 0;
       POPUP_MENU_START(onLimitsMenu, 5, STR_EDIT, STR_RESET,
@@ -247,6 +248,7 @@ void menuModelLimits(event_t event)
       if (attr) {
         s_editMode = 0;
         if (event == EVT_KEY_LONG(KEY_ENTER)) {
+          killEvents(event);
           START_NO_HIGHLIGHT();
           moveTrimsToOffsets(); // if highlighted and menu pressed - move trims to offsets
         }

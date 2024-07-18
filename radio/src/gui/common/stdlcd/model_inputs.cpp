@@ -260,6 +260,7 @@ void menuModelExposAll(event_t event)
       s_copyTgtOfs = 0;
       break;
     case EVT_KEY_LONG(KEY_EXIT):
+      killEvents(event);
       if (s_copyMode && s_copyTgtOfs == 0) {
         deleteExpo(s_currIdx);
         event = 0;
@@ -296,6 +297,7 @@ void menuModelExposAll(event_t event)
       }
       // no break
     case EVT_KEY_LONG(KEY_ENTER):
+      killEvents(event);
       if (s_copyTgtOfs) {
         s_copyMode = 0;
         s_copyTgtOfs = 0;
@@ -319,6 +321,7 @@ void menuModelExposAll(event_t event)
       // TODO: add PLUS / MINUS?
     // case EVT_KEY_LONG(KEY_LEFT):
     // case EVT_KEY_LONG(KEY_RIGHT):
+    //   killEvents(event);
     //   if (s_copyMode && !s_copyTgtOfs) {
     //     if (reachExposLimit()) break;
     //     s_currCh = chn;
