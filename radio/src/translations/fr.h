@@ -1319,4 +1319,4 @@
 #define TR_MID_BATT_COLOR         "Mid battery"
 #define TR_HIGH_BATT_COLOR        "High battery"
 
-#define TR_WIDGET_SIZE            "Widget size"
+#define TR_WIDGET_SIZE            "Taille Widget"
