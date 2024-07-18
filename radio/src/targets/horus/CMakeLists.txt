@@ -8,7 +8,6 @@ option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger
 option(GHOST "Ghost TX Module" ON)
 option(SPACEMOUSE "Support for SpaceMouse" OFF)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
-option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)

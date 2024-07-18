@@ -56,6 +56,7 @@ option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
+option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 
 if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   option(USBJ_EX "Enable USB Joystick Extension" OFF)
@@ -176,8 +177,6 @@ if(RTC_BACKUP_RAM)
   # Add custom target for debugging
   add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc)
 endif()
-
-option(LUA_MIXER "Enable LUA mixer/model scripts support" OFF)
 
 if (LUA_MIXER AND NOT LUA)
   message(FATAL_ERROR "LUA_MIXER requires LUA!!")
