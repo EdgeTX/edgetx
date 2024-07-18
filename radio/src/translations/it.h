@@ -1280,7 +1280,6 @@
 #define TR_RADIO_MENU_TABS             "Schede del Menu Radio"
 #define TR_MODEL_MENU_TABS             "Schede del Menu Modello"
 
-
 #define TR_SELECT_MENU_ALL        "Tutto"
 #define TR_SELECT_MENU_CLR        "Pulisci"
 #define TR_SELECT_MENU_INV        "Inverti"
@@ -1299,4 +1298,4 @@
 #define TR_MID_BATT_COLOR         "Batteria media"
 #define TR_HIGH_BATT_COLOR        "Batteria carica"
 
-#define TR_WIDGET_SIZE            "Widget size"
+#define TR_WIDGET_SIZE            "Dimensione widget"
