@@ -31,7 +31,7 @@
 #define GET_GREEN(color) (((color) & 0x07E0) >> 3)
 #define GET_BLUE(color) (((color) & 0x001F) << 3)
 
-#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
 static const uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
 				  FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4,
 				  FSLED_GPIO_PIN_5, FSLED_GPIO_PIN_6};
@@ -51,7 +51,7 @@ void ledInit()
   gpio_init(LED_BLUE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 
-#if defined(FUNCTION_SWITCHES) && !defined(FSLEDS_USE_RGB)
+#if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
   for (size_t i = 0; i < DIM(fsLeds); i++) {
     gpio_init(fsLeds[i], GPIO_OUT, GPIO_PIN_SPEED_LOW);
   }
