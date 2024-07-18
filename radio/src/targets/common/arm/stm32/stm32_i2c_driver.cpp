@@ -162,6 +162,7 @@ static uint32_t I2C_GetTiming(uint32_t clock_src_freq, uint32_t i2c_freq)
       if ((i2c_freq >= I2C_Charac[speed].freq_min) &&
           (i2c_freq <= I2C_Charac[speed].freq_max))
       {
+        I2c_valid_timing_nbr = 0;
         I2C_Compute_PRESC_SCLDEL_SDADEL(clock_src_freq, speed);
         idx = I2C_Compute_SCLL_SCLH(clock_src_freq, speed);
 
@@ -400,11 +401,13 @@ static int i2c_disable_clock(I2C_TypeDef* instance)
 
 static int i2c_gpio_init(const stm32_i2c_hw_def_t* hw_def)
 {
+  gpio_set(hw_def->SCL_GPIO);
   gpio_init(hw_def->SCL_GPIO, GPIO_OD_PU, GPIO_PIN_SPEED_MEDIUM);
-  gpio_init_af(hw_def->SCL_GPIO, hw_def->GPIO_AF, GPIO_PIN_SPEED_MEDIUM);
+  gpio_set_af(hw_def->SCL_GPIO, hw_def->GPIO_AF);
 
+  gpio_set(hw_def->SDA_GPIO);
   gpio_init(hw_def->SDA_GPIO, GPIO_OD_PU, GPIO_PIN_SPEED_MEDIUM);
-  gpio_init_af(hw_def->SDA_GPIO, hw_def->GPIO_AF, GPIO_PIN_SPEED_MEDIUM);
+  gpio_set_af(hw_def->SDA_GPIO, hw_def->GPIO_AF);
 
   if (hw_def->set_pwr) {
     hw_def->set_pwr(true);

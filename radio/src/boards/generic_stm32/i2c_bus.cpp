@@ -75,6 +75,23 @@ int i2c_init(etx_i2c_bus_t bus)
   return -1;
 }
 
+int i2c_deinit(etx_i2c_bus_t bus)
+{
+#if defined(I2C_B1)
+  if (bus == I2C_Bus_1) {
+    return stm32_i2c_deinit(I2C_Bus_1);
+  }
+#endif
+
+#if defined(I2C_B2)
+  if (bus == I2C_Bus_2) {
+    return stm32_i2c_deinit(I2C_Bus_2);
+  }
+#endif
+
+  return -1;
+}
+
 int i2c_dev_ready(etx_i2c_bus_t bus, uint16_t addr)
 {
   return stm32_i2c_is_dev_ready(bus, addr, I2C_DEFAULT_RETRIES,
