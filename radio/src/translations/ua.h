@@ -1302,4 +1302,4 @@
 #define TR_MID_BATT_COLOR         "Середній заряд батареї"
 #define TR_HIGH_BATT_COLOR        "Заряджена батарея"
 
-#define TR_WIDGET_SIZE            "Widget size"
+#define TR_WIDGET_SIZE            "Розмір віджета"
