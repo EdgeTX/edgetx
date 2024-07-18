@@ -29,12 +29,19 @@ static const stm32_switch_t _switch_defs[] = {
     nullptr, 0,
     SWITCH_HW_ADC, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
   },
+  {% elif switch.type == 'CUSTOM' %}
+  {
+    "{{ switch.name }}",
+    nullptr, 0,
+    nullptr, 0,
+    SWITCH_HW_CUSTOM, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
+  },
   {% endif %}
 {% endfor %}
 {% for switch in function_switches %}
   {
     "{{ switch.name }}",
-    {{ switch.gpio }}, {{ switch.pin }},
+    {{ switch.gpio or "nullptr" }}, {{ switch.pin or 0 }},
     nullptr, 0,
     SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
   },

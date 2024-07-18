@@ -28,6 +28,7 @@ enum SwitchHwType {
   SWITCH_HW_2POS = 0,
   SWITCH_HW_3POS,
   SWITCH_HW_ADC,
+  SWITCH_HW_CUSTOM,
 };
 
 enum SwitchHwPos {
