@@ -1316,4 +1316,4 @@
 #define TR_MID_BATT_COLOR         "Středně nabitá baterie"
 #define TR_HIGH_BATT_COLOR        "Plně nabitá baterie"
 
-#define TR_WIDGET_SIZE            "Widget size"
+#define TR_WIDGET_SIZE            "Velikost widgetu"
