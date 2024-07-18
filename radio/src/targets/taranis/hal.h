@@ -2740,6 +2740,9 @@
   #define I2C_B2_SDA_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
   #define I2C_B2_GPIO_AF                LL_GPIO_AF_4
   #define I2C_B2_CLK_RATE               400000
+
+  #define USE_EXTI1_IRQ
+  #define EXTI1_IRQ_Priority 5
 #endif
 
 // SD - SPI2

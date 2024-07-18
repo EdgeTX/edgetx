@@ -37,8 +37,6 @@ struct bsp_io_expander {
 static bsp_io_expander _io_switches;
 static bsp_io_expander _io_fs_switches;
 
-static TimerHandle_t _io_fs_timer = nullptr;
-static StaticTimer_t _io_fs_timer_buffer;
 
 static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
 {
@@ -62,17 +60,24 @@ static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
   _read_io_expander(io); 
 }
 
-static void _switch_int_handler() {
+static void _io_int_handler(bsp_io_expander* io)
+{
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  xTimerPendFunctionCallFromISR(_poll_switches, (void *)&_io_switches, 0,
-                                &xHigherPriorityTaskWoken);
-  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    xTimerPendFunctionCallFromISR(_poll_switches, (void*)io, 0,
+                                  &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  } else {
+    _read_io_expander(io);
+  }
 }
 
-static void _io_fs_timer_callback(TimerHandle_t xTimer)
-{
-  (void)xTimer;
-  _read_io_expander(&_io_fs_switches);
+static void _switch_int_handler() {
+  _io_int_handler(&_io_switches);
+}
+
+static void _fs_switch_int_handler() {
+  _io_int_handler(&_io_fs_switches);
 }
 
 int bsp_io_init()
@@ -98,18 +103,10 @@ int bsp_io_init()
   if (pca95xx_init(&_io_fs_switches.exp, I2C_Bus_2, 0x75) < 0) {
     return -1;
   }
+
+  // setup expander 2 pin change interrupt
+  gpio_init_int(FS_SWITCH_INT_GPIO, GPIO_IN, GPIO_FALLING, _fs_switch_int_handler);
   bsp_io_read_fs_switches();
-
-  _io_fs_timer =
-      xTimerCreateStatic("FS", 10 / portTICK_PERIOD_MS, pdTRUE, (void*)0,
-                         _io_fs_timer_callback, &_io_fs_timer_buffer);
-  if (!_io_fs_timer) {
-    return -1;
-  }
-
-  if (xTimerStart(_io_fs_timer, 0) != pdPASS) {
-    /* The timer could not be set into the Active state. */
-  }
 
   return 0;
 }
