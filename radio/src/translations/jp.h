@@ -1303,4 +1303,4 @@
 #define TR_MID_BATT_COLOR         "バッテリー中"
 #define TR_HIGH_BATT_COLOR        "バッテリー高"
 
-#define TR_WIDGET_SIZE            "Widget size"
+#define TR_WIDGET_SIZE            "ウィジェットサイズ"
