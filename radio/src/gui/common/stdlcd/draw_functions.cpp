@@ -292,14 +292,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
   }
 }
 
-void gvarWeightItem(coord_t x, coord_t y, MixData * md, LcdFlags attr, event_t event)
-{
-  u_int8int16_t weight;
-  MD_WEIGHT_TO_UNION(md, weight);
-  weight.word = GVAR_MENU_ITEM(x, y, weight.word, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, 0, event);
-  MD_UNION_TO_WEIGHT(weight, md);
-}
-
 void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
 {
   char s[8];

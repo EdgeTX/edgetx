@@ -114,8 +114,6 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min,
 
 #endif
 
-void gvarWeightItem(coord_t x, coord_t y, MixData * md, LcdFlags attr, event_t event);
-
 void editName(coord_t x, coord_t y, char *name, uint8_t size, event_t event,
               uint8_t active, LcdFlags attr, uint8_t old_editMode);
 

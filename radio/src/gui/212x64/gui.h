@@ -121,8 +121,6 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min,
 
 #endif
 
-void gvarWeightItem(coord_t x, coord_t y, MixData * md, LcdFlags attr, event_t event);
-
 void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
                   IsValueAvailable isValueAvailable, int16_t sourceMin);
 
