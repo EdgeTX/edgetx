@@ -62,15 +62,16 @@ void menuViewTelemetry(event_t event)
   }
 #endif
   else if (EVT_KEY_PREVIOUS_VIEW(event)) {
+    killEvents(event);
     decrTelemetryScreen();
   }
   else if (EVT_KEY_NEXT_VIEW(event)) {
+    killEvents(event);
     incrTelemetryScreen();
   }
   else if (event == EVT_KEY_LONG(KEY_ENTER)) {
     POPUP_MENU_START(onMainViewMenu, 2, STR_RESET_TELEMETRY, STR_RESET_FLIGHT);
   }
-  killEvents(event);
 
   for (int i=0; i<=TELEMETRY_SCREEN_TYPE_MAX; i++) {
     if (direction == NAVIGATION_DIRECTION_UP) {
