@@ -580,11 +580,8 @@
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOJ, 0) // PJ.00
   #define PWR_EXTRA_SWITCH_GPIO         GPIO_PIN(GPIOB, 0) // PB.00
 #elif defined(RADIO_V16)
-#define PWR_RCC_AHB1Periph              RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOJ
-#define PWR_ON_GPIO                     GPIOB
-#define PWR_ON_GPIO_PIN                 GPIO_Pin_2  // PB.02
-#define PWR_SWITCH_GPIO                 GPIOJ
-#define PWR_SWITCH_GPIO_PIN             GPIO_Pin_0  // PJ.00
+  #define PWR_ON_GPIO                   GPIO_PIN(GPIOB, 2) // PB.02
+  #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOJ, 0) // PJ.00
 #else
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOJ, 1) // PJ.01
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOJ, 0) // PJ.00
@@ -650,7 +647,7 @@
 #if defined(AUX_SERIAL)
   #if defined(RADIO_V16)
     #define AUX_SERIAL_TX_GPIO                  GPIO_PIN(GPIOG, 14) // PG.14
-    #define AUX_SERIAL_RX_GPIO                  GPIO_PIN(GPIOG, 09) // PG.09
+    #define AUX_SERIAL_RX_GPIO                  GPIO_PIN(GPIOG, 9) // PG.09
     #define AUX_SERIAL_USART                    USART6
     #define AUX_SERIAL_USART_IRQHandler         USART6_IRQHandler
     #define AUX_SERIAL_USART_IRQn               USART6_IRQn
@@ -1025,9 +1022,8 @@
 #if defined(RADIO_V16)
   // LED Strip
   #define LED_STRIP_LENGTH                  40
-  #define LED_STRIP_GPIO                    GPIOA
-  #define LED_STRIP_GPIO_PIN_DATA           LL_GPIO_PIN_10  // PA.10 / TIM1_CH3
-  #define LED_STRIP_GPIO_PIN_AF             LL_GPIO_AF_1    // TIM1/2
+  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10)  // PA.10 / TIM1_CH3
+  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1    // TIM1/2
   #define LED_STRIP_TIMER                   TIM1
   #define LED_STRIP_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
   #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH3
@@ -1059,8 +1055,7 @@
 #if defined(PCBX12S)
   #define INTMODULE_BOOTCMD_GPIO        GPIO_PIN(GPIOC, 2) // PC.02
 #elif defined(RADIO_V16)
-  #define INTMODULE_BOOTCMD_GPIO        GPIOB
-  #define INTMODULE_BOOTCMD_GPIO_PIN    GPIO_Pin_0  // PB.00
+  #define INTMODULE_BOOTCMD_GPIO        GPIO_PIN(GPIOB, 0) // PB.00
 #elif defined(PCBX10)
   #define INTMODULE_BOOTCMD_GPIO        GPIO_PIN(GPIOI, 9) // PI.09
 #endif
@@ -1098,15 +1093,8 @@
   #define EXTMODULE_USART_RX_DMA_CHANNEL   LL_DMA_CHANNEL_4
   #define EXTMODULE_USART_RX_DMA_STREAM    LL_DMA_STREAM_1
   #if defined(RADIO_V16)
-    #define EXTMODULE_TX_INVERT_GPIO           GPIOI
-    #define EXTMODULE_TX_INVERT_GPIO_PIN       GPIO_Pin_2  // PI.02
-    #define EXTMODULE_RX_INVERT_GPIO           GPIOI
-    #define EXTMODULE_RX_INVERT_GPIO_PIN       GPIO_Pin_9 // PI.09
-
-    #define EXTMODULE_TX_NORMAL()              EXTMODULE_TX_INVERT_GPIO->BSRRH = EXTMODULE_TX_INVERT_GPIO_PIN
-    #define EXTMODULE_TX_INVERTED()            EXTMODULE_TX_INVERT_GPIO->BSRRL = EXTMODULE_TX_INVERT_GPIO_PIN
-    #define EXTMODULE_RX_NORMAL()              EXTMODULE_RX_INVERT_GPIO->BSRRH = EXTMODULE_RX_INVERT_GPIO_PIN
-    #define EXTMODULE_RX_INVERTED()            EXTMODULE_RX_INVERT_GPIO->BSRRL = EXTMODULE_RX_INVERT_GPIO_PIN
+    #define EXTMODULE_TX_INVERT_GPIO           GPIO_PIN(GPIOI, 2) // PI.02
+    #define EXTMODULE_RX_INVERT_GPIO           GPIO_PIN(GPIOI, 9) // PI.09
   #endif
 #elif defined(PCBX10) || PCBREV >= 13
   #define EXTMODULE_TX_GPIO                GPIO_PIN(GPIOA, 10) // PA.10 (TIM1_CH3)
