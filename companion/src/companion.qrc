@@ -1328,7 +1328,9 @@
   <qresource prefix="/layouts/">
     <file alias="mask_layout1p2.png">images/layouts/mask_layout1+2.png</file>
     <file alias="mask_layout1p3.png">images/layouts/mask_layout1+3.png</file>
+    <file alias="mask_layout1p4.png">images/layouts/mask_layout1+4.png</file>
     <file alias="mask_layout1x1.png">images/layouts/mask_layout1x1.png</file>
+    <file alias="mask_layout1x1am.png">images/layouts/mask_layout1x1.png</file>
     <file alias="mask_layout1x2.png">images/layouts/mask_layout1x2.png</file>
     <file alias="mask_layout1x3.png">images/layouts/mask_layout1x3.png</file>
     <file alias="mask_layout1x4.png">images/layouts/mask_layout1x4.png</file>
