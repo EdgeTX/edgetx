@@ -61,13 +61,8 @@ void onModelSelectMenu(const char * result)
   else if (result == STR_RESTORE_MODEL || result == STR_UPDATE_LIST) {
     const char* ext = nullptr;
     const char* path = nullptr;
-#if defined(SDCARD_YAML)
     ext = STR_YAML_EXT;
     path = STR_BACKUP_PATH;
-#else
-    ext = STR_MODELS_EXT;
-    path = STR_MODELS_PATH;
-#endif
     if (sdListFiles(path, ext, MENU_LINE_LENGTH-1, nullptr))
       POPUP_MENU_START(onModelSelectMenu);
     else
@@ -264,12 +259,6 @@ void menuModelSelect(event_t event)
       moveToFreeModelSlot(true, sub, oldSub);
     }
   }
-
-#if defined(EEPROM)
-  lcdDrawText(9*FW-(LEN_FREE-4)*FW-4, 0, STR_FREE);
-  if (event) reusableBuffer.modelsel.eepromfree = EeFsGetFree();
-  lcdDrawNumber(lcdLastRightPos+3, 0, reusableBuffer.modelsel.eepromfree, LEFT);
-#endif
 
   extern uint8_t menuSize(const MenuHandler*, uint8_t);
   uint8_t sz = menuSize(menuTabModel, DIM(menuTabModel));

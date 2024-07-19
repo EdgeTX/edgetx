@@ -51,13 +51,8 @@ void onModelSelectMenu(const char * result)
   else if (result == STR_RESTORE_MODEL || result == STR_UPDATE_LIST) {
     const char* ext = nullptr;
     const char* path = nullptr;
-#if defined(SDCARD_YAML)
     ext = STR_YAML_EXT;
     path = STR_BACKUP_PATH;
-#else
-    ext = STR_MODELS_EXT;
-    path = STR_MODELS_PATH;
-#endif
     if (sdListFiles(path, ext, MENU_LINE_LENGTH-1, nullptr))
       POPUP_MENU_START(onModelSelectMenu);
     else
@@ -241,12 +236,6 @@ void menuModelSelect(event_t event)
     }
   }
 
-#if defined(EEPROM)
-  lcdDrawNumber(19*FW, 0, EeFsGetFree(), RIGHT);
-  lcdDrawText(19*FW + 3, 0, STR_BYTES);
-  lcdDrawText(lcdLastRightPos + 3, 0, STR_FREE);
-#endif
-
   extern uint8_t menuSize(const MenuHandler*, uint8_t);
   drawScreenIndex(MENU_MODEL_SELECT, menuSize(menuTabModel, DIM(menuTabModel)), 0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
@@ -279,9 +268,6 @@ void menuModelSelect(event_t event)
 
     if (modelExists(k)) {
       drawModelName(4*FW, y, modelHeaders[k].name, k, 0);
-#if defined(EEPROM)      
-      lcdDrawNumber(20*FW, y, eeModelSize(k), RIGHT);
-#endif
       if (k==g_eeGeneral.currModel && (s_copyMode!=COPY_MODE || s_copySrcRow<0 || i+menuVerticalOffset!=(vertpos_t)sub))
         lcdDrawChar(1, y, '*');
     }

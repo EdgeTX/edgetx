@@ -77,12 +77,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
 
   if (st == ST_START) {
     lcdDrawText(3*FW, 2*FH, TR_BL_WRITE_FW, opt == 0 ? INVERS : 0);
-#if defined(EEPROM)
-    lcdDrawText(3*FW, 3*FH, TR_BL_RESTORE_EEPROM, opt == 1 ? INVERS : 0);
-    lcdDrawText(3*FW, 4*FH, TR_BL_EXIT, opt == 2 ? INVERS : 0);
-#else
     lcdDrawText(3*FW, 3*FH, TR_BL_EXIT, opt == 1 ? INVERS : 0);
-#endif    
 
     lcdDrawText(LCD_W / 2, 5 * FH + FH / 2, TR_BL_OR_PLUGIN_USB_CABLE, CENTERED);
 

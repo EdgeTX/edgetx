@@ -655,10 +655,6 @@ static void checkFailsafe()
 #if defined(GUI)
 void checkAll(bool isBootCheck)
 {
-#if defined(EEPROM_RLC) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
-  checkLowEEPROM();
-#endif
-
   checkSDfreeStorage();
   
   // we don't check the throttle stick if the radio is not calibrated
@@ -734,17 +730,6 @@ void checkAll(bool isBootCheck)
   START_SILENCE_PERIOD();
 }
 #endif // GUI
-
-
-#if defined(EEPROM_RLC) && !defined(SDCARD_RAW) && !defined(SDCARD_YAML)
-void checkLowEEPROM()
-{
-  if (g_eeGeneral.disableMemoryWarning) return;
-  if (EeFsGetFree() < 100) {
-    ALERT(STR_STORAGE_WARNING, STR_EEPROMLOWMEM, AU_ERROR);
-  }
-}
-#endif
 
 bool isThrottleWarningAlertNeeded()
 {
@@ -1387,14 +1372,13 @@ void edgeTxInit()
 #endif
 
   // Load radio.yml so radio settings can be used
-  bool radioSettingsValid = false;
 #if defined(RTC_BACKUP_RAM)
   // Skip loading if EM startup and radio has RTC backup data
   if (!UNEXPECTED_SHUTDOWN())
-    radioSettingsValid = storageReadRadioSettings(false);
+    storageReadRadioSettings(false);
 #else
   // No RTC backup - try and load even for EM startup
-  radioSettingsValid = storageReadRadioSettings(false);
+  storageReadRadioSettings(false);
 #endif
 
 #if defined(GUI) && !defined(COLORLCD)
@@ -1452,15 +1436,6 @@ void edgeTxInit()
   }
 #endif // defined(SDCARD)
 
-#if defined(EEPROM)
-  if (!radioSettingsValid) {
-    storageReadRadioSettings();
-  }
-  storageReadCurrentModel();
-#else
-  (void)radioSettingsValid;
-#endif
-
 #if defined(COLORLCD) && defined(LUA)
   if (!UNEXPECTED_SHUTDOWN()) {
     // lua widget state must be prepared before the call to storageReadAll()
@@ -1468,8 +1443,7 @@ void edgeTxInit()
   }
 #endif
 
-  // handling of storage for radios that have no EEPROM
-#if !defined(EEPROM)
+  // handling of storage for radios
 #if defined(RTC_BACKUP_RAM) && !defined(SIMU)
   if (UNEXPECTED_SHUTDOWN()) {
     // SDCARD not available, try to restore last model from RAM
@@ -1483,7 +1457,6 @@ void edgeTxInit()
 #else
   storageReadAll();
 #endif
-#endif  // #if !defined(EEPROM)
 
   initSerialPorts();
 
@@ -1638,10 +1611,6 @@ int main()
   if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
     runFatalErrorScreen(STR_NO_SDCARD);
   }
-#endif
-
-#if defined(EEPROM) && defined(EEPROM_RLC)
-  eepromInit();
 #endif
   
   tasksStart();

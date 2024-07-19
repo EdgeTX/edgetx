@@ -88,10 +88,6 @@ enum {
 #if defined(FUNCTION_SWITCHES)
   ITEM_RADIO_HARDWARE_DEBUG_FS,
 #endif
-#if defined(EEPROM)
-  ITEM_RADIO_BACKUP_EEPROM,
-  ITEM_RADIO_FACTORY_RESET,
-#endif
   ITEM_RADIO_HARDWARE_MAX
 };
 
@@ -123,17 +119,6 @@ static bool _isVCPModeAvailable(int m) { return isSerialModeAvailable(SP_VCP, m)
 static const IsValueAvailable _isSerialModeAvailable[MAX_SERIAL_PORTS] = {
   _isAux1ModeAvailable, _isAux2ModeAvailable, _isVCPModeAvailable
 };
-
-#if defined(EEPROM)
-void onFactoryResetConfirm(const char* result)
-{
-  if (result == STR_OK) {
-    showMessageBox(STR_STORAGE_FORMAT);
-    storageEraseAll(false);
-    NVIC_SystemReset();
-  }
-}
-#endif
 
 static void _init_menu_tab_array(uint8_t* tab, size_t len)
 {
@@ -223,10 +208,6 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   tab[ITEM_RADIO_HARDWARE_DEBUG] = 1;
 #if defined(FUNCTION_SWITCHES)
   tab[ITEM_RADIO_HARDWARE_DEBUG_FS] = 0;
-#endif
-#if defined(EEPROM)
-  tab[ITEM_RADIO_BACKUP_EEPROM] = 0;
-  tab[ITEM_RADIO_FACTORY_RESET] = 0;
 #endif
 }
 
@@ -465,30 +446,6 @@ void menuRadioHardware(event_t event)
         lcdDrawText(HW_SETTINGS_COLUMN2, y, STR_FS_BTN, attr);
         if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
             pushMenu(menuRadioDiagFS);
-        }
-        break;
-#endif
-
-#if defined(EEPROM)
-      case ITEM_RADIO_BACKUP_EEPROM:
-        if (LCD_W < 212)
-          lcdDrawText(LCD_W / 2, y, BUTTON(STR_EEBACKUP), attr | CENTERED);
-        else
-          lcdDrawText(HW_SETTINGS_COLUMN2, y, BUTTON(STR_EEBACKUP), attr);
-        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
-          s_editMode = EDIT_SELECT_FIELD;
-          eepromBackup();
-        }
-        break;
-
-      case ITEM_RADIO_FACTORY_RESET:
-        if (LCD_W < 212)
-          lcdDrawText(LCD_W / 2, y, BUTTON(STR_FACTORYRESET), attr | CENTERED);
-        else
-          lcdDrawText(HW_SETTINGS_COLUMN2, y, BUTTON(STR_FACTORYRESET), attr);
-        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
-          s_editMode = EDIT_SELECT_FIELD;
-          POPUP_CONFIRMATION(STR_CONFIRMRESET, onFactoryResetConfirm);
         }
         break;
 #endif

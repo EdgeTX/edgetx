@@ -48,7 +48,7 @@
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
 #endif
 
-#if defined(EEPROM) || defined(SPI_FLASH)
+#if defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
 #else
   #define MAIN_MENU_LEN 2
@@ -79,11 +79,6 @@ uint32_t firmwareSize;
 uint32_t firmwareAddress = FIRMWARE_ADDRESS;
 uint32_t firmwareWritten = 0;
 
-#if defined(EEPROM)
-uint32_t eepromAddress = 0;
-uint32_t eepromWritten = 0;
-#endif
-
 FlashCheckRes valid;
 MemoryType memoryType;
 uint32_t unlocked = 0;
@@ -112,14 +107,7 @@ void per10ms()
 uint32_t isValidBufferStart(const uint8_t * buffer)
 {
 #if !defined(SIMU)
-#if defined(EEPROM)
-  if (memoryType == MEM_FLASH)
-    return isFirmwareStart(buffer);
-  else
-    return isEepromStart(buffer);
-#else
   return isFirmwareStart(buffer);
-#endif
 #else
   return 1;
 #endif
@@ -182,14 +170,6 @@ void flashWriteBlock()
 #endif // SIMU
 }
 
-#if defined(EEPROM)
-void writeEepromBlock()
-{
-  eepromWriteBlock(Block_buffer, eepromAddress, BlockCount);
-  eepromAddress += BlockCount;
-}
-#endif
-
 #if !defined(SIMU)
 
 typedef void (*fctptr_t)(void);
@@ -249,15 +229,11 @@ void bootloaderInitApp()
 
   TRACE("\nBootloader started :)");
 
-  // TODO: move BT & EEPROM into board specifics
+  // TODO: move BT into board specifics
 #if defined(BLUETOOTH)
   // we shutdown the bluetooth module now to be sure it will be detected on
   // firmware start
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, false);
-#endif
-
-#if defined(EEPROM) && defined(EEPROM_RLC)
-  eepromInit();
 #endif
 
   timersInit();
@@ -346,12 +322,7 @@ int  bootloaderMain()
               memoryType = MEM_FLASH;
               state = ST_DIR_CHECK;
               break;
-#if defined(EEPROM)
-            case 1:
-              memoryType = MEM_EEPROM;
-              state = ST_DIR_CHECK;
-              break;
-#elif defined(SPI_FLASH)
+#if defined(SPI_FLASH)
             case 1:
               state = ST_CLEAR_FLASH_CHECK;
               break;
@@ -454,12 +425,6 @@ int  bootloaderMain()
             firmwareAddress = APP_START_ADDRESS;
             firmwareWritten = 0;
           }
-#if defined(EEPROM)
-          else {
-            eepromAddress = 0;
-            eepromWritten = 0;
-          }
-#endif
           state = ST_FLASHING;
         }
       }
@@ -476,13 +441,6 @@ int  bootloaderMain()
           firmwareWritten += sizeof(Block_buffer);
           progress = (100 * firmwareWritten) / firmwareSize;
         }
-#if defined(EEPROM)
-        else {
-          writeEepromBlock();
-          eepromWritten += sizeof(Block_buffer);
-          progress = (100 * eepromWritten) / EEPROM_SIZE;
-        }
-#endif
 
         bootloaderDrawScreen(state, progress);
 
@@ -493,11 +451,6 @@ int  bootloaderMain()
         else if (memoryType == MEM_FLASH && firmwareWritten >= FIRMWARE_MAX_LEN) {
           state = ST_FLASH_DONE; // Backstop
         }
-#if defined(EEPROM)
-        else if (memoryType == MEM_EEPROM && eepromWritten >= EEPROM_SIZE) {
-          state = ST_FLASH_DONE; // Backstop
-        }
-#endif
 #if defined(SPI_FLASH)
       } else if (state == ST_CLEAR_FLASH_CHECK) {
         bootloaderDrawScreen(state, vpos);

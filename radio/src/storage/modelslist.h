@@ -34,10 +34,6 @@
 
 #include "sdcard.h"
 
-#if !defined(SDCARD_YAML)
-#include "sdcard_raw.h"
-#endif
-
 #include "dataconstants.h"
 #include "rtc.h"
 
@@ -223,13 +219,9 @@ class ModelsList : public ModelsVector
  public:
   enum class Format {
     txt,
-#if defined(SDCARD_YAML)
     yaml,
     yaml_txt,
     load_default = yaml,
-#else
-    load_default = txt,
-#endif
   };
 
   ModelsList();
@@ -270,10 +262,8 @@ class ModelsList : public ModelsVector
   FIL file;
 
   bool loadTxt();
-#if defined(SDCARD_YAML)
   bool loadYaml();
   bool loadYamlDirScanner();
-#endif
 };
 
 ModelLabelsVector getUniqueLabels();

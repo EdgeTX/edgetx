@@ -25,15 +25,12 @@
 
 using std::list;
 
-#if defined(SDCARD_YAML)
 #include "edgetx.h"
 #include "storage/sdcard_yaml.h"
 #include "yaml/yaml_datastructs.h"
 #include "yaml/yaml_labelslist.h"
 #include "yaml/yaml_modelslist.h"
 #include "yaml/yaml_parser.h"
-
-#endif
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -956,8 +953,6 @@ bool ModelsList::loadTxt()
   return false;
 }
 
-#if defined(SDCARD_YAML)
-
 /**
  * @brief Opens a YAML file, reads the data and updates the ModelCell
  *
@@ -1222,7 +1217,6 @@ bool ModelsList::loadYaml()
 
   return true;
 }
-#endif
 
 /**
  * @brief Called to load the model data from file
@@ -1238,10 +1232,6 @@ bool ModelsList::load(Format fmt)
   if (loaded) return true;
 
   bool res = false;
-#if !defined(SDCARD_YAML)
-  (void)fmt;
-  res = loadTxt();
-#else
   FILINFO fno;
   if (fmt == Format::txt ||
       (fmt == Format::yaml_txt && f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
@@ -1250,7 +1240,6 @@ bool ModelsList::load(Format fmt)
   } else {
     res = loadYaml();
   }
-#endif
 
   if (!currentModel) {
     TRACE("ERROR no Current Model Found");
@@ -1283,13 +1272,8 @@ bool ModelsList::load(Format fmt)
 
 const char *ModelsList::save(LabelsVector newOrder)
 {
-#if !defined(SDCARD_YAML)
-  FRESULT result =
-      f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
-#else
   FRESULT result =
       f_open(&file, LABELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
-#endif
   if (result != FR_OK) return "Couldn't open labels.yml for writing";
 
   // Save current selection
