@@ -84,20 +84,42 @@ void MixEditAdvanced::buildBody(Window* form)
                              GET_SET_DEFAULT(mix->mixWarn));
   edit->setZeroText(STR_OFF);
 
+  // Delay up/down precision
+#if !PORTRAIT_LCD
+  grid.setColSpan(2);
+#endif
+  line = form->newLine(grid);
+  new StaticText(line, rect_t{}, STR_MIX_DELAY_PREC);
+  new Choice(line, rect_t{}, &STR_VPREC[1], 0, 1,
+             GET_DEFAULT(mix->delayPrec),
+             [=](int newValue) {
+              mix->delayPrec = newValue;
+              delayUp->clearTextFlag(PREC2);
+              delayUp->setTextFlag(mix->delayPrec ? PREC2 : PREC1);
+              delayUp->update();
+              delayDn->clearTextFlag(PREC2);
+              delayDn->setTextFlag(mix->delayPrec ? PREC2 : PREC1);
+              delayDn->update();
+              SET_DIRTY();
+             });
+#if !PORTRAIT_LCD
+  grid.setColSpan(1);
+#endif
+
   // Delay up
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_DELAYUP);
-  edit = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX,
-                        GET_DEFAULT(mix->delayUp),
-                        SET_VALUE(mix->delayUp, newValue), PREC1);
-  edit->setSuffix("s");
+  delayUp = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX,
+                           GET_DEFAULT(mix->delayUp),
+                           SET_VALUE(mix->delayUp, newValue), mix->delayPrec ? PREC2 : PREC1);
+  delayUp->setSuffix("s");
 
   // Delay down
   new StaticText(line, rect_t{}, STR_DELAYDOWN);
-  edit = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX,
-                        GET_DEFAULT(mix->delayDown),
-                        SET_VALUE(mix->delayDown, newValue), PREC1);
-  edit->setSuffix("s");
+  delayDn = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX,
+                           GET_DEFAULT(mix->delayDown),
+                           SET_VALUE(mix->delayDown, newValue), mix->delayPrec ? PREC2 : PREC1);
+  delayDn->setSuffix("s");
 
   // Slow up/down precision
 #if !PORTRAIT_LCD

@@ -1276,3 +1276,4 @@ extern const char STR_WIDGET_SIZE[];
 #endif
 
 extern const char STR_MIX_SLOW_PREC[];
+extern const char STR_MIX_DELAY_PREC[];

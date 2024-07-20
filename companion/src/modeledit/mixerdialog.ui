@@ -501,6 +501,102 @@
        </property>
       </widget>
      </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="trimLabel">
+       <property name="text">
+        <string>Include Trim</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="mixerName">
+       <property name="maxLength">
+        <number>6</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0">
+       <item>
+        <widget class="QCheckBox" name="curveGVarCB">
+         <property name="text">
+          <string>GV</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="curveValueCB">
+         <property name="whatsThis">
+          <string>The source for the mixer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="curveValueSB"/>
+       </item>
+       <item>
+        <widget class="CurveImageWidget" name="curveImage">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>image</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Delay up/dn prec</string>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1" colspan="2">
+      <widget class="QComboBox" name="delayPrecCB">
+       <item>
+        <property name="text">
+         <string>0.0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0.00</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="12" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Slow up/dn prec</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="1" colspan="2">
+      <widget class="QComboBox" name="speedPrecCB">
+       <item>
+        <property name="text">
+         <string>0.0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0.00</string>
+        </property>
+       </item>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="2" column="0">

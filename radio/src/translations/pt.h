@@ -1298,6 +1298,7 @@
 #define TR_CREATE_NEW             "Criar"
 
 #define TR_MIX_SLOW_PREC          TR("Prec. Lento", "Prec. mais/menos lento")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "Já existe um diretório de tema com o mesmo nome."
 

@@ -93,9 +93,10 @@ PACK(struct MixData {
   uint16_t carryTrim:1;
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
+  uint32_t delayPrec:1;
   uint16_t speedPrec:1;
   uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:2 SKIP;
+  uint16_t spare:1 SKIP;
   uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
   uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
   int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);

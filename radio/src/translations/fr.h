@@ -1310,6 +1310,7 @@
 #define TR_CREATE_NEW             "Créer"
 
 #define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "Un thème avec le même nom existe déjà."
 

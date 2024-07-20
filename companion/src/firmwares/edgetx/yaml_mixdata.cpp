@@ -142,6 +142,7 @@ Node convert<MixData>::encode(const MixData& rhs)
   node["weight"] = YamlSourceNumRefEncode(rhs.weight);
   node["swtch"] = rhs.swtch;
   node["curve"] = rhs.curve;
+  node["delayPrec"] = rhs.delayPrec;
   node["delayUp"] = rhs.delayUp;
   node["delayDown"] = rhs.delayDown;
   node["speedPrec"] = rhs.speedPrec;
@@ -165,6 +166,7 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
   }
   node["swtch"] >> rhs.swtch;
   node["curve"] >> rhs.curve;
+  node["delayPrec"] >> rhs.delayPrec;
   node["delayUp"] >> rhs.delayUp;
   node["delayDown"] >> rhs.delayDown;
   node["speedPrec"] >> rhs.speedPrec;
