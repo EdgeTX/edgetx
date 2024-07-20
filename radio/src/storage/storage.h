@@ -58,7 +58,6 @@ void storageFlushCurrentModel();
 void postRadioSettingsLoad();
 void preModelLoad();
 void postModelLoad(bool alarms);
-void checkExternalAntenna();
 
 #if !defined(STORAGE_MODELSLIST)
 extern ModelHeader modelHeaders[MAX_MODELS];

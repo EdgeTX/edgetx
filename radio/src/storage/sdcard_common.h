@@ -29,10 +29,6 @@
 #define DEFAULT_MODEL_FILENAME   MODEL_FILENAME_PREFIX "1" MODEL_FILENAME_SUFFIX
 #define MODEL_FILENAME_PATTERN   MODEL_FILENAME_PREFIX MODEL_FILENAME_SUFFIX
 
-#if !defined(STORAGE_MODELSLIST)
-extern ModelHeader modelHeaders[MAX_MODELS];
-#endif
-
 // writes a complete YAML file
 struct YamlNode;
 const char* writeFileYaml(const char* path, const YamlNode* root_node, uint8_t* data, uint16_t checksum);
@@ -46,6 +42,8 @@ const char * createModel();
 const char * writeModel();
 
 #if !defined(STORAGE_MODELSLIST)
+
+extern ModelHeader modelHeaders[MAX_MODELS];
 
 // index storage vs modelslist
 void selectModel(uint8_t idx);

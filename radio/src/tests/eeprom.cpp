@@ -21,8 +21,6 @@
 
 #include "gtests.h"
 
-extern const char * eepromFile;
-
 #if defined(RTC_BACKUP_RAM)
 #include "storage/rtc_backup.h"
 namespace Backup {
