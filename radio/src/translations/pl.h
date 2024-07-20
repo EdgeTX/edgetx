@@ -1303,4 +1303,4 @@
 #define TR_MID_BATT_COLOR         "Średni stan baterii"
 #define TR_HIGH_BATT_COLOR        "Naładowana bateria"
 
-#define TR_WIDGET_SIZE            "Widget size"
+#define TR_WIDGET_SIZE            "Rozmiar widżetu"
