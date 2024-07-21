@@ -154,6 +154,7 @@ static bool _checkFrameCRC(uint8_t* rxBuffer)
 {
   uint8_t len = rxBuffer[1];
   uint8_t crc = crc8(&rxBuffer[2], len - 1);
+  // TRACE("[XF] crc = %d; pkt = %d", crc, rxBuffer[len + 1]);
   return (crc == rxBuffer[len + 1]);
 }
 
@@ -175,76 +176,42 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
   drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
 }
 
-static bool _lenIsSane(uint8_t len)
+static bool _lenIsSane(uint32_t len)
 {
   // packet len must be at least 3 bytes (type + payload + crc)
   // and 2 bytes < MAX (hdr + len)
   return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE - 1);
 }
 
-static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
-                                  uint8_t* buf, uint8_t* p_len)
+static bool _validHdr(uint8_t* buf)
 {
-  if (frame_len < MIN_FRAME_LEN) return;
+  return buf[0] == RADIO_ADDRESS || buf[0] == UART_SYNC;
+}
 
-  // De-Fragmentation:
-  //   It is assumed here that a continuation chunk
-  //   will not belong to multiple CRSF frames.
-
-  uint8_t& len = *p_len;
-  if (len > 0) {
-    uint8_t unfrag_len = buf[1] + 2;
-    uint8_t defrag_len = len + frame_len;
-
-    if (defrag_len <= unfrag_len && defrag_len <= TELEMETRY_RX_PACKET_SIZE) {
-      // If we're not going to overshoot
-      // the intended frame length,
-      // let's reassemble it
-      memcpy(buf + len, frame, frame_len);
-      len = defrag_len;
-      frame_len = 0;
-
-      // frame complete?
-      if (defrag_len < unfrag_len) {
-        TRACE("[XF] frag cont frame (%d < %d)", defrag_len, unfrag_len);
-        return;
-      } else {
-        TRACE("[XF] frame complete");
-      }
-    } else {
-      TRACE("[XF] overshoot (%d > %d)", defrag_len, unfrag_len);
-    }
-  }
-
-  if (frame_len > 0) {
-    memcpy(buf, frame, frame_len);
-    len = frame_len;
-
-    uint8_t unfrag_len = buf[1] + 2;
-    if (!_lenIsSane(unfrag_len)) {
-      TRACE("[XF] pkt len error (%d)", unfrag_len);
-      len = 0;
-      return;
-    }
-
-    if (len < unfrag_len) {
-      TRACE("[XF] frag frame (%d < %d)", len, unfrag_len);
-      return;
-    }
-  }
-
+static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
+{
   uint8_t* p_buf = buf;
   while (len >= MIN_FRAME_LEN) {
-    uint8_t pkt_len = p_buf[1] + 2;
-    if (pkt_len > len) {
-      TRACE("[XF] length error (%d > %d)", pkt_len, len);
-      len = 0;
-      return;
+
+    if (!_validHdr(p_buf)) {
+      TRACE("[XF] skipping invalid start bytes");
+      do { p_buf++; len--; } while(len > 0 && !_validHdr(p_buf));
+      if (len < MIN_FRAME_LEN) break;
     }
 
-    if (p_buf[0] != RADIO_ADDRESS && p_buf[0] != UART_SYNC) {
-      TRACE("[XF] address 0x%02X error", p_buf[0]);
-    } else if (!_checkFrameCRC(p_buf)) {
+    uint32_t pkt_len = p_buf[1] + 2;
+    if (!_lenIsSane(pkt_len)) {
+      TRACE("[XF] pkt len error (%d)", pkt_len);
+      len = 0;
+      break;
+    }
+
+    if (pkt_len > (uint32_t)len) {
+      // incomplete packet
+      break;
+    }
+
+    if (!_checkFrameCRC(p_buf)) {
       TRACE("[XF] CRC error ");
     } else {
 #if defined(BLUETOOTH)
@@ -261,6 +228,45 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
 
     p_buf += pkt_len;
     len -= pkt_len;
+  }
+  
+  return p_buf;
+}
+
+static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
+                                  uint8_t* buf, uint8_t* p_len)
+{
+  if (frame_len < MIN_FRAME_LEN) return;
+
+  uint8_t& len = *p_len;
+  if (len == 0) {
+    // buffer is empty: no re-assembly
+    if (!_validHdr(frame)) {
+      TRACE("[XF] invalid frame start");
+      return;
+    }
+
+    // process frames directly out of RX buffer
+    uint8_t* p_buf = _processFrames(ctx, frame, frame_len);
+    if (frame_len > 0) {
+      memcpy(buf, p_buf, frame_len);
+      len = frame_len;
+    }
+  } else {
+    uint32_t defrag_len = (uint32_t)len + (uint32_t)frame_len;
+    if (defrag_len > TELEMETRY_RX_PACKET_SIZE) {
+      TRACE("[XF] overflow (%d > %d)", defrag_len, TELEMETRY_RX_PACKET_SIZE);
+      frame_len = TELEMETRY_RX_PACKET_SIZE - len;
+      defrag_len = (uint32_t)len + (uint32_t)frame_len;
+    }
+
+    memcpy(buf + len, frame, frame_len);
+    len = (uint8_t)defrag_len;
+
+    uint8_t* p_buf = _processFrames(ctx, buf, len);
+    if ((len > 0) && (p_buf != buf)) {
+      memmove(buf, p_buf, len);
+    }
   }
 }
 
