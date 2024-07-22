@@ -114,7 +114,7 @@ static void _fill_pulses(const uint8_t* colors, led_timer_value_t* dma_buffer, u
 
 static inline uint32_t _calc_offset(uint8_t tc)
 {
-    return tc * WS2821_DMA_BUFFER_HALF_LEN * pulse_inc;
+  return tc * WS2821_DMA_BUFFER_HALF_LEN * pulse_inc;
 }
 
 static void _update_dma_buffer(const stm32_pulse_timer_t* tim, uint8_t tc)

@@ -27,7 +27,7 @@ jobs:
           - tx16s
           - f16
           - v16
-          - x10;x10-access
+          - x10;x10express
           - x12s
           - x7;x7access
           - x9d;x9dp;x9dp2019
