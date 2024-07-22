@@ -128,10 +128,12 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   return result;
 }
 
-QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board, bool prefixCustomName) const
+QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board,
+                            bool prefixCustomName, bool useInvertIndicator) const
 {
   if (index < 0)
-    return CPN_STR_SRC_INDICATOR_INVERT % RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
+    return (useInvertIndicator ? CPN_STR_SRC_INDICATOR_INVERT : CPN_STR_SRC_INDICATOR_NEG) %
+            RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
 
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();

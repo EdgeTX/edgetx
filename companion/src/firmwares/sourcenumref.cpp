@@ -29,7 +29,7 @@ QString SourceNumRef::toString(const ModelData * model, const GeneralSettings * 
   if (srcNum.type == SOURCE_TYPE_NONE)
     return QString::number(srcNum.index);
   else
-    return srcNum.toString(model, generalSettings, board, prefixCustomName);
+    return srcNum.toString(model, generalSettings, board, prefixCustomName, false);
 }
 
 // static

@@ -68,6 +68,7 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   sharedItemModels->addItemModel(AbstractItemModel::IMID_TeleSource);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CurveRefType);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_CurveRefFunc);
+  sharedItemModels->addItemModel(AbstractItemModel::IMID_SourceValues);
 
   s1.report("Init");
 
