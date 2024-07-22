@@ -190,6 +190,7 @@ ExpoDialog::~ExpoDialog()
   delete weightEditor;
   delete offsetEditor;
   delete dialogFilteredItemModels;
+  delete curveRefFilteredItemModels;
 }
 
 void ExpoDialog::updateScale()

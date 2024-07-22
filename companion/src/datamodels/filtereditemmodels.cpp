@@ -222,8 +222,6 @@ CurveRefFilteredFactory::CurveRefFilteredFactory(CompoundItemModelFactory * shar
 
   registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_Curve), curveFlags),
                                           fidToString(CRFIM_CURVE), CRFIM_CURVE);
-  registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef), gvarRefFlags),
-                                          fidToString(CRFIM_GVARREF), CRFIM_GVARREF);
   registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_CurveRefType)),
                                           fidToString(CRFIM_TYPE), CRFIM_TYPE);
   registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_CurveRefFunc)),

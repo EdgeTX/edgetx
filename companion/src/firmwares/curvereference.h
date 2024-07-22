@@ -102,10 +102,10 @@ class CurveReferenceUIManager : public QObject {
                                      CurveRefFilteredFactory * curveRefFilteredFactory, FilteredItemModel * sourceItemModel,
                                      QObject * parent = nullptr);
 
-    explicit CurveReferenceUIManager(QComboBox *cboCurveFunc, CurveReference & curveRef, ModelData & model,
+    explicit CurveReferenceUIManager(QComboBox *cboCurveFunc, CurveImageWidget * curveImage, CurveReference & curveRef, ModelData & model,
                                      CompoundItemModelFactory * sharedItemModels, CurveRefFilteredFactory * curveRefFilteredFactory,
-                                     FilteredItemModel * sourceItemModel, QObject * parent = nullptr) :
-                CurveReferenceUIManager(nullptr, nullptr, nullptr, nullptr, cboCurveFunc, nullptr, curveRef, model, sharedItemModels,
+                                     QObject * parent = nullptr) :
+                CurveReferenceUIManager(nullptr, nullptr, nullptr, nullptr, cboCurveFunc, curveImage, curveRef, model, sharedItemModels,
                                         curveRefFilteredFactory, nullptr, parent) {}
 
     virtual ~CurveReferenceUIManager();
