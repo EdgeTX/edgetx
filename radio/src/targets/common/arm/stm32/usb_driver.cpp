@@ -122,6 +122,10 @@ void usbInit()
   #error "Unable to enable USB peripheral clock"
 #endif
 
+#if defined(PWR_CSR2_USB33DEN)
+  LL_PWR_EnableUSBVoltageDetector();
+#endif
+
   usbDriverStarted = false;
 }
 
@@ -164,8 +168,10 @@ void usbStart()
       //USBD_Init(&hUsbDeviceFS, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_MSC_cb, &USR_cb);
       break;
   }
-  USBD_Start(&hUsbDeviceFS);
-  usbDriverStarted = true;
+
+  if (USBD_Start(&hUsbDeviceFS) == USBD_OK) {
+    usbDriverStarted = true;
+  }
 }
 
 void usbStop()
