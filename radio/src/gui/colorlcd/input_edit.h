@@ -38,7 +38,7 @@ class InputEditWindow : public Page
  protected:
   uint8_t input;
   uint8_t index;
-  Curve* preview;
+  Curve* preview = nullptr;
   getvalue_t lastWeightVal = 0;
   getvalue_t lastOffsetVal = 0;
   getvalue_t lastCurveVal = 0;
