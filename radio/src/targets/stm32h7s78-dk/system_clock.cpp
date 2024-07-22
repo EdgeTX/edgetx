@@ -119,7 +119,11 @@ void SystemClock_Config()
   /* Set periph clock sources */
   // LL_RCC_SetFMCClockSource(LL_RCC_FMC_CLKSOURCE_HCLK);
   // LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL3P);
-  // LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL3Q);
+
+  LL_RCC_HSI48_Enable();
+  while (LL_RCC_HSI48_IsReady() != 1) {
+  }
+  LL_RCC_SetOTGFSClockSource(LL_RCC_OTGFS_CLKSOURCE_HSI48);
 
   LL_RCC_SetXSPIClockSource(LL_RCC_XSPI1_CLKSOURCE_PLL2S);
   LL_RCC_SetXSPIClockSource(LL_RCC_XSPI2_CLKSOURCE_PLL2S);

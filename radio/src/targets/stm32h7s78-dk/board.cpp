@@ -164,10 +164,6 @@ void boardOff()
   }
 }
 
-int usbPlugged()
-{
-  return false;
-}
 
 #if !defined(BOOT)
 void per5ms() {}
