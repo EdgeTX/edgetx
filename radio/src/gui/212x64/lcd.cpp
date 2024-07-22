@@ -642,7 +642,7 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
   }
   else if (aidx <= MIXSRC_LAST_INPUT) {
     if (inverted) {
-      lcdDrawChar(x, y, '!');
+      lcdDrawChar(x, y, '-');
       x += 2;
     }
     lcdDrawChar(x+2, y+1, CHR_INPUT, TINSIZE);
@@ -657,7 +657,7 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
     div_t qr = div((uint16_t)(aidx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
 #if defined(LUA_MODEL_SCRIPTS)
     if (inverted) {
-      lcdDrawChar(x, y, '!');
+      lcdDrawChar(x, y, '-');
       x += 2;
     }
     if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {

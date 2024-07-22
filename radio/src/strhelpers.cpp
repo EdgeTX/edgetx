@@ -658,7 +658,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
 
   if (idx < 0) {
     idx = -idx;
-    dest[0] = '!';
+    dest[0] = '-';
     dest += 1;
     dest_len -= 1;
   }
