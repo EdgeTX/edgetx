@@ -108,6 +108,7 @@ body:
         - FrSky X10 Express / X10S Express (ACCESS)
         - FrSky X12
         - FrSky X-Lite / S / Pro
+        - HelloRadioSky V16
         - Jumper T12
         - Jumper T14
         - Jumper T16
@@ -124,7 +125,6 @@ body:
         - RadioMaster TX12 / TX12MK2
         - RadioMaster TX16S / TX16SMK2
         - RadioMaster Zorro
-        - HelloRadioSky V16
         - Other (Please specify below)
     validations:
       required: true
