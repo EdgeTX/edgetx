@@ -570,12 +570,12 @@ void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate)
 {
   auto periphclk = _get_usart_periph_clock(usart->USARTx);
   auto oversampling = LL_USART_GetOverSampling(usart->USARTx);
-#if defined(LL_USART_PRESCALER_DIV1)
-  LL_USART_SetBaudRate(usart->USARTx, periphclk, LL_USART_PRESCALER_DIV1, oversampling, baudrate);
-#else
   auto bestOversampling = _calc_best_oversampling(usart->USARTx, baudrate);
   if (bestOversampling != oversampling)
     LL_USART_SetOverSampling(usart->USARTx, bestOversampling);    
+#if defined(LL_USART_PRESCALER_DIV1)
+  LL_USART_SetBaudRate(usart->USARTx, periphclk, LL_USART_PRESCALER_DIV1, bestOversampling, baudrate);
+#else
   LL_USART_SetBaudRate(usart->USARTx, periphclk, bestOversampling, baudrate);
 #endif
 }
