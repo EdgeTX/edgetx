@@ -185,6 +185,14 @@ static gpio_af_t _get_usart_af(USART_TypeDef* USARTx)
   return _AF7_USART(USARTx) ? GPIO_AF7 : GPIO_AF8;
 }
 
+static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx);
+
+static uint32_t _calc_best_oversampling(USART_TypeDef* USARTx, uint32_t baudrate)
+{
+  auto periphclk = _get_usart_periph_clock(USARTx);
+  return periphclk / baudrate < 16 ? LL_USART_OVERSAMPLING_8 : LL_USART_OVERSAMPLING_16;
+}
+
 void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uint32_t length)
 {
   if (!usart->rxDMA) return;
@@ -283,6 +291,7 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   LL_USART_InitTypeDef usartInit;
   LL_USART_StructInit(&usartInit);
 
+  usartInit.OverSampling = _calc_best_oversampling(usart->USARTx, params->baudrate);
   usartInit.BaudRate = params->baudrate;
   usartInit.Parity = LL_USART_PARITY_NONE;
   usartInit.DataWidth = LL_USART_DATAWIDTH_8B;
@@ -564,7 +573,10 @@ void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate)
 #if defined(LL_USART_PRESCALER_DIV1)
   LL_USART_SetBaudRate(usart->USARTx, periphclk, LL_USART_PRESCALER_DIV1, oversampling, baudrate);
 #else
-  LL_USART_SetBaudRate(usart->USARTx, periphclk, oversampling, baudrate);
+  auto bestOversampling = _calc_best_oversampling(usart->USARTx, baudrate);
+  if (bestOversampling != oversampling)
+    LL_USART_SetOverSampling(usart->USARTx, bestOversampling);    
+  LL_USART_SetBaudRate(usart->USARTx, periphclk, bestOversampling, baudrate);
 #endif
 }
 
