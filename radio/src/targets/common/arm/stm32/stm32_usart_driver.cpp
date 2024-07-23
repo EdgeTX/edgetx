@@ -185,7 +185,61 @@ static gpio_af_t _get_usart_af(USART_TypeDef* USARTx)
   return _AF7_USART(USARTx) ? GPIO_AF7 : GPIO_AF8;
 }
 
-static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx);
+// from stm32f4xx_ll_usart.c
+static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx)
+{
+  uint32_t periphclk = LL_RCC_PERIPH_FREQUENCY_NO;
+  LL_RCC_ClocksTypeDef rcc_clocks;
+
+  LL_RCC_GetSystemClocksFreq(&rcc_clocks);
+  if (USARTx == USART1) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  } else if (USARTx == USART2) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#if defined(USART3)
+  else if (USARTx == USART3) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* USART3 */
+#if defined(USART6)
+  else if (USARTx == USART6) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  }
+#endif /* USART6 */
+#if defined(UART4)
+  else if (USARTx == UART4) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* UART4 */
+#if defined(UART5)
+  else if (USARTx == UART5) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* UART5 */
+#if defined(UART7)
+  else if (USARTx == UART7) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* UART7 */
+#if defined(UART8)
+  else if (USARTx == UART8) {
+    periphclk = rcc_clocks.PCLK1_Frequency;
+  }
+#endif /* UART8 */
+#if defined(UART9)
+  else if (USARTx == UART9) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  }
+#endif /* UART9 */
+#if defined(UART10)
+  else if (USARTx == UART10) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  }
+#endif /* UART10 */
+
+  return periphclk;
+}
 
 static uint32_t _calc_best_oversampling(USART_TypeDef* USARTx, uint32_t baudrate)
 {
@@ -499,62 +553,6 @@ void stm32_usart_enable_rx(const stm32_usart_t* usart)
   _half_duplex_input(usart);
 }
 
-// from stm32f4xx_ll_usart.c
-static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx)
-{
-  uint32_t periphclk = LL_RCC_PERIPH_FREQUENCY_NO;
-  LL_RCC_ClocksTypeDef rcc_clocks;
-
-  LL_RCC_GetSystemClocksFreq(&rcc_clocks);
-  if (USARTx == USART1) {
-    periphclk = rcc_clocks.PCLK2_Frequency;
-  } else if (USARTx == USART2) {
-    periphclk = rcc_clocks.PCLK1_Frequency;
-  }
-#if defined(USART3)
-  else if (USARTx == USART3) {
-    periphclk = rcc_clocks.PCLK1_Frequency;
-  }
-#endif /* USART3 */
-#if defined(USART6)
-  else if (USARTx == USART6) {
-    periphclk = rcc_clocks.PCLK2_Frequency;
-  }
-#endif /* USART6 */
-#if defined(UART4)
-  else if (USARTx == UART4) {
-    periphclk = rcc_clocks.PCLK1_Frequency;
-  }
-#endif /* UART4 */
-#if defined(UART5)
-  else if (USARTx == UART5) {
-    periphclk = rcc_clocks.PCLK1_Frequency;
-  }
-#endif /* UART5 */
-#if defined(UART7)
-  else if (USARTx == UART7) {
-    periphclk = rcc_clocks.PCLK1_Frequency;
-  }
-#endif /* UART7 */
-#if defined(UART8)
-  else if (USARTx == UART8) {
-    periphclk = rcc_clocks.PCLK1_Frequency;
-  }
-#endif /* UART8 */
-#if defined(UART9)
-  else if (USARTx == UART9) {
-    periphclk = rcc_clocks.PCLK2_Frequency;
-  }
-#endif /* UART9 */
-#if defined(UART10)
-  else if (USARTx == UART10) {
-    periphclk = rcc_clocks.PCLK2_Frequency;
-  }
-#endif /* UART10 */
-
-  return periphclk;
-}
-
 uint32_t stm32_usart_get_baudrate(const stm32_usart_t* usart)
 {
   auto periphclk = _get_usart_periph_clock(usart->USARTx);
@@ -569,27 +567,18 @@ uint32_t stm32_usart_get_baudrate(const stm32_usart_t* usart)
 void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate)
 {
   auto periphclk = _get_usart_periph_clock(usart->USARTx);
-  auto oversampling = LL_USART_GetOverSampling(usart->USARTx);
-  auto bestOversampling = _calc_best_oversampling(usart->USARTx, baudrate);
-  if (bestOversampling != oversampling)
-    LL_USART_SetOverSampling(usart->USARTx, bestOversampling);    
+  auto oversampling = _calc_best_oversampling(usart->USARTx, baudrate);
+  LL_USART_SetOverSampling(usart->USARTx, oversampling);    
 #if defined(LL_USART_PRESCALER_DIV1)
-  LL_USART_SetBaudRate(usart->USARTx, periphclk, LL_USART_PRESCALER_DIV1, bestOversampling, baudrate);
+  LL_USART_SetBaudRate(usart->USARTx, periphclk, LL_USART_PRESCALER_DIV1, oversampling, baudrate);
 #else
-  LL_USART_SetBaudRate(usart->USARTx, periphclk, bestOversampling, baudrate);
+  LL_USART_SetBaudRate(usart->USARTx, periphclk, oversampling, baudrate);
 #endif
 }
 
 void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option)
 {
   switch(option) {
-  case ETX_HWOption_OVER8: {
-    // BRR depends on oversampling as well, so we must
-    // re-compute the baudrate as well.
-    auto baudrate = stm32_usart_get_baudrate(usart);
-    LL_USART_SetOverSampling(usart->USARTx, LL_USART_OVERSAMPLING_8);
-    stm32_usart_set_baudrate(usart, baudrate);
-  } break;
   case ETX_HWOption_ONEBIT:
     LL_USART_EnableOneBitSamp(usart->USARTx);
     break;
