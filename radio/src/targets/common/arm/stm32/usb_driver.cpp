@@ -45,6 +45,12 @@ extern "C" {
 #include "hal.h"
 #include "debug.h"
 
+#if defined(USE_USB_HS)
+  #define DEVICE_ID DEVICE_HS
+#else
+  #define DEVICE_ID DEVICE_FS
+#endif
+
 static bool usbDriverStarted = false;
 #if defined(BOOT)
 static usbMode selectedUsbMode = USB_MASS_STORAGE_MODE;
@@ -52,7 +58,7 @@ static usbMode selectedUsbMode = USB_MASS_STORAGE_MODE;
 static usbMode selectedUsbMode = USB_UNSELECTED_MODE;
 #endif
 
-USBD_HandleTypeDef hUsbDeviceFS;
+USBD_HandleTypeDef hUsbDevice;
 
 int getSelectedUsbMode()
 {
@@ -74,8 +80,11 @@ int usbPlugged()
   static uint8_t debouncedState = 0;
   static uint8_t lastState = 0;
 
-  // uint8_t state = GPIO_ReadInputDataBit(USB_GPIO, USB_GPIO_PIN_VBUS);
+#if defined(USB_GPIO_VBUS_OPEN_DRAIN)
+  uint8_t state = gpio_read(USB_GPIO_VBUS) ? 0 : 1;
+#else
   uint8_t state = gpio_read(USB_GPIO_VBUS) ? 1 : 0;
+#endif
   if (state == lastState)
     debouncedState = state;
   else
@@ -85,13 +94,21 @@ int usbPlugged()
 }
 #endif
 
-extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
+extern PCD_HandleTypeDef hpcd_USB_OTG;
 
+#if defined(USE_USB_HS)
+extern "C" void OTG_HS_IRQHandler()
+{
+  DEBUG_INTERRUPT(INT_OTG_FS);
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG);
+}
+#else
 extern "C" void OTG_FS_IRQHandler()
 {
   DEBUG_INTERRUPT(INT_OTG_FS);
-  HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG);
 }
+#endif
 
 void usbInit()
 {
@@ -99,9 +116,16 @@ void usbInit()
   gpio_init_af(USB_GPIO_DP, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
   
 #if defined(USB_GPIO_VBUS)
+#if defined(USB_GPIO_VBUS_OPEN_DRAIN)
+  gpio_init(USB_GPIO_VBUS, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+#else
   gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
 #endif
+#endif
 
+// TODO: seems this is only needed for USB wakeup,
+//       which we do not support.
+#if !defined(STM32H7RS)
 #if defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 #elif defined(LL_APB4_GRP1_PERIPH_SYSCFG)
@@ -109,30 +133,19 @@ void usbInit()
 #else
   #error "Unable to enable SYSCFG peripheral clock"
 #endif
-
-#if defined(LL_AHB2_GRP1_PERIPH_OTGFS)
-  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_OTGFS);
-#elif defined(LL_AHB1_GRP1_PERIPH_USB2OTGHS)
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_USB2OTGHS);
-#else
-  #error "Unable to enable USB peripheral clock"
-#endif
-
-#if defined(STM32H7) || defined(STM32H7RS)
-  LL_PWR_EnableUSBVoltageDetector();
 #endif
 
   usbDriverStarted = false;
 }
 
 extern void usbInitLUNs();
-extern USBD_HandleTypeDef hUsbDeviceFS;
-extern "C" USBD_StorageTypeDef USBD_Storage_Interface_fops_FS;
-extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
+extern USBD_HandleTypeDef hUsbDevice;
+extern "C" USBD_StorageTypeDef USBD_Storage_Interface_fops;
+extern USBD_CDC_ItfTypeDef USBD_Interface_fops;
 
 void usbStart()
 {
-  USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
+  USBD_Init(&hUsbDevice, &FS_Desc, DEVICE_ID);
   switch (getSelectedUsbMode()) {
 #if !defined(BOOT)
     case USB_JOYSTICK_MODE:
@@ -140,17 +153,13 @@ void usbStart()
 #if defined(USBJ_EX)
       setupUSBJoystick();
 #endif
-      //USBD_Init(&hUsbDeviceFS, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
-      //MX_USB_DEVICE_Init();
-      USBD_RegisterClass(&hUsbDeviceFS, &USBD_HID);
+      USBD_RegisterClass(&hUsbDevice, &USBD_HID);
       break;
 #if defined(USB_SERIAL)
     case USB_SERIAL_MODE:
       // initialize USB as CDC device (virtual serial port)
-      //USBD_Init(&hUsbDeviceFS, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
-      //MX_USB_DEVICE_Init();
-      USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC);
-      USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS);
+      USBD_RegisterClass(&hUsbDevice, &USBD_CDC);
+      USBD_CDC_RegisterInterface(&hUsbDevice, &USBD_Interface_fops);
       break;
 #endif
 #endif
@@ -158,14 +167,12 @@ void usbStart()
     case USB_MASS_STORAGE_MODE:
       // initialize USB as MSC device
       usbInitLUNs();
-      //MX_USB_DEVICE_Init();
-      USBD_RegisterClass(&hUsbDeviceFS, &USBD_MSC);
-      USBD_MSC_RegisterStorage(&hUsbDeviceFS, &USBD_Storage_Interface_fops_FS);
-      //USBD_Init(&hUsbDeviceFS, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_MSC_cb, &USR_cb);
+      USBD_RegisterClass(&hUsbDevice, &USBD_MSC);
+      USBD_MSC_RegisterStorage(&hUsbDevice, &USBD_Storage_Interface_fops);
       break;
   }
 
-  if (USBD_Start(&hUsbDeviceFS) == USBD_OK) {
+  if (USBD_Start(&hUsbDevice) == USBD_OK) {
     usbDriverStarted = true;
   }
 }
@@ -173,7 +180,7 @@ void usbStart()
 void usbStop()
 {
   usbDriverStarted = false;
-  USBD_DeInit(&hUsbDeviceFS);
+  USBD_DeInit(&hUsbDevice);
 }
 
 
@@ -190,11 +197,11 @@ void usbJoystickRestart()
 {
   if (!usbDriverStarted || getSelectedUsbMode() != USB_JOYSTICK_MODE) return;
 
-  USBD_DeInit(&hUsbDeviceFS);
+  USBD_DeInit(&hUsbDevice);
   delay_ms(100);
-  USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
-  USBD_RegisterClass(&hUsbDeviceFS, &USBD_HID);
-  USBD_Start(&hUsbDeviceFS);
+  USBD_Init(&hUsbDevice, &FS_Desc, DEVICE_ID);
+  USBD_RegisterClass(&hUsbDevice, &USBD_HID);
+  USBD_Start(&hUsbDevice);
 }
 #else
 // TODO: fix after HAL conversion is complete
@@ -235,19 +242,15 @@ void usbJoystickUpdate()
    }
 
    //analog values
-   //uint8_t * p = HID_Buffer + 1;
    for (int i = 0; i < 8; ++i) {
-
      int16_t value = limit<int16_t>(0, channelOutputs[i] + 1024, 2048);;
-
      HID_Buffer[i*2 +3] = static_cast<uint8_t>(value & 0xFF);
      HID_Buffer[i*2 +4] = static_cast<uint8_t>(value >> 8);
-
    }
-   USBD_HID_SendReport(&hUsbDeviceFS, HID_Buffer, HID_IN_PACKET);
+   USBD_HID_SendReport(&hUsbDevice, HID_Buffer, HID_IN_PACKET);
 #else
   usbReport_t ret = usbReport();
-  USBD_HID_SendReport(&hUsbDeviceFS, ret.ptr, ret.size);
+  USBD_HID_SendReport(&hUsbDevice, ret.ptr, ret.size);
 #endif
 }
 #endif
