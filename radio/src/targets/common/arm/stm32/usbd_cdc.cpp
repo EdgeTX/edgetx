@@ -63,7 +63,7 @@ volatile uint32_t APP_Tx_ptr_out = 0;
   * @{
   */
 
-extern USBD_HandleTypeDef hUsbDeviceFS;
+extern USBD_HandleTypeDef hUsbDevice;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 
@@ -93,7 +93,7 @@ static int8_t VCP_StartOfFrame_FS();
   * @}
   */
 
-USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
+USBD_CDC_ItfTypeDef USBD_Interface_fops =
 {
   VCP_Init_FS,
   VCP_DeInit_FS,
@@ -123,8 +123,8 @@ bool cdcConnected = false;
 static int8_t VCP_Init_FS(void)
 {
   cdcConnected = true;
-  USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
+  USBD_CDC_SetTxBuffer(&hUsbDevice, UserTxBufferFS, 0);
+  USBD_CDC_SetRxBuffer(&hUsbDevice, UserRxBufferFS);
   return USBD_OK;
 }
 
@@ -262,7 +262,7 @@ static int8_t VCP_StartOfFrame_FS()
     FrameCount = 0;
 
     /* Check the data to be sent through IN pipe */
-    USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+    USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDevice.pClassData;
 
     if (hcdc->TxState != 0)
       return USBD_OK;
@@ -284,8 +284,8 @@ static int8_t VCP_StartOfFrame_FS()
       length = APP_Tx_ptr_in - APP_Tx_ptr_out;
     }
 
-    USBD_CDC_SetTxBuffer(&hUsbDeviceFS, &UserTxBufferFS[APP_Tx_ptr_out], length);
-    result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
+    USBD_CDC_SetTxBuffer(&hUsbDevice, &UserTxBufferFS[APP_Tx_ptr_out], length);
+    result = USBD_CDC_TransmitPacket(&hUsbDevice);
     if(result == USBD_OK)
       APP_Tx_ptr_out += length;
   }
@@ -360,8 +360,8 @@ static int8_t VCP_Receive_FS(uint8_t* Buf, uint32_t *Len)
 
   if (_rxCb) _rxCb(/*_ctx,*/ Buf, *Len);
 
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
-  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+  USBD_CDC_SetRxBuffer(&hUsbDevice, &Buf[0]);
+  USBD_CDC_ReceivePacket(&hUsbDevice);
   return USBD_OK;
 }
 

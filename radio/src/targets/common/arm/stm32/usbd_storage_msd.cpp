@@ -119,7 +119,7 @@ static int8_t STORAGE_GetMaxLun_FS(void);
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
 
 
-USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
+USBD_StorageTypeDef USBD_Storage_Interface_fops =
 {
   STORAGE_Init_FS,
   STORAGE_GetCapacity_FS,
