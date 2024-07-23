@@ -27,7 +27,6 @@ remove_definitions(-DLUA)
 remove_definitions(-DCLI)
 remove_definitions(-DSEMIHOSTING)
 remove_definitions(-DUSB_SERIAL)
-remove_definitions(-DUSE_WATCHDOG)
 
 if(NOT NO_LTO)
   message("-- Use LTO to compile bootloader")

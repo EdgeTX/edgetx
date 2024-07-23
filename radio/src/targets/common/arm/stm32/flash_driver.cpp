@@ -79,8 +79,6 @@ void lockFlash()
 
 void eraseSector(uint32_t sector)
 {
-  WDG_ENABLE(3000); // some sectors may take > 1s to erase
-
   waitFlashIdle();
 
 #if defined(FLASH_CR_PSIZE)
@@ -97,8 +95,6 @@ void eraseSector(uint32_t sector)
   /* if the erase operation is completed, disable the SER Bit */
   FLASH_CR &= (~FLASH_CR_SER);
   FLASH_CR &= SECTOR_MASK;
-
-  WDG_ENABLE(WDG_DURATION);
 }
 
 void flashWrite(uint32_t * address, const uint32_t * buffer) // page size is 256 bytes
