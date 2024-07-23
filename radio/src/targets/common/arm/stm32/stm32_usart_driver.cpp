@@ -244,7 +244,7 @@ static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx)
 static uint32_t _calc_best_oversampling(USART_TypeDef* USARTx, uint32_t baudrate)
 {
   auto periphclk = _get_usart_periph_clock(USARTx);
-  return periphclk / baudrate < 16 ? LL_USART_OVERSAMPLING_8 : LL_USART_OVERSAMPLING_16;
+  return (periphclk < (baudrate << 4)) ? LL_USART_OVERSAMPLING_8 : LL_USART_OVERSAMPLING_16;
 }
 
 void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uint32_t length)
