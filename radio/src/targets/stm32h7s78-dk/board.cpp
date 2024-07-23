@@ -164,7 +164,6 @@ void boardOff()
   }
 }
 
-
 #if !defined(BOOT)
 void per5ms() {}
 #endif
