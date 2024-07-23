@@ -166,11 +166,16 @@
 // #define EXTI4_IRQ_Priority 5
 
 // USB
-#define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOD,  4) // PD.04
-#define USB_GPIO_DM                     GPIO_PIN(GPIOM, 11) // PM.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOM, 12) // PM.12
+#if defined(USE_USB_HS)
+  #define USB_GPIO_VBUS                 GPIO_PIN(GPIOM, 8) // PM.08
+  #define USB_GPIO_VBUS_OPEN_DRAIN
+  #define USB_GPIO_DM                   GPIO_PIN(GPIOM, 5) // PM.05
+  #define USB_GPIO_DP                   GPIO_PIN(GPIOM, 6) // PM.06
+#else
+  #define USB_GPIO_VBUS                 GPIO_PIN(GPIOD,  4) // PD.04
+  #define USB_GPIO_DM                   GPIO_PIN(GPIOM, 11) // PM.11
+  #define USB_GPIO_DP                   GPIO_PIN(GPIOM, 12) // PM.12
+#endif
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD

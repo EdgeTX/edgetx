@@ -6,6 +6,7 @@ option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger
 option(GHOST "Ghost TX Module" OFF)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
+option(USB_HS "Enable USB HS" ON)
 
 set(CPU_TYPE STM32H7RS)
 set(HSE_VALUE 24000000)
@@ -55,6 +56,10 @@ set(FIRMWARE_STRIP_BOOTLOADER ON)
 
 # VCP CLI
 set(CLI ON CACHE BOOL "Enable CLI")
+
+if(USE_USB_HS)
+  add_definitions(-DUSE_USB_HS)
+endif()
 
 set(TARGET_SRC_DIR targets/${TARGET_DIR})
 

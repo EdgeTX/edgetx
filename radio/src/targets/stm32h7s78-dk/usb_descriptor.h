@@ -22,8 +22,8 @@
 #ifndef _USB_DESCRIPTOR_H_
 #define _USB_DESCRIPTOR_H_
 
-#define USB_NAME                     "H7-test"
-#define USB_MANUFACTURER             'H', '7', '-', 't', 'e', 's', 't', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'H', '7', '-', 't', 'e', 's', 't', ' '  /* 8 Bytes */
+#define USB_NAME                     "H7RS"
+#define USB_MANUFACTURER             'H', '7', 'R', 'S', ' ', ' ', ' ', ' '  /* 8 bytes */
+#define USB_PRODUCT                  'H', '7', 'R', 'S', ' ', ' ', ' ', ' '  /* 8 Bytes */
 
 #endif // _USB_DESCRIPTOR_H_
