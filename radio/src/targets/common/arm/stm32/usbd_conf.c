@@ -48,7 +48,6 @@ PCD_HandleTypeDef hpcd_USB_OTG;
 void Error_Handler(void){}
 
 /* External functions --------------------------------------------------------*/
-void SystemClock_Config(void);
 
 /* USER CODE BEGIN 0 */
 

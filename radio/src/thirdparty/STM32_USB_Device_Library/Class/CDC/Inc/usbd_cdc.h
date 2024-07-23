@@ -111,7 +111,6 @@ typedef struct _USBD_CDC_Itf
   int8_t (* Control)(uint8_t cmd, uint8_t *pbuf, uint16_t length);
   int8_t (* Receive)(uint8_t *Buf, uint32_t *Len);
   int8_t (* TransmitCplt)(uint8_t *Buf, uint32_t *Len, uint8_t epnum);
-  int8_t (* StartOfFrame)(void);
 } USBD_CDC_ItfTypeDef;
 
 
@@ -155,12 +154,17 @@ extern USBD_ClassTypeDef USBD_CDC;
 uint8_t USBD_CDC_RegisterInterface(USBD_HandleTypeDef *pdev,
                                    USBD_CDC_ItfTypeDef *fops);
 
+#ifdef USE_USBD_COMPOSITE
+uint8_t USBD_CDC_SetTxBuffer(USBD_HandleTypeDef *pdev, uint8_t *pbuff,
+                             uint32_t length, uint8_t ClassId);
+uint8_t USBD_CDC_TransmitPacket(USBD_HandleTypeDef *pdev, uint8_t ClassId);
+#else
 uint8_t USBD_CDC_SetTxBuffer(USBD_HandleTypeDef *pdev, uint8_t *pbuff,
                              uint32_t length);
-
+uint8_t USBD_CDC_TransmitPacket(USBD_HandleTypeDef *pdev);
+#endif /* USE_USBD_COMPOSITE */
 uint8_t USBD_CDC_SetRxBuffer(USBD_HandleTypeDef *pdev, uint8_t *pbuff);
 uint8_t USBD_CDC_ReceivePacket(USBD_HandleTypeDef *pdev);
-uint8_t USBD_CDC_TransmitPacket(USBD_HandleTypeDef *pdev);
 /**
   * @}
   */

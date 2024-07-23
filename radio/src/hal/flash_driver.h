@@ -23,29 +23,15 @@
 
 #include <stdint.h>
 
-enum AbnormalRebootCause {
-  ARC_None = 0,
-  ARC_Watchdog,
-  ARC_Software,
-};
+typedef struct {
+  uint32_t (*get_size_kb)();
+  uint32_t (*get_sector)(uint32_t address);
+  uint32_t (*get_sector_size)(uint32_t sector);
 
-// Enable detecting abnormal reboots
-// This should be called after booting
-void abnormalRebootEnableDetection();
+  int (*erase_sector)(uint32_t address);
+  int (*program)(uint32_t address, void* data, uint32_t len);
+  int (*read)(uint32_t address, void* data, uint32_t len);
 
-// Disable detecting abnormal reboots
-// This should be called on normal shutdowns / reboots
-void abnormalRebootDisableDetection();
-
-// Test for abnormal reboot conditions
-// (see AbnormalRebootCause)
-uint32_t abnormalRebootGetCause();
-
-// Retrieve last reboot command
-uint32_t abnormalRebootGetCmd();
-
-#define UNEXPECTED_SHUTDOWN() \
-  (abnormalRebootGetCause() == ARC_Watchdog)
-
-#define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() \
-  (abnormalRebootGetCause() != ARC_None)
+  void (*unlock)();
+  void (*lock)();
+} etx_flash_driver_t;

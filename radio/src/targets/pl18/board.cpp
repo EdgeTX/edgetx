@@ -83,7 +83,7 @@ void ledStripOff()
   ws2812_update(&_led_timer);
 }
 
-void boardBLInit()
+void boardBLEarlyInit()
 {
   // USB charger status pins
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);

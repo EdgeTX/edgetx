@@ -21,31 +21,12 @@
 
 #pragma once
 
+#include "hal/flash_driver.h"
+#include "bsp_errno.h"
+
 #include <stdint.h>
 
-enum AbnormalRebootCause {
-  ARC_None = 0,
-  ARC_Watchdog,
-  ARC_Software,
-};
+extern const etx_flash_driver_t extflash_driver;
+extern const void* extflash_dfu_media;
 
-// Enable detecting abnormal reboots
-// This should be called after booting
-void abnormalRebootEnableDetection();
-
-// Disable detecting abnormal reboots
-// This should be called on normal shutdowns / reboots
-void abnormalRebootDisableDetection();
-
-// Test for abnormal reboot conditions
-// (see AbnormalRebootCause)
-uint32_t abnormalRebootGetCause();
-
-// Retrieve last reboot command
-uint32_t abnormalRebootGetCmd();
-
-#define UNEXPECTED_SHUTDOWN() \
-  (abnormalRebootGetCause() == ARC_Watchdog)
-
-#define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() \
-  (abnormalRebootGetCause() != ARC_None)
+int32_t ExtFLASH_Init(bool memory_mapped);

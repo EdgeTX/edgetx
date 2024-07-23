@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
  
+#include "bootloader/boot.h"
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 
@@ -44,6 +45,9 @@
 #include "timers_driver.h"
 #include "tp_gt911.h"
 
+#include "extram_driver.h"
+#include "extflash_driver.h"
+
 #include "bitmapbuffer.h"
 #include "colors.h"
 
@@ -52,48 +56,35 @@
 // common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
-#if defined(SEMIHOSTING)
-extern "C" void initialise_monitor_handles();
-#endif
-
-#if defined(SPI_FLASH)
-extern "C" void flushFTL();
-#endif
-
-void delay_self(int count)
-{
-   for (int i = 50000; i > 0; i--)
-   {
-       for (; count > 0; count--);
-   }
-}
-
-
 // User button (B2)
 #define BL_KEY GPIO_PIN(GPIOC, 13)
 
-void boardBLInit() { gpio_init(BL_KEY, GPIO_IN, 0); }
-bool boardBLStartCondition() { return gpio_read(BL_KEY); }
-
-extern int32_t ExtFLASH_Init();
-extern "C" int32_t ExtRAM_Init();
+bool boardBLStartCondition()
+{
+  gpio_init(BL_KEY, GPIO_IN, 0);
+  return gpio_read(BL_KEY);
+}
 
 void boardBLPreJump()
 {
   timersInit();
-  ExtFLASH_Init();
+  ExtFLASH_Init(true);
   ExtRAM_Init();
 
   // Stop 1ms timer
   MS_TIMER->CR1 &= ~TIM_CR1_CEN;
 }
 
+void boardBLInit()
+{
+  ExtFLASH_Init(false);
+  ExtRAM_Init();
+
+  usbRegisterDFUMedia((void*)extflash_dfu_media);
+}
+
 void boardInit()
 {
-#if defined(SEMIHOSTING)
-  initialise_monitor_handles();
-#endif
-
   // enable interrupts
   __enable_irq();
 

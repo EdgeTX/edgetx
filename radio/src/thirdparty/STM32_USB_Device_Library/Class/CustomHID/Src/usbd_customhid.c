@@ -479,7 +479,15 @@ static uint8_t USBD_CUSTOM_HID_Setup(USBD_HandleTypeDef *pdev,
             }
           }
 
-          (void)USBD_CtlSendData(pdev, pbuf, len);
+          if (pbuf != NULL)
+          {
+            (void)USBD_CtlSendData(pdev, pbuf, len);
+          }
+          else
+          {
+            USBD_CtlError(pdev, req);
+            ret = USBD_FAIL;
+          }
           break;
 
         case USB_REQ_GET_INTERFACE:

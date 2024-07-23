@@ -83,7 +83,7 @@ static int8_t VCP_DeInit_FS(void);
 static int8_t VCP_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length);
 static int8_t VCP_Receive_FS(uint8_t* pbuf, uint32_t *Len);
 static int8_t VCP_TransmitCplt_FS(uint8_t *pbuf, uint32_t *Len, uint8_t epnum);
-static int8_t VCP_StartOfFrame_FS();
+// static int8_t VCP_StartOfFrame_FS();
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
 
@@ -100,7 +100,7 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops =
   VCP_Control_FS,
   VCP_Receive_FS,
   VCP_TransmitCplt_FS,
-  VCP_StartOfFrame_FS,
+  // VCP_StartOfFrame_FS,
 };
 
 }   // extern "C"
@@ -251,6 +251,7 @@ static int8_t VCP_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   return result;
 }
 
+#if 0 // TODO
 static int8_t VCP_StartOfFrame_FS()
 {
   uint8_t result = USBD_OK;
@@ -292,7 +293,7 @@ static int8_t VCP_StartOfFrame_FS()
 
   return result;
 }
-
+#endif
 
 // return the bytes free in the circular buffer
 uint32_t usbSerialFreeSpace()

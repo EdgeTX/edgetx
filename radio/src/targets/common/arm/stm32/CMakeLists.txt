@@ -25,6 +25,7 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Core/Src/usbd_ctlreq.c
     ${STM32USB_DIR}/Core/Src/usbd_ioreq.c
     ${STM32USB_DIR}/Class/CDC/Src/usbd_cdc.c
+    ${STM32USB_DIR}/Class/DFU/Src/usbd_dfu.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_data.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_scsi.c
     ${STM32USB_DIR}/Class/MSC/Src/usbd_msc_bot.c
@@ -34,8 +35,13 @@ if(NOT NATIVE_BUILD)
   target_include_directories(stm32usb PRIVATE
     ${STM32USB_DIR}/Core/Inc
     ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
+
+  target_include_directories(board_bl PRIVATE
+    ${STM32USB_DIR}/Core/Inc
+    ${STM32USB_DIR}/Class/DFU/Inc)
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb>)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb>)
@@ -44,14 +50,16 @@ if(NOT NATIVE_BUILD)
   add_library(stm32usb_device_bl OBJECT EXCLUDE_FROM_ALL    
     ${STM32_DRIVER_DIR}/usbd_conf.c
     ${STM32_DRIVER_DIR}/usbd_desc.c
-    ${STM32_DRIVER_DIR}/usb_driver.cpp
+    ${STM32_DRIVER_DIR}/usbd_dfu.cpp
     ${STM32_DRIVER_DIR}/usbd_storage_msd.cpp
+    ${STM32_DRIVER_DIR}/usb_driver.cpp
   )
 
   target_compile_options(stm32usb_device_bl PRIVATE -DBOOT)
   target_include_directories(stm32usb_device_bl PRIVATE
     ${STM32USB_DIR}/Core/Inc
     ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
 
@@ -74,6 +82,7 @@ if(NOT NATIVE_BUILD)
   target_include_directories(stm32usb_device_fw PRIVATE
     ${STM32USB_DIR}/Core/Inc
     ${STM32USB_DIR}/Class/CDC/Inc
+    ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
 
