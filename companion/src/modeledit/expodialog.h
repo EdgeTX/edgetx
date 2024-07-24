@@ -67,4 +67,6 @@ class ExpoDialog : public QDialog {
     FilteredItemModelFactory *dialogFilteredItemModels;
     CurveRefFilteredFactory *curveRefFilteredItemModels;
     int carryTrimFilterFlags = 0;
+
+    void shrink();
 };

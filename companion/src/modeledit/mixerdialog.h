@@ -64,4 +64,6 @@ class MixerDialog : public QDialog {
     QCheckBox * cb_fp[CPN_MAX_FLIGHT_MODES];
     FilteredItemModelFactory *dialogFilteredItemModels;
     CurveRefFilteredFactory *curveRefFilteredItemModels;
+
+    void shrink();
 };

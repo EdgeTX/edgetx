@@ -60,18 +60,12 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
   weightEditor = new SourceNumRefEditor(ed->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -100, 100, 1.0,
                                         model, esMdl);
 
-  connect(weightEditor, &SourceNumRefEditor::resized, this, [=] () {
-          this->adjustSize();
-          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
-  });
+  connect(weightEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
   offsetEditor = new SourceNumRefEditor(ed->offset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -100, 100, 1.0,
                                         model, esMdl);
 
-  connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () {
-          this->adjustSize();
-          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
-  });
+  connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasInputDiff) ? 0 : FilteredItemModel::PositiveFilter);
@@ -80,10 +74,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
                                            ui->imgCurve, ed->curve, model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);
 
 
-  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {
-          this->adjustSize();
-          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
-  });
+  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () { shrink(); });
 
   imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
                                                                          RawSwitch::MixesContext), "RawSwitch");
@@ -181,7 +172,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     connect(ui->inputName, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
   }
 
-  adjustSize();
+  shrink();
 }
 
 ExpoDialog::~ExpoDialog()
@@ -295,4 +286,10 @@ void ExpoDialog::fmInvertAll()
   }
   lock = false;
   valuesChanged();
+}
+
+void ExpoDialog::shrink()
+{
+  this->adjustSize();
+  this->resize(0, 0);
 }

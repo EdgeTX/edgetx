@@ -72,18 +72,12 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   weightEditor = new SourceNumRefEditor(md->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -limit, limit, 1,
                                         model, esMdl, this);
 
-  connect(weightEditor, &SourceNumRefEditor::resized, this, [=] () {
-          this->adjustSize();
-          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
-  });
+  connect(weightEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
   offsetEditor = new SourceNumRefEditor(md->sOffset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -limit, limit, 1,
                                         model, esMdl, this);
 
-  connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () {
-          this->adjustSize();
-          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
-  });
+  connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
@@ -91,10 +85,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveSource, ui->cboCurveFunc,
                                            ui->imgCurve, md->curve, model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);
 
-  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {
-          this->adjustSize();
-          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
-  });
+  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () { shrink(); });
 
   ui->MixDR_CB->setChecked(md->noExpo == 0);
 
@@ -197,7 +188,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
     connect(cb_fp[i], SIGNAL(toggled(bool)), this, SLOT(valuesChanged()));
   }
 
-  adjustSize();
+  shrink();
 }
 
 MixerDialog::~MixerDialog()
@@ -315,4 +306,10 @@ void MixerDialog::fmInvertAll()
   }
   lock = false;
   valuesChanged();
+}
+
+void MixerDialog::shrink()
+{
+  this->adjustSize();
+  this->resize(0, 0);
 }
