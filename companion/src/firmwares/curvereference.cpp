@@ -50,7 +50,7 @@ const QString CurveReference::toString(const ModelData * model, bool verbose, co
       else
         ret = CurveData().nameToString(idx);
       if (value < 0)
-        ret.prepend(CPN_STR_SRC_INDICATOR_NEG);
+        ret.prepend(CPN_STR_SW_INDICATOR_REV);
       break;
     default:
       return CPN_STR_UNKNOWN_ITEM;

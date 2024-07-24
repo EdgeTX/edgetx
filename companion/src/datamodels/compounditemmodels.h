@@ -46,7 +46,6 @@ class AbstractItemModel: public QStandardItemModel
       IMID_CurveRefType,
       IMID_CurveRefFunc,
       IMID_FlexSwitches,
-      IMID_SourceValues,
       IMID_ReservedCount,
       IMID_Custom
     };
@@ -190,8 +189,7 @@ class RawSourceItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit RawSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                Firmware * firmware, const Boards * const board, const Board::Type boardType,
-                                const ItemModelId itemModelId, const bool useInvertIndicator);
+                                Firmware * firmware, const Boards * const board, const Board::Type boardType);
     virtual ~RawSourceItemModel() {};
 
   public slots:
@@ -200,9 +198,6 @@ class RawSourceItemModel: public AbstractDynamicItemModel
   protected:
     virtual void setDynamicItemData(QStandardItem * item, const RawSource & src) const;
     void addItems(const RawSourceType & type, const int group, int count, const int start = 0);
-
-  private:
-    const bool useInvertIndicator;
 };
 
 class RawSwitchItemModel: public AbstractDynamicItemModel
@@ -352,6 +347,7 @@ class FlexSwitchesItemModel: public AbstractDynamicItemModel
   protected:
     virtual void setDynamicItemData(QStandardItem * item, const int value) const;
 };
+
 
 //
 //  CompoundItemModelFactory

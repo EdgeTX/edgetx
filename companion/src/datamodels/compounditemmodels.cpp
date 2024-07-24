@@ -52,8 +52,6 @@ QString AbstractItemModel::idToString(const int value)
       return "CurveRefFunc";
     case IMID_FlexSwitches:
       return "FlexSwitches";
-    case IMID_SourceValues:
-      return "SourceValues";
     default:
       return "Custom";
   }
@@ -102,15 +100,13 @@ void AbstractStaticItemModel::loadItemList()
 //
 
 RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const Board::Type boardType,
-                                       const ItemModelId itemModelId, const bool useInvertIndicator) :
-  AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType),
-  useInvertIndicator(useInvertIndicator)
+                                       Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+  AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
-  setId(itemModelId);
+  setId(IMID_RawSource);
   setUpdateMask(IMUE_All &~ (IMUE_Curves | IMUE_Scripts));
 
-  // Descending source direction
+  // Descending source direction: inverted (!) sources
   addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    -firmware->getCapability(Sensors) * 3);
   addItems(SOURCE_TYPE_TIMER,          RawSource::TelemGroup,    -firmware->getCapability(Timers));
   addItems(SOURCE_TYPE_SPECIAL,        RawSource::TelemGroup,    -(SOURCE_TYPE_SPECIAL_COUNT - 1));
@@ -156,7 +152,7 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
 
 void RawSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
 {
-  item->setText(src.toString(modelData, generalSettings, boardType, true, useInvertIndicator));
+  item->setText(src.toString(modelData, generalSettings, boardType));
   item->setData(src.isAvailable(modelData, generalSettings, boardType), IMDR_Available);
 }
 
@@ -681,7 +677,7 @@ void CompoundItemModelFactory::addItemModel(const int id)
 {
   switch (id) {
     case AbstractItemModel::IMID_RawSource:
-      registerItemModel(new RawSourceItemModel(generalSettings, modelData, firmware, board, boardType, AbstractItemModel::IMID_RawSource, true));
+      registerItemModel(new RawSourceItemModel(generalSettings, modelData, firmware, board, boardType));
       break;
     case AbstractItemModel::IMID_RawSwitch:
       registerItemModel(new RawSwitchItemModel(generalSettings, modelData, firmware, board, boardType));
@@ -712,9 +708,6 @@ void CompoundItemModelFactory::addItemModel(const int id)
       break;
     case AbstractItemModel::IMID_FlexSwitches:
       registerItemModel(new FlexSwitchesItemModel(generalSettings, modelData, firmware, board, boardType));
-      break;
-    case AbstractItemModel::IMID_SourceValues:
-      registerItemModel(new RawSourceItemModel(generalSettings, modelData, firmware, board, boardType, AbstractItemModel::IMID_SourceValues, false));
       break;
     default:
       qDebug() << "Error: unknown item model: id";
