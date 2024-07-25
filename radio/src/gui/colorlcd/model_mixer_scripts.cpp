@@ -157,7 +157,7 @@ class ScriptEditWindow : public Page
             COLOR_THEME_PRIMARY1);
         lbl->padLeft(PAD_LARGE);
         new DynamicNumber<int16_t>(
-            line, rect_t{}, [=]() { return calcRESXto1000(so->value); });
+            line, rect_t{}, [=]() { return calcRESXto1000(so->value); }, PREC1);
       }
     }
   }
