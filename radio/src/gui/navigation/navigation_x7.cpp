@@ -174,7 +174,8 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       }
 #if defined(LUA_MODEL_SCRIPTS)
       if (i_min <= MIXSRC_FIRST_LUA && i_max >= MIXSRC_FIRST_LUA) {
-        if (getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable) != MIXSRC_NONE) {
+        if (getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable) != MIXSRC_NONE &&
+            (i_flags & INCDEC_SOURCE_NOINPUTS) == 0) {
           POPUP_MENU_ADD_ITEM(STR_MENU_LUA);
         }
       }
