@@ -136,6 +136,12 @@ class ValueWidget : public Widget
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIME;
         valueTxt = getTimerString(tme, timerOptions);
+#if defined(LUA_INPUTS)
+      }
+      else if (field >= MIXSRC_FIRST_LUA && field <= MIXSRC_LAST_LUA) {
+        valueTxt =
+            getSourceCustomValueString(field, calcRESXto1000(getValue(field)), valueFlags | PREC1);
+#endif
       } else {
         valueTxt =
             getSourceCustomValueString(field, getValue(field), valueFlags);
