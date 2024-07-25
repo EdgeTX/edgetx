@@ -114,7 +114,6 @@ void lcdDrawNumber(coord_t x, coord_t y, int32_t val, LcdFlags mode=0);
 void drawModelName(coord_t x, coord_t y, char *name, uint8_t id, LcdFlags att);
 void drawSwitch(coord_t x, coord_t y, int32_t swtch, LcdFlags att=0, bool autoBold = true);
 void drawMainControlLabel(coord_t x, coord_t y, uint8_t idx, LcdFlags att=0);
-void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att=0);
 void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att=0);
 void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att=0);
 

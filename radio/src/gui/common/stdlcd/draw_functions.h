@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _STDLCD_DRAW_FUNCTIONS_H_
-#define _STDLCD_DRAW_FUNCTIONS_H_
+#pragma once
 
 #include "lcd.h"
 void lcdDrawMultiProtocolString(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t protocol, LcdFlags flags = 0);
@@ -55,4 +54,4 @@ void drawFunction(FnFuncP fn, uint8_t offset = 0);
 void drawCursor(FnFuncP fn, uint8_t offset = 0);
 void drawCurve(coord_t offset = 0);
 
-#endif // _STDLCD_DRAW_FUNCTIONS_H_
+void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att=0);
