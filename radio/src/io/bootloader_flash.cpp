@@ -94,7 +94,9 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
       break;
     }
     for (UINT j = 0; j < count; j += FLASH_PAGESIZE) {
+      WDG_ENABLE(3000);
       flashWrite(CONVERT_UINT_PTR(FIRMWARE_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
+      WDG_ENABLE(WDG_DURATION);
     }
     progressHandler("Bootloader", STR_WRITING, i, flash_size);
 
