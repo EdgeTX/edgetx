@@ -387,7 +387,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"t14", "t12max","tpros"},
+        "targets": {"t14", "t12max", "tpros"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
@@ -431,7 +431,7 @@ LEGACY_NAMES = [
             "lr3pro",
             "nv14", "el18",
             "t8", "t12",
-            "tlite", "tlitef4", "tpro", "tprov2","tpros",
+            "tlite", "tlitef4", "tpro", "tprov2", "tpros",
             "tx12", "tx12mk2",
             "x7", "x7access",
             "xlite", "xlites",
