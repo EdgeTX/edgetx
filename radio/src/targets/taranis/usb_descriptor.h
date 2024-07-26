@@ -66,6 +66,10 @@
 #define USB_NAME                       "Jumper T12 MAX"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '1', '2', ' ', 'M', 'A', 'X', ' '  /* 8 Bytes */
+#elif defined(RADIO_TPROS)
+  #define USB_NAME                     "Jumper T-Pro S"
+  #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'T', '-', 'P', 'r', 'o', ' ', 'S', ' '  /* 8 Bytes */
 #elif defined(RADIO_T14)
   #define USB_NAME                     "Jumper T14"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */

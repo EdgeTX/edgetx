@@ -445,7 +445,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   SWITCH_KEY(C, 2, 3);
   SWITCH_KEY(D, 3, 3);
 
-  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
+  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS)
     SWITCH_KEY(1, 4, 2);
     SWITCH_KEY(2, 5, 2);
     SWITCH_KEY(3, 6, 2);
