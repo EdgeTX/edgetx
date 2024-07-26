@@ -101,13 +101,13 @@ static inline void check_struct()
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
   CHKSIZE(ModelData, 6329);
 #elif defined(PCBNV14)
-  CHKSIZE(ModelData, 15595);
+  CHKSIZE(ModelData, 15659);
 #elif defined(PCBPL18)
-  CHKSIZE(ModelData, 15777);
+  CHKSIZE(ModelData, 15841);
 #elif defined(RADIO_T15)
-  CHKSIZE(ModelData, 15766);
+  CHKSIZE(ModelData, 15830);
 #elif defined(PCBHORUS)
-  CHKSIZE(ModelData, 15741);
+  CHKSIZE(ModelData, 15805);
 #else
   #error CHKSIZE not set up
 #endif
