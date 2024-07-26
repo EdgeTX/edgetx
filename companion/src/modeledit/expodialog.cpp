@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -23,6 +24,7 @@
 #include "filtereditemmodels.h"
 #include "helpers.h"
 #include "namevalidator.h"
+#include "sourcenumref.h"
 
 ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, GeneralSettings & generalSettings,
                        Firmware * firmware, QString & inputName, CompoundItemModelFactory * sharedItemModels) :
@@ -33,14 +35,12 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
   firmware(firmware),
   ed(expoData),
   inputName(inputName),
-  modelPrinter(firmware, generalSettings, model),
   lock(false)
 {
   ui->setupUi(this);
 
   Board::Type board = firmware->getBoard();
   dialogFilteredItemModels = new FilteredItemModelFactory();
-  int id;
 
   QLabel * lb_fp[CPN_MAX_FLIGHT_MODES] = {ui->lb_FP0, ui->lb_FP1, ui->lb_FP2, ui->lb_FP3, ui->lb_FP4, ui->lb_FP5, ui->lb_FP6, ui->lb_FP7, ui->lb_FP8 };
   QCheckBox * tmp[CPN_MAX_FLIGHT_MODES] = {ui->cb_FP0, ui->cb_FP1, ui->cb_FP2, ui->cb_FP3, ui->cb_FP4, ui->cb_FP5, ui->cb_FP6, ui->cb_FP7, ui->cb_FP8 };
@@ -51,28 +51,35 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
   RawSourceType srcType = (firmware->getCapability(VirtualInputs) ? SOURCE_TYPE_VIRTUAL_INPUT : SOURCE_TYPE_INPUT);
   setWindowTitle(tr("Edit %1").arg(RawSource(srcType, ed->chn).toString(&model, &generalSettings)));
 
-  id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
-  gvWeightGroup = new GVarGroup(ui->weightGV, ui->weightSB, ui->weightCB, ed->weight, model, 100, -100, 100, 1.0,
-                                dialogFilteredItemModels->getItemModel(id));
+  int imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                                (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup & ~RawSource::InputsGroup)),
+                                "EditorSource");
 
-  gvOffsetGroup = new GVarGroup(ui->offsetGV, ui->offsetSB, ui->offsetCB, ed->offset, model, 0, -100, 100, 1.0,
-                                dialogFilteredItemModels->getItemModel(id));
+  FilteredItemModel *esMdl = dialogFilteredItemModels->getItemModel(imId);
+
+  weightEditor = new SourceNumRefEditor(ed->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -100, 100, 1.0,
+                                        model, esMdl);
+
+  connect(weightEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
+
+  offsetEditor = new SourceNumRefEditor(ed->offset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -100, 100, 1.0,
+                                        model, esMdl);
+
+  connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasInputDiff) ? 0 : FilteredItemModel::PositiveFilter);
 
-  curveGroup = new CurveReferenceUIManager(ui->curveTypeCB, ui->curveGVarCB, ui->curveValueSB, ui->curveValueCB, ui->curveImage, ed->curve, model,
-                                           sharedItemModels, curveRefFilteredItemModels, this);
+  curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveSource, ui->cboCurveFunc,
+                                           ui->imgCurve, ed->curve, model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);
 
 
-  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {
-          this->adjustSize();
-          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
-  });
+  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () { shrink(); });
 
-  id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
+  imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
                                                                          RawSwitch::MixesContext), "RawSwitch");
-  ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(id));
+  ui->switchesCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(ed->swtch.toValue()));
 
   ui->sideCB->setCurrentIndex(ed->mode - 1);
@@ -105,12 +112,13 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     ui->inputName->setMaxLength(firmware->getCapability(InputsLength));
     int flags = RawSource::InputSourceGroups & ~RawSource::NoneGroup & ~RawSource::InputsGroup;
     flags |= RawSource::GVarsGroup | RawSource::TelemGroup;
-    id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+    imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
                                                      flags), "RawSource");
-    ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
+    ui->sourceCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
     ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(ed->srcRaw.toValue()));
     if (ui->sourceCB->currentIndex() < 0 && ed->srcRaw.toValue() == 0)
-      ui->sourceCB->setCurrentIndex(ui->sourceCB->count() / 2); // '----' not in list so set to first positive entry
+      ui->sourceCB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->sourceCB));
     ui->inputName->setValidator(new NameValidator(board, this));
     ui->inputName->setText(inputName);
   }
@@ -164,15 +172,16 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
     connect(ui->inputName, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
   }
 
-  adjustSize();
+  shrink();
 }
 
 ExpoDialog::~ExpoDialog()
 {
   delete ui;
-  delete gvWeightGroup;
-  delete gvOffsetGroup;
+  delete weightEditor;
+  delete offsetEditor;
   delete dialogFilteredItemModels;
+  delete curveRefFilteredItemModels;
 }
 
 void ExpoDialog::updateScale()
@@ -277,4 +286,10 @@ void ExpoDialog::fmInvertAll()
   }
   lock = false;
   valuesChanged();
+}
+
+void ExpoDialog::shrink()
+{
+  this->adjustSize();
+  this->resize(0, 0);
 }

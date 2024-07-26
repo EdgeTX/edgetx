@@ -22,8 +22,9 @@
 #include "mixer_edit.h"
 
 #include "channel_bar.h"
-#include "curve_param.h"
 #include "gvar_numberedit.h"
+#include "source_numberedit.h"
+#include "curve_param.h"
 #include "mixer_edit_adv.h"
 #include "mixes.h"
 #include "opentx.h"
@@ -108,14 +109,14 @@ void MixEditWindow::buildBody(Window *form)
   // Weight
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
-  auto gvar = new GVarNumberEdit(line, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
-                                 GET_SET_DEFAULT(mix->weight));
-  gvar->setSuffix("%");
+  auto svar = new SourceNumberEdit(line, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
+                                   GET_SET_DEFAULT(mix->weight), 0);
+  svar->setSuffix("%");
 
   // Offset
   new StaticText(line, rect_t{}, STR_OFFSET);
-  gvar = new GVarNumberEdit(line, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
-                            GET_SET_DEFAULT(mix->offset));
+  auto gvar = new SourceNumberEdit(line, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
+                                   GET_SET_DEFAULT(mix->offset), 0);
   gvar->setSuffix("%");
 
   // Switch
@@ -126,7 +127,7 @@ void MixEditWindow::buildBody(Window *form)
 
   // Curve
   new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value));
+  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), 0);
 
   line = form->newLine(grid);
   line->padAll(PAD_LARGE);

@@ -117,6 +117,8 @@ void onSourceLongEnterPress(const char * result)
     }
   } else if (result == STR_MENU_INVERT) {
     checkIncDecSelection = MIXSRC_INVERT;
+  } else if (result == STR_CONSTANT) {
+    checkIncDecSelection = MIXSRC_VALUE;
   }
 }
 

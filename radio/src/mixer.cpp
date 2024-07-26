@@ -53,6 +53,25 @@ int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the l
 int16_t cyc_anas[3] = {0};
 #endif
 
+// TOOD: find better home for this.
+int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
+{
+  int32_t result;
+  SourceNumVal v; v.rawValue = val;
+  if (v.isSource) {
+    result = getValue(v.value);
+    if (v.value >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
+      // Mimic behviour of GET_GVAR_PREC1
+      result = result * 10;
+    } else {
+      result = calcRESXto1000(result);
+    }
+  } else {
+    result = v.value * 10;
+  }
+  return limit<int>(min * 10, result, max * 10);
+}
+
 // #define EXTENDED_EXPO
 // increases range of expo curve but costs about 82 bytes flash
 
@@ -193,11 +212,11 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
         }
 
         //========== WEIGHT ===============
-        int32_t weight = GET_GVAR_PREC1(ed->weight, -100, 100, mixerCurrentFlightMode);
+        int32_t weight = getSourceNumFieldValue(ed->weight, -100, 100);
         v = divRoundClosest((int32_t)v * weight, 1000);
 
         //========== OFFSET ===============
-        int32_t offset = GET_GVAR_PREC1(ed->offset, -100, 100, mixerCurrentFlightMode);
+        int32_t offset = getSourceNumFieldValue(ed->offset, -100, 100);
         if (offset) v += divRoundClosest(calc100toRESX(offset), 10);
 
         //========== TRIMS ================
@@ -951,7 +970,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         }
       }
 
-      int32_t weight = GET_GVAR_PREC1(MD_WEIGHT(md), GV_RANGELARGE_NEG, GV_RANGELARGE, mixerCurrentFlightMode);
+      int32_t weight = getSourceNumFieldValue(md->weight, -RESX, RESX);
       weight = calc100to256_16Bits(weight);
       //========== SPEED ===============
       // now its on input side, but without weight compensation. More like other remote controls
@@ -1006,7 +1025,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       //========== OFFSET / AFTER ===============
       if (applyOffsetAndCurve) {
-        int32_t offset = GET_GVAR_PREC1(MD_OFFSET(md), GV_RANGELARGE_NEG, GV_RANGELARGE, mixerCurrentFlightMode);
+        int32_t offset = getSourceNumFieldValue(md->offset, -RESX, RESX);
         if (offset) dv += divRoundClosest(calc100toRESX_16Bits(offset), 10) << 8;
       }
 

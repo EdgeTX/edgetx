@@ -24,24 +24,30 @@
 #include "window.h"
 
 struct CurveRef;
+class Choice;
+class SourceNumberEdit;
 
 class CurveParam : public Window
 {
+ public:
+  CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
+             std::function<void(int32_t)> setRefValue,
+             int16_t sourceMin,
+             std::function<void(void)> refreshView = nullptr);
+
+ protected:
   // Curve
   CurveRef* ref;
 
   // Controls
-  Window* value_edit;
-  Window* func_choice;
-  Window* cust_choice;
+  SourceNumberEdit* value_edit;
+  Choice* func_choice;
+  Choice* cust_choice;
   Window* act_field = nullptr;
 
-  void update();
-  static void value_changed(lv_event_t* e);
-  static void LongPressHandler(void* data);
+  std::function<void(void)> refreshView;
 
- public:
-  CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-             std::function<void(int32_t)> setRefValue,
-             std::function<void(void)> refreshView = nullptr);
+  void update();
+
+  static void LongPressHandler(void* data);
 };

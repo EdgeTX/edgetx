@@ -292,14 +292,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
   }
 }
 
-void gvarWeightItem(coord_t x, coord_t y, MixData * md, LcdFlags attr, event_t event)
-{
-  u_int8int16_t weight;
-  MD_WEIGHT_TO_UNION(md, weight);
-  weight.word = GVAR_MENU_ITEM(x, y, weight.word, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, 0, event);
-  MD_UNION_TO_WEIGHT(weight, md);
-}
-
 void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
 {
   char s[8];
@@ -405,12 +397,12 @@ void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags att)
     switch (curve.type) {
       case CURVE_REF_DIFF:
         lcdDrawText(x, y, "D", att);
-        GVAR_MENU_ITEM(lcdNextPos, y, curve.value, -100, 100, LEFT|att, 0, 0);
+        editSrcVarFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0, 0, 0);
         break;
 
       case CURVE_REF_EXPO:
         lcdDrawText(x, y, "E", att);
-        GVAR_MENU_ITEM(lcdNextPos, y, curve.value, -100, 100, LEFT|att, 0, 0);
+        editSrcVarFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0, 0, 0);
         break;
 
       case CURVE_REF_FUNC:
@@ -541,5 +533,90 @@ void runFatalErrorScreen(const char * message)
       }
       WDG_RESET();
     }
+  }
+}
+
+void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
+{
+  uint16_t aidx = abs(idx);
+  bool inverted = idx < 0;
+
+  if (aidx == MIXSRC_NONE) {
+    lcdDrawText(x, y, STR_EMPTY, att);
+  }
+  else if (aidx <= MIXSRC_LAST_INPUT) {
+    if (att & RIGHT) {
+      if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
+        lcdDrawSizedText(x, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
+      else
+        lcdDrawNumber(x, y, aidx, att|LEADING0, 2);
+      x = lcdLastLeftPos - 5;
+      if (inverted)
+        lcdDrawChar(x-5, y, '-');
+      lcdDrawChar(x, y+1, CHR_INPUT, RIGHT|TINSIZE);
+      lcdDrawSolidFilledRect(x-1, y, 5, 7);
+    } else {
+      if (inverted) {
+        lcdDrawChar(x-1, y, '-');
+        x += 3;
+      }
+      lcdDrawChar(x+1, y+1, CHR_INPUT, TINSIZE);
+      lcdDrawSolidFilledRect(x, y, 5, 7);
+      if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
+        lcdDrawSizedText(x+6, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
+      else
+        lcdDrawNumber(x+6, y, aidx, att|LEADING0, 2);
+    }
+  }
+#if defined(LUA_INPUTS)
+  else if (aidx <= MIXSRC_LAST_LUA) {
+    div_t qr = div((uint16_t)(aidx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
+    if (att & RIGHT) {
+#if defined(LUA_MODEL_SCRIPTS)
+      if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+        lcdDrawSizedText(x, y, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, att & STREXPANDED ? 9 : 4, att);
+        x = lcdLastLeftPos - 4;
+        if (inverted)
+          lcdDrawChar(x-5, y, '-');
+        lcdDrawChar(x, y+1, '1'+qr.quot, TINSIZE);
+        lcdDrawFilledRect(x-1, y, 5, 7, SOLID);
+      }
+      else
+#endif
+      {
+        lcdDrawChar(x, y, 'a' + qr.rem, att);
+        drawStringWithIndex(lcdLastLeftPos, y, "LUA", qr.quot+1, att);
+#if defined(LUA_MODEL_SCRIPTS)
+        if (inverted)
+          lcdDrawChar(lcdLastLeftPos, y, '-', att);
+#endif
+      }
+    } else {
+#if defined(LUA_MODEL_SCRIPTS)
+      if (inverted) {
+        lcdDrawChar(x-1, y, '-');
+        x += 3;
+      }
+      if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+        lcdDrawChar(x+1, y+1, '1'+qr.quot, TINSIZE);
+        lcdDrawFilledRect(x, y, 5, 7, SOLID);
+        lcdDrawSizedText(x+5, y, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, att & STREXPANDED ? 9 : 4, att);
+      }
+      else
+#endif
+      {
+        drawStringWithIndex(x, y, "LUA", qr.quot+1, att);
+        lcdDrawChar(lcdLastRightPos, y, 'a' + qr.rem, att);
+      }
+    }
+  }
+#endif
+  else {
+    const char* s = getSourceString(idx);
+#if LCD_W < 212
+    if (idx >= MIXSRC_FIRST_TELEM && idx <= MIXSRC_LAST_TELEM)
+      s += strlen(STR_CHAR_TELEMETRY);
+#endif
+    lcdDrawText(x, y, s, att);
   }
 }

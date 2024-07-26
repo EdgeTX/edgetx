@@ -30,6 +30,7 @@
 #include <QElapsedTimer>
 #include <QStandardItemModel>
 #include <QDialog>
+#include <QComboBox>
 
 extern const QColor colors[CPN_MAX_CURVES];
 
@@ -117,6 +118,7 @@ namespace Helpers
   QString removeAccents(const QString & str);
   unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index = 0, const unsigned int numbits = 1, const unsigned int offset = 0);
   void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index = 0, unsigned int numbits = 1, unsigned int offset = 0);
+  int getFirstPosValueIndex(QComboBox * cbo);
 
 }  // namespace Helpers
 

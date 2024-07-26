@@ -22,6 +22,7 @@
 #include "curve_param.h"
 
 #include "gvar_numberedit.h"
+#include "source_numberedit.h"
 #include "model_curves.h"
 #include "opentx.h"
 
@@ -37,21 +38,12 @@ void CurveParam::LongPressHandler(void* data)
   }
 }
 
-void CurveParam::value_changed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto param = (CurveParam*)lv_obj_get_user_data(obj);
-  if (!param) return;
-
-  param->update();
-}
-
 class CurveChoice : public Choice
 {
  public:
-  CurveChoice(Window* parent, CurveRef* ref, std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
-    Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, GET_DEFAULT(ref->value), setRefValue),
-    ref(ref), refreshView(refreshView)
+  CurveChoice(Window* parent, std::function<int()> getRefValue, std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
+    Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
+    refreshView(std::move(refreshView))
     {
       setTextHandler([](int value) { return getCurveString(value); });
     }
@@ -59,21 +51,21 @@ class CurveChoice : public Choice
   bool onLongPress() override
   {
     if (modelCurvesEnabled()) {
-      if (ref->value) {
-        ModelCurvesPage::pushEditCurve(abs(ref->value) - 1, refreshView);
+      if (_getValue()) {
+        ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView);
       }
     }
     return true;
   }
 
  protected:
-  CurveRef* ref;
   std::function<void(void)> refreshView;
 };
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
-    Window(parent, rect), ref(ref)
+                       std::function<void(int32_t)> setRefValue, int16_t sourceMin,
+                       std::function<void(void)> refreshView) :
+    Window(parent, rect), ref(ref), refreshView(std::move(refreshView))
 {
   padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
@@ -85,23 +77,42 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                ref->type = newValue;
                ref->value = 0;
                SET_DIRTY();
-               lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+               update();
              });
-  lv_obj_add_event_cb(lvobj, CurveParam::value_changed, LV_EVENT_VALUE_CHANGED,
-                      nullptr);
 
   // CURVE_REF_DIFF
   // CURVE_REF_EXPO
-  auto gv = new GVarNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue);
+  auto gv = new SourceNumberEdit(this, -100, 100, GET_DEFAULT(ref->value), setRefValue, sourceMin);
   gv->setSuffix("%");
   value_edit = gv;
 
   // CURVE_REF_FUNC
   func_choice = new Choice(this, rect_t{}, STR_VCURVEFUNC, 0, CURVE_BASE - 1,
-                           GET_DEFAULT(ref->value), setRefValue);
+                           [=]() {
+                             SourceNumVal v;
+                             v.rawValue = ref->value;
+                             return v.value;
+                           },
+                           [=](int32_t newValue) {
+                             SourceNumVal v;
+                             v.isSource = false;
+                             v.value = newValue;
+                             setRefValue(v.rawValue);
+                           });
 
   // CURVE_REF_CUSTOM
-  cust_choice = new CurveChoice(this, ref, setRefValue, refreshView);
+  cust_choice = new CurveChoice(this, 
+                                [=]() {
+                                  SourceNumVal v;
+                                  v.rawValue = ref->value;
+                                  return v.value;
+                                },
+                                [=](int32_t newValue) {
+                                  SourceNumVal v;
+                                  v.isSource = false;
+                                  v.value = newValue;
+                                  setRefValue(v.rawValue);
+                                }, refreshView);
 
   update();
 }
@@ -117,14 +128,17 @@ void CurveParam::update()
   switch (ref->type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
+      value_edit->update();
       act_field = value_edit;
       break;
 
     case CURVE_REF_FUNC:
+      func_choice->update();
       act_field = func_choice;
       break;
 
     case CURVE_REF_CUSTOM:
+      cust_choice->update();
       act_field = cust_choice;
       break;
 
@@ -133,10 +147,11 @@ void CurveParam::update()
   }
 
   act_field->show();
+  if (refreshView)
+    refreshView();
 
   auto act_obj = act_field->getLvObj();
   if (has_focus) {
     lv_group_focus_obj(act_obj);
   }
-  lv_event_send(act_obj, LV_EVENT_VALUE_CHANGED, nullptr);
 }

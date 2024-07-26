@@ -71,6 +71,7 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   weight = lv_label_create(lvobj);
   lv_obj_set_pos(weight, WGT_X, WGT_Y);
   lv_obj_set_size(weight, WGT_W, WGT_H);
+  etx_font(weight, FONT_XS_INDEX, LV_STATE_USER_1);
 
   source = lv_label_create(lvobj);
   lv_obj_set_pos(source, SRC_X, SRC_Y);
@@ -79,6 +80,7 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   opts = lv_label_create(lvobj);
   lv_obj_set_pos(opts, OPT_X, OPT_Y);
   lv_obj_set_size(opts, OPT_W, OPT_H);
+  etx_font(opts, FONT_XS_INDEX, LV_STATE_USER_1);
 }
 
 InputMixButtonBase::~InputMixButtonBase()
@@ -89,7 +91,12 @@ InputMixButtonBase::~InputMixButtonBase()
 void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 {
   char s[32];
-  getValueOrGVarString(s, sizeof(s), value, min, max, 0, "%");
+  getValueOrSrcVarString(s, sizeof(s), value, min, max, 0, "%");
+  if (getTextWidth(s, 0, FONT(STD)) > WGT_W)
+    lv_obj_add_state(weight, LV_STATE_USER_1);
+  else
+    lv_obj_clear_state(weight, LV_STATE_USER_1);
+
   lv_label_set_text(weight, s);
 }
 
@@ -97,6 +104,16 @@ void InputMixButtonBase::setSource(mixsrc_t idx)
 {
   char* s = getSourceString(idx);
   lv_label_set_text(source, s);
+}
+
+void InputMixButtonBase::setOpts(const char* s)
+{
+  if (getTextWidth(s, 0, FONT(STD)) > OPT_W)
+    lv_obj_add_state(opts, LV_STATE_USER_1);
+  else
+    lv_obj_clear_state(opts, LV_STATE_USER_1);
+
+  lv_label_set_text(opts, s);
 }
 
 void InputMixButtonBase::setFlightModes(uint16_t modes)

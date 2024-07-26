@@ -34,7 +34,8 @@ class CurveImageWidget : public QLabel
     CurveImageWidget(QWidget * parent);
     virtual ~CurveImageWidget() {}
 
-    void set(ModelData * model, Firmware * firmware, CompoundItemModelFactory * sharedItemModels, int index, QColor penColor = Qt::black, qreal penWidth = 2);
+    void set(ModelData * model, Firmware * firmware, CompoundItemModelFactory * sharedItemModels, int index, QColor penColor = Qt::black,
+             qreal penWidth = 2);
     void setIndex(int index);
     void setGrid(QColor color = Qt::darkGray, qreal width = 1);
     void setPen(QColor color = Qt::black, qreal width = 2);

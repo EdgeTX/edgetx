@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -23,11 +24,11 @@
 #include <QtWidgets>
 #include "eeprominterface.h"
 
-class GVarGroup;
 class CompoundItemModelFactory;
 class FilteredItemModelFactory;
 class CurveRefFilteredFactory;
 class CurveReferenceUIManager;
+class SourceNumRefEditor;
 
 namespace Ui {
   class MixerDialog;
@@ -57,10 +58,12 @@ class MixerDialog : public QDialog {
     Firmware * firmware;
     MixData *md;
     bool lock;
-    GVarGroup * gvWeightGroup;
-    GVarGroup * gvOffsetGroup;
+    SourceNumRefEditor * weightEditor;
+    SourceNumRefEditor * offsetEditor;
     CurveReferenceUIManager * curveGroup;
     QCheckBox * cb_fp[CPN_MAX_FLIGHT_MODES];
     FilteredItemModelFactory *dialogFilteredItemModels;
     CurveRefFilteredFactory *curveRefFilteredItemModels;
+
+    void shrink();
 };

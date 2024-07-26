@@ -632,51 +632,6 @@ void drawMainControlLabel(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
   lcdDrawSizedText(x, y, getMainControlLabel(idx), UINT8_MAX, att);
 }
 
-void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
-{
-  uint16_t aidx = abs(idx);
-  bool inverted = idx < 0;
-
-  if (aidx == MIXSRC_NONE) {
-    lcdDrawText(x, y, STR_EMPTY, att);
-  }
-  else if (aidx <= MIXSRC_LAST_INPUT) {
-    if (inverted) {
-      lcdDrawChar(x, y, '!');
-      x += 2;
-    }
-    lcdDrawChar(x+2, y+1, CHR_INPUT, TINSIZE);
-    lcdDrawFilledRect(x, y, 7, 7);
-    if (ZEXIST(g_model.inputNames[aidx-MIXSRC_FIRST_INPUT]))
-      lcdDrawSizedText(x+8, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
-    else
-      lcdDrawNumber(x+8, y, aidx, att|LEADING0|LEFT, 2);
-  }
-
-  else if (aidx <= MIXSRC_LAST_LUA) {
-    div_t qr = div((uint16_t)(aidx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-#if defined(LUA_MODEL_SCRIPTS)
-    if (inverted) {
-      lcdDrawChar(x, y, '!');
-      x += 2;
-    }
-    if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      lcdDrawChar(x+2, y+1, '1'+qr.quot, TINSIZE);
-      lcdDrawFilledRect(x, y, 7, 7);
-      lcdDrawSizedText(x+8, y, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, att & STREXPANDED ? 9 : 4, att);
-    }
-    else
-#endif
-    {
-      drawStringWithIndex(x, y, "LUA", qr.quot+1, att);
-      lcdDrawChar(lcdLastRightPos, y, 'a'+qr.rem, att);
-    }
-  }
-  else {
-    lcdDrawText(x, y, getSourceString(idx), att);
-  }
-}
-
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 {
   lcdDrawText(x, y, getAnalogShortLabel(idx), att);

@@ -25,6 +25,8 @@
 #include "opentxeeprom.h"
 #include "customdebug.h"
 #include "opentxinterface.h"
+#include "sourcenumref.h"
+#include "adjustmentreference.h"
 
 using namespace Board;
 
@@ -805,6 +807,11 @@ class CurveReferenceField: public TransformedField {
     {
       curve.type = (CurveReference::CurveRefType)_curve_type;
       curve.value = smallGvarExport(_curve_value);
+      //  2,11 num or gvar changed to SourceNumRef
+      if ((curve.type == CurveReference::CURVE_REF_DIFF || curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
+        curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(curve.value).value).toValue();
+
       qCDebug(eepromImport) << QString("imported CurveReference(%1)").arg(curve.toString());
     }
 
@@ -1114,8 +1121,20 @@ class MixField: public TransformedField {
         }
       }
 
+      //  2.11
+      if ((mix.curve.type == CurveReference::CURVE_REF_DIFF || mix.curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(mix.curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
+        mix.curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(mix.curve.value).value).toValue();
+
       importGvarParam(mix.weight, _weight, version);
+      //  2.11
+      if (AdjustmentReference(mix.weight).type == AdjustmentReference::ADJUST_REF_GVAR)
+        mix.weight = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(mix.weight).value).toValue();
+
       importGvarParam(mix.sOffset, _offset, version);
+      //  2.11
+      if (AdjustmentReference(mix.sOffset).type == AdjustmentReference::ADJUST_REF_GVAR)
+        mix.sOffset = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(mix.sOffset).value).toValue();
 
       qCDebug(eepromImport) << QString("imported %1: ch %2, name '%3'").arg(internalField.getName()).arg(mix.destCh).arg(mix.name);
     }
@@ -1222,9 +1241,15 @@ class InputField: public TransformedField {
       }
 
       expo.weight = smallGvarExport(_weight);
+      //  2.11
+      if (AdjustmentReference(expo.weight).type == AdjustmentReference::ADJUST_REF_GVAR)
+        expo.weight = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(expo.weight).value).toValue();
 
       if (IS_STM32(board) || version >= 218) {
         expo.offset = smallGvarExport(_offset);
+        //  2.11
+        if (AdjustmentReference(expo.offset).type == AdjustmentReference::ADJUST_REF_GVAR)
+          expo.offset = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(expo.offset).value).toValue();
       }
 
       if (!IS_TARANIS(board) && version < 218) {
@@ -1235,6 +1260,13 @@ class InputField: public TransformedField {
         else
           expo.curve = CurveReference(CurveReference::CURVE_REF_FUNC, _curveParam);
       }
+
+      //  2.11
+      if ((expo.curve.type == CurveReference::CURVE_REF_DIFF || expo.curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(expo.curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
+        expo.curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(expo.curve.value).value).toValue();
+
+
       qCDebug(eepromImport) << QString("imported %1: ch %2 name '%3'").arg(internalField.getName()).arg(expo.chn).arg(expo.name);
     }
 

@@ -546,6 +546,7 @@ struct convert<LimitData> {
     node["symetrical"] = (int)rhs.symetrical;
     node["name"] = rhs.name;
     node["curve"] = rhs.curve.value;
+    // rhs.curve.type is not encoded
     return node;
   }
 
@@ -565,6 +566,7 @@ struct convert<LimitData> {
     node["symetrical"] >> rhs.symetrical;
     node["name"] >> rhs.name;
     node["curve"] >> rhs.curve.value;
+    rhs.curve.type = CurveReference::CURVE_REF_CUSTOM;  // this is not encoded but needed internally so force type
     return true;
   }
 };

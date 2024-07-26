@@ -44,7 +44,7 @@ void CurveImageWidget::set(ModelData * model, Firmware * firmware, CompoundItemM
 
 void CurveImageWidget::setIndex(int index)
 {
-  this->index = (index >= 0 && index < CPN_MAX_CURVES) ? index : -1;
+  this->index = index;
 }
 
 void CurveImageWidget::setGrid(QColor color, qreal width)
@@ -63,8 +63,8 @@ int CurveImageWidget::edit()
 {
   int ret = 0;
 
-  if (index >= 0 && index < CPN_MAX_CURVES) {
-    CurveDialog *dlg = new CurveDialog(this, *model, index, firmware, sharedItemModels);
+  if (abs(index) > 0 && abs(index) <= CPN_MAX_CURVES) {
+    CurveDialog *dlg = new CurveDialog(this, *model, abs(index) - 1, firmware, sharedItemModels);
     ret = dlg->exec();
     delete dlg;
   }
@@ -74,11 +74,13 @@ int CurveImageWidget::edit()
 
 void CurveImageWidget::draw()
 {
-  if (index >= 0 && index < CPN_MAX_CURVES) {
+  if (abs(index) > 0 && abs(index) <= CPN_MAX_CURVES) {
     CurveImage *curveImage = new CurveImage(gridColor, gridWidth);
-    curveImage->drawCurve(model->curves[index], penColor, penWidth);
+    curveImage->drawCurve(model->curves[abs(index) - 1], penColor, penWidth);
 
     QImage image = curveImage->get();
+    if (index < 0)
+      image = image.mirrored(true, false);
     setPixmap(QPixmap::fromImage(image.scaled(height(), width())));
 
     delete curveImage;

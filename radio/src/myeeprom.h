@@ -272,14 +272,6 @@ enum DisplayTrims
 extern RadioData g_eeGeneral;
 extern ModelData g_model;
 
-PACK(union u_int8int16_t {
-  struct {
-    int8_t  lo;
-    uint8_t hi;
-  } bytes_t;
-  int16_t word;
-});
-
 constexpr uint8_t EE_GENERAL = 0x01;
 constexpr uint8_t EE_MODEL = 0x02;
 constexpr uint8_t EE_LABELS = 0x04;

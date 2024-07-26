@@ -111,6 +111,7 @@ set(GUI_SRC
   radio_tools.cpp
   radio_trainer.cpp
   radio_version.cpp
+  source_numberedit.cpp
   )
 
 macro(add_gui_src src)
