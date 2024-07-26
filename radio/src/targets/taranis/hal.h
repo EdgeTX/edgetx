@@ -70,8 +70,8 @@
   #define KEYS_GPIO_REG_RIGHT           GPIOE
   #define KEYS_GPIO_PIN_RIGHT           LL_GPIO_PIN_13 // PE.13
 #elif defined(RADIO_TPROS)
-  #define KEYS_GPIO_REG_PAGE            GPIOD
-  #define KEYS_GPIO_PIN_PAGE            LL_GPIO_PIN_3  // PD.03
+  #define KEYS_GPIO_REG_PAGEDN          GPIOD
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
   #define KEYS_GPIO_REG_MENU            GPIOD
   #define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_7  // PD.07
   #define KEYS_GPIO_REG_EXIT            GPIOD
