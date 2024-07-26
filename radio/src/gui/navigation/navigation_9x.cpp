@@ -82,7 +82,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       }
     }
 
-    newval = checkMovedInput(newval, i_min, i_max, i_flags);
+    newval = checkMovedInput(newval, i_min, i_max, i_flags, isSource);
 
     if (invert) {
       newval = -newval;
@@ -92,7 +92,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 
   newval = checkBoolean(event, i_min, i_max, newval, val);
 
-  newval = showPopupMenus(event, newval, i_min, i_max, i_flags, isValueAvailable);
+  newval = showPopupMenus(event, newval, i_min, i_max, i_flags, isValueAvailable, isSource);
 
   finishCheckIncDec(event, i_min, i_max, i_flags, newval, val, stops);
 
