@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#if !defined(SIMU)
-#include "stm32_hal_ll.h"
-#include "stm32_hal.h"
-#include "stm32_timer.h"
-#endif
+// #if !defined(SIMU)
+// #include "stm32_hal_ll.h"
+// #include "stm32_hal.h"
+// #include "stm32_timer.h"
+// #endif
 
 #include "hal/usb_driver.h"
 
@@ -39,14 +39,14 @@
 #include "debug.h"
 
 #include "timers_driver.h"
+#include "flash_driver.h"
+
 #include "hal/abnormal_reboot.h"
 #include "hal/rotary_encoder.h"
 
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
 #endif
-
-#define APP_START_ADDRESS (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #if defined(EEPROM) || defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
@@ -64,6 +64,12 @@
 // -> used to detect valid bootloader files
 const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
   {'B', 'O', 'O', 'T', '1', '0'};
+#endif
+
+#if defined(SIMU)
+  #define __weak
+#elif !defined(__weak)
+  #define __weak __attribute__((weak))
 #endif
 
 volatile tmr10ms_t g_tmr10ms;
@@ -444,8 +450,8 @@ int  bootloaderMain()
           // confirmed
 
           if (memoryType == MEM_FLASH) {
-            firmwareSize = binFiles[vpos].size - BOOTLOADER_SIZE;
-            firmwareAddress = FIRMWARE_ADDRESS + BOOTLOADER_SIZE;
+            firmwareSize = FIRMWARE_LEN(binFiles[vpos].size);
+            firmwareAddress = APP_START_ADDRESS;
             firmwareWritten = 0;
           }
 #if defined(EEPROM)
@@ -484,7 +490,7 @@ int  bootloaderMain()
         if (BlockCount == 0) {
           state = ST_FLASH_DONE; // EOF
         }
-        else if (memoryType == MEM_FLASH && firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
+        else if (memoryType == MEM_FLASH && firmwareWritten >= FIRMWARE_MAX_LEN) {
           state = ST_FLASH_DONE; // Backstop
         }
 #if defined(EEPROM)

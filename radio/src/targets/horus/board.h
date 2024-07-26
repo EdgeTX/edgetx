@@ -51,8 +51,12 @@ PACK(typedef struct {
 extern HardwareOptions hardwareOptions;
 
 #define FLASHSIZE                      0x200000
+#define FLASH_PAGESIZE                 256
 #define BOOTLOADER_SIZE                0x20000
 #define FIRMWARE_ADDRESS               0x08000000
+#define FIRMWARE_LEN(fsize)            (fsize - BOOTLOADER_SIZE)
+#define FIRMWARE_MAX_LEN               (FLASHSIZE - BOOTLOADER_SIZE)
+#define APP_START_ADDRESS              (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #define MB                             *1024*1024
 #define LUA_MEM_EXTRA_MAX              (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
@@ -99,14 +103,6 @@ enum {
     #define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() (hardwareOptions.pcbrev == PCBREV_X12S_LT13)
   #endif
 #endif
-
-// Flash Write driver
-#define FLASH_PAGESIZE                 256
-void unlockFlash();
-void lockFlash();
-void flashWrite(uint32_t * address, const uint32_t * buffer);
-uint32_t isFirmwareStart(const uint8_t * buffer);
-uint32_t isBootloaderStart(const uint8_t * buffer);
 
 #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
   #define HARDWARE_INTERNAL_RAS
