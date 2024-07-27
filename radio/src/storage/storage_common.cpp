@@ -161,23 +161,29 @@ static void sanitizeMixerLines()
 void postModelLoad(bool alarms)
 {
 #if defined(COLORLCD)
-  // Load 'date time' widget if slot is empty
-  if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
-    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time", WIDGET_NAME_LEN);
-    storageDirty(EE_MODEL);
-  }
-  // Load 'radio info' widget if slot is empty
-  if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName[0] == 0) {
-    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName, "Radio Info", WIDGET_NAME_LEN);
-    storageDirty(EE_MODEL);
-  }
+  if (g_model.topbarWidgetWidth[0] == 0) {
+    // Set default width for top bar widgets
+    for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
+      g_model.topbarWidgetWidth[i] = 1;
+
+    // Load 'date time' widget if slot is empty
+    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
+      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time", WIDGET_NAME_LEN);
+      storageDirty(EE_MODEL);
+    }
+    // Load 'radio info' widget if slot is empty
+    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName[0] == 0) {
+      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName, "Radio Info", WIDGET_NAME_LEN);
+      storageDirty(EE_MODEL);
+    }
 #if defined(INTERNAL_GPS)
-  // Load 'internal gps' widget if slot is empty
-  if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName[0] == 0) {
-    strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS", WIDGET_NAME_LEN);
-    storageDirty(EE_MODEL);
-  }
+    // Load 'internal gps' widget if slot is empty
+    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName[0] == 0) {
+      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS", WIDGET_NAME_LEN);
+      storageDirty(EE_MODEL);
+    }
 #endif
+  }
 #elif LCD_W == 128
   // Prevent GVARS to be off when imported or manually modified yaml
   // Since there is no way to have those back

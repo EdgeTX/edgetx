@@ -429,7 +429,7 @@ static const struct YamlNode struct_MixData[] = {
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
   YAML_UNSIGNED( "speedPrec", 1 ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
-  YAML_UNSIGNED( "spare", 2 ),
+  YAML_PADDING( 2 ),
   YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
   YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
@@ -466,7 +466,7 @@ static const struct YamlNode struct_ExpoData[] = {
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_UNSIGNED( "chn", 5 ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
-  YAML_UNSIGNED( "spare", 2 ),
+  YAML_PADDING( 2 ),
   YAML_STRING("name", 6),
   YAML_END
 };
@@ -864,6 +864,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
   YAML_ARRAY("screenData", 6816, 10, struct_CustomScreenData, NULL),
   YAML_STRUCT("topbarData", 2400, struct_TopBarPersistentData, NULL),
+  YAML_ARRAY("topbarWidgetWidth", 8, 4, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),

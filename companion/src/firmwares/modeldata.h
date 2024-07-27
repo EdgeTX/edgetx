@@ -188,6 +188,7 @@ class ModelData {
 
     RadioLayout::CustomScreens customScreens;
     TopBarPersistentData topBarData;
+    uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES];
     unsigned int view;
 
     char registrationId[8+1];
