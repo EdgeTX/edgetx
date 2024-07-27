@@ -93,16 +93,24 @@ LEGACY_NAMES = [
         "targets": {"t15"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "S1",
