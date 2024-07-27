@@ -153,7 +153,8 @@ class ScriptEditWindow : public Page
             });
         lbl->padLeft(PAD_LARGE);
         new DynamicNumber<int16_t>(
-            line, rect_t{}, [=]() { return calcRESXto1000(so->value); }, PREC1);
+            line, rect_t{}, [=]() { return calcRESXto1000(so->value); },
+            COLOR_THEME_PRIMARY1_INDEX, PREC1);
       }
     }
   }

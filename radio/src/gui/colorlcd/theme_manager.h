@@ -188,7 +188,4 @@ class UsbSDConnected : public Window
 {
  public:
   UsbSDConnected();
-
- protected:
-  HeaderDateTime* dateTime = nullptr;
 };
