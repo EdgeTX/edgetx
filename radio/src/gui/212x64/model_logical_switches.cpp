@@ -240,6 +240,7 @@ void menuModelLogicalSwitches(event_t event)
           }
           cs->v2 = CHECK_INCDEC_PARAM(event, cs->v2, v2_min, v2_max);
           if (cstate==LS_FAMILY_OFS && cs->v1!=0 && event==EVT_KEY_LONG(KEY_ENTER)) {
+            killEvents(event);
             getvalue_t x = getValue(v1_val);
             if (abs(v1_val) <= MIXSRC_LAST_CH) {
               cs->v2 = calcRESXto100(x);

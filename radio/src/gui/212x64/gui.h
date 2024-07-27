@@ -33,7 +33,6 @@
 #define HEADER_LINE                    0
 #define HEADER_LINE_COLUMNS
 
-#define DEFAULT_SCROLLBAR_X            (LCD_W-1)
 #define NUM_BODY_LINES                 (LCD_LINES-1)
 #define TEXT_VIEWER_LINES              NUM_BODY_LINES
 #define MENU_HEADER_HEIGHT             FH
@@ -172,8 +171,7 @@ void menuChannelsView(event_t event);
 
 void repeatLastCursorMove(event_t event);
 
-#define POS_HORZ_INIT(posVert)         ((COLATTR(posVert) & NAVIGATION_LINE_BY_LINE) ? -1 : 0)
-#define EDIT_MODE_INIT                 0 // TODO enum
+#define EDIT_MODE_INIT                 0
 
 void onSwitchLongEnterPress(const char *result);
 void onSourceLongEnterPress(const char *result);

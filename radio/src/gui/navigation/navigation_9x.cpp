@@ -19,31 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "navigation.h"
-
-#include "switches.h"
-
-vertpos_t menuVerticalOffset;
-vertpos_t menuVerticalPosition;
-horzpos_t menuHorizontalPosition;
-
-int8_t s_editMode;
-uint8_t noHighlightCounter;
-uint8_t menuCalibrationState;
-
-int8_t  checkIncDec_Ret;
-
-INIT_STOPS(stops100, 3, -100, 0, 100)
-INIT_STOPS(stops1000, 3, -1000, 0, 1000)
-INIT_STOPS(stopsSwitch, 15, SWSRC_FIRST,
-           CATEGORY_END(-SWSRC_FIRST_LOGICAL_SWITCH),
-           CATEGORY_END(-SWSRC_FIRST_TRIM),
-           CATEGORY_END(-SWSRC_LAST_SWITCH + 1), 0,
-           CATEGORY_END(SWSRC_LAST_SWITCH), CATEGORY_END(SWSRC_FIRST_TRIM - 1),
-           CATEGORY_END(SWSRC_FIRST_LOGICAL_SWITCH - 1), SWSRC_LAST)
-
-extern int checkIncDecSelection;
+#define POS_HORZ_INIT(posVert)         0
 
 int checkIncDec(event_t event, int val, int i_min, int i_max,
                 unsigned int i_flags, IsValueAvailable isValueAvailable,
@@ -98,7 +74,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
         }
       } while (isValueAvailable && !isValueAvailable(newval) &&
                newval >= i_min);
-      
+
       if (newval < i_min) {
         newval = val;
         killEvents(event);
@@ -106,35 +82,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       }
     }
 
-#if defined(AUTOSWITCH)
-    if (i_flags & INCDEC_SWITCH) {
-      newval = checkIncDecMovedSwitch(newval);
-    }
-#endif
-
-#if defined(AUTOSOURCE)
-    if (i_flags & (INCDEC_SOURCE|INCDEC_SOURCE_VALUE)) {
-      int source = GET_MOVED_SOURCE(i_min, i_max);
-      if (source) {
-        if (i_flags & INCDEC_SOURCE_VALUE) {
-          if (isSource) {
-            // Only use moved source if already a source value
-            newval = source;
-          }
-        } else {
-          newval = source;
-        }
-      }
-#if defined(AUTOSWITCH)
-      else {
-        uint8_t swtch = abs(getMovedSwitch());
-        if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
-          newval = switchToMix(swtch);
-        }
-      }
-#endif
-    }
-#endif
+    newval = checkMovedInput(newval, i_min, i_max, i_flags, isSource);
 
     if (invert) {
       newval = -newval;
@@ -142,99 +90,11 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
     }
   }
 
-  if (i_min == 0 && i_max == 1 &&
-      (event == EVT_KEY_BREAK(KEY_ENTER))) {
-    s_editMode = 0;
-    newval = !val;
-  }
+  newval = checkBoolean(event, i_min, i_max, newval, val);
 
-  if (i_flags & (INCDEC_SOURCE | INCDEC_SOURCE_VALUE)) {
-    if (event == EVT_KEY_LONG(KEY_ENTER)) {
-      checkIncDecSelection = MIXSRC_NONE;
+  newval = showPopupMenus(event, newval, i_min, i_max, i_flags, isValueAvailable, isSource);
 
-      if (i_flags & INCDEC_SOURCE_VALUE && isSource) {
-        POPUP_MENU_ADD_ITEM(STR_CONSTANT);
-      }
-
-      if (i_min <= MIXSRC_FIRST_INPUT && i_max >= MIXSRC_FIRST_INPUT) {
-        if (getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isInputAvailable) != MIXSRC_NONE &&
-            (i_flags & INCDEC_SOURCE_NOINPUTS) == 0) {
-          POPUP_MENU_ADD_ITEM(STR_MENU_INPUTS);
-        }
-      }
-#if defined(LUA_MODEL_SCRIPTS)
-      if (i_min <= MIXSRC_FIRST_LUA && i_max >= MIXSRC_FIRST_LUA) {
-        if (getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable) != MIXSRC_NONE) {
-          POPUP_MENU_ADD_ITEM(STR_MENU_LUA);
-        }
-      }
-#endif
-      if (i_min <= MIXSRC_FIRST_STICK && i_max >= MIXSRC_FIRST_STICK)      POPUP_MENU_ADD_ITEM(STR_MENU_STICKS);
-      if (i_min <= MIXSRC_FIRST_POT && i_max >= MIXSRC_FIRST_POT)          POPUP_MENU_ADD_ITEM(STR_MENU_POTS);
-      if (i_min <= MIXSRC_MIN && i_max >= MIXSRC_MIN)                      POPUP_MENU_ADD_ITEM(STR_MENU_MIN);
-      if (i_min <= MIXSRC_MAX && i_max >= MIXSRC_MAX)                      POPUP_MENU_ADD_ITEM(STR_MENU_MAX);
-#if defined(HELI)
-      if (modelHeliEnabled())
-        if (i_min <= MIXSRC_FIRST_HELI && i_max >= MIXSRC_FIRST_HELI && isValueAvailable && isValueAvailable(MIXSRC_FIRST_HELI))
-          POPUP_MENU_ADD_ITEM(STR_MENU_HELI);
-#endif
-      if (i_min <= MIXSRC_FIRST_TRIM && i_max >= MIXSRC_FIRST_TRIM)        POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
-      if (i_min <= MIXSRC_FIRST_SWITCH && i_max >= MIXSRC_FIRST_SWITCH)    POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
-      if (i_min <= MIXSRC_FIRST_TRAINER && i_max >= MIXSRC_FIRST_TRAINER)  POPUP_MENU_ADD_ITEM(STR_MENU_TRAINER);
-      if (i_min <= MIXSRC_FIRST_CH && i_max >= MIXSRC_FIRST_CH)            POPUP_MENU_ADD_ITEM(STR_MENU_CHANNELS);
-      if (i_min <= MIXSRC_FIRST_GVAR && i_max >= MIXSRC_FIRST_GVAR && isValueAvailable && isValueAvailable(MIXSRC_FIRST_GVAR)) {
-        POPUP_MENU_ADD_ITEM(STR_MENU_GVARS);
-      }
-
-      if (modelTelemetryEnabled() && i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
-        for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-          TelemetrySensor * sensor = & g_model.telemetrySensors[i];
-          if (sensor->isAvailable()) {
-            POPUP_MENU_ADD_ITEM(STR_MENU_TELEMETRY);
-            break;
-          }
-        }
-      }
-      if (i_flags & INCDEC_SOURCE_INVERT) POPUP_MENU_ADD_ITEM(STR_MENU_INVERT);
-      POPUP_MENU_START(onSourceLongEnterPress);
-    }
-    if (checkIncDecSelection != 0) {
-      if (i_flags & INCDEC_SOURCE_VALUE) {
-        if (checkIncDecSelection == MIXSRC_VALUE) {
-          newval = 0;
-          isSource = false;
-        } else {
-          newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
-          if (checkIncDecSelection != MIXSRC_INVERT)
-            isSource = true;
-        }
-      } else {
-        newval = (checkIncDecSelection == MIXSRC_INVERT ? -newval : checkIncDecSelection);
-      }
-      if (checkIncDecSelection != MIXSRC_MIN && checkIncDecSelection != MIXSRC_MAX)
-        s_editMode = EDIT_MODIFY_FIELD;
-      checkIncDecSelection = 0;
-    }
-  }
-
-  if (newval != val) {
-    if (!(i_flags & NO_INCDEC_MARKS) && (newval != i_max) &&
-        (newval != i_min) && stops.contains(newval)) {
-      bool pause = (newval > val ? !stops.contains(newval + 1)
-                                 : !stops.contains(newval - 1));
-      if (pause) {
-        pauseEvents(event);  // delay before auto-repeat continues
-      }
-    }
-    if (!IS_KEY_REPT(event)) {
-      AUDIO_KEY_PRESS();
-    }
-    storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
-    checkIncDec_Ret = (newval > val ? 1 : -1);
-  }
-  else {
-    checkIncDec_Ret = 0;
-  }
+  finishCheckIncDec(event, i_min, i_max, i_flags, newval, val, stops);
 
   if (i_flags & INCDEC_SOURCE_VALUE) {
     SourceNumVal v;
@@ -246,48 +106,36 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
   return newval;
 }
 
-#define SCROLL_POT1_TH 32
-
-#define CURSOR_NOT_ALLOWED_IN_ROW(row) ((int8_t)MAXCOL(row) < 0)
-
-#define INC(val, min, max)             if (val<max) {val++;} else {val=min;}
-#define DEC(val, min, max)             if (val>min) {val--;} else {val=max;}
-
-tmr10ms_t menuEntryTime;
-
-#define MAXCOL_RAW(row)                (horTab ? *(horTab+min(row, (vertpos_t)horTabMax)) : (const uint8_t)0)
-#define MAXCOL(row)                    (MAXCOL_RAW(row) >= HIDDEN_ROW ? MAXCOL_RAW(row) : (const uint8_t)(MAXCOL_RAW(row) & (~NAVIGATION_LINE_BY_LINE)))
-#define POS_HORZ_INIT(posVert)         0
-
-uint8_t chgMenu(uint8_t curr, const MenuHandler * menuTab, uint8_t menuTabSize, int direction)
+vertpos_t prevRow(vertpos_t l_posVert, vertpos_t maxrow, bool wrap,
+                  horzpos_t& l_posHorz, const uint8_t *horTab, uint8_t horTabMax)
 {
-  int cc = curr + direction;
-  while (cc != curr) {
-    if (cc < 0)
-      cc = menuTabSize - 1;
-    else if (cc >= menuTabSize)
-      cc = 0;
-    if (menuTab[cc].isEnabled())
-      return cc;
-    cc += direction;
-  }
-  return curr;
-}
-
-uint8_t menuSize(const MenuHandler * menuTab, uint8_t menuTabSize)
-{
-  uint8_t sz = 0;
-  for (int i = 0; i < menuTabSize; i += 1) {
-    if (menuTab[i].isEnabled()) {
-      sz += 1;
+  if (s_editMode <= 0) {
+    vertpos_t origPos = l_posVert;
+    do {
+      DEC(l_posVert, 0, maxrow - 1);
+    } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
+    if (origPos == 0 && !wrap) {
+      l_posVert = origPos;
     }
   }
-  return sz;
+  l_posHorz = min<horzpos_t>(l_posHorz, MAXCOL(l_posVert));
+  return l_posVert;
 }
 
-uint8_t menuIdx(const MenuHandler * menuTab, uint8_t curr)
+vertpos_t nextRow(vertpos_t l_posVert, vertpos_t maxrow, bool wrap,
+                  horzpos_t& l_posHorz, const uint8_t *horTab, uint8_t horTabMax)
 {
-  return menuSize(menuTab, curr + 1) - 1;
+  if (s_editMode <= 0) {
+    vertpos_t origPos = l_posVert;
+    do {
+      INC(l_posVert, 0, maxrow - 1);
+    } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
+    if (l_posVert == 0 && !wrap) {
+      l_posVert = origPos;
+    }
+  }
+  l_posHorz = min<horzpos_t>(l_posHorz, MAXCOL(l_posVert));
+  return l_posVert;
 }
 
 void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
@@ -324,7 +172,6 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 
     menuCalibrationState = 0;
     drawScreenIndex(menuIdx(menuTab, curr), menuSize(menuTab, menuTabSize), attr);
-
   }
 
   switch (event) {
@@ -336,7 +183,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       break;
 
     case EVT_KEY_BREAK(KEY_ENTER):
-      if (!menuTab || l_posVert>0) {
+      if (!menuTab || l_posVert > 0) {
         s_editMode = (s_editMode <= 0);
       }
       break;
@@ -348,12 +195,12 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
 
     case EVT_KEY_BREAK(KEY_EXIT):
       AUDIO_KEY_PRESS();
-      if (s_editMode>0) {
+      if (s_editMode > 0) {
         s_editMode = 0;
         break;
       }
 
-      if (l_posVert==0 || !menuTab) {
+      if (l_posVert == 0 || !menuTab) {
         popMenu();  // beeps itself
       }
       else {
@@ -363,52 +210,48 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       break;
 
     case EVT_KEY_REPT(KEY_RIGHT):  //inc
-      if (l_posHorz==maxcol) break;
+      if (l_posHorz == maxcol) break;
       // no break
 
     case EVT_KEY_FIRST(KEY_RIGHT)://inc
-      if (!horTab || s_editMode>0) break;
+      if (!horTab || s_editMode > 0) break;
       INC(l_posHorz, 0, maxcol);
       break;
 
     case EVT_KEY_REPT(KEY_DOWN):
-      if (l_posVert==maxrow) break;
-      // no break
+      l_posVert = nextRow(l_posVert, maxrow, false, l_posHorz, horTab, horTabMax);
+      break;
 
     case EVT_KEY_FIRST(KEY_DOWN):
-      if (s_editMode>0) break;
-      do {
-        INC(l_posVert, 0, maxrow - 1);
-      } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
-      l_posHorz = min<horzpos_t>(l_posHorz, MAXCOL(l_posVert));
+      l_posVert = nextRow(l_posVert, maxrow, true, l_posHorz, horTab, horTabMax);
       break;
 
     case EVT_KEY_REPT(KEY_LEFT):  //dec
-      if (l_posHorz==0) break;
+      if (l_posHorz == 0) break;
       // no break
 
     case EVT_KEY_FIRST(KEY_LEFT)://dec
-      if (!horTab || s_editMode>0) break;
+      if (!horTab || s_editMode > 0) break;
       DEC(l_posHorz, 0, maxcol);
       break;
 
     case EVT_KEY_REPT(KEY_UP):
-      if (l_posVert==0) break;
-      // no break
-    case EVT_KEY_FIRST(KEY_UP):
-      if (s_editMode>0) break;
+      l_posVert = prevRow(l_posVert, maxrow, false, l_posHorz, horTab, horTabMax);
+      break;
 
-      do {
-        DEC(l_posVert, 0, maxrow - 1);
-      } while (CURSOR_NOT_ALLOWED_IN_ROW(l_posVert));
-      l_posHorz = min((uint8_t)l_posHorz, MAXCOL(l_posVert));
+    case EVT_KEY_FIRST(KEY_UP):
+      l_posVert = prevRow(l_posVert, maxrow, true, l_posHorz, horTab, horTabMax);
       break;
   }
 
   uint8_t maxLines = menuTab ? LCD_LINES-1 : LCD_LINES-2;
 
   int linesCount = maxrow;
-  if (l_posVert == 0 || (l_posVert==1 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW) || (l_posVert==2 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW && MAXCOL(vertpos_t(1)) >= HIDDEN_ROW)) {
+
+  if (l_posVert == 0 || 
+      (l_posVert==1 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW) ||
+      (l_posVert==2 && MAXCOL(vertpos_t(0)) >= HIDDEN_ROW &&
+       MAXCOL(vertpos_t(1)) >= HIDDEN_ROW)) {
     menuVerticalOffset = 0;
     if (horTab) {
       linesCount = 0;
@@ -418,8 +261,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
         }
       }
     }
-  }
-  else if (horTab) {
+  } else if (horTab) {
     if (maxrow > maxLines) {
       while (1) {
         vertpos_t firstLine = 0;
@@ -453,8 +295,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
         }
       }
     }
-  }
-  else {
+  } else {
     if (l_posVert>maxLines+menuVerticalOffset) {
       menuVerticalOffset = l_posVert-maxLines;
     }

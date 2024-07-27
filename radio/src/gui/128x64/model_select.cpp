@@ -117,8 +117,7 @@ void menuModelSelect(event_t event)
   // Suppress exit in "copy mode": handled in this function
   event_t _event_ = event;
   if ((s_copyMode && IS_KEY_EVT(event, KEY_EXIT)) ||
-      event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER) ||
-      event == EVT_KEY_LONG(KEY_ENTER)) {
+      event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
     _event_ = 0;
   }
 
@@ -141,6 +140,7 @@ void menuModelSelect(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_EXIT):
+      killEvents(event);
       if (s_copyMode && s_copyTgtOfs == 0 && g_eeGeneral.currModel != sub && modelExists(sub)) {
         POPUP_CONFIRMATION(STR_DELETEMODEL, nullptr);
         SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), 0);
@@ -201,6 +201,7 @@ void menuModelSelect(event_t event)
       else if (event == EVT_KEY_BREAK(KEY_ENTER) ||
                event == EVT_KEY_LONG(KEY_ENTER)) {
 
+        killEvents(event);
         s_copyMode = 0;
         if (g_eeGeneral.currModel != sub) {
           if (modelExists(sub)) {

@@ -237,6 +237,7 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
 #else
         case EVT_KEY_LONG(KEY_ENTER):
 #endif
+          killEvents(event);
 
 #if !defined(NAVIGATION_XLITE)
           if (v == ' ') {

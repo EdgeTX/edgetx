@@ -344,8 +344,8 @@ void POPUP_MENU_TITLE(const char * s)
 
 void POPUP_MENU_START(PopupMenuHandler handler)
 {
+  killAllEvents();
   if (handler != popupMenuHandler) {
-    killAllEvents();
     AUDIO_KEY_PRESS();
     popupMenuHandler = handler;
   }
