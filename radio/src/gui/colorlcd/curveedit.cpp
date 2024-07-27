@@ -271,13 +271,11 @@ void CurveEditWindow::buildBody(Window* window)
 
 #if PORTRAIT_LCD
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_COLUMN);
-  coord_t curveWidth = window->width() - 88;
   coord_t boxWidth = window->width();
-  coord_t boxHeight = window->height() - curveWidth;
+  coord_t boxHeight = window->height() - CURVE_WIDTH;
 #else
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_ROW);
-  coord_t curveWidth = window->height() - 2 * PAD_MEDIUM;
-  coord_t boxWidth = window->width() - curveWidth;
+  coord_t boxWidth = window->width() - CURVE_WIDTH;
   coord_t boxHeight = window->height();
 #endif
 
@@ -388,7 +386,7 @@ void CurveEditWindow::buildBody(Window* window)
   // Curve editor
   lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-  curveEdit = new CurveEdit(line, {0, 0, curveWidth, curveWidth}, index);
+  curveEdit = new CurveEdit(line, {0, 0, CURVE_WIDTH, CURVE_WIDTH}, index);
 
   curveDataEdit->setCurveEdit(curveEdit);
 }

@@ -84,6 +84,8 @@ class CurveEditWindow : public Page
   public:
     CurveEditWindow(uint8_t index, std::function<void(void)> refreshView = nullptr);
 
+    static LAYOUT_VAL(CURVE_WIDTH, 215, 232)
+
   protected:
     uint8_t index;
     CurveEdit * curveEdit = nullptr;
