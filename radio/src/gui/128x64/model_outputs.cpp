@@ -123,7 +123,8 @@ void menuModelLimitsOne(event_t event)
       case ITEM_OUTPUTONE_MIN:
         lcdDrawTextAlignedLeft(y, STR_MIN);
         if (GV_IS_GV_VALUE(ld->min, -GV_RANGELARGE, GV_RANGELARGE) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-          killEvents(event);
+          if (event == EVT_KEY_LONG(KEY_ENTER))
+            killEvents(event);
           ld->min = GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, ld->min, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1, 0, event);
           break;
         }
@@ -136,7 +137,8 @@ void menuModelLimitsOne(event_t event)
       case ITEM_OUTPUTONE_MAX:
         lcdDrawTextAlignedLeft(y, STR_MAX);
         if (GV_IS_GV_VALUE(ld->max, -GV_RANGELARGE, GV_RANGELARGE) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-          killEvents(event);
+          if (event == EVT_KEY_LONG(KEY_ENTER))
+            killEvents(event);
           ld->max = GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, ld->max, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1, 0, event);
           break;
         }

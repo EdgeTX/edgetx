@@ -162,7 +162,8 @@ void menuModelLimits(event_t event)
 
         case ITEM_LIMITS_OFFSET:
           if (GV_IS_GV_VALUE(ld->offset, -1000, 1000) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            killEvents(event);
+            if (event == EVT_KEY_LONG(KEY_ENTER))
+              killEvents(event);
             ld->offset = GVAR_MENU_ITEM(LIMITS_OFFSET_POS, y, ld->offset, -1000, 1000, RIGHT|attr|PREC1, 0, event);
             break;
           }
@@ -184,7 +185,8 @@ void menuModelLimits(event_t event)
 
         case ITEM_LIMITS_MIN:
           if (GV_IS_GV_VALUE(ld->min, -GV_RANGELARGE, GV_RANGELARGE) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            killEvents(event);
+            if (event == EVT_KEY_LONG(KEY_ENTER))
+              killEvents(event);
             ld->min = GVAR_MENU_ITEM(LIMITS_MIN_POS, y, ld->min, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
             break;
           }
@@ -194,7 +196,8 @@ void menuModelLimits(event_t event)
 
         case ITEM_LIMITS_MAX:
           if (GV_IS_GV_VALUE(ld->max, -GV_RANGELARGE, GV_RANGELARGE) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            killEvents(event);
+            if (event == EVT_KEY_LONG(KEY_ENTER))
+              killEvents(event);
             ld->max = GVAR_MENU_ITEM(LIMITS_MAX_POS, y, ld->max, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
             break;
           }

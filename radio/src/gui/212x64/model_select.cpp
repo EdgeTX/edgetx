@@ -160,6 +160,8 @@ void menuModelSelect(event_t event)
           }
         }
         break;
+
+      case EVT_KEY_LONG(KEY_ENTER):
       case EVT_KEY_BREAK(KEY_ENTER):
         s_editMode = 0;
         if (s_copyMode && (s_copyTgtOfs || s_copySrcRow>=0)) {
@@ -194,6 +196,7 @@ void menuModelSelect(event_t event)
           event = EVT_ENTRY_UP;
         }
         else if (event == EVT_KEY_LONG(KEY_ENTER)) {
+          killEvents(event);
           s_copyMode = 0;
           if (g_eeGeneral.currModel != sub) {
             if (modelExists(sub)) {

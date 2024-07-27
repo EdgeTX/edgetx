@@ -198,7 +198,8 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           else {
             drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
             if (active || AUTOSWITCH_ENTER_LONG()) {
-              killEvents(event);
+              if (event == EVT_KEY_LONG(KEY_ENTER))
+                killEvents(event);
               CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
             }
           }
