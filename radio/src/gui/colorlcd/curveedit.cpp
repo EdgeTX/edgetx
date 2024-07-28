@@ -336,7 +336,7 @@ void CurveEditWindow::buildBody(Window* window)
       });
 
   // Points count
-  auto edit = new NumberEdit(
+  auto edit = new Choice(
       iLine, {0, 0, NUMEDT_W, 0}, 2, 17,
       GET_DEFAULT(g_model.curves[index].points + 5), [=](int32_t newValue) {
         newValue -= 5;
@@ -362,8 +362,9 @@ void CurveEditWindow::buildBody(Window* window)
           }
         }
       });
-  edit->setSuffix(STR_PTS);
-  edit->setDefault(5);
+  edit->setTextHandler([=](int value) {
+    return std::to_string(value) + STR_PTS;
+  });
 
   iLine = form->newLine(iGrid);
   iLine->padAll(PAD_ZERO);
