@@ -212,6 +212,14 @@
     <file>images/simulator/JumperTPRO/left.png</file>
     <file>images/simulator/JumperTPRO/right.png</file>
     <file>images/simulator/JumperTPRO/top.png</file>
+    <file>images/simulator/JumperTPROS/bottom.png</file>
+    <file>images/simulator/JumperTPROS/left.png</file>
+    <file>images/simulator/JumperTPROS/right.png</file>
+    <file>images/simulator/JumperTPROS/right-ent.png</file>
+    <file>images/simulator/JumperTPROS/top.png</file>
+    <file>images/simulator/JumperTPROS/exit.png</file>
+    <file>images/simulator/JumperTPROS/menu.png</file>
+    <file>images/simulator/JumperTPROS/page.png</file>
     <file>images/simulator/TX12/left.png</file>
     <file>images/simulator/TX12/left-pageup.png</file>
     <file>images/simulator/TX12/left-pagedn.png</file>
