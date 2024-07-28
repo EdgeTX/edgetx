@@ -7,8 +7,6 @@
 #include "stm32_hal.h"
 
 
-/* MX66UW1G45G size in bytes: 1GBit / 8 */
-#define XSPI_NOR_FLASH_SIZE MX66UW1G45G_FLASH_SIZE
 #define XSPI_NOR_PAGE_SIZE 256
 
 /* Flash commands */
@@ -585,14 +583,14 @@ static uint16_t extflash_dfu_get_status(uint32_t address, uint8_t cmd, uint8_t *
 {
   switch (cmd) {
     case DFU_MEDIA_PROGRAM:
-      buffer[1] = 50;
+      buffer[1] = 1;
       buffer[2] = 0;
       buffer[3] = 0;
       break;
 
     case DFU_MEDIA_ERASE:
     default:
-      buffer[1] = 50;
+      buffer[1] = 20;
       buffer[2] = 0;
       buffer[3] = 0;
       break;
