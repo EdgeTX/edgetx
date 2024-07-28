@@ -1409,18 +1409,6 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
-  /* Jumper T-Lite F4 board */
-  /* No immediate plans for this to be needed now
-  firmware = new OpenTxFirmware(FIRMWAREID("tlitef4"), QCoreApplication::translate("Firmware", "Jumper T-Lite (F4 MCU)"), BOARD_JUMPER_TLITE_F4, "tlitef4", "edgetx-tlite");
-  addOpenTxCommonOptions(firmware);
-  firmware->addOption("noheli", Firmware::tr("Disable HELI menu and cyclic mix support"));
-  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
-  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
-  addOpenTxFontOptions(firmware);
-  registerOpenTxFirmware(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
-  */
-
   /* Jumper T-Pro board */
   firmware = new OpenTxFirmware(FIRMWAREID("tpro"), QCoreApplication::translate("Firmware", "Jumper T-Pro"), BOARD_JUMPER_TPRO);
   addOpenTxCommonOptions(firmware);
@@ -1580,23 +1568,6 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
-
-//  /* 9XR-Pro */
-//  firmware = new OpenTxFirmware(FIRMWAREID("9xrpro"), Firmware::tr("Turnigy 9XR-PRO"), BOARD_9XRPRO);
-//  addOpenTxArm9xOptions(firmware, false);
-//  registerOpenTxFirmware(firmware, true);
-//
-//  /* ar9x board */
-//  firmware = new OpenTxFirmware(FIRMWAREID("ar9x"), Firmware::tr("9X with AR9X board"), BOARD_AR9X);
-//  addOpenTxArm9xOptions(firmware, true);
-//  //firmware->addOption("rtc", Firmware::tr("Optional RTC added"));
-//  //firmware->addOption("volume", Firmware::tr("i2c volume control added"));
-//  registerOpenTxFirmware(firmware, true);
-//
-//  /* Sky9x board */
-//  firmware = new OpenTxFirmware(FIRMWAREID("sky9x"), Firmware::tr("9X with Sky9x board"), BOARD_SKY9X);
-//  addOpenTxArm9xOptions(firmware);
-//  registerOpenTxFirmware(firmware, true);
 
   Firmware::sortRegisteredFirmwares();
   Firmware::setDefaultVariant(Firmware::getFirmwareForFlavour("tx16s"));
