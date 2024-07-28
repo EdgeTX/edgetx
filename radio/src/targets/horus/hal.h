@@ -478,7 +478,7 @@
   #define ADC_GPIO_PIN_EXT3             ADC_GPIO_PIN_STICK_RH
   #define ADC_GPIO_PIN_EXT4             ADC_GPIO_PIN_STICK_RV
 #endif
-  #if !defined(RADIO_TX16S) && !defined(RADIO_F16) && !defined(RADIO_T15) && !defined(RADIO_V16)
+  #if !(defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_T15) || defined(RADIO_V16))
     #define PWM_STICKS
     #define PWM_TIMER                   TIM5
     #define PWM_GPIO                    GPIOA
