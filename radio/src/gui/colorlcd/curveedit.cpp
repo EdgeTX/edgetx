@@ -264,7 +264,7 @@ void CurveEditWindow::buildBody(FormWindow * window)
   coord_t boxHeight = window->height() - curveWidth;
 #else
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_ROW);
-  coord_t curveWidth = window->height() - 2 * PAGE_PADDING;
+  coord_t curveWidth = 215;
   coord_t boxWidth = window->width() - curveWidth;
   coord_t boxHeight = window->height();
 #endif
@@ -328,7 +328,7 @@ void CurveEditWindow::buildBody(FormWindow * window)
              });
 
   // Points count
-  auto edit = new NumberEdit(iLine, rect_t{0, 0, 70, 0}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
+  auto edit = new Choice(iLine, rect_t{0, 0, 70, 0}, 2, 17, GET_DEFAULT(g_model.curves[index].points + 5),
                              [=](int32_t newValue) {
                                  newValue -= 5;
                                  CurveHeader &curve = g_model.curves[index];
@@ -351,8 +351,9 @@ void CurveEditWindow::buildBody(FormWindow * window)
                                    }
                                  }
                              });
-  edit->setSuffix(STR_PTS);
-  edit->setDefault(5);
+  edit->setTextHandler([=](int value) {
+    return std::to_string(value) + STR_PTS;
+  });
 
   iLine = form->newLine(&iGrid);
   iLine->padAll(0);
