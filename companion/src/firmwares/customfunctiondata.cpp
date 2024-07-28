@@ -284,7 +284,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
 
   if (value < step) {
     if (value < firmware->getCapability(Timers))
-      return RawSource(SOURCE_TYPE_TIMER, value).toString(model);
+      return RawSource(SOURCE_TYPE_TIMER, value + 1).toString(model);
     else
       return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -295,18 +295,23 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
   if (value < ++step)
     return tr("Telemetry");
 
+  if (value < ++step)
+    return tr("Trims");
+
   if (value < step + firmware->getCapability(Sensors))
-    return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step + 1)).toString(model);
+    return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step) + 1).toString(model);
 
   return QString(CPN_STR_UNKNOWN_ITEM);
 }
+
+#define RESET_SENSORS_START  CPN_MAX_TIMERS + 3   // keep in sync with above
 
 //  static
 int CustomFunctionData::resetParamCount()
 {
   Firmware * firmware = getCurrentFirmware();
 
-  return CPN_MAX_TIMERS + 2 + firmware->getCapability(Sensors);
+  return RESET_SENSORS_START + firmware->getCapability(Sensors);
 }
 
 //  static
@@ -320,10 +325,10 @@ bool CustomFunctionData::isResetParamAvailable(const int index, const ModelData 
     else
       return false;
   }
-  else if (index < CPN_MAX_TIMERS + 2)
+  else if (index < RESET_SENSORS_START)
     return true;
   else if (model && index < resetParamCount())
-    return model->sensorData[index - (CPN_MAX_TIMERS + 2)].isAvailable();
+    return model->sensorData[index - (RESET_SENSORS_START)].isAvailable();
 
   return false;
 }
