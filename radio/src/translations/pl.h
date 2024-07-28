@@ -122,7 +122,7 @@
 #define TR_FSW_RESET_TIMERS    "Tmr1","Tmr2","Tmr3"
 
 
-#define TR_VFSWRESET           TR_FSW_RESET_TIMERS,TR("All","Flight"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS,
+#define TR_VFSWRESET           TR_FSW_RESET_TIMERS,TR("All","Flight"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 #define TR_FUNCSOUNDS          TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Ost1","Ostrz1"),TR("Ost2","Ostrz2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Syre","Syrena"),TR("Dzwo","Dzwone"),TR("Crck","Krytcz"),TR("Alrm","AlmZeg")
 
 #define LENGTH_UNIT_IMP        "ft"

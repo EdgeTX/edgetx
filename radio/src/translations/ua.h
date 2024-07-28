@@ -127,7 +127,7 @@
 #define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS            "Тмр1","Тмр2","Тмр3"
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Все","Політ"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS,
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Все","Політ"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
 #define TR_FUNCSOUNDS                  TR("Сг1","Синг.1"),TR("Сг2","Синг.2"),TR("Сг3","Синг.3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
