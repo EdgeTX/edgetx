@@ -21,77 +21,57 @@
 
 #pragma once
 
+#include "curve.h"
 #include "page.h"
 #include "window.h"
-#include "curve.h"
 
 class NumberEdit;
+class CurveDataEdit;
 
-class CurveEdit: public Window
+class CurveEdit : public Window
 {
-  public:
-    CurveEdit(Window * parent, const rect_t & rect, uint8_t index);
-    static void SetCurrentSource(mixsrc_t source);
+ public:
+  CurveEdit(Window* parent, const rect_t& rect, uint8_t index);
+  static void SetCurrentSource(mixsrc_t source);
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
+  void deleteLater(bool detach = true, bool trash = true) override
+  {
+    if (_deleted) return;
 
-      preview.deleteLater(true, false);
+    preview.deleteLater(true, false);
 
-      Window::deleteLater(detach, trash);
-    }
+    Window::deleteLater(detach, trash);
+  }
 
-    void updatePreview();
+  void updatePreview();
 
-    void checkEvents(void) override;
+  void checkEvents(void) override;
 
-   protected:
-    Curve preview;
-    uint8_t index;
-    uint8_t current;
-    static mixsrc_t currentSource;
-    static bool lockSource;
-};
-
-class CurveDataEdit : public Window
-{
-  public:
-    CurveDataEdit(Window * parent, const rect_t & rect, uint8_t index);
-
-    void setCurveEdit(CurveEdit* _curveEdit)
-    {
-      curveEdit = _curveEdit;
-      update();
-    }
-
-    void update();
-
-    static LAYOUT_VAL(NUM_BTN_WIDTH, 48, 48)
-    static LAYOUT_VAL(NUM_HDR_HEIGHT, 12, 12)
-
-  protected:
-    uint8_t index;
-    CurveEdit * curveEdit;
-    NumberEdit* numEditX[16];
-
-    void curvePointsRow(FormLine* parent, int start, int count, int curvePointsCount, bool isCustom);
+ protected:
+  Curve preview;
+  uint8_t index;
+  uint8_t current;
+  static mixsrc_t currentSource;
+  static bool lockSource;
 };
 
 class CurveEditWindow : public Page
 {
-  public:
-    CurveEditWindow(uint8_t index, std::function<void(void)> refreshView = nullptr);
+ public:
+  CurveEditWindow(uint8_t index,
+                  std::function<void(void)> refreshView = nullptr);
 
-  protected:
-    uint8_t index;
-    CurveEdit * curveEdit = nullptr;
-    CurveDataEdit * curveDataEdit = nullptr;
-    std::function<void(void)> refreshView = nullptr;
+  static LAYOUT_VAL(NUMEDT_W, 70, 70)
+  static LAYOUT_VAL(CURVE_WIDTH, 215, 232)
 
-    void buildHeader(Window * window);
-    void buildBody(Window * window);
+ protected:
+  uint8_t index;
+  CurveEdit* curveEdit = nullptr;
+  CurveDataEdit* curveDataEdit = nullptr;
+  std::function<void(void)> refreshView = nullptr;
 
-    void onCancel() override;
+  void buildHeader(Window* window);
+  void buildBody(Window* window);
+
+  void onCancel() override;
 };
