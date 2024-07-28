@@ -25,7 +25,6 @@ do
 
     echo "Generating YAML structures for ${target_name}"
     case $target_name in
-
         x9lite)
             BUILD_OPTIONS+="-DPCB=X9LITE"
             ;;
@@ -50,6 +49,9 @@ do
         boxer)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
             ;;
+        t8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
+            ;;
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
             ;;
@@ -59,17 +61,17 @@ do
         mt12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12"
             ;;
-        lr3pro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
-            ;;
-        t8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
-            ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
             ;;
         tpro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
+            ;;
+        tprov2)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
+            ;;
+        tpros)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROS"
             ;;
         t20)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
@@ -82,6 +84,12 @@ do
             ;;
         t14)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T14"
+            ;;
+        lr3pro)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
+            ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
@@ -100,6 +108,9 @@ do
             ;;
         x9e)
             BUILD_OPTIONS+="-DPCB=X9E"
+            ;;
+        x9e-hall)
+            BUILD_OPTIONS+="-DPCB=X9E -DSTICKS=HORUS"
             ;;
         x10)
             BUILD_OPTIONS+="-DPCB=X10"
@@ -120,16 +131,26 @@ do
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
             ;;
         tx16s)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S -DINTERNAL_GPS=ON"
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
+            ;;
+        f16)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=F16"
             ;;
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
+        el18)
+            BUILD_OPTIONS+="-DPCB=NV14 -DPCBREV=EL18"
+            ;;
         pl18)
             BUILD_OPTIONS+="-DPCB=PL18"
             ;;
-        commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+        pl18ev)
+            BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=PL18EV"
+            ;;
+        *)
+            echo "Unknown target: $target_name"
+            exit 1
             ;;
     esac
 

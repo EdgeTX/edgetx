@@ -91,7 +91,6 @@ do
 
     echo "Building ${fw_name}"
     case $target_name in
-
         x9lite)
             BUILD_OPTIONS+="-DPCB=X9LITE"
             ;;
@@ -158,6 +157,9 @@ do
         lr3pro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
             ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
             ;;
@@ -214,9 +216,6 @@ do
             ;;
         pl18ev)
             BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=PL18EV"
-            ;;
-        commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;
         *)
             echo "Unknown target: $target_name"

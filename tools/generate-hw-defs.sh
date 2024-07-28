@@ -6,7 +6,7 @@ set -e
 
 : "${SRCDIR:=$(dirname "$(pwd)/$0")/..}"
 
-: ${FLAVOR:="nv14;t12;t12max;t15;t16;t18;t8;zorro;pocket;commando8;tlite;tpro;tprov2;tpros;t20;t20v2;t14;lr3pro;mt12;tx12;tx12mk2;boxer;tx16s;x10;x10express;x12s;x7;x7access;x9d;x9dp;x9dp2019;x9e;x9lite;x9lites;xlite;xlites"}
+: ${FLAVOR:="nv14;el18;t12;t12max;t15;t16;t18;t8;zorro;pocket;commando8;tlite;tpro;tprov2;tpros;t20;t20v2;t14;lr3pro;mt12;tx12;tx12mk2;boxer;tx16s;x10;x10express;x12s;x7;x7access;x9d;x9dp;x9dp2019;x9e;x9lite;x9lites;xlite;xlites;f16"}
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
 # wipe build directory clean
@@ -23,7 +23,6 @@ do
 
     echo "Processing ${target_name}"
     case $target_name in
-
         x9lite)
             BUILD_OPTIONS+="-DPCB=X9LITE"
             ;;
@@ -38,9 +37,6 @@ do
             ;;
         t12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        mt12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12 -DINTERNAL_MODULE_MULTI=ON"
             ;;
         tx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
@@ -60,6 +56,9 @@ do
         pocket)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
             ;;
+        mt12)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12"
+            ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
             ;;
@@ -75,17 +74,20 @@ do
         t20)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
             ;;
+        t20v2)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
+            ;;
         t12max)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12MAX"
             ;;
         t14)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T14"
             ;;
-        t20v2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
-            ;;
         lr3pro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
+            ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
@@ -104,6 +106,9 @@ do
             ;;
         x9e)
             BUILD_OPTIONS+="-DPCB=X9E"
+            ;;
+        x9e-hall)
+            BUILD_OPTIONS+="-DPCB=X9E -DSTICKS=HORUS"
             ;;
         x10)
             BUILD_OPTIONS+="-DPCB=X10"
@@ -126,11 +131,24 @@ do
         tx16s)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
             ;;
+        f16)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=F16"
+            ;;
         nv14)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
-        commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+        el18)
+            BUILD_OPTIONS+="-DPCB=NV14 -DPCBREV=EL18"
+            ;;
+        pl18)
+            BUILD_OPTIONS+="-DPCB=PL18"
+            ;;
+        pl18ev)
+            BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=PL18EV"
+            ;;
+        *)
+            echo "Unknown target: $target_name"
+            exit 1
             ;;
     esac
 

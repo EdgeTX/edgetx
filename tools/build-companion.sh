@@ -101,6 +101,9 @@ do
         tx12mk2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
             ;;
+        boxer)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
+            ;;
         t8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;
@@ -110,11 +113,8 @@ do
         pocket)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
             ;;
-        boxer)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
-            ;;
-        lr3pro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
+        mt12)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12"
             ;;
         tlite)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
@@ -132,16 +132,22 @@ do
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROS"
             ;;
         t20)
-           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
-           ;;
-        t12max)
-           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12MAX"
-           ;;
-        t14)
-           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T14"
-           ;;
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
+            ;;
         t20v2)
-           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
+            ;;
+        t12max)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12MAX"
+            ;;
+        t14)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T14"
+            ;;
+        lr3pro)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
+            ;;
+        commando8)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
@@ -160,6 +166,9 @@ do
             ;;
         x9e)
             BUILD_OPTIONS+="-DPCB=X9E"
+            ;;
+        x9e-hall)
+            BUILD_OPTIONS+="-DPCB=X9E -DSTICKS=HORUS"
             ;;
         x10)
             BUILD_OPTIONS+="-DPCB=X10"
@@ -190,9 +199,6 @@ do
             ;;
         el18)
             BUILD_OPTIONS+="-DPCB=NV14 -DPCBREV=EL18"
-            ;;
-        commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
             ;;
         pl18)
             BUILD_OPTIONS+="-DPCB=PL18"
