@@ -19,17 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CURRENTSENSOR_H_
-#define _CURRENTSENSOR_H_
-
-//#pragma once
-
-//#include "definitions.h"
+#pragma once
 
 extern void IICcsd203init(void);
 extern void csd203Init(void);
 extern void Getcsd203(void);
-
-#endif //_CURRENTSENSOR_H_
-
-
