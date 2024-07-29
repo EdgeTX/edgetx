@@ -24,6 +24,7 @@
 #include "listbox.h"
 #include "storage/modelslist.h"
 #include "page.h"
+#include "themes/etx_lv_theme.h"
 
 class ModelsPageBody;
 class ModelLayoutButton;
@@ -39,10 +40,10 @@ class ModelLabelsWindow : public Page
   static LAYOUT_VAL(MDLS_X, 137, 4)
   static LAYOUT_VAL(MDLS_Y, 4, 4)
   static LAYOUT_VAL(MDLS_W, 343, LCD_W - PAD_MEDIUM)
-  static LAYOUT_VAL(MDLS_H, 219, 219)
+  static LAYOUT_VAL(MDLS_H, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - PAD_SMALL * 2, 219)
   static LAYOUT_VAL(LABELS_Y, PAD_SMALL, MDLS_Y + MDLS_H + PAD_SMALL)
   static LAYOUT_VAL(LABELS_WIDTH, 131, LCD_W - PAD_SMALL * 2)
-  static LAYOUT_VAL(LABELS_HEIGHT, 181, 166)
+  static LAYOUT_VAL(LABELS_HEIGHT, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_SMALL * 2 - PAD_MEDIUM, 166)
   static LAYOUT_VAL(SORT_BUTTON_W, LABELS_WIDTH, 120)
 
  protected:
