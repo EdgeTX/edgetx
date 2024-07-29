@@ -494,7 +494,7 @@ uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t
   return 0;
 }
 
-bool isRtcValid()
+bool rtcIsValid()
 {
   struct gtm t;
   gettime(&t);
