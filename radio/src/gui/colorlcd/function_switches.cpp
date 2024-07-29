@@ -69,6 +69,7 @@ class FunctionSwitch : public Window
           FSWITCH_SET_CONFIG(switchIndex, val);
           if (val == SWITCH_TOGGLE) {
             FSWITCH_SET_STARTUP(switchIndex, FS_START_PREVIOUS);
+            setFSLogicalState(switchIndex, 0);
             startChoice->setValue(startChoice->getIntValue());
           }
           SET_DIRTY();

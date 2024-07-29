@@ -22,7 +22,9 @@
 #include "hal/switch_driver.h"
 #include "hal/adc_driver.h"
 
+#include "myeeprom.h"
 #include "opentx.h"
+#include "opentx_constants.h"
 #include "switches.h"
 #include "input_mapping.h"
 
@@ -90,6 +92,8 @@ void setFSStartupPosition()
 {
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
     uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
+    if (FSWITCH_CONFIG(i) == SWITCH_TOGGLE)
+      startPos = FS_START_OFF;
     switch(startPos) {
       case FS_START_OFF:
         g_model.functionSwitchLogicalState &= ~(1 << i);   // clear state
