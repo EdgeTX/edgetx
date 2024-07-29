@@ -493,3 +493,16 @@ uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t
   }
   return 0;
 }
+
+bool isRtcValid()
+{
+  struct gtm t;
+  gettime(&t);
+
+  // If year is 2000, rtc circuit aren't working
+  // No RTC battery or other issue
+  if (t.tm_year <= 100)
+    return false;
+
+  return true;
+}

@@ -50,6 +50,7 @@ struct gtm
 extern gtime_t g_rtcTime;
 extern uint8_t g_ms100; // global to allow time set function to reset to zero
 
+bool isRtcValid();
 void rtcInit();
 void rtcSetTime(const struct gtm * tm);
 gtime_t gmktime (struct gtm *tm);
