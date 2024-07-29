@@ -46,6 +46,20 @@ static lv_obj_t* choice_create(lv_obj_t* parent)
   return etx_create(&choice_class, parent);
 }
 
+void ChoiceBase::changedCB(lv_event_t* e)
+{
+  auto code = lv_event_get_code(e);
+
+  if (code == LV_EVENT_VALUE_CHANGED) {
+    lv_obj_t* target = lv_event_get_target(e);
+    if (target != nullptr) {
+      ChoiceBase* cb = (ChoiceBase*)lv_obj_get_user_data(target);
+      if (cb)
+        cb->update();
+    }
+  }
+}
+
 ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
                        int vmin, int vmax, const char* title,
                        std::function<int()> _getValue,
@@ -65,6 +79,8 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
   // Add label
   label = lv_label_create(lvobj);
   lv_obj_set_pos(label, ICON_W, PAD_TINY);
+
+  lv_obj_add_event_cb(lvobj, changedCB, LV_EVENT_VALUE_CHANGED, this);
 }
 
 std::string Choice::getLabelText()
