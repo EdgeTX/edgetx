@@ -154,11 +154,11 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   if (md->delayPrec) scale = scale * 10;
   ui->delayDownSB->setMaximum(range / scale);
   ui->delayDownSB->setSingleStep(1.0 / scale);
-  ui->delayDownSB->setDecimals((scale == 1 ? 0 : 1));
+  ui->delayDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
   ui->delayDownSB->setValue((float)md->delayDown / scale);
   ui->delayUpSB->setMaximum(range / scale);
   ui->delayUpSB->setSingleStep(1.0 / scale);
-  ui->delayUpSB->setDecimals((scale == 1 ? 0 : 1));
+  ui->delayUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
   ui->delayUpSB->setValue((float)md->delayUp / scale);
 
   scale = firmware->getCapability(SlowScale);
