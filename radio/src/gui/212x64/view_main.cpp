@@ -335,7 +335,7 @@ void displayTopBar()
     LCD_ICON(BAR_VOLUME_X, BAR_Y, ICON_SPEAKER3);
 
   /* RTC time */
-  drawRtcTime(BAR_TIME_X, BAR_Y+1, LEFT|TIMEBLINK);
+  if (rtcIsValid()) drawRtcTime(BAR_TIME_X, BAR_Y+1, LEFT|TIMEBLINK);
 
   /* The background */
   lcdDrawFilledRect(BAR_X, BAR_Y, BAR_W, BAR_H, SOLID, FILL_WHITE|GREY(12)|ROUND);
