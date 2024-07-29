@@ -145,20 +145,23 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(md->swtch.toValue()));
   ui->warningCB->setCurrentIndex(md->mixWarn);
   ui->mltpxCB->setCurrentIndex(md->mltpx);
+  ui->delayPrecCB->setCurrentIndex(md->delayPrec);
   ui->speedPrecCB->setCurrentIndex(md->speedPrec);
 
-  int scale=firmware->getCapability(SlowScale);
-  float range=firmware->getCapability(SlowRange);
+  float range = firmware->getCapability(SlowRange);
 
+  int scale = firmware->getCapability(SlowScale);
+  if (md->delayPrec) scale = scale * 10;
   ui->delayDownSB->setMaximum(range / scale);
   ui->delayDownSB->setSingleStep(1.0 / scale);
-  ui->delayDownSB->setDecimals((scale == 1 ? 0 : 1));
+  ui->delayDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
   ui->delayDownSB->setValue((float)md->delayDown / scale);
   ui->delayUpSB->setMaximum(range / scale);
   ui->delayUpSB->setSingleStep(1.0 / scale);
-  ui->delayUpSB->setDecimals((scale == 1 ? 0 : 1));
+  ui->delayUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
   ui->delayUpSB->setValue((float)md->delayUp / scale);
 
+  scale = firmware->getCapability(SlowScale);
   if (md->speedPrec) scale = scale * 10;
   ui->slowDownSB->setMaximum(range / scale);
   ui->slowDownSB->setSingleStep(1.0 / scale);
@@ -178,6 +181,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   connect(ui->switchesCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
   connect(ui->warningCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
   connect(ui->mltpxCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->delayPrecCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
   connect(ui->delayDownSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
   connect(ui->delayUpSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
   connect(ui->speedPrecCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
@@ -229,18 +233,35 @@ void MixerDialog::valuesChanged()
     md->mixWarn   = ui->warningCB->currentIndex();
     md->mltpx     = (MltpxValue)ui->mltpxCB->currentIndex();
 
+    float range = firmware->getCapability(SlowRange);
+
+    // Update values based on old precision (in case it changed)
     int scale = firmware->getCapability(SlowScale);
+    if (md->delayPrec) scale = scale * 10;
     md->delayDown = round(ui->delayDownSB->value() * scale);
     md->delayUp   = round(ui->delayUpSB->value() * scale);
 
+    // Get new precion and update controls
+    md->delayPrec = ui->delayPrecCB->currentIndex();
+    scale = firmware->getCapability(SlowScale);
+    if (md->delayPrec) scale = scale * 10;
+    ui->delayDownSB->setMaximum(range / scale);
+    ui->delayDownSB->setSingleStep(1.0 / scale);
+    ui->delayDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+    ui->delayDownSB->setValue((float)md->delayDown / scale);
+    ui->delayUpSB->setMaximum(range / scale);
+    ui->delayUpSB->setSingleStep(1.0 / scale);
+    ui->delayUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+    ui->delayUpSB->setValue((float)md->delayUp / scale);
+
     // Update values based on old precision (in case it changed)
+    scale = firmware->getCapability(SlowScale);
     if (md->speedPrec) scale = scale * 10;
     md->speedDown = round(ui->slowDownSB->value() * scale);
     md->speedUp   = round(ui->slowUpSB->value() * scale);
 
     // Get new precion and update controls
     md->speedPrec = ui->speedPrecCB->currentIndex();
-    float range = firmware->getCapability(SlowRange);
     scale = firmware->getCapability(SlowScale);
     if (md->speedPrec) scale = scale * 10;
     ui->slowDownSB->setMaximum(range / scale);

@@ -1111,3 +1111,4 @@ const char STR_WIDGET_SIZE[] = TR_WIDGET_SIZE;
 #endif
 
 const char STR_MIX_SLOW_PREC[] = TR_MIX_SLOW_PREC;
+const char STR_MIX_DELAY_PREC[] = TR_MIX_DELAY_PREC;

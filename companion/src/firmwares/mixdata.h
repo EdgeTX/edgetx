@@ -48,6 +48,7 @@ class MixData {
     int     weight;
     RawSwitch swtch;
     CurveReference curve;
+    unsigned int delayPrec;
     unsigned int delayUp;
     unsigned int delayDown;
     unsigned int speedPrec;

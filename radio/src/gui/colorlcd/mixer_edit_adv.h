@@ -38,6 +38,8 @@ class MixEditAdvanced : public Page
  protected:
   uint8_t channel;
   uint8_t index;
+  NumberEdit* delayUp;
+  NumberEdit* delayDn;
   NumberEdit* slowUp;
   NumberEdit* slowDn;
 

@@ -1309,6 +1309,7 @@
 #define TR_CREATE_NEW             "Vytvořit"
 
 #define TR_MIX_SLOW_PREC          TR("Přesnost zpomal", "Přesnost zpomalení")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "Adresář vzhledu s tímto názvem již existuje."
 

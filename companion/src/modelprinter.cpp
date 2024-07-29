@@ -440,10 +440,15 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   if (mix.curve.value)
     str += " " + mix.curve.toString(&model, true, &generalSettings).toHtmlEscaped();
   int scale = firmware->getCapability(SlowScale);
-  if (scale == 0)
-    scale = 1;
+  if (scale == 0) scale = 1;
+  if (mix.delayPrec) {
+    scale = scale * 10;
+    str += " " + tr("Delay precision(0.00)").toHtmlEscaped();
+  }
   if (mix.delayDown || mix.delayUp)
     str += " " + tr("Delay(u%1:d%2)").arg((double)mix.delayUp / scale).arg((double)mix.delayDown / scale).toHtmlEscaped();
+  scale = firmware->getCapability(SlowScale);
+  if (scale == 0) scale = 1;
   if (mix.speedPrec) {
     scale = scale * 10;
     str += " " + tr("Slow precision(0.00)").toHtmlEscaped();

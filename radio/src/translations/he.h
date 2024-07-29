@@ -1295,6 +1295,7 @@
 #define TR_CREATE_NEW             "יצירה חדשה"
 
 #define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "כבר קיימת ערכת נושא עם אותו שם"
 
