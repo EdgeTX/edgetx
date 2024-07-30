@@ -149,10 +149,12 @@ static void run_spektrum_int(Window* parent, const std::string&)
 }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 static void run_spektrum_ext(Window* parent, const std::string&)
 {
   new RadioSpectrumAnalyser(EXTERNAL_MODULE);
 }
+#endif
 #endif  // defined(PXX2) || defined(MULTIMODULE)
 
 #if defined(INTERNAL_MODULE_PXX2)
@@ -199,7 +201,9 @@ void RadioToolsPage::rebuild(Window* window)
 #if defined(HARDWARE_INTERNAL_MODULE)
   bool intSpecAnalyser = false;
 #endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
   bool extSpecAnalyser = false;
+#endif
 
 #if defined(PXX2)
   auto hwSettings = &reusableBuffer.hardwareAndSettings;
@@ -241,8 +245,10 @@ void RadioToolsPage::rebuild(Window* window)
     tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (extSpecAnalyser)
     tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
+#endif
 
 #if defined(GHOST)
   if (isModuleGhost(EXTERNAL_MODULE)) {
