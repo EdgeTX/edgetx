@@ -24,6 +24,8 @@
 #include "stm32h7rsxx_ll_system.h"
 #include "stm32h7rsxx_ll_bus.h"
 
+#define BOOTSTRAP __attribute__((section(".bootstrap")))
+
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow :
@@ -46,7 +48,7 @@
   * @param  None
   * @retval None
   */
-extern "C"
+extern "C" BOOTSTRAP
 void SystemClock_Config()
 {
   /* Power Configuration */
