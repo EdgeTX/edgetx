@@ -1,4 +1,10 @@
 
+/* Bootstrap code to load ISR vector and code sections */
+.bootstrap :
+{
+  *(.bootstrap)
+} > REGION_TEXT_STORAGE
+
 /* C/C++ Exception handling (not used) */
 .ARM.extab :
 {
