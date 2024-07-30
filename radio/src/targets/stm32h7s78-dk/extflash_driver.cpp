@@ -1,47 +1,19 @@
 #include "extflash_driver.h"
-
-#include "stm32_hal_ll.h"
-#include "delays_driver.h"
-
-#include "bsp_errno.h"
-#include "stm32_hal.h"
+#include "stm32_xspi_nor.h"
 
 
 #define XSPI_NOR_PAGE_SIZE 256
 
-/* Flash commands */
-#define OCTAL_IO_READ_CMD 0xEC13
-#define OCTAL_IO_DTR_READ_CMD 0xEE11
-#define OCTAL_PAGE_PROG_CMD 0x12ED
-#define OCTAL_READ_STATUS_REG_CMD 0x05FA
-#define OCTAL_SECTOR_ERASE_4K_CMD 0x21DE
-#define OCTAL_SECTOR_ERASE_64K_CMD 0xDC23
-#define OCTAL_WRITE_ENABLE_CMD 0x06F9
-#define READ_STATUS_REG_CMD 0x05
-#define WRITE_CFG_REG_2_CMD 0x72
-#define WRITE_ENABLE_CMD 0x06
-
-/* Default dummy clocks cycles */
-#define DUMMY_CLOCK_CYCLES_READ 20
-#define DUMMY_CLOCK_CYCLES_WRITE 0
-
-/* Auto-polling values */
-#define WRITE_ENABLE_MATCH_VALUE 0x02
-#define WRITE_ENABLE_MASK_VALUE 0x02
-
-#define MEMORY_READY_MATCH_VALUE 0x00
-#define MEMORY_READY_MASK_VALUE 0x01
-
-#define AUTO_POLLING_INTERVAL 0x10
-
-/* Memory registers address */
-#define CONFIG_REG2_ADDR1 0x0000000
-#define CR2_DTR_OPI_ENABLE 0x02
-
-#define CONFIG_REG2_ADDR3 0x00000300
-#define CR2_DUMMY_CYCLES_66MHZ 0x07
 
 static XSPI_HandleTypeDef hxspi_nor;
+
+static const stm32_xspi_nor_t xspi_dev = {
+  .flash_size = 128 * 1024 * 1024,
+  .page_size = XSPI_NOR_PAGE_SIZE,
+  .data_mode = XSPI_OCTO_MODE,
+  .data_rate = XSPI_DTR_TRANSFER,
+  .hxspi = &hxspi_nor, 
+};
 
 /**
  * @brief  Initializes the XSPI MSP.
@@ -89,342 +61,12 @@ static void XSPI_NOR_MspInit()
 }
 
 /**
- * @brief  This function configure the memory in Octal DTR mode.
- * @param  hxspi: XSPI handle
- * @retval None
- */
-static int32_t XSPI_NOR_OctalDTRModeCfg(XSPI_HandleTypeDef *hxspi)
-{
-  uint8_t reg = 0;
-  XSPI_RegularCmdTypeDef sCommand = {0};
-  XSPI_AutoPollingTypeDef sConfig = {0};
-
-  sCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
-  sCommand.InstructionMode = HAL_XSPI_INSTRUCTION_1_LINE;
-  sCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_8_BITS;
-  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
-  sCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_DISABLE;
-  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
-  sCommand.DataDTRMode = HAL_XSPI_DATA_DTR_DISABLE;
-  sCommand.DummyCycles = 0;
-  sCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
-  sConfig.MatchMode = HAL_XSPI_MATCH_MODE_AND;
-  sConfig.AutomaticStop = HAL_XSPI_AUTOMATIC_STOP_ENABLE;
-  sConfig.IntervalTime = AUTO_POLLING_INTERVAL;
-
-  /* Enable write operations */
-  sCommand.Instruction = WRITE_ENABLE_CMD;
-  sCommand.DataMode = HAL_XSPI_DATA_NONE;
-  sCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
-
-  if (HAL_XSPI_Command(hxspi, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  /* Reconfigure XSPI to automatic polling mode to wait for write enabling */
-  sConfig.MatchMask = 0x02;
-  sConfig.MatchValue = 0x02;
-
-  sCommand.Instruction = READ_STATUS_REG_CMD;
-  sCommand.DataMode = HAL_XSPI_DATA_1_LINE;
-  sCommand.DataLength = 1;
-
-  if (HAL_XSPI_Command(hxspi, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  if (HAL_XSPI_AutoPolling(hxspi, &sConfig, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  /* Write Configuration register 2 (with Octal I/O SPI protocol) */
-  sCommand.Instruction = WRITE_CFG_REG_2_CMD;
-  sCommand.AddressMode = HAL_XSPI_ADDRESS_1_LINE;
-  sCommand.AddressWidth = HAL_XSPI_ADDRESS_32_BITS;
-
-  sCommand.Address = CONFIG_REG2_ADDR1;
-  reg = CR2_DTR_OPI_ENABLE;
-
-  if (HAL_XSPI_Command(hxspi, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  if (HAL_XSPI_Transmit(hxspi, &reg, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  sCommand.Instruction = READ_STATUS_REG_CMD;
-  sCommand.DataMode = HAL_XSPI_DATA_1_LINE;
-  sCommand.DataLength = 1;
-
-  if (HAL_XSPI_Command(hxspi, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  if (HAL_XSPI_AutoPolling(hxspi, &sConfig, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  return BSP_ERROR_NONE;
-}
-
-static int32_t XSPI_WriteEnable(XSPI_HandleTypeDef *hxspi)
-{
-  XSPI_RegularCmdTypeDef sCommand = {0};
-  XSPI_AutoPollingTypeDef sConfig = {0};
-
-  /* Enable write operations ------------------------------------------ */
-  sCommand.OperationType = HAL_XSPI_OPTYPE_COMMON_CFG;
-  sCommand.Instruction = OCTAL_WRITE_ENABLE_CMD;
-  sCommand.InstructionMode = HAL_XSPI_INSTRUCTION_8_LINES;
-  sCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_16_BITS;
-  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_ENABLE;
-  sCommand.AddressMode = HAL_XSPI_ADDRESS_NONE;
-  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
-  sCommand.DataMode = HAL_XSPI_DATA_NONE;
-  sCommand.DummyCycles = 0;
-  sCommand.DQSMode = HAL_XSPI_DQS_DISABLE;
-
-  if (HAL_XSPI_Command(hxspi, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  /* Configure automatic polling mode to wait for write enabling ---- */
-  sCommand.Instruction = OCTAL_READ_STATUS_REG_CMD;
-  sCommand.Address = 0x0;
-  sCommand.AddressMode = HAL_XSPI_ADDRESS_8_LINES;
-  sCommand.AddressWidth = HAL_XSPI_ADDRESS_32_BITS;
-  sCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_ENABLE;
-  sCommand.DataMode = HAL_XSPI_DATA_8_LINES;
-  sCommand.DataDTRMode = HAL_XSPI_DATA_DTR_ENABLE;
-  sCommand.DataLength = 2;
-  sCommand.DummyCycles = 6;
-  sCommand.DQSMode = HAL_XSPI_DQS_ENABLE;
-
-  sConfig.MatchValue         = WRITE_ENABLE_MATCH_VALUE;
-  sConfig.MatchMask          = WRITE_ENABLE_MASK_VALUE;
-  sConfig.MatchMode          = HAL_XSPI_MATCH_MODE_AND;
-  sConfig.IntervalTime       = AUTO_POLLING_INTERVAL;
-  sConfig.AutomaticStop      = HAL_XSPI_AUTOMATIC_STOP_ENABLE;
-
-  if (HAL_XSPI_Command(hxspi, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  if (HAL_XSPI_AutoPolling(hxspi, &sConfig, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  return BSP_ERROR_NONE;
-}
-
-static int32_t XSPI_NOR_ConfigureMemoryMappedMode()
-{
-  XSPI_RegularCmdTypeDef sCommand = {0};
-  XSPI_MemoryMappedTypeDef sMemMappedCfg = {0};
-
-  XSPI_WriteEnable(&hxspi_nor);
-
-  /*Configure Memory Mapped mode*/
-
-  sCommand.OperationType = HAL_XSPI_OPTYPE_WRITE_CFG;
-  sCommand.InstructionMode = HAL_XSPI_INSTRUCTION_8_LINES;
-  sCommand.InstructionWidth = HAL_XSPI_INSTRUCTION_16_BITS;
-  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_ENABLE;
-  sCommand.Instruction = OCTAL_PAGE_PROG_CMD;
-  sCommand.AddressMode = HAL_XSPI_ADDRESS_8_LINES;
-  sCommand.AddressWidth = HAL_XSPI_ADDRESS_32_BITS;
-  sCommand.AddressDTRMode = HAL_XSPI_ADDRESS_DTR_ENABLE;
-  sCommand.Address = 0x0;
-  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
-  sCommand.DataMode = HAL_XSPI_DATA_8_LINES;
-  sCommand.DataDTRMode = HAL_XSPI_DATA_DTR_ENABLE;
-  sCommand.DataLength = 0;
-  sCommand.DummyCycles = DUMMY_CLOCK_CYCLES_WRITE;
-  sCommand.DQSMode = HAL_XSPI_DQS_ENABLE;
-
-  if (HAL_XSPI_Command(&hxspi_nor, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  sCommand.OperationType = HAL_XSPI_OPTYPE_READ_CFG;
-  sCommand.Instruction = OCTAL_IO_DTR_READ_CMD;
-  sCommand.DummyCycles = DUMMY_CLOCK_CYCLES_READ;
-  sCommand.DQSMode = HAL_XSPI_DQS_ENABLE;
-
-  if (HAL_XSPI_Command(&hxspi_nor, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  sMemMappedCfg.TimeOutActivation = HAL_XSPI_TIMEOUT_COUNTER_ENABLE;
-  sMemMappedCfg.TimeoutPeriodClock = 0xFFFFU;
-
-  if (HAL_XSPI_MemoryMapped(&hxspi_nor, &sMemMappedCfg) != HAL_OK) {
-    return BSP_ERROR_PERIPH_FAILURE;
-  }
-
-  return BSP_ERROR_NONE;
-}
-
-static int32_t XSPI_AutoPollingMemReady(XSPI_HandleTypeDef *hxspi)
-{
-  XSPI_RegularCmdTypeDef  sCommand = {0};
-  XSPI_AutoPollingTypeDef sConfig = {0};
-  
-  /* Configure automatic polling mode to wait for memory ready ------ */
-  sCommand.OperationType      = HAL_XSPI_OPTYPE_COMMON_CFG;
-  sCommand.Instruction        = OCTAL_READ_STATUS_REG_CMD;
-  sCommand.InstructionMode    = HAL_XSPI_INSTRUCTION_8_LINES;
-  sCommand.InstructionWidth   = HAL_XSPI_INSTRUCTION_16_BITS;
-  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_ENABLE;
-  sCommand.Address            = 0x0;
-  sCommand.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;
-  sCommand.AddressWidth       = HAL_XSPI_ADDRESS_32_BITS;
-  sCommand.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_ENABLE;
-  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
-  sCommand.DataMode           = HAL_XSPI_DATA_8_LINES;
-  sCommand.DataDTRMode        = HAL_XSPI_DATA_DTR_ENABLE;
-  sCommand.DataLength         = 2;
-  sCommand.DummyCycles        = 6;
-  sCommand.DQSMode            = HAL_XSPI_DQS_ENABLE;
-
-	sConfig.MatchValue         = MEMORY_READY_MATCH_VALUE;
-	sConfig.MatchMask          = MEMORY_READY_MASK_VALUE; /* Write in progress */
-	sConfig.MatchMode          = HAL_XSPI_MATCH_MODE_AND;
-	sConfig.IntervalTime       = AUTO_POLLING_INTERVAL;
-	sConfig.AutomaticStop      = HAL_XSPI_AUTOMATIC_STOP_ENABLE;
-
-  if (HAL_XSPI_Command(hxspi, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  if (HAL_XSPI_AutoPolling(hxspi, &sConfig, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  return BSP_ERROR_NONE;
-}
-
-static int32_t XSPI_NOR_EraseSector(uint32_t address)
-{
-  XSPI_RegularCmdTypeDef sCommand = {0};
-
-  XSPI_WriteEnable(&hxspi_nor);
-
-  sCommand.OperationType      = HAL_XSPI_OPTYPE_COMMON_CFG;
-  sCommand.Instruction        = OCTAL_SECTOR_ERASE_64K_CMD;
-  sCommand.InstructionMode    = HAL_XSPI_INSTRUCTION_8_LINES;
-  sCommand.InstructionWidth   = HAL_XSPI_INSTRUCTION_16_BITS;
-  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_ENABLE;
-  sCommand.Address            = address;
-  sCommand.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;
-  sCommand.AddressWidth       = HAL_XSPI_ADDRESS_32_BITS;
-  sCommand.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_ENABLE;
-  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
-  sCommand.DataMode           = HAL_XSPI_DATA_NONE;
-  sCommand.DataDTRMode        = HAL_XSPI_DATA_DTR_ENABLE;
-  sCommand.DummyCycles        = 0;
-  sCommand.DQSMode            = HAL_XSPI_DQS_DISABLE;
-
-  if (HAL_XSPI_Command(&hxspi_nor, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  return XSPI_AutoPollingMemReady(&hxspi_nor);
-}
-
-static int32_t XSPI_NOR_Program(uint32_t address, void* data, uint32_t len)
-{
-  XSPI_RegularCmdTypeDef sCommand = {0};
-
-  XSPI_WriteEnable(&hxspi_nor);
-
-  sCommand.OperationType      = HAL_XSPI_OPTYPE_COMMON_CFG;
-  sCommand.Instruction        = OCTAL_PAGE_PROG_CMD;
-  sCommand.InstructionMode    = HAL_XSPI_INSTRUCTION_8_LINES;
-  sCommand.InstructionWidth   = HAL_XSPI_INSTRUCTION_16_BITS;
-  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_ENABLE;
-  sCommand.Address            = address;
-  sCommand.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;  
-  sCommand.AddressWidth       = HAL_XSPI_ADDRESS_32_BITS;
-  sCommand.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_ENABLE;
-  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
-  sCommand.DataMode           = HAL_XSPI_DATA_8_LINES;
-  sCommand.DataDTRMode        = HAL_XSPI_DATA_DTR_ENABLE;
-  sCommand.DataLength         = len;
-  sCommand.DummyCycles        = 0;
-  sCommand.DQSMode            = HAL_XSPI_DQS_DISABLE;
-
-  if (HAL_XSPI_Command(&hxspi_nor, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  if (HAL_XSPI_Transmit(&hxspi_nor, (uint8_t *)data,
-                        HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  return XSPI_AutoPollingMemReady(&hxspi_nor);
-}
-
-static int32_t XSPI_NOR_Read(uint32_t address, void* data, uint32_t len)
-{
-  XSPI_RegularCmdTypeDef sCommand = {0};
-
-  sCommand.OperationType      = HAL_XSPI_OPTYPE_COMMON_CFG;
-  sCommand.Instruction        = OCTAL_IO_DTR_READ_CMD;
-  sCommand.InstructionMode    = HAL_XSPI_INSTRUCTION_8_LINES;
-  sCommand.InstructionWidth   = HAL_XSPI_INSTRUCTION_16_BITS;
-  sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_ENABLE;
-  sCommand.Address            = address;
-  sCommand.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;
-  sCommand.AddressWidth       = HAL_XSPI_ADDRESS_32_BITS;
-  sCommand.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_ENABLE;
-  sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
-  sCommand.DataMode           = HAL_XSPI_DATA_8_LINES;
-  sCommand.DataDTRMode        = HAL_XSPI_DATA_DTR_ENABLE;
-  sCommand.DataLength         = len;
-  sCommand.DummyCycles        = DUMMY_CLOCK_CYCLES_READ;
-  sCommand.DQSMode            = HAL_XSPI_DQS_ENABLE;
-
-  if (HAL_XSPI_Command(&hxspi_nor, &sCommand, HAL_XSPI_TIMEOUT_DEFAULT_VALUE) !=
-      HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  if (HAL_XSPI_Receive(&hxspi_nor, (uint8_t *)data,
-                       HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-    return BSP_ERROR_COMPONENT_FAILURE;
-  }
-
-  return BSP_ERROR_NONE;
-}
-
-/**
  * @brief  Initializes the XSPI interface.
  * @retval BSP status
  */
 int32_t ExtFLASH_Init(bool memory_mapped)
 {
-  XSPIM_CfgTypeDef sXspiManagerCfg = {0};
-
-  /* Msp XSPI initialization */
+  // init pins
   XSPI_NOR_MspInit();
 
   hxspi_nor.Instance = XSPI2;
@@ -444,18 +86,7 @@ int32_t ExtFLASH_Init(bool memory_mapped)
   hxspi_nor.Init.Refresh = 0;
   hxspi_nor.Init.MemorySelect = HAL_XSPI_CSSEL_NCS1;
 
-  if (HAL_XSPI_Init(&hxspi_nor) != HAL_OK) {
-    return BSP_ERROR_PERIPH_FAILURE;
-  }
-
-  sXspiManagerCfg.nCSOverride = HAL_XSPI_CSSEL_OVR_NCS1;
-  sXspiManagerCfg.IOPort = HAL_XSPIM_IOPORT_2;
-  if (HAL_XSPIM_Config(&hxspi_nor, &sXspiManagerCfg,
-                       HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-    return BSP_ERROR_PERIPH_FAILURE;
-  }
-
-  if (XSPI_NOR_OctalDTRModeCfg(&hxspi_nor) != BSP_ERROR_NONE) {
+  if (stm32_xspi_nor_init(&xspi_dev) != 0) {
     return BSP_ERROR_PERIPH_FAILURE;
   }
 
@@ -463,7 +94,7 @@ int32_t ExtFLASH_Init(bool memory_mapped)
     return BSP_ERROR_NONE;
   }
 
-  if (XSPI_NOR_ConfigureMemoryMappedMode() != BSP_ERROR_NONE) {
+  if (stm32_xspi_nor_memory_mapped(&xspi_dev) != 0) {
     return BSP_ERROR_PERIPH_FAILURE;
   }
 
@@ -496,7 +127,7 @@ static uint32_t extflash_get_sector_size(uint32_t sector)
 static int extflash_erase_sector(uint32_t address)
 {
   address -= XSPI2_BASE;
-  if (XSPI_NOR_EraseSector(address) != BSP_ERROR_NONE) {
+  if (stm32_xspi_nor_erase_sector(&xspi_dev, address) != BSP_ERROR_NONE) {
     return -1;
   }
   return 0;
@@ -507,7 +138,7 @@ static int extflash_program(uint32_t address, void* data, uint32_t len)
   address -= XSPI2_BASE;
   while (len > 0) {
     uint32_t size = (len > XSPI_NOR_PAGE_SIZE) ? XSPI_NOR_PAGE_SIZE : len;
-    if (XSPI_NOR_Program(address, data, size) != BSP_ERROR_NONE) {
+    if (stm32_xspi_nor_program(&xspi_dev, address, data, size) != 0) {
       return -1;
     }
     len -= size;
@@ -521,9 +152,10 @@ static int extflash_program(uint32_t address, void* data, uint32_t len)
 static int extflash_read(uint32_t address, void* data, uint32_t len)
 {
   address -= XSPI2_BASE;
-  if (XSPI_NOR_Read(address, data, len) != BSP_ERROR_NONE) {
+  if (stm32_xspi_nor_read(&xspi_dev, address, data, len) != 0) {
     return -1;
   }
+
   return 0;
 }
 

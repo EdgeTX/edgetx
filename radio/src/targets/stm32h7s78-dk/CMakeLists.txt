@@ -75,6 +75,7 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/rtc_driver.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
+  targets/common/arm/stm32/stm32_xspi_nor.cpp
 )
 
 # Bootloader board library
