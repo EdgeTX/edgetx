@@ -212,3 +212,10 @@ void ProgressWidget::forceKeepOpen(bool value)
 {
   emit keepOpen(value);
 }
+
+void ProgressWidget::refresh()
+{
+  ui->info->update();
+  ui->progressBar->update();
+  ui->textEdit->update();
+}

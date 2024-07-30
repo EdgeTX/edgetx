@@ -27,14 +27,17 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QWidget>
+#include <QApplication>
 
 MinizInterface::MinizInterface(ProgressWidget * progress, const ProgressCalcMethod progressMethod, const int & logLevel) :
+  QObject(nullptr),
   progress(progress),
   progressMethod(progressMethod),
   progressValue(0),
   logLevel(logLevel),
   path(""),
-  archiveFile("")
+  archiveFile(""),
+  stopping(false)
 {
   reportProgress(tr("Progress calculation method: file %1").arg(progressMethod == PCM_COUNT ? tr("count") : tr("size")), QtDebugMsg);
 }
@@ -212,6 +215,12 @@ bool MinizInterface::unzipArchiveToPath(const QString & archiveFile, const QStri
   }
 
   for (int i = 0; i < fileCount; i++) {
+    if (isStopping()) {
+      mz_zip_reader_end(&zip_archive);
+      reportProgress(tr("Decompression interrupted"), QtWarningMsg);
+      return false;
+    }
+
     if (!mz_zip_reader_file_stat(&zip_archive, i, &file_stat)) {
       mz_zip_reader_end(&zip_archive);
       reportProgress(tr("Unable to obtain file status for index: %1").arg(i), QtFatalMsg);
@@ -254,6 +263,8 @@ bool MinizInterface::unzipArchiveToPath(const QString & archiveFile, const QStri
         progress->setValue(progressValue);
 
       reportProgress(tr("Extracted file: %1").arg(file_stat.m_filename), QtDebugMsg);
+      // to assist in responsiveness and allow stop signal to be received and processed
+      QApplication::processEvents();
     }
   }
 
@@ -289,4 +300,9 @@ void MinizInterface::reportProgress(const QString & text, const int & type, bool
     else
       qDebug() << text;
   }
+}
+
+void MinizInterface::stop()
+{
+  stopping = true;
 }

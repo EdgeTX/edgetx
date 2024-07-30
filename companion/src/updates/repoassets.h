@@ -39,6 +39,7 @@ class AssetsRawItemModel : public RepoRawItemModel
 
     bool setDownloadUrl(const int id, const QString url);
     bool setDownloadName(const int id, const QString name);
+    bool resetFlags();
 
   private:
     QObject *m_parentRepo;  // cannot use Repo class from repo.h as compile error due to cyclic headers
@@ -93,15 +94,21 @@ class RepoAssets : public QObject, public RepoMetaData
     bool getJson(const QString assetName, QJsonDocument * json);
     const QString name() const;
     const QString name(const int row);
+
     bool setCopyFilter(const QString filter);
+
     bool setSubDirectory(const QString path);
     const QString subDirectory() const;
+
     bool setDownloadUrl(const QString url);
     const QString downloadUrl() const;
     const QString downloadUrl(const int row);
+
     bool setDownloadName(const QString name);
     const QString downloadName() const;
     const QString downloadName(const int row);
+
+    bool resetFlags();
 
   signals:
     void idChanged(int id);

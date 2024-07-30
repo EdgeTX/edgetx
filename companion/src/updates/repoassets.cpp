@@ -106,6 +106,15 @@ bool AssetsRawItemModel::setDownloadName(const int id, const QString name)
   return setValue(id, RIMR_DownloadName, QVariant(name));
 }
 
+bool AssetsRawItemModel::resetFlags()
+{
+  for (int i = 0; i < rowCount(); i++) {
+    item(i)->setData(0, RIMR_Flags);
+  }
+
+  return true;
+}
+
 /*
     AssetsFilteredItemModel
 */
@@ -319,4 +328,9 @@ bool RepoAssets::setDownloadUrl(const QString url)
 bool RepoAssets::setDownloadName(const QString name)
 {
   return m_rawItemModel->setDownloadName(id(), name);
+}
+
+bool RepoAssets::resetFlags()
+{
+  return m_rawItemModel->resetFlags();
 }
