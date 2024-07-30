@@ -166,7 +166,7 @@ int32_t APS256XX_Reset(XSPI_HandleTypeDef *Ctx)
   sCommand.InstructionDTRMode = HAL_XSPI_INSTRUCTION_DTR_DISABLE;
   sCommand.Instruction        = RESET_CMD;
   sCommand.AddressMode        = HAL_XSPI_ADDRESS_8_LINES;
-  sCommand.AddressWidth       = HAL_XSPI_ADDRESS_24_BITS;
+  sCommand.AddressWidth       = HAL_XSPI_ADDRESS_32_BITS;
   sCommand.AddressDTRMode     = HAL_XSPI_ADDRESS_DTR_DISABLE;
   sCommand.Address            = 0;
   sCommand.AlternateBytesMode = HAL_XSPI_ALT_BYTES_NONE;
@@ -240,63 +240,6 @@ uint32_t APS256_ReadReg(XSPI_HandleTypeDef *Ctx, uint32_t Address, uint8_t *Valu
 */
 static int32_t Configure_APMemory()
 {
-  // /* Reading the configuration of Mode Register 0 ***********************/
-  // if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR0_ADDRESS, reg,
-  //                      (uint32_t)APS256XX_READ_REG_LATENCY(
-  //                          (uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
-  //   ret = BSP_ERROR_COMPONENT_FAILURE;
-  // } else {
-  //   /* Configure the 16-bits Octal RAM memory ***************************/
-  //   MODIFY_REG(reg[0],
-  //              ((uint8_t)APS256XX_MR0_LATENCY_TYPE |
-  //               (uint8_t)APS256XX_MR0_READ_LATENCY_CODE |
-  //               (uint8_t)APS256XX_MR0_DRIVE_STRENGTH),
-  //              ((uint8_t)(XSPI_RAM_VARIABLE_LATENCY) |
-  //               (uint8_t)(XSPI_RAM_READ_LATENCY) | (uint8_t)CONF_HSPI_DS));
-
-  //   if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR0_ADDRESS, reg[0]) !=
-  //       APS256XX_OK) {
-  //     ret = BSP_ERROR_COMPONENT_FAILURE;
-  //   }
-  // }
-
-  // if (ret == BSP_ERROR_NONE) {
-  //   /* Reading the configuration of Mode Register 4 ***********************/
-  //   if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR4_ADDRESS, reg,
-  //                        (uint32_t)APS256XX_READ_REG_LATENCY((
-  //                            uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
-  //     ret = BSP_ERROR_COMPONENT_FAILURE;
-  //   } else {
-  //     /* Configure the 16-bits Octal RAM memory ***************************/
-  //     WRITE_REG(reg[0], ((uint8_t)XSPI_RAM_WRITE_LATENCY |
-  //                        (uint8_t)CONF_HSPI_RF | (uint8_t)CONF_HSPI_PASR));
-
-  //     if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR4_ADDRESS, reg[0]) !=
-  //         APS256XX_OK) {
-  //       ret = BSP_ERROR_COMPONENT_FAILURE;
-  //     }
-  //   }
-  // }
-
-  // if (ret == BSP_ERROR_NONE) {
-  //   /* Reading the configuration of Mode Register 8 ***********************/
-  //   if (APS256XX_ReadReg(&hxspi_ram, APS256XX_MR8_ADDRESS, reg,
-  //                        (uint32_t)APS256XX_READ_REG_LATENCY((
-  //                            uint32_t)(DEFAULT_READ_LATENCY))) != APS256XX_OK) {
-  //     ret = BSP_ERROR_COMPONENT_FAILURE;
-  //   } else {
-  //     /* Configure the 16-bits Octal RAM memory ***************************/
-  //     MODIFY_REG(reg[0], (uint8_t)APS256XX_MR8_X8_X16,
-  //                (uint8_t)(XSPI_RAM_IO_MODE));
-
-  //     if (APS256XX_WriteReg(&hxspi_ram, APS256XX_MR8_ADDRESS, reg[0]) !=
-  //         APS256XX_OK) {
-  //       ret = BSP_ERROR_COMPONENT_FAILURE;
-  //     }
-  //   }
-  // }
-
-  
   /* MR0 register for read and write */
   /* To configure AP memory Latency Type and drive Strength */
   uint8_t regW_MR0[2]={0x11,0x8D};
