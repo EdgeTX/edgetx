@@ -196,6 +196,9 @@ void RadioToolsPage::rebuild(Window* window)
 
   std::list<ToolEntry> tools;
 
+  bool intSpecAnalyser = false;
+  bool extSpecAnalyser = false;
+
 #if defined(PXX2)
   auto hwSettings = &reusableBuffer.hardwareAndSettings;
 
@@ -204,8 +207,7 @@ void RadioToolsPage::rebuild(Window* window)
   // PXX2 modules tools
   if (isPXX2ModuleOptionAvailable(intHwSettings->information.modelID,
                                   MODULE_OPTION_SPECTRUM_ANALYSER)) {
-    tools.emplace_back(
-        ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
+    intSpecAnalyser = true;
   }
   if (isPXX2ModuleOptionAvailable(intHwSettings->information.modelID,
                                   MODULE_OPTION_POWER_METER)) {
@@ -216,24 +218,27 @@ void RadioToolsPage::rebuild(Window* window)
   auto extHwSettings = &hwSettings->modules[EXTERNAL_MODULE];
   if (isPXX2ModuleOptionAvailable(extHwSettings->information.modelID,
                                   MODULE_OPTION_SPECTRUM_ANALYSER)) {
-    tools.emplace_back(
-        ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
+    extSpecAnalyser = true;
   }
 #endif  // defined(PXX2)
 
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(MULTIMODULE)
   if (g_eeGeneral.internalModule == MODULE_TYPE_MULTIMODULE) {
-    tools.emplace_back(
-        ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
+    intSpecAnalyser = true;
   }
 #endif
 
 #if defined(PXX2) || defined(MULTIMODULE)
   if (isModuleMultimodule(EXTERNAL_MODULE)) {
-    tools.emplace_back(
-        ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
+    extSpecAnalyser = true;
   }
 #endif
+
+  if (intSpecAnalyser)
+    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
+
+  if (extSpecAnalyser)
+    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
 
 #if defined(GHOST)
   if (isModuleGhost(EXTERNAL_MODULE)) {

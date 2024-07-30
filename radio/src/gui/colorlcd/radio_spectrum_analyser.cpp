@@ -26,13 +26,9 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-constexpr coord_t SPECTRUM_HEIGHT = 180;
 constexpr coord_t SCALE_HEIGHT = 15;
 constexpr coord_t FOOTER_HEIGHT = 32;
-
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
-                                     LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - SCALE_HEIGHT - FOOTER_HEIGHT;
 
 coord_t getAverage(uint8_t number, const uint8_t* value)
 {
@@ -49,15 +45,7 @@ class SpectrumFooterWindow : public Window
   SpectrumFooterWindow(Window* parent, const rect_t& rect, int moduleIdx) :
       Window(parent, rect)
   {
-    setFlexLayout();
     padAll(PAD_ZERO);
-    padLeft(PAD_SMALL);
-    padRight(PAD_SMALL);
-
-    FlexGridLayout grid(col_dsc, row_dsc);
-
-    auto line = newLine(grid);
-    line->padAll(PAD_ZERO);
 
     if (isModuleMultimodule(moduleIdx)) {
       char label[16];
@@ -65,18 +53,18 @@ class SpectrumFooterWindow : public Window
       // Frequency
       sprintf(label, "T: %dMHz",
               int(reusableBuffer.spectrumAnalyser.freq / 1000000));
-      (new StaticText(line, rect_t{0, 0, lv_pct(30), FOOTER_HEIGHT}, label))
+      (new StaticText(this, rect_t{PAD_TINY, 0, FLD_W, FOOTER_HEIGHT}, label))
           ->padTop(PAD_MEDIUM);
 
       // Span
       sprintf(label, "S: %dMHz",
               int(reusableBuffer.spectrumAnalyser.span / 1000000));
-      (new StaticText(line, rect_t{0, 0, lv_pct(30), FOOTER_HEIGHT}, label))
+      (new StaticText(this, rect_t{PAD_TINY + FLD_W, 0, FLD_W, FOOTER_HEIGHT}, label))
           ->padTop(PAD_MEDIUM);
     } else {
       // Frequency
       auto freq = new NumberEdit(
-          line, rect_t{0, 0, lv_pct(30), FOOTER_HEIGHT},
+          this, rect_t{PAD_TINY, 0, FLD_W, 0},
           reusableBuffer.spectrumAnalyser.freqMin,
           reusableBuffer.spectrumAnalyser.freqMax,
           GET_DEFAULT(reusableBuffer.spectrumAnalyser.freq / 1000000),
@@ -86,7 +74,7 @@ class SpectrumFooterWindow : public Window
 
       // Span
       auto span = new NumberEdit(
-          line, rect_t{0, 0, lv_pct(30), FOOTER_HEIGHT}, 1,
+          this, rect_t{PAD_TINY + FLD_W, 0, FLD_W, 0}, 1,
           reusableBuffer.spectrumAnalyser.spanMax,
           GET_DEFAULT(reusableBuffer.spectrumAnalyser.span / 1000000),
           SET_VALUE(reusableBuffer.spectrumAnalyser.span, newValue * 1000000));
@@ -96,7 +84,7 @@ class SpectrumFooterWindow : public Window
 
     // Tracker
     auto tracker = new NumberEdit(
-        line, rect_t{0, 0, lv_pct(30), LV_SIZE_CONTENT},
+        this, rect_t{(PAD_TINY + FLD_W) * 2, 0, FLD_W, FOOTER_HEIGHT},
         (reusableBuffer.spectrumAnalyser.freq -
          reusableBuffer.spectrumAnalyser.span / 2) /
             1000000,
@@ -109,6 +97,8 @@ class SpectrumFooterWindow : public Window
     tracker->setPrefix("T: ");
     tracker->setDefault(reusableBuffer.spectrumAnalyser.freqDefault);
   }
+
+  static constexpr coord_t FLD_W = (LCD_W - PAD_TINY * 4) / 3;
 };
 
 class SpectrumScaleWindow : public Window
@@ -132,7 +122,7 @@ class SpectrumScaleWindow : public Window
       int x = (frequency - startFreq) / reusableBuffer.spectrumAnalyser.step;
       if (x >= LCD_W - 1) break;
       formatNumberAsString(s, 16, frequency / 1000000, 16);
-      new StaticText(this, {x - 16, 0, 32, 15}, s, 
+      new StaticText(this, {x - 16, 0, 32, SCALE_HEIGHT}, s, 
                      COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | CENTERED);
     }
   }
@@ -331,8 +321,8 @@ void RadioSpectrumAnalyser::checkEvents()
       limit<int>(0, offset / reusableBuffer.spectrumAnalyser.step, width() - 1);
   if (x != trackX) {
     trackX = x;
-    trackPts[0] = {(lv_coord_t)x, 45};
-    trackPts[1] = {(lv_coord_t)x, (lv_coord_t)(height() - 32)};
+    trackPts[0] = {(lv_coord_t)x, EdgeTxStyles::MENU_HEADER_HEIGHT};
+    trackPts[1] = {(lv_coord_t)x, (lv_coord_t)(height() - FOOTER_HEIGHT)};
     lv_line_set_points(trackLine, trackPts, 2);
   }
   Page::checkEvents();
