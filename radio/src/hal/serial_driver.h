@@ -61,7 +61,6 @@ struct etx_serial_callbacks_t {
 };
 
 enum SerialHWOption {
-  ETX_HWOption_OVER8,  // oversampling by 8
   ETX_HWOption_ONEBIT, // one-bit sampling
 };
 

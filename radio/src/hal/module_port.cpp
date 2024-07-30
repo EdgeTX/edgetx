@@ -69,10 +69,6 @@ static bool _init_serial_driver(etx_module_driver_t* d, const etx_module_port_t*
 
   // S.PORT specific HW settings
   if (port->port == ETX_MOD_PORT_SPORT && params->baudrate >= 400000) {
-
-    // enable over-sampling by 8
-    if (drv->setHWOption) drv->setHWOption(d->ctx, ETX_HWOption_OVER8);
-
     // one-bit
     if (g_eeGeneral.uartSampleMode == UART_SAMPLE_MODE_ONEBIT) {
       if (drv->setHWOption) drv->setHWOption(d->ctx, ETX_HWOption_ONEBIT);
