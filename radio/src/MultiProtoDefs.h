@@ -184,14 +184,7 @@ enum ModuleSubtypeMulti {
 inline bool isMultiProtocolSelectable(int protocol)
 {
   return (protocol != MODULE_SUBTYPE_MULTI_CONFIG &&
-          protocol != MODULE_SUBTYPE_MULTI_SCANNER &&
-          protocol != MODULE_SUBTYPE_MULTI_OLRS &&
-          protocol != MODULE_SUBTYPE_MULTI_WILLIFM &&
-          protocol != MODULE_SUBTYPE_MULTI_ELRS &&
-          protocol != MODULE_SUBTYPE_MULTI_IKEAANSLUTA &&
-          protocol != MODULE_SUBTYPE_MULTI_CFLIE &&
-          // protocol != MODULE_SUBTYPE_MULTI_XN297DUMP &&   // XN297_DUMP is available with MPM debug fw only
-          protocol != MODULE_SUBTYPE_MULTI_MOULDKG
+          protocol != MODULE_SUBTYPE_MULTI_SCANNER
          );
 }
 
