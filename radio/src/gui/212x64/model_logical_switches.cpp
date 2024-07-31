@@ -110,15 +110,18 @@ void menuModelLogicalSwitches(event_t event)
     unsigned int sw = SWSRC_FIRST_LOGICAL_SWITCH+k;
     drawSwitch(0, y, sw, (getSwitch(sw) ? BOLD : 0) | ((sub==k && CURSOR_ON_LINE()) ? INVERS : 0));
 
-    // CSW func
-    lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, horz==0 ? attr : 0);
-
     // CSW params
     unsigned int cstate = lswFamily(cs->func);
     mixsrc_t v1_val = cs->v1;
     int16_t v1_min = 0, v1_max = MIXSRC_LAST_TELEM;
     int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
     int16_t v3_min =-1, v3_max = 100;
+
+    // CSW func
+    LcdFlags flags = 0;
+    if (cstate == LS_FAMILY_STICKY && getLSStickyState(k))
+      flags = BOLD;
+    lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, (horz==0 ? attr : 0) | flags);
 
     if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
       drawSwitch(CSW_2ND_COLUMN, y, cs->v1, attr1);

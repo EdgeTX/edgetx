@@ -41,6 +41,7 @@ typedef int16_t delayval_t;
 uint8_t lswFamily(uint8_t func);
 int16_t lswTimerValue(delayval_t val);
 
+bool getLSStickyState(uint8_t idx);
 void evalLogicalSwitches(bool isCurrentFlightmode=true);
 void logicalSwitchesCopyState(uint8_t src, uint8_t dst);
 void logicalSwitchesReset();
