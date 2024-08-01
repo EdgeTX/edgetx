@@ -6,8 +6,8 @@ macro(add_bitmaps_target targetname filter format args)
     set(target ${target}.lbm)
     add_custom_command(
       OUTPUT ${target}
-      COMMAND ${PYTHON_EXECUTABLE} ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py --format ${format} ${args} ${bitmap} ${target}
-      DEPENDS ${bitmap} ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py
+      COMMAND ${PYTHON_EXECUTABLE} ${UTILS_DIR}/encode-bitmap.py --format ${format} ${args} ${bitmap} ${target}
+      DEPENDS ${bitmap} ${UTILS_DIR}/encode-bitmap.py
     )
     list(APPEND bitmaps_files ${target})
   endforeach()
@@ -57,7 +57,7 @@ macro(add_truetype_font_target name size subset effect args)
     OUTPUT ${target}.png ${target}.specs ${target}.lbm
     COMMAND ${PYTHON_EXECUTABLE} ${TOOLS_DIR}/build-font-bitmap.py --subset ${subset} --size ${size} --font ${font} --output ${target}
     COMMAND ${PYTHON_EXECUTABLE} ${UTILS_DIR}/bin2lbm.py ${target}.png ${target}.lbm
-    DEPENDS ${TOOLS_DIR}/build-font-bitmap.py ${TOOLS_DIR}/charset.py ${LIBOPENUI_TOOLS_DIR}/encode-bitmap.py
+    DEPENDS ${TOOLS_DIR}/build-font-bitmap.py ${TOOLS_DIR}/charset.py ${UTILS_DIR}/encode-bitmap.py
   )
   add_custom_target(truetype_font_${name} DEPENDS ${target}.png ${target}.specs)
   set(truetype_fonts_targets ${truetype_fonts_targets} truetype_font_${name})
