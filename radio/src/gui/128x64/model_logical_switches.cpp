@@ -297,11 +297,14 @@ void menuModelLogicalSwitches(event_t event)
     drawSwitch(0, y, sw, (sub==k ? INVERS : 0) | (getSwitch(sw) ? BOLD : 0));
 
     if (cs->func > 0) {
-      // CSW func
-      lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, 0);
-
       // CSW params
       uint8_t cstate = lswFamily(cs->func);
+
+      // CSW func
+      LcdFlags flags = 0;
+      if (cstate == LS_FAMILY_STICKY && getLSStickyState(k))
+        flags = BOLD;
+      lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, flags);
 
       if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
         drawSwitch(CSW_2ND_COLUMN, y, cs->v1, 0);

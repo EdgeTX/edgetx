@@ -342,22 +342,26 @@ class LogicalSwitchButton : public ListLineButton
     etx_obj_add_style(lsFunc, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_pos(lsFunc, FN_X, FN_Y);
     lv_obj_set_size(lsFunc, FN_W, FN_H);
+    lv_obj_set_style_text_font(lsFunc, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
     lsV1 = lv_label_create(lvobj);
     etx_obj_add_style(lsV1, styles->text_align_center, LV_PART_MAIN);
     etx_font(lsV1, FONT_XS_INDEX, ETX_STATE_V1_SMALL_FONT);
     lv_obj_set_pos(lsV1, V1_X, V1_Y);
     lv_obj_set_size(lsV1, V1_W, V1_H);
+    lv_obj_set_style_text_font(lsV1, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
     lsV2 = lv_label_create(lvobj);
     etx_obj_add_style(lsV2, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsV2, V2_X, V2_Y);
     lv_obj_set_size(lsV2, V2_W, V2_H);
+    lv_obj_set_style_text_font(lsV2, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
     lsAnd = lv_label_create(lvobj);
     etx_obj_add_style(lsAnd, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsAnd, AND_X, AND_Y);
     lv_obj_set_size(lsAnd, AND_W, AND_H);
+    lv_obj_set_style_text_font(lsAnd, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
     lsDuration = lv_label_create(lvobj);
     etx_obj_add_style(lsDuration, styles->text_align_center, LV_PART_MAIN);
@@ -378,6 +382,35 @@ class LogicalSwitchButton : public ListLineButton
   bool isActive() const override
   {
     return getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index);
+  }
+
+  void checkEvents() override
+  {
+    ListLineButton::checkEvents();
+    check(isActive());
+
+    LogicalSwitchData* ls = lswAddress(index);
+    uint8_t lsFamily = lswFamily(ls->func);
+
+    if (lsFamily == LS_FAMILY_STICKY && getLSStickyState(index))
+      lv_obj_add_state(lsFunc, LV_STATE_USER_1);
+    else
+      lv_obj_clear_state(lsFunc, LV_STATE_USER_1);
+
+    if ((lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_EDGE || lsFamily == LS_FAMILY_STICKY) && getSwitch(ls->v1))
+      lv_obj_add_state(lsV1, LV_STATE_USER_1);
+    else
+      lv_obj_clear_state(lsV1, LV_STATE_USER_1);
+
+    if ((lsFamily == LS_FAMILY_BOOL || lsFamily == LS_FAMILY_STICKY) && getSwitch(ls->v2))
+      lv_obj_add_state(lsV2, LV_STATE_USER_1);
+    else
+      lv_obj_clear_state(lsV2, LV_STATE_USER_1);
+
+    if (getSwitch(ls->andsw))
+      lv_obj_add_state(lsAnd, LV_STATE_USER_1);
+    else
+      lv_obj_clear_state(lsAnd, LV_STATE_USER_1);
   }
 
   void refresh() override
