@@ -478,7 +478,7 @@ const lv_obj_class_t FlightModeBtn::fm_trim_value_class = {
 };
 
 ModelFlightModesPage::ModelFlightModesPage() :
-    PageTab(STR_MENUFLIGHTMODES, ICON_MODEL_FLIGHT_MODES, PAD_MEDIUM)
+    PageTab(STR_MENUFLIGHTMODES, ICON_MODEL_FLIGHT_MODES)
 {
 }
 
@@ -494,7 +494,7 @@ void ModelFlightModesPage::build(Window* form)
 
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     auto btn = new FlightModeBtn(form, i);
-    lv_obj_set_pos(btn->getLvObj(), PAD_MEDIUM, i * (FlightModeBtn::BTN_H + 3) + 4);
+    lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + 3) + 4);
     btn->setWidth(ListLineButton::GRP_W);
 
     btn->setPressHandler([=]() {

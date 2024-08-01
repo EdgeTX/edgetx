@@ -88,13 +88,13 @@ class ModelButton : public Button
       coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
 
       modelName = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
-                                 CENTERED | COLOR_THEME_SECONDARY1 | font);
+                                 COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
       etx_bg_color(modelName->getLvObj(), COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
       etx_obj_add_style(modelName->getLvObj(), styles->bg_opacity_75, LV_STATE_USER_1);
       modelName->padTop(fo);
     } else {
       modelName = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::PAGE_LINE_HEIGHT}, modelCell->modelName,
-                                 COLOR_THEME_SECONDARY1 | font);
+                                 COLOR_THEME_SECONDARY1_INDEX, font);
     }
     lv_label_set_long_mode(modelName->getLvObj(), LV_LABEL_LONG_DOT);
 
@@ -173,7 +173,7 @@ class ModelButton : public Button
     errorMsg += ")";
     LcdFlags font = (modelLayouts[layout].font == FONT(STD)) ? FONT(XS) : FONT(XXS);
     new StaticText(this, {PAD_TINY, h / 2, w, getFontHeight(font)}, errorMsg,
-                  CENTERED | COLOR_THEME_SECONDARY1 | font);
+                  COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
   }
 
   void checkEvents() override
@@ -689,7 +689,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
   setTitle();
 
   // new model button
-  new TextButton(hdr, {LCD_W - NEW_BTN_W - PAD_LARGE, LAYOUT_BTN_YO, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
+  new TextButton(hdr, {LCD_W - NEW_BTN_W - PAD_LARGE, PAD_MEDIUM, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
     auto menu = new Menu(this);
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
@@ -697,7 +697,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     return 0;
   });
 
-  mdlLayout = new ModelLayoutButton(this, LCD_W - LAYOUT_BTN_XO, LAYOUT_BTN_YO, g_eeGeneral.modelSelectLayout, [=]() {
+  mdlLayout = new ModelLayoutButton(this, LCD_W - LAYOUT_BTN_XO, PAD_MEDIUM, g_eeGeneral.modelSelectLayout, [=]() {
     uint8_t l = mdlLayout->getLayout();
     l = (l + 1) & 3;
     mdlLayout->setLayout(l);
@@ -711,7 +711,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
 void ModelLabelsWindow::buildBody(Window *window)
 {
   // Models List
-  mdlselector = new ModelsPageBody(window, {MDLS_X, MDLS_Y, MDLS_W, MDLS_H});
+  mdlselector = new ModelsPageBody(window, {MDLS_X, PAD_SMALL, MDLS_W, MDLS_H});
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
   lv_obj_set_style_max_width(mdl_obj, MDLS_W, LV_PART_MAIN);

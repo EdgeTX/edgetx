@@ -304,7 +304,7 @@ void getsEdgeDelayParam(char* s, LogicalSwitchData* ls)
 class LogicalSwitchButton : public ListLineButton
 {
  public:
-  LogicalSwitchButton(Window* parent, const rect_t& rect, int lsIndex) :
+  LogicalSwitchButton(Window* parent, int lsIndex) :
       ListLineButton(parent, lsIndex)
   {
     setHeight(LS_BUTTON_H);
@@ -510,7 +510,7 @@ class LogicalSwitchButton : public ListLineButton
 };
 
 ModelLogicalSwitchesPage::ModelLogicalSwitchesPage() :
-    PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES, PAD_SMALL)
+    PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES)
 {
 }
 
@@ -570,13 +570,8 @@ void ModelLogicalSwitchesPage::plusPopup(Window* window)
 
 void ModelLogicalSwitchesPage::build(Window* window)
 {
-  static const lv_coord_t l_col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
-
-  FlexGridLayout grid(l_col_dsc, row_dsc, PAD_TINY);
-
-  FormLine* line;
   bool hasEmptySwitch = false;
 
   // Reset focusIndex after switching tabs
@@ -588,10 +583,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
     bool isActive = (ls->func != LS_FUNC_NONE);
 
     if (isActive) {
-      line = window->newLine(grid);
-
-      auto button = new LogicalSwitchButton(
-          line, rect_t{0, 0, window->width() - 12, LogicalSwitchButton::LS_BUTTON_H}, i);
+      auto button = new LogicalSwitchButton(window, i);
 
       button->setPressHandler([=]() {
         Menu* menu = new Menu(window);
@@ -652,9 +644,8 @@ void ModelLogicalSwitchesPage::build(Window* window)
   }
 
   if (hasEmptySwitch) {
-    line = window->newLine(grid);
     addButton =
-        new TextButton(line, rect_t{0, 0, window->width() - 12, LogicalSwitchButton::LS_BUTTON_H},
+        new TextButton(window, rect_t{0, 0, window->width() - 12, LogicalSwitchButton::LS_BUTTON_H},
                        LV_SYMBOL_PLUS, [=]() {
                          plusPopup(window);
                          return 0;

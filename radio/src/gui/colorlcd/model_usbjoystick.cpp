@@ -350,7 +350,7 @@ class USBChannelEditWindow : public Page
     line->padBottom(PAD_ZERO);
     collisionText =
         new StaticText(line, rect_t{}, "",
-                       FONT(BOLD) | COLOR_THEME_PRIMARY2 | CENTERED);
+                       COLOR_THEME_PRIMARY2_INDEX, FONT(BOLD) | CENTERED);
     etx_bg_color(collisionText->getLvObj(), COLOR_THEME_WARNING_INDEX);
     lv_obj_set_grid_cell(collisionText->getLvObj(), LV_GRID_ALIGN_STRETCH, 0,
                          USBCH_COLS, LV_GRID_ALIGN_CENTER, 0, 1);
@@ -400,7 +400,7 @@ class USBChannelLineButton : public ListLineButton
 
     m_inverse =
         new StaticIcon(this, 0, 0, ICON_CHAN_MONITOR_INVERTED,
-                         COLOR_THEME_SECONDARY1);
+                         COLOR_THEME_SECONDARY1_INDEX);
     lv_obj_set_grid_cell(m_inverse->getLvObj(), LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
@@ -531,7 +531,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
   line = body->newLine(grid);
 
   _CircCoutoutLabel = new StaticText(
-      line, rect_t{}, STR_USBJOYSTICK_CIRC_COUTOUT, COLOR_THEME_PRIMARY1);
+      line, rect_t{}, STR_USBJOYSTICK_CIRC_COUTOUT);
   _CircCoutout =
       new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CIRC_COUTOUT, 0, USBJOYS_LAST,
                  GET_DEFAULT(g_model.usbJoystickCircularCut),

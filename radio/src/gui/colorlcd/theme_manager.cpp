@@ -27,6 +27,7 @@
 #include "themes/etx_lv_theme.h"
 #include "topbar_impl.h"
 #include "view_main.h"
+#include "storage/sdcard_yaml.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -35,13 +36,6 @@
 constexpr const char* RGBSTRING = "RGB(";
 
 ThemePersistance ThemePersistance::themePersistance;
-
-// prototype for SD card function to read a YAML file
-// TODO: should this be in sdcard header file?
-enum class ChecksumResult;
-extern const char* readYamlFile(const char* fullpath,
-                                const YamlParserCalls* calls, void* parser_ctx,
-                                ChecksumResult* checksum_result);
 
 static uint32_t r_color(const YamlNode* node, const char* val, uint8_t val_len)
 {
@@ -521,7 +515,8 @@ void HeaderDateTime::checkEvents()
   struct gtm t;
   gettime(&t);
 
-  if (t.tm_min != lastMinute) {
+  if (t.tm_min != lastTime.tm_min || t.tm_hour != lastTime.tm_hour ||
+      t.tm_mday != lastTime.tm_mday || t.tm_mon != lastTime.tm_mon) {
     char str[10];
 #if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_TW)
     sprintf(str, "%02d-%02d", t.tm_mon + 1, t.tm_mday);
@@ -533,7 +528,7 @@ void HeaderDateTime::checkEvents()
     getTimerString(str, getValue(MIXSRC_TX_TIME), timerOptions);
     lv_label_set_text(time, str);
 
-    lastMinute = t.tm_min;
+    lastTime = t;
   }
 }
 
@@ -544,15 +539,15 @@ void HeaderDateTime::setColor(LcdFlags color)
 }
 
 HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS)
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
 {
-  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2))->center(width(), height());
+  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
 }
 
 HeaderIcon::HeaderIcon(Window* parent, const char* iconFile) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS)
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
 {
-  (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2))->center(width(), height());
+  (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
 }
 
 UsbSDConnected::UsbSDConnected() :
@@ -561,8 +556,8 @@ UsbSDConnected::UsbSDConnected() :
   setWindowFlag(OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
-  new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, HDR_DATE_Y);
+  new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, PAD_MEDIUM);
 
-  auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2);
+  auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2_INDEX);
   lv_obj_center(icon->getLvObj());
 }

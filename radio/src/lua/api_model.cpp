@@ -555,9 +555,9 @@ static int luaModelSetFlightMode(lua_State * L)
         if (idx < 0 || idx >= max_trims) continue;
         int16_t val = luaL_checkinteger(L, -1);
         if (g_model.extendedTrims)
-          val = limit<int16_t>(val, TRIM_EXTENDED_MIN, TRIM_EXTENDED_MAX);
+          val = limit<int16_t>(TRIM_EXTENDED_MIN, val, TRIM_EXTENDED_MAX);
         else
-          val = limit<int16_t>(val, TRIM_MIN, TRIM_MAX);
+          val = limit<int16_t>(TRIM_MIN, val, TRIM_MAX);
         if (idx < max_trims)
           fm->trim[idx].value = val;
       }

@@ -98,7 +98,7 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_pos(revert, REV_X, REV_Y);
 
     curve =
-        new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1);
+        new StaticIcon(this, CRV_X, CRV_Y, ICON_TEXTLINE_CURVE, COLOR_THEME_SECONDARY1_INDEX);
 
     new OutputChannelBar(this, rect_t{BAR_X, PAD_MEDIUM, CH_BAR_WIDTH, CH_BAR_HEIGHT},
                                index, false, false);
@@ -230,7 +230,7 @@ class OutputLineButton : public ListLineButton
 };
 
 ModelOutputsPage::ModelOutputsPage() :
-    PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS, PAD_TINY)
+    PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
 {
 }
 
@@ -244,7 +244,7 @@ void ModelOutputsPage::build(Window* window)
     return 0;
   });
 
-  new StaticText(window, {EXLIM_X, EXLIM_Y, EXLIM_W, EXLIM_H}, STR_ELIMITS, RIGHT);
+  new StaticText(window, {EXLIM_X, EXLIM_Y, EXLIM_W, EXLIM_H}, STR_ELIMITS, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
   new ToggleSwitch(window, {EXLIMCB_X, EXLIMCB_Y, EXLIMCB_W, EXLIMCB_H}, GET_SET_DEFAULT(g_model.extendedLimits));
 
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {

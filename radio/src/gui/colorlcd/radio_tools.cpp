@@ -149,10 +149,12 @@ static void run_spektrum_int(Window* parent, const std::string&)
 }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 static void run_spektrum_ext(Window* parent, const std::string&)
 {
   new RadioSpectrumAnalyser(EXTERNAL_MODULE);
 }
+#endif
 #endif  // defined(PXX2) || defined(MULTIMODULE)
 
 #if defined(INTERNAL_MODULE_PXX2)
@@ -196,6 +198,13 @@ void RadioToolsPage::rebuild(Window* window)
 
   std::list<ToolEntry> tools;
 
+#if defined(HARDWARE_INTERNAL_MODULE)
+  bool intSpecAnalyser = false;
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  bool extSpecAnalyser = false;
+#endif
+
 #if defined(PXX2)
   auto hwSettings = &reusableBuffer.hardwareAndSettings;
 
@@ -204,8 +213,7 @@ void RadioToolsPage::rebuild(Window* window)
   // PXX2 modules tools
   if (isPXX2ModuleOptionAvailable(intHwSettings->information.modelID,
                                   MODULE_OPTION_SPECTRUM_ANALYSER)) {
-    tools.emplace_back(
-        ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
+    intSpecAnalyser = true;
   }
   if (isPXX2ModuleOptionAvailable(intHwSettings->information.modelID,
                                   MODULE_OPTION_POWER_METER)) {
@@ -216,23 +224,30 @@ void RadioToolsPage::rebuild(Window* window)
   auto extHwSettings = &hwSettings->modules[EXTERNAL_MODULE];
   if (isPXX2ModuleOptionAvailable(extHwSettings->information.modelID,
                                   MODULE_OPTION_SPECTRUM_ANALYSER)) {
-    tools.emplace_back(
-        ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
+    extSpecAnalyser = true;
   }
 #endif  // defined(PXX2)
 
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(MULTIMODULE)
   if (g_eeGeneral.internalModule == MODULE_TYPE_MULTIMODULE) {
-    tools.emplace_back(
-        ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
+    intSpecAnalyser = true;
   }
 #endif
 
 #if defined(PXX2) || defined(MULTIMODULE)
   if (isModuleMultimodule(EXTERNAL_MODULE)) {
-    tools.emplace_back(
-        ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
+    extSpecAnalyser = true;
   }
+#endif
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+  if (intSpecAnalyser)
+    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (extSpecAnalyser)
+    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
 #endif
 
 #if defined(GHOST)

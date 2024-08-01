@@ -77,7 +77,7 @@ static void btn_matrix_event(lv_event_t* e)
 }
 
 ButtonMatrix::ButtonMatrix(Window* parent, const rect_t& r) :
-    FormField(parent, r, 0, btnmatrix_create)
+    FormField(parent, r, btnmatrix_create)
 {
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);

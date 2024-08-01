@@ -78,7 +78,7 @@ void FullScreenDialog::build()
   new StaticIcon(
       this, ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
       (type == WARNING_TYPE_INFO) ? ICON_BUSY : ICON_ERROR,
-      COLOR_THEME_WARNING);
+      COLOR_THEME_WARNING_INDEX);
 
   std::string t;
   if (type == WARNING_TYPE_ALERT) {
@@ -95,14 +95,14 @@ void FullScreenDialog::build()
                  rect_t{ALERT_TITLE_LEFT, ALERT_TITLE_TOP,
                         LCD_W - ALERT_TITLE_LEFT - PAD_MEDIUM,
                         LCD_H - ALERT_TITLE_TOP - PAD_MEDIUM},
-                 t.c_str(), COLOR_THEME_WARNING | FONT(XL));
+                 t.c_str(), COLOR_THEME_WARNING_INDEX, FONT(XL));
 
   messageLabel =
       new StaticText(this,
                      rect_t{ALERT_MESSAGE_LEFT, ALERT_MESSAGE_TOP,
                             LCD_W - ALERT_MESSAGE_LEFT - PAD_MEDIUM,
                             LCD_H - ALERT_MESSAGE_TOP - PAD_MEDIUM},
-                     message.c_str(), COLOR_THEME_PRIMARY1 | FONT(BOLD));
+                     message.c_str(), COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD));
 
   if (!action.empty()) {
     auto btn = new TextButton(

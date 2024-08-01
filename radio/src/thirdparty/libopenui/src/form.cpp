@@ -39,8 +39,7 @@ void FlexGridLayout::add(Window* w)
   }
 }
 
-FormField::FormField(Window* parent, const rect_t& rect, LcdFlags textFlags,
-                     LvglCreate objConstruct) :
+FormField::FormField(Window* parent, const rect_t& rect, LvglCreate objConstruct) :
     Window(parent, rect, objConstruct)
 {
   setTextFlag(textFlags);

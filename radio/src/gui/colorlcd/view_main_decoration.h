@@ -23,14 +23,12 @@
 
 #include "window.h"
 
-constexpr coord_t FM_LABEL_HEIGHT = 20;
-
 class MainViewTrim;
 
 class ViewMainDecoration
 {
   public:
-    ViewMainDecoration(Window* parent);
+    ViewMainDecoration(Window* parent, bool showTrims = true, bool showSliders = true, bool showFM = true);
 
     // Set decoration visibility
     void setTrimsVisible(bool visible);
@@ -69,9 +67,11 @@ class ViewMainDecoration
     Window* w_bc;
     Window* w_br;
   
-    Window* sliders[SLIDERS_MAX];
-    MainViewTrim* trims[TRIMS_MAX];
-    Window* flightMode;
+    Window* sliders[SLIDERS_MAX] = { 0 };
+    MainViewTrim* trims[TRIMS_MAX] = { 0 };
+    Window* flightMode = nullptr;
+
+    Window* layoutBox(Window* parent, lv_align_t align, lv_flex_flow_t flow);
 
     void createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br);
     void createTrims(Window* ml, Window* mr, Window* bl, Window* br);

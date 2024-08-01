@@ -67,8 +67,10 @@ SliderIcon::SliderIcon(Window* parent) :
 
 MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
                                bool isVertical) :
-    Window(parent, rect), idx(idx), isVertical(isVertical)
+    Window(parent, rect), isVertical(isVertical)
 {
+  potIdx = adcGetInputOffset(ADC_INPUT_FLEX) + idx;
+
   if (isVertical) {
     int sliderTicksCount = (height() - LayoutFactory::TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
     tickPoints = new lv_point_t[(sliderTicksCount + 1) * 2];
@@ -76,10 +78,10 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
     lv_coord_t y = LayoutFactory::TRIM_SQUARE_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
       if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
-        tickPoints[i * 2] = {SL_TK, y};
+        tickPoints[i * 2] = {PAD_TINY, y};
         tickPoints[i * 2 + 1] = {SL_SZ, y};
       } else {
-        tickPoints[i * 2] = {SL_TK + 2, y};
+        tickPoints[i * 2] = {PAD_TINY + 2, y};
         tickPoints[i * 2 + 1] = {SL_SZ - 2, y};
       }
       auto line = lv_line_create(lvobj);
@@ -94,10 +96,10 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
     lv_coord_t x = LayoutFactory::TRIM_SQUARE_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
       if (i == 0 || i == sliderTicksCount / 2 || i == SLIDER_TICKS_COUNT) {
-        tickPoints[i * 2] = {x, SL_TK};
+        tickPoints[i * 2] = {x, PAD_TINY};
         tickPoints[i * 2 + 1] = {x, SL_SZ};
       } else {
-        tickPoints[i * 2] = {x, SL_TK + 2};
+        tickPoints[i * 2] = {x, PAD_TINY + 2};
         tickPoints[i * 2 + 1] = {x, SL_SZ - 2};
       }
       auto line = lv_line_create(lvobj);
@@ -108,14 +110,8 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
   }
 
   sliderIcon = new SliderIcon(this);
-  coord_t x = 0, y = 0;
-  if (isVertical)
-    y = (height() - LayoutFactory::TRIM_SQUARE_SIZE) / 2;
-  else
-    y = (width() - LayoutFactory::TRIM_SQUARE_SIZE) / 2;
-  lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
 
-  checkEvents();
+  setPos();
 }
 
 void MainViewSlider::deleteLater(bool detach, bool trash)
@@ -126,24 +122,27 @@ void MainViewSlider::deleteLater(bool detach, bool trash)
   }
 }
 
+void MainViewSlider::setPos()
+{
+  coord_t x = 0, y = 0;
+  if (isVertical) {
+    y = divRoundClosest((height() - LayoutFactory::TRIM_SQUARE_SIZE) * (-value + RESX),
+                        2 * RESX);
+  } else {
+    x = divRoundClosest((width() - LayoutFactory::TRIM_SQUARE_SIZE) * (value + RESX),
+                        2 * RESX);
+  }
+  lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
+}
+
 void MainViewSlider::checkEvents()
 {
   Window::checkEvents();
 
-  auto pot_idx = adcGetInputOffset(ADC_INPUT_FLEX) + idx;
-  int16_t newValue = calibratedAnalogs[pot_idx];
+  int16_t newValue = calibratedAnalogs[potIdx];
   if (value != newValue) {
     value = newValue;
-
-    coord_t x = 0, y = 0;
-    if (isVertical) {
-      y = divRoundClosest((height() - LayoutFactory::TRIM_SQUARE_SIZE) * (-value + RESX),
-                          2 * RESX);
-    } else {
-      x = divRoundClosest((width() - LayoutFactory::TRIM_SQUARE_SIZE) * (value + RESX),
-                          2 * RESX);
-    }
-    lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
+    setPos();
   }
 }
 

@@ -43,8 +43,8 @@ class TimerWidget : public Widget
     lv_style_set_width(&style, lv_pct(100));
     lv_style_set_height(&style, LV_SIZE_CONTENT);
 
-    timerBg = new StaticIcon(this, 0, 0, ICON_TIMER_BG, COLOR_THEME_PRIMARY2);
-    timerIcon = new StaticIcon(this, 3, 4, ICON_TIMER, COLOR_THEME_SECONDARY1);
+    timerBg = new StaticIcon(this, 0, 0, ICON_TIMER_BG, COLOR_THEME_PRIMARY2_INDEX);
+    timerIcon = new StaticIcon(this, 3, 4, ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
 
     // Timer name
     nameLabel = lv_label_create(lvobj);

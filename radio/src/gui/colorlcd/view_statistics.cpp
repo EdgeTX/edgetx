@@ -96,7 +96,7 @@ class DebugInfoNumber : public Window
     coord_t prefixSize = 0;
     if (prefix != nullptr) {
       prefixSize = getTextWidth(prefix, 0, FONT(XS));
-      new StaticText(this, {0, 1, prefixSize, rect.h}, prefix,FONT(XS));
+      new StaticText(this, {0, 1, prefixSize, rect.h}, prefix, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
     }
     new DynamicNumber<uint32_t>(this,
                                 {prefixSize, 0, rect.w - prefixSize, rect.h},
@@ -179,15 +179,13 @@ void StatisticsViewPage::build(Window* window)
   // Session data
   new StaticText(line, rect_t{}, STR_SESSION);
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(sessionTimer); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(sessionTimer); });
 
   // Battery data
   new StaticText(line, rect_t{}, STR_BATT_LABEL);
   new DynamicText(
       line, rect_t{},
-      [] { return getTimerString(g_eeGeneral.globalTimer + sessionTimer); },
-      COLOR_THEME_PRIMARY1);
+      [] { return getTimerString(g_eeGeneral.globalTimer + sessionTimer); });
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
@@ -195,14 +193,12 @@ void StatisticsViewPage::build(Window* window)
   // Throttle
   new StaticText(line, rect_t{}, STR_THROTTLE_LABEL);
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(s_timeCumThr); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(s_timeCumThr); });
 
   // Throttle %  data
   new StaticText(line, rect_t{}, STR_THROTTLE_PERCENT_LABEL);
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(s_timeCum16ThrP / 16); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(s_timeCum16ThrP / 16); });
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
@@ -210,14 +206,11 @@ void StatisticsViewPage::build(Window* window)
   // Timers
   new StaticText(line, rect_t{}, STR_TIMER_LABEL);
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[0].val); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(timersStates[0].val); });
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[1].val); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(timersStates[1].val); });
   new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[2].val); },
-      COLOR_THEME_PRIMARY1);
+      line, rect_t{}, [] { return getTimerString(timersStates[2].val); });
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
@@ -269,11 +262,11 @@ void DebugViewPage::build(Window* window)
   new StaticText(line, rect_t{}, STR_TMIXMAXMS);
   new DynamicNumber<uint16_t>(
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
-      PREC2 | COLOR_THEME_PRIMARY1, nullptr, pad_STR_MS.c_str());
+      COLOR_THEME_PRIMARY1_INDEX, PREC2, nullptr, pad_STR_MS.c_str());
 
   new DynamicNumber<uint16_t>(
           line, rect_t{}, [] { return getMixerSchedulerPeriod() / 1000; },
-          COLOR_THEME_PRIMARY1, pad_STR_PERIOD.c_str(), pad_STR_MS.c_str());
+          COLOR_THEME_PRIMARY1_INDEX, 0, pad_STR_PERIOD.c_str(), pad_STR_MS.c_str());
 
   line = window->newLine(grid);
   line->padAll(PAD_TINY);
@@ -282,7 +275,7 @@ void DebugViewPage::build(Window* window)
   static std::string pad_STR_BYTES = " " + std::string(STR_BYTES);
   new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL);
   new DynamicNumber<int32_t>(
-      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1,
+      line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1_INDEX, 0,
       nullptr, pad_STR_BYTES.c_str());
 
 #if defined(LUA)
@@ -380,8 +373,7 @@ void DebugViewPage::build(Window* window)
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
         [] {
           return std::string(gpsData.fix ? STR_GPS_FIX_YES : STR_GPS_FIX_NO);
-        },
-        COLOR_THEME_PRIMARY1);
+        });
     new DebugInfoNumber<uint8_t>(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
         [] { return gpsData.numSat; }, STR_GPS_SATS);

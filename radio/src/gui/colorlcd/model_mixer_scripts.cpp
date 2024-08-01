@@ -35,9 +35,6 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-// Overview grid
-static const lv_coord_t col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-
 // Edit grid
 #if !PORTRAIT_LCD
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
@@ -153,11 +150,11 @@ class ScriptEditWindow : public Page
               getSourceString(
                   s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
               return std::string(s, sizeof(s) - 1);
-            },
-            COLOR_THEME_PRIMARY1);
+            });
         lbl->padLeft(PAD_LARGE);
         new DynamicNumber<int16_t>(
-            line, rect_t{}, [=]() { return calcRESXto1000(so->value); }, PREC1);
+            line, rect_t{}, [=]() { return calcRESXto1000(so->value); },
+            COLOR_THEME_PRIMARY1_INDEX, PREC1);
       }
     }
   }
@@ -174,16 +171,15 @@ class ScriptEditWindow : public Page
 class ScriptLineButton : public ListLineButton
 {
  public:
-  ScriptLineButton(Window* parent, const rect_t& rect,
+  ScriptLineButton(Window* parent,
                    const ScriptData& scriptData,
                    const ScriptInternalData* runtimeData, uint8_t index) :
       ListLineButton(parent, index),
       scriptData(scriptData),
       runtimeData(runtimeData)
   {
-#if PORTRAIT_LCD
+    setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT);
     padTop(PAD_SMALL);
-#endif
     padLeft(PAD_TINY);
     padRight(PAD_TINY);
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
@@ -274,8 +270,6 @@ class ScriptLineButton : public ListLineButton
   const ScriptInternalData* runtimeData;
 };
 
-#define CM_BUTTON_H 34
-
 ModelMixerScriptsPage::ModelMixerScriptsPage() :
     PageTab(STR_MENUCUSTOMSCRIPTS, ICON_MODEL_LUA_SCRIPTS)
 {
@@ -291,15 +285,11 @@ void ModelMixerScriptsPage::rebuild(Window* window, int8_t focusIdx)
 
 void ModelMixerScriptsPage::build(Window* window, int8_t focusIdx)
 {
-  window->padAll(PAD_SMALL);
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
-
-  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
+  window->padBottom(PAD_LARGE);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   int8_t scriptIdx = 0;
   for (int8_t idx = 0; idx < MAX_SCRIPTS; idx++) {
-    auto line = window->newLine(grid);
-
     ScriptInternalData* runtimeData = nullptr;
     ScriptData* const sd = &(g_model.scriptsData[idx]);
     ScriptInputsOutputs* const sio = &(scriptInputsOutputs[idx]);
@@ -308,9 +298,7 @@ void ModelMixerScriptsPage::build(Window* window, int8_t focusIdx)
       runtimeData = &(scriptInternalData[scriptIdx++]);
     }
 
-    auto button = new ScriptLineButton(
-        line, rect_t{0, 0, window->width() - 12, CM_BUTTON_H}, *sd, runtimeData,
-        idx);
+    auto button = new ScriptLineButton(window, *sd, runtimeData, idx);
 
     button->setPressHandler([=]() -> uint8_t {
       Menu* const menu = new Menu(window);

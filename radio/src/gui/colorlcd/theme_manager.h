@@ -172,7 +172,7 @@ class HeaderDateTime : public Window
  protected:
   lv_obj_t *date = nullptr;
   lv_obj_t *time = nullptr;
-  int8_t lastMinute = -1;
+  struct gtm lastTime = { 0 };
 
   void checkEvents() override;
 };
@@ -188,6 +188,4 @@ class UsbSDConnected : public Window
 {
  public:
   UsbSDConnected();
-
-  static LAYOUT_VAL(HDR_DATE_Y, 6, 6)
 };

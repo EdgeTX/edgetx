@@ -45,9 +45,11 @@ class TrimIcon : public SliderIcon
 
     bar1 = lv_line_create(lvobj);
     etx_obj_add_style(bar1, styles->div_line_white, LV_PART_MAIN);
+    etx_obj_add_style(bar1, styles->div_line_black, LV_STATE_USER_1);
     lv_line_set_points(bar1, &barPoints[0], 2);
     bar2 = lv_line_create(lvobj);
     etx_obj_add_style(bar2, styles->div_line_white, LV_PART_MAIN);
+    etx_obj_add_style(bar2, styles->div_line_black, LV_STATE_USER_1);
     lv_line_set_points(bar2, &barPoints[2], 2);
 
     etx_bg_color(fill, COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
@@ -55,10 +57,15 @@ class TrimIcon : public SliderIcon
 
   void setState(int value)
   {
-    if (value < TRIM_MIN || value > TRIM_MAX)
+    if (value < TRIM_MIN || value > TRIM_MAX) {
       lv_obj_add_state(fill, LV_STATE_USER_1);
-    else
+      lv_obj_add_state(bar1, LV_STATE_USER_1);
+      lv_obj_add_state(bar2, LV_STATE_USER_1);
+    } else {
       lv_obj_clear_state(fill, LV_STATE_USER_1);
+      lv_obj_clear_state(bar1, LV_STATE_USER_1);
+      lv_obj_clear_state(bar2, LV_STATE_USER_1);
+    }
 
     if (value >= 0)
       lv_obj_clear_flag(bar1, LV_OBJ_FLAG_HIDDEN);
@@ -81,8 +88,6 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
                            bool isVertical) :
     Window(parent, rect), idx(idx), isVertical(isVertical)
 {
-  setRange();
-
   trimBar = lv_obj_create(lvobj);
   etx_solid_bg(trimBar, COLOR_THEME_SECONDARY1_INDEX);
   etx_obj_add_style(trimBar, styles->rounded, LV_PART_MAIN);
@@ -99,26 +104,22 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
   }
 
   trimIcon = new TrimIcon(this, isVertical);
-  coord_t x = 0, y = 0;
-  if (isVertical)
-    y = (height() - LayoutFactory::TRIM_SQUARE_SIZE) / 2;
-  else
-    y = (width() - LayoutFactory::TRIM_SQUARE_SIZE) / 2;
-  lv_obj_set_pos(trimIcon->getLvObj(), x, y);
 
   trimValue = new DynamicNumber<int16_t>(
       this, {0, 0, LayoutFactory::TRIM_SQUARE_SIZE, 12},
       [=]() { return divRoundClosest(abs(value) * 100, trimMax); },
-      COLOR_THEME_PRIMARY2 | FONT(XXS) | CENTERED);
+      COLOR_THEME_PRIMARY2_INDEX, FONT(XXS) | CENTERED);
   etx_solid_bg(trimValue->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
   trimValue->hide();
 
+  setRange();
   setPos();
 }
 
 void MainViewTrim::setRange()
 {
-  if (g_model.extendedTrims) {
+  extendedTrims = g_model.extendedTrims;
+  if (extendedTrims) {
     trimMin = TRIM_EXTENDED_MIN;
     trimMax = TRIM_EXTENDED_MAX;
   } else {
@@ -193,10 +194,15 @@ void MainViewTrim::checkEvents()
 
   int newValue = getTrimValue(mixerCurrentFlightMode, inputMappingConvertMode(idx));
 
-  setRange();
-  newValue = min(max(newValue, trimMin), trimMax);
+  bool update = false;
+  
+  if (extendedTrims != g_model.extendedTrims) {
+    update = true;
+    setRange();
+    newValue = limit(trimMin, newValue, trimMax);
+  }
 
-  if (value != newValue || (g_model.displayTrims == DISPLAY_TRIMS_CHANGE &&
+  if (update || value != newValue || (g_model.displayTrims == DISPLAY_TRIMS_CHANGE &&
                             showChange && trimsDisplayTimer == 0)) {
     value = newValue;
     setPos();

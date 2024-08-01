@@ -78,7 +78,7 @@ static void viewOption(Window* parent, coord_t x, coord_t y,
                 std::function<void(uint8_t)> setValue, bool globalState)
 {
   auto lbl = new StaticText(parent, {x + ModelSetupPage::OPTS_W + PAD_MEDIUM, y + PAD_SMALL + 1, 0, 0},
-                          STR_ADCFILTERVALUES[globalState ? 1 : 2], COLOR_THEME_SECONDARY1);
+                          STR_ADCFILTERVALUES[globalState ? 1 : 2], COLOR_THEME_SECONDARY1_INDEX);
   new Choice(parent, {x, y, ModelSetupPage::OPTS_W, 0}, STR_ADCFILTERVALUES, 0, 2, getValue,
               [=](int newValue) {
                 setValue(newValue);

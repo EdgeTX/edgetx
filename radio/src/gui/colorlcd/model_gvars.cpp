@@ -554,7 +554,7 @@ void ModelGVarsPage::build(Window* window)
   if (modelFMEnabled()) {
     hdr = new GVarHeader(window->getParent());
     lv_obj_set_pos(hdr->getLvObj(), 0, TabsGroup::MENU_TITLE_TOP + TabsGroup::MENU_TITLE_HEIGHT);
-    yo = GVarButton::HDR_H - 4;
+    yo = GVarButton::HDR_H - 2;
   }
 
   for (uint8_t index = 0; index < MAX_GVARS; index++) {

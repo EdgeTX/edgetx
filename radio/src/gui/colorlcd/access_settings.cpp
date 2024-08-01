@@ -541,7 +541,7 @@ void ModuleOptions::update()
   if (!optionsAvailable) {
     // no options available
     line = form->newLine(grid);
-    new StaticText(line, rect_t{}, STR_NO_TX_OPTIONS, 0);
+    new StaticText(line, rect_t{}, STR_NO_TX_OPTIONS);
   } else {
     // some options available
     if (optionsAvailable & (1 << MODULE_OPTION_EXTERNAL_ANTENNA)) {

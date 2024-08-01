@@ -219,30 +219,29 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
                                  uint8_t _channel, bool isInHeader) :
     Window(parent, rect), channel(_channel)
 {
-  LcdFlags textColor =
-      isInHeader ? COLOR_THEME_PRIMARY2 : COLOR_THEME_SECONDARY1;
+  LcdColorIndex txtColIdx = isInHeader ? COLOR_THEME_PRIMARY2_INDEX : COLOR_THEME_SECONDARY1_INDEX;
 
   outputChannelBar = new OutputChannelBar(
-      this, {ChannelBar::LMARGIN, ChannelBar::BAR_HEIGHT + ChannelBar::TMARGIN, width() - ChannelBar::LMARGIN, ChannelBar::BAR_HEIGHT},
+      this, {PAD_TINY, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
       channel, isInHeader);
 
   new MixerChannelBar(
       this,
-      {ChannelBar::LMARGIN, (2 * ChannelBar::BAR_HEIGHT) + ChannelBar::TMARGIN + 1, width() - ChannelBar::LMARGIN, ChannelBar::BAR_HEIGHT},
+      {PAD_TINY, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
       channel);
 
   // Channel number
   char chanString[] = TR_CH "32 ";
   strAppendSigned(&chanString[2], channel + 1, 2);
-  new StaticText(this, {ChannelBar::LMARGIN, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString, 
-                 textColor | FONT(XS) | LEFT);
+  new StaticText(this, {PAD_TINY, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString, 
+                 txtColIdx, FONT(XS) | LEFT);
 
   // Channel name
   if (g_model.limitData[channel].name[0]) {
     char nm[LEN_CHANNEL_NAME + 1];
     strAppend(nm, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
-    new StaticText(this, {ChannelBar::LMARGIN + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm, 
-                   textColor | FONT(XS) | LEFT);
+    new StaticText(this, {PAD_TINY + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm, 
+                   txtColIdx, FONT(XS) | LEFT);
   }
 
   // Channel value in µS
@@ -254,12 +253,12 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
           return calcRESXto100(channelOutputs[channel]);
         return PPM_CH_CENTER(channel) + channelOutputs[channel] / 2;
       },
-      textColor | FONT(XS) | RIGHT, "", suffix);
+      txtColIdx, FONT(XS) | RIGHT, "", suffix);
 
   // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
   overrideIcon = new StaticIcon(
-      this, 0, 5, ICON_CHAN_MONITOR_LOCKED, textColor);
+      this, 0, 5, ICON_CHAN_MONITOR_LOCKED, txtColIdx);
   overrideIcon->show(safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED);
 #endif
 
@@ -267,7 +266,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   LimitData* ld = limitAddress(channel);
   if (ld && ld->revert) {
     new StaticIcon(this, 0, ICON_SZ, ICON_CHAN_MONITOR_INVERTED,
-                   textColor);
+                   txtColIdx);
   }
 }
 

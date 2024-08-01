@@ -77,8 +77,7 @@ class FlexGridLayout
 class FormField : public Window
 {
  public:
-  FormField(Window* parent, const rect_t& rect, LcdFlags textFlags = 0,
-            LvglCreate objConstruct = nullptr);
+  FormField(Window* parent, const rect_t& rect, LvglCreate objConstruct = nullptr);
 
   virtual void changeEnd(bool forceChanged = false)
   {

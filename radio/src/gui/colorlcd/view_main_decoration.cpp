@@ -20,7 +20,6 @@
  */
 
 #include "view_main_decoration.h"
-#include "layout.h"
 
 // because of IS_POT_MULTIPOS() and pal
 #include "opentx.h"
@@ -29,12 +28,29 @@
 #include "layouts/sliders.h"
 #include "layouts/trims.h"
 
-#include "board.h"
 #include "hal/adc_driver.h"
-#include "themes/etx_lv_theme.h"
 
-static Window* create_layout_box(Window* parent, lv_align_t align,
-                                 lv_flex_flow_t flow)
+ViewMainDecoration::ViewMainDecoration(Window* parent, bool showTrims, bool showSliders, bool showFM) :
+  parent(parent)
+{
+  w_ml = layoutBox(parent, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_ROW_REVERSE);
+  w_mr = layoutBox(parent, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_ROW);
+  w_bl = layoutBox(parent, LV_ALIGN_BOTTOM_LEFT, LV_FLEX_FLOW_COLUMN);
+  w_br = layoutBox(parent, LV_ALIGN_BOTTOM_RIGHT, LV_FLEX_FLOW_COLUMN);
+
+  w_bc = layoutBox(parent, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
+  lv_obj_set_flex_align(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+  if (showTrims)
+    createTrims(w_ml, w_mr, w_bl, w_br);
+  if (showFM)
+  createFlightMode(w_bc);
+  if (showSliders)
+    createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
+}
+
+Window* ViewMainDecoration::layoutBox(Window* parent, lv_align_t align,
+                                      lv_flex_flow_t flow)
 {
   auto w = new Window(parent, rect_t{0, 0, LV_SIZE_CONTENT, LV_SIZE_CONTENT});
 
@@ -48,26 +64,6 @@ static Window* create_layout_box(Window* parent, lv_align_t align,
   }
 
   return w;
-}
-
-ViewMainDecoration::ViewMainDecoration(Window* parent) :
-  parent(parent)
-{
-  memset(sliders, 0, sizeof(sliders));
-  memset(trims, 0, sizeof(trims));
-  flightMode = nullptr;
-
-  w_ml = create_layout_box(parent, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_ROW_REVERSE);
-  w_mr = create_layout_box(parent, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_ROW);
-  w_bl = create_layout_box(parent, LV_ALIGN_BOTTOM_LEFT, LV_FLEX_FLOW_COLUMN);
-  w_br = create_layout_box(parent, LV_ALIGN_BOTTOM_RIGHT, LV_FLEX_FLOW_COLUMN);
-
-  w_bc = create_layout_box(parent, LV_ALIGN_BOTTOM_MID, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_flex_align(w_bc->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-
-  createTrims(w_ml, w_mr, w_bl, w_br);
-  createFlightMode(w_bc);
-  createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
 }
 
 void ViewMainDecoration::setSlidersVisible(bool visible)
@@ -106,8 +102,7 @@ rect_t ViewMainDecoration::getMainZone() const
   Window* boxes[] = { w_bl, w_bc, w_br };
 
   for ( auto box : boxes ) {
-    auto obj = box->getLvObj();
-    auto y = lv_obj_get_y(obj);
+    auto y = lv_obj_get_y(box->getLvObj());
     if (y < bottom) bottom = y;
   }
 
@@ -116,12 +111,11 @@ rect_t ViewMainDecoration::getMainZone() const
 
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
 {
-  int pot = 0, sl = 0;
+  int pot = 0;
 
   // Bottom left horizontal slider
   if (IS_POT_AVAILABLE(pot)) {
-    sliders[sl] = new MainViewHorizontalSlider(bl, pot);
-    sl += 1;
+    sliders[pot] = new MainViewHorizontalSlider(bl, pot);
   }
   pot += 1;
 
@@ -129,8 +123,8 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
   if (IS_POT_AVAILABLE(pot)) {
     if (IS_POT_MULTIPOS(pot)) {
       // Has 6POS - place bottom center
-      sliders[sl] = new MainView6POS(bc, pot);
-      pot += 1; sl += 1;
+      sliders[pot] = new MainView6POS(bc, pot);
+      pot += 1;
     }
   } else {
     pot += 1;
@@ -138,8 +132,7 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
 
   // Bottom right horizontal slider
   if (IS_POT_AVAILABLE(pot)) {
-    sliders[sl] = new MainViewHorizontalSlider(br, pot);
-    sl += 1;
+    sliders[pot] = new MainViewHorizontalSlider(br, pot);
   }
   pot += 1;
 
@@ -147,35 +140,32 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
   if (max_pots > pot) {
     // create containers for the sliders, so that they are at the borders of the display
     // on top of each other, when there are two sliders to display per side
-    auto leftPots = create_layout_box(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
+    auto leftPots = layoutBox(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
     leftPots->setHeight(MainViewSlider::HORIZONTAL_SLIDERS_WIDTH);
 
-    auto rightPots = create_layout_box(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
+    auto rightPots = layoutBox(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
     rightPots->setHeight(MainViewSlider::VERTICAL_SLIDERS_HEIGHT);
 
     coord_t lsh = (IS_POT_AVAILABLE(pot + 2)) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 2 : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH;
     coord_t rsh = (IS_POT_AVAILABLE(pot + 3)) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 2 : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[sl] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
-      sl += 1;
+      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[sl] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, rsh}, pot);
-      sl += 1;
+      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, rsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[sl] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
-      sl += 1;
+      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[sl] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, rsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, rsh}, pot);
     }
   }
 }
@@ -195,6 +185,5 @@ void ViewMainDecoration::createFlightMode(Window* bc)
       return stringFromNtString(g_model.flightModeData[mixerCurrentFlightMode].name);
   };
 
-  flightMode = new DynamicText(bc, rect_t{}, getFM, COLOR_THEME_SECONDARY1);
+  flightMode = new DynamicText(bc, rect_t{}, getFM, COLOR_THEME_SECONDARY1_INDEX);
 }
-

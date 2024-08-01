@@ -29,8 +29,6 @@
 #define MAX_LAYOUT_ZONES 10
 #define MAX_LAYOUT_OPTIONS 10
 
-constexpr uint32_t LAYOUT_REFRESH = 1000 / 2;  // 2 Hz
-
 #if !defined(YAML_GENERATOR)
 typedef WidgetsContainerPersistentData<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
     LayoutPersistentData;

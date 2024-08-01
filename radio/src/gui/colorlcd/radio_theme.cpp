@@ -272,9 +272,12 @@ class ColorEditPage : public Page
 
     r.h = colForm->height() - COLOR_BOX_HEIGHT - 4;
 
+    uint32_t color = _theme->getColorEntryByIndex(_indexOfColor)->colorValue;
+
     _colorEditor = new ColorEditor(
-        colForm, r, _theme->getColorEntryByIndex(_indexOfColor)->colorValue,
+        colForm, r, COLOR2FLAGS(color) | RGB_FLAG,
         [=](uint32_t rgb) {
+          rgb = COLOR_VAL(rgb);
           _theme->setColor(_indexOfColor, rgb);
           if (_colorSquare != nullptr) {
             _colorSquare->setColor(rgb);
@@ -290,12 +293,12 @@ class ColorEditPage : public Page
     r.w = COLOR_BOX_WIDTH;
     r.h = COLOR_BOX_HEIGHT;
     _colorSquare = new ColorSwatch(
-        colBoxForm, r, _theme->getColorEntryByIndex(_indexOfColor)->colorValue);
+        colBoxForm, r, color);
 
     // hexBox
     r.w = HEX_STR_W;
-    _hexBox = new StaticText(colBoxForm, r, "", COLOR_THEME_PRIMARY1 | FONT(L) | RIGHT);
-    setHexStr(_theme->getColorEntryByIndex(_indexOfColor)->colorValue);
+    _hexBox = new StaticText(colBoxForm, r, "", COLOR_THEME_PRIMARY1_INDEX, FONT(L) | RIGHT);
+    setHexStr(color);
   }
 
   void buildHead(PageHeader *window)

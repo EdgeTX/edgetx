@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _YAML_DEFS_H_
-#define _YAML_DEFS_H_
+#pragma once
 
 #if defined(YAML_GENERATOR)
 
@@ -69,7 +68,5 @@
 #define CUST_ATTR(tag, read, write)
 #define CUST_ARRAY(tag, elmt_type, max, fcn)
 #define CUST_IDX(tag, read, write)
-
-#endif
 
 #endif

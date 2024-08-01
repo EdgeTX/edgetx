@@ -151,11 +151,11 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
   etx_solid_bg(topbar->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
 
   new StaticIcon(topbar, ICON_X1, ICON_Y, ICON_RADIO,
-                 COLOR_THEME_PRIMARY2);
+                 COLOR_THEME_PRIMARY2_INDEX);
   new StaticIcon(topbar, ICON_X2, ICON_Y, ICON_RADIO_TOOLS,
-                 COLOR_THEME_PRIMARY2);
+                 COLOR_THEME_PRIMARY2_INDEX);
   new StaticIcon(topbar, ICON_X3, ICON_Y, ICON_RADIO_SETUP,
-                 COLOR_THEME_PRIMARY2);
+                 COLOR_THEME_PRIMARY2_INDEX);
 
   new StaticText(this, {ICON_X1, CBT_Y, CBT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_CHECKBOX);
   new ThemedCheckBox(this, {CB1_X, CB_Y, CB_W, 0}, true);
@@ -166,9 +166,9 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
   new MainViewTrim(this, {ICON_X1, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, TRIM_H}, 0, false);
   new MainViewSlider(this, {ICON_X1, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, TRIM_H}, 0, false);
   new StaticText(this, {ICON_X1, TXT1_Y, TXT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_WARNING, 
-                 COLOR_THEME_WARNING);
+                 COLOR_THEME_WARNING_INDEX);
   new StaticText(this, {ICON_X1, TXT2_Y, TXT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_DISABLED, 
-                 COLOR_THEME_DISABLED);
+                 COLOR_THEME_DISABLED_INDEX);
 
   new ThemedTextEdit(this, {ICON_X1, EDT_Y, TXT_W, 0}, STR_THEME_EDIT, true);
   new ThemedTextEdit(this, {EDT2_X, EDT_Y, TXT_W, 0}, STR_THEME_FOCUS, false);

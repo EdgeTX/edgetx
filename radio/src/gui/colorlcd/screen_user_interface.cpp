@@ -69,61 +69,61 @@ class ThemeView : public Window
     auto theme = tp->getCurrentTheme();
 
     if (theme) {
-      if (!details) {
-        FlexGridLayout theme_grid(theme_col_dsc, theme_row_dsc);
-        auto line = newLine(theme_grid);
+      FlexGridLayout theme_grid(theme_col_dsc, theme_row_dsc, PAD_TINY);
+      auto line = newLine(theme_grid);
 
-        details = new Window(line, rect_t{});
-        // vertical flow layout
-        lv_obj_set_flex_flow(details->getLvObj(), LV_FLEX_FLOW_COLUMN);
-        lv_obj_set_style_pad_row(details->getLvObj(), 2, LV_PART_MAIN);
+      details = new Window(line, rect_t{0, 0, 0, LV_SIZE_CONTENT});
+      // vertical flow layout
+      lv_obj_set_flex_flow(details->getLvObj(), LV_FLEX_FLOW_COLUMN);
+      lv_obj_set_style_pad_row(details->getLvObj(), PAD_TINY, LV_PART_MAIN);
 
-        // make the object fill the grid cell
-        lv_obj_set_style_grid_cell_x_align(details->getLvObj(),
-                                           LV_GRID_ALIGN_STRETCH, 0);
+      // make the object fill the grid cell
+      lv_obj_set_style_grid_cell_x_align(details->getLvObj(),
+                                          LV_GRID_ALIGN_STRETCH, 0);
+      lv_obj_set_style_grid_cell_y_align(details->getLvObj(),
+                                          LV_GRID_ALIGN_START, 0);
 
-        new StaticText(details, rect_t{}, STR_AUTHOR, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-        author = new StaticText(details, rect_t{}, "");
+      new StaticText(details, rect_t{}, STR_AUTHOR, COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD));
+      author = new StaticText(details, rect_t{}, "");
 
-        // labels default to LV_SIZE_CONTENT,
-        // which could overflow the width avail
-        lv_obj_set_width(author->getLvObj(), lv_pct(100));
+      // labels default to LV_SIZE_CONTENT,
+      // which could overflow the width avail
+      lv_obj_set_width(author->getLvObj(), lv_pct(100));
 
-        new StaticText(details, rect_t{}, STR_DESCRIPTION, COLOR_THEME_PRIMARY1 | FONT(BOLD));
-        description =
-            new StaticText(details, rect_t{}, "");
+      new StaticText(details, rect_t{}, STR_DESCRIPTION, COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD));
+      description =
+          new StaticText(details, rect_t{}, "");
 
-        lv_obj_set_width(description->getLvObj(), lv_pct(100));
+      lv_obj_set_width(description->getLvObj(), lv_pct(100));
 
-#if !PORTRAIT_LCD
-        preview = new FilePreview(line, rect_t{0, 0, LCD_W / 2, LCD_H / 2});
-#else
-        preview = new FilePreview(line, rect_t{0, 0, LCD_W - 12, LCD_H / 2});
-#endif
+      preview = new FilePreview(line, {0, 0, PREVIEW_W, LV_SIZE_CONTENT});
 
-        // center within cell
-        lv_obj_set_style_grid_cell_x_align(preview->getLvObj(),
-                                           LV_GRID_ALIGN_CENTER, 0);
-      }
+      // align within cell
+      lv_obj_set_style_grid_cell_x_align(preview->getLvObj(),
+                                          LV_GRID_ALIGN_START, 0);
 
-      author->setText(theme->getAuthor());
-      description->setText(theme->getInfo());
-
-      setImage();
+      update();
     }
   }
 
-  void setImage()
+  void update()
   {
     auto tp = ThemePersistance::instance();
     auto theme = tp->getCurrentTheme();
-    auto themeImage = theme->getThemeImageFileNames();
-    if (themeImage.size() > 0) {
-      preview->setFile(themeImage[0].c_str());
-    } else {
-      preview->setFile("");
+    if (theme) {
+      author->setText(theme->getAuthor());
+      description->setText(theme->getInfo());
+
+      auto themeImage = theme->getThemeImageFileNames();
+      if (themeImage.size() > 0) {
+        preview->setFile(themeImage[0].c_str());
+      } else {
+        preview->setFile("");
+      }
     }
   }
+
+  static LAYOUT_VAL(PREVIEW_W, (LCD_W - PAD_MEDIUM * 3) / 2, LCD_W - 12)
 
  protected:
   Window* details = nullptr;
@@ -133,16 +133,16 @@ class ThemeView : public Window
 };
 
 ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu) :
-    PageTab(STR_USER_INTERFACE, ICON_THEME_SETUP), menu(menu)
+    PageTab(STR_USER_INTERFACE, ICON_THEME_SETUP, PAD_TINY), menu(menu)
 {
 }
 
 void ScreenUserInterfacePage::build(Window* window)
 {
-  window->padAll(PAD_SMALL);
+  window->padAll(PAD_TINY);
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-  FlexGridLayout grid(line_col_dsc, line_row_dsc);
+  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
   // Top Bar
   auto line = window->newLine(grid);
@@ -222,7 +222,7 @@ void ScreenUserInterfacePage::build(Window* window)
         tp->setThemeIndex(value);
         tp->applyTheme(value);
         tp->setDefaultTheme(value);
-        themeView->setImage();
+        themeView->update();
       });
 
   grid.setColSpan(2);

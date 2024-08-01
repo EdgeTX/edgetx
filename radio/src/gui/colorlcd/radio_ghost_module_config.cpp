@@ -39,7 +39,7 @@ class GhostModuleConfigWindow : public Window
     for (int i = 0; i < GHST_MENU_LINES; i += 1) {
       menuLines[i][0] = new StaticText(
           this, {xOffset, yOffset + i * lineSpacing, LV_SIZE_CONTENT, h}, "",
-          FONT(L));
+          COLOR_THEME_PRIMARY1_INDEX, FONT(L));
       etx_txt_color(menuLines[i][0]->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
                     LV_PART_MAIN);
       etx_solid_bg(menuLines[i][0]->getLvObj(), COLOR_THEME_FOCUS_INDEX,
@@ -49,7 +49,7 @@ class GhostModuleConfigWindow : public Window
 
       menuLines[i][1] = new StaticText(
           this, {xOffset2, yOffset + i * lineSpacing, LV_SIZE_CONTENT, h}, "",
-          FONT(L));
+          COLOR_THEME_PRIMARY1_INDEX, FONT(L));
       etx_txt_color(menuLines[i][1]->getLvObj(), COLOR_THEME_SECONDARY1_INDEX,
                     LV_PART_MAIN);
       etx_solid_bg(menuLines[i][1]->getLvObj(), COLOR_THEME_FOCUS_INDEX,

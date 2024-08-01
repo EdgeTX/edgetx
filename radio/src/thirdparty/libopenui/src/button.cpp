@@ -54,8 +54,7 @@ Button::Button(Window* parent, const rect_t& rect,
 ButtonBase::ButtonBase(Window* parent, const rect_t& rect,
                        std::function<uint8_t(void)> pressHandler,
                        LvglCreate objConstruct) :
-    FormField(parent, rect, 0,
-              objConstruct ? objConstruct : lv_btn_create),
+    FormField(parent, rect, objConstruct ? objConstruct : lv_btn_create),
     pressHandler(std::move(pressHandler))
 {
 }
@@ -113,7 +112,7 @@ IconButton::IconButton(Window* parent, EdgeTxIcon icon, coord_t x, coord_t y,
     ButtonBase(parent, {x, y, EdgeTxStyles::UI_ELEMENT_HEIGHT, EdgeTxStyles::UI_ELEMENT_HEIGHT}, pressHandler, button_create)
 {
   padAll(PAD_ZERO);
-  iconImage = new StaticIcon(this, 0, 0, icon, COLOR_THEME_SECONDARY1);
+  iconImage = new StaticIcon(this, 0, 0, icon, COLOR_THEME_SECONDARY1_INDEX);
   iconImage->center(EdgeTxStyles::UI_ELEMENT_HEIGHT - 4, EdgeTxStyles::UI_ELEMENT_HEIGHT - 4);
 }
 

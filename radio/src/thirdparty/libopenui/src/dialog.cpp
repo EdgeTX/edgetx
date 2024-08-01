@@ -51,7 +51,7 @@ BaseDialog::BaseDialog(Window* parent, const char* title,
   etx_solid_bg(content->getLvObj());
   lv_obj_center(content->getLvObj());
 
-  header = new StaticText(content, {0, 0, LV_PCT(100), 0}, title ? title : "", COLOR_THEME_PRIMARY2);
+  header = new StaticText(content, {0, 0, LV_PCT(100), 0}, title ? title : "", COLOR_THEME_PRIMARY2_INDEX);
   etx_solid_bg(header->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
   header->padAll(PAD_SMALL);
   header->show(title != nullptr);
@@ -102,11 +102,11 @@ MessageDialog::MessageDialog(Window* parent, const char* title,
     BaseDialog(parent, title, true)
 {
   messageWidget = new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
-                                 message, messageFlags);
+                                 message, COLOR_THEME_PRIMARY1_INDEX, messageFlags);
 
   if (info) {
     infoWidget = new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
-                                info, infoFlags);
+                                info, COLOR_THEME_PRIMARY1_INDEX, infoFlags);
   }
 }
 
@@ -116,14 +116,14 @@ void MessageDialog::onClicked() { deleteLater(); }
 
 DynamicMessageDialog::DynamicMessageDialog(
     Window* parent, const char* title, std::function<std::string()> textHandler,
-    const char* message, const int lineHeight, const LcdFlags textFlags) :
+    const char* message, const int lineHeight, LcdColorIndex color, LcdFlags textFlags) :
     BaseDialog(parent, title, true)
 {
   messageWidget = new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
-                                 message, CENTERED | COLOR_THEME_PRIMARY1);
+                                 message, COLOR_THEME_PRIMARY1_INDEX, CENTERED);
 
   infoWidget = new DynamicText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
-                               textHandler, textFlags);
+                               textHandler, color, textFlags);
 }
 
 void DynamicMessageDialog::onClicked() { deleteLater(); }
@@ -139,7 +139,7 @@ ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
     cancelHandler(std::move(cancelHandler))
 {
   if (message) {
-    new StaticText(form, {0, 0, LV_PCT(100), 0}, message, CENTERED);
+    new StaticText(form, {0, 0, LV_PCT(100), 0}, message, COLOR_THEME_PRIMARY1_INDEX, CENTERED);
   }
 
   auto box = new Window(form, rect_t{});
@@ -185,7 +185,7 @@ LabelDialog::LabelDialog(Window *parent, const char *label, int length, const ch
   lv_obj_center(form->getLvObj());
 
   auto hdr = new StaticText(form, {0, 0, LV_PCT(100), 0}, title,
-                            COLOR_THEME_PRIMARY2);
+                            COLOR_THEME_PRIMARY2_INDEX);
   etx_solid_bg(hdr->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
   hdr->padAll(PAD_MEDIUM);
 

@@ -53,10 +53,10 @@ class SelectedTabIcon : public StaticIcon
 {
  public:
   SelectedTabIcon(Window* parent) :
-      StaticIcon(parent, 0, 0, ICON_CURRENTMENU_SHADOW, COLOR_THEME_PRIMARY1)
+      StaticIcon(parent, 0, 0, ICON_CURRENTMENU_SHADOW, COLOR_THEME_PRIMARY1_INDEX)
   {
-    new StaticIcon(this, 0, 0, ICON_CURRENTMENU_BG, COLOR_THEME_FOCUS);
-    new StaticIcon(this, SEL_DOT_X, SEL_DOT_Y, ICON_CURRENTMENU_DOT, COLOR_THEME_PRIMARY2);
+    new StaticIcon(this, 0, 0, ICON_CURRENTMENU_BG, COLOR_THEME_FOCUS_INDEX);
+    new StaticIcon(this, SEL_DOT_X, SEL_DOT_Y, ICON_CURRENTMENU_DOT, COLOR_THEME_PRIMARY2_INDEX);
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -74,7 +74,7 @@ class TabsGroupButton : public ButtonBase
       ButtonBase(parent, rect, nullptr, window_create), pageTab(page), index(idx)
   {
     lastIcon = pageTab->getIcon();
-    icon = new StaticIcon(this, 2, ICON_Y, lastIcon, COLOR_THEME_PRIMARY2);
+    icon = new StaticIcon(this, 2, ICON_Y, lastIcon, COLOR_THEME_PRIMARY2_INDEX);
 
     show(isVisible());
   }
@@ -154,7 +154,7 @@ class TabsGroupHeader : public Window
 
     selectedIcon = new SelectedTabIcon(carousel);
 
-    new HeaderDateTime(this, LCD_W - DATE_XO, DATE_Y);
+    new HeaderDateTime(this, LCD_W - DATE_XO, PAD_MEDIUM);
   }
 
   void setTitle(const char* title) { lv_label_set_text(titleLabel, title); }
@@ -221,7 +221,6 @@ class TabsGroupHeader : public Window
   uint8_t tabCount() const { return buttons.size(); }
 
   static LAYOUT_VAL(DATE_XO, 48, 48)
-  static LAYOUT_VAL(DATE_Y, 6, 6)
   static LAYOUT_VAL(MENU_HEADER_BUTTON_WIDTH, 33, 33)
   static LAYOUT_VAL(HDR_DATE_FULL_WIDTH, 51, 51)
 

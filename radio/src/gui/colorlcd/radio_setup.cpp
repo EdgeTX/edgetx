@@ -574,7 +574,7 @@ static void viewOption(Window* parent, coord_t x, coord_t y,
     std::string s(STR_MODEL);
     s += " - ";
     s += STR_ADCFILTERVALUES[modelOption];
-    new StaticText(parent, {x + ToggleSwitch::TOGGLE_W + PAD_MEDIUM, y + PAD_SMALL + 1, 0, 0}, s.c_str(), COLOR_THEME_SECONDARY1);
+    new StaticText(parent, {x + ToggleSwitch::TOGGLE_W + PAD_MEDIUM, y + PAD_SMALL + 1, 0, 0}, s.c_str(), COLOR_THEME_SECONDARY1_INDEX);
   }
 }
 

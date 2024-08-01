@@ -25,7 +25,7 @@
 #include "themes/etx_lv_theme.h"
 
 ColorList::ColorList(Window *parent, const rect_t &rect,
-                     std::vector<ColorEntry> colors, LcdFlags lcdFlags) :
+                     std::vector<ColorEntry> colors) :
     ListBox(parent, rect, getColorListNames(colors)), _colorList(colors)
 {
   setSelected(0);

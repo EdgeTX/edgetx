@@ -62,9 +62,9 @@ rect_t TopBar::getZone(unsigned int index) const
   coord_t x = MENU_HEADER_BUTTONS_LEFT + 1;
 
   for (int i = 0; i < index; i += 1)
-    x += (g_model.topbarWidgetWidth[i] * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN));
+    x += (g_model.topbarWidgetWidth[i] * (TOPBAR_ZONE_WIDTH + PAD_TINY));
 
-  coord_t size = ((g_model.topbarWidgetWidth[index] - 1) * (TOPBAR_ZONE_WIDTH + TOPBAR_ZONE_HMARGIN) + TOPBAR_ZONE_WIDTH);
+  coord_t size = ((g_model.topbarWidgetWidth[index] - 1) * (TOPBAR_ZONE_WIDTH + PAD_TINY) + TOPBAR_ZONE_WIDTH);
 
   if ((x + size) > LCD_W) size = LCD_W - x;
 

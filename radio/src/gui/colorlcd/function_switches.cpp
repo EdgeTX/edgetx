@@ -56,8 +56,7 @@ class FunctionSwitch : public Window
     std::string s(STR_CHAR_SWITCH);
     s += switchGetName(switchIndex + switchGetMaxSwitches());
 
-    new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, s,
-                   COLOR_THEME_PRIMARY1);
+    new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, s);
 
     new ModelTextEdit(this, {NM_X, 0, NM_W, 0},
                       g_model.switchNames[switchIndex], LEN_SWITCH_NAME);
@@ -146,7 +145,7 @@ class FunctionSwitch : public Window
   void checkEvents() override
   {
     setState();
-    if (lastType != FSWITCH_CONFIG(switchIndex)) {
+    if (lastType != (int)FSWITCH_CONFIG(switchIndex)) {
       lastType = FSWITCH_CONFIG(switchIndex);
       typeChoice->setValue(lastType);
     }
@@ -163,8 +162,7 @@ class SwitchGroup : public Window
     padAll(PAD_TINY_GAP);
 
     new StaticText(this, {0, PAD_MEDIUM, NM_W, EdgeTxStyles::PAGE_LINE_HEIGHT},
-                   STR_FUNCTION_SWITCH_GROUPS[groupIndex],
-                   COLOR_THEME_PRIMARY1);
+                   STR_FUNCTION_SWITCH_GROUPS[groupIndex]);
 
     auto btn = new TextButton(
         this, {AO_X, 0, AO_W, 0}, STR_GROUP_ALWAYS_ON, [=]() -> int8_t {
@@ -178,8 +176,7 @@ class SwitchGroup : public Window
         });
     btn->check(IS_FSWITCH_GROUP_ON(groupIndex));
 
-    new StaticText(this, {SL_X, PAD_MEDIUM, SL_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_SWITCH_STARTUP,
-                   COLOR_THEME_PRIMARY1);
+    new StaticText(this, {SL_X, PAD_MEDIUM, SL_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_SWITCH_STARTUP);
 
     startChoice = new Choice(
         this, {ST_X, 0, ST_W, 0}, STR_FSSWITCHES, 0,
@@ -234,13 +231,13 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   FlexGridLayout grid2(line_col_dsc2, line_row_dsc, PAD_TINY);
 
   auto line = body->newLine(grid2);
-  new StaticText(line, rect_t{}, STR_SWITCHES, COLOR_THEME_PRIMARY1);
-  new StaticText(line, rect_t{}, STR_NAME, COLOR_THEME_PRIMARY1 | FONT(XS));
+  new StaticText(line, rect_t{}, STR_SWITCHES);
+  new StaticText(line, rect_t{}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   new StaticText(line, rect_t{}, STR_SWITCH_TYPE,
-                 COLOR_THEME_PRIMARY1 | FONT(XS));
-  new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1 | FONT(XS));
+                 COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   startupHeader = new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
-                 COLOR_THEME_PRIMARY1 | FONT(XS));
+                 COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
     new FunctionSwitch(body, i);
@@ -254,7 +251,7 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
 
   line = body->newLine(grid1);
 
-  new StaticText(line, rect_t{}, STR_MORE_INFO, COLOR_THEME_PRIMARY1);
+  new StaticText(line, rect_t{}, STR_MORE_INFO);
 
   line = body->newLine(grid1);
   line->padBottom(PAD_LARGE);

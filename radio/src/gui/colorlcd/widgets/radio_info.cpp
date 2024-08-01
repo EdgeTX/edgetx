@@ -44,24 +44,24 @@ class RadioInfoWidget : public TopBarWidget
   {
     // Logs
     logsIcon = new StaticIcon(this, W_LOG_X, W_LOG_Y, ICON_DOT,
-                              COLOR_THEME_PRIMARY2);
+                              COLOR_THEME_PRIMARY2_INDEX);
     logsIcon->hide();
 
     usbIcon =
         new StaticIcon(this, W_USB_X, W_USB_Y, ICON_TOPMENU_USB,
-                       COLOR_THEME_PRIMARY2);
+                       COLOR_THEME_PRIMARY2_INDEX);
     usbIcon->hide();
 
 #if defined(AUDIO)
     audioScale = new StaticIcon(this, W_AUDIO_SCALE_X, 2,
                                 ICON_TOPMENU_VOLUME_SCALE,
-                                COLOR_THEME_PRIMARY3);
+                                COLOR_THEME_PRIMARY3_INDEX);
 
     for (int i = 0; i < 5; i += 1) {
       audioVol[i] = new StaticIcon(
           this, W_AUDIO_X, 2,
          (EdgeTxIcon)(ICON_TOPMENU_VOLUME_0 + i),
-          COLOR_THEME_PRIMARY2);
+          COLOR_THEME_PRIMARY2_INDEX);
       audioVol[i]->hide();
     }
     audioVol[0]->show();
@@ -69,18 +69,18 @@ class RadioInfoWidget : public TopBarWidget
 
     batteryIcon = new StaticIcon(this, W_AUDIO_X, W_BATT_Y,
                                  ICON_TOPMENU_TXBATT,
-                                 COLOR_THEME_PRIMARY2);
+                                 COLOR_THEME_PRIMARY2_INDEX);
 #if defined(USB_CHARGER)
     batteryChargeIcon = new StaticIcon(
         this, W_BATT_CHG_X, W_BATT_CHG_Y,
-        ICON_TOPMENU_TXBATT_CHARGE, COLOR_THEME_PRIMARY2);
+        ICON_TOPMENU_TXBATT_CHARGE, COLOR_THEME_PRIMARY2_INDEX);
     batteryChargeIcon->hide();
 #endif
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
     extAntenna = new StaticIcon(this, W_RSSI_X - 4, 1,
                                 ICON_TOPMENU_ANTENNA,
-                                COLOR_THEME_PRIMARY2);
+                                COLOR_THEME_PRIMARY2_INDEX);
     extAntenna->hide();
 #endif
 
@@ -280,11 +280,11 @@ class InternalGPSWidget : public TopBarWidget
   {
     icon =
         new StaticIcon(this, width() / 2 - 10, 19,
-                       ICON_TOPMENU_GPS, COLOR_THEME_PRIMARY3);
+                       ICON_TOPMENU_GPS, COLOR_THEME_PRIMARY3_INDEX);
 
     numSats = new DynamicNumber<uint16_t>(
         this, {0, 1, width(), 12}, [=] { return gpsData.numSat; },
-        COLOR_THEME_PRIMARY2 | CENTERED | FONT(XS));
+        COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
   }
 
   void checkEvents() override

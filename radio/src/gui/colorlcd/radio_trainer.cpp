@@ -52,7 +52,7 @@ void RadioTrainerPage::build(Window* form)
 
   if (SLAVE_MODE()) {
     form->setHeight(TabsGroup::MENU_BODY_HEIGHT);
-    auto txt = new StaticText(form, rect_t{}, STR_SLAVE, FONT(L));
+    auto txt = new StaticText(form, rect_t{}, STR_SLAVE, COLOR_THEME_PRIMARY1_INDEX, FONT(L));
     lv_obj_align(txt->getLvObj(), LV_ALIGN_CENTER, 0, 0);
   } else {
     FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
@@ -78,7 +78,7 @@ void RadioTrainerPage::build(Window* form)
       line->padBottom(PAD_LARGE);
 #endif
 
-      LcdFlags flags = LEFT | COLOR_THEME_PRIMARY1;
+      LcdFlags flags = LEFT;
       if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) flags |= PREC1;
 
       new DynamicNumber<int16_t>(
@@ -86,7 +86,7 @@ void RadioTrainerPage::build(Window* form)
           [=]() {
             return (trainerInput[i] - g_eeGeneral.trainer.calib[i]) * 2;
           },
-          flags);
+          COLOR_THEME_PRIMARY1_INDEX, flags);
     }
 
     auto line = form->newLine(grid);

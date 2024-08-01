@@ -30,10 +30,10 @@ class TabsGroupHeader;
 class PageTab
 {
  public:
-  PageTab(PaddingSize padding = PAD_MEDIUM) : padding(padding) {}
+  PageTab(PaddingSize padding = PAD_SMALL) : padding(padding) {}
 
   PageTab(std::string title, EdgeTxIcon icon,
-          PaddingSize padding = PAD_MEDIUM) :
+          PaddingSize padding = PAD_SMALL) :
       title(std::move(title)), icon(icon), padding(padding)
   {
   }

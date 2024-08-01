@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _yaml_bits_h_
-#define _yaml_bits_h_
+#pragma once
 
 #include <stdint.h>
 
@@ -45,5 +44,3 @@ char* yaml_unsigned2hex(uint32_t i);
 char* yaml_rgb2hex(uint32_t i);
 
 int32_t yaml_to_signed(uint32_t i, uint32_t bits);
-
-#endif

@@ -31,14 +31,12 @@ class TextArea : public FormField
 {
  public:
   TextArea(Window* parent, const rect_t& rect, char* value, uint8_t length) :
-      FormField(parent, rect, 0, etx_textarea_create), value(value), length(length)
+      FormField(parent, rect, etx_textarea_create), value(value), length(length)
   {
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
     lv_textarea_set_max_length(lvobj, length);
     lv_textarea_set_placeholder_text(lvobj, "---");
-
-    if (rect.w == 0) setWidth(DEF_W);
 
     update();
   }
@@ -66,8 +64,6 @@ class TextArea : public FormField
   {
     cancelHandler = std::move(handler);
   }
-
-  static LAYOUT_VAL(DEF_W, 100, 100)
 
  protected:
   char* value;
@@ -127,7 +123,7 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* text,
     }),
     updateHandler(updateHandler), text(text), length(length)
 {
-  if (rect.w == 0) setWidth(TextArea::DEF_W);
+  if (rect.w == 0) setWidth(DEF_W);
 
   update();
   lv_obj_align(label, LV_ALIGN_OUT_LEFT_MID, 0, PAD_TINY);

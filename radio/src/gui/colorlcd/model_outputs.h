@@ -31,7 +31,7 @@ class ModelOutputsPage : public PageTab
   ModelOutputsPage();
   void build(Window* window) override;
 
-  static constexpr coord_t ADD_TRIMS_X = PAD_MEDIUM;
+  static constexpr coord_t ADD_TRIMS_X = PAD_SMALL;
   static constexpr coord_t ADD_TRIMS_Y = PAD_SMALL;
   static LAYOUT_VAL(ADD_TRIMS_W, (LCD_W / 2) - 10, LCD_W - 12)
   static constexpr coord_t ADD_TRIMS_H = EdgeTxStyles::UI_ELEMENT_HEIGHT;
@@ -44,9 +44,9 @@ class ModelOutputsPage : public PageTab
   static LAYOUT_VAL(EXLIM_Y, 10, ADD_TRIMS_X + ADD_TRIMS_H + 8)
   static constexpr coord_t EXLIM_W = EXLIMCB_X - EXLIM_X - PAD_SMALL;
   static LAYOUT_VAL(EXLIM_H, 20, 20)
-  static constexpr coord_t TRIMB_X = PAD_MEDIUM;
+  static constexpr coord_t TRIMB_X = PAD_SMALL;
   static constexpr coord_t TRIMB_Y = EXLIMCB_Y + EXLIMCB_H + PAD_MEDIUM / 2;
-  static constexpr coord_t TRIMB_W = LCD_W - PAD_MEDIUM * 2;
+  static constexpr coord_t TRIMB_W = LCD_W - PAD_SMALL * 2;
 
  protected:
   void editOutput(uint8_t channel, OutputLineButton* btn);

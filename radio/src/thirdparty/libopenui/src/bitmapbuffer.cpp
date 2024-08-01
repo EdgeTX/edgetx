@@ -90,7 +90,7 @@ void BitmapBuffer::setData(uint16_t *d)
 
 void BitmapBuffer::clear(LcdFlags flags)
 {
-  drawSolidFilledRect(0, 0, _width - offsetX, _height - offsetY, flags);
+  drawSolidFilledRect(0, 0, _width, _height, flags);
 }
 
 void BitmapBuffer::clearClippingRect()
@@ -119,10 +119,36 @@ void BitmapBuffer::getClippingRect(coord_t &xmin, coord_t &xmax, coord_t &ymin,
   ymax = this->ymax;
 }
 
-void BitmapBuffer::setOffset(coord_t offsetX, coord_t offsetY)
+bool BitmapBuffer::applyClippingRect(coord_t& x, coord_t& y, coord_t& w,
+                                     coord_t& h) const
 {
-  this->offsetX = offsetX;
-  this->offsetY = offsetY;
+  if (h < 0) {
+    y += h;
+    h = -h;
+  }
+
+  if (w < 0) {
+    x += w;
+    w = -w;
+  }
+
+  if (x >= xmax || y >= ymax) return false;
+
+  if (y < ymin) {
+    h += y - ymin;
+    y = ymin;
+  }
+
+  if (x < xmin) {
+    w += x - xmin;
+    x = xmin;
+  }
+
+  if (y + h > ymax) h = ymax - y;
+
+  if (x + w > xmax) w = xmax - x;
+
+  return data && h > 0 && w > 0;
 }
 
 void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
@@ -130,7 +156,6 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
                               coord_t srch, float scale)
 {
   if (!data || !bmp) return;
-  APPLY_OFFSET();
   if (x >= xmax || y >= ymax) return;
 
   coord_t bmpw = bmp->width();
@@ -182,7 +207,7 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
   }
 
   if (scale == 0) {
-    if (bmp->getFormat() == BMP_ARGB4444) {
+    if (bmp->format == BMP_ARGB4444) {
       DMACopyAlphaBitmap(data, _width, _height, x, y, bmp->getData(), bmpw,
                          bmph, srcx, srcy, srcw, srch);
     } else {
@@ -211,11 +236,11 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
           const pixel_t *q = qstart;
           MOVE_PIXEL_RIGHT(q, int(j / scale));
 
-          if (bmp->getFormat() == BMP_RGB565) {
+          if (bmp->format == BMP_RGB565) {
             RGB_SPLIT(*q, r, g, b);
             drawPixel(p, ARGB_JOIN(0xF, r >> 1, g >> 2, b >> 1));
 
-          } else {  // bmp->getFormat() == BMP_ARGB4444
+          } else {  // bmp->format == BMP_ARGB4444
             drawPixel(p, *q);
           }
           MOVE_TO_NEXT_RIGHT_PIXEL(p);
@@ -232,9 +257,9 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
           const pixel_t *q = qstart;
           MOVE_PIXEL_RIGHT(q, int(j / scale));
 
-          if (bmp->getFormat() == BMP_RGB565) {
+          if (bmp->format == BMP_RGB565) {
             drawPixel(p, *q);
-          } else {  // bmp->getFormat() == BMP_ARGB4444
+          } else {  // bmp->format == BMP_ARGB4444
             ARGB_SPLIT(*q, a, r, g, b);
             drawAlphaPixel(p, a, RGB_JOIN(r << 1, g << 2, b << 1));
           }
@@ -266,8 +291,6 @@ void BitmapBuffer::drawHorizontalLine(coord_t x, coord_t y, coord_t w,
                                       uint8_t opacity)
 {
   if (opacity == OPACITY_MAX) return;
-
-  APPLY_OFFSET();
 
   coord_t h = 1;
   if (!applyClippingRect(x, y, w, h)) return;
@@ -319,8 +342,6 @@ void BitmapBuffer::drawVerticalLine(coord_t x, coord_t y, coord_t h,
                                     uint8_t opacity)
 {
   if (opacity == OPACITY_MAX) return;
-
-  APPLY_OFFSET();
 
   coord_t w = 1;
   if (!applyClippingRect(x, y, w, h)) return;
@@ -385,7 +406,6 @@ void BitmapBuffer::drawFilledRect(coord_t x, coord_t y, coord_t w, coord_t h,
 {
   if (opacity == OPACITY_MAX) return;
 
-  APPLY_OFFSET();
   if (!applyClippingRect(x, y, w, h)) return;
 
   if (SOLID != pat) {
@@ -428,7 +448,6 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
                                     uint8_t len, LcdFlags flags)
 {
   if (!s) return x;
-  MOVE_OFFSET();
 
   // LVGL does not handle non-null terminated strings
   static char buffer[256];
@@ -490,11 +509,9 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   }
 #endif
 
-  RESTORE_OFFSET();
-
   pos += p.x;
 
-  return ((flags & RIGHT) ? orig_pos : pos) - offsetX;
+  return ((flags & RIGHT) ? orig_pos : pos);
 }
 
 // Resize and convert to LVGL image data format with alpha blending to

@@ -528,7 +528,7 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
     createEdit(this, col2, editY);
   } else {
     setHeight(h);
-    new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY1 | FONT(BOLD));
+    new StaticText(this, {0, titleY, 0, titleH}, title, COLOR_THEME_PRIMARY1_INDEX, FONT(BOLD));
   }
 }
 

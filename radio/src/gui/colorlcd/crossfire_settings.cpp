@@ -54,7 +54,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     //                  getStringAtIndex(buf, STR_CRSF_BAUDRATE,
     //                                   CROSSFIRE_STORE_TO_INDEX(
     //                                       g_eeGeneral.internalModuleBaudrate)),
-    //                  0, COLOR_THEME_PRIMARY1);
+    //                  COLOR_THEME_PRIMARY1);
   }
 
   auto line = newLine(grid);

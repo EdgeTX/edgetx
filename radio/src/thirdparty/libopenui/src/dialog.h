@@ -98,7 +98,7 @@ class DynamicMessageDialog : public BaseDialog
                        std::function<std::string()> textHandler,
                        const char* message = "",
                        const int lineHeight = EdgeTxStyles::PAGE_LINE_HEIGHT,
-                       const LcdFlags textFlags = CENTERED);
+                       LcdColorIndex color = COLOR_THEME_PRIMARY1_INDEX, LcdFlags textFlags = CENTERED);
   // Attn.: FONT(XXL) is not supported by DynamicMessageDialog
 
  protected:

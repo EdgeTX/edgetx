@@ -138,8 +138,8 @@ static SetupLineDef setupLines[] = {
       // RTC Batt display
       new DynamicNumber<uint16_t>(
           parent,
-          {x + ToggleSwitch::TOGGLE_W + PAD_LARGE, y + PAD_SMALL + 1, 0, 0},
-          [] { return getRTCBatteryVoltage(); }, COLOR_THEME_PRIMARY1 | PREC2,
+          {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, y + PAD_SMALL + 1, 0, 0},
+          [] { return getRTCBatteryVoltage(); }, COLOR_THEME_PRIMARY1_INDEX, PREC2,
           "", "V");
     }
   },
@@ -165,7 +165,6 @@ void RadioHardwarePage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
-  // TODO: sub-title?
   SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);

@@ -200,13 +200,8 @@ void LuaWidget::redraw_cb(lv_event_t* e)
     } else {
       lv_draw_ctx_t* draw_ctx = lv_event_get_draw_ctx(e);
 
-      lv_area_t a, clipping, obj_coords;
-      lv_area_copy(&a, draw_ctx->buf_area);
-      lv_area_copy(&clipping, draw_ctx->clip_area);
-      lv_obj_get_coords(target, &obj_coords);
-
-      auto w = a.x2 - a.x1 + 1;
-      auto h = a.y2 - a.y1 + 1;
+      auto w = draw_ctx->buf_area->x2 - draw_ctx->buf_area->x1 + 1;
+      auto h = draw_ctx->buf_area->y2 - draw_ctx->buf_area->y1 + 1;
 
       TRACE_WINDOWS("Draw %s", widget->getWindowDebugString().c_str());
 
@@ -214,10 +209,6 @@ void LuaWidget::redraw_cb(lv_event_t* e)
                           (uint16_t*)draw_ctx->buf};
 
       buf.setDrawCtx(draw_ctx);
-
-      buf.setOffset(obj_coords.x1 - a.x1, obj_coords.y1 - a.y1);
-      buf.setClippingRect(clipping.x1 - a.x1, clipping.x2 + 1 - a.x1,
-                          clipping.y1 - a.y1, clipping.y2 + 1 - a.y1);
 
       widget->refresh(&buf);
     }
