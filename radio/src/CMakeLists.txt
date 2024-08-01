@@ -249,7 +249,7 @@ endif()
 
 if(SDCARD)
   add_definitions(-DSDCARD)
-  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp thirdparty/libopenui/src/libopenui_file.cpp)
+  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp lib_file.cpp)
   set(FIRMWARE_SRC ${FIRMWARE_SRC})
 endif()
 

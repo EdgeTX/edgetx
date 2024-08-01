@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LVGLDIR="../../thirdparty/libopenui/thirdparty/lvgl"
+LVGLDIR="../../thirdparty/lvgl"
 TTF_DIR="../"
 
 SYMBOLS_FONT="${LVGLDIR}/scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff"
@@ -47,7 +47,7 @@ function make_font() {
 function compress_font() {
   local name=$1
 
-  gcc -I ../../thirdparty/libopenui/thirdparty lz4_font.cpp ../../thirdparty/libopenui/thirdparty/lz4/lz4hc.c ../../thirdparty/libopenui/thirdparty/lz4/lz4.c -o lz4_font
+  gcc -I ../../thirdparty lz4_font.cpp ../../thirdparty/lz4/lz4hc.c ../../thirdparty/lz4/lz4.c -o lz4_font
   ./lz4_font ${name}
 }
 

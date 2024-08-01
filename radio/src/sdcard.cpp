@@ -30,7 +30,7 @@
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #else
-  #include "libopenui/src/libopenui_file.h"
+  #include "lib_file.h"
 #endif
 
 #if FF_MAX_SS != FF_MIN_SS
