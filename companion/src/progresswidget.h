@@ -53,6 +53,7 @@ class ProgressWidget : public QWidget
     void stop();
     void clearDetails() const;
     void forceKeepOpen(bool value);
+    void refresh();
 
   signals:
     void detailsToggled();

@@ -107,7 +107,7 @@ class UpdateInterface : public QWidget
     bool update(ProgressWidget * progress = nullptr);
 
   signals:
-    void stop();
+    void stopping();
     void finished();
 
   protected:
@@ -156,6 +156,7 @@ class UpdateInterface : public QWidget
 
   private slots:
     void onStatusCancelled();
+    void processEvents();
 
   private:
     const ComponentIdentity m_id;
@@ -169,6 +170,8 @@ class UpdateInterface : public QWidget
     QString m_updateDir;
     bool m_stopping;
     int m_result;
+    QEventLoop m_eventLoop;
+    QTimer m_timer;
 
     void appSettingsInit();
     bool checkCreateDirectory(const QString & dirSetting, const UpdateFlags flag);
@@ -177,7 +180,9 @@ class UpdateInterface : public QWidget
     bool setRunFolders();
     bool validateFolder(QString & fldr);
 
-    bool okToRun() { return m_result == PROC_RESULT_SUCCESS && m_stopping == false; }
+    bool isOkay() { return m_result == PROC_RESULT_SUCCESS && !m_stopping; }
+    const QString resultToString() const;
+
     void runAsyncInstall();
     void runBuild();
     void runCopyToDestination();

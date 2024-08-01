@@ -28,6 +28,7 @@
 #include "helpers.h"
 
 #include <QMessageBox>
+#include <QApplication>
 
 Updates::Updates(QWidget * parent, UpdateFactories * updateFactories) :
   QWidget(parent),
@@ -127,6 +128,9 @@ void Updates::runUpdate()
   ok = factories->updateAll(progressDialog.progress());
   progressDialog.setProcessStopped();
   progressDialog.progress()->setInfo(tr("Finished %1").arg(ok ? tr("successfully") : tr("with errors")));
+  progressDialog.progress()->setValue(progressDialog.progress()->maximum());
+  progressDialog.progress()->refresh();
+  QApplication::processEvents();
   progressDialog.exec();
 
   if (ok)

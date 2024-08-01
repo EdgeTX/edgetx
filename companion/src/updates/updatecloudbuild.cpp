@@ -25,11 +25,10 @@
 #include "eeprominterface.h"
 #include "flashfirmwaredialog.h"
 
-constexpr char STATUS_UNKNOWN[]            {"STATUS_UNKNOWN"};
-constexpr char STATUS_WAITING_FOR_BUILD[]  {"WAITING_FOR_BUILD"};
-constexpr char STATUS_BUILD_IN_PROGRESS[]  {"BUILD_IN_PROGRESS"};
-constexpr char STATUS_BUILD_SUCCESS[]      {"BUILD_SUCCESS"};
-// constexpr char STATUS_BUILD_ERROR[]        {"BUILD_ERROR"};
+// these must match text strings in server response
+constexpr char CLOUD_BUILD_WAITING[]       {"WAITING_FOR_BUILD"};
+constexpr char CLOUD_BUILD_IN_PROGRESS[]   {"BUILD_IN_PROGRESS"};
+constexpr char CLOUD_BUILD_SUCCESS[]       {"BUILD_SUCCESS"};
 
 UpdateCloudBuild::UpdateCloudBuild(QWidget * parent) :
   UpdateInterface(parent, CID_CloudBuild, tr("CloudBuild"), Repo::REPO_TYPE_BUILD,
@@ -46,6 +45,38 @@ UpdateCloudBuild::~UpdateCloudBuild()
     delete m_objBody;
   if (m_docResp)
     delete m_docResp;
+}
+
+QString UpdateCloudBuild::statusToString(const int status)
+{
+  switch (status) {
+    case STATUS_WAITING:
+      return tr("waiting");
+    case STATUS_IN_PROGRESS:
+      return tr("in progress");
+    case STATUS_SUCCESS:
+      return tr("success");
+    case STATUS_ERROR:
+      return tr("error");
+    case STATUS_TIMEOUT:
+      return tr("timeout");
+    case STATUS_CANCELLED:
+      return tr("cancelled");
+    default:
+      return tr("unknown");
+  }
+}
+
+int UpdateCloudBuild::cloudStatusToInt(const QString status)
+{
+  if (status == QString(CLOUD_BUILD_WAITING))
+    return STATUS_WAITING;
+  else if (status == QString(CLOUD_BUILD_IN_PROGRESS))
+    return STATUS_IN_PROGRESS;
+  else if (status == QString(CLOUD_BUILD_SUCCESS))
+    return STATUS_SUCCESS;
+  else
+    return STATUS_UNKNOWN;
 }
 
 void UpdateCloudBuild::assetSettingsInit()
@@ -189,8 +220,8 @@ int UpdateCloudBuild::asyncInstall()
 
 bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 {
+  m_jobStatus = STATUS_UNKNOWN;
   m_buildFlags.clear();
-  m_jobStatus.clear();
   m_profileOpts.clear();
   m_radio = repo()->assets()->name(row);
 
@@ -289,7 +320,7 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
   if (params()->logLevel == QtDebugMsg)
     network()->saveJsonDocToFile(docBody, QString("%1/%2_body.txt").arg(m_logDir).arg(m_radio));
 
-  network()->submitRequest(tr("Submit firmware build"), repo()->urlJobs(), docBody, m_docResp);
+  network()->submitRequest(tr("Submit build request"), repo()->urlJobs(), docBody, m_docResp);
 
   if (params()->logLevel == QtDebugMsg)
     network()->saveBufferToFile(QString("%1/%2_buffer.txt").arg(m_logDir).arg(m_radio));
@@ -318,15 +349,18 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
     return false;
   }
   else {
-    m_jobStatus = obj.value("status").toString(QString(STATUS_UNKNOWN));
+    m_jobStatus = cloudStatusToInt(obj.value("status").toString());
   }
 
   if (isStatusInProgress())
     waitForBuildFinish();
 
-  status()->reportProgress(tr("Firmware build finished status: %1").arg(m_jobStatus));
+  status()->reportProgress(tr("Build finish status: %1").arg(statusToString(m_jobStatus)));
 
-  if (m_jobStatus == QString(STATUS_BUILD_SUCCESS) && setAssetDownload())
+  // ensure progress bar not in wait state
+  status()->setMaximum(100);
+
+  if (m_jobStatus == STATUS_SUCCESS && setAssetDownload())
     return true;
 
   return false;
@@ -334,22 +368,25 @@ bool UpdateCloudBuild::buildFlaggedAsset(const int row)
 
 void UpdateCloudBuild::cancel()
 {
-  status()->reportProgress(tr("Build firmware cancelled"), QtWarningMsg);
+  // this does not cancel the build job on the server but only interrupts the client side
+  status()->reportProgress(tr("Build cancelled"), QtWarningMsg);
+  m_jobStatus = STATUS_CANCELLED;
   cleanup();
 }
 
 void UpdateCloudBuild::checkStatus()
 {
   if (m_buildStartTime.secsTo(QTime::currentTime()) > 180) {
-    status()->reportProgress(tr("Build firmware timeout"), QtWarningMsg);
+    status()->reportProgress(tr("Build timeout. Retry later."), QtWarningMsg);
+    m_jobStatus = STATUS_TIMEOUT;
     cleanup();
+    return;
   }
 
   getStatus();
 
   if (!isStatusInProgress())
     cleanup();
-
 }
 
 void UpdateCloudBuild::cleanup()
@@ -363,7 +400,7 @@ void UpdateCloudBuild::cleanup()
 
 bool UpdateCloudBuild::getStatus()
 {
-  m_jobStatus = QString(STATUS_UNKNOWN);
+  m_jobStatus = STATUS_UNKNOWN;
   QJsonDocument *docBody = new QJsonDocument(*m_objBody);
 
   if (m_docResp)
@@ -376,9 +413,9 @@ bool UpdateCloudBuild::getStatus()
     network()->saveJsonDocToFile(m_docResp, QString("%1/%2_status_%3.txt").arg(m_logDir).arg(m_radio).arg(QTime::currentTime().toString("hhmmss")));
 
   if (m_docResp->isObject())
-    m_jobStatus = m_docResp->object().value("status").toString(QString(STATUS_UNKNOWN));
+    m_jobStatus = cloudStatusToInt(m_docResp->object().value("status").toString());
 
-  if (m_jobStatus == QString(STATUS_UNKNOWN)) {
+  if (m_jobStatus == STATUS_UNKNOWN) {
     status()->reportProgress(tr("Build status unknown"), QtCriticalMsg);
     return false;
   }
@@ -388,7 +425,7 @@ bool UpdateCloudBuild::getStatus()
 
 bool UpdateCloudBuild::isStatusInProgress()
 {
-  if (m_jobStatus == QString(STATUS_WAITING_FOR_BUILD) || m_jobStatus == QString(STATUS_BUILD_IN_PROGRESS))
+  if (m_jobStatus == STATUS_WAITING || m_jobStatus == STATUS_IN_PROGRESS)
     return true;
 
   return false;
@@ -451,15 +488,16 @@ bool UpdateCloudBuild::stringExists(const QJsonObject & parent, const QString ch
 
 void UpdateCloudBuild::waitForBuildFinish()
 {
-  status()->progressMessage(tr("Waiting for firmware build to finish..."));
+  status()->progressMessage(tr("Waiting for build to finish..."));
+  status()->setMaximum(0);    // sets progress bar to wait state
   m_timer.setInterval(2000);  // check status every 2 seconds
 
-  connect(this, &UpdateInterface::stop, this, &UpdateCloudBuild::cancel);
+  connect(this, &UpdateInterface::stopping, this, &UpdateCloudBuild::cancel);
   connect(&m_timer, &QTimer::timeout, this, &UpdateCloudBuild::checkStatus);
 
   m_timer.start();
   m_eventLoop.exec();
 
-  disconnect(this, &UpdateInterface::stop, this, &UpdateCloudBuild::cancel);
-  disconnect(&m_timer, nullptr);
+  disconnect(&m_timer, &QTimer::timeout, this, &UpdateCloudBuild::checkStatus);
+  disconnect(this, &UpdateInterface::stopping, this, &UpdateCloudBuild::cancel);
 }
