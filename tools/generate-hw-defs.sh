@@ -4,9 +4,12 @@
 set -e
 # set -x
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/build-common.sh" 
+
 : "${SRCDIR:=$(dirname "$(pwd)/$0")/..}"
 
-: ${FLAVOR:="nv14;t12;t12max;t15;t16;t18;t8;zorro;pocket;commando8;tlite;tpro;tprov2;tpros;t20;t20v2;t14;lr3pro;mt12;tx12;tx12mk2;boxer;tx16s;x10;x10express;x12s;x7;x7access;x9d;x9dp;x9dp2019;x9e;x9lite;x9lites;xlite;xlites"}
+: ${FLAVOR:="nv14;el18;t12;t12max;t15;t16;t18;t8;zorro;pocket;commando8;tlite;tpro;tprov2;tpros;t20;t20v2;t14;lr3pro;mt12;tx12;tx12mk2;boxer;tx16s;x10;x10express;x12s;x7;x7access;x9d;x9dp;x9dp2019;x9e;x9lite;x9lites;xlite;xlites;f16"}
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
 # wipe build directory clean
@@ -22,117 +25,11 @@ do
     BUILD_OPTIONS+=" $EXTRA_OPTIONS "
 
     echo "Processing ${target_name}"
-    case $target_name in
 
-        x9lite)
-            BUILD_OPTIONS+="-DPCB=X9LITE"
-            ;;
-        x9lites)
-            BUILD_OPTIONS+="-DPCB=X9LITES"
-            ;;
-        x7)
-            BUILD_OPTIONS+="-DPCB=X7"
-            ;;
-        x7access)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
-            ;;
-        t12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        mt12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        tx12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
-            ;;
-        tx12mk2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
-            ;;
-        boxer)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
-            ;;
-        t8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
-            ;;
-        zorro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
-            ;;
-        pocket)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
-            ;;
-        tlite)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
-            ;;
-        tpro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
-            ;;
-        tprov2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
-            ;;
-        tpros)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROS"
-            ;;
-        t20)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
-            ;;
-        t12max)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12MAX"
-            ;;
-        t14)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T14"
-            ;;
-        t20v2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
-            ;;
-        lr3pro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
-            ;;
-        xlite)
-            BUILD_OPTIONS+="-DPCB=XLITE"
-            ;;
-        xlites)
-            BUILD_OPTIONS+="-DPCB=XLITES"
-            ;;
-        x9d)
-            BUILD_OPTIONS+="-DPCB=X9D"
-            ;;
-        x9dp)
-            BUILD_OPTIONS+="-DPCB=X9D+"
-            ;;
-        x9dp2019)
-            BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
-            ;;
-        x9e)
-            BUILD_OPTIONS+="-DPCB=X9E"
-            ;;
-        x10)
-            BUILD_OPTIONS+="-DPCB=X10"
-            ;;
-        x10express)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
-            ;;
-        x12s)
-            BUILD_OPTIONS+="-DPCB=X12S"
-            ;;
-        t15)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T15 -DINTERNAL_MODULE_CRSF=ON"
-            ;;
-        t16)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        t18)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
-            ;;
-        tx16s)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
-            ;;
-        nv14)
-            BUILD_OPTIONS+="-DPCB=NV14"
-            ;;
-        commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
-            ;;
-    esac
+    if ! get_target_build_options "$target_name"; then
+        echo "Error: Failed to find a match for target '$target_name'"
+        exit 1
+    fi
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     cmake --build . --target arm-none-eabi-configure
