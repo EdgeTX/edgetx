@@ -1706,7 +1706,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   const int ttlInputs = ttlSticks + ttlFlexInputs;
 
   for (int i = 0; i < ttlInputs + firmware->getCapability(RotaryEncoders); i++) {
-    RawSource src((i < ttlInputs) ? SOURCE_TYPE_INPUT : SOURCE_TYPE_ROTARY_ENCODER, (i < ttlInputs) ? i : ttlInputs - i);
+    RawSource src((i < ttlInputs) ? SOURCE_TYPE_INPUT : SOURCE_TYPE_ROTARY_ENCODER, (i < ttlInputs) ? i + 1 : i - ttlInputs);
     QCheckBox * checkbox = new QCheckBox(this);
     checkbox->setProperty("index", i);
     checkbox->setText(src.toString(&model, &generalSettings));
@@ -1732,7 +1732,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
       continue;
     }
 
-    RawSource src(RawSourceType::SOURCE_TYPE_SWITCH, i);
+    RawSource src(RawSourceType::SOURCE_TYPE_SWITCH, i + 1);
     QLabel * label = new QLabel(this);
     QSlider * slider = new QSlider(this);
     QCheckBox * cb = new QCheckBox(this);
@@ -1770,7 +1770,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   if (IS_HORUS_OR_TARANIS(board) && ttlInputs > 0) {
     for (int i = ttlSticks; i < ttlInputs; i++) {
-      RawSource src(SOURCE_TYPE_INPUT, i);
+      RawSource src(SOURCE_TYPE_INPUT, i + 1);
       QCheckBox * cb = new QCheckBox(this);
       cb->setProperty("index", i - ttlSticks);
       cb->setText(src.toString(&model, &generalSettings));
