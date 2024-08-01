@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../lv_conf.h"
+#include "../../gui/colorlcd/lv_conf.h"
 #define LV_CONF_SKIP 1
 #include "../../gui/colorlcd/lz4_fonts.h"
 #include "lv_font.inc"

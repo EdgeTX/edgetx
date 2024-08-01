@@ -57,7 +57,7 @@
   #include "switch_warn_dialog.h"
   #include "startup_shutdown.h"
 
-  #include "gui/colorlcd/LvglWrapper.h"
+  #include "LvglWrapper.h"
 #endif
 
 #if defined(CROSSFIRE)

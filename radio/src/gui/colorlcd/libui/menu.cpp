@@ -23,7 +23,7 @@
 #include "menutoolbar.h"
 #include "opentx.h"
 #include "table.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 constexpr coord_t MENUS_WIDTH = 200;
 

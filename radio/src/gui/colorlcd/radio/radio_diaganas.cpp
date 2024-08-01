@@ -24,7 +24,7 @@
 #include "hal/adc_driver.h"
 #include "libopenui.h"
 #include "opentx.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 // #if defined(IMU_LSM6DS33)
 // #include "imu_lsm6ds33.h"

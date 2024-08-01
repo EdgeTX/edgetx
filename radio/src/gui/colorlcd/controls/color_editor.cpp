@@ -21,7 +21,7 @@
 #include "color_editor.h"
 
 #include "button.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 static const char* const RGBChars[MAX_BARS] = {"R", "G", "B"};
 static const char* const HSVChars[MAX_BARS] = {"H", "S", "V"};

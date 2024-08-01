@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "window.h"
 
 class FlexGridLayout

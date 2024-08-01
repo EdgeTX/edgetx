@@ -27,7 +27,7 @@
 #include "model_select.h"
 #include "opentx.h"
 #include "select_fab_carousel.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "view_about.h"
 #include "view_channels.h"
 #include "view_statistics.h"

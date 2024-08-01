@@ -26,7 +26,7 @@
 #include "libopenui.h"
 #include "opentx.h"
 #include "options.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 #if defined(CROSSFIRE)
 #include "mixer_scheduler.h"

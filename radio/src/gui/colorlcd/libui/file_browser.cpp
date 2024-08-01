@@ -20,7 +20,7 @@
  */
 
 #include "file_browser.h"
-#include "libopenui_file.h"
+#include "lib_file.h"
 #include "fonts.h"
 
 #include <list>

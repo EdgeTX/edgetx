@@ -23,7 +23,7 @@
 #include <memory.h>
 
 #include "lcd.h"
-#include "thirdparty/libopenui/src/bitfield.h"
+#include "bitfield.h"
 #include "gui/common/stdlcd/fonts.h"
 #include "gui/common/stdlcd/utf8.h"
 

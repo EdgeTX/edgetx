@@ -21,7 +21,7 @@
 #include "button.h"
 #include "form.h"
 #include "static.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 std::list<Window *> Window::trash;
 bool Window::_longPressed = false;

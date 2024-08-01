@@ -24,7 +24,7 @@
 #include <algorithm>
 
 #include "color_picker.h"
-#include "layouts/layout_factory_impl.h"
+#include "layout_factory_impl.h"
 #include "libopenui.h"
 #include "opentx.h"
 #include "topbar.h"

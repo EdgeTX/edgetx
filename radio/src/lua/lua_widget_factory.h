@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "gui/colorlcd/widget.h"
+#include "widget.h"
 
 class LuaWidgetFactory : public WidgetFactory
 {

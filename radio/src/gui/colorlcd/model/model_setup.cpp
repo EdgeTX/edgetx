@@ -43,7 +43,7 @@
 #include "module_setup.h"
 #include "opentx.h"
 #include "storage/modelslist.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 #if defined(USBJ_EX)
 #include "model_usbjoystick.h"

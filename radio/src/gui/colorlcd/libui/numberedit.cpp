@@ -21,7 +21,7 @@
 #include "audio.h"
 #include "keyboard_number.h"
 #include "strhelpers.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 class NumberArea : public FormField
 {

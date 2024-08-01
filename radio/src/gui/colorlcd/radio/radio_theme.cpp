@@ -28,7 +28,7 @@
 #include "opentx.h"
 #include "page.h"
 #include "preview_window.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 class ThemeColorPreview : public Window
 {

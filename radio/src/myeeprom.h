@@ -23,7 +23,7 @@
 #define _MYEEPROM_H_
 
 #include "datastructs.h"
-#include "libopenui/src/bitfield.h"
+#include "bitfield.h"
 #include "storage/yaml/yaml_defs.h"
 #include "hal/switch_driver.h"
 

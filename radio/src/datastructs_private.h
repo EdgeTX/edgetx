@@ -587,8 +587,8 @@ static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
 #if defined(COLORLCD) && defined(BACKUP)
 #define CUSTOM_SCREENS_DATA
 #elif defined(COLORLCD)
-#include "gui/colorlcd/layout.h"
-#include "gui/colorlcd/topbar.h"
+#include "layout.h"
+#include "topbar.h"
 #define LAYOUT_ID_LEN 12
 PACK(struct CustomScreenData {
   char LayoutId[LAYOUT_ID_LEN];

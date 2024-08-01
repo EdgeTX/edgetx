@@ -18,7 +18,7 @@
 
 #include "toggleswitch.h"
 
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 // Animation
 LV_STYLE_CONST_SINGLE_INIT(anim_fast, LV_STYLE_ANIM_TIME, 120);

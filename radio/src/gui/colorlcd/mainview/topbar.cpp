@@ -25,7 +25,7 @@
 #include "menu_screen.h"
 #include "opentx.h"
 #include "storage/storage.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "topbar_impl.h"
 #include "view_main.h"
 #include "widgets_setup.h"

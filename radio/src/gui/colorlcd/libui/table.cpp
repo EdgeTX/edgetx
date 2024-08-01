@@ -18,7 +18,7 @@
 
 #include "table.h"
 
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 static void table_event(const lv_obj_class_t* class_p, lv_event_t* e);
 

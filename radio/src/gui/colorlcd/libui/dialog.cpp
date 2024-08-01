@@ -21,7 +21,7 @@
 #include "opentx.h"
 #include "mainwindow.h"
 #include "progress.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 //-----------------------------------------------------------------------------
 

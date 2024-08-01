@@ -28,7 +28,7 @@
 #include "model_templates.h"
 #include "opentx.h"
 #include "standalone_lua.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "view_channels.h"
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }

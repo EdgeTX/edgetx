@@ -22,7 +22,7 @@
 #include "tabsgroup.h"
 
 #include "theme_manager.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "view_main.h"
 #include "topbar_impl.h"
 

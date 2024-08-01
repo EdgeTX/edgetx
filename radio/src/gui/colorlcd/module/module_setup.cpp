@@ -31,7 +31,7 @@
 #include "opentx.h"
 #include "ppm_settings.h"
 #include "storage/modelslist.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
 #include "pxx1_settings.h"

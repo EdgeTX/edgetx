@@ -28,7 +28,7 @@
 #include "mixer_edit_adv.h"
 #include "mixes.h"
 #include "opentx.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "curveedit.h"

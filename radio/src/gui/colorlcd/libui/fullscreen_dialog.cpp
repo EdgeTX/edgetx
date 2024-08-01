@@ -25,7 +25,7 @@
 #include "libopenui.h"
 #include "mainwindow.h"
 #include "opentx.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "view_main.h"
 #include "hal/watchdog_driver.h"
 

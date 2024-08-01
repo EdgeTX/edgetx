@@ -25,8 +25,8 @@
 #include "opentx.h"
 
 // these 2 need things from opentx.h
-#include "layouts/sliders.h"
-#include "layouts/trims.h"
+#include "sliders.h"
+#include "trims.h"
 
 #include "hal/adc_driver.h"
 

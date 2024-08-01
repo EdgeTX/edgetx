@@ -26,7 +26,7 @@
 #include "menu_screen.h"
 #include "myeeprom.h"
 #include "storage/storage.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "view_main.h"
 #include "widget_settings.h"
 

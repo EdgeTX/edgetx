@@ -22,7 +22,7 @@
 #pragma once
 
 #include "topbar.h"
-#include "layouts/layout_factory_impl.h"
+#include "layout_factory_impl.h"
 
 class HeaderIcon;
 

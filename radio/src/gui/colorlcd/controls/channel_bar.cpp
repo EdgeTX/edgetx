@@ -22,7 +22,7 @@
 #include "channel_bar.h"
 
 #include "bitmaps.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 #define VIEW_CHANNELS_LIMIT_PCT \
   (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT)

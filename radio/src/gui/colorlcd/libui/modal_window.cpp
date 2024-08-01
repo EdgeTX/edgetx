@@ -19,7 +19,7 @@
 #include "modal_window.h"
 
 #include "layer.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 // Modal overlay style (for dimming background)
 void modal_window_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)

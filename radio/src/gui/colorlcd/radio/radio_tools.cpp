@@ -30,7 +30,7 @@
 #include "radio_ghost_module_config.h"
 #include "radio_spectrum_analyser.h"
 #include "standalone_lua.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 extern uint8_t g_moduleIdx;
 

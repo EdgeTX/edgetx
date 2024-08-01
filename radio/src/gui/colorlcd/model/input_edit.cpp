@@ -28,7 +28,7 @@
 #include "input_edit_adv.h"
 #include "input_source.h"
 #include "opentx.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "switchchoice.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)

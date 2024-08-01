@@ -23,7 +23,7 @@
 #include "menu.h"
 #include "opentx.h"
 #include "sdcard.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "fullscreen_dialog.h"
 
 // Used on startup to block until checlist is closed.

@@ -24,7 +24,7 @@
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
-#include "libopenui/src/libopenui_file.h"
+#include "lib_file.h"
 #include "hal/storage.h"
 
 #define NODE_TYPE(fname)       fname[SD_SCREEN_FILE_LENGTH+1]

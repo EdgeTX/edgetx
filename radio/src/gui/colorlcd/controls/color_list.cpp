@@ -22,7 +22,7 @@
 #include "color_list.h"
 
 #include "color_editor.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 ColorList::ColorList(Window *parent, const rect_t &rect,
                      std::vector<ColorEntry> colors) :

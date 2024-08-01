@@ -19,7 +19,7 @@
 #include "menutoolbar.h"
 
 #include "menu.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "translations.h"
 
 static const lv_obj_class_t menu_button_class = {

@@ -21,7 +21,7 @@
 #include "keyboard_text.h"
 #include "myeeprom.h"
 #include "storage/storage.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 #if defined(HARDWARE_KEYS)
 #include "menu.h"

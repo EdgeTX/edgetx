@@ -19,7 +19,7 @@
 #pragma GCC optimize("O3")
 
 #include "bitmapbuffer.h"
-#include "libopenui_file.h"
+#include "lib_file.h"
 #include "opentx_helpers.h"
 
 FIL imgFile __DMA;

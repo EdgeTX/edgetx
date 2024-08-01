@@ -23,7 +23,7 @@
 
 #include "fm_matrix.h"
 #include "opentx.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

@@ -22,7 +22,7 @@
 #include "model_templates.h"
 
 #include "standalone_lua.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 #define ETX_STATE_NO_INFO_COLOR LV_STATE_USER_1
 

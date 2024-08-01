@@ -18,7 +18,7 @@
 
 #include "form.h"
 
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 void FlexGridLayout::apply(Window* w)
 {

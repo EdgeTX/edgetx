@@ -25,7 +25,7 @@
 #include "opentx.h"
 #include "pwr.h"
 #include "hal/watchdog_driver.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 static void _run_popup_dialog(const char* title, const char* msg,
                               const char* info = nullptr)

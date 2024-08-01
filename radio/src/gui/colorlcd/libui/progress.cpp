@@ -18,7 +18,7 @@
 
 #include "progress.h"
 
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 static void etx_bar_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {

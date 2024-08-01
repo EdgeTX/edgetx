@@ -26,7 +26,7 @@
 #include "lua_api.h"
 
 #include "widget.h"
-#include "libopenui_file.h"
+#include "lib_file.h"
 #include "view_main.h"
 
 #include "lua_widget.h"

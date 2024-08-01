@@ -24,7 +24,7 @@
 #include "listbox.h"
 #include "storage/modelslist.h"
 #include "page.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 class ModelsPageBody;
 class ModelLayoutButton;

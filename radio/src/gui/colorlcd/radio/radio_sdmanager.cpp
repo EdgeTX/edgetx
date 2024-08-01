@@ -22,7 +22,7 @@
 #include "radio_sdmanager.h"
 #include "opentx.h"
 #include "libopenui.h"
-#include "gui/colorlcd/LvglWrapper.h"
+#include "LvglWrapper.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
@@ -32,7 +32,7 @@
 #include "file_preview.h"
 #include "file_browser.h"
 #include "progress.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "fullscreen_dialog.h"
 
 constexpr int WARN_FILE_LENGTH = 40 * 1024;

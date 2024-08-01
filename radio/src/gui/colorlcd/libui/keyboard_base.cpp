@@ -20,7 +20,7 @@
 
 #include "form.h"
 #include "mainwindow.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 static void keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {

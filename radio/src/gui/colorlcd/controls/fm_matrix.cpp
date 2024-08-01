@@ -22,7 +22,7 @@
 #include "fm_matrix.h"
 
 #include "opentx.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 template <class T>
 FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :

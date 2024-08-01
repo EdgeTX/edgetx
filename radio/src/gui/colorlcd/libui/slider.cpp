@@ -19,7 +19,7 @@
 #include "slider.h"
 
 #include "form.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 // Slider
 const lv_style_const_prop_t slider_knob_props[] = {

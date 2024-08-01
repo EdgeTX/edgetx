@@ -19,9 +19,9 @@
 #include "static.h"
 
 #include "bitmaps.h"
-#include "libopenui/thirdparty/lz4/lz4.h"
+#include "lz4/lz4.h"
 #include "sdcard.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 //-----------------------------------------------------------------------------
 

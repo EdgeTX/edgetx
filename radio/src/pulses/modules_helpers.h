@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "libopenui/src/bitfield.h"
+#include "bitfield.h"
 #include "definitions.h"
 #include "opentx_helpers.h"
 #include "storage/storage.h"

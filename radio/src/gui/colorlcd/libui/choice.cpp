@@ -19,7 +19,7 @@
 #include "choice.h"
 
 #include "menu.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 // Choice
 static void choice_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)

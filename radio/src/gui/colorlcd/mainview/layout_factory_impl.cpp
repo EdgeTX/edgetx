@@ -21,8 +21,8 @@
 
 #include "layout_factory_impl.h"
 
-#include "layouts/sliders.h"
-#include "layouts/trims.h"
+#include "sliders.h"
+#include "trims.h"
 #include "view_main.h"
 
 Layout::Layout(Window* parent, const LayoutFactory* factory,

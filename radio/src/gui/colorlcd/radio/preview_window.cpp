@@ -24,7 +24,7 @@
 #include "libopenui.h"
 #include "opentx.h"
 #include "sliders.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "trims.h"
 #include "topbar_impl.h"
 

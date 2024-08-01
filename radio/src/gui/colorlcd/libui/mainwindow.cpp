@@ -21,7 +21,7 @@
 #include "board.h"
 #include "keyboard_base.h"
 #include "layout.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 #include "sdcard.h"
 
 // timers_driver.h

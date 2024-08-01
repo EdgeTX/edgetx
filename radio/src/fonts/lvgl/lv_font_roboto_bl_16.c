@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Size: 16 px
  * Bpp: 2
- * Opts: --no-prefilter --bpp 2 --size 16 --font ../Roboto/Roboto-Regular.ttf -r 0x20-0x7F --font ../../thirdparty/libopenui/thirdparty/lvgl/scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff -r 61671,63650,63426,61453,61787,61452,61931,62087 --format lvgl -o lv_font_roboto_bl_16.c --force-fast-kern-format
+ * Opts: --no-prefilter --bpp 2 --size 16 --font ../Roboto/Roboto-Regular.ttf -r 0x20-0x7F --font ../../thirdparty/lvgl/scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff -r 61671,63650,63426,61453,61787,61452,61931,62087 --format lvgl -o lv_font_roboto_bl_16.c --force-fast-kern-format
  ******************************************************************************/
 
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
