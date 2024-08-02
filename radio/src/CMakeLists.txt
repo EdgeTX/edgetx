@@ -73,11 +73,6 @@ set(RADIO_BIN_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 configure_file(stamp.h.in stamp.h @ONLY)
 
-set(EEPROM_VARIANT  0)
-set(GVARS_VARIANT   1)
-set(FRSKY_VARIANT   2)
-set(3POS_VARIANT    4)
-
 if(PCB STREQUAL X12S OR PCB STREQUAL X10)
   include(targets/horus/CMakeLists.txt)
 elseif(PCB STREQUAL NV14)
@@ -196,7 +191,6 @@ endif()
 if(GVARS)
   add_definitions(-DGVARS)
   set(SRC ${SRC} gvars.cpp)
-  math(EXPR EEPROM_VARIANT ${EEPROM_VARIANT}+${GVARS_VARIANT})
 endif()
 
 if(FAI STREQUAL YES)
@@ -317,10 +311,6 @@ endif()
 
 if(IMU_LSM6DS33)
     add_definitions(-DIMU_LSM6DS33)
-endif()
-
-if(EEPROM_VARIANT_NEEDED)
-  add_definitions(-DEEPROM_VARIANT=${EEPROM_VARIANT})
 endif()
 
 if(TEST_BUILD_WARNING)
