@@ -283,7 +283,7 @@ void checkHatsAsKeys()
 }
 #endif
 
-void checkEeprom()
+void checkStorageUpdate()
 {
 #if defined(RTC_BACKUP_RAM) && !defined(SIMU)
   if (TIME_TO_BACKUP_RAM()) {
@@ -514,7 +514,7 @@ void perMain()
   checkSpeakerVolume();
 
   if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
-    checkEeprom();
+    checkStorageUpdate();
 
 #if !defined(SIMU)       // use FreeRTOS software timer if radio firmware
     initLoggingTimer();  // initialize software timer for logging
