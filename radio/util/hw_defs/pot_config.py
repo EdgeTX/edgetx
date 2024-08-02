@@ -10,7 +10,8 @@ POT_CONFIG = {
     "gx12": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
-        "P3": {"default": "MULTIPOS"}
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"}
     },
     "el18": {
         "P1": {"default": "POT_CENTER"},

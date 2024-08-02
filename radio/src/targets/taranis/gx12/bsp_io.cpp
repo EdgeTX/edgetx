@@ -139,6 +139,7 @@ static const bsp_io_sw_def _switch_defs[] = {
   { SWITCH_E_H, SWITCH_E_L },
   { SWITCH_F_H, SWITCH_F_L },
   { SWITCH_G, 0 },
+  { SWITCH_H, 0 },
 };
 
 static SwitchHwPos _get_switch_pos(uint8_t idx)

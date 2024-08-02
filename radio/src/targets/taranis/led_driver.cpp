@@ -27,9 +27,9 @@
 #include "boards/generic_stm32/rgb_leds.h"
 #endif
 
-#define GET_RED(color) (((color) & 0xF800) >> 8)
-#define GET_GREEN(color) (((color) & 0x07E0) >> 3)
-#define GET_BLUE(color) (((color) & 0x001F) << 3)
+#define GET_RED(color) (((color) & 0xF80000) >>16)
+#define GET_GREEN(color) (((color) & 0x000F800) >> 8)
+#define GET_BLUE(color) (((color) & 0xF8))
 
 #if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
 static const uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
@@ -60,15 +60,9 @@ void ledInit()
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 // used to map switch number to led number in the rgbled chain
-uint8_t ledMapping[] = {1, 2, 3, 4, 5, 6};
+uint8_t ledMapping[] = {0, 1, 2, 3, 4, 5, 6};
 
-void fsLedOff(uint8_t index, uint32_t color)
-{
-   rgbSetLedColor(ledMapping[index], GET_RED(color), \
-   GET_GREEN(color),GET_BLUE(color));
-}
-
-void fsLedOn(uint8_t index, uint32_t color)
+void fsLedRGB(uint8_t index, uint32_t color)
 {
    rgbSetLedColor(ledMapping[index], GET_RED(color), \
    GET_GREEN(color),GET_BLUE(color));

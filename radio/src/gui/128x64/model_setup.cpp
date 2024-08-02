@@ -959,7 +959,6 @@ void menuModelSetup(event_t event)
           STR_FS_COLOR_LIST, selectedColor, 0, 4, menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH);
         if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
           g_model.functionSwitchLedONColor[index] = colorTable[selectedColor];
-          TRACE("LED %d %u %u", index, g_model.functionSwitchLedONColor[index] , colorTable[selectedColor]);
           storageDirty(EE_MODEL);
         }
 
@@ -968,7 +967,6 @@ void menuModelSetup(event_t event)
           STR_FS_COLOR_LIST, selectedColor, 0, 4, menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW);
         if (attr && menuHorizontalPosition == 1 && checkIncDec_Ret) {
           g_model.functionSwitchLedOFFColor[index] = colorTable[selectedColor];
-          TRACE("LED %d %u %u", index, g_model.functionSwitchLedOFFColor[index] , colorTable[selectedColor]);
           storageDirty(EE_MODEL);
         }
 

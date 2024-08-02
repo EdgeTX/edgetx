@@ -26,11 +26,11 @@
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 void setFSLedOFF(uint8_t index) {
-  fsLedOff(index,g_model.functionSwitchLedOFFColor[index]);
+  fsLedRGB(index,g_model.functionSwitchLedOFFColor[index]);
 }
 
 void setFSLedON(uint8_t index) {
-  fsLedOn(index,g_model.functionSwitchLedONColor[index]);
+  fsLedRGB(index,g_model.functionSwitchLedONColor[index]);
 }
 
 extern uint8_t getFSLogicalState(uint8_t index);

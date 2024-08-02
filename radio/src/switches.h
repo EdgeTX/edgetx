@@ -107,7 +107,6 @@ extern uint8_t functionSwitchFunctionState;
 void fsLedOff(uint8_t);
 void fsLedOn(uint8_t);
 bool fsLedState(uint8_t index);
-void fsLedOff(uint8_t, uint32_t color);
-void fsLedOn(uint8_t, uint32_t color);
+void fsLedRGB(uint8_t, uint32_t color);
 uint8_t getRGBColorIndex(uint32_t color);
 #endif
