@@ -36,8 +36,8 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
 
   update();
 
-  lv_obj_set_width(lvobj, FM_COLS * (FM_BTN_W + 3) + 3);
-  lv_obj_set_height(lvobj, FM_ROWS * (EdgeTxStyles::UI_ELEMENT_HEIGHT + 3) +3);
+  lv_obj_set_width(lvobj, FM_COLS * (FM_BTN_W + PAD_TINY) + PAD_TINY);
+  lv_obj_set_height(lvobj, FM_ROWS * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY) + PAD_TINY);
 
   padAll(PAD_SMALL);
 }
