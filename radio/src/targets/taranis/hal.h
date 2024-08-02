@@ -1892,7 +1892,7 @@
 #elif defined(RADIO_MT12)
   #define ADC_DIRECTION {1,-1,  -1,-1, 0, 0, 0, 0}
 #elif defined(RADIO_GX12)
-  #define ADC_DIRECTION {1,1,1,1, 1,1, 1,1}
+  #define ADC_DIRECTION {1,1,1,1, -1,-1, 1,-1}
 #elif defined(RADIO_V14)
   #define ADC_DIRECTION {1,-1,1,-1, -1,-1,1, 0, 1,1,1,1 }
 #elif defined(RADIO_V12)
@@ -2030,7 +2030,7 @@
 #endif
 
   // LED Strip
-#if defined(RADIO_MT12) || defined(RADIO_GX12)
+#if defined(RGBLEDS)
   #if defined(RADIO_GX12)
     #define LED_STRIP_LENGTH                8
   #else
