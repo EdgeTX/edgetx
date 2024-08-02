@@ -87,7 +87,6 @@ const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 #define SCRIPT_BIN_EXT      ".luac"
 #define TEXT_EXT            ".txt"
 #define FIRMWARE_EXT        ".bin"
-#define EEPROM_EXT          ".bin"
 #define SPORT_FIRMWARE_EXT  ".frk"
 #define FRSKY_FIRMWARE_EXT  ".frsk"
 #define MULTI_FIRMWARE_EXT  ".bin"

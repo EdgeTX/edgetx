@@ -661,11 +661,7 @@
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"				/*need to be clarified by context*/
 #define TR_INCOMPATIBLE                "Несумісне"
 #define TR_WARNING                     "ПОПЕРЕДЖЕННЯ"
-#define TR_EEPROMWARN                  "EEPROM"		/*use english*/
 #define TR_STORAGE_WARNING             "СХОВИЩЕ"
-#define TR_EEPROM_CONVERTING           "Перетворюю EEPROM"
-#define TR_SDCARD_CONVERSION_REQUIRE   "Потрібне перетворення SD карти"
-#define TR_CONVERTING                  "Перетворення: "
 #define TR_THROTTLE_UPPERCASE          "ГАЗ"
 #define TR_ALARMSWARN                  "АВАРІЇ"
 #define TR_SWITCHWARN                  TR("ПЕРЕМИКАЧ", "УПРАВЛІННЯ")
