@@ -1248,6 +1248,10 @@
 #define BT_TX_GPIO_PIN                  LL_GPIO_PIN_14 // PG.14
 #define BT_RX_GPIO_PIN                  LL_GPIO_PIN_9  // PG.09
 #define BT_USART_IRQHandler             USART6_IRQHandler
+#if defined(RADIO_TX16S)
+  #define BT_PWR_GPIO                   GPIOB
+  #define BT_PWR_GPIO_PIN               LL_GPIO_PIN_0 // PB.00
+#endif
 #else
 #define BT_RCC_APB2Periph               0
 #endif
