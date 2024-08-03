@@ -72,11 +72,11 @@ static inline void check_struct()
   CHKSIZE(LimitData, 13);
   CHKSIZE(TimerData, 17);
   CHKSIZE(ModelHeader, 131);
-  CHKSIZE(CustomScreenData, 852);
+  CHKSIZE(CustomScreenData, 1452);
   #if defined(PCBNV14)
-    CHKTYPE(TopBarPersistentData, 300);
+    CHKTYPE(TopBarPersistentData, 540);
   #else
-    CHKTYPE(TopBarPersistentData, 444);
+    CHKTYPE(TopBarPersistentData, 804);
   #endif
 #else
   #error CHKSIZE not set up
@@ -103,13 +103,13 @@ static inline void check_struct()
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
   CHKSIZE(ModelData, 6329);
 #elif defined(PCBNV14)
-  CHKSIZE(ModelData, 15659);
+  CHKSIZE(ModelData, 21899);
 #elif defined(PCBPL18)
-  CHKSIZE(ModelData, 15841);
+  CHKSIZE(ModelData, 22201);
 #elif defined(RADIO_T15)
-  CHKSIZE(ModelData, 15830);
+  CHKSIZE(ModelData, 22190);
 #elif defined(PCBHORUS)
-  CHKSIZE(ModelData, 15805);
+  CHKSIZE(ModelData, 22165);
 #else
   #error CHKSIZE not set up
 #endif
