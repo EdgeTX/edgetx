@@ -43,7 +43,7 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
 WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
-    BaseDialog(ViewMain::instance(), STR_WIDGET_SETTINGS, true), widget(w)
+    BaseDialog(ViewMain::instance(), w->getFactory()->getDisplayName(), true), widget(w)
 {
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
   form->padAll(PAD_SMALL);
