@@ -30,16 +30,6 @@
 
 #define ETX_STATE_MINMAX_HIGHLIGHT LV_STATE_USER_1
 
-// deadband in % for switching direction of Min/Max text and value field highlighting
-// 0 = no deadband
-// 1..100 = [-DEADBAND; DEADBAND]
-#define DEADBAND 0
-
-// deadband in % for switching direction of Min/Max text and value field highlighting
-// 0 = no deadband
-// 1..100 = [-DEADBAND; DEADBAND]
-#define DEADBAND 0
-
 class OutputEditStatusBar : public Window
 {
  public:

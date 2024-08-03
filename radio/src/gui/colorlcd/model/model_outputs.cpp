@@ -211,16 +211,15 @@ class OutputLineButton : public ListLineButton
     if (value != newValue) {
       value = newValue;
 
-      const LimitData* output = limitAddress(index);
-      int chanZero = output->ppmCenter;
+      int chanVal = calcRESXto100(ex_chans[index]);
 
-      if (value < chanZero - 5) {
+      if (chanVal < -DEADBAND) {
         lv_obj_add_state(min, ETX_STATE_MINMAX_BOLD);
       } else {
         lv_obj_clear_state(min, ETX_STATE_MINMAX_BOLD);
       }
 
-      if (value > chanZero + 5) {
+      if (chanVal > DEADBAND) {
         lv_obj_add_state(max, ETX_STATE_MINMAX_BOLD);
       } else {
         lv_obj_clear_state(max, ETX_STATE_MINMAX_BOLD);
