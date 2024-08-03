@@ -27,6 +27,20 @@ constexpr uint8_t SOLID = 0xFF;
 constexpr uint8_t DOTTED = 0x55;
 constexpr uint8_t STASHED = 0x33;
 
+#define MOVE_OFFSET()              \
+  coord_t offsetX = this->offsetX; \
+  x += offsetX;                    \
+  this->offsetX = 0;               \
+  coord_t offsetY = this->offsetY; \
+  y += offsetY;                    \
+  this->offsetY = 0
+
+#define APPLY_OFFSET() \
+  x += this->offsetX;  \
+  y += this->offsetY
+
+#define RESTORE_OFFSET() this->offsetX = offsetX, this->offsetY = offsetY
+
 #define MOVE_PIXEL_RIGHT(p, count) p += count
 
 #define MOVE_TO_NEXT_RIGHT_PIXEL(p) MOVE_PIXEL_RIGHT(p, 1)
@@ -61,6 +75,8 @@ class BitmapBuffer
 
   inline void drawPixel(coord_t x, coord_t y, pixel_t value)
   {
+    APPLY_OFFSET();
+
     coord_t w = 1, h = 1;
     if (!applyClippingRect(x, y, w, h)) return;
 
@@ -72,6 +88,8 @@ class BitmapBuffer
   inline void drawAlphaPixel(coord_t x, coord_t y, uint8_t opacity,
                              pixel_t value)
   {
+    APPLY_OFFSET();
+
     coord_t w = 1, h = 1;
     if (!applyClippingRect(x, y, w, h)) return;
 
@@ -122,10 +140,19 @@ class BitmapBuffer
 
   void clearClippingRect();
 
+  void setOffset(coord_t offsetX, coord_t offsetY);
+
+  inline void clearOffset() { setOffset(0, 0); }
+
   inline void reset()
   {
+    clearOffset();
     clearClippingRect();
   }
+
+  coord_t getOffsetX() const { return offsetX; }
+
+  coord_t getOffsetY() const { return offsetY; }
 
   inline uint16_t width() const { return _width; }
   inline uint16_t height() const { return _height; }
@@ -222,6 +249,8 @@ class BitmapBuffer
   coord_t xmax;
   coord_t ymin = 0;
   coord_t ymax;
+  coord_t offsetX = 0;
+  coord_t offsetY = 0;
   pixel_t* data;
   pixel_t* data_end;
 
