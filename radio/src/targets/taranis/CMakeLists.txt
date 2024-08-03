@@ -673,6 +673,10 @@ if(USE_RTC_CLOCK)
   add_definitions(-DRTCLOCK)
 endif()
 
+if(RGBLEDS)
+  add_definitions(-DRGBLEDS)
+endif()
+
 if(FLAVOUR STREQUAL gx12)
   target_sources(board PRIVATE
     drivers/pca95xx.cpp
