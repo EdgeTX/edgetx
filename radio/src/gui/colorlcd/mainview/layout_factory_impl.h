@@ -26,7 +26,7 @@
 #include "audio.h"
 #include "translations.h"
 
-#include "widgets/widgets_container_impl.h"
+#include "widgets_container_impl.h"
 #include "view_main_decoration.h"
 #include "layout.h"
 
