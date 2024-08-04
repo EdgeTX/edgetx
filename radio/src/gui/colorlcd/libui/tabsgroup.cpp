@@ -277,6 +277,8 @@ uint8_t TabsGroup::tabCount() const { return header->tabCount(); }
 
 void TabsGroup::setCurrentTab(unsigned index)
 {
+  if (deleted()) return;
+
   header->setCurrentIndex(index);
 
   PageTab* tab = header->pageTab(index);
