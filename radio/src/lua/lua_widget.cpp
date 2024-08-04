@@ -210,6 +210,10 @@ void LuaWidget::redraw_cb(lv_event_t* e)
 
       buf.setDrawCtx(draw_ctx);
 
+      buf.setOffset(draw_ctx->clip_area->x1 - draw_ctx->buf_area->x1, draw_ctx->clip_area->y1 - draw_ctx->buf_area->y1);
+      buf.setClippingRect(draw_ctx->clip_area->x1 - draw_ctx->buf_area->x1, draw_ctx->clip_area->x2 - draw_ctx->buf_area->x1 + 1,
+                          draw_ctx->clip_area->y1 - draw_ctx->buf_area->y1, draw_ctx->clip_area->y2 - draw_ctx->buf_area->y1 + 1);
+
       widget->refresh(&buf);
     }
   }

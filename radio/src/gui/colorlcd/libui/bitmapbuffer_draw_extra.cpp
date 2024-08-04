@@ -32,6 +32,8 @@
 void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h,
                               LcdFlags flags)
 {
+  APPLY_OFFSET();
+
   if (!applyClippingRect(x, y, w, h)) return;
 
   // No 'opacity' here, only 'color'
@@ -331,6 +333,12 @@ bool BitmapBuffer::liangBarskyClipper(coord_t &x1, coord_t &y1, coord_t &x2,
 void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2,
                             uint8_t pat, LcdFlags flags)
 {
+  // Offsets
+  x1 += offsetX;
+  y1 += offsetY;
+  x2 += offsetX;
+  y2 += offsetY;
+
   if (!liangBarskyClipper(x1, y1, x2, y2)) return;
 
   // TODO; Replace with LVGL line draw - currently does not support dotted line drawing
@@ -485,6 +493,8 @@ void BitmapBuffer::drawFilledTriangle(coord_t x0, coord_t y0, coord_t x1,
 void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius,
                                     LcdFlags flags)
 {
+  APPLY_OFFSET();
+
   lv_draw_rect_dsc_t rect_dsc;
   lv_draw_rect_dsc_init(&rect_dsc);
   rect_dsc.bg_opa = LV_OPA_COVER;
@@ -517,6 +527,8 @@ void BitmapBuffer::drawFilledCircle(coord_t x, coord_t y, coord_t radius,
 void BitmapBuffer::drawCircle(coord_t x, coord_t y, coord_t radius,
                               LcdFlags flags, coord_t thickness)
 {
+  APPLY_OFFSET();
+
   lv_draw_rect_dsc_t rect_dsc;
   lv_draw_rect_dsc_init(&rect_dsc);
   rect_dsc.bg_opa = LV_OPA_TRANSP;
@@ -678,6 +690,8 @@ void BitmapBuffer::drawAnnulusSector(coord_t x, coord_t y,
                                      coord_t externalRadius, int startAngle,
                                      int endAngle, LcdFlags flags)
 {
+  APPLY_OFFSET();
+
   if (endAngle == startAngle)
     endAngle += 1;
 
@@ -746,6 +760,8 @@ void BitmapBuffer::drawBitmapPattern(coord_t x, coord_t y, const MaskBitmap *bmp
                                      LcdFlags flags, coord_t offset,
                                      coord_t width)
 {
+  APPLY_OFFSET();
+
   coord_t bmpw = bmp->width;
   coord_t bmph = bmp->height;
 
