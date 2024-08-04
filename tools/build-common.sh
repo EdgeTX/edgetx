@@ -23,6 +23,9 @@ get_target_build_options() {
         tx12mk2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
             ;;
+        gx12)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=GX12"
+            ;;
         boxer)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
             ;;

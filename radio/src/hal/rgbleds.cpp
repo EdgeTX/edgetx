@@ -26,11 +26,13 @@
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 void setFSLedOFF(uint8_t index) {
-  fsLedRGB(index,g_model.functionSwitchLedOFFColor[index]);
+  TRACE("Led %d set to %x", index, g_model.functionSwitchLedOFFColor[index].getColor());
+  fsLedRGB(index, g_model.functionSwitchLedOFFColor[index].getColor());
 }
 
 void setFSLedON(uint8_t index) {
-  fsLedRGB(index,g_model.functionSwitchLedONColor[index]);
+   TRACE("Led %d set to %x", index, g_model.functionSwitchLedONColor[index].getColor());
+  fsLedRGB(index, g_model.functionSwitchLedONColor[index].getColor());
 }
 
 extern uint8_t getFSLogicalState(uint8_t index);

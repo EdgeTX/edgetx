@@ -31,6 +31,7 @@
 #include "serial.h"
 #include "usb_joystick.h"
 #include "input_mapping.h"
+#include "debug.h"
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -626,10 +627,30 @@ PACK(struct CustomScreenData {
   #define SCRIPT_DATA
 #endif
 
+struct RGBLedColor {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+
+    uint32_t getColor() {
+      return ((r << 16) + (g << 8) + b);
+    }
+
+    void setColor(uint32_t color) {
+      TRACE("Color=%x", color);
+      r = color >> 16;
+      TRACE("R=%x", r);
+      g = color >> 8;
+      TRACE("G=%x", g);
+      b = color;
+      TRACE("B=%x", b);
+    }
+};
+
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
-    uint32_t functionSwitchLedONColor[NUM_FUNCTIONS_SWITCHES]; \
-    uint32_t functionSwitchLedOFFColor[NUM_FUNCTIONS_SWITCHES];
+    RGBLedColor functionSwitchLedONColor[NUM_FUNCTIONS_SWITCHES]; \
+    RGBLedColor functionSwitchLedOFFColor[NUM_FUNCTIONS_SWITCHES];
 #else
   #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS
 #endif

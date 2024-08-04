@@ -28,8 +28,7 @@ void ledBlue() {}
 void ledOff() {}
 void fsLedOn(uint8_t) {}
 void fsLedOff(uint8_t) {}
-void fsLedOn(uint8_t, uint32_t) {}
-void fsLedOff(uint8_t, uint32_t) {}
+void fsLedRGB(uint8_t, uint32_t) {}
 bool fsLedState(uint8_t) { return false;}
 void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char) {}
 void rgbLedColorApply() {}
