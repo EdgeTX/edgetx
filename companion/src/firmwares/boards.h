@@ -88,6 +88,7 @@ namespace Board {
     BOARD_JUMPER_T20V2,
     BOARD_FATFISH_F16,
     BOARD_HELLORADIOSKY_V16,
+    BOARD_RADIOMASTER_MT12,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -161,6 +162,7 @@ namespace Board {
   };
 
   enum Capability {
+    Air,
     FactoryInstalledPots,
     FactoryInstalledSwitches,
     FlexInputs,
@@ -180,6 +182,9 @@ namespace Board {
     HasTrainerModuleCPPM,
     HasTrainerModuleSBUS,
     HasVBat,
+    LcdDepth,
+    LcdHeight,
+    LcdWidth,
     MaxAnalogs,
     Inputs,
     InputSwitches,
@@ -195,6 +200,7 @@ namespace Board {
     SportMaxBaudRate,
     StandardSwitches,
     Sticks,
+    Surface,
     Switches,
     SwitchesPositions,
   };
@@ -379,6 +385,9 @@ class Boards
     static AbstractStaticItemModel * flexTypeItemModel();
 
     static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getRadioTypeString(Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
 
   private:
 
@@ -501,6 +510,11 @@ inline bool IS_RADIOMASTER_BOXER(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_BOXER;
 }
 
+inline bool IS_RADIOMASTER_MT12(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_MT12;
+}
+
 inline bool IS_RADIOMASTER_POCKET(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_POCKET;
@@ -542,6 +556,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
          board == Board::BOARD_RADIOMASTER_BOXER ||
+         board == Board::BOARD_RADIOMASTER_MT12 ||
          board == Board::BOARD_RADIOMASTER_POCKET ||
          board == Board::BOARD_RADIOMASTER_T8 ||
          board == Board::BOARD_BETAFPV_LR3PRO ||

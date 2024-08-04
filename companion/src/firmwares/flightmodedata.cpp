@@ -43,7 +43,7 @@ void FlightModeData::clear(const int phaseIdx)
 
 QString FlightModeData::nameToString(int phaseIdx) const
 {
-  return RadioData::getElementName(tr("FM"), phaseIdx, name);  // names are zero-based, FM0, FM1, etc
+  return RadioData::getElementName(Boards::isAir() ? tr("FM") : tr("DM"), phaseIdx, name);  // names are zero-based, FM0, FM1, etc
 }
 
 bool FlightModeData::isEmpty(int phaseIdx) const

@@ -1872,6 +1872,7 @@ void SetupPanel::on_customThrottleWarningPosition_valueChanged(int value)
 void SetupPanel::on_throttleReverse_toggled(bool checked)
 {
   model->throttleReversed = checked;
+  emit throttleReverseChanged();
   emit modified();
 }
 

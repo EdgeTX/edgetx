@@ -27,12 +27,40 @@
 #include "compounditemmodels.h"
 #include "yaml_ops.h"
 
-const uint8_t chout_ar[] = { // First number is 0..23 -> template setup,  Second is relevant channel out
+const QList<int> channelsAir = { // First number is 0..23 -> template setup,  Second is relevant channel out
   1,2,3,4 , 1,2,4,3 , 1,3,2,4 , 1,3,4,2 , 1,4,2,3 , 1,4,3,2,
   2,1,3,4 , 2,1,4,3 , 2,3,1,4 , 2,3,4,1 , 2,4,1,3 , 2,4,3,1,
   3,1,2,4 , 3,1,4,2 , 3,2,1,4 , 3,2,4,1 , 3,4,1,2 , 3,4,2,1,
   4,1,2,3 , 4,1,3,2 , 4,2,1,3 , 4,2,3,1 , 4,3,1,2 , 4,3,2,1
 };
+
+const QList<QChar> controlsAir = { 'R', 'E', 'T', 'A' }; //  channelsAir[x] - 1] entry mapping
+
+const QList<int> channelsSurface = { // First number is 0..1 -> template setup,  Second is relevant channel out
+  1,2 , 2,1
+};
+
+const QList<QChar> controlsSurface = { 'S', 'T' }; //  channelsSurface[x] - 1] entry mapping
+
+const QList<int> useChannels(bool isBoardAir)
+{
+  return isBoardAir ? channelsAir : channelsSurface;
+}
+
+const QList<QChar> useControls(bool isBoardAir)
+{
+  return isBoardAir ? controlsAir : controlsSurface;
+}
+
+const int channelsCount(bool isBoardAir)
+{
+  return isBoardAir ? channelsAir.size() : channelsSurface.size();
+}
+
+const int controlsCount(bool isBoardAir)
+{
+  return isBoardAir ? controlsAir.size() : controlsSurface.size();
+}
 
 bool GeneralSettings::switchPositionAllowed(int index) const
 {
@@ -351,13 +379,15 @@ int GeneralSettings::getDefaultStick(unsigned int channel) const
 {
   if (channel >= CPN_MAX_STICKS)
     return -1;
-  else
-    return chout_ar[4 * templateSetup + channel] - 1;
+  else {
+    return useChannels(Boards::isAir())[controlsCount(Boards::isAir()) * templateSetup + channel] - 1;
+  }
 }
 
 RawSource GeneralSettings::getDefaultSource(unsigned int channel) const
 {
   int stick = getDefaultStick(channel);
+
   if (stick >= 0)
     return RawSource(SOURCE_TYPE_INPUT, stick + 1);
   else
@@ -366,7 +396,7 @@ RawSource GeneralSettings::getDefaultSource(unsigned int channel) const
 
 int GeneralSettings::getDefaultChannel(unsigned int stick) const
 {
-  for (int i = 0; i < 4; i++){
+  for (int i = 0; i < controlsCount(Boards::isAir()); i++) {
     if (getDefaultStick(i) == (int)stick)
       return i;
   }
@@ -954,6 +984,86 @@ AbstractStaticItemModel * TrainerMix::srcItemModel()
 
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     mdl->appendToItemList(srcToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString GeneralSettings::stickModeToString() const
+{
+  return stickModeToString(stickMode);
+}
+
+//  static
+QString GeneralSettings::stickModeToString(int value)
+{
+  switch(value) {
+    case STICK_MODE_1:
+      return tr("Mode 1 (RUD ELE THR AIL)");
+    case STICK_MODE_2:
+      return tr("Mode 2 (RUD THR ELE AIL)");
+    case STICK_MODE_3:
+      return tr("Mode 3 (AIL ELE THR RUD)");
+    case STICK_MODE_4:
+      return tr("Mode 4 (AIL THR ELE RUD)");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::stickModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_STICKMODE);
+
+  for (int i = 0; i < STICK_MODE_COUNT; i++) {
+    mdl->appendToItemList(stickModeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString GeneralSettings::templateSetupToString() const
+{
+  return templateSetupToString(templateSetup, Boards::isAir());
+}
+
+//  static
+QString GeneralSettings::templateSetupToString(int value, bool isBoardAir)
+{
+  QString ret;
+  const QList<int> channels = useChannels(isBoardAir);
+  const QList<QChar> controls = useControls(isBoardAir);
+
+  if (value < (channels.size() / controls.size())) {
+    for (int i = 0; i < controls.size(); i++) {
+      if (i > 0)
+        ret.append(" ");
+
+      int idx = channels[controls.size() * value + i] - 1;
+      if (idx >= 0 && idx < controls.size())
+        ret.append(controls[channels[controls.size() * value + i] - 1]);
+    }
+  }
+
+  return ret;
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::templateSetupItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_TEMPLATESETUP);
+
+  for (int i = 0; i < (channelsCount(true) / controlsCount(true)); i++) {
+    mdl->appendToItemList(templateSetupToString(i, true), i, true, 0, RadioTypeContextAir);
+  }
+
+  for (int i = 0; i < (channelsCount(false) / controlsCount(false)); i++) {
+    mdl->appendToItemList(templateSetupToString(i, false), i, true, 0, RadioTypeContextSurface);
   }
 
   mdl->loadItemList();

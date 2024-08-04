@@ -68,7 +68,7 @@ GeneralOptionsPanel::GeneralOptionsPanel(QWidget * parent, GeneralSettings & gen
     addParams();
   }
 
-  addLabel(tr("Flight Modes"));
+  addLabel(tr("%1 Modes").arg(Boards::getRadioTypeString(board)));
   AutoCheckBox *fmDisable = new AutoCheckBox(this);
   fmDisable->setField(generalSettings.modelFMDisabled, this, true);
   params->append(fmDisable);

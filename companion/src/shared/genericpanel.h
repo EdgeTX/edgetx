@@ -50,7 +50,9 @@ class GenericPanel : public QWidget
     ModelData * model;
     GeneralSettings & generalSettings;
     Firmware * firmware;
+    //Board::Type board;  TODO: as part of refactor to move physical capabilities from Firmware to Boards
     bool lock;
+
     void addLabel(QGridLayout * gridLayout, const QString &text, int col, bool mimimize=false);
     void addEmptyLabel(QGridLayout * gridLayout, int col);
     void addHSpring(QGridLayout *, int col, int row);

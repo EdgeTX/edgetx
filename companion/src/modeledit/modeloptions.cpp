@@ -82,7 +82,7 @@ ModelOptionsPanel::ModelOptionsPanel(QWidget * parent, ModelData & model, Genera
     addParams();
   }
 
-  addLabel(tr("Flight Modes"));
+  addLabel(tr("%1 Modes").arg(Boards::getRadioTypeString(firmware->getBoard())));
   AutoComboBox *fmDisable = new AutoComboBox(this);
   fmDisable->setModel(mdl);
   fmDisable->setField(model.modelFMDisabled, this);

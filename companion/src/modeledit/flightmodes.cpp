@@ -27,11 +27,12 @@
 #include "namevalidator.h"
 
 FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseIdx, GeneralSettings & generalSettings, Firmware * firmware,
-                                 FilteredItemModel * rawSwitchFilteredModel):
+                                 FilteredItemModel * rawSwitchFilteredModel, QString radioType):
   ModelPanel(parent, model, generalSettings, firmware),
   ui(new Ui::FlightMode),
   phaseIdx(phaseIdx),
-  phase(model.flightModeData[phaseIdx])
+  phase(model.flightModeData[phaseIdx]),
+  radioType(radioType)
 {
   ui->setupUi(this);
   connectItemModelEvents(rawSwitchFilteredModel);
@@ -40,7 +41,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   ui->labelName->setToolTip(tr("Popup menu available"));
   connect(ui->labelName, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenuRequested(const QPoint &)));
 
-  board = getCurrentBoard();
+  board = firmware->getBoard();
   fmCount = firmware->getCapability(FlightModes);
   gvCount = firmware->getCapability(Gvars);
   reCount = firmware->getCapability(RotaryEncoders);
@@ -85,13 +86,14 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
 
   // The trims
   QString labels[CPN_MAX_TRIMS];
-  for(int i = 0; i < CPN_MAX_STICKS; i++) {
+
+  for (int i = 0; i < Boards::getCapability(board, Board::Sticks); i++) {
     labels[i] = Boards::getInputName(i);
   }
-  labels[4] = "T5";   //  TODO firmware function
-  labels[5] = "T6";   //  TODO firmware function
-  labels[6] = "T7";   //  TODO firmware function
-  labels[7] = "T8";   //  TODO firmware function
+
+  for (int i = Boards::getCapability(board, Board::Sticks); i < CPN_MAX_TRIMS; i++) {
+    labels[i] = QString("T%1").arg(i + 1);
+  }
 
   trimsLabel << ui->trim1Label << ui->trim2Label << ui->trim3Label << ui->trim4Label << ui->trim5Label << ui->trim6Label << ui->trim7Label << ui->trim8Label;
   trimsUse << ui->trim1Use << ui->trim2Use << ui->trim3Use << ui->trim4Use << ui->trim5Use << ui->trim6Use << ui->trim7Use << ui->trim8Use;
@@ -106,7 +108,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   }
 
   for (int i = 0; i < trimCount; i++) {
-    trimsLabel[i]->setText(labels[CONVERT_MODE(i + 1) - 1]);
+    trimsLabel[i]->setText(labels[Boards::isAir(board) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1]);
     QComboBox * cb = trimsUse[i];
     cb->setProperty("index", i);
     if (IS_HORUS_OR_TARANIS(board)) {
@@ -118,9 +120,9 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
         cb->addItem(tr("Own Trim"), m * 2);
       }
       else if (phaseIdx > 0) {
-        cb->addItem(tr("Use Trim from Flight mode %1").arg(m), m * 2);
+        cb->addItem(tr("Use Trim from %1 Mode %2").arg(radioType).arg(m), m * 2);
         if (IS_HORUS_OR_TARANIS(board)) {
-          cb->addItem(tr("Use Trim from Flight mode %1 + Own Trim as an offset").arg(m), m * 2 + 1);
+          cb->addItem(tr("Use Trim from %1 Mode %2 + Own Trim as an offset").arg(radioType).arg(m), m * 2 + 1);
         }
       }
     }
@@ -137,8 +139,9 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
 
     trimsSlider[i]->setProperty("index", i);
     trimsSlider[i]->setRange(-trimsMax, +trimsMax);
-    int chn = CONVERT_MODE(i + 1) - 1;
-    if (chn == 2/*TODO constant*/ && model.throttleReversed)
+    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1;
+    if (model.throttleReversed && ((Boards::isAir(board) && chn == 2/*TODO constant*/) ||
+                                   (Boards::isSurface(board) && chn == 1/*TODO constant*/)))
       trimsSlider[i]->setInvertedAppearance(true);
     connect(trimsSlider[i], SIGNAL(valueChanged(int)), this, SLOT(phaseTrimSlider_valueChanged()));
   }
@@ -155,7 +158,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
         // RE link to another RE
         reUse[i] = new QComboBox(ui->reGB);
         reUse[i]->setProperty("index", i);
-        Helpers::populateGvarUseCB(reUse[i], phaseIdx);
+        populateGvarUseCB(reUse[i], phaseIdx);
         connect(reUse[i], SIGNAL(currentIndexChanged(int)), this, SLOT(phaseREUse_currentIndexChanged(int)));
         reLayout->addWidget(reUse[i], i, 1, 1, 1);
       }
@@ -221,7 +224,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
       int col = 0;
       // GVar label
       QLabel *label = new QLabel(ui->gvGB);
-      label->setText(tr("GVAR%1").arg(i + 1));
+      label->setText(tr("GV%1").arg(i + 1));
       label->setProperty("index", i);
       label->setContextMenuPolicy(Qt::CustomContextMenu);
       label->setToolTip(tr("Popup menu available"));
@@ -241,7 +244,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
         // GVar link to another GVar
         gvUse[i] = new QComboBox(ui->gvGB);
         gvUse[i]->setProperty("index", i);
-        Helpers::populateGvarUseCB(gvUse[i], phaseIdx);
+        populateGvarUseCB(gvUse[i], phaseIdx);
         connect(gvUse[i], SIGNAL(currentIndexChanged(int)), this, SLOT(phaseGVUse_currentIndexChanged(int)));
         gvLayout->addWidget(gvUse[i], i + 1, col++, 1, 1);
       }
@@ -348,6 +351,16 @@ void FlightModePanel::updateGVar(int index)
   lock = false;
 }
 
+void FlightModePanel::populateGvarUseCB(QComboBox * b, unsigned int phase)
+{
+  b->addItem(tr("Own value"));
+  for (int i = 0; i < getCurrentFirmware()->getCapability(FlightModes); i++) {
+    if (i != (int)phase) {
+      b->addItem(tr("%1 Mode %2 value").arg(radioType).arg(i));
+    }
+  }
+}
+
 void FlightModePanel::setGVSB(QDoubleSpinBox * sb, int min, int max, int val)
 {
   int idx = sb->property("index").toInt();
@@ -430,7 +443,7 @@ void FlightModePanel::phaseFadeOut_editingFinished()
 void FlightModePanel::trimUpdate(unsigned int trim)
 {
   lock = true;
-  int chn = CONVERT_MODE(trim + 1) - 1;
+  int chn = Boards::isAir(board) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
   int value = model->getTrimValue(phaseIdx, chn);
   trimsSlider[trim]->setValue(value);
   trimsValue[trim]->setValue(value);
@@ -496,7 +509,7 @@ void FlightModePanel::phaseGVUse_currentIndexChanged(int index)
       phase.gvars[gvar] = GVAR_MAX_VALUE + index;
     }
     if (model->isGVarLinkedCircular(phaseIdx, gvar))
-      QMessageBox::warning(this, "Companion", tr("Warning: Global variable links back to itself. Flight Mode 0 value used."));
+      QMessageBox::warning(this, "Companion", tr("Warning: Global variable links back to itself. %1 Mode 0 value used.").arg(radioType));
     updateGVar(gvar);
     emit modified();
     lock = false;
@@ -605,7 +618,7 @@ void FlightModePanel::phaseREUse_currentIndexChanged(int index)
     }
     update();
     if (model->isREncLinkedCircular(phaseIdx, re))
-      QMessageBox::warning(this, "Companion", tr("Warning: Rotary encoder links back to itself. Flight Mode 0 value used."));
+      QMessageBox::warning(this, "Companion", tr("Warning: Rotary encoder links back to itself. %1 Mode 0 value used.").arg(radioType));
     emit modified();
     lock = false;
   }
@@ -616,7 +629,7 @@ void FlightModePanel::phaseTrimUse_currentIndexChanged(int index)
   if (!lock) {
     QComboBox *comboBox = qobject_cast<QComboBox*>(sender());
     int trim = comboBox->property("index").toInt();
-    int chn = CONVERT_MODE(trim + 1) - 1;
+    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
     int data = comboBox->itemData(index).toInt();
     if (data < 0) {
       phase.trimMode[chn] = -1;
@@ -648,7 +661,7 @@ void FlightModePanel::phaseTrim_valueChanged()
   if (!lock) {
     QSpinBox *spinBox = qobject_cast<QSpinBox*>(sender());
     int trim = spinBox->property("index").toInt();
-    int chn = CONVERT_MODE(trim + 1) - 1;
+    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
     int value = spinBox->value();
     model->setTrimValue(phaseIdx, chn, value);
     lock = true;
@@ -663,7 +676,7 @@ void FlightModePanel::phaseTrimSlider_valueChanged()
   if (!lock) {
     QSlider *slider = qobject_cast<QSlider*>(sender());
     int trim = slider->property("index").toInt();
-    int chn = CONVERT_MODE(trim + 1) - 1;
+    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
     int value = slider->value();
     model->setTrimValue(phaseIdx, chn, value);
     lock = true;
@@ -724,7 +737,7 @@ bool FlightModePanel::moveUpAllowed() const
 void FlightModePanel::cmClear(bool prompt)
 {
   if (prompt) {
-    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear Flight Mode. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear %1 Mode. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
   }
 
@@ -761,7 +774,7 @@ void FlightModePanel::cmClear(bool prompt)
 
 void FlightModePanel::cmClearAll()
 {
-  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear all Flight Modes. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear all %1 Modes. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     return;
 
   for (int j = 0; j < fmCount; j++) {
@@ -796,7 +809,7 @@ void FlightModePanel::cmCopy()
 
 void FlightModePanel::cmCut()
 {
-  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Cut Flight Mode. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Cut %1 Mode. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     return;
   cmCopy();
   cmClear(false);
@@ -804,7 +817,7 @@ void FlightModePanel::cmCut()
 
 void FlightModePanel::cmDelete()
 {
-  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Delete Flight Mode. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+  if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Delete %1 Mode. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     return;
 
   const int maxidx = fmCount - 1;
@@ -1160,7 +1173,7 @@ void FlightModePanel::gvCmClear(bool prompt)
 {
   if (phaseIdx == 0) {
     if (prompt) {
-      if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear Global Variable across all Flight Modes. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+      if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear Global Variable across all %1 Modes. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
         return;
     }
     model->gvarData[gvIdx].clear();
@@ -1184,7 +1197,7 @@ void FlightModePanel::gvCmClear(bool prompt)
 void FlightModePanel::gvCmClearAll()
 {
   if (phaseIdx == 0) {
-    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear all Global Variables for all Flight Modes. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear all Global Variables for all %1 Modes. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
     for (int i = 0; i < gvCount; i++) {
       model->gvarData[i].clear();
@@ -1195,7 +1208,7 @@ void FlightModePanel::gvCmClearAll()
     }
   }
   else {
-    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear all Global Variables for this Flight Mode. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Clear all Global Variables for this %1 Mode. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
     for (int i = 0; i < gvCount; i++) {
       phase.gvars[i] = phase.linkedGVarFlightModeZero(phaseIdx);
@@ -1247,7 +1260,7 @@ void FlightModePanel::gvCmCopy()
 void FlightModePanel::gvCmCut()
 {
   if (phaseIdx == 0) {
-    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Cut Global Variable across all Flight Modes. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Cut Global Variable across all %1 Modes. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
   }
   else {
@@ -1325,7 +1338,7 @@ void FlightModePanel::gvCmPaste()
 {
   QByteArray data;
   if (phaseIdx == 0) {
-    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Paste to selected Global Variable across all Flight Modes. Are you sure?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Paste to selected Global Variable across all %1 Modes. Are you sure?").arg(radioType), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
       return;
     if (gvHasDefnClipboardData(&data)) {
       memcpy(&model->gvarData[gvIdx], data.constData(), sizeof(GVarData));
@@ -1391,6 +1404,18 @@ void FlightModePanel::onItemModelUpdateComplete()
   lock = false;
 }
 
+void FlightModePanel::onThrottleReverseChanged()
+{
+  for (int i = 0; i < CPN_MAX_TRIMS; i++) {
+    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1;
+    if (model->throttleReversed && ((Boards::isAir(board) && chn == 2/*TODO constant*/) ||
+                                    (Boards::isSurface(board) && chn == 1/*TODO constant*/)))
+      trimsSlider[i]->setInvertedAppearance(true);
+    else
+      trimsSlider[i]->setInvertedAppearance(false);
+  }
+}
+
 /**********************************************************/
 
 FlightModesPanel::FlightModesPanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware,
@@ -1402,11 +1427,13 @@ FlightModesPanel::FlightModesPanel(QWidget * parent, ModelData & model, GeneralS
   connectItemModelEvents(rawSwitchFilteredModel);
 
   modesCount = firmware->getCapability(FlightModes);
+  radioType = Boards::getRadioTypeString(firmware->getBoard());
 
   QGridLayout * gridLayout = new QGridLayout(this);
   tabWidget = new QTabWidget(this);
+
   for (int i = 0; i < modesCount; i++) {
-    FlightModePanel * tab = new FlightModePanel(tabWidget, model, i, generalSettings, firmware, rawSwitchFilteredModel);
+    FlightModePanel * tab = new FlightModePanel(tabWidget, model, i, generalSettings, firmware, rawSwitchFilteredModel, radioType);
     tab->setProperty("index", i);
     connect(tab, &FlightModePanel::modified,           this, &FlightModesPanel::modified);
     connect(tab, &FlightModePanel::phaseDataChanged,   this, &FlightModesPanel::onPhaseNameChanged);
@@ -1414,10 +1441,12 @@ FlightModesPanel::FlightModesPanel(QWidget * parent, ModelData & model, GeneralS
     connect(tab, &FlightModePanel::phaseSwitchChanged, this, &FlightModesPanel::updateItemModels);
     connect(tab, &FlightModePanel::gvNameChanged,      this, &FlightModesPanel::updateItemModels);
 
-    connect(this, &FlightModesPanel::updated,          tab, &FlightModePanel::update);
+    connect(this, &FlightModesPanel::updated,             tab, &FlightModePanel::update);
+    connect(this, &FlightModesPanel::refreshThrottleTrim, tab, &FlightModePanel::onThrottleReverseChanged);
     tabWidget->addTab(tab, getTabName(i));
     panels << tab;
   }
+
   connect(tabWidget, &QTabWidget::currentChanged, this, &FlightModesPanel::onTabIndexChanged);
   gridLayout->addWidget(tabWidget, 0, 0, 1, 1);
   onTabIndexChanged(0);
@@ -1430,7 +1459,7 @@ FlightModesPanel::~FlightModesPanel()
 
 QString FlightModesPanel::getTabName(int index)
 {
-  QString result = tr("Flight Mode %1").arg(index);
+  QString result = tr("%1 Mode %2").arg(radioType).arg(index);
   const char *name = model->flightModeData[index].name;
   if (firmware->getCapability(FlightModesName) && strlen(name) > 0) {
     result += tr(" (%1)").arg(name);
@@ -1478,4 +1507,9 @@ void FlightModesPanel::onTabIndexChanged(int index)
 {
   if (index < panels.size())
     panels.at(index)->update();
+}
+
+void FlightModesPanel::onThrottleReverseChanged()
+{
+  emit refreshThrottleTrim();
 }

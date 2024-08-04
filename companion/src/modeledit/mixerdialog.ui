@@ -275,7 +275,7 @@
      <item row="7" column="0">
       <widget class="QLabel" name="label_phases">
        <property name="text">
-        <string>Flight modes</string>
+        <string>Modes</string>
        </property>
       </widget>
      </item>

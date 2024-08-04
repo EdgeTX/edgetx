@@ -29,22 +29,26 @@
 #include "joystickdialog.h"
 #endif
 #include "moduledata.h"
-#include "compounditemmodels.h"
+#include "filtereditemmodels.h"
 #include "updates/updatefactories.h"
 #include "updates/updateoptionsdialog.h"
 
-#include <QAbstractItemModel>
+constexpr char FIM_TEMPLATESETUP[]    {"Template Setup"};
 
 AppPreferencesDialog::AppPreferencesDialog(QWidget * parent, UpdateFactories * factories) :
   QDialog(parent),
   ui(new Ui::AppPreferencesDialog),
   updateLock(false),
   mainWinHasDirtyChild(false),
-  factories(factories)
+  factories(factories),
+  panelItemModels(nullptr)
 {
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("apppreferences.png"));
   ui->tabWidget->setCurrentIndex(0);
+
+  panelItemModels = new FilteredItemModelFactory();
+  panelItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel()), FIM_TEMPLATESETUP);
 
   initSettings();
   connect(ui->boardCB, SIGNAL(currentIndexChanged(int)), this, SLOT(onBaseFirmwareChanged()));
@@ -65,6 +69,7 @@ AppPreferencesDialog::AppPreferencesDialog(QWidget * parent, UpdateFactories * f
 AppPreferencesDialog::~AppPreferencesDialog()
 {
   delete ui;
+  delete panelItemModels;
 }
 
 void AppPreferencesDialog::setMainWinHasDirtyChild(bool value)
@@ -156,8 +161,8 @@ void AppPreferencesDialog::accept()
 
   profile.defaultInternalModule(ui->defaultInternalModuleCB->currentData().toInt());
   profile.externalModuleSize(ui->externalModuleSizeCB->currentData().toInt());
-  profile.channelOrder(ui->channelorderCB->currentIndex());
-  profile.defaultMode(ui->stickmodeCB->currentIndex());
+  profile.channelOrder(ui->channelorderCB->currentData().toInt());
+  profile.defaultMode(ui->stickmodeCB->currentData().toInt());
   profile.burnFirmware(ui->burnFirmware->isChecked());
   profile.sdPath(ui->sdPath->text());
   profile.pBackupDir(ui->profilebackupPath->text());
@@ -305,8 +310,12 @@ void AppPreferencesDialog::initSettings()
   ui->defaultInternalModuleCB->setCurrentIndex(ui->defaultInternalModuleCB->findData(profile.defaultInternalModule()));
   ui->externalModuleSizeCB->setModel(Boards::externalModuleSizeItemModel());
   ui->externalModuleSizeCB->setCurrentIndex(ui->externalModuleSizeCB->findData(profile.externalModuleSize()));
-  ui->channelorderCB->setCurrentIndex(profile.channelOrder());
-  ui->stickmodeCB->setCurrentIndex(profile.defaultMode());
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir() ? GeneralSettings::RadioTypeContextAir :
+                                                                                     GeneralSettings::RadioTypeContextSurface);
+  ui->channelorderCB->setModel(panelItemModels->getItemModel(FIM_TEMPLATESETUP));
+  ui->channelorderCB->setCurrentIndex(ui->channelorderCB->findData(profile.channelOrder()));
+  ui->stickmodeCB->setModel(GeneralSettings::stickModeItemModel());
+  ui->stickmodeCB->setCurrentIndex(ui->stickmodeCB->findData(profile.defaultMode()));
   ui->sdPath->setText(profile.sdPath());
   if (!profile.pBackupDir().isEmpty()) {
     if (QDir(profile.pBackupDir()).exists()) {
@@ -319,6 +328,11 @@ void AppPreferencesDialog::initSettings()
   }
   else {
       ui->pbackupEnable->setDisabled(true);
+  }
+
+  if (Boards::isSurface()) {
+    ui->stickmodeLabel->hide();
+    ui->stickmodeCB->hide();
   }
 
   ui->profileNameLE->setText(profile.name());
@@ -649,7 +663,8 @@ bool AppPreferencesDialog::displayImage(const QString & fileName)
     return false;
 
   ui->imageLabel->setPixmap(makePixMap(image));
-  ui->imageLabel->setFixedSize(getCurrentFirmware()->getCapability(LcdWidth), getCurrentFirmware()->getCapability(LcdHeight));
+  ui->imageLabel->setFixedSize(Boards::getCapability(getCurrentBoard(), Board::LcdWidth),
+                               Boards::getCapability(getCurrentBoard(), Board::LcdHeight));
   return true;
 }
 
@@ -690,6 +705,19 @@ void AppPreferencesDialog::onBaseFirmwareChanged()
   profile.externalModuleSize(Boards::getDefaultExternalModuleSize(newfw->getBoard()));
   ui->externalModuleSizeCB->setModel(Boards::externalModuleSizeItemModel());
   ui->externalModuleSizeCB->setCurrentIndex(ui->externalModuleSizeCB->findData(profile.externalModuleSize()));
+
+  if (Boards::isSurface()) {
+    profile.defaultMode(1);
+    ui->stickmodeLabel->hide();
+    ui->stickmodeCB->hide();
+    profile.channelOrder(0);
+  }
+
+  ui->stickmodeCB->setCurrentIndex(ui->stickmodeCB->findData(profile.defaultMode()));
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir() ? GeneralSettings::RadioTypeContextAir :
+                                                                                     GeneralSettings::RadioTypeContextSurface);
+  ui->channelorderCB->setCurrentIndex(ui->channelorderCB->findData(profile.channelOrder()));
+
 }
 
 Firmware *AppPreferencesDialog::getBaseFirmware() const

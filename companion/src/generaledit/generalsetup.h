@@ -25,6 +25,8 @@
 #include "generaledit.h"
 #include "eeprominterface.h"
 
+class FilteredItemModelFactory;
+
 namespace Ui {
   class GeneralSetup;
 }
@@ -58,7 +60,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_hapticStrength_valueChanged();
     void on_soundModeCB_currentIndexChanged(int index);
     void on_beeperlenCB_currentIndexChanged(int index);
-    void on_volume_SB_editingFinished();
+    void on_volume_SL_valueChanged();
     void on_hapticmodeCB_currentIndexChanged(int index);
     void on_hapticLengthCB_currentIndexChanged(int index);
     void on_backlightswCB_currentIndexChanged(int index);
@@ -108,6 +110,7 @@ class GeneralSetupPanel : public GeneralPanel
 
   private:
     Ui::GeneralSetup *ui;
+    FilteredItemModelFactory *panelFilteredModels;
 
     void showLabelSelectOptions();
 

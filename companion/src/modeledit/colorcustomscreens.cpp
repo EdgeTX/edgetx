@@ -40,6 +40,8 @@
 UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware):
   ModelPanel(parent, model, generalSettings, firmware)
 {
+  Board::Type board = firmware->getBoard();
+
   QString sdPath = QString(g.profile[g.id()].sdPath()).trimmed();
 
   grid = new QGridLayout(this);
@@ -126,8 +128,10 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
     QImage image(path);
     if (!image.isNull()) {
       img->setText("");
-      img->setFixedSize(QSize(firmware->getCapability(LcdWidth) / 2, firmware->getCapability(LcdHeight) / 2));
-      img->setPixmap(QPixmap::fromImage(image.scaled(firmware->getCapability(LcdWidth) / 2, firmware->getCapability(LcdHeight) / 2)));
+      img->setFixedSize(QSize(Boards::getCapability(board, Board::LcdWidth) / 2,
+                              Boards::getCapability(board, Board::LcdHeight) / 2));
+      img->setPixmap(QPixmap::fromImage(image.scaled(Boards::getCapability(board, Board::LcdWidth) / 2,
+                                                     Boards::getCapability(board, Board::LcdHeight) / 2)));
     }
 
     grid->addWidget(img, row++, col++);
@@ -223,6 +227,7 @@ UserInterfacePanel::~UserInterfacePanel()
 CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int index, GeneralSettings & generalSettings, Firmware * firmware):
   ModelPanel(parent, model, generalSettings, firmware)
 {
+  Board::Type board = firmware->getBoard();
   RadioLayout::CustomScreens & scrns = model.customScreens;
 
   grid = new QGridLayout(this);
@@ -245,11 +250,14 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
 
   QString path(QString(":/layouts/mask_%1.png").arg(QString(scrns.customScreenData[index].layoutId).toLower()));
   QFile f(path);
+
   if (f.exists()) {
     QImage image(path);
     if (!image.isNull()) {
-      img->setFixedSize(QSize(firmware->getCapability(LcdWidth) / 5, firmware->getCapability(LcdHeight) / 5));
-      img->setPixmap(QPixmap::fromImage(image.scaled(firmware->getCapability(LcdWidth) / 5, firmware->getCapability(LcdHeight) / 5)));
+      img->setFixedSize(QSize(Boards::getCapability(board, Board::LcdWidth) / 5,
+                              Boards::getCapability(board, Board::LcdHeight) / 5));
+      img->setPixmap(QPixmap::fromImage(image.scaled(Boards::getCapability(board, Board::LcdWidth) / 5,
+                                                     Boards::getCapability(board, Board::LcdHeight) / 5)));
     }
   }
 
@@ -325,7 +333,7 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
         str = tr("Top bar");
         break;
       case LAYOUT_OPTION_FM:
-        str = tr("Flight mode");
+        str = tr("%1 mode").arg(Boards::getRadioTypeString(firmware->getBoard()));
         break;
       case LAYOUT_OPTION_SLIDERS:
         str = tr("Sliders");
