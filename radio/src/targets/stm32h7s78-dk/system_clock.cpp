@@ -53,8 +53,10 @@ void SystemClock_Config()
 {
   /* Power Configuration */
   LL_PWR_ConfigSupply(LL_PWR_DIRECT_SMPS_SUPPLY);
+  while (LL_PWR_IsActiveFlag_ACTVOSRDY() == 0) {
+  }
   LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE0);
-  while (LL_PWR_IsActiveFlag_VOSRDY() == 0){
+  while (LL_PWR_IsActiveFlag_VOSRDY() == 0) {
   }
 
   /* Enable HSE oscillator */
