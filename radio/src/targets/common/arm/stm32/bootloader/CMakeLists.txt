@@ -67,6 +67,7 @@ if (DEFINED TARGET_SDRAM_SIZE)
 endif()
 
 if (ENABLE_BOOTLOADER_DEBUG)
+  target_compile_definitions(board_bl PRIVATE -DDEBUG)
   target_compile_definitions(bootloader PRIVATE -DDEBUG)
   target_sources(bootloader PRIVATE
     ${RADIO_SRC_DIR}/serial.cpp
