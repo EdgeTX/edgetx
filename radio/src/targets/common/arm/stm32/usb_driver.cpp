@@ -57,7 +57,7 @@ extern "C" {
 #if defined(BOOT)
 
 // TODO: configured where needed
-#define DEFAULT_USB_MODE USB_DFU_MODE;
+#define DEFAULT_USB_MODE USB_MASS_STORAGE_MODE;
 static const USBD_DFU_MediaTypeDef* _dfu_media[USBD_DFU_MAX_ITF_NUM] = {nullptr};
 
 #else

@@ -196,7 +196,8 @@ void bootloaderInitApp()
   keysInit();
   delaysInit();
 
-  if (abnormalRebootGetCmd() != REBOOT_CMD_DFU) {
+  bool boot_dfu = abnormalRebootGetCmd() == REBOOT_CMD_DFU; 
+  if (!boot_dfu) {
     bool start_firmware = true;
 
     // wait a bit for the inputs to stabilize...
@@ -210,6 +211,8 @@ void bootloaderInitApp()
       boardBLPreJump();
       jumpTo(APP_START_ADDRESS);
     }
+  } else {
+     setSelectedUsbMode(USB_DFU_MODE);
   }
 
   // TODO: move all this into board specifics
