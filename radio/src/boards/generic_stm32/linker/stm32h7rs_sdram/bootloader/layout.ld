@@ -6,7 +6,7 @@ PSRAM_SIZE = DEFINED(__PSRAM_SIZE__) ? __PSRAM_SIZE__ : 32678K;
 HEAP_ADDRESS = PSRAM_START + PSRAM_SIZE;
 
 /* Highest address of the user mode stack */
-STACK_ADDRESS = ORIGIN(DTCMRAM) + LENGTH(DTCMRAM);    /* end of RAM */
+STACK_ADDRESS = ORIGIN(DTCMRAM) + LENGTH(DTCMRAM) - 16;    /* end of RAM */
 
 /* Maximum bootloader code size */
 BOOTLOADER_SIZE = 0x10000;
