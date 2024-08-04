@@ -29,6 +29,7 @@
 
 #include "hal/serial_port.h"
 #include "hal/usb_driver.h"
+#include "printf/printf.h"
 
 #if defined(CONFIGURABLE_MODULE_PORT) and !defined(BOOT)
   #include "hal/module_port.h"
@@ -74,6 +75,11 @@ void dbgSerialSetSendCb(void* ctx, void (*cb)(void*, uint8_t))
 
 #if defined(DEBUG_SEGGER_RTT)
 
+extern "C" void putchar_(char c)
+{
+  SEGGER_RTT_Write(0, (const void *)&c, 1);
+}
+
 extern "C" void dbgSerialPutc(char c)
 {
   SEGGER_RTT_Write(0, (const void *)&c, 1);
@@ -95,6 +101,13 @@ extern "C" void dbgSerialPrintf(const char * format, ...)
   }
 }
 #else
+
+extern "C" void putchar_(char c)
+{
+  auto _putc = dbg_serial_putc;
+  auto _ctx = dbg_serial_ctx;
+  if (_putc) _putc(_ctx, c);
+}
 
 extern "C" void dbgSerialPutc(char c)
 {

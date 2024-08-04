@@ -551,6 +551,8 @@ if(DEBUG)
   target_compile_definitions(stm32_drivers_w_dbg_fw PRIVATE -DDEBUG)
 endif()
 
+add_subdirectory(thirdparty/printf)
+
 target_link_options(firmware PRIVATE
   -lm -T${LINKER_DIR}/firmware.ld
   -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections
