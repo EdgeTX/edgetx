@@ -45,7 +45,7 @@ class SourceNumberEdit : public Window
 
   void update();
 
-  static LAYOUT_VAL(NUM_EDIT_W, 84, 74)
+  static LAYOUT_VAL(NUM_EDIT_W, 84, 84)
   static LAYOUT_VAL(SRC_BTN_W, 38, 38)
 
  protected:
