@@ -79,23 +79,23 @@ class Layout: public LayoutBase
     }
   
     virtual bool hasTopbar() const {
-      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_TOPBAR)->boolValue))[0];
+      return getOptionValue(LAYOUT_OPTION_TOPBAR)->boolValue;
     }
 
     virtual bool hasFlightMode() const {
-      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_FM)->boolValue))[0];
+      return getOptionValue(LAYOUT_OPTION_FM)->boolValue;
     }
 
     virtual bool hasSliders() const {
-      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_SLIDERS)->boolValue))[0];
+      return getOptionValue(LAYOUT_OPTION_SLIDERS)->boolValue;
     }
 
     virtual bool hasTrims() const {
-      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_TRIMS)->boolValue))[0];
+      return getOptionValue(LAYOUT_OPTION_TRIMS)->boolValue;
     }
 
     virtual bool isMirrored() const {
-      return ((uint8_t*)(&getOptionValue(LAYOUT_OPTION_MIRRORED)->boolValue))[0];
+      return getOptionValue(LAYOUT_OPTION_MIRRORED)->boolValue;
     }
 
     virtual bool isAppMode() const { return false; }

@@ -97,7 +97,7 @@ void ViewMain::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 }
 
-void ViewMain::addMainView(Window* view, uint32_t viewId)
+void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
 {
   TRACE("addMainView(0x%p, %d)", view, viewId);
 
@@ -110,6 +110,9 @@ void ViewMain::addMainView(Window* view, uint32_t viewId)
   auto user_data = (void*)(intptr_t)viewId;
   lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED,
                       user_data);
+
+  view->adjustLayout();
+  view->show();  
 }
 
 void ViewMain::setTopbarVisible(float visible) { topbar->setVisible(visible); }
