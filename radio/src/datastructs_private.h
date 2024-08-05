@@ -637,13 +637,9 @@ struct RGBLedColor {
     }
 
     void setColor(uint32_t color) {
-      TRACE("Color=%x", color);
       r = color >> 16;
-      TRACE("R=%x", r);
       g = color >> 8;
-      TRACE("G=%x", g);
       b = color;
-      TRACE("B=%x", b);
     }
 };
 

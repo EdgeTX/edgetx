@@ -20,6 +20,7 @@
  */
 
 #include <stdint.h>
+#include "hal/rgbleds.h"
 
 bool usbChargerLed() { return true; }
 void ledRed() {}

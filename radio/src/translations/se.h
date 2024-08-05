@@ -300,7 +300,7 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
 #define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Off","Custom"
+#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Pink","Off","Custom"
 #define TR_GROUP                        "Grupp"
 #define TR_GROUP_ALWAYS_ON              "Alltid på"
 #define TR_GROUPS                       "Always on groups"

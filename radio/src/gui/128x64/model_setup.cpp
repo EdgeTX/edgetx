@@ -954,17 +954,19 @@ void menuModelSetup(event_t event)
         int index = (k - ITEM_MODEL_SETUP_SW1_COLOR) / 2;
         uint8_t selectedColor = 0;
 
+        // ON
         selectedColor = getRGBColorIndex(g_model.functionSwitchLedONColor[index].getColor());
         selectedColor = editChoice(INDENT_WIDTH + getTextWidth(STR_FS_ON_COLOR) + 2, y, STR_FS_ON_COLOR, \
-          STR_FS_COLOR_LIST, selectedColor, 0, 4, menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH);
+          STR_FS_COLOR_LIST, selectedColor, 0, (sizeof(colorTable) / sizeof(colorTable[0])) - 1, menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH);
         if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
           g_model.functionSwitchLedONColor[index].setColor(colorTable[selectedColor]);
           storageDirty(EE_MODEL);
         }
 
+        // OFF
         selectedColor = getRGBColorIndex(g_model.functionSwitchLedOFFColor[index].getColor());
         selectedColor = editChoice((30 + 5*FW) + getTextWidth(STR_FS_OFF_COLOR) + 2, y, STR_FS_OFF_COLOR, \
-          STR_FS_COLOR_LIST, selectedColor, 0, 4, menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW);
+          STR_FS_COLOR_LIST, selectedColor, 0, (sizeof(colorTable) / sizeof(colorTable[0])) - 1, menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW);
         if (attr && menuHorizontalPosition == 1 && checkIncDec_Ret) {
           g_model.functionSwitchLedOFFColor[index].setColor(colorTable[selectedColor]);
           storageDirty(EE_MODEL);
