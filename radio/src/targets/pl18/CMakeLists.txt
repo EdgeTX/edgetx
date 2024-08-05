@@ -44,6 +44,10 @@ if(PCBREV STREQUAL NB4P)
   add_definitions(-DRADIO_NB4P)
   set(ROTARY_ENCODER YES)
   set(KEY_DRIVER nb4p_key_driver.cpp)
+
+  # Defines internal modules for PL18 via UART7
+  set(INTERNAL_MODULES MULTI;AFHDS3;CRSF CACHE STRING "Internal modules")
+  set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
 elseif(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
   add_definitions(-DRADIO_PL18EV -DUSE_HATS_AS_KEYS)
