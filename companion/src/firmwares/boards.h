@@ -190,6 +190,7 @@ namespace Board {
     InputSwitches,
     Joysticks,
     JoystickAxes,
+    Keys,
     MultiposPots,
     MultiposPotsPositions,
     NumFunctionSwitchesPositions,
@@ -300,6 +301,26 @@ namespace Board {
     SwitchType dflt;
     bool inverted;
   };
+
+  struct KeyInfo {
+    KeyInfo() :
+      key(""),
+      name(""),
+      label("")
+    {}
+
+    std::string key;
+    std::string name;
+    std::string label;
+  };
+
+  struct TrimInfo {
+    TrimInfo() :
+      name("")
+    {}
+
+    std::string name;
+  };
 }
 
 class Boards
@@ -352,6 +373,8 @@ class Boards
     static int getInputTypeOffset(Board::AnalogInputType type, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static Board::KeyInfo getKeyInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
 
     static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);

@@ -980,6 +980,11 @@ int Boards::getInputsCalibrated(Board::Type board)
   return getBoardJson(board)->getInputsCalibrated();
 }
 
+Board::KeyInfo Boards::getKeyInfo(int index, Board::Type board)
+{
+  return getBoardJson(board)->getKeyInfo(index);
+}
+
 Board::SwitchInfo Boards::getSwitchInfo(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchInfo(index);
