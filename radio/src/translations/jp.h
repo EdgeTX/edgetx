@@ -287,7 +287,7 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "スイッチ"
 #define TR_FUNCTION_SWITCHES           "カスタマイズ スイッチ"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Blue","Pink","Off","Custom"
+#define TR_FS_COLOR_LIST               "White","Red","Green","Yellow","Blue","Pink","Off","Custom"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_GROUPS                      "Always on groups"
