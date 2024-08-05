@@ -611,31 +611,49 @@
 
 // Internal Module
 #if defined(RADIO_PL18)
-#define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_DMA1)
-#define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 0)  // PI.00
-#define INTMODULE_TX_GPIO               GPIO_PIN(GPIOF, 7) // PF.07
-#define INTMODULE_RX_GPIO               GPIO_PIN(GPIOF, 6) // PF.06
-#define INTMODULE_USART                 UART7
-#define INTMODULE_GPIO_AF               LL_GPIO_AF_8
-#define INTMODULE_USART_IRQn            UART7_IRQn
-#define INTMODULE_USART_IRQHandler      UART7_IRQHandler
-#define INTMODULE_DMA                   DMA1
-#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
-#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
-#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
-#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
-#define INTMODULE_RX_DMA                DMA1
-#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
-#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 0)  // PI.00
+  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOF, 7) // PF.07
+  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOF, 6) // PF.06
+  #define INTMODULE_USART                 UART7
+  #define INTMODULE_GPIO_AF               LL_GPIO_AF_8
+  #define INTMODULE_USART_IRQn            UART7_IRQn
+  #define INTMODULE_USART_IRQHandler      UART7_IRQHandler
+  #define INTMODULE_DMA                   DMA1
+  #define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
+  #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
+  #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
+  #define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
+  #define INTMODULE_RX_DMA                DMA1
+  #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
+  #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
 // #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
 // #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
 
-#define INTMODULE_TIMER                 TIM3
-#define INTMODULE_TIMER_IRQn            TIM3_IRQn
-#define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
-#define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#else
-#define INTMODULE_RCC_AHB1Periph        0
+  #define INTMODULE_TIMER                 TIM3
+  #define INTMODULE_TIMER_IRQn            TIM3_IRQn
+  #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
+  #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#elif defined(RADIO_NB4P)
+  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 8)  // PI.08
+  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 10) // PB.10
+  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
+  #define INTMODULE_USART                 USART3
+  #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
+  #define INTMODULE_USART_IRQn            USART3_IRQn
+  #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
+  #define INTMODULE_DMA                   DMA1
+  #define INTMODULE_DMA_STREAM            LL_DMA_STREAM_3
+  #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream3_IRQn
+  #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
+  #define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_4
+  #define INTMODULE_RX_DMA                DMA1
+  #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_1
+  #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
+
+  #define INTMODULE_TIMER                 TIM3
+  #define INTMODULE_TIMER_IRQn            TIM3_IRQn
+  #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
+  #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #endif
 
 // External Module
@@ -706,6 +724,7 @@
 #define ROTARY_ENCODER_NAVIGATION
 
 //BLUETOOTH
+#if !defined(RADIO_NB4P)
 #define BT_EN_GPIO                      GPIOI
 #define BT_EN_GPIO_PIN                  GPIO_Pin_8 // PI.8
 
@@ -728,6 +747,7 @@
 
 #define BT_CMD_MODE_GPIO                GPIOH
 #define BT_CMD_MODE_GPIO_PIN            GPIO_Pin_6 // PH.6
+#endif
 
 // Millisecond timer
 #define MS_TIMER                        TIM14
