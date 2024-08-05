@@ -42,6 +42,10 @@ class RadioSdManagerPage : public PageTab
   static LAYOUT_VAL(PREVIEW_H, LCD_H - 68, (LCD_H - 68) / 3)
 
  protected:
+  int loadPreview = 0;
+  Window* loading = nullptr;
+  const char* previewFilename = nullptr;
+
   void fileAction(const char* path, const char* name, const char* fullpath);
   
   void BootloaderUpdate(const char* fn);
@@ -51,4 +55,6 @@ class RadioSdManagerPage : public PageTab
   void FrSkyFirmwareUpdate(const char* fn, ModuleIndex module);
   void MultiFirmwareUpdate(const char* fn, ModuleIndex module,
                            MultiModuleType type);
+
+  void checkEvents() override; 
 };
