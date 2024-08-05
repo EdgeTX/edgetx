@@ -25,7 +25,7 @@
 #include "zone.h"
 
 #define WIDGET_NAME_LEN     12
-#define MAX_WIDGET_OPTIONS   5 // Name?
+#define MAX_WIDGET_OPTIONS  10
 
 static LAYOUT_VAL(MAX_TOPBAR_ZONES, 6, 4)
 
