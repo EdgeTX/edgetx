@@ -608,7 +608,13 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
 
   line = specialFunctionOneWindow->newLine(grid);
   new StaticText(line, rect_t{}, STR_ENABLE);
-  new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(CFN_ACTIVE(cfn)));
+  new ToggleSwitch(line, rect_t{}, GET_DEFAULT(CFN_ACTIVE(cfn)),
+            [=](int newValue) {
+              CFN_ACTIVE(cfn) = newValue;
+              SET_DIRTY();
+              if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED)
+                LUA_LOAD_MODEL_SCRIPTS();
+            });
 }
 
 void FunctionEditPage::buildBody(Window *form)
