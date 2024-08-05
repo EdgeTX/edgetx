@@ -142,6 +142,8 @@ SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
 #if defined(HARDWARE_TOUCH)
   addBackButton();
 #endif
+
+  screen->show();
 }
 
 void SetupWidgetsPage::onClicked()

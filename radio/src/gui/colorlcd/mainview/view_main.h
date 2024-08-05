@@ -49,7 +49,7 @@ class ViewMain : public NavWindow
   std::string getName() const override { return "ViewMain"; }
 #endif
 
-  void addMainView(Window* view, uint32_t viewId);
+  void addMainView(WidgetsContainer* view, uint32_t viewId);
 
   void enableTopbar();
   void disableTopbar();
