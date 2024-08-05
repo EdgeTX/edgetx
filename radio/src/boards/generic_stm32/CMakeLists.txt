@@ -14,6 +14,7 @@ set(MINIMAL_BOARD_LIB_SRC
   boards/generic_stm32/inputs.cpp
   boards/generic_stm32/i2c_bus.cpp
   boards/generic_stm32/bl_keys.cpp
+  boards/generic_stm32/aux_ports.cpp
 )
 
 # Dependencies only used in firmware
@@ -25,7 +26,6 @@ set(BOARD_LIB_SRC
 
   boards/generic_stm32/module_ports.cpp
   boards/generic_stm32/trainer_ports.cpp
-  boards/generic_stm32/aux_ports.cpp
   boards/generic_stm32/sport_update.cpp
   boards/generic_stm32/intmodule_heartbeat.cpp
   boards/generic_stm32/analog_inputs.cpp
