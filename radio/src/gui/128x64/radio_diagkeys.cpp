@@ -24,6 +24,7 @@
 #include "hal/switch_driver.h"
 #include "hal/key_driver.h"
 #include "switches.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 void displayKeyState(uint8_t x, uint8_t y, uint8_t key)
 {
@@ -68,7 +69,9 @@ void menuRadioDiagFS(event_t event)
     lcdDrawText(lcdNextPos, y, switchGetName(i+switchGetMaxSwitches()), 0);
     lcdDrawText(FS_1ST_COLUMN + 7, y, getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
     lcdDrawText(FS_2ND_COLUMN + 5, y, getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
-#if !defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+    lcdDrawText(FS_3RD_COLUMN - 3, y, STR_FS_COLOR_LIST[getRGBColorIndex(rgbGetLedColor(i))], 0);
+#else
     lcdDrawText(FS_3RD_COLUMN, y, STR_OFFON[fsLedState(i)]);
 #endif
   }

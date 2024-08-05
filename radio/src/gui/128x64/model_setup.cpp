@@ -24,6 +24,7 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
+#include "hal/rgbleds.h"
 #include "switches.h"
 
 #if defined(USBJ_EX)
@@ -950,7 +951,6 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SW5_COLOR:
       case ITEM_MODEL_SETUP_SW6_COLOR:
       {
-        static const uint32_t colorTable[] = {0xFFFFFF, 0xF80000, 0x00FC00, 0x0000F8, 0x000000}; // White, red, green, blue, off
         int index = (k - ITEM_MODEL_SETUP_SW1_COLOR) / 2;
         uint8_t selectedColor = 0;
 

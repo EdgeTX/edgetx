@@ -20,6 +20,7 @@
  */
 
 #include "hal/gpio.h"
+#include "hal/rgbleds.h"
 #include "stm32_gpio.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
@@ -70,8 +71,6 @@ void fsLedRGB(uint8_t index, uint32_t color)
 
 uint8_t getRGBColorIndex(uint32_t color)
 {
-  static const uint32_t colorTable[] = {0xFFFFFF, 0xF80000, 0x00FC00, 0x0000F8, 0x000000}; // White, red, green, blue, off
-
   for (uint8_t i = 0; i < (sizeof(colorTable) / sizeof(colorTable[0])); i++) {
     if (color == colorTable[i])
       return(i);

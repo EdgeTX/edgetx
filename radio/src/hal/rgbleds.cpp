@@ -21,23 +21,21 @@
 
 #include "opentx.h"
 #include "rgbleds.h"
+#include "boards/generic_stm32/rgb_leds.h"
 #include "definitions.h"
 #include "dataconstants.h"
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 void setFSLedOFF(uint8_t index) {
-  TRACE("Led %d set to %x", index, g_model.functionSwitchLedOFFColor[index].getColor());
   fsLedRGB(index, g_model.functionSwitchLedOFFColor[index].getColor());
 }
 
 void setFSLedON(uint8_t index) {
-   TRACE("Led %d set to %x", index, g_model.functionSwitchLedONColor[index].getColor());
   fsLedRGB(index, g_model.functionSwitchLedONColor[index].getColor());
 }
 
-extern uint8_t getFSLogicalState(uint8_t index);
 bool getFSLedState(uint8_t index) {
-  return getFSLogicalState(index); // TODO: read and compare colors
+  return rgbGetLedColor(index) == g_model.functionSwitchLedONColor[index].getColor();
 }
 #else
 void setFSLedOFF(uint8_t index) {

@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+constexpr uint32_t colorTable[] = {0xF8F8F8, 0xF80000, 0x00F800, 0x0000F8, 0x000000}; // White, red, green, blue, off
+
 void setFSLedOFF(uint8_t index);
 void setFSLedON(uint8_t index);
 bool getFSLedState(uint8_t index);
