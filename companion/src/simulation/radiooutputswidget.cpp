@@ -222,9 +222,10 @@ void RadioOutputsWidget::setupGVarsDisplay()
   ui->globalVarsScroll->setWidget(gvarsWidget);
 
   QPalette::ColorRole bgrole = QPalette::AlternateBase;
+  const bool isAir = Boards::isAir();
   for (int fm=0; fm < fmodes; fm++) {
     QLabel * label = new QLabel(gvarsWidget);
-    label->setText(QString(tr("FM%1")).arg(fm));
+    label->setText(QString("%1%2").arg(isAir ? tr("FM") : tr("DM")).arg(fm));
     label->setAlignment(Qt::AlignCenter);
     label->setBackgroundRole(bgrole);
     gvarsLayout->addWidget(label, 0, fm+1);
