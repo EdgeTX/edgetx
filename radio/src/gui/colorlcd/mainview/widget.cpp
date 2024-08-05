@@ -63,6 +63,7 @@ void Widget::openMenu()
     // covers the main view menu
     Window* w = parent->getFullScreenWindow()->getParent();
     Menu* menu = new Menu(w ? w : this);
+    menu->setTitle(getFactory()->getDisplayName());
     if (fsAllowed) {
       menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
     }
