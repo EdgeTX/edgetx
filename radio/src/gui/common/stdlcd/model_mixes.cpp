@@ -339,7 +339,7 @@ void menuModelMixAll(event_t event)
           else {
             editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight, 
                         MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | ((isMixActive(i) ? BOLD : 0)),
-                        0, 0, 0);
+                        0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
           }
 
 #if LCD_W >= 212

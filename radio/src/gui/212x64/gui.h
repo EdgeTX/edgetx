@@ -92,7 +92,7 @@ swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr,
 
 uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
                               int16_t min, int16_t max, LcdFlags attr, event_t event,
-                              IsValueAvailable isValueAvailable, int16_t sourceMin);
+                              IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
 
 #if defined(GVARS)
 void drawGVarValue(coord_t x, coord_t y, uint8_t gvar, gvar_t value,
@@ -121,7 +121,7 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min,
 #endif
 
 void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
-                  IsValueAvailable isValueAvailable, int16_t sourceMin);
+                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
 
 extern uint8_t editNameCursorPos;
 

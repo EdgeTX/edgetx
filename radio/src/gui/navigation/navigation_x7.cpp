@@ -33,6 +33,13 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
                 unsigned int i_flags, IsValueAvailable isValueAvailable,
                 const CheckIncDecStops &stops)
 {
+  return checkIncDec(event, val, i_min, i_max, i_min, i_max, i_flags, isValueAvailable, stops);
+}
+
+int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int srcMax,
+                unsigned int i_flags, IsValueAvailable isValueAvailable,
+                const CheckIncDecStops &stops)
+{
   int newval = val;
   event_t evt_rot_inc = EVT_ROTARY_RIGHT;
   event_t evt_rot_dec = EVT_ROTARY_LEFT;
@@ -109,7 +116,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 
   newval = checkBoolean(event, i_min, i_max, newval, val);
 
-  newval = showPopupMenus(event, newval, i_min, i_max, i_flags, isValueAvailable, isSource);
+  newval = showPopupMenus(event, newval, srcMin, srcMax, i_flags, isValueAvailable, isSource);
 
   finishCheckIncDec(event, i_min, i_max, i_flags, newval, val, stops);
 

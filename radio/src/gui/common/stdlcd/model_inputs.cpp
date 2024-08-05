@@ -415,7 +415,7 @@ void menuModelExposAll(event_t event)
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
           editSrcVarFieldValue(EXPO_LINE_WEIGHT_POS, y, nullptr, ed->weight,
                         -100, 100, RIGHT | (isExpoActive(i) ? BOLD : 0),
-                        0, 0, 0);
+                        0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
           displayExpoLine(y, ed, 0);
           
           if (s_copyMode) {
