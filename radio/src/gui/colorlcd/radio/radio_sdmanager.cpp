@@ -256,12 +256,16 @@ void RadioSdManagerPage::build(Window * window)
   browser->setFileSelected([=](const char* path, const char* name, const char* fullpath) {
       preview->setFile(nullptr);
       loading->hide();
-      auto ext = getFileExtension(fullpath);
-      if (strcasecmp(ext, ".bmp") == 0 || strcasecmp(ext, ".png") == 0 ||
-          strcasecmp(ext, ".jpg") == 0 || strcasecmp(ext, ".jpeg") == 0) {
-        previewFilename = fullpath;
-        loadPreview = 10;
-        loading->show();
+      if (fullpath) {
+        auto ext = getFileExtension(fullpath);
+        if (ext) {
+          if (strcasecmp(ext, ".bmp") == 0 || strcasecmp(ext, ".png") == 0 ||
+              strcasecmp(ext, ".jpg") == 0 || strcasecmp(ext, ".jpeg") == 0) {
+            previewFilename = fullpath;
+            loadPreview = 10;
+            loading->show();
+          }
+        }
       }
   });
   browser->refresh();
