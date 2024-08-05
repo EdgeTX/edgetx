@@ -250,17 +250,19 @@ void RadioSdManagerPage::build(Window * window)
   preview = new FilePreview(box, {0, 0, PREVIEW_W, PREVIEW_H});
   preview->padAll(PAD_SMALL);
 
-  browser->setFileAction([=](const char* path, const char* name, const char* fullpath) {
-      fileAction(path, name, fullpath);
+  browser->setFileAction([=](const char* path, const char* name, const char* fullpath, bool isDir) {
+      if (isDir)
+        dirAction(path, name, fullpath);
+      else
+        fileAction(path, name, fullpath);
   });
-  browser->setFileSelected([=](const char* path, const char* name, const char* fullpath) {
+  browser->setFileSelected([=](const char* path, const char* name, const char* fullpath, bool isDir) {
       preview->setFile(nullptr);
       loading->hide();
-      if (fullpath) {
+      if (fullpath && !isDir) {
         auto ext = getFileExtension(fullpath);
         if (ext) {
-          if (strcasecmp(ext, ".bmp") == 0 || strcasecmp(ext, ".png") == 0 ||
-              strcasecmp(ext, ".jpg") == 0 || strcasecmp(ext, ".jpeg") == 0) {
+          if (isExtensionMatching(ext, BITMAPS_EXT)) {
             previewFilename = fullpath;
             loadPreview = 10;
             loading->show();
@@ -285,6 +287,41 @@ void RadioSdManagerPage::checkEvents()
     }
   }
 }
+
+void RadioSdManagerPage::dirAction(const char* path, const char* name,
+                                    const char* fullpath)
+{
+  if (strcmp(name, "..") == 0) return;
+
+  auto window = Layer::back();
+  auto menu = new Menu(window);
+  menu->addLine(STR_RENAME_FILE, [=]() {
+    uint8_t nameLength;
+    uint8_t extLength;
+
+    const char *ext = getFileExtension(name, 0, 0, &nameLength, &extLength);
+
+    const uint8_t maxNameLength = SD_SCREEN_FILE_LENGTH - extLength;
+    nameLength = min((uint8_t)(nameLength - extLength), maxNameLength);
+
+    std::string fname(name, nameLength);
+    std::string extension("");
+    if (ext) extension = ext;
+
+    new LabelDialog(Layer::back(), fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
+      label += extension;
+      f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
+      browser->refresh();
+    });
+  });
+  menu->addLine(STR_DELETE_FILE, [=]() {
+    if (f_unlink(fullpath) != FR_OK) {
+      new MessageDialog(window, STR_DELETE_FILE, STR_DEL_DIR_NOT_EMPTY);
+    }
+    browser->refresh();
+  });
+}
+
 void RadioSdManagerPage::fileAction(const char* path, const char* name,
                                     const char* fullpath)
 {

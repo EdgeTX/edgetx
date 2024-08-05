@@ -36,6 +36,7 @@ class TableField : public Window
 
   void select(uint16_t row, uint16_t col, bool force = false);
   virtual void onPress(uint16_t row, uint16_t col) {}
+  virtual bool onPressLong(uint16_t row, uint16_t col) { return false; }
 
   virtual void onSelected(uint16_t row, uint16_t col) {}
   virtual void onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc) {}
@@ -44,6 +45,10 @@ class TableField : public Window
   void adjustScroll();
   void selectNext(int16_t dir);
 
+  static void table_event(const lv_obj_class_t* class_p, lv_event_t* e);
+
  protected:
+  bool isLongPress = false;
+
   void onEvent(event_t event) override;
 };

@@ -47,6 +47,7 @@ class RadioSdManagerPage : public PageTab
   const char* previewFilename = nullptr;
 
   void fileAction(const char* path, const char* name, const char* fullpath);
+  void dirAction(const char* path, const char* name, const char* fullpath);
   
   void BootloaderUpdate(const char* fn);
 #if defined(BLUETOOTH)

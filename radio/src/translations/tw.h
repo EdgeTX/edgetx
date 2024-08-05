@@ -1312,3 +1312,5 @@
 #define TR_HIGH_BATT_COLOR        "高電量"
 
 #define TR_WIDGET_SIZE            "小部件尺寸"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

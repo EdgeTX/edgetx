@@ -20,8 +20,6 @@
 
 #include "etx_lv_theme.h"
 
-static void table_event(const lv_obj_class_t* class_p, lv_event_t* e);
-
 // Table
 const lv_style_const_prop_t table_cell_props[] = {
     LV_STYLE_CONST_BORDER_WIDTH(1),
@@ -52,7 +50,7 @@ static const lv_obj_class_t table_class = {
     .constructor_cb = table_constructor,
     .destructor_cb = nullptr,
     .user_data = nullptr,
-    .event_cb = table_event,
+    .event_cb = TableField::table_event,
     .width_def = 0,
     .height_def = 0,
     .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
@@ -65,7 +63,7 @@ static lv_obj_t* table_create(lv_obj_t* parent)
   return etx_create(&table_class, parent);
 }
 
-static void table_event(const lv_obj_class_t* class_p, lv_event_t* e)
+void TableField::table_event(const lv_obj_class_t* class_p, lv_event_t* e)
 {
   lv_obj_t* obj = lv_event_get_target(e);
   if (obj) {
@@ -87,7 +85,13 @@ static void table_event(const lv_obj_class_t* class_p, lv_event_t* e)
               // Otherwise it's a click
               if (lv_group_get_editing((lv_group_t*)lv_obj_get_group(obj)) ||
                   indev_type == LV_INDEV_TYPE_POINTER) {
-                tf->onPress(row, col);
+                if (tf->isLongPress) {
+                  tf->isLongPress = false;
+                  if (!tf->onPressLong(row, col))
+                    tf->onPress(row, col);
+                } else {
+                  tf->onPress(row, col);
+                }
               } else {
                 tf->onClicked();
               }
@@ -148,7 +152,11 @@ static void table_event(const lv_obj_class_t* class_p, lv_event_t* e)
             lv_draw_rect(draw_ctx, &rect_dsc, &coords);
           }
         } break;
-        case LV_EVENT_RELEASED: {
+        case LV_EVENT_LONG_PRESSED:
+          tf->isLongPress = true;
+          break;
+        case LV_EVENT_RELEASED:
+        {
           lv_table_t* table = (lv_table_t*)obj;
           /*From lv_table.c: handler for LV_EVENT_RELEASED*/
           lv_obj_invalidate(obj);
@@ -158,8 +166,9 @@ static void table_event(const lv_obj_class_t* class_p, lv_event_t* e)
               table->row_act != LV_TABLE_CELL_NONE && scroll_obj == NULL) {
             lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
           }
+          // Do not call base class event handler
           return;
-        } break;
+        }
         default:
           break;
       }

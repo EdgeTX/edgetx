@@ -206,26 +206,22 @@ class MenuBody : public TableField
 
   void onPress(uint16_t row, uint16_t col) override
   {
-    if (!isLongPressed) {
-      Menu* menu = getParentMenu();
-      if (row < lines.size()) {
-        if (menu->multiple) {
-          if (selectedIndex == (int)row)
-            lines[row]->onPress();
-          else {
-            setIndex(row);
-            lines[row]->onPress();
-          }
-        } else {
-          // delete menu first to avoid
-          // focus issues with onPress()
-          menu->deleteLater();
+    Menu* menu = getParentMenu();
+    if (row < lines.size()) {
+      if (menu->multiple) {
+        if (selectedIndex == (int)row)
+          lines[row]->onPress();
+        else {
+          setIndex(row);
           lines[row]->onPress();
         }
+      } else {
+        // delete menu first to avoid
+        // focus issues with onPress()
+        menu->deleteLater();
+        lines[row]->onPress();
       }
     }
-
-    isLongPressed = false;
   }
 
   void onDrawBegin(uint16_t row, uint16_t col,

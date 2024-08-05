@@ -148,7 +148,7 @@ void ScreenUserInterfacePage::build(Window* window)
   auto line = window->newLine(grid);
   new StaticText(line, rect_t{}, STR_TOP_BAR);
 
-  auto setupTopbarWidgets = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
+  new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
             [=]() -> uint8_t {
                 menu->deleteLater();
                 new SetupTopBarWidgetsPage();
