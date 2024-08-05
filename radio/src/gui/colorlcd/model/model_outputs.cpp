@@ -240,7 +240,11 @@ void ModelOutputsPage::build(Window* window)
   window->padBottom(PAD_LARGE);
 
   new TextButton(window, {ADD_TRIMS_X, ADD_TRIMS_Y, ADD_TRIMS_W, ADD_TRIMS_H}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
-    moveTrimsToOffsets();
+    new ConfirmDialog(
+        window, STR_TRIMS2OFFSETS, STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
+        [=] {
+          moveTrimsToOffsets();
+        });
     return 0;
   });
 
