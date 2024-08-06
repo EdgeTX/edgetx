@@ -37,6 +37,13 @@
 
 #define SIMULATOR_INTERFACE_HEARTBEAT_PERIOD    1000  // ms
 
+enum SimulatorTelemetryProtocol {
+  SIMU_TELEMETRY_PROTOCOL_FRSKY_SPORT = 0,
+  SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB,
+  SIMU_TELEMETRY_PROTOCOL_CROSSFIRE,
+  SIMU_TELEMETRY_PROTOCOL_COUNT
+};
+
 class SimulatorInterface : public QObject
 {
   Q_OBJECT
@@ -148,7 +155,8 @@ class SimulatorInterface : public QObject
     virtual void touchEvent(int type, int x, int y) = 0;
     virtual void lcdFlushed() = 0;
     virtual void setTrainerTimeout(uint16_t ms) = 0;
-    virtual void sendTelemetry(const QByteArray data) = 0;
+    virtual void sendInternalModuleTelemetry(const quint8 protocol, const QByteArray data) = 0;
+    virtual void sendExternalModuleTelemetry(const quint8 protocol, const QByteArray data) = 0;
     virtual void setLuaStateReloadPermanentScripts() = 0;
     virtual void addTracebackDevice(QIODevice * device) = 0;
     virtual void removeTracebackDevice(QIODevice * device) = 0;

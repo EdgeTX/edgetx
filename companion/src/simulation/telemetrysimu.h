@@ -28,8 +28,10 @@
 #include <QDateTime>
 #include <QtCore/qmath.h>
 #include <QFileDialog>
+#include <QScrollArea>
 
 #include "simulatorinterface.h"
+#include "telemetryprovider.h"
 
 static double const SPEEDS[] = { 0.2, 0.4, 0.6, 0.8, 1, 2, 3, 4, 5 };
 template<class t> t LIMIT(t mi, t x, t ma) { return std::min(std::max(mi, x), ma); }
@@ -47,11 +49,9 @@ class TelemetrySimulator : public QWidget
     explicit TelemetrySimulator(QWidget * parent, SimulatorInterface * simulator);
     virtual ~TelemetrySimulator();
 
-  public slots:
-    bool generateSportPacket(uint8_t * packet, uint8_t dataId, uint8_t prim, uint16_t appId, uint32_t data);
-
   signals:
-    void telemetryDataChanged(const QByteArray data);
+    void internalTelemetryDataChanged(const quint8 protocol, const QByteArray data);
+    void externalTelemetryDataChanged(const quint8 protocol, const QByteArray data);
 
   protected slots:
 
@@ -61,10 +61,8 @@ class TelemetrySimulator : public QWidget
     void stopTelemetry();
     void onSimulatorStarted();
     void onSimulatorStopped();
-    void setupDataFields();
     void onSimulateToggled(bool isChecked);
     void onLogTimerEvent();
-    void onGpsRunLoop();
     void onLoadLogFile();
     void onPlay();
     void onRewind();
@@ -73,18 +71,23 @@ class TelemetrySimulator : public QWidget
     void onStop();
     void onPositionIndicatorChanged(int value);
     void onReplayRateChanged(int value);
-    void refreshSensorRatios();
+    void onInternalTelemetrySelectorChanged(const QString &text);
+    void onExternalTelemetrySelectorChanged(const QString &text);
+    void onInternalTelemetryProviderDataChanged(const quint8 protocol, const QByteArray data);
+    void onExternalTelemetryProviderDataChanged(const quint8 protocol, const QByteArray data);
     void generateTelemetryFrame();
+    TelemetryProvider * newTelemetryProviderFromDropdownChoice(const QString &text, QScrollArea * parent);
 
   protected:
 
     Ui::TelemetrySimulator * ui;
     QTimer timer;
     QTimer logTimer;
-    QTimer gpsTimer;
     SimulatorInterface *simulator;
     bool m_simuStarted;
     bool m_logReplayEnable;
+    TelemetryProvider * internalProvider;
+    TelemetryProvider * externalProvider;
 
   // protected classes follow
 
@@ -168,54 +171,6 @@ class TelemetrySimulator : public QWidget
     };  // LogPlaybackController
 
     LogPlaybackController *logPlayback;
-
-    class FlvssEmulator
-    {
-      public:
-        static const uint32_t MAXCELLS = 8;
-        uint32_t setAllCells_GetNextPair(double cellValues[MAXCELLS]);
-
-      private:
-        void encodeAllCells();
-        void splitIntoCells(double totalVolts);
-        static uint32_t encodeCellPair(uint8_t cellNum, uint8_t firstCellNo, double cell1, double cell2);
-        double cellFloats[MAXCELLS];
-        uint32_t nextCellNum;
-        uint32_t numCells;
-        uint32_t cellData1;
-        uint32_t cellData2;
-        uint32_t cellData3;
-        uint32_t cellData4;
-    };  // FlvssEmulator
-
-    class GPSEmulator
-    {
-      public:
-        GPSEmulator();
-        uint32_t getNextPacketData(uint32_t packetType);
-        void setGPSDateTime(QString dateTime);
-        void setGPSLatLon(QString latLon);
-        void setGPSCourse(double course);
-        void setGPSSpeedKMH(double speed);
-        void setGPSAltitude(double altitude);
-
-      private:
-        QDateTime dt;
-        bool sendLat;
-        bool sendDate;
-        double lat;
-        double lon;
-        double course;
-        double speedKNTS;
-        double altitude; // in meters
-        uint32_t encodeLatLon(double latLon, bool isLat);
-        uint32_t encodeDateTime(uint8_t yearOrHour, uint8_t monthOrMinute, uint8_t dayOrSecond, bool isDate);
-    };  // GPSEmulator
-private slots:
-    void on_saveTelemetryvalues_clicked();
-    void on_loadTelemetryvalues_clicked();
-    void on_GPSpushButton_clicked();
-    void on_gps_course_valueChanged(double arg1);
 };  // TelemetrySimulator
 
 #endif // _TELEMETRYSIMU_H_
