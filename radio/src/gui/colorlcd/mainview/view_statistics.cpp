@@ -205,12 +205,9 @@ void StatisticsViewPage::build(Window* window)
 
   // Timers
   new StaticText(line, rect_t{}, STR_TIMER_LABEL);
-  new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[0].val); });
-  new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[1].val); });
-  new DynamicText(
-      line, rect_t{}, [] { return getTimerString(timersStates[2].val); });
+  for (int i = 0; i < TIMERS; i += 1)
+    new DynamicText(
+        line, rect_t{}, [=] { return getTimerString(timersStates[i].val); });
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
