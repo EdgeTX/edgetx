@@ -1096,6 +1096,31 @@
   #define TR_BL_FLASH_KEY               "Tryck [ENT] foer att flasha"
   #define TR_BL_ERASE_KEY               "Haall ner [ENT] foer att raderag"
   #define TR_BL_EXIT_KEY                "[RTN] foer att avbryta"
+#elif defined(PCBPL18)
+   // Bootloader PL18/NB4+ specific - ASCII characters only
+  #define TR_BL_RF_USB_ACCESS         "RF USB access"
+  #define TR_BL_CURRENT_FW            "Nuvarande firmware:"
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
+  #define TR_BL_ENABLE                "Aktivera"
+  #define TR_BL_DISABLE               "Inaktivera"
+  #if defined(RADIO_NV14_FAMILY)
+    #define TR_BL_SELECT_KEY          "[R TRIM] foer att vaelja fil"
+    #define TR_BL_FLASH_KEY           "Tryck [R TRIM] foer att flasha"
+    #define TR_BL_ERASE_KEY           "Tryck [R TRIM] foer att erase"
+    #define TR_BL_EXIT_KEY            "[L TRIM] för att avsluta"
+  #elif defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY          "[SW1A] foer att vaelja fil"
+    #define TR_BL_FLASH_KEY           "Tryck [SW1A] foer att flasha"
+    #define TR_BL_ERASE_KEY           "Tryck [SW1A] foer att erase"
+    #define TR_BL_EXIT_KEY            "[SW1B] för att avsluta"
+  #else
+    #define TR_BL_SELECT_KEY          "[TR4 Dn] foer att vaelja fil"
+    #define TR_BL_FLASH_KEY           "Tryck [TR4 Dn] foer att flasha"
+    #define TR_BL_ERASE_KEY           "Tryck [TR4 Dn] foer att erase"
+    #define TR_BL_EXIT_KEY            "[TR4 Up] för att avsluta"
+  #endif
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS           "RF USB access"
@@ -1105,24 +1130,6 @@
   #define TR_BL_EXIT_KEY                " [L TRIM] för att avsluta"
   #define TR_BL_ENABLE                  "Aktivera"
   #define TR_BL_DISABLE                 "Inaktivera"
-#elif defined(PCBPL18)
-   // Bootloader PL18/NB4+ specific - ASCII characters only
-  #define TR_BL_RF_USB_ACCESS         "RF USB access"
-  #define TR_BL_CURRENT_FW            "Current Firmware:"
-  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #if defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY          "[SW1A] to select file"
-    #define TR_BL_FLASH_KEY           "Hold [SW1A] long to flash"
-    #define TR_BL_ERASE_KEY           "Hold [SW1A] long to erase"
-    #define TR_BL_EXIT_KEY            "[SW1B] to exit"
-  #else
-    #define TR_BL_SELECT_KEY          "[TR4 Dn] to select file"
-    #define TR_BL_FLASH_KEY           "Hold [TR4 Dn] long to flash"
-    #define TR_BL_ERASE_KEY           "Hold [TR4 Dn] long to erase"
-    #define TR_BL_EXIT_KEY            "[TR4 Up] to exit"
-  #endif
 #endif
 
 // About screen
