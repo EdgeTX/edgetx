@@ -405,12 +405,39 @@ void OpenTxSimulator::setTrainerTimeout(uint16_t ms)
   trainerSetTimer(ms);
 }
 
-void OpenTxSimulator::sendTelemetry(const QByteArray data)
+void OpenTxSimulator::sendTelemetry(const uint8_t module, const uint8_t protocol, const QByteArray data)
 {
   //ETXS_DBG << data;
-  sportProcessTelemetryPacket(INTERNAL_MODULE,
-                              (uint8_t *)data.constData(),
-                              data.count());
+  switch (protocol) {
+  case SIMU_TELEMETRY_PROTOCOL_FRSKY_SPORT:
+    sportProcessTelemetryPacket(module,
+                                (uint8_t *)data.constData(),
+                                data.count());
+    break;
+  case SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB:
+    frskyDProcessPacket(module,
+                        (uint8_t *)data.constData(),
+                        data.count());
+    break;
+  case SIMU_TELEMETRY_PROTOCOL_CROSSFIRE:
+    processCrossfireTelemetryFrame(module,
+                                   (uint8_t *)data.constData(),
+                                   data.count());
+    break;
+  default:
+    // Do nothing
+    break;
+  }
+}
+
+void OpenTxSimulator::sendInternalModuleTelemetry(const uint8_t protocol, const QByteArray data)
+{
+  sendTelemetry(INTERNAL_MODULE, protocol, data);
+}
+
+void OpenTxSimulator::sendExternalModuleTelemetry(const uint8_t protocol, const QByteArray data)
+{
+  sendTelemetry(EXTERNAL_MODULE, protocol, data);
 }
 
 uint8_t OpenTxSimulator::getSensorInstance(uint16_t id, uint8_t defaultValue)
