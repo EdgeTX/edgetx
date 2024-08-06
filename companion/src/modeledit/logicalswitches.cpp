@@ -44,7 +44,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
   lsCapabilityExt = firmware->getCapability(LogicalSwitchesExt);
 
   QStringList headerLabels;
-  headerLabels << "#" << tr("Function") << tr("V1") << tr("V2") << tr("AND Switch");
+  headerLabels  << "#" << tr("Name") << tr("Function") << tr("V1") << tr("V2") << tr("AND Switch");
   if (lsCapabilityExt) {
     headerLabels << tr("Duration") << tr("Delay");
   }
@@ -65,12 +65,22 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
     connect(label, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
     tableLayout->addWidget(i, 0, label);
 
+   // The Custom Name
+    name[i] = new QLineEdit(this);
+    name[i]->setProperty("index", i);
+    name[i]->setMaxLength(LS_CUSTNAME_LEN);
+    QRegExp rx(CHAR_FOR_NAMES_REGEX);
+    name[i]->setValidator(new QRegExpValidator(rx, this));
+    name[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    connect(name[i], SIGNAL(editingFinished()), this, SLOT(onNameEdited()));
+    tableLayout->addWidget(i, 1, name[i]);
+
     // The function
     cbFunction[i] = new QComboBox(this);
     cbFunction[i]->setProperty("index", i);
     populateFunctionCB(cbFunction[i]);
     connect(cbFunction[i], SIGNAL(currentIndexChanged(int)), this, SLOT(onFunctionChanged()));
-    tableLayout->addWidget(i, 1, cbFunction[i]);
+    tableLayout->addWidget(i, 2, cbFunction[i]);
 
     // V1
     QHBoxLayout *v1Layout = new QHBoxLayout();
@@ -88,7 +98,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
     connect(dsbValue[i], SIGNAL(editingFinished()), this, SLOT(onOffsetChanged()));
     v1Layout->addWidget(dsbValue[i]);
     dsbValue[i]->setVisible(false);
-    tableLayout->addLayout(i, 2, v1Layout);
+    tableLayout->addLayout(i, 3, v1Layout);
 
     // V2
     QHBoxLayout *v2Layout = new QHBoxLayout();
@@ -121,7 +131,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
     connect(teOffset[i],SIGNAL(editingFinished()),this,SLOT(onOffsetChanged()));
     v2Layout->addWidget(teOffset[i]);
     teOffset[i]->setVisible(false);
-    tableLayout->addLayout(i, 3, v2Layout);
+    tableLayout->addLayout(i, 4, v2Layout);
 
     // AND
     cbAndSwitch[i] = new QComboBox(this);
@@ -129,7 +139,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
     cbAndSwitch[i]->setModel(rawSwitchFilteredModel);
     cbAndSwitch[i]->setVisible(true);
     connect(cbAndSwitch[i], SIGNAL(currentIndexChanged(int)), this, SLOT(onAndSwitchChanged(int)));
-    tableLayout->addWidget(i, 4, cbAndSwitch[i]);
+    tableLayout->addWidget(i, 5, cbAndSwitch[i]);
 
     if (lsCapabilityExt) {
       // Duration
@@ -141,7 +151,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
       dsbDuration[i]->setAccelerated(true);
       dsbDuration[i]->setDecimals(1);
       connect(dsbDuration[i], SIGNAL(valueChanged(double)), this, SLOT(onDurationChanged(double)));
-      tableLayout->addWidget(i, 5, dsbDuration[i]);
+      tableLayout->addWidget(i, 6, dsbDuration[i]);
 
       // Delay
       dsbDelay[i] = new QDoubleSpinBox(this);
@@ -152,7 +162,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
       dsbDelay[i]->setAccelerated(true);
       dsbDelay[i]->setDecimals(1);
       connect(dsbDelay[i], SIGNAL(valueChanged(double)), this, SLOT(onDelayChanged(double)));
-      tableLayout->addWidget(i, 6, dsbDelay[i]);
+      tableLayout->addWidget(i, 7, dsbDelay[i]);
     }
 
     cbPersist[i] = new QCheckBox(this);
@@ -165,13 +175,26 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
 
   disableMouseScrolling();
   tableLayout->resizeColumnsToContents();
-  tableLayout->pushRowsUp(lsCapability+1);
+  tableLayout->pushRowsUp(lsCapability + 1);
 }
 
 LogicalSwitchesPanel::~LogicalSwitchesPanel()
 {
   delete rawSourceFilteredModel;
   delete rawSwitchFilteredModel;
+}
+
+void LogicalSwitchesPanel::onNameEdited()
+{
+  QLineEdit *le = qobject_cast<QLineEdit*>(sender());
+  int index = le->property("index").toInt();
+
+  if (model->logicalSw[index].custName != le->text()) {
+    strcpy(model->logicalSw[index].custName, le->text().toLatin1());
+    if (model->logicalSw[index].func != LS_FN_OFF)
+      updateItemModels();
+    emit modified();
+  }
 }
 
 void LogicalSwitchesPanel::onFunctionChanged()
@@ -377,6 +400,8 @@ void LogicalSwitchesPanel::updateLine(int i)
   if (!model->logicalSw[i].isEmpty()) {
     mask = LINE_ENABLED | DELAY_ENABLED | DURATION_ENABLED;
 
+    name[i]->setText(model->logicalSw[i].custName);
+
     switch (model->logicalSw[i].getFunctionFamily())
     {
       case LS_FAMILY_VOFS:
@@ -412,6 +437,7 @@ void LogicalSwitchesPanel::updateLine(int i)
       case LS_FAMILY_STICKY:  // no break
         mask |= PERSIST_ENABLED;
         cbPersist[i]->setChecked(model->logicalSw[i].lsPersist);
+      case LS_FAMILY_SAFE:  // no break
       case LS_FAMILY_VBOOL:
         mask |= SOURCE1_VISIBLE | SOURCE2_VISIBLE;
         cbSource1[i]->setModel(rawSwitchFilteredModel);
@@ -490,7 +516,8 @@ void LogicalSwitchesPanel::populateFunctionCB(QComboBox *b)
     LS_FN_DPOS,
     LS_FN_DAPOS,
     LS_FN_TIMER,
-    LS_FN_STICKY
+    LS_FN_STICKY,
+    LS_FN_SAFE,
   };
 
   b->clear();
@@ -620,6 +647,7 @@ void LogicalSwitchesPanel::cmClear(bool prompt)
 
   model->logicalSw[selectedIndex].clear();
   model->updateAllReferences(ModelData::REF_UPD_TYPE_LOGICAL_SWITCH, ModelData::REF_UPD_ACT_CLEAR, selectedIndex);
+  name[selectedIndex]->clear();
   updateLine(selectedIndex);
   updateItemModels();
   emit modified();
@@ -632,6 +660,7 @@ void LogicalSwitchesPanel::cmClearAll()
 
   for (int i = 0; i < lsCapability; i++) {
     model->logicalSw[i].clear();
+    name[i]->clear();
     model->updateAllReferences(ModelData::REF_UPD_TYPE_LOGICAL_SWITCH, ModelData::REF_UPD_ACT_CLEAR, i);
   }
   update();

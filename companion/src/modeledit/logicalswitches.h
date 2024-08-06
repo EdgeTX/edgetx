@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LOGICALSWITCHES_H_
-#define _LOGICALSWITCHES_H_
+#pragma once
 
 #include "modeledit.h"
 #include "radiodata.h"
@@ -43,6 +42,7 @@ class LogicalSwitchesPanel : public ModelPanel
 
   private slots:
     void onFunctionChanged();
+    void onNameEdited();
     void onV1Changed(int value);
     void onV2Changed(int value);
     void onAndSwitchChanged(int value);
@@ -66,6 +66,7 @@ class LogicalSwitchesPanel : public ModelPanel
     void onItemModelUpdateComplete();
 
   private:
+    QLineEdit *name[CPN_MAX_LOGICAL_SWITCHES];
     QComboBox * cbFunction[CPN_MAX_LOGICAL_SWITCHES];
     QDoubleSpinBox * dsbValue[CPN_MAX_LOGICAL_SWITCHES];
     QDoubleSpinBox * dsbOffset[CPN_MAX_LOGICAL_SWITCHES];
@@ -94,5 +95,3 @@ class LogicalSwitchesPanel : public ModelPanel
     void updateItemModels();
     void connectItemModelEvents(const FilteredItemModel * itemModel);
 };
-
-#endif // _LOGICALSWITCHES_H_
