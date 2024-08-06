@@ -366,6 +366,9 @@ bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
 
 void blExit(void)
 {
+#if defined(USB_SW_GPIO)
+  USB_SW_TO_MCU();
+#endif
   lcdClear();
   lcdRefresh();
   lcdRefreshWait();
