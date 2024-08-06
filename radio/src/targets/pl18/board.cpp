@@ -70,6 +70,25 @@ extern "C" void initialise_monitor_handles();
 extern "C" void flushFTL();
 #endif
 
+#if defined(RADIO_NV14_FAMILY)
+  HardwareOptions hardwareOptions;
+
+  static uint8_t boardGetPcbRev()
+  {
+    gpio_init(INTMODULE_PWR_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+    delay_ms(1); // delay to let the input settle, else it does not work properly
+
+    // detect NV14 vs EL18
+    if (gpio_read(INTMODULE_PWR_GPIO)) {
+      // pull-up connected: EL18
+      return PCBREV_EL18;
+    } else {
+      // pull-down connected: NV14
+      return PCBREV_NV14;
+    }
+  }
+#endif
+
 void delay_self(int count)
 {
    for (int i = 50000; i > 0; i--)
@@ -98,6 +117,15 @@ void boardBLInit()
 {
   // USB charger status pins
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+
+#if defined(USB_SW_GPIO)
+  gpio_init(USB_SW_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
+#if defined(RADIO_NV14_FAMILY)
+  // detect NV14 vs EL18
+  hardwareOptions.pcbrev = boardGetPcbRev();
+#endif
 }
 
 #if defined(RADIO_NB4P)
@@ -106,6 +134,13 @@ void boardBLPreJump()
   LL_ADC_Disable(ADC_MAIN);
 }
 #endif
+
+static void monitorInit()
+{
+#if defined(VBUS_MONITOR_GPIO)
+  gpio_init(VBUS_MONITOR_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+#endif
+}
 
 void boardInit()
 {
@@ -184,6 +219,7 @@ void boardInit()
   disableVoiceChip();
 #endif
   audioInit();
+  monitorInit();
   adcInit(&_adc_driver);
   hapticInit();
 
@@ -257,6 +293,7 @@ void boardOff()
   }
 }
 
+#if !defined(RADIO_NV14_FAMILY)
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
@@ -274,3 +311,4 @@ int usbPlugged()
   
   return debouncedState;
 }
+#endif

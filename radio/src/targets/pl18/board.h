@@ -59,6 +59,19 @@ void boardOff();
 #define LEN_CPU_UID                     (3*8+2)
 void getCPUUniqueID(char * s);
 
+#if defined(RADIO_NV14_FAMILY)
+  enum {
+    PCBREV_NV14 = 0,
+    PCBREV_EL18 = 1,
+  };
+  
+  typedef struct {
+    uint8_t pcbrev;
+  } HardwareOptions;
+
+  extern HardwareOptions hardwareOptions;
+#endif
+
 // SDRAM driver
 extern "C" void SDRAM_Init();
 

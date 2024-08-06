@@ -41,10 +41,30 @@ add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DSPI_FLASH)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
-if(PCBREV STREQUAL NB4P)
+if (PCBREV STREQUAL EL18)
+    set(FLAVOUR el18)
+    add_definitions(-DRADIO_EL18 -DRADIO_NV14_FAMILY -DPCBNV14 -DUSE_HATS_AS_KEYS)
+    set(USE_VS1053B ON)
+    set(AFHDS3 ON)
+
+    # defines existing internal modules
+    set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")
+    set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS3 CACHE STRING "Default internal module")
+elseif(PCBREV STREQUAL NV14)
+    set(FLAVOUR nv14)
+    add_definitions(-DRADIO_NV14 -DRADIO_NV14_FAMILY -DPCBNV14 -DUSE_HATS_AS_KEYS)
+    set(USE_VS1053B ON)
+    set(HAS_SDIO ON)
+    set(AFHDS2 ON)
+
+    # defines existing internal modules
+    set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
+    set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS2A CACHE STRING "Default internal module")
+elseif(PCBREV STREQUAL NB4P)
   set(FLAVOUR nb4p)
   add_definitions(-DRADIO_NB4P)
   set(ROTARY_ENCODER YES)
+  set(AFHDS3 ON)
   set(KEY_DRIVER nb4p_key_driver.cpp)
 
   # Defines internal modules for PL18 via UART7
@@ -55,12 +75,14 @@ elseif(PCBREV STREQUAL PL18EV)
   add_definitions(-DRADIO_PL18EV -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
+  set(AFHDS3 ON)
   set(KEY_DRIVER key_driver.cpp)
 else()
   set(FLAVOUR pl18)
   add_definitions(-DRADIO_PL18 -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
+  set(AFHDS3 ON)
   set(KEY_DRIVER key_driver.cpp)
 
   # Defines internal modules for PL18 via UART7
@@ -110,8 +132,6 @@ if(NOT UNEXPECTED_SHUTDOWN)
   add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
 endif()
 
-set(AFHDS3 ON)
-
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
 set(CLI ON CACHE BOOL "Enable CLI")
@@ -158,7 +178,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_SPECIFIC_SRC}
   ${TARGET_SRC_DIR}/${TOUCH_DRIVER}
   ${TARGET_SRC_DIR}/battery_driver.cpp
-  targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
@@ -176,6 +195,12 @@ set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
 if(PCBREV STREQUAL NB4P)
   target_sources(board PRIVATE ${TARGET_SRC_DIR}/switch_driver.cpp)
+endif()
+
+if(USE_VS1053B)
+  target_sources(board PRIVATE targets/common/arm/stm32/vs1053b.cpp)
+else()
+  target_sources(board PRIVATE targets/common/arm/stm32/audio_dac_driver.cpp)
 endif()
 
 set(FIRMWARE_SRC
