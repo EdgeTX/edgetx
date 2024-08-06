@@ -369,7 +369,7 @@ void displayTimers()
         val = (int)timerData.start - (int)timerState.val;
       drawTimer(TIMERS_X, y, val, TIMEHOUR|MIDSIZE|LEFT, TIMEHOUR|MIDSIZE|LEFT);
       if (timerData.persistent) {
-        lcdDrawChar(TIMERS_R, y+1, 'P', SMLSIZE);
+        lcdDrawChar(TIMERS_R, y-7, 'P', SMLSIZE);
       }
       if (timerState.val < 0) {
         if (BLINK_ON_PHASE) {

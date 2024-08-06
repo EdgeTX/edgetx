@@ -545,8 +545,8 @@ void drawTelemetryTopBar()
     else
       val = timersStates[0].val;
     LcdFlags att = (val < 0 ? BLINK : 0) | TIMEHOUR;
-    drawTimer(22*FW, 0, val, att, att);
-    lcdDrawText(22*FW, 0, "T1:", RIGHT);
+    drawTimer(18*FW, 0, val, att, att);
+    lcdDrawText(18*FW, 0, "T1:", RIGHT);
   }
   if (g_model.timers[1].mode) {
     TimerData *timer =  &g_model.timers[1];
@@ -556,8 +556,8 @@ void drawTelemetryTopBar()
     else
       val = timersStates[1].val;
     LcdFlags att = (val < 0 ? BLINK : 0) | TIMEHOUR;
-    drawTimer(31*FW, 0, val, att, att);
-    lcdDrawText(31*FW, 0, "T2:", RIGHT);
+    drawTimer(28*FW, 0, val, att, att);
+    lcdDrawText(28*FW, 0, "T2:", RIGHT);
   }
   lcdInvertLine(0);
 }
