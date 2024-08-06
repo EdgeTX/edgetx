@@ -66,7 +66,22 @@
 #define TOUCH_CHSC5448_EVT_CONTACT        0x08
 #define TOUCH_CHSC5448_MAX_POINTS         5
 
-typedef enum {TC_NONE, TC_FT6236, TC_CST340, TC_CHSC5448} TouchController;
+// CST836U definitions
+#define TOUCH_CST836U_I2C_ADDRESS         0x15
+#define TOUCH_CST836U_REG_NUM             0x02
+#define TOUCH_CST836U_REG_P1_XH           0x03
+#define TOUCH_CST836U_EVT_SHIFT           6
+#define TOUCH_CST836U_EVT_MASK            (3 << TOUCH_FT6206_EVT_SHIFT)
+#define TOUCH_CST836U_EVT_CONTACT         0x02
+#define TOUCH_CST836U_FW_VERSION_L_REG    0xa6
+#define TOUCH_CST836U_FW_VERSION_H_REG    0xa7
+#define TOUCH_CST836U_MODULE_VERSION_REG  0xa8
+#define TOUCH_CST836U_PROJECT_NAME_REG    0xa9
+#define TOUCH_CST836U_CHIP_TYPE_L_REG     0xaa
+#define TOUCH_CST836U_CHIP_TYPE_H_REG     0xab
+
+
+typedef enum {TC_NONE, TC_FT6236, TC_CST836U, TC_CST340, TC_CHSC5448} TouchController;
 
 #if defined(DEBUG)
 const char TOUCH_CONTROLLER_STR[][10] = {"", "FT6236", "CST340", "CHSC5448"};
@@ -141,7 +156,7 @@ static void _i2c_init(void)
 static void _i2c_reInit(void)
 {
 //  stm32_i2c_deinit(TOUCH_I2C_BUS);
-  _i2c_init();
+//  _i2c_init();
 }
 
 static int _i2c_read(uint8_t addr, uint32_t reg, uint8_t regSize, uint8_t* data, uint16_t len, uint32_t timeout)
@@ -179,6 +194,11 @@ static uint16_t _i2c_readMultipleRetry(uint8_t addr, uint32_t reg, uint8_t regSi
   return length;
 }
 
+static bool defaultHasTouchEvent()
+{
+  return touchEventOccured;
+}
+
 static bool ft6236TouchRead(uint16_t * X, uint16_t * Y)
 {
   // Read register FT6206_TD_STAT_REG to check number of touches detection
@@ -202,11 +222,6 @@ static bool ft6236TouchRead(uint16_t * X, uint16_t * Y)
   return false;
 }
 
-static bool ft6236HasTouchEvent()
-{
-  return touchEventOccured;
-}
-
 static void ft6236PrintDebugInfo()
 {
 #if defined(DEBUG)
@@ -220,6 +235,38 @@ static void ft6236PrintDebugInfo()
   TRACE("ft6x36: rel code 0x%02X", _i2c_readRetry(TOUCH_FT6236_I2C_ADDRESS, TOUCH_FT6236_REG_RELEASE_CODE_ID, 1));
 #endif
 
+}
+
+static bool cst836uTouchRead(uint16_t * X, uint16_t * Y)
+{
+  // Read register TOUCH_CST836U_REG_NUM to check number of touches detection
+  uint8_t nbTouch = _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_REG_NUM, 1);
+  bool hasTouch = nbTouch > 0;
+
+  if (hasTouch) {
+    uint8_t dataxy[4];
+    // Read X and Y positions and event
+    _i2c_readMultipleRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_REG_P1_XH, 1, dataxy, sizeof(dataxy));
+    
+    // Send back ready X position to caller
+    *X = ((dataxy[0] & 0x0f) << 8) | dataxy[1];
+    // Send back ready Y position to caller
+    *Y = ((dataxy[2] & 0x0f) << 8) | dataxy[3];
+
+    uint8_t event = (dataxy[0] & TOUCH_CST836U_EVT_MASK) >> TOUCH_CST836U_EVT_SHIFT;
+    return event == TOUCH_CST836U_EVT_CONTACT;
+  }
+  return false;
+}
+
+static void cst836uPrintDebugInfo(void)
+{
+#if defined(DEBUG)
+  TRACE("cst836u: fw ver 0x%02X %02X", _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_FW_VERSION_H_REG, 1), _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_FW_VERSION_L_REG, 1));
+  TRACE("cst836u: module version 0x%02X", _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_MODULE_VERSION_REG, 1));
+  TRACE("cst836u: project name 0x%02X", _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_PROJECT_NAME_REG, 1));
+  TRACE("cst836u: chip type 0x%02X 0x%02X", _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_CHIP_TYPE_H_REG, 1), _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_CHIP_TYPE_L_REG, 1));
+#endif
 }
 
 static bool cst340TouchRead(uint16_t * X, uint16_t * Y)
@@ -277,11 +324,6 @@ static bool chsc5448TouchRead(uint16_t * X, uint16_t * Y)
   return ptCnt > 0 && event == TOUCH_CHSC5448_EVT_CONTACT;
 }
 
-static bool chsc5448HasTouchEvent()
-{
-  return touchEventOccured;
-}
-
 static void chsc5448PrintDebugInfo()
 {
   // TODO, when necessary
@@ -289,10 +331,22 @@ static void chsc5448PrintDebugInfo()
 
 static const TouchControllerDescriptor FT6236 =
 {
-  .hasTouchEvent = ft6236HasTouchEvent,
+  .hasTouchEvent = defaultHasTouchEvent,
   .touchRead = ft6236TouchRead,
   .printDebugInfo = ft6236PrintDebugInfo,
-#if defined(RADIO_NB4P)
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+  .rotate = DEG_180,
+#else
+  .rotate = DEG_270,
+#endif
+};
+
+static const TouchControllerDescriptor CST836U =
+{
+  .hasTouchEvent = defaultHasTouchEvent,
+  .touchRead = cst836uTouchRead,
+  .printDebugInfo = cst836uPrintDebugInfo,
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
   .rotate = DEG_180,
 #else
   .rotate = DEG_270,
@@ -304,7 +358,7 @@ static const TouchControllerDescriptor CST340 =
   .hasTouchEvent = cst340HasTouchEvent,
   .touchRead = cst340TouchRead,
   .printDebugInfo = cst340PrintDebugInfo,
-#if defined(RADIO_NB4P)
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
   .rotate = DEG_180,
 #else
   .rotate = DEG_270,
@@ -313,7 +367,7 @@ static const TouchControllerDescriptor CST340 =
 
 static const TouchControllerDescriptor CHSC5448 =
 {
-  .hasTouchEvent = chsc5448HasTouchEvent,
+  .hasTouchEvent = defaultHasTouchEvent,
   .touchRead = chsc5448TouchRead,
   .printDebugInfo = chsc5448PrintDebugInfo,
   .rotate = DEG_0,
@@ -331,11 +385,15 @@ void _detect_touch_controller()
     tcd = &CHSC5448;
     TouchControllerType = 0;
     boardTouchType = "CHSC5448";
+  } else if (stm32_i2c_is_dev_ready(TOUCH_I2C_BUS, TOUCH_CST836U_I2C_ADDRESS, 3, 5) == 0) {
+    touchController = TC_CST836U;
+    tcd = &CST836U;
+    boardTouchType = "CST836U";
   } else {
     touchController = TC_FT6236;
     tcd = &FT6236;
     boardTouchType = "FT6236";
-#if defined(RADIO_NB4P)    
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
     TouchControllerType = 0;
 #else
     TouchControllerType = 1;
