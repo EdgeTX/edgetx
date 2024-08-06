@@ -471,7 +471,7 @@
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14) // PB.14 input
 #define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13) // PB.13 input
-#if defined(RADIO_NB4P)
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
   #define UCHARGER_GPIO_PIN_INV
   #define UCHARGER_CHARGE_END_GPIO_PIN_INV
 #endif
