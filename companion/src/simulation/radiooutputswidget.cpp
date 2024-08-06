@@ -284,6 +284,11 @@ void RadioOutputsWidget::setupLsDisplay()
 
 QWidget * RadioOutputsWidget::createLogicalSwitch(QWidget * parent, int switchNo)
 {
+  //TODO: place logicSwitch friendly name on radio output window.
+  //int modelindex = RadioData().generalSettings.currModelIndex;
+  //ModelData &model = RadioData().models[modelindex];
+  //QString namestring = model.logicalSw[switchNo].custName;
+
   QLabel * swtch = new QLabel(parent);
   swtch->setAutoFillBackground(true);
   swtch->setFrameStyle(QFrame::Panel | QFrame::Raised);
@@ -299,7 +304,8 @@ QWidget * RadioOutputsWidget::createLogicalSwitch(QWidget * parent, int switchNo
 #endif
   font.setBold(false);
   swtch->setFont(font);
-  swtch->setText(QString("%1").arg(switchNo+1, 2, 10, QChar('0')));
+  swtch->setText(QString("%1").arg(switchNo+1, 2, 10, QChar('0')) );
+  //swtch->setText(QString("%1").arg(switchNo+1, 2, 10, QChar('0')) + ": " +  namestring);
   swtch->setAlignment(Qt::AlignCenter);
   m_logicSwitchMap.insert(switchNo, swtch);
   return swtch;

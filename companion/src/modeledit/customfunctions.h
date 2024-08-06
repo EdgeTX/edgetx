@@ -47,6 +47,7 @@ class CustomFunctionsPanel : public GenericPanel
 
   private slots:
     void customFunctionEdited();
+    void onNameEdited();
     void functionEdited();
     void onCustomContextMenuRequested(QPoint pos);
     void refreshCustomFunction(int index, bool modified=false);
@@ -95,6 +96,7 @@ class CustomFunctionsPanel : public GenericPanel
     QSet<QString> tracksSet;
     QSet<QString> scriptsSet;
     int mediaPlayerCurrent;
+    QLineEdit * name[CPN_MAX_SPECIAL_FUNCTIONS];
     QComboBox * fswtchSwtch[CPN_MAX_SPECIAL_FUNCTIONS];
     QComboBox * fswtchFunc[CPN_MAX_SPECIAL_FUNCTIONS];
     QCheckBox * fswtchParamGV[CPN_MAX_SPECIAL_FUNCTIONS];

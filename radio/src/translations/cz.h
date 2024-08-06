@@ -81,10 +81,12 @@
 
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Stopky"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWSTICKY                 "Sticky"
   #define TR_CSWSTAY                   "Edge"
 #else
   #define TR_CSWTIMER                  "Tim"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWSTICKY                 "Stky"
   #define TR_CSWSTAY                   "Edge"
 #endif

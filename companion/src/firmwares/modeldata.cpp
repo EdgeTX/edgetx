@@ -719,6 +719,12 @@ int ModelData::updateReference()
           }
           break;
         case LS_FAMILY_STICKY:
+        case LS_FAMILY_SAFE:
+          if (lsd->val1 != 0)
+            updateSwitchIntRef(lsd->val1);
+          if (lsd->val2 != 0)
+            updateSwitchIntRef(lsd->val2);
+          break;
         case LS_FAMILY_VBOOL:
           oldval1 = lsd->val1;
           oldval2 = lsd->val2;

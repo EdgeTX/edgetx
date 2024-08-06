@@ -76,6 +76,7 @@
 #define TR_CSWTIMER                  "定时"
 #define TR_CSWSTICKY                 "粘滞"
 #define TR_CSWSTAY                   "边沿"
+#define TR_CSWSAFE                   "Safe"
 
 #define TR_CSWEQUAL                    "a=x"
 #define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
