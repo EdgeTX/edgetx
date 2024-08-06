@@ -22,7 +22,7 @@
 #pragma once
 
 #include <stdint.h>
-// MUST match TR_FS_COLOR_LIST (  "White",  "Red",    "Green",   "Yellow", "Orange", "Blue",  "Pink",    "Off","Custom")
+// MUST match TR_FS_COLOR_LIST (  "White",  "Red",    "Green",   "Yellow", "Orange", "Blue",  "Pink",    "Off",    Custom gets display when none previous match
 constexpr uint32_t colorTable[] = {0xF8F8F8, 0xF80000, 0x00F800, 0xF8F800, 0xF84000, 0x0000F8, 0xF800F8, 0x000000};
 
 void setFSLedOFF(uint8_t index);
