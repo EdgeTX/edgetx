@@ -23,7 +23,7 @@
 
 #include "channel_bar.h"
 #include "list_line_button.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "output_edit.h"
 #include "etx_lv_theme.h"
 

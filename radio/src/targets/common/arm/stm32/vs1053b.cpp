@@ -26,7 +26,7 @@
 
 #include "hal/gpio.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if !defined(SIMU)
 

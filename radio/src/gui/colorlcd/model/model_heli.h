@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "tabsgroup.h"
 
 class ModelHeliPage : public PageTab

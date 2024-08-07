@@ -26,7 +26,7 @@
 #include "hal/module_driver.h"
 
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #define PXX2_TYPE_C_MODULE                  0x01
   #define PXX2_TYPE_ID_REGISTER             0x01

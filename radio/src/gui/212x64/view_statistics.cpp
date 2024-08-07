@@ -20,7 +20,7 @@
  */
 
 #include "hal/adc_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "tasks.h"
 
 #define STATS_1ST_COLUMN               FW/2

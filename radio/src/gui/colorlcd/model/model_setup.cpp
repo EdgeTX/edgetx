@@ -41,7 +41,7 @@
 #include "trainer_setup.h"
 #include "trims_setup.h"
 #include "module_setup.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "storage/modelslist.h"
 #include "etx_lv_theme.h"
 

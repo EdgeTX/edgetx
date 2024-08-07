@@ -22,7 +22,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 enum SwitchHwType {
   SWITCH_HW_2POS = 0,

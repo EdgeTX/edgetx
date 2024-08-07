@@ -26,7 +26,7 @@
 using std::list;
 
 #if defined(SDCARD_YAML)
-#include "opentx.h"
+#include "edgetx.h"
 #include "storage/sdcard_yaml.h"
 #include "yaml/yaml_datastructs.h"
 #include "yaml/yaml_labelslist.h"

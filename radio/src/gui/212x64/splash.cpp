@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define MAXIMUM_SPLASH_IMAGE_SIZE 3072
 const struct {

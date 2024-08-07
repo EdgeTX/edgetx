@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum SlovakPrompts {
   SK_PROMPT_NUMBERS_BASE = 0,

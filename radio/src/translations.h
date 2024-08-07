@@ -22,7 +22,7 @@
 #pragma once
 
 #include <limits.h>
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "translations/untranslated.h"
 #include "audio.h"
 

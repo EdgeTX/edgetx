@@ -21,7 +21,7 @@
 
 #include "input_source.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 

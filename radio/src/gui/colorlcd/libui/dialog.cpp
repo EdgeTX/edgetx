@@ -18,7 +18,7 @@
 
 #include "dialog.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "mainwindow.h"
 #include "progress.h"
 #include "etx_lv_theme.h"

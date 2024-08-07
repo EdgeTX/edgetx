@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
 
 static void input_mix_line_constructor(const lv_obj_class_t* class_p,

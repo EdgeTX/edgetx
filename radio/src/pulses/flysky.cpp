@@ -21,7 +21,7 @@
  * Dedicate for FlySky NV14 board.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #include "flysky.h"
 #include "telemetry/flysky_nv14.h"

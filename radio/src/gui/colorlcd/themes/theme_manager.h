@@ -25,7 +25,7 @@
 
 #include "colors.h"
 #include "debug.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "sdcard.h"
 
 struct ColorEntry

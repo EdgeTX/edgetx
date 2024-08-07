@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 MenuHandlerFunc menuHandlers[5];
 event_t menuEvent = 0;

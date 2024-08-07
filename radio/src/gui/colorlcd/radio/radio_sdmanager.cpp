@@ -20,7 +20,7 @@
  */
 
 #include "radio_sdmanager.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 #include "LvglWrapper.h"
 #include "io/frsky_firmware_update.h"

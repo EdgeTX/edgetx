@@ -27,7 +27,7 @@
 #include "list_line_button.h"
 #include "lua/lua_api.h"
 #include "menus.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "etx_lv_theme.h"

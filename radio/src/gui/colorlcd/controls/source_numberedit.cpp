@@ -21,7 +21,7 @@
 
 #include "source_numberedit.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "sourcechoice.h"
 
 void SourceNumberEdit::value_changed(lv_event_t* e)

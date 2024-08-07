@@ -24,7 +24,7 @@
 
 #include "definitions.h"
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 PACK(struct GlobalData {
   uint8_t externalAntennaEnabled:1;

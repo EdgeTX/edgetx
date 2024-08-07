@@ -27,7 +27,7 @@
 #include "dma2d.h"
 #include "fonts.h"
 #include "lvgl/src/draw/sw/lv_draw_sw.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "strhelpers.h"
 
 BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height) :

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 uint8_t * lcdLoadBitmap(uint8_t * bmp, const char * filename, uint8_t width, uint8_t height)
 {

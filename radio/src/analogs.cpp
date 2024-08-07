@@ -21,7 +21,7 @@
 
 #include "analogs.h"
 #include "dataconstants.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 
 #include "hal/adc_driver.h"
 

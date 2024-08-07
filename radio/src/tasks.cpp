@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "timers_driver.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/watchdog_driver.h"

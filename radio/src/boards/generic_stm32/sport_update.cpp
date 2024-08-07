@@ -27,7 +27,7 @@
 
 #include "hal.h"
 
-#include "opentx.h" // g_eeGeneral
+#include "edgetx.h" // g_eeGeneral
 
 void sportUpdateInit()
 {

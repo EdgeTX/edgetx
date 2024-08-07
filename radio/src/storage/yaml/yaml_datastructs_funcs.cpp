@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "opentx_constants.h"
+#include "edgetx.h"
+#include "edgetx_constants.h"
 #include "yaml_bits.h"
 #include "yaml_node.h"
 #include "yaml_tree_walker.h"

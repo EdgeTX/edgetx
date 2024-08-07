@@ -28,7 +28,7 @@
 #include "pulses/pxx.h"
 #include "trainer.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "pulses/pulses.h"
 
 #if defined(PXX1)

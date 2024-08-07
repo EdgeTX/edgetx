@@ -28,7 +28,7 @@
 #include "lua_api.h"
 #include "lua_lvgl_widget.h"
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #define LUA_TAP_TIME 250 // 250 ms
 

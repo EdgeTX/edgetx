@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #if !defined(SIMU)
 static inline void DMAWait()

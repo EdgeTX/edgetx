@@ -23,7 +23,7 @@
 #include "hal/storage.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(LIBOPENUI)
 #include "libopenui.h"

@@ -20,7 +20,7 @@
 
 #include "bitmapbuffer.h"
 #include "lib_file.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 
 FIL imgFile __DMA;
 

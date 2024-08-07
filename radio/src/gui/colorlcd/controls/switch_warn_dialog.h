@@ -23,7 +23,7 @@
 
 #include "fullscreen_dialog.h"
 #include "mainwindow.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 class SwitchWarnDialog : public FullScreenDialog
 {

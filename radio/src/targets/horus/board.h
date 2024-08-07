@@ -25,7 +25,7 @@
 //#include "stm32_hal.h"
 //#include "stm32_hal_ll.h"
 #include "definitions.h"
-#include "opentx_constants.h"
+#include "edgetx_constants.h"
 
 // Defines used in board_common.h
 #define ROTARY_ENCODER_NAVIGATION

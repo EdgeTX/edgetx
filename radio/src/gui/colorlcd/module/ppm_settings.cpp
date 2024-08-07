@@ -21,7 +21,7 @@
 
 #include "ppm_settings.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

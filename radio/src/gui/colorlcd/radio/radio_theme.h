@@ -22,7 +22,7 @@
 #pragma once
 
 #include "tabsgroup.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 class ListBox;
 class TabsGroup;

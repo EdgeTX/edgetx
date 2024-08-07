@@ -24,7 +24,7 @@
 #include "libopenui.h"
 #include "lua_api.h"
 #include "lua_widget.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #include "api_colorlcd.h"
 

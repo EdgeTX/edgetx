@@ -21,7 +21,7 @@
 
 // NOTE: This file is identical to the EN version
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum DutchPrompts {
   NL_PROMPT_NUMBERS_BASE = 0,

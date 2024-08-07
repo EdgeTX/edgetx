@@ -35,7 +35,7 @@
 #include "model_select.h"
 #include "model_setup.h"
 #include "model_telemetry.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "special_functions.h"
 #include "translations.h"
 #include "view_channels.h"

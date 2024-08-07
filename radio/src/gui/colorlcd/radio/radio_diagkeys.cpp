@@ -23,7 +23,7 @@
 
 #include "hal/rotary_encoder.h"
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(PCBPL18)
 static const uint8_t _trimMap[MAX_TRIMS * 2] = {8, 9, 10, 11, 12, 13, 14, 15,

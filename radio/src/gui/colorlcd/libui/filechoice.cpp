@@ -20,7 +20,7 @@
 
 #include <algorithm>
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "lib_file.h"
 #include "menu.h"
 #include "menutoolbar.h"

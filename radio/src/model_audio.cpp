@@ -21,7 +21,7 @@
 
 #include "model_audio.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 
 static const char* const _suffixes[] = {"-off", "-on"};

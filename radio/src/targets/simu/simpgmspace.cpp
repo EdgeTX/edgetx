@@ -26,7 +26,7 @@
   #include <SDL.h>
 #endif
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "simulcd.h"
 
 #include "hal/adc_driver.h"

@@ -24,7 +24,7 @@
 
 #define LANGUAGE_PACKS_DEFINITION
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "tasks/mixer_task.h"
 #include "input_mapping.h"
 

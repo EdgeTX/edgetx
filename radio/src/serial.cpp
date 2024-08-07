@@ -36,7 +36,7 @@
 #endif
 
 #if !defined(BOOT)
-  #include "opentx.h"
+  #include "edgetx.h"
   #include "lua/lua_api.h"
 #else
   #include "dataconstants.h"

@@ -22,7 +22,7 @@
 #include "custom_failsafe.h"
 
 #include "channel_bar.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)

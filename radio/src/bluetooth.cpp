@@ -20,7 +20,7 @@
  */
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "io/frsky_firmware_update.h"
 #include "bluetooth_driver.h"
 #include "trainer.h"

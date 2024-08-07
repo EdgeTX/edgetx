@@ -21,7 +21,7 @@
 
 #define LANGUAGE_PACKS_DEFINITION
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
 #include "hal/usb_driver.h"
