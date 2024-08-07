@@ -80,6 +80,28 @@
   // Monitor pin
   #define VBUS_MONITOR_GPIO               GPIO_PIN(GPIOJ, 14) // PJ.14
 
+// Switches
+#define HARDWARE_SWITCH_A
+#define STORAGE_SWITCH_A
+#define HARDWARE_SWITCH_B
+#define STORAGE_SWITCH_B
+#define HARDWARE_SWITCH_C
+#define STORAGE_SWITCH_C
+#define HARDWARE_SWITCH_D
+#define STORAGE_SWITCH_D
+#define HARDWARE_SWITCH_E
+#define STORAGE_SWITCH_E
+#define HARDWARE_SWITCH_F
+#define STORAGE_SWITCH_F
+#define HARDWARE_SWITCH_G
+#define STORAGE_SWITCH_G
+#define HARDWARE_SWITCH_H
+#define STORAGE_SWITCH_H
+
+// Index of all switches / trims
+#define KEYS_GPIO_ACTIVE_HIGH
+#define TRIMS_GPIO_ACTIVE_HIGH
+
   // ADC
 
   #define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_2      // PA.02
@@ -478,6 +500,8 @@
 
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
   #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)  // PG.03 output
+#elif defined(RADIO_NV14_FAMILY)
+  #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOH, 11)  // PH.11 output
 #endif
 
 #if defined (WIRELESS_CHARGER)
@@ -562,7 +586,7 @@
 #define USB_GPIO_AF                     GPIO_AF10
 
 #if defined(RADIO_NV14_FAMILY) 
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA,9)   // PA.09
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
 #define USB_SW_GPIO                     GPIO_PIN(GPIOI, 10) // PI.10
 #endif
 
