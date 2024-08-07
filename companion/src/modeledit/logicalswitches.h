@@ -19,7 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _LOGICALSWITCHES_H_
+#define _LOGICALSWITCHES_H_
 
 #include "modeledit.h"
 #include "radiodata.h"
@@ -95,3 +96,5 @@ class LogicalSwitchesPanel : public ModelPanel
     void updateItemModels();
     void connectItemModelEvents(const FilteredItemModel * itemModel);
 };
+
+#endif // _LOGICALSWITCHES_H_

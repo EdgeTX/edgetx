@@ -517,7 +517,7 @@ void LogicalSwitchesPanel::populateFunctionCB(QComboBox *b)
     LS_FN_DAPOS,
     LS_FN_TIMER,
     LS_FN_STICKY,
-    LS_FN_SAFE,
+    LS_FN_SAFE
   };
 
   b->clear();

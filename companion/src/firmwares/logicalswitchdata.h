@@ -19,7 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef LOGICALSWITCHDATA_H
+#define LOGICALSWITCHDATA_H
 
 #include <QtCore>
 
@@ -49,9 +50,8 @@ enum CSFunction {
   LS_FN_TIMER,
   LS_FN_STICKY,
   LS_FN_EDGE,
-  LS_FN_SAFE,
+  LS_FN_SAFE
   // later ... LS_FN_RANGE,
-  LS_FN_MAX,
 
 };
 
@@ -62,7 +62,7 @@ enum CSFunctionFamily {
   LS_FAMILY_TIMER,
   LS_FAMILY_STICKY,
   LS_FAMILY_EDGE,
-  LS_FAMILY_SAFE,
+  LS_FAMILY_SAFE
 };
 
 class LogicalSwitchData {
@@ -93,3 +93,5 @@ class LogicalSwitchData {
     QString nameToString(int index) const;
     void convert(RadioDataConversionState & cstate);
 };
+
+#endif // LOGICALSWITCHDATA_H
