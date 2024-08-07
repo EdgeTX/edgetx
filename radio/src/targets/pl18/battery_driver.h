@@ -42,23 +42,6 @@ enum ChargeState
   CHARGE_FINISHED
 };
 
-#if defined(UCHARGER_GPIO_PIN_INV)
-  #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 0 : 1
-#else
-  #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
-#endif
-#if defined(UCHARGER_CHARGE_END_GPIO_PIN_INV)
-  #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
-#else
-  #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 1 : 0
-#endif
-#if defined(UCHARGER_EN_GPIO)
-#define ENABLE_UCHARGER()                 gpio_set(UCHARGER_EN_GPIO)
-#define DISABLE_UCHARGER()                gpio_clear(UCHARGER_EN_GPIO)
-#else
-#define ENABLE_UCHARGER()
-#define DISABLE_UCHARGER()
-#endif
 #define IS_WCHARGER_ACTIVE()              gpio_read(WCHARGER_GPIO) ? 1 : 0
 #define IS_WCHARGER_CHARGE_END_ACTIVE()   gpio_read(WCHARGER_CHARGE_END_GPIO) ? 1 : 0
 #define ENABLE_WCHARGER()                 gpio_set(WCHARGER_EN_GPIO)
