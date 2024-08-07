@@ -249,11 +249,13 @@ bool audioChipReset();
 
 #define audioDisableIrq()             // interrupts must stay enabled on Horus
 #define audioEnableIrq()              // interrupts must stay enabled on Horus
-#if defined(PCBNV14)
-#define setSampleRate(freq)
+
+#if defined(AUDIO_SPI)
+  #define setSampleRate(freq)
 #else
-void setSampleRate(uint32_t frequency);
+  void setSampleRate(uint32_t frequency);
 #endif
+
 void setScaledVolume(uint8_t volume);
 void setVolume(uint8_t volume);
 int32_t getVolume();
