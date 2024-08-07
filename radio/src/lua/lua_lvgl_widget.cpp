@@ -20,7 +20,7 @@
  */
 
 #include "lua_widget.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "page.h"
 #include "slider.h"
 #include "toggleswitch.h"

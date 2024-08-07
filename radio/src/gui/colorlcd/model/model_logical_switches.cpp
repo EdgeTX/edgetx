@@ -23,7 +23,7 @@
 
 #include "libopenui.h"
 #include "list_line_button.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"

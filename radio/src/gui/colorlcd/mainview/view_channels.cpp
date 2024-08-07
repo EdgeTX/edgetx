@@ -27,7 +27,7 @@
 #include "menu_radio.h"
 #include "menu_screen.h"
 #include "model_select.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "view_logical_switches.h"
 
 //-----------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "strhelpers.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)

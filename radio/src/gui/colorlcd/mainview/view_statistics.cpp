@@ -21,7 +21,7 @@
 
 #include "view_statistics.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 #include "mixer_scheduler.h"

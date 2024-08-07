@@ -24,7 +24,7 @@
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "model_select.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "screen_setup.h"
 #include "storage/storage.h"
 #include "view_channels.h"

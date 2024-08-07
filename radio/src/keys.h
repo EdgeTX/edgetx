@@ -23,7 +23,7 @@
 #define _KEYS_H_
 
 #include <inttypes.h>
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #include "hal/key_driver.h"
 

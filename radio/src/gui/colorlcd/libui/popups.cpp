@@ -22,7 +22,7 @@
 #include "popups.h"
 
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "pwr.h"
 #include "hal/watchdog_driver.h"
 #include "etx_lv_theme.h"

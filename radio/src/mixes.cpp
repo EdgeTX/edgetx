@@ -23,7 +23,7 @@
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 static uint8_t _nb_mix_lines;
 

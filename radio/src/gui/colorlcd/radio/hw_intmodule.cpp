@@ -21,7 +21,7 @@
 
 #include "hw_intmodule.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(CROSSFIRE)
 #include "telemetry/crossfire.h"

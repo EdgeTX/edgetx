@@ -20,7 +20,7 @@
  */
 
 #include "afhds3_transport.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "debug.h"
 
 #include "board.h"

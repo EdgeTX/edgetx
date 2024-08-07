@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 uint8_t g_beepCnt;
 uint8_t beepAgain = 0;

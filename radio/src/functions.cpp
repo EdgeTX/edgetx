@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 #include "boards/generic_stm32/rgb_leds.h"
 

@@ -24,7 +24,7 @@
 #include "gvar_numberedit.h"
 #include "source_numberedit.h"
 #include "model_curves.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

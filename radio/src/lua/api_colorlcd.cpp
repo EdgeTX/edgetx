@@ -24,7 +24,7 @@
 #include <cctype>
 #include <cstdio>
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 #include "widget.h"
 

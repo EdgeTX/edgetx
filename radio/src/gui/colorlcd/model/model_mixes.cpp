@@ -20,7 +20,7 @@
  */
 
 #include "model_mixes.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "mixer_edit.h"
 #include "mixes.h"
 #include "channel_bar.h"

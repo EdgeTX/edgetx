@@ -24,7 +24,7 @@
 #include "LvglWrapper.h"
 #include "libopenui.h"
 #include "mainwindow.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "hal/watchdog_driver.h"

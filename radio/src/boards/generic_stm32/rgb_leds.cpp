@@ -22,7 +22,7 @@
 #include "stm32_pulse_driver.h"
 #include "rgb_leds.h"
 #include "hal.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(LED_STRIP_GPIO)
 

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum LimitsItems {
   ITEM_LIMITS_CH_NAME,

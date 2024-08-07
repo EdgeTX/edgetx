@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(SIMU)
 const uint32_t cpu_uid[3] = { 0x12345678, 0x55AA55AA, 0x87654321};

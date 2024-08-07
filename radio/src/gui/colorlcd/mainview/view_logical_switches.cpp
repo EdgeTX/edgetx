@@ -21,7 +21,7 @@
 
 #include "view_logical_switches.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 #include "etx_lv_theme.h"
 

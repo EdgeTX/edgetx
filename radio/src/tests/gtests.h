@@ -27,7 +27,7 @@
 #include <gtest/gtest.h>
 
 #define SWAP_DEFINED
-#include "opentx.h"
+#include "edgetx.h"
 #include "model_init.h"
 #include "switches.h"
 #include "hal/switch_driver.h"

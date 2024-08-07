@@ -23,7 +23,7 @@
 
 #include <cinttypes>
 
-#include "opentx_constants.h"
+#include "edgetx_constants.h"
 
 enum LogicalSwitchFamilies {
   LS_FAMILY_OFS,

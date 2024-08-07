@@ -25,7 +25,7 @@
 #include "LvglWrapper.h"
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "etx_lv_theme.h"
 
 typedef uint32_t WindowFlags;

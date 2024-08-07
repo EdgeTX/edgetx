@@ -22,7 +22,7 @@
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "board.h"
 #include "lcd.h"
 

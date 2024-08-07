@@ -21,7 +21,7 @@
 
 #include "timer_setup.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switchchoice.h"
 #include "timeedit.h"
 

@@ -20,7 +20,7 @@
  */
 
 #include "bind_menu_d16.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(MULTIMODULE)
   #include "telemetry/multi.h"

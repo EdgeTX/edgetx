@@ -24,7 +24,7 @@
 #include "stm32_timer.h"
 #include "stm32_dma.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if !defined(SIMU)
 const AudioBuffer * nextBuffer = nullptr;

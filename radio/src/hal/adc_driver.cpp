@@ -22,7 +22,7 @@
 #include "adc_driver.h"
 #include "board.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;

@@ -27,7 +27,7 @@
 #include "source_numberedit.h"
 #include "input_edit_adv.h"
 #include "input_source.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "switchchoice.h"
 

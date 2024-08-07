@@ -22,7 +22,7 @@
 #pragma once
 
 #include "button.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "tabsgroup.h"
 
 class ListLineButton : public ButtonBase

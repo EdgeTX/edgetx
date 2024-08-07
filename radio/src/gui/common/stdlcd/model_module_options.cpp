@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include <math.h>
 
 #define RECEIVER_OPTIONS_2ND_COLUMN  (11*FW)

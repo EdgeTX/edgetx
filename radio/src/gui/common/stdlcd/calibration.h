@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 // Runs the main calibration steps
 void menuCommonCalib(event_t event);

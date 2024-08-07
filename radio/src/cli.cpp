@@ -22,7 +22,7 @@
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/stream_buffer.h>
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "timers_driver.h"
 #include "hal/watchdog_driver.h"
 

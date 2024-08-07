@@ -24,7 +24,7 @@
 #include "analogs.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)

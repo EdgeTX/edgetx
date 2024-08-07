@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 extern "C" volatile tmr10ms_t g_tmr10ms;
 static inline tmr10ms_t get_tmr10ms() { return g_tmr10ms; }

@@ -27,7 +27,7 @@
 
 #include "hal.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "trainer.h"
 
 static void (*_trainer_timer_isr)();

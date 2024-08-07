@@ -28,7 +28,7 @@
 #include "pulses/pulses.h"
 #include "gui_common.h"
 
-#include "opentx.h" // reusableBuffer
+#include "edgetx.h" // reusableBuffer
 
 #include <algorithm>
 

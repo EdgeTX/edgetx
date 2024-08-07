@@ -22,7 +22,7 @@
 #ifndef _GPS_H_
 #define _GPS_H_
 
-#include "opentx.h"
+#include "edgetx.h"
 #include <inttypes.h>
 
 struct gpsdata_t

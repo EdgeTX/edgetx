@@ -22,9 +22,9 @@
 #include "view_main_decoration.h"
 
 // because of IS_POT_MULTIPOS() and pal
-#include "opentx.h"
+#include "edgetx.h"
 
-// these 2 need things from opentx.h
+// these 2 need things from edgetx.h
 #include "sliders.h"
 #include "trims.h"
 

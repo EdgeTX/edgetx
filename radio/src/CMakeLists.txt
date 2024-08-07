@@ -397,7 +397,7 @@ endif()
 
 set(SRC
   ${SRC}
-  opentx.cpp
+  edgetx.cpp
   functions.cpp
   strhelpers.cpp
   switches.cpp

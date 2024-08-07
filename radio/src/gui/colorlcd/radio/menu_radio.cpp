@@ -25,7 +25,7 @@
 #include "menu_screen.h"
 #include "model_select.h"
 #include "myeeprom.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "radio_calibration.h"
 #include "radio_hardware.h"
 #include "radio_sdmanager.h"

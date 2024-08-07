@@ -20,7 +20,7 @@
  */
 #include "keys.h"
 
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "definitions.h"
 
 #include "timers_driver.h"
@@ -29,7 +29,7 @@
 #include "dataconstants.h"
 
 #if !defined(BOOT) && defined(USE_HATS_AS_KEYS)
-#include "opentx.h"
+#include "edgetx.h"
 #endif
 
 // long key press minimum duration (x10ms),

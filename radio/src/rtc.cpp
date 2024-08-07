@@ -20,7 +20,7 @@
  */
 
 #include <limits.h>
-#include "opentx.h"
+#include "edgetx.h"
 
 extern void rtcdriver_settime(struct gtm * t);
 

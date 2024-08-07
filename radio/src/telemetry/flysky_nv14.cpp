@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "flysky_nv14.h"
 #include "flysky_ibus.h"
 #include "pulses/afhds2.h"

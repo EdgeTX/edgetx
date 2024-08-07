@@ -24,7 +24,7 @@
 #include "hal/switch_driver.h"
 #include "hal/trainer_driver.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 #include "mixes.h"
 

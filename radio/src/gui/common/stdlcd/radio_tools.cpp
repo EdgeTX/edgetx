@@ -21,7 +21,7 @@
 
 #include <algorithm>
 #include <vector>
-#include "opentx.h"
+#include "edgetx.h"
 #include "hal/module_port.h"
 
 extern uint8_t g_moduleIdx;

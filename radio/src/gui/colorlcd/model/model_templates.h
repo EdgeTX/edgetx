@@ -23,7 +23,7 @@
 
 #include <functional>
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "page.h"
 
 class TemplatePage : public Page

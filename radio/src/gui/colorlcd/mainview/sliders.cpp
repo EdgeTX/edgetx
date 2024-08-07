@@ -23,7 +23,7 @@
 
 #include "bitmaps.h"
 #include "hal/adc_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 
 static const lv_style_const_prop_t shadow1_props[] = {

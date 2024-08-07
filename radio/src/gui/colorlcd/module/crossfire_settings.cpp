@@ -20,7 +20,7 @@
  */
 
 #include "crossfire_settings.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #include "mixer_scheduler.h"
 
