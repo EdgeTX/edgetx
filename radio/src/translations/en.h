@@ -518,11 +518,13 @@
   #define TR_MENULIMITS                "OUTPUTS"
 #define TR_MENUCURVES                  "CURVES"
 #define TR_MENUCURVE                   "CURVE"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Name"
+#define TR_CUST_FUNC_CUST_LABEL        "Name"
+#endif
 #define TR_MENULOGICALSWITCH           "LOGICAL SWITCH"
 #define TR_MENULOGICALSWITCHES         "LOGICAL SWITCHES"
-#define TR_CUST_LOGICALSWITCH_LABEL    "Name"
 #define TR_MENUCUSTOMFUNC              "SPECIAL FUNCTIONS"
-#define TR_CUST_FUNC_CUST_LABEL        "Name"
 #define TR_MENUCUSTOMSCRIPTS           "CUSTOM SCRIPTS"
 #define TR_MENUTELEMETRY               "TELEMETRY"
 #define TR_MENUSTAT                    "STATS"

@@ -523,6 +523,10 @@
   #define TR_MENULIMITS                "SAÍDAS"
 #define TR_MENUCURVES                  "CURVAS"
 #define TR_MENUCURVE                   "CURVA"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Nome"
+#define TR_CUST_FUNC_CUST_LABEL        "Nome"
+#endif
 #define TR_MENULOGICALSWITCH           "CHAVE LÓGICA"
 #define TR_MENULOGICALSWITCHES         "CHAVES LÓGICAS"
 #define TR_MENUCUSTOMFUNC              "FUNÇÃO ESPECIAL"

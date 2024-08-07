@@ -520,6 +520,10 @@
 #define TR_MENULIMITS                  "UDGANGE"
 #define TR_MENUCURVES                  "KURVER"
 #define TR_MENUCURVE                   "KURVE"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Navn"
+#define TR_CUST_FUNC_CUST_LABEL        "Navn"
+#endif
 #define TR_MENULOGICALSWITCH           "LOGISK FUNKTION"
 #define TR_MENULOGICALSWITCHES         "LOGISKE FUNKTIONER"
 #define TR_MENUCUSTOMFUNC              "SPECIALFUNKTIONER"

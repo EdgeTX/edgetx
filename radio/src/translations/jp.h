@@ -519,6 +519,10 @@
 #define TR_MENULIMITS                  "出力"
 #define TR_MENUCURVES                  "カーブ"
 #define TR_MENUCURVE                   "カーブ"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "名称"
+#define TR_CUST_FUNC_CUST_LABEL        "名称"
+#endif
 #define TR_MENULOGICALSWITCH           "論理スイッチ"
 #define TR_MENULOGICALSWITCHES         "論理スイッチ"
 #define TR_MENUCUSTOMFUNC              "スペシャルファンクション"

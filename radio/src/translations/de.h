@@ -521,6 +521,10 @@
 #define TR_MENULIMITS                  "SERVOS"  //"AUSGABEN" oder "Servos"
 #define TR_MENUCURVES                  "KURVEN"
 #define TR_MENUCURVE                   "KURVE"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Name"
+#define TR_CUST_FUNC_CUST_LABEL        "Name"
+#endif
 #define TR_MENULOGICALSWITCH           "LOGIKSCHALTER"
 #define TR_MENULOGICALSWITCHES         "LOGIKSCHALTER"
 #define TR_MENUCUSTOMFUNC              TR("SPEZ.-FUNKTIONEN", "SPEZIAL-FUNKTIONEN")

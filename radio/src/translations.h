@@ -528,9 +528,7 @@ extern const char STR_MENUCURVES[];
 extern const char STR_MENUCURVE[];
 extern const char STR_MENULOGICALSWITCH[];
 extern const char STR_MENULOGICALSWITCHES[];
-extern const char STR_CUST_LOGICALSWITCH_LABEL[];
 extern const char STR_MENUCUSTOMFUNC[];
-extern const char STR_CUST_FUNC_CUST_LABEL[];
 extern const char STR_MENUCUSTOMSCRIPTS[];
 extern const char STR_MENUTELEMETRY[];
 extern const char STR_MENUSTAT[];
@@ -813,6 +811,8 @@ extern const char STR_FAV_MATCH[];
 extern const char* const STR_LABELS_SELECT_MODE[];
 extern const char* const STR_LABELS_MATCH_MODE[];
 extern const char* const STR_FAV_MATCH_MODE[];
+extern const char STR_CUST_LOGICALSWITCH_LABEL[];
+extern const char STR_CUST_FUNC_CUST_LABEL[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];

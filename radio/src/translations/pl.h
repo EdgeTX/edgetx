@@ -518,6 +518,10 @@
 
 #define TR_MENUCURVES          "KRZYWE"
 #define TR_MENUCURVE           "KRZYWA"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Nazwa"
+#define TR_CUST_FUNC_CUST_LABEL        "Nazwa"
+#endif
 #define TR_MENULOGICALSWITCH    "PRZEŁ. LOGICZNY"
 #define TR_MENULOGICALSWITCHES   TR("PRZEŁ. LOG.", "PRZEŁ. LOGICZNE")
 #define TR_MENUCUSTOMFUNC      "FUNKCJE SPECJALNE"

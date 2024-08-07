@@ -515,6 +515,10 @@
 #define TR_MENULIMITS                  "输出设置"
 #define TR_MENUCURVES                  "曲线设置"
 #define TR_MENUCURVE                   "曲线"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "名称"
+#define TR_CUST_FUNC_CUST_LABEL        "名称"
+#endif
 #define TR_MENULOGICALSWITCH           "逻辑开关"
 #define TR_MENULOGICALSWITCHES         "逻辑开关设置"
 #define TR_MENUCUSTOMFUNC              "特殊功能设置"
