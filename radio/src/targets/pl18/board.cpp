@@ -221,7 +221,6 @@ void boardOff()
   ledStripOff();
   if (isChargerActive())
   {
-    delay_ms(100);  // Add a delay to wait for lcdOff
 //    RTC->BKP0R = SOFTRESET_REQUEST;
     NVIC_SystemReset();
   }
