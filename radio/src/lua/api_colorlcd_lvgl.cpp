@@ -109,6 +109,11 @@ static int luaLvglSlider(lua_State *L)
   return luaLvglObj(L, [=]() { return new LvglWidgetSlider(); }, true);
 }
 
+static int luaLvglPage(lua_State *L)
+{
+  return luaLvglObj(L, [=]() { return new LvglWidgetPage(); }, true);
+}
+
 static int luaLvglConfirm(lua_State *L)
 {
   auto obj = new LvglWidgetConfirmDialog();
@@ -266,9 +271,21 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 static int luaLvglBuild(lua_State *L)
 {
   if (luaLvglManager) {
+    auto p = optLvgl(L, 2);
+    Window* prevParent = nullptr;
+    int lytOffset = -2;
+    if (p) {
+      prevParent = luaLvglManager->getTempParent();
+      luaLvglManager->setTempParent(p->getWindow());
+      lytOffset = -3;
+    }
+
     // Return array of lvgl object references
     lua_newtable(L);
-    buildLvgl(L, -2, -1);
+    buildLvgl(L, lytOffset, -1);
+
+    if (p)
+      luaLvglManager->setTempParent((prevParent));
   } else {
     lua_pushnil(L);
   }
@@ -296,6 +313,7 @@ LROT_FUNCENTRY(textEdit, luaLvglTextEdit)
 LROT_FUNCENTRY(numberEdit, luaLvglNumberEdit)
 LROT_FUNCENTRY(choice, luaLvglChoice)
 LROT_FUNCENTRY(slider, luaLvglSlider)
+LROT_FUNCENTRY(page, luaLvglPage)
 // Manipulation functions
 LROT_FUNCENTRY(set, luaLvglSet)
 LROT_FUNCENTRY(show, luaLvglShow)
