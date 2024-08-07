@@ -298,6 +298,7 @@ void battery_charge_init()
 }
 
 void ledChargingInfo(uint16_t chargeState) {
+#if defined(LED_STRIP_GPIO)
   static int ledIdx = 0;
   ledIdx--;
   if (ledIdx < 0) {
@@ -311,6 +312,7 @@ void ledChargingInfo(uint16_t chargeState) {
     }
   }
   rgbLedColorApply();
+#endif
 }
 
 void drawChargingInfo(uint16_t chargeState) {
