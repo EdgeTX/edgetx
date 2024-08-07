@@ -583,7 +583,7 @@ extern const char STR_BIND_OK[];
 extern const char STR_INTERNALRF[];
 extern const char STR_INTERNAL_MODULE[];
 extern const char STR_EXTERNAL_MODULE[];
-extern const char STR_OPENTX_UPGRADE_REQUIRED[];
+extern const char STR_EDGETX_UPGRADE_REQUIRED[];
 extern const char STR_TELEMETRY_DISABLED[];
 extern const char STR_MORE_OPTIONS_AVAILABLE[];
 extern const char STR_NO_MODULE_INFORMATION[];

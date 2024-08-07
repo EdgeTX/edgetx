@@ -807,7 +807,7 @@
 #define TR_INTERNALRF                  "內置發射"
 #define TR_INTERNAL_MODULE             TR("內置發射", "內置發射")
 #define TR_EXTERNAL_MODULE             TR("外置發射", "外置發射")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX需要升級"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX需要升級"
 #define TR_TELEMETRY_DISABLED          "禁用回傳"
 #define TR_MORE_OPTIONS_AVAILABLE      "更多可用選項"
 #define TR_NO_MODULE_INFORMATION       "無模塊信息"
