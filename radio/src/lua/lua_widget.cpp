@@ -191,36 +191,29 @@ void LuaWidget::redraw_cb(lv_event_t* e)
 
   LuaWidget* widget = (LuaWidget*)lv_obj_get_user_data(target);
 
-  if (widget) {
-    if (widget->useLvglLayout()) {
-      if (!widget->isCreated()) {
-        widget->update();
-        widget->setCreated();
-      }
-    } else {
-      lv_draw_ctx_t* draw_ctx = lv_event_get_draw_ctx(e);
+  if (widget && !widget->useLvglLayout()) {
+    lv_draw_ctx_t* draw_ctx = lv_event_get_draw_ctx(e);
 
-      lv_area_t a, clipping, obj_coords;
-      lv_area_copy(&a, draw_ctx->buf_area);
-      lv_area_copy(&clipping, draw_ctx->clip_area);
-      lv_obj_get_coords(target, &obj_coords);
+    lv_area_t a, clipping, obj_coords;
+    lv_area_copy(&a, draw_ctx->buf_area);
+    lv_area_copy(&clipping, draw_ctx->clip_area);
+    lv_obj_get_coords(target, &obj_coords);
 
-      auto w = a.x2 - a.x1 + 1;
-      auto h = a.y2 - a.y1 + 1;
+    auto w = a.x2 - a.x1 + 1;
+    auto h = a.y2 - a.y1 + 1;
 
-      TRACE_WINDOWS("Draw %s", widget->getWindowDebugString().c_str());
+    TRACE_WINDOWS("Draw %s", widget->getWindowDebugString().c_str());
 
-      BitmapBuffer buf = {BMP_RGB565, (uint16_t)w, (uint16_t)h,
-                          (uint16_t*)draw_ctx->buf};
+    BitmapBuffer buf = {BMP_RGB565, (uint16_t)w, (uint16_t)h,
+                        (uint16_t*)draw_ctx->buf};
 
-      buf.setDrawCtx(draw_ctx);
+    buf.setDrawCtx(draw_ctx);
 
-      buf.setOffset(obj_coords.x1 - a.x1, obj_coords.y1 - a.y1);
-      buf.setClippingRect(clipping.x1 - a.x1, clipping.x2 + 1 - a.x1,
-                          clipping.y1 - a.y1, clipping.y2 + 1 - a.y1);
+    buf.setOffset(obj_coords.x1 - a.x1, obj_coords.y1 - a.y1);
+    buf.setClippingRect(clipping.x1 - a.x1, clipping.x2 + 1 - a.x1,
+                        clipping.y1 - a.y1, clipping.y2 + 1 - a.y1);
 
-      widget->refresh(&buf);
-    }
+    widget->refresh(&buf);
   }
 }
 
@@ -267,32 +260,42 @@ void LuaWidget::checkEvents()
 {
   Widget::checkEvents();
 
-  // paint has not been called
-  if (!refreshed) {
-    if (isCreated())
-      background();
-    refreshed = true;
+  // Call update once after widget first created
+  if (!created) {
+    created = true;
+    update();
   }
 
+  // refresh() has not been called
+  if (!refreshed)
+    background();
+
   refreshed = false;
+
   if (useLvglLayout()) {
-    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN) && isCreated()) {
-      PROTECT_LUA() {
-        luaLvglManager = this;
-        refresh(nullptr);
-        if (!errorMessage) {
-          if (!callRefs(lsWidgets)) {
-            setErrorMessage("callRefs()");
+    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
+      lv_area_t a;
+      lv_obj_get_coords(lvobj, &a);
+      // Check widget is at least partially visible
+      if (a.x2 >= 0 && a.x1 < LCD_W) {
+        PROTECT_LUA() {
+          luaLvglManager = this;
+          refresh(nullptr);
+          if (!errorMessage) {
+            if (!callRefs(lsWidgets)) {
+              setErrorMessage("callRefs()");
+            }
           }
+          refreshInstructionsPercent = instructionsPercent;
+        } else {
+          // TODO: error handling
         }
-        refreshInstructionsPercent = instructionsPercent;
-      } else {
-        // TODO: error handling
+        luaLvglManager = nullptr;
+        UNPROTECT_LUA();
       }
-      luaLvglManager = nullptr;
-      UNPROTECT_LUA();
     }
   } else {
+    // Force call to redraw_cb()
     invalidate();
   }
 

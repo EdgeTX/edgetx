@@ -127,8 +127,6 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
   void clear() override;
 
   LuaWidgetFactory* luaFactory() const { return (LuaWidgetFactory*)factory; }
-  bool isCreated() const { return created; }
-  void setCreated() { created = true; }
 
   Window* getCurrentParent() const override { return tempParent ? tempParent : (Window*)this; }
 
@@ -141,9 +139,10 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
  protected:
   bool created = false;
   lv_obj_t* errorLabel = nullptr;
+  int luaWidgetDataRef = 0;
+
   // Calls LUA widget 'refresh' method
   void refresh(BitmapBuffer* dc);
-  int luaWidgetDataRef = 0;
 
   // Window interface
   void onEvent(event_t event) override;
