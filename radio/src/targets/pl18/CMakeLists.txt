@@ -37,13 +37,13 @@ set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 
 add_definitions(-DPCBPL18 -DPCBFLYSKY)
 add_definitions(-DBATTERY_CHARGE)
-add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DSPI_FLASH)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
 if (PCBREV STREQUAL EL18)
     set(FLAVOUR el18)
     add_definitions(-DRADIO_EL18 -DRADIO_NV14_FAMILY -DPCBNV14 -DUSE_HATS_AS_KEYS)
+    set(DISK_CACHE ON)
     set(USE_VS1053B ON)
     set(AFHDS3 ON)
 
@@ -52,9 +52,10 @@ if (PCBREV STREQUAL EL18)
     set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS3 CACHE STRING "Default internal module")
 elseif(PCBREV STREQUAL NV14)
     set(FLAVOUR nv14)
-    add_definitions(-DRADIO_NV14 -DRADIO_NV14_FAMILY -DPCBNV14 -DUSE_HATS_AS_KEYS)
+    add_definitions(-DRADIO_NV14 -DRADIO_NV14_FAMILY -DPCBNV14)
+    add_definitions(-DUSE_HATS_AS_KEYS -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
+    set(DISK_CACHE ON)
     set(USE_VS1053B ON)
-    set(HAS_SDIO ON)
     set(AFHDS2 ON)
 
     # defines existing internal modules
@@ -64,6 +65,7 @@ elseif(PCBREV STREQUAL NB4P)
   set(FLAVOUR nb4p)
   add_definitions(-DRADIO_NB4P)
   set(ROTARY_ENCODER YES)
+  set(LED_STRIP ON)
   set(AFHDS3 ON)
   set(KEY_DRIVER nb4p_key_driver.cpp)
 
@@ -75,6 +77,7 @@ elseif(PCBREV STREQUAL PL18EV)
   add_definitions(-DRADIO_PL18EV -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
+  set(LED_STRIP ON)
   set(AFHDS3 ON)
   set(KEY_DRIVER key_driver.cpp)
 else()
@@ -82,6 +85,7 @@ else()
   add_definitions(-DRADIO_PL18 -DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
+  set(LED_STRIP ON)
   set(AFHDS3 ON)
   set(KEY_DRIVER key_driver.cpp)
 
@@ -140,7 +144,6 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
-  ${TARGET_SRC_DIR}/led_driver.cpp
   ${TARGET_SRC_DIR}/${KEY_DRIVER}
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
@@ -164,6 +167,13 @@ if(ROTARY_ENCODER)
   )
 endif()
 
+if(DISK_CACHE)
+  set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
+    disk_cache.cpp
+  )
+  add_definitions(-DDISK_CACHE)
+endif()
+
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
@@ -175,7 +185,6 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${BOARD_SPECIFIC_SRC}
   ${TARGET_SRC_DIR}/${TOUCH_DRIVER}
   ${TARGET_SRC_DIR}/battery_driver.cpp
   targets/common/arm/stm32/delays_driver.cpp
@@ -185,7 +194,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
@@ -201,7 +209,14 @@ if(USE_VS1053B)
   target_sources(board PRIVATE targets/common/arm/stm32/vs1053b.cpp)
 else()
   target_sources(board PRIVATE targets/common/arm/stm32/audio_dac_driver.cpp)
+  add_definitions(-DSOFTWARE_VOLUME)
 endif()
+
+if(LED_STRIP)
+  target_sources(board PRIVATE ${TARGET_SRC_DIR}/led_driver.cpp)
+  target_sources(board PRIVATE targets/common/arm/stm32/stm32_ws2812.cpp)
+endif()
+
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
