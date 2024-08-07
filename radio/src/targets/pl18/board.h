@@ -78,7 +78,23 @@ extern "C" void SDRAM_Init();
 // Pulses driver
 #if !defined(SIMU)
 
-#if defined(RADIO_NB4P)
+#if defined(RADIO_NV14_FAMILLY)
+  #define INTERNAL_MODULE_OFF()                 \
+  do {                                          \
+    if (hardwareOptions.pcbrev == PCBREV_NV14)  \
+      gpio_set(INTMODULE_PWR_GPIO);			    \
+    else                                        \
+      gpio_clear(INTMODULE_PWR_GPIO);           \
+  } while (0)
+
+  #define INTERNAL_MODULE_ON()                  \
+  do {                                          \
+    if (hardwareOptions.pcbrev == PCBREV_NV14)  \
+      gpio_clear(INTMODULE_PWR_GPIO);           \
+    else                                        \
+      gpio_set(INTMODULE_PWR_GPIO);             \
+  } while (0)
+#elif defined(RADIO_NB4P)
   #define INTERNAL_MODULE_ON()            gpio_clear(INTMODULE_PWR_GPIO)
   #define INTERNAL_MODULE_OFF()           gpio_set(INTMODULE_PWR_GPIO);
 #else
@@ -94,7 +110,7 @@ extern "C" void SDRAM_Init();
 #define IS_INTERNAL_MODULE_ON()         (false)
 #define IS_EXTERNAL_MODULE_ON()         (gpio_read(EXTMODULE_PWR_GPIO) ? 1 : 0)
 
-#else
+#else // defined(SIMU)
 
 #define INTERNAL_MODULE_OFF()
 #define INTERNAL_MODULE_ON()
@@ -114,11 +130,19 @@ extern "C" void SDRAM_Init();
 #define NUM_TRIMS                       8
 #define DEFAULT_STICK_DEADZONE          2
 
-#define BATTERY_WARN                  37 // 3.7V
-#define BATTERY_MIN                   35 // 3.4V
-#define BATTERY_MAX                   43 // 4.3V
+#if defined(RADIO_NV14_FAMILY)
+  #define BATTERY_WARN                  36 // 3.6V
+  #define BATTERY_MIN                   35 // 3.5V
+  #define BATTERY_MAX                   42 // 4.2V
+#else
+  #define BATTERY_WARN                  37 // 3.7V
+  #define BATTERY_MIN                   35 // 3.4V
+  #define BATTERY_MAX                   43 // 4.3V
+#endif
 
-#if defined(RADIO_NB4P)
+#if defined(RADIO_NV14_FAMILY)
+  #define BATTERY_DIVIDER               2942
+#elif defined(RADIO_NB4P)
   #define BATTERY_DIVIDER               3102 // = 2047 * (10k / 10k + 10k) * 10 / 3.3V
 #else
   #define BATTERY_DIVIDER               962  // = 2047 * (22k / 120k + 22k) * 10 / 3.3V
