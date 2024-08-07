@@ -201,6 +201,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_RADIOMASTER_BOXER:
     case BOARD_RADIOMASTER_POCKET:
     case BOARD_RADIOMASTER_MT12:
+    case BOARD_RADIOMASTER_GX12:
       return EESIZE_TARANIS;
     case BOARD_UNKNOWN:
       return EESIZE_MAX;
@@ -260,6 +261,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_RADIOMASTER_T8:
     case BOARD_RADIOMASTER_POCKET:
     case BOARD_RADIOMASTER_MT12:
+    case BOARD_RADIOMASTER_GX12:
       return FSIZE_TARANIS;
     case BOARD_HORUS_X12S:
     case BOARD_X10:
@@ -620,6 +622,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX16S";
     case BOARD_RADIOMASTER_ZORRO:
       return "Radiomaster Zorro";
+    case BOARD_RADIOMASTER_GX12:
+      return "Radiomaster GX12";
     case BOARD_FLYSKY_NV14:
       return "FlySky NV14";
     case BOARD_FLYSKY_EL18:
@@ -744,6 +748,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_BOXER:
   case BOARD_RADIOMASTER_MT12:
   case BOARD_RADIOMASTER_POCKET:
+  case BOARD_RADIOMASTER_GX12:
   case BOARD_RADIOMASTER_TX12_MK2:
   case BOARD_IFLIGHT_COMMANDO8:
   case BOARD_JUMPER_T12MAX:
@@ -786,6 +791,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_RADIOMASTER_POCKET:
     case BOARD_RADIOMASTER_ZORRO:
     case BOARD_RADIOMASTER_MT12:
+    case BOARD_RADIOMASTER_GX12
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_T14:
     case BOARD_JUMPER_TPRO:
