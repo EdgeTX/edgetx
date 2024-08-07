@@ -521,6 +521,10 @@
 
 #define TR_MENUCURVES                  "COURBES"
 #define TR_MENUCURVE                   "COURBE"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Nom"
+#define TR_CUST_FUNC_CUST_LABEL        "Nom"
+#endif
 #define TR_MENULOGICALSWITCH           "INTER LOG."
 #define TR_MENULOGICALSWITCHES         TR("INTERS LOG.", "INTERS LOGIQUES")
 #define TR_MENUCUSTOMFUNC              TR("FONCTIONS SPEC.", "FONCTIONS SPÉCIALES")

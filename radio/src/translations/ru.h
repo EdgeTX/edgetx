@@ -77,15 +77,17 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Таймер"
   #define TR_CSWSTICKY                 "Липучка"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWSTAY                   "Край"
 #else
   #define TR_CSWTIMER                  "Таймер"
   #define TR_CSWSTICKY                 "Липучка"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWSTAY                   "Кррай"
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
 
 #define TR_SF_TRAINER                  "Таймер"
 #define TR_SF_INST_TRIM                "Мгнов трим"
@@ -518,6 +520,10 @@
   #define TR_MENULIMITS                "ВЫХОДЫ"
 #define TR_MENUCURVES                  "КРИВЫЕ"
 #define TR_MENUCURVE                   "КРИВАЯ"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Имя"
+#define TR_CUST_FUNC_CUST_LABEL        "Имя"
+#endif
 #define TR_MENULOGICALSWITCH           "ЛОГИЧ ТУМБЛ."
 #define TR_MENULOGICALSWITCHES         "ЛОГИЧ ТУМБЛ."
 #define TR_MENUCUSTOMFUNC              "СПЕЦ ФУНКЦИИ"

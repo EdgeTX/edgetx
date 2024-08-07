@@ -529,6 +529,10 @@
 
 #define TR_MENUCURVES                  "CURVES"
 #define TR_MENUCURVE                   "CURVE"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Name"
+#define TR_CUST_FUNC_CUST_LABEL        "Name"
+#endif
 #define TR_MENULOGICALSWITCH           "CUSTOM SWITCH"
 #define TR_MENULOGICALSWITCHES         "CUSTOM SWITCHES"
 #define TR_MENUCUSTOMFUNC              "CUSTOM FUNCTIONS"

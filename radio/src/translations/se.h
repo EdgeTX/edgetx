@@ -534,6 +534,10 @@
 #define TR_MENULIMITS                   "OUTPUT"
 #define TR_MENUCURVES                   "KURVOR"
 #define TR_MENUCURVE                    "KURVA"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL     "Namn"
+#define TR_CUST_FUNC_CUST_LABEL         "Namn"
+#endif
 #define TR_MENULOGICALSWITCH            "LOGISK BRYTARE"
 #define TR_MENULOGICALSWITCHES          "LOGISKA BRYTARE"
 #define TR_MENUCUSTOMFUNC               "SPECIALFUNKTIONER"
