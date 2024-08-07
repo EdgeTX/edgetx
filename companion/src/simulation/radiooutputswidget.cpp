@@ -304,7 +304,7 @@ QWidget * RadioOutputsWidget::createLogicalSwitch(QWidget * parent, int switchNo
 #endif
   font.setBold(false);
   swtch->setFont(font);
-  swtch->setText(QString("%1").arg(switchNo+1, 2, 10, QChar('0')) );
+  swtch->setText(QString("%1").arg(switchNo+1, 2, 10, QChar('0')));
   //swtch->setText(QString("%1").arg(switchNo+1, 2, 10, QChar('0')) + ": " +  namestring);
   swtch->setAlignment(Qt::AlignCenter);
   m_logicSwitchMap.insert(switchNo, swtch);

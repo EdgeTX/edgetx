@@ -46,7 +46,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
   lsCapabilityExt = firmware->getCapability(LogicalSwitchesExt);
 
   QStringList headerLabels;
-  headerLabels  << "#" << tr("Name") << tr("Function") << tr("V1") << tr("V2") << tr("AND Switch");
+  headerLabels << "#" << tr("Name") << tr("Function") << tr("V1") << tr("V2") << tr("AND Switch");
   if (lsCapabilityExt) {
     headerLabels << tr("Duration") << tr("Delay");
   }
@@ -176,7 +176,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
 
   disableMouseScrolling();
   tableLayout->resizeColumnsToContents();
-  tableLayout->pushRowsUp(lsCapability + 1);
+  tableLayout->pushRowsUp(lsCapability+1);
 }
 
 LogicalSwitchesPanel::~LogicalSwitchesPanel()

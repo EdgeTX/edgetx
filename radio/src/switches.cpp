@@ -809,7 +809,7 @@ void evalLogicalSwitch_FUNC_SAFE(LogicalSwitchData *ls,
 */
 void evalLogicalSwitches(bool isCurrentFlightmode)
 {
-    for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
+  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
     LogicalSwitchContext & context = lswFm[mixerCurrentFlightMode].lsw[idx];
     
     LogicalSwitchData *ls = lswAddress(idx);
@@ -1110,7 +1110,6 @@ void logicalSwitchesTimerTick()
   for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
     for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
       LogicalSwitchData * ls = lswAddress(i);
-
       if (ls->func == LS_FUNC_TIMER) {
         int16_t *lastValue = &LS_LAST_VALUE(fm, i);
         if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
