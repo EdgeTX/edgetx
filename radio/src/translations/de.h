@@ -800,7 +800,7 @@
 #define TR_INTERNALRF                  "Internes HF-Modul"
 #define TR_INTERNAL_MODULE             TR("Int. Modul", "Internes Modul")
 #define TR_EXTERNAL_MODULE             TR("Ext. Modul", "Externes Modul")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX upgrade nötig"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX upgrade nötig"
 #define TR_TELEMETRY_DISABLED          "Deaktiv. Telem."  //more chars doesn't fit on QX7
 #define TR_MORE_OPTIONS_AVAILABLE      "mehr Optionen verfügbar"
 #define TR_NO_MODULE_INFORMATION       "keine Modul Info"

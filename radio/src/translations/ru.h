@@ -808,7 +808,7 @@
 #define TR_INTERNALRF                  "Внут RF"
 #define TR_INTERNAL_MODULE             TR("Внут. Модуль", "Внут Модуль")
 #define TR_EXTERNAL_MODULE             TR("Внеш. Модуль", "Внеш Модуль")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX требуется обновл"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX требуется обновл"
 #define TR_TELEMETRY_DISABLED          "Телем. откл"
 #define TR_MORE_OPTIONS_AVAILABLE      "Доступно больше опций"
 #define TR_NO_MODULE_INFORMATION       "Нет инфо о модуле"
