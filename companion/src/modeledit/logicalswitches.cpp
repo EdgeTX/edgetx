@@ -22,6 +22,7 @@
 #include "logicalswitches.h"
 #include "filtereditemmodels.h"
 #include "helpers.h"
+#include "namevalidator.h"
 
 #include <TimerEdit>
 
@@ -32,6 +33,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
   selectedIndex(0),
   modelsUpdateCnt(0)
 {
+  Board::Type board = firmware->getBoard();
   rawSwitchFilteredModel = new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
                                                  RawSwitch::LogicalSwitchesContext);
   connectItemModelEvents(rawSwitchFilteredModel);
@@ -69,8 +71,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
     name[i] = new QLineEdit(this);
     name[i]->setProperty("index", i);
     name[i]->setMaxLength(LS_CUSTNAME_LEN);
-    QRegExp rx(CHAR_FOR_NAMES_REGEX);
-    name[i]->setValidator(new QRegExpValidator(rx, this));
+    name[i]->setValidator(new NameValidator(board, this));
     name[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     connect(name[i], SIGNAL(editingFinished()), this, SLOT(onNameEdited()));
     tableLayout->addWidget(i, 1, name[i]);

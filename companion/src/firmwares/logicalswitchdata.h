@@ -50,9 +50,9 @@ enum CSFunction {
   LS_FN_TIMER,
   LS_FN_STICKY,
   LS_FN_EDGE,
-  LS_FN_SAFE
+  LS_FN_SAFE,
   // later ... LS_FN_RANGE,
-
+  LS_FN_MAX
 };
 
 enum CSFunctionFamily {

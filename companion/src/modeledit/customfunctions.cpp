@@ -22,6 +22,7 @@
 #include "customfunctions.h"
 #include "helpers.h"
 #include "appdata.h"
+#include "namevalidator.h"
 
 #include <TimerEdit>
 
@@ -33,6 +34,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   mediaPlayer(nullptr),
   modelsUpdateCnt(0)
 {
+  Board::Type board = firmware->getBoard();
   lock = true;
   fswCapability = model ? firmware->getCapability(CustomFunctions) : firmware->getCapability(GlobalFunctions);
 
@@ -85,7 +87,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     }
   }
 
-  if (IS_STM32(firmware->getBoard())) {
+  if (IS_STM32(board)) {
     scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/FUNCTIONS", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
     for (int i = 0; i < fswCapability; i++) {
       if (functions[i].func == FuncPlayScript) {
@@ -97,7 +99,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     }
   }
 
-  if (IS_STM32(firmware->getBoard())) {
+  if (IS_STM32(board)) {
     scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
     for (int i = 0; i < fswCapability; i++) {
       if (functions[i].func == FuncRGBLed) {
@@ -135,8 +137,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     name[i] = new QLineEdit(this);
     name[i]->setProperty("index", i);
     name[i]->setMaxLength(CF_CUSTNAME_LEN);
-    QRegExp rx(CHAR_FOR_NAMES_REGEX);
-    name[i]->setValidator(new QRegExpValidator(rx, this));
+    name[i]->setValidator(new NameValidator(board, this));
     name[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     connect(name[i], SIGNAL(editingFinished()), this, SLOT(onNameEdited()));
     tableLayout->addWidget(i, 1, name[i]);
