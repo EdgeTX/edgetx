@@ -86,6 +86,13 @@ uint8_t menuIdx(const MenuHandler * menuTab, uint8_t curr)
   return menuSize(menuTab, curr + 1) - 1;
 }
 
+void addPopupItem(int i_min, int i_max, int rangeMin, int rangeMax, IsValueAvailable isValueAvailable, const char* menuItem)
+{
+  if (i_min <= rangeMin && i_max >= rangeMin && getFirstAvailable(rangeMin, rangeMax, isValueAvailable) != MIXSRC_NONE) {
+    POPUP_MENU_ADD_ITEM(menuItem);
+  }
+}
+
 inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
                           unsigned int i_flags, IsValueAvailable isValueAvailable,
                           bool& isSource)
@@ -98,19 +105,9 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
         POPUP_MENU_ADD_ITEM(STR_CONSTANT);
       }
 
-      if (i_min <= MIXSRC_FIRST_INPUT && i_max >= MIXSRC_FIRST_INPUT) {
-        if (getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isInputAvailable) != MIXSRC_NONE &&
-            (i_flags & INCDEC_SOURCE_NOINPUTS) == 0) {
-          POPUP_MENU_ADD_ITEM(STR_MENU_INPUTS);
-        }
-      }
+      addPopupItem(i_min, i_max, MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, isValueAvailable, STR_MENU_INPUTS);
 #if defined(LUA_MODEL_SCRIPTS)
-      if (i_min <= MIXSRC_FIRST_LUA && i_max >= MIXSRC_FIRST_LUA) {
-        if (getFirstAvailable(MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isSourceAvailable) != MIXSRC_NONE &&
-            (i_flags & INCDEC_SOURCE_NOINPUTS) == 0) {
-          POPUP_MENU_ADD_ITEM(STR_MENU_LUA);
-        }
-      }
+      addPopupItem(i_min, i_max, MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, isValueAvailable, STR_MENU_LUA);
 #endif
       if (i_min <= MIXSRC_FIRST_STICK && i_max >= MIXSRC_FIRST_STICK)      POPUP_MENU_ADD_ITEM(STR_MENU_STICKS);
       if (i_min <= MIXSRC_FIRST_POT && i_max >= MIXSRC_FIRST_POT)          POPUP_MENU_ADD_ITEM(STR_MENU_POTS);
@@ -118,16 +115,13 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
       if (i_min <= MIXSRC_MAX && i_max >= MIXSRC_MAX)                      POPUP_MENU_ADD_ITEM(STR_MENU_MAX);
 #if defined(HELI)
       if (modelHeliEnabled())
-        if (i_min <= MIXSRC_FIRST_HELI && i_max >= MIXSRC_FIRST_HELI && isValueAvailable && isValueAvailable(MIXSRC_FIRST_HELI))
-          POPUP_MENU_ADD_ITEM(STR_MENU_HELI);
+        addPopupItem(i_min, i_max, MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, isValueAvailable, STR_MENU_HELI);
 #endif
       if (i_min <= MIXSRC_FIRST_TRIM && i_max >= MIXSRC_FIRST_TRIM)        POPUP_MENU_ADD_ITEM(STR_MENU_TRIMS);
       if (i_min <= MIXSRC_FIRST_SWITCH && i_max >= MIXSRC_FIRST_SWITCH)    POPUP_MENU_ADD_ITEM(STR_MENU_SWITCHES);
-      if (i_min <= MIXSRC_FIRST_TRAINER && i_max >= MIXSRC_FIRST_TRAINER)  POPUP_MENU_ADD_ITEM(STR_MENU_TRAINER);
+      addPopupItem(i_min, i_max, MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, isValueAvailable, STR_MENU_TRAINER);
       if (i_min <= MIXSRC_FIRST_CH && i_max >= MIXSRC_FIRST_CH)            POPUP_MENU_ADD_ITEM(STR_MENU_CHANNELS);
-      if (i_min <= MIXSRC_FIRST_GVAR && i_max >= MIXSRC_FIRST_GVAR && isValueAvailable && isValueAvailable(MIXSRC_FIRST_GVAR)) {
-        POPUP_MENU_ADD_ITEM(STR_MENU_GVARS);
-      }
+      addPopupItem(i_min, i_max, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, isValueAvailable, STR_MENU_GVARS);
 
       if (modelTelemetryEnabled() && i_min <= MIXSRC_FIRST_TELEM && i_max >= MIXSRC_FIRST_TELEM) {
         for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {

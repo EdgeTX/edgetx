@@ -97,7 +97,7 @@ void menuModelCurvesAll(event_t event)
 }
 
 void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
-                  IsValueAvailable isValueAvailable, int16_t sourceMin)
+                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax)
 {
   coord_t x1 = x;
   LcdFlags flags1 = flags;
@@ -127,7 +127,7 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
   switch (curve.type) {
     case CURVE_REF_DIFF:
     case CURVE_REF_EXPO:
-      curve.value = editSrcVarFieldValue(x, y, nullptr, curve.value, -100, 100, flags, event, isValueAvailable, sourceMin);
+      curve.value = editSrcVarFieldValue(x, y, nullptr, curve.value, -100, 100, flags, event, isValueAvailable, sourceMin, sourceMax);
       break;
     case CURVE_REF_FUNC:
     {

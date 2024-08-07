@@ -545,7 +545,7 @@ enum MixSources {
 };
 
 
-#define MIXSRC_LAST                 MIXSRC_LAST_CH
+#define MIXSRC_LAST                 MIXSRC_LAST_GVAR
 #define INPUTSRC_FIRST              MIXSRC_FIRST_STICK
 #define INPUTSRC_LAST               MIXSRC_LAST_TELEM
 

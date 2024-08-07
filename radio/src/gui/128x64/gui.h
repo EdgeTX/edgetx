@@ -82,7 +82,7 @@ swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr,
 
 uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
                               int16_t min, int16_t max, LcdFlags attr, event_t event,
-                              IsValueAvailable isValueAvailable, int16_t sourceMin);
+                              IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
 
 #if defined(GVARS)
 
@@ -201,7 +201,7 @@ void showAlertBox(const char * title, const char * text, const char * action , u
 #define IS_OTHER_VIEW_DISPLAYED()      menuHandlers[0] == menuChannelsView
 
 void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
-                  IsValueAvailable isValueAvailable, int16_t sourceMin);
+                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
 
 #if defined(FLIGHT_MODES)
 void displayFlightModes(coord_t x, coord_t y, FlightModesType value);
