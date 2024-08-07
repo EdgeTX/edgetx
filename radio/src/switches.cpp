@@ -526,7 +526,7 @@ bool getLogicalSwitch(uint8_t idx)
     if (ls->func == LS_FUNC_NONE || (s && !getSwitch(s))) {
       if (ls->func != LS_FUNC_STICKY && ls->func != LS_FUNC_EDGE ) {
         // AND switch must not affect STICKY and EDGE processing
-        LS_LAST_VALUE(mixerCurrentFlightMode, idx) = CS_LAST_VALUE_INIT;
+        context.lastValue = CS_LAST_VALUE_INIT;
       }
       result = false;
     }
@@ -547,13 +547,13 @@ bool getLogicalSwitch(uint8_t idx)
       }
     }
     else if (s == LS_FAMILY_TIMER) {
-      result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) <= 0);
+      result = (context.lastValue <= 0);
     }
     else if (s == LS_FAMILY_STICKY) {
-      result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) & (1<<0));
+      result = (context.lastValue & (1<<0));
     }
     else if (s == LS_FAMILY_EDGE) {
-      result = (LS_LAST_VALUE(mixerCurrentFlightMode, idx) & (1<<0));
+      result = (context.lastValue& (1<<0));
     }
     else {
       getvalue_t x = getValueForLogicalSwitch(ls->v1);
@@ -561,27 +561,28 @@ bool getLogicalSwitch(uint8_t idx)
       if (s == LS_FAMILY_COMP) {
         y = getValueForLogicalSwitch(ls->v2);
 
-          switch (ls->func) {
-            case LS_FUNC_EQUAL:
-              result = (x == y);
-              break;
-            case LS_FUNC_GREATER:
-              result = (x > y);
-              break;
-            default:
-              result = (x < y);
-              break;
+        switch (ls->func) {
+          case LS_FUNC_EQUAL:
+            result = (x==y);
+            break;
+          case LS_FUNC_GREATER:
+            result = (x>y);
+            break;
+          default:
+            result = (x<y);
+            break;
+        }
+      }
+      else {
+        mixsrc_t v1 = ls->v1;
+        // Telemetry
+        if (v1 >= MIXSRC_FIRST_TELEM) {
+          if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(v1 - 1)) {
+            result = false;
+            goto DurationAndDelayProcessing;
           }
-        } else {
-          mixsrc_t v1 = ls->v1;
-          // Telemetry
-          if (v1 >= MIXSRC_FIRST_TELEM) {
-            if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(v1 - 1)) {
-              result = false;
-              goto DurationAndDelayProcessing;
-            }
 
-            y = convertLswTelemValue(ls);
+          y = convertLswTelemValue(ls);
 
 
         }
@@ -654,40 +655,41 @@ bool getLogicalSwitch(uint8_t idx)
     }
   }
 
-    DurationAndDelayProcessing:
+DurationAndDelayProcessing:
 
-      if (ls->delay || ls->duration) {
-        if (result) {
-          if (context.timerState == SWITCH_START) {
-            // set delay timer
-            context.timerState = SWITCH_DELAY;
-            context.timer = (ls->func == LS_FUNC_EDGE ? 0 : ls->delay);
-          }
-
-          if (context.timerState == SWITCH_DELAY) {
-            if (context.timer) {
-              result = false;  // return false while delay timer running
-            } else {
-              // set duration timer
-              context.timerState = SWITCH_ENABLE;
-              context.timer = ls->duration;
-            }
-          }
-
-          if (context.timerState == SWITCH_ENABLE) {
-            result = (ls->duration == 0 || context.timer > 0); // return false after duration timer runs out
-            if (!result && ls->func == LS_FUNC_STICKY) {
-              ls_sticky_struct &lastValue = (ls_sticky_struct &)context.lastValue;
-              lastValue.state = 0;
-            }
-          }
-        } else if (context.timerState == SWITCH_ENABLE && ls->duration > 0 &&
-                  context.timer > 0) {
-          result = true;
-        } else {
-          context.timerState = SWITCH_START;
-          context.timer = 0;
+    if (ls->delay || ls->duration) {
+      if (result) {
+        if (context.timerState == SWITCH_START) {
+          // set delay timer
+          context.timerState = SWITCH_DELAY;
+          context.timer = (ls->func == LS_FUNC_EDGE ? 0 : ls->delay);
         }
+
+        if (context.timerState == SWITCH_DELAY) {
+          if (context.timer) {
+            result = false;   // return false while delay timer running
+          }
+          else {
+            // set duration timer
+            context.timerState = SWITCH_ENABLE;
+            context.timer = ls->duration;
+          }
+        }
+
+        if (context.timerState == SWITCH_ENABLE) {
+          result = (ls->duration==0 || context.timer>0); // return false after duration timer runs out
+          if (!result && ls->func == LS_FUNC_STICKY) {
+            ls_sticky_struct & lastValue = (ls_sticky_struct &)context.lastValue;
+            lastValue.state = 0;
+          }
+        }
+      }
+      else if (context.timerState == SWITCH_ENABLE && ls->duration > 0 && context.timer > 0) {
+        result = true;
+      }
+      else {
+        context.timerState = SWITCH_START;
+        context.timer = 0;
       }
     }
   }
@@ -807,8 +809,7 @@ void evalLogicalSwitch_FUNC_SAFE(LogicalSwitchData *ls,
 */
 void evalLogicalSwitches(bool isCurrentFlightmode)
 {
-  
-  for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
+    for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
     LogicalSwitchContext & context = lswFm[mixerCurrentFlightMode].lsw[idx];
     
     LogicalSwitchData *ls = lswAddress(idx);
