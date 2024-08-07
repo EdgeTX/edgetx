@@ -23,8 +23,11 @@
 #include "stm32_gpio.h"
 
 #include "stm32_gpio_driver.h"
-#include "stm32_ws2812.h"
-#include "boards/generic_stm32/rgb_leds.h"
+
+#if defined(LED_STRIP_GPIO)
+  #include "stm32_ws2812.h"
+  #include "boards/generic_stm32/rgb_leds.h"
+#endif
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -58,9 +61,6 @@
 
 // Common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
-
-// Common LED driver
-extern const stm32_pulse_timer_t _led_timer;
 
 #if defined(SEMIHOSTING)
 extern "C" void initialise_monitor_handles();
@@ -97,6 +97,10 @@ void delay_self(int count)
    }
 }
 
+#if defined(LED_STRIP_GPIO)
+// Common LED driver
+extern const stm32_pulse_timer_t _led_timer;
+
 void ledStripOff()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
@@ -104,6 +108,7 @@ void ledStripOff()
   }
   ws2812_update(&_led_timer);
 }
+#endif
 
 #if defined(RADIO_NB4P)
 void disableVoiceChip()
@@ -176,8 +181,10 @@ void boardInit()
   touchPanelInit();
   usbInit();
 
+#if defined(LED_STRIP_GPIO)
   ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   ledStripOff();
+#endif
 
   uint32_t press_start = 0;
   uint32_t press_end = 0;
@@ -259,7 +266,9 @@ void boardOff()
   rtcDisableBackupReg();
 
 #if !defined(BOOT)
+#if defined(LED_STRIP_GPIO)
   ledStripOff();
+#endif
   if (isChargerActive())
   {
 //    RTC->BKP0R = SOFTRESET_REQUEST;
