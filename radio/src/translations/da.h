@@ -1319,3 +1319,5 @@
 #define TR_HIGH_BATT_COLOR        "Batteri højt"
 
 #define TR_WIDGET_SIZE            "Widget størrelse"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

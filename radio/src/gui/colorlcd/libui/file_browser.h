@@ -27,7 +27,7 @@ class FileBrowser : public TableField
 {
  public:
   // path, name, fullpath
-  typedef std::function<void(const char*, const char*, const char*)> FileAction;
+  typedef std::function<void(const char*, const char*, const char*, bool isDir)> FileAction;
 
   FileBrowser(Window* parent, const rect_t& rect, const char* dir);
 
@@ -45,10 +45,12 @@ class FileBrowser : public TableField
   // TableField methods
   void onSelected(uint16_t row, uint16_t col) override;
   void onPress(uint16_t row, uint16_t col) override;
+  bool onPressLong(uint16_t row, uint16_t col) override;
 
  protected:
   void onSelected(const char* name, bool is_dir);
   void onPress(const char* name, bool is_dir);
+  void onPressLong(const char* name, bool is_dir);
 
  private:
   const char* selected = nullptr;
