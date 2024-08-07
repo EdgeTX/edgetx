@@ -9,8 +9,8 @@ import tempfile
 
 
 boards = {
-    "NV14": { "PCB": "NV14" },
-    "EL18": { "PCB": "NV14", "PCBREV": "EL18" },
+    "NV14": { "PCB": "PL18", "PCBREV": "NV14" },
+    "EL18": { "PCB": "PL18", "PCBREV": "EL18" },
     "PL18": { "PCB": "PL18" },
     "PL18EV": { "PCB": "PL18", "PCBREV": "PL18EV" },
 }
