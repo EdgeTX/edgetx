@@ -224,7 +224,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatSetScreenId));
     else
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatId));
-    fswtchRepeat[i]->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+    fswtchRepeat[i]->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     fswtchRepeat[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     repeatLayout->addWidget(fswtchRepeat[i], i + 1);
     connect(fswtchRepeat[i], SIGNAL(currentIndexChanged(int)), this, SLOT(customFunctionEdited()));
@@ -396,15 +396,11 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
   CustomFunctionData & cfn = functions[i];
   AssignFunc func = (AssignFunc)fswtchFunc[i]->currentData().toInt();
 
-
-
   unsigned int widgetsMask = 0;
   if (modified) {
-
     cfn.swtch = RawSwitch(fswtchSwtch[i]->currentData().toInt());
     cfn.func = func;
     cfn.enabled = fswtchEnable[i]->isChecked();
-
   }
   else {
     name[i]->setText(cfn.custName);
