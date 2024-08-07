@@ -487,21 +487,22 @@
 #endif
 
 // Power
-#define PWR_SWITCH_GPIO             GPIO_PIN(GPIOI, 11)  // PI.11
-#define PWR_ON_GPIO                 GPIO_PIN(GPIOI, 14)  // PI.14
+#define PWR_SWITCH_GPIO             GPIO_PIN(GPIOI, 11)   // PI.11
+#define PWR_ON_GPIO                 GPIO_PIN(GPIOI, 14)   // PI.14
 
 // Chargers (USB and wireless)
-#define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14) // PB.14 input
-#define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13) // PB.13 input
-#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
-  #define UCHARGER_GPIO_PIN_INV
-  #define UCHARGER_CHARGE_END_GPIO_PIN_INV
-#endif
+#define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14)   // PB.14 input
+#define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13)   // PB.13 input
+//#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+//  #define UCHARGER_GPIO_INV
+//  #define UCHARGER_CHARGE_END_GPIO_INV
+//#endif
 
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
-  #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)  // PG.03 output
+  #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)    // PG.03 output
 #elif defined(RADIO_NV14_FAMILY)
-  #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOH, 11)  // PH.11 output
+  #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOH, 11)   // PH.11 output
+//  #define UCHARGER_EN_GPIO_INV
 #endif
 
 #if defined (WIRELESS_CHARGER)

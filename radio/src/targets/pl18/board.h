@@ -225,6 +225,31 @@ bool isBacklightEnabled();
 }
 #endif
 
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+  #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? (gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1) : 1  
+#else
+  #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
+#endif
+
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+  #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
+#else
+  #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 1 : 0
+#endif
+
+#if defined(UCHARGER_EN_GPIO)
+  #if defined(RADIO_NV14_FAMILY)
+    #define ENABLE_UCHARGER()               gpio_clear(UCHARGER_EN_GPIO)
+    #define DISABLE_UCHARGER()              gpio_set(UCHARGER_EN_GPIO)
+  #else
+    #define ENABLE_UCHARGER()               gpio_set(UCHARGER_EN_GPIO)
+    #define DISABLE_UCHARGER()              gpio_clear(UCHARGER_EN_GPIO)
+  #endif
+#else
+  #define ENABLE_UCHARGER()
+  #define DISABLE_UCHARGER()
+#endif
+
 // Audio driver
 void audioInit();
 void audioConsumeCurrentBuffer();
