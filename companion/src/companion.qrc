@@ -324,10 +324,20 @@
     <file>images/simulator/TX16S/left_tele.png</file>
     <file>images/simulator/TX16S/right_ent.png</file>
     <file>images/simulator/TX16S/right_mdl.png</file>
-    <file>images/simulator/NV14/left.png</file>
-    <file>images/simulator/NV14/right.png</file>
     <file>images/simulator/NV14/top.png</file>
     <file>images/simulator/NV14/bottom.png</file>
+    <file>images/simulator/NV14/lhs.png</file>
+    <file>images/simulator/NV14/rhs.png</file>
+    <file>images/simulator/NV14/lhs_hat_left.png</file>
+    <file>images/simulator/NV14/lhs_hat_right.png</file>
+    <file>images/simulator/NV14/lhs_hat_up.png</file>
+    <file>images/simulator/NV14/lhs_hat_down.png</file>
+    <file>images/simulator/NV14/lhs_hat_press.png</file>
+    <file>images/simulator/NV14/rhs_hat_left.png</file>
+    <file>images/simulator/NV14/rhs_hat_right.png</file>
+    <file>images/simulator/NV14/rhs_hat_up.png</file>
+    <file>images/simulator/NV14/rhs_hat_down.png</file>
+    <file>images/simulator/NV14/rhs_hat_press.png</file>
     <file>images/simulator/PL18/left.png</file>
     <file>images/simulator/PL18/right.png</file>
     <file>images/simulator/PL18/top.png</file>
