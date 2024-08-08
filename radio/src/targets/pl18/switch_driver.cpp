@@ -34,25 +34,25 @@
 
 static const stm32_switch_t _switch_defs[] = {
 /*  {
-    "S1A",
+    "SW1L",
     nullptr, 0,
     nullptr, 0,
     SWITCH_HW_2POS, 0
   },
   {
-    "S1B",
+    "SW1R",
     nullptr, 0,
     nullptr, 0,
     SWITCH_HW_2POS, 0
   },*/
   {
-    "S2",
+    "SW2",
     nullptr, 0,
     nullptr, 0,
     SWITCH_HW_2POS, 0
   },
   {
-    "S3",
+    "SW3",
     nullptr, 0,
     nullptr, 0,
     SWITCH_HW_2POS, 0
