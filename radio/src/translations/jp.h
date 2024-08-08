@@ -946,7 +946,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Cpy trim->subtrim", "トリムからサブトリムへコピー")
 #define TR_INCDEC                      "増加/減少"
 #define TR_GLOBALVAR                   "グローバル変数"
-#define TR_MIXSOURCE                   "ミキサーソース"
+#define TR_MIXSOURCE                   "ソース (%)"
+#define TR_MIXSOURCERAW                "ソース (値)"
 #define TR_CONSTANT                    "変化なし"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "OFF","ON","自動"
 #define TR_PREFLIGHT                   "飛行前チェック"

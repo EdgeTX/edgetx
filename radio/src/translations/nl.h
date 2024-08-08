@@ -319,7 +319,7 @@
 #define TR_SUBTYPE             "Subtype"
 #define TR_NOFREEEXPO          "Geen vrije expo!"
 #define TR_NOFREEMIXER         "Geen vrije mixer!"
-#define TR_SOURCE               "Source"
+#define TR_SOURCE              "Source"
 #define TR_WEIGHT              "Gewicht"
 #define TR_SIDE                "Side"
 #define TR_OFFSET               "Offset"
@@ -943,7 +943,8 @@
 #define TR_COPY_TRIMS_TO_OFS   TR("Cpy trim->subtrim", "Kopieer Trim naar Subtrim")
 #define TR_INCDEC              "Inc/Decrement"
 #define TR_GLOBALVAR           "Globale Var"
-#define TR_MIXSOURCE           "Mixer Bron"
+#define TR_MIXSOURCE           "Bron (%)"
+#define TR_MIXSOURCERAW        "Bron (waarde)"
 #define TR_CONSTANT            "Constant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT           "Preflight Checks"

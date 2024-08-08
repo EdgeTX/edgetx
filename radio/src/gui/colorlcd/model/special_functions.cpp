@@ -226,6 +226,7 @@ void FunctionLineButton::refresh()
                   formatNumberAsString(CFN_PARAM(cfn)).c_str());
           break;
         case FUNC_ADJUST_GVAR_SOURCE:
+        case FUNC_ADJUST_GVAR_SOURCERAW:
           sprintf(s + strlen(s), " = %s", getSourceString(CFN_PARAM(cfn)));
           break;
         case FUNC_ADJUST_GVAR_GVAR:
@@ -532,6 +533,8 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
             return std::string(STR_CONSTANT);
           case FUNC_ADJUST_GVAR_SOURCE:
             return std::string(STR_MIXSOURCE);
+          case FUNC_ADJUST_GVAR_SOURCERAW:
+            return std::string(STR_MIXSOURCERAW);
           case FUNC_ADJUST_GVAR_GVAR:
             return std::string(STR_GLOBALVAR);
           case FUNC_ADJUST_GVAR_INCDEC:
@@ -549,6 +552,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
           break;
         }
         case FUNC_ADJUST_GVAR_SOURCE:
+        case FUNC_ADJUST_GVAR_SOURCERAW:
           addSourceChoice(line, STR_MIXSOURCE, cfn, MIXSRC_LAST_CH);
           break;
         case FUNC_ADJUST_GVAR_GVAR: {

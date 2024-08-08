@@ -319,7 +319,7 @@
 #define TR_SUBTYPE             "Podtyp"
 #define TR_NOFREEEXPO          "BrakWoln.Expo!"
 #define TR_NOFREEMIXER         "BrakWoln.Mixów!"
-#define TR_SOURCE               "Źródło"
+#define TR_SOURCE              "Źródło"
 #define TR_WEIGHT              "Waga "
 #define TR_SIDE                "Strona"
 #define TR_OFFSET              "Ofset "
@@ -944,7 +944,8 @@
 #define TR_COPY_TRIMS_TO_OFS   TR("Cpy trim->subtrim", "Skopiuj Trymery Do subtrymerów")
 #define TR_INCDEC              "Zwiększ/Zmnie"
 #define TR_GLOBALVAR           "Zm.Global."
-#define TR_MIXSOURCE           "Źródło Miks."
+#define TR_MIXSOURCE           "Źródło (%)"
+#define TR_MIXSOURCERAW        "Źródło (wartość)"
 #define TR_CONSTANT            "Stała   "
 #define TR_PREFLIGHT_POTSLIDER_CHECK "WYŁ","ZAŁ","Auto"
 #define TR_PREFLIGHT           "Pre-start Checks"

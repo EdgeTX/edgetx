@@ -959,7 +959,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopírovat trimy do subtrimů")
 #define TR_INCDEC                      "Zvětšit/Zmenšit"
 #define TR_GLOBALVAR                   "Glob. proměnná"
-#define TR_MIXSOURCE                   "Zdroje mixeru"
+#define TR_MIXSOURCE                   "Zdroj (%)"
+#define TR_MIXSOURCERAW                "Zdroj (hodnota)"
 #define TR_CONSTANT                    "Konstanta"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Vyp","Zap","Auto"
 #define TR_PREFLIGHT                   "Předletová kontrola"
