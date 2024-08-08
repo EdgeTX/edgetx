@@ -111,6 +111,14 @@ class LogicalSwitchDisplayFooter : public Window
 
     char s[20];
 
+    //LS friendly name
+    /*const char* chrs = cs->custName;
+    if (strlen(chrs) > 0) {
+      dc->drawText(15, 1, cs->custName, textColor);
+    } else {
+      dc->drawTextAtIndex(5, 1, STR_VCSWFUNC, cs->func, textColor);
+    }*/
+
     lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
 
     // CSW params - V1
@@ -118,6 +126,7 @@ class LogicalSwitchDisplayFooter : public Window
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
+      case LS_FAMILY_SAFE:
         lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
         break;
       case LS_FAMILY_TIMER:
@@ -135,6 +144,7 @@ class LogicalSwitchDisplayFooter : public Window
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
+      case LS_FAMILY_SAFE:
         lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
         break;
       case LS_FAMILY_EDGE:

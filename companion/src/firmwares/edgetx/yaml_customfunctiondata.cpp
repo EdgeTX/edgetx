@@ -244,6 +244,8 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     node["def"] = def;
   }
 
+  node["custName"] = rhs.custName;
+
   return node;
 }
 
@@ -251,6 +253,8 @@ bool convert<CustomFunctionData>::decode(const Node& node,
                                         CustomFunctionData& rhs)
 {
   node["swtch"] >> rhs.swtch;
+
+  node["custName"] >> rhs.custName;
 
   int func = 0;
   node["func"] >> customFnLut >> func;
