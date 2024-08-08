@@ -280,7 +280,13 @@ bool isSourceAvailable(int source)
 
 bool isSourceAvailableInGlobalFunctions(int source)
 {
-  if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
+  if ((source >= MIXSRC_FIRST_INPUT && source <= MIXSRC_LAST_INPUT) ||
+      (source >= MIXSRC_FIRST_HELI && source <= MIXSRC_LAST_HELI) ||
+      (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER) ||
+      (source >= MIXSRC_FIRST_LOGICAL_SWITCH && source <= MIXSRC_LAST_LOGICAL_SWITCH) ||
+      (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR) ||
+      (source >= MIXSRC_FIRST_TIMER && source <= MIXSRC_LAST_TIMER) ||
+      (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM)) {
     return false;
   }
   return isSourceAvailable(source);
