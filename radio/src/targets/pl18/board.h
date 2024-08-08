@@ -29,7 +29,7 @@
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
 
-#ifdef ADC_GPIO_PIN_STICK_TH
+#if defined(ADC_GPIO_PIN_STICK_TH)
 #define SURFACE_RADIO  true
 #endif
 
