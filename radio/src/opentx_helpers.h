@@ -23,6 +23,7 @@
 
 #include <string>
 #include <cstring>
+#include <stdint.h>
 
 template<class T>
 inline T sgn(T a)
