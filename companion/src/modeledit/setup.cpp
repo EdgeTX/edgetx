@@ -1936,18 +1936,29 @@ void SetupPanel::on_image_currentIndexChanged(int index)
 void SetupPanel::populateThrottleTrimSwitchCB()
 {
   Board::Type board = firmware->getBoard();
+  bool isBoardSurface = Boards::isSurface(board);
   lock = true;
   ui->throttleTrimSwitch->clear();
-  int idx=0;
+  int idx = 0;
   QString trim;
-  for (int i=0; i<getBoardCapability(board, Board::NumTrims); i++, idx++) {
-    // here order is TERA instead of RETA
-    if (i == 0)
-      trim = RawSource(SOURCE_TYPE_TRIM, 2 + 1).toString(model, &generalSettings);
-    else if (i == 2)
-      trim = RawSource(SOURCE_TYPE_TRIM, 0 + 1).toString(model, &generalSettings);
-    else
-      trim = RawSource(SOURCE_TYPE_TRIM, i + 1).toString(model, &generalSettings);
+  for (int i = 0; i < getBoardCapability(board, Board::NumTrims); i++, idx++) {
+    if (isBoardSurface) {
+      if (i == 0)
+        trim = RawSource(SOURCE_TYPE_TRIM, 1 + 1).toString(model, &generalSettings);
+      else if (i == 1)
+        trim = RawSource(SOURCE_TYPE_TRIM, 0 + 1).toString(model, &generalSettings);
+      else
+        trim = RawSource(SOURCE_TYPE_TRIM, i + 1).toString(model, &generalSettings);
+    }
+    else {
+      // here order is TERA instead of RETA
+      if (i == 0)
+        trim = RawSource(SOURCE_TYPE_TRIM, 2 + 1).toString(model, &generalSettings);
+      else if (i == 2)
+        trim = RawSource(SOURCE_TYPE_TRIM, 0 + 1).toString(model, &generalSettings);
+      else
+        trim = RawSource(SOURCE_TYPE_TRIM, i + 1).toString(model, &generalSettings);
+    }
     ui->throttleTrimSwitch->addItem(trim, idx);
   }
 

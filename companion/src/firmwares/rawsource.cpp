@@ -138,11 +138,11 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
     board = getCurrentBoard();
 
   static const QString trimsAir[] = {
-    "", tr("TrmR"), tr("TrmE"), tr("TrmT"), tr("TrmA"), tr("Trm5"), tr("Trm6"), tr("Trm7"), tr("Trm8")
+    "", tr("Trim Rud"), tr("Trim Ele"), tr("Trim Thr"), tr("Trim Ail"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
   };
 
   static const QString trimsSurface[] = {
-    "", tr("Trm1"), tr("Trm2"), tr("Trm3"), tr("Trm4"), tr("Trm5"), tr("Trm6"), tr("Trm7"), tr("Trm8")
+    "", tr("Trim ST"), tr("Trim TH"), tr("Trim 3"), tr("Trim 4"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
   };
 
   static const QString trims2[] = {
