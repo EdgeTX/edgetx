@@ -42,10 +42,10 @@ const uint8_t modn12x3[8][4]= {
   {1, 3, 2, 4}, // air mode 2
   {4, 2, 3, 1}, // air mode 3
   {4, 3, 2, 1}, // air mode 4
-  {2, 4, 3, 1}, // surface mode 1
-  {2, 4, 3, 1}, // surface mode 2
-  {2, 4, 3, 1}, // surface mode 3
-  {2, 4, 3, 1}  // surface mode 4
+  {2, 3, 4, 1}, // surface mode 1
+  {2, 3, 4, 1}, // surface mode 2
+  {2, 3, 4, 1}, // surface mode 3
+  {2, 3, 4, 1}  // surface mode 4
 };
 
 enum Capability {
