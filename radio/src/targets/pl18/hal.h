@@ -696,7 +696,11 @@
   #define SD_SDIO_DMA_IRQHANDLER          DMA2_Stream3_IRQHandler
   #define SD_SDIO_CLK_DIV(fq)             ((48000000 / (fq)) - 2)
   #define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
-  #define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)
+  #if defined(RADIO_PL18U)
+    #define SD_SDIO_TRANSFER_CLK_DIV      SD_SDIO_CLK_DIV(12000000)
+  #else
+    #define SD_SDIO_TRANSFER_CLK_DIV      SD_SDIO_CLK_DIV(24000000)
+  #endif
 #endif
 
 // SPI NOR Flash
