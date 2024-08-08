@@ -66,10 +66,10 @@ extern "C" void SDRAM_GPIOConfig(void)
     +-------------------+--------------------+--------------------+--------------------+
     | PD0  <-> FMC_D2   | PE0  <-> FMC_NBL0  | PF0  <-> FMC_A0    | PG0  <-> FMC_A10   |
     | PD1  <-> FMC_D3   | PE1  <-> FMC_NBL1  | PF1  <-> FMC_A1    | PG1  <-> FMC_A11   |
-    | PD8  <-> FMC_D13  | PE7  <-> FMC_D4    | PF2  <-> FMC_A2    | PG8  <-> FMC_SDCLK |
-    | PD9  <-> FMC_D14  | PE8  <-> FMC_D5    | PF3  <-> FMC_A3    | PG15 <-> FMC_NCAS  |
-    | PD10 <-> FMC_D15  | PE9  <-> FMC_D6    | PF4  <-> FMC_A4    |--------------------+
-    | PD14 <-> FMC_D0   | PE10 <-> FMC_D7    | PF5  <-> FMC_A5    |
+    | PD8  <-> FMC_D13  | PE7  <-> FMC_D4    | PF2  <-> FMC_A2    | PG2  <-> FMC_A12   |
+    | PD9  <-> FMC_D14  | PE8  <-> FMC_D5    | PF3  <-> FMC_A3    | PG8  <-> FMC_SDCLK |
+    | PD10 <-> FMC_D15  | PE9  <-> FMC_D6    | PF4  <-> FMC_A4    | PG15 <-> FMC_NCAS  |
+    | PD14 <-> FMC_D0   | PE10 <-> FMC_D7    | PF5  <-> FMC_A5    |--------------------+
     | PD15 <-> FMC_D1   | PE11 <-> FMC_D8    | PF11 <-> FMC_NRAS  |
     +-------------------| PE12 <-> FMC_D9    | PF12 <-> FMC_A6    |
                         | PE13 <-> FMC_D10   | PF13 <-> FMC_A7    |
@@ -140,6 +140,10 @@ extern "C" void SDRAM_GPIOConfig(void)
   gpio_init_af(GPIO_PIN(GPIOG, 5), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(GPIO_PIN(GPIOG, 8), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(GPIO_PIN(GPIOG, 15), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
+
+#if defined(SDRAM_32MB)
+  gpio_init_af(GPIO_PIN(GPIOG, 2), GPIO_AF_FMC, GPIO_PIN_SPEED_VERY_HIGH);
+#endif
 }
 
 void SDRAM_InitSequence(void)
@@ -209,10 +213,17 @@ void SDRAM_InitSequence(void)
   FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
 
   /* Step 8: Set the refresh rate counter - refer to section SDRAM refresh timer register in RM0455 */
+#if defined(SDRAM_32MB)
   /* Set the device refresh rate
-   * COUNT = [(SDRAM self refresh time / number of row) x  SDRAM CLK] – 20
+   * COUNT = [(SDRAM self refresh time / number of row) x  SDRAM CLK] - 20
+           = [(64ms/8192) * 84MHz] - 20 = 656 - 20 ~ 636 */
+  FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_DEVICE, 636);
+#else
+  /* Set the device refresh rate
+   * COUNT = [(SDRAM self refresh time / number of row) x  SDRAM CLK] - 20
            = [(64ms/4096) * 84MHz] - 20 = 1312 - 20 ~ 1292 */
   FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_DEVICE, 1292);
+#endif
   /* Wait until the SDRAM controller is ready */
   while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
 }
@@ -251,10 +262,17 @@ extern "C" void SDRAM_Init(void)
 
   /* FMC SDRAM control configuration */
   FMC_SDRAMInitStructure.SDBank = SDRAM_BANK;
-  /* Row addressing: [7:0] */
+#if defined(SDRAM_32MB)
+  /* Column addressing: [8:0] */
+  FMC_SDRAMInitStructure.ColumnBitsNumber = FMC_SDRAM_COLUMN_BITS_NUM_9;
+  /* Row addressing: [12:0] */
+  FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_13;
+#else
+  /* Column addressing: [7:0] */
   FMC_SDRAMInitStructure.ColumnBitsNumber = FMC_SDRAM_COLUMN_BITS_NUM_8;
-  /* Column addressing: [11:0] */
+  /* Row addressing: [11:0] */
   FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_12;
+#endif
   FMC_SDRAMInitStructure.MemoryDataWidth = SDRAM_MEMORY_WIDTH;
   FMC_SDRAMInitStructure.InternalBankNumber = FMC_SDRAM_INTERN_BANKS_NUM_4;
   FMC_SDRAMInitStructure.CASLatency = SDRAM_CAS_LATENCY;
