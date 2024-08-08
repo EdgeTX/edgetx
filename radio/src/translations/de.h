@@ -948,7 +948,7 @@
 #define TR_INCDEC                      "Inc/Decrement"
 #define TR_GLOBALVAR                   "Global Var"
 #define TR_MIXSOURCE                   "Quelle (%)"
-#define TR_MIXSOURCERAW                "Quelle (wert)"
+#define TR_MIXSOURCERAW                "Quelle (Wert)"
 #define TR_CONSTANT                    "Konstant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Aus","Ein","Auto"
 #define TR_PREFLIGHT                   "Vorflug-Checkliste"
