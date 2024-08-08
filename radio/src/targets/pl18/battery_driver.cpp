@@ -286,7 +286,9 @@ void battery_charge_init()
 #if defined(WIRELESS_CHARGER)
   // Wireless charger control pins
   gpio_init(WCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#if defined(WCHARGER_I_CONTROL_GPIO)
   gpio_init(WCHARGER_I_CONTROL_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif  // defined(WCHARGER_I_CONTROL_GPIO)
 
   // Wireless charger state init
   ENABLE_WCHARGER();
