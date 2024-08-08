@@ -159,16 +159,17 @@ char getPreviousChar(char c, uint8_t position)
   return c - 1;
 }
 
-static const char nameChars[] = " abcdefghijklmnopqrstuvwxyz0123456789-,.";
+static const char nameChars[] = " abcdefghijklmnopqrstuvwxyz0123456789_-,.";
 
 static int nameCharIdx(char v)
 {
   if (islower(v)) return v - 'a' + 1;
   if (isupper(v)) return v - 'A' + 1;
   if (isdigit(v)) return v - '0' + 27;
-  if (v == '-') return 37;
-  if (v == ',') return 38;
-  if (v == '.') return 39;
+  if (v == '_') return 37;
+  if (v == '-') return 38;
+  if (v == ',') return 39;
+  if (v == '.') return 40;
   return 0;
 }
 
