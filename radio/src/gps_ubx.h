@@ -13,11 +13,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GPS_UBX_H_
-#define _GPS_UBX_H_
+#pragma once
 
 #include <inttypes.h>
 
 bool gpsNewFrameUBX(uint8_t c, bool detect);
-
-#endif // _GPS_UBX_H_

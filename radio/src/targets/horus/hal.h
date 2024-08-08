@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HAL_H_
-#define _HAL_H_
+#pragma once
 
 #define CPU_FREQ                        168000000
 #define PERI1_FREQUENCY                 42000000
@@ -1099,5 +1098,3 @@
 #define LCD_PHYS_W                     LCD_W
 #define LCD_DEPTH                      16
 #endif
-
-#endif // _HAL_H_

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
+#pragma once
 
 #if defined(SIMU)
   #define WRITE_DELAY_10MS 100
@@ -81,5 +80,3 @@ uint8_t findNextUnusedModelId(uint8_t index, uint8_t module);
 #if defined(RTC_BACKUP_RAM)
 #include "rtc_backup.h"
 #endif
-
-#endif // _STORAGE_H_

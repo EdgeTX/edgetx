@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TIMERS_H_
-#define _TIMERS_H_
+#pragma once
 
 #include "edgetx_types.h"
 
@@ -59,5 +58,3 @@ void evalTimers(int16_t throttle, uint8_t tick10ms);
 
 int16_t throttleSource2Source(int16_t thrSrc);
 int16_t source2ThrottleSource(int16_t src);
-
-#endif // _TIMERS_H_

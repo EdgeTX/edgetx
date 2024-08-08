@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef OPENTX_MULTI_H
-#define OPENTX_MULTI_H
+#pragma once
 
 #include "timers_driver.h"
 
@@ -155,5 +154,3 @@ bool isMultiModeScanning(uint8_t module);
 bool isMultiTelemReceiving(uint8_t module);
 
 void checkFailsafeMulti();
-
-#endif //OPENTX_MULTI_H

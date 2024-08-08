@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CROSSFIRE_H_
-#define _CROSSFIRE_H_
+#pragma once
 
 #include <inttypes.h>
 #include "dataconstants.h"
@@ -183,5 +182,3 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
 #endif
 
 #define CROSSFIRE_TELEM_MIRROR_BAUDRATE   115200
-
-#endif // _CROSSFIRE_H_

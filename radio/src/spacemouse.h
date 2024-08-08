@@ -20,8 +20,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SPACEMOUSE_H_
-#define _SPACEMOUSE_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -66,5 +65,3 @@ void spacemousePoll();
 void spacemouseTare();
 void spacemouseStartStreaming();
 void spacemouseStopStreaming();
-
-#endif // _SPACEMOUSE_H_

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RTOS_H_
-#define _RTOS_H_
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -325,5 +324,3 @@ extern "C++" {
 #ifdef __cplusplus
 }
 #endif
-
-#endif // _RTOS_H_

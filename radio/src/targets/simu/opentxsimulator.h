@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _OPENTX_SIMULATOR_H_
-#define _OPENTX_SIMULATOR_H_
+#pragma once
 
 #include "simulatorinterface.h"
 
@@ -111,5 +110,3 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     bool m_stopRequested;
 
 };
-
-#endif // _OPENTX_SIMULATOR_H_

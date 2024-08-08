@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __CRC_H__
-#define __CRC_H__
+#pragma once
 
 #include <inttypes.h>
 
@@ -34,5 +33,3 @@ extern const unsigned short * const crc16tab[2];
 uint8_t crc8(const uint8_t * ptr, uint32_t len);
 uint8_t crc8_BA(const uint8_t * ptr, uint32_t len);
 uint16_t crc16(uint8_t index, const uint8_t * buf, uint32_t len, uint16_t start = 0);
-
-#endif

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TELEMETRY_H_
-#define _TELEMETRY_H_
+#pragma once
 
 #include "dataconstants.h"
 #include "myeeprom.h"
@@ -274,5 +273,3 @@ struct ModuleSyncStatus
 };
 
 ModuleSyncStatus& getModuleSyncStatus(uint8_t moduleIdx);
-
-#endif // _TELEMETRY_H_

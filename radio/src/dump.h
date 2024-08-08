@@ -19,13 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DUMP_H_
-#define _DUMP_H_
+#pragma once
 
 #if defined(DEBUG) || defined(CLI)
 void dump(const void * data, unsigned int size);
 #else
 #define dump(data, size)
 #endif
-
-#endif // _DUMP_H_

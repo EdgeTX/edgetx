@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _boot_h_
-#define _boot_h_
+#pragma once
 
 #include <stdint.h>
 #include "stamp.h"
@@ -89,5 +88,3 @@ uint32_t bootloaderGetMenuItemCount(int baseCount);
 bool bootloaderRadioMenu(uint32_t menuItem, event_t event);
 
 void blExit();
-
-#endif

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _KEYS_H_
-#define _KEYS_H_
+#pragma once
 
 #include <inttypes.h>
 #include "edgetx_types.h"
@@ -211,5 +210,3 @@ struct InactivityData
 };
 
 extern InactivityData inactivity;
-
-#endif // _KEYS_H_

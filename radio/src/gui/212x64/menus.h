@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MENUS_H_
-#define _MENUS_H_
+#pragma once
 
 #include "keys.h"
 #include "common/stdlcd/menus.h"
@@ -128,5 +127,3 @@ void menuModelUSBJoystick(event_t event);
 #endif
 
 extern const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT];
-
-#endif // _MENUS_H_
