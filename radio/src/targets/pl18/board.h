@@ -29,6 +29,10 @@
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
 
+#ifdef ADC_GPIO_PIN_STICK_TH
+#define SURFACE_RADIO  true
+#endif
+
 #define FLASHSIZE                       0x200000
 #define FLASH_PAGESIZE                  256
 #define BOOTLOADER_SIZE                 0x20000
