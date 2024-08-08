@@ -13,6 +13,7 @@ boards = {
     "EL18": { "PCB": "PL18", "PCBREV": "EL18" },
     "PL18": { "PCB": "PL18" },
     "PL18EV": { "PCB": "PL18", "PCBREV": "PL18EV" },
+    "PL18U": { "PCB": "PL18", "PCBREV": "PL18U" },
     "ST16": { "PCB": "ST16" , "NANO": "NO" },
 }
 

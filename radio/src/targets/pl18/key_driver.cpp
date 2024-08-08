@@ -28,43 +28,65 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-/* The output bit-order has to be:
-   0  LHL  TR7L (Left equals down)
-   1  LHR  TR7R
-   2  LVD  TR5D
-   3  LVU  TR5U
-   4  RVD  TR6D
-   5  RVU  TR6U
-   6  RHL  TR8L
-   7  RHR  TR8R
-   8  LSD  TR1D
-   9  LSU  TR1U
-   10 RSD  TR2D
-   11 RSU  TR2U
-   12 EX1D TR3D
-   13 EX1U TR3U
-   14 EX2D TR4D
-   15 EX2U TR4U
+
+
+/* The output bit-order has to be (D = L, U = R):
+           PL18    PL18U
+   0  LHL  TR7D(L) TR5D(L) 
+   1  LHR  TR7U(R) TR5U(R)
+   2  LVD  TR5D    TR3D
+   3  LVU  TR5U    TR3U
+   4  RVD  TR6D    TR4D
+   5  RVU  TR6U    TR4U
+   6  RHL  TR8D(L) TR6D(L)
+   7  RHR  TR8U(R) TR6U(R)
+   8  LSD  TR1D    TR1D
+   9  LSU  TR1U    TR1U
+   10 RSD  TR2D    TR2D
+   11 RSU  TR2U    TR2U
+   12 EX1D TR3D    TR7D
+   13 EX1U TR3U    TR7U
+   14 EX2D TR4D    TR8D
+   15 EX2U TR4U    TR8U
 */
 
 enum PhysicalTrims
 {
-    TR7L = 0,
-    TR7R,
-    TR5D = 2,
-    TR5U,
-    TR6D = 4,
-    TR6U,
-    TR8L = 6,
-    TR8R,
-    TR1D = 8,
-    TR1U,
-    TR2D = 10,
-    TR2U,
-    TR3D = 12,
-    TR3U,
-    TR4D = 14,
-    TR4U,
+#if defined(RADIO_PL18U)
+  TR5D = 0,
+  TR5U,
+  TR3D = 2,
+  TR3U,
+  TR4D = 4,
+  TR4U,
+  TR6D = 6,
+  TR6U,
+  TR1D = 8,
+  TR1U,
+  TR2D = 10,
+  TR2U,
+  TR7D = 12,
+  TR7U,
+  TR8D = 14,
+  TR8U,
+#else
+  TR7D = 0,
+  TR7U,
+  TR5D = 2,
+  TR5U,
+  TR6D = 4,
+  TR6U,
+  TR8D = 6,
+  TR8U,
+  TR1D = 8,
+  TR1U,
+  TR2D = 10,
+  TR2U,
+  TR3D = 12,
+  TR3U,
+  TR4D = 14,
+  TR4U,
+#endif
 };
 
 void keysInit()
@@ -74,12 +96,15 @@ void keysInit()
   stm32_gpio_enable_clock(GPIOD);
   stm32_gpio_enable_clock(GPIOG);
   stm32_gpio_enable_clock(GPIOH);
+#if defined(RADIO_PL18U)
+  stm32_gpio_enable_clock(GPIOI);
+#endif
   stm32_gpio_enable_clock(GPIOJ);
 
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.Pull = LL_GPIO_PULL_DOWN;
+  pinInit.Pull = LL_GPIO_PULL_NO;
 
   pinInit.Pin = KEYS_GPIOB_PINS;
   LL_GPIO_Init(GPIOB, &pinInit);
@@ -90,21 +115,30 @@ void keysInit()
   pinInit.Pin = KEYS_GPIOD_PINS;
   LL_GPIO_Init(GPIOD, &pinInit);
 
+#if defined(KEYS_GPIOH_PINS)
   pinInit.Pin = KEYS_GPIOH_PINS;
   LL_GPIO_Init(GPIOH, &pinInit);
+#endif
 
   pinInit.Pin = KEYS_GPIOJ_PINS;
   LL_GPIO_Init(GPIOJ, &pinInit);
 
   // Matrix outputs
   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pull = LL_GPIO_PULL_NO;
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
 
   pinInit.Pin = KEYS_OUT_GPIOG_PINS;
   LL_GPIO_Init(GPIOG, &pinInit);
 
+#if defined(KEYS_OUT_GPIOH_PINS)
   pinInit.Pin = KEYS_OUT_GPIOH_PINS;
   LL_GPIO_Init(GPIOH, &pinInit);
+#endif
+
+#if defined(KEYS_OUT_GPIOI_PINS)
+  pinInit.Pin = KEYS_OUT_GPIOI_PINS;
+  LL_GPIO_Init(GPIOI, &pinInit);
+#endif
 }
 
 static uint32_t _readKeyMatrix()
@@ -112,19 +146,6 @@ static uint32_t _readKeyMatrix()
     // This function avoids concurrent matrix agitation
 
     uint32_t result = 0;
-    /* Bit  0 - TR3 down
-     * Bit  1 - TR3 up
-     * Bit  2 - TR4 down
-     * Bit  3 - TR4 up
-     * Bit  4 - TR5 down
-     * Bit  5 - TR5 up
-     * Bit  6 - TR6 down
-     * Bit  7 - TR6 up
-     * Bit  8 - TR7 left
-     * Bit  9 - TR7 right
-     * Bit 10 - TR8 left
-     * Bit 11 - TR8 right
-     */
 
     volatile static struct
     {
@@ -144,12 +165,16 @@ static uint32_t _readKeyMatrix()
     LL_GPIO_ResetOutputPin(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
     LL_GPIO_SetOutputPin(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
     LL_GPIO_SetOutputPin(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
+
+#if defined(TRIMS_GPIO_OUT4)
     LL_GPIO_SetOutputPin(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
+#endif
+
     delay_us(10);
     if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
-       result |= 1 << TR7L;
+       result |= 1 << TR7D;
     if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
-       result |= 1 << TR7R;
+       result |= 1 << TR7U;
     if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
        result |= 1 << TR5D;
     if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
@@ -175,12 +200,26 @@ static uint32_t _readKeyMatrix()
     if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
        result |= 1 << TR6D;
     if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
-       result |= 1 << TR8L;
+       result |= 1 << TR8D;
     if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
-       result |= 1 << TR8R;
+       result |= 1 << TR8U;
     
     LL_GPIO_SetOutputPin(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
     
+#if defined(TRIMS_GPIO_OUT4)
+    LL_GPIO_ResetOutputPin(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
+    delay_us(10);
+    if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
+       result |= 1 << TR1U;
+    if (~TRIMS_GPIO_REG_IN2 & TRIMS_GPIO_PIN_IN2)
+       result |= 1 << TR1D;
+    if (~TRIMS_GPIO_REG_IN3 & TRIMS_GPIO_PIN_IN3)
+       result |= 1 << TR2D;
+    if (~TRIMS_GPIO_REG_IN4 & TRIMS_GPIO_PIN_IN4)
+       result |= 1 << TR2U;    
+    LL_GPIO_SetOutputPin(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
+#endif
+
     syncelem.oldResult = result;
     syncelem.ui8ReadInProgress = 0;
 
@@ -193,8 +232,13 @@ uint32_t readKeys()
 
   if (getHatsAsKeys()) {
     uint32_t mkeys = _readKeyMatrix();
+#if defined(RADIO_PL18U)
+    if (mkeys & (1 << TR2D)) result |= 1 << KEY_ENTER;
+    if (mkeys & (1 << TR2U)) result |= 1 << KEY_EXIT;
+#else
     if (mkeys & (1 << TR4D)) result |= 1 << KEY_ENTER;
     if (mkeys & (1 << TR4U)) result |= 1 << KEY_EXIT;
+#endif
   }
 
   return result;
@@ -206,15 +250,22 @@ uint32_t readTrims()
 
   result |= _readKeyMatrix();
 
+#if defined(TRIMS_GPIO_REG_TR1U)
   if (~TRIMS_GPIO_REG_TR1U & TRIMS_GPIO_PIN_TR1U)
     result |= 1 << (TR1U);
+#endif
+#if defined(TRIMS_GPIO_REG_TR1D)
   if (~TRIMS_GPIO_REG_TR1D & TRIMS_GPIO_PIN_TR1D)
     result |= 1 << (TR1D);
-
+#endif
+#if defined(TRIMS_GPIO_REG_TR2U)
   if (~TRIMS_GPIO_REG_TR2U & TRIMS_GPIO_PIN_TR2U)
     result |= 1 << (TR2U);
+#endif
+#if defined(TRIMS_GPIO_REG_TR2D)
   if (~TRIMS_GPIO_REG_TR2D & TRIMS_GPIO_PIN_TR2D)
     result |= 1 << (TR2D);
+#endif
 
   return result;
 }
