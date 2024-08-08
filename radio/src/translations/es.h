@@ -88,7 +88,7 @@
 #define TR_VCSWFUNC      "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "Entrenador"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                TR("Inst. Trim","Instant Trim")
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Ajuste"
 #define TR_SF_VOLUME                   "Volumen"
@@ -111,11 +111,11 @@
 #define TR_SF_TEST                     "Test"
 #define TR_SF_SAFETY                   "Seguro"
 
-#define TR_SF_SCREENSHOT      "Captura"
-#define TR_SF_RACING_MODE     "RacingMode"
-#define TR_SF_DISABLE_TOUCH   "No Touch"
+#define TR_SF_SCREENSHOT               "Captura"
+#define TR_SF_RACING_MODE              "Racing Mode"
+#define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
-#define TR_SF_SET_SCREEN      "Set Main Screen"
+#define TR_SF_SET_SCREEN               "Set Main Screen"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM     TR("Telm", "Telemetría")
