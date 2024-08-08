@@ -944,7 +944,8 @@
 #define TR_COPY_TRIMS_TO_OFS   TR("Copia trim->subtr", "Copia trims a subtrim")
 #define TR_INCDEC              "Inc/Decrement"
 #define TR_GLOBALVAR           "Var global"
-#define TR_MIXSOURCE           "Entrada mixer"
+#define TR_MIXSOURCE           "Fuente (%)"
+#define TR_MIXSOURCERAW        "Fuente (valor)"
 #define TR_CONSTANT            "Constante"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT           "Chequeos prevuelo"

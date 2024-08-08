@@ -946,7 +946,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Cpy trim->subtrim", "Copy trims to subtrim")
 #define TR_INCDEC                      "Inc/Decrement"
 #define TR_GLOBALVAR                   "Global var"
-#define TR_MIXSOURCE                   "מקור מיקסר"
+#define TR_MIXSOURCE                   "מקור (%)"
+#define TR_MIXSOURCERAW                "מקור (ערך)"
 #define TR_CONSTANT                    "Constant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "כבוי","פועל","אוטומטי"
 #define TR_PREFLIGHT                   "מצב הביקורת לשלט"

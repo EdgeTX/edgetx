@@ -948,7 +948,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("微調存為中點", "當前微調按鈕值保存到中點")
 #define TR_INCDEC                      "增減"
 #define TR_GLOBALVAR                   "全局變量"
-#define TR_MIXSOURCE                   "混控源"
+#define TR_MIXSOURCE                   "輸入源 (%)"
+#define TR_MIXSOURCERAW                "輸入源 (數值)"
 #define TR_CONSTANT                    "固定值"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "關閉","開啟","自動"
 #define TR_PREFLIGHT                   "初始檢查"

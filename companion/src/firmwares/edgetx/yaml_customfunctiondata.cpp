@@ -105,6 +105,7 @@ static const YamlLookupTable resetLut = {
 static const YamlLookupTable gvarModeLut = {
   { FUNC_ADJUST_GVAR_CONSTANT, "Cst" },
   { FUNC_ADJUST_GVAR_SOURCE, "Src" },
+  { FUNC_ADJUST_GVAR_SOURCERAW, "SrcRaw" },
   { FUNC_ADJUST_GVAR_GVAR, "GVar" },
   { FUNC_ADJUST_GVAR_INCDEC, "IncDec" },
 };
@@ -200,7 +201,8 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
       def += std::to_string(rhs.param);
       break;
     case FUNC_ADJUST_GVAR_GVAR:
-    case FUNC_ADJUST_GVAR_SOURCE: {
+    case FUNC_ADJUST_GVAR_SOURCE:
+    case FUNC_ADJUST_GVAR_SOURCERAW: {
       def += YamlRawSourceEncode(RawSource(rhs.param));
     } break;
     }
@@ -347,7 +349,8 @@ bool convert<CustomFunctionData>::decode(const Node& node,
       def >> rhs.param;
       break;
     case FUNC_ADJUST_GVAR_GVAR:
-    case FUNC_ADJUST_GVAR_SOURCE: {
+    case FUNC_ADJUST_GVAR_SOURCE:
+    case FUNC_ADJUST_GVAR_SOURCERAW: {
       std::string src_str;
       getline(def, src_str, ',');
       RawSource src;

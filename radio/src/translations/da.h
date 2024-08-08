@@ -325,7 +325,7 @@
 #define TR_SUBTYPE                     "Subtype"
 #define TR_NOFREEEXPO                  "Ingen fri expo!"
 #define TR_NOFREEMIXER                 "Ingen fri mix!"
-#define TR_SOURCE                       "Kilde"
+#define TR_SOURCE                      "Kilde"
 #define TR_WEIGHT                      "Vægt"
 #define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
@@ -947,7 +947,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Kopi trim->subtrim", "Kopier trim til subtrim")
 #define TR_INCDEC                      "Øg/sænk"
 #define TR_GLOBALVAR                   TR("Global var", "Global variabel")
-#define TR_MIXSOURCE                   "Mix kilde"
+#define TR_MIXSOURCE                   "Kilde (%)"
+#define TR_MIXSOURCERAW                "Kilde (værdi)"
 #define TR_CONSTANT                    "Konstant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Fra","Til","Auto"
 #define TR_PREFLIGHT                   "Fly checkliste"
