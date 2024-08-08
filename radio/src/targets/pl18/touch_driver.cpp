@@ -32,6 +32,7 @@
 #include "timers_driver.h"
 #include "delays_driver.h"
 #include "touch_driver.h"
+#include "keys.h"
 
 #include "debug.h"
 
@@ -86,6 +87,20 @@ typedef enum {TC_NONE, TC_FT6236, TC_CST836U, TC_CST340, TC_CHSC5448} TouchContr
 #if defined(DEBUG)
 const char TOUCH_CONTROLLER_STR[][10] = {"", "FT6236", "CST836U", "CST340", "CHSC5448"};
 #endif
+
+static uint8_t lastTouchKey = 0;
+static bool eventFired = false;
+
+static const event_t TOUCHKEY_EVENTS[8] = {
+  KEY_EXIT | _MSK_KEY_BREAK,
+  KEY_MODEL | _MSK_KEY_BREAK,
+  KEY_MODEL | _MSK_KEY_LONG,
+  KEY_PAGEUP | _MSK_KEY_FIRST,
+  KEY_TELE | _MSK_KEY_BREAK,
+  KEY_PAGEDN | _MSK_KEY_FIRST,
+  KEY_SYS | _MSK_KEY_LONG,
+  KEY_ENTER | _MSK_KEY_BREAK,
+};
 
 TouchController touchController = TC_NONE;
 
@@ -320,8 +335,34 @@ static bool chsc5448TouchRead(uint16_t * X, uint16_t * Y)
   *X = ((ppt->rp.x_h4 & 0x0f) << 8) | ppt->rp.x_l8;
   *Y = ((ppt->rp.y_h4 & 0x0f) << 8) | ppt->rp.y_l8;
   uint8_t event = ppt->rp.event;
+  bool hasEvent = ptCnt > 0 && event == TOUCH_CHSC5448_EVT_CONTACT;
 
-  return ptCnt > 0 && event == TOUCH_CHSC5448_EVT_CONTACT;
+  // Touch keys returns X = 2600, Y = 1 to 8 (total 8 keys)
+  uint8_t currTouchKey = 0;  
+  if (hasEvent && *X >= 2000) {    
+    // Touch key event
+    currTouchKey = *Y;
+    if (currTouchKey > 8) {
+      currTouchKey = 8;
+    }
+    hasEvent = false;
+  }
+
+#if defined(DEBUG)
+    TRACE("%s: lastTouchKey=%d, currTouchKey=%d", TOUCH_CONTROLLER_STR[touchController], lastTouchKey, currTouchKey);
+#endif
+
+  if (currTouchKey != lastTouchKey) {
+    lastTouchKey = currTouchKey;
+    eventFired = false;
+  } else {
+    if (currTouchKey > 0 && !eventFired) {
+      pushEvent(TOUCHKEY_EVENTS[currTouchKey - 1]);
+      eventFired = true;
+    }
+  }
+
+  return hasEvent;
 }
 
 static void chsc5448PrintDebugInfo()
