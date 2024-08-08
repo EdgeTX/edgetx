@@ -403,6 +403,7 @@ class SensorEditWindow : public SubPage
   {
     buildHeader(header);
     buildBody(body);
+    enableRefresh();
   }
 
  protected:
