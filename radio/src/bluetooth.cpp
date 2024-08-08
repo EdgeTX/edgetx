@@ -413,6 +413,15 @@ void Bluetooth::wakeup()
     return;
   }
 
+#if defined(BT_PWR_GPIO)
+  if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF) {
+    bluetoothDisable();
+    state = BLUETOOTH_STATE_OFF;
+    wakeupTime = now + 10; /* 100ms */
+    return;
+  }
+#endif
+
   if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF ||
       (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER &&
        !IS_BLUETOOTH_TRAINER())) {

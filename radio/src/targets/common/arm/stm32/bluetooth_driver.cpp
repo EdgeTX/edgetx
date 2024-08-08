@@ -63,6 +63,9 @@ void bluetoothInit(uint32_t baudrate, bool enable)
 #if defined(BT_EN_GPIO)
   gpio_init(BT_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
+#if defined(BT_PWR_GPIO)
+  gpio_init(BT_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
 
 #if !defined(BOOT)
   etx_serial_init cfg = {
@@ -83,6 +86,9 @@ void bluetoothInit(uint32_t baudrate, bool enable)
 #if defined(BT_EN_GPIO)
   gpio_write(BT_EN_GPIO, !enable);
 #endif
+#if defined(BT_PWR_GPIO)
+  gpio_set(BT_PWR_GPIO);
+#endif
 }
 
 #if !defined(BOOT)
@@ -91,6 +97,9 @@ void bluetoothDisable()
 #if defined(BT_EN_GPIO)
   // close bluetooth (recent modules will go to bootloader mode)
   gpio_set(BT_EN_GPIO);
+#endif
+#if defined(BT_PWR_GPIO)
+  gpio_clear(BT_PWR_GPIO);
 #endif
   if (_bt_usart_ctx) {
     STM32SerialDriver.deinit(_bt_usart_ctx);
