@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+// Match with /companion/src/simulation/simulateduiwidget.h
 enum EnumKeys {
   KEY_MENU,
   KEY_EXIT,
