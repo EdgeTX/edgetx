@@ -21,16 +21,7 @@
  
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
-
-#include "stm32_gpio_driver.h"
-
-#if defined(LED_STRIP_GPIO)
-  #include "stm32_ws2812.h"
-  #include "boards/generic_stm32/rgb_leds.h"
-#endif
-
-#include "board.h"
-#include "boards/generic_stm32/module_ports.h"
+#include "stm32_ws2812.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -40,6 +31,10 @@
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
 #include "hal/rotary_encoder.h"
+
+#include "board.h"
+#include "boards/generic_stm32/module_ports.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 #include "globals.h"
 #include "sdcard.h"
