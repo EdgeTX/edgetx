@@ -310,7 +310,7 @@ void menuModelExposAll(event_t event)
           pushMenu(menuModelExpoOne);
           s_copyMode = 0;
         }
-        else {
+        else if (sub >= 0) {
           event = 0;
           s_copyMode = 0;
           POPUP_MENU_START(onExposMenu, 6, STR_EDIT, STR_INSERT_BEFORE, STR_INSERT_AFTER, STR_COPY, STR_MOVE, STR_DELETE);
