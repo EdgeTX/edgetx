@@ -35,12 +35,25 @@
 #define BATTERY_H_INNER (BATTERY_H - 2*BATTERY_BORDER)
 #define BATTERY_TOP_INNER (BATTERY_TOP + BATTERY_BORDER)
 
-#define UCHARGER_SAMPLING_CNT              10
-#define UCHARGER_CHARGING_SAMPLING_CNT     10
-#define WCHARGER_SAMPLING_CNT              30
-#define WCHARGER_CHARGING_SAMPLING_CNT     10
-#define WCHARGER_LOW_CURRENT_DELAY_CNT   6000
-#define WCHARGER_HIGH_CURRENT_DELAY_CNT 24000
+#define UCHARGER_SAMPLING_CNT                10
+#if defined(RADIO_PL18U)
+  #define UCHARGER_CHARGING_SAMPLING_CNT     1
+  #define UCHARGER_CHARGE_END_SAMPLING_CNT   250
+#else
+  #define UCHARGER_CHARGING_SAMPLING_CNT     10
+  #define UCHARGER_CHARGE_END_SAMPLING_CNT   10
+#endif
+
+#define WCHARGER_SAMPLING_CNT                30
+#if defined(RADIO_PL18U)
+  #define WCHARGER_CHARGING_SAMPLING_CNT     1
+  #define WCHARGER_CHARGE_END_SAMPLING_CNT   250
+#else
+  #define WCHARGER_CHARGING_SAMPLING_CNT     10
+  #define WCHARGER_CHARGE_END_SAMPLING_CNT   10
+#endif
+#define WCHARGER_LOW_CURRENT_DELAY_CNT       6000
+#define WCHARGER_HIGH_CURRENT_DELAY_CNT      24000
 
 typedef struct
 {
@@ -54,11 +67,12 @@ typedef struct
   uint8_t chargeEndSamplingCount;
 } STRUCT_BATTERY_CHARGER;
 
-STRUCT_BATTERY_CHARGER uCharger; // USB charger
+static STRUCT_BATTERY_CHARGER uCharger; // USB charger
+
 #if defined(WIRELESS_CHARGER)
-STRUCT_BATTERY_CHARGER wCharger; // Wireless charger
-uint16_t wirelessLowCurrentDelay = 0;
-uint16_t wirelessHighCurrentDelay = 0;
+  static STRUCT_BATTERY_CHARGER wCharger; // Wireless charger
+  static uint16_t wirelessLowCurrentDelay = 0;
+  static uint16_t wirelessHighCurrentDelay = 0;
 #endif
 
 void chargerDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargerPinActive, uint8_t samplingCountThreshold)
@@ -87,7 +101,8 @@ void resetChargeEndDetection(STRUCT_BATTERY_CHARGER* charger)
   charger->isHighCurrent = false;
 }
 
-void chargeEndDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargeEndPinActive, uint8_t samplingCountThreshold)
+void chargeEndDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargeEndPinActive,
+                        uint8_t chargingSamplingCountThreshold, uint8_t chargeEndSamplingCountThreshold)
 {
   if (charger->isChargeEnd)
   {
@@ -101,7 +116,7 @@ void chargeEndDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargeEndPinAct
       else
       {
         charger->chargeEndSamplingCount++;
-        if (charger->chargeEndSamplingCount >= samplingCountThreshold)
+        if (charger->chargeEndSamplingCount >= chargeEndSamplingCountThreshold)
         {
           charger->chargeEndSamplingCount = 0;
           charger->isChargingDetectionReady = true;
@@ -112,7 +127,7 @@ void chargeEndDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargeEndPinAct
     {
       charger->chargeEndSamplingCount = 0;
       charger->chargingSamplingCount++;
-      if (charger->chargingSamplingCount >= samplingCountThreshold)
+      if (charger->chargingSamplingCount >= chargingSamplingCountThreshold)
       {
         charger->chargingSamplingCount = 0;
         charger->isChargeEnd = false;
@@ -132,7 +147,7 @@ void chargeEndDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargeEndPinAct
       else
       {
         charger->chargingSamplingCount++;
-        if (charger->chargingSamplingCount >= samplingCountThreshold)
+        if (charger->chargingSamplingCount >= chargingSamplingCountThreshold)
         {
           charger->chargingSamplingCount = 0;
           charger->isChargingDetectionReady = true;
@@ -143,7 +158,7 @@ void chargeEndDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargeEndPinAct
     {
       charger->chargingSamplingCount = 0;
       charger->chargeEndSamplingCount++;
-      if (charger->chargeEndSamplingCount >= samplingCountThreshold)
+      if (charger->chargeEndSamplingCount >= chargeEndSamplingCountThreshold)
       {
         charger->chargeEndSamplingCount = 0;
         charger->isChargeEnd = true;
@@ -162,8 +177,11 @@ uint16_t get_battery_charge_state()
   {
     if (uCharger.hasCharger)  // USB charger can be detected properly no matter it is enabled or not
     {
+#if defined(RADIO_PL18U) && defined(WIRELESS_CHARGER)
+      DISABLE_WCHARGER();
+#endif
       ENABLE_UCHARGER();
-      chargeEndDetection(&uCharger, IS_UCHARGER_CHARGE_END_ACTIVE(), UCHARGER_CHARGING_SAMPLING_CNT);
+      chargeEndDetection(&uCharger, IS_UCHARGER_CHARGE_END_ACTIVE(), UCHARGER_CHARGING_SAMPLING_CNT, UCHARGER_CHARGE_END_SAMPLING_CNT);
       if (uCharger.isChargingDetectionReady)
       {
         if (uCharger.isChargeEnd)
@@ -182,6 +200,9 @@ uint16_t get_battery_charge_state()
 
       // Disable USB charger if it is not present, so that wireless charger can be detected properly
       DISABLE_UCHARGER();
+#if defined(RADIO_PL18U) && defined(WIRELESS_CHARGER)
+      ENABLE_WCHARGER();
+#endif
     }
   }
 
@@ -191,7 +212,7 @@ uint16_t get_battery_charge_state()
   {
     if (wCharger.hasCharger)  // Wireless charger can only be detected when USB charger is disabled
     {
-      chargeEndDetection(&wCharger, IS_WCHARGER_CHARGE_END_ACTIVE(), WCHARGER_CHARGING_SAMPLING_CNT);
+      chargeEndDetection(&wCharger, IS_WCHARGER_CHARGE_END_ACTIVE(), WCHARGER_CHARGING_SAMPLING_CNT, WCHARGER_CHARGE_END_SAMPLING_CNT);
       if (wCharger.isChargingDetectionReady)
       {
         if (wCharger.isChargeEnd)
@@ -234,7 +255,7 @@ uint16_t get_battery_charge_state()
     }
   }
 
-#endif
+#endif  // defined(WIRELESS_CHARGER)
 
   return state;
 }
@@ -268,8 +289,7 @@ void battery_charge_init()
   // Wireless charger status pins
   gpio_init(WCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
   gpio_init(WCHARGER_CHARGE_END_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
-
-#endif
+#endif  // defined(WIRELESS_CHARGER)
 
 
   // USB charger control pins
@@ -278,7 +298,11 @@ void battery_charge_init()
 #endif
 
   // USB charger state init
+#if defined(RADIO_PL18U)  
+  DISABLE_UCHARGER();
+#else
   ENABLE_UCHARGER();
+#endif  // defined(RADIO_PL18U)
   uCharger.hasCharger = !IS_UCHARGER_ACTIVE();  // Init for sampling count works
   uCharger.isChargerDetectionReady = false;
   resetChargeEndDetection(&uCharger);
@@ -286,6 +310,7 @@ void battery_charge_init()
 #if defined(WIRELESS_CHARGER)
   // Wireless charger control pins
   gpio_init(WCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+
 #if defined(WCHARGER_I_CONTROL_GPIO)
   gpio_init(WCHARGER_I_CONTROL_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif  // defined(WCHARGER_I_CONTROL_GPIO)
@@ -296,7 +321,7 @@ void battery_charge_init()
   wCharger.hasCharger = !IS_WCHARGER_ACTIVE();  // Init for sampling count works
   wCharger.isChargerDetectionReady = false;
   resetChargeEndDetection(&wCharger);
-#endif
+#endif  // defined(WIRELESS_CHARGER)
 }
 
 void ledChargingInfo(uint16_t chargeState) {
