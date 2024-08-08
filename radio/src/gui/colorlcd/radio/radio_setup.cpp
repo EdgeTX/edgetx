@@ -770,6 +770,16 @@ static SetupLineDef setupLines[] = {
           });
     }
   },
+
+  // Pwr Off If Inactive
+  {
+    STR_PWR_AUTO_OFF,
+     [](Window* parent, coord_t x, coord_t y) {
+       auto edit = new NumberEdit(parent,{x, y, RadioSetupPage::NUM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0,
+           100, GET_SET_DEFAULT(g_eeGeneral.pwrOffIfInactive));
+       edit->setSuffix(" min");
+     }
+  },
 #endif
 #if defined(HAPTIC)
   {
