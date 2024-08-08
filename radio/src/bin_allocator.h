@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BIN_ALLOCATOR_H_
-#define _BIN_ALLOCATOR_H_
+#pragma once
 
 #include "debug.h"
 
@@ -95,5 +94,3 @@ extern BinAllocator_slots2 slots2;
 // wrapper for our BinAllocator for Lua
 void *bin_l_alloc (void *ud, void *ptr, size_t osize, size_t nsize);
 #endif   //#if defined(USE_BIN_ALLOCATOR)
-
-#endif // _BIN_ALLOCATOR_H_

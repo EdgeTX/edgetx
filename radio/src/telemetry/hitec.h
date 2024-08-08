@@ -19,13 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HITEC_H
-#define _HITEC_H
+#pragma once
 
 void processHitecTelemetryData(uint8_t data, uint8_t* rxBuffer, uint8_t& rxBufferCount);
 void hitecSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
 
 // Used by multi protocol
 void processHitecPacket(const uint8_t *packet);
-
-#endif

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GUI_H_
-#define _GUI_H_
+#pragma once
 
 #include "gui_common.h"
 #include "lcd.h"
@@ -193,5 +192,3 @@ FlightModesType editFlightModes(coord_t x, coord_t y, event_t event, FlightModes
 #define IS_MAIN_VIEW_DISPLAYED()       menuHandlers[0] == menuMainView
 #define IS_TELEMETRY_VIEW_DISPLAYED()  menuHandlers[0] == menuViewTelemetry
 #define IS_OTHER_VIEW_DISPLAYED()      (menuHandlers[0] == menuMainViewChannelsMonitor || menuHandlers[0] == menuChannelsView)
-
-#endif // _GUI_H_

@@ -71,8 +71,8 @@
  *
  ******************************************************************************
  */
-#ifndef __FT6X06_H
-#define __FT6X06_H
+
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -364,4 +364,3 @@ extern void TouchDriver( void );
 #ifdef __cplusplus
 }
 #endif
-#endif /* __FT6X06_H */

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GTESTS_H_
-#define _GTESTS_H_
+#pragma once
 
 #include <QtCore/QString>
 #include <math.h>
@@ -115,5 +114,3 @@ class OpenTxTest : public testing::Test
       RADIO_RESET();
     }
 };
-
-#endif // _GTESTS_H_

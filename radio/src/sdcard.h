@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SDCARD_H_
-#define _SDCARD_H_
+#pragma once
 
 #include "ff.h"
 
@@ -162,5 +161,3 @@ const char * sdMoveFile(const char * srcFilename, const char * srcDir, const cha
 #define LIST_NONE_SD_FILE   1
 #define LIST_SD_FILE_EXT    2
 bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen, const char * selection, uint8_t flags=0);
-
-#endif // _SDCARD_H_

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GLOBALS_H_
-#define _GLOBALS_H_
+#pragma once
 
 #include "definitions.h"
 #include "dataconstants.h"
@@ -97,5 +96,3 @@ extern uint8_t beepAgain;
 extern uint16_t lightOffCounter;
 extern uint8_t flashCounter;
 extern uint8_t mixWarning;
-
-#endif

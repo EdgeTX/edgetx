@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HAPTIC_H_
-#define _HAPTIC_H_
+#pragma once
 
 #define HAPTIC_QUEUE_LENGTH  4
 
@@ -72,6 +71,3 @@ extern hapticQueue haptic;
 
 #define IS_HAPTIC_BUSY()     haptic.busy()
 #define HAPTIC_HEARTBEAT()   haptic.heartbeat()
-
-
-#endif // _HAPTIC_H_

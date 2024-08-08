@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _COMMON_MENUS_H_
-#define _COMMON_MENUS_H_
+#pragma once
 
 #include "edgetx_types.h"
 
@@ -62,5 +61,3 @@ inline MenuHandlerFunc lastPopMenu()
 {
   return menuHandlers[menuLevel + 1];
 }
-
-#endif // _COMMON_MENUS_H_

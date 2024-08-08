@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _IO_FRSKY_SPORT_H_
-#define _IO_FRSKY_SPORT_H_
+#pragma once
 
 #include "dataconstants.h"
 
@@ -34,5 +33,3 @@ PACK(union SportTelemetryPacket
   };
   uint8_t raw[8];
 });
-
-#endif // _IO_FRSKY_SPORT_H_

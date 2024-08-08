@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BUZZER_H_
-#define _BUZZER_H_
+#pragma once
 
 #if defined(BUZZER)
 extern uint8_t beepAgainOrig;
@@ -118,6 +117,3 @@ inline void beep(uint8_t) { }
   #define PLAY_MODEL_NAME()
   #define START_SILENCE_PERIOD()
 #endif /* !AUDIO */
-
-
-#endif // _BUZZER_H_
