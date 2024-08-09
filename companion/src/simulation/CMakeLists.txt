@@ -11,6 +11,7 @@ set(${PROJECT_NAME}_NAMES
   simulatorstartupdialog
   simulatorwidget
   telemetrysimu
+  telemetryprovidercrossfire
   telemetryproviderfrsky
   trainersimu
   widgets/lcdwidget

@@ -543,7 +543,7 @@ Timestamp</string>
              <property name="widgetResizable">
               <bool>true</bool>
              </property>
-             <widget class="QWidget" name="scrollAreaWidgetContents">
+             <widget class="QWidget" name="internalScrollAreaWidget">
               <property name="geometry">
                <rect>
                 <x>0</x>
@@ -673,7 +673,7 @@ Timestamp</string>
              <property name="widgetResizable">
               <bool>true</bool>
              </property>
-             <widget class="QWidget" name="scrollAreaWidgetContents_2">
+             <widget class="QWidget" name="externalScrollAreaWidget">
               <property name="geometry">
                <rect>
                 <x>0</x>

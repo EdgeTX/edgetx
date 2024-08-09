@@ -26,6 +26,7 @@
 #include "telem_data.h"
 #include "radio/src/telemetry/frsky_defs.h"
 #include "telemetryproviderfrsky.h"
+#include "telemetryprovidercrossfire.h"
 
 #include <QRegularExpression>
 #include <stdint.h>
@@ -162,6 +163,13 @@ TelemetryProvider * TelemetrySimulator::newTelemetryProviderFromDropdownChoice(c
             this,        &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
     return newProvider;
   }
+  if (text == "CRSF / ELRS") {
+    TelemetryProviderCrossfire * newProvider =  new TelemetryProviderCrossfire(parent);
+    parent->setWidget(newProvider);
+    connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged,
+            this,        &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
+    return newProvider;
+  }
   qDebug() << "Unimplemented telemetry provider " << text;
   return NULL;
 }
@@ -170,7 +178,6 @@ void TelemetrySimulator::onInternalTelemetrySelectorChanged(const QString &text)
 {
   qDebug() << "internal changed: " << text;
   if (internalProvider) {
-    ui->internalScrollArea->setWidget(NULL);
     delete internalProvider;
   }
   internalProvider = newTelemetryProviderFromDropdownChoice(text, ui->internalScrollArea);
@@ -180,7 +187,6 @@ void TelemetrySimulator::onExternalTelemetrySelectorChanged(const QString &text)
 {
   qDebug() << "external changed: " << text;
   if (externalProvider) {
-    ui->externalScrollArea->setWidget(NULL);
     delete externalProvider;
   }
   externalProvider = newTelemetryProviderFromDropdownChoice(text, ui->externalScrollArea);
