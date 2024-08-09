@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef SIMULATORMAINWINDOW_H
-#define SIMULATORMAINWINDOW_H
+#pragma once
 
 #include "simulator.h"
 
@@ -114,5 +113,3 @@ class SimulatorMainWindow : public QMainWindow
 
     const static quint16 m_savedUiStateVersion;
 };
-
-#endif // SIMULATORMAINWINDOW_H

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#pragma once
 
 #include <QColor>
 #include <QDataStream>
@@ -195,6 +194,3 @@ struct SimulatorOptions
 };
 
 Q_DECLARE_METATYPE(SimulatorOptions)
-
-
-#endif // SIMULATOR_H

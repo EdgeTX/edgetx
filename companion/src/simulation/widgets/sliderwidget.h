@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SLIDERWIDGET_H_
-#define _SLIDERWIDGET_H_
+#pragma once
 
 #include <QtGui>
 #include <QSlider>
@@ -64,5 +63,3 @@ class SliderWidget : public QSlider
 
     QString m_toolTip;
 };
-
-#endif // _SLIDERWIDGET_H_

@@ -19,9 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TRAINERSIMU_H_
-#define _TRAINERSIMU_H_
-
+#pragma once
 
 #include <QShowEvent>
 #include <QCloseEvent>
@@ -67,6 +65,3 @@ class TrainerSimulator : public QWidget
     bool m_simuStarted;
 
 };
-
-#endif // _TRAINERSIMU_H_
-

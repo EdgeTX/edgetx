@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BUTTONSWIDGET_H_
-#define _BUTTONSWIDGET_H_
+#pragma once
 
 #include "radiouiaction.h"
 #include "radiokeywidget.h"
@@ -46,12 +45,12 @@ class ButtonsWidget : public QWidget
       QWidget::setStyleSheet(sheet);
     }
 
-    RadioKeyWidget * addArea(const QRect & rect, const char * image, RadioUiAction * action = NULL)
+    RadioKeyWidget * addArea(const QRect & rect, const char * image, RadioUiAction * action = nullptr)
     {
       return addArea(QPolygon(rect), image, action);
     }
 
-    RadioKeyWidget * addArea(const QPolygon & polygon, const char * image, RadioUiAction * action = NULL)
+    RadioKeyWidget * addArea(const QPolygon & polygon, const char * image, RadioUiAction * action = nullptr)
     {
       RadioKeyWidget * btn = new RadioKeyWidget(polygon, image, action, this);
       m_buttons.append(btn);
@@ -111,5 +110,3 @@ class ButtonsWidget : public QWidget
     QList<RadioKeyWidget *> m_buttons;
     QString defaultStyleSheet;
 };
-
-#endif // _BUTTONSWIDGET_H_

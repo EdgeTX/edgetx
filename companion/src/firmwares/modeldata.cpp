@@ -193,7 +193,7 @@ bool ModelData::isEmpty() const
 
 void ModelData::setDefaultInputs(const GeneralSettings & settings)
 {
-  for (int i = 0; i < CPN_MAX_STICKS; i++) {
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     ExpoData * expo = &expoData[i];
     expo->chn = i;
     expo->mode = INPUT_MODE_BOTH;
@@ -207,7 +207,7 @@ void ModelData::setDefaultMixes(const GeneralSettings & settings)
 {
   setDefaultInputs(settings);
 
-  for (int i = 0; i < CPN_MAX_STICKS; i++) {
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     MixData * mix = &mixData[i];
     mix->destCh = i + 1;
     mix->weight = 100;

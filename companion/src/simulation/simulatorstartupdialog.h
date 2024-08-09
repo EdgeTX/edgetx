@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef SIMULATORSTARTUPDIALOG_H
-#define SIMULATORSTARTUPDIALOG_H
+#pragma once
 
 #include "simulator.h"
 #include <QDialog>
@@ -75,5 +74,3 @@ class SimulatorStartupDialog : public QDialog
 
     void setGlobalFirmware(const QString & id);
 };
-
-#endif // SIMULATORSTARTUPDIALOG_H

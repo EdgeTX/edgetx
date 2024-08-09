@@ -292,6 +292,7 @@ class SetupPanel : public ModelPanel
   signals:
     void extendedLimitsToggled();
     void updated();
+    void throttleReverseChanged();
 
   private slots:
     void on_name_editingFinished();

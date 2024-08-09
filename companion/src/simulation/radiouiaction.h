@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef RADIOUIACTION_H
-#define RADIOUIACTION_H
+#pragma once
 
 #include <QtCore>
 #include <QWidget>
@@ -165,15 +164,3 @@ class RadioUiAction : public QObject
     void pushed(int index);                  // only emitted on user interaction && when 'active' is true
     void pushed();
 };
-
-#endif // RADIOUIACTION_H
-
-
-
-
-
-
-
-
-
-

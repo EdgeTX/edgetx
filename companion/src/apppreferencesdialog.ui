@@ -624,7 +624,7 @@ Mode 4:
         </widget>
        </item>
        <item row="15" column="0">
-        <widget class="QLabel" name="label_14">
+        <widget class="QLabel" name="stickmodeLabel">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -676,7 +676,7 @@ Mode 4:
         </widget>
        </item>
        <item row="16" column="0">
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="channelorderLabel">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
            <horstretch>0</horstretch>

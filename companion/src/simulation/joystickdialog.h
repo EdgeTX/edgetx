@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _JOYSTICKDIALOG_H_
-#define _JOYSTICKDIALOG_H_
+#pragma once
 
 #include <QtWidgets>
 #include "appdata.h"
@@ -79,5 +78,3 @@ class joystickDialog : public QDialog
     void on_okButton_clicked();
 
 };
-
-#endif // _JOYSTICKDIALOG_H_

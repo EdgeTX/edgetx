@@ -137,8 +137,12 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
 
-  static const QString trims[] = {
-    "", tr("TrmR"), tr("TrmE"), tr("TrmT"), tr("TrmA"), tr("Trm5"), tr("Trm6"), tr("Trm7"), tr("Trm8")
+  static const QString trimsAir[] = {
+    "", tr("Trim Rud"), tr("Trim Ele"), tr("Trim Thr"), tr("Trim Ail"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
+  };
+
+  static const QString trimsSurface[] = {
+    "", tr("Trim ST"), tr("Trim TH"), tr("Trim 3"), tr("Trim 4"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
   };
 
   static const QString trims2[] = {
@@ -180,7 +184,9 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_TRIM:
-      return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) : CHECK_IN_ARRAY(trims, index));
+      return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) :
+              (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsAir, index) :
+               CHECK_IN_ARRAY(trimsSurface, index)));
 
     case SOURCE_TYPE_ROTARY_ENCODER:
       return CHECK_IN_ARRAY(rotary, index);

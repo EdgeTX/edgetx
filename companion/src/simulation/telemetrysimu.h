@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TELEMETRYSIMU_H_
-#define _TELEMETRYSIMU_H_
+#pragma once
 
 #include <QCloseEvent>
 #include <QWidget>
@@ -217,6 +216,3 @@ private slots:
     void on_GPSpushButton_clicked();
     void on_gps_course_valueChanged(double arg1);
 };  // TelemetrySimulator
-
-#endif // _TELEMETRYSIMU_H_
-

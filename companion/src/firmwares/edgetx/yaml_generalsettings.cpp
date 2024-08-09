@@ -262,7 +262,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     node["labelSingleSelect"] = rhs.labelSingleSelect;
     node["labelMultiMode"] = rhs.labelMultiMode;
     node["favMultiMode"] = rhs.favMultiMode;
-  } else if (fw->getCapability(LcdWidth) == 128) {
+  } else if (Boards::getCapability(board, Board::LcdWidth) == 128) {
     node["invertLCD"] = (int)rhs.invertLCD;
   }
 

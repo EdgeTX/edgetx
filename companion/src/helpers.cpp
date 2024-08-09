@@ -225,17 +225,6 @@ void GVarGroup::setWeight(int val)
  * Helpers namespace functions
 */
 
-// TODO: Move lookup to GVarData class (w/out combobox)
-void Helpers::populateGvarUseCB(QComboBox * b, unsigned int phase)
-{
-  b->addItem(QCoreApplication::translate("GVarData", "Own value"));
-  for (int i=0; i<getCurrentFirmware()->getCapability(FlightModes); i++) {
-    if (i != (int)phase) {
-      b->addItem(QCoreApplication::translate("GVarData", "Flight mode %1 value").arg(i));
-    }
-  }
-}
-
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 {
   return s1.toLower() < s2.toLower();
@@ -413,9 +402,10 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 
 QPixmap makePixMap(const QImage & image)
 {
-  Firmware * firmware = getCurrentFirmware();
-  QImage result = image.scaled(firmware->getCapability(LcdWidth), firmware->getCapability(LcdHeight));
-  if (firmware->getCapability(LcdDepth) == 4) {
+  Board::Type board = getCurrentBoard();
+  QImage result = image.scaled(Boards::getCapability(board, Board::LcdWidth), Boards::getCapability(board, Board::LcdHeight));
+
+  if (Boards::getCapability(board, Board::LcdDepth) == 4) {
     result = result.convertToFormat(QImage::Format_RGB32);
     for (int i = 0; i < result.width(); ++i) {
       for (int j = 0; j < result.height(); ++j) {

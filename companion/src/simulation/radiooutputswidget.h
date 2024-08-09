@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef RADIOOUTPUTSWIDGET_H
-#define RADIOOUTPUTSWIDGET_H
+#pragma once
 
 #include "simulator.h"
 #include "simulatorinterface.h"
@@ -86,5 +85,3 @@ class RadioOutputsWidget : public QWidget
   private:
     Ui::RadioOutputsWidget * ui;
 };
-
-#endif // RADIOOUTPUTSWIDGET_H

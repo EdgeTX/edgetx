@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DEBUGOUTPUT_H_
-#define _DEBUGOUTPUT_H_
+#pragma once
 
 #include "simulator.h"
 #include "simulatorinterface.h"
@@ -107,6 +106,3 @@ class DeleteComboBoxItemEventFilter : public QObject
   protected:
     bool eventFilter(QObject *obj, QEvent *event);
 };
-
-#endif // _DEBUGOUTPUT_H_
-

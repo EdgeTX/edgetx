@@ -28,6 +28,8 @@
 #include <QCheckBox>
 #include <QComboBox>
 
+class FilteredItemModelFactory;
+
 namespace Ui {
   class AppPreferencesDialog;
 }
@@ -94,6 +96,8 @@ class AppPreferencesDialog : public QDialog
     QCheckBox *chkCheckForUpdate[MAX_COMPONENTS];
     QComboBox *cboReleaseChannel[MAX_COMPONENTS];
     QPushButton *btnComponentOptions[MAX_COMPONENTS];
+
+    FilteredItemModelFactory *panelItemModels;
 
     void loadUpdatesTab();
 

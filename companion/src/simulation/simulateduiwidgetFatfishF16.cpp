@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-
 #include "simulateduiwidget.h"
 #include "ui_simulateduiwidgetFatfishF16.h"
 

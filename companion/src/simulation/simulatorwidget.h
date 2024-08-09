@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SIMULATORWIDGET_H_
-#define _SIMULATORWIDGET_H_
+#pragma once
 
 #include "appdata.h"
 #include "constants.h"
@@ -152,5 +151,3 @@ class SimulatorWidget : public QWidget
     int switchDirection[MAX_JS_BUTTONS];
 #endif
 };
-
-#endif // _SIMULATORWIDGET_H_

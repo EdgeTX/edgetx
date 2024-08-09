@@ -34,6 +34,7 @@ GenericPanel::GenericPanel(QWidget * parent, ModelData * model, GeneralSettings 
   model(model),
   generalSettings(generalSettings),
   firmware(firmware),
+  //board(firmware->getBoard()), TODO: as part of capabilities refactor
   lock(false)
 {
 }

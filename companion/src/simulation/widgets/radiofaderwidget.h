@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIOFADERWIDGET_H_
-#define _RADIOFADERWIDGET_H_
+#pragma once
 
 #include "radiowidget.h"
 #include "sliderwidget.h"
@@ -63,8 +62,3 @@ class RadioFaderWidget : public RadioWidget
       setWidget(sl);
     }
 };
-
-
-
-
-#endif // _RADIOFADERWIDGET_H_

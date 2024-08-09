@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef VIRTUALJOYSTICKWIDGET_H
-#define VIRTUALJOYSTICKWIDGET_H
+#pragma once
 
 #include "radiowidget.h"
 
@@ -62,8 +61,8 @@ class VirtualJoystickWidget : public QWidget
     int getStickScale() const;
     void setStickScale(int stickScale);
 
-    const RadioTrimWidget *horizontalTrim() { return hTrimWidget; } 
-    const RadioTrimWidget *verticalTrim() { return vTrimWidget; } 
+    const RadioTrimWidget *horizontalTrim() { return hTrimWidget; }
+    const RadioTrimWidget *verticalTrim() { return vTrimWidget; }
 
   public slots:
     void setStickX(qreal x);
@@ -120,6 +119,7 @@ class VirtualJoystickWidget : public QWidget
     int m_yIndex;
     int m_stickScale;
     bool m_stickPressed;
+    bool isBoardSurface;
 };
 
 
@@ -143,5 +143,3 @@ class CustomGraphicsScene : public QGraphicsScene
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event);
 };
-
-#endif // VIRTUALJOYSTICKWIDGET_H
