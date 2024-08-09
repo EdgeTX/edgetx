@@ -30,6 +30,10 @@
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
 
+#if defined(ADC_GPIO_PIN_STICK_TH)
+#define SURFACE_RADIO  true
+#endif
+
 #define FLASHSIZE                       0x200000
 #define FLASH_PAGESIZE                  256
 #define BOOTLOADER_SIZE                 0x20000
@@ -95,7 +99,12 @@ extern "C" void SDRAM_Init();
 #define BATTERY_WARN                  37 // 3.7V
 #define BATTERY_MIN                   35 // 3.4V
 #define BATTERY_MAX                   43 // 4.3V
-#define BATTERY_DIVIDER               962
+
+#if defined(RADIO_NB4P)
+  #define BATTERY_DIVIDER               3102 // = 2047 * (10k / 10k + 10k) * 10 / 3.3V
+#else
+  #define BATTERY_DIVIDER               962  // = 2047 * (22k / 120k + 22k) * 10 / 3.3V
+#endif
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
