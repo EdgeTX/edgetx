@@ -105,7 +105,6 @@ set(LVGL_SOURCES
   extra/widgets/keyboard/lv_keyboard.c
   extra/widgets/list/lv_list.c
   extra/widgets/menu/lv_menu.c
-  extra/widgets/meter/lv_meter.c
   extra/widgets/tabview/lv_tabview.c
   extra/widgets/tileview/lv_tileview.c
   extra/widgets/win/lv_win.c
