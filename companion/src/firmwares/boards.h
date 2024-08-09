@@ -87,6 +87,7 @@ namespace Board {
     BOARD_RADIOMASTER_POCKET,
     BOARD_JUMPER_T20V2,
     BOARD_FATFISH_F16,
+    BOARD_SMALL_LCD,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -516,7 +517,7 @@ inline bool IS_FATFISH_F16(Board::Type board)
 
 inline bool IS_FAMILY_T16(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T15 || board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18 || board == Board::BOARD_FATFISH_F16;
+  return board == Board::BOARD_JUMPER_T15 || board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18 || board == Board::BOARD_FATFISH_F16 || board == Board::BOARD_SMALL_LCD;
 }
 
 inline bool IS_FAMILY_T12(Board::Type board)

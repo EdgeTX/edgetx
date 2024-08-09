@@ -37,7 +37,7 @@ class ListLineButton : public ButtonBase
 
   virtual void refresh() = 0;
 
-  static LAYOUT_VAL(BTN_H, 29, 29)
+  static LAYOUT_VAL(BTN_H, 29, 29, LS(29))
   static constexpr coord_t GRP_W = LCD_W - PAD_SMALL * 2;
 
  protected:
@@ -61,26 +61,26 @@ class InputMixButtonBase : public ListLineButton
   virtual void swapLvglGroup(InputMixButtonBase* line2) = 0;
 
   // total: 90 x 17
-  static LAYOUT_VAL(FM_CANVAS_HEIGHT, 17, 17)
-  static LAYOUT_VAL(FM_CANVAS_WIDTH, 90, 90)
+  static LAYOUT_VAL(FM_CANVAS_HEIGHT, 17, 17, LS(17))
+  static LAYOUT_VAL(FM_CANVAS_WIDTH, 90, 90, 57)
 
-  static LAYOUT_VAL(BTN_W, 395, 235)
+  static LAYOUT_VAL(BTN_W, 395, 235, LS(395))
   static constexpr coord_t WGT_X = PAD_TINY;
   static constexpr coord_t WGT_Y = PAD_TINY;
-  static LAYOUT_VAL(WGT_W, 50, 50)
-  static LAYOUT_VAL(WGT_H, 21, 21)
+  static LAYOUT_VAL(WGT_W, 50, 50, LS(50))
+  static LAYOUT_VAL(WGT_H, 21, 21, LS(21))
   static constexpr coord_t SRC_X = WGT_X + WGT_W + PAD_TINY;
   static constexpr coord_t SRC_Y = WGT_Y;
-  static LAYOUT_VAL(SRC_W, 70, 69)
+  static LAYOUT_VAL(SRC_W, 70, 69, LS(70))
   static constexpr coord_t SRC_H = WGT_H;
   static constexpr coord_t OPT_X = SRC_X + SRC_W + PAD_TINY;
   static constexpr coord_t OPT_Y = WGT_Y;
-  static LAYOUT_VAL(OPT_W, 164, 99)
+  static LAYOUT_VAL(OPT_W, 164, 99, LS(164))
   static constexpr coord_t OPT_H = WGT_H;
-  static LAYOUT_VAL(LN_X, 73, 73)
-  static LAYOUT_VAL(FM_X, (OPT_X + OPT_W + PAD_TINY), 12)
-  static LAYOUT_VAL(FM_Y, (WGT_Y + PAD_TINY), (WGT_Y + WGT_H + PAD_TINY))
-  static LAYOUT_VAL(FM_W, 8, 8)
+  static LAYOUT_VAL(LN_X, 73, 73, 48)
+  static LAYOUT_VAL(FM_X, (OPT_X + OPT_W + PAD_TINY), 12, (OPT_X + OPT_W + PAD_TINY))
+  static LAYOUT_VAL(FM_Y, (WGT_Y + PAD_TINY), (WGT_Y + WGT_H + PAD_TINY), (WGT_Y + PAD_TINY))
+  static LAYOUT_VAL(FM_W, 8, 8, 5)
 
  protected:
 

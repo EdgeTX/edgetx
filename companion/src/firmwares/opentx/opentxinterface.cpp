@@ -143,6 +143,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for iFlight Commando 8";
     case BOARD_FATFISH_F16:
       return "EdgeTX for Fatfish F16";
+    case BOARD_SMALL_LCD:
+      return "EdgeTX test for 320x240";
     default:
       return "Board is unknown to EdgeTX";
   }
@@ -706,6 +708,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case LcdWidth:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 320;
+      else if (board == BOARD_SMALL_LCD)
+        return 320;
       else if (IS_FLYSKY_PL18(board))
         return 480;
       else if (IS_FAMILY_HORUS_OR_T16(board))
@@ -719,6 +723,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 480;
+      else if (board == BOARD_SMALL_LCD)
+        return 240;
       else if (IS_FLYSKY_PL18(board) || IS_JUMPER_T15(board))
         return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board))
@@ -1557,6 +1563,12 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
   firmware->addOption("flyskygimbals", Firmware::tr("Support hardware mod: FlySky Paladin EV Gimbals"));
+  registerOpenTxFirmware(firmware);
+
+  /* Test 320x240 */
+  firmware = new OpenTxFirmware(FIRMWAREID("smallLCD"), Firmware::tr("Test 320x240 LCD"), BOARD_SMALL_LCD);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster Zorro board */

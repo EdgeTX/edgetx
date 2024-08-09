@@ -237,7 +237,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
   }
 #endif
 
-  static LAYOUT_VAL(TSI2CEventsCol, 5, 0)
+  static LAYOUT_VAL(TSI2CEventsCol, 5, 0, 5)
 
  protected:
 #if defined(HARDWARE_TOUCH)
@@ -443,7 +443,7 @@ class AnaMinMaxViewWindow : public AnaViewWindow
     AnaViewWindow::checkEvents();
   }
 
-  static LAYOUT_VAL(GRIDCOLS, 10, 5)
+  static LAYOUT_VAL(GRIDCOLS, 10, 5, 10)
 };
 
 class AnaCalibratedViewPage : public PageTab

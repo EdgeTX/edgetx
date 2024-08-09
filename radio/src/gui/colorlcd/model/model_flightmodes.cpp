@@ -106,8 +106,8 @@ class TrimEdit : public Window
     showControls();
   }
 
-  static LAYOUT_VAL(TR_BTN_W, 65, 65)
-  static LAYOUT_VAL(TR_MODE_W, 70, 70)
+  static LAYOUT_VAL(TR_BTN_W, 65, 65, 44)
+  static LAYOUT_VAL(TR_MODE_W, 70, 70, LS(70))
 
  protected:
   int trimId;
@@ -194,7 +194,7 @@ class FlightModeEdit : public Page
     }
   }
 
-  static LAYOUT_VAL(TRIMS_PER_LINE, 2, 1)
+  static LAYOUT_VAL(TRIMS_PER_LINE, 2, 1, 2)
 
  protected:
   uint8_t index;
@@ -324,25 +324,25 @@ class FlightModeBtn : public ListLineButton
         formatNumberAsString(fm.fadeOut, PREC1, 0, nullptr, "s").c_str());
   }
 
-  static LAYOUT_VAL(BTN_H, 36, 56)
-  static LAYOUT_VAL(MAX_FMTRIMS, 6, 4)
+  static LAYOUT_VAL(BTN_H, 36, 56, LS(36))
+  static LAYOUT_VAL(MAX_FMTRIMS, 6, 4, 6)
   static constexpr coord_t FMID_X = PAD_TINY;
-  static LAYOUT_VAL(FMID_Y, 6, 16)
-  static LAYOUT_VAL(FMID_W, 36, 46)
+  static LAYOUT_VAL(FMID_Y, 6, 16, 3)
+  static LAYOUT_VAL(FMID_W, 36, 46, LS(36))
   static constexpr coord_t NAME_X = FMID_X + FMID_W + PAD_TINY;
-  static LAYOUT_VAL(NAME_Y, 8, 0)
-  static LAYOUT_VAL(NAME_W, 95, 160)
+  static LAYOUT_VAL(NAME_Y, 8, 0, 4)
+  static LAYOUT_VAL(NAME_W, 95, 160, LS(95))
   static constexpr coord_t SWTCH_X = NAME_X + NAME_W + PAD_TINY;
-  static LAYOUT_VAL(SWTCH_Y, 6, 0)
-  static LAYOUT_VAL(SWTCH_W, 50, 50)
-  static LAYOUT_VAL(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY)
-  static LAYOUT_VAL(TRIM_Y, 0, 20)
-  static LAYOUT_VAL(TRIM_W, 30, 40)
-  static LAYOUT_VAL(TRIM_H, 16, 16)
+  static LAYOUT_VAL(SWTCH_Y, 6, 0, 3)
+  static LAYOUT_VAL(SWTCH_W, 50, 50, LS(50))
+  static LAYOUT_VAL(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY, SWTCH_X + SWTCH_W + PAD_TINY)
+  static LAYOUT_VAL(TRIM_Y, 0, 20, -1)
+  static LAYOUT_VAL(TRIM_W, 30, 40, LS(30))
+  static LAYOUT_VAL(TRIM_H, 16, 16, 11)
   static constexpr coord_t TRIMC_W = MAX_FMTRIMS * TRIM_W;
   static constexpr coord_t FADE_X = TRIM_X + TRIMC_W + PAD_TINY;
-  static LAYOUT_VAL(FADE_Y, 6, 24)
-  static LAYOUT_VAL(FADE_W, 45, 45)
+  static LAYOUT_VAL(FADE_Y, 6, 24, 3)
+  static LAYOUT_VAL(FADE_W, 45, 45, LS(45))
 
  protected:
   bool init = false;

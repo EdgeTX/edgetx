@@ -165,9 +165,9 @@ class HeaderDateTime : public Window
 
   void setColor(LcdFlags color);
 
-  static LAYOUT_VAL(HDR_DATE_WIDTH, 45, 45)
-  static LAYOUT_VAL(HDR_DATE_HEIGHT, 12, 12)
-  static LAYOUT_VAL(HDR_DATE_LINE2, 15, 15)
+  static LAYOUT_VAL(HDR_DATE_WIDTH, 45, 45,LS(45))
+  static LAYOUT_VAL(HDR_DATE_HEIGHT, 12, 12, LS(12))
+  static LAYOUT_VAL(HDR_DATE_LINE2, 15, 15, LS(15))
 
  protected:
   lv_obj_t *date = nullptr;
