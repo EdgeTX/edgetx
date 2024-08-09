@@ -30,7 +30,7 @@ void CustomFunctionData::convert(RadioDataConversionState & cstate)
   cstate.setComponent(tr("CFN"), 8);
   cstate.setSubComp(nameToString(cstate.subCompIdx, (cstate.toModel() ? false : true)));
   swtch.convert(cstate);
-  if (func == FuncVolume || func == FuncBacklight || func == FuncPlayValue || (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast && adjustMode == 1)) {
+  if (func == FuncVolume || func == FuncBacklight || func == FuncPlayValue || (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast && (adjustMode == FUNC_ADJUST_GVAR_SOURCE || adjustMode == FUNC_ADJUST_GVAR_SOURCERAW))) {
     param = RawSource(param).convert(cstate.withComponentField("PARAM")).toValue();
   }
 }
@@ -190,6 +190,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
       case FUNC_ADJUST_GVAR_CONSTANT:
         return QString("%1").arg(param);
       case FUNC_ADJUST_GVAR_SOURCE:
+      case FUNC_ADJUST_GVAR_SOURCERAW:
       case FUNC_ADJUST_GVAR_GVAR:
         return RawSource(param).toString();
       case FUNC_ADJUST_GVAR_INCDEC:
@@ -379,7 +380,9 @@ QString CustomFunctionData::gvarAdjustModeToString(const int value)
     case FUNC_ADJUST_GVAR_CONSTANT:
       return tr("Value");
     case FUNC_ADJUST_GVAR_SOURCE:
-      return tr("Source");
+      return tr("Source (%)");
+    case FUNC_ADJUST_GVAR_SOURCERAW:
+      return tr("Source (value)");
     case FUNC_ADJUST_GVAR_GVAR:
       return tr("Global Variable");
     case FUNC_ADJUST_GVAR_INCDEC:

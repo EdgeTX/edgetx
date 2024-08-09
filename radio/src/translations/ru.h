@@ -949,7 +949,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Коп тримы в субтрим")
 #define TR_INCDEC                      "Увел/Умен"
 #define TR_GLOBALVAR                   "Глоб переменная"
-#define TR_MIXSOURCE                   "Источник микшера"
+#define TR_MIXSOURCE                   "Источ (%)"
+#define TR_MIXSOURCERAW                "Источ (Значен)"
 #define TR_CONSTANT                    "Постоянное значение"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Выкл","Вкл","Авто"
 #define TR_PREFLIGHT                   "Предстарт проверки"

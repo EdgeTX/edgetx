@@ -92,6 +92,11 @@ void onAdjustGvarSourceLongEnterPress(const char * result)
     CFN_PARAM(cfn) = 0;
     storageDirty(EE_MODEL);
   }
+  else if (result == STR_MIXSOURCERAW) {
+    CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_SOURCERAW;
+    CFN_PARAM(cfn) = 0;
+    storageDirty(EE_MODEL);
+  }
   else if (result == STR_GLOBALVAR) {
     CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_GVAR;
     CFN_PARAM(cfn) = 0;
@@ -393,6 +398,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
                 drawGVarValue(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, CFN_GVAR_INDEX(cfn), val_displayed, attr|LEFT);
                 break;
               case FUNC_ADJUST_GVAR_SOURCE:
+              case FUNC_ADJUST_GVAR_SOURCERAW:
                 val_max = MIXSRC_LAST_CH;
                 drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);
                 if (active) {
@@ -436,6 +442,8 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
                 POPUP_MENU_ADD_ITEM(STR_CONSTANT);
               if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_SOURCE)
                 POPUP_MENU_ADD_ITEM(STR_MIXSOURCE);
+              if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_SOURCERAW)
+                POPUP_MENU_ADD_ITEM(STR_MIXSOURCERAW);
               if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_GVAR)
                 POPUP_MENU_ADD_ITEM(STR_GLOBALVAR);
               if (CFN_GVAR_MODE(cfn) != FUNC_ADJUST_GVAR_INCDEC)

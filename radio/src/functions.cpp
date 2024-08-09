@@ -279,11 +279,18 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
               trimGvar[CFN_PARAM(cfn) - MIXSRC_FIRST_TRIM] =
                   CFN_GVAR_INDEX(cfn);
             } else {
-              SET_GVAR(CFN_GVAR_INDEX(cfn),
-                       limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                      calcRESXto100(getValue(CFN_PARAM(cfn))),
-                                      MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
-                       mixerCurrentFlightMode);
+              if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_SOURCE)
+                SET_GVAR(CFN_GVAR_INDEX(cfn),
+                        limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
+                                        calcRESXto100(getValue(CFN_PARAM(cfn))),
+                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
+                        mixerCurrentFlightMode);
+              else
+                SET_GVAR(CFN_GVAR_INDEX(cfn),
+                        limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
+                                        getValue(CFN_PARAM(cfn)),
+                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
+                        mixerCurrentFlightMode);
             }
             break;
 #endif
