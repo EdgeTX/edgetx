@@ -281,11 +281,11 @@ void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidge
   vboxRight->addWidget(btnEnter);
 
   QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
-  gridLeft->addItem(new QSpacerItem(0, 0), 0, 0);
+  gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
   gridLeft->addLayout(vboxLeft, 0, 1);
   QGridLayout * gridRight = new QGridLayout((QWidget *)rightButtons);
   gridRight->addLayout(vboxRight, 0, 0);
-  gridLeft->addItem(new QSpacerItem(0, 0), 0, 1);
+  gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 1);
 
 //  act = new RadioUiAction(KEY_MODEL, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
 //  addRadioWidget(ui->rightbuttons->addArea(QRect(30, 95, 60, 60), "Pocket/right.png", act));
