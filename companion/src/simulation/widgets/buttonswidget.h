@@ -58,6 +58,16 @@ class ButtonsWidget : public QWidget
       return btn;
     }
 
+    RadioKeyWidget * addPushButton(QPushButton * pushbtn, RadioUiAction * action = nullptr)
+    {
+      RadioKeyWidget * btn = new RadioKeyWidget(pushbtn, action, this);
+      m_buttons.append(btn);
+      connect(pushbtn, &QPushButton::pressed, btn, &RadioKeyWidget::press);
+      connect(pushbtn, &QPushButton::released, btn, &RadioKeyWidget::release);
+      pushbtn->setFocusPolicy(Qt::ClickFocus);
+      return btn;
+    }
+
   protected:
 
     void setBitmap(QString bitmap)

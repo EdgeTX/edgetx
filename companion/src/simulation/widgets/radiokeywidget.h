@@ -102,5 +102,4 @@ class RadioKeyWidget : public RadioWidget
     QPolygon polygon;
     QString imgFile;
     QPushButton *pushbtn;
-
 };

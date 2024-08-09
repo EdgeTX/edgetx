@@ -127,9 +127,14 @@ class SimulatedUIWidget : public QWidget
     unsigned int m_backLight;
     int m_beepShow;
     int m_beepVal;
+    ButtonsWidget * m_leftButtons;
+    ButtonsWidget * m_rightButtons;
+    QGridLayout * m_leftButtonGrid;
+    QGridLayout * m_rightButtonGrid;
 
     static int strKeyToInt(std::string key);
     void addPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons);
+    void addPushButton(int index, QString label);
     void addScrollActions();
 };
 

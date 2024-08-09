@@ -140,7 +140,6 @@ void RadioWidget::setAction(RadioUiAction * action)
   }
 }
 
-
 int RadioWidget::getValue() const
 {
   return m_value;
@@ -178,7 +177,6 @@ void RadioWidget::onActionToggled(int index, bool active)
 {
   emit valueChange(m_type, index, getValue());
 }
-
 
 void RadioWidget::addLayout()
 {

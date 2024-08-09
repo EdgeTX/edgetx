@@ -24,25 +24,11 @@
 SimulatedUIWidgetMT12::SimulatedUIWidgetMT12(SimulatorInterface *simulator, QWidget * parent):
   SimulatedUIWidgetGeneric(simulator, parent)
 {
-  m_backlightColors << QColor(215, 243, 255);  // X7 Blue
+  m_backlightColors << QColor(215, 243, 255);
   m_backlightColors << QColor(166,247,159);
   m_backlightColors << QColor(247,159,166);
   m_backlightColors << QColor(255,195,151);
   m_backlightColors << QColor(247,242,159);
-
-  QString css = "#radioUiWidget {"
-                "background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:1,"
-                "stop:0 rgba(255, 255, 255, 255),"
-                "stop:0.757062 rgba(241, 238, 238, 255),"
-                "stop:1 rgba(247, 245, 245, 255));"
-                "}";
-
-  QTimer * tim = new QTimer(this);
-  tim->setSingleShot(true);
-  connect(tim, &QTimer::timeout, [this, css]() {
-    emit customStyleRequest(css);
-  });
-  tim->start(100);
 }
 
 SimulatedUIWidgetMT12::~SimulatedUIWidgetMT12()
