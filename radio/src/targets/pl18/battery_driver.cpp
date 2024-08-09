@@ -26,7 +26,7 @@
 #define  __BATTERY_DRIVER_C__
 
 #define BATTERY_W 140
-#define BATTERY_H 200
+#define BATTERY_H (LCD_H - 120)
 #define BATTERY_TOP ((LCD_H - BATTERY_H)/2)
 #define BATTERY_CONNECTOR_W 32
 #define BATTERY_CONNECTOR_H 10
@@ -273,7 +273,9 @@ void battery_charge_init()
 
 
   // USB charger control pins
+#if defined(UCHARGER_EN_GPIO)  
   gpio_init(UCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
 
   // USB charger state init
   ENABLE_UCHARGER();
@@ -296,6 +298,7 @@ void battery_charge_init()
 }
 
 void ledChargingInfo(uint16_t chargeState) {
+#if defined(LED_STRIP_GPIO)
   static int ledIdx = 0;
   ledIdx--;
   if (ledIdx < 0) {
@@ -309,6 +312,7 @@ void ledChargingInfo(uint16_t chargeState) {
     }
   }
   rgbLedColorApply();
+#endif
 }
 
 void drawChargingInfo(uint16_t chargeState) {
@@ -416,11 +420,13 @@ void handle_battery_charge(uint32_t last_press_time)
       sprintf(buffer, "%d,%d,%d,%d,%d,", uCharger.isChargingDetectionReady, uCharger.isChargeEnd, IS_UCHARGER_CHARGE_END_ACTIVE(), uCharger.chargingSamplingCount, uCharger.chargeEndSamplingCount);
       lcd->drawSizedText(100, 40, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
 
+#if defined(WIRELESS_CHARGER)
       sprintf(buffer, "%d,%d,%d,%d,%d", wCharger.isChargerDetectionReady, wCharger.hasCharger, IS_WCHARGER_ACTIVE(), wCharger.chargerSamplingCount, wCharger.isHighCurrent);
       lcd->drawSizedText(100, 70, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
     
       sprintf(buffer, "%d,%d,%d,%d,%d,", wCharger.isChargingDetectionReady, wCharger.isChargeEnd, IS_WCHARGER_CHARGE_END_ACTIVE(), wCharger.chargingSamplingCount, wCharger.chargeEndSamplingCount);
       lcd->drawSizedText(100, 100, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
+#endif
 
       sprintf(buffer, "%d", isChargerActive());
       lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
