@@ -599,362 +599,362 @@ void LvglWidgetQRCode::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetScaleIndicator : public LvglWidgetObjectBase
-{
- public:
-  LvglWidgetScaleIndicator() {}
+// class LvglWidgetScaleIndicator : public LvglWidgetObjectBase
+// {
+//  public:
+//   LvglWidgetScaleIndicator() {}
 
-  virtual void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) = 0;
+//   virtual void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) = 0;
 
- protected:
-  lv_obj_t *meter = nullptr;
-  lv_meter_indicator_t *indic = nullptr;
-};
+//  protected:
+//   lv_obj_t *meter = nullptr;
+//   lv_meter_indicator_t *indic = nullptr;
+// };
 
-class LvglWidgetScaleArc : public LvglWidgetScaleIndicator
-{
- public:
-  LvglWidgetScaleArc(lua_State *L) { getParams(L, -1); }
+// class LvglWidgetScaleArc : public LvglWidgetScaleIndicator
+// {
+//  public:
+//   LvglWidgetScaleArc(lua_State *L) { getParams(L, -1); }
 
-  bool callRefs(lua_State *L) override
-  {
-    if (!pcallUpdate1Int(L, getStartPosFunction, [=](int val) {
-          lv_meter_set_indicator_start_value(meter, indic, val);
-        }))
-      return false;
-    if (!pcallUpdate1Int(L, getEndPosFunction, [=](int val) {
-          lv_meter_set_indicator_end_value(meter, indic, val);
-        }))
-      return false;
-    return true;
-  }
+//   bool callRefs(lua_State *L) override
+//   {
+//     if (!pcallUpdate1Int(L, getStartPosFunction, [=](int val) {
+//           lv_meter_set_indicator_start_value(meter, indic, val);
+//         }))
+//       return false;
+//     if (!pcallUpdate1Int(L, getEndPosFunction, [=](int val) {
+//           lv_meter_set_indicator_end_value(meter, indic, val);
+//         }))
+//       return false;
+//     return true;
+//   }
 
-  void clearRefs(lua_State *L) override
-  {
-    clearRef(L, getStartPosFunction);
-    clearRef(L, getEndPosFunction);
-  }
+//   void clearRefs(lua_State *L) override
+//   {
+//     clearRef(L, getStartPosFunction);
+//     clearRef(L, getEndPosFunction);
+//   }
 
-  void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
-  {
-    meter = parent;
+//   void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
+//   {
+//     meter = parent;
 
-    indic =
-        lv_meter_add_arc(meter, scale, w, makeLvColor(colorToRGB(color)), rmod);
-    if (hasStart) lv_meter_set_indicator_start_value(meter, indic, startPos);
-    if (hasEnd) lv_meter_set_indicator_end_value(meter, indic, endPos);
-  }
+//     indic =
+//         lv_meter_add_arc(meter, scale, w, makeLvColor(colorToRGB(color)), rmod);
+//     if (hasStart) lv_meter_set_indicator_start_value(meter, indic, startPos);
+//     if (hasEnd) lv_meter_set_indicator_end_value(meter, indic, endPos);
+//   }
 
- protected:
-  uint8_t w = 0;
-  int8_t rmod = 0;
-  LcdFlags color = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
-  bool hasStart = false, hasEnd = false;
-  int16_t startPos = 0, endPos = 0;
+//  protected:
+//   uint8_t w = 0;
+//   int8_t rmod = 0;
+//   LcdFlags color = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
+//   bool hasStart = false, hasEnd = false;
+//   int16_t startPos = 0, endPos = 0;
 
-  int getStartPosFunction = 0;
-  int getEndPosFunction = 0;
+//   int getStartPosFunction = 0;
+//   int getEndPosFunction = 0;
 
-  void parseParam(lua_State *L, const char *key) override
-  {
-    if (!strcmp(key, "w")) {
-      w = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "rmod")) {
-      rmod = luaL_checkinteger(L, -1);
-    } else if (!strcmp(key, "startPos")) {
-      if (lua_isfunction(L, -1))
-        getStartPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-      else {
-        hasStart = true;
-        startPos = luaL_checkinteger(L, -1);
-      }
-    } else if (!strcmp(key, "endPos")) {
-      if (lua_isfunction(L, -1))
-        getEndPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-      else {
-        hasEnd = true;
-        endPos = luaL_checkinteger(L, -1);
-      }
-    } else if (!strcmp(key, "color")) {
-      color = luaL_checkunsigned(L, -1);
-    }
-  }
-};
+//   void parseParam(lua_State *L, const char *key) override
+//   {
+//     if (!strcmp(key, "w")) {
+//       w = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "rmod")) {
+//       rmod = luaL_checkinteger(L, -1);
+//     } else if (!strcmp(key, "startPos")) {
+//       if (lua_isfunction(L, -1))
+//         getStartPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+//       else {
+//         hasStart = true;
+//         startPos = luaL_checkinteger(L, -1);
+//       }
+//     } else if (!strcmp(key, "endPos")) {
+//       if (lua_isfunction(L, -1))
+//         getEndPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+//       else {
+//         hasEnd = true;
+//         endPos = luaL_checkinteger(L, -1);
+//       }
+//     } else if (!strcmp(key, "color")) {
+//       color = luaL_checkunsigned(L, -1);
+//     }
+//   }
+// };
 
-class LvglWidgetScaleLines : public LvglWidgetScaleIndicator
-{
- public:
-  LvglWidgetScaleLines(lua_State *L) { getParams(L, -1); }
+// class LvglWidgetScaleLines : public LvglWidgetScaleIndicator
+// {
+//  public:
+//   LvglWidgetScaleLines(lua_State *L) { getParams(L, -1); }
 
-  bool callRefs(lua_State *L) override
-  {
-    if (!pcallUpdate1Int(L, getStartPosFunction, [=](int val) {
-          lv_meter_set_indicator_start_value(meter, indic, val);
-        }))
-      return false;
-    if (!pcallUpdate1Int(L, getEndPosFunction, [=](int val) {
-          lv_meter_set_indicator_end_value(meter, indic, val);
-        }))
-      return false;
-    return true;
-  }
+//   bool callRefs(lua_State *L) override
+//   {
+//     if (!pcallUpdate1Int(L, getStartPosFunction, [=](int val) {
+//           lv_meter_set_indicator_start_value(meter, indic, val);
+//         }))
+//       return false;
+//     if (!pcallUpdate1Int(L, getEndPosFunction, [=](int val) {
+//           lv_meter_set_indicator_end_value(meter, indic, val);
+//         }))
+//       return false;
+//     return true;
+//   }
 
-  void clearRefs(lua_State *L) override
-  {
-    clearRef(L, getStartPosFunction);
-    clearRef(L, getEndPosFunction);
-  }
+//   void clearRefs(lua_State *L) override
+//   {
+//     clearRef(L, getStartPosFunction);
+//     clearRef(L, getEndPosFunction);
+//   }
 
-  void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
-  {
-    meter = parent;
+//   void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
+//   {
+//     meter = parent;
 
-    indic = lv_meter_add_scale_lines(
-        meter, scale, makeLvColor(colorToRGB(startColor)),
-        makeLvColor(colorToRGB(endColor)), localFade, wmod);
-    if (hasStart) lv_meter_set_indicator_start_value(meter, indic, startPos);
-    if (hasEnd) lv_meter_set_indicator_end_value(meter, indic, endPos);
-  }
+//     indic = lv_meter_add_scale_lines(
+//         meter, scale, makeLvColor(colorToRGB(startColor)),
+//         makeLvColor(colorToRGB(endColor)), localFade, wmod);
+//     if (hasStart) lv_meter_set_indicator_start_value(meter, indic, startPos);
+//     if (hasEnd) lv_meter_set_indicator_end_value(meter, indic, endPos);
+//   }
 
- protected:
-  int8_t wmod = 0;
-  LcdFlags startColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
-  LcdFlags endColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
-  bool hasStart = false, hasEnd = false;
-  int16_t startPos = 0, endPos = 0;
-  bool localFade = false;
+//  protected:
+//   int8_t wmod = 0;
+//   LcdFlags startColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
+//   LcdFlags endColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
+//   bool hasStart = false, hasEnd = false;
+//   int16_t startPos = 0, endPos = 0;
+//   bool localFade = false;
 
-  int getStartPosFunction = 0;
-  int getEndPosFunction = 0;
+//   int getStartPosFunction = 0;
+//   int getEndPosFunction = 0;
 
-  void parseParam(lua_State *L, const char *key) override
-  {
-    if (!strcmp(key, "wmod")) {
-      wmod = luaL_checkinteger(L, -1);
-    } else if (!strcmp(key, "startPos")) {
-      if (lua_isfunction(L, -1)) {
-        getStartPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-      } else {
-        hasStart = true;
-        startPos = luaL_checkinteger(L, -1);
-      }
-    } else if (!strcmp(key, "endPos")) {
-      if (lua_isfunction(L, -1)) {
-        getEndPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-      } else {
-        hasEnd = true;
-        endPos = luaL_checkinteger(L, -1);
-      }
-    } else if (!strcmp(key, "startColor")) {
-      startColor = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "endColor")) {
-      endColor = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "localFade")) {
-      localFade = lua_toboolean(L, -1);
-    }
-  }
-};
+//   void parseParam(lua_State *L, const char *key) override
+//   {
+//     if (!strcmp(key, "wmod")) {
+//       wmod = luaL_checkinteger(L, -1);
+//     } else if (!strcmp(key, "startPos")) {
+//       if (lua_isfunction(L, -1)) {
+//         getStartPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+//       } else {
+//         hasStart = true;
+//         startPos = luaL_checkinteger(L, -1);
+//       }
+//     } else if (!strcmp(key, "endPos")) {
+//       if (lua_isfunction(L, -1)) {
+//         getEndPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+//       } else {
+//         hasEnd = true;
+//         endPos = luaL_checkinteger(L, -1);
+//       }
+//     } else if (!strcmp(key, "startColor")) {
+//       startColor = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "endColor")) {
+//       endColor = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "localFade")) {
+//       localFade = lua_toboolean(L, -1);
+//     }
+//   }
+// };
 
-class LvglWidgetScaleNeedle : public LvglWidgetScaleIndicator
-{
- public:
-  LvglWidgetScaleNeedle(lua_State *L) { getParams(L, -1); }
+// class LvglWidgetScaleNeedle : public LvglWidgetScaleIndicator
+// {
+//  public:
+//   LvglWidgetScaleNeedle(lua_State *L) { getParams(L, -1); }
 
-  bool callRefs(lua_State *L) override
-  {
-    if (!pcallUpdate1Int(L, getPosFunction, [=](int val) {
-          lv_meter_set_indicator_value(meter, indic, val);
-        }))
-      return false;
-    return true;
-  }
+//   bool callRefs(lua_State *L) override
+//   {
+//     if (!pcallUpdate1Int(L, getPosFunction, [=](int val) {
+//           lv_meter_set_indicator_value(meter, indic, val);
+//         }))
+//       return false;
+//     return true;
+//   }
 
-  void clearRefs(lua_State *L) override { clearRef(L, getPosFunction); }
+//   void clearRefs(lua_State *L) override { clearRef(L, getPosFunction); }
 
-  void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
-  {
-    meter = parent;
+//   void buildIndicator(lv_obj_t *parent, lv_meter_scale_t *scale) override
+//   {
+//     meter = parent;
 
-    indic = lv_meter_add_needle_line(meter, scale, w,
-                                     makeLvColor(colorToRGB(color)), rmod);
-  }
+//     indic = lv_meter_add_needle_line(meter, scale, w,
+//                                      makeLvColor(colorToRGB(color)), rmod);
+//   }
 
- protected:
-  uint8_t w = 0;
-  int8_t rmod = 0;
-  LcdFlags color = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
+//  protected:
+//   uint8_t w = 0;
+//   int8_t rmod = 0;
+//   LcdFlags color = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
 
-  int getPosFunction = 0;
+//   int getPosFunction = 0;
 
-  void parseParam(lua_State *L, const char *key) override
-  {
-    if (!strcmp(key, "w")) {
-      w = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "rmod")) {
-      rmod = luaL_checkinteger(L, -1);
-    } else if (!strcmp(key, "color")) {
-      color = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "pos")) {
-      getPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-    }
-  }
-};
+//   void parseParam(lua_State *L, const char *key) override
+//   {
+//     if (!strcmp(key, "w")) {
+//       w = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "rmod")) {
+//       rmod = luaL_checkinteger(L, -1);
+//     } else if (!strcmp(key, "color")) {
+//       color = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "pos")) {
+//       getPosFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+//     }
+//   }
+// };
 
-class LvglWidgetMeterScale : public LvglWidgetObjectBase
-{
- public:
-  LvglWidgetMeterScale(lua_State *L) { getParams(L, -1); }
+// class LvglWidgetMeterScale : public LvglWidgetObjectBase
+// {
+//  public:
+//   LvglWidgetMeterScale(lua_State *L) { getParams(L, -1); }
 
-  bool callRefs(lua_State *L) override
-  {
-    for (auto it = indicators.cbegin(); it != indicators.cend(); ++it) {
-      if (!(*it)->callRefs(L)) return false;
-    }
-    return true;
-  }
+//   bool callRefs(lua_State *L) override
+//   {
+//     for (auto it = indicators.cbegin(); it != indicators.cend(); ++it) {
+//       if (!(*it)->callRefs(L)) return false;
+//     }
+//     return true;
+//   }
 
-  void clearRefs(lua_State *L) override
-  {
-    for (auto it = indicators.cbegin(); it != indicators.cend(); ++it) {
-      (*it)->clearRefs(L);
-    }
-  }
+//   void clearRefs(lua_State *L) override
+//   {
+//     for (auto it = indicators.cbegin(); it != indicators.cend(); ++it) {
+//       (*it)->clearRefs(L);
+//     }
+//   }
 
-  void build(lv_obj_t *parent)
-  {
-    meter = parent;
-    lv_meter_scale_t *scale = lv_meter_add_scale(meter);
+//   void build(lv_obj_t *parent)
+//   {
+//     meter = parent;
+//     lv_meter_scale_t *scale = lv_meter_add_scale(meter);
 
-    if (ticks) {
-      lv_meter_set_scale_ticks(meter, scale, ticks, tickWidth, tickLen,
-                               makeLvColor(colorToRGB(tickColor)));
-      if (majorNth)
-        lv_meter_set_scale_major_ticks(
-            meter, scale, majorNth, majorWidth, majorLen,
-            makeLvColor(colorToRGB(majorColor)), labelGap);
-    }
+//     if (ticks) {
+//       lv_meter_set_scale_ticks(meter, scale, ticks, tickWidth, tickLen,
+//                                makeLvColor(colorToRGB(tickColor)));
+//       if (majorNth)
+//         lv_meter_set_scale_major_ticks(
+//             meter, scale, majorNth, majorWidth, majorLen,
+//             makeLvColor(colorToRGB(majorColor)), labelGap);
+//     }
 
-    lv_meter_set_scale_range(meter, scale, scaleMin, scaleMax, scaleAngle,
-                             scaleRotate);
+//     lv_meter_set_scale_range(meter, scale, scaleMin, scaleMax, scaleAngle,
+//                              scaleRotate);
 
-    if (centerDotSize > 0) {
-      lv_obj_set_style_size(meter, centerDotSize, LV_PART_INDICATOR);
-      etx_bg_color_from_flags(meter, centerDotColor, LV_PART_INDICATOR);
-      lv_obj_set_style_bg_opa(meter, LV_OPA_COVER, LV_PART_INDICATOR);
-      lv_obj_set_style_radius(meter, LV_RADIUS_CIRCLE, LV_PART_INDICATOR);
-    }
+//     if (centerDotSize > 0) {
+//       lv_obj_set_style_size(meter, centerDotSize, LV_PART_INDICATOR);
+//       etx_bg_color_from_flags(meter, centerDotColor, LV_PART_INDICATOR);
+//       lv_obj_set_style_bg_opa(meter, LV_OPA_COVER, LV_PART_INDICATOR);
+//       lv_obj_set_style_radius(meter, LV_RADIUS_CIRCLE, LV_PART_INDICATOR);
+//     }
 
-    for (auto it = indicators.cbegin(); it != indicators.cend(); ++it) {
-      (*it)->buildIndicator(meter, scale);
-    }
-  }
+//     for (auto it = indicators.cbegin(); it != indicators.cend(); ++it) {
+//       (*it)->buildIndicator(meter, scale);
+//     }
+//   }
 
- protected:
-  lv_obj_t *meter;
-  std::vector<LvglWidgetScaleIndicator *> indicators;
+//  protected:
+//   lv_obj_t *meter;
+//   std::vector<LvglWidgetScaleIndicator *> indicators;
 
-  int16_t scaleMin = 0, scaleMax = 100, scaleAngle = 360, scaleRotate = 0;
-  uint8_t ticks = 0, majorNth = 0;
-  uint8_t tickWidth = 0, majorWidth = 0;
-  uint8_t tickLen = 0, majorLen = 0;
-  LcdFlags tickColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1);
-  LcdFlags majorColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1);
-  uint8_t labelGap = 0, centerDotSize = 0;
-  LcdFlags centerDotColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
+//   int16_t scaleMin = 0, scaleMax = 100, scaleAngle = 360, scaleRotate = 0;
+//   uint8_t ticks = 0, majorNth = 0;
+//   uint8_t tickWidth = 0, majorWidth = 0;
+//   uint8_t tickLen = 0, majorLen = 0;
+//   LcdFlags tickColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1);
+//   LcdFlags majorColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1);
+//   uint8_t labelGap = 0, centerDotSize = 0;
+//   LcdFlags centerDotColor = COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX);
 
-  void parseParam(lua_State *L, const char *key) override
-  {
-    if (!strcmp(key, "ticks")) {
-      ticks = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "tickWidth")) {
-      tickWidth = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "tickLen")) {
-      tickLen = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "tickColor")) {
-      tickColor = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "majorNth")) {
-      majorNth = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "majorWidth")) {
-      majorWidth = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "majorLen")) {
-      majorLen = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "majorColor")) {
-      majorColor = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "labelGap")) {
-      labelGap = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "min")) {
-      scaleMin = luaL_checkinteger(L, -1);
-    } else if (!strcmp(key, "max")) {
-      scaleMax = luaL_checkinteger(L, -1);
-    } else if (!strcmp(key, "angle")) {
-      scaleAngle = luaL_checkinteger(L, -1);
-    } else if (!strcmp(key, "rotate")) {
-      scaleRotate = luaL_checkinteger(L, -1);
-    } else if (!strcmp(key, "dotSize")) {
-      centerDotSize = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "dotColor")) {
-      centerDotColor = luaL_checkunsigned(L, -1);
-    } else if (!strcmp(key, "indicators")) {
-      luaL_checktype(L, -1, LUA_TTABLE);
-      for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-        lua_getfield(L, -1, "type");
-        const char *key = lua_tostring(L, -1);
-        lua_pop(L, 1);
-        if (!strcmp(key, "arc")) {
-          indicators.push_back(new LvglWidgetScaleArc(L));
-        } else if (!strcmp(key, "lines")) {
-          indicators.push_back(new LvglWidgetScaleLines(L));
-        } else if (!strcmp(key, "needle")) {
-          indicators.push_back(new LvglWidgetScaleNeedle(L));
-        }
-      }
-    }
-  }
-};
+//   void parseParam(lua_State *L, const char *key) override
+//   {
+//     if (!strcmp(key, "ticks")) {
+//       ticks = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "tickWidth")) {
+//       tickWidth = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "tickLen")) {
+//       tickLen = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "tickColor")) {
+//       tickColor = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "majorNth")) {
+//       majorNth = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "majorWidth")) {
+//       majorWidth = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "majorLen")) {
+//       majorLen = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "majorColor")) {
+//       majorColor = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "labelGap")) {
+//       labelGap = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "min")) {
+//       scaleMin = luaL_checkinteger(L, -1);
+//     } else if (!strcmp(key, "max")) {
+//       scaleMax = luaL_checkinteger(L, -1);
+//     } else if (!strcmp(key, "angle")) {
+//       scaleAngle = luaL_checkinteger(L, -1);
+//     } else if (!strcmp(key, "rotate")) {
+//       scaleRotate = luaL_checkinteger(L, -1);
+//     } else if (!strcmp(key, "dotSize")) {
+//       centerDotSize = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "dotColor")) {
+//       centerDotColor = luaL_checkunsigned(L, -1);
+//     } else if (!strcmp(key, "indicators")) {
+//       luaL_checktype(L, -1, LUA_TTABLE);
+//       for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+//         lua_getfield(L, -1, "type");
+//         const char *key = lua_tostring(L, -1);
+//         lua_pop(L, 1);
+//         if (!strcmp(key, "arc")) {
+//           indicators.push_back(new LvglWidgetScaleArc(L));
+//         } else if (!strcmp(key, "lines")) {
+//           indicators.push_back(new LvglWidgetScaleLines(L));
+//         } else if (!strcmp(key, "needle")) {
+//           indicators.push_back(new LvglWidgetScaleNeedle(L));
+//         }
+//       }
+//     }
+//   }
+// };
 
-void LvglWidgetMeter::parseParam(lua_State *L, const char *key)
-{
-  if (!strcmp(key, "scales")) {
-    luaL_checktype(L, -1, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      scales.push_back(new LvglWidgetMeterScale(L));
-    }
-  } else {
-    LvglWidgetRoundObject::parseParam(L, key);
-  }
-}
+// void LvglWidgetMeter::parseParam(lua_State *L, const char *key)
+// {
+//   if (!strcmp(key, "scales")) {
+//     luaL_checktype(L, -1, LUA_TTABLE);
+//     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+//       scales.push_back(new LvglWidgetMeterScale(L));
+//     }
+//   } else {
+//     LvglWidgetRoundObject::parseParam(L, key);
+//   }
+// }
 
-bool LvglWidgetMeter::callRefs(lua_State *L)
-{
-  for (auto it = scales.cbegin(); it != scales.cend(); ++it) {
-    if (!(*it)->callRefs(L)) return false;
-  }
-  return LvglWidgetRoundObject::callRefs(L);
-}
+// bool LvglWidgetMeter::callRefs(lua_State *L)
+// {
+//   for (auto it = scales.cbegin(); it != scales.cend(); ++it) {
+//     if (!(*it)->callRefs(L)) return false;
+//   }
+//   return LvglWidgetRoundObject::callRefs(L);
+// }
 
-void LvglWidgetMeter::clearRefs(lua_State *L)
-{
-  for (auto it = scales.cbegin(); it != scales.cend(); ++it) {
-    (*it)->clearRefs(L);
-  }
-  LvglWidgetRoundObject::clearRefs(L);
-}
+// void LvglWidgetMeter::clearRefs(lua_State *L)
+// {
+//   for (auto it = scales.cbegin(); it != scales.cend(); ++it) {
+//     (*it)->clearRefs(L);
+//   }
+//   LvglWidgetRoundObject::clearRefs(L);
+// }
 
-void LvglWidgetMeter::build(lua_State *L)
-{
-  window = new Window(lvglManager->getCurrentParent(),
-                      {x - radius, y - radius, radius * 2, radius * 2},
-                      lv_meter_create);
+// void LvglWidgetMeter::build(lua_State *L)
+// {
+//   window = new Window(lvglManager->getCurrentParent(),
+//                       {x - radius, y - radius, radius * 2, radius * 2},
+//                       lv_meter_create);
 
-  lv_obj_t *meter = window->getLvObj();
+//   lv_obj_t *meter = window->getLvObj();
 
-  lv_obj_add_flag(meter, LV_OBJ_FLAG_EVENT_BUBBLE);
-  lv_obj_clear_flag(meter, LV_OBJ_FLAG_CLICKABLE);
+//   lv_obj_add_flag(meter, LV_OBJ_FLAG_EVENT_BUBBLE);
+//   lv_obj_clear_flag(meter, LV_OBJ_FLAG_CLICKABLE);
 
-  for (auto it = scales.cbegin(); it != scales.cend(); ++it) {
-    (*it)->build(meter);
-  }
-}
+//   for (auto it = scales.cbegin(); it != scales.cend(); ++it) {
+//     (*it)->build(meter);
+//   }
+// }
 
 //-----------------------------------------------------------------------------
 
