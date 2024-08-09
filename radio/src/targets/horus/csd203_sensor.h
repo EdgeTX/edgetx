@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -21,17 +21,6 @@
 
 #pragma once
 
-#include "stm32_pulse_driver.h"
-
-// RGB
-#define WS2812_BYTES_PER_LED 3
-#define WS2812_MAX_LEDS 48
-
-// Number of LED periods used for trailing reset
-#define WS2812_TRAILING_RESET  10
-
-void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len);
-void ws2812_update(const stm32_pulse_timer_t* timer);
-void ws2812_dma_isr(const stm32_pulse_timer_t* timer);
-
-void ws2812_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
+extern void IICcsd203init(void);
+extern void csd203Init(void);
+extern void Getcsd203(void);
