@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
  
-#include "opentx.h"
+#include "edgetx.h"
 #include "i2c_driver.h"
 #include "imu_lsm6ds33.h"
 

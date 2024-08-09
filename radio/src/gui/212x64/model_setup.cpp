@@ -24,7 +24,7 @@
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "mixer_scheduler.h"
 #include "switches.h"
 

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TELEMETRY_SENSORS_H_
-#define _TELEMETRY_SENSORS_H_
+#pragma once
 
 #include "telemetry.h"
 
@@ -133,5 +132,3 @@ class TelemetryItem
 extern TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 extern uint8_t allowNewSensors;
 bool isFaiForbidden(source_t idx);
-
-#endif // _TELEMETRY_SENSORS_H_

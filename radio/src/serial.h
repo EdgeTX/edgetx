@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SERIAL_H_
-#define _SERIAL_H_
+#pragma once
 
 #include <stdint.h>
 #include "hal/serial_port.h"
@@ -69,6 +68,3 @@ void dbgSerialSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
 // Query debug callback
 void (*dbgSerialGetSendCb())(void*, uint8_t);
 void* dbgSerialGetSendCbCtx();
-
-#endif // _SERIAL_H_
-

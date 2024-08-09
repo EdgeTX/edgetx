@@ -20,7 +20,7 @@
  */
 
 #include "topbar_impl.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "theme_manager.h"
 #include "view_main.h"
 

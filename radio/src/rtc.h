@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RTC_H_
-#define _RTC_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -63,5 +62,3 @@ void gettime(struct gtm * tm);
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
-
-#endif // _RTC_H_

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _PULSES_H_
-#define _PULSES_H_
+#pragma once
 
 #include "definitions.h"
 #include "dataconstants.h"
@@ -237,5 +236,3 @@ inline bool isModuleInBeepMode()
 
   return false;
 }
-
-#endif // _PULSES_H_

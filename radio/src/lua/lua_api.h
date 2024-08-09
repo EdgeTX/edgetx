@@ -34,7 +34,7 @@ extern "C" {
 }
 
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #ifndef LUA_SCRIPT_LOAD_MODE
   // Can force loading of binary (.luac) or plain-text (.lua) versions of scripts specifically, and control

@@ -22,7 +22,7 @@
 #include "radio_calibration.h"
 
 #include "hal/adc_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "sliders.h"
 #include "view_main_decoration.h"
 

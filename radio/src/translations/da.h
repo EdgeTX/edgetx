@@ -806,7 +806,7 @@
 #define TR_INTERNALRF                  "Intern RF"
 #define TR_INTERNAL_MODULE             TR("Int. module", "Intern modul")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "Eksternt modul")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX kræver opgradering"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX kræver opgradering"
 #define TR_TELEMETRY_DISABLED          "Telem. deaktiveret"
 #define TR_MORE_OPTIONS_AVAILABLE      "Flere tilvalg mulige"
 #define TR_NO_MODULE_INFORMATION       "Ingen modul information"

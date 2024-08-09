@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HAL_H_
-#define _HAL_H_
+#pragma once
 
 #define CPU_FREQ                168000000
 
@@ -653,5 +652,3 @@
 
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
-
-#endif // _HAL_H_

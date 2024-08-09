@@ -22,7 +22,7 @@
 #include "radio_ghost_module_config.h"
 
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "telemetry/ghost.h"
 #include "telemetry/ghost_menu.h"
 

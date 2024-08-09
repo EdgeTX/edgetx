@@ -33,7 +33,7 @@
 #endif
 
 #if !defined(BOOT)
-  #include "opentx.h"
+  #include "edgetx.h"
   #include "hal/switch_driver.h"
   #include "hal/adc_driver.h"
   #include "switches.h"

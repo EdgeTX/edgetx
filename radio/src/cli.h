@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CLI_H_
-#define _CLI_H_
+#pragma once
 
 #include "hal/serial_driver.h"
 
@@ -29,5 +28,3 @@ void cliStart();
 
 // Connect serial driver to CLI
 void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);
-
-#endif // _CLI_H_

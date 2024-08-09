@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"

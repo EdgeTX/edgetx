@@ -25,7 +25,7 @@
 #include "color_editor.h"
 #include "color_list.h"
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "page.h"
 #include "preview_window.h"
 #include "etx_lv_theme.h"

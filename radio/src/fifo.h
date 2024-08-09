@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FIFO_H_
-#define _FIFO_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -114,5 +113,3 @@ class Fifo
       return (idx + 1) & (N - 1);
     }
 };
-
-#endif // _FIFO_H_

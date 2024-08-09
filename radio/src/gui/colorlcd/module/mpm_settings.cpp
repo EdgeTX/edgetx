@@ -24,7 +24,7 @@
 #include "choice.h"
 #include "io/multi_protolist.h"
 #include "multi_rfprotos.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 

@@ -20,7 +20,7 @@
  */
 
 #include "afhds2a_settings.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #include "pulses/flysky.h"
 

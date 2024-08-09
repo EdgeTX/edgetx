@@ -22,7 +22,7 @@
 #include "afhds3_settings.h"
 
 #include "afhds3_options.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 static const char* const _afhds3_region[] = {"CE", "FCC"};
 

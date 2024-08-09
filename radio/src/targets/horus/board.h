@@ -19,13 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#pragma once
 
-//#include "stm32_hal.h"
-//#include "stm32_hal_ll.h"
 #include "definitions.h"
-#include "opentx_constants.h"
+#include "edgetx_constants.h"
 
 // Defines used in board_common.h
 #define ROTARY_ENCODER_NAVIGATION
@@ -344,5 +341,3 @@ void bluetoothDisable();
 #else
 #define NUM_FUNCTIONS_SWITCHES 0
 #endif
-
-#endif // _BOARD_H_

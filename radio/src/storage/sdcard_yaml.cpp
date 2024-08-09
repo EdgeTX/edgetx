@@ -21,8 +21,8 @@
 
 #include "hal/adc_driver.h"
 #include "myeeprom.h"
-#include "opentx.h"
-#include "opentx_helpers.h"
+#include "edgetx.h"
+#include "edgetx_helpers.h"
 #include "storage.h"
 #include "sdcard_common.h"
 #include "sdcard_raw.h"
@@ -351,7 +351,7 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)
       // reset GVars to default values
-      // Note: taken from opentx.cpp::modelDefault()
+      // Note: taken from edgetx.cpp::modelDefault()
       //TODO: new func in gvars
       for (int p=1; p<MAX_FLIGHT_MODES; p++) {
         for (int i=0; i<MAX_GVARS; i++) {

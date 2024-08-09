@@ -20,7 +20,7 @@
  */
 
 #include "model_heli.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "libopenui.h"
 #include "sourcechoice.h"
 

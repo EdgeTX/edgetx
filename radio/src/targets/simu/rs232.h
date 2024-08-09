@@ -30,8 +30,7 @@
     THE SOFTWARE.
 */
 
-#ifndef RS232_H
-#define RS232_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -151,5 +150,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-#endif // RS232_H

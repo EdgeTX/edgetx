@@ -20,7 +20,7 @@
  */
 
 // #include "hal.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"

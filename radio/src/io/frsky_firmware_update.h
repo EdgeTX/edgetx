@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FRSKY_FIRMWARE_UPDATE_H_
-#define _FRSKY_FIRMWARE_UPDATE_H_
+#pragma once
 
 #include "dataconstants.h"
 #include "definitions.h"
@@ -147,5 +146,3 @@ class FrskyDeviceFirmwareUpdate {
     const char * uploadFileToHorusXJT(const char * filename, FIL * file, ProgressHandler progressHandler);
     const char * endTransfer();
 };
-
-#endif // _FRSKY_FIRMWARE_UPDATE_H_

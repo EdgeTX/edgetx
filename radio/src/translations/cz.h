@@ -813,7 +813,7 @@
 #define TR_INTERNALRF                  "Interní RF modul"
 #define TR_INTERNAL_MODULE             "Interní modul"
 #define TR_EXTERNAL_MODULE             "Externí modul"
-#define TR_OPENTX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadována aktualizace EdgeTX")
+#define TR_EDGETX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadována aktualizace EdgeTX")
 #define TR_TELEMETRY_DISABLED          "Telem. zakázána"
 #define TR_MORE_OPTIONS_AVAILABLE      TR("Více možností", "Více dostupných možností")
 #define TR_NO_MODULE_INFORMATION       "Žádné info o modulu"

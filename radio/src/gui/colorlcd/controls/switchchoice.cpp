@@ -23,7 +23,7 @@
 #include "dataconstants.h"
 #include "menu.h"
 #include "menutoolbar.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "strhelpers.h"
 #include "switches.h"
 

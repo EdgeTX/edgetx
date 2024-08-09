@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _USB_DESCRIPTOR_H_
-#define _USB_DESCRIPTOR_H_
+#pragma once
 
 #if defined(RADIO_TX12) || defined(RADIO_TX12MK2)
   #define USB_NAME                     "Radiomaster TX12"
@@ -91,5 +90,3 @@
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', 'a', 'r', 'a', 'n', 'i', 's', ' '  /* 8 Bytes */
 #endif
-
-#endif // _USB_DESCRIPTOR_H_

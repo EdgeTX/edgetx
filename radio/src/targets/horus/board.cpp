@@ -37,7 +37,7 @@
 
 #include "timers_driver.h"
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "globals.h"
 #include "sdcard.h"
 #include "debug.h"
@@ -61,7 +61,7 @@ void boardBLInit()
 #endif
 
 #if !defined(BOOT)
-#include "opentx.h"
+#include "edgetx.h"
 
 void boardInit()
 {

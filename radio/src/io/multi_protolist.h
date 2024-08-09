@@ -20,7 +20,7 @@
  */
 
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #include <functional>
 #include <string>

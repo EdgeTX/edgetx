@@ -27,7 +27,7 @@
 #include "analogs.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 
 static char _static_str_buffer[32];

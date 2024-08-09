@@ -24,7 +24,7 @@
 #include "button_matrix.h"
 #include "channel_bar.h"
 #include "list_line_button.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "usb_joystick.h"
 

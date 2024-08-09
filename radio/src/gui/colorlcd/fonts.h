@@ -20,7 +20,7 @@
 
 #include <lvgl/lvgl.h>
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 enum FontIndex {
   FONT_STD_INDEX,

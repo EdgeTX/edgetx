@@ -25,7 +25,7 @@
 #include "hal/fatfs_diskio.h"
 #include "hal/storage.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"

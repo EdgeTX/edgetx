@@ -27,7 +27,7 @@
 #include "pxx1_transport.h"
 #include "pxx1.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 static uint32_t _pxx1_internal_baudrate = PXX1_DEFAULT_SERIAL_BAUDRATE;
 

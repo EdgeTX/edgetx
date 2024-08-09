@@ -22,7 +22,7 @@
 #include "bitmaps.h"
 #include "board.h"
 #include "dma2d.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "strhelpers.h"
 #include "telemetry/telemetry_sensors.h"
 #include "translations.h"

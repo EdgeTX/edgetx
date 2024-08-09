@@ -24,7 +24,7 @@
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "dma2d.h"
 #include "board.h"
 #include "hal.h"

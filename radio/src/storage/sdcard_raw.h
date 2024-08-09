@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SDCARD_RAW_H_
-#define _SDCARD_RAW_H_
+#pragma once
 
 #include "FatFs/ff.h"
 
@@ -44,5 +43,3 @@ const char* readModelBin(const char* filename, uint8_t* buffer, uint32_t size,
                          uint8_t* version);
 
 const char* writeModelBin();
-
-#endif

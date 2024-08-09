@@ -19,12 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HOTT_H
-#define _HOTT_H
+#pragma once
 
 void hottSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
 
 // Used by multi protocol
 void processHottPacket(const uint8_t * packet);
-
-#endif

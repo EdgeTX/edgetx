@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _POPUPS_H_
-#define _POPUPS_H_
+#pragma once
 
 #define MESSAGEBOX_X                   10
 #define MESSAGEBOX_Y                    8
@@ -44,5 +43,3 @@ enum {
 };
 
 #include "../common/stdlcd/popups.h"
-
-#endif // _POPUPS_H_

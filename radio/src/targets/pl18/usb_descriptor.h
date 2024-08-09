@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _USB_DESCRIPTOR_H_
-#define _USB_DESCRIPTOR_H_
+#pragma once
 
 #if defined(RADIO_PL18EV)
 #define USB_NAME                        "FlySky PL18EV"
@@ -31,5 +30,3 @@
 #define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
 #define USB_PRODUCT                     'P', 'L', '1', '8', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #endif
-
-#endif // _USB_DESCRIPTOR_H_

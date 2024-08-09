@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SBUS_H_
-#define _SBUS_H_
+#pragma once
 
 #define SBUS_BAUDRATE         100000
 #define SBUS_FRAME_SIZE       25
@@ -37,5 +36,3 @@ int sbusAuxGetByte(uint8_t* byte);
 void sbusSetGetByte(int (*fct)(uint8_t*));
 
 void processSbusInput();
-
-#endif // _SBUS_H_

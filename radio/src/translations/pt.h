@@ -809,7 +809,7 @@
 #define TR_INTERNALRF                  "RF Interno"
 #define TR_INTERNAL_MODULE             TR("Modulo Int.", "Modulo Interno")
 #define TR_EXTERNAL_MODULE             TR("Modulo Ext.", "Modulo Externo")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX upgrade required"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX upgrade required"
 #define TR_TELEMETRY_DISABLED          "Telem. desativada"
 #define TR_MORE_OPTIONS_AVAILABLE      "More options available"
 #define TR_NO_MODULE_INFORMATION       "No module information"

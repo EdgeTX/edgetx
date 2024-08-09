@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 char* getModelAudioPath(char* path, bool trailingSlash = true);
 

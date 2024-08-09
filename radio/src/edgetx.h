@@ -23,8 +23,8 @@
 
 #include <stdlib.h>
 #include "definitions.h"
-#include "opentx_types.h"
-#include "opentx_helpers.h"
+#include "edgetx_types.h"
+#include "edgetx_helpers.h"
 #include "touch.h"
 #include "switches.h"
 

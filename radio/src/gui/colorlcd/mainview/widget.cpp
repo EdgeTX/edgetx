@@ -21,7 +21,7 @@
 
 #include "widget.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "widget_settings.h"

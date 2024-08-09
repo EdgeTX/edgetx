@@ -23,7 +23,7 @@
 
 #include "layer.h"
 #include "menu_screen.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "storage/storage.h"
 #include "etx_lv_theme.h"
 #include "topbar_impl.h"

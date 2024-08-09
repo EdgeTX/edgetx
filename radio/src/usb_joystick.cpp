@@ -24,7 +24,7 @@
 #include <math.h>
 
 #include "hal/usb_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #define MAX_HID_REPORTDESC 160
 #define MAX_HID_REPORT 80

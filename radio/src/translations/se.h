@@ -818,7 +818,7 @@
 #define TR_INTERNALRF                   "Intern radiomodul"
 #define TR_INTERNAL_MODULE              TR("Int. modul","Intern modul")
 #define TR_EXTERNAL_MODULE              TR("Ext. modul","Extern modul")
-#define TR_OPENTX_UPGRADE_REQUIRED      "EdgeTX behöver uppgraderas"
+#define TR_EDGETX_UPGRADE_REQUIRED      "EdgeTX behöver uppgraderas"
 #define TR_TELEMETRY_DISABLED           "Telem. inaktiverad"
 #define TR_MORE_OPTIONS_AVAILABLE       "Fler alternativ finns"
 #define TR_NO_MODULE_INFORMATION        "Modulinformation saknas"

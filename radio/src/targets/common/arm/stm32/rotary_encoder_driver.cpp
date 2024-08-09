@@ -32,7 +32,7 @@
 #include "stm32_timer.h"
 
 #if !defined(BOOT)
-  #include "opentx.h"
+  #include "edgetx.h"
 #endif
 
 #if ROTARY_ENCODER_GRANULARITY == 2

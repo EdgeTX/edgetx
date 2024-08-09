@@ -33,7 +33,7 @@
 #include "delays_driver.h"
 
 #include "rtos.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "debug.h"
 
 #include <stdlib.h>

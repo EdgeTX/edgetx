@@ -21,7 +21,7 @@
 
 #include "view_about.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "stamp.h"
 
 #if defined(VERSION_TAG)

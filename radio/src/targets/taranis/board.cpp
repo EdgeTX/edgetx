@@ -49,7 +49,7 @@
 #endif
 
 #if !defined(BOOT)
-  #include "opentx.h"
+  #include "edgetx.h"
   #if defined(PXX1)
     #include "pulses/pxx1.h"
   #endif

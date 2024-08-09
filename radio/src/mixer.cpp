@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "opentx_types.h"
+#include "edgetx.h"
+#include "edgetx_types.h"
 #include "timers.h"
 #include "switches.h"
 #include "input_mapping.h"

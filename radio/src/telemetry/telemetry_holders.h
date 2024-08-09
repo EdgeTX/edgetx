@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TELEMETRY_HOLDERS_H_
-#define _TELEMETRY_HOLDERS_H_
+#pragma once
 
 #include <inttypes.h>
 #include <string.h>
@@ -131,5 +130,3 @@ class TelemetryMinDecorator: public T {
   protected:
     uint8_t _min;
 };
-
-#endif // _TELEMETRY_HOLDERS_H_

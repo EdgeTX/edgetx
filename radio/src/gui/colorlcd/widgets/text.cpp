@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "widget.h"
 
 #define TEXT_WIDGET_DEFAULT_LABEL \

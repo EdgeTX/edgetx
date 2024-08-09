@@ -29,7 +29,7 @@
 #include "FXPNGImage.h"
 #include <unistd.h>
 #include "fxkeys.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include <time.h>
 #include <ctype.h>
 

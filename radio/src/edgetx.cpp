@@ -26,7 +26,7 @@
 #include "stm32_hal_ll.h"
 #endif
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "io/frsky_firmware_update.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"

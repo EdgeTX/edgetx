@@ -22,7 +22,7 @@
 #include "pxx1_settings.h"
 #include "choice.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
