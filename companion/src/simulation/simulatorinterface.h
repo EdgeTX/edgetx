@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SIMULATORINTERFACE_H_
-#define _SIMULATORINTERFACE_H_
+#pragma once
 
 #include "firmwares/boards.h"
 #include "constants.h"
@@ -204,5 +203,3 @@ class SimulatorLoader
     static int registerSimulators(const QDir & dir);
     static QMap<QString, QLibrary *> registeredSimulators;
 };
-
-#endif // _SIMULATORINTERFACE_H_

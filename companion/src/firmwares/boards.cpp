@@ -985,6 +985,11 @@ Board::KeyInfo Boards::getKeyInfo(int index, Board::Type board)
   return getBoardJson(board)->getKeyInfo(index);
 }
 
+int Boards::getKeyIndex(QString key, Board::Type board)
+{
+  return getBoardJson(board)->getKeyIndex(key);
+}
+
 Board::SwitchInfo Boards::getSwitchInfo(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchInfo(index);

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef FILTEREDTEXTBUFFER_H
-#define FILTEREDTEXTBUFFER_H
+#pragma once
 
 #include <QBuffer>
 #include <QRegularExpression>
@@ -117,6 +116,3 @@ class FilteredTextBuffer : public FIFOBufferDevice
     bool m_lineFilterEnable;
     bool m_lineFilterExclusive;
 };
-
-
-#endif // FILTEREDTEXTBUFFER_H

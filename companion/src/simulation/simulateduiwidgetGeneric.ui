@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SimulatedUIWidgetMT12</class>
- <widget class="QWidget" name="SimulatedUIWidgetMT12">
+ <class>SimulatedUIWidgetGeneric</class>
+ <widget class="QWidget" name="SimulatedUIWidgetGeneric">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string notr="true">Radiomaster MT12 Simulator</string>
+   <string notr="true">Generic Simulator</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(255, 255, 255, 255), stop:0.757062 rgba(241, 238, 238, 255), stop:1 rgba(247, 245, 245, 255));</string>
@@ -64,9 +64,6 @@
      <height>246</height>
     </size>
    </property>
-   <property name="styleSheet">
-    <string notr="true">background:url(:/images/simulator/Pocket/left.png);</string>
-   </property>
   </widget>
   <widget class="ButtonsWidget" name="rightbuttons" native="true">
    <property name="geometry">
@@ -95,9 +92,6 @@
      <height>246</height>
     </size>
    </property>
-   <property name="styleSheet">
-    <string notr="true">background:url(:/images/simulator/Pocket/right.png)</string>
-   </property>
   </widget>
   <widget class="QWidget" name="bottom" native="true">
    <property name="geometry">
@@ -125,9 +119,6 @@
      <width>255</width>
      <height>58</height>
     </size>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background:url(:/images/simulator/Pocket/bottom.png)</string>
    </property>
   </widget>
   <widget class="LcdWidget" name="lcd" native="true">
@@ -187,9 +178,6 @@
      <width>255</width>
      <height>59</height>
     </size>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background:url(:/images/simulator/Pocket/top.png)</string>
    </property>
   </widget>
   <zorder>bottom</zorder>

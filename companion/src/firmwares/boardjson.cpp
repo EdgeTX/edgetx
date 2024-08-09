@@ -377,6 +377,22 @@ Board::InputInfo BoardJson::getInputInfo(const InputsTable * inputs, int index)
   return info;
 }
 
+const int BoardJson::getKeyIndex(const QString key) const
+{
+  return getKeyIndex(m_keys, key);
+}
+
+// static
+int BoardJson::getKeyIndex(const KeysTable * keys, QString key)
+{
+  for (int i = 0; i < (int)keys->size(); i++) {
+    if (keys->at(i).key.c_str() == key)
+      return i;
+  }
+
+  return -1;
+}
+
 const Board::KeyInfo BoardJson::getKeyInfo(int index) const
 {
   return getKeyInfo(m_keys, index);

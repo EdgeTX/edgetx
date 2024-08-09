@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _JOYSTICK_H_
-#define _JOYSTICK_H_
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -82,5 +81,3 @@ class Joystick : public QObject
   public slots:
     void processEvents();
 };
-
-#endif // _JOYSTICK_H_

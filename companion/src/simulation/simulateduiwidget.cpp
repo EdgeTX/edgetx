@@ -26,6 +26,9 @@
 #include "radiokeywidget.h"
 #include "simulatorinterface.h"
 
+#include <QPushButton>
+#include <QVBoxLayout>
+
 //#define FLASH_DURATION 10
 //#define CBEEP_ON      "QLabel { background-color: #FF364E }"
 //#define CBEEP_OFF     "QLabel { }"
@@ -226,4 +229,90 @@ void SimulatedUIWidget::connectScrollActions()
       m_scrollDnAction->toggle(false);
     });
   }
+}
+
+// static
+int SimulatedUIWidget::strKeyToInt(std::string key)
+{
+  QStringList keys = {
+    "KEY_MENU",
+    "KEY_EXIT",
+    "KEY_ENTER",
+    "KEY_PAGEUP",
+    "KEY_PAGEDN",
+    "KEY_UP",
+    "KEY_DOWN",
+    "KEY_LEFT",
+    "KEY_RIGHT",
+    "KEY_PLUS",
+    "KEY_MINUS",
+    "KEY_MODEL",
+    "KEY_TELE",
+    "KEY_SYS",
+    "KEY_SHIFT",
+    "KEY_BIND"
+  };
+
+  return keys.indexOf(key.c_str());
+}
+
+void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
+{
+  QVBoxLayout * vboxLeft = new QVBoxLayout();
+  QVBoxLayout * vboxRight = new QVBoxLayout();
+
+  QPushButton * btnSys = new QPushButton(tr("Sys"));
+  QPushButton * btnMdl = new QPushButton(tr("Mdl"));
+  QPushButton * btnBack = new QPushButton(tr("Back"));
+  QPushButton * btnFwd = new QPushButton(tr("Forward"));
+  QPushButton * btnTele = new QPushButton(tr("Tele"));
+  QPushButton * btnMenu = new QPushButton(tr("Menu"));
+  QPushButton * btnExit = new QPushButton(tr("Exit"));
+  QPushButton * btnEnter = new QPushButton(tr("Enter"));
+
+  vboxLeft->addWidget(btnSys);
+  vboxLeft->addWidget(btnBack);
+  vboxLeft->addWidget(btnExit);
+  vboxLeft->addWidget(btnMenu);
+
+  vboxRight->addWidget(btnMdl);
+  vboxRight->addWidget(btnFwd);
+  vboxRight->addWidget(btnTele);
+  vboxRight->addWidget(btnEnter);
+
+  QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
+  gridLeft->addItem(new QSpacerItem(0, 0), 0, 0);
+  gridLeft->addLayout(vboxLeft, 0, 1);
+  QGridLayout * gridRight = new QGridLayout((QWidget *)rightButtons);
+  gridRight->addLayout(vboxRight, 0, 0);
+  gridLeft->addItem(new QSpacerItem(0, 0), 0, 1);
+
+//  act = new RadioUiAction(KEY_MODEL, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
+//  addRadioWidget(ui->rightbuttons->addArea(QRect(30, 95, 60, 60), "Pocket/right.png", act));
+//
+//  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
+//  addRadioWidget(ui->rightbuttons->addArea(QRect(130, 60, 60, 130), "Pocket/right.png", m_mouseMidClickAction));
+//
+//  act = new RadioUiAction(KEY_SYS, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
+//  addRadioWidget(ui->leftbuttons->addArea(QRect(150, 95, 60, 60), "Pocket/left.png", act));
+//
+//  act = new RadioUiAction(KEY_TELE, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE);
+//  addRadioWidget(ui->leftbuttons->addArea(QRect(40, 179, 60, 30), "Pocket/left.png", act));
+//
+//  act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
+//  addRadioWidget(ui->leftbuttons->addArea(QRect(40, 90, 60, 30), "Pocket/left.png", act));
+//
+//  act = new RadioUiAction(KEY_PAGEUP, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
+//  addRadioWidget(ui->leftbuttons->addArea(QRect(40, 130, 60, 30), "Pocket/left.png", act));
+//
+//  act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
+//  addRadioWidget(ui->leftbuttons->addArea(QRect(40, 40, 60, 30), "Pocket/left.png", act));
+
+}
+
+void SimulatedUIWidget::addScrollActions()
+{
+  m_scrollUpAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Minus << Qt::Key_Equal << Qt::Key_Left, SIMU_STR_HLP_KEYS_GO_LFT, SIMU_STR_HLP_ACT_ROT_LFT);
+  m_scrollDnAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Right, SIMU_STR_HLP_KEYS_GO_RGT, SIMU_STR_HLP_ACT_ROT_RGT);
+  connectScrollActions();
 }

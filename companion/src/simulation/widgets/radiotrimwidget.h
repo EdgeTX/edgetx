@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIOTRIMWIDGET_H_
-#define _RADIOTRIMWIDGET_H_
+#pragma once
 
 #include "radiowidget.h"
 #include "boards.h"
@@ -138,5 +137,3 @@ class RadioTrimWidget : public RadioWidget
     int m_btnDecIndex;
     int m_btnIncIndex;
 };
-
-#endif // _RADIOTRIMWIDGET_H_

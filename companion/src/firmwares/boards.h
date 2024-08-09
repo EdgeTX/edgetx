@@ -414,6 +414,7 @@ class Boards
     static QString getInputYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
 
     static Board::KeyInfo getKeyInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getKeyIndex(QString key, Board::Type board = Board::BOARD_UNKNOWN);
 
     static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);

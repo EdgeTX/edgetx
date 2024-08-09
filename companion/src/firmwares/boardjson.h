@@ -133,6 +133,7 @@ class BoardJson
     const bool isInputSwitch(int index) const;
 
     const Board::KeyInfo getKeyInfo(int index) const;
+    const int getKeyIndex(const QString key) const;
 
     const int getSwitchIndex(const QString val, Board::LookupValueType lvt) const;
     const Board::SwitchInfo getSwitchInfo(int index) const;
@@ -197,6 +198,7 @@ private:
     static int getInputTagOffset(const InputsTable * inputs, QString tag);
     static int getInputTypeOffset(const InputsTable * inputs, Board::AnalogInputType type);
 
+    static int getKeyIndex(const KeysTable * keys, QString key);
     static Board::KeyInfo getKeyInfo(const KeysTable * keys, int index);
 
     static int getSwitchIndex(const SwitchesTable * switches, QString val, Board::LookupValueType lvt);

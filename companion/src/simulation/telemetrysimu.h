@@ -121,4 +121,3 @@ class TelemetrySimulator : public QWidget
 
     LogPlaybackController *logPlayback;
 };  // TelemetrySimulator
-
