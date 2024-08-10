@@ -169,7 +169,14 @@ class TabsGroupHeader : public Window
       buttons[currentIndex]->check(false);
       currentIndex = index;
       buttons[currentIndex]->check(true);
-      selectedIcon->setPos(getX(currentIndex), 0);
+      coord_t x = getX(currentIndex);
+      selectedIcon->setPos(x, 0);
+      coord_t sx = lv_obj_get_scroll_x(carousel->getLvObj());
+      if (x + MENU_HEADER_BUTTON_WIDTH - sx > carousel->width()) {
+        lv_obj_scroll_to(carousel->getLvObj(), x + MENU_HEADER_BUTTON_WIDTH - carousel->width(), 0, LV_ANIM_OFF);
+      } else if (x < sx) {
+        lv_obj_scroll_to(carousel->getLvObj(), x, 0, LV_ANIM_OFF);
+      }
     }
   }
 
