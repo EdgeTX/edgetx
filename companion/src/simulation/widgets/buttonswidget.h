@@ -64,6 +64,17 @@ class ButtonsWidget : public QWidget
       m_buttons.append(btn);
       connect(pushbtn, &QPushButton::pressed, btn, &RadioKeyWidget::press);
       connect(pushbtn, &QPushButton::released, btn, &RadioKeyWidget::release);
+      connect(btn, &RadioKeyWidget::actionTriggered, [this, pushbtn] () {
+              QString csssave = pushbtn->styleSheet();
+              QString blnkcol = "background-color: rgb(239, 41, 41)";
+              if (csssave != blnkcol) {
+                pushbtn->setStyleSheet(blnkcol);
+                QTimer * tim = new QTimer(this);
+                tim->setSingleShot(true);
+                connect(tim, &QTimer::timeout, [pushbtn, csssave]() { pushbtn->setStyleSheet(csssave); });
+                tim->start(200);
+              }
+      });
       pushbtn->setFocusPolicy(Qt::ClickFocus);
       return btn;
     }

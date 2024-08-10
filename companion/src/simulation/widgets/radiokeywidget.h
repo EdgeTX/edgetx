@@ -55,8 +55,10 @@ class RadioKeyWidget : public RadioWidget
       if (m_action)
         disconnect(m_action, 0, this, 0);
       RadioWidget::setAction(action);
-      if (m_action)
+      if (m_action) {
         connect(m_action, &RadioUiAction::toggled, this, &RadioKeyWidget::onActionToggled);
+        connect(m_action, &RadioUiAction::triggered, this, &RadioKeyWidget::onActionTriggered);
+      }
     }
 
     virtual int getValue() const
@@ -90,6 +92,7 @@ class RadioKeyWidget : public RadioWidget
   signals:
 
     void imageChanged(const QString image);
+    void actionTriggered();
 
   protected:
 
@@ -97,6 +100,12 @@ class RadioKeyWidget : public RadioWidget
     {
       RadioWidget::onActionToggled(index, active);
       emit imageChanged(active ? imgFile : "");
+    }
+
+    virtual void onActionTriggered(int index, bool active)
+    {
+      if (pushbtn)
+        emit actionTriggered();
     }
 
     QPolygon polygon;
