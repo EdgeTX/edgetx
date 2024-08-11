@@ -269,7 +269,7 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
     int idx = strKeyToInt(info.key);
     //qDebug() << "key:" << info.key.c_str() << info.name.c_str() << info.label.c_str() << idx;
     if (idx >= 0)
-      addPushButton(idx, info.label.c_str());
+      addGenericPushButton(idx, info.label.c_str());
     else
       qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
   }
@@ -290,7 +290,24 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label)
   QPushButton * btn = new QPushButton(label);
   RadioUiAction * act = nullptr;
 
+  //  row  left    right
+  //   0   SYS     MDL
+  //   1   UP      DOWN
+  //   2   PAGEUP  PAGEDN
+  //   3   LEFT    RIGHT
+  //   4   MINUS   PLUS
+  //   5           TELE
+  //   6   EXIT    ENTER
+  //   7   MENU    SHIFT
+
   switch(index) {
+    case KEY_DOWN:
+      m_rightButtonGrid->addWidget(btn, 3, 0);
+      act = new RadioUiAction(KEY_DOWN, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
+      //addRadioWidget(ui->rightbuttons->addArea(QRect(47, 65, 70, 50), "JumperTLITE/right_bottom.png", act));
+      addRadioWidget(m_leftButtons->addPushButton(btn, act));
+      break;
+
     case KEY_ENTER:
       m_rightButtonGrid->addWidget(btn, 3, 0);
       act = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
@@ -300,6 +317,13 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label)
     case KEY_EXIT:
       m_leftButtonGrid->addWidget(btn, 2, 0);
       act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
+      addRadioWidget(m_leftButtons->addPushButton(btn, act));
+      break;
+
+    case KEY_LEFT:
+      m_leftButtonGrid->addWidget(btn, 2, 0);
+      act = new RadioUiAction(KEY_LEFT, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN);
+      //addRadioWidget(ui->bottombuttons->addArea(QRect(24, 73, 80, 30), "JumperTLITE/bottom_left.png", act));
       addRadioWidget(m_leftButtons->addPushButton(btn, act));
       break;
 
@@ -321,6 +345,13 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label)
       addRadioWidget(m_leftButtons->addPushButton(btn, act));
       break;
 
+    case KEY_RIGHT:
+      m_leftButtonGrid->addWidget(btn, 2, 0);
+      act = new RadioUiAction(KEY_RIGHT, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
+      //addRadioWidget(ui->bottombuttons->addArea(QRect(150, 73, 80, 30), "JumperTLITE/bottom_right.png", act));
+      addRadioWidget(m_leftButtons->addPushButton(btn, act));
+      break;
+
     case KEY_SYS:
       m_leftButtonGrid->addWidget(btn, 0, 0);
       act = new RadioUiAction(KEY_SYS, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
@@ -333,14 +364,17 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label)
       addRadioWidget(m_leftButtons->addPushButton(btn, act));
       break;
 
-    case KEY_DOWN:
-    case KEY_LEFT:
+    case KEY_UP:
+      m_leftButtonGrid->addWidget(btn, 2, 0);
+      act = new RadioUiAction(KEY_UP, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
+      //addRadioWidget(ui->rightbuttons->addArea(QRect(40, 15, 70, 50), "JumperTLITE/right_top.png", act));
+      addRadioWidget(m_leftButtons->addPushButton(btn, act));
+      break;
+
     case KEY_MENU:
     case KEY_MINUS:
     case KEY_PLUS:
-    case KEY_RIGHT:
     case KEY_SHIFT:
-    case KEY_UP:
       qDebug() << "Key not yet implemented";
       // let fall thru to default until implemented
 
