@@ -52,7 +52,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
   setWindowTitle(tr("Edit %1").arg(RawSource(srcType, ed->chn).toString(&model, &generalSettings)));
 
   int imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup & ~RawSource::InputsGroup)),
+                                (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup)),
                                 "EditorSource");
 
   FilteredItemModel *esMdl = dialogFilteredItemModels->getItemModel(imId);
