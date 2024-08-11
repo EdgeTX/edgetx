@@ -322,7 +322,6 @@ void VirtualJoystickWidget::setStickColor(const QColor & color)
 
 void VirtualJoystickWidget::loadDefaultsForMode(const unsigned mode)
 {
-  qDebug() << mode;
   if (isBoardSurface)
     setStickConstraint(FIX_Y, true);
   else {

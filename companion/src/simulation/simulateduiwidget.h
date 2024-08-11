@@ -65,6 +65,23 @@ enum EnumKeys {
   MAX_KEYS
 };
 
+struct GenericKeyDefinition {
+  int index = 0;
+  QChar side = 'L';
+  int gridRow = 0;
+  int gridCol = 0;
+  QList<int> keys = QList<int>();
+  QString helpKeys = "";
+  QString helpActions = "";
+
+  GenericKeyDefinition(int index, QChar side, int gridRow, int gridCol,
+                       QList<int> keys, QString helpKeys, QString helpActions) :
+                       index(index), side(side), gridRow(gridRow), gridCol(gridCol),
+                       keys(keys), helpKeys(helpKeys), helpActions(helpActions) {}
+
+  GenericKeyDefinition() = default;
+};
+
 /*
  * This is a base class for the main hardware-specific radio user interface, including LCD screen and navigation buttons/widgets.
  * It is responsible for hanlding all interactions with this part of the simulation (vs. common radio widgets like sticks/switches/knobs).
@@ -127,14 +144,12 @@ class SimulatedUIWidget : public QWidget
     unsigned int m_backLight;
     int m_beepShow;
     int m_beepVal;
-    ButtonsWidget * m_leftButtons;
-    ButtonsWidget * m_rightButtons;
-    QGridLayout * m_leftButtonGrid;
-    QGridLayout * m_rightButtonGrid;
 
     static int strKeyToInt(std::string key);
+
+    void addGenericPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
+                              ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid);
     void addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons);
-    void addGenericPushButton(int index, QString label);
     void addScrollActions();
 };
 

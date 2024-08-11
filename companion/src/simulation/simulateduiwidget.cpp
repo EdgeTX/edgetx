@@ -38,11 +38,11 @@ SimulatedUIWidget::SimulatedUIWidget(SimulatorInterface * simulator, QWidget * p
   QWidget(parent),
   m_simulator(simulator),
   m_parent(parent),
-  m_lcd(NULL),
-  m_scrollUpAction(NULL),
-  m_scrollDnAction(NULL),
-  m_mouseMidClickAction(NULL),
-  m_screenshotAction(NULL),
+  m_lcd(nullptr),
+  m_scrollUpAction(nullptr),
+  m_scrollDnAction(nullptr),
+  m_mouseMidClickAction(nullptr),
+  m_screenshotAction(nullptr),
   m_board(getCurrentBoard()),
   m_backLight(0),
   m_beepShow(0),
@@ -257,141 +257,91 @@ int SimulatedUIWidget::strKeyToInt(std::string key)
   return keys.indexOf(key.c_str());
 }
 
+void SimulatedUIWidget::addScrollActions()
+{
+  //  Note: the keys cannot duplicate those used for radio buttons
+  m_scrollUpAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Minus,
+                                       SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT);
+  m_scrollDnAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Equal,
+                                       SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT);
+  connectScrollActions();
+}
+
+//  row  left    lcd    right
+//   0   SYS            MDL
+//   1   PAGEUP         PAGEDN
+//   2   UP             DOWN
+//   3   LEFT           RIGHT
+//   4   MINUS          PLUS
+//   5   EXIT           TELE
+//   6                  ENTER
+//   7   MENU           SHIFT
+
+//  Note: unused rows will be hidden and squashed
+//        keys cannot duplicate those used for scrolling
+
+static const QList<GenericKeyDefinition> genericKeyDefinitions = {
+  { KEY_DOWN,   'R', 2, 0, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
+  { KEY_ENTER,  'R', 6, 0, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
+  { KEY_EXIT,   'L', 5, 0, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
+  { KEY_LEFT,   'L', 3, 0, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
+  { KEY_MENU,   'L', 7, 0, QList<int>(), "", "" },
+  { KEY_MINUS,  'L', 4, 0, QList<int>(), "", "" },
+  { KEY_MODEL,  'R', 0, 0, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
+  { KEY_PAGEDN, 'R', 1, 0, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
+  { KEY_PAGEUP, 'L', 1, 0, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP },
+  { KEY_PLUS,   'R', 4, 0, QList<int>(), "", "" },
+  { KEY_RIGHT,  'R', 3, 0, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
+  { KEY_SHIFT,  'R', 7, 0, QList<int>(), "", "" },
+  { KEY_SYS,    'L', 0, 0, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
+  { KEY_TELE,   'R', 5, 0, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
+  { KEY_UP,     'L', 2, 0, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP }
+};
+
 void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
 {
-  m_leftButtons = leftButtons;
-  m_rightButtons = rightButtons;
-  m_leftButtonGrid = new QGridLayout();
-  m_rightButtonGrid = new QGridLayout();
+  QGridLayout * leftButtonsGrid = new QGridLayout();
+  QGridLayout * rightButtonsGrid = new QGridLayout();
 
   for (int i = 0; i < Boards::getCapability(m_board, Board::Keys); i++) {
     Board::KeyInfo info = Boards::getKeyInfo(i, m_board);
     int idx = strKeyToInt(info.key);
     //qDebug() << "key:" << info.key.c_str() << info.name.c_str() << info.label.c_str() << idx;
     if (idx >= 0)
-      addGenericPushButton(idx, info.label.c_str());
+      addGenericPushButton(idx, info.label.c_str(), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
     else
       qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
   }
 
-  QGridLayout * gridLeft = new QGridLayout((QWidget *)m_leftButtons);
+  QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
   gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
-  gridLeft->addLayout(m_leftButtonGrid, 0, 1);
+  gridLeft->addLayout(leftButtonsGrid, 0, 1);
   gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
 
-  QGridLayout * gridRight = new QGridLayout((QWidget *)m_rightButtons);
+  QGridLayout * gridRight = new QGridLayout((QWidget *)rightButtons);
   gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
-  gridRight->addLayout(m_rightButtonGrid, 0, 1);
+  gridRight->addLayout(rightButtonsGrid, 0, 1);
   gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
 }
 
-void SimulatedUIWidget::addGenericPushButton(int index, QString label)
+void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
+                                             ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid)
 {
-  QPushButton * btn = new QPushButton(label);
-  RadioUiAction * act = nullptr;
+  if (index >= genericKeyDefinitions.size())
+    return;
 
-  //  row  left    right
-  //   0   SYS     MDL
-  //   1   UP      DOWN
-  //   2   PAGEUP  PAGEDN
-  //   3   LEFT    RIGHT
-  //   4   MINUS   PLUS
-  //   5           TELE
-  //   6   EXIT    ENTER
-  //   7   MENU    SHIFT
+  for (int i = 0; i < genericKeyDefinitions.size(); i++) {
+    const GenericKeyDefinition defn = genericKeyDefinitions.at(i);
 
-  switch(index) {
-    case KEY_DOWN:
-      m_rightButtonGrid->addWidget(btn, 3, 0);
-      act = new RadioUiAction(KEY_DOWN, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
-      //addRadioWidget(ui->rightbuttons->addArea(QRect(47, 65, 70, 50), "JumperTLITE/right_bottom.png", act));
-      addRadioWidget(m_leftButtons->addPushButton(btn, act));
+    if (defn.index == index) {
+      QPushButton * b = new QPushButton(label);
+      RadioUiAction * act = new RadioUiAction();
+      ButtonsWidget * btns = defn.side == 'L' ? leftButtons : rightButtons;
+      QGridLayout * grid = defn.side == 'L' ? leftButtonsGrid : rightButtonsGrid;
+      grid->addWidget(b, defn.gridRow, defn.gridCol);
+      act = new RadioUiAction(defn.index, defn.keys, defn.helpKeys, defn.helpActions);
+      addRadioWidget(btns->addPushButton(b, act));
       break;
-
-    case KEY_ENTER:
-      m_rightButtonGrid->addWidget(btn, 3, 0);
-      act = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
-      addRadioWidget(m_rightButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_EXIT:
-      m_leftButtonGrid->addWidget(btn, 2, 0);
-      act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
-      addRadioWidget(m_leftButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_LEFT:
-      m_leftButtonGrid->addWidget(btn, 2, 0);
-      act = new RadioUiAction(KEY_LEFT, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN);
-      //addRadioWidget(ui->bottombuttons->addArea(QRect(24, 73, 80, 30), "JumperTLITE/bottom_left.png", act));
-      addRadioWidget(m_leftButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_MODEL:
-      m_rightButtonGrid->addWidget(btn, 0, 0);
-      act = new RadioUiAction(KEY_MODEL, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
-      addRadioWidget(m_rightButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_PAGEDN:
-      m_rightButtonGrid->addWidget(btn, 1, 0);
-      act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
-      addRadioWidget(m_rightButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_PAGEUP:
-      m_leftButtonGrid->addWidget(btn, 1, 0);
-      act = new RadioUiAction(KEY_PAGEUP, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
-      addRadioWidget(m_leftButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_RIGHT:
-      m_leftButtonGrid->addWidget(btn, 2, 0);
-      act = new RadioUiAction(KEY_RIGHT, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
-      //addRadioWidget(ui->bottombuttons->addArea(QRect(150, 73, 80, 30), "JumperTLITE/bottom_right.png", act));
-      addRadioWidget(m_leftButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_SYS:
-      m_leftButtonGrid->addWidget(btn, 0, 0);
-      act = new RadioUiAction(KEY_SYS, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
-      addRadioWidget(m_leftButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_TELE:
-      m_rightButtonGrid->addWidget(btn, 2, 0);
-      act = new RadioUiAction(KEY_TELE, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE);
-      addRadioWidget(m_leftButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_UP:
-      m_leftButtonGrid->addWidget(btn, 2, 0);
-      act = new RadioUiAction(KEY_UP, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
-      //addRadioWidget(ui->rightbuttons->addArea(QRect(40, 15, 70, 50), "JumperTLITE/right_top.png", act));
-      addRadioWidget(m_leftButtons->addPushButton(btn, act));
-      break;
-
-    case KEY_MENU:
-    case KEY_MINUS:
-    case KEY_PLUS:
-    case KEY_SHIFT:
-      qDebug() << "Key not yet implemented";
-      // let fall thru to default until implemented
-
-    case KEY_BIND:
-      // no action possible in simulator
-
-    default:
-      delete btn;
-      break;
+    }
   }
-}
-
-void SimulatedUIWidget::addScrollActions()
-{
-  m_scrollUpAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Minus,
-                                       SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT);
-  m_scrollDnAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Equal,
-                                       SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT);
-  connectScrollActions();
 }

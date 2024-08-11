@@ -42,7 +42,7 @@ class RadioUiAction : public QObject
      * @param text     Optional title for this action. The text and description are currently used in generated help text.
      * @param descript Optional longer description text for this action.
      */
-    RadioUiAction(int index = -1, int key = 0, const QString &text = "", const QString &descript = "", QWidget * parent = NULL):
+    RadioUiAction(int index = -1, int key = 0, const QString &text = "", const QString &descript = "", QWidget * parent = nullptr):
       m_hwIndex(index),
       m_active(false),
       m_keys(QList<int>()),
@@ -56,7 +56,7 @@ class RadioUiAction : public QObject
      * @param keys QList of Qt:Key codes to use as shortcuts.
      *   [See above for other params.]
      */
-    RadioUiAction(int index, QList<int> keys, const QString &text = "", const QString &descript = "", QWidget * parent = NULL):
+    RadioUiAction(int index, QList<int> keys, const QString &text = "", const QString &descript = "", QWidget * parent = nullptr):
       RadioUiAction(index, 0, text, descript, parent)
     {
       addKeys(keys);
