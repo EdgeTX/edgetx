@@ -133,8 +133,8 @@ class SimulatedUIWidget : public QWidget
     QGridLayout * m_rightButtonGrid;
 
     static int strKeyToInt(std::string key);
-    void addPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons);
-    void addPushButton(int index, QString label);
+    void addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons);
+    void addGenericPushButton(int index, QString label);
     void addScrollActions();
 };
 

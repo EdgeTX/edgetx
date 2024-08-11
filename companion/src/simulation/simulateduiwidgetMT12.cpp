@@ -24,13 +24,10 @@
 SimulatedUIWidgetMT12::SimulatedUIWidgetMT12(SimulatorInterface *simulator, QWidget * parent):
   SimulatedUIWidgetGeneric(simulator, parent)
 {
-  m_backlightColors << QColor(215, 243, 255);
-  m_backlightColors << QColor(166,247,159);
-  m_backlightColors << QColor(247,159,166);
-  m_backlightColors << QColor(255,195,151);
-  m_backlightColors << QColor(247,242,159);
+  //  Perform any customisation such as loading lcd area background color lists
 }
 
 SimulatedUIWidgetMT12::~SimulatedUIWidgetMT12()
 {
+
 }

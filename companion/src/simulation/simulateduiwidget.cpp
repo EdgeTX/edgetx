@@ -257,7 +257,7 @@ int SimulatedUIWidget::strKeyToInt(std::string key)
   return keys.indexOf(key.c_str());
 }
 
-void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
+void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
 {
   m_leftButtons = leftButtons;
   m_rightButtons = rightButtons;
@@ -285,7 +285,7 @@ void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidge
   gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
 }
 
-void SimulatedUIWidget::addPushButton(int index, QString label)
+void SimulatedUIWidget::addGenericPushButton(int index, QString label)
 {
   QPushButton * btn = new QPushButton(label);
   RadioUiAction * act = nullptr;

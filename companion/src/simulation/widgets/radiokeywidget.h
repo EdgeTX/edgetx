@@ -55,10 +55,8 @@ class RadioKeyWidget : public RadioWidget
       if (m_action)
         disconnect(m_action, 0, this, 0);
       RadioWidget::setAction(action);
-      if (m_action) {
+      if (m_action)
         connect(m_action, &RadioUiAction::toggled, this, &RadioKeyWidget::onActionToggled);
-        connect(m_action, &RadioUiAction::triggered, this, &RadioKeyWidget::onActionTriggered);
-      }
     }
 
     virtual int getValue() const

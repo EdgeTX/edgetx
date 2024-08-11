@@ -32,7 +32,7 @@
    <string notr="true">Generic Simulator</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(136, 138, 133);</string>
+   <string notr="true"/>
   </property>
   <widget class="ButtonsWidget" name="leftbuttons" native="true">
    <property name="enabled">

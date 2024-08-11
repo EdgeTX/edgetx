@@ -24,13 +24,18 @@
 #include "simulateduiwidget.h"
 #include "ui_simulateduiwidgetGeneric.h"
 
+/*
+    Note: This class is not expected to be instantiated directly but as the base for each firmware that uses it
+          due to the methods and functions surrounding the building and loading of radio simulators
+*/
+
 SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator, QWidget * parent):
   SimulatedUIWidget(simulator, parent),
   ui(new Ui::SimulatedUIWidgetGeneric)
 {
   ui->setupUi(this);
 
-  addPushButtons(ui->leftbuttons, ui->rightbuttons);
+  addGenericPushButtons(ui->leftbuttons, ui->rightbuttons);
 
   addScrollActions();
 
