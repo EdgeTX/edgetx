@@ -1,10 +1,4 @@
 
-/* Bootstrap code to load ISR vector and code sections */
-.bootstrap :
-{
-  *(.bootstrap)
-} > REGION_TEXT_STORAGE
-
 /* C/C++ Exception handling (not used) */
 .ARM.extab :
 {
@@ -18,11 +12,11 @@
   PROVIDE(__exidx_end = .);
 } > REGION_TEXT AT> REGION_TEXT_STORAGE
 
-.reboot_buffer(NOLOAD) :
+/* Bootstrap code to load ISR vector and code sections */
+.bootstrap :
 {
-  . = ALIGN(4);
-  *(.reboot*)
-} > REGION_DATA
+  *(.bootstrap)
+} > REGION_TEXT_STORAGE
 
 /* Initialized data sections goes into RAM, load LMA copy after code */
 .data :
@@ -60,6 +54,12 @@ _sidata = LOADADDR(.data);
 } > REGION_RAM
 
 INCLUDE extra_sections.ld
+
+/* Seems to be the safest place for all targets (see AN2606) */
+.reboot_buffer (ORIGIN(REGION_DATA) + LENGTH(REGION_DATA) - 4) (NOLOAD) :
+{
+  KEEP(*(.reboot*))
+} > REGION_DATA
 
 /* Remove information from the standard libraries */
 /DISCARD/ :
