@@ -59,7 +59,7 @@ static lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
 }
 
 ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
-    Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}),
+    Window(parent, {0, 0, LCD_W, LCD_H}),
     closeHandler(std::move(closeHandler))
 {
   // Save focus
