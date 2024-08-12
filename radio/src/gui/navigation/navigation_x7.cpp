@@ -79,7 +79,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
         newval += min<int>(rotaryEncoderGetAccel(), i_max - val);
       }
 
-      while (isValueAvailable && !isValueAvailable(newval) && newval <= i_max) {
+      while ((i_flags & INCDEC_SOURCE) && isValueAvailable && !isValueAvailable(newval) && newval <= i_max) {
         newval++;
       }
 
@@ -96,7 +96,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
         newval -= min<int>(rotaryEncoderGetAccel(), val - i_min);
       }
 
-      while (isValueAvailable && !isValueAvailable(newval) && newval >= i_min) {
+      while ((i_flags & INCDEC_SOURCE) && isValueAvailable && !isValueAvailable(newval) && newval >= i_min) {
         newval--;
       }
 
