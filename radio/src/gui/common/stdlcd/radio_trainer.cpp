@@ -38,8 +38,17 @@ void menuRadioTrainer(event_t event)
 {
   uint8_t y;
   bool slave = SLAVE_MODE();
+  auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
 
-  MENU(STR_MENUTRAINER, menuTabGeneral, MENU_RADIO_TRAINER, (slave ? HEADER_LINE : HEADER_LINE+6), { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, NAVIGATION_LINE_BY_LINE|2, 0, 0 });
+  MENU(STR_MENUTRAINER, menuTabGeneral, MENU_RADIO_TRAINER, (slave ? HEADER_LINE : HEADER_LINE+6),
+      {
+        HEADER_LINE_COLUMNS
+        NAVIGATION_LINE_BY_LINE|2,
+        NAVIGATION_LINE_BY_LINE|2,
+        (uint8_t)((controls > 2) ? NAVIGATION_LINE_BY_LINE|2 : HIDDEN_ROW),
+        (uint8_t)((controls > 2) ? NAVIGATION_LINE_BY_LINE|2 : HIDDEN_ROW),
+        0, 0
+      });
 
   if (slave) {
     lcdDrawText(LCD_W/2, 4*FH, STR_SLAVE, CENTERED);
@@ -55,7 +64,6 @@ void menuRadioTrainer(event_t event)
 
   y = MENU_HEADER_HEIGHT + 1 + FH;
 
-  auto controls = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (uint8_t i = HEADER_LINE; i < HEADER_LINE + controls; i++) {
     uint8_t chan = inputMappingChannelOrder(i - HEADER_LINE);
     TrainerMix * td = &g_eeGeneral.trainer.mix[chan];
@@ -89,23 +97,24 @@ void menuRadioTrainer(event_t event)
   }
 
   attr = (menuVerticalPosition==HEADER_LINE+4) ? blink : 0;
-  lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT+1+5*FH, STR_MULTIPLIER);
-  lcdDrawNumber(LEN_MULTIPLIER*FW+3*FW, MENU_HEADER_HEIGHT+1+5*FH, g_eeGeneral.PPM_Multiplier+10, attr|PREC1|RIGHT);
+  lcdDrawTextAlignedLeft(y, STR_MULTIPLIER);
+  lcdDrawNumber(LEN_MULTIPLIER*FW+3*FW, y, g_eeGeneral.PPM_Multiplier+10, attr|PREC1|RIGHT);
   if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.PPM_Multiplier, -10, 40);
+  y += FH;
 
   attr = (menuVerticalPosition==HEADER_LINE+5) ? INVERS : 0;
   if (attr)
     s_editMode = 0;
-  lcdDrawText(0*FW, MENU_HEADER_HEIGHT+1+6*FH, STR_CAL, attr);
+  lcdDrawText(0*FW, y, STR_CAL, attr);
   for (uint8_t i = 0; i < 4; i++) {
     uint8_t x = 8*FW + (i * TRAINER_CALIB_COLUMN_WIDTH);
     int32_t chVal = trainerInput[i] - g_eeGeneral.trainer.calib[i];
     chVal *= g_eeGeneral.trainer.mix[i].studWeight * 10;
     chVal /= 512;
     if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
-      lcdDrawNumber(x, MENU_HEADER_HEIGHT+1+6*FH, chVal, PREC1|RIGHT);
+      lcdDrawNumber(x, y, chVal, PREC1|RIGHT);
     } else {
-      lcdDrawNumber(x, MENU_HEADER_HEIGHT+1+6*FH, chVal / 10, RIGHT);
+      lcdDrawNumber(x, y, chVal / 10, RIGHT);
     }
   }
 
