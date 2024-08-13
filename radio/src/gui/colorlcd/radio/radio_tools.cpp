@@ -221,11 +221,13 @@ void RadioToolsPage::rebuild(Window* window)
   }
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   auto extHwSettings = &hwSettings->modules[EXTERNAL_MODULE];
   if (isPXX2ModuleOptionAvailable(extHwSettings->information.modelID,
                                   MODULE_OPTION_SPECTRUM_ANALYSER)) {
     extSpecAnalyser = true;
   }
+#endif
 #endif  // defined(PXX2)
 
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(MULTIMODULE)
@@ -234,7 +236,7 @@ void RadioToolsPage::rebuild(Window* window)
   }
 #endif
 
-#if defined(PXX2) || defined(MULTIMODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && (defined(PXX2) || defined(MULTIMODULE))
   if (isModuleMultimodule(EXTERNAL_MODULE)) {
     extSpecAnalyser = true;
   }

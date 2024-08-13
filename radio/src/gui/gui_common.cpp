@@ -887,7 +887,7 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML) and !defined(EXTMODULE_USART_GPIO)
+#if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML) and !defined(EXTMODULE_USART)
   if (moduleType == MODULE_TYPE_XJT_LITE_PXX2 ||
       moduleType == MODULE_TYPE_R9M_PXX2)
     return false;
