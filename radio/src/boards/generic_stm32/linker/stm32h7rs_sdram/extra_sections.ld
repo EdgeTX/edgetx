@@ -9,7 +9,7 @@
 } > RAM
 
 /* Reserve stack space in RAM_D3 */
-.stack(NOLOAD) :
+.stack(NOLOAD) : AT (ADDR(.stack))
 {
   . = ALIGN(4);
   . = . + MAIN_STACK_SIZE;

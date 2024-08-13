@@ -32,7 +32,7 @@
 _sidata = LOADADDR(.data);
 
 /* Uninitialized data section */
-.bss(NOLOAD) :
+.bss(NOLOAD) : AT (ADDR(.bss))
 {
   . = ALIGN(4);
   /* This is used by the startup in order to initialize the .bss secion */
@@ -44,7 +44,7 @@ _sidata = LOADADDR(.data);
 } > REGION_BSS
 
 /* collect all uninitialized .ram sections (force DMA accessible) */
-.ram (NOLOAD) :
+.ram (NOLOAD) : AT (ADDR(.ram))
 {
   . = ALIGN(4);
   _sram = .;
@@ -56,7 +56,7 @@ _sidata = LOADADDR(.data);
 INCLUDE extra_sections.ld
 
 /* Seems to be the safest place for all targets (see AN2606) */
-.reboot_buffer (ORIGIN(REGION_DATA) + LENGTH(REGION_DATA) - 4) (NOLOAD) :
+.reboot_buffer (ORIGIN(REGION_DATA) + LENGTH(REGION_DATA) - 4) (NOLOAD) : AT (ADDR(.reboot_buffer))
 {
   KEEP(*(.reboot*))
 } > REGION_DATA
