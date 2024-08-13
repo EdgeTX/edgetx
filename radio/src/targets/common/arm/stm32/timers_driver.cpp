@@ -26,6 +26,8 @@
 #include "hal.h"
 #include "hal/watchdog_driver.h"
 
+#include "FreeRTOSConfig.h"
+
 static volatile uint32_t _ms_ticks;
 
 static void _init_1ms_timer()
@@ -41,8 +43,9 @@ static void _init_1ms_timer()
   MS_TIMER->EGR = 0;
   MS_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
   MS_TIMER->DIER = TIM_DIER_UIE;
+
   NVIC_EnableIRQ(MS_TIMER_IRQn);
-  NVIC_SetPriority(MS_TIMER_IRQn, 4);
+  NVIC_SetPriority(MS_TIMER_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 }
 
 void timersInit()
