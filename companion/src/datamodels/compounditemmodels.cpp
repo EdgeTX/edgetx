@@ -441,6 +441,8 @@ CustomFuncActionItemModel::CustomFuncActionItemModel(const GeneralSettings * con
     setDynamicItemData(modelItem, i);
     appendRow(modelItem);
   }
+
+  sort(0);
 }
 
 void CustomFuncActionItemModel::setDynamicItemData(QStandardItem * item, const int value) const
@@ -456,6 +458,8 @@ void CustomFuncActionItemModel::update(const int event)
 
     for (int i = 0; i < rowCount(); ++i)
       setDynamicItemData(item(i), item(i)->data(IMDR_Id).toInt());
+
+    sort(0);
 
     emit updateComplete();
   }
