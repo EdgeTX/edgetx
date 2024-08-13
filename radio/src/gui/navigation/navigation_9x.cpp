@@ -63,7 +63,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
         else {
           newval++;
         }
-      } while ((i_flags & (INCDEC_SOURCE|INCDEC_SWITCH)) && isValueAvailable && !isValueAvailable(newval) &&
+      } while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) &&
                newval <= i_max);
 
       if (newval > i_max) {
@@ -79,7 +79,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
         } else {
           newval--;
         }
-      } while ((i_flags & (INCDEC_SOURCE|INCDEC_SWITCH)) && isValueAvailable && !isValueAvailable(newval) &&
+      } while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) &&
                newval >= i_min);
 
       if (newval < i_min) {
