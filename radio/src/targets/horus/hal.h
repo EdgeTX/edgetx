@@ -1057,6 +1057,9 @@
   #define BT_USART_GPIO                 GPIOG
   #define BT_TX_GPIO                    GPIO_PIN(GPIOG, 14) // PG.14
   #define BT_RX_GPIO                    GPIO_PIN(GPIOG, 9)  // PG.09
+#if defined(RADIO_TX16S)
+  #define BT_PWR_GPIO                   GPIO_PIN(GPIOB, 0) // PB.00
+#endif
 #endif
 
 #if defined(PCBX12S)
