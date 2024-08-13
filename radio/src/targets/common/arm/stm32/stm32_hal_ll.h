@@ -78,6 +78,7 @@ extern "C" {
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_spi.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_iwdg.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h"
+  #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_pwr.h"
 #endif
 
 #if defined(__cplusplus)
