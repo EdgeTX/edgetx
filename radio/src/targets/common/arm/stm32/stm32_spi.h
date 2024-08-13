@@ -33,7 +33,12 @@ struct stm32_spi_t {
   uint32_t       CS_Pin;   // CS
 
   DMA_TypeDef*   DMA;
+#if defined(STM32H7) || defined(STM32H7RS)
+  uint32_t       txDMA_PeriphRequest;
+  uint32_t       rxDMA_PeriphRequest;
+#else
   uint32_t       DMA_Channel;
+#endif
   uint32_t       txDMA_Stream;
   uint32_t       rxDMA_Stream;
   uint32_t       DMA_FIFOMode;
