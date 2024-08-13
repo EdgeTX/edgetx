@@ -264,22 +264,22 @@ class LvglWidgetQRCode : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetMeterScale;
+// class LvglWidgetMeterScale;
 
-class LvglWidgetMeter : public LvglWidgetRoundObject
-{
- public:
-  LvglWidgetMeter() : LvglWidgetRoundObject() {}
+// class LvglWidgetMeter : public LvglWidgetRoundObject
+// {
+//  public:
+//   LvglWidgetMeter() : LvglWidgetRoundObject() {}
 
-  void build(lua_State *L) override;
-  bool callRefs(lua_State *L) override;
-  void clearRefs(lua_State *L) override;
+//   void build(lua_State *L) override;
+//   bool callRefs(lua_State *L) override;
+//   void clearRefs(lua_State *L) override;
 
- protected:
-  std::vector<LvglWidgetMeterScale*> scales;
+//  protected:
+//   std::vector<LvglWidgetMeterScale*> scales;
 
-  void parseParam(lua_State *L, const char *key) override;
-};
+//   void parseParam(lua_State *L, const char *key) override;
+// };
 
 //-----------------------------------------------------------------------------
 

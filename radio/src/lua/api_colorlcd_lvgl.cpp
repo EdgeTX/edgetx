@@ -44,69 +44,101 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
   return 1;
 }
 
+static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObject*()> create, bool standalone = false)
+{
+  if (luaLvglManager && (!standalone || !luaLvglManager->isWidget())) {
+    LvglWidgetObject* p = nullptr;
+    Window* prevParent = nullptr;
+    if (lua_gettop(L) == 2) {
+      p = LvglWidgetObject::checkLvgl(L, 1);
+      if (p) {
+        prevParent = luaLvglManager->getTempParent();
+        luaLvglManager->setTempParent(p->getWindow());
+      }
+    }
+
+    auto obj = create();
+    obj->getParams(L, -1);
+    obj->build(L);
+    obj->push(L);
+
+    if (p)
+      luaLvglManager->setTempParent((prevParent));
+  } else {
+    lua_pushnil(L);
+  }
+
+  return 1;
+}
+
 static int luaLvglLabel(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetLabel(); });
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetLabel(); });
 }
 
 static int luaLvglRectangle(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetRectangle(); });
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetRectangle(); });
 }
 
 static int luaLvglCircle(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetCircle(); });
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetCircle(); });
 }
 
 static int luaLvglArc(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetArc(); });
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetArc(); });
 }
 
 static int luaLvglImage(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetImage(); });
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetImage(); });
 }
 
 static int luaLvglQRCode(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetQRCode(); });
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetQRCode(); });
 }
 
-static int luaLvglMeter(lua_State *L)
-{
-  return luaLvglObj(L, [=]() { return new LvglWidgetMeter(); });
-}
+// static int luaLvglMeter(lua_State *L)
+// {
+//   return luaLvglObjEx(L, [=]() { return new LvglWidgetMeter(); });
+// }
 
 static int luaLvglButton(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetTextButton(); }, true);
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetTextButton(); }, true);
 }
 
 static int luaLvglToggle(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetToggleSwitch(); }, true);
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetToggleSwitch(); }, true);
 }
 
 static int luaLvglTextEdit(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetTextEdit(); }, true);
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetTextEdit(); }, true);
 }
 
 static int luaLvglNumberEdit(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetNumberEdit(); }, true);
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetNumberEdit(); }, true);
 }
 
 static int luaLvglChoice(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetChoice(); }, true);
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetChoice(); }, true);
 }
 
 static int luaLvglSlider(lua_State *L)
 {
-  return luaLvglObj(L, [=]() { return new LvglWidgetSlider(); }, true);
+  return luaLvglObjEx(L, [=]() { return new LvglWidgetSlider(); }, true);
+}
+
+static int luaLvglPage(lua_State *L)
+{
+  return luaLvglObj(L, [=]() { return new LvglWidgetPage(); }, true);
 }
 
 static int luaLvglConfirm(lua_State *L)
@@ -121,14 +153,6 @@ LvglWidgetObject *LvglWidgetObject::checkLvgl(lua_State *L, int index)
 {
   LvglWidgetObject **p =
       (LvglWidgetObject **)luaL_checkudata(L, index, LVGL_METATABLE);
-  if (p) return *p;
-  return nullptr;
-}
-
-static LvglWidgetObject *optLvgl(lua_State *L, int index)
-{
-  LvglWidgetObject **p =
-      (LvglWidgetObject **)luaL_testudata(L, index, LVGL_METATABLE);
   if (p) return *p;
   return nullptr;
 }
@@ -151,17 +175,16 @@ static int luaLvglSet(lua_State *L)
 
 static int luaLvglClear(lua_State *L)
 {
-  if (luaLvglManager) luaLvglManager->clear();
-
-  return 0;
-}
-
-static int luaLvglSetParent(lua_State *L)
-{
   if (luaLvglManager) {
-    auto p = optLvgl(L, 1);
-    luaLvglManager->setTempParent(p ? p->getWindow() : nullptr);
+    if (lua_gettop(L) == 1) {
+      auto p = LvglWidgetObject::checkLvgl(L, 1);
+      if (p)
+        p->getWindow()->clear();
+    } else {
+      luaLvglManager->clear();
+    }
   }
+
   return 0;
 }
 
@@ -224,8 +247,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
       lvobj = new LvglWidgetImage();
     else if (strcasecmp(p.type, "qrcode") == 0)
       lvobj = new LvglWidgetQRCode();
-    else if (strcasecmp(p.type, "meter") == 0)
-      lvobj = new LvglWidgetMeter();
+    // else if (strcasecmp(p.type, "meter") == 0)
+    //   lvobj = new LvglWidgetMeter();
     else if (!luaLvglManager->isWidget()) {
       if (strcasecmp(p.type, "button") == 0)
         lvobj = new LvglWidgetTextButton();
@@ -266,9 +289,22 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 static int luaLvglBuild(lua_State *L)
 {
   if (luaLvglManager) {
+    LvglWidgetObject* p = nullptr;
+    Window* prevParent = nullptr;
+    if (lua_gettop(L) == 2) {
+      p = LvglWidgetObject::checkLvgl(L, 1);
+      if (p) {
+        prevParent = luaLvglManager->getTempParent();
+        luaLvglManager->setTempParent(p->getWindow());
+      }
+    }
+
     // Return array of lvgl object references
     lua_newtable(L);
     buildLvgl(L, -2, -1);
+
+    if (p)
+      luaLvglManager->setTempParent((prevParent));
   } else {
     lua_pushnil(L);
   }
@@ -280,7 +316,6 @@ LROT_FUNCENTRY(__gc, luaDestroyLvglWidget)
 LROT_TABENTRY(__index, lvgllib)
 LROT_FUNCENTRY(clear, luaLvglClear)
 LROT_FUNCENTRY(build, luaLvglBuild)
-LROT_FUNCENTRY(setParent, luaLvglSetParent)
 // Objects
 LROT_FUNCENTRY(label, luaLvglLabel)
 LROT_FUNCENTRY(rectangle, luaLvglRectangle)
@@ -288,7 +323,7 @@ LROT_FUNCENTRY(circle, luaLvglCircle)
 LROT_FUNCENTRY(arc, luaLvglArc)
 LROT_FUNCENTRY(image, luaLvglImage)
 LROT_FUNCENTRY(qrcode, luaLvglQRCode)
-LROT_FUNCENTRY(meter, luaLvglMeter)
+// LROT_FUNCENTRY(meter, luaLvglMeter)
 LROT_FUNCENTRY(button, luaLvglButton)
 LROT_FUNCENTRY(toggle, luaLvglToggle)
 LROT_FUNCENTRY(confirm, luaLvglConfirm)
@@ -296,6 +331,7 @@ LROT_FUNCENTRY(textEdit, luaLvglTextEdit)
 LROT_FUNCENTRY(numberEdit, luaLvglNumberEdit)
 LROT_FUNCENTRY(choice, luaLvglChoice)
 LROT_FUNCENTRY(slider, luaLvglSlider)
+LROT_FUNCENTRY(page, luaLvglPage)
 // Manipulation functions
 LROT_FUNCENTRY(set, luaLvglSet)
 LROT_FUNCENTRY(show, luaLvglShow)
