@@ -138,7 +138,7 @@ uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t 
     lcdDrawNumber(x, y, v.value, attr);
     if (attr & (~RIGHT)) {
       value = checkIncDec(event, value, min, max, sourceMin, sourceMax,
-                EE_MODEL|INCDEC_SOURCE_VALUE|NO_INCDEC_MARKS,
+                EE_MODEL|INCDEC_SOURCE_VALUE|NO_INCDEC_MARKS|INCDEC_SKIP_VAL_CHECK_FUNC,
                 isValueAvailable);
     }
   }
