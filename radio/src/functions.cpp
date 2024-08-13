@@ -565,8 +565,8 @@ const char* funcGetLabel(uint8_t func)
     return STR_SF_SET_SCREEN;
 #endif
 #if defined(AUDIO_MUTE_GPIO)
-    case FUNC_DISABLE_AUDIO_AMP:
-      return STR_SF_DISABLE_AUDIO_AMP;
+  case FUNC_DISABLE_AUDIO_AMP:
+    return STR_SF_DISABLE_AUDIO_AMP;
 #endif
   case FUNC_RGB_LED:
     return STR_SF_RGBLEDS;

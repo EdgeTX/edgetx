@@ -648,16 +648,16 @@ void FunctionEditPage::buildBody(Window *form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_FUNC);
   auto functionChoice =
-      new Choice(line, rect_t{}, 0, FUNC_MAX - 1, GET_DEFAULT(CFN_FUNC(cfn)));
-  functionChoice->setTextHandler([=](int val) { return funcGetLabel(val); });
+      new Choice(line, rect_t{}, 0, FUNC_MAX - 1, GET_DEFAULT(getFuncSortIdx(CFN_FUNC(cfn))));
+  functionChoice->setTextHandler([=](int val) { return funcGetLabel(cfn_sorted[val]); });
   functionChoice->setSetValueHandler([=](int32_t newValue) {
-    CFN_FUNC(cfn) = newValue;
+    CFN_FUNC(cfn) = cfn_sorted[newValue];
     CFN_RESET(cfn);
     SET_DIRTY();
     updateSpecialFunctionOneWindow();
   });
   functionChoice->setAvailableHandler(
-      [=](int value) { return isAssignableFunctionAvailable(value); });
+      [=](int value) { return isAssignableFunctionAvailable(cfn_sorted[value]); });
 
   specialFunctionOneWindow = new Window(form, rect_t{});
   updateSpecialFunctionOneWindow();

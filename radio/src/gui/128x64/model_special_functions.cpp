@@ -147,6 +147,11 @@ void onCustomFunctionsMenu(const char * result)
 }
 #endif // PCBTARANIS
 
+static bool isAssignableFunctionAvailableSorted(int value)
+{
+  return isAssignableFunctionAvailable(cfn_sorted[value]);
+}
+
 void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomFunctionsContext * functionsContext)
 {
   int8_t sub = menuVerticalPosition - HEADER_LINE;
@@ -212,7 +217,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           if (CFN_SWITCH(cfn)) {
             lcdDrawText(MODEL_SPECIAL_FUNC_2ND_COLUMN, y, funcGetLabel(func), attr);
             if (active) {
-              CFN_FUNC(cfn) = checkIncDec(event, CFN_FUNC(cfn), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailable);
+              CFN_FUNC(cfn) = cfn_sorted[checkIncDec(event, getFuncSortIdx(CFN_FUNC(cfn)), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailableSorted)];
               if (checkIncDec_Ret) CFN_RESET(cfn);
             }
           }
