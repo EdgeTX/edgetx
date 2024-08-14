@@ -40,6 +40,10 @@ static uint8_t _led_colors[WS2812_BYTES_PER_LED * WS2812_MAX_LEDS];
 // LED strip length
 static uint8_t _led_strip_len;
 
+static uint8_t _r_offset;
+static uint8_t _g_offset;
+static uint8_t _b_offset;
+
 // DMA buffer contains data for 2 LEDs and is filled
 // half by half on DMA HT and TC IRQs
 #define WS2821_DMA_BUFFER_HALF_LEN (WS2812_BYTES_PER_LED * 8)
@@ -195,7 +199,7 @@ static void _init_timer(const stm32_pulse_timer_t* tim)
   NVIC_SetPriority(tim->DMA_IRQn, WS2812_DMA_IRQ_PRIO);
 }
 
-void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len)
+void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len, uint8_t type)
 {
   WS2812_DBG_INIT;
 
@@ -208,6 +212,10 @@ void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len)
     _led_strip_len = WS2812_MAX_LEDS;
   }
 
+  _r_offset = (type >> 4) & 0b11;
+  _g_offset = (type >> 2) & 0b11;
+  _b_offset = type & 0b11;
+
   _init_timer(timer);
 }
 
@@ -216,9 +224,9 @@ void ws2812_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
   if (led >= _led_strip_len) return;
 
   uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
-  pixel[0] = g;
-  pixel[1] = r;
-  pixel[2] = b;
+  pixel[_r_offset] = r;
+  pixel[_g_offset] = g;
+  pixel[_b_offset] = b;
 }
 
 void ws2812_update(const stm32_pulse_timer_t* tim)
