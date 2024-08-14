@@ -235,7 +235,7 @@ void boardInit()
   hapticInit();
 
 #if defined(LED_STRIP_GPIO)
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH);
+  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   ledStripOff();
 #endif
 
