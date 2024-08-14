@@ -1159,6 +1159,11 @@ bool Boards::isInputConfigurable(int index, Board::Type board)
   return getBoardJson(board)->isInputConfigurable(index);
 }
 
+bool Boards::isInputGyroAxis(int index, Board::Type board)
+{
+  return getBoardJson(board)->isInputFlexGyroAxis(index);
+}
+
 bool Boards::isInputIgnored(int index, Board::Type board)
 {
   return getBoardJson(board)->isInputIgnored(index);
