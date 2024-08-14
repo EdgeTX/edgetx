@@ -29,6 +29,7 @@
 #include "lcd.h"
 
 #include "hal/abnormal_reboot.h"
+#include "timers_driver.h"
 
 #if !defined(BOOT)
   #include "edgetx.h"
@@ -388,11 +389,8 @@ void lcdInitFinish()
   */
 
   if (LCD_DELAY_NEEDED()) {
-#if !defined(BOOT)
-    while (g_tmr10ms < (RESET_WAIT_DELAY_MS / 10)); // wait measured from the power-on
-#else
-    delay_ms(RESET_WAIT_DELAY_MS);
-#endif
+    // wait measured from the power-on
+    while (timersGetMsTick() < RESET_WAIT_DELAY_MS);
   }
 
   lcdStart();
