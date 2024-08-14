@@ -21,7 +21,7 @@
 
 #include "hal/trainer_driver.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 // Timer gets decremented in per10ms()
 #define TRAINER_IN_VALID_TIMEOUT 100 // 1s

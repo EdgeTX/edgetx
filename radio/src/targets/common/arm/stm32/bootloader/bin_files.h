@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _bin_files_h_
-#define _bin_files_h_
+#pragma once
 
 #include <FatFs/ff.h>
 #include "sdcard.h"
@@ -98,5 +97,3 @@ FRESULT readBinFile();
 
 // Close the previously opened file
 FRESULT closeBinFile();
-
-#endif

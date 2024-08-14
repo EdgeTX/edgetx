@@ -26,7 +26,7 @@
 #include "hal/module_port.h"
 #include "libopenui.h"
 #include "lua/lua_api.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "radio_ghost_module_config.h"
 #include "radio_spectrum_analyser.h"
 #include "standalone_lua.h"

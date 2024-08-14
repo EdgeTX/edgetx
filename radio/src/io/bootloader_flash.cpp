@@ -20,7 +20,7 @@
  */
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 
 #include "bootloader_flash.h"
 #include "timers_driver.h"

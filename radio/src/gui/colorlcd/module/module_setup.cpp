@@ -28,7 +28,7 @@
 #include "custom_failsafe.h"
 #include "form.h"
 #include "mixer_scheduler.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "ppm_settings.h"
 #include "storage/modelslist.h"
 #include "etx_lv_theme.h"

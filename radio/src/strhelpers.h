@@ -25,7 +25,7 @@
 #include <string>
 
 #include "definitions.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 class TelemetryItem;
 

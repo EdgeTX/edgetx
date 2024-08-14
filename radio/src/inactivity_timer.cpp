@@ -21,7 +21,7 @@
 
 #include "inactivity_timer.h"
 #include "hal/adc_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 void inactivityTimerReset(ActivitySource src)
 {

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const unsigned char splashdata[]  = {
   'S','P','S',0,

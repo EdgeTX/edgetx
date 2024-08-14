@@ -1,21 +1,27 @@
-/**
- * @file lv_conf.h
- * Configuration file for v8.2.0
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
-/*
- * Copy this file as `lv_conf.h`
- * 1. simply next to the `lvgl` folder
- * 2. or any other places and
- *    - define `LV_CONF_INCLUDE_SIMPLE`
- *    - add the path as include path
- */
+#pragma once
 
 /* clang-format off */
-#if 1 /*Set it to "1" to enable content*/
-
-#ifndef LV_CONF_H
-#define LV_CONF_H
 
 #include <stdint.h>
 
@@ -841,9 +847,3 @@
 # define LV_DEMO_MUSIC_LARGE        0
 # define LV_DEMO_MUSIC_AUTO_PLAY    0
 #endif
-
-/*--END OF LV_CONF_H--*/
-
-#endif /*LV_CONF_H*/
-
-#endif /*End of "Content enable"*/

@@ -35,7 +35,7 @@
 #include <ctype.h>
 
 #include "gps.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 extern const etx_serial_driver_t* gpsSerialDrv;
 extern void* gpsSerialCtx;

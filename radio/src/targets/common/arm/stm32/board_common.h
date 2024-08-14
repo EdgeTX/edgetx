@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BOARD_COMMON_H_
-#define _BOARD_COMMON_H_
+#pragma once
 
 #include <inttypes.h>
 #include "cpu_id.h"
@@ -43,5 +42,3 @@
 #endif
 
 #include "delays_driver.h"
-
-#endif

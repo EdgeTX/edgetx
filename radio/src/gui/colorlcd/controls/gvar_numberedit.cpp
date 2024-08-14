@@ -20,7 +20,7 @@
  */
 
 #include "gvar_numberedit.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 void GVarNumberEdit::value_changed(lv_event_t* e)
 {

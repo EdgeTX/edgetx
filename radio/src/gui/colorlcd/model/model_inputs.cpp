@@ -25,7 +25,7 @@
 
 #include "hal/adc_driver.h"
 #include "input_edit.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "tasks/mixer_task.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)

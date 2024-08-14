@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SIMPGMSPACE_H_
-#define _SIMPGMSPACE_H_
+#pragma once
 
 #include <unistd.h>
 #define sleep(x) usleep(1000*x)
@@ -94,5 +93,3 @@ void simuMain();
   extern struct TouchState simTouchState;
   extern bool simTouchOccured;
 #endif
-
-#endif // _SIMPGMSPACE_H_

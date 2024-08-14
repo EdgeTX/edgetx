@@ -20,7 +20,7 @@
  */
 
 #include "hw_serial.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 

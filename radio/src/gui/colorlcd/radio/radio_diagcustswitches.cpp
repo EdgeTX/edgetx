@@ -25,7 +25,7 @@
 
 #include "board.h"
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 class RadioCustSwitchesDiagsWindow : public Window
 {

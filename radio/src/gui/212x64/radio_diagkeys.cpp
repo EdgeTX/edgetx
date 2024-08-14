@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"

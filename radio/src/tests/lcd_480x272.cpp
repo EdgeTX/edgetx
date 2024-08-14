@@ -24,7 +24,7 @@
 
 #define SWAP_DEFINED
 #include "location.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(COLORLCD)
 

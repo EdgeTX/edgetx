@@ -22,7 +22,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 // 12-bit values
 #define ADC_MAX_VALUE 4095

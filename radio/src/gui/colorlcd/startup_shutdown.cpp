@@ -21,7 +21,7 @@
 
 #include "hal/abnormal_reboot.h"
 #include "inactivity_timer.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "stamp.h"
 #include "theme_manager.h"
 

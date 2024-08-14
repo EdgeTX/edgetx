@@ -24,7 +24,7 @@
 #include "button_matrix.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "strhelpers.h"
 #include "etx_lv_theme.h"
 

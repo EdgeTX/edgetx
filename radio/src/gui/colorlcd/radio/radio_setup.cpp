@@ -27,7 +27,7 @@
 #include "hal/usb_driver.h"
 #include "input_mapping.h"
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "page.h"
 #include "storage/modelslist.h"
 #include "tasks/mixer_task.h"

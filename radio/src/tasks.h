@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TASKS_H_
-#define _TASKS_H_
+#pragma once
 
 #include "rtos.h"
 
@@ -72,5 +71,3 @@ inline void resetForcePowerOffRequest()
 {
   timeForcePowerOffPressed = 0;
 }
-
-#endif // _TASKS_H_

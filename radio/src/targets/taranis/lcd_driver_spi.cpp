@@ -31,7 +31,7 @@
 #include "hal/abnormal_reboot.h"
 
 #if !defined(BOOT)
-  #include "opentx.h"
+  #include "edgetx.h"
 #endif
 
 #if defined(OLED_SCREEN)

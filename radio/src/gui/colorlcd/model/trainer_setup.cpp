@@ -20,7 +20,7 @@
  */
 
 #include "trainer_setup.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)
 

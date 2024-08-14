@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 uint8_t gvarDisplayTimer = 0;
 uint8_t gvarLastChanged = 0;

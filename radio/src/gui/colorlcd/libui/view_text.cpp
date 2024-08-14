@@ -21,7 +21,7 @@
 #include "view_text.h"
 
 #include "menu.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "sdcard.h"
 #include "etx_lv_theme.h"
 #include "fullscreen_dialog.h"

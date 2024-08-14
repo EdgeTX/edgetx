@@ -23,7 +23,7 @@
 
 #include "bitmaps.h"
 #include "input_mapping.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "sliders.h"
 
 class TrimIcon : public SliderIcon

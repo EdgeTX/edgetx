@@ -23,7 +23,7 @@
 
 #include "color_picker.h"
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "view_main.h"

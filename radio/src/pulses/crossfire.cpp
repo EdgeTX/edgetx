@@ -24,7 +24,7 @@
 #include "stm32_hal_ll.h"
 #endif
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "mixer_scheduler.h"
 #include "hal/module_driver.h"
 #include "hal/module_port.h"

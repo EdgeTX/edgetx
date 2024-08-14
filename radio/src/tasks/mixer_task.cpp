@@ -23,7 +23,7 @@
 #include "mixer_task.h"
 #include "mixer_scheduler.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 #include "hal/usb_driver.h"
 

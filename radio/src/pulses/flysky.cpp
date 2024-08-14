@@ -21,16 +21,14 @@
  * Dedicate for FlySky NV14 board.
  */
 
-#include "opentx.h"
+#pragma once
+
+#include "edgetx.h"
 
 #include "flysky.h"
 #include "telemetry/flysky_nv14.h"
 
 #define IS_VALID_COMMAND_ID(id) ((id) < CMD_LAST)
-
-#ifndef custom_log
-#define custom_log
-#endif
 
 enum AfhdsSpecialChars {
   END = 0xC0,             //Frame end

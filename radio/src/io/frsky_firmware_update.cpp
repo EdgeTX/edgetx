@@ -20,7 +20,7 @@
  */
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "frsky_firmware_update.h"
 #include "debug.h"
 #include "timers_driver.h"

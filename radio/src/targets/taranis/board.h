@@ -27,7 +27,7 @@
 #include "hal/watchdog_driver.h"
 
 #include "definitions.h"
-#include "opentx_constants.h"
+#include "edgetx_constants.h"
 #include "board_common.h"
 
 #if defined(ROTARY_ENCODER_NAVIGATION)

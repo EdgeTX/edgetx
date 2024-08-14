@@ -26,7 +26,7 @@
 #include "board.h"
 #include "dataconstants.h"
 #include "definitions.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "globals.h"
 #include "serial.h"
 #include "usb_joystick.h"

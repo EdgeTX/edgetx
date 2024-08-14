@@ -19,13 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GPS_NMEA_H_
-#define _GPS_NMEA_H_
+#pragma once
 
 #include <inttypes.h>
 
 bool gpsNewFrameNMEA(char c);
 
-void gpsSendFrameNMEA(const char * frame);
-
-#endif // _GPS_NMEA_H_
+void gpsSendFrameNMEA(const char* frame);

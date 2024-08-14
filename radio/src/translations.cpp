@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define ISTR(x) const char* const STR_##x[] = { TR_##x }
 
@@ -356,7 +356,7 @@ const char STR_MENU_GLOBAL_VARS[] = TR_MENU_GLOBAL_VARS;
 const char STR_INTERNALRF[] = TR_INTERNALRF;
 const char STR_INTERNAL_MODULE[]  = TR_INTERNAL_MODULE;
 const char STR_EXTERNAL_MODULE[]  = TR_EXTERNAL_MODULE;
-const char STR_OPENTX_UPGRADE_REQUIRED[]  = TR_OPENTX_UPGRADE_REQUIRED;
+const char STR_EDGETX_UPGRADE_REQUIRED[]  = TR_EDGETX_UPGRADE_REQUIRED;
 const char STR_TELEMETRY_DISABLED[]  = TR_TELEMETRY_DISABLED;
 const char STR_MORE_OPTIONS_AVAILABLE[]  = TR_MORE_OPTIONS_AVAILABLE;
 const char STR_NO_MODULE_INFORMATION[]  = TR_NO_MODULE_INFORMATION;

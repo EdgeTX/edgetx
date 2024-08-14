@@ -802,7 +802,7 @@
 #define TR_INTERNALRF                  "HF interne"
 #define TR_INTERNAL_MODULE             TR("Module int.","Module interne")
 #define TR_EXTERNAL_MODULE             TR("Module ext.","Module externe")
-#define TR_OPENTX_UPGRADE_REQUIRED     "Màj OpenTX nécessaire"
+#define TR_EDGETX_UPGRADE_REQUIRED     "Màj EdgeTX nécessaire"
 #define TR_TELEMETRY_DISABLED          "Télém. désactivée"
 #define TR_MORE_OPTIONS_AVAILABLE      "Autres options disponibles"
 #define TR_NO_MODULE_INFORMATION       "Pas d'info Module"

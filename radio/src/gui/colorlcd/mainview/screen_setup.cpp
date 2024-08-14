@@ -26,7 +26,7 @@
 #include "color_picker.h"
 #include "layout_factory_impl.h"
 #include "libopenui.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "topbar.h"
 #include "view_main.h"
 #include "widget_settings.h"

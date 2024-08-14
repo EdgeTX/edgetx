@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SDCARD_COMMON_H_
-#define _SDCARD_COMMON_H_
+#pragma once
 
 #include "ff.h"
 #include "translations.h"
@@ -85,5 +84,3 @@ const char * loadRadioSettings(const char * path);
 const char * loadRadioSettings();
 
 void checkModelIdUnique(uint8_t index, uint8_t module);
-
-#endif // _SDCARD_RAW_H_

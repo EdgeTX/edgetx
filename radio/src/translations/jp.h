@@ -805,7 +805,7 @@
 #define TR_INTERNALRF                  "内部RFモジュール"
 #define TR_INTERNAL_MODULE             TR("Int. module", "内部モジュール")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "外部モジュール")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTXアップグレードが必要です"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTXアップグレードが必要です"
 #define TR_TELEMETRY_DISABLED          "テレメトリー無効"
 #define TR_MORE_OPTIONS_AVAILABLE      "その他のオプション"
 #define TR_NO_MODULE_INFORMATION       "モジュール情報なし"

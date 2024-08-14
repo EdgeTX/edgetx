@@ -21,7 +21,7 @@
 
 #include "fm_matrix.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "etx_lv_theme.h"
 
 template <class T>

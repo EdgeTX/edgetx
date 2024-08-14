@@ -23,7 +23,7 @@
 
 #include "function_switches.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "strhelpers.h"
 #include "switches.h"
 

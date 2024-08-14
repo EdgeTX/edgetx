@@ -37,7 +37,7 @@
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "gps.h"
 #include "gps_nmea.h"
 #include "gps_ubx.h"

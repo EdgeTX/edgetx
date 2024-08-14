@@ -21,7 +21,7 @@
 
 #include <memory>
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "widget.h"
 
 #define ETX_STATE_BG_FILL LV_STATE_USER_1

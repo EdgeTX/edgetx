@@ -22,7 +22,7 @@
 #include "input_mapping.h"
 #include "hal/adc_driver.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define _CHANNEL_ORDER(a,b,c,d) \
   (((a) & 0x3) | (((b) & 0x3) << 2) | (((c) & 0x3) << 4) | (((d) & 0x3) << 6))

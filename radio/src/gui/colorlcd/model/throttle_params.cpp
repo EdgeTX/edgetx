@@ -20,7 +20,7 @@
  */
 
 #include "throttle_params.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 

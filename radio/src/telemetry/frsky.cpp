@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 static inline bool pushFrskyTelemetryData(bool is_sport, uint8_t data,
                                           uint8_t* buffer, uint8_t& len)

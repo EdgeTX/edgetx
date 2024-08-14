@@ -25,7 +25,7 @@
 #if defined(LUA)
 
 #define SWAP_DEFINED
-#include "opentx.h"
+#include "edgetx.h"
 
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
 #define MIXSRC_TRIMTHR (MIXSRC_FIRST_TRIM + inputMappingGetThrottle())

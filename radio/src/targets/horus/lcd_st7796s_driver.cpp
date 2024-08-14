@@ -31,7 +31,7 @@
 #include "dma2d.h"
 #include "hal.h"
 #include "lcd.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 static LTDC_HandleTypeDef hltdc;
 static void* initialFrameBuffer = nullptr;

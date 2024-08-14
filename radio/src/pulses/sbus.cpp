@@ -24,7 +24,7 @@
 #include "hal/serial_driver.h"
 #include "mixer_scheduler.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define SBUS_NORMAL_CHANS 16
 #define SBUS_CHAN_BITS    11

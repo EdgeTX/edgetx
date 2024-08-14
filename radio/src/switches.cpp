@@ -23,8 +23,8 @@
 #include "hal/adc_driver.h"
 
 #include "myeeprom.h"
-#include "opentx.h"
-#include "opentx_constants.h"
+#include "edgetx.h"
+#include "edgetx_constants.h"
 #include "switches.h"
 #include "input_mapping.h"
 
