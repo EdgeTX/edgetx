@@ -82,6 +82,7 @@ enum {
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_DELAY)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BRIGHTNESS)
   CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST)
+  CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_SOURCE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
@@ -213,6 +214,7 @@ void menuRadioSetup(event_t event)
      CASE_BACKLIGHT(0)
      CASE_BACKLIGHT(0)
      CASE_CONTRAST(0)
+     CASE_BACKLIGHT(0)
      CASE_BACKLIGHT(0)
     CASE_SPLASH_PARAM(0)
     CASE_PWR_BUTTON_PRESS(0)
@@ -564,6 +566,15 @@ void menuRadioSetup(event_t event)
           g_eeGeneral.backlightBright = 100 - b;
 #endif
         }
+        break;
+
+      case ITEM_RADIO_SETUP_BACKLIGHT_SOURCE:
+        lcdDrawTextIndented(y, STR_CONTROL);
+        drawSource(LCD_W-2, y, g_eeGeneral.backlightSrc, STREXPANDED|RIGHT|attr);
+        if (attr)
+          g_eeGeneral.backlightSrc = checkIncDec(event, g_eeGeneral.backlightSrc,
+                MIXSRC_NONE, MIXSRC_LAST_SWITCH, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS,
+                isSourceSwitchOrPotAvailable);
         break;
 #endif
 

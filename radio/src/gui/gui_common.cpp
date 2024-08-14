@@ -308,6 +308,12 @@ bool isSourceAvailable(int source)
             );
 }
 
+bool isSourceSwitchOrPotAvailable(int source)
+{
+  if (source == MIXSRC_NONE) return true;
+  return checkSourceAvailable(source, SRC_SWITCH | SRC_POT);
+}
+
 bool isLogicalSwitchAvailable(int index)
 {
   LogicalSwitchData * lsw = lswAddress(index);

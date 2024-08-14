@@ -25,6 +25,7 @@
 #include "yaml_calibdata.h"
 #include "yaml_switchconfig.h"
 #include "yaml_moduledata.h"
+#include "yaml_rawsource.h"
 
 #include "eeprominterface.h"
 #include "edgetxinterface.h"
@@ -370,6 +371,8 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   if (hasColorLcd)
     node["selectedTheme"] = rhs.selectedTheme;
 
+  node["backlightSrc"] = rhs.backlightSrc;
+
   // Radio level tabs control (global settings)
   if (hasColorLcd)
     node["radioThemesDisabled"] = (int)rhs.radioThemesDisabled;
@@ -685,6 +688,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["uartSampleMode"] >> rhs.uartSampleMode;
 
   node["selectedTheme"] >> rhs.selectedTheme;
+
+  node["backlightSrc"] >> rhs.backlightSrc;
 
   // Radio level tabs control (global settings)
   node["radioThemesDisabled"] >> rhs.radioThemesDisabled;

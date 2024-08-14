@@ -891,3 +891,5 @@ extern bool modelTelemetryEnabled();
 
 int pwrDelayFromYaml(int delay);
 int pwrDelayToYaml(int delay);
+
+void calcBacklightValue(int16_t source);
