@@ -112,7 +112,7 @@ void InputEditWindow::buildBody(Window* form)
                              input->weight = newValue;
                              preview->update();
                              SET_DIRTY();
-                           }, INPUTSRC_FIRST);
+                           }, MIXSRC_FIRST);
   gvar->setSuffix("%");
 
   // Offset
@@ -123,7 +123,7 @@ void InputEditWindow::buildBody(Window* form)
                                 input->offset = newValue;
                                 preview->update();
                                 SET_DIRTY();
-                              }, INPUTSRC_FIRST);
+                              }, MIXSRC_FIRST);
   gvar->setSuffix("%");
 
   // Switch
@@ -142,7 +142,7 @@ void InputEditWindow::buildBody(Window* form)
           if (preview)
             preview->update();
           SET_DIRTY();
-        }, INPUTSRC_FIRST,
+        }, MIXSRC_FIRST,
         [=]() {
           if (preview)
             preview->update();

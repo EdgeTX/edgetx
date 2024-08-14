@@ -110,13 +110,13 @@ void MixEditWindow::buildBody(Window *form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_WEIGHT);
   auto svar = new SourceNumberEdit(line, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX,
-                                   GET_SET_DEFAULT(mix->weight), 0);
+                                   GET_SET_DEFAULT(mix->weight), MIXSRC_FIRST);
   svar->setSuffix("%");
 
   // Offset
   new StaticText(line, rect_t{}, STR_OFFSET);
   auto gvar = new SourceNumberEdit(line, MIX_OFFSET_MIN, MIX_OFFSET_MAX,
-                                   GET_SET_DEFAULT(mix->offset), 0);
+                                   GET_SET_DEFAULT(mix->offset), MIXSRC_FIRST);
   gvar->setSuffix("%");
 
   // Switch
@@ -127,7 +127,7 @@ void MixEditWindow::buildBody(Window *form)
 
   // Curve
   new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), 0);
+  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), MIXSRC_FIRST);
 
   line = form->newLine(grid);
   line->padAll(PAD_LARGE);
