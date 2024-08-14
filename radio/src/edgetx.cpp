@@ -578,6 +578,19 @@ ls_telemetry_value_t maxTelemValue(source_t channel)
   return 30000;
 }
 
+void calcBacklightValue(int16_t source)
+{
+  getvalue_t raw = getValue(source);
+#if defined(COLORLCD)
+  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright + 
+      ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
+#elif defined(OLED_SCREEN)
+  requiredBacklightBright = (raw + 1024) * 254 / 2048;
+#else
+  requiredBacklightBright = (1024 - raw) * 100 / 2048;
+#endif
+}
+
 void checkBacklight()
 {
   static uint8_t tmr10ms ;
@@ -603,6 +616,9 @@ void checkBacklight()
         backlightOn = !backlightOn;
       }
       if (backlightOn) {
+        if (g_eeGeneral.backlightSrc && mixerTaskRunning() && !isFunctionActive(FUNCTION_BACKLIGHT)) {
+          calcBacklightValue(g_eeGeneral.backlightSrc);
+        }
         currentBacklightBright = requiredBacklightBright;
         BACKLIGHT_ENABLE();
       } else {

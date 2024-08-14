@@ -51,7 +51,7 @@ GeneralEdit::GeneralEdit(QWidget * parent, RadioData & radioData, Firmware * fir
   editorItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncAction);
   editorItemModels->addItemModel(AbstractItemModel::IMID_CustomFuncResetParam);
 
-  addTab(new GeneralSetupPanel(this, generalSettings, firmware), tr("Setup"));
+  addTab(new GeneralSetupPanel(this, generalSettings, firmware, editorItemModels), tr("Setup"));
   addTab(new CustomFunctionsPanel(this, nullptr, generalSettings, firmware, editorItemModels), tr("Global Functions"));
   addTab(new TrainerPanel(this, generalSettings, firmware, editorItemModels), tr("Trainer"));
   auto hwpnl = new HardwarePanel(this, generalSettings, firmware, editorItemModels);

@@ -31,6 +31,7 @@
 #include "edgetx.h"
 #include "page.h"
 #include "storage/modelslist.h"
+#include "sourcechoice.h"
 #include "tasks/mixer_task.h"
 #include "slider.h"
 
@@ -482,6 +483,13 @@ class BacklightPage : public SubPage
                           GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
         });
 #endif
+
+    // Backlight/Brightness source
+    setupLine(STR_CONTROL, [=](Window* parent, coord_t x, coord_t y) {
+          auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
+                  GET_SET_DEFAULT(g_eeGeneral.backlightSrc), true);
+          choice->setAvailableHandler(isSourceSwitchOrPotAvailable);
+        });
 
     // Flash beep
     setupLine(STR_ALARM, [=](Window* parent, coord_t x, coord_t y) {

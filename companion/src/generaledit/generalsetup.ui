@@ -722,10 +722,17 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="0">
+     <item row="15" column="0">
       <widget class="QLabel" name="label_OFFBright">
        <property name="text">
         <string>Backlight OFF Brightness</string>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="0">
+      <widget class="QLabel" name="label_BrightCtrl">
+       <property name="text">
+        <string>Backlight Control</string>
        </property>
       </widget>
      </item>
@@ -932,7 +939,7 @@
        </property>
       </widget>
      </item>
-     <item row="16" column="1">
+     <item row="15" column="1">
       <widget class="QSpinBox" name="OFFBright_SB">
        <property name="minimum">
         <number>5</number>
@@ -940,6 +947,10 @@
        <property name="maximum">
         <number>100</number>
        </property>
+      </widget>
+     </item>
+     <item row="16" column="1">
+      <widget class="QComboBox" name="brightCtrl_CB">
       </widget>
      </item>
      <item row="19" column="0">
