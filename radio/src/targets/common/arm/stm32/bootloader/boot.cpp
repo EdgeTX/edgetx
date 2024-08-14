@@ -19,18 +19,9 @@
  * GNU General Public License for more details.
  */
 
-// #if !defined(SIMU)
-// #include "stm32_hal_ll.h"
-// #include "stm32_hal.h"
-// #include "stm32_timer.h"
-// #endif
-
 #include "hal/usb_driver.h"
-
-#if defined(BLUETOOTH)
-  #include "bluetooth_driver.h"
-  #include "stm32_serial_driver.h"
-#endif
+#include "hal/abnormal_reboot.h"
+#include "hal/rotary_encoder.h"
 
 #include "board.h"
 #include "boot.h"
@@ -41,8 +32,10 @@
 #include "timers_driver.h"
 #include "flash_driver.h"
 
-#include "hal/abnormal_reboot.h"
-#include "hal/rotary_encoder.h"
+#if defined(BLUETOOTH)
+  #include "bluetooth_driver.h"
+  #include "stm32_serial_driver.h"
+#endif
 
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
@@ -58,6 +51,8 @@
   #include "diskio_spi_flash.h"
   #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
+
+#define REBOOT_CMD_DFU 0x55464442
 
 #if !defined(SIMU)
 // Bootloader marker:
@@ -184,13 +179,14 @@ static __attribute__((noreturn)) void jumpTo(uint32_t addr)
 }
 
 // Optional board hook
-__weak void boardBLInit() {}
+__weak void boardBLEarlyInit() {}
 __weak bool boardBLStartCondition() { return false; }
 __weak void boardBLPreJump() {}
+__weak void boardBLInit() {}
 
 void bootloaderInitApp()
 {
-  boardBLInit();
+  boardBLEarlyInit();
 
 #if defined(DEBUG_SEGGER_RTT)
   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_SKIP);
@@ -198,18 +194,22 @@ void bootloaderInitApp()
 
   pwrInit();
   keysInit();
+  delaysInit();
 
-  // wait a bit for the inputs to stabilize...
-  if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
-    for (uint32_t i = 0; i < 150000; i++) {
-      __ASM volatile("nop");
+  if (abnormalRebootGetCmd() != REBOOT_CMD_DFU) {
+    bool start_firmware = true;
+
+    // wait a bit for the inputs to stabilize...
+    if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
+      delay_us(200);
     }
-  }
 
-  if (!boardBLStartCondition()) {
-    // Start main application
-    boardBLPreJump();
-    jumpTo(APP_START_ADDRESS);
+    start_firmware = !boardBLStartCondition(); 
+    if (start_firmware) {
+      // Start main application
+      boardBLPreJump();
+      jumpTo(APP_START_ADDRESS);
+    }
   }
 
   // TODO: move all this into board specifics
@@ -218,8 +218,6 @@ void bootloaderInitApp()
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   rotaryEncoderInit();
 #endif
-
-  delaysInit(); // needed for lcdInit()
 
 #if defined(DEBUG)
   initSerialPorts();
@@ -241,6 +239,7 @@ void bootloaderInitApp()
   // SD card detect pin
   sdInit();
   usbInit();
+  boardBLInit();
 }
 
 int main()

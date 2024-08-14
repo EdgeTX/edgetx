@@ -22,11 +22,6 @@ extern "C" void CPU_CACHE_Enable();
 extern "C" void MPU_Init();
 extern "C" void clean_dcache();
 
-#if defined(SDRAM) //TODO: ExtRAM
-// SDRAM driver
-extern "C" int32_t ExtRAM_Init();
-#endif
-
 extern "C" void __libc_init_array();
 extern "C" int main();
 
@@ -42,9 +37,6 @@ void Reset_Handler()
   asm inline (
     "bl SystemInit \n"
     "bl SystemClock_Config \n"
-// #if defined(SDRAM) // TODO
-//     "bl ExtRAM_Init \n"
-// #endif
     "bl MPU_Init \n"
     "bl CPU_CACHE_Enable \n"
   );

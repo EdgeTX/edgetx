@@ -25,6 +25,8 @@
 #include "stamp.h"
 #include "keys.h"
 
+#include "hal/flash_driver.h"
+
 #if LCD_W < 212
   #if defined(VERSION_TAG)
     #define BOOTLOADER_TITLE               " Bootloader - " VERSION_TAG
@@ -66,6 +68,12 @@ enum FlashCheckRes {
     FC_OK,
     FC_ERROR
 };
+
+typedef struct {
+  const char* description;
+} flash_media_t;
+
+void bootloaderRegisterFlash(const char* desc, etx_flash_driver_t* drv);
 
 // Declarations of functions that need to be implemented
 // for each target with a bootloader

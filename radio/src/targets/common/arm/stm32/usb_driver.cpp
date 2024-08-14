@@ -28,12 +28,13 @@
 #endif
 
 extern "C" {
-#include "usbd_conf.h"
-#include "usbd_core.h"
-#include "usbd_msc.h"
-#include "usbd_desc.h"
-#include "usbd_hid.h"
-#include "usbd_cdc.h"
+  #include "usbd_conf.h"
+  #include "usbd_core.h"
+  #include "usbd_msc.h"
+  #include "usbd_desc.h"
+  #include "usbd_hid.h"
+  #include "usbd_cdc.h"
+  #include "usbd_dfu.h"
 }
 
 #include "stm32_hal_ll.h"
@@ -53,12 +54,18 @@ extern "C" {
   #define DEVICE_ID DEVICE_FS
 #endif
 
-static bool usbDriverStarted = false;
 #if defined(BOOT)
-static usbMode selectedUsbMode = USB_MASS_STORAGE_MODE;
+
+// TODO: configured where needed
+#define DEFAULT_USB_MODE USB_DFU_MODE;
+static const USBD_DFU_MediaTypeDef* _dfu_media[USBD_DFU_MAX_ITF_NUM] = {nullptr};
+
 #else
-static usbMode selectedUsbMode = USB_UNSELECTED_MODE;
+#define DEFAULT_USB_MODE USB_UNSELECTED_MODE;
 #endif
+
+static bool usbDriverStarted = false;
+static usbMode selectedUsbMode = DEFAULT_USB_MODE;
 
 USBD_HandleTypeDef hUsbDevice;
 
@@ -144,12 +151,30 @@ extern void usbInitLUNs();
 extern USBD_HandleTypeDef hUsbDevice;
 extern "C" USBD_StorageTypeDef USBD_Storage_Interface_fops;
 extern USBD_CDC_ItfTypeDef USBD_Interface_fops;
+extern USBD_DFU_MediaTypeDef USBD_DFU_MEDIA_fops;
 
 void usbStart()
 {
   USBD_Init(&hUsbDevice, &FS_Desc, DEVICE_ID);
   switch (getSelectedUsbMode()) {
-#if !defined(BOOT)
+    case USB_MASS_STORAGE_MODE:
+      // initialize USB as MSC device
+      usbInitLUNs();
+      USBD_RegisterClass(&hUsbDevice, &USBD_MSC);
+      USBD_MSC_RegisterStorage(&hUsbDevice, &USBD_Storage_Interface_fops);
+      break;
+
+#if defined(BOOT)
+    case USB_DFU_MODE:
+      USBD_RegisterClass(&hUsbDevice, &USBD_DFU);
+      for (unsigned i = 0; i < USBD_DFU_MAX_ITF_NUM; i++){
+        if (_dfu_media[i] != nullptr) {
+          USBD_DFU_RegisterMedia(&hUsbDevice,
+                                 (USBD_DFU_MediaTypeDef*)_dfu_media[i]);
+        }
+      }
+      break;
+#else
     case USB_JOYSTICK_MODE:
       // initialize USB as HID device
 #if defined(USBJ_EX)
@@ -165,13 +190,9 @@ void usbStart()
       break;
 #endif
 #endif
+
     default:
-    case USB_MASS_STORAGE_MODE:
-      // initialize USB as MSC device
-      usbInitLUNs();
-      USBD_RegisterClass(&hUsbDevice, &USBD_MSC);
-      USBD_MSC_RegisterStorage(&hUsbDevice, &USBD_Storage_Interface_fops);
-      break;
+      return;
   }
 
   if (USBD_Start(&hUsbDevice) == USBD_OK) {
@@ -191,7 +212,20 @@ bool usbStarted()
   return usbDriverStarted;
 }
 
-#if !defined(BOOT)
+#if defined(BOOT)
+
+int usbRegisterDFUMedia(const void* dfu_media)
+{
+  for (unsigned i = 0; i < USBD_DFU_MAX_ITF_NUM; i++) {
+    if (_dfu_media[i] == nullptr) {
+      _dfu_media[i] = (const USBD_DFU_MediaTypeDef*)dfu_media;
+      return 0;
+    }
+  }
+  return -1;
+}
+
+#else // !BOOT
 
 #if defined(USBJ_EX)
 extern "C" void delay_ms(uint32_t count);

@@ -1,7 +1,7 @@
+#include "extram_driver.h"
 #include "stm32_hal_ll.h"
 #include "delays_driver.h"
 
-#include "bsp_errno.h"
 #include "stm32_hal.h"
 
   /* Aps256xx APMemory memory */
@@ -414,7 +414,7 @@ static int32_t XSPI_RAM_ConfigureMemoryMappedMode()
  * @param  Init       XSPI Init structure
  * @retval BSP status
  */
-extern "C" int32_t ExtRAM_Init()
+int32_t ExtRAM_Init()
 {
   XSPIM_CfgTypeDef sXspiManagerCfg = {0};
 

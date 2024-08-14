@@ -53,11 +53,8 @@
 
 extern BitmapBuffer * lcd;
 
-extern "C" int32_t ExtRAM_Init();
-
 void bootloaderInitScreen()
 {
-  ExtRAM_Init();
   lcdInitDisplayDriver();
 }
 

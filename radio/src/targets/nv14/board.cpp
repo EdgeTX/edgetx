@@ -82,7 +82,7 @@ static uint8_t boardGetPcbRev()
   }
 }
 
-void boardBLInit()
+void boardBLEarlyInit()
 {
 #if defined(USB_SW_GPIO)
   gpio_init(USB_SW_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
