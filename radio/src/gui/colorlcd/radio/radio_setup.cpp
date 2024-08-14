@@ -31,6 +31,7 @@
 #include "edgetx.h"
 #include "page.h"
 #include "storage/modelslist.h"
+#include "sourcechoice.h"
 #include "tasks/mixer_task.h"
 #include "slider.h"
 #include "key_shortcuts.h"
@@ -189,6 +190,26 @@ class DateTimeWindow : public Window
   }
 };
 
+class ControlTextOverride : public StaticText
+{
+ public:
+  ControlTextOverride(Window* parent, coord_t x, coord_t y, FunctionsActive func) :
+        StaticText(parent, {x + XO, y + PAD_MEDIUM, 0, 0}, STR_SF_OVERRIDDEN, COLOR_THEME_WARNING_INDEX, FONT_SZ), func(func)
+  {
+  }
+
+  void checkEvents() override
+  {
+    show(isFunctionActive(func));
+  }
+
+  static LAYOUT_SIZE(FONT_SZ, FONT(STD), FONT(XS))
+  static LAYOUT_ORIENTATION(XO, PAD_LARGE * 12, PAD_LARGE * 8)
+
+ protected:
+  FunctionsActive func;
+};
+
 #if defined(AUDIO)
 static SetupLineDef soundPageSetupLines[] = {
   {
@@ -254,6 +275,16 @@ static SetupLineDef soundPageSetupLines[] = {
       (new Slider(parent, lv_pct(50), -2, +2,
                   GET_SET_DEFAULT(g_eeGeneral.backgroundVolume)))->setPos(x, y);
     }
+  },
+  {
+    // Volume source
+    STR_DEF(STR_CONTROL),
+    [](Window* parent, coord_t x, coord_t y) {
+      auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
+              GET_SET_DEFAULT(g_eeGeneral.volumeSrc), true);
+      choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
+      new ControlTextOverride(parent, x, y, FUNCTION_VOLUME);
+      }
   },
 #if defined(KCX_BTAUDIO)
   {
@@ -495,6 +526,14 @@ class BacklightPage : public SubPage
                           GET_SET_DEFAULT(g_eeGeneral.keysBacklight));
         });
 #endif
+
+    // Backlight/Brightness source
+    setupLine(STR_CONTROL, [=](Window* parent, coord_t x, coord_t y) {
+          auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
+                  GET_SET_DEFAULT(g_eeGeneral.backlightSrc), true);
+          choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
+          new ControlTextOverride(parent, x, y, FUNCTION_BACKLIGHT);
+        });
 
     // Flash beep
     setupLine(STR_ALARM, [=](Window* parent, coord_t x, coord_t y) {
