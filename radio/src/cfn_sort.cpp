@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-// This file is auto-generated. Do not edit.
+// This file is auto-generated via cfn_sorter.sh. Do not edit.
 
 #include "dataconstants.h"
 

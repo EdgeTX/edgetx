@@ -65,7 +65,7 @@ echo "Compiling TRANSLATIONS_CN (LNG_CN) ..."
 $CXX -std=c++11 -lstdc++ -Wfatal-errors -DLNG_CN tools/cfn_sorter.cpp
 {
 cat <<EOF >> radio/src/cfn_sort.cpp
-// This file is auto-generated. Do not edit.
+// This file is auto-generated via cfn_sorter.sh. Do not edit.
 
 #include "dataconstants.h"
 
