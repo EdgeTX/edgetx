@@ -71,7 +71,6 @@ cat <<EOF >> radio/src/cfn_sort.cpp
 
 Functions cfn_sorted[] = {
 #if defined(TRANSLATIONS_CN)
-
 EOF
 ./a.out
 } >> radio/src/cfn_sort.cpp
@@ -99,7 +98,6 @@ compile_and_append "LNG_EN" "TRANSLATIONS_EN" "else"
 
 # End of cfn_sort.cpp
 cat <<EOF >> radio/src/cfn_sort.cpp
-
 #endif
 };
 
