@@ -19,7 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _MYEEPROM_H_
+#define _MYEEPROM_H_
 
 #include "datastructs.h"
 #include "bitfield.h"
@@ -274,3 +275,5 @@ extern ModelData g_model;
 constexpr uint8_t EE_GENERAL = 0x01;
 constexpr uint8_t EE_MODEL = 0x02;
 constexpr uint8_t EE_LABELS = 0x04;
+
+#endif // _MYEEPROM_H_
