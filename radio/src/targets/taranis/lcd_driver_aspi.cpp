@@ -24,7 +24,9 @@
 
 #include "board.h"
 #include "lcd.h"
+
 #include "hal/abnormal_reboot.h"
+#include "timers_driver.h"
 
 #if !defined(BOOT)
 #include "myeeprom.h"
@@ -274,11 +276,8 @@ void lcdInitFinish()
   */
 
   if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
-#if !defined(BOOT)
-    while (g_tmr10ms < (RESET_WAIT_DELAY_MS/10)); // Wait measured from the power-on
-#else
-    delay_ms(RESET_WAIT_DELAY_MS);
-#endif
+    // wait measured from the power-on
+    while (timersGetMsTick() < RESET_WAIT_DELAY_MS);
   }
   
   lcdStart();
