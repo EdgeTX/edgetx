@@ -291,9 +291,9 @@ uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out)
   LL_SPI_TransmitData16(SPIx, out);
 
 #if defined(STM32H7) || defined(STM32H7RS)
-  while (!LL_SPI_IsActiveFlag_TXP(SPIx));
+  while (!LL_SPI_IsActiveFlag_RXP(SPIx));
 #else
-  while (!LL_SPI_IsActiveFlag_TXE(SPIx));
+  while (!LL_SPI_IsActiveFlag_RXNE(SPIx));
 #endif
   return LL_SPI_ReceiveData16(SPIx);
 }
