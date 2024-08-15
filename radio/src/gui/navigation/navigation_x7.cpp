@@ -127,14 +127,6 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
     newval = !val;
   }
 
-  if (newval != val) {
-    storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
-    checkIncDec_Ret = (newval > val ? 1 : -1);
-  }
-  else {
-    checkIncDec_Ret = 0;
-  }
-
   if (i_flags & INCDEC_SOURCE) {
     if (event == EVT_KEY_LONG(KEY_ENTER)) {
       killEvents(event);
@@ -212,6 +204,15 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
       checkIncDecSelection = 0;
     }
   }
+
+  if (newval != val) {
+    storageDirty(i_flags & (EE_GENERAL|EE_MODEL));
+    checkIncDec_Ret = (newval > val ? 1 : -1);
+  }
+  else {
+    checkIncDec_Ret = 0;
+  }
+
   return newval;
 }
 
