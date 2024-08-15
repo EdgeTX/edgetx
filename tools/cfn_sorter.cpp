@@ -15,74 +15,59 @@
 #if defined(LNG_CN)
 #include "../radio/src/translations/cn.h"
 #define LOC "zh_CN.UTF-8"
-#endif
-#if defined(LNG_CZ)
+#elif defined(LNG_CZ)
 #include "../radio/src/translations/cz.h"
 #define LOC "cs_CZ.UTF-8"
-#endif
-#if defined(LNG_DA)
+#elif defined(LNG_DA)
 #include "../radio/src/translations/da.h"
 #define LOC "da_DK.UTF-8"
-#endif
-#if defined(LNG_DE)
+#elif defined(LNG_DE)
 #include "../radio/src/translations/de.h"
 #define LOC "de_DE.UTF-8"
-#endif
-#if defined(LNG_EN)
+#elif defined(LNG_EN)
 #include "../radio/src/translations/en.h"
 #define LOC "en_US.UTF-8"
-#endif
-#if defined(LNG_ES)
+#elif defined(LNG_ES)
 #include "../radio/src/translations/es.h"
 #define LOC "es_ES.UTF-8"
-#endif
-#if defined(LNG_FI)
+#elif defined(LNG_FI)
 #include "../radio/src/translations/fi.h"
 #define LOC "fi_FI.UTF-8"
-#endif
-#if defined(LNG_FR)
+#elif defined(LNG_FR)
 #include "../radio/src/translations/fr.h"
 #define LOC "fr_FR.UTF-8"
-#endif
-#if defined(LNG_HE)
+#elif defined(LNG_HE)
 #include "../radio/src/translations/he.h"
 #define LOC "he_IL.UTF-8"
-#endif
-#if defined(LNG_IT)
+#elif defined(LNG_IT)
 #include "../radio/src/translations/it.h"
 #define LOC "it_IT.UTF-8"
-#endif
-#if defined(LNG_JP)
+#elif defined(LNG_JP)
 #include "../radio/src/translations/jp.h"
 #define LOC "ja_JP.UTF-8"
-#endif
-#if defined(LNG_NL)
+#elif defined(LNG_NL)
 #include "../radio/src/translations/nl.h"
 #define LOC "nl_NL.UTF-8"
-#endif
-#if defined(LNG_PL)
+#elif defined(LNG_PL)
 #include "../radio/src/translations/pl.h"
 #define LOC "pl_PL.UTF-8"
-#endif
-#if defined(LNG_PT)
+#elif defined(LNG_PT)
 #include "../radio/src/translations/pt.h"
 #define LOC "pt_PT.UTF-8"
-#endif
-#if defined(LNG_RU)
+#elif defined(LNG_RU)
 #include "../radio/src/translations/ru.h"
 #define LOC "ru_RU.UTF-8"
-#endif
-#if defined(LNG_SE)
+#elif defined(LNG_SE)
 #include "../radio/src/translations/se.h"
 #define LOC "sv_SE.UTF-8"
-#endif
-#if defined(LNG_TW)
+#elif defined(LNG_TW)
 #include "../radio/src/translations/tw.h"
 #define LOC "zh_TW.UTF-8"
-#endif
-#if defined(LNG_UA)
+#elif defined(LNG_UA)
 #include "../radio/src/translations/ua.h"
 #define LOC "uk_UA.UTF-8"
+#else
+#error "Unknown language"
 #endif
 
 struct cfn {
@@ -105,6 +90,7 @@ struct LocaleComparator {
 
 int main()
 {
+#if defined(LOC)
   std::vector<struct cfn> list = {
     { TR_SF_SAFETY, "FUNC_OVERRIDE_CHANNEL", FUNC_OVERRIDE_CHANNEL },
     { TR_SF_TRAINER, "FUNC_TRAINER", FUNC_TRAINER },
@@ -153,4 +139,7 @@ int main()
   }
 
   return 0;
+#else
+static_assert(false,"No valid language defined!");
+#endif
 }
