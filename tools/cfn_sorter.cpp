@@ -14,7 +14,7 @@
 
 #if defined(LNG_CN)
 #include "../radio/src/translations/cn.h"
-#define LOC "zh_CN.UTF-8"
+#define LOC "zh_CN"
 #elif defined(LNG_CZ)
 #include "../radio/src/translations/cz.h"
 #define LOC "cs_CZ.UTF-8"
@@ -127,14 +127,20 @@ int main()
   std::sort(list.begin(), list.end(), LocaleComparator(locale));
 
   for (int i = 0; i < list.size(); i += 1) {
-    if (list[i].str == TR_BRIGHTNESS) {
-        printf("#if defined(OLED_SCREEN)\n");
-    } else if (list[i].str == TR_SF_BACKLIGHT) {
-        printf("#if !defined(OLED_SCREEN)\n");
+    if (strcmp(TR_BRIGHTNESS, TR_SF_BACKLIGHT) != 0) {
+      if (list[i].str == TR_BRIGHTNESS) {
+          printf("#if defined(OLED_SCREEN)\n");
+      } else if (list[i].str == TR_SF_BACKLIGHT) {
+          printf("#if !defined(OLED_SCREEN)\n");
+      }
     }
     printf("  /* %s */ %s,\n", list[i].str.c_str(), list[i].nam.c_str());
-    if (list[i].str == TR_BRIGHTNESS || list[i].str == TR_SF_BACKLIGHT) {
-        printf("#endif\n");
+    if (strcmp(TR_BRIGHTNESS, TR_SF_BACKLIGHT) != 0) {
+      if (list[i].str == TR_BRIGHTNESS || list[i].str == TR_SF_BACKLIGHT) {
+          printf("#endif\n");
+      }
+    } else if (list[i].str == TR_BRIGHTNESS) {
+      i += 1;
     }
   }
 

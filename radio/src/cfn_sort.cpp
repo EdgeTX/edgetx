@@ -486,12 +486,7 @@ Functions cfn_sorted[] = {
   /* Муз фон */ FUNC_BACKGND_MUSIC,
   /* Настройка */ FUNC_ADJUST_GVAR,
   /* Оменить */ FUNC_OVERRIDE_CHANNEL,
-#if defined(OLED_SCREEN)
   /* Подсветка */ FUNC_BACKLIGHT,
-#endif
-#if defined(OLED_SCREEN)
-  /* Подсветка */ FUNC_BACKLIGHT,
-#endif
   /* Пров диапаз */ FUNC_RANGECHECK,
   /* Режим гонка */ FUNC_RACING_MODE,
   /* Сброс */ FUNC_RESET,
