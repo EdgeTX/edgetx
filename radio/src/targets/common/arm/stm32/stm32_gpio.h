@@ -27,7 +27,7 @@
 #define GPIO_UNDEF (0xffffffff)
 
 // #define GPIO_PIN(x, y) ((GPIOA_BASE + (x << 10)) | y)
-#define GPIO_PIN(x, y) ((intptr_t)x | y)
+#define GPIO_PIN(x, y) ((uintptr_t)x | y)
 
 // Generate GPIO mode bitfields
 //

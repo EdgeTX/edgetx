@@ -18,6 +18,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
+#pragma once
+
+#include "hal/serial_port.h"
  
 #define HALLSTICK_BUFF_SIZE             ( 512 )
 #define FLYSKY_HALL_BAUDRATE            ( 921600 )
@@ -124,3 +128,5 @@ extern unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
 // returns true if the gimbals were detected properly
 bool flysky_gimbal_init();
 
+void flysky_gimbal_deinit();
+const etx_serial_port_t* flysky_gimbal_get_port();
