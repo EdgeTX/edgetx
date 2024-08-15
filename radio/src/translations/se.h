@@ -970,7 +970,8 @@
 #define TR_COPY_TRIMS_TO_OFS            TR("Kop. trim->subtrim","Spara trimmar som subtrim")
 #define TR_INCDEC                       "Öka/Minska"
 #define TR_GLOBALVAR                    "Globala var"
-#define TR_MIXSOURCE                    "Mixerkälla"
+#define TR_MIXSOURCE                    "Källa (%)"
+#define TR_MIXSOURCERAW                 "Källa (värde)"
 #define TR_CONSTANT                     "Konstant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK    "Av","På","Auto"
 #define TR_PREFLIGHT                    "Startkontroller"

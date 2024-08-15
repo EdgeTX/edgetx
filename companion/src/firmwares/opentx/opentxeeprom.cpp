@@ -1787,9 +1787,9 @@ class ArmCustomFunctionField: public TransformedField {
           *((uint8_t *)(_param+2)) = fn.adjustMode;
           *((uint8_t *)(_param+3)) = fn.func - FuncAdjustGV1;
           unsigned int value;
-          if (fn.adjustMode == 1)
+          if (fn.adjustMode == FUNC_ADJUST_GVAR_SOURCE || fn.adjustMode == FUNC_ADJUST_GVAR_SOURCERAW)
             sourcesConversionTable->exportValue(fn.param, (int &)value);
-          else if (fn.adjustMode == 2)
+          else if (fn.adjustMode == FUNC_ADJUST_GVAR_GVAR)
             value = RawSource(fn.param).index;
           else
             value = fn.param;
@@ -1844,9 +1844,9 @@ class ArmCustomFunctionField: public TransformedField {
       else if (fn.func >= FuncAdjustGV1 && fn.func <= FuncAdjustGVLast) {
         fn.func = AssignFunc(fn.func + index);
         fn.adjustMode = mode;
-        if (fn.adjustMode == 1)
+        if (fn.adjustMode == FUNC_ADJUST_GVAR_SOURCE || fn.adjustMode == FUNC_ADJUST_GVAR_SOURCERAW)
           sourcesConversionTable->importValue(value, (int &)fn.param);
-        else if (fn.adjustMode == 2)
+        else if (fn.adjustMode == FUNC_ADJUST_GVAR_GVAR)
           fn.param = RawSource(SOURCE_TYPE_GVAR, value + 1).toValue();
         else
           fn.param = (int16_t)value;

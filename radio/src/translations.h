@@ -1096,6 +1096,7 @@ extern const char STR_COPY_TRIMS_TO_OFS[];
 extern const char STR_INCDEC[];
 extern const char STR_GLOBALVAR[];
 extern const char STR_MIXSOURCE[];
+extern const char STR_MIXSOURCERAW[];
 extern const char STR_CONSTANT[];
 extern const char STR_TOP_BAR[];
 extern const char STR_FLASH_ERASE[];

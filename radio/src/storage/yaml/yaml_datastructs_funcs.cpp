@@ -1470,7 +1470,7 @@ static const char* const _func_sound_lookup[] = {
 };
 
 static const char* const _adjust_gvar_mode_lookup[] = {
-  "Cst", "Src", "GVar", "IncDec"
+  "Cst", "Src", "SrcRaw", "GVar", "IncDec"
 };
 
 static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1657,6 +1657,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       CFN_PARAM(cfn) = yaml_str2int(val, l_sep);
       break;
     case FUNC_ADJUST_GVAR_SOURCE:
+    case FUNC_ADJUST_GVAR_SOURCERAW:
       CFN_PARAM(cfn) = r_mixSrcRawEx(nullptr, val, l_sep);
       break;
     case FUNC_ADJUST_GVAR_GVAR: {
@@ -1842,6 +1843,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, str, strlen(str))) return false;
       break;
     case FUNC_ADJUST_GVAR_SOURCE:
+    case FUNC_ADJUST_GVAR_SOURCERAW:
       if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
       break;
     case FUNC_ADJUST_GVAR_GVAR:

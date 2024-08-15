@@ -949,7 +949,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Копіювати трим до субтрим")
 #define TR_INCDEC                      "Збільш/Зменш"
 #define TR_GLOBALVAR                   "Глобальна змінна"
-#define TR_MIXSOURCE                   "Джерело мікшеру"
+#define TR_MIXSOURCE                   "Джерело (%)"
+#define TR_MIXSOURCERAW                "Джерело (Значення)"
 #define TR_CONSTANT                    "Постійна"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "OFF","ON","AUTO"
 #define TR_PREFLIGHT                   "Стартові перевірки"
