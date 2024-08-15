@@ -46,9 +46,11 @@ compile_and_append() {
 
   $CXX -std=c++11 -lstdc++ -Wfatal-errors -D${lng_macro} tools/cfn_sorter.cpp
   {
-    echo ""
-    echo "#${condition} defined(${translation_macro})"
-    echo ""
+    if [ "$condition" = "else" ]; then
+      echo "#${condition}"
+    else
+      echo "#${condition} defined(${translation_macro})"
+    fi
     ./a.out
   } >> radio/src/cfn_sort.cpp
 }
