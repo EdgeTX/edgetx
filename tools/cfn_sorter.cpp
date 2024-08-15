@@ -14,7 +14,7 @@
 
 #if defined(LNG_CN)
 #include "../radio/src/translations/cn.h"
-#define LOC "zh_CN"
+#define LOC "zh_CN.UTF-8"
 #elif defined(LNG_CZ)
 #include "../radio/src/translations/cz.h"
 #define LOC "cs_CZ.UTF-8"
