@@ -1470,7 +1470,7 @@ static const char* const _func_sound_lookup[] = {
 };
 
 static const char* const _adjust_gvar_mode_lookup[] = {
-  "Cst", "Src", "GVar", "IncDec"
+  "Cst", "Src", "SrcRaw", "GVar", "IncDec"
 };
 
 static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
