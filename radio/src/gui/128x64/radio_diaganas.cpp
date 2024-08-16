@@ -21,7 +21,6 @@
 
 #include "edgetx.h"
 #include "hal/adc_driver.h"
-#include "stm32_adc.h"
 
 #define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
 
@@ -87,7 +86,7 @@ void menuRadioDiagAnalogs(event_t event)
       x = INDENT_WIDTH;
       y += FH;
     }
-    if ((stm32_hal_get_inputs_mask() & 0xF) == 0xF && i < adcGetMaxInputs(ADC_INPUT_MAIN))
+    if (((adcGetInputMask() & (1 << i)) != 0) && i < adcGetMaxInputs(ADC_INPUT_MAIN))
       drawStringWithIndex(x, y, "D", i + 1);
     else
       drawStringWithIndex(x, y, "A", i + 1);
