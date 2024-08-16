@@ -127,7 +127,7 @@ void TextKeyboard::onLongPressPGDN() { deleteChar(); }
 #endif
 #endif
 
-void TextKeyboard::show(FormField* field)
+void TextKeyboard::open(FormField* field)
 {
   if (!_instance) _instance = new TextKeyboard();
 

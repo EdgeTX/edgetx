@@ -45,7 +45,7 @@ class TextKeyboard : public Keyboard
   std::string getName() const override { return "TextKeyboard"; }
 #endif
 
-  static void show(FormField* field);
+  static void open(FormField* field);
 
  protected:
 #if defined(HARDWARE_KEYS)

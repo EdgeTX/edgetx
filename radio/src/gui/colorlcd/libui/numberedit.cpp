@@ -158,7 +158,7 @@ class NumberArea : public FormField
     }
   }
 
-  void openKeyboard() { NumberKeyboard::show(this); }
+  void openKeyboard() { NumberKeyboard::open(this); }
   void directEdit() { FormField::onClicked(); }
 
   void update()

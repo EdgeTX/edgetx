@@ -57,7 +57,7 @@ class TextArea : public FormField
   }
 
   void openKeyboard() {
-    TextKeyboard::show(this);
+    TextKeyboard::open(this);
   }
 
   void setCancelHandler(std::function<void(void)> handler)
