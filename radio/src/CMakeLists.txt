@@ -57,12 +57,7 @@ option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
-
-if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
-  option(USBJ_EX "Enable USB Joystick Extension" OFF)
-else()
-  option(USBJ_EX "Enable USB Joystick Extension" ON)
-endif()
+option(USBJ_EX "Enable USB Joystick Extension" ON)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
