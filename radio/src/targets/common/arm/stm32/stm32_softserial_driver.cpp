@@ -196,7 +196,7 @@ void stm32_softserial_rx_timer_isr(const stm32_softserial_rx_port* port)
       rxByte >>= 1;
     }
 
-    if (!gpio_read(port->GPIO) == 0)
+    if (gpio_read(port->GPIO) == 0)
       rxByte |= 0x80;
 
     ++rxBitCount;
