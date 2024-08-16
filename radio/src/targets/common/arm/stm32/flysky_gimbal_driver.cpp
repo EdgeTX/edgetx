@@ -173,7 +173,7 @@ bool flysky_gimbal_init()
     delay_ms(1);
     if (_fs_gimbal_detected) {
       // Mask the first 4 inputs (sticks)
-      stm32_hal_mask_inputs(0xF);
+      stm32_hal_set_inputs_mask(0xF);
       return true;
     }
   }

@@ -25,6 +25,7 @@
 #include "libopenui.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "stm32_adc.h"
 
 // #if defined(IMU_LSM6DS33)
 // #include "imu_lsm6ds33.h"
@@ -84,8 +85,11 @@ class AnaViewWindow : public Window
 #endif
 
       lv_obj_set_style_pad_column(line->getLvObj(), 8, 0);
+      if ((stm32_hal_get_inputs_mask() & 0xF) == 0xF && i < adcGetMaxInputs(ADC_INPUT_MAIN))
+        sprintf(s, "D%d :", i + 1);
+      else
+        sprintf(s, "%02d :", i + 1);
 
-      sprintf(s, "%02d :", i + 1);
       new StaticText(line, rect_t{}, s);
 
       auto lbl = new DynamicText(
