@@ -58,21 +58,6 @@ ModelSetupPage::ModelSetupPage() :
 {
 }
 
-struct ModelNameEdit : public ModelTextEdit {
-  ModelNameEdit(Window *parent, const rect_t &rect) :
-      ModelTextEdit(parent, rect, g_model.header.name,
-                    sizeof(g_model.header.name))
-  {
-    setChangeHandler([=]() {
-                      auto model = modelslist.getCurrentModel();
-                      if (model) {
-                        model->setModelName(g_model.header.name);
-                      }
-                      SET_DIRTY();
-                    });
-  }
-};
-
 static void viewOption(Window* parent, coord_t x, coord_t y,
                 std::function<uint8_t()> getValue,
                 std::function<void(uint8_t)> setValue, bool globalState)
@@ -297,7 +282,15 @@ static SetupLineDef setupLines[] = {
     // Model name
     STR_MODELNAME,
     [](Window* parent, coord_t x, coord_t y) {
-      new ModelNameEdit(parent, {x, y, ModelSetupPage::NAM_W, 0});
+      new ModelTextEdit(parent, {x, y, ModelSetupPage::NAM_W, 0},
+                        g_model.header.name, sizeof(g_model.header.name),
+                        [=]() {
+                          auto model = modelslist.getCurrentModel();
+                          if (model) {
+                            model->setModelName(g_model.header.name);
+                          }
+                          SET_DIRTY();
+                        });
     }
   },
   {

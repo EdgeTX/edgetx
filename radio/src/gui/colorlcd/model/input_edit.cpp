@@ -36,9 +36,16 @@
 InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
     Page(ICON_MODEL_INPUTS), input(input), index(index)
 {
-  std::string title2(getSourceString(MIXSRC_FIRST_INPUT + input));
   header->setTitle(STR_MENUINPUTS);
-  header->setTitle2(title2);
+  headerSwitchName = header->setTitle2("");
+
+  etx_txt_color(headerSwitchName->getLvObj(), COLOR_THEME_ACTIVE_INDEX,
+                LV_STATE_USER_1);
+  etx_font(headerSwitchName->getLvObj(), FONT_BOLD_INDEX, LV_STATE_USER_1);
+
+  active = !isActive();
+
+  setTitle();
 
   auto body_obj = body->getLvObj();
 #if PORTRAIT_LCD  // portrait
@@ -75,6 +82,17 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
   CurveEdit::SetCurrentSource(expoAddress(index)->srcRaw);
 }
 
+bool InputEditWindow::isActive()
+{
+  ExpoData* input = expoAddress(index);
+  return getSwitch(input->swtch);
+}
+
+void InputEditWindow::setTitle()
+{
+  headerSwitchName->setText(getSourceString(MIXSRC_FIRST_INPUT + input));
+}
+
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -88,9 +106,12 @@ void InputEditWindow::buildBody(Window* form)
 
   // Input Name
   auto line = form->newLine(grid);
-  auto inputName = g_model.inputNames[input->chn];
   new StaticText(line, rect_t{}, STR_INPUTNAME);
-  new ModelTextEdit(line, rect_t{}, inputName, LEN_INPUT_NAME);
+  new ModelTextEdit(line, rect_t{}, g_model.inputNames[input->chn],
+                    LEN_INPUT_NAME,
+                    [=]() {
+                      setTitle();
+                    });
 
   // Line Name
   line = form->newLine(grid);
@@ -110,7 +131,7 @@ void InputEditWindow::buildBody(Window* form)
       new SourceNumberEdit(line, -100, 100, GET_DEFAULT(input->weight),
                            [=](int32_t newValue) {
                              input->weight = newValue;
-                             preview->update();
+                             updatePreview = true;
                              SET_DIRTY();
                            }, MIXSRC_FIRST);
   gvar->setSuffix("%");
@@ -121,7 +142,7 @@ void InputEditWindow::buildBody(Window* form)
   gvar = new SourceNumberEdit(line, -100, 100,
                               GET_DEFAULT(input->offset), [=](int32_t newValue) {
                                 input->offset = newValue;
-                                preview->update();
+                                updatePreview = true;
                                 SET_DIRTY();
                               }, MIXSRC_FIRST);
   gvar->setSuffix("%");
@@ -130,7 +151,12 @@ void InputEditWindow::buildBody(Window* form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SWITCH);
   new SwitchChoice(line, rect_t{}, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES,
-                   GET_SET_DEFAULT(input->swtch));
+                   GET_DEFAULT(input->swtch),
+                   [=](int newValue) {
+                     input->swtch = newValue;
+                     updatePreview = true;
+                     SET_DIRTY();
+                   });
 
   // Curve
   line = form->newLine(grid);
@@ -139,13 +165,11 @@ void InputEditWindow::buildBody(Window* form)
       new CurveParam(line, rect_t{}, &input->curve,
         [=](int32_t newValue) {
           input->curve.value = newValue;
-          if (preview)
-            preview->update();
+          updatePreview = true;
           SET_DIRTY();
         }, MIXSRC_FIRST,
         [=]() {
-          if (preview)
-            preview->update();
+          updatePreview = true;
         });
   lv_obj_set_style_grid_cell_x_align(param->getLvObj(), LV_GRID_ALIGN_STRETCH,
                                      0);
@@ -172,7 +196,6 @@ void InputEditWindow::checkEvents()
 {
   ExpoData* input = expoAddress(index);
 
-  bool updatePreview = false;
   getvalue_t val;
   SourceNumVal v;
 
@@ -203,8 +226,26 @@ void InputEditWindow::checkEvents()
     }
   }
 
-  if (updatePreview)
-    preview->update();
+  bool sw = getSwitch(input->swtch);
+  if (sw != lastSwitchState) {
+    updatePreview = true;
+    lastSwitchState = sw;
+  }
+
+  if (updatePreview) {
+    updatePreview = false;
+    if (preview) preview->update();
+  }
+
+  bool act = isActive();
+  if (active != act) {
+    active = act;
+    if (active) {
+      lv_obj_add_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
+    } else {
+      lv_obj_clear_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
+    }
+  }
 
   Page::checkEvents();
 }
