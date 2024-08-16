@@ -30,7 +30,7 @@ class NumberKeyboard : public Keyboard
   std::string getName() const override { return "NumberKeyboard"; }
 #endif
 
-  static void show(FormField* field);
+  static void open(FormField* field);
 
   void handleEvent(const char* btn);
 
