@@ -1130,17 +1130,7 @@ int cliSerialPassthrough(const char **argv)
     return -1;
   }
 
-  // 3rd argument (baudrate is optional)
   int baudrate = 0;
-  if (toInt(argv, 3, &baudrate) <= 0) {
-    // use current baudrate
-    baudrate = cliGetBaudRate();
-    if (!baudrate) {
-      baudrate = 115200;
-      cliSerialPrint("%s: baudrate is 0, default to 115200", argv[0]);
-    }
-  }
-
   void (*initCB)(int, int) = nullptr;
   void (*deinitCB)(int) = nullptr;
 
@@ -1150,6 +1140,10 @@ int cliSerialPassthrough(const char **argv)
     if (toInt(argv, 2, &port_n) <= 0) {
       cliSerialPrint("%s: invalid or missing port number", argv[0]);
       return -1;
+    }
+    // 3rd argument (baudrate is optional)
+    if (toInt(argv, 3, &baudrate) <= 0) {
+      baudrate = 0;
     }
 
     switch(port_n) {
@@ -1167,6 +1161,11 @@ int cliSerialPassthrough(const char **argv)
     }
   } else if (!strcmp("gimbals", port_type)) {
 #if defined(FLYSKY_GIMBAL)
+    // 2nd argument (baudrate is optional)
+    if (toInt(argv, 2, &baudrate) <= 0) {
+      baudrate = 0;
+    }
+
     initCB = spGimbalInit;
     deinitCB = spGimbalDeInit;
 #else
@@ -1184,6 +1183,15 @@ int cliSerialPassthrough(const char **argv)
 
   // suspend RTOS scheduler
   vTaskSuspendAll();
+
+  if (baudrate <= 0) {
+    // use current baudrate
+    baudrate = cliGetBaudRate();
+    if (!baudrate) {
+      baudrate = 115200;
+      cliSerialPrint("%s: baudrate is 0, default to 115200", argv[0]);
+    }
+  }
 
   if (initCB) initCB(port_n, baudrate);
 
