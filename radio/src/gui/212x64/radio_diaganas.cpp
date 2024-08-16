@@ -60,8 +60,9 @@ void menuRadioDiagAnalogs(event_t event)
       lcdDrawText(x, y, "D");
       lcdDrawNumber(lcdNextPos, y, i + 1);
     }
-    else
-      lcdDrawNumber(x, y, i+1, LEADING0|LEFT, 2);
+    else {
+      lcdDrawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
+    }
     lcdDrawChar(x+2*FW-2, y, ':');
     
     switch (viewpage)
