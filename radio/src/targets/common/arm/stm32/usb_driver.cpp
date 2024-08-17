@@ -23,6 +23,8 @@
 #include "usb_joystick.h"
 #else
 #include "edgetx_helpers.h"
+#include "dataconstants.h"
+#include "globals.h"
 #endif
 
 extern "C" {
@@ -203,14 +205,7 @@ void usbJoystickRestart()
   USBD_RegisterClass(&hUsbDevice, &USBD_HID);
   USBD_Start(&hUsbDevice);
 }
-#else
-// TODO: fix after HAL conversion is complete
-#warning channelOutputs should come from "globals.h"
-
-#define MAX_OUTPUT_CHANNELS 32
-extern int16_t channelOutputs[MAX_OUTPUT_CHANNELS];
 #endif
-
 
 
 /*

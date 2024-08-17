@@ -51,12 +51,9 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
 #endif
 
   bool isSource = false;
-  bool origIsSource = false;
   if (i_flags & INCDEC_SOURCE_VALUE) {
     SourceNumVal v;
     v.rawValue = val;
-    // Save isSource flag;
-    origIsSource = isSource = v.isSource;
     // Remove isSource flag;
     val = v.value;
     newval = v.value;
