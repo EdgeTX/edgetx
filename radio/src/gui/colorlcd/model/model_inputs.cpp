@@ -151,7 +151,7 @@ class InputLineButton : public InputMixButtonBase
       }
     }
 
-    setOpts(s);
+    setOpts(tmp_str);
 
     setFlightModes(line.flightModes);
   }

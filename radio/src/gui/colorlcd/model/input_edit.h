@@ -43,14 +43,12 @@ class InputEditWindow : public Page
   getvalue_t lastWeightVal = 0;
   getvalue_t lastOffsetVal = 0;
   getvalue_t lastCurveVal = 0;
-  bool lastSwitchState = false;
-  bool active = false;
+  uint8_t lastActiveIndex = 255;
   StaticText * headerSwitchName = nullptr;
 
   void setTitle();
   void buildBody(Window *window);
 
-  bool isActive();
   void checkEvents() override;
   void deleteLater(bool detach = true, bool trash = true) override;
 };
