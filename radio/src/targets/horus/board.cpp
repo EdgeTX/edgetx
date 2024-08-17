@@ -89,7 +89,7 @@ void boardInit()
                          LCD_RCC_APB2Periph |
                          HAPTIC_RCC_APB2Periph |
                          TELEMETRY_RCC_APB2Periph |
-                         BT_RCC_APB2Periph | BT_RCC_APB2Periph |
+                         BT_RCC_APB1Periph | BT_RCC_APB2Periph |
                          BACKLIGHT_RCC_APB2Periph,
                          ENABLE);
 
