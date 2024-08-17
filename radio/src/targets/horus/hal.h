@@ -1240,21 +1240,31 @@
 // Bluetooth
 #define STORAGE_BLUETOOTH
 #if defined(BLUETOOTH)
-#define BT_RCC_APB2Periph               RCC_APB2Periph_USART6
-#define BT_USART                        USART6
-#define BT_GPIO_AF                      LL_GPIO_AF_8
-#define BT_USART_IRQn                   USART6_IRQn
-#define BT_USART_GPIO                   GPIOG
-#define BT_TX_GPIO_PIN                  LL_GPIO_PIN_14 // PG.14
-#define BT_RX_GPIO_PIN                  LL_GPIO_PIN_9  // PG.09
-#define BT_USART_IRQHandler             USART6_IRQHandler
-#if defined(RADIO_TX16S)
-  #define BT_PWR_GPIO                   GPIOB
-  #define BT_PWR_GPIO_PIN               LL_GPIO_PIN_0 // PB.00
-#endif
+  #if defined(RADIO_T15)
+    #define BT_RCC_APB2Periph             RCC_APB2Periph_USART6
+    #define BT_USART                      USART3
+    #define BT_USART_IRQn                 USART3_IRQn
+    #define BT_USART_GPIO                 GPIOB
+    #define BT_TX_GPIO_PIN                LL_GPIO_PIN_10 // PB.10
+    #define BT_RX_GPIO_PIN                LL_GPIO_PIN_11 // PB.11
+  #else
+    #define BT_RCC_APB2Periph               RCC_APB2Periph_USART6
+    #define BT_USART                        USART6
+    #define BT_GPIO_AF                      LL_GPIO_AF_8
+    #define BT_USART_IRQn                   USART6_IRQn
+    #define BT_USART_GPIO                   GPIOG
+    #define BT_TX_GPIO_PIN                  LL_GPIO_PIN_14 // PG.14
+    #define BT_RX_GPIO_PIN                  LL_GPIO_PIN_9  // PG.09
+    #define BT_USART_IRQHandler             USART6_IRQHandler
+    #if defined(RADIO_TX16S)
+      #define BT_PWR_GPIO                   GPIOB
+      #define BT_PWR_GPIO_PIN               LL_GPIO_PIN_0 // PB.00
+    #endif
+  #endif
 #else
-#define BT_RCC_APB2Periph               0
+  #define BT_RCC_APB2Periph               0
 #endif
+
 #if defined(PCBX12S)
   #if PCBREV >= 13
     #define BT_RCC_AHB1Periph           (RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOG)
@@ -1271,8 +1281,10 @@
   // #define BT_BCTS_GPIO_PIN              GPIO_Pin_11 // PG.11
 #elif defined(PCBX10)
   #define BT_RCC_AHB1Periph             RCC_AHB1Periph_GPIOG
-  #define BT_EN_GPIO                    GPIOG
-  #define BT_EN_GPIO_PIN                LL_GPIO_PIN_10 // PG.10
+  #if !defined(RADIO_T15)
+    #define BT_EN_GPIO                    GPIOG
+    #define BT_EN_GPIO_PIN                LL_GPIO_PIN_10 // PG.10
+  #endif
 #endif
 
 // Video switch
