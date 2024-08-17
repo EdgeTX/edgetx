@@ -419,6 +419,25 @@ void OpenTxSimulator::sendTelemetry(const uint8_t module, const uint8_t protocol
                         (uint8_t *)data.constData(),
                         data.count());
     break;
+  case SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB:
+    // FrSky D telemetry is a stream which can span multiple
+    // packets. The telemetry parser _could_ be in the middle of a
+    // user packet when we want to inject telemetry, so we can't just
+    // call frskyDProcessPacket() with a USRPKT (at least not safely!)
+    // Instead we will bypass the telemetry stream parser and inject
+    // out of band into processHubPacket(). This way we also don't
+    // have to mess with byte stuffing and variable length packets.
+    //
+    // Note this doesn't take into account which module it's from, but
+    // that's how it works in the radio too if you have two frsky D
+    // modules running at once, so ¯\_(ツ)_/¯
+    {
+      uint8_t id = data[0];
+      uint16_t value = ((uint8_t)(data[2]) << 8) + (uint8_t)(data[1]);
+
+      processHubPacket(id, value);
+    }
+    break;
   case SIMU_TELEMETRY_PROTOCOL_CROSSFIRE:
     processCrossfireTelemetryFrame(module,
                                    (uint8_t *)data.constData(),
