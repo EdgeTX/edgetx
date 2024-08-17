@@ -157,7 +157,9 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
   }
 #endif
 
+#if defined(VIDEO_SWITCH)
   bool videoEnabled = false;
+#endif
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
     const CustomFunctionData * cfn = &functions[i];
     swsrc_t swtch = CFN_SWITCH(cfn);
