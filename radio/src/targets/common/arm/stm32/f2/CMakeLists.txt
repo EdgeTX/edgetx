@@ -1,6 +1,6 @@
 set(CPU_FAMILY STM32)
 set(MCU cortex-m3)
-set(FPU_FLAGS "")
+set(FPU_FLAGS "-mfloat-abi=soft")
 
 if(NOT NATIVE_BUILD)
 
