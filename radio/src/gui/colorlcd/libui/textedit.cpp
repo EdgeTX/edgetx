@@ -178,15 +178,18 @@ void TextEdit::preview(bool edited, char* text, uint8_t length)
 }
 
 ModelTextEdit::ModelTextEdit(Window* parent, const rect_t& rect, char* value,
-                             uint8_t length) :
+                             uint8_t length, std::function<void(void)> updateHandler) :
     TextEdit(parent, rect, value, length,
-                   []() { storageDirty(EE_MODEL); })
+             [=]() {
+               if (updateHandler) updateHandler();
+               storageDirty(EE_MODEL);
+             })
 {
 }
 
 RadioTextEdit::RadioTextEdit(Window* parent, const rect_t& rect, char* value,
                              uint8_t length) :
     TextEdit(parent, rect, value, length,
-                   []() { storageDirty(EE_GENERAL); })
+             []() { storageDirty(EE_GENERAL); })
 {
 }
