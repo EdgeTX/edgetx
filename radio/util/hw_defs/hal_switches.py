@@ -5,12 +5,14 @@ class Switch:
     TYPE_2POS = "2POS"
     TYPE_3POS = "3POS"
     TYPE_ADC = "ADC"
-    TYPE_CUSTOM = "CUSTOM"
 
     def __init__(self, name, sw_type, flags):
         self.name = name
         self.type = sw_type
         self.flags = flags
+        self.inverted = False
+        self.default = None
+        self.display = []
 
 
 class Switch2POS(Switch):
@@ -36,8 +38,8 @@ class SwitchADC(Switch):
 
 
 class SwitchCustom(Switch):
-    def __init__(self, name, flags=0):
-        super(SwitchCustom, self).__init__(name, Switch.TYPE_CUSTOM, flags)
+    def __init__(self, name, type, flags=0):
+        super(SwitchCustom, self).__init__(name, type, flags)
 
 
 def AZ_seq():
@@ -48,6 +50,14 @@ def eprint(*args, **kwargs):
     from sys import stderr
 
     print(*args, file=stderr, **kwargs)
+
+
+def prefixsearch(dictionary, prefix):
+    for k in dictionary.keys():
+        if k.startswith(prefix):
+            return k[len(prefix) :]
+
+    return None
 
 
 # switches from A to Z
@@ -74,7 +84,7 @@ def parse_switches(target, hw_defs, adc_parser):
         inverted = f"SWITCHES_{s}_INVERTED"
 
         adc_input_name = f"SW{s}"
-        custom = f"SWITCHES_{s}"
+        custom = f"SWITCHES_{s}_"
 
         switch = None
         if reg in hw_defs:
@@ -92,8 +102,10 @@ def parse_switches(target, hw_defs, adc_parser):
         elif adc_parser.find_input(adc_input_name):
             # ADC switch
             switch = SwitchADC(name, adc_input_name)
-        elif custom in hw_defs:
-            switch = SwitchCustom(name)
+        else:
+            type = prefixsearch(hw_defs, custom)
+            if type is not None:
+                switch = SwitchCustom(name, type)
 
         if switch:
             if inverted in hw_defs:
@@ -115,7 +127,7 @@ def parse_switches(target, hw_defs, adc_parser):
                 switch.type = "FSWITCH"
                 switch.name = f"SW{i}"
             else:
-                switch = SwitchCustom(f"SW{i}")
+                switch = SwitchCustom(f"SW{i}", Switch.TYPE_2POS)
                 switch.type = "FSWITCH"
                 switches.append(switch)
 
