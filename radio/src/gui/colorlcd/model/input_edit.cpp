@@ -43,8 +43,6 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
                 LV_STATE_USER_1);
   etx_font(headerSwitchName->getLvObj(), FONT_BOLD_INDEX, LV_STATE_USER_1);
 
-  active = !isActive();
-
   setTitle();
 
   auto body_obj = body->getLvObj();
@@ -80,12 +78,6 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
 
   CurveEdit::SetCurrentSource(expoAddress(index)->srcRaw);
-}
-
-bool InputEditWindow::isActive()
-{
-  ExpoData* input = expoAddress(index);
-  return getSwitch(input->swtch);
 }
 
 void InputEditWindow::setTitle()
@@ -226,25 +218,30 @@ void InputEditWindow::checkEvents()
     }
   }
 
-  bool sw = getSwitch(input->swtch);
-  if (sw != lastSwitchState) {
+  uint8_t activeIdx = 255;
+  for (int i = 0; i < MAX_EXPOS; i += 1) {
+    auto inp = expoAddress(i);
+    if (inp->chn == input->chn) {
+      if (getSwitch(inp->swtch)) {
+        activeIdx = i;
+        break;
+      }
+    }
+  }
+  if (activeIdx != lastActiveIndex) {
     updatePreview = true;
-    lastSwitchState = sw;
+    lastActiveIndex = activeIdx;
+  }
+
+  if (lastActiveIndex == index) {
+    lv_obj_add_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
+  } else {
+    lv_obj_clear_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
   }
 
   if (updatePreview) {
     updatePreview = false;
     if (preview) preview->update();
-  }
-
-  bool act = isActive();
-  if (active != act) {
-    active = act;
-    if (active) {
-      lv_obj_add_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
-    } else {
-      lv_obj_clear_state(headerSwitchName->getLvObj(), LV_STATE_USER_1);
-    }
   }
 
   Page::checkEvents();
