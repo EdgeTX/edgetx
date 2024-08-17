@@ -1051,22 +1051,22 @@
 // Bluetooth
 #define STORAGE_BLUETOOTH
 #if defined(BLUETOOTH)
-#if defined(RADIO_T15)
-  #define BT_USART                      USART3
-  #define BT_USART_IRQn                 USART3_IRQn
-  #define BT_USART_GPIO                 GPIOB
-  #define BT_TX_GPIO                    GPIO_PIN(GPIOB, 10) // PB.10
-  #define BT_RX_GPIO                    GPIO_PIN(GPIOB, 11) // PB.11
-#else
-  #define BT_USART                      USART6
-  #define BT_USART_IRQn                 USART6_IRQn
-  #define BT_USART_GPIO                 GPIOG
-  #define BT_TX_GPIO                    GPIO_PIN(GPIOG, 14) // PG.14
-  #define BT_RX_GPIO                    GPIO_PIN(GPIOG, 9)  // PG.09
-#if defined(RADIO_TX16S)
-  #define BT_PWR_GPIO                   GPIO_PIN(GPIOB, 0) // PB.00
-#endif
-#endif
+  #if defined(RADIO_T15)
+    #define BT_USART                      USART3
+    #define BT_USART_IRQn                 USART3_IRQn
+    #define BT_USART_GPIO                 GPIOB
+    #define BT_TX_GPIO                    GPIO_PIN(GPIOB, 10) // PB.10
+    #define BT_RX_GPIO                    GPIO_PIN(GPIOB, 11) // PB.11
+  #else
+    #define BT_USART                      USART6
+    #define BT_USART_IRQn                 USART6_IRQn
+    #define BT_USART_GPIO                 GPIOG
+    #define BT_TX_GPIO                    GPIO_PIN(GPIOG, 14) // PG.14
+    #define BT_RX_GPIO                    GPIO_PIN(GPIOG, 9)  // PG.09
+    #if defined(RADIO_TX16S)
+      #define BT_PWR_GPIO                 GPIO_PIN(GPIOB, 0) // PB.00
+    #endif
+  #endif
 #endif
 
 #if defined(PCBX12S)
