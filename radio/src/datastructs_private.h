@@ -65,7 +65,7 @@
 PACK(union SourceNumVal {
   struct {
     int16_t value:10;
-    bool isSource:1;
+    int16_t isSource:1;
   };
   uint16_t rawValue:11;
 });
@@ -74,7 +74,7 @@ inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
 {
   SourceNumVal v;
   v.value = val;
-  v.isSource= isSource;
+  v.isSource = isSource;
   return v.rawValue;
 }
 
