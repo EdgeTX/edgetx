@@ -308,6 +308,8 @@ Draw text inside rectangle (x,y,w,h) with line breaks
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html) for drawing flags and colors, and [Appendix](../../part_vii_-_appendix/fonts.md) for available characters in each font set. RIGHT, CENTER and VCENTER are not implemented.
 
+@retval x,y (integers) point where text drawing ended
+
 @status current Introduced in 2.5.0
 */
 static int luaLcdDrawTextLines(lua_State *L)
@@ -319,6 +321,7 @@ static int luaLcdDrawTextLines(lua_State *L)
   int y = luaL_checkinteger(L, 2);
   int w = luaL_checkinteger(L, 3);
   int h = luaL_checkinteger(L, 4);
+  point_t maxP = {0,0};
   const char * s = luaL_checkstring(L, 5);
   LcdFlags flags = luaL_optunsigned(L, 6, 0);
   
@@ -347,8 +350,14 @@ static int luaLcdDrawTextLines(lua_State *L)
     flags = (flags & 0xFFFF) | colorToRGB(flags);
   }
   
-  luaLcdBuffer->drawTextLines(x, y, w, h, s, flags);
-  return 0;
+  maxP = luaLcdBuffer->drawTextLines(x, y, w, h, s, flags);
+  if (!invers && flags & SHADOWED) {
+    maxP.x++;
+    maxP.y++;
+  }
+  lua_pushinteger(L, maxP.x);
+  lua_pushinteger(L, maxP.y);
+  return 2;
 }
 
 /*luadoc
