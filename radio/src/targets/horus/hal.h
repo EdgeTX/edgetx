@@ -1241,13 +1241,16 @@
 #define STORAGE_BLUETOOTH
 #if defined(BLUETOOTH)
   #if defined(RADIO_T15)
-    #define BT_RCC_APB2Periph             RCC_APB2Periph_USART6
-    #define BT_USART                      USART3
-    #define BT_USART_IRQn                 USART3_IRQn
-    #define BT_USART_GPIO                 GPIOB
-    #define BT_TX_GPIO_PIN                LL_GPIO_PIN_10 // PB.10
-    #define BT_RX_GPIO_PIN                LL_GPIO_PIN_11 // PB.11
+    #define BT_RCC_APB1Periph               RCC_APB1Periph_USART3
+    #define BT_RCC_APB2Periph               0
+    #define BT_USART                        USART3
+    #define BT_USART_IRQn                   USART3_IRQn
+    #define BT_USART_GPIO                   GPIOB
+    #define BT_TX_GPIO_PIN                  LL_GPIO_PIN_10 // PB.10
+    #define BT_RX_GPIO_PIN                  LL_GPIO_PIN_11 // PB.11
+    #define BT_USART_IRQHandler             USART3_IRQHandler
   #else
+    #define BT_RCC_APB1Periph               0
     #define BT_RCC_APB2Periph               RCC_APB2Periph_USART6
     #define BT_USART                        USART6
     #define BT_GPIO_AF                      LL_GPIO_AF_8
@@ -1262,6 +1265,7 @@
     #endif
   #endif
 #else
+  #define BT_RCC_APB1Periph               0
   #define BT_RCC_APB2Periph               0
 #endif
 
