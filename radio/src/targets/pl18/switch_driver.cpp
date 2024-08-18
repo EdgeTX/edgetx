@@ -24,7 +24,7 @@
 //#include "stm32_gpio_driver.h"
 
 #include "definitions.h"
-#include "opentx_constants.h"
+#include "edgetx_constants.h"
 #include "myeeprom.h"
 #include "hal/adc_driver.h"
 
