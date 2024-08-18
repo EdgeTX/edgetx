@@ -1132,7 +1132,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
               if (sid.background == LUA_NOREF) continue;
               lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
             }
-          }
+          } else continue;
         }
 #if defined(PCBTARANIS)
         else if (ref <= SCRIPT_TELEMETRY_LAST) {
