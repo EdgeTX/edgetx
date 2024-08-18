@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -222,8 +223,6 @@ CurveRefFilteredFactory::CurveRefFilteredFactory(CompoundItemModelFactory * shar
 
   registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_Curve), curveFlags),
                                           fidToString(CRFIM_CURVE), CRFIM_CURVE);
-  registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef), gvarRefFlags),
-                                          fidToString(CRFIM_GVARREF), CRFIM_GVARREF);
   registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_CurveRefType)),
                                           fidToString(CRFIM_TYPE), CRFIM_TYPE);
   registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_CurveRefFunc)),

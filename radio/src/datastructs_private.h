@@ -26,7 +26,7 @@
 #include "board.h"
 #include "dataconstants.h"
 #include "definitions.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "globals.h"
 #include "serial.h"
 #include "usb_joystick.h"
@@ -62,26 +62,44 @@
 
 #include "storage/yaml/yaml_defs.h"
 
+PACK(union SourceNumVal {
+  struct {
+    int16_t value:10;
+    uint16_t isSource:1;
+  };
+  uint16_t rawValue:11;
+});
+
+inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
+{
+  SourceNumVal v;
+  v.value = val;
+  v.isSource = isSource;
+  return v.rawValue;
+}
+
 /*
  * Mixer structure
  */
 
 PACK(struct CurveRef {
-  uint8_t type;
-  int8_t  value CUST(in_read_weight,in_write_weight);
+  uint16_t type:5;
+  int16_t  value:11 CUST(r_sourceNumVal,w_sourceNumVal);
 });
 
 PACK(struct MixData {
-  int16_t  weight:11 CUST(in_read_weight,in_write_weight);       // GV1=-1024, -GV1=1023
   uint16_t destCh:5;
   int16_t  srcRaw:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx); // srcRaw=0 means not used
   uint16_t carryTrim:1;
   uint16_t mixWarn:2;       // mixer warning
   uint16_t mltpx:2 ENUM(MixerMultiplex);
+  uint16_t delayPrec:1;
   uint16_t speedPrec:1;
-  int32_t  offset:13 CUST(in_read_weight,in_write_weight);
+  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
+  uint16_t spare:1 SKIP;
+  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
   int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   CurveRef curve;
   uint8_t  delayUp;
   uint8_t  delayDown;
@@ -100,13 +118,14 @@ PACK(struct ExpoData {
   CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
   int16_t  trimSource:6;
   int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
-  uint32_t chn:5;
+  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
   int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  int32_t  weight:8 CUST(in_read_weight,in_write_weight);
-  NOBACKUP(char name[LEN_EXPOMIX_NAME]);
-  int8_t   offset CUST(in_read_weight,in_write_weight);
   CurveRef curve;
+  uint16_t chn:5;
+  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
+  uint16_t spare:2 SKIP;
+  NOBACKUP(char name[LEN_EXPOMIX_NAME]);
 });
 
 /*
@@ -568,8 +587,8 @@ static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
 #if defined(COLORLCD) && defined(BACKUP)
 #define CUSTOM_SCREENS_DATA
 #elif defined(COLORLCD)
-#include "gui/colorlcd/layout.h"
-#include "gui/colorlcd/topbar.h"
+#include "layout.h"
+#include "topbar.h"
 #define LAYOUT_ID_LEN 12
 PACK(struct CustomScreenData {
   char LayoutId[LAYOUT_ID_LEN];
@@ -578,6 +597,7 @@ PACK(struct CustomScreenData {
 #define CUSTOM_SCREENS_DATA \
   NOBACKUP(CustomScreenData screenData[MAX_CUSTOM_SCREENS]); \
   NOBACKUP(TopBarPersistentData topbarData); \
+  NOBACKUP(uint8_t topbarWidgetWidth[MAX_TOPBAR_ZONES]); \
   NOBACKUP(uint8_t view);
 #else
 #define CUSTOM_SCREENS_DATA \

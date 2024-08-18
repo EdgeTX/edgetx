@@ -20,11 +20,11 @@
  */
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
-#include "libopenui/src/libopenui_file.h"
+#include "lib_file.h"
 #include "hal/storage.h"
 
 #define NODE_TYPE(fname)       fname[SD_SCREEN_FILE_LENGTH+1]
@@ -306,7 +306,7 @@ void menuRadioSdManager(event_t _event)
 
 #if defined(KEYS_GPIO_REG_MENU)
     case EVT_KEY_LONG(KEY_MENU):
-      if (SD_CARD_PRESENT() && !READ_ONLY() && s_editMode == 0) {
+      if (SD_CARD_PRESENT() && s_editMode == 0) {
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);
         POPUP_MENU_START(onSdManagerMenu);
       }
@@ -360,7 +360,7 @@ void menuRadioSdManager(event_t _event)
           }
 #if LCD_DEPTH > 1
           else if (isExtensionMatching(ext, BITMAPS_EXT)) {
-            if (!READ_ONLY() && (ext-line) <= LEN_BITMAP_NAME) {
+            if ((ext-line) <= LEN_BITMAP_NAME) {
               POPUP_MENU_ADD_ITEM(STR_ASSIGN_BITMAP);
             }
           }
@@ -371,7 +371,7 @@ void menuRadioSdManager(event_t _event)
           }
 #endif
 #if defined(MULTIMODULE) && !defined(DISABLE_MULTI_UPDATE)
-          if (!READ_ONLY() && !strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
+          if (!strcasecmp(ext, MULTI_FIRMWARE_EXT)) {
             MultiFirmwareInformation information;
             if (information.readMultiFirmwareInformation(line) == nullptr) {
 #if defined(INTERNAL_MODULE_MULTI)
@@ -381,19 +381,19 @@ void menuRadioSdManager(event_t _event)
             }
           }
 
-          if (!READ_ONLY() && !strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
+          if (!strcasecmp(ext, ELRS_FIRMWARE_EXT)) {
             TCHAR lfn[FF_MAX_LFN + 1];
             getSelectionFullPath(lfn);
             POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_ELRS);
           }
 #endif
 #if defined(PCBTARANIS)
-          if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
+          if (!strcasecmp(ext, FIRMWARE_EXT)) {
             if (isBootloader(lfn)) {
               POPUP_MENU_ADD_ITEM(STR_FLASH_BOOTLOADER);
             }
           }
-          else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
+          else if (!strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
             auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
             if (mod_desc && mod_desc->set_pwr)
               POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_DEVICE);
@@ -404,7 +404,7 @@ void menuRadioSdManager(event_t _event)
 
             POPUP_MENU_ADD_ITEM(STR_FLASH_EXTERNAL_MODULE);
           }
-          else if (!READ_ONLY() && !strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
+          else if (!strcasecmp(ext, FRSKY_FIRMWARE_EXT)) {
             FrSkyFirmwareInformation information;
             if (readFrSkyFirmwareInformation(line, information) == nullptr) {
 
@@ -448,15 +448,13 @@ void menuRadioSdManager(event_t _event)
             POPUP_MENU_ADD_ITEM(STR_VIEW_TEXT);
           }
         }
-        if (!READ_ONLY()) {
-          if (IS_FILE(line))
-            POPUP_MENU_ADD_ITEM(STR_COPY_FILE);
-          if (clipboard.type == CLIPBOARD_TYPE_SD_FILE)
-            POPUP_MENU_ADD_ITEM(STR_PASTE);
-          POPUP_MENU_ADD_ITEM(STR_RENAME_FILE);
-          if (IS_FILE(line))
-            POPUP_MENU_ADD_ITEM(STR_DELETE_FILE);
-        }
+        if (IS_FILE(line))
+          POPUP_MENU_ADD_ITEM(STR_COPY_FILE);
+        if (clipboard.type == CLIPBOARD_TYPE_SD_FILE)
+          POPUP_MENU_ADD_ITEM(STR_PASTE);
+        POPUP_MENU_ADD_ITEM(STR_RENAME_FILE);
+        if (IS_FILE(line))
+          POPUP_MENU_ADD_ITEM(STR_DELETE_FILE);
         POPUP_MENU_START(onSdManagerMenu);
       }
       break;

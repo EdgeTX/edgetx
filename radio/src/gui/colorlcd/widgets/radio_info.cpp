@@ -20,8 +20,8 @@
  */
 
 #include "hal/usb_driver.h"
-#include "opentx.h"
-#include "theme.h"
+#include "edgetx.h"
+#include "theme_manager.h"
 #include "widget.h"
 #include "widgets_container_impl.h"
 
@@ -44,24 +44,24 @@ class RadioInfoWidget : public TopBarWidget
   {
     // Logs
     logsIcon = new StaticIcon(this, W_LOG_X, W_LOG_Y, ICON_DOT,
-                              COLOR_THEME_PRIMARY2);
+                              COLOR_THEME_PRIMARY2_INDEX);
     logsIcon->hide();
 
     usbIcon =
         new StaticIcon(this, W_USB_X, W_USB_Y, ICON_TOPMENU_USB,
-                       COLOR_THEME_PRIMARY2);
+                       COLOR_THEME_PRIMARY2_INDEX);
     usbIcon->hide();
 
 #if defined(AUDIO)
     audioScale = new StaticIcon(this, W_AUDIO_SCALE_X, 2,
                                 ICON_TOPMENU_VOLUME_SCALE,
-                                COLOR_THEME_PRIMARY3);
+                                COLOR_THEME_PRIMARY3_INDEX);
 
     for (int i = 0; i < 5; i += 1) {
       audioVol[i] = new StaticIcon(
           this, W_AUDIO_X, 2,
          (EdgeTxIcon)(ICON_TOPMENU_VOLUME_0 + i),
-          COLOR_THEME_PRIMARY2);
+          COLOR_THEME_PRIMARY2_INDEX);
       audioVol[i]->hide();
     }
     audioVol[0]->show();
@@ -69,18 +69,18 @@ class RadioInfoWidget : public TopBarWidget
 
     batteryIcon = new StaticIcon(this, W_AUDIO_X, W_BATT_Y,
                                  ICON_TOPMENU_TXBATT,
-                                 COLOR_THEME_PRIMARY2);
+                                 COLOR_THEME_PRIMARY2_INDEX);
 #if defined(USB_CHARGER)
     batteryChargeIcon = new StaticIcon(
         this, W_BATT_CHG_X, W_BATT_CHG_Y,
-        ICON_TOPMENU_TXBATT_CHARGE, COLOR_THEME_PRIMARY2);
+        ICON_TOPMENU_TXBATT_CHARGE, COLOR_THEME_PRIMARY2_INDEX);
     batteryChargeIcon->hide();
 #endif
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
     extAntenna = new StaticIcon(this, W_RSSI_X - 4, 1,
                                 ICON_TOPMENU_ANTENNA,
-                                COLOR_THEME_PRIMARY2);
+                                COLOR_THEME_PRIMARY2_INDEX);
     extAntenna->hide();
 #endif
 
@@ -107,17 +107,10 @@ class RadioInfoWidget : public TopBarWidget
 
   void update() override
   {
-    lv_color_t color;
-
     // get colors from options
-    color.full = persistentData->options[2].value.unsignedValue;
-    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN);
-
-    color.full = persistentData->options[1].value.unsignedValue;
-    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN | LV_STATE_USER_1);
-
-    color.full = persistentData->options[0].value.unsignedValue;
-    lv_obj_set_style_bg_color(batteryFill, color, LV_PART_MAIN | LV_STATE_USER_2);
+    etx_bg_color_from_flags(batteryFill, persistentData->options[2].value.unsignedValue, LV_PART_MAIN);
+    etx_bg_color_from_flags(batteryFill, persistentData->options[1].value.unsignedValue, LV_STATE_USER_1);
+    etx_bg_color_from_flags(batteryFill, persistentData->options[0].value.unsignedValue, LV_STATE_USER_2);
   }
 
   void checkEvents() override
@@ -230,9 +223,9 @@ class RadioInfoWidget : public TopBarWidget
 };
 
 const ZoneOption RadioInfoWidget::options[] = {
-    {STR_LOW_BATT_COLOR, ZoneOption::Color, RGB(0xF4, 0x43, 0x36)},
-    {STR_MID_BATT_COLOR, ZoneOption::Color, RGB(0xFF, 0xC1, 0x07)},
-    {STR_HIGH_BATT_COLOR, ZoneOption::Color, RGB(0x4C, 0xAF, 0x50)},
+    {STR_LOW_BATT_COLOR, ZoneOption::Color, RGB2FLAGS(0xF4, 0x43, 0x36)},
+    {STR_MID_BATT_COLOR, ZoneOption::Color, RGB2FLAGS(0xFF, 0xC1, 0x07)},
+    {STR_HIGH_BATT_COLOR, ZoneOption::Color, RGB2FLAGS(0x4C, 0xAF, 0x50)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<RadioInfoWidget> RadioInfoWidget("Radio Info", RadioInfoWidget::options,
@@ -245,28 +238,15 @@ class DateTimeWidget : public TopBarWidget
                  const rect_t& rect, Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
   {
-    dateTime = new HeaderDateTime(lvobj, DT_X, DT_Y);
+    dateTime = new HeaderDateTime(this, DT_X, DT_Y);
     update();
-  }
-
-  void checkEvents() override
-  {
-    TopBarWidget::checkEvents();
-
-    // Only update if minute value has changed
-    struct gtm t;
-    gettime(&t);
-    if (t.tm_min != lastMinute) {
-      lastMinute = t.tm_min;
-      dateTime->update();
-    }
   }
 
   void update() override
   {
     // get color from options
-    LcdFlags color =
-        COLOR2FLAGS(persistentData->options[0].value.unsignedValue);
+    uint32_t color;
+    memcpy(&color, &persistentData->options[0].value.unsignedValue, sizeof(color));
     dateTime->setColor(color);
   }
 
@@ -281,8 +261,7 @@ class DateTimeWidget : public TopBarWidget
 };
 
 const ZoneOption DateTimeWidget::options[] = {
-    {STR_COLOR, ZoneOption::Color,
-     OPTION_VALUE_UNSIGNED(COLOR_THEME_PRIMARY2 >> 16)},
+    {STR_COLOR, ZoneOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<DateTimeWidget> DateTimeWidget("Date Time",
@@ -301,11 +280,11 @@ class InternalGPSWidget : public TopBarWidget
   {
     icon =
         new StaticIcon(this, width() / 2 - 10, 19,
-                       ICON_TOPMENU_GPS, COLOR_THEME_PRIMARY3);
+                       ICON_TOPMENU_GPS, COLOR_THEME_PRIMARY3_INDEX);
 
     numSats = new DynamicNumber<uint16_t>(
         this, {0, 1, width(), 12}, [=] { return gpsData.numSat; },
-        COLOR_THEME_PRIMARY2 | CENTERED | FONT(XS));
+        COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
   }
 
   void checkEvents() override

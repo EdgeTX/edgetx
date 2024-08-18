@@ -22,20 +22,22 @@
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
 #include "stm32_spi.h"
+#include "stm32_dma.h"
 
 #include "board.h"
 #include "debug.h"
 #include "lcd.h"
 
 #include "hal/abnormal_reboot.h"
+#include "timers_driver.h"
 
 #if !defined(BOOT)
-  #include "opentx.h"
+  #include "edgetx.h"
 #endif
 
 #if defined(OLED_SCREEN)
   #define LCD_CONTRAST_OFFSET            0
-#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_MT12)
+#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX)
   #define LCD_CONTRAST_OFFSET            -10
 #else
   #define LCD_CONTRAST_OFFSET            160
@@ -89,6 +91,7 @@ void lcdHardwareInit()
   gpio_init(LCD_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
   gpio_init(LCD_A0_GPIO, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
 
+  stm32_dma_enable_clock(LCD_DMA);
   LCD_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
   LCD_DMA->HIFCR = LCD_DMA_FLAGS; // Write ones to clear bits
   LCD_DMA_Stream->CR =  DMA_SxCR_PL_0 | DMA_SxCR_MINC | DMA_SxCR_DIR_0;
@@ -386,11 +389,8 @@ void lcdInitFinish()
   */
 
   if (LCD_DELAY_NEEDED()) {
-#if !defined(BOOT)
-    while (g_tmr10ms < (RESET_WAIT_DELAY_MS / 10)); // wait measured from the power-on
-#else
-    delay_ms(RESET_WAIT_DELAY_MS);
-#endif
+    // wait measured from the power-on
+    while (timersGetMsTick() < RESET_WAIT_DELAY_MS);
   }
 
   lcdStart();

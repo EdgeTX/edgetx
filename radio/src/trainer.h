@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TRAINER_H_
-#define _TRAINER_H_
+#pragma once
 
 #include "dataconstants.h"
 
@@ -43,5 +42,3 @@ void stopTrainer();
 
 // Allows notifications on trainer setting change (old_mode, new_mode)
 void trainerSetChangeCb(void (*changeCb)(uint8_t, uint8_t));
-
-#endif // _TRAINER_H_

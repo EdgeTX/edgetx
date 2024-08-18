@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _YAML_TREE_WALKER_H_
-#define _YAML_TREE_WALKER_H_
+#pragma once
 
 #include <stdint.h>
 #include "yaml_node.h"
@@ -168,6 +167,3 @@ public:
 // utils
 uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8_t val_len);
 const char* yaml_output_enum(int32_t i, const struct YamlIdStr* choices);
-
-
-#endif

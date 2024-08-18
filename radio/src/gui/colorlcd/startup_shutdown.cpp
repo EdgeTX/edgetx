@@ -21,9 +21,8 @@
 
 #include "hal/abnormal_reboot.h"
 #include "inactivity_timer.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "stamp.h"
-#include "theme.h"
 #include "theme_manager.h"
 
 extern void checkSpeakerVolume();
@@ -104,12 +103,12 @@ void drawSplash()
     new StaticLZ4Image(splashScreen, IMG_X - logo->width / 2,
                        IMG_Y - logo->height / 2, logo);
 
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y, 200, 24}, ver_str.c_str(), COLOR_GREY | CENTERED);
+    new StaticText(splashScreen, {TXT_X - 100, TXT_Y, 200, 24}, ver_str.c_str(), COLOR_GREY_INDEX, CENTERED);
     new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H, 200, TXT_H},
-                   nam_str.c_str(), COLOR_GREY | CENTERED);
+                   nam_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #if !defined(VERSION_TAG)
     new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H * 2, 200, TXT_H},
-                   git_str.c_str(), COLOR_GREY | CENTERED);
+                   git_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #endif
   }
 
@@ -198,7 +197,7 @@ void drawSleepBitmap()
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
   }
 
-  (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2))
+  (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
       ->center(LCD_W, LCD_H);
 
   LvglWrapper::instance()->run();
@@ -236,14 +235,14 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
                            shutdownSplashImg->width(),
                            shutdownSplashImg->height(), LV_IMG_CF_TRUE_COLOR);
     }
-    (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2))
+    (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
         ->center(LCD_W, LCD_H);
 
     for (int i = 0; i < 4; i += 1) {
       shutdownAnim[i] = new StaticIcon(
           shutdownWindow, LCD_W / 2 + bmp_shutdown_xo[i],
           LCD_H / 2 + bmp_shutdown_yo[i],
-          (EdgeTxIcon)(ICON_SHUTDOWN_CIRCLE0 + i), COLOR_THEME_PRIMARY2);
+          (EdgeTxIcon)(ICON_SHUTDOWN_CIRCLE0 + i), COLOR_THEME_PRIMARY2_INDEX);
     }
   }
 
@@ -265,7 +264,7 @@ void drawFatalErrorScreen(const char* message)
     etx_solid_bg(fatalErrorWindow->getLvObj(), COLOR_BLACK_INDEX);
 
     new StaticText(fatalErrorWindow, rect_t{0, LCD_H / 2 - 20, LCD_W, 40},
-                   message, FONT(XL) | CENTERED | COLOR_WHITE);
+                   message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
   }
 
   backlightEnable(100);

@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "hal/rotary_encoder.h"
 
 #include "LvglWrapper.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 #include "view_main.h"
 
@@ -173,29 +173,13 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   }
 }
 
-static void copy_ts_to_indev_data(const TouchState &st, lv_indev_data_t *data)
-{
-  data->point.x = st.x;
-  data->point.y = st.y;
-}
-
-static lv_indev_data_t touch_data_backup;
-
-static void backup_touch_data(lv_indev_data_t* data)
-{
-  memcpy(&touch_data_backup, data, sizeof(lv_indev_data_t));
-}
-
-static void copy_touch_data_backup(lv_indev_data_t* data)
-{
-  memcpy(data, &touch_data_backup, sizeof(lv_indev_data_t));
-}
-
 extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
+  static lv_indev_data_t touch_data_backup;
+
   if(!touchPanelEventOccured()) {
-    copy_touch_data_backup(data);
+    memcpy(data, &touch_data_backup, sizeof(lv_indev_data_t));
     return;
   }
 
@@ -218,14 +202,16 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   
   if(st.event == TE_NONE) {
     TRACE("TE_NONE");
-  } else if(st.event == TE_DOWN || st.event == TE_SLIDE) {
-    TRACE("INDEV_STATE_PRESSED");
-    data->state = LV_INDEV_STATE_PRESSED;
-    copy_ts_to_indev_data(st, data);
   } else {
-    TRACE("INDEV_STATE_RELEASED");
-    data->state = LV_INDEV_STATE_RELEASED;
-    copy_ts_to_indev_data(st, data);
+    if(st.event == TE_DOWN || st.event == TE_SLIDE) {
+      TRACE("TE_PRESSED");
+      data->state = LV_INDEV_STATE_PRESSED;
+    } else {
+      TRACE("TE_RELEASED");
+      data->state = LV_INDEV_STATE_RELEASED;
+    }
+    data->point.x = st.x;
+    data->point.y = st.y;
   }
 
   static bool onebeep=true; // TODO... This probably needs to be fixed in the driver it's sending two events
@@ -237,8 +223,8 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   } else {
     onebeep = true;
   }
-  
-  backup_touch_data(data);
+
+  memcpy(&touch_data_backup, data, sizeof(lv_indev_data_t));
 #endif
 }
 
@@ -272,14 +258,14 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   static int8_t prevDir = 0;
   static uint32_t lastDt = 0;
 
-  rotenc_t newPos = rotaryEncoderGetRawValue();
-  rotenc_t diff = (newPos - prevPos) / ROTARY_ENCODER_GRANULARITY;
-  prevPos += diff * ROTARY_ENCODER_GRANULARITY;
+  rotenc_t newPos = rotaryEncoderGetValue();
+  rotenc_t diff = newPos - prevPos;
 
   data->enc_diff = (int16_t)diff;
   data->state = LV_INDEV_STATE_RELEASED;
 
   if (diff != 0) {
+    prevPos = newPos;
     reset_inactivity();
 
     int8_t dir = 0;

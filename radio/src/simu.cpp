@@ -29,7 +29,7 @@
 #include "FXPNGImage.h"
 #include <unistd.h>
 #include "fxkeys.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include <time.h>
 #include <ctype.h>
 
@@ -409,15 +409,12 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   }
 
 #ifdef __APPLE__
-  // gruvin: Can't use Function keys on the Mac -- too many other app conflicts.
-  //         The ordering of these keys, Q/W,E/R,T/Y,U/I matches the on screen
-  //         order of trim sliders
   static FXuint trimKeys[] = { KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0 };
 #else
   static FXuint trimKeys[] = { KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12 };
 #endif
 
-  for (unsigned i=0; i<sizeof(trimKeys)/(2*sizeof(FXuint)); i++) {
+  for (unsigned i = 0; i < sizeof(trimKeys) / sizeof(FXuint); i++) {
     simuSetTrim(i, getApp()->getKeyState(trimKeys[i]));
   }
 
@@ -443,7 +440,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   SWITCH_KEY(C, 2, 3);
   SWITCH_KEY(D, 3, 3);
 
-  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
+  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS)
     SWITCH_KEY(1, 4, 2);
     SWITCH_KEY(2, 5, 2);
     SWITCH_KEY(3, 6, 2);

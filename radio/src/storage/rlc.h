@@ -19,10 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RLC_H_
-#define _RLC_H_
+#pragma once
 
 unsigned int compress(uint8_t * dst, unsigned int dstsize, const uint8_t * src, unsigned int len);
 unsigned int uncompress(uint8_t * dst, unsigned int dstsize, const uint8_t * src, unsigned int len);
-
-#endif

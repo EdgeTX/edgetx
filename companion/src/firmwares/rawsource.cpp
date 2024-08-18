@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -131,7 +132,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
 QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board, bool prefixCustomName) const
 {
   if (index < 0)
-    return CPN_STR_SRC_INDICATOR_INVERT % RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
+    return CPN_STR_SRC_INDICATOR_NEG % RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
 
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
@@ -377,7 +378,7 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
 
 RawSource RawSource::convert(RadioDataConversionState & cstate)
 {
-  cstate.setItemType(tr("SRC"), 1);
+  cstate.setItemType(tr("Source"), 1);
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType));
 
   if (type == SOURCE_TYPE_INPUT)
@@ -389,6 +390,7 @@ RawSource RawSource::convert(RadioDataConversionState & cstate)
   if (index < 0 || !isAvailable(nullptr, cstate.toGS(), cstate.toType)) {
     cstate.setInvalid(oldData);
     clear();  // no source is safer than an invalid one
+    cstate.setConverted(oldData, RadioDataConversionState::LogField(index, tr("None")));
   }
 
   return *this;

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -48,15 +49,19 @@ void ModuleData::convert(RadioDataConversionState & cstate)
     //else if (!isProtocolAvailable(cstate.subCompIdx, (PulsesProtocol) protocol, cstate.toGS)) {
       evt = RadioDataConversionState::EVT_INV;
     }
+
+    if (evt == RadioDataConversionState::EVT_INV) {
+      cstate.setInvalid(oldData);
+    }
   }
   else {
-    evt = RadioDataConversionState::EVT_INV;
-    qDebug() << "Error - current firmware board does not match conversion to board!";
+    evt = RadioDataConversionState::EVT_ERR;
+    cstate.setErr(tr("Current firmware board does not match conversion to board"));
   }
 
-  if (evt == RadioDataConversionState::EVT_INV) {
-    cstate.setInvalid(oldData);
+  if (evt != RadioDataConversionState::EVT_NONE) {
     clear();
+    cstate.setConverted(oldData, RadioDataConversionState::LogField(protocol, protocolToString(protocol)));
   }
 }
 

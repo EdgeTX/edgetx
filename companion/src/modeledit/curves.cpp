@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -55,7 +56,7 @@ CurvesPanel::CurvesPanel(QWidget * parent, ModelData & model, GeneralSettings & 
     tableLayout->addWidget(i, col++, label);
 
     image[i] = new CurveImageWidget(this);
-    image[i]->set(&model, firmware, sharedItemModels, i, colors[i], 3);
+    image[i]->set(&model, firmware, sharedItemModels, i + 1, colors[i], 3);
     image[i]->setGrid(Qt::gray, 2);
     image[i]->setProperty("index", i);
     image[i]->setFixedSize(QSize(100, 100));

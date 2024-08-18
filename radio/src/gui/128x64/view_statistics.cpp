@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "tasks.h"
 #include "mixer_scheduler.h"
 
@@ -50,6 +50,7 @@ void menuStatisticsView(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_ENTER):
+      killEvents(event);
       g_eeGeneral.globalTimer = 0;
       storageDirty(EE_GENERAL);
       sessionTimer = 0;
@@ -111,6 +112,7 @@ void menuStatisticsDebug(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_ENTER):
+      killEvents(event);
       g_eeGeneral.globalTimer = 0;
       sessionTimer = 0;
       storageDirty(EE_GENERAL);

@@ -123,16 +123,19 @@
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
 #define TR_SF_DISABLE_AUDIO_AMP        "Vypnutí zesilovače zvuku"
 #define TR_SF_SET_SCREEN               "Vybrat hlavní obrazovku"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "Stopky1","Stopky2","Stopky3"
+  #define TR_FSW_RESET_TRIMS           "Trims"
+#define TR_FSW_RESET_TIMERS            "Stopky1","Stopky2","Stopky3"
 #else
-  #define TR_FSW_RESET_TIMERS          "Čas1","Čas2","Čas3"
+  #define TR_FSW_RESET_TRIMS           "Trims"
+#define TR_FSW_RESET_TIMERS            "Čas1","Čas2","Čas3"
 #endif
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,"Vše",TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,"Vše",TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 #define TR_FUNCSOUNDS                  TR("Píp1","Pípnutí1"),TR("Píp2","Pípnutí2"),TR("Píp3","Pípnutí3"),TR("Var1","Varování1"),TR("Var2","Varování2"),TR("Chee","Cheep"),TR("Rata", "Ratata"),"Tick",TR("Sirn","Siréna"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
 #define LENGTH_UNIT_IMP                "ft"
@@ -810,7 +813,7 @@
 #define TR_INTERNALRF                  "Interní RF modul"
 #define TR_INTERNAL_MODULE             "Interní modul"
 #define TR_EXTERNAL_MODULE             "Externí modul"
-#define TR_OPENTX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadována aktualizace EdgeTX")
+#define TR_EDGETX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadována aktualizace EdgeTX")
 #define TR_TELEMETRY_DISABLED          "Telem. zakázána"
 #define TR_MORE_OPTIONS_AVAILABLE      TR("Více možností", "Více dostupných možností")
 #define TR_NO_MODULE_INFORMATION       "Žádné info o modulu"
@@ -956,7 +959,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Trimy do subtrimu", "Kopírovat trimy do subtrimů")
 #define TR_INCDEC                      "Zvětšit/Zmenšit"
 #define TR_GLOBALVAR                   "Glob. proměnná"
-#define TR_MIXSOURCE                   "Zdroje mixeru"
+#define TR_MIXSOURCE                   "Zdroj (%)"
+#define TR_MIXSOURCERAW                "Zdroj (hodnota)"
 #define TR_CONSTANT                    "Konstanta"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Vyp","Zap","Auto"
 #define TR_PREFLIGHT                   "Předletová kontrola"
@@ -1064,26 +1068,32 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Obnovit EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Stisknete tlacitko napajeni."
     #define TR_BL_FLASH_EXIT          "Ukoncit rezim nahravani."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] pro vybrani souboru"
   #define TR_BL_FLASH_KEY             "Drzet dlouze [ENT] pro nahrani"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] pro ukonceni"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB pristup"
   #define TR_BL_CURRENT_FW            "Aktualni firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] pro vybrani souboru"
   #define TR_BL_FLASH_KEY             "Drzet dlouze [R TRIM] pro nahrani"
   #define TR_BL_EXIT_KEY              " [L TRIM] pro ukonceni"
+  #define TR_BL_ENABLE                "Povoleno"
+  #define TR_BL_DISABLE               "Zakazano"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
@@ -1300,6 +1310,7 @@
 #define TR_CREATE_NEW             "Vytvořit"
 
 #define TR_MIX_SLOW_PREC          TR("Přesnost zpomal", "Přesnost zpomalení")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "Adresář vzhledu s tímto názvem již existuje."
 
@@ -1308,3 +1319,7 @@
 #define TR_LOW_BATT_COLOR         "Vybitá baterie"
 #define TR_MID_BATT_COLOR         "Středně nabitá baterie"
 #define TR_HIGH_BATT_COLOR        "Plně nabitá baterie"
+
+#define TR_WIDGET_SIZE            "Velikost widgetu"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

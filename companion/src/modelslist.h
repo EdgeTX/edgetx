@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -82,7 +83,7 @@ class ModelsListModel : public QAbstractItemModel
       quint16 dataVersion;
     };
 
-    ModelsListModel(RadioData * radioData, QObject *parent = 0);
+    ModelsListModel(RadioData * radioData, QObject *parent = nullptr);
     virtual ~ModelsListModel();
 
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -108,16 +109,20 @@ class ModelsListModel : public QAbstractItemModel
     void encodeModelsData(const QModelIndexList & indexes, QByteArray * data) const;
     void encodeGeneralData(QByteArray * data) const;
     void encodeHeaderData(QByteArray * data) const;
+    void encodeFileData(QByteArray * data) const;
     QMimeData * getModelsMimeData(const QModelIndexList & indexes, QMimeData * mimeData = nullptr) const;
     QMimeData * getGeneralMimeData(QMimeData * mimeData = nullptr) const;
     QMimeData * getHeaderMimeData(QMimeData * mimeData = nullptr) const;
+    QMimeData * getFileMimeData(QMimeData * mimeData = nullptr) const;
     QUuid getMimeDataSourceId(const QMimeData * mimeData) const;
     bool hasSupportedMimeData(const QMimeData * mimeData) const;
     bool hasModelsMimeData(const QMimeData * mimeData) const;
     bool hasGeneralMimeData(const QMimeData * mimeData) const;
     bool hasHeaderMimeData(const QMimeData * mimeData) const;
     bool hasOwnMimeData(const QMimeData * mimeData) const;
+    bool hasFileMimeData(const QMimeData * mimeData) const;
 
+    static bool decodeFileData(const QMimeData * mimeData, QString * filedata);
     static bool decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * header);
     static bool decodeMimeData(const QMimeData * mimeData, QVector<ModelData> * models = nullptr, GeneralSettings * gs = nullptr, bool * hasGenSet = nullptr);
     static int countModelsInMimeData(const QMimeData * mimeData);
@@ -126,6 +131,7 @@ class ModelsListModel : public QAbstractItemModel
     int getModelIndex(const QModelIndex & index) const;
     int rowNumber(const QModelIndex & index = QModelIndex()) const;
     bool isModelType(const QModelIndex & index) const;
+    void setFilename(QString & name);
 
   public slots:
     void markItemForCut(const QModelIndex & index, bool on = true);
@@ -149,6 +155,7 @@ class ModelsListModel : public QAbstractItemModel
     RadioData * radioData;
     MimeHeaderData mimeHeaderData;
     bool hasLabels;
+    QString filename;
 };
 
 class ModelsListProxyModel : public QSortFilterProxyModel

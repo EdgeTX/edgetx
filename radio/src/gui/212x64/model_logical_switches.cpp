@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 
 enum LogicalSwitchFields {
@@ -87,7 +87,7 @@ void menuModelLogicalSwitches(event_t event)
   horzpos_t horz = menuHorizontalPosition;
   bool showHeader = true;
 
-  if (horz<0 && event==EVT_KEY_LONG(KEY_ENTER) && !READ_ONLY()) {
+  if (horz<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
     LogicalSwitchData * cs = lswAddress(sub);
     if (cs->func)
       POPUP_MENU_ADD_ITEM(STR_COPY);
@@ -110,15 +110,18 @@ void menuModelLogicalSwitches(event_t event)
     unsigned int sw = SWSRC_FIRST_LOGICAL_SWITCH+k;
     drawSwitch(0, y, sw, (getSwitch(sw) ? BOLD : 0) | ((sub==k && CURSOR_ON_LINE()) ? INVERS : 0));
 
-    // CSW func
-    lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, horz==0 ? attr : 0);
-
     // CSW params
     unsigned int cstate = lswFamily(cs->func);
     mixsrc_t v1_val = cs->v1;
     int16_t v1_min = 0, v1_max = MIXSRC_LAST_TELEM;
     int16_t v2_min = 0, v2_max = MIXSRC_LAST_TELEM;
     int16_t v3_min =-1, v3_max = 100;
+
+    // CSW func
+    LcdFlags flags = 0;
+    if (cstate == LS_FAMILY_STICKY && getLSStickyState(k))
+      flags = BOLD;
+    lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, (horz==0 ? attr : 0) | flags);
 
     if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
       drawSwitch(CSW_2ND_COLUMN, y, cs->v1, attr1);
@@ -240,6 +243,7 @@ void menuModelLogicalSwitches(event_t event)
           }
           cs->v2 = CHECK_INCDEC_PARAM(event, cs->v2, v2_min, v2_max);
           if (cstate==LS_FAMILY_OFS && cs->v1!=0 && event==EVT_KEY_LONG(KEY_ENTER)) {
+            killEvents(event);
             getvalue_t x = getValue(v1_val);
             if (abs(v1_val) <= MIXSRC_LAST_CH) {
               cs->v2 = calcRESXto100(x);

@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "lua_api.h"
 #include "../timers.h"
 #include "model_init.h"
@@ -555,9 +555,9 @@ static int luaModelSetFlightMode(lua_State * L)
         if (idx < 0 || idx >= max_trims) continue;
         int16_t val = luaL_checkinteger(L, -1);
         if (g_model.extendedTrims)
-          val = limit<int16_t>(val, TRIM_EXTENDED_MIN, TRIM_EXTENDED_MAX);
+          val = limit<int16_t>(TRIM_EXTENDED_MIN, val, TRIM_EXTENDED_MAX);
         else
-          val = limit<int16_t>(val, TRIM_MIN, TRIM_MAX);
+          val = limit<int16_t>(TRIM_MIN, val, TRIM_MAX);
         if (idx < max_trims)
           fm->trim[idx].value = val;
       }
@@ -681,10 +681,18 @@ static int luaModelInsertInput(lua_State *L)
         expo->scale = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
-        expo->weight = luaL_checkinteger(L, -1);
+        int val = luaL_checkinteger(L, -1);
+        SourceNumVal v;
+        v.isSource = (abs(val) >= 1024);
+        v.value = val;
+        expo->weight = v.rawValue;
       }
       else if (!strcmp(key, "offset")) {
-        expo->offset = luaL_checkinteger(L, -1);
+        int val = luaL_checkinteger(L, -1);
+        SourceNumVal v;
+        v.isSource = (abs(val) >= 1024);
+        v.value = val;
+        expo->offset = v.rawValue;
       }
       else if (!strcmp(key, "switch")) {
         expo->swtch = luaL_checkinteger(L, -1);
@@ -693,7 +701,11 @@ static int luaModelInsertInput(lua_State *L)
         expo->curve.type = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveValue")) {
-        expo->curve.value = luaL_checkinteger(L, -1);
+        int val = luaL_checkinteger(L, -1);
+        SourceNumVal v;
+        v.isSource = (abs(val) >= 1024);
+        v.value = val;
+        expo->curve.value = v.rawValue;
       }
       else if (!strcmp(key, "trimSource")) {
         expo->trimSource = - luaL_checkinteger(L, -1);
@@ -904,10 +916,18 @@ static int luaModelInsertMix(lua_State *L)
         mix->srcRaw = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
-        mix->weight = luaL_checkinteger(L, -1);
+        int val = luaL_checkinteger(L, -1);
+        SourceNumVal v;
+        v.isSource = (abs(val) >= 1024);
+        v.value = val;
+        mix->weight = v.rawValue;
       }
       else if (!strcmp(key, "offset")) {
-        mix->offset = luaL_checkinteger(L, -1);
+        int val = luaL_checkinteger(L, -1);
+        SourceNumVal v;
+        v.isSource = (abs(val) >= 1024);
+        v.value = val;
+        mix->offset = v.rawValue;
       }
       else if (!strcmp(key, "switch")) {
         mix->swtch = luaL_checkinteger(L, -1);
@@ -916,7 +936,11 @@ static int luaModelInsertMix(lua_State *L)
         mix->curve.type = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveValue")) {
-        mix->curve.value = luaL_checkinteger(L, -1);
+        int val = luaL_checkinteger(L, -1);
+        SourceNumVal v;
+        v.isSource = (abs(val) >= 1024);
+        v.value = val;
+        mix->curve.value = v.rawValue;
       }
       else if (!strcmp(key, "multiplex")) {
         mix->mltpx = luaL_checkinteger(L, -1);

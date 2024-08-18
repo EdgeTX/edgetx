@@ -20,7 +20,7 @@
  */
 
 #include "opentxsimulator.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "simulcd.h"
 #include "switches.h"
 
@@ -558,7 +558,7 @@ void OpenTxSimulator::checkOutputsChanged()
   const static int16_t limit = 512 * 2;
   qint32 tmpVal;
   uint8_t i, idx;
-  const uint8_t phase = getFlightMode();  // opentx.cpp
+  const uint8_t phase = getFlightMode();  // edgetx.cpp
 
   for (i=0; i < chansDim; i++) {
     if (lastOutputs.chans[i] != channelOutputs[i] || m_resetOutputsData) {

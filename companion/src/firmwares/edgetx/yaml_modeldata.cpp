@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -546,6 +547,7 @@ struct convert<LimitData> {
     node["symetrical"] = (int)rhs.symetrical;
     node["name"] = rhs.name;
     node["curve"] = rhs.curve.value;
+    // rhs.curve.type is not encoded
     return node;
   }
 
@@ -565,6 +567,7 @@ struct convert<LimitData> {
     node["symetrical"] >> rhs.symetrical;
     node["name"] >> rhs.name;
     node["curve"] >> rhs.curve.value;
+    rhs.curve.type = CurveReference::CURVE_REF_CUSTOM;  // this is not encoded but needed internally so force type
     return true;
   }
 };
@@ -1177,6 +1180,9 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     if (topbarData && topbarData.IsMap()) {
       node["topbarData"] = topbarData;
     }
+    for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
+      if (rhs.topbarWidgetWidth[i] > 0)
+        node["topbarWidgetWidth"][std::to_string(i)]["val"] = (int)rhs.topbarWidgetWidth[i];
     node["view"] = rhs.view;
   }
 
@@ -1445,8 +1451,15 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
 
   node["screenData"] >> rhs.customScreens.customScreenData;
   node["topbarData"] >> rhs.topBarData;
-
+  if (node["topbarWidgetWidth"]) {
+    for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1) {
+      if (node["topbarWidgetWidth"][std::to_string(i)]) {
+        node["topbarWidgetWidth"][std::to_string(i)]["val"] >> rhs.topbarWidgetWidth[i];
+      }
+    }
+  }
   node["view"] >> rhs.view;
+
   node["modelRegistrationID"] >> rhs.registrationId;
   node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
 

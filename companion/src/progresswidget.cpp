@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -210,4 +211,11 @@ void ProgressWidget::lock(bool lock)
 void ProgressWidget::forceKeepOpen(bool value)
 {
   emit keepOpen(value);
+}
+
+void ProgressWidget::refresh()
+{
+  ui->info->update();
+  ui->progressBar->update();
+  ui->textEdit->update();
 }

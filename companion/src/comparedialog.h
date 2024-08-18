@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -40,6 +41,7 @@ class CompareDialog : public QDialog
     struct GMData {
         ModelData model;
         GeneralSettings gs;
+        QString fname;
     };
 
     MultiModelPrinter * multimodelprinter;

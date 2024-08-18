@@ -21,12 +21,12 @@
 
 #pragma once
 
-#include "libopenui/src/bitfield.h"
+#include "bitfield.h"
 #include "definitions.h"
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "myeeprom.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "pulses_common.h"
 #include <cstring>
 #include "fifo.h"

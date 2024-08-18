@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DEBUG_H_
-#define _DEBUG_H_
+#pragma once
 
 #include <float.h>
 #include "definitions.h"
@@ -415,6 +414,3 @@ extern const char * const debugTimerNames[DEBUG_TIMERS_COUNT];
 #define DEBUG_TIMER_SAMPLE(timer)
 
 #endif //#if defined(DEBUG_TIMERS)
-
-#endif // _DEBUG_H_
-

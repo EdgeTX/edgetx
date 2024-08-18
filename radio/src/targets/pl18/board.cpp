@@ -74,8 +74,6 @@ void delay_self(int count)
        for (; count > 0; count--);
    }
 }
-#define RCC_AHB1PeriphMinimum (LCD_RCC_AHB1Periph)
-#define RCC_APB2PeriphMinimum (LCD_RCC_APB2Periph)
 
 void ledStripOff()
 {
@@ -85,7 +83,7 @@ void ledStripOff()
   ws2812_update(&_led_timer);
 }
 
-void boardBootloaderInit()
+void boardBLInit()
 {
   // USB charger status pins
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
@@ -98,8 +96,6 @@ void boardInit()
 #endif
 
 #if !defined(SIMU)
-  LL_AHB1_GRP1_EnableClock(RCC_AHB1PeriphMinimum);
-  LL_APB2_GRP1_EnableClock(RCC_APB2PeriphMinimum);
   // enable interrupts
   __enable_irq();
 #endif
@@ -123,7 +119,7 @@ void boardInit()
   touchPanelInit();
   usbInit();
 
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH);
+  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   ledStripOff();
 
   uint32_t press_start = 0;

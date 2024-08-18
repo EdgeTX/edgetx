@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HAL_H_
-#define _HAL_H_
+#pragma once
 
 #define CPU_FREQ                168000000
 
@@ -222,6 +221,7 @@
 #define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
 #define TELEMETRY_DMA_Channel_TX        LL_DMA_CHANNEL_4
 #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream6_IRQn
+#define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream6_IRQHandler
 // #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_5
 // #define TELEMETRY_DMA_Channel_RX        LL_DMA_CHANNEL_4
 
@@ -234,15 +234,13 @@
 // USB
 #define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA,9)   // PA.09
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
 #define USB_SW_GPIO                     GPIO_PIN(GPIOI, 10) // PI.10
 
 // LCD
-#define LCD_RCC_AHB1Periph              LL_AHB1_GRP1_PERIPH_DMA2D
-#define LCD_RCC_APB2Periph              LL_APB2_GRP1_PERIPH_LTDC
 #define LCD_NRST_GPIO                   GPIO_PIN(GPIOG, 9) // PG.09
 #define LCD_SPI_CS_GPIO                 GPIO_PIN(GPIOE, 4)  // PE.04
 #define LCD_SPI_SCK_GPIO                GPIO_PIN(GPIOE, 2)  // PE.02
@@ -327,15 +325,13 @@
 
 // I2C Bus
 #define I2C_B1                        I2C1
-#define I2C_B1_GPIO                   GPIOB
-#define I2C_B1_SCL_GPIO_PIN           LL_GPIO_PIN_8  // PB.08
-#define I2C_B1_SDA_GPIO_PIN           LL_GPIO_PIN_7  // PB.09
+#define I2C_B1_SCL_GPIO               GPIO_PIN(GPIOB, 8)  // PB.08
+#define I2C_B1_SDA_GPIO               GPIO_PIN(GPIOB, 7)  // PB.07
 #define I2C_B1_GPIO_AF                LL_GPIO_AF_4
+#define I2C_B1_CLK_RATE               400000
 
 // Touch
 #define TOUCH_I2C_BUS                 I2C_Bus_1
-#define TOUCH_I2C_CLK_RATE            400000
-
 #define TOUCH_INT_GPIO                GPIO_PIN(GPIOB, 9)  // PB.09
 #define TOUCH_RST_GPIO                GPIO_PIN(GPIOB, 12) // PB.12
 
@@ -479,5 +475,3 @@
 
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
-
-#endif // _HAL_H_

@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
@@ -382,7 +382,7 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
 #endif
 
-    {MIXSRC_MAX, "min", "MIN"},
+    {MIXSRC_MIN, "min", "MIN"},
     {MIXSRC_MAX, "max", "MAX"},
 
     {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
@@ -2001,6 +2001,9 @@ static int luaSetTelemetryValue(lua_State * L)
       telemetrySensor.subId = subId;
       telemetrySensor.instance = instance;
       telemetrySensor.init(name ? name: name_buf, unit, prec);
+      
+      storageDirty(EE_MODEL);
+      
       lua_pushboolean(L, true);
     } else {
       lua_pushboolean(L, false);
@@ -2165,7 +2168,15 @@ Get percent of already used Lua instructions in current script execution cycle.
 */
 static int luaGetUsage(lua_State * L)
 {
+#if defined(COLORLCD)
+  if (luaLvglManager && luaLvglManager->useLvglLayout()) {
+    lua_pushinteger(L, luaLvglManager->refreshInstructionsPercent);
+  } else {
+    lua_pushinteger(L, instructionsPercent);
+  }
+#else
   lua_pushinteger(L, instructionsPercent);
+#endif
   return 1;
 }
 

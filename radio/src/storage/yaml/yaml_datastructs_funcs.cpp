@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "opentx_constants.h"
+#include "edgetx.h"
+#include "edgetx_constants.h"
 #include "yaml_bits.h"
 #include "yaml_node.h"
 #include "yaml_tree_walker.h"
@@ -463,6 +463,40 @@ static bool w_mixSrcRawEx(const YamlNode* node, uint32_t val, yaml_writer_func w
   return wf(opaque, "\"", 1);
 }
 
+static uint32_t r_sourceNumVal(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  SourceNumVal v;
+
+  if (((val[0] == '-') && (val[1] >= '0' && val[1] <= '9')) || (val[0] >= '0' && val[0] <= '9')) {
+    v.isSource = 0;
+    v.value = (uint32_t)yaml_str2int(val, val_len);
+  } else if ((val[0] == '-') && (val[1] == 'G')) {
+    v.isSource = 1;
+    v.value = -((val[3] - '0') + MIXSRC_FIRST_GVAR - 1);
+  } else if (val[0] == 'G') {
+    v.isSource = 1;
+    v.value = (val[2] - '0') + MIXSRC_FIRST_GVAR - 1;
+  } else {
+    v.isSource = 1;
+    v.value = r_mixSrcRawEx(node, val, val_len);
+  }
+
+  return v.rawValue;
+}
+
+bool w_sourceNumVal(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                     void* opaque)
+{
+  SourceNumVal v;
+  v.rawValue = val;
+
+  if (v.isSource)
+    return w_mixSrcRawEx(node, v.value, wf, opaque);
+
+  char* s = yaml_signed2str(v.value);
+  return wf(opaque, s, strlen(s));
+}
+
 static void r_rssiDisabled(void* user, uint8_t* data, uint32_t bitoffs,
                            const char* val, uint8_t val_len)
 {
@@ -541,33 +575,49 @@ bool w_zov_source(void* user, uint8_t* data, uint32_t bitoffs,
 void r_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
                  const char* val, uint8_t val_len)
 {
-  if (val_len < sizeof("0xFFFFFF")-1
-      || val[0] != '0'
-      || val[1] != 'x')
-    return;
-
-  val += 2; val_len -= 2;
-
   data += bitoffs >> 3UL;
-  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
 
-  auto rgb24 = yaml_hex2uint(val, val_len);
-  p_val->unsignedValue =
-      RGB((rgb24 & 0xFF0000) >> 16, (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
+  ZoneOptionValue zov;
+  if (strncmp(val, "COLIDX", 6) == 0) {
+    val += 6; val_len -= 6;
+    zov.unsignedValue = COLOR2FLAGS(yaml_str2uint(val, val_len));
+  } else {
+    if (val_len < sizeof("0xFFFFFF")-1
+        || val[0] != '0'
+        || val[1] != 'x')
+      return;
+
+    val += 2; val_len -= 2;
+
+    auto rgb24 = yaml_hex2uint(val, val_len);
+    zov.unsignedValue = RGB2FLAGS((rgb24 & 0xFF0000) >> 16,
+                                  (rgb24 & 0xFF00) >> 8, rgb24 & 0xFF);
+  }
+
+  memcpy(data, &zov, sizeof(ZoneOptionValue));
 }
 
 bool w_zov_color(void* user, uint8_t* data, uint32_t bitoffs,
                  yaml_writer_func wf, void* opaque)
 {
   data += bitoffs >> 3UL;
-  auto p_val = reinterpret_cast<ZoneOptionValue*>(data);
 
-  uint32_t color = (uint32_t)GET_RED(p_val->unsignedValue) << 16 |
-                   (uint32_t)GET_GREEN(p_val->unsignedValue) << 8 |
-                   (uint32_t)GET_BLUE(p_val->unsignedValue);
+  ZoneOptionValue zov;
+  memcpy(&zov, data, sizeof(ZoneOptionValue));
 
-  if (!wf(opaque, "0x", 2)) return false;
-  return wf(opaque, yaml_rgb2hex(color), 3 * 2);
+  uint32_t val = zov.unsignedValue;
+  if (val & RGB_FLAG) {
+    val = COLOR_VAL(val);
+    uint32_t color = (uint32_t)GET_RED(val) << 16 |
+                     (uint32_t)GET_GREEN(val) << 8 | (uint32_t)GET_BLUE(val);
+
+    if (!wf(opaque, "0x", 2)) return false;
+    return wf(opaque, yaml_rgb2hex(color), 3 * 2);
+  } else {
+    if (!wf(opaque, "COLIDX", 6)) return false;
+    const char* str = yaml_unsigned2str(COLOR_VAL(val));
+    return wf(opaque, str, strlen(str));
+  }
 }
 #endif
 
@@ -1406,7 +1456,7 @@ static bool w_flightModes(const YamlNode* node, uint32_t val,
 }
 
 static const char* const _func_reset_param_lookup[] = {
-  "Tmr1","Tmr2","Tmr3","All","Tele"
+  "Tmr1","Tmr2","Tmr3","All","Tele","Trims"
 };
 
 static const char* const _func_failsafe_lookup[] = {
@@ -1420,7 +1470,7 @@ static const char* const _func_sound_lookup[] = {
 };
 
 static const char* const _adjust_gvar_mode_lookup[] = {
-  "Cst", "Src", "GVar", "IncDec"
+  "Cst", "Src", "SrcRaw", "GVar", "IncDec"
 };
 
 static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1495,6 +1545,13 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
                && val[2] == 'l'
                && val[3] == 'e') {
       CFN_PARAM(cfn) = FUNC_RESET_TELEMETRY;
+    } else if (l_sep == 5
+             && val[0] == 'T'
+             && val[1] == 'r'
+             && val[2] == 'i'
+             && val[3] == 'm'
+             && val[4] == 's') {
+      CFN_PARAM(cfn) = FUNC_RESET_TRIMS;
     } else {
       uint32_t sensor = yaml_str2uint(val, l_sep);
       CFN_PARAM(cfn) = sensor + FUNC_RESET_PARAM_FIRST_TELEM;
@@ -1600,6 +1657,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       CFN_PARAM(cfn) = yaml_str2int(val, l_sep);
       break;
     case FUNC_ADJUST_GVAR_SOURCE:
+    case FUNC_ADJUST_GVAR_SOURCERAW:
       CFN_PARAM(cfn) = r_mixSrcRawEx(nullptr, val, l_sep);
       break;
     case FUNC_ADJUST_GVAR_GVAR: {
@@ -1714,7 +1772,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
   case FUNC_RESET:
     if (CFN_PARAM(cfn) < FUNC_RESET_PARAM_FIRST_TELEM) {
-      // Tmr1,Tmr2,Tmr3,All
+      // Tmr1,Tmr2,Tmr3,All,Tele, Trims
       str = _func_reset_param_lookup[CFN_PARAM(cfn)];
     } else {
       // sensor index
@@ -1785,6 +1843,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
       if (!wf(opaque, str, strlen(str))) return false;
       break;
     case FUNC_ADJUST_GVAR_SOURCE:
+    case FUNC_ADJUST_GVAR_SOURCERAW:
       if (!w_mixSrcRawExNoQuote(nullptr, CFN_PARAM(cfn), wf, opaque)) return false;
       break;
     case FUNC_ADJUST_GVAR_GVAR:

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "navigation.h"
 
 #include "hal/switch_driver.h"
@@ -117,6 +117,8 @@ void onSourceLongEnterPress(const char * result)
     }
   } else if (result == STR_MENU_INVERT) {
     checkIncDecSelection = MIXSRC_INVERT;
+  } else if (result == STR_CONSTANT) {
+    checkIncDecSelection = MIXSRC_VALUE;
   }
 }
 

@@ -26,7 +26,7 @@
 
 #include "hal/gpio.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if !defined(SIMU)
 
@@ -114,7 +114,7 @@ void audioSpiInit(void)
   pinInit.Mode = LL_GPIO_MODE_INPUT;
   LL_GPIO_Init(AUDIO_DREQ_GPIO, &pinInit);
 
-  stm32_spi_init(&_audio_spi);
+  stm32_spi_init(&_audio_spi, LL_SPI_DATAWIDTH_8BIT);
 }
 
 void audioWaitReady()

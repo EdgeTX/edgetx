@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "hal/rotary_encoder.h"
 
 void runPopupCurvePreset(event_t event)
@@ -161,7 +161,6 @@ void menuModelCurveOne(event_t event)
     case EVT_KEY_FIRST(KEY_ENTER):
       if (!keysGetState(KEY_SHIFT))
         break;
-      killEvents(event);
 #else
     case EVT_KEY_BREAK(KEY_MODEL):
     case EVT_KEY_BREAK(KEY_MENU):

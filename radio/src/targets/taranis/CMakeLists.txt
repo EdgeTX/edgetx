@@ -10,8 +10,14 @@ option(BLUETOOTH "FrSky BT module support" OFF)
 
 set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
+set(TARGET_DIR taranis)
 
-add_definitions(-DPCBFRSKY)
+set(HSE_VALUE 12000000)
+set(SDCARD YES)
+set(TARGET_DIR taranis)
+set(PPM_LIMITS_SYMETRICAL YES)
+
+add_definitions(-DPCBFRSKY -DPCBTARANIS -DAUDIO -DVOICE)
 
 if(PCB STREQUAL X9E)
   set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -36,7 +42,6 @@ if(PCB STREQUAL X9E)
   set(BITMAPS_TARGET taranis_bitmaps)
   set(FONTS_TARGET taranis_fonts)
   set(LCD_DRIVER lcd_driver_spi.cpp)
-  set(GVAR_SCREEN model_gvars.cpp)
   set(STATUS_LEDS NO)
   set(BLUETOOTH YES)
   set(ROTARY_ENCODER YES)
@@ -51,7 +56,6 @@ elseif(PCB STREQUAL X9D+)
   set(BITMAPS_TARGET taranis_bitmaps)
   set(FONTS_TARGET taranis_fonts)
   set(LCD_DRIVER lcd_driver_spi.cpp)
-  set(GVAR_SCREEN model_gvars.cpp)
   set(PCBREV 2014 CACHE STRING "PCB Revision")
   #set(AFHDS3 NO)
   add_definitions(-DPCBREV=${PCBREV})
@@ -92,7 +96,6 @@ elseif(PCB STREQUAL X9D)
   set(FONTS_TARGET taranis_fonts)
   set(LCD_DRIVER lcd_driver_aspi.cpp)
   set(AUX_SERIAL ON)
-  set(GVAR_SCREEN model_gvars.cpp)
   set(STATUS_LEDS NO)
   add_definitions(-DMANUFACTURER_FRSKY)
   set(MODULE_SIZE_STD YES)
@@ -104,7 +107,6 @@ elseif(PCB STREQUAL X7)
   set(BITMAPS_TARGET 9x_bitmaps)
   set(FONTS_TARGET 9x_fonts_1bit)
   set(LCD_DRIVER lcd_driver_spi.cpp)
-  set(GVAR_SCREEN model_gvars.cpp)
   set(STATUS_LEDS YES)
   add_definitions(-DPCBX7 -DSOFTWARE_VOLUME)
   add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -141,6 +143,17 @@ elseif(PCB STREQUAL X7)
     add_definitions(-DRADIO_TPROV2)
     add_definitions(-DMANUFACTURER_JUMPER)
     set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
+  elseif(PCBREV STREQUAL TPROS)
+    set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
+    set(INTERNAL_MODULE_SERIAL YES)
+    set(MODULE_SIZE_SML YES)
+    set(FLAVOUR tpros)
+    set(NAVIGATION_TYPE x7)
+    set(CPU_TYPE_FULL STM32F407xG)
+    set(ROTARY_ENCODER YES)
+    add_definitions(-DRADIO_TPROS)
+    add_definitions(-DMANUFACTURER_JUMPER)
+    set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
   elseif (PCBREV STREQUAL T14)
     set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
@@ -150,6 +163,17 @@ elseif(PCB STREQUAL X7)
     set(CPU_TYPE_FULL STM32F407xG)
     set(PXX2 ON)
     add_definitions(-DRADIO_T14)
+    add_definitions(-DMANUFACTURER_JUMPER)
+    set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
+  elseif (PCBREV STREQUAL T12MAX)
+    set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
+    set(INTERNAL_MODULE_SERIAL YES)
+    set(MODULE_SIZE_SML YES)
+    set(FLAVOUR t12max)
+    set(NAVIGATION_TYPE x7)
+    set(ROTARY_ENCODER YES)
+    set(CPU_TYPE_FULL STM32F407xG)
+    add_definitions(-DRADIO_T12MAX)
     add_definitions(-DMANUFACTURER_JUMPER)
     set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
   elseif(PCBREV STREQUAL T20)
@@ -253,7 +277,6 @@ elseif(PCB STREQUAL X7)
     add_definitions(-DMANUFACTURER_RADIOMASTER)
     set(PXX2 ON)
     set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
-    set(LUA_MIXER YES)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
     if (NOT BLUETOOTH)
       set(AUX_SERIAL ON)
@@ -387,7 +410,6 @@ elseif(PCB STREQUAL X9LITE)
   set(BITMAPS_TARGET 9x_bitmaps)
   set(FONTS_TARGET 9x_fonts_1bit)
   set(LCD_DRIVER lcd_driver_spi.cpp)
-  set(GVAR_SCREEN model_gvars.cpp)
   set(STATUS_LEDS YES)
   set(ROTARY_ENCODER YES)
   add_definitions(-DMANUFACTURER_FRSKY)
@@ -410,7 +432,6 @@ elseif(PCB STREQUAL X9LITES)
   set(BITMAPS_TARGET 9x_bitmaps)
   set(FONTS_TARGET 9x_fonts_1bit)
   set(LCD_DRIVER lcd_driver_spi.cpp)
-  set(GVAR_SCREEN model_gvars.cpp)
   set(STATUS_LEDS YES)
   set(BLUETOOTH YES)
   set(ROTARY_ENCODER YES)
@@ -433,7 +454,6 @@ elseif(PCB STREQUAL XLITE)
   set(BITMAPS_TARGET 9x_bitmaps)
   set(FONTS_TARGET 9x_fonts_1bit)
   set(LCD_DRIVER lcd_driver_spi.cpp)
-  set(GVAR_SCREEN model_gvars.cpp)
   set(STATUS_LEDS YES)
   set(BLUETOOTH YES)
   add_definitions(-DMANUFACTURER_FRSKY)
@@ -454,7 +474,6 @@ elseif(PCB STREQUAL XLITES)
   set(BITMAPS_TARGET 9x_bitmaps)
   set(FONTS_TARGET 9x_fonts_1bit)
   set(LCD_DRIVER lcd_driver_spi.cpp)
-  set(GVAR_SCREEN model_gvars.cpp)
   set(STATUS_LEDS YES)
   set(PXX2 ON)
   set(BLUETOOTH YES)
@@ -474,6 +493,8 @@ elseif ((CPU_TYPE_FULL STREQUAL STM32F407xE) OR (CPU_TYPE_FULL STREQUAL STM32F40
   if (CPU_TYPE_FULL STREQUAL STM32F407xG)
     set(TARGET_FLASH_SIZE 1M)
     add_definitions(-DSTM32F407xG)
+  else()
+    set(USBJ_EX OFF)
   endif()
 elseif (CPU_TYPE_FULL STREQUAL STM32F413xG)
   set(CPU_TYPE STM32F4)
@@ -490,11 +511,12 @@ endif()
 
 if(INTERNAL_MODULE_SERIAL)
 
-  if("${PCBREV}" STREQUAL 2019 OR "${PCBREV}" STREQUAL ACCESS)
-    # defines existing internal modules
+  # defines default internal modules
+  if(DEFAULT_INTERNAL_MODULE STREQUAL XJT_PXX1)
+    set(INTERNAL_MODULES PXX1 CACHE STRING "Internal modules")
+  elseif(DEFAULT_INTERNAL_MODULE STREQUAL ISRM_PXX2)
     set(INTERNAL_MODULES PXX2 CACHE STRING "Internal modules")
   else()
-    # defines existing internal modules
     set(INTERNAL_MODULES MULTI;CRSF CACHE STRING "Internal modules")
   endif()
 
@@ -510,66 +532,93 @@ else()
 
 endif()
 
+set(TARGET_SRC_DIR targets/${TARGET_DIR})
+
+set(BOARD_COMMON_SRC
+  ${TARGET_SRC_DIR}/board.cpp
+  ${TARGET_SRC_DIR}/led_driver.cpp
+  ${TARGET_SRC_DIR}/haptic_driver.cpp
+  ${TARGET_SRC_DIR}/backlight_driver.cpp
+  ${TARGET_SRC_DIR}/${LCD_DRIVER}
+  targets/common/arm/stm32/abnormal_reboot.cpp
+  targets/common/arm/stm32/delays_driver.cpp
+  targets/common/arm/stm32/flash_driver.cpp
+  targets/common/arm/stm32/pwr_driver.cpp
+  targets/common/arm/stm32/rtc_driver.cpp
+  targets/common/arm/stm32/watchdog_driver.cpp
+)
+
 if(ROTARY_ENCODER)
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
+  list(APPEND BOARD_COMMON_SRC
     targets/common/arm/stm32/rotary_encoder_driver.cpp
-    )
-endif()
-
-if(BIND_KEY)
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC}
-    bind_button_driver.cpp
-    )
-  add_definitions(-DBIND_KEY)
-endif()
-
-if(USB_CHARGER)
-  set(FIRMWARE_TARGET_SRC
-    ${FIRMWARE_TARGET_SRC} usb_charger_driver.cpp)
-  add_definitions(-DUSB_CHARGER)
+  )
 endif()
 
 if(BLUETOOTH)
-  add_definitions(-DBLUETOOTH)
-  set(FIRMWARE_SRC
-    ${FIRMWARE_SRC}
-    targets/common/arm/stm32/bluetooth_driver.cpp)
-  set(SRC
-    ${SRC}
-    bluetooth.cpp)
-  if(NOT PCB STREQUAL X9E)
-    # Bluetooth on X9E is compatible with almost nothing
-    add_definitions(-DHARDWARE_TRAINER_BLUETOOTH)
-  endif()
+  list(APPEND BOARD_COMMON_SRC
+    targets/common/arm/stm32/bluetooth_driver.cpp
+  )
+endif()
+
+# Bootloader board library
+add_library(board_bl OBJECT EXCLUDE_FROM_ALL
+  ${BOARD_COMMON_SRC}
+  ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
+)
+# add_dependencies(board_bl ${BITMAPS_TARGET})
+set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
+
+# Firmware board library
+add_library(board OBJECT EXCLUDE_FROM_ALL
+  ${BOARD_COMMON_SRC}
+  ${TARGET_SRC_DIR}/volume_i2c.cpp
+  ${TARGET_SRC_DIR}/eeprom_driver.cpp
+  targets/common/arm/stm32/audio_dac_driver.cpp
+  targets/common/arm/stm32/delays_driver.cpp
+  targets/common/arm/stm32/heartbeat_driver.cpp
+  targets/common/arm/stm32/mixer_scheduler_driver.cpp
+  targets/common/arm/stm32/module_timer_driver.cpp
+  targets/common/arm/stm32/stm32_pulse_driver.cpp
+  targets/common/arm/stm32/stm32_softserial_driver.cpp
+  targets/common/arm/stm32/stm32_switch_driver.cpp
+  targets/common/arm/stm32/trainer_driver.cpp
+  targets/common/arm/stm32/stm32_ws2812.cpp
+)
+set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(STATUS_LEDS)
+  target_sources(board PRIVATE ${TARGET_SRC_DIR}/led_driver.cpp)
+endif()
+
+if(BIND_KEY)
+  add_definitions(-DBIND_KEY)
+  target_sources(board PRIVATE ${TARGET_SRC_DIR}/bind_button_driver.cpp)
+endif()
+
+if(USB_CHARGER)
+  add_definitions(-DUSB_CHARGER)
+  target_sources(board PRIVATE ${TARGET_SRC_DIR}/usb_charger_driver.cpp)
+endif()
+
+if(IMU)
+  target_sources(board PRIVATE targets/common/arm/stm32/lsm6ds_driver.cpp)
 endif()
 
 if(AUTOUPDATE)
   add_definitions(-DAUTOUPDATE)
 endif()
 
-set(HSE_VALUE 12000000)
-set(SDCARD YES)
-set(TARGET_DIR taranis)
-set(PPM_LIMITS_SYMETRICAL YES)
-
-add_definitions(-DPCBTARANIS)
-add_definitions(-DAUDIO -DVOICE )
-
 if(USE_RTC_CLOCK)
   add_definitions(-DRTCLOCK)
 endif()
 
 
-set(SRC
-  ${SRC}
+set(SRC ${SRC}
   io/frsky_firmware_update.cpp
   io/multi_firmware_update.cpp
-  )
+)
 
-set(GUI_SRC
-  ${GUI_SRC}
+set(GUI_SRC ${GUI_SRC}
   model_input_edit.cpp
   model_mix_edit.cpp
   model_display.cpp
@@ -579,21 +628,7 @@ set(GUI_SRC
   view_telemetry.cpp
   view_about.cpp
   bmp.cpp
-  )
-
-if(STATUS_LEDS)
-  set(LED_DRIVER led_driver.cpp)
-endif()
-
-set(FIRMWARE_TARGET_SRC
-  ${FIRMWARE_TARGET_SRC}
-  ${LED_DRIVER}
-  ${LCD_DRIVER}
-  board.cpp
-  volume_i2c.cpp
-  eeprom_driver.cpp
-  backlight_driver.cpp
-  )
+)
 
 if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
   set(FIRMWARE_SRC
@@ -601,19 +636,9 @@ if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
     targets/common/arm/stm32/sticks_pwm_driver.cpp)
 endif()
 
-if(PCBREV STREQUAL MT12 OR PCBREV STREQUAL T14)
-  set(FIRMWARE_SRC
-          ${FIRMWARE_SRC}
-          targets/common/arm/stm32/stm32_ws2812.cpp
-          boards/generic_stm32/rgb_leds.cpp)
-endif()
-
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
-  hal/adc_driver.cpp
   targets/common/arm/loadboot.cpp
-  targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/audio_dac_driver.cpp
   )
 
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})

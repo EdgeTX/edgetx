@@ -2,7 +2,7 @@
 
 LEGACY_NAMES = [
     {
-        "targets": {"x10", "x10express", "t16", "tx16s", "t18"},
+        "targets": {"x10", "x10express", "t16", "tx16s", "t18", "f16"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
@@ -93,16 +93,24 @@ LEGACY_NAMES = [
         "targets": {"t15"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "S1",
@@ -379,19 +387,27 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"t14"},
+        "targets": {"t14", "t12max", "tpros"},
         "inputs": {
             "LH": {
-                "yaml": "Rud"
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
             },
             "LV": {
-                "yaml": "Ele"
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
             },
             "RV": {
-                "yaml": "Thr"
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
             },
             "RH": {
-                "yaml": "Ail"
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
             },
             "P1": {
                 "yaml": "POT1",
@@ -415,7 +431,7 @@ LEGACY_NAMES = [
             "lr3pro",
             "nv14", "el18",
             "t8", "t12",
-            "tlite", "tlitef4", "tpro", "tprov2",
+            "tlite", "tlitef4", "tpro", "tprov2", "tpros",
             "tx12", "tx12mk2",
             "x7", "x7access",
             "xlite", "xlites",

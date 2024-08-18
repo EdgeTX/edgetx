@@ -22,7 +22,9 @@
 #include "hal/switch_driver.h"
 #include "hal/adc_driver.h"
 
-#include "opentx.h"
+#include "myeeprom.h"
+#include "edgetx.h"
+#include "edgetx_constants.h"
 #include "switches.h"
 #include "input_mapping.h"
 
@@ -90,6 +92,8 @@ void setFSStartupPosition()
 {
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
     uint8_t startPos = (g_model.functionSwitchStartConfig >> 2 * i) & 0x03;
+    if (FSWITCH_CONFIG(i) == SWITCH_TOGGLE)
+      startPos = FS_START_OFF;
     switch(startPos) {
       case FS_START_OFF:
         g_model.functionSwitchLogicalState &= ~(1 << i);   // clear state
@@ -316,7 +320,12 @@ void switchSetCustomName(uint8_t idx, const char* str, size_t len)
 
 const char* switchGetCustomName(uint8_t idx)
 {
-  return _switchNames[idx];
+#if defined(FUNCTION_SWITCHES)
+  if (idx >= switchGetMaxSwitches()) // Switch is a customisable switch
+    return g_model.switchNames[idx - switchGetMaxSwitches()];
+  else
+#endif
+    return _switchNames[idx];
 }
 
 bool switchHasCustomName(uint8_t idx)
@@ -480,6 +489,11 @@ PACK(typedef struct {
   uint16_t state:1;
   uint16_t duration:15;
 }) ls_stay_struct;
+
+bool getLSStickyState(uint8_t idx)
+{
+  return lswFm[mixerCurrentFlightMode].lsw[idx].lastValue & 1;
+}
 
 void logicalSwitchesInit(bool force)
 {
@@ -1063,20 +1077,15 @@ void logicalSwitchesTimerTick()
     for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
       LogicalSwitchData * ls = lswAddress(i);
       if (ls->func == LS_FUNC_TIMER) {
-        int16_t * lastValue = &LS_LAST_VALUE(fm, i);
+        int16_t *lastValue = &LS_LAST_VALUE(fm, i);
         if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
           *lastValue = -lswTimerValue(ls->v1);
+        } else if (*lastValue < 0) {
+          if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2);
+        } else {  // if (*lastValue > 0)
+          if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1);
         }
-
-        else if (*lastValue < 0) {
-          if (++(*lastValue) == 0)
-            *lastValue = lswTimerValue(ls->v2);
-        }
-        else { // if (*lastValue > 0)
-          *lastValue -= 1;
-        }
-      }
-      else if (ls->func == LS_FUNC_STICKY) {
+      } else if (ls->func == LS_FUNC_STICKY) {
         ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
         bool before = lastValue.last & 0x01;
         if (lastValue.state) {
@@ -1101,8 +1110,7 @@ void logicalSwitchesTimerTick()
                 }
             }
         }
-      }
-      else if (ls->func == LS_FUNC_EDGE) {
+      } else if (ls->func == LS_FUNC_EDGE) {
         ls_stay_struct & lastValue = (ls_stay_struct &)LS_LAST_VALUE(fm, i);
         // if this ls was reset by the logicalSwitchesReset() the lastValue will be set to CS_LAST_VALUE_INIT(0x8000)
         // when it is unpacked into ls_stay_struct the lastValue.duration will have a value of 0x4000

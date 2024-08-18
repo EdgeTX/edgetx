@@ -25,6 +25,7 @@
 #include "stm32_gpio_driver.h"
 
 #include "hal.h"
+#include "hal/i2c_driver.h"
 #include "hal/eeprom_driver.h"
 
 static void init_wp_pin()
@@ -47,8 +48,7 @@ static void init_wp_pin()
 
 void eepromInit()
 {
-  stm32_i2c_deinit(EEPROM_I2C_BUS);
-  stm32_i2c_init(EEPROM_I2C_BUS, I2C_B1_CLK_RATE);
+  i2c_init(EEPROM_I2C_BUS);
   init_wp_pin();
 }
 
@@ -59,7 +59,7 @@ void eepromInit()
   */
 static bool I2C_EE_WaitEepromStandbyState(void)
 {
-  if (stm32_i2c_is_dev_ready(EEPROM_I2C_BUS, EEPROM_I2C_ADDRESS, 20 /* 20ms */) < 0)
+  if (i2c_dev_ready(EEPROM_I2C_BUS, EEPROM_I2C_ADDRESS) < 0)
     return false;
 
   return true;

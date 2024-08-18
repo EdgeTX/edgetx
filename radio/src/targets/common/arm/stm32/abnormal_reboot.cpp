@@ -49,7 +49,11 @@ void _init_reboot_cause()
   _dbg_csr = LL_RCC_ReadReg(CSR);
 #endif
   
+#ifdef STM32H7
+  if (LL_RCC_IsActiveFlag_IWDG1RST()) {
+#else
   if (LL_RCC_IsActiveFlag_IWDGRST()) {
+#endif
     _reboot_cause = ARC_Watchdog;
   } else if (LL_RCC_IsActiveFlag_SFTRST()) {
     _reboot_cause = ARC_Software;

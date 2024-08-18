@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "strhelpers.h"
 #include "switches.h"
 
@@ -448,7 +448,7 @@ void audioTask(void * pdata)
 
   setSampleRate(AUDIO_SAMPLE_RATE);
 
-#if defined(PCBX12S) || defined(RADIO_TX16S)
+#if defined(PCBX12S) || defined(RADIO_TX16S) || defined(RADIO_F16)
   // The audio amp needs ~2s to start
   RTOS_WAIT_MS(1000); // 1s
 #endif
@@ -551,6 +551,7 @@ int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
   }
 
   if (result != FR_OK) {
+    f_close(&state.file);
     clear();
   }
   return 0;

@@ -37,7 +37,7 @@
 
 #include "timers_driver.h"
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "globals.h"
 #include "sdcard.h"
 #include "debug.h"
@@ -51,14 +51,20 @@
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
 
+#if defined(VIDEO_SWITCH)
+#include "videoswitch_driver.h"
+
+void boardBLInit()
+{
+  videoSwitchInit();
+}
+#endif
+
 #if !defined(BOOT)
-#include "opentx.h"
+#include "edgetx.h"
 
 void boardInit()
 {
-  LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
-  LL_APB2_GRP1_EnableClock(LCD_RCC_APB2Periph);
-
 #if defined(RADIO_FAMILY_T16)
   void board_set_bor_level();
   board_set_bor_level();
@@ -140,6 +146,10 @@ void boardInit()
   switchInit();
   rotaryEncoderInit();
 
+#if defined(HARDWARE_TOUCH)
+  touchPanelInit();
+#endif
+
 #if defined(PWM_STICKS)
   sticksPwmDetect();
 #endif
@@ -160,6 +170,9 @@ void boardInit()
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
 
+#if defined(VIDEO_SWITCH)
+  videoSwitchInit();
+#endif
 
 #if defined(DEBUG)
   // DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP|DBGMCU_TIM1_STOP|DBGMCU_TIM2_STOP|DBGMCU_TIM3_STOP|DBGMCU_TIM4_STOP|DBGMCU_TIM5_STOP|DBGMCU_TIM6_STOP|DBGMCU_TIM7_STOP|DBGMCU_TIM8_STOP|DBGMCU_TIM9_STOP|DBGMCU_TIM10_STOP|DBGMCU_TIM11_STOP|DBGMCU_TIM12_STOP|DBGMCU_TIM13_STOP|DBGMCU_TIM14_STOP, ENABLE);
@@ -179,6 +192,10 @@ void boardInit()
   ledBlue();
 #if !defined(LCD_VERTICAL_INVERT)
   lcdSetInitalFrameBuffer(lcdFront->getData());
+#elif defined(RADIO_F16)
+  if(hardwareOptions.pcbrev > 0) {
+    lcdSetInitalFrameBuffer(lcdFront->getData());
+  }
 #endif
 }
 #endif

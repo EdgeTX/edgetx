@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -26,6 +27,7 @@
 #include "appdata.h"
 #include "adjustmentreference.h"
 #include "curveimage.h"
+#include "sourcenumref.h"
 
 #include <QApplication>
 #include <QPainter>
@@ -366,9 +368,9 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
     str += " " + tr("Scale(%1)").arg(input.scale * range.step).toHtmlEscaped();
   }
 
-  str += " " + tr("Weight(%1)").arg(AdjustmentReference(input.weight).toString(&model, true)).toHtmlEscaped();
+  str += " " + tr("Weight(%1)").arg(SourceNumRef(input.weight).toString(&model, &generalSettings)).toHtmlEscaped();
   if (input.curve.value)
-    str += " " + input.curve.toString(&model).toHtmlEscaped();
+    str += " " + input.curve.toString(&model, true, &generalSettings).toHtmlEscaped();
 
   QString flightModesStr = printFlightModes(input.flightModes);
   if (!flightModesStr.isEmpty())
@@ -386,7 +388,7 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
   }
 
   if (input.offset)
-    str += " " + tr("Offset(%1)").arg(AdjustmentReference(input.offset).toString(&model)).toHtmlEscaped();
+    str += " " + tr("Offset(%1)").arg(SourceNumRef(input.offset).toString(&model, &generalSettings)).toHtmlEscaped();
   if (firmware->getCapability(HasExpoNames) && input.name[0])
     str += QString(" [%1]").arg(input.name).toHtmlEscaped();
 
@@ -417,7 +419,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   if (mix.mltpx == MLTPX_MUL && !showMultiplex)
     str += " " + tr("MULT!").toHtmlEscaped();
   else
-    str += " " + tr("Weight(%1)").arg(AdjustmentReference(mix.weight).toString(&model, true)).toHtmlEscaped();
+    str += " " + tr("Weight(%1)").arg(SourceNumRef(mix.weight).toString(&model, &generalSettings)).toHtmlEscaped();
 
   QString flightModesStr = printFlightModes(mix.flightModes);
   if (!flightModesStr.isEmpty())
@@ -429,19 +431,24 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   if (mix.carryTrim > 0)
     str += " " + tr("NoTrim");
   else if (mix.carryTrim < 0)
-    str += " " + RawSource(SOURCE_TYPE_TRIM, (-(mix.carryTrim)-1)).toString(&model, &generalSettings);
+    str += " " + RawSource(SOURCE_TYPE_TRIM, (-(mix.carryTrim)-1) + 1).toString(&model, &generalSettings);
 
   if (firmware->getCapability(HasNoExpo) && mix.noExpo)
     str += " " + tr("No DR/Expo").toHtmlEscaped();
   if (mix.sOffset)
-    str += " " + tr("Offset(%1)").arg(AdjustmentReference(mix.sOffset).toString(&model)).toHtmlEscaped();
+    str += " " + tr("Offset(%1)").arg(SourceNumRef(mix.sOffset).toString(&model, &generalSettings)).toHtmlEscaped();
   if (mix.curve.value)
-    str += " " + mix.curve.toString(&model).toHtmlEscaped();
+    str += " " + mix.curve.toString(&model, true, &generalSettings).toHtmlEscaped();
   int scale = firmware->getCapability(SlowScale);
-  if (scale == 0)
-    scale = 1;
+  if (scale == 0) scale = 1;
+  if (mix.delayPrec) {
+    scale = scale * 10;
+    str += " " + tr("Delay precision(0.00)").toHtmlEscaped();
+  }
   if (mix.delayDown || mix.delayUp)
     str += " " + tr("Delay(u%1:d%2)").arg((double)mix.delayUp / scale).arg((double)mix.delayDown / scale).toHtmlEscaped();
+  scale = firmware->getCapability(SlowScale);
+  if (scale == 0) scale = 1;
   if (mix.speedPrec) {
     scale = scale * 10;
     str += " " + tr("Slow precision(0.00)").toHtmlEscaped();
@@ -696,7 +703,7 @@ QString ModelPrinter::printOutputValueGVar(int val)
   if (abs(val) > 10000) {
     if (val < 0)
       result = "-";
-    result.append(RawSource(SOURCE_TYPE_GVAR, abs(val)-10001).toString(&model));
+    result.append(RawSource(SOURCE_TYPE_GVAR, (abs(val)-10001) + 1).toString(&model));
   }
   else {
     if (val >= 0)
@@ -932,6 +939,10 @@ QString ModelPrinter::printThrottle()
   result << printLabelValue(tr("Trim idle only"), printBoolean(model.thrTrim, BOOLEAN_YESNO));
   result << printLabelValue(tr("Warning"), printBoolean(!model.disableThrottleWarning, BOOLEAN_YESNO));
   result << printLabelValue(tr("Reversed"), printBoolean(model.throttleReversed, BOOLEAN_YESNO));
+  int thrTrim = model.thrTrimSwitch;
+  if (thrTrim == 0) thrTrim = 2;
+  else if (thrTrim == 2) thrTrim = 0;
+  result << printLabelValue(tr("Trim source"), RawSource(SOURCE_TYPE_TRIM, thrTrim + 1).toString(&model, &generalSettings));
   return result.join(" ");
 }
 

@@ -119,7 +119,7 @@ static int8_t STORAGE_GetMaxLun_FS(void);
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
 
 
-USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
+USBD_StorageTypeDef USBD_Storage_Interface_fops =
 {
   STORAGE_Init_FS,
   STORAGE_GetCapacity_FS,
@@ -136,14 +136,7 @@ USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
 
 int8_t STORAGE_Init_FS(uint8_t lun)
 {
-  NVIC_SetPriority(SDIO_IRQn, 0);
-  NVIC_EnableIRQ(SDIO_IRQn);
-
-/* TODO if no SD ... if( SD_Init() != 0)
-  {
-    return (-1);
-  }
-*/
+  // TODO: call generic storage init
   return (USBD_OK);
 }
 

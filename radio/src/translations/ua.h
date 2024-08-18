@@ -121,11 +121,13 @@
 #define TR_SF_DISABLE_TOUCH            "Сенсор вимк."
 #define TR_SF_DISABLE_AUDIO_AMP        "Підсил. вимк."
 #define TR_SF_SET_SCREEN               "Вибір гол. екр."
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Телем", "Телеметрія")
+#define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS            "Тмр1","Тмр2","Тмр3"
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Все","Політ"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Все","Політ"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
 #define TR_FUNCSOUNDS                  TR("Сг1","Синг.1"),TR("Сг2","Синг.2"),TR("Сг3","Синг.3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
@@ -806,7 +808,7 @@
 #define TR_INTERNALRF                  "Внутрійшній RF"
 #define TR_INTERNAL_MODULE             TR("Внутр. модуль", "Внутрішній модуль")
 #define TR_EXTERNAL_MODULE             TR("Зовн. модуль", "Зовнішній модуль")
-#define TR_OPENTX_UPGRADE_REQUIRED     "Потрібне оновлення OpenTX"
+#define TR_EDGETX_UPGRADE_REQUIRED     "Потрібне оновлення EdgeTX"
 #define TR_TELEMETRY_DISABLED          "Телем. вимкнуто"
 #define TR_MORE_OPTIONS_AVAILABLE      "Доступні додаткові опції"
 #define TR_NO_MODULE_INFORMATION       "Інформація по модулю відсутня"
@@ -947,7 +949,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Коп трим->субтрим", "Копіювати трим до субтрим")
 #define TR_INCDEC                      "Збільш/Зменш"
 #define TR_GLOBALVAR                   "Глобальна змінна"
-#define TR_MIXSOURCE                   "Джерело мікшеру"
+#define TR_MIXSOURCE                   "Джерело (%)"
+#define TR_MIXSOURCERAW                "Джерело (Значення)"
 #define TR_CONSTANT                    "Постійна"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "OFF","ON","AUTO"
 #define TR_PREFLIGHT                   "Стартові перевірки"
@@ -1025,7 +1028,7 @@
   #define TR_WIDGET_VALUE              "Значення"
 #endif
 
-// Bootloader common - Ascii only
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB Connected"
 #define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
 #define TR_BL_USB_MASS_STORE          "for mass storage"
@@ -1055,26 +1058,28 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Press the power button."
     #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
   #define TR_BL_SELECT_KEY            "[ENT] to select file"
   #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
   #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_CURRENT_FW            "Current Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
   #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
   #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
+  #define TR_BL_ENABLE                "Enable"
+  #define TR_BL_DISABLE               "Disable"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
@@ -1290,6 +1295,7 @@
 #define TR_CREATE_NEW             "Створити"
 
 #define TR_MIX_SLOW_PREC          TR("Точн. уповільн.", "Точність уповільнення")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "A theme directory with the same name already exists."
 
@@ -1298,3 +1304,7 @@
 #define TR_LOW_BATT_COLOR         "Розряджена батарея"
 #define TR_MID_BATT_COLOR         "Середній заряд батареї"
 #define TR_HIGH_BATT_COLOR        "Заряджена батарея"
+
+#define TR_WIDGET_SIZE            "Розмір віджета"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

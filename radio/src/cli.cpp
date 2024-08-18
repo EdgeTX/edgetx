@@ -22,7 +22,7 @@
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/stream_buffer.h>
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "timers_driver.h"
 #include "hal/watchdog_driver.h"
 
@@ -969,7 +969,7 @@ int cliSet(const char **argv)
       return -1;
     }
   }
-#if !defined(SOFTWARE_VOLUME)
+#if !defined(SOFTWARE_VOLUME) && defined(AUDIO)
   else if (!strcmp(argv[1], "volume")) {
     int level = 0;
     if (toInt(argv, 2, &level) > 0) {
@@ -1006,14 +1006,14 @@ int cliSet(const char **argv)
       }
       const auto* mod = modulePortGetModuleDescription(INTERNAL_MODULE);
       if (!mod || !mod->set_bootcmd) {
-	cliSerialPrint("%s: invalid module or has no bootcmd pin", argv[0]);
-	return -1;
+        cliSerialPrint("%s: invalid module or has no bootcmd pin", argv[0]);
+        return -1;
       }
       mod->set_bootcmd(level);
       if (level) {
-	cliSerialPrint("%s: bootcmd set", argv[0]);
+        cliSerialPrint("%s: bootcmd set", argv[0]);
       } else {
-	cliSerialPrint("%s: bootcmd reset", argv[0]);
+        cliSerialPrint("%s: bootcmd reset", argv[0]);
       }
     }
     else {

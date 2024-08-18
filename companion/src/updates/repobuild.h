@@ -32,12 +32,12 @@ class RepoBuild : public Repo
                        const QString & path, const QString & nightly, const int resultsPerPage);
     virtual ~RepoBuild();
 
-    const QString urlAsset(const int assetId) const;
-    const QString urlAssets(const int releaseId) const { return ""; }
-    const QString urlContent(const QString & filename) const { return ""; }
-    const QString urlJobs() const;
-    const QString urlReleases() const;
-    const QString urlStatus() const;
+    const QString urlAsset(const int assetId) const override;
+    const QString urlAssets(const int releaseId) const override { return ""; }
+    const QString urlContent(const QString & filename) const override { return ""; }
+    const QString urlJobs() const override;
+    const QString urlReleases() const override;
+    const QString urlStatus() const override;
 
     const UpdateNetwork::DownloadDataType assetDownloadDataType() const override { return UpdateNetwork::DDT_Build_SaveToFile; }
     const UpdateNetwork::DownloadDataType assetContentDataType() const override { return UpdateNetwork::DDT_Unknown; }

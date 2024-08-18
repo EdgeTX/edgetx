@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HAL_H_
-#define _HAL_H_
+#pragma once
 
 #define CPU_FREQ                168000000
 
@@ -398,8 +397,6 @@
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
-#define LCD_RCC_AHB1Periph              LL_AHB1_GRP1_PERIPH_DMA2D
-#define LCD_RCC_APB2Periph              LL_APB2_GRP1_PERIPH_LTDC
 #define LCD_NRST_GPIO                   GPIO_PIN(GPIOG, 9) // PG.09
 #define LCD_SPI_CS_GPIO                 GPIO_PIN(GPIOE, 4)  // PE.04
 #define LCD_SPI_SCK_GPIO                GPIO_PIN(GPIOE, 2)  // PE.02
@@ -453,16 +450,16 @@
 
 // I2C Bus
 #define I2C_B1                          I2C1
-#define I2C_B1_GPIO                     GPIOB
-#define I2C_B1_SDA_GPIO_PIN             LL_GPIO_PIN_7  // PB.07
-#define I2C_B1_SCL_GPIO_PIN             LL_GPIO_PIN_8  // PB.08
+#define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOB, 8)  // PB.08
+#define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOB, 7)  // PB.07
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
+#define I2C_B1_CLK_RATE                 400000
 
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1
-#define TOUCH_I2C_CLK_RATE              400000
-#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOB, 9)  // PB.09
+#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOB, 9)   // PB.09
 #define TOUCH_RST_GPIO                  GPIO_PIN(GPIOB, 12)  // PB.12
+
 #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_9
 #define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTB
 #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE9
@@ -655,5 +652,3 @@
 
 #define LCD_DEPTH                       16
 #define LCD_CONTRAST_DEFAULT            20
-
-#endif // _HAL_H_

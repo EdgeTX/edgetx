@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -915,7 +916,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
 
   bool modified = false;
   int modelIdx = modelsListModel->getModelIndex(row);
-  unsigned inserts = 0;
+  // unsigned inserts = 0;
   QVector<int> deletesList;
 
   // Force DnD moves from other file windows to be copy actions because we don't want to delete our models.
@@ -942,7 +943,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       ok = insertModelRows(modelIdx, 1);
       if (ok) {
         radioData.models[modelIdx] = modelsList[i];
-        ++inserts;
+        // ++inserts;
       }
     }
     else if (!deletesList.contains(modelIdx)) {
@@ -970,7 +971,7 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
           ok = insertModelRows(modelIdx, 1);
           if (ok) {
             radioData.models[modelIdx] = modelsList[i];
-            ++inserts;
+            // ++inserts;
           }
         }
         else if (msgBox.clickedButton() == cancelButton) {
@@ -1251,6 +1252,7 @@ void MdiChild::newFile(bool createDefaults)
   isUntitled = true;
   curFile = QString("document%1.etx").arg(sequenceNumber++);
   updateTitle();
+  modelsListModel->setFilename(curFile);
   radioData.addLabel(tr("Favorites"));
   labelsListModel->buildLabelsList();
 }
@@ -1395,6 +1397,7 @@ void MdiChild::setCurrentFile(const QString & fileName)
   isUntitled = false;
   setWindowModified(false);
   updateTitle();
+  modelsListModel->setFilename(curFile);
 
   QStringList files = g.recentFiles();
   files.removeAll(curFile);

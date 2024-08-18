@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 MenuHandlerFunc menuHandlers[5];
 event_t menuEvent = 0;
@@ -47,6 +47,7 @@ void abortPopMenu()
 
 void chainMenu(MenuHandlerFunc newMenu)
 {
+  killAllEvents();
   menuHandlers[menuLevel] = newMenu;
   menuEvent = EVT_ENTRY;
   // TODO ? AUDIO_KEY_PRESS();
@@ -55,7 +56,7 @@ void chainMenu(MenuHandlerFunc newMenu)
 
 void pushMenu(MenuHandlerFunc newMenu)
 {
-  killEvents(KEY_ENTER); // TODO: Check if needed.
+  killAllEvents();
 
   if (menuLevel == 0) {
     if (newMenu == menuRadioSetup)

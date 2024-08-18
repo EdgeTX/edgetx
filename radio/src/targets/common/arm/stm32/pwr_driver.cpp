@@ -65,7 +65,7 @@ void pwrInit()
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #elif defined(PCBREV_GPIO_1) && defined(PCBREV_GPIO_2)
   gpio_init(PCBREV_GPIO_1, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-  #if defined(PCBREV_TOUCH_GPIO_PIN)
+  #if defined(PCBREV_TOUCH_GPIO)
     #if defined(PCBREV_TOUCH_GPIO_PULL_UP)
       gpio_init(PCBREV_GPIO_2, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
     #else
@@ -74,6 +74,14 @@ void pwrInit()
   #endif
 
   hardwareOptions.pcbrev = PCBREV_VALUE();
+#endif
+
+  // Aux serial port power
+#if defined(AUX_SERIAL_PWR_GPIO)
+  gpio_init(AUX_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+#if defined(AUX2_SERIAL_PWR_GPIO)
+  gpio_init(AUX2_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 }
 

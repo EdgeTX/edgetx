@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DEFINITIONS_H_
-#define _DEFINITIONS_H_
+#pragma once
 
 #include <inttypes.h>
 #include <stdbool.h>
@@ -43,7 +42,7 @@
 #endif
 
 #if !defined(UNUSED)
-  #define UNUSED(x)           ((void)(x)) /* to avoid warnings */
+  #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
 #endif
 
 #if !defined(__ALIGNED)
@@ -115,5 +114,3 @@
   #define EXTERN_C_START
   #define EXTERN_C_END
 #endif
-
-#endif // _DEFINITIONS_H_

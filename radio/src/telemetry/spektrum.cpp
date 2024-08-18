@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "spektrum.h"
 #include "hal/module_port.h"
 #include "tasks/mixer_task.h"
@@ -76,6 +76,7 @@
 #define I2C_ESC                       0x20  // Electronic Speed Control
 #define I2C_ALPHA6                    0x24  // Alpha6 Stabilizer - Blade Helis
 #define I2C_GPS_BIN                   0x26  // GPS, binary format
+#define I2C_REMOTE_ID                 0x27  // Spektrum SkyID/RemoteID
 #define I2C_FP_BATT                   0x34  // Flight Battery Capacity (Dual)
 #define I2C_CELLS                     0x3A  // 6S Cell Monitor (LiPo taps)
 #define I2C_VARIO                     0x40  // Vario
@@ -564,6 +565,7 @@ void processSpektrumPacket(const uint8_t *packet)
 #if TEST_CAPTURED_MESSAGE
   // Only for Testing when we don't have the sensor, but have sample data
   i2cAddress = replaceForTestingPackage(packet);
+  instance = packet[3];
 #endif
 
   if (i2cAddress == I2C_FWD_PGM) {
@@ -613,13 +615,13 @@ void processSpektrumPacket(const uint8_t *packet)
   else if (i2cAddress == I2C_FLITECTRL) {
     // AS3X + SAFE information: Flight Mode
     processAS3XPacket(packet);
-    // Continue for backward compatibility with scripts using 05XX sensors
+    return; // not a sensor... this is to cleanup many auto-generated 05XX sensors
   } // I2C_FLITECTRL
 
   else if (i2cAddress == I2C_ALPHA6) {
     // Alpha6 Flight Controller (Blade Helis): Flight Mode
     processAlpha6Packet(packet);
-    // Continue for backward compatibility with scripts using 24XX sensors
+    return; // not a sensor... this is to cleanup many auto-generated 24XX sensors
   } // I2C_ALPHA6
 
   else if (i2cAddress == I2C_SMART_BAT_BASE_ADDRESS) {
@@ -627,6 +629,24 @@ void processSpektrumPacket(const uint8_t *packet)
     // use type to create virtual I2CAddresses
     i2cAddress = i2cAddress + (packet[4] >> 4);
   } // I2C_SMART_BAT_BASE_ADDRESS
+
+  else if (i2cAddress == I2C_REMOTE_ID) { 
+     if (instance == I2C_GPS_LOC || instance == I2C_GPS_STAT) {
+      // RemoteID/SkyID GPS Data embeded in RemoteID packages
+      // The format is exactly the same (with the exception of the I2C_ID and Instance), 
+      // so we just need to continue processing it as if the frame was a GPS telemetry data.
+      // The instance is populated with 0x16/0x17 when is GPS, and 0x00 when it is the
+      // usual RemoteID data
+      i2cAddress = instance;
+      instance = 0;
+     } else {
+      // Currently we are not processing any other of the RemoteID telemetry frames
+      // we can add in the future a new sensor(s) to record the Remote system ID if we want 
+      // to log it as part of the telemetry data.
+      return; // not a sensor... this is to cleanup many auto-generated 27XX sensors
+     }
+  } // I2C_REMOTE_ID
+
 
   bool handled = false;
   for (const SpektrumSensor * sensor = spektrumSensors; sensor->i2caddress; sensor++) {
@@ -1094,6 +1114,7 @@ static bool real0x16 = false;
 static bool real0x17 = false;
 static bool real0x34 = false;
 static bool real0x3A = false;
+static bool real0x27 = false;
 
 // *********** GPS LOC (BCD) ******************************
 // Example 0x16:          0  1    2  3  4  5    6  7  8  9    10 11   12   13
@@ -1128,6 +1149,13 @@ static char test3Adata[] = {0x3A, 0x00, 0x01, 0x9A, 0x01, 0x9B, 0x01, 0x9C,
                                         0x01, 0x91 };
 
 
+// RemoteID (0x27), embeds Gps data in its frames, but by puting the real I2C frame
+// address as the instance, everything else is the same
+static char test27data_16[] = {0x27, 0x16, 0x97, 0x00, 0x54, 0x71, 0x12, 0x28,
+                            0x40, 0x80, 0x09, 0x11, 0x85, 0x14, 0x13, 0xBD}; // > 99 Flag
+static char test27data_17[] = {0x27, 0x17, 0x25, 0x00, 0x00,
+                            0x28, 0x18, 0x21, 0x06, 0x00};
+
 static uint8_t replaceForTestingPackage(const uint8_t *packet)
 {
   uint8_t i2cAddress = packet[2] & 0x7f;
@@ -1137,6 +1165,7 @@ static uint8_t replaceForTestingPackage(const uint8_t *packet)
   else if (i2cAddress == I2C_GPS_STAT) real0x17 = true;
   else if (i2cAddress == I2C_FP_BATT) real0x34 = true;
   else if (i2cAddress == I2C_CELLS) real0x3A = true;
+  else if (i2cAddress == I2C_REMOTE_ID) real0x27 = true;
   
   // Only Substiture AS3X/SAFE I2C_FLITECTRL packages, since they are constantly brodcast
   if (i2cAddress != I2C_FLITECTRL) {  
@@ -1148,6 +1177,12 @@ static uint8_t replaceForTestingPackage(const uint8_t *packet)
         // return original packet
         break;
     case 1: // return GSP LOG
+        if (!real0x27) {
+          test27data_16[4]=test27data_16[4]+1;
+          test27data_16[8]=test27data_16[8]+1;
+          memcpy((char *)packet + 2, test27data_16, 16);
+          real0x16=true; // disable test of regular GPS frames, and use the RemoteID
+        }
         if (!real0x16) {
           test16data[4]=test16data[4]+1;
           test16data[8]=test16data[8]+1;
@@ -1155,6 +1190,10 @@ static uint8_t replaceForTestingPackage(const uint8_t *packet)
         }
         break;
     case 2: // Return GPS STAT
+        if (!real0x27) {
+          memcpy((char *)packet + 2, test27data_17, 10);
+          real0x17=true; // disable test of regular GPS frames, and use the RemoteID
+        }
         if (!real0x17) memcpy((char *)packet + 2, test17data, 10);
         break;
     case 3: // Return Dual Bat monitor

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TOUCH_H_
-#define _TOUCH_H_
+#pragma once
 
 enum TouchEvent
 {
@@ -49,5 +48,3 @@ struct TouchState
 #define SLIDE_RANGE 6
 
 extern struct TouchState touchState;
-
-#endif // _TOUCH_H_

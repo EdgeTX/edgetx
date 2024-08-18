@@ -27,7 +27,7 @@
 #define ROTENC_MIDSPEED   5
 #define ROTENC_HIGHSPEED 50
 
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T15)
+#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_T15)
 #define ROTARY_ENCODER_GRANULARITY 4
 #else
 #define ROTARY_ENCODER_GRANULARITY 2
@@ -39,10 +39,6 @@ void rotaryEncoderInit();
 
 // return impulses / granularity
 rotenc_t rotaryEncoderGetValue();
-
-// returns raw # impulses
-rotenc_t rotaryEncoderGetRawValue();
-
 
 int8_t rotaryEncoderGetAccel();
 void rotaryEncoderResetAccel();

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "multi.h"
 
 #include "io/multi_protolist.h"
@@ -137,7 +137,7 @@ static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
   }
 
   // Invert telemetry if needed
-  uint8_t disableTelemetry = modulePortHasRx(module) ? 0 : 1;
+  uint8_t disableTelemetry = g_model.moduleData[module].multi.disableTelemetry || (modulePortHasRx(module) ? 0 : 1);
   if (invert[module] & 0x80 && !disableTelemetry) {
     if (getMultiModuleStatus(module).isValid()) {
       invert[module] &= 0x08;  // Telemetry received, stop searching

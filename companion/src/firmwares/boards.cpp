@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -183,6 +184,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_BETAFPV_LR3PRO:
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
+    case BOARD_JUMPER_T12MAX:
     case BOARD_JUMPER_T14:
     case BOARD_JUMPER_T20:
     case BOARD_JUMPER_T20V2:
@@ -190,6 +192,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
     case BOARD_JUMPER_TPROV2:
+    case BOARD_JUMPER_TPROS:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
     case BOARD_RADIOMASTER_T8:
@@ -209,6 +212,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
+    case BOARD_FATFISH_F16:
       return 0;
     default:
       return 0;
@@ -236,6 +240,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_BETAFPV_LR3PRO:
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
+    case BOARD_JUMPER_T12MAX:
     case BOARD_JUMPER_T14:
     case BOARD_JUMPER_T20:
     case BOARD_JUMPER_T20V2:
@@ -243,6 +248,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
     case BOARD_JUMPER_TPROV2:
+    case BOARD_JUMPER_TPROS:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
     case BOARD_RADIOMASTER_ZORRO:
@@ -260,6 +266,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
+    case BOARD_FATFISH_F16:
       return FSIZE_HORUS;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -532,6 +539,10 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T-Pro";
     case BOARD_JUMPER_TPROV2:
       return "Jumper T-Pro V2";
+    case BOARD_JUMPER_TPROS:
+      return "Jumper T-Pro S";
+    case BOARD_JUMPER_T12MAX:
+      return "Jumper T12 MAX";
     case BOARD_JUMPER_T14:
       return "Jumper T14";
     case BOARD_JUMPER_T15:
@@ -568,6 +579,8 @@ QString Boards::getBoardName(Board::Type board)
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
       return "iFlight Commando 8";
+    case BOARD_FATFISH_F16:
+      return "Fatfish F16";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -616,9 +629,12 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
   } else if (IS_FLYSKY_NV14(board)) {
     modules.append({(int)MODULE_TYPE_FLYSKY_AFHDS2A});
   } else if (IS_FLYSKY_EL18(board)) {
-    modules.append({(int)MODULE_TYPE_FLYSKY_AFHDS3});
-  } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board)
-             || (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
+    modules.append({
+        (int)MODULE_TYPE_FLYSKY_AFHDS3,
+        (int)MODULE_TYPE_CROSSFIRE,
+    });
+  } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
+             (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
     modules.append({
         (int)MODULE_TYPE_XJT_PXX1,
         (int)MODULE_TYPE_ISRM_PXX2,
@@ -671,10 +687,13 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_POCKET:
   case BOARD_RADIOMASTER_TX12_MK2:
   case BOARD_IFLIGHT_COMMANDO8:
+  case BOARD_JUMPER_T12MAX:
   case BOARD_JUMPER_T14:
   case BOARD_JUMPER_T15:
   case BOARD_JUMPER_T20:
   case BOARD_JUMPER_T20V2:
+  case BOARD_JUMPER_TPROS:
+  case BOARD_FATFISH_F16:
     return (int)MODULE_TYPE_CROSSFIRE;
 
   case BOARD_FLYSKY_NV14:

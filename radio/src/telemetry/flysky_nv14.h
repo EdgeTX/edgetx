@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __FLYSKY_NV14_H__
-#define __FLYSKY_NV14_H__
+#pragma once
 
 enum FlySkySensorType_E {
   FLYSKY_SENSOR_RX_VOLTAGE,
@@ -67,5 +66,3 @@ void processInternalFlySkyTelemetryData(uint8_t byte);
 uint8_t intmoduleGetByte(uint8_t * byte);
 
 extern bool syncAfhds2Module;
-
-#endif

@@ -23,7 +23,7 @@
 #include <memory.h>
 
 #include "lcd.h"
-#include "thirdparty/libopenui/src/bitfield.h"
+#include "bitfield.h"
 #include "gui/common/stdlcd/fonts.h"
 #include "gui/common/stdlcd/utf8.h"
 
@@ -34,7 +34,7 @@
 #endif
 
 #if !defined(BOOT)
-  #include "opentx.h"
+  #include "edgetx.h"
   #include "hal/switch_driver.h"
   #include "hal/adc_driver.h"
   #include "switches.h"
@@ -660,55 +660,6 @@ void putsVolts(coord_t x, coord_t y, uint16_t volts, LcdFlags att)
 void putsVBat(coord_t x, coord_t y, LcdFlags att)
 {
   putsVolts(x, y, g_vbat100mV, att);
-}
-
-void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
-{
-  uint16_t aidx = abs(idx);
-  bool inverted = idx < 0;
-
-  if (aidx == MIXSRC_NONE) {
-    lcdDrawText(x, y, STR_EMPTY, att);
-  }
-  else if (aidx <= MIXSRC_LAST_INPUT) {
-    if (inverted) {
-      lcdDrawChar(x, y, '!');
-      x += 2;
-    }
-    lcdDrawChar(x+2, y+1, CHR_INPUT, TINSIZE);
-    lcdDrawSolidFilledRect(x, y, 7, 7);
-    if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
-      lcdDrawSizedText(x+8, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
-    else
-      lcdDrawNumber(x+8, y, aidx, att|LEADING0|LEFT, 2);
-  }
-#if defined(LUA_INPUTS)
-  else if (aidx <= MIXSRC_LAST_LUA) {
-    div_t qr = div((uint16_t)(aidx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-#if defined(LUA_MODEL_SCRIPTS)
-    if (inverted) {
-      lcdDrawChar(x, y, '!');
-      x += 2;
-    }
-    if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
-      lcdDrawChar(x+2, y+1, '1'+qr.quot, TINSIZE);
-      lcdDrawFilledRect(x, y, 7, 7, 0);
-      lcdDrawSizedText(x+8, y, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, att & STREXPANDED ? 9 : 4, att);
-    }
-    else
-#endif
-    {
-      drawStringWithIndex(x, y, "LUA", qr.quot+1, att);
-      lcdDrawChar(lcdLastRightPos, y, 'a' + qr.rem, att);
-    }
-  }
-#endif
-  else {
-    const char* s = getSourceString(idx);
-    if (idx >= MIXSRC_FIRST_TELEM && idx <= MIXSRC_LAST_TELEM)
-      s += strlen(STR_CHAR_TELEMETRY);
-    lcdDrawText(x, y, s, att);
-  }
 }
 
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags att)

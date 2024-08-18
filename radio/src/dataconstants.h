@@ -38,7 +38,7 @@
 #define LABELS_LENGTH 100 // Maximum length of the label string
 #define LABEL_LENGTH 16
 
-#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
+#if defined(COLORLCD) || defined(STM32H747xx)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_FLIGHT_MODES             9
@@ -97,7 +97,7 @@ enum CurveType {
 #define MIN_POINTS_PER_CURVE           3
 #define MAX_POINTS_PER_CURVE           17
 
-#if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
+#if defined(COLORLCD)
   #define LEN_MODEL_NAME               15
   #define LEN_TIMER_NAME               8
   #define LEN_FLIGHT_MODE_NAME         10
@@ -541,10 +541,10 @@ enum MixSources {
   MIXSRC_LAST_TELEM SKIP = MIXSRC_FIRST_TELEM + 3 * MAX_TELEMETRY_SENSORS - 1,
 
   MIXSRC_INVERT SKIP,
+  MIXSRC_VALUE SKIP,  // Special case to trigger source as value conversion
 };
 
-
-#define MIXSRC_LAST                 MIXSRC_LAST_CH
+#define MIXSRC_LAST                 MIXSRC_LAST_GVAR
 #define INPUTSRC_FIRST              MIXSRC_FIRST_STICK
 #define INPUTSRC_LAST               MIXSRC_LAST_TELEM
 
@@ -590,6 +590,7 @@ enum Functions {
 #endif
   FUNC_DISABLE_AUDIO_AMP,
   FUNC_RGB_LED,
+  FUNC_LCD_TO_VIDEO,
   FUNC_TEST, // MUST remain last
 #if defined(DEBUG)
   FUNC_MAX SKIP
@@ -628,6 +629,7 @@ enum ResetFunctionParam {
   FUNC_RESET_TIMER3,
   FUNC_RESET_FLIGHT,
   FUNC_RESET_TELEMETRY,
+  FUNC_RESET_TRIMS,
   FUNC_RESET_PARAM_FIRST_TELEM,
   FUNC_RESET_PARAM_LAST_TELEM = FUNC_RESET_PARAM_FIRST_TELEM + MAX_TELEMETRY_SENSORS,
   FUNC_RESET_PARAMS_COUNT SKIP,
@@ -637,6 +639,7 @@ enum ResetFunctionParam {
 enum AdjustGvarFunctionParam {
   FUNC_ADJUST_GVAR_CONSTANT,
   FUNC_ADJUST_GVAR_SOURCE,
+  FUNC_ADJUST_GVAR_SOURCERAW,
   FUNC_ADJUST_GVAR_GVAR,
   FUNC_ADJUST_GVAR_INCDEC,
 };

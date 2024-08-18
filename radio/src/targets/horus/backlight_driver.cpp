@@ -23,7 +23,7 @@
 #include "stm32_gpio.h"
 #include "stm32_timer.h"
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "board.h"
 
 #if !defined(BOOT)

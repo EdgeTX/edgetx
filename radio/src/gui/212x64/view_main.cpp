@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "hal/trainer_driver.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
@@ -214,7 +214,7 @@ void drawSliders()
     if (!IS_SLIDER(i)) continue;
 #else
     // Skip POT3
-    if (i == 2) continue;
+    if (i == 2 && !IS_SLIDER(i)) continue;
 #endif
     
     coord_t x = _pot_slots[slot_idx++];
@@ -335,7 +335,7 @@ void displayTopBar()
     LCD_ICON(BAR_VOLUME_X, BAR_Y, ICON_SPEAKER3);
 
   /* RTC time */
-  drawRtcTime(BAR_TIME_X, BAR_Y+1, LEFT|TIMEBLINK);
+  if (rtcIsValid()) drawRtcTime(BAR_TIME_X, BAR_Y+1, LEFT|TIMEBLINK);
 
   /* The background */
   lcdDrawFilledRect(BAR_X, BAR_Y, BAR_W, BAR_H, SOLID, FILL_WHITE|GREY(12)|ROUND);
@@ -369,7 +369,7 @@ void displayTimers()
         val = (int)timerData.start - (int)timerState.val;
       drawTimer(TIMERS_X, y, val, TIMEHOUR|MIDSIZE|LEFT, TIMEHOUR|MIDSIZE|LEFT);
       if (timerData.persistent) {
-        lcdDrawChar(TIMERS_R, y+1, 'P', SMLSIZE);
+        lcdDrawChar(TIMERS_R, y-7, 'P', SMLSIZE);
       }
       if (timerState.val < 0) {
         if (BLINK_ON_PHASE) {

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GUI_H_
-#define _GUI_H_
+#pragma once
 
 #include "gui_common.h"
 #include "menus.h"
@@ -47,7 +46,7 @@
 #define CURVE_CENTER_X                 (LCD_W-CURVE_SIDE_WIDTH-3)
 #define CURVE_CENTER_Y                 (LCD_H/2)
 
-#define MIXES_2ND_COLUMN               (12*FW)
+#define MIXES_2ND_COLUMN               (10*FW)
 
 // Temporary no highlight
 extern uint8_t noHighlightCounter;
@@ -80,6 +79,10 @@ uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label,
 swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr,
                    event_t event);
 
+uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
+                              int16_t min, int16_t max, LcdFlags attr, event_t event,
+                              IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
+
 #if defined(GVARS)
 
 #define GVAR_MENU_ITEM(x, y, v, min, max, attr, editflags, event)       \
@@ -109,8 +112,6 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min,
 #define displayGVar(x, y, v, min, max) lcdDraw8bitsNumber(x, y, v)
 
 #endif
-
-void gvarWeightItem(coord_t x, coord_t y, MixData * md, LcdFlags attr, event_t event);
 
 void editName(coord_t x, coord_t y, char *name, uint8_t size, event_t event,
               uint8_t active, LcdFlags attr, uint8_t old_editMode);
@@ -198,7 +199,8 @@ void showAlertBox(const char * title, const char * text, const char * action , u
 #define IS_TELEMETRY_VIEW_DISPLAYED()  menuHandlers[0] == menuViewTelemetry
 #define IS_OTHER_VIEW_DISPLAYED()      menuHandlers[0] == menuChannelsView
 
-void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags);
+void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlags flags,
+                  IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
 
 #if defined(FLIGHT_MODES)
 void displayFlightModes(coord_t x, coord_t y, FlightModesType value);
@@ -206,5 +208,3 @@ FlightModesType editFlightModes(coord_t x, coord_t y, event_t event, FlightModes
 #else
 #define displayFlightModes(...)
 #endif
-
-#endif // _GUI_H_

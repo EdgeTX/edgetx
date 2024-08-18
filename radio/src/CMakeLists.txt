@@ -56,12 +56,8 @@ option(HARDWARE_TRAINER_MULTI "Allow multi trainer" OFF)
 option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
-
-if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
-  option(USBJ_EX "Enable USB Joystick Extension" OFF)
-else()
-  option(USBJ_EX "Enable USB Joystick Extension" ON)
-endif()
+option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
+option(USBJ_EX "Enable USB Joystick Extension" ON)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -104,6 +100,10 @@ include(hal/CMakeLists.txt)
 
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
+
+if(CPU_TYPE STREQUAL STM32H7)
+  include(targets/common/arm/stm32/h7/CMakeLists.txt)
+endif()
 
 if(CPU_TYPE STREQUAL STM32F4)
   include(targets/common/arm/stm32/f4/CMakeLists.txt)
@@ -172,8 +172,6 @@ if(RTC_BACKUP_RAM)
   # Add custom target for debugging
   add_custom_target(datacopy DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/datacopy.inc)
 endif()
-
-option(LUA_MIXER "Enable LUA mixer/model scripts support" OFF)
 
 if (LUA_MIXER AND NOT LUA)
   message(FATAL_ERROR "LUA_MIXER requires LUA!!")
@@ -246,8 +244,13 @@ endif()
 
 if(SDCARD)
   add_definitions(-DSDCARD)
-  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp thirdparty/libopenui/src/libopenui_file.cpp)
+  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp lib_file.cpp)
   set(FIRMWARE_SRC ${FIRMWARE_SRC})
+endif()
+
+if(BLUETOOTH)
+  add_definitions(-DBLUETOOTH)
+  set(SRC ${SRC} bluetooth.cpp)
 endif()
 
 if(SHUTDOWN_CONFIRMATION)
@@ -389,7 +392,7 @@ endif()
 
 set(SRC
   ${SRC}
-  opentx.cpp
+  edgetx.cpp
   functions.cpp
   strhelpers.cpp
   switches.cpp
@@ -427,11 +430,11 @@ endif()
 
 if(USBJ_EX)
   add_definitions(-DUSBJ_EX)
-  set(SRC
-    ${SRC}
+  set(SRC ${SRC}
     usb_joystick.cpp
-    )
+  )
 endif()
+
 foreach(FILE ${TARGET_SRC})
   set(SRC targets/${TARGET_DIR}/${FILE} ${SRC})
 endforeach()
@@ -459,7 +462,6 @@ else()
 endif()
 
 if(NATIVE_BUILD)
-
   set(RADIOLIB_NATIVE_SRC ${SRC})
   if(SIMU_DISKIO)
     set(RADIOLIB_NATIVE_SRC ${RADIOLIB_NATIVE_SRC}
@@ -468,7 +470,8 @@ if(NATIVE_BUILD)
 
   # Pack all radio sources into an object lib
   add_library(radiolib_native OBJECT EXCLUDE_FROM_ALL
-    ${RADIOLIB_NATIVE_SRC})
+    ${RADIOLIB_NATIVE_SRC}
+  )
 
   # Add -DSIMU here PUBLIC, so it can be imported by other targets
   # via INTERFACE_COMPILE_OPTIONS
@@ -538,6 +541,7 @@ add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 if(DEBUG)
+  target_compile_definitions(board PRIVATE -DDEBUG)
   target_compile_definitions(firmware PRIVATE -DDEBUG)
   target_compile_definitions(stm32_drivers_w_dbg_fw PRIVATE -DDEBUG)
 endif()
@@ -582,9 +586,17 @@ if(ACCESS_DENIED)
   target_link_libraries(firmware AccessDenied)
 endif()
 
+if(FIRMWARE_STRIP_BOOTLOADER)
+  # Strip bootloader from binary
+  message("-- Strip bootloader from firmware binary")
+  set(OBJCOPY_ARGS -R .bootloader)
+else()
+  message("-- Bootloader contained in firmware binary")
+endif()
+
 add_custom_command(
   TARGET firmware POST_BUILD
-  COMMAND ${CMAKE_OBJCOPY} -O binary firmware.elf firmware.bin
+  COMMAND ${CMAKE_OBJCOPY} -O binary ${OBJCOPY_ARGS} firmware.elf firmware.bin
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
 

@@ -115,16 +115,19 @@
 #define TR_SF_DISABLE_TOUCH            "禁用觸摸"
 #define TR_SF_DISABLE_AUDIO_AMP        "關閉音頻功放"
 #define TR_SF_SET_SCREEN               "選擇主屏"
+#define TR_SF_LCD_TO_VIDEO             "屏幕顯示圖傳"
 
 #define TR_FSW_RESET_TELEM             "回傳參數"
 
 #if LCD_W >= 212
-  #define TR_FSW_RESET_TIMERS          "計時器1","計時器2","計時器3"
+  #define TR_FSW_RESET_TRIMS          "Trims"
+  #define TR_FSW_RESET_TIMERS         "計時器1","計時器2","計時器3"
 #else
-  #define TR_FSW_RESET_TIMERS          "計時1","計時2","計時3"
+  #define TR_FSW_RESET_TRIMS          "Trims"
+#define TR_FSW_RESET_TIMERS           "計時1","計時2","計時3"
 #endif
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("全部","飛行"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("全部","飛行"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
 #define TR_FUNCSOUNDS                  TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
@@ -804,7 +807,7 @@
 #define TR_INTERNALRF                  "內置發射"
 #define TR_INTERNAL_MODULE             TR("內置發射", "內置發射")
 #define TR_EXTERNAL_MODULE             TR("外置發射", "外置發射")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX需要升級"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX需要升級"
 #define TR_TELEMETRY_DISABLED          "禁用回傳"
 #define TR_MORE_OPTIONS_AVAILABLE      "更多可用選項"
 #define TR_NO_MODULE_INFORMATION       "無模塊信息"
@@ -945,7 +948,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("微調存為中點", "當前微調按鈕值保存到中點")
 #define TR_INCDEC                      "增減"
 #define TR_GLOBALVAR                   "全局變量"
-#define TR_MIXSOURCE                   "混控源"
+#define TR_MIXSOURCE                   "輸入源 (%)"
+#define TR_MIXSOURCERAW                "輸入源 (數值)"
 #define TR_CONSTANT                    "固定值"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "關閉","開啟","自動"
 #define TR_PREFLIGHT                   "初始檢查"
@@ -1023,7 +1027,7 @@
   #define TR_WIDGET_VALUE              "數值"
 #endif
 
-// Bootloader common
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB Connected"
 #define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
 #define TR_BL_USB_MASS_STORE          "for mass storage"
@@ -1053,26 +1057,32 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Press the power button."
     #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] to select file"
   #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_CURRENT_FW            "Current Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
   #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
   #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
+  #define TR_BL_ENABLE                "Enable"
+  #define TR_BL_DISABLE               "Disable"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
@@ -1290,6 +1300,7 @@
 #define TR_CREATE_NEW             "新建"
 
 #define TR_MIX_SLOW_PREC          TR("慢放精度", "慢放精度 上行/下行")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "已存在同名主題目錄 !"
 
@@ -1300,3 +1311,7 @@
 #define TR_LOW_BATT_COLOR         "低電量"
 #define TR_MID_BATT_COLOR         "中電量"
 #define TR_HIGH_BATT_COLOR        "高電量"
+
+#define TR_WIDGET_SIZE            "小部件尺寸"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

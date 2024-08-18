@@ -88,7 +88,7 @@
   */
 
 /** STORAGE Interface callback. */
-extern USBD_StorageTypeDef USBD_Storage_Interface_fops_FS;
+extern USBD_StorageTypeDef USBD_Storage_Interface_fops;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 

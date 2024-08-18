@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _POPUPS_H_
-#define _POPUPS_H_
+#pragma once
 
 #include <keys.h>
 
@@ -46,5 +45,3 @@ enum {
 };
 
 #include "../common/stdlcd/popups.h"
-
-#endif // _POPUPS_H_

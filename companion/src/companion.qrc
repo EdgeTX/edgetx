@@ -212,6 +212,14 @@
     <file>images/simulator/JumperTPRO/left.png</file>
     <file>images/simulator/JumperTPRO/right.png</file>
     <file>images/simulator/JumperTPRO/top.png</file>
+    <file>images/simulator/JumperTPROS/bottom.png</file>
+    <file>images/simulator/JumperTPROS/left.png</file>
+    <file>images/simulator/JumperTPROS/right.png</file>
+    <file>images/simulator/JumperTPROS/right-ent.png</file>
+    <file>images/simulator/JumperTPROS/top.png</file>
+    <file>images/simulator/JumperTPROS/exit.png</file>
+    <file>images/simulator/JumperTPROS/menu.png</file>
+    <file>images/simulator/JumperTPROS/page.png</file>
     <file>images/simulator/TX12/left.png</file>
     <file>images/simulator/TX12/left-pageup.png</file>
     <file>images/simulator/TX12/left-pagedn.png</file>
@@ -257,6 +265,18 @@
     <file>images/simulator/T8/right-dn.png</file>
     <file>images/simulator/T8/bottom.png</file>
     <file>images/simulator/T8/top.png</file>
+    <file>images/simulator/Fatfish/F16/left.png</file>
+    <file>images/simulator/Fatfish/F16/right.png</file>
+    <file>images/simulator/Fatfish/F16/top.png</file>
+    <file>images/simulator/Fatfish/F16/bottom.png</file>
+    <file>images/simulator/JumperT12max/bottom.png</file>
+    <file>images/simulator/JumperT12max/left.png</file>
+    <file>images/simulator/JumperT12max/right.png</file>
+    <file>images/simulator/JumperT12max/right-ent.png</file>
+    <file>images/simulator/JumperT12max/top.png</file>
+    <file>images/simulator/JumperT12max/exit.png</file>
+    <file>images/simulator/JumperT12max/menu.png</file>
+    <file>images/simulator/JumperT12max/page.png</file>
     <file>images/simulator/JumperT14/bottom.png</file>
     <file>images/simulator/JumperT14/left.png</file>
     <file>images/simulator/JumperT14/right.png</file>
@@ -1316,7 +1336,9 @@
   <qresource prefix="/layouts/">
     <file alias="mask_layout1p2.png">images/layouts/mask_layout1+2.png</file>
     <file alias="mask_layout1p3.png">images/layouts/mask_layout1+3.png</file>
+    <file alias="mask_layout1p4.png">images/layouts/mask_layout1+4.png</file>
     <file alias="mask_layout1x1.png">images/layouts/mask_layout1x1.png</file>
+    <file alias="mask_layout1x1am.png">images/layouts/mask_layout1x1.png</file>
     <file alias="mask_layout1x2.png">images/layouts/mask_layout1x2.png</file>
     <file alias="mask_layout1x3.png">images/layouts/mask_layout1x3.png</file>
     <file alias="mask_layout1x4.png">images/layouts/mask_layout1x4.png</file>

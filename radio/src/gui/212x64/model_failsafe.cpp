@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 extern uint8_t g_moduleIdx;
 
@@ -37,6 +37,7 @@ void menuModelFailsafe(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_ENTER):
+      killEvents(event);
       event = 0;
 
       if (menuVerticalPosition < sentModuleChannels(g_moduleIdx)) {

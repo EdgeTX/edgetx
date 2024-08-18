@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 constexpr uint32_t TEXT_FILE_MAXSIZE = 2048;
 constexpr char CHECKABLE_PREFIX = '=';

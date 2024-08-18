@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FRSKY_H_
-#define _FRSKY_H_
+#pragma once
 
 #include "../../definitions.h"
 #include "telemetry_holders.h"
@@ -36,7 +35,7 @@ enum FrSkyDataState {
 };
 
 #define FRSKY_SPORT_BAUDRATE          57600
-#if defined(RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
 #define FRSKY_TELEM_MIRROR_BAUDRATE   115200
 #else
 #define FRSKY_TELEM_MIRROR_BAUDRATE   FRSKY_SPORT_BAUDRATE
@@ -139,5 +138,3 @@ inline bool isRasValueValid()
 #endif
 
 constexpr uint8_t FRSKY_BAD_ANTENNA_THRESHOLD = 0x33;
-
-#endif // _FRSKY_H_

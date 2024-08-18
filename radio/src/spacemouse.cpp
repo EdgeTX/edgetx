@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 // #include <ctype.h>
 #include "tasks/mixer_task.h"
 

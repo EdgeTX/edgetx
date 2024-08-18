@@ -55,7 +55,6 @@ enum SwitchContext
   MixesContext
 };
 
-int circularIncDec(int current, int inc, int min, int max, IsValueAvailable isValueAvailable=nullptr);
 int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 
 bool isInputAvailable(int input);

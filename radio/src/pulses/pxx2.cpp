@@ -20,9 +20,9 @@
  */
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "io/frsky_firmware_update.h"
-#include "libopenui/src/libopenui_file.h"
+#include "lib_file.h"
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
 #include "timers_driver.h"

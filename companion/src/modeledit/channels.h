@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -70,7 +71,6 @@ class ChannelsPanel : public ModelPanel
     void symlimitsEdited();
     void nameEdited();
     void invEdited();
-    void curveEdited();
     void ppmcenterEdited();
     void update();
     void updateLine(int index);
@@ -86,7 +86,6 @@ class ChannelsPanel : public ModelPanel
     void onCustomContextMenuRequested(QPoint pos);
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
-    void on_curveImageDoubleClicked();
 
   private:
     QLineEdit *name[CPN_MAX_CHNOUT];
@@ -102,6 +101,8 @@ class ChannelsPanel : public ModelPanel
     int chnCapability;
     CompoundItemModelFactory *sharedItemModels;
     FilteredItemModelFactory *dialogFilteredItemModels;
+    CurveRefFilteredFactory *curveRefFilteredItemModels;
+    CurveReferenceUIManager *curveGroup[CPN_MAX_CHNOUT];
 
     bool hasClipboardData(QByteArray * data = nullptr) const;
     bool insertAllowed() const;

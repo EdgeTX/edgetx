@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -440,6 +441,8 @@ CustomFuncActionItemModel::CustomFuncActionItemModel(const GeneralSettings * con
     setDynamicItemData(modelItem, i);
     appendRow(modelItem);
   }
+
+  sort(0);
 }
 
 void CustomFuncActionItemModel::setDynamicItemData(QStandardItem * item, const int value) const
@@ -455,6 +458,8 @@ void CustomFuncActionItemModel::update(const int event)
 
     for (int i = 0; i < rowCount(); ++i)
       setDynamicItemData(item(i), item(i)->data(IMDR_Id).toInt());
+
+    sort(0);
 
     emit updateComplete();
   }

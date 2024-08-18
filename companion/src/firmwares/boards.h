@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -61,6 +62,7 @@ namespace Board {
     BOARD_TARANIS_X9LITE,
     BOARD_TARANIS_X9LITES,
     BOARD_JUMPER_T12,
+    BOARD_JUMPER_T12MAX,
     BOARD_JUMPER_T14,
     BOARD_JUMPER_T15,
     BOARD_JUMPER_T16,
@@ -81,8 +83,10 @@ namespace Board {
     BOARD_IFLIGHT_COMMANDO8,
     BOARD_FLYSKY_EL18,
     BOARD_JUMPER_TPROV2,
+    BOARD_JUMPER_TPROS,
     BOARD_RADIOMASTER_POCKET,
     BOARD_JUMPER_T20V2,
+    BOARD_FATFISH_F16,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -422,7 +426,7 @@ inline bool IS_JUMPER_TLITE(Board::Type board)
 
 inline bool IS_JUMPER_TPRO(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_TPRO || board == Board::BOARD_JUMPER_TPROV2;
+  return board == Board::BOARD_JUMPER_TPRO || board == Board::BOARD_JUMPER_TPROV2 || board == Board::BOARD_JUMPER_TPROS;
 }
 
 inline bool IS_JUMPER_TPROV1(Board::Type board)
@@ -435,6 +439,11 @@ inline bool IS_JUMPER_TPROV2(Board::Type board)
   return board == Board::BOARD_JUMPER_TPROV2;
 }
 
+inline bool IS_JUMPER_TPROS(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_TPROS;
+}
+
 inline bool IS_JUMPER_T15(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T15;
@@ -443,6 +452,11 @@ inline bool IS_JUMPER_T15(Board::Type board)
 inline bool IS_JUMPER_T16(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T16;
+}
+
+inline bool IS_JUMPER_T12MAX(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T12MAX;
 }
 
 inline bool IS_JUMPER_T14(Board::Type board)
@@ -490,20 +504,25 @@ inline bool IS_RADIOMASTER_POCKET(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_POCKET;
 }
 
-
 inline bool IS_RADIOMASTER_T8(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_T8;
 }
 
+inline bool IS_FATFISH_F16(Board::Type board)
+{
+  return board == Board::BOARD_FATFISH_F16;
+}
+
 inline bool IS_FAMILY_T16(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T15 || board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18;
+  return board == Board::BOARD_JUMPER_T15 || board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18 || board == Board::BOARD_FATFISH_F16;
 }
 
 inline bool IS_FAMILY_T12(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T12 ||
+         board == Board::BOARD_JUMPER_T12MAX ||
          board == Board::BOARD_JUMPER_T14 ||
          board == Board::BOARD_JUMPER_T20 ||
          board == Board::BOARD_JUMPER_T20V2 ||
@@ -511,6 +530,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_JUMPER_TLITE_F4 ||
          board == Board::BOARD_JUMPER_TPRO ||
          board == Board::BOARD_JUMPER_TPROV2 ||
+         board == Board::BOARD_JUMPER_TPROS ||
          board == Board::BOARD_RADIOMASTER_TX12 ||
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||

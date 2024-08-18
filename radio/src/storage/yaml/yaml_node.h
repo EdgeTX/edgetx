@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _node_h_
-#define _node_h_
+#pragma once
 
 #include <stdint.h>
 #include <stddef.h>
@@ -208,7 +207,5 @@ struct YamlNode
 
 #define YAML_ROOT(nodes)                                                \
     { 0, YDT_ARRAY, 1, NULL, {{ (nodes), {{ NULL }}}} }
-
-#endif
 
 #endif

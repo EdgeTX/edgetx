@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -162,7 +163,7 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
       if (radioSettings.isInputStick(i))
         wname = Boards::getAxisName(i);
       else
-        wname = RawSource(RawSourceType::SOURCE_TYPE_INPUT, i).toString(nullptr, &radioSettings);
+        wname = RawSource(RawSourceType::SOURCE_TYPE_INPUT, i + 1).toString(nullptr, &radioSettings);
       cb->addItem(wname, i);
     }
   }
@@ -186,7 +187,7 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   for (i = 0; i < ttlSwitches; ++i) {
     if (radioSettings.switchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
       swtype = Board::SwitchType(radioSettings.switchConfig[i].type);
-      wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i).toString(nullptr, &radioSettings);
+      wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i + 1).toString(nullptr, &radioSettings);
       if (swtype == Board::SWITCH_3POS) {
         cb->addItem(wname + CPN_STR_SW_INDICATOR_UP, i | JS_BUTTON_3POS_UP);
         cb->addItem(wname + CPN_STR_SW_INDICATOR_DN, i | JS_BUTTON_3POS_DN);
@@ -197,7 +198,7 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   }
 
   for (i = 0; i < ttlTrims; i += 1) {
-    wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, i).toString(nullptr, &radioSettings);
+    wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, i + 1).toString(nullptr, &radioSettings);
     if ((i == 0) || (i == 3)) {
       cb->addItem(wname + " Left", (i + ttlSwitches) | JS_BUTTON_3POS_DN);
       cb->addItem(wname + " Right", (i + ttlSwitches) | JS_BUTTON_3POS_UP);

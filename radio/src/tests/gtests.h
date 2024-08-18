@@ -19,15 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GTESTS_H_
-#define _GTESTS_H_
+#pragma once
 
 #include <QtCore/QString>
 #include <math.h>
 #include <gtest/gtest.h>
 
 #define SWAP_DEFINED
-#include "opentx.h"
+#include "edgetx.h"
 #include "model_init.h"
 #include "switches.h"
 #include "hal/switch_driver.h"
@@ -115,5 +114,3 @@ class OpenTxTest : public testing::Test
       RADIO_RESET();
     }
 };
-
-#endif // _GTESTS_H_

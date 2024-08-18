@@ -23,15 +23,15 @@
 #include "hal/storage.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(LIBOPENUI)
 #include "libopenui.h"
-#include "gui/colorlcd/LvglWrapper.h"
-#include "gui/colorlcd/view_main.h"
+#include "LvglWrapper.h"
+#include "view_main.h"
 #include "startup_shutdown.h"
-#include "theme.h"
-#include "themes/etx_lv_theme.h"
+#include "theme_manager.h"
+#include "etx_lv_theme.h"
 #endif
 
 #if defined(CLI)
@@ -191,8 +191,9 @@ void handleUsbConnection()
 #if defined(COLORLCD)
       usbConnectedWindow->deleteLater();
       usbConnectedWindow = nullptr;
-#endif
+#else
       pushEvent(EVT_ENTRY);
+#endif
     } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
       serialStop(SP_VCP);
     }
@@ -374,6 +375,8 @@ void guiMain(event_t evt)
   if (interval > maxLuaInterval) {
     maxLuaInterval = interval;
   }
+
+  luaDoGc(lsWidgets, true);
 
   DEBUG_TIMER_START(debugTimerLua);
   luaTask(false);

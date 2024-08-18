@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -206,7 +207,7 @@ RawSwitch RawSwitch::convert(RadioDataConversionState & cstate)
   if (!index)
     return *this;
 
-  cstate.setItemType(tr("SW"), 2);
+  cstate.setItemType(tr("Switch"), 2);
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromType, cstate.fromGS(), cstate.fromModel()));
 
   int newIdx = 0;
@@ -223,6 +224,7 @@ RawSwitch RawSwitch::convert(RadioDataConversionState & cstate)
   if (newIdx < 0 || !isAvailable(nullptr, cstate.toGS(), cstate.toType)) {
     cstate.setInvalid(oldData);
     clear();  // no switch is safer than an invalid one
+    cstate.setConverted(oldData, RadioDataConversionState::LogField(index, tr("None")));
   }
 
   return *this;

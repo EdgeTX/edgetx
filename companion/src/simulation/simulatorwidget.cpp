@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -105,6 +106,12 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_JUMPER_TPROV2:
       radioUiWidget = new SimulatedUIWidgetJumperTPRO(simulator, this);
       break;
+    case Board::BOARD_JUMPER_TPROS:
+      radioUiWidget = new SimulatedUIWidgetJumperTPROS(simulator, this);
+      break;
+    case Board::BOARD_JUMPER_T12MAX:
+      radioUiWidget = new SimulatedUIWidgetJumperT12max(simulator, this);
+      break;
     case Board::BOARD_JUMPER_T14:
       radioUiWidget = new SimulatedUIWidgetJumperT14(simulator, this);
       break;
@@ -137,6 +144,12 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_RADIOMASTER_TX16S:
       radioUiWidget = new SimulatedUIWidgetTX16S(simulator, this);
       break;
+    case Board::BOARD_RADIOMASTER_POCKET:
+      radioUiWidget = new SimulatedUIWidgetPocket(simulator, this);
+      break;
+    case Board::BOARD_FATFISH_F16:
+      radioUiWidget = new SimulatedUIWidgetFatfishF16(simulator, this);
+      break;
     case Board::BOARD_FLYSKY_NV14:
       radioUiWidget = new SimulatedUIWidgetNV14(simulator, this);
       break;
@@ -145,9 +158,6 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
       break;
     case Board::BOARD_FLYSKY_PL18:
       radioUiWidget = new SimulatedUIWidgetPL18(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_POCKET:
-      radioUiWidget = new SimulatedUIWidgetPocket(simulator, this);
       break;
     default:
       radioUiWidget = new SimulatedUIWidget9X(simulator, this);

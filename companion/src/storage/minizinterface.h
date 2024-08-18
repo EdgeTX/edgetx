@@ -28,9 +28,9 @@
 
 class ProgressWidget;
 
-class MinizInterface
+class MinizInterface : public QObject
 {
-  Q_DECLARE_TR_FUNCTIONS(MinizInterface)
+  Q_OBJECT
 
   public:
     enum ProgressCalcMethod {
@@ -44,6 +44,9 @@ class MinizInterface
     bool zipPathToFile(const QString & sourcePath, const QString & archiveFile, bool append = true);
     bool unzipArchiveToPath(const QString & archiveFile, const QString & destinationPath);
 
+  public slots:
+    void stop();
+
   private:
     ProgressWidget *progress;
     ProgressCalcMethod progressMethod;
@@ -51,10 +54,12 @@ class MinizInterface
     int logLevel;
     QString path;
     QString archiveFile;
+    bool stopping;
 
     mz_zip_archive zip_archive;
 
     bool addFileToArchive(const QString & path);
     bool createDirectory(const QString & path);
     void reportProgress(const QString & text, const int & type = QtInfoMsg, bool richText = false);
+    bool isStopping() { return stopping; }
 };

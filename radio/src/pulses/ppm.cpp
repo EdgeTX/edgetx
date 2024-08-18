@@ -25,7 +25,7 @@
 #include "hal/module_port.h"
 #include "mixer_scheduler.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #include "telemetry/mlink.h"
 

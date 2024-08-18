@@ -19,16 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#include <stdint.h>
 #include "gyro.h"
+#include "hal.h"
 
 #if defined(IMU_I2C_BUS) && defined(IMU_I2C_ADDRESS)
 
+#include "hal/i2c_driver.h"
 #include "stm32_i2c_driver.h"
 #include "delays_driver.h"
-#include "hal.h"
 
 #include <string.h>
+#include <stdint.h>
 
 /* COMMON VALUES FOR ACCEL-GYRO SENSORS */
 #define LSM6DS_WHO_AM_I                         0x0f
@@ -246,7 +247,7 @@ static int I2C_LSM6DS_ReadRegister(uint8_t reg)
 
 int gyroInit()
 {
-  if (stm32_i2c_init(IMU_I2C_BUS, IMU_I2C_CLK_RATE) < 0)
+  if (i2c_init(IMU_I2C_BUS) < 0)
     return -1;
 
   // LSM6DS33TR works with LSM6DSLTR code for our use

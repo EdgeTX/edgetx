@@ -45,7 +45,7 @@ void ledInit()
 #endif
 
 #if defined(FUNCTION_SWITCHES)
-  for (int i = 0; i < DIM(fsLeds); i++) {
+  for (size_t i = 0; i < DIM(fsLeds); i++) {
     gpio_init(fsLeds[i], GPIO_OUT, GPIO_PIN_SPEED_LOW);
   }
 #endif

@@ -1,12 +1,15 @@
 
 AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
+# add_library(hal_keys OBJECT EXCLUDE_FROM_ALL
+#   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
+#   hal/key_driver.cpp
+# )
 
 set(SRC ${SRC}
   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
-
+  hal/key_driver.cpp
   hal/module_port.cpp
   hal/adc_driver.cpp
-  hal/key_driver.cpp
   hal/switch_driver.cpp
 )
 

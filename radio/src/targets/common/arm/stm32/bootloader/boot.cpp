@@ -19,8 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "stm32_hal_ll.h"
-#include "stm32_timer.h"
+// #if !defined(SIMU)
+// #include "stm32_hal_ll.h"
+// #include "stm32_hal.h"
+// #include "stm32_timer.h"
+// #endif
+
 #include "hal/usb_driver.h"
 
 #if defined(BLUETOOTH)
@@ -35,26 +39,14 @@
 #include "debug.h"
 
 #include "timers_driver.h"
+#include "flash_driver.h"
+
 #include "hal/abnormal_reboot.h"
 #include "hal/rotary_encoder.h"
 
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
 #endif
-
-#if defined(PCBXLITE)
-  #define BOOTLOADER_KEYS                 0x0F
-#elif defined(RADIO_MT12)
-  #define BOOTLOADER_KEYS                 0x06
-#else
-  #define BOOTLOADER_KEYS                 0x42
-#endif
-
-#if defined(RADIO_FAMILY_T20)
-  #define SECONDARY_BOOTLOADER_KEYS       0x1200
-#endif
-
-#define APP_START_ADDRESS               (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #if defined(EEPROM) || defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
@@ -67,21 +59,17 @@
   #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
 
-typedef void (*voidFunction)(void);
-
-#define jumpTo(addr) do {                                       \
-        SCB->VTOR = addr;                                       \
-        __set_MSP(*(__IO uint32_t*)addr);                       \
-        uint32_t     jumpAddress = *(uint32_t*)(addr + 4);      \
-        voidFunction jumpFn = (voidFunction)jumpAddress;        \
-        jumpFn();                                               \
-    } while(0)
-
 #if !defined(SIMU)
 // Bootloader marker:
 // -> used to detect valid bootloader files
 const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
   {'B', 'O', 'O', 'T', '1', '0'};
+#endif
+
+#if defined(SIMU)
+  #define __weak
+#elif !defined(__weak)
+  #define __weak __attribute__((weak))
 #endif
 
 volatile tmr10ms_t g_tmr10ms;
@@ -177,11 +165,11 @@ int menuFlashFile(uint32_t index, event_t event)
 
 void flashWriteBlock()
 {
+  // TODO: use some board provided driver instead
   uint32_t blockOffset = 0;
-  while (BlockCount) {
 #if !defined(SIMU)
+  while (BlockCount) {
     flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
-#endif
     blockOffset += FLASH_PAGESIZE;
     firmwareAddress += FLASH_PAGESIZE;
     if (BlockCount > FLASH_PAGESIZE) {
@@ -191,6 +179,7 @@ void flashWriteBlock()
       BlockCount = 0;
     }
   }
+#endif // SIMU
 }
 
 #if defined(EEPROM)
@@ -202,18 +191,26 @@ void writeEepromBlock()
 #endif
 
 #if !defined(SIMU)
+
+typedef void (*fctptr_t)(void);
+
+static __attribute__((noreturn)) void jumpTo(uint32_t addr)
+{
+  __disable_irq();
+  __set_MSP(*(uint32_t*)addr);
+  fctptr_t reset_handler = (fctptr_t)*(uint32_t*)(addr + 4);
+  reset_handler();
+  while(1){}    
+}
+
+// Optional board hook
+__weak void boardBLInit() {}
+__weak bool boardBLStartCondition() { return false; }
+__weak void boardBLPreJump() {}
+
 void bootloaderInitApp()
 {
-  LL_AHB1_GRP1_EnableClock(LCD_RCC_AHB1Periph);
-#if defined(LCD_RCC_APB2Periph)
-  LL_APB2_GRP1_EnableClock(LCD_RCC_APB2Periph);
-#endif
-  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
-
-
-#if defined(HAVE_BOARD_BOOTLOADER_INIT)
-  boardBootloaderInit();
-#endif
+  boardBLInit();
 
 #if defined(DEBUG_SEGGER_RTT)
   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_SKIP);
@@ -225,26 +222,17 @@ void bootloaderInitApp()
   // wait a bit for the inputs to stabilize...
   if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     for (uint32_t i = 0; i < 150000; i++) {
-      __ASM volatile ("nop");
+      __ASM volatile("nop");
     }
   }
 
-#if (defined(RADIO_T8) || defined(RADIO_COMMANDO8)) && !defined(RADIOMASTER_RELEASE)
-  // Bind button not pressed
-  if ((~(KEYS_GPIO_REG_BIND->IDR) & KEYS_GPIO_PIN_BIND) == false) {
-#else
-  // LHR & RHL trims not pressed simultanously
-#if defined(SECONDARY_BOOTLOADER_KEYS)
-  if (readTrims() != BOOTLOADER_KEYS && readTrims() != SECONDARY_BOOTLOADER_KEYS) {
-#else
-  if (readTrims() != BOOTLOADER_KEYS) {
-#endif
-#endif
-    // TODO: deInit before restarting
+  if (!boardBLStartCondition()) {
     // Start main application
+    boardBLPreJump();
     jumpTo(APP_START_ADDRESS);
   }
 
+  // TODO: move all this into board specifics
   pwrOn();
 
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
@@ -261,8 +249,10 @@ void bootloaderInitApp()
 
   TRACE("\nBootloader started :)");
 
+  // TODO: move BT & EEPROM into board specifics
 #if defined(BLUETOOTH)
-  // we shutdown the bluetooth module now to be sure it will be detected on firmware start
+  // we shutdown the bluetooth module now to be sure it will be detected on
+  // firmware start
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, false);
 #endif
 
@@ -460,8 +450,8 @@ int  bootloaderMain()
           // confirmed
 
           if (memoryType == MEM_FLASH) {
-            firmwareSize = binFiles[vpos].size - BOOTLOADER_SIZE;
-            firmwareAddress = FIRMWARE_ADDRESS + BOOTLOADER_SIZE;
+            firmwareSize = FIRMWARE_LEN(binFiles[vpos].size);
+            firmwareAddress = APP_START_ADDRESS;
             firmwareWritten = 0;
           }
 #if defined(EEPROM)
@@ -500,7 +490,7 @@ int  bootloaderMain()
         if (BlockCount == 0) {
           state = ST_FLASH_DONE; // EOF
         }
-        else if (memoryType == MEM_FLASH && firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
+        else if (memoryType == MEM_FLASH && firmwareWritten >= FIRMWARE_MAX_LEN) {
           state = ST_FLASH_DONE; // Backstop
         }
 #if defined(EEPROM)
@@ -511,11 +501,11 @@ int  bootloaderMain()
 #if defined(SPI_FLASH)
       } else if (state == ST_CLEAR_FLASH_CHECK) {
         bootloaderDrawScreen(state, vpos);
-        if (event == EVT_KEY_REPT(KEY_DOWN) || event == EVT_KEY_FIRST(KEY_DOWN)) {
+        if (IS_NEXT_EVENT(event)) {
           if (vpos < SEL_CLEAR_FLASH_STORAGE_MENU_LEN - 1) { vpos++; }
           continue;
         }
-        if (event == EVT_KEY_REPT(KEY_UP) || event == EVT_KEY_FIRST(KEY_UP)) {
+        if (IS_PREVIOUS_EVENT(event)) {
           if (vpos > 0) { vpos--; }
           continue;
         }
@@ -531,8 +521,6 @@ int  bootloaderMain()
       } else if (state == ST_CLEAR_FLASH) {
         bootloaderDrawScreen(state, 0);
         lcdRefresh();
-        if(event != EVT_KEY_BREAK(KEY_ENTER))
-          continue;
         sdDone();
         spiFlashDiskEraseAll();
         sdInit();
@@ -591,7 +579,3 @@ int  bootloaderMain()
 
   return 0;
 }
-
-#if !defined(SIMU) && (defined(PCBHORUS) || defined(PCBFLYSKY))
-void *__dso_handle = nullptr;
-#endif

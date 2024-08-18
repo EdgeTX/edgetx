@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -243,7 +244,7 @@ void LogsDialog::selectionChanged()
     if (item == NULL) item = rightLegend->itemWithPlottable(graph);
     if (item->selected() || graph->selected()) {
       item->setSelected(true);
-      graph->setSelection(QCPDataSelection(QCPDataRange()));
+      graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
     }
   }
 }
@@ -891,7 +892,7 @@ void LogsDialog::plotLogs()
           .toTime_t();
       }
       plotCoords.x.push_back(time);
-  
+
       if(plots.min_x == INVALID_MIN)
         plots.min_x = time;
       else

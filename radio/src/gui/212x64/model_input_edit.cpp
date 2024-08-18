@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define EXPO_ONE_2ND_COLUMN (LCD_W-8*FW-90)
 
@@ -119,18 +119,18 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_WEIGHT:
-        lcdDrawTextAlignedLeft(y, STR_WEIGHT);
-        ed->weight = GVAR_MENU_ITEM(EXPO_ONE_2ND_COLUMN, y, ed->weight, -100, 100, LEFT|attr, 0, event);
+        ed->weight = editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, ed->weight,
+                        -100, 100, attr, event, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
       case EXPO_FIELD_OFFSET:
-        lcdDrawTextAlignedLeft(y, STR_OFFSET);
-        ed->offset = GVAR_MENU_ITEM(EXPO_ONE_2ND_COLUMN, y, ed->offset, -100, 100, LEFT|attr, 0, event);
+        ed->offset = editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_OFFSET, ed->offset,
+                        -100, 100, attr, event, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
       case EXPO_FIELD_CURVE:
         lcdDrawTextAlignedLeft(y, STR_CURVE);
-        editCurveRef(EXPO_ONE_2ND_COLUMN, y, ed->curve, event, attr);
+        editCurveRef(EXPO_ONE_2ND_COLUMN, y, ed->curve, event, attr, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
 #if defined(FLIGHT_MODES)

@@ -19,14 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _PULSES_PXX2_H_
-#define _PULSES_PXX2_H_
+#pragma once
 
 #include "pxx.h"
 #include "hal/module_driver.h"
 
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #define PXX2_TYPE_C_MODULE                  0x01
   #define PXX2_TYPE_ID_REGISTER             0x01
@@ -282,5 +281,3 @@ BindInformation& getPXX2BindInformationBuffer();
 PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer();
 
 extern const etx_proto_driver_t Pxx2Driver;
-
-#endif

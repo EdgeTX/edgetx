@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "mixes.h"
 
 enum MixFields {
@@ -33,6 +33,7 @@ enum MixFields {
   MIX_FIELD_SWITCH,
   MIX_FIELD_WARNING,
   MIX_FIELD_MLTPX,
+  MIX_FIELD_DELAY_PREC,
   MIX_FIELD_DELAY_UP,
   MIX_FIELD_DELAY_DOWN,
   MIX_FIELD_SLOW_PREC,
@@ -43,13 +44,15 @@ enum MixFields {
 
 extern uint8_t FM_ROW(uint8_t);
 
+extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
+
 void drawOffsetBar(uint8_t x, uint8_t y, MixData * md)
 {
   const int gaugeWidth = 33;
   const int gaugeHeight = 6;
 
-  int offset = GET_GVAR(MD_OFFSET(md), GV_RANGELARGE_NEG, GV_RANGELARGE, mixerCurrentFlightMode);
-  int weight = GET_GVAR(MD_WEIGHT(md), GV_RANGELARGE_NEG, GV_RANGELARGE, mixerCurrentFlightMode);
+  int offset = getSourceNumFieldValue(md->offset, MIX_OFFSET_MIN, MIX_OFFSET_MAX) / 10;
+  int weight = getSourceNumFieldValue(md->weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX) / 10;
   int barMin = offset - weight;
   int barMax = offset + weight;
   if (y > 15) {
@@ -93,7 +96,6 @@ void menuModelMixOne(event_t event)
 #if defined(NAVIGATION_XLITE)
   if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
     pushMenu(menuChannelsView);
-    killEvents(event);
   }
 #else
   if (event == EVT_KEY_BREAK(KEY_MODEL) || event == EVT_KEY_BREAK(KEY_MENU)) {
@@ -137,20 +139,15 @@ void menuModelMixOne(event_t event)
         break;
 
       case MIX_FIELD_WEIGHT:
-        lcdDrawTextAlignedLeft(y, STR_WEIGHT);
-        gvarWeightItem(MIXES_2ND_COLUMN, y, md2, attr|LEFT, event);
+        md2->weight = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_WEIGHT, md2->weight, 
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
         break;
 
       case MIX_FIELD_OFFSET:
-      {
-        lcdDrawTextAlignedLeft(y, STR_OFFSET);
-        u_int8int16_t offset;
-        MD_OFFSET_TO_UNION(md2, offset);
-        offset.word = GVAR_MENU_ITEM(MIXES_2ND_COLUMN, y, offset.word, MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr|LEFT, 0, event);
-        MD_UNION_TO_OFFSET(offset, md2);
-        drawOffsetBar(MIXES_2ND_COLUMN+22, y, md2);
+        md2->offset = editSrcVarFieldValue(MIXES_2ND_COLUMN, y, STR_OFFSET, md2->offset,
+                        MIX_OFFSET_MIN, MIX_OFFSET_MAX, attr, event, isSourceAvailable, 1, MIXSRC_LAST);
+        drawOffsetBar(LCD_W - 33, y, md2);
         break;
-      }
 
       case MIX_FIELD_TRIM:
         lcdDrawTextAlignedLeft(y, STR_TRIM);
@@ -162,7 +159,7 @@ void menuModelMixOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_CURVE);
         s_currSrcRaw = md2->srcRaw;
         s_currScale = 0;
-        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, s_editMode > 0 ? event : 0, attr);
+        editCurveRef(MIXES_2ND_COLUMN, y, md2->curve, event, attr, isSourceAvailable, 1, MIXSRC_LAST);
         break;
 
 #if defined(FLIGHT_MODES)
@@ -189,12 +186,16 @@ void menuModelMixOne(event_t event)
         md2->mltpx = editChoice(MIXES_2ND_COLUMN, y, STR_MULTPX, STR_VMLTPX, md2->mltpx, 0, 2, attr, event);
         break;
 
+      case MIX_FIELD_DELAY_PREC:
+        md2->delayPrec = editChoice(MIXES_2ND_COLUMN, y, STR_MIX_DELAY_PREC, &STR_VPREC[1], md2->delayPrec, 0, 1, attr, event);
+        break;
+
       case MIX_FIELD_DELAY_UP:
-        md2->delayUp = EDIT_DELAY(0, y, event, attr, STR_DELAYUP, md2->delayUp, PREC1);
+        md2->delayUp = EDIT_DELAY(0, y, event, attr, STR_DELAYUP, md2->delayUp, (md2->delayPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_DELAY_DOWN:
-        md2->delayDown = EDIT_DELAY(0, y, event, attr, STR_DELAYDOWN, md2->delayDown, PREC1);
+        md2->delayDown = EDIT_DELAY(0, y, event, attr, STR_DELAYDOWN, md2->delayDown, (md2->delayPrec ? PREC2 : PREC1));
         break;
 
       case MIX_FIELD_SLOW_PREC:

@@ -49,6 +49,7 @@ jobs:
           - pl18
           - pl18ev
           - t12
+          - t12max
           - t15
           - t16
           - t18
@@ -97,16 +98,17 @@ jobs:
         target:
           - nv14;el18
           - pl18;pl18ev
-          - t12
+          - t12;t12max
           - t15;t16;t18
           - t8;zorro;pocket;mt12;commando8
-          - tlite;tpro;tprov2;lr3pro
+          - tlite;tpro;tprov2;tpros;lr3pro
           - t20;t20v2;t14
           - tx12;tx12mk2;boxer
           - tx16s
-          - x10;x10-access
+          - f16
+          - x10;x10express
           - x12s
-          - x7;x7-access
+          - x7;x7access
           - x9d;x9dp;x9dp2019
           - x9e;x9e-hall
           - x9lite;x9lites

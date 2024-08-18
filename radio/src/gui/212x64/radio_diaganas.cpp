@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "../../hal/adc_driver.h"
 
 #define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
@@ -56,7 +56,13 @@ void menuRadioDiagAnalogs(event_t event)
   for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + (i/2)*FH;
     uint8_t x = i&1 ? LCD_W/2 + FW : 0;
-    lcdDrawNumber(x, y, i+1, LEADING0|LEFT, 2);
+    if (((adcGetInputMask() & (1 << i)) != 0) && i < adcGetMaxInputs(ADC_INPUT_MAIN)) {
+      lcdDrawText(x, y, "D");
+      lcdDrawNumber(lcdNextPos, y, i + 1);
+    }
+    else {
+      lcdDrawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
+    }
     lcdDrawChar(x+2*FW-2, y, ':');
     
     switch (viewpage)

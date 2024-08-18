@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
@@ -176,6 +176,7 @@ void menuModelMixAll(event_t event)
       s_copyTgtOfs = 0;
       break;
     case EVT_KEY_LONG(KEY_EXIT):
+      killEvents(event);
       if (s_copyMode && s_copyTgtOfs == 0) {
         deleteMix(s_currIdx);
         event = 0;
@@ -203,7 +204,7 @@ void menuModelMixAll(event_t event)
       }
       break;
     case EVT_KEY_BREAK(KEY_ENTER):
-      if ((!s_currCh || (s_copyMode && !s_copyTgtOfs)) && !READ_ONLY()) {
+      if (sub >= 0 && (!s_currCh || (s_copyMode && !s_copyTgtOfs))) {
         s_copyMode = (s_copyMode == COPY_MODE ? MOVE_MODE : COPY_MODE);
         s_copySrcIdx = s_currIdx;
         s_copySrcCh = chn;
@@ -213,29 +214,23 @@ void menuModelMixAll(event_t event)
       // no break
 
     case EVT_KEY_LONG(KEY_ENTER):
+      killEvents(event);
       if (s_copyTgtOfs) {
         s_copyMode = 0;
         s_copyTgtOfs = 0;
       }
       else {
-        if (READ_ONLY()) {
-          if (!s_currCh) {
-            pushMenu(menuModelMixOne);
-          }
+        if (s_copyMode) s_currCh = 0;
+        if (s_currCh) {
+          if (reachMixesLimit()) break;
+          insertMix(s_currIdx, s_currCh - 1);
+          pushMenu(menuModelMixOne);
+          s_copyMode = 0;
         }
-        else {
-          if (s_copyMode) s_currCh = 0;
-          if (s_currCh) {
-            if (reachMixesLimit()) break;
-            insertMix(s_currIdx, s_currCh - 1);
-            pushMenu(menuModelMixOne);
-            s_copyMode = 0;
-          }
-          else {
-            event = 0;
-            s_copyMode = 0;
-            POPUP_MENU_START(onMixesMenu, 6, STR_EDIT, STR_INSERT_BEFORE, STR_INSERT_AFTER, STR_COPY, STR_MOVE, STR_DELETE);
-          }
+        else if (sub >= 0) {
+          event = 0;
+          s_copyMode = 0;
+          POPUP_MENU_START(onMixesMenu, 6, STR_EDIT, STR_INSERT_BEFORE, STR_INSERT_AFTER, STR_COPY, STR_MOVE, STR_DELETE);
         }
       }
       break;
@@ -243,6 +238,7 @@ void menuModelMixAll(event_t event)
       // TODO: add PLUS / MINUS?
     // case EVT_KEY_LONG(KEY_LEFT):
     // case EVT_KEY_LONG(KEY_RIGHT):
+    //   killEvents(event);
     //   if (s_copyMode && !s_copyTgtOfs) {
     //     if (reachMixesLimit()) break;
     //     s_currCh = chn;
@@ -314,7 +310,7 @@ void menuModelMixAll(event_t event)
     MixData * md = mixAddress(i);
     if (i < getMixCount() && (md->destCh + 1 == ch)) {
       if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-        putsChn(0, y, ch, 0); // show CHx
+        putsChn(0, y, ch, ((s_copyMode || sub != cur) ? 0 : INVERS)); // show CHx
       }
       uint8_t mixCnt = 0;
       do {
@@ -333,17 +329,17 @@ void menuModelMixAll(event_t event)
           s_currIdx = i;
         }
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-          LcdFlags attr = ((s_copyMode || sub != cur) ? 0 : INVERS);
-
-          if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, 0);
+          if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, ((s_copyMode || sub != cur) ? 0 : INVERS));
 
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
           if (mixCnt == 0 && md->mltpx == 1) {
-            lcdDrawText(MIX_LINE_WEIGHT_POS, y, "MULT!", RIGHT | attr | (isMixActive(i) ? BOLD : 0));
+            lcdDrawText(MIX_LINE_WEIGHT_POS, y, "MULT!", RIGHT | ((isMixActive(i) ? BOLD : 0)));
           }
           else {
-            gvarWeightItem(MIX_LINE_WEIGHT_POS, y, md, RIGHT | attr | (isMixActive(i) ? BOLD : 0), 0);
+            editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight, 
+                        MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | ((isMixActive(i) ? BOLD : 0)),
+                        0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
           }
 
 #if LCD_W >= 212
@@ -359,7 +355,7 @@ void menuModelMixAll(event_t event)
             }
             if (cur == sub) {
               /* invert the raw when it's the current one */
-              lcdDrawSolidFilledRect(23, y, LCD_W-24, 7);
+              lcdDrawSolidFilledRect(0, y, LCD_W, 7);
             }
           }
         }

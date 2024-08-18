@@ -25,12 +25,12 @@
 #include "hal/fatfs_diskio.h"
 #include "hal/storage.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #else
-  #include "libopenui/src/libopenui_file.h"
+  #include "lib_file.h"
 #endif
 
 #if FF_MAX_SS != FF_MIN_SS
@@ -39,7 +39,11 @@
 
 #define BLOCK_SIZE FF_MAX_SS
 
+#if defined(SPI_FLASH)
+#define SDCARD_MIN_FREE_SPACE_MB 2 // Maintain 2MB free space buffer to prevent crashes
+#else
 #define SDCARD_MIN_FREE_SPACE_MB 50 // Maintain a 50MB free space buffer to prevent crashes
+#endif
 
 const char * sdCheckAndCreateDirectory(const char * path)
 {

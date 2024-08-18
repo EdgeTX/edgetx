@@ -79,6 +79,15 @@ extern "C" void ADC_IRQHandler()
 {% endfor %} 
 }
 
+#if defined(STM32H7)
+extern "C" void ADC3_IRQHandler()
+{
+{% for adc in adc_inputs.adcs | selectattr('name', '!=', 'SPI') %}
+  stm32_hal_adc_isr(&_ADC_adc[{{ loop.index0 }}]);
+{% endfor %} 
+}
+#endif
+
 {% for adc_gpio, adc_inputs in adc_gpios.items() | sort %}
 static const uint32_t _ADC_{{ adc_gpio }}_pins[] = {
   {% for input in adc_inputs %}

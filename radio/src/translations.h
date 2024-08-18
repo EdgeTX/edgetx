@@ -22,7 +22,7 @@
 #pragma once
 
 #include <limits.h>
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "translations/untranslated.h"
 #include "audio.h"
 
@@ -324,6 +324,7 @@ extern const char STR_SF_RGBLEDS[];
 extern const char STR_SF_VOLUME[];
 extern const char STR_SF_RACING_MODE[];
 extern const char STR_SF_SCREENSHOT[];
+extern const char STR_SF_LCD_TO_VIDEO[];
 extern const char STR_SF_TEST[];
 extern const char STR_TRIMS[];
 extern const char STR_MIRROR[];
@@ -582,7 +583,7 @@ extern const char STR_BIND_OK[];
 extern const char STR_INTERNALRF[];
 extern const char STR_INTERNAL_MODULE[];
 extern const char STR_EXTERNAL_MODULE[];
-extern const char STR_OPENTX_UPGRADE_REQUIRED[];
+extern const char STR_EDGETX_UPGRADE_REQUIRED[];
 extern const char STR_TELEMETRY_DISABLED[];
 extern const char STR_MORE_OPTIONS_AVAILABLE[];
 extern const char STR_NO_MODULE_INFORMATION[];
@@ -1095,6 +1096,7 @@ extern const char STR_COPY_TRIMS_TO_OFS[];
 extern const char STR_INCDEC[];
 extern const char STR_GLOBALVAR[];
 extern const char STR_MIXSOURCE[];
+extern const char STR_MIXSOURCERAW[];
 extern const char STR_CONSTANT[];
 extern const char STR_TOP_BAR[];
 extern const char STR_FLASH_ERASE[];
@@ -1271,6 +1273,10 @@ extern const char STR_RADIO_INFO_WIDGET[];
 extern const char STR_LOW_BATT_COLOR[];
 extern const char STR_MID_BATT_COLOR[];
 extern const char STR_HIGH_BATT_COLOR[];
+extern const char STR_WIDGET_SIZE[];
 #endif
 
 extern const char STR_MIX_SLOW_PREC[];
+extern const char STR_MIX_DELAY_PREC[];
+
+extern const char STR_DEL_DIR_NOT_EMPTY[];

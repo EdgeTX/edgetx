@@ -22,7 +22,7 @@
 #include "adc_driver.h"
 #include "board.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
@@ -557,7 +557,7 @@ int adcGetInputIdx(const char* input, uint8_t len)
       if (!strncmp(_hal_adc_inputs[type].inputs[i].name, input, len))
         return idx;
     }
-  } while(++type < ADC_INPUT_ALL);
+  } while (++type < ADC_INPUT_ALL);
 
   return -1;
 }
@@ -578,4 +578,18 @@ const char* adcGetInputShortLabel(uint8_t type, uint8_t idx)
     return "";
 
   return _hal_adc_inputs[type].inputs[idx].short_label;
+}
+
+void adcSetInputMask(uint32_t mask)
+{
+  if (_hal_adc_driver && _hal_adc_driver->set_input_mask) {
+    _hal_adc_driver->set_input_mask(mask);
+  }
+}
+
+uint32_t adcGetInputMask()
+{
+  return _hal_adc_driver && _hal_adc_driver->get_input_mask
+             ? _hal_adc_driver->get_input_mask()
+             : 0;
 }

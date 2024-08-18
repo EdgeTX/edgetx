@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "gui/colorlcd/widget.h"
+#include "widget.h"
 
 class LuaWidgetFactory : public WidgetFactory
 {
@@ -39,6 +39,8 @@ class LuaWidgetFactory : public WidgetFactory
 
   bool isLuaWidgetFactory() const override { return true; }
 
+  bool useLvglLayout() const { return lvglLayout; }
+
  protected:
   void translateOptions(ZoneOption * options);
 
@@ -47,4 +49,5 @@ class LuaWidgetFactory : public WidgetFactory
   int refreshFunction;
   int backgroundFunction;
   int translateFunction;
+  bool lvglLayout;
 };

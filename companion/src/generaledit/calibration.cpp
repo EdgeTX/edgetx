@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -33,13 +34,12 @@ CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSe
 
   TableLayout * tableLayout = new TableLayout(this, maxrows, headerLabels);
 
-  for (int i = 0, row = 0; i < maxinputs; i++) {
+  for (int i = 0; i < maxinputs; i++) {
     if (!Boards::isInputCalibrated(i))
       continue;
 
     GeneralSettings::InputCalib &calib = generalSettings.inputConfig[i].calib;
     int col = 0;
-    row++;
     QLabel * label = new QLabel(this);
     label->setText(Boards::getInputName(i));
     tableLayout->addWidget(i, col++, label);

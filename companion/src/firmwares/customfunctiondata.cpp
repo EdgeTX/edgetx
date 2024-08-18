@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -29,7 +30,7 @@ void CustomFunctionData::convert(RadioDataConversionState & cstate)
   cstate.setComponent(tr("CFN"), 8);
   cstate.setSubComp(nameToString(cstate.subCompIdx, (cstate.toModel() ? false : true)));
   swtch.convert(cstate);
-  if (func == FuncVolume || func == FuncBacklight || func == FuncPlayValue || (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast && adjustMode == 1)) {
+  if (func == FuncVolume || func == FuncBacklight || func == FuncPlayValue || (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast && (adjustMode == FUNC_ADJUST_GVAR_SOURCE || adjustMode == FUNC_ADJUST_GVAR_SOURCERAW))) {
     param = RawSource(param).convert(cstate.withComponentField("PARAM")).toValue();
   }
 }
@@ -129,6 +130,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Audio Amp Off");
   else if (func == FuncRGBLed)
     return tr("RGB leds");
+  else if (func == FuncLCDtoVideo)
+    return tr("LCD to Video");
   else {
     return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -187,6 +190,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
       case FUNC_ADJUST_GVAR_CONSTANT:
         return QString("%1").arg(param);
       case FUNC_ADJUST_GVAR_SOURCE:
+      case FUNC_ADJUST_GVAR_SOURCERAW:
       case FUNC_ADJUST_GVAR_GVAR:
         return RawSource(param).toString();
       case FUNC_ADJUST_GVAR_INCDEC:
@@ -253,9 +257,10 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
         ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
-        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd)) ||
+        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd))) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
-        ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))))
+        ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))) ||
+        ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard())))
         );
   return !ret;
 }
@@ -281,7 +286,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
 
   if (value < step) {
     if (value < firmware->getCapability(Timers))
-      return RawSource(SOURCE_TYPE_TIMER, value).toString(model);
+      return RawSource(SOURCE_TYPE_TIMER, value + 1).toString(model);
     else
       return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -292,18 +297,23 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
   if (value < ++step)
     return tr("Telemetry");
 
+  if (value < ++step)
+    return tr("Trims");
+
   if (value < step + firmware->getCapability(Sensors))
-    return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step + 1)).toString(model);
+    return RawSource(SOURCE_TYPE_TELEMETRY, 3 * (value - step) + 1).toString(model);
 
   return QString(CPN_STR_UNKNOWN_ITEM);
 }
+
+#define RESET_SENSORS_START  CPN_MAX_TIMERS + 3   // keep in sync with above
 
 //  static
 int CustomFunctionData::resetParamCount()
 {
   Firmware * firmware = getCurrentFirmware();
 
-  return CPN_MAX_TIMERS + 2 + firmware->getCapability(Sensors);
+  return RESET_SENSORS_START + firmware->getCapability(Sensors);
 }
 
 //  static
@@ -317,10 +327,10 @@ bool CustomFunctionData::isResetParamAvailable(const int index, const ModelData 
     else
       return false;
   }
-  else if (index < CPN_MAX_TIMERS + 2)
+  else if (index < RESET_SENSORS_START)
     return true;
   else if (model && index < resetParamCount())
-    return model->sensorData[index - (CPN_MAX_TIMERS + 2)].isAvailable();
+    return model->sensorData[index - (RESET_SENSORS_START)].isAvailable();
 
   return false;
 }
@@ -370,7 +380,9 @@ QString CustomFunctionData::gvarAdjustModeToString(const int value)
     case FUNC_ADJUST_GVAR_CONSTANT:
       return tr("Value");
     case FUNC_ADJUST_GVAR_SOURCE:
-      return tr("Source");
+      return tr("Source (%)");
+    case FUNC_ADJUST_GVAR_SOURCERAW:
+      return tr("Source (value)");
     case FUNC_ADJUST_GVAR_GVAR:
       return tr("Global Variable");
     case FUNC_ADJUST_GVAR_INCDEC:

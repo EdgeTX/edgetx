@@ -20,7 +20,7 @@
  */
 #include "keys.h"
 
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "definitions.h"
 
 #include "timers_driver.h"
@@ -29,7 +29,7 @@
 #include "dataconstants.h"
 
 #if !defined(BOOT) && defined(USE_HATS_AS_KEYS)
-#include "opentx.h"
+#include "edgetx.h"
 #endif
 
 // long key press minimum duration (x10ms),
@@ -102,7 +102,7 @@ event_t Key::input(bool val)
       evt = (m_flags & KFLAG_LONG_PRESS) ? _MSK_KEY_LONG_BRK : _MSK_KEY_BREAK;
     }
 #else
-    if ((m_flags & (KFLAG_KILLED|KFLAG_LONG_PRESS)) == 0) {
+    if ((m_flags & (KFLAG_KILLED)) == 0) {
       evt = _MSK_KEY_BREAK;
     }
 #endif
@@ -443,6 +443,7 @@ bool keysPollingCycle()
       if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
         // Convert long press PAGEDN to short press PAGEUP
         evt = EVT_KEY_BREAK(KEY_PAGEUP);
+        killEvents(KEY_PAGEDN);
       }
 #endif
 #if defined(KEYS_GPIO_REG_SHIFT)

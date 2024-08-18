@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -318,6 +319,7 @@ QMimeData * ModelsListModel::mimeData(const QModelIndexList & indexes) const
   getModelsMimeData(indexes, mimeData);
   getGeneralMimeData(mimeData);
   getHeaderMimeData(mimeData);
+  getFileMimeData(mimeData);
   return mimeData;
 }
 
@@ -398,6 +400,16 @@ QMimeData *ModelsListModel::getHeaderMimeData(QMimeData * mimeData) const
   return mimeData;
 }
 
+QMimeData *ModelsListModel::getFileMimeData(QMimeData * mimeData) const
+{
+  if (!mimeData)
+    mimeData = new QMimeData();
+  QByteArray mData;
+  encodeFileData(&mData);
+  mimeData->setData("application/x-companion-filedata", mData);
+  return mimeData;
+}
+
 QUuid ModelsListModel::getMimeDataSourceId(const QMimeData * mimeData) const
 {
   MimeHeaderData header;
@@ -427,6 +439,11 @@ bool ModelsListModel::hasGeneralMimeData(const QMimeData * mimeData) const
 bool ModelsListModel::hasHeaderMimeData(const QMimeData * mimeData) const
 {
   return mimeData->hasFormat("application/x-companion-radiodata-header");
+}
+
+bool ModelsListModel::hasFileMimeData(const QMimeData * mimeData) const
+{
+  return mimeData->hasFormat("application/x-companion-filedata");
 }
 
 // returns true if mime data origin was this data model (vs. from another file window)
@@ -460,6 +477,11 @@ void ModelsListModel::encodeHeaderData(QByteArray * data) const
   stream << mimeHeaderData.instanceId;
 }
 
+void ModelsListModel::encodeFileData(QByteArray * data) const
+{
+  *data = filename.toLatin1();
+}
+
 // static
 bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * header)
 {
@@ -467,6 +489,16 @@ bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderDat
     QByteArray data = mimeData->data("application/x-companion-radiodata-header");
     QDataStream stream(&data, QIODevice::ReadOnly);
     stream >> header->dataVersion >> header->instanceId;
+    return true;
+  }
+  return false;
+}
+
+// static
+bool ModelsListModel::decodeFileData(const QMimeData * mimeData, QString * filedata)
+{
+  if (filedata && mimeData->hasFormat("application/x-companion-filedata")) {
+    *filedata = mimeData->data("application/x-companion-filedata").data();
     return true;
   }
   return false;
@@ -680,6 +712,11 @@ bool ModelsListModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsign
     }
   }
   return true;
+}
+
+void ModelsListModel::setFilename(QString & name)
+{
+  filename = name;
 }
 
 /*

@@ -116,11 +116,13 @@
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN      "Set Main Screen"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM     TR("Telm", "Telemetría")
+#define TR_FSW_RESET_TRIMS     "Trims"
 #define TR_FSW_RESET_TIMERS    "Tmr1","Tmr2","Tmr3"
 
-#define TR_VFSWRESET           TR_FSW_RESET_TIMERS,TR("Todo","Vuelo"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET           TR_FSW_RESET_TIMERS,TR("Todo","Vuelo"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
 #define TR_FUNCSOUNDS          TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Avs1","Aviso1"),TR("Avs2","Aviso2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
@@ -794,7 +796,7 @@
 #define TR_INTERNALRF                  "RF interna"
 #define TR_INTERNAL_MODULE             TR("Módulo int", "Módulo interno")
 #define TR_EXTERNAL_MODULE             TR("Módulo ext", "Módulo externo")
-#define TR_OPENTX_UPGRADE_REQUIRED     "Actualiz. OpenTX requerida"
+#define TR_EDGETX_UPGRADE_REQUIRED     "Actualiz. EdgeTX requerida"
 #define TR_TELEMETRY_DISABLED          "Telem. inactiva"
 #define TR_MORE_OPTIONS_AVAILABLE      "Más opciones disp."
 #define TR_NO_MODULE_INFORMATION       "Sin información módulo"
@@ -942,7 +944,8 @@
 #define TR_COPY_TRIMS_TO_OFS   TR("Copia trim->subtr", "Copia trims a subtrim")
 #define TR_INCDEC              "Inc/Decrement"
 #define TR_GLOBALVAR           "Var global"
-#define TR_MIXSOURCE           "Entrada mixer"
+#define TR_MIXSOURCE           "Fuente (%)"
+#define TR_MIXSOURCERAW        "Fuente (valor)"
 #define TR_CONSTANT            "Constante"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Off","On","Auto"
 #define TR_PREFLIGHT           "Chequeos prevuelo"
@@ -1020,7 +1023,7 @@
   #define TR_WIDGET_VALUE              "Value"
 #endif
 
-// Bootloader common - Ascii only
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB Connected"
 #define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
 #define TR_BL_USB_MASS_STORE          "for mass storage"
@@ -1050,26 +1053,32 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Press the power button."
     #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] to select file"
   #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_CURRENT_FW            "Current Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
   #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
   #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
+  #define TR_BL_ENABLE                "Enable"
+  #define TR_BL_DISABLE               "Disable"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
@@ -1288,6 +1297,7 @@
 #define TR_CREATE_NEW             "Create"
 
 #define TR_MIX_SLOW_PREC          TR("Slow prec", "Slow up/dn prec")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "A theme directory with the same name already exists."
 
@@ -1296,3 +1306,7 @@
 #define TR_LOW_BATT_COLOR         "Low battery"
 #define TR_MID_BATT_COLOR         "Mid battery"
 #define TR_HIGH_BATT_COLOR        "High battery"
+
+#define TR_WIDGET_SIZE            "Widget size"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

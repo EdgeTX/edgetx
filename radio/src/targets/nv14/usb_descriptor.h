@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _USB_DESCRIPTOR_H_
-#define _USB_DESCRIPTOR_H_
+#pragma once
 
 #if (PCBREV == EL18)
 #define USB_NAME                        "Flysky EL18"
@@ -31,5 +30,3 @@
 #define USB_MANUFACTURER                'F', 'l', 'y', 's', 'k', 'y', ' ', ' '  /* 8 bytes */
 #define USB_PRODUCT                     'N', 'V', '1', '4', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #endif
-
-#endif // _USB_DESCRIPTOR_H_

@@ -121,12 +121,14 @@
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
 #define TR_SF_DISABLE_AUDIO_AMP        TR("Sluk audio amp", "Sluk audio amplifier")
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
+#define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS            "Tid1","Tid2","Tid3"
 
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Alle","Flight"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Alle","Flight"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
 #define TR_FUNCSOUNDS                  TR("Bi1","Bip1"),TR("Bi2","Bip2"),TR("Bi3","Bi3"),TR("Adv1","Advarsel1"),TR("Adv2","Advarsel2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Sirene"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
@@ -288,16 +290,16 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Kontakt"
 #define TR_FUNCTION_SWITCHES           "Kontakter der kan tilpasses"
-#define TR_GROUP                       "Group"
-#define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_GROUP                       "Group"
-#define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_GROUPS                      "Always on groups"
-#define TR_LAST                        "Last"
-#define TR_MORE_INFO                   "More info"
+#define TR_GROUP                       "Gruppe"
+#define TR_GROUP_ALWAYS_ON             "Altid til"
+#define TR_GROUP                       "Gruppe"
+#define TR_GROUP_ALWAYS_ON             "Altid til"
+#define TR_GROUPS                      "Altid til gruppe"
+#define TR_LAST                        "Sidste"
+#define TR_MORE_INFO                   "Mere info"
 #define TR_SWITCH_TYPE                 "Type"
-#define TR_SWITCH_STARTUP              "Startup"
-#define TR_SWITCH_GROUP                "Group"
+#define TR_SWITCH_STARTUP              "Start"
+#define TR_SWITCH_GROUP                "Gruppe"
 #define TR_FUNCTION_SWITCH_GROUPS      "---", TR_SWITCH_GROUP" 1", TR_SWITCH_GROUP" 2", TR_SWITCH_GROUP" 3"
 #define TR_SF_SWITCH                   "Udløser"
 #define TR_TRIMS                       "Trim"
@@ -323,7 +325,7 @@
 #define TR_SUBTYPE                     "Subtype"
 #define TR_NOFREEEXPO                  "Ingen fri expo!"
 #define TR_NOFREEMIXER                 "Ingen fri mix!"
-#define TR_SOURCE                       "Kilde"
+#define TR_SOURCE                      "Kilde"
 #define TR_WEIGHT                      "Vægt"
 #define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
@@ -725,12 +727,12 @@
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"
-  #define TR_LABELS_SELECT             "Label select"
-  #define TR_LABELS_MATCH              "Label matching"
+  #define TR_LABELS_SELECT             "Label valg"
+  #define TR_LABELS_MATCH              "Label match"
   #define TR_FAV_MATCH                 "Favorites matching"
-  #define TR_LABELS_SELECT_MODE        "Multi select","Single select"
-  #define TR_LABELS_MATCH_MODE         "Match all","Match any"
-  #define TR_FAV_MATCH_MODE            "Must match","Optional match"
+  #define TR_LABELS_SELECT_MODE        "Multi valg","Enkelt valg"
+  #define TR_LABELS_MATCH_MODE         "Match alle","Match enhver"
+  #define TR_FAV_MATCH_MODE            "Skal have match","Kan have match"
 #endif
 
 #define TR_SELECT_TEMPLATE_FOLDER      "VÆLG EN SKABELON MAPPE:"
@@ -804,7 +806,7 @@
 #define TR_INTERNALRF                  "Intern RF"
 #define TR_INTERNAL_MODULE             TR("Int. module", "Intern modul")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "Eksternt modul")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX kræver opgradering"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX kræver opgradering"
 #define TR_TELEMETRY_DISABLED          "Telem. deaktiveret"
 #define TR_MORE_OPTIONS_AVAILABLE      "Flere tilvalg mulige"
 #define TR_NO_MODULE_INFORMATION       "Ingen modul information"
@@ -945,7 +947,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("Kopi trim->subtrim", "Kopier trim til subtrim")
 #define TR_INCDEC                      "Øg/sænk"
 #define TR_GLOBALVAR                   TR("Global var", "Global variabel")
-#define TR_MIXSOURCE                   "Mix kilde"
+#define TR_MIXSOURCE                   "Kilde (%)"
+#define TR_MIXSOURCERAW                "Kilde (værdi)"
 #define TR_CONSTANT                    "Konstant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Fra","Til","Auto"
 #define TR_PREFLIGHT                   "Fly checkliste"
@@ -1022,7 +1025,7 @@
   #define TR_WIDGET_VALUE              "Værdi"
 #endif
 
-// Bootloader common - Ascii only
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB forbundet"
 #define TR_BL_USB_PLUGIN              "eller brug USB kabel"
 #define TR_BL_USB_MASS_STORE          "for USB disk"
@@ -1052,26 +1055,32 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Genskab EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Tryk power knap."
     #define TR_BL_FLASH_EXIT          "Forlad installation tilstand."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] for at bruge fil"
   #define TR_BL_FLASH_KEY             "[ENT] længe, for at starte"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] for at forlade"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
   #define TR_BL_CURRENT_FW            "Firmware version:"
   #define TR_BL_SELECT_KEY            "[R TRIM] for at bruge fil"
   #define TR_BL_FLASH_KEY             "[R TRIM] længe, for at starte"
   #define TR_BL_EXIT_KEY              "[L TRIM] for at forlade"
+  #define TR_BL_ENABLE                "Aktiver"
+  #define TR_BL_DISABLE               "Deaktiver"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
   #define TR_BL_ERASE_INT_FLASH       "Slet intern flash lager"
   #define TR_BL_ERASE_FLASH           "Slet flash lager"
@@ -1300,6 +1309,7 @@
 #define TR_CREATE_NEW             "Opret"
 
 #define TR_MIX_SLOW_PREC          TR("Træg præc", "Træg op/ned præcision")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "Der findes allerede et katalog med samme navn."
 
@@ -1308,3 +1318,7 @@
 #define TR_LOW_BATT_COLOR         "Batteri lavt"
 #define TR_MID_BATT_COLOR         "Batteri medio"
 #define TR_HIGH_BATT_COLOR        "Batteri højt"
+
+#define TR_WIDGET_SIZE            "Widget størrelse"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

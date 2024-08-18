@@ -20,7 +20,7 @@
  */
 
 #include "hal/adc_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "tasks.h"
 
 #define STATS_1ST_COLUMN               FW/2
@@ -49,6 +49,7 @@ void menuStatisticsView(event_t event)
 
     case EVT_KEY_LONG(KEY_MENU):  // historical
     case EVT_KEY_LONG(KEY_ENTER):
+      killEvents(event);
       g_eeGeneral.globalTimer = 0;
       storageDirty(EE_GENERAL);
       sessionTimer = 0;
@@ -119,6 +120,7 @@ void menuStatisticsDebug(event_t event)
 
   switch (event) {
     case EVT_KEY_LONG(KEY_ENTER):
+      killEvents(event);
       g_eeGeneral.globalTimer = 0;
       sessionTimer = 0;
       storageDirty(EE_GENERAL);
@@ -152,6 +154,7 @@ void menuStatisticsDebug(event_t event)
 #if defined(WATCHDOG_TEST)
     case EVT_KEY_LONG(KEY_MENU):
       {
+        killEvents(event);
         POPUP_CONFIRMATION("Test the watchdog?", nullptr);
         const char * w = "The radio will reset!";
         SET_WARNING_INFO(w, strlen(w), 0);
@@ -231,16 +234,11 @@ void menuStatisticsDebug2(event_t event)
     case EVT_KEY_BREAK(KEY_EXIT):
       chainMenu(menuMainView);
       break;
-
-    // case EVT_KEY_LONG(KEY_ENTER):
-    //   telemetryErrors = 0;
-    //   break;
   }
 
   // UART statistics
   // lcdDrawTextAlignedLeft(MENU_DEBUG_ROW1, "Tlm RX Err");
   // lcdDrawNumber(MENU_DEBUG_COL1_OFS, MENU_DEBUG_ROW1, telemetryErrors, RIGHT);
-
 
   lcdDrawText(LCD_W/2, 7*FH+1, STR_MENUTORESET, CENTERED);
   lcdInvertLastLine();
@@ -252,6 +250,7 @@ void menuTraceBuffer(event_t event)
   switch(event)
   {
     case EVT_KEY_LONG(KEY_ENTER):
+      killEvents(event);
       dumpTraceBuffer();
       break;
 

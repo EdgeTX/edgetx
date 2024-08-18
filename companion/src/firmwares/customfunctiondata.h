@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -71,6 +72,7 @@ enum AssignFunc {
   FuncSetScreen,
   FuncDisableAudioAmp,
   FuncRGBLed,
+  FuncLCDtoVideo,
   FuncCount,
   FuncReserve = -1
 };
@@ -79,6 +81,7 @@ enum GVarAdjustModes
 {
   FUNC_ADJUST_GVAR_CONSTANT,
   FUNC_ADJUST_GVAR_SOURCE,
+  FUNC_ADJUST_GVAR_SOURCERAW,
   FUNC_ADJUST_GVAR_GVAR,
   FUNC_ADJUST_GVAR_INCDEC,
   FUNC_ADJUST_GVAR_COUNT

@@ -31,6 +31,16 @@ class UpdateCloudBuild: public UpdateInterface
   Q_DECLARE_TR_FUNCTIONS(UpdateCloudBuild)
 
   public:
+    enum ProcessStatus {
+      STATUS_UNKNOWN,
+      STATUS_WAITING,
+      STATUS_IN_PROGRESS,
+      STATUS_SUCCESS,
+      STATUS_ERROR,
+      STATUS_TIMEOUT,
+      STATUS_CANCELLED
+    };
+    Q_ENUM(ProcessStatus)
 
     explicit UpdateCloudBuild(QWidget * parent);
     virtual ~UpdateCloudBuild();
@@ -53,7 +63,7 @@ class UpdateCloudBuild: public UpdateInterface
     QString m_logDir;
     QString m_buildFlags;
     QTime m_buildStartTime;
-    QString m_jobStatus;
+    int m_jobStatus;
     QStringList m_profileOpts;
     QString m_radio;
 
@@ -69,4 +79,6 @@ class UpdateCloudBuild: public UpdateInterface
     bool isStatusInProgress();
     bool setAssetDownload();
     void waitForBuildFinish();
+    static QString statusToString(const int status);
+    static int cloudStatusToInt(const QString status);
 };

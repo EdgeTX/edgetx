@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _bin_files_h_
-#define _bin_files_h_
+#pragma once
 
 #include <FatFs/ff.h>
 #include "sdcard.h"
@@ -80,10 +79,13 @@ FRESULT openBinFile(MemoryType mt, unsigned int index);
 
 struct VersionTag
 {
-    char        flavour[8];
+    char        flavour[11];
     const char* version;
     const char* fork;
 };
+// Ensure flavour can hold FLAVOUR defined in target cmakefile
+static_assert(sizeof(((VersionTag){}).flavour) >= sizeof(FLAVOUR), "VersionTag flavour size too small");
+
 
 // Can be called right after openBinFile() to extract the version information
 // from a firmware file
@@ -95,5 +97,3 @@ FRESULT readBinFile();
 
 // Close the previously opened file
 FRESULT closeBinFile();
-
-#endif

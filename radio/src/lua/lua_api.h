@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LUA_API_H_
-#define _LUA_API_H_
+#pragma once
 
 #if defined(LUA)
 
@@ -35,7 +34,7 @@ extern "C" {
 }
 
 #include "dataconstants.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #ifndef LUA_SCRIPT_LOAD_MODE
   // Can force loading of binary (.luac) or plain-text (.lua) versions of scripts specifically, and control
@@ -66,10 +65,11 @@ extern bool luaLcdAllowed;
 class BitmapBuffer;
 extern BitmapBuffer* luaLcdBuffer;
 
-class Widget;
-extern Widget* runningFS;
+class LuaWidget;
+extern LuaWidget* runningFS;
 
-LcdFlags flagsRGB(LcdFlags flags);
+class LuaLvglManager;
+extern LuaLvglManager* luaLvglManager;
 
 extern lua_State* lsWidgets;
 extern uint32_t luaExtraMemoryUsage;
@@ -149,6 +149,9 @@ struct ScriptInternalData {
   int run;
   int background;
   uint8_t instructions;
+#if defined(COLORLCD)  
+  bool useLvgl;
+#endif
 };
 
 struct ScriptInputsOutputs {
@@ -252,5 +255,3 @@ void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 #define LUA_LOAD_MODEL_SCRIPTS()
 
 #endif // defined(LUA)
-
-#endif // _LUA_API_H_

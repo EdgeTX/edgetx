@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -30,6 +31,7 @@
 #include <QElapsedTimer>
 #include <QStandardItemModel>
 #include <QDialog>
+#include <QComboBox>
 
 extern const QColor colors[CPN_MAX_CURVES];
 
@@ -117,6 +119,7 @@ namespace Helpers
   QString removeAccents(const QString & str);
   unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index = 0, const unsigned int numbits = 1, const unsigned int offset = 0);
   void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index = 0, unsigned int numbits = 1, unsigned int offset = 0);
+  int getFirstPosValueIndex(QComboBox * cbo);
 
 }  // namespace Helpers
 

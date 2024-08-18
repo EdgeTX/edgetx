@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -61,6 +62,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncSetScreen, "SET_SCREEN"},
   {  FuncDisableAudioAmp, "DISABLE_AUDIO_AMP"  },
   {  FuncRGBLed, "RGB_LED"  },
+  {  FuncLCDtoVideo, "LCD_TO_VIDEO"  },
 };
 
 static const YamlLookupTable trainerLut = {
@@ -97,11 +99,13 @@ static const YamlLookupTable resetLut = {
   { 2, "Tmr3" },
   { 3, "All" },
   { 4, "Tele" },
+  { 5, "Trims" },
 };
 
 static const YamlLookupTable gvarModeLut = {
   { FUNC_ADJUST_GVAR_CONSTANT, "Cst" },
   { FUNC_ADJUST_GVAR_SOURCE, "Src" },
+  { FUNC_ADJUST_GVAR_SOURCERAW, "SrcRaw" },
   { FUNC_ADJUST_GVAR_GVAR, "GVar" },
   { FUNC_ADJUST_GVAR_INCDEC, "IncDec" },
 };
@@ -197,7 +201,8 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
       def += std::to_string(rhs.param);
       break;
     case FUNC_ADJUST_GVAR_GVAR:
-    case FUNC_ADJUST_GVAR_SOURCE: {
+    case FUNC_ADJUST_GVAR_SOURCE:
+    case FUNC_ADJUST_GVAR_SOURCERAW: {
       def += YamlRawSourceEncode(RawSource(rhs.param));
     } break;
     }
@@ -344,7 +349,8 @@ bool convert<CustomFunctionData>::decode(const Node& node,
       def >> rhs.param;
       break;
     case FUNC_ADJUST_GVAR_GVAR:
-    case FUNC_ADJUST_GVAR_SOURCE: {
+    case FUNC_ADJUST_GVAR_SOURCE:
+    case FUNC_ADJUST_GVAR_SOURCERAW: {
       std::string src_str;
       getline(def, src_str, ',');
       RawSource src;

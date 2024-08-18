@@ -12,6 +12,9 @@ set(MINIMAL_BOARD_LIB_SRC
   ${CMAKE_CURRENT_BINARY_DIR}/stm32_keys.inc
 
   boards/generic_stm32/inputs.cpp
+  boards/generic_stm32/i2c_bus.cpp
+  boards/generic_stm32/bl_keys.cpp
+  boards/generic_stm32/aux_ports.cpp
 )
 
 # Dependencies only used in firmware
@@ -23,12 +26,12 @@ set(BOARD_LIB_SRC
 
   boards/generic_stm32/module_ports.cpp
   boards/generic_stm32/trainer_ports.cpp
-  boards/generic_stm32/aux_ports.cpp
   boards/generic_stm32/sport_update.cpp
   boards/generic_stm32/intmodule_heartbeat.cpp
   boards/generic_stm32/analog_inputs.cpp
   boards/generic_stm32/switches.cpp
   boards/generic_stm32/bor_level.cpp
+  boards/generic_stm32/rgb_leds.cpp
 )
 
 add_library(minimal_board_lib OBJECT EXCLUDE_FROM_ALL ${MINIMAL_BOARD_LIB_SRC})

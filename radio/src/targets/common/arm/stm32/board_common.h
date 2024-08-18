@@ -19,18 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BOARD_COMMON_H_
-#define _BOARD_COMMON_H_
+#pragma once
 
 #include <inttypes.h>
 #include "cpu_id.h"
 
 #if !defined(SIMU) && !defined(BACKUP)
-#if defined(STM32F4)
+#if defined(STM32H7)
+  #include "stm32h7xx.h"
+#elif defined(STM32F4)
   #include "stm32f4xx.h"
-#else
+#elif defined(STM32F2)
   #include "stm32f2xx.h"
-  #include "dwt.h"    // the old ST library that we use does not define DWT register for STM32F2xx
+#else
+  #error "Unknown MCU family"
 #endif
 #endif
 
@@ -39,12 +41,4 @@
 #include "../simu/simpgmspace.h"
 #endif
 
-#if !defined(SIMU) && !defined(BACKUP)
-  #define ticksNow() ((uint32_t)(DWT->CYCCNT))
-#else
-  #define ticksNow() ((uint32_t)(0UL))
-#endif
-
 #include "delays_driver.h"
-
-#endif

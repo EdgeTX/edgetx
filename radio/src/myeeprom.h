@@ -23,7 +23,7 @@
 #define _MYEEPROM_H_
 
 #include "datastructs.h"
-#include "libopenui/src/bitfield.h"
+#include "bitfield.h"
 #include "storage/yaml/yaml_defs.h"
 #include "hal/switch_driver.h"
 
@@ -271,14 +271,6 @@ enum DisplayTrims
 
 extern RadioData g_eeGeneral;
 extern ModelData g_model;
-
-PACK(union u_int8int16_t {
-  struct {
-    int8_t  lo;
-    uint8_t hi;
-  } bytes_t;
-  int16_t word;
-});
 
 constexpr uint8_t EE_GENERAL = 0x01;
 constexpr uint8_t EE_MODEL = 0x02;

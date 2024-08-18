@@ -81,11 +81,13 @@ static void adc_wait_completion()
 }
 
 const etx_hal_adc_driver_t _adc_driver = {
-  _hal_inputs,
-  _pot_default_config,
-  adc_init,
-  adc_start_read,
-  adc_wait_completion
+  .inputs = _hal_inputs,
+  .default_pots_cfg = _pot_default_config,
+  .init = adc_init,
+  .start_conversion = adc_start_read,
+  .wait_completion = adc_wait_completion,
+  .set_input_mask = stm32_hal_set_inputs_mask,
+  .get_input_mask = stm32_hal_get_inputs_mask,
 };
 
 #if defined(PWM_STICKS)

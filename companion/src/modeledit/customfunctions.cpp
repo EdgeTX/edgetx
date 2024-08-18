@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -696,13 +697,14 @@ void CustomFunctionsPanel::populateFuncParamCB(QComboBox *b, uint function, unsi
   }
   else if (function >= FuncAdjustGV1 && function <= FuncAdjustGVLast) {
     switch (adjustmode) {
-      case 1:
+      case FUNC_ADJUST_GVAR_SOURCE:
+      case FUNC_ADJUST_GVAR_SOURCERAW:
         b->setModel(tabFilterFactory->getItemModel(rawSourceInputsId));
         b->setCurrentIndex(b->findData(value));
         if (b->currentIndex() < 0 && value == 0)
           b->setCurrentIndex(b->count() / 2); // '----' not in list so set to first positive value
         break;
-      case 2:
+      case FUNC_ADJUST_GVAR_GVAR:
         b->setModel(tabFilterFactory->getItemModel(rawSourceGVarsId));
         b->setCurrentIndex(b->findData(value));
         if (b->currentIndex() < 0 && value == 0)

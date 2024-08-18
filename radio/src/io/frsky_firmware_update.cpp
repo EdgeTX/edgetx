@@ -20,7 +20,7 @@
  */
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "frsky_firmware_update.h"
 #include "debug.h"
 #include "timers_driver.h"
@@ -29,7 +29,7 @@
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #else
-  #include "libopenui/src/libopenui_file.h"
+  #include "lib_file.h"
 #endif
 
 #include "hal/module_port.h"

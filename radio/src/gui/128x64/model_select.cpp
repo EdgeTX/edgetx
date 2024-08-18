@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define MODELSEL_W                     LCD_W
 
@@ -117,8 +117,7 @@ void menuModelSelect(event_t event)
   // Suppress exit in "copy mode": handled in this function
   event_t _event_ = event;
   if ((s_copyMode && IS_KEY_EVT(event, KEY_EXIT)) ||
-      event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER) ||
-      event == EVT_KEY_LONG(KEY_ENTER)) {
+      event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
     _event_ = 0;
   }
 
@@ -141,6 +140,7 @@ void menuModelSelect(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_EXIT):
+      killEvents(event);
       if (s_copyMode && s_copyTgtOfs == 0 && g_eeGeneral.currModel != sub && modelExists(sub)) {
         POPUP_CONFIRMATION(STR_DELETEMODEL, nullptr);
         SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), 0);
@@ -167,12 +167,7 @@ void menuModelSelect(event_t event)
     case EVT_KEY_LONG(KEY_ENTER):
     case EVT_KEY_BREAK(KEY_ENTER):
       s_editMode = 0;
-      if (READ_ONLY()) {
-        if (g_eeGeneral.currModel != sub && modelExists(sub)) {
-          selectModel(sub);
-        }
-      }
-      else if (s_copyMode && (s_copyTgtOfs || s_copySrcRow>=0)) {
+      if (s_copyMode && (s_copyTgtOfs || s_copySrcRow>=0)) {
         showMessageBox(s_copyMode==COPY_MODE ? STR_COPYINGMODEL : STR_MOVINGMODEL);
         storageCheck(true); // force writing of current model data before this is changed
 
@@ -206,6 +201,7 @@ void menuModelSelect(event_t event)
       else if (event == EVT_KEY_BREAK(KEY_ENTER) ||
                event == EVT_KEY_LONG(KEY_ENTER)) {
 
+        killEvents(event);
         s_copyMode = 0;
         if (g_eeGeneral.currModel != sub) {
           if (modelExists(sub)) {

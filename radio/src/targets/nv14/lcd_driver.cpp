@@ -22,7 +22,7 @@
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "dma2d.h"
 #include "hal.h"
 #include "hal/gpio.h"
@@ -1104,6 +1104,7 @@ static void lcdReset() {
 }
 
 void LCD_Init_LTDC() {
+  __HAL_RCC_LTDC_CLK_ENABLE();
   hltdc.Instance = LTDC;
 
   /* Configure PLLSAI prescalers for LCD */

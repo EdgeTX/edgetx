@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _PWR_H_
-#define _PWR_H_
+#pragma once
 
 enum PowerState {
   e_power_on,
@@ -29,5 +28,3 @@ enum PowerState {
   e_power_off,
   e_power_press,
 };
-
-#endif // _PWR_H_

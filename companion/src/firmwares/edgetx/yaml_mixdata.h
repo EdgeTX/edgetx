@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -21,8 +22,8 @@
 #include "yaml_ops.h"
 #include "mixdata.h"
 
-int32_t YamlReadMixWeight(const YAML::Node& node);
-std::string YamlWriteMixWeight(int32_t sval);
+int32_t YamlSourceNumRefDecode(const YAML::Node& node);
+std::string YamlSourceNumRefEncode(int32_t sval);
 
 uint32_t YamlReadFlightModes(const YAML::Node& node);
 std::string YamlWriteFlightModes(uint32_t val);

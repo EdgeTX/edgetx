@@ -30,7 +30,7 @@
 #include "bitmapbuffer.h"
 #include "board.h"
 #include "dma2d.h"
-#include "themes/etx_lv_theme.h"
+#include "etx_lv_theme.h"
 
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
@@ -50,8 +50,6 @@ static lv_disp_drv_t disp_drv;
 static lv_disp_t disp;
 #endif
 
-static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
-
 // Call backs
 static void (*lcd_wait_cb)(lv_disp_drv_t*) = nullptr;
 static void (*lcd_flush_cb)(lv_disp_drv_t*, uint16_t* buffer,
@@ -69,11 +67,16 @@ static lv_disp_drv_t* refr_disp = nullptr;
 static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
                      lv_color_t* color_p)
 {
-#if !defined(LCD_VERTICAL_INVERT) && !defined(BOOT)
-  // we're only interested in the last flush in direct mode
-  if (!lv_disp_flush_is_last(disp_drv)) {
-    lv_disp_flush_ready(disp_drv);
-    return;
+#if (!defined(LCD_VERTICAL_INVERT) || defined(RADIO_F16)) && !defined(BOOT)
+#if defined(RADIO_F16)
+  if (hardwareOptions.pcbrev > 0)
+#endif
+  {
+    // we're only interested in the last flush in direct mode
+    if (!lv_disp_flush_is_last(disp_drv)) {
+      lv_disp_flush_ready(disp_drv);
+      return;
+    }
   }
 #endif
 
@@ -95,28 +98,31 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
 
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
 
-#if !defined(LCD_VERTICAL_INVERT) && !defined(BOOT)
-    uint16_t* src = (uint16_t*)color_p;
-    uint16_t* dst = nullptr;
-    if ((uint16_t*)color_p == LCD_FIRST_FRAME_BUFFER)
-      dst = LCD_SECOND_FRAME_BUFFER;
-    else
-      dst = LCD_FIRST_FRAME_BUFFER;
+#if (!defined(LCD_VERTICAL_INVERT) || defined(RADIO_F16)) && !defined(BOOT)
+#if defined(RADIO_F16)
+    if (hardwareOptions.pcbrev > 0)
+#endif
+    {
+      uint16_t* src = (uint16_t*)color_p;
+      uint16_t* dst = nullptr;
+      if ((uint16_t*)color_p == LCD_FIRST_FRAME_BUFFER)
+        dst = LCD_SECOND_FRAME_BUFFER;
+      else
+        dst = LCD_FIRST_FRAME_BUFFER;
 
-    lv_disp_t* disp = _lv_refr_get_disp_refreshing();
-    for (int i = 0; i < disp->inv_p; i++) {
-      if (disp->inv_area_joined[i]) continue;
+      lv_disp_t* disp = _lv_refr_get_disp_refreshing();
+      for (int i = 0; i < disp->inv_p; i++) {
+        if (disp->inv_area_joined[i]) continue;
 
-      const lv_area_t& refr_area = disp->inv_areas[i];
+        const lv_area_t& refr_area = disp->inv_areas[i];
 
-      auto area_w = refr_area.x2 - refr_area.x1 + 1;
-      auto area_h = refr_area.y2 - refr_area.y1 + 1;
+        auto area_w = refr_area.x2 - refr_area.x1 + 1;
+        auto area_h = refr_area.y2 - refr_area.y1 + 1;
 
-      DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1, src, LCD_W,
-                    LCD_H, refr_area.x1, refr_area.y1, area_w, area_h);
+        DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1, src, LCD_W,
+                      LCD_H, refr_area.x1, refr_area.y1, area_w, area_h);
+      }
     }
-    DMAWait();  // wait for the last DMACopyBitmap to be completed before
-                // sending completion message
 #endif
   }
 
@@ -145,6 +151,8 @@ static void init_lvgl_disp_drv()
 
 #if !defined(LCD_VERTICAL_INVERT)
   disp_drv.direct_mode = 1;
+#elif defined(RADIO_F16)
+  disp_drv.direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
 #else
   disp_drv.direct_mode = 0;
 #endif
@@ -152,8 +160,10 @@ static void init_lvgl_disp_drv()
 
 void lcdInitDisplayDriver()
 {
+  static bool lcdDriverStarted = false;
   // we already have a display: exit
-  // if (disp != nullptr) return;
+  if (lcdDriverStarted) return;
+  lcdDriverStarted = true;
 
 #if !defined(BOOT)
   // Full LVGL init in firmware mode
@@ -186,6 +196,9 @@ void lcdInitDisplayDriver()
   //  - this prevents LVGL overwritting things drawn directly into the bitmap
   //  buffer
   lv_disp_set_bg_opa(d, LV_OPA_TRANSP);
+
+  // allow drawing at any moment
+  _lv_refr_set_disp_refreshing(d);
 #else
   // allow drawing at any moment
   lv_memset_00(&disp, sizeof(lv_disp_t));
@@ -207,8 +220,22 @@ void lcdInitDisplayDriver()
   lcdFront->setDrawCtx(draw_ctx);
 }
 
+void lcdClear() { lcd->clear(); }
+
+void lcdFlushed()
+{
+  // its possible to get here before flushLcd is ever called.
+  // so check for nullptr first. (Race condition if you put breakpoints in
+  // startup code)
+  if (refr_disp != nullptr) lv_disp_flush_ready(refr_disp);
+}
+
+// Direct drawing - used by boot loader and battery charging state
+
 void lcdInitDirectDrawing()
 {
+  static lv_area_t screen_area = {0, 0, LCD_W - 1, LCD_H - 1};
+
   lv_draw_ctx_t* draw_ctx = disp_drv.draw_ctx;
   draw_ctx->buf = disp_drv.draw_buf->buf_act;
   draw_ctx->buf_area = &screen_area;
@@ -269,14 +296,4 @@ void lcdRefresh()
 {
   lv_disp_t* d = _lv_refr_get_disp_refreshing();
   _draw_buf_flush(d);
-}
-
-void lcdClear() { lcd->clear(); }
-
-void lcdFlushed()
-{
-  // its possible to get here before flushLcd is ever called.
-  // so check for nullptr first. (Race condition if you put breakpoints in
-  // startup code)
-  if (refr_disp != nullptr) lv_disp_flush_ready(refr_disp);
 }

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const char * warningText = nullptr;
 const char * warningInfoText;
@@ -344,8 +344,8 @@ void POPUP_MENU_TITLE(const char * s)
 
 void POPUP_MENU_START(PopupMenuHandler handler)
 {
+  killAllEvents();
   if (handler != popupMenuHandler) {
-    killAllEvents();
     AUDIO_KEY_PRESS();
     popupMenuHandler = handler;
   }

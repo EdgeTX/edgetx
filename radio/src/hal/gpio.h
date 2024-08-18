@@ -43,8 +43,10 @@ void gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank, gpio_cb_t c
 void gpio_init_analog(gpio_t pin);
 
 void gpio_int_disable(gpio_t pin);
+void gpio_set_af(gpio_t pin, gpio_af_t af);
 
 gpio_mode_t gpio_get_mode(gpio_t pin);
+
 int gpio_read(gpio_t pin);
 void gpio_set(gpio_t pin);
 void gpio_clear(gpio_t pin);

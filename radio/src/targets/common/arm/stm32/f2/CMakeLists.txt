@@ -1,6 +1,6 @@
 set(CPU_FAMILY STM32)
 set(MCU cortex-m3)
-set(FPU_FLAGS "")
+set(FPU_FLAGS "-mfloat-abi=soft")
 
 if(NOT NATIVE_BUILD)
 
@@ -33,6 +33,8 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f2xx_hal_i2c.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_hal_pcd.c
     ${STM32CUBE_DIR}/Src/stm32f2xx_hal_pcd_ex.c
+    ${STM32CUBE_DIR}/Src/stm32f2xx_hal_flash.c
+    ${STM32CUBE_DIR}/Src/stm32f2xx_hal_flash_ex.c
     )
 
   target_compile_options(stm32cube_ll PRIVATE -DUSE_FULL_LL_DRIVER)

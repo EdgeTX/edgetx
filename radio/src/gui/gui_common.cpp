@@ -24,7 +24,7 @@
 #include "hal/switch_driver.h"
 #include "hal/trainer_driver.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 #include "mixes.h"
 
@@ -35,20 +35,6 @@ uint8_t switchToMix(uint8_t source)
 {
   div_t qr = div(source-1, 3);
   return qr.quot + MIXSRC_FIRST_SWITCH;
-}
-
-int circularIncDec(int current, int inc, int min, int max, IsValueAvailable isValueAvailable)
-{
-  do {
-    current += inc;
-    if (current < min)
-      current = max;
-    else if (current > max)
-      current = min;
-    if (!isValueAvailable || isValueAvailable(current))
-      return current;
-  } while(1);
-  return 0;
 }
 
 bool isInputAvailable(int input)
@@ -176,183 +162,204 @@ int getChannelsUsed()
   return result;
 }
 
-bool isSourceAvailable(int source)
+static bool sourceIsAvailable(int source) { return true; }
+
+static bool isSourceLuaAvailable(int source) {
+#if defined(LUA_MODEL_SCRIPTS)
+  if (modelCustomScriptsEnabled()) {
+    div_t qr = div(source, MAX_SCRIPT_OUTPUTS);
+    return (qr.rem < scriptInputsOutputs[qr.quot].outputsCount);
+  }
+#endif
+  return false;
+}
+
+static bool isSourceStickAvailable(int source) {
+  return source < adcGetMaxInputs(ADC_INPUT_MAIN);
+}
+
+static bool isSourcePotAvailable(int source) {
+  return IS_POT_SLIDER_AVAILABLE(source);
+}
+
+#if defined(PCBHORUS)
+static bool isSourceSpacemouseAvailable(int source) {
+#if defined(SPACEMOUSE)
+  return serialGetModePort(UART_MODE_SPACEMOUSE) >= 0;
+#else
+  return false;
+#endif
+}
+#endif
+
+static bool isSourceHeliAvailable(int source) {
+#if defined(HELI)
+  return modelHeliEnabled();
+#else
+  return false;
+#endif
+}
+
+static bool isSourceTrimAvailable(int source) {
+  return source < keysGetMaxTrims();
+}
+
+static bool isSourceSwitchAvailable(int source) {
+  return SWITCH_EXISTS(source);
+}
+
+#if defined(FUNCTION_SWITCHES)
+static bool isSourceFuncSwitchAvailable(int source) {
+  return getSwitchCountInFSGroup(source + 1) > 0;
+}
+#endif
+
+static bool isSourceLSAvailable(int source) {
+  LogicalSwitchData * cs = lswAddress(source);
+  return (cs->func != LS_FUNC_NONE);
+}
+
+static bool isSourceTrainerAvailable(int source) {
+  return g_model.trainerData.mode > 0;
+}
+
+static bool isSourceGvarAvailable(int source) {
+#if defined(GVARS)
+  return modelGVEnabled();
+#else
+  return false;
+#endif
+}
+
+static bool isSourceTimerAvailable(int source) {
+  TimerData *timer = &g_model.timers[source];
+  return timer->mode != 0;
+}
+
+static bool isSourceTelemAvailable(int source) {
+  if (!modelTelemetryEnabled())
+    return false;
+  div_t qr = div(source, 3);
+  if (qr.rem == 0)
+    return isTelemetryFieldAvailable(qr.quot);
+  else
+    return isTelemetryFieldComparisonAvailable(qr.quot);
+}
+
+static bool isSourceTelemCompAvailable(int source) {
+  if (!modelTelemetryEnabled())
+    return false;
+  div_t qr = div(source, 3);
+  return isTelemetryFieldComparisonAvailable(qr.quot);
+}
+
+enum SrcTypes {
+  SRC_INPUT = 1 << 0,
+  SRC_LUA = 1 << 1,
+  SRC_STICK = 1 << 2,
+  SRC_POT = 1 << 3,
+  SRC_TILT = 1 << 4,
+  SRC_SPACEMOUSE = 1 << 5,
+  SRC_MINMAX = 1 << 6,
+  SRC_HELI = 1 << 7,
+  SRC_TRIM = 1 << 8,
+  SRC_SWITCH = 1 << 9,
+  SRC_FUNC_SWITCH = 1 << 10,
+  SRC_LOGICAL_SWITCH = 1 << 11,
+  SRC_TRAINER = 1 << 12,
+  SRC_CHANNEL = 1 << 13,
+  SRC_CHANNEL_ALL = 1 << 14,
+  SRC_GVAR = 1 << 15,
+  SRC_TX = 1 << 16,
+  SRC_TIMER = 1 << 17,
+  SRC_TELEM = 1 << 18,
+  SRC_TELEM_COMP = 1 << 19,
+};
+
+struct sourceAvailableCheck {
+  uint16_t first;
+  uint16_t last;
+  SrcTypes type;
+  bool (*check)(int);
+};
+
+static struct sourceAvailableCheck sourceChecks[] = {
+  { MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT, SRC_INPUT, isInputAvailable },
+  { MIXSRC_FIRST_LUA, MIXSRC_LAST_LUA, SRC_LUA, isSourceLuaAvailable },
+  { MIXSRC_FIRST_STICK, MIXSRC_LAST_STICK, SRC_STICK, isSourceStickAvailable },
+  { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SRC_POT, isSourcePotAvailable },
+#if defined(IMU)
+  { MIXSRC_TILT_X, MIXSRC_TILT_Y, SRC_TILT, sourceIsAvailable },
+#endif
+#if defined(PCBHORUS)
+  { MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE, SRC_SPACEMOUSE, isSourceSpacemouseAvailable },
+#endif
+  { MIXSRC_MIN, MIXSRC_MAX, SRC_MINMAX, sourceIsAvailable },
+  { MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, SRC_HELI, isSourceHeliAvailable },
+  { MIXSRC_FIRST_TRIM, MIXSRC_LAST_TRIM, SRC_TRIM, isSourceTrimAvailable },
+  { MIXSRC_FIRST_SWITCH, MIXSRC_LAST_SWITCH, SRC_SWITCH, isSourceSwitchAvailable },
+#if defined(FUNCTION_SWITCHES)
+  { MIXSRC_FIRST_CUSTOMSWITCH_GROUP, MIXSRC_LAST_CUSTOMSWITCH_GROUP, SRC_FUNC_SWITCH, isSourceFuncSwitchAvailable },
+#endif
+  { MIXSRC_FIRST_LOGICAL_SWITCH, MIXSRC_LAST_LOGICAL_SWITCH, SRC_LOGICAL_SWITCH, isSourceLSAvailable },
+  { MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SRC_TRAINER, isSourceTrainerAvailable },
+  { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL, isChannelUsed },
+  { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
+  { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SRC_GVAR, isSourceGvarAvailable },
+  { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
+  { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
+  { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
+  { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM_COMP, isSourceTelemCompAvailable },
+};
+
+bool checkSourceAvailable(int source, uint32_t sourceTypes)
 {
   if (source < 0)
     source = -source;
 
-  if (source >= MIXSRC_FIRST_INPUT && source <= MIXSRC_LAST_INPUT) {
-    return isInputAvailable(source - MIXSRC_FIRST_INPUT);
-  }
-
-#if defined(LUA_MODEL_SCRIPTS)
-  if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA) {
-    if (modelCustomScriptsEnabled()) {
-      div_t qr = div(source - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-      return (qr.rem < scriptInputsOutputs[qr.quot].outputsCount);
-    } else {
-      return false;
+  for (int i = 0 ; i < DIM(sourceChecks); i += 1) {
+    if (sourceChecks[i].type & sourceTypes && source >= sourceChecks[i].first && source <= sourceChecks[i].last) {
+      return sourceChecks[i].check(source - sourceChecks[i].first);
     }
   }
-#elif defined(LUA_INPUTS)
-  if (source >= MIXSRC_FIRST_LUA && source <= MIXSRC_LAST_LUA)
-    return false;
-#endif
-
-  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK) {
-    auto idx = source - MIXSRC_FIRST_STICK;
-    return idx < adcGetMaxInputs(ADC_INPUT_MAIN);
-  }
-
-  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT) {
-    return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
-  }
-
-#if defined(PCBHORUS) && !defined(SPACEMOUSE)
-  if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
-    return false;
-#elif defined(PCBHORUS) && defined(SPACEMOUSE)
-  if ((serialGetModePort(UART_MODE_SPACEMOUSE) < 0) &&
-      (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE))
-    return false;
-#endif
-
-  if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH) {
-    return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
-  }
-
-#if !defined(HELI)
-  if (source >= MIXSRC_FIRST_HELI && source <= MIXSRC_LAST_HELI)
-    return false;
-#else
-  if (!modelHeliEnabled() && source >= MIXSRC_FIRST_HELI && source <= MIXSRC_LAST_HELI)
-    return false;
-#endif
-
-  if (source >= MIXSRC_FIRST_TRIM && source <= MIXSRC_LAST_TRIM) {
-    return (source - MIXSRC_FIRST_TRIM) < keysGetMaxTrims();
-  }
-
-  if (source >= MIXSRC_FIRST_LOGICAL_SWITCH && source <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    LogicalSwitchData * cs = lswAddress(source - MIXSRC_FIRST_LOGICAL_SWITCH);
-    return (cs->func != LS_FUNC_NONE);
-  }
-
-  if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
-    return g_model.trainerData.mode > 0;
-
-#if defined(FUNCTION_SWITCHES)
-  if (source >= MIXSRC_FIRST_CUSTOMSWITCH_GROUP && source <= MIXSRC_LAST_CUSTOMSWITCH_GROUP)
-    return getSwitchCountInFSGroup(source - MIXSRC_FIRST_CUSTOMSWITCH_GROUP + 1) > 0;
-#endif
-
-  if (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH) {
-    return isChannelUsed(source - MIXSRC_FIRST_CH);
-  }
-
-#if !defined(GVARS)
-  if (source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR)
-    return false;
-#else
-  if (!modelGVEnabled() && source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR)
-    return false;
-#endif
-
-  // TX VOLTAGE, TIME and GPS are always true
-
-  if (source >= MIXSRC_FIRST_TIMER && source <= MIXSRC_LAST_TIMER) {
-    TimerData *timer = &g_model.timers[source - MIXSRC_FIRST_TIMER];
-    return timer->mode != 0;
-  }
-
-  if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
-    if (!modelTelemetryEnabled())
-      return false;
-    div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
-    if (qr.rem == 0)
-      return isTelemetryFieldAvailable(qr.quot);
-    else
-      return isTelemetryFieldComparisonAvailable(qr.quot);
-  }
-
-  return true;
-}
-
-bool isSourceAvailableInGlobalFunctions(int source)
-{
-  if (source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
-    return false;
-  }
-  return isSourceAvailable(source);
-}
-
-bool isSourceAvailableInCustomSwitches(int source)
-{
-  bool result = isSourceAvailable(source);
-
-  if (result && modelTelemetryEnabled() && source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
-    div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
-    result = isTelemetryFieldComparisonAvailable(qr.quot);
-  }
-
-  return result;
-}
-
-bool isSourceAvailableInInputs(int source)
-{
-  if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK) {
-    auto idx = source - MIXSRC_FIRST_STICK;
-    return idx < adcGetMaxInputs(ADC_INPUT_MAIN);
-  }
-
-  if (source >= MIXSRC_FIRST_POT && source <= MIXSRC_LAST_POT)
-    return IS_POT_SLIDER_AVAILABLE(source - MIXSRC_FIRST_POT);
-
-#if defined(IMU)
-  if (source == MIXSRC_TILT_X || source == MIXSRC_TILT_Y)
-    return true;
-#endif
-
-#if defined(PCBHORUS) && defined(SPACEMOUSE)
-  if (source >= MIXSRC_FIRST_SPACEMOUSE && source <= MIXSRC_LAST_SPACEMOUSE)
-    return true;
-#endif
-  if (source == MIXSRC_MIN || source == MIXSRC_MAX)
-    return true;
-
-  if (source >= MIXSRC_FIRST_TRIM && source <= MIXSRC_LAST_TRIM) {
-    auto idx = source - MIXSRC_FIRST_TRIM;
-    return idx < keysGetMaxTrims();
-  }
-
-  if (source >= MIXSRC_FIRST_SWITCH && source <= MIXSRC_LAST_SWITCH)
-    return SWITCH_EXISTS(source - MIXSRC_FIRST_SWITCH);
-
-#if defined(FUNCTION_SWITCHES)
-  if (source >= MIXSRC_FIRST_CUSTOMSWITCH_GROUP && source <= MIXSRC_LAST_CUSTOMSWITCH_GROUP)
-    return getSwitchCountInFSGroup(source - MIXSRC_FIRST_CUSTOMSWITCH_GROUP + 1) > 0;
-#endif
-
-  if (source >= MIXSRC_FIRST_CH && source <= MIXSRC_LAST_CH)
-    return true;
-
-  if (source >= MIXSRC_FIRST_LOGICAL_SWITCH && source <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    LogicalSwitchData * cs = lswAddress(source - MIXSRC_FIRST_LOGICAL_SWITCH);
-    return (cs->func != LS_FUNC_NONE);
-  }
-
-  if (source >= MIXSRC_FIRST_TRAINER && source <= MIXSRC_LAST_TRAINER)
-    return g_model.trainerData.mode > 0;
-
-  if (modelTelemetryEnabled() && source >= MIXSRC_FIRST_TELEM && source <= MIXSRC_LAST_TELEM) {
-    div_t qr = div(source - MIXSRC_FIRST_TELEM, 3);
-    return isTelemetryFieldAvailable(qr.quot) && isTelemetryFieldComparisonAvailable(qr.quot);
-  }
-
-  if (modelGVEnabled() && source >= MIXSRC_FIRST_GVAR && source <= MIXSRC_LAST_GVAR)
-    return true;
 
   return false;
+}
+
+#define SRC_COMMON \
+            SRC_STICK | SRC_POT | SRC_TILT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
+            SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR
+
+bool isSourceAvailable(int source)
+{
+  return checkSourceAvailable(source,
+            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM
+            );
+}
+
+// Used only in B&W radios for Global Functions when funcion is FUNC_PLAY_VALUE
+bool isSourceAvailableInGlobalFunctions(int source)
+{
+  return checkSourceAvailable(source,
+            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER
+            );
+}
+
+// Used only in B&W radios with wide screen LCD (212x64) for logical switches
+// V1 parameter when LS function is LS_FAMILY_OFS or LS_FAMILY_DIFF
+bool isSourceAvailableInCustomSwitches(int source)
+{
+  return checkSourceAvailable(source,
+            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM_COMP
+            );
+}
+
+// Only used for B&W radios for Input source (color radios use isSourceAvailable)
+bool isSourceAvailableInInputs(int source)
+{
+  return checkSourceAvailable(source,
+            SRC_COMMON | SRC_CHANNEL_ALL | SRC_TELEM_COMP
+            );
 }
 
 bool isLogicalSwitchAvailable(int index)
@@ -581,6 +588,10 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
 #endif
 #if !defined(LED_STRIP_GPIO)
     case FUNC_RGB_LED:
+      return false;
+#endif
+#if !defined(VIDEO_SWITCH)
+    case FUNC_LCD_TO_VIDEO:
       return false;
 #endif
     default:
@@ -883,7 +894,7 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML) and !defined(EXTMODULE_USART_GPIO)
+#if defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML) and !defined(EXTMODULE_USART)
   if (moduleType == MODULE_TYPE_XJT_LITE_PXX2 ||
       moduleType == MODULE_TYPE_R9M_PXX2)
     return false;
@@ -1058,17 +1069,16 @@ bool isTrainerModeAvailable(int mode)
     if (mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE) {
       const etx_module_port_t *port = nullptr;
 
-#if defined(TRAINER_MODULE_SBUS_USART)
-      // check if UART with inverter on heartbeat pin is required and available for SBUS (some Taranis radios)
+      // check if UART with inverter on heartbeat pin is available
       port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
                             ETX_MOD_PORT_UART, ETX_Pol_Normal,
                             ETX_MOD_DIR_RX);
-#else
-      //check if UART with inverter on S.Port pin is available for SBUS (e.g. TX16s, NV14)
-      port = modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
-                            ETX_MOD_PORT_SPORT, ETX_Pol_Normal,
-                            ETX_MOD_DIR_RX);
-#endif
+      if (!port) {
+        // otherwise fall back to S.Port pin
+        port =
+            modulePortFind(EXTERNAL_MODULE, ETX_MOD_TYPE_SERIAL,
+                           ETX_MOD_PORT_SPORT, ETX_Pol_Normal, ETX_MOD_DIR_RX);
+      }
 
       return port != nullptr;
     }

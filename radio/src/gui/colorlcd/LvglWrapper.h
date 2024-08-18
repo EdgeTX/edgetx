@@ -22,7 +22,7 @@
 #pragma once
 
 #include <lvgl/lvgl.h>
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 void initLvglTheme();
 

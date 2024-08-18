@@ -4,6 +4,9 @@
 set -e
 set -x
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/build-common.sh" 
+
 if [ "$(uname)" = "Darwin" ]; then
   num_cpus=$(sysctl -n hw.ncpu)
   : "${JOBS:=$num_cpus}"
@@ -64,138 +67,26 @@ mkdir build
 cd build
 
 declare -a simulator_plugins=(x9lite x9lites
-                              x7 x7-access
-                              t8 t12 tx12 tx12mk2
+                              x7 x7access
+                              t8 t12 t12max tx12 tx12mk2
                               zorro commando8 boxer pocket
-                              tlite tpro tprov2 lr3pro t14
+                              tlite tpro tprov2 tpros lr3pro t14
                               x9d x9dp x9dp2019 x9e
                               xlite xlites
                               nv14 el18 pl18 pl18ev
-                              x10 x10-access x12s
-                              t15 t16 t18 t20 t20v2 tx16s)
+                              x10 x10express x12s
+                              t15 t16 t18 t20 t20v2 tx16s f16)
 
 for plugin in "${simulator_plugins[@]}"
 do
     BUILD_OPTIONS="${COMMON_OPTIONS} "
 
     echo "Building ${plugin}"
-    case $plugin in
-        x9lite)
-            BUILD_OPTIONS+="-DPCB=X9LITE"
-            ;;
-        x9lites)
-            BUILD_OPTIONS+="-DPCB=X9LITES"
-            ;;
-        x7)
-            BUILD_OPTIONS+="-DPCB=X7"
-            ;;
-        x7-access)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
-            ;;
-        t12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        tx12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
-            ;;
-        tx12mk2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
-            ;;
-        t8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
-            ;;
-        zorro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
-            ;;
-        pocket)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
-            ;;
-        boxer)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
-            ;;
-        lr3pro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
-            ;;
-        tlite)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
-            ;;
-        tlitef4)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITEF4"
-            ;;
-        tpro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
-            ;;
-        tprov2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
-            ;;
-        t20)
-           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
-           ;;
-        t14)
-           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T14"
-           ;;
-        t20v2)
-           BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
-            ;;
-        xlite)
-            BUILD_OPTIONS+="-DPCB=XLITE"
-            ;;
-        xlites)
-            BUILD_OPTIONS+="-DPCB=XLITES"
-            ;;
-        x9d)
-            BUILD_OPTIONS+="-DPCB=X9D"
-            ;;
-        x9dp)
-            BUILD_OPTIONS+="-DPCB=X9D+"
-            ;;
-        x9dp2019)
-            BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
-            ;;
-        x9e)
-            BUILD_OPTIONS+="-DPCB=X9E"
-            ;;
-        x10)
-            BUILD_OPTIONS+="-DPCB=X10"
-            ;;
-        x10-access)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES"
-            ;;
-        x12s)
-            BUILD_OPTIONS+="-DPCB=X12S"
-            ;;
-        t15)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T15 -DINTERNAL_MODULE_CRSF=ON"
-            ;;
-        t16)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        t18)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
-            ;;
-        tx16s)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
-            ;;
-        nv14)
-            BUILD_OPTIONS+="-DPCB=NV14"
-            ;;
-        el18)
-            BUILD_OPTIONS+="-DPCB=NV14 -DPCBREV=EL18"
-            ;;
-        commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
-            ;;
-        pl18)
-            BUILD_OPTIONS+="-DPCB=PL18"
-            ;;
-        pl18ev)
-            BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=PL18EV"
-            ;;
-        *)
-            echo "Unknown target: $target_name"
-            exit 1
-            ;;
-    esac
+    
+    if ! get_target_build_options "$plugin"; then
+        echo "Error: Failed to find a match for target '$plugin'"
+        exit 1
+    fi
 
     rm -f CMakeCache.txt native/CMakeCache.txt
     cmake ${BUILD_OPTIONS} "${SRCDIR}"

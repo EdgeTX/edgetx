@@ -25,8 +25,8 @@
 #include "hal/adc_driver.h"
 
 #include "dataconstants.h"
-#include "opentx_helpers.h"
-#include "opentx.h"
+#include "edgetx_helpers.h"
+#include "edgetx.h"
 
 // Board API
 void boardInitSwitches();

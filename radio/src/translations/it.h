@@ -119,12 +119,14 @@
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Off"
 #define TR_SF_SET_SCREEN               "Setta Schermo Princ."
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetria")
+#define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
 
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("All","Tutto"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("All","Tutto"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
 #define TR_FUNCSOUNDS                  TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
@@ -798,7 +800,7 @@
 #define TR_INTERNALRF                   "Modulo interno"
 #define TR_INTERNAL_MODULE              TR("Modulo int.", "Modulo interno")
 #define TR_EXTERNAL_MODULE              TR("Modulo est.", "Modulo esterno")
-#define TR_OPENTX_UPGRADE_REQUIRED      "OpenTX richiede aggiornamento"
+#define TR_EDGETX_UPGRADE_REQUIRED      "EdgeTX richiede aggiornamento"
 #define TR_TELEMETRY_DISABLED           TR("Telem. off", "Telem. disabilitata")
 #define TR_MORE_OPTIONS_AVAILABLE       "Altre opzioni assenti"
 #define TR_NO_MODULE_INFORMATION        "Nessuna info del modulo"
@@ -939,7 +941,8 @@
 #define TR_COPY_TRIMS_TO_OFS               TR("Cp. trim->subtrim", "Copia Trims su Subtrim")
 #define TR_INCDEC                          "Inc/Decrementa"
 #define TR_GLOBALVAR                       "Var Globale"
-#define TR_MIXSOURCE                       "Sorgente Mixer"
+#define TR_MIXSOURCE                       "Sorgente (%)"
+#define TR_MIXSOURCERAW                    "Sorgente (valore)"
 #define TR_CONSTANT                        "Constante"
 #define TR_PREFLIGHT_POTSLIDER_CHECK       "Off","On","Auto"
 #define TR_PREFLIGHT                       "Controlli Prevolo"
@@ -1047,26 +1050,32 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Ripristino EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Premi il bottone d'accensione"
     #define TR_BL_FLASH_EXIT          "Esci dal modo scrittura."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] per scegliere il file"
   #define TR_BL_FLASH_KEY             "Tenere premuto [ENT] per scrivere"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] per uscire"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF Accesso USB"
   #define TR_BL_CURRENT_FW            "Firmware corrente:"
   #define TR_BL_SELECT_KEY            "[R TRIM] per scegliere il file"
   #define TR_BL_FLASH_KEY             "Tener premuto [R TRIM] per scrivere"
   #define TR_BL_EXIT_KEY              " [L TRIM] per uscire"
+  #define TR_BL_ENABLE                "Abilita"
+  #define TR_BL_DISABLE               "Disabilita"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
@@ -1273,7 +1282,6 @@
 #define TR_RADIO_MENU_TABS             "Schede del Menu Radio"
 #define TR_MODEL_MENU_TABS             "Schede del Menu Modello"
 
-
 #define TR_SELECT_MENU_ALL        "Tutto"
 #define TR_SELECT_MENU_CLR        "Pulisci"
 #define TR_SELECT_MENU_INV        "Inverti"
@@ -1283,6 +1291,7 @@
 #define TR_CREATE_NEW             "Crea"
 
 #define TR_MIX_SLOW_PREC          TR("Prec. lenta", "Prec. su/giù lenta")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "Esiste già una cartella di temi con lo stesso nome."
 
@@ -1291,3 +1300,7 @@
 #define TR_LOW_BATT_COLOR         "Batteria scarica"
 #define TR_MID_BATT_COLOR         "Batteria media"
 #define TR_HIGH_BATT_COLOR        "Batteria carica"
+
+#define TR_WIDGET_SIZE            "Dimensione widget"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 void onPXX2R9MBindModeMenu(const char * result)
 {
@@ -182,6 +182,7 @@ void runPopupRegister(event_t event)
       // no break
 
     case EVT_KEY_LONG(KEY_EXIT):
+      killEvents(event);
       s_editMode = 0;
       // no break;
 

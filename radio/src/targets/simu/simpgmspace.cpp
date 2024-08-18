@@ -26,7 +26,7 @@
   #include <SDL.h>
 #endif
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "simulcd.h"
 
 #include "hal/adc_driver.h"
@@ -62,8 +62,6 @@ rotenc_t rotaryEncoderGetValue()
 {
   return rotencValue / ROTARY_ENCODER_GRANULARITY;
 }
-
-rotenc_t rotaryEncoderGetRawValue() { return rotencValue; }
 
 // TODO: remove all STM32 defs
 

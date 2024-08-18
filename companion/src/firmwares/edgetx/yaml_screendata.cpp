@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -65,7 +66,13 @@ Node convert<ZoneOptionValueTyped>::encode(const ZoneOptionValueTyped& rhs)
       value["source"] = rhs.value.sourceValue;
       break;
     case ZOV_Color:
-      value["color"] = color_to_hex(rhs.value.colorValue);
+      if (rhs.value.colorValue & 0x80000000) {
+        value["color"] = color_to_hex(rhs.value.colorValue & 0xFFFFFF);
+      } else {
+        std::string s("COLIDX");
+        s += std::to_string(rhs.value.colorValue);
+        value["color"] = s;
+      }
       break;
     default:
       break;
@@ -86,7 +93,17 @@ bool convert<ZoneOptionValueTyped>::decode(const Node& node,
       value["boolValue"] >> rhs.value.boolValue;
       value["stringValue"] >> rhs.value.stringValue;
       value["source"] >> rhs.value.sourceValue;
-      value["color"] >> rhs.value.colorValue;
+      std::string s;
+      value["color"] >> s;
+      if (s.substr(0, 6) == "COLIDX") {
+        // Index color
+        rhs.value.colorValue = stoi(s.substr(6));
+      } else {
+        unsigned int c;
+        sscanf(s.c_str(), "0x%x", &c);
+        // Mark as RGB color
+        rhs.value.colorValue = c | 0x80000000;
+      }
     }
   }
   return true;

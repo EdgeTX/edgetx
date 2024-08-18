@@ -20,7 +20,7 @@
  */
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "io/frsky_firmware_update.h"
 #include "bluetooth_driver.h"
 #include "trainer.h"
@@ -28,7 +28,7 @@
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #else
-  #include "libopenui/src/libopenui_file.h"
+  #include "lib_file.h"
 #endif
 
 #if defined(LOG_BLUETOOTH)
@@ -412,6 +412,15 @@ void Bluetooth::wakeup()
   if (state == BLUETOOTH_STATE_FLASH_FIRMWARE) {
     return;
   }
+
+#if defined(BT_PWR_GPIO)
+  if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF) {
+    bluetoothDisable();
+    state = BLUETOOTH_STATE_OFF;
+    wakeupTime = now + 10; /* 100ms */
+    return;
+  }
+#endif
 
   if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF ||
       (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER &&

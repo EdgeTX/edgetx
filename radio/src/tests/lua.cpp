@@ -25,7 +25,7 @@
 #if defined(LUA)
 
 #define SWAP_DEFINED
-#include "opentx.h"
+#include "edgetx.h"
 
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
 #define MIXSRC_TRIMTHR (MIXSRC_FIRST_TRIM + inputMappingGetThrottle())
@@ -134,7 +134,9 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(-56, g_model.expoData[0].weight);
+  SourceNumVal v;
+  v.rawValue = g_model.expoData[0].weight;
+  EXPECT_EQ(-56, v.value);
   EXPECT_EQ(0, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
@@ -155,7 +157,8 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(-56, g_model.expoData[0].weight);
+  v.rawValue = g_model.expoData[0].weight;
+  EXPECT_EQ(-56, v.value);
   EXPECT_EQ(0, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
@@ -186,6 +189,30 @@ TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
   luaExecStr("if MIXSRC_SB == nil then error('failed') end");
+}
+
+TEST(Lua, testLegacyNames)
+{
+  MODEL_RESET();
+#if defined(SURFACE_RADIO)
+  for (uint8_t i = 0; i < 2; i ++)
+    anaSetFiltered(i, -1024);
+  luaExecStr("value = getValue('thr')");
+  luaExecStr("if value ~= -1024 then error('th not defined in Legacy') end");
+  luaExecStr("value = getValue('ste')");
+  luaExecStr("if value ~= -1024 then error('st not defined in Legacy') end");
+#else
+  for (uint8_t i = 0; i < 4; i ++)
+    anaSetFiltered(i, -1024);
+  luaExecStr("value = getValue('thr')");
+  luaExecStr("if value ~= -1024 then error('thr not defined in Legacy') end");
+  luaExecStr("value = getValue('ail')");
+  luaExecStr("if value ~= -1024 then error('ail not defined in Legacy') end");
+  luaExecStr("value = getValue('rud')");
+  luaExecStr("if value ~= -1024 then error('rud not defined in Legacy') end");
+  luaExecStr("value = getValue('ele')");
+  luaExecStr("if value ~= -1024 then error('ele not defined in Legacy') end");
+#endif
 }
 
 #endif   // #if defined(LUA)

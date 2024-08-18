@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FLYSKY_IBUS_H
-#define _FLYSKY_IBUS_H
+#pragma once
 
 void processFlySkySensor(const uint8_t *packet, uint8_t type);
 
@@ -32,6 +31,3 @@ void flySkySetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
 void processFlySkyPacket(const uint8_t * packet);
 
 void processFlySkyPacketAC(const uint8_t * packet);
-
-
-#endif

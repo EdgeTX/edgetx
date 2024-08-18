@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -311,7 +312,7 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
       Board::InputInfo info =  Boards::getInputInfo(i, board);
       inputConfig[i].type = info.type;
       inputConfig[i].flexType = info.flexType;
-      inputConfig[i].inverted = info.inverted;
+      inputConfig[i].inverted = false; //info.inverted;
     }
   }
 
@@ -398,6 +399,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
 
   for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Inputs); i++) {
     if (Boards::isInputConfigurable(i, cstate.fromType)) {
+      cstate.withComponentField("");
       cstate.setItemType(Boards::isInputStick(i, cstate.fromType) ? tr("Axis") : tr("Pot"));
       RadioDataConversionState::LogField oldData(i, Boards::getInputName(i, cstate.fromType));
       const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), Board::LVT_TAG, cstate.toType);
@@ -422,7 +424,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
         // do not copy calibration - use defaults as safer
       }
       else if (cstate.fromGS()->inputConfig[i].type == Board::AIT_FLEX && cstate.fromGS()->inputConfig[i].flexType != Board::FLEX_NONE) {
-        cstate.setInvalid(oldData);
+        cstate.setUnsupported(oldData);
       }
     }
   }
@@ -431,6 +433,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
 
   for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Switches); i++) {
     if (Boards::isSwitchConfigurable(i, cstate.fromType)) {
+      cstate.withComponentField("");
       cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
                          Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
       RadioDataConversionState::LogField oldData(i, Boards::getSwitchName(i, cstate.fromType));
@@ -443,9 +446,12 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
 
         if (Boards::getSwitchInfo(i, cstate.fromType).type > Boards::getSwitchInfo(idx, cstate.toType).type) {
           cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
+          cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
+                             Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
           RadioDataConversionState::LogField oldSWT(i, Boards::switchTypeToString(fromcfg.type));
-          tocfg.type = Board::SWITCH_NOT_AVAILABLE;
-          cstate.setConverted(oldSWT, RadioDataConversionState::LogField(i, Boards::switchTypeToString(fromcfg.type)));
+          // switch type not supported on to profile so leave as hw default eg from 3 Pos and to 2 Pos
+          // if switch position not supported it will be reported where used on each model
+          cstate.setConverted(oldSWT, RadioDataConversionState::LogField(i, Boards::switchTypeToString(tocfg.type)));
         }
         else
           tocfg.type = fromcfg.type;
@@ -464,9 +470,8 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
             tocfg.inputIdx = fromcfg.inputIdx;
         }
       }
-      else if (cstate.fromGS()->switchConfig[i].type != Board::SWITCH_NOT_AVAILABLE) {
-        cstate.setInvalid(oldData);
-      }
+      else if (cstate.fromGS()->switchConfig[i].type != Board::SWITCH_NOT_AVAILABLE)
+        cstate.setUnsupported(oldData);
     }
   }
 

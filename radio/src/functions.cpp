@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 #include "boards/generic_stm32/rgb_leds.h"
 
@@ -27,6 +27,13 @@
 void setRequestedMainView(uint8_t view);
 #endif
 
+#if defined(VIDEO_SWITCH)
+#include "videoswitch_driver.h"
+#if defined(SIMU)
+void switchToRadio() {};
+void switchToVideo() {};
+#endif
+#endif
 CustomFunctionsContext modelFunctionsContext = { 0 };
 
 CustomFunctionsContext globalFunctionsContext = { 0 };
@@ -150,6 +157,9 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
   }
 #endif
 
+#if defined(VIDEO_SWITCH)
+  bool videoEnabled = false;
+#endif
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
     const CustomFunctionData * cfn = &functions[i];
     swsrc_t swtch = CFN_SWITCH(cfn);
@@ -207,6 +217,13 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
               case FUNC_RESET_TELEMETRY:
                 telemetryReset();
                 break;
+
+              case FUNC_RESET_TRIMS: {
+                for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
+                  setTrimValue(mixerCurrentFlightMode, i, 0);
+                }
+                break;
+              }
             }
             if (CFN_PARAM(cfn) >= FUNC_RESET_PARAM_FIRST_TELEM) {
               uint8_t item = CFN_PARAM(cfn) - FUNC_RESET_PARAM_FIRST_TELEM;
@@ -264,11 +281,18 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
               trimGvar[CFN_PARAM(cfn) - MIXSRC_FIRST_TRIM] =
                   CFN_GVAR_INDEX(cfn);
             } else {
-              SET_GVAR(CFN_GVAR_INDEX(cfn),
-                       limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
-                                      calcRESXto100(getValue(CFN_PARAM(cfn))),
-                                      MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
-                       mixerCurrentFlightMode);
+              if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_SOURCE)
+                SET_GVAR(CFN_GVAR_INDEX(cfn),
+                        limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
+                                        calcRESXto100(getValue(CFN_PARAM(cfn))),
+                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
+                        mixerCurrentFlightMode);
+              else
+                SET_GVAR(CFN_GVAR_INDEX(cfn),
+                        limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
+                                        getValue(CFN_PARAM(cfn)),
+                                        MODEL_GVAR_MAX(CFN_GVAR_INDEX(cfn))),
+                        mixerCurrentFlightMode);
             }
             break;
 #endif
@@ -436,6 +460,12 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             }
             break;
 #endif
+#if defined(VIDEO_SWITCH)
+          case FUNC_LCD_TO_VIDEO:
+            switchToVideo();
+            videoEnabled = true;
+            break;
+#endif
 #if defined(DEBUG)
           case FUNC_TEST:
             testFunc();
@@ -464,6 +494,11 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
       }
     }
   }
+
+#if defined(VIDEO_SWITCH)
+  if (!videoEnabled)
+    switchToRadio();
+#endif
 
   functionsContext.activeSwitches   = newActiveSwitches;
   functionsContext.activeFunctions  = newActiveFunctions;
@@ -544,6 +579,8 @@ const char* funcGetLabel(uint8_t func)
 #endif
   case FUNC_RGB_LED:
     return STR_SF_RGBLEDS;
+  case FUNC_LCD_TO_VIDEO:
+    return STR_SF_LCD_TO_VIDEO;
 #if defined(DEBUG)
   case FUNC_TEST:
     return STR_SF_TEST;

@@ -115,12 +115,14 @@
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP TR("Wycisz wzm.", "Wycisz wzmacniacz audio")
 #define TR_SF_SET_SCREEN      "Set Main Screen"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM     TR("Telm", "Telemetra")
+#define TR_FSW_RESET_TRIMS     "Trims"
 #define TR_FSW_RESET_TIMERS    "Tmr1","Tmr2","Tmr3"
 
 
-#define TR_VFSWRESET           TR_FSW_RESET_TIMERS,TR("All","Flight"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET           TR_FSW_RESET_TIMERS,TR("All","Flight"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 #define TR_FUNCSOUNDS          TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Ost1","Ostrz1"),TR("Ost2","Ostrz2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Syre","Syrena"),TR("Dzwo","Dzwone"),TR("Crck","Krytcz"),TR("Alrm","AlmZeg")
 
 #define LENGTH_UNIT_IMP        "ft"
@@ -317,7 +319,7 @@
 #define TR_SUBTYPE             "Podtyp"
 #define TR_NOFREEEXPO          "BrakWoln.Expo!"
 #define TR_NOFREEMIXER         "BrakWoln.Mixów!"
-#define TR_SOURCE               "Źródło"
+#define TR_SOURCE              "Źródło"
 #define TR_WEIGHT              "Waga "
 #define TR_SIDE                "Strona"
 #define TR_OFFSET              "Ofset "
@@ -796,7 +798,7 @@
 #define TR_INTERNALRF                  "Wewn.Moduł RF"
 #define TR_INTERNAL_MODULE             TR("Moduł wewn.", "Moduł wewnętrzny")
 #define TR_EXTERNAL_MODULE             TR("Moduł zewn.", "Moduł zewnętrzny")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX upgrade required"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX upgrade required"
 #define TR_TELEMETRY_DISABLED          "Telem. disabled"
 #define TR_MORE_OPTIONS_AVAILABLE      "More options available"
 #define TR_NO_MODULE_INFORMATION       "No module information"
@@ -942,7 +944,8 @@
 #define TR_COPY_TRIMS_TO_OFS   TR("Cpy trim->subtrim", "Skopiuj Trymery Do subtrymerów")
 #define TR_INCDEC              "Zwiększ/Zmnie"
 #define TR_GLOBALVAR           "Zm.Global."
-#define TR_MIXSOURCE           "Źródło Miks."
+#define TR_MIXSOURCE           "Źródło (%)"
+#define TR_MIXSOURCERAW        "Źródło (wartość)"
 #define TR_CONSTANT            "Stała   "
 #define TR_PREFLIGHT_POTSLIDER_CHECK "WYŁ","ZAŁ","Auto"
 #define TR_PREFLIGHT           "Pre-start Checks"
@@ -1020,7 +1023,7 @@
   #define TR_WIDGET_VALUE              "Wartość"
 #endif
 
-// Bootloader common - Ascii only
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB polaczone"
 #define TR_BL_USB_PLUGIN              "lub podlacz kabel USB"
 #define TR_BL_USB_MASS_STORE          "dla trybu danych"
@@ -1050,26 +1053,32 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Przywroc EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Nacisnij przycisk Power"
     #define TR_BL_FLASH_EXIT          "Wyjdz z trybu flashowania"
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] aby wybrac plik"
   #define TR_BL_FLASH_KEY             "Przytrzymaj [ENT] aby flashowac"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] aby wyjsc"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "Dostep RF USB"
   #define TR_BL_CURRENT_FW            "Obecny firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] aby wybrac plik"
   #define TR_BL_FLASH_KEY             "Przytrzymaj [R TRIM] aby flashowac"
   #define TR_BL_EXIT_KEY              " [L TRIM] aby wyjsc"
+  #define TR_BL_ENABLE                "Enable"
+  #define TR_BL_DISABLE               "Disable"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
@@ -1287,6 +1296,7 @@
 #define TR_CREATE_NEW             "Utwórz"
 
 #define TR_MIX_SLOW_PREC          TR("Wolna prec.", "Wolna prec. góra/dół")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "Folder szablonów o takiej samej nazwie już istnieje."
 
@@ -1295,3 +1305,7 @@
 #define TR_LOW_BATT_COLOR         "Rozładowana bateria"
 #define TR_MID_BATT_COLOR         "Średni stan baterii"
 #define TR_HIGH_BATT_COLOR        "Naładowana bateria"
+
+#define TR_WIDGET_SIZE            "Rozmiar widżetu"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

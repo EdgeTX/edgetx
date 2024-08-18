@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "calibration.h"
 
 #include "hal/adc_driver.h"
@@ -43,9 +43,7 @@ void menuCommonCalib(event_t event)
   switch (reusableBuffer.calib.state) {
     case CALIB_START:
       // START CALIBRATION
-      if (!READ_ONLY()) {
-        lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+2*FH, STR_MENUTOSTART, CENTERED);
-      }
+      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+2*FH, STR_MENUTOSTART, CENTERED);
       break;
 
     case CALIB_SET_MIDPOINT:

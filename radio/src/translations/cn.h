@@ -57,7 +57,7 @@
 #define TR_USBMODES                    "询问","游戏柄","U盘","串行"
 #define TR_JACK_MODES                  "询问","音频","教练"
 
-#define TR_SBUS_INVERSION_VALUES       "normal","not inverted"
+#define TR_SBUS_INVERSION_VALUES       "正常","未反相"
 #define TR_MULTI_CUSTOM                "自定义"
 #define TR_VTRIMINC                    "指数","很小","较小","中等","较大"
 #define TR_VDISPLAYTRIMS               "不显示","改变时","始终显示"
@@ -89,7 +89,7 @@
 #define TR_SF_FAILSAFE                 "设置失控保护"
 #define TR_SF_RANGE_CHECK              "测距模式"
 #define TR_SF_MOD_BIND                 "模块对频"
-#define TR_SF_RGBLEDS                  "RGB led灯"
+#define TR_SF_RGBLEDS                  "RGB LED 灯"
 
 #define TR_SOUND                       "播放声音"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "播放音频文件")
@@ -110,16 +110,19 @@
 #define TR_SF_DISABLE_TOUCH            "禁用触摸"
 #define TR_SF_DISABLE_AUDIO_AMP        "关闭音频功放"
 #define TR_SF_SET_SCREEN               "选择主屏"
+#define TR_SF_LCD_TO_VIDEO             "屏幕显示图传"
 
 #define TR_FSW_RESET_TELEM             "回传参数"
 
 #if LCD_W >= 212
+  #define TR_FSW_RESET_TRIMS           "Trims"
   #define TR_FSW_RESET_TIMERS          "计时器1","计时器2","计时器3"
 #else
+  #define TR_FSW_RESET_TRIMS           "Trims"
   #define TR_FSW_RESET_TIMERS          "计时1","计时2","计时3"
 #endif
 
-#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("全部","飞行"),TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("全部","飞行"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
 #define TR_FUNCSOUNDS                  TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
@@ -315,7 +318,7 @@
 #define TR_SUBTYPE                     "子类型"
 #define TR_NOFREEEXPO                  "指数曲线已满!"
 #define TR_NOFREEMIXER                 "混控数量已满!"
-#define TR_SOURCE                       "输入源"
+#define TR_SOURCE                      "输入源"
 #define TR_WEIGHT                      "比例"
 #define TR_SIDE                        "单边"
 #define TR_OFFSET                      "偏移量"
@@ -436,9 +439,9 @@
 #define TR_HZ                          "Hz"
 #define TR_TMIXMAXMS                   "Tmix max"
 #define TR_FREE_STACK                  "Free stack"
-#define TR_INT_GPS_LABEL               "Internal GPS"
+#define TR_INT_GPS_LABEL               "内置 GPS"
 #define TR_HEARTBEAT_LABEL             "Heartbeat"
-#define TR_LUA_SCRIPTS_LABEL           "Lua scripts"
+#define TR_LUA_SCRIPTS_LABEL           "Lua 脚本"
 #define TR_FREE_MEM_LABEL              "Free mem"
 #define TR_DURATION_MS                 TR("[D]","持续时间(ms): ")
 #define TR_INTERVAL_MS                 TR("[I]","间隔时间(ms): ")
@@ -593,7 +596,7 @@
 #define TR_LABELS                      "分组"
 #define TR_CURRENT_MODEL               "当前模型"
 #define TR_ACTIVE                      "当前模型"
-#define TR_NEW                         "新建分组"
+#define TR_NEW                         "新建"
 #define TR_NEW_LABEL                   "新建分组"
 #define TR_RENAME_LABEL                "分组改名"
 #define TR_DELETE_LABEL                "删除分组"
@@ -799,7 +802,7 @@
 #define TR_INTERNALRF                  "内置发射"
 #define TR_INTERNAL_MODULE             TR("内置发射", "内置发射")
 #define TR_EXTERNAL_MODULE             TR("外置发射", "外置发射")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX需要升级"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX需要升级"
 #define TR_TELEMETRY_DISABLED          "禁用回传"
 #define TR_MORE_OPTIONS_AVAILABLE      "更多可用选项"
 #define TR_NO_MODULE_INFORMATION       "无模块信息"
@@ -940,7 +943,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR("微调存为中点", "当前微调按钮值保存到中点")
 #define TR_INCDEC                      "增减"
 #define TR_GLOBALVAR                   "全局变量"
-#define TR_MIXSOURCE                   "混控源"
+#define TR_MIXSOURCE                   "输入源 (%)"
+#define TR_MIXSOURCERAW                "输入源 (数值)"
 #define TR_CONSTANT                    "固定值"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "关闭","开启","自动"
 #define TR_PREFLIGHT                   "初始检查"
@@ -1018,7 +1022,7 @@
   #define TR_WIDGET_VALUE              "数值"
 #endif
 
-// Bootloader common - Ascii only
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB Connected"
 #define TR_BL_USB_PLUGIN              "Or plug in a USB cable"
 #define TR_BL_USB_MASS_STORE          "for mass storage"
@@ -1040,6 +1044,8 @@
   #define TR_BL_HOLD_ENTER_TO_START    "\012Hold [ENT] to start writing"
   #define TR_BL_INVALID_FIRMWARE       "\011Not a valid firmware file!        "
   #define TR_BL_INVALID_EEPROM         "\011Not a valid EEPROM file!          "
+  #define TR_BL_ENABLE                 "Enable"
+  #define TR_BL_DISABLE                "Disable"
 #else
   #define TR_BL_OR_PLUGIN_USB_CABLE    TR_BL_USB_PLUGIN
   #define TR_BL_HOLD_ENTER_TO_START    "\006Hold [ENT] to start"
@@ -1048,26 +1054,30 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "Restore EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Press the power button."
     #define TR_BL_FLASH_EXIT          "Exit the flashing mode."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] to select file"
   #define TR_BL_FLASH_KEY             "Hold [ENT] long to flash"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] to exit"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_CURRENT_FW            "Current Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] to select file"
   #define TR_BL_FLASH_KEY             "Hold [R TRIM] long to flash"
   #define TR_BL_EXIT_KEY              " [L TRIM] to exit"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
@@ -1285,6 +1295,7 @@
 #define TR_CREATE_NEW             "新建"
 
 #define TR_MIX_SLOW_PREC          TR("慢放精度", "慢放精度 上行/下行")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "已存在同名主题目录 !"
 
@@ -1295,3 +1306,7 @@
 #define TR_LOW_BATT_COLOR         "低电量"
 #define TR_MID_BATT_COLOR         "中电量"
 #define TR_HIGH_BATT_COLOR        "高电量"
+
+#define TR_WIDGET_SIZE            "小部件尺寸"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

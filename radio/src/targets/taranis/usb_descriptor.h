@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _USB_DESCRIPTOR_H_
-#define _USB_DESCRIPTOR_H_
+#pragma once
 
 #if defined(RADIO_TX12) || defined(RADIO_TX12MK2)
   #define USB_NAME                     "Radiomaster TX12"
@@ -62,6 +61,14 @@
   #define USB_NAME                     "Jumper TPro V2"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '-', 'P', 'r', 'o', ' ', 'V', '2'  /* 8 Bytes */
+#elif defined(RADIO_T12MAX)
+#define USB_NAME                       "Jumper T12 MAX"
+  #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'T', '1', '2', ' ', 'M', 'A', 'X', ' '  /* 8 Bytes */
+#elif defined(RADIO_TPROS)
+  #define USB_NAME                     "Jumper T-Pro S"
+  #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'T', '-', 'P', 'r', 'o', ' ', 'S', ' '  /* 8 Bytes */
 #elif defined(RADIO_T14)
   #define USB_NAME                     "Jumper T14"
   #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
@@ -83,5 +90,3 @@
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', 'a', 'r', 'a', 'n', 'i', 's', ' '  /* 8 Bytes */
 #endif
-
-#endif // _USB_DESCRIPTOR_H_

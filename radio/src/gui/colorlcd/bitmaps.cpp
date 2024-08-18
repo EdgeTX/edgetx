@@ -22,8 +22,8 @@
 #include "bitmaps.h"
 
 #include "libopenui.h"
-#include "libopenui/thirdparty/lz4/lz4.h"
-#include "opentx_helpers.h"
+#include "lz4/lz4.h"
+#include "edgetx_helpers.h"
 
 LZ4BitmapBuffer::LZ4BitmapBuffer(uint8_t format, const LZ4Bitmap* lz4Data) :
     BitmapBuffer(format, 0, 0, nullptr)

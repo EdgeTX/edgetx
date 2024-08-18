@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -442,6 +443,16 @@ void HardwarePanel::addFlex(int index)
           AbstractItemModel *mdl = editorItemModels->getItemModel(AbstractItemModel::IMID_FlexSwitches);
           if (mdl)
             mdl->update(AbstractItemModel::IMUE_FunctionSwitches);
+          if (generalSettings.isInputMultiPosPot(index)) {
+            invertToggles[index - Boards::getCapability(board, Board::Sticks)]->hide();
+            if (generalSettings.inputConfig[index].inverted) {
+              generalSettings.inputConfig[index].inverted = false;
+              invertToggles[index - Boards::getCapability(board, Board::Sticks)]->updateValue();
+              emit modified();
+            }
+          } else {
+            invertToggles[index - Boards::getCapability(board, Board::Sticks)]->show();
+          }
           emit InputFlexTypeChanged();
   });
 
@@ -452,6 +463,15 @@ void HardwarePanel::addFlex(int index)
   AutoCheckBox *inverted = new AutoCheckBox(this);
   inverted->setField(config.inverted, this);
   params->append(inverted);
+  if (generalSettings.isInputMultiPosPot(index)) {
+    inverted->hide();
+    if (config.inverted) {
+      config.inverted = false;
+      inverted->updateValue();
+      emit modified();
+    }
+  }
+  invertToggles.push_back(inverted);
 
   addParams();
 }

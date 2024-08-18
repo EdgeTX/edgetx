@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 #define RECEIVER_OPTIONS_2ND_COLUMN 80
 
@@ -127,6 +127,7 @@ void menuModelReceiverOptions(event_t event)
   }
 
   if (event == EVT_KEY_LONG(KEY_ENTER) && reusableBuffer.hardwareAndSettings.receiverSettings.dirty) {
+    killEvents(event);
     reusableBuffer.hardwareAndSettings.receiverSettings.dirty = RECEIVER_SETTINGS_OK;
     moduleState[g_moduleIdx].writeReceiverSettings(&reusableBuffer.hardwareAndSettings.receiverSettings);
   }
@@ -207,7 +208,7 @@ void menuModelReceiverOptions(event_t event)
           break;
 
         case ITEM_RECEIVER_SETTINGS_CAPABILITY_NOT_SUPPORTED2:
-          lcdDrawText(LCD_W/2, y+1, STR_OPENTX_UPGRADE_REQUIRED, SMLSIZE|CENTERED);
+          lcdDrawText(LCD_W/2, y+1, STR_EDGETX_UPGRADE_REQUIRED, SMLSIZE|CENTERED);
           break;
 
         default:

@@ -20,6 +20,10 @@ SimulatedUIWidgetJumperT20::SimulatedUIWidgetJumperT20(SimulatorInterface *simul
   act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->leftbuttons->addArea(QRect(10, 110, 51, 28), "JumperT20/left.png", act));
 
+  m_scrollUpAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Minus << Qt::Key_Equal << Qt::Key_Left, SIMU_STR_HLP_KEYS_GO_LFT, SIMU_STR_HLP_ACT_ROT_LFT);
+  m_scrollDnAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Right, SIMU_STR_HLP_KEYS_GO_RGT, SIMU_STR_HLP_ACT_ROT_RGT);
+  connectScrollActions();
+
   m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
   addRadioWidget(ui->rightbuttons->addArea(QRect(130, 50, 50, 70), "JumperT20/right.png", m_mouseMidClickAction));
 

@@ -25,7 +25,7 @@
 #include "textvalidator.h"
 
 // characters supportd by B&W radio firmware gui editor
-constexpr char NAME_VALID_PATTERN_BW[]    {"[ A-Za-z0-9\\-]*"};
+constexpr char NAME_VALID_PATTERN_BW[]    {"[ A-Za-z0-9\\_\\-\\,\\.]*"};
 // characters supported by color radio firmware keyboard widget
 constexpr char NAME_VALID_PATTERN_COLOR[] {"[ A-Za-z0-9\\-\\_\\,\\.\"\\+\\/\\*\\=\\%\\!\\?\\#\\<\\>\\@\\$\\(\\)\\{\\}\\[\\]\\;\\:\\']*"};
 

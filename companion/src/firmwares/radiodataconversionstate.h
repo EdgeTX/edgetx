@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -42,6 +43,7 @@ class RadioDataConversionState
       EVT_CVRT,  // something was converted (A->B)
       EVT_ERR,   // misc. error, place error-level events after this
       EVT_INV,   // invalid, control/etc not available on destination radio
+      EVT_UNSUP, // unsupported, control not available on destiation radio
     };
 
     enum LogFieldType {
@@ -89,6 +91,7 @@ class RadioDataConversionState
     void setInvalid(const LogField & item);
     void setConverted(const LogField & from, const LogField & to);
     void setMoved(const LogField & from, const LogField & to);
+    void setUnsupported(const LogField & item);
     inline void setDbg(const QString & msg) { addLogEntry(EVT_DBG, msg); }
     inline void setInf(const QString & msg) { addLogEntry(EVT_INF, msg); }
     inline void setWrn(const QString & msg) { addLogEntry(EVT_WRN, msg); }

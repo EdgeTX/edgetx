@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _yaml_parser_h_
-#define _yaml_parser_h_
+#pragma once
 
 #include <stdint.h>
 
@@ -102,5 +101,3 @@ public:
 
     void set_eof() { eof = true; }
 };
-
-#endif

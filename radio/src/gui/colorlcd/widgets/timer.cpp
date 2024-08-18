@@ -20,7 +20,7 @@
  */
 
 #include "bitmaps.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "widget.h"
 
 #define ETX_STATE_BG_WARNING LV_STATE_USER_1
@@ -43,8 +43,8 @@ class TimerWidget : public Widget
     lv_style_set_width(&style, lv_pct(100));
     lv_style_set_height(&style, LV_SIZE_CONTENT);
 
-    timerBg = new StaticIcon(this, 0, 0, ICON_TIMER_BG, COLOR_THEME_PRIMARY2);
-    timerIcon = new StaticIcon(this, 3, 4, ICON_TIMER, COLOR_THEME_SECONDARY1);
+    timerBg = new StaticIcon(this, 0, 0, ICON_TIMER_BG, COLOR_THEME_PRIMARY2_INDEX);
+    timerIcon = new StaticIcon(this, 3, 4, ICON_TIMER, COLOR_THEME_SECONDARY1_INDEX);
 
     // Timer name
     nameLabel = lv_label_create(lvobj);
@@ -92,7 +92,7 @@ class TimerWidget : public Widget
     lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_MAIN);
     lv_obj_set_style_arc_opa(timerArc, LV_OPA_COVER, LV_PART_INDICATOR);
     lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_INDICATOR);
-    etx_obj_add_style(timerArc, styles->arc_color, LV_PART_INDICATOR);
+    etx_obj_add_style(timerArc, styles->arc_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_INDICATOR);
     lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
 
     update();
@@ -121,7 +121,7 @@ class TimerWidget : public Widget
 
       int val = lastValue;
       if (lastStartValue && timerData.showElapsed &&
-          lastStartValue != lastValue)
+          (int)lastStartValue != lastValue)
         val = (int)lastStartValue - lastValue;
 
       if (isLarge) {

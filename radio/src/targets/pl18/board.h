@@ -19,11 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#pragma once
 
 #include "definitions.h"
-#include "opentx_constants.h"
+#include "edgetx_constants.h"
 
 #include "board_common.h"
 #include "hal.h"
@@ -31,20 +30,22 @@
 #include "hal/watchdog_driver.h"
 
 #define FLASHSIZE                       0x200000
+#define FLASH_PAGESIZE                  256
 #define BOOTLOADER_SIZE                 0x20000
 #define FIRMWARE_ADDRESS                0x08000000
+#define FIRMWARE_LEN(fsize)             (fsize - BOOTLOADER_SIZE)
+#define FIRMWARE_MAX_LEN                (FLASHSIZE - BOOTLOADER_SIZE)
+#define APP_START_ADDRESS               (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #define MB                              *1024*1024
 #define LUA_MEM_EXTRA_MAX               (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
 #define LUA_MEM_MAX                     (6 MB)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
+#define BOOTLOADER_KEYS 0x42
+
 extern uint16_t sessionTimer;
 
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
-
-// Initilizes the board for the bootloader
-#define HAVE_BOARD_BOOTLOADER_INIT 1
-void boardBootloaderInit();
 
 // Board driver
 void boardInit();
@@ -53,14 +54,6 @@ void boardOff();
 // CPU Unique ID
 #define LEN_CPU_UID                     (3*8+2)
 void getCPUUniqueID(char * s);
-
-// Flash Write driver
-#define FLASH_PAGESIZE 256
-void unlockFlash();
-void lockFlash();
-void flashWrite(uint32_t * address, const uint32_t * buffer);
-uint32_t isFirmwareStart(const uint8_t * buffer);
-uint32_t isBootloaderStart(const uint8_t * buffer);
 
 // SDRAM driver
 extern "C" void SDRAM_Init();
@@ -76,7 +69,7 @@ extern "C" void SDRAM_Init();
 #define BLUETOOTH_MODULE_ON()           gpio_clear(BLUETOOTH_ON_GPIO)
 #define BLUETOOTH_MODULE_OFF()          gpio_set(BLUETOOTH_ON_GPIO)
 #define IS_INTERNAL_MODULE_ON()         (false)
-#define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+#define IS_EXTERNAL_MODULE_ON()         (gpio_read(EXTMODULE_PWR_GPIO) ? 1 : 0)
 
 #else
 
@@ -233,5 +226,3 @@ void hapticOn(uint32_t pwmPercent);
 bool touchPanelEventOccured();
 struct TouchState touchPanelRead();
 struct TouchState getInternalTouchState();
-
-#endif // _BOARD_H_

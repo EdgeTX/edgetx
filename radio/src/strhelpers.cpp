@@ -27,7 +27,7 @@
 #include "analogs.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 
 static char _static_str_buffer[32];
@@ -380,7 +380,7 @@ char *getCurveString(char *dest, int idx)
 
   char *s = dest;
   if (idx < 0) {
-    *s++ = '!';
+    *s++ = '-';
     idx = -idx;
   }
 
@@ -427,6 +427,28 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
   if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
     value = value * 128 / 25;
   formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
+  return dest;
+}
+
+char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
+                           gvar_t vmax, LcdFlags flags, const char *suffix,
+                           gvar_t offset, bool usePPMUnit)
+{
+  SourceNumVal v;
+  v.rawValue = value;
+  if (v.isSource) {
+    if (v.value >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
+      getGVarString(dest, v.value - MIXSRC_FIRST_GVAR);
+    } else {
+      const char* s = getSourceString(v.value);
+      strncpy(dest, s, len);
+    }
+  } else {
+    v.value += offset;
+    if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
+      v.value = v.value * 128 / 25;
+    formatNumberAsString(dest, len, v.value, flags, 0, nullptr, suffix);
+  }
   return dest;
 }
 #endif
@@ -640,7 +662,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
 
   if (idx < 0) {
     idx = -idx;
-    dest[0] = '!';
+    dest[0] = '-';
     dest += 1;
     dest_len -= 1;
   }

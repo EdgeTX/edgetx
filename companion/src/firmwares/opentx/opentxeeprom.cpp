@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -25,6 +26,8 @@
 #include "opentxeeprom.h"
 #include "customdebug.h"
 #include "opentxinterface.h"
+#include "sourcenumref.h"
+#include "adjustmentreference.h"
 
 using namespace Board;
 
@@ -349,9 +352,10 @@ class SwitchesConversionTable: public ConversionTable {
       }
 
       if (IS_HORUS_OR_TARANIS(board)) {
+        const int adc_offset = 4 * 6; // num sticks * multi pot posns as adc assumes ALL inputs can be multi pos
         for (int i=1; i<=MAX_XPOTS(board, version)*6; i++) {
-          addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, -i), -val+offset);
-          addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, i), val++);
+          addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, -i - adc_offset), -val+offset);
+          addConversion(RawSwitch(SWITCH_TYPE_MULTIPOS_POT, i + adc_offset), val++);
         }
       }
 
@@ -804,6 +808,11 @@ class CurveReferenceField: public TransformedField {
     {
       curve.type = (CurveReference::CurveRefType)_curve_type;
       curve.value = smallGvarExport(_curve_value);
+      //  2,11 num or gvar changed to SourceNumRef
+      if ((curve.type == CurveReference::CURVE_REF_DIFF || curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
+        curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(curve.value).value).toValue();
+
       qCDebug(eepromImport) << QString("imported CurveReference(%1)").arg(curve.toString());
     }
 
@@ -1113,8 +1122,20 @@ class MixField: public TransformedField {
         }
       }
 
+      //  2.11
+      if ((mix.curve.type == CurveReference::CURVE_REF_DIFF || mix.curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(mix.curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
+        mix.curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(mix.curve.value).value).toValue();
+
       importGvarParam(mix.weight, _weight, version);
+      //  2.11
+      if (AdjustmentReference(mix.weight).type == AdjustmentReference::ADJUST_REF_GVAR)
+        mix.weight = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(mix.weight).value).toValue();
+
       importGvarParam(mix.sOffset, _offset, version);
+      //  2.11
+      if (AdjustmentReference(mix.sOffset).type == AdjustmentReference::ADJUST_REF_GVAR)
+        mix.sOffset = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(mix.sOffset).value).toValue();
 
       qCDebug(eepromImport) << QString("imported %1: ch %2, name '%3'").arg(internalField.getName()).arg(mix.destCh).arg(mix.name);
     }
@@ -1221,9 +1242,15 @@ class InputField: public TransformedField {
       }
 
       expo.weight = smallGvarExport(_weight);
+      //  2.11
+      if (AdjustmentReference(expo.weight).type == AdjustmentReference::ADJUST_REF_GVAR)
+        expo.weight = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(expo.weight).value).toValue();
 
       if (IS_STM32(board) || version >= 218) {
         expo.offset = smallGvarExport(_offset);
+        //  2.11
+        if (AdjustmentReference(expo.offset).type == AdjustmentReference::ADJUST_REF_GVAR)
+          expo.offset = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(expo.offset).value).toValue();
       }
 
       if (!IS_TARANIS(board) && version < 218) {
@@ -1234,6 +1261,13 @@ class InputField: public TransformedField {
         else
           expo.curve = CurveReference(CurveReference::CURVE_REF_FUNC, _curveParam);
       }
+
+      //  2.11
+      if ((expo.curve.type == CurveReference::CURVE_REF_DIFF || expo.curve.type == CurveReference::CURVE_REF_EXPO) &&
+          AdjustmentReference(expo.curve.value).type == AdjustmentReference::ADJUST_REF_GVAR)
+        expo.curve.value = RawSource(SOURCE_TYPE_GVAR, AdjustmentReference(expo.curve.value).value).toValue();
+
+
       qCDebug(eepromImport) << QString("imported %1: ch %2 name '%3'").arg(internalField.getName()).arg(expo.chn).arg(expo.name);
     }
 
@@ -1647,6 +1681,7 @@ class CustomFunctionsConversionTable: public ConversionTable {
         addConversion(FuncRacingMode, val++);
         addConversion(FuncDisableTouch, val++);
         addConversion(FuncSetScreen, val++);
+        addConversion(FuncLCDtoVideo, val++);
       }
     }
 };
@@ -1752,9 +1787,9 @@ class ArmCustomFunctionField: public TransformedField {
           *((uint8_t *)(_param+2)) = fn.adjustMode;
           *((uint8_t *)(_param+3)) = fn.func - FuncAdjustGV1;
           unsigned int value;
-          if (fn.adjustMode == 1)
+          if (fn.adjustMode == FUNC_ADJUST_GVAR_SOURCE || fn.adjustMode == FUNC_ADJUST_GVAR_SOURCERAW)
             sourcesConversionTable->exportValue(fn.param, (int &)value);
-          else if (fn.adjustMode == 2)
+          else if (fn.adjustMode == FUNC_ADJUST_GVAR_GVAR)
             value = RawSource(fn.param).index;
           else
             value = fn.param;
@@ -1809,9 +1844,9 @@ class ArmCustomFunctionField: public TransformedField {
       else if (fn.func >= FuncAdjustGV1 && fn.func <= FuncAdjustGVLast) {
         fn.func = AssignFunc(fn.func + index);
         fn.adjustMode = mode;
-        if (fn.adjustMode == 1)
+        if (fn.adjustMode == FUNC_ADJUST_GVAR_SOURCE || fn.adjustMode == FUNC_ADJUST_GVAR_SOURCERAW)
           sourcesConversionTable->importValue(value, (int &)fn.param);
-        else if (fn.adjustMode == 2)
+        else if (fn.adjustMode == FUNC_ADJUST_GVAR_GVAR)
           fn.param = RawSource(SOURCE_TYPE_GVAR, value + 1).toValue();
         else
           fn.param = (int16_t)value;
@@ -1821,6 +1856,8 @@ class ArmCustomFunctionField: public TransformedField {
       }
       else if (fn.func == FuncReset) {
         fn.param = value;
+        if (fn.param > 4) // EdgeTx 2.11 Trims inserted before telemetry
+          fn.param += 1;
       }
       else {
         fn.param = value;

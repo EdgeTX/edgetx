@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "hal/adc_driver.h"
 #include "gui/common/stdlcd/calibration.h"
 
@@ -51,7 +51,7 @@ void menuRadioCalibration(event_t event)
 {
   check_submenu_simple(event, 0);
   title(STR_MENUCALIBRATION);
-  menuCommonCalib(READ_ONLY() ? 0 : event);
+  menuCommonCalib(event);
   drawPotsBars();
   if (menuEvent) {
     menuCalibrationState = CALIB_START;

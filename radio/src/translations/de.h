@@ -118,12 +118,14 @@
 #define TR_SF_DISABLE_TOUCH            "Kein Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Verst. Aus"
 #define TR_SF_SET_SCREEN               "Set Main Screen"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm","Telemetrie")
+#define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
 
 
-#define TR_VFSWRESET 	      		       TR_FSW_RESET_TIMERS,"All",TR_FSW_RESET_TELEM
+#define TR_VFSWRESET 	      		       TR_FSW_RESET_TIMERS,"All",TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
 #define TR_FUNCSOUNDS         		     TR("Bp1","Piep1"),TR("Bp2","Piep2"),TR("Bp3","Piep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
@@ -798,7 +800,7 @@
 #define TR_INTERNALRF                  "Internes HF-Modul"
 #define TR_INTERNAL_MODULE             TR("Int. Modul", "Internes Modul")
 #define TR_EXTERNAL_MODULE             TR("Ext. Modul", "Externes Modul")
-#define TR_OPENTX_UPGRADE_REQUIRED     "OpenTX upgrade nötig"
+#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX upgrade nötig"
 #define TR_TELEMETRY_DISABLED          "Deaktiv. Telem."  //more chars doesn't fit on QX7
 #define TR_MORE_OPTIONS_AVAILABLE      "mehr Optionen verfügbar"
 #define TR_NO_MODULE_INFORMATION       "keine Modul Info"
@@ -945,7 +947,8 @@
 #define TR_COPY_TRIMS_TO_OFS           TR3("Copy Trim->Subtrim",  "Kopiere Trimm zu Subtrim" , "Kopiere Trimmposition auf Subtrim")  // "Trim to Subtrim"
 #define TR_INCDEC                      "Inc/Decrement"
 #define TR_GLOBALVAR                   "Global Var"
-#define TR_MIXSOURCE                   "Mixer Quelle"
+#define TR_MIXSOURCE                   "Quelle (%)"
+#define TR_MIXSOURCERAW                "Quelle (Wert)"
 #define TR_CONSTANT                    "Konstant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK   "Aus","Ein","Auto"
 #define TR_PREFLIGHT                   "Vorflug-Checkliste"
@@ -1010,7 +1013,7 @@
   #define TR_WIDGET_VALUE              "Wert"
 #endif
 
-// Bootloader common - Ascii only
+// Bootloader common - ASCII characters only
 #define TR_BL_USB_CONNECTED           "USB verbunden"
 #define TR_BL_USB_PLUGIN              "oder USB-Kabel anschl."
 #define TR_BL_USB_MASS_STORE          "für den SD-Speicher an"
@@ -1040,26 +1043,32 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific - Ascii only
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM        "EEPROM wiederherstellen"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY           "Drücke den Power Knopf."
     #define TR_BL_FLASH_EXIT          "Verlasse den Flashmodus."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific - Ascii only
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
   #define TR_BL_SELECT_KEY            "[ENT] um Datei auszuwählen"
   #define TR_BL_FLASH_KEY             "Halte [ENT] gedrückt, zum schreiben"
+  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] zum beenden"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific - Ascii only
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB Zugriff"
   #define TR_BL_CURRENT_FW            "Aktuelle Firmware:"
   #define TR_BL_SELECT_KEY            "[R TRIM] um Datei auszuwählen"
   #define TR_BL_FLASH_KEY             "Halte [R TRIM] gedrückt, zum schreiben"
   #define TR_BL_EXIT_KEY              " [L TRIM] zum beenden"
+  #define TR_BL_ENABLE                "Aktivieren"
+  #define TR_BL_DISABLE               "Deaktivieren"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
   #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
@@ -1291,6 +1300,7 @@
 #define TR_CREATE_NEW             "Erstelle"
 
 #define TR_MIX_SLOW_PREC          TR("Langs. Vorlauf", "Langs. Vor-/Rücklauf")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS           "Ein Theme-Verzeichnis mit demselben Namen existiert bereits"
 
@@ -1299,3 +1309,7 @@
 #define TR_LOW_BATT_COLOR         "Farbe Akku fast leer"
 #define TR_MID_BATT_COLOR         "Farbe Akku mittel"
 #define TR_HIGH_BATT_COLOR        "Farbe Akku voll"
+
+#define TR_WIDGET_SIZE            "Widget Größe"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"

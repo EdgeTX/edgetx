@@ -25,7 +25,7 @@
 #include "hal/module_port.h"
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "multi_firmware_update.h"
 #include "stk500.h"
 #include "debug.h"
@@ -38,7 +38,7 @@
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #else
-  #include "libopenui/src/libopenui_file.h"
+  #include "lib_file.h"
 #endif
 
 #if defined(MULTI_PROTOLIST)

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 extern bool displayTelemetryScreen();
 extern void displayRssiLine();
@@ -62,9 +62,11 @@ void menuViewTelemetry(event_t event)
   }
 #endif
   else if (EVT_KEY_PREVIOUS_VIEW(event)) {
+    killEvents(event);
     decrTelemetryScreen();
   }
   else if (EVT_KEY_NEXT_VIEW(event)) {
+    killEvents(event);
     incrTelemetryScreen();
   }
   else if (event == EVT_KEY_LONG(KEY_ENTER)) {

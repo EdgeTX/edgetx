@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -322,6 +323,37 @@ void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsign
 
   unsigned int fieldmask = ((unsigned int)mask << (numbits * index + offset));
   field = (field & ~fieldmask) | (value << (numbits * index + offset));
+}
+
+// return index of 'none' ie zero or first positive data entry in potentially an asymetrical list
+int Helpers::getFirstPosValueIndex(QComboBox * cbo)
+{
+  const int cnt = cbo->count();
+  if (cnt == 0)
+    return -1;
+
+  const int idx = cnt / 2;
+  const int val = cbo->itemData(idx).toInt();
+
+  if (val == 0)
+    return idx;
+
+  const int step = val > 0 ? -1 : 1;
+
+  for (int i = idx + step; i >= 0 && i < cbo->count(); i += step) {
+    if (cbo->findData(i) == 0)
+      return i;
+    else if (step < 0 && cbo->itemData(i).toInt() < 0) {
+      if (i++ < cbo->count())
+        return i++;
+      else
+        return -1;
+    }
+    else if (step > 0 && cbo->itemData(i).toInt() > 0)
+      return i;
+  }
+
+  return -1;
 }
 
 #ifdef __APPLE__

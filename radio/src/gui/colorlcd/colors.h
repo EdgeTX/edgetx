@@ -127,10 +127,6 @@ LcdColorIndex indexFromColor(uint32_t lcdFlags);
 #define COLOR_THEME_DISABLED COLOR(COLOR_THEME_DISABLED_INDEX)
 #define CUSTOM_COLOR COLOR(CUSTOM_COLOR_INDEX)
 
-#if defined(WINDOWS_INSPECT_BORDERS)
-#define WINDOWS_INSPECT_BORDER_COLOR COLOR_THEME_PRIMARY3
-#endif
-
 constexpr int MAX_SATURATION = 100;
 constexpr int MAX_HUE = 360;
 constexpr int MAX_BRIGHTNESS = 100;
@@ -138,5 +134,7 @@ constexpr int MAX_BRIGHTNESS = 100;
 extern uint32_t HSVtoRGB(float H, float S, float V);
 extern void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float& fH, float& fS,
                      float& fV);
+
+LcdFlags colorToRGB(LcdFlags colorFlags);
 
 lv_color_t makeLvColor(uint32_t colorFlags);

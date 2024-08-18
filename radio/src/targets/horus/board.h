@@ -19,16 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#pragma once
 
-//#include "stm32_hal.h"
-//#include "stm32_hal_ll.h"
 #include "definitions.h"
-#include "opentx_constants.h"
+#include "edgetx_constants.h"
 
 // Defines used in board_common.h
 #define ROTARY_ENCODER_NAVIGATION
+
+#define BOOTLOADER_KEYS 0x42
 
 #include "board_common.h"
 #include "hal.h"
@@ -49,8 +48,12 @@ PACK(typedef struct {
 extern HardwareOptions hardwareOptions;
 
 #define FLASHSIZE                      0x200000
+#define FLASH_PAGESIZE                 256
 #define BOOTLOADER_SIZE                0x20000
 #define FIRMWARE_ADDRESS               0x08000000
+#define FIRMWARE_LEN(fsize)            (fsize - BOOTLOADER_SIZE)
+#define FIRMWARE_MAX_LEN               (FLASHSIZE - BOOTLOADER_SIZE)
+#define APP_START_ADDRESS              (uint32_t)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE)
 
 #define MB                             *1024*1024
 #define LUA_MEM_EXTRA_MAX              (2 MB)    // max allowed memory usage for Lua bitmaps (in bytes)
@@ -85,7 +88,7 @@ enum {
 #elif defined(PCBX10)
   #if defined(PCBREV_EXPRESS)
     #define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() (hardwareOptions.pcbrev == PCBREV_X10_EXPRESS)
-  #elif defined(RADIO_FAMILY_T16)
+  #elif defined(RADIO_FAMILY_T16) || defined(RADIO_F16)
     #define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() (true)
   #else
     #define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() (hardwareOptions.pcbrev == PCBREV_X10_STD)
@@ -97,14 +100,6 @@ enum {
     #define IS_FIRMWARE_COMPATIBLE_WITH_BOARD() (hardwareOptions.pcbrev == PCBREV_X12S_LT13)
   #endif
 #endif
-
-// Flash Write driver
-#define FLASH_PAGESIZE                 256
-void unlockFlash();
-void lockFlash();
-void flashWrite(uint32_t * address, const uint32_t * buffer);
-uint32_t isFirmwareStart(const uint8_t * buffer);
-uint32_t isBootloaderStart(const uint8_t * buffer);
 
 #if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
   #define HARDWARE_INTERNAL_RAS
@@ -150,7 +145,7 @@ uint32_t isBootloaderStart(const uint8_t * buffer);
 #endif
 
 // POTS and SLIDERS default configuration
-#if defined(RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
 #define XPOS_CALIB_DEFAULT  {0x3, 0xc, 0x15, 0x1e, 0x26}
 #endif
 
@@ -293,7 +288,7 @@ void telemetryPortInvertedInit(uint32_t baudrate);
 
 
 // Aux serial port driver
-#if defined(RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
   #define DEBUG_BAUDRATE                  400000
   #define LUA_DEFAULT_BAUDRATE            115200
 #else
@@ -320,7 +315,7 @@ void bluetoothWriteWakeup();
 uint8_t bluetoothIsWriting();
 void bluetoothDisable();
 
-#if defined (RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
   #define BATTERY_DIVIDER 1495
 #else
   #define BATTERY_DIVIDER 1629
@@ -346,5 +341,3 @@ void bluetoothDisable();
 #else
 #define NUM_FUNCTIONS_SWITCHES 0
 #endif
-
-#endif // _BOARD_H_

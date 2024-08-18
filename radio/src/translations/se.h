@@ -125,11 +125,13 @@
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
 #define TR_SF_DISABLE_AUDIO_AMP         TR("Audioförst. av","Audioförstärkare av")
 #define TR_SF_SET_SCREEN                "Sätt huvudskärm"
+#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM              TR("Telm","Telemetri")
+#define TR_FSW_RESET_TRIMS              "Trims"
 #define TR_FSW_RESET_TIMERS             "Tmr1","Tmr2","Tmr3"
 
-#define TR_VFSWRESET                    TR_FSW_RESET_TIMERS,"Alla",TR_FSW_RESET_TELEM
+#define TR_VFSWRESET                    TR_FSW_RESET_TIMERS,"Alla",TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 #define TR_FUNCSOUNDS                   TR("Bp1","Beep1"),TR("Bp2","Beep2"),TR("Bp3","Beep3"),TR("Wrn1","Warn1"),TR("Wrn2","Warn2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Siren"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
 
 
@@ -816,7 +818,7 @@
 #define TR_INTERNALRF                   "Intern radiomodul"
 #define TR_INTERNAL_MODULE              TR("Int. modul","Intern modul")
 #define TR_EXTERNAL_MODULE              TR("Ext. modul","Extern modul")
-#define TR_OPENTX_UPGRADE_REQUIRED      "EdgeTX behöver uppgraderas"
+#define TR_EDGETX_UPGRADE_REQUIRED      "EdgeTX behöver uppgraderas"
 #define TR_TELEMETRY_DISABLED           "Telem. inaktiverad"
 #define TR_MORE_OPTIONS_AVAILABLE       "Fler alternativ finns"
 #define TR_NO_MODULE_INFORMATION        "Modulinformation saknas"
@@ -968,7 +970,8 @@
 #define TR_COPY_TRIMS_TO_OFS            TR("Kop. trim->subtrim","Spara trimmar som subtrim")
 #define TR_INCDEC                       "Öka/Minska"
 #define TR_GLOBALVAR                    "Globala var"
-#define TR_MIXSOURCE                    "Mixerkälla"
+#define TR_MIXSOURCE                    "Källa (%)"
+#define TR_MIXSOURCERAW                 "Källa (värde)"
 #define TR_CONSTANT                     "Konstant"
 #define TR_PREFLIGHT_POTSLIDER_CHECK    "Av","På","Auto"
 #define TR_PREFLIGHT                    "Startkontroller"
@@ -1077,26 +1080,32 @@
 #endif
 
 #if defined(PCBTARANIS)
-   // Bootloader Taranis specific
+   // Bootloader Taranis specific - ASCII characters only
   #define TR_BL_RESTORE_EEPROM          "Aaterställ EEPROM"
   #if defined(RADIO_COMMANDO8)
     #define TR_BL_POWER_KEY             "Tryck paa startknappen."
     #define TR_BL_FLASH_EXIT            "Avsluta flashningsläget."
   #endif
 #elif defined(PCBHORUS)
-   // Bootloader Horus specific
+   // Bootloader Horus specific - ASCII characters only
+  #define TR_BL_ERASE_INT_FLASH         "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH             "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG         "This may take up to 200s"
   #define TR_BL_SELECT_KEY              "[ENT] för att vaelja fil"
   #define TR_BL_FLASH_KEY               "Tryck [ENT] foer att flasha"
+  #define TR_BL_ERASE_KEY               "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY                "[RTN] foer att avbryta"
 #elif defined(PCBNV14)
-   // Bootloader NV14 specific
+   // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS           "RF USB access"
   #define TR_BL_CURRENT_FW              "Nuvarande firmware:"
   #define TR_BL_SELECT_KEY              "[R TRIM] foer att vaelja fil"
   #define TR_BL_FLASH_KEY               "Tryck [R TRIM] foer att flasha"
   #define TR_BL_EXIT_KEY                " [L TRIM] för att avsluta"
+  #define TR_BL_ENABLE                  "Aktivera"
+  #define TR_BL_DISABLE                 "Inaktivera"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - Ascii only
+   // Bootloader PL18 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB access"
   #define TR_BL_ERASE_INT_FLASH       "Radera interna flashminnet"
   #define TR_BL_ERASE_FLASH           "Radera flashminnet"
@@ -1322,6 +1331,7 @@
 #define TR_CREATE_NEW                   "Skapa"
 
 #define TR_MIX_SLOW_PREC                TR("Dröj preci.", "Fördröj upp/ner precision")
+#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
 
 #define TR_THEME_EXISTS                 "Det finns redan ett tema med samma namn"
 
@@ -1330,3 +1340,7 @@
 #define TR_LOW_BATT_COLOR               "Lågt batteri"
 #define TR_MID_BATT_COLOR               "Medium batteri"
 #define TR_HIGH_BATT_COLOR              "Högt batteri"
+
+#define TR_WIDGET_SIZE                  "Widgetstorlek"
+
+#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
