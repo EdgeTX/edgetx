@@ -65,7 +65,7 @@
 PACK(union SourceNumVal {
   struct {
     int16_t value:10;
-    int16_t isSource:1;
+    uint16_t isSource:1;
   };
   uint16_t rawValue:11;
 });

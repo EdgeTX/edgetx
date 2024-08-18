@@ -166,8 +166,7 @@ class CurveDataEdit : public Window
 
     // y value
     for (uint8_t i = 0; i < count; i++) {
-      auto numedit = new NumberEdit(
-          parent,
+      new NumberEdit(parent,
           {PTNUM_X + (i * (NUM_BTN_WIDTH + PAD_TINY)), y, NUM_BTN_WIDTH,
            EdgeTxStyles::UI_ELEMENT_HEIGHT},
           -100, 100, GET_VALUE(points[i + start]),
