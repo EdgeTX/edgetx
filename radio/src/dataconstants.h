@@ -544,7 +544,6 @@ enum MixSources {
   MIXSRC_VALUE SKIP,  // Special case to trigger source as value conversion
 };
 
-
 #define MIXSRC_LAST                 MIXSRC_LAST_GVAR
 #define INPUTSRC_FIRST              MIXSRC_FIRST_STICK
 #define INPUTSRC_LAST               MIXSRC_LAST_TELEM
