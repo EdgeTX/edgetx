@@ -77,9 +77,14 @@ static uint8_t _adc_run;
 static uint8_t _adc_oversampling_disabled;
 static uint16_t _adc_oversampling[MAX_ADC_INPUTS];
 
-void stm32_hal_mask_inputs(uint32_t inputs)
+void stm32_hal_set_inputs_mask(uint32_t inputs)
 {
   _adc_input_inhibt_mask |= inputs;
+}
+
+uint32_t stm32_hal_get_inputs_mask()
+{
+  return _adc_input_inhibt_mask;
 }
 
 // STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage

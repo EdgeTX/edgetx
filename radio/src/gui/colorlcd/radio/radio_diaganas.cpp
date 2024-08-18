@@ -84,8 +84,11 @@ class AnaViewWindow : public Window
 #endif
 
       lv_obj_set_style_pad_column(line->getLvObj(), 8, 0);
+      if (((adcGetInputMask() & (1 << i)) != 0) && i < adcGetMaxInputs(ADC_INPUT_MAIN))
+        sprintf(s, "D%d :", i + 1);
+      else
+        sprintf(s, "%02d :", i + 1);
 
-      sprintf(s, "%02d :", i + 1);
       new StaticText(line, rect_t{}, s);
 
       auto lbl = new DynamicText(

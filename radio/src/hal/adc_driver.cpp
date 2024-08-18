@@ -579,3 +579,17 @@ const char* adcGetInputShortLabel(uint8_t type, uint8_t idx)
 
   return _hal_adc_inputs[type].inputs[idx].short_label;
 }
+
+void adcSetInputMask(uint32_t mask)
+{
+  if (_hal_adc_driver && _hal_adc_driver->set_input_mask) {
+    _hal_adc_driver->set_input_mask(mask);
+  }
+}
+
+uint32_t adcGetInputMask()
+{
+  return _hal_adc_driver && _hal_adc_driver->get_input_mask
+             ? _hal_adc_driver->get_input_mask()
+             : 0;
+}

@@ -86,7 +86,13 @@ void menuRadioDiagAnalogs(event_t event)
       x = INDENT_WIDTH;
       y += FH;
     }
-    drawStringWithIndex(x, y, "A", i + 1);
+    if (((adcGetInputMask() & (1 << i)) != 0) && i < adcGetMaxInputs(ADC_INPUT_MAIN)) {
+      lcdDrawText(x, y, "D");
+      lcdDrawNumber(lcdNextPos, y, i + 1);
+    }
+    else {
+      lcdDrawNumber(x, y, i+1, LEADING0|LEFT, 2);
+    }
     lcdDrawChar(lcdNextPos, y, ':');
     switch (viewpage) {
       case (ANAVIEW_RAWLOWFPS):
