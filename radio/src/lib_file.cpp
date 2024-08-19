@@ -109,7 +109,7 @@ FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime)
   return res;
 }
 
-#if !defined(BOOT) // not available in bootloader
+#if !defined(BOOT) && !defined(SIMU)
 
 // Replace FatFS implementation of f_puts and f_printf
 
