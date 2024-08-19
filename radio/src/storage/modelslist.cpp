@@ -1404,19 +1404,26 @@ void ModelsList::updateCurrentModelCell()
 
 bool ModelsList::readNextLine(char *line, int maxlen)
 {
-  if (f_gets(line, maxlen, &file) != NULL) {
-    int curlen = strlen(line) - 1;
-    if (line[curlen] ==
-        '\n') {  // remove unwanted chars if file was edited using windows
-      if (line[curlen - 1] == '\r') {
-        line[curlen - 1] = 0;
-      } else {
-        line[curlen] = 0;
+  while (maxlen > 0) {
+    unsigned int br;
+    FRESULT res = f_read(&file, line, 1, &br);
+    if (res == FR_OK && br == 1) {
+      // Return if line read
+      if (*line == 0 || *line == '\n') {
+        *line = 0;
+        return true;
       }
+      // Move to next char unless '\r' read
+      if (*line != '\r') {
+        line += 1;
+        maxlen -= 1;
+      }
+    } else {
+      return false;
     }
-    return true;
   }
-  return false;
+  *line = 0;
+  return true;
 }
 
 /**

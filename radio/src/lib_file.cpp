@@ -20,6 +20,7 @@
 
 #include <inttypes.h>
 #include <cinttypes>
+#include <stdarg.h>
 
 const char * getFileExtension(const char * filename, uint8_t size, uint8_t extMaxLen, uint8_t * fnlen, uint8_t * extlen)
 {
@@ -107,3 +108,29 @@ FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime)
   firstTime = false;
   return res;
 }
+
+#if !defined(BOOT) && !defined(SIMU)
+
+// Replace FatFS implementation of f_puts and f_printf
+
+int f_puts(const char* s, FIL* fp)
+{
+  unsigned int written;
+  unsigned int len = strlen(s);
+  FRESULT result = f_write(fp, s, len, &written);
+  return (len == written && result == FR_OK) ? 0 : EOF;
+}
+
+#define MAX_FPRINTF_LEN 100
+
+int f_printf (FIL* fp, const TCHAR* str, ...)
+{
+  char s[MAX_FPRINTF_LEN];
+  va_list argptr;
+  va_start(argptr, str);
+  vsnprintf(s, MAX_FPRINTF_LEN, str, argptr);
+  va_end(argptr);
+  return f_puts(s, fp);
+}
+
+#endif

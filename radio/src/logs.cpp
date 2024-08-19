@@ -183,7 +183,6 @@ void writeHeader()
   f_puts("Time,", &g_oLogFile);
 #endif
 
-
   char label[TELEM_LABEL_LEN+7];
   for (int i=0; i<MAX_TELEMETRY_SENSORS; i++) {
     if (isTelemetryFieldAvailable(i)) {
@@ -207,16 +206,16 @@ void writeHeader()
   auto n_inputs = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (uint8_t i = 0; i < n_inputs; i++) {
     const char* p = analogGetCanonicalName(ADC_INPUT_MAIN, i);
-    while (*p) { f_putc(*(p++), &g_oLogFile); }
-    f_putc(',', &g_oLogFile);
+    f_puts(p, &g_oLogFile);
+    f_puts(",", &g_oLogFile);
   }
 
   n_inputs = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (uint8_t i = 0; i < n_inputs; i++) {
     if (!IS_POT_AVAILABLE(i)) continue;
     const char* p = analogGetCanonicalName(ADC_INPUT_FLEX, i);
-    while (*p) { f_putc(*(p++), &g_oLogFile); }
-    f_putc(',', &g_oLogFile);
+    f_puts(p, &g_oLogFile);
+    f_puts(",", &g_oLogFile);
   }
 
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
@@ -287,7 +286,6 @@ void logsWrite()
                       // which will trigger the warning popup
         return;
       }
-
 
 #if defined(RTCLOCK)
       {
