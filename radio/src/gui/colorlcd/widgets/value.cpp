@@ -268,6 +268,7 @@ const ZoneOption ValueWidget::options[] = {
     {STR_SHADOW, ZoneOption::Bool, OPTION_VALUE_BOOL(false)},
     {STR_ALIGN_LABEL, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},
     {STR_ALIGN_VALUE, ZoneOption::Align, OPTION_VALUE_UNSIGNED(ALIGN_LEFT)},
+    {STR_SIZE, ZoneOption::TextSize, OPTION_VALUE_UNSIGNED(0)},
     {nullptr, ZoneOption::Bool}};
 
 BaseWidgetFactory<ValueWidget> ValueWidget("Value", ValueWidget::options,
