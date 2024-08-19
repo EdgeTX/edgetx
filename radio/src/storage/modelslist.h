@@ -217,17 +217,10 @@ class ModelsList : public ModelsVector
   void init();
 
  public:
-  enum class Format {
-    txt,
-    yaml,
-    yaml_txt,
-    load_default = yaml,
-  };
-
   ModelsList();
   ~ModelsList();
 
-  bool load(Format fmt = Format::load_default);
+  bool load();
   const char *save(LabelsVector newOrder=LabelsVector());
   void clear();
 
@@ -240,8 +233,6 @@ class ModelsList : public ModelsVector
   {
     return std::vector<ModelCell *>::size();
   }
-
-  bool readNextLine(char *line, int maxlen);
 
   ModelCell *addModel(const char *name, bool save = true, ModelCell *copyCell = nullptr);
   bool removeModel(ModelCell *model);
@@ -261,7 +252,6 @@ class ModelsList : public ModelsVector
  protected:
   FIL file;
 
-  bool loadTxt();
   bool loadYaml();
   bool loadYamlDirScanner();
 };

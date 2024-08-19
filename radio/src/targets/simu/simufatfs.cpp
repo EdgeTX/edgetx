@@ -125,8 +125,6 @@ bool redirectToSettingsDirectory(const std::string & path)
   */
   if (!simuSettingsDirectory.empty()) {
     if (path == MODELS_PATH || path == RADIO_PATH) return true;
-    if (path == RADIO_MODELSLIST_PATH || path == RADIO_SETTINGS_PATH)
-      return true;
     if (startsWith(path, MODELS_PATH) && endsWith(path, MODELS_EXT))
       return true;
     if (path == MODELSLIST_YAML_PATH || path == RADIO_SETTINGS_YAML_PATH || path == RADIO_SETTINGS_TMPFILE_YAML_PATH || path == RADIO_SETTINGS_ERRORFILE_YAML_PATH)

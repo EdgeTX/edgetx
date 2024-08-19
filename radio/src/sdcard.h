@@ -62,7 +62,6 @@ extern FIL g_oLogFile;
 #define LEN_FILE_PATH_MAX   (sizeof(SCRIPTS_TELEM_PATH)+1)  // longest + "/"
 
 #define RADIO_FILENAME      "radio.bin"
-const char RADIO_MODELSLIST_PATH[] = RADIO_PATH PATH_SEPARATOR "models.txt";
 const char RADIO_SETTINGS_PATH[] = RADIO_PATH PATH_SEPARATOR RADIO_FILENAME;
 #define LABELS_FILENAME     "labels.yml"
 #define MODELS_FILENAME     "models.yml"
