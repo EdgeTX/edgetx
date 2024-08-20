@@ -1632,6 +1632,30 @@ static int luaPlayTone(lua_State * L)
 }
 
 /*luadoc
+@name screenshot
+
+@description Takes a screenshot, which is saved to the SCREENSHOTS folder on the radio SD card.
+
+@syntax screenshot()
+
+@return none
+
+@notes This command is currently not rate limited, so repeated frequent calls will slow down the UI and can even freeze the entire radio, so should be used with care. 
+
+@target [BW]
+@target [GS]
+@target [COLOR]
+
+@status current Introduced in 2.11
+*/
+static int luaScreenshot(lua_State * L)
+{
+  UNUSED(L);
+  writeScreenshot();
+  return 0;
+}
+
+/*luadoc
 @function playHaptic(duration, pause [, flags])
 
 Generate haptic feedback
@@ -2930,6 +2954,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( playTone, luaPlayTone )
   LROT_FUNCENTRY( playHaptic, luaPlayHaptic )
   LROT_FUNCENTRY( flushAudio, luaFlushAudio )
+  LROT_FUNCENTRY( screenshot, luaScreenshot )
 #if defined(ENABLE_LUA_POPUP_INPUT)
   LROT_FUNCENTRY( popupInput, luaPopupInput )
 #endif
