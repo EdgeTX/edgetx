@@ -58,11 +58,14 @@ void SimulatedGPS::setDateTime(QString dateTime)
 void SimulatedGPS::setLatLon(QString latLon)
 {
   QStringList coords = latLon.split(",");
+  if (coords.length() < 2) {
+    coords = latLon.split(" ");
+  }
   lat = 0.0;
   lon = 0.0;
   if (coords.length() > 1) {
-    lat = coords[0].toDouble();
-    lon = coords[1].toDouble();
+    lat = coords[0].simplified().toDouble();
+    lon = coords[1].simplified().toDouble();
   } else {
     stop();
   }
