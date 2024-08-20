@@ -69,7 +69,7 @@ void BitmapBuffer::drawValueWithUnit(coord_t x, coord_t y, int val,
   }
 }
 
-void BitmapBuffer::drawTextLines(coord_t left, coord_t top, coord_t width,
+point_t BitmapBuffer::drawTextLines(coord_t left, coord_t top, coord_t width,
                                  coord_t height, const char *str,
                                  LcdFlags flags)
 {
@@ -78,6 +78,7 @@ void BitmapBuffer::drawTextLines(coord_t left, coord_t top, coord_t width,
   coord_t line = getFontHeightCondensed(flags & 0xFFFF);
   coord_t space = getTextWidth(" ", 1, flags);
   coord_t word;
+  point_t maxP={0,0};
   const char *nxt = str;
   flags &= ~(VCENTERED | CENTERED | RIGHT);
 
@@ -102,16 +103,22 @@ void BitmapBuffer::drawTextLines(coord_t left, coord_t top, coord_t width,
     if (x + word > left + width && x > left) {
       x = left;
       y += line;
+      maxP.y= y + line;
     }
-    if (y + line > top + height) return;
+    else
+    {
+      maxP.x = max( maxP.x, x+word);
+    }
+    if (y + line > top + height) return maxP;
     drawSizedText(x, y, str, nxt - str, flags);
     x += word;
     switch (nxt[0]) {
       case '\0':
-        return;
+        return maxP;
       case '\n':
         x = left;
         y += line;
+        maxP.y= y + line;
         nxt++;
         break;
       case ' ':

@@ -66,10 +66,13 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
                        std::function<void(int)> _setValue,
                        ChoiceType type) :
     FormField(parent, rect, choice_create),
-    vmin(vmin), vmax(vmax), menuTitle(title),
+    vmin(vmin), vmax(vmax), menuTitle(title), type(type),
     _getValue(std::move(_getValue)),
     _setValue(std::move(_setValue))
 {
+  padLeft(PAD_TINY);
+  padRight(PAD_SMALL);
+
   // Add image
   lv_obj_t* img = lv_img_create(lvobj);
   lv_img_set_src(
@@ -78,7 +81,8 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
 
   // Add label
   label = lv_label_create(lvobj);
-  lv_obj_set_pos(label, ICON_W, PAD_TINY);
+  lv_obj_set_pos(label, type == CHOICE_TYPE_DROPOWN ? ICON_W - 2 : ICON_W, PAD_TINY);
+  etx_font(label, FONT_XS_INDEX, LV_STATE_USER_1);
 
   lv_obj_add_event_cb(lvobj, changedCB, LV_EVENT_VALUE_CHANGED, this);
 }
@@ -106,8 +110,16 @@ std::string Choice::getLabelText()
 
 void ChoiceBase::update()
 {
-  if (!deleted())
+  if (!deleted()) {
+    if (width() > 0) {
+      int w = width() - (type == CHOICE_TYPE_DROPOWN ? ICON_W - 2 : ICON_W) - PAD_TINY * 3;
+      if (getTextWidth(getLabelText().c_str(), 0, FONT(STD)) > w)
+        lv_obj_add_state(label, LV_STATE_USER_1);
+      else
+        lv_obj_clear_state(label, LV_STATE_USER_1);
+    }
     lv_label_set_text(label, getLabelText().c_str());
+  }
 }
 
 Choice::Choice(Window* parent, const rect_t& rect, int vmin, int vmax,

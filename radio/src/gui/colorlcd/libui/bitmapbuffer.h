@@ -190,7 +190,7 @@ class BitmapBuffer
   coord_t drawNumber(coord_t x, coord_t y, int32_t val, LcdFlags flags = 0,
                      uint8_t len = 0, const char* prefix = nullptr,
                      const char* suffix = nullptr);
-  void drawTextLines(coord_t left, coord_t top, coord_t width, coord_t height,
+  point_t drawTextLines(coord_t left, coord_t top, coord_t width, coord_t height,
                      const char* str, LcdFlags flags);
   void drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags flags = 0);
   void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags flags = 0);
