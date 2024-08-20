@@ -135,10 +135,6 @@ void TelemetrySimulator::stopTelemetry()
 void TelemetrySimulator::onSimulatorStarted()
 {
   m_simuStarted = true;
-  if (internalProvider)
-    internalProvider->loadUiFromSimulator(simulator);
-  if (externalProvider)
-    externalProvider->loadUiFromSimulator(simulator);
   if (isVisible() && g.currentProfile().telemSimEnabled())
     startTelemetry();
 }
@@ -171,6 +167,9 @@ TelemetryProvider * TelemetrySimulator::newTelemetryProviderFromDropdownChoice(i
       } else {
         connect(newProvider, &TelemetryProviderFrSky::telemetryDataChanged, this, &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
       }
+      // FrSky provider needs to set up sensor instances from the model's telemetry configuration
+      newProvider->loadUiFromSimulator(simulator);
+
       return newProvider;
     }
   case 2:

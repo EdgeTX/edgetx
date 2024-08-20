@@ -49,12 +49,12 @@ class TelemetryProviderFrSky : public QWidget, public TelemetryProvider
     QHash<QString, QString> * getSupportedLogItems();
     void loadItemFromLog(QString itemName, QString value);
     QString getLogfileIdentifier();
+    void loadUiFromSimulator(SimulatorInterface * simulator);
 
   protected slots:
     void updateGps();
     void generateTelemetryFrame(SimulatorInterface * simulator);
     void refreshSensorRatios(SimulatorInterface * simulator);
-    void loadUiFromSimulator(SimulatorInterface * simulator);
 
   protected:
     Ui::TelemetryProviderFrSky * ui;
