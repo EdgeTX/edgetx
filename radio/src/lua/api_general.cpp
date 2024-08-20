@@ -1632,18 +1632,21 @@ static int luaPlayTone(lua_State * L)
 }
 
 /*luadoc
-@function screenshot()
+@name screenshot
 
-Takes a screenshot
+@description Takes a screenshot, which is saved to the SCREENSHOTS folder on the radio SD card.
 
-@retval none 
+@syntax screenshot()
+
+@return none
+
+@notes This command is currently not rate limited, so repeated frequent calls will slow down the UI and can even freeze the entire radio, so should be used with care. 
+
+@target [BW]
+@target [GS]
+@target [COLOR]
 
 @status current Introduced in 2.11
-
-// targets: BW, COLOR
-//
-// EXAMPLES:
-// screenshot()
 */
 static int luaScreenshot(lua_State * L)
 {
