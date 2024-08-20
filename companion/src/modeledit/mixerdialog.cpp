@@ -27,7 +27,7 @@
 #include "namevalidator.h"
 #include "sourcenumref.h"
 
-MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, GeneralSettings & generalSettings, Firmware * firmware,
+MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, int index, GeneralSettings & generalSettings, Firmware * firmware,
                          CompoundItemModelFactory * sharedItemModels) :
   QDialog(parent),
   ui(new Ui::MixerDialog),
@@ -92,6 +92,11 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   if (!firmware->getCapability(HasNoExpo)) {
     ui->MixDR_CB->hide();
     ui->label_MixDR->hide();
+  }
+
+  if (index == 0 || model.mixData[index - 1].destCh != mixdata->destCh) {
+    ui->mltpxCB->hide();
+    ui->mltpxLbl->hide();
   }
 
   if (!firmware->getCapability(VirtualInputs)) {

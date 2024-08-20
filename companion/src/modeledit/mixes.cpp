@@ -184,7 +184,7 @@ void MixesPanel::gm_openMix(int index)
 
   MixData mixd(model->mixData[index]);
 
-  MixerDialog *dlg = new MixerDialog(this, *model, &mixd, generalSettings, firmware, sharedItemModels);
+  MixerDialog *dlg = new MixerDialog(this, *model, &mixd, index, generalSettings, firmware, sharedItemModels);
   if(dlg->exec()) {
     model->mixData[index] = mixd;
     emit modified();

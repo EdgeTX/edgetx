@@ -108,7 +108,10 @@ void menuModelMixOne(event_t event)
   uint8_t old_editMode = s_editMode;
   
   SUBMENU(STR_MIXES, MIX_FIELD_COUNT,
-          {0, 0, 0, 0, 0, 1, CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0, 0 /*, ...*/});
+          {0, 0, 0, 0, 0, 1, CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0, 0,
+           (uint8_t)((s_currIdx > 0 && mixAddress(s_currIdx - 1)->destCh == md2->destCh) ? 0 : HIDDEN_ROW),
+           0 /*, ...*/
+          });
   
   int8_t sub = menuVerticalPosition;
   int8_t editMode = s_editMode;

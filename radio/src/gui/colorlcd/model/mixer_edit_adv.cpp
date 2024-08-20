@@ -60,11 +60,14 @@ void MixEditAdvanced::buildBody(Window* form)
   MixData* mix = mixAddress(index);
 
   // Advanced...
+  FormLine* line;
 
   // Multiplex
-  auto line = form->newLine(grid);
-  new StaticText(line, rect_t{}, STR_MULTPX);
-  new Choice(line, rect_t{}, STR_VMLTPX, 0, 2, GET_SET_DEFAULT(mix->mltpx));
+  if (index > 0 && mixAddress(index - 1)->destCh == channel) {
+    line = form->newLine(grid);
+    new StaticText(line, rect_t{}, STR_MULTPX);
+    new Choice(line, rect_t{}, STR_VMLTPX, 0, 2, GET_SET_DEFAULT(mix->mltpx));
+  }
 
   // Flight modes
   if (modelFMEnabled()) {

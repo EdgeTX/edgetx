@@ -416,10 +416,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
   }
   str += "&nbsp;" + source;
 
-  if (mix.mltpx == MLTPX_MUL && !showMultiplex)
-    str += " " + tr("MULT!").toHtmlEscaped();
-  else
-    str += " " + tr("Weight(%1)").arg(SourceNumRef(mix.weight).toString(&model, &generalSettings)).toHtmlEscaped();
+  str += " " + tr("Weight(%1)").arg(SourceNumRef(mix.weight).toString(&model, &generalSettings)).toHtmlEscaped();
 
   QString flightModesStr = printFlightModes(mix.flightModes);
   if (!flightModesStr.isEmpty())

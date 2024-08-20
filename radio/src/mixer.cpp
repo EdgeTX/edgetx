@@ -1037,25 +1037,30 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       int32_t * ptr = &chans[md->destCh]; // Save calculating address several times
 
-      switch (md->mltpx) {
-        case MLTPX_REPL:
-          *ptr = dv;
-          if (mode == e_perout_mode_normal) {
-            for (int8_t m = i - 1; m >= 0 && mixAddress(m)->destCh == md->destCh; m--)
-              activeMixes[m] = false;
-          }
-          break;
-        case MLTPX_MUL:
-          // @@@2 we have to remove the weight factor of 256 in case of 100%; now we use the new base of 256
-          dv >>= 8;
-          dv *= *ptr;
-          dv >>= RESX_SHIFT;   // same as dv /= RESXl;
-          *ptr = dv;
-          break;
-        default: // MLTPX_ADD
-          *ptr += dv; //Mixer output add up to the line (dv + (dv>0 ? 100/2 : -100/2))/(100);
-          break;
-      } // endswitch md->mltpx
+      // If first mix line for a channel - ignore Multiplex setting
+      if (i == 0 || mixAddress(i - 1)->destCh != md->destCh) {
+        *ptr = dv;
+      } else {
+        switch (md->mltpx) {
+          case MLTPX_REPL:
+            *ptr = dv;
+            if (mode == e_perout_mode_normal) {
+              for (int8_t m = i - 1; m >= 0 && mixAddress(m)->destCh == md->destCh; m--)
+                activeMixes[m] = false;
+            }
+            break;
+          case MLTPX_MUL:
+            // @@@2 we have to remove the weight factor of 256 in case of 100%; now we use the new base of 256
+            dv >>= 8;
+            dv *= *ptr;
+            dv >>= RESX_SHIFT;   // same as dv /= RESXl;
+            *ptr = dv;
+            break;
+          default: // MLTPX_ADD
+            *ptr += dv; //Mixer output add up to the line (dv + (dv>0 ? 100/2 : -100/2))/(100);
+            break;
+        } // endswitch md->mltpx
+      }
 #ifdef PREVENT_ARITHMETIC_OVERFLOW
 /*
       // a lot of assumptions must be true, for this kind of check; not really worth for only 4 bytes flash savings
