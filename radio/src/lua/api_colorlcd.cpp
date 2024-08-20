@@ -310,7 +310,7 @@ Draw text inside rectangle (x,y,w,h) with line breaks
 
 @retval x,y (integers) point where text drawing ended
 
-@status current Introduced in 2.5.0
+@status current Introduced in 2.5.0, return x,y added in 2.11.0
 */
 static int luaLcdDrawTextLines(lua_State *L)
 {
