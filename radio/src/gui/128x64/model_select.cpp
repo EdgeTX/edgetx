@@ -53,7 +53,6 @@ void onModelSelectMenu(const char * result)
     s_copyTgtOfs = 0;
     s_copySrcRow = -1;
   }
-#if defined(SDCARD)
   else if (result == STR_BACKUP_MODEL) {
     storageCheck(true); // force writing of current model data before this is changed
     POPUP_WARNING(backupModel(sub));
@@ -68,12 +67,10 @@ void onModelSelectMenu(const char * result)
     else
       POPUP_WARNING(STR_NO_MODELS_ON_SD);
   }
-#endif
   else if (result == STR_DELETE_MODEL) {
     POPUP_CONFIRMATION(STR_DELETEMODEL, onDeleteModelConfirm);
     SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), 0);
   }
-#if defined(SDCARD)
   else if (result != STR_EXIT) {
     // The user choosed a file on SD to restore
     storageCheck(true);
@@ -82,7 +79,6 @@ void onModelSelectMenu(const char * result)
       loadModel(sub);
     }
   }
-#endif
 }
 
 static void moveToFreeModelSlot(bool forward, int8_t& sub, int8_t oldSub)
@@ -201,22 +197,18 @@ void menuModelSelect(event_t event)
         if (g_eeGeneral.currModel != sub) {
           if (modelExists(sub)) {
             POPUP_MENU_ADD_ITEM(STR_SELECT_MODEL);
-            POPUP_MENU_ADD_SD_ITEM(STR_BACKUP_MODEL);
+            POPUP_MENU_ADD_ITEM(STR_BACKUP_MODEL);
             POPUP_MENU_ADD_ITEM(STR_COPY_MODEL);
             POPUP_MENU_ADD_ITEM(STR_MOVE_MODEL);
             POPUP_MENU_ADD_ITEM(STR_DELETE_MODEL);
           }
           else {
-#if defined(SDCARD)
             POPUP_MENU_ADD_ITEM(STR_CREATE_MODEL);
             POPUP_MENU_ADD_ITEM(STR_RESTORE_MODEL);
-#else
-            selectModel(sub);
-#endif
           }
         }
         else {
-          POPUP_MENU_ADD_SD_ITEM(STR_BACKUP_MODEL);
+          POPUP_MENU_ADD_ITEM(STR_BACKUP_MODEL);
           POPUP_MENU_ADD_ITEM(STR_COPY_MODEL);
           POPUP_MENU_ADD_ITEM(STR_MOVE_MODEL);
         }

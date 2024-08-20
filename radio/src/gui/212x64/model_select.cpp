@@ -196,7 +196,7 @@ void menuModelSelect(event_t event)
           if (g_eeGeneral.currModel != sub) {
             if (modelExists(sub)) {
               POPUP_MENU_ADD_ITEM(STR_SELECT_MODEL);
-              POPUP_MENU_ADD_SD_ITEM(STR_BACKUP_MODEL);
+              POPUP_MENU_ADD_ITEM(STR_BACKUP_MODEL);
               POPUP_MENU_ADD_ITEM(STR_COPY_MODEL);
               POPUP_MENU_ADD_ITEM(STR_MOVE_MODEL);
               POPUP_MENU_ADD_ITEM(STR_DELETE_MODEL);
@@ -207,7 +207,7 @@ void menuModelSelect(event_t event)
             }
           }
           else {
-            POPUP_MENU_ADD_SD_ITEM(STR_BACKUP_MODEL);
+            POPUP_MENU_ADD_ITEM(STR_BACKUP_MODEL);
             POPUP_MENU_ADD_ITEM(STR_COPY_MODEL);
             POPUP_MENU_ADD_ITEM(STR_MOVE_MODEL);
           }

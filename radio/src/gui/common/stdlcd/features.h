@@ -131,10 +131,4 @@
   #define CASE_PCBX9E_PCBX9DP(x)
 #endif
 
-#if defined(SDCARD)
-  #define CASE_SDCARD(x) x,
-#else
-  #define CASE_SDCARD(x)
-#endif
-
 #define CASE_SPLASH_PARAM(x) x,

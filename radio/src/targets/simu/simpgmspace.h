@@ -72,7 +72,7 @@ void simuMain();
 
 #define configure_pins(...)
 
-#if defined(SDCARD) && !defined(SKIP_FATFS_DECLARATION) && !defined(SIMU_DISKIO)
+#if !defined(SKIP_FATFS_DECLARATION) && !defined(SIMU_DISKIO)
   #define SIMU_USE_SDCARD
 #endif
 

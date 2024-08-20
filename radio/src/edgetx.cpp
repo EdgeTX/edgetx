@@ -71,9 +71,7 @@
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
-#if defined(SDCARD)
 Clipboard clipboard;
-#endif
 
 GlobalData globalData;
 
@@ -1082,9 +1080,7 @@ void edgeTxClose(uint8_t shutdown)
   luaClose(&lsScripts);
 #endif
 
-#if defined(SDCARD)
   logsClose();
-#endif
 
   storageFlushCurrentModel();
 
@@ -1112,9 +1108,7 @@ void edgeTxClose(uint8_t shutdown)
 #endif
 #endif
 
-#if defined(SDCARD)
   sdDone();
-#endif
 }
 
 void edgeTxResume()
@@ -1403,7 +1397,6 @@ void edgeTxInit()
 #endif
 #endif
 
-#if defined(SDCARD)
   // SDCARD related stuff, only enable if normal boot
   if (!UNEXPECTED_SHUTDOWN()) {
 
@@ -1434,7 +1427,6 @@ void edgeTxInit()
 
     logsInit();
   }
-#endif // defined(SDCARD)
 
 #if defined(COLORLCD) && defined(LUA)
   if (!UNEXPECTED_SHUTDOWN()) {

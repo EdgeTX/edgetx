@@ -235,11 +235,7 @@ if(SIMU_DISKIO)
   add_definitions(-DSIMU_DISKIO)
 endif()
 
-if(SDCARD)
-  add_definitions(-DSDCARD)
-  set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp lib_file.cpp)
-  set(FIRMWARE_SRC ${FIRMWARE_SRC})
-endif()
+set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp lib_file.cpp)
 
 if(BLUETOOTH)
   add_definitions(-DBLUETOOTH)
