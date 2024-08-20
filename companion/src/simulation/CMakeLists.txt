@@ -10,7 +10,10 @@ set(${PROJECT_NAME}_NAMES
   simulatormainwindow
   simulatorstartupdialog
   simulatorwidget
+  simulatedgps
   telemetrysimu
+  telemetryprovidercrossfire
+  telemetryproviderfrsky
   trainersimu
   widgets/lcdwidget
   widgets/radiowidget
