@@ -190,7 +190,11 @@ TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
   luaExecStr("if MIXSRC_SB == nil then error('failed') end");
+#if defined(SURFACE_RADIO)
+  luaExecStr("if getSwitchIndex('St-') == nil then error('failed') end");
+#else
   luaExecStr("if getSwitchIndex('Rud-') == nil then error('failed') end");
+#endif
 }
 
 TEST(Lua, testLegacyNames)
