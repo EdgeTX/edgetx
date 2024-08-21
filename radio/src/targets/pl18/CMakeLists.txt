@@ -22,6 +22,8 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 #option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 #option(AFHDS2 "Support for AFHDS2" OFF)
 
+option(USE_RTC_CLOCK "RTC Clock" ON)
+
 # for size report script
 set(CPU_TYPE_FULL STM32F429xI)
 set(TARGET_LINKER_DIR stm32f429_sdram)
@@ -85,11 +87,16 @@ add_definitions(
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
+add_definitions(-DAUDIO -DVOICE)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DCROSSFIRE_NATIVE)
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
+
+if(USE_RTC_CLOCK)
+  message("-- RTC Clock enabled")
+  add_definitions(-DRTCLOCK)
+endif()
 
 if(WIRELESS_CHARGER)
   add_definitions(-DWIRELESS_CHARGER)
