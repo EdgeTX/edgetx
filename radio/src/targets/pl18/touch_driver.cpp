@@ -107,6 +107,7 @@ union rpt_point_t
 
 extern uint8_t TouchControllerType;
 
+const char* boardTouchType = "";
 static const TouchControllerDescriptor *tcd = nullptr;
 static TouchState internalTouchState = {};
 volatile static bool touchEventOccured;
@@ -323,14 +324,17 @@ void _detect_touch_controller()
   if (stm32_i2c_is_dev_ready(TOUCH_I2C_BUS, TOUCH_CST340_I2C_ADDRESS, 3, I2C_TIMEOUT_MAX) == 0) {
     touchController = TC_CST340;
     tcd = &CST340;
+    boardTouchType = "CST340";
     TouchControllerType = 0;
   } else if (stm32_i2c_is_dev_ready(TOUCH_I2C_BUS, TOUCH_CHSC5448_I2C_ADDRESS, 3, I2C_TIMEOUT_MAX) == 0) {
     touchController = TC_CHSC5448;
     tcd = &CHSC5448;
     TouchControllerType = 0;
+    boardTouchType = "CHSC5448";
   } else {
     touchController = TC_FT6236;
     tcd = &FT6236;
+    boardTouchType = "FT6236";
 #if defined(RADIO_NB4P)    
     TouchControllerType = 0;
 #else

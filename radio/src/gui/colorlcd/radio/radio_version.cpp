@@ -340,6 +340,7 @@ RadioVersionPage::RadioVersionPage() :
 
 #if defined(PCBNV14) || defined(PCBPL18)
 extern const char* boardLcdType;
+extern const char* boardTouchType;
 #endif
 
 void RadioVersionPage::build(Window* window)
@@ -370,6 +371,9 @@ void RadioVersionPage::build(Window* window)
   version += nl;
   version += "LCD: ";
   version += boardLcdType;
+  version += nl;
+  version += "Touch: ";
+  version += boardTouchType;
 #endif
 
   auto txt = new StaticText(window, rect_t{}, version);
