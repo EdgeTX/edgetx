@@ -348,7 +348,7 @@ struct TouchState touchPanelRead()
 
   touchEventOccured = false;
 
-  tmr10ms_t now = get_tmr10ms();
+  tmr10ms_t now = timersGetMsTick();
   internalTouchState.tapCount = 0;
   unsigned short touchX;
   unsigned short touchY;
