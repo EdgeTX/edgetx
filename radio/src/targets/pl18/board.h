@@ -65,8 +65,14 @@ extern "C" void SDRAM_Init();
 // Pulses driver
 #if !defined(SIMU)
 
-#define INTERNAL_MODULE_ON()            gpio_set(INTMODULE_PWR_GPIO)
-#define INTERNAL_MODULE_OFF()           gpio_clear(INTMODULE_PWR_GPIO);
+#if defined(RADIO_NB4P)
+  #define INTERNAL_MODULE_ON()            gpio_clear(INTMODULE_PWR_GPIO)
+  #define INTERNAL_MODULE_OFF()           gpio_set(INTMODULE_PWR_GPIO);
+#else
+  #define INTERNAL_MODULE_ON()            gpio_set(INTMODULE_PWR_GPIO)
+  #define INTERNAL_MODULE_OFF()           gpio_clear(INTMODULE_PWR_GPIO);
+#endif
+
 #define EXTERNAL_MODULE_ON()            gpio_set(EXTMODULE_PWR_GPIO)
 #define EXTERNAL_MODULE_OFF()           gpio_clear(EXTMODULE_PWR_GPIO)
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
