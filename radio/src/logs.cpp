@@ -135,12 +135,8 @@ const char * logsOpen()
   if (g_model.header.name[0]) {
     tmp = strAppend(tmp, sanitizeForFilename(g_model.header.name, LEN_MODEL_NAME));
   } else {
-#if defined(EEPROM)
-    uint8_t num = g_eeGeneral.currModel + 1;
-#else
     // TODO
     uint8_t num = 1;
-#endif
     tmp = strAppend(tmp, STR_MODEL);
     tmp = strAppendUnsigned(tmp, num, 2);
   }

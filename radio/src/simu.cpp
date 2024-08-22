@@ -168,10 +168,6 @@ OpenTxSim::~OpenTxSim()
   simuStop();
   stopAudioThread();
 
-#if defined(EEPROM)
-  stopEepromThread();
-#endif
-
   delete bmp;
   delete sliders[0];
   delete sliders[1];
@@ -645,12 +641,7 @@ int main(int argc, char ** argv)
   opentxSim->show(); // Otherwise the main window gets centred across my two monitors, split down the middle.
 #endif
 
-
   printf("Model size = %d\n", (int)sizeof(g_model));
-
-#if defined(EEPROM) || defined(EEPROM_RLC)
-  startEepromThread(argc >= 2 ? argv[1] : "eeprom.bin");
-#endif
 
 #if !defined(SIMU_BOOTLOADER)
   startAudioThread();

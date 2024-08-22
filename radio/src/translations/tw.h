@@ -660,11 +660,7 @@
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "不兼容"
 #define TR_WARNING                     "警告"
-#define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "存儲"
-#define TR_EEPROM_CONVERTING           "轉換數據"
-#define TR_SDCARD_CONVERSION_REQUIRE   "需要轉換SD卡"
-#define TR_CONVERTING                  "轉換: "
 #define TR_THROTTLE_UPPERCASE          "油門"
 #define TR_ALARMSWARN                  "警告"
 #define TR_SWITCHWARN                  TR("開關", "開關位置")

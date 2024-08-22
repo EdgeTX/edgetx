@@ -34,10 +34,6 @@
 
 #include "sdcard.h"
 
-#if !defined(SDCARD_YAML)
-#include "sdcard_raw.h"
-#endif
-
 #include "dataconstants.h"
 #include "rtc.h"
 
@@ -221,21 +217,10 @@ class ModelsList : public ModelsVector
   void init();
 
  public:
-  enum class Format {
-    txt,
-#if defined(SDCARD_YAML)
-    yaml,
-    yaml_txt,
-    load_default = yaml,
-#else
-    load_default = txt,
-#endif
-  };
-
   ModelsList();
   ~ModelsList();
 
-  bool load(Format fmt = Format::load_default);
+  bool load();
   const char *save(LabelsVector newOrder=LabelsVector());
   void clear();
 
@@ -248,8 +233,6 @@ class ModelsList : public ModelsVector
   {
     return std::vector<ModelCell *>::size();
   }
-
-  bool readNextLine(char *line, int maxlen);
 
   ModelCell *addModel(const char *name, bool save = true, ModelCell *copyCell = nullptr);
   bool removeModel(ModelCell *model);
@@ -269,11 +252,8 @@ class ModelsList : public ModelsVector
  protected:
   FIL file;
 
-  bool loadTxt();
-#if defined(SDCARD_YAML)
   bool loadYaml();
   bool loadYamlDirScanner();
-#endif
 };
 
 ModelLabelsVector getUniqueLabels();

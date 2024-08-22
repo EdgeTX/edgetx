@@ -25,7 +25,6 @@
 #include "edgetx_helpers.h"
 #include "storage.h"
 #include "sdcard_common.h"
-#include "sdcard_raw.h"
 #include "sdcard_yaml.h"
 #include "modelslist.h"
 
@@ -33,12 +32,6 @@
 #include "yaml/yaml_parser.h"
 #include "yaml/yaml_datastructs.h"
 #include "yaml/yaml_bits.h"
-
-
-#if defined(EEPROM_RLC)
- #include "storage/eeprom_common.h"
- #include "storage/eeprom_rlc.h"
-#endif
 
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, ChecksumResult* checksum_result)
 {

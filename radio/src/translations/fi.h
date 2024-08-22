@@ -665,11 +665,7 @@
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Incompatible"
 #define TR_WARNING                     "WARNING"
-#define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "STORAGE"
-#define TR_EEPROM_CONVERTING           "EEPROM Converting"
-#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
-#define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE          "KAASU"
 #define TR_ALARMSWARN                  "HÄLYTYKSET"
 #define TR_SWITCHWARN                  TR("KYTKIN","CONTROL")

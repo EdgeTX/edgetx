@@ -30,10 +30,8 @@
 #include "usb_joystick.h"
 #endif
 
-#if !defined(EEPROM)
 #include "storage/sdcard_common.h"
 #include "storage/modelslist.h"
-#endif
 
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"

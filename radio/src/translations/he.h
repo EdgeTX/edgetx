@@ -658,11 +658,7 @@
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "Incompatible"
 #define TR_WARNING                     "אזהרה"
-#define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "איחסון"
-#define TR_EEPROM_CONVERTING           "Converting EEPROM"
-#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
-#define TR_CONVERTING                  ":ממיר "
 #define TR_THROTTLE_UPPERCASE          "מצערת"
 #define TR_ALARMSWARN                  "התראות"
 #define TR_SWITCHWARN                  TR("SWITCH", "CONTROL")

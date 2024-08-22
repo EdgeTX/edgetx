@@ -53,7 +53,6 @@ void onModelSelectMenu(const char * result)
     s_copyTgtOfs = 0;
     s_copySrcRow = -1;
   }
-#if defined(SDCARD)
   else if (result == STR_BACKUP_MODEL) {
     storageCheck(true); // force writing of current model data before this is changed
     POPUP_WARNING(backupModel(sub));
@@ -61,24 +60,17 @@ void onModelSelectMenu(const char * result)
   else if (result == STR_RESTORE_MODEL || result == STR_UPDATE_LIST) {
     const char* ext = nullptr;
     const char* path = nullptr;
-#if defined(SDCARD_YAML)
     ext = STR_YAML_EXT;
     path = STR_BACKUP_PATH;
-#else
-    ext = STR_MODELS_EXT;
-    path = STR_MODELS_PATH;
-#endif
     if (sdListFiles(path, ext, MENU_LINE_LENGTH-1, nullptr))
       POPUP_MENU_START(onModelSelectMenu);
     else
       POPUP_WARNING(STR_NO_MODELS_ON_SD);
   }
-#endif
   else if (result == STR_DELETE_MODEL) {
     POPUP_CONFIRMATION(STR_DELETEMODEL, onDeleteModelConfirm);
     SET_WARNING_INFO(modelHeaders[sub].name, sizeof(g_model.header.name), 0);
   }
-#if defined(SDCARD)
   else if (result != STR_EXIT) {
     // The user choosed a file on SD to restore
     storageCheck(true);
@@ -87,7 +79,6 @@ void onModelSelectMenu(const char * result)
       loadModel(sub);
     }
   }
-#endif
 }
 
 static void moveToFreeModelSlot(bool forward, int8_t& sub, int8_t oldSub)
@@ -206,22 +197,18 @@ void menuModelSelect(event_t event)
         if (g_eeGeneral.currModel != sub) {
           if (modelExists(sub)) {
             POPUP_MENU_ADD_ITEM(STR_SELECT_MODEL);
-            POPUP_MENU_ADD_SD_ITEM(STR_BACKUP_MODEL);
+            POPUP_MENU_ADD_ITEM(STR_BACKUP_MODEL);
             POPUP_MENU_ADD_ITEM(STR_COPY_MODEL);
             POPUP_MENU_ADD_ITEM(STR_MOVE_MODEL);
             POPUP_MENU_ADD_ITEM(STR_DELETE_MODEL);
           }
           else {
-#if defined(SDCARD)
             POPUP_MENU_ADD_ITEM(STR_CREATE_MODEL);
             POPUP_MENU_ADD_ITEM(STR_RESTORE_MODEL);
-#else
-            selectModel(sub);
-#endif
           }
         }
         else {
-          POPUP_MENU_ADD_SD_ITEM(STR_BACKUP_MODEL);
+          POPUP_MENU_ADD_ITEM(STR_BACKUP_MODEL);
           POPUP_MENU_ADD_ITEM(STR_COPY_MODEL);
           POPUP_MENU_ADD_ITEM(STR_MOVE_MODEL);
         }
@@ -264,12 +251,6 @@ void menuModelSelect(event_t event)
       moveToFreeModelSlot(true, sub, oldSub);
     }
   }
-
-#if defined(EEPROM)
-  lcdDrawText(9*FW-(LEN_FREE-4)*FW-4, 0, STR_FREE);
-  if (event) reusableBuffer.modelsel.eepromfree = EeFsGetFree();
-  lcdDrawNumber(lcdLastRightPos+3, 0, reusableBuffer.modelsel.eepromfree, LEFT);
-#endif
 
   extern uint8_t menuSize(const MenuHandler*, uint8_t);
   uint8_t sz = menuSize(menuTabModel, DIM(menuTabModel));

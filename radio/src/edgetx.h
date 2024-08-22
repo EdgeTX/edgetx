@@ -447,9 +447,7 @@ enum FunctionsActive {
   FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + MAX_STICKS,
   FUNCTION_INSTANT_TRIM,
   FUNCTION_VARIO,
-#if defined(SDCARD)
   FUNCTION_LOGS,
-#endif
   FUNCTION_BACKGND_MUSIC,
   FUNCTION_BACKGND_MUSIC_PAUSE,
   FUNCTION_BACKLIGHT,
@@ -586,9 +584,7 @@ enum AUDIO_SOUNDS {
 #include "haptic.h"
 #endif
 
-#if defined(SDCARD)
 #include "sdcard.h"
-#endif
 
 #if defined(RTCLOCK)
 #include "rtc.h"
@@ -639,10 +635,7 @@ constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
 union ReusableBuffer
 {
   struct {
-#if defined(EEPROM_RLC) && LCD_W < 212
-    uint16_t eepromfree;
-#endif
-#if defined(SDCARD) && !defined(COLORLCD)
+#if !defined(COLORLCD)
     char menu_bss[POPUP_MENU_MAX_LINES][MENU_LINE_LENGTH];
     char mainname[45]; // because reused for SD backup / restore, max backup filename 44 chars: "/MODELS/MODEL0134353-2014-06-19-04-51-27.bin"
 #elif !defined(COLORLCD)
@@ -685,7 +678,6 @@ union ReusableBuffer
     } inputs[MAX_ANALOG_INPUTS];
   } calib;
 
-#if defined(SDCARD)
   struct {
 #if defined(NUM_BODY_LINES)
     char lines[NUM_BODY_LINES][SD_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
@@ -699,7 +691,6 @@ union ReusableBuffer
     char otaReceiverVersion[sizeof(TR_CURRENT_VERSION) + 12];
 #endif
   } sdManager;
-#endif
 
   struct
   {
@@ -874,7 +865,6 @@ void varioWakeup();
 
 #include "lua/lua_api.h"
 
-#if defined(SDCARD)
 enum ClipboardType {
   CLIPBOARD_TYPE_NONE,
   CLIPBOARD_TYPE_CUSTOM_SWITCH,
@@ -901,7 +891,6 @@ struct Clipboard {
 };
 
 extern Clipboard clipboard;
-#endif
 
 #if defined(INTERNAL_GPS)
   #include "gps.h"
