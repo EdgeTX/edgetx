@@ -144,7 +144,7 @@ void boardInit()
     usb_state |= usbPlugged();
     while (usb_state) {
       pwrOn();
-      uint32_t now = get_tmr10ms();
+      uint32_t now = timersGetMsTick();
       if (pwrPressed()) {
         press_end = now;
         if (press_start == 0) press_start = now;
@@ -160,7 +160,7 @@ void boardInit()
         uint32_t press_end_touch = press_end;
         if (touchPanelEventOccured()) {
           touchPanelRead();
-          press_end_touch = get_tmr10ms();
+          press_end_touch = timersGetMsTick();
         }
         press_start = 0;
         handle_battery_charge(press_end_touch);

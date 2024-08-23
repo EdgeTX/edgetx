@@ -352,7 +352,7 @@ void drawChargingInfo(uint16_t chargeState) {
   lcd->drawFilledRect((LCD_W - BATTERY_W_INNER) / 2, BATTERY_TOP_INNER + BATTERY_H_INNER - h, BATTERY_W_INNER, h, SOLID, color);
   lcd->drawFilledRect((LCD_W - BATTERY_CONNECTOR_W) / 2, BATTERY_TOP - BATTERY_CONNECTOR_H, BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
 }
-#define CHARGE_INFO_DURATION 500
+#define CHARGE_INFO_DURATION 5000 // ms
 
 //this method should be called by timer interrupt or by GPIO interrupt
 void handle_battery_charge(uint32_t last_press_time)
@@ -363,7 +363,7 @@ void handle_battery_charge(uint32_t last_press_time)
   static uint32_t info_until = 0;
   static bool lcdInited = false;
 
-  uint32_t now = get_tmr10ms();
+  uint32_t now = timersGetMsTick();
   uint16_t chargeState = get_battery_charge_state();
   if (chargeState != CHARGE_UNKNOWN) {
 
@@ -381,9 +381,9 @@ void handle_battery_charge(uint32_t last_press_time)
     lastState = chargeState;
   }
 
-  if (updateTime == 0 || ((get_tmr10ms() - updateTime) >= 50))
+  if (updateTime == 0 || ((timersGetMsTick() - updateTime) >= 500))
   {
-    updateTime = get_tmr10ms();
+    updateTime = timersGetMsTick();
     ledChargingInfo(chargeState);
 
     if(now > info_until) {
