@@ -63,9 +63,7 @@ void preModelLoad()
 {
   watchdogSuspend(500/*5s*/);
 
-#if defined(SDCARD)
   logsClose();
-#endif
 
   bool needDelay = false;
   if (mixerTaskStarted()) {
@@ -285,9 +283,7 @@ if(g_model.rssiSource) {
     pulsesStart();
   }
 
-#if defined(SDCARD)
   referenceModelAudioFiles();
-#endif
 
 #if defined(COLORLCD)
   LayoutFactory::loadCustomScreens();

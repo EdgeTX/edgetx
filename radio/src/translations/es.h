@@ -650,11 +650,7 @@
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE        "Incompatible"
 #define TR_WARNING             "AVISO"
-#define TR_EEPROMWARN          "EEPROM"
 #define TR_STORAGE_WARNING     "ALMAC."
-#define TR_EEPROM_CONVERTING   "Convirtiendo EEPROM"
-#define TR_SDCARD_CONVERSION_REQUIRE   "SD card conversion required"
-#define TR_CONVERTING                  "Converting: "
 #define TR_THROTTLE_UPPERCASE        TR("ACELERAD.", "ACELERADOR")
 #define TR_ALARMSWARN          "ALARMAS"
 #define TR_SWITCHWARN          TR("INTERRUP.", "INTERRUPTOR")

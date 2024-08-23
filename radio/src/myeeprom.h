@@ -27,13 +27,6 @@
 #include "storage/yaml/yaml_defs.h"
 #include "hal/switch_driver.h"
 
-#if defined(SDCARD_YAML)
-  #define EEPROM_VER           221
-#else
-  #define EEPROM_VER           220
-#endif
-#define FIRST_CONV_EEPROM_VER  219
-
 #define GET_MODULE_PPM_POLARITY(idx)             g_model.moduleData[idx].ppm.pulsePol
 #define GET_TRAINER_PPM_POLARITY()               g_model.trainerData.pulsePol
 #define GET_SBUS_POLARITY(idx)                   g_model.moduleData[idx].sbus.noninverted

@@ -59,7 +59,7 @@ class ChoiceBase : public FormField
   int vmin = 0;
   int vmax = 0;
   const char *menuTitle = nullptr;
-
+  ChoiceType type;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
   std::function<std::string(int)> textHandler;

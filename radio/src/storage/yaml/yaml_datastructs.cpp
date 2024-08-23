@@ -28,14 +28,12 @@
 #include "yaml_inputs.inc"
 #include "yaml_datastructs_funcs.cpp"
 
-#if defined(PCBX12S)
- #include "yaml_datastructs_x12s.cpp"
-#elif defined(PCBX10)
-#if defined(RADIO_T15)
-    #include "yaml_datastructs_t15.cpp"
-  #else
-    #include "yaml_datastructs_x10.cpp"
-  #endif
+#if defined(PCBX10) || defined(PCBX12S)
+ #if defined(RADIO_T15)
+  #include "yaml_datastructs_t15.cpp"
+ #else
+  #include "yaml_datastructs_x10.cpp"
+ #endif
 #elif defined(PCBNV14)
  #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBPL18)
@@ -45,19 +43,25 @@
   #include "yaml_datastructs_tpro.cpp"
  #elif defined(RADIO_FAMILY_T20)
   #include "yaml_datastructs_t20.cpp"
+ #elif defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_T8) || defined(RADIO_T12) || defined(RADIO_TLITE)
+  #include "yaml_datastructs_xlite.cpp"
  #else
   #include "yaml_datastructs_128x64.cpp"
  #endif
 #elif defined(PCBX9LITE)
  #include "yaml_datastructs_128x64.cpp"
 #elif defined(PCBXLITE) && !defined(PCBXLITES)
- #include "yaml_datastructs_128x64.cpp"
+ #include "yaml_datastructs_xlite.cpp"
 #elif defined(PCBXLITES)
  #include "yaml_datastructs_xlites.cpp"
 #elif defined(PCBX9E)
  #include "yaml_datastructs_x9e.cpp"
 #elif defined(PCBX9D) || defined(PCBX9DP)
- #include "yaml_datastructs_x9d.cpp"
+ #if PCBREV < 2019
+  #include "yaml_datastructs_x9d.cpp"
+ #else
+  #include "yaml_datastructs_x9dp2019.cpp"
+ #endif
 #else
 #error "Board not supported by YAML storage"
 #endif

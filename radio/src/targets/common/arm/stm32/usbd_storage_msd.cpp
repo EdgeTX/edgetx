@@ -152,11 +152,7 @@ int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_
 #if defined(FWDRIVE)
   if (lun == STORAGE_EEPROM_LUN) {
     *block_size = BLOCK_SIZE;
- #if defined(EEPROM)
-    *block_num  = RESERVED_SECTORS + EEPROM_SIZE/BLOCK_SIZE + FLASHSIZE/BLOCK_SIZE;
- #else
     *block_num  = RESERVED_SECTORS + FLASHSIZE/BLOCK_SIZE;
- #endif
     return 0;
   }
 #endif
@@ -196,11 +192,6 @@ void usbInitLUNs()
   */
 int8_t STORAGE_IsReady_FS(uint8_t lun)
 {
-#if defined(FWDRIVE) && defined(EEPROM)
-  if (lun == STORAGE_EEPROM_LUN) {
-    return (lunReady[STORAGE_EEPROM_LUN] != 0) ? 0 : -1;
-  }
-#endif
   return (lunReady[STORAGE_SDCARD_LUN] != 0 && storageIsPresent()) ? USBD_OK : USBD_FAIL;
 }
 
@@ -300,11 +291,7 @@ const char firmware_txt[] =
 /**
  * FAT12 boot sector partition.
  */
- #if defined(EEPROM)
-  #define TOTALSECTORS  (RESERVED_SECTORS + (EEPROM_SIZE/BLOCK_SIZE) +  (FLASHSIZE/BLOCK_SIZE))
- #else
-  #define TOTALSECTORS  (RESERVED_SECTORS + (FLASHSIZE/BLOCK_SIZE))
- #endif
+#define TOTALSECTORS  (RESERVED_SECTORS + (FLASHSIZE/BLOCK_SIZE))
 const char g_FATboot[BLOCK_SIZE] =
 {
   0xeb, 0x3c, 0x90, // Jump instruction.
@@ -443,23 +430,6 @@ const FATDirEntry_t g_DIRroot[] =
       0x0003,
       FLASHSIZE
   },
- #if defined(EEPROM)
-    {
-        { 'E', 'E', 'P', 'R', 'O', 'M', ' ', ' '},
-        { 'B', 'I', 'N'},
-        0x20,		// Archive
-        0x00,
-        0x3E,
-        0xA301,
-        0x3D55,
-        0x3D55,
-        0x0000,
-        0xA302,
-        0x3D55,
-        0x0003 + (FLASHSIZE/BLOCK_SIZE)/8,
-        EEPROM_SIZE
-    },
- #endif
   // Emty entries are 0x00, omitted here. Up to 16 entries can be defined here
 };
 
@@ -511,13 +481,6 @@ int32_t fat12Read(uint8_t * buffer, uint16_t sector, uint16_t count)
         pushCluster (buffer, sector, cluster, rest, cluster+1);
       pushCluster (buffer, sector, cluster, rest, (uint16_t) 0xFFF);
 
- #if defined(EEPROM)
-      // Entry for eeprom.bin
-      for (int i=0;i<EEPROM_SIZE/BLOCK_SIZE/8 -1;i++)
-        pushCluster (buffer, sector, cluster, rest, cluster+1);
-      pushCluster (buffer, sector, cluster, rest, (uint16_t) 0xFFF);
- #endif
-
       // Ensure last cluster is written if it is the first half
       pushCluster (buffer, sector, cluster, rest, (uint16_t)  0x000);
 
@@ -540,11 +503,6 @@ int32_t fat12Read(uint8_t * buffer, uint16_t sector, uint16_t count)
       address += FIRMWARE_ADDRESS;
       memcpy(buffer, (uint8_t *)address, BLOCK_SIZE);
     }
- #if defined(EEPROM)
-    else if (sector < RESERVED_SECTORS + (EEPROM_SIZE/BLOCK_SIZE) + (FLASHSIZE/BLOCK_SIZE)) {
-      eepromReadBlock(buffer, (sector - RESERVED_SECTORS - (FLASHSIZE/BLOCK_SIZE))*BLOCK_SIZE, BLOCK_SIZE);
-    }
- #endif
     buffer += BLOCK_SIZE ;
     sector++ ;
     count-- ;
@@ -602,27 +560,6 @@ int32_t fat12Write(const uint8_t * buffer, uint16_t sector, uint16_t count)
     }
  #endif
   }
- #if defined(EEPROM)
-  else if (sector < RESERVED_SECTORS + (EEPROM_SIZE/BLOCK_SIZE) + (FLASHSIZE/BLOCK_SIZE)) {
-    // eeprom
-    while (count) {
-      if (operation == FATWRITE_NONE && isEepromStart(buffer)) {
-        TRACE("EEPROM start found in sector %d", sector);
-        operation = FATWRITE_EEPROM;
-      }
-      if (operation == FATWRITE_EEPROM) {
-        eepromWriteBlock((uint8_t *)buffer, (sector-RESERVED_SECTORS-(FLASHSIZE/BLOCK_SIZE))*BLOCK_SIZE, BLOCK_SIZE);
-      }
-      buffer += BLOCK_SIZE;
-      sector++;
-      count--;
-      if (sector-RESERVED_SECTORS >= (EEPROM_SIZE/BLOCK_SIZE)+(FLASHSIZE/BLOCK_SIZE)) {
-        TRACE("EEPROM end written at sector %d", sector-1);
-        operation = FATWRITE_NONE;
-      }
-    }
-  }
- #endif
   return 0 ;
 }
 #endif

@@ -153,7 +153,7 @@ void check(event_t event, uint8_t curr, const MenuHandler *menuTab,
       case EVT_KEY_LONG(KEY_MODEL):
         if (menuTab == menuTabModel) {
           if (modelHasNotes()) {
-            POPUP_MENU_ADD_SD_ITEM(STR_VIEW_CHANNELS);
+            POPUP_MENU_ADD_ITEM(STR_VIEW_CHANNELS);
             POPUP_MENU_ADD_ITEM(STR_VIEW_NOTES);
             POPUP_MENU_START(onLongMenuPress);
           }

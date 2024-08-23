@@ -311,7 +311,6 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
           }
 #endif
 
-#if defined(SDCARD)
           case FUNC_PLAY_SOUND:
           case FUNC_PLAY_TRACK:
           case FUNC_PLAY_VALUE:
@@ -352,51 +351,12 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             newActiveFunctions |= (1 << FUNCTION_BACKGND_MUSIC_PAUSE);
             break;
 
-#else
-          case FUNC_PLAY_SOUND:
-          case FUNC_PLAY_TRACK:
-          case FUNC_PLAY_BOTH:
-          case FUNC_PLAY_VALUE: {
-            tmr10ms_t tmr10ms = get_tmr10ms();
-            uint8_t repeatParam = CFN_PLAY_REPEAT(cfn);
-            if (!functionsContext.lastFunctionTime[i] ||
-                (CFN_FUNC(cfn) == FUNC_PLAY_BOTH &&
-                 active !=
-                     (bool)(functionsContext.activeSwitches & switch_mask)) ||
-                (repeatParam &&
-                 (signed)(tmr10ms - functionsContext.lastFunctionTime[i]) >=
-                     1000 * repeatParam)) {
-              functionsContext.lastFunctionTime[i] = tmr10ms;
-              uint8_t param = CFN_PARAM(cfn);
-              if (CFN_FUNC(cfn) == FUNC_PLAY_SOUND) {
-                AUDIO_PLAY(AU_SPECIAL_SOUND_FIRST + param);
-              } else if (CFN_FUNC(cfn) == FUNC_PLAY_VALUE) {
-                PLAY_VALUE(param, PLAY_INDEX);
-              } else {
-#if defined(GVARS)
-                if (CFN_FUNC(cfn) == FUNC_PLAY_TRACK && param > 250)
-                  param = GVAR_VALUE(
-                      param - 251,
-                      getGVarFlightMode(mixerCurrentFlightMode, param - 251));
-#endif
-                PUSH_CUSTOM_PROMPT(active ? param : param + 1, PLAY_INDEX);
-              }
-            }
-            if (!active) {
-              // PLAY_BOTH would change activeFnSwitches otherwise
-              switch_mask = 0;
-            }
-            break;
-          }
-#endif
-
 #if defined(VARIO)
           case FUNC_VARIO:
             newActiveFunctions |= (1u << FUNCTION_VARIO);
             break;
 #endif
 
-#if defined(SDCARD)
           case FUNC_LOGS:
             if (CFN_PARAM(cfn)) {
               newActiveFunctions |= (1u << FUNCTION_LOGS);
@@ -404,7 +364,6 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
                   cfn);  // logging period is 0..25.5s in 100ms increments
             }
             break;
-#endif
 
           case FUNC_BACKLIGHT: {
             newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
@@ -574,8 +533,8 @@ const char* funcGetLabel(uint8_t func)
     return STR_SF_SET_SCREEN;
 #endif
 #if defined(AUDIO_MUTE_GPIO)
-    case FUNC_DISABLE_AUDIO_AMP:
-      return STR_SF_DISABLE_AUDIO_AMP;
+  case FUNC_DISABLE_AUDIO_AMP:
+    return STR_SF_DISABLE_AUDIO_AMP;
 #endif
   case FUNC_RGB_LED:
     return STR_SF_RGBLEDS;

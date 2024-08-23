@@ -92,12 +92,6 @@ enum WarningType
 
 extern void POPUP_MENU_ADD_ITEM(const char * s);
 
-#if defined(SDCARD)
-  #define POPUP_MENU_ADD_SD_ITEM(s)    POPUP_MENU_ADD_ITEM(s)
-#else
-  #define POPUP_MENU_ADD_SD_ITEM(s)
-#endif
-
 extern void POPUP_MENU_SELECT_ITEM(uint8_t index);
 
 extern void POPUP_MENU_TITLE(const char * s);

@@ -155,6 +155,11 @@ enum CustomFunctionsItems {
   ITEM_CUSTOM_FUNCTIONS_LAST = ITEM_CUSTOM_FUNCTIONS_COUNT - 1
 };
 
+static bool isAssignableFunctionAvailableSorted(int value)
+{
+  return isAssignableFunctionAvailable(cfn_sorted[value]);
+}
+
 void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomFunctionsContext * functionsContext)
 {
   int sub = menuVerticalPosition;
@@ -207,7 +212,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           if (CFN_SWITCH(cfn)) {
             lcdDrawText(MODEL_SPECIAL_FUNC_2ND_COLUMN, y, funcGetLabel(func), attr);
             if (active) {
-              func = CFN_FUNC(cfn) = checkIncDec(event, CFN_FUNC(cfn), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailable);
+              func = CFN_FUNC(cfn) = cfn_sorted[checkIncDec(event, getFuncSortIdx(CFN_FUNC(cfn)), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailableSorted)];
               if (checkIncDec_Ret) CFN_RESET(cfn);
             }
           }
@@ -304,7 +309,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT);
           }
 #endif
-#if defined(SDCARD)
           else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT) {
             coord_t x = MODEL_SPECIAL_FUNC_3RD_COLUMN;
             if (ZEXIST(cfn->play.name))
@@ -338,7 +342,6 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               INCDEC_ENABLE_CHECK(functionsContext == &globalFunctionsContext ? isSourceAvailableInGlobalFunctions : isSourceAvailable);
             }
           }
-#endif
           else if (func == FUNC_VOLUME) {
             val_max = MIXSRC_LAST_CH;
             drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr);

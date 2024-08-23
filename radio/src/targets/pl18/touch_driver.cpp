@@ -35,7 +35,7 @@
 
 #include "debug.h"
 
-#define TAP_TIME 25
+#define TAP_TIME 250 // 250 ms
 #define I2C_TIMEOUT_MAX 5 // 5 ms
 
 // FT6236 definitions
@@ -348,7 +348,7 @@ struct TouchState touchPanelRead()
 
   touchEventOccured = false;
 
-  tmr10ms_t now = get_tmr10ms();
+  uint32_t now = timersGetMsTick();
   internalTouchState.tapCount = 0;
   unsigned short touchX;
   unsigned short touchY;

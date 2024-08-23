@@ -658,11 +658,7 @@
 #define TR_INT_MULTI_SPEC              "stm-opentx-noinv"
 #define TR_INCOMPATIBLE                "非対応"
 #define TR_WARNING                     "警告"
-#define TR_EEPROMWARN                  "EEPROM"
 #define TR_STORAGE_WARNING             "ストレージ"
-#define TR_EEPROM_CONVERTING           "EEPROM変換"
-#define TR_SDCARD_CONVERSION_REQUIRE   "SDカードの変換が必要です"
-#define TR_CONVERTING                  "変換: "
 #define TR_THROTTLE_UPPERCASE          "THROTTLE"
 #define TR_ALARMSWARN                  "アラーム"
 #define TR_SWITCHWARN                  TR("スイッチ", "コントロール")

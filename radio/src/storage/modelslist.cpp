@@ -25,15 +25,12 @@
 
 using std::list;
 
-#if defined(SDCARD_YAML)
 #include "edgetx.h"
 #include "storage/sdcard_yaml.h"
 #include "yaml/yaml_datastructs.h"
 #include "yaml/yaml_labelslist.h"
 #include "yaml/yaml_modelslist.h"
 #include "yaml/yaml_parser.h"
-
-#endif
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -921,44 +918,6 @@ void ModelsList::clear()
 }
 
 /**
- * @brief Load and parse the models.txt file
- *
- * @return true On Success
- * @return false On Failure
- */
-
-bool ModelsList::loadTxt()
-{
-  char line[LEN_MODELS_IDX_LINE + 1];
-  ModelCell *model = nullptr;
-
-  FRESULT result =
-      f_open(&file, RADIO_MODELSLIST_PATH, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    // TXT reader
-    while (readNextLine(line, LEN_MODELS_IDX_LINE)) {
-      int len = strlen(line);  // TODO could be returned by readNextLine
-      if (len > 2 && line[0] == '[' && line[len - 1] == ']') {
-        line[len - 1] = '\0';
-      } else if (len > 0) {
-        model = new ModelCell(line);
-        push_back(model);
-        if (!strncmp(line, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME)) {
-          currentModel = model;
-        }
-      }
-    }
-
-    f_close(&file);
-    return true;
-  }
-
-  return false;
-}
-
-#if defined(SDCARD_YAML)
-
-/**
  * @brief Opens a YAML file, reads the data and updates the ModelCell
  *
  * @param cell Model to update
@@ -1222,35 +1181,19 @@ bool ModelsList::loadYaml()
 
   return true;
 }
-#endif
 
 /**
  * @brief Called to load the model data from file
  *
- * @param fmt Format::txt - Opens models.txt file, Format::yaml_txt - Opens
- * labels.yml
  * @return true on success
  * @return false on failure
  */
 
-bool ModelsList::load(Format fmt)
+bool ModelsList::load()
 {
   if (loaded) return true;
 
-  bool res = false;
-#if !defined(SDCARD_YAML)
-  (void)fmt;
-  res = loadTxt();
-#else
-  FILINFO fno;
-  if (fmt == Format::txt ||
-      (fmt == Format::yaml_txt && f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
-       f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
-    res = loadTxt();
-  } else {
-    res = loadYaml();
-  }
-#endif
+  bool res = loadYaml();
 
   if (!currentModel) {
     TRACE("ERROR no Current Model Found");
@@ -1283,13 +1226,8 @@ bool ModelsList::load(Format fmt)
 
 const char *ModelsList::save(LabelsVector newOrder)
 {
-#if !defined(SDCARD_YAML)
-  FRESULT result =
-      f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
-#else
   FRESULT result =
       f_open(&file, LABELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
-#endif
   if (result != FR_OK) return "Couldn't open labels.yml for writing";
 
   // Save current selection
@@ -1391,32 +1329,6 @@ void ModelsList::updateCurrentModelCell()
   } else {
     TRACE("ModelList Error - No Current Model");
   }
-}
-
-/**
- * @brief Reads a line from a file. Used by loadTxt
- *
- * @param line Storage for the read line
- * @param maxlen maximum read length
- * @return true Success
- * @return false Failure
- */
-
-bool ModelsList::readNextLine(char *line, int maxlen)
-{
-  if (f_gets(line, maxlen, &file) != NULL) {
-    int curlen = strlen(line) - 1;
-    if (line[curlen] ==
-        '\n') {  // remove unwanted chars if file was edited using windows
-      if (line[curlen - 1] == '\r') {
-        line[curlen - 1] = 0;
-      } else {
-        line[curlen] = 0;
-      }
-    }
-    return true;
-  }
-  return false;
 }
 
 /**

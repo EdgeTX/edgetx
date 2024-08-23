@@ -33,6 +33,7 @@
 
 extern RTOS_MUTEX_HANDLE audioMutex;
 
+// Only first quadrant values - other quadrants calulated taking advantage of symmetry in sine wave.
 const int16_t sineValues[] =
 {
     0, 196, 392, 588, 784, 980, 1175, 1370, 1564, 1758,
@@ -60,87 +61,13 @@ const int16_t sineValues[] =
     14933, 14986, 15039, 15090, 15140, 15189, 15237, 15284, 15330, 15375,
     15418, 15460, 15500, 15539, 15577, 15614, 15648, 15682, 15714, 15744,
     15772, 15799, 15825, 15849, 15871, 15891, 15910, 15927, 15942, 15955,
-    15967, 15977, 15985, 15991, 15996, 15999, 16000, 15999, 15996, 15991,
-    15985, 15977, 15967, 15955, 15942, 15927, 15910, 15891, 15871, 15849,
-    15825, 15799, 15772, 15744, 15714, 15682, 15648, 15614, 15577, 15539,
-    15500, 15460, 15418, 15375, 15330, 15284, 15237, 15189, 15140, 15090,
-    15039, 14986, 14933, 14879, 14824, 14768, 14712, 14655, 14597, 14538,
-    14479, 14419, 14359, 14299, 14238, 14177, 14115, 14053, 13991, 13929,
-    13867, 13805, 13743, 13680, 13618, 13556, 13495, 13433, 13372, 13311,
-    13251, 13191, 13131, 13072, 13014, 12956, 12898, 12842, 12786, 12731,
-    12676, 12623, 12570, 12518, 12467, 12417, 12368, 12320, 12273, 12227,
-    12182, 12138, 12095, 12054, 12013, 11974, 11936, 11899, 11863, 11828,
-    11795, 11763, 11732, 11702, 11673, 11646, 11620, 11595, 11571, 11548,
-    11527, 11507, 11488, 11470, 11453, 11437, 11423, 11409, 11397, 11385,
-    11375, 11365, 11356, 11349, 11342, 11336, 11331, 11326, 11323, 11319,
-    11317, 11315, 11314, 11313, 11313, 11313, 11314, 11315, 11316, 11318,
-    11319, 11321, 11323, 11324, 11326, 11328, 11329, 11331, 11332, 11333,
-    11333, 11333, 11332, 11331, 11330, 11327, 11324, 11320, 11316, 11310,
-    11303, 11296, 11287, 11277, 11266, 11254, 11240, 11225, 11209, 11191,
-    11172, 11151, 11128, 11104, 11078, 11050, 11020, 10989, 10955, 10920,
-    10882, 10843, 10801, 10757, 10711, 10663, 10612, 10559, 10504, 10447,
-    10387, 10324, 10260, 10192, 10123, 10050, 9975, 9898, 9818, 9735,
-    9650, 9562, 9472, 9379, 9283, 9185, 9084, 8980, 8874, 8765,
-    8653, 8539, 8422, 8302, 8180, 8056, 7929, 7799, 7667, 7532,
-    7395, 7255, 7113, 6969, 6822, 6673, 6522, 6369, 6213, 6055,
-    5895, 5733, 5569, 5403, 5235, 5065, 4894, 4720, 4545, 4369,
-    4190, 4011, 3829, 3647, 3463, 3278, 3091, 2904, 2715, 2525,
-    2335, 2143, 1951, 1758, 1564, 1370, 1175, 980, 784, 588,
-    392, 196, 0, -196, -392, -588, -784, -980, -1175, -1370,
-    -1564, -1758, -1951, -2143, -2335, -2525, -2715, -2904, -3091, -3278,
-    -3463, -3647, -3829, -4011, -4190, -4369, -4545, -4720, -4894, -5065,
-    -5235, -5403, -5569, -5733, -5895, -6055, -6213, -6369, -6522, -6673,
-    -6822, -6969, -7113, -7255, -7395, -7532, -7667, -7799, -7929, -8056,
-    -8180, -8302, -8422, -8539, -8653, -8765, -8874, -8980, -9084, -9185,
-    -9283, -9379, -9472, -9562, -9650, -9735, -9818, -9898, -9975, -10050,
-    -10123, -10192, -10260, -10324, -10387, -10447, -10504, -10559, -10612, -10663,
-    -10711, -10757, -10801, -10843, -10882, -10920, -10955, -10989, -11020, -11050,
-    -11078, -11104, -11128, -11151, -11172, -11191, -11209, -11225, -11240, -11254,
-    -11266, -11277, -11287, -11296, -11303, -11310, -11316, -11320, -11324, -11327,
-    -11330, -11331, -11332, -11333, -11333, -11333, -11332, -11331, -11329, -11328,
-    -11326, -11324, -11323, -11321, -11319, -11318, -11316, -11315, -11314, -11313,
-    -11313, -11313, -11314, -11315, -11317, -11319, -11323, -11326, -11331, -11336,
-    -11342, -11349, -11356, -11365, -11375, -11385, -11397, -11409, -11423, -11437,
-    -11453, -11470, -11488, -11507, -11527, -11548, -11571, -11595, -11620, -11646,
-    -11673, -11702, -11732, -11763, -11795, -11828, -11863, -11899, -11936, -11974,
-    -12013, -12054, -12095, -12138, -12182, -12227, -12273, -12320, -12368, -12417,
-    -12467, -12518, -12570, -12623, -12676, -12731, -12786, -12842, -12898, -12956,
-    -13014, -13072, -13131, -13191, -13251, -13311, -13372, -13433, -13495, -13556,
-    -13618, -13680, -13743, -13805, -13867, -13929, -13991, -14053, -14115, -14177,
-    -14238, -14299, -14359, -14419, -14479, -14538, -14597, -14655, -14712, -14768,
-    -14824, -14879, -14933, -14986, -15039, -15090, -15140, -15189, -15237, -15284,
-    -15330, -15375, -15418, -15460, -15500, -15539, -15577, -15614, -15648, -15682,
-    -15714, -15744, -15772, -15799, -15825, -15849, -15871, -15891, -15910, -15927,
-    -15942, -15955, -15967, -15977, -15985, -15991, -15996, -15999, -16000, -15999,
-    -15996, -15991, -15985, -15977, -15967, -15955, -15942, -15927, -15910, -15891,
-    -15871, -15849, -15825, -15799, -15772, -15744, -15714, -15682, -15648, -15614,
-    -15577, -15539, -15500, -15460, -15418, -15375, -15330, -15284, -15237, -15189,
-    -15140, -15090, -15039, -14986, -14933, -14879, -14824, -14768, -14712, -14655,
-    -14597, -14538, -14479, -14419, -14359, -14299, -14238, -14177, -14115, -14053,
-    -13991, -13929, -13867, -13805, -13743, -13680, -13618, -13556, -13495, -13433,
-    -13372, -13311, -13251, -13191, -13131, -13072, -13014, -12956, -12898, -12842,
-    -12786, -12731, -12676, -12623, -12570, -12518, -12467, -12417, -12368, -12320,
-    -12273, -12227, -12182, -12138, -12095, -12054, -12013, -11974, -11936, -11899,
-    -11863, -11828, -11795, -11763, -11732, -11702, -11673, -11646, -11620, -11595,
-    -11571, -11548, -11527, -11507, -11488, -11470, -11453, -11437, -11423, -11409,
-    -11397, -11385, -11375, -11365, -11356, -11349, -11342, -11336, -11331, -11326,
-    -11323, -11319, -11317, -11315, -11314, -11313, -11313, -11313, -11314, -11315,
-    -11316, -11318, -11319, -11321, -11323, -11324, -11326, -11328, -11329, -11331,
-    -11332, -11333, -11333, -11333, -11332, -11331, -11330, -11327, -11324, -11320,
-    -11316, -11310, -11303, -11296, -11287, -11277, -11266, -11254, -11240, -11225,
-    -11209, -11191, -11172, -11151, -11128, -11104, -11078, -11050, -11020, -10989,
-    -10955, -10920, -10882, -10843, -10801, -10757, -10711, -10663, -10612, -10559,
-    -10504, -10447, -10387, -10324, -10260, -10192, -10123, -10050, -9975, -9898,
-    -9818, -9735, -9650, -9562, -9472, -9379, -9283, -9185, -9084, -8980,
-    -8874, -8765, -8653, -8539, -8422, -8302, -8180, -8056, -7929, -7799,
-    -7667, -7532, -7395, -7255, -7113, -6969, -6822, -6673, -6522, -6369,
-    -6213, -6055, -5895, -5733, -5569, -5403, -5235, -5065, -4894, -4720,
-    -4545, -4369, -4190, -4011, -3829, -3647, -3463, -3278, -3091, -2904,
-    -2715, -2525, -2335, -2143, -1951, -1758, -1564, -1370, -1175, -980,
-    -784, -588, -392, -196,
+    15967, 15977, 15985, 15991, 15996, 15999, 16000,
 };
 
-#if defined(SDCARD)
+#define SINE_INDEX_Q1 256
+#define SINE_INDEX_Q2 512
+#define SINE_INDEX_Q3 768
+#define MAX_SINE_INDEX 1024
 
 const char * const unitsFilenames[] = {
   "",
@@ -416,13 +343,6 @@ void playModelName()
   audioQueue.playFile(filename);
 }
 
-#else   // defined(SDCARD)
-
-#define isAudioFileReferenced(i, f) false
-
-#endif  // defined(SDCARD)
-
-
 AudioQueue audioQueue __DMA;      // to place it in the RAM section on Horus, to have file buffers in RAM for DMA access
 AudioBuffer audioBuffers[AUDIO_BUFFER_COUNT] __DMA;
 
@@ -467,8 +387,6 @@ inline void mixSample(audio_data_t * result, int sample, unsigned int fade)
 {
   *result = limit(AUDIO_DATA_MIN, *result + ((sample >> fade) >> (16-AUDIO_BITS_PER_SAMPLE)), AUDIO_DATA_MAX);
 }
-
-#if defined(SDCARD)
 
 #define RIFF_CHUNK_SIZE 12
 uint8_t wavBuffer[AUDIO_BUFFER_SIZE*2] __DMA;
@@ -556,12 +474,6 @@ int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
   }
   return 0;
 }
-#else
-int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
-{
-  return 0;
-}
-#endif
 
 const uint8_t toneVolumes[] = { 10, 8, 6, 4, 2 };
 inline float evalVolumeRatio(int freq, int volume)
@@ -594,7 +506,7 @@ int ToneContext::mixBuffer(AudioBuffer * buffer, int volume, unsigned int fade)
 
     if (fragment.tone.freq != state.freq) {
       state.freq = fragment.tone.freq;
-      state.step = limit<float>(1, float(fragment.tone.freq) * (float(DIM(sineValues))/float(AUDIO_SAMPLE_RATE)), 512);
+      state.step = limit<float>(1, float(fragment.tone.freq) * (float(MAX_SINE_INDEX)/float(AUDIO_SAMPLE_RATE)), 512);
       state.volume = 1.0f / evalVolumeRatio(fragment.tone.freq, volume);
     }
 
@@ -624,19 +536,29 @@ int ToneContext::mixBuffer(AudioBuffer * buffer, int volume, unsigned int fade)
       duration = remainingDuration;
       points = (duration * AUDIO_BUFFER_SIZE) / AUDIO_BUFFER_DURATION;
       unsigned int end = toneIdx + (state.step * points);
-      if (end > DIM(sineValues))
-        end -= (end % DIM(sineValues));
+      if (end > MAX_SINE_INDEX)
+        end -= (end % MAX_SINE_INDEX);
       else
-        end = DIM(sineValues);
+        end = MAX_SINE_INDEX;
       points = (float(end) - toneIdx) / state.step;
     }
 
     for (int i=0; i<points; i++) {
-      int16_t sample = sineValues[int(toneIdx)] * state.volume;
+      int16_t sineIdx = ((int)toneIdx) % MAX_SINE_INDEX;
+      int16_t sineVal;
+      if (sineIdx <= SINE_INDEX_Q1)
+        sineVal = sineValues[sineIdx];
+      else if (sineIdx <= SINE_INDEX_Q2)
+        sineVal = sineValues[SINE_INDEX_Q2 - sineIdx];
+      else if (sineIdx <= SINE_INDEX_Q3)
+        sineVal = -sineValues[sineIdx - SINE_INDEX_Q2];
+      else
+        sineVal = -sineValues[MAX_SINE_INDEX - sineIdx];
+      int16_t sample = sineVal * state.volume;
       mixSample(&buffer->data[i], sample, fade);
       toneIdx += state.step;
-      if ((unsigned int)toneIdx >= DIM(sineValues))
-        toneIdx -= DIM(sineValues);
+      if ((unsigned int)toneIdx >= MAX_SINE_INDEX)
+        toneIdx -= MAX_SINE_INDEX;
     }
 
     if (remainingDuration > AUDIO_BUFFER_DURATION) {
@@ -798,7 +720,6 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
   RTOS_UNLOCK_MUTEX(audioMutex);
 }
 
-#if defined(SDCARD)
 void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8_t fragmentVolume)
 {
 #if defined(SIMU)
@@ -860,8 +781,6 @@ void AudioQueue::stopSD()
   stopAll();
   playTone(0, 0, 100, PLAY_NOW);        // insert a 100ms pause
 }
-
-#endif
 
 void AudioQueue::stopAll()
 {
@@ -992,14 +911,12 @@ void audioEvent(unsigned int index)
   }
 
   if (g_eeGeneral.beepMode >= e_mode_nokeys || (g_eeGeneral.beepMode >= e_mode_alarms && index <= AU_ERROR)) {
-#if defined(SDCARD)
     char filename[AUDIO_FILENAME_MAXLEN + 1];
     if (index < AU_SPECIAL_SOUND_FIRST && isAudioFileReferenced(index, filename)) {
       audioQueue.stopPlay(ID_PLAY_PROMPT_BASE + index);
       audioQueue.playFile(filename, 0, ID_PLAY_PROMPT_BASE + index);
       return;
     }
-#endif
     switch (index) {
       case AU_INACTIVITY:
         audioQueue.playTone(2250, 80, 20, PLAY_REPEAT(2));
@@ -1151,7 +1068,6 @@ void audioEvent(unsigned int index)
   }
 }
 
-#if defined(SDCARD)
 void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t fragmentVolume)
 {
   if (unit < DIM(unitsFilenames)) {
@@ -1165,11 +1081,9 @@ void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t fragmentVolume)
     TRACE("pushUnit: out of bounds unit : %d", unit); // We should never get here, but given the nature of TTS files, this prevent segfault in case of bug there.
   }
 }
-#endif
 
 void pushPrompt(uint16_t prompt, uint8_t id, uint8_t fragmentVolume)
 {
-#if defined(SDCARD)
   char filename[AUDIO_FILENAME_MAXLEN+1];
   char * str = strAppendSystemAudioPath(filename);
   strcpy(str, "0000" SOUNDS_EXT);
@@ -1178,7 +1092,6 @@ void pushPrompt(uint16_t prompt, uint8_t id, uint8_t fragmentVolume)
     prompt /= 10;
   }
   audioQueue.playFile(filename, 0, id, fragmentVolume);
-#endif
 }
 
 void onKeyError()

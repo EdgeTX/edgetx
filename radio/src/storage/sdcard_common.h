@@ -25,28 +25,9 @@
 #include "translations.h"
 
 #define MODEL_FILENAME_PREFIX    "model"
-#if defined(SDCARD_RAW)
-#define MODEL_FILENAME_SUFFIX    ".bin"
-#elif defined(SDCARD_YAML)
 #define MODEL_FILENAME_SUFFIX    ".yml"
-#endif
 #define DEFAULT_MODEL_FILENAME   MODEL_FILENAME_PREFIX "1" MODEL_FILENAME_SUFFIX
 #define MODEL_FILENAME_PATTERN   MODEL_FILENAME_PREFIX MODEL_FILENAME_SUFFIX
-
-#if !defined(STORAGE_MODELSLIST)
-extern ModelHeader modelHeaders[MAX_MODELS];
-#endif
-
-// opens radio.bin or model file
-const char* openFileBin(const char* fullpath, FIL* file, uint16_t* size,
-                        uint8_t* version);
-
-const char* writeFileBin(const char* fullpath, const uint8_t* data,
-                         uint16_t size, uint8_t version = EEPROM_VER);
-
-// open, read, and close the file
-const char *loadFileBin(const char *fullpath, uint8_t *data,
-                        uint16_t maxsize, uint8_t *version);
 
 // writes a complete YAML file
 struct YamlNode;
@@ -61,6 +42,8 @@ const char * createModel();
 const char * writeModel();
 
 #if !defined(STORAGE_MODELSLIST)
+
+extern ModelHeader modelHeaders[MAX_MODELS];
 
 // index storage vs modelslist
 void selectModel(uint8_t idx);

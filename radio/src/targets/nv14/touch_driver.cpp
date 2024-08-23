@@ -50,7 +50,7 @@ static tc_handle_TypeDef tc_handle = {0, 0};
 tmr10ms_t downTime = 0;
 tmr10ms_t tapTime = 0;
 short tapCount = 0;
-#define TAP_TIME 25
+#define TAP_TIME 250  // 250 ms
 
 struct TouchControllerDescriptor
 {
@@ -463,7 +463,7 @@ TouchState touchPanelRead()
 
   touchEventOccured = false;
 
-  tmr10ms_t now = get_tmr10ms();
+  uint32_t now = timersGetMsTick();
   internalTouchState.tapCount = 0;
 
   if (tc->detectTouch()) {
