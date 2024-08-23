@@ -2649,6 +2649,9 @@
 #else
   #define LCD_SPI_PRESCALER             0
 #endif
+#if defined(RADIO_GX12)
+  #define OLED_VCC_CS                   GPIO_PIN(GPIOD, 11) // PD.11
+#endif
 
 // I2C Bus 1: EEPROM and CAT5137 digital pot for volume control
 #define I2C_B1                          I2C1
