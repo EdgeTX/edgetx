@@ -2309,12 +2309,12 @@ Vill du hämta inställningarna från en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="383"/>
         <source>Source (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Källa (%)</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="385"/>
         <source>Source (value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Källa (värde)</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="387"/>
@@ -14277,6 +14277,683 @@ För många fel - ger upp.</translation>
     </message>
 </context>
 <context>
+    <name>TelemetryProviderCrossfire</name>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="20"/>
+        <source>Form</source>
+        <translation>Formulär</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="82"/>
+        <source>2RSS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="100"/>
+        <source>TQly</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="112"/>
+        <source>Sats</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="139"/>
+        <source>RPWR</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="157"/>
+        <source>RxBt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="175"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="350"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="593"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="945"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1278"/>
+        <source>dB</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="193"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1206"/>
+        <source>GPS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="211"/>
+        <source>dBm</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="229"/>
+        <source>m</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="247"/>
+        <source>ANT</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="265"/>
+        <source>km/h</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="283"/>
+        <source>VSpd</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="301"/>
+        <source>Hdg</source>
+        <translation>Riktn</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="332"/>
+        <source>RSNR</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="368"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="410"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1020"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1038"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1441"/>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="422"/>
+        <source>Degrees</source>
+        <translation>grader</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="464"/>
+        <source>Capa</source>
+        <translation>Kapa</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="498"/>
+        <source>0mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="503"/>
+        <source>10mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="508"/>
+        <source>25mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="513"/>
+        <source>50mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="518"/>
+        <source>100mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="523"/>
+        <source>250mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="528"/>
+        <source>500mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="533"/>
+        <source>1000mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="538"/>
+        <source>2000mW</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="575"/>
+        <source>Bat%</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="605"/>
+        <source>Save Telemetry Values</source>
+        <translation>Spara telemetrivärden</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="623"/>
+        <source>m/s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="641"/>
+        <source>Lat,Lon
+(dec.deg.)</source>
+        <translation>Lat,Lon
+(dec.grad)</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="681"/>
+        <source>GSpd</source>
+        <translation>GHast</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="729"/>
+        <source>Yaw</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="747"/>
+        <source>FM</source>
+        <translation>FL</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="783"/>
+        <source>V</source>
+        <translation>V</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="801"/>
+        <source>TPWR</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="849"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1315"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1459"/>
+        <source>Radians</source>
+        <translation>Radianer</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="888"/>
+        <source>TRSS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="906"/>
+        <source>TSNR</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1002"/>
+        <source>RFMD</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1050"/>
+        <source>Battery Monitoring</source>
+        <translation>Batteriöevervakning</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1068"/>
+        <source>Ptch</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1086"/>
+        <source>RQly</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1104"/>
+        <source>mAh</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1116"/>
+        <source>Attitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1194"/>
+        <source>1RSS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1224"/>
+        <source>Curr</source>
+        <translation>Ström</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1242"/>
+        <source>TRSP</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1260"/>
+        <source>Roll</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1290"/>
+        <source>Load Telemetry Values</source>
+        <translation>Ladda telemetrivärden</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1348"/>
+        <source>Barometer</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1387"/>
+        <source>mw</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1405"/>
+        <source>Alt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1423"/>
+        <source>A</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1519"/>
+        <source>RRSP</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1531"/>
+        <source>Flight Controller</source>
+        <translation>Flygdator</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1543"/>
+        <source>GPS Sim</source>
+        <translation>GPS-sim</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1576"/>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="379"/>
+        <source>Run</source>
+        <translation>Kör</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1588"/>
+        <source>25.9973,-97.1572</source>
+        <translation>25.9973,-97.1572</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="382"/>
+        <source>Stop</source>
+        <translation>Stoppa</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="392"/>
+        <source>Save Telemetry</source>
+        <translation>Spara telemetri</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="392"/>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="479"/>
+        <source>.tlm Files (*.tlm)</source>
+        <translation>Telemetrifiler (*.tlm)</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="398"/>
+        <source>Unable to open file for writing.
+%1</source>
+        <translation>Kan inte öppna fil för skrivning.
+%1</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="479"/>
+        <source>Open Telemetry File</source>
+        <translation>Öppna telemetrifil</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="486"/>
+        <source>Unable to open file for reading.
+%1</source>
+        <translation>Kan inte öppna fil för läsning.
+%1</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryprovidercrossfire.cpp" line="498"/>
+        <source>Not a CRSF telemetry values file.</source>
+        <translation>Inte en fil med CRSF telemetrivärden.</translation>
+    </message>
+</context>
+<context>
+    <name>TelemetryProviderFrSky</name>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="20"/>
+        <source>Form</source>
+        <translation>Formulär</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="64"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="158"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="191"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="278"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1067"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1106"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1575"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1794"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2197"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2218"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2456"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2594"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2615"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="67"/>
+        <source>Cels</source>
+        <translation>Celler</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="140"/>
+        <source>Fuel Qty</source>
+        <translation>Bränslemängd</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="161"/>
+        <source>GAlt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="173"/>
+        <source>Save Telemetry Values</source>
+        <translation>Spara telemetrivärden</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="194"/>
+        <source>VFAS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="212"/>
+        <source>ml</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="260"/>
+        <source>A4</source>
+        <translation>A4</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="281"/>
+        <source>ASpd</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="434"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1987"/>
+        <source>°C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="482"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2477"/>
+        <source>Volts</source>
+        <translation>Volt</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="711"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1394"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1884"/>
+        <source>G</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="723"/>
+        <source>Run/Stop</source>
+        <translation>Kör/Stoppa</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1070"/>
+        <source>Tmp1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1088"/>
+        <source>RxBt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1109"/>
+        <source>GPS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1232"/>
+        <source>m/s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1280"/>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1328"/>
+        <source>Degrees</source>
+        <translation>grader</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1340"/>
+        <source>GPS sim</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1358"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1650"/>
+        <source>km/h</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1376"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2350"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2549"/>
+        <source>V / ratio</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1433"/>
+        <source>*</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1451"/>
+        <source>AccZ</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1469"/>
+        <source>dd-MM-yyyy
+hh:mm:ss</source>
+        <translation>dd-MM-åååå
+hh:mm:ss</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1491"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1942"/>
+        <source>Meters</source>
+        <translation>meter</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1539"/>
+        <source>RAS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1557"/>
+        <source>AccX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1578"/>
+        <source>Tmp2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1695"/>
+        <source>dB</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1713"/>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2368"/>
+        <source>RPM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1758"/>
+        <source>A1</source>
+        <translation>A1</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1776"/>
+        <source>AccY</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1797"/>
+        <source>VSpd</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1809"/>
+        <source>Load Telemetry Values</source>
+        <translation>Ladda telemetrivärden</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1902"/>
+        <source>A2</source>
+        <translation>A2</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="1920"/>
+        <source>Lat,Lon
+(dec.deg.)</source>
+        <translation>Lat,Lon
+(dec.grad)</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2143"/>
+        <source>A3</source>
+        <translation>A3</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2161"/>
+        <source>Fuel</source>
+        <translation>Bränsle</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2179"/>
+        <source>RSSI</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2200"/>
+        <source>Hdg</source>
+        <translation>Riktn</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2221"/>
+        <source>Curr</source>
+        <translation>Ström</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2284"/>
+        <source>Amps</source>
+        <translation>ampere</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2302"/>
+        <source>25.9973,-97.1572</source>
+        <translation>25.9973,-97.1572</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2380"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="934"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="940"/>
+        <source>Run</source>
+        <translation>Kör</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2459"/>
+        <source>Alt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2597"/>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.ui" line="2618"/>
+        <source>GSpd</source>
+        <translation>GHast</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="108"/>
+        <source>Bad GPS Format</source>
+        <translation>Felaktigt GPS-format</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="108"/>
+        <source>Must be decimal latitude,longitude</source>
+        <translation>Måste vara decimal latitud,longitud</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="680"/>
+        <source>Save Telemetry</source>
+        <translation>Spara telemetri</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="680"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="772"/>
+        <source>.tlm Files (*.tlm)</source>
+        <translation>Telemetrifiler (*.tlm)</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="686"/>
+        <source>Unable to open file for writing.
+%1</source>
+        <translation>Kan inte öppna fil för skrivning.
+%1</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="772"/>
+        <source>Open Telemetry File</source>
+        <translation>Öppna telemetrifil</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="779"/>
+        <source>Unable to open file for reading.
+%1</source>
+        <translation>Kan inte öppna fil för läsning.
+%1</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="797"/>
+        <source>Not a FrSky S.Port telemetry values file.</source>
+        <translation>Inte en fil med FrSky telemetrivärden.</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="935"/>
+        <source>Stop</source>
+        <translation>Stoppa</translation>
+    </message>
+</context>
+<context>
     <name>TelemetrySensor</name>
     <message>
         <location filename="../modeledit/telemetry_sensor.ui" line="14"/>
@@ -14467,42 +15144,6 @@ För många fel - ger upp.</translation>
         <translation>Telemetrisimulator</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="778"/>
-        <source>RSSI</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="580"/>
-        <source>A1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1317"/>
-        <source>A2</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1732"/>
-        <source>VFAS</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="700"/>
-        <source>A3</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="412"/>
-        <source>A4</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="520"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1161"/>
-        <source>RPM</source>
-        <translation></translation>
-    </message>
-    <message>
         <location filename="../simulation/telemetrysimu.ui" line="54"/>
         <source>When enabled, sends any non-blank values as simulated telemetry data.</source>
         <translation>När aktiverad, skickar alla icke tomma värden som simulerade telemetridata.</translation>
@@ -14513,377 +15154,129 @@ För många fel - ger upp.</translation>
         <translation>Simulera</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2839"/>
+        <location filename="../simulation/telemetrysimu.ui" line="91"/>
         <source>Replay SD Log File</source>
         <translation>Spela upp SD-loggfil</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2862"/>
+        <location filename="../simulation/telemetrysimu.ui" line="114"/>
         <source>Replay rate</source>
         <translation>Uppspelningshastighet</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2878"/>
+        <location filename="../simulation/telemetrysimu.ui" line="130"/>
         <source>Load</source>
         <translation>Ladda</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2935"/>
+        <location filename="../simulation/telemetrysimu.ui" line="187"/>
         <source>|&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2963"/>
+        <location filename="../simulation/telemetrysimu.ui" line="215"/>
         <source>&lt;|</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2997"/>
+        <location filename="../simulation/telemetrysimu.ui" line="249"/>
         <source>&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3031"/>
+        <location filename="../simulation/telemetrysimu.ui" line="283"/>
         <source>&lt;-</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3062"/>
+        <location filename="../simulation/telemetrysimu.ui" line="314"/>
         <source>X</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3098"/>
+        <location filename="../simulation/telemetrysimu.ui" line="350"/>
         <source>Row # 
 Timestamp</source>
         <translation>Rad # 
 Tidsstämpel</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3117"/>
+        <location filename="../simulation/telemetrysimu.ui" line="369"/>
         <source>1/5x</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3133"/>
+        <location filename="../simulation/telemetrysimu.ui" line="385"/>
         <source>5x</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3145"/>
+        <location filename="../simulation/telemetrysimu.ui" line="397"/>
         <source>No Log File Currently Loaded</source>
         <translation>Ingen loggfil laddad</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="171"/>
-        <location filename="../simulation/telemetrysimu.ui" line="475"/>
-        <location filename="../simulation/telemetrysimu.ui" line="907"/>
-        <source>V / ratio</source>
+        <location filename="../simulation/telemetrysimu.ui" line="482"/>
+        <source>Internal Module</source>
+        <translation>Intern modul</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetrysimu.ui" line="493"/>
+        <location filename="../simulation/telemetrysimu.ui" line="596"/>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetrysimu.ui" line="498"/>
+        <location filename="../simulation/telemetrysimu.ui" line="601"/>
+        <source>FrSky S.Port</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1046"/>
-        <source>RxBt</source>
+        <location filename="../simulation/telemetrysimu.ui" line="503"/>
+        <location filename="../simulation/telemetrysimu.ui" line="606"/>
+        <source>CRSF / ELRS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="718"/>
-        <location filename="../simulation/telemetrysimu.ui" line="814"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1025"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1206"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1695"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1729"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1750"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1825"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1864"/>
-        <location filename="../simulation/telemetrysimu.ui" line="2097"/>
-        <location filename="../simulation/telemetrysimu.ui" line="2136"/>
-        <location filename="../simulation/telemetrysimu.ui" line="2269"/>
-        <location filename="../simulation/telemetrysimu.ui" line="2684"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <location filename="../simulation/telemetrysimu.ui" line="585"/>
+        <source>External Module</source>
+        <translation>Extern modul</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="721"/>
-        <source>Tmp1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1209"/>
-        <source>Tmp2</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="430"/>
-        <source>Fuel</source>
-        <translation>Bränsle</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="189"/>
-        <location filename="../simulation/telemetrysimu.ui" line="796"/>
-        <source>°C</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="339"/>
-        <source>ml</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1299"/>
-        <source>%</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="628"/>
-        <location filename="../simulation/telemetrysimu.ui" line="1846"/>
-        <source>Meters</source>
-        <translation>meter</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1028"/>
-        <source>Alt</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="817"/>
-        <source>VSpd</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1143"/>
-        <source>m/s</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="980"/>
-        <source>Fuel Qty</source>
-        <translation>Bränslemängd</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2016"/>
-        <location filename="../simulation/telemetrysimu.ui" line="2079"/>
-        <source>km/h</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1698"/>
-        <source>Hdg</source>
-        <translation>Riktn</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2139"/>
-        <source>ASpd</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1538"/>
-        <location filename="../simulation/telemetrysimu.ui" line="2251"/>
-        <location filename="../simulation/telemetrysimu.ui" line="2723"/>
-        <source>G</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1753"/>
-        <source>GPS</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2202"/>
-        <source>Lat,Lon
-(dec.deg.)</source>
-        <translation>Lat,Lon
-(dec.grad)</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2443"/>
-        <source>AccX</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1556"/>
-        <source>dd-MM-yyyy
-hh:mm:ss</source>
-        <translation>dd-MM-åååå
-hh:mm:ss</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2272"/>
-        <source>Date</source>
-        <translation>Datum</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2061"/>
-        <source>Amps</source>
-        <translation>ampere</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1885"/>
-        <source>AccZ</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1828"/>
-        <source>GAlt</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1957"/>
-        <location filename="../simulation/telemetrysimu.ui" line="2118"/>
-        <source>Volts</source>
-        <translation>Volt</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2687"/>
-        <source>Cels</source>
-        <translation>Celler</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2100"/>
-        <source>Curr</source>
-        <translation>Ström</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2290"/>
-        <source>AccY</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1867"/>
-        <source>GSpd</source>
-        <translation>GHast</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2705"/>
-        <source>Degrees</source>
-        <translation>grader</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="835"/>
+        <location filename="../simulation/telemetrysimu.cpp" line="475"/>
         <source>Log File</source>
         <translation>Loggfil</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="835"/>
+        <location filename="../simulation/telemetrysimu.cpp" line="475"/>
         <source>LOG Files (*.csv)</source>
         <translation>Loggfiler (*.csv)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="856"/>
+        <location filename="../simulation/telemetrysimu.cpp" line="496"/>
         <source>ERROR - invalid file</source>
         <translation>FEL - ogiltig fil</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="562"/>
-        <source>RAS</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3161"/>
+        <location filename="../simulation/telemetrysimu.ui" line="413"/>
         <source>Setting RSSI to zero simulates telemetry and radio link loss.</source>
         <translation>Om RSSI nollas simuleras avbruten telemetri- och radiolänk.</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3164"/>
+        <location filename="../simulation/telemetrysimu.ui" line="416"/>
         <source>Set RSSI to zero when paused.</source>
         <translation>Nolla RSSI när uppspelning pausas.</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3177"/>
+        <location filename="../simulation/telemetrysimu.ui" line="70"/>
         <source>Stop sending telemetry data when the Telemetry Simulator window is hidden.</source>
         <translation>Sluta skicka telemetridata när telemetrisimulatorns fönster är dolt.</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="3180"/>
+        <location filename="../simulation/telemetrysimu.ui" line="73"/>
         <source>Pause simulation when hidden.</source>
         <translation>Pausa simuleringen när fönstret är dolt.</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="153"/>
-        <source>dB</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1418"/>
-        <location filename="../simulation/telemetrysimu.cpp" line="1392"/>
-        <location filename="../simulation/telemetrysimu.cpp" line="1398"/>
-        <source>Run</source>
-        <translation>Kör</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="1393"/>
-        <source>Stop</source>
-        <translation>Stoppa</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1425"/>
-        <source>GPS sim</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1432"/>
-        <source>Run/Stop</source>
-        <translation>Kör/Stoppa</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1964"/>
-        <source>Load Telemetry Values</source>
-        <translation>Ladda telemetrivärden</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="1971"/>
-        <source>Save Telemetry Values</source>
-        <translation>Spara telemetrivärden</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2157"/>
-        <source>25.9973,-97.1572</source>
-        <translation>25.9973,-97.1572</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.ui" line="2308"/>
-        <source>*</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="165"/>
-        <source>Bad GPS Format</source>
-        <translation>Felaktigt GPS-format</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="165"/>
-        <source>Must be decimal latitude,longitude</source>
-        <translation>Måste vara decimal latitud,longitud</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="1153"/>
-        <source>Save Telemetry</source>
-        <translation>Spara telemetri</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="1153"/>
-        <location filename="../simulation/telemetrysimu.cpp" line="1243"/>
-        <source>.tlm Files (*.tlm)</source>
-        <translation>Telemetrifiler (*.tlm)</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="1159"/>
-        <source>Unable to open file for writing.
-%1</source>
-        <translation>Kan inte öppna fil för skrivning.
-%1</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="1243"/>
-        <source>Open Telemetry File</source>
-        <translation>Öppna telemetrifil</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="1250"/>
-        <source>Unable to open file for reading.
-%1</source>
-        <translation>Kan inte öppna fil för läsning.
-%1</translation>
     </message>
 </context>
 <context>
