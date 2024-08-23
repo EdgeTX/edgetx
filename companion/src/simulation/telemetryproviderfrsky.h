@@ -26,6 +26,7 @@
 
 #include "simulatorinterface.h"
 #include "telemetryprovider.h"
+#include "simulatedgps.h"
 
 namespace Ui {
   class TelemetryProviderFrSky;
@@ -50,15 +51,17 @@ class TelemetryProviderFrSky : public QWidget, public TelemetryProvider
     void loadItemFromLog(QString itemName, QString value);
     QString getLogfileIdentifier();
     void loadUiFromSimulator(SimulatorInterface * simulator);
+    void setGPSDateTime(QString dateTime);
+    void setDateTimeFromGPS(QDateTime dateTime);
+    uint32_t getNextGPSPacketData(uint32_t packetType);
 
   protected slots:
-    void updateGps();
     void generateTelemetryFrame(SimulatorInterface * simulator);
     void refreshSensorRatios(SimulatorInterface * simulator);
 
   protected:
     Ui::TelemetryProviderFrSky * ui;
-    QTimer gpsTimer;
+    SimulatedGPS gps;
     QHash<QString, QString> supportedLogItems;
 
     class FlvssEmulator
@@ -80,33 +83,12 @@ class TelemetryProviderFrSky : public QWidget, public TelemetryProvider
         uint32_t cellData4;
     };  // FlvssEmulator
 
-    class GPSEmulator
-    {
-      public:
-        GPSEmulator();
-        uint32_t getNextPacketData(uint32_t packetType);
-        void setGPSDateTime(QString dateTime);
-        void setGPSLatLon(QString latLon);
-        void setGPSCourse(double course);
-        void setGPSSpeedKMH(double speed);
-        void setGPSAltitude(double altitude);
-
-      private:
-        QDateTime dt;
-        bool sendLat;
-        bool sendDate;
-        double lat;
-        double lon;
-        double course;
-        double speedKNTS;
-        double altitude; // in meters
-        uint32_t encodeLatLon(double latLon, bool isLat);
-        uint32_t encodeDateTime(uint8_t yearOrHour, uint8_t monthOrMinute, uint8_t dayOrSecond, bool isDate);
-    };  // GPSEmulator
+  private:
+    bool sendLat;
+    bool sendDate;
 
   private slots:
     void on_saveTelemetryvalues_clicked();
     void on_loadTelemetryvalues_clicked();
     void on_GPSpushButton_clicked();
-    void on_gps_course_valueChanged(double arg1);
 };
