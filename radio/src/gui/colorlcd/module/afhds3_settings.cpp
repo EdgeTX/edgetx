@@ -49,7 +49,7 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
     md(&g_model.moduleData[moduleIdx]),
     grid(g)
 {
-  setFlexLayout();
+  setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   FormLine* line;
 
@@ -68,7 +68,8 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
       new StaticText(line, rect_t{}, STR_TYPE);
 
   afhds3TypeForm = new Window(line, rect_t{});
-  afhds3TypeForm->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP);
+  afhds3TypeForm->padAll(PAD_TINY);
+  afhds3TypeForm->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_TINY);
   lv_obj_set_style_grid_cell_x_align(afhds3TypeForm->getLvObj(),
                                      LV_GRID_ALIGN_STRETCH, 0);
 

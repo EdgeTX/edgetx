@@ -22,7 +22,7 @@
 #include "afhds3_options.h"
 #include "edgetx.h"
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
@@ -39,8 +39,6 @@ static const uint16_t _v1_index2pwmvalue[] = {50, 333, 2, 1, 50};
 static const uint16_t _v0_index2pwmvalue[] = {50, 333, 50};
 static uint16_t _v1_pwmvalue_type[2][32] = {0xff};
 static uint8_t channel_num[]={18, 10, 18, 8, 12};
-
-
 
 static void pwmfreq_changed(lv_event_t* e)
 {
@@ -72,9 +70,22 @@ static void pwmfreq_changedV0(lv_event_t* e)
     lv_obj_add_flag(num_edit_obj, LV_OBJ_FLAG_HIDDEN);
   }
 }
+
+struct PWMfrequencyChoice : public Window {
+  PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx);
+  PWMfrequencyChoice(Window* parent, uint8_t moduleIdx);
+  void update() const;
+
+  static LAYOUT_VAL(NUM_W, 60, 60)
+
+ private:
+  lv_obj_t* c_obj;
+};
+
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx) :
   Window(parent, rect_t{})
 {
+  padAll(PAD_TINY);
   setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
   uint16_t &pwmvalue_type = _v1_pwmvalue_type[moduleIdx][channelIdx];
   auto cfg = afhds3::getConfig(moduleIdx);
@@ -96,7 +107,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
                       vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] = _v1_index2pwmvalue[newValue];
                       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V1);
                     });
-  auto num_edit = new NumberEdit(this, rect_t{}, 50, 400,
+  auto num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
                   [=,&pwmvalue_type] { return (pwmvalue_type==4?vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx]:50); },
                   [=](int16_t newVal) {
                     vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] = newVal;
@@ -111,6 +122,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
   Window(parent, rect_t{})
 {
+  padAll(PAD_TINY);
   setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
   uint16_t &pwmvalue_type = _v1_pwmvalue_type[moduleIdx][0];
   auto cfg = afhds3::getConfig(moduleIdx);
@@ -130,7 +142,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
                       vCfg->PWMFrequency.Frequency = _v0_index2pwmvalue[newValue];
                       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0);
                 });
-  auto num_edit = new NumberEdit(this, rect_t{}, 50, 400,
+  auto num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
                   [=,&pwmvalue_type] { return (pwmvalue_type==2?vCfg->PWMFrequency.Frequency&0x7fff:50); },
                   [=](int16_t newVal) {
                       vCfg->PWMFrequency.Frequency = newVal;
@@ -159,7 +171,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   title += ")";
   header->setTitle2(title);
 
-  body->setFlexLayout();
+  body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
@@ -167,14 +179,13 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     auto vCfg = &cfg->v0;
 
     auto line = body->newLine(grid);
-    std::string temp_str = "PWM";
-    temp_str += TR_POWERMETER_FREQ;
+    std::string temp_str = "PWM ";
+    temp_str += STR_POWERMETER_FREQ;
     new StaticText(line, rect_t{}, temp_str);
     new PWMfrequencyChoice(line, moduleIdx);
     line = body->newLine(grid);
 
-    temp_str = "PWM";
-    temp_str += " ";
+    temp_str = "PWM ";
     temp_str += STR_SYNC;
     new StaticText(line, rect_t{}, temp_str);
     new ToggleSwitch(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
