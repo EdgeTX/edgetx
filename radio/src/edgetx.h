@@ -479,7 +479,8 @@ inline void customFunctionsReset()
 }
 
 const char* funcGetLabel(uint8_t func);
-
+uint8_t getFuncSortIdx(uint8_t func);
+extern Functions cfn_sorted[];
 
 #include "telemetry/telemetry.h"
 #include "crc.h"

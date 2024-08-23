@@ -405,6 +405,7 @@ if(GUI)
     keys.cpp
     maths.cpp
     translations.cpp
+    cfn_sort.cpp
     gui/gui_common.cpp
     )
   foreach(FILE ${GUI_SRC})
