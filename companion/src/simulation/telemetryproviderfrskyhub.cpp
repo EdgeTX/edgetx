@@ -186,14 +186,21 @@ void TelemetryProviderFrSkyHub::generateTelemetryFrame(SimulatorInterface *simul
 void TelemetryProviderFrSkyHub::sendLongLinkFrame(int rssi, double a1, double a2, int trss, int rqly, int tqly)
 {
   // A1 & A2 are an unsigned byte measuring 0V (0) to 13.2V (255)
-  uint8_t packet[7] = { 0xfe, (a1 / 13.2) * 255, (a2 / 13.2) * 255, rssi, trss, rqly, tqly};
+  uint8_t a1_encoded = static_cast<uint8_t>((a1 / 13.2) * 255);
+  uint8_t a2_encoded = static_cast<uint8_t>((a2 / 13.2) * 255);
+
+  uint8_t packet[7] = { 0xfe, a1_encoded, a2_encoded, static_cast<int8_t>(rssi), static_cast<int8_t>(trss), static_cast<int8_t>(rqly), static_cast<int8_t>(tqly)};
   QByteArray ba((char *)packet, 7);
   emit telemetryDataChanged(SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB, ba);  
 }
 
 void TelemetryProviderFrSkyHub::sendShortLinkFrame(int rssi, double a1, double a2)
 {
-  uint8_t packet[4] = { 0xfe, (a1 / 13.2) * 255, (a2 / 13.2) * 255, rssi};
+  // A1 & A2 are an unsigned byte measuring 0V (0) to 13.2V (255)
+  uint8_t a1_encoded = static_cast<uint8_t>((a1 / 13.2) * 255);
+  uint8_t a2_encoded = static_cast<uint8_t>((a2 / 13.2) * 255);
+
+  uint8_t packet[4] = { 0xfe, a1_encoded, a2_encoded, static_cast<int8_t>(rssi)};
   QByteArray ba((char *)packet, 4);
   emit telemetryDataChanged(SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB, ba);  
 }
@@ -208,7 +215,7 @@ void TelemetryProviderFrSkyHub::sendLinkFrame(int rssi, double a1, double a2, in
 
 void TelemetryProviderFrSkyHub::sendSensorPacket(uint8_t id, uint16_t value)
 {
-  uint8_t packet[3] = { id, value & 0xff, (value >> 8) & 0xff };
+  uint8_t packet[3] = { id, static_cast<uint8_t>(value & 0xff), static_cast<uint8_t>((value >> 8) & 0xff) };
   QByteArray ba((char *)packet, 3);
   emit telemetryDataChanged(SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB, ba);  
 }
