@@ -188,10 +188,10 @@ void TelemetryProviderFrSkyHub::sendLongLinkFrame(int rssi, double a1, double a2
   // A1 & A2 are an unsigned byte measuring 0V (0) to 13.2V (255)
   uint8_t a1_encoded = static_cast<uint8_t>((a1 / 13.2) * 255);
   uint8_t a2_encoded = static_cast<uint8_t>((a2 / 13.2) * 255);
-  int8_t rssi_encoded = static_cast<int8_t>(rssi);
-  int8_t trss_encoded = static_cast<int8_t>(trss);
-  int8_t rqly_encoded = static_cast<int8_t>(rqly);
-  int8_t tqly_encoded = static_cast<int8_t>(tqly);
+  uint8_t rssi_encoded = static_cast<uint8_t>(rssi);
+  uint8_t trss_encoded = static_cast<uint8_t>(trss);
+  uint8_t rqly_encoded = static_cast<uint8_t>(rqly);
+  uint8_t tqly_encoded = static_cast<uint8_t>(tqly);
 
   uint8_t packet[7] = { 0xfe, a1_encoded, a2_encoded, rssi_encoded, trss_encoded, rqly_encoded, tqly_encoded};
   QByteArray ba((char *)packet, 7);
@@ -203,7 +203,7 @@ void TelemetryProviderFrSkyHub::sendShortLinkFrame(int rssi, double a1, double a
   // A1 & A2 are an unsigned byte measuring 0V (0) to 13.2V (255)
   uint8_t a1_encoded = static_cast<uint8_t>((a1 / 13.2) * 255);
   uint8_t a2_encoded = static_cast<uint8_t>((a2 / 13.2) * 255);
-  int8_t rssi_encoded = static_cast<int8_t>(rssi);
+  uint8_t rssi_encoded = static_cast<uint8_t>(rssi);
 
   uint8_t packet[4] = { 0xfe, a1_encoded, a2_encoded, rssi_encoded};
   QByteArray ba((char *)packet, 4);
