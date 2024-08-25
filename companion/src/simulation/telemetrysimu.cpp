@@ -26,6 +26,7 @@
 #include "telem_data.h"
 #include "radio/src/telemetry/frsky_defs.h"
 #include "telemetryproviderfrsky.h"
+#include "telemetryproviderfrskyhub.h"
 #include "telemetryprovidercrossfire.h"
 
 #include <QRegularExpression>
@@ -160,6 +161,28 @@ TelemetryProvider * TelemetrySimulator::newTelemetryProviderFromDropdownChoice(i
     return NULL;
   case 1:
     {
+      TelemetryProviderCrossfire * newProvider =  new TelemetryProviderCrossfire(parent);
+      parent->setWidget(newProvider);
+      if (isExternal) {
+        connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged, this, &TelemetrySimulator::onExternalTelemetryProviderDataChanged);
+      } else {
+        connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged, this, &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
+      }
+      return newProvider;
+    }
+  case 2:
+    {
+      TelemetryProviderFrSkyHub * newProvider =  new TelemetryProviderFrSkyHub(parent);
+      parent->setWidget(newProvider);
+      if (isExternal) {
+        connect(newProvider, &TelemetryProviderFrSkyHub::telemetryDataChanged, this, &TelemetrySimulator::onExternalTelemetryProviderDataChanged);
+      } else {
+        connect(newProvider, &TelemetryProviderFrSkyHub::telemetryDataChanged, this, &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
+      }
+      return newProvider;
+    }
+  case 3:
+    {
       TelemetryProviderFrSky * newProvider =  new TelemetryProviderFrSky(parent);
       parent->setWidget(newProvider);
       if (isExternal) {
@@ -169,18 +192,6 @@ TelemetryProvider * TelemetrySimulator::newTelemetryProviderFromDropdownChoice(i
       }
       // FrSky provider needs to set up sensor instances from the model's telemetry configuration
       newProvider->loadUiFromSimulator(simulator);
-
-      return newProvider;
-    }
-  case 2:
-    {
-      TelemetryProviderCrossfire * newProvider =  new TelemetryProviderCrossfire(parent);
-      parent->setWidget(newProvider);
-      if (isExternal) {
-        connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged, this, &TelemetrySimulator::onExternalTelemetryProviderDataChanged);
-      } else {
-        connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged, this, &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
-      }
       return newProvider;
     }
   default:

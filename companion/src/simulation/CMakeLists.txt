@@ -14,6 +14,7 @@ set(${PROJECT_NAME}_NAMES
   telemetrysimu
   telemetryprovidercrossfire
   telemetryproviderfrsky
+  telemetryproviderfrskyhub
   trainersimu
   widgets/lcdwidget
   widgets/radiowidget

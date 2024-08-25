@@ -495,12 +495,17 @@ Timestamp</string>
                 </item>
                 <item>
                  <property name="text">
-                  <string>FrSky S.Port</string>
+                  <string>CRSF / ELRS</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>CRSF / ELRS</string>
+                  <string>FrSky Hub</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>FrSky S.Port</string>
                  </property>
                 </item>
                </widget>
@@ -598,12 +603,17 @@ Timestamp</string>
                 </item>
                 <item>
                  <property name="text">
-                  <string>FrSky S.Port</string>
+                  <string>CRSF / ELRS</string>
                  </property>
                 </item>
                 <item>
                  <property name="text">
-                  <string>CRSF / ELRS</string>
+                  <string>FrSky Hub</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>FrSky S.Port</string>
                  </property>
                 </item>
                </widget>
