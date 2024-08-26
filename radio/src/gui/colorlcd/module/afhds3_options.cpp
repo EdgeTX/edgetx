@@ -40,46 +40,14 @@ static const uint16_t _v0_index2pwmvalue[] = {50, 333, 50};
 static uint16_t _v1_pwmvalue_type[2][32] = {0xff};
 static uint8_t channel_num[]={18, 10, 18, 8, 12};
 
-static void pwmfreq_changed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto dat = (Choice*)lv_obj_get_user_data(obj);
-  if (!dat) return;
-
-  auto num_edit_obj = (lv_obj_t*)lv_event_get_user_data(e);
-  if (!num_edit_obj) return;
-
-  if (dat->getIntValue() == 4) {
-    lv_obj_clear_flag(num_edit_obj, LV_OBJ_FLAG_HIDDEN);
-  } else {
-    lv_obj_add_flag(num_edit_obj, LV_OBJ_FLAG_HIDDEN);
-  }
-}
-static void pwmfreq_changedV0(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto dat = (Choice*)lv_obj_get_user_data(obj);
-  if (!dat) return;
-
-  auto num_edit_obj = (lv_obj_t*)lv_event_get_user_data(e);
-  if (!num_edit_obj) return;
-
-  if (dat->getIntValue() == 2) {
-    lv_obj_clear_flag(num_edit_obj, LV_OBJ_FLAG_HIDDEN);
-  } else {
-    lv_obj_add_flag(num_edit_obj, LV_OBJ_FLAG_HIDDEN);
-  }
-}
-
 struct PWMfrequencyChoice : public Window {
   PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx);
   PWMfrequencyChoice(Window* parent, uint8_t moduleIdx);
-  void update() const;
 
   static LAYOUT_VAL(NUM_W, 60, 60)
 
  private:
-  lv_obj_t* c_obj;
+  NumberEdit* num_edit = nullptr;
 };
 
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx) :
@@ -90,7 +58,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
   uint16_t &pwmvalue_type = _v1_pwmvalue_type[moduleIdx][channelIdx];
   auto cfg = afhds3::getConfig(moduleIdx);
   auto vCfg = &cfg->v1;
-  if( 0xff ==pwmvalue_type )
+  if( 0xff == pwmvalue_type )
   {
     if ( 50 == vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] ) pwmvalue_type = 0;
     else if ( 333 == vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] ) pwmvalue_type = 1;
@@ -98,25 +66,24 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
     else if ( 1 == vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] ) pwmvalue_type = 3;
     else  pwmvalue_type = 4;
   }
-  auto choice = new Choice(this, rect_t{}, _v1_pwmfreq_types, 0, 4,
+  new Choice(this, rect_t{}, _v1_pwmfreq_types, 0, 4,
                 [=,&pwmvalue_type]{
                       return pwmvalue_type;
                   },
                 [=,&pwmvalue_type](int32_t newValue) {
-                      pwmvalue_type=newValue;
+                      pwmvalue_type = newValue;
                       vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] = _v1_index2pwmvalue[newValue];
                       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V1);
+                      if (num_edit)
+                        num_edit->show(pwmvalue_type == 4);
                     });
-  auto num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
+  num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
                   [=,&pwmvalue_type] { return (pwmvalue_type==4?vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx]:50); },
                   [=](int16_t newVal) {
                     vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] = newVal;
                     DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V1);
                   });
-  c_obj = choice->getLvObj();
-  auto btn_obj = num_edit->getLvObj();
-  lv_obj_add_event_cb(c_obj, pwmfreq_changed, LV_EVENT_VALUE_CHANGED, btn_obj);
-  lv_event_send(c_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+  num_edit->show(pwmvalue_type == 4);
 }
 
 PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
@@ -127,36 +94,30 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
   uint16_t &pwmvalue_type = _v1_pwmvalue_type[moduleIdx][0];
   auto cfg = afhds3::getConfig(moduleIdx);
   auto vCfg = &cfg->v0;
-  if( 0xff ==pwmvalue_type )
+  if( 0xff == pwmvalue_type )
   {
     if ( 50 == (vCfg->PWMFrequency.Frequency&0x7fff) ) pwmvalue_type = 0;
     else if ( 333 == (vCfg->PWMFrequency.Frequency&0x7fff) ) pwmvalue_type = 1;
     else  pwmvalue_type = 2;
   }
-  auto choice = new Choice(this, rect_t{}, _v0_pwmfreq_types, 0, 2,
+  new Choice(this, rect_t{}, _v0_pwmfreq_types, 0, 2,
                 [=,&pwmvalue_type]{
                       return pwmvalue_type;
                 },
                 [=,&pwmvalue_type](int32_t newValue) {
-                      pwmvalue_type=newValue;
+                      pwmvalue_type = newValue;
                       vCfg->PWMFrequency.Frequency = _v0_index2pwmvalue[newValue];
                       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0);
+                      if (num_edit)
+                        num_edit->show(pwmvalue_type == 2);
                 });
-  auto num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
+  num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
                   [=,&pwmvalue_type] { return (pwmvalue_type==2?vCfg->PWMFrequency.Frequency&0x7fff:50); },
                   [=](int16_t newVal) {
                       vCfg->PWMFrequency.Frequency = newVal;
                       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0);
                   });
-  c_obj = choice->getLvObj();
-  auto btn_obj = num_edit->getLvObj();
-  lv_obj_add_event_cb(c_obj, pwmfreq_changedV0, LV_EVENT_VALUE_CHANGED, btn_obj);
-  lv_event_send(c_obj, LV_EVENT_VALUE_CHANGED, nullptr);
-}
-
-void PWMfrequencyChoice::update() const
-{
-  lv_event_send(c_obj, LV_EVENT_VALUE_CHANGED, nullptr);
+  num_edit->show(pwmvalue_type == 2);  
 }
 
 AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
