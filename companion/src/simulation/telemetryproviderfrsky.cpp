@@ -34,6 +34,9 @@ TelemetryProviderFrSky::TelemetryProviderFrSky(QWidget * parent):
   QWidget(parent),
   ui(new Ui::TelemetryProviderFrSky)
 {
+  sendLat = true;
+  sendDate = true;
+
   ui->setupUi(this);
 
   ui->A1->setSpecialValueText(" ");
@@ -47,8 +50,21 @@ TelemetryProviderFrSky::TelemetryProviderFrSky(QWidget * parent):
   ui->A1_ratio->setEnabled(false);
   ui->A2_ratio->setEnabled(false);
 
-  gpsTimer.setInterval(250);
-  connect(&gpsTimer, &QTimer::timeout, this, &TelemetryProviderFrSky::updateGps);
+  gps.setLatLon(ui->gps_latlon->text());
+  gps.setCourseDegrees(ui->gps_course->value());
+  gps.setSpeedKMH(ui->gps_speed->value());
+  gps.setAltitude(ui->gps_alt->value());
+  setGPSDateTime(ui->gps_time->text()); // Have to convert from a non-ISO format
+
+  connect(ui->gps_latlon, &QLineEdit::textChanged,                              &gps, &SimulatedGPS::setLatLon);
+  connect(ui->gps_course, QOverload<double>::of(&QDoubleSpinBox::valueChanged), &gps, &SimulatedGPS::setCourseDegrees);
+  connect(ui->gps_speed,  QOverload<double>::of(&QDoubleSpinBox::valueChanged), &gps, &SimulatedGPS::setSpeedKMH);
+  connect(ui->gps_alt,    QOverload<double>::of(&QDoubleSpinBox::valueChanged), &gps, &SimulatedGPS::setAltitude);
+  connect(ui->gps_time,   &QLineEdit::textChanged,                              this, &TelemetryProviderFrSky::setGPSDateTime);
+
+  connect(&gps, &SimulatedGPS::positionChanged,                           ui->gps_latlon, &QLineEdit::setText);
+  connect(&gps, &SimulatedGPS::courseDegreesChanged,                      ui->gps_course, &QDoubleSpinBox::setValue);
+  connect(&gps, QOverload<QDateTime>::of(&SimulatedGPS::dateTimeChanged), this,           &TelemetryProviderFrSky::setDateTimeFromGPS);
 
   // Create this once
   supportedLogItems.clear();
@@ -101,49 +117,6 @@ void TelemetryProviderFrSky::resetRssi()
   emit telemetryDataChanged(SIMU_TELEMETRY_PROTOCOL_FRSKY_SPORT, QByteArray((char *)buffer, FRSKY_SPORT_PACKET_SIZE));
 }
 
-void TelemetryProviderFrSky::updateGps()
-{
-  int a = ui->gps_latlon->text().contains(",");
-  if (!a) {
-    QMessageBox::information(this, tr("Bad GPS Format"), tr("Must be decimal latitude,longitude"));
-    ui->gps_latlon->setText("000.00000000,000.00000000");
-    ui->GPSpushButton->click();
-  }
-  else
-  {
-    QStringList gpsLatLon = (ui->gps_latlon->text()).split(",");
-
-    double b2 = gpsLatLon[0].toDouble();
-    double c2 = gpsLatLon[1].toDouble();
-    double d3 = ui->gps_speed->value() / 14400;
-    double f3 = ui->gps_course->value();
-    double j2 = 6378.1;
-    double b3 = qRadiansToDegrees(qAsin( qSin(qDegreesToRadians(b2))*qCos(d3/j2) + qCos(qDegreesToRadians(b2))*qSin(d3/j2)*qCos(qDegreesToRadians(f3))));
-    double bb3 = b3;
-    if (bb3 < 0) {
-      bb3 = bb3 * -1;
-    }
-    if (bb3 > 89.99) {
-      f3 = f3 + 180;
-      if (f3 > 360) {
-        f3 = f3 - 360;
-      }
-      ui->gps_course->setValue(f3);
-    }
-    double c3 = qRadiansToDegrees(qDegreesToRadians(c2) + qAtan2(qSin(qDegreesToRadians(f3))*qSin(d3/j2)*qCos(qDegreesToRadians(b2)),qCos(d3/j2)-qSin(qDegreesToRadians(b2))*qSin(qDegreesToRadians(b3))));
-    if (c3 > 180) {
-      c3 = c3 - 360;
-    }
-    if (c3 < -180) {
-      c3 = c3 + 360;
-    }
-    QString lats = QString::number(b3, 'f', 8);
-    QString lons = QString::number(c3, 'f', 8);
-    QString qs = lats + "," + lons;
-    ui->gps_latlon->setText(qs);
-  }
-}
-
 #define SET_INSTANCE(control, id, def)  ui->control->setText(QString::number(simulator->getSensorInstance(id, ((def) & 0x1F))))
 
 void TelemetryProviderFrSky::loadUiFromSimulator(SimulatorInterface * simulator)
@@ -191,7 +164,6 @@ void TelemetryProviderFrSky::generateTelemetryFrame(SimulatorInterface *simulato
   bool ok = true;
   uint8_t buffer[FRSKY_SPORT_PACKET_SIZE] = {0};
   static FlvssEmulator *flvss = new FlvssEmulator();
-  static GPSEmulator *gps = new GPSEmulator();
 
   switch (item++) {
     case 0:
@@ -303,36 +275,31 @@ void TelemetryProviderFrSky::generateTelemetryFrame(SimulatorInterface *simulato
 
     case 18:
       if (ui->gps_alt->value() != 0) {
-        gps->setGPSAltitude(ui->gps_alt->value());
-        generateSportPacket(buffer, ui->gpsa_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_ALT_FIRST_ID, gps->getNextPacketData(GPS_ALT_FIRST_ID));
+        generateSportPacket(buffer, ui->gpsa_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_ALT_FIRST_ID, getNextGPSPacketData(GPS_ALT_FIRST_ID));
       }
       break;
 
     case 19:
       if (ui->gps_speed->value() > 0) {
-        gps->setGPSSpeedKMH(ui->gps_speed->value());
-        generateSportPacket(buffer, ui->gpss_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_SPEED_FIRST_ID, gps->getNextPacketData(GPS_SPEED_FIRST_ID));
+        generateSportPacket(buffer, ui->gpss_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_SPEED_FIRST_ID, getNextGPSPacketData(GPS_SPEED_FIRST_ID));
       }
       break;
 
     case 20:
       if (ui->gps_course->value() != 0) {
-        gps->setGPSCourse(ui->gps_course->value());
-        generateSportPacket(buffer, ui->gpsc_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_COURS_FIRST_ID, gps->getNextPacketData(GPS_COURS_FIRST_ID));
+        generateSportPacket(buffer, ui->gpsc_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_COURS_FIRST_ID, getNextGPSPacketData(GPS_COURS_FIRST_ID));
       }
       break;
 
     case 21:
       if (ui->gps_time->text().length()) {
-        gps->setGPSDateTime(ui->gps_time->text());
-        generateSportPacket(buffer, ui->gpst_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_TIME_DATE_FIRST_ID, gps->getNextPacketData(GPS_TIME_DATE_FIRST_ID));
+        generateSportPacket(buffer, ui->gpst_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_TIME_DATE_FIRST_ID, getNextGPSPacketData(GPS_TIME_DATE_FIRST_ID));
       }
       break;
 
     case 22:
       if (ui->gps_latlon->text().length()) {
-        gps->setGPSLatLon(ui->gps_latlon->text());
-        generateSportPacket(buffer, ui->gpsll_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_LONG_LATI_FIRST_ID, gps->getNextPacketData(GPS_LONG_LATI_FIRST_ID));
+        generateSportPacket(buffer, ui->gpsll_inst->text().toInt(&ok, 0), DATA_FRAME, GPS_LONG_LATI_FIRST_ID, getNextGPSPacketData(GPS_LONG_LATI_FIRST_ID));
       }
       break;
 
@@ -574,17 +541,7 @@ uint32_t TelemetryProviderFrSky::FlvssEmulator::setAllCells_GetNextPair(double c
   return cellData;
 }
 
-TelemetryProviderFrSky::GPSEmulator::GPSEmulator()
-{
-  lat = 0;
-  lon = 0;
-  dt = QDateTime::currentDateTime();
-  sendLat = true;
-  sendDate = true;
-}
-
-
-uint32_t TelemetryProviderFrSky::GPSEmulator::encodeLatLon(double latLon, bool isLat)
+uint32_t encodeLatLon(double latLon, bool isLat)
 {
   uint32_t data = (uint32_t)((latLon < 0 ? -latLon : latLon) * 60 * 10000) & 0x3FFFFFFF;
   if (isLat == false) {
@@ -596,7 +553,7 @@ uint32_t TelemetryProviderFrSky::GPSEmulator::encodeLatLon(double latLon, bool i
   return data;
 }
 
-uint32_t TelemetryProviderFrSky::GPSEmulator::encodeDateTime(uint8_t yearOrHour, uint8_t monthOrMinute, uint8_t dayOrSecond, bool isDate)
+uint32_t encodeDateTime(uint8_t yearOrHour, uint8_t monthOrMinute, uint8_t dayOrSecond, bool isDate)
 {
   uint32_t data = yearOrHour;
   data <<= 8;
@@ -610,66 +567,53 @@ uint32_t TelemetryProviderFrSky::GPSEmulator::encodeDateTime(uint8_t yearOrHour,
   return data;
 }
 
-uint32_t TelemetryProviderFrSky::GPSEmulator::getNextPacketData(uint32_t packetType)
+uint32_t TelemetryProviderFrSky::getNextGPSPacketData(uint32_t packetType)
 {
   switch (packetType) {
   case GPS_LONG_LATI_FIRST_ID:
     sendLat = !sendLat;
-    return sendLat ? encodeLatLon(lat, true) : encodeLatLon(lon, false);
+    return sendLat ? encodeLatLon(gps.lat, true) : encodeLatLon(gps.lon, false);
     break;
   case GPS_TIME_DATE_FIRST_ID:
-    sendDate = !sendDate;
-    return sendDate ? encodeDateTime(dt.date().year() - 2000, dt.date().month(), dt.date().day(), true) : encodeDateTime(dt.time().hour(), dt.time().minute(), dt.time().second(), false);
+    {
+      QDateTime dt = gps.dt;
+
+      sendDate = !sendDate;
+      return sendDate ? encodeDateTime(dt.date().year() - 2000, dt.date().month(), dt.date().day(), true) : encodeDateTime(dt.time().hour(), dt.time().minute(), dt.time().second(), false);
+    }
     break;
   case GPS_ALT_FIRST_ID:
-    return (uint32_t) (altitude * 100);
+    return (uint32_t) (gps.altitude * 100);
     break;
   case GPS_SPEED_FIRST_ID:
-    return speedKNTS * 1000;
+    {
+      double speedKNOTS = gps.speedKMH * 0.539957;
+
+      return speedKNOTS * 1000;
+    }
     break;
   case GPS_COURS_FIRST_ID:
-    return course * 100;
+    return gps.courseDegrees * 100;
     break;
   }
   return 0;
 }
 
-void TelemetryProviderFrSky::GPSEmulator::setGPSDateTime(QString dateTime)
+void TelemetryProviderFrSky::setGPSDateTime(QString dateTime)
 {
-  dt = QDateTime::currentDateTime().toTimeSpec(Qt::UTC); // default to current systemtime
+  QDateTime dt = QDateTime::currentDateTime().toTimeSpec(Qt::UTC); // default to current systemtime
   if (!dateTime.startsWith('*')) {
     QString format("dd-MM-yyyy hh:mm:ss");
     dt = QDateTime::fromString(dateTime, format);
   }
+  gps.setDateTime(dt);
 }
 
-void TelemetryProviderFrSky::GPSEmulator::setGPSLatLon(QString latLon)
+void TelemetryProviderFrSky::setDateTimeFromGPS(QDateTime dateTime)
 {
-  QStringList coords = latLon.split(",");
-  lat = 0.0;
-  lon = 0.0;
-  if (coords.length() > 1)
-  {
-    lat = coords[0].toDouble();
-    lon = coords[1].toDouble();
-  }
+  QString format("dd-MM-yyyy hh:mm:ss");
+  ui->gps_time->setText(dateTime.toString(format));
 }
-
-void TelemetryProviderFrSky::GPSEmulator::setGPSCourse(double course)
-{
-  this->course = course;
-}
-
-void TelemetryProviderFrSky::GPSEmulator::setGPSSpeedKMH(double speedKMH)
-{
-  this->speedKNTS = speedKMH * 0.539957;
-}
-
-void TelemetryProviderFrSky::GPSEmulator::setGPSAltitude(double altitude)
-{
-  this->altitude = altitude;
-}
-
 
 void TelemetryProviderFrSky::on_saveTelemetryvalues_clicked()
 {
@@ -933,22 +877,12 @@ void TelemetryProviderFrSky::on_GPSpushButton_clicked()
 {
   if (ui->GPSpushButton->text() == tr("Run")) {
     ui->GPSpushButton->setText(tr("Stop"));
-    gpsTimer.start();
+    gps.start();
   }
   else
   {
     ui->GPSpushButton->setText(tr("Run"));
-    gpsTimer.stop();
-  }
-}
-
-void TelemetryProviderFrSky::on_gps_course_valueChanged(double arg1)
-{
-  if (ui->gps_course->value() > 360) {
-    ui->gps_course->setValue(1);
-  }
-  if (ui->gps_course->value() < 1) {
-    ui->gps_course->setValue(360);
+    gps.stop();
   }
 }
 
