@@ -9043,22 +9043,22 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Om tröghet inte är noll kommer hastigheten i förändringar att begränsas av det angivna värdet -&amp;gt; värdet specificerar det antal sekunder det tar att gå från fullt negativt utslag (-100) till fullt positivt utslag (100).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../modeledit/mixerdialog.cpp" line="124"/>
+        <location filename="../modeledit/mixerdialog.cpp" line="129"/>
         <source>Click to access popup menu</source>
         <translation>Klicka för att öppna popupmeny</translation>
     </message>
     <message>
-        <location filename="../modeledit/mixerdialog.cpp" line="296"/>
+        <location filename="../modeledit/mixerdialog.cpp" line="301"/>
         <source>Clear All</source>
         <translation>Rensa allt</translation>
     </message>
     <message>
-        <location filename="../modeledit/mixerdialog.cpp" line="297"/>
+        <location filename="../modeledit/mixerdialog.cpp" line="302"/>
         <source>Set All</source>
         <translation>Ställ in allt</translation>
     </message>
     <message>
-        <location filename="../modeledit/mixerdialog.cpp" line="298"/>
+        <location filename="../modeledit/mixerdialog.cpp" line="303"/>
         <source>Invert All</source>
         <translation>Invertera allt</translation>
     </message>
@@ -9555,7 +9555,7 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="432"/>
+        <location filename="../modelprinter.cpp" line="429"/>
         <source>NoTrim</source>
         <translation>Ingen trim</translation>
     </message>
@@ -9565,23 +9565,23 @@ p, li { white-space: pre-wrap; }
         <translation>Ingen trim</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="437"/>
+        <location filename="../modelprinter.cpp" line="434"/>
         <source>No DR/Expo</source>
         <translation>Ingen DR/Expo</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="480"/>
+        <location filename="../modelprinter.cpp" line="477"/>
         <source>Disabled in all flight modes</source>
         <translation>Inaktiverad i alla flyglägen</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="854"/>
+        <location filename="../modelprinter.cpp" line="851"/>
         <source>Custom</source>
         <translation>Special</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="391"/>
-        <location filename="../modelprinter.cpp" line="439"/>
+        <location filename="../modelprinter.cpp" line="436"/>
         <source>Offset(%1)</source>
         <translation>Offset(%1)</translation>
     </message>
@@ -9607,33 +9607,33 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="371"/>
-        <location filename="../modelprinter.cpp" line="422"/>
+        <location filename="../modelprinter.cpp" line="419"/>
         <source>Weight(%1)</source>
         <translation>Vikt(%1)</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="380"/>
-        <location filename="../modelprinter.cpp" line="429"/>
+        <location filename="../modelprinter.cpp" line="426"/>
         <source>Switch(%1)</source>
         <translation>Brytare(%1)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="449"/>
+        <location filename="../modelprinter.cpp" line="446"/>
         <source>Delay(u%1:d%2)</source>
         <translation>Fördröjning(u%1:d%2)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="457"/>
+        <location filename="../modelprinter.cpp" line="454"/>
         <source>Slow(u%1:d%2)</source>
         <translation>Långsam(u%1:d%2)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="459"/>
+        <location filename="../modelprinter.cpp" line="456"/>
         <source>Warn(%1)</source>
         <translation>Varning(%1)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="535"/>
+        <location filename="../modelprinter.cpp" line="532"/>
         <source>instant</source>
         <translation>omedelbar</translation>
     </message>
@@ -9685,7 +9685,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modelprinter.cpp" line="151"/>
         <location filename="../modelprinter.cpp" line="291"/>
-        <location filename="../modelprinter.cpp" line="811"/>
+        <location filename="../modelprinter.cpp" line="808"/>
         <source>OFF</source>
         <translation>Av</translation>
     </message>
@@ -9696,7 +9696,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="196"/>
-        <location filename="../modelprinter.cpp" line="791"/>
+        <location filename="../modelprinter.cpp" line="788"/>
         <source>Mode</source>
         <translation>Läge</translation>
     </message>
@@ -9730,13 +9730,13 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="217"/>
-        <location filename="../modelprinter.cpp" line="647"/>
+        <location filename="../modelprinter.cpp" line="644"/>
         <source>Delay</source>
         <translation>Fördröjning</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="222"/>
-        <location filename="../modelprinter.cpp" line="858"/>
+        <location filename="../modelprinter.cpp" line="855"/>
         <source>Receiver</source>
         <translation>Mottagare</translation>
     </message>
@@ -9778,10 +9778,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="283"/>
-        <location filename="../modelprinter.cpp" line="501"/>
-        <location filename="../modelprinter.cpp" line="785"/>
-        <location filename="../modelprinter.cpp" line="1021"/>
-        <location filename="../modelprinter.cpp" line="1051"/>
+        <location filename="../modelprinter.cpp" line="498"/>
+        <location filename="../modelprinter.cpp" line="782"/>
+        <location filename="../modelprinter.cpp" line="1018"/>
+        <location filename="../modelprinter.cpp" line="1048"/>
         <source>None</source>
         <translation>Ingen</translation>
     </message>
@@ -9791,302 +9791,297 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="420"/>
-        <source>MULT!</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../modelprinter.cpp" line="446"/>
+        <location filename="../modelprinter.cpp" line="443"/>
         <source>Delay precision(0.00)</source>
         <translation>Fördröjning precision(0.00)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="454"/>
+        <location filename="../modelprinter.cpp" line="451"/>
         <source>Slow precision(0.00)</source>
         <translation>Långsam precision (0.00)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="489"/>
+        <location filename="../modelprinter.cpp" line="486"/>
         <source>Flight modes</source>
         <translation>Flyglägen</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="489"/>
+        <location filename="../modelprinter.cpp" line="486"/>
         <source>Flight mode</source>
         <translation>Flygläge</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="514"/>
+        <location filename="../modelprinter.cpp" line="511"/>
         <source>All</source>
         <translation>Alla</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="534"/>
+        <location filename="../modelprinter.cpp" line="531"/>
         <source>Edge</source>
         <translation>Kant</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="535"/>
+        <location filename="../modelprinter.cpp" line="532"/>
         <source>infinite</source>
         <translation>oändlig</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="540"/>
+        <location filename="../modelprinter.cpp" line="537"/>
         <source>Sticky</source>
         <translation>Klistrig</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="542"/>
+        <location filename="../modelprinter.cpp" line="539"/>
         <source> Persistent</source>
         <translation>Bestående</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="545"/>
+        <location filename="../modelprinter.cpp" line="542"/>
         <source>Timer</source>
         <translation>Timer</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="572"/>
+        <location filename="../modelprinter.cpp" line="569"/>
         <source> missing</source>
         <translation> saknas</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="645"/>
+        <location filename="../modelprinter.cpp" line="642"/>
         <source>Duration</source>
         <translation>Varaktighet</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="754"/>
+        <location filename="../modelprinter.cpp" line="751"/>
         <source>Extended Limits</source>
         <translation>Utökade gränser</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="756"/>
+        <location filename="../modelprinter.cpp" line="753"/>
         <source>Display Checklist</source>
         <translation>Visa checklista</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="758"/>
+        <location filename="../modelprinter.cpp" line="755"/>
         <source>Global Functions</source>
         <translation>Globala funktioner</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="813"/>
+        <location filename="../modelprinter.cpp" line="810"/>
         <source>Manual</source>
         <translation>Manuell</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="815"/>
+        <location filename="../modelprinter.cpp" line="812"/>
         <source>Auto</source>
         <translation>Automatisk</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="825"/>
+        <location filename="../modelprinter.cpp" line="822"/>
         <source>Failsafe Mode</source>
         <translation>Failsafemetod</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="838"/>
-        <location filename="../modelprinter.cpp" line="852"/>
+        <location filename="../modelprinter.cpp" line="835"/>
+        <location filename="../modelprinter.cpp" line="849"/>
         <source>Hold</source>
         <translation>Lås senaste</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="840"/>
+        <location filename="../modelprinter.cpp" line="837"/>
         <source>No Pulse</source>
         <translation>Ingen puls</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="850"/>
+        <location filename="../modelprinter.cpp" line="847"/>
         <source>Not set</source>
         <translation>Ej inställt</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="856"/>
+        <location filename="../modelprinter.cpp" line="853"/>
         <source>No pulses</source>
         <translation>Inga pulser</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="867"/>
+        <location filename="../modelprinter.cpp" line="864"/>
         <source>Step</source>
         <translation>Steg</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="868"/>
+        <location filename="../modelprinter.cpp" line="865"/>
         <source>Display</source>
         <translation>Display</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="869"/>
+        <location filename="../modelprinter.cpp" line="866"/>
         <source>Extended</source>
         <translation>Utökade</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="872"/>
+        <location filename="../modelprinter.cpp" line="869"/>
         <source>Hats Mode</source>
         <translation>Hattläge</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="896"/>
+        <location filename="../modelprinter.cpp" line="893"/>
         <source>Never</source>
         <translation>Aldrig</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="898"/>
+        <location filename="../modelprinter.cpp" line="895"/>
         <source>On Change</source>
         <translation>Vid förändring</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="900"/>
+        <location filename="../modelprinter.cpp" line="897"/>
         <source>Always</source>
         <translation>Alltid</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="910"/>
+        <location filename="../modelprinter.cpp" line="907"/>
         <source>Trims only</source>
         <translation>Endast trimm</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="912"/>
+        <location filename="../modelprinter.cpp" line="909"/>
         <source>Keys only</source>
         <translation>Endast knapp</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="914"/>
+        <location filename="../modelprinter.cpp" line="911"/>
         <source>Switchable</source>
         <translation>Ändringsbar</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="916"/>
+        <location filename="../modelprinter.cpp" line="913"/>
         <source>Global</source>
         <translation>Global</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="938"/>
-        <location filename="../modelprinter.cpp" line="1073"/>
-        <location filename="../modelprinter.cpp" line="1083"/>
+        <location filename="../modelprinter.cpp" line="935"/>
+        <location filename="../modelprinter.cpp" line="1070"/>
+        <location filename="../modelprinter.cpp" line="1080"/>
         <source>Source</source>
         <translation>Källa</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="939"/>
+        <location filename="../modelprinter.cpp" line="936"/>
         <source>Trim idle only</source>
         <translation>Gastrim enbart för tomgång</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="940"/>
+        <location filename="../modelprinter.cpp" line="937"/>
         <source>Warning</source>
         <translation>Varning</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="941"/>
+        <location filename="../modelprinter.cpp" line="938"/>
         <source>Reversed</source>
         <translation>Omvänd</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="945"/>
+        <location filename="../modelprinter.cpp" line="942"/>
         <source>Trim source</source>
         <translation>Trimmkälla</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="959"/>
+        <location filename="../modelprinter.cpp" line="956"/>
         <source>FrSky S.PORT</source>
         <translation>FrSky S.PORT</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="961"/>
+        <location filename="../modelprinter.cpp" line="958"/>
         <source>FrSky D</source>
         <translation>FrSky D</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="963"/>
+        <location filename="../modelprinter.cpp" line="960"/>
         <source>FrSky D (cable)</source>
         <translation>FrSky D (kabel)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="978"/>
+        <location filename="../modelprinter.cpp" line="975"/>
         <source>Alti</source>
         <translation>Höjd</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="980"/>
+        <location filename="../modelprinter.cpp" line="977"/>
         <source>Alti+</source>
         <translation>Höjd+</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="982"/>
+        <location filename="../modelprinter.cpp" line="979"/>
         <source>VSpeed</source>
         <translation>VFart</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="984"/>
-        <location filename="../modelprinter.cpp" line="1001"/>
-        <location filename="../modelprinter.cpp" line="1023"/>
+        <location filename="../modelprinter.cpp" line="981"/>
+        <location filename="../modelprinter.cpp" line="998"/>
+        <location filename="../modelprinter.cpp" line="1020"/>
         <source>A1</source>
         <translation>A1</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="986"/>
-        <location filename="../modelprinter.cpp" line="1003"/>
-        <location filename="../modelprinter.cpp" line="1025"/>
+        <location filename="../modelprinter.cpp" line="983"/>
+        <location filename="../modelprinter.cpp" line="1000"/>
+        <location filename="../modelprinter.cpp" line="1022"/>
         <source>A2</source>
         <translation>A2</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1005"/>
-        <location filename="../modelprinter.cpp" line="1027"/>
+        <location filename="../modelprinter.cpp" line="1002"/>
+        <location filename="../modelprinter.cpp" line="1024"/>
         <source>A3</source>
         <translation>A3</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1007"/>
-        <location filename="../modelprinter.cpp" line="1029"/>
+        <location filename="../modelprinter.cpp" line="1004"/>
+        <location filename="../modelprinter.cpp" line="1026"/>
         <source>A4</source>
         <translation>A4</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1009"/>
-        <location filename="../modelprinter.cpp" line="1031"/>
+        <location filename="../modelprinter.cpp" line="1006"/>
+        <location filename="../modelprinter.cpp" line="1028"/>
         <source>FAS</source>
         <translation>FAS</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1011"/>
+        <location filename="../modelprinter.cpp" line="1008"/>
         <source>Cells</source>
         <translation>Celler</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1083"/>
+        <location filename="../modelprinter.cpp" line="1080"/>
         <source>Min</source>
         <translation>Min</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1083"/>
+        <location filename="../modelprinter.cpp" line="1080"/>
         <source>Max</source>
         <translation>Max</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1053"/>
+        <location filename="../modelprinter.cpp" line="1050"/>
         <source>Numbers</source>
         <translation>Siffror</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1055"/>
+        <location filename="../modelprinter.cpp" line="1052"/>
         <source>Bars</source>
         <translation>Staplar</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1057"/>
+        <location filename="../modelprinter.cpp" line="1054"/>
         <source>Script</source>
         <translation>Skript</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1104"/>
+        <location filename="../modelprinter.cpp" line="1101"/>
         <source>Filename</source>
         <translation>Filnamn</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1114"/>
+        <location filename="../modelprinter.cpp" line="1111"/>
         <source>Error: Unable to open or read file!</source>
         <translation>FEL: Kan inte öppna eller läsa fil!</translation>
     </message>
@@ -14882,8 +14877,8 @@ hh:mm:ss</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2380"/>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="934"/>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="940"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="878"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="884"/>
         <source>Run</source>
         <translation>Kör</translation>
     </message>
@@ -14903,54 +14898,320 @@ hh:mm:ss</translation>
         <translation>GHast</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="108"/>
-        <source>Bad GPS Format</source>
-        <translation>Felaktigt GPS-format</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="108"/>
-        <source>Must be decimal latitude,longitude</source>
-        <translation>Måste vara decimal latitud,longitud</translation>
-    </message>
-    <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="680"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="624"/>
         <source>Save Telemetry</source>
         <translation>Spara telemetri</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="680"/>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="772"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="624"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="716"/>
         <source>.tlm Files (*.tlm)</source>
         <translation>Telemetrifiler (*.tlm)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="686"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="630"/>
         <source>Unable to open file for writing.
 %1</source>
         <translation>Kan inte öppna fil för skrivning.
 %1</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="772"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="716"/>
         <source>Open Telemetry File</source>
         <translation>Öppna telemetrifil</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="779"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="723"/>
         <source>Unable to open file for reading.
 %1</source>
         <translation>Kan inte öppna fil för läsning.
 %1</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="797"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="741"/>
         <source>Not a FrSky S.Port telemetry values file.</source>
         <translation>Inte en fil med FrSky telemetrivärden.</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryproviderfrsky.cpp" line="935"/>
+        <location filename="../simulation/telemetryproviderfrsky.cpp" line="879"/>
         <source>Stop</source>
         <translation>Stoppa</translation>
+    </message>
+</context>
+<context>
+    <name>TelemetryProviderFrSkyHub</name>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="20"/>
+        <source>Form</source>
+        <translation>Formulär</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="86"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="774"/>
+        <source>Fuel</source>
+        <translation>Bränsle</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="98"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="347"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="597"/>
+        <source>RPM</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="116"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="248"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1018"/>
+        <source>G</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="128"/>
+        <source>Baro</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="146"/>
+        <source>Tmp2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="158"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="326"/>
+        <source>Run</source>
+        <translation>Kör</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="176"/>
+        <source>VSpd</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="194"/>
+        <source>Hdg</source>
+        <translation>Riktn</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="206"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="579"/>
+        <source>°C</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="266"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1048"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1108"/>
+        <source>V</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="311"/>
+        <source>Date</source>
+        <translation>Datum</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="329"/>
+        <source>m/s</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="365"/>
+        <source>A2</source>
+        <translation>A2</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="425"/>
+        <source>AccX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="437"/>
+        <source>Accel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="449"/>
+        <source>Batt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="467"/>
+        <source>GAlt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="485"/>
+        <source>A1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="497"/>
+        <source>Temp</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="515"/>
+        <source>RSSI</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="567"/>
+        <source>VFAS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="615"/>
+        <source>Tmp1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="633"/>
+        <source>%</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="672"/>
+        <source>Alt</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="690"/>
+        <source>AccZ</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="702"/>
+        <source>Degrees</source>
+        <translation>grader</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="720"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="819"/>
+        <source>m</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="750"/>
+        <source>Curr</source>
+        <translation>Ström</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="801"/>
+        <source>A</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="858"/>
+        <source>Load Telemetry Values</source>
+        <translation>Ladda telemetrivärden</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="870"/>
+        <source>Save Telemetry Values</source>
+        <translation>Spara telemetrivärden</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="888"/>
+        <source>GSpd</source>
+        <translation>GHast</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="942"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1066"/>
+        <source>GPS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="960"/>
+        <source>knots</source>
+        <translation>knop</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="978"/>
+        <source>Lat,Lon
+(dec.deg.)</source>
+        <translation>Lat,Lon
+(dec.grad)</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1030"/>
+        <source>GPS Sim</source>
+        <translation>GPS-sim</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1120"/>
+        <source>25.9973,-97.1572</source>
+        <translation>25.9973,-97.1572</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1159"/>
+        <source>AccY</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1231"/>
+        <source>MultiModule</source>
+        <translation>Multimodul</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1243"/>
+        <source>TRSS</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1255"/>
+        <source>RQly</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1267"/>
+        <source>TQly</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1279"/>
+        <source>dB</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="329"/>
+        <source>Stop</source>
+        <translation>Stoppa</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="339"/>
+        <source>Save Telemetry</source>
+        <translation>Spara telemetri</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="339"/>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="393"/>
+        <source>.tlm Files (*.tlm)</source>
+        <translation>Telemetrifiler (*.tlm)</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="345"/>
+        <source>Unable to open file for writing.
+%1</source>
+        <translation>Kan inte öppna fil för skrivning.
+%1</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="393"/>
+        <source>Open Telemetry File</source>
+        <translation>Öppna telemetrifil</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="400"/>
+        <source>Unable to open file for reading.
+%1</source>
+        <translation>Kan inte öppna fil för läsning.
+%1</translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="413"/>
+        <source>Not a FrSky Hub telemetry values file.</source>
+        <translation>Inte en fil med FrSky Hub telemetrivärden.</translation>
     </message>
 </context>
 <context>
@@ -15222,39 +15483,45 @@ Tidsstämpel</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="493"/>
-        <location filename="../simulation/telemetrysimu.ui" line="596"/>
+        <location filename="../simulation/telemetrysimu.ui" line="601"/>
         <source>None</source>
         <translation>Ingen</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="498"/>
-        <location filename="../simulation/telemetrysimu.ui" line="601"/>
+        <location filename="../simulation/telemetrysimu.ui" line="503"/>
+        <location filename="../simulation/telemetrysimu.ui" line="611"/>
+        <source>FrSky Hub</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/telemetrysimu.ui" line="508"/>
+        <location filename="../simulation/telemetrysimu.ui" line="616"/>
         <source>FrSky S.Port</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="503"/>
+        <location filename="../simulation/telemetrysimu.ui" line="498"/>
         <location filename="../simulation/telemetrysimu.ui" line="606"/>
         <source>CRSF / ELRS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.ui" line="585"/>
+        <location filename="../simulation/telemetrysimu.ui" line="590"/>
         <source>External Module</source>
         <translation>Extern modul</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="475"/>
+        <location filename="../simulation/telemetrysimu.cpp" line="459"/>
         <source>Log File</source>
         <translation>Loggfil</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="475"/>
+        <location filename="../simulation/telemetrysimu.cpp" line="459"/>
         <source>LOG Files (*.csv)</source>
         <translation>Loggfiler (*.csv)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetrysimu.cpp" line="496"/>
+        <location filename="../simulation/telemetrysimu.cpp" line="480"/>
         <source>ERROR - invalid file</source>
         <translation>FEL - ogiltig fil</translation>
     </message>
