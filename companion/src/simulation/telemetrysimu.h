@@ -106,15 +106,10 @@ class TelemetrySimulator : public QWidget
         void updatePositionLabel(int32_t percentage);
         void setUiDataValues();
         double logFrequency; // in seconds
-        bool logFileGpsCordsInDecimalFormat;
 
       private:
-        QString convertGPSDate(QString input);
-        QString convertGPS(QString input);
-        double convertDegMin(QString input);
-        QDateTime parseTransmittterTimestamp(QString row);
+        QDateTime parseTransmitterTimestamp(QString row);
         void calcLogFrequency();
-        void checkGpsFormat();
 
         Ui::TelemetrySimulator * ui;
         TelemetrySimulator * sim;

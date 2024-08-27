@@ -26,6 +26,7 @@
 #include "telem_data.h"
 #include "radio/src/telemetry/frsky_defs.h"
 #include "telemetryproviderfrsky.h"
+#include "telemetryproviderfrskyhub.h"
 #include "telemetryprovidercrossfire.h"
 
 #include <QRegularExpression>
@@ -160,6 +161,28 @@ TelemetryProvider * TelemetrySimulator::newTelemetryProviderFromDropdownChoice(i
     return NULL;
   case 1:
     {
+      TelemetryProviderCrossfire * newProvider =  new TelemetryProviderCrossfire(parent);
+      parent->setWidget(newProvider);
+      if (isExternal) {
+        connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged, this, &TelemetrySimulator::onExternalTelemetryProviderDataChanged);
+      } else {
+        connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged, this, &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
+      }
+      return newProvider;
+    }
+  case 2:
+    {
+      TelemetryProviderFrSkyHub * newProvider =  new TelemetryProviderFrSkyHub(parent);
+      parent->setWidget(newProvider);
+      if (isExternal) {
+        connect(newProvider, &TelemetryProviderFrSkyHub::telemetryDataChanged, this, &TelemetrySimulator::onExternalTelemetryProviderDataChanged);
+      } else {
+        connect(newProvider, &TelemetryProviderFrSkyHub::telemetryDataChanged, this, &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
+      }
+      return newProvider;
+    }
+  case 3:
+    {
       TelemetryProviderFrSky * newProvider =  new TelemetryProviderFrSky(parent);
       parent->setWidget(newProvider);
       if (isExternal) {
@@ -169,18 +192,6 @@ TelemetryProvider * TelemetrySimulator::newTelemetryProviderFromDropdownChoice(i
       }
       // FrSky provider needs to set up sensor instances from the model's telemetry configuration
       newProvider->loadUiFromSimulator(simulator);
-
-      return newProvider;
-    }
-  case 2:
-    {
-      TelemetryProviderCrossfire * newProvider =  new TelemetryProviderCrossfire(parent);
-      parent->setWidget(newProvider);
-      if (isExternal) {
-        connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged, this, &TelemetrySimulator::onExternalTelemetryProviderDataChanged);
-      } else {
-        connect(newProvider, &TelemetryProviderCrossfire::telemetryDataChanged, this, &TelemetrySimulator::onInternalTelemetryProviderDataChanged);
-      }
       return newProvider;
     }
   default:
@@ -296,8 +307,6 @@ TelemetrySimulator::LogPlaybackController::LogPlaybackController(Ui::TelemetrySi
   TelemetrySimulator::LogPlaybackController::sim = sim;
   TelemetrySimulator::LogPlaybackController::ui = ui;
   stepping = false;
-  logFileGpsCordsInDecimalFormat = false;
-
 }
 
 QString convertFeetToMeters(QString input)
@@ -402,7 +411,7 @@ QString convertItemValue(QString sourceUnit, QString destUnit, QString value)
   return value;
 }
 
-QDateTime TelemetrySimulator::LogPlaybackController::parseTransmittterTimestamp(QString row)
+QDateTime TelemetrySimulator::LogPlaybackController::parseTransmitterTimestamp(QString row)
 {
   QStringList rowParts = row.simplified().split(',');
   if (rowParts.size() < 2) {
@@ -422,31 +431,6 @@ QDateTime TelemetrySimulator::LogPlaybackController::parseTransmittterTimestamp(
   return QDateTime::fromString(datePart + " " + timePart, format);
 }
 
-void TelemetrySimulator::LogPlaybackController::checkGpsFormat()
-{
-  // sample the first record to check if cords are in decimal format
-  logFileGpsCordsInDecimalFormat = false;
-  if(csvRecords.count() > 1) {
-    QStringList keys = csvRecords[0].split(',');
-    if(keys.contains("GPS")) {
-      int gpsColIndex = keys.indexOf("GPS");
-      QStringList firstRowVlues = csvRecords[1].split(',');
-      QString gpsSample = firstRowVlues[gpsColIndex];
-      QStringList cords = gpsSample.simplified().split(' ');
-      if (cords.count() == 2) {
-        // frsky and TBS crossfire GPS sensor logs cords in decimal format with a precision of 6 places
-        // if this format is met there is no need to call convertDegMin later on when processing the file
-        QRegularExpression decimalCoordinateFormatRegex("^[-+]?\\d{1,2}[.]\\d{6}$");
-        QRegularExpressionMatch latFormatMatch = decimalCoordinateFormatRegex.match(cords[0]);
-        QRegularExpressionMatch lonFormatMatch = decimalCoordinateFormatRegex.match(cords[1]);
-        if (lonFormatMatch.hasMatch() && latFormatMatch.hasMatch()) {
-          logFileGpsCordsInDecimalFormat = true;
-        }
-      }
-    }
-  }
-}
-
 void TelemetrySimulator::LogPlaybackController::calcLogFrequency()
 {
   // examine up to 20 rows to determine log frequency in seconds
@@ -455,7 +439,7 @@ void TelemetrySimulator::LogPlaybackController::calcLogFrequency()
   QDateTime lastTime;
   for (int i = 2; (i < 21) && (i < csvRecords.count()); i++)
   {
-    QDateTime logTime = parseTransmittterTimestamp(csvRecords[i]);
+    QDateTime logTime = parseTransmitterTimestamp(csvRecords[i]);
     // ugh - no timespan in this Qt version
     double timeDiff = (logTime.toMSecsSinceEpoch() - lastTime.toMSecsSinceEpoch()) / 1000.0;
     if ((timeDiff > 0.09) && (timeDiff < logFrequency)) {
@@ -519,7 +503,6 @@ void TelemetrySimulator::LogPlaybackController::loadLogFile()
     ui->replayRate->setEnabled(true);
     recordIndex = 1;
     calcLogFrequency();
-    checkGpsFormat();
   }
   ui->logFileLabel->setText(QFileInfo(logFileNameAndPath).fileName());
   rewind();
@@ -582,7 +565,7 @@ void TelemetrySimulator::LogPlaybackController::updatePositionLabel(int32_t perc
     }
   }
   // format the transmitter date info
-  QDateTime transmitterTimestamp = parseTransmittterTimestamp(csvRecords[recordIndex]);
+  QDateTime transmitterTimestamp = parseTransmitterTimestamp(csvRecords[recordIndex]);
   QString format("yyyy-MM-dd hh:mm:ss.z");
   ui->positionLabel->setText("Row " + QString::number(recordIndex) + " of " + QString::number(csvRecords.count() - 1)
               + "\n" + transmitterTimestamp.toString(format));

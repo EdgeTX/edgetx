@@ -94,7 +94,7 @@ class ChannelFailsafeEdit : public NumberEdit
 
  public:
   ChannelFailsafeEdit(Window* parent, uint8_t ch, int vmin, int vmax) :
-      NumberEdit(parent, rect_t{}, vmin, vmax, nullptr), channel(ch)
+      NumberEdit(parent, rect_t{0, 0, NUM_W, 0}, vmin, vmax, nullptr), channel(ch)
   {
     setGetValueHandler(
         [=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); });
@@ -150,6 +150,8 @@ class ChannelFailsafeEdit : public NumberEdit
     g_model.failsafeChannels[channel] = channelOutputs[channel];
     update();
   }
+
+  static LAYOUT_VAL(NUM_W, 70, 70)
 };
 
 class ChannelFSCombo : public Window
@@ -164,7 +166,7 @@ class ChannelFSCombo : public Window
 
     setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
 
-    lv_obj_set_style_pad_column(lvobj, PAD_SMALL, 0);
+    lv_obj_set_style_pad_column(lvobj, PAD_TINY, 0);
     lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
 
     edit = new ChannelFailsafeEdit(this, ch, vmin, vmax);
@@ -182,7 +184,7 @@ class ChannelFSCombo : public Window
   void update() { edit->update(); }
 };
 
-static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
+static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(5),
                                           LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
@@ -192,12 +194,6 @@ static void set_failsafe(lv_event_t* e)
   auto combo = (ChannelFSCombo*)lv_event_get_user_data(e);
   if (combo) combo->update();
 }
-
-#if PORTRAIT_LCD
-#define FS_BARGRAPH_WIDTH (LV_DPI_DEF / 2)
-#else
-#define FS_BARGRAPH_WIDTH (LV_DPI_DEF)
-#endif
 
 FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
 {
@@ -236,7 +232,7 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
 
     // Channel bargraph
     auto bar = new ChannelFailsafeBargraph(
-        line, rect_t{0, 0, FS_BARGRAPH_WIDTH, 32}, ch);
+        line, rect_t{0, 0, FS_BARGRAPH_WIDTH, EdgeTxStyles::UI_ELEMENT_HEIGHT}, ch);
     lv_obj_set_style_grid_cell_x_align(bar->getLvObj(), LV_GRID_ALIGN_END, 0);
   }
 }
