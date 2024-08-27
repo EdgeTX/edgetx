@@ -419,7 +419,6 @@ extern const char STR_PWR_ON_DELAY[];
 extern const char STR_PWR_OFF_DELAY[];
 extern const char STR_PWR_AUTO_OFF[];
 extern const char* const STR_PWR_OFF_DELAYS[];
-
 #endif
 #if defined(HAPTIC)
 extern const char STR_PWR_ON_OFF_HAPTIC[];

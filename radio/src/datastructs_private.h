@@ -1009,7 +1009,6 @@ PACK(struct RadioData {
     return backlightBright;
 #endif
   });
-
 });
 
 #undef SWITCHES_WARNING_DATA

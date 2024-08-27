@@ -598,7 +598,7 @@ void menuRadioSetup(event_t event)
         lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.pwrOffIfInactive, attr|LEFT);
         lcdDrawChar(lcdLastRightPos, y, 'm');
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.pwrOffIfInactive, 0, 255);
-        break; 
+        break;
 #endif
 
 #if defined(HAPTIC)
