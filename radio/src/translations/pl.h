@@ -392,7 +392,7 @@
 #define TR_PLAY_HELLO                  "Dźwięk uruchomienia"
 #define TR_PWR_ON_DELAY                "Pwr On delay"
 #define TR_PWR_OFF_DELAY               "Pwr Off delay"
-#define TR_PWR_AUTO_OFF                "Pwr Auto Off"
+#define TR_PWR_AUTO_OFF                TR("Pwr Auto Off","Power Auto Off")
 #define TR_PWR_ON_OFF_HAPTIC    TR("Wibracja włączania","Wibracja włączania")
 #define TR_THROTTLE_WARNING     TR("OstrzGaz", "OstrzeżenieGaz")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("InnePoł", "Inne położenie?")

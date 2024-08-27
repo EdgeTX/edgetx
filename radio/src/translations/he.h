@@ -399,7 +399,7 @@
 #define TR_PLAY_HELLO                  "צליל אתחול"
 #define TR_PWR_ON_DELAY                "השהיית הפעלה פעיל"
 #define TR_PWR_OFF_DELAY               "משך לחיצה לכיבוי השלט"
-#define TR_PWR_AUTO_OFF                "Pwr Auto Off"
+#define TR_PWR_AUTO_OFF                TR("Pwr Auto Off","Power Auto Off")
 #define TR_PWR_ON_OFF_HAPTIC           TR("Pwr ON/OFF Haptic","Power ON/OFF Haptic")
 #define TR_THROTTLE_WARNING            TR("T-Warning", "התראת מצערת פתוחה")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("Cust-Pos", "עריכת מיקום ידנית")
