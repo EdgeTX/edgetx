@@ -264,7 +264,7 @@ TEST(ports, isTelemAllowedOnBind)
   modulePortInit();
 
   const etx_serial_init serialCfg = {
-    .baudrate = INT_CROSSFIRE_BAUDRATE,
+    .baudrate = 921000,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_TX_RX,
     .polarity = ETX_Pol_Normal,
