@@ -258,7 +258,7 @@ TEST(ports, isTelemAllowedOnBind)
   _deinitModuleDrv(INTERNAL_MODULE);
   EXPECT_TRUE(isTelemAllowedOnBind(EXTERNAL_MODULE));
 }
-#else if !defined(PCBFLYSKY)  //defined(INTERNAL_MODULE_PXX1) && defined(HARDWARE_EXTERNAL_MODULE)
+#elif !defined(PCBFLYSKY)  //defined(INTERNAL_MODULE_PXX1) && defined(HARDWARE_EXTERNAL_MODULE)
 TEST(ports, isTelemAllowedOnBind)
 {
   modulePortInit();
