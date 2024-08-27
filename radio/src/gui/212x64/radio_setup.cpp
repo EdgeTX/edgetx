@@ -551,11 +551,11 @@ void menuRadioSetup(event_t event)
 
 #if defined(PWR_BUTTON_PRESS)
       case ITEM_RADIO_SETUP_PWR_ON_SPEED:
-        g_eeGeneral.pwrOnSpeed = pwrDelayToYaml(editChoice(LCD_W-2, y, STR_PWR_ON_DELAY, STR_PWR_OFF_DELAYS, pwrDelayFromYaml(g_eeGeneral.pwrOnSpeed), 0, 4, attr|RIGHT, event));
+        g_eeGeneral.pwrOnSpeed = pwrDelayToYaml(editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_PWR_ON_DELAY, STR_PWR_OFF_DELAYS, pwrDelayFromYaml(g_eeGeneral.pwrOnSpeed), 0, 4, attr|LEFT, event));
         break;
 
       case ITEM_RADIO_SETUP_PWR_OFF_SPEED:
-        g_eeGeneral.pwrOffSpeed = pwrDelayToYaml(editChoice(LCD_W-2, y, STR_PWR_OFF_DELAY, STR_PWR_OFF_DELAYS, pwrDelayFromYaml(g_eeGeneral.pwrOffSpeed), 0, 4, attr|RIGHT, event));
+        g_eeGeneral.pwrOffSpeed = pwrDelayToYaml(editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_PWR_OFF_DELAY, STR_PWR_OFF_DELAYS, pwrDelayFromYaml(g_eeGeneral.pwrOffSpeed), 0, 4, attr|LEFT, event));
         break;
 
       case ITEM_RADIO_SETUP_PWR_AUTO_OFF:

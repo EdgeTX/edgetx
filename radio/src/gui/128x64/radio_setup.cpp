@@ -595,7 +595,7 @@ void menuRadioSetup(event_t event)
 
       case ITEM_RADIO_SETUP_PWR_AUTO_OFF:
         lcdDrawTextAlignedLeft(y, STR_PWR_AUTO_OFF);
-        lcdDrawNumber(RADIO_SETUP_2ND_COLUMN, y, g_eeGeneral.pwrOffIfInactive, attr|LEFT);
+        lcdDrawNumber(LCD_W-7, y, g_eeGeneral.pwrOffIfInactive, attr|RIGHT);
         lcdDrawChar(lcdLastRightPos, y, 'm');
         if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.pwrOffIfInactive, 0, 255);
         break;
