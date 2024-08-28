@@ -238,4 +238,42 @@ TEST(ports, boot_pxx1_multi)
   _deinitModuleDrv(EXTERNAL_MODULE);
   EXPECT_FALSE(modulePortIsPortUsed(ETX_MOD_PORT_SPORT));
 }
+
+TEST(ports, isTelemAllowedOnBind)
+{
+  modulePortInit();
+
+  void* int_ctx = Pxx1Driver.init(INTERNAL_MODULE);
+  EXPECT_TRUE(int_ctx != nullptr);
+  if (!int_ctx) return;
+  _setModuleDrv(INTERNAL_MODULE, &Pxx1Driver, int_ctx);
+
+  // Telem always has priority on internal
+  EXPECT_TRUE(isTelemAllowedOnBind(INTERNAL_MODULE));
+
+  // When internal uses SPORT, you cannot bind FRSKY with telem on external module
+  EXPECT_FALSE(isTelemAllowedOnBind(EXTERNAL_MODULE));
+
+  // but you can when internal is disabled
+  _deinitModuleDrv(INTERNAL_MODULE);
+  EXPECT_TRUE(isTelemAllowedOnBind(EXTERNAL_MODULE));
+}
+#elif !defined(PCBFLYSKY)  //defined(INTERNAL_MODULE_PXX1) && defined(HARDWARE_EXTERNAL_MODULE)
+TEST(ports, isTelemAllowedOnBind)
+{
+  modulePortInit();
+
+  const etx_serial_init serialCfg = {
+    .baudrate = 921000,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_TX_RX,
+    .polarity = ETX_Pol_Normal,
+  };
+
+  auto mod_st = modulePortInitSerial(INTERNAL_MODULE, ETX_MOD_PORT_UART, &serialCfg, false);
+  EXPECT_TRUE(mod_st != nullptr);
+
+  // Since internal module doesn't use SPORT, you should be able to bind FrSky with telem
+  EXPECT_TRUE(isTelemAllowedOnBind(EXTERNAL_MODULE));
+}
 #endif
