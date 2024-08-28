@@ -248,7 +248,7 @@ TEST(ports, isTelemAllowedOnBind)
   if (!int_ctx) return;
   _setModuleDrv(INTERNAL_MODULE, &Pxx1Driver, int_ctx);
 
-  // Telem has always priority on internal
+  // Telem always has priority on internal
   EXPECT_TRUE(isTelemAllowedOnBind(INTERNAL_MODULE));
 
   // When internal uses SPORT, you cannot bind FRSKY with telem on external module
