@@ -228,7 +228,7 @@ void boardInit()
 #endif
 
 #if defined(CSD203_SENSOR)
-  csd203Init();
+  initCSD203();
 #endif
 
   usbInit();

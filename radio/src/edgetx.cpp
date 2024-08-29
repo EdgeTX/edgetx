@@ -214,7 +214,7 @@ void timer_10ms()
 #endif
 
 #if defined(CSD203_SENSOR)
-  Getcsd203();
+  readCSD203();
 #endif
 
   telemetryInterrupt10ms();

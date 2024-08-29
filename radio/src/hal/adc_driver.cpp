@@ -30,7 +30,7 @@ const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
 static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA;
 
 #if defined(CSD203_SENSOR)
-  extern uint16_t getcsd203BatteryVoltage(void);
+  extern uint16_t getCSD203BatteryVoltage(void);
 #endif
 
 bool adcInit(const etx_hal_adc_driver_t* driver)
@@ -307,7 +307,7 @@ tmr10ms_t jitterResetTime = 0;
 uint16_t getBatteryVoltage()
 {
 #if defined(CSD203_SENSOR)
-  return getcsd203BatteryVoltage() / 10;
+  return getCSD203BatteryVoltage() / 10;
 #else
   // using filtered ADC value on purpose
   if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;

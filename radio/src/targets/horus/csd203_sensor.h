@@ -21,6 +21,5 @@
 
 #pragma once
 
-extern void IICcsd203init(void);
-extern void csd203Init(void);
-extern void Getcsd203(void);
+void initCSD203(void);
+void readCSD203(void);
