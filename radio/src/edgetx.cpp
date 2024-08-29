@@ -213,7 +213,7 @@ void timer_10ms()
   }
 #endif
 
-#if defined(CSD203_SENSOR)
+#if defined(CSD203_SENSOR) && !defined(SIMU)
   readCSD203();
 #endif
 

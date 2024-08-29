@@ -247,7 +247,7 @@ uint16_t getRTCBatteryVoltage()
 uint16_t getAnalogValue(uint8_t index)
 {
   if (index >= MAX_ANALOG_INPUTS) return 0;
-#if defined(SIXPOS_SWITCH_INDEX)
+#if defined(SIXPOS_SWITCH_INDEX) && !defined(SIMU)
   if (index == SIXPOS_SWITCH_INDEX)
     return getSixPosAnalogValue(adcValues[index]);
   else
@@ -306,7 +306,7 @@ tmr10ms_t jitterResetTime = 0;
 
 uint16_t getBatteryVoltage()
 {
-#if defined(CSD203_SENSOR)
+#if defined(CSD203_SENSOR) && !defined(SIMU)
   return getCSD203BatteryVoltage() / 10;
 #else
   // using filtered ADC value on purpose
