@@ -58,6 +58,7 @@
 #define CFN_FUNC(p)                    ((p)->func)
 #define CFN_ACTIVE(p)                  ((p)->active)
 #define CFN_CH_INDEX(p)                ((p)->all.param)
+#define CFN_SW_INDEX(p)                ((p)->all.param)
 #define CFN_GVAR_INDEX(p)              ((p)->all.param)
 #define CFN_TIMER_INDEX(p)             ((p)->all.param)
 #define CFN_PLAY_REPEAT(p)             ((p)->repeat)

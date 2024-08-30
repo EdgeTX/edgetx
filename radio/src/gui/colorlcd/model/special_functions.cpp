@@ -483,6 +483,10 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       addNumberEdit(line, STR_VALUE, cfn, 0, 3);
       break;
 
+    case FUNC_PUSH_CUST_SWITCH:
+
+      break;
+
     case FUNC_LOGS: {
       if (CFN_PARAM(cfn) == 0)  // use stored value if SF exists
         CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;  // otherwise initialize with

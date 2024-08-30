@@ -64,6 +64,9 @@ Functions cfn_sorted[] = {
   /* 暂停背景音乐 */ FUNC_BACKGND_MUSIC_PAUSE,
   /* 振动 */ FUNC_HAPTIC,
   /* Lua脚本 */ FUNC_PLAY_SCRIPT,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RGB LED 灯 */ FUNC_RGB_LED,
   /* Vario传感器 */ FUNC_VARIO,
 #elif defined(TRANSLATIONS_CZ)
@@ -92,6 +95,9 @@ Functions cfn_sorted[] = {
   /* Podsvětlení */ FUNC_BACKLIGHT,
 #endif
   /* Přehrát wav */ FUNC_PLAY_TRACK,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* Reset */ FUNC_RESET,
   /* RGB světlo */ FUNC_RGB_LED,
   /* Snímek LCD */ FUNC_SCREENSHOT,
@@ -129,6 +135,9 @@ Functions cfn_sorted[] = {
   /* Modul tilslut */ FUNC_BIND,
   /* Nulstil */ FUNC_RESET,
   /* Overskriv */ FUNC_OVERRIDE_CHANNEL,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RGB led */ FUNC_RGB_LED,
   /* Ræs tilstand */ FUNC_RACING_MODE,
   /* SD Log */ FUNC_LOGS,
@@ -171,6 +180,9 @@ Functions cfn_sorted[] = {
   /* Lehrer */ FUNC_TRAINER,
   /* Lua Skript */ FUNC_PLAY_SCRIPT,
   /* ModuleBind */ FUNC_BIND,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RacingMode */ FUNC_RACING_MODE,
   /* RangeCheck */ FUNC_RANGECHECK,
   /* RGB LED */ FUNC_RGB_LED,
@@ -221,6 +233,9 @@ Functions cfn_sorted[] = {
   /* Oir pista */ FUNC_PLAY_TRACK,
   /* Oir sonido */ FUNC_PLAY_SOUND,
   /* Oir valor */ FUNC_PLAY_VALUE,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RacingMode */ FUNC_RACING_MODE,
   /* Reset */ FUNC_RESET,
   /* RGB leds */ FUNC_RGB_LED,
@@ -258,6 +273,9 @@ Functions cfn_sorted[] = {
   /* Play Sound */ FUNC_PLAY_SOUND,
   /* Play Track */ FUNC_PLAY_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RacingMode */ FUNC_RACING_MODE,
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Reset */ FUNC_RESET,
@@ -302,6 +320,9 @@ Functions cfn_sorted[] = {
 #endif
   /* Pause Musique */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Photo Écran */ FUNC_SCREENSHOT,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* Racing Mode */ FUNC_RACING_MODE,
   /* Régle Failsafe */ FUNC_SET_FAILSAFE,
   /* Remise à 0 */ FUNC_RESET,
@@ -337,6 +358,9 @@ Functions cfn_sorted[] = {
   /* Play Sound */ FUNC_PLAY_SOUND,
   /* Play Track */ FUNC_PLAY_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Reset */ FUNC_RESET,
   /* RGB leds */ FUNC_RGB_LED,
@@ -382,6 +406,9 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* No Touch */ FUNC_DISABLE_TOUCH,
 #endif
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Regola */ FUNC_ADJUST_GVAR,
 #if !defined(OLED_SCREEN)
@@ -412,6 +439,9 @@ Functions cfn_sorted[] = {
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* LUAスクリプト */ FUNC_PLAY_SCRIPT,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RGB LED */ FUNC_RGB_LED,
   /* SDログ出力 */ FUNC_LOGS,
   /* オーディオアンプ OFF */ FUNC_DISABLE_AUDIO_AMP,
@@ -468,6 +498,9 @@ Functions cfn_sorted[] = {
   /* Override */ FUNC_OVERRIDE_CHANNEL,
   /* Play Track */ FUNC_PLAY_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RacingMode */ FUNC_RACING_MODE,
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Reset */ FUNC_RESET,
@@ -508,6 +541,9 @@ Functions cfn_sorted[] = {
 #endif
 #if !defined(OLED_SCREEN)
   /* Podświetl */ FUNC_BACKLIGHT,
+#endif
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* RacingMode */ FUNC_RACING_MODE,
   /* RangeCheck */ FUNC_RANGECHECK,
@@ -555,6 +591,9 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* No Touch */ FUNC_DISABLE_TOUCH,
 #endif
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Rep Valor */ FUNC_PLAY_VALUE,
   /* Reset */ FUNC_RESET,
@@ -577,6 +616,9 @@ Functions cfn_sorted[] = {
 #endif
   /* Lua скрипт */ FUNC_PLAY_SCRIPT,
   /* Play Value */ FUNC_PLAY_VALUE,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RGB подсветка */ FUNC_RGB_LED,
   /* SD логи */ FUNC_LOGS,
   /* Авар управ */ FUNC_SET_FAILSAFE,
@@ -635,6 +677,9 @@ Functions cfn_sorted[] = {
   /* Musik */ FUNC_BACKGND_MUSIC,
   /* Parkoppla modul */ FUNC_BIND,
   /* Pausa Musik */ FUNC_BACKGND_MUSIC_PAUSE,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* Range check */ FUNC_RANGECHECK,
   /* RGB ledljus */ FUNC_RGB_LED,
   /* Skärmbild */ FUNC_SCREENSHOT,
@@ -656,6 +701,9 @@ Functions cfn_sorted[] = {
   /* Återställ */ FUNC_RESET,
 #elif defined(TRANSLATIONS_TW)
   /* Lua腳本 */ FUNC_PLAY_SCRIPT,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RGB led燈 */ FUNC_RGB_LED,
   /* Vario傳感器 */ FUNC_VARIO,
 #if defined(OLED_SCREEN)
@@ -736,6 +784,9 @@ Functions cfn_sorted[] = {
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lua Скрипт */ FUNC_PLAY_SCRIPT,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RGB leds */ FUNC_RGB_LED,
   /* SD лог */ FUNC_LOGS,
 #else
@@ -763,6 +814,9 @@ Functions cfn_sorted[] = {
   /* Play Sound */ FUNC_PLAY_SOUND,
   /* Play Track */ FUNC_PLAY_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* RacingMode */ FUNC_RACING_MODE,
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Reset */ FUNC_RESET,

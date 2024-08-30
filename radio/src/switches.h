@@ -101,6 +101,7 @@ int firstSwitchInGroup(uint8_t group);
 int groupDefaultSwitch(uint8_t group);
 void setGroupSwitchState(uint8_t group, int defaultSwitch = -1);
 uint8_t getFSPhysicalState(uint8_t index);
+extern uint8_t functionSwitchFunctionState;
 
 //led_driver.cpp
 void fsLedOff(uint8_t);

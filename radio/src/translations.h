@@ -325,6 +325,7 @@ extern const char STR_SF_VOLUME[];
 extern const char STR_SF_RACING_MODE[];
 extern const char STR_SF_SCREENSHOT[];
 extern const char STR_SF_LCD_TO_VIDEO[];
+extern const char STR_SF_PUSH_CUST_SWITCH[];
 extern const char STR_SF_TEST[];
 extern const char STR_TRIMS[];
 extern const char STR_MIRROR[];

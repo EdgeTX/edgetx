@@ -203,10 +203,6 @@ void timer_10ms()
     inactivityTimerReset(ActivitySource::Keys);
   }
 
-#if defined(FUNCTION_SWITCHES)
-  evalFunctionSwitches();
-#endif
-
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(LIBOPENUI)
   if (rotaryEncoderPollingCycle()) {
     inactivityTimerReset(ActivitySource::Keys);

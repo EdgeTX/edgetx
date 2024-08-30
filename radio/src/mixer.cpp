@@ -1130,6 +1130,10 @@ void evalMixes(uint8_t tick10ms)
   static uint16_t delta = 0;
   static uint16_t flightModesFade = 0;
 
+#if defined(FUNCTION_SWITCHES)
+  evalFunctionSwitches();
+#endif
+
   uint8_t fm = getFlightMode();
 
   if (lastFlightMode != fm) {
