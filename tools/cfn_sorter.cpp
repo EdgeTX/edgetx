@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <locale>
+#include <string.h>
 
 #define CFN_ONLY
 #define SKIP
