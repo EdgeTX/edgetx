@@ -12,7 +12,6 @@ set_property(CACHE TRANSLATIONS PROPERTY STRINGS ${RADIO_LANGUAGES})
 set(DEFAULT_MODE "" CACHE STRING "Default sticks mode")
 set(POPUP_LEVEL 2 CACHE STRING "Popup level")
 
-option(HELI "Heli menu" ON)
 option(FLIGHT_MODES "Flight Modes" ON)
 option(CURVES "Curves" ON)
 option(GVARS "Global variables" ON)
@@ -59,8 +58,10 @@ option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
 
 if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   option(USBJ_EX "Enable USB Joystick Extension" OFF)
+  option(HELI "Heli menu" OFF)
 else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
+  option(HELI "Heli menu" ON)
 endif()
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
