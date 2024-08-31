@@ -19,14 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#if defined(RADIO_V16)
-#include "stm32_ws2812.h"
-#include "boards/generic_stm32/rgb_leds.h"
-#endif
-
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
+#include "stm32_ws2812.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -39,6 +35,7 @@
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 #include "boards/generic_stm32/analog_inputs.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 #include "timers_driver.h"
 #include "dataconstants.h"
