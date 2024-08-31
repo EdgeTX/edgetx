@@ -464,6 +464,7 @@
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1      // PA.01
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_3      // PA.03
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_2      // PA.02
+  #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_0      // PC.00
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_1      // PC.01
   #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_10  // ADC3_IN10
   #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_11  // ADC3_IN11
