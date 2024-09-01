@@ -99,7 +99,9 @@ int checkIncDec(event_t event, int val, int i_min, int i_max,
 
 #if defined(AUTOSWITCH)
     if (i_flags & INCDEC_SWITCH) {
-      newval = checkIncDecMovedSwitch(newval);
+      auto moved = checkIncDecMovedSwitch(newval);
+      if (isValueAvailable(moved))
+        newval = moved;
     }
 #endif
 
