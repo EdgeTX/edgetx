@@ -159,6 +159,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_FLYSKY_PL18:
       radioUiWidget = new SimulatedUIWidgetPL18(simulator, this);
       break;
+    case Board::BOARD_HELLORADIOSKY_V16:
+      radioUiWidget = new SimulatedUIWidgetV16(simulator, this);
+      break;
     default:
       radioUiWidget = new SimulatedUIWidget9X(simulator, this);
       break;

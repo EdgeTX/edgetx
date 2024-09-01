@@ -143,6 +143,8 @@ const char * OpenTxEepromInterface::getName()
       return "EdgeTX for iFlight Commando 8";
     case BOARD_FATFISH_F16:
       return "EdgeTX for Fatfish F16";
+    case BOARD_HELLORADIOSKY_V16:
+      return "EdgeTX for HelloRadioSky V16";
     default:
       return "Board is unknown to EdgeTX";
   }
@@ -1389,6 +1391,13 @@ void registerOpenTxFirmwares()
   addOpenTxTaranisOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, EU + FLEX);
+
+  /* HelloRadioSky V16 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("v16"), Firmware::tr("HelloRadioSky V16"), BOARD_HELLORADIOSKY_V16);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  firmware->addOptionsGroup({opt_bt, opt_internal_gps});
+  registerOpenTxFirmware(firmware);
 
   /* iFlight Commando8 board */
   firmware = new OpenTxFirmware(FIRMWAREID("commando8"), QCoreApplication::translate("Firmware", "iFlight Commando8"), BOARD_IFLIGHT_COMMANDO8);

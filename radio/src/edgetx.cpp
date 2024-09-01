@@ -65,6 +65,10 @@
 #include "telemetry/crossfire.h"
 #endif
 
+#if defined(CSD203_SENSOR)
+  #include "csd203_sensor.h"
+#endif
+
 #if !defined(SIMU)
 #include <malloc.h>
 #endif
@@ -207,6 +211,10 @@ void timer_10ms()
   if (rotaryEncoderPollingCycle()) {
     inactivityTimerReset(ActivitySource::Keys);
   }
+#endif
+
+#if defined(CSD203_SENSOR) && !defined(SIMU)
+  readCSD203();
 #endif
 
   telemetryInterrupt10ms();

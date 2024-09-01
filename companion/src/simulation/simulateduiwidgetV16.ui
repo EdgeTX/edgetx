@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SimulatedUIWidgetV16</class>
+ <widget class="QWidget" name="SimulatedUIWidgetV16">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>829</width>
+    <height>320</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>829</width>
+    <height>320</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>829</width>
+    <height>355</height>
+   </size>
+  </property>
+  <widget class="ButtonsWidget" name="right" native="true">
+   <property name="geometry">
+    <rect>
+     <x>658</x>
+     <y>0</y>
+     <width>167</width>
+     <height>320</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>167</width>
+     <height>320</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>167</width>
+     <height>320</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:url(:/images/simulator/V16/right.png)</string>
+   </property>
+  </widget>
+  <widget class="ButtonsWidget" name="left" native="true">
+   <property name="geometry">
+    <rect>
+     <x>1</x>
+     <y>0</y>
+     <width>175</width>
+     <height>320</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>175</width>
+     <height>320</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>175</width>
+     <height>320</height>
+    </size>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background:url(:/images/simulator/V16/left.png);</string>
+   </property>
+  </widget>
+  <widget class="LcdWidget" name="lcd" native="true">
+   <property name="geometry">
+    <rect>
+     <x>177</x>
+     <y>24</y>
+     <width>480</width>
+     <height>272</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>480</width>
+     <height>272</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>480</width>
+     <height>272</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>5</pointsize>
+    </font>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LcdWidget</class>
+   <extends>QWidget</extends>
+   <header>lcdwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ButtonsWidget</class>
+   <extends>QWidget</extends>
+   <header>buttonswidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../companion.qrc"/>
+ </resources>
+ <connections/>
+</ui>
