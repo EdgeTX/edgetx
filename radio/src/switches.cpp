@@ -27,7 +27,7 @@
 #include "edgetx_constants.h"
 #include "switches.h"
 #include "input_mapping.h"
-
+#include "inactivity_timer.h"
 #include "tasks/mixer_task.h"
 
 #define CS_LAST_VALUE_INIT -32768
@@ -169,6 +169,7 @@ void evalFunctionSwitches()
     uint8_t physicalState = getFSPhysicalState(i);
     if (physicalState != getFSPreviousPhysicalState(i)) {
       // FS was moved
+      inactivityTimerReset(ActivitySource::MainControls);
       if ((FSWITCH_CONFIG(i) == SWITCH_2POS && physicalState == 1) ||
           (FSWITCH_CONFIG(i) == SWITCH_TOGGLE)) {
         if (IS_FSWITCH_GROUP_ON(FSWITCH_GROUP(i)) != 0) {
