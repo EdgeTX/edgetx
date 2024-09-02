@@ -367,11 +367,13 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
                   cfn);  // logging period is 0..25.5s in 100ms increments
             }
             break;
+
 #if defined(FUNCTION_SWITCHES)
           case FUNC_PUSH_CUST_SWITCH:
             functionSwitchFunctionState |= 1 << CFN_SW_INDEX(cfn);
             break;
 #endif
+
           case FUNC_BACKLIGHT: {
             newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
             if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
