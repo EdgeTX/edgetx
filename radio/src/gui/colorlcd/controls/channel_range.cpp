@@ -37,19 +37,6 @@ inline int16_t ppmFrameLen(int8_t chCount)
     return (PPM_DEF_PERIOD);  // else leave frame Length at default (22.5ms)
 }
 
-void cb_value_changed(lv_event_t* e)
-{
-  ChannelRange* chRangeEditObject = (ChannelRange*)lv_event_get_user_data(e);
-  if (!chRangeEditObject) return;
-
-  NumberEdit* ppmFrameLenEditObject =
-      chRangeEditObject->getPpmFrameLenEditObject();
-  if (!ppmFrameLenEditObject) return;
-
-  ppmFrameLenEditObject->setValue(
-      ppmFrameLen(chRangeEditObject->getChannelsCount()));
-}
-
 ChannelRange::ChannelRange(Window* parent) : Window(parent, rect_t{})
 {
   padAll(PAD_TINY);
@@ -68,7 +55,12 @@ void ChannelRange::build()
                      GET_DEFAULT(getChannelsStart() + 8 + getChannelsCount()));
 
   chEnd->setPrefix(STR_CH);
-  chEnd->setSetValueHandler([=](int newValue) { setEnd(newValue); });
+  chEnd->setSetValueHandler([=](int newValue) {
+    setEnd(newValue);
+
+    if (ppmFrameLenEditObject)
+      ppmFrameLenEditObject->setValue(ppmFrameLen(getChannelsCount()));
+  });
 }
 
 void ChannelRange::setStart(uint8_t newValue)
@@ -110,11 +102,6 @@ void ChannelRange::update()
   updateEnd();
 }
 
-NumberEdit* ChannelRange::getPpmFrameLenEditObject()
-{
-  return this->ppmFrameLenEditObject;
-}
-
 void ChannelRange::setPpmFrameLenEditObject(NumberEdit* ppmFrameLenEditObject)
 {
   this->ppmFrameLenEditObject = ppmFrameLenEditObject;
@@ -125,10 +112,6 @@ ModuleChannelRange::ModuleChannelRange(Window* parent, uint8_t moduleIdx) :
 {
   build();
   update();
-
-  // add callback to be notified when channel count changes
-  lv_obj_add_event_cb(chEnd->getLvObj(), cb_value_changed,
-                      LV_EVENT_VALUE_CHANGED, (void*)this);
 }
 
 void ModuleChannelRange::update()
@@ -195,10 +178,6 @@ TrainerChannelRange::TrainerChannelRange(Window* parent) : ChannelRange(parent)
 {
   build();
   update();
-
-  // add callback to be notified when channel count changes
-  lv_obj_add_event_cb(chEnd->getLvObj(), cb_value_changed,
-                      LV_EVENT_VALUE_CHANGED, (void*)this);
 }
 
 uint8_t TrainerChannelRange::getChannelsStart()

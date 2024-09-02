@@ -24,15 +24,6 @@
 #include "edgetx.h"
 #include "sourcechoice.h"
 
-void SourceNumberEdit::value_changed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto edit = (SourceNumberEdit*)lv_obj_get_user_data(obj);
-  if (!edit) return;
-
-  edit->update();
-}
-
 SourceNumberEdit::SourceNumberEdit(Window* parent,
                                    int32_t vmin, int32_t vmax,
                                    std::function<int32_t()> getValue,
@@ -43,6 +34,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
     Window(parent, {0, 0, NUM_EDIT_W + SRC_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
     vmin(vmin),
     vmax(vmax),
+    sourceMin(sourceMin),
     getValue(getValue),
     setValue(setValue),
     textFlags(textFlags),
@@ -87,9 +79,6 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
   });
   m_srcBtn->check(isSource());
 
-  lv_obj_add_event_cb(lvobj, SourceNumberEdit::value_changed,
-                      LV_EVENT_VALUE_CHANGED, nullptr);
-
   // update field type based on value
   update();
 }
@@ -107,7 +96,7 @@ void SourceNumberEdit::switchSourceMode()
   v.rawValue = getValue();
   v.isSource = !v.isSource;
   // TODO: convert value???
-  v.value = 0;
+  v.value = v.isSource ? sourceMin : 0;
   setValue(v.rawValue);
 
   // update field type based on value
@@ -131,7 +120,6 @@ void SourceNumberEdit::update()
     act_field = source_field;
     source_field->show();
     source_field->update();
-    lv_event_send(source_field->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   } else {
     // number edit mode
     act_field = num_field;

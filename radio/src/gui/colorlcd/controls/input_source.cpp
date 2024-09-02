@@ -75,15 +75,6 @@ class SensorValue : public StaticText
   ExpoData *input;
 };
 
-void InputSource::value_changed(lv_event_t *e)
-{
-  auto obj = lv_event_get_target(e);
-  auto src = (InputSource *)lv_obj_get_user_data(obj);
-  if (!src) return;
-
-  src->update();
-}
-
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -99,10 +90,9 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
       this, rect_t{}, INPUTSRC_FIRST, INPUTSRC_LAST, GET_DEFAULT(input->srcRaw),
       [=](int32_t newValue) {
         input->srcRaw = newValue;
-        lv_event_send(lvobj, LV_EVENT_VALUE_CHANGED, nullptr);
+        update();
         SET_DIRTY();
       }, true);
-  lv_obj_add_event_cb(lvobj, InputSource::value_changed, LV_EVENT_VALUE_CHANGED, nullptr);
 
   sensor_form = new Window(this, rect_t{});
   sensor_form->padAll(PAD_TINY);

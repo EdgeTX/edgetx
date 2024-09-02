@@ -117,7 +117,7 @@ void AFHDS2ASettings::showAFHDS2Options()
   afhds2RFPowerChoice->show(showRFPower);
   if (showRFPower && (showRFPower != hasRFPower)) {
     hasRFPower = showRFPower;
-    lv_event_send(afhds2RFPowerChoice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+    afhds2RFPowerChoice->update();
   }
 #endif
 }

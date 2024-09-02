@@ -623,10 +623,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
         menu->addLine(STR_EDIT, [=]() {
           Window* lsWindow = new LogicalSwitchEditPage(i);
           lsWindow->setCloseHandler([=]() {
-            if (isActive)
-              lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED,
-                            nullptr);
-            else
+            if (!isActive)
               rebuild(window);
           });
         });

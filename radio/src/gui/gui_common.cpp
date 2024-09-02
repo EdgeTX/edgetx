@@ -317,7 +317,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
   if (source < 0)
     source = -source;
 
-  for (int i = 0 ; i < DIM(sourceChecks); i += 1) {
+  for (size_t i = 0 ; i < DIM(sourceChecks); i += 1) {
     if (sourceChecks[i].type & sourceTypes && source >= sourceChecks[i].first && source <= sourceChecks[i].last) {
       return sourceChecks[i].check(source - sourceChecks[i].first);
     }

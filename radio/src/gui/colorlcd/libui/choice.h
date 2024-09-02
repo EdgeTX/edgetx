@@ -65,8 +65,6 @@ class ChoiceBase : public FormField
   std::function<std::string(int)> textHandler;
 
   virtual std::string getLabelText() = 0;
-
-  static void changedCB(lv_event_t *e);
 };
 
 class Choice : public ChoiceBase
