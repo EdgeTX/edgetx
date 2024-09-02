@@ -214,7 +214,7 @@ void FunctionLineButton::refresh()
 
 #if defined(FUNCTION_SWITCHES)
     case FUNC_PUSH_CUST_SWITCH:
-      sprintf(s + strlen(s), "%s%d", STR_SWITCH, CFN_PARAM(cfn) + 1);
+      sprintf(s + strlen(s), "%s%d", STR_SWITCH, CFN_CS_INDEX(cfn) + 1);
       break;
 #endif
 
@@ -492,7 +492,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
 #if defined(FUNCTION_SWITCHES)
     case FUNC_PUSH_CUST_SWITCH: {
         new StaticText(line, rect_t{}, STR_SWITCH);
-        auto choice = new Choice(line, rect_t{}, 0, NUM_FUNCTIONS_SWITCHES - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)), STR_SWITCH);
+        auto choice = new Choice(line, rect_t{}, 0, NUM_FUNCTIONS_SWITCHES - 1, GET_SET_DEFAULT(CFN_CS_INDEX(cfn)), STR_SWITCH);
         choice->setTextHandler([=](int n) {
           return std::string(STR_SWITCH) + std::to_string(n + 1);
         });

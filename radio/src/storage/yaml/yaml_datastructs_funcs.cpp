@@ -1628,7 +1628,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 #if defined(FUNCTION_SWITCHES)
   case FUNC_PUSH_CUST_SWITCH:
-    CFN_SW_INDEX(cfn) = yaml_str2uint_ref(val, val_len); // SW index
+    CFN_CS_INDEX(cfn) = yaml_str2uint_ref(val, val_len); // SW index
     break;
 #endif
   case FUNC_ADJUST_GVAR: {
@@ -1826,7 +1826,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 
 #if defined(FUNCTION_SWITCHES)
   case FUNC_PUSH_CUST_SWITCH:
-    str = yaml_unsigned2str(CFN_SW_INDEX(cfn)); // SW index
+    str = yaml_unsigned2str(CFN_CS_INDEX(cfn)); // SW index
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 #endif

@@ -370,7 +370,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 
 #if defined(FUNCTION_SWITCHES)
           case FUNC_PUSH_CUST_SWITCH:
-            functionSwitchFunctionState |= 1 << CFN_SW_INDEX(cfn);
+            functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
             break;
 #endif
 
