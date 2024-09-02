@@ -212,6 +212,12 @@ void FunctionLineButton::refresh()
       strcat(s, formatNumberAsString(CFN_PARAM(cfn)).c_str());
       break;
 
+#if defined(FUNCTION_SWITCHES)
+    case FUNC_PUSH_CUST_SWITCH:
+      sprintf(s + strlen(s), "%s%d", STR_SWITCH, CFN_PARAM(cfn) + 1);
+      break;
+#endif
+
     case FUNC_LOGS:
       strcat(
           s,
@@ -483,9 +489,16 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       addNumberEdit(line, STR_VALUE, cfn, 0, 3);
       break;
 
-    case FUNC_PUSH_CUST_SWITCH:
-
+#if defined(FUNCTION_SWITCHES)
+    case FUNC_PUSH_CUST_SWITCH: {
+        new StaticText(line, rect_t{}, STR_SWITCH);
+        auto choice = new Choice(line, rect_t{}, 0, NUM_FUNCTIONS_SWITCHES - 1, GET_SET_DEFAULT(CFN_PARAM(cfn)), STR_SWITCH);
+        choice->setTextHandler([=](int n) {
+          return std::string(STR_SWITCH) + std::to_string(n + 1);
+        });
+      }
       break;
+#endif
 
     case FUNC_LOGS: {
       if (CFN_PARAM(cfn) == 0)  // use stored value if SF exists
