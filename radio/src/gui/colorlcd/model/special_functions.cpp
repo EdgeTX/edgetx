@@ -652,14 +652,18 @@ void FunctionEditPage::buildBody(Window *form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_FUNC);
   auto functionChoice =
-      new Choice(line, rect_t{}, 0, FUNC_MAX - 1, GET_DEFAULT(getFuncSortIdx(CFN_FUNC(cfn))));
+      new Choice(line, rect_t{}, 0, FUNC_MAX - 1, GET_DEFAULT(getFuncSortIdx(CFN_FUNC(cfn))),
+                  [=](int32_t newValue) {
+                    Functions newFunc = cfn_sorted[newValue];
+                    // If changing from Lua script then reload to remove old reference
+                    if ((CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED) && newFunc != FUNC_PLAY_SCRIPT && newFunc != FUNC_RGB_LED)
+                      LUA_LOAD_MODEL_SCRIPTS();
+                    CFN_FUNC(cfn) = newFunc;
+                    CFN_RESET(cfn);
+                    SET_DIRTY();
+                    updateSpecialFunctionOneWindow();
+                  });
   functionChoice->setTextHandler([=](int val) { return funcGetLabel(cfn_sorted[val]); });
-  functionChoice->setSetValueHandler([=](int32_t newValue) {
-    CFN_FUNC(cfn) = cfn_sorted[newValue];
-    CFN_RESET(cfn);
-    SET_DIRTY();
-    updateSpecialFunctionOneWindow();
-  });
   functionChoice->setAvailableHandler(
       [=](int value) { return isAssignableFunctionAvailable(cfn_sorted[value]); });
 
