@@ -1629,13 +1629,6 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 #if defined(FUNCTION_SWITCHES)
   case FUNC_PUSH_CUST_SWITCH:
     CFN_SW_INDEX(cfn) = yaml_str2uint_ref(val, val_len); // SW index
-
-    // ","
-    if (!val_len || val[0] != ',') return;
-    val++; val_len--;
-    l_sep = find_sep(val, val_len);
-
-    CFN_PARAM(cfn) = yaml_str2int(val, l_sep); // Duration, 10th of seconds
     break;
 #endif
   case FUNC_ADJUST_GVAR: {
@@ -1834,9 +1827,6 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 #if defined(FUNCTION_SWITCHES)
   case FUNC_PUSH_CUST_SWITCH:
     str = yaml_unsigned2str(CFN_SW_INDEX(cfn)); // SW index
-    if (!wf(opaque, str, strlen(str))) return false;
-    if (!wf(opaque,",",1)) return false;
-    str = yaml_signed2str(CFN_PARAM(cfn)); // Duration
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 #endif

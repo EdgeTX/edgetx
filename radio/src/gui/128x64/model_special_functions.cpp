@@ -272,7 +272,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 #if defined(FUNCTION_SWITCHES)
           else if (func == FUNC_PUSH_CUST_SWITCH) {
             maxParam = NUM_FUNCTIONS_SWITCHES - 1;
-            drawStringWithIndex(lcdNextPos +5, y, "SW", CFN_SW_INDEX(cfn) + 1, attr);
+            drawStringWithIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, "SW", CFN_SW_INDEX(cfn) + 1, attr);
           }
 #endif          
           else if (attr) {
