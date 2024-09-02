@@ -149,23 +149,17 @@ void lcdStart()
 #if defined(LCD_VERTICAL_INVERT)
   // T12 and TX12 have the screen inverted.
   #if defined(RADIO_V12)
-        // T12 and TX12 have the screen inverted.
-        lcdWriteCommand(0xe2); // (14) Soft reset
-      #if defined(LCD_HORIZONTAL_INVERT)
-        lcdwriteCommand(0xa1); // Set seg
-      #else
-        lcdWriteCommand(0xa0);  // Set seg
-      #endif 
-        lcdWriteCommand(0xc8);  // Set com
-        lcdWriteCommand(0xf8);  // Set booster
-        lcdWriteCommand(0x00);  // 5x
-        lcdWriteCommand(0xa2); // Set bias=1/6
-        lcdWriteCommand(0x26);  // Set internal rb/ra=5.0
-        lcdWriteCommand(0x2f);  // All built-in power circuits on
-        //lcdWriteCommand(0x24);  // Power control set
-        lcdWriteCommand(0x81);  // Set contrast
-        lcdWriteCommand(0x1F);  // Set Vop
-        lcdWriteCommand(0xa6);  // Set display mode
+    lcdWriteCommand(0xe2); // (14) Soft reset
+    lcdWriteCommand(0xa0);  // Set seg
+    lcdWriteCommand(0xc8);  // Set com
+    lcdWriteCommand(0xf8);  // Set booster
+    lcdWriteCommand(0x00);  // 5x
+    lcdWriteCommand(0xa2); // Set bias=1/6
+    lcdWriteCommand(0x26);  // Set internal rb/ra=5.0
+    lcdWriteCommand(0x2f);  // All built-in power circuits on
+    lcdWriteCommand(0x81);  // Set contrast
+    lcdWriteCommand(0x1F);  // Set Vop
+    lcdWriteCommand(0xa6);  // Set display mode
   #else  
     lcdWriteCommand(0xe2); // (14) Soft reset
 #if defined(LCD_HORIZONTAL_INVERT)
@@ -186,23 +180,17 @@ void lcdStart()
   #endif
 #else
   #if defined(RADIO_V14)
-        // T12 and TX12 have the screen inverted.
-        lcdWriteCommand(0xe2); // (14) Soft reset
-      //#if defined(LCD_HORIZONTAL_INVERT)
-        lcdWriteCommand(0xa1); // Set seg
-      //#else
-      //  lcdWriteCommand(0xa0);  // Set seg
-      //#endif 
-        lcdWriteCommand(0xc0);  // Set com
-        lcdWriteCommand(0xf8);  // Set booster
-        lcdWriteCommand(0x00);  // 5x
-        lcdWriteCommand(0xa2); // Set bias=1/6
-        lcdWriteCommand(0x26);  // Set internal rb/ra=5.0
-        lcdWriteCommand(0x2f);  // All built-in power circuits on
-        //lcdWriteCommand(0x24);  // Power control set
-        lcdWriteCommand(0x81);  // Set contrast
-        lcdWriteCommand(0x1F);  // Set Vop
-        lcdWriteCommand(0xa6);  // Set display mode
+    lcdWriteCommand(0xe2); // (14) Soft reset
+    lcdWriteCommand(0xa1); // Set seg
+    lcdWriteCommand(0xc0);  // Set com
+    lcdWriteCommand(0xf8);  // Set booster
+    lcdWriteCommand(0x00);  // 5x
+    lcdWriteCommand(0xa2); // Set bias=1/6
+    lcdWriteCommand(0x26);  // Set internal rb/ra=5.0
+    lcdWriteCommand(0x2f);  // All built-in power circuits on
+    lcdWriteCommand(0x81);  // Set contrast
+    lcdWriteCommand(0x1F);  // Set Vop
+    lcdWriteCommand(0xa6);  // Set display mode
   #else  
     lcdWriteCommand(0xe2); // (14) Soft reset
     lcdWriteCommand(0xa1); // Set seg
