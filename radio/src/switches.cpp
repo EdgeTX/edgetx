@@ -200,7 +200,6 @@ void evalFunctionSwitches()
       storageDirty(EE_MODEL);
     }
 
-
     if (!pwrPressed()) {
       if (getFSLogicalState(i))
         fsLedOn(i);

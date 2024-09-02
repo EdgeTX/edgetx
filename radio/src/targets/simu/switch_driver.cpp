@@ -25,6 +25,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "switches.h"
 
 struct hw_switch_def {
   const char*  name;
