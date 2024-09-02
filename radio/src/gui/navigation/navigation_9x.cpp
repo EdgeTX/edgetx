@@ -90,7 +90,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
     }
 
     auto moved =  checkMovedInput(newval, i_min, i_max, i_flags, isSource);
-    if (isValueAvailable(moved))
+    if (!isValueAvailable || isValueAvailable(moved))
       newval = moved;
 
     if (invert) {
