@@ -21,8 +21,6 @@
  * Dedicate for FlySky NV14 board.
  */
 
-#pragma once
-
 #include "edgetx.h"
 
 #include "flysky.h"
