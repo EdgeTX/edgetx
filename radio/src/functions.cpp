@@ -370,7 +370,20 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 
 #if defined(FUNCTION_SWITCHES)
           case FUNC_PUSH_CUST_SWITCH:
-            functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
+            if (CFN_PARAM(cf)) {   // Duration is set
+              if (!cfn->clear.val1) { // Duration not started yet
+                cfn->clear.val1 = ticksNow();
+                functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
+              }
+              else if (ticksNow() < (cfn->clear.val1 + FN_PARAM(cf)) {  // Still within push duration
+                functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
+              }
+              else {
+                cfn->clear.val1 = 0;
+              }
+            }
+            else // No duration set
+              functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
             break;
 #endif
 
