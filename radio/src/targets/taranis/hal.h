@@ -1335,7 +1335,7 @@
   #define STORAGE_SWITCH_L
   #define HARDWARE_SWITCH_L
   #define SWITCHES_GPIO_REG_L           GPIOE
-  #define SWITCHES_GPIO_PIN_L           LL_GPIO_PIN_13 // PE.13
+  #define SWITCHES_GPIO_PIN_L           LL_GPIO_PIN_15 // PE.15
   // SW5
   #define FUNCTION_SWITCH_5             SM
   #define STORAGE_SWITCH_M
@@ -1347,7 +1347,7 @@
   #define STORAGE_SWITCH_O
   #define HARDWARE_SWITCH_O
   #define SWITCHES_GPIO_REG_O           GPIOE
-  #define SWITCHES_GPIO_PIN_O           LL_GPIO_PIN_15 // PE.15
+  #define SWITCHES_GPIO_PIN_O           LL_GPIO_PIN_13 // PE.13
 #elif defined(RADIO_TPRO)
   // SW3
   #define FUNCTION_SWITCH_3             SI
