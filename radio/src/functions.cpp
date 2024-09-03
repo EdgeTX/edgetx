@@ -164,7 +164,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
   bool videoEnabled = false;
 #endif
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
-    const CustomFunctionData * cfn = &functions[i];
+    CustomFunctionData * cfn = &functions[i];
     swsrc_t swtch = CFN_SWITCH(cfn);
     if (swtch) {
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
@@ -370,16 +370,16 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 
 #if defined(FUNCTION_SWITCHES)
           case FUNC_PUSH_CUST_SWITCH:
-            if (CFN_PARAM(cf)) {   // Duration is set
-              if (!cfn->clear.val1) { // Duration not started yet
-                cfn->clear.val1 = ticksNow();
+            if (CFN_PARAM(cfn)) {   // Duration is set
+              if (! CFN_VAL2(cfn) ) { // Duration not started yet
+                CFN_VAL2(cfn) = ticksNow();
                 functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
               }
-              else if (ticksNow() < (cfn->clear.val1 + FN_PARAM(cf)) {  // Still within push duration
+              else if (ticksNow() < (CFN_VAL2(cfn) + CFN_PARAM(cfn))) {  // Still within push duration
                 functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
               }
               else {
-                cfn->clear.val1 = 0;
+                CFN_VAL2(cfn) = 0;
               }
             }
             else // No duration set

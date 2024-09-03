@@ -66,6 +66,7 @@
 #define CFN_PLAY_REPEAT_NOSTART        -1
 #define CFN_GVAR_MODE(p)               ((p)->all.mode)
 #define CFN_PARAM(p)                   ((p)->all.val)
+#define CFN_VAL2(p)                    ((p)->all.val2)
 #define CFN_RESET(p)                   ((p)->active=0, (p)->clear.val1=0, (p)->clear.val2=0)
 #define CFN_GVAR_CST_MIN               -GVAR_MAX
 #define CFN_GVAR_CST_MAX               GVAR_MAX
