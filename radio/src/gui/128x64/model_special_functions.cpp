@@ -220,7 +220,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           if (CFN_SWITCH(cfn)) {
             lcdDrawText(MODEL_SPECIAL_FUNC_2ND_COLUMN, y, funcGetLabel(func), attr);
             if (active) {
-              CFN_FUNC(cfn) = cfn_sorted[checkIncDec(event, getFuncSortIdx(CFN_FUNC(cfn)), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailableSorted)];
+              Functions newFunc = cfn_sorted[checkIncDec(event, getFuncSortIdx(CFN_FUNC(cfn)), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailableSorted)];
+              // If changing from Lua script then reload to remove old reference
+              if ((CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED) && newFunc != FUNC_PLAY_SCRIPT && newFunc != FUNC_RGB_LED)
+                LUA_LOAD_MODEL_SCRIPTS();
+              CFN_FUNC(cfn) = newFunc;
               if (checkIncDec_Ret) CFN_RESET(cfn);
             }
           }
