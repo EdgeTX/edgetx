@@ -136,6 +136,9 @@ class ValueWidget : public Widget
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIME;
         valueTxt = getTimerString(tme, timerOptions);
+      } else if (field >= MIXSRC_FIRST_TELEM) {
+        std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
+        valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3, getValue(field), valueFlags);
 #if defined(LUA_INPUTS)
       }
       else if (field >= MIXSRC_FIRST_LUA && field <= MIXSRC_LAST_LUA) {
@@ -213,7 +216,8 @@ class ValueWidget : public Widget
                                             : -4;
       valueY = VAL_Y2;
       if (field >= MIXSRC_FIRST_TELEM) {
-        if (!isGPSSensor(1 + (field - MIXSRC_FIRST_TELEM) / 3)) {
+        int8_t sensor = 1 + (field - MIXSRC_FIRST_TELEM) / 3;
+        if (!isGPSSensor(sensor) && !isSensorUnit(sensor, UNIT_DATETIME) && !isSensorUnit(sensor, UNIT_TEXT)) {
           // Set font to XL
           lv_obj_add_state(value, ETX_STATE_LARGE_FONT);
           lv_obj_add_state(valueShadow, ETX_STATE_LARGE_FONT);
