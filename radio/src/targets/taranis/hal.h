@@ -2076,12 +2076,12 @@
   #define STATUS_LEDS
   #define GPIO_LED_GPIO_ON              GPIO_SetBits
   #define GPIO_LED_GPIO_OFF             GPIO_ResetBits
-  #define LED_GREEN_GPIO                GPIOC
-  #define LED_GREEN_GPIO_PIN            GPIO_Pin_4  // PC.04
+  #define LED_GREEN_GPIO                GPIOG
+  #define LED_GREEN_GPIO_PIN            GPIO_Pin_1  // PG.01
   #define LED_RED_GPIO                  GPIOC
   #define LED_RED_GPIO_PIN              GPIO_Pin_5  // PC.05
-  #define LED_BLUE_GPIO                 GPIOG
-  #define LED_BLUE_GPIO_PIN             GPIO_Pin_1  // PG.01
+  #define LED_BLUE_GPIO                 GPIOC
+  #define LED_BLUE_GPIO_PIN             GPIO_Pin_4  // PC.04
 #elif defined(RADIO_FAMILY_T20)
   #define STATUS_LEDS
   #define GPIO_LED_GPIO_ON              GPIO_SetBits
