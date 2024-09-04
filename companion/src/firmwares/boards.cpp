@@ -735,7 +735,6 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TLITE_F4:
   case BOARD_JUMPER_TPRO:
   case BOARD_JUMPER_TPROV2:
-  case BOARD_JUMPER_BUMBLEBEE:
   case BOARD_FLYSKY_PL18:
     return (int)MODULE_TYPE_MULTIMODULE;
 
