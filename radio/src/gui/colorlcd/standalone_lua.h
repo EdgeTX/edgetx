@@ -83,7 +83,5 @@ protected:
   void checkEvents() override;
   void onClicked() override;
   void onCancel() override;
-
-  static void redraw_cb(lv_event_t *e);
 };
 #endif
