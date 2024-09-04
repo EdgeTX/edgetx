@@ -13,10 +13,10 @@ SimulatedUIWidgetJumperBumblebee::SimulatedUIWidgetJumperBumblebee(SimulatorInte
   ui->setupUi(this);
 
   act = new RadioUiAction(0, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
-  addRadioWidget(ui->bottombuttons->addArea(QRect(55, 15, 50, 50), "JumperBumblebee/page.png", act));
+  addRadioWidget(ui->bottombuttons->addArea(QRect(55, 15, 50, 50), "JumperBumblebee/menu.png", act));
 
   act = new RadioUiAction(3, QList<int>() << Qt::Key_PageDown << Qt::Key_Down, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
-  addRadioWidget(ui->bottombuttons->addArea(QRect(10, 25, 50, 50), "JumperBumblebee/menu.png", act));
+  addRadioWidget(ui->bottombuttons->addArea(QRect(10, 25, 50, 50), "JumperBumblebee/page.png", act));
 
   act = new RadioUiAction(1, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->bottombuttons->addArea(QRect(25, 80, 50, 50), "JumperBumblebee/exit.png", act));
