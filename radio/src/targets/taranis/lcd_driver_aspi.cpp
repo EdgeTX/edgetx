@@ -276,8 +276,8 @@ void lcdInitFinish()
   */
 
   if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
-    // wait measured from the power-on
-    while (timersGetMsTick() < RESET_WAIT_DELAY_MS);
+    uint32_t end = timersGetMsTick() + RESET_WAIT_DELAY_MS;
+    while (timersGetMsTick() < end);
   }
   
   lcdStart();

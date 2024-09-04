@@ -389,8 +389,8 @@ void lcdInitFinish()
   */
 
   if (LCD_DELAY_NEEDED()) {
-    // wait measured from the power-on
-    while (timersGetMsTick() < RESET_WAIT_DELAY_MS);
+    uint32_t end = timersGetMsTick() + RESET_WAIT_DELAY_MS;
+    while (timersGetMsTick() < end);
   }
 
   lcdStart();
