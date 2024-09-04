@@ -53,6 +53,9 @@ get_target_build_options() {
         tpros)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROS"
             ;;
+        bumblebee)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BUMBLEBEE"
+            ;;
         t20)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
             ;;

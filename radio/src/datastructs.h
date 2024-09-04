@@ -90,7 +90,7 @@ static inline void check_struct()
   CHKSIZE(RadioData, 870);
 #endif
 
-#if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
+#if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
   CHKSIZE(ModelData, 6354);
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
   CHKSIZE(ModelData, 6329);
