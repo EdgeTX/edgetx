@@ -11,16 +11,16 @@ SimulatedUIWidgetJumperT12max::SimulatedUIWidgetJumperT12max(SimulatorInterface 
 
   ui->setupUi(this);
 
-  act = new RadioUiAction(0, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
+  act = new RadioUiAction(KEY_MENU, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
   addRadioWidget(ui->leftbuttons->addArea(QRect(17, 45, 90, 30), "JumperT12max/menu.png", act));
 
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_PageDown << Qt::Key_Down, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
+  act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_PageDown << Qt::Key_Down, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
   addRadioWidget(ui->leftbuttons->addArea(QRect(17, 107, 90, 30), "JumperT12max/page.png", act));
 
-  act = new RadioUiAction(1, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
+  act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->leftbuttons->addArea(QRect(17, 180, 90, 30), "JumperT12max/exit.png", act));
 
-  m_mouseMidClickAction = new RadioUiAction(2, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
+  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
   addRadioWidget(ui->rightbuttons->addArea(QRect(130, 65, 70, 130), "JumperT12max/right-ent.png", m_mouseMidClickAction));
 
   //addRadioWidget(ui->leftbuttons->addArea(QRect(10, 65, 70, 50), "JumperT12max/left_scrnshot.png", m_screenshotAction));
