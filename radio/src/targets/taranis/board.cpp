@@ -138,13 +138,13 @@ void boardInit()
 
   if (usbPlugged()) {
     delaysInit();
+    __enable_irq();
     adcInit(&_adc_driver);
     getADC();
     pwrOn();  // required to get bat adc reads
     INTERNAL_MODULE_OFF();
     EXTERNAL_MODULE_OFF();
     delay_ms(2000); // let this stabilize
-
     while (usbPlugged()) {
       //    // Let it charge ...
       getADC();  // Warning: the value read does not include VBAT calibration
