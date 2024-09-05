@@ -192,7 +192,7 @@ static void _init_timer(const stm32_pulse_timer_t* tim)
   _led_set_dma_periph_addr(tim);
 
   LL_DMA_SetMode(tim->DMAx, tim->DMA_Stream, LL_DMA_MODE_CIRCULAR);
-  LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, WS2821_DMA_BUFFER_LEN * pulse_inc);
+  LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, WS2821_DMA_BUFFER_LEN);
   LL_DMA_SetMemoryAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)_led_dma_buffer);
   
   // we need to use a higher prio to avoid having
