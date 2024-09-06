@@ -66,7 +66,7 @@ static lv_obj_t* switch_create(lv_obj_t* parent)
   return etx_create(&switch_class, parent);
 }
 
-static void toggleswitch_event_handler(lv_event_t* e)
+void ToggleSwitch::toggleswitch_event_handler(lv_event_t* e)
 {
   lv_obj_t* target = lv_event_get_target(e);
   ToggleSwitch* cb = (ToggleSwitch*)lv_obj_get_user_data(target);
@@ -83,7 +83,7 @@ ToggleSwitch::ToggleSwitch(Window* parent, const rect_t& rect,
 {
   update();
 
-  lv_obj_add_event_cb(lvobj, toggleswitch_event_handler, LV_EVENT_VALUE_CHANGED,
+  lv_obj_add_event_cb(lvobj, ToggleSwitch::toggleswitch_event_handler, LV_EVENT_VALUE_CHANGED,
                       this);
 }
 

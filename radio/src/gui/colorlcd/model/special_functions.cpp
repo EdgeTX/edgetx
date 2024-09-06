@@ -720,9 +720,7 @@ void FunctionsPage::pasteSpecialFunction(Window *window, uint8_t index,
   if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT) LUA_LOAD_MODEL_SCRIPTS();
   storageDirty(EE_MODEL);
   focusIndex = index;
-  if (button)
-    lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-  else
+  if (!button)
     rebuild(window);
 }
 
@@ -734,9 +732,7 @@ void FunctionsPage::editSpecialFunction(Window *window, uint8_t index,
     CustomFunctionData *cfn = customFunctionData(index);
     if (cfn->swtch != 0) {
       focusIndex = index;
-      if (button)
-        lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-      else
+      if (!button)
         rebuild(window);
     }
   });

@@ -39,7 +39,6 @@ class ChannelRange : public Window
 
   virtual int8_t getChannelsCount() = 0;
   void setPpmFrameLenEditObject(NumberEdit* ppmFrameLenEditObject);
-  NumberEdit* getPpmFrameLenEditObject();
 
  protected:
   NumberEdit* chStart;

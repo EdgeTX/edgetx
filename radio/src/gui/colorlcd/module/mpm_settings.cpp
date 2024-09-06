@@ -28,15 +28,6 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-static void update_mpm_settings(lv_event_t* e)
-{
-  MultimoduleSettings* ms = (MultimoduleSettings*)lv_event_get_user_data(e);
-  if (!ms) return;
-
-  ms->update();
-  lv_event_send(ms->getParent()->getLvObj(), LV_EVENT_REFRESH, nullptr);
-}
-
 class MPMProtoOption : public FormLine {
  public:
   MPMProtoOption(Window* form, FlexGridLayout& layout) :
@@ -85,7 +76,7 @@ class MPMProtoOption : public FormLine {
       choice->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
       choice->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
       choice->show();
-      lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+      choice->update();
     } else if (title == STR_MULTI_TELEMETRY) {  // Bayang
       choice->setValues(STR_MULTI_BAYANG_OPTIONS);
       choice->setMin(min);
@@ -93,7 +84,7 @@ class MPMProtoOption : public FormLine {
       choice->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
       choice->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
       choice->show();
-      lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+      choice->update();
     } else if (title ==
                STR_MULTI_WBUS) {  // e.g. WFLY2 but may not be used anymore
       choice->setValues(STR_MULTI_WBUS_MODE);
@@ -102,7 +93,7 @@ class MPMProtoOption : public FormLine {
       choice->setGetValueHandler(GET_DEFAULT(md->multi.optionValue));
       choice->setSetValueHandler(SET_DEFAULT(md->multi.optionValue));
       choice->show();
-      lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+      choice->update();
     } else if (rfProto->proto == MODULE_SUBTYPE_MULTI_FS_AFHDS2A) {
       edit->setMin(50);
       edit->setMax(400);
@@ -150,16 +141,9 @@ class MPMProtoOption : public FormLine {
   DynamicNumber<uint16_t>* rssi;
 };
 
-static void subtype_event_cb(lv_event_t* e)
-{
-  if (lv_event_get_param(e)) return;
-  auto obj = (lv_obj_t*)lv_event_get_user_data(e);
-  if (obj) lv_event_send(obj, LV_EVENT_VALUE_CHANGED, nullptr);
-}
-
 struct MPMSubtype : public FormLine {
-  MPMSubtype(Window* form, FlexGridLayout& layout, uint8_t moduleIdx) :
-      FormLine(form, layout)
+  MPMSubtype(MultimoduleSettings* parent, FlexGridLayout& layout, uint8_t moduleIdx) :
+      FormLine(parent, layout)
   {
     this->moduleIdx = moduleIdx;
     this->DSM2lastSubType = g_model.moduleData[this->moduleIdx].subType;
@@ -176,10 +160,8 @@ struct MPMSubtype : public FormLine {
             resetMultiProtocolsOptions(moduleIdx);
           DSM2autoUpdated = false;
           SET_DIRTY();
+          parent->update();
         });
-
-    lv_obj_add_event_cb(choice->getLvObj(), subtype_event_cb,
-                        LV_EVENT_VALUE_CHANGED, lvobj);
   }
 
   void update(const MultiRfProtocols::RfProto* rfProto, uint8_t moduleIdx)
@@ -193,9 +175,6 @@ struct MPMSubtype : public FormLine {
     choice->setMax(rfProto->subProtos.size() - 1);
 
     show();
-
-    bool stop = true;
-    lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, &stop);
   }
 
   void checkEvents()
@@ -213,8 +192,6 @@ struct MPMSubtype : public FormLine {
         DSM2autoUpdated = true;          // indicate this was not user triggered
         DSM2lastSubType = subType;       // memorize new DSM2 subType
         choice->setValue(subType);       // set new DSM2 subType
-        lv_event_send(choice->getLvObj(), LV_EVENT_REFRESH,
-                      nullptr);  // refresh subType field
       }
     }
   }
@@ -244,7 +221,7 @@ struct MPMDSMCloned : public FormLine {
 
   void update() const
   {
-    lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+    choice->update();
   }
 
  private:
@@ -269,7 +246,7 @@ struct MPMServoRate : public FormLine {
 
   void update() const
   {
-    lv_event_send(choice->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+    choice->update();
   }
 
  private:
@@ -348,9 +325,6 @@ MultimoduleSettings::MultimoduleSettings(Window* parent,
       });
 
   st_line = new MPMSubtype(this, grid, moduleIdx);
-
-  lv_obj_add_event_cb(st_line->getLvObj(), update_mpm_settings,
-                      LV_EVENT_VALUE_CHANGED, this);
 
   cl_line = new MPMDSMCloned(this, grid, moduleIdx);
   opt_line = new MPMProtoOption(this, grid);

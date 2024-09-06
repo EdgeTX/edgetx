@@ -24,6 +24,7 @@
 #include "window.h"
 #include "module_setup.h"
 
+class Choice;
 struct ModuleData;
 
 class AFHDS2ASettings : public Window, public ModuleOptions
@@ -37,7 +38,7 @@ class AFHDS2ASettings : public Window, public ModuleOptions
 #if defined(PCBNV14)
   bool hasRFPower = false;
   Window* afhds2RFPowerText = nullptr;
-  Window* afhds2RFPowerChoice = nullptr;
+  Choice* afhds2RFPowerChoice = nullptr;
 #endif  
   void hideAFHDS2Options();
   void showAFHDS2Options();

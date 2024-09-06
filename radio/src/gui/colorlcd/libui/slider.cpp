@@ -68,7 +68,7 @@ static lv_obj_t* slider_create(lv_obj_t* parent)
   return etx_create(&slider_class, parent);
 }
 
-static void slider_changed_cb(lv_event_t* e)
+void Slider::slider_changed_cb(lv_event_t* e)
 {
   if (lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
     Slider* sl = (Slider*)lv_event_get_user_data(e);
@@ -95,7 +95,7 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
   slider = (new FormField(this, rect_t{}, slider_create))->getLvObj();
   lv_obj_set_width(slider, lv_pct(100));
 
-  lv_obj_add_event_cb(slider, slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
+  lv_obj_add_event_cb(slider, Slider::slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
   lv_slider_set_range(slider, vmin, vmax);
 
   lv_obj_add_event_cb(lvobj, Slider::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,

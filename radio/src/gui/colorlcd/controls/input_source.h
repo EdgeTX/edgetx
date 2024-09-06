@@ -32,7 +32,6 @@ class InputSource : public Window
   Window* sensor_form;
 
   void update();
-  static void value_changed(lv_event_t* e);
 
  public:
   InputSource(Window* parent, ExpoData* input);
