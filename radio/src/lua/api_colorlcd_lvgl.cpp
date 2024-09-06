@@ -194,6 +194,18 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         lvobj = new LvglWidgetSlider();
       else if (strcasecmp(p.type, "page") == 0)
         lvobj = new LvglWidgetPage();
+      else if (strcasecmp(p.type, "font") == 0)
+        lvobj = new LvglWidgetFontPicker();
+      else if (strcasecmp(p.type, "align") == 0)
+        lvobj = new LvglWidgetAlignPicker();
+      else if (strcasecmp(p.type, "color") == 0)
+        lvobj = new LvglWidgetColorPicker();
+      else if (strcasecmp(p.type, "timer") == 0)
+        lvobj = new LvglWidgetTimerPicker();
+      else if (strcasecmp(p.type, "switch") == 0)
+        lvobj = new LvglWidgetSwitchPicker();
+      else if (strcasecmp(p.type, "source") == 0)
+        lvobj = new LvglWidgetSourcePicker();
     }
     if (lvobj) {
       lvobj->getParams(L, -1);
@@ -261,11 +273,18 @@ LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return
 LROT_FUNCENTRY(numberEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetNumberEdit(); }, true); })
 LROT_FUNCENTRY(choice, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetChoice(); }, true); })
 LROT_FUNCENTRY(slider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSlider(); }, true); })
+LROT_FUNCENTRY(font, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFontPicker(); }, true); })
+LROT_FUNCENTRY(align, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetAlignPicker(); }, true); })
+LROT_FUNCENTRY(color, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetColorPicker(); }, true); })
+LROT_FUNCENTRY(timer, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTimerPicker(); }, true); })
+LROT_FUNCENTRY(switch, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSwitchPicker(); }, true); })
+LROT_FUNCENTRY(source, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSourcePicker(); }, true); })
 // Containers
 LROT_FUNCENTRY(page, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetPage(); }, true); })
+LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetDialog(); }, true); })
 // Dialogs
 LROT_FUNCENTRY(confirm, luaLvglConfirm)
-// Manipulation functions
+// Object manipulation functions
 LROT_FUNCENTRY(set, luaLvglSet)
 LROT_FUNCENTRY(show, luaLvglShow)
 LROT_FUNCENTRY(hide, luaLvglHide)

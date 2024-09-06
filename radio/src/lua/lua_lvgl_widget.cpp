@@ -20,11 +20,14 @@
  */
 
 #include "lua_widget.h"
+#include "color_picker.h"
 #include "edgetx.h"
+#include "lua_event.h"
 #include "page.h"
 #include "slider.h"
+#include "sourcechoice.h"
+#include "switchchoice.h"
 #include "toggleswitch.h"
-#include "lua_event.h"
 
 //-----------------------------------------------------------------------------
 
@@ -1167,42 +1170,6 @@ void LvglWidgetNumberEdit::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-void LvglWidgetChoice::parseParam(lua_State *L, const char *key)
-{
-  if (!strcmp(key, "title")) {
-    title = luaL_checkstring(L, -1);
-  } else if (!strcmp(key, "values")) {
-    luaL_checktype(L, -1, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-      values.push_back(lua_tostring(L, -1));
-    }
-  } else if (!strcmp(key, "get")) {
-    getFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "set")) {
-    setFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else {
-    LvglWidgetObject::parseParam(L, key);
-  }
-}
-
-void LvglWidgetChoice::clearRefs(lua_State *L)
-{
-  clearRef(L, getFunction);
-  clearRef(L, setFunction);
-  LvglWidgetObject::clearRefs(L);
-}
-
-void LvglWidgetChoice::build(lua_State *L)
-{
-  if (h == LV_SIZE_CONTENT) h = 0;
-  window = new Choice(
-      lvglManager->getCurrentParent(), {x, y, w, h}, values, 0,
-      values.size() - 1, [=]() { return pcallGetIntVal(L, getFunction) - 1; },
-      [=](int val) { pcallSetIntVal(L, setFunction, val + 1); }, title.c_str());
-}
-
-//-----------------------------------------------------------------------------
-
 void LvglWidgetSlider::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "get")) {
@@ -1315,6 +1282,192 @@ void LvglWidgetPage::build(lua_State *L)
       lvglManager->getCurrentParent(),
       [=]() { pcallSimpleFunc(L, backActionFunction); }, title, subtitle, iconFile);
   window = page->getBody();
+}
+
+//-----------------------------------------------------------------------------
+
+class LvglDialog : public BaseDialog
+{
+ public:
+  LvglDialog(std::string& title, coord_t w, coord_t h, std::function<void()> onClose) :
+    BaseDialog(MainWindow::instance(), title.empty() ? nullptr : title.c_str(), true, w, h),
+    onClose(std::move(onClose))
+  {
+    form->setHeight(h - EdgeTxStyles::UI_ELEMENT_HEIGHT);
+  }
+
+  Window *getBody() { return form; }
+
+ protected:
+  std::function<void()> onClose;
+
+  void onCancel() override
+  {
+    onClose();
+    BaseDialog::onCancel();
+  }
+};
+
+void LvglWidgetDialog::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "close")) {
+    closeFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "title")) {
+    title = luaL_checkstring(L, -1);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetDialog::clearRefs(lua_State *L)
+{
+  clearRef(L, closeFunction);
+  LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetDialog::build(lua_State *L)
+{
+  if (w == LV_SIZE_CONTENT) w = DIALOG_DEFAULT_WIDTH;
+  if (h == LV_SIZE_CONTENT) h = DIALOG_DEFAULT_HEIGHT;
+  auto dlg = new LvglDialog(title, w, h,
+      [=]() { pcallSimpleFunc(L, closeFunction); });
+  window = dlg->getBody();
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetPicker::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "get")) {
+    getFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "set")) {
+    setFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetPicker::clearRefs(lua_State *L)
+{
+  clearRef(L, getFunction);
+  clearRef(L, setFunction);
+  LvglWidgetObject::clearRefs(L);
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetChoice::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "title")) {
+    title = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "values")) {
+    luaL_checktype(L, -1, LUA_TTABLE);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      values.push_back(lua_tostring(L, -1));
+    }
+  } else {
+    LvglWidgetPicker::parseParam(L, key);
+  }
+}
+
+void LvglWidgetChoice::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  window = new Choice(
+      lvglManager->getCurrentParent(), {x, y, w, h}, values, 0, values.size() - 1,
+      [=]() { return pcallGetIntVal(L, getFunction) - 1; },
+      [=](int val) { pcallSetIntVal(L, setFunction, val + 1); }, title.c_str());
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetFontPicker::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  window = new Choice(
+      lvglManager->getCurrentParent(), {x, y, w, h}, STR_FONT_SIZES, 0, FONTS_COUNT - 1,
+      [=]() { return FONT_INDEX(pcallGetIntVal(L, getFunction)); },
+      [=](int val) { pcallSetIntVal(L, setFunction, val << 8u); });
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetAlignPicker::build(lua_State *L)
+{
+  static LcdFlags alignments[3] = { LEFT, CENTERED, RIGHT };
+
+  if (h == LV_SIZE_CONTENT) h = 0;
+  window = new Choice(
+      lvglManager->getCurrentParent(), {x, y, w, h}, STR_ALIGN_OPTS, 0, ALIGN_COUNT - 1,
+      [=]() -> int {
+        auto v = pcallGetIntVal(L, getFunction);
+        for (size_t i = 0; i < DIM(alignments); i += 1)
+          if (alignments[i] == v) return i;
+        return 0;
+      },
+      [=](int val) { pcallSetIntVal(L, setFunction, alignments[val]); });
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetColorPicker::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  window = new ColorPicker(
+      lvglManager->getCurrentParent(), {x, y, w, h},
+      [=]() { return pcallGetIntVal(L, getFunction); },
+      [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); });
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetTimerPicker::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  auto tmChoice = new Choice(
+      lvglManager->getCurrentParent(), {x, y, w, h}, 0, TIMERS - 1,
+      [=]() { return pcallGetIntVal(L, getFunction); },
+      [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); });
+  tmChoice->setTextHandler([](int value) {
+    return std::string(STR_TIMER) + std::to_string(value + 1);
+  });
+  window = tmChoice;
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetSwitchPicker::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "min")) {
+    vmin = luaL_checkinteger(L, -1);
+  } else if (!strcmp(key, "max")) {
+    vmax = luaL_checkinteger(L, -1);
+  } else {
+    LvglWidgetPicker::parseParam(L, key);
+  }
+}
+
+void LvglWidgetSwitchPicker::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  window = new SwitchChoice(
+      lvglManager->getCurrentParent(), {x, y, w, h},
+      vmin, vmax,
+      [=]() { return pcallGetIntVal(L, getFunction); },
+      [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); });
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetSourcePicker::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  window = new SourceChoice(
+      lvglManager->getCurrentParent(), {x, y, w, h},
+      0, MIXSRC_LAST_TELEM,
+      [=]() { return pcallGetIntVal(L, getFunction); },
+      [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); },
+      true);
 }
 
 //-----------------------------------------------------------------------------

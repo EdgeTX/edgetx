@@ -496,8 +496,8 @@ void LuaWidget::background()
   if (lsWidgets == 0 || errorMessage) return;
 
   // TRACE("LuaWidget::background()");
-  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   if (luaFactory()->backgroundFunction) {
+    luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
     runningFS = this;

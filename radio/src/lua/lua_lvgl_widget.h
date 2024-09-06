@@ -381,26 +381,6 @@ class LvglWidgetNumberEdit : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetChoice : public LvglWidgetObject
-{
- public:
-  LvglWidgetChoice() : LvglWidgetObject() {}
-
-  void build(lua_State *L) override;
-  void clearRefs(lua_State *L) override;
-
- protected:
-  std::string title;
-  std::vector<std::string> values;
-
-  int getFunction = 0;
-  int setFunction = 0;
-
-  void parseParam(lua_State *L, const char *key) override;
-};
-
-//-----------------------------------------------------------------------------
-
 class LvglWidgetSlider : public LvglWidgetObject
 {
  public:
@@ -435,6 +415,121 @@ class LvglWidgetPage : public LvglWidgetObject
   std::string iconFile;
 
   void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetDialog : public LvglWidgetObject
+{
+ public:
+  LvglWidgetDialog() : LvglWidgetObject() {}
+
+  void build(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  int closeFunction = 0;
+  std::string title;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetPicker : public LvglWidgetObject
+{
+ public:
+  LvglWidgetPicker() : LvglWidgetObject() {}
+
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  int getFunction = 0;
+  int setFunction = 0;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetChoice : public LvglWidgetPicker
+{
+ public:
+  LvglWidgetChoice() : LvglWidgetPicker() {}
+
+  void build(lua_State *L) override;
+
+ protected:
+  std::string title;
+  std::vector<std::string> values;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetFontPicker : public LvglWidgetPicker
+{
+ public:
+  LvglWidgetFontPicker() : LvglWidgetPicker() {}
+
+  void build(lua_State *L) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetAlignPicker : public LvglWidgetPicker
+{
+ public:
+  LvglWidgetAlignPicker() : LvglWidgetPicker() {}
+
+  void build(lua_State *L) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetColorPicker : public LvglWidgetPicker
+{
+ public:
+  LvglWidgetColorPicker() : LvglWidgetPicker() {}
+
+  void build(lua_State *L) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetTimerPicker : public LvglWidgetPicker
+{
+ public:
+  LvglWidgetTimerPicker() : LvglWidgetPicker() {}
+
+  void build(lua_State *L) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetSwitchPicker : public LvglWidgetPicker
+{
+ public:
+  LvglWidgetSwitchPicker() : LvglWidgetPicker() {}
+
+  void build(lua_State *L) override;
+
+ protected:
+  int16_t vmin = SWSRC_FIRST;
+  int16_t vmax = SWSRC_LAST;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetSourcePicker : public LvglWidgetPicker
+{
+ public:
+  LvglWidgetSourcePicker() : LvglWidgetPicker() {}
+
+  void build(lua_State *L) override;
 };
 
 //-----------------------------------------------------------------------------

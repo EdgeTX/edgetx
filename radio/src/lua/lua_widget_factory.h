@@ -49,5 +49,6 @@ class LuaWidgetFactory : public WidgetFactory
   int refreshFunction;
   int backgroundFunction;
   int translateFunction;
+  int settingsFunction;
   bool lvglLayout;
 };

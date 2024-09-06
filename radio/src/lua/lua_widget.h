@@ -104,8 +104,6 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
   // Widget interface
   void onFullscreen(bool enable) override;
-    
-  void setErrorMessage(const char* funcName);
 
   // Update 'zone' data
   void updateZoneRect(rect_t rect, bool updateUI = true) override;
@@ -120,6 +118,8 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "LuaWidget"; }
 #endif
+
+  void setErrorMessage(const char* funcName);
 
   // Widget interface
   const char* getErrorMessage() const override;
@@ -136,10 +136,13 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
   void luaShowError() override {}
 
-  bool isWidget() override { return true; }
+  void pushOptionsTable();
+
+  bool isWidget() override { return !inSettings; }
 
  protected:
   bool created = false;
+  bool inSettings = false;
   lv_obj_t* errorLabel = nullptr;
   int luaWidgetDataRef = 0;
 
