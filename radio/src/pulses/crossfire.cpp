@@ -42,6 +42,10 @@
 
 #define MIN_FRAME_LEN 3
 
+#define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
+static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
+static bool moduleAlive[NUM_MODULES];                 // module alive status
+
 uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 {
   uint8_t * buf = frame;
@@ -95,6 +99,34 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
   } else
 #endif
   {
+    //
+    // An ELRS module stores the RF parameters in a model specific way using the
+    // modelID as index. If the module resets after it was initally initialized the modelID 
+    // needs to be resent as otherwise the module assumes modelID 0 which leads to the
+    // module using the stored RF parameters for the model with modelID 0. This is not only
+    // annoying but also potentially dangerous as a receiver will no longer re-connect.
+    //
+    // Reasons for a module resetting might be:
+    // - power surge
+    // - internal non-recoverable error
+    // - after flashing in WiFi mode
+    // - putting the module in WiFi mode and exiting WiFi mode (LUA script)
+    // 
+    // This logic takes care of sending the modelID again after a module comes back to 
+    // live after a module reset
+    // 
+    if(moduleState[module].counter != CRSF_FRAME_MODELID ) {            // skip the reset check logic if first init
+      if((get_tmr10ms() - lastAlive[module]) > MODULE_ALIVE_TIMEOUT) {  // check if module has recently sent CRSF frames 
+        moduleAlive[module] = false;                                    // no, declare it as dead  
+      } else {
+        if(moduleAlive[module] == false) {                              // if the module was dead and came back to live, e.g. reset
+          moduleAlive[module] = true;                                   // declare the module as alive
+          moduleState[module].counter = CRSF_FRAME_MODELID;             // and send it the modelID again 
+          TRACE("[XF] sending ModelID after module reset");
+        }
+      }
+    }
+
     if (moduleState[module].counter == CRSF_FRAME_MODELID) {
       p_buf += createCrossfireModelIDFrame(module, p_buf);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
@@ -221,6 +253,7 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
 #endif
       auto mod_st = (etx_module_state_t*)ctx;
       auto module = modulePortGetModule(mod_st);
+      lastAlive[module] = get_tmr10ms();                              // valid frame received, note timestamp
       processCrossfireTelemetryFrame(module, p_buf, pkt_len);
     }
 
