@@ -1022,7 +1022,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
       ival = switchLookupIdx(val, val_len - 1) * 3;
       if (ival < 0) return SWSRC_NONE;
-      ival += yaml_str2int(val + 3, val_len - 2);
+      ival += yaml_str2int(val + 3, val_len - 3);
       ival += SWSRC_FIRST_SWITCH;
       
     } else if (val_len > 2 && val[0] == 'S'
