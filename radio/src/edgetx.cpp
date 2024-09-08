@@ -73,6 +73,10 @@
 #include <malloc.h>
 #endif
 
+#if defined(LUA)
+#include "lua/lua_states.h"
+#endif
+
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
