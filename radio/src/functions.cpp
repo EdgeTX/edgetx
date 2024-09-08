@@ -452,9 +452,8 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
         }
 
         newActiveSwitches |= switch_mask;
-      }
+      } else {
 #if defined(FUNCTION_SWITCHES)
-      else {
         if (CFN_FUNC(cfn) == FUNC_PUSH_CUST_SWITCH) {
           // Handling duration after function is active
           if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn)) {
