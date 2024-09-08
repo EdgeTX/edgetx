@@ -30,7 +30,11 @@
 
 #define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
 #define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period 
-#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF 
+#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF
+
+#define PUSH_CS_DURATION_MIN 0       // 0     no duration : as long as switch is true
+#define PUSH_CS_DURATION_MAX 255     // 25.5s longest duration
+#define PUSH_CS_DURATION_DEFAULT 10  // 1s    default duration for newly created SF
 
 void onCustomFunctionsFileSelectionMenu(const char * result)
 {
@@ -387,11 +391,20 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               INCDEC_ENABLE_CHECK(isSourceAvailable);
             }
           }
-          else if (func == FUNC_LOGS 
 #if defined(FUNCTION_SWITCHES)
-                  || func == FUNC_PUSH_CUST_SWITCH
-#endif          
-          ) {
+          else if (func == FUNC_PUSH_CUST_SWITCH) {
+            val_min = PUSH_CS_DURATION_DEFAULT;
+            val_max = PUSH_CS_DURATION_MAX;
+
+            if (!val_displayed) {
+              val_displayed = CFN_PARAM(cfn) = PUSH_CS_DURATION_DEFAULT;
+            }
+
+            lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|PREC1|LEFT);
+            lcdDrawChar(lcdLastRightPos, y, 's');
+          }
+#endif
+          else if (func == FUNC_LOGS) {
             val_min = SD_LOGS_PERIOD_MIN; 
             val_max = SD_LOGS_PERIOD_MAX;
 

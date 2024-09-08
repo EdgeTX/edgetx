@@ -137,7 +137,7 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
 #define VOLUME_HYSTERESIS 10            // how much must a input value change to actually be considered for new volume setting
 getvalue_t requiredSpeakerVolumeRawLast = 1024 + 1; //initial value must be outside normal range
 
-void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
+void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
   MASK_FUNC_TYPE newActiveFunctions  = 0;
   MASK_CFN_TYPE  newActiveSwitches = 0;
@@ -372,14 +372,11 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
           case FUNC_PUSH_CUST_SWITCH:
             if (CFN_PARAM(cfn)) {   // Duration is set
               if (! CFN_VAL2(cfn) ) { // Duration not started yet
-                CFN_VAL2(cfn) = ticksNow();
+                CFN_VAL2(cfn) = timersGetMsTick() + CFN_PARAM(cfn) * 100;
                 functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
               }
-              else if (ticksNow() < (CFN_VAL2(cfn) + CFN_PARAM(cfn))) {  // Still within push duration
+              else if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
                 functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
-              }
-              else {
-                CFN_VAL2(cfn) = 0;
               }
             }
             else // No duration set
@@ -455,7 +452,19 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
         }
 
         newActiveSwitches |= switch_mask;
-      } else {
+      }
+#if defined(FUNCTION_SWITCHES)
+      else {
+        if (CFN_FUNC(cfn) == FUNC_PUSH_CUST_SWITCH) {
+          // Handling duration after function is active
+          if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn)) {
+            functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
+          }
+          else {
+            CFN_VAL2(cfn) = 0;
+          }
+        }
+#endif
         functionsContext.lastFunctionTime[i] = 0;
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
         if (functionsContext.activeSwitches & switch_mask) {

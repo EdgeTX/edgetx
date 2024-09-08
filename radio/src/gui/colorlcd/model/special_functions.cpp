@@ -292,6 +292,11 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 #define SD_LOGS_PERIOD_MAX 255     // 25.5s slowest period
 #define SD_LOGS_PERIOD_DEFAULT 10  // 1s    default period for newly created SF
 
+#define PUSH_CS_DURATION_MIN 0       // 0     no duration : as long as switch is true
+#define PUSH_CS_DURATION_MAX 255     // 25.5s longest duration
+#define PUSH_CS_DURATION_DEFAULT 10  // 1s    default duration for newly created SF
+
+
 FunctionEditPage::FunctionEditPage(uint8_t index, EdgeTxIcon icon,
                                    const char *title, const char *prefix) :
     Page(icon), index(index)
@@ -495,6 +500,19 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
         auto choice = new Choice(line, rect_t{}, 0, NUM_FUNCTIONS_SWITCHES - 1, GET_SET_DEFAULT(CFN_CS_INDEX(cfn)), STR_SWITCH);
         choice->setTextHandler([=](int n) {
           return std::string(STR_SWITCH) + std::to_string(n + 1);
+        });
+        line = specialFunctionOneWindow->newLine(grid);
+        
+        if (CFN_PARAM(cfn) == 0)  // use stored value if SF exists
+          CFN_PARAM(cfn) = PUSH_CS_DURATION_DEFAULT;  // default value
+                                                  
+
+        auto edit = addNumberEdit(line, STR_INTERVAL, cfn, PUSH_CS_DURATION_DEFAULT,
+                                PUSH_CS_DURATION_MAX);
+        edit->setDefault(
+          PUSH_CS_DURATION_DEFAULT);  // set default period for DEF button
+        edit->setDisplayHandler([=](int32_t value) {
+          return formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s");
         });
       }
       break;
