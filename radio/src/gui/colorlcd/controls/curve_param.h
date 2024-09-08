@@ -48,6 +48,4 @@ class CurveParam : public Window
   std::function<void(void)> refreshView;
 
   void update();
-
-  static void LongPressHandler(void* data);
 };

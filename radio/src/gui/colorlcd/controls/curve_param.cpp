@@ -28,16 +28,6 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-void CurveParam::LongPressHandler(void* data)
-{
-  if (modelCurvesEnabled()) {
-    int8_t* value = (int8_t*)data;
-    if (*value != 0) {
-      ModelCurvesPage::pushEditCurve(abs(*value) - 1);
-    }
-  }
-}
-
 class CurveChoice : public Choice
 {
  public:
@@ -52,6 +42,7 @@ class CurveChoice : public Choice
   {
     if (modelCurvesEnabled()) {
       if (_getValue()) {
+        lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
         ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView);
       }
     }
