@@ -26,6 +26,8 @@
 
 #include "diskio_spi.h"
 #include "stm32_gpio_driver.h"
+#include "stm32_gpio.h"
+#include "hal/gpio.h"
 #include "sdcard_spi.h"
 
 #include "hal.h"
@@ -53,17 +55,8 @@ static const stm32_spi_t _sd_spi_hw = {
 
 static uint32_t _sdcard_sectors;
 
-static void _sd_present_gpio_init()
-{
-#if defined(SD_PRESENT_GPIO)
-  gpio_init(SD_SDIO_PIN_D0, GPIO_IN_PU, LOW);
-#endif
-}
-
 static DSTATUS sdcard_spi_initialize(BYTE lun)
 {
-  _sd_present_gpio_init();
-
   sdcard_info_t card_info;
   if (sdcard_spi_init(&_sd_spi_hw, &card_info) != SDCARD_SPI_OK) {
     return STA_NOINIT;
