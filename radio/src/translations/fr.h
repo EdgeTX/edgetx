@@ -89,8 +89,6 @@
 #define TR_CSWEQUAL                    "a=x"
 #define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","ET","OU","OUX",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
-#define TR_TEXT_SIZE                   "Standard","Mini","Petit","Moyen","Double"
-
 #define TR_SF_TRAINER                  "Écolage"
 #define TR_SF_INST_TRIM                "Inst. Trim"
 #define TR_SF_RESET                    "Remise à 0"

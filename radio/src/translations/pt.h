@@ -220,7 +220,6 @@
 #define TR_VFORMULAS                   "Soma","Média","Min","Max","Multipl","Totalizar","Cell","Consumido","Distâcia"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Menor","1","2","3","4","5","6","7","8","Maior","Delta"
-#define TR_TEXT_SIZE                   "Padrão","Minúsculo","Pequeno","Médio","Dobro"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symmetrical)"
 #define TR_TIMER_DIR                   TR("Restan", "Restante"), TR("Passd.", "Passado")
 #define TR_PPMUNIT                     "0.--","0.0","us"

@@ -304,13 +304,6 @@ void LuaWidget::checkEvents()
 #endif
 }
 
-static void l_pushtableint(const char* key, int value)
-{
-  lua_pushstring(lsWidgets, key);
-  lua_pushinteger(lsWidgets, value);
-  lua_settable(lsWidgets, -3);
-}
-
 void LuaWidget::update()
 {
   Widget::update();
@@ -332,12 +325,10 @@ void LuaWidget::update()
               LEN_ZONE_OPTION_STRING);
       lua_pushstring(lsWidgets, &str[0]);
       lua_settable(lsWidgets, -3);
-    } else if (option->type == ZoneOption::Color) {
-      int32_t value = persistentData->options[i].value.unsignedValue;
-      l_pushtableint(option->name, value);
+    } else if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch) {
+      l_pushtableint(lsWidgets, option->name, persistentData->options[i].value.signedValue);
     } else {
-      int32_t value = persistentData->options[i].value.signedValue;
-      l_pushtableint(option->name, value);
+      l_pushtableint(lsWidgets, option->name, persistentData->options[i].value.unsignedValue);
     }
   }
 

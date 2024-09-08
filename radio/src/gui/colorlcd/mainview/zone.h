@@ -23,6 +23,7 @@
 
 #include <inttypes.h>
 #include "storage/yaml/yaml_defs.h"
+#include <vector>
 
 #define LEN_ZONE_OPTION_STRING         8
 
@@ -64,12 +65,13 @@ struct ZoneOption
     Source,
     Bool,
     String,
-    File,
     TextSize,
     Timer,
     Switch,
     Color,
-    Align
+    Align,
+    Slider,
+    Choice,
   };
 
   const char * name;
@@ -78,6 +80,7 @@ struct ZoneOption
   ZoneOptionValue min;
   ZoneOptionValue max;
   const char * displayName;
+  std::vector<std::string> choiceValues;
 };
 
 enum ZoneOptionAlign
@@ -99,7 +102,6 @@ struct ZoneOptionValueTyped
 inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
 {
   switch(type) {
-  case ZoneOption::File:
   case ZoneOption::String:
     return ZOV_String;
 
@@ -115,10 +117,6 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
   case ZoneOption::Color:
     return ZOV_Color;
     
-  case ZoneOption::Timer:
-  case ZoneOption::Switch:
-  case ZoneOption::TextSize:
-  case ZoneOption::Align:
   default:
     return ZOV_Unsigned;
   }

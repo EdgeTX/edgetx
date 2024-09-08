@@ -26,13 +26,6 @@
 
 #define MAX_INSTRUCTIONS       (20000/100)
 
-static void l_pushtableint(const char * key, int value)
-{
-  lua_pushstring(lsWidgets, key);
-  lua_pushinteger(lsWidgets, value);
-  lua_settable(lsWidgets, -3);
-}
-
 LuaWidgetFactory::LuaWidgetFactory(const char* name, ZoneOption* widgetOptions,
                                    int createFunction) :
     WidgetFactory(name, widgetOptions),
@@ -72,12 +65,12 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
 
   // Make 'zone' table for 'create' call
   lua_newtable(lsWidgets);
-  l_pushtableint("x", 0);
-  l_pushtableint("y", 0);
-  l_pushtableint("w", rect.w);
-  l_pushtableint("h", rect.h);
-  l_pushtableint("xabs", rect.x);
-  l_pushtableint("yabs", rect.y);
+  l_pushtableint(lsWidgets, "x", 0);
+  l_pushtableint(lsWidgets, "y", 0);
+  l_pushtableint(lsWidgets, "w", rect.w);
+  l_pushtableint(lsWidgets, "h", rect.h);
+  l_pushtableint(lsWidgets, "xabs", rect.x);
+  l_pushtableint(lsWidgets, "yabs", rect.y);
 
   // Store the zone data in registry for later updates
   int zoneRectDataRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
@@ -95,12 +88,10 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
               LEN_ZONE_OPTION_STRING);
       lua_pushstring(lsWidgets, &str[0]);
       lua_settable(lsWidgets, -3);
-    } else if (option->type == ZoneOption::Color) {
-      int32_t value = persistentData->options[i].value.unsignedValue;
-      l_pushtableint(option->name, value);
+    } else if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch) {
+      l_pushtableint(lsWidgets, option->name, persistentData->options[i].value.signedValue);
     } else {
-      int32_t value = persistentData->options[i].value.signedValue;
-      l_pushtableint(option->name, value);
+      l_pushtableint(lsWidgets, option->name, persistentData->options[i].value.unsignedValue);
     }
   }
 
