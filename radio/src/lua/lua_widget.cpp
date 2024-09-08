@@ -219,9 +219,9 @@ void LuaWidget::redraw_cb(lv_event_t* e)
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
-                     int luaWidgetDataRef, int zoneRectDataRef) :
+                     int luaWidgetDataRef, int zoneRectDataRef, int optionsDataRef) :
     Widget(factory, parent, rect, persistentData),
-    zoneRectDataRef(zoneRectDataRef),
+    zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
     errorMessage(nullptr)
 {
   this->luaWidgetDataRef = luaWidgetDataRef;
@@ -314,22 +314,28 @@ void LuaWidget::update()
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
 
-  lua_newtable(lsWidgets);
+  // Get options table and update values
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
   int i = 0;
   for (const ZoneOption* option = getOptions(); option->name; option++, i++) {
-    if (option->type == ZoneOption::String) {
-      lua_pushstring(lsWidgets, option->name);
-      char str[LEN_ZONE_OPTION_STRING + 1] = {
-          0};  // Zero-terminated string for Lua
-      strncpy(str, persistentData->options[i].value.stringValue,
-              LEN_ZONE_OPTION_STRING);
-      lua_pushstring(lsWidgets, &str[0]);
-      lua_settable(lsWidgets, -3);
-    } else if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch) {
-      l_pushtableint(lsWidgets, option->name, persistentData->options[i].value.signedValue);
-    } else {
-      l_pushtableint(lsWidgets, option->name, persistentData->options[i].value.unsignedValue);
+    auto optVal = getOptionValue(i);
+    switch (option->type) {
+      case ZoneOption::String:
+        {
+          char str[LEN_ZONE_OPTION_STRING + 1] = {0};
+          strncpy(str, optVal->stringValue, LEN_ZONE_OPTION_STRING);
+          lua_pushstring(lsWidgets, str);
+        }
+        break;
+      case ZoneOption::Integer:
+      case ZoneOption::Switch:
+        lua_pushinteger(lsWidgets, optVal->signedValue);
+        break;
+      default:
+        lua_pushinteger(lsWidgets, optVal->unsignedValue);
+        break;
     }
+    lua_setfield(lsWidgets, -2, option->name);
   }
 
   if (useLvglLayout()) luaLvglManager = this;

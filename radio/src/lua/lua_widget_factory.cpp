@@ -77,6 +77,7 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   // Push stored zone for 'create' call
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
 
+  // Create options table
   lua_newtable(lsWidgets);
   int i = 0;
   for (const ZoneOption* option = options; option->name; option++, i++) {
@@ -95,9 +96,14 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
     }
   }
 
+  // Store the options data in registry for later updates
+  int optionsDataRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
+  // Push stored options for 'create' call
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
+
   bool err = lua_pcall(lsWidgets, 2, 1, 0);
   int widgetData = err ? LUA_NOREF : luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-  LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData, zoneRectDataRef);
+  LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData, zoneRectDataRef, optionsDataRef);
   if (err) lw->setErrorMessage("create()");
   return lw;
 }
