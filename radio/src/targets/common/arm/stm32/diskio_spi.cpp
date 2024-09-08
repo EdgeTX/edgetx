@@ -56,14 +56,7 @@ static uint32_t _sdcard_sectors;
 static void _sd_present_gpio_init()
 {
 #if defined(SD_PRESENT_GPIO)
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  pinInit.Pin = SD_PRESENT_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-
-  stm32_gpio_enable_clock(SD_PRESENT_GPIO);
-  LL_GPIO_Init(SD_PRESENT_GPIO, &pinInit);
+  gpio_init(SD_SDIO_PIN_D0, GPIO_IN_PU, LOW);
 #endif
 }
 
@@ -86,7 +79,7 @@ static DSTATUS sdcard_spi_status(BYTE lun)
   DSTATUS stat = 0;
 
 #if defined(SD_PRESENT_GPIO)
-  if (LL_GPIO_IsInputPinSet(SD_PRESENT_GPIO, SD_PRESENT_GPIO_PIN)) {
+  if (gpio_read(SD_PRESENT_GPIO)) {
     stat |= STA_NODISK;
   }
 #endif

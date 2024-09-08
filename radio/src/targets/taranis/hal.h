@@ -2612,11 +2612,11 @@
 #else
 #define SD_PRESENT_GPIO                 GPIOD
 #if defined(PCBXLITE) || defined(PCBX9LITE)
-  #define SD_PRESENT_GPIO_PIN           LL_GPIO_PIN_10 // PD.10
+  #define SD_PRESENT_GPIO_PIN           GPIO_PIN(SD_PRESENT_GPIO, 10) // PD.10
 #elif defined(RADIO_COMMANDO8)
-  #define SD_PRESENT_GPIO_PIN           LL_GPIO_PIN_8  // PD.08
+  #define SD_PRESENT_GPIO_PIN           GPIO_PIN(SD_PRESENT_GPIO, 8)  // PD.08
 #else
-  #define SD_PRESENT_GPIO_PIN           LL_GPIO_PIN_9  // PD.09
+  #define SD_PRESENT_GPIO_PIN           GPIO_PIN(SD_PRESENT_GPIO, 9)  // PD.09
 #endif
 #endif
 
