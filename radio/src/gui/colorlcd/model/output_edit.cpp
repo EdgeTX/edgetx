@@ -61,16 +61,6 @@ OutputEditWindow::OutputEditWindow(uint8_t channel) :
 
   buildHeader(header);
   buildBody(body);
-
-  CurveEdit::SetCurrentSource(channel + MIXSRC_FIRST_CH);
-}
-
-void OutputEditWindow::deleteLater(bool detach, bool trash)
-{
-  if (!deleted()) {
-    CurveEdit::SetCurrentSource(0);
-    Page::deleteLater(detach, trash);
-  }
 }
 
 void OutputEditWindow::checkEvents()
@@ -187,7 +177,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Curve
   new StaticText(line, rect_t{}, TR_CURVE);
-  new CurveChoice(line, GET_SET_DEFAULT(output->curve), nullptr);
+  new CurveChoice(line, GET_SET_DEFAULT(output->curve), nullptr, channel + MIXSRC_FIRST_CH);
 
   // PPM center
   line = form->newLine(grid);

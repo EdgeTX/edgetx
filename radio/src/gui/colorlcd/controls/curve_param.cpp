@@ -28,9 +28,10 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue, std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
+CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue, 
+        std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView, mixsrc_t source) :
   Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
-  refreshView(std::move(refreshView))
+  source(source), refreshView(std::move(refreshView))
   {
     setTextHandler([](int value) { return getCurveString(value); });
   }
@@ -39,14 +40,14 @@ bool CurveChoice::onLongPress()
 {
   if (modelCurvesEnabled()) {
     if (_getValue()) {
-      ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView);
+      ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView, source);
     }
   }
   return true;
 }
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue, int16_t sourceMin,
+                       std::function<void(int32_t)> setRefValue, int16_t sourceMin, mixsrc_t source,
                        std::function<void(void)> refreshView) :
     Window(parent, rect), ref(ref), refreshView(std::move(refreshView))
 {
@@ -95,7 +96,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                                   v.isSource = false;
                                   v.value = newValue;
                                   setRefValue(v.rawValue);
-                                }, refreshView);
+                                }, refreshView, source);
 
   update();
 }

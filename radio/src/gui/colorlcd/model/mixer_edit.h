@@ -39,6 +39,4 @@ class MixEditWindow : public Page
 
   void buildHeader(Window *window);
   void buildBody(Window *window);
-
-  void deleteLater(bool detach = true, bool trash = true) override;
 };
