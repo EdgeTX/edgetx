@@ -49,6 +49,7 @@ class OutputEditWindow : public Page
   OutputEditStatusBar *statusBar = nullptr;
 
   void checkEvents() override;
+  void deleteLater(bool detach = true, bool trash = true) override;
   void buildHeader(Window *window);
   void buildBody(Window *window);
 };

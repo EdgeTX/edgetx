@@ -22,10 +22,22 @@
 #pragma once
 
 #include "window.h"
+#include "choice.h"
 
 struct CurveRef;
-class Choice;
 class SourceNumberEdit;
+
+class CurveChoice : public Choice
+{
+ public:
+  CurveChoice(Window* parent, std::function<int()> getRefValue,
+              std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView);
+
+  bool onLongPress() override;
+
+ protected:
+  std::function<void(void)> refreshView;
+};
 
 class CurveParam : public Window
 {
