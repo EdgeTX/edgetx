@@ -538,8 +538,10 @@ const char* funcGetLabel(uint8_t func)
 #endif
   case FUNC_RGB_LED:
     return STR_SF_RGBLEDS;
+#if defined(VIDEO_SWITCH)
   case FUNC_LCD_TO_VIDEO:
     return STR_SF_LCD_TO_VIDEO;
+#endif
 #if defined(DEBUG)
   case FUNC_TEST:
     return STR_SF_TEST;

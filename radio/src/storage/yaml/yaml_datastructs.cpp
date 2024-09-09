@@ -31,6 +31,8 @@
 #if defined(PCBX10) || defined(PCBX12S)
  #if defined(RADIO_T15)
   #include "yaml_datastructs_t15.cpp"
+ #elif defined(RADIO_F16)
+  #include "yaml_datastructs_f16.cpp"
  #else
   #include "yaml_datastructs_x10.cpp"
  #endif

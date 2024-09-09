@@ -590,17 +590,8 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_RGB_LED:
       return false;
 #endif
-#if !defined(VIDEO_SWITCH)
-    case FUNC_LCD_TO_VIDEO:
-      return false;
-#endif
 #if !defined(DEBUG)
     case FUNC_TEST:
-      return false;
-#endif
-#if !defined(COLORLCD)
-    case FUNC_DISABLE_TOUCH:
-    case FUNC_SET_SCREEN:
       return false;
 #endif
     default:
