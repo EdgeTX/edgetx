@@ -393,7 +393,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #if defined(FUNCTION_SWITCHES)
           else if (func == FUNC_PUSH_CUST_SWITCH) {
-            val_min = PUSH_CS_DURATION_DEFAULT;
+            val_min = PUSH_CS_DURATION_MIN;
             val_max = PUSH_CS_DURATION_MAX;
 
             if (!val_displayed) {

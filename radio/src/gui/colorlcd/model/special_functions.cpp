@@ -507,7 +507,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
           CFN_PARAM(cfn) = PUSH_CS_DURATION_DEFAULT;  // default value
                                                   
 
-        auto edit = addNumberEdit(line, STR_INTERVAL, cfn, PUSH_CS_DURATION_DEFAULT,
+        auto edit = addNumberEdit(line, STR_INTERVAL, cfn, PUSH_CS_DURATION_MIN,
                                 PUSH_CS_DURATION_MAX);
         edit->setDefault(
           PUSH_CS_DURATION_DEFAULT);  // set default period for DEF button
