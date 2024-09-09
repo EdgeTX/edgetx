@@ -24,7 +24,6 @@
 
 #include "hal/switch_driver.h"
 #include "switches.h"
-#include "bitfield.h"
 
 #if defined(AUTOSWITCH)
 swsrc_t checkIncDecMovedSwitch(swsrc_t val)

@@ -295,8 +295,6 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 #define PUSH_CS_DURATION_MIN 0       // 0     no duration : as long as switch is true
 #define PUSH_CS_DURATION_MAX 255     // 25.5s longest duration
 
-
-
 FunctionEditPage::FunctionEditPage(uint8_t index, EdgeTxIcon icon,
                                    const char *title, const char *prefix) :
     Page(icon), index(index)
