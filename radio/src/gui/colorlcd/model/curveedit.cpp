@@ -84,15 +84,9 @@ class CurveEdit : public Window
   void checkEvents(void) override
   {
     if (!lockSource) {
-      int16_t val = getMovedSource(MIXSRC_FIRST_INPUT);
-      if (val > 0) {
-        // TODO: this code seems odd
-        if (val > MAX_STICKS + MAX_POTS)
-          currentSource = val + 1 - MIXSRC_FIRST_INPUT;
-        else {
-          currentSource = expoAddress(val - 1)->srcRaw;
-        }
-      }
+      int16_t val = getMovedSource(MIXSRC_FIRST_STICK);
+      if (val > 0)
+        currentSource = val;
     }
     Window::checkEvents();
   }

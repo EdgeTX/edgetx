@@ -40,6 +40,7 @@ bool CurveChoice::onLongPress()
 {
   if (modelCurvesEnabled()) {
     if (_getValue()) {
+      lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
       ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView, source);
     }
   }
