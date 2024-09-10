@@ -511,7 +511,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
                                    GET_SET_DEFAULT(CFN_GVAR_INDEX(cfn)));
       gvarchoice->setTextHandler([](int32_t value) {
-        return std::string(STR_GV) + std::to_string(value + 1);
+        return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
       });
       line = specialFunctionOneWindow->newLine(grid);
 
@@ -560,7 +560,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
           auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
                                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
           gvarchoice->setTextHandler([](int32_t value) {
-            return std::string(STR_GV) + std::to_string(value + 1);
+            return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
           });
           gvarchoice->setAvailableHandler(
               [=](int value) { return CFN_GVAR_INDEX(cfn) != value; });
