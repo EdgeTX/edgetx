@@ -82,8 +82,8 @@ void boardInit()
       while (usbPlugged()) {
          delay_ms(1000);
       }
+      pwrOff();
   }
-  pwrOff();
 #endif
 
 #if defined(BLUETOOTH) && !defined(PCBX9E)
