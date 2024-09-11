@@ -206,25 +206,11 @@ void menuModelLogicalSwitchOne(event_t event)
         break;
 
       case LS_FIELD_DURATION:
-        lcdDrawTextAlignedLeft(y, STR_DURATION);
-        if (cs->duration > 0)
-          lcdDrawNumber(CSWONE_2ND_COLUMN, y, cs->duration, attr|PREC1|LEFT);
-        else
-          lcdDrawMMM(CSWONE_2ND_COLUMN, y, attr);
-        if (attr) {
-          CHECK_INCDEC_MODELVAR_ZERO(event, cs->duration, MAX_LS_DURATION);
-        }
+        cs->duration = editNumberField(STR_DURATION, 0, CSWONE_2ND_COLUMN, y, cs->duration, 0, MAX_LS_DURATION, attr|PREC1, event, STR_MMMINV[0]);
         break;
 
       case LS_FIELD_DELAY:
-        lcdDrawTextAlignedLeft(y, STR_DELAY);
-        if (cs->delay > 0)
-          lcdDrawNumber(CSWONE_2ND_COLUMN, y, cs->delay, attr|PREC1|LEFT);
-        else
-          lcdDrawMMM(CSWONE_2ND_COLUMN, y, attr);
-        if (attr) {
-          CHECK_INCDEC_MODELVAR_ZERO(event, cs->delay, MAX_LS_DELAY);
-        }
+        cs->delay = editNumberField(STR_DELAY, 0, CSWONE_2ND_COLUMN, y, cs->delay, 0, MAX_LS_DELAY, attr|PREC1, event, STR_MMMINV[0]);
         break;
 
       case LS_FIELD_PERSIST:
