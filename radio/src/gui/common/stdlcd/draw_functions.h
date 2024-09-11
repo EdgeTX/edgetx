@@ -55,3 +55,22 @@ void drawCursor(FnFuncP fn, uint8_t offset = 0);
 void drawCurve(coord_t offset = 0);
 
 void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att=0);
+
+void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr);
+void drawScreenIndex(uint8_t index, uint8_t count, uint8_t attr);
+void drawVerticalScrollbar(coord_t x, coord_t y, coord_t h, uint16_t offset, uint16_t count, uint8_t visible);
+void drawGauge(coord_t x, coord_t y, coord_t w, coord_t h, int32_t val, int32_t max);
+#if defined(GVARS)
+void drawGVarValue(coord_t x, coord_t y, uint8_t gvar, gvar_t value, LcdFlags flags = 0);
+#endif
+
+void drawStick(coord_t centrex, int16_t xval, int16_t yval);
+void drawSlider(coord_t x, coord_t y, uint8_t width, uint8_t value, uint8_t max, uint8_t attr);
+void drawSlider(coord_t x, coord_t y, uint8_t value, uint8_t max, uint8_t attr);
+
+void title(const char * s);
+
+#define STATUS_LINE_LENGTH           32
+extern char statusLineMsg[STATUS_LINE_LENGTH];
+void showStatusLine();
+void drawStatusLine();

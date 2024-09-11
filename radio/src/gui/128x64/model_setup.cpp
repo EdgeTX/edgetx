@@ -492,13 +492,13 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
   }
 }
 
-#include "common/stdlcd/model_setup_pxx1.cpp"
+#include "model_setup_pxx1.cpp"
 
 #if defined(PXX2)
-#include "common/stdlcd/model_setup_pxx2.cpp"
+#include "model_setup_pxx2.cpp"
 #endif
 #if defined(AFHDS3)
-#include "common/stdlcd/model_setup_afhds3.cpp"
+#include "model_setup_afhds3.cpp"
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -1217,13 +1217,8 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_CUSTOM_THROTTLE_WARNING_VALUE:
-        {
-          lcdDrawText(INDENT_WIDTH * 4, y, STR_CUSTOM_THROTTLE_WARNING_VAL);
-          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, g_model.customThrottleWarningPosition, attr | LEFT, 2);
-          if (attr) {
-            CHECK_INCDEC_MODELVAR(event, g_model.customThrottleWarningPosition, -100, 100);
-          }
-        }
+        g_model.customThrottleWarningPosition = editNumberField(STR_CUSTOM_THROTTLE_WARNING_VAL, INDENT_WIDTH * 4, MODEL_SETUP_2ND_COLUMN, y,
+                                                  g_model.customThrottleWarningPosition, -100, 100, attr, event);
         break;
 
       case ITEM_MODEL_SETUP_SWITCHES_WARNING2:
@@ -1896,17 +1891,11 @@ void menuModelSetup(event_t event)
 #if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_MODEL_NUM:
 #endif
-      {
-        lcdDrawTextIndented(y, STR_RECEIVER_NUM);
-        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, g_model.header.modelId[moduleIdx], attr | LEADING0 | LEFT, 2);
-        if (attr) {
-          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.header.modelId[moduleIdx], getMaxRxNum(moduleIdx));
-          if (checkIncDec_Ret) {
+        g_model.header.modelId[moduleIdx] = editNumberField(STR_RECEIVER_NUM, INDENT_WIDTH, MODEL_SETUP_2ND_COLUMN, y,
+                                              g_model.header.modelId[moduleIdx], 0, getMaxRxNum(moduleIdx), attr|LEADING0, event);
+        if (attr && checkIncDec_Ret)
             modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx];
-          }
-        }
-      }
-      break;
+        break;
 
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_PXX2_REGISTER_RANGE:
 #if defined(HARDWARE_EXTERNAL_MODULE)
