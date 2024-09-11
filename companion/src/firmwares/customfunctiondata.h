@@ -73,6 +73,8 @@ enum AssignFunc {
   FuncDisableAudioAmp,
   FuncRGBLed,
   FuncLCDtoVideo,
+  FuncPushCustomSwitch1,
+  FuncPushCustomSwitchLast = FuncPushCustomSwitch1 + CPN_MAX_SWITCHES_FUNCTION - 1,
   FuncCount,
   FuncReserve = -1
 };

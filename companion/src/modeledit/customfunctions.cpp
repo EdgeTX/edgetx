@@ -398,7 +398,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
       }
     }
-    else if (func == FuncLogs) {
+    else if (func == FuncLogs || (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast)) {
       fswtchParam[i]->setDecimals(1);
       fswtchParam[i]->setMinimum(0);
       fswtchParam[i]->setMaximum(25.5);

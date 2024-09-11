@@ -954,6 +954,11 @@ int Boards::getSwitchTagNum(int index, Board::Type board)
   return getBoardJson(board)->getSwitchTagNum(index);
 }
 
+int Boards::getSwitchTypeOffset(Board::SwitchType type, Board::Type board)
+{
+  return getBoardJson(board)->getSwitchTypeOffset(type);
+}
+
 int Boards::getSwitchYamlIndex(QString val, int ylt, Board::Type board)
 {
   return getBoardJson(board)->getSwitchYamlIndex(val, (BoardJson::YamlLookupType)ylt);
