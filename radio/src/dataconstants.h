@@ -679,11 +679,19 @@ enum Functions {
   FUNC_BACKLIGHT,
   FUNC_SCREENSHOT,
   FUNC_RACING_MODE,
+#if defined(COLORLCD) || defined(CFN_ONLY)
   FUNC_DISABLE_TOUCH,
   FUNC_SET_SCREEN,
+#endif
   FUNC_DISABLE_AUDIO_AMP,
   FUNC_RGB_LED,
+#if defined(VIDEO_SWITCH) || defined(CFN_ONLY)
   FUNC_LCD_TO_VIDEO,
+#endif
   FUNC_TEST, // MUST remain last
+#if defined(DEBUG)
   FUNC_MAX SKIP
+#else
+  FUNC_MAX SKIP = FUNC_TEST
+#endif
 };
