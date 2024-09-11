@@ -78,11 +78,11 @@ void boardInit()
   usbPlugged();
 
   if (usbPlugged()) {
-      delaysInit();
-      while (usbPlugged()) {
-         delay_ms(1000);
-      }
-      pwrOff();
+    delaysInit();
+    while (usbPlugged()) {
+      delay_ms(1000);
+    }
+    pwrOff();
   }
 #endif
 
