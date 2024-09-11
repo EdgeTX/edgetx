@@ -436,7 +436,7 @@ void lcdSetRefVolt(uint8_t val)
   WAIT_FOR_DMA_END();
 #endif
 
-#if defined(RADIO_V12)||defined(RADIO_V14)
+#if defined(RADIO_V12) || defined(RADIO_V14)
   lcdWriteCommand(0x81);                      // Set Vop
   lcdWriteCommand(val+LCD_CONTRAST_OFFSET+20);// 0-255
 #else

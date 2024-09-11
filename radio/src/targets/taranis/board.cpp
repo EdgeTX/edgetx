@@ -398,6 +398,3 @@ bool isJackPlugged()
   return debounced_state;
 }
 #endif
-
-
-
