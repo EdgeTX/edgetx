@@ -150,7 +150,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   if ((func >= FuncOverrideCH1 && func <= FuncOverrideCHLast) || func == FuncSetScreen) {
     return QString("%1").arg(param);
   }
-  else if (func == FuncLogs || (func >= FuncPushCustomSwitch1 && func >= FuncPushCustomSwitchLast)) {
+  else if (func == FuncLogs || (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast)) {
     return QString("%1").arg(param / 10.0) + tr("s");
   }
   else if (func == FuncPlaySound) {
