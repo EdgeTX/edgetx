@@ -21,7 +21,7 @@
 
 #include "edgetx.h"
 #include "hal/adc_driver.h"
-#include "gui/common/stdlcd/calibration.h"
+#include "calibration.h"
 
 #define XPOT_DELTA    10
 #define XPOT_DELAY    10 /* cycles */
