@@ -205,28 +205,13 @@ PACK(struct ExpandState {
   uint8_t viewOpt:1;
 });
 
-struct ExpandState expandState;
+static struct ExpandState expandState;
 
-uint8_t PREFLIGHT_ROW(uint8_t value)
-{
-  if (expandState.preflight)
-    return value;
-  return HIDDEN_ROW;
-}
+static uint8_t PREFLIGHT_ROW(uint8_t value) { return expandState.preflight ? value : HIDDEN_ROW; }
 
-uint8_t THROTTLE_ROW(uint8_t value)
-{
-  if (expandState.throttle)
-    return value;
-  return HIDDEN_ROW;
-}
+static uint8_t THROTTLE_ROW(uint8_t value) { return expandState.throttle ? value : HIDDEN_ROW; }
 
-uint8_t VIEWOPT_ROW(uint8_t value)
-{
-  if (expandState.viewOpt)
-    return value;
-  return HIDDEN_ROW;
-}
+static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value : HIDDEN_ROW; }
 
 void copySelection(char * dst, const char * src, uint8_t size)
 {
