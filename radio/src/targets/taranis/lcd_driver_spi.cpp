@@ -37,7 +37,7 @@
 
 #if defined(OLED_SCREEN)
   #define LCD_CONTRAST_OFFSET            0
-#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX)
+#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX) || defined(RADIO_V12) || defined(RADIO_V14)
   #define LCD_CONTRAST_OFFSET            -10
 #else
   #define LCD_CONTRAST_OFFSET            160
@@ -148,34 +148,62 @@ void lcdStart()
 #else
 #if defined(LCD_VERTICAL_INVERT)
   // T12 and TX12 have the screen inverted.
-  lcdWriteCommand(0xe2); // (14) Soft reset
+  #if defined(RADIO_V12)
+    lcdWriteCommand(0xe2); // (14) Soft reset
+    lcdWriteCommand(0xa0);  // Set seg
+    lcdWriteCommand(0xc8);  // Set com
+    lcdWriteCommand(0xf8);  // Set booster
+    lcdWriteCommand(0x00);  // 5x
+    lcdWriteCommand(0xa2); // Set bias=1/6
+    lcdWriteCommand(0x26);  // Set internal rb/ra=5.0
+    lcdWriteCommand(0x2f);  // All built-in power circuits on
+    lcdWriteCommand(0x81);  // Set contrast
+    lcdWriteCommand(0x1F);  // Set Vop
+    lcdWriteCommand(0xa6);  // Set display mode
+  #else  
+    lcdWriteCommand(0xe2); // (14) Soft reset
 #if defined(LCD_HORIZONTAL_INVERT)
-  lcdWriteCommand(0xa1); // Set seg
+    lcdWriteCommand(0xa1); // Set seg
 #else 
-  lcdWriteCommand(0xa0); // Set seg
+    lcdWriteCommand(0xa0); // Set seg
 #endif
-  lcdWriteCommand(0xc8); // Set com
-  lcdWriteCommand(0xf8); // Set booster
-  lcdWriteCommand(0x00); // 5x
-  lcdWriteCommand(0xa3); // Set bias=1/6
-  lcdWriteCommand(0x22); // Set internal rb/ra=5.0
-  lcdWriteCommand(0x2f); // All built-in power circuits on
-  lcdWriteCommand(0x24); // Power control set
-  lcdWriteCommand(0x81); // Set contrast
-  lcdWriteCommand(0x0A); // Set Vop
-  lcdWriteCommand(0xa6); // Set display mode
+    lcdWriteCommand(0xc8); // Set com
+    lcdWriteCommand(0xf8); // Set booster
+    lcdWriteCommand(0x00); // 5x
+    lcdWriteCommand(0xa3); // Set bias=1/6
+    lcdWriteCommand(0x22); // Set internal rb/ra=5.0
+    lcdWriteCommand(0x2f); // All built-in power circuits on
+    lcdWriteCommand(0x24); // Power control set
+    lcdWriteCommand(0x81); // Set contrast
+    lcdWriteCommand(0x0A); // Set Vop
+    lcdWriteCommand(0xa6); // Set display mode
+  #endif
 #else
-  lcdWriteCommand(0xe2); // (14) Soft reset
-  lcdWriteCommand(0xa1); // Set seg
-  lcdWriteCommand(0xc0); // Set com
-  lcdWriteCommand(0xf8); // Set booster
-  lcdWriteCommand(0x00); // 5x
-  lcdWriteCommand(0xa3); // Set bias=1/6
-  lcdWriteCommand(0x22); // Set internal rb/ra=5.0
-  lcdWriteCommand(0x2f); // All built-in power circuits on
-  lcdWriteCommand(0x81); // Set contrast
-  lcdWriteCommand(0x36); // Set Vop
-  lcdWriteCommand(0xa6); // Set display mode
+  #if defined(RADIO_V14)
+    lcdWriteCommand(0xe2); // (14) Soft reset
+    lcdWriteCommand(0xa1); // Set seg
+    lcdWriteCommand(0xc0);  // Set com
+    lcdWriteCommand(0xf8);  // Set booster
+    lcdWriteCommand(0x00);  // 5x
+    lcdWriteCommand(0xa2); // Set bias=1/6
+    lcdWriteCommand(0x26);  // Set internal rb/ra=5.0
+    lcdWriteCommand(0x2f);  // All built-in power circuits on
+    lcdWriteCommand(0x81);  // Set contrast
+    lcdWriteCommand(0x1F);  // Set Vop
+    lcdWriteCommand(0xa6);  // Set display mode
+  #else  
+    lcdWriteCommand(0xe2); // (14) Soft reset
+    lcdWriteCommand(0xa1); // Set seg
+    lcdWriteCommand(0xc0); // Set com
+    lcdWriteCommand(0xf8); // Set booster
+    lcdWriteCommand(0x00); // 5x
+    lcdWriteCommand(0xa3); // Set bias=1/6
+    lcdWriteCommand(0x22); // Set internal rb/ra=5.0
+    lcdWriteCommand(0x2f); // All built-in power circuits on
+    lcdWriteCommand(0x81); // Set contrast
+    lcdWriteCommand(0x36); // Set Vop
+    lcdWriteCommand(0xa6); // Set display mode
+  #endif
 #endif
 #if defined(BOOT)
   lcdSetRefVolt(LCD_CONTRAST_DEFAULT);
@@ -408,8 +436,13 @@ void lcdSetRefVolt(uint8_t val)
   WAIT_FOR_DMA_END();
 #endif
 
+#if defined(RADIO_V12) || defined(RADIO_V14)
+  lcdWriteCommand(0x81);                      // Set Vop
+  lcdWriteCommand(val+LCD_CONTRAST_OFFSET+20);// 0-255
+#else
   lcdWriteCommand(0x81); // Set Vop
   lcdWriteCommand(val+LCD_CONTRAST_OFFSET); // 0-255
+#endif
 }
 
 #if LCD_W == 128
