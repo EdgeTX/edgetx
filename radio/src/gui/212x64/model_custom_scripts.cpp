@@ -164,6 +164,6 @@ void menuModelCustomScripts(event_t event)
     }
 
     // Script name
-    lcdDrawSizedText(16*FW, y, sd.name, sizeof(sd.name), ZCHAR);
+    lcdDrawSizedText(16*FW, y, sd.name, sizeof(sd.name));
   }
 }

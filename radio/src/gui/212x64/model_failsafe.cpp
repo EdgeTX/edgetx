@@ -106,7 +106,7 @@ void menuModelFailsafe(event_t event)
       if (lenLabel > 0) {
         if (lenLabel > reusableBuffer.modelFailsafe.maxNameLen)
           reusableBuffer.modelFailsafe.maxNameLen = lenLabel;
-        lcdDrawSizedText(x - colW, y, g_model.limitData[ch+channelStart].name, sizeof(g_model.limitData[ch+channelStart].name), ZCHAR | SMLSIZE);
+        lcdDrawSizedText(x - colW, y, g_model.limitData[ch+channelStart].name, sizeof(g_model.limitData[ch+channelStart].name), SMLSIZE);
       }
       else {
         putsChn(x - colW, y, ch+1, SMLSIZE);

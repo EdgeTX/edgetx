@@ -164,11 +164,8 @@ void menuModelLimitsOne(event_t event)
 
 #if defined(PPM_CENTER_ADJUSTABLE)
       case ITEM_OUTPUTONE_PPM_CENTER:
-        lcdDrawTextAlignedLeft(y, STR_LIMITS_HEADERS_PPMCENTER);
-        lcdDrawNumber(LIMITS_ONE_2ND_COLUMN, y, PPM_CENTER+ld->ppmCenter, attr);
-        if (active) {
-          CHECK_INCDEC_MODELVAR(event, ld->ppmCenter, -PPM_CENTER_MAX, +PPM_CENTER_MAX);
-        }
+        ld->ppmCenter = editNumberField(STR_LIMITS_HEADERS_PPMCENTER, 0, LIMITS_ONE_2ND_COLUMN, y, ld->ppmCenter,
+                                        -PPM_CENTER_MAX, PPM_CENTER_MAX, attr, event, nullptr, PPM_CENTER);
         break;
 #endif
 
