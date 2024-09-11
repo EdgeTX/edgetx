@@ -141,11 +141,11 @@ extern "C" void SDRAM_Init();
 #endif
 
 #if defined(RADIO_NV14_FAMILY)
-  #define BATTERY_DIVIDER               2942
+  #define BATTERY_DIVIDER               3102 // = 2047 * 510k / (510k + 510k) * 10 / 3.3V
 #elif defined(RADIO_NB4P)
-  #define BATTERY_DIVIDER               3102 // = 2047 * (10k / 10k + 10k) * 10 / 3.3V
+  #define BATTERY_DIVIDER               3102 // = 2047 * 10k / (10k + 10k) * 10 / 3.3V
 #else
-  #define BATTERY_DIVIDER               962  // = 2047 * (22k / 120k + 22k) * 10 / 3.3V
+  #define BATTERY_DIVIDER               962  // = 2047 * 22k / (120k + 22k) * 10 / 3.3V
 #endif
 
 #if defined(__cplusplus) && !defined(SIMU)
