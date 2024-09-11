@@ -2610,13 +2610,12 @@
 #if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
   // Using chip, so no detect
 #else
-#define SD_PRESENT_GPIO                 GPIOD
 #if defined(PCBXLITE) || defined(PCBX9LITE)
-  #define SD_PRESENT_GPIO_PIN           LL_GPIO_PIN_10 // PD.10
+  #define SD_PRESENT_GPIO               GPIO_PIN(GPIOD, 10) // PD.10
 #elif defined(RADIO_COMMANDO8)
-  #define SD_PRESENT_GPIO_PIN           LL_GPIO_PIN_8  // PD.08
+  #define SD_PRESENT_GPIO               GPIO_PIN(GPIOD, 8)  // PD.08
 #else
-  #define SD_PRESENT_GPIO_PIN           LL_GPIO_PIN_9  // PD.09
+  #define SD_PRESENT_GPIO               GPIO_PIN(GPIOD, 9)  // PD.09
 #endif
 #endif
 
