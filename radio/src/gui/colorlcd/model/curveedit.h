@@ -26,40 +26,16 @@
 #include "window.h"
 
 class NumberEdit;
+class CurveEdit;
 class CurveDataEdit;
-
-class CurveEdit : public Window
-{
- public:
-  CurveEdit(Window* parent, const rect_t& rect, uint8_t index);
-  static void SetCurrentSource(mixsrc_t source);
-
-  void deleteLater(bool detach = true, bool trash = true) override
-  {
-    if (_deleted) return;
-
-    preview.deleteLater(true, false);
-
-    Window::deleteLater(detach, trash);
-  }
-
-  void updatePreview();
-
-  void checkEvents(void) override;
-
- protected:
-  Curve preview;
-  uint8_t index;
-  uint8_t current;
-  static mixsrc_t currentSource;
-  static bool lockSource;
-};
 
 class CurveEditWindow : public Page
 {
  public:
   CurveEditWindow(uint8_t index,
                   std::function<void(void)> refreshView = nullptr);
+
+  void setCurrentSource(mixsrc_t source);
 
   static LAYOUT_VAL(NUMEDT_W, 70, 70)
   static LAYOUT_VAL(CURVE_WIDTH, 215, 232)

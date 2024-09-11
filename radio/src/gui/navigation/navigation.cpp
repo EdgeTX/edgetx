@@ -191,7 +191,7 @@ int checkMovedInput(int newval, int i_min, int i_max, unsigned int i_flags, bool
 
 #if defined(AUTOSOURCE)
     if (i_flags & (INCDEC_SOURCE|INCDEC_SOURCE_VALUE)) {
-      int source = GET_MOVED_SOURCE(i_min, i_max);
+      int source = getMovedSource(i_min);
       if (source) {
         if (i_flags & INCDEC_SOURCE_VALUE) {
           if (isSource) {

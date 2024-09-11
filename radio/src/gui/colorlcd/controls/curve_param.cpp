@@ -28,33 +28,27 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-class CurveChoice : public Choice
-{
- public:
-  CurveChoice(Window* parent, std::function<int()> getRefValue, std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView) :
-    Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
-    refreshView(std::move(refreshView))
-    {
-      setTextHandler([](int value) { return getCurveString(value); });
-    }
-
-  bool onLongPress() override
+CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue, 
+        std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView, mixsrc_t source) :
+  Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
+  source(source), refreshView(std::move(refreshView))
   {
-    if (modelCurvesEnabled()) {
-      if (_getValue()) {
-        lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
-        ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView);
-      }
-    }
-    return true;
+    setTextHandler([](int value) { return getCurveString(value); });
   }
 
- protected:
-  std::function<void(void)> refreshView;
-};
+bool CurveChoice::onLongPress()
+{
+  if (modelCurvesEnabled()) {
+    if (_getValue()) {
+      lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
+      ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView, source);
+    }
+  }
+  return true;
+}
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue, int16_t sourceMin,
+                       std::function<void(int32_t)> setRefValue, int16_t sourceMin, mixsrc_t source,
                        std::function<void(void)> refreshView) :
     Window(parent, rect), ref(ref), refreshView(std::move(refreshView))
 {
@@ -103,7 +97,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                                   v.isSource = false;
                                   v.value = newValue;
                                   setRefValue(v.rawValue);
-                                }, refreshView);
+                                }, refreshView, source);
 
   update();
 }
