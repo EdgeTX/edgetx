@@ -215,7 +215,6 @@
 #define TR_VFORMULAS                   "Addieren","Mittelwert","Min","Max","Multiplizier","Gesamt","Zelle","Verbrauch","Distanz"
 #define TR_VPREC                       "0.--","0.0","0.00"
 #define TR_VCELLINDEX                  "Niedrigst","1. Zelle","2. Zelle","3. Zelle","4. Zelle","5. Zelle","6. Zelle","7. Zelle","8. Zelle","Höchster","Differenz"
-#define TR_TEXT_SIZE                   "Standard","Winzig","Klein","Mittel","Gross"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA" (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Rückw.", "Rückwärts"), TR("Vorwä.", "Vorwärts")
 #define TR_PPMUNIT                     "0.--","0.0","us"

@@ -90,12 +90,13 @@ struct ZoneOption
     Source,
     Bool,
     String,
-    File,
     TextSize,
     Timer,
     Switch,
     Color,
-    Align
+    Align,
+    Slider,
+    Choice,
   };
 
   const char * name;

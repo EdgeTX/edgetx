@@ -69,7 +69,7 @@ void Widget::openMenu()
     }
     if (getOptions() && getOptions()->name) {
       menu->addLine(STR_WIDGET_SETTINGS,
-                    [=]() { new WidgetSettings(this, this); });
+                    [=]() { new WidgetSettings(this); });
     }
   }
 }

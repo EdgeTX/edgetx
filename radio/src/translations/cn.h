@@ -214,7 +214,6 @@
 #define TR_VFORMULAS                   "加","平均值","最小值","最大值","乘","总计值","单节电池","消耗量","距离"
 #define TR_VPREC                       "0.--","0.0-","0.00"
 #define TR_VCELLINDEX                  "最低值","1","2","3","4","5","6","7","8","最高值","差值"
-#define TR_TEXT_SIZE                   "标准","小","较小","中等","双倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)", "=(整体)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 #define TR_PPMUNIT                     "0.--","0.0","us"

@@ -219,7 +219,6 @@
 #define TR_VFORMULAS                   "加","平均值","最小值","最大值","乘","總計值","單節電池","消耗量","距離"
 #define TR_VPREC                       "0.--","0.0-","0.00"
 #define TR_VCELLINDEX                  "最低值","1","2","3","4","5","6","7","8","最高值","差值"
-#define TR_TEXT_SIZE                   "標準","小","較小","中等","雙倍"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA "(中点)","=(整體)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 #define TR_PPMUNIT                     "0.--","0.0","us"

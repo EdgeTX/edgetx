@@ -42,7 +42,7 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
+WidgetSettings::WidgetSettings(Widget* w) :
     BaseDialog(ViewMain::instance(), w->getFactory()->getDisplayName(), true), widget(w)
 {
   FlexGridLayout grid(line_col_dsc, line_row_dsc);
@@ -50,37 +50,38 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
   form->padRow(PAD_ZERO);
 
   uint8_t optIdx = 0;
-  auto optPtr = widget->getOptions();
-  while (optPtr && optPtr->name != nullptr) {
+  auto opt = widget->getOptions();
+  while (opt && opt->name != nullptr) {
     auto line = form->newLine(grid);
 
-    auto option = *optPtr;
     new StaticText(line, rect_t{},
-                   option.displayName ? option.displayName : option.name);
+                   opt->displayName ? opt->displayName : opt->name);
 
-    switch (option.type) {
+    auto optVal = widget->getOptionValue(optIdx);
+
+    switch (opt->type) {
       case ZoneOption::Integer:
         (new NumberEdit(
-             line, rect_t{0, 0, 96, 0}, option.min.signedValue,
-             option.max.signedValue,
+             line, rect_t{0, 0, 96, 0}, opt->min.signedValue,
+             opt->max.signedValue,
              [=]() -> int {
-               return widget->getOptionValue(optIdx)->signedValue;
+               return optVal->signedValue;
              },
              [=](int32_t newValue) {
-               widget->getOptionValue(optIdx)->signedValue = newValue;
+               optVal->signedValue = newValue;
                SET_DIRTY();
              }))
-            ->setDefault(option.deflt.signedValue);
+            ->setDefault(opt->deflt.signedValue);
         break;
 
       case ZoneOption::Source:
         new SourceChoice(
             line, rect_t{}, 0, MIXSRC_LAST_TELEM,
             [=]() -> int16_t {
-              return (int16_t)widget->getOptionValue(optIdx)->unsignedValue;
+              return (int16_t)optVal->unsignedValue;
             },
             [=](int16_t newValue) {
-              widget->getOptionValue(optIdx)->unsignedValue =
+              optVal->unsignedValue =
                   (uint32_t)newValue;
               SET_DIRTY();
             });
@@ -90,31 +91,28 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
         new ToggleSwitch(
             line, rect_t{},
             [=]() -> uint8_t {
-              return (uint8_t)widget->getOptionValue(optIdx)->boolValue;
+              return (uint8_t)optVal->boolValue;
             },
             [=](int8_t newValue) {
-              widget->getOptionValue(optIdx)->boolValue = newValue;
+              optVal->boolValue = newValue;
               SET_DIRTY();
             });
         break;
 
       case ZoneOption::String:
         new ModelTextEdit(line, rect_t{0, 0, 96, 0},
-                          widget->getOptionValue(optIdx)->stringValue,
-                          sizeof(widget->getOptionValue(optIdx)->stringValue));
-        break;
-
-      case ZoneOption::File:
+                          optVal->stringValue,
+                          sizeof(optVal->stringValue));
         break;
 
       case ZoneOption::TextSize:
         new Choice(
             line, rect_t{}, STR_FONT_SIZES, 0, FONTS_COUNT - 1,
             [=]() -> int {  // getValue
-              return (int)widget->getOptionValue(optIdx)->unsignedValue;
+              return (int)optVal->unsignedValue;
             },
             [=](int newValue) {  // setValue
-              widget->getOptionValue(optIdx)->unsignedValue =
+              optVal->unsignedValue =
                   (uint32_t)newValue;
               SET_DIRTY();
             });
@@ -124,10 +122,10 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
         new Choice(
             line, rect_t{}, STR_ALIGN_OPTS, 0, ALIGN_COUNT - 1,
             [=]() -> int {  // getValue
-              return (int)widget->getOptionValue(optIdx)->unsignedValue;
+              return (int)optVal->unsignedValue;
             },
             [=](int newValue) {  // setValue
-              widget->getOptionValue(optIdx)->unsignedValue =
+              optVal->unsignedValue =
                   (uint32_t)newValue;
               SET_DIRTY();
             });
@@ -138,10 +136,10 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
         auto tmChoice = new Choice(
             line, rect_t{}, 0, TIMERS - 1,
             [=]() -> int {  // getValue
-              return (int)widget->getOptionValue(optIdx)->unsignedValue;
+              return (int)optVal->unsignedValue;
             },
             [=](int newValue) {  // setValue
-              widget->getOptionValue(optIdx)->unsignedValue =
+              optVal->unsignedValue =
                   (uint32_t)newValue;
               SET_DIRTY();
             });
@@ -154,13 +152,13 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
       case ZoneOption::Switch:
         new SwitchChoice(
             line, rect_t{},
-            option.min.signedValue,  // min
-            option.max.signedValue,  // max
+            opt->min.signedValue,  // min
+            opt->max.signedValue,  // max
             [=]() -> int16_t {       // getValue
-              return widget->getOptionValue(optIdx)->signedValue;
+              return optVal->signedValue;
             },
             [=](int16_t newValue) {  // setValue
-              widget->getOptionValue(optIdx)->signedValue = newValue;
+              optVal->signedValue = newValue;
               SET_DIRTY();
             });
         break;
@@ -169,17 +167,36 @@ WidgetSettings::WidgetSettings(Window* parent, Widget* w) :
         new ColorPicker(
             line, rect_t{},
             [=]() -> uint32_t {  // getValue
-              return widget->getOptionValue(optIdx)->unsignedValue;
+              return optVal->unsignedValue;
             },
             [=](uint32_t newValue) {  // setValue
-              widget->getOptionValue(optIdx)->unsignedValue = newValue;
+              optVal->unsignedValue = newValue;
+              SET_DIRTY();
+            });
+        break;
+
+      case ZoneOption::Slider:
+        new Slider(
+            line, SLIDER_W, opt->min.signedValue, opt->max.signedValue,
+            [=]() { return optVal->unsignedValue; },
+            [=](uint32_t newValue) {
+              optVal->unsignedValue = newValue;
+              SET_DIRTY();
+            });
+        break;
+
+      case ZoneOption::Choice:
+        new Choice(line, rect_t{}, opt->choiceValues, 0, opt->choiceValues.size() - 1,
+            [=]() { return optVal->unsignedValue - 1; },
+            [=](uint32_t newValue) {
+              optVal->unsignedValue = newValue + 1;
               SET_DIRTY();
             });
         break;
     }
 
     optIdx++;
-    optPtr++;
+    opt++;
   }
 }
 

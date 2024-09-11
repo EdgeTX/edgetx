@@ -248,6 +248,8 @@ struct LuaMemTracer {
 
 void * tracer_alloc(void * ud, void * ptr, size_t osize, size_t nsize);
 
+void l_pushtableint(lua_State* ls, const char * key, int value);
+void l_pushtablebool(lua_State* ls, const char * key, bool value);
 
 #else  // defined(LUA)
 

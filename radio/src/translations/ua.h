@@ -219,7 +219,6 @@
 #define TR_VFORMULAS                   "Дод.","Середн.","Min","Max","Множ.","Сума","Комірка","Витрата","Дистанц."
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Нижн.","1","2","3","4","5","6","7","8","Вищ.","Різниця"
-#define TR_TEXT_SIZE                   "Стандарт","Наддрібн.","Дрібн.","Сер.","Подв."
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (лише центр)","= (симетричн.)"
 #define TR_TIMER_DIR                   TR("Залиш.", "Показ.Залиш"), TR("Пройш.", "Пройшло")
 #define TR_PPMUNIT                     "0.--","0.0","us"

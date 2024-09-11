@@ -776,7 +776,6 @@ extern const char STR_SLIDERS[];
 extern const char STR_FLIGHT_MODE[];
 extern const char STR_INVALID_FILE[];
 extern const char STR_TIMER_SOURCE[];
-extern const char* const STR_TEXT_SIZE[];
 extern const char* const STR_SUBTRIMMODES[];
 extern const char STR_SIZE[];
 extern const char STR_SHADOW[];

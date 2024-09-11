@@ -213,7 +213,6 @@
 #define TR_VFORMULAS                   "Suma","Media","Min","Máx","Multipl.","Total","Cell","Consumo","Distancia"
 #define TR_VPREC                       "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                  "Menor","1","2","3","4","5","6","7","8","Mayor","Delta"
-#define TR_TEXT_SIZE                   "Normal","Muy pequeño","Pequeño","Medio","Doble"
 #define TR_SUBTRIMMODES                STR_CHAR_DELTA " (center only)","= (symetrical)"
 #define TR_TIMER_DIR                   TR("Remain", "Show Remain"), TR("Elaps.", "Show Elapsed")
 #define TR_PPMUNIT                     "0.--","0.0","us"

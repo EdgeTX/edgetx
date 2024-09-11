@@ -93,6 +93,7 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
   friend class LuaWidgetFactory;
 
   int zoneRectDataRef;
+  int optionsDataRef;
   char* errorMessage;
   bool refreshed = false;
 
@@ -112,7 +113,8 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-            WidgetPersistentData* persistentData, int luaWidgetDataRef, int zoneRectDataRef);
+            WidgetPersistentData* persistentData, int luaWidgetDataRef, int zoneRectDataRef,
+            int optionsDataRef);
   ~LuaWidget() override;
 
 #if defined(DEBUG_WINDOWS)

@@ -43,7 +43,7 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
       auto widget = container->getWidget(slotIndex);
       if (widget->getOptions() && widget->getOptions()->name)
         menu->addLine(STR_WIDGET_SETTINGS,
-                      [=]() { new WidgetSettings(parent, widget); });
+                      [=]() { new WidgetSettings(widget); });
       menu->addLine(STR_REMOVE_WIDGET,
                     [=]() { container->removeWidget(slotIndex); });
     } else {
@@ -104,7 +104,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
       container->createWidget(slotIndex, factory);
       auto widget = container->getWidget(slotIndex);
       if (widget->getOptions() && widget->getOptions()->name)
-        new WidgetSettings(parent, widget);
+        new WidgetSettings(widget);
     });
     if (cur && strcmp(cur, factory->getDisplayName()) == 0)
       selected = index;
