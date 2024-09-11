@@ -114,6 +114,20 @@ void boardInit()
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
+#if defined(USB_CHARGE_LED) && !defined(DEBUG_DISABLE_USB)
+  usbInit();
+  // prime debounce state...
+  usbPlugged();
+
+  if (usbPlugged()) {
+    delaysInit();
+    while (usbPlugged()) {
+      delay_ms(1000);
+    }
+    pwrOff();
+  }
+#endif
+
 #if defined(BLUETOOTH) && !defined(PCBX9E)
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
 #endif
@@ -158,7 +172,7 @@ void boardInit()
 // TODO: needs refactoring if any other manufacturer implements either of the following:
 // - function switches and the radio supports charging
 // - single USB for data + charge which powers on radio
-#if defined(MANUFACTURER_JUMPER)
+#if defined(MANUFACTURER_JUMPER) && !defined(USB_CHARGE_LED)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
@@ -166,13 +180,13 @@ void boardInit()
 
   if (usbPlugged()) {
     delaysInit();
+    __enable_irq();
     adcInit(&_adc_driver);
     getADC();
     pwrOn();  // required to get bat adc reads
     INTERNAL_MODULE_OFF();
     EXTERNAL_MODULE_OFF();
     delay_ms(2000); // let this stabilize
-
     while (usbPlugged()) {
       //    // Let it charge ...
       getADC();  // Warning: the value read does not include VBAT calibration
