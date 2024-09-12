@@ -135,9 +135,7 @@ PACK(struct ExpandState {
   uint8_t imu:1;
 #endif
   uint8_t alarms:1;
-#if defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)
   uint8_t backlight:1;
-#endif
 #if defined(GPS)
   uint8_t gps:1;
 #endif
@@ -158,9 +156,7 @@ static uint8_t IMU_ROW(uint8_t value) { return expandState.imu ? value : HIDDEN_
 
 static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
 
-#if defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)
 static uint8_t BACKLIGHT_ROW(uint8_t value) { return expandState.backlight ? value : HIDDEN_ROW; }
-#endif
 
 #if defined(GPS)
 static uint8_t GPS_ROW(uint8_t value) { return expandState.gps ? value : HIDDEN_ROW; }
