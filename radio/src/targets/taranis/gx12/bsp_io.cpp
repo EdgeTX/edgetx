@@ -72,11 +72,8 @@ static void _io_int_handler(bsp_io_expander* io)
   }
 }
 
-static void _switch_int_handler() {
+static void _io_int_handler() {
   _io_int_handler(&_io_switches);
-}
-
-static void _fs_switch_int_handler() {
   _io_int_handler(&_io_fs_switches);
 }
 
@@ -94,18 +91,20 @@ int bsp_io_init()
     return -1;
   }
 
-  // setup expander 1 pin change interrupt
-  gpio_init_int(SWITCH_INT_GPIO, GPIO_IN, GPIO_FALLING, _switch_int_handler);
-  bsp_io_read_switches();
-
   // configure expander 2
   _init_io_expander(&_io_fs_switches, 0x3F);
   if (pca95xx_init(&_io_fs_switches.exp, I2C_Bus_2, 0x75) < 0) {
     return -1;
   }
 
-  // setup expander 2 pin change interrupt
-  gpio_init_int(FS_SWITCH_INT_GPIO, GPIO_IN, GPIO_FALLING, _fs_switch_int_handler);
+  // setup expanders pin change interrupt
+  gpio_init_int(IO_INT_GPIO, GPIO_IN, GPIO_FALLING, _io_int_handler);
+
+  // setup expanders reset pin
+  gpio_init(IO_RESET_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(IO_RESET_GPIO);
+
+  bsp_io_read_switches();
   bsp_io_read_fs_switches();
 
   return 0;
