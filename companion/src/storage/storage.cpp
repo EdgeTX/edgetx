@@ -21,7 +21,6 @@
 
 #include "bineeprom.h"
 #include "eepe.h"
-#include "otx.h"
 #include "etx.h"
 #include "sdcard.h"
 #include "yaml.h"
@@ -42,8 +41,6 @@ StorageType getStorageType(const QString & filename)
     return STORAGE_TYPE_EEPE;
   else if (suffix == "XML")
     return STORAGE_TYPE_XML;
-  else if (suffix == "OTX")
-    return STORAGE_TYPE_OTX;
   else if (suffix == "ETX")
     return STORAGE_TYPE_ETX;
   else if (suffix == "YML")
@@ -64,10 +61,6 @@ void registerStorageFactory(StorageFactory * factory)
 
 void registerStorageFactories()
 {
-  registerStorageFactory(new DefaultStorageFactory<BinEepromFormat>("bin"));
-  registerStorageFactory(new DefaultStorageFactory<EepeFormat>("eepe"));
-  registerStorageFactory(new DefaultStorageFactory<HexEepromFormat>("hex"));
-  registerStorageFactory(new DefaultStorageFactory<OtxFormat>("otx"));
   registerStorageFactory(new DefaultStorageFactory<EtxFormat>("etx"));
   registerStorageFactory(new DefaultStorageFactory<YamlFormat>("yml"));
   registerStorageFactory(new SdcardStorageFactory());
@@ -165,46 +158,3 @@ bool convertEEprom(const QString & sourceEEprom, const QString & destinationEEpr
   destinationFile.close();
   return (result == size);
 }
-
-#if 0
-unsigned long LoadBackup(RadioData & radioData, uint8_t * eeprom, int size, int index)
-{
-  std::bitset<NUM_ERRORS> errors;
-
-    foreach(EEPROMInterface *eepromInterface, eepromInterfaces) {
-      std::bitset<NUM_ERRORS> result((unsigned long long)eepromInterface->loadBackup(radioData, eeprom, size, index));
-      if (result.test(ALL_OK)) {
-        return result.to_ulong();
-      }
-      else {
-        errors |= result;
-      }
-    }
-
-  if (errors.none()) {
-    errors.set(UNKNOWN_ERROR);
-  }
-  return errors.to_ulong();
-}
-
-
-unsigned long LoadEepromXml(RadioData & radioData, QDomDocument & doc)
-{
-  std::bitset<NUM_ERRORS> errors;
-
-    foreach(EEPROMInterface *eepromInterface, eepromInterfaces) {
-      std::bitset<NUM_ERRORS> result((unsigned long long)eepromInterface->loadxml(radioData, doc));
-      if (result.test(ALL_OK)) {
-        return result.to_ulong();
-      }
-      else {
-        errors |= result;
-      }
-    }
-
-  if (errors.none()) {
-    errors.set(UNKNOWN_ERROR);
-  }
-  return errors.to_ulong();
-}
-#endif

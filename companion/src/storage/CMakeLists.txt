@@ -14,7 +14,6 @@ set(${PROJECT_NAME}_NAMES
   labeled
   sdcard
   etx
-  otx
   yaml
   crc
   minizinterface
