@@ -126,6 +126,7 @@ int main()
     { TR_SF_LCD_TO_VIDEO, "FUNC_LCD_TO_VIDEO", FUNC_LCD_TO_VIDEO, "defined(VIDEO_SWITCH)" },
     { TR_SF_PUSH_CUST_SWITCH, "FUNC_PUSH_CUST_SWITCH", FUNC_PUSH_CUST_SWITCH, "defined(FUNCTION_SWITCHES)" },
     { TR_SF_TEST, "FUNC_TEST", FUNC_TEST, "defined(DEBUG)" },
+    { TR_SF_ARM, "FUNC_ARM", FUNC_ARM, "" },
   };
 
   std::locale locale(LOC);

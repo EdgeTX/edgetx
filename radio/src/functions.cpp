@@ -411,6 +411,10 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             }
             break;
 
+          case FUNC_ARM:
+            newActiveFunctions |= (1u << FUNCTION_ARM);
+            break;
+
 #if defined(PXX2)
           case FUNC_RACING_MODE:
             if (isRacingModeEnabled()) {
@@ -559,6 +563,8 @@ const char* funcGetLabel(uint8_t func)
     return STR_SF_SCREENSHOT;
   case FUNC_RACING_MODE:
     return STR_SF_RACING_MODE;
+  case FUNC_ARM:
+    return STR_SF_ARM;
 #if defined(COLORLCD)
   case FUNC_DISABLE_TOUCH:
     return STR_SF_DISABLE_TOUCH;

@@ -46,6 +46,9 @@
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
 static bool moduleAlive[NUM_MODULES];                 // module alive status
 
+static bool armStatus = false;
+static bool lastArmStatus = false;
+
 uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
 {
   uint8_t * buf = frame;
@@ -87,6 +90,22 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
   *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
   *buf++ = COMMAND_MODEL_SELECT_ID;                   /* command of set model/receiver id */
   *buf++ = g_model.header.modelId[moduleIdx];         /* model ID */
+  *buf++ = crc8_BA(frame + 2, 6);
+  *buf++ = crc8(frame + 2, 7);
+  return buf - frame;
+}
+
+uint8_t createCrossfireArmFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  uint8_t * buf = frame;
+  *buf++ = UART_SYNC;                                 /* device address */
+  *buf++ = 8;                                         /* frame length */
+  *buf++ = COMMAND_ID;                                /* cmd type */
+  *buf++ = MODULE_ADDRESS;                            /* Destination Address */
+  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
+  *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
+  *buf++ = COMMAND_ARM;                               /* command of arm status*/
+  *buf++ = armStatus;                                 /* armStatus */
   *buf++ = crc8_BA(frame + 2, 6);
   *buf++ = crc8(frame + 2, 7);
   return buf - frame;
@@ -165,6 +184,10 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
     } else if (moduleState[module].mode == MODULE_MODE_BIND) {
       p_buf += createCrossfireBindFrame(module, p_buf);
       moduleState[module].mode = MODULE_MODE_NORMAL;
+    } else if ((armStatus = isFunctionActive(FUNCTION_ARM)) != lastArmStatus) {
+      p_buf += createCrossfireArmFrame(module, p_buf);
+      lastArmStatus = armStatus;
+      TRACE("[XF] sending Arm status");
     } else {
       /* TODO: nChannels */
       p_buf += createCrossfireChannelsFrame(p_buf, channels);
