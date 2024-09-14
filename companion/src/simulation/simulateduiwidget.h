@@ -151,6 +151,7 @@ class SimulatedUIWidget : public QWidget
                               ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid);
     void addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons);
     void addScrollActions();
+    void addMouseActions();
 };
 
 
