@@ -292,6 +292,7 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     board = getCurrentBoard();
 
   Boards b(board);
+  Firmware *firmware = getCurrentFirmware();
 
   if (type == SOURCE_TYPE_CH && abs(index) > CPN_MAX_CHNOUT)
     return false;
@@ -318,6 +319,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     return false;
 
   if (type == SOURCE_TYPE_TELEMETRY && div(abs(index), 3).quot > CPN_MAX_SENSORS)
+    return false;
+
+  if (type == SOURCE_TYPE_CYC && !firmware->getCapability(Heli))
     return false;
 
   if (model) {
