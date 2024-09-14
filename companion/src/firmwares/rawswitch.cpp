@@ -37,11 +37,22 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
     QString("AIL"), QString("GEA"), QString("TRN")
   };
 
-  static const QString trimsSwitches[] = {
+  static const QString trimsSwitchesAir[] = {
     tr("Rud-"), tr("Rud+"),
     tr("Ele-"), tr("Ele+"),
     tr("Thr-"), tr("Thr+"),
     tr("Ail-"), tr("Ail+"),
+    tr("T5-"), tr("T5+"),
+    tr("T6-"), tr("T6+"),
+    tr("T7-"), tr("T7+"),
+    tr("T8-"), tr("T8+")
+  };
+
+  static const QString trimsSwitchesSurface[] = {
+    tr("ST-"), tr("ST+"),
+    tr("TH-"), tr("TH+"),
+    tr("T3-"), tr("T3+"),
+    tr("T4-"), tr("T4+"),
     tr("T5-"), tr("T5+"),
     tr("T6-"), tr("T6+"),
     tr("T7-"), tr("T7+"),
@@ -115,7 +126,9 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_TRIM:
         return (Boards::getCapability(board, Board::NumTrims) == 2 ?
-                CHECK_IN_ARRAY(trimsSwitches2, index - 1) : CHECK_IN_ARRAY(trimsSwitches, index - 1));
+                CHECK_IN_ARRAY(trimsSwitches2, index - 1) :
+                (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsSwitchesAir, index - 1) :
+                                        CHECK_IN_ARRAY(trimsSwitchesSurface, index - 1)));
 
       case SWITCH_TYPE_ROTARY_ENCODER:
         return CHECK_IN_ARRAY(rotaryEncoders, index - 1);
