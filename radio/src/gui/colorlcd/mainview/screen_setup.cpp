@@ -231,7 +231,33 @@ void ScreenSetupPage::build(Window* window)
         // delete any options potentially accessing
         // the old custom screen before re-creating it
         clearLayoutOptions();
+
+        // If screen is not App Mode then save option values
+        auto layoutData = &g_model.screenData[customScreenIndex].layoutData;
+        auto layout = (Layout*)customScreens[customScreenIndex];
+        bool restoreOptions = false;
+        bool hasTopbar = true, hasFM = true, hasSliders = true, hasTrims = true, isMirrored = false;
+        if (!layout->isAppMode()) {
+          hasTopbar = layoutData->options[LAYOUT_OPTION_TOPBAR].value.boolValue;
+          hasFM = layoutData->options[LAYOUT_OPTION_FM].value.boolValue;
+          hasSliders = layoutData->options[LAYOUT_OPTION_SLIDERS].value.boolValue;
+          hasTrims = layoutData->options[LAYOUT_OPTION_TRIMS].value.boolValue;
+          isMirrored = layoutData->options[LAYOUT_OPTION_MIRRORED].value.boolValue;
+          restoreOptions = true;
+        }
+
         factory->createCustomScreen(customScreenIndex);
+
+        // If new screen is not App Mode then restore saved option values
+        layout = (Layout*)customScreens[customScreenIndex];
+        if (restoreOptions && !layout->isAppMode()) {
+          layoutData->options[LAYOUT_OPTION_TOPBAR].value.boolValue = hasTopbar;
+          layoutData->options[LAYOUT_OPTION_FM].value.boolValue = hasFM;
+          layoutData->options[LAYOUT_OPTION_SLIDERS].value.boolValue = hasSliders;
+          layoutData->options[LAYOUT_OPTION_TRIMS].value.boolValue = hasTrims;
+          layoutData->options[LAYOUT_OPTION_MIRRORED].value.boolValue = isMirrored;
+        }
+
         buildLayoutOptions();
       };
 
