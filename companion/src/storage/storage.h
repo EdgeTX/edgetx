@@ -30,11 +30,7 @@
 enum StorageType
 {
   STORAGE_TYPE_UNKNOWN,
-  STORAGE_TYPE_BIN,
-  STORAGE_TYPE_HEX,
-  STORAGE_TYPE_EEPE,
-  STORAGE_TYPE_EEPM,
-  STORAGE_TYPE_XML,
+  STORAGE_TYPE_HEX,   // needed for FirmwareInterface
   STORAGE_TYPE_SDCARD,
   STORAGE_TYPE_ETX,
   STORAGE_TYPE_YML
@@ -162,5 +158,3 @@ class Storage : public StorageFormat
 
 void registerStorageFactories();
 void unregisterStorageFactories();
-
-bool convertEEprom(const QString & sourceEEprom, const QString & destinationEEprom, const QString & firmware);

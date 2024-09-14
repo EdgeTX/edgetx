@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SDCARD_H2_
-#define _SDCARD_H2_
+#pragma once
 
 #include "labeled.h"
 
@@ -56,5 +55,3 @@ class SdcardStorageFactory : public DefaultStorageFactory<SdcardFormat>
 
     virtual bool probe(const QString & name);
 };
-
-#endif // _SDCARD_H2_

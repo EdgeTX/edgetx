@@ -31,7 +31,6 @@ set(${PROJECT_NAME}_NAMES
   sourcenumref
   telem_data
   timerdata
-  opentx/opentxeeprom
   opentx/opentxinterface
   edgetx/edgetxinterface
   edgetx/yaml_calibdata

@@ -19,29 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#include "bineeprom.h"
-#include "eepe.h"
 #include "etx.h"
-#include "sdcard.h"
 #include "yaml.h"
-#include "firmwareinterface.h"
-#include "eeprominterface.h"
+#include "sdcard.h"
+
 #include <QFileInfo>
 
 StorageType getStorageType(const QString & filename)
 {
   QString suffix = QFileInfo(filename).suffix().toUpper();
-  if (suffix == "HEX")
-    return STORAGE_TYPE_HEX;
-  else if (suffix == "BIN")
-    return STORAGE_TYPE_BIN;
-  else if (suffix == "EEPM")
-    return STORAGE_TYPE_EEPM;
-  else if (suffix == "EEPE")
-    return STORAGE_TYPE_EEPE;
-  else if (suffix == "XML")
-    return STORAGE_TYPE_XML;
-  else if (suffix == "ETX")
+
+  if (suffix == "ETX")
     return STORAGE_TYPE_ETX;
   else if (suffix == "YML")
     return STORAGE_TYPE_YML;
@@ -81,7 +69,7 @@ bool Storage::load(RadioData & radioData)
   }
 
   bool ret = false;
-  foreach(StorageFactory * factory, registeredStorageFactories) {
+  foreach (StorageFactory * factory, registeredStorageFactories) {
     if (factory->probe(filename)) {
       StorageFormat * format = factory->instance(filename);
       if (format->load(radioData)) {
@@ -104,7 +92,7 @@ bool Storage::load(RadioData & radioData)
 bool Storage::write(const RadioData & radioData)
 {
   bool ret = false;
-  foreach(StorageFactory * factory, registeredStorageFactories) {
+  foreach (StorageFactory * factory, registeredStorageFactories) {
     if (factory->probe(filename)) {
       StorageFormat * format = factory->instance(filename);
       ret = format->write(radioData);
@@ -118,7 +106,7 @@ bool Storage::write(const RadioData & radioData)
 bool Storage::writeModel(const RadioData & radioData, const int modelIndex)
 {
   bool ret = false;
-  foreach(StorageFactory * factory, registeredStorageFactories) {
+  foreach (StorageFactory * factory, registeredStorageFactories) {
     if (factory->probe(filename)) {
       StorageFormat * format = factory->instance(filename);
       ret = format->writeModel(radioData, modelIndex);
@@ -127,34 +115,4 @@ bool Storage::writeModel(const RadioData & radioData, const int modelIndex)
     }
   }
   return ret;
-}
-
-bool convertEEprom(const QString & sourceEEprom, const QString & destinationEEprom, const QString & firmwareFilename)
-{
-  FirmwareInterface firmware(firmwareFilename);
-  if (!firmware.isValid())
-    return false;
-
-  uint8_t version = firmware.getEEpromVersion();
-  unsigned int variant = firmware.getEEpromVariant();
-
-  QSharedPointer<RadioData> radioData = QSharedPointer<RadioData>(new RadioData());
-  Storage storage(sourceEEprom);
-  if (!storage.load(*radioData))
-    return false;
-
-  QByteArray eeprom(Boards::getEEpromSize(Board::BOARD_UNKNOWN), 0);
-  int size = getCurrentEEpromInterface()->save((uint8_t *)eeprom.data(), *radioData, version, variant);
-  if (size == 0) {
-    return false;
-  }
-
-  QFile destinationFile(destinationEEprom);
-  if (!destinationFile.open(QIODevice::WriteOnly)) {
-    return false;
-  }
-
-  int result = destinationFile.write(eeprom.constData(), size);
-  destinationFile.close();
-  return (result == size);
 }
