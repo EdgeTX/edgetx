@@ -93,13 +93,13 @@
 #define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
 #define TR_SF_TRAINER                  "Trenér"
-#define TR_SF_INST_TRIM                "Insta-Trim"
+#define TR_SF_INST_TRIM                "Instantní trim"
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Změna"
 #define TR_SF_VOLUME                   "Hlasitost"
-#define TR_SF_FAILSAFE                 "Nastavit Failsafe"
+#define TR_SF_FAILSAFE                 "Nastavit failsafe"
 #define TR_SF_RANGE_CHECK              "Kontrola dosahu"
-#define TR_SF_MOD_BIND                 "ModuleBind"
+#define TR_SF_MOD_BIND                 "Modul bind"
 #define TR_SF_RGBLEDS                  "RGB světlo"
 
 #define TR_SOUND                       TR3("\200\201Zvuk", "\200\201Zvuk", "Hrát zvuk")
