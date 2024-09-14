@@ -25,6 +25,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "switches.h"
 
 struct hw_switch_def {
   const char*  name;
@@ -63,6 +64,13 @@ static uint8_t get_switch_index(uint8_t cat, uint8_t idx)
 SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
 {
   idx = get_switch_index(cat, idx);
+
+#if defined(FUNCTION_SWITCHES)
+  if (IS_SWITCH_FS(idx + n_switches)) {
+    if (bfSingleBitGet(functionSwitchFunctionState, idx))
+      return SWITCH_HW_DOWN;
+  }
+#endif
 
   if (switchesStates[idx] < 0)
     return SWITCH_HW_UP;

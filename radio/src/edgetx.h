@@ -470,7 +470,7 @@ inline bool isFunctionActive(uint8_t func)
 {
   return globalFunctionsContext.isFunctionActive(func) || modelFunctionsContext.isFunctionActive(func);
 }
-void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
+void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
 inline void customFunctionsReset()
 {
   globalFunctionsContext.reset();

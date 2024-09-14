@@ -137,10 +137,13 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
 #define VOLUME_HYSTERESIS 10            // how much must a input value change to actually be considered for new volume setting
 getvalue_t requiredSpeakerVolumeRawLast = 1024 + 1; //initial value must be outside normal range
 
-void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
+void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
   MASK_FUNC_TYPE newActiveFunctions  = 0;
   MASK_CFN_TYPE  newActiveSwitches = 0;
+#if defined(FUNCTION_SWITCHES)
+  functionSwitchFunctionState = 0;
+#endif
 
   uint8_t playFirstIndex = (functions == g_model.customFn ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
   #define PLAY_INDEX   (i+playFirstIndex)
@@ -161,7 +164,7 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
   bool videoEnabled = false;
 #endif
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
-    const CustomFunctionData * cfn = &functions[i];
+    CustomFunctionData * cfn = &functions[i];
     swsrc_t swtch = CFN_SWITCH(cfn);
     if (swtch) {
       MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
@@ -365,6 +368,22 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
             }
             break;
 
+#if defined(FUNCTION_SWITCHES)
+          case FUNC_PUSH_CUST_SWITCH:
+            if (CFN_PARAM(cfn)) {   // Duration is set
+              if (! CFN_VAL2(cfn) ) { // Duration not started yet
+                CFN_VAL2(cfn) = timersGetMsTick() + CFN_PARAM(cfn) * 100;
+                functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
+              }
+              else if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
+                functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
+              }
+            }
+            else // No duration set
+              functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
+            break;
+#endif
+
           case FUNC_BACKLIGHT: {
             newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
             if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
@@ -434,6 +453,17 @@ void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext 
 
         newActiveSwitches |= switch_mask;
       } else {
+#if defined(FUNCTION_SWITCHES)
+        if (CFN_FUNC(cfn) == FUNC_PUSH_CUST_SWITCH) {
+          // Handling duration after function is active
+          if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn)) {
+            functionSwitchFunctionState |= 1 << CFN_CS_INDEX(cfn);
+          }
+          else {
+            CFN_VAL2(cfn) = 0;
+          }
+        }
+#endif
         functionsContext.lastFunctionTime[i] = 0;
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
         if (functionsContext.activeSwitches & switch_mask) {
@@ -541,6 +571,10 @@ const char* funcGetLabel(uint8_t func)
 #if defined(VIDEO_SWITCH)
   case FUNC_LCD_TO_VIDEO:
     return STR_SF_LCD_TO_VIDEO;
+#endif
+#if defined(FUNCTION_SWITCHES)
+  case FUNC_PUSH_CUST_SWITCH:
+    return STR_SF_PUSH_CUST_SWITCH;
 #endif
 #if defined(DEBUG)
   case FUNC_TEST:

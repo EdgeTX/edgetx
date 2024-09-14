@@ -87,6 +87,7 @@ uint8_t   potsPos[MAX_POTS];
 // Pushed : SWSRC_Sx2 = +1024 = Sx(down) = state 1
 
 uint8_t fsPreviousState = 0;
+uint8_t functionSwitchFunctionState = 0;
 
 void setFSStartupPosition()
 {
@@ -131,6 +132,11 @@ void setFSLogicalState(uint8_t index, uint8_t value)
 
 uint8_t getFSPhysicalState(uint8_t index)
 {
+#if defined(FUNCTION_SWITCHES)
+  if (bfSingleBitGet(functionSwitchFunctionState, index))
+    return true;
+#endif
+
   index += switchGetMaxSwitches();
   return switchGetPosition(index) != SWITCH_HW_UP;
 }

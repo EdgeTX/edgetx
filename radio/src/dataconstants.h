@@ -688,6 +688,9 @@ enum Functions {
 #if defined(VIDEO_SWITCH) || defined(CFN_ONLY)
   FUNC_LCD_TO_VIDEO,
 #endif
+#if defined(FUNCTION_SWITCHES) || defined(CFN_ONLY)
+  FUNC_PUSH_CUST_SWITCH,
+#endif
   FUNC_TEST, // MUST remain last
 #if defined(DEBUG)
   FUNC_MAX SKIP

@@ -41,7 +41,7 @@ class BoardJson
     };
 
     struct InputDefn {
-      Board::AnalogInputType type = AIT_NONE;
+      Board::AnalogInputType type      = AIT_NONE;
       std::string tag                  = "";
       std::string name                 = "";
       std::string shortName            = "";
@@ -61,7 +61,7 @@ class BoardJson
     };
 
     struct SwitchDefn {
-      Board::SwitchType type = Board::SWITCH_NOT_AVAILABLE;
+      Board::SwitchType type           = Board::SWITCH_NOT_AVAILABLE;
       std::string tag                  = "";
       std::string name                 = "";
       int flags                        = 0;
@@ -77,8 +77,8 @@ class BoardJson
     typedef std::vector<SwitchDefn> SwitchesTable;
 
     struct TrimDefn {
-      std::string tag  = "";
-      std::string name = "";
+      std::string tag                  = "";
+      std::string name                 = "";
       Board::LookupValueType cfgYaml   = Board::LVT_TAG;
       Board::LookupValueType refYaml   = Board::LVT_NAME;
 
@@ -124,6 +124,7 @@ class BoardJson
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
     const int getSwitchTagNum(int index) const;
+    const int getSwitchTypeOffset(Board::SwitchType type);
     const int getSwitchYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getSwitchYamlName(int index, YamlLookupType ylt) const;
 
@@ -183,6 +184,7 @@ private:
     static QString getSwitchName(const SwitchesTable * switches, int index);
     static QString getSwitchTag(const SwitchesTable * switches, int index);
     static int getSwitchTagNum(const SwitchesTable * switches, int index);
+    static int getSwitchTypeOffset(const SwitchesTable * switches, Board::SwitchType type);
 
     static int getTrimIndex(const TrimsTable * trims, QString val, Board::LookupValueType lvt);
     static QString getTrimName(const TrimsTable * trims, int index);

@@ -132,6 +132,10 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("RGB leds");
   else if (func == FuncLCDtoVideo)
     return tr("LCD to Video");
+  else if (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast) {
+    const int idx = Boards::getSwitchTypeOffset(Board::SWITCH_FUNC) + func - FuncPushCustomSwitch1 + 1;
+    return tr("Push Custom Switch %1").arg(RawSource(SOURCE_TYPE_SWITCH, idx).toString(model));
+  }
   else {
     return QString(CPN_STR_UNKNOWN_ITEM);
   }
@@ -146,7 +150,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   if ((func >= FuncOverrideCH1 && func <= FuncOverrideCHLast) || func == FuncSetScreen) {
     return QString("%1").arg(param);
   }
-  else if (func == FuncLogs) {
+  else if (func == FuncLogs || (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast)) {
     return QString("%1").arg(param / 10.0) + tr("s");
   }
   else if (func == FuncPlaySound) {
@@ -260,7 +264,8 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd))) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
         ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))) ||
-        ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard())))
+        ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||
+        ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) && !Boards::getCapability(fw->getBoard(), Board::FunctionSwitches))
         );
   return !ret;
 }

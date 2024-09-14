@@ -178,12 +178,12 @@ PACK(struct CustomFunctionData {
       int16_t val;
       uint8_t mode;
       uint8_t param;
-      NOBACKUP(int32_t spare);
+      int32_t val2;
     }) all;
 
     NOBACKUP(PACK(struct {
       int32_t val1;
-      NOBACKUP(int32_t val2);
+      int32_t val2;
     }) clear);
   }) NAME(fp) SKIP;
   uint8_t active : 1 SKIP;

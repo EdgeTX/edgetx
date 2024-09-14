@@ -212,6 +212,12 @@ void FunctionLineButton::refresh()
       strcat(s, formatNumberAsString(CFN_PARAM(cfn)).c_str());
       break;
 
+#if defined(FUNCTION_SWITCHES)
+    case FUNC_PUSH_CUST_SWITCH:
+      sprintf(s + strlen(s), "%s%d", STR_SWITCH, CFN_CS_INDEX(cfn) + 1);
+      break;
+#endif
+
     case FUNC_LOGS:
       strcat(
           s,
@@ -285,6 +291,9 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 #define SD_LOGS_PERIOD_MIN 1       // 0.1s  fastest period
 #define SD_LOGS_PERIOD_MAX 255     // 25.5s slowest period
 #define SD_LOGS_PERIOD_DEFAULT 10  // 1s    default period for newly created SF
+
+#define PUSH_CS_DURATION_MIN 0       // 0     no duration : as long as switch is true
+#define PUSH_CS_DURATION_MAX 255     // 25.5s longest duration
 
 FunctionEditPage::FunctionEditPage(uint8_t index, EdgeTxIcon icon,
                                    const char *title, const char *prefix) :
@@ -482,6 +491,25 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
     case FUNC_HAPTIC:
       addNumberEdit(line, STR_VALUE, cfn, 0, 3);
       break;
+
+#if defined(FUNCTION_SWITCHES)
+    case FUNC_PUSH_CUST_SWITCH: {
+        new StaticText(line, rect_t{}, STR_SWITCH);
+        auto choice = new Choice(line, rect_t{}, 0, NUM_FUNCTIONS_SWITCHES - 1, GET_SET_DEFAULT(CFN_CS_INDEX(cfn)), STR_SWITCH);
+        choice->setTextHandler([=](int n) {
+          return std::string(STR_SWITCH) + std::to_string(n + 1);
+        });
+        line = specialFunctionOneWindow->newLine(grid);
+
+        auto edit = addNumberEdit(line, STR_INTERVAL, cfn, PUSH_CS_DURATION_MIN,
+                                PUSH_CS_DURATION_MAX);
+
+        edit->setDisplayHandler([=](int32_t value) {
+          return formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s");
+        });
+      }
+      break;
+#endif
 
     case FUNC_LOGS: {
       if (CFN_PARAM(cfn) == 0)  // use stored value if SF exists

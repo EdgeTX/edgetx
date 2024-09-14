@@ -468,6 +468,22 @@ int BoardJson::getSwitchTagNum(const SwitchesTable * switches, int index)
   return -1;
 }
 
+const int BoardJson::getSwitchTypeOffset(Board::SwitchType type)
+{
+  return getSwitchTypeOffset(m_switches, type);
+}
+
+// static
+int BoardJson::getSwitchTypeOffset(const SwitchesTable * switches, Board::SwitchType type)
+{
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (type == switches->at(i).type)
+      return i;
+  }
+
+  return 0;
+}
+
 const int BoardJson::getSwitchYamlIndex(const QString val, YamlLookupType ylt) const
 {
   for (int i = 0; i < (int)m_switches->size(); i++) {

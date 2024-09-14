@@ -352,6 +352,7 @@ class Boards
     static QString getSwitchName(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchTagNum(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchTypeOffset(Board::SwitchType type, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
 
