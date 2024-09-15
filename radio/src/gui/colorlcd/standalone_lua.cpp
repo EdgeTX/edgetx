@@ -25,28 +25,6 @@
 #include "view_main.h"
 #include "dma2d.h"
 
-void StandaloneLuaWindow::redraw_cb(lv_event_t* e)
-{
-  lv_obj_t* target = lv_event_get_target(e);
-  if (lv_obj_has_flag(target, LV_OBJ_FLAG_HIDDEN)) return;
-
-  StandaloneLuaWindow* widget = (StandaloneLuaWindow*)lv_obj_get_user_data(target);
-
-  if (widget) {
-    lv_draw_ctx_t* draw_ctx = lv_event_get_draw_ctx(e);
-
-    auto w = draw_ctx->buf_area->x2 - draw_ctx->buf_area->x1 + 1;
-    auto h = draw_ctx->buf_area->y2 - draw_ctx->buf_area->y1 + 1;
-
-    TRACE_WINDOWS("Draw %s", widget->getWindowDebugString().c_str());
-
-    // Standalone script always redraws full screen
-    DMAWait();
-    DMACopyBitmap((uint16_t*)draw_ctx->buf, w, h, 0, 0,
-                  widget->lcdBuffer->getData(), w, h, 0, 0, w, h);
-  }
-}
-
 // singleton instance
 StandaloneLuaWindow* StandaloneLuaWindow::_instance;
 
@@ -81,7 +59,10 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-    lv_obj_add_event_cb(lvobj, StandaloneLuaWindow::redraw_cb, LV_EVENT_DRAW_MAIN, nullptr);
+    auto canvas = lv_canvas_create(lvobj);
+    lv_obj_center(canvas);
+    lv_canvas_set_buffer(canvas, lcdBuffer->getData(),
+                         lcdBuffer->width(), lcdBuffer->height(), LV_IMG_CF_TRUE_COLOR);
   }
 
   // setup LUA event handler

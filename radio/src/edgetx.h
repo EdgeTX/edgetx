@@ -307,7 +307,6 @@ void perMain();
 getvalue_t getValue(mixsrc_t i, bool* valid = nullptr);
 
 int8_t getMovedSource(uint8_t min);
-#define GET_MOVED_SOURCE(min, max) getMovedSource(min)
 
 #if defined(FLIGHT_MODES)
   extern uint8_t getFlightMode();
@@ -471,7 +470,7 @@ inline bool isFunctionActive(uint8_t func)
 {
   return globalFunctionsContext.isFunctionActive(func) || modelFunctionsContext.isFunctionActive(func);
 }
-void evalFunctions(const CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
+void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
 inline void customFunctionsReset()
 {
   globalFunctionsContext.reset();

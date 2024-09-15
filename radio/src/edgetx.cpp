@@ -40,6 +40,7 @@
 #include "switches.h"
 #include "inactivity_timer.h"
 #include "input_mapping.h"
+#include "trainer.h"
 
 #include "tasks.h"
 #include "tasks/mixer_task.h"
@@ -62,6 +63,10 @@
 
 #if defined(CROSSFIRE)
 #include "telemetry/crossfire.h"
+#endif
+
+#if defined(CSD203_SENSOR)
+  #include "csd203_sensor.h"
 #endif
 
 #if !defined(SIMU)
@@ -206,6 +211,10 @@ void timer_10ms()
   if (rotaryEncoderPollingCycle()) {
     inactivityTimerReset(ActivitySource::Keys);
   }
+#endif
+
+#if defined(CSD203_SENSOR) && !defined(SIMU)
+  readCSD203();
 #endif
 
   telemetryInterrupt10ms();
@@ -1648,6 +1657,25 @@ uint32_t pwrPressedDuration()
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 #endif
 
+bool pwrOffDueToInactivity()
+{
+  uint8_t inactivityLimit = g_eeGeneral.pwrOffIfInactive;
+  static tmr10ms_t lastConnectedTime = 0;
+
+  tmr10ms_t currentTime = get_tmr10ms();
+
+  if (TELEMETRY_STREAMING() ||
+      (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
+      isTrainerValid())
+    lastConnectedTime = currentTime;
+
+  bool inactivityShutdown =
+      inactivityLimit && inactivity.counter > 60u * inactivityLimit &&
+      (currentTime - lastConnectedTime) / 100u > 60u * inactivityLimit;
+
+  return inactivityShutdown;
+}
+
 uint32_t pwrCheck()
 {
   const char * message = nullptr;
@@ -1660,11 +1688,14 @@ uint32_t pwrCheck()
 
   static uint8_t pwr_check_state = PWR_CHECK_ON;
 
+  bool inactivityShutdown = pwrOffDueToInactivity();
+  
   if (pwr_check_state == PWR_CHECK_OFF) {
     return e_power_off;
   }
-  else if (pwrPressed()) {
-    inactivityTimerReset(ActivitySource::Keys);
+  else if (pwrPressed() || inactivityShutdown) {
+    if (!inactivityShutdown)
+      inactivityTimerReset(ActivitySource::Keys);
 
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;

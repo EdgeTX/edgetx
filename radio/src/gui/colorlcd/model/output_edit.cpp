@@ -22,6 +22,8 @@
 #include "output_edit.h"
 
 #include "channel_bar.h"
+#include "curveedit.h"
+#include "curve_param.h"
 #include "gvar_numberedit.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
@@ -175,10 +177,7 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Curve
   new StaticText(line, rect_t{}, TR_CURVE);
-  auto edit = new NumberEdit(line, rect_t{}, -MAX_CURVES, +MAX_CURVES,
-                             GET_SET_DEFAULT(output->curve));
-  edit->setDisplayHandler(
-      [](int32_t value) { return std::string(getCurveString(value)); });
+  new CurveChoice(line, GET_SET_DEFAULT(output->curve), nullptr, channel + MIXSRC_FIRST_CH);
 
   // PPM center
   line = form->newLine(grid);

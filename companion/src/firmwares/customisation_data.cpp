@@ -70,7 +70,6 @@ inline void setZoneOptionValue(ZoneOptionValue& zov, unsigned int value)
 inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
 {
   switch(type) {
-  case ZoneOption::File:
   case ZoneOption::String:
     return ZOV_String;
 
@@ -86,10 +85,6 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
   case ZoneOption::Source:
     return ZOV_Source;
 
-  case ZoneOption::Timer:
-  case ZoneOption::Switch:
-  case ZoneOption::TextSize:
-  case ZoneOption::Align:
   default:
     return ZOV_Unsigned;
   }

@@ -1022,7 +1022,7 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
       ival = switchLookupIdx(val, val_len - 1) * 3;
       if (ival < 0) return SWSRC_NONE;
-      ival += yaml_str2int(val + 3, val_len - 2);
+      ival += yaml_str2int(val + 3, val_len - 3);
       ival += SWSRC_FIRST_SWITCH;
       
     } else if (val_len > 2 && val[0] == 'S'
@@ -1626,7 +1626,18 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   case FUNC_LOGS: // 10th of seconds
     CFN_PARAM(cfn) = yaml_str2uint(val, l_sep);
     break;
+#if defined(FUNCTION_SWITCHES)
+  case FUNC_PUSH_CUST_SWITCH:
+    CFN_CS_INDEX(cfn) = yaml_str2uint_ref(val, val_len); // SW index
 
+    // ","
+    if (!val_len || val[0] != ',') return;
+    val++; val_len--;
+    l_sep = find_sep(val, val_len);
+
+    CFN_PARAM(cfn) = yaml_str2int(val, l_sep); // Duration, 10th of seconds
+    break;
+#endif
   case FUNC_ADJUST_GVAR: {
 
     CFN_GVAR_INDEX(cfn) = yaml_str2int_ref(val, l_sep);
@@ -1819,6 +1830,17 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
 #if defined(COLORLCD)
   case FUNC_SET_SCREEN:
 #endif
+
+#if defined(FUNCTION_SWITCHES)
+  case FUNC_PUSH_CUST_SWITCH:
+    str = yaml_unsigned2str(CFN_CS_INDEX(cfn)); // SW index
+    if (!wf(opaque, str, strlen(str))) return false;
+    if (!wf(opaque,",",1)) return false;
+    str = yaml_signed2str(CFN_PARAM(cfn)); // Duration
+    if (!wf(opaque, str, strlen(str))) return false;
+    break;
+#endif
+
   case FUNC_HAPTIC:
   case FUNC_LOGS: // 10th of seconds
     str = yaml_unsigned2str(CFN_PARAM(cfn));

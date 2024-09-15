@@ -61,16 +61,72 @@
 
 HardwareOptions hardwareOptions;
 
+#if defined(LED_STRIP_GPIO)
+extern const stm32_pulse_timer_t _led_timer;
+#endif
+
 #if !defined(BOOT)
 
 #if defined(FUNCTION_SWITCHES)
 #include "storage/storage.h"
 #endif
 
+#if defined(SIXPOS_SWITCH_INDEX)
+uint8_t lastADCState = 0;
+uint8_t sixPosState = 0;
+bool dirty = true;
+uint16_t getSixPosAnalogValue(uint16_t adcValue)
+{
+  uint8_t currentADCState = 0;
+  if (adcValue > 3800)
+    currentADCState = 6;
+  else if (adcValue > 3100)
+    currentADCState = 5;
+  else if (adcValue > 2300)
+    currentADCState = 4;
+  else if (adcValue > 1500)
+    currentADCState = 3;
+  else if (adcValue > 1000)
+    currentADCState = 2;
+  else if (adcValue > 400)
+    currentADCState = 1;
+  if (lastADCState != currentADCState) {
+    lastADCState = currentADCState;
+  } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
+    sixPosState = lastADCState - 1;
+    dirty = true;
+  }
+  if (dirty) {
+    for (uint8_t i = 0; i < 6; i++) {
+      if (i == sixPosState)
+        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+      else
+        ws2812_set_color(i, 0, 0, 0);
+    }
+    ws2812_update(&_led_timer);
+  }
+  return (4096/5)*(sixPosState);
+}
+#endif
+
 void boardInit()
 {
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+
+#if defined(USB_CHARGE_LED) && !defined(DEBUG_DISABLE_USB)
+  usbInit();
+  // prime debounce state...
+  usbPlugged();
+
+  if (usbPlugged()) {
+    delaysInit();
+    while (usbPlugged()) {
+      delay_ms(1000);
+    }
+    pwrOff();
+  }
+#endif
 
 #if defined(BLUETOOTH) && !defined(PCBX9E)
   bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
@@ -116,7 +172,7 @@ void boardInit()
 // TODO: needs refactoring if any other manufacturer implements either of the following:
 // - function switches and the radio supports charging
 // - single USB for data + charge which powers on radio
-#if defined(MANUFACTURER_JUMPER)
+#if defined(MANUFACTURER_JUMPER) && !defined(USB_CHARGE_LED)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
@@ -124,13 +180,13 @@ void boardInit()
 
   if (usbPlugged()) {
     delaysInit();
+    __enable_irq();
     adcInit(&_adc_driver);
     getADC();
     pwrOn();  // required to get bat adc reads
     INTERNAL_MODULE_OFF();
     EXTERNAL_MODULE_OFF();
     delay_ms(2000); // let this stabilize
-
     while (usbPlugged()) {
       //    // Let it charge ...
       getADC();  // Warning: the value read does not include VBAT calibration
@@ -182,8 +238,6 @@ void boardInit()
   usbInit();
 
 #if defined(LED_STRIP_GPIO)
-  extern const stm32_pulse_timer_t _led_timer;
-
   ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
     ws2812_set_color(i, 0, 0, 50);

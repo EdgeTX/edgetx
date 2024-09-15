@@ -27,7 +27,7 @@
 #include "edgetx_constants.h"
 #include "switches.h"
 #include "input_mapping.h"
-
+#include "inactivity_timer.h"
 #include "tasks/mixer_task.h"
 
 #define CS_LAST_VALUE_INIT -32768
@@ -87,6 +87,7 @@ uint8_t   potsPos[MAX_POTS];
 // Pushed : SWSRC_Sx2 = +1024 = Sx(down) = state 1
 
 uint8_t fsPreviousState = 0;
+uint8_t functionSwitchFunctionState = 0;
 
 void setFSStartupPosition()
 {
@@ -131,6 +132,11 @@ void setFSLogicalState(uint8_t index, uint8_t value)
 
 uint8_t getFSPhysicalState(uint8_t index)
 {
+#if defined(FUNCTION_SWITCHES)
+  if (bfSingleBitGet(functionSwitchFunctionState, index))
+    return true;
+#endif
+
   index += switchGetMaxSwitches();
   return switchGetPosition(index) != SWITCH_HW_UP;
 }
@@ -169,6 +175,7 @@ void evalFunctionSwitches()
     uint8_t physicalState = getFSPhysicalState(i);
     if (physicalState != getFSPreviousPhysicalState(i)) {
       // FS was moved
+      inactivityTimerReset(ActivitySource::MainControls);
       if ((FSWITCH_CONFIG(i) == SWITCH_2POS && physicalState == 1) ||
           (FSWITCH_CONFIG(i) == SWITCH_TOGGLE)) {
         if (IS_FSWITCH_GROUP_ON(FSWITCH_GROUP(i)) != 0) {

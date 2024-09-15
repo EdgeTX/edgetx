@@ -47,6 +47,7 @@ class Slider : public Window
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
 
+  static void slider_changed_cb(lv_event_t* e);
   static void on_draw(lv_event_t* e);
   void delayedInit();
 

@@ -58,6 +58,8 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 HWSticks::HWSticks(Window* parent) : Window(parent, rect_t{})
 {
+  padAll(PAD_TINY);
+
   FlexGridLayout grid(col_two_dsc, row_dsc, PAD_TINY);
   setFlexLayout();
 
@@ -83,6 +85,8 @@ HWSticks::HWSticks(Window* parent) : Window(parent, rect_t{})
 HWPots::HWPots(Window* parent) :
     Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
 {
+  padAll(PAD_TINY);
+
   potsChanged = false;
 
   setCloseHandler([=]() {
@@ -150,8 +154,8 @@ HWPots::HWPots(Window* parent) :
 class SwitchDynamicLabel : public StaticText
 {
  public:
-  SwitchDynamicLabel(Window* parent, uint8_t index, coord_t x, coord_t y) :
-      StaticText(parent, rect_t{x, y, HWSwitches::SW_CTRL_W, 0}, ""),
+  SwitchDynamicLabel(Window* parent, uint8_t index, coord_t x, coord_t y, coord_t w) :
+      StaticText(parent, rect_t{x, y, w, 0}, ""),
       index(index)
   {
     checkEvents();
@@ -188,41 +192,28 @@ class SwitchDynamicLabel : public StaticText
   uint8_t lastpos = 0xff;
 };
 
-static void flex_channel_changed(lv_event_t* e)
+class HWSwitch
 {
-  auto target = lv_event_get_target(e);
-  auto channel = (Choice*)lv_obj_get_user_data(target);
-
-  auto sw_cfg = (Choice*)lv_event_get_user_data(e);
-  lv_obj_t* sw_cfg_obj = sw_cfg->getLvObj();
-
-  if (channel->getIntValue() < 0) {
-    lv_obj_add_flag(sw_cfg_obj, LV_OBJ_FLAG_HIDDEN);
-    sw_cfg->setValue(0);
-  } else {
-    lv_obj_clear_flag(sw_cfg_obj, LV_OBJ_FLAG_HIDDEN);
-  }
-}
-
-HWSwitches::HWSwitches(Window* parent) :
-    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
-{
-  auto max_switches = switchGetMaxSwitches();
-  for (int i = 0; i < max_switches; i++) {
-    new SwitchDynamicLabel(this, i, PAD_TINY, i * SW_CTRL_H + PAD_TINY);
-    new HWInputEdit(this, (char*)switchGetCustomName(i), LEN_SWITCH_NAME,
-                    SW_CTRL_W + 8, i * SW_CTRL_H + PAD_TINY);
+ public:
+  HWSwitch(Window* parent, int swnum, coord_t y)
+  {
+    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_MEDIUM, SW_CTRL_W);
+    new HWInputEdit(parent, (char*)switchGetCustomName(swnum), LEN_SWITCH_NAME,
+                    SW_CTRL_W + 8, y);
 
     coord_t x = SW_CTRL_W * PAD_TINY + 14;
-    Choice* channel = nullptr;
-    if (switchIsFlex(i)) {
+
+    if (switchIsFlex(swnum)) {
       channel = new Choice(
-          this, rect_t{x, i * SW_CTRL_H + PAD_TINY, SW_CTRL_W, 0}, -1,
+          parent, {x, y, SW_CTRL_W, 0}, -1,
           adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
-          [=]() -> int { return switchGetFlexConfig(i); },
-          [=](int newValue) { switchConfigFlex(i, newValue); });
+          [=]() -> int { return switchGetFlexConfig(swnum); },
+          [=](int newValue) {
+            switchConfigFlex(swnum, newValue);
+            updateLayout();
+          });
       channel->setAvailableHandler([=](int val) {
-        return val < 0 || switchIsFlexInputAvailable(i, val);
+        return val < 0 || switchIsFlexInputAvailable(swnum, val);
       });
       channel->setTextHandler([=](int val) -> std::string {
         if (val < 0) return STR_NONE;
@@ -231,24 +222,46 @@ HWSwitches::HWSwitches(Window* parent) :
       x += SW_CTRL_W + 6;
     }
 
-    auto sw_cfg = new Choice(
-        this, rect_t{x, i * SW_CTRL_H + PAD_TINY, SW_CTRL_W, 0},
-        STR_SWTYPES, SWITCH_NONE, switchGetMaxType(i),
-        [=]() -> int { return SWITCH_CONFIG(i); },
+    sw_cfg = new Choice(
+        parent, {x, y, SW_CTRL_W, 0},
+        STR_SWTYPES, SWITCH_NONE, switchGetMaxType(swnum),
+        [=]() -> int { return SWITCH_CONFIG(swnum); },
         [=](int newValue) {
-          swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(i);
+          swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(swnum);
           g_eeGeneral.switchConfig =
               (g_eeGeneral.switchConfig & ~mask) |
-              ((swconfig_t(newValue) & SW_CFG_MASK) << (SW_CFG_BITS * i));
+              ((swconfig_t(newValue) & SW_CFG_MASK) << (SW_CFG_BITS * swnum));
           SET_DIRTY();
         });
 
+    updateLayout();
+  }
+
+  void updateLayout()
+  {
     if (channel) {
-      lv_obj_t* obj = channel->getLvObj();
-      lv_obj_add_event_cb(obj, flex_channel_changed, LV_EVENT_VALUE_CHANGED,
-                          sw_cfg);
-      lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
+      sw_cfg->show(channel->getIntValue() >= 0);
+      if (channel->getIntValue() < 0)
+        sw_cfg->setValue(0);
     }
+  }
+
+  static LAYOUT_VAL(SW_CTRL_W, 86, 75)
+  static LAYOUT_VAL(SW_CTRL_H, 36, 36)
+
+ protected:
+  Choice* channel = nullptr;
+  Choice* sw_cfg = nullptr;
+};
+
+HWSwitches::HWSwitches(Window* parent) :
+    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
+{
+  padAll(PAD_TINY);
+
+  auto max_switches = switchGetMaxSwitches();
+  for (int i = 0; i < max_switches; i++) {
+    new HWSwitch(this, i, i * HWSwitch::SW_CTRL_H + PAD_TINY);
   }
 }
 

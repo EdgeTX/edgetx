@@ -212,6 +212,12 @@ void FunctionLineButton::refresh()
       strcat(s, formatNumberAsString(CFN_PARAM(cfn)).c_str());
       break;
 
+#if defined(FUNCTION_SWITCHES)
+    case FUNC_PUSH_CUST_SWITCH:
+      sprintf(s + strlen(s), "%s%d", STR_SWITCH, CFN_CS_INDEX(cfn) + 1);
+      break;
+#endif
+
     case FUNC_LOGS:
       strcat(
           s,
@@ -285,6 +291,9 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 #define SD_LOGS_PERIOD_MIN 1       // 0.1s  fastest period
 #define SD_LOGS_PERIOD_MAX 255     // 25.5s slowest period
 #define SD_LOGS_PERIOD_DEFAULT 10  // 1s    default period for newly created SF
+
+#define PUSH_CS_DURATION_MIN 0       // 0     no duration : as long as switch is true
+#define PUSH_CS_DURATION_MAX 255     // 25.5s longest duration
 
 FunctionEditPage::FunctionEditPage(uint8_t index, EdgeTxIcon icon,
                                    const char *title, const char *prefix) :
@@ -483,6 +492,25 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       addNumberEdit(line, STR_VALUE, cfn, 0, 3);
       break;
 
+#if defined(FUNCTION_SWITCHES)
+    case FUNC_PUSH_CUST_SWITCH: {
+        new StaticText(line, rect_t{}, STR_SWITCH);
+        auto choice = new Choice(line, rect_t{}, 0, NUM_FUNCTIONS_SWITCHES - 1, GET_SET_DEFAULT(CFN_CS_INDEX(cfn)), STR_SWITCH);
+        choice->setTextHandler([=](int n) {
+          return std::string(STR_SWITCH) + std::to_string(n + 1);
+        });
+        line = specialFunctionOneWindow->newLine(grid);
+
+        auto edit = addNumberEdit(line, STR_INTERVAL, cfn, PUSH_CS_DURATION_MIN,
+                                PUSH_CS_DURATION_MAX);
+
+        edit->setDisplayHandler([=](int32_t value) {
+          return formatNumberAsString(CFN_PARAM(cfn), PREC1, 0, nullptr, "s");
+        });
+      }
+      break;
+#endif
+
     case FUNC_LOGS: {
       if (CFN_PARAM(cfn) == 0)  // use stored value if SF exists
         CFN_PARAM(cfn) = SD_LOGS_PERIOD_DEFAULT;  // otherwise initialize with
@@ -511,7 +539,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
                                    GET_SET_DEFAULT(CFN_GVAR_INDEX(cfn)));
       gvarchoice->setTextHandler([](int32_t value) {
-        return std::string(STR_GV) + std::to_string(value + 1);
+        return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
       });
       line = specialFunctionOneWindow->newLine(grid);
 
@@ -560,7 +588,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
           auto gvarchoice = new Choice(line, rect_t{}, 0, MAX_GVARS - 1,
                                        GET_SET_DEFAULT(CFN_PARAM(cfn)));
           gvarchoice->setTextHandler([](int32_t value) {
-            return std::string(STR_GV) + std::to_string(value + 1);
+            return std::string(getSourceString(value + MIXSRC_FIRST_GVAR));
           });
           gvarchoice->setAvailableHandler(
               [=](int value) { return CFN_GVAR_INDEX(cfn) != value; });
@@ -652,14 +680,18 @@ void FunctionEditPage::buildBody(Window *form)
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_FUNC);
   auto functionChoice =
-      new Choice(line, rect_t{}, 0, FUNC_MAX - 1, GET_DEFAULT(getFuncSortIdx(CFN_FUNC(cfn))));
+      new Choice(line, rect_t{}, 0, FUNC_MAX - 1, GET_DEFAULT(getFuncSortIdx(CFN_FUNC(cfn))),
+                  [=](int32_t newValue) {
+                    Functions newFunc = cfn_sorted[newValue];
+                    // If changing from Lua script then reload to remove old reference
+                    if ((CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED) && newFunc != FUNC_PLAY_SCRIPT && newFunc != FUNC_RGB_LED)
+                      LUA_LOAD_MODEL_SCRIPTS();
+                    CFN_FUNC(cfn) = newFunc;
+                    CFN_RESET(cfn);
+                    SET_DIRTY();
+                    updateSpecialFunctionOneWindow();
+                  });
   functionChoice->setTextHandler([=](int val) { return funcGetLabel(cfn_sorted[val]); });
-  functionChoice->setSetValueHandler([=](int32_t newValue) {
-    CFN_FUNC(cfn) = cfn_sorted[newValue];
-    CFN_RESET(cfn);
-    SET_DIRTY();
-    updateSpecialFunctionOneWindow();
-  });
   functionChoice->setAvailableHandler(
       [=](int value) { return isAssignableFunctionAvailable(cfn_sorted[value]); });
 
@@ -716,9 +748,7 @@ void FunctionsPage::pasteSpecialFunction(Window *window, uint8_t index,
   if (CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT) LUA_LOAD_MODEL_SCRIPTS();
   storageDirty(EE_MODEL);
   focusIndex = index;
-  if (button)
-    lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-  else
+  if (!button)
     rebuild(window);
 }
 
@@ -730,9 +760,7 @@ void FunctionsPage::editSpecialFunction(Window *window, uint8_t index,
     CustomFunctionData *cfn = customFunctionData(index);
     if (cfn->swtch != 0) {
       focusIndex = index;
-      if (button)
-        lv_event_send(button->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-      else
+      if (!button)
         rebuild(window);
     }
   });

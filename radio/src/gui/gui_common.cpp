@@ -317,7 +317,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
   if (source < 0)
     source = -source;
 
-  for (int i = 0 ; i < DIM(sourceChecks); i += 1) {
+  for (size_t i = 0 ; i < DIM(sourceChecks); i += 1) {
     if (sourceChecks[i].type & sourceTypes && source >= sourceChecks[i].first && source <= sourceChecks[i].last) {
       return sourceChecks[i].check(source - sourceChecks[i].first);
     }
@@ -590,17 +590,8 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_RGB_LED:
       return false;
 #endif
-#if !defined(VIDEO_SWITCH)
-    case FUNC_LCD_TO_VIDEO:
-      return false;
-#endif
 #if !defined(DEBUG)
     case FUNC_TEST:
-      return false;
-#endif
-#if !defined(COLORLCD)
-    case FUNC_DISABLE_TOUCH:
-    case FUNC_SET_SCREEN:
       return false;
 #endif
     default:

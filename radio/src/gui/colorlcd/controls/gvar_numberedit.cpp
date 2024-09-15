@@ -22,15 +22,6 @@
 #include "gvar_numberedit.h"
 #include "edgetx.h"
 
-void GVarNumberEdit::value_changed(lv_event_t* e)
-{
-  auto obj = lv_event_get_target(e);
-  auto edit = (GVarNumberEdit*)lv_obj_get_user_data(obj);
-  if (!edit) return;
-
-  edit->update();
-}
-
 GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
                                int32_t vmax, std::function<int32_t()> getValue,
                                std::function<void(int32_t)> setValue,
@@ -77,9 +68,6 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
     m_gvBtn->check(GV_IS_GV_VALUE(getValue(), vmin, vmax));
   }
 #endif
-
-  lv_obj_add_event_cb(lvobj, GVarNumberEdit::value_changed,
-                      LV_EVENT_VALUE_CHANGED, nullptr);
 
   // update field type based on value
   update();
@@ -131,8 +119,8 @@ void GVarNumberEdit::update()
     // GVAR mode
     act_field = gvar_field;
     num_field->setSetValueHandler(nullptr);
+    gvar_field->update();
     gvar_field->show();
-    lv_event_send(gvar_field->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
   } else {
     // number edit mode
     act_field = num_field;

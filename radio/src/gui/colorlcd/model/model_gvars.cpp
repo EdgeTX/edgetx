@@ -334,7 +334,7 @@ class GVarEditWindow : public Page
       refreshTitle = false;
       lastFlightMode = curFM;
       lastGVar = fmData->gvars[index];
-      sprintf(label, "%s%d=", STR_GV, index + 1);
+      sprintf(label, "%s=", getSourceString(index + MIXSRC_FIRST_GVAR));
       if (lastGVar > GVAR_MAX) {
         uint8_t fm = lastGVar - GVAR_MAX - 1;
         if (fm >= curFM) fm++;
@@ -425,7 +425,7 @@ class GVarEditWindow : public Page
 
     new StaticText(line, rect_t{}, STR_NAME);
     grid.nextCell();
-    new ModelTextEdit(line, rect_t{}, gvar->name, LEN_GVAR_NAME);
+    new ModelTextEdit(line, rect_t{}, gvar->name, LEN_GVAR_NAME, [=]() { refreshTitle = true; });
 
     line = window->newLine(grid);
 

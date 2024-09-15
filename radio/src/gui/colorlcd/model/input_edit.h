@@ -50,5 +50,4 @@ class InputEditWindow : public Page
   void buildBody(Window *window);
 
   void checkEvents() override;
-  void deleteLater(bool detach = true, bool trash = true) override;
 };

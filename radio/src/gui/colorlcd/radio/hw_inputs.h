@@ -62,11 +62,6 @@ class HWSwitches : public Window
 {
  public:
   HWSwitches(Window* parent);
-
-  // Absolute layout for Switches popup - due to performance issues with
-  // lv_textarea in a flex layout
-  static LAYOUT_VAL(SW_CTRL_W, 86, 75)
-  static LAYOUT_VAL(SW_CTRL_H, 36, 36)
 };
 
 template <class T>

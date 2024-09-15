@@ -178,12 +178,12 @@ PACK(struct CustomFunctionData {
       int16_t val;
       uint8_t mode;
       uint8_t param;
-      NOBACKUP(int32_t spare);
+      int32_t val2;
     }) all;
 
     NOBACKUP(PACK(struct {
       int32_t val1;
-      NOBACKUP(int32_t val2);
+      int32_t val2;
     }) clear);
   }) NAME(fp) SKIP;
   uint8_t active : 1 SKIP;
@@ -987,9 +987,7 @@ PACK(struct RadioData {
   NOBACKUP(uint8_t modelSFDisabled:1);
   NOBACKUP(uint8_t modelCustomScriptsDisabled:1);
   NOBACKUP(uint8_t modelTelemetryDisabled:1);
-
   NOBACKUP(uint8_t disableTrainerPoweroffAlarm:1);
-
   NOBACKUP(uint8_t disablePwrOnOffHaptic:1);
 
 #if defined(COLORLCD)
@@ -1000,6 +998,8 @@ PACK(struct RadioData {
 #else
   NOBACKUP(uint8_t spare:4 SKIP);
 #endif
+
+  NOBACKUP(uint8_t pwrOffIfInactive);
 
   NOBACKUP(uint8_t getBrightness() const
   {

@@ -55,6 +55,7 @@ set(${PROJECT_NAME}_SRCS
   simulateduiwidgetT8.cpp
   simulateduiwidgetTX12.cpp
   simulateduiwidgetTX16S.cpp
+  simulateduiwidgetV16.cpp
   simulateduiwidgetX10.cpp
   simulateduiwidgetX12.cpp
   simulateduiwidgetX7.cpp

@@ -63,6 +63,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncDisableAudioAmp, "DISABLE_AUDIO_AMP"  },
   {  FuncRGBLed, "RGB_LED"  },
   {  FuncLCDtoVideo, "LCD_TO_VIDEO"  },
+  {  FuncPushCustomSwitch1, "PUSH_CUST_SWITCH"  },
 };
 
 static const YamlLookupTable trainerLut = {
@@ -124,7 +125,8 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
 
   int fn = rhs.func;
   int p1 = 0;
-  if(fn >= FuncOverrideCH1 && fn <= FuncOverrideCHLast) {
+
+  if (fn >= FuncOverrideCH1 && fn <= FuncOverrideCHLast) {
     p1 = fn - (int)FuncOverrideCH1;
     fn = (int)FuncOverrideCH1;
   } else if (fn >= FuncTrainer && fn <= FuncTrainerChannels) {
@@ -142,7 +144,11 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   } else if (fn >= FuncBindInternalModule && fn <= FuncBindExternalModule) {
     p1 = fn - (int)FuncBindInternalModule;
     fn = (int)FuncBindInternalModule;
+  } else if (fn >= FuncPushCustomSwitch1 && fn <= FuncPushCustomSwitchLast) {
+    p1 = fn - (int)FuncPushCustomSwitch1;
+    fn = (int)FuncPushCustomSwitch1;
   }
+
   node["func"] = LookupValue(customFnLut, fn);
 
   bool add_comma = true;
@@ -217,6 +223,11 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
   case FuncSetScreen:
     def += std::to_string(rhs.param);
     break;
+  case FuncPushCustomSwitch1:
+    def += std::to_string(p1);
+    def += ",";
+    def += std::to_string(rhs.param);
+    break;
   default:
     add_comma = false;
     break;
@@ -264,18 +275,18 @@ bool convert<CustomFunctionData>::decode(const Node& node,
 
   switch(rhs.func) {
   case FuncOverrideCH1: {
-      int ch=0;
-      def >> ch;
-      rhs.func = (AssignFunc)((int)rhs.func + ch);
-      def.ignore();
-      def >> rhs.param;
+    int ch=0;
+    def >> ch;
+    rhs.func = (AssignFunc)((int)rhs.func + ch);
+    def.ignore();
+    def >> rhs.param;
   } break;
   case FuncTrainer: {
-      std::string value_str;
-      getline(def, value_str, ',');
-      int value=0;
-      Node(value_str) >> trainerLut >> value;
-      rhs.func = (AssignFunc)((int)rhs.func + value);
+    std::string value_str;
+    getline(def, value_str, ',');
+    int value=0;
+    Node(value_str) >> trainerLut >> value;
+    rhs.func = (AssignFunc)((int)rhs.func + value);
   } break;
   case FuncPlaySound: {
     std::string snd;
@@ -375,6 +386,15 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     rhs.param = param;
   } break;
   case FuncSetScreen: {
+    int param = 0;
+    def >> param;
+    rhs.param = param;
+  } break;
+  case FuncPushCustomSwitch1: {
+    int sw = 0;
+    def >> sw;
+    rhs.func = (AssignFunc)((int)rhs.func + sw);
+    def.ignore();
     int param = 0;
     def >> param;
     rhs.param = param;

@@ -32,7 +32,7 @@
 
 // Maximum number of supported LEDs
 #if !defined(WS2812_MAX_LEDS)
-#  define WS2812_MAX_LEDS 8
+#  define WS2812_MAX_LEDS 48
 #endif
 
 // Number of LED periods used for trailing reset

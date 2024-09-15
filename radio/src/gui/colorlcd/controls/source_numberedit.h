@@ -56,6 +56,7 @@ class SourceNumberEdit : public Window
 
   int32_t vmin;
   int32_t vmax;
+  int16_t sourceMin;
   std::function<int32_t()> getValue;
   std::function<void(int32_t)> setValue;
   LcdFlags textFlags;

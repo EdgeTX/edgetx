@@ -58,7 +58,7 @@ BaseDialog::BaseDialog(Window* parent, const char* title,
 
   form = new BaseDialogForm(content, width);
   if (maxHeight != LV_SIZE_CONTENT)
-    lv_obj_set_style_max_height(form->getLvObj(), maxHeight - 32, LV_PART_MAIN);
+    lv_obj_set_style_max_height(form->getLvObj(), maxHeight - EdgeTxStyles::UI_ELEMENT_HEIGHT, LV_PART_MAIN);
 }
 
 void BaseDialog::setTitle(const char* title)

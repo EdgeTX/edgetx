@@ -1,8 +1,10 @@
 
 #include <stdio.h>
+#include <string.h>
 #include <vector>
 #include <algorithm>
 #include <locale>
+#include <string.h>
 
 #define CFN_ONLY
 #define SKIP
@@ -74,6 +76,7 @@ struct cfn {
   std::string str;
   std::string nam;
   Functions func;
+  std::string cond;
 };
 
 struct LocaleComparator {
@@ -92,56 +95,50 @@ int main()
 {
 #if defined(LOC)
   std::vector<struct cfn> list = {
-    { TR_SF_SAFETY, "FUNC_OVERRIDE_CHANNEL", FUNC_OVERRIDE_CHANNEL },
-    { TR_SF_TRAINER, "FUNC_TRAINER", FUNC_TRAINER },
-    { TR_SF_INST_TRIM, "FUNC_INSTANT_TRIM", FUNC_INSTANT_TRIM },
-    { TR_SF_RESET, "FUNC_RESET", FUNC_RESET },
-    { TR_SF_SET_TIMER, "FUNC_SET_TIMER", FUNC_SET_TIMER },
-    { TR_ADJUST_GVAR, "FUNC_ADJUST_GVAR", FUNC_ADJUST_GVAR },
-    { TR_SF_VOLUME, "FUNC_VOLUME", FUNC_VOLUME },
-    { TR_SF_FAILSAFE, "FUNC_SET_FAILSAFE", FUNC_SET_FAILSAFE },
-    { TR_SF_RANGE_CHECK, "FUNC_RANGECHECK", FUNC_RANGECHECK },
-    { TR_SF_MOD_BIND, "FUNC_BIND", FUNC_BIND },
-    { TR_SOUND, "FUNC_PLAY_SOUND", FUNC_PLAY_SOUND },
-    { TR_PLAY_TRACK, "FUNC_PLAY_TRACK", FUNC_PLAY_TRACK },
-    { TR_PLAY_VALUE, "FUNC_PLAY_VALUE", FUNC_PLAY_VALUE },
-    { TR_SF_PLAY_SCRIPT, "FUNC_PLAY_SCRIPT", FUNC_PLAY_SCRIPT },
-    { TR_SF_BG_MUSIC, "FUNC_BACKGND_MUSIC", FUNC_BACKGND_MUSIC },
-    { TR_SF_BG_MUSIC_PAUSE, "FUNC_BACKGND_MUSIC_PAUSE", FUNC_BACKGND_MUSIC_PAUSE },
-    { TR_SF_VARIO, "FUNC_VARIO", FUNC_VARIO },
-    { TR_SF_HAPTIC, "FUNC_HAPTIC", FUNC_HAPTIC },
-    { TR_SF_LOGS, "FUNC_LOGS", FUNC_LOGS },
-    { TR_BRIGHTNESS, "FUNC_BACKLIGHT", FUNC_BACKLIGHT },
-    { TR_SF_BACKLIGHT, "FUNC_BACKLIGHT", FUNC_BACKLIGHT },
-    { TR_SF_SCREENSHOT, "FUNC_SCREENSHOT", FUNC_SCREENSHOT },
-    { TR_SF_RACING_MODE, "FUNC_RACING_MODE", FUNC_RACING_MODE },
-    { TR_SF_DISABLE_TOUCH, "FUNC_DISABLE_TOUCH", FUNC_DISABLE_TOUCH },
-    { TR_SF_SET_SCREEN, "FUNC_SET_SCREEN", FUNC_SET_SCREEN },
-    { TR_SF_DISABLE_AUDIO_AMP, "FUNC_DISABLE_AUDIO_AMP", FUNC_DISABLE_AUDIO_AMP },
-    { TR_SF_RGBLEDS, "FUNC_RGB_LED", FUNC_RGB_LED },
-    { TR_SF_LCD_TO_VIDEO, "FUNC_LCD_TO_VIDEO", FUNC_LCD_TO_VIDEO },
-    { TR_SF_TEST, "FUNC_TEST", FUNC_TEST },
+    { TR_SF_SAFETY, "FUNC_OVERRIDE_CHANNEL", FUNC_OVERRIDE_CHANNEL, "" },
+    { TR_SF_TRAINER, "FUNC_TRAINER", FUNC_TRAINER, "" },
+    { TR_SF_INST_TRIM, "FUNC_INSTANT_TRIM", FUNC_INSTANT_TRIM, "" },
+    { TR_SF_RESET, "FUNC_RESET", FUNC_RESET, "" },
+    { TR_SF_SET_TIMER, "FUNC_SET_TIMER", FUNC_SET_TIMER, "" },
+    { TR_ADJUST_GVAR, "FUNC_ADJUST_GVAR", FUNC_ADJUST_GVAR, "" },
+    { TR_SF_VOLUME, "FUNC_VOLUME", FUNC_VOLUME, "" },
+    { TR_SF_FAILSAFE, "FUNC_SET_FAILSAFE", FUNC_SET_FAILSAFE, "" },
+    { TR_SF_RANGE_CHECK, "FUNC_RANGECHECK", FUNC_RANGECHECK, "" },
+    { TR_SF_MOD_BIND, "FUNC_BIND", FUNC_BIND, "" },
+    { TR_SOUND, "FUNC_PLAY_SOUND", FUNC_PLAY_SOUND, "" },
+    { TR_PLAY_TRACK, "FUNC_PLAY_TRACK", FUNC_PLAY_TRACK, "" },
+    { TR_PLAY_VALUE, "FUNC_PLAY_VALUE", FUNC_PLAY_VALUE, "" },
+    { TR_SF_PLAY_SCRIPT, "FUNC_PLAY_SCRIPT", FUNC_PLAY_SCRIPT, "" },
+    { TR_SF_BG_MUSIC, "FUNC_BACKGND_MUSIC", FUNC_BACKGND_MUSIC, "" },
+    { TR_SF_BG_MUSIC_PAUSE, "FUNC_BACKGND_MUSIC_PAUSE", FUNC_BACKGND_MUSIC_PAUSE, "" },
+    { TR_SF_VARIO, "FUNC_VARIO", FUNC_VARIO, "" },
+    { TR_SF_HAPTIC, "FUNC_HAPTIC", FUNC_HAPTIC, "" },
+    { TR_SF_LOGS, "FUNC_LOGS", FUNC_LOGS, "" },
+    { TR_BRIGHTNESS, "FUNC_BACKLIGHT", FUNC_BACKLIGHT, "defined(OLED_SCREEN)" },
+    { TR_SF_BACKLIGHT, "FUNC_BACKLIGHT", FUNC_BACKLIGHT, "!defined(OLED_SCREEN)" },
+    { TR_SF_SCREENSHOT, "FUNC_SCREENSHOT", FUNC_SCREENSHOT, "" },	
+    { TR_SF_RACING_MODE, "FUNC_RACING_MODE", FUNC_RACING_MODE, "" },
+    { TR_SF_DISABLE_TOUCH, "FUNC_DISABLE_TOUCH", FUNC_DISABLE_TOUCH, "defined(COLORLCD)" },
+    { TR_SF_SET_SCREEN, "FUNC_SET_SCREEN", FUNC_SET_SCREEN, "defined(COLORLCD)" },
+    { TR_SF_DISABLE_AUDIO_AMP, "FUNC_DISABLE_AUDIO_AMP", FUNC_DISABLE_AUDIO_AMP, "" },
+    { TR_SF_RGBLEDS, "FUNC_RGB_LED", FUNC_RGB_LED, "" },
+    { TR_SF_LCD_TO_VIDEO, "FUNC_LCD_TO_VIDEO", FUNC_LCD_TO_VIDEO, "defined(VIDEO_SWITCH)" },
+    { TR_SF_PUSH_CUST_SWITCH, "FUNC_PUSH_CUST_SWITCH", FUNC_PUSH_CUST_SWITCH, "defined(FUNCTION_SWITCHES)" },
+    { TR_SF_TEST, "FUNC_TEST", FUNC_TEST, "defined(DEBUG)" },
   };
 
   std::locale locale(LOC);
   std::sort(list.begin(), list.end(), LocaleComparator(locale));
 
   for (int i = 0; i < list.size(); i += 1) {
-    if (strcmp(TR_BRIGHTNESS, TR_SF_BACKLIGHT) != 0) {
-      if (list[i].str == TR_BRIGHTNESS) {
-          printf("#if defined(OLED_SCREEN)\n");
-      } else if (list[i].str == TR_SF_BACKLIGHT) {
-          printf("#if !defined(OLED_SCREEN)\n");
-      }
+    bool addEndif = false;
+    if (!list[i].cond.empty()) {
+      printf("#if %s\n", list[i].cond.c_str());
+      addEndif = true;
     }
     printf("  /* %s */ %s,\n", list[i].str.c_str(), list[i].nam.c_str());
-    if (strcmp(TR_BRIGHTNESS, TR_SF_BACKLIGHT) != 0) {
-      if (list[i].str == TR_BRIGHTNESS || list[i].str == TR_SF_BACKLIGHT) {
-          printf("#endif\n");
-      }
-    } else if (list[i].str == TR_BRIGHTNESS) {
-      i += 1;
-    }
+    if (addEndif)
+      printf("#endif\n");
   }
 
   return 0;

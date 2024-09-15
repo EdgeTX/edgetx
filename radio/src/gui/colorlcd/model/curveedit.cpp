@@ -32,6 +32,66 @@ static const lv_coord_t default_col_dsc[] = {LV_GRID_CONTENT,
 static const lv_coord_t default_row_dsc[] = {LV_GRID_CONTENT,
                                              LV_GRID_TEMPLATE_LAST};
 
+class CurveEdit : public Window
+{
+ public:
+  CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
+      Window(parent, rect),
+      preview(
+          this, {0, 0, width(), height()},
+          [=](int x) -> int { return applyCustomCurve(x, index); },
+          [=]() -> int { return getValue(currentSource); }),
+      index(index),
+      current(0)
+  {
+    setWindowFlag(NO_FOCUS);
+    updatePreview();
+  }
+
+  void setCurrentSource(mixsrc_t source)
+  {
+    currentSource = source;
+    if (source)
+      lockSource = true;
+    else
+      lockSource = false;
+  }
+
+  void updatePreview()
+  {
+    preview.clearPoints();
+    CurveHeader& curve = g_model.curves[index];
+    for (uint8_t i = 0; i < 5 + curve.points; i++) {
+      preview.addPoint(getPoint(index, i));
+    }
+  }
+
+ protected:
+  Curve preview;
+  uint8_t index;
+  uint8_t current;
+  mixsrc_t currentSource = 0;
+  bool lockSource = false;
+
+  void deleteLater(bool detach = true, bool trash = true) override
+  {
+    if (!_deleted) {
+      preview.deleteLater(true, false);
+      Window::deleteLater(detach, trash);
+    }
+  }
+
+  void checkEvents(void) override
+  {
+    if (!lockSource) {
+      int16_t val = getMovedSource(MIXSRC_FIRST_STICK);
+      if (val > 0)
+        currentSource = val;
+    }
+    Window::checkEvents();
+  }
+};
+
 class CurveDataEdit : public Window
 {
  public:
@@ -179,56 +239,6 @@ class CurveDataEdit : public Window
     }
   }
 };
-
-void CurveEdit::SetCurrentSource(mixsrc_t source)
-{
-  CurveEdit::currentSource = source;
-  if (source)
-    lockSource = true;
-  else
-    lockSource = false;
-}
-
-mixsrc_t CurveEdit::currentSource = 0;
-bool CurveEdit::lockSource = false;
-
-CurveEdit::CurveEdit(Window* parent, const rect_t& rect, uint8_t index) :
-    Window(parent, rect),
-    preview(
-        this, {0, 0, width(), height()},
-        [=](int x) -> int { return applyCustomCurve(x, index); },
-        [=]() -> int { return getValue(CurveEdit::currentSource); }),
-    index(index),
-    current(0)
-{
-  setWindowFlag(NO_FOCUS);
-  updatePreview();
-}
-
-void CurveEdit::updatePreview()
-{
-  preview.clearPoints();
-  CurveHeader& curve = g_model.curves[index];
-  for (uint8_t i = 0; i < 5 + curve.points; i++) {
-    preview.addPoint(getPoint(index, i));
-  }
-}
-
-void CurveEdit::checkEvents()
-{
-  if (!lockSource) {
-    int16_t val = getMovedSource(MIXSRC_FIRST_INPUT);
-    if (val > 0) {
-      // TODO: this code seems odd
-      if (val > MAX_STICKS + MAX_POTS)
-        CurveEdit::currentSource = val + 1 - MIXSRC_FIRST_INPUT;
-      else {
-        CurveEdit::currentSource = expoAddress(val - 1)->srcRaw;
-      }
-    }
-  }
-  Window::checkEvents();
-}
 
 CurveEditWindow::CurveEditWindow(uint8_t index,
                                  std::function<void(void)> refreshView) :
@@ -389,4 +399,9 @@ void CurveEditWindow::onCancel()
 {
   if (refreshView) refreshView();
   Page::onCancel();
+}
+
+void CurveEditWindow::setCurrentSource(mixsrc_t source)
+{
+  curveEdit->setCurrentSource(source);
 }

@@ -84,7 +84,6 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_RACING_MODE, "RACING_MODE"  },
   {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
   {  FUNC_RGB_LED, "RGB_LED"  },
-  {  FUNC_LCD_TO_VIDEO, "LCD_TO_VIDEO"  },
   {  FUNC_TEST, "TEST"  },
   {  0, NULL  }
 };
@@ -365,6 +364,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
   YAML_UNSIGNED( "invertLCD", 1 ),
   YAML_PADDING( 3 ),
+  YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

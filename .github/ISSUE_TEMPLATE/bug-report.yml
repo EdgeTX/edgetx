@@ -58,26 +58,13 @@ body:
       label: Version
       description: What version of EdgeTX software are you running?
       options:
+        - 2.10.4
         - 2.10.3
         - 2.10.2
         - 2.10.1
         - 2.10.0
         - 2.9.4
-        - 2.9.3
-        - 2.9.2
-        - 2.9.1
-        - 2.9.0
         - 2.8.5
-        - 2.8.4
-        - 2.8.3
-        - 2.8.2
-        - 2.8.1
-        - 2.8.0
-        - 2.7.1
-        - 2.7.0
-        - 2.6.0
-        - 2.5.0
-        - 2.4.0
         - Nightly (Please give date/commit below)
         - Other (Please specify below)
     validations:
@@ -108,6 +95,7 @@ body:
         - FrSky X10 Express / X10S Express (ACCESS)
         - FrSky X12
         - FrSky X-Lite / S / Pro
+        - HelloRadioSky V16
         - Jumper T12
         - Jumper T14
         - Jumper T16

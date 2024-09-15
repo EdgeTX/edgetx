@@ -118,11 +118,10 @@ void AFHDS3Settings::showAFHDS3Options()
   afhds3StatusText->show();
   afhds3TypeLabel->show();
   afhds3TypeForm->show();
-  lv_event_send(afhds3StatusText->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-  lv_event_send(afhds3PhyMode->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
-  lv_event_send(afhds3Emi->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+  afhds3PhyMode->update();
+  afhds3Emi->update();
   if (moduleIdx == EXTERNAL_MODULE) {
-    lv_event_send(afhds3RfPower->getLvObj(), LV_EVENT_VALUE_CHANGED, nullptr);
+    afhds3RfPower->update();
   }
   if (afhds3::getConfig(moduleIdx)->others.isConnected) {
     afhds3PhyMode->disable();

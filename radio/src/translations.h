@@ -325,6 +325,7 @@ extern const char STR_SF_VOLUME[];
 extern const char STR_SF_RACING_MODE[];
 extern const char STR_SF_SCREENSHOT[];
 extern const char STR_SF_LCD_TO_VIDEO[];
+extern const char STR_SF_PUSH_CUST_SWITCH[];
 extern const char STR_SF_TEST[];
 extern const char STR_TRIMS[];
 extern const char STR_MIRROR[];
@@ -417,6 +418,7 @@ extern const char* const STR_SPLASHSCREEN_DELAYS[];
 #if defined(PWR_BUTTON_PRESS)
 extern const char STR_PWR_ON_DELAY[];
 extern const char STR_PWR_OFF_DELAY[];
+extern const char STR_PWR_AUTO_OFF[];
 extern const char* const STR_PWR_OFF_DELAYS[];
 #endif
 #if defined(HAPTIC)
@@ -775,7 +777,6 @@ extern const char STR_SLIDERS[];
 extern const char STR_FLIGHT_MODE[];
 extern const char STR_INVALID_FILE[];
 extern const char STR_TIMER_SOURCE[];
-extern const char* const STR_TEXT_SIZE[];
 extern const char* const STR_SUBTRIMMODES[];
 extern const char STR_SIZE[];
 extern const char STR_SHADOW[];

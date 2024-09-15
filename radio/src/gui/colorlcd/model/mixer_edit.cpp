@@ -104,7 +104,6 @@ void MixEditWindow::buildBody(Window *form)
   new StaticText(line, rect_t{}, STR_SOURCE);
   new SourceChoice(line, rect_t{}, 0, MIXSRC_LAST,
                    GET_SET_DEFAULT(mix->srcRaw), true);
-  CurveEdit::SetCurrentSource(mix->srcRaw);
 
   // Weight
   line = form->newLine(grid);
@@ -127,7 +126,7 @@ void MixEditWindow::buildBody(Window *form)
 
   // Curve
   new StaticText(line, rect_t{}, STR_CURVE);
-  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), MIXSRC_FIRST);
+  new CurveParam(line, rect_t{}, &mix->curve, SET_DEFAULT(mix->curve.value), MIXSRC_FIRST, mix->srcRaw);
 
   line = form->newLine(grid);
   line->padAll(PAD_LARGE);
@@ -137,12 +136,4 @@ void MixEditWindow::buildBody(Window *form)
         return 0;
       });
   lv_obj_set_width(btn->getLvObj(), lv_pct(100));
-}
-
-void MixEditWindow::deleteLater(bool detach, bool trash)
-{
-  if (!deleted()) {
-    CurveEdit::SetCurrentSource(0);
-    Page::deleteLater(detach, trash);
-  }
 }

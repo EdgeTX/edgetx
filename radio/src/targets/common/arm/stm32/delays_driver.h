@@ -28,4 +28,5 @@ EXTERN_C(void delaysInit());
 EXTERN_C(void delay_01us(uint32_t count));
 EXTERN_C(void delay_us(uint32_t count));
 EXTERN_C(void delay_ms(uint32_t count));
+EXTERN_C(uint32_t ticksNow());
 

@@ -104,6 +104,8 @@ class GeneralSetupPanel : public GeneralPanel
     void on_favMultiMode_CB_currentIndexChanged(int);
     void on_invertLCD_CB_stateChanged(int);
 
+    void on_pwrOffIfInactiveSB_editingFinished();
+
   private:
     Ui::GeneralSetup *ui;
 

@@ -119,6 +119,7 @@
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Off"
 #define TR_SF_SET_SCREEN               "Setta Schermo Princ."
+#define TR_SF_PUSH_CUST_SWITCH         "Push CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetria")
@@ -217,7 +218,6 @@
 #define TR_VFORMULAS                      "Somma","Media","Min","Max","Moltipl","Totalizza","Cella","Consumo","Distanza"
 #define TR_VPREC                          "0.--","0.0 ","0.00"
 #define TR_VCELLINDEX                     "Minore","1","2","3","4","5","6","7","8","Maggiore","Delta"
-#define TR_TEXT_SIZE                      "Standard","Minusc.","Piccolo","Medio","Doppio"
 #define TR_SUBTRIMMODES                   STR_CHAR_DELTA" (center only)","= (symetrical)"
 #define TR_TIMER_DIR                      TR("Riman.", "Mostra Riman."), TR("Trasc.", "Mostra Trascorso")
 #define TR_PPMUNIT                     "0.--","0.0","us"
@@ -395,6 +395,7 @@
 #define TR_PLAY_HELLO                   "Suono all'accensione"
 #define TR_PWR_ON_DELAY                 "Rit. accens."
 #define TR_PWR_OFF_DELAY                "Rit. spegni."
+#define TR_PWR_AUTO_OFF                 TR("Pwr Auto Off","Power Auto Off")
 #define TR_PWR_ON_OFF_HAPTIC            TR("Vibraz. Pwr ON/OFF","Vibrazione Pwr ON/OFF")
 #define TR_THROTTLE_WARNING             TR("All. Mot.", "Allarme Motore")
 #define TR_CUSTOM_THROTTLE_WARNING      TR("Cust-Pos", "Custom position?")

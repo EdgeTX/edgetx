@@ -76,8 +76,6 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
-
-  CurveEdit::SetCurrentSource(expoAddress(index)->srcRaw);
 }
 
 void InputEditWindow::setTitle()
@@ -159,7 +157,7 @@ void InputEditWindow::buildBody(Window* form)
           input->curve.value = newValue;
           updatePreview = true;
           SET_DIRTY();
-        }, MIXSRC_FIRST,
+        }, MIXSRC_FIRST, input->srcRaw,
         [=]() {
           updatePreview = true;
         });
@@ -174,14 +172,6 @@ void InputEditWindow::buildBody(Window* form)
         return 0;
       });
   lv_obj_set_width(btn->getLvObj(), lv_pct(100));
-}
-
-void InputEditWindow::deleteLater(bool detach, bool trash)
-{
-  if (!deleted()) {
-    CurveEdit::SetCurrentSource(0);
-    Page::deleteLater(detach, trash);
-  }
 }
 
 void InputEditWindow::checkEvents()

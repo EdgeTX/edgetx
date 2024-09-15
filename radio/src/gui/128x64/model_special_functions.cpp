@@ -30,7 +30,10 @@
 
 #define SD_LOGS_PERIOD_MIN      1     // 0.1s  fastest period 
 #define SD_LOGS_PERIOD_MAX      255   // 25.5s slowest period 
-#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF 
+#define SD_LOGS_PERIOD_DEFAULT  10    // 1s    default period for newly created SF
+
+#define PUSH_CS_DURATION_MIN 0       // 0     no duration : as long as switch is true
+#define PUSH_CS_DURATION_MAX 255     // 25.5s longest duration
 
 void onCustomFunctionsFileSelectionMenu(const char * result)
 {
@@ -220,7 +223,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           if (CFN_SWITCH(cfn)) {
             lcdDrawText(MODEL_SPECIAL_FUNC_2ND_COLUMN, y, funcGetLabel(func), attr);
             if (active) {
-              CFN_FUNC(cfn) = cfn_sorted[checkIncDec(event, getFuncSortIdx(CFN_FUNC(cfn)), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailableSorted)];
+              Functions newFunc = cfn_sorted[checkIncDec(event, getFuncSortIdx(CFN_FUNC(cfn)), 0, FUNC_MAX-1, eeFlags, isAssignableFunctionAvailableSorted)];
+              // If changing from Lua script then reload to remove old reference
+              if ((CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED) && newFunc != FUNC_PLAY_SCRIPT && newFunc != FUNC_RGB_LED)
+                LUA_LOAD_MODEL_SCRIPTS();
+              CFN_FUNC(cfn) = newFunc;
               if (checkIncDec_Ret) CFN_RESET(cfn);
             }
           }
@@ -265,6 +272,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             if (active) CFN_TIMER_INDEX(cfn) = checkIncDec(event, CFN_TIMER_INDEX(cfn), 0, maxParam, eeFlags, isTimerSourceAvailable);
             break;
           }
+#if defined(FUNCTION_SWITCHES)
+          else if (func == FUNC_PUSH_CUST_SWITCH) {
+            maxParam = NUM_FUNCTIONS_SWITCHES - 1;
+            drawStringWithIndex(lcdNextPos +5, y, "SW", CFN_CS_INDEX(cfn) + 1, attr);
+          }
+#endif          
           else if (attr) {
             repeatLastCursorMove(event);
           }
@@ -377,6 +390,15 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               INCDEC_ENABLE_CHECK(isSourceAvailable);
             }
           }
+#if defined(FUNCTION_SWITCHES)
+          else if (func == FUNC_PUSH_CUST_SWITCH) {
+            val_min = PUSH_CS_DURATION_MIN;
+            val_max = PUSH_CS_DURATION_MAX;
+
+            lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|PREC1|LEFT);
+            lcdDrawChar(lcdLastRightPos, y, 's');
+          }
+#endif
           else if (func == FUNC_LOGS) {
             val_min = SD_LOGS_PERIOD_MIN; 
             val_max = SD_LOGS_PERIOD_MAX;

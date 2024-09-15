@@ -50,7 +50,7 @@ void LvglWidgetObjectBase::pcallSimpleFunc(lua_State *L, int funcRef)
   if (funcRef) {
     PROTECT_LUA()
     {
-      if (!pcallFunc(L, funcRef, 1)) {
+      if (!pcallFunc(L, funcRef, 0)) {
         lvglManager->luaShowError();
       }
     }

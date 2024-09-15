@@ -314,6 +314,7 @@ class GeneralSettings {
     bool modelSFDisabled;
     bool modelCustomScriptsDisabled;
     bool modelTelemetryDisabled;
+    unsigned int pwrOffIfInactive;
 
     int modelSelectLayout;
     int labelSingleSelect;
