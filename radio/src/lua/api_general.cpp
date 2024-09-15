@@ -3107,6 +3107,8 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( FUNC_SET_SCREEN, FUNC_SET_SCREEN )
 
   LROT_NUMENTRY( SHADOWED, SHADOWED )
+  // ZoneType::Integer == INPUT_TYPE_VALUE - use VALUE in widget options
+  // ZoneType::Source == INPUT_TYPE_SOURCE - use SOURCE in widget options
   LROT_NUMENTRY( COLOR, ZoneOption::Color )
   LROT_NUMENTRY( BOOL, ZoneOption::Bool )
   LROT_NUMENTRY( STRING, ZoneOption::String )
@@ -3114,8 +3116,6 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( TEXT_SIZE, ZoneOption::TextSize )
   LROT_NUMENTRY( ALIGNMENT, ZoneOption::Align )
   LROT_NUMENTRY( SWITCH, ZoneOption::Switch )
-  LROT_NUMENTRY( INTVAL, ZoneOption::Integer )
-  LROT_NUMENTRY( SRCVAL, ZoneOption::Source )
   LROT_NUMENTRY( SLIDER, ZoneOption::Slider )
   LROT_NUMENTRY( CHOICE, ZoneOption::Choice )
   LROT_NUMENTRY( MENU_HEADER_HEIGHT, COLOR2FLAGS(EdgeTxStyles::MENU_HEADER_HEIGHT) )

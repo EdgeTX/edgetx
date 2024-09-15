@@ -100,6 +100,8 @@ void luaEmptyEventBuffer();
 
 #define lua_registerlib(L, name, tab)  (luaL_newmetatable(L, name), luaL_setfuncs(L, tab, 0), lua_setglobal(L, name))
 
+// Must match first two entries in ZoneOpton::Type enum
+// TODO: should be cleaned up
 enum luaScriptInputType {
   INPUT_TYPE_FIRST = 0,
   INPUT_TYPE_VALUE = INPUT_TYPE_FIRST,
