@@ -123,8 +123,8 @@
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
 #define TR_SF_DISABLE_AUDIO_AMP         TR("Audioförst. av","Audioförstärkare av")
 #define TR_SF_SET_SCREEN                "Sätt huvudskärm"
-#define TR_SF_PUSH_CUST_SWITCH         "Push CS"
-#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
+#define TR_SF_PUSH_CUST_SWITCH          "Tryck CS"
+#define TR_SF_LCD_TO_VIDEO              "LCD till Video"
 
 #define TR_FSW_RESET_TELEM              TR("Telm","Telemetri")
 #define TR_FSW_RESET_TRIMS              "Trims"
@@ -406,7 +406,7 @@
 #define TR_PLAY_HELLO                   "Startljud"
 #define TR_PWR_ON_DELAY                 "Fördröj start"
 #define TR_PWR_OFF_DELAY                "Fördröj avslut"
-#define TR_PWR_AUTO_OFF                 TR("Pwr Auto Off","Power Auto Off")
+#define TR_PWR_AUTO_OFF                 TR("Auto avstängn.","Automatisk avstängning")
 #define TR_PWR_ON_OFF_HAPTIC            TR("Tx AV/PÅ vibr.","Radio AV/PÅ vibration")
 #define TR_BLCOLOR                      "Färg"
 #define TR_THROTTLE_WARNING             TR("Gasvarn.", "Gasvarning")
@@ -794,7 +794,7 @@
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC gnm int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE       TR("Flasha BT-modul", "Flasha Bluetoothmodul")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT  "Flash pwr mngt unit"
-#define TR_DEVICE_NO_RESPONSE           TR("Device not responding", "Device not responding")
+#define TR_DEVICE_NO_RESPONSE           TR("Enheten svarar ej", "Enheten svarar inte")
 #define TR_DEVICE_FILE_ERROR            TR("Device file prob.", "Device file prob.")
 #define TR_DEVICE_DATA_REFUSED          TR("Device data refused", "Device data refused")
 #define TR_DEVICE_WRONG_REQUEST         TR("Device access problem", "Device access problem")
@@ -807,8 +807,8 @@
 #define TR_FLASH_EXTERNAL_MULTI         TR("Flasha ext. Multi", "Flasha extern Multi")
 #define TR_FLASH_EXTERNAL_ELRS          TR("Flasha ext. ELRS", "Flasha extern ELRS")
 
-#define TR_FIRMWARE_UPDATE_ERROR        TR("FW update Error","Firmware update error")
-#define TR_FIRMWARE_UPDATE_SUCCESS      "Flash successful"
+#define TR_FIRMWARE_UPDATE_ERROR        TR("FW uppdat.fel","Firmware uppdateringsfel")
+#define TR_FIRMWARE_UPDATE_SUCCESS      "Flashning OK"
 #define TR_WRITING                      "Skriver..."
 #define TR_CONFIRM_FORMAT               "Formatera minnet?"
 #define TR_INTERNALRF                   "Intern radiomodul"
