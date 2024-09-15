@@ -211,15 +211,9 @@ void menuModelFlightModeOne(event_t event)
   }
 }
 
-#if defined(PCBTARANIS)
-  #define NAME_POS                     20
-  #define SWITCH_POS                   59
-  #define TRIMS_POS                    79
-#else
-  #define NAME_OFS                     0
-  #define SWITCH_OFS                   (FW/2)
-  #define TRIMS_OFS                    (FW/2)
-#endif
+#define NAME_POS    11
+#define SWITCH_POS  49
+#define TRIMS_POS   74
 
 void menuModelFlightModesAll(event_t event)
 {
@@ -247,7 +241,8 @@ void menuModelFlightModesAll(event_t event)
     if (y < 1 * FH + 1 || y > (LCD_LINES - 1) * FH + 1) continue;
     att = (i == sub ? INVERS : 0);
     FlightModeData* p = flightModeAddress(i);
-    drawFlightMode(0, y, i + 1, att | (getFlightMode() == i ? BOLD : 0));
+    lcdDrawChar(0, y, ' ', att);
+    lcdDrawChar(3, y, '1' + i, att | (getFlightMode() == i ? BOLD : 0));
     lcdDrawSizedText(NAME_POS, y, p->name, sizeof(p->name), 0);
     auto trims = min(keysGetMaxTrims(), (uint8_t)MAX_STICKS);
     if (i > 0) drawSwitch(SWITCH_POS, y, p->swtch, 0);
@@ -256,7 +251,7 @@ void menuModelFlightModesAll(event_t event)
     }
 
     if (p->fadeIn || p->fadeOut) {
-      lcdDrawChar(LCD_W - FW, y,
+      lcdDrawChar(LCD_W - FW + ((p->fadeIn && !p->fadeOut) ? 1 : 0), y,
                   (p->fadeIn && p->fadeOut) ? '*' : (p->fadeIn ? 'I' : 'O'));
     }
   }
