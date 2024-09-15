@@ -1048,9 +1048,9 @@
 
 // Bootloader common
 #define TR_BL_USB_CONNECTED             "USB ansluten"
-#define TR_BL_USB_PLUGIN                "Eller anslut med en USB-kabel"
+#define TR_BL_USB_PLUGIN                "Eller anslut med USB-kabel"
 #define TR_BL_USB_MASS_STORE            "foer masslagring"
-#define TR_BL_USB_PLUGIN_MASS_STORE     "Eller anslut med en USB-kabel foer masslagring"
+#define TR_BL_USB_PLUGIN_MASS_STORE     "Eller anslut med USB-kabel foer masslagring"
 #define TR_BL_WRITE_FW                  "Skriv firmware"
 #define TR_BL_FORK                      "Gren:"
 #define TR_BL_VERSION                   "Version:"
@@ -1058,21 +1058,21 @@
 #define TR_BL_EXIT                      "Avsluta"
 #define TR_BL_DIR_MISSING               " Katalogen saknas"
 #define TR_BL_DIR_EMPTY                 " Katalogen aer tom"
-#define TR_BL_WRITING_FW                "Skriver firmware ..."
+#define TR_BL_WRITING_FW                "Skriver..."
 #define TR_BL_WRITING_COMPL             "Skrivning klar"
 
 #if LCD_W >= 480
-  #define TR_BL_INVALID_FIRMWARE        "Inte en giltig firmwarefil"
+  #define TR_BL_INVALID_FIRMWARE        "Ej en giltig firmwarefil"
 #elif LCD_W >= 212
   #define TR_BL_OR_PLUGIN_USB_CABLE     TR_BL_USB_PLUGIN_MASS_STORE
   #define TR_BL_HOLD_ENTER_TO_START     "\012Tryck [ENT] foer att boerja skriva  "
-  #define TR_BL_INVALID_FIRMWARE        "\011Inte en giltig firmwarefil!       "
-  #define TR_BL_INVALID_EEPROM          "\011Inte en giltig EEPROM-fil!        "
+  #define TR_BL_INVALID_FIRMWARE        "\011Ej en giltig firmwarefil!       "
+  #define TR_BL_INVALID_EEPROM          "\011Ej en giltig EEPROM-fil!        "
 #else
   #define TR_BL_OR_PLUGIN_USB_CABLE     TR_BL_USB_PLUGIN
   #define TR_BL_HOLD_ENTER_TO_START     "\006Tryck [ENT] för att boerja      "
-  #define TR_BL_INVALID_FIRMWARE        "\004Inte en giltig firmware!     "
-  #define TR_BL_INVALID_EEPROM          "\004Inte en giltig EEPROM!       "
+  #define TR_BL_INVALID_FIRMWARE        "\004Ej en giltig firmware!     "
+  #define TR_BL_INVALID_EEPROM          "\004Ej en giltig EEPROM!       "
 #endif
 
 #if defined(PCBTARANIS)
@@ -1084,12 +1084,12 @@
   #endif
 #elif defined(PCBHORUS)
    // Bootloader Horus specific - ASCII characters only
-  #define TR_BL_ERASE_INT_FLASH         "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH             "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG         "This may take up to 200s"
+  #define TR_BL_ERASE_INT_FLASH         "Radera interna flashminnet"
+  #define TR_BL_ERASE_FLASH             "Radera flashminnet"
+  #define TR_BL_ERASE_FLASH_MSG         "Detta kan ta upp till 200s"
   #define TR_BL_SELECT_KEY              "[ENT] för att vaelja fil"
   #define TR_BL_FLASH_KEY               "Tryck [ENT] foer att flasha"
-  #define TR_BL_ERASE_KEY               "Hold [ENT] long to erase"
+  #define TR_BL_ERASE_KEY               "Haall ner [ENT] foer att raderag"
   #define TR_BL_EXIT_KEY                "[RTN] foer att avbryta"
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - ASCII characters only
@@ -1326,8 +1326,8 @@
 #define TR_SORT_MODELS_BY               "Sortera modeller"
 #define TR_CREATE_NEW                   "Skapa"
 
-#define TR_MIX_SLOW_PREC                TR("Dröj preci.", "Fördröj upp/ner precision")
-#define TR_MIX_DELAY_PREC         TR("Delay prec", "Delay up/dn prec")
+#define TR_MIX_SLOW_PREC                TR("Långsam preci.", "Långsam upp/ner precision")
+#define TR_MIX_DELAY_PREC               TR("Fördröj preci.", "Fördröj upp/ner precision")
 
 #define TR_THEME_EXISTS                 "Det finns redan ett tema med samma namn"
 
@@ -1339,4 +1339,4 @@
 
 #define TR_WIDGET_SIZE                  "Widgetstorlek"
 
-#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
+#define TR_DEL_DIR_NOT_EMPTY            "Katalog måste var tom innan radering"
