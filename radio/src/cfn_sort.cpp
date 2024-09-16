@@ -842,6 +842,7 @@ Functions cfn_sorted[] = {
 #endif
 #else
   /* Adjust */ FUNC_ADJUST_GVAR,
+  /* Arm */ FUNC_ARM,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
 #if !defined(OLED_SCREEN)
   /* Backlight */ FUNC_BACKLIGHT,
