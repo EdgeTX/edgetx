@@ -127,13 +127,18 @@ void boardInit()
   board_set_bor_level();
 #endif
 
-#if defined(FUNCTION_SWITCHES) && !defined(DEBUG_DISABLE_USB)
+#if defined(FUNCTION_SWITCHES) && !defined(DEBUG)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
    usbPlugged();
    if (usbPlugged()) {
      delaysInit();
+ #if defined(AUDIO_MUTE_GPIO)
+     // Charging can make a buzzing noise
+     gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+     gpio_set(AUDIO_MUTE_GPIO);
+ #endif
      while (usbPlugged()) {
        delay_ms(1000);
      }
