@@ -164,7 +164,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
           return SensorData().nameToString(index - 1);
 
       case SWITCH_TYPE_TELEMETRY:
-        return tr("Telemetry");
+        return tr("Tele");
 
       case SWITCH_TYPE_TRAINER:
         return tr("Trn");
