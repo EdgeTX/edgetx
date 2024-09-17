@@ -75,6 +75,7 @@ class Widget : public ButtonBase
 
   // Set/unset fullscreen mode
   void setFullscreen(bool enable);
+  void closeFullscreen() { closeFS = true; }
 
   // Called when the widget options have changed
   virtual void update();
@@ -95,6 +96,7 @@ class Widget : public ButtonBase
   PersistentData* persistentData;
   bool fullscreen = false;
   bool fsAllowed = true;
+  bool closeFS = false;
   lv_obj_t* focusBorder = nullptr;
   lv_style_t borderStyle;
   lv_point_t borderPts[5];

@@ -260,6 +260,11 @@ void LuaWidget::checkEvents()
 {
   Widget::checkEvents();
 
+  if (closeFS) {
+    closeFS = false;
+    setFullscreen(false);
+  }
+
   // Call update once after widget first created
   if (!created) {
     created = true;
