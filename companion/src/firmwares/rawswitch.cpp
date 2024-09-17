@@ -38,25 +38,25 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
   };
 
   static const QString trimsSwitchesAir[] = {
-    tr("Rud-"), tr("Rud+"),
-    tr("Ele-"), tr("Ele+"),
-    tr("Thr-"), tr("Thr+"),
-    tr("Ail-"), tr("Ail+"),
-    tr("T5-"), tr("T5+"),
-    tr("T6-"), tr("T6+"),
-    tr("T7-"), tr("T7+"),
-    tr("T8-"), tr("T8+")
+    tr("Trim Rud-"), tr("Trim Rud+"),
+    tr("Trim Ele-"), tr("Trim Ele+"),
+    tr("Trim Thr-"), tr("Trim Thr+"),
+    tr("Trim Ail-"), tr("Trim Ail+"),
+    tr("Trim T5-"), tr("Trim T5+"),
+    tr("Trim T6-"), tr("Trim T6+"),
+    tr("Trim T7-"), tr("Trim T7+"),
+    tr("Trim T8-"), tr("Trim T8+")
   };
 
   static const QString trimsSwitchesSurface[] = {
-    tr("ST-"), tr("ST+"),
-    tr("TH-"), tr("TH+"),
-    tr("T3-"), tr("T3+"),
-    tr("T4-"), tr("T4+"),
-    tr("T5-"), tr("T5+"),
-    tr("T6-"), tr("T6+"),
-    tr("T7-"), tr("T7+"),
-    tr("T8-"), tr("T8+")
+    tr("Trim ST-"), tr("Trim ST+"),
+    tr("Trim TH-"), tr("Trim TH+"),
+    tr("Trim T3-"), tr("Trim T3+"),
+    tr("Trim T4-"), tr("Trim T4+"),
+    tr("Trim T5-"), tr("Trim T5+"),
+    tr("Trim T6-"), tr("Trim T6+"),
+    tr("Trim T7-"), tr("Trim T7+"),
+    tr("Trim T8-"), tr("Trim T8+")
   };
 
   static const QString trimsSwitches2[] = {
@@ -164,7 +164,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
           return SensorData().nameToString(index - 1);
 
       case SWITCH_TYPE_TELEMETRY:
-        return tr("Tele");
+        return tr("Telemetry");
 
       case SWITCH_TYPE_TRAINER:
         return tr("Trn");
