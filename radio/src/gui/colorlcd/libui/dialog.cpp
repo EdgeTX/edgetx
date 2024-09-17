@@ -39,10 +39,10 @@ class BaseDialogForm : public Window
   void onClicked() override { Keyboard::hide(false); }
 };
 
-BaseDialog::BaseDialog(Window* parent, const char* title,
+BaseDialog::BaseDialog(const char* title,
                        bool closeIfClickedOutside, lv_coord_t width,
                        lv_coord_t maxHeight) :
-    ModalWindow(parent, closeIfClickedOutside)
+    ModalWindow(closeIfClickedOutside)
 {
   auto content = new Window(this, rect_t{});
   content->setWindowFlag(OPAQUE);
@@ -68,9 +68,9 @@ void BaseDialog::setTitle(const char* title)
 
 //-----------------------------------------------------------------------------
 
-ProgressDialog::ProgressDialog(Window* parent, const char* title,
+ProgressDialog::ProgressDialog(const char* title,
                                std::function<void()> onClose) :
-    BaseDialog(parent, title, false), onClose(std::move(onClose))
+    BaseDialog(title, false), onClose(std::move(onClose))
 {
   progress = new Progress(form, rect_t{0, 0, LV_PCT(100), 32});
   updateProgress(0);
@@ -96,10 +96,10 @@ void ProgressDialog::closeDialog()
 
 //-----------------------------------------------------------------------------
 
-MessageDialog::MessageDialog(Window* parent, const char* title,
+MessageDialog::MessageDialog(const char* title,
                              const char* message, const char* info,
                              LcdFlags messageFlags, LcdFlags infoFlags) :
-    BaseDialog(parent, title, true)
+    BaseDialog(title, true)
 {
   messageWidget = new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
                                  message, COLOR_THEME_PRIMARY1_INDEX, messageFlags);
@@ -115,9 +115,9 @@ void MessageDialog::onClicked() { deleteLater(); }
 //-----------------------------------------------------------------------------
 
 DynamicMessageDialog::DynamicMessageDialog(
-    Window* parent, const char* title, std::function<std::string()> textHandler,
+    const char* title, std::function<std::string()> textHandler,
     const char* message, const int lineHeight, LcdColorIndex color, LcdFlags textFlags) :
-    BaseDialog(parent, title, true)
+    BaseDialog(title, true)
 {
   messageWidget = new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
                                  message, COLOR_THEME_PRIMARY1_INDEX, CENTERED);
@@ -130,11 +130,11 @@ void DynamicMessageDialog::onClicked() { deleteLater(); }
 
 //-----------------------------------------------------------------------------
 
-ConfirmDialog::ConfirmDialog(Window* parent, const char* title,
+ConfirmDialog::ConfirmDialog(const char* title,
                              const char* message,
                              std::function<void(void)> confirmHandler,
                              std::function<void(void)> cancelHandler) :
-    BaseDialog(parent, title, false),
+    BaseDialog(title, false),
     confirmHandler(std::move(confirmHandler)),
     cancelHandler(std::move(cancelHandler))
 {
@@ -168,9 +168,9 @@ void ConfirmDialog::onCancel()
 
 //-----------------------------------------------------------------------------
 
-LabelDialog::LabelDialog(Window *parent, const char *label, int length, const char* title,
+LabelDialog::LabelDialog(const char *label, int length, const char* title,
             std::function<void(std::string)> _saveHandler) :
-    ModalWindow(parent, false), saveHandler(std::move(_saveHandler))
+    ModalWindow(false), saveHandler(std::move(_saveHandler))
 {
   assert(length <= MAX_LABEL_LENGTH);
 

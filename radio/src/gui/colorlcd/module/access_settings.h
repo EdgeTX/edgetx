@@ -47,7 +47,7 @@ class ReceiverButton : public TextButton
 class RegisterDialog : public BaseDialog
 {
  public:
-  RegisterDialog(Window* parent, uint8_t moduleIdx);
+  RegisterDialog(uint8_t moduleIdx);
 
   void start();
   void checkEvents() override;
@@ -65,7 +65,7 @@ class RegisterDialog : public BaseDialog
 class ModuleOptions : public BaseDialog
 {
  public:
-  ModuleOptions(Window* parent, uint8_t moduleIdx);
+  ModuleOptions(uint8_t moduleIdx);
   void checkEvents() override;
 
  protected:

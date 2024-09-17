@@ -42,7 +42,7 @@ public:
 };
 
 BTDiscoverMenu::BTDiscoverMenu() :
-  Menu(Layer::back())
+  Menu()
 {
   setTitle(STR_BT_SELECT_DEVICE);
   // TODO: set minimum height
@@ -132,7 +132,7 @@ void BluetoothTrainerWindow::refresh()
       }
     } else if (bluetooth.state == BLUETOOTH_STATE_DISCOVER_END) {
       if(reusableBuffer.moduleSetup.bt.devicesCount == 0) {
-        new MessageDialog(this, STR_BLUETOOTH, STR_BLUETOOTH_NODEVICES);
+        new MessageDialog(STR_BLUETOOTH, STR_BLUETOOTH_NODEVICES);
         bluetooth.state = BLUETOOTH_STATE_OFF;
       }
     } else if (bluetooth.distantAddr[0]) {

@@ -560,7 +560,7 @@ void ModelLogicalSwitchesPage::rebuild(Window* window)
 
 void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
 {
-  Menu* menu = new Menu(Layer::back());
+  Menu* menu = new Menu();
   menu->setTitle(STR_MENU_LOGICAL_SWITCHES);
 
   // search for unused switches
@@ -593,7 +593,7 @@ void ModelLogicalSwitchesPage::newLS(Window* window, bool pasteLS)
 void ModelLogicalSwitchesPage::plusPopup(Window* window)
 {
   if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH) {
-    Menu* menu = new Menu(window);
+    Menu* menu = new Menu();
     menu->addLine(STR_NEW, [=]() { newLS(window, false); });
     menu->addLine(STR_PASTE, [=]() { newLS(window, true); });
   } else {
@@ -619,7 +619,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
       auto button = new LogicalSwitchButton(window, i);
 
       button->setPressHandler([=]() {
-        Menu* menu = new Menu(window);
+        Menu* menu = new Menu();
         menu->addLine(STR_EDIT, [=]() {
           Window* lsWindow = new LogicalSwitchEditPage(i);
           lsWindow->setCloseHandler([=]() {

@@ -142,7 +142,7 @@ void ModelCurvesPage::editCurve(Window *window, uint8_t curve)
 
 void ModelCurvesPage::presetMenu(Window *window, uint8_t index)
 {
-  Menu *menu = new Menu(window);
+  Menu *menu = new Menu();
   menu->setTitle(STR_CURVE_PRESET);
   for (int angle = -45; angle <= 45; angle += 15) {
     char label[16];
@@ -169,7 +169,7 @@ void ModelCurvesPage::presetMenu(Window *window, uint8_t index)
 
 void ModelCurvesPage::newCV(Window *window, bool presetCV)
 {
-  Menu *menu = new Menu(Layer::back());
+  Menu *menu = new Menu();
   menu->setTitle(STR_CURVE);
   char s[6] = "CVxx";
 
@@ -195,7 +195,7 @@ void ModelCurvesPage::newCV(Window *window, bool presetCV)
 
 void ModelCurvesPage::plusPopup(Window *window)
 {
-  Menu *menu = new Menu(window);
+  Menu *menu = new Menu();
   menu->setTitle(STR_NEW);
   menu->addLine(STR_EDIT, [=]() { newCV(window, false); });
   menu->addLine(STR_CURVE_PRESET, [=]() { newCV(window, true); });
@@ -235,7 +235,7 @@ void ModelCurvesPage::build(Window *window)
       auto button =
           new CurveButton(line, rect_t{0, 0, CurveButton::CURVE_BTN_W, CurveButton::CURVE_BTH_H}, index);
       button->setPressHandler([=]() -> uint8_t {
-        Menu *menu = new Menu(window);
+        Menu *menu = new Menu();
         menu->setTitle(STR_CURVE);
         menu->addLine(STR_EDIT, [=]() { editCurve(window, index); });
         menu->addLine(STR_CURVE_PRESET, [=]() { presetMenu(window, index); });

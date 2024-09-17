@@ -1052,8 +1052,7 @@ void LvglWidgetConfirmDialog::clearRefs(lua_State *L)
 
 void LvglWidgetConfirmDialog::build(lua_State *L)
 {
-  window = new ConfirmDialog(
-      MainWindow::instance(), title, message,
+  window = new ConfirmDialog(title, message,
       [=]() { pcallSimpleFunc(L, confirmFunction); },
       [=]() { pcallSimpleFunc(L, cancelFunction); });
 }
@@ -1290,7 +1289,7 @@ class LvglDialog : public BaseDialog
 {
  public:
   LvglDialog(std::string& title, coord_t w, coord_t h, std::function<void()> onClose) :
-    BaseDialog(MainWindow::instance(), title.empty() ? nullptr : title.c_str(), true, w, h),
+    BaseDialog(title.empty() ? nullptr : title.c_str(), true, w, h),
     onClose(std::move(onClose))
   {
     form->setHeight(h - EdgeTxStyles::UI_ELEMENT_HEIGHT);

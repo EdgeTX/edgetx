@@ -246,7 +246,7 @@ class ModuleWindow : public Window
             if (isModuleR9MNonAccess(moduleIdx) || isModuleD16(moduleIdx) ||
                 IS_R9_MULTI(moduleIdx)) {
               new BindChoiceMenu(
-                  Layer::back(), moduleIdx, [=]() { bindButton->check(true); },
+                  moduleIdx, [=]() { bindButton->check(true); },
                   [=]() { bindButton->check(false); });
               return 0;
             }
@@ -316,7 +316,7 @@ class ModuleWindow : public Window
         if (isModuleISRM(moduleIdx)) {
           auto options = new TextButton(box, rect_t{}, LV_SYMBOL_SETTINGS);
           options->setPressHandler([=]() {
-            new pxx2::ModuleOptions(Layer::back(), moduleIdx);
+            new pxx2::ModuleOptions(moduleIdx);
             return 0;
           });
         }
@@ -336,7 +336,7 @@ class ModuleWindow : public Window
 
       registerButton = new TextButton(box, rect_t{}, STR_REGISTER);
       registerButton->setPressHandler([=]() -> uint8_t {
-        new pxx2::RegisterDialog(Layer::back(), moduleIdx);
+        new pxx2::RegisterDialog(moduleIdx);
         return 0;
       });
 
@@ -354,7 +354,7 @@ class ModuleWindow : public Window
 
       auto options = new TextButton(box, rect_t{}, LV_SYMBOL_SETTINGS);
       options->setPressHandler([=]() {
-        new pxx2::ModuleOptions(Layer::back(), moduleIdx);
+        new pxx2::ModuleOptions(moduleIdx);
         return 0;
       });
 
@@ -506,7 +506,7 @@ class ModuleWindow : public Window
   void startRSSIDialog(std::function<void()> closeHandler = nullptr)
   {
     auto rssiDialog = new DynamicMessageDialog(
-        parent, STR_RANGE_TEST,
+        STR_RANGE_TEST,
         [=]() {
           return std::to_string((int)TELEMETRY_RSSI()) + getRxStatLabels()->unit;
         },
@@ -664,7 +664,7 @@ class ModuleSubTypeChoice : public Choice
       protos->triggerScan();
 
       if (protos->isScanning()) {
-        new RfScanDialog(parent, protos, [=]() { updateLayout(); });
+        new RfScanDialog(protos, [=]() { updateLayout(); });
       } else {
         TRACE("!protos->isScanning()");
       }
@@ -685,7 +685,7 @@ class ModuleSubTypeChoice : public Choice
   {
 #if defined(MULTIMODULE)
     if (isModuleMultimodule(moduleIdx)) {
-      auto menu = new Menu(this);
+      auto menu = new Menu();
 
       if (menuTitle) menu->setTitle(menuTitle);
       menu->setCloseHandler([=]() { setEditMode(false); });

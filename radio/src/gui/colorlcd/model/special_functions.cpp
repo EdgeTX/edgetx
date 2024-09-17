@@ -720,7 +720,7 @@ void FunctionsPage::rebuild(Window *window)
 
 void FunctionsPage::newSF(Window *window, bool pasteSF)
 {
-  Menu *menu = new Menu(Layer::back());
+  Menu *menu = new Menu();
   menu->setTitle(title);
 
   // search for unused switches
@@ -769,7 +769,7 @@ void FunctionsPage::editSpecialFunction(Window *window, uint8_t index,
 void FunctionsPage::plusPopup(Window *window)
 {
   if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_FUNCTION) {
-    Menu *menu = new Menu(window);
+    Menu *menu = new Menu();
     menu->addLine(STR_NEW, [=]() { newSF(window, false); });
     menu->addLine(STR_PASTE, [=]() { newSF(window, true); });
   } else {
@@ -810,7 +810,7 @@ void FunctionsPage::build(Window *window)
       });
 
       button->setPressHandler([=]() {
-        Menu *menu = new Menu(window);
+        Menu *menu = new Menu();
         menu->addLine(STR_EDIT,
                       [=]() { editSpecialFunction(window, i, button); });
         if (isActive) {

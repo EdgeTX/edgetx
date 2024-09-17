@@ -23,7 +23,7 @@
 class ModalWindow : public Window
 {
  public:
-  explicit ModalWindow(Window* parent, bool closeWhenClickOutside = false);
+  explicit ModalWindow(bool closeWhenClickOutside = false);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ModalWindow"; }

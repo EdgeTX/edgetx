@@ -334,7 +334,7 @@ class ModelsPageBody : public Window
 
   void openMenu()
   {
-    Menu *menu = new Menu(this);
+    Menu *menu = new Menu();
     menu->setTitle(focusedModel->modelName);
     if (g_eeGeneral.modelQuickSelect ||
         focusedModel != modelslist.getCurrentModel()) {
@@ -393,7 +393,7 @@ class ModelsPageBody : public Window
   void duplicateModel(ModelCell *model)
   {
     new ConfirmDialog(
-        parent, STR_DUPLICATE_MODEL,
+        STR_DUPLICATE_MODEL,
         std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
           storageFlushCurrentModel();
           storageCheck(true);
@@ -422,7 +422,7 @@ class ModelsPageBody : public Window
   void deleteModel(ModelCell *model)
   {
     new ConfirmDialog(
-        parent, STR_DELETE_MODEL,
+        STR_DELETE_MODEL,
         std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
           modelslist.removeModel(model);
           if (refreshLabels != nullptr) refreshLabels();
@@ -437,7 +437,7 @@ class ModelsPageBody : public Window
 
     // dont display menu if there will be no labels
     if (labels.size()) {
-      auto menu = new Menu(getParent(), true);
+      auto menu = new Menu(true);
       menu->setTitle(model->modelName);
       menu->setCloseHandler([=]() {
         if (isDirty) {
@@ -466,7 +466,7 @@ class ModelsPageBody : public Window
   void saveAsTemplate(ModelCell *model)
   {
     new ConfirmDialog(
-        parent, STR_SAVE_TEMPLATE,
+        STR_SAVE_TEMPLATE,
         std::string(model->modelName, sizeof(model->modelName)).c_str(), [=] {
           storageDirty(EE_MODEL);
           storageCheck(true);
@@ -487,7 +487,7 @@ class ModelsPageBody : public Window
           snprintf(templatePath, FF_MAX_LFN, "%s%c%s", persFolder, '/',
                    modelName);
           if (isFileAvailable(templatePath)) {
-            new ConfirmDialog(parent, STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
+            new ConfirmDialog(STR_FILE_EXISTS, STR_ASK_OVERWRITE, [=] {
               sdCopyFile(model->modelFilename, MODELS_PATH, modelName,
                          persFolder);
             });
@@ -668,7 +668,7 @@ void ModelLabelsWindow::newModel()
 void ModelLabelsWindow::newLabel()
 {
   tmpLabel[0] = '\0';
-  new LabelDialog(this, tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string label) {
+  new LabelDialog(tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string label) {
     int newlabindex = modelslabels.addLabel(label);
     if (newlabindex >= 0) {
       std::set<uint32_t> newset;
@@ -690,7 +690,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
 
   // new model button
   new TextButton(hdr, {LCD_W - NEW_BTN_W - PAD_LARGE, PAD_MEDIUM, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
-    auto menu = new Menu(this);
+    auto menu = new Menu();
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
     menu->addLine(STR_NEW_LABEL, [=]() { newLabel(); });
@@ -811,16 +811,16 @@ void ModelLabelsWindow::buildBody(Window *window)
       std::string selectedLabel = labels.at(selected);
 
       if (selectedLabel != STR_UNLABELEDMODEL) {
-        Menu *menu = new Menu(window);
+        Menu *menu = new Menu();
         menu->setTitle(selectedLabel);
         menu->addLine(STR_RENAME_LABEL, [=]() {
           auto oldLabel = labels[selected];
           strncpy(tmpLabel, oldLabel.c_str(), LABEL_LENGTH);
           tmpLabel[LABEL_LENGTH] = '\0';
-          new LabelDialog(this, tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string newLabel) {
+          new LabelDialog(tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string newLabel) {
             if (newLabel.size() > 0) {
               auto rndialog =
-                  new ProgressDialog(this, STR_RENAME_LABEL, [=]() {});
+                  new ProgressDialog(STR_RENAME_LABEL, [=]() {});
               modelslabels.renameLabel(
                   oldLabel, newLabel, [=](const char *name, int percentage) {
                     rndialog->setTitle(std::string(STR_RENAME_LABEL) + " " +
@@ -838,9 +838,9 @@ void ModelLabelsWindow::buildBody(Window *window)
         menu->addLine(STR_DELETE_LABEL, [=]() {
           auto labelToDelete = labels[selected];
           new ConfirmDialog(
-              parent, STR_DELETE_LABEL, labelToDelete.c_str(), [=]() {
+              STR_DELETE_LABEL, labelToDelete.c_str(), [=]() {
                 auto deldialog =
-                    new ProgressDialog(this, STR_DELETE_LABEL, [=]() {});
+                    new ProgressDialog(STR_DELETE_LABEL, [=]() {});
                 modelslabels.removeLabel(
                     labelToDelete, [=](const char *name, int percentage) {
                       deldialog->setTitle(std::string(STR_DELETE_LABEL) + " " +

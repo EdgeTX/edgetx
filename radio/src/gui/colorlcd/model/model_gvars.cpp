@@ -561,7 +561,7 @@ void ModelGVarsPage::build(Window* window)
     auto button = new GVarButton(window, index);
     lv_obj_set_pos(button->getLvObj(), 0, yo + index * (GVarButton::BTN_H + PAD_TINY));
     button->setPressHandler([=]() {
-      Menu* menu = new Menu(window);
+      Menu* menu = new Menu();
       menu->addLine(STR_EDIT, [=]() {
         Window* editWindow = new GVarEditWindow(index);
         editWindow->setCloseHandler([=]() { rebuild(window); });

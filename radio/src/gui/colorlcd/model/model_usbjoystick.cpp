@@ -562,7 +562,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
       if (cch->mode == USBJOYS_CH_NONE) {
         editChannel(ch, btn);
       } else {
-        Menu* menu = new Menu(parent);
+        Menu* menu = new Menu();
         menu->addLine(STR_EDIT, [=]() { editChannel(ch, btn); });
         menu->addLine(STR_CLEAR, [=]() {
           memset(cch, 0, sizeof(USBJoystickChData));

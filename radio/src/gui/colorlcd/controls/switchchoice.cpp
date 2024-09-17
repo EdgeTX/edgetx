@@ -131,7 +131,7 @@ void SwitchChoice::openMenu()
 {
   setEditMode(true);  // this needs to be done first before menu is created.
 
-  auto menu = new Menu(this);
+  auto menu = new Menu();
   if (menuTitle) menu->setTitle(menuTitle);
 
   inverted = _getValue() < 0;

@@ -37,7 +37,7 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
 {
   setPressHandler([=]() -> uint8_t {
     if (container->getWidget(slotIndex)) {
-      Menu* menu = new Menu(parent);
+      Menu* menu = new Menu();
       menu->addLine(STR_SELECT_WIDGET,
                     [=]() { addNewWidget(container, slotIndex); });
       auto widget = container->getWidget(slotIndex);
@@ -95,7 +95,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
   auto w = container->getWidget((slotIndex));
   if (w) cur = w->getFactory()->getDisplayName();
 
-  Menu* menu = new Menu(parent);
+  Menu* menu = new Menu();
   menu->setTitle(STR_SELECT_WIDGET);
   int selected = -1;
   int index = 0;

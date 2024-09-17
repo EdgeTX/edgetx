@@ -73,8 +73,8 @@ class VersionDialog : public BaseDialog
   StaticText* ext_rx_status;
 
  public:
-  VersionDialog(Window* parent) :
-      BaseDialog(parent, STR_MODULES_RX_VERSION, true)
+  VersionDialog() :
+      BaseDialog(STR_MODULES_RX_VERSION, true)
   {
 #if defined(PXX2)
     memclear(&reusableBuffer.hardwareAndSettings.modules,
@@ -378,7 +378,7 @@ void RadioVersionPage::build(Window* window)
   // Module and receivers versions
   auto btn = new TextButton(window, rect_t{}, STR_MODULES_RX_VERSION);
   btn->setPressHandler([=]() -> uint8_t {
-    new VersionDialog(window);
+    new VersionDialog();
     return 0;
   });
   lv_obj_set_width(btn->getLvObj(), lv_pct(100));

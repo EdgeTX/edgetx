@@ -301,7 +301,7 @@ void ModelMixerScriptsPage::build(Window* window, int8_t focusIdx)
     auto button = new ScriptLineButton(window, *sd, runtimeData, idx);
 
     button->setPressHandler([=]() -> uint8_t {
-      Menu* const menu = new Menu(window);
+      Menu* const menu = new Menu();
       menu->addLine(STR_EDIT, [=]() { editLine(window, idx); });
 
       if (runtimeData != nullptr) {

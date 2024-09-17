@@ -836,7 +836,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
       if (!first) first = button;
 
       button->setPressHandler([=]() -> uint8_t {
-        Menu* menu = new Menu(window);
+        Menu* menu = new Menu();
         menu->addLine(STR_EDIT, [=]() { editSensor(window, idx); });
         menu->addLine(STR_COPY, [=]() {
           auto newIndex = availableTelemetryIndex();
@@ -944,7 +944,7 @@ void ModelTelemetryPage::build(Window* window)
   // Delete all sensors button
   deleteAll =
       new TextButton(line, rect_t{}, STR_DELETE_ALL_SENSORS, [=]() -> uint8_t {
-        new ConfirmDialog(window, STR_DELETE_ALL_SENSORS, STR_CONFIRMDELETE,
+        new ConfirmDialog(STR_DELETE_ALL_SENSORS, STR_CONFIRMDELETE,
                           [=]() {
                             for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
                               delTelemetryIndex(i);

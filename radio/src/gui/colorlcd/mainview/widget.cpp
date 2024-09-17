@@ -58,11 +58,7 @@ void Widget::openMenu()
   }
 
   if (getOptions() || fsAllowed) {
-    // Widgets are placed on a full screen window which is underneath the main
-    // view menu bar Find the parent of this so that when the popup loads it
-    // covers the main view menu
-    Window* w = parent->getFullScreenWindow()->getParent();
-    Menu* menu = new Menu(w ? w : this);
+    Menu* menu = new Menu();
     menu->setTitle(getFactory()->getDisplayName());
     if (fsAllowed) {
       menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });

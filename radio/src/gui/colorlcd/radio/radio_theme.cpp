@@ -99,9 +99,9 @@ class ThemeDetailsDialog : public BaseDialog
 {
  public:
   ThemeDetailsDialog(
-      Window *parent, ThemeFile theme,
+      ThemeFile theme,
       std::function<bool(ThemeFile theme)> saveHandler = nullptr) :
-      BaseDialog(parent, STR_EDIT_THEME_DETAILS, false, DIALOG_DEFAULT_WIDTH,
+      BaseDialog(STR_EDIT_THEME_DETAILS, false, DIALOG_DEFAULT_WIDTH,
                  LV_SIZE_CONTENT),
       theme(theme),
       saveHandler(saveHandler)
@@ -346,8 +346,7 @@ class ThemeEditPage : public Page
   void onCancel() override
   {
     if (_dirty) {
-      new ConfirmDialog(
-          this, STR_SAVE_THEME, _theme.getName().c_str(),
+      new ConfirmDialog(STR_SAVE_THEME, _theme.getName().c_str(),
           [=]() {
             if (saveHandler != nullptr) {
               saveHandler(_theme);
@@ -391,7 +390,7 @@ class ThemeEditPage : public Page
     // save and cancel
     rect_t r = {LCD_W - (ColorEditPage::BUTTON_WIDTH + 5), PAD_MEDIUM, ColorEditPage::BUTTON_WIDTH, 0};
     new TextButton(window, r, STR_DETAILS, [=]() {
-      new ThemeDetailsDialog(page, _theme, [=](ThemeFile t) {
+      new ThemeDetailsDialog(_theme, [=](ThemeFile t) {
         _theme.setAuthor(t.getAuthor());
         _theme.setInfo(t.getInfo());
         _theme.setName(t.getName());
@@ -480,7 +479,7 @@ void ThemeSetupPage::checkEvents()
 
 void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
 {
-  auto menu = new Menu(listBox, false);
+  auto menu = new Menu(false);
 
   // you can't activate the active theme
   if (listBox->getSelected() != tp->getThemeIndex()) {
@@ -529,7 +528,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   menu->addLine(STR_DUPLICATE, [=]() {
     ThemeFile newTheme;
 
-    new ThemeDetailsDialog(window, newTheme, [=](ThemeFile theme) {
+    new ThemeDetailsDialog(newTheme, [=](ThemeFile theme) {
       if (!theme.getName().empty()) {
         char name[SELECTED_THEME_NAME_LEN + 1];
         int n = 0;
@@ -565,8 +564,7 @@ void ThemeSetupPage::displayThemeMenu(Window *window, ThemePersistance *tp)
   if (listBox->getSelected() != 0 &&
       listBox->getSelected() != tp->getThemeIndex()) {
     menu->addLine(STR_DELETE, [=]() {
-      new ConfirmDialog(
-          window, STR_DELETE_THEME,
+      new ConfirmDialog(STR_DELETE_THEME,
           tp->getThemeByIndex(listBox->getSelected())->getName().c_str(), [=] {
             tp->deleteThemeByIndex(listBox->getSelected());
             listBox->setNames(tp->getNames());

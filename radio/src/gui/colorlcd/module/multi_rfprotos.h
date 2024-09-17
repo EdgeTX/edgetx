@@ -31,7 +31,7 @@ class RfScanDialog : public ProgressDialog
   uint32_t lastUpdate = 0;
 
  public:
-  RfScanDialog(Window* parent, MultiRfProtocols* protos,
+  RfScanDialog(MultiRfProtocols* protos,
                std::function<void()> onClose);
 
   void showProgress();

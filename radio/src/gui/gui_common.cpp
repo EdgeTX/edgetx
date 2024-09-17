@@ -648,7 +648,7 @@ class AntennaSelectionMenu : public Menu
   bool& done;
 
 public:
-  AntennaSelectionMenu(bool& done) : Menu(MainWindow::instance()), done(done) {
+  AntennaSelectionMenu(bool& done) : Menu(), done(done) {
     setTitle(STR_ANTENNA);
     addLine(STR_USE_INTERNAL_ANTENNA,
             [] { globalData.externalAntennaEnabled = false; });

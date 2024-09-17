@@ -240,7 +240,7 @@ void ModelOutputsPage::build(Window* window)
 
   new TextButton(window, {ADD_TRIMS_X, ADD_TRIMS_Y, ADD_TRIMS_W, ADD_TRIMS_H}, STR_ADD_ALL_TRIMS_TO_SUBTRIMS, [=]() {
     new ConfirmDialog(
-        window, STR_TRIMS2OFFSETS, STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
+        STR_TRIMS2OFFSETS, STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
         [=] {
           moveTrimsToOffsets();
         });
@@ -258,7 +258,7 @@ void ModelOutputsPage::build(Window* window)
 
     LimitData* output = limitAddress(ch);
     btn->setPressHandler([=]() -> uint8_t {
-      Menu* menu = new Menu(window);
+      Menu* menu = new Menu();
       menu->addLine(STR_EDIT, [=]() { editOutput(ch, btn); });
       menu->addLine(STR_RESET, [=]() {
         output->min = 0;
