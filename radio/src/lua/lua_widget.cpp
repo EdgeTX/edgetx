@@ -542,30 +542,35 @@ void LuaWidget::clear()
 
 bool LuaWidget::useLvglLayout() const { return luaFactory()->useLvglLayout(); }
 
+bool LuaWidget::isAppMode() const
+{
+  return fullscreen && ViewMain::instance()->isAppMode();
+}
+
+void LuaLvglManager::saveLvglObjectRef(int ref)
+{
+  if (tempParent)
+    tempParent->saveLvglObjectRef(ref);
+  else
+    lvglObjectRefs.push_back(ref);
+}
+
 void LuaLvglManager::clearRefs(lua_State *L)
 {
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
-    auto lvobj = LvglWidgetObject::checkLvgl(L, -1);
-    lvobj->clearRefs(L);
-
-    luaL_unref(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
+    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    if (p) p->clearRefs(L);
   }
   lvglObjectRefs.clear();
 }
 
 bool LuaLvglManager::callRefs(lua_State *L)
 {
-  bool rv = true;
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
-    auto lvobj = LvglWidgetObject::checkLvgl(L, -1);
-    lvobj->callRefs(L);
+    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    if (p) if (!p->callRefs(L)) return false;
   }
-  return rv;
-}
-
-bool LuaWidget::isAppMode() const
-{
-  return fullscreen && ViewMain::instance()->isAppMode();
+  return true;
 }

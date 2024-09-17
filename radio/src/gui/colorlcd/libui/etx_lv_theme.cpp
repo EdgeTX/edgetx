@@ -236,6 +236,7 @@ EdgeTxStyles::EdgeTxStyles()
     lv_style_set_img_recolor_opa(&img_color[i], LV_OPA_COVER);
     lv_style_init(&border_color[i]);
     lv_style_init(&arc_color[i]);
+    lv_style_init(&line_color[i]);
   }
   lv_style_init(&outline_color_light);
   lv_style_init(&outline_color_normal);
@@ -310,6 +311,7 @@ void EdgeTxStyles::applyColors()
     lv_style_set_img_recolor(&img_color[i], c);
     lv_style_set_border_color(&border_color[i], c);
     lv_style_set_arc_color(&arc_color[i], c);
+    lv_style_set_line_color(&line_color[i], c);
   }
 
   lv_style_set_line_color(&graph_border, makeLvColor(COLOR_THEME_SECONDARY2));
@@ -466,12 +468,33 @@ void etx_arc_color(lv_obj_t* obj, LcdColorIndex colorIdx,
   etx_obj_add_style(obj, styles->arc_color[colorIdx], selector);
 }
 
+void etx_remove_line_color(lv_obj_t* obj, lv_style_selector_t selector)
+{
+  // Remove styles
+  for (int i = 0; i < TOTAL_COLOR_COUNT; i += 1)
+    lv_obj_remove_style(obj, &styles->line_color[i], selector);
+}
+
+void etx_line_color(lv_obj_t* obj, LcdColorIndex colorIdx,
+                  lv_style_selector_t selector)
+{
+  // Remove old style first
+  etx_remove_line_color(obj, selector);
+  etx_obj_add_style(obj, styles->line_color[colorIdx], selector);
+}
+
+void etx_remove_img_color(lv_obj_t* obj, lv_style_selector_t selector)
+{
+  // Remove styles
+  for (int i = 0; i < TOTAL_COLOR_COUNT; i += 1)
+    lv_obj_remove_style(obj, &styles->img_color[i], selector);
+}
+
 void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                    lv_style_selector_t selector)
 {
   // Remove old style first
-  for (int i = 0; i < TOTAL_COLOR_COUNT; i += 1)
-    lv_obj_remove_style(obj, &styles->img_color[i], selector);
+  etx_remove_img_color(obj, selector);
   etx_obj_add_style(obj, styles->img_color[colorIdx], selector);
 }
 

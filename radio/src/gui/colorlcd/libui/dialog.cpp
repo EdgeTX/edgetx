@@ -31,8 +31,8 @@ class BaseDialogForm : public Window
   BaseDialogForm(Window* parent, lv_coord_t width) : Window(parent, rect_t{})
   {
     etx_scrollbar(lvobj);
-    padAll(PAD_MEDIUM);
-    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_MEDIUM, width, LV_SIZE_CONTENT);
+    padAll(PAD_TINY);
+    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, width, LV_SIZE_CONTENT);
   }
 
  protected:

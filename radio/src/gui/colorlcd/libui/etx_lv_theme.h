@@ -111,6 +111,11 @@ void etx_remove_arc_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_
 void etx_arc_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                   lv_style_selector_t selector = LV_PART_MAIN);
 
+void etx_remove_line_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
+void etx_line_color(lv_obj_t* obj, LcdColorIndex colorIdx,
+                  lv_style_selector_t selector = LV_PART_MAIN);
+
+void etx_remove_img_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
 void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                    lv_style_selector_t selector = LV_PART_MAIN);
 
@@ -145,6 +150,7 @@ class EdgeTxStyles
   lv_style_t img_color[TOTAL_COLOR_COUNT];
   lv_style_t border_color[TOTAL_COLOR_COUNT];
   lv_style_t arc_color[TOTAL_COLOR_COUNT];
+  lv_style_t line_color[TOTAL_COLOR_COUNT];
   lv_style_t outline_color_light;
   lv_style_t outline_color_normal;
   lv_style_t outline_color_focus;

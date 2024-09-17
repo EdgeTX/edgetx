@@ -40,12 +40,12 @@ class LuaLvglManager
   LuaLvglManager() = default;
 
   std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
-  void saveLvglObjectRef(int ref) { lvglObjectRefs.push_back(ref); }
+  void saveLvglObjectRef(int ref);
   void clearRefs(lua_State *L);
   bool callRefs(lua_State *L);
 
-  void setTempParent(Window *p) { tempParent = p; }
-  Window* getTempParent() const { return tempParent; }
+  void setTempParent(LvglWidgetObjectBase *p) { tempParent = p; }
+  LvglWidgetObjectBase* getTempParent() const { return tempParent; }
 
   virtual Window* getCurrentParent() const = 0;
   virtual void clear() = 0;
@@ -60,7 +60,7 @@ class LuaLvglManager
 
  protected:
   std::vector<int> lvglObjectRefs;
-  Window* tempParent = nullptr;
+  LvglWidgetObjectBase* tempParent = nullptr;
 };
 
 class LuaEventHandler
@@ -131,7 +131,7 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
   LuaWidgetFactory* luaFactory() const { return (LuaWidgetFactory*)factory; }
 
-  Window* getCurrentParent() const override { return tempParent ? tempParent : (Window*)this; }
+  Window* getCurrentParent() const override { return (tempParent && tempParent->getWindow()) ? tempParent->getWindow() : (Window*)this; }
 
   bool useLvglLayout() const override;
   bool isAppMode() const override;

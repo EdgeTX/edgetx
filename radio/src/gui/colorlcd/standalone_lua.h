@@ -46,7 +46,7 @@ public:
   bool displayPopup(event_t event, uint8_t type, const char* text,
                     const char* info, bool& result);
 
-  Window* getCurrentParent() const override { return tempParent ? tempParent : (Window*)this; }
+  Window* getCurrentParent() const override { return (tempParent && tempParent->getWindow()) ? tempParent->getWindow() : (Window*)this; }
 
   void clear() override;
   bool useLvglLayout() const override { return useLvgl; }
