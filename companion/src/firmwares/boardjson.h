@@ -119,6 +119,7 @@ class BoardJson
     const int getInputSliderIndex(int index);
     const QString getInputTag(int index) const;
     const int getInputTagOffset(QString tag);
+    const int getInputThrottleIndex();
     const int getInputTypeOffset(Board::AnalogInputType type);
     const int getInputYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getInputYamlName(int index, YamlLookupType ylt) const;

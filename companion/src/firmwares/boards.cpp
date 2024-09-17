@@ -960,6 +960,11 @@ int Boards::getInputTagOffset(QString tag, Board::Type board)
   return getBoardJson(board)->getInputTagOffset(tag);
 }
 
+int Boards::getInputThrottleIndex(Board::Type board)
+{
+  return getBoardJson(board)->getInputThrottleIndex();
+}
+
 int Boards::getInputTypeOffset(Board::AnalogInputType type, Board::Type board)
 {
   return getBoardJson(board)->getInputTypeOffset(type);

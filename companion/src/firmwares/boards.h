@@ -409,6 +409,7 @@ class Boards
     static int getInputSliderIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputTagOffset(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputThrottleIndex(Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputTypeOffset(Board::AnalogInputType type, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);

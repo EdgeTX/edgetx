@@ -338,6 +338,14 @@ const int BoardJson::getInputSliderIndex(int index)
   return -1;
 }
 
+const int BoardJson::getInputThrottleIndex()
+{
+  if (getCapability(Board::Sticks) > 0)
+    return getInputTagOffset(m_inputs, Boards::getCapability(m_board, Board::Air) ? "RV" : "TH");
+
+  return -1;
+}
+
 const int BoardJson::getInputTypeOffset(Board::AnalogInputType type)
 {
   return getInputTypeOffset(m_inputs, type);
