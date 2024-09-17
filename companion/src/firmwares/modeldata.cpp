@@ -1501,7 +1501,7 @@ QString ModelData::thrTraceSrcToString(const int index) const
   const int pscnt = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
 
   if (index == 0)
-    return tr("THR");
+    return Boards::getCapability(board, Board::Air) ? tr("THR") : tr("TH");
   else if (index <= pscnt)
     return Boards::getInputName(index + Boards::getCapability(board, Board::Sticks) - 1, board);
   else if (index <= pscnt + getCurrentFirmware()->getCapability(Outputs))
