@@ -357,6 +357,16 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
+  if (Boards::getCapability(board, Board::LcdWidth) == 128) {
+    addSection(tr("Screen"));
+
+    addLabel(tr("Invert"));
+    AutoCheckBox *screenInvert = new AutoCheckBox(this);
+    screenInvert->setField(generalSettings.invertLCD, this);
+    params->append(screenInvert);
+    addParams();
+  }
+
   addVSpring(grid, 0, grid->rowCount());
   addHSpring(grid, grid->columnCount(), 0);
   disableMouseScrolling();
