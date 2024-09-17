@@ -292,7 +292,6 @@ void RadioSdManagerPage::dirAction(const char* path, const char* name,
 {
   if (strcmp(name, "..") == 0) return;
 
-  auto window = Layer::back();
   auto menu = new Menu();
   menu->addLine(STR_RENAME_FILE, [=]() {
     uint8_t nameLength;
@@ -324,7 +323,6 @@ void RadioSdManagerPage::dirAction(const char* path, const char* name,
 void RadioSdManagerPage::fileAction(const char* path, const char* name,
                                     const char* fullpath)
 {
-  auto window = Layer::back();
   auto menu = new Menu();
   const char* ext = getFileExtension(name);
   if (ext) {

@@ -50,6 +50,7 @@ class LuaLvglManager
   virtual Window* getCurrentParent() const = 0;
   virtual void clear() = 0;
   virtual bool useLvglLayout() const = 0;
+  virtual bool isAppMode() const = 0;
 
   virtual void luaShowError() = 0;
 
@@ -133,6 +134,7 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
   Window* getCurrentParent() const override { return tempParent ? tempParent : (Window*)this; }
 
   bool useLvglLayout() const override;
+  bool isAppMode() const override;
 
   void luaShowError() override {}
 

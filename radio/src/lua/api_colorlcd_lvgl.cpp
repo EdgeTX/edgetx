@@ -253,11 +253,22 @@ static int luaLvglBuild(lua_State *L)
   return 1;
 }
 
+static int luaLvglIsAppMode(lua_State *L)
+{
+  if (luaLvglManager) {
+    lua_pushboolean(L, luaLvglManager->isAppMode());
+  } else {
+    lua_pushboolean(L, false);
+  }
+  return 1;
+}
+
 LROT_BEGIN(lvgllib, NULL, LROT_MASK_GC_INDEX)
 LROT_FUNCENTRY(__gc, luaDestroyLvglWidget)
 LROT_TABENTRY(__index, lvgllib)
 LROT_FUNCENTRY(clear, luaLvglClear)
 LROT_FUNCENTRY(build, luaLvglBuild)
+LROT_FUNCENTRY(isAppMode, luaLvglIsAppMode)
 // Objects - widgets and standalone
 LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
 LROT_FUNCENTRY(rectangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetRectangle(); }); })

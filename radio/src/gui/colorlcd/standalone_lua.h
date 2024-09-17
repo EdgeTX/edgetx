@@ -50,6 +50,7 @@ public:
 
   void clear() override;
   bool useLvglLayout() const override { return useLvgl; }
+  bool isAppMode() const override { return false; }
 
   void luaShowError() override;
 

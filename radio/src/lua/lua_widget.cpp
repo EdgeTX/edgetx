@@ -348,6 +348,24 @@ void LuaWidget::update()
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0)
     setErrorMessage("update()");
 
+  if (useLvglLayout()) {
+    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
+      lv_area_t a;
+      lv_obj_get_coords(lvobj, &a);
+      // Check widget is at least partially visible
+      if (a.x2 >= 0 && a.x1 < LCD_W) {
+        PROTECT_LUA() {
+          if (!callRefs(lsWidgets)) {
+            setErrorMessage("callRefs()");
+          }
+        } else {
+          // TODO: error handling
+        }
+        UNPROTECT_LUA();
+      }
+    }
+  }
+
   luaLvglManager = nullptr;
 }
 
@@ -545,4 +563,9 @@ bool LuaLvglManager::callRefs(lua_State *L)
     lvobj->callRefs(L);
   }
   return rv;
+}
+
+bool LuaWidget::isAppMode() const
+{
+  return fullscreen && ViewMain::instance()->isAppMode();
 }
