@@ -273,91 +273,51 @@ void SimulatedUIWidget::addMouseActions()
                                             SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
 }
 
-//  row  left    lcd    right
-//   0   SYS            MDL
-//   1   PAGEUP         PAGEDN
-//   2   UP             DOWN
-//   3   LEFT           RIGHT
-//   4   MINUS          PLUS
-//   5   EXIT           TELE
-//   6                  ENTER
-//   7   MENU           SHIFT
-
-//  Note: unused rows will be hidden and squashed
-//        keys cannot duplicate those used for scrolling
-
-//  act = new RadioUiAction(KEY_MENU, QList<int>() << Qt::Key_PageUp << Qt::Key_Up, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU_ICN);
-//  act = new RadioUiAction(KEY_MENU, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU);
-//  act = new RadioUiAction(KEY_PLUS, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
-//  act = new RadioUiAction(KEY_MINUS, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
-//  act = new RadioUiAction(KEY_SHIFT, QList<int>() << Qt::Key_S, SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT);
-//  m_scrollUpAction = new RadioUiAction(KEY_PLUS, QList<int>() << Qt::Key_Plus << Qt::Key_Equal << Qt::Key_Left,
-//                                      SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS);
-//  m_scrollDnAction = new RadioUiAction(KEY_MINUS, QList<int>() << Qt::Key_Minus << Qt::Key_Right,
-//                                      SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN);
-//  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
-
-
-//static const QList<GenericKeyDefinition> genericKeyDefinitions = {
-//  { KEY_DOWN,   'R', 2, 0, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
-//  //  note: m_mouseMidClickAction duplicates key
-//  { KEY_ENTER,  'R', 6, 0, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
-//  { KEY_EXIT,   'L', 5, 0, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
-//  { KEY_LEFT,   'L', 3, 0, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
-//  { KEY_MENU,   'L', 7, 0, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU);
-//  //  note: keypress can be flipped to scrollUpaction keys
-//  { KEY_MINUS,  'L', 4, 0, QList<int>() << Qt::Key_Minus << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN);
-//  { KEY_MODEL,  'R', 0, 0, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
-//  { KEY_PAGEDN, 'R', 1, 0, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
-//  { KEY_PAGEUP, 'L', 1, 0, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP },
-//  //  note: keypress can be flipped to scrollDnAction keys
-//  { KEY_PLUS,   'R', 4, 0, QList<int>() << Qt::Key_Plus << Qt::Key_Equal << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS);
-//  { KEY_RIGHT,  'R', 3, 0, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
-//  { KEY_SHIFT,  'R', 7, 0, QList<int>() << Qt::Key_S, SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT },
-//  { KEY_SYS,    'L', 0, 0, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
-//  { KEY_TELE,   'R', 5, 0, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
-//  { KEY_UP,     'L', 2, 0, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP }
-//};
-
+//  Notes: unused rows will be hidden and squashed
+//         keys cannot duplicate those used for scrolling tefer m_mouseMidClickAction
 static const QList<GenericKeyDefinition> genericKeyDefinitions = {
-  { KEY_DOWN,   'R', 2, 1, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
-  //  note: m_mouseMidClickAction duplicates key
-  { KEY_ENTER,  'R', 6, 1, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
-  { KEY_EXIT,   'R', 5, 0, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
-  { KEY_LEFT,   'R', 3, 0, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
-  { KEY_MENU,   'R', 7, 0, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU },
-  //  note: keypress can be flipped to scrollUpaction keys
-  { KEY_MINUS,  'R', 4, 0, QList<int>() << Qt::Key_Minus << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN },
-  { KEY_MODEL,  'R', 0, 1, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
-  { KEY_PAGEDN, 'R', 1, 1, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
-  { KEY_PAGEUP, 'R', 1, 0, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP },
-  //  note: keypress can be flipped to scrollDnAction keys
-  { KEY_PLUS,   'R', 4, 1, QList<int>() << Qt::Key_Plus << Qt::Key_Equal << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS },
-  { KEY_RIGHT,  'R', 3, 1, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
-  { KEY_SHIFT,  'R', 7, 1, QList<int>() << Qt::Key_S, SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT },
-  { KEY_SYS,    'R', 0, 0, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
-  { KEY_TELE,   'R', 5, 1, QList<int>() << Qt::Key_Right, SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
-  { KEY_UP,     'R', 2, 0, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP }
+  { KEY_SYS,    'R', 0, 0, QList<int>() << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
+
+  { KEY_MODEL,  'R', 0, 1, QList<int>() << Qt::Key_Up,        SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
+
+  { KEY_PAGEUP, 'R', 1, 0, QList<int>() << Qt::Key_PageUp,    SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP },
+
+  { KEY_PAGEDN, 'R', 1, 1, QList<int>() << Qt::Key_PageDown,  SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
+
+  { KEY_UP,     'R', 2, 0, QList<int>() << Qt::Key_Up
+                                        << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP },
+
+  { KEY_DOWN,   'R', 2, 1, QList<int>() << Qt::Key_Down
+                                        << Qt::Key_PageDown,  SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
+
+  { KEY_LEFT,   'R', 3, 0, QList<int>() << Qt::Key_Left
+                                        << Qt::Key_Minus,     SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
+
+  { KEY_RIGHT,  'R', 3, 1, QList<int>() << Qt::Key_Right
+                                        << Qt::Key_Plus,      SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
+
+  { KEY_MINUS,  'R', 4, 0, QList<int>() << Qt::Key_Minus
+                                        << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN },
+
+  { KEY_PLUS,   'R', 4, 1, QList<int>() << Qt::Key_Plus
+                                        << Qt::Key_Equal
+                                        << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS },
+
+  { KEY_TELE,   'R', 5, 1, QList<int>() << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
+
+  { KEY_MENU,   'R', 6, 0, QList<int>() << Qt::Key_Up
+                                        << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU },
+
+  { KEY_SHIFT,  'R', 6, 1, QList<int>() << Qt::Key_S,         SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT },
+
+  { KEY_EXIT,   'R', 7, 0, QList<int>() << Qt::Key_Down
+                                        << Qt::Key_Delete
+                                        << Qt::Key_Escape
+                                        << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
+
+  { KEY_ENTER,  'R', 7, 1, QList<int>() << Qt::Key_Enter
+                                        << Qt::Key_Return,    SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
 };
-
-
-// Key styles
-// 0 - split either side of lcd 1 column
-// 1 - left 1 column
-// 2 - left 2 columns
-// 3 - right 1 column
-// 4 - right 2 columns
-
-// key index
-// sequence
-// column 0 = left 1 = right (not used if single column style)
-// static const QList<QList<int>> keyposn = {
-//  { KEY_SYS, 0, 0 },
-//  { KEY_MODEL, 1, 1 }
-// };
-
-// would need to load up all hw keys then sort based on style and sequence
-
 
 void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
 {
