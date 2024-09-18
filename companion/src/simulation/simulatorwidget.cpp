@@ -839,7 +839,7 @@ void SimulatorWidget::onSimulatorError(const QString & error)
 
 void SimulatorWidget::onPhaseChanged(qint32 phase, const QString & name)
 {
-  setWindowTitle(windowName + tr(" - Flight Mode %1 (#%2)").arg(name).arg(phase));
+  setWindowTitle(windowName + QString(" - %1 %2 (#%3)").arg(Boards::getCapability(m_board, Board::Air) ? tr("Flight Mode") : tr("Drive Mode")).arg(name).arg(phase));
 }
 
 void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value)

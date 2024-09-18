@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>OpenTx Simulator</string>
+   <string>EdgeTX Simulator</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../companion.qrc">
@@ -37,7 +37,7 @@
      <x>0</x>
      <y>0</y>
      <width>644</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
