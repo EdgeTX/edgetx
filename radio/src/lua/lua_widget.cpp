@@ -236,6 +236,11 @@ void LuaWidget::checkEvents()
 {
   Widget::checkEvents();
 
+  if (closeFS) {
+    closeFS = false;
+    setFullscreen(false);
+  }
+
   // paint has not been called
   if (!refreshed) {
     background();

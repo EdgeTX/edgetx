@@ -92,6 +92,7 @@ class Widget : public Button
 
     // Set/unset fullscreen mode
     void setFullscreen(bool enable);
+    void closeFullscreen() { closeFS = true; }
 
     // Disable setting fullscreen mode
     void disableFullscreen();
@@ -115,6 +116,7 @@ class Widget : public Button
     uint32_t focusGainedTS = 0;
     bool fullscreen = false;
     bool fsAllowed = true;
+    bool closeFS = false;
 
     void onCancel() override;
     void onLongPress() override;

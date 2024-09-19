@@ -1412,11 +1412,8 @@ Exit full screen widget mode.
 */
 static int luaLcdExitFullScreen(lua_State *L)
 {
-  if (runningFS) {
-    Widget* rfs = runningFS;
-    runningFS = nullptr;
-    rfs->setFullscreen(false);
-  }
+  if (runningFS)
+    runningFS->closeFullscreen();
   return 0;
 }
 
