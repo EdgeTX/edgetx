@@ -114,13 +114,18 @@ void boardInit()
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
-#if defined(USB_CHARGE_LED) && !defined(DEBUG_DISABLE_USB)
+#if defined(USB_CHARGE_LED) && !defined(DEBUG)
   usbInit();
   // prime debounce state...
   usbPlugged();
 
   if (usbPlugged()) {
     delaysInit();
+#if defined(AUDIO_MUTE_GPIO)
+     // Charging can make a buzzing noise
+     gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+     gpio_set(AUDIO_MUTE_GPIO);
+ #endif
     while (usbPlugged()) {
       delay_ms(1000);
     }
