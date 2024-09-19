@@ -1230,25 +1230,25 @@
 // End Main menu
 
 // Voice in native language
-#define TR_VOICE_ENGLISH                "Английский"
-#define TR_VOICE_CHINESE                "Китайский"
+#define TR_VOICE_ENGLISH                TR("Англ","Английский")
+#define TR_VOICE_CHINESE                TR("Китайс","Китайский")
 #define TR_VOICE_CZECH                  "Чешский"
 #define TR_VOICE_DANISH                 "Датский"
-#define TR_VOICE_DEUTSCH                "Немецкий"
-#define TR_VOICE_DUTCH                  "Голландский"
-#define TR_VOICE_ESPANOL                "Испанский"
-#define TR_VOICE_FRANCAIS               "Французский"
-#define TR_VOICE_HUNGARIAN              "Венгерский"
-#define TR_VOICE_ITALIANO               "Итальянский"
-#define TR_VOICE_POLISH                 "Польский"
-#define TR_VOICE_PORTUGUES              "Португальск"
+#define TR_VOICE_DEUTSCH                TR("Немец","Немецкий")
+#define TR_VOICE_DUTCH                  TR("Голланд","Голландский")
+#define TR_VOICE_ESPANOL                TR("Испанс","Испанский")
+#define TR_VOICE_FRANCAIS               TR("Францу","Французский")
+#define TR_VOICE_HUNGARIAN              TR("Венгер","Венгерский")
+#define TR_VOICE_ITALIANO               TR("Итальян","Итальянский")
+#define TR_VOICE_POLISH                 TR("Польск","Польский")
+#define TR_VOICE_PORTUGUES              TR("Порту","Португальск")
 #define TR_VOICE_RUSSIAN                "Русский"
-#define TR_VOICE_SLOVAK                 "Словацкий"
+#define TR_VOICE_SLOVAK                 TR("Словацк","Словацкий")
 #define TR_VOICE_SWEDISH                "Шведский"
-#define TR_VOICE_TAIWANESE              "Тайваньский"
+#define TR_VOICE_TAIWANESE              TR("Тайван","Тайваньский")
 #define TR_VOICE_JAPANESE               "Японский"
 #define TR_VOICE_HEBREW                 "Иврит"
-#define TR_VOICE_UKRAINIAN              "Украинский"
+#define TR_VOICE_UKRAINIAN              TR("Украинс","Украинский")
 
 #define TR_USBJOYSTICK_LABEL           "USB Джойс"
 #define TR_USBJOYSTICK_EXTMODE         "Режим"
