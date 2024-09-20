@@ -268,9 +268,9 @@
 // 6POS SW
 #if defined(RADIO_V16)
   #define SIXPOS_SWITCH_INDEX             5
-  #define SIXPOS_LED_RED                255
-  #define SIXPOS_LED_GREEN              255
-  #define SIXPOS_LED_BLUE               255
+  #define SIXPOS_LED_RED                200
+  #define SIXPOS_LED_GREEN              200
+  #define SIXPOS_LED_BLUE               200
 #endif
 
 // Trims
@@ -565,7 +565,7 @@
 #elif defined(RADIO_TX16S) || defined(RADIO_F16)
   #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
 #elif defined(RADIO_V16)
-  #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
+  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,   -1,1,1,1,  -1,1 }
 #elif defined(PCBX10)
   #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,-1,1,1,   1,-1 }
 #elif defined(PCBX12S)
@@ -1148,6 +1148,25 @@
   #define INTMODULE_HEARTBEAT_TRIGGER           GPIO_FALLING
 #else
   #define INTMODULE_HEARTBEAT_TRIGGER           GPIO_RISING
+#endif
+
+#if defined(RADIO_V16)
+//Ext MODULE CURRENT ALERT TRIGGER
+#define EXTALERT_TRIGGER
+#define EXTALERT_TRIGGER_RCC_AHB1Periph      RCC_AHB1Periph_GPIOI
+#define EXTALERT_TRIGGER_GPIO                GPIOI
+#define EXTALERT_TRIGGER_GPIO_PIN            LL_GPIO_PIN_0  // PI.0 
+#define EXTALERT_TRIGGER_EXTI_PORT           LL_SYSCFG_EXTI_PORTI
+#define EXTALERT_TRIGGER_EXTI_SYS_LINE       LL_SYSCFG_EXTI_LINE0
+#define EXTALERT_TRIGGER_EXTI_LINE           LL_EXTI_LINE_0
+
+#if !defined(USE_EXTI0_IRQ)
+  #define USE_EXTI0_IRQ
+  #define EXTI0_IRQ_Priority  9
+#endif
+
+#define EXTALERT_PIN()    GPIO_ReadOutputDataBit(EXTALERT_HEARTBEAT_GPIO, EXTALERT_HEARTBEAT_GPIO_PIN)
+
 #endif
 
 // Trainer Port

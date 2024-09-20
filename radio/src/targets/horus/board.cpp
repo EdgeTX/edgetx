@@ -83,12 +83,16 @@ void boardBLInit()
 #include "edgetx.h"
 
 #if defined(SIXPOS_SWITCH_INDEX)
+
 uint8_t lastADCState = 0;
 uint8_t sixPosState = 0;
 bool dirty = true;
+
 uint16_t getSixPosAnalogValue(uint16_t adcValue)
 {
   uint8_t currentADCState = 0;
+  static uint16_t stepct=0;
+
   if (adcValue > 3800)
     currentADCState = 6;
   else if (adcValue > 3100)
@@ -101,20 +105,29 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
     currentADCState = 2;
   else if (adcValue > 400)
     currentADCState = 1;
+  else
+    currentADCState = 0;
+
   if (lastADCState != currentADCState) {
-    lastADCState = currentADCState;
-  } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
+    if(++stepct==4){
+      lastADCState = currentADCState;
+    }
+  } 
+  else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
     sixPosState = lastADCState - 1;
     dirty = true;
+    stepct=0;
   }
   if (dirty) {
     for (uint8_t i = 0; i < 6; i++) {
       if (i == sixPosState)
-        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
+        ws2812_set_color(i, SIXPOS_LED_RED, 0, 0);
+       // ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       else
         ws2812_set_color(i, 0, 0, 0);
     }
     ws2812_update(&_led_timer);
+    dirty = false;
   }
   return (4096/5)*(sixPosState);
 }
@@ -127,18 +140,13 @@ void boardInit()
   board_set_bor_level();
 #endif
 
-#if defined(FUNCTION_SWITCHES) && !defined(DEBUG)
+#if defined(FUNCTION_SWITCHES) && !defined(DEBUG_DISABLE_USB)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...
    usbPlugged();
    if (usbPlugged()) {
      delaysInit();
- #if defined(AUDIO_MUTE_GPIO)
-     // Charging can make a buzzing noise
-     gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-     gpio_set(AUDIO_MUTE_GPIO);
- #endif
      while (usbPlugged()) {
        delay_ms(1000);
      }

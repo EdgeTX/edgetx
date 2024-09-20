@@ -103,6 +103,9 @@ static inline void _interrupt_1ms()
 
     per10ms();
   }
+#if defined(RADIO_V16)  
+  per1ms();
+#endif
 }
 
 extern "C" void MS_TIMER_IRQHandler()
