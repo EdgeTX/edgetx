@@ -93,8 +93,12 @@ VirtualJoystickWidget::VirtualJoystickWidget(QWidget *parent, QChar side, bool s
     hTrimWidget = createTrimWidget('H');
     vTrimWidget = createTrimWidget('V');
 
-    if (isBoardSurface)
-      vTrimWidget->hide();
+    if (isBoardSurface) {
+      if (stickSide == 'L')
+        vTrimWidget->hide();
+      else
+        vTrimWidget->hide();
+    }
 
     layout->addWidget(vTrimWidget, 1, colvt, 1, 1);
     layout->addWidget(hTrimWidget, 2, 2, 1, 1);
@@ -114,9 +118,16 @@ VirtualJoystickWidget::VirtualJoystickWidget(QWidget *parent, QChar side, bool s
     btnbox->addWidget(btnFixX = createButtonWidget(FIX_X));
     btnbox->addWidget(btnHoldX = createButtonWidget(HOLD_X));
     if (isBoardSurface) {
-      btnHoldY->hide();
-      btnFixY->hide();
-      btnFixX->hide();
+      if (stickSide == 'L') {
+        btnHoldX->hide();
+        btnFixY->hide();
+        btnFixX->hide();
+      }
+      else {
+        btnHoldY->hide();
+        btnFixY->hide();
+        btnFixX->hide();
+      }
     }
 
     layout->addLayout(btnbox, 1, colbb, 1, 1);
@@ -182,9 +193,9 @@ void VirtualJoystickWidget::setStickAxisValue(int index, int value)
 
   if (isBoardSurface) {
     switch (index) {
-      case STICK_AXIS_SURFACE_LH :
+      case STICK_AXIS_SURFACE_LV :
         if (stickSide == 'L')
-          setStickX(rvalue);
+          setStickY(rvalue);
         break;
       case STICK_AXIS_SURFACE_RH :
         if (stickSide == 'R')
@@ -322,8 +333,18 @@ void VirtualJoystickWidget::setStickColor(const QColor & color)
 
 void VirtualJoystickWidget::loadDefaultsForMode(const unsigned mode)
 {
-  if (isBoardSurface)
-    setStickConstraint(FIX_Y, true);
+  if (isBoardSurface) {
+    if (stickSide == 'L') {
+      setStickX(0.0);
+      setStickConstraint(FIX_X, true);
+      onNodeXChanged();
+    }
+    else {
+      setStickY(0.0);
+      setStickConstraint(FIX_Y, true);
+      onNodeYChanged();
+    }
+  }
   else {
     if (((mode & 1) && stickSide == 'L') || (!(mode & 1) && stickSide == 'R')) {
       setStickConstraint(HOLD_Y, true);
@@ -427,22 +448,22 @@ QToolButton * VirtualJoystickWidget::createButtonWidget(int type)
   switch (type) {
     case HOLD_Y:
       btnLabel = tr("Hld Y");
-      tooltip = tr("Hold Vertical stick position.");
+      tooltip = tr("Hold Vertical position.");
       icon = Simulator::SimulatorIcon("hold_y");
       break;
     case FIX_Y:
       btnLabel = tr("Fix Y");
-      tooltip = tr("Prevent Vertical movement of stick.");
+      tooltip = tr("Prevent Vertical movement.");
       icon = Simulator::SimulatorIcon("fixed_y");
       break;
     case FIX_X:
       btnLabel = tr("Fix X");
-      tooltip = tr("Prevent Horizontal movement of stick.");
+      tooltip = tr("Prevent Horizontal movement.");
       icon = Simulator::SimulatorIcon("fixed_x");
       break;
     case HOLD_X:
       btnLabel = tr("Hld X");
-      tooltip = tr("Hold Horizontal stick position.");
+      tooltip = tr("Hold Horizontal position.");
       icon = Simulator::SimulatorIcon("hold_x");
       break;
     default:
@@ -472,11 +493,7 @@ QLayout *VirtualJoystickWidget::createNodeValueLayout(QChar type, QLabel *& valL
   val->setObjectName(QString("val_%1").arg(type));
   val->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   val->setAlignment(Qt::AlignCenter);
-#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-  val->setMinimumWidth(val->fontMetrics().width("-100 "));
-#else
   val->setMinimumWidth(val->fontMetrics().horizontalAdvance("-100 "));
-#endif
   QVBoxLayout * layout = new QVBoxLayout();
   layout->setContentsMargins(2, 2, 2, 2);
   layout->setSpacing(2);
@@ -494,9 +511,9 @@ int VirtualJoystickWidget::getStickIndex(QChar type)
   if (isBoardSurface) {
     if (stickSide == 'L') {
       if (type == 'H')
-        return STICK_AXIS_SURFACE_LH;
+        return STICK_AXIS_SURFACE_LV;
       else
-        return STICK_AXIS_SURFACE_LH;
+        return STICK_AXIS_SURFACE_LV;
     }
     else {
       if (type == 'H')

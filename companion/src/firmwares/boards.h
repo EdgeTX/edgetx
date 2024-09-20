@@ -163,13 +163,13 @@ namespace Board {
 
   enum StickAxesSurface {
     STICK_AXIS_SURFACE_RH = 0, // Steering
-    STICK_AXIS_SURFACE_LH,     // Throttle
+    STICK_AXIS_SURFACE_LV,     // Throttle
     STICK_AXIS_SURFACE_COUNT
   };
 
   enum TrimAxesSurface {
     TRIM_AXIS_SURFACE_RH = 0,
-    TRIM_AXIS_SURFACE_LH,
+    TRIM_AXIS_SURFACE_LH, // Throttle axis vertical but its trim horizontal in lcd
     TRIM_AXIS_SURFACE_T3,
     TRIM_AXIS_SURFACE_T4,
     TRIM_AXIS_SURFACE_T5,
@@ -183,8 +183,8 @@ namespace Board {
   {
     TRIM_SW_SURFACE_RH_DEC,
     TRIM_SW_SURFACE_RH_INC,
-    TRIM_SW_SURFACE_LH_DEC,
-    TRIM_SW_SURFACE_LH_INC,
+    TRIM_SW_SURFACE_LH_DEC, // Throttle axis vertical but its trim horizontal in lcd
+    TRIM_SW_SURFACE_LH_INC, // Throttle axis vertical but its trim horizontal in lcd
     TRIM_SW_SURFACE_T3_DEC,
     TRIM_SW_SURFACE_T3_INC,
     TRIM_SW_SURFACE_T4_DEC,
