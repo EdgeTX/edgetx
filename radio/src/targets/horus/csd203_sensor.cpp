@@ -203,6 +203,7 @@ bool CSD203MainInitFlag = false;
 bool CSD203InInitFlag = false;
 bool CSD203ExtInitFlag = false;
 
+//Seize IIC and avoid conflicts during IIC operations
 bool IICReadStatusFlag = false;
 
 bool IICReadWriteStatusFlag = false;

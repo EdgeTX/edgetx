@@ -83,15 +83,21 @@ void boardBLInit()
 #include "edgetx.h"
 
 #if defined(SIXPOS_SWITCH_INDEX)
-
 uint8_t lastADCState = 0;
 uint8_t sixPosState = 0;
+uint16_t adcValueold = 0;
+uint16_t posstatus = 0;
 bool dirty = true;
 
 uint16_t getSixPosAnalogValue(uint16_t adcValue)
 {
   uint8_t currentADCState = 0;
-  static uint16_t stepct=0;
+  uint16_t adc = 0;
+
+  if(++posstatus<6){
+    return (4096/5)*(sixPosState);
+  }
+  posstatus=0;
 
   if (adcValue > 3800)
     currentADCState = 6;
@@ -105,24 +111,24 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
     currentADCState = 2;
   else if (adcValue > 400)
     currentADCState = 1;
-  else
-    currentADCState = 0;
 
-  if (lastADCState != currentADCState) {
-    if(++stepct==4){
-      lastADCState = currentADCState;
-    }
+  if(adcValueold>adcValue)adc=adcValueold-adcValue;
+  else adc=adcValue-adcValueold;
+  if(adc>10){
+    adcValueold=adcValue;
+    currentADCState=0;
+  }
+  if (lastADCState != currentADCState&&currentADCState!=0) {
+    lastADCState = currentADCState;
   } 
   else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
     sixPosState = lastADCState - 1;
     dirty = true;
-    stepct=0;
   }
   if (dirty) {
     for (uint8_t i = 0; i < 6; i++) {
       if (i == sixPosState)
         ws2812_set_color(i, SIXPOS_LED_RED, 0, 0);
-       // ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
       else
         ws2812_set_color(i, 0, 0, 0);
     }
