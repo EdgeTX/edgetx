@@ -681,10 +681,26 @@ void VirtualJoystickWidget::onButtonChange(bool checked)
 
 void VirtualJoystickWidget::updateNodeValueLabels()
 {
-  if (nodeLabelX)
-    nodeLabelX->setText(QString("%1").arg(getStickX() * 100.0f, 2, 'f', 0));
-  if (nodeLabelY)
-    nodeLabelY->setText(QString("%1").arg(getStickY() * 100.0f, 2, 'f', 0));
+  if (isBoardSurface) {
+    if (nodeLabelX) {
+      if (stickSide == 'L')
+        nodeLabelX->setText(QString("%1").arg(0));  // workaround for resize event and no analog mapped to set
+      else
+        nodeLabelX->setText(QString("%1").arg(getStickX() * 100.0f, 2, 'f', 0));
+    }
+    if (nodeLabelY) {
+      if (stickSide == 'L')
+        nodeLabelY->setText(QString("%1").arg(getStickY() * 100.0f, 2, 'f', 0));
+      else
+        nodeLabelY->setText(QString("%1").arg(0));  // workaround for resize event and no analog mapped to set
+    }
+  }
+  else {
+    if (nodeLabelX)
+      nodeLabelX->setText(QString("%1").arg(getStickX() * 100.0f, 2, 'f', 0));
+    if (nodeLabelY)
+      nodeLabelY->setText(QString("%1").arg(getStickY() * 100.0f, 2, 'f', 0));
+  }
 }
 
 void VirtualJoystickWidget::onGsMouseEvent(QGraphicsSceneMouseEvent * event)
