@@ -79,19 +79,20 @@ uint8_t createCrossfirePingFrame(uint8_t moduleIdx, uint8_t * frame)
   return buf - frame;
 }
 
-uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
+uint8_t createCrossfireModelIDFrameExt(uint8_t moduleIdx, uint8_t * frame, uint8_t extData)
 {
   uint8_t * buf = frame;
   *buf++ = UART_SYNC;                                 /* device address */
-  *buf++ = 8;                                         /* frame length */
+  *buf++ = 9;                                         /* frame length */
   *buf++ = COMMAND_ID;                                /* cmd type */
   *buf++ = MODULE_ADDRESS;                            /* Destination Address */
   *buf++ = RADIO_ADDRESS;                             /* Origin Address */
   *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
-  *buf++ = COMMAND_MODEL_SELECT_ID;                   /* command of set model/receiver id */
+  *buf++ = COMMAND_MODEL_SELECT_ID_EXT;               /* command of set model/receiver id */
   *buf++ = g_model.header.modelId[moduleIdx];         /* model ID */
-  *buf++ = crc8_BA(frame + 2, 6);
-  *buf++ = crc8(frame + 2, 7);
+  *buf++ = extData;                                   /* 8 bit extended data*/
+  *buf++ = crc8_BA(frame + 2, 7);
+  *buf++ = crc8(frame + 2, 8);
   return buf - frame;
 }
 
@@ -171,13 +172,13 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
         if(moduleAlive[module] == false) {                              // if the module was dead and came back to live, e.g. reset
           moduleAlive[module] = true;                                   // declare the module as alive
           moduleState[module].counter = CRSF_FRAME_MODELID;             // and send it the modelID again 
-          TRACE("[XF] sending ModelID after module reset");
+          TRACE("[XF] sending ModelID %d after module reset", g_model.header.modelId[module]);
         }
       }
     }
 
     if (moduleState[module].counter == CRSF_FRAME_MODELID) {
-      p_buf += createCrossfireModelIDFrame(module, p_buf);
+      p_buf += createCrossfireModelIDFrameExt(module, p_buf, 0);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
     } else if (moduleState[module].counter == CRSF_FRAME_MODELID_SENT && crossfireModuleStatus[module].queryCompleted == false) {
       p_buf += createCrossfirePingFrame(module, p_buf);

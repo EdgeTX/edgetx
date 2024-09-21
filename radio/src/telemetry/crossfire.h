@@ -50,7 +50,8 @@
 #define UART_SYNC                      0xC8
 #define SUBCOMMAND_CRSF                0x10
 #define COMMAND_MODEL_SELECT_ID        0x05
-#define COMMAND_ARM                    0x06
+#define COMMAND_MODEL_SELECT_ID_EXT    0x06
+#define COMMAND_ARM                    0x07
 #define SUBCOMMAND_CRSF_BIND           0x01
 
 constexpr uint8_t CRSF_NAME_MAXSIZE = 16;
@@ -119,8 +120,6 @@ extern CrossfireModuleStatus crossfireModuleStatus[2];
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
 void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
-
-uint8_t createCrossfireModelIDFrame(uint8_t* frame);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
   115200,
