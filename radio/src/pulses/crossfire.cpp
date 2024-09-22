@@ -79,6 +79,22 @@ uint8_t createCrossfirePingFrame(uint8_t moduleIdx, uint8_t * frame)
   return buf - frame;
 }
 
+uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  uint8_t * buf = frame;
+  *buf++ = UART_SYNC;                                 /* device address */
+  *buf++ = 8;                                         /* frame length */
+  *buf++ = COMMAND_ID;                                /* cmd type */
+  *buf++ = MODULE_ADDRESS;                            /* Destination Address */
+  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
+  *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
+  *buf++ = COMMAND_MODEL_SELECT_ID;                   /* command of set model/receiver id */
+  *buf++ = g_model.header.modelId[moduleIdx];         /* model ID */
+  *buf++ = crc8_BA(frame + 2, 6);
+  *buf++ = crc8(frame + 2, 7);
+  return buf - frame;
+}
+
 uint8_t createCrossfireModelIDFrameExt(uint8_t moduleIdx, uint8_t * frame, uint8_t extData)
 {
   uint8_t * buf = frame;
@@ -136,6 +152,27 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
   return buf - frame;
 }
 
+static bool SFArmDefinded() {
+  if (modelSFEnabled()) {
+    for(uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++)
+      if(CFN_FUNC(&g_model.customFn[i]) == FUNC_ARM) {
+        TRACE("SF ARM found in models");
+        return true;
+      }
+  }
+
+  if (radioGFEnabled()) {
+    for(uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++)
+      if(CFN_FUNC(&g_eeGeneral.customFn[i]) == FUNC_ARM) {
+        TRACE("SF ARM found in radio");
+        return true;
+      }
+  }
+
+  TRACE("SF ARM not found");
+  return false;
+}
+
 static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
                                  uint8_t endpoint, int16_t* channels,
                                  uint8_t nChannels)
@@ -172,13 +209,19 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
         if(moduleAlive[module] == false) {                              // if the module was dead and came back to live, e.g. reset
           moduleAlive[module] = true;                                   // declare the module as alive
           moduleState[module].counter = CRSF_FRAME_MODELID;             // and send it the modelID again 
-          TRACE("[XF] sending ModelID %d after module reset", g_model.header.modelId[module]);
         }
       }
     }
 
     if (moduleState[module].counter == CRSF_FRAME_MODELID) {
-      p_buf += createCrossfireModelIDFrameExt(module, p_buf, 0);
+      if (SFArmDefinded()) {
+        TRACE("[XF] sending ext ModelID %d", g_model.header.modelId[module]);
+        p_buf += createCrossfireModelIDFrameExt(module, p_buf, 0);
+      } else {
+        TRACE("[XF] sending ModelID %d", g_model.header.modelId[module]);
+        p_buf += createCrossfireModelIDFrame(module, p_buf);
+      }
+
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
     } else if (moduleState[module].counter == CRSF_FRAME_MODELID_SENT && crossfireModuleStatus[module].queryCompleted == false) {
       p_buf += createCrossfirePingFrame(module, p_buf);

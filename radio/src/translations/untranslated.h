@@ -108,7 +108,7 @@
 #endif
 
 // ELRS SF ARM
-#define STR_SF_ARM                           "Arm";
+#define STR_SF_ARM                           "Arm - min FW V4!"
 
 // Telemetry sensor name definitions
 #define STR_SENSOR_RSSI                      "RSSI"
