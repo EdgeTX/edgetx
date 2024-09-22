@@ -31,6 +31,42 @@
 
 //-----------------------------------------------------------------------------
 
+static int pcallcont (lua_State *L) {
+  int status = lua_getctx(L, NULL);
+  return status == LUA_OK;
+}
+
+static bool pcallFunc(lua_State *L, int funcRef, int nretval)
+{
+  if (funcRef != LUA_REFNIL) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
+    return lua_pcallk(L, 0, nretval, 0, 0, pcallcont) == LUA_OK;
+  }
+  return false;
+}
+
+static bool pcallFuncWithInt(lua_State *L, int funcRef, int nretval, int val)
+{
+  if (funcRef != LUA_REFNIL) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
+    lua_pushinteger(L, val);
+    return lua_pcallk(L, 1, nretval, 0, 0, pcallcont) == LUA_OK;
+  }
+  return false;
+}
+
+static bool pcallFuncWithString(lua_State *L, int funcRef, int nretval, const char* val)
+{
+  if (funcRef != LUA_REFNIL) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
+    lua_pushstring(L, val);
+    return lua_pcallk(L, 1, nretval, 0, 0, pcallcont) == LUA_OK;
+  }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+
 LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index)
 {
   LvglWidgetObjectBase **p;
@@ -84,15 +120,6 @@ void LvglWidgetObjectBase::getParams(lua_State *L, int index)
     // Replace value on Lua stack if consumed by parseParam
     if (top != lua_gettop(L)) lua_pushnil(L);
   }
-}
-
-bool LvglWidgetObjectBase::pcallFunc(lua_State *L, int getFuncRef, int nretval)
-{
-  if (getFuncRef != LUA_REFNIL) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, getFuncRef);
-    return lua_pcall(L, 0, nretval, 0) == 0;
-  }
-  return false;
 }
 
 void LvglWidgetObjectBase::pcallSimpleFunc(lua_State *L, int funcRef)
@@ -186,10 +213,7 @@ void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
     int t = lua_gettop(L);
     PROTECT_LUA()
     {
-      lua_rawgeti(L, LUA_REGISTRYINDEX, setFuncRef);
-      lua_pushinteger(L, val);
-      bool rv = lua_pcall(L, 1, 0, 0) == 0;
-      if (!rv) {
+      if (!pcallFuncWithInt(L, setFuncRef, 0, val)) {
         lvglManager->luaShowError();
       }
     }
@@ -1242,10 +1266,7 @@ void LvglWidgetTextEdit::build(lua_State *L)
                             int t = lua_gettop(L);
                             PROTECT_LUA()
                             {
-                              lua_rawgeti(L, LUA_REGISTRYINDEX, setFunction);
-                              lua_pushstring(L, value);
-                              bool rv = lua_pcall(L, 1, 0, 0) == 0;
-                              if (!rv) {
+                              if (!pcallFuncWithString(L, setFunction, 0, value)) {
                                 lvglManager->luaShowError();
                               }
                             }
@@ -1299,10 +1320,7 @@ void LvglWidgetNumberEdit::build(lua_State *L)
       int t = lua_gettop(L);
       PROTECT_LUA()
       {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, dispFunction);
-        lua_pushinteger(L, val);
-        bool rv = lua_pcall(L, 1, 1, 0) == 0;
-        if (rv) {
+        if (pcallFuncWithInt(L, dispFunction, 1, val)) {
           s = luaL_checkstring(L, -1);
         } else {
           lvglManager->luaShowError();

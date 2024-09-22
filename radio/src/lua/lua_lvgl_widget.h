@@ -78,7 +78,6 @@ class LvglWidgetObjectBase
 
   void clearRef(lua_State *L, int& ref);
 
-  bool pcallFunc(lua_State *L, int getFuncRef, int nret);
   void pcallSimpleFunc(lua_State *L, int funcRef);
   bool pcallUpdateBool(lua_State *L, int getFuncRef,
                        std::function<void(bool)> update);
