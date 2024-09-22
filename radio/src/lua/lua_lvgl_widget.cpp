@@ -266,10 +266,11 @@ void LvglWidgetObjectBase::saveLvglObjectRef(int ref)
   lvglObjectRefs.push_back(ref);
 }
 
-void LvglWidgetObjectBase::clearRef(lua_State *L, int ref)
+void LvglWidgetObjectBase::clearRef(lua_State *L, int& ref)
 {
-  if (ref && ref != LUA_REFNIL)
+  if (ref != LUA_REFNIL)
     luaL_unref(L, LUA_REGISTRYINDEX, ref);
+  ref = LUA_REFNIL;
 }
 
 void LvglWidgetObjectBase::clearChildRefs(lua_State *L)
@@ -715,8 +716,10 @@ next1:
       else t2x += signx2;
     }
 next2:
-    if (minx > t1x) minx = t1x; if(minx > t2x) minx = t2x;
-    if (maxx < t1x) maxx = t1x; if(maxx < t2x) maxx = t2x;
+    if (minx > t1x) minx = t1x;
+    if (minx > t2x) minx = t2x;
+    if (maxx < t1x) maxx = t1x;
+    if (maxx < t2x) maxx = t2x;
     fillLine(minx, maxx, y); // Draw line from min to max points found on the y
     // Now increase y
     if (!changed1) t1x += signx1;
@@ -768,8 +771,10 @@ next3:
       else t2x += signx2;
     }
 next4:
-    if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
-    if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+    if (minx > t1x) minx = t1x;
+    if (minx > t2x) minx = t2x;
+    if (maxx < t1x) maxx = t1x;
+    if (maxx < t2x) maxx = t2x;
     fillLine(minx, maxx, y); // Draw line from min to max points found on the y
     // Now increase y
     if (!changed1) t1x += signx1;
@@ -1443,8 +1448,8 @@ void LvglWidgetPage::build(lua_State *L)
 class LvglDialog : public BaseDialog
 {
  public:
-  LvglDialog(std::string& title, coord_t w, coord_t h, std::function<void()> onClose) :
-    BaseDialog(title.empty() ? nullptr : title.c_str(), true, w, h),
+  LvglDialog(const char* title, coord_t w, coord_t h, std::function<void()> onClose) :
+    BaseDialog(title, true, w, h),
     onClose(std::move(onClose))
   {
     form->setHeight(h - EdgeTxStyles::UI_ELEMENT_HEIGHT);
@@ -1605,7 +1610,7 @@ void LvglWidgetAlignPicker::build(lua_State *L)
   window = new Choice(
       lvglManager->getCurrentParent(), {x, y, w, h}, STR_ALIGN_OPTS, 0, ALIGN_COUNT - 1,
       [=]() -> int {
-        auto v = pcallGetIntVal(L, getFunction);
+        auto v = (LcdFlags)pcallGetIntVal(L, getFunction);
         for (size_t i = 0; i < DIM(alignments); i += 1)
           if (alignments[i] == v) return i;
         return 0;

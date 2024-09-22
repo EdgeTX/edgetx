@@ -76,7 +76,7 @@ class LvglWidgetObjectBase
 
   virtual void parseParam(lua_State *L, const char *key);
 
-  void clearRef(lua_State *L, int ref);
+  void clearRef(lua_State *L, int& ref);
 
   bool pcallFunc(lua_State *L, int getFuncRef, int nret);
   void pcallSimpleFunc(lua_State *L, int funcRef);
@@ -544,7 +544,7 @@ class LvglWidgetDialog : public LvglWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  std::string title;
+  const char *title = nullptr;
 
   int closeFunction = LUA_REFNIL;
 

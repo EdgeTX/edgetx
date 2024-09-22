@@ -82,7 +82,10 @@ static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 static int luaDestroyLvglWidget(lua_State *L)
 {
   auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
-  if (p) delete p;
+  if (p) {
+    p->clearRefs(L);
+    delete p;
+  }
   return 0;
 }
 
