@@ -50,8 +50,7 @@
 #define UART_SYNC                      0xC8
 #define SUBCOMMAND_CRSF                0x10
 #define COMMAND_MODEL_SELECT_ID        0x05
-#define COMMAND_SF_ARM_PRESENT         0x06
-#define COMMAND_ARM                    0x07
+#define COMMAND_SF_ARM                 0x06
 #define SUBCOMMAND_CRSF_BIND           0x01
 
 constexpr uint8_t CRSF_NAME_MAXSIZE = 16;
