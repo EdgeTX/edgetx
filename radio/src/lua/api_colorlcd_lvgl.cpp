@@ -166,6 +166,10 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
       obj = new LvglWidgetCircle();
     else if (strcasecmp(p.type, "arc") == 0)
       obj = new LvglWidgetArc();
+    else if (strcasecmp(p.type, "hline") == 0)
+      obj = new LvglWidgetHLine();
+    else if (strcasecmp(p.type, "vline") == 0)
+      obj = new LvglWidgetVLine();
     else if (strcasecmp(p.type, "line") == 0)
       obj = new LvglWidgetLine();
     else if (strcasecmp(p.type, "triangle") == 0)
@@ -270,6 +274,8 @@ LROT_BEGIN(lvgllib, NULL, 0)
   // Objects - widgets and standalone
   LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
   LROT_FUNCENTRY(rectangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetRectangle(); }); })
+  LROT_FUNCENTRY(hline, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetHLine(); }); })
+  LROT_FUNCENTRY(vline, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVLine(); }); })
   LROT_FUNCENTRY(line, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLine(); }); })
   LROT_FUNCENTRY(triangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTriangle(); }); })
   LROT_FUNCENTRY(circle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetCircle(); }); })
@@ -328,6 +334,8 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   // Objects - widgets and standalone
   LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
   LROT_FUNCENTRY(rectangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetRectangle(); }); })
+  LROT_FUNCENTRY(hline, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetHLine(); }); })
+  LROT_FUNCENTRY(vline, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVLine(); }); })
   LROT_FUNCENTRY(line, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLine(); }); })
   LROT_FUNCENTRY(triangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTriangle(); }); })
   LROT_FUNCENTRY(circle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetCircle(); }); })

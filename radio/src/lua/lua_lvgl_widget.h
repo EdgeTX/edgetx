@@ -143,6 +143,48 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject
 
 //-----------------------------------------------------------------------------
 
+class LvglWidgetLineBase : public LvglSimpleWidgetObject
+{
+ public:
+  LvglWidgetLineBase() : LvglSimpleWidgetObject() {}
+
+  void setColor(LcdFlags color) override;
+  void setPos(coord_t x, coord_t y) override;
+  void setSize(coord_t w, coord_t h) override;
+
+  void build(lua_State *L) override;
+
+ protected:
+  lv_point_t pts[2];
+
+  virtual void setLine() = 0;
+  void refresh() override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetHLine : public LvglWidgetLineBase
+{
+ public:
+  LvglWidgetHLine() : LvglWidgetLineBase() {}
+
+ protected:
+  void setLine() override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetVLine : public LvglWidgetLineBase
+{
+ public:
+  LvglWidgetVLine() : LvglWidgetLineBase() {}
+
+ protected:
+  void setLine() override;
+};
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetLine : public LvglSimpleWidgetObject
 {
  public:
@@ -156,7 +198,8 @@ class LvglWidgetLine : public LvglSimpleWidgetObject
 
  protected:
   coord_t thickness = 1;
-  lv_point_t pts[2];
+  size_t ptCnt = 0;
+  lv_point_t* pts = nullptr;
 
   void setLine();
 

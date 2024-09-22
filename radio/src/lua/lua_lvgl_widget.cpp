@@ -428,6 +428,76 @@ void LvglWidgetLabel::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetLineBase::setColor(LcdFlags color)
+{
+  if (lvobj && color != currentColor) {
+    currentColor = color;
+    if (color & RGB_FLAG) {
+      etx_remove_line_color(lvobj);
+      lv_obj_set_style_line_color(lvobj, makeLvColor(color), LV_PART_MAIN);
+    } else {
+      etx_line_color(lvobj, (LcdColorIndex)COLOR_VAL(color));
+    }
+  }
+}
+
+void LvglWidgetLineBase::setPos(coord_t x, coord_t y)
+{
+  this->x = x;
+  this->y = y;
+  setLine();
+}
+
+void LvglWidgetLineBase::setSize(coord_t w, coord_t h)
+{
+  this->w = w;
+  this->h = h;
+  setLine();
+}
+
+void LvglWidgetLineBase::build(lua_State* L)
+{
+  lvobj = lv_line_create(lvglManager->getCurrentParent()->getLvObj());
+  lv_obj_set_style_line_opa(lvobj, LV_OPA_COVER, LV_PART_MAIN);
+  refresh();
+}
+
+void LvglWidgetLineBase::refresh()
+{
+  setColor(color);
+  setLine();
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetHLine::setLine()
+{
+  if (lvobj) {
+    pts[0].x = x;
+    pts[1].x = x + w;
+    pts[0].y = y;
+    pts[1].y = y;
+    lv_line_set_points(lvobj, pts, 2);
+    lv_obj_set_style_line_width(lvobj, abs(h), LV_PART_MAIN);
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetVLine::setLine()
+{
+  if (lvobj) {
+    pts[0].x = x;
+    pts[1].x = x;
+    pts[0].y = y;
+    pts[1].y = y + h;
+    lv_line_set_points(lvobj, pts, 2);
+    lv_obj_set_style_line_width(lvobj, abs(w), LV_PART_MAIN);
+  }
+}
+
+//-----------------------------------------------------------------------------
+
 void LvglWidgetLine::getPt(lua_State* L, int n)
 {
   lua_rawgeti(L, -1, n + 1);
@@ -446,8 +516,13 @@ void LvglWidgetLine::parseParam(lua_State *L, const char *key)
     thickness = luaL_checkunsigned(L, -1);
   } else if (!strcmp(key, "pts")) {
     luaL_checktype(L, -1, LUA_TTABLE);
-    getPt(L, 0);
-    getPt(L, 1);
+    ptCnt = lua_rawlen(L, -1);
+    if (pts) delete pts;
+    if (ptCnt > 1) {
+      pts = new lv_point_t[ptCnt];
+      for (size_t i = 0; i < ptCnt; i += 1)
+        getPt(L, i);
+    }
   } else {
     LvglSimpleWidgetObject::parseParam(L, key);
   }
@@ -468,48 +543,45 @@ void LvglWidgetLine::setColor(LcdFlags color)
 
 void LvglWidgetLine::setPos(coord_t x, coord_t y)
 {
-  coord_t dx = this->x - x;
-  coord_t dy = this->y - y;
-  pts[0].x += dx; pts[1].x += dx;
-  pts[0].y += dy; pts[1].y += dy;
-  this->x = x;
-  this->y = y;
-  setLine();
+  if (pts) {
+    coord_t dx = this->x - x;
+    coord_t dy = this->y - y;
+    for (size_t i = 0; i < ptCnt; i += 1) {
+      pts[i].x += dx;
+      pts[i].y += dy;
+    }
+    setLine();
+  }
 }
 
 void LvglWidgetLine::setSize(coord_t w, coord_t h)
 {
-  // TODO: Scale line?
 }
 
 void LvglWidgetLine::setLine()
 {
-  if (lvobj) {
-    lv_line_set_points(lvobj, pts, 2);
+  if (lvobj && pts) {
+    x = pts[0].x;
+    y = pts[0].y;
+    for (size_t i = 1; i < ptCnt; i += 1) {
+      if (pts[i].x < x) x = pts[i].x;
+      if (pts[i].y < y) y = pts[i].y;
+    }
+
+    lv_line_set_points(lvobj, pts, ptCnt);
+    lv_obj_set_style_line_width(lvobj, thickness, LV_PART_MAIN);
   }
 }
 
 void LvglWidgetLine::build(lua_State *L)
 {
-  x = min(pts[0].x, pts[1].x);
-  y = min(pts[0].y, pts[1].y);
-  w = max(pts[0].x, pts[1].x) - x + 1;
-  h = max(pts[0].y, pts[1].y) - y + 1;
-
   lvobj = lv_line_create(lvglManager->getCurrentParent()->getLvObj());
   lv_obj_set_style_line_opa(lvobj, LV_OPA_COVER, LV_PART_MAIN);
-  lv_obj_set_style_line_width(lvobj, thickness, LV_PART_MAIN);
-  setColor(color);
-  setLine();
+  refresh();
 }
 
 void LvglWidgetLine::refresh()
 {
-  x = min(pts[0].x, pts[1].x);
-  y = min(pts[0].y, pts[1].y);
-  w = max(pts[0].x, pts[1].x) - x + 1;
-  h = max(pts[0].y, pts[1].y) - y + 1;
-  lv_obj_set_style_line_width(lvobj, thickness, LV_PART_MAIN);
   setColor(color);
   setLine();
 }
