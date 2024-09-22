@@ -357,8 +357,8 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWi
     if (defn.index == index) {
       QPushButton * b = new QPushButton(label);
       b->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-      b->setMinimumSize(50, 25);
-      b->setMaximumSize(50, 25);
+      b->setMinimumSize(60, 30);
+      b->setMaximumSize(60, 30);
       RadioUiAction * act = new RadioUiAction();
       ButtonsWidget * btns = defn.side == 'L' ? leftButtons : rightButtons;
       QGridLayout * grid = defn.side == 'L' ? leftButtonsGrid : rightButtonsGrid;
