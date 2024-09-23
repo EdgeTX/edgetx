@@ -26,15 +26,17 @@
 #include "lua/lua_api.h"
 #include "lua/lua_widget.h"
 
+extern void luaExecStandalone(const char * filename);
+
 class StandaloneLuaWindow : public Window, public LuaEventHandler, public LuaLvglManager
 {
   static StandaloneLuaWindow* _instance;
 
-  explicit StandaloneLuaWindow(bool useLvgl);
+  explicit StandaloneLuaWindow(bool useLvgl, int initFn, int runFn);
 
 public:
   static StandaloneLuaWindow* instance();
-  static void setup(bool useLvgl);
+  static void setup(bool useLvgl, int initFn, int runFn);
 
   void attach();
   void deleteLater(bool detach = true, bool trash = true) override;
@@ -69,6 +71,8 @@ protected:
   lv_obj_t* errorMsg = nullptr;
   bool hasError = false;
   bool useLvgl = false;
+  int initFunction = LUA_REFNIL;
+  int runFunction = LUA_REFNIL;
 
   // GFX
   BitmapBuffer *lcdBuffer = nullptr;
@@ -76,9 +80,6 @@ protected:
   // pop-ups
   void popupPaint(BitmapBuffer* dc, coord_t x, coord_t y, coord_t w, coord_t h,
                   const char* text, const char* info);
-
-  // run LUA code
-  void runLua(event_t evt);
 
   void onEvent(event_t evt) override;
   void checkEvents() override;

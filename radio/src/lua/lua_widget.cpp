@@ -560,6 +560,7 @@ void LuaLvglManager::clearRefs(lua_State *L)
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    lua_pop(L, 1);
     if (p) p->clearRefs(L);
   }
   lvglObjectRefs.clear();
@@ -570,6 +571,7 @@ bool LuaLvglManager::callRefs(lua_State *L)
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    lua_pop(L, 1);
     if (p) if (!p->callRefs(L)) return false;
   }
   return true;

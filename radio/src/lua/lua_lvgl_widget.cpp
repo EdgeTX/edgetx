@@ -279,6 +279,7 @@ bool LvglWidgetObjectBase::callRefs(lua_State *L)
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    lua_pop(L, 1);
     if (p) if (!p->callRefs(L)) return false;
   }
 
@@ -302,6 +303,7 @@ void LvglWidgetObjectBase::clearChildRefs(lua_State *L)
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    lua_pop(L, 1);
     if (p) p->clearRefs(L);
   }
   lvglObjectRefs.clear();
@@ -449,6 +451,7 @@ void LvglWidgetLabel::build(lua_State *L)
   setText(txt);
   setColor(color);
   setFont(font);
+  callRefs(L);
 }
 
 //-----------------------------------------------------------------------------
@@ -603,6 +606,7 @@ void LvglWidgetLine::build(lua_State *L)
   lvobj = lv_line_create(lvglManager->getCurrentParent()->getLvObj());
   lv_obj_set_style_line_opa(lvobj, LV_OPA_COVER, LV_PART_MAIN);
   refresh();
+  callRefs(L);
 }
 
 void LvglWidgetLine::refresh()
@@ -844,6 +848,7 @@ void LvglWidgetTriangle::build(lua_State *L)
     LvglSimpleWidgetObject::setSize(w,h);
     setColor(color);
   }
+  if (L) callRefs(L);
 }
 
 void LvglWidgetTriangle::refresh()
@@ -1044,6 +1049,7 @@ void LvglWidgetCircle::build(lua_State *L)
   setRadius(radius);
   LvglWidgetBorderedObject::build(L);
   lv_obj_set_style_radius(window->getLvObj(), LV_RADIUS_CIRCLE, LV_PART_MAIN);
+  callRefs(L);
 }
 
 //-----------------------------------------------------------------------------
@@ -1127,6 +1133,7 @@ void LvglWidgetArc::build(lua_State *L)
   lv_obj_set_style_arc_width(window->getLvObj(), thickness, LV_PART_MAIN);
   lv_obj_set_style_arc_opa(window->getLvObj(), LV_OPA_COVER, LV_PART_INDICATOR);
   lv_obj_set_style_arc_width(window->getLvObj(), thickness, LV_PART_INDICATOR);
+  callRefs(L);
 }
 
 //-----------------------------------------------------------------------------

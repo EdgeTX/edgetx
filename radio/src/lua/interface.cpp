@@ -893,9 +893,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = SCRIPT_STANDALONE;
         if (luaLoad(filename, sid)) {
-#if defined(COLORLCD)
-          StandaloneLuaWindow::setup(true);
-#endif
           luaError(lsScripts, sid.state);
           break;
         }
@@ -933,14 +930,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
             sid.run = luaRegisterFunction("run");
             sid.background = luaRegisterFunction("background");
             initFunction = luaRegisterFunction("init");
-#if defined(COLORLCD)
-            if (sid.reference == SCRIPT_STANDALONE) {
-              lua_getfield(lsScripts, -1, "useLvgl");
-              sid.useLvgl = lua_toboolean(lsScripts, -1);
-              lua_pop(lsScripts, 1);
-              StandaloneLuaWindow::setup(sid.useLvgl);
-            }
-#endif
             if (sid.run == LUA_NOREF) {
               snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): No run function\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
               sid.state = SCRIPT_SYNTAX_ERROR;
@@ -962,10 +951,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           else {
             snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): The script did not return a table\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             sid.state = SCRIPT_SYNTAX_ERROR;
-#if defined(COLORLCD)
-            if (sid.reference == SCRIPT_STANDALONE)
-              StandaloneLuaWindow::setup(true);
-#endif
             initFunction = LUA_NOREF;
           }
          
@@ -1187,8 +1172,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
             luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           }
           else if (luaDisplayStatistics) {
-  #if defined(COLORLCD)
-  #else
+  #if !defined(COLORLCD)
             lcdDrawSolidHorizontalLine(0, 7*FH-1, lcdLastRightPos+6, ERASE);
             lcdDrawText(0, 7*FH, "GV Use: ");
             lcdDrawNumber(lcdLastRightPos, 7*FH, luaGetMemUsed(lsScripts), LEFT);
