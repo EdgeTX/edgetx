@@ -154,9 +154,12 @@ class LvglWidgetLineBase : public LvglSimpleWidgetObject
   void build(lua_State *L) override;
 
  protected:
+  bool rounded = false;
   lv_point_t pts[2];
 
   virtual void setLine() = 0;
+
+  void parseParam(lua_State *L, const char *key) override;
   void refresh() override;
 };
 
@@ -197,6 +200,7 @@ class LvglWidgetLine : public LvglSimpleWidgetObject
 
  protected:
   coord_t thickness = 1;
+  bool rounded = false;
   size_t ptCnt = 0;
   lv_point_t* pts = nullptr;
 

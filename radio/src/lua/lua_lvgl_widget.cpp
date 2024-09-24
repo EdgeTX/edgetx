@@ -456,6 +456,15 @@ void LvglWidgetLabel::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetLineBase::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "rounded")) {
+    rounded = lua_toboolean(L, -1);
+  } else {
+    LvglSimpleWidgetObject::parseParam(L, key);
+  }
+}
+
 void LvglWidgetLineBase::setColor(LcdFlags color)
 {
   if (lvobj && color != currentColor) {
@@ -494,6 +503,7 @@ void LvglWidgetLineBase::refresh()
 {
   setColor(color);
   setLine();
+  lv_obj_set_style_line_rounded(lvobj, rounded, LV_PART_MAIN);
 }
 
 //-----------------------------------------------------------------------------
@@ -542,6 +552,8 @@ void LvglWidgetLine::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "thickness")) {
     thickness = luaL_checkunsigned(L, -1);
+  } else if (!strcmp(key, "rounded")) {
+    rounded = lua_toboolean(L, -1);
   } else if (!strcmp(key, "pts")) {
     luaL_checktype(L, -1, LUA_TTABLE);
     ptCnt = lua_rawlen(L, -1);
@@ -598,6 +610,7 @@ void LvglWidgetLine::setLine()
 
     lv_line_set_points(lvobj, pts, ptCnt);
     lv_obj_set_style_line_width(lvobj, thickness, LV_PART_MAIN);
+    lv_obj_set_style_line_rounded(lvobj, rounded, LV_PART_MAIN);
   }
 }
 
