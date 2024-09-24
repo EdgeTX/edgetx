@@ -358,6 +358,8 @@ void CustomFunctionsPanel::functionEdited()
       fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatLuaId));
     else
       fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatId));
+    if (functions[index].func == FuncLogs)
+      functions[index].param = 10;  // 1 sec
     refreshCustomFunction(index);
     emit modified();
     lock = false;
@@ -398,7 +400,17 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
       }
     }
-    else if (func == FuncLogs || (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast)) {
+    else if (func == FuncLogs) {
+      fswtchParam[i]->setDecimals(1);
+      fswtchParam[i]->setMinimum(0.1);
+      fswtchParam[i]->setMaximum(25.5);
+      fswtchParam[i]->setSingleStep(0.1);
+      if (modified)
+        cfn.param = fswtchParam[i]->value() * 10.0;
+      fswtchParam[i]->setValue(cfn.param / 10.0);
+      widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
+    }
+    else if (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast) {
       fswtchParam[i]->setDecimals(1);
       fswtchParam[i]->setMinimum(0);
       fswtchParam[i]->setMaximum(25.5);
