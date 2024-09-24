@@ -221,12 +221,15 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
                      int luaWidgetDataRef, int zoneRectDataRef, int optionsDataRef) :
     Widget(factory, parent, rect, persistentData),
-    zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
+    zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef), luaWidgetDataRef(luaWidgetDataRef),
     errorMessage(nullptr)
 {
-  this->luaWidgetDataRef = luaWidgetDataRef;
-  lv_obj_add_event_cb(lvobj, LuaWidget::redraw_cb, LV_EVENT_DRAW_MAIN,
-                      nullptr);
+  if (useLvglLayout()) {
+    update();
+  } else {
+    lv_obj_add_event_cb(lvobj, LuaWidget::redraw_cb, LV_EVENT_DRAW_MAIN,
+                        nullptr);
+  }
 }
 
 LuaWidget::~LuaWidget()
@@ -263,12 +266,6 @@ void LuaWidget::checkEvents()
   if (closeFS) {
     closeFS = false;
     setFullscreen(false);
-  }
-
-  // Call update once after widget first created
-  if (!created) {
-    created = true;
-    update();
   }
 
   // refresh() has not been called
@@ -513,7 +510,6 @@ void LuaWidget::background()
 {
   if (lsWidgets == 0 || errorMessage) return;
 
-  // TRACE("LuaWidget::background()");
   if (luaFactory()->backgroundFunction) {
     luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);

@@ -93,23 +93,6 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 {
   friend class LuaWidgetFactory;
 
-  int zoneRectDataRef;
-  int optionsDataRef;
-  char* errorMessage;
-  bool refreshed = false;
-
-  // Window interface
-  void onClicked() override;
-  void onCancel() override;
-  void checkEvents() override;
-
-  // Widget interface
-  void onFullscreen(bool enable) override;
-
-  // Update 'zone' data
-  void updateZoneRect(rect_t rect, bool updateUI = true) override;
-  bool updateTable(const char* idx, int val);
-
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
             WidgetPersistentData* persistentData, int luaWidgetDataRef, int zoneRectDataRef,
@@ -143,16 +126,29 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
   bool isWidget() override { return !inSettings; }
 
  protected:
-  bool created = false;
   bool inSettings = false;
   lv_obj_t* errorLabel = nullptr;
+  int zoneRectDataRef;
+  int optionsDataRef;
   int luaWidgetDataRef = 0;
+  char* errorMessage;
+  bool refreshed = false;
+
+  // Window interface
+  void onClicked() override;
+  void onCancel() override;
+  void checkEvents() override;
+  void onEvent(event_t event) override;
+
+  // Widget interface
+  void onFullscreen(bool enable) override;
+
+  // Update 'zone' data
+  void updateZoneRect(rect_t rect, bool updateUI = true) override;
+  bool updateTable(const char* idx, int val);
 
   // Calls LUA widget 'refresh' method
   void refresh(BitmapBuffer* dc);
-
-  // Window interface
-  void onEvent(event_t event) override;
 
   static void redraw_cb(lv_event_t *e);
 };

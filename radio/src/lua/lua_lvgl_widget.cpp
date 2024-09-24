@@ -335,6 +335,18 @@ void LvglWidgetObjectBase::update(lua_State *L)
   refresh();
 }
 
+bool LvglWidgetObjectBase::colorChanged(LcdFlags newColor)
+{
+  color = newColor;
+  LcdFlags c = color;
+  if (!(c & RGB_FLAG))
+    c = COLOR(COLOR_VAL(c)) | RGB_FLAG; // Convert index to RGB
+  if (currentColor != c) {
+    currentColor = c;
+    return true;
+  }
+  return false;
+}
 //-----------------------------------------------------------------------------
 
 void LvglSimpleWidgetObject::setPos(coord_t x, coord_t y)
@@ -414,14 +426,14 @@ void LvglWidgetLabel::setText(const char *s)
   }
 }
 
-void LvglWidgetLabel::setColor(LcdFlags color)
+void LvglWidgetLabel::setColor(LcdFlags newColor)
 {
-  if (lvobj && color != currentColor) {
-    currentColor = color;
+  if (lvobj && colorChanged(newColor)) {
     if (color & RGB_FLAG) {
       etx_remove_txt_color(lvobj);
       lv_obj_set_style_text_color(lvobj, makeLvColor(color), LV_PART_MAIN);
     } else {
+      lv_obj_remove_local_style_prop(lvobj, LV_STYLE_TEXT_COLOR, LV_PART_MAIN);
       etx_txt_color(lvobj, (LcdColorIndex)COLOR_VAL(color));
     }
   }
@@ -465,14 +477,14 @@ void LvglWidgetLineBase::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetLineBase::setColor(LcdFlags color)
+void LvglWidgetLineBase::setColor(LcdFlags newColor)
 {
-  if (lvobj && color != currentColor) {
-    currentColor = color;
+  if (lvobj && colorChanged(newColor)) {
     if (color & RGB_FLAG) {
       etx_remove_line_color(lvobj);
       lv_obj_set_style_line_color(lvobj, makeLvColor(color), LV_PART_MAIN);
     } else {
+      lv_obj_remove_local_style_prop(lvobj, LV_STYLE_LINE_COLOR, LV_PART_MAIN);
       etx_line_color(lvobj, (LcdColorIndex)COLOR_VAL(color));
     }
   }
@@ -568,14 +580,14 @@ void LvglWidgetLine::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetLine::setColor(LcdFlags color)
+void LvglWidgetLine::setColor(LcdFlags newColor)
 {
-  if (lvobj && color != currentColor) {
-    currentColor = color;
+  if (lvobj && colorChanged(newColor)) {
     if (color & RGB_FLAG) {
       etx_remove_line_color(lvobj);
       lv_obj_set_style_line_color(lvobj, makeLvColor(color), LV_PART_MAIN);
     } else {
+      lv_obj_remove_local_style_prop(lvobj, LV_STYLE_LINE_COLOR, LV_PART_MAIN);
       etx_line_color(lvobj, (LcdColorIndex)COLOR_VAL(color));
     }
   }
@@ -661,15 +673,15 @@ void LvglWidgetTriangle::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetTriangle::setColor(LcdFlags color)
+void LvglWidgetTriangle::setColor(LcdFlags newColor)
 {
-  if (lvobj && color != currentColor) {
-    currentColor = color;
+  if (lvobj && colorChanged(newColor)) {
     if (color & RGB_FLAG) {
       etx_remove_img_color(lvobj);
       lv_obj_set_style_img_recolor(lvobj, makeLvColor(color), LV_PART_MAIN);
       lv_obj_set_style_img_recolor_opa(lvobj, LV_OPA_COVER, LV_PART_MAIN);
     } else {
+      lv_obj_remove_local_style_prop(lvobj, LV_STYLE_IMG_RECOLOR, LV_PART_MAIN);
       etx_img_color(lvobj, (LcdColorIndex)COLOR_VAL(color));
     }
   }
@@ -950,10 +962,9 @@ void LvglWidgetBorderedObject::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetBorderedObject::setColor(LcdFlags color)
+void LvglWidgetBorderedObject::setColor(LcdFlags newColor)
 {
-  if (color != currentColor) {
-    currentColor = color;
+  if (colorChanged(newColor)) {
     if (filled) {
       etx_bg_color_from_flags(window->getLvObj(), color);
     } else {
@@ -962,6 +973,7 @@ void LvglWidgetBorderedObject::setColor(LcdFlags color)
         lv_obj_set_style_border_color(window->getLvObj(),
                                       makeLvColor(color), LV_PART_MAIN);
       } else {
+        lv_obj_remove_local_style_prop(window->getLvObj(), LV_STYLE_BORDER_COLOR, LV_PART_MAIN);
         etx_border_color(window->getLvObj(), (LcdColorIndex)COLOR_VAL(color));
       }
     }
@@ -1050,6 +1062,7 @@ void LvglWidgetRectangle::build(lua_State *L)
                             (rounded >= thickness) ? rounded : thickness,
                             LV_PART_MAIN);
   }
+  callRefs(L);
 }
 
 //-----------------------------------------------------------------------------
@@ -1084,14 +1097,14 @@ void LvglWidgetArc::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetArc::setColor(LcdFlags color)
+void LvglWidgetArc::setColor(LcdFlags newColor)
 {
-  if (color != currentColor) {
-    currentColor = color;
+  if (colorChanged(newColor)) {
     if (color & RGB_FLAG) {
       etx_remove_arc_color(window->getLvObj());
       lv_obj_set_style_arc_color(window->getLvObj(), makeLvColor(color), LV_PART_INDICATOR);
     } else {
+      lv_obj_remove_local_style_prop(window->getLvObj(), LV_STYLE_ARC_COLOR, LV_PART_MAIN);
       etx_arc_color(window->getLvObj(), (LcdColorIndex)COLOR_VAL(color), LV_PART_INDICATOR);
     }
   }

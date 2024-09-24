@@ -46,7 +46,7 @@ class LvglWidgetObjectBase
   virtual void show() = 0;
   virtual void hide() = 0;
 
-  virtual void setColor(LcdFlags color) {}
+  virtual void setColor(LcdFlags newColor) {}
   virtual void setPos(coord_t x, coord_t y) {}
   virtual void setSize(coord_t w, coord_t h) {}
 
@@ -75,6 +75,8 @@ class LvglWidgetObjectBase
   virtual void refresh();
 
   virtual void parseParam(lua_State *L, const char *key);
+
+  bool colorChanged(LcdFlags newColor);
 
   void clearRef(lua_State *L, int& ref);
 
@@ -116,7 +118,7 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject
   LvglWidgetLabel() : LvglSimpleWidgetObject() {}
 
   void setText(const char *s);
-  void setColor(LcdFlags color) override;
+  void setColor(LcdFlags newColor) override;
   void setFont(LcdFlags font);
 
   void build(lua_State *L) override;
@@ -147,7 +149,7 @@ class LvglWidgetLineBase : public LvglSimpleWidgetObject
  public:
   LvglWidgetLineBase() : LvglSimpleWidgetObject() {}
 
-  void setColor(LcdFlags color) override;
+  void setColor(LcdFlags newColor) override;
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
 
@@ -192,7 +194,7 @@ class LvglWidgetLine : public LvglSimpleWidgetObject
  public:
   LvglWidgetLine() : LvglSimpleWidgetObject() {}
 
-  void setColor(LcdFlags color) override;
+  void setColor(LcdFlags newColor) override;
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
 
@@ -219,7 +221,7 @@ class LvglWidgetTriangle : public LvglSimpleWidgetObject
   LvglWidgetTriangle() : LvglSimpleWidgetObject() {}
   ~LvglWidgetTriangle();
 
-  void setColor(LcdFlags color) override;
+  void setColor(LcdFlags newColor) override;
   void setSize(coord_t w, coord_t h) override;
 
   void build(lua_State *L) override;
@@ -293,7 +295,7 @@ class LvglWidgetBorderedObject : public LvglWidgetObject
  public:
   LvglWidgetBorderedObject() : LvglWidgetObject() {}
 
-  void setColor(LcdFlags color) override;
+  void setColor(LcdFlags newColor) override;
 
   void build(lua_State *L) override;
 
@@ -364,7 +366,7 @@ class LvglWidgetArc : public LvglWidgetRoundObject
  public:
   LvglWidgetArc() : LvglWidgetRoundObject() {}
 
-  void setColor(LcdFlags color) override;
+  void setColor(LcdFlags newColor) override;
   void setStartAngle(coord_t angle);
   void setEndAngle(coord_t angle);
 
