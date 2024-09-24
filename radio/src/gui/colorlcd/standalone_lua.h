@@ -73,6 +73,7 @@ protected:
   bool useLvgl = false;
   int initFunction = LUA_REFNIL;
   int runFunction = LUA_REFNIL;
+  uint8_t prevLuaState;
 
   // GFX
   BitmapBuffer *lcdBuffer = nullptr;

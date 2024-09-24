@@ -83,13 +83,6 @@ struct our_longjmp * global_lj = nullptr;
 uint32_t luaExtraMemoryUsage = 0;
 #endif
 
-#if defined(USE_HATS_AS_KEYS)
-static bool _is_standalone_script()
-{
-  return scriptInternalData[0].reference == SCRIPT_STANDALONE;
-}
-#endif
-
 #if defined(LUA_ALLOCATOR_TRACER)
 
 LuaMemTracer lsScriptsTrace;
@@ -257,10 +250,6 @@ void luaDisable()
 {
   POPUP_WARNING("Lua disabled!");
   luaState = INTERPRETER_PANIC;
-
-#if defined(USE_HATS_AS_KEYS)
-  if (_is_standalone_script()) setTransposeHatsForLUA(false);
-#endif
 }
 
 void luaClose(lua_State ** L)
@@ -1248,10 +1237,6 @@ bool luaTask(bool allowLcdUsage)
     case INTERPRETER_RELOAD_PERMANENT_SCRIPTS:
       init = true;
       luaState = INTERPRETER_LOADING;
-
-#if defined(USE_HATS_AS_KEYS)
-      if (_is_standalone_script()) setTransposeHatsForLUA(false);
-#endif
    
     case INTERPRETER_LOADING:
       PROTECT_LUA() {
@@ -1264,10 +1249,6 @@ bool luaTask(bool allowLcdUsage)
     case INTERPRETER_START_RUNNING:
       init = true;
       luaState = INTERPRETER_RUNNING;
-
-#if defined(USE_HATS_AS_KEYS)
-      if (_is_standalone_script()) setTransposeHatsForLUA(true);
-#endif
       
     case INTERPRETER_RUNNING:
       PROTECT_LUA() {
@@ -1275,6 +1256,13 @@ bool luaTask(bool allowLcdUsage)
       }
       else luaDisable();
       UNPROTECT_LUA();
+      break;
+
+#if defined(COLORLCD)
+    case INTERPRETER_PAUSED:
+      // stand alone script running
+      break;
+#endif
   }
   return scriptWasRun;
 }

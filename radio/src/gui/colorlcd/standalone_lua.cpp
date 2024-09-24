@@ -170,6 +170,10 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 
   lua_gc(lsStandalone, LUA_GCCOLLECT, 0);
 
+  // Pause function and mixer scripts
+  prevLuaState = luaState;
+  luaState = INTERPRETER_PAUSED;
+
 #if defined(USE_HATS_AS_KEYS)
   setTransposeHatsForLUA(true);
 #endif
@@ -230,6 +234,8 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 #if defined(USE_HATS_AS_KEYS)
   setTransposeHatsForLUA(false);
 #endif
+
+  luaState = prevLuaState;
 
   Window::deleteLater(detach, trash);
 }
