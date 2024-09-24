@@ -259,6 +259,8 @@ class LvglWidgetObject : public LvglWidgetObjectBase
   int8_t flexPad = PAD_TINY;
 
   void parseParam(lua_State *L, const char *key) override;
+
+  bool setFlex();
 };
 
 //-----------------------------------------------------------------------------

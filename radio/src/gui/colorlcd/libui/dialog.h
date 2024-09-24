@@ -35,7 +35,8 @@ class BaseDialog : public ModalWindow
  public:
   BaseDialog(const char* title, bool closeIfClickedOutside,
              lv_coord_t width = DIALOG_DEFAULT_WIDTH,
-             lv_coord_t maxHeight = DIALOG_DEFAULT_HEIGHT);
+             lv_coord_t maxHeight = DIALOG_DEFAULT_HEIGHT,
+             bool flexLayout = true);
 
   void setTitle(const char* title);
 

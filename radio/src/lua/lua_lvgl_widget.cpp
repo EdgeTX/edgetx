@@ -910,21 +910,26 @@ void LvglWidgetObject::setSize(coord_t w, coord_t h)
   if (window) window->setSize(w, h);
 }
 
+bool LvglWidgetObject::setFlex()
+{
+  if (flexFlow >= 0) {
+    window->padAll(PAD_TINY);
+    window->setFlexLayout((lv_flex_flow_t)flexFlow, flexPad, w, h);
+    return true;
+  } else {
+    window->padAll(PAD_ZERO);
+    return false;
+  }
+}
+
 //-----------------------------------------------------------------------------
 
 void LvglWidgetBox::build(lua_State* L)
 {
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
-
-  if (flexFlow >= 0) {
-    window->padAll(PAD_TINY);
-    window->setFlexLayout((lv_flex_flow_t)flexFlow, flexPad, w, h);
-    lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER,
-                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-  } else {
-    window->padAll(PAD_ZERO);
-  }
+  if (setFlex())
+    lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 }
 
 //-----------------------------------------------------------------------------
@@ -1483,15 +1488,8 @@ void LvglWidgetPage::build(lua_State *L)
       [=]() { pcallSimpleFunc(L, backActionFunction); }, title, subtitle, iconFile);
 
   window = page->getBody();
-
-  if (flexFlow >= 0) {
-    window->padAll(PAD_TINY);
-    window->setFlexLayout((lv_flex_flow_t)flexFlow, flexPad, w, h);
-    lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER,
-                          LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_SPACE_AROUND);
-  } else {
-    window->padAll(PAD_ZERO);
-  }
+  if (setFlex())
+    lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_SPACE_AROUND);
 }
 
 //-----------------------------------------------------------------------------
@@ -1500,7 +1498,7 @@ class LvglDialog : public BaseDialog
 {
  public:
   LvglDialog(const char* title, coord_t w, coord_t h, std::function<void()> onClose) :
-    BaseDialog(title, true, w, h),
+    BaseDialog(title, true, w, h, false),
     onClose(std::move(onClose))
   {
     form->setHeight(h - EdgeTxStyles::UI_ELEMENT_HEIGHT);
@@ -1542,6 +1540,8 @@ void LvglWidgetDialog::build(lua_State *L)
   auto dlg = new LvglDialog(title, w, h,
       [=]() { pcallSimpleFunc(L, closeFunction); });
   window = dlg->getBody();
+  window->setWidth(w);
+  setFlex();
 }
 
 //-----------------------------------------------------------------------------

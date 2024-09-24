@@ -28,11 +28,12 @@
 class BaseDialogForm : public Window
 {
  public:
-  BaseDialogForm(Window* parent, lv_coord_t width) : Window(parent, rect_t{})
+  BaseDialogForm(Window* parent, lv_coord_t width, bool flexLayout) : Window(parent, rect_t{})
   {
     etx_scrollbar(lvobj);
     padAll(PAD_TINY);
-    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, width, LV_SIZE_CONTENT);
+    if (flexLayout)
+      setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, width, LV_SIZE_CONTENT);
   }
 
  protected:
@@ -41,7 +42,7 @@ class BaseDialogForm : public Window
 
 BaseDialog::BaseDialog(const char* title,
                        bool closeIfClickedOutside, lv_coord_t width,
-                       lv_coord_t maxHeight) :
+                       lv_coord_t maxHeight, bool flexLayout) :
     ModalWindow(closeIfClickedOutside)
 {
   auto content = new Window(this, rect_t{});
@@ -56,7 +57,7 @@ BaseDialog::BaseDialog(const char* title,
   header->padAll(PAD_SMALL);
   header->show(title != nullptr);
 
-  form = new BaseDialogForm(content, width);
+  form = new BaseDialogForm(content, width, flexLayout);
   if (maxHeight != LV_SIZE_CONTENT)
     lv_obj_set_style_max_height(form->getLvObj(), maxHeight - EdgeTxStyles::UI_ELEMENT_HEIGHT, LV_PART_MAIN);
 }
