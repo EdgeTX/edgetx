@@ -32,14 +32,11 @@ void displayFlightModes(coord_t x, coord_t y, FlightModesType value)
   } while (p!=0);
 }
 
-
 enum MenuModelFlightModeItems {
   ITEM_MODEL_FLIGHT_MODE_NAME,
   ITEM_MODEL_FLIGHT_MODE_SWITCH,
   ITEM_MODEL_FLIGHT_MODE_TRIMS,
-#if defined(TRIMS_GPIO_REG_T5L) || defined(TRIMS_GPIO_REG_LSD)
   ITEM_MODEL_FLIGHT_MODE_TRIMS2,
-#endif
   ITEM_MODEL_FLIGHT_MODE_FADE_IN,
   ITEM_MODEL_FLIGHT_MODE_FADE_OUT,
 #if defined(GVARS)
@@ -64,6 +61,22 @@ bool isTrimModeAvailable(int mode)
   return (mode%2) == 0 || (mode/2) != s_currIdx;
 }
 
+static void showTrims(uint8_t cnt, uint8_t first, coord_t y, LcdFlags attr, event_t event, FlightModeData *fm)
+{
+  for (uint8_t t = 0; t < cnt; t += 1) {
+    drawTrimMode(MIXES_2ND_COLUMN + (t * 2 * FW), y, s_currIdx, t + first,
+                  menuHorizontalPosition == t ? attr : 0);
+    if (attr && menuHorizontalPosition == t)
+      drawSource(LCD_W, 0, t + first + MIXSRC_FIRST_TRIM, RIGHT);
+    if (s_editMode > 0 && attr && menuHorizontalPosition == t) {
+      trim_t& v = fm->trim[t + first];
+      v.mode = checkIncDec(event, v.mode == TRIM_MODE_NONE ? -1 : v.mode,
+                            -1, 2 * MAX_FLIGHT_MODES,
+                            EE_MODEL, isTrimModeAvailable);
+    }
+  }
+}
+
 void menuModelFlightModeOne(event_t event)
 {
   FlightModeData * fm = flightModeAddress(s_currIdx);
@@ -71,53 +84,35 @@ void menuModelFlightModeOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-#if defined(TRIMS_GPIO_REG_T5L) || defined(TRIMS_GPIO_REG_LSD)
-  #define TRIMS_LINES    2
-#else
-  #define TRIMS_LINES    1
-#endif
+  uint8_t trim_count = keysGetMaxTrims();
+  uint8_t trim_lines = (trim_count <= 6) ? 1 : 2;
 
-#if defined(GVARS) && !defined(GVARS_IN_CURVES_SCREEN)
-  int VERTICAL_SHIFT = (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_TRIMS) - (keysGetMaxTrims() > 4 ? 1 : 0 );
-  static const uint8_t mstate_tab_fm1[]  = {0, 3,
-#if TRIMS_LINES == 2
-  (uint8_t)max(0, keysGetMaxTrims() - 5),
+  SUBMENU(STR_MENUFLIGHTMODE, ITEM_MODEL_FLIGHT_MODE_MAX, {
+    0,
+    (uint8_t)(s_currIdx == 0 ? HIDDEN_ROW : 0),
+    (uint8_t)((trim_lines == 1) ? trim_count - 1 : 3),
+    (uint8_t)((trim_lines == 2) ? trim_count - 5 : HIDDEN_ROW),
+    0, 0,
+#if defined(GVARS)
+    READONLY_ROW,
+    (uint8_t)(s_currIdx == 0 ? 1 : 2),  // Same value used for all GV rows
 #endif
-  0, 0, (uint8_t)-1, 1, 1, 1, 1, 1, 1};
-  static const uint8_t mstate_tab_others[]  = {0, 0, 3,
-#if TRIMS_LINES == 2
-  (uint8_t)max(0, keysGetMaxTrims() - 5),
-#endif
-  0, 0,(uint8_t)-1, 2, 2, 2, 2, 2};
-
-  check(event, 0, nullptr, 0, (s_currIdx == 0) ? mstate_tab_fm1 : mstate_tab_others, DIM(mstate_tab_others)-1, ITEM_MODEL_FLIGHT_MODE_MAX - (s_currIdx==0 ? (ITEM_MODEL_FLIGHT_MODE_FADE_IN-ITEM_MODEL_FLIGHT_MODE_SWITCH-TRIMS_LINES) : 0));
-
-  title(STR_MENUFLIGHTMODE);
-
-  #define PHASE_ONE_FIRST_LINE (1+1*FH)
-#else
-  SUBMENU(STR_MENUFLIGHTMODE, 3 + (s_currIdx==0 ? 0 : 2), {0, 0, 3, 0/*, 0*/});
-  #define PHASE_ONE_FIRST_LINE (1+1*FH)
-#endif
+  });
 
   int8_t sub = menuVerticalPosition;
   int8_t editMode = s_editMode;
 
-#if defined(GVARS)
-  if (s_currIdx == 0 && sub>=ITEM_MODEL_FLIGHT_MODE_SWITCH)
-    sub += VERTICAL_SHIFT;
+  coord_t y = MENU_HEADER_HEIGHT + 1;
 
-  for (uint8_t k=0; k<LCD_LINES-1; k++) {
-    coord_t y = MENU_HEADER_HEIGHT + 1 + k*FH;
+  for (uint8_t k=0; k<min(NUM_BODY_LINES, (int)ITEM_MODEL_FLIGHT_MODE_MAX); k++) {
     int8_t i = k + menuVerticalOffset;
-
-    if (s_currIdx == 0 && i>=ITEM_MODEL_FLIGHT_MODE_SWITCH) i += VERTICAL_SHIFT;
+    for (int j=0; j<=i; ++j) {
+      if (j<(int)DIM(mstate_tab) && mstate_tab[j] == HIDDEN_ROW) {
+        ++i;
+      }
+    }
     uint8_t attr = (sub==i ? (editMode>0 ? BLINK|INVERS : INVERS) : 0);
-#else
-  for (uint8_t i=0, k=0, y=PHASE_ONE_FIRST_LINE; i<ITEM_MODEL_FLIGHT_MODE_MAX; i++, k++, y+=FH) {
-    if (s_currIdx == 0 && i==ITEM_MODEL_FLIGHT_MODE_SWITCH) i = ITEM_MODEL_FLIGHT_MODE_FADE_IN;
-    uint8_t attr = (sub==k ? (editMode>0 ? BLINK|INVERS : INVERS) : 0);
-#endif
+
     switch (i) {
       case ITEM_MODEL_FLIGHT_MODE_NAME:
         editSingleName(MIXES_2ND_COLUMN, y, STR_PHASENAME, fm->name,
@@ -130,41 +125,20 @@ void menuModelFlightModeOne(event_t event)
 
       case ITEM_MODEL_FLIGHT_MODE_TRIMS:
         lcdDrawTextAlignedLeft(y, STR_TRIMS);
-        {
-          auto trims = min(keysGetMaxTrims(), (uint8_t) 4);
-          for (uint8_t t = 0; t < trims; t++) {
-            drawTrimMode(MIXES_2ND_COLUMN + (t*2*FW), y, s_currIdx, t, menuHorizontalPosition == t ? attr : 0);
-            if (s_editMode > 0 && attr && menuHorizontalPosition == t) {
-              trim_t & v = fm->trim[t];
-              v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, 2*MAX_FLIGHT_MODES, EE_MODEL, isTrimModeAvailable);
-            }
-          }
-        }
+        showTrims(trim_lines == 1 ? trim_count : 4, 0, y, attr, event, fm);
         break;
 
-#if defined(TRIMS_GPIO_REG_T5L) || defined(TRIMS_GPIO_REG_LSD)
       case ITEM_MODEL_FLIGHT_MODE_TRIMS2:
-        {
-          auto trims = keysGetMaxTrims() - 4;
-          for (uint8_t t = 4; t < trims + 4; t++) {
-            drawTrimMode(MIXES_2ND_COLUMN + ((t - 4) * 2 * FW), y, s_currIdx, t,
-                         menuHorizontalPosition == (t - 4) ? attr : 0);
-            if (s_editMode > 0 && attr && menuHorizontalPosition == t - 4) {
-              trim_t& v = fm->trim[t];
-              v.mode = checkIncDec(event, v.mode == TRIM_MODE_NONE ? -1 : v.mode,
-                                   -1, 2 * MAX_FLIGHT_MODES,
-                                   EE_MODEL, isTrimModeAvailable);
-            }
-          }
-        }
+        if (trim_lines == 2) 
+          showTrims(trim_count - 4, 4, y, attr, event, fm);
         break;
-#endif
+
       case ITEM_MODEL_FLIGHT_MODE_FADE_IN:
-        fm->fadeIn = EDIT_DELAY(0, y, event, attr, STR_FADEIN, fm->fadeIn, PREC1);
+        fm->fadeIn = editDelay(y, event, attr, STR_FADEIN, fm->fadeIn, PREC1);
         break;
 
       case ITEM_MODEL_FLIGHT_MODE_FADE_OUT:
-        fm->fadeOut = EDIT_DELAY(0, y, event, attr, STR_FADEOUT, fm->fadeOut, PREC1);
+        fm->fadeOut = editDelay(y, event, attr, STR_FADEOUT, fm->fadeOut, PREC1);
         break;
 
 #if defined(GVARS)
@@ -208,6 +182,7 @@ void menuModelFlightModeOne(event_t event)
       }
 #endif
     }
+    y += FH;
   }
 }
 
