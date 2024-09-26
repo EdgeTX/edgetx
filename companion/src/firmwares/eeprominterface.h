@@ -148,7 +148,6 @@ enum Capability {
   EnhancedCurves,
   HasFasOffset,
   HasMahPersistent,
-  SimulatorVariant,
   MavlinkTelemetry,
   HasInputDiff,
   HasMixerExpo,

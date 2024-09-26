@@ -81,11 +81,7 @@ QStringList getSambaArgs(const QString & tcl)
 QStringList getReadEEpromCmd(const QString & filename)
 {
   QStringList result;
-  EEPROMInterface *eepromInterface = getCurrentEEpromInterface();
-  if (IS_STM32(eepromInterface->getBoard())) {
-    // impossible
-  }
-  else {
+  if (!IS_STM32(getCurrentBoard())) {
     result = getSambaArgs(QString("SERIALFLASH::Init 0\n") + "receive_file {SerialFlash AT25} \"" + filename + "\" 0x0 0x80000 0\n");
   }
   return result;

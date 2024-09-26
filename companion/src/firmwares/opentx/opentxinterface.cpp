@@ -277,33 +277,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return true;
     case HasMahPersistent:
       return true;
-    case SimulatorVariant:
-      if (IS_TARANIS_X9E(board))
-        return TARANIS_X9E_VARIANT;
-      else if (IS_TARANIS_X9LITES(board))
-        return TARANIS_X9LITES_VARIANT;
-      else if (IS_TARANIS_X9LITE(board))
-        return TARANIS_X9LITE_VARIANT;
-      else if (IS_TARANIS_X7(board))
-        return TARANIS_X7_VARIANT;
-      else if (IS_TARANIS_XLITES(board))
-        return TARANIS_XLITES_VARIANT;
-      else if (IS_TARANIS_XLITE(board))
-        return TARANIS_XLITE_VARIANT;
-      else if (IS_BETAFPV_LR3PRO(board))
-        return BETAFPV_LR3PRO_VARIANT;
-      else if (IS_IFLIGHT_COMMANDO8(board))
-        return IFLIGHT_COMMANDO8_VARIANT;
-      else if (IS_JUMPER_T12(board))
-        return JUMPER_T12_VARIANT;
-      else if (IS_JUMPER_TLITE(board))
-        return JUMPER_TLITE_VARIANT;
-      else if (IS_RADIOMASTER_TX12(board))
-        return RADIOMASTER_TX12_VARIANT;
-      else if (IS_RADIOMASTER_T8(board))
-        return RADIOMASTER_T8_VARIANT;
-      else
-        return 0;
     case MavlinkTelemetry:
       return id.contains("mavlink") ? 1 : 0;
     case SportTelemetry:
@@ -483,24 +456,6 @@ void addOpenTxTaranisOptions(OpenTxFirmware * firmware)
 {
   addOpenTxFrskyOptions(firmware);
   addOpenTxFontOptions(firmware);
-}
-
-void addOpenTxArm9xOptions(OpenTxFirmware * firmware, bool dblkeys = true)
-{
-  addOpenTxCommonOptions(firmware);
-  firmware->addOption("heli", Firmware::tr("Enable HELI menu and cyclic mix support"));
-  firmware->addOption("gvars", Firmware::tr("Global variables"), GVARS_VARIANT);
-  firmware->addOption("potscroll", Firmware::tr("Pots use in menus navigation"));
-  firmware->addOption("autosource", Firmware::tr("In model setup menus automatically set source by moving the control"));
-  firmware->addOption("autoswitch", Firmware::tr("In model setup menus automatically set switch by moving the control"));
-  firmware->addOption("nographics", Firmware::tr("No graphical check boxes and sliders"));
-  firmware->addOption("battgraph", Firmware::tr("Battery graph"));
-  firmware->addOption("nobold", Firmware::tr("Don't use bold font for highlighting active items"));
-  //firmware->addOption("bluetooth", Firmware::tr("Bluetooth interface"));
-  if (dblkeys)
-    firmware->addOption("dblkeys", Firmware::tr("Enable resetting values by pressing up and down at the same time"));
-  addOpenTxFontOptions(firmware);
-  addOpenTxRfOptions(firmware, FLEX);
 }
 
 // TODO: refactoring OpenTxFirmware constructor - need to check if used elsewhere and how

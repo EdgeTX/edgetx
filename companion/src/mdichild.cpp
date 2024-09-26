@@ -25,7 +25,6 @@
 #include "generaledit/generaledit.h"
 #include "burnconfigdialog.h"
 #include "printdialog.h"
-#include "flasheepromdialog.h"
 #include "helpers.h"
 #include "appdata.h"
 #include "wizarddialog.h"
@@ -1500,36 +1499,21 @@ void MdiChild::writeSettings(StatusDialog * status)  // write to Tx
       return;
   }
 
-  Board::Type board = getCurrentBoard();
+  QString radioPath = findMassstoragePath("RADIO", true);
+  qDebug() << "Searching for SD card, found" << radioPath;
+  if (radioPath.isEmpty()) {
+    qDebug() << "Radio SD card not found";
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
+    return;
+  }
 
-  if (Boards::getCapability(board, Board::HasSDCard)) {
-    QString radioPath = findMassstoragePath("RADIO", true);
-    qDebug() << "Searching for SD card, found" << radioPath;
-    if (radioPath.isEmpty()) {
-      qDebug() << "Radio SD card not found";
-      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
-      return;
-    }
-
-    if (saveFile(radioPath, false)) {
-      status->hide();
-      QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written to radio"));
-    }
-    else {
-      qDebug() << "MdiChild::writeEeprom(): saveFile error";
-      status->hide();
-      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings to radio!"));
-    }
+  if (saveFile(radioPath, false)) {
+    status->hide();
+    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written to radio"));
   }
   else {
-    QString tempFile = generateProcessUniqueTempFileName("temp.bin");
-    saveFile(tempFile, false);
-    if (!QFileInfo(tempFile).exists()) {
-      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Cannot write temporary file!"));
-      return;
-    }
-    FlashEEpromDialog * cd = new FlashEEpromDialog(this, tempFile);
-    cd->exec();
+    status->hide();
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings to radio!"));
   }
 }
 

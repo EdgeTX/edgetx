@@ -41,7 +41,6 @@ class ModelPrinter: public QObject
     virtual ~ModelPrinter();
 
     QString printBoolean(const bool val, const int typ);
-    QString printEEpromSize();
     QString printTrimIncrementMode();
     QString printThrottle();
     QString printFlightModeSwitch(const RawSwitch & swtch);

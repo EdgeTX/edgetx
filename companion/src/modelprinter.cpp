@@ -154,11 +154,6 @@ QString ModelPrinter::printBoolean(const bool val, const int typ)
   }
 }
 
-QString ModelPrinter::printEEpromSize()
-{
-  return QString("%1 ").arg(getCurrentEEpromInterface()->getSize(model)) + tr("bytes");
-}
-
 QString ModelPrinter::printChannelName(int idx)
 {
   QString str = RawSource(SOURCE_TYPE_CH, idx + 1).toString(&model, &generalSettings);

@@ -29,7 +29,6 @@
 #include "printdialog.h"
 #include "version.h"
 #include "customizesplashdialog.h"
-#include "flasheepromdialog.h"
 #include "flashfirmwaredialog.h"
 #include "hexinterface.h"
 #include "warnings.h"
@@ -125,7 +124,7 @@ MainWindow::MainWindow():
   if (!str.isEmpty()) {
     int fileType = getStorageType(str);
 
-    if (fileType==STORAGE_TYPE_EEPE || fileType==STORAGE_TYPE_EEPM || fileType==STORAGE_TYPE_BIN || fileType==STORAGE_TYPE_ETX) {
+    if (fileType == STORAGE_TYPE_ETX) {
       MdiChild * child = createMdiChild();
       if (child->loadFile(str)) {
         if (!(printing && model >= 0 && (getCurrentFirmware()->getCapability(Models) == 0 || model<getCurrentFirmware()->getCapability(Models)) && !printfilename.isEmpty())) {
@@ -582,13 +581,7 @@ bool MainWindow::readSettingsFromRadio(const QString & filename)
 
 void MainWindow::writeBackup()
 {
-  if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
-    QMessageBox::information(this, CPN_STR_APP_NAME, tr("This function is not yet implemented"));
-    return;
-    // TODO implementation
-  }
-  FlashEEpromDialog *cd = new FlashEEpromDialog(this);
-  cd->exec();
+  QMessageBox::information(this, CPN_STR_APP_NAME, tr("This function is not yet implemented"));
 }
 
 void MainWindow::writeFlash(QString fileToFlash)
