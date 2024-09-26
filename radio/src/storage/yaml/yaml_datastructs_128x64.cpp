@@ -237,7 +237,7 @@ static const struct YamlNode struct_anonymous_2[] = {
   YAML_SIGNED( "val", 16 ),
   YAML_UNSIGNED( "mode", 8 ),
   YAML_UNSIGNED( "param", 8 ),
-  YAML_SIGNED( "spare", 32 ),
+  YAML_SIGNED( "val2", 32 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_3[] = {
