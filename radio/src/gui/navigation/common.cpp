@@ -78,8 +78,7 @@ void onSourceLongEnterPress(const char * result)
   if (result == STR_MENU_INPUTS) {
     checkIncDecSelection =
         getFirstAvailable(MIXSRC_FIRST_INPUT, MIXSRC_LAST_INPUT,
-                          isInputAvailable) +
-        1;
+                          isInputAvailable);
   }
 #if defined(LUA_MODEL_SCRIPTS)
   else if (result == STR_MENU_LUA) {

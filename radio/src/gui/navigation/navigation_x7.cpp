@@ -54,6 +54,8 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
   if (i_flags & INCDEC_SOURCE_VALUE) {
     SourceNumVal v;
     v.rawValue = val;
+    // Save isSource flag;
+    isSource = v.isSource;
     // Remove isSource flag;
     val = v.value;
     newval = v.value;
@@ -67,20 +69,23 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
       val = -val;
     }
 
+    int vmin = isSource ? srcMin : i_min;
+    int vmax = isSource ? srcMax : i_max;
+
     if (event == evt_rot_inc || event == EVT_KEY_FIRST(KEY_PLUS) ||
         event == EVT_KEY_REPT(KEY_PLUS)) {
 
       if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
-        newval += min(10, i_max - val);
+        newval += min(10, vmax - val);
       } else {
-        newval += min<int>(rotaryEncoderGetAccel(), i_max - val);
+        newval += min<int>(rotaryEncoderGetAccel(), vmax - val);
       }
 
-      while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) && newval <= i_max) {
+      while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) && newval <= vmax) {
         newval++;
       }
 
-      if (newval > i_max) {
+      if (newval > vmax) {
         newval = val;
         AUDIO_KEY_ERROR();
       }
@@ -88,22 +93,22 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
                event == EVT_KEY_REPT(KEY_MINUS)) {
 
       if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
-        newval -= min(10, val - i_min);
+        newval -= min(10, val - vmin);
       } else {
-        newval -= min<int>(rotaryEncoderGetAccel(), val - i_min);
+        newval -= min<int>(rotaryEncoderGetAccel(), val - vmin);
       }
 
-      while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) && newval >= i_min) {
+      while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) && newval >= vmin) {
         newval--;
       }
 
-      if (newval < i_min) {
+      if (newval < vmin) {
         newval = val;
         AUDIO_KEY_ERROR();
       }
     }
 
-    auto moved =  checkMovedInput(newval, i_min, i_max, i_flags, isSource);
+    auto moved = checkMovedInput(newval, i_flags, isSource);
     if (!isValueAvailable || isValueAvailable(moved))
       newval = moved;
 
