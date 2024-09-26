@@ -37,15 +37,26 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
     QString("AIL"), QString("GEA"), QString("TRN")
   };
 
-  static const QString trimsSwitches[] = {
-    tr("Rud-"), tr("Rud+"),
-    tr("Ele-"), tr("Ele+"),
-    tr("Thr-"), tr("Thr+"),
-    tr("Ail-"), tr("Ail+"),
-    tr("T5-"), tr("T5+"),
-    tr("T6-"), tr("T6+"),
-    tr("T7-"), tr("T7+"),
-    tr("T8-"), tr("T8+")
+  static const QString trimsSwitchesAir[] = {
+    tr("Trim Rud-"), tr("Trim Rud+"),
+    tr("Trim Ele-"), tr("Trim Ele+"),
+    tr("Trim Thr-"), tr("Trim Thr+"),
+    tr("Trim Ail-"), tr("Trim Ail+"),
+    tr("Trim T5-"), tr("Trim T5+"),
+    tr("Trim T6-"), tr("Trim T6+"),
+    tr("Trim T7-"), tr("Trim T7+"),
+    tr("Trim T8-"), tr("Trim T8+")
+  };
+
+  static const QString trimsSwitchesSurface[] = {
+    tr("Trim ST-"), tr("Trim ST+"),
+    tr("Trim TH-"), tr("Trim TH+"),
+    tr("Trim T3-"), tr("Trim T3+"),
+    tr("Trim T4-"), tr("Trim T4+"),
+    tr("Trim T5-"), tr("Trim T5+"),
+    tr("Trim T6-"), tr("Trim T6+"),
+    tr("Trim T7-"), tr("Trim T7+"),
+    tr("Trim T8-"), tr("Trim T8+")
   };
 
   static const QString trimsSwitches2[] = {
@@ -115,7 +126,9 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_TRIM:
         return (Boards::getCapability(board, Board::NumTrims) == 2 ?
-                CHECK_IN_ARRAY(trimsSwitches2, index - 1) : CHECK_IN_ARRAY(trimsSwitches, index - 1));
+                CHECK_IN_ARRAY(trimsSwitches2, index - 1) :
+                (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsSwitchesAir, index - 1) :
+                                        CHECK_IN_ARRAY(trimsSwitchesSurface, index - 1)));
 
       case SWITCH_TYPE_ROTARY_ENCODER:
         return CHECK_IN_ARRAY(rotaryEncoders, index - 1);

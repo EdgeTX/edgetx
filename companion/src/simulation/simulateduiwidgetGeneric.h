@@ -21,48 +21,28 @@
 
 #pragma once
 
-#include <stdint.h>
+#include "simulateduiwidget.h"
+#include "ui_simulateduiwidgetGeneric.h"
 
-// Match with /companion/src/simulation/simulateduiwidget.h
-enum EnumKeys {
-  KEY_MENU,
-  KEY_EXIT,
-  KEY_ENTER,
+/*
+    Note: This class is not expected to be instantiated directly but as the base for each firmware that uses it
+          due to the methods and functions surrounding the building and loading of radio simulators
+*/
 
-  KEY_PAGEUP,
-  KEY_PAGEDN,
+SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator, QWidget * parent):
+  SimulatedUIWidget(simulator, parent),
+  ui(new Ui::SimulatedUIWidgetGeneric)
+{
+  ui->setupUi(this);
 
-  KEY_UP,
-  KEY_DOWN,
+  addGenericPushButtons(ui->leftbuttons, ui->rightbuttons);
 
-  KEY_LEFT,
-  KEY_RIGHT,
+  addScrollActions();
 
-  KEY_PLUS,
-  KEY_MINUS,
+  setLcd(ui->lcd);
+}
 
-  KEY_MODEL,
-  KEY_TELE,
-  KEY_SYS,
-
-  KEY_SHIFT,
-  KEY_BIND,
-
-  MAX_KEYS
-};
-
-// returns a bit field with each key set as (1 << KEY_xxx)
-uint32_t readKeys();
-
-// returns a bit field with each trim key
-uint32_t readTrims();
-
-// Init GPIO ports
-void keysInit();
-
-uint32_t keysGetSupported();
-
-uint8_t keysGetMaxKeys();
-uint8_t keysGetMaxTrims();
-
-const char* keysGetLabel(EnumKeys key);
+SimulatedUIWidgetGeneric::~SimulatedUIWidgetGeneric()
+{
+  delete ui;
+}

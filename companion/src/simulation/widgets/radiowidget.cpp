@@ -137,9 +137,9 @@ void RadioWidget::setAction(RadioUiAction * action)
     if (m_action->getIndex() > -1)
       setIndex(m_action->getIndex());
     connect(m_action, &RadioUiAction::toggled, this, &RadioWidget::onActionToggled);
+    connect(m_action, &RadioUiAction::triggered, this, &RadioWidget::onActionTriggered);
   }
 }
-
 
 int RadioWidget::getValue() const
 {
@@ -179,6 +179,10 @@ void RadioWidget::onActionToggled(int index, bool active)
   emit valueChange(m_type, index, getValue());
 }
 
+void RadioWidget::onActionTriggered(int index, bool active)
+{
+  // do nothing
+}
 
 void RadioWidget::addLayout()
 {

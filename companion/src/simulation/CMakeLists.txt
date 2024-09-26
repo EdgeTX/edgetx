@@ -49,6 +49,7 @@ set(${PROJECT_NAME}_SRCS
   simulateduiwidgetJumperTPRO.cpp
   simulateduiwidgetJumperTPROS.cpp
   simulateduiwidgetLR3PRO.cpp
+  simulateduiwidgetMT12.cpp
   simulateduiwidgetNV14.cpp
   simulateduiwidgetPL18.cpp
   simulateduiwidgetPocket.cpp
@@ -70,6 +71,7 @@ set(${PROJECT_NAME}_SRCS
 set(${PROJECT_NAME}_HDRS
   ${${PROJECT_NAME}_HDRS}
   radiouiaction.h
+  simulateduiwidgetGeneric.h
   widgets/buttonswidget.h
   widgets/radiofaderwidget.h
   widgets/radiokeywidget.h
@@ -82,6 +84,11 @@ set(${PROJECT_NAME}_HDRS
 # AUTOMOC does not detect so manually process
 qt5_wrap_cpp(${PROJECT_NAME}_SRCS
   ${${PROJECT_NAME}_HDRS}
+)
+
+# AUTOUIC does not detect as ui in .h so manually process
+qt5_wrap_ui(${PROJECT_NAME}_SRCS
+  simulateduiwidgetGeneric.ui
 )
 
 add_library(${PROJECT_NAME}

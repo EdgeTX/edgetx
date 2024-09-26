@@ -545,7 +545,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case FlightModesHaveFades:
       return 1;
     case Heli:
-      if (IS_HORUS_OR_TARANIS(board))
+      if (Boards::getCapability(board, Board::Surface))
+        return false;
+      else if (IS_HORUS_OR_TARANIS(board))
         return id.contains("noheli") ? 0 : 1;
       else
         return id.contains("heli") ? 1 : 0;
@@ -674,9 +676,9 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case OptrexDisplay:
       return (board == BOARD_SKY9X ? true : false);
     case HasVario:
-      return 1;
+      return Boards::isAir(board);
     case HasVarioSink:
-      return true;
+      return Boards::isAir(board);
     case HasFailsafe:
       return 32;
     case NumModules:
@@ -705,37 +707,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return 18;
     case HasSDLogs:
       return true;
-    case LcdWidth:
-      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
-        return 320;
-      else if (IS_FLYSKY_PL18(board))
-        return 480;
-      else if (IS_FAMILY_HORUS_OR_T16(board))
-        return 480;
-      else if (IS_TARANIS_SMALL(board))
-        return 128;
-      else if (IS_TARANIS(board))
-        return 212;
-      else
-        return 128;
-    case LcdHeight:
-      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
-        return 480;
-      else if (IS_FLYSKY_PL18(board) || IS_JUMPER_T15(board))
-        return 320;
-      else if (IS_FAMILY_HORUS_OR_T16(board))
-        return 272;
-      else
-        return 64;
-    case LcdDepth:
-      if (IS_FAMILY_HORUS_OR_T16(board))
-        return 16;
-      else if (IS_TARANIS_SMALL(board))
-        return 1;
-      else if (IS_TARANIS(board))
-        return 4;
-      else
-        return 1;
     case GetThrSwitch:
       return (IS_HORUS_OR_TARANIS(board) ? SWITCH_SF1 : SWITCH_THR);
     case HasDisplayText:
@@ -817,12 +788,14 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasAuxSerialMode:
       return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))) ||
              (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
-             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board);
+             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_MT12(board);
     case HasAux2SerialMode:
       return IS_FAMILY_T16(board);
     case HasVCPSerialMode:
       return IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_ZORRO(board) ||
-             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board);
+             IS_JUMPER_TPRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+             IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
+             IS_RADIOMASTER_MT12(board);
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
               IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PL18(board)) ? true : false;
@@ -831,7 +804,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasTelemetryBaudrate:
       return IS_HORUS_OR_TARANIS(board);
     case TopBarZones:
-      return getCapability(LcdWidth) > getCapability(LcdHeight) ? 4 : 2;
+      return Boards::getCapability(board, Board::LcdWidth) > Boards::getCapability(board, Board::LcdHeight) ? 4 : 2;
     case HasModelsList:
       return IS_FAMILY_HORUS_OR_T16(board);
     case HasFlySkyGimbals:
@@ -843,7 +816,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) ||
               IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_TX16S(board) ||
               IS_JUMPER_T18(board) || IS_JUMPER_T20(board) ||
-              IS_RADIOMASTER_POCKET(board));
+              IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_MT12(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:
@@ -851,13 +824,15 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_RADIOMASTER_TX12(board) || IS_JUMPER_TLITE(board) || IS_BETAFPV_LR3PRO(board) ||
               (IS_RADIOMASTER_ZORRO(board) && !id.contains("internalelrs")) ||
               (IS_RADIOMASTER_BOXER(board) && !id.contains("internalelrs")) ||
-              (IS_RADIOMASTER_POCKET(board) && !id.contains("internalelrs"));
+              (IS_RADIOMASTER_POCKET(board) && !id.contains("internalelrs")) ||
+              (IS_RADIOMASTER_MT12(board) && !id.contains("internalelrs"));
     case HasIntModuleCRSF:
       return id.contains("internalcrsf");
     case HasIntModuleELRS:
       return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
              IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
-             IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board);
+             IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board) ||
+             IS_RADIOMASTER_MT12(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
               IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board);
@@ -1528,6 +1503,15 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
+
+  /* Radiomaster MT12 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("mt12"), QCoreApplication::translate("Firmware", "Radiomaster MT12"), Board::BOARD_RADIOMASTER_MT12);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("nogvars", Firmware::tr("Disable Global variables"));
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, NONE);
 
   /* Radiomaster T8 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t8"), QCoreApplication::translate("Firmware", "Radiomaster T8"), BOARD_RADIOMASTER_T8);

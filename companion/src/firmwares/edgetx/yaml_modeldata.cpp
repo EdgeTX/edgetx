@@ -167,38 +167,42 @@ struct YamlThrTrace {
 
   YamlThrTrace(unsigned int cpn_value)
   {
+    Board::Type board = getCurrentBoard();
+
     if (cpn_value == 0) {
-      src = RawSource(SOURCE_TYPE_INPUT, 2/* throttle */);
+      if (Boards::getInputThrottleIndex(board) >= 0)
+        src = RawSource(SOURCE_TYPE_INPUT, Boards::getInputThrottleIndex(board) + 1);
+      else
+        src = RawSource(SOURCE_TYPE_NONE);
       return;
     }
-    cpn_value--;
-    Boards board(getCurrentBoard());
-    int pots = board.getCapability(Board::Pots);
-    int sliders = board.getCapability(Board::Sliders);
-    if (cpn_value < (unsigned int)(pots + sliders)) {
-      src = RawSource(SOURCE_TYPE_INPUT, 4/* sticks */ + cpn_value);
-    }
-    else {
-      cpn_value -= pots + sliders;
-      src = RawSource(SOURCE_TYPE_CH, cpn_value);
-    }
+
+    int sticks = Boards::getCapability(board, Board::Sticks);
+    int pots = Boards::getCapability(board, Board::Pots);
+    int sliders = Boards::getCapability(board, Board::Sliders);
+
+    if (cpn_value <= (unsigned int)(pots + sliders))
+      src = RawSource(SOURCE_TYPE_INPUT, sticks + cpn_value);
+    else
+      src = RawSource(SOURCE_TYPE_CH, cpn_value - pots - sliders);
   }
 
   unsigned int toCpn()
   {
+    Board::Type board = getCurrentBoard();
+    int sticks = Boards::getCapability(board, Board::Sticks);
+
     switch (src.type) {
       case SOURCE_TYPE_INPUT:
-        if (src.index == 2 /* throttle */) {
+        if (src.index == Boards::getInputThrottleIndex(board) + 1)
           return 0;
-        } else {
-          return src.index - 4/* sticks */ + 1;
-        }
+        else
+          return src.index - sticks;
         break;
       case SOURCE_TYPE_CH: {
-        Boards board(getCurrentBoard());
-        int pots = board.getCapability(Board::Pots);
-        int sliders = board.getCapability(Board::Sliders);
-        return 1 + pots + sliders + src.index;
+        int pots = Boards::getCapability(board, Board::Pots);
+        int sliders = Boards::getCapability(board, Board::Sliders);
+        return pots + sliders + src.index;
       } break;
       default:
         break;

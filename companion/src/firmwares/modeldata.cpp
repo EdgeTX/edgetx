@@ -193,7 +193,7 @@ bool ModelData::isEmpty() const
 
 void ModelData::setDefaultInputs(const GeneralSettings & settings)
 {
-  for (int i = 0; i < CPN_MAX_STICKS; i++) {
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     ExpoData * expo = &expoData[i];
     expo->chn = i;
     expo->mode = INPUT_MODE_BOTH;
@@ -207,7 +207,7 @@ void ModelData::setDefaultMixes(const GeneralSettings & settings)
 {
   setDefaultInputs(settings);
 
-  for (int i = 0; i < CPN_MAX_STICKS; i++) {
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     MixData * mix = &mixData[i];
     mix->destCh = i + 1;
     mix->weight = 100;
@@ -1492,20 +1492,21 @@ void ModelData::updateResetParam(CustomFunctionData * cfd)
 
 QString ModelData::thrTraceSrcToString() const
 {
-  return thrTraceSrcToString((int)thrTraceSrc);
+  return thrTraceSrcToString(nullptr, (int)thrTraceSrc);
 }
 
-QString ModelData::thrTraceSrcToString(const int index) const
+QString ModelData::thrTraceSrcToString(const GeneralSettings * generalSettings, const int index) const
 {
   const Board::Type board = getCurrentBoard();
   const int pscnt = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
 
   if (index == 0)
-    return tr("THR");
+    return Boards::getCapability(board, Board::Air) ? tr("THR") : tr("TH");
   else if (index <= pscnt)
-    return Boards::getInputName(index + Boards::getCapability(board, Board::Sticks) - 1, board);
+    //return Boards::getInputName(index + Boards::getCapability(board, Board::Sticks) - 1, board);
+    return RawSource(SOURCE_TYPE_INPUT, index + Boards::getCapability(board, Board::Sticks)).toString(this, generalSettings, board);
   else if (index <= pscnt + getCurrentFirmware()->getCapability(Outputs))
-    return RawSource(SOURCE_TYPE_CH, index - pscnt - 1).toString(this);
+    return RawSource(SOURCE_TYPE_CH, index - pscnt).toString(this);
 
   return QString(CPN_STR_UNKNOWN_ITEM);
 }
@@ -1522,10 +1523,12 @@ bool ModelData::isThrTraceSrcAvailable(const GeneralSettings * generalSettings, 
 {
   const Board::Type board = getCurrentBoard();
 
-  if (index > 0 && index <= Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders))
-    return RawSource(SOURCE_TYPE_INPUT, index + Boards::getCapability(board, Board::Sticks) - 1).isAvailable(this, generalSettings, board);
-  else
+  if (index == 0)
     return true;
+  else if (index > 0 && index <= Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders))
+    return RawSource(SOURCE_TYPE_INPUT, index + Boards::getCapability(board, Board::Sticks)).isAvailable(this, generalSettings, board);
+  else
+    return hasMixes(index - Boards::getCapability(board, Board::Pots) - Boards::getCapability(board, Board::Sliders) - 1);
 }
 
 void ModelData::limitsClear(const int index)

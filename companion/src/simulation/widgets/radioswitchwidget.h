@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIOSWITCHWIDGET_H_
-#define _RADIOSWITCHWIDGET_H_
+#pragma once
 
 #include "radiowidget.h"
 #include "boards.h"
@@ -146,5 +145,3 @@ class RadioSwitchWidget : public RadioWidget
     quint16 m_stepSize;
 
 };
-
-#endif // _RADIOSWITCHWIDGET_H_

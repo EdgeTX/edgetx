@@ -137,8 +137,12 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
 
-  static const QString trims[] = {
-    "", tr("TrmR"), tr("TrmE"), tr("TrmT"), tr("TrmA"), tr("Trm5"), tr("Trm6"), tr("Trm7"), tr("Trm8")
+  static const QString trimsAir[] = {
+    "", tr("Trim Rud"), tr("Trim Ele"), tr("Trim Thr"), tr("Trim Ail"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
+  };
+
+  static const QString trimsSurface[] = {
+    "", tr("Trim ST"), tr("Trim TH"), tr("Trim 3"), tr("Trim 4"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
   };
 
   static const QString trims2[] = {
@@ -180,7 +184,9 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_TRIM:
-      return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) : CHECK_IN_ARRAY(trims, index));
+      return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) :
+              (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsAir, index) :
+               CHECK_IN_ARRAY(trimsSurface, index)));
 
     case SOURCE_TYPE_ROTARY_ENCODER:
       return CHECK_IN_ARRAY(rotary, index);
@@ -286,6 +292,7 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     board = getCurrentBoard();
 
   Boards b(board);
+  Firmware *firmware = getCurrentFirmware();
 
   if (type == SOURCE_TYPE_CH && abs(index) > CPN_MAX_CHNOUT)
     return false;
@@ -294,9 +301,6 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     return false;
 
   if (type == SOURCE_TYPE_CUSTOM_SWITCH && abs(index) > CPN_MAX_LOGICAL_SWITCHES)
-    return false;
-
-  if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && b.getCapability(Board::FunctionSwitches) && model->getFuncGroupSwitchCount(abs(index), CPN_MAX_SWITCHES_FUNCTION) == 0)
     return false;
 
   if (type == SOURCE_TYPE_LUA_OUTPUT && div(abs(index - 1), 16).quot >= CPN_MAX_SCRIPTS)
@@ -315,6 +319,9 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     return false;
 
   if (type == SOURCE_TYPE_TELEMETRY && div(abs(index), 3).quot > CPN_MAX_SENSORS)
+    return false;
+
+  if (type == SOURCE_TYPE_CYC && !firmware->getCapability(Heli))
     return false;
 
   if (model) {
@@ -341,6 +348,17 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
     }
 
     if (type == SOURCE_TYPE_CH && !model->hasMixes(abs(index) - 1))
+      return false;
+
+    if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP) {
+      if (!b.getCapability(Board::FunctionSwitches))
+        return false;
+      else if (model->getFuncGroupSwitchCount(abs(index), CPN_MAX_SWITCHES_FUNCTION) == 0)
+        return false;
+    }
+  }
+  else {
+    if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && b.getCapability(Board::FunctionSwitches))
       return false;
   }
 

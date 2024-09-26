@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIOWIDGET_H_
-#define _RADIOWIDGET_H_
+#pragma once
 
 #include <QGridLayout>
 #include <QDebug>
@@ -109,6 +108,7 @@ class RadioWidget : public QWidget
     void addLabel();
     void setWidget(QWidget * widget = NULL, Qt::Alignment align = Qt::AlignHCenter);
     virtual void onActionToggled(int index, bool active);
+    virtual void onActionTriggered(int index, bool active);
 
     QGridLayout * m_gridLayout;
     QWidget * m_controlWidget;
@@ -126,5 +126,3 @@ class RadioWidget : public QWidget
 };
 
 Q_DECLARE_METATYPE(RadioWidget::RadioWidgetState)
-
-#endif // _RADIOWIDGET_H_

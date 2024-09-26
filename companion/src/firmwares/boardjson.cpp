@@ -68,6 +68,7 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_inputs(new InputsTable),
   m_switches(new SwitchesTable),
   m_trims(new TrimsTable),
+  m_keys(new KeysTable),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
@@ -79,10 +80,12 @@ BoardJson::~BoardJson()
   delete m_inputs;
   delete m_switches;
   delete m_trims;
+  delete m_keys;
 }
 
 // static
-void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, SwitchesTable * switches)
+void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, SwitchesTable * switches,
+                                KeysTable * keys, TrimsTable * trims)
 {
   // TODO json files do not contain gyro defs
   // Radio cmake directive IMU is currently used
@@ -114,8 +117,8 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
     }
   }
 
-  //  Flex switches are not listed in json file
-  int count = IS_RADIOMASTER_TX16S(board) ? 2 : 0;
+  //  Flex switches are not listed in json file for these radios
+  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
 
   for (int i = 1; i <= count; i++) {
     QString tag = QString("FL%1").arg(i);
@@ -163,6 +166,9 @@ const int BoardJson::getCapability(const Board::Capability capability) const
 
     case Board::InputSwitches:
       return m_inputCnt.switches;
+
+    case Board::Keys:
+      return m_keys->size();
 
     case Board::MultiposPots:
       // assumes every input has potential to be one
@@ -332,6 +338,14 @@ const int BoardJson::getInputSliderIndex(int index)
   return -1;
 }
 
+const int BoardJson::getInputThrottleIndex()
+{
+  if (getCapability(Board::Sticks) > 0)
+    return getInputTagOffset(m_inputs, Boards::getCapability(m_board, Board::Air) ? "RV" : "TH");
+
+  return -1;
+}
+
 const int BoardJson::getInputTypeOffset(Board::AnalogInputType type)
 {
   return getInputTypeOffset(m_inputs, type);
@@ -366,6 +380,42 @@ Board::InputInfo BoardJson::getInputInfo(const InputsTable * inputs, int index)
     info.shortName = defn.shortName;
     info.flexType = defn.flexType;
     info.inverted = defn.inverted;
+  }
+
+  return info;
+}
+
+const int BoardJson::getKeyIndex(const QString key) const
+{
+  return getKeyIndex(m_keys, key);
+}
+
+// static
+int BoardJson::getKeyIndex(const KeysTable * keys, QString key)
+{
+  for (int i = 0; i < (int)keys->size(); i++) {
+    if (keys->at(i).key.c_str() == key)
+      return i;
+  }
+
+  return -1;
+}
+
+const Board::KeyInfo BoardJson::getKeyInfo(int index) const
+{
+  return getKeyInfo(m_keys, index);
+}
+
+// static
+Board::KeyInfo BoardJson::getKeyInfo(const KeysTable * keys, int index)
+{
+  Board::KeyInfo info;
+
+  if (index >= 0 && index < (int)keys->size()) {
+    KeyDefn defn = keys->at(index);
+    info.name = defn.name;
+    info.key = defn.key;
+    info.label = defn.label;
   }
 
   return info;
@@ -771,10 +821,10 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_trims))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims))
     return false;
 
-  afterLoadFixups(m_board, m_inputs, m_switches);
+  afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
 
   setInputCounts(m_inputs, m_inputCnt);
   setSwitchCounts(m_switches, m_switchCnt);
@@ -795,6 +845,7 @@ bool BoardJson::loadDefinition()
               "flex inputs:" << getCapability(Board::FlexInputs) <<
               "input switches:" << getCapability(Board::InputSwitches) <<
               "trims:" << getCapability(Board::NumTrims) <<
+              "keys:" << getCapability(Board::Keys) <<
               "std switches:" << getCapability(Board::StandardSwitches) <<
               "flex switches:" << getCapability(Board::FlexSwitches) <<
               "func switches:" << getCapability(Board::FunctionSwitches) <<
@@ -805,7 +856,8 @@ bool BoardJson::loadDefinition()
 }
 
 // static
-bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches, TrimsTable * trims)
+bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
+                         KeysTable * keys, TrimsTable * trims)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -948,6 +1000,29 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 //        qDebug() << "tag:" << sw.tag.c_str() << "name:" << sw.name.c_str() << "type:" << sw.type << ">" << Boards::switchTypeToString(sw.type) <<
 //                    "flags:" << sw.flags << "default:" << sw.dflt << ">" << Boards::switchTypeToString(sw.dflt) <<
 //                    "inverted:" << sw.inverted << "display:" << QString("%1").arg(sw.display.x) << "," << QString("%1").arg(sw.display.y);
+      }
+    }
+  }
+
+  if (obj.value("keys").isArray()) {
+    const QJsonArray &kys = obj.value("keys").toArray();
+
+    for (const QJsonValue &key : kys)
+    {
+      if (key.isObject()) {
+        const QJsonObject &o = key.toObject();
+        KeyDefn k;
+
+        if (!o.value("name").isUndefined()) {
+          k.name = o.value("name").toString().toStdString();
+          k.key = o.value("key").toString().toStdString();
+          k.label = o.value("label").toString().toStdString();
+          k.tag = k.name;
+        }
+
+        keys->insert(keys->end(), k);
+
+//        qDebug() << "name:" << k.name.c_str() << "key:" << k.key.c_str() << "label:" << k.label.c_str();
       }
     }
   }

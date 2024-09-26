@@ -88,6 +88,7 @@ namespace Board {
     BOARD_JUMPER_T20V2,
     BOARD_FATFISH_F16,
     BOARD_HELLORADIOSKY_V16,
+    BOARD_RADIOMASTER_MT12,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -160,7 +161,47 @@ namespace Board {
     TRIM_SW_COUNT
   };
 
+  enum StickAxesSurface {
+    STICK_AXIS_SURFACE_RH = 0, // Steering
+    STICK_AXIS_SURFACE_LV,     // Throttle
+    STICK_AXIS_SURFACE_COUNT
+  };
+
+  enum TrimAxesSurface {
+    TRIM_AXIS_SURFACE_RH = 0,
+    TRIM_AXIS_SURFACE_LH, // Throttle axis vertical but its trim horizontal in lcd
+    TRIM_AXIS_SURFACE_T3,
+    TRIM_AXIS_SURFACE_T4,
+    TRIM_AXIS_SURFACE_T5,
+    TRIM_AXIS_SURFACE_T6,
+    TRIM_AXIS_SURFACE_T7,
+    TRIM_AXIS_SURFACE_T8,
+    TRIM_AXIS_SURFACE_COUNT
+  };
+
+  enum TrimSwitchesSurface
+  {
+    TRIM_SW_SURFACE_RH_DEC,
+    TRIM_SW_SURFACE_RH_INC,
+    TRIM_SW_SURFACE_LH_DEC, // Throttle axis vertical but its trim horizontal in lcd
+    TRIM_SW_SURFACE_LH_INC, // Throttle axis vertical but its trim horizontal in lcd
+    TRIM_SW_SURFACE_T3_DEC,
+    TRIM_SW_SURFACE_T3_INC,
+    TRIM_SW_SURFACE_T4_DEC,
+    TRIM_SW_SURFACE_T4_INC,
+    TRIM_SW_SURFACE_T5_DEC,
+    TRIM_SW_SURFACE_T5_INC,
+    TRIM_SW_SURFACE_T6_DEC,
+    TRIM_SW_SURFACE_T6_INC,
+    TRIM_SW_SURFACE_T7_DEC,
+    TRIM_SW_SURFACE_T7_INC,
+    TRIM_SW_SURFACE_T8_DEC,
+    TRIM_SW_SURFACE_T8_INC,
+    TRIM_SW_SURFACE_COUNT
+  };
+
   enum Capability {
+    Air,
     FactoryInstalledPots,
     FactoryInstalledSwitches,
     FlexInputs,
@@ -180,11 +221,15 @@ namespace Board {
     HasTrainerModuleCPPM,
     HasTrainerModuleSBUS,
     HasVBat,
+    LcdDepth,
+    LcdHeight,
+    LcdWidth,
     MaxAnalogs,
     Inputs,
     InputSwitches,
     Joysticks,
     JoystickAxes,
+    Keys,
     MultiposPots,
     MultiposPotsPositions,
     NumFunctionSwitchesPositions,
@@ -195,6 +240,7 @@ namespace Board {
     SportMaxBaudRate,
     StandardSwitches,
     Sticks,
+    Surface,
     Switches,
     SwitchesPositions,
   };
@@ -294,6 +340,26 @@ namespace Board {
     SwitchType dflt;
     bool inverted;
   };
+
+  struct KeyInfo {
+    KeyInfo() :
+      key(""),
+      name(""),
+      label("")
+    {}
+
+    std::string key;
+    std::string name;
+    std::string label;
+  };
+
+  struct TrimInfo {
+    TrimInfo() :
+      name("")
+    {}
+
+    std::string name;
+  };
 }
 
 class Boards
@@ -343,9 +409,13 @@ class Boards
     static int getInputSliderIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputTagOffset(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputThrottleIndex(Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputTypeOffset(Board::AnalogInputType type, Board::Type board = Board::BOARD_UNKNOWN);
     static int getInputYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getInputYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static Board::KeyInfo getKeyInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getKeyIndex(QString key, Board::Type board = Board::BOARD_UNKNOWN);
 
     static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
@@ -379,6 +449,9 @@ class Boards
     static AbstractStaticItemModel * flexTypeItemModel();
 
     static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getRadioTypeString(Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
 
   private:
 
@@ -501,6 +574,11 @@ inline bool IS_RADIOMASTER_BOXER(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_BOXER;
 }
 
+inline bool IS_RADIOMASTER_MT12(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_MT12;
+}
+
 inline bool IS_RADIOMASTER_POCKET(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_POCKET;
@@ -542,6 +620,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
          board == Board::BOARD_RADIOMASTER_BOXER ||
+         board == Board::BOARD_RADIOMASTER_MT12 ||
          board == Board::BOARD_RADIOMASTER_POCKET ||
          board == Board::BOARD_RADIOMASTER_T8 ||
          board == Board::BOARD_BETAFPV_LR3PRO ||

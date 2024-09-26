@@ -395,7 +395,7 @@ ThrottleSourceItemModel::ThrottleSourceItemModel(const GeneralSettings * const g
   if (!modelData)
     return;
 
-  setUpdateMask(IMUE_Timers | IMUE_Inputs | IMUE_TeleSensors);
+  setUpdateMask(IMUE_Channels);
 
   for (int i = 0; i < modelData->thrTraceSrcCount(); i++) {
     QStandardItem * modelItem = new QStandardItem();
@@ -407,7 +407,7 @@ ThrottleSourceItemModel::ThrottleSourceItemModel(const GeneralSettings * const g
 
 void ThrottleSourceItemModel::setDynamicItemData(QStandardItem * item, const int value) const
 {
-  item->setText(modelData->thrTraceSrcToString(value));
+  item->setText(modelData->thrTraceSrcToString(generalSettings, value));
   item->setData(modelData->isThrTraceSrcAvailable(generalSettings, value), IMDR_Available);
 }
 
