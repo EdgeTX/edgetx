@@ -120,13 +120,7 @@ enum MenuRadioSetupItems {
 
 PACK(struct ExpandState {
   uint8_t sound:1;
-  uint8_t vario:1;
-  uint8_t haptic:1;
   uint8_t alarms:1;
-  uint8_t backlight:1;
-#if defined(GPS)
-  uint8_t gps:1;
-#endif
   uint8_t viewOpt:1;
 });
 
@@ -134,17 +128,7 @@ static struct ExpandState expandState;
 
 static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
 
-static uint8_t VARIO_ROW(uint8_t value) { return expandState.vario ? value : HIDDEN_ROW; }
-
-static uint8_t HAPTIC_ROW(uint8_t value) { return expandState.haptic ? value : HIDDEN_ROW; }
-
 static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
-
-static uint8_t BACKLIGHT_ROW(uint8_t value) { return expandState.backlight ? value : HIDDEN_ROW; }
-
-#if defined(GPS)
-static uint8_t GPS_ROW(uint8_t value) { return expandState.gps ? value : HIDDEN_ROW; }
-#endif
 
 static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value : HIDDEN_ROW; }
 
@@ -202,16 +186,16 @@ void menuRadioSetup(event_t event)
      SOUND_ROW(0), // background volume
      SOUND_ROW(0), // startup sound
     // Vario
-    CASE_VARIO(0)
-     CASE_VARIO(VARIO_ROW(0))
-     CASE_VARIO(VARIO_ROW(0))
-     CASE_VARIO(VARIO_ROW(0))
-     CASE_VARIO(VARIO_ROW(0))
+    CASE_VARIO(LABEL(VARIO))
+     CASE_VARIO(0)
+     CASE_VARIO(0)
+     CASE_VARIO(0)
+     CASE_VARIO(0)
     // Haptic
-    CASE_HAPTIC(0)
-     CASE_HAPTIC(HAPTIC_ROW(0))
-     CASE_HAPTIC(HAPTIC_ROW(0))
-     CASE_HAPTIC(HAPTIC_ROW(0))
+    CASE_HAPTIC(LABEL(VARIO))
+     CASE_HAPTIC(0)
+     CASE_HAPTIC(0)
+     CASE_HAPTIC(0)
     // Alarms
     0,
      ALARMS_ROW(0),
@@ -221,13 +205,13 @@ void menuRadioSetup(event_t event)
      ALARMS_ROW(0),
      ALARMS_ROW(0),
     // Backlight
-    0,
-      BACKLIGHT_ROW(0), // backlight mode
-      BACKLIGHT_ROW(0), // backlight delay
-      BACKLIGHT_ROW(0), // brightness
-      BACKLIGHT_ROW(0), // contrast
-      CASE_PCBX9E_PCBX9DP(BACKLIGHT_ROW(0)) // backlight color
-      BACKLIGHT_ROW(0), // flash beep
+    LABEL(BACKLIGHT),
+      0, // backlight mode
+      0, // backlight delay
+      0, // brightness
+      0, // contrast
+      CASE_PCBX9E_PCBX9DP(0) // backlight color
+      0, // flash beep
     CASE_SPLASH_PARAM(0) // disable splash
     CASE_PWR_BUTTON_PRESS(0) // pwr on speed
     CASE_PWR_BUTTON_PRESS(0) // pwr off speed
@@ -235,10 +219,10 @@ void menuRadioSetup(event_t event)
     CASE_HAPTIC(0) // power on/off haptic
     CASE_PXX2(0) // owner registration ID
     // GPS
-    CASE_GPS(0)
-     CASE_GPS(GPS_ROW(0))
-     CASE_GPS(GPS_ROW(0))
-     CASE_GPS(GPS_ROW(0))
+    CASE_GPS(LABEL(GPS))
+     CASE_GPS(0)
+     CASE_GPS(0)
+     CASE_GPS(0)
     CASE_PXX1(0) // country code
     0, // voice language
     0, // imperial
@@ -426,7 +410,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(VARIO)
       case ITEM_RADIO_SETUP_VARIO_LABEL:
-        expandState.vario = expandableSection(y, STR_VARIO, expandState.vario, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_VARIO);
         break;
 
       case ITEM_RADIO_SETUP_VARIO_VOLUME:
@@ -457,7 +441,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(HAPTIC)
       case ITEM_RADIO_SETUP_HAPTIC_LABEL:
-        expandState.haptic = expandableSection(y, STR_HAPTIC_LABEL, expandState.haptic, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_HAPTIC_LABEL);
         break;
 
       case ITEM_RADIO_SETUP_HAPTIC_MODE:
@@ -520,7 +504,7 @@ void menuRadioSetup(event_t event)
         break;
 
       case ITEM_RADIO_SETUP_BACKLIGHT_LABEL:
-        expandState.backlight = expandableSection(y, STR_BACKLIGHT_LABEL, expandState.backlight, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_BACKLIGHT_LABEL);
         break;
 
       case ITEM_RADIO_SETUP_BACKLIGHT_MODE:
@@ -616,7 +600,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(GPS)
       case ITEM_RADIO_SETUP_LABEL_GPS:
-        expandState.gps = expandableSection(y, STR_GPS, expandState.gps, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_GPS);
         break;
 
       case ITEM_RADIO_SETUP_TIMEZONE:
