@@ -116,6 +116,7 @@
 
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "Modo Racing"
+#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Off"
 #define TR_SF_SET_SCREEN               "Setta Schermo Princ."

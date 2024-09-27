@@ -107,9 +107,6 @@
 #define TR_SPLASHSCREEN_DELAYS         "1s","2s","3s","4s","6s","8s","10s","15s"
 #endif
 
-// ELRS SF ARM
-#define STR_SF_ARM                           "Arm - min FW V4!"
-
 // Telemetry sensor name definitions
 #define STR_SENSOR_RSSI                      "RSSI"
 #define STR_SENSOR_R9PW                      "R9PW"

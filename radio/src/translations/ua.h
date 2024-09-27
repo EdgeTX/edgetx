@@ -118,6 +118,7 @@
 
 #define TR_SF_SCREENSHOT               "Скріншот"
 #define TR_SF_RACING_MODE              "Режим перегонів"
+#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "Сенсор вимк."
 #define TR_SF_DISABLE_AUDIO_AMP        "Підсил. вимк."
 #define TR_SF_SET_SCREEN               "Вибір гол. екр."

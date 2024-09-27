@@ -118,6 +118,7 @@
 
 #define TR_SF_SCREENSHOT               "Snímek LCD"
 #define TR_SF_RACING_MODE              "Závodní režim"
+#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
 #define TR_SF_DISABLE_AUDIO_AMP        "Vypnutí zesilovače zvuku"
 #define TR_SF_SET_SCREEN               "Vybrat hlavní obrazovku"

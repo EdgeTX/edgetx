@@ -112,6 +112,7 @@
 
 #define TR_SF_SCREENSHOT      "Zrzut Ekra"
 #define TR_SF_RACING_MODE     "RacingMode"
+#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP TR("Wycisz wzm.", "Wycisz wzmacniacz audio")
 #define TR_SF_SET_SCREEN      "Set Main Screen"

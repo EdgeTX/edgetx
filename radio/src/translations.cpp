@@ -199,6 +199,7 @@ const char STR_SF_VARIO[] = TR_SF_VARIO;
 const char STR_SF_RGBLEDS[] = TR_SF_RGBLEDS;
 const char STR_SF_VOLUME[] = TR_SF_VOLUME;
 const char STR_SF_RACING_MODE[] = TR_SF_RACING_MODE;
+const char STR_SF_ARM[] = TR_SF_ARM;
 const char STR_SF_SAFETY[] = TR_SF_SAFETY;
 #if defined(COLORLCD)
 const char STR_SF_SET_SCREEN[] = TR_SF_SET_SCREEN;

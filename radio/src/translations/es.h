@@ -113,6 +113,7 @@
 
 #define TR_SF_SCREENSHOT      "Captura"
 #define TR_SF_RACING_MODE     "RacingMode"
+#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN      "Set Main Screen"
