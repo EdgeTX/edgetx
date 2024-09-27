@@ -122,6 +122,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Bind Ext. Module");
   else if (func == FuncRacingMode)
     return tr("Racing Mode");
+  else if (func == FuncArm)
+      return tr("Arm");
   else if (func == FuncDisableTouch)
     return tr("Disable Touch");
   else if (func == FuncSetScreen)
@@ -498,6 +500,7 @@ bool CustomFunctionData::isParamAvailable() const
     FuncBindInternalModule,
     FuncBindExternalModule,
     FuncRacingMode,
+    FuncArm,
     FuncDisableTouch,
     FuncDisableAudioAmp,
     FuncRGBLed

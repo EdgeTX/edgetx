@@ -2139,6 +2139,11 @@ Do you want to import settings from a file?</source>
         <translation></translation>
     </message>
     <message>
+        <location filename="../firmwares/customfunctiondata.cpp" line="124"/>
+        <source>Arm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="126"/>
         <source>Disable Touch</source>
         <translation></translation>

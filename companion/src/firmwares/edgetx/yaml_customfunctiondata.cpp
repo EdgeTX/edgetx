@@ -58,6 +58,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncBacklight, "BACKLIGHT"  },
   {  FuncScreenshot, "SCREENSHOT"  },
   {  FuncRacingMode, "RACING_MODE"  },
+  {  FuncArm, "ARM"  },
   {  FuncDisableTouch, "DISABLE_TOUCH"  },
   {  FuncSetScreen, "SET_SCREEN"},
   {  FuncDisableAudioAmp, "DISABLE_AUDIO_AMP"  },
