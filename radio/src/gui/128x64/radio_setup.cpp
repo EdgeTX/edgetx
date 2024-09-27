@@ -129,16 +129,7 @@ enum {
 
 PACK(struct ExpandState {
   uint8_t sound:1;
-  uint8_t vario:1;
-  uint8_t haptic:1;
-#if defined(IMU)
-  uint8_t imu:1;
-#endif
   uint8_t alarms:1;
-  uint8_t backlight:1;
-#if defined(GPS)
-  uint8_t gps:1;
-#endif
   uint8_t viewOpt:1;
 });
 
@@ -146,21 +137,7 @@ static struct ExpandState expandState;
 
 static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
 
-static uint8_t VARIO_ROW(uint8_t value) { return expandState.vario ? value : HIDDEN_ROW; }
-
-static uint8_t HAPTIC_ROW(uint8_t value) { return expandState.haptic ? value : HIDDEN_ROW; }
-
-#if defined(IMU)
-static uint8_t IMU_ROW(uint8_t value) { return expandState.imu ? value : HIDDEN_ROW; }
-#endif
-
 static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
-
-static uint8_t BACKLIGHT_ROW(uint8_t value) { return expandState.backlight ? value : HIDDEN_ROW; }
-
-#if defined(GPS)
-static uint8_t GPS_ROW(uint8_t value) { return expandState.gps ? value : HIDDEN_ROW; }
-#endif
 
 static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value : HIDDEN_ROW; }
 
@@ -215,20 +192,20 @@ void menuRadioSetup(event_t event)
      SOUND_ROW(0),
      SOUND_ROW(0),
     // Vario
-    CASE_VARIO(0)
-     CASE_VARIO(VARIO_ROW(0))
-     CASE_VARIO(VARIO_ROW(0))
-     CASE_VARIO(VARIO_ROW(0))
-     CASE_VARIO(VARIO_ROW(0))
+    CASE_VARIO(LABEL(VARIO))
+     CASE_VARIO(0)
+     CASE_VARIO(0)
+     CASE_VARIO(0)
+     CASE_VARIO(0)
     // Haptic
-    CASE_HAPTIC(0)
-     CASE_HAPTIC(HAPTIC_ROW(0))
-     CASE_HAPTIC(HAPTIC_ROW(0))
-     CASE_HAPTIC(HAPTIC_ROW(0))
+    CASE_HAPTIC(LABEL(VARIO))
+     CASE_HAPTIC(0)
+     CASE_HAPTIC(0)
+     CASE_HAPTIC(0)
     // IMU
-    CASE_IMU(0)
-     CASE_IMU(IMU_ROW(0))
-     CASE_IMU(IMU_ROW(0))
+    CASE_IMU(LABEL(IMU))
+     CASE_IMU(0)
+     CASE_IMU(0)
     // Alarms
     0,
      ALARMS_ROW(0),
@@ -238,12 +215,12 @@ void menuRadioSetup(event_t event)
      ALARMS_ROW(0),
      ALARMS_ROW(0),
     // Backlight
-    CASE_BACKLIGHT(0)
-     CASE_BACKLIGHT(BACKLIGHT_ROW(0))
-     CASE_BACKLIGHT(BACKLIGHT_ROW(0))
-     CASE_BACKLIGHT(BACKLIGHT_ROW(0))
-     CASE_CONTRAST(BACKLIGHT_ROW(0))
-     CASE_BACKLIGHT(BACKLIGHT_ROW(0))
+    CASE_BACKLIGHT(LABEL(BACKLIGHT))
+     CASE_BACKLIGHT(0)
+     CASE_BACKLIGHT(0)
+     CASE_BACKLIGHT(0)
+     CASE_CONTRAST(0)
+     CASE_BACKLIGHT(0)
     CASE_SPLASH_PARAM(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
@@ -251,10 +228,10 @@ void menuRadioSetup(event_t event)
     CASE_HAPTIC(0) // power on/off haptic
     CASE_PXX2(0) /* owner registration ID */
     // GPS
-    CASE_GPS(0)
-     CASE_GPS(GPS_ROW(0))
-     CASE_GPS(GPS_ROW(0))
-     CASE_GPS(GPS_ROW(0))
+    CASE_GPS(LABEL(GPS))
+     CASE_GPS(0)
+     CASE_GPS(0)
+     CASE_GPS(0)
     CASE_PXX1(0)
     0, 0, 0,
     IF_FAI_CHOICE(0)
@@ -452,7 +429,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(VARIO)
       case ITEM_RADIO_SETUP_VARIO_LABEL:
-        expandState.vario = expandableSection(y, STR_VARIO, expandState.vario, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_VARIO);
         break;
 
       case ITEM_RADIO_SETUP_VARIO_VOLUME:
@@ -483,7 +460,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(HAPTIC)
       case ITEM_RADIO_SETUP_HAPTIC_LABEL:
-        expandState.haptic = expandableSection(y, STR_HAPTIC_LABEL, expandState.haptic, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_HAPTIC_LABEL);
         break;
 
       case ITEM_RADIO_SETUP_HAPTIC_MODE:
@@ -501,7 +478,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(IMU)
       case ITEM_RADIO_SETUP_IMU_LABEL:
-        expandState.imu = expandableSection(y, STR_IMU_LABEL, expandState.imu, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_IMU_LABEL);
         break;
 
       case ITEM_RADIO_SETUP_IMU_MAX:
@@ -584,9 +561,9 @@ void menuRadioSetup(event_t event)
 #if defined(BACKLIGHT_GPIO) || defined(OLED_SCREEN)
       case ITEM_RADIO_SETUP_BACKLIGHT_LABEL:
 #if defined(OLED_SCREEN)
-        expandState.backlight = expandableSection(y, STR_BRIGHTNESS, expandState.backlight, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_BRIGHTNESS);
 #else
-        expandState.backlight = expandableSection(y, STR_BACKLIGHT_LABEL, expandState.backlight, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_BACKLIGHT_LABEL);
 #endif
         break;
 
@@ -690,7 +667,7 @@ void menuRadioSetup(event_t event)
 
 #if defined(GPS)
       case ITEM_RADIO_SETUP_LABEL_GPS:
-        expandState.gps = expandableSection(y, STR_GPS, expandState.gps, attr, event);
+        lcdDrawTextAlignedLeft(y, STR_GPS);
         break;
 
       case ITEM_RADIO_SETUP_TIMEZONE:
