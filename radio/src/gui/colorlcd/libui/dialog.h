@@ -33,9 +33,10 @@ class Progress;
 class BaseDialog : public ModalWindow
 {
  public:
-  BaseDialog(Window* parent, const char* title, bool closeIfClickedOutside,
+  BaseDialog(const char* title, bool closeIfClickedOutside,
              lv_coord_t width = DIALOG_DEFAULT_WIDTH,
-             lv_coord_t maxHeight = DIALOG_DEFAULT_HEIGHT);
+             lv_coord_t maxHeight = DIALOG_DEFAULT_HEIGHT,
+             bool flexLayout = true);
 
   void setTitle(const char* title);
 
@@ -52,8 +53,7 @@ class BaseDialog : public ModalWindow
 class ProgressDialog : public BaseDialog
 {
  public:
-  ProgressDialog(Window* parent, const char* title,
-                 std::function<void()> onClose);
+  ProgressDialog(const char* title, std::function<void()> onClose);
 
   void updateProgress(int percentage);
   void setTitle(std::string title);
@@ -74,7 +74,7 @@ class ProgressDialog : public BaseDialog
 class MessageDialog : public BaseDialog
 {
  public:
-  MessageDialog(Window* parent, const char* title, const char* message,
+  MessageDialog(const char* title, const char* message,
                 const char* info = nullptr, LcdFlags messageFlags = CENTERED,
                 LcdFlags infoFlags = CENTERED);
 
@@ -94,7 +94,7 @@ class MessageDialog : public BaseDialog
 class DynamicMessageDialog : public BaseDialog
 {
  public:
-  DynamicMessageDialog(Window* parent, const char* title,
+  DynamicMessageDialog(const char* title,
                        std::function<std::string()> textHandler,
                        const char* message = "",
                        const int lineHeight = EdgeTxStyles::PAGE_LINE_HEIGHT,
@@ -117,7 +117,7 @@ class DynamicMessageDialog : public BaseDialog
 class ConfirmDialog : public BaseDialog
 {
  public:
-  ConfirmDialog(Window* parent, const char* title, const char* message,
+  ConfirmDialog(const char* title, const char* message,
                 std::function<void(void)> confirmHandler,
                 std::function<void(void)> cancelHandler = nullptr);
 
@@ -133,7 +133,7 @@ class ConfirmDialog : public BaseDialog
 class LabelDialog : public ModalWindow
 {
  public:
-  LabelDialog(Window *parent, const char *label, int length, const char* title,
+  LabelDialog(const char *label, int length, const char* title,
               std::function<void(std::string)> _saveHandler = nullptr);
 
   static constexpr int MAX_LABEL_LENGTH = 255;

@@ -83,13 +83,6 @@ struct our_longjmp * global_lj = nullptr;
 uint32_t luaExtraMemoryUsage = 0;
 #endif
 
-#if defined(USE_HATS_AS_KEYS)
-static bool _is_standalone_script()
-{
-  return scriptInternalData[0].reference == SCRIPT_STANDALONE;
-}
-#endif
-
 #if defined(LUA_ALLOCATOR_TRACER)
 
 LuaMemTracer lsScriptsTrace;
@@ -257,10 +250,6 @@ void luaDisable()
 {
   POPUP_WARNING("Lua disabled!");
   luaState = INTERPRETER_PANIC;
-
-#if defined(USE_HATS_AS_KEYS)
-  if (_is_standalone_script()) setTransposeHatsForLUA(false);
-#endif
 }
 
 void luaClose(lua_State ** L)
@@ -893,9 +882,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
         sid.reference = SCRIPT_STANDALONE;
         if (luaLoad(filename, sid)) {
-#if defined(COLORLCD)
-          StandaloneLuaWindow::setup(true);
-#endif
           luaError(lsScripts, sid.state);
           break;
         }
@@ -933,14 +919,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
             sid.run = luaRegisterFunction("run");
             sid.background = luaRegisterFunction("background");
             initFunction = luaRegisterFunction("init");
-#if defined(COLORLCD)
-            if (sid.reference == SCRIPT_STANDALONE) {
-              lua_getfield(lsScripts, -1, "useLvgl");
-              sid.useLvgl = lua_toboolean(lsScripts, -1);
-              lua_pop(lsScripts, 1);
-              StandaloneLuaWindow::setup(sid.useLvgl);
-            }
-#endif
             if (sid.run == LUA_NOREF) {
               snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): No run function\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
               sid.state = SCRIPT_SYNTAX_ERROR;
@@ -962,10 +940,6 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           else {
             snprintf(lua_warning_info, LUA_WARNING_INFO_LEN, "luaLoadScripts(%.*s): The script did not return a table\n", LEN_SCRIPT_FILENAME, getScriptName(idx));
             sid.state = SCRIPT_SYNTAX_ERROR;
-#if defined(COLORLCD)
-            if (sid.reference == SCRIPT_STANDALONE)
-              StandaloneLuaWindow::setup(true);
-#endif
             initFunction = LUA_NOREF;
           }
          
@@ -1187,8 +1161,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
             luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           }
           else if (luaDisplayStatistics) {
-  #if defined(COLORLCD)
-  #else
+  #if !defined(COLORLCD)
             lcdDrawSolidHorizontalLine(0, 7*FH-1, lcdLastRightPos+6, ERASE);
             lcdDrawText(0, 7*FH, "GV Use: ");
             lcdDrawNumber(lcdLastRightPos, 7*FH, luaGetMemUsed(lsScripts), LEFT);
@@ -1264,10 +1237,6 @@ bool luaTask(bool allowLcdUsage)
     case INTERPRETER_RELOAD_PERMANENT_SCRIPTS:
       init = true;
       luaState = INTERPRETER_LOADING;
-
-#if defined(USE_HATS_AS_KEYS)
-      if (_is_standalone_script()) setTransposeHatsForLUA(false);
-#endif
    
     case INTERPRETER_LOADING:
       PROTECT_LUA() {
@@ -1280,10 +1249,6 @@ bool luaTask(bool allowLcdUsage)
     case INTERPRETER_START_RUNNING:
       init = true;
       luaState = INTERPRETER_RUNNING;
-
-#if defined(USE_HATS_AS_KEYS)
-      if (_is_standalone_script()) setTransposeHatsForLUA(true);
-#endif
       
     case INTERPRETER_RUNNING:
       PROTECT_LUA() {
@@ -1291,6 +1256,13 @@ bool luaTask(bool allowLcdUsage)
       }
       else luaDisable();
       UNPROTECT_LUA();
+      break;
+
+#if defined(COLORLCD)
+    case INTERPRETER_PAUSED:
+      // stand alone script running
+      break;
+#endif
   }
   return scriptWasRun;
 }

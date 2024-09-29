@@ -182,7 +182,7 @@ void FileChoice::openMenu()
   if (fileCount > 0) {
     setEditMode(true);  // this needs to be done first before menu is created.
 
-    auto menu = new Menu(this);
+    auto menu = new Menu();
     if (menuTitle) menu->setTitle(menuTitle);
 
     auto tb = new FileChoiceMenuToolbar(this, menu);
@@ -192,6 +192,6 @@ void FileChoice::openMenu()
 
     menu->setCloseHandler([=]() { setEditMode(false); });
   } else {
-    new MessageDialog(this, STR_SDCARD, STR_NO_FILES_ON_SD);
+    new MessageDialog(STR_SDCARD, STR_NO_FILES_ON_SD);
   }
 }

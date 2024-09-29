@@ -231,7 +231,7 @@ ModelMixesPage::ModelMixesPage() : InputMixPageBase(STR_MIXES, ICON_MODEL_MIXER)
 bool ModelMixesPage::reachMixesLimit()
 {
   if (getMixCount() >= MAX_MIXERS) {
-    new MessageDialog(form, STR_WARNING, STR_NOFREEMIXER);
+    new MessageDialog(STR_WARNING, STR_NOFREEMIXER);
     return true;
   }
   return false;
@@ -264,7 +264,7 @@ InputMixButtonBase* ModelMixesPage::createLineButton(InputMixGroupBase *group, u
 
   uint8_t ch = group->getMixSrc() - MIXSRC_FIRST_CH;
   button->setPressHandler([=]() -> uint8_t {
-    Menu *menu = new Menu(form);
+    Menu *menu = new Menu();
     menu->addLine(STR_EDIT, [=]() {
         uint8_t idx = button->getIndex();
         editMix(ch, idx);
@@ -318,7 +318,7 @@ void ModelMixesPage::addLineButton(uint8_t index)
 
 void ModelMixesPage::newMix()
 {
-  Menu* menu = new Menu(Layer::back());
+  Menu* menu = new Menu();
   menu->setTitle(STR_MENU_CHANNELS);
 
   uint8_t index = 0;

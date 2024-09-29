@@ -20,6 +20,7 @@
 
 #include "layer.h"
 #include "etx_lv_theme.h"
+#include "mainwindow.h"
 
 // Modal overlay style (for dimming background)
 void modal_window_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
@@ -45,8 +46,8 @@ static lv_obj_t* modal_create(lv_obj_t* parent)
   return etx_create(&modal_window_class, parent);
 }
 
-ModalWindow::ModalWindow(Window* parent, bool closeWhenClickOutside) :
-    Window(parent->getFullScreenWindow(), {0, 0, LCD_W, LCD_H}, modal_create),
+ModalWindow::ModalWindow(bool closeWhenClickOutside) :
+    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, modal_create),
     closeWhenClickOutside(closeWhenClickOutside)
 {
   Layer::push(this);

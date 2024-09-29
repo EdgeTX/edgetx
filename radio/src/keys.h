@@ -200,7 +200,6 @@ bool rotaryEncoderPollingCycle();
 void setHatsAsKeys(bool val);
 bool getHatsAsKeys();
 void setTransposeHatsForLUA(bool val);
-bool getTransposeHatsForLUA();
 #endif
 
 struct InactivityData

@@ -24,13 +24,110 @@
 #include "translations.h"
 #include "view_main.h"
 #include "dma2d.h"
+#include "lua/lua_event.h"
+
+lua_State *lsStandalone = nullptr;
+
+#if defined(LUA_ALLOCATOR_TRACER)
+LuaMemTracer lsStandaloneTrace;
+
+static void luaStandaloneHook(lua_State * L, lua_Debug *ar)
+{
+  else if (ar->event == LUA_HOOKLINE) {
+    lua_getinfo(L, "nSl", ar);
+    LuaMemTracer * tracer = &lsStandaloneTrace;
+    if (tracer->alloc || tracer->free) {
+      TRACE("LT: [+%u,-%u] %s:%d", tracer->alloc, tracer->free, tracer->script, tracer->lineno);
+    }
+    tracer->script = ar->source;
+    tracer->lineno = ar->currentline;
+    tracer->alloc = 0;
+    tracer->free = 0;
+  }
+}
+#endif // #if defined(LUA_ALLOCATOR_TRACER)
+
+static void luaStandaloneInit()
+{
+  luaClose(&lsStandalone);
+
+#if defined(USE_BIN_ALLOCATOR)
+  lsStandalone = lua_newstate(bin_l_alloc, nullptr);   //we use our own allocator!
+#elif defined(LUA_ALLOCATOR_TRACER)
+  memclear(&lsStandaloneTrace, sizeof(lsStandaloneTrace));
+  lsStandaloneTrace.script = "lua_newstate(scripts)";
+  lsStandalone = lua_newstate(tracer_alloc, &lsStandaloneTrace);   //we use tracer allocator
+#else
+  lsStandalone = lua_newstate(l_alloc, nullptr);   //we use Lua default allocator
+#endif
+  if (lsStandalone) {
+    // install our panic handler
+    extern int custom_lua_atpanic(lua_State *L);
+    lua_atpanic(lsStandalone, &custom_lua_atpanic);
+
+#if defined(LUA_ALLOCATOR_TRACER)
+    lua_sethook(L, luaStandaloneHook, LUA_MASKLINE);
+#endif
+
+    // protect libs and constants registration
+    PROTECT_LUA() {
+      luaRegisterLibraries(lsStandalone);
+    }
+    else {
+      // if we got panic during registration
+      // we disable Lua for this session
+      luaClose(&lsStandalone);
+      lsStandalone = 0;
+    }
+    UNPROTECT_LUA();
+  }
+}
+
+void luaExecStandalone(const char * filename)
+{
+  if (lsStandalone == NULL)
+    luaStandaloneInit();
+
+  PROTECT_LUA() {
+    if (luaLoadScriptFileToState(lsStandalone, filename, LUA_SCRIPT_LOAD_MODE) == SCRIPT_OK) {
+      if (lua_pcall(lsStandalone, 0, 1, 0) == LUA_OK && lua_istable(lsStandalone, -1)) {
+        int initFunction = LUA_REFNIL, runFunction = LUA_REFNIL;
+        bool lvglLayout = false;
+
+        for (lua_pushnil(lsStandalone); lua_next(lsStandalone, -2); lua_pop(lsStandalone, 1)) {
+          const char * key = lua_tostring(lsStandalone, -2);
+          if (!strcmp(key, "init")) {
+            initFunction = luaL_ref(lsStandalone, LUA_REGISTRYINDEX);
+            lua_pushnil(lsStandalone);
+          } else if (!strcmp(key, "run")) {
+            runFunction = luaL_ref(lsStandalone, LUA_REGISTRYINDEX);
+            lua_pushnil(lsStandalone);
+          } else if (!strcasecmp(key, "useLvgl")) {
+            lvglLayout = lua_toboolean(lsStandalone, -1);
+          }
+        }
+
+        StandaloneLuaWindow::setup(lvglLayout, initFunction, runFunction);
+      }
+      else {
+        TRACE("luaLoadFile(%s): Error parsing script: %s", filename, lua_tostring(lsStandalone, -1));
+      }
+    }
+  }
+  else {
+    // error while loading Lua widget/theme,
+    // do not disable whole Lua state, just ingnore bad script
+    return;
+  }
+  UNPROTECT_LUA();
+}
 
 // singleton instance
 StandaloneLuaWindow* StandaloneLuaWindow::_instance;
 
-StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
+StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
-    useLvgl(useLvgl)
+    useLvgl(useLvgl), initFunction(initFn), runFunction(runFn)
 {
   setWindowFlag(OPAQUE);
 
@@ -45,6 +142,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
     lv_obj_set_size(lbl, LCD_W, LCD_H);
     etx_solid_bg(lbl, COLOR_THEME_PRIMARY1_INDEX);
     etx_txt_color(lbl, COLOR_THEME_PRIMARY2_INDEX);
+    etx_font(lbl, FONT_XL_INDEX);
     lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
     lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::PAGE_LINE_HEIGHT) / 2, LV_PART_MAIN);
     lv_label_set_text(lbl, STR_LOADING);
@@ -69,12 +167,22 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl) :
   setupHandler(this);
 
   attach();
+
+  lua_gc(lsStandalone, LUA_GCCOLLECT, 0);
+
+  // Pause function and mixer scripts
+  prevLuaState = luaState;
+  luaState = INTERPRETER_PAUSED;
+
+#if defined(USE_HATS_AS_KEYS)
+  setTransposeHatsForLUA(true);
+#endif
 }
 
-void StandaloneLuaWindow::setup(bool useLvgl)
+void StandaloneLuaWindow::setup(bool useLvgl, int initFn, int runFn)
 {
   if (_instance == nullptr)
-    _instance = new StandaloneLuaWindow(useLvgl);
+    _instance = new StandaloneLuaWindow(useLvgl, initFn, runFn);
 }
 
 StandaloneLuaWindow* StandaloneLuaWindow::instance()
@@ -102,6 +210,11 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 {
   if (_deleted) return;
 
+  if (initFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
+  if (runFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
+  lua_settop(lsStandalone, 0);
+  luaLcdBuffer = nullptr;
+
   if (lcdBuffer) delete lcdBuffer;
   lcdBuffer = nullptr;
 
@@ -118,6 +231,12 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
     _instance = nullptr;
   }
 
+#if defined(USE_HATS_AS_KEYS)
+  setTransposeHatsForLUA(false);
+#endif
+
+  luaState = prevLuaState;
+
   Window::deleteLater(detach, trash);
 }
 
@@ -125,38 +244,78 @@ void StandaloneLuaWindow::checkEvents()
 {
   Window::checkEvents();
 
+  if (initFunction != LUA_REFNIL) {
+    lua_rawgeti(lsStandalone, LUA_REGISTRYINDEX, initFunction);
+    if (lua_pcall(lsStandalone, 0, 0, 0) != LUA_OK) {
+      luaShowError();
+    }
+    luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
+    initFunction = LUA_REFNIL;
+    return;
+  }
+
   // Set global LUA LCD buffer
   luaLcdBuffer = lcdBuffer;
+  luaLcdAllowed = !useLvglLayout();
 
-  if (luaState != INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
-    if (luaTask(true)) {
-      if (useLvglLayout() && !hasError) {
-        // if LUA finished a full cycle,
-        // call update functions
-        PROTECT_LUA() {
-          if (!callRefs(lsScripts)) {
-            luaShowError();
-          }
-        } else {
-          luaShowError();
-        }
-        UNPROTECT_LUA();
+  LuaEventData evt;
+  // Pull a new event from the buffer
+  luaNextEvent(&evt);
+  if (evt.event == EVT_KEY_LONG(KEY_EXIT)) {
+    killEvents(evt.event);
+    deleteLater();
+  } else {
+    if (runFunction != LUA_REFNIL) {
+      lua_rawgeti(lsStandalone, LUA_REGISTRYINDEX, runFunction);
+
+      lua_pushunsigned(lsStandalone, evt.event);
+      int inputsCount = 1;
+
+#if defined(HARDWARE_TOUCH)
+      if (IS_TOUCH_EVENT(evt.event)) {
+        luaPushTouchEventTable(lsStandalone, &evt);
+        inputsCount += 1;
+      }
+#endif
+
+      if (lua_pcall(lsStandalone, inputsCount, 1, 0) != LUA_OK) {
+        luaShowError();
       } else {
-        // if LUA finished a full cycle,
-        // invalidate to display the screen buffer
-        invalidate();
+        if (lua_isnumber(lsStandalone, -1)) {
+          int scriptResult = lua_tointeger(lsStandalone, -1);
+          lua_pop(lsStandalone, 1);  /* pop returned value */
+          if (scriptResult != 0) {
+            deleteLater();
+          } else {
+            if (useLvglLayout() && !hasError) {
+              PROTECT_LUA() {
+                if (!callRefs(lsStandalone)) {
+                  luaShowError();
+                }
+              } else {
+                luaShowError();
+              }
+              UNPROTECT_LUA();
+            } else {
+              invalidate();
+            }
+          }
+        } else if (lua_isstring(lsStandalone, -1)) {
+          char nextScript[FF_MAX_LFN+1];
+          strncpy(nextScript, lua_tostring(lsStandalone, -1), FF_MAX_LFN);
+          nextScript[FF_MAX_LFN] = '\0';
+          _instance = nullptr;
+          lua_settop(lsStandalone, 0);
+          deleteLater();
+          luaExecStandalone(nextScript);
+        }
       }
     }
   }
 
-  if (luaState == INTERPRETER_RELOAD_PERMANENT_SCRIPTS) {
-    // Script does not run anymore...
-    TRACE("LUA standalone script exited: deleting window!");
-    deleteLater();
-  }
-
   // Kill global LUA LCD buffer
   luaLcdBuffer = nullptr;
+  luaLcdAllowed = false;
 }
 
 void StandaloneLuaWindow::onClicked() { Keyboard::hide(false); LuaEventHandler::onClicked(); }
@@ -212,19 +371,22 @@ bool StandaloneLuaWindow::displayPopup(event_t event, uint8_t type,
 
 void StandaloneLuaWindow::clear()
 {
-  clearRefs(lsScripts);
+  clearRefs(lsStandalone);
   Window::clear();
 }
 
 void StandaloneLuaWindow::luaShowError()
 {
+  if (runFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
+  runFunction = LUA_REFNIL;
   hasError = true;
   extern void luaError(lua_State *L, uint8_t error);
-  luaError(lsScripts, SCRIPT_SYNTAX_ERROR);
+  luaError(lsStandalone, SCRIPT_SYNTAX_ERROR);
 }
 
 void StandaloneLuaWindow::showError(bool firstCall, const char* title, const char* msg)
 {
+  runFunction = LUA_REFNIL;
   hasError = true;
   if (!errorModal) {
     lv_obj_set_scroll_dir(lvobj, LV_DIR_NONE);

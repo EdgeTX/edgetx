@@ -267,7 +267,7 @@ HWSwitches::HWSwitches(Window* parent) :
 
 template <class T>
 HWInputDialog<T>::HWInputDialog(const char* title) :
-    BaseDialog(Layer::back(), title, true)
+    BaseDialog(title, true)
 {
   new T(form);
 }

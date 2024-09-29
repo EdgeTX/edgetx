@@ -95,8 +95,8 @@ ModuleCallback onUpdateStateChangedCallbackFor(FrskyOtaFlashDialog* dialog);
 class FrskyOtaFlashDialog : public BaseDialog
 {
  public:
-  explicit FrskyOtaFlashDialog(Window* parent, const char* title) :
-    BaseDialog(parent, title, true)
+  explicit FrskyOtaFlashDialog(const char* title) :
+    BaseDialog(title, true)
   {
     new StaticText(form, rect_t{}, STR_WAITING_FOR_RX);
   }
@@ -137,8 +137,7 @@ class FrskyOtaFlashDialog : public BaseDialog
         *tmp++ = '.';
         tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.revision);
 
-        updateConfirmDialog = new ConfirmDialog(Layer::back(),
-                          getPXX2ReceiverName(modelId),
+        updateConfirmDialog = new ConfirmDialog(getPXX2ReceiverName(modelId),
                           std::string(reusableBuffer.sdManager.otaReceiverVersion).c_str(),
                           [=]() { onUpdateConfirmation(); },
                           [=]() { deleteLater(); });
@@ -156,7 +155,7 @@ class FrskyOtaFlashDialog : public BaseDialog
         if (reusableBuffer.sdManager.otaUpdateInformation.candidateReceiversCount > 0) {
           if (reusableBuffer.sdManager.otaUpdateInformation.candidateReceiversCount != popupReceiversCount) {
             if (rxChoiceMenu == nullptr) {
-              rxChoiceMenu = new Menu(Layer::back());
+              rxChoiceMenu = new Menu();
               rxChoiceMenu->setTitle(STR_PXX2_SELECT_RX);
               rxChoiceMenu->setCancelHandler([=]() {
                 // Seems menu didn't delete itself before call cancelHandler().
@@ -293,8 +292,7 @@ void RadioSdManagerPage::dirAction(const char* path, const char* name,
 {
   if (strcmp(name, "..") == 0) return;
 
-  auto window = Layer::back();
-  auto menu = new Menu(window);
+  auto menu = new Menu();
   menu->addLine(STR_RENAME_FILE, [=]() {
     uint8_t nameLength;
     uint8_t extLength;
@@ -308,7 +306,7 @@ void RadioSdManagerPage::dirAction(const char* path, const char* name,
     std::string extension("");
     if (ext) extension = ext;
 
-    new LabelDialog(Layer::back(), fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
+    new LabelDialog(fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
       label += extension;
       f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
       browser->refresh();
@@ -316,7 +314,7 @@ void RadioSdManagerPage::dirAction(const char* path, const char* name,
   });
   menu->addLine(STR_DELETE_FILE, [=]() {
     if (f_unlink(fullpath) != FR_OK) {
-      new MessageDialog(window, STR_DELETE_FILE, STR_DEL_DIR_NOT_EMPTY);
+      new MessageDialog(STR_DELETE_FILE, STR_DEL_DIR_NOT_EMPTY);
     }
     browser->refresh();
   });
@@ -325,8 +323,7 @@ void RadioSdManagerPage::dirAction(const char* path, const char* name,
 void RadioSdManagerPage::fileAction(const char* path, const char* name,
                                     const char* fullpath)
 {
-  auto window = Layer::back();
-  auto menu = new Menu(window);
+  auto menu = new Menu();
   const char* ext = getFileExtension(name);
   if (ext) {
     if (!strcasecmp(ext, SOUNDS_EXT)) {
@@ -376,7 +373,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
             char buf[64];
             sprintf(buf, " %s %dkB. %s", STR_FILE_SIZE, fileLength / 1024,
                     STR_FILE_OPEN);
-            new ConfirmDialog(window, STR_WARNING, buf,
+            new ConfirmDialog(STR_WARNING, buf,
                               [=] { new ViewTextWindow(path, name, ICON_RADIO_SD_MANAGER); });
           } else {
             new ViewTextWindow(path, name, ICON_RADIO_SD_MANAGER);
@@ -434,7 +431,6 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
                                              information.productId))
             menu->addLine(STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA, [=]() {
               auto dialog = new FrskyOtaFlashDialog(
-                  Layer::back(),
                   STR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA);
               dialog->flash(fullpath, INTERNAL_MODULE);
             });
@@ -443,7 +439,6 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
                                              information.productId))
             menu->addLine(STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA, [=]() {
               auto dialog = new FrskyOtaFlashDialog(
-                  Layer::back(),
                   STR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA);
               dialog->flash(fullpath, EXTERNAL_MODULE);
             });
@@ -453,7 +448,6 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
           menu->addLine(STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA,
                         [=]() {
             auto dialog = new FrskyOtaFlashDialog(
-                Layer::back(),
                 STR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA);
             dialog->flash(fullpath, INTERNAL_MODULE);
           });
@@ -461,7 +455,6 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
           menu->addLine(STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA,
                         [=]() {
             auto dialog = new FrskyOtaFlashDialog(
-                Layer::back(),
                 STR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA);
             dialog->flash(fullpath, EXTERNAL_MODULE);
           });
@@ -527,7 +520,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
     std::string extension("");
     if (ext) extension = ext;
 
-    new LabelDialog(Layer::back(), fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
+    new LabelDialog(fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
       label += extension;
       f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
       browser->refresh();

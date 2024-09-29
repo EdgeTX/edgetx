@@ -221,12 +221,15 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
                      int luaWidgetDataRef, int zoneRectDataRef, int optionsDataRef) :
     Widget(factory, parent, rect, persistentData),
-    zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
+    zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef), luaWidgetDataRef(luaWidgetDataRef),
     errorMessage(nullptr)
 {
-  this->luaWidgetDataRef = luaWidgetDataRef;
-  lv_obj_add_event_cb(lvobj, LuaWidget::redraw_cb, LV_EVENT_DRAW_MAIN,
-                      nullptr);
+  if (useLvglLayout()) {
+    update();
+  } else {
+    lv_obj_add_event_cb(lvobj, LuaWidget::redraw_cb, LV_EVENT_DRAW_MAIN,
+                        nullptr);
+  }
 }
 
 LuaWidget::~LuaWidget()
@@ -263,12 +266,6 @@ void LuaWidget::checkEvents()
   if (closeFS) {
     closeFS = false;
     setFullscreen(false);
-  }
-
-  // Call update once after widget first created
-  if (!created) {
-    created = true;
-    update();
   }
 
   // refresh() has not been called
@@ -347,6 +344,24 @@ void LuaWidget::update()
 
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0)
     setErrorMessage("update()");
+
+  if (useLvglLayout()) {
+    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
+      lv_area_t a;
+      lv_obj_get_coords(lvobj, &a);
+      // Check widget is at least partially visible
+      if (a.x2 >= 0 && a.x1 < LCD_W) {
+        PROTECT_LUA() {
+          if (!callRefs(lsWidgets)) {
+            setErrorMessage("callRefs()");
+          }
+        } else {
+          // TODO: error handling
+        }
+        UNPROTECT_LUA();
+      }
+    }
+  }
 
   luaLvglManager = nullptr;
 }
@@ -495,9 +510,8 @@ void LuaWidget::background()
 {
   if (lsWidgets == 0 || errorMessage) return;
 
-  // TRACE("LuaWidget::background()");
-  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   if (luaFactory()->backgroundFunction) {
+    luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
     runningFS = this;
@@ -524,25 +538,37 @@ void LuaWidget::clear()
 
 bool LuaWidget::useLvglLayout() const { return luaFactory()->useLvglLayout(); }
 
+bool LuaWidget::isAppMode() const
+{
+  return fullscreen && ViewMain::instance()->isAppMode();
+}
+
+void LuaLvglManager::saveLvglObjectRef(int ref)
+{
+  if (tempParent)
+    tempParent->saveLvglObjectRef(ref);
+  else
+    lvglObjectRefs.push_back(ref);
+}
+
 void LuaLvglManager::clearRefs(lua_State *L)
 {
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
-    auto lvobj = LvglWidgetObject::checkLvgl(L, -1);
-    lvobj->clearRefs(L);
-
-    luaL_unref(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
+    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    lua_pop(L, 1);
+    if (p) p->clearRefs(L);
   }
   lvglObjectRefs.clear();
 }
 
 bool LuaLvglManager::callRefs(lua_State *L)
 {
-  bool rv = true;
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
-    auto lvobj = LvglWidgetObject::checkLvgl(L, -1);
-    lvobj->callRefs(L);
+    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    lua_pop(L, 1);
+    if (p) if (!p->callRefs(L)) return false;
   }
-  return rv;
+  return true;
 }

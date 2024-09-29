@@ -300,7 +300,7 @@ static SetupLineDef setupLines[] = {
       auto curmod = modelslist.getCurrentModel();
       TextButton* btn = new TextButton(parent, {x, y, 0, 0}, modelslabels.getBulletLabelString(curmod, STR_UNLABELEDMODEL));
       btn->setPressHandler([=]() {
-            Menu *menu = new Menu(MainWindow::instance(), true);
+            Menu *menu = new Menu(true);
             menu->setTitle(STR_LABELS);
             for (auto &label : modelslabels.getLabels()) {
               menu->addLineBuffered(

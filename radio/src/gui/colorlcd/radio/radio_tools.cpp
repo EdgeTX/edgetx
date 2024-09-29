@@ -101,7 +101,7 @@ static void run_lua_tool(Window* parent, const std::string& path)
   *((char*)getBasename(toolPath) - 1) = '\0';
   f_chdir(toolPath);
 
-  luaExec(path.c_str());
+  luaExecStandalone(path.c_str());
 }
 
 // LUA scripts in TOOLS

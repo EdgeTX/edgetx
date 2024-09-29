@@ -38,6 +38,6 @@ class BindChoiceMenu : public Menu
   void onSelect(BindChanMode mode);
 
  public:
-  BindChoiceMenu(Window *parent, uint8_t moduleIdx,
+  BindChoiceMenu(uint8_t moduleIdx,
                  std::function<void()> onPress, std::function<void()> onCancel);
 };

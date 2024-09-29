@@ -68,7 +68,7 @@ void openUsbMenu()
 {
   if (_usbMenu || _usbDisabled) return;
 
-  _usbMenu = new Menu(MainWindow::instance());
+  _usbMenu = new Menu();
 
   _usbMenu->setCloseHandler([]() { _usbMenu = nullptr; });
 

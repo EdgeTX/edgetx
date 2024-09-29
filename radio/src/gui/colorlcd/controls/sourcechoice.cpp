@@ -186,7 +186,7 @@ void SourceChoice::openMenu()
   inverted = getIntValue() < 0;
   inMenu = true;
 
-  auto menu = new Menu(this);
+  auto menu = new Menu();
   if (menuTitle) menu->setTitle(menuTitle);
 
   auto tb = new SourceChoiceMenuToolbar(this, menu);

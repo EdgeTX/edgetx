@@ -34,7 +34,7 @@ namespace pxx2
 class BindRxChoiceMenu : public Menu
 {
  public:
-  BindRxChoiceMenu(Window* parent, uint8_t moduleIdx, uint8_t receiverIdx);
+  BindRxChoiceMenu(uint8_t moduleIdx, uint8_t receiverIdx);
 
  protected:
   uint8_t moduleIdx;
@@ -44,11 +44,71 @@ class BindRxChoiceMenu : public Menu
 class BindWaitDialog : public BaseDialog
 {
  public:
-  BindWaitDialog(Window* parent, uint8_t moduleIdx, uint8_t receiverIdx);
+  BindWaitDialog(uint8_t moduleIdx, uint8_t receiverIdx) :
+      BaseDialog(STR_BIND, true),
+      moduleIdx(moduleIdx),
+      receiverIdx(receiverIdx)
+  {
+    new StaticText(form, rect_t{}, STR_WAITING_FOR_RX);
 
-  void checkEvents() override;
+    setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
+  }
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void checkEvents() override
+  {
+    auto& bindInfo = getPXX2BindInformationBuffer();
+
+    if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
+      // returned to normal after bind
+      if (bindInfo.step > BIND_INIT) {
+        removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx);
+        deleteLater();
+        if (bindInfo.step == BIND_OK) {
+          POPUP_INFORMATION(STR_REG_OK);
+          setPXX2ReceiverUsed(moduleIdx, receiverIdx);
+        }
+        return;
+      }
+
+      // pre-bind phase: fetching info for R9M
+      auto& modSetup = getPXX2ModuleSetupBuffer();
+      switch (bindInfo.step) {
+        case BIND_MODULE_TX_INFORMATION_REQUEST:
+          if (modSetup.moduleInformation.information.variant == PXX2_VARIANT_EU) {
+            // In EU mode we will need the power of the module to know if
+            // telemetry can be proposed
+            bindInfo.step = BIND_MODULE_TX_SETTINGS_REQUEST;
+  #if defined(SIMU)
+            modSetup.moduleSettings.txPower = 14;
+  #else
+            moduleState[moduleIdx].readModuleSettings(&modSetup.moduleSettings);
+  #endif
+          } else {
+            bindInfo.step = 0;
+            moduleState[moduleIdx].startBind(&bindInfo);
+          }
+          break;
+        case BIND_MODULE_TX_SETTINGS_REQUEST:
+          // We just receive the module settings (for TX power)
+          bindInfo.step = 0;
+          moduleState[moduleIdx].startBind(&bindInfo);
+          break;
+      }
+      return;
+    }
+
+    if (bindInfo.step == BIND_INIT && bindInfo.candidateReceiversCount > 0) {
+      // prevent module mode being reset to NORMAL before exiting
+      setCloseHandler(nullptr);
+      deleteLater();
+
+      // ... and create RX choice dialog
+      new BindRxChoiceMenu(moduleIdx, receiverIdx);
+      return;
+    }
+
+    BaseDialog::checkEvents();
+  }
 
  protected:
   uint8_t moduleIdx;
@@ -58,7 +118,7 @@ class BindWaitDialog : public BaseDialog
 class RxOptions : public BaseDialog
 {
  public:
-  RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx);
+  RxOptions(uint8_t moduleIdx, uint8_t rxIdx);
   void checkEvents() override;
 
  protected:
@@ -84,8 +144,7 @@ class RxOptions : public BaseDialog
   void writeSettings();
 };
 
-static void startBindWaitDialog(Window* parent, uint8_t moduleIdx,
-                                uint8_t receiverIdx)
+static void startBindWaitDialog(uint8_t moduleIdx, uint8_t receiverIdx)
 {
   auto& bindInfo = getPXX2BindInformationBuffer();
 #if defined(SIMU)
@@ -96,32 +155,32 @@ static void startBindWaitDialog(Window* parent, uint8_t moduleIdx,
   bindInfo.step = BIND_OK;
   setPXX2ReceiverUsed(moduleIdx, receiverIdx);
   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-  new MessageDialog(parent, STR_BIND, STR_BIND_OK);
+  new MessageDialog(STR_BIND, STR_BIND_OK);
 #else
   bindInfo.step = BIND_START;
-  new BindWaitDialog(parent, moduleIdx, receiverIdx);
+  new BindWaitDialog(moduleIdx, receiverIdx);
 #endif
 }
 
-static void startFlexBindWaitDialog(Window* parent, uint8_t moduleIdx,
+static void startFlexBindWaitDialog(uint8_t moduleIdx,
                                     uint8_t receiverIdx, uint8_t flex)
 {
   auto& bindInfo = getPXX2BindInformationBuffer();
   bindInfo.flexMode = flex;
-  startBindWaitDialog(parent, moduleIdx, receiverIdx);
+  startBindWaitDialog(moduleIdx, receiverIdx);
 }
 
-static void startLBTBindWaitDialog(Window* parent, uint8_t moduleIdx,
+static void startLBTBindWaitDialog(uint8_t moduleIdx,
                                    uint8_t receiverIdx, uint8_t lbt)
 {
   auto& bindInfo = getPXX2BindInformationBuffer();
   bindInfo.lbtMode = lbt;
-  startBindWaitDialog(parent, moduleIdx, receiverIdx);
+  startBindWaitDialog(moduleIdx, receiverIdx);
 }
 
-BindRxChoiceMenu::BindRxChoiceMenu(Window* parent, uint8_t moduleIdx,
+BindRxChoiceMenu::BindRxChoiceMenu(uint8_t moduleIdx,
                                    uint8_t receiverIdx) :
-    Menu(parent), moduleIdx(moduleIdx), receiverIdx(receiverIdx)
+    Menu(), moduleIdx(moduleIdx), receiverIdx(receiverIdx)
 {
   const auto& bindInfo = getPXX2BindInformationBuffer();
   auto receiversCount = min<uint8_t>(bindInfo.candidateReceiversCount,
@@ -138,26 +197,26 @@ BindRxChoiceMenu::BindRxChoiceMenu(Window* parent, uint8_t moduleIdx,
         auto& modSetup = getPXX2ModuleSetupBuffer();
         if (modSetup.moduleSettings.txPower <= 14) {
           // with telemetry
-          startLBTBindWaitDialog(parent, moduleIdx, receiverIdx, 1);
+          startLBTBindWaitDialog(moduleIdx, receiverIdx, 1);
         } else {
           // without telemetry
-          startLBTBindWaitDialog(parent, moduleIdx, receiverIdx, 2);
+          startLBTBindWaitDialog(moduleIdx, receiverIdx, 2);
         }
         return;
       } else if (isModuleR9MAccess(moduleIdx) &&
                  modInfo.information.variant == PXX2_VARIANT_FLEX) {
         bindInfo.step = BIND_RX_NAME_SELECTED;
-        auto flexMenu = new Menu(parent);
+        auto flexMenu = new Menu();
         flexMenu->addLine(STR_FLEX_868, [=]() {
-          startFlexBindWaitDialog(parent, moduleIdx, receiverIdx, 0);
+          startFlexBindWaitDialog(moduleIdx, receiverIdx, 0);
         });
         flexMenu->addLine(STR_FLEX_915, [=]() {
-          startFlexBindWaitDialog(parent, moduleIdx, receiverIdx, 1);
+          startFlexBindWaitDialog(moduleIdx, receiverIdx, 1);
         });
         return;
       }
 
-      startBindWaitDialog(parent, moduleIdx, receiverIdx);
+      startBindWaitDialog(moduleIdx, receiverIdx);
     });
   }
 
@@ -169,78 +228,6 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
-
-BindWaitDialog::BindWaitDialog(Window* parent, uint8_t moduleIdx,
-                               uint8_t receiverIdx) :
-    BaseDialog(parent, STR_BIND, true),
-    moduleIdx(moduleIdx),
-    receiverIdx(receiverIdx)
-{
-  new StaticText(form, rect_t{}, STR_WAITING_FOR_RX);
-
-  setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-}
-
-void BindWaitDialog::deleteLater(bool detach, bool trash)
-{
-  BaseDialog::deleteLater(detach, trash);
-}
-
-void BindWaitDialog::checkEvents()
-{
-  auto& bindInfo = getPXX2BindInformationBuffer();
-
-  if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
-    // returned to normal after bind
-    if (bindInfo.step > BIND_INIT) {
-      removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx);
-      deleteLater();
-      if (bindInfo.step == BIND_OK) {
-        POPUP_INFORMATION(STR_REG_OK);
-        setPXX2ReceiverUsed(moduleIdx, receiverIdx);
-      }
-      return;
-    }
-
-    // pre-bind phase: fetching info for R9M
-    auto& modSetup = getPXX2ModuleSetupBuffer();
-    switch (bindInfo.step) {
-      case BIND_MODULE_TX_INFORMATION_REQUEST:
-        if (modSetup.moduleInformation.information.variant == PXX2_VARIANT_EU) {
-          // In EU mode we will need the power of the module to know if
-          // telemetry can be proposed
-          bindInfo.step = BIND_MODULE_TX_SETTINGS_REQUEST;
-#if defined(SIMU)
-          modSetup.moduleSettings.txPower = 14;
-#else
-          moduleState[moduleIdx].readModuleSettings(&modSetup.moduleSettings);
-#endif
-        } else {
-          bindInfo.step = 0;
-          moduleState[moduleIdx].startBind(&bindInfo);
-        }
-        break;
-      case BIND_MODULE_TX_SETTINGS_REQUEST:
-        // We just receive the module settings (for TX power)
-        bindInfo.step = 0;
-        moduleState[moduleIdx].startBind(&bindInfo);
-        break;
-    }
-    return;
-  }
-
-  if (bindInfo.step == BIND_INIT && bindInfo.candidateReceiversCount > 0) {
-    // prevent module mode being reset to NORMAL before exiting
-    setCloseHandler(nullptr);
-    deleteLater();
-
-    // ... and create RX choice dialog
-    new BindRxChoiceMenu(Layer::back(), moduleIdx, receiverIdx);
-    return;
-  }
-
-  BaseDialog::checkEvents();
-}
 
 ReceiverButton::ReceiverButton(Window* parent, rect_t rect, uint8_t moduleIdx,
                                uint8_t receiverIdx) :
@@ -256,13 +243,13 @@ uint8_t ReceiverButton::pressBind()
   if (g_model.moduleData[moduleIdx].pxx2.receiverName[receiverIdx][0] == '\0') {
     startBind();
   } else {
-    auto menu = new Menu(parent);
+    auto menu = new Menu();
     menu->addLine(STR_BIND, [=]() {
       startBind();
       return 0;
     });
     menu->addLine(STR_OPTIONS, [=]() {
-      new RxOptions(this, moduleIdx, receiverIdx);
+      new RxOptions(moduleIdx, receiverIdx);
       return 0;
     });
     menu->addLine(STR_SHARE, [=]() {
@@ -276,7 +263,7 @@ uint8_t ReceiverButton::pressBind()
       memclear(&modSetup, sizeof(modSetup));
       modSetup.resetReceiverIndex = receiverIdx;
       modSetup.resetReceiverFlags = 0x01;
-      new ConfirmDialog(parent, STR_RECEIVER, STR_RECEIVER_DELETE, [=]() {
+      new ConfirmDialog(STR_RECEIVER, STR_RECEIVER_DELETE, [=]() {
         moduleState[moduleIdx].mode = MODULE_MODE_RESET;
         removePXX2Receiver(moduleIdx, receiverIdx);
       });
@@ -287,7 +274,7 @@ uint8_t ReceiverButton::pressBind()
       memclear(&modSetup, sizeof(modSetup));
       modSetup.resetReceiverIndex = receiverIdx;
       modSetup.resetReceiverFlags = 0xFF;
-      new ConfirmDialog(parent, STR_RECEIVER, STR_RECEIVER_RESET, [=]() {
+      new ConfirmDialog(STR_RECEIVER, STR_RECEIVER_RESET, [=]() {
         moduleState[moduleIdx].mode = MODULE_MODE_RESET;
         removePXX2Receiver(moduleIdx, receiverIdx);
       });
@@ -321,7 +308,7 @@ void ReceiverButton::startBind()
     moduleState[moduleIdx].startBind(&bindInfo);
   }
 
-  new BindWaitDialog(parent, moduleIdx, receiverIdx);
+  new BindWaitDialog(moduleIdx, receiverIdx);
 }
 
 void ReceiverButton::checkEvents()
@@ -342,8 +329,8 @@ void ReceiverButton::checkEvents()
   TextButton::checkEvents();
 }
 
-RegisterDialog::RegisterDialog(Window* parent, uint8_t moduleIdx) :
-    BaseDialog(parent, STR_REGISTER, true, DIALOG_DEFAULT_WIDTH,
+RegisterDialog::RegisterDialog(uint8_t moduleIdx) :
+    BaseDialog(STR_REGISTER, true, DIALOG_DEFAULT_WIDTH,
                LV_SIZE_CONTENT),
     moduleIdx(moduleIdx)
 {
@@ -439,8 +426,8 @@ void RegisterDialog::checkEvents()
   BaseDialog::checkEvents();
 }
 
-ModuleOptions::ModuleOptions(Window* parent, uint8_t moduleIdx) :
-    BaseDialog(parent, STR_MODULE_OPTIONS, true), moduleIdx(moduleIdx)
+ModuleOptions::ModuleOptions(uint8_t moduleIdx) :
+    BaseDialog(STR_MODULE_OPTIONS, true), moduleIdx(moduleIdx)
 {
   new StaticText(form, rect_t{}, STR_WAITING_FOR_MODULE);
 
@@ -632,8 +619,8 @@ void ModuleOptions::writeSettings()
   }
 }
 
-RxOptions::RxOptions(Window* parent, uint8_t moduleIdx, uint8_t rxIdx) :
-    BaseDialog(parent, STR_RECEIVER_OPTIONS, true),
+RxOptions::RxOptions(uint8_t moduleIdx, uint8_t rxIdx) :
+    BaseDialog(STR_RECEIVER_OPTIONS, true),
     moduleIdx(moduleIdx),
     receiverIdx(rxIdx)
 {

@@ -202,7 +202,7 @@ ModelInputsPage::ModelInputsPage() : InputMixPageBase(STR_MENUINPUTS, ICON_MODEL
 bool ModelInputsPage::reachExposLimit()
 {
   if (getExposCount() >= MAX_EXPOS) {
-    new MessageDialog(form, STR_WARNING, STR_NOFREEEXPO);
+    new MessageDialog(STR_WARNING, STR_NOFREEEXPO);
     return true;
   }
   return false;
@@ -233,7 +233,7 @@ InputMixButtonBase* ModelInputsPage::createLineButton(InputMixGroupBase* group,
 
   uint8_t input = group->getMixSrc() - MIXSRC_FIRST_INPUT;
   button->setPressHandler([=]() -> uint8_t {
-    Menu* menu = new Menu(form);
+    Menu* menu = new Menu();
     menu->addLine(STR_EDIT, [=]() {
       uint8_t idx = button->getIndex();
       editInput(input, idx);
@@ -287,7 +287,7 @@ void ModelInputsPage::addLineButton(uint8_t index)
 
 void ModelInputsPage::newInput()
 {
-  Menu* menu = new Menu(Layer::back());
+  Menu* menu = new Menu();
   menu->setTitle(STR_MENU_INPUTS);
 
   uint8_t chn = 0;

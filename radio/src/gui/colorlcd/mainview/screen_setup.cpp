@@ -56,7 +56,7 @@ class LayoutChoice : public Button
 
   void onPress() override
   {
-    auto menu = new Menu(parent);
+    auto menu = new Menu();
     for (auto layout : LayoutFactory::getRegisteredLayouts()) {
       menu->addLine(layout->getBitmap(), layout->getName(),
                     [=]() { setValue(layout); });

@@ -28,9 +28,9 @@
 // TODO: translation
 const char* const RFSCAN_TITLE = "MPM: Scanning protocols...";
 
-RfScanDialog::RfScanDialog(Window* parent, MultiRfProtocols* protos,
+RfScanDialog::RfScanDialog(MultiRfProtocols* protos,
                            std::function<void()> onClose) :
-  ProgressDialog(parent, RFSCAN_TITLE, onClose),
+  ProgressDialog(RFSCAN_TITLE, onClose),
   protos(protos)
 {
 }

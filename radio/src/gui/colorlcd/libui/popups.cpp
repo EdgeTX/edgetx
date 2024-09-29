@@ -38,7 +38,7 @@ static void _run_popup_dialog(const char* title, const char* msg,
   // RELEASED/CLICKED to be called in a loop
   lv_indev_reset(nullptr, nullptr);
 
-  auto md = new MessageDialog(MainWindow::instance(), title, msg, info);
+  auto md = new MessageDialog(title, msg, info);
   md->setCloseHandler([&]() { running = false; });
   while (running) {
     // Allow power off while showing popup

@@ -877,7 +877,7 @@ static SetupLineDef setupLines[] = {
       new Choice(parent, {x, y, 120, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
                 HATSMODE_SWITCHABLE, GET_SET_DEFAULT(g_eeGeneral.hatsMode));
       new TextButton(parent, {x + 120 + PAD_MEDIUM, y, 0, 0}, "?", [=]() {
-        new MessageDialog(parent, STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
+        new MessageDialog(STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
                           LEFT);
         return 0;
       });

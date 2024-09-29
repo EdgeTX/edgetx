@@ -61,9 +61,9 @@ class ColorEditorPopup : public BaseDialog
   }
 
  public:
-  ColorEditorPopup(Window* parent, uint32_t color,
+  ColorEditorPopup(uint32_t color,
                    std::function<void(uint32_t)> _setValue) :
-      BaseDialog(parent, STR_COLOR_PICKER, false, COLOR_EDIT_WIDTH,
+      BaseDialog(STR_COLOR_PICKER, false, COLOR_EDIT_WIDTH,
                  LV_SIZE_CONTENT)
   {
     FlexGridLayout grid(col_dsc, row_dsc);
@@ -170,7 +170,7 @@ ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
 
 void ColorPicker::onClicked()
 {
-  new ColorEditorPopup(this, getColor(), [=](uint32_t c) { setColor(c); });
+  new ColorEditorPopup(getColor(), [=](uint32_t c) { setColor(c); });
 }
 
 void ColorPicker::setColor(uint32_t c)

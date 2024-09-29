@@ -46,7 +46,7 @@ static SetupLineDef setupLines[] = {
       new Choice(parent, {x, y, TrimsSetup::HATSMODE_W, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY, HATSMODE_GLOBAL,
                 GET_SET_DEFAULT(g_model.hatsMode));
       new TextButton(parent, {x + TrimsSetup::HATSMODE_W + PAD_SMALL, y, 0, 0}, "?", [=]() {
-        new MessageDialog(parent, STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
+        new MessageDialog(STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
                           LEFT);
         return 0;
       });

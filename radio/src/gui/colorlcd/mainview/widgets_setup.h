@@ -40,12 +40,13 @@ class SetupWidgetsPage : public Window
 
   void onClicked() override;
   void onCancel() override;
-  void deleteLater(bool detach = true, bool trash = true) override;
 
  protected:
   uint8_t customScreenIdx;
   unsigned savedView = 0;
+
   void onEvent(event_t event) override;
+  void deleteLater(bool detach = true, bool trash = true) override;
 };
 
 class SetupWidgetsPageSlot : public ButtonBase
@@ -55,6 +56,9 @@ class SetupWidgetsPageSlot : public ButtonBase
                        WidgetsContainer* container, uint8_t slotIndex);
 
  protected:
+  WidgetsContainer* container = nullptr;
+  uint8_t slotIndex = 0;
+  bool openSettings = false;
   lv_style_t borderStyle;
   lv_point_t borderPts[5];
   lv_obj_t* border;

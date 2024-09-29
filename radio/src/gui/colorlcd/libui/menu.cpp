@@ -364,8 +364,8 @@ class MenuWindowContent : public Window
 
 //-----------------------------------------------------------------------------
 
-Menu::Menu(Window* parent, bool multiple) :
-    ModalWindow(parent, true),
+Menu::Menu(bool multiple) :
+    ModalWindow(true),
     multiple(multiple),
     content(new MenuWindowContent(this))
 {

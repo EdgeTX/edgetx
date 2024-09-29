@@ -33,7 +33,7 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 class BTDetailsDialog : public BaseDialog
 {
  public:
-  BTDetailsDialog(Window* parent) : BaseDialog(parent, STR_BLUETOOTH, true)
+  BTDetailsDialog() : BaseDialog(STR_BLUETOOTH, true)
   {
     FlexGridLayout grid(col_dsc, row_dsc);
 
@@ -86,7 +86,7 @@ BluetoothConfigWindow::BluetoothConfigWindow(Window* parent, FlexGridLayout& gri
 
   settingsBtn =
       new TextButton(box, rect_t{}, LV_SYMBOL_SETTINGS, [=]() -> uint8_t {
-        new BTDetailsDialog(parent);
+        new BTDetailsDialog();
         return 0;
       });
   settingsBtn->show(g_eeGeneral.bluetoothMode != BLUETOOTH_OFF);

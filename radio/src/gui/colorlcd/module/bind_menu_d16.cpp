@@ -26,10 +26,10 @@
   #include "telemetry/multi.h"
 #endif
 
-BindChoiceMenu::BindChoiceMenu(Window *parent, uint8_t moduleIdx,
+BindChoiceMenu::BindChoiceMenu(uint8_t moduleIdx,
                                std::function<void()> onPress,
                                std::function<void()> onCancelFn) :
-    Menu(parent), moduleIdx(moduleIdx), onPressHandler(std::move(onPress))
+    Menu(), moduleIdx(moduleIdx), onPressHandler(std::move(onPress))
 {
   if (isTelemAllowedOnBind(moduleIdx)) {
     addLine(STR_BINDING_1_8_TELEM_ON, [=]() { onSelect(Bind_1_8_TELEM_ON); });
