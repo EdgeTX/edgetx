@@ -606,6 +606,7 @@ static const struct YamlNode struct_anonymous_11[] = {
 };
 static const struct YamlNode struct_anonymous_12[] = {
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
+  YAML_UNSIGNED( "crsfArmingMode", 1),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_13[] = {

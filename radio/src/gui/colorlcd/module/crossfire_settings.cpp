@@ -66,4 +66,8 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     sprintf(msg, "%d Hz", 1000000 / getMixerSchedulerPeriod());
     return std::string(msg);
   });
+
+  auto line1 = newLine(grid);
+  new StaticText(line1, rect_t{}, STR_ARMING_MODE);
+  new Choice(line1, rect_t{}, STR_CRSF_ARMING_MODES, 0, 1, GET_SET_DEFAULT(g_model.crsfArmingMode));
 }

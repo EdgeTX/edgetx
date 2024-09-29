@@ -714,6 +714,7 @@
 #define TR_TIME                        "時間"
 #define TR_MAXBAUDRATE                 "最大ボーレート"
 #define TR_BAUDRATE                    "ボーレート"
+#define TR_ARMING_MODE                 "Arming"
 #define TR_SAMPLE_MODE                 "サンプルモード"
 #define TR_SAMPLE_MODES                "標準","OneBit"
 #define TR_LOADING                     "読み込み中..."

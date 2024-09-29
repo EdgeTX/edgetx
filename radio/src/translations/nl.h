@@ -707,6 +707,7 @@
 #define TR_TIME                "Tijd:"
 #define TR_MAXBAUDRATE         "Max bauds"
 #define TR_BAUDRATE            "Baudrate"
+#define TR_ARMING_MODE                 "Arming"
 #define TR_SAMPLE_MODE         TR("Sampling","Sample Mode")
 #define TR_SAMPLE_MODES        "Normal""OneBit"
 #define TR_LOADING                     "Loading..."

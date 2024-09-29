@@ -717,6 +717,7 @@
 #define TR_TIME                        "Час"
 #define TR_MAXBAUDRATE                 "Max швидкість"
 #define TR_BAUDRATE                    "Швидкість"
+#define TR_ARMING_MODE                 "Arming"
 #define TR_SAMPLE_MODE                 TR("Вибірка","Режим вибірки")
 #define TR_SAMPLE_MODES                "Нормальний","OneBit"
 #define TR_LOADING                     "Завантаження..."

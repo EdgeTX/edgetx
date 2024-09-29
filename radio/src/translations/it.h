@@ -709,6 +709,7 @@
 #define TR_TIME                         "Ora"
 #define TR_MAXBAUDRATE                  "Max Bauds"
 #define TR_BAUDRATE                     "Baudrate"
+#define TR_ARMING_MODE                  "Arming"
 #define TR_SAMPLE_MODE                  "Modo Semplice"
 #define TR_SAMPLE_MODES                 "Normale","OneBit"
 #define TR_LOADING                      "Caricamento..."
