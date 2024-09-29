@@ -357,6 +357,8 @@ void CustomFunctionsPanel::functionEdited()
       fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatLuaId));
     else
       fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatId));
+    if (functions[index].func == FuncLogs)
+      functions[index].param = 10;  // 1 sec
     refreshCustomFunction(index);
     emit modified();
     lock = false;
@@ -399,7 +401,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
     }
     else if (func == FuncLogs) {
       fswtchParam[i]->setDecimals(1);
-      fswtchParam[i]->setMinimum(0);
+      fswtchParam[i]->setMinimum(0.1);
       fswtchParam[i]->setMaximum(25.5);
       fswtchParam[i]->setSingleStep(0.1);
       if (modified)
