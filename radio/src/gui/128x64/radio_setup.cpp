@@ -64,6 +64,7 @@ enum {
   CASE_AUDIO(ITEM_RADIO_SETUP_SPEAKER_PITCH)
   ITEM_RADIO_SETUP_WAV_VOLUME,
   ITEM_RADIO_SETUP_BACKGROUND_VOLUME,
+  ITEM_RADIO_SETUP_START_SOUND,
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_LABEL)
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_VOLUME)
   CASE_VARIO(ITEM_RADIO_SETUP_VARIO_PITCH)
@@ -90,7 +91,6 @@ enum {
   CASE_CONTRAST(ITEM_RADIO_SETUP_CONTRAST)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
-  ITEM_RADIO_SETUP_START_SOUND,
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_ON_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_OFF_SPEED)
   CASE_PWR_BUTTON_PRESS(ITEM_RADIO_SETUP_PWR_AUTO_OFF)
@@ -126,6 +126,20 @@ enum {
   ITEM_VIEW_OPTIONS_TELEMETRY,
   ITEM_RADIO_SETUP_MAX
 };
+
+PACK(struct ExpandState {
+  uint8_t sound:1;
+  uint8_t alarms:1;
+  uint8_t viewOpt:1;
+});
+
+static struct ExpandState expandState;
+
+static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
+
+static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
+
+static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value : HIDDEN_ROW; }
 
 uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event, uint8_t modelOption)
 {
@@ -163,45 +177,64 @@ void menuRadioSetup(event_t event)
   uint8_t old_editMode = s_editMode;
 #endif
 
-  MENU(STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, HEADER_LINE+ITEM_RADIO_SETUP_MAX, {
-    HEADER_LINE_COLUMNS CASE_RTCLOCK(2) CASE_RTCLOCK(2) CASE_BATTGRAPH(1)
-    LABEL(SOUND), CASE_AUDIO(0)
-    CASE_BUZZER(0)
-    0, 0, 0, 0, 0, CASE_AUDIO(0)
+  MENU(STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, ITEM_RADIO_SETUP_MAX, {
+    HEADER_LINE_COLUMNS
+    CASE_RTCLOCK(2) CASE_RTCLOCK(2) CASE_BATTGRAPH(1)
+    // Sound
+    0, 
+     CASE_AUDIO(SOUND_ROW(0))
+     CASE_BUZZER(SOUND_ROW(0))
+     SOUND_ROW(0),
+     SOUND_ROW(0),
+     SOUND_ROW(0),
+     CASE_AUDIO(SOUND_ROW(0))
+     SOUND_ROW(0),
+     SOUND_ROW(0),
+     SOUND_ROW(0),
+    // Vario
     CASE_VARIO(LABEL(VARIO))
-    CASE_VARIO(0)
-    CASE_VARIO(0)
-    CASE_VARIO(0)
-    CASE_VARIO(0)
-    CASE_HAPTIC(LABEL(HAPTIC))
-    CASE_HAPTIC(0)
-    CASE_HAPTIC(0)
-    CASE_HAPTIC(0)
+     CASE_VARIO(0)
+     CASE_VARIO(0)
+     CASE_VARIO(0)
+     CASE_VARIO(0)
+    // Haptic
+    CASE_HAPTIC(LABEL(VARIO))
+     CASE_HAPTIC(0)
+     CASE_HAPTIC(0)
+     CASE_HAPTIC(0)
+    // IMU
     CASE_IMU(LABEL(IMU))
-    CASE_IMU(0)
-    CASE_IMU(0)
-    LABEL(ALARMS), 0,
-    0, 0, 0, 0, 0,/* ITEM_RADIO_SETUP_INACTIVITY_ALARM ITEM_RADIO_SETUP_MEMORY_WARNING ITEM_RADIO_SETUP_ALARM_WARNING ITEM_RADIO_SETUP_RSSI_POWEROFF_ALARM ITEM_RADIO_SETUP_TRAINER_POWEROFF_ALARM*/
-    CASE_BACKLIGHT(LABEL(BACKLIGHT))
-    CASE_BACKLIGHT(0)
-    CASE_BACKLIGHT(0)
-    CASE_BACKLIGHT(0)
-    CASE_CONTRAST(0)
-    CASE_BACKLIGHT(0)
-    CASE_SPLASH_PARAM(0)
+     CASE_IMU(0)
+     CASE_IMU(0)
+    // Alarms
     0,
+     ALARMS_ROW(0),
+     ALARMS_ROW(0),
+     ALARMS_ROW(0),
+     ALARMS_ROW(0),
+     ALARMS_ROW(0),
+     ALARMS_ROW(0),
+    // Backlight
+    CASE_BACKLIGHT(LABEL(BACKLIGHT))
+     CASE_BACKLIGHT(0)
+     CASE_BACKLIGHT(0)
+     CASE_BACKLIGHT(0)
+     CASE_CONTRAST(0)
+     CASE_BACKLIGHT(0)
+    CASE_SPLASH_PARAM(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_PWR_BUTTON_PRESS(0)
     CASE_HAPTIC(0) // power on/off haptic
     CASE_PXX2(0) /* owner registration ID */
-
-    CASE_GPS(0)
-    CASE_GPS(0)
-    CASE_GPS(0)
-    CASE_GPS(0)
+    // GPS
+    CASE_GPS(LABEL(GPS))
+     CASE_GPS(0)
+     CASE_GPS(0)
+     CASE_GPS(0)
     CASE_PXX1(0)
-    0, 0, 0, IF_FAI_CHOICE(0)
+    0, 0, 0,
+    IF_FAI_CHOICE(0)
     0,
     0, // USB mode
     CASE_JACK_DETECT(0) // Jack mode
@@ -209,19 +242,20 @@ void menuRadioSetup(event_t event)
     CASE_ROTARY_ENCODER(0)
     CASE_TX_MODE(LABEL(TX_MODE))
     CASE_TX_MODE(0)
-    LABEL(ViewOptions),
-     LABEL(RadioMenuTabs),
-      0,
-      0,
-     LABEL(ModelMenuTabs),
-      CASE_HELI(0)
-      CASE_FLIGHT_MODES(0)
-      0,
-      0,
-      0,
-      CASE_LUA_MODEL_SCRIPTS(0)
-      0,
-    1/*to force edit mode*/});
+    // View options
+    0,
+     VIEWOPT_ROW(LABEL(RadioMenuTabs)),
+      VIEWOPT_ROW(0),
+      VIEWOPT_ROW(0),
+     VIEWOPT_ROW(LABEL(ModelMenuTabs)),
+      CASE_HELI(VIEWOPT_ROW(0))
+      CASE_FLIGHT_MODES(VIEWOPT_ROW(0))
+      VIEWOPT_ROW(0),
+      VIEWOPT_ROW(0),
+      VIEWOPT_ROW(0),
+      CASE_LUA_MODEL_SCRIPTS(VIEWOPT_ROW(0))
+      VIEWOPT_ROW(0),
+  });
 
   if (event == EVT_ENTRY) {
     reusableBuffer.generalSettings.stickMode = g_eeGeneral.stickMode;
@@ -235,8 +269,16 @@ void menuRadioSetup(event_t event)
   for (uint8_t i=0; i<LCD_LINES-1; i++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     uint8_t k = i + menuVerticalOffset;
-    uint8_t blink = ((s_editMode>0) ? BLINK|INVERS : INVERS);
-    uint8_t attr = (sub == k ? blink : 0);
+    for (int j=0; j<=k; j++) {
+      if (mstate_tab[j+HEADER_LINE] == HIDDEN_ROW) {
+        if (++k >= (int)DIM(mstate_tab)) {
+          return;
+        }
+      }
+    }
+
+    LcdFlags blink = ((s_editMode>0) ? BLINK|INVERS : INVERS);
+    LcdFlags attr = (sub == k ? blink : 0);
 
     switch (k) {
 #if defined(RTCLOCK)
@@ -315,7 +357,7 @@ void menuRadioSetup(event_t event)
 #endif
 
       case ITEM_RADIO_SETUP_SOUND_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_SOUND_LABEL);
+        expandState.sound = expandableSection(y, STR_SOUND_LABEL, expandState.sound, attr, event);
         break;
 
 #if defined(AUDIO)
@@ -380,6 +422,10 @@ void menuRadioSetup(event_t event)
         }
         break;
 #endif
+
+      case ITEM_RADIO_SETUP_START_SOUND:
+        g_eeGeneral.dontPlayHello = !editCheckBox(!g_eeGeneral.dontPlayHello, LCD_W-9, y, STR_PLAY_HELLO, attr, event, INDENT_WIDTH) ;
+        break;
 
 #if defined(VARIO)
       case ITEM_RADIO_SETUP_VARIO_LABEL:
@@ -466,19 +512,8 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
-#if !defined(OLED_SCREEN)
-      case ITEM_RADIO_SETUP_CONTRAST:
-        lcdDrawTextIndented(y, STR_CONTRAST);
-        lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
-        if (attr) {
-          CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-          lcdSetContrast();
-        }
-        break;
-#endif
-
       case ITEM_RADIO_SETUP_ALARMS_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_ALARMS_LABEL);
+        expandState.alarms = expandableSection(y, STR_ALARMS_LABEL, expandState.alarms, attr, event);
         break;
 
       case ITEM_RADIO_SETUP_BATTERY_WARNING:
@@ -565,6 +600,17 @@ void menuRadioSetup(event_t event)
         break;
 #endif
 
+#if !defined(OLED_SCREEN)
+      case ITEM_RADIO_SETUP_CONTRAST:
+        lcdDrawTextIndented(y, STR_CONTRAST);
+        lcdDrawNumber(LCD_W-2, y, g_eeGeneral.contrast, attr|RIGHT);
+        if (attr) {
+          CHECK_INCDEC_GENVAR(event, g_eeGeneral.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
+          lcdSetContrast();
+        }
+        break;
+#endif
+
       case ITEM_RADIO_SETUP_DISABLE_SPLASH:
       {
         lcdDrawTextAlignedLeft(y, STR_SPLASHSCREEN);
@@ -578,11 +624,6 @@ void menuRadioSetup(event_t event)
         if (attr) g_eeGeneral.splashMode = -checkIncDecGen(event, -g_eeGeneral.splashMode, -3, 4);
         break;
       }
-
-      case ITEM_RADIO_SETUP_START_SOUND:
-        lcdDrawTextAlignedLeft(y, STR_PLAY_HELLO);
-        g_eeGeneral.dontPlayHello = !editCheckBox(!g_eeGeneral.dontPlayHello, LCD_W-9, y, nullptr, attr, event ) ;
-        break;
 
 #if defined(PWR_BUTTON_PRESS)
       case ITEM_RADIO_SETUP_PWR_ON_SPEED:
@@ -772,7 +813,7 @@ void menuRadioSetup(event_t event)
 #endif
 
       case ITEM_VIEW_OPTIONS_LABEL:
-        lcdDrawTextAlignedLeft(y, STR_ENABLED_FEATURES);
+        expandState.viewOpt = expandableSection(y, STR_ENABLED_FEATURES, expandState.viewOpt, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
         lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);

@@ -238,41 +238,21 @@ PACK(struct ExpandState {
   uint8_t functionSwitches:1;
 });
 
-struct ExpandState expandState;
+static struct ExpandState expandState;
 
-uint8_t PREFLIGHT_ROW(uint8_t value)
-{
-  if (expandState.preflight)
-    return value;
-  return HIDDEN_ROW;
-}
+static uint8_t PREFLIGHT_ROW(uint8_t value) { return expandState.preflight ? value : HIDDEN_ROW; }
 
-uint8_t THROTTLE_ROW(uint8_t value)
-{
-  if (expandState.throttle)
-    return value;
-  return HIDDEN_ROW;
-}
+static uint8_t THROTTLE_ROW(uint8_t value) { return expandState.throttle ? value : HIDDEN_ROW; }
 
 #if defined(FUNCTION_SWITCHES)
-uint8_t FS_ROW(uint8_t value)
-{
-  if (expandState.functionSwitches)
-    return value;
-  return HIDDEN_ROW;
-}
+static uint8_t FS_ROW(uint8_t value) { return expandState.functionSwitches ? value : HIDDEN_ROW; }
 
 uint8_t G1_ROW(int8_t value) { return (firstSwitchInGroup(1) >= 0) ? value : HIDDEN_ROW; }
 uint8_t G2_ROW(int8_t value) { return (firstSwitchInGroup(2) >= 0) ? value : HIDDEN_ROW; }
 uint8_t G3_ROW(int8_t value) { return (firstSwitchInGroup(3) >= 0) ? value : HIDDEN_ROW; }
 #endif
 
-uint8_t VIEWOPT_ROW(uint8_t value)
-{
-  if (expandState.viewOpt)
-    return value;
-  return HIDDEN_ROW;
-}
+static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value : HIDDEN_ROW; }
 
 #define MODEL_SETUP_2ND_COLUMN           (LCD_W-11*FW)
 #define MODEL_SETUP_SET_FAILSAFE_OFS     7*FW-2
