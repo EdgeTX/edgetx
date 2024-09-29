@@ -208,8 +208,10 @@ class ModelsPageBody : public Window
 
   void update()
   {
-    for (auto b : modelButtons)
+    for (auto b : modelButtons) {
       b->hide();
+      lv_group_remove_obj(b->getLvObj());
+    }
 
     ModelsVector models;
     if (selectedLabels.size()) {
@@ -245,7 +247,7 @@ class ModelsPageBody : public Window
       if (button) {
         button->setPos(x, y);
         button->show();
-        lv_obj_move_foreground(button->getLvObj());
+        lv_group_add_obj(lv_group_get_default(), button->getLvObj());
       } else {
         button = new ModelButton(
             this, {x, y, w, h}, model, [=]() { focusedModel = model; },
