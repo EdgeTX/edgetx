@@ -1002,6 +1002,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["extendedTrims"] = (int)rhs.extendedTrims;
   node["throttleReversed"] = (int)rhs.throttleReversed;
   node["checklistInteractive"] = (int)rhs.checklistInteractive;
+  node["crsfArmingMode"] = rhs.crsfArmingMode;
 
   for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
     if (!rhs.flightModeData[i].isEmpty(i)) {
@@ -1308,6 +1309,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["extendedTrims"] >> rhs.extendedTrims;
   node["throttleReversed"] >> rhs.throttleReversed;
   node["checklistInteractive"] >> rhs.checklistInteractive;
+  node["crsfArmingMode"] >> rhs.crsfArmingMode;
 
   node["flightModeData"] >> rhs.flightModeData;
   node["mixData"] >> rhs.mixData;

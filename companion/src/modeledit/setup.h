@@ -122,6 +122,7 @@ class ModulePanel : public ModelPanel
     void onClearAccessRxClicked();
     void on_chkOption_stateChanged(int state);
     void on_cboOption_currentIndexChanged(int value);
+    void on_crsfArmingMode_currentIndexChanged(int index);
 
   private:
     enum FailsafeValueDisplayTypes { FAILSAFE_DISPLAY_PERCENT = 1, FAILSAFE_DISPLAY_USEC = 2 };

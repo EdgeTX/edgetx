@@ -187,6 +187,18 @@ QString ModelPrinter::printTrimIncrementMode()
   }
 }
 
+QString ModelPrinter::printCrsfArmingMode()
+{
+  switch (model.crsfArmingMode) {
+    case 0:
+      return tr("Channel");
+    case 1:
+      return tr("Function");
+    default:
+      return tr("Unknown");
+  }
+}
+
 QString ModelPrinter::printModule(int idx)
 {
   QStringList str;
@@ -749,6 +761,7 @@ QString ModelPrinter::printSettingsOther()
 {
   QStringList str;
   str << printLabelValue(tr("Extended Limits"), printBoolean(model.extendedLimits, BOOLEAN_YESNO));
+  str << printLabelValue(tr("CRSF Arming"), printCrsfArmingMode());
   if (firmware->getCapability(HasDisplayText))
     str << printLabelValue(tr("Display Checklist"), printBoolean(model.displayChecklist, BOOLEAN_YESNO));
   if (firmware->getCapability(GlobalFunctions))

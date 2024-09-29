@@ -230,6 +230,7 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_CHANNELMAP            (1<<20)
 #define MASK_MULTI_BAYANG_OPT      (1<<21)
 #define MASK_AFHDS                 (1<<22)
+#define MASK_CSRF_ARMING_MODE      (1<<23)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -505,7 +506,7 @@ void ModulePanel::update()
         max_rx_num = 20;
         break;
       case PULSES_CROSSFIRE:
-        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE;
+        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE | MASK_CSRF_ARMING_MODE;
         module.channelsCount = 16;
         ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
         ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
@@ -602,6 +603,8 @@ void ModulePanel::update()
   ui->channelsCount->setMaximum(module.getMaxChannelCount());
   ui->channelsCount->setValue(module.channelsCount);
   ui->channelsCount->setSingleStep(firmware->getCapability(HasPPMStart) ? 1 : 2);
+  ui->label_crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
+  ui->crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
 
   // PPM settings fields
   ui->label_ppmPolarity->setVisible(mask & MASK_SBUSPPM_FIELDS);
@@ -837,10 +840,20 @@ void ModulePanel::update()
     }
   }
 
+  if (mask & MASK_CSRF_ARMING_MODE) {
+    ui->crsfArmingMode->setCurrentIndex(model->crsfArmingMode);
+  }
+
   ui->label_rxFreq->setVisible((mask & MASK_RX_FREQ));
   ui->rxFreq->setVisible((mask & MASK_RX_FREQ));
 
   lock = false;
+}
+
+void ModulePanel::on_crsfArmingMode_currentIndexChanged(int index)
+{
+  model->crsfArmingMode = index;
+  emit modified();
 }
 
 void ModulePanel::onProtocolChanged(int index)

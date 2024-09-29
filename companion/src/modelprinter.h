@@ -104,6 +104,7 @@ class ModelPrinter: public QObject
     QString printTelemetryScreenType(unsigned int val);
     QString printTelemetryScreen(unsigned int idx, unsigned int line, unsigned int width);
     QString printChecklist();
+    QString printCrsfArmingMode();
     const GeneralSettings * gs() { return &generalSettings; }
 
   private:
