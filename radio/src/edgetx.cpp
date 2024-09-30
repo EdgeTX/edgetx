@@ -160,6 +160,33 @@ void checkValidMCU(void)
 #endif
 }
 
+#if defined(RADIO_V16)
+
+//extern bool VoiceRunStatus;
+
+void per1ms()
+{
+  //if(VoiceRunStatus==false)return;  //cli updata 
+
+#if defined(IMU_SENSOR)
+  static uint16_t per1msloop=0;
+
+  //GetIMU42627(per1msloop);
+
+  if(++per1msloop>=5)
+  {
+    per1msloop=0;
+  }
+  else
+#endif
+  {
+  #if defined(CSD203_SENSOR) && !defined(SIMU)
+    readCSD203();
+  #endif
+  }
+}
+#endif
+
 void timer_10ms()
 {
   DEBUG_TIMER_START(debugTimerPer10ms);
@@ -211,10 +238,6 @@ void timer_10ms()
   if (rotaryEncoderPollingCycle()) {
     inactivityTimerReset(ActivitySource::Keys);
   }
-#endif
-
-#if defined(CSD203_SENSOR) && !defined(SIMU)
-  readCSD203();
 #endif
 
   telemetryInterrupt10ms();
@@ -408,6 +431,21 @@ void generalDefault()
 #endif
 
   g_eeGeneral.chkSum = 0xFFFF;
+}
+
+uint16_t MaxAbnormalCurrent(void)
+{
+  //if(g_eeGeneral.extmaxcurrent<200)return 200;
+  
+  return 2000; //g_eeGeneral.extmaxcurrent;
+}
+uint8_t getvoivech56switch(void)
+{
+  return 0; // g_eeGeneral.voivech56switch; //0=enable 1=disable
+}
+uint8_t getextModuleprotect(void)
+{
+  return 0; // g_eeGeneral.extModuleprotect;
 }
 
 uint16_t evalChkSum()

@@ -643,11 +643,29 @@ static const char *event2str(uint8_t ev)
 }
 #endif
 
+#if defined(RADIO_V16)
+//Seize IIC and avoid conflicts during IIC operations
+extern bool IICReadStatusFlag;
+#endif
+
 struct TouchState touchPanelRead()
 {
   uint8_t state = 0;
 
   if (!touchEventOccured) return internalTouchState;
+#if defined(RADIO_V16)  
+  for(uint8_t a=0;a<126;a++){//IIC bus preemption
+    if(IICReadStatusFlag==false){
+      IICReadStatusFlag=true;
+      if(a)delay_us(20);
+      break;
+    } 
+    else if(a>26){
+      return internalTouchState;
+    }
+    delay_us(10);
+  }//for
+#endif
 
   touchEventOccured = false;
 
@@ -658,6 +676,9 @@ struct TouchState touchPanelRead()
       touchGT911hiccups++;
       TRACE("GT911 I2C read XY error");
       if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
+    #if defined(RADIO_V16)
+      IICReadStatusFlag=false;
+    #endif
       return internalTouchState;
     }
 
@@ -683,6 +704,9 @@ struct TouchState touchPanelRead()
         touchGT911hiccups++;
         TRACE("GT911 I2C data read error");
         if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed");
+      #if defined(RADIO_V16)
+        IICReadStatusFlag=false;
+      #endif
         return internalTouchState;
       }
         
@@ -733,6 +757,10 @@ struct TouchState touchPanelRead()
   }
 
   TRACE("touch event = %s", event2str(internalTouchState.event));
+
+#if defined(RADIO_V16)
+  IICReadStatusFlag=false;
+#endif
   return internalTouchState;
 }
 

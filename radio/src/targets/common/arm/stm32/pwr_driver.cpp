@@ -89,6 +89,15 @@ void pwrInit()
 #endif
 }
 
+#if defined(CSD203_SENSOR)
+void EXTERNALMODULEOFF(void)
+{
+    //EXTERNAL_MODULE_OFF();
+    //EXTERNAL_MODULE_PWR_OFF();
+    EXTERNAL_MODULE_PWR_OFF();
+}
+#endif
+
 void pwrOn()
 {
 #if defined(PWR_ON_GPIO)

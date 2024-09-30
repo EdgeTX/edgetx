@@ -34,5 +34,6 @@ uint32_t timersGetMsTick();
 uint32_t timersGetUsTick();
 
 // declared "weak", to be implemented by application
+void per1ms();
 void per5ms();
 void per10ms();
