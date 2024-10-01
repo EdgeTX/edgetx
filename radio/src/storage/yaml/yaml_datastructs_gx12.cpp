@@ -84,6 +84,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_RACING_MODE, "RACING_MODE"  },
   {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
   {  FUNC_RGB_LED, "RGB_LED"  },
+  {  FUNC_PUSH_CUST_SWITCH, "PUSH_CUST_SWITCH"  },
   {  FUNC_TEST, "TEST"  },
   {  0, NULL  }
 };
@@ -237,7 +238,7 @@ static const struct YamlNode struct_anonymous_2[] = {
   YAML_SIGNED( "val", 16 ),
   YAML_UNSIGNED( "mode", 8 ),
   YAML_UNSIGNED( "param", 8 ),
-  YAML_SIGNED( "spare", 32 ),
+  YAML_SIGNED( "val2", 32 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_3[] = {
