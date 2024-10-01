@@ -248,7 +248,8 @@ static void checkHeader (LoadState *S) {
     error(S, "format mismatch in");
   checkliteral(S, LUAC_DATA, "corrupted");
   checksize(S, int);
-  checksize(S, size_t);
+  // checksize(S, size_t);
+  checksize(S, int);        // for radio compatability
   checksize(S, Instruction);
   checksize(S, lua_Integer);
   checksize(S, lua_Number);

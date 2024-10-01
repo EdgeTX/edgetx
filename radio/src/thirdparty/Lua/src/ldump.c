@@ -187,7 +187,8 @@ static void DumpHeader (DumpState *D) {
   DumpByte(LUAC_FORMAT, D);
   DumpLiteral(LUAC_DATA, D);
   DumpByte(sizeof(int), D);
-  DumpByte(sizeof(size_t), D);
+  // DumpByte(sizeof(size_t), D);
+  DumpByte(sizeof(int), D);         // for radio compatability
   DumpByte(sizeof(Instruction), D);
   DumpByte(sizeof(lua_Integer), D);
   DumpByte(sizeof(lua_Number), D);
