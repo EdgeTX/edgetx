@@ -26,6 +26,9 @@
 // prevent C++ code to be included from lua.h
 #include "rtos.h"
 
+extern "C" {
+  #include "lua.h"
+};
 
 #include "dataconstants.h"
 #include "edgetx_types.h"
