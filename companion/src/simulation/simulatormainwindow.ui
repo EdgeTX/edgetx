@@ -72,6 +72,7 @@
     <addaction name="actionScreenshot"/>
     <addaction name="actionJoystickSettings"/>
     <addaction name="actionShowKeymap"/>
+    <addaction name="actionSerialPorts"/>
    </widget>
    <addaction name="menuView"/>
    <addaction name="menuReload"/>
@@ -214,6 +215,11 @@
    </property>
    <property name="toolTip">
     <string>Set radio widget height to be a fixed size.</string>
+   </property>
+  </action>
+  <action name="actionSerialPorts">
+   <property name="text">
+    <string>Serial Ports</string>
    </property>
   </action>
  </widget>

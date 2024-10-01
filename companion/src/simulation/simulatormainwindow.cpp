@@ -32,6 +32,7 @@
 #ifdef JOYSTICKS
 #include "joystickdialog.h"
 #endif
+#include "serialportsdialog.h"
 
 #include <QDebug>
 #include <QDir>
@@ -82,6 +83,8 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   m_simulator->moveToThread(&simuThread);
   simuThread.start();
 
+  hostSerialConnector = new HostSerialConnector(this, m_simulator);
+
   ui->setupUi(this);
 
   setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
@@ -131,6 +134,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
 
   connect(ui->actionShowKeymap, &QAction::triggered, this, &SimulatorMainWindow::showHelp);
   connect(ui->actionJoystickSettings, &QAction::triggered, this, &SimulatorMainWindow::openJoystickDialog);
+  connect(ui->actionSerialPorts, &QAction::triggered, this, &SimulatorMainWindow::openSerialPortsDialog);
   connect(ui->actionToggleMenuBar, &QAction::toggled, this, &SimulatorMainWindow::showMenuBar);
   connect(ui->actionFixedRadioWidth, &QAction::toggled, this, &SimulatorMainWindow::showRadioFixedWidth);
   connect(ui->actionFixedRadioHeight, &QAction::toggled, this, &SimulatorMainWindow::showRadioFixedHeight);
@@ -150,6 +154,12 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
     connect(ui->actionScreenshot, &QAction::triggered, m_simulatorWidget, &SimulatorWidget::captureScreenshot);
     connect(m_simulatorWidget, &SimulatorWidget::windowTitleChanged, this, &SimulatorMainWindow::setWindowTitle);
   }
+
+  connect(m_simulator, &SimulatorInterface::auxSerialSendData, hostSerialConnector, &HostSerialConnector::sendSerialData);
+  connect(m_simulator, &SimulatorInterface::auxSerialSetEncoding, hostSerialConnector, &HostSerialConnector::setSerialEncoding);
+  connect(m_simulator, &SimulatorInterface::auxSerialSetBaudrate, hostSerialConnector, &HostSerialConnector::setSerialBaudRate);
+  connect(m_simulator, &SimulatorInterface::auxSerialStart, hostSerialConnector, &HostSerialConnector::serialStart);
+  connect(m_simulator, &SimulatorInterface::auxSerialStop, hostSerialConnector, &HostSerialConnector::serialStop);
 }
 
 SimulatorMainWindow::~SimulatorMainWindow()
@@ -468,6 +478,16 @@ void SimulatorMainWindow::openJoystickDialog(bool)
     m_simulatorWidget->setupJoysticks();
   jd->deleteLater();
 #endif
+}
+
+void SimulatorMainWindow::openSerialPortsDialog(bool)
+{
+  SerialPortsDialog * dialog = new SerialPortsDialog(this);
+  if (dialog->exec() == QDialog::Accepted && m_simulator) {
+    hostSerialConnector->connectSerialPort(0, dialog->aux1);
+    hostSerialConnector->connectSerialPort(1, dialog->aux2);
+  }
+  dialog->deleteLater();
 }
 
 void SimulatorMainWindow::showHelp(bool show)

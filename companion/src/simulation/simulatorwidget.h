@@ -74,6 +74,7 @@ class SimulatorWidget : public QWidget
     void setUiAreaStyle(const QString & style);
     void captureScreenshot(bool);
     void setupJoysticks();
+    void setupSerialPorts(QSerialPort *aux1, QSerialPort *aux2);
 
     QString getSdPath()   const { return sdCardPath; }
     QString getDataPath() const { return radioDataPath; }
