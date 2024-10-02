@@ -1089,10 +1089,6 @@ void edgeTxClose(uint8_t shutdown)
 #endif
   }
 
-#if defined(LUA)
-  luaClose(&lsScripts);
-#endif
-
   logsClose();
 
   storageFlushCurrentModel();
