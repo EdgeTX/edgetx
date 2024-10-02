@@ -50,6 +50,7 @@ ModalWindow::ModalWindow(bool closeWhenClickOutside) :
     Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, modal_create),
     closeWhenClickOutside(closeWhenClickOutside)
 {
+  setWindowFlag(OPAQUE);
   Layer::push(this);
 }
 
