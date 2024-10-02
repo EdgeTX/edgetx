@@ -278,10 +278,12 @@ void luaClose(lua_State ** L)
 
 void luaClose()
 {
-  luaClose(&lsScripts);
 #if defined(COLORLCD)
   luaClose(&lsWidgets);
+  extern lua_State* lsStandalone;
+  luaClose(&lsStandalone);
 #endif
+  luaClose(&lsScripts);
 }
 
 void luaRegisterLibraries(lua_State * L)
