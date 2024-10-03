@@ -92,31 +92,15 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
   return buf - frame;
 }
 
-uint8_t createCrossfireArmFrame(uint8_t moduleIdx, uint8_t * frame, uint8_t crsfArmingMode, uint8_t armStatus)
-{
-  uint8_t * buf = frame;
-  *buf++ = UART_SYNC;                                 /* device address */
-  *buf++ = 9;                                         /* frame length */
-  *buf++ = COMMAND_ID;                                /* cmd type */
-  *buf++ = MODULE_ADDRESS;                            /* Destination Address */
-  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
-  *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
-  *buf++ = COMMAND_SF_ARM;                            /* command to notify ELRS module about SF Arm status */
-  *buf++ = crsfArmingMode;                            /* ch5 or CRSF message based arming */
-  *buf++ = armStatus;                                 /* Arm status */
-  *buf++ = crc8_BA(frame + 2, 7);
-  *buf++ = crc8(frame + 2, 8);
-  return buf - frame;
-}
-
 // Range for pulses (channels output) is [-1024:+1024]
-uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
+uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses, bool RCext, uint8_t armStatus)
 {
+  uint8_t extAdjust = RCext ? 1: 0;
   uint8_t * buf = frame;
   *buf++ = MODULE_ADDRESS;
-  *buf++ = 24; // 1(ID) + 22 + 1(CRC)
+  *buf++ = 24 + extAdjust ; // 1(ID) + 22 + (+1 if RCext) + 1(CRC)
   uint8_t * crc_start = buf;
-  *buf++ = CHANNELS_ID;
+  *buf++ = RCext ? CHANNELS_ID_EXT : CHANNELS_ID;
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
   for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
@@ -129,7 +113,15 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
       bitsavailable -= 8;
     }
   }
-  *buf++ = crc8(crc_start, 23);
+  
+  if (RCext) {
+    TRACE("[XF] RCext arm %d", armStatus);
+    *buf++ = armStatus;  // Arm status
+  } else {
+    TRACE("[XF] RC");
+  }
+
+  *buf++ = crc8(crc_start, 23 + extAdjust);
   return buf - frame;
 }
 
@@ -173,33 +165,21 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       }
     }
 
-    static bool sendCrsfArmMsg = false;
- 
-    static bool lastArmStatus = false;
-    static bool lastcrsfArmingMode = false;
-
-    bool crsfArmingMode = g_model.crsfArmingMode;
-    bool armStatus = crsfArmingMode && isFunctionActive(FUNCTION_ARM);
-
     if (moduleState[module].counter == CRSF_FRAME_MODELID) {
-      TRACE("[XF] sending ModelID %d", g_model.header.modelId[module]);
+      TRACE("[XF] ModelID %d", g_model.header.modelId[module]);
       p_buf += createCrossfireModelIDFrame(module, p_buf);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
-      sendCrsfArmMsg = true;
-    } else if((crsfArmingMode != lastcrsfArmingMode) || (armStatus != lastArmStatus) || sendCrsfArmMsg) {
-      lastcrsfArmingMode = crsfArmingMode;
-      lastArmStatus = armStatus;
-      sendCrsfArmMsg = false;  
-      TRACE("[XF] sending CRSF arming = %d, Arm status %d", crsfArmingMode, armStatus);
-      p_buf += createCrossfireArmFrame(module, p_buf, crsfArmingMode, armStatus);
     } else if (moduleState[module].counter == CRSF_FRAME_MODELID_SENT && crossfireModuleStatus[module].queryCompleted == false) {
+      TRACE("[XF] Ping");
       p_buf += createCrossfirePingFrame(module, p_buf);
     } else if (moduleState[module].mode == MODULE_MODE_BIND) {
+      TRACE("[XF] Bind");
       p_buf += createCrossfireBindFrame(module, p_buf);
       moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
       /* TODO: nChannels */
-      p_buf += createCrossfireChannelsFrame(p_buf, channels);
+      bool crsfArmingMode = g_model.crsfArmingMode;
+      p_buf += createCrossfireChannelsFrame(p_buf, channels, g_model.crsfArmingMode, crsfArmingMode && isFunctionActive(FUNCTION_ARM));
     }
   }
 }
