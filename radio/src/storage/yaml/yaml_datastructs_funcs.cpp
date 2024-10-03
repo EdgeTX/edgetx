@@ -1827,10 +1827,6 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     if (!wf(opaque, str, strlen(str))) return false;
     break;
 
-#if defined(COLORLCD)
-  case FUNC_SET_SCREEN:
-#endif
-
 #if defined(FUNCTION_SWITCHES)
   case FUNC_PUSH_CUST_SWITCH:
     str = yaml_unsigned2str(CFN_CS_INDEX(cfn)); // SW index
@@ -1841,6 +1837,9 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 #endif
 
+#if defined(COLORLCD)
+  case FUNC_SET_SCREEN:
+#endif
   case FUNC_HAPTIC:
   case FUNC_LOGS: // 10th of seconds
     str = yaml_unsigned2str(CFN_PARAM(cfn));
