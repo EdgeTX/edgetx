@@ -109,6 +109,8 @@ void lcdHardwareInit()
 
 #if defined(OLED_VCC_CS)
   gpio_init(OLED_VCC_CS, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  if (WAS_RESET_BY_SOFTWARE())  // Comming from bootloader, screen is already on
+    gpio_set(OLED_VCC_CS);
 #endif
 }
 

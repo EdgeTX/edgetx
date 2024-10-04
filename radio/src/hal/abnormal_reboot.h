@@ -46,3 +46,6 @@ uint32_t abnormalRebootGetCause();
 
 #define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() \
   (abnormalRebootGetCause() != ARC_None)
+
+#define WAS_RESET_BY_SOFTWARE() \
+  (abnormalRebootGetCause() == ARC_Software)
