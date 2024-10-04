@@ -323,6 +323,7 @@ void LuaWidget::update()
     auto optVal = getOptionValue(i);
     switch (option->type) {
       case ZoneOption::String:
+      case ZoneOption::File:
         {
           char str[LEN_ZONE_OPTION_STRING + 1] = {0};
           strncpy(str, optVal->stringValue, LEN_ZONE_OPTION_STRING);

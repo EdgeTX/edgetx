@@ -29,7 +29,7 @@ public:
              std::function<std::string()> getValue,
              std::function<void(std::string)> setValue,
              bool stripExtension = false,
-             const char* title = nullptr);
+             const char* title = "");
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "FileChoice"; }

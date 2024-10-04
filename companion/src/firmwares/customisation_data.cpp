@@ -71,6 +71,7 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
 {
   switch(type) {
   case ZoneOption::String:
+  case ZoneOption::File:
     return ZOV_String;
 
   case ZoneOption::Integer:
