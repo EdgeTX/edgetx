@@ -261,7 +261,6 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
         ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
-        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd))) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
         ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||

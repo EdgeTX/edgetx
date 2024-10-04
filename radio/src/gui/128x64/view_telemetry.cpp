@@ -23,7 +23,7 @@
 
 #define STATUS_BAR_Y     (7*FH+1)
 
-uint8_t s_frsky_view = 0;
+uint8_t selectedTelemView = 0;
 
 #define BAR_LEFT    25
 #define BAR_WIDTH   100
@@ -163,7 +163,7 @@ bool displayCustomTelemetryScreen(uint8_t index)
 {
   TelemetryScreenData & screen = g_model.screens[index];
 
-  if (IS_BARS_SCREEN(s_frsky_view)) {
+  if (IS_BARS_SCREEN(selectedTelemView)) {
     return displayGaugesTelemetryScreen(screen);
   }
 
@@ -175,19 +175,19 @@ bool displayCustomTelemetryScreen(uint8_t index)
 bool displayTelemetryScreen()
 {
 #if defined(LUA)
-  if (TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
+  if (TELEMETRY_SCREEN_TYPE(selectedTelemView) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
     return isTelemetryScriptAvailable(); // contents will be drawn by Lua Task
   }
 #endif
 
-  if (TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_NONE) {
+  if (TELEMETRY_SCREEN_TYPE(selectedTelemView) == TELEMETRY_SCREEN_TYPE_NONE) {
     return false;
   }
 
   drawTelemetryTopBar();
 
-  if (s_frsky_view < MAX_TELEMETRY_SCREENS) {
-    return displayCustomTelemetryScreen(s_frsky_view);
+  if (selectedTelemView < MAX_TELEMETRY_SCREENS) {
+    return displayCustomTelemetryScreen(selectedTelemView);
   }
 
   return true;

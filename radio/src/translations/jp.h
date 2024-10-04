@@ -119,6 +119,7 @@
 #define TR_SF_DISABLE_TOUCH            "非タッチ"
 #define TR_SF_DISABLE_AUDIO_AMP        "オーディオアンプ OFF"
 #define TR_SF_SET_SCREEN               "メイン画面設定"
+#define TR_SF_SET_TELEMSCREEN          "Set Screen"
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 

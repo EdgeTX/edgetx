@@ -121,6 +121,7 @@
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
 #define TR_SF_DISABLE_AUDIO_AMP        TR("Sluk audio amp", "Sluk audio amplifier")
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"
+#define TR_SF_SET_TELEMSCREEN          "Set Screen"
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 

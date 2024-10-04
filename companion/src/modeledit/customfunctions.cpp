@@ -553,11 +553,16 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         if (modified)
           cfn.param = (uint8_t)fswtchParam[i]->value();
         fswtchParam[i]->setDecimals(0);
-        fswtchParam[i]->setMinimum(1);
-        if(model)
-          fswtchParam[i]->setMaximum(model->getCustomScreensCount());
-        else
-          fswtchParam[i]->setMaximum(1);
+        if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+          fswtchParam[i]->setMinimum(1);
+          if(model)
+            fswtchParam[i]->setMaximum(model->getCustomScreensCount());
+          else
+            fswtchParam[i]->setMaximum(1);
+        } else {
+          fswtchParam[i]->setMinimum(0);
+          fswtchParam[i]->setMaximum(4);
+        }
         fswtchParam[i]->setSingleStep(1);
         fswtchParam[i]->setValue(cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;

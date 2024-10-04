@@ -123,6 +123,7 @@
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
 #define TR_SF_DISABLE_AUDIO_AMP         TR("Audioförst. av","Audioförstärkare av")
 #define TR_SF_SET_SCREEN                "Sätt huvudskärm"
+#define TR_SF_SET_TELEMSCREEN           "Set Screen"
 #define TR_SF_PUSH_CUST_SWITCH          "Tryck CS"
 #define TR_SF_LCD_TO_VIDEO              "LCD till Video"
 

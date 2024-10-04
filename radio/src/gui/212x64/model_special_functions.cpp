@@ -307,6 +307,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             val_max = AU_SPECIAL_SOUND_LAST-AU_SPECIAL_SOUND_FIRST-1;
             lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_FUNCSOUNDS, val_displayed, attr);
           }
+          else if (func == FUNC_SET_SCREEN) {
+            val_min = 0;
+            val_max = 4;
+            lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT);
+          }
 #if defined(HAPTIC)
           else if (func == FUNC_HAPTIC) {
             val_max = 3;
