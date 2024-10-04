@@ -424,6 +424,19 @@ AbstractStaticItemModel * CustomFunctionData::repeatLuaItemModel()
 }
 
 //  static
+AbstractStaticItemModel * CustomFunctionData::repeatSetScreenItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("customfunctiondata.repeatSetScreen");
+
+  mdl->appendToItemList(repeatToString(-1, false), -1);
+  mdl->appendToItemList(repeatToString(0, false), 0);
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
 AbstractStaticItemModel * CustomFunctionData::playSoundItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
