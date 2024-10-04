@@ -665,7 +665,7 @@ Functions cfn_sorted[] = {
   /* Haptisk */ FUNC_HAPTIC,
   /* Justera */ FUNC_ADJUST_GVAR,
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD till Video */ FUNC_LCD_TO_VIDEO,
 #endif
 #if defined(OLED_SCREEN)
   /* Ljusstyrka */ FUNC_BACKLIGHT,
@@ -677,9 +677,6 @@ Functions cfn_sorted[] = {
   /* Musik */ FUNC_BACKGND_MUSIC,
   /* Parkoppla modul */ FUNC_BIND,
   /* Pausa Musik */ FUNC_BACKGND_MUSIC_PAUSE,
-#if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
-#endif
   /* Range check */ FUNC_RANGECHECK,
   /* RGB ledljus */ FUNC_RGB_LED,
   /* Skärmbild */ FUNC_SCREENSHOT,
@@ -694,6 +691,9 @@ Functions cfn_sorted[] = {
 #endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
+#endif
+#if defined(FUNCTION_SWITCHES)
+  /* Tryck CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Tävlingsläge */ FUNC_RACING_MODE,
   /* Vario */ FUNC_VARIO,
