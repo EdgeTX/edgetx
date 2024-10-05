@@ -95,7 +95,7 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
 
     lv_coord_t x = LayoutFactory::TRIM_SQUARE_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
-      if (i == 0 || i == sliderTicksCount / 2 || i == SLIDER_TICKS_COUNT) {
+      if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
         tickPoints[i * 2] = {x, PAD_TINY};
         tickPoints[i * 2 + 1] = {x, SL_SZ};
       } else {

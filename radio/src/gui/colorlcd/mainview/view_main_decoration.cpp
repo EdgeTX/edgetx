@@ -121,11 +121,18 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
 
   // Bottom center 6POS
   if (IS_POT_AVAILABLE(pot)) {
+#if defined(RADIO_PL18) || defined(RADIO_PL18EV)
+    if (IS_POT_AVAILABLE(pot)) {
+      sliders[pot] = new MainViewHorizontalSlider(bc, pot);
+    }
+    pot += 1;
+#else
     if (IS_POT_MULTIPOS(pot)) {
       // Has 6POS - place bottom center
       sliders[pot] = new MainView6POS(bc, pot);
       pot += 1;
     }
+#endif
   } else {
     pot += 1;
   }
@@ -141,13 +148,13 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     // create containers for the sliders, so that they are at the borders of the display
     // on top of each other, when there are two sliders to display per side
     auto leftPots = layoutBox(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
-    leftPots->setHeight(MainViewSlider::HORIZONTAL_SLIDERS_WIDTH);
+    leftPots->setHeight(MainViewSlider::VERTICAL_SLIDERS_HEIGHT);
 
     auto rightPots = layoutBox(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
     rightPots->setHeight(MainViewSlider::VERTICAL_SLIDERS_HEIGHT);
 
-    coord_t lsh = (IS_POT_AVAILABLE(pot + 2)) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 2 : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH;
-    coord_t rsh = (IS_POT_AVAILABLE(pot + 3)) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 2 : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH;
+    coord_t lsh = (IS_POT_AVAILABLE(pot + 2)) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT / 2 : MainViewSlider::VERTICAL_SLIDERS_HEIGHT;
+    coord_t rsh = (IS_POT_AVAILABLE(pot + 3)) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT / 2 : MainViewSlider::VERTICAL_SLIDERS_HEIGHT;
 
     if (IS_POT_AVAILABLE(pot)) {
       sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
