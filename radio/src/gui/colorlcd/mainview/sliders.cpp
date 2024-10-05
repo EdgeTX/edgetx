@@ -162,7 +162,7 @@ MainViewVerticalSlider::MainViewVerticalSlider(Window* parent,
 }
 
 MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
-    Window(parent, rect_t{0, 0, MULTIPOS_W, MULTIPOS_H}), idx(idx)
+    Window(parent, rect_t{0, 0, MULTIPOS_W, LayoutFactory::TRIM_SQUARE_SIZE}), idx(idx)
 {
   char num[] = " ";
   coord_t x = MULTIPOS_W_SPACING / 4 + LayoutFactory::TRIM_SQUARE_SIZE / 4;

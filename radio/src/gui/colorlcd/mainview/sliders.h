@@ -85,11 +85,10 @@ class MainView6POS : public Window
 
   void checkEvents() override;
 
-  static LAYOUT_VAL(MULTIPOS_H, 18, 18)
   static LAYOUT_VAL(MULTIPOS_W_SPACING, 12, 12)
   static LAYOUT_VAL(MULTIPOS_SZ, 12, 12)
   static LAYOUT_VAL(MULTIPOS_XO, 3, 3)
-  static constexpr coord_t MULTIPOS_W = (6 + 1) * MULTIPOS_W_SPACING;
+  static constexpr coord_t MULTIPOS_W = (XPOTS_MULTIPOS_COUNT + 1) * MULTIPOS_W_SPACING;
 
  protected:
   uint8_t idx;
