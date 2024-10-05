@@ -122,9 +122,7 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
   // Bottom center 6POS
   if (IS_POT_AVAILABLE(pot)) {
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
-    if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewHorizontalSlider(bc, pot);
-    }
+    sliders[pot] = new MainViewHorizontalSlider(bc, pot);
     pot += 1;
 #else
     if (IS_POT_MULTIPOS(pot)) {
