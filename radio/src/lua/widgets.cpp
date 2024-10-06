@@ -205,7 +205,7 @@ ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
   else
   {
     TRACE("error in theme/widget options");
-    free(options);
+    delete[] options;
     return NULL;
   }
   UNPROTECT_LUA();
