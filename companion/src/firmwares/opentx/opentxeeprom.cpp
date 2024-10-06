@@ -1774,8 +1774,11 @@ class ArmCustomFunctionField: public TransformedField {
     {
       fn.func = (AssignFunc)_func;
 
-      if (hasRepeatParam(fn))
+      if (hasRepeatParam(fn)) {
         fn.repeatParam = _active;
+        // PR #3601 added enabled field to all sf/gfs functions with repeat parameter assumed always enabled so now set explicitly
+        fn.enabled = 1;
+      }
       else
         fn.enabled = (_active & 0x01);
 
