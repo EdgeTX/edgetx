@@ -24,8 +24,6 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QtWidgets>
-#include "appdata.h"
-#include "joystick.h"
 
 class QComboBox;
 

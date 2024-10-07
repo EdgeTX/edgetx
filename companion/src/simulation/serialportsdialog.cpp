@@ -22,10 +22,6 @@
 #include "serialportsdialog.h"
 #include "ui_serialportsdialog.h"
 
-#include "eeprominterface.h"
-#include "boards.h"
-#include "constants.h"
-
 SerialPortsDialog::SerialPortsDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::SerialPortsDialog)
