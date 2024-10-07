@@ -626,12 +626,13 @@ const etx_serial_driver_t null_drv = {
   .setIdleCb = nullptr,
   .setBaudrateCb = nullptr,
 };
+
+static void null_pwr_aux(uint8_t) {}
 #endif
 
 #if defined(AUX_SERIAL)
 #if defined(AUX_SERIAL_PWR_GPIO)
-  static void simulator_host_pwr_aux(uint8_t) {}
-  #define AUX_SERIAL_PWR simulator_host_pwr_aux
+  #define AUX_SERIAL_PWR null_pwr_aux
 #else
   #define AUX_SERIAL_PWR nullptr
 #endif
@@ -648,8 +649,7 @@ static etx_serial_port_t auxSerialPort = {
 
 #if defined(AUX2_SERIAL)
 #if defined(AUX_SERIAL_PWR_GPIO)
-  static void simulator_host_pwr_aux2(uint8_t) {}
-  #define AUX2_SERIAL_PWR simulator_host_pwr_aux2
+  #define AUX2_SERIAL_PWR null_pwr_aux
 #else
   #define AUX2_SERIAL_PWR nullptr
 #endif

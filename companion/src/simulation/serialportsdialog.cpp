@@ -22,8 +22,9 @@
 #include "serialportsdialog.h"
 #include "ui_serialportsdialog.h"
 
-SerialPortsDialog::SerialPortsDialog(QWidget *parent) :
+SerialPortsDialog::SerialPortsDialog(QWidget *parent, SimulatorInterface *simulator) :
   QDialog(parent),
+  simulator(simulator),
   ui(new Ui::SerialPortsDialog)
 {
   ui->setupUi(this);
@@ -33,6 +34,9 @@ SerialPortsDialog::SerialPortsDialog(QWidget *parent) :
 
   populateSerialPortCombo(ui->aux1Combo);
   populateSerialPortCombo(ui->aux2Combo);
+
+  ui->aux1Combo->setEnabled(simulator->getCapability(SimulatorInterface::Capability::CAP_SERIAL_AUX1));
+  ui->aux2Combo->setEnabled(simulator->getCapability(SimulatorInterface::Capability::CAP_SERIAL_AUX2));
 }
 
 SerialPortsDialog::~SerialPortsDialog()

@@ -25,6 +25,8 @@
 #include <QSerialPortInfo>
 #include <QtWidgets>
 
+#include "simulatorinterface.h"
+
 class QComboBox;
 
 namespace Ui {
@@ -36,10 +38,11 @@ class SerialPortsDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit SerialPortsDialog(QWidget *parent = 0);
+    explicit SerialPortsDialog(QWidget *parent, SimulatorInterface *simulator);
     ~SerialPortsDialog();
     QString aux1;
     QString aux2;
+    SimulatorInterface *simulator;
 
   private:
     Ui::SerialPortsDialog *ui;
