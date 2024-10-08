@@ -45,6 +45,13 @@ enum SimulatorTelemetryProtocol {
   SIMU_TELEMETRY_PROTOCOL_COUNT
 };
 
+enum SimulatorSerialEncoding {
+  SERIAL_ENCODING_8N1 = 0,
+  SERIAL_ENCODING_8E2,
+  SERIAL_ENCODING_PXX1_PWM,
+  SERIAL_ENCODING_COUNT
+};
+
 class SimulatorInterface : public QObject
 {
   Q_OBJECT
@@ -88,13 +95,6 @@ class SimulatorInterface : public QObject
       CAP_SERIAL_AUX1,        // Does AUX1 exist on this radio?
       CAP_SERIAL_AUX2,        // Does AUX2 exist on this radio?
       CAP_ENUM_COUNT
-    };
-
-    enum SerialEncoding {
-      SERIAL_ENCODING_8N1,
-      SERIAL_ENCODING_8E2,
-      SERIAL_ENCODING_PXX1_PWM,
-      SERIAL_ENCODING_COUNT
     };
 
     // This allows automatic en/decoding of flight mode + gvarIdx value to/from any int32
@@ -188,7 +188,7 @@ class SimulatorInterface : public QObject
     void gVarValueChange(quint8 index, qint32 value);
     void outputValueChange(int type, quint8 index, qint32 value);
     void auxSerialSendData(const quint8 port_num, const QByteArray & data);
-    void auxSerialSetEncoding(const quint8 port_num, const SerialEncoding encoding);
+    void auxSerialSetEncoding(const quint8 port_num, const quint8 encoding);
     void auxSerialSetBaudrate(const quint8 port_num, const quint32 baudrate);
     void auxSerialStart(const quint8 port_num);
     void auxSerialStop(const quint8 port_num);

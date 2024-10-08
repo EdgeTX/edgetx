@@ -22,18 +22,19 @@
 #include "serialportsdialog.h"
 #include "ui_serialportsdialog.h"
 
-SerialPortsDialog::SerialPortsDialog(QWidget *parent, SimulatorInterface *simulator) :
+SerialPortsDialog::SerialPortsDialog(QWidget *parent, SimulatorInterface *simulator, HostSerialConnector *connector) :
   QDialog(parent),
   simulator(simulator),
+  connector(connector),
   ui(new Ui::SerialPortsDialog)
 {
   ui->setupUi(this);
 
-  aux1 = QString("");
-  aux2 = QString("");
+  aux1 = connector->getConnectedSerialPortName(0);
+  aux2 = connector->getConnectedSerialPortName(1);
 
-  populateSerialPortCombo(ui->aux1Combo);
-  populateSerialPortCombo(ui->aux2Combo);
+  populateSerialPortCombo(ui->aux1Combo, aux1);
+  populateSerialPortCombo(ui->aux2Combo, aux2);
 
   ui->aux1Combo->setEnabled(simulator->getCapability(SimulatorInterface::Capability::CAP_SERIAL_AUX1));
   ui->aux2Combo->setEnabled(simulator->getCapability(SimulatorInterface::Capability::CAP_SERIAL_AUX2));
@@ -44,15 +45,20 @@ SerialPortsDialog::~SerialPortsDialog()
   delete ui;
 }
 
-void SerialPortsDialog::populateSerialPortCombo(QComboBox * cb)
+void SerialPortsDialog::populateSerialPortCombo(QComboBox * cb, QString currentPortName)
 {
   cb->clear();
   cb->addItem(tr("Not Assigned"), "");
+  if (currentPortName == "") {
+    cb->setCurrentIndex(0);
+  }
 
   const auto serialPortInfos = QSerialPortInfo::availablePorts();
   for (int i = 0; i < serialPortInfos.size(); i++) {
     const auto portInfo = serialPortInfos[i];
-    cb->addItem(portInfo.systemLocation(), portInfo.portName());
+    cb->addItem(portInfo.portName(), portInfo.portName());
+    if (portInfo.portName() == currentPortName)
+      cb->setCurrentIndex(i + 1);
   }
 }
 
@@ -68,8 +74,8 @@ void SerialPortsDialog::on_okButton_clicked()
 
 void SerialPortsDialog::on_refreshButton_clicked()
 {
-  populateSerialPortCombo(ui->aux1Combo);
-  populateSerialPortCombo(ui->aux2Combo);
+  populateSerialPortCombo(ui->aux1Combo, aux1);
+  populateSerialPortCombo(ui->aux2Combo, aux2);
 }
 
 void SerialPortsDialog::on_aux1Combo_currentIndexChanged(int index)

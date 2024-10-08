@@ -482,7 +482,7 @@ void SimulatorMainWindow::openJoystickDialog(bool)
 
 void SimulatorMainWindow::openSerialPortsDialog(bool)
 {
-  SerialPortsDialog * dialog = new SerialPortsDialog(this, m_simulator);
+  SerialPortsDialog * dialog = new SerialPortsDialog(this, m_simulator, hostSerialConnector);
   if (dialog->exec() == QDialog::Accepted && m_simulator) {
     hostSerialConnector->connectSerialPort(0, dialog->aux1);
     hostSerialConnector->connectSerialPort(1, dialog->aux2);

@@ -26,6 +26,7 @@
 #include <QtWidgets>
 
 #include "simulatorinterface.h"
+#include "hostserialconnector.h"
 
 class QComboBox;
 
@@ -38,17 +39,18 @@ class SerialPortsDialog : public QDialog
     Q_OBJECT
 
   public:
-    explicit SerialPortsDialog(QWidget *parent, SimulatorInterface *simulator);
+    explicit SerialPortsDialog(QWidget *parent, SimulatorInterface *simulator, HostSerialConnector *connector);
     ~SerialPortsDialog();
     QString aux1;
     QString aux2;
     SimulatorInterface *simulator;
+    HostSerialConnector *connector;
 
   private:
     Ui::SerialPortsDialog *ui;
 
   private slots:
-    void populateSerialPortCombo(QComboBox * cb);
+    void populateSerialPortCombo(QComboBox * cb, QString currentPortName);
     void on_cancelButton_clicked();
     void on_okButton_clicked();
     void on_refreshButton_clicked();

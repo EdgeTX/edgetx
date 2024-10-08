@@ -24,8 +24,12 @@
 HostSerialConnector::HostSerialConnector(QObject *parent, SimulatorInterface *simulator)
   : simulator(simulator)
 {
-  for (int i = 0; i < MAX_HOST_SERIAL; i++)
+  for (int i = 0; i < MAX_HOST_SERIAL; i++) {
     hostAuxPorts[i] = nullptr;
+    hostAuxPortsEncoding[i] = SERIAL_ENCODING_8N1;
+    hostAuxPortsBaudRate[i] = 9600;
+    hostAuxPortsOpen[i] = false;
+  }
 }
 
 HostSerialConnector::~HostSerialConnector()
@@ -36,6 +40,20 @@ HostSerialConnector::~HostSerialConnector()
       hostAuxPorts[i]->deleteLater();
     }
   }
+}
+
+QString HostSerialConnector::getConnectedSerialPortName(int index)
+{
+  if (index >= MAX_HOST_SERIAL)
+    return QString("");
+
+  QMutexLocker locker(&hostAuxPortsMutex);
+
+  QSerialPort * port = hostAuxPorts[index];
+  if (port == nullptr)
+    return QString("");
+
+  return port->portName();
 }
 
 void HostSerialConnector::connectSerialPort(int index, QString portName)
@@ -85,7 +103,7 @@ void HostSerialConnector::sendSerialData(const quint8 index, const QByteArray & 
   port->write(data);
 }
 
-void HostSerialConnector::setSerialEncoding(const quint8 index, const SimulatorInterface::SerialEncoding encoding)
+void HostSerialConnector::setSerialEncoding(const quint8 index, const quint8 encoding)
 {
   if (index >= MAX_HOST_SERIAL)
     return;
@@ -99,12 +117,12 @@ void HostSerialConnector::setSerialEncoding(const quint8 index, const SimulatorI
     return;
       
   switch(encoding) {
-  case SimulatorInterface::SerialEncoding::SERIAL_ENCODING_8N1:
+  case SERIAL_ENCODING_8N1:
     port->setDataBits(QSerialPort::Data8);
     port->setParity(QSerialPort::NoParity);
     port->setStopBits(QSerialPort::OneStop);
     break;
-  case SimulatorInterface::SerialEncoding::SERIAL_ENCODING_8E2:
+  case SERIAL_ENCODING_8E2:
     port->setDataBits(QSerialPort::Data8);
     port->setParity(QSerialPort::EvenParity);
     port->setStopBits(QSerialPort::TwoStop);
@@ -145,8 +163,10 @@ void HostSerialConnector::serialStart(const quint8 index)
   if (port == nullptr)
     return;
 
-  if (!port->open(QIODevice::ReadWrite))
-    qDebug() << "Failed to open host serial " << index;
+  if (port->open(QIODevice::ReadWrite))
+    qDebug() << "Opened host serial " << index;
+  else
+    qDebug() << "Failed to open host serial " << index << ": " << port->errorString();
 }
 
 void HostSerialConnector::serialStop(const quint8 index)

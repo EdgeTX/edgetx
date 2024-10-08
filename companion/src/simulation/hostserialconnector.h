@@ -36,10 +36,12 @@ class HostSerialConnector : public QObject
     explicit HostSerialConnector(QObject * parent, SimulatorInterface * simulator);
     ~HostSerialConnector();
 
+    QString getConnectedSerialPortName(int index);
+
   public slots:
     void connectSerialPort(int index, QString portName);
     void sendSerialData(const quint8 index, const QByteArray & data);
-    void setSerialEncoding(const quint8 index, const SimulatorInterface::SerialEncoding encoding);
+    void setSerialEncoding(const quint8 index, const quint8 encoding);
     void setSerialBaudRate(const quint8 index, const quint32 baudrate);
     void serialStart(const quint8 index);
     void serialStop(const quint8 index);
@@ -49,7 +51,7 @@ class HostSerialConnector : public QObject
 
     QRecursiveMutex hostAuxPortsMutex;
     QSerialPort * hostAuxPorts[MAX_HOST_SERIAL];
-    SimulatorInterface::SerialEncoding hostAuxPortsEncoding[MAX_HOST_SERIAL];
+    quint8 hostAuxPortsEncoding[MAX_HOST_SERIAL];
     quint32 hostAuxPortsBaudRate[MAX_HOST_SERIAL];
     bool hostAuxPortsOpen[MAX_HOST_SERIAL];
 };
