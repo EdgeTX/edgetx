@@ -476,21 +476,16 @@ uint32_t readKeys()
 
 uint32_t readTrims()
 {
-  uint32_t result = 0;
+  uint32_t trims = 0;
 
   for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
     if (trimsStates[i]) {
       // TRACE("trim pressed %d", i);
-      result |= 1 << i;
+      trims |= 1 << i;
     }
   }
 
-#if defined(PCBXLITE)
-  if (keysStates[KEY_SHIFT])
-    result = ((result & 0x03) << 6) | ((result & 0x0c) << 2);
-#endif
-
-  return result;
+  return trims;
 }
 
 int usbPlugged() { return false; }
