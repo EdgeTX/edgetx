@@ -28,7 +28,7 @@
 #include "hal/rotary_encoder.h"
 #include "dataconstants.h"
 
-#if !defined(BOOT) && defined(USE_HATS_AS_KEYS)
+#if !defined(BOOT) && (defined(USE_HATS_AS_KEYS) || defined(PCBXLITE))
 #include "edgetx.h"
 #endif
 
@@ -277,6 +277,30 @@ bool waitKeysReleased()
   return true;
 }
 
+#if defined(PCBXLITE) && !defined(BOOT)
+uint32_t _readTrims()
+{
+  uint32_t trims = readTrims();
+
+  uint8_t lr = trims & 0x3;
+  uint8_t ud = trims & 0xc;
+  bool shift = readKeys() & (1 << KEY_SHIFT);
+  // Mode 1 or 2 - AIL on right stick
+  bool ailRight = g_eeGeneral.stickMode < 2;
+  // Mode 2 or 4 - ELE on right stick
+  bool eleRight = (g_eeGeneral.stickMode & 1) == 1;
+  // Ensure non-shifted trims are AIL and ELE
+  if (ailRight == !shift) lr <<= 6;
+  if (eleRight == !shift) ud <<= 2;
+
+  return lr | ud;
+}
+
+#define READ_TRIMS() _readTrims()
+#else
+#define READ_TRIMS() readTrims()
+#endif
+
 bool keyDown()
 {
   return readKeys() || readTrims();
@@ -284,7 +308,7 @@ bool keyDown()
 
 bool trimDown(uint8_t idx)
 {
-  return readTrims() & (1 << idx);
+  return READ_TRIMS() & (1 << idx);
 }
 
 uint8_t keysGetState(uint8_t key)
@@ -431,7 +455,7 @@ bool keysPollingCycle()
     trims_input = readTrims();
   }
 #else
-  trims_input = readTrims();
+  trims_input = READ_TRIMS();
 #endif
 
   for (int i = 0; i < MAX_KEYS; i++) {
