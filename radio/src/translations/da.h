@@ -721,6 +721,7 @@
 #define TR_EDIT_COLOR                  "Rediger farve"
 #define TR_NO_THEME_IMAGE              "Ingen billede for tema"
 #define TR_BACKLIGHT_TIMER             TR("Inaktivitet", "Ved inaktivitet dæmp efter")
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Hurtigvalg af model"

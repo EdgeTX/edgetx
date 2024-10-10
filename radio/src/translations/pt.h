@@ -724,6 +724,7 @@
 #define TR_EDIT_COLOR                  "Editar Cor"
 #define TR_NO_THEME_IMAGE              "Sem image tema"
 #define TR_BACKLIGHT_TIMER             "Timeout inativ"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "Sel rapida modelo"

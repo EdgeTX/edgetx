@@ -722,6 +722,7 @@
 #define TR_EDIT_COLOR                  "编辑颜色"
 #define TR_NO_THEME_IMAGE              "没有预览图"
 #define TR_BACKLIGHT_TIMER             "持續時間"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT        "快速選擇模型"
