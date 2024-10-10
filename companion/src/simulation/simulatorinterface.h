@@ -33,6 +33,7 @@
 #include <QDir>
 #include <QLibrary>
 #include <QMap>
+#include <QSerialPort>
 
 #define SIMULATOR_INTERFACE_HEARTBEAT_PERIOD    1000  // ms
 
@@ -42,6 +43,13 @@ enum SimulatorTelemetryProtocol {
   SIMU_TELEMETRY_PROTOCOL_CROSSFIRE,
   SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB,
   SIMU_TELEMETRY_PROTOCOL_COUNT
+};
+
+enum SimulatorSerialEncoding {
+  SERIAL_ENCODING_8N1 = 0,
+  SERIAL_ENCODING_8E2,
+  SERIAL_ENCODING_PXX1_PWM,
+  SERIAL_ENCODING_COUNT
 };
 
 class SimulatorInterface : public QObject
@@ -84,6 +92,8 @@ class SimulatorInterface : public QObject
       CAP_ROTARY_ENC,         // ROTARY_ENCODERS
       CAP_ROTARY_ENC_NAV,     // ROTARY_ENCODER_NAVIGATION
       CAP_TELEM_FRSKY_SPORT,  // TELEMETRY_FRSKY_SPORT
+      CAP_SERIAL_AUX1,        // Does AUX1 exist on this radio?
+      CAP_SERIAL_AUX2,        // Does AUX2 exist on this radio?
       CAP_ENUM_COUNT
     };
 
@@ -160,6 +170,7 @@ class SimulatorInterface : public QObject
     virtual void setLuaStateReloadPermanentScripts() = 0;
     virtual void addTracebackDevice(QIODevice * device) = 0;
     virtual void removeTracebackDevice(QIODevice * device) = 0;
+    virtual void receiveAuxSerialData(const quint8 port_num, const QByteArray & data) = 0;
 
   signals:
 
@@ -176,6 +187,11 @@ class SimulatorInterface : public QObject
     void trimRangeChange(quint8 index, qint32 min, qint16 max);
     void gVarValueChange(quint8 index, qint32 value);
     void outputValueChange(int type, quint8 index, qint32 value);
+    void auxSerialSendData(const quint8 port_num, const QByteArray & data);
+    void auxSerialSetEncoding(const quint8 port_num, const quint8 encoding);
+    void auxSerialSetBaudrate(const quint8 port_num, const quint32 baudrate);
+    void auxSerialStart(const quint8 port_num);
+    void auxSerialStop(const quint8 port_num);
 };
 
 class SimulatorFactory {

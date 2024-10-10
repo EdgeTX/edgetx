@@ -19,6 +19,8 @@ set(${PROJECT_NAME}_NAMES
   widgets/lcdwidget
   widgets/radiowidget
   widgets/virtualjoystickwidget
+  serialportsdialog
+  hostserialconnector
 )
 
 if(SDL2_FOUND)
