@@ -56,29 +56,29 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Fetching GNU Arm Embedded Toolchains ==="
-# EdgeTX uses GNU Arm Embedded Toolchain in version 10-2020-q4
-wget -q --show-progress --progress=bar:force:noscroll https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
+# EdgeTX uses GNU Arm Embedded Toolchain in version 13.2.rel1
+wget -q --show-progress --progress=bar:force:noscroll https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Unpacking GNU Arm Embedded Toolchains ==="
-pv gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 | tar xjf -
+pv arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz | tar xJf -
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Removing the downloaded archives ==="
-rm gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
+rm arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Moving GNU Arm Embedded Toolchains to /opt ==="
-sudo mv gcc-arm-none-eabi-10-2020-q4-major /opt/gcc-arm-none-eabi
+sudo mv arm-gnu-toolchain-13.2.Rel1-x86_64-arm-none-eabi /opt/gcc-arm-none-eabi
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
