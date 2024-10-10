@@ -1167,8 +1167,8 @@
   //TRIM left low
   #define STORAGE_SWITCH_G
   #define HARDWARE_SWITCH_G
-  #define SWITCHES_GPIO_REG_G           GPIOF
-  #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_0  // PF.00
+  #define SWITCHES_GPIO_REG_G           GPIOD
+  #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_15  // PD.15
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)  || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
   // no SWG
 #else
@@ -1219,8 +1219,8 @@
   //TRIM right low
   #define STORAGE_SWITCH_H
   #define HARDWARE_SWITCH_H
-  #define SWITCHES_GPIO_REG_H           GPIOD
-  #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_15  // PD.15
+  #define SWITCHES_GPIO_REG_H           GPIOF
+  #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_0  // PF.00
 #elif defined(RADIO_TLITE) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_LR3PRO)
   // no SWH
   #define STORAGE_SWITCH_H
