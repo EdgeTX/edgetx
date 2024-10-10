@@ -437,8 +437,8 @@ char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
   SourceNumVal v;
   v.rawValue = value;
   if (v.isSource) {
-    if (v.value >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      getGVarString(dest, v.value - MIXSRC_FIRST_GVAR);
+    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
+      getGVarString(dest, (v.value < 0) ? v.value + MIXSRC_FIRST_GVAR - 1 : v.value - MIXSRC_FIRST_GVAR);
     } else {
       const char* s = getSourceString(v.value);
       strncpy(dest, s, len);

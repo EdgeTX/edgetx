@@ -181,7 +181,7 @@ inline int showPopupMenus(event_t event, int newval, int i_min, int i_max,
   return newval;
 }
 
-int checkMovedInput(int newval, int i_min, int i_max, unsigned int i_flags, bool isSource)
+int checkMovedInput(int newval, unsigned int i_flags, bool isSource)
 {
 #if defined(AUTOSWITCH)
   if (i_flags & INCDEC_SWITCH) {
@@ -191,7 +191,7 @@ int checkMovedInput(int newval, int i_min, int i_max, unsigned int i_flags, bool
 
 #if defined(AUTOSOURCE)
     if (i_flags & (INCDEC_SOURCE|INCDEC_SOURCE_VALUE)) {
-      int source = getMovedSource(i_min);
+      int source = getMovedSource(MIXSRC_FIRST_STICK);
       if (source) {
         if (i_flags & INCDEC_SOURCE_VALUE) {
           if (isSource) {

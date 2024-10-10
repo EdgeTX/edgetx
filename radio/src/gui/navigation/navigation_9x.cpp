@@ -35,12 +35,11 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
   int newval = val;
 
   bool isSource = false;
-  bool origIsSource = false;
   if (i_flags & INCDEC_SOURCE_VALUE) {
     SourceNumVal v;
     v.rawValue = val;
     // Save isSource flag;
-    origIsSource = isSource = v.isSource;
+    isSource = v.isSource;
     // Remove isSource flag;
     val = v.value;
     newval = v.value;
@@ -54,19 +53,22 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
       val = -val;
     }
 
+    int vmin = isSource ? srcMin : i_min;
+    int vmax = isSource ? srcMax : i_max;
+
     if (event == EVT_KEY_FIRST(KEY_UP) || event == EVT_KEY_REPT(KEY_UP) ||
         event == EVT_KEY_FIRST(KEY_RIGHT) || event == EVT_KEY_REPT(KEY_RIGHT)) {
       do {
         if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
-          newval += min(10, i_max - val);
+          newval += min(10, vmax - val);
         }
         else {
           newval++;
         }
       } while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) &&
-               newval <= i_max);
+               newval <= vmax);
 
-      if (newval > i_max) {
+      if (newval > vmax) {
         newval = val;
         killEvents(event);
         AUDIO_KEY_ERROR();
@@ -75,21 +77,21 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, int srcMin, int sr
                event == EVT_KEY_FIRST(KEY_LEFT) || event == EVT_KEY_REPT(KEY_LEFT)) {
       do {
         if (IS_KEY_REPT(event) && (i_flags & INCDEC_REP10)) {
-          newval -= min(10, val - i_min);
+          newval -= min(10, val - vmin);
         } else {
           newval--;
         }
       } while (!(i_flags & INCDEC_SKIP_VAL_CHECK_FUNC) && isValueAvailable && !isValueAvailable(newval) &&
-               newval >= i_min);
+               newval >= vmin);
 
-      if (newval < i_min) {
+      if (newval < vmin) {
         newval = val;
         killEvents(event);
         AUDIO_KEY_ERROR();
       }
     }
 
-    auto moved =  checkMovedInput(newval, i_min, i_max, i_flags, isSource);
+    auto moved = checkMovedInput(newval, i_flags, isSource);
     if (!isValueAvailable || isValueAvailable(moved))
       newval = moved;
 
