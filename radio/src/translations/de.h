@@ -118,7 +118,7 @@
 #define TR_SF_DISABLE_TOUCH            "Kein Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Verst. Aus"
 #define TR_SF_SET_SCREEN               "Set Main Screen"
-#define TR_SF_SET_TELEMSCREEN          "Set Screen"
+#define TR_SF_SET_TELEMSCREEN          "TelSeite anz"
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
