@@ -117,15 +117,13 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       downTime = RTOS_GET_MS();
     }
   } else if (code == LV_EVENT_RELEASED) {
+    LuaEventData* es = luaGetEventSlot();
+    if (es) {
+      es->event = EVT_TOUCH_RELEASE;
+      TRACE("EVT_TOUCH_RELEASE");
+    }
 
-      LuaEventData* es = luaGetEventSlot();
-      if (es) {
-        es->event = EVT_TOUCH_RELEASE;
-        TRACE("EVT_TOUCH_RELEASE");
-      }
-
-
-      // tap count handling
+    // tap count handling
     uint32_t now = RTOS_GET_MS();
     if (now - downTime <= LUA_TAP_TIME) {
       if (now - tapTime > LUA_TAP_TIME) {
