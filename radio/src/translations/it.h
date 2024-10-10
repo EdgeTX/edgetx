@@ -119,7 +119,7 @@
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Off"
 #define TR_SF_SET_SCREEN               "Setta Schermo Princ."
-#define TR_SF_SET_TELEMSCREEN          "Set Screen"
+#define TR_SF_SET_TELEMSCREEN          "Setta Schermo"
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
