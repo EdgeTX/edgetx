@@ -78,15 +78,17 @@
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "שעון"
   #define TR_CSWSTICKY                 "Stcky"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWSTAY                   "Edge"
 #else
   #define TR_CSWTIMER                  "שעון"
   #define TR_CSWSTICKY                 "Stky"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWSTAY                   "Edge"
 #endif
 
 #define TR_CSWEQUAL                    "a=x"
-#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
+#define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY,TR_CSWSAFE
 
 #define TR_SF_TRAINER                  "Trainer"
 #define TR_SF_INST_TRIM                "Inst. Trim"
@@ -516,6 +518,10 @@
   #define TR_MENULIMITS                "יציאות"
 #define TR_MENUCURVES                  "עקומות"
 #define TR_MENUCURVE                   "עקומה"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "שם"
+#define TR_CUST_FUNC_CUST_LABEL        "שם"
+#endif
 #define TR_MENULOGICALSWITCH           "מתג לוגי"
 #define TR_MENULOGICALSWITCHES         "מתגים לוגים"
 #define TR_MENUCUSTOMFUNC              "אופציות מיוחדות למודל"

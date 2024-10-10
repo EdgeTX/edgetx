@@ -1944,6 +1944,14 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
     ls->v2 = r_swtchSrc(nullptr, val, val_len);
     break;
 
+  case LS_FAMILY_SAFE:
+    ls->v1 = r_swtchSrc(nullptr, val, l_sep);
+    val += l_sep; val_len -= l_sep;
+    if (!val_len || val[0] != ',') return;
+    val++; val_len--;
+    ls->v2 = r_swtchSrc(nullptr, val, val_len);
+    break;
+
   case LS_FAMILY_EDGE:
     ls->v1 = r_swtchSrc(nullptr, val, l_sep);
     val += l_sep; val_len -= l_sep;
@@ -2006,6 +2014,12 @@ static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
   
   case LS_FAMILY_BOOL:
   case LS_FAMILY_STICKY:
+    if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
+    if (!wf(opaque,",",1)) return false;
+    if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;
+    break;
+
+   case LS_FAMILY_SAFE:
     if (!w_swtchSrc_unquoted(&_ls_node_v1, ls->v1, wf, opaque)) return false;
     if (!wf(opaque,",",1)) return false;
     if (!w_swtchSrc_unquoted(&_ls_node_v2, ls->v2, wf, opaque)) return false;

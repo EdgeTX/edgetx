@@ -28,6 +28,8 @@
 #include <QtCore>
 #include <QComboBox>
 
+#define CF_CUSTNAME_LEN       10
+
 class Firmware;
 class ModelData;
 class GeneralSettings;
@@ -109,6 +111,7 @@ class CustomFunctionData {
     unsigned int enabled; // TODO perhaps not any more the right name
     unsigned int adjustMode;
     int repeatParam;
+    char custName[CF_CUSTNAME_LEN + 1];
 
     void convert(RadioDataConversionState & cstate);
 

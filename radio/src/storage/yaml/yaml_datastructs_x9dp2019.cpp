@@ -130,6 +130,7 @@ const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_ADIFFEGREATER, "FUNC_ADIFFEGREATER"  },
   {  LS_FUNC_TIMER, "FUNC_TIMER"  },
   {  LS_FUNC_STICKY, "FUNC_STICKY"  },
+  {  LS_FUNC_SAFE, "FUNC_SAFE"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_SwashType[] = {
@@ -255,6 +256,7 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_IDX,
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_ENUM("func", 6, enum_Functions),
+  YAML_STRING("custName", 10),
   YAML_CUSTOM("def",r_customFn,w_customFn),
   YAML_PADDING( 64 ),
   YAML_PADDING( 1 ),
@@ -331,7 +333,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "varioPitch", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED( "varioRepeat", 8 ),
-  YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
+  YAML_ARRAY("customFn", 168, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_CUSTOM("auxSerialMode",r_serialMode,nullptr),
   YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
   YAML_ARRAY("serialPort", 8, 4, struct_serialConfig, nullptr),
@@ -470,6 +472,7 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "delay", 8 ),
   YAML_UNSIGNED( "duration", 8 ),
+  YAML_STRING("custName", 10),
   YAML_END
 };
 static const struct YamlNode struct_SwashRingData[] = {
@@ -804,8 +807,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("expoData", 144, 64, struct_ExpoData, NULL),
   YAML_ARRAY("curves", 32, 32, struct_CurveHeader, NULL),
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
-  YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
-  YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
+  YAML_ARRAY("logicalSw", 152, 64, struct_LogicalSwitchData, NULL),
+  YAML_ARRAY("customFn", 168, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
   YAML_ARRAY("flightModeData", 352, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),

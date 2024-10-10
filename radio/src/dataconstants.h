@@ -137,6 +137,9 @@ enum CurveType {
   #define MAX_CURVE_POINTS             512
 #endif
 
+#define LEN_SPEC_FN_NAME               10
+#define LEN_LOGICSW_NAME               10
+
 #define NUM_MODULES                    2
 
 #define XPOTS_MULTIPOS_COUNT           6

@@ -145,6 +145,9 @@ void FunctionLineButton::refresh()
   lv_label_set_text(sfName, (prefix + std::to_string(index + 1)).c_str());
   lv_label_set_text(sfSwitch, getSwitchPositionName(CFN_SWITCH(cfn)));
 
+  //paint special function custom name
+  //dc->drawText(col3, line1, cfn->custName, COLOR_THEME_SECONDARY1);
+
   strcpy(s, funcGetLabel(func));
   strcat(s, " - ");
 
@@ -656,9 +659,14 @@ void FunctionEditPage::buildBody(Window *form)
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
   CustomFunctionData *cfn = customFunctionData();
+  auto line = form->newLine(grid);
+
+  // Custom label
+  new StaticText(line, rect_t{}, STR_CUST_FUNC_CUST_LABEL);
+  new ModelTextEdit(line, rect_t{}, cfn->custName, LEN_SPEC_FN_NAME);
+  line = form->newLine(grid);
 
   // Switch
-  auto line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SF_SWITCH);
   auto switchChoice = new SwitchChoice(line, rect_t{}, SWSRC_FIRST, SWSRC_LAST,
                                        GET_SET_DEFAULT(CFN_SWITCH(cfn)));
