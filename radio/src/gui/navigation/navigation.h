@@ -142,6 +142,11 @@ swsrc_t checkIncDecMovedSwitch(swsrc_t val);
 #endif
 
 void repeatLastCursorMove(event_t event);
+#if defined(NAVIGATION_9X) || defined(NAVIGATION_XLITE)
+void repeatLastCursorHorMove(event_t event);
+#else
+#define repeatLastCursorHorMove(event) repeatLastCursorMove(event)
+#endif
 
 void onSwitchLongEnterPress(const char * result);
 void onSourceLongEnterPress(const char * result);

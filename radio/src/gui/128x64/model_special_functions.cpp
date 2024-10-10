@@ -234,7 +234,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           else {
             j = 5; // skip other fields
             if (sub==k && menuHorizontalPosition > 0) {
-              repeatLastCursorMove(event);
+              repeatLastCursorHorMove(event);
             }
           }
           break;
@@ -279,7 +279,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif          
           else if (attr) {
-            repeatLastCursorMove(event);
+            repeatLastCursorHorMove(event);
           }
           if (active) CHECK_INCDEC_MODELVAR_ZERO(event, CFN_CH_INDEX(cfn), maxParam);
           break;
@@ -453,7 +453,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif // GVARS
           else if (attr) {
-            repeatLastCursorMove(event);
+            repeatLastCursorHorMove(event);
           }
 #if defined(NAVIGATION_X7)
           if (active || event==EVT_KEY_LONG(KEY_ENTER)) {
@@ -500,7 +500,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             }
           }
           else if (attr) {
-            repeatLastCursorMove(event);
+            repeatLastCursorHorMove(event);
           }
           break;
         

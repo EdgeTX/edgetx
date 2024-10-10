@@ -66,13 +66,27 @@ void menuModelLogicalSwitchOne(event_t event)
 
   drawSwitch(14*FW, 0, sw, (getSwitch(sw) ? BOLD : 0));
 
-  SUBMENU_NOTITLE(LS_FIELD_COUNT, { 0, 0, uint8_t(cstate == LS_FAMILY_EDGE ? 1 : 0), 0 /*, 0...*/ });
+  SUBMENU_NOTITLE(LS_FIELD_COUNT, {
+          0,
+          0,
+          uint8_t(cstate == LS_FAMILY_EDGE ? 1 : 0),
+          0,
+          0,
+          uint8_t(cstate == LS_FAMILY_EDGE ? HIDDEN_ROW : 0),
+          uint8_t(cstate != LS_FAMILY_STICKY ? HIDDEN_ROW : 0),
+        });
 
   int8_t sub = menuVerticalPosition;
 
+  coord_t y = MENU_HEADER_HEIGHT + 1;
+
   for (uint8_t k=0; k<LCD_LINES-1; k++) {
-    coord_t y = MENU_HEADER_HEIGHT + 1 + k*FH;
     uint8_t i = k + menuVerticalOffset;
+    for (int j=0; j<=i; ++j) {
+      if (j<(int)DIM(mstate_tab) && mstate_tab[j] == HIDDEN_ROW) {
+        ++i;
+      }
+    }
     uint8_t attr = (sub==i ? (s_editMode>0 ? BLINK|INVERS : INVERS) : 0);
 
     switch (i) {
@@ -142,7 +156,6 @@ void menuModelLogicalSwitchOne(event_t event)
         }
         else if (cstate == LS_FAMILY_EDGE) {
           putsEdgeDelayParam(CSWONE_2ND_COLUMN+5, y, cs, menuHorizontalPosition==0 ? attr : 0, menuHorizontalPosition==1 ? attr : 0);
-          if (s_editMode <= 0) continue;
           if (attr && menuHorizontalPosition==1) {
             CHECK_INCDEC_MODELVAR(event, cs->v3, -1, 222 - cs->v2);
             break;
@@ -205,13 +218,6 @@ void menuModelLogicalSwitchOne(event_t event)
 
       case LS_FIELD_DELAY:
         lcdDrawTextAlignedLeft(y, STR_DELAY);
-        if (cstate == LS_FAMILY_EDGE) {
-          lcdDrawText(CSWONE_2ND_COLUMN, y, STR_NA);
-          if (attr) {
-            repeatLastCursorMove(event);
-          }
-          break;
-        }
         if (cs->delay > 0)
           lcdDrawNumber(CSWONE_2ND_COLUMN, y, cs->delay, attr|PREC1|LEFT);
         else
@@ -222,13 +228,13 @@ void menuModelLogicalSwitchOne(event_t event)
         break;
 
       case LS_FIELD_PERSIST:
-        if (cstate == LS_FAMILY_STICKY) {
-          lcdDrawTextAlignedLeft(y, STR_PERSISTENT);
-          drawCheckBox(CSWONE_2ND_COLUMN, y, cs->lsPersist, attr);
-          if (attr) cs->lsPersist = checkIncDecModel(event, cs->lsPersist, 0, 1);
-        }
+        lcdDrawTextAlignedLeft(y, STR_PERSISTENT);
+        drawCheckBox(CSWONE_2ND_COLUMN, y, cs->lsPersist, attr);
+        if (attr) cs->lsPersist = checkIncDecModel(event, cs->lsPersist, 0, 1);
         break;
     }
+
+    y += FH;
   }
 }
 
