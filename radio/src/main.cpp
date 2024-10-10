@@ -407,7 +407,7 @@ bool handleGui(event_t event)
 #if defined(LUA)
   bool isTelemView =
       menuHandlers[menuLevel] == menuViewTelemetry &&
-      TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT;
+      TELEMETRY_SCREEN_TYPE(selectedTelemView) == TELEMETRY_SCREEN_TYPE_SCRIPT;
   bool isStandalone = scriptInternalData[0].reference == SCRIPT_STANDALONE;
   if ((isTelemView || isStandalone) && event) {
     luaPushEvent(event);

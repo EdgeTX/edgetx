@@ -68,6 +68,9 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* RGB LED 灯 */ FUNC_RGB_LED,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
   /* Vario传感器 */ FUNC_VARIO,
 #elif defined(TRANSLATIONS_CZ)
 #if defined(COLORLCD)
@@ -100,6 +103,9 @@ Functions cfn_sorted[] = {
 #endif
   /* Reset */ FUNC_RESET,
   /* RGB světlo */ FUNC_RGB_LED,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
   /* Snímek LCD */ FUNC_SCREENSHOT,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
@@ -141,6 +147,9 @@ Functions cfn_sorted[] = {
   /* RGB led */ FUNC_RGB_LED,
   /* Ræs tilstand */ FUNC_RACING_MODE,
   /* SD Log */ FUNC_LOGS,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
 #if defined(OLED_SCREEN)
   /* Skarphed */ FUNC_BACKLIGHT,
 #endif
@@ -195,6 +204,9 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
 #endif
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
   /* Setze */ FUNC_SET_TIMER,
   /* Spiel Töne */ FUNC_PLAY_SOUND,
   /* StartMusik */ FUNC_BACKGND_MUSIC,
@@ -244,6 +256,9 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
 #endif
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -287,6 +302,9 @@ Functions cfn_sorted[] = {
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
 #if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
+#endif
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
 #endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
@@ -332,6 +350,9 @@ Functions cfn_sorted[] = {
 #endif
   /* RGB leds */ FUNC_RGB_LED,
   /* Script Lua */ FUNC_PLAY_SCRIPT,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -367,6 +388,9 @@ Functions cfn_sorted[] = {
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -418,6 +442,9 @@ Functions cfn_sorted[] = {
   /* Script Lua */ FUNC_PLAY_SCRIPT,
   /* Set */ FUNC_SET_TIMER,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
 #if defined(COLORLCD)
   /* Setta Schermo Princ. */ FUNC_SET_SCREEN,
 #endif
@@ -444,6 +471,9 @@ Functions cfn_sorted[] = {
 #endif
   /* RGB LED */ FUNC_RGB_LED,
   /* SDログ出力 */ FUNC_LOGS,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
   /* オーディオアンプ OFF */ FUNC_DISABLE_AUDIO_AMP,
   /* サウンド再生 */ FUNC_PLAY_SOUND,
   /* ダイヤル */ FUNC_VOLUME,
@@ -512,6 +542,9 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
 #endif
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -551,6 +584,9 @@ Functions cfn_sorted[] = {
   /* RGB ledy */ FUNC_RGB_LED,
 #if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
+#endif
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
 #endif
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
   /* SkryptyLua */ FUNC_PLAY_SCRIPT,
@@ -598,6 +634,9 @@ Functions cfn_sorted[] = {
   /* Rep Valor */ FUNC_PLAY_VALUE,
   /* Reset */ FUNC_RESET,
   /* Script Lua */ FUNC_PLAY_SCRIPT,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
   /* Sobrescrv */ FUNC_OVERRIDE_CHANNEL,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
@@ -621,6 +660,9 @@ Functions cfn_sorted[] = {
 #endif
   /* RGB подсветка */ FUNC_RGB_LED,
   /* SD логи */ FUNC_LOGS,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
   /* Авар управ */ FUNC_SET_FAILSAFE,
   /* Варио */ FUNC_VARIO,
   /* Вибро */ FUNC_HAPTIC,
@@ -679,6 +721,9 @@ Functions cfn_sorted[] = {
   /* Pausa Musik */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Range check */ FUNC_RANGECHECK,
   /* RGB ledljus */ FUNC_RGB_LED,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
   /* Skärmbild */ FUNC_SCREENSHOT,
   /* Spara trimmar */ FUNC_INSTANT_TRIM,
   /* Spela ljud */ FUNC_PLAY_SOUND,
@@ -705,6 +750,9 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* RGB led燈 */ FUNC_RGB_LED,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
   /* Vario傳感器 */ FUNC_VARIO,
 #if defined(OLED_SCREEN)
   /* 亮度 */ FUNC_BACKLIGHT,
@@ -789,6 +837,9 @@ Functions cfn_sorted[] = {
 #endif
   /* RGB leds */ FUNC_RGB_LED,
   /* SD лог */ FUNC_LOGS,
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
+#endif
 #else
   /* Adjust */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
@@ -827,6 +878,9 @@ Functions cfn_sorted[] = {
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
 #if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
+#endif
+#if !defined(COLORLCD)
+  /* Set Screen */ FUNC_SET_SCREEN,
 #endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,

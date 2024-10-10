@@ -261,7 +261,6 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
         ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
         ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
-        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd))) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
         ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||
@@ -419,6 +418,19 @@ AbstractStaticItemModel * CustomFunctionData::repeatLuaItemModel()
 
   mdl->appendToItemList(tr("On"), 0);
   mdl->appendToItemList(tr("1x"), 1);
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * CustomFunctionData::repeatSetScreenItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("customfunctiondata.repeatSetScreen");
+
+  mdl->appendToItemList(repeatToString(-1, false), -1);
+  mdl->appendToItemList(repeatToString(0, false), 0);
 
   mdl->loadItemList();
   return mdl;

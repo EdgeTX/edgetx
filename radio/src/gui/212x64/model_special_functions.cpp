@@ -307,6 +307,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             val_max = AU_SPECIAL_SOUND_LAST-AU_SPECIAL_SOUND_FIRST-1;
             lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_FUNCSOUNDS, val_displayed, attr);
           }
+          else if (func == FUNC_SET_SCREEN) {
+            val_min = 0;
+            val_max = 4;
+            lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN + 3*FW, y, val_displayed, attr|LEFT);
+          }
 #if defined(HAPTIC)
           else if (func == FUNC_HAPTIC) {
             val_max = 3;
@@ -447,7 +452,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
                 lcdDrawNumber(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, CFN_PLAY_REPEAT(cfn)*CFN_PLAY_REPEAT_MUL, attr|RIGHT);
                 lcdDrawChar(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, 's', attr);
               }
-              if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn), -1, 60/CFN_PLAY_REPEAT_MUL, eeFlags);
+              if (active)
+                CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn),
+                                                   -1,
+                                                   (func == FUNC_SET_SCREEN ? 0 : 60/CFN_PLAY_REPEAT_MUL),
+                                                   eeFlags);
             }
           }
           else if (attr) {

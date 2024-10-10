@@ -428,16 +428,19 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             newActiveFunctions |= (1u << FUNCTION_DISABLE_AUDIO_AMP);
             break;
 #endif
-#if defined(COLORLCD)
           case FUNC_SET_SCREEN:
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
               TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
+#if defined(COLORLCD)
               int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
               setRequestedMainView(screenNumber);
               mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
+#else
+              extern void showTelemScreen(uint8_t index);
+              showTelemScreen(CFN_PARAM(cfn));
+#endif
             }
             break;
-#endif
 #if defined(VIDEO_SWITCH)
           case FUNC_LCD_TO_VIDEO:
             switchToVideo();
@@ -559,9 +562,9 @@ const char* funcGetLabel(uint8_t func)
 #if defined(COLORLCD)
   case FUNC_DISABLE_TOUCH:
     return STR_SF_DISABLE_TOUCH;
+#endif
   case FUNC_SET_SCREEN:
     return STR_SF_SET_SCREEN;
-#endif
 #if defined(AUDIO_MUTE_GPIO)
   case FUNC_DISABLE_AUDIO_AMP:
     return STR_SF_DISABLE_AUDIO_AMP;

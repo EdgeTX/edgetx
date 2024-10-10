@@ -200,7 +200,11 @@ const char STR_SF_RGBLEDS[] = TR_SF_RGBLEDS;
 const char STR_SF_VOLUME[] = TR_SF_VOLUME;
 const char STR_SF_RACING_MODE[] = TR_SF_RACING_MODE;
 const char STR_SF_SAFETY[] = TR_SF_SAFETY;
+#if defined(COLORLCD)
 const char STR_SF_SET_SCREEN[] = TR_SF_SET_SCREEN;
+#else
+const char STR_SF_SET_SCREEN[] = TR_SF_SET_TELEMSCREEN;
+#endif
 const char STR_SF_SCREENSHOT[] = TR_SF_SCREENSHOT;
 const char STR_SF_LCD_TO_VIDEO[] = TR_SF_LCD_TO_VIDEO;
 const char STR_SF_TEST[] = TR_SF_TEST;
