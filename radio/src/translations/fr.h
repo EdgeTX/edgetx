@@ -118,7 +118,7 @@
 #define TR_SF_DISABLE_TOUCH            "Non Tactile"
 #define TR_SF_DISABLE_AUDIO_AMP        "Désact. Ampli Audio"
 #define TR_SF_SET_SCREEN               "Définir Écran Princ."
-#define TR_SF_SET_TELEMSCREEN          "Set Screen"
+#define TR_SF_SET_TELEMSCREEN          "Conf. écran"
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
