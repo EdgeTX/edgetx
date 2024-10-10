@@ -45,6 +45,7 @@ volatile static bool touchEventOccured;
 enum TouchControllers {TC_NONE, TC_FT6236, TC_CST836U};
 TouchControllers touchController = TC_NONE;
 
+const char* boardTouchType = "";
 static tc_handle_TypeDef tc_handle = {0, 0};
 
 tmr10ms_t downTime = 0;
@@ -388,9 +389,11 @@ void detectTouchController()
   {
     touchController = TC_CST836U;
     tc = &CST836U;
+    boardTouchType = "CST836U";
   } else {
     touchController = TC_FT6236;
     tc = &FT6236;
+    boardTouchType = "FT6236";
   }
 }
 
