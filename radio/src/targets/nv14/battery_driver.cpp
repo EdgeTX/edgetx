@@ -18,7 +18,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include "opentx.h"
+
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
+#include "edgetx.h"
+#include "battery_driver.h"
 
 #define  __BATTERY_DRIVER_C__
 
@@ -34,14 +39,8 @@
 
 void battery_charge_init()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = PWR_CHARGE_FINISHED_GPIO_PIN | PWR_CHARGING_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(PWR_CHARGING_GPIO, &GPIO_InitStructure);
-  GPIO_SetBits(PWR_CHARGING_GPIO, PWR_CHARGE_FINISHED_GPIO_PIN | PWR_CHARGING_GPIO_PIN);
+  gpio_init(PWR_CHARGE_FINISHED_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+  gpio_init(PWR_CHARGING_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 }
 
 #define CHARGE_SAMPLES 10
@@ -137,7 +136,7 @@ void drawChargingInfo(uint16_t chargeState)
                       BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
 }
 
-#define CHARGE_INFO_DURATION 500
+#define CHARGE_INFO_DURATION 5000 // ms
 
 //this method should be called by timer interrupt or by GPIO interrupt
 void handle_battery_charge(uint32_t last_press_time)
@@ -148,7 +147,7 @@ void handle_battery_charge(uint32_t last_press_time)
   static uint32_t info_until = 0;
   static bool lcdInited = false;
 
-  uint32_t now = get_tmr10ms();
+  uint32_t now = timersGetMsTick();
   uint16_t chargeState = get_battery_charge_state();
   if(chargeState != CHARGE_UNKNOWN) {
 
@@ -176,7 +175,7 @@ void handle_battery_charge(uint32_t last_press_time)
     return;
   }
 
-  if(updateTime == 0 || ((get_tmr10ms() - updateTime) >= 50))
+  if(updateTime == 0 || ((timersGetMsTick() - updateTime) >= 500))
   {
       if(!lcdInited) {
         lcdInitDisplayDriver();
@@ -185,7 +184,7 @@ void handle_battery_charge(uint32_t last_press_time)
       else {
         lcdOn();
       }
-      updateTime = get_tmr10ms();     
+      updateTime = timersGetMsTick();     
       lcdInitDirectDrawing();
       drawChargingInfo(chargeState);
       lcdRefresh();

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -26,6 +27,8 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QComboBox>
+
+class FilteredItemModelFactory;
 
 namespace Ui {
   class AppPreferencesDialog;
@@ -93,6 +96,8 @@ class AppPreferencesDialog : public QDialog
     QCheckBox *chkCheckForUpdate[MAX_COMPONENTS];
     QComboBox *cboReleaseChannel[MAX_COMPONENTS];
     QPushButton *btnComponentOptions[MAX_COMPONENTS];
+
+    FilteredItemModelFactory *panelItemModels;
 
     void loadUpdatesTab();
 

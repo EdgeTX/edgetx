@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIOSWITCHWIDGET_H_
-#define _RADIOSWITCHWIDGET_H_
+#pragma once
 
 #include "radiowidget.h"
 #include "boards.h"
@@ -36,22 +36,22 @@ class RadioSwitchWidget : public RadioWidget
   public:
 
     explicit RadioSwitchWidget(Board::SwitchType type = Board::SWITCH_3POS, QWidget * parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags()) :
-      RadioWidget(parent, f),
-      swType(type)
+      RadioWidget(parent, f)
     {
-      init();
+      init(type);
     }
 
     explicit RadioSwitchWidget(Board::SwitchType type, const QString & labelText, int value = -1, QWidget * parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags()) :
-      RadioWidget(labelText, value, parent, f),
-      swType(type)
+      RadioWidget(labelText, value, parent, f)
     {
-      init();
+      init(type);
     }
 
-    void init()
+    void init(Board::SwitchType swType)
     {
       m_type = RADIO_WIDGET_SWITCH;
+
+      m_stepSize = (swType == Board::SWITCH_3POS ? 1 : 2);
 
       m_slider = new QSlider();
       m_slider->setOrientation(Qt::Vertical);
@@ -59,11 +59,11 @@ class RadioSwitchWidget : public RadioWidget
       m_slider->setInvertedAppearance(true);
       m_slider->setInvertedControls(true);
       m_slider->setTickPosition(QSlider::TicksBothSides);
-      m_slider->setPageStep(1);
-      m_slider->setMinimum((swType == Board::SWITCH_3POS ? -1 : 0));
+      m_slider->setMinimum(-1);
       m_slider->setMaximum(1);
-      m_slider->setTickInterval(1);
-      m_slider->setSingleStep(1);
+      m_slider->setTickInterval(m_stepSize);
+      m_slider->setSingleStep(m_stepSize);
+      m_slider->setPageStep(m_stepSize);
       m_slider->setValue(m_value);
 
       if (swType == Board::SWITCH_TOGGLE) {
@@ -101,20 +101,15 @@ class RadioSwitchWidget : public RadioWidget
       connect(this, &RadioWidget::valueChanged, m_slider, &QSlider::setValue);
     }
 
-    int getValue() const override
-    {
-      if (swType == Board::SWITCH_3POS)
-        return m_slider->value();
-      else
-        return m_slider->value() > 0 ? 1 : 0;
-    }
-
     void setValueFromSlider(const int & value)
     {
-      if (swType == Board::SWITCH_3POS)
-        RadioWidget::setValue(value);
-      else
-        RadioWidget::setValue(value ? 1 : -1);
+      // 2POS and TOGGLE switches do not have a center point - force slider value to 1 if dragged to center
+      if ((m_stepSize > 1) && (value == 0)) {
+        // Note: this will trigger another value changed event call back into this function, at which time setValue will be called below
+        m_slider->setValue(1);
+        return;
+      }
+      setValue(value);
     }
 
     void setToggleLocked(bool lock)
@@ -145,8 +140,8 @@ class RadioSwitchWidget : public RadioWidget
     }
 
   private:
-    Board::SwitchType swType;
-    QSlider * m_slider;
-};
 
-#endif // _RADIOSWITCHWIDGET_H_
+    QSlider * m_slider;
+    quint16 m_stepSize;
+
+};

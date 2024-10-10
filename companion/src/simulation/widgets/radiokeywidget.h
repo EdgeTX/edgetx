@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,11 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#ifndef RADIOKEYWIDGET_H
-#define RADIOKEYWIDGET_H
+#pragma once
 
 #include "radiouiaction.h"
 #include "radiowidget.h"
+
+#include <QPushButton>
 
 class RadioKeyWidget : public RadioWidget
 {
@@ -30,16 +32,23 @@ class RadioKeyWidget : public RadioWidget
 
   public:
 
-    explicit RadioKeyWidget(const QPolygon & polygon, const QString &image, RadioUiAction * action = NULL, QWidget * parent = NULL, Qt::WindowFlags f = Qt::WindowFlags()):
+    explicit RadioKeyWidget(const QPolygon & polygon, const QString &image, RadioUiAction * action = nullptr,
+                            QWidget * parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags(), QPushButton * pushbtn = nullptr):
       RadioWidget(action, parent, f),
       polygon(polygon),
-      imgFile(image)
+      imgFile(image),
+      pushbtn(pushbtn)
     {
       m_type = RADIO_WIDGET_KEY;
       setValue(0);
       hide();  // we're a "virtual" button for now
       setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     }
+
+    explicit RadioKeyWidget(QPushButton * pushbtn = nullptr, RadioUiAction * action = nullptr,
+                            QWidget * parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags()) :
+                            RadioKeyWidget(QPolygon(), QString(), action, parent, f, pushbtn) {}
+
 
     virtual void setAction(RadioUiAction * action)
     {
@@ -81,6 +90,7 @@ class RadioKeyWidget : public RadioWidget
   signals:
 
     void imageChanged(const QString image);
+    void actionTriggered();
 
   protected:
 
@@ -90,11 +100,13 @@ class RadioKeyWidget : public RadioWidget
       emit imageChanged(active ? imgFile : "");
     }
 
+    virtual void onActionTriggered(int index, bool active)
+    {
+      if (pushbtn)
+        emit actionTriggered();
+    }
+
     QPolygon polygon;
     QString imgFile;
-
+    QPushButton *pushbtn;
 };
-
-#endif // RADIOKEYWIDGET_H
-
-

@@ -21,45 +21,29 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "opentx.h"
-#include "diskio.h"
+
+#include "hal/fatfs_diskio.h"
+#include "hal/storage.h"
+
+#include "edgetx.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #else
-  #include "libopenui/src/libopenui_file.h"
+  #include "lib_file.h"
 #endif
 
-bool sdCardFormat()
-{
-  BYTE work[FF_MAX_SS];
-  FRESULT res = f_mkfs("", FM_FAT32, 0, work, sizeof(work));
-  switch(res) {
-    case FR_OK :
-      return true;
-    case FR_DISK_ERR:
-      POPUP_WARNING("Format error");
-      return false;
-    case FR_NOT_READY:
-      POPUP_WARNING("SDCard not ready");
-      return false;
-    case FR_WRITE_PROTECTED:
-      POPUP_WARNING("SDCard write protected");
-      return false;
-    case FR_INVALID_PARAMETER:
-      POPUP_WARNING("Format param invalid");
-      return false;
-    case FR_INVALID_DRIVE:
-      POPUP_WARNING("Invalid drive");
-      return false;
-    case FR_MKFS_ABORTED:
-      POPUP_WARNING("Format aborted");
-      return false;
-    default:
-      POPUP_WARNING(STR_SDCARD_ERROR);
-      return false;
-  }
-}
+#if FF_MAX_SS != FF_MIN_SS
+#error "Variable sector size is not supported"
+#endif
+
+#define BLOCK_SIZE FF_MAX_SS
+
+#if defined(SPI_FLASH)
+#define SDCARD_MIN_FREE_SPACE_MB 2 // Maintain 2MB free space buffer to prevent crashes
+#else
+#define SDCARD_MIN_FREE_SPACE_MB 50 // Maintain a 50MB free space buffer to prevent crashes
+#endif
 
 const char * sdCheckAndCreateDirectory(const char * path)
 {
@@ -276,9 +260,8 @@ bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen
     for (;;) {
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & AM_DIR) continue;            /* Skip subfolders */
-      if (fno.fattrib & AM_HID) continue;            /* Skip hidden files */
-      if (fno.fattrib & AM_SYS) continue;            /* Skip system files */
+      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
+      if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
 
       fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
       fnLen -= extLen;
@@ -365,7 +348,6 @@ bool sdListFiles(const char * path, const char * extension, const uint8_t maxlen
 
 #endif // !LIBOPENUI
 
-#if defined(SDCARD)
 const char * sdCopyFile(const char * srcPath, const char * destPath)
 {
   FIL srcFile;
@@ -422,7 +404,7 @@ const char * sdMoveFile(const char * srcPath, const char * destPath)
 {
   const char *result;
   result = sdCopyFile(srcPath, destPath);
-  if(result != 0) {
+  if(result != nullptr) {
     return result;
   }
 
@@ -438,7 +420,7 @@ const char * sdMoveFile(const char * srcFilename, const char * srcDir, const cha
 {
   const char *result;
   result = sdCopyFile(srcFilename, srcDir, destFilename, destDir);
-  if(result != 0) {
+  if(result != nullptr) {
     return result;
   }
 
@@ -452,9 +434,6 @@ const char * sdMoveFile(const char * srcFilename, const char * srcDir, const cha
   }
   return nullptr;
 }
-
-#endif // defined(SDCARD)
-
 
 #if !defined(SIMU) || defined(SIMU_DISKIO)
 uint32_t sdGetNoSectors()
@@ -481,6 +460,13 @@ uint32_t sdGetFreeSectors()
   return nofree * fat->csize;
 }
 
+uint32_t sdGetFreeKB()
+{
+  return sdGetFreeSectors() * (1024 / BLOCK_SIZE);
+}
+
+bool sdIsFull() { return sdGetFreeKB() < SDCARD_MIN_FREE_SPACE_MB * 1024; }
+
 #else  // #if !defined(SIMU) || defined(SIMU_DISKIO)
 
 uint32_t sdGetNoSectors()
@@ -495,7 +481,93 @@ uint32_t sdGetSize()
 
 uint32_t sdGetFreeSectors()
 {
-  return 10;
+  // SIMU SD card is always above threshold
+  return ((SDCARD_MIN_FREE_SPACE_MB*1024*1024)/BLOCK_SIZE)+1;
 }
 
+uint32_t sdGetFreeKB() { return SDCARD_MIN_FREE_SPACE_MB * 1024 + 1; }
+bool sdIsFull() { return false; }
+
 #endif  // #if !defined(SIMU) || defined(SIMU_DISKIO)
+
+
+static bool _g_FATFS_init = false;
+static FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
+
+#if defined(LOG_TELEMETRY)
+FIL g_telemetryFile = {};
+#endif
+
+#if defined(LOG_BLUETOOTH)
+FIL g_bluetoothFile = {};
+#endif
+
+#include "audio.h"
+#include "sdcard.h"
+
+void sdInit()
+{
+  TRACE("sdInit");
+  storageInit();
+  sdMount();
+}
+
+void sdMount()
+{
+  TRACE("sdMount");
+
+  storagePreMountHook();
+  
+  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
+    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
+    _g_FATFS_init = true;
+    sdGetFreeSectors();
+
+#if defined(LOG_TELEMETRY)
+    f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
+    if (f_size(&g_telemetryFile) > 0) {
+      f_lseek(&g_telemetryFile, f_size(&g_telemetryFile)); // append
+    }
+#endif
+
+#if defined(LOG_BLUETOOTH)
+    f_open(&g_bluetoothFile, LOGS_PATH "/bluetooth.log", FA_OPEN_ALWAYS | FA_WRITE);
+    if (f_size(&g_bluetoothFile) > 0) {
+      f_lseek(&g_bluetoothFile, f_size(&g_bluetoothFile)); // append
+    }
+#endif
+  }
+  else {
+    TRACE("f_mount() failed");
+  }
+}
+
+void sdDone()
+{
+  TRACE("sdDone");
+
+  if (sdMounted()) {
+    audioQueue.stopSD();
+
+#if defined(LOG_TELEMETRY)
+    f_close(&g_telemetryFile);
+#endif
+
+#if defined(LOG_BLUETOOTH)
+    f_close(&g_bluetoothFile);
+#endif
+
+    f_mount(nullptr, "", 0);  // unmount SD
+  }
+
+  storageDeInit();
+}
+
+uint32_t sdMounted()
+{
+#if defined(SIMU)
+  return true;
+#else
+  return _g_FATFS_init && (g_FATFS_Obj.fs_type != 0);
+#endif
+}

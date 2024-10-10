@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -227,11 +228,9 @@ void FlashFirmwareDialog::on_burnButton_clicked()
 
   if (imageSource != FIRMWARE) {
     // load the splash image
-    const QPixmap * pixmap = ui->splash->pixmap();
+    const QPixmap pixmap = ui->splash->pixmap(Qt::ReturnByValue);
     QImage image;
-    if (pixmap) {
-      image = pixmap->toImage().scaled(ui->splash->width(), ui->splash->height());
-    }
+    image = pixmap.toImage().scaled(ui->splash->width(), ui->splash->height());
     if (image.isNull()) {
       QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Splash image not found"));
       return;

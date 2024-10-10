@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -102,7 +103,6 @@ class TelemetryPanel : public ModelPanel
     void updated();
 
   private slots:
-    void on_telemetryProtocol_currentIndexChanged(int index);
     void onModified();
     void on_frskyProtoCB_currentIndexChanged(int index);
     void on_bladesCount_editingFinished();

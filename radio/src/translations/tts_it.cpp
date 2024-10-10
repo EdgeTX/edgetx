@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum ItalianPrompts {
   IT_PROMPT_NUMBERS_BASE = 0,
@@ -58,7 +58,7 @@ enum ItalianPrompts {
 
 };
 
-  #define IT_PUSH_UNIT_PROMPT(u, p) it_pushUnitPrompt((u), (p), id)
+#define IT_PUSH_UNIT_PROMPT(u, p) it_pushUnitPrompt((u), (p), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(it, pushUnitPrompt, uint8_t unitprompt, int16_t number)
 {
@@ -154,28 +154,28 @@ I18N_PLAY_FUNCTION(it, playDuration, int seconds PLAY_DURATION_ATT)
     seconds = -seconds;
   }
 
-  uint8_t tmp;
-  if (IS_PLAY_LONG_TIMER()) {
-    tmp = seconds / 60;
-    if (seconds % 60 >= 30) tmp += 1;
-    if (tmp > 0) PLAY_NUMBER(tmp, UNIT_MINUTES, 0);
-  } else {
-    tmp = seconds / 3600;
-    seconds %= 3600;
-    if (tmp > 0 || IS_PLAY_TIME()) {
-      PLAY_NUMBER(tmp, UNIT_HOURS, 0);
-    }
+  int hours, minutes;
+  hours = seconds / 3600;
+  seconds = seconds % 3600;
+  minutes = seconds / 60;
+  seconds = seconds % 60;
 
-    tmp = seconds / 60;
-    seconds %= 60;
-    if (tmp > 0) {
-      PLAY_NUMBER(tmp, UNIT_MINUTES, 0);
-      if (seconds > 0) PUSH_NUMBER_PROMPT(IT_PROMPT_E);
-    }
+  if (IS_PLAY_LONG_TIMER() && seconds >= 30) {
+    minutes += 1;
+  }
 
-    if (seconds > 0) {
-      PLAY_NUMBER(seconds, UNIT_SECONDS, 0);
-    }
+  if (hours > 0 || IS_PLAY_TIME()) {
+    PLAY_NUMBER(hours, UNIT_HOURS, 0);
+  }
+
+  if (minutes > 0) {
+    PLAY_NUMBER(minutes, UNIT_MINUTES, 0);
+  }
+
+  if (!IS_PLAY_LONG_TIMER() && seconds > 0) {
+    if (minutes)
+      PUSH_NUMBER_PROMPT(IT_PROMPT_E);
+    PLAY_NUMBER(seconds, UNIT_SECONDS, 0);
   }
 }
 

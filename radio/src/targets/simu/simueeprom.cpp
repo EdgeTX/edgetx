@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const char * eepromFile = nullptr;
 FILE * fp = nullptr;
@@ -125,16 +125,15 @@ void eepromStartWrite(uint8_t * buffer, size_t address, size_t size)
   eepromTransmitData(address, buffer, size, false);
 }
 
+bool _eeprom_write_simu_delay = true;
+
 void eepromWriteBlock(uint8_t * buffer, size_t address, size_t size)
 {
   eepromStartWrite(buffer, address, size);
 
   while (!eepromIsTransferComplete()) {
-#if defined(GTESTS)
-    sleep(0/*ms*/);
-#else
-    sleep(1/*ms*/);
-#endif
+    if (_eeprom_write_simu_delay)
+      sleep(1/*ms*/);
   }
 }
 

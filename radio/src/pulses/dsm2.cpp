@@ -19,7 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "dsm2.h"
+#include "hal/module_port.h"
+#include "mixer_scheduler.h"
+
+#include "edgetx.h"
+#include "telemetry/spektrum.h"
 
 #define DSM2_SEND_BIND                     (1 << 7)
 #define DSM2_SEND_RANGECHECK               (1 << 5)
@@ -31,121 +36,86 @@
 #define DSMX_BIT             0x08
 #define BAD_DATA             0x47
 
-#define BITLEN_DSM2          (8*2) //125000 Baud => 8uS per bit
+#define DSM2_BITRATE         125000
+#define DSM2_FRAME_SIZE      14
 
-static void reset_dsm2_buffer()
+static bool _bind_restart = false;
+
+static inline void sendByte(uint8_t*& p_buf, uint8_t b)
 {
-  extmodulePulsesData.dsm2.index = 0;
-  extmodulePulsesData.dsm2.ptr = extmodulePulsesData.dsm2.pulses;
+  *p_buf++ = b;
 }
 
-static void _send_1(uint8_t v)
+static void setupPulsesDSM2(uint8_t module, uint8_t type, uint8_t*& p_buf)
 {
-  *extmodulePulsesData.dsm2.ptr++ = v - 1;
-  extmodulePulsesData.dsm2.index += 1;
-}
+  uint8_t dsmDat[DSM2_FRAME_SIZE];
 
-static void _sendByte(uint8_t b, uint8_t bit_len) // max 10 changes 0 10 10 10 10 1
-{
-  bool    lev = 0;
-  uint8_t len = bit_len; // max val: 9*16 < 256
-  for (uint8_t i=0; i<=8; i++) { // 8Bits + Stop=1
-    bool nlev = b & 1; // lsb first
-    if (lev == nlev) {
-      len += bit_len;
-    }
-    else {
-      _send_1(len);
-      len  = bit_len;
-      lev  = nlev;
-    }
-    b = (b>>1) | 0x80; // shift in stop bit
-  }
-  _send_1(len); // stop bit (len is already bit_len)
-}
-
-static void sendByteDsm2(uint8_t b)
-{
-  _sendByte(b, BITLEN_DSM2);
-}
-
-void putDsm2Flush()
-{
-  if (extmodulePulsesData.dsm2.index & 1)
-    *extmodulePulsesData.dsm2.ptr++ = 255;
-  else
-    *(extmodulePulsesData.dsm2.ptr - 1) = 255;
-}
-
-// This is the data stream to send, prepare after 19.5 mS
-// Send after 22.5 mS
-
-void setupPulsesDSM2()
-{
-  uint8_t dsmDat[14];
-
-  reset_dsm2_buffer();
-
-  switch (moduleState[EXTERNAL_MODULE].protocol) {
-    case PROTOCOL_CHANNELS_DSM2_LP45:
+  switch (type) {
+    case DSM2_PROTO_LP45:
       dsmDat[0] = 0x00;
       break;
-    case PROTOCOL_CHANNELS_DSM2_DSM2:
+    case DSM2_PROTO_DSM2:
       dsmDat[0] = 0x10;
       break;
-    default: // DSMX
+    default: // DSM2_PROTO_DSMX
       dsmDat[0] = 0x10 | DSMX_BIT;
       break;
   }
 
-  if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_BIND) {
+  if (moduleState[module].mode == MODULE_MODE_BIND) {
+
+    // The module is set to OFF during one second,
+    // before BIND starts. It will start with bind packets
+    // directly after restarts.
+    if (!_bind_restart) {
+      _bind_restart = true;
+      // approx 1.1s @ 22ms cycle
+      restartModuleAsync(module, 50);
+    }
+    
     dsmDat[0] |= DSM2_SEND_BIND;
+  } else {
+    _bind_restart = false;
   }
-  else if (moduleState[EXTERNAL_MODULE].mode == MODULE_MODE_RANGECHECK) {
+
+  if (moduleState[module].mode == MODULE_MODE_RANGECHECK) {
     dsmDat[0] |= DSM2_SEND_RANGECHECK;
   }
 
-  dsmDat[1] = g_model.header.modelId[EXTERNAL_MODULE]; // DSM2 Header second byte for model match
+  dsmDat[1] = g_model.header.modelId[module]; // DSM2 Header second byte for model match
 
-  for (int i=0; i<DSM2_CHANS; i++) {
-    int channel = g_model.moduleData[EXTERNAL_MODULE].channelsStart+i;
-    int value = channelOutputs[channel] + 2*PPM_CH_CENTER(channel) - 2*PPM_CENTER;
-    uint16_t pulse = limit(0, ((value*13)>>5)+512, 1023);
-    dsmDat[2+2*i] = (i<<2) | ((pulse>>8)&0x03);
-    dsmDat[3+2*i] = pulse & 0xff;
+  for (int i = 0; i < DSM2_CHANS; i++) {
+    int channel = g_model.moduleData[module].channelsStart + i;
+    int value =
+        channelOutputs[channel] + 2 * PPM_CH_CENTER(channel) - 2 * PPM_CENTER;
+
+    uint16_t pulse = limit(0, ((value * 13) >> 5) + 512, 1023);
+    dsmDat[2 + 2 * i] = (i << 2) | ((pulse >> 8) & 0x03);
+    dsmDat[3 + 2 * i] = pulse & 0xff;
   }
 
-  for (int i=0; i<14; i++) {
-    sendByteDsm2(dsmDat[i]);
+  for (int i = 0; i < DSM2_FRAME_SIZE; i++) {
+    sendByte(p_buf, dsmDat[i]);
   }
-
-  putDsm2Flush();
 }
 
-#define BITLEN_DSMP (17)
+#define DSMP_BITRATE 115200
 
-static void sendByteDSMP(uint8_t b)
-{
-  _sendByte(b, BITLEN_DSMP);
-}
-
-void setupPulsesLemonDSMP()
+static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 {
   static uint8_t pass = 0;
 
-  reset_dsm2_buffer();
-
-  const auto& md = g_model.moduleData[EXTERNAL_MODULE];
+  const auto& md = g_model.moduleData[module];
 
   uint8_t start_channel = md.channelsStart;
   auto channels = md.getChannelsCount();
   auto flags = md.dsmp.flags & 0x3F;
 
   // Force setup packet in Bind mode.
-  auto module_mode = getModuleMode(EXTERNAL_MODULE);
+  auto module_mode = getModuleMode(module);
 
-  sendByteDSMP( 0xAA );
-  sendByteDSMP( pass );
+  sendByte(p_buf, 0xAA);
+  sendByte(p_buf, pass);
 
   // Setup packet
   if (pass == 0) {
@@ -154,17 +124,17 @@ void setupPulsesLemonDSMP()
       flags = DSM2_SEND_BIND | (1 << 6 /* AUTO */);
       channels = 12;
     }
-    sendByteDSMP( flags );
+    sendByte(p_buf, flags);
 
     uint8_t pwr = 7;
     if (module_mode == MODULE_MODE_RANGECHECK) {
       pwr = 4;
     }
-    sendByteDSMP( pwr );    
-    sendByteDSMP( channels );
+    sendByte(p_buf, pwr);
+    sendByte(p_buf, channels );
 
     // Model number
-    sendByteDSMP( 1 );
+    sendByte(p_buf,  1);
 
     // Send only 1 single Setup packet
     pass = 1;
@@ -192,19 +162,17 @@ void setupPulsesLemonDSMP()
           pulse = limit(0, ((value*13)>>5)+512, 1023) | (current_channel << 10);
         }
 
-        sendByteDSMP( pulse >> 8 );
-        sendByteDSMP( pulse & 0xFF );
+        sendByte(p_buf, pulse >> 8);
+        sendByte(p_buf, pulse & 0xFF);
       } else {
         // Outside of announced number of channels:
         // -> send invalid value
-        sendByteDSMP( 0xFF );
-        sendByteDSMP( 0xFF );
+        sendByte(p_buf, 0xFF);
+        sendByte(p_buf, 0xFF);
       }
       current_channel++;
     }
   }
-
-  putDsm2Flush();
 
   if (++pass > 2) pass = 1;
   if (channels < 8) pass = 1;
@@ -213,9 +181,131 @@ void setupPulsesLemonDSMP()
     // bind packet is setup
     pass = 0;
   }
-  else if (--moduleState[EXTERNAL_MODULE].counter == 0) {
+  else if (--moduleState[module].counter == 0) {
     // every 100th packet is setup
     pass = 0;
-    moduleState[EXTERNAL_MODULE].counter = 100;
+    moduleState[module].counter = 100;
   }
 }
+
+const etx_serial_init dsmUartParams = {
+    .baudrate = 0,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_TX,
+    .polarity = ETX_Pol_Inverted,
+};
+
+static etx_module_state_t* dsmInit(uint8_t module, uint32_t baudrate,
+                                   uint16_t period, bool telemetry)
+{
+  // only external module supported
+  if (module == INTERNAL_MODULE) return nullptr;
+
+  etx_serial_init params(dsmUartParams);
+  params.baudrate = baudrate;
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, true);
+  if (!mod_st) return nullptr;
+
+  if (telemetry) {
+    params.direction = ETX_Dir_RX;
+    modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params, true);
+  }
+
+  mixerSchedulerSetPeriod(module, period);
+  return mod_st;
+}
+
+static void* dsm2Init(uint8_t module)
+{
+  auto mod_st = dsmInit(module, DSM2_BITRATE, DSM2_PERIOD, false);
+  mod_st->user_data = (void*)(uintptr_t)g_model.moduleData[module].subType;
+  return (void*)mod_st;
+}
+
+static void* dsmpInit(uint8_t module)
+{
+  return (void*)dsmInit(module, DSMP_BITRATE, 11 * 1000 /* 11ms in us */, true);
+}
+
+static void dsmDeInit(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  modulePortDeInit(mod_st);
+}
+
+static void _dsm_send(etx_module_state_t* st, uint8_t* buffer, uint32_t len)
+{
+  auto drv = modulePortGetSerialDrv(st->tx);
+  auto ctx = modulePortGetCtx(st->tx);
+  drv->sendBuffer(ctx, buffer, len);
+}
+
+static void dsm2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
+{
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+  auto type = (uint8_t)(uintptr_t)mod_st->user_data;
+
+  auto p_data = buffer;
+  setupPulsesDSM2(module, type, p_data);
+  _dsm_send(mod_st, buffer, p_data - buffer);
+}
+
+static void dsm2ConfigChange(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+  auto type = (uint8_t)(uintptr_t)mod_st->user_data;
+
+  if (type != g_model.moduleData[module].subType) {
+    // restart during next mixer cycle
+    restartModuleAsync(module, 0);    
+  }
+}
+
+static void dsmpSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
+{
+  // TODO:
+  (void)channels;
+  (void)nChannels;
+
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  auto p_data = buffer;
+  setupPulsesLemonDSMP(module, p_data);
+  _dsm_send(mod_st, buffer, p_data - buffer);
+}
+
+static void dsmpProcessData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  processSpektrumTelemetryData(module, data, buffer, *len);
+}
+
+// No telemetry
+const etx_proto_driver_t DSM2Driver = {
+  .protocol = PROTOCOL_CHANNELS_DSM2,
+  .init = dsm2Init,
+  .deinit = dsmDeInit,
+  .sendPulses = dsm2SendPulses,
+  .processData = nullptr,
+  .processFrame = nullptr,
+  .onConfigChange = dsm2ConfigChange,
+};
+
+const etx_proto_driver_t DSMPDriver = {
+  .protocol = PROTOCOL_CHANNELS_DSMP,
+  .init = dsmpInit,
+  .deinit = dsmDeInit,
+  .sendPulses = dsmpSendPulses,
+  .processData = dsmpProcessData,
+  .processFrame = nullptr,
+  .onConfigChange = nullptr,
+};

@@ -19,7 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
+#include "hal/rotary_encoder.h"
 
 void runPopupCurvePreset(event_t event)
 {
@@ -104,7 +105,7 @@ void menuModelCurveOne(event_t event)
            menuVerticalPosition == 0, 0, old_editMode);
 
   // Curve type
-  lcdDrawTextAlignedLeft(3 * FH + 1, NO_INDENT(STR_TYPE));
+  lcdDrawTextAlignedLeft(3 * FH + 1, STR_TYPE);
   LcdFlags attr = (menuVerticalPosition == 1 ? (s_editMode > 0 ? INVERS | BLINK : INVERS) : 0);
   lcdDrawTextAtIndex(INDENT_WIDTH, 4 * FH + 1, STR_CURVE_TYPES, crv.type, attr);
   if (attr) {
@@ -128,9 +129,7 @@ void menuModelCurveOne(event_t event)
   lcdDrawNumber(INDENT_WIDTH, 6*FH+1, 5+crv.points, LEFT|attr);
   lcdDrawText(lcdLastRightPos, 6*FH+1, STR_PTS, attr);
   if (attr) {
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    rotencSpeed = ROTENC_LOWSPEED;
-#endif
+    rotaryEncoderResetAccel();
     int8_t count = checkIncDecModel(event, crv.points, -3, 12); // 2pts - 17pts
     if (checkIncDec_Ret) {
       int8_t newPoints[MAX_POINTS_PER_CURVE];
@@ -162,17 +161,12 @@ void menuModelCurveOne(event_t event)
 
     case EVT_KEY_LONG(KEY_ENTER):
       if (menuVerticalPosition > 1) {
-        killEvents(event);
-        POPUP_MENU_ADD_ITEM(STR_CURVE_PRESET);
-        POPUP_MENU_ADD_ITEM(STR_MIRROR);
-        POPUP_MENU_ADD_ITEM(STR_CLEAR);
-        POPUP_MENU_START(onCurveOneMenu);
+        POPUP_MENU_START(onCurveOneMenu, 3, STR_CURVE_PRESET, STR_MIRROR, STR_CLEAR);
       }
       break;
 
     case EVT_KEY_LONG(KEY_MENU):
       pushMenu(menuChannelsView);
-      killEvents(event);
       break;
   }
 

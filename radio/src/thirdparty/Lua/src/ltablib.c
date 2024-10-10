@@ -4,10 +4,10 @@
 ** See Copyright Notice in lua.h
 */
 
+#define ltablib_c
+#define LUA_LIB
 
 #include <stddef.h>
-
-#define ltablib_c
 
 #include "lua.h"
 
@@ -256,27 +256,20 @@ static int sort (lua_State *L) {
 /* }====================================================== */
 
 
-const luaL_Reg tab_funcs[] = {
-  {"concat", tconcat},
+LROT_BEGIN(tablib, NULL, 0)
+  LROT_FUNCENTRY( concat, tconcat)
 #if defined(LUA_COMPAT_MAXN)
-  {"maxn", maxn},
+  LROT_FUNCENTRY( maxn,   maxn)
 #endif
-  {"insert", tinsert},
-  {"pack", pack},
-  {"unpack", unpack},
-  {"remove", tremove},
-  {"sort", sort},
-  {NULL, NULL}
-};
+  LROT_FUNCENTRY( insert, tinsert)
+  LROT_FUNCENTRY( pack,   pack)
+  LROT_FUNCENTRY( unpack, unpack)
+  LROT_FUNCENTRY( remove, tremove)
+  LROT_FUNCENTRY( sort,   sort)
+LROT_END(tablib, NULL, 0)
 
 
 LUAMOD_API int luaopen_table (lua_State *L) {
-  luaL_newlib(L, tab_funcs);
-#if defined(LUA_COMPAT_UNPACK)
-  /* _G.unpack = table.unpack */
-  lua_getfield(L, -1, "unpack");
-  lua_setglobal(L, "unpack");
-#endif
-  return 1;
+  return 0;
 }
 

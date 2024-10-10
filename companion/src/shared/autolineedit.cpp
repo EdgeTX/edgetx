@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -39,19 +40,20 @@ AutoLineEdit::~AutoLineEdit()
 void AutoLineEdit::setField(char * field, int len, GenericPanel * panel)
 {
   m_charField = field;
-  setPanel(panel);
-  setValidator(new QRegExpValidator(QRegExp("[ A-Za-z0-9_.-,]*"), this));
-  if (len)
-    setMaxLength(len);
-  updateValue();
+  setFieldInit(len, panel);
 }
 
 void AutoLineEdit::setField(QString & field, int len, GenericPanel * panel)
 {
   m_strField = &field;
+  setFieldInit(len, panel);
+}
+
+void AutoLineEdit::setFieldInit(int len, GenericPanel * panel)
+{
+  setPanel(panel);
   if (len)
     setMaxLength(len);
-  setPanel(panel);
   updateValue();
 }
 

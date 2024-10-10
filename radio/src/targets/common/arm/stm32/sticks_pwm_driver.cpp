@@ -19,119 +19,157 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "sticks_pwm_driver.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_timer.h"
+#include "hal/adc_driver.h"
+#include "stm32_hal_ll.h"
+#include "delays_driver.h"
 
-volatile uint32_t pwm_interrupt_count = 0;
-volatile uint16_t timer_capture_values[NUM_PWMSTICKS];
+#include "dataconstants.h"
 
-void sticksPwmInit()
+static volatile uint32_t _pwm_interrupt_count;
+
+static void sticks_pwm_init(const stick_pwm_timer_t* tim)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = PWM_GPIOA_PINS;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(PWM_GPIO, &GPIO_InitStructure);
+  stm32_gpio_enable_clock(tim->GPIOx);
 
-  GPIO_PinAFConfig(PWM_GPIO, GPIO_PinSource0, PWM_GPIO_AF);
-  GPIO_PinAFConfig(PWM_GPIO, GPIO_PinSource1, PWM_GPIO_AF);
-  GPIO_PinAFConfig(PWM_GPIO, GPIO_PinSource2, PWM_GPIO_AF);
-  GPIO_PinAFConfig(PWM_GPIO, GPIO_PinSource3, PWM_GPIO_AF);
+  LL_GPIO_InitTypeDef pinInit;
+  pinInit.Pin = tim->GPIO_Pin;
+  pinInit.Alternate = tim->GPIO_Alternate;
+  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
+  pinInit.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(tim->GPIOx, &pinInit);
 
-  PWM_TIMER->CR1 &= ~TIM_CR1_CEN; // Stop timer
-  PWM_TIMER->PSC = 80;
-  PWM_TIMER->ARR = 0xffff;
-  PWM_TIMER->CCMR1 = TIM_CCMR1_CC1S_0 | TIM_CCMR1_CC2S_0;
-  PWM_TIMER->CCMR2 = TIM_CCMR2_CC3S_0 | TIM_CCMR2_CC4S_0;
-  PWM_TIMER->CCER = TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
-  PWM_TIMER->DIER |= TIM_IT_CC1|TIM_IT_CC2|TIM_IT_CC3|TIM_IT_CC4;
-  PWM_TIMER->CR1 = TIM_CR1_CEN; // Start timer
+  auto TIMx = tim->TIMx;
 
-  NVIC_EnableIRQ(PWM_IRQn);
-  NVIC_SetPriority(PWM_IRQn, 10);
+  stm32_timer_enable_clock(TIMx);
+  TIMx->CR1 &= ~TIM_CR1_CEN; // Stop timer
+  TIMx->PSC = 80;
+  TIMx->ARR = 0xffff;
+  TIMx->CCMR1 = TIM_CCMR1_CC1S_0 | TIM_CCMR1_CC2S_0;
+  TIMx->CCMR2 = TIM_CCMR2_CC3S_0 | TIM_CCMR2_CC4S_0;
+  TIMx->CCER = TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
+  TIMx->DIER |= TIM_DIER_CC1IE | TIM_DIER_CC2IE | TIM_DIER_CC3IE | TIM_DIER_CC4IE;
+  TIMx->CR1 = TIM_CR1_CEN; // Start timer
+
+  NVIC_EnableIRQ(tim->TIM_IRQn);
+  NVIC_SetPriority(tim->TIM_IRQn, 10);
 }
 
-inline uint32_t TIM_GetCapture_Stick(uint8_t n)
+static void sticks_pwm_deinit(const stick_pwm_timer_t* tim)
 {
-  switch (n) {
-    case 0:
-      return PWM_TIMER->CCR1;
-    case 1:
-      return PWM_TIMER->CCR2;
-    case 2:
-      return PWM_TIMER->CCR3;
-    case 3:
-      return PWM_TIMER->CCR4;
-    default:
-      return 0;
+  NVIC_DisableIRQ(tim->TIM_IRQn);
+
+  // Stop timer
+  auto TIMx = tim->TIMx;
+  TIMx->CR1 &= ~TIM_CR1_CEN;
+  stm32_timer_disable_clock(TIMx);
+
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+
+  pinInit.Pin = tim->GPIO_Pin;
+  pinInit.Mode = LL_GPIO_MODE_INPUT;
+  LL_GPIO_Init(tim->GPIOx, &pinInit);
+}
+
+bool sticks_pwm_detect(const stick_pwm_timer_t* timer,
+		       const stick_pwm_input_t* inputs,
+		       uint8_t n_inputs)
+{
+  if (!timer || !inputs || n_inputs == 0)
+    return false;
+  
+  _pwm_interrupt_count = 0;
+  sticks_pwm_init(timer);
+  delay_ms(20);
+
+  if (_pwm_interrupt_count < 32) {
+    sticks_pwm_deinit(timer);
+    return false;
   }
+
+  return true;
 }
 
-inline void TIM_SetPolarityRising(uint8_t n)
+static inline uint32_t tim_get_capture(TIM_TypeDef *TIMx, uint8_t channel)
 {
-  PWM_TIMER->CCER &= ~(TIM_CCER_CC1P << (n * 4));
+  auto* base_CCRx = &(TIMx->CCR1);
+  return READ_REG(*(base_CCRx + channel));
 }
 
-inline void TIM_SetPolarityFalling(uint8_t n)
+static inline void tim_set_polarity_rising(TIM_TypeDef *TIMx, uint8_t channel)
 {
-  PWM_TIMER->CCER |= (TIM_CCER_CC1P << (n * 4));
+  CLEAR_BIT(TIMx->CCER, TIM_CCER_CC1P << (channel * 4));
 }
 
-inline void TIM_ClearITPendingBit(uint8_t n)
+static inline void tim_set_polarity_falling(TIM_TypeDef *TIMx, uint8_t channel)
 {
-  PWM_TIMER->SR = ~(TIM_IT_CC1 << n);
+  SET_BIT(TIMx->CCER, TIM_CCER_CC1P << (channel * 4));
 }
 
-inline uint32_t diff_with_16bits_overflow(uint32_t a, uint32_t b)
+static inline uint32_t tim_is_active_flag_CCx(TIM_TypeDef *TIMx, uint8_t channel)
 {
-  if (b > a)
+  return READ_BIT(TIMx->SR, TIM_SR_CC1IF << channel);
+}
+
+static inline void tim_clear_flag_CCx(TIM_TypeDef *TIMx, uint8_t channel)
+{
+  CLEAR_BIT(TIMx->SR, TIM_SR_CC1IF << channel);
+}
+
+static inline uint32_t diff_with_16bits_overflow(uint32_t a, uint32_t b)
+{
+  if (b > a) {
     return b - a;
-  else
-    return b + 0xffff - a;
+  }
+
+  return b + 0xffff - a;
 }
 
-extern "C" void PWM_IRQHandler(void)
+void sticks_pwm_isr(const stick_pwm_timer_t* tim,
+		    const stick_pwm_input_t* inputs,
+		    uint8_t n_inputs)
 {
-  static uint8_t  timer_capture_states[NUM_PWMSTICKS];
-  static uint32_t timer_capture_rising_time[NUM_PWMSTICKS];
+  static uint8_t  timer_capture_states[MAX_STICKS];
+  static uint32_t timer_capture_rising_time[MAX_STICKS];
 
-  for (uint8_t i=0; i<NUM_PWMSTICKS; i++) {
-    if (PWM_TIMER->SR & (TIM_DIER_CC1IE << i)) {
-      uint32_t capture = TIM_GetCapture_Stick(i);
-      pwm_interrupt_count++; // overflow may happen but we only use this to detect PWM / ADC on radio startup
+  auto TIMx = tim->TIMx;
+  auto adcValues = getAnalogValues();
+
+  for (uint8_t i = 0; i < n_inputs; i++) {
+
+    const auto& input = inputs[i];
+    auto channel = input.channel;
+    
+    if (tim_is_active_flag_CCx(TIMx, channel)) {
+
+      uint32_t capture = tim_get_capture(TIMx, channel);
+      tim_clear_flag_CCx(TIMx, channel);
+
+      // overflow may happen but we only use this to detect PWM / ADC on radio startup
+      _pwm_interrupt_count++;
+
       if (timer_capture_states[i] != 0) {
         uint32_t value = diff_with_16bits_overflow(timer_capture_rising_time[i], capture);
-        if (value < 10000) {
-          timer_capture_values[i] = (uint16_t) value;
+
+        if (value <= ADC_MAX_VALUE) {
+	  uint16_t v16 = (uint16_t)value;
+          adcValues[i] = input.inverted ? ADC_INVERT_VALUE(v16) : v16;
         }
-        TIM_SetPolarityRising(i);
+
+        tim_set_polarity_rising(TIMx, channel);
         timer_capture_states[i] = 0;
       }
       else {
         timer_capture_rising_time[i] = capture;
-        TIM_SetPolarityFalling(i);
+
+        tim_set_polarity_falling(TIMx, channel);
         timer_capture_states[i] = 0x80;
       }
-      TIM_ClearITPendingBit(i);
     }
   }
 }
-
-#if defined(STICK_CHANNEL_CHANGE)
-void sticksPwmRead(uint16_t * values)
-{
-  values[0] = timer_capture_values[STICK_PWM_CHANNEL_0];
-  values[1] = timer_capture_values[STICK_PWM_CHANNEL_1];
-  values[2] = timer_capture_values[STICK_PWM_CHANNEL_2];
-  values[3] = timer_capture_values[STICK_PWM_CHANNEL_3];
-}
-#else
-void sticksPwmRead(uint16_t * values)
-{
-  values[0] = timer_capture_values[0];
-  values[1] = timer_capture_values[1];
-  values[2] = timer_capture_values[3];
-  values[3] = timer_capture_values[2];
-}
-#endif

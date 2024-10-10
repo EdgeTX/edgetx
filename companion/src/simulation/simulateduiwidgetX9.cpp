@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -39,20 +40,20 @@ SimulatedUIWidgetX9::SimulatedUIWidgetX9(SimulatorInterface *simulator, QWidget 
 
   // left side
 
-  act = new RadioUiAction(0, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU);
+  act = new RadioUiAction(KEY_MENU, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU);
   addRadioWidget(ui->leftbuttons->addArea(btn, "X9D/x9l1.png", act));
   btn.moveTop(btn.top() + btn.height() + vsp);
 
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
+  act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
   addRadioWidget(ui->leftbuttons->addArea(btn, "X9D/x9l2.png", act));
   btn.moveTop(btn.top() + btn.height() + vsp);
 
-  act = new RadioUiAction(1, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
+  act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->leftbuttons->addArea(btn, "X9D/x9l3.png", act));
 
-  m_scrollUpAction = new RadioUiAction(4, QList<int>() << Qt::Key_Plus << Qt::Key_Equal << Qt::Key_Left,
+  m_scrollUpAction = new RadioUiAction(KEY_PLUS, QList<int>() << Qt::Key_Plus << Qt::Key_Equal << Qt::Key_Left,
                                       SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS);
-  m_scrollDnAction = new RadioUiAction(5, QList<int>() << Qt::Key_Minus << Qt::Key_Right,
+  m_scrollDnAction = new RadioUiAction(KEY_MINUS, QList<int>() << Qt::Key_Minus << Qt::Key_Right,
                                       SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN);
 
   // right side
@@ -64,7 +65,7 @@ SimulatedUIWidgetX9::SimulatedUIWidgetX9(SimulatorInterface *simulator, QWidget 
   addRadioWidget(ui->rightbuttons->addArea(btn, "X9D/x9r2.png", m_scrollDnAction));
   btn.moveTop(btn.top() + btn.height() + vsp);
 
-  m_mouseMidClickAction = new RadioUiAction(2, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ENT);
+  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ENT);
   addRadioWidget(ui->rightbuttons->addArea(btn, "X9D/x9r3.png", m_mouseMidClickAction));
 
   addRadioWidget(ui->leftbuttons->addArea(QRect(89, 177, 30, 20), "X9D/x9l4.png", m_screenshotAction));

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "timers_driver.h"
 
 extern uint8_t g_moduleIdx;
@@ -44,7 +44,9 @@ void menuRadioSpectrumAnalyser(event_t event)
   if (menuEvent) {
     lcdDrawCenteredText(LCD_H/2, STR_STOPPING);
     lcdRefresh();
+#if defined(PXX2)
     moduleState[g_moduleIdx].readModuleInformation(&reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
+#endif
     /* wait 1s to resume normal operation before leaving */
     watchdogSuspend(500 /*5s*/);
     RTOS_WAIT_MS(1000);
@@ -54,8 +56,7 @@ void menuRadioSpectrumAnalyser(event_t event)
   if (moduleState[g_moduleIdx].mode != MODULE_MODE_SPECTRUM_ANALYSER) {
     if (TELEMETRY_STREAMING()) {
       lcdDrawCenteredText(LCD_H/2, STR_TURN_OFF_RECEIVER);
-      if (event == EVT_KEY_FIRST(KEY_EXIT)) {
-        killEvents(event);
+      if (event == EVT_KEY_BREAK(KEY_EXIT)) {
         popMenu();
       }
       return;

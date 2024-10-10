@@ -19,9 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "flysky_nv14.h"
 #include "flysky_ibus.h"
+#include "pulses/afhds2.h"
 #include "dataconstants.h"
 
 
@@ -59,6 +60,7 @@ union nv14SensorData {
 
 FlyskyNv14Sensor defaultNv14Sensor = {0, 0, "UNKNOWN", UNIT_RAW, 0, 0, 2, false};
 
+// clang-format off
 const FlyskyNv14Sensor Nv14Sensor[]=
 {
     {FLYSKY_FIXED_RX_VOLTAGE,  0, STR_SENSOR_A1,          UNIT_VOLTS,         2, 0, 2, false},
@@ -83,7 +85,7 @@ const FlyskyNv14Sensor Nv14Sensor[]=
 //    {FLYSKY_SENSOR_SYNC,       0, "Sync",                 UNIT_RAW,           0, 0,  2, false},
     defaultNv14Sensor
 };
-
+// clang-format on
 
 extern uint32_t NV14internalModuleFwVersion;
 
@@ -171,7 +173,7 @@ int32_t GetSensorValueFlySkyNv14(const FlyskyNv14Sensor* sensor,
         value = value & PRESSURE_MASK;
         break;
       case 1:
-        value = CalculateAltitude(value);
+        value = CalculateAltitude(10 * value);
         {
           tmr10ms_t currTimer = getTicks();
           int32_t currAlt = value;

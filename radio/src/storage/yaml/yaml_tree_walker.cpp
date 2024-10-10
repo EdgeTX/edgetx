@@ -19,17 +19,17 @@
  * GNU General Public License for more details.
  */
 
+#include <string.h>
+
 #include "debug.h"
 #include "yaml_node.h"
 #include "yaml_bits.h"
 #include "yaml_tree_walker.h"
 #include "yaml_parser.h"
 
-#include <string.h>
-
 #define MIN(a,b) (a < b ? a : b)
 
-static void copy_string(char* dst, uint8_t dst_len, const char* src,
+static void copy_string(char* dst, uint16_t dst_len, const char* src,
                         uint8_t src_len)
 {
   if (src_len < dst_len) {
@@ -45,7 +45,8 @@ uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8
     while (choices->str) {
 
         // we have a match!
-        if (!strncmp(val, choices->str, val_len))
+        if( strncmp(val, choices->str, val_len) == 0
+          && strlen(choices->str) == val_len)
             break;
 
         choices++;
@@ -56,7 +57,7 @@ uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8
 
 static void yaml_set_attr(void* user, uint8_t* ptr, uint32_t bit_ofs,
                           const YamlNode* node, const char* val,
-                          uint8_t val_len)
+                          uint16_t val_len)
 {
   uint32_t i = 0;
 
@@ -116,9 +117,9 @@ static bool yaml_output_string(const char* str, uint32_t max_len,
 {
     if (!wf(opaque, "\"", 1))
         return false;
-    
+
     while(max_len > 0 && *str) {
-        if (*str >= 0x20 && *str <= 0x7E) {
+        if (*str >= 0x20 && *str <= 0x7E && *str != '"') {
             if (!wf(opaque, str++, 1)) return false;
             max_len--;
         }
@@ -145,7 +146,7 @@ static bool yaml_output_attr(void* user, uint8_t* ptr, uint32_t bit_ofs,
   if (node->type == YDT_CUSTOM && !node->u._cust_attr.write) return true;
 
   // output tag
-  if (!wf(opaque, node->tag, node->tag_len)) return false;
+  if (!wf(opaque, node->tag, node->tag_len())) return false;
 
   if (!wf(opaque, ": ", 2)) return false;
 
@@ -264,10 +265,10 @@ bool YamlTreeWalker::findNode(const char* tag, uint8_t tag_len)
         setAttrValue((char*)tag, tag_len);
         return true;
     }
-            
+
     while(attr && attr->type != YDT_NONE) {
 
-        if ((tag_len == attr->tag_len)
+        if ((tag_len == attr->tag_len())
             && !strncmp(tag, attr->tag, tag_len)) {
             return true; // attribute found!
         }
@@ -311,7 +312,7 @@ bool YamlTreeWalker::toChild()
 
     bool is_array = false;
     if (attr->type == YDT_ARRAY
-        && attr->u._array.u._a.elmts > 1) {
+        && attr->elmts > 1) {
         is_array = true;
     }
 
@@ -332,7 +333,7 @@ bool YamlTreeWalker::toChild()
     if (!attr)
         return false;
     
-    if ((attr->type == YDT_UNION) && (attr->tag_len == 0)) {
+    if ((attr->type == YDT_UNION) && (attr->tag_len() == 0)) {
         toChild();
         anon_union++;
     }
@@ -358,7 +359,7 @@ bool YamlTreeWalker::toNextElmt()
             setElmts(0);
         }
         
-        if (getElmts() < node->u._array.u._a.elmts - 1) {
+        if (getElmts() < node->elmts - 1) {
             incElmts();
             rewind();
         } else {
@@ -387,8 +388,8 @@ bool YamlTreeWalker::isElmtEmpty(uint8_t* data)
             + getLevelOfs();
 
         // assume structs aligned on 8bit boundaries
-        if (node->u._array.u._a.is_active)
-            return !node->u._array.u._a.is_active(this, data, bit_ofs);
+        if (node->u._array.u.is_active)
+            return !node->u._array.u.is_active(this, data, bit_ofs);
 
         return yaml_is_zero(data, bit_ofs, node->size);
     }
@@ -416,7 +417,7 @@ void YamlTreeWalker::toNextAttr()
         uint32_t attr_bit_ofs = getAttrOfs();
 
         if (attr->type == YDT_ARRAY)
-            attr_bit_ofs += ((uint32_t)attr->u._array.u._a.elmts * attr->size);
+            attr_bit_ofs += ((uint32_t)attr->elmts * attr->size);
         else
             attr_bit_ofs += attr->size;
 
@@ -427,7 +428,7 @@ void YamlTreeWalker::toNextAttr()
 
     // anonymous union handling
     attr = getAttr();
-    if ((attr->type == YDT_UNION) && (attr->tag_len == 0)) {
+    if ((attr->type == YDT_UNION) && (strlen(attr->tag) == 0)) {
         toChild();
         anon_union++;
     }
@@ -441,7 +442,7 @@ void YamlTreeWalker::toNextAttr()
     }
 }
 
-void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
+void YamlTreeWalker::setAttrValue(char* buf, uint16_t len)
 {
     if (!buf || !len || isIdxInvalid())
         return;
@@ -456,7 +457,7 @@ void YamlTreeWalker::setAttrValue(char* buf, uint8_t len)
             i = yaml_str2uint(buf, len);
 
         const YamlNode* node = getNode();
-        if (i < node->u._array.u._a.elmts) {
+        if (i < node->elmts) {
             setElmts(i);
             rewind();
         } else {
@@ -634,9 +635,14 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
             }
                 
             new_elmt = false;
-            for(int i=1; i < getLevel(); i++)
-                if (!wf(opaque, "   ", 3))
-                    return false;
+
+            if (attr->type != YDT_PADDING &&
+                (attr->type != YDT_CUSTOM || attr->u._cust_attr.write)) {
+
+                for(int i=1; i < getLevel(); i++)
+                    if (!wf(opaque, "   ", 3))
+                        return false;
+            }
             
             if (!yaml_output_attr(this, data, getBitOffset(), attr, wf, opaque))
                 return false; // TODO: error handling???
@@ -678,7 +684,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     return ((YamlTreeWalker*)ctx)->findNode(buf,len);
 }
 
-static void set_attr(void* ctx, char* buf, uint8_t len)
+static void set_attr(void* ctx, char* buf, uint16_t len)
 {
     ((YamlTreeWalker*)ctx)->setAttrValue(buf,len);
 }

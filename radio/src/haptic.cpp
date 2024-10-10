@@ -19,7 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
+#include "haptic.h"
 
 hapticQueue::hapticQueue()
 {
@@ -107,3 +108,11 @@ void hapticQueue::event(uint8_t e)
 }
 
 hapticQueue haptic;
+
+// from timers_driver.cpp
+void per5ms()
+{
+  DEBUG_TIMER_START(debugTimerHaptic);
+  HAPTIC_HEARTBEAT();
+  DEBUG_TIMER_STOP(debugTimerHaptic);
+}

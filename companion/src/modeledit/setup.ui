@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
+    <width>1046</width>
     <height>435</height>
    </rect>
   </property>
@@ -184,7 +184,7 @@
         </widget>
        </item>
        <item alignment="Qt::AlignRight">
-        <widget class="QLabel" name="label_spacer">
+        <widget class="QLabel" name="lblHatsMode">
          <property name="font">
           <font>
            <weight>50</weight>
@@ -192,7 +192,7 @@
           </font>
          </property>
          <property name="text">
-          <string/>
+          <string>Hats Mode</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -393,7 +393,7 @@
              </item>
              <item>
               <property name="text">
-               <string>Manual</string>
+               <string>ON</string>
               </property>
              </item>
              <item>
@@ -579,6 +579,16 @@
          </property>
         </widget>
        </item>
+       <item row="3" column="3">
+        <widget class="QCheckBox" name="checklistInteractive">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>Interactive Checklist</string>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="4">
         <widget class="QLabel" name="label_jitterFilter">
          <property name="font">
@@ -616,6 +626,9 @@
           </property>
          </item>
         </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="AutoComboBox" name="cboHatsMode"/>
        </item>
        <item row="2" column="4">
         <widget class="QPushButton" name="editText">

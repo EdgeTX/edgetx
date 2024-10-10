@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -25,6 +26,8 @@
 #include "compounditemmodels.h"
 #include "filtereditemmodels.h"
 
+#include <QSortFilterProxyModel>
+
 constexpr char MIMETYPE_TIMER[] = "application/x-companion-timer";
 
 namespace Ui {
@@ -35,6 +38,7 @@ namespace Ui {
 }
 
 class AutoLineEdit;
+class FilteredItemModel;
 
 class TimerPanel : public ModelPanel
 {
@@ -57,6 +61,7 @@ class TimerPanel : public ModelPanel
 
   signals:
     void nameChanged();
+    void modeChanged();
 
   private:
     TimerData & timer;
@@ -78,11 +83,13 @@ class ModulePanel : public ModelPanel
   public slots:
     void onExtendedLimitsToggled();
     void onFailsafeModified(unsigned index);
+    void updateTrainerModeItemModel();
 
   signals:
     void channelsRangeChanged();
     void failsafeModified(unsigned index);
     void updateItemModels();
+    void protocolChanged();
 
   private slots:
     void setupFailsafes();
@@ -111,8 +118,10 @@ class ModulePanel : public ModelPanel
     void onFailsafesDisplayValueTypeChanged(int type);
     void onRfFreqChanged(int freq);
     void updateFailsafe(unsigned channel);
-    void on_optionValue_editingFinished();
+    void on_optionValue_valueChanged(int value);
     void onClearAccessRxClicked();
+    void on_chkOption_stateChanged(int state);
+    void on_cboOption_currentIndexChanged(int value);
 
   private:
     enum FailsafeValueDisplayTypes { FAILSAFE_DISPLAY_PERCENT = 1, FAILSAFE_DISPLAY_USEC = 2 };
@@ -130,6 +139,107 @@ class ModulePanel : public ModelPanel
     QMap<int, ChannelFailsafeWidgetsGroup> failsafeGroupsMap;
     static quint8 failsafesValueDisplayType;  // FailsafeValueDisplayTypes
     void updateFailsafeUI(unsigned channel, quint8 updtSb);
+    FilteredItemModel *trainerModeItemModel;
+    static bool isTrainerModule(int index) { return index < 0; }
+    static bool isInternalModule(int index) { return index == 0; }
+    static bool isExternalModule(int index) { return index > 0; }
+};
+
+class FilteredGroupSwitchesModel: public QSortFilterProxyModel
+{
+    Q_OBJECT
+  public:
+    explicit FilteredGroupSwitchesModel(AbstractItemModel * sourceModel, int group, ModelData * model, int switchcnt) :
+      QSortFilterProxyModel(nullptr),
+      m_group(group),
+      m_switchcnt(switchcnt),
+      m_model(model)
+    {
+      setFilterKeyColumn(0);
+      setDynamicSortFilter(true);
+      setSourceModel(sourceModel);
+    }
+
+    explicit FilteredGroupSwitchesModel(AbstractItemModel * sourceModel) :
+      FilteredGroupSwitchesModel(sourceModel, 0, nullptr, 0) {}
+    virtual ~FilteredGroupSwitchesModel() {};
+
+    void setGroup(int group) { m_group = group; }
+    int getGroup() const { return m_group; }
+    void setSwitchcnt(int n) { m_switchcnt = n; }
+    int getSwitchcnt() const { return m_switchcnt; }
+    void setModel(ModelData* model) { m_model = model; }
+    ModelData* getModel() const { return m_model; }
+
+  protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const override;
+
+  private:
+    int m_group = 0;
+    int m_switchcnt = 0;
+    ModelData* m_model = nullptr;
+};
+
+class FilteredSwitchGroupsModel: public QSortFilterProxyModel
+{
+    Q_OBJECT
+  public:
+    explicit FilteredSwitchGroupsModel(AbstractItemModel * sourceModel, int sw, ModelData * model) :
+      QSortFilterProxyModel(nullptr),
+      m_switch(sw),
+      m_model(model)
+    {
+      setFilterKeyColumn(0);
+      setDynamicSortFilter(true);
+      setSourceModel(sourceModel);
+    }
+
+    explicit FilteredSwitchGroupsModel(AbstractItemModel * sourceModel) :
+      FilteredSwitchGroupsModel(sourceModel, 0, nullptr) {}
+    virtual ~FilteredSwitchGroupsModel() {};
+
+    void setSwitch(int group) { m_switch = group; }
+    int getSwitch() const { return m_switch; }
+    void setModel(ModelData* model) { m_model = model; }
+    ModelData* getModel() const { return m_model; }
+
+  protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const override;
+
+  private:
+    int m_switch = 0;
+    ModelData* m_model = nullptr;
+};
+
+class FilteredSwitchConfigsModel: public QSortFilterProxyModel
+{
+    Q_OBJECT
+  public:
+    explicit FilteredSwitchConfigsModel(AbstractItemModel * sourceModel, int sw, ModelData * model) :
+      QSortFilterProxyModel(nullptr),
+      m_switch(sw),
+      m_model(model)
+    {
+      setFilterKeyColumn(0);
+      setDynamicSortFilter(true);
+      setSourceModel(sourceModel);
+    }
+
+    explicit FilteredSwitchConfigsModel(AbstractItemModel * sourceModel) :
+      FilteredSwitchConfigsModel(sourceModel, 0, nullptr) {}
+    virtual ~FilteredSwitchConfigsModel() {};
+
+    void setSwitch(int group) { m_switch = group; }
+    int getSwitch() const { return m_switch; }
+    void setModel(ModelData* model) { m_model = model; }
+    ModelData* getModel() const { return m_model; }
+
+  protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const override;
+
+  private:
+    int m_switch = 0;
+    ModelData* m_model = nullptr;
 };
 
 class FunctionSwitchesPanel : public ModelPanel
@@ -140,8 +250,7 @@ class FunctionSwitchesPanel : public ModelPanel
     FunctionSwitchesPanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware);
     virtual ~FunctionSwitchesPanel();
 
-    virtual void update();
-    void update(int index);
+    void update();
 
   signals:
     void updateDataModels();
@@ -150,6 +259,7 @@ class FunctionSwitchesPanel : public ModelPanel
     void on_nameEditingFinished();
     void on_configCurrentIndexChanged(int index);
     void on_startPosnCurrentIndexChanged(int index);
+    void on_groupStartPosnCurrentIndexChanged(int index);
     void on_groupChanged(int value);
     void on_alwaysOnGroupChanged(int value);
 
@@ -158,9 +268,15 @@ class FunctionSwitchesPanel : public ModelPanel
     QVector<AutoLineEdit *> aleNames;
     QVector<QComboBox *> cboConfigs;
     QVector<QComboBox *> cboStartupPosns;
-    QVector<QSpinBox *> sbGroups;
+    QVector<QComboBox *> cboGroups;
     QVector<QCheckBox *> cbAlwaysOnGroups;
+    QVector<QComboBox *> cboGroupStartupPosns;
+    QVector<FilteredGroupSwitchesModel *> filterGroupSwitches;
+    QVector<FilteredSwitchGroupsModel *> filterSwitchGroups;
+    QVector<FilteredSwitchConfigsModel *> filterSwitchConfigs;
     int switchcnt;
+    AbstractStaticItemModel *fsConfig;
+    AbstractStaticItemModel *fsGroupStart;
 };
 
 class SetupPanel : public ModelPanel
@@ -176,6 +292,7 @@ class SetupPanel : public ModelPanel
   signals:
     void extendedLimitsToggled();
     void updated();
+    void throttleReverseChanged();
 
   private slots:
     void on_name_editingFinished();
@@ -188,6 +305,7 @@ class SetupPanel : public ModelPanel
     void on_customThrottleWarningPosition_valueChanged(int value);
     void on_throttleReverse_toggled(bool checked);
     void on_displayText_toggled(bool checked);
+    void on_checklistInteractive_toggled(bool checked);
     void on_gfEnabled_toggled(bool checked);
     void on_image_currentIndexChanged(int index);
     void on_trimIncrement_currentIndexChanged(int index);
@@ -207,7 +325,7 @@ class SetupPanel : public ModelPanel
     void cmTimerPaste();
     void cmTimerMoveDown();
     void cmTimerMoveUp();
-    void onTimerNameChanged();
+    void onTimerChanged();
     void onItemModelAboutToBeUpdated();
     void onItemModelUpdateComplete();
     void onModuleUpdateItemModels();

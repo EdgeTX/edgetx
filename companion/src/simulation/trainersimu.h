@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,9 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TRAINERSIMU_H_
-#define _TRAINERSIMU_H_
-
+#pragma once
 
 #include <QShowEvent>
 #include <QCloseEvent>
@@ -66,6 +65,3 @@ class TrainerSimulator : public QWidget
     bool m_simuStarted;
 
 };
-
-#endif // _TRAINERSIMU_H_
-

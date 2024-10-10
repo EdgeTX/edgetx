@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -46,7 +47,7 @@
 #include "profilechooser.h"
 #include "constants.h"
 #include "updates/updates.h"
-#include "updates/updateinterface.h"
+#include "updates/updatefactories.h"
 
 #include <QtGui>
 #include <QFileInfo>
@@ -197,6 +198,14 @@ void MainWindow::displayWarnings()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+#ifdef __APPLE__
+  // If simulator is running ignore this Quit event (simulator will still be closed)
+  // - prevents app crash on exit
+  if (isSimulatorRunning()) {
+    event->ignore();
+    return;
+  }
+#endif
   g.mainWinGeo(saveGeometry());
   g.mainWinState(saveState());
   g.tabbedMdi(actTabbedWindows->isChecked());
@@ -522,8 +531,12 @@ void MainWindow::customizeSplash()
 
 void MainWindow::writeSettings()
 {
+  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to radio"), tr("In progress..."), 400);
+
   if (activeMdiChild())
-    activeMdiChild()->writeSettings();
+    activeMdiChild()->writeSettings(status);
+
+  delete status;
 }
 
 void MainWindow::readSettings()
@@ -656,8 +669,7 @@ void MainWindow::about()
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("File new <a href='%1'>Issue or Request</a>").arg("https://github.com/EdgeTX/edgetx/issues/new/choose"));
   aboutStr.append("<br/><br/>");
-  aboutStr.append(tr("Copyright") + QString(" &copy; 2022 EdgeTX<br/>"));
-  // aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(QString(__DATE__).right(4)));
+  aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(BUILD_YEAR));
 
   QMessageBox msgBox(this);
   msgBox.setWindowIcon(CompanionIcon("information.png"));
@@ -678,14 +690,8 @@ void MainWindow::updateMenus()
   compareAct->setEnabled(activeChild);
   writeSettingsAct->setEnabled(activeChild);
   readSettingsAct->setEnabled(true);
-  if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
-    writeBUToRadioAct->setEnabled(false);
-    readBUToFileAct->setEnabled(false);
-  }
-  else {
-    writeBUToRadioAct->setEnabled(true);
-    readBUToFileAct->setEnabled(true);
-  }
+  writeBUToRadioAct->setEnabled(false);
+  readBUToFileAct->setEnabled(false);
   editSplashAct->setDisabled(IS_FAMILY_HORUS_OR_T16(getCurrentBoard()));
 
   foreach (QAction * act, fileWindowActions) {
@@ -1242,8 +1248,11 @@ void MainWindow::onChangeWindowAction(QAction * act)
 
 void MainWindow::onCurrentProfileChanged()
 {
+  g.moveCurrentProfileToTop();
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.currentProfile().fwType()));
   emit firmwareChanged();
+  updateFactories->radioProfileChanged();
+  QApplication::clipboard()->clear();
   updateMenus();
 }
 
@@ -1252,14 +1261,17 @@ int MainWindow::newProfile(bool loadProfile)
   int i;
   for (i=0; i < MAX_PROFILES && g.profile[i].existsOnDisk(); i++)
     ;
-  if (i == MAX_PROFILES)  //Failed to find free slot
+  if (i == MAX_PROFILES) {  //Failed to find free slot
+    QMessageBox::warning(this, tr("Cannot add profile"), tr("There is no space left to add a new profile. Delete an exsting profile before adding a new one."));
     return -1;
+  }
 
   Firmware *newfw = Firmware::getDefaultVariant();
   g.profile[i].init();
   g.profile[i].name("New Radio");
   g.profile[i].fwType(newfw->getId());
   g.profile[i].defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
+  g.profile[i].externalModuleSize(Boards::getDefaultExternalModuleSize(newfw->getBoard()));
 
   if (loadProfile) {
     if (loadProfileId(i))
@@ -1292,9 +1304,14 @@ void MainWindow::deleteProfile(const int pid)
     QMessageBox::warning(this, tr("Companion :: Open files warning"), tr("Please save or close modified file(s) before deleting the active profile."));
     return;
   }
+  int newPid = 0;
   if (pid == 0) {
-    QMessageBox::warning(this, tr("Not possible to remove profile"), tr("The default profile can not be removed."));
-    return;
+    // Find valid profile
+    for (newPid = 1; newPid < MAX_PROFILES && !g.profile[newPid].existsOnDisk(); newPid += 1);
+    if (newPid == MAX_PROFILES) {
+      QMessageBox::warning(this, tr("Not possible to remove profile"), tr("The default profile can not be removed."));
+      return;
+    }
   }
   int ret = QMessageBox::question(this,
                                   tr("Confirm Delete Profile"),
@@ -1303,7 +1320,8 @@ void MainWindow::deleteProfile(const int pid)
     return;
 
   g.getProfile(pid).resetAll();
-  loadProfileId(0);
+  loadProfileId(newPid);
+  g.moveCurrentProfileToTop();
 }
 
 void MainWindow::deleteCurrentProfile()

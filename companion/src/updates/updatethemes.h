@@ -33,6 +33,5 @@ class UpdateThemes : public UpdateInterface
     virtual ~UpdateThemes() {}
 
   protected:
-    virtual void initAssetSettings() override;
-
+    virtual void assetSettingsInit() override;
 };

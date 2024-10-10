@@ -3,9 +3,6 @@ name: Run tests and package firmware
 on:
   push:
     branches:
-      - '2.6'
-      - '2.7'
-      - '2.8'
       - 'main'
     tags:
       - v*
@@ -20,11 +17,9 @@ on:
       - 'companion/**'
       - '.gitpod.yml'
       - '.devcontainer/**'
+      - 'fw.json'
   pull_request:
     branches:
-      - '2.6'
-      - '2.7'
-      - '2.8'
       - 'main'
     paths-ignore:
       - '**.md'
@@ -37,6 +32,7 @@ on:
       - 'companion/**'
       - '.gitpod.yml'
       - '.devcontainer/**'
+      - 'fw.json'
   workflow_dispatch:
 
 jobs:
@@ -46,32 +42,41 @@ jobs:
     strategy:
       matrix:
         target:
+          - x9dp2019
+          - tx16s
           - nv14
+          - el18
+          - pl18
+          - pl18ev
           - t12
+          - t12max
+          - t15
           - t16
           - t18
           - t8
           - tlite
+          - t20
+          - t14
+          - t20v2
           - tx12
-          - tx16s
           - x10
           - x12s
           - x7
           - x9d
           - x9dp
-          - x9dp2019
           - x9e
           - x9lite
           - x9lites
           - xlite
           - xlites
+          - mt12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
@@ -91,28 +96,32 @@ jobs:
     strategy:
       matrix:
         target:
-          - nv14
-          - t12
-          - t16
-          - t18
-          - t8;zorro;commando8
-          - tlite;tpro;lr3pro
-          - tx12;tx12mk2
+          - nv14;el18
+          - pl18;pl18ev
+          - t12;t12max
+          - t15;t16;t18
+          - t8;zorro;pocket;mt12;commando8
+          - tlite;tpro;tprov2;tpros;lr3pro
+          - t20;t20v2;t14
+          - tx12;tx12mk2;boxer
           - tx16s
-          - x10;x10-access
+          - f16
+          - v16
+          - x10;x10express
           - x12s
-          - x7;x7-access
+          - x7;x7access
           - x9d;x9dp;x9dp2019
           - x9e;x9e-hall
           - x9lite;x9lites
           - xlite;xlites
+          - mt12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -123,17 +132,30 @@ jobs:
           echo "Running firmware build"
           ./tools/build-gh.sh
 
-      - name: Compose release filename
-        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
-        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Package firmware ${{ matrix.target }}
-        uses: 'actions/upload-artifact@v2'
+      - name: Upload ${{ matrix.target }}
+        uses: actions/upload-artifact@v4
         with:
-          name: "${{ env.artifact_name }}"
+          name: firmware-${{ matrix.target }}
           path: |
             fw.json
             LICENSE
             *.bin
           retention-days: 15
           if-no-files-found: error
+
+  package:
+    name: Package firmwares
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compose release filename
+        # https://stackoverflow.com/questions/58033366/how-to-get-current-branch-within-github-actions
+        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Merge firmware artifact packages
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: "${{ env.artifact_name }}"
+          pattern: firmware-*
+          delete-merged: true
+          retention-days: 15

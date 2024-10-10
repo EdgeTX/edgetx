@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -67,10 +68,10 @@ SyncProcess::SyncProcess(const SyncProcess::SyncOptions & options) :
     m_dirFilters &= ~(QDir::AllDirs);
 
   if (!m_options.includeFilter.isEmpty() && m_options.includeFilter != "*")
-    m_dirIteratorFilters = m_options.includeFilter.split(',', QString::SkipEmptyParts);
+    m_dirIteratorFilters = m_options.includeFilter.split(',', Qt::SkipEmptyParts);
 
   if (!m_options.excludeFilter.isEmpty()) {
-    for (const QString & f : m_options.excludeFilter.split(',', QString::SkipEmptyParts))
+    for (const QString & f : m_options.excludeFilter.split(',', Qt::SkipEmptyParts))
       m_excludeFilters.append(QRegExp(f, ((m_dirFilters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive), FILTER_RE_SYNTX));
   }
 

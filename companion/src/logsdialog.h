@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LOGSDIALOG_H_
-#define _LOGSDIALOG_H_
+#pragma once
 
 #include <QtCore>
 #include <QDialog>
@@ -69,7 +69,7 @@ public:
   ~LogsDialog();
 
 private slots:
-  void titleDoubleClick(QMouseEvent *evt, QCPPlotTitle *title);
+  void titleDoubleClicked(QMouseEvent *evt);
   void axisLabelDoubleClick(QCPAxis* axis, QCPAxis::SelectablePart part);
   void legendDoubleClick(QCPLegend* legend, QCPAbstractLegendItem* item);
   void selectionChanged();
@@ -77,10 +77,10 @@ private slots:
   void mouseWheel();
   void removeAllGraphs();
   void plotLogs();
-  void on_fileOpen_BT_clicked();
+  void fileOpen();
   void saveSession();
-  void on_sessions_CB_currentIndexChanged(int index);
-  void on_mapsButton_clicked();
+  void sessionsCurrentIndexChanged(int index);
+  void mapsButtonClicked();
   void yAxisChangeRanges(QCPRange range);
 
 private:
@@ -119,5 +119,3 @@ private:
 
 
 };
-
-#endif // _LOGSDIALOG_H_

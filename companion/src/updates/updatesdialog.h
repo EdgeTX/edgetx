@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "updateinterface.h"
+#include "updatefactories.h"
 #include "appdata.h"
 
 #include <QDialog>
@@ -43,8 +43,6 @@ class UpdatesDialog : public QDialog
   public:
     UpdatesDialog(QWidget * parent, UpdateFactories * factories);
     virtual ~UpdatesDialog();
-
-  signals:
 
   private slots:
     virtual void accept();

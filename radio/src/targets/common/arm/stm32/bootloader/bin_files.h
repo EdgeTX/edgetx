@@ -19,13 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _bin_files_h_
-#define _bin_files_h_
+#pragma once
 
 #include <FatFs/ff.h>
 #include "sdcard.h"
 #if defined(COLORLCD)
-#include "bitmapbuffer.h"
+#include "bitmaps.h"
 #endif
 
 enum MemoryType {
@@ -33,11 +32,7 @@ enum MemoryType {
   MEM_EEPROM
 };
 
-#if defined(EEPROM)
-#define getBinaryPath(mt)  ((mt == MEM_FLASH) ? FIRMWARES_PATH : EEPROMS_PATH)
-#else
 #define getBinaryPath(mt)  (FIRMWARES_PATH)
-#endif
 
 #if LCD_H == 480
 #define MAX_NAMES_ON_SCREEN   13
@@ -80,10 +75,13 @@ FRESULT openBinFile(MemoryType mt, unsigned int index);
 
 struct VersionTag
 {
-    char        flavour[8];
+    char        flavour[11];
     const char* version;
     const char* fork;
 };
+// Ensure flavour can hold FLAVOUR defined in target cmakefile
+static_assert(sizeof(((VersionTag){}).flavour) >= sizeof(FLAVOUR), "VersionTag flavour size too small");
+
 
 // Can be called right after openBinFile() to extract the version information
 // from a firmware file
@@ -95,5 +93,3 @@ FRESULT readBinFile();
 
 // Close the previously opened file
 FRESULT closeBinFile();
-
-#endif

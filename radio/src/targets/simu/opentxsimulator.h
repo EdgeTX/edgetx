@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _OPENTX_SIMULATOR_H_
-#define _OPENTX_SIMULATOR_H_
+#pragma once
 
 #include "simulatorinterface.h"
 
@@ -78,7 +77,9 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     virtual void touchEvent(int type, int x, int y);
     virtual void lcdFlushed();
     virtual void setTrainerTimeout(uint16_t ms);
-    virtual void sendTelemetry(const QByteArray data);
+    virtual void sendTelemetry(const uint8_t module, const uint8_t protocol, const QByteArray data);
+    virtual void sendInternalModuleTelemetry(const uint8_t protocol, const QByteArray data);
+    virtual void sendExternalModuleTelemetry(const uint8_t protocol, const QByteArray data);
     virtual void setLuaStateReloadPermanentScripts();
     virtual void addTracebackDevice(QIODevice * device);
     virtual void removeTracebackDevice(QIODevice * device);
@@ -111,5 +112,3 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     bool m_stopRequested;
 
 };
-
-#endif // _OPENTX_SIMULATOR_H_

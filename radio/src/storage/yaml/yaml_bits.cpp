@@ -19,11 +19,15 @@
  * GNU General Public License for more details.
  */
 
+#include <cinttypes>
+
 #include <stdio.h>
 #include "yaml_bits.h"
 #include "yaml_parser.h"
 
 #include <limits.h>     /* CHAR_BIT */
+
+#define _IS_ALIGNED(addr) (((intptr_t)addr & 0x3) == 0)
 
 #define BIT_MASK(__TYPE__, __ONE_COUNT__) \
     ((__TYPE__) (-((__ONE_COUNT__) != 0))) \
@@ -105,10 +109,12 @@ bool yaml_is_zero(uint8_t* data, uint32_t bitoffs, uint32_t bits)
     return !yaml_get_bits(data, bitoffs, bits);
   }
 
-  while (bits >= 32) {
-    if (*(uint32_t*)data) return false;
-    data += 4;
-    bits -= 32;
+  if(_IS_ALIGNED(data)) {
+    while (bits >= 32) {
+      if (*(uint32_t*)data) return false;
+      data += 4;
+      bits -= 32;
+    }
   }
 
   while (bits >= 8) {
@@ -192,53 +198,31 @@ uint32_t yaml_hex2uint(const char* val, uint8_t val_len)
     return i_val;
 }
 
-static char int2str_buffer[MAX_STR] = {0};
-static const char _int2str_lookup[] = { '0', '1', '2', '3', '4', '5', '6' , '7', '8', '9' };
+constexpr int INT2STR_LEN = 16;
+
+static char int2str_buffer[INT2STR_LEN] = {0};
 
 char* yaml_unsigned2str(uint32_t i)
 {
-    char* c = &(int2str_buffer[MAX_STR-2]);
-    do {
-        *(c--) = _int2str_lookup[i % 10];
-        i = i / 10;
-    } while((c > int2str_buffer) && i);
-
-    return (c + 1);
+  snprintf(int2str_buffer, INT2STR_LEN, "%" PRIu32, i);
+  return int2str_buffer;
 }
 
 char* yaml_signed2str(int32_t i)
 {
-    if (i < 0) {
-        char* c = yaml_unsigned2str(-i);
-        *(--c) = '-';
-        return c;
-    }
-
-    return yaml_unsigned2str((uint32_t)i);
+  snprintf(int2str_buffer, INT2STR_LEN, "%" PRId32, i);
+  return int2str_buffer;
 }
-
-static const char _int2hex_lookup[] = {'0', '1', '2', '3',
-                                       '4', '5', '6', '7',
-                                       '8', '9', 'A', 'B',
-                                       'C', 'D', 'E', 'F'};
 
 char* yaml_unsigned2hex(uint32_t i)
 {
-  char* c = int2str_buffer;
-  for (int n = sizeof(uint32_t) * 2; n > 0; n--) {
-    *(c++) = _int2hex_lookup[(i >> ((n - 1) * 4)) & 0xF];
-  }
-  *c = '\0';
+  snprintf(int2str_buffer, INT2STR_LEN, "%08" PRIX32, i);
   return int2str_buffer;
 }
 
 char* yaml_rgb2hex(uint32_t i)
 {
-  char* c = int2str_buffer;
-  for (int n = 3 * 2; n > 0; n--) {
-    *(c++) = _int2hex_lookup[(i >> ((n - 1) * 4)) & 0xF];
-  }
-  *c = '\0';
+  snprintf(int2str_buffer, INT2STR_LEN, "%06" PRIX32, i);
   return int2str_buffer;
 }
 
@@ -250,4 +234,3 @@ int32_t yaml_to_signed(uint32_t i, uint32_t bits)
 
     return i;
 }
-

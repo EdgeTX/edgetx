@@ -3,9 +3,6 @@ name: Linux Companion
 on:
   push:
     branches:
-      - '2.6'
-      - '2.7'
-      - '2.8'
       - 'main'
     tags:
       - v*
@@ -16,9 +13,6 @@ on:
 
   pull_request:
     branches:
-      - '2.6'
-      - '2.7'
-      - '2.8'
       - 'main'
     paths:
       - '.github/workflows/linux_cpn.yml'
@@ -41,7 +35,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -57,7 +51,7 @@ jobs:
         run: echo "artifact_name=edgetx-cpn-linux-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output

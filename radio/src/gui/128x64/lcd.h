@@ -19,21 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LCD_H_
-#define _LCD_H_
+#pragma once
 
 #include <inttypes.h>
 
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "board.h"
 
-typedef uint32_t LcdFlags;
-typedef uint8_t pixel_t;
-typedef int coord_t;
-
 #define BOX_WIDTH                      23
-#define CENTER
 #define CENTER_OFS                     0
+#define OFS_CHECKTRIMS                 CENTER_OFS+(9*FW)
+#define INDENT_WIDTH                   (FW/2)
 
 #define FW                             6
 #define FWNUM                          5
@@ -95,18 +91,19 @@ extern coord_t lcdLastLeftPos;
 extern coord_t lcdNextPos;
 
 #define DISPLAY_END                    (displayBuf + DISPLAY_BUFFER_SIZE)
+#define IS_IN_DISPLAY(p)               ((p) >= displayBuf && (p) < DISPLAY_END)
 #define ASSERT_IN_DISPLAY(p)           assert((p) >= displayBuf && (p) < DISPLAY_END)
-
 
 void lcdDrawChar(coord_t x, coord_t y, uint8_t c);
 void lcdDrawChar(coord_t x, coord_t y, uint8_t c, LcdFlags flags);
 void lcdDrawCenteredText(coord_t y, const char * s, LcdFlags flags = 0);
 void lcdDrawText(coord_t x, coord_t y, const char * s, LcdFlags flags);
-void lcdDrawTextAtIndex(coord_t x, coord_t y, const char** s, uint8_t idx, LcdFlags flags);
+void lcdDrawTextAtIndex(coord_t x, coord_t y, const char *const *s, uint8_t idx, LcdFlags flags);
 void lcdDrawSizedText(coord_t x, coord_t y, const char * s, unsigned char len, LcdFlags flags);
 void lcdDrawText(coord_t x, coord_t y, const char * s);
 void lcdDrawSizedText(coord_t x, coord_t y, const char * s, unsigned char len);
 void lcdDrawTextAlignedLeft(coord_t y, const char * s);
+void lcdDrawTextIndented(coord_t y, const char * s);
 void drawTimerWithMode(coord_t x, coord_t y, uint8_t index, LcdFlags att);
 
 void lcdDrawHexNumber(coord_t x, coord_t y, uint32_t val, LcdFlags mode=0);
@@ -119,14 +116,13 @@ void lcdDraw8bitsNumber(coord_t x, coord_t y, int8_t val);
 void drawModelName(coord_t x, coord_t y, char * name, uint8_t id, LcdFlags att);
 #if !defined(BOOT) // TODO not here ...
 void drawSwitch(coord_t x, coord_t y, swsrc_t swtch, LcdFlags att=0, bool autoBold = true);
-void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att=0);
 #endif
 void drawCurveName(coord_t x, coord_t y, int8_t idx, LcdFlags att=0);
 void drawTimerMode(coord_t x, coord_t y, swsrc_t mode, LcdFlags att=0);
 
 void drawShortTrimMode(coord_t x, coord_t y, uint8_t mode, uint8_t idx, LcdFlags att);
 
-#define putsChn(x, y, idx, att) drawSource(x, y, MIXSRC_CH1+idx-1, att)
+#define putsChn(x, y, idx, att) drawSource(x, y, MIXSRC_FIRST_CH + idx - 1, att)
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags attr);
 
 void putsVolts(coord_t x, coord_t y, uint16_t volts, LcdFlags att);
@@ -193,5 +189,3 @@ inline pixel_t getPixel(uint8_t x, uint8_t y)
 }
 
 uint8_t getTextWidth(const char * s, uint8_t len=0, LcdFlags flags=0);
-
-#endif // _LCD_H_

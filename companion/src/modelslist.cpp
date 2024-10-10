@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -22,19 +23,17 @@
 
 ModelListItem::ModelListItem(const QVector<QVariant> & itemData):
   itemData(itemData),
-  parentItem(NULL),
-  categoryIndex(-1),
+  parentItem(nullptr),
   modelIndex(-1),
   flags(0),
   highlightRX(false)
 {
 }
 
-ModelListItem::ModelListItem(ModelListItem * parent, int categoryIndex, int modelIndex):
+ModelListItem::ModelListItem(ModelListItem * parent, int modelIndex):
   ModelListItem(QVector<QVariant>(parent->columnCount()))
 {
   setParent(parent);
-  setCategoryIndex(categoryIndex);
   setModelIndex(modelIndex);
 }
 
@@ -71,16 +70,16 @@ QVariant ModelListItem::data(int column) const
   return itemData.value(column);
 }
 
-ModelListItem *ModelListItem::insertChild(const int row, int categoryIndex, int modelIndex)
+ModelListItem *ModelListItem::insertChild(const int row, int modelIndex)
 {
-  ModelListItem * item = new ModelListItem(this, categoryIndex, modelIndex);
+  ModelListItem * item = new ModelListItem(this, modelIndex);
   childItems.insert(row, item);
   return item;
 }
 
-ModelListItem * ModelListItem::appendChild(int categoryIndex, int modelIndex)
+ModelListItem * ModelListItem::appendChild(int modelIndex)
 {
-  return insertChild(childItems.size(), categoryIndex, modelIndex);
+  return insertChild(childItems.size(), modelIndex);
 }
 
 bool ModelListItem::removeChildren(int position, int count)
@@ -97,7 +96,7 @@ bool ModelListItem::removeChildren(int position, int count)
 bool ModelListItem::insertChildren(int row, int count)
 {
   for (int i=0; i < count; ++i) {
-    insertChild(row + i, -1, -1);
+    insertChild(row + i, -1);
   }
   return true;
 }
@@ -117,11 +116,6 @@ void ModelListItem::setFlag(const quint16 & flag, const bool on)
     flags |= flag;
   else
     flags &= ~flag;
-}
-
-bool ModelListItem::isCategory() const
-{
-  return (modelIndex < 0 && categoryIndex > -1);
 }
 
 bool ModelListItem::isModel() const
@@ -178,9 +172,12 @@ QVariant ModelsListModel::data(const QModelIndex & index, int role) const
     return item->data(index.column());
   }
 
-  if (role == Qt::FontRole && item->isModel() && item->getModelIndex() == (int)radioData->generalSettings.currModelIndex) {
+  if (role == Qt::FontRole && item->isModel()) {
     QFont font;
-    font.setBold(true);
+    if (item->getModelIndex() == (int)radioData->generalSettings.currModelIndex)
+      font.setBold(true);
+    if (radioData->models[item->getModelIndex()].modelUpdated)
+      font.setItalic(true);
     return font;
   }
 
@@ -322,6 +319,7 @@ QMimeData * ModelsListModel::mimeData(const QModelIndexList & indexes) const
   getModelsMimeData(indexes, mimeData);
   getGeneralMimeData(mimeData);
   getHeaderMimeData(mimeData);
+  getFileMimeData(mimeData);
   return mimeData;
 }
 
@@ -402,6 +400,16 @@ QMimeData *ModelsListModel::getHeaderMimeData(QMimeData * mimeData) const
   return mimeData;
 }
 
+QMimeData *ModelsListModel::getFileMimeData(QMimeData * mimeData) const
+{
+  if (!mimeData)
+    mimeData = new QMimeData();
+  QByteArray mData;
+  encodeFileData(&mData);
+  mimeData->setData("application/x-companion-filedata", mData);
+  return mimeData;
+}
+
 QUuid ModelsListModel::getMimeDataSourceId(const QMimeData * mimeData) const
 {
   MimeHeaderData header;
@@ -423,7 +431,7 @@ bool ModelsListModel::hasModelsMimeData(const QMimeData * mimeData) const
   return mimeData->hasFormat("application/x-companion-modeldata");
 }
 
-bool ModelsListModel::hasGenralMimeData(const QMimeData * mimeData) const
+bool ModelsListModel::hasGeneralMimeData(const QMimeData * mimeData) const
 {
   return mimeData->hasFormat("application/x-companion-generaldata");
 }
@@ -431,6 +439,11 @@ bool ModelsListModel::hasGenralMimeData(const QMimeData * mimeData) const
 bool ModelsListModel::hasHeaderMimeData(const QMimeData * mimeData) const
 {
   return mimeData->hasFormat("application/x-companion-radiodata-header");
+}
+
+bool ModelsListModel::hasFileMimeData(const QMimeData * mimeData) const
+{
+  return mimeData->hasFormat("application/x-companion-filedata");
 }
 
 // returns true if mime data origin was this data model (vs. from another file window)
@@ -443,10 +456,8 @@ void ModelsListModel::encodeModelsData(const QModelIndexList & indexes, QByteArr
 {
   foreach (const QModelIndex &index, indexes) {
     if (index.isValid() && index.column() == 0) {
-      if (!getItem(index)->isCategory()) {  // TODO: encode categoreis also
-        data->append('M');
-        data->append((char *)&radioData->models[getModelIndex(index)], sizeof(ModelData));
-      }
+      data->append('M');
+      data->append((char *)&radioData->models[getModelIndex(index)], sizeof(ModelData));
     }
   }
 }
@@ -466,6 +477,11 @@ void ModelsListModel::encodeHeaderData(QByteArray * data) const
   stream << mimeHeaderData.instanceId;
 }
 
+void ModelsListModel::encodeFileData(QByteArray * data) const
+{
+  *data = filename.toLatin1();
+}
+
 // static
 bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * header)
 {
@@ -473,6 +489,16 @@ bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderDat
     QByteArray data = mimeData->data("application/x-companion-radiodata-header");
     QDataStream stream(&data, QIODevice::ReadOnly);
     stream >> header->dataVersion >> header->instanceId;
+    return true;
+  }
+  return false;
+}
+
+// static
+bool ModelsListModel::decodeFileData(const QMimeData * mimeData, QString * filedata)
+{
+  if (filedata && mimeData->hasFormat("application/x-companion-filedata")) {
+    *filedata = mimeData->data("application/x-companion-filedata").data();
     return true;
   }
   return false;
@@ -555,33 +581,14 @@ QModelIndex ModelsListModel::getIndexForModel(const int modelIndex, QModelIndex 
   return QModelIndex();
 }
 
-QModelIndex ModelsListModel::getIndexForCategory(const int categoryIndex)
-{
-  for (int i = 0; i < rowCount(); ++i) {
-    if (getItem(index(i, 0))->getCategoryIndex() == categoryIndex)
-      return index(i, 0);
-  }
-  return QModelIndex();
-}
-
 int ModelsListModel::getModelIndex(const QModelIndex & index) const
 {
   return getItem(index)->getModelIndex();
 }
 
-int ModelsListModel::getCategoryIndex(const QModelIndex & index) const
-{
-  return getItem(index)->getCategoryIndex();
-}
-
 int ModelsListModel::rowNumber(const QModelIndex & index) const
 {
   return getItem(index)->childNumber();
-}
-
-bool ModelsListModel::isCategoryType(const QModelIndex & index) const
-{
-  return index.isValid() && getItem(index)->isCategory();
 }
 
 bool ModelsListModel::isModelType(const QModelIndex & index) const
@@ -637,16 +644,16 @@ void ModelsListModel::refresh()
   for (unsigned i = 0; i < radioData->models.size(); i++) {
     ModelData & model = radioData->models[i];
     int currentColumn = 0;
-    ModelListItem * current = NULL;
+    ModelListItem * current = nullptr;
 
     model.modelIndex = i;
 
     if (hasLabels) {
-      current = rootItem->appendChild(0, i);
+      current = rootItem->appendChild(i);
     }
     else {
-      current = rootItem->appendChild(0, i);
-      current->setData(currentColumn++, QString().sprintf("%02d", i + 1));
+      current = rootItem->appendChild(i);
+      current->setData(currentColumn++, QString("%1").arg(i + 1, 2, 10, QChar('0')));
     }
 
     if (!model.isEmpty() && current) {
@@ -704,6 +711,20 @@ bool ModelsListModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsign
       }
     }
   }
+  return true;
+}
+
+void ModelsListModel::setFilename(QString & name)
+{
+  filename = name;
+}
+
+/*
+  ModelsListProxyModel
+*/
+
+bool ModelsListProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
+{
   return true;
 }
 

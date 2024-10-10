@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -190,7 +191,8 @@ void MultiModelPrinter::MultiColumns::appendFieldSeparator(const bool sep)
   for (int cc=0; cc < modelPrinterMap.size(); cc++) { \
     ModelPrinter * modelPrinter = modelPrinterMap.value(cc).second; \
     const ModelData * model = modelPrinterMap.value(cc).first; \
-    (void)(model); (void)(modelPrinter); \
+    const GeneralSettings * generalSettings = modelPrinter->gs(); \
+    (void)(model); (void)(modelPrinter); (void)(generalSettings); \
     columns.append(cc, (what)); \
   } \
   columns.endCompare();
@@ -428,20 +430,20 @@ QString MultiModelPrinter::printFlightModes()
     MultiColumns columns(modelPrinterMap.size());
     columns.appendSectionTableStart();
     QStringList hd = QStringList() << tr("Flight mode") << tr("Switch") << tr("F.In") << tr("F.Out");
-    for (int i=0; i < getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
-      hd << RawSource(SOURCE_TYPE_TRIM, i).toString();
+    for (int i = 0; i < getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
+      hd << RawSource(SOURCE_TYPE_TRIM, i + 1).toString();
     }
     columns.appendRowHeader(hd);
-    int wd = 80/(getBoardCapability(getCurrentBoard(), Board::NumTrims) + 3);
-    for (int i=0; i<firmware->getCapability(FlightModes); i++) {
+    int wd = 80 / (getBoardCapability(getCurrentBoard(), Board::NumTrims) + 3);
+    for (int i = 0; i < firmware->getCapability(FlightModes); i++) {
       columns.appendRowStart();
-      columns.appendCellStart(20,true);
+      columns.appendCellStart(20, true);
       COMPARE(modelPrinter->printFlightModeName(i));
       columns.appendCellEnd(true);
       COMPARECELLWIDTH(modelPrinter->printFlightModeSwitch(model->flightModeData[i].swtch), wd);
       COMPARECELLWIDTH(model->flightModeData[i].fadeIn, wd);
       COMPARECELLWIDTH(model->flightModeData[i].fadeOut, wd);
-      for (int k=0; k < getBoardCapability(getCurrentBoard(), Board::NumTrims); k++) {
+      for (int k = 0; k < getBoardCapability(getCurrentBoard(), Board::NumTrims); k++) {
         COMPARECELLWIDTH(modelPrinter->printTrim(i, k), wd);
       }
       columns.appendRowEnd();
@@ -458,43 +460,43 @@ QString MultiModelPrinter::printFlightModes()
     columns.appendSectionTableStart();
     QStringList hd = QStringList() << tr("Global vars");
     if (firmware->getCapability(GvarsFlightModes)) {
-      for (int i=0; i<gvars; i++) {
-        hd << tr("GV%1").arg(i+1);
+      for (int i = 0; i < gvars; i++) {
+        hd << tr("GV%1").arg(i + 1);
       }
     }
     for (int i=0; i<firmware->getCapability(RotaryEncoders); i++) {
-      hd << tr("RE%1").arg(i+1);
+      hd << tr("RE%1").arg(i + 1);
     }
     columns.appendRowHeader(hd);
-    int wd = 80/gvars;
+    int wd = 80 / gvars;
     if (firmware->getCapability(GvarsFlightModes)) {
       columns.appendRowStart(tr("Name"), 20);
-      for (int i=0; i<gvars; i++) {
+      for (int i = 0; i < gvars; i++) {
         COMPARECELLWIDTH(model->gvarData[i].name, wd);
       }
       columns.appendRowEnd();
       columns.appendRowStart(tr("Unit"));
-      for (int i=0; i<gvars; i++) {
+      for (int i = 0; i < gvars; i++) {
         COMPARECELL(modelPrinter->printGlobalVarUnit(i));
       }
       columns.appendRowEnd();
       columns.appendRowStart(tr("Prec"));
-      for (int i=0; i<gvars; i++) {
+      for (int i = 0; i < gvars; i++) {
         COMPARECELL(modelPrinter->printGlobalVarPrec(i));
       }
       columns.appendRowEnd();
       columns.appendRowStart(tr("Min"));
-      for (int i=0; i<gvars; i++) {
+      for (int i = 0; i < gvars; i++) {
         COMPARECELL(modelPrinter->printGlobalVarMin(i));
       }
       columns.appendRowEnd();
       columns.appendRowStart(tr("Max"));
-      for (int i=0; i<gvars; i++) {
+      for (int i = 0; i < gvars; i++) {
         COMPARECELL(modelPrinter->printGlobalVarMax(i));
       }
       columns.appendRowEnd();
       columns.appendRowStart(tr("Popup"));
-      for (int i=0; i<gvars; i++) {
+      for (int i = 0; i < gvars; i++) {
         COMPARECELL(modelPrinter->printGlobalVarPopup(i));
       }
       columns.appendRowEnd();
@@ -502,17 +504,17 @@ QString MultiModelPrinter::printFlightModes()
 
     columns.appendRowHeader(QStringList() << tr("Flight mode"));
 
-    for (int i=0; i<firmware->getCapability(FlightModes); i++) {
+    for (int i = 0; i < firmware->getCapability(FlightModes); i++) {
       columns.appendRowStart();
-      columns.appendCellStart(0,true);
+      columns.appendCellStart(0, true);
       COMPARE(modelPrinter->printFlightModeName(i));
       columns.appendCellEnd(true);
       if (firmware->getCapability(GvarsFlightModes)) {
-        for (int k=0; k<gvars; k++) {
+        for (int k = 0; k < gvars; k++) {
           COMPARECELL(modelPrinter->printGlobalVar(i, k));
         }
       }
-      for (int k=0; k<firmware->getCapability(RotaryEncoders); k++) {
+      for (int k = 0; k < firmware->getCapability(RotaryEncoders); k++) {
         COMPARECELL(modelPrinter->printRotaryEncoder(i, k));
       }
       columns.appendRowEnd();
@@ -729,6 +731,8 @@ QString MultiModelPrinter::printSpecialFunctions()
   MultiColumns columns(modelPrinterMap.size());
   int count = 0;
   columns.appendSectionTableStart();
+  columns.appendRowHeader(QStringList() << "" << tr("Switch") << tr("Function") << tr("Parameters") << tr("Repeat") << tr("Enabled"));
+
   for (int i=0; i < firmware->getCapability(CustomFunctions); i++) {
     bool sfEmpty = true;
     for (int k=0; k < modelPrinterMap.size(); k++) {
@@ -739,8 +743,12 @@ QString MultiModelPrinter::printSpecialFunctions()
     }
     if (!sfEmpty) {
       count++;
-      columns.appendRowStart(tr("SF%1").arg(i+1), 20);
-      COMPARECELL(modelPrinter->printCustomFunctionLine(i));
+      columns.appendRowStart(tr("SF%1").arg(i + 1), 20);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].swtch.toString(getCurrentBoard(), &defaultSettings, model) : "", 10);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].funcToString(model) : "", 20);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].paramToString(model) : "", 20);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].repeatToString(true) : "", 10);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? DataHelpers::boolToString(model->customFn[i].enabled, DataHelpers::BOOL_FMT_YN) : "", 10);
       columns.appendRowEnd();
     }
   }
@@ -763,9 +771,9 @@ QString MultiModelPrinter::printTelemetry()
   COMPARECELL(modelPrinter->printTelemetryProtocol(model->telemetryProtocol));
   columns.appendRowEnd();
 
-  // RSSI alarms
+  // RF Quality Alarms
   {
-    columns.appendRowStart(tr("RSSI Alarms"), 20);
+    columns.appendRowStart(tr("RF Quality Alarms"), 20);
     columns.appendCellStart(80);
     COMPARESTRING("", tr("Low"), false);
     columns.append(": ");
@@ -812,7 +820,8 @@ QString MultiModelPrinter::printTelemetry()
     columns.appendRowEnd();
   }
 
-  ROWLABELCOMPARECELL("Multi sensors", 0, modelPrinter->printIgnoreSensorIds(!model->frsky.ignoreSensorIds), 0);
+  ROWLABELCOMPARECELL(tr("Multi sensors"), 0, modelPrinter->printIgnoreSensorIds(!model->frsky.ignoreSensorIds), 0);
+  ROWLABELCOMPARECELL(tr("Show Instance IDs"), 0, modelPrinter->printIgnoreSensorIds(!model->showInstanceIds), 0);
 
   // Various
   columns.appendTableEnd();
@@ -894,6 +903,7 @@ QString MultiModelPrinter::printGlobalFunctions()
   int idx = -1;
   MultiColumns columns(modelPrinterMap.size());
   columns.appendSectionTableStart();
+  columns.appendRowHeader(QStringList() << "" << tr("Switch") << tr("Function") << tr("Parameters") << tr("Repeat") << tr("Enabled"));
 
   for (int k=0; k < modelPrinterMap.size(); k++) {
     if (!modelPrinterMap.value(k).first->noGlobalFunctions) {
@@ -904,13 +914,18 @@ QString MultiModelPrinter::printGlobalFunctions()
 
   if (idx > -1) {
     ModelPrinter * modelPrinter = modelPrinterMap.value(idx).second;
-    (void)(modelPrinter);
+    const GeneralSettings * generalSettings = modelPrinter->gs();
 
-    for (int i=0; i < firmware->getCapability(GlobalFunctions); i++) {
-      txt = modelPrinter->printCustomFunctionLine(i, true);
-      if (!txt.isEmpty()) {
+    for (int i = 0; i < firmware->getCapability(GlobalFunctions); i++) {
+      if (!generalSettings->customFn[i].isEmpty()) {
         count++;
-        ROWLABELCOMPARECELL(tr("GF%1").arg(i+1), 20, modelPrinter->printCustomFunctionLine(i, true), 80);
+        columns.appendRowStart(tr("GF%1").arg(i + 1), 20);
+        COMPARECELLWIDTH(generalSettings->customFn[i].swtch.toString(getCurrentBoard(), &defaultSettings), 10);
+        COMPARECELLWIDTH(generalSettings->customFn[i].funcToString(), 20);
+        COMPARECELLWIDTH(generalSettings->customFn[i].paramToString(), 20);
+        COMPARECELLWIDTH(generalSettings->customFn[i].repeatToString(true), 10);
+        COMPARECELLWIDTH(DataHelpers::boolToString(generalSettings->customFn[i].enabled, DataHelpers::BOOL_FMT_YN), 10);
+        columns.appendRowEnd();
       }
     }
     columns.appendTableEnd();
@@ -942,8 +957,7 @@ QString MultiModelPrinter::printChecklist()
   return str;
 }
 
-
- QString MultiModelPrinter::printFunctionSwitches()
+QString MultiModelPrinter::printFunctionSwitches()
  {
    QString str;
    MultiColumns columns(modelPrinterMap.size());
@@ -952,7 +966,7 @@ QString MultiModelPrinter::printChecklist()
    int numFS = Boards::getCapability(firmware->getBoard(), Board::FunctionSwitches);
    int colwidth = 80 / numFS;
 
-   QStringList headings = { tr("Function Switches") };
+   QStringList headings = { tr("Customizable Switches") };
    for (int i = 0; i < numFS; i++) {
      headings << tr("Switch %1").arg(i + 1);
    }
@@ -989,7 +1003,7 @@ QString MultiModelPrinter::printChecklist()
    columns.appendRowStart(tr("Always On"), 20);
 
    for (int i = 0; i < numFS; i++) {
-     COMPARECELLWIDTH((model->getFuncSwitchAlwaysOnGroup((unsigned int)i) == 0 ? "No" : "Yes"), colwidth);
+     COMPARECELLWIDTH((model->getFuncSwitchAlwaysOnGroupForSwitch((unsigned int)i) == 0 ? "No" : "Yes"), colwidth);
    }
 
    columns.appendRowEnd();

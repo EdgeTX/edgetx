@@ -19,17 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-
-#if defined(ROTARY_ENCODER_NAVIGATION)
-#define EVT_KEY_NEXT_LINE              EVT_ROTARY_RIGHT
-#define EVT_KEY_PREVIOUS_LINE          EVT_ROTARY_LEFT
-#else
-#define EVT_KEY_NEXT_LINE              EVT_KEY_FIRST(KEY_DOWN)
-#define EVT_KEY_PREVIOUS_LINE          EVT_KEY_FIRST(KEY_UP)
-#endif
+#include "edgetx.h"
 
 constexpr uint32_t TEXT_FILE_MAXSIZE = 2048;
+constexpr char CHECKABLE_PREFIX = '=';
+int checklistPosition;
 
 static void sdReadTextFile(const char * filename, char lines[TEXT_VIEWER_LINES][LCD_COLS + 1], int & lines_count)
 {
@@ -105,12 +99,29 @@ void readModelNotes()
   LED_ERROR_BEGIN();
 
   strcpy(reusableBuffer.viewText.filename, MODELS_PATH "/");
-  char *buf = strcat_currentmodelname(&reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
+  char *buf = strcat_currentmodelname(
+      &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], 0);
   strcpy(buf, TEXT_EXT);
+
+  if (!isFileAvailable(reusableBuffer.viewText.filename)) {
+    buf = strcat_currentmodelname(
+        &reusableBuffer.viewText.filename[sizeof(MODELS_PATH)], ' ');
+    strcpy(buf, TEXT_EXT);
+
+#if defined(STORAGE_MODELSLIST)
+    if (!isFileAvailable(reusableBuffer.viewText.filename)) {
+      buf = strAppendFilename(
+          &reusableBuffer.viewText.filenam[sizeof(MODELS_PATH)],
+          g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
+      strcpy(buf, TEXT_EXT);
+    }
+#endif
+  }
 
   waitKeysReleased();
   event_t event = EVT_ENTRY;
-  while (event != EVT_KEY_BREAK(KEY_EXIT)) {
+  reusableBuffer.viewText.pushMenu = false;
+  while (true) {
     uint32_t power = pwrCheck();
     if (power != e_power_press) {
       lcdRefreshWait();
@@ -125,6 +136,7 @@ void readModelNotes()
     }
     event = getEvent();
     WDG_RESET();
+    if (reusableBuffer.viewText.checklistComplete) break;
   }
 
   LED_ERROR_END();
@@ -132,36 +144,67 @@ void readModelNotes()
 
 void menuTextView(event_t event)
 {
-  switch (event) {
-    case EVT_ENTRY:
+  if (event == EVT_ENTRY) {
       menuVerticalOffset = 0;
+	  checklistPosition = 0;
+      reusableBuffer.viewText.checklistComplete = false;
       reusableBuffer.viewText.linesCount = 0;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
-      break;
-
-    case EVT_KEY_PREVIOUS_LINE:
-      if (menuVerticalOffset == 0)
-        break;
-      else
-        menuVerticalOffset--;
+  } else if (IS_PREVIOUS_EVENT(event)) {
+    if (menuVerticalOffset > 0) {
+      menuVerticalOffset--;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
-      break;
-
-    case EVT_KEY_NEXT_LINE:
-      if (menuVerticalOffset+LCD_LINES-1 >= reusableBuffer.viewText.linesCount)
-        break;
-      else
-        ++menuVerticalOffset;
+    }
+  } else if (IS_NEXT_EVENT(event)) {
+    if (menuVerticalOffset + LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
+      ++menuVerticalOffset;
       sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
-      break;
-
-    case EVT_KEY_BREAK(KEY_EXIT):
-      popMenu();
-      break;
+    }
+  } else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
+    if (g_model.checklistInteractive && !reusableBuffer.viewText.pushMenu && checklistPosition-(int)menuVerticalOffset >= 0){
+      if (checklistPosition < reusableBuffer.viewText.linesCount) {
+        if (checklistPosition-(int)menuVerticalOffset < LCD_LINES-1) {
+          ++checklistPosition;
+          if (checklistPosition-(int)menuVerticalOffset >= LCD_LINES-2 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
+            ++menuVerticalOffset;
+            sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+          }
+        }
+      }
+      else {
+        if (reusableBuffer.viewText.pushMenu == true) popMenu();
+        reusableBuffer.viewText.checklistComplete = true;
+      }
+    }
+  } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    if (!g_model.checklistInteractive || reusableBuffer.viewText.pushMenu) {
+      if (reusableBuffer.viewText.pushMenu == true) popMenu();
+      reusableBuffer.viewText.checklistComplete = true;
+    }
   }
 
   for (int i=0; i<LCD_LINES-1; i++) {
-    lcdDrawText(0, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
+    if (g_model.checklistInteractive){
+      if (reusableBuffer.viewText.lines[i][0] == CHECKABLE_PREFIX) {
+        if (i < reusableBuffer.viewText.linesCount && !reusableBuffer.viewText.pushMenu)
+          drawCheckBox(0, i*FH+FH+1, i < checklistPosition-(int)menuVerticalOffset, i == checklistPosition-(int)menuVerticalOffset);
+        lcdDrawText(8, i*FH+FH+1, &reusableBuffer.viewText.lines[i][1], FIXEDWIDTH);
+      }
+      else {
+        lcdDrawText(8, i*FH+FH+1, &reusableBuffer.viewText.lines[i][0], FIXEDWIDTH);
+        if (i == checklistPosition-(int)menuVerticalOffset){
+          ++checklistPosition;
+          if (checklistPosition-(int)menuVerticalOffset == LCD_LINES-1 && menuVerticalOffset+LCD_LINES-1 < reusableBuffer.viewText.linesCount) {
+            ++menuVerticalOffset;
+            sdReadTextFile(reusableBuffer.viewText.filename, reusableBuffer.viewText.lines, reusableBuffer.viewText.linesCount);
+            i = 0;  // Reset rendering of the display after changing the offest
+          }
+        }
+      }
+    }
+    else {
+      lcdDrawText(0, i*FH+FH+1, reusableBuffer.viewText.lines[i], FIXEDWIDTH);
+    }
   }
 
   char * title = reusableBuffer.viewText.filename;
@@ -182,9 +225,7 @@ void pushMenuTextView(const char *filename)
 {
   if (strlen(filename) < TEXT_FILENAME_MAXLEN) {
     strcpy(reusableBuffer.viewText.filename, filename);
+    reusableBuffer.viewText.pushMenu = true;
     pushMenu(menuTextView);
   }
 }
-
-#undef EVT_KEY_NEXT_LINE
-#undef EVT_KEY_PREVIOUS_LINE

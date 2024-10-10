@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 extern bool displayTelemetryScreen();
 extern void displayRssiLine();
@@ -33,14 +33,14 @@ enum NavigationDirection {
 #define incrTelemetryScreen() direction = NAVIGATION_DIRECTION_DOWN
 
 #if defined(NAVIGATION_XLITE)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_LEFT) && IS_SHIFT_PRESSED())
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_RIGHT) && IS_SHIFT_PRESSED())
+  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_LEFT) && keysGetState(KEY_SHIFT))
+  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_RIGHT) && keysGetState(KEY_SHIFT))
 #elif defined(KEYS_GPIO_REG_PAGEDN)
   #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_FIRST(KEY_PAGEUP))
   #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_FIRST(KEY_PAGEDN))
 #elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_PAGE))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_BREAK(KEY_PAGE))
+  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_BREAK(KEY_PAGEUP))
+  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_BREAK(KEY_PAGEDN))
 #elif defined(NAVIGATION_9X)
   #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_UP))
   #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_DOWN))
@@ -53,13 +53,11 @@ void menuViewTelemetry(event_t event)
 {
   enum NavigationDirection direction = NAVIGATION_DIRECTION_NONE;
 
-  if (event == EVT_KEY_FIRST(KEY_EXIT) && TELEMETRY_SCREEN_TYPE(s_frsky_view) != TELEMETRY_SCREEN_TYPE_SCRIPT) {
-    killEvents(event);
+  if (event == EVT_KEY_BREAK(KEY_EXIT) && TELEMETRY_SCREEN_TYPE(s_frsky_view) != TELEMETRY_SCREEN_TYPE_SCRIPT) {
     chainMenu(menuMainView);
   }
 #if defined(LUA)
   else if (event == EVT_KEY_LONG(KEY_EXIT)) {
-    killEvents(event);
     chainMenu(menuMainView);
   }
 #endif
@@ -72,10 +70,7 @@ void menuViewTelemetry(event_t event)
     incrTelemetryScreen();
   }
   else if (event == EVT_KEY_LONG(KEY_ENTER)) {
-    killEvents(event);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TELEMETRY);
-    POPUP_MENU_ADD_ITEM(STR_RESET_FLIGHT);
-    POPUP_MENU_START(onMainViewMenu);
+    POPUP_MENU_START(onMainViewMenu, 2, STR_RESET_TELEMETRY, STR_RESET_FLIGHT);
   }
 
   for (int i=0; i<=TELEMETRY_SCREEN_TYPE_MAX; i++) {

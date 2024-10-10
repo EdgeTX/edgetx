@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -109,7 +110,7 @@ void SimulatorLoader::unregisterSimulators()
     delete lib;
 }
 
-QString SimulatorLoader::findSimulatorByFirmwareName(const QString & name)
+QString SimulatorLoader::findSimulatorByName(const QString & name)
 {
   int pos;
   QString ret;
@@ -133,7 +134,7 @@ QString SimulatorLoader::findSimulatorByFirmwareName(const QString & name)
 SimulatorInterface * SimulatorLoader::loadSimulator(const QString & name)
 {
   SimulatorInterface * si = NULL;
-  QString libname = findSimulatorByFirmwareName(name);
+  QString libname = findSimulatorByName(name);
 
   if (libname.isEmpty()) {
     qWarning() << "Simulator" << name << "not found.";
@@ -166,7 +167,7 @@ bool SimulatorLoader::unloadSimulator(const QString & name)
 {
   bool ret = false;
 #if SIMULATOR_INTERFACE_LOADER_DYNAMIC
-  QString simuName = findSimulatorByFirmwareName(name);
+  QString simuName = findSimulatorByName(name);
   if (simuName.isEmpty())
     return ret;
 

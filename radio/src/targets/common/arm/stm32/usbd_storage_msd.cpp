@@ -21,12 +21,29 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include "FatFs/diskio.h"
+#include "usbd_def.h"
+#include "usbd_msc.h"
+
+#include "hal/fatfs_diskio.h"
+#include "hal/storage.h"
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
+
 #include "fw_version.h"
-#include "board.h"
+#include "hal.h"
 #include "debug.h"
 
+#include "usb_descriptor.h"
+#include "usbd_storage_msd.h"
+
 #include <string.h>
+
+
+#if FF_MAX_SS != FF_MIN_SS
+#error "Variable sector size is not supported"
+#endif
+
+#define BLOCK_SIZE FF_MAX_SS
 
 #if !defined(BOOT)
   #include "timers_driver.h"
@@ -35,109 +52,92 @@
   #define WATCHDOG_SUSPEND(...)
 #endif
 
-#if defined(__cplusplus) && !defined(SIMU)
+#if !defined(SIMU)
 extern "C" {
-#endif
 
-#include "usbd_msc_mem.h"
 #include "usb_conf.h"
 
 enum MassstorageLuns {
   STORAGE_SDCARD_LUN,
+#if defined(FWDRIVE)
   STORAGE_EEPROM_LUN,
+#endif
   STORAGE_LUN_NBR
 };
 
-/* USB Mass storage Standard Inquiry Data */
-const unsigned char STORAGE_Inquirydata[] = { //36
+/** USB Mass storage Standard Inquiry Data. */
+const uint8_t STORAGE_Inquirydata_FS[] = {/* 36 */
   /* LUN 0 */
-  0x00,		
-  0x80,		
-  0x02,		
-  0x02,
-  (USBD_STD_INQUIRY_LENGTH - 5),
   0x00,
-  0x00,	
+  0x80,
+  0x02,
+  0x02,
+  (STANDARD_INQUIRY_DATA_LEN - 5),
+  0x00,
+  0x00,
   0x00,
   USB_MANUFACTURER,                        /* Manufacturer : 8 bytes */
   USB_PRODUCT,                             /* Product      : 16 Bytes */
   'R', 'a', 'd', 'i', 'o', ' ', ' ', ' ',
   '1', '.', '0', '0',                      /* Version      : 4 Bytes */
+#if defined(FWDRIVE)
   /* LUN 1 */
-  0x00,		
-  0x80,		
-  0x02,		
+  0x00,
+  0x80,
+  0x02,
   0x02,
   (USBD_STD_INQUIRY_LENGTH - 5),
   0x00,
-  0x00,	
+  0x00,
   0x00,
   USB_MANUFACTURER,                        /* Manufacturer : 8 bytes */
   USB_PRODUCT,                             /* Product      : 16 Bytes */
   'R', 'a', 'd', 'i', 'o', ' ', ' ', ' ',
   '1', '.', '0' ,'0',                      /* Version      : 4 Bytes */
+#endif
 };
 
-#define RESERVED_SECTORS (1 /*Boot*/ + 2 /*Fat table */ + 1 /*Root dir*/ + 8 /* one cluster for firmware.txt */)
+#if defined(FWDRIVE)
+ #define RESERVED_SECTORS (1 /*Boot*/ + 2 /*Fat table */ + 1 /*Root dir*/ + 8 /* one cluster for firmware.txt */)
 
-int32_t fat12Write(const uint8_t * buffer, uint16_t sector, uint16_t count);
-int32_t fat12Read(uint8_t * buffer, uint16_t sector, uint16_t count );
+ int32_t fat12Write(const uint8_t * buffer, uint16_t sector, uint16_t count);
+ int32_t fat12Read(uint8_t * buffer, uint16_t sector, uint16_t count );
+#endif
 
 int8_t STORAGE_Init (uint8_t lun);
 
-int8_t STORAGE_GetCapacity (uint8_t lun, 
-                           uint32_t *block_num, 
-                           uint32_t *block_size);
+static int8_t STORAGE_Init_FS(uint8_t lun);
+static int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_size);
 
-int8_t  STORAGE_IsReady (uint8_t lun);
+static int8_t STORAGE_IsReady_FS(uint8_t lun);
 
-int8_t  STORAGE_IsWriteProtected (uint8_t lun);
+static int8_t STORAGE_IsWriteProtected_FS(uint8_t lun);
+static int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
+static int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
+static int8_t STORAGE_GetMaxLun_FS(void);
 
-int8_t STORAGE_Read (uint8_t lun, 
-                        uint8_t *buf, 
-                        uint32_t blk_addr,
-                        uint16_t blk_len);
+/* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
 
-int8_t STORAGE_Write (uint8_t lun, 
-                        uint8_t *buf, 
-                        uint32_t blk_addr,
-                        uint16_t blk_len);
 
-int8_t STORAGE_GetMaxLun (void);
-
-const USBD_STORAGE_cb_TypeDef USBD_MICRO_SDIO_fops =    // modified my OpenTX
+USBD_StorageTypeDef USBD_Storage_Interface_fops =
 {
-  STORAGE_Init,
-  STORAGE_GetCapacity,
-  STORAGE_IsReady,
-  STORAGE_IsWriteProtected,
-  STORAGE_Read,
-  STORAGE_Write,
-  STORAGE_GetMaxLun,
-  (int8_t *)STORAGE_Inquirydata,
+  STORAGE_Init_FS,
+  STORAGE_GetCapacity_FS,
+  STORAGE_IsReady_FS,
+  STORAGE_IsWriteProtected_FS,
+  STORAGE_Read_FS,
+  STORAGE_Write_FS,
+  STORAGE_GetMaxLun_FS,
+  (int8_t *)STORAGE_Inquirydata_FS
 };
 
-const USBD_STORAGE_cb_TypeDef  * const USBD_STORAGE_fops = &USBD_MICRO_SDIO_fops;    // modified my OpenTX
-
-#if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
 
-int8_t STORAGE_Init (uint8_t lun)
+int8_t STORAGE_Init_FS(uint8_t lun)
 {
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = SDIO_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority =0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-
-/* TODO if no SD ... if( SD_Init() != 0)
-  {
-    return (-1); 
-  } 
-*/
-  return (0);
+  // TODO: call generic storage init
+  return (USBD_OK);
 }
 
 /**
@@ -147,34 +147,32 @@ int8_t STORAGE_Init (uint8_t lun)
   * @param  block_size : size of a physical block
   * @retval Status
   */
-int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_size)
+int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_size)
 {
+#if defined(FWDRIVE)
   if (lun == STORAGE_EEPROM_LUN) {
     *block_size = BLOCK_SIZE;
-#if defined(EEPROM)
-    *block_num  = RESERVED_SECTORS + EEPROM_SIZE/BLOCK_SIZE + FLASHSIZE/BLOCK_SIZE;
-#else
     *block_num  = RESERVED_SECTORS + FLASHSIZE/BLOCK_SIZE;
-#endif
     return 0;
   }
+#endif
 
   if (!SD_CARD_PRESENT())
-    return -1;
-  
+    return USBD_FAIL;
+
   *block_size = BLOCK_SIZE;
 
   static DWORD sector_count = 0;
   if (sector_count == 0) {
-    if (disk_ioctl(0, GET_SECTOR_COUNT, &sector_count) != RES_OK) {
+    auto drv = storageGetDefaultDriver();
+    if (drv->ioctl(0, GET_SECTOR_COUNT, &sector_count) != RES_OK) {
       sector_count = 0;
-      return -1;
+      return USBD_FAIL;
     }
   }
 
   *block_num  = sector_count;
-
-  return 0;
+return (USBD_OK);
 }
 
 uint8_t lunReady[STORAGE_LUN_NBR];
@@ -182,7 +180,9 @@ uint8_t lunReady[STORAGE_LUN_NBR];
 void usbInitLUNs()
 {
   lunReady[STORAGE_SDCARD_LUN] = 1;
+#if defined(FWDRIVE)
   lunReady[STORAGE_EEPROM_LUN] = 1;
+#endif
 }
 
 /**
@@ -190,15 +190,9 @@ void usbInitLUNs()
   * @param  lun : logical unit number
   * @retval Status
   */
-int8_t  STORAGE_IsReady (uint8_t lun)
-{ 
-#if defined(EEPROM)
-  if (lun == STORAGE_EEPROM_LUN) {
-    return (lunReady[STORAGE_EEPROM_LUN] != 0) ? 0 : -1;
-  }
-#endif
-
-  return (lunReady[STORAGE_SDCARD_LUN] != 0 && SD_CARD_PRESENT()) ? 0 : -1;
+int8_t STORAGE_IsReady_FS(uint8_t lun)
+{
+  return (lunReady[STORAGE_SDCARD_LUN] != 0 && storageIsPresent()) ? USBD_OK : USBD_FAIL;
 }
 
 /**
@@ -206,9 +200,9 @@ int8_t  STORAGE_IsReady (uint8_t lun)
   * @param  lun : logical unit number
   * @retval Status
   */
-int8_t  STORAGE_IsWriteProtected (uint8_t lun)
+int8_t STORAGE_IsWriteProtected_FS(uint8_t lun)
 {
-  return  0;
+  return (USBD_OK);
 }
 
 /**
@@ -220,19 +214,21 @@ int8_t  STORAGE_IsWriteProtected (uint8_t lun)
   * @retval Status
   */
 
-int8_t STORAGE_Read (uint8_t lun, 
-                 uint8_t *buf, 
-                 uint32_t blk_addr,                       
+int8_t STORAGE_Read_FS (uint8_t lun,
+                 uint8_t *buf,
+                 uint32_t blk_addr,
                  uint16_t blk_len)
 {
   WATCHDOG_SUSPEND(100/*1s*/);
-  
+
+#if defined(FWDRIVE)
   if (lun == STORAGE_EEPROM_LUN) {
     return (fat12Read(buf, blk_addr, blk_len) == 0) ? 0 : -1;
   }
+#endif
 
-  // read without cache
-  return (__disk_read(0, buf, blk_addr, blk_len) == RES_OK) ? 0 : -1;
+  auto drv = storageGetDefaultDriver();
+  return (drv->read(0, buf, blk_addr, blk_len) == RES_OK) ? USBD_OK : USBD_FAIL;
 }
 /**
   * @brief  Write data to the medium
@@ -242,20 +238,18 @@ int8_t STORAGE_Read (uint8_t lun,
   * @param  blk_len : nmber of blocks to be read
   * @retval Status
   */
-
-int8_t STORAGE_Write (uint8_t lun, 
-                  uint8_t *buf, 
-                  uint32_t blk_addr,
-                  uint16_t blk_len)
+int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
-  WATCHDOG_SUSPEND(100/*1s*/);
-  
+  WATCHDOG_SUSPEND(500/*5s*/);
+
+#if defined(FWDRIVE)
   if (lun == STORAGE_EEPROM_LUN)	{
     return (fat12Write(buf, blk_addr, blk_len) == 0) ? 0 : -1;
   }
+#endif
 
-  // write without cache
-  return (__disk_write(0, buf, blk_addr, blk_len) == RES_OK) ? 0 : -1;
+  auto drv = storageGetDefaultDriver();
+  return (drv->write(0, buf, blk_addr, blk_len) == RES_OK) ? USBD_OK : USBD_FAIL;
 }
 
 /**
@@ -264,44 +258,40 @@ int8_t STORAGE_Write (uint8_t lun,
   * @retval number of logical unit
   */
 
-int8_t STORAGE_GetMaxLun (void)
+int8_t STORAGE_GetMaxLun_FS(void)
 {
-  return STORAGE_LUN_NBR - 1;
+  return (STORAGE_LUN_NBR - 1);
 }
 
-
+#if defined(FWDRIVE)
 /* Firmware.txt */
 const char firmware_txt[] =
-#if defined(BOOT)
+ #if defined(BOOT)
   "EdgeTX Bootloader"
-#else
+ #else
   "EdgeTX Firmware"
-#endif
+ #endif
   " for " FLAVOUR "\r\n\r\n"
-#if defined(BOOT)
+ #if defined(BOOT)
   "BOOTVER    "
-#else
+ #else
   "FWVERSION  "
-#endif
+ #endif
   "edgetx-" FLAVOUR "-" VERSION " (" GIT_STR ")\r\n"
   "DATE       " DATE "\r\n"
   "TIME       " TIME "\r\n"
-#if !defined(BOOT)
+ #if !defined(BOOT)
   "BOOTVER   "
-#else
+ #else
   "FWVERSION "
-#endif
+ #endif
   ;
 
 //------------------------------------------------------------------------------
 /**
  * FAT12 boot sector partition.
  */
-#if defined(EEPROM)
-#define TOTALSECTORS  (RESERVED_SECTORS + (EEPROM_SIZE/BLOCK_SIZE) +  (FLASHSIZE/BLOCK_SIZE))
-#else
 #define TOTALSECTORS  (RESERVED_SECTORS + (FLASHSIZE/BLOCK_SIZE))
-#endif
 const char g_FATboot[BLOCK_SIZE] =
 {
   0xeb, 0x3c, 0x90, // Jump instruction.
@@ -424,11 +414,11 @@ const FATDirEntry_t g_DIRroot[] =
     {
       { 'F', 'I', 'R', 'M', 'W', 'A', 'R', 'E'},
       { 'B', 'I', 'N'},
-#if defined(BOOT)
+ #if defined(BOOT)
       0x20,          // Archive
-#else
+ #else
       0x21,          // Readonly+Archive
-#endif
+ #endif
       0x00,
       0x3E,
       0xA301,
@@ -440,23 +430,6 @@ const FATDirEntry_t g_DIRroot[] =
       0x0003,
       FLASHSIZE
   },
-#if defined(EEPROM)
-    {
-        { 'E', 'E', 'P', 'R', 'O', 'M', ' ', ' '},
-        { 'B', 'I', 'N'},
-        0x20,		// Archive
-        0x00,
-        0x3E,
-        0xA301,
-        0x3D55,
-        0x3D55,
-        0x0000,
-        0xA302,
-        0x3D55,
-        0x0003 + (FLASHSIZE/BLOCK_SIZE)/8,
-        EEPROM_SIZE
-    },
-#endif
   // Emty entries are 0x00, omitted here. Up to 16 entries can be defined here
 };
 
@@ -508,13 +481,6 @@ int32_t fat12Read(uint8_t * buffer, uint16_t sector, uint16_t count)
         pushCluster (buffer, sector, cluster, rest, cluster+1);
       pushCluster (buffer, sector, cluster, rest, (uint16_t) 0xFFF);
 
-#if defined(EEPROM)
-      // Entry for eeprom.bin
-      for (int i=0;i<EEPROM_SIZE/BLOCK_SIZE/8 -1;i++)
-        pushCluster (buffer, sector, cluster, rest, cluster+1);
-      pushCluster (buffer, sector, cluster, rest, (uint16_t) 0xFFF);
-#endif
-
       // Ensure last cluster is written if it is the first half
       pushCluster (buffer, sector, cluster, rest, (uint16_t)  0x000);
 
@@ -537,11 +503,6 @@ int32_t fat12Read(uint8_t * buffer, uint16_t sector, uint16_t count)
       address += FIRMWARE_ADDRESS;
       memcpy(buffer, (uint8_t *)address, BLOCK_SIZE);
     }
-#if defined(EEPROM)
-    else if (sector < RESERVED_SECTORS + (EEPROM_SIZE/BLOCK_SIZE) + (FLASHSIZE/BLOCK_SIZE)) {
-      eepromReadBlock(buffer, (sector - RESERVED_SECTORS - (FLASHSIZE/BLOCK_SIZE))*BLOCK_SIZE, BLOCK_SIZE);
-    }
-#endif
     buffer += BLOCK_SIZE ;
     sector++ ;
     count-- ;
@@ -568,9 +529,9 @@ int32_t fat12Write(const uint8_t * buffer, uint16_t sector, uint16_t count)
     // reserved, read-only
   }
   else if (sector < RESERVED_SECTORS + (FLASHSIZE/BLOCK_SIZE)) {
-#if !defined(BOOT) // Don't allow overwrite of running firmware
+ #if !defined(BOOT) // Don't allow overwrite of running firmware
     return -1;
-#else
+ #else
     // firmware
     uint32_t address;
     address = sector - RESERVED_SECTORS;
@@ -597,28 +558,8 @@ int32_t fat12Write(const uint8_t * buffer, uint16_t sector, uint16_t count)
         operation = FATWRITE_NONE;
       }
     }
-#endif
+ #endif
   }
-#if defined(EEPROM)
-  else if (sector < RESERVED_SECTORS + (EEPROM_SIZE/BLOCK_SIZE) + (FLASHSIZE/BLOCK_SIZE)) {
-    // eeprom
-    while (count) {
-      if (operation == FATWRITE_NONE && isEepromStart(buffer)) {
-        TRACE("EEPROM start found in sector %d", sector);
-        operation = FATWRITE_EEPROM;
-      }
-      if (operation == FATWRITE_EEPROM) {
-        eepromWriteBlock((uint8_t *)buffer, (sector-RESERVED_SECTORS-(FLASHSIZE/BLOCK_SIZE))*BLOCK_SIZE, BLOCK_SIZE);
-      }
-      buffer += BLOCK_SIZE;
-      sector++;
-      count--;
-      if (sector-RESERVED_SECTORS >= (EEPROM_SIZE/BLOCK_SIZE)+(FLASHSIZE/BLOCK_SIZE)) {
-        TRACE("EEPROM end written at sector %d", sector-1);
-        operation = FATWRITE_NONE;
-      }
-    }
-  }
-#endif
   return 0 ;
 }
+#endif

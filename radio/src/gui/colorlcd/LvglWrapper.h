@@ -19,15 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LVGLWRAPPER_H_
-#define _LVGLWRAPPER_H_
+#pragma once
 
 #include <lvgl/lvgl.h>
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 void initLvglTheme();
-
-lv_color_t makeLvColor(uint32_t colorFlags);
 
 typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;
 
@@ -53,4 +50,5 @@ class LvglWrapper
   static void runNested();
 };
 
-#endif // _LVGLWRAPPER_H_
+// multiplication factor between 0 and 25
+int8_t rotaryEncoderGetAccel();

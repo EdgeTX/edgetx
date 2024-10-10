@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -25,6 +26,7 @@
 #include "helpers.h"
 #include "filtereditemmodels.h"
 #include "eeprominterface.h"
+#include "namevalidator.h"
 
 float curveLinear(float x, float coeff, float yMin, float yMid, float yMax)
 {
@@ -133,6 +135,7 @@ CurveDialog::CurveDialog(QWidget * parent, ModelData & model, const int curveIdx
   maxCurves = firmware->getCapability(NumCurves);
   maxPoints = firmware->getCapability(NumCurvePoints);
 
+  ui->curveName->setValidator(new NameValidator(firmware->getBoard(), this));
   ui->curveName->setField(curve.name, CURVEDATA_NAME_LEN);
   connect(ui->curveName, &AutoLineEdit::currentDataChanged, this, &CurveDialog::on_curveNameChanged);
   on_curveNameChanged();
@@ -247,7 +250,6 @@ void CurveDialog::updateCurve()
 
   Node * nodel = 0;
   Node * nodex = 0;
-  QColor color;
 
   scene->clear();
 

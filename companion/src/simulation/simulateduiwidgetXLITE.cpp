@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #include "simulateduiwidget.h"
 #include "ui_simulateduiwidgetXLITE.h"
 
@@ -16,31 +37,31 @@ SimulatedUIWidgetXLITE::SimulatedUIWidgetXLITE(SimulatorInterface *simulator, QW
   polygon.clear();
 
   polygon << polyArc(x, y, oR, -45, 45) << polyArc(x, y, iR, -45, 45);
-  act = new RadioUiAction(4, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
+  act = new RadioUiAction(KEY_UP, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "XLITE/right_up.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 135, 225) << polyArc(x, y, iR, 135, 225);
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
+  act = new RadioUiAction(KEY_DOWN, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "XLITE/right_down.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 45, 135) << polyArc(x, y, iR, 45, 135);
-  act = new RadioUiAction(5, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
+  act = new RadioUiAction(KEY_RIGHT, QList<int>() << Qt::Key_Right << Qt::Key_Plus, SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "XLITE/right_right.png", act));
 
   polygon.clear();
   polygon << polyArc(x, y, oR, 225, 315) << polyArc(x, y, iR, 225, 315);
-  act = new RadioUiAction(6, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN);
+  act = new RadioUiAction(KEY_LEFT, QList<int>() << Qt::Key_Left << Qt::Key_Minus, SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN);
   addRadioWidget(ui->rightbuttons->addArea(polygon, "XLITE/right_left.png", act));
 
-  m_mouseMidClickAction = new RadioUiAction(2, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ENT);
+  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ENT);
   addRadioWidget(ui->rightbuttons->addArea(QRect(37, 80, 25, 25), "XLITE/right_ent.png", m_mouseMidClickAction));
 
-  act = new RadioUiAction(1, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
+  act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->rightbuttons->addArea(QRect(36, 147, 27, 27), "XLITE/right_exit.png", act));
 
-  act = new RadioUiAction(0, QList<int>() << Qt::Key_S, SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT);
+  act = new RadioUiAction(KEY_SHIFT, QList<int>() << Qt::Key_S, SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT);
   addRadioWidget(ui->rightbuttons->addArea(QRect(73, 129, 27, 27), "XLITE/right_shift.png", act));
 
   addRadioWidget(ui->leftbuttons->addArea(QRect(9, 152, 25, 25), "XLITE/left_scrnshot.png", m_screenshotAction));

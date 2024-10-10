@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -26,6 +27,9 @@ class CompoundItemModelFactory;
 class FilteredItemModelFactory;
 class QGridLayout;
 class AutoComboBox;
+class ExclusiveComboGroup;
+
+class AutoCheckBox;
 
 class HardwarePanel : public GeneralPanel
 {
@@ -37,6 +41,7 @@ class HardwarePanel : public GeneralPanel
 
   signals:
     void internalModuleChanged();
+    void InputFlexTypeChanged();
 
   private slots:
     void on_internalModuleChanged();
@@ -48,17 +53,24 @@ class HardwarePanel : public GeneralPanel
     QGridLayout *grid;
     AutoComboBox *internalModule;
     unsigned int m_internalModule = 0;
+    QLabel *internalModuleBaudRateLabel;
     AutoComboBox *internalModuleBaudRate;
     AutoComboBox *serialPortUSBVCP;
+    QLabel *antennaLabel;
+    AutoComboBox *antennaMode;
+    QList<QWidget *> *params;
+    int row;
+    ExclusiveComboGroup *exclFlexSwitchesGroup;
+    std::vector<AutoCheckBox*> invertToggles;
 
-    void addStick(int index, int & row);
-    void addPot(int index, int & row);
-    void addSlider(int index, int & row);
-    void addSwitch(int index, int & row);
-    void addLabel(QString text, int row, int col);
-    void addLine(int & row);
-    void addParams(int & row, QWidget * widget1, QWidget * widget2 = nullptr);
-    void addSection(QString text, int & row);
+    void addStick(int index);
+    void addFlex(int index);
+    void addSwitch(int index);
+    void addLabel(QString text);
+    void addLine();
+    void addParams();
+    void addSection(QString text);
 
+    void setFlexTypeModel(AutoComboBox * cb, int index);
     void updateSerialPortUSBVCP();
 };

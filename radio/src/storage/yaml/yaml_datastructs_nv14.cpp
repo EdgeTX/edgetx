@@ -4,6 +4,13 @@
 // Enums first
 //
 
+const struct YamlIdStr enum_HatsMode[] = {
+  {  HATSMODE_TRIMS_ONLY, "TRIMS_ONLY"  },
+  {  HATSMODE_KEYS_ONLY, "KEYS_ONLY"  },
+  {  HATSMODE_SWITCHABLE, "SWITCHABLE"  },
+  {  HATSMODE_GLOBAL, "GLOBAL"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_BacklightMode[] = {
   {  e_backlight_mode_off, "backlight_mode_off"  },
   {  e_backlight_mode_keys, "backlight_mode_keys"  },
@@ -35,7 +42,8 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_R9M_LITE_PRO_PXX2, "TYPE_R9M_LITE_PRO_PXX2"  },
   {  MODULE_TYPE_SBUS, "TYPE_SBUS"  },
   {  MODULE_TYPE_XJT_LITE_PXX2, "TYPE_XJT_LITE_PXX2"  },
-  {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
+  {  MODULE_TYPE_FLYSKY_AFHDS2A, "TYPE_FLYSKY_AFHDS2A"  },
+  {  MODULE_TYPE_FLYSKY_AFHDS3, "TYPE_FLYSKY_AFHDS3"  },
   {  MODULE_TYPE_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
   {  0, NULL  }
 };
@@ -72,9 +80,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_PLAY_SOUND, "PLAY_SOUND"  },
   {  FUNC_PLAY_TRACK, "PLAY_TRACK"  },
   {  FUNC_PLAY_VALUE, "PLAY_VALUE"  },
-  {  FUNC_RESERVE4, "RESERVE4"  },
   {  FUNC_PLAY_SCRIPT, "PLAY_SCRIPT"  },
-  {  FUNC_RESERVE5, "RESERVE5"  },
   {  FUNC_BACKGND_MUSIC, "BACKGND_MUSIC"  },
   {  FUNC_BACKGND_MUSIC_PAUSE, "BACKGND_MUSIC_PAUSE"  },
   {  FUNC_VARIO, "VARIO"  },
@@ -85,15 +91,9 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_RACING_MODE, "RACING_MODE"  },
   {  FUNC_DISABLE_TOUCH, "DISABLE_TOUCH"  },
   {  FUNC_SET_SCREEN, "SET_SCREEN"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
-  {  ZOV_Unsigned, "Unsigned"  },
-  {  ZOV_Signed, "Signed"  },
-  {  ZOV_Bool, "Bool"  },
-  {  ZOV_String, "String"  },
-  {  ZOV_Source, "Source"  },
-  {  ZOV_Color, "Color"  },
+  {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
+  {  FUNC_RGB_LED, "RGB_LED"  },
+  {  FUNC_TEST, "TEST"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TimerModes[] = {
@@ -113,52 +113,11 @@ const struct YamlIdStr enum_MixerMultiplex[] = {
 };
 const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
-  {  MIXSRC_Rud, "Rud"  },
-  {  MIXSRC_Ele, "Ele"  },
-  {  MIXSRC_Thr, "Thr"  },
-  {  MIXSRC_Ail, "Ail"  },
-  {  MIXSRC_POT1, "POT1"  },
-  {  MIXSRC_POT2, "POT2"  },
+  {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
-  {  MIXSRC_CYC1, "CYC1"  },
-  {  MIXSRC_CYC2, "CYC2"  },
-  {  MIXSRC_CYC3, "CYC3"  },
-  {  MIXSRC_TrimRud, "TrimRud"  },
-  {  MIXSRC_TrimEle, "TrimEle"  },
-  {  MIXSRC_TrimThr, "TrimThr"  },
-  {  MIXSRC_TrimAil, "TrimAil"  },
-  {  MIXSRC_SA, "SA"  },
-  {  MIXSRC_SB, "SB"  },
-  {  MIXSRC_SC, "SC"  },
-  {  MIXSRC_SD, "SD"  },
-  {  MIXSRC_SE, "SE"  },
-  {  MIXSRC_SF, "SF"  },
-  {  MIXSRC_SG, "SG"  },
-  {  MIXSRC_SH, "SH"  },
-  {  MIXSRC_SW1, "SW1"  },
-  {  MIXSRC_CH1, "CH1"  },
-  {  MIXSRC_CH2, "CH2"  },
-  {  MIXSRC_CH3, "CH3"  },
-  {  MIXSRC_CH4, "CH4"  },
-  {  MIXSRC_CH5, "CH5"  },
-  {  MIXSRC_CH6, "CH6"  },
-  {  MIXSRC_CH7, "CH7"  },
-  {  MIXSRC_CH8, "CH8"  },
-  {  MIXSRC_CH9, "CH9"  },
-  {  MIXSRC_CH10, "CH10"  },
-  {  MIXSRC_CH11, "CH11"  },
-  {  MIXSRC_CH12, "CH12"  },
-  {  MIXSRC_CH13, "CH13"  },
-  {  MIXSRC_CH14, "CH14"  },
-  {  MIXSRC_CH15, "CH15"  },
-  {  MIXSRC_CH16, "CH16"  },
-  {  MIXSRC_GVAR1, "GVAR1"  },
   {  MIXSRC_TX_VOLTAGE, "TX_VOLTAGE"  },
   {  MIXSRC_TX_TIME, "TX_TIME"  },
   {  MIXSRC_TX_GPS, "TX_GPS"  },
-  {  MIXSRC_TIMER1, "TIMER1"  },
-  {  MIXSRC_TIMER2, "TIMER2"  },
-  {  MIXSRC_TIMER3, "TIMER3"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
@@ -167,7 +126,6 @@ const struct YamlIdStr enum_LogicalSwitchesFunctions[] = {
   {  LS_FUNC_VALMOSTEQUAL, "FUNC_VALMOSTEQUAL"  },
   {  LS_FUNC_VPOS, "FUNC_VPOS"  },
   {  LS_FUNC_VNEG, "FUNC_VNEG"  },
-  {  LS_FUNC_RANGE, "FUNC_RANGE"  },
   {  LS_FUNC_APOS, "FUNC_APOS"  },
   {  LS_FUNC_ANEG, "FUNC_ANEG"  },
   {  LS_FUNC_AND, "FUNC_AND"  },
@@ -193,44 +151,11 @@ const struct YamlIdStr enum_SwashType[] = {
 };
 const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_NONE, "NONE"  },
-  {  SWSRC_SA0, "SA0"  },
-  {  SWSRC_SA1, "SA1"  },
-  {  SWSRC_SA2, "SA2"  },
-  {  SWSRC_SB0, "SB0"  },
-  {  SWSRC_SB1, "SB1"  },
-  {  SWSRC_SB2, "SB2"  },
-  {  SWSRC_SC0, "SC0"  },
-  {  SWSRC_SC1, "SC1"  },
-  {  SWSRC_SC2, "SC2"  },
-  {  SWSRC_SD0, "SD0"  },
-  {  SWSRC_SD1, "SD1"  },
-  {  SWSRC_SD2, "SD2"  },
-  {  SWSRC_SE0, "SE0"  },
-  {  SWSRC_SE1, "SE1"  },
-  {  SWSRC_SE2, "SE2"  },
-  {  SWSRC_SF0, "SF0"  },
-  {  SWSRC_SF1, "SF1"  },
-  {  SWSRC_SF2, "SF2"  },
-  {  SWSRC_SG0, "SG0"  },
-  {  SWSRC_SG1, "SG1"  },
-  {  SWSRC_SG2, "SG2"  },
-  {  SWSRC_SH0, "SH0"  },
-  {  SWSRC_SH1, "SH1"  },
-  {  SWSRC_SH2, "SH2"  },
-  {  SWSRC_TrimRudLeft, "TrimRudLeft"  },
-  {  SWSRC_TrimRudRight, "TrimRudRight"  },
-  {  SWSRC_TrimEleDown, "TrimEleDown"  },
-  {  SWSRC_TrimEleUp, "TrimEleUp"  },
-  {  SWSRC_TrimThrDown, "TrimThrDown"  },
-  {  SWSRC_TrimThrUp, "TrimThrUp"  },
-  {  SWSRC_TrimAilLeft, "TrimAilLeft"  },
-  {  SWSRC_TrimAilRight, "TrimAilRight"  },
-  {  SWSRC_SW1, "SW1"  },
-  {  SWSRC_SW2, "SW2"  },
   {  SWSRC_ON, "ON"  },
   {  SWSRC_ONE, "ONE"  },
   {  SWSRC_TELEMETRY_STREAMING, "TELEMETRY_STREAMING"  },
   {  SWSRC_RADIO_ACTIVITY, "RADIO_ACTIVITY"  },
+  {  SWSRC_TRAINER_CONNECTED, "TRAINER_CONNECTED"  },
   {  SWSRC_OFF, "OFF"  },
   {  0, NULL  }
 };
@@ -271,6 +196,28 @@ const struct YamlIdStr enum_TelemetrySensorType[] = {
   {  TELEM_TYPE_CALCULATED, "TYPE_CALCULATED"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_ZoneOptionValueEnum[] = {
+  {  ZOV_Unsigned, "Unsigned"  },
+  {  ZOV_Signed, "Signed"  },
+  {  ZOV_Bool, "Bool"  },
+  {  ZOV_String, "String"  },
+  {  ZOV_Source, "Source"  },
+  {  ZOV_Color, "Color"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_USBJoystickIfMode[] = {
+  {  USBJOYS_JOYSTICK, "JOYSTICK"  },
+  {  USBJOYS_GAMEPAD, "GAMEPAD"  },
+  {  USBJOYS_MULTIAXIS, "MULTIAXIS"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_USBJoystickCh[] = {
+  {  USBJOYS_CH_NONE, "CH_NONE"  },
+  {  USBJOYS_CH_BUTTON, "CH_BUTTON"  },
+  {  USBJOYS_CH_AXIS, "CH_AXIS"  },
+  {  USBJOYS_CH_SIM, "CH_SIM"  },
+  {  0, NULL  }
+};
 
 //
 // Structs last
@@ -301,66 +248,45 @@ static const struct YamlNode struct_TrainerData[] = {
   YAML_END
 };
 static const struct YamlNode struct_anonymous_1[] = {
-  YAML_STRING("name", 6),
+  YAML_STRING("name", 8),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_2[] = {
   YAML_SIGNED( "val", 16 ),
   YAML_UNSIGNED( "mode", 8 ),
   YAML_UNSIGNED( "param", 8 ),
-  YAML_SIGNED( "spare", 16 ),
+  YAML_SIGNED( "val2", 32 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_3[] = {
   YAML_SIGNED( "val1", 32 ),
-  YAML_SIGNED( "val2", 16 ),
+  YAML_SIGNED( "val2", 32 ),
   YAML_END
 };
 static const struct YamlNode union_anonymous_0_elmts[] = {
-  YAML_STRUCT("play", 48, struct_anonymous_1, NULL),
-  YAML_STRUCT("all", 48, struct_anonymous_2, NULL),
-  YAML_STRUCT("clear", 48, struct_anonymous_3, NULL),
+  YAML_STRUCT("play", 64, struct_anonymous_1, NULL),
+  YAML_STRUCT("all", 64, struct_anonymous_2, NULL),
+  YAML_STRUCT("clear", 64, struct_anonymous_3, NULL),
   YAML_END
 };
 static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_IDX,
-  YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
-  YAML_ENUM("func", 7, enum_Functions),
+  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
+  YAML_ENUM("func", 6, enum_Functions),
   YAML_CUSTOM("def",r_customFn,w_customFn),
-  YAML_PADDING( 48 ),
-  YAML_PADDING( 8 ),
-  YAML_END
-};
-static const struct YamlNode struct_string_24[] = {
-  YAML_IDX,
-  YAML_STRING("val", 3),
-  YAML_END
-};
-static const struct YamlNode union_ZoneOptionValue_elmts[] = {
-  YAML_UNSIGNED( "unsignedValue", 32 ),
-  YAML_SIGNED( "signedValue", 32 ),
-  YAML_UNSIGNED( "boolValue", 32 ),
-  YAML_STRING("stringValue", 8),
-  YAML_CUSTOM("source",r_zov_source,w_zov_source),
-  YAML_CUSTOM("color",r_zov_color,w_zov_color),
-  YAML_END
-};
-static const struct YamlNode struct_ZoneOptionValueTyped[] = {
-  YAML_IDX,
-  YAML_ENUM("type", 32, enum_ZoneOptionValueEnum),
-  YAML_UNION("value", 64, union_ZoneOptionValue_elmts, select_zov),
-  YAML_END
-};
-static const struct YamlNode struct_OpenTxTheme__PersistentData[] = {
-  YAML_ARRAY("options", 96, 5, struct_ZoneOptionValueTyped, NULL),
+  YAML_PADDING( 64 ),
+  YAML_PADDING( 1 ),
+  YAML_PADDING( 7 ),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
-  YAML_PADDING( 7 ),
+  YAML_SIGNED( "timezoneMinutes", 3 ),
+  YAML_UNSIGNED( "ppmunit", 2 ),
+  YAML_ENUM("hatsMode", 2, enum_HatsMode),
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_CUSTOM("board",nullptr,w_board),
-  YAML_ARRAY("calib", 48, 9, struct_CalibData, NULL),
+  YAML_ARRAY("calib", 48, 20, struct_CalibData, NULL),
   YAML_PADDING( 16 ),
   YAML_SIGNED( "currModel", 8 ),
   YAML_UNSIGNED( "contrast", 8 ),
@@ -370,7 +296,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ENUM("antennaMode", 2, enum_AntennaModes),
   YAML_UNSIGNED( "disableRtcWarning", 1 ),
   YAML_UNSIGNED( "keysBacklight", 1 ),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "dontPlayHello", 1 ),
   YAML_ENUM("internalModule", 8, enum_ModuleType),
   YAML_STRUCT("trainer", 128, struct_TrainerData, NULL),
   YAML_UNSIGNED( "view", 8 ),
@@ -386,7 +312,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "inactivityTimer", 8 ),
   YAML_CUSTOM("telemetryBaudrate",r_telemetryBaudrate,nullptr),
   YAML_UNSIGNED( "internalModuleBaudrate", 3 ),
-  YAML_PADDING( 3 ),
+  YAML_SIGNED( "splashMode", 3 ),
   YAML_SIGNED_CUST( "hapticMode", 2, r_beeperMode, w_beeperMode ),
   YAML_SIGNED( "switchesDelay", 8 ),
   YAML_UNSIGNED( "lightAutoOff", 8 ),
@@ -396,7 +322,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "beepLength", 3, r_5pos, w_5pos ),
   YAML_SIGNED_CUST( "hapticStrength", 3, r_5pos, w_5pos ),
   YAML_UNSIGNED( "gpsFormat", 1 ),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "audioMuteEnable", 1 ),
   YAML_UNSIGNED_CUST( "speakerPitch", 8, r_spPitch, w_spPitch ),
   YAML_SIGNED_CUST( "speakerVolume", 8, r_vol, w_vol ),
   YAML_SIGNED_CUST( "vBatMin", 8, r_vbat_min, w_vbat_min ),
@@ -423,28 +349,43 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED_CUST( "varioPitch", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED_CUST( "varioRange", 8, r_vPitch, w_vPitch ),
   YAML_SIGNED( "varioRepeat", 8 ),
-  YAML_ARRAY("customFn", 72, 64, struct_CustomFunctionData, cfn_is_active),
+  YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_CUSTOM("auxSerialMode",r_serialMode,nullptr),
   YAML_CUSTOM("aux2SerialMode",r_serialMode,nullptr),
   YAML_ARRAY("serialPort", 8, 4, struct_serialConfig, nullptr),
-  YAML_ARRAY("sticksConfig", 0, 4, struct_sticksConfig, stick_name_valid),
-  YAML_ARRAY("switchConfig", 2, 16, struct_switchConfig, nullptr),
-  YAML_ARRAY("potsConfig", 2, 8, struct_potConfig, nullptr),
-  YAML_ARRAY("slidersConfig", 1, 8, struct_sliderConfig, nullptr),
-  YAML_PADDING( 192 ),
-  YAML_PADDING( 216 ),
+  YAML_ARRAY("sticksConfig", 0, MAX_STICKS, struct_stickConfig, stick_name_valid),
+  YAML_ARRAY("slidersConfig", 0, MAX_POTS, struct_sliderConfig, nullptr),
+  YAML_ARRAY("potsConfig", 4, 16, struct_potConfig, nullptr),
+  YAML_ARRAY("switchConfig", 2, 32, struct_switchConfig, nullptr),
+  YAML_ARRAY("flexSwitches", 0, MAX_FLEX_SWITCHES, struct_flexSwitch, flex_sw_valid),
   YAML_STRING("currModelFilename", 17),
-  YAML_PADDING( 1 ),
+  YAML_UNSIGNED( "modelQuickSelect", 1 ),
   YAML_UNSIGNED( "blOffBright", 7 ),
   YAML_STRING("bluetoothName", 10),
-  YAML_STRING("themeName", 8),
-  YAML_STRUCT("themeData", 480, struct_OpenTxTheme__PersistentData, NULL),
   YAML_STRING("ownerRegistrationID", 8),
-  YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
-  YAML_UNSIGNED( "rotEncMode", 2 ),
+  YAML_PADDING( 3 ),
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
-  YAML_PADDING( 1 ),
+  YAML_STRING("selectedTheme", 26),
+  YAML_UNSIGNED( "labelSingleSelect", 1 ),
+  YAML_UNSIGNED( "labelMultiMode", 1 ),
+  YAML_UNSIGNED( "favMultiMode", 1 ),
+  YAML_UNSIGNED( "modelSelectLayout", 2 ),
+  YAML_UNSIGNED( "radioThemesDisabled", 1 ),
+  YAML_UNSIGNED( "radioGFDisabled", 1 ),
+  YAML_UNSIGNED( "radioTrainerDisabled", 1 ),
+  YAML_UNSIGNED( "modelHeliDisabled", 1 ),
+  YAML_UNSIGNED( "modelFMDisabled", 1 ),
+  YAML_UNSIGNED( "modelCurvesDisabled", 1 ),
+  YAML_UNSIGNED( "modelGVDisabled", 1 ),
+  YAML_UNSIGNED( "modelLSDisabled", 1 ),
+  YAML_UNSIGNED( "modelSFDisabled", 1 ),
+  YAML_UNSIGNED( "modelCustomScriptsDisabled", 1 ),
+  YAML_UNSIGNED( "modelTelemetryDisabled", 1 ),
+  YAML_UNSIGNED( "disableTrainerPoweroffAlarm", 1 ),
+  YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
+  YAML_PADDING( 6 ),
+  YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -470,26 +411,29 @@ static const struct YamlNode struct_TimerData[] = {
   YAML_UNSIGNED( "persistent", 2 ),
   YAML_SIGNED( "countdownStart", 2 ),
   YAML_UNSIGNED( "showElapsed", 1 ),
-  YAML_PADDING( 7 ),
+  YAML_UNSIGNED( "extraHaptic", 1 ),
+  YAML_PADDING( 6 ),
   YAML_STRING("name", 8),
   YAML_END
 };
 static const struct YamlNode struct_CurveRef[] = {
-  YAML_UNSIGNED( "type", 8 ),
-  YAML_SIGNED_CUST( "value", 8, in_read_weight, in_write_weight ),
+  YAML_UNSIGNED( "type", 5 ),
+  YAML_SIGNED_CUST( "value", 11, r_sourceNumVal, w_sourceNumVal ),
   YAML_END
 };
 static const struct YamlNode struct_MixData[] = {
-  YAML_SIGNED_CUST( "weight", 11, in_read_weight, in_write_weight ),
   YAML_UNSIGNED( "destCh", 5 ),
-  YAML_UNSIGNED_CUST( "srcRaw", 10, r_mixSrcRaw, w_mixSrcRaw ),
+  YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_UNSIGNED( "carryTrim", 1 ),
   YAML_UNSIGNED( "mixWarn", 2 ),
   YAML_ENUM("mltpx", 2, enum_MixerMultiplex),
-  YAML_PADDING( 1 ),
-  YAML_SIGNED_CUST( "offset", 14, in_read_weight, in_write_weight ),
-  YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
+  YAML_UNSIGNED( "delayPrec", 1 ),
+  YAML_UNSIGNED( "speedPrec", 1 ),
   YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
+  YAML_PADDING( 1 ),
+  YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
   YAML_UNSIGNED( "delayUp", 8 ),
   YAML_UNSIGNED( "delayDown", 8 ),
@@ -514,16 +458,17 @@ static const struct YamlNode struct_LimitData[] = {
 static const struct YamlNode struct_ExpoData[] = {
   YAML_UNSIGNED( "mode", 2 ),
   YAML_UNSIGNED( "scale", 14 ),
-  YAML_UNSIGNED_CUST( "srcRaw", 10, r_mixSrcRaw, w_mixSrcRaw ),
-  YAML_SIGNED( "carryTrim", 6 ),
-  YAML_UNSIGNED( "chn", 5 ),
-  YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
-  YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
-  YAML_SIGNED_CUST( "weight", 8, in_read_weight, in_write_weight ),
-  YAML_PADDING( 1 ),
-  YAML_STRING("name", 6),
-  YAML_SIGNED_CUST( "offset", 8, in_read_weight, in_write_weight ),
+  YAML_CUSTOM("carryTrim",r_carryTrim,nullptr),
+  YAML_SIGNED( "trimSource", 6 ),
+  YAML_SIGNED_CUST( "srcRaw", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
+  YAML_UNSIGNED_CUST( "weight", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_UNSIGNED_CUST( "offset", 11, r_sourceNumVal, w_sourceNumVal ),
+  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_STRUCT("curve", 16, struct_CurveRef, NULL),
+  YAML_UNSIGNED( "chn", 5 ),
+  YAML_UNSIGNED_CUST( "flightModes", 9, r_flightModes, w_flightModes ),
+  YAML_PADDING( 2 ),
+  YAML_STRING("name", 6),
   YAML_END
 };
 static const struct YamlNode struct_CurveHeader[] = {
@@ -545,9 +490,9 @@ static const struct YamlNode struct_LogicalSwitchData[] = {
   YAML_CUSTOM("def",r_logicSw,w_logicSw),
   YAML_PADDING( 10 ),
   YAML_PADDING( 10 ),
-  YAML_SIGNED_CUST( "andsw", 9, r_swtchSrc, w_swtchSrc ),
-  YAML_PADDING( 1 ),
-  YAML_PADDING( 2 ),
+  YAML_SIGNED_CUST( "andsw", 10, r_swtchSrc, w_swtchSrc ),
+  YAML_UNSIGNED( "lsPersist", 1 ),
+  YAML_UNSIGNED( "lsState", 1 ),
   YAML_PADDING( 16 ),
   YAML_UNSIGNED( "delay", 8 ),
   YAML_UNSIGNED( "duration", 8 ),
@@ -572,10 +517,10 @@ static const struct YamlNode struct_trim_t[] = {
 };
 static const struct YamlNode struct_FlightModeData[] = {
   YAML_IDX,
-  YAML_ARRAY("trim", 16, 4, struct_trim_t, NULL),
+  YAML_ARRAY("trim", 16, 6, struct_trim_t, NULL),
   YAML_STRING("name", 10),
-  YAML_SIGNED_CUST( "swtch", 9, r_swtchSrc, w_swtchSrc ),
-  YAML_PADDING( 7 ),
+  YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
+  YAML_PADDING( 6 ),
   YAML_UNSIGNED( "fadeIn", 8 ),
   YAML_UNSIGNED( "fadeOut", 8 ),
   YAML_ARRAY("gvars", 16, 9, struct_signed_16, gvar_is_active),
@@ -671,6 +616,7 @@ static const struct YamlNode struct_anonymous_10[] = {
   YAML_UNSIGNED( "telemetry", 1 ),
   YAML_UNSIGNED( "phyMode", 3 ),
   YAML_UNSIGNED( "reserved", 2 ),
+  YAML_UNSIGNED( "rfPower", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_11[] = {
@@ -695,7 +641,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("sbus", 16, struct_anonymous_7, NULL),
   YAML_STRUCT("pxx2", 200, struct_anonymous_8, NULL),
   YAML_STRUCT("flysky", 56, struct_anonymous_9, NULL),
-  YAML_STRUCT("afhds3", 8, struct_anonymous_10, NULL),
+  YAML_STRUCT("afhds3", 16, struct_anonymous_10, NULL),
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
   YAML_STRUCT("crsf", 8, struct_anonymous_12, NULL),
   YAML_STRUCT("dsmp", 8, struct_anonymous_13, NULL),
@@ -703,7 +649,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
 };
 static const struct YamlNode struct_ModuleData[] = {
   YAML_IDX,
-  YAML_ENUM("type", 8, enum_ModuleType),
+  YAML_UNSIGNED_CUST( "type", 8, r_moduleType, w_moduleType ),
   YAML_CUSTOM("subType",r_modSubtype,w_modSubtype),
   YAML_UNSIGNED( "channelsStart", 8 ),
   YAML_SIGNED_CUST( "channelsCount", 8, r_channelsCount, w_channelsCount ),
@@ -814,30 +760,54 @@ static const struct YamlNode struct_TelemetrySensor[] = {
   YAML_UNION("cfg", 32, union_anonymous_17_elmts, select_sensor_cfg),
   YAML_END
 };
+static const struct YamlNode union_ZoneOptionValue_elmts[] = {
+  YAML_UNSIGNED( "unsignedValue", 32 ),
+  YAML_SIGNED( "signedValue", 32 ),
+  YAML_UNSIGNED( "boolValue", 32 ),
+  YAML_STRING("stringValue", 8),
+  YAML_CUSTOM("source",r_zov_source,w_zov_source),
+  YAML_CUSTOM("color",r_zov_color,w_zov_color),
+  YAML_END
+};
+static const struct YamlNode struct_ZoneOptionValueTyped[] = {
+  YAML_IDX,
+  YAML_ENUM("type", 32, enum_ZoneOptionValueEnum),
+  YAML_UNION("value", 64, union_ZoneOptionValue_elmts, select_zov),
+  YAML_END
+};
 static const struct YamlNode struct_WidgetPersistentData[] = {
-  YAML_ARRAY("options", 96, 5, struct_ZoneOptionValueTyped, NULL),
+  YAML_ARRAY("options", 96, 10, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
 static const struct YamlNode struct_ZonePersistentData[] = {
   YAML_IDX,
   YAML_STRING("widgetName", 12),
-  YAML_STRUCT("widgetData", 480, struct_WidgetPersistentData, NULL),
+  YAML_STRUCT("widgetData", 960, struct_WidgetPersistentData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_LayoutPersistentData[] = {
-  YAML_ARRAY("zones", 576, 10, struct_ZonePersistentData, NULL),
+  YAML_ARRAY("zones", 1056, 10, struct_ZonePersistentData, NULL),
   YAML_ARRAY("options", 96, 10, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
 static const struct YamlNode struct_CustomScreenData[] = {
   YAML_IDX,
-  YAML_STRING("LayoutId", 10),
-  YAML_STRUCT("layoutData", 6720, struct_LayoutPersistentData, NULL),
+  YAML_STRING("LayoutId", 12),
+  YAML_STRUCT("layoutData", 11520, struct_LayoutPersistentData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_TopBarPersistentData[] = {
-  YAML_ARRAY("zones", 576, 2, struct_ZonePersistentData, NULL),
+  YAML_ARRAY("zones", 1056, 4, struct_ZonePersistentData, NULL),
   YAML_ARRAY("options", 96, 1, struct_ZoneOptionValueTyped, NULL),
+  YAML_END
+};
+static const struct YamlNode struct_USBJoystickChData[] = {
+  YAML_IDX,
+  YAML_ENUM("mode", 3, enum_USBJoystickCh),
+  YAML_UNSIGNED( "inversion", 1 ),
+  YAML_UNSIGNED( "param", 4 ),
+  YAML_UNSIGNED( "btn_num", 5 ),
+  YAML_UNSIGNED( "switch_npos", 3 ),
   YAML_END
 };
 static const struct YamlNode struct_ModelData[] = {
@@ -857,21 +827,25 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "throttleReversed", 1 ),
   YAML_UNSIGNED( "enableCustomThrottleWarning", 1 ),
   YAML_UNSIGNED( "disableTelemetryWarning", 1 ),
-  YAML_PADDING( 6 ),
+  YAML_UNSIGNED( "showInstanceIds", 1 ),
+  YAML_UNSIGNED( "checklistInteractive", 1 ),
+  YAML_ENUM("hatsMode", 2, enum_HatsMode),
+  YAML_PADDING( 2 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
   YAML_ARRAY("limitData", 104, 32, struct_LimitData, NULL),
-  YAML_ARRAY("expoData", 136, 64, struct_ExpoData, NULL),
+  YAML_ARRAY("expoData", 144, 64, struct_ExpoData, NULL),
   YAML_ARRAY("curves", 32, 32, struct_CurveHeader, NULL),
   YAML_ARRAY("points", 8, 512, struct_signed_8, NULL),
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
-  YAML_ARRAY("customFn", 72, 64, struct_CustomFunctionData, cfn_is_active),
+  YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
-  YAML_ARRAY("flightModeData", 320, 9, struct_FlightModeData, fmd_is_active),
+  YAML_ARRAY("flightModeData", 352, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
-  YAML_CUSTOM("switchWarningState",r_swtchWarn,w_swtchWarn),
-  YAML_PADDING( 32 ),
+  YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
+  YAML_ARRAY("switchWarning", 3, 21, struct_swtchWarn, nullptr),
+  YAML_PADDING(1),
   YAML_ARRAY("gvars", 56, 9, struct_GVarData, NULL),
   YAML_STRUCT("varioData", 40, struct_VarioData, NULL),
   YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
@@ -887,12 +861,28 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("scriptsData", 192, 9, struct_ScriptData, NULL),
   YAML_ARRAY("inputNames", 32, 32, struct_string_32, NULL),
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
-  YAML_ARRAY("potsWarnPosition", 8, 5, struct_signed_8, NULL),
+  YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
-  YAML_ARRAY("screenData", 6800, 5, struct_CustomScreenData, NULL),
-  YAML_STRUCT("topbarData", 1248, struct_TopBarPersistentData, NULL),
+  YAML_ARRAY("screenData", 11616, 10, struct_CustomScreenData, NULL),
+  YAML_STRUCT("topbarData", 4320, struct_TopBarPersistentData, NULL),
+  YAML_ARRAY("topbarWidgetWidth", 8, 4, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
+  YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
+  YAML_ENUM("usbJoystickIfMode", 3, enum_USBJoystickIfMode),
+  YAML_UNSIGNED( "usbJoystickCircularCut", 4 ),
+  YAML_ARRAY("usbJoystickCh", 16, 26, struct_USBJoystickChData, NULL),
+  YAML_ENUM("radioThemesDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("radioGFDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("radioTrainerDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelHeliDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelFMDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelCurvesDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelGVDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelLSDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable),
+  YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {

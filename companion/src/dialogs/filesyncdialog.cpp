@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -104,7 +105,7 @@ static QWidget * folderSelectorWidget(QLineEdit * le, QWidget * parent)
   l->addWidget(btn);
 
   QObject::connect(btn, &QToolButton::clicked, [=]() {
-    QString dir = QFileDialog::getExistingDirectory(parent, fsw->property("fileDialogTitle").toString(), le->text(), 0);
+    QString dir = QFileDialog::getExistingDirectory(parent, fsw->property("fileDialogTitle").toString(), le->text());
     if (!dir.isEmpty()) {
       le->setText(QDir::toNativeSeparators(dir));
       le->setFocus();

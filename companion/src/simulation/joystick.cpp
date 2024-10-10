@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -26,7 +27,13 @@ Joystick::Joystick(QObject *parent, int joystickEventTimeout, bool doAutoRepeat,
   if ( SDL_WasInit(SDL_INIT_JOYSTICK) ) {
     int i;
     for (i = 0; i < SDL_NumJoysticks(); i++)
-      joystickNames.append(SDL_JoystickName(i));
+    {
+      SDL_Joystick* joy = SDL_JoystickOpen(i);
+      if(joy == nullptr)
+        continue;
+      joystickNames.append(SDL_JoystickName(joy));
+      SDL_JoystickClose(joy);
+    }
     connect(&joystickTimer, SIGNAL(timeout()), this, SLOT(processEvents()));
   } else {
     fprintf(stderr, "ERROR: couldn't initialize SDL joystick support\n");
@@ -57,6 +64,9 @@ bool Joystick::open(int stick)
     numHats = SDL_JoystickNumHats(joystick);
     numTrackballs = SDL_JoystickNumBalls(joystick);
     joystickTimer.start(eventTimeout);
+    for (int i = 0; i < numButtons; i += 1) {
+      buttons[i] = -1;
+    }
     return true;
   }
   else {
@@ -103,9 +113,9 @@ void Joystick::processEvents()
         axisRepeatTimers[i].restart();
       }
     }
-    else {
-      emit axisValueChanged(i, 0);
-    }
+//     else {
+//       emit axisValueChanged(i, 0);
+//     }
   }
   for (i = 0; i < numButtons; i++) {
     Uint8 changed = SDL_JoystickGetButton(joystick, i);
@@ -157,4 +167,14 @@ int Joystick::getAxisValue(int axis)
     return SDL_JoystickGetAxis(joystick, axis);
   } else
     return 0;
+}
+
+int Joystick::findCurrent(QString jsName)
+{
+  for (int i = 0; i < joystickNames.size(); i += 1) {
+    if (joystickNames[i] == jsName) {
+      return i;
+    }
+  }
+  return 0;
 }

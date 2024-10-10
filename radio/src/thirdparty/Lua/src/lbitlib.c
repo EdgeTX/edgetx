@@ -5,13 +5,12 @@
 */
 
 #define lbitlib_c
+#define LUA_LIB
 
 #include "lua.h"
 
 #include "lauxlib.h"
 #include "lualib.h"
-
-#include "lrotable.h"
 
 /* number of bits to consider in a number */
 #if !defined(LUA_NBITS)
@@ -186,26 +185,25 @@ static int b_replace (lua_State *L) {
 }
 
 
-const luaL_Reg bitlib[] = {
-  {"arshift", b_arshift},
-  {"band", b_and},
-  {"bnot", b_not},
-  {"bor", b_or},
-  {"bxor", b_xor},
-  {"btest", b_test},
-  {"extract", b_extract},
-  {"lrotate", b_lrot},
-  {"lshift", b_lshift},
-  {"replace", b_replace},
-  {"rrotate", b_rrot},
-  {"rshift", b_rshift},
-  {NULL, NULL}
-};
+LROT_BEGIN(bitlib, NULL, 0)
+  LROT_FUNCENTRY( arshift, b_arshift )
+  LROT_FUNCENTRY( band,    b_and )
+  LROT_FUNCENTRY( bnot,    b_not )
+  LROT_FUNCENTRY( bor,     b_or )
+  LROT_FUNCENTRY( bxor,    b_xor )
+  LROT_FUNCENTRY( btest,   b_test )
+  LROT_FUNCENTRY( extract, b_extract )
+  LROT_FUNCENTRY( lrotate, b_lrot )
+  LROT_FUNCENTRY( lshift,  b_lshift )
+  LROT_FUNCENTRY( replace, b_replace )
+  LROT_FUNCENTRY( rrotate, b_rrot )
+  LROT_FUNCENTRY( rshift,  b_rshift )
+LROT_END(bitlib, NULL, 0)
 
-const luaR_value_entry bitlib_vals[] = {
-  {NULL, 0}
-};
 
+/*
+** Open bit library
+*/
 LUAMOD_API int luaopen_bit32 (lua_State *L) {
   return 0;
 }

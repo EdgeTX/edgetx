@@ -3,9 +3,14 @@ cmake_minimum_required(VERSION 3.13)
 project(EdgeTX)
 
 set(VERSION_MAJOR "2")
-set(VERSION_MINOR "8")
+set(VERSION_MINOR "11")
 set(VERSION_REVISION "0")
 set(CODENAME "dev")
+string(TIMESTAMP BUILD_YEAR "%Y")
+
+if(MINGW OR WIN32)
+  set(CMAKE_OBJECT_PATH_MAX 200)
+endif()
 
 if(DEFINED ENV{EDGETX_VERSION_TAG})
   set(VERSION_TAG "$ENV{EDGETX_VERSION_TAG}")
@@ -43,7 +48,7 @@ if(EdgeTX_SUPERBUILD)
 
   # Add explicit targets for triggering cmake in the external projects
   set_property(DIRECTORY PROPERTY EP_STEP_TARGETS configure clean)
-  
+
   # Native targets
   ExternalProject_Add(native
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
@@ -103,6 +108,11 @@ if(EdgeTX_SUPERBUILD)
     DEPENDS native-configure
     )
 
+  add_custom_target(bootloader
+    COMMAND $(MAKE) -C arm-none-eabi bootloader
+    DEPENDS arm-none-eabi-configure
+    )
+
   add_custom_target(firmware
     COMMAND $(MAKE) -C arm-none-eabi firmware
     DEPENDS arm-none-eabi-configure
@@ -132,7 +142,7 @@ if(NATIVE_BUILD)
   include(NativeTargets)
 else()
   # Prevent CMake warnings
-  set(IGNORE "${SDL_LIBRARY_PATH}")
+  set(IGNORE "${SDL2_LIBRARY_PATH}" "${LIBSSL1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
 endif()
 
 add_subdirectory(${RADIO_SRC_DIR})

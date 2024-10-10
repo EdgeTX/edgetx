@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -24,6 +25,8 @@
 #include "generaledit.h"
 #include "eeprominterface.h"
 
+class FilteredItemModelFactory;
+
 namespace Ui {
   class GeneralSetup;
 }
@@ -37,10 +40,10 @@ class GeneralSetupPanel : public GeneralPanel
     virtual ~GeneralSetupPanel();
 
   private slots:
-    void on_splashScreenChkB_stateChanged(int);
     void on_splashScreenDuration_currentIndexChanged(int index);
     void on_alarmwarnChkB_stateChanged(int);
     void on_rssiPowerOffWarnChkB_stateChanged(int);
+    void on_trainerPowerOffWarnChkB_stateChanged(int);
     void on_gpsFormatCB_currentIndexChanged(int index);
     void on_displayTypeCB_currentIndexChanged(int index);
     void on_BLBright_SB_editingFinished();
@@ -48,15 +51,16 @@ class GeneralSetupPanel : public GeneralPanel
     void on_re_CB_currentIndexChanged(int index);
     void on_countrycode_CB_currentIndexChanged(int index);
     void on_units_CB_currentIndexChanged(int index);
+    void on_ppm_units_CB_currentIndexChanged(int index);
     void on_faimode_CB_stateChanged(int );
     void on_rotEncMode_CB_currentIndexChanged(int index);
     void on_speakerPitchSB_editingFinished();
-    void on_timezoneSB_editingFinished();
+    void on_timezoneLE_textEdited(const QString &text);
     void on_adjustRTC_stateChanged(int);
     void on_hapticStrength_valueChanged();
     void on_soundModeCB_currentIndexChanged(int index);
     void on_beeperlenCB_currentIndexChanged(int index);
-    void on_volume_SB_editingFinished();
+    void on_volume_SL_valueChanged();
     void on_hapticmodeCB_currentIndexChanged(int index);
     void on_hapticLengthCB_currentIndexChanged(int index);
     void on_backlightswCB_currentIndexChanged(int index);
@@ -90,11 +94,24 @@ class GeneralSetupPanel : public GeneralPanel
     void on_contrastSB_editingFinished();
     void on_registrationId_editingFinished();
 
-    void on_pwrOnDelay_valueChanged(int);
-    void on_pwrOffDelay_valueChanged(int);
+    void on_pwrOnDelay_currentIndexChanged(int);
+    void on_pwrOffDelay_currentIndexChanged(int);
+    void on_pwrOnOffHaptic_CB_stateChanged(int);
+
+    void on_modelQuickSelect_CB_stateChanged(int);
+    void on_startSoundCB_stateChanged(int);
+    void on_modelSelectLayout_CB_currentIndexChanged(int);
+    void on_labelSingleSelect_CB_currentIndexChanged(int);
+    void on_labelMultiMode_CB_currentIndexChanged(int);
+    void on_favMultiMode_CB_currentIndexChanged(int);
+
+    void on_pwrOffIfInactiveSB_editingFinished();
 
   private:
     Ui::GeneralSetup *ui;
+    FilteredItemModelFactory *panelFilteredModels;
+
+    void showLabelSelectOptions();
 
     void setValues();
     void populateBacklightCB();

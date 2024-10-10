@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include "opentx.h"
-#include "aux_serial_driver.h"
+#include "edgetx.h"
+#include "hal/module_port.h"
 
 #include "telemetry.h"
 #include "io/multi_protolist.h"
@@ -29,6 +29,7 @@
 #include "hitec.h"
 #include "hott.h"
 #include "mlink.h"
+#include "trainer.h"
 
 constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
 #define MULTI_CHAN_BITS 11
@@ -78,11 +79,15 @@ static MultiModuleStatus multiModuleStatus[NUM_MODULES] = {MultiModuleStatus(), 
 static uint8_t multiBindStatus[NUM_MODULES] = {MULTI_BIND_NONE, MULTI_BIND_NONE};
 
 static MultiBufferState multiTelemetryBufferState[NUM_MODULES];
-static uint16_t multiTelemetryLastRxTS[NUM_MODULES];
 
 MultiModuleStatus &getMultiModuleStatus(uint8_t module)
 {
   return multiModuleStatus[module];
+}
+
+static uint8_t _getMultiStatusModuleIdx(const MultiModuleStatus* p)
+{
+  return p - multiModuleStatus;
 }
 
 uint8_t getMultiBindStatus(uint8_t module)
@@ -105,11 +110,6 @@ void setMultiTelemetryBufferState(uint8_t module, MultiBufferState state)
   multiTelemetryBufferState[module] = state;
 }
 
-static uint16_t& getMultiTelemetryLastRxTS(uint8_t module)
-{
-  return multiTelemetryLastRxTS[module];
-}
-
 #else // !INTERNAL_MODULE_MULTI
 
 static MultiModuleStatus multiModuleStatus;
@@ -121,6 +121,11 @@ static uint16_t multiTelemetryLastRxTS;
 MultiModuleStatus& getMultiModuleStatus(uint8_t)
 {
   return multiModuleStatus;
+}
+
+static uint8_t _getMultiStatusModuleIdx(const MultiModuleStatus*)
+{
+  return EXTERNAL_MODULE;
 }
 
 uint8_t getMultiBindStatus(uint8_t)
@@ -157,14 +162,7 @@ bool isMultiModeScanning(uint8_t module)
 
 static MultiBufferState guessProtocol(uint8_t module)
 {
-  uint32_t moduleIdx = EXTERNAL_MODULE;
-#if defined(INTERNAL_MODULE_MULTI)
-  if (isModuleMultimodule(INTERNAL_MODULE)) {
-    moduleIdx = INTERNAL_MODULE;
-  }
-#endif
-
-  if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+  if (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
     return SpektrumTelemetryFallback;
   else if (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FS_AFHDS2A)
     return FlyskyTelemetryFallback;
@@ -228,8 +226,8 @@ static void processMultiStatusPacket(const uint8_t * data, uint8_t module, uint8
   else {
     status.ch_order = data[5];
     if (len >= 24) {
-      status.protocolNext = data[6];
-      status.protocolPrev = data[7];
+      status.protocolNext = data[6] - 1;
+      status.protocolPrev = data[7] - 1;
       memcpy(status.protocolName, &data[8], 7);
       status.protocolName[7] = 0;
       status.protocolSubNbr = data[15] & 0x0F;
@@ -302,15 +300,14 @@ static void processMultiRxChannels(const uint8_t * data, uint8_t len)
     bitsavailable -= MULTI_CHAN_BITS;
     bits >>= MULTI_CHAN_BITS;
 
-    ppmInput[ch] = (value - 1024) * 500 / 800;
+    trainerInput[ch] = (value - 1024) * 500 / 800;
     ch++;
 
     if (byteIdx >= len)
       break;
   }
 
-  if (ch == maxCh)
-    ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
+  if (ch == maxCh) { trainerResetTimer(); }
 }
 #endif
 
@@ -418,7 +415,7 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
     case MLinkTelemetry:
       if (len > 6)
-        processMLinkPacket(data);
+        processMLinkPacket(data, true);
       else
         TRACE("[MP] Received M-Link telemetry len %d <= 6", len);
       break;
@@ -434,14 +431,14 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
     case FrSkyHubTelemetry:
       if (len >= 4)
-        frskyDProcessPacket(data);
+        frskyDProcessPacket(module, data, len);
       else
         TRACE("[MP] Received Frsky HUB telemetry len %d < 4", len);
       break;
 
     case FrSkySportTelemetry:
       if (len >= 4) {
-        if (sportProcessTelemetryPacket(data) && len >= 8) {
+        if (sportProcessTelemetryPacket(module, data, len) && len >= 8) {
           uint8_t primId = data[1];
           uint16_t dataId = *((uint16_t *)(data+2));
           if (primId == DATA_FRAME && dataId == RSSI_ID) {
@@ -470,10 +467,13 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 
 #if defined(LUA)
     case FrskySportPolling:
-      if (len >= 1 && outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT && data[0] == outputTelemetryBuffer.sport.physicalId) {
-        TRACE("MP Sending sport data out.");
-        sportSendBuffer(outputTelemetryBuffer.data, outputTelemetryBuffer.size);
-      }
+      // TODO
+      // if (len >= 1 &&
+      //     outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT &&
+      //     data[0] == outputTelemetryBuffer.sport.physicalId) {
+      //   TRACE("MP Sending sport data out.");
+      //   sportSendBuffer(outputTelemetryBuffer.data, outputTelemetryBuffer.size);
+      // }
       break;
 #endif
     case SpectrumScannerPacket:
@@ -508,14 +508,11 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
 void MultiModuleStatus::getStatusString(char * statusText) const
 {
   if (!isValid()) {
-#if defined(PCBFRSKY)
-#if !defined(INTERNAL_MODULE_MULTI)
-    if (isSportLineUsedByInternalModule())
+    if (!modulePortHasRx(getModuleIndex())) {
       strcpy(statusText, STR_DISABLE_INTERNAL);
-    else
-#endif
-#endif
-    strcpy(statusText, STR_MODULE_NO_TELEMETRY);
+    } else {
+      strcpy(statusText, STR_MODULE_NO_TELEMETRY);
+    }
     return;
   }
   if (!protocolValid()) {
@@ -567,6 +564,10 @@ void MultiModuleStatus::getStatusString(char * statusText) const
   }
 }
 
+uint8_t MultiModuleStatus::getModuleIndex() const {
+  return _getMultiStatusModuleIdx(this);
+}
+
 static void processMultiTelemetryByte(const uint8_t data, uint8_t module)
 {
   uint8_t * rxBuffer = getTelemetryRxBuffer(module);
@@ -602,14 +603,9 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
 {
   uint8_t * rxBuffer = getTelemetryRxBuffer(module);
   uint8_t &rxBufferCount = getTelemetryRxBufferCount(module);
-
-  uint16_t &lastRxTS = getMultiTelemetryLastRxTS(module);
-  uint16_t nowMs = (uint16_t)RTOS_GET_MS();
-  if (nowMs - lastRxTS > 15)
-    setMultiTelemetryBufferState(module, NoProtocolDetected);
-  lastRxTS = nowMs;
   
-  // debugPrintf("State: %d, byte received %02X, buflen: %d\r\n", getMultiTelemetryBufferState(module), data, rxBufferCount);
+  // debugPrintf("State: %d, byte received %02X, buflen: %d\r\n",
+  //             getMultiTelemetryBufferState(module), data, rxBufferCount);
   
   switch (getMultiTelemetryBufferState(module)) {
     case NoProtocolDetected:
@@ -629,7 +625,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
 
     case FrskyTelemetryFallback:
       setMultiTelemetryBufferState(module, FrskyTelemetryFallbackFirstByte);
-      processFrskyTelemetryData(data);
+      processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
       break;
 
     case FrskyTelemetryFallbackFirstByte:
@@ -637,7 +633,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
         setMultiTelemetryBufferState(module, MultiStatusOrFrskyData);
       }
       else {
-        processFrskyTelemetryData(data);
+        processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
         if (data != 0x7e)
           setMultiTelemetryBufferState(module, FrskyTelemetryFallbackNextBytes);
       }
@@ -645,7 +641,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
       break;
 
     case FrskyTelemetryFallbackNextBytes:
-      processFrskyTelemetryData(data);
+      processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
       if (data == 0x7e) {
         // end of packet or start of new packet
         setMultiTelemetryBufferState(module, FrskyTelemetryFallbackFirstByte);
@@ -719,6 +715,9 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
         TRACE("[MP] array size %d error", rxBufferCount);
         setMultiTelemetryBufferState(module, NoProtocolDetected);
       }
+      break;
+      
+    default:
       break;
   }
 }

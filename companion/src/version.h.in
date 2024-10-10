@@ -6,6 +6,7 @@
 #cmakedefine VERSION_TAG  "@VERSION_TAG@"
 #define CODENAME          "@CODENAME@"
 #define GIT_STR           "@GIT_STR@"
+#define BUILD_YEAR        @BUILD_YEAR@
 
 #define VERSION_NUMBER    ((VERSION_MAJOR << 16) | (VERSION_MINOR << 8) | VERSION_REVISION)
 

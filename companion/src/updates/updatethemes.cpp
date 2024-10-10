@@ -22,14 +22,15 @@
 #include "updatethemes.h"
 
 UpdateThemes::UpdateThemes(QWidget * parent) :
-  UpdateInterface(parent)
+  UpdateInterface(parent, CID_Themes, tr("Themes"), Repo::REPO_TYPE_GITHUB,
+                  QString(GH_API_REPOS_EDGETX).append("/themes"))
 {
-  init(CID_Themes, tr("Themes"), QString(GH_REPOS_EDGETX).append("/themes"));
+  init(); // call after UpdateInterface ctor due to virtual functions
 }
 
-void UpdateThemes::initAssetSettings()
+void UpdateThemes::assetSettingsInit()
 {
-  if (!isValidSettingsIndex())
+  if (!isSettingsIndexValid())
     return;
 
   g.component[id()].initAllAssets();

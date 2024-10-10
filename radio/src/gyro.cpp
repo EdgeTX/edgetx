@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -53,6 +53,11 @@ void Gyro::wakeup()
     ++errors;
     return;
   }
+
+  // reset error count on each
+  // successful query to avoid
+  // stopping the sensor forever
+  errors = 0;
 
   int16_t gx = values[0];
   int16_t gy = values[1];

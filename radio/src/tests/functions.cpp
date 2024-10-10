@@ -27,26 +27,34 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 {
   // test the size of swtch member
   g_model.customFn[0].swtch = SWSRC_LAST;
-  EXPECT_EQ(g_model.customFn[0].swtch, SWSRC_LAST) << "CustomFunctionData.swtch member is too small to hold all possible values";
+  EXPECT_EQ(g_model.customFn[0].swtch, SWSRC_LAST)
+      << "CustomFunctionData.swtch member is too small to hold all possible "
+         "values";
   g_model.customFn[0].swtch = -SWSRC_LAST;
-  EXPECT_EQ(g_model.customFn[0].swtch, -SWSRC_LAST) << "CustomFunctionData.swtch member is too small to hold all possible values";
+  EXPECT_EQ(g_model.customFn[0].swtch, -SWSRC_LAST)
+      << "CustomFunctionData.swtch member is too small to hold all possible "
+         "values";
 }
 
 #if defined(PCBFRSKY)
 TEST_F(SpecialFunctionsTest, FlightReset)
 {
-  g_model.customFn[0].swtch = SWSRC_SA0;
+  g_model.customFn[0].swtch = SWSRC_FIRST_SWITCH;
   g_model.customFn[0].func = FUNC_RESET;
   g_model.customFn[0].all.val = FUNC_RESET_FLIGHT;
   g_model.customFn[0].active = true;
 
+
   mainRequestFlags = 0;
   simuSetSwitch(0, 0);
+  EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH));
+
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)), false);
 
   // now trigger SA0
   simuSetSwitch(0, -1);
+  EXPECT_EQ(true, getSwitch(SWSRC_FIRST_SWITCH));
 
   // flightReset() should be called
   evalFunctions(g_model.customFn, modelFunctionsContext);
@@ -63,7 +71,7 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
 {
   simuSetSwitch(0, 0);    // SA-
 
-  g_model.customFn[0].swtch = SWSRC_SA0;
+  g_model.customFn[0].swtch = SWSRC_FIRST_SWITCH;
   g_model.customFn[0].func = FUNC_ADJUST_GVAR;
   g_model.customFn[0].all.mode = FUNC_ADJUST_GVAR_INCDEC;
   g_model.customFn[0].all.param = 0; // GV1

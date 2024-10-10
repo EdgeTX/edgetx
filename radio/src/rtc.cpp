@@ -20,7 +20,7 @@
  */
 
 #include <limits.h>
-#include "opentx.h"
+#include "edgetx.h"
 
 extern void rtcdriver_settime(struct gtm * t);
 
@@ -471,7 +471,7 @@ uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t
     t.tm_hour = hour;
     t.tm_min  = min;
     t.tm_sec  = sec;
-    gtime_t newTime = gmktime(&t) + g_eeGeneral.timezone * 3600;
+    gtime_t newTime = gmktime(&t) + timezoneOffsetSeconds(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
     gtime_t diff = (g_rtcTime > newTime) ? (g_rtcTime - newTime) : (newTime - g_rtcTime);
 
 #if defined(DEBUG) && defined (PCBTARANIS)
@@ -492,4 +492,17 @@ uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t
     }
   }
   return 0;
+}
+
+bool rtcIsValid()
+{
+  struct gtm t;
+  gettime(&t);
+
+  // If year is 2000, rtc circuit aren't working
+  // No RTC battery or other issue
+  if (t.tm_year <= 100)
+    return false;
+
+  return true;
 }

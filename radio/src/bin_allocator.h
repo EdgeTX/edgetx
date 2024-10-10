@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BIN_ALLOCATOR_H_
-#define _BIN_ALLOCATOR_H_
+#pragma once
 
 #include "debug.h"
 
@@ -53,11 +52,11 @@ public:
   void * malloc(size_t size) {
     if (size > SIZE_SLOT) {
       // TRACE("BinAllocator<%d> malloc [%lu] size > SIZE_SLOT", SIZE_SLOT, size);
-      return 0;
+      return nullptr;
     }
     if (NoUsedBins >= NUM_BINS) {
       // TRACE("BinAllocator<%d> malloc [%lu] no free slots", SIZE_SLOT, size);
-      return 0;
+      return nullptr;
     }
     for (size_t n = 0; n < NUM_BINS; ++n) {
       if (!Bins[n].Used) {
@@ -68,7 +67,7 @@ public:
       }
     }
     // TRACE("BinAllocator<%d> malloc [%lu] no free slots", SIZE_SLOT , size);
-    return 0;
+    return nullptr;
   }
   size_t size(void * ptr) {
     return is_member(ptr) ? SIZE_SLOT : 0;
@@ -95,5 +94,3 @@ extern BinAllocator_slots2 slots2;
 // wrapper for our BinAllocator for Lua
 void *bin_l_alloc (void *ud, void *ptr, size_t osize, size_t nsize);
 #endif   //#if defined(USE_BIN_ALLOCATOR)
-
-#endif // _BIN_ALLOCATOR_H_

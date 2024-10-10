@@ -19,8 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "mixer_scheduler.h"
+#include "tasks/mixer_task.h"
+#include "hal/usb_driver.h"
 
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
@@ -96,6 +98,11 @@ void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
   }
 
   mixerSchedules[moduleIdx].period = periodUs;
+}
+
+uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx)
+{
+  return mixerSchedules[moduleIdx].period;
 }
 
 void mixerSchedulerISRTrigger()

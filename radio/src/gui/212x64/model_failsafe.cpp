@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 extern uint8_t g_moduleIdx;
 
@@ -97,9 +97,9 @@ void menuModelFailsafe(event_t event)
       uint8_t lenLabel = ZLEN(g_model.limitData[ch+channelStart].name);
       uint8_t barW = colW - FW * reusableBuffer.modelFailsafe.maxNameLen - FWNUM * 3;  // default bar width
 
-#if defined(PPM_UNIT_PERCENT_PREC1)
-      barW -= FWNUM + 1;
-#endif
+      if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+        barW -= FWNUM + 1;
+      }
       barW += (barW % 2);
 
       // Channel name if present, number if not
@@ -137,13 +137,13 @@ void menuModelFailsafe(event_t event)
         failsafeValue = 0;
       }
       else {
-#if defined(PPM_UNIT_US)
-        lcdDrawNumber(xValue, y, PPM_CH_CENTER(ch)+failsafeValue/2, RIGHT|flags);
-#elif defined(PPM_UNIT_PERCENT_PREC1)
-        lcdDrawNumber(xValue, y, calcRESXto1000(failsafeValue), RIGHT|PREC1|flags);
-#else
-        lcdDrawNumber(xValue, y, calcRESXto1000(failsafeValue)/10, RIGHT|flags);
-#endif
+        if (g_eeGeneral.ppmunit == PPM_US) {
+          lcdDrawNumber(xValue, y, PPM_CH_CENTER(ch)+failsafeValue/2, RIGHT|flags);
+        } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+          lcdDrawNumber(xValue, y, calcRESXto1000(failsafeValue), RIGHT|PREC1|flags);
+        } else {
+          lcdDrawNumber(xValue, y, calcRESXto1000(failsafeValue)/10, RIGHT|flags);
+        }
       }
 
       // Gauge

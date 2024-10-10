@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -94,7 +95,6 @@ class RleFile
   unsigned int version;
   uint8_t *eeprom;
   unsigned int eeprom_size;
-  EeFs         *eeFs;
   EeFsArm      *eeFsArm;
   unsigned int eeFsVersion;
   unsigned int eeFsBlockSize;

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -23,8 +24,10 @@
 #include "radiodata.h"
 #include "filtereditemmodels.h"
 #include "helpers.h"
+#include "namevalidator.h"
+#include "sourcenumref.h"
 
-MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, GeneralSettings & generalSettings, Firmware * firmware,
+MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, int index, GeneralSettings & generalSettings, Firmware * firmware,
                          CompoundItemModelFactory * sharedItemModels) :
   QDialog(parent),
   ui(new Ui::MixerDialog),
@@ -36,10 +39,10 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 {
   ui->setupUi(this);
 
-  dialogFilteredItemModels = new FilteredItemModelFactory();
-  int id;
+  Board::Type board = firmware->getBoard();
 
-  QRegExp rx(CHAR_FOR_NAMES_REGEX);
+  dialogFilteredItemModels = new FilteredItemModelFactory();
+
   QLabel * lb_fp[CPN_MAX_FLIGHT_MODES] = {ui->lb_FP0, ui->lb_FP1, ui->lb_FP2, ui->lb_FP3, ui->lb_FP4, ui->lb_FP5, ui->lb_FP6, ui->lb_FP7, ui->lb_FP8 };
   QCheckBox * tmp[CPN_MAX_FLIGHT_MODES] = {ui->cb_FP0, ui->cb_FP1, ui->cb_FP2, ui->cb_FP3, ui->cb_FP4, ui->cb_FP5, ui->cb_FP6, ui->cb_FP7, ui->cb_FP8 };
   for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
@@ -48,32 +51,41 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 
   this->setWindowTitle(tr("DEST -> %1").arg(RawSource(SOURCE_TYPE_CH, md->destCh - 1).toString(&model, &generalSettings)));
 
-  id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                                         (RawSource::InputSourceGroups & ~RawSource::NoneGroup) | RawSource::ScriptsGroup),
-                                                   "RawSource");
-  ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(id));
+  int imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                                                              (RawSource::InputSourceGroups & ~RawSource::NoneGroup) | RawSource::ScriptsGroup),
+                                                         "RawSource");
+
+  ui->sourceCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->sourceCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->sourceCB->setCurrentIndex(ui->sourceCB->findData(md->srcRaw.toValue()));
+  if (ui->sourceCB->currentIndex() < 0 && md->srcRaw.toValue() == 0)
+    ui->sourceCB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->sourceCB));
 
   int limit = firmware->getCapability(OffsetWeight);
 
-  id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
+  imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                                                                           (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup)),
+                                                     "EditorSource");
 
-  gvWeightGroup = new GVarGroup(ui->weightGV, ui->weightSB, ui->weightCB, md->weight, model, 100, -limit, limit, 1.0,
-                                dialogFilteredItemModels->getItemModel(id));
+  FilteredItemModel *esMdl = dialogFilteredItemModels->getItemModel(imId);
 
-  gvOffsetGroup = new GVarGroup(ui->offsetGV, ui->offsetSB, ui->offsetCB, md->sOffset, model, 0, -limit, limit, 1.0,
-                                dialogFilteredItemModels->getItemModel(id));
+  weightEditor = new SourceNumRefEditor(md->weight, ui->chkWeightUseSource, ui->sbWeightValue, ui->cboWeightSource, 100, -limit, limit, 1,
+                                        model, esMdl, this);
+
+  connect(weightEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
+
+  offsetEditor = new SourceNumRefEditor(md->sOffset, ui->chkOffsetUseSource, ui->sbOffsetValue, ui->cboOffsetSource, 0, -limit, limit, 1,
+                                        model, esMdl, this);
+
+  connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
                                                            firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
 
-  curveGroup = new CurveReferenceUIManager(ui->curveTypeCB, ui->curveGVarCB, ui->curveValueSB, ui->curveValueCB, ui->curveImage, md->curve,
-                                           model, sharedItemModels, curveRefFilteredItemModels, this);
+  curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveSource, ui->cboCurveFunc,
+                                           ui->imgCurve, md->curve, model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);
 
-  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () {
-          this->adjustSize();
-          this->adjustSize(); // second call seems to be required when hidden fields otherwise not all padding removed
-  });
+  connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () { shrink(); });
 
   ui->MixDR_CB->setChecked(md->noExpo == 0);
 
@@ -82,9 +94,14 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
     ui->label_MixDR->hide();
   }
 
+  if (index == 0 || model.mixData[index - 1].destCh != mixdata->destCh) {
+    ui->mltpxCB->hide();
+    ui->mltpxLbl->hide();
+  }
+
   if (!firmware->getCapability(VirtualInputs)) {
     for(int i = 0; i < CPN_MAX_STICKS; i++) {
-      ui->trimCB->addItem(firmware->getAnalogInputName(i));
+      ui->trimCB->addItem(Boards::getInputName(i, board));
     }
   }
 
@@ -98,7 +115,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   else {
     ui->mixerName->setMaxLength(namelength);
   }
-  ui->mixerName->setValidator(new QRegExpValidator(rx, this));
+  ui->mixerName->setValidator(new NameValidator(board, this));
   ui->mixerName->setText(md->name);
 
   if (!firmware->getCapability(FlightModes)) {
@@ -125,58 +142,71 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
     }
   }
 
-  id = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
-                                                                         RawSwitch::MixesContext), "RawSwitch");
-  ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(id));
+  imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
+                                                                           RawSwitch::MixesContext),
+                                                     "RawSwitch");
+  ui->switchesCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  ui->switchesCB->setModel(dialogFilteredItemModels->getItemModel(imId));
   ui->switchesCB->setCurrentIndex(ui->switchesCB->findData(md->swtch.toValue()));
   ui->warningCB->setCurrentIndex(md->mixWarn);
   ui->mltpxCB->setCurrentIndex(md->mltpx);
-  int scale=firmware->getCapability(SlowScale);
-  float range=firmware->getCapability(SlowRange);
-  ui->slowDownSB->setMaximum(range / scale);
-  ui->slowDownSB->setSingleStep(1.0 / scale);
-  ui->slowDownSB->setDecimals((scale == 1 ? 0 : 1));
-  ui->slowDownSB->setValue((float)md->speedDown/scale);
-  ui->slowUpSB->setMaximum(range / scale);
-  ui->slowUpSB->setSingleStep(1.0 / scale);
-  ui->slowUpSB->setDecimals((scale == 1 ? 0 : 1));
-  ui->slowUpSB->setValue((float)md->speedUp/scale);
+  ui->delayPrecCB->setCurrentIndex(md->delayPrec);
+  ui->speedPrecCB->setCurrentIndex(md->speedPrec);
+
+  float range = firmware->getCapability(SlowRange);
+
+  int scale = firmware->getCapability(SlowScale);
+  if (md->delayPrec) scale = scale * 10;
   ui->delayDownSB->setMaximum(range / scale);
   ui->delayDownSB->setSingleStep(1.0 / scale);
-  ui->delayDownSB->setDecimals((scale == 1 ? 0 : 1));
+  ui->delayDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
   ui->delayDownSB->setValue((float)md->delayDown / scale);
   ui->delayUpSB->setMaximum(range / scale);
   ui->delayUpSB->setSingleStep(1.0 / scale);
-  ui->delayUpSB->setDecimals((scale == 1 ? 0 : 1));
+  ui->delayUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
   ui->delayUpSB->setValue((float)md->delayUp / scale);
+
+  scale = firmware->getCapability(SlowScale);
+  if (md->speedPrec) scale = scale * 10;
+  ui->slowDownSB->setMaximum(range / scale);
+  ui->slowDownSB->setSingleStep(1.0 / scale);
+  ui->slowDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+  ui->slowDownSB->setValue((float)md->speedDown/scale);
+  ui->slowUpSB->setMaximum(range / scale);
+  ui->slowUpSB->setSingleStep(1.0 / scale);
+  ui->slowUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+  ui->slowUpSB->setValue((float)md->speedUp/scale);
 
   valuesChanged();
 
-  connect(ui->mixerName,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
-  connect(ui->sourceCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->trimCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->MixDR_CB,SIGNAL(toggled(bool)),this,SLOT(valuesChanged()));
-  connect(ui->switchesCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->warningCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->mltpxCB,SIGNAL(currentIndexChanged(int)),this,SLOT(valuesChanged()));
-  connect(ui->delayDownSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
-  connect(ui->delayUpSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
-  connect(ui->slowDownSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
-  connect(ui->slowUpSB,SIGNAL(editingFinished()),this,SLOT(valuesChanged()));
+  connect(ui->mixerName, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
+  connect(ui->sourceCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->trimCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->MixDR_CB, SIGNAL(toggled(bool)), this, SLOT(valuesChanged()));
+  connect(ui->switchesCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->warningCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->mltpxCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->delayPrecCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->delayDownSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
+  connect(ui->delayUpSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
+  connect(ui->speedPrecCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
+  connect(ui->slowDownSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
+  connect(ui->slowUpSB, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
 
-  for (int i=0; i<CPN_MAX_FLIGHT_MODES; i++) {
-    connect(cb_fp[i],SIGNAL(toggled(bool)),this,SLOT(valuesChanged()));
+  for (int i = 0; i < CPN_MAX_FLIGHT_MODES; i++) {
+    connect(cb_fp[i], SIGNAL(toggled(bool)), this, SLOT(valuesChanged()));
   }
 
-  adjustSize();
+  shrink();
 }
 
 MixerDialog::~MixerDialog()
 {
   delete ui;
-  delete gvWeightGroup;
-  delete gvOffsetGroup;
+  delete weightEditor;
+  delete offsetEditor;
   delete dialogFilteredItemModels;
+  delete curveRefFilteredItemModels;
 }
 
 void MixerDialog::changeEvent(QEvent *e)
@@ -198,7 +228,7 @@ void MixerDialog::valuesChanged()
     lock = true;
     md->srcRaw  = RawSource(ui->sourceCB->itemData(ui->sourceCB->currentIndex()).toInt());
     if (firmware->getCapability(HasNoExpo)) {
-      bool drVisible = (md->srcRaw.type == SOURCE_TYPE_STICK && md->srcRaw.index < CPN_MAX_STICKS);
+      bool drVisible = (md->srcRaw.type == SOURCE_TYPE_INPUT && md->srcRaw.index < CPN_MAX_STICKS);
       ui->MixDR_CB->setEnabled(drVisible);
       ui->label_MixDR->setEnabled(drVisible);
     }
@@ -207,11 +237,47 @@ void MixerDialog::valuesChanged()
     md->swtch     = RawSwitch(ui->switchesCB->itemData(ui->switchesCB->currentIndex()).toInt());
     md->mixWarn   = ui->warningCB->currentIndex();
     md->mltpx     = (MltpxValue)ui->mltpxCB->currentIndex();
+
+    float range = firmware->getCapability(SlowRange);
+
+    // Update values based on old precision (in case it changed)
     int scale = firmware->getCapability(SlowScale);
+    if (md->delayPrec) scale = scale * 10;
     md->delayDown = round(ui->delayDownSB->value() * scale);
     md->delayUp   = round(ui->delayUpSB->value() * scale);
+
+    // Get new precion and update controls
+    md->delayPrec = ui->delayPrecCB->currentIndex();
+    scale = firmware->getCapability(SlowScale);
+    if (md->delayPrec) scale = scale * 10;
+    ui->delayDownSB->setMaximum(range / scale);
+    ui->delayDownSB->setSingleStep(1.0 / scale);
+    ui->delayDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+    ui->delayDownSB->setValue((float)md->delayDown / scale);
+    ui->delayUpSB->setMaximum(range / scale);
+    ui->delayUpSB->setSingleStep(1.0 / scale);
+    ui->delayUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+    ui->delayUpSB->setValue((float)md->delayUp / scale);
+
+    // Update values based on old precision (in case it changed)
+    scale = firmware->getCapability(SlowScale);
+    if (md->speedPrec) scale = scale * 10;
     md->speedDown = round(ui->slowDownSB->value() * scale);
     md->speedUp   = round(ui->slowUpSB->value() * scale);
+
+    // Get new precion and update controls
+    md->speedPrec = ui->speedPrecCB->currentIndex();
+    scale = firmware->getCapability(SlowScale);
+    if (md->speedPrec) scale = scale * 10;
+    ui->slowDownSB->setMaximum(range / scale);
+    ui->slowDownSB->setSingleStep(1.0 / scale);
+    ui->slowDownSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+    ui->slowDownSB->setValue((float)md->speedDown / scale);
+    ui->slowUpSB->setMaximum(range / scale);
+    ui->slowUpSB->setSingleStep(1.0 / scale);
+    ui->slowUpSB->setDecimals((scale == 1 ? 0 : scale == 10 ? 1 : 2));
+    ui->slowUpSB->setValue((float)md->speedUp / scale);
+
     strcpy(md->name, ui->mixerName->text().toLatin1());
 
     md->flightModes = 0;
@@ -266,4 +332,10 @@ void MixerDialog::fmInvertAll()
   }
   lock = false;
   valuesChanged();
+}
+
+void MixerDialog::shrink()
+{
+  this->adjustSize();
+  this->resize(0, 0);
 }

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
+#pragma once
 
 #if defined(SIMU)
   #define WRITE_DELAY_10MS 100
@@ -59,7 +58,6 @@ void storageFlushCurrentModel();
 void postRadioSettingsLoad();
 void preModelLoad();
 void postModelLoad(bool alarms);
-void checkExternalAntenna();
 
 #if !defined(STORAGE_MODELSLIST)
 extern ModelHeader modelHeaders[MAX_MODELS];
@@ -70,16 +68,8 @@ void loadModelHeaders();
 uint8_t findNextUnusedModelId(uint8_t index, uint8_t module);
 #endif
 
-#if defined(EEPROM)
-#include "eeprom_common.h"
-#endif
-
-#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
 #include "sdcard_common.h"
-#endif
 
 #if defined(RTC_BACKUP_RAM)
 #include "rtc_backup.h"
 #endif
-
-#endif // _STORAGE_H_

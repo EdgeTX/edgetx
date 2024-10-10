@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -20,33 +21,39 @@
 
 #include "yaml_calibdata.h"
 #include "eeprominterface.h"
+#include "boardjson.h"
 
-YamlCalibData::YamlCalibData() { memset(calib, 0, sizeof(calib)); }
-
-YamlCalibData::YamlCalibData(const int* calibMid, const int* calibSpanNeg,
-                             const int* calibSpanPos)
+YamlCalibData::YamlCalibData()
 {
-  for (int i = 0; i < CPN_MAX_ANALOGS; i++) {
-    calib[i].mid = calibMid[i];
-    calib[i].spanNeg = calibSpanNeg[i];
-    calib[i].spanPos = calibSpanPos[i];
+  memset(calib, 0, sizeof(calib));
+}
+
+YamlCalibData::YamlCalibData(const GeneralSettings::InputConfig* rhs)
+{
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
+    if (Boards::isInputCalibrated(i)) {
+      calib[i].mid = rhs[i].calib.mid;
+      calib[i].spanNeg = rhs[i].calib.spanNeg;
+      calib[i].spanPos = rhs[i].calib.spanPos;
+    }
   }
 }
 
-void YamlCalibData::copy(int* calibMid, int* calibSpanNeg,
-                         int* calibSpanPos) const
+void YamlCalibData::copy(GeneralSettings::InputConfig* rhs) const
 {
-  for (int i = 0; i < CPN_MAX_ANALOGS; i++) {
-    calibMid[i] = calib[i].mid;
-    calibSpanNeg[i] = calib[i].spanNeg;
-    calibSpanPos[i] = calib[i].spanPos;
+  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
+    if (Boards::isInputCalibrated(i)) {
+      rhs[i].calib.mid = calib[i].mid;
+      rhs[i].calib.spanNeg = calib[i].spanNeg;
+      rhs[i].calib.spanPos = calib[i].spanPos;
+    }
   }
 }
 
 namespace YAML
 {
 
-Node convert<CalibData>::encode(const CalibData& rhs)
+Node convert<GeneralSettings::InputCalib>::encode(const GeneralSettings::InputCalib& rhs)
 {
   Node node;
   node["mid"] = rhs.mid;
@@ -55,7 +62,7 @@ Node convert<CalibData>::encode(const CalibData& rhs)
   return node;
 }
 
-bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
+bool convert<GeneralSettings::InputCalib>::decode(const Node& node, GeneralSettings::InputCalib& rhs)
 {
   if (!node.IsMap()) return false;
   node["mid"] >> rhs.mid;
@@ -67,11 +74,15 @@ bool convert<CalibData>::decode(const Node& node, CalibData& rhs)
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
-  int idx = 0;
-  const auto* calibIdxLut = getCurrentFirmware()->getAnalogIndexNamesLookupTable();
-  for (const auto& kv : *calibIdxLut) {
-    node[kv.tag] = rhs.calib[idx++];
+  const int analogs = Boards::getCapability(getCurrentBoard(), Board::Inputs);
+
+  for (int i = 0; i < analogs; i++) {
+    if (Boards::isInputCalibrated(i)) {
+      std::string tag = Boards::getInputYamlName(i, BoardJson::YLT_CONFIG).toStdString();
+      node[tag] = rhs.calib[i];
+    }
   }
+
   return node;
 }
 
@@ -82,11 +93,16 @@ bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
-    int idx = getCurrentFirmware()->getAnalogInputIndex(tag.c_str());
-    if (idx >= 0) {
+
+    if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
+      tag = Boards::getLegacyAnalogMappedInputTag(tag.c_str());
+
+    int idx = Boards::getInputYamlIndex(tag.c_str(), BoardJson::YLT_CONFIG);
+
+    if (idx >= 0)
       kv.second >> rhs.calib[idx];
-    }
   }
+
   return true;
 }
 

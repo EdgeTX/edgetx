@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -134,10 +135,10 @@ void ProgressWidget::addMessage(const QString & text, const int & type, bool ric
       color = "dimgrey";  // not important messages, may be filtered out
       break;
     case QtWarningMsg:    // use warning level as emphasis
-      color = "darkblue";
+      color = "orangered";
       break;
     case QtCriticalMsg:   // use critical as a warning
-      color = "#ff7900";
+      color = "darkred";
       break;
     case QtFatalMsg:      // fatal for hard errors
       color = "red";
@@ -205,4 +206,16 @@ void ProgressWidget::addSeparator()
 void ProgressWidget::lock(bool lock)
 {
   emit locked(lock);
+}
+
+void ProgressWidget::forceKeepOpen(bool value)
+{
+  emit keepOpen(value);
+}
+
+void ProgressWidget::refresh()
+{
+  ui->info->update();
+  ui->progressBar->update();
+  ui->textEdit->update();
 }

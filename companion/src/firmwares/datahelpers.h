@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -49,18 +50,23 @@ struct StringTagMapping {
 
 typedef std::vector<StringTagMapping> StringTagMappingTable;
 
-#define STRINGTAGMAPPINGFUNCS_HELPER(tbl, name, index, tag)     \
-    inline int name##index (const char * tag)                   \
-    {                                                           \
-      return DataHelpers::getStringTagMappingIndex(tbl, tag);   \
-    }                                                           \
-                                                                \
-    inline std::string name##tag (unsigned int index)           \
-    {                                                           \
-      return DataHelpers::getStringTagMappingTag(tbl, index);   \
+#define STRINGTAGMAPPINGFUNCS_HELPER(tbl, name)                   \
+    inline int name##Index (const char * tag)                     \
+    {                                                             \
+      return DataHelpers::getStringTagMappingIndex(tbl, tag);     \
+    }                                                             \
+                                                                  \
+    inline std::string name##Tag (unsigned int index)             \
+    {                                                             \
+      return DataHelpers::getStringTagMappingTag(tbl, index);     \
+    }                                                             \
+                                                                  \
+    inline std::string name##Name (const char * tag)              \
+    {                                                             \
+      return DataHelpers::getStringTagMappingName(tbl, tag);      \
     }
 
-#define STRINGTAGMAPPINGFUNCS(tbl, name)  STRINGTAGMAPPINGFUNCS_HELPER(tbl, get##name, Index, Tag)
+#define STRINGTAGMAPPINGFUNCS(tbl, name)  STRINGTAGMAPPINGFUNCS_HELPER(tbl, get##name)
 
 class FieldRange
 {
@@ -107,4 +113,7 @@ namespace DataHelpers
   QString timeToString(const int value, const unsigned int mask);
   int getStringTagMappingIndex(const StringTagMappingTable& lut, const char * tag);
   std::string getStringTagMappingTag(const StringTagMappingTable& lut, unsigned int index);
+  std::string getStringNameMappingTag(const StringTagMappingTable& lut, const char * name);
+  std::string getStringTagMappingName(const StringTagMappingTable& lut, const char * tag);
+  QString getCompositeName(const QString defaultName, const QString customName, const bool prefixCustom);
 }

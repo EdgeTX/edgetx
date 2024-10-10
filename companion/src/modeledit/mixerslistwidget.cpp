@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -275,7 +276,7 @@ void MixerItemViewProxyStyle::drawPrimitive(QStyle::PrimitiveElement element, co
 {
   painter->save();
   if (element == QStyle::PE_IndicatorItemViewItemDrop) {
-    painter->setRenderHint(QPainter::HighQualityAntialiasing, true);
+    painter->setRenderHint(QPainter::Antialiasing, true);
     // set a wider stroke for the drop indicator
     QPen pen(painter->pen());
     pen.setWidthF(2.25f);

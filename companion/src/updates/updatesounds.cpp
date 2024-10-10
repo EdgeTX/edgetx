@@ -25,11 +25,13 @@
 #include <QMessageBox>
 #include <QStandardItem>
 #include <QItemSelectionModel>
+#include <QAbstractItemView>
 
 UpdateSounds::UpdateSounds(QWidget * parent) :
-  UpdateInterface(parent)
+  UpdateInterface(parent, CID_Sounds, tr("Sounds"), Repo::REPO_TYPE_GITHUB,
+                  QString(GH_API_REPOS_EDGETX).append("/edgetx-sdcard-sounds"), "latest", 50)
 {
-  init(CID_Sounds, tr("Sounds"), QString(GH_REPOS_EDGETX).append("/edgetx-sdcard-sounds"));
+  init(); // call after UpdateInterface ctor due to virtual functions
   langPacks = new QStandardItemModel();
 }
 
@@ -38,9 +40,9 @@ UpdateSounds::~UpdateSounds()
   delete langPacks;
 }
 
-void UpdateSounds::initAssetSettings()
+void UpdateSounds::assetSettingsInit()
 {
-  if (!isValidSettingsIndex())
+  if (!isSettingsIndexValid())
     return;
 
   g.component[id()].initAllAssets();
@@ -50,87 +52,27 @@ void UpdateSounds::initAssetSettings()
   cad.processes(UPDFLG_Common_Asset);
   cad.flags(cad.processes() | UPDFLG_CopyStructure);
   cad.filterType(UpdateParameters::UFT_Startswith);
-  cad.filter("edgetx-sdcard-sounds-%LANGUAGE%-");
+  cad.filter("edgetx-sdcard-sounds-%LANGUAGE%");
 
   qDebug() << "Asset settings initialised";
 }
 
 bool UpdateSounds::flagAssets()
 {
-  progressMessage(tr("Processing available sounds"));
+  status()->progressMessage(tr("Processing available sounds"));
 
-  QString pattern("sounds.json");
-  assets->setFilterPattern(pattern);
-
-  if (assets->count() < 0) {
-    reportProgress(tr("Asset not found in release '%1' using filter pattern '%2'").arg(releases->name()).arg(pattern), QtCriticalMsg);
-    return false;
-  }
-  else if (assets->count() > 1) {
-    reportProgress(tr("%1 assets found when %2 expected in release '%3' using filter pattern '%4'")
-                        .arg(assets->count()).arg(1).arg(releases->name()).arg(pattern), QtCriticalMsg);
-    return false;
-  }
-
-  if (!downloadAssetToBuffer(assets->getSetId(0))) {
-    return false;
-  }
-
-  QJsonDocument *json = new QJsonDocument();
-
-  if (!convertDownloadToJson(json)) {
-    return false;
-  }
-
-  /*
-    {
-        "language": "en-GB",
-        "name": "British English Female",
-        "description": "British English Female Voice (en-GB-Libby)",
-        "directory": "en_gb-libby"
-    },
-  */
-
-  //  always refresh to allow for language change in radio profile
+  // always refresh to allow for language change in radio profile
   langPacks->clear();
 
-  if (json->isArray()) {
-    const QJsonArray &arr = json->array();
-
-    foreach (const QJsonValue &v, arr) {
-      if (v.isObject()) {
-        const QJsonObject obj = v.toObject();
-        QString langVariant;
-        QString lang;
-
-        if (!obj.value("language").isUndefined()) {
-          langVariant = obj.value("language").toString();
-          lang = langVariant.split("-").at(0);
-        }
-
-        if (lang == params->language) {
-          QStandardItem * item = new QStandardItem();
-
-          if (!obj.value("language").isUndefined())
-            item->setData(obj.value("language").toString(), IMDR_Language);
-          if (!obj.value("name").isUndefined())
-            item->setData(obj.value("name").toString(), IMDR_Name);
-          if (!obj.value("description").isUndefined())
-            item->setData(obj.value("description").toString(), Qt::DisplayRole);
-          if (!obj.value("directory").isUndefined())
-            item->setData(obj.value("directory").toString(), IMDR_Directory);
-
-          langPacks->appendRow(item);
-        }
-      }
-    }
-  }
-
-  delete json;
-
-  if (langPacks->rowCount() < 1) {
-    reportProgress(tr("Language %1 not listed in %2").arg(params->language).arg(pattern), QtCriticalMsg);
+  UpdateParameters::AssetParams ap = params()->assets[0];
+  if (!filterAssets(ap))
     return false;
+
+  for (int i = 0; i < repo()->assets()->count(); i++) {
+    repo()->assets()->getSetId(i);
+    QStandardItem * item = new QStandardItem();
+    item->setText(repo()->assets()->name());
+    langPacks->appendRow(item);
   }
 
   if (langPacks->rowCount() > 1) {
@@ -141,33 +83,32 @@ bool UpdateSounds::flagAssets()
     QItemSelectionModel *selItems = dlg->selectedItems();
 
     if (!ok || !selItems->hasSelection()) {
-      QMessageBox::warning(progress, CPN_STR_APP_NAME, tr("No language packs have been selected. Sounds update will be skipped!"));
+      QMessageBox::warning(status()->progress(), CPN_STR_APP_NAME, tr("No language packs have been selected. Sounds update will be skipped!"));
       dlg->deleteLater();
       return true;
     }
 
     QModelIndexList selIndexes = selItems->selectedIndexes();
 
-    for (int i = 0; i < selIndexes.size(); i++) {
-      if (!flagLanguageAsset(langPacks->data(selIndexes.at(i), IMDR_Directory).toString()))
-        return false;
-    }
+    if (!flagLanguageAsset(langPacks->data(selIndexes.at(0)).toString()))
+      return false;
 
     dlg->deleteLater();
   }
   else if (langPacks->rowCount() == 1) {
-    if (!flagLanguageAsset(langPacks->data(langPacks->index(0, 0), IMDR_Directory).toString()))
+    if (!flagLanguageAsset(langPacks->data(langPacks->index(0, 0)).toString()))
       return false;
   }
 
   return true;
 }
 
-bool UpdateSounds::flagLanguageAsset(QString lang)
+bool UpdateSounds::flagLanguageAsset(QString asset)
 {
-  progressMessage(tr("Flagging assets"));
+  status()->progressMessage(tr("Flagging assets"));
 
-  params->language = lang;
-  UpdateParameters::AssetParams ap = params->assets[0];
-  return getSetAssets(ap);
+  UpdateParameters::AssetParams ap = params()->assets[0];
+  ap.filter = asset;
+  ap.filterType = UpdateParameters::UFT_Exact;
+  return setFilteredAssets(ap);
 }

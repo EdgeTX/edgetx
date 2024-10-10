@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "switches.h"
 
 enum LogicalSwitchFields {
@@ -29,14 +29,15 @@ enum LogicalSwitchFields {
   LS_FIELD_ANDSW,
   LS_FIELD_DURATION,
   LS_FIELD_DELAY,
+  LS_FIELD_PERSIST,
   LS_FIELD_COUNT,
   LS_FIELD_LAST = LS_FIELD_COUNT-1
 };
 
-#define CSW_1ST_COLUMN  (4*FW-3)
-#define CSW_2ND_COLUMN  (8*FW-3)
-#define CSW_3RD_COLUMN  (13*FW-6)
-#define CSW_4TH_COLUMN  (18*FW+2)
+#define CSW_1ST_COLUMN  ((3*FW)-1)
+#define CSW_2ND_COLUMN  ((7*FW)-1)
+#define CSW_3RD_COLUMN  ((12*FW))
+#define CSW_4TH_COLUMN  ((21*FW)+3)
 
 void putsEdgeDelayParam(coord_t x, coord_t y, LogicalSwitchData *cs, uint8_t lattr, uint8_t rattr)
 {
@@ -60,7 +61,7 @@ void menuModelLogicalSwitchOne(event_t event)
 
   LogicalSwitchData * cs = lswAddress(s_currIdx);
 
-  uint8_t sw = SWSRC_SW1+s_currIdx;
+  uint8_t sw = SWSRC_FIRST_LOGICAL_SWITCH+s_currIdx;
   uint8_t cstate = lswFamily(cs->func);
 
   drawSwitch(14*FW, 0, sw, (getSwitch(sw) ? BOLD : 0));
@@ -68,8 +69,6 @@ void menuModelLogicalSwitchOne(event_t event)
   SUBMENU_NOTITLE(LS_FIELD_COUNT, { 0, 0, uint8_t(cstate == LS_FAMILY_EDGE ? 1 : 0), 0 /*, 0...*/ });
 
   int8_t sub = menuVerticalPosition;
-
-  int v1_val = cs->v1;
 
   for (uint8_t k=0; k<LCD_LINES-1; k++) {
     coord_t y = MENU_HEADER_HEIGHT + 1 + k*FH;
@@ -81,13 +80,14 @@ void menuModelLogicalSwitchOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_FUNC);
         lcdDrawTextAtIndex(CSWONE_2ND_COLUMN, y, STR_VCSWFUNC, cs->func, attr);
         if (attr) {
-          cs->func = checkIncDec(event, cs->func, 0, LS_FUNC_MAX, EE_MODEL, isLogicalSwitchFunctionAvailable);
+          cs->func = checkIncDec(event, cs->func, 0, LS_FUNC_MAX, EE_MODEL);
           uint8_t new_cstate = lswFamily(cs->func);
           if (cstate != new_cstate) {
-            if (new_cstate == LS_FAMILY_TIMER) {
+            cstate = new_cstate;
+            if (cstate == LS_FAMILY_TIMER) {
               cs->v1 = cs->v2 = -119;
             }
-            else if (new_cstate == LS_FAMILY_EDGE) {
+            else if (cstate == LS_FAMILY_EDGE) {
               cs->v1 = 0; cs->v2 = -129; cs->v3 = 0;
             }
             else {
@@ -103,7 +103,7 @@ void menuModelLogicalSwitchOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_V1);
         int v1_min=0, v1_max=MIXSRC_LAST_TELEM;
         if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY || cstate == LS_FAMILY_EDGE) {
-          drawSwitch(CSWONE_2ND_COLUMN, y, v1_val, attr);
+          drawSwitch(CSWONE_2ND_COLUMN, y, cs->v1, attr);
           v1_min = SWSRC_FIRST_IN_LOGICAL_SWITCHES; v1_max = SWSRC_LAST_IN_LOGICAL_SWITCHES;
           INCDEC_SET_FLAG(EE_MODEL | INCDEC_SWITCH);
           INCDEC_ENABLE_CHECK(isSwitchAvailableInLogicalSwitches);
@@ -114,13 +114,12 @@ void menuModelLogicalSwitchOne(event_t event)
           v1_max = 122;
         }
         else {
-          v1_val = cs->v1;
-          drawSource(CSWONE_2ND_COLUMN, y, v1_val, attr);
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE);
+          drawSource(CSWONE_2ND_COLUMN, y, cs->v1, attr);
+          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
           INCDEC_ENABLE_CHECK(isSourceAvailable);
         }
         if (attr) {
-          cs->v1 = CHECK_INCDEC_PARAM(event, v1_val, v1_min, v1_max);
+          cs->v1 = CHECK_INCDEC_PARAM(event, cs->v1, v1_min, v1_max);
         }
         break;
       }
@@ -152,16 +151,14 @@ void menuModelLogicalSwitchOne(event_t event)
         }
         else if (cstate == LS_FAMILY_COMP) {
           drawSource(CSWONE_2ND_COLUMN, y, cs->v2, attr);
-          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE);
+          INCDEC_SET_FLAG(EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
           INCDEC_ENABLE_CHECK(isSourceAvailable);
         }
         else {
-          if (v1_val >= MIXSRC_FIRST_TELEM) {
-            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1_val, convertLswTelemValue(cs), attr|LEFT);
-            v2_max = maxTelemValue(v1_val - MIXSRC_FIRST_TELEM + 1);
-            if (cs->func == LS_FUNC_DIFFEGREATER)
-              v2_min = -v2_max;
-            else if (cs->func == LS_FUNC_ADIFFEGREATER)
+          if (abs(cs->v1) >= MIXSRC_FIRST_TELEM) {
+            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, cs->v1, convertLswTelemValue(cs), attr|LEFT);
+            v2_max = maxTelemValue(cs->v1 - MIXSRC_FIRST_TELEM + 1);
+            if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
               v2_min = 0;
             else
               v2_min = -v2_max;
@@ -174,8 +171,10 @@ void menuModelLogicalSwitchOne(event_t event)
           else
           {
             LcdFlags lf = attr | LEFT;
-            getMixSrcRange(v1_val, v2_min, v2_max, &lf);
-            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, v1_val, (v1_val <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
+            getMixSrcRange(cs->v1, v2_min, v2_max, &lf);
+            if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) || (cs->func == LS_FUNC_ADIFFEGREATER))
+              v2_min = 0;
+            drawSourceCustomValue(CSWONE_2ND_COLUMN, y, cs->v1, (abs(cs->v1) <= MIXSRC_LAST_CH ? calc100toRESX(cs->v2) : cs->v2), lf);
           }
         }
 
@@ -209,7 +208,7 @@ void menuModelLogicalSwitchOne(event_t event)
         if (cstate == LS_FAMILY_EDGE) {
           lcdDrawText(CSWONE_2ND_COLUMN, y, STR_NA);
           if (attr) {
-            REPEAT_LAST_CURSOR_MOVE();
+            repeatLastCursorMove(event);
           }
           break;
         }
@@ -219,6 +218,14 @@ void menuModelLogicalSwitchOne(event_t event)
           lcdDrawMMM(CSWONE_2ND_COLUMN, y, attr);
         if (attr) {
           CHECK_INCDEC_MODELVAR_ZERO(event, cs->delay, MAX_LS_DELAY);
+        }
+        break;
+
+      case LS_FIELD_PERSIST:
+        if (cstate == LS_FAMILY_STICKY) {
+          lcdDrawTextAlignedLeft(y, STR_PERSISTENT);
+          drawCheckBox(CSWONE_2ND_COLUMN, y, cs->lsPersist, attr);
+          if (attr) cs->lsPersist = checkIncDecModel(event, cs->lsPersist, 0, 1);
         }
         break;
     }
@@ -256,8 +263,7 @@ void menuModelLogicalSwitches(event_t event)
   uint8_t k = 0;
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
-  if (event == EVT_KEY_FIRST(KEY_ENTER)) {
-    killEvents(event);
+  if (event == EVT_KEY_BREAK(KEY_ENTER)) {
     LogicalSwitchData * cs = lswAddress(sub);
     if (cs->func)
       s_currIdx = sub;
@@ -275,6 +281,7 @@ void menuModelLogicalSwitches(event_t event)
       pushMenu(menuModelLogicalSwitchOne);
     }
     else {
+      s_editMode = 0; // Was set in 'check' function.
       POPUP_MENU_START(onLogicalSwitchesMenu);
     }
   }
@@ -285,16 +292,19 @@ void menuModelLogicalSwitches(event_t event)
     LogicalSwitchData * cs = lswAddress(k);
 
     // CSW name
-    uint8_t sw = SWSRC_SW1+k;
+    uint8_t sw = SWSRC_FIRST_LOGICAL_SWITCH+k;
 
     drawSwitch(0, y, sw, (sub==k ? INVERS : 0) | (getSwitch(sw) ? BOLD : 0));
 
     if (cs->func > 0) {
-      // CSW func
-      lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, 0);
-
       // CSW params
       uint8_t cstate = lswFamily(cs->func);
+
+      // CSW func
+      LcdFlags flags = 0;
+      if (cstate == LS_FAMILY_STICKY && getLSStickyState(k))
+        flags = BOLD;
+      lcdDrawTextAtIndex(CSW_1ST_COLUMN, y, STR_VCSWFUNC, cs->func, flags);
 
       if (cstate == LS_FAMILY_BOOL || cstate == LS_FAMILY_STICKY) {
         drawSwitch(CSW_2ND_COLUMN, y, cs->v1, 0);
@@ -313,7 +323,7 @@ void menuModelLogicalSwitches(event_t event)
         lcdDrawNumber(CSW_3RD_COLUMN, y, lswTimerValue(cs->v2), LEFT|PREC1);
       }
       else {
-        source_t v1 = cs->v1;
+        mixsrc_t v1 = cs->v1;
         drawSource(CSW_2ND_COLUMN, y, v1, 0);
         if (v1 >= MIXSRC_FIRST_TELEM) {
           drawSourceCustomValue(CSW_3RD_COLUMN, y, v1, convertLswTelemValue(cs), LEFT);
@@ -327,7 +337,7 @@ void menuModelLogicalSwitches(event_t event)
       }
 
       // CSW and switch
-      drawSwitch(CSW_4TH_COLUMN, y, cs->andsw, 0);
+      drawSwitch(CSW_4TH_COLUMN, y, cs->andsw, RIGHT);
     }
   }
 }

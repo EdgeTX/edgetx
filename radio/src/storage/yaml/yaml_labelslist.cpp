@@ -165,7 +165,7 @@ static bool find_node(void* ctx, char* buf, uint8_t len)
     return true;
 }
 
-static void set_attr(void* ctx, char* buf, uint8_t len)
+static void set_attr(void* ctx, char* buf, uint16_t len)
 {
   char value[LABELS_LENGTH + 1];
   if(len > LABELS_LENGTH) {
@@ -194,17 +194,19 @@ static void set_attr(void* ctx, char* buf, uint8_t len)
       }
     }
 
-    // Don't bother filling in values below if hash didn't match
-    if(mi->modeldatavalid) {
+    // Last Opened
+    // Hack: Always load this as the hash value is (currently) not in synch with the saved model file
+    // TODO: Ensure stored hash is up to date.
+    if (!strcasecmp(mi->current_attr, "lastopen")) {
+        mi->curmodel->lastOpened = (gtime_t)strtol(value, NULL, 0);
+        TRACE_LABELS_YAML(" Last Opened %lu", value);
+    } else if (mi->modeldatavalid) {
+      // Don't bother filling in values below if hash didn't match
+
       // Model Name
       if(!strcasecmp(mi->current_attr, "name")) {
         mi->curmodel->setModelName(value);
         TRACE_LABELS_YAML(" Set the models name");
-
-      // Last Opened
-      } else if(!strcasecmp(mi->current_attr, "lastopen")) {
-        mi->curmodel->lastOpened = (gtime_t)strtol(value, NULL, 0);
-        TRACE_LABELS_YAML(" Last Opened %lu", value);
 
       // Model Bitmap
   #if LEN_BITMAP_NAME > 0

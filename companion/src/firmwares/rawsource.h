@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef RAWSOURCE_H
-#define RAWSOURCE_H
+#pragma once
 
 #include "boards.h"
 #include "constants.h"
@@ -32,6 +32,7 @@ class ModelData;
 class GeneralSettings;
 class RadioDataConversionState;
 
+// TODO remove and refactor to use dynamic board switches
 enum Switches {
   SWITCH_NONE,
 
@@ -102,6 +103,7 @@ enum HeliSwashTypes {
 };
 
 enum TelemetrySource {
+  TELEMETRY_SOURCE_NONE,
   TELEMETRY_SOURCE_TX_BATT,
   TELEMETRY_SOURCE_TX_TIME,
   TELEMETRY_SOURCE_TIMER1,
@@ -164,12 +166,13 @@ enum RawSourceType {
   SOURCE_TYPE_NONE,
   SOURCE_TYPE_VIRTUAL_INPUT,
   SOURCE_TYPE_LUA_OUTPUT,
-  SOURCE_TYPE_STICK, // and POTS
+  SOURCE_TYPE_INPUT,
   SOURCE_TYPE_ROTARY_ENCODER,
   SOURCE_TYPE_TRIM,
+  SOURCE_TYPE_MIN,
   SOURCE_TYPE_MAX,
   SOURCE_TYPE_SWITCH,
-  SOURCE_TYPE_FUNCTIONSWITCH,
+  SOURCE_TYPE_FUNCTIONSWITCH, // v2.10 only used for reading binary files
   SOURCE_TYPE_CUSTOM_SWITCH,
   SOURCE_TYPE_CYC,
   SOURCE_TYPE_PPM,
@@ -178,10 +181,13 @@ enum RawSourceType {
   SOURCE_TYPE_SPECIAL,
   SOURCE_TYPE_TELEMETRY,
   SOURCE_TYPE_SPACEMOUSE,
+  SOURCE_TYPE_TIMER,
+  SOURCE_TYPE_FUNCTIONSWITCH_GROUP,
   MAX_SOURCE_TYPE
 };
 
 enum RawSourceTypeSpecial {
+  SOURCE_TYPE_SPECIAL_NONE,
   SOURCE_TYPE_SPECIAL_TX_BATT,
   SOURCE_TYPE_SPECIAL_TX_TIME,
   SOURCE_TYPE_SPECIAL_TX_GPS,
@@ -191,15 +197,10 @@ enum RawSourceTypeSpecial {
   SOURCE_TYPE_SPECIAL_RESERVED3,
   SOURCE_TYPE_SPECIAL_RESERVED4,
   SOURCE_TYPE_SPECIAL_LAST_RESERVED = SOURCE_TYPE_SPECIAL_RESERVED4,
-  SOURCE_TYPE_SPECIAL_FIRST_TIMER,
-  SOURCE_TYPE_SPECIAL_TIMER1 = SOURCE_TYPE_SPECIAL_FIRST_TIMER,
-  SOURCE_TYPE_SPECIAL_TIMER2,
-  SOURCE_TYPE_SPECIAL_TIMER3,
-  SOURCE_TYPE_SPECIAL_LAST_TIMER = SOURCE_TYPE_SPECIAL_TIMER3,
   SOURCE_TYPE_SPECIAL_COUNT
 };
 
-constexpr int SOURCE_TYPE_STICK_THR_IDX { 3 };      //  TODO is there a function to determine index?
+constexpr int SOURCE_TYPE_INPUT_THR_IDX { 3 };      //  TODO is there a function to determine index?
 
 class RawSourceRange
 {
@@ -241,6 +242,8 @@ class RawSource {
       TelemGroup     = 0x020,
       InputsGroup    = 0x040,
       ScriptsGroup   = 0x080,
+      NegativeGroup  = 0x100,
+      PositiveGroup  = 0x200,
 
       InputSourceGroups = NoneGroup | SourcesGroup | TrimsGroup | SwitchesGroup | InputsGroup,
       AllSourceGroups   = InputSourceGroups | GVarsGroup | TelemGroup | ScriptsGroup
@@ -249,14 +252,14 @@ class RawSource {
     RawSource() { clear(); }
 
     explicit RawSource(int value):
-      type(RawSourceType(abs(value)/65536)),
-      index(value >= 0 ? abs(value)%65536 : -(abs(value)%65536))
+      type(RawSourceType(abs(value) / 65536)),
+      index(value >= 0 ? abs(value) % 65536 : -(abs(value) % 65536))
     {
     }
 
-    RawSource(RawSourceType type, int index=0):
+    RawSource(RawSourceType type, int index = 0):
       type(type),
-      index(index)
+      index(type != SOURCE_TYPE_NONE && index == 0 ? 1 : index)
     {
     }
 
@@ -266,17 +269,13 @@ class RawSource {
     }
 
     RawSource convert(RadioDataConversionState & cstate);
-    QString toString(const ModelData * model = NULL, const GeneralSettings * const generalSettings = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
+    QString toString(const ModelData * model = nullptr, const GeneralSettings * const generalSettings = nullptr, Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
     RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings, unsigned int flags=0) const;
-    bool isStick(int * potsIndex = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isPot(int * potsIndex = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isSlider(int * sliderIndex = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
+    bool isStick(Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isTimeBased(Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isAvailable(const ModelData * const model = NULL, const GeneralSettings * const gs = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
+    bool isAvailable(const ModelData * const model = nullptr, const GeneralSettings * const gs = nullptr, Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isSet() const { return type != SOURCE_TYPE_NONE || index != 0; }
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }
-    QStringList getStickList(Boards board) const;
-    QStringList getSwitchList(Boards board) const;
     static StringTagMappingTable getSpecialTypesLookupTable();
     static StringTagMappingTable getCyclicLookupTable();
 
@@ -290,6 +289,6 @@ class RawSource {
 
     RawSourceType type;
     int index;
-};
 
-#endif // RAWSOURCE_H
+  private:
+};

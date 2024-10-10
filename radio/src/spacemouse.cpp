@@ -19,8 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include <ctype.h>
+#include "edgetx.h"
+// #include <ctype.h>
+#include "tasks/mixer_task.h"
 
 #if !defined(SIMU)
   #include <FreeRTOS/include/FreeRTOS.h>
@@ -62,7 +63,7 @@ static StaticTimer_t spacemouseTimerBuffer;
 
 static void spacemouseTimerCb(TimerHandle_t xTimer)
 {
-  if (!s_pulses_paused) {
+  if (mixerTaskRunning()) {
     DEBUG_TIMER_START(debugTimerSpacemouseWakeup);
     spacemousePoll();
     spacemouseWakeup();

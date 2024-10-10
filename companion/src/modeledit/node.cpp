@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -116,7 +117,7 @@ qreal Node::getY()
     if(scene())
     {
         QRectF rect = scene()->sceneRect();
-        return 1+((y()-rect.bottom())*2/rect.height());
+        return ((rect.bottom()-y())*2/rect.height())-1;
     }
     return 0;
 }
@@ -126,7 +127,7 @@ void Node::setY(qreal newY)
     if(scene())
     {
         QRectF rect = scene()->sceneRect();
-        QGraphicsObject::setY(rect.top() + (newY+1) * rect.height()/2);
+        QGraphicsObject::setY(rect.top() + (1-newY) * rect.height()/2);
     }
 }
 

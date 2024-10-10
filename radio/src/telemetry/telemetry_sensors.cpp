@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -45,6 +45,9 @@
   #include "hitec.h"
   #include "hott.h"
   #include "multi.h"
+#endif
+
+#if  defined(MULTIMODULE) || defined(PPM)
   #include "mlink.h"
 #endif
 
@@ -57,45 +60,11 @@ uint8_t allowNewSensors;
 
 bool isFaiForbidden(source_t idx)
 {
-  if (idx < MIXSRC_FIRST_TELEM) {
-    return false;
-  }
+  if (idx < MIXSRC_FIRST_TELEM) return false;
 
-  TelemetrySensor * sensor = &g_model.telemetrySensors[(idx-MIXSRC_FIRST_TELEM)/3];
+  auto unit = g_model.telemetrySensors[(idx - MIXSRC_FIRST_TELEM) / 3].unit;
+  if (unit == UNIT_VOLTS || unit == UNIT_DB) return false;
 
-  switch (telemetryProtocol) {
-    case PROTOCOL_TELEMETRY_FRSKY_SPORT:
-      if (sensor->id == RSSI_ID) {
-        return false;
-      }
-      else if (sensor->id == BATT_ID) {
-        return false;
-      }
-      break;
-
-    case PROTOCOL_TELEMETRY_FRSKY_D:
-      if (sensor->id == D_RSSI_ID) {
-        return false;
-      }
-      else if (sensor->id == D_A1_ID) {
-        return false;
-      }
-      break;
-
-#if defined(CROSSFIRE)
-    case PROTOCOL_TELEMETRY_CROSSFIRE:
-      if (sensor->id == RX_RSSI1_INDEX) {
-        return false;
-      }
-      else if (sensor->id == RX_RSSI2_INDEX) {
-        return false;
-      }
-      else if (sensor->id == BATT_VOLTAGE_INDEX) {
-        return false;
-      }
-      break;
-#endif
-  }
   return true;
 }
 
@@ -105,16 +74,22 @@ uint32_t getDistFromEarthAxis(int32_t latitude)
   uint32_t lat = abs(latitude) / 10000;
   uint32_t angle2 = (lat * lat) / 10000;
   uint32_t angle4 = angle2 * angle2;
-  return 139*(((uint32_t)10000000 - ((angle2*(uint32_t)123370)/81) + (angle4/25))/12500);
+
+  return 139 * (((uint32_t)10000000 - ((angle2 * (uint32_t)123370) / 81) +
+                 (angle4 / 25)) /
+                12500);
 }
 
 void TelemetryItem::setValue(const TelemetrySensor & sensor, const char * val, uint32_t, uint32_t)
 {
   strncpy(text, val, sizeof(text));
+  // Save hash of string so changes can be detected quickly
+  value = hash(text, sizeof(text));
   setFresh();
 }
 
-void TelemetryItem::setValue(const TelemetrySensor & sensor, int32_t val, uint32_t unit, uint32_t prec)
+void TelemetryItem::setValue(const TelemetrySensor &sensor, int32_t val,
+                             uint32_t unit, uint32_t prec)
 {
   int32_t newVal = val;
 
@@ -178,18 +153,20 @@ void TelemetryItem::setValue(const TelemetrySensor & sensor, int32_t val, uint32
       }
 #endif
     }
-    newVal = 0;
+    value = hash((void *) &datetime, sizeof(datetime));
+    setFresh();
+    return;
   }
   else if (unit == UNIT_GPS_LATITUDE) {
 #if defined(INTERNAL_GPS)
     if (gpsData.fix  && gpsData.hdop < PILOTPOS_MIN_HDOP) {
       pilotLatitude = gpsData.latitude;
-      distFromEarthAxis = getDistFromEarthAxis(pilotLatitude);
+      gps.pilotDistFromEarthAxis = getDistFromEarthAxis(pilotLatitude);
     }
 #endif
     if (!pilotLatitude) {
       pilotLatitude = newVal;
-      distFromEarthAxis = getDistFromEarthAxis(newVal);
+      gps.pilotDistFromEarthAxis = getDistFromEarthAxis(newVal);
     }
     gps.latitude = newVal;
     setFresh();
@@ -205,6 +182,8 @@ void TelemetryItem::setValue(const TelemetrySensor & sensor, int32_t val, uint32
       pilotLongitude = newVal;
     }
     gps.longitude = newVal;
+
+    value = hash((void *) &gps, sizeof(gps));
     setFresh();
     return;
   }
@@ -226,9 +205,11 @@ void TelemetryItem::setValue(const TelemetrySensor & sensor, int32_t val, uint32
   }
   else if (unit == UNIT_DATETIME_SEC) {
     datetime.sec = newVal & 0xFFu;
-    newVal = 0;
+    value = hash((void *) &datetime, sizeof(datetime));
+    setFresh();
+    return;
   }
-  else if (unit == UNIT_RPMS) {
+  else if (sensor.unit == UNIT_RPMS) {
     if (sensor.custom.ratio != 0) {
       newVal = (newVal * sensor.custom.offset) / sensor.custom.ratio;
     }
@@ -399,7 +380,7 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
         uint32_t result = dist * dist;
 
         angle = abs(gpsItem.gps.longitude - gpsItem.pilotLongitude);
-        dist = uint64_t(gpsItem.distFromEarthAxis) * angle / 1000000;
+        dist = uint64_t(gpsItem.gps.pilotDistFromEarthAxis) * angle / 1000000;
         result += dist * dist;
 
         // Length on ground (ignoring curvature of the earth)
@@ -522,7 +503,9 @@ int lastUsedTelemetryIndex()
 }
 
 template <class T>
-int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, uint8_t instance, T value, uint32_t unit = 0, uint32_t prec = 0)
+int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
+                      uint8_t instance, T value, uint32_t unit = 0,
+                      uint32_t prec = 0)
 {
   bool sensorFound = false;
 
@@ -592,7 +575,9 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, ui
       case PROTOCOL_TELEMETRY_HOTT:
         hottSetDefault(index, id, subId, instance);
         break;
+#endif
 
+#if defined(MULTIMODULE) || defined(PPM)
       case PROTOCOL_TELEMETRY_MLINK:
         mlinkSetDefault(index, id, subId, instance);
         break;
@@ -687,19 +672,30 @@ const UnitConversionRule unitConversionTable[] = {
   { 0, 0, 0, 0}   // termination
 };
 
+// The MAX precision used in sensors is 3..support up to Prec4. 
+const int16_t power10[] = { 1, 10, 100, 1000, 10000 };
+
 int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t destUnit, uint8_t destPrec)
 {
-  for (int i=prec; i<destPrec; i++)
-    value *= 10;
+  // if we need to do Temperature conversions, we need to convert the constant 32 from 
+  // Prec0 to max(prec,destPrec).
+  int8_t temp_prec = prec; 
 
+  // Ex:  Converting from Prec1 -> Prec2.. need to * 10 the value.
+  // Ex:  Converting from Prec0 -> Prec2.. need to * 100 the value. 
+  if (prec < destPrec) {
+      value    *= power10[destPrec-prec];
+      temp_prec = destPrec;
+  }
+  
   if (unit == UNIT_CELSIUS) {
     if (destUnit == UNIT_FAHRENHEIT) {
       // T(°F) = T(°C)×1,8 + 32
-      value = 32 + (value*18) / 10;
+      value = (32*power10[temp_prec]) + (value*18) / 10;
     }
   } else if (unit == UNIT_FAHRENHEIT) {
     if (destUnit == UNIT_CELSIUS) {
-      value = (value - 32) * 10/18;
+      value = (value - (32*power10[temp_prec])) * 10/18;
     }
   }
   else {
@@ -713,8 +709,11 @@ int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t
     }
   }
 
-  for (int i=destPrec; i<prec; i++)
-    value /= 10;
+  // Ex:  Converting from Prec2 -> Prec1.. need to / 10 the value.
+  // Ex:  Converting from Prec2 -> Prec0.. need to / 100 the value. 
+  if (destPrec < prec) {
+      value = value / power10[prec - destPrec];
+  }
 
   return value;
 }
@@ -722,6 +721,7 @@ int32_t convertTelemetryValue(int32_t value, uint8_t unit, uint8_t prec, uint8_t
 int32_t TelemetrySensor::getValue(int32_t value, uint8_t unit, uint8_t prec) const
 {
   if (type == TELEM_TYPE_CUSTOM && custom.ratio) {
+    /*  farzu:  Not needed, scaling work properly for the 3 types of prec without it  
     if (this->prec == 2) {
       value *= 10;
       prec = 2;
@@ -729,10 +729,15 @@ int32_t TelemetrySensor::getValue(int32_t value, uint8_t unit, uint8_t prec) con
     else {
       prec = 1;
     }
-    value = (custom.ratio * value + 122) / 255;
+    */
+    
+    value = (custom.ratio * value + 122) / 255;  //  122/255 (0.48) is to aproximate up (ceiling) 
   }
 
-  value = convertTelemetryValue(value, unit, prec, this->unit, this->prec);
+  // Does it needs any conversion ? 
+  if ((unit != this->unit) || (prec != this->prec)) {
+    value = convertTelemetryValue(value, unit, prec, this->unit, this->prec);
+  }
 
   if (type == TELEM_TYPE_CUSTOM) {
     value += custom.offset;
@@ -761,7 +766,10 @@ bool TelemetrySensor::isConfigurable() const
 
 bool TelemetrySensor::isPrecConfigurable() const
 {
-  if (isConfigurable()) {
+  if (unit == UNIT_FAHRENHEIT) { // use Prec0
+    return false;
+  } 
+  else if (isConfigurable()) {
     return true;
   }
   else if (unit == UNIT_CELLS) {

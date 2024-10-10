@@ -19,11 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "opentx_helpers.h"
+#include "hal/adc_driver.h"
+#include "myeeprom.h"
+#include "edgetx.h"
+#include "edgetx_helpers.h"
 #include "storage.h"
 #include "sdcard_common.h"
-#include "sdcard_raw.h"
 #include "sdcard_yaml.h"
 #include "modelslist.h"
 
@@ -31,14 +32,6 @@
 #include "yaml/yaml_parser.h"
 #include "yaml/yaml_datastructs.h"
 #include "yaml/yaml_bits.h"
-
-
-#if defined(EEPROM_RLC)
- #include "storage/eeprom_common.h"
- #include "storage/eeprom_rlc.h"
-#endif
-
-#include "storage/conversions/conversions.h"
 
 const char * readYamlFile(const char* fullpath, const YamlParserCalls* calls, void* parser_ctx, ChecksumResult* checksum_result)
 {
@@ -133,13 +126,16 @@ static const char * attemptLoad(const char *filename, ChecksumResult* checksum_s
   return readYamlFile(filename, YamlTreeWalker::get_parser_calls(), &tree, checksum_status);
 }
 
-const char * loadRadioSettingsYaml()
+const char * loadRadioSettingsYaml(bool checks)
 {
     // YAML reader
     TRACE("YAML radio settings reader");
 
     ChecksumResult checksum_status;
     const char* p = attemptLoad(RADIO_SETTINGS_YAML_PATH, &checksum_status);
+
+    if(!checks)
+      return p;
 
     if((p != NULL) || (checksum_status != ChecksumResult::Success) ) {
       // Read failed or checksum check failed
@@ -177,37 +173,16 @@ const char * loadRadioSettings()
     if ( (f_stat(RADIO_SETTINGS_YAML_PATH, &fno) != FR_OK) && ((f_stat(RADIO_SETTINGS_TMPFILE_YAML_PATH, &fno) != FR_OK)) ) {
       // If neither the radio configuraion YAML file or the temporary file generated on write exist, this must be a first run with YAML support.
       // - thus requiring a conversion from binary to YAML.
-#if STORAGE_CONVERSIONS < 221
-#if defined(STORAGE_MODELSLIST)
-      uint8_t version;
-      const char* error = loadFileBin(RADIO_SETTINGS_PATH, nullptr, 0, &version);
-      if (error) {
-        TRACE("loadRadioSettings error=%s", error);
-        return error;
-      }
-      convertBinRadioData(RADIO_SETTINGS_PATH, version);
-#elif defined(EEPROM_RLC)
-      // Load from EEPROM
-      uint8_t versions[3];
-      uint16_t* variant = (uint16_t*)&versions[1];
-      if (!eepromOpen() || (eeLoadGeneralSettingsData(versions, 3) != 3)
-          || (*variant != EEPROM_VARIANT)) {
-        return "ERROR";
-      }
-      eeConvert(versions[0]);
-#else
-  #error "Unsupported conversion format"
-#endif
-#else
       return "no radio settings";
-#endif
     }
 
 #if defined(DEFAULT_INTERNAL_MODULE)
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
 #endif
 
-    const char* error = loadRadioSettingsYaml();
+    adcCalibDefaults();
+
+    const char* error = loadRadioSettingsYaml(true);
     if (!error) {
       g_eeGeneral.chkSum = evalChkSum();
     }
@@ -369,7 +344,7 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
       auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)
       // reset GVars to default values
-      // Note: taken from opentx.cpp::modelDefault()
+      // Note: taken from edgetx.cpp::modelDefault()
       //TODO: new func in gvars
       for (int p=1; p<MAX_FLIGHT_MODES; p++) {
         for (int i=0; i<MAX_GVARS; i++) {
@@ -478,7 +453,13 @@ bool copyModel(uint8_t dst, uint8_t src)
   GET_FILENAME(fname_src, MODELS_PATH, model_idx_src, YAML_EXT);
   GET_FILENAME(fname_dst, MODELS_PATH, model_idx_dst, YAML_EXT);
 
-  return sdCopyFile(fname_src, fname_dst);
+  if (sdCopyFile(fname_src, fname_dst) == nullptr) {
+    // update headers
+    memcpy(&modelHeaders[dst], &modelHeaders[src], sizeof(ModelHeader));
+    return true;
+  }
+
+  return false;
 }
 
 static void swapModelHeaders(uint8_t id1, uint8_t id2)
@@ -623,5 +604,9 @@ const char * restoreModel(uint8_t idx, char *model_name)
 bool storageReadRadioSettings(bool checks)
 {
   if (!sdMounted()) sdInit();
-  return loadRadioSettingsYaml() == nullptr;
+  bool rv = loadRadioSettingsYaml(checks) == nullptr;
+#if LCD_W == 128
+  lcdSetInvert(g_eeGeneral.invertLCD);
+#endif
+  return rv;
 }

@@ -19,67 +19,77 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "timers_driver.h"
+#include "stm32_timer.h"
+#include "stm32_hal_ll.h"
 
-extern void flysky_hall_stick_loop( void );
+#include "hal.h"
+#include "hal/watchdog_driver.h"
 
-// Start TIMER at 2000000Hz
-void init2MhzTimer()
+#include "FreeRTOSConfig.h"
+
+static volatile uint32_t _ms_ticks;
+
+static void _init_1ms_timer()
 {
-  TIMER_2MHz_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 2000000 - 1; // 0.5 uS, 2 MHz
-  TIMER_2MHz_TIMER->ARR = 65535;
-  TIMER_2MHz_TIMER->CR2 = 0;
-  TIMER_2MHz_TIMER->CR1 = TIM_CR1_CEN;
+  stm32_timer_enable_clock(MS_TIMER);
+  if ((MS_TIMER->CR1 & TIM_CR1_CEN) == TIM_CR1_CEN) return;
+
+  _ms_ticks = 0;
+  MS_TIMER->ARR = 999; // 1mS in uS
+  MS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
+  MS_TIMER->CCER = 0;
+  MS_TIMER->CCMR1 = 0;
+  MS_TIMER->EGR = 0;
+  MS_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
+  MS_TIMER->DIER = TIM_DIER_UIE;
+
+  NVIC_EnableIRQ(MS_TIMER_IRQn);
+  NVIC_SetPriority(MS_TIMER_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 }
 
-// Start TIMER at 1000Hz
-void init1msTimer()
+void timersInit()
 {
-  INTERRUPT_xMS_TIMER->ARR = 999; // 1mS in uS
-  INTERRUPT_xMS_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1;  // 1uS
-  INTERRUPT_xMS_TIMER->CCER = 0;
-  INTERRUPT_xMS_TIMER->CCMR1 = 0;
-  INTERRUPT_xMS_TIMER->EGR = 0;
-  INTERRUPT_xMS_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
-  INTERRUPT_xMS_TIMER->DIER |= TIM_DIER_UIE;
-  NVIC_EnableIRQ(INTERRUPT_xMS_IRQn);
-  NVIC_SetPriority(INTERRUPT_xMS_IRQn, 4);
+  _init_1ms_timer();
 }
 
-void stop1msTimer()
+uint32_t timersGetMsTick()
 {
-  INTERRUPT_xMS_TIMER->CR1 = 0; // stop timer
-  NVIC_DisableIRQ(INTERRUPT_xMS_IRQn);
+  return _ms_ticks;
 }
 
-static uint32_t watchdogTimeout = 0;
+uint32_t timersGetUsTick()
+{
+  uint32_t ms;
+  uint32_t us;
+
+  do {
+    ms = _ms_ticks;
+    us = MS_TIMER->CNT;
+    asm volatile("nop");
+    asm volatile("nop");
+  } while (ms != _ms_ticks);
+  
+  return ms * 1000 + us;
+}
+
+static volatile uint32_t watchdogTimeout = 0;
 
 void watchdogSuspend(uint32_t timeout)
 {
   watchdogTimeout = timeout;
 }
 
-void interrupt1ms()
+static inline void _interrupt_1ms()
 {
-  static uint8_t pre_scale; // Used to get 10 Hz counter
+  static uint8_t pre_scale = 0;
 
   ++pre_scale;
-
-  // 1 ms loop
-#if not defined(SIMU) && (defined(RADIO_FAMILY_T16) || defined(PCBNV14))
-  if (globalData.flyskygimbals)
-  {
-    flysky_hall_stick_loop();
-  }
-#endif
+  ++_ms_ticks;
 
   // 5ms loop
-  if (pre_scale == 5 || pre_scale == 10) {
-#if defined(HAPTIC)
-    DEBUG_TIMER_START(debugTimerHaptic);
-    HAPTIC_HEARTBEAT();
-    DEBUG_TIMER_STOP(debugTimerHaptic);
-#endif
+  if(pre_scale == 5 || pre_scale == 10) {
+    per5ms();
   }
   
   // 10ms loop
@@ -91,16 +101,12 @@ void interrupt1ms()
       WDG_RESET();  // Retrigger hardware watchdog
     }
 
-    DEBUG_TIMER_START(debugTimerPer10ms);
-    DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
     per10ms();
-    DEBUG_TIMER_STOP(debugTimerPer10ms);
   }
 }
 
-extern "C" void INTERRUPT_xMS_IRQHandler()
+extern "C" void MS_TIMER_IRQHandler()
 {
-  INTERRUPT_xMS_TIMER->SR &= ~TIM_SR_UIF;
-  interrupt1ms();
-  DEBUG_INTERRUPT(INT_1MS);
+  MS_TIMER->SR &= ~TIM_SR_UIF;
+  _interrupt_1ms();
 }

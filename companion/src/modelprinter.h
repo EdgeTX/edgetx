@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -58,7 +59,6 @@ class ModelPrinter: public QObject
     QString printInputLine(const ExpoData & ed);
     QString printMixerLine(const MixData & md, bool showMultiplex, int highlightedSource = 0);
     QString printLogicalSwitchLine(int idx);
-    QString printCustomFunctionLine(int idx, bool gfunc = false);
     QString printChannelName(int idx);
     QString printCurveName(int idx);
     QString printCurve(int idx);
@@ -80,6 +80,7 @@ class ModelPrinter: public QObject
     QString printModuleType(int idx);
     QString printThrottleSource(int idx);
     QString printTrimsDisplayMode();
+    QString printHatsMode();
     QString printSettingsTrim();
     QString printSwitchWarnings();
     QString printPotWarnings();
@@ -103,6 +104,7 @@ class ModelPrinter: public QObject
     QString printTelemetryScreenType(unsigned int val);
     QString printTelemetryScreen(unsigned int idx, unsigned int line, unsigned int width);
     QString printChecklist();
+    const GeneralSettings * gs() { return &generalSettings; }
 
   private:
     Firmware * firmware;

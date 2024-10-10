@@ -19,120 +19,122 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
+#include "hal/abnormal_reboot.h"
 
 void pwrInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+#if defined(SD_PRESENT_GPIO)
+  gpio_init(SD_PRESENT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+#endif
 
 #if defined(INTMODULE_BOOTCMD_GPIO)
-  INIT_INTMODULE_BOOTCMD_PIN();
-  GPIO_InitStructure.GPIO_Pin = INTMODULE_BOOTCMD_GPIO_PIN;
-  GPIO_Init(INTMODULE_BOOTCMD_GPIO, &GPIO_InitStructure);
+  gpio_init(INTMODULE_BOOTCMD_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_write(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_DEFAULT);
 #endif
 
   // Internal module power
+#if defined(HARDWARE_INTERNAL_MODULE)
+  gpio_init(INTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   INTERNAL_MODULE_OFF();
-  GPIO_InitStructure.GPIO_Pin = INTMODULE_PWR_GPIO_PIN;
-  GPIO_Init(INTMODULE_PWR_GPIO, &GPIO_InitStructure);
+#endif
 
   // External module power
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  gpio_init(EXTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   EXTERNAL_MODULE_PWR_OFF();
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_PWR_GPIO_PIN;
-  GPIO_Init(EXTMODULE_PWR_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+#endif
 
   // PWR switch
-  GPIO_InitStructure.GPIO_Pin = PWR_SWITCH_GPIO_PIN;
-  GPIO_Init(PWR_SWITCH_GPIO, &GPIO_InitStructure);
+#if defined(PWR_SWITCH_GPIO)
+  gpio_init(PWR_SWITCH_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+#endif
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
   // PWR Extra switch
-  GPIO_InitStructure.GPIO_Pin = PWR_EXTRA_SWITCH_GPIO_PIN;
-  GPIO_Init(PWR_EXTRA_SWITCH_GPIO, &GPIO_InitStructure);
+  gpio_init(PWR_EXTRA_SWITCH_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 #endif
 
 #if defined(PCBREV_HARDCODED)
   hardwareOptions.pcbrev = PCBREV_HARDCODED;
-#elif defined(PCBREV_GPIO_PIN)
+#elif defined(PCBREV_GPIO)
   #if defined(PCBREV_GPIO_PULL_DOWN)
-    GPIO_ResetBits(PCBREV_GPIO, PCBREV_GPIO_PIN);
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+    gpio_init(PCBREV_GPIO, GPIO_IN_PD, GPIO_PIN_SPEED_LOW);
+  #else
+    gpio_init(PCBREV_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
   #endif
-  GPIO_InitStructure.GPIO_Pin = PCBREV_GPIO_PIN;
-  GPIO_Init(PCBREV_GPIO, &GPIO_InitStructure);
+  hardwareOptions.pcbrev = PCBREV_VALUE();
+#elif defined(PCBREV_GPIO_1) && defined(PCBREV_GPIO_2)
+  gpio_init(PCBREV_GPIO_1, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+  #if defined(PCBREV_TOUCH_GPIO)
+    #if defined(PCBREV_TOUCH_GPIO_PULL_UP)
+      gpio_init(PCBREV_GPIO_2, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+    #else
+      gpio_init(PCBREV_TOUCH_GPIO, GPIO_IN_PD, GPIO_PIN_SPEED_LOW);
+    #endif
+  #endif
+
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #endif
 
-#if defined(TRAINER_DETECT_GPIO_PIN)
-  GPIO_InitStructure.GPIO_Pin = TRAINER_DETECT_GPIO_PIN;
-  GPIO_Init(TRAINER_DETECT_GPIO, &GPIO_InitStructure);
+  // Aux serial port power
+#if defined(AUX_SERIAL_PWR_GPIO)
+  gpio_init(AUX_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
-
-#if defined(SD_PRESENT_GPIO_PIN)
-  GPIO_ResetBits(SD_PRESENT_GPIO, SD_PRESENT_GPIO_PIN);
-  GPIO_InitStructure.GPIO_Pin = SD_PRESENT_GPIO_PIN;
-  GPIO_Init(SD_PRESENT_GPIO, &GPIO_InitStructure);
-#endif
-
-#if defined(INTMODULE_USART) && defined(TRAINER_MODULE_CPPM)
-  GPIO_SetBits(TRAINER_MODULE_CPPM_GPIO, TRAINER_MODULE_CPPM_GPIO_PIN);
-  GPIO_InitStructure.GPIO_Pin = TRAINER_MODULE_CPPM_GPIO_PIN;
-  GPIO_Init(TRAINER_MODULE_CPPM_GPIO, &GPIO_InitStructure);
+#if defined(AUX2_SERIAL_PWR_GPIO)
+  gpio_init(AUX2_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 }
 
 void pwrOn()
 {
-  // we keep the init of the PIN to have pwrOn as quick as possible
-
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = PWR_ON_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(PWR_ON_GPIO, &GPIO_InitStructure);
-
-  GPIO_SetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
+#if defined(PWR_ON_GPIO)
+  gpio_init(PWR_ON_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(PWR_ON_GPIO);
+#endif
 }
 
 void pwrOff()
 {
-  GPIO_ResetBits(PWR_ON_GPIO, PWR_ON_GPIO_PIN);
+#if defined(PWR_ON_GPIO)
+  gpio_clear(PWR_ON_GPIO);
+#endif
 }
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
 bool pwrForcePressed()
 {
-  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET && GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO, PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
+  return !gpio_read(PWR_SWITCH_GPIO) && !gpio_read(PWR_EXTRA_SWITCH_GPIO);
 }
 #endif
 
 bool pwrPressed()
 {
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-  return (GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET || GPIO_ReadInputDataBit(PWR_EXTRA_SWITCH_GPIO, PWR_EXTRA_SWITCH_GPIO_PIN) == Bit_RESET);
+  return !gpio_read(PWR_SWITCH_GPIO) && !gpio_read(PWR_EXTRA_SWITCH_GPIO);
+#elif defined(PWR_SWITCH_GPIO)
+  return !gpio_read(PWR_SWITCH_GPIO);
 #else
-  return GPIO_ReadInputDataBit(PWR_SWITCH_GPIO, PWR_SWITCH_GPIO_PIN) == Bit_RESET;
+  return true;
+#endif
+}
+
+bool pwrOffPressed()
+{
+#if defined(PWR_BUTTON_PRESS)
+  return pwrPressed();
+#elif defined(PWR_SWITCH_GPIO)
+  return !pwrPressed();
+#else
+  return false;
 #endif
 }
 
 void pwrResetHandler()
 {
-  RCC->AHB1ENR |= PWR_RCC_AHB1Periph;
-
-  // these two NOPs are needed (see STM32F errata sheet) before the peripheral
-  // register can be written after the peripheral clock was enabled
-  __ASM volatile ("nop");
-  __ASM volatile ("nop");
-
   if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
     pwrOn();
   }

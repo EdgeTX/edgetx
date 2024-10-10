@@ -502,6 +502,72 @@
        </property>
       </widget>
      </item>
+     <item row="5" column="2">
+      <layout class="QGridLayout" name="t8Layout" columnstretch="0,1">
+       <item row="2" column="0">
+        <widget class="QLabel" name="trim8Label">
+         <property name="text">
+          <string>trim8</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QComboBox" name="trim8Use"/>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="trim8Value">
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="minimum">
+            <number>-896</number>
+           </property>
+           <property name="maximum">
+            <number>896</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="6" column="2">
+      <widget class="QSlider" name="trim8Slider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksBothSides</enum>
+       </property>
+       <property name="tickInterval">
+        <number>25</number>
+       </property>
+      </widget>
+     </item>
      <item row="4" column="1">
       <widget class="QSlider" name="trim5Slider">
        <property name="orientation">
@@ -528,7 +594,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <layout class="QVBoxLayout" name="verticalLayout_5">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
           <widget class="QComboBox" name="trim5Use"/>
          </item>
@@ -551,7 +617,73 @@
         </layout>
        </item>
        <item row="0" column="1">
-        <spacer name="verticalSpacer">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="6" column="1">
+      <widget class="QSlider" name="trim7Slider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksBothSides</enum>
+       </property>
+       <property name="tickInterval">
+        <number>25</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <layout class="QGridLayout" name="t7Layout" columnstretch="0,1">
+       <item row="1" column="0">
+        <widget class="QLabel" name="trim7Label">
+         <property name="text">
+          <string>trim7</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QComboBox" name="trim7Use"/>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="trim7Value">
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="minimum">
+            <number>-896</number>
+           </property>
+           <property name="maximum">
+            <number>896</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1">
+        <spacer name="verticalSpacer_11">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>

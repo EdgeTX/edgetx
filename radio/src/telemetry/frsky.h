@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FRSKY_H_
-#define _FRSKY_H_
+#pragma once
 
 #include "../../definitions.h"
 #include "telemetry_holders.h"
@@ -36,7 +35,7 @@ enum FrSkyDataState {
 };
 
 #define FRSKY_SPORT_BAUDRATE          57600
-#if defined(RADIO_TX16S)
+#if defined(RADIO_TX16S) || defined(RADIO_F16)
 #define FRSKY_TELEM_MIRROR_BAUDRATE   115200
 #else
 #define FRSKY_TELEM_MIRROR_BAUDRATE   FRSKY_SPORT_BAUDRATE
@@ -95,16 +94,21 @@ typedef enum {
 
 // FrSky D Telemetry Protocol
 void processHubPacket(uint8_t id, int16_t value);
-void frskyDProcessPacket(const uint8_t *packet);
+void frskyDProcessPacket(uint8_t module, const uint8_t *packet, uint8_t len);
 
 // FrSky S.PORT Telemetry Protocol
-bool sportProcessTelemetryPacket(const uint8_t * packet);
+bool sportProcessTelemetryPacket(uint8_t module, const uint8_t * packet, uint8_t len);
 void sportProcessTelemetryPacket(uint16_t id, uint8_t subId, uint8_t instance,
                                  uint32_t data, TelemetryUnit unit = UNIT_RAW);
-void sportProcessTelemetryPacketWithoutCrc(uint8_t origin, const uint8_t *packet);
 
-bool pushFrskyTelemetryData(uint8_t data); // returns true when end of frame detected
-void processFrskyTelemetryData(uint8_t data);
+void sportProcessTelemetryPacketWithoutCrc(uint8_t module, uint8_t origin,
+                                           const uint8_t *packet);
+
+void processFrskySportTelemetryData(uint8_t module, uint8_t data,
+                                    uint8_t* buffer, uint8_t& len);
+
+void processFrskyDTelemetryData(uint8_t module, uint8_t data,
+                                uint8_t* buffer, uint8_t& len);
 
 #if defined(NO_RAS)
 inline bool isRasValueValid()
@@ -134,5 +138,3 @@ inline bool isRasValueValid()
 #endif
 
 constexpr uint8_t FRSKY_BAD_ANTENNA_THRESHOLD = 0x33;
-
-#endif // _FRSKY_H_

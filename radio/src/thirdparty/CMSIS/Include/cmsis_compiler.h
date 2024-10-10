@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_compiler.h
  * @brief    CMSIS compiler generic header file
- * @version  V5.0.4
- * @date     10. January 2018
+ * @version  V5.3.0
+ * @date     04. April 2023
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
+ * Copyright (c) 2009-2023 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -35,11 +35,22 @@
 
 
 /*
- * Arm Compiler 6 (armclang)
+ * Arm Compiler 6.6 LTM (armclang)
  */
-#elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050) && (__ARMCC_VERSION < 6100100)
+  #include "cmsis_armclang_ltm.h"
+
+  /*
+ * Arm Compiler above 6.10.1 (armclang)
+ */
+#elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6100100)
   #include "cmsis_armclang.h"
 
+/*
+ * TI Arm Clang Compiler (tiarmclang)
+ */
+#elif defined (__ti__)
+  #include "cmsis_tiarmclang.h"
 
 /*
  * GNU Compiler
@@ -56,7 +67,7 @@
 
 
 /*
- * TI Arm Compiler
+ * TI Arm Compiler (armcl)
  */
 #elif defined ( __TI_ARM__ )
   #include <cmsis_ccs.h>
@@ -115,10 +126,18 @@
     #define __ALIGNED(x)                           __attribute__((aligned(x)))
   #endif
   #ifndef   __RESTRICT
-    #warning No compiler specific solution for __RESTRICT. __RESTRICT is ignored.
-    #define __RESTRICT
+    #define __RESTRICT                             __restrict
   #endif
-
+  #ifndef   __COMPILER_BARRIER
+    #warning No compiler specific solution for __COMPILER_BARRIER. __COMPILER_BARRIER is ignored.
+    #define __COMPILER_BARRIER()                   (void)0
+  #endif
+  #ifndef __NO_INIT
+    #define __NO_INIT                              __attribute__ ((section (".bss.noinit")))
+  #endif
+  #ifndef __ALIAS
+    #define __ALIAS(x)                             __attribute__ ((alias(x)))
+  #endif
 
 /*
  * TASKING Compiler
@@ -187,7 +206,16 @@
     #warning No compiler specific solution for __RESTRICT. __RESTRICT is ignored.
     #define __RESTRICT
   #endif
-
+  #ifndef   __COMPILER_BARRIER
+    #warning No compiler specific solution for __COMPILER_BARRIER. __COMPILER_BARRIER is ignored.
+    #define __COMPILER_BARRIER()                   (void)0
+  #endif
+  #ifndef __NO_INIT
+    #define __NO_INIT                              __attribute__ ((section (".bss.noinit")))
+  #endif
+  #ifndef __ALIAS
+    #define __ALIAS(x)                             __attribute__ ((alias(x)))
+  #endif
 
 /*
  * COSMIC Compiler
@@ -255,7 +283,16 @@
     #warning No compiler specific solution for __RESTRICT. __RESTRICT is ignored.
     #define __RESTRICT
   #endif
-
+  #ifndef   __COMPILER_BARRIER
+    #warning No compiler specific solution for __COMPILER_BARRIER. __COMPILER_BARRIER is ignored.
+    #define __COMPILER_BARRIER()                   (void)0
+  #endif
+  #ifndef __NO_INIT
+    #define __NO_INIT                              __attribute__ ((section (".bss.noinit")))
+  #endif
+  #ifndef __ALIAS
+    #define __ALIAS(x)                             __attribute__ ((alias(x)))
+  #endif
 
 #else
   #error Unknown compiler.

@@ -21,8 +21,6 @@
 
 #pragma once
 
-#pragma once
-
 #include "updateinterface.h"
 
 class UpdateMultiProtocol : public UpdateInterface
@@ -35,6 +33,5 @@ class UpdateMultiProtocol : public UpdateInterface
     virtual ~UpdateMultiProtocol() {}
 
   protected:
-    virtual void initAssetSettings() override;
-
+    virtual void assetSettingsInit() override;
 };

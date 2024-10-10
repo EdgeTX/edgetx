@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 void parseTelemHubByte(uint8_t byte)
 {
@@ -62,67 +62,75 @@ void parseTelemHubByte(uint8_t byte)
   processHubPacket(structPos, (byte << 8) + lowByte);
 }
 
-void frskyDProcessPacket(const uint8_t *packet)
+void frskyDProcessPacket(uint8_t module, const uint8_t *packet, uint8_t len)
 {
+  const TelemetryProtocol proto = PROTOCOL_TELEMETRY_FRSKY_D;
   // What type of packet?
   switch (packet[0])
   {
-    case LINKPKT: // A1/A2/RSSI values
+    // A1/A2/RSSI values
+    case LINKPKT:
     {
-      setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_A1_ID, 0, 0, packet[1], UNIT_VOLTS, 0);
-      setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_A2_ID, 0, 0, packet[2], UNIT_VOLTS, 0);
-      setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, D_RSSI_ID, 0, 0, packet[3], UNIT_RAW, 0);
-#if defined(MULTIMODULE)
-      if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE) {
-        setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, TX_RSSI_ID, 0, 0, packet[4]>>1, UNIT_DB,  0);
-        setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, RX_LQI_ID,  0, 0, packet[5]   , UNIT_RAW, 0);
-        setTelemetryValue(PROTOCOL_TELEMETRY_FRSKY_D, TX_LQI_ID , 0, 0, packet[6]   , UNIT_RAW, 0);
+      setTelemetryValue(proto, D_A1_ID, 0, 0, packet[1], UNIT_VOLTS, 1);
+      setTelemetryValue(proto, D_A2_ID, 0, 0, packet[2], UNIT_VOLTS, 1);
+      setTelemetryValue(proto, D_RSSI_ID, 0, 0, packet[3], UNIT_RAW, 0);
+      
+      if (len >= 7) {
+        setTelemetryValue(proto, TX_RSSI_ID, 0, 0, packet[4]>>1, UNIT_DB,  0);
+        setTelemetryValue(proto, RX_LQI_ID,  0, 0, packet[5]   , UNIT_RAW, 0);
+        setTelemetryValue(proto, TX_LQI_ID , 0, 0, packet[6]   , UNIT_RAW, 0);
       }
-#endif
+
+      // reset counter only if valid packets are being detected
       telemetryData.rssi.set(packet[3]);
-      telemetryStreaming = TELEMETRY_TIMEOUT10ms; // reset counter only if valid packets are being detected
+      telemetryStreaming = TELEMETRY_TIMEOUT10ms;
       break;
     }
 
-    case USRPKT: // User Data packet
-      uint8_t numBytes = 3 + (packet[1] & 0x07); // sanitize in case of data corruption leading to buffer overflow
-      for (uint8_t i=3; i<numBytes; i++) {
+    // User Data packet
+    case USRPKT:
+      // sanitize in case of data corruption
+      // leading to buffer overflow
+      uint8_t numBytes = 3 + (packet[1] & 0x07);
+      for (uint8_t i = 3; i < numBytes; i++) {
         parseTelemHubByte(packet[i]);
       }
       break;
   }
 }
 
-struct FrSkyDSensor {
+PACK_NOT_SIMU(struct FrSkyDSensor {
   const uint8_t id;
+  const TelemetryUnit unit:6;
+  const uint8_t prec:2;
   const char * name;
-  const TelemetryUnit unit;
-  const uint8_t prec;
-};
+});
+
+#define FS(id,name,unit,prec) {id,unit,prec,name}
 
 const FrSkyDSensor frskyDSensors[] = {
-  { D_RSSI_ID, STR_SENSOR_RSSI, UNIT_RAW, 0 },
-  { D_A1_ID, STR_SENSOR_A1, UNIT_VOLTS, 1 },
-  { D_A2_ID, STR_SENSOR_A2, UNIT_VOLTS, 1 },
-  { RPM_ID, STR_SENSOR_RPM, UNIT_RPMS, 0 },
-  { FUEL_ID, STR_SENSOR_FUEL, UNIT_PERCENT, 0 },
-  { TEMP1_ID, STR_SENSOR_TEMP1, UNIT_CELSIUS, 0 },
-  { TEMP2_ID, STR_SENSOR_TEMP2, UNIT_CELSIUS, 0 },
-  { CURRENT_ID, STR_SENSOR_CURR, UNIT_AMPS, 1 },
-  { ACCEL_X_ID, STR_SENSOR_ACCX, UNIT_G, 3 },
-  { ACCEL_Y_ID, STR_SENSOR_ACCY, UNIT_G, 3 },
-  { ACCEL_Z_ID, STR_SENSOR_ACCZ, UNIT_G, 3 },
-  { VARIO_ID, STR_SENSOR_VSPD, UNIT_METERS_PER_SECOND, 2 },
-  { VFAS_ID, STR_SENSOR_VFAS, UNIT_VOLTS, 2 },
-  { BARO_ALT_AP_ID, STR_SENSOR_ALT, UNIT_METERS, 1 },   // we map hi precision vario into PREC1!
-  { VOLTS_AP_ID, STR_SENSOR_VFAS, UNIT_VOLTS, 2 },
-  { GPS_SPEED_BP_ID, STR_SENSOR_GSPD, UNIT_KTS, 0 },
-  { GPS_COURS_BP_ID, STR_SENSOR_HDG, UNIT_DEGREE, 0 },
-  { VOLTS_ID, STR_SENSOR_CELLS, UNIT_CELLS, 2 },
-  { GPS_ALT_BP_ID, STR_SENSOR_GPSALT, UNIT_METERS, 0 },
-  { GPS_HOUR_MIN_ID, STR_SENSOR_GPSDATETIME, UNIT_DATETIME, 0 },
-  { GPS_LAT_AP_ID, STR_SENSOR_GPS, UNIT_GPS, 0 },
-  { 0, NULL, UNIT_RAW, 0 } // sentinel
+  FS( D_RSSI_ID, STR_SENSOR_RSSI, UNIT_RAW, 0 ),
+  FS( D_A1_ID, STR_SENSOR_A1, UNIT_VOLTS, 1 ),
+  FS( D_A2_ID, STR_SENSOR_A2, UNIT_VOLTS, 1 ),
+  FS( RPM_ID, STR_SENSOR_RPM, UNIT_RPMS, 0 ),
+  FS( FUEL_ID, STR_SENSOR_FUEL, UNIT_PERCENT, 0 ),
+  FS( TEMP1_ID, STR_SENSOR_TEMP1, UNIT_CELSIUS, 0 ),
+  FS( TEMP2_ID, STR_SENSOR_TEMP2, UNIT_CELSIUS, 0 ),
+  FS( CURRENT_ID, STR_SENSOR_CURR, UNIT_AMPS, 1 ),
+  FS( ACCEL_X_ID, STR_SENSOR_ACCX, UNIT_G, 3 ),
+  FS( ACCEL_Y_ID, STR_SENSOR_ACCY, UNIT_G, 3 ),
+  FS( ACCEL_Z_ID, STR_SENSOR_ACCZ, UNIT_G, 3 ),
+  FS( VARIO_ID, STR_SENSOR_VSPD, UNIT_METERS_PER_SECOND, 2 ),
+  FS( VFAS_ID, STR_SENSOR_VFAS, UNIT_VOLTS, 2 ),
+  FS( BARO_ALT_AP_ID, STR_SENSOR_ALT, UNIT_METERS, 1 ),   // we map hi precision vario into PREC1!
+  FS( VOLTS_AP_ID, STR_SENSOR_VFAS, UNIT_VOLTS, 2 ),
+  FS( GPS_SPEED_BP_ID, STR_SENSOR_GSPD, UNIT_KTS, 0 ),
+  FS( GPS_COURS_BP_ID, STR_SENSOR_HDG, UNIT_DEGREE, 0 ),
+  FS( VOLTS_ID, STR_SENSOR_CELLS, UNIT_CELLS, 2 ),
+  FS( GPS_ALT_BP_ID, STR_SENSOR_GPSALT, UNIT_METERS, 0 ),
+  FS( GPS_HOUR_MIN_ID, STR_SENSOR_GPSDATETIME, UNIT_DATETIME, 0 ),
+  FS( GPS_LAT_AP_ID, STR_SENSOR_GPS, UNIT_GPS, 0 ),
+  FS( 0, NULL, UNIT_RAW, 0 ) // sentinel
 };
 
 const FrSkyDSensor * getFrSkyDSensor(uint8_t id)

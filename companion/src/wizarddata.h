@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,15 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _WIZARDDATA_H_
-#define _WIZARDDATA_H_
+#pragma once
 
 #include "eeprominterface.h"
 
+#include <QtCore>
+
 #define WIZ_MAX_CHANNELS 8
-// TODO use a constant common to the whole companion
-// TODO when in the wizard use the getCapacity(...) to know how long the name can be
-#define WIZ_MODEL_NAME_LENGTH 12
 
 enum Input {
   NO_INPUT,
@@ -90,11 +89,13 @@ class Channel
     void clear();
 };
 
-class WizMix
+class WizMix : public QObject
 {
+  Q_OBJECT
+
   public:
     bool complete;
-    char name[WIZ_MODEL_NAME_LENGTH + 1];
+    char name[MODEL_NAME_LEN + 1];
     unsigned int modelId;
     const GeneralSettings & settings;
     const ModelData & originalModelData;
@@ -111,5 +112,3 @@ class WizMix
     void maxMixSwitch(char *name, MixData &mix, int destCh, int sw, int weight);
 
 };
-
-#endif // _WIZARDDATA_H_

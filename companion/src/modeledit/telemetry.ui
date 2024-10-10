@@ -18,39 +18,6 @@
     <number>4</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
-     <item>
-      <widget class="QLabel" name="telemetryProtocolLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Protocol</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="telemetryProtocol">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
     <widget class="QGroupBox" name="RSSIGB">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -83,7 +50,7 @@
          </font>
         </property>
         <property name="text">
-         <string>RSSI</string>
+         <string>RF Quality</string>
         </property>
        </widget>
       </item>
@@ -263,16 +230,6 @@
          </property>
         </item>
        </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="rssiSourceLabel">
-        <property name="text">
-         <string>Source</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1" colspan="2">
-       <widget class="AutoComboBox" name="rssiSourceCB"/>
       </item>
      </layout>
     </widget>
@@ -963,7 +920,7 @@
      <property name="flat">
       <bool>false</bool>
      </property>
-     <layout class="QGridLayout" name="sensorsLayout" columnstretch="0">
+     <layout class="QGridLayout" name="sensorsLayout" columnstretch="0,0">
       <property name="leftMargin">
        <number>4</number>
       </property>
@@ -993,6 +950,13 @@
        <widget class="AutoCheckBox" name="ignoreSensorIds">
         <property name="text">
          <string>Disable multi sensor handling</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="AutoCheckBox" name="showInstanceIds">
+        <property name="text">
+         <string>Show Instance IDs</string>
         </property>
        </widget>
       </item>
@@ -1027,7 +991,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>telemetryProtocol</tabstop>
   <tabstop>rssiAlarmWarningCB</tabstop>
   <tabstop>rssiAlarmWarningSB</tabstop>
   <tabstop>rssiAlarmCriticalCB</tabstop>

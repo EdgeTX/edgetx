@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef SIMULATORMAINWINDOW_H
-#define SIMULATORMAINWINDOW_H
+#pragma once
 
 #include "simulator.h"
 
@@ -49,7 +49,7 @@ class SimulatorMainWindow : public QMainWindow
     Q_OBJECT
 
   public:
-    explicit SimulatorMainWindow(QWidget * parent, const QString & firmwareId = "", quint8 flags=0, Qt::WindowFlags wflags = Qt::WindowFlags());
+    explicit SimulatorMainWindow(QWidget * parent, const QString & simulatorId = "", quint8 flags=0, Qt::WindowFlags wflags = Qt::WindowFlags());
     ~SimulatorMainWindow();
 
     int getExitStatus(QString * msg = Q_NULLPTR);
@@ -113,5 +113,3 @@ class SimulatorMainWindow : public QMainWindow
 
     const static quint16 m_savedUiStateVersion;
 };
-
-#endif // SIMULATORMAINWINDOW_H

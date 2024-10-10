@@ -216,6 +216,20 @@ LUALIB_API int luaL_error (lua_State *L, const char *fmt, ...) {
 
 
 LUALIB_API int luaL_fileresult (lua_State *L, int stat, const char *fname) {
+#if defined(USE_FATFS)
+  if (stat) {
+    lua_pushboolean(L, 1);
+    return 1;    
+  }
+  else {
+    lua_pushnil(L);
+    if (fname)
+      lua_pushfstring(L, "%s: file error", fname);
+    else
+      lua_pushstring(L, "file error");
+    return 2;
+  }
+#else
   int en = errno;  /* calls to Lua API may change this value */
   if (stat) {
     lua_pushboolean(L, 1);
@@ -230,6 +244,7 @@ LUALIB_API int luaL_fileresult (lua_State *L, int stat, const char *fname) {
     lua_pushinteger(L, en);
     return 3;
   }
+#endif
 }
 
 
@@ -295,6 +310,18 @@ LUALIB_API int luaL_newmetatable (lua_State *L, const char *tname) {
 LUALIB_API void luaL_setmetatable (lua_State *L, const char *tname) {
   luaL_getmetatable(L, tname);
   lua_setmetatable(L, -2);
+}
+
+
+LUALIB_API int luaL_rometatable (lua_State *L, const char* tname, const ROTable *p) {
+  lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get registry.name */
+  if (!lua_isnil(L, -1))  /* name already in use? */
+    return 0;  /* leave previous value on top, but return 0 */
+  lua_pop(L, 1);
+  lua_pushrotable(L, p);
+  lua_pushvalue(L, -1);
+  lua_setfield(L, LUA_REGISTRYINDEX, tname);  /* registry.name = metatable */
+  return 1;
 }
 
 
@@ -607,9 +634,14 @@ static const char *getF (lua_State *L, void *ud, size_t *size) {
 
 
 static int errfile (lua_State *L, const char *what, int fnameindex) {
+#if defined(USE_FATFS)
+  const char *filename = lua_tostring(L, fnameindex) + 1;
+  lua_pushfstring(L, "cannot %s %s", what, filename);
+#else
   const char *serr = strerror(errno);
   const char *filename = lua_tostring(L, fnameindex) + 1;
   lua_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
+#endif
   lua_remove(L, fnameindex);
   return LUA_ERRFILE;
 }
@@ -923,16 +955,32 @@ LUALIB_API int luaL_getsubtable (lua_State *L, int idx, const char *fname) {
 */
 LUALIB_API void luaL_requiref (lua_State *L, const char *modname,
                                lua_CFunction openf, int glb) {
-  lua_pushcfunction(L, openf);
-  lua_pushstring(L, modname);  /* argument to open function */
-  lua_call(L, 1, 1);  /* open module */
+  int inROM = 0;
   luaL_getsubtable(L, LUA_REGISTRYINDEX, "_LOADED");
-  lua_pushvalue(L, -2);  /* make copy of module (call result) */
-  lua_setfield(L, -2, modname);  /* _LOADED[modname] = module */
-  lua_pop(L, 1);  /* remove _LOADED table */
+  lua_getfield(L, -1, modname);                            /* LOADED[modname] */
+  if (!lua_toboolean(L, -1)) {                /* package not in LOADED table? */
+    lua_getglobal(L, "ROM");                             /* try the ROM entry */
+    if(!lua_isnil(L,-1)) {
+      lua_getfield(L, -1, modname);                              /* ROM[name] */
+      inROM = lua_toboolean(L, -1);
+      lua_pop(L, 3);
+    } else
+      lua_pop(L, 2);
+
+    if (inROM)                                           /* package is in ROM */
+      glb = 0;                                   /* suppress setting _G entry */
+    lua_pushcfunction(L, openf);
+    lua_pushstring(L, modname);                  /* argument to open function */
+    lua_call(L, 1, 1);                         /* call 'openf' to open module */
+    if (lua_toboolean(L, -1) && !inROM) { /* if not in ROM & result is returned */
+      lua_pushvalue(L, -1);              /* make copy of module (call result) */
+      lua_setfield(L, -3, modname);               /* LOADED[modname] = module */
+    }
+  }
+  lua_remove(L, -2);                                   /* remove LOADED table */
   if (glb) {
-    lua_pushvalue(L, -1);  /* copy of 'mod' */
-    lua_setglobal(L, modname);  /* _G[modname] = module */
+    lua_pushvalue(L, -1);                                   /* copy of module */
+    lua_setglobal(L, modname);                        /* _G[modname] = module */
   }
 }
 

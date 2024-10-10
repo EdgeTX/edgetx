@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -58,10 +59,12 @@
 #define CPN_SETTINGS_INI_FILE       QString(PRODUCT % " " % QCoreApplication::translate("Companion", "settings") % " %1.ini")
 #define CPN_SETTINGS_INI_PATH       QString(CPN_SETTINGS_BACKUP_DIR % "/" % CPN_SETTINGS_INI_FILE)
 
-#define MAX_PROFILES 20
-#define MAX_JOYSTICKS 8
+#define MAX_PROFILES 32
+#define MAX_JS_AXES 10
+#define MAX_JS_BUTTONS 32
 #define MAX_COMPONENTS 10
 #define MAX_COMPONENT_ASSETS 5
+#define MAX_NAMED_JOYSTICKS 10
 
 // It important that these function names are consistent everywhere.
 #define PROP_FSIG_INIT_IMPL         _init()
@@ -330,12 +333,22 @@ class JStickData: public CompStoreObj
   public slots:
     bool existsOnDisk();
 
+  public:
+    void clear() {
+      stick_axe(-1);
+      stick_med(-32768);
+      stick_max(32767);
+      stick_med(0);
+      stick_inv(0);
+    }
+
   protected:
     explicit JStickData();
     void setIndex(int idx) { index = idx; }
     inline QString propertyGroup() const override { return QStringLiteral("JsCalibration"); }
     inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
+    friend class NamedJSData;
 
   private:
     PROPERTY(int, stick_axe, -1)
@@ -343,6 +356,104 @@ class JStickData: public CompStoreObj
     PROPERTY(int, stick_med, 0)
     PROPERTY(int, stick_max, 32767)
     PROPERTY(int, stick_inv, 0)
+
+    int index;
+};
+
+//! \brief JButtonData class stores properties related to each joystick button (button number).
+class JButtonData: public CompStoreObj
+{
+  Q_OBJECT
+  public slots:
+    bool existsOnDisk();
+
+  public:
+    void clear() {
+      button_idx(-1);
+    }
+
+  protected:
+    explicit JButtonData();
+    void setIndex(int idx) { index = idx; }
+    inline QString propertyGroup() const override { return QStringLiteral("JsButton"); }
+    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+    friend class NamedJSData;
+
+  private:
+    PROPERTY(int, button_idx, -1)
+
+    int index;
+};
+
+//! \brief NamedJStickData class stores properties related to each joystick axis (calibration/assignment/direction).
+class NamedJStickData: public CompStoreObj
+{
+  Q_OBJECT
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit NamedJStickData();
+    void setIndex(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; }
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/%1").arg(namedIdx); }
+    inline QString settingsPath()  const override { return QString("%1/JsCalibration/%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+    friend class NamedJSData;
+
+  private:
+    PROPERTY(int, stick_axe, -1)
+    PROPERTY(int, stick_min, -32768)
+    PROPERTY(int, stick_med, 0)
+    PROPERTY(int, stick_max, 32767)
+    PROPERTY(int, stick_inv, 0)
+
+    int namedIdx;
+    int index;
+};
+
+//! \brief NamedJButtonData class stores properties related to each joystick button (button number).
+class NamedJButtonData: public CompStoreObj
+{
+  Q_OBJECT
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit NamedJButtonData();
+    void setIndex(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; }
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/%1").arg(namedIdx); }
+    inline QString settingsPath()  const override { return QString("%1/JsButton/%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+    friend class NamedJSData;
+
+  private:
+    PROPERTY(int, button_idx, -1)
+
+    int namedIdx;
+    int index;
+};
+
+class NamedJSData: public CompStoreObj
+{
+  Q_OBJECT
+  public slots:
+    bool existsOnDisk();
+
+  protected:
+    explicit NamedJSData();
+    void setIndex(int idx) { index = idx; }
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData"); }
+    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    friend class AppData;
+
+  public:
+    NamedJStickData joystick[MAX_JS_AXES];
+    NamedJButtonData jsButton[MAX_JS_BUTTONS];
+
+  private:
+    PROPERTYSTRD(jsName, "")
+    PROPERTY(unsigned int, jsLastUsed, 0)
 
     int index;
 };
@@ -362,6 +473,7 @@ class Profile: public CompStoreObj
 
   protected:
     explicit Profile();
+    explicit Profile(const Profile & rhs);
     void setIndex(int idx) { index = idx; }
     inline QString propertyGroup() const override { return QStringLiteral("Profiles"); }
     inline QString settingsPath()  const override { return QString("%1/profile%2/").arg(propertyGroup()).arg(index); }
@@ -376,11 +488,11 @@ class Profile: public CompStoreObj
     PROPERTYSTR(pBackupDir)
 
     PROPERTY (int, defaultInternalModule, 0)
+    PROPERTY (int, externalModuleSize, 1) // added 2.9 - Board::EXTMODSIZE_STD used for existing profiles
     PROPERTY4(int, channelOrder, "default_channel_order",  0)
     PROPERTY4(int, defaultMode,  "default_mode",           1)
     PROPERTY (int, volumeGain,   10)
 
-    PROPERTY4(bool, renameFwFiles, "rename_firmware_files", false)
     PROPERTY (bool, burnFirmware,  false)
     PROPERTY (bool, penableBackup, false)
     PROPERTY (bool, runSDSync,  false)
@@ -410,6 +522,8 @@ class Profile: public CompStoreObj
     PROPERTY4(int, vBatMax,       "VbatMax",        0)
     PROPERTY4(int, txCurrentCalibration, "currentCalib",  0)
     PROPERTY4(int, txVoltageCalibration, "VbatCalib",     0)
+
+    PROPERTYSTRD(jsName, "")
 
     int index;
 
@@ -472,7 +586,7 @@ class ComponentData: public CompStoreObj
     };
     Q_ENUM(ReleaseChannel)
 
-    void clearRelease();
+    void releaseClear();
     static QStringList releaseChannelsList() { return { tr("Releases"), tr("Pre-release"), tr("Nightly") } ; }
 
     inline ReleaseChannel boundedReleaseChannel() const {
@@ -572,6 +686,8 @@ class AppData: public CompStoreObj
     const Profile & getProfile(int index) const;
     //! List of all active profiles mapped by index.
     QMap<int, QString> getActiveProfiles() const;
+    // Move the currently selected profile to the top of the list
+    void moveCurrentProfileToTop();
 
     //! Get a modifiable (non-const) reference to the ComponentData at \a index. Returns component[0] if \a index is invalid.
     ComponentData & getComponent(int index);
@@ -592,9 +708,20 @@ class AppData: public CompStoreObj
     bool exportSettingsToFile(const QString & expFile, QString & resultMsg);
 
     Profile    profile[MAX_PROFILES];
-    JStickData joystick[MAX_JOYSTICKS];
+    JStickData joystick[MAX_JS_AXES];
+    JButtonData jsButton[MAX_JS_BUTTONS];
+    NamedJSData namedJS[MAX_NAMED_JOYSTICKS];
     FwRevision fwRev;
     ComponentData component[MAX_COMPONENTS];
+
+    void clearJSData() {
+      for (int i = 0; i < MAX_JS_AXES; i += 1)
+        joystick[i].clear();
+      for (int i = 0; i < MAX_JS_BUTTONS; i += 1)
+        jsButton[i].clear();
+    }
+    void saveNamedJS();
+    void loadNamedJS();
 
   signals:
     void currentProfileChanged();
@@ -602,6 +729,9 @@ class AppData: public CompStoreObj
   protected:
     inline QString propertyGroup() const override { return QStringLiteral("General"); }
     inline QString settingsPath()  const override { return QString(); }
+
+    void saveNamedJS(int i);
+    void loadNamedJS(int i);
 
   private:
 
@@ -657,7 +787,6 @@ class AppData: public CompStoreObj
     PROPERTY4(int, embedSplashes,         "embedded_splashes",        0)
     PROPERTY4(int, fwServerFails,         "fwserver",                 0)
     PROPERTY4(int, iconSize,              "icon_size",                2)
-    PROPERTY4(int, jsCtrl,                "js_ctrl",                  0)
     PROPERTY4(int, historySize,           "history_size",             10)
     PROPERTY (int, generalEditTab,                                    0)
     PROPERTY (int, theme,                                             1)
@@ -665,6 +794,7 @@ class AppData: public CompStoreObj
 
     PROPERTY4(bool, jsSupport,            "js_support",               false)
     PROPERTY4(bool, showSplash,           "show_splash",              true)
+    PROPERTY4(bool, sortProfiles,         "sort_profiles",            false)
     PROPERTY4(bool, snapToClpbrd,         "snapshot_to_clipboard",    false)
 
     PROPERTY(UpdateCheckFreq, updateCheckFreq, UPDATE_CHECK_MANUAL)
@@ -687,6 +817,7 @@ class AppData: public CompStoreObj
     PROPERTY(int, backLight,       0)
     PROPERTY(int, simuLastProfId, -1)
     PROPERTY(bool, simuSW,      true)
+    PROPERTY(bool, disableJoystickWarning, false)
 
     // Message box confirmations
     PROPERTY(bool, confirmWriteModelsAndSettings, true)

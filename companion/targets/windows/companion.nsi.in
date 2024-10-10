@@ -128,7 +128,7 @@ Section "EdgeTX Companion @VERSION_FAMILY@" SecDummy
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "DisplayIcon" "$\"$INSTDIR\companion.exe$\""
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "Publisher" "EdgeTX"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "URLInfoAbout" "https://www.open-tx.org"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "URLInfoAbout" "https://www.edgetx.org"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "QuietUninstallString" "$\"$INSTDIR\Uninstall.exe$\" /S"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
@@ -178,7 +178,7 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
   Delete "$INSTDIR\companion.exe"
   Delete "$INSTDIR\simulator.exe"
   Delete "$INSTDIR\*edgetx-*-simulator.dll"
-  Delete "$INSTDIR\SDL.dll"
+  Delete "$INSTDIR\SDL2.dll"
   ; MSVC-specific libs
   Delete "$INSTDIR\msvcp140.dll"
   Delete "$INSTDIR\vcruntime140.dll"
@@ -195,8 +195,10 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
   Delete "$INSTDIR\libusb0.dll"
   Delete "$INSTDIR\libusb-1.0.dll"
   ; OpenSSL libs
-  Delete "$INSTDIR\libeay32.dll"
-  Delete "$INSTDIR\ssleay32.dll"
+  Delete "$INSTDIR\libssl-1_1.dll"
+  Delete "$INSTDIR\libssl-1_1-x64.dll"
+  Delete "$INSTDIR\libcrypto-1_1.dll"
+  Delete "$INSTDIR\libcrypto-1_1-x64.dll"
   ; MinGW libs
   Delete "$INSTDIR\libgcc_s_dw2-1.dll"
   Delete "$INSTDIR\libgcc_s_seh-1.dll"

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const unsigned char ASTERISK_BITMAP[]  = {
 #include "asterisk.lbm"
@@ -28,7 +28,7 @@ const unsigned char ASTERISK_BITMAP[]  = {
 void drawAlertBox(const char * title, const char * text, const char * action)
 {
   lcdClear();
-  lcdDraw1bitBitmap(2, 0, ASTERISK_BITMAP, 0, 0);
+  lcdDraw1bitBitmap(2, 2, ASTERISK_BITMAP, 0, 0);
 
 #define MESSAGE_LCD_OFFSET   6*FW
 

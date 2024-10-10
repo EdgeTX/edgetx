@@ -19,9 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
-#if defined(SPLASH)
 const unsigned char splashdata[]  = {
   'S','P','S',0,
   #include "bitmaps/128x64/splash.lbm"
@@ -35,4 +34,3 @@ void drawSplash()
   lcdDraw1bitBitmap(0, 0, splash_lbm, 0, 0);
   lcdRefresh();
 }
-#endif

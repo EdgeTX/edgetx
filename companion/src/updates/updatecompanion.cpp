@@ -33,34 +33,35 @@
   #define OS_SUPPORTED_INSTALLER
   #define OS_FILEPATTERN           "edgetx-cpn-osx"
   #define OS_INSTALLER_EXTN        "*.dmg"
-  #define OS_INSTALL_QUESTION      tr("Would you like to open the disk image to install the new version of Companion?")
+  #define OS_INSTALL_QUESTION      QCoreApplication::translate("UpdateCompanion", "Would you like to open the disk image to install the new version of Companion?")
 #elif defined(_WIN64)
   #define OS_SUPPORTED_INSTALLER
   #define OS_FILEPATTERN           "edgetx-cpn-win64"
   #define OS_INSTALLER_EXTN        "*.exe"
-  #define OS_INSTALL_QUESTION      tr("Would you like to launch the Companion installer?")
+  #define OS_INSTALL_QUESTION      QCoreApplication::translate("UpdateCompanion", "Would you like to launch the Companion installer?")
 #elif defined(_WIN32)
   #define OS_SUPPORTED_INSTALLER
   #define OS_FILEPATTERN           "edgetx-cpn-win32"
   #define OS_INSTALLER_EXTN        "*.exe"
-  #define OS_INSTALL_QUESTION      tr("Would you like to launch the Companion installer?")
+  #define OS_INSTALL_QUESTION      QCoreApplication::translate("UpdateCompanion", "Would you like to launch the Companion installer?")
 #elif defined(__linux__) || defined(__linux)
   #define OS_SUPPORTED_INSTALLER
   #define OS_FILEPATTERN           "edgetx-cpn-linux"
   #define OS_INSTALLER_EXTN        "*.AppImage"
 #else
-  #define OS_INSTALL_MSG           tr("No install process support for your operating system")
+  #define OS_INSTALL_MSG           QCoreApplication::translate("UpdateCompanion", "No install process support for your operating system")
 #endif
 
 UpdateCompanion::UpdateCompanion(QWidget * parent) :
-  UpdateInterface(parent)
+  UpdateInterface(parent, CID_Companion, QCoreApplication::translate("UpdateCompanion", "Companion"), Repo::REPO_TYPE_GITHUB,
+                  QString(GH_API_REPOS_EDGETX).append("/edgetx"), "nightly")
 {
-  init(CID_Companion, tr("Companion"), QString(GH_REPOS_EDGETX).append("/edgetx"), "nightly");
+  init(); // call after UpdateInterface ctor due to virtual functions
 }
 
-void UpdateCompanion::initAssetSettings()
+void UpdateCompanion::assetSettingsInit()
 {
-  if (!isValidSettingsIndex())
+  if (!isSettingsIndexValid())
     return;
 
   g.component[id()].initAllAssets();
@@ -77,27 +78,27 @@ void UpdateCompanion::initAssetSettings()
   qDebug() << "Asset settings initialised";
 }
 
-bool UpdateCompanion::asyncInstall()
+int UpdateCompanion::asyncInstall()
 {
 #ifdef OS_SUPPORTED_INSTALLER
-  //reportProgress(tr("Run application installer: %1").arg(g.runAppInstaller() ? tr("true") : tr("false")), QtDebugMsg);
+  //status()->reportProgress(tr("Run application installer: %1").arg(g.runAppInstaller() ? tr("true") : tr("false")), QtDebugMsg);
 
   if (!g.runAppInstaller())
     return true;
 
-  progressMessage(tr("Install"));
+  status()->progressMessage(tr("Install"));
 
-  assets->setFilterFlags(UPDFLG_AsyncInstall);
-  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(assets->count()), QtDebugMsg);
+  repo()->assets()->setFilterFlags(UPDFLG_AsyncInstall);
+  status()->reportProgress(tr("Asset filter applied: %1 - %2 found").arg(updateFlagToString(UPDFLG_AsyncInstall)).arg(repo()->assets()->count()), QtDebugMsg);
 
-  if (assets->count() != 1) {
-    reportProgress(tr("Expected 1 asset for install but none found"), QtCriticalMsg);
+  if (repo()->assets()->count() != 1) {
+    status()->reportProgress(tr("Expected 1 asset for install but none found"), QtCriticalMsg);
     return false;
   }
 
-  assets->getSetId(0);
+  repo()->assets()->getSetId(0);
 
-  QString installerPath = decompressDir % QString("/A%1/%2").arg(assets->id()).arg(QFileInfo(assets->filename()).completeBaseName());
+  QString installerPath = decompressDir() % QString("/A%1/%2").arg(repo()->assets()->id()).arg(QFileInfo(repo()->assets()->name()).completeBaseName());
 
   QDirIterator it(installerPath, { OS_INSTALLER_EXTN }, QDir::Files, QDirIterator::Subdirectories);
 
@@ -111,14 +112,14 @@ bool UpdateCompanion::asyncInstall()
   }
 
   if (!found) {
-    reportProgress(tr("Installer not found in %1 using filter %2").arg(installerPath).arg(OS_INSTALLER_EXTN), QtCriticalMsg);
+    status()->reportProgress(tr("Installer not found in %1 using filter %2").arg(installerPath).arg(OS_INSTALLER_EXTN), QtCriticalMsg);
     return false;
   }
 
 #if defined(__linux__) || defined(__linux)
   QFile f(installerPath);
   if (!f.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner)) {
-    QMessageBox::critical(progress, CPN_STR_APP_NAME, tr("Unable to set file permissions on the AppImage"));
+    QMessageBox::critical(status()->progress(), CPN_STR_APP_NAME, tr("Unable to set file permissions on the AppImage"));
     return false;
   }
 
@@ -131,24 +132,24 @@ bool UpdateCompanion::asyncInstall()
 
   if (dest.exists()) {
     if (!dest.remove()) {
-      QMessageBox::critical(progress, CPN_STR_APP_NAME, tr("Unable to delete file %1").arg(fileName));
+      QMessageBox::critical(status()->progress(), CPN_STR_APP_NAME, tr("Unable to delete file %1").arg(fileName));
       return false;
     }
   }
 
   if (!QFile::copy(installerPath, fileName)) {
-    QMessageBox::critical(progress, CPN_STR_APP_NAME, tr("Unable to copy file to %1").arg(fileName));
+    QMessageBox::critical(status()->progress(), CPN_STR_APP_NAME, tr("Unable to copy file to %1").arg(fileName));
     return false;
   }
 
-  if (QMessageBox::question(progress, CPN_STR_APP_NAME, "Restart Companion?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-    QProcess::startDetached(fileName);
+  if (QMessageBox::question(status()->progress(), CPN_STR_APP_NAME, "Restart Companion?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    QProcess::startDetached(fileName, QStringList());
     qApp->exit();
   }
 
 #else
 
-  int ret = QMessageBox::question(progress, CPN_STR_APP_NAME, OS_INSTALL_QUESTION, QMessageBox::Yes | QMessageBox::No);
+  int ret = QMessageBox::question(status()->progress(), CPN_STR_APP_NAME, OS_INSTALL_QUESTION, QMessageBox::Yes | QMessageBox::No);
 
   if (ret == QMessageBox::Yes) {
     if (QDesktopServices::openUrl(QUrl::fromLocalFile(installerPath)))
@@ -160,23 +161,23 @@ bool UpdateCompanion::asyncInstall()
   return true;
 
 #else
-  QMessageBox::warning(progress, CPN_STR_APP_NAME, OS_INSTALL_MSG);
+  QMessageBox::warning(status()->progress, CPN_STR_APP_NAME, OS_INSTALL_MSG);
   return true;
 #endif  //  OS_SUPPORTED_INSTALLER
 }
 
-const QString UpdateCompanion::currentRelease()
+const QString UpdateCompanion::releaseCurrent()
 {
 #if defined(VERSION_TAG)
-  params->currentRelease = QString("EdgeTX \"%1\" %2").arg(CODENAME).arg(VERSION_TAG);
+  params()->releaseCurrent = QString("EdgeTX \"%1\" %2").arg(CODENAME).arg(VERSION_TAG);
 #else
-  params->currentRelease = QString("EdgeTX v%1.%2.%3-%4").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_REVISION).arg(VERSION_SUFFIX);
+  params()->releaseCurrent = QString("EdgeTX v%1.%2.%3-%4").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_REVISION).arg(VERSION_SUFFIX);
 #endif
 
-  return params->currentRelease;
+  return params()->releaseCurrent;
 }
 
-const QString UpdateCompanion::currentVersion()
+const QString UpdateCompanion::versionCurrent()
 {
 #if defined(VERSION_TAG)
   return VERSION_TAG;
@@ -185,10 +186,10 @@ const QString UpdateCompanion::currentVersion()
 #endif
 }
 
-const bool UpdateCompanion::isLatestRelease()
+const bool UpdateCompanion::isReleaseLatest()
 {
 #if defined(VERSION_TAG)
-  return UpdateInterface::isLatestRelease();
+  return UpdateInterface::isReleaseLatest();
 #else
   return true;
 #endif

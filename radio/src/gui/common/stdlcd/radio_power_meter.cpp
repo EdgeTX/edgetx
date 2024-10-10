@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "timers_driver.h"
 
 extern uint8_t g_moduleIdx;
@@ -40,8 +40,7 @@ void menuRadioPowerMeter(event_t event)
 
   if (TELEMETRY_STREAMING()) {
     lcdDrawCenteredText(LCD_H/2, STR_TURN_OFF_RECEIVER);
-    if (event == EVT_KEY_FIRST(KEY_EXIT)) {
-      killEvents(event);
+    if (event == EVT_KEY_BREAK(KEY_EXIT)) {
       popMenu();
     }
     return;

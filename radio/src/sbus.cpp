@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "sbus.h"
 #include "timers_driver.h"
 
-#define SBUS_FRAME_GAP_DELAY   1000 // 500uS
+#define SBUS_FRAME_GAP_DELAY_US 500
 
 #define SBUS_START_BYTE        0x0F
 #define SBUS_END_BYTE          0x00
@@ -91,7 +91,7 @@ void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
     inputbits >>= SBUS_CH_BITS;
   }
 
-  ppmInputValidityTimer = PPM_IN_VALID_TIMEOUT;
+  trainerResetTimer();
 }
 
 void processSbusInput()
@@ -99,7 +99,7 @@ void processSbusInput()
 
   // TODO: place this outside of the function
   static uint8_t SbusIndex = 0;
-  static uint16_t SbusTimer;
+  static uint32_t SbusTimer;
   static uint8_t SbusFrame[SBUS_FRAME_SIZE];
 
   uint32_t active = 0;
@@ -117,14 +117,14 @@ void processSbusInput()
 
   // Data has been received
   if (active) {
-    SbusTimer = getTmr2MHz();
+    SbusTimer = timersGetUsTick();
     return;
   }
 
   // Check if end-of-frame is detected
   if (SbusIndex) {
-    if ((uint16_t)(getTmr2MHz() - SbusTimer) > SBUS_FRAME_GAP_DELAY) {
-      processSbusFrame(SbusFrame, ppmInput, SbusIndex);
+    if ((uint32_t)(timersGetUsTick() - SbusTimer) > SBUS_FRAME_GAP_DELAY_US) {
+      processSbusFrame(SbusFrame, trainerInput, SbusIndex);
       SbusIndex = 0;
     }
   }

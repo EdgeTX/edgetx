@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 void drawStick(coord_t centrex, int16_t xval, int16_t yval)
 {
@@ -35,7 +35,9 @@ void drawStick(coord_t centrex, int16_t xval, int16_t yval)
 
 void drawColumnHeader(const char * const *headers, uint8_t index)
 {
+  lcdDrawText(16*FW+3, 0, " ", 0);
   lcdDrawText(17*FW, 0, headers[index], 0);
+  lcdDrawText(lcdNextPos, 0, " ", 0);
 }
 
 void drawCheckBox(coord_t x, coord_t y, uint8_t value, LcdFlags attr)
@@ -82,25 +84,30 @@ void title(const char * s)
   lcdDrawText(0, 0, s, INVERS);
 }
 
-choice_t editChoice(coord_t x, coord_t y, const char * label, const char** values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, IsValueAvailable isValueAvailable)
+choice_t editChoice(coord_t x, coord_t y, const char * label, const char* const* values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, coord_t lblX, IsValueAvailable isValueAvailable)
 {
   if (label) {
-    drawFieldLabel(x, y, label);
+    lcdDrawText(lblX, y, label);
   }
   if (values) lcdDrawTextAtIndex(x, y, values, value-min, attr);
   if (attr & (~RIGHT)) value = checkIncDec(event, value, min, max, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL, isValueAvailable);
   return value;
 }
 
-uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, LcdFlags attr, event_t event )
+choice_t editChoice(coord_t x, coord_t y, const char * label, const char* const* values, choice_t value, choice_t min, choice_t max, LcdFlags attr, event_t event, coord_t lblX)
+{
+  return editChoice(x, y, label, values, value, min, max, attr, event, lblX, nullptr);
+}
+
+uint8_t editCheckBox(uint8_t value, coord_t x, coord_t y, const char *label, LcdFlags attr, event_t event, coord_t lblX)
 {
   drawCheckBox(x, y, value, attr);
-  return editChoice(x, y, label, nullptr, value, 0, 1, attr, event);
+  return editChoice(x, y, label, nullptr, value, 0, 1, attr, event, lblX);
 }
 
 swsrc_t editSwitch(coord_t x, coord_t y, swsrc_t value, LcdFlags attr, event_t event)
 {
-  drawFieldLabel(x, y, STR_SWITCH);
+  lcdDrawTextAlignedLeft(y, STR_SWITCH);
   drawSwitch(x,  y, value, attr);
   if (attr & (~RIGHT)) CHECK_INCDEC_MODELSWITCH(event, value, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableInMixes);
   return value;
@@ -111,6 +118,31 @@ void drawSlider(coord_t x, coord_t y, uint8_t value, uint8_t max, uint8_t attr)
   lcdDrawChar(x+(value*4*FW)/max, y, '$');
   lcdDrawSolidHorizontalLine(x, y+3, 5*FW-1, FORCE);
   if (attr && (!(attr & BLINK) || !BLINK_ON_PHASE)) lcdDrawFilledRect(x, y, 5*FW-1, FH-1);
+}
+
+uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t value,
+                              int16_t min, int16_t max, LcdFlags attr, event_t event,
+                              IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax)
+{
+  if (title)
+    lcdDrawTextAlignedLeft(y, title);
+  SourceNumVal v;
+  v.rawValue = value;
+  if (v.isSource) {
+    drawSource(x, y, v.value, attr);
+    if (attr & (~RIGHT)) {
+      value = checkIncDec(event, value, sourceMin, sourceMax,
+                EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_VALUE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isValueAvailable);
+    }
+  } else {
+    lcdDrawNumber(x, y, v.value, attr);
+    if (attr & (~RIGHT)) {
+      value = checkIncDec(event, value, min, max, sourceMin, sourceMax,
+                EE_MODEL|INCDEC_SOURCE_VALUE|NO_INCDEC_MARKS|INCDEC_SKIP_VAL_CHECK_FUNC,
+                isValueAvailable);
+    }
+  }
+  return value;
 }
 
 #if defined(GVARS)
@@ -130,7 +162,8 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
 
   // TRACE("editGVarFieldValue(val=%d min=%d max=%d)", value, min, max);
 
-  if (invers && event == EVT_KEY_LONG(KEY_ENTER)) {
+  if (modelGVEnabled() && invers && event == EVT_KEY_LONG(KEY_ENTER)) {
+    killEvents(event);
     s_editMode = !s_editMode;
     if (attr & PREC1) {
       value = (GV_IS_GV_VALUE(value, min, max) ? GET_GVAR(value, min, max, mixerCurrentFlightMode)*10 : delta);
@@ -170,7 +203,6 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
 }
 #endif
 
-#if defined(SDCARD)
 char statusLineMsg[STATUS_LINE_LENGTH];
 tmr10ms_t statusLineTime = 0;
 uint8_t statusLineHeight = 0;
@@ -199,4 +231,3 @@ void drawStatusLine()
     lcdDrawFilledRect(0, LCD_H-statusLineHeight, LCD_W, FH, SOLID);
   }
 }
-#endif

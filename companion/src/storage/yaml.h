@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -34,9 +35,9 @@ class YamlFormat : public StorageFormat
     {
     }
 
-    virtual QString name() { return "yml"; }
-    virtual bool load(RadioData & radioData);
-    virtual bool write(const RadioData & radioData) { return false; }
+    virtual QString name() override { return "yml"; }
+    virtual bool load(RadioData & radioData) override;
+    virtual bool write(const RadioData & radioData) override { return false; }
     virtual bool writeModel(const RadioData & radioData, const int modelIndex) override;
 
   protected:

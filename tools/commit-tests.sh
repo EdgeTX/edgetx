@@ -4,6 +4,9 @@
 set -e
 set -x
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+. "$SCRIPT_DIR/build-common.sh" 
+
 # Allow variable core usage
 # default uses all cpu cores
 #
@@ -68,81 +71,11 @@ do
     BUILD_OPTIONS=${COMMON_OPTIONS}
 
     echo "Testing ${target_name}"
-    case $target_name in
 
-        x9lite)
-            BUILD_OPTIONS+="-DPCB=X9LITE"
-            ;;
-        x9lites)
-            BUILD_OPTIONS+="-DPCB=X9LITES"
-            ;;
-        x7)
-            BUILD_OPTIONS+="-DPCB=X7"
-            ;;
-        x7-access)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
-            ;;
-        t12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        tx12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
-            ;;
-        tx12mk2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
-            ;;
-        t8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
-            ;;
-        lr3pro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
-            ;;
-        tlite)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
-            ;;
-        xlite)
-            BUILD_OPTIONS+="-DPCB=XLITE"
-            ;;
-        xlites)
-            BUILD_OPTIONS+="-DPCB=XLITES"
-            ;;
-        x9d)
-            BUILD_OPTIONS+="-DPCB=X9D"
-            ;;
-        x9dp)
-            BUILD_OPTIONS+="-DPCB=X9D+"
-            ;;
-        x9dp2019)
-            BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019"
-            ;;
-        x9e)
-            BUILD_OPTIONS+="-DPCB=X9E"
-            ;;
-        x10)
-            BUILD_OPTIONS+="-DPCB=X10"
-            ;;
-        x10-access)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=ACCESS -DPXX1=YES"
-            ;;
-        x12s)
-            BUILD_OPTIONS+="-DPCB=X12S"
-            ;;
-        t16)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        t18)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=T18"
-            ;;
-        tx16s)
-            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=TX16S"
-            ;;
-        nv14)
-            BUILD_OPTIONS+="-DPCB=NV14"
-            ;;
-        commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
-            ;;
-    esac
+    if ! get_target_build_options "$target_name"; then
+        echo "Error: Failed to find a match for target '$target_name'"
+        exit 1
+    fi
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
 

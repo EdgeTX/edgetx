@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BUZZER_H_
-#define _BUZZER_H_
+#pragma once
 
 #if defined(BUZZER)
 extern uint8_t beepAgainOrig;
@@ -70,7 +69,7 @@ inline void beep(uint8_t) { }
   #define AUDIO_WARNING1()         beep(3)
   #define AUDIO_ERROR()            beep(4)
   #define AUDIO_MIX_WARNING(x)     beep(1)
-  #define AUDIO_POT_MIDDLE()       beep(2)
+  #define AUDIO_POT_MIDDLE(x)      beep(2)
   #define AUDIO_TIMER_COUNTDOWN(idx, val)  beep(2)
   #define AUDIO_TIMER_ELAPSED(idx) beep(3)
   #define AUDIO_VARIO_UP()         _beep(1)
@@ -95,7 +94,7 @@ inline void beep(uint8_t) { }
   #define AUDIO_WARNING1()
   #define AUDIO_ERROR()
   #define AUDIO_MIX_WARNING(x)
-  #define AUDIO_POT_MIDDLE()
+  #define AUDIO_POT_MIDDLE(x)
   #define AUDIO_TIMER_LT10(m, x)
   #define AUDIO_TIMER_00(m)
   #define AUDIO_VARIO_UP()
@@ -118,6 +117,3 @@ inline void beep(uint8_t) { }
   #define PLAY_MODEL_NAME()
   #define START_SILENCE_PERIOD()
 #endif /* !AUDIO */
-
-
-#endif // _BUZZER_H_

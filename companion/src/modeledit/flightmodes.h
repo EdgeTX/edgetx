@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FLIGHTMODES_H_
-#define _FLIGHTMODES_H_
+#pragma once
 
 #include "modeledit.h"
 #include "eeprominterface.h"
@@ -42,7 +42,7 @@ class FlightModePanel : public ModelPanel
 
   public:
     FlightModePanel(QWidget *parent, ModelData &model, int modeIdx, GeneralSettings & generalSettings, Firmware * firmware,
-                    FilteredItemModel * rawSwitchFilteredModel);
+                    FilteredItemModel * rawSwitchFilteredModel, QString radioType);
     virtual ~FlightModePanel();
 
     virtual void update();
@@ -52,6 +52,9 @@ class FlightModePanel : public ModelPanel
     void phaseDataChanged();
     void phaseNameChanged();
     void phaseSwitchChanged();
+
+  public slots:
+    void onThrottleReverseChanged();
 
   private slots:
     void phaseName_editingFinished();
@@ -118,6 +121,7 @@ class FlightModePanel : public ModelPanel
     QVector<QSpinBox *> trimsValue;
     QVector<QSlider *> trimsSlider;
     Board::Type board;
+    QString radioType;
 
     void trimUpdate(unsigned int trim);
     void updateGVar(int index);
@@ -140,6 +144,7 @@ class FlightModePanel : public ModelPanel
     bool gvMoveUpAllowed() const;
     void gvSwapData(int idx1, int idx2);
     void connectItemModelEvents(const FilteredItemModel * itemModel);
+    void populateGvarUseCB(QComboBox *b, unsigned int phase);
 };
 
 class FlightModesPanel : public ModelPanel
@@ -152,9 +157,11 @@ class FlightModesPanel : public ModelPanel
 
   public slots:
     virtual void update() override;
+    void onThrottleReverseChanged();
 
   signals:
     void updated();
+    void refreshThrottleTrim();
 
   private slots:
     void onPhaseNameChanged();
@@ -170,9 +177,8 @@ class FlightModesPanel : public ModelPanel
     CompoundItemModelFactory *sharedItemModels;
     FilteredItemModel *rawSwitchFilteredModel;
     QVector<GenericPanel *> panels;
+    QString radioType;
+
     void updateItemModels();
     void connectItemModelEvents(const FilteredItemModel * itemModel);
 };
-
-#endif // _FLIGHTMODES_H_
-

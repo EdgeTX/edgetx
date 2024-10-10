@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIOWIDGET_H_
-#define _RADIOWIDGET_H_
+#pragma once
 
 #include <QGridLayout>
 #include <QDebug>
@@ -88,6 +88,7 @@ class RadioWidget : public QWidget
     virtual void setType(const RadioWidgetType & type);
     virtual void setValue(const int & value);
     virtual void setValueQual(const RadioWidgetType & type, const int & index, const int & value);
+    virtual void chgValueQual(const RadioWidgetType & type, const int & index, const int offset, const bool state) {}
     virtual void setFlags(const quint16 & flags);
     virtual void setShowLabel(const bool show);
     virtual void setLabelText(const QString & labelText, bool showLabel = true);
@@ -107,6 +108,7 @@ class RadioWidget : public QWidget
     void addLabel();
     void setWidget(QWidget * widget = NULL, Qt::Alignment align = Qt::AlignHCenter);
     virtual void onActionToggled(int index, bool active);
+    virtual void onActionTriggered(int index, bool active);
 
     QGridLayout * m_gridLayout;
     QWidget * m_controlWidget;
@@ -124,5 +126,3 @@ class RadioWidget : public QWidget
 };
 
 Q_DECLARE_METATYPE(RadioWidget::RadioWidgetState)
-
-#endif // _RADIOWIDGET_H_

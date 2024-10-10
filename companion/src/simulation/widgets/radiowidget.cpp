@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -136,9 +137,9 @@ void RadioWidget::setAction(RadioUiAction * action)
     if (m_action->getIndex() > -1)
       setIndex(m_action->getIndex());
     connect(m_action, &RadioUiAction::toggled, this, &RadioWidget::onActionToggled);
+    connect(m_action, &RadioUiAction::triggered, this, &RadioWidget::onActionTriggered);
   }
 }
-
 
 int RadioWidget::getValue() const
 {
@@ -178,6 +179,10 @@ void RadioWidget::onActionToggled(int index, bool active)
   emit valueChange(m_type, index, getValue());
 }
 
+void RadioWidget::onActionTriggered(int index, bool active)
+{
+  // do nothing
+}
 
 void RadioWidget::addLayout()
 {
@@ -237,6 +242,6 @@ QDebug operator << (QDebug d, const RadioWidget::RadioWidgetState & o)
 {
   QDebugStateSaver saver(d);
   d << "RadioWidget::RadioWidgetState: type=" << o.type << "; index=" << o.index
-    << "; value=" << o.value << "; flags=0x" << hex << o.flags;
+    << "; value=" << o.value << "; flags=0x" << Qt::hex << o.flags;
   return d;
 }

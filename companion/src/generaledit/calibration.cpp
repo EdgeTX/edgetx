@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -25,38 +26,36 @@
 CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
   GeneralPanel(parent, generalSettings, firmware)
 {
-  Board::Type board = getCurrentBoard();
-  int rows = Boards::getCapability(board, Board::MaxAnalogs);
+  int maxrows = Boards::getInputsCalibrated();
+  int maxinputs = Boards::getCapability(getCurrentBoard(), Board::Inputs);
 
   QStringList headerLabels;
   headerLabels << "" << tr("Negative span") << tr("Mid value") << tr("Positive span");
 
-  TableLayout * tableLayout = new TableLayout(this, rows, headerLabels);
+  TableLayout * tableLayout = new TableLayout(this, maxrows, headerLabels);
 
-  for (int i = 0, row = 0; i < rows; i++) {
-    int col = 0;
-    if (firmware->getCapability(HasFlySkyGimbals) &&
-        i >= (Boards::getCapability(board, Board::Sticks) + 5) &&
-        i < (Boards::getCapability(board, Board::Sticks) + 7))
+  for (int i = 0; i < maxinputs; i++) {
+    if (!Boards::isInputCalibrated(i))
       continue;
 
-    row++;
+    GeneralSettings::InputCalib &calib = generalSettings.inputConfig[i].calib;
+    int col = 0;
     QLabel * label = new QLabel(this);
-    label->setText(firmware->getAnalogInputName(i));
+    label->setText(Boards::getInputName(i));
     tableLayout->addWidget(i, col++, label);
 
     QLineEdit * leNeg = new QLineEdit(this);
-    leNeg->setText(QString("%1").arg(generalSettings.calibSpanNeg[i]));
+    leNeg->setText(QString("%1").arg(calib.spanNeg));
     leNeg->setReadOnly(true);
     tableLayout->addWidget(i, col++, leNeg);
 
     QLineEdit * leMid = new QLineEdit(this);
-    leMid->setText(QString("%1").arg(generalSettings.calibMid[i]));
+    leMid->setText(QString("%1").arg(calib.mid));
     leMid->setReadOnly(true);
     tableLayout->addWidget(i, col++, leMid);
 
     QLineEdit * lePos = new QLineEdit(this);
-    lePos->setText(QString("%1").arg(generalSettings.calibSpanPos[i]));
+    lePos->setText(QString("%1").arg(calib.spanPos));
     lePos->setReadOnly(true);
     tableLayout->addWidget(i, col++, lePos);
   }
@@ -65,5 +64,5 @@ CalibrationPanel::CalibrationPanel(QWidget * parent, GeneralSettings & generalSe
   tableLayout->resizeColumnsToContents();
   tableLayout->setColumnWidth(0, QString(15, ' '));
   tableLayout->pushColumnsLeft(headerLabels.count());
-  tableLayout->pushRowsUp(rows + 1);
+  tableLayout->pushRowsUp(maxrows + 1);
 }

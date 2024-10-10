@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -22,6 +23,7 @@
 #include "yaml_rawswitch.h"
 #include "yaml_rawsource.h"
 #include "curvereference.h"
+#include "sourcenumref.h"
 
 static const YamlLookupTable mixMultiplexLut = {
   {  MLTPX_ADD, "ADD"  },
@@ -32,46 +34,55 @@ static const YamlLookupTable mixMultiplexLut = {
 #define GVAR_SMALL 128
 #define CPN_GV1 1024
 
-int32_t YamlReadMixWeight(const YAML::Node& node)
+int32_t YamlSourceNumRefDecode(const YAML::Node& node)
 {
   std::string val = node.as<std::string>();
-  if ((val.size() >= 4)
+
+  if (modelSettingsVersion < SemanticVersion(QString("2.11.0"))) {
+    if ((val.size() >= 4)
       && (val[0] == '-')
       && (val[1] == 'G')
       && (val[2] == 'V')
       && (val[3] >= '1')
       && (val[3] <= '9')) {
 
-      return -10000 - std::stoi(val.substr(3));
-  }
+      std::stringstream src(val.substr(3));
+      int gv = 0;
+      src >> gv;
+      return RawSource(SOURCE_TYPE_GVAR, gv).toValue() * -1;
+    }
 
-  if ((val.size() >= 3)
+    if ((val.size() >= 3)
       && (val[0] == 'G')
       && (val[1] == 'V')
       && (val[2] >= '1')
       && (val[2] <= '9')) {
 
-    return 10000 + std::stoi(val.substr(2));
+      std::stringstream src(val.substr(2));
+      int gv = 0;
+      src >> gv;
+      return RawSource(SOURCE_TYPE_GVAR, gv).toValue();
+    }
   }
 
-  try {
-    return std::stoi(val);
-  } catch(...) {
-    throw YAML::TypedBadConversion<int>(node.Mark());
-  }
+  int i = val[0] == '-' ? 1 : 0;
+
+  if (val[i] >= '0' && val[i] <= '9')
+    try {
+      return std::stoi(val);
+    } catch(...) {
+      throw YAML::TypedBadConversion<int>(node.Mark());
+    }
+  else
+    return YamlRawSourceDecode(val).toValue();
 }
 
-std::string YamlWriteMixWeight(int32_t sval)
+std::string YamlSourceNumRefEncode(int32_t sval)
 {
-  if (sval < -10000) {
-    int n = -sval - 10000;
-    return std::string("-GV") + std::to_string(n);
-  } else if (sval > 10000) {
-    int n = sval - 10000;
-    return std::string("GV") + std::to_string(n);
-  }
-
-  return std::to_string(sval);
+  if (SourceNumRef(sval).isNumber())
+    return std::to_string(sval);
+  else
+    return YamlRawSourceEncode(RawSource(sval));
 }
 
 uint32_t YamlReadFlightModes(const YAML::Node& node)
@@ -108,7 +119,7 @@ Node convert<CurveReference>::encode(const CurveReference& rhs)
 {
   Node node;
   node["type"] = (int)rhs.type;
-  node["value"] = YamlWriteMixWeight(rhs.value);
+  node["value"] = YamlSourceNumRefEncode(rhs.value);
   return node;
 }
 
@@ -119,7 +130,7 @@ bool convert<CurveReference>::decode(const Node& node, CurveReference& rhs)
   node["type"] >> type;
   rhs.type = (CurveReference::CurveRefType)type;
   if (node["value"]) {
-    rhs.value = YamlReadMixWeight(node["value"]);
+    rhs.value = YamlSourceNumRefDecode(node["value"]);
   }
   return true;
 }
@@ -129,18 +140,20 @@ Node convert<MixData>::encode(const MixData& rhs)
   Node node;
   node["destCh"] = rhs.destCh - 1;
   node["srcRaw"] = rhs.srcRaw;
-  node["weight"] = YamlWriteMixWeight(rhs.weight);
+  node["weight"] = YamlSourceNumRefEncode(rhs.weight);
   node["swtch"] = rhs.swtch;
   node["curve"] = rhs.curve;
+  node["delayPrec"] = rhs.delayPrec;
   node["delayUp"] = rhs.delayUp;
   node["delayDown"] = rhs.delayDown;
+  node["speedPrec"] = rhs.speedPrec;
   node["speedUp"] = rhs.speedUp;
   node["speedDown"] = rhs.speedDown;
   node["carryTrim"] = rhs.carryTrim;
   node["mltpx"] = rhs.mltpx;
   node["mixWarn"] = rhs.mixWarn;
   node["flightModes"] = YamlWriteFlightModes(rhs.flightModes);
-  node["offset"] = YamlWriteMixWeight(rhs.sOffset);
+  node["offset"] = YamlSourceNumRefEncode(rhs.sOffset);
   node["name"] = rhs.name;
   return node;
 }
@@ -150,12 +163,14 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
   node["destCh"] >> ioffset_int((int&)rhs.destCh, -1);
   node["srcRaw"] >> rhs.srcRaw;
   if (node["weight"]) {
-    rhs.weight = YamlReadMixWeight(node["weight"]);
+    rhs.weight = YamlSourceNumRefDecode(node["weight"]);
   }
   node["swtch"] >> rhs.swtch;
   node["curve"] >> rhs.curve;
+  node["delayPrec"] >> rhs.delayPrec;
   node["delayUp"] >> rhs.delayUp;
   node["delayDown"] >> rhs.delayDown;
+  node["speedPrec"] >> rhs.speedPrec;
   node["speedUp"] >> rhs.speedUp;
   node["speedDown"] >> rhs.speedDown;
   node["carryTrim"] >> rhs.carryTrim;
@@ -165,7 +180,7 @@ bool convert<MixData>::decode(const Node& node, MixData& rhs)
     rhs.flightModes = YamlReadFlightModes(node["flightModes"]);
   }
   if (node["offset"]) {
-    rhs.sOffset = YamlReadMixWeight(node["offset"]);
+    rhs.sOffset = YamlSourceNumRefDecode(node["offset"]);
   }
   node["name"] >> rhs.name;
   return true;

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -26,6 +27,7 @@
 #include "yaml_ops.h"
 #include "yaml_generalsettings.h"
 #include "yaml_modeldata.h"
+#include "labelvalidator.h"
 
 #include <QMessageBox>
 
@@ -89,18 +91,40 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data, bool 
     qDebug() << data.toStdString().c_str();
 }
 
-bool loadLabelsListFromYaml(QStringList& labels,
+bool loadLabelsListFromYaml(RadioData::ModelLabels& labels,
+                            int& sortOrder,
                             EtxModelfiles& modelFiles,
                             const QByteArray& data)
 {
+  sortOrder = 0;
   labels.clear();
   if (data.size() == 0)
     return true;
   YAML::Node node = loadYamlFromByteArray(data);
-  if (!node.IsMap()) return false; // Root Map (Labels, Models)
-  for (const auto& lbl : node["Labels"]) {
-    labels.append(QString::fromStdString(lbl.first.as<std::string>()));
-   }
+  if (!node.IsMap()) return false; // Root Map (Labels, Sort, Models)
+  if (node["Sort"].IsScalar()) {
+    bool ok = false;
+    sortOrder = QString::fromStdString(node["Sort"].Scalar()).toUInt(&ok);
+    if (!ok)
+      sortOrder = 0;
+  }
+
+  YAML::Node lbls = node["Labels"];
+  if (lbls.IsMap()) {
+    for (YAML::const_iterator it=lbls.begin(); it!=lbls.end(); ++it) {
+      std::string lbl = it->first.as<std::string>();
+      RadioData::LabelData ld;
+      ld.name = QString::fromStdString(lbl);
+      YamlValidateLabel(ld.name);
+      if (!ld.name.isEmpty()) {
+        if (lbls[lbl]["selected"])
+          ld.selected = lbls[lbl]["selected"].as<bool>();
+        else
+          ld.selected = false;
+        labels.append(ld);
+      }
+    }
+  }
 
   return true;
 }
@@ -155,9 +179,12 @@ bool loadRadioSettingsFromYaml(GeneralSettings& settings, const QByteArray& data
 bool writeLabelsListToYaml(const RadioData &radioData, QByteArray& data)
 {
   YAML::Node node;
-  foreach(QString label, radioData.labels) {
-    node["Labels"][label.toStdString()] = YAML::Null;
+  foreach(RadioData::LabelData label, radioData.labels) {
+    node["Labels"][label.name.toStdString()] = YAML::Null;
+    if (label.selected)
+      node["Labels"][label.name.toStdString()]["selected"] = true;
   }
+  node["Sort"] = radioData.sortOrder;
   writeYamlToByteArray(node, data);
   return true;
 }

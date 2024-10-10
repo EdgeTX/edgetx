@@ -19,33 +19,44 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _STRHELPERS_H_
-#define _STRHELPERS_H_
+#pragma once
+
+#include <cstring>
+#include <string>
 
 #include "definitions.h"
-#include "opentx_types.h"
-#include <string>
+#include "edgetx_types.h"
 
-#include <string>
-#include <cstring>
+class TelemetryItem;
 
-#define SHOW_TIME  0x1
+#define IS_UFT8_2BYTES(c) ((((uint8_t)c) & 0xE0) == 0xC0)
+
+#define IS_UTF8_3BYTES(c) ((((uint8_t)c) & 0xF0) == 0xE0)
+
+#define IS_UTF8(c) (IS_UFT8_2BYTES(c) || IS_UTF8_3BYTES(c))
+
+#define UTF8_WIDTH(c) (IS_UFT8_2BYTES(c) ? 2 : IS_UTF8_3BYTES(c) ? 3 : 1)
+
+#define SHOW_TIME 0x1
 #define SHOW_TIMER 0x0
-#define SHOW_TIMER_UPPER_CASE   0x2
-#define SHOW_TIMER_HM_FORMAT    0x5
+#define SHOW_TIMER_UPPER_CASE 0x2
+#define SHOW_TIMER_HM_FORMAT 0x5
 
 PACK(typedef struct {
-  uint8_t showTime:1;
-  uint8_t upperCase:1;
-  uint8_t numDigitGroups:3;  
-  uint8_t hmFormat:1;
-  uint8_t reserved:2;
-}) TimerDisplayOptions;
+  uint8_t showTime : 1;
+  uint8_t upperCase : 1;
+  uint8_t numDigitGroups : 3;
+  uint8_t hmFormat : 1;
+  uint8_t reserved : 2;
+})
+TimerDisplayOptions;
 
-typedef union  {
+typedef union {
   uint8_t options;
   TimerDisplayOptions displayOptions;
 } TimerOptions;
+
+const char* sanitizeForFilename(const char* name, int len);
 
 char hex2zchar(uint8_t hex);
 char hex2char(uint8_t hex);
@@ -55,7 +66,7 @@ int8_t char2zchar(char c);
 void str2zchar(char *dest, const char *src, int size);
 int zchar2str(char *dest, const char *src, int size);
 int strnlen(const char *src, int max_size);
-unsigned int effectiveLen(const char * str, unsigned int size);
+unsigned int effectiveLen(const char *str, unsigned int size);
 
 char *strAppend(char *dest, const char *source, int len = 0);
 char *strAppendUnsigned(char *dest, uint32_t value, uint8_t digits = 0,
@@ -65,79 +76,86 @@ char *strAppendSigned(char *dest, int32_t value, uint8_t digits = 0,
 char *strSetCursor(char *dest, int position);
 char *strAppendDate(char *str, bool time = false);
 char *strAppendFilename(char *dest, const char *filename, const int size);
-std::string formatNumberAsString(int32_t val, LcdFlags flags = 0, uint8_t len = 0, const char * prefix = nullptr, const char * suffix = nullptr);
+std::string formatNumberAsString(int32_t val, LcdFlags flags = 0,
+                                 uint8_t len = 0, const char *prefix = nullptr,
+                                 const char *suffix = nullptr);
+void formatNumberAsString(char *buffer, const uint8_t buffer_size, int32_t val,
+                          LcdFlags flags = 0, uint8_t len = 0,
+                          const char *prefix = nullptr,
+                          const char *suffix = nullptr);
 
 #if !defined(BOOT)
-char *getStringAtIndex(char *dest, const char **s, int idx);
+char *getStringAtIndex(char *dest, const char *const *s, int idx);
 char *strAppendStringWithIndex(char *dest, const char *s, int idx);
 #define LEN_TIMER_STRING 10  // "-00:00:00"
-char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions = {.options = 0});
-char *getFormattedTimerString(char *dest, int32_t tme, TimerOptions timerOptions);
+char *getTimerString(char *dest, int32_t tme,
+                     TimerOptions timerOptions = {.options = 0});
+char *getFormattedTimerString(char *dest, int32_t tme,
+                              TimerOptions timerOptions);
 char *getCurveString(char *dest, int idx);
 char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
 char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
                            gvar_t vmax, LcdFlags flags = 0,
-                           const char *suffix = nullptr, gvar_t offset = 0);
+                           const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
+char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
+                             gvar_t vmax, LcdFlags flags = 0,
+                             const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
 const char *getSwitchWarnSymbol(uint8_t pos);
 const char *getSwitchPositionSymbol(uint8_t pos);
 char *getSwitchPositionName(char *dest, swsrc_t idx);
-char *getSwitchName(char *dest, swsrc_t idx);
+char *getSwitchName(char *dest, uint8_t idx);
 
-template<size_t L>
-char* getSourceString(char (&dest)[L], mixsrc_t idx);
+const char *getAnalogLabel(uint8_t type, uint8_t idx);
+const char *getAnalogShortLabel(uint8_t idx);
+const char *getMainControlLabel(uint8_t idx);
+const char *getTrimLabel(uint8_t idx);
+const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src);
+const char *getPotLabel(uint8_t idx);
+char *getCustomSwitchesGroupName(char *dest, uint8_t idx);
 
 template <size_t L>
-char *getSourceCustomValueString(char (&dest)[L], source_t source, int32_t val,
+char *getSourceString(char (&dest)[L], mixsrc_t idx);
+
+template <size_t L>
+char *getSourceCustomValueString(char (&dest)[L], mixsrc_t source, int32_t val,
                                  LcdFlags flags);
 
-int  getRawSwitchIdx(char sw);
-char getRawSwitchFromIdx(int sw);
 #endif
 
 char *getFlightModeString(char *dest, int8_t idx);
 
 char *getSourceString(mixsrc_t idx);
-char *getSourceCustomValueString(source_t source, int32_t val, LcdFlags flags);
+char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
 char *getSwitchPositionName(swsrc_t idx);
 char *getCurveString(int idx);
 char *getTimerString(int32_t tme, TimerOptions timerOptions = {.options = 0});
 void splitTimer(char *s0, char *s1, char *s2, char *s3, int tme,
                 bool bLowercase = true);
 
-template<size_t N>
-std::string stringFromNtString(const char (&a)[N]) {
-    return std::string(a, strnlen(a, N));        
-}    
-template<size_t L>
-void copyToUnTerminated(char (&dest)[L], const char* const src) {
-    strncpy(dest, src, L);
+template <size_t N>
+std::string stringFromNtString(const char (&a)[N])
+{
+  return std::string(a, strnlen(a, N));
 }
-template<size_t L>
-void copyToUnTerminated(char (&dest)[L], const std::string& src) {
-    strncpy(dest, src.c_str(), L);
+template <size_t L>
+void copyToUnTerminated(char (&dest)[L], const char *const src)
+{
+  strncpy(dest, src, L);
 }
-template<typename S>
-void clearStruct(S& s) {
-    memset((void*) &s, 0, sizeof(S));
+template <size_t L>
+void copyToUnTerminated(char (&dest)[L], const std::string &src)
+{
+  strncpy(dest, src.c_str(), L);
+}
+template <typename S>
+void clearStruct(S &s)
+{
+  memset((void *)&s, 0, sizeof(S));
 }
 
 template <size_t N>
 using offset_t = std::integral_constant<size_t, N>;
-
-template <size_t DL, size_t SL, size_t O = 0>
-void copyToTerminated(char (&dest)[DL], const char (&src)[SL],
-                      const offset_t<O> = offset_t<0>{})
-{
-  // unfortinately std::min() isn't constexpr in C++11
-  // static constexpr size_t len = std::min(DL - O - 1, SL);
-  static constexpr size_t dl{DL - O - 1};
-  static_assert(dl > 0, "wrong sizes or offset");
-  static constexpr size_t len = (dl < SL) ? dl : SL;
-  strncpy(&dest[O], &src[0], len);
-  static_assert((len + O) < DL, "wrong sizes of offset");
-  dest[len + O] = '\0';
-}
 
 template <size_t L1, size_t L2>
 int strncasecmp(char (&s1)[L1], const char (&s2)[L2])
@@ -152,4 +170,23 @@ int strncasecmp(char (&s1)[L1], const char *const s2)
   return strncasecmp(s1, s2, L1);
 }
 
-#endif  // _STRHELPERS_H_
+std::string getValueWithUnit(int val, uint8_t unit, LcdFlags flags);
+std::string getGVarValue(uint8_t gvar, gvar_t value, LcdFlags flags);
+std::string getGPSCoord(int32_t value, const char *direction,
+                        bool seconds = true);
+std::string getGPSSensorValue(int32_t longitude, int32_t latitude,
+                              LcdFlags flags);
+std::string getGPSSensorValue(TelemetryItem &telemetryItem, LcdFlags flags);
+std::string getTelemDate(TelemetryItem &telemetryItem);
+std::string getTelemTime(TelemetryItem &telemetryItem);
+
+int countDigits(int number);
+
+// Timezone handling
+extern int8_t minTimezone();
+extern int8_t maxTimezone();
+extern std::string timezoneDisplay(int tz);
+extern int timezoneIndex(int8_t tzHour, int8_t tzMinute);
+extern int8_t timezoneHour(int tz);
+extern int8_t timezoneMinute(int tz);
+extern int timezoneOffsetSeconds(int8_t tzHour, int8_t tzMinute);

@@ -3,9 +3,6 @@ name: Windows Companion 64-bit
 on:
   push:
     branches:
-      - '2.6'
-      - '2.7'
-      - '2.8'
       - 'main'
     tags:
       - v*
@@ -16,9 +13,6 @@ on:
 
   pull_request:
     branches:
-      - '2.6'
-      - '2.7'
-      - '2.8'
       - 'main'
     paths:
       - '.github/workflows/win_cpn-64.yml'
@@ -31,9 +25,9 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   CMAKE_GENERATOR: "MSYS Makefiles"
-  QT_VERSION: "5.12.9"
-  MINGW_VERSION: "win64_mingw73"
-  MINGW_PATH: "mingw73_64"
+  QT_VERSION: "5.15.2"
+  MINGW_VERSION: "win64_mingw81"
+  MINGW_PATH: "mingw81_64"
 
 jobs:
   build:
@@ -68,28 +62,23 @@ jobs:
                                 mingw-w64-x86_64-openjpeg2 \
                                 mingw-w64-x86_64-libimagequant \
                                 mingw-w64-x86_64-libraqm \
-                                mingw-w64-x86_64-SDL \
+                                mingw-w64-x86_64-SDL2 \
                                 mingw-w64-x86_64-clang \
                                 mingw-w64-x86_64-nsis \
+                                mingw-w64-x86_64-dfu-util \
                                 mingw-w64-x86_64-openssl
-          python -m pip install clang
-
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1  # not v2!
-        with:
-          path: ../Qt
-          key: win64-QtCache
+          python -m pip install clang jinja2
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          cache: true
+          cache-key-prefix: 'install-qt-action-win64'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
 
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -106,7 +95,7 @@ jobs:
         run: echo "artifact_name=edgetx-cpn-win64-${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ env.artifact_name }}"
           path:  ${{github.workspace}}/output

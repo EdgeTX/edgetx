@@ -20,14 +20,14 @@
  */
 
 #include "lua_widget.h"
-#include "lua_widget_factory.h"
 
 #include "lua_api.h"
 #include "lua_event.h"
-#include "api_colorlcd.h"
-#include "draw_functions.h"
+#include "lua_widget_factory.h"
+#include "touch.h"
+#include "view_main.h"
 
-#define MAX_INSTRUCTIONS       (20000/100)
+#define MAX_INSTRUCTIONS (20000 / 100)
 
 #if defined(HARDWARE_TOUCH)
 uint32_t LuaEventHandler::downTime = 0;
@@ -37,7 +37,7 @@ tmr10ms_t LuaEventHandler::swipeTimeOut = 0;
 coord_t LuaEventHandler::_startX;
 coord_t LuaEventHandler::_startY;
 bool LuaEventHandler::_sliding = false;
-#endif  
+#endif
 
 void LuaEventHandler::event_cb(lv_event_t* e)
 {
@@ -53,11 +53,13 @@ void LuaEventHandler::event_cb(lv_event_t* e)
     } else if (key == LV_KEY_RIGHT) {
       win->onEvent(EVT_ROTARY_RIGHT);
     }
-  }
-  else if (code == LV_EVENT_LONG_PRESSED) {
-    // Do not use `lv_indev_wait_release()` as some LUA scripts
-    // rely on EVT_KEY_BREAK(KEY_ENTER) being generated on key release
-    luaPushEvent(EVT_KEY_LONG(KEY_ENTER));
+  } else if (code == LV_EVENT_LONG_PRESSED) {
+    lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+    if (indev_type != LV_INDEV_TYPE_POINTER) {
+      // Do not use `lv_indev_wait_release()` as some LUA scripts
+      // rely on EVT_KEY_BREAK(KEY_ENTER) being generated on key release
+      luaPushEvent(EVT_KEY_LONG(KEY_ENTER));
+    }
   }
 #if defined(HARDWARE_TOUCH)
   else if (code == LV_EVENT_PRESSED || code == LV_EVENT_PRESSING) {
@@ -128,7 +130,7 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       tapCount = 0;
     }
   }
-#endif  
+#endif
 }
 
 void LuaEventHandler::onClicked()
@@ -137,7 +139,6 @@ void LuaEventHandler::onClicked()
   auto click_source = lv_indev_get_act();
   bool is_pointer = lv_indev_get_type(click_source) == LV_INDEV_TYPE_POINTER;
   if (is_pointer) {
-
     lv_point_t point_act;
     lv_indev_get_point(click_source, &point_act);
 
@@ -162,14 +163,12 @@ void LuaEventHandler::onClicked()
   luaPushEvent(EVT_KEY_BREAK(KEY_ENTER));
 }
 
-void LuaEventHandler::onCancel()
-{
+void LuaEventHandler::onCancel() {
   luaPushEvent(EVT_KEY_BREAK(KEY_EXIT));
 }
 
 void LuaEventHandler::onEvent(event_t event)
 {
-  if (event == EVT_KEY_LONG(KEY_EXIT)) killEvents(KEY_EXIT);
   luaPushEvent(event);
 }
 
@@ -185,25 +184,65 @@ void LuaEventHandler::removeHandler(Window* w)
   lv_obj_remove_event_cb(obj, LuaEventHandler::event_cb);
 }
 
+void LuaWidget::redraw_cb(lv_event_t* e)
+{
+  lv_obj_t* target = lv_event_get_target(e);
+  if (lv_obj_has_flag(target, LV_OBJ_FLAG_HIDDEN)) return;
+
+  LuaWidget* widget = (LuaWidget*)lv_obj_get_user_data(target);
+
+  if (widget && !widget->useLvglLayout()) {
+    lv_draw_ctx_t* draw_ctx = lv_event_get_draw_ctx(e);
+
+    lv_area_t a, clipping, obj_coords;
+    lv_area_copy(&a, draw_ctx->buf_area);
+    lv_area_copy(&clipping, draw_ctx->clip_area);
+    lv_obj_get_coords(target, &obj_coords);
+
+    auto w = a.x2 - a.x1 + 1;
+    auto h = a.y2 - a.y1 + 1;
+
+    TRACE_WINDOWS("Draw %s", widget->getWindowDebugString().c_str());
+
+    BitmapBuffer buf = {BMP_RGB565, (uint16_t)w, (uint16_t)h,
+                        (uint16_t*)draw_ctx->buf};
+
+    buf.setDrawCtx(draw_ctx);
+
+    buf.setOffset(obj_coords.x1 - a.x1, obj_coords.y1 - a.y1);
+    buf.setClippingRect(clipping.x1 - a.x1, clipping.x2 + 1 - a.x1,
+                        clipping.y1 - a.y1, clipping.y2 + 1 - a.y1);
+
+    widget->refresh(&buf);
+  }
+}
+
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
-                     int luaWidgetDataRef) :
+                     int luaWidgetDataRef, int zoneRectDataRef, int optionsDataRef) :
     Widget(factory, parent, rect, persistentData),
-    luaWidgetDataRef(luaWidgetDataRef),
+    zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef), luaWidgetDataRef(luaWidgetDataRef),
     errorMessage(nullptr)
 {
+  if (useLvglLayout()) {
+    update();
+  } else {
+    lv_obj_add_event_cb(lvobj, LuaWidget::redraw_cb, LV_EVENT_DRAW_MAIN,
+                        nullptr);
+  }
 }
 
 LuaWidget::~LuaWidget()
 {
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
   free(errorMessage);
 }
 
 void LuaWidget::onClicked()
 {
   if (!fullscreen) {
-    Button::onClicked();
+    ButtonBase::onClicked();
     return;
   }
 
@@ -213,7 +252,7 @@ void LuaWidget::onClicked()
 void LuaWidget::onCancel()
 {
   if (!fullscreen) {
-    Button::onCancel();
+    ButtonBase::onCancel();
     return;
   }
 
@@ -224,58 +263,152 @@ void LuaWidget::checkEvents()
 {
   Widget::checkEvents();
 
-  // paint has not been called
-  if (!refreshed) {
-    background();
-    refreshed = true;
+  if (closeFS) {
+    closeFS = false;
+    setFullscreen(false);
   }
-  
+
+  // refresh() has not been called
+  if (!refreshed)
+    background();
+
   refreshed = false;
-  invalidate();
+
+  if (useLvglLayout()) {
+    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
+      lv_area_t a;
+      lv_obj_get_coords(lvobj, &a);
+      // Check widget is at least partially visible
+      if (a.x2 >= 0 && a.x1 < LCD_W) {
+        PROTECT_LUA() {
+          luaLvglManager = this;
+          refresh(nullptr);
+          if (!errorMessage) {
+            if (!callRefs(lsWidgets)) {
+              setErrorMessage("callRefs()");
+            }
+          }
+          refreshInstructionsPercent = instructionsPercent;
+        } else {
+          // TODO: error handling
+        }
+        luaLvglManager = nullptr;
+        UNPROTECT_LUA();
+      }
+    }
+  } else {
+    // Force call to redraw_cb()
+    invalidate();
+  }
 
 #if defined(DEBUG_WINDOWS)
-    TRACE_WINDOWS("# refresh: %s", getWindowDebugString().c_str());
+  TRACE_WINDOWS("# refresh: %s", getWindowDebugString().c_str());
 #endif
-}
-
-static void l_pushtableint(const char * key, int value)
-{
-  lua_pushstring(lsWidgets, key);
-  lua_pushinteger(lsWidgets, value);
-  lua_settable(lsWidgets, -3);
 }
 
 void LuaWidget::update()
 {
   Widget::update();
-  
+
   if (lsWidgets == 0 || errorMessage) return;
-  LuaWidgetFactory * lua_factory = (LuaWidgetFactory *)factory;
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, lua_factory->updateFunction);
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
 
-  lua_newtable(lsWidgets);
+  // Get options table and update values
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
   int i = 0;
-  for (const ZoneOption * option = getOptions(); option->name; option++, i++) {
-    if (option->type == ZoneOption::String) {
-      lua_pushstring(lsWidgets, option->name);
-      char str[LEN_ZONE_OPTION_STRING + 1] = {0}; // Zero-terminated string for Lua
-      strncpy(str, persistentData->options[i].value.stringValue, LEN_ZONE_OPTION_STRING);
-      lua_pushstring(lsWidgets, &str[0]);
-      lua_settable(lsWidgets, -3);
-    } else if (option->type == ZoneOption::Color) {
-      int32_t value = persistentData->options[i].value.signedValue;
-      l_pushtableint(option->name, COLOR2FLAGS(value) | RGB_FLAG);
-    } else {
-      int32_t value = persistentData->options[i].value.signedValue;
-      l_pushtableint(option->name, value);
+  for (const ZoneOption* option = getOptions(); option->name; option++, i++) {
+    auto optVal = getOptionValue(i);
+    switch (option->type) {
+      case ZoneOption::String:
+        {
+          char str[LEN_ZONE_OPTION_STRING + 1] = {0};
+          strncpy(str, optVal->stringValue, LEN_ZONE_OPTION_STRING);
+          lua_pushstring(lsWidgets, str);
+        }
+        break;
+      case ZoneOption::Integer:
+      case ZoneOption::Switch:
+        lua_pushinteger(lsWidgets, optVal->signedValue);
+        break;
+      default:
+        lua_pushinteger(lsWidgets, optVal->unsignedValue);
+        break;
+    }
+    lua_setfield(lsWidgets, -2, option->name);
+  }
+
+  if (useLvglLayout()) luaLvglManager = this;
+
+  if (lua_pcall(lsWidgets, 2, 0, 0) != 0)
+    setErrorMessage("update()");
+
+  if (useLvglLayout()) {
+    if (!lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) {
+      lv_area_t a;
+      lv_obj_get_coords(lvobj, &a);
+      // Check widget is at least partially visible
+      if (a.x2 >= 0 && a.x1 < LCD_W) {
+        PROTECT_LUA() {
+          if (!callRefs(lsWidgets)) {
+            setErrorMessage("callRefs()");
+          }
+        } else {
+          // TODO: error handling
+        }
+        UNPROTECT_LUA();
+      }
     }
   }
 
-  if (lua_pcall(lsWidgets, 2, 0, 0) != 0) {
-    setErrorMessage("update()");
+  luaLvglManager = nullptr;
+}
+
+// Update table on top of Lua stack - set entry with name 'idx' to value 'val'
+// Return true if value has changed
+bool LuaWidget::updateTable(const char* idx, int val)
+{
+  bool update = false;
+
+  // Check existing value (or invalid value)
+  lua_getfield(lsWidgets, -1, idx);
+  if (lua_isnumber(lsWidgets, -1)) {
+    int v = lua_tointeger(lsWidgets, -1);
+    update = (v != val);
+  } else {
+    // Force table update
+    update = true;
+  }
+  lua_pop(lsWidgets, 1);
+
+  if (update) {
+    lua_pushinteger(lsWidgets, val);
+    lua_setfield(lsWidgets, -2, idx);
+  }
+
+  return update;
+}
+
+void LuaWidget::updateZoneRect(rect_t rect, bool updateUI)
+{
+  if (lsWidgets) {
+    // Update widget zone with current size and position
+
+    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+
+    bool changed = false;
+
+    if (updateTable("w", rect.w)) changed = true;
+    if (updateTable("h", rect.h)) changed = true;
+    if (updateTable("xabs", rect.x)) changed = true;
+    if (updateTable("yabs", rect.y)) changed = true;
+
+    lua_pop(lsWidgets, 1);
+
+    if (changed && updateUI)
+      update();
   }
 }
 
@@ -289,10 +422,11 @@ void LuaWidget::onFullscreen(bool enable)
   }
 }
 
-void LuaWidget::setErrorMessage(const char * funcName)
+void LuaWidget::setErrorMessage(const char* funcName)
 {
   const char* lua_err = lua_tostring(lsWidgets, -1);
-  TRACE("Error in widget %s %s function: %s", factory->getName(), funcName, lua_err);
+  TRACE("Error in widget %s %s function: %s", factory->getName(), funcName,
+        lua_err);
   TRACE("Widget disabled");
 
   size_t err_len = snprintf(NULL, 0, "ERROR in %s: %s", funcName, lua_err);
@@ -304,35 +438,44 @@ void LuaWidget::setErrorMessage(const char * funcName)
   }
 }
 
-const char * LuaWidget::getErrorMessage() const
-{
-  return errorMessage;
-}
+const char* LuaWidget::getErrorMessage() const { return errorMessage; }
 
 void LuaWidget::refresh(BitmapBuffer* dc)
 {
   if (lsWidgets == 0) return;
 
   if (errorMessage) {
-    drawTextLines(dc, 0, 0, fullscreen ? LCD_W : rect.w,
-                  fullscreen ? LCD_H : rect.h, errorMessage,
-                  FONT(XS) | COLOR_THEME_WARNING);
+    if (dc) {
+      dc->drawTextLines(0, 0, fullscreen ? LCD_W : rect.w,
+                        fullscreen ? LCD_H : rect.h, errorMessage,
+                        FONT(XS) | COLOR_THEME_WARNING);
+    } else {
+      if (errorLabel == nullptr) {
+        errorLabel = lv_label_create(lvobj);
+        lv_obj_set_pos(errorLabel, 0, 0);
+        lv_obj_set_size(errorLabel, width(), height());
+        lv_label_set_long_mode(errorLabel, LV_LABEL_LONG_WRAP);
+        etx_txt_color(errorLabel, COLOR_THEME_WARNING_INDEX);
+        etx_font(errorLabel, FONT_XS_INDEX);
+        etx_bg_color(errorLabel, COLOR_THEME_SECONDARY3_INDEX);
+        etx_obj_add_style(errorLabel, styles->bg_opacity_75, LV_PART_MAIN);
+      }
+      lv_label_set_text(errorLabel, errorMessage);
+    }
     return;
   }
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
-  LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->refreshFunction);
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->refreshFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
-  
+
   // Pass key event to fullscreen Lua widget
   LuaEventData evt;
   luaNextEvent(&evt);
 
   if (fullscreen) {
     lua_pushinteger(lsWidgets, evt.event);
-  }
-  else
+  } else
     lua_pushnil(lsWidgets);
 
 #if defined(HARDWARE_TOUCH)
@@ -341,11 +484,12 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   } else
 #endif
     lua_pushnil(lsWidgets);
-  
+
   // Enable drawing into the current LCD buffer
   luaLcdBuffer = dc;
 
-  // This little hack is needed to not interfere with the LCD usage of preempted scripts
+  // This little hack is needed to not interfere with the LCD usage of preempted
+  // scripts
   bool lla = luaLcdAllowed;
   luaLcdAllowed = true;
   runningFS = this;
@@ -366,11 +510,9 @@ void LuaWidget::background()
 {
   if (lsWidgets == 0 || errorMessage) return;
 
-  // TRACE("LuaWidget::background()");
-  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
-  LuaWidgetFactory * factory = (LuaWidgetFactory *)this->factory;
-  if (factory->backgroundFunction) {
-    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, factory->backgroundFunction);
+  if (luaFactory()->backgroundFunction) {
+    luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
+    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
     runningFS = this;
     if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
@@ -386,4 +528,47 @@ void LuaWidget::onEvent(event_t event)
     LuaEventHandler::onEvent(event);
   }
   Widget::onEvent(event);
+}
+
+void LuaWidget::clear()
+{
+  clearRefs(lsWidgets);
+  Widget::clear();
+}
+
+bool LuaWidget::useLvglLayout() const { return luaFactory()->useLvglLayout(); }
+
+bool LuaWidget::isAppMode() const
+{
+  return fullscreen && ViewMain::instance()->isAppMode();
+}
+
+void LuaLvglManager::saveLvglObjectRef(int ref)
+{
+  if (tempParent)
+    tempParent->saveLvglObjectRef(ref);
+  else
+    lvglObjectRefs.push_back(ref);
+}
+
+void LuaLvglManager::clearRefs(lua_State *L)
+{
+  for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
+    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    lua_pop(L, 1);
+    if (p) p->clearRefs(L);
+  }
+  lvglObjectRefs.clear();
+}
+
+bool LuaLvglManager::callRefs(lua_State *L)
+{
+  for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
+    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+    lua_pop(L, 1);
+    if (p) if (!p->callRefs(L)) return false;
+  }
+  return true;
 }

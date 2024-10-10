@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -38,6 +39,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QDir>
+#include <QRegularExpression>
 
 using namespace Helpers;
 
@@ -223,17 +225,6 @@ void GVarGroup::setWeight(int val)
  * Helpers namespace functions
 */
 
-// TODO: Move lookup to GVarData class (w/out combobox)
-void Helpers::populateGvarUseCB(QComboBox * b, unsigned int phase)
-{
-  b->addItem(QCoreApplication::translate("GVarData", "Own value"));
-  for (int i=0; i<getCurrentFirmware()->getCapability(FlightModes); i++) {
-    if (i != (int)phase) {
-      b->addItem(QCoreApplication::translate("GVarData", "Flight mode %1 value").arg(i));
-    }
-  }
-}
-
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 {
   return s1.toLower() < s2.toLower();
@@ -259,11 +250,11 @@ bool displayT16ImportWarning()
 void Helpers::populateFileComboBox(QComboBox * b, const QSet<QString> & set, const QString & current)
 {
   b->clear();
-  b->addItem("----");
+  b->addItem(CPN_STR_NONE_ITEM);
 
   bool added = false;
   // Convert set into list and sort it alphabetically case insensitive
-  QStringList list = QStringList::fromSet(set);
+  QStringList list(set.begin(), set.end());
   std::sort(list.begin(), list.end(), caseInsensitiveLessThan);
   foreach (QString entry, list) {
     b->addItem(entry);
@@ -282,7 +273,7 @@ void Helpers::populateFileComboBox(QComboBox * b, const QSet<QString> & set, con
 void Helpers::getFileComboBoxValue(QComboBox * b, char * dest, int length)
 {
   memset(dest, 0, length+1);
-  if (b->currentText() != "----") {
+  if (b->currentText() != CPN_STR_NONE_ITEM) {
     strncpy(dest, b->currentText().toLatin1(), length);
   }
 }
@@ -306,27 +297,64 @@ void Helpers::exportAppSettings(QWidget * dlgParent)
 }
 
 unsigned int Helpers::getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits, const unsigned int offset)
- {
-   int mask = -1;
-   mask = mask << numbits;
-   mask = ~mask;
-   return (field >> (numbits * index + offset)) & (unsigned int)mask;
- }
+{
+  int mask = -1;
+  mask = mask << numbits;
+  mask = ~mask;
+  return (field >> (numbits * index + offset)) & (unsigned int)mask;
+}
 
- void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits, unsigned int offset)
- {
-   int mask = -1;
-   mask = mask << numbits;
-   mask = ~mask;
+void Helpers::setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits, unsigned int offset)
+{
+  int mask = -1;
+  mask = mask << numbits;
+  mask = ~mask;
 
-   unsigned int fieldmask = ((unsigned int)mask << (numbits * index + offset));
-   field = (field & ~fieldmask) | (value << (numbits * index + offset));
- }
+  unsigned int fieldmask = ((unsigned int)mask << (numbits * index + offset));
+  field = (field & ~fieldmask) | (value << (numbits * index + offset));
+}
+
+// return index of 'none' ie zero or first positive data entry in potentially an asymetrical list
+int Helpers::getFirstPosValueIndex(QComboBox * cbo)
+{
+  const int cnt = cbo->count();
+  if (cnt == 0)
+    return -1;
+
+  const int idx = cnt / 2;
+  const int val = cbo->itemData(idx).toInt();
+
+  if (val == 0)
+    return idx;
+
+  const int step = val > 0 ? -1 : 1;
+
+  for (int i = idx + step; i >= 0 && i < cbo->count(); i += step) {
+    if (cbo->findData(i) == 0)
+      return i;
+    else if (step < 0 && cbo->itemData(i).toInt() < 0) {
+      if (i++ < cbo->count())
+        return i++;
+      else
+        return -1;
+    }
+    else if (step > 0 && cbo->itemData(i).toInt() > 0)
+      return i;
+  }
+
+  return -1;
+}
+
+#ifdef __APPLE__
+// Flag when simulator is running
+static bool simulatorRunning = false;
+bool isSimulatorRunning() { return simulatorRunning; }
+#endif
 
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 {
-  QString fwId = SimulatorLoader::findSimulatorByFirmwareName(getCurrentFirmware()->getId());
-  if (fwId.isEmpty()) {
+  QString simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
+  if (simulatorId.isEmpty()) {
     QMessageBox::warning(NULL,
                          CPN_STR_TTL_WARNING,
                          QCoreApplication::translate("Companion", "Simulator for this firmware is not yet available"));
@@ -341,11 +369,14 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
     simuData->setCurrentModel(modelIdx);
   }
 
-  SimulatorMainWindow * dialog = new SimulatorMainWindow(parent, fwId, flags);
+  SimulatorMainWindow * dialog = new SimulatorMainWindow(parent, simulatorId, flags);
   dialog->setWindowModality(Qt::ApplicationModal);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
 
   QObject::connect(dialog, &SimulatorMainWindow::destroyed, [simuData] (void) {
+#ifdef __APPLE__
+    simulatorRunning = false;
+#endif
     // TODO simuData and Horus tmp directory is deleted on simulator close OR we could use it to get back data from the simulation
     delete simuData;
   });
@@ -358,6 +389,9 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
     dialog->deleteLater();
   }
    else if (dialog->setRadioData(simuData)) {
+#ifdef __APPLE__
+    simulatorRunning = true;
+#endif
     dialog->show();
   }
   else {
@@ -368,9 +402,10 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 
 QPixmap makePixMap(const QImage & image)
 {
-  Firmware * firmware = getCurrentFirmware();
-  QImage result = image.scaled(firmware->getCapability(LcdWidth), firmware->getCapability(LcdHeight));
-  if (firmware->getCapability(LcdDepth) == 4) {
+  Board::Type board = getCurrentBoard();
+  QImage result = image.scaled(Boards::getCapability(board, Board::LcdWidth), Boards::getCapability(board, Board::LcdHeight));
+
+  if (Boards::getCapability(board, Board::LcdDepth) == 4) {
     result = result.convertToFormat(QImage::Format_RGB32);
     for (int i = 0; i < result.width(); ++i) {
       for (int j = 0; j < result.height(); ++j) {
@@ -727,42 +762,133 @@ QString Helpers::removeAccents(const QString & str)
   return result;
 }
 
-SemanticVersion::SemanticVersion(QString vers)
+/*
+  SemanticVersion
+
+  Based on Semantic Versioning 2.0.0 refer https://semver.org/
+*/
+
+SemanticVersion::SemanticVersion(const QString vers)
+{
+  fromString(vers);
+}
+
+bool SemanticVersion::fromString(QString vers)
 {
   if (!isValid(vers))
-    return;
+    return false;
+
+  vers = vers.trimmed();
+
+  if (vers.toLower().startsWith("v"))
+    vers = vers.mid(1);
 
   QStringList strl = vers.split(".");
   version.major = strl.at(0).toInt();
   version.minor = strl.at(1).toInt();
+
   if (strl.count() > 2) {
     if (!strl.at(2).contains("-")) {
       version.patch = strl.at(2).toInt();
     } else {
       QStringList ptch = strl.at(2).toLower().split("-");
       version.patch = ptch.at(0).toInt();
-      if (ptch.at(1).left(2) == "rc") {
-        version.preReleaseType = PR_RC;
-        version.preReleaseNumber = ptch.at(1).mid(2).toInt();
-      } else if (ptch.at(1).left(5) == "alpha") {
-        version.preReleaseType = PR_ALPHA;
-        version.preReleaseNumber = ptch.at(1).mid(5).toInt();
-      } else if (ptch.at(1).left(4) == "beta") {
-        version.preReleaseType = PR_BETA;
-        version.preReleaseNumber = ptch.at(1).mid(4).toInt();
+
+      int offset = 0;
+      QString relType;
+
+      for (int i = 0; i < ptch.at(1).size(); i++) {
+        QString c(ptch.at(1).mid(i, 1));
+        if (c >= "0" && c <= "9") {
+          break;
+        } else if (c == ".") {
+          offset++;
+          break;
+        }
+
+        offset++;
+        relType.append(c);
       }
+
+      version.preReleaseType = preReleaseTypeToInt(relType);
+
+      if (version.preReleaseType > -1 && offset < ptch.at(1).size())
+        version.preReleaseNumber = ptch.at(1).mid(offset).toInt();
+      else
+        version.preReleaseType = PR_NONE;
     }
   }
+
+  //qDebug() << "vers:" << vers << "toString:" << toString() << "toInt:" << toInt();
+
+  return true;
 }
 
-bool SemanticVersion::isValid(QString vers)
+SemanticVersion& SemanticVersion::operator=(const SemanticVersion& rhs)
 {
-  if (vers.trimmed().isEmpty())
+  version.major = rhs.version.major;
+  version.minor = rhs.version.minor;
+  version.patch = rhs.version.patch;
+  version.preReleaseType = rhs.version.preReleaseType;
+  version.preReleaseNumber = rhs.version.preReleaseNumber;
+  return *this;
+}
+
+bool SemanticVersion::isValid(const QString vers)
+{
+  QString v(vers.trimmed());
+
+  if (v.isEmpty())
     return false;
 
-  QStringList strl = vers.split(".");
-  if (strl.count() < 2)
+  if (v.toLower().startsWith("v"))
+    v = v.mid(1);
+
+#if 0
+  //  Keep for testing full standard
+  //  Note: regexp adapted for Qt ie extra escaping
+  QRegularExpression rx1("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$");
+
+  //  Qt only test as not all patterns supported and can change in later releases
+  if (!rx1.isValid()) {
+    qDebug() << "Full standard is an invalid Qt regular expression";
     return false;
+  }
+
+  if (!rx1.match(v).hasMatch()) {
+    qDebug() << vers << "is not a valid Semantic Version - ";
+    return false;
+  }
+#endif // 0
+
+  //  we only support a subset of the standard alpha, beta, rc with period optional and number optional
+  //  format: major.minor.patch[-[alpha|beta|rc][.|][n|]]
+
+  QRegularExpression rx2("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-(alpha|beta|rc)\\.?(0|[1-9]\\d*)?)*$");
+
+  //  Qt only test as not all patterns supported and can change in later releases
+  if (!rx2.isValid()) {
+    qDebug() << "Standard subset is an invalid Qt regular expression";
+    return false;
+  }
+
+  if (!rx2.match(v.toLower()).hasMatch()) {
+    //qDebug() << vers << "is not a valid Semantic Version subset - ";
+    return false;
+  }
+
+  return isValid();
+}
+
+bool SemanticVersion::isValid()
+{
+  //  range checks to support 32 bit OS when components compounded
+  if (version.major < 0 || version.major > 255 || version.minor < 0 || version.minor > 255 || version.patch < 0 || version.patch > 255 ||
+      version.preReleaseType < 0 || version.preReleaseType > PR_NONE || version.preReleaseNumber < 0 || version.preReleaseNumber > 15) {
+    qDebug() << "Cannot convert to supported Semantec Version";
+    version = SemanticVersion().version;
+    return false;
+  }
 
   return true;
 }
@@ -772,18 +898,40 @@ QString SemanticVersion::toString() const
   QString ret(QString("%1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch));
 
   if (version.preReleaseType != PR_NONE) {
-    ret.append("-");
-    if (version.preReleaseType == PR_RC)
-      ret.append("RC");
-    else if (version.preReleaseType == PR_ALPHA)
-      ret.append("ALPHA");
-    else if (version.preReleaseType == PR_BETA)
-      ret.append("BETA");
-
-    ret.append(QString::number(version.preReleaseNumber));
+    ret = QString("%1-%2").arg(ret).arg(preReleaseTypeToString());
+    if (version.preReleaseNumber > 0)
+      ret = QString("%1.%2").arg(ret).arg(version.preReleaseNumber);
   }
 
   return ret;
+}
+
+bool SemanticVersion::isEmpty(const QString vers)
+{
+  fromString(vers);
+  return isEmpty();
+}
+
+bool SemanticVersion::isEmpty()
+{
+  if (toInt() == SemanticVersion().toInt() )
+    return true;
+  else
+    return false;
+}
+
+bool SemanticVersion::isPreRelease(const QString vers)
+{
+  fromString(vers);
+  return isPreRelease();
+}
+
+bool SemanticVersion::isPreRelease()
+{
+  if (version.preReleaseType != PR_NONE)
+    return true;
+  else
+    return false;
 }
 
 int SemanticVersion::compare(const SemanticVersion& other)
@@ -809,4 +957,49 @@ int SemanticVersion::compare(const SemanticVersion& other)
   }
 
   return 0;
+}
+
+unsigned int SemanticVersion::toInt() const
+{
+  //  limit to 32 bits for OS backward compatibility
+  unsigned int val = 0;
+  setBitmappedValue(val, version.major, 0, 8, 24);
+  setBitmappedValue(val, version.minor, 0, 8, 16);
+  setBitmappedValue(val, version.patch, 0, 8, 8);
+  setBitmappedValue(val, version.preReleaseType, 0, 4, 4);
+  setBitmappedValue(val, version.preReleaseNumber, 0, 4);
+  return val;
+}
+
+bool SemanticVersion::fromInt(const unsigned int val)
+{
+  //  assumption val was generated by toInt() but validate anyway
+  version.major = Helpers::getBitmappedValue(val, 0, 8, 24);
+  version.minor = Helpers::getBitmappedValue(val, 0, 8, 16);
+  version.patch = Helpers::getBitmappedValue(val, 0, 8, 8);
+  version.preReleaseType = Helpers::getBitmappedValue(val, 0, 4, 4);
+  version.preReleaseNumber = Helpers::getBitmappedValue(val, 0, 4);
+  return isValid();
+}
+
+StatusDialog::StatusDialog(QWidget * parent, const QString title, QString msgtext, const int width) :
+  QDialog(parent)
+{
+  setWindowTitle(title);
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  msg = new QLabel(this);
+  msg->setFixedWidth(width);
+  msg->setContentsMargins(50, 50, 50, 50);
+  update(msgtext);
+  layout->addWidget(msg);
+  show();
+}
+
+StatusDialog::~StatusDialog()
+{
+}
+
+void StatusDialog::update(QString text)
+{
+  msg->setText(text);
 }

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -34,7 +35,7 @@ class RadioDataConversionState;
 enum RawSwitchType {
   SWITCH_TYPE_NONE,
   SWITCH_TYPE_SWITCH,
-  SWITCH_TYPE_FUNCTIONSWITCH,
+  SWITCH_TYPE_FUNCTIONSWITCH, // depreciated kept to preserve following enums
   SWITCH_TYPE_VIRTUAL,
   SWITCH_TYPE_MULTIPOS_POT,
   SWITCH_TYPE_TRIM,
@@ -47,6 +48,7 @@ enum RawSwitchType {
   SWITCH_TYPE_TELEMETRY,
   SWITCH_TYPE_SENSOR,
   SWITCH_TYPE_ACT,
+  SWITCH_TYPE_TRAINER,
   MAX_SWITCH_TYPE
 };
 
@@ -59,10 +61,9 @@ class RawSwitch {
       LogicalSwitchesContext  = 0x01,
       SpecialFunctionsContext = 0x02,
       GlobalFunctionsContext  = 0x04,
-      TimersContext           = 0x08,
-      MixesContext            = 0x10,
+      MixesContext            = 0x08,
 
-      AllModelContexts        = SpecialFunctionsContext | LogicalSwitchesContext | TimersContext | MixesContext,
+      AllModelContexts        = SpecialFunctionsContext | LogicalSwitchesContext | MixesContext,
       AllSwitchContexts       = AllModelContexts | GlobalFunctionsContext
     };
 
@@ -86,11 +87,10 @@ class RawSwitch {
     }
 
     RawSwitch convert(RadioDataConversionState & cstate);
-    QString toString(Board::Type board = Board::BOARD_UNKNOWN, const GeneralSettings * const generalSettings = NULL, const ModelData * const modelData = NULL) const;
-    bool isAvailable(const ModelData * const model = NULL, const GeneralSettings * const gs = NULL, Board::Type board = Board::BOARD_UNKNOWN) const;
+    QString toString(Board::Type board = Board::BOARD_UNKNOWN, const GeneralSettings * const generalSettings = nullptr, const ModelData * const modelData = nullptr, bool prefixCustomName = true) const;
+    bool isAvailable(const ModelData * const model = nullptr, const GeneralSettings * const gs = nullptr, Board::Type board = Board::BOARD_UNKNOWN) const;
     bool isSet() const { return type != SWITCH_TYPE_NONE || index != 0; }
     void clear() { type = SWITCH_TYPE_NONE; index = 0; }
-    QStringList getSwitchList(Boards board) const;
     static StringTagMappingTable getRawSwitchTypesLookupTable();
 
     bool operator== ( const RawSwitch& other) const {

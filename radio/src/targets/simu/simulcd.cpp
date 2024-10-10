@@ -57,7 +57,7 @@ static pixel_t _LCD_BUF2[DISPLAY_BUFFER_SIZE] __SDRAM;
 
 pixel_t* simuLcdBuf = _LCD_BUF1;
 pixel_t* simuLcdBackBuf = _LCD_BUF2;
-
+#if 0
 // Copy 2 pixels at once to speed up a little
 static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
 {
@@ -101,7 +101,7 @@ static void _rotate_area_180(lv_area_t& area)
   area.x2 = LCD_W - area.x1 - 1;
   area.x1 = LCD_W - tmp_coord - 1;
 }
-
+#endif
 static void _copy_screen_area(uint16_t* dst, uint16_t* src, const lv_area_t& copy_area)
 {
   lv_coord_t x1 = copy_area.x1;
@@ -200,6 +200,8 @@ static void simuLcdExitHandler(lv_disp_drv_t* disp_drv)
   }
 }
 
+void lcdSetInitalFrameBuffer(void*) {}
+
 void lcdInit()
 {
 #if defined(LCD_VERTICAL_INVERT)
@@ -209,10 +211,6 @@ void lcdInit()
 
   lcdSetWaitCb(simuLcdExitHandler);
   lcdSetFlushCb(simuRefreshLcd);
-}
-
-void DMAWait()
-{
 }
 
 void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
@@ -289,9 +287,12 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
   }
 }
 
+#define DMA2D_ARGB4444 ((uint32_t)0x00000004)
+
 void DMABitmapConvert(uint16_t *dest, const uint8_t *src, uint16_t w,
                       uint16_t h, uint32_t format)
 {
+
   if (format == DMA2D_ARGB4444) {
     for (int row = 0; row < h; ++row) {
       for (int col = 0; col < w; ++col) {

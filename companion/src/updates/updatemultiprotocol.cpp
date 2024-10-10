@@ -22,15 +22,15 @@
 #include "updatemultiprotocol.h"
 
 UpdateMultiProtocol::UpdateMultiProtocol(QWidget * parent) :
-  UpdateInterface(parent)
+  UpdateInterface(parent, CID_MultiProtocol, tr("Multiprotocol"), Repo::REPO_TYPE_GITHUB,
+                  QString(GH_API_REPOS).append("/pascallanger/DIY-Multiprotocol-TX-Module"), "", 100)
 {
-  // GitHub REST API default ResultsPerPage = 30
-  init(CID_MultiProtocol, tr("Multiprotocol"), QString(GITHUB_API_REPOS).append("/pascallanger/DIY-Multiprotocol-TX-Module"), "", 50);
+  init(); // call after UpdateInterface ctor due to virtual functions
 }
 
-void UpdateMultiProtocol::initAssetSettings()
+void UpdateMultiProtocol::assetSettingsInit()
 {
-  if (!isValidSettingsIndex())
+  if (!isSettingsIndexValid())
     return;
 
   g.component[id()].initAllAssets();
@@ -49,7 +49,7 @@ void UpdateMultiProtocol::initAssetSettings()
   cad.desc("binaries");
   cad.processes(UPDFLG_Common_Asset &~ UPDFLG_Decompress);
   cad.flags(cad.processes() | UPDFLG_CopyFiles);
-  cad.filterType(UpdateParameters::UFT_Expression);
+  cad.filterType(UpdateParameters::UFT_Pattern);
   cad.filter("^mm-stm-serial-.*\\.bin$");
   cad.destSubDir("FIRMWARE");
   }

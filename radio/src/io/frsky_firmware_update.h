@@ -19,11 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FRSKY_FIRMWARE_UPDATE_H_
-#define _FRSKY_FIRMWARE_UPDATE_H_
+#pragma once
 
 #include "dataconstants.h"
 #include "definitions.h"
+
+#include "hal/module_port.h"
 
 enum FrskyFirmwareProductFamily {
   FIRMWARE_FAMILY_INTERNAL_MODULE,
@@ -77,21 +78,10 @@ enum FrskyFirmwareReceiverProductId {
 
 inline bool isReceiverOTAEnabledFromModule(uint8_t moduleIdx, uint8_t productId)
 {
-  switch (productId) {
-    case FIRMWARE_ID_RECEIVER_ARCHER_X:
-      return isModuleISRM(moduleIdx);
-
-    case FIRMWARE_ID_RECEIVER_R9_STAB:
-    case FIRMWARE_ID_RECEIVER_R9_MINI_OTA:
-    case FIRMWARE_ID_RECEIVER_R9_MM_OTA:
-    case FIRMWARE_ID_RECEIVER_R9_SLIMP_OTA:
-    case FIRMWARE_ID_RECEIVER_R9MX:
-    case FIRMWARE_ID_RECEIVER_R9SX:
-      return isModuleR9M(moduleIdx);
-
-    default:
-      return false;
-  }
+  if (productId >= 0x15 && (isModuleISRM(moduleIdx) || isModuleR9M(moduleIdx)))
+    return true;
+  else
+    return false;
 }
 
 PACK(struct FrSkyFirmwareInformation {
@@ -133,6 +123,9 @@ class FrskyDeviceFirmwareUpdate {
     uint32_t address = 0;
     ModuleIndex module;
     uint8_t frame[12];
+
+    etx_module_state_t* mod_st = nullptr;
+    const etx_serial_driver_t* uart_drv = nullptr;
     void* uart_ctx = nullptr;
 
     void startFrame(uint8_t command);
@@ -144,6 +137,7 @@ class FrskyDeviceFirmwareUpdate {
     const uint8_t * readFrame(uint32_t timeout);
     bool waitState(State state, uint32_t timeout);
     void processFrame(const uint8_t * frame);
+    void sendDataTransfer(uint32_t* buffer);
 
     const char * doFlashFirmware(const char * filename, ProgressHandler progressHandler);
     const char * sendPowerOn();
@@ -152,25 +146,3 @@ class FrskyDeviceFirmwareUpdate {
     const char * uploadFileToHorusXJT(const char * filename, FIL * file, ProgressHandler progressHandler);
     const char * endTransfer();
 };
-
-class FrskyChipFirmwareUpdate {
-  public:
-    FrskyChipFirmwareUpdate()
-    {
-    }
-
-    const char * flashFirmware(const char * filename, ProgressHandler progressHandler, bool wait = true);
-
-  protected:
-    uint8_t crc;
-
-    void sendByte(uint8_t byte, bool crc = true);
-    const char * waitAnswer(uint8_t & status);
-    const char * startBootloader();
-    const char * sendUpgradeCommand(char command, uint32_t packetsCount);
-    const char * sendUpgradeData(uint32_t index, uint8_t * data);
-
-    const char * doFlashFirmware(const char * filename, ProgressHandler progressHandler);
-};
-
-#endif // _FRSKY_FIRMWARE_UPDATE_H_

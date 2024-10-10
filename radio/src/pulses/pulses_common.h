@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _PULSES_COMMON_H_
-#define _PULSES_COMMON_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -87,5 +86,3 @@ class PulsesBuffer: public DataBuffer<T, SIZE> {
       *(DataBuffer<T, SIZE>::ptr - 1) = value;
     }
 };
-
-#endif

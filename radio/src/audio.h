@@ -19,22 +19,22 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _AUDIO_H_
-#define _AUDIO_H_
+#pragma once
 
 #include <stddef.h>
 #include <string.h>
 #include "ff.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "dataconstants.h"
 
 /*
   Implements a bit field, number of bits is set by the template,
   each bit can be modified and read by the provided methods.
 */
-template <unsigned int NUM_BITS> class BitField {
+template <unsigned int NUM_BITS> class BitField
+{
   private:
-    uint8_t bits[(NUM_BITS+7)/8];
+    uint8_t bits[(NUM_BITS + 7) / 8];
   public:
     BitField()
     {
@@ -54,7 +54,6 @@ template <unsigned int NUM_BITS> class BitField {
 
     bool getBit(unsigned int bitNo) const
     {
-      // assert(bitNo < NUM_BITS);
       if (bitNo >= NUM_BITS) return false;
       return bits[bitNo >> 3] & (1 << (bitNo & 0x07));
     }
@@ -83,6 +82,8 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
   #define AUDIO_BUFFER_COUNT           (10) // simulator needs more buffers for smooth audio
 #elif defined(PCBX12S)
   #define AUDIO_BUFFER_COUNT           (2)  // smaller than Taranis since there is also a buffer on the ADC chip
+#elif defined(PCBPL18)
+  #define AUDIO_BUFFER_COUNT           (10) // PL18 need more buffer for smooth audio
 #else
   #define AUDIO_BUFFER_COUNT           (3)
 #endif
@@ -90,6 +91,8 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
 #define BEEP_MIN_FREQ                  (150)
 #define BEEP_MAX_FREQ                  (15000)
 #define BEEP_DEFAULT_FREQ              (2250)
+
+#define USE_SETTINGS_VOLUME            (127)
 
 #if defined(AUDIO_DUAL_BUFFER)
 enum AudioBufferState
@@ -156,6 +159,7 @@ struct AudioFragment {
   uint8_t type;
   uint8_t id;
   uint8_t repeat;
+  int8_t fragmentVolume;
   union {
     Tone tone;
     char file[AUDIO_FILENAME_MAXLEN+1];
@@ -163,17 +167,19 @@ struct AudioFragment {
 
   AudioFragment() { clear(); };
 
-  AudioFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, uint8_t id=0):
+  AudioFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, int8_t fragmentVolume, uint8_t id=0 ):
     type(FRAGMENT_TONE),
     id(id),
     repeat(repeat),
+    fragmentVolume(fragmentVolume),
     tone(freq, duration, pause, freqIncr, reset)
   {};
 
-  AudioFragment(const char * filename, uint8_t repeat, uint8_t id=0):
+  AudioFragment(const char * filename, uint8_t repeat, int8_t fragmentVolume, uint8_t id = 0):
     type(FRAGMENT_FILE),
     id(id),
-    repeat(repeat)
+    repeat(repeat),
+    fragmentVolume(fragmentVolume)
   {
     strcpy(file, filename);
   }
@@ -181,6 +187,8 @@ struct AudioFragment {
   void clear()
   {
     memset(reinterpret_cast<void*>(this), 0, sizeof(AudioFragment));
+
+    this->fragmentVolume = USE_SETTINGS_VOLUME;
   }
 };
 
@@ -190,6 +198,8 @@ class ToneContext {
     inline void clear()
     {
       memset(reinterpret_cast<void*>(this), 0, sizeof(ToneContext));
+
+      fragment.fragmentVolume = USE_SETTINGS_VOLUME;
     }
 
     bool isFree() const
@@ -199,9 +209,9 @@ class ToneContext {
 
     int mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade);
 
-    void setFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, uint8_t id=0)
+    void setFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, int8_t fragmentVolume, uint8_t id = 0)
     {
-      fragment = AudioFragment(freq, duration, pause, repeat, freqIncr, reset, id);
+      fragment = AudioFragment(freq, duration, pause, repeat, freqIncr, reset, fragmentVolume, id);
     }
 
   private:
@@ -226,9 +236,9 @@ class WavContext {
     int mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade);
     bool hasPromptId(uint8_t id) const { return fragment.id == id; };
 
-    void setFragment(const char * filename, uint8_t repeat, uint8_t id)
+    void setFragment(const char * filename, uint8_t repeat, int8_t fragmentVolume, uint8_t id)
     {
-      fragment = AudioFragment(filename, repeat, id);
+      fragment = AudioFragment(filename, repeat, fragmentVolume, id);
     }
 
     void stop(uint8_t id)
@@ -294,7 +304,6 @@ class MixedContext {
       ToneContext tone;
       WavContext wav;
     };
-
 };
 
 class AudioBufferFifo {
@@ -481,7 +490,7 @@ class AudioFragmentFifo
         }
         return result;
       }
-      return 0;
+      return nullptr;
     }
 
     void push(const AudioFragment & fragment)
@@ -506,8 +515,8 @@ class AudioQueue {
   public:
     AudioQueue();
     void start() { _started = true; };
-    void playTone(uint16_t freq, uint16_t len, uint16_t pause=0, uint8_t flags=0, int8_t freqIncr=0);
-    void playFile(const char *filename, uint8_t flags=0, uint8_t id=0);
+    void playTone(uint16_t freq, uint16_t len, uint16_t pause=0, uint8_t flags=0, int8_t freqIncr=0, int8_t fragmentVolume = USE_SETTINGS_VOLUME);
+    void playFile(const char *filename, uint8_t flags=0, uint8_t id=0, int8_t fragmentVolume = USE_SETTINGS_VOLUME);
     void stopPlay(uint8_t id);
     void stopAll();
     void flush();
@@ -556,13 +565,17 @@ void audioTask(void * pdata);
   #define AUDIO_BUZZER(a, b)  b
 #endif
 
-  #define AUDIO_ERROR_MESSAGE(e) audioEvent(e)
-  #define AUDIO_TIMER_MINUTE(t)  playDuration(t, 0, 0)
+void onKeyError();
 
 void audioKeyPress();
 void audioKeyError();
 void audioTrimPress(int value);
 void audioTimerCountdown(uint8_t timer, int value);
+
+#if defined(AUDIO)
+
+#define AUDIO_ERROR_MESSAGE(e)   audioEvent(e)
+#define AUDIO_TIMER_MINUTE(t)    playDuration(t, 0, 0)
 
 #define AUDIO_KEY_PRESS()        audioKeyPress()
 #define AUDIO_KEY_ERROR()        audioKeyError()
@@ -587,10 +600,34 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_RSSI_ORANGE()      audioEvent(AU_RSSI_ORANGE)
 #define AUDIO_RSSI_RED()         audioEvent(AU_RSSI_RED)
 #define AUDIO_RAS_RED()          audioEvent(AU_RAS_RED)
+#define AUDIO_TELEMETRY_CONNECTED() audioEvent(AU_TELEMETRY_CONNECTED)
 #define AUDIO_TELEMETRY_LOST()   audioEvent(AU_TELEMETRY_LOST)
 #define AUDIO_TELEMETRY_BACK()   audioEvent(AU_TELEMETRY_BACK)
+#define AUDIO_TRAINER_CONNECTED() audioEvent(AU_TRAINER_CONNECTED)
 #define AUDIO_TRAINER_LOST()     audioEvent(AU_TRAINER_LOST)
 #define AUDIO_TRAINER_BACK()     audioEvent(AU_TRAINER_BACK)
+
+#else // AUDIO
+
+#include "buzzer.h"
+
+#define AUDIO_TIMER_COUNTDOWN(idx, val) 
+#define AUDIO_TIMER_ELAPSED(idx) 
+#define AUDIO_TRIM_MIN()
+#define AUDIO_TRIM_MAX()
+#define AUDIO_TRIM_PRESS(val)
+#define AUDIO_VARIO(fq, t, p, f) 
+#define AUDIO_RSSI_ORANGE()
+#define AUDIO_RSSI_RED()
+#define AUDIO_RAS_RED()
+#define AUDIO_TELEMETRY_CONNECTED()
+#define AUDIO_TELEMETRY_LOST()
+#define AUDIO_TELEMETRY_BACK()
+#define AUDIO_TRAINER_CONNECTED()
+#define AUDIO_TRAINER_LOST()
+#define AUDIO_TRAINER_BACK()
+
+#endif
 
 enum AutomaticPromptsCategories {
   SYSTEM_AUDIO_CATEGORY,
@@ -606,15 +643,15 @@ enum AutomaticPromptsEvents {
   AUDIO_EVENT_MID,
 };
 
-void pushPrompt(uint16_t prompt, uint8_t id=0);
-void pushUnit(uint8_t unit, uint8_t idx, uint8_t id);
+void pushPrompt(uint16_t prompt, uint8_t id=0, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
+void pushUnit(uint8_t unit, uint8_t idx, uint8_t id, uint8_t fragmentVolume = USE_SETTINGS_VOLUME);
 void playModelName();
 
-#define I18N_PLAY_FUNCTION(lng, x, ...) void lng ## _ ## x(__VA_ARGS__, uint8_t id)
-#define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id)
-#define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id)
-#define PLAY_NUMBER(n, u, a)     playNumber((n), (u), (a), id)
-#define PLAY_DURATION(d, att)    playDuration((d), (att), id)
+#define I18N_PLAY_FUNCTION(lng, x, ...) void lng ## _ ## x(__VA_ARGS__, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME)
+#define PUSH_NUMBER_PROMPT(p)    pushPrompt((p), id, fragmentVolume)
+#define PUSH_UNIT_PROMPT(p, i)   pushUnit((p), (i), id, fragmentVolume)
+#define PLAY_NUMBER(n, u, a)     playNumber((n), (u), (a), id, fragmentVolume)
+#define PLAY_DURATION(d, att)    playDuration((d), (att), id, fragmentVolume)
 #define PLAY_DURATION_ATT        , uint8_t flags
 #define PLAY_TIME                1
 #define PLAY_LONG_TIMER          2
@@ -622,13 +659,16 @@ void playModelName();
 #define IS_PLAY_TIME()           (flags & PLAY_TIME)
 #define IS_PLAY_LONG_TIMER()     (flags & PLAY_LONG_TIMER)
 #define IS_PLAYING(id)           audioQueue.isPlaying((id))
-#define PLAY_VALUE(v, id)        playValue((v), (id))
-#define PLAY_FILE(f, flags, id)  audioQueue.playFile((f), (flags), (id))
+#define PLAY_VALUE(v, id)        playValue((v), (id), USE_SETTINGS_VOLUME)
+#define PLAY_FILE(f, flags, id)  audioQueue.playFile((f), (flags), (id), USE_SETTINGS_VOLUME)
 #define STOP_PLAY(id)            audioQueue.stopPlay((id))
+
+#if defined(AUDIO)
 #define AUDIO_RESET()            audioQueue.stopAll()
 #define AUDIO_FLUSH()            audioQueue.flush()
+#endif
 
-#if defined(SDCARD)
+#if defined(AUDIO)
   extern tmr10ms_t timeAutomaticPromptsSilence;
   void playModelEvent(uint8_t category, uint8_t index, event_t event=0);
   #define PLAY_PHASE_OFF(phase)         playModelEvent(PHASE_AUDIO_CATEGORY, phase, AUDIO_EVENT_OFF)
@@ -647,6 +687,7 @@ void playModelName();
   #define PLAY_LOGICAL_SWITCH_ON(sw)
   #define PLAY_MODEL_NAME()
   #define START_SILENCE_PERIOD()
+  #define IS_SILENCE_PERIOD_ELAPSED()   true
 #endif
 
 char * getAudioPath(char * path);
@@ -655,5 +696,3 @@ void referenceSystemAudioFiles();
 void referenceModelAudioFiles();
 
 bool isAudioFileReferenced(uint32_t i, char * filename/*at least AUDIO_FILENAME_MAXLEN+1 long*/);
-
-#endif // _AUDIO_H_

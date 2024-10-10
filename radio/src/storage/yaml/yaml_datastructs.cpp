@@ -19,44 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "yaml_node.h"
 
 // Warning: this file must be kept in sync with the CMakeLists.txt
 //          in the same directory.
 
+#include "yaml_inputs.inc"
 #include "yaml_datastructs_funcs.cpp"
 
-#if defined(PCBX12S)
- #include "yaml_datastructs_x12s.cpp"
-#elif defined(PCBX10)
- #include "yaml_datastructs_x10.cpp"
+#if defined(PCBX10) || defined(PCBX12S)
+ #if defined(RADIO_T15)
+  #include "yaml_datastructs_t15.cpp"
+ #elif defined(RADIO_F16)
+  #include "yaml_datastructs_f16.cpp"
+ #else
+  #include "yaml_datastructs_x10.cpp"
+ #endif
 #elif defined(PCBNV14)
  #include "yaml_datastructs_nv14.cpp"
+#elif defined(PCBPL18)
+ #include "yaml_datastructs_pl18.cpp"
 #elif defined(PCBX7)
- #if defined(RADIO_T12)
-  #include "yaml_datastructs_t12.cpp"
- #elif defined(RADIO_TLITE)
-  #include "yaml_datastructs_tlite.cpp"
- #elif defined(RADIO_TX12)
-  #include "yaml_datastructs_tx12.cpp"
- #elif defined(RADIO_TX12MK2)
-  #include "yaml_datastructs_tx12mk2.cpp"
- #elif defined(RADIO_ZORRO)
-  #include "yaml_datastructs_zorro.cpp"
- #elif defined(RADIO_T8)
-  #include "yaml_datastructs_t8.cpp"
- #elif defined(RADIO_TPRO)
+ #if defined(RADIO_TPRO) || defined(RADIO_TPROV2)
   #include "yaml_datastructs_tpro.cpp"
- #elif defined(RADIO_LR3PRO)
-  #include "yaml_datastructs_lr3pro.cpp"
+ #elif defined(RADIO_FAMILY_T20)
+  #include "yaml_datastructs_t20.cpp"
+ #elif defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_T8) || defined(RADIO_T12) || defined(RADIO_TLITE)
+  #include "yaml_datastructs_xlite.cpp"
  #else
-  #include "yaml_datastructs_x7.cpp"
+  #include "yaml_datastructs_128x64.cpp"
  #endif
-#elif defined(PCBX9LITE) && !defined(PCBX9LITES)
- #include "yaml_datastructs_x9lite.cpp"
-#elif defined(PCBX9LITES)
- #include "yaml_datastructs_x9lites.cpp"
+#elif defined(PCBX9LITE)
+ #include "yaml_datastructs_128x64.cpp"
 #elif defined(PCBXLITE) && !defined(PCBXLITES)
  #include "yaml_datastructs_xlite.cpp"
 #elif defined(PCBXLITES)
@@ -64,7 +59,11 @@
 #elif defined(PCBX9E)
  #include "yaml_datastructs_x9e.cpp"
 #elif defined(PCBX9D) || defined(PCBX9DP)
- #include "yaml_datastructs_x9d.cpp"
+ #if PCBREV < 2019
+  #include "yaml_datastructs_x9d.cpp"
+ #else
+  #include "yaml_datastructs_x9dp2019.cpp"
+ #endif
 #else
 #error "Board not supported by YAML storage"
 #endif

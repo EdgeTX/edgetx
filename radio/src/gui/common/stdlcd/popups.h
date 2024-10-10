@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _STDLCD_POPUPS_H_
-#define _STDLCD_POPUPS_H_
+#pragma once
 
 #include <inttypes.h>
 #include "audio.h"
@@ -62,129 +61,43 @@ void showAlertBox(const char * title, const char * text, const char * action , u
 void drawProgressScreen(const char * title, const char * message, int num, int den);
 typedef void (* ProgressHandler)(const char *, const char *, int, int);
 
-enum
+enum WarningType
 {
   WARNING_TYPE_WAIT,
   WARNING_TYPE_INFO,
   WARNING_TYPE_ASTERISK,
   WARNING_TYPE_CONFIRM,
-  WARNING_TYPE_INPUT
+  WARNING_TYPE_INPUT,
+  WARNING_TYPE_ALERT
 };
 
 #if !defined(GUI)
   #define DISPLAY_WARNING(...)
   inline void POPUP_WAIT(const char * s) { }
-  inline void POPUP_WARNING(const char *, const char * = nullptr) { }
+  inline void POPUP_WARNING(const char *, const char * = nullptr, bool waitForClose) { }
   inline void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler) { }
   inline void POPUP_INPUT(const char * s, PopupFunc func) { }
   inline void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags) { }
 #else
   #define DISPLAY_WARNING(evt)              (*popupFunc)(evt)
-  inline void CLEAR_POPUP()
-  {
-    warningText = nullptr;
-    warningInfoText = nullptr;
-    popupMenuTitle = nullptr;
-    popupMenuHandler = nullptr;
-    popupMenuItemsCount = 0;
-  }
-
-  inline void POPUP_WAIT(const char * s)
-  {
-    warningText = s;
-    warningInfoText = nullptr;
-    warningType = WARNING_TYPE_WAIT;
-    popupFunc = runPopupWarning;
-  }
-
-  inline void POPUP_INFORMATION(const char * s)
-  {
-    warningText = s;
-    warningInfoText = nullptr;
-    warningType = WARNING_TYPE_INFO;
-    popupFunc = runPopupWarning;
-  }
-
-  inline void POPUP_WARNING(const char * message, const char * info = nullptr)
-  {
-    warningText = message;
-    warningInfoText = info;
-    warningInfoLength = info ? strlen(info) : 0;
-    warningInfoFlags = 0;
-    warningType = WARNING_TYPE_ASTERISK;
-    popupFunc = runPopupWarning;
-  }
-
-  inline void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags)
-  {
-    warningInfoText = info;
-    warningInfoLength = length;
-    warningInfoFlags = flags;
-  }
-
-  inline void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler)
-  {
-    if (s != warningText) {
-      killAllEvents();
-      warningText = s;
-      warningInfoText = nullptr;
-      warningType = WARNING_TYPE_CONFIRM;
-      popupFunc = runPopupWarning;
-      popupMenuHandler = handler;
-    }
-  }
-
-  inline void POPUP_INPUT(const char * s, PopupFunc func)
-  {
-    warningText = s;
-    warningInfoText = nullptr;
-    warningType = WARNING_TYPE_INPUT;
-    popupFunc = func;
-  }
-
-  inline bool isEventCaughtByPopup()
-  {
-    if (warningText && warningType != WARNING_TYPE_WAIT)
-      return true;
-
-    if (popupMenuItemsCount > 0)
-      return true;
-
-    return false;
-  }
+  extern void CLEAR_POPUP();
+  extern void POPUP_WAIT(const char * s);
+  extern void POPUP_INFORMATION(const char * s);
+  extern void POPUP_WARNING(const char * message, const char * info = nullptr, bool waitForClose = true);
+  extern void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags);
+  extern void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler);
+  extern void POPUP_INPUT(const char * s, PopupFunc func);
+  extern bool isEventCaughtByPopup();
 #endif
 
-inline void POPUP_MENU_ADD_ITEM(const char * s)
-{
-  popupMenuOffsetType = MENU_OFFSET_INTERNAL;
-  if (popupMenuItemsCount < POPUP_MENU_MAX_LINES) {
-    popupMenuItems[popupMenuItemsCount++] = s;
-  }
-}
+extern void POPUP_MENU_ADD_ITEM(const char * s);
 
-#if defined(SDCARD)
-  #define POPUP_MENU_ADD_SD_ITEM(s)    POPUP_MENU_ADD_ITEM(s)
-#else
-  #define POPUP_MENU_ADD_SD_ITEM(s)
-#endif
+extern void POPUP_MENU_SELECT_ITEM(uint8_t index);
 
-inline void POPUP_MENU_SELECT_ITEM(uint8_t index)
-{
-  popupMenuSelectedItem =  (index > 0 ? (index < popupMenuItemsCount ? index : popupMenuItemsCount) : 0);
-}
+extern void POPUP_MENU_TITLE(const char * s);
 
-inline void POPUP_MENU_TITLE(const char * s)
-{
-  popupMenuTitle = s;
-}
+extern void POPUP_MENU_START(PopupMenuHandler handler);
+extern void POPUP_MENU_START(PopupMenuHandler handler, int count, ...);
 
-inline void POPUP_MENU_START(PopupMenuHandler handler)
-{
-  if (handler != popupMenuHandler) {
-    killAllEvents();
-    AUDIO_KEY_PRESS();
-    popupMenuHandler = handler;
-  }
-}
-
-#endif // _STDLCD_POPUPS_H_
+// For compatability with color LCD code base, not (currently) required for B&W
+#define POPUP_WARNING_ON_UI_TASK POPUP_WARNING

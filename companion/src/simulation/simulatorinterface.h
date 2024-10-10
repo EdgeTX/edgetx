@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SIMULATORINTERFACE_H_
-#define _SIMULATORINTERFACE_H_
+#pragma once
 
 #include "firmwares/boards.h"
 #include "constants.h"
@@ -35,6 +35,14 @@
 #include <QMap>
 
 #define SIMULATOR_INTERFACE_HEARTBEAT_PERIOD    1000  // ms
+
+enum SimulatorTelemetryProtocol {
+  SIMU_TELEMETRY_PROTOCOL_FRSKY_SPORT = 0,
+  SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB,
+  SIMU_TELEMETRY_PROTOCOL_CROSSFIRE,
+  SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB,
+  SIMU_TELEMETRY_PROTOCOL_COUNT
+};
 
 class SimulatorInterface : public QObject
 {
@@ -147,7 +155,8 @@ class SimulatorInterface : public QObject
     virtual void touchEvent(int type, int x, int y) = 0;
     virtual void lcdFlushed() = 0;
     virtual void setTrainerTimeout(uint16_t ms) = 0;
-    virtual void sendTelemetry(const QByteArray data) = 0;
+    virtual void sendInternalModuleTelemetry(const quint8 protocol, const QByteArray data) = 0;
+    virtual void sendExternalModuleTelemetry(const quint8 protocol, const QByteArray data) = 0;
     virtual void setLuaStateReloadPermanentScripts() = 0;
     virtual void addTracebackDevice(QIODevice * device) = 0;
     virtual void removeTracebackDevice(QIODevice * device) = 0;
@@ -184,7 +193,7 @@ class SimulatorLoader
     static void registerSimulators();
     static void unregisterSimulators();
     static QStringList getAvailableSimulators();
-    static QString findSimulatorByFirmwareName(const QString & name);
+    static QString findSimulatorByName(const QString & name);
     static SimulatorInterface * loadSimulator(const QString & name);
     static bool unloadSimulator(const QString & name);
 
@@ -194,5 +203,3 @@ class SimulatorLoader
     static int registerSimulators(const QDir & dir);
     static QMap<QString, QLibrary *> registeredSimulators;
 };
-
-#endif // _SIMULATORINTERFACE_H_

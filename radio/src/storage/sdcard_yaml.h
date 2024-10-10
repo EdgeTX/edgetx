@@ -22,13 +22,18 @@
 #pragma once
 
 enum class ChecksumResult {Success, Failed, None};
-#include "sdcard_common.h" // TODO CHECK REQUIRED
+
+struct YamlParserCalls;
 
 constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
 
-const char * loadRadioSettingsYaml();
+const char * loadRadioSettingsYaml(bool checks);
 const char * writeModelYaml(const char* filename);
 const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t size, const char* pathName = STR_MODELS_PATH);
 bool YamlFileChecksum(const YamlNode* root_node, uint8_t* data, uint16_t* checksum);
 
 void getModelNumberStr(uint8_t idx, char* model_idx);
+
+const char* readYamlFile(const char* fullpath,
+                         const YamlParserCalls* calls, void* parser_ctx,
+                         ChecksumResult* checksum_result);

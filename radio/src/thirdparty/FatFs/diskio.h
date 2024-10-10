@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------/
-/  Low level disk interface modlue include file   (C)ChaN, 2014          /
+/  Low level disk interface modlue include file   (C)ChaN, 2019          /
 /-----------------------------------------------------------------------*/
 
 #ifndef _DISKIO_DEFINED
@@ -30,18 +30,10 @@ typedef enum {
 
 DSTATUS disk_initialize (BYTE pdrv);
 DSTATUS disk_status (BYTE pdrv);
-DRESULT disk_read (BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
-DRESULT disk_write (BYTE pdrv, const BYTE* buff, DWORD sector, UINT count);
+DRESULT disk_read (BYTE pdrv, BYTE* buff, LBA_t sector, UINT count);
+DRESULT disk_write (BYTE pdrv, const BYTE* buff, LBA_t sector, UINT count);
 DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 
-#if defined(DISK_CACHE)
-// #include "FatFs/diskio.h"
-DRESULT __disk_read(BYTE drv, BYTE * buff, DWORD sector, UINT count);
-DRESULT __disk_write(BYTE drv, const BYTE * buff, DWORD sector, UINT count);
-#else
-#define __disk_read                    disk_read
-#define __disk_write                   disk_write
-#endif
 
 /* Disk Status Bits (DSTATUS) */
 

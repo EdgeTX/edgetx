@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 const char * warningText = nullptr;
 const char * warningInfoText;
@@ -97,7 +97,8 @@ const char * runPopupMenu(event_t event)
   event_t eventTemp = event;
 
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(COLORLCD)
-  if (g_eeGeneral.rotEncMode >= ROTARY_ENCODER_MODE_INVERT_BOTH) {
+  if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_ALT ||
+      g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_VERT_HORZ_NORM) {
     if (eventTemp == EVT_ROTARY_LEFT) {
       eventTemp = EVT_ROTARY_RIGHT;
     } else if (eventTemp == EVT_ROTARY_RIGHT) {
@@ -106,72 +107,48 @@ const char * runPopupMenu(event_t event)
   }
 #endif
 
-  switch (eventTemp) {
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    CASE_EVT_ROTARY_LEFT
-#endif
-    case EVT_KEY_FIRST(KEY_UP):
-    case EVT_KEY_REPT(KEY_UP):
-      if (popupMenuSelectedItem > 0) {
-        popupMenuSelectedItem--;
-      }
-#if defined(SDCARD)
-      else if (popupMenuOffset > 0) {
-        popupMenuOffset--;
+  if (IS_PREVIOUS_EVENT(eventTemp)) {
+    if (popupMenuSelectedItem > 0) {
+      popupMenuSelectedItem--;
+    }
+    else if (popupMenuOffset > 0) {
+      popupMenuOffset--;
+      result = STR_UPDATE_LIST;
+    }
+    else {
+      popupMenuSelectedItem = min<uint8_t>(display_count, MENU_MAX_DISPLAY_LINES) - 1;
+      if (popupMenuItemsCount > MENU_MAX_DISPLAY_LINES) {
+        popupMenuOffset = popupMenuItemsCount - display_count;
         result = STR_UPDATE_LIST;
       }
-#endif
-      else {
-        popupMenuSelectedItem = min<uint8_t>(display_count, MENU_MAX_DISPLAY_LINES) - 1;
-#if defined(SDCARD)
-        if (popupMenuItemsCount > MENU_MAX_DISPLAY_LINES) {
-          popupMenuOffset = popupMenuItemsCount - display_count;
-          result = STR_UPDATE_LIST;
-        }
-#endif
-      }
-      break;
-
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    CASE_EVT_ROTARY_RIGHT
-#endif
-    case EVT_KEY_FIRST(KEY_DOWN):
-    case EVT_KEY_REPT(KEY_DOWN):
-      if (popupMenuSelectedItem < display_count - 1 && popupMenuOffset + popupMenuSelectedItem + 1 < popupMenuItemsCount) {
-        popupMenuSelectedItem++;
-      }
-#if defined(SDCARD)
-      else if (popupMenuItemsCount > popupMenuOffset + display_count) {
-        popupMenuOffset++;
+    }
+  } else if (IS_NEXT_EVENT(eventTemp)) {
+    if (popupMenuSelectedItem < display_count - 1 && popupMenuOffset + popupMenuSelectedItem + 1 < popupMenuItemsCount) {
+      popupMenuSelectedItem++;
+    }
+    else if (popupMenuItemsCount > popupMenuOffset + display_count) {
+      popupMenuOffset++;
+      result = STR_UPDATE_LIST;
+    }
+    else {
+      popupMenuSelectedItem = 0;
+      if (popupMenuOffset) {
+        popupMenuOffset = 0;
         result = STR_UPDATE_LIST;
       }
-#endif
-      else {
-        popupMenuSelectedItem = 0;
-#if defined(SDCARD)
-        if (popupMenuOffset) {
-          popupMenuOffset = 0;
-          result = STR_UPDATE_LIST;
-        }
-#endif
-      }
-      break;
-
-    case EVT_KEY_BREAK(KEY_ENTER):
-      result = popupMenuItems[popupMenuSelectedItem + (popupMenuOffsetType == MENU_OFFSET_INTERNAL ? popupMenuOffset : 0)];
-      popupMenuItemsCount = 0;
-      popupMenuSelectedItem = 0;
-      popupMenuOffset = 0;
-      popupMenuTitle = nullptr;
-      break;
-
-    case EVT_KEY_BREAK(KEY_EXIT):
-      result = STR_EXIT;
-      popupMenuItemsCount = 0;
-      popupMenuSelectedItem = 0;
-      popupMenuOffset = 0;
-      popupMenuTitle = nullptr;
-      break;
+    }
+  } else if (eventTemp == EVT_KEY_BREAK(KEY_ENTER)) {
+    result = popupMenuItems[popupMenuSelectedItem + (popupMenuOffsetType == MENU_OFFSET_INTERNAL ? popupMenuOffset : 0)];
+    popupMenuItemsCount = 0;
+    popupMenuSelectedItem = 0;
+    popupMenuOffset = 0;
+    popupMenuTitle = nullptr;
+  } else if (eventTemp == EVT_KEY_BREAK(KEY_EXIT)) {
+    result = STR_EXIT;
+    popupMenuItemsCount = 0;
+    popupMenuSelectedItem = 0;
+    popupMenuOffset = 0;
+    popupMenuTitle = nullptr;
   }
 
   return result;
@@ -192,15 +169,15 @@ void runPopupWarning(event_t event)
       return;
 
     case WARNING_TYPE_INFO:
-      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+2*FH+2, STR_OK);
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+4*FH+2, STR_OK);
       break;
 
     case WARNING_TYPE_ASTERISK:
-      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+2*FH+2, BUTTON(TR_EXIT));
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+4*FH+2, BUTTON(TR_EXIT));
       break;
 
     default:
-      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+2*FH+2, STR_POPUPS_ENTER_EXIT);
+      lcdDrawText(WARNING_LINE_X, WARNING_LINE_Y+4*FH+2, STR_POPUPS_ENTER_EXIT);
       break;
   }
 
@@ -235,6 +212,7 @@ void runPopupWarning(event_t event)
 
 void showAlertBox(const char * title, const char * text, const char * action , uint8_t sound)
 {
+  cancelSplash();
   drawAlertBox(title, text, action);
   AUDIO_ERROR_MESSAGE(sound);
   lcdRefresh();
@@ -261,4 +239,118 @@ void drawProgressScreen(const char * title, const char * message, int num, int d
     lcdDrawSolidHorizontalLine(6, 6*FH+8, width, FORCE);
   }
   lcdRefresh();
+}
+
+void CLEAR_POPUP()
+{
+  warningText = nullptr;
+  warningInfoText = nullptr;
+  popupMenuTitle = nullptr;
+  popupMenuHandler = nullptr;
+  popupMenuItemsCount = 0;
+}
+
+void POPUP_WAIT(const char * s)
+{
+  warningText = s;
+  warningInfoText = nullptr;
+  warningType = WARNING_TYPE_WAIT;
+  popupFunc = runPopupWarning;
+}
+
+void POPUP_INFORMATION(const char * s)
+{
+  warningText = s;
+  warningInfoText = nullptr;
+  warningType = WARNING_TYPE_INFO;
+  popupFunc = runPopupWarning;
+}
+
+void POPUP_WARNING(const char * message, const char * info, bool waitForClose)
+{
+  (void)waitForClose;
+
+  warningText = message;
+  warningInfoText = info;
+  warningInfoLength = info ? strlen(info) : 0;
+  warningInfoFlags = 0;
+  warningType = WARNING_TYPE_ASTERISK;
+  popupFunc = runPopupWarning;
+}
+
+void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags)
+{
+  warningInfoText = info;
+  warningInfoLength = length;
+  warningInfoFlags = flags;
+}
+
+void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler)
+{
+  if (s != warningText) {
+    killAllEvents();
+    warningText = s;
+    warningInfoText = nullptr;
+    warningType = WARNING_TYPE_CONFIRM;
+    popupFunc = runPopupWarning;
+    popupMenuHandler = handler;
+  }
+}
+
+void POPUP_INPUT(const char * s, PopupFunc func)
+{
+  warningText = s;
+  warningInfoText = nullptr;
+  warningType = WARNING_TYPE_INPUT;
+  popupFunc = func;
+}
+
+bool isEventCaughtByPopup()
+{
+  if (warningText && warningType != WARNING_TYPE_WAIT)
+    return true;
+
+  if (popupMenuItemsCount > 0)
+    return true;
+
+  return false;
+}
+
+void POPUP_MENU_ADD_ITEM(const char * s)
+{
+  popupMenuOffsetType = MENU_OFFSET_INTERNAL;
+  if (popupMenuItemsCount < POPUP_MENU_MAX_LINES) {
+    popupMenuItems[popupMenuItemsCount++] = s;
+  }
+}
+
+void POPUP_MENU_SELECT_ITEM(uint8_t index)
+{
+  popupMenuSelectedItem =  (index > 0 ? (index < popupMenuItemsCount ? index : popupMenuItemsCount) : 0);
+}
+
+void POPUP_MENU_TITLE(const char * s)
+{
+  popupMenuTitle = s;
+}
+
+void POPUP_MENU_START(PopupMenuHandler handler)
+{
+  killAllEvents();
+  if (handler != popupMenuHandler) {
+    AUDIO_KEY_PRESS();
+    popupMenuHandler = handler;
+  }
+}
+
+void POPUP_MENU_START(PopupMenuHandler handler, int count, ...)
+{
+  va_list ap;
+  va_start(ap, count);
+  for(int i = 0; i < count; i += 1) {
+      const char* s = va_arg(ap, const char*);
+      POPUP_MENU_ADD_ITEM(s);
+  }
+  va_end(ap);
+  POPUP_MENU_START(handler);
 }

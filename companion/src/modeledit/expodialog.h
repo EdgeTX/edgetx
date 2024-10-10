@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -20,15 +21,15 @@
 
 #pragma once
 
-#include <QtWidgets>
 #include "eeprominterface.h"
-#include "modelprinter.h"
 
-class GVarGroup;
+#include <QtWidgets>
+
 class CompoundItemModelFactory;
 class FilteredItemModelFactory;
 class CurveRefFilteredFactory;
 class CurveReferenceUIManager;
+class SourceNumRefEditor;
 
 namespace Ui {
   class ExpoDialog;
@@ -58,13 +59,14 @@ class ExpoDialog : public QDialog {
     Firmware * firmware;
     ExpoData * ed;
     QString & inputName;
-    GVarGroup * gvWeightGroup;
-    GVarGroup * gvOffsetGroup;
+    SourceNumRefEditor * weightEditor;
+    SourceNumRefEditor * offsetEditor;
     CurveReferenceUIManager * curveGroup;
-    ModelPrinter modelPrinter;
     bool lock;
     QCheckBox * cb_fp[CPN_MAX_FLIGHT_MODES];
     FilteredItemModelFactory *dialogFilteredItemModels;
     CurveRefFilteredFactory *curveRefFilteredItemModels;
     int carryTrimFilterFlags = 0;
+
+    void shrink();
 };

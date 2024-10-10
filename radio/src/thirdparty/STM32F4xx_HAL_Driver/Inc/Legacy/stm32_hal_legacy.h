@@ -447,7 +447,7 @@ extern "C" {
 #define FLASH_ERROR_NONE              HAL_FLASH_ERROR_NONE
 #define FLASH_ERROR_RD                HAL_FLASH_ERROR_RD
 #define FLASH_ERROR_PG                HAL_FLASH_ERROR_PROG
-#define FLASH_ERROR_PGP               HAL_FLASH_ERROR_PGS
+//#define FLASH_ERROR_PGP               HAL_FLASH_ERROR_PGS
 #define FLASH_ERROR_WRP               HAL_FLASH_ERROR_WRP
 #define FLASH_ERROR_OPTV              HAL_FLASH_ERROR_OPTV
 #define FLASH_ERROR_OPTVUSR           HAL_FLASH_ERROR_OPTVUSR

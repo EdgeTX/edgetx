@@ -1,16 +1,19 @@
 set(SIMULATOR_INSTALL_PREFIX "" CACHE STRING "Alternative simulator library search path")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "(Linux|FreeBSD)")
-  set(C9X_NAME_SUFFIX ${VERSION_MAJOR}${VERSION_MINOR})
-  set(COMPANION_NAME "companion${C9X_NAME_SUFFIX}")
-  set(SIMULATOR_NAME "simulator${C9X_NAME_SUFFIX}")
+  set(APP_NAME_SUFFIX ${VERSION_MAJOR}${VERSION_MINOR})
+  set(COMPANION_NAME "companion${APP_NAME_SUFFIX}")
+  set(SIMULATOR_NAME "simulator${APP_NAME_SUFFIX}")
+  # by default cmake sets CMAKE_INSTALL_PREFIX to /usr/local however linuxdeploy works best with '/usr' as base directory
+  if (${CMAKE_INSTALL_PREFIX} MATCHES "/usr/local")
+    set(CMAKE_INSTALL_PREFIX "/usr")
+  endif()
   if (NOT ${SIMULATOR_INSTALL_PREFIX} STREQUAL "")
     set(SIMULATOR_LIB_PATH ${SIMULATOR_INSTALL_PREFIX}/lib/${COMPANION_NAME})
   else()
     set(SIMULATOR_LIB_PATH "../lib/${COMPANION_NAME}")
   endif()
   message(STATUS "Simulators library search path: " ${SIMULATOR_LIB_PATH})
-  set(SIMULATOR_LIB_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
 else()
   set(COMPANION_NAME "companion")
   set(SIMULATOR_NAME "simulator")
@@ -20,10 +23,6 @@ endif()
 # will be called under /Applications. We include the version string to make installing
 # different versions for different eeproms easier, i.e. without manually renaming
 set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
-
-# On OS X we copy dfu-util to the application bundle. This the path from which we copy
-# the binary (default homebrew path)
-set(DFU_UTIL_PATH "/usr/local/bin/dfu-util")
 
 option(DEBUG_STORAGE_IMPORT "Turn on debug output for storage import") # Disabled by default
 if(DEBUG_STORAGE_IMPORT)
@@ -48,9 +47,12 @@ if(WIN32)
   endif()
 endif()
 
-if(SDL_FOUND)
-  include_directories(${SDL_INCLUDE_DIR})
+if(SDL2_FOUND)
+  include_directories(${SDL2_INCLUDE_DIRS})
   add_definitions(-DJOYSTICKS)
+  if(TARGET SDL2::SDL2)
+    set(SDL2_LIBRARIES SDL2::SDL2)
+  endif()
 endif()
 
 add_definitions(${APP_COMMON_DEFINES})  # set in top-level CMakeLists
@@ -78,8 +80,6 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
-use_cxx11()  # ensure gnu++11 in CXX_FLAGS with CMake < 3.1
-
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -88,11 +88,11 @@ include_directories(
   ${COMPANION_SRC_DIRECTORY}/shared
   ${SIMU_SRC_DIRECTORY}
   ${COMPANION_SRC_DIRECTORY}/thirdparty/qcustomplot
-  ${COMPANION_SRC_DIRECTORY}/thirdparty/miniz
   ${COMPANION_SRC_DIRECTORY}/storage
 )
 
 ############# Do macro replacements on input files #############
+
 configure_file(${COMPANION_SRC_DIRECTORY}/version.h.in ${CMAKE_BINARY_DIR}/version.h @ONLY)
 configure_file(${COMPANION_SRC_DIRECTORY}/companion.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop @ONLY)
 configure_file(${COMPANION_SRC_DIRECTORY}/simulator.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop @ONLY)
@@ -102,7 +102,7 @@ configure_file(${COMPANION_SRC_DIRECTORY}/simulator.desktop.in ${CMAKE_CURRENT_B
 ### Generate .qm files and assemble resource (qrc) file.
 
 # available Companion translations (src/translations/*.ts)
-set(LANGUAGES cs da de en es fi fr it pl ru sv zh_CN ja)
+set(LANGUAGES cs da de en es fi fr he it ja nl pl pt ru sv zh_CN zh_TW)
 foreach(language ${LANGUAGES})
   list(APPEND companion_TS translations/companion_${language}.ts)
 endforeach(language)
@@ -129,20 +129,35 @@ foreach(qm_file ${companion_QM} ${qt_QM} ${qtbase_QM})
 endforeach()
 configure_file(${COMPANION_SRC_DIRECTORY}/translations.qrc.in ${TRANSLATIONS_QRC} @ONLY)
 
-### Add optional "translations" target for updating .ts files
+### Add optional "companion_translations" target for updating .ts files
 if(QT_LUPDATE_EXECUTABLE)
   add_custom_target(companion_translations
     WORKING_DIRECTORY ${COMPANION_SRC_DIRECTORY}
-    COMMAND ${QT_LUPDATE_EXECUTABLE} ${CMAKE_SOURCE_DIR} -no-obsolete -ts ${companion_TS}
+    COMMAND ${QT_LUPDATE_EXECUTABLE} ${COMPANION_SRC_DIRECTORY} -no-obsolete -ts ${companion_TS}
     )
 else()
-  message(STATUS "Qt lupdate not found, 'translations' target will not be availabe.")
+  message(STATUS "Qt lupdate not found, 'companion_translations' target will not be availabe.")
 endif()
+
+############# Import radio hardware definitions ###############
+
+set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
+set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
+set(HWDEFS_PHDR "HWDEF_JSON_LIST")
+set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
+set(HWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_hwdefs_qrc.py")
+
+add_custom_command(OUTPUT ${HWDEFS_QRC}
+  COMMAND ${HWDEFS_CMD} -d ${HWDEFS_DIR}
+                        -t ${HWDEFS_TMPL}
+                        -p ${HWDEFS_PHDR}
+                        -o ${HWDEFS_QRC}
+  DEPENDS ${HWDEFS_TMPL}
+  )
 
 ############# Common lib ###############
 
 set(common_SRCS
-  appdebugmessagehandler.cpp
   customdebug.cpp
   helpers.cpp
   translations.cpp
@@ -151,7 +166,6 @@ set(common_SRCS
   )
 
 set(common_MOC_HDRS
-  appdebugmessagehandler.h
   helpers.h
   modeledit/node.h
   )
@@ -159,6 +173,7 @@ set(common_MOC_HDRS
 set(common_RESOURCES
   companion.qrc
   ${TRANSLATIONS_QRC}
+  ${HWDEFS_QRC}
   )
 
 qt5_wrap_cpp(common_SRCS ${common_MOC_HDRS})
@@ -167,15 +182,17 @@ qt5_add_resources(common_RCC ${common_RESOURCES})
 add_library(common ${common_SRCS} ${common_RCC})
 
 target_link_libraries(common
+  datamodels
   firmwares
-  storage
+  shared
   simulation
-  maxLibQtWidgets
+  storage
+  maxLibQt
   Qt5::Core
   Qt5::Xml
   Qt5::Widgets
   ${PTHREAD_LIBRARY}
-  ${SDL_LIBRARY}
+  ${SDL2_LIBRARIES}
   ${WIN_LINK_LIBRARIES}
   )
 
@@ -183,116 +200,84 @@ set(CPN_COMMON_LIB common)
 
 ############# Supporting libraries ###############
 
+include(FetchMiniz)
+include(FetchYamlCpp)
+
+include(FetchMaxLibQt)
+
 add_subdirectory(datamodels)
 add_subdirectory(firmwares)
-add_subdirectory(shared)
-add_subdirectory(modeledit)
 add_subdirectory(generaledit)
+add_subdirectory(modeledit)
+add_subdirectory(shared)
 add_subdirectory(simulation)
 add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
-add_subdirectory(thirdparty/maxlibqt/src/widgets)
-add_subdirectory(thirdparty/miniz)
 add_subdirectory(updates)
-
-set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "Enable testing" FORCE)
-set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "Enable parse tools" FORCE)
-set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "Enable contrib stuff in library" FORCE)
-set(YAML_CPP_INSTALL OFF CACHE BOOL "Enable generation of install target" FORCE)
-add_subdirectory(thirdparty/yaml-cpp)
 
 ############# Companion ###############
 
+include_directories(${maxLibQt_SOURCE_DIR}/widgets)
+
+set(companion_NAMES
+  apppreferencesdialog
+  burnconfigdialog
+  comparedialog
+  customizesplashdialog
+  flasheepromdialog
+  flashfirmwaredialog
+  helpers_html
+  labels
+  logsdialog
+  mainwindow
+  mdichild
+  modelprinter
+  modelslist
+  multimodelprinter
+  printdialog
+  process_copy
+  process_flash
+  process_sync
+  profilechooser
+  progressdialog
+  progresswidget
+  radiointerface
+  radionotfound
+  splashlibrarydialog
+  styleeditdialog
+  wizarddata
+  wizarddialog
+  dialogs/filesyncdialog
+  )
+
+foreach(name ${companion_NAMES})
+  set(companion_SRCS
+    ${companion_SRCS}
+    ${name}.cpp
+  )
+
+  set(companion_HDRS
+    ${companion_HDRS}
+    ${name}.h
+  )
+endforeach()
+
 set(companion_SRCS
-  helpers_html.cpp
-  mdichild.cpp
-  modelslist.cpp
-  labels.cpp
-  apppreferencesdialog.cpp
-  burnconfigdialog.cpp
-  multimodelprinter.cpp
-  comparedialog.cpp
-  customizesplashdialog.cpp
-  radiointerface.cpp
-  progresswidget.cpp
-  progressdialog.cpp
-  process_copy.cpp
-  process_flash.cpp
-  process_sync.cpp
-  flashfirmwaredialog.cpp
-  flasheepromdialog.cpp
-  printdialog.cpp
-  modelprinter.cpp
-  logsdialog.cpp
-  splashlibrarydialog.cpp
-  mainwindow.cpp
+  ${companion_SRCS}
   companion.cpp
-  radionotfound.cpp
-  wizarddata.cpp
-  wizarddialog.cpp
-  styleeditdialog.cpp
-  dialogs/filesyncdialog.cpp         # TODO move to own lib with other dialogs
-  profilechooser.cpp
-  )
+)
 
-set(companion_MOC_HDRS
-  apppreferencesdialog.h
-  burnconfigdialog.h
-  comparedialog.h
-  printdialog.h
-  logsdialog.h
-  customizesplashdialog.h
-  splashlibrarydialog.h
+set(companion_HDRS
+  ${companion_HDRS}
   splashlabel.h
-  progresswidget.h
-  progressdialog.h
-  process_copy.h
-  process_flash.h
-  process_sync.h
-  flashfirmwaredialog.h
-  flasheepromdialog.h
-  mdichild.h
-  mainwindow.h
-  radionotfound.h
-  wizarddialog.h
-  modelprinter.h
-  multimodelprinter.h
-  modelslist.h
-  labels.h
-  styleeditdialog.h
-  helpers_html.h
-  dialogs/filesyncdialog.h
-  profilechooser.h
-  )
-
-set(companion_UIS
-  mdichild.ui
-  comparedialog.ui
-  logsdialog.ui
-  apppreferencesdialog.ui
-  burnconfigdialog.ui
-  printdialog.ui
-  htmldialog.ui
-  customizesplashdialog.ui
-  splashlibrarydialog.ui
-  progresswidget.ui
-  progressdialog.ui
-  flashfirmwaredialog.ui
-  flasheepromdialog.ui
-  radionotfound.ui
-  styleeditdialog.ui
-  profilechooser.ui
-  )
+)
 
 if(WIN32)
   set(icon_RC images/winicons/icon.rc)
 endif()
 
-qt5_wrap_ui(companion_SRCS ${companion_UIS})
-qt5_wrap_cpp(companion_SRCS ${companion_MOC_HDRS})
-
-add_executable(${COMPANION_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${companion_SRCS} ${icon_RC})
-target_link_libraries(${COMPANION_NAME} PRIVATE generaledit modeledit qcustomplot miniz shared updates ${CPN_COMMON_LIB})
+add_executable(${COMPANION_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${companion_SRCS} ${companion_HDRS} ${icon_RC})
+target_link_libraries(${COMPANION_NAME} PRIVATE ${CPN_COMMON_LIB} generaledit modeledit qcustomplot miniz updates)
 
 PrintTargetReport("${COMPANION_NAME}")
 
@@ -315,30 +300,58 @@ elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T12)
   set(FLAVOUR t12)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITE)
   set(FLAVOUR tlite)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITEF4)
+  set(FLAVOUR tlitef4)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPRO)
   set(FLAVOUR tpro)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPROV2)
+  set(FLAVOUR tprov2)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPROS)
+  set(FLAVOUR tpros)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20)
+  set(FLAVOUR t20)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20V2)
+  set(FLAVOUR t20v2)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12)
   set(FLAVOUR tx12)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12MK2)
   set(FLAVOUR tx12mk2)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL ZORRO)
   set(FLAVOUR zorro)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL BOXER)
+  set(FLAVOUR boxer)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL POCKET)
+  set(FLAVOUR pocket)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
   set(FLAVOUR lr3pro)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL COMMANDO8)
   set(FLAVOUR commando8)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T8)
   set(FLAVOUR t8)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL MT12)
+  set(FLAVOUR mt12)
 elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   set(FLAVOUR x9d+2019)
 elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
   set(FLAVOUR x10express)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T16)
-  set(FLAVOUR t16)
 elseif(PCB STREQUAL X10 AND PCBREV STREQUAL TX16S)
   set(FLAVOUR tx16s)
+elseif(PCB STREQUAL X10 AND PCBREV STREQUAL F16)
+  set(FLAVOUR f16)
+elseif(PCB STREQUAL X10 AND PCBREV STREQUAL V16)
+  set(FLAVOUR v16)
+elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T14)
+  set(FLAVOUR t14)
+elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T15)
+  set(FLAVOUR t15)
+elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T16)
+  set(FLAVOUR t16)
 elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T18)
   set(FLAVOUR t18)
+elseif(PCB STREQUAL NV14 AND PCBREV STREQUAL EL18)
+  set(FLAVOUR el18)
+elseif(PCB STREQUAL PL18)
+  set(FLAVOUR pl18)
 else()
   string(TOLOWER ${PCB} FLAVOUR)
 endif()
@@ -346,28 +359,40 @@ if(POLICY CMP0026)
   cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX}/bin)
+include(FindDfuutil)
+include(FindLibusb1)
+include(FindOpenSSL)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION "${SIMULATOR_LIB_INSTALL_PATH}")
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION share/applications RENAME companion${C9X_NAME_SUFFIX}.desktop)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION share/applications RENAME simulator${C9X_NAME_SUFFIX}.desktop)
-  if(${CMAKE_INSTALL_PREFIX} MATCHES "/usr/local")
-    set(INSTALL_TEMP_SHR_PFX "/usr/")
-    set(INSTALL_TEMP_LIB_PFX "/")
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME companion${APP_NAME_SUFFIX}.desktop)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME simulator${APP_NAME_SUFFIX}.desktop)
+  install(FILES images/linuxicons/16x16/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/16x16/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/22x22/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/22x22/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/24x24/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/24x24/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/32x32/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/32x32/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/48x48/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/48x48/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/128x128/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/128x128/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/256x256/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/256x256/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/512x512/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/512x512/apps RENAME companion${APP_NAME_SUFFIX}.png)
+  install(FILES images/linuxicons/scalable/companion.svg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps RENAME companion${APP_NAME_SUFFIX}.svg)
+  install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-taranis.rules)
+  install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-usbasp.rules)
+
+  if(LIBSSL1_FOUND)
+    install(DIRECTORY ${LIBSSL1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
   endif()
-  install(FILES images/linuxicons/16x16/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/16x16/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/22x22/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/22x22/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/24x24/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/24x24/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/32x32/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/32x32/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/48x48/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/48x48/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/128x128/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/128x128/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/256x256/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/256x256/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/512x512/companion.png DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/512x512/apps RENAME companion${C9X_NAME_SUFFIX}.png)
-  install(FILES images/linuxicons/scalable/companion.svg DESTINATION ${INSTALL_TEMP_SHR_PFX}share/icons/hicolor/scalable/apps RENAME companion${C9X_NAME_SUFFIX}.svg)
-  install(FILES ../targets/linux/45-companion-taranis.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-taranis.rules)
-  install(FILES ../targets/linux/45-usbasp.rules DESTINATION ${INSTALL_TEMP_LIB_PFX}lib/udev/rules.d RENAME 45-companion${C9X_NAME_SUFFIX}-usbasp.rules)
+
+  if(LIBUSB1_FOUND)
+    install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libusb-1.0.so*")
+    if(DFU_UTIL_FOUND)
+      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    endif()
+  endif()
+
   # Linux specific code
   set(OperatingSystem "Linux")
   # Shortcut target
@@ -380,50 +405,69 @@ elseif(WIN32)
   install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
+
   # supporting utilities
-  set(INSTALL_TEMP_FILES dfu-util.exe libusb0.dll libusb-1.0.dll license.txt)
-  foreach(tmpfile ${INSTALL_TEMP_FILES})
-    install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/${tmpfile}" DESTINATION ${INSTALL_DESTINATION})
-  endforeach()
+  if(LIBUSB1_FOUND)
+    if(MINGW)
+      set(LIBUSB1_LIBRARY_DIR "${LIBUSB1_LIBRARY_DIR}/../bin")
+    endif()
+
+    set(LIBUSB1_LIBRARY_FILE "${LIBUSB1_LIBRARY_DIR}/libusb-1.0.dll")
+
+    if(EXISTS "${LIBUSB1_LIBRARY_FILE}")
+      install(FILES "${LIBUSB1_LIBRARY_FILE}" DESTINATION ${INSTALL_DESTINATION})
+    endif()
+
+    if(DFU_UTIL_FOUND)
+      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${INSTALL_DESTINATION})
+    endif()
+  endif()
+
+  if(OPENSSL_FOUND)
+    if ((OPENSSL_VERSION VERSION_LESS "1.2.0" AND Qt5Core_VERSION VERSION_LESS "6.0.0") OR (OPENSSL_VERSION VERSION_GREATER "3.0.0" AND Qt5Core_VERSION VERSION_GREATER_EQUAL "6.0.0"))
+      get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+      if(MINGW)
+        # the dlls are stored in the bin directory
+        set(OPENSSL_SSL_LIBRARY_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
+      endif()
+      if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
+        # install only files Qt networking requires
+        install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
+      endif()
+    endif()
+  endif()
+
+  if(NOT OPENSSL_FOUND OR Qt5Core_VERSION VERSION_LESS "6.0.0")
+    if(MINGW AND $ENV{MSYSTEM} STREQUAL "MINGW32")
+      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libcrypto-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
+      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libssl-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
+    else()
+      # MINGW64 or assume 64 bit native
+      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libcrypto-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION})
+      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libssl-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION})
+    endif()
+  endif()
+
+  set(LICENSE_FILE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
+  configure_file("${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt.in" ${LICENSE_FILE} @ONLY)
+  install(FILES "${LICENSE_FILE}" DESTINATION ${INSTALL_DESTINATION})
+
+  if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
+    install(FILES "${SDL2_LIB_PATH}" DESTINATION ${INSTALL_DESTINATION})
+  endif()
 
   # Qt dlls (using windeployqt)
   ## Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.
   set(wdqtopts --no-translations --no-opengl-sw --no-system-d3d-compiler --no-angle)
   if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(wdqtopts ${wdqtopts} --release)  # release builds aren't always properly detected with mingw
+    #set(wdqtopts ${wdqtopts} --release)  # release builds aren't always properly detected with mingw
+    set(wdqtopts ${wdqtopts} --debug)  # workaround for bug in Qt 5.15 windeployqt.exe
   endif()
   set(wdqtopts ${wdqtopts} -dir "\"${INSTALL_DESTINATION}\"" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${COMPANION_NAME}.exe" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${SIMULATOR_NAME}.exe")
   list(JOIN wdqtopts " " wdqtopts)
 
   # Add installer command to execute windeployqt
   message(STATUS "windeployqt command: ${QT_BIN_DIR}/windeployqt.exe ${wdqtopts}")
-
-  # SDL dll
-  if(SDL_FOUND AND EXISTS "${SDL_LIBRARY_PATH}/SDL.dll")
-    set(SDL_DIR ${SDL_LIBRARY_PATH})  # this is also used by NSIS installer script
-    install(FILES ${SDL_DIR}/SDL.dll DESTINATION ${INSTALL_DESTINATION})
-  elseif(SDL_FOUND)
-    message(WARNING "Installer: SDL.dll not found, set SDL_LIBRARY_PATH manually.")
-  endif()
-
-  # SSL dlls (used by QtNetwork)
-  file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" WIN_PROGRAM_FILES)
-  # try 64-bit
-  find_path(SSL_LIB_DIR libssl-1_1-x64.dll libssl-1_1-x86.dll HINTS
-    "${WIN_PROGRAM_FILES}/OpenSSL" "${WIN_PROGRAM_FILES}/OpenSSL-Win32"
-    "C:/OpenSSL/" "C:/OpenSSL-Win32/"
-    "${WIN_EXTRA_LIBS_PATH}" "${WIN_EXTRA_LIBS_PATH}/OpenSSL" "${WIN_EXTRA_LIBS_PATH}/OpenSSL-Win32"
-    "${MINGW_DIR}/../opt/bin"
-    "${PYTHON_DIRECTORY}/lib/site-packages/PyQt4"
-    PATH_SUFFIXES bin
-    DOC "Path to OpenSSL for Windows 1.1"
-  )
-  if (SSL_LIB_DIR)
-    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x64.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-    install(FILES "${SSL_LIB_DIR}/libssl-1_1-x86.dll" "${SSL_LIB_DIR}/libcrypto-1_1-x86.dll" DESTINATION ${INSTALL_DESTINATION} OPTIONAL)
-  else()
-    message(WARNING "Installer: SSL libs not found, set SSL_LIB_DIR manually.")
-  endif()
 endif() # WIN32 install
 
 ############# Packaging ####################
@@ -453,7 +497,7 @@ if(WIN32)
   endif()
 endif()
 
-set(CPACK_PACKAGE_NAME "companion${C9X_NAME_SUFFIX}")
+set(CPACK_PACKAGE_NAME "companion${APP_NAME_SUFFIX}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Models and settings editor for the EdgeTX open source firmware")
 string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
 
@@ -516,11 +560,18 @@ IF(APPLE)
   install(FILES ${MAC_ICON_FILE} DESTINATION ${companion_res_dir} COMPONENT Runtime)
 
   # Copy dfu-util, resolve symlink first
-  get_filename_component(DFU_UTIL_ABSOLUTE_PATH ${DFU_UTIL_PATH} REALPATH)
-  install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
+  if(DFU_UTIL_FOUND)
+    get_filename_component(DFU_UTIL_ABSOLUTE_PATH ${DFU_UTIL_PATH} REALPATH)
+    install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
 
-  set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
+    set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
+  endif()
 
+  if(OPENSSL_FOUND)
+    # Copy openssl, resolve symlink first
+    #get_filename_component(OPENSSL_ABSOLUTE_PATH ${OPENSSL_SSL_LIBRARY} REALPATH)
+    #install(FILES ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
+  endif()
 
   # Include depencies (adding frameworks, fixing the embbeded libraries)
   # I get write errors without setting BU_CHMOD_BUNDLE_ITEMS even though it is
@@ -544,38 +595,55 @@ if(APPLE)
   set(CPACK_PACKAGE_FILE_NAME "edgetx-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
 endif(APPLE)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  get_filename_component(_qt_bin_dir "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
-  find_program(LINUXDEPLOY_EXECUTABLE linuxdeployqt HINTS "${_qt_bin_dir}")
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(LINUXDEPLOY_APPIMAGE "linuxdeploy-x86_64.AppImage")
+  set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
+  set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
+  set(LINUXDEPLOY_PLUGIN_QT_URL "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous")
+  set(LINUXDEPLOY_DIRECTORY "${CMAKE_BINARY_DIR}/linuxdeploy")
+  set(LINUXDEPLOY_APP "${LINUXDEPLOY_DIRECTORY}/usr/bin/linuxdeploy")
 
-  if(NOT LINUXDEPLOY_EXECUTABLE)
-    message(STATUS "linuxdeployqt will be downloaded")
+  if (NOT EXISTS "${LINUXDEPLOY_DIRECTORY}")
+    message(STATUS "Downloading linuxdeploy and plugins...")
 
-    set(LINUXDEPLOY_EXECUTABLE "${CMAKE_BINARY_DIR}/deployqt/AppRun")
-    set(LINUXDEPLOY_URL "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage")
-    set(LINUXDEPLOY_BUNDLE "${CMAKE_BINARY_DIR}/linuxdeployqt.AppImage")
+    file(DOWNLOAD "${LINUXDEPLOY_URL}/${LINUXDEPLOY_APPIMAGE}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_APPIMAGE}")
+    file(DOWNLOAD "${LINUXDEPLOY_PLUGIN_QT_URL}/${LINUXDEPLOY_PLUGIN_QT}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_QT}")
 
-    if (NOT EXISTS "${LINUXDEPLOY_EXECUTABLE}")
-      file(DOWNLOAD "${LINUXDEPLOY_URL}" "${LINUXDEPLOY_BUNDLE}")
+    message(STATUS "Downloading linuxdeploy and plugins finished")
+
+    # for security reasons by default AppImages are prohibited from running in Docker containers
+    # so extract Appimage contents and run as normal apps
+
+    file(GLOB linuxdeployfiles ${CMAKE_BINARY_DIR}/linuxdeploy*.AppImage)
+
+    foreach(file ${linuxdeployfiles})
       execute_process(
-        COMMAND chmod +x "${LINUXDEPLOY_BUNDLE}"
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-      execute_process(
-        COMMAND "${LINUXDEPLOY_BUNDLE}" --appimage-extract
+        COMMAND chmod +x "${file}"
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-      file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/deployqt")
       execute_process(
-        COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" deployqt
+        COMMAND "${file}" --appimage-extract
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-      file(REMOVE "${LINUXDEPLOY_BUNDLE}")
-    endif()
+
+      file(REMOVE "${file}")
+    endforeach()
+
+    file(REMOVE_RECURSE "${LINUXDEPLOY_DIRECTORY}")
+
+    execute_process(
+      COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" "${LINUXDEPLOY_DIRECTORY}"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+    # test installation
+    #execute_process(
+    #  COMMAND ${LINUXDEPLOY_APP} --list-plugins
+    #  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
   endif()
 
   set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}")
   set(CPACK_GENERATOR "External")
 
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CPackLinuxDeployQt.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CPackLinuxDeploy.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
   set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${CMAKE_BINARY_DIR}/CPackExternal.cmake")
 endif()
 

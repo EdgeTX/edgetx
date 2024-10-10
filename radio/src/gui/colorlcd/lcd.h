@@ -19,11 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LCD_H_
-#define _LCD_H_
+#pragma once
 
-#include "bitmapbuffer.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 
 #include "colors.h"
 
@@ -33,7 +31,6 @@
 #if defined(BOOT)
   #define BLINK_ON_PHASE               (0)
 #else
-  #define FAST_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<5))
   #define BLINK_ON_PHASE               (g_blinkTmr10ms & (1<<6))
   #define SLOW_BLINK_ON_PHASE          (g_blinkTmr10ms & (1<<7))
 #endif
@@ -48,12 +45,11 @@ void lcdSetFlushCb(void (*cb)(lv_disp_drv_t *, uint16_t*, const rect_t&));
 // Init LVGL and its display driver
 void lcdInitDisplayDriver();
 
+void lcdClear();
+
 // Patch the draw context to allow for direct drawing
 void lcdInitDirectDrawing();
 
-inline void lcdClear() { lcd->clear(); }
-
 void lcdRefresh();
-void lcdFlushed();
 
-#endif // _LCD_H_
+void lcdFlushed();

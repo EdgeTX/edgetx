@@ -1,4 +1,5 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/releases/latest)
+[![GitHub all releases](https://img.shields.io/github/downloads/EdgeTX/edgetx/total)](https://github.com/EdgeTX/edgetx/releases)
 [![GitHub license](https://img.shields.io/github/license/Edgetx/edgetx)](https://github.com/EdgeTX/edgetx/blob/main/LICENSE)
 [![Commit Tests](https://github.com/EdgeTX/edgetx/actions/workflows/actions.yml/badge.svg)](https://github.com/EdgeTX/edgetx/actions/workflows/actions.yml)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/edgetx/edgetx/tree/main)
@@ -8,7 +9,7 @@
 
 
 <p align="center">
-<a href="url"><img src="https://github.com/EdgeTX/edgetx.github.io/blob/master/images/edgetx-v2.png" align="center" height="150" width="150" ></a>
+<a href="https://raw.githubusercontent.com/EdgeTX/edgetx.github.io/master/docs/assets/logo.png"><img src="https://raw.githubusercontent.com/EdgeTX/edgetx.github.io/master/docs/assets/logo.png" align="center" height="150" width="150" ></a>
 
 # Welcome to EdgeTX!
 **The cutting edge open-source firmware for your R/C radio!**
@@ -28,7 +29,7 @@ EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and
 
 > [Community Guidelines](https://github.com/EdgeTX/edgetx.github.io/wiki/Community-Guidlines)
 
-> [Installation Guide](https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide)
+> [Installation Guide](https://edgetx.gitbook.io/edgetx-user-manual/edgetx-how-to/update-from-opentx-to-edgetx)
 
 > [Installation Video](https://www.youtube.com/watch?v=Y9OvW9XCjOs)
 

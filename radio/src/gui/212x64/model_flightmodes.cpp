@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 void displayFlightModes(coord_t x, coord_t y, FlightModesType value)
 {
@@ -46,7 +46,9 @@ enum FlightModesItems {
 
 bool isTrimModeAvailable(int mode)
 {
-  return (mode < 0 || (mode%2) == 0 || (mode/2) != menuVerticalPosition);
+  if (mode < 0 || mode == TRIM_MODE_3POS) return true;
+  if (menuVerticalPosition == 0) return mode == 0;
+  return (mode%2) == 0 || (mode/2) != menuVerticalPosition;
 }
 
 void menuModelFlightModesAll(event_t event)
@@ -70,14 +72,13 @@ void menuModelFlightModesAll(event_t event)
 
     if (k == MAX_FLIGHT_MODES) {
       // last line available - add the "check trims" line
-      lcdDrawTextAlignedLeft((LCD_LINES-1)*FH+1, STR_CHECKTRIMS);
+      lcdDrawText(CENTER_OFS, (LCD_LINES-1)*FH+1, STR_CHECKTRIMS);
       drawFlightMode(OFS_CHECKTRIMS, (LCD_LINES-1)*FH+1, mixerCurrentFlightMode+1);
       if (sub == MAX_FLIGHT_MODES) {
         if (!trimsCheckTimer) {
-          if (event == EVT_KEY_FIRST(KEY_ENTER)) {
+          if (event == EVT_KEY_BREAK(KEY_ENTER)) {
             trimsCheckTimer = 200; // 2 seconds trims cancelled
             s_editMode = 1;
-            killEvents(event);
           }
           else {
             lcdInvertLastLine();
@@ -85,10 +86,9 @@ void menuModelFlightModesAll(event_t event)
           }
         }
         else {
-          if (event == EVT_KEY_FIRST(KEY_EXIT)) {
+          if (event == EVT_KEY_BREAK(KEY_EXIT)) {
             trimsCheckTimer = 0;
             s_editMode = 0;
-            killEvents(event);
           }
         }
       }
@@ -123,7 +123,7 @@ void menuModelFlightModesAll(event_t event)
           drawTrimMode((4+LEN_FLIGHT_MODE_NAME)*FW+j*(5*FW/2), y, k, t, attr);
           if (active) {
             trim_t & v = p->trim[t];
-            v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, k==0 ? 0 : 2*MAX_FLIGHT_MODES-1, EE_MODEL, isTrimModeAvailable);
+            v.mode = checkIncDec(event, v.mode==TRIM_MODE_NONE ? -1 : v.mode, -1, 2*MAX_FLIGHT_MODES, EE_MODEL, isTrimModeAvailable);
           }
           break;
         }

@@ -1,0 +1,11 @@
+const hw_key_def _hw_key_defs[] = {
+{% for key in keys %}
+  { "{{ key.name }}", {{ key.key }} },
+{% endfor %}
+};
+
+const char* const _hw_trim_defs[] = {
+{% for trim in trims %}
+  "{{ trim.name }}",
+{% endfor %}
+};

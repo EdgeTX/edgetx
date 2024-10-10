@@ -19,11 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
-#if defined(SPLASH)
 #define MAXIMUM_SPLASH_IMAGE_SIZE 3072
-struct {
+const struct {
   const uint8_t __magic_prefix[4] = { 'S','P','S',0 };
   const uint8_t splashdata[MAXIMUM_SPLASH_IMAGE_SIZE] = {
     #include "bitmaps/212x64/splash.lbm"
@@ -39,4 +38,3 @@ void drawSplash()
   lcdDrawRleBitmap(0, 0, splash_lbm);
   lcdRefresh();
 }
-#endif

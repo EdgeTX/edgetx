@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -29,7 +30,8 @@
   #undef main
 #endif
 
-#include "appdebugmessagehandler.h"
+#include <AppDebugMessageHandler>
+
 #include "customdebug.h"
 #include "mainwindow.h"
 #include "version.h"
@@ -38,6 +40,7 @@
 #include "storage.h"
 #include "translations.h"
 #include "helpers.h"
+#include "boardfactories.h"
 
 #ifdef __APPLE__
 #include <QProxyStyle>
@@ -222,11 +225,16 @@ int main(int argc, char *argv[])
   #ifdef SIMU_AUDIO
     sdlFlags |= SDL_INIT_AUDIO;
   #endif
+  #if defined(_WIN32) || defined(_WIN64)
+    putenv("SDL_AUDIODRIVER=directsound");
+  #endif
   if (SDL_Init(sdlFlags) < 0) {
     fprintf(stderr, "ERROR: couldn't initialize SDL: %s\n", SDL_GetError());
   }
 #endif
 
+  Q_INIT_RESOURCE(hwdefs);
+  gBoardFactories = new BoardFactories();
   registerStorageFactories();
   registerOpenTxFirmwares();
   SimulatorLoader::registerSimulators();
@@ -237,32 +245,30 @@ int main(int argc, char *argv[])
     profile.fwName("");
   }
 
-  QString splashScreen;
-  splashScreen = ":/images/splash.png";
-
-  QPixmap pixmap = QPixmap(splashScreen);
-  QSplashScreen *splash = new QSplashScreen(pixmap);
-
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.profile[g.id()].fwType()));
 
   MainWindow *mainWin = new MainWindow();
+  mainWin->show();
+
   if (g.showSplash()) {
-    splash->show();
-    QTimer::singleShot(1000*SPLASH_TIME, splash, SLOT(close()));
-    QTimer::singleShot(1000*SPLASH_TIME, mainWin, SLOT(show()));
-  }
-  else {
-    mainWin->show();
+    QSplashScreen *splash = new QSplashScreen(QPixmap(":/images/splash.png"));
+    QTimer::singleShot(1, [=] {
+      splash->show();
+    });
+    QTimer::singleShot(1000*SPLASH_TIME, [=] {
+      splash->close();
+      delete splash;
+    });
   }
 
   int result = app.exec();
 
-  delete splash;
   delete mainWin;
 
   SimulatorLoader::unregisterSimulators();
   unregisterOpenTxFirmwares();
   unregisterStorageFactories();
+  gBoardFactories->unregisterBoardFactories();
 
 #if defined(JOYSTICKS) || defined(SIMU_AUDIO)
   SDL_Quit();

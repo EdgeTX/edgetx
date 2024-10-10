@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -35,8 +36,7 @@ TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, 
   int modeid = editorItemModels->registerItemModel(TrainerMix::modeItemModel());
   int srcid = editorItemModels->registerItemModel(TrainerMix::srcItemModel());
 
-  Board::Type board = getCurrentBoard();
-  const int stickcnt = Boards::getCapability(board, Board::Sticks);
+  const int stickcnt = Boards::getCapability(getCurrentBoard(), Board::Sticks);
 
   const FieldRange weightrng = TrainerMix::getWeightRange();
 
@@ -50,9 +50,9 @@ TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, 
     addLabel(tr("Weight"), row, 2);
     addLabel(tr("Source"), row++, 3);
 
-    for (int i = 0; i < 4; i++, row++) {  //  TODO constant
+    for (int i = 0; i < stickcnt; i++, row++) {
       col = 0;
-      addLabel(Boards::getAnalogInputName(board, i), row, col++);
+      addLabel(Boards::getInputName(i), row, col++);
 
       AutoComboBox *mode = new AutoComboBox(this);
       mode->setModel(editorItemModels->getItemModel(modeid));

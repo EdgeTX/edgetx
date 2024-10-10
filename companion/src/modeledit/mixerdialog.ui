@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>531</width>
-    <height>571</height>
+    <width>763</width>
+    <height>655</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,6 +29,43 @@
    </property>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0">
+     <item row="2" column="1" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1">
+       <item>
+        <widget class="QCheckBox" name="chkWeightUseSource">
+         <property name="text">
+          <string>Source</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="cboWeightSource">
+         <property name="whatsThis">
+          <string>The source for the mixer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="sbWeightValue"/>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="sourceCB"/>
+     </item>
      <item row="5" column="0">
       <widget class="QLabel" name="trimLabel">
        <property name="text">
@@ -36,300 +73,27 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Offset</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Weight</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1" colspan="2">
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QLabel" name="lb_FP0">
-         <property name="text">
-          <string notr="true">0</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="lb_FP1">
-         <property name="text">
-          <string notr="true">1</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="lb_FP2">
-         <property name="text">
-          <string notr="true">2</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="lb_FP3">
-         <property name="text">
-          <string notr="true">3</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="lb_FP4">
-         <property name="text">
-          <string notr="true">4</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
-        <widget class="QLabel" name="lb_FP5">
-         <property name="text">
-          <string notr="true">5</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="6">
-        <widget class="QLabel" name="lb_FP6">
-         <property name="text">
-          <string notr="true">6</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="7">
-        <widget class="QLabel" name="lb_FP7">
-         <property name="text">
-          <string notr="true">7</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="8">
-        <widget class="QLabel" name="lb_FP8">
-         <property name="text">
-          <string notr="true">8</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="cb_FP0">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QCheckBox" name="cb_FP1">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QCheckBox" name="cb_FP2">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QCheckBox" name="cb_FP3">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <widget class="QCheckBox" name="cb_FP4">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="5">
-        <widget class="QCheckBox" name="cb_FP5">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="6">
-        <widget class="QCheckBox" name="cb_FP6">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="7">
-        <widget class="QCheckBox" name="cb_FP7">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="8">
-        <widget class="QCheckBox" name="cb_FP8">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_name">
-       <property name="text">
-        <string>Name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Source</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_9">
-       <property name="text">
-        <string>Multiplex</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Warning</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="curveTypeCB">
-       <property name="whatsThis">
-        <string>The curve used by the mix</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_MixDR">
-       <property name="text">
-        <string>Include DR/Expo</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_phases">
-       <property name="text">
-        <string>Flight modes</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Switch</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QCheckBox" name="MixDR_CB">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="1" colspan="2">
-      <widget class="QComboBox" name="warningCB">
-       <property name="whatsThis">
-        <string>Mixer warning.
-Setting this value will cause a beep to be emmitted when this value is active.</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>OFF</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>1 Beep</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2 Beep</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>3 Beep</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QComboBox" name="trimCB">
-       <item>
-        <property name="text">
-         <string>No</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Yes</string>
-        </property>
-       </item>
-      </widget>
+     <item row="8" column="1">
+      <widget class="QComboBox" name="switchesCB"/>
      </item>
      <item row="3" column="1" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,1">
        <item>
-        <widget class="QCheckBox" name="offsetGV">
+        <widget class="QCheckBox" name="chkOffsetUseSource">
          <property name="text">
-          <string>GV</string>
+          <string>Source</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="offsetCB">
+        <widget class="QComboBox" name="cboOffsetSource">
          <property name="whatsThis">
           <string>The source for the mixer</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="offsetSB"/>
+        <widget class="QSpinBox" name="sbOffsetValue"/>
        </item>
        <item>
         <spacer name="horizontalSpacer">
@@ -346,17 +110,29 @@ Setting this value will cause a beep to be emmitted when this value is active.</
        </item>
       </layout>
      </item>
-     <item row="10" column="1" colspan="2">
-      <widget class="QComboBox" name="mltpxCB">
-       <property name="whatsThis">
-        <string>Multiplexer
-
-This determines how mixer values are added.
-
-&quot;+&quot; means the value of the current mix is added to the previous mixes in the same channel.
-&quot;*&quot; means the value of the current mix is amultiplied with the previous mixes in the same channel.
-&quot;R&quot; means the value replaces the previous values.  If the switch is off the value will be ignored.</string>
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Warning</string>
        </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Weight</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Switch</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QComboBox" name="mltpxCB">
        <item>
         <property name="text">
          <string>ADD</string>
@@ -374,10 +150,24 @@ This determines how mixer values are added.
        </item>
       </widget>
      </item>
-     <item row="1" column="1" colspan="2">
-      <widget class="QComboBox" name="sourceCB">
-       <property name="whatsThis">
-        <string>The source for the mixer</string>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_MixDR">
+       <property name="text">
+        <string>Include DR/Expo</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>Source</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="mltpxLbl">
+       <property name="text">
+        <string>Multiplex</string>
        </property>
       </widget>
      </item>
@@ -388,76 +178,68 @@ This determines how mixer values are added.
        </property>
       </widget>
      </item>
-     <item row="2" column="1" colspan="2">
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,1">
-       <item>
-        <widget class="QCheckBox" name="weightGV">
-         <property name="text">
-          <string>GV</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="weightCB">
-         <property name="whatsThis">
-          <string>The source for the mixer</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="weightSB"/>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="mixerName"/>
      </item>
-     <item row="8" column="1" colspan="2">
-      <widget class="QComboBox" name="switchesCB">
+     <item row="5" column="1">
+      <widget class="QComboBox" name="trimCB">
+       <item>
+        <property name="text">
+         <string>No</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Yes</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="cboCurveType">
        <property name="whatsThis">
-        <string>Switch used by the mix.
-If blank then the mix is considered to be &quot;ON&quot; all the time.</string>
+        <string>The curve used by the mix</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QLineEdit" name="mixerName">
-       <property name="maxLength">
-        <number>6</number>
+     <item row="6" column="1">
+      <widget class="QCheckBox" name="MixDR_CB">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_name">
+       <property name="text">
+        <string>Name</string>
        </property>
       </widget>
      </item>
      <item row="4" column="2">
-      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0,0,0">
        <item>
-        <widget class="QCheckBox" name="curveGVarCB">
+        <widget class="QCheckBox" name="chkCurveUseSource">
          <property name="text">
-          <string>GV</string>
+          <string>Source</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="curveValueCB">
+        <widget class="QComboBox" name="cboCurveSource">
          <property name="whatsThis">
           <string>The source for the mixer</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="curveValueSB"/>
+        <widget class="QSpinBox" name="sbCurveValue"/>
        </item>
        <item>
-        <widget class="CurveImageWidget" name="curveImage">
+        <widget class="QComboBox" name="cboCurveFunc"/>
+       </item>
+       <item>
+        <widget class="CurveImageWidget" name="imgCurve">
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -475,48 +257,251 @@ If blank then the mix is considered to be &quot;ON&quot; all the time.</string>
          </property>
         </widget>
        </item>
+       <item>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_phases">
+       <property name="text">
+        <string>Modes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QComboBox" name="warningCB">
+       <item>
+        <property name="text">
+         <string>OFF</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1 Beep</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2 Beeps</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3 Beeps</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="7" column="1" colspan="2">
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="4">
+        <widget class="QLabel" name="lb_FP4">
+         <property name="text">
+          <string notr="true">4</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="lb_FP3">
+         <property name="text">
+          <string notr="true">3</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <widget class="QLabel" name="lb_FP7">
+         <property name="text">
+          <string notr="true">7</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="cb_FP0">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="lb_FP2">
+         <property name="text">
+          <string notr="true">2</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QCheckBox" name="cb_FP6">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="8">
+        <widget class="QCheckBox" name="cb_FP8">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="8">
+        <widget class="QLabel" name="lb_FP8">
+         <property name="text">
+          <string notr="true">8</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="7">
+        <widget class="QCheckBox" name="cb_FP7">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="cb_FP1">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QCheckBox" name="cb_FP5">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="lb_FP1">
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lb_FP0">
+         <property name="text">
+          <string notr="true">0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QLabel" name="lb_FP6">
+         <property name="text">
+          <string notr="true">6</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QCheckBox" name="cb_FP2">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QLabel" name="lb_FP5">
+         <property name="text">
+          <string notr="true">5</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QCheckBox" name="cb_FP4">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QCheckBox" name="cb_FP3">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="9">
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Offset</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
-    <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
-     <item row="0" column="1">
-      <widget class="QLabel" name="label_13">
-       <property name="text">
-        <string>Delay</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_14">
-       <property name="text">
-        <string>Slow</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>Up</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>Down</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QDoubleSpinBox" name="slowUpSB">
+    <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0">
+     <item row="3" column="1">
+      <widget class="QDoubleSpinBox" name="delayDownSB">
        <property name="whatsThis">
         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -536,15 +521,50 @@ p, li { white-space: pre-wrap; }
        <property name="decimals">
         <number>1</number>
        </property>
-       <property name="maximum">
-        <double>7.500000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.500000000000000</double>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_14">
+       <property name="text">
+        <string>Slow</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_13">
+       <property name="text">
+        <string>Delay</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_12">
+       <property name="text">
+        <string>Up</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>Down</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
       <widget class="QDoubleSpinBox" name="slowDownSB">
        <property name="whatsThis">
         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -573,7 +593,7 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
       <widget class="QDoubleSpinBox" name="delayUpSB">
        <property name="whatsThis">
         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -596,8 +616,8 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QDoubleSpinBox" name="delayDownSB">
+     <item row="2" column="2">
+      <widget class="QDoubleSpinBox" name="slowUpSB">
        <property name="whatsThis">
         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -617,25 +637,53 @@ p, li { white-space: pre-wrap; }
        <property name="decimals">
         <number>1</number>
        </property>
+       <property name="maximum">
+        <double>7.500000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_15">
+       <property name="text">
+        <string>Precision</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="speedPrecCB">
+       <item>
+        <property name="text">
+         <string>0.0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0.00</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="delayPrecCB">
+       <item>
+        <property name="text">
+         <string>0.0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0.00</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="2" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>
@@ -647,18 +695,16 @@ p, li { white-space: pre-wrap; }
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>mixerName</tabstop>
-  <tabstop>sourceCB</tabstop>
-  <tabstop>weightGV</tabstop>
-  <tabstop>weightCB</tabstop>
-  <tabstop>weightSB</tabstop>
-  <tabstop>offsetGV</tabstop>
-  <tabstop>offsetCB</tabstop>
-  <tabstop>offsetSB</tabstop>
-  <tabstop>curveTypeCB</tabstop>
-  <tabstop>curveGVarCB</tabstop>
-  <tabstop>curveValueCB</tabstop>
-  <tabstop>curveValueSB</tabstop>
+  <tabstop>chkWeightUseSource</tabstop>
+  <tabstop>cboWeightSource</tabstop>
+  <tabstop>sbWeightValue</tabstop>
+  <tabstop>chkOffsetUseSource</tabstop>
+  <tabstop>cboOffsetSource</tabstop>
+  <tabstop>sbOffsetValue</tabstop>
+  <tabstop>cboCurveType</tabstop>
+  <tabstop>chkCurveUseSource</tabstop>
+  <tabstop>cboCurveSource</tabstop>
+  <tabstop>sbCurveValue</tabstop>
   <tabstop>trimCB</tabstop>
   <tabstop>MixDR_CB</tabstop>
   <tabstop>cb_FP0</tabstop>
@@ -670,9 +716,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>cb_FP6</tabstop>
   <tabstop>cb_FP7</tabstop>
   <tabstop>cb_FP8</tabstop>
-  <tabstop>switchesCB</tabstop>
-  <tabstop>warningCB</tabstop>
-  <tabstop>mltpxCB</tabstop>
   <tabstop>delayUpSB</tabstop>
   <tabstop>delayDownSB</tabstop>
   <tabstop>slowUpSB</tabstop>

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -61,7 +62,7 @@ QString AdjustmentReference::toString(const ModelData * model, const bool sign) 
 
   switch(type) {
     case ADJUST_REF_GVAR:
-      ret = RawSource(SOURCE_TYPE_GVAR, abs(value) - 1).toString(model);
+      ret = RawSource(SOURCE_TYPE_GVAR, abs(value)).toString(model);
       if (value < 0)
         ret.prepend("-");
       else if (sign)

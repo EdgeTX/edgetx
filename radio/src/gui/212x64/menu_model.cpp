@@ -19,33 +19,37 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
-const MenuHandlerFunc menuTabModel[] = {
-  menuModelSelect,
-  menuModelSetup,
-  CASE_HELI(menuModelHeli)
-  CASE_FLIGHT_MODES(menuModelFlightModesAll)
-  menuModelExposAll,
-  menuModelMixAll,
-  menuModelLimits,
-  menuModelCurvesAll,
+const MenuHandler menuTabModel[]  = {
+  { menuModelSelect, nullptr },
+  { menuModelSetup, nullptr },
+#if defined(HELI)
+  { menuModelHeli, modelHeliEnabled },
+#endif
+#if defined(FLIGHT_MODES)
+  { menuModelFlightModesAll, modelFMEnabled },
+#endif
+  { menuModelExposAll, nullptr },
+  { menuModelMixAll, nullptr },
+  { menuModelLimits, nullptr },
+  { menuModelCurvesAll, modelCurvesEnabled },
 #if defined(GVARS) && defined(FLIGHT_MODES)
-  CASE_GVARS(menuModelGVars)
+  { menuModelGVars, modelGVEnabled },
 #endif
-  menuModelLogicalSwitches,
-  menuModelSpecialFunctions,
+  { menuModelLogicalSwitches, modelLSEnabled },
+  { menuModelSpecialFunctions, modelSFEnabled },
 #if defined(LUA_MODEL_SCRIPTS)
-  menuModelCustomScripts,
+  { menuModelCustomScripts, modelCustomScriptsEnabled },
 #endif
-  menuModelTelemetry,
-  menuModelDisplay
+  { menuModelTelemetry, modelTelemetryEnabled },
+  { menuModelDisplay, nullptr }
 };
 
-uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay)
+uint8_t editDelay(coord_t y, event_t event, uint8_t attr, const char * str, uint8_t delay, uint8_t prec)
 {
   lcdDrawTextAlignedLeft(y, str);
-  lcdDrawNumber(MIXES_2ND_COLUMN, y, delay, attr|PREC1|LEFT);
+  lcdDrawNumber(MIXES_2ND_COLUMN, y, delay, attr|prec|LEFT);
   if (attr) CHECK_INCDEC_MODELVAR_ZERO(event, delay, DELAY_MAX);
   return delay;
 }
@@ -61,14 +65,14 @@ uint8_t s_copySrcCh;
 
 uint8_t editNameCursorPos = 0;
 
-void editSingleName(coord_t x, coord_t y, const char * label, char *name, uint8_t size, event_t event, uint8_t active, uint8_t old_editMode)
+void editSingleName(coord_t x, coord_t y, const char * label, char *name, uint8_t size, event_t event, uint8_t active, uint8_t old_editMode, coord_t lblX)
 {
-  lcdDrawTextAlignedLeft(y, label);
+  lcdDrawText(lblX, y, label);
   TRACE("EDIT SINGLE NAME %s", name);
   editName(x, y, name, size, event, active, 0, old_editMode);
 }
 
 uint8_t s_currIdx;
 uint8_t s_currIdxSubMenu;
-uint16_t s_currSrcRaw;
+mixsrc_t s_currSrcRaw;
 uint16_t s_currScale;

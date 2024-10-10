@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -82,6 +83,7 @@ class MixesPanel : public ModelPanel
     void AddMixerLine(int dest);
     QString getMixerText(int dest, bool newChannel);
     void connectItemModelEvents(const int id);
+    void updateItemModels();
 };
 
 #endif // _MIXES_H_

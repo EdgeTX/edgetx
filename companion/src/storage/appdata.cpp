@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -256,12 +257,57 @@ bool JStickData::existsOnDisk()
   return (m_settings.value(settingsPath() % stick_axe_key(), -1).toInt() > -1);
 }
 
+JButtonData::JButtonData() : CompStoreObj(), index(-1)
+{
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+bool JButtonData::existsOnDisk()
+{
+  return (m_settings.value(settingsPath() % button_idx_key(), -1).toInt() > -1);
+}
+
+NamedJStickData::NamedJStickData() : CompStoreObj(), index(-1)
+{
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+bool NamedJStickData::existsOnDisk()
+{
+  return (m_settings.value(settingsPath() % stick_axe_key(), -1).toInt() > -1);
+}
+
+NamedJButtonData::NamedJButtonData() : CompStoreObj(), index(-1)
+{
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+bool NamedJButtonData::existsOnDisk()
+{
+  return (m_settings.value(settingsPath() % button_idx_key(), -1).toInt() > -1);
+}
+
+NamedJSData::NamedJSData() : CompStoreObj(), index(-1)
+{
+  CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+bool NamedJSData::existsOnDisk()
+{
+  return (m_settings.value(settingsPath() % jsName(), -1).toInt() > -1);
+}
+
 
 // ** Profile class********************
 
 Profile::Profile() : CompStoreObj(), index(-1)
 {
   CompStoreObj::addObjectMapping(propertyGroup(), this);
+}
+
+Profile::Profile(const Profile & rhs) : CompStoreObj(), index(-1)
+{
+  *this = rhs;
 }
 
 // The default copy operator can not be used since the index variable would be destroyed
@@ -343,7 +389,7 @@ bool ComponentData::existsOnDisk()
   return (m_settings.contains(settingsPath() % "name"));
 }
 
-void ComponentData::clearRelease()
+void ComponentData::releaseClear()
 {
   releaseReset();
   releaseIdReset();
@@ -397,14 +443,91 @@ AppData::AppData() :
     profile[i].setIndex(i);
 
   // Configure the joysticks
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].setIndex(i);
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
+    jsButton[i].setIndex(i);
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
+    namedJS[i].setIndex(i);
+    for (int a = 0; a < MAX_JS_AXES; a += 1)
+      namedJS[i].joystick[a].setIndex(a, i);
+    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
+      namedJS[i].jsButton[b].setIndex(b, i);
+  }
 
   // Configure the updates
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].setIndex(i);
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
       component[i].asset[j].setIndexes(i, j);
+    }
+  }
+}
+
+void AppData::saveNamedJS(int i)
+{
+  namedJS[i].jsName(currentProfile().jsName());
+  for (int a = 0; a < MAX_JS_AXES; a += 1) {
+    namedJS[i].joystick[a].stick_axe(joystick[a].stick_axe());
+    namedJS[i].joystick[a].stick_max(joystick[a].stick_max());
+    namedJS[i].joystick[a].stick_med(joystick[a].stick_med());
+    namedJS[i].joystick[a].stick_min(joystick[a].stick_min());
+    namedJS[i].joystick[a].stick_min(joystick[a].stick_min());
+  }
+  for (int b = 0; b < MAX_JS_BUTTONS; b += 1) {
+    namedJS[i].jsButton[b].button_idx(jsButton[b].button_idx());
+  }
+  namedJS[i].jsLastUsed(time(NULL));
+}
+
+void AppData::saveNamedJS()
+{
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+    if (namedJS[i].jsName() == currentProfile().jsName()) {
+      saveNamedJS(i);
+      return;
+    }
+  }
+
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+    if (namedJS[i].jsName() == "") {
+      saveNamedJS(i);
+      return;
+    }
+  }
+  
+  unsigned int oldestTime = namedJS[0].jsLastUsed();
+  int oldestN = 0;
+  for (int i = 1; i < MAX_NAMED_JOYSTICKS; i += 1) {
+    if (namedJS[i].jsLastUsed() < oldestTime) {
+      oldestTime = namedJS[i].jsLastUsed();
+      oldestN = i;
+    }
+  }
+  saveNamedJS(oldestN);
+}
+
+void AppData::loadNamedJS(int i)
+{
+  for (int a = 0; a < MAX_JS_AXES; a += 1) {
+    joystick[a].stick_axe(namedJS[i].joystick[a].stick_axe());
+    joystick[a].stick_max(namedJS[i].joystick[a].stick_max());
+    joystick[a].stick_med(namedJS[i].joystick[a].stick_med());
+    joystick[a].stick_min(namedJS[i].joystick[a].stick_min());
+    joystick[a].stick_min(namedJS[i].joystick[a].stick_min());
+  }
+  for (int b = 0; b < MAX_JS_BUTTONS; b += 1) {
+    jsButton[b].button_idx(namedJS[i].jsButton[b].button_idx());
+  }
+  namedJS[i].jsLastUsed(time(NULL));
+}
+
+void AppData::loadNamedJS()
+{
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+    if (namedJS[i].jsName() == currentProfile().jsName()) {
+      loadNamedJS(i);
+      return;
     }
   }
 }
@@ -436,9 +559,18 @@ void AppData::initAll()
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].init();
   // Initialize the joysticks
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].init();
-  // Initialize the updatess
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
+    jsButton[i].init();
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
+    namedJS[i].init();
+    for (int a = 0; a < MAX_JS_AXES; a += 1)
+      namedJS[i].joystick[a].init();
+    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
+      namedJS[i].jsButton[b].init();
+  }
+  // Initialize the updates
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].init();
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
@@ -453,8 +585,17 @@ void AppData::resetAllSettings()
   fwRev.resetAll();
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].resetAll();
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].resetAll();
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
+    jsButton[i].resetAll();
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
+    namedJS[i].resetAll();
+    for (int a = 0; a < MAX_JS_AXES; a += 1)
+      namedJS[i].joystick[a].resetAll();
+    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
+      namedJS[i].jsButton[b].resetAll();
+  }
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
@@ -469,8 +610,17 @@ void AppData::storeAllSettings()
   storeAll();
   for (int i = 0; i < MAX_PROFILES; i++)
     profile[i].storeAll();
-  for (int i = 0; i < MAX_JOYSTICKS; i++)
+  for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].storeAll();
+  for (int i = 0; i < MAX_JS_BUTTONS; i++)
+    jsButton[i].storeAll();
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
+    namedJS[i].storeAll();
+    for (int a = 0; a < MAX_JS_AXES; a += 1)
+      namedJS[i].joystick[a].storeAll();
+    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
+      namedJS[i].jsButton[b].storeAll();
+  }
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].storeAll();
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)
@@ -488,6 +638,7 @@ void AppData::sessionId(int index)
   if (index < 0 || index >= MAX_PROFILES || index == m_sessionId)
     return;
   m_sessionId = index;
+  loadNamedJS();
   emit sessionIdChanged(index);
   emit currentProfileChanged();
 }
@@ -514,6 +665,18 @@ QMap<int, QString> AppData::getActiveProfiles() const
       active.insert(i, g.profile[i].name());
   }
   return active;
+}
+
+void AppData::moveCurrentProfileToTop()
+{
+  if (g.sortProfiles() && m_sessionId > 0) {
+    Profile tmpProfile(g.profile[m_sessionId]);
+    for (int i = m_sessionId; i > 0; i -= 1) {
+      g.profile[i] = g.profile[i - 1];
+    }
+    g.profile[0] = tmpProfile;
+    id(0);
+  }
 }
 
 void AppData::convertSettings(QSettings & settings)

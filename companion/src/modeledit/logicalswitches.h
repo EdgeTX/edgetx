@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -47,6 +48,7 @@ class LogicalSwitchesPanel : public ModelPanel
     void onAndSwitchChanged(int value);
     void onDurationChanged(double duration);
     void onDelayChanged(double delay);
+    void onPersistChanged();
     void onOffsetChanged();
     bool offsetChangedAt(int index);
     void updateLine(int index);
@@ -74,12 +76,13 @@ class LogicalSwitchesPanel : public ModelPanel
     QDoubleSpinBox * dsbDelay[CPN_MAX_LOGICAL_SWITCHES];
     QComboBox * cbSource1[CPN_MAX_LOGICAL_SWITCHES];
     QComboBox * cbSource2[CPN_MAX_LOGICAL_SWITCHES];
+    QCheckBox * cbPersist[CPN_MAX_LOGICAL_SWITCHES];
     CompoundItemModelFactory * sharedItemModels;
     FilteredItemModel * rawSwitchFilteredModel;
     FilteredItemModel * rawSourceFilteredModel;
     int selectedIndex;
     void populateFunctionCB(QComboBox *b);
-    void updateTimerParam(QDoubleSpinBox *sb, int timer, double minimum=0);
+    void updateTimerParam(QDoubleSpinBox *sb, int timer, double minimum=0, double maximum=175.0);
     int lsCapability;
     int lsCapabilityExt;
     void swapData(int idx1, int idx2);

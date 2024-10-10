@@ -19,11 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TRANSLATIONS_H_
-#define _TRANSLATIONS_H_
+#pragma once
 
-#include "opentx_types.h"
+#include <limits.h>
+#include "edgetx_types.h"
 #include "translations/untranslated.h"
+#include "audio.h"
 
 #if defined(TRANSLATIONS_FR)
 #include "translations/fr.h"
@@ -67,6 +68,15 @@
 #elif defined(TRANSLATIONS_JP)
 #include "translations/jp.h"
 #define LEN_SPECIAL_CHARS 0
+#elif defined(TRANSLATIONS_RU)
+#include "translations/ru.h"
+#define LEN_SPECIAL_CHARS 0
+#elif defined(TRANSLATIONS_HE)
+#include "translations/he.h"
+#define LEN_SPECIAL_CHARS 0
+#elif defined(TRANSLATIONS_UA)
+#include "translations/ua.h"
+#define LEN_SPECIAL_CHARS 0
 #else
 #include "translations/en.h"
 #define LEN_SPECIAL_CHARS 0
@@ -74,143 +84,153 @@
 
 #define PSIZE(x) ( sizeof(x) - 1 )
 
-#if defined(PCBTARANIS)
-#define HINT(s) " " s " "
-#else
-#define HINT(s) s
-#endif
-
 #if LCD_W < LCD_H    // Portrait mode
   #define TR3(x, y, z) z
-  #define TR2(x, y) y
+  #define TR(x, y) y
 #elif LCD_W >= 480
   #define TR3(x, y, z) z
-  #define TR2(x, y) y
+  #define TR(x, y) y
 #elif LCD_W >= 212
   #define TR3(x, y, z) y
-  #define TR2(x, y) y
+  #define TR(x, y) y
 #else
   #define TR3(x, y, z) x
-  #define TR2(x, y) x
+  #define TR(x, y) x
 #endif
-
-#define TR(x, y) TR2(x, y) // for compatibility
 
 #if defined(COLORLCD)
   #define BUTTON(x) x
-  #define INDENT
 #else
   #define BUTTON(x)    "[" x "]"
-  #define INDENT       "\001"
-  #define LEN_INDENT   1
-  #define INDENT_WIDTH (FW/2)
 #endif
 
-#if (LCD_W == 212)
- #define LCDW_128_480_LINEBREAK        ""
+#if (LCD_W == 212) || defined(COLORLCD)
+ #define LCDW_128_LINEBREAK
 #else
- #define LCDW_128_480_LINEBREAK        "\036"
+ #define LCDW_128_LINEBREAK        "\036"
 #endif
 
-extern const char* STR_OFFON[];
-extern const char* STR_MMMINV[];
-extern const char* STR_VBEEPMODE[];
-extern const char* STR_TRNMODE[];
-extern const char* STR_TRNCHN[];
-extern const char* STR_AUX_SERIAL_MODES[];
-extern const char* STR_SWTYPES[];
-extern const char* STR_POTTYPES[];
-extern const char* STR_SLIDERTYPES[];
-extern const char* STR_VTRIMINC[];
-extern const char* STR_VDISPLAYTRIMS[];
-extern const char* STR_RETA123[];
+constexpr int g_max_plural2 = TR_MAX_PLURAL2;
+constexpr int g_min_plural2 = TR_MIN_PLURAL2;
+constexpr int g_use_singular_in_plural = TR_USE_SINGULAR_IN_PLURAL;
+constexpr int g_use_plural2_special_case = TR_USE_PLURAL2_SPECIAL_CASE;
+constexpr int g_use_plural2 = TR_USE_PLURAL2;
 
-extern const char* STR_TIMER_DIR[];
+extern const char STR_MINUTE_SINGULAR[];
+extern const char STR_MINUTE_PLURAL1[];
+extern const char STR_MINUTE_PLURAL2[];
 
-extern const char* STR_VBLMODE[];
-extern const char* STR_VCURVEFUNC[];
-extern const char* STR_VMLTPX[];
-extern const char* STR_VMLTPX2[];
-extern const char* STR_VMIXTRIMS[];
-extern const char* STR_VCSWFUNC[];
-extern const char* STR_VFSWFUNC[];
-extern const char* STR_VFSWRESET[];
-extern const char* STR_FUNCSOUNDS[];
-extern const char* STR_VTELEMUNIT[];
-extern const char* STR_GPSFORMAT[];
-extern const char* STR_VTELEMSCREENTYPE[];
-extern const char* STR_VSWASHTYPE[];
+extern const char CHR_HOUR;
+extern const char CHR_INPUT;
 
-extern const char* STR_VKEYS[];
-extern const char* STR_VSWITCHES[];
-extern const char* STR_VSRCRAW[];
+extern const char* const STR_OFFON[];
+extern const char* const STR_MMMINV[];
+extern const char* const STR_VBEEPMODE[];
+extern const char* const STR_TRNMODE[];
+extern const char* const STR_TRNCHN[];
+extern const char* const STR_AUX_SERIAL_MODES[];
+extern const char* const STR_SWTYPES[];
+extern const char* const STR_POTTYPES[];
+extern const char* const STR_VTRIMINC[];
+extern const char* const STR_VDISPLAYTRIMS[];
 
-extern const char* STR_ROTARY_ENC_OPT[];
+extern const char* const STR_TIMER_DIR[];
 
-#if defined(TRANSLATIONS_CZ)
-extern const char* STR_INPUTNAMES[];
+extern const char* const STR_VBLMODE[];
+extern const char* const STR_VCURVETYPE[];
+extern const char* const STR_VCURVEFUNC[];
+extern const char* const STR_VMLTPX[];
+extern const char* const STR_VMLTPX2[];
+extern const char* const STR_VCSWFUNC[];
+extern const char* const STR_VFSWRESET[];
+extern const char* const STR_FUNCSOUNDS[];
+extern const char* const STR_VTELEMUNIT[];
+extern const char* const STR_GPSFORMAT[];
+extern const char* const STR_VTELEMSCREENTYPE[];
+extern const char* const STR_VSWASHTYPE[];
+
+extern const char* const STR_ON_ONE_SWITCHES[];
+#if defined(IMU)
+extern const char* const STR_IMU_VSRCRAW[];
+#endif
+#if defined(PCBHORUS)
+extern const char* const STR_SM_VSRCRAW[];
+#endif
+extern const char* const STR_CYC_VSRCRAW[];
+
+extern const char* const STR_ROTARY_ENC_OPT[];
+
+#if defined(USE_HATS_AS_KEYS)
+extern const char STR_HATSMODE[];
+extern const char* const STR_HATSOPT[];
+extern const char STR_HATSMODE_TRIMS[];
+extern const char STR_HATSMODE_KEYS[];
+extern const char STR_HATSMODE_KEYS_HELP[];
 #endif
 
-extern const char* STR_VTMRMODES[];
-extern const char* STR_VPERSISTENT[];
+extern const char* const STR_VTMRMODES[];
+extern const char* const STR_VPERSISTENT[];
 
-extern const char* STR_VLCD[];
-extern const char* STR_VUNITSSYSTEM[];
-extern const char* STR_VBEEPCOUNTDOWN[];
-extern const char* STR_COUNTDOWNVALUES[];
-extern const char* STR_VVARIOCENTER[];
+extern const char* const STR_VUNITSSYSTEM[];
+extern const char* const STR_VBEEPCOUNTDOWN[];
+extern const char* const STR_COUNTDOWNVALUES[];
+extern const char* const STR_VVARIOCENTER[];
 
-extern const char* STR_COUNTRY_CODES[];
-extern const char* STR_USBMODES[];
-extern const char* STR_JACK_MODES[];
-extern const char* STR_VFAILSAFE[];
+extern const char* const STR_COUNTRY_CODES[];
+extern const char* const STR_USBMODES[];
+extern const char* const STR_JACK_MODES[];
+extern const char* const STR_VFAILSAFE[];
 
-extern const char* STR_FONT_SIZES[];
-extern const char* STR_VTRAINERMODES[];
-extern const char* STR_EXTERNAL_MODULE_PROTOCOLS[];
-extern const char* STR_INTERNAL_MODULE_PROTOCOLS[];
-extern const char* STR_R9M_REGION[];
-extern const char* STR_R9M_FCC_POWER_VALUES[];
-extern const char* STR_R9M_LBT_POWER_VALUES[];
-extern const char* STR_R9M_LITE_FCC_POWER_VALUES[];
-extern const char* STR_R9M_LITE_LBT_POWER_VALUES[];
-extern const char* STR_TELEMETRY_PROTOCOLS[];
-extern const char* STR_XJT_ACCST_RF_PROTOCOLS[];
-extern const char* STR_ISRM_RF_PROTOCOLS[];
-extern const char* STR_R9M_PXX2_RF_PROTOCOLS[];
-extern const char* STR_DSM_PROTOCOLS[];
-extern const char* STR_FLYSKY_PROTOCOLS[];
-extern const char* STR_CRSF_BAUDRATE[];
-extern const char* STR_PPM_POL[];
-extern const char* STR_SBUS_INVERSION_VALUES[];
+extern const char* const STR_FONT_SIZES[];
+extern const char* const STR_VTRAINERMODES[];
+extern const char* const STR_MODULE_PROTOCOLS[];
+extern const char* const STR_R9M_REGION[];
+extern const char* const STR_R9M_FCC_POWER_VALUES[];
+extern const char* const STR_R9M_LBT_POWER_VALUES[];
+extern const char* const STR_R9M_LITE_FCC_POWER_VALUES[];
+extern const char* const STR_R9M_LITE_LBT_POWER_VALUES[];
+extern const char* const STR_XJT_ACCST_RF_PROTOCOLS[];
+extern const char* const STR_ISRM_RF_PROTOCOLS[];
+extern const char* const STR_R9M_PXX2_RF_PROTOCOLS[];
+extern const char* const STR_PPM_PROTOCOLS[];
+extern const char* const STR_DSM_PROTOCOLS[];
+extern const char* const STR_CRSF_BAUDRATE[];
+extern const char* const STR_PPM_POL[];
+extern const char* const STR_SBUS_INVERSION_VALUES[];
 
-extern const char* STR_MULTI_PROTOCOLS[];
-extern const char* STR_MULTI_POWER[];
-extern const char* STR_MULTI_TELEMETRY_MODE[];
-extern const char* STR_MULTI_WBUS_MODE[];
-extern const char* STR_SPORT_MODES[];
-extern const char* STR_FSGROUPS[];
+extern const char* const STR_MULTI_PROTOCOLS[];
+extern const char* const STR_MULTI_POWER[];
+extern const char* const STR_MULTI_BAYANG_OPTIONS[];
+extern const char* const STR_MULTI_DSM_OPTIONS[];
+extern const char* const STR_MULTI_DSM_CLONE[];
+extern const char* const STR_MULTI_WBUS_MODE[];
+extern const char* const STR_SPORT_MODES[];
+extern const char* const STR_FSGROUPS[];
+extern const char* const STR_FSSWITCHES[];
 
 extern const char STR_AFHDS3_ONE_TO_ONE_TELEMETRY[];
 extern const char STR_AFHDS3_ONE_TO_MANY[];
-extern const char* STR_AFHDS3_PROTOCOLS[];
-extern const char* STR_AFHDS3_POWERS[];
+extern const char* const STR_AFHDS3_PROTOCOLS[];
+extern const char* const STR_AFHDS3_POWERS[];
 extern const char STR_AFHDS3_RX_FREQ[];
 extern const char STR_AFHDS3_ACTUAL_POWER[];
 extern const char STR_AFHDS3_POWER_SOURCE[];
 
-extern const char* STR_FLYSKY_PULSE_PROTO[];
-extern const char* STR_FLYSKY_SERIAL_PROTO[];
+extern const char* const STR_FLYSKY_PULSE_PROTO[];
+extern const char* const STR_FLYSKY_SERIAL_PROTO[];
 
-extern const char* STR_CURVE_TYPES[];
-extern const char* STR_VSENSORTYPES[];
-extern const char* STR_VFORMULAS[];
-extern const char* STR_VPREC[];
-extern const char* STR_VCELLINDEX[];
+extern const char* const STR_CURVE_TYPES[];
+extern const char* const STR_VSENSORTYPES[];
+extern const char* const STR_VFORMULAS[];
+extern const char* const STR_VPREC[];
+extern const char* const STR_VCELLINDEX[];
 extern const char STR_TOUCH_PANEL[];
-extern const char* STR_ADCFILTERVALUES[];
+extern const char* const STR_ADCFILTERVALUES[];
 extern const char STR_FILE_SIZE[];
 extern const char STR_FILE_OPEN[];
+extern const char* const STR_TIMER_MODES[];
+extern const char* const STR_MONTHS[];
+extern const char* const STR_PPMUNIT[];
 
 extern const char STR_BLUETOOTH[];
 extern const char STR_BLUETOOTH_DISC[];
@@ -220,10 +240,16 @@ extern const char STR_BLUETOOTH_LOCAL_ADDR[];
 extern const char STR_BLUETOOTH_PIN_CODE[];
 extern const char STR_BLUETOOTH_NODEVICES[];
 extern const char STR_BLUETOOTH_SCANNING[];
-extern const char* STR_BLUETOOTH_MODES[];
+extern const char* const STR_BLUETOOTH_MODES[];
 
-#define NO_INDENT(x) (x) + LEN_INDENT
+extern const char STR_STICK_NAMES0[];
+extern const char STR_STICK_NAMES1[];
+extern const char STR_STICK_NAMES2[];
+extern const char STR_STICK_NAMES3[];
+extern const char STR_SURFACE_NAMES0[];
+extern const char STR_SURFACE_NAMES1[];
 
+extern const char STR_EMPTY[];
 extern const char STR_POPUPS_ENTER_EXIT[];
 extern const char STR_OK[];
 extern const char STR_EXIT[];
@@ -261,6 +287,46 @@ extern const char STR_PPMFRAME[];
 extern const char STR_REFRESHRATE[];
 extern const char STR_MS[];
 extern const char STR_SWITCH[];
+extern const char STR_FUNCTION_SWITCHES[];
+extern const char STR_GROUP[];
+extern const char STR_GROUP_ALWAYS_ON[];
+extern const char STR_GROUPS[];
+extern const char STR_LAST[];
+extern const char STR_MORE_INFO[];
+extern const char STR_SWITCH_TYPE[];
+extern const char STR_SWITCH_GROUP[];
+extern const char STR_SWITCH_STARTUP[];
+extern const char* const STR_FUNCTION_SWITCH_GROUPS[];
+extern const char STR_ADJUST_GVAR[];
+extern const char STR_PLAY_TRACK[];
+extern const char STR_PLAY_VALUE[];
+extern const char STR_SOUND[];
+extern const char STR_SF_BACKLIGHT[];
+extern const char STR_SF_BG_MUSIC[];
+extern const char STR_SF_BG_MUSIC_PAUSE[];
+extern const char STR_SF_DISABLE_TOUCH[];
+extern const char STR_SF_DISABLE_AUDIO_AMP[];
+extern const char STR_SF_FAILSAFE[];
+extern const char STR_SF_HAPTIC[];
+extern const char STR_SF_INST_TRIM[];
+extern const char STR_SF_LOGS[];
+extern const char STR_SF_MOD_BIND[];
+extern const char STR_SF_PLAY_SCRIPT[];
+extern const char STR_SF_RANGE_CHECK[];
+extern const char STR_SF_RESET[];
+extern const char STR_SF_SET_TIMER[];
+extern const char STR_SF_SAFETY[];
+extern const char STR_SF_SET_SCREEN[];
+extern const char STR_SF_SWITCH[];
+extern const char STR_SF_TRAINER[];
+extern const char STR_SF_VARIO[];
+extern const char STR_SF_RGBLEDS[];
+extern const char STR_SF_VOLUME[];
+extern const char STR_SF_RACING_MODE[];
+extern const char STR_SF_SCREENSHOT[];
+extern const char STR_SF_LCD_TO_VIDEO[];
+extern const char STR_SF_PUSH_CUST_SWITCH[];
+extern const char STR_SF_TEST[];
 extern const char STR_TRIMS[];
 extern const char STR_MIRROR[];
 extern const char STR_FADEIN[];
@@ -313,11 +379,6 @@ extern const char STR_SOUND_LABEL[];
 extern const char STR_LENGTH[];
 extern const char STR_BEEP_LENGTH[];
 extern const char STR_BEEP_PITCH[];
-extern const char STR_HAPTIC_LABEL[];
-extern const char STR_STRENGTH[];
-extern const char STR_IMU_LABEL[];
-extern const char STR_IMU_OFFSET[];
-extern const char STR_IMU_MAX[];
 extern const char STR_CONTRAST[];
 extern const char STR_ALARMS_LABEL[];
 extern const char STR_BATTERY_RANGE[];
@@ -329,8 +390,10 @@ extern const char STR_INACTIVITYALARM[];
 extern const char STR_MEMORYWARNING[];
 extern const char STR_ALARMWARNING[];
 extern const char STR_RSSI_SHUTDOWN_ALARM[];
+extern const char STR_TRAINER_SHUTDOWN_ALARM[];
 extern const char STR_MODEL_STILL_POWERED[];
 extern const char STR_USB_STILL_CONNECTED[];
+extern const char STR_TRAINER_STILL_CONNECTED[];
 extern const char STR_MODEL_SHUTDOWN[];
 extern const char STR_PRESS_ENTER_TO_CONFIRM[];
 extern const char STR_THROTTLEREVERSE[];
@@ -340,19 +403,33 @@ extern const char STR_PERSISTENT[];
 extern const char STR_BACKLIGHT_LABEL[];
 extern const char STR_GHOST_MENU_LABEL[];
 extern const char STR_STATUS[];
-extern const char STR_BLDELAY[];
 
-#if defined(PWM_BACKLIGHT) || defined(COLORLCD)
+#if defined(COLORLCD)
 extern const char STR_BLONBRIGHTNESS[];
 extern const char STR_BLOFFBRIGHTNESS[];
 extern const char STR_KEYS_BACKLIGHT[];
 #endif
 
 extern const char STR_SPLASHSCREEN[];
+extern const char STR_PLAY_HELLO[];
+#if defined(COLORLCD)
+extern const char* const STR_SPLASHSCREEN_DELAYS[];
+#endif
 #if defined(PWR_BUTTON_PRESS)
 extern const char STR_PWR_ON_DELAY[];
 extern const char STR_PWR_OFF_DELAY[];
-extern const char* STR_PWR_OFF_DELAYS[];
+extern const char STR_PWR_AUTO_OFF[];
+extern const char* const STR_PWR_OFF_DELAYS[];
+#endif
+#if defined(HAPTIC)
+extern const char STR_PWR_ON_OFF_HAPTIC[];
+extern const char STR_HAPTIC_LABEL[];
+extern const char STR_STRENGTH[];
+#endif
+#if defined(IMU)
+extern const char STR_IMU_LABEL[];
+extern const char STR_IMU_OFFSET[];
+extern const char STR_IMU_MAX[];
 #endif
 extern const char STR_THROTTLE_WARNING[];
 extern const char STR_CUSTOM_THROTTLE_WARNING[];
@@ -360,7 +437,6 @@ extern const char STR_CUSTOM_THROTTLE_WARNING_VAL[];
 extern const char STR_SWITCHWARNING[];
 extern const char STR_POTWARNINGSTATE[];
 extern const char STR_POTWARNING[];
-extern const char STR_SLIDERWARNING[];
 extern const char STR_TIMEZONE[];
 extern const char STR_ADJUST_RTC[];
 extern const char STR_GPS[];
@@ -370,7 +446,7 @@ extern const char STR_FLYSKY_TELEMETRY[];
 extern const char STR_PITCH_AT_ZERO[];
 extern const char STR_PITCH_AT_MAX[];
 extern const char STR_REPEAT_AT_ZERO[];
-extern const char STR_RXCHANNELORD[];
+extern const char STR_DEF_CHAN_ORD[];
 extern const char STR_STICKS[];
 extern const char STR_POTS[];
 extern const char STR_SWITCHES[];
@@ -397,6 +473,18 @@ extern const char STR_INT_GPS_LABEL[];
 extern const char STR_HEARTBEAT_LABEL[];
 extern const char STR_LUA_SCRIPTS_LABEL[];
 extern const char STR_FREE_MEM_LABEL[];
+extern const char STR_DURATION_MS[];
+extern const char STR_INTERVAL_MS[];
+extern const char STR_MEM_USED_SCRIPT[];
+extern const char STR_MEM_USED_WIDGET[];
+extern const char STR_MEM_USED_EXTRA[];
+extern const char STR_STACK_MIX[];
+extern const char STR_STACK_AUDIO[];
+extern const char STR_GPS_FIX_YES[];
+extern const char STR_GPS_FIX_NO[];
+extern const char STR_GPS_SATS[];
+extern const char STR_GPS_HDOP[];
+extern const char STR_STACK_MENU[];
 extern const char STR_TIMER_LABEL[];
 extern const char STR_THROTTLE_PERCENT_LABEL[];
 extern const char STR_BATT_LABEL[];
@@ -432,6 +520,7 @@ extern const char STR_MENUMODELSEL[];
 extern const char STR_MENU_MODEL_SETUP[];
 extern const char STR_MENUFLIGHTMODE[];
 extern const char STR_MENUFLIGHTMODES[];
+extern const char STR_MENU_FSWITCH[];
 extern const char STR_MENUHELISETUP[];
 extern const char STR_MENUINPUTS[];
 extern const char STR_MENULIMITS[];
@@ -442,7 +531,6 @@ extern const char STR_MENULOGICALSWITCHES[];
 extern const char STR_MENUCUSTOMFUNC[];
 extern const char STR_MENUCUSTOMSCRIPTS[];
 extern const char STR_MENUTELEMETRY[];
-extern const char STR_MENUTEMPLATES[];
 extern const char STR_MENUSTAT[];
 extern const char STR_MENUDEBUG[];
 extern const char * const STR_MONITOR_CHANNELS[];
@@ -469,7 +557,6 @@ extern const char STR_MULTI_TELEMETRY[];
 extern const char STR_MULTI_AUTOBIND[];
 extern const char STR_DISABLE_CH_MAP[];
 extern const char STR_DISABLE_TELEM[];
-extern const char STR_MULTI_DSM_AUTODTECT[];
 extern const char STR_MULTI_LOWPOWER[];
 extern const char STR_MULTI_LNA_DISABLE[];
 extern const char STR_MODULE_NO_SERIAL_MODE[];
@@ -485,9 +572,7 @@ extern const char STR_MODULE_SYNC[];
 extern const char STR_MULTI_SERVOFREQ[];
 extern const char STR_MULTI_MAX_THROW[];
 extern const char STR_MULTI_RFCHAN[];
-#if LCD_W < 212
 extern const char STR_SUBTYPE[];
-#endif
 
 #if defined(DSM2) || defined(PXX)
 extern const char STR_RECEIVER_NUM[];
@@ -500,7 +585,7 @@ extern const char STR_BIND_OK[];
 extern const char STR_INTERNALRF[];
 extern const char STR_INTERNAL_MODULE[];
 extern const char STR_EXTERNAL_MODULE[];
-extern const char STR_OPENTX_UPGRADE_REQUIRED[];
+extern const char STR_EDGETX_UPGRADE_REQUIRED[];
 extern const char STR_TELEMETRY_DISABLED[];
 extern const char STR_MORE_OPTIONS_AVAILABLE[];
 extern const char STR_NO_MODULE_INFORMATION[];
@@ -535,6 +620,7 @@ extern const char STR_BATT_CALIB[];
 extern const char STR_VOLTAGE[];
 extern const char STR_CURRENT_CALIB[];
 extern const char STR_UNITS_SYSTEM[];
+extern const char STR_UNITS_PPM[];
 extern const char STR_VOICE_LANGUAGE[];
 extern const char STR_MODELIDUSED[];
 extern const char STR_MODELIDUNIQUE[];
@@ -549,7 +635,6 @@ extern const char STR_FAVORITE_LABEL[];
 extern const char STR_MODELS_MOVED[];
 extern const char STR_NEW_MODEL[];
 extern const char STR_INVALID_MODEL[];
-extern const char STR_EDIT_LABELS[];
 extern const char STR_MOVE_UP[];
 extern const char STR_MOVE_DOWN[];
 extern const char STR_DUPLICATE_MODEL[];
@@ -582,6 +667,7 @@ extern const char STR_RESET_BTN[];
 extern const char STR_DEBUG[];
 extern const char STR_KEYS_BTN[];
 extern const char STR_ANALOGS_BTN[];
+extern const char STR_FS_BTN[];
 extern const char STR_TOUCH_NOTFOUND[];
 extern const char STR_TOUCH_EXIT[];
 extern const char STR_CALIBRATION[];
@@ -622,8 +708,11 @@ extern const char STR_BACKUP_MODEL[];
 extern const char STR_RESTORE_MODEL[];
 extern const char STR_DELETE_ERROR[];
 extern const char STR_SDCARD_ERROR[];
+extern const char STR_SDCARD[];
+extern const char STR_NO_FILES_ON_SD[];
 extern const char STR_NO_SDCARD[];
 extern const char STR_SDCARD_FULL[];
+extern const char STR_SDCARD_FULL_EXT[];
 extern const char STR_INCOMPATIBLE[];
 extern const char STR_LOGS_PATH[];
 extern const char STR_LOGS_EXT[];
@@ -631,14 +720,6 @@ extern const char STR_MODELS_PATH[];
 extern const char STR_MODELS_EXT[];
 extern const char STR_BACKUP_PATH[];
 extern const char STR_YAML_EXT[];
-extern const char STR_SELECT_TEMPLATE[];
-extern const char STR_SELECT_TEMPLATE_FOLDER[];
-extern const char STR_NO_TEMPLATES[];
-extern const char STR_SAVE_TEMPLATE[];
-extern const char STR_BLANK_MODEL[];
-extern const char STR_BLANK_MODEL_INFO[];
-extern const char STR_FILE_EXISTS[];
-extern const char STR_ASK_OVERWRITE[];
 #define STR_UPDATE_LIST STR_DELAYDOWN
 
 extern const char STR_NEEDS_FILE[];
@@ -646,9 +727,6 @@ extern const char STR_EXT_MULTI_SPEC[];
 extern const char STR_INT_MULTI_SPEC[];
 extern const char STR_WARNING[];
 extern const char STR_STORAGE_WARNING[];
-extern const char STR_EEPROM_CONVERTING[];
-extern const char STR_SDCARD_CONVERSION_REQUIRE[];
-extern const char STR_CONVERTING[];
 extern const char STR_THROTTLE_UPPERCASE[];
 extern const char STR_ALARMSWARN[];
 extern const char STR_SWITCHWARN[];
@@ -668,12 +746,8 @@ extern const char STR_VOLUME[];
 extern const char STR_LCD[];
 extern const char STR_BRIGHTNESS[];
 extern const char STR_CPU_TEMP[];
-extern const char STR_CPU_CURRENT[];
-extern const char STR_CPU_MAH[];
 extern const char STR_COPROC[];
 extern const char STR_COPROC_TEMP[];
-extern const char STR_CAPAWARNING[];
-extern const char STR_TEMPWARNING[];
 extern const char STR_TTL_WARNING[];
 extern const char STR_FUNC[];
 extern const char STR_V1[];
@@ -703,10 +777,13 @@ extern const char STR_SLIDERS[];
 extern const char STR_FLIGHT_MODE[];
 extern const char STR_INVALID_FILE[];
 extern const char STR_TIMER_SOURCE[];
-extern const char* STR_TEXT_SIZE[];
-extern const char* STR_SUBTRIMMODES[];
+extern const char* const STR_SUBTRIMMODES[];
 extern const char STR_SIZE[];
 extern const char STR_SHADOW[];
+extern const char STR_ALIGNMENT[];
+extern const char STR_ALIGN_LABEL[];
+extern const char STR_ALIGN_VALUE[];
+extern const char* const STR_ALIGN_OPTS[];
 extern const char STR_TEXT[];
 extern const char STR_COLOR[];
 extern const char STR_MAIN_VIEW_X[];
@@ -719,6 +796,21 @@ extern const char STR_WIDGET_TEXT[];
 extern const char STR_WIDGET_TIMER[];
 extern const char STR_WIDGET_VALUE[];
 extern const char STR_MODULES_RX_VERSION[];
+extern const char STR_LEFT_STICK[];
+extern const char STR_SHOW_MIXER_MONITORS[];
+extern const char STR_MODEL_QUICK_SELECT[];
+extern const char STR_LOADING[];
+extern const char STR_DELETE_THEME[];
+extern const char STR_SAVE_THEME[];
+extern const char STR_EDIT_COLOR[];
+extern const char STR_NO_THEME_IMAGE[];
+extern const char STR_BACKLIGHT_TIMER[];
+extern const char STR_LABELS_SELECT[];
+extern const char STR_LABELS_MATCH[];
+extern const char STR_FAV_MATCH[];
+extern const char* const STR_LABELS_SELECT_MODE[];
+extern const char* const STR_LABELS_MATCH_MODE[];
+extern const char* const STR_FAV_MATCH_MODE[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];
@@ -726,7 +818,6 @@ extern const char STR_COPY_FILE[];
 extern const char STR_RENAME_FILE[];
 extern const char STR_REMOVED[];
 extern const char STR_SD_INFO[];
-extern const char STR_SD_FORMAT[];
 extern const char STR_NA[];
 extern const char STR_HARDWARE[];
 extern const char STR_FORMATTING[];
@@ -735,10 +826,9 @@ extern const char STR_TIME[];
 extern const char STR_MAXBAUDRATE[];
 extern const char STR_BAUDRATE[];
 extern const char STR_SAMPLE_MODE[];
-extern const char* STR_SAMPLE_MODES[];
+extern const char* const STR_SAMPLE_MODES[];
 extern const char STR_BLUETOOTH_BAUDRATE[];
 extern const char STR_SD_INFO_TITLE[];
-extern const char STR_SD_TYPE[];
 extern const char STR_SD_SPEED[];
 extern const char STR_SD_SECTORS[];
 extern const char STR_SD_SIZE[];
@@ -784,11 +874,22 @@ extern const char STR_CONFIRMRESET[];
 extern const char STR_TOO_MANY_LUA_SCRIPTS[];
 extern const char STR_BLCOLOR[];
 
+extern const char STR_DIGITAL_SERVO[];
+extern const char STR_ANALOG_SERVO[];
+extern const char STR_SIGNAL_OUTPUT[];
+extern const char STR_SERIAL_BUS[];
+extern const char STR_SYNC[];
+
+extern const char STR_ENABLED_FEATURES[];
+extern const char STR_RADIO_MENU_TABS[];
+extern const char STR_MODEL_MENU_TABS[];
+
+
 struct LanguagePack {
   const char * id;
   const char * name;
-  void (*playNumber)(getvalue_t number, uint8_t unit, uint8_t flags, uint8_t id);
-  void (*playDuration)(int seconds, uint8_t flags, uint8_t id);
+  void (*playNumber)(getvalue_t number, uint8_t unit, uint8_t flags, uint8_t id, int8_t fragmentVolume);
+  void (*playDuration)(int seconds, uint8_t flags, uint8_t id, int8_t fragmentVolume);
 };
 
 extern const LanguagePack * currentLanguagePack;
@@ -809,26 +910,33 @@ extern const LanguagePack ruLanguagePack;
 extern const LanguagePack seLanguagePack;
 extern const LanguagePack skLanguagePack;
 extern const LanguagePack cnLanguagePack;
+extern const LanguagePack jpLanguagePack;
+extern const LanguagePack ruLanguagePack;
+extern const LanguagePack heLanguagePack;
+extern const LanguagePack uaLanguagePack;
 extern const LanguagePack * const languagePacks[];
 
 #if defined(LANGUAGE_PACKS_DEFINITION)
 const LanguagePack * const languagePacks[] = {
   // alphabetical order
+  &cnLanguagePack,
   &czLanguagePack,
   &daLanguagePack,
   &deLanguagePack,
   &enLanguagePack,
   &esLanguagePack,
   &frLanguagePack,
+  &heLanguagePack,
   &huLanguagePack,
   &itLanguagePack,
+  &jpLanguagePack,
   &nlLanguagePack,
   &plLanguagePack,
   &ptLanguagePack,
   &ruLanguagePack,
   &seLanguagePack,
   &skLanguagePack,
-  &cnLanguagePack,
+  &uaLanguagePack,
   NULL
 };
 #endif
@@ -848,14 +956,14 @@ const LanguagePack * const languagePacks[] = {
   const LanguagePack* currentLanguagePack = &lng##LanguagePack; \
   uint8_t currentLanguagePackIdx
 
-#define PLAY_FUNCTION(x, ...)    void x(__VA_ARGS__, uint8_t id)
+#define PLAY_FUNCTION(x, ...)    void x(__VA_ARGS__, uint8_t id, int8_t fragmentVolume = USE_SETTINGS_VOLUME)
 
 inline PLAY_FUNCTION(playNumber, getvalue_t number, uint8_t unit, uint8_t flags) {
-  currentLanguagePack->playNumber(number, unit, flags, id);
+  currentLanguagePack->playNumber(number, unit, flags, id, fragmentVolume);
 }
 
 inline PLAY_FUNCTION(playDuration, int seconds, uint8_t flags) {
-   currentLanguagePack->playDuration(seconds, flags, id);
+   currentLanguagePack->playDuration(seconds, flags, id, fragmentVolume);
 }
 
 extern const char STR_MODELNAME[];
@@ -864,134 +972,20 @@ extern const char STR_MIXNAME[];
 extern const char STR_INPUTNAME[];
 extern const char STR_EXPONAME[];
 
-#if defined(COLORLCD)
-  #define TR_PHASES_HEADERS { TR_PHASES_HEADERS_NAME, TR_PHASES_HEADERS_SW, TR_PHASES_HEADERS_RUD_TRIM, TR_PHASES_HEADERS_ELE_TRIM, TR_PHASES_HEADERS_THT_TRIM, TR_PHASES_HEADERS_AIL_TRIM, TR_PHASES_HEADERS_CH5_TRIM, TR_PHASES_HEADERS_CH6_TRIM, TR_PHASES_HEADERS_FAD_IN, TR_PHASES_HEADERS_FAD_OUT }
-#elif defined(PCBTARANIS)
-  #define TR_PHASES_HEADERS { HINT(TR_PHASES_HEADERS_NAME), HINT(TR_PHASES_HEADERS_SW), HINT(TR_PHASES_HEADERS_RUD_TRIM), HINT(TR_PHASES_HEADERS_ELE_TRIM), HINT(TR_PHASES_HEADERS_THT_TRIM), HINT(TR_PHASES_HEADERS_AIL_TRIM), HINT(TR_PHASES_HEADERS_FAD_IN), HINT(TR_PHASES_HEADERS_FAD_OUT) }
-#endif
-
-#define TR_LIMITS_HEADERS { HINT(TR_LIMITS_HEADERS_NAME), HINT(TR_LIMITS_HEADERS_SUBTRIM), HINT(TR_LIMITS_HEADERS_MIN), HINT(TR_LIMITS_HEADERS_MAX), HINT(TR_LIMITS_HEADERS_DIRECTION), HINT(TR_LIMITS_HEADERS_CURVE), HINT(TR_LIMITS_HEADERS_PPMCENTER), HINT(TR_LIMITS_HEADERS_SUBTRIMMODE) }
-#define TR_LSW_HEADERS    { HINT(TR_LSW_HEADERS_FUNCTION), HINT(TR_LSW_HEADERS_V1), HINT(TR_LSW_HEADERS_V2), HINT(TR_LSW_HEADERS_V2), HINT(TR_LSW_HEADERS_ANDSW), HINT(TR_LSW_HEADERS_DURATION), HINT(TR_LSW_HEADERS_DELAY) }
-#define TR_GVAR_HEADERS   { HINT(TR_GVAR_HEADERS_FM0), HINT(TR_GVAR_HEADERS_FM1), HINT(TR_GVAR_HEADERS_FM2), HINT(TR_GVAR_HEADERS_FM3), HINT(TR_GVAR_HEADERS_FM4), HINT(TR_GVAR_HEADERS_FM5), HINT(TR_GVAR_HEADERS_FM6), HINT(TR_GVAR_HEADERS_FM7), HINT(TR_GVAR_HEADERS_FM8) }
-
 #if LCD_W >= 212
+#define TR_PHASES_HEADERS { TR_PHASES_HEADERS_NAME, TR_PHASES_HEADERS_SW, TR_PHASES_HEADERS_RUD_TRIM, TR_PHASES_HEADERS_ELE_TRIM, TR_PHASES_HEADERS_THT_TRIM, TR_PHASES_HEADERS_AIL_TRIM, TR_PHASES_HEADERS_FAD_IN, TR_PHASES_HEADERS_FAD_OUT }
+#define TR_LIMITS_HEADERS { TR_LIMITS_HEADERS_NAME, TR_LIMITS_HEADERS_SUBTRIM, TR_LIMITS_HEADERS_MIN, TR_LIMITS_HEADERS_MAX, TR_LIMITS_HEADERS_DIRECTION, TR_LIMITS_HEADERS_CURVE, TR_LIMITS_HEADERS_PPMCENTER, TR_LIMITS_HEADERS_SUBTRIMMODE }
+#define TR_LSW_HEADERS    { TR_FUNC, TR_V1, TR_V2, TR_V2, TR_AND_SWITCH, TR_DURATION, TR_DELAY, TR_PERSISTENT }
   extern const char * const STR_PHASES_HEADERS[];
   extern const char * const STR_LIMITS_HEADERS[];
   extern const char * const STR_LSW_HEADERS[];
   extern const char * const STR_LSW_DESCRIPTIONS[];
-  extern const char * const STR_GVAR_HEADERS[];
 #endif
 
-extern const char STR_SENSOR_RSSI[];
-extern const char STR_SENSOR_R9PW[];
-extern const char STR_SENSOR_RAS[];
-extern const char STR_SENSOR_A1[];
-extern const char STR_SENSOR_A2[];
-extern const char STR_SENSOR_A3[];
-extern const char STR_SENSOR_A4[];
-extern const char STR_SENSOR_BATT[];
-extern const char STR_SENSOR_ALT[];
-extern const char STR_SENSOR_TEMP1[];
-extern const char STR_SENSOR_TEMP2[];
-extern const char STR_SENSOR_TEMP3[];
-extern const char STR_SENSOR_TEMP4[];
-extern const char STR_SENSOR_RPM2[];
-extern const char STR_SENSOR_PRES[];
-extern const char STR_SENSOR_ODO1[];
-extern const char STR_SENSOR_ODO2[];
-extern const char STR_SENSOR_TXV[];
-extern const char STR_SENSOR_CURR_SERVO1[];
-extern const char STR_SENSOR_CURR_SERVO2[];
-extern const char STR_SENSOR_CURR_SERVO3[];
-extern const char STR_SENSOR_CURR_SERVO4[];
-extern const char STR_SENSOR_DIST[];
-extern const char STR_SENSOR_ARM[];
-extern const char STR_SENSOR_C50[];
-extern const char STR_SENSOR_C200[];
-extern const char STR_SENSOR_RPM[];
-extern const char STR_SENSOR_FUEL[];
-extern const char STR_SENSOR_VSPD[];
-extern const char STR_SENSOR_ACCX[];
-extern const char STR_SENSOR_ACCY[];
-extern const char STR_SENSOR_ACCZ[];
-extern const char STR_SENSOR_GYROX[];
-extern const char STR_SENSOR_GYROY[];
-extern const char STR_SENSOR_GYROZ[];
-extern const char STR_SENSOR_CURR[];
-extern const char STR_SENSOR_CAPACITY[];
-extern const char STR_SENSOR_VFAS[];
-extern const char STR_SENSOR_ASPD[];
-extern const char STR_SENSOR_GSPD[];
-extern const char STR_SENSOR_HDG[];
-extern const char STR_SENSOR_SATELLITES[];
-extern const char STR_SENSOR_CELLS[];
-extern const char STR_SENSOR_GPSALT[];
-extern const char STR_SENSOR_GPSDATETIME[];
-extern const char STR_SENSOR_GPS[];
-extern const char STR_SENSOR_BATT1_VOLTAGE[];
-extern const char STR_SENSOR_BATT2_VOLTAGE[];
-extern const char STR_SENSOR_BATT1_CURRENT[];
-extern const char STR_SENSOR_BATT2_CURRENT[];
-extern const char STR_SENSOR_BATT1_CONSUMPTION[];
-extern const char STR_SENSOR_BATT2_CONSUMPTION[];
-extern const char STR_SENSOR_BATT1_TEMP[];
-extern const char STR_SENSOR_BATT2_TEMP[];
-extern const char STR_SENSOR_RB_STATE[];
-extern const char STR_SENSOR_CHANS_STATE[];
-extern const char STR_SENSOR_RX_RSSI1[];
-extern const char STR_SENSOR_RX_RSSI2[];
-extern const char STR_SENSOR_RX_QUALITY[];
-extern const char STR_SENSOR_RX_SNR[];
-extern const char STR_SENSOR_RX_SIGNAL[];
-extern const char STR_SENSOR_RX_NOISE[];
-extern const char STR_SENSOR_ANTENNA[];
-extern const char STR_SENSOR_RF_MODE[];
-extern const char STR_SENSOR_TX_POWER[];
-extern const char STR_SENSOR_TX_RSSI[];
-extern const char STR_SENSOR_TX_QUALITY[];
-extern const char STR_SENSOR_RX_RSSI_PERC[];
-extern const char STR_SENSOR_RX_RF_POWER[];
-extern const char STR_SENSOR_TX_RSSI_PERC[];
-extern const char STR_SENSOR_TX_RF_POWER[];
-extern const char STR_SENSOR_TX_FPS[];
-extern const char STR_SENSOR_TX_SNR[];
-extern const char STR_SENSOR_TX_NOISE[];
-extern const char STR_SENSOR_PITCH[];
-extern const char STR_SENSOR_ROLL[];
-extern const char STR_SENSOR_YAW[];
-extern const char STR_SENSOR_FLIGHT_MODE[];
-extern const char STR_SENSOR_THROTTLE[];
-extern const char STR_SENSOR_QOS_A[];
-extern const char STR_SENSOR_QOS_B[];
-extern const char STR_SENSOR_QOS_L[];
-extern const char STR_SENSOR_QOS_R[];
-extern const char STR_SENSOR_QOS_F[];
-extern const char STR_SENSOR_QOS_H[];
-extern const char STR_SENSOR_BIND[];
-extern const char STR_SENSOR_LAP_NUMBER[];
-extern const char STR_SENSOR_GATE_NUMBER[];
-extern const char STR_SENSOR_LAP_TIME[];
-extern const char STR_SENSOR_GATE_TIME[];
-extern const char STR_SENSOR_ESC_VOLTAGE[];
-extern const char STR_SENSOR_ESC_CURRENT[];
-extern const char STR_SENSOR_ESC_RPM[];
-extern const char STR_SENSOR_ESC_CONSUMPTION[];
-extern const char STR_SENSOR_ESC_TEMP[];
-extern const char STR_SENSOR_SD1_CHANNEL[];
-extern const char STR_SENSOR_GASSUIT_TEMP1[];
-extern const char STR_SENSOR_GASSUIT_TEMP2[];
-extern const char STR_SENSOR_GASSUIT_RPM[];
-extern const char STR_SENSOR_GASSUIT_FLOW[];
-extern const char STR_SENSOR_GASSUIT_CONS[];
-extern const char STR_SENSOR_GASSUIT_RES_VOL[];
-extern const char STR_SENSOR_GASSUIT_RES_PERC[];
-extern const char STR_SENSOR_GASSUIT_MAX_FLOW[];
-extern const char STR_SENSOR_GASSUIT_AVG_FLOW[];
-extern const char STR_SENSOR_SBEC_VOLTAGE[];
-extern const char STR_SENSOR_SBEC_CURRENT[];
 extern const char STR_TRAINER[];
 extern const char STR_CHANS[];
 extern const char STR_MODULE_BIND[];
+extern const char STR_MODULE_UNBIND[];
 extern const char STR_POWERMETER_ATTN_NEEDED[];
 extern const char STR_PXX2_SELECT_RX[];
 extern const char STR_PXX2_DEFAULT[];
@@ -1009,11 +1003,9 @@ extern const char STR_BINDING_1_8_TELEM_OFF[];
 extern const char STR_BINDING_9_16_TELEM_ON[];
 extern const char STR_BINDING_9_16_TELEM_OFF[];
 extern const char STR_CHANNELRANGE[];
-extern const char STR_RXFREQUENCY[];
-extern const char STR_ANTENNASELECTION[];
 extern const char STR_ANTENNACONFIRM1[];
 extern const char STR_ANTENNACONFIRM2[];
-extern const char* STR_ANTENNA_MODES[];
+extern const char* const STR_ANTENNA_MODES[];
 extern const char STR_USE_INTERNAL_ANTENNA[];
 extern const char STR_USE_EXTERNAL_ANTENNA[];
 extern const char STR_MODULE_PROTOCOL_FLEX_WARN_LINE1[];
@@ -1021,21 +1013,24 @@ extern const char STR_MODULE_PROTOCOL_FCC_WARN_LINE1[];
 extern const char STR_MODULE_PROTOCOL_EU_WARN_LINE1[];
 extern const char STR_MODULE_PROTOCOL_WARN_LINE2[];
 extern const char STR_SET[];
+extern const char* const STR_PREFLIGHT_POTSLIDER_CHECK[];
 extern const char STR_PREFLIGHT[];
 extern const char STR_CHECKLIST[];
+extern const char STR_CHECKLIST_INTERACTIVE[];
 extern const char STR_VIEW_NOTES[];
 extern const char STR_MODEL_SELECT[];
 extern const char STR_RESET_SUBMENU[];
 extern const char STR_LOWALARM[];
 extern const char STR_CRITICALALARM[];
-extern const char STR_RSSIALARM_WARN[];
-extern const char STR_NO_RSSIALARM[];
 extern const char STR_DISABLE_ALARM[];
 extern const char STR_TELEMETRY_TYPE[];
 extern const char STR_TELEMETRY_SENSORS[];
 extern const char STR_VALUE[];
+extern const char STR_PERIOD[];
+extern const char STR_INTERVAL[];
 extern const char STR_REPEAT[];
 extern const char STR_ENABLE[];
+extern const char STR_DISABLE[];
 extern const char STR_TOPLCDTIMER[];
 extern const char STR_UNIT[]; ;
 extern const char STR_TELEMETRY_NEWSENSOR[];
@@ -1055,8 +1050,8 @@ extern const char STR_AUTOOFFSET[];
 extern const char STR_ONLYPOSITIVE[];
 extern const char STR_FILTER[];
 extern const char STR_TELEMETRYFULL[];
-extern const char STR_INVERTED_SERIAL[];
 extern const char STR_IGNORE_INSTANCE[];
+extern const char STR_SHOW_INSTANCE_ID[];
 extern const char STR_DISCOVER_SENSORS[];
 extern const char STR_STOP_DISCOVER_SENSORS[];
 extern const char STR_DELETE_ALL_SENSORS[];
@@ -1072,12 +1067,7 @@ extern const char STR_THEME[];
 extern const char STR_SETUP[];
 extern const char STR_LAYOUT[];
 extern const char STR_ADD_MAIN_VIEW[];
-extern const char STR_BACKGROUND_COLOR[];
-extern const char STR_MAIN_COLOR[];
-extern const char STR_BAR2_COLOR[];
-extern const char STR_BAR1_COLOR[];
 extern const char STR_TEXT_COLOR[];
-extern const char STR_TEXT_VIEWER[];
 extern const char STR_RF_POWER[];
 
 extern const char STR_BYTES[];
@@ -1104,6 +1094,7 @@ extern const char STR_COPY_TRIMS_TO_OFS[];
 extern const char STR_INCDEC[];
 extern const char STR_GLOBALVAR[];
 extern const char STR_MIXSOURCE[];
+extern const char STR_MIXSOURCERAW[];
 extern const char STR_CONSTANT[];
 extern const char STR_TOP_BAR[];
 extern const char STR_FLASH_ERASE[];
@@ -1129,6 +1120,7 @@ extern const char STR_MENU_INPUTS[];
 extern const char STR_MENU_LUA[];
 extern const char STR_MENU_STICKS[];
 extern const char STR_MENU_POTS[];
+extern const char STR_MENU_MIN[];
 extern const char STR_MENU_MAX[];
 extern const char STR_MENU_HELI[];
 extern const char STR_MENU_TRIMS[];
@@ -1141,62 +1133,38 @@ extern const char STR_MENU_TELEMETRY[];
 extern const char STR_MENU_DISPLAY[];
 extern const char STR_MENU_OTHER[];
 extern const char STR_MENU_INVERT[];
+extern const char STR_AUDIO_MUTE[];
 extern const char STR_JITTER_FILTER[];
 extern const char STR_DEAD_ZONE[];
 extern const char STR_RTC_CHECK[];
 extern const char STR_SPORT_UPDATE_POWER_MODE[];
-extern const char* STR_SPORT_UPDATE_POWER_MODES[];
+extern const char* const STR_SPORT_UPDATE_POWER_MODES[];
 
 extern const char STR_MODULE_RANGE[];
+extern const char STR_RANGE_TEST[];
 extern const char STR_RECEIVER_OPTIONS[];
 
 extern const char STR_ABOUTUS[];
-extern const char STR_ABOUT_OPENTX_1[];
-extern const char STR_ABOUT_OPENTX_2[];
-extern const char STR_ABOUT_OPENTX_3[];
-extern const char STR_ABOUT_OPENTX_4[];
-extern const char STR_ABOUT_OPENTX_5[];
-
-extern const char STR_ABOUT_BERTRAND_1[];
-extern const char STR_ABOUT_BERTRAND_2[];
-extern const char STR_ABOUT_BERTRAND_3[];
-
-extern const char STR_ABOUT_MIKE_1[];
-extern const char STR_ABOUT_MIKE_2[];
-extern const char STR_ABOUT_MIKE_3[];
-extern const char STR_ABOUT_MIKE_4[];
-
-extern const char STR_ABOUT_ROMOLO_1[];
-extern const char STR_ABOUT_ROMOLO_2[];
-extern const char STR_ABOUT_ROMOLO_3[];
-
-extern const char STR_ABOUT_ANDRE_1[];
-extern const char STR_ABOUT_ANDRE_2[];
-extern const char STR_ABOUT_ANDRE_3[];
-
-extern const char STR_ABOUT_ROB_1[];
-extern const char STR_ABOUT_ROB_2[];
-
-extern const char STR_ABOUT_MARTIN_1[];
-extern const char STR_ABOUT_MARTIN_2[];
-
-extern const char STR_ABOUT_KJELL_1[];
-extern const char STR_ABOUT_KJELL_2[];
-extern const char STR_ABOUT_KJELL_3[];
-extern const char STR_ABOUT_KJELL_4[];
-
-extern const char STR_ABOUT_HARDWARE_1[];
-extern const char STR_ABOUT_HARDWARE_2[];
-extern const char STR_ABOUT_HARDWARE_3[];
-
-extern const char STR_ABOUT_PARENTS_1[];
-extern const char STR_ABOUT_PARENTS_2[];
-extern const char STR_ABOUT_PARENTS_3[];
-extern const char STR_ABOUT_PARENTS_4[];
 
 extern const char STR_AUTH_FAILURE[];
 extern const char STR_PROTOCOL[];
 extern const char STR_RACING_MODE[];
+
+extern const char STR_SRC_BATT[];
+extern const char STR_SRC_TIME[];
+extern const char STR_SRC_GPS[];
+extern const char STR_SRC_TIMER[];
+extern const char STR_FUNC_SW[];
+
+#if defined(COLORLCD)
+extern const char STR_SELECT_TEMPLATE[];
+extern const char STR_SELECT_TEMPLATE_FOLDER[];
+extern const char STR_NO_TEMPLATES[];
+extern const char STR_SAVE_TEMPLATE[];
+extern const char STR_BLANK_MODEL[];
+extern const char STR_BLANK_MODEL_INFO[];
+extern const char STR_FILE_EXISTS[];
+extern const char STR_ASK_OVERWRITE[];
 
 extern const char STR_USE_THEME_COLOR[];
 
@@ -1207,6 +1175,26 @@ extern const char STR_BLUE[];
 extern const char STR_GREEN[];
 extern const char STR_COLOR_PICKER[];
 extern const char STR_EDIT_THEME_DETAILS[];
+extern const char STR_THEME_COLOR_DEFAULT[];
+extern const char STR_THEME_COLOR_PRIMARY1[];
+extern const char STR_THEME_COLOR_PRIMARY2[];
+extern const char STR_THEME_COLOR_PRIMARY3[];
+extern const char STR_THEME_COLOR_SECONDARY1[];
+extern const char STR_THEME_COLOR_SECONDARY2[];
+extern const char STR_THEME_COLOR_SECONDARY3[];
+extern const char STR_THEME_COLOR_FOCUS[];
+extern const char STR_THEME_COLOR_EDIT[];
+extern const char STR_THEME_COLOR_ACTIVE[];
+extern const char STR_THEME_COLOR_WARNING[];
+extern const char STR_THEME_COLOR_DISABLED[];
+extern const char STR_THEME_COLOR_CUSTOM[];
+extern const char STR_THEME_CHECKBOX[];
+extern const char STR_THEME_ACTIVE[];
+extern const char STR_THEME_REGULAR[];
+extern const char STR_THEME_WARNING[];
+extern const char STR_THEME_DISABLED[];
+extern const char STR_THEME_EDIT[];
+extern const char STR_THEME_FOCUS[];
 extern const char STR_AUTHOR[];
 extern const char STR_DESCRIPTION[];
 extern const char STR_SAVE[];
@@ -1215,21 +1203,20 @@ extern const char STR_EDIT_THEME[];
 extern const char STR_DETAILS[];
 extern const char STR_THEME_EDITOR[];
 
-
-
-#if defined(COLORLCD)
-
+extern const char STR_EDIT_LABELS[];
+extern const char STR_LABEL_MODEL[];
 extern const char STR_ENTER_LABEL[];
 extern const char STR_LABEL[];
 extern const char STR_LABELS[];
 extern const char STR_SELECT_MODEL[];
 extern const char STR_NONE[];
-extern const char STR_CURRENT_MODEL[];
+extern const char STR_ACTIVE[];
 extern const char STR_NEW[];
 extern const char STR_NEW_LABEL[];
 extern const char STR_RENAME_LABEL[];
 extern const char STR_DELETE_LABEL[];
 extern const char STR_MAIN_MENU_SELECT_MODEL[];
+extern const char STR_MAIN_MENU_MANAGE_MODELS[];
 extern const char STR_MAIN_MENU_MODEL_NOTES[];
 extern const char STR_MAIN_MENU_CHANNEL_MONITOR[];
 extern const char STR_MAIN_MENU_MODEL_SETTINGS[];
@@ -1238,11 +1225,56 @@ extern const char STR_MAIN_MENU_SCREEN_SETTINGS[];
 extern const char STR_MAIN_MENU_RESET_TELEMETRY[];
 extern const char STR_MAIN_MENU_STATISTICS[];
 extern const char STR_MAIN_MENU_ABOUT_EDGETX[];
-
+extern const char STR_MANAGE_MODELS[];
 #endif
 
-#define CHR_HOUR   TR_CHR_HOUR
-#define CHR_INPUT  TR_CHR_INPUT
+#if defined(USBJ_EX)
+extern const char STR_USBJOYSTICK_LABEL[];
+extern const char STR_USBJOYSTICK_EXTMODE[];
+extern const char* const STR_VUSBJOYSTICK_EXTMODE[];
+extern const char STR_USBJOYSTICK_SETTINGS[];
+extern const char STR_USBJOYSTICK_IF_MODE[];
+extern const char* const STR_VUSBJOYSTICK_IF_MODE[];
+extern const char STR_USBJOYSTICK_CH_MODE[];
+extern const char* const STR_VUSBJOYSTICK_CH_MODE[];
+extern const char* const STR_VUSBJOYSTICK_CH_MODE_S[];
+extern const char STR_USBJOYSTICK_CH_BTNMODE[];
+extern const char* const STR_VUSBJOYSTICK_CH_BTNMODE[];
+extern const char* const STR_VUSBJOYSTICK_CH_BTNMODE_S[];
+extern const char STR_USBJOYSTICK_CH_SWPOS[];
+extern const char* const STR_VUSBJOYSTICK_CH_SWPOS[];
+extern const char STR_USBJOYSTICK_CH_AXIS[];
+extern const char* const STR_VUSBJOYSTICK_CH_AXIS[];
+extern const char STR_USBJOYSTICK_CH_SIM[];
+extern const char* const STR_VUSBJOYSTICK_CH_SIM[];
+extern const char STR_USBJOYSTICK_CH_INVERSION[];
+extern const char STR_USBJOYSTICK_CH_BTNNUM[];
+extern const char STR_USBJOYSTICK_BTN_COLLISION[];
+extern const char STR_USBJOYSTICK_AXIS_COLLISION[];
+extern const char STR_USBJOYSTICK_CIRC_COUTOUT[];
+extern const char* const STR_VUSBJOYSTICK_CIRC_COUTOUT[];
+extern const char STR_USBJOYSTICK_APPLY_CHANGES[];
+#endif
 
-#endif // _TRANSLATIONS_H_
+extern const char STR_SELECT_MENU_ALL[];
+extern const char STR_SELECT_MENU_CLR[];
+extern const char STR_SELECT_MENU_INV[];
 
+#if defined(COLORLCD)
+extern const char* const STR_SORT_ORDERS[];
+extern const char STR_SORT_MODELS_BY[];
+extern const char STR_CREATE_NEW[];
+extern const char STR_THEME_EXISTS[];
+
+extern const char STR_DATE_TIME_WIDGET[];
+extern const char STR_RADIO_INFO_WIDGET[];
+extern const char STR_LOW_BATT_COLOR[];
+extern const char STR_MID_BATT_COLOR[];
+extern const char STR_HIGH_BATT_COLOR[];
+extern const char STR_WIDGET_SIZE[];
+#endif
+
+extern const char STR_MIX_SLOW_PREC[];
+extern const char STR_MIX_DELAY_PREC[];
+
+extern const char STR_DEL_DIR_NOT_EMPTY[];

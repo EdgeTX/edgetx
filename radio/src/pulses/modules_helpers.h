@@ -19,20 +19,22 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODULES_HELPERS_H_
-#define _MODULES_HELPERS_H_
+#pragma once
 
-#include "libopenui/src/bitfield.h"
+#include "bitfield.h"
 #include "definitions.h"
-#include "opentx_helpers.h"
+#include "edgetx_helpers.h"
 #include "storage/storage.h"
 #include "globals.h"
+#include "MultiProtoDefs.h"
+#include "hal/module_port.h"
+#include "telemetry/crossfire.h"
 
 #if defined(MULTIMODULE)
 #include "telemetry/multi.h"
 #endif
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) && defined(AFHDS2)
 extern uint32_t NV14internalModuleFwVersion;
 #endif
 
@@ -43,128 +45,124 @@ extern uint32_t NV14internalModuleFwVersion;
 #define CROSSFIRE_CHANNELS_COUNT        16
 #define GHOST_CHANNELS_COUNT            16
 
+#define IS_NATIVE_FRSKY_PROTOCOL(module)                                \
+  ((moduleState[module].protocol == PROTOCOL_CHANNELS_PXX1) ||          \
+   (moduleState[module].protocol == PROTOCOL_CHANNELS_PXX2))
+
 #if defined (MULTIMODULE)
-#define IS_D16_MULTI(module)                                                   \
-  (((g_model.moduleData[module].multi.rfProtocol ==                          \
-     MODULE_SUBTYPE_MULTI_FRSKY) &&                                            \
-    (g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16 ||          \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_8CH ||      \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT ||      \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_LBT_8CH ||  \
-     g_model.moduleData[module].subType == MM_RF_FRSKY_SUBTYPE_D16_CLONED)) || \
-   (g_model.moduleData[module].multi.rfProtocol ==                           \
-    MODULE_SUBTYPE_MULTI_FRSKYX2))
+  #define IS_D16_MULTI(module)                                            \
+    ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
+    (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2))
 
-#define IS_R9_MULTI(module)                         \
-  (g_model.moduleData[module].multi.rfProtocol == \
-   MODULE_SUBTYPE_MULTI_FRSKY_R9)
+  #define IS_R9_MULTI(module)                         \
+    (g_model.moduleData[module].multi.rfProtocol == \
+    MODULE_SUBTYPE_MULTI_FRSKY_R9)
 
-#define IS_HOTT_MULTI(module)                                           \
-  (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_HOTT)
+  #define IS_HOTT_MULTI(module)                                           \
+    (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_HOTT)
 
-#define IS_CONFIG_MULTI(module)                                         \
-  (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_CONFIG)
+  #define IS_CONFIG_MULTI(module)                                         \
+    (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_CONFIG)
 
-#define IS_DSM_MULTI(module)                                            \
-  (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+  #define IS_DSM_MULTI(module)                                            \
+    (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
 
-#define IS_RX_MULTI(module)                          \
-  ((g_model.moduleData[module].multi.rfProtocol == \
-    MODULE_SUBTYPE_MULTI_AFHDS2A_RX) ||              \
-   (g_model.moduleData[module].multi.rfProtocol == \
-    MODULE_SUBTYPE_MULTI_FRSKYX_RX) ||               \
-   (g_model.moduleData[module].multi.rfProtocol == \
-    MODULE_SUBTYPE_MULTI_BAYANG_RX) ||               \
-   (g_model.moduleData[module].multi.rfProtocol == \
-    MODULE_SUBTYPE_MULTI_DSM_RX))
+  #define IS_RX_MULTI(module)                          \
+    ((g_model.moduleData[module].multi.rfProtocol == \
+      MODULE_SUBTYPE_MULTI_AFHDS2A_RX) ||              \
+    (g_model.moduleData[module].multi.rfProtocol == \
+      MODULE_SUBTYPE_MULTI_FRSKYX_RX) ||               \
+    (g_model.moduleData[module].multi.rfProtocol == \
+      MODULE_SUBTYPE_MULTI_BAYANG_RX) ||               \
+    (g_model.moduleData[module].multi.rfProtocol == \
+      MODULE_SUBTYPE_MULTI_DSM_RX))
 
-#if defined(HARDWARE_INTERNAL_MODULE)
-#define IS_FRSKY_SPORT_PROTOCOL()                                      \
-  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||              \
-   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&             \
-    (IS_D16_MULTI(INTERNAL_MODULE) || IS_D16_MULTI(EXTERNAL_MODULE) || \
-     IS_R9_MULTI(INTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
-#else
-#define IS_FRSKY_SPORT_PROTOCOL()                          \
-  (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT ||  \
-   (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE && \
-    (IS_D16_MULTI(EXTERNAL_MODULE) || IS_R9_MULTI(EXTERNAL_MODULE))))
-#endif
+  // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
+  // Keep the order of the fields that the so that the size stays small
+  struct mm_options_strings {
+    static const char* const options[];
+  };
 
+  const uint8_t getMaxMultiOptions();
+
+  PACK_NOT_SIMU(struct mm_protocol_definition {
+    uint8_t protocol;
+    uint8_t maxSubtype:6;
+    bool failsafe:1;
+    bool disable_ch_mapping:1;
+    const char* const* subTypeString;
+    const char* optionsstr;
+  });
+
+  const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
+
+  inline uint8_t getMaxMultiSubtype(uint8_t moduleIdx)
+  {
+    MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
+
+    uint8_t max_pdef = 0;
+    auto proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
+    const mm_protocol_definition *pdef = getMultiProtocolDefinition(proto);
+    if (pdef) {
+      max_pdef = pdef->maxSubtype;
+    }
+
+    uint8_t max_status = 0;
+    if (status.isValid()) {
+      max_status = (status.protocolSubNbr == 0 ? 0 : status.protocolSubNbr - 1);
+    }
+
+    return max(max_status, max_pdef);
+  }
+
+  inline bool isModuleMultimodule(uint8_t idx)
+  {
+    return g_model.moduleData[idx].type == MODULE_TYPE_MULTIMODULE;
+  }
+
+  inline bool isModuleMultimoduleDSM2(uint8_t idx)
+  {
+    return isModuleMultimodule(idx) &&
+          g_model.moduleData[idx].multi.rfProtocol ==
+              MODULE_SUBTYPE_MULTI_DSM2;
+  }
+
+  inline void resetMultiProtocolsOptions(uint8_t moduleIdx)
+  {
+    if (!isModuleMultimodule(moduleIdx))
+      return;
+
+    // Sensible default for DSM2 (same as for ppm): 7ch@22ms + Autodetect settings enabled
+    if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
+      g_model.moduleData[moduleIdx].multi.autoBindMode = 1;
+    }
+    else {
+      g_model.moduleData[moduleIdx].multi.autoBindMode = 0;
+    }
+    g_model.moduleData[moduleIdx].multi.optionValue = 0;
+    g_model.moduleData[moduleIdx].multi.disableTelemetry = 0;
+    g_model.moduleData[moduleIdx].multi.disableMapping = 0;
+    g_model.moduleData[moduleIdx].multi.lowPowerMode = 0;
+    g_model.moduleData[moduleIdx].failsafeMode = FAILSAFE_NOT_SET;
+    g_model.header.modelId[moduleIdx] = 0;
+  }
 #else
   #define IS_D16_MULTI(module)           false
   #define IS_R9_MULTI(module)            false
   #define IS_HOTT_MULTI(module)          false
   #define IS_CONFIG_MULTI(module)        false
   #define IS_DSM_MULTI(module)           false
-  #define IS_FRSKY_SPORT_PROTOCOL()      (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT)
   #define IS_RX_MULTI(module)            false
-#endif
 
-#define IS_SPEKTRUM_PROTOCOL()           (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM)
-
-
-#if defined(MULTIMODULE)
-// When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
-// Keep the order of the fields that the so that the size stays small
-struct mm_options_strings {
-  static const char* options[];
-};
-
-const uint8_t getMaxMultiOptions();
-
-struct mm_protocol_definition {
-  uint8_t protocol;
-  uint8_t maxSubtype;
-  bool failsafe;
-  bool disable_ch_mapping;
-  const char** subTypeString;
-  const char* optionsstr;
-};
-
-const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
-
-inline uint8_t getMaxMultiSubtype(uint8_t moduleIdx)
-{
-  MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
-  auto proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
-  if (proto == MODULE_SUBTYPE_MULTI_FRSKY) {
-    return 7;
+  inline bool isModuleMultimodule(uint8_t)
+  {
+    return false;
   }
 
-  uint8_t max_pdef = 0;
-  const mm_protocol_definition *pdef = getMultiProtocolDefinition(proto);
-  if (pdef) {
-    max_pdef = pdef->maxSubtype;
+  inline bool isModuleMultimoduleDSM2(uint8_t)
+  {
+    return false;
   }
-  uint8_t max_status = 0;
-  if (status.isValid()) {
-    max_status = (status.protocolSubNbr == 0 ? 0 : status.protocolSubNbr - 1);
-  }
-  return max(max_status, max_pdef);
-}
-
-inline bool isModuleMultimodule(uint8_t idx)
-{
-  return g_model.moduleData[idx].type == MODULE_TYPE_MULTIMODULE;
-}
-
-inline bool isModuleMultimoduleDSM2(uint8_t idx)
-{
-  return isModuleMultimodule(idx) &&
-         g_model.moduleData[idx].multi.rfProtocol ==
-             MODULE_SUBTYPE_MULTI_DSM2;
-}
-#else
-inline bool isModuleMultimodule(uint8_t)
-{
-  return false;
-}
-
-inline bool isModuleMultimoduleDSM2(uint8_t)
-{
-  return false;
-}
 #endif
 
 inline bool isModuleTypeXJT(uint8_t type)
@@ -230,12 +228,27 @@ inline bool isModuleCrossfire(uint8_t idx)
   return g_model.moduleData[idx].type == MODULE_TYPE_CROSSFIRE;
 }
 
+inline bool isModuleELRS(uint8_t idx)
+{
+  return crossfireModuleStatus[idx].isELRS;
+}
+
 inline bool isInternalModuleCrossfire()
 {
   return g_eeGeneral.internalModule == MODULE_TYPE_CROSSFIRE;
 }
 #else
 inline bool isModuleCrossfire(uint8_t idx)
+{
+  return false;
+}
+
+inline bool isModuleELRS(uint8_t idx)
+{
+  return false;
+}
+
+inline bool isInternalModuleCrossfire()
 {
   return false;
 }
@@ -396,22 +409,19 @@ inline bool isModuleSBUS(uint8_t moduleIdx)
   return g_model.moduleData[moduleIdx].type == MODULE_TYPE_SBUS;
 }
 
-inline bool isModuleFlySky(uint8_t idx)
-{
-  return
-    (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY);
-}
-
 inline bool isModuleAFHDS2A(uint8_t idx)
 {
-  return isModuleFlySky(idx)
-    && (g_model.moduleData[idx].subType == FLYSKY_SUBTYPE_AFHDS2A);
+  return (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY_AFHDS2A);
 }
 
 inline bool isModuleAFHDS3(uint8_t idx)
 {
-  return isModuleFlySky(idx)
-    && (g_model.moduleData[idx].subType == FLYSKY_SUBTYPE_AFHDS3);
+  return (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY_AFHDS3);
+}
+
+inline bool isModuleFlySky(uint8_t idx)
+{
+  return (isModuleAFHDS2A(idx) || isModuleAFHDS3(idx));
 }
 
 inline bool isModuleDSMP(uint8_t idx)
@@ -437,7 +447,8 @@ static const int8_t maxChannelsModules_M8[] = {
   0, // MODULE_TYPE_R9M_LITE_PRO_PXX2: index NOT USED
   8, // MODULE_TYPE_SBUS
   0, // MODULE_TYPE_XJT_LITE_PXX2: index NOT USED
-  6, // MODULE_TYPE_FLYSKY: 14 channels for AFHDS2A, AFHDS3 special cased
+  6, // MODULE_TYPE_FLYSKY_AFHDS2A: 14 channels
+  10,// MODULE_TYPE_FLYSKY_AFHDS3: 18 channels
   4, // MODULE_TYPE_LEMON_DSMP: 12 channels for DSMX
 };
 
@@ -460,39 +471,7 @@ static_assert(MODULE_SUBTYPE_PXX1_LAST + 2 == sizeof(maxChannelsXJT_M8),
 constexpr int8_t MAX_TRAINER_CHANNELS_M8 = MAX_TRAINER_CHANNELS - 8;
 constexpr int8_t MAX_EXTRA_MODULE_CHANNELS_M8 = 8; // only 16ch PPM
 
-inline int8_t maxModuleChannels_M8(uint8_t moduleIdx)
-{
-  if (isExtraModule(moduleIdx)) {
-    return MAX_EXTRA_MODULE_CHANNELS_M8;
-  } else if (isModuleXJT(moduleIdx)) {
-    return maxChannelsXJT_M8[1 + g_model.moduleData[moduleIdx].subType];
-  } else if (isModuleISRMD16(moduleIdx)) {
-    return maxChannelsXJT_M8[MODULE_SUBTYPE_ISRM_PXX2_ACCST_D16];
-  } else if (isModuleR9M(moduleIdx)) {
-    if (isModuleR9M_LBT(moduleIdx)) {
-      if (isModuleR9MLite(moduleIdx))
-        return g_model.moduleData[moduleIdx].pxx.power ==
-                       R9M_LITE_LBT_POWER_25_8CH
-                   ? 0
-                   : 8;
-      else
-        return g_model.moduleData[moduleIdx].pxx.power == R9M_LBT_POWER_25_8CH
-                   ? 0
-                   : 8;
-    } else {
-      return 8;  // always 16 channels in FCC / FLEX
-    }
-  } else if (isModuleAFHDS3(moduleIdx)) {
-    return 10;
-  } else if (isModuleMultimoduleDSM2(moduleIdx)) {
-    return 4;  // 12 channels
-  } else if (isModuleDSMP(moduleIdx) &&
-             (g_model.moduleData[moduleIdx].dsmp.flags != 0)) {
-    return g_model.moduleData[moduleIdx].channelsCount;
-  } else {
-    return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
-  }
-}
+extern int8_t maxModuleChannels_M8(uint8_t moduleIdx);
 
 inline int8_t maxModuleChannels(uint8_t moduleIdx)
 {
@@ -526,19 +505,7 @@ inline uint8_t sentModulePXXChannels(uint8_t idx)
   return 8 + g_model.moduleData[idx].channelsCount;
 }
 
-inline int8_t sentModuleChannels(uint8_t idx)
-{
-  if (isModuleCrossfire(idx))
-    return CROSSFIRE_CHANNELS_COUNT;
-  else if (isModuleGhost(idx))
-    return GHOST_CHANNELS_COUNT;
-  else if (isModuleMultimodule(idx) && !isModuleMultimoduleDSM2(idx))
-    return 16;
-  else if (isModuleSBUS(idx))
-    return 16;
-  else
-    return sentModulePXXChannels(idx);
-}
+extern int8_t sentModuleChannels(uint8_t idx);
 
 inline bool isDefaultModelRegistrationID()
 {
@@ -630,16 +597,34 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
   return false;
 }
 
+#if defined(MULTIMODULE)
+constexpr int32_t MULTI_DSM_CLONE_VERSION = (1 << 24) | (3 << 16) | (3 << 8) | 30;
+
+inline bool isMultiProtocolDSMCloneAvailable(uint8_t moduleIdx)
+{
+  if (!isModuleMultimodule(moduleIdx))
+    return false;
+
+  MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
+  if (status.isValid() && ((status.major << 24) | (status.minor << 16) | (status.revision << 8) | status.patch) < MULTI_DSM_CLONE_VERSION) {
+    return false;
+  }
+
+  return g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2;
+}
+#endif
+
 inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 {
   return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||
          isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) ||
-         isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx);
+         isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx) ||
+         (isModuleELRS(moduleIdx) && (crossfireModuleStatus[moduleIdx].major >= 4 || (crossfireModuleStatus[moduleIdx].major == 3 && crossfireModuleStatus[moduleIdx].minor >= 4)));
 }
 
 inline uint32_t getNV14RfFwVersion()
 {
-#if defined(PCBNV14)
+#if defined(PCBNV14) && defined(AFHDS2)
   return  NV14internalModuleFwVersion;
 #else
   return 0;
@@ -648,41 +633,19 @@ inline uint32_t getNV14RfFwVersion()
 
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
-  bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx);
-#if defined(PCBNV14)
+  bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx) && !isModuleCrossfire(moduleIdx);
+#if defined(PCBNV14) && defined(AFHDS2)
   ret = ret &&
-        (!isModuleFlySky(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
-#else
-  ret = ret && (!isModuleFlySky(moduleIdx));
+        (!isModuleAFHDS2A(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
+#elif defined(AFHDS3)
+  ret = ret && (!isModuleAFHDS3(moduleIdx));
 #endif
   return ret;
 }
 
 constexpr uint8_t MAX_RXNUM = 63;
 
-inline uint8_t getMaxRxNum(uint8_t idx)
-{
-  if (isModuleDSM2(idx))
-    return 20;
-
-#if defined(MULTIMODULE)
-  if (isModuleMultimodule(idx)) {
-    switch (g_model.moduleData[idx].multi.rfProtocol) {
-      case MODULE_SUBTYPE_MULTI_OLRS:
-        return 4;
-      case MODULE_SUBTYPE_MULTI_BUGS:
-      case MODULE_SUBTYPE_MULTI_BUGS_MINI:
-        return 15;
-    }
-  }
-#endif
-
-#if defined(AFHDS3)
-  if (isModuleAFHDS3(idx)) return AFHDS3_MAX_MODEL_ID;
-#endif
-  
-  return MAX_RXNUM;
-}
+extern uint8_t getMaxRxNum(uint8_t idx);
 
 inline const char * getModuleDelay(uint8_t idx)
 {
@@ -712,28 +675,17 @@ inline bool isBindCh9To16Allowed(uint8_t moduleIndex)
   }
 }
 
-#if defined(PCBTARANIS) || defined(PCBHORUS)
-inline bool isSportLineUsedByInternalModule()
-{
-  return g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_XJT_PXX1;
-}
-#else
-inline bool isSportLineUsedByInternalModule()
-{
-  return false;
-}
-#endif
-
 inline bool isTelemAllowedOnBind(uint8_t moduleIndex)
 {
 #if defined(HARDWARE_INTERNAL_MODULE)
   if (moduleIndex == INTERNAL_MODULE)
     return true;
 
-  if (isSportLineUsedByInternalModule())
+  if (modulePortIsPortUsedByModule(INTERNAL_MODULE, ETX_MOD_PORT_SPORT))
     return false;
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
   if (g_model.moduleData[EXTERNAL_MODULE].type == MODULE_TYPE_R9M_LITE_PXX1) {
     if (isModuleR9M_LBT(EXTERNAL_MODULE))
       return g_model.moduleData[EXTERNAL_MODULE].pxx.power < R9M_LITE_LBT_POWER_100_16CH_NOTELEM;
@@ -747,6 +699,7 @@ inline bool isTelemAllowedOnBind(uint8_t moduleIndex)
     else
       return true;
   }
+#endif
 
   return true;
 }
@@ -759,6 +712,7 @@ inline bool isPXX2ReceiverUsed(uint8_t moduleIdx, uint8_t receiverIdx)
 inline void setPXX2ReceiverUsed(uint8_t moduleIdx, uint8_t receiverIdx)
 {
   g_model.moduleData[moduleIdx].pxx2.receivers |= (1 << receiverIdx);
+  storageDirty(EE_MODEL);
 }
 
 inline bool isPXX2ReceiverEmpty(uint8_t moduleIdx, uint8_t receiverIdx)
@@ -787,97 +741,38 @@ inline void setDefaultPpmFrameLength(uint8_t moduleIdx)
       4 * max<int>(0, g_model.moduleData[moduleIdx].channelsCount);
 }
 
+inline void setDefaultPpmFrameLengthTrainer()
+{
+  g_model.trainerData.frameLength =
+      4 * max<int>(0, g_model.trainerData.channelsCount);
+}
+
 inline void resetAccessAuthenticationCount()
 {
   // the module will reset on mode switch, we need to reset the authentication counter
   globalData.authenticationCount = 0;
 }
 
-inline void resetAfhdsOptions(uint8_t moduleIdx)
+inline void resetAfhds3Options(uint8_t moduleIdx)
 {
 #if defined(AFHDS3)
   auto & data = g_model.moduleData[moduleIdx];
-  data.subType = FLYSKY_SUBTYPE_AFHDS3;
+  data.subType = 0;
   data.afhds3.emi = 2; // FCC
   data.afhds3.telemetry = 1;
   data.afhds3.phyMode = 0;
-#elif defined(AFHDS2)
+#endif
+}
+
+inline void resetAfhds2AOptions(uint8_t moduleIdx)
+{
+#if defined(AFHDS2)
   auto & data = g_model.moduleData[moduleIdx];
-  data.subType = FLYSKY_SUBTYPE_AFHDS2A;
+  data.subType = 0;
   data.flysky.setDefault();
 #endif
 }
 
-
-inline void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
-{
-  ModuleData & moduleData = g_model.moduleData[moduleIdx];
-  memclear(&moduleData, sizeof(ModuleData));
-  moduleData.type = moduleType;
-  moduleData.channelsCount = defaultModuleChannels_M8(moduleIdx);
-  if (moduleData.type == MODULE_TYPE_SBUS)
-    moduleData.sbus.refreshRate = -31;
-  else if (moduleData.type == MODULE_TYPE_PPM)
-    setDefaultPpmFrameLength(moduleIdx);
-  else if (moduleData.type == MODULE_TYPE_FLYSKY) {
-    resetAfhdsOptions(moduleIdx);
-  }
-  else
-    resetAccessAuthenticationCount();
-}
+extern void setModuleType(uint8_t moduleIdx, uint8_t moduleType);
 
 extern bool isExternalAntennaEnabled();
-
-#if defined(MULTIMODULE)
-inline void resetMultiProtocolsOptions(uint8_t moduleIdx)
-{
-  if (!isModuleMultimodule(moduleIdx))
-    return;
-
-  // Sensible default for DSM2 (same as for ppm): 7ch@22ms + Autodetect settings enabled
-  if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2) {
-    g_model.moduleData[moduleIdx].multi.autoBindMode = 1;
-  }
-  else {
-    g_model.moduleData[moduleIdx].multi.autoBindMode = 0;
-  }
-  g_model.moduleData[moduleIdx].multi.optionValue = 0;
-  g_model.moduleData[moduleIdx].multi.disableTelemetry = 0;
-  g_model.moduleData[moduleIdx].multi.disableMapping = 0;
-  g_model.moduleData[moduleIdx].multi.lowPowerMode = 0;
-  g_model.moduleData[moduleIdx].failsafeMode = FAILSAFE_NOT_SET;
-  g_model.header.modelId[moduleIdx] = 0;
-}
-
-inline void getMultiOptionValues(int8_t multi_proto, int8_t & min, int8_t & max)
-{
-  switch (multi_proto) {
-    case MODULE_SUBTYPE_MULTI_DSM2:
-      min = 0;
-      max = 1;
-      break;
-    case MODULE_SUBTYPE_MULTI_BAYANG:
-      min = 0;
-      max = 3;
-      break;
-    case MODULE_SUBTYPE_MULTI_OLRS:
-      min = -1;
-      max = 7;
-      break;
-    case MODULE_SUBTYPE_MULTI_FS_AFHDS2A:
-      min = 0;
-      max = 70;
-      break;
-    case MODULE_SUBTYPE_MULTI_XN297DUMP:
-      min = -1;
-      max = 84;
-      break;
-    default:
-      min = -128;
-      max = 127;
-      break;
-  }
-}
-#endif
-
-#endif // _MODULES_HELPERS_H_

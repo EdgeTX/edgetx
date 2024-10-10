@@ -19,22 +19,25 @@
  * GNU General Public License for more details.
  */
 
-#include <stdlib.h>
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "board.h"
 #include "lcd.h"
 
-#define CS1_HIGH()     TOPLCD_GPIO->BSRRL = TOPLCD_GPIO_PIN_CS1
-#define CS1_LOW()      TOPLCD_GPIO->BSRRH = TOPLCD_GPIO_PIN_CS1
-#define CS2_HIGH()     TOPLCD_GPIO->BSRRL = TOPLCD_GPIO_PIN_CS2
-#define CS2_LOW()      TOPLCD_GPIO->BSRRH = TOPLCD_GPIO_PIN_CS2
-#define WR_HIGH()      TOPLCD_GPIO->BSRRL = TOPLCD_GPIO_PIN_WR
-#define WR_LOW()       TOPLCD_GPIO->BSRRH = TOPLCD_GPIO_PIN_WR
-#define DATA_HIGH()    TOPLCD_GPIO->BSRRL = TOPLCD_GPIO_PIN_DATA
-#define DATA_LOW()     TOPLCD_GPIO->BSRRH = TOPLCD_GPIO_PIN_DATA
-#define BL_ON()        TOPLCD_GPIO->BSRRL = TOPLCD_GPIO_PIN_BL
-#define BL_OFF()       TOPLCD_GPIO->BSRRH = TOPLCD_GPIO_PIN_BL
+#include <stdlib.h>
+
+#define CS1_HIGH()     gpio_set(TOPLCD_GPIO_CS1)
+#define CS1_LOW()      gpio_clear(TOPLCD_GPIO_CS1)
+#define CS2_HIGH()     gpio_set(TOPLCD_GPIO_CS2)
+#define CS2_LOW()      gpio_clear(TOPLCD_GPIO_CS2)
+#define WR_HIGH()      gpio_set(TOPLCD_GPIO_WR)
+#define WR_LOW()       gpio_clear(TOPLCD_GPIO_WR)
+#define DATA_HIGH()    gpio_set(TOPLCD_GPIO_DATA)
+#define DATA_LOW()     gpio_clear(TOPLCD_GPIO_DATA)
+#define BL_ON()        gpio_set(TOPLCD_GPIO_BL)
+#define BL_OFF()       gpio_clear(TOPLCD_GPIO_BL)
 
 const uint8_t TimeLCDsegs[] = { 0xAF, 0x06, 0x6D, 0x4F, 0xC6, 0xCB, 0xEB, 0x0E, 0xEF, 0xCF };
 const uint8_t RssiLCDsegs[] = { 0xFA, 0x60, 0xBC, 0xF4, 0x66, 0xD6, 0xDE, 0x70, 0xFE, 0xF6 };
@@ -224,14 +227,11 @@ extern "C" void TIM8_BRK_TIM12_IRQHandler()
 
 void toplcdInit()
 {
-  RCC_AHB1PeriphClockCmd(TOPLCD_RCC_AHB1Periph, ENABLE);
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = TOPLCD_GPIO_PIN_DATA | TOPLCD_GPIO_PIN_WR |TOPLCD_GPIO_PIN_BL|TOPLCD_GPIO_PIN_CS1|TOPLCD_GPIO_PIN_CS2;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(TOPLCD_GPIO, &GPIO_InitStructure);
+  gpio_init(TOPLCD_GPIO_DATA, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(TOPLCD_GPIO_WR, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(TOPLCD_GPIO_CS1, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(TOPLCD_GPIO_CS2, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(TOPLCD_GPIO_BL, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
   BL_ON();
 

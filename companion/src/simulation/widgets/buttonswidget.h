@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _BUTTONSWIDGET_H_
-#define _BUTTONSWIDGET_H_
+#pragma once
 
 #include "radiouiaction.h"
 #include "radiokeywidget.h"
@@ -45,17 +45,46 @@ class ButtonsWidget : public QWidget
       QWidget::setStyleSheet(sheet);
     }
 
-    RadioKeyWidget * addArea(const QRect & rect, const char * image, RadioUiAction * action = NULL)
+    RadioKeyWidget * addArea(const QRect & rect, const char * image, RadioUiAction * action = nullptr)
     {
       return addArea(QPolygon(rect), image, action);
     }
 
-    RadioKeyWidget * addArea(const QPolygon & polygon, const char * image, RadioUiAction * action = NULL)
+    RadioKeyWidget * addArea(const QPolygon & polygon, const char * image, RadioUiAction * action = nullptr)
     {
-      RadioKeyWidget * btn = new RadioKeyWidget(polygon, image, action, this);
-      m_buttons.append(btn);
-      connect(btn, &RadioKeyWidget::imageChanged, this, &ButtonsWidget::setBitmap);
-      return btn;
+      RadioKeyWidget * rkw = new RadioKeyWidget(polygon, image, action, this);
+      m_buttons.append(rkw);
+      connect(rkw, &RadioKeyWidget::imageChanged, this, &ButtonsWidget::setBitmap);
+      return rkw;
+    }
+
+    RadioKeyWidget * addPushButton(QPushButton * pushbtn, RadioUiAction * action = nullptr)
+    {
+      RadioKeyWidget * rkw = new RadioKeyWidget(pushbtn, action, this);
+      m_buttons.append(rkw);
+      connect(pushbtn, &QPushButton::pressed, rkw, &RadioKeyWidget::press);
+      connect(pushbtn, &QPushButton::released, rkw, &RadioKeyWidget::release);
+
+      if (action) {
+        //  blink push button on click or matching key(s) press
+        connect(action, static_cast<void (RadioUiAction::*)(void)>(&RadioUiAction::pushed), [this, pushbtn] (void) {
+                //  TODO: use a palette colors
+                //        set to default -> blink -> default
+                QString csssave = pushbtn->styleSheet();
+                QString blnkcol = "background-color: rgb(239, 41, 41)";
+                // pressing the same key in rapid seccession can affect the order of the events see TODO
+                if (csssave != blnkcol) {
+                  pushbtn->setFocus();
+                  pushbtn->setStyleSheet(blnkcol);
+                  QTimer * tim = new QTimer(this);
+                  tim->setSingleShot(true);
+                  connect(tim, &QTimer::timeout, [pushbtn, csssave]() { pushbtn->setStyleSheet(csssave); });
+                  tim->start(300);
+                }
+        });
+      }
+      pushbtn->setFocusPolicy(Qt::ClickFocus);
+      return rkw;
     }
 
   protected:
@@ -72,7 +101,7 @@ class ButtonsWidget : public QWidget
 
     void onMouseButtonEvent(bool press, QMouseEvent * event)
     {
-      if (!(event->button() & (Qt::LeftButton | Qt::MidButton))) {
+      if (!(event->button() & (Qt::LeftButton | Qt::MiddleButton))) {
         event->ignore();
         return;
       }
@@ -110,5 +139,3 @@ class ButtonsWidget : public QWidget
     QList<RadioKeyWidget *> m_buttons;
     QString defaultStyleSheet;
 };
-
-#endif // _BUTTONSWIDGET_H_

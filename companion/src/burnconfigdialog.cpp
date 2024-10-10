@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -93,7 +94,7 @@ void burnConfigDialog::getSettings()
       dfuLoc =  QFileInfo("/usr/bin/dfu-util").absoluteFilePath();
 #endif
 
-    dfuArgs = g.dfuArguments().split(" ", QString::SkipEmptyParts);
+    dfuArgs = g.dfuArguments().split(" ", Qt::SkipEmptyParts);
     armMCU = g.armMcu();
     sambaPort = g.sambaPort();
 
@@ -160,7 +161,7 @@ void burnConfigDialog::on_dfu_location_editingFinished()
 
 void burnConfigDialog::on_dfuArgs_editingFinished()
 {
-    dfuArgs = ui->dfuArgs->text().split(" ", QString::SkipEmptyParts);
+    dfuArgs = ui->dfuArgs->text().split(" ", Qt::SkipEmptyParts);
 }
 
 void burnConfigDialog::on_advCtrChkB_toggled(bool checked)

@@ -1,0 +1,33 @@
+{% set regular_switches = switches | selectattr('type','!=','FSWITCH') | list %}
+{% set function_switches = switches | selectattr('type','==','FSWITCH') | list %}
+
+const hw_switch_def _switch_defs[] = {
+{% for switch in regular_switches %}
+  { "{{ switch.name }}", SWITCH_HW_{{ switch.type }} },
+{% endfor %}
+{% for switch in function_switches %}
+  { "{{ switch.name }}", SWITCH_HW_2POS },
+{% endfor %}
+};
+
+constexpr uint8_t n_switches = {{ regular_switches | count }};
+constexpr uint8_t n_fct_switches = {{ function_switches | count }};
+constexpr uint8_t n_total_switches = {{ switches | count }};
+
+constexpr swconfig_t _switch_default_config = (swconfig_t)0
+{% for sw in regular_switches %}
+  {% if sw.default %}
+    | ((swconfig_t)SWITCH_{{ sw.default }} << ({{ loop.index0 }} * SW_CFG_BITS))
+  {% endif %}
+{% endfor %}
+;
+
+const switch_display_pos_t _switch_display[] = {
+{% for sw in regular_switches %}
+  {% if sw.display %}
+    { {{ sw.display[0] }}, {{ sw.display[1] }} },
+  {% else %}
+    { 0, 0 },
+  {% endif %}
+{% endfor %}
+};

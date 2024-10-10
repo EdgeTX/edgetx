@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -21,6 +22,7 @@
 #pragma once
 
 #include "constants.h"
+#include "radio/src/MultiProtoDefs.h"
 
 #include <QtCore>
 
@@ -46,7 +48,8 @@ enum ModuleType {
   MODULE_TYPE_R9M_LITE_PRO_PXX2,
   MODULE_TYPE_SBUS,
   MODULE_TYPE_XJT_LITE_PXX2,
-  MODULE_TYPE_FLYSKY, //no more protocols possible because of 4 bits value
+  MODULE_TYPE_FLYSKY_AFHDS2A,
+  MODULE_TYPE_FLYSKY_AFHDS3,
   MODULE_TYPE_LEMON_DSMP,
   MODULE_TYPE_COUNT,
   MODULE_TYPE_MAX = MODULE_TYPE_COUNT - 1
@@ -82,105 +85,11 @@ enum PulsesProtocol {
   PULSES_XJT_LITE_X16,
   PULSES_XJT_LITE_D8,
   PULSES_XJT_LITE_LR12,
-  PULSES_AFHDS3,
+  PULSES_FLYSKY_AFHDS2A,
+  PULSES_FLYSKY_AFHDS3,
   PULSES_GHOST,
   PULSES_LEMON_DSMP,
   PULSES_PROTOCOL_LAST
-};
-
-enum MultiModuleRFProtocols {
-  MODULE_SUBTYPE_MULTI_FLYSKY=0,
-  MODULE_SUBTYPE_MULTI_FIRST=MODULE_SUBTYPE_MULTI_FLYSKY,
-  MODULE_SUBTYPE_MULTI_HUBSAN,
-  MODULE_SUBTYPE_MULTI_FRSKY,
-  MODULE_SUBTYPE_MULTI_HISKY,
-  MODULE_SUBTYPE_MULTI_V2X2,
-  MODULE_SUBTYPE_MULTI_DSM2,
-  MODULE_SUBTYPE_MULTI_DEVO,
-  MODULE_SUBTYPE_MULTI_YD717,
-  MODULE_SUBTYPE_MULTI_KN,
-  MODULE_SUBTYPE_MULTI_SYMAX,
-  MODULE_SUBTYPE_MULTI_SLT,
-  MODULE_SUBTYPE_MULTI_CX10,
-  MODULE_SUBTYPE_MULTI_CG023,
-  MODULE_SUBTYPE_MULTI_BAYANG,
-  MODULE_SUBTYPE_MULTI_ESky,
-  MODULE_SUBTYPE_MULTI_MT99XX,
-  MODULE_SUBTYPE_MULTI_MJXQ,
-  MODULE_SUBTYPE_MULTI_SHENQI,
-  MODULE_SUBTYPE_MULTI_FY326,
-  MODULE_SUBTYPE_MULTI_FUTABA,
-  MODULE_SUBTYPE_MULTI_J6PRO,
-  MODULE_SUBTYPE_MULTI_FQ777,
-  MODULE_SUBTYPE_MULTI_ASSAN,
-  MODULE_SUBTYPE_MULTI_HONTAI,
-  MODULE_SUBTYPE_MULTI_OLRS,
-  MODULE_SUBTYPE_MULTI_FS_AFHDS2A,
-  MODULE_SUBTYPE_MULTI_Q2X2,
-  MODULE_SUBTYPE_MULTI_WK_2X01,
-  MODULE_SUBTYPE_MULTI_Q303,
-  MODULE_SUBTYPE_MULTI_GW008,
-  MODULE_SUBTYPE_MULTI_DM002,
-  MODULE_SUBTYPE_MULTI_CABELL,
-  MODULE_SUBTYPE_MULTI_ESKY150,
-  MODULE_SUBTYPE_MULTI_H83D,
-  MODULE_SUBTYPE_MULTI_CORONA,
-  MODULE_SUBTYPE_MULTI_CFLIE,
-  MODULE_SUBTYPE_MULTI_HITEC,
-  MODULE_SUBTYPE_MULTI_WFLY,
-  MODULE_SUBTYPE_MULTI_BUGS,
-  MODULE_SUBTYPE_MULTI_BUGS_MINI,
-  MODULE_SUBTYPE_MULTI_TRAXXAS,
-  MODULE_SUBTYPE_MULTI_NCC1701,
-  MODULE_SUBTYPE_MULTI_E01X,
-  MODULE_SUBTYPE_MULTI_V911S,
-  MODULE_SUBTYPE_MULTI_GD00X,
-  MODULE_SUBTYPE_MULTI_V761,
-  MODULE_SUBTYPE_MULTI_KF606,
-  MODULE_SUBTYPE_MULTI_REDPINE,
-  MODULE_SUBTYPE_MULTI_POTENSIC,
-  MODULE_SUBTYPE_MULTI_ZSX,
-  MODULE_SUBTYPE_MULTI_HEIGHT,
-  MODULE_SUBTYPE_MULTI_SCANNER,
-  MODULE_SUBTYPE_MULTI_FRSKYX_RX,
-  MODULE_SUBTYPE_MULTI_AFHDS2A_RX,
-  MODULE_SUBTYPE_MULTI_HOTT,
-  MODULE_SUBTYPE_MULTI_FX816,
-  MODULE_SUBTYPE_MULTI_BAYANG_RX,
-  MODULE_SUBTYPE_MULTI_PELIKAN,
-  MODULE_SUBTYPE_MULTI_TIGER,
-  MODULE_SUBTYPE_MULTI_XK,
-  MODULE_SUBTYPE_MULTI_XN297DUMP,
-  MODULE_SUBTYPE_MULTI_FRSKYX2,
-  MODULE_SUBTYPE_MULTI_FRSKY_R9,
-  MODULE_SUBTYPE_MULTI_PROPEL,
-  MODULE_SUBTYPE_MULTI_FRSKYL,
-  MODULE_SUBTYPE_MULTI_SKYARTEC,
-  MODULE_SUBTYPE_MULTI_ESKY150V2,
-  MODULE_SUBTYPE_MULTI_DSM_RX,
-  MODULE_SUBTYPE_MULTI_JJRC345,
-  MODULE_SUBTYPE_MULTI_Q90C,
-  MODULE_SUBTYPE_MULTI_KYOSHO,
-  MODULE_SUBTYPE_MULTI_RLINK,
-  MODULE_SUBTYPE_MULTI_ELRS,
-  MODULE_SUBTYPE_MULTI_REALACC,
-  MODULE_SUBTYPE_MULTI_OMP,
-  MODULE_SUBTYPE_MULTI_MLINK,
-  MODULE_SUBTYPE_MULTI_WFLY2,
-  MODULE_SUBTYPE_MULTI_E016HV2,
-  MODULE_SUBTYPE_MULTI_E010R5,
-  MODULE_SUBTYPE_MULTI_LOLI,
-  MODULE_SUBTYPE_MULTI_E129,
-  MODULE_SUBTYPE_MULTI_JOYSWAY,
-  MODULE_SUBTYPE_MULTI_E016H,
-  MODULE_SUBTYPE_MULTI_CONFIG,
-  MODULE_SUBTYPE_MULTI_IKEAANSLUTA,
-  MODULE_SUBTYPE_MULTI_WILLIFM,
-  MODULE_SUBTYPE_MULTI_LOSI,
-  MODULE_SUBTYPE_MULTI_MOULDKG,
-  MODULE_SUBTYPE_MULTI_XERALL,
-  MODULE_SUBTYPE_MULTI_MT99XX2,
-  MODULE_SUBTYPE_MULTI_LAST = MODULE_SUBTYPE_MULTI_MT99XX2
 };
 
 enum ModuleSubtypeR9M {
@@ -191,8 +100,15 @@ enum ModuleSubtypeR9M {
   MODULE_SUBTYPE_R9M_LAST=MODULE_SUBTYPE_R9M_AUPLUS
 };
 
+#define PPM_NUM_SUBTYPES  2
+
 constexpr int PXX2_MAX_RECEIVERS_PER_MODULE = 3;
 constexpr int PXX2_LEN_RX_NAME              = 8;
+
+static const QStringList afhds2aMode1List({"PWM", "PPM"});
+static const QStringList afhds2aMode2List({"IBUS", "SBUS"});
+static const QStringList afhds3PhyModeList({"Classic 18ch", "C-Fast 10ch", "Routine 18ch", "Fast 8ch", "Lora 12ch"});
+static const QStringList afhds3EmiList({"CE", "FCC"});
 
 class ModuleData {
   Q_DECLARE_TR_FUNCTIONS(ModuleData)
@@ -210,7 +126,7 @@ class ModuleData {
     unsigned int subType;
     bool         invertedSerial;
     unsigned int channelsStart;
-    int          channelsCount; // 0=8 channels
+    int          channelsCount;
     unsigned int failsafeMode;
 
     struct PPM {
@@ -229,9 +145,36 @@ class ModuleData {
       int optionValue;
     } multi;
 
-    struct Afhds3 {
-      unsigned int rxFreq;
+    struct Flysky {
+      unsigned int rxId[4];
+      unsigned int mode;
       unsigned int rfPower;
+      unsigned int reserved;
+      unsigned int rxFreq[2];
+
+      void setDefault() {
+        rxId[0] = rxId[1] = rxId[2] = rxId[3] = 0;
+        mode = 3;
+        rfPower = 0;
+        rxFreq[0] = 50;
+        rxFreq[1] = 0;
+      }
+    } flysky;
+
+    struct Afhds3 {
+      unsigned int emi;
+      unsigned int telemetry;
+      unsigned int phyMode;
+      unsigned int reserved;
+      unsigned int rfPower;
+
+      void setDefault() {
+        emi = 1;
+        telemetry = 0;
+        phyMode = 0;
+        reserved = 0;
+        rfPower = 0;
+      }
     } afhds3;
 
     struct PXX {
@@ -277,7 +220,18 @@ class ModuleData {
     static int getSubTypeFromProtocol(unsigned int protocol);
     static QString typeToString(int type);
     static AbstractStaticItemModel * internalModuleItemModel(int board = -1);
-    static bool isProtocolAvailable(int moduleidx, unsigned int  protocol, GeneralSettings & settings);
+    static bool isProtocolAvailable(int moduleidx, unsigned int  protocol, GeneralSettings & generalSettings);
     static AbstractStaticItemModel * protocolItemModel(GeneralSettings & settings);
-    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int  protocol);
+    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int protocol);
+    static bool isAvailable(PulsesProtocol proto, int port = 0);  //  moved from OpenTxFirmware EdgeTX v2.9 - TODO remove and use isProtocolAvailable
+
+    QString afhds2aMode1ToString() const;
+    QString afhds2aMode2ToString() const;
+    QString afhds3PhyModeToString() const;
+    QString afhds3EmiToString() const;
+
+    static AbstractStaticItemModel * afhds2aMode1ItemModel();
+    static AbstractStaticItemModel * afhds2aMode2ItemModel();
+    static AbstractStaticItemModel * afhds3PhyModeItemModel();
+    static AbstractStaticItemModel * afhds3EmiItemModel();
 };

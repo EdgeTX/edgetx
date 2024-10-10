@@ -21,8 +21,9 @@
 
 #pragma once
 
+#include <stdint.h>
+
 struct HeartbeatCapture {
-  uint32_t timestamp;
   uint8_t valid;
 #if defined(DEBUG_LATENCY)
   uint32_t count;
@@ -32,5 +33,4 @@ struct HeartbeatCapture {
 extern volatile HeartbeatCapture heartbeatCapture;
 
 void init_intmodule_heartbeat();
-void check_intmodule_heartbeat();
 void stop_intmodule_heartbeat();

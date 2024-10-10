@@ -21,30 +21,18 @@
 
 #pragma once
 
-#if defined(SIMU)
+#include "edgetx_types.h"
 
-uint16_t getTmr2MHz();
-
-#define watchdogSuspend(timeout)
-#else
-
-#include "hal.h"
-
-void init2MhzTimer();
-void init1msTimer();
-void stop1msTimer();
-
-static inline uint16_t getTmr2MHz() { return TIMER_2MHz_TIMER->CNT; }
+extern "C" volatile tmr10ms_t g_tmr10ms;
+static inline tmr10ms_t get_tmr10ms() { return g_tmr10ms; }
 
 void watchdogSuspend(uint32_t timeout);
 
-#endif
+void timersInit();
 
-#include "opentx_types.h"
+uint32_t timersGetMsTick();
+uint32_t timersGetUsTick();
 
-extern "C" volatile tmr10ms_t g_tmr10ms;
-
-static inline tmr10ms_t get_tmr10ms()
-{
-  return g_tmr10ms;
-}
+// declared "weak", to be implemented by application
+void per5ms();
+void per10ms();

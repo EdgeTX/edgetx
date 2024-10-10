@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "rtc_backup.h"
 
 namespace Backup {
@@ -32,7 +32,7 @@ PACK(struct RamBackupUncompressed {
 #undef BACKUP
 };
 
-#include "datacopy.cpp"
+#include "datacopy.inc"
 
 Backup::RamBackupUncompressed ramBackupUncompressed __DMA;
 

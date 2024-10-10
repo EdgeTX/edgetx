@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -28,7 +29,7 @@
 Edge::Edge(Node *sourceNode, Node *destNode)
     : arrowSize(10)
 {
-  setAcceptedMouseButtons(0);
+  setAcceptedMouseButtons(Qt::NoButton);
   source = sourceNode;
   dest = destNode;
   source->addEdge(this);
@@ -80,7 +81,7 @@ void Edge::adjust()
   }
 }
 
-QRectF Edge::boundingRect() const 
+QRectF Edge::boundingRect() const
 {
   if (!source || !dest)
     return QRectF();

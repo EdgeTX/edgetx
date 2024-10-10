@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -49,7 +50,9 @@ class GenericPanel : public QWidget
     ModelData * model;
     GeneralSettings & generalSettings;
     Firmware * firmware;
+    //Board::Type board;  TODO: as part of refactor to move physical capabilities from Firmware to Boards
     bool lock;
+
     void addLabel(QGridLayout * gridLayout, const QString &text, int col, bool mimimize=false);
     void addEmptyLabel(QGridLayout * gridLayout, int col);
     void addHSpring(QGridLayout *, int col, int row);

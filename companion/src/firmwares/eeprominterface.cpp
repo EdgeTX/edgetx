@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -21,6 +22,7 @@
 #include "eeprominterface.h"
 #include "firmwares/opentx/opentxeeprom.h"
 #include "firmwareinterface.h"
+#include "boardfactories.h"
 
 #include <QtCore>
 #include <QMessageBox>
@@ -119,6 +121,21 @@ QString EEPROMInterface::getEepromWarnings(unsigned long errorsFound)
  * Firmware
  */
 
+Firmware::Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board,
+                  const QString & downloadId, const QString & simulatorId, const QString & hwdefnId) :
+  id(id),
+  name(name),
+  board(board),
+  variantBase(0),
+  base(base),
+  eepromInterface(nullptr),
+  downloadId(downloadId),
+  simulatorId(simulatorId),
+  hwdefnId(hwdefnId)
+{
+  gBoardFactories->registerBoard(board, hwdefnId);
+}
+
 // static
 QVector<Firmware *> Firmware::registeredFirmwares;
 Firmware * Firmware::defaultVariant = nullptr;
@@ -141,7 +158,7 @@ unsigned int Firmware::getVariantNumber()
 {
   unsigned int result = 0;
   const Firmware * base = getFirmwareBase();
-  QStringList options = id.mid(base->getId().length()+1).split("-", QString::SkipEmptyParts);
+  QStringList options = id.mid(base->getId().length()+1).split("-", Qt::SkipEmptyParts);
   foreach(QString option, options) {
     foreach(OptionsGroup group, base->opts) {
       foreach(Option opt, group) {

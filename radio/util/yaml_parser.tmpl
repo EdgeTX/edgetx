@@ -45,6 +45,9 @@ static const struct YamlNode {{ struct.name }}[] = {
   YAML_UNION("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}_elmts, {{ elmt.func}}),
     {% elif elmt.type == 'array' %}
   YAML_ARRAY("{{ max_len(elmt.name) }}", {{elmt.bits // elmt.length}}, {{elmt.length}}, {{elmt.var_type}}, {{ elmt.func }}),
+      {% if padding_bits(elmt) > 0 %}
+  YAML_PADDING({{ padding_bits(elmt) }}),
+      {% endif %}
     {% elif elmt.raw %}
   {{ elmt.raw }},
     {% else %}

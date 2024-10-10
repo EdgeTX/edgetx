@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -47,14 +48,9 @@ Node convert<SensorData>::encode(const SensorData& rhs)
   Node cfg;
   if (rhs.type == SensorData::TELEM_TYPE_CUSTOM) {
     node["id1"]["id"] = rhs.id;
-    node["subid"] = rhs.subid;
+    node["subId"] = rhs.subid;
 
-    unsigned int instance = rhs.instance;
-    if (instance != 0) {
-      instance =
-          ((instance - 1) & 0x1F) | (rhs.rxIdx << 5) | (rhs.moduleIdx << 7);
-    }
-    node["id2"]["instance"] = instance;
+    node["id2"]["instance"] = rhs.instance;
     cfg["custom"]["ratio"] = rhs.ratio;
     cfg["custom"]["offset"] = rhs.offset;
   } else {
@@ -122,7 +118,7 @@ bool convert<SensorData>::decode(const Node& node, SensorData& rhs)
     id1["id"] >> rhs.id;
     id1["persistentValue"] >> rhs.persistentValue;
   }
-  node["subid"] >> rhs.subid;
+  node["subId"] >> rhs.subid;
   if (node["id2"]) {
     Node id2 = node["id2"];
     id2["instance"] >> rhs.instance;
@@ -132,7 +128,6 @@ bool convert<SensorData>::decode(const Node& node, SensorData& rhs)
   if (rhs.type == SensorData::TELEM_TYPE_CUSTOM) {
     rhs.rxIdx = (rhs.instance >> 5) & 0x03;     // 2 bits Rx idx
     rhs.moduleIdx = (rhs.instance >> 7) & 0x1;  // 1 bit module idx
-    rhs.instance = (rhs.instance & 0x1F) + 1;   // 5 bits instance
   }
 
   node["label"] >> rhs.label;

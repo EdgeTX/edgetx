@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum MenuModelHeliItems {
   ITEM_HELI_SWASHTYPE,
@@ -69,7 +69,7 @@ void menuModelHeli(event_t event)
         break;
 
       case ITEM_HELI_ELE_WEIGHT:
-        lcdDrawText(INDENT_WIDTH, y, STR_WEIGHT);
+        lcdDrawTextIndented(y, STR_WEIGHT);
         lcdDrawNumber(MODEL_HELI_2ND_COLUMN, y, g_model.swashR.elevatorWeight, LEFT|attr);
         if (attr) CHECK_INCDEC_MODELVAR(event, g_model.swashR.elevatorWeight, -100, 100);
         break;
@@ -81,7 +81,7 @@ void menuModelHeli(event_t event)
         break;
 
       case ITEM_HELI_AIL_WEIGHT:
-        lcdDrawText(INDENT_WIDTH, y, STR_WEIGHT);
+        lcdDrawTextIndented(y, STR_WEIGHT);
         lcdDrawNumber(MODEL_HELI_2ND_COLUMN, y, g_model.swashR.aileronWeight, LEFT|attr);
         if (attr) CHECK_INCDEC_MODELVAR(event, g_model.swashR.aileronWeight, -100, 100);
         break;
@@ -93,7 +93,7 @@ void menuModelHeli(event_t event)
         break;
 
       case ITEM_HELI_COL_WEIGHT:
-        lcdDrawText(INDENT_WIDTH, y, STR_WEIGHT);
+        lcdDrawTextIndented(y, STR_WEIGHT);
         lcdDrawNumber(MODEL_HELI_2ND_COLUMN, y, g_model.swashR.collectiveWeight, LEFT|attr);
         if (attr) CHECK_INCDEC_MODELVAR(event, g_model.swashR.collectiveWeight, -100, 100);
         break;

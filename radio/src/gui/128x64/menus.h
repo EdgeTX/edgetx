@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MENUS_H_
-#define _MENUS_H_
+#pragma once
 
 #include "keys.h"
 #include "common/stdlcd/menus.h"
+#include "common/stdlcd/features.h"
 
 #if defined(PCBTARANIS)
 #define NAVIGATION_LINE_BY_LINE        0x40
@@ -54,7 +54,7 @@ enum MenuRadioIndexes
 #if defined(RADIO_TOOLS)
   MENU_RADIO_TOOLS,
 #endif
-  CASE_SDCARD(MENU_RADIO_SD_MANAGER)
+  MENU_RADIO_SD_MANAGER,
   MENU_RADIO_SETUP,
   MENU_RADIO_SPECIAL_FUNCTIONS,
   MENU_RADIO_TRAINER,
@@ -70,6 +70,7 @@ void menuRadioTrainer(event_t event);
 void menuRadioVersion(event_t event);
 void menuRadioDiagKeys(event_t event);
 void menuRadioDiagAnalogs(event_t event);
+void menuRadioDiagFS(event_t event);
 void menuRadioHardware(event_t event);
 void menuRadioTools(event_t event);
 void menuRadioSpectrumAnalyser(event_t event);
@@ -77,17 +78,10 @@ void menuRadioPowerMeter(event_t event);
 void menuRadioCalibration(event_t event);
 void menuGhostModuleConfig(event_t event);
 
-static const MenuHandlerFunc menuTabGeneral[MENU_RADIO_PAGES_COUNT]  = {
-#if defined(RADIO_TOOLS)
-  menuRadioTools,
-#endif
-  CASE_SDCARD(menuRadioSdManager)
-  menuRadioSetup,
-  menuRadioSpecialFunctions,
-  menuRadioTrainer,
-  menuRadioHardware,
-  menuRadioVersion
-};
+extern bool radioGFEnabled();
+extern bool radioTrainerEnabled();
+
+extern const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT];
 
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
@@ -131,28 +125,21 @@ void menuModelSensor(event_t event);
 void menuModelDisplay(event_t event);
 void menuModelTemplates(event_t event);
 void menuModelGVarOne(event_t event);
-
-static const MenuHandlerFunc menuTabModel[]  = {
-  menuModelSelect,
-  menuModelSetup,
-  CASE_HELI(menuModelHeli)
-  CASE_FLIGHT_MODES(menuModelFlightModesAll)
-  menuModelExposAll,
-  menuModelMixAll,
-  menuModelLimits,
-  menuModelCurvesAll,
-  menuModelLogicalSwitches,
-  menuModelSpecialFunctions,
-#if defined(LUA_MODEL_SCRIPTS)
-  menuModelCustomScripts,
+#if defined(USBJ_EX)
+void menuModelUSBJoystick(event_t event);
 #endif
-  menuModelTelemetry,
-  menuModelDisplay,
-};
+
+extern bool modelHeliEnabled();
+extern bool modelFMEnabled();
+extern bool modelCurvesEnabled();
+extern bool modelLSEnabled();
+extern bool modelSFEnabled();
+extern bool modelCustomScriptsEnabled();
+extern bool modelTelemetryEnabled();
+
+extern const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT];
 
 void menuStatisticsView(event_t event);
 void menuStatisticsDebug(event_t event);
 void menuStatisticsDebug2(event_t event);
 void menuAboutView(event_t event);
-
-#endif // _MENUS_H_

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -24,101 +25,183 @@
 #include "eeprominterface.h"
 #include "radiodataconversionstate.h"
 #include "compounditemmodels.h"
+#include "yaml_ops.h"
 
-const uint8_t chout_ar[] = { // First number is 0..23 -> template setup,  Second is relevant channel out
+const QList<int> channelsAir = { // First number is 0..23 -> template setup,  Second is relevant channel out
   1,2,3,4 , 1,2,4,3 , 1,3,2,4 , 1,3,4,2 , 1,4,2,3 , 1,4,3,2,
   2,1,3,4 , 2,1,4,3 , 2,3,1,4 , 2,3,4,1 , 2,4,1,3 , 2,4,3,1,
   3,1,2,4 , 3,1,4,2 , 3,2,1,4 , 3,2,4,1 , 3,4,1,2 , 3,4,2,1,
   4,1,2,3 , 4,1,3,2 , 4,2,1,3 , 4,2,3,1 , 4,3,1,2 , 4,3,2,1
 };
 
-bool GeneralSettings::switchPositionAllowedTaranis(int index) const
+const QList<QChar> controlsAir = { 'R', 'E', 'T', 'A' }; //  channelsAir[x] - 1] entry mapping
+
+const QList<int> channelsSurface = { // First number is 0..1 -> template setup,  Second is relevant channel out
+  1,2 , 2,1
+};
+
+const QList<QChar> controlsSurface = { 'S', 'T' }; //  channelsSurface[x] - 1] entry mapping
+
+const QList<int> useChannels(bool isBoardAir)
+{
+  return isBoardAir ? channelsAir : channelsSurface;
+}
+
+const QList<QChar> useControls(bool isBoardAir)
+{
+  return isBoardAir ? controlsAir : controlsSurface;
+}
+
+const int channelsCount(bool isBoardAir)
+{
+  return isBoardAir ? channelsAir.size() : channelsSurface.size();
+}
+
+const int controlsCount(bool isBoardAir)
+{
+  return isBoardAir ? controlsAir.size() : controlsSurface.size();
+}
+
+bool GeneralSettings::switchPositionAllowed(int index) const
 {
   if (index == 0)
     return true;
 
   div_t qr = div(abs(index) - 1, 3);
 
-  if (index < 0 && switchConfig[qr.quot] != Board::SWITCH_3POS)
+  if (index < 0 && switchConfig[qr.quot].type != Board::SWITCH_3POS)
     return false;
   else if (qr.rem == 1)
-    return switchConfig[qr.quot] == Board::SWITCH_3POS;
+    return switchConfig[qr.quot].type == Board::SWITCH_3POS;
   else
-    return switchConfig[qr.quot] != Board::SWITCH_NOT_AVAILABLE;
+    return switchConfig[qr.quot].type != Board::SWITCH_NOT_AVAILABLE;
 }
 
-bool GeneralSettings::switchSourceAllowedTaranis(int index) const
+bool GeneralSettings::switchSourceAllowed(int index) const
 {
-  return switchConfig[index] != Board::SWITCH_NOT_AVAILABLE;
+  return switchConfig[index].type != Board::SWITCH_NOT_AVAILABLE;
 }
 
-bool GeneralSettings::isPotAvailable(int index) const
+bool GeneralSettings::isInputAvailable(int index) const
 {
-  int numPots = Boards::getCapability(getCurrentBoard(), Board::Pots);
-  if (getCurrentFirmware()->getCapability(HasFlySkyGimbals))
-    numPots -= 2;
+  Board::Type board = getCurrentBoard();
 
-  if (index < 0 || index >= numPots)
+  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
     return false;
-  return potConfig[index] != Board::POT_NONE;
+
+  const InputConfig &config = inputConfig[index];
+
+  return (config.type == Board::AIT_STICK ||
+          (config.type == Board::AIT_FLEX && config.flexType != Board::FLEX_NONE));
 }
 
-bool GeneralSettings::isSliderAvailable(int index) const
+bool GeneralSettings::isInputFlexSwitchAvailable(int index) const
 {
-  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Sliders))
+  Board::Type board = getCurrentBoard();
+
+  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
     return false;
-  return sliderConfig[index] != Board::SLIDER_NONE;
+
+  const InputConfig &config = inputConfig[index];
+
+  return (config.type == Board::AIT_FLEX && config.flexType == Board::FLEX_SWITCH);
+}
+
+bool GeneralSettings::isInputMultiPosPot(int index) const
+{
+  if (isInputAvailable(index)) {
+    const InputConfig &config = inputConfig[index];
+
+    return (config.type == Board::AIT_FLEX &&
+            config.flexType == Board::FLEX_MULTIPOS);
+  }
+
+  return false;
+}
+
+bool GeneralSettings::isInputPot(int index) const
+{
+  if (isInputAvailable(index)) {
+    const InputConfig &config = inputConfig[index];
+
+    return (config.type == Board::AIT_FLEX &&
+           (config.flexType == Board::FLEX_POT ||
+            config.flexType == Board::FLEX_POT_CENTER ||
+            config.flexType == Board::FLEX_MULTIPOS));
+  }
+
+  return false;
+}
+
+bool GeneralSettings::isInputSlider(int index) const
+{
+  if (isInputAvailable(index)) {
+    const InputConfig &config = inputConfig[index];
+
+    return (config.type == Board::AIT_FLEX &&
+            config.flexType == Board::FLEX_SLIDER);
+  }
+  return false;
+}
+
+bool GeneralSettings::isInputStick(int index) const
+{
+  if (isInputAvailable(index)) {
+    const InputConfig &config = inputConfig[index];
+
+    return config.type == Board::AIT_STICK;
+  }
+
+  return false;
+}
+
+bool GeneralSettings::isSwitchAvailable(int index) const
+{
+  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Switches))
+    return false;
+
+  const SwitchConfig &config = switchConfig[index];
+
+  return config.type != Board::SWITCH_NOT_AVAILABLE;
+}
+
+bool GeneralSettings::isSwitchFlex(int index) const
+{
+  return Boards::isSwitchFlex(index);
+}
+
+bool GeneralSettings::unassignedInputFlexSwitches() const
+{
+  Board::Type board = getCurrentBoard();
+  int cnt = 0;
+
+  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
+    if (inputConfig[i].flexType == Board::FLEX_SWITCH)
+      cnt++;
+  }
+  return cnt < Boards::getCapability(board, Board::FlexSwitches);
 }
 
 void GeneralSettings::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(GeneralSettings));
+  setDefaultControlTypes(getCurrentBoard());
   init();
 }
 
 void GeneralSettings::init()
 {
-  for (int i = 0; i < CPN_MAX_ANALOGS; ++i) {
-    calibMid[i]     = 0x200;
-    calibSpanNeg[i] = 0x180;
-    calibSpanPos[i] = 0x180;
-  }
-
   Firmware * firmware = Firmware::getCurrentVariant();
   Board::Type board = firmware->getBoard();
 
   // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
-  vBatWarn  = 90;
-  if (IS_TARANIS_X9E(board) || IS_HORUS_X12S(board)) {
-    // NI-MH 9.6V
-    vBatWarn = 87;
-    vBatMin = -5;   //8,5V
-    vBatMax = -5;   //11,5V
-  }
-  else if (IS_TARANIS_XLITE(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-    // Lipo 2S
-    vBatWarn = 66;
-    vBatMin = -23;  // 6.7V
-    vBatMax = -37;  // 8.3V
-  }
-  else if (IS_JUMPER_TLITE(board)) {
-    // 1S Li-Ion
-    vBatWarn = 32;
-    vBatMin = -60; //3V
-    vBatMax = -78; //4.2V
-  }
-  else if (IS_TARANIS(board)) {
-    // NI-MH 7.2V, X9D, X9D+ and X7
-    vBatWarn = 65;
-    vBatMin = -30; //6V
-    vBatMax = -40; //8V
-  }
-
-  setDefaultControlTypes(board);
+  Boards::getBattRange(board, vBatMin, vBatMax, vBatWarn);
 
   backlightMode = 3; // keys and sticks
   backlightDelay = 2; // 2 * 5 = 10 secs
   inactivityTimer = 10;
+
+  hatsMode = HATSMODE_SWITCHABLE;
 
   // backlightBright = 0; // 0 = 100%
 
@@ -137,22 +220,20 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "t16");
   else if (IS_FLYSKY_NV14(board))
     strcpy(bluetoothName, "nv14");
+  else if (IS_FLYSKY_PL18(board))
+    strcpy(bluetoothName, "pl18");
   else if (IS_FAMILY_HORUS_OR_T16(board))
     strcpy(bluetoothName, "horus");
   else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
     strcpy(bluetoothName, "taranis");
 
-  for (uint8_t i = 0; i < 4; i++) {
-    trainer.mix[i].mode = TrainerMix::TRN_MIX_MODE_SUBST;
-    trainer.mix[i].src = i;
-    trainer.mix[i].weight = 100;
-  }
+  ttsLanguage[0] = 'e';
+  ttsLanguage[1] = 'n';
 
   templateSetup = g.profile[g.sessionId()].channelOrder();
   stickMode = g.profile[g.sessionId()].defaultMode();
 
   QString t_calib = g.profile[g.sessionId()].stickPotCalib();
-  int potsnum = getBoardCapability(getCurrentBoard(), Board::Pots);
   if (!t_calib.isEmpty()) {
     QString t_trainercalib=g.profile[g.sessionId()].trainerCalib();
     int8_t t_txVoltageCalibration=(int8_t)g.profile[g.sessionId()].txVoltageCalibration();
@@ -166,34 +247,32 @@ void GeneralSettings::init()
     QString t_SpeakerSet=g.profile[g.sessionId()].speaker();
     QString t_CountrySet=g.profile[g.sessionId()].countryCode();
 
-    if ((t_calib.length()==(CPN_MAX_STICKS+potsnum)*12) && (t_trainercalib.length()==16)) {
+    if ((t_calib.length() == (Boards::getInputsCalibrated() * 12)) && (t_trainercalib.length() == 16)) {
       QString Byte;
       int16_t byte16;
       bool ok;
-      for (int i=0; i<(CPN_MAX_STICKS+potsnum); i++) {
-        Byte=t_calib.mid(i*12,4);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        if (ok)
-          calibMid[i]=byte16;
-        Byte=t_calib.mid(4+i*12,4);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        if (ok)
-          calibSpanNeg[i]=byte16;
-        Byte=t_calib.mid(8+i*12,4);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        if (ok)
-          calibSpanPos[i]=byte16;
+      for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
+        if (Boards::isInputCalibrated(i)) {
+          Byte = t_calib.mid(i * 12, 4);
+          byte16 = (int16_t)Byte.toInt(&ok, 16);
+          if (ok) inputConfig[i].calib.mid = byte16;
+          Byte = t_calib.mid(4 + i * 12, 4);
+          byte16 = (int16_t)Byte.toInt(&ok, 16);
+          if (ok) inputConfig[i].calib.spanNeg = byte16;
+          Byte = t_calib.mid(8 + i * 12, 4);
+          byte16 = (int16_t)Byte.toInt(&ok, 16);
+          if (ok) inputConfig[i].calib.spanPos = byte16;
+        }
       }
-      for (int i=0; i<4; i++) {
-        Byte=t_trainercalib.mid(i*4,4);
-        byte16=(int16_t)Byte.toInt(&ok,16);
-        if (ok)
-          trainer.calib[i]=byte16;
+      for (int i = 0; i < Boards::getCapability(board, Board::Sticks); i++) {
+        Byte = t_trainercalib.mid(i * 4, 4);
+        byte16 = (int16_t)Byte.toInt(&ok, 16);
+        if (ok) trainer.calib[i] = byte16;
       }
-      txCurrentCalibration=t_txCurrentCalibration;
-      txVoltageCalibration=t_txVoltageCalibration;
-      vBatWarn=t_vBatWarn;
-      PPM_Multiplier=t_PPM_Multiplier;
+      txCurrentCalibration = t_txCurrentCalibration;
+      txVoltageCalibration = t_txVoltageCalibration;
+      vBatWarn = t_vBatWarn;
+      PPM_Multiplier = t_PPM_Multiplier;
       stickMode = t_stickMode;
     }
     if ((t_DisplaySet.length()==6) && (t_BeeperSet.length()==4) && (t_HapticSet.length()==6) && (t_SpeakerSet.length()==6)) {
@@ -249,66 +328,50 @@ void GeneralSettings::init()
 
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
-  if (IS_FLYSKY_NV14(board))
+  if (IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board))
     stickDeadZone = 2;
 
 }
 
 void GeneralSettings::setDefaultControlTypes(Board::Type board)
 {
-  for (int i=0; i<getBoardCapability(board, Board::FactoryInstalledSwitches); i++) {
-    switchConfig[i] = Boards::getSwitchInfo(board, i).config;
+  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
+    if (!Boards::isInputIgnored(i, board)) {
+      Board::InputInfo info =  Boards::getInputInfo(i, board);
+      inputConfig[i].type = info.type;
+      inputConfig[i].flexType = info.flexType;
+      inputConfig[i].inverted = false; //info.inverted;
+    }
   }
 
-  // TLite does not have pots or sliders
-  if (IS_JUMPER_TLITE(board))
-    return;
+  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); ++i) {
+    if (!Boards::isInputCalibrated(i, board))
+      continue;
 
-  // TODO: move to Boards, like with switches
-  if (IS_FAMILY_HORUS_OR_T16(board) && !IS_FLYSKY_NV14(board)) {
-    potConfig[0] = Board::POT_WITH_DETENT;
-    potConfig[1] = Board::POT_MULTIPOS_SWITCH;
-    potConfig[2] = Board::POT_WITH_DETENT;
-  }
-  else if (IS_FLYSKY_NV14(board)) {
-    potConfig[0] = Board::POT_WITHOUT_DETENT;
-    potConfig[1] = Board::POT_WITHOUT_DETENT;
-  }
-  else if (IS_TARANIS_XLITE(board)) {
-    potConfig[0] = Board::POT_WITHOUT_DETENT;
-    potConfig[1] = Board::POT_WITHOUT_DETENT;
-  }
-  else if (IS_TARANIS_X7(board)) {
-    potConfig[0] = Board::POT_WITHOUT_DETENT;
-    potConfig[1] = Board::POT_WITH_DETENT;
-  }
-  else if(IS_RADIOMASTER_ZORRO(board)) {
-    potConfig[0] = Board::POT_WITHOUT_DETENT;
-    potConfig[1] = Board::POT_WITHOUT_DETENT;
-  }
-  else if (IS_FAMILY_T12(board)) {
-    potConfig[0] = Board::POT_WITH_DETENT;
-    potConfig[1] = Board::POT_WITH_DETENT;
-  }
-  else if (IS_TARANIS(board)) {
-    potConfig[0] = Board::POT_WITH_DETENT;
-    potConfig[1] = Board::POT_WITH_DETENT;
-  }
-  else {
-    potConfig[0] = Board::POT_WITHOUT_DETENT;
-    potConfig[1] = Board::POT_WITHOUT_DETENT;
-    potConfig[2] = Board::POT_WITHOUT_DETENT;
+    Board::InputInfo info = Boards::getInputInfo(i, board);
+
+    if (info.type == Board::AIT_FLEX && info.flexType == Board::FLEX_MULTIPOS) {
+      inputConfig[i].calib.mid     = 773;
+      inputConfig[i].calib.spanNeg = 5388;
+      inputConfig[i].calib.spanPos = 9758;
+    } else {
+      inputConfig[i].calib.mid     = 0x200;
+      inputConfig[i].calib.spanNeg = 0x180;
+      inputConfig[i].calib.spanPos = 0x180;
+    }
   }
 
-  if (IS_HORUS_X12S(board) || IS_TARANIS_X9E(board)) {
-    sliderConfig[0] = Board::SLIDER_WITH_DETENT;
-    sliderConfig[1] = Board::SLIDER_WITH_DETENT;
-    sliderConfig[2] = Board::SLIDER_WITH_DETENT;
-    sliderConfig[3] = Board::SLIDER_WITH_DETENT;
+  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
+    Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
+    switchConfig[i].type = info.dflt;
+    switchConfig[i].inverted = info.inverted;
+    switchConfig[i].inputIdx = SWITCH_INPUTINDEX_NONE;
   }
-  else if (IS_TARANIS_X9(board) || IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
-    sliderConfig[0] = Board::SLIDER_WITH_DETENT;
-    sliderConfig[1] = Board::SLIDER_WITH_DETENT;
+
+  for (uint8_t i = 0; i < 4; i++) {
+    trainer.mix[i].mode = TrainerMix::TRN_MIX_MODE_SUBST;
+    trainer.mix[i].src = i;
+    trainer.mix[i].weight = 100;
   }
 }
 
@@ -316,22 +379,24 @@ int GeneralSettings::getDefaultStick(unsigned int channel) const
 {
   if (channel >= CPN_MAX_STICKS)
     return -1;
-  else
-    return chout_ar[4*templateSetup + channel] - 1;
+  else {
+    return useChannels(Boards::isAir())[controlsCount(Boards::isAir()) * templateSetup + channel] - 1;
+  }
 }
 
 RawSource GeneralSettings::getDefaultSource(unsigned int channel) const
 {
   int stick = getDefaultStick(channel);
+
   if (stick >= 0)
-    return RawSource(SOURCE_TYPE_STICK, stick);
+    return RawSource(SOURCE_TYPE_INPUT, stick + 1);
   else
     return RawSource(SOURCE_TYPE_NONE);
 }
 
 int GeneralSettings::getDefaultChannel(unsigned int stick) const
 {
-  for (int i=0; i<4; i++){
+  for (int i = 0; i < controlsCount(Boards::isAir()); i++) {
     if (getDefaultStick(i) == (int)stick)
       return i;
   }
@@ -344,10 +409,8 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
 
   cstate.setOrigin(tr("Radio Settings"));
 
-  setDefaultControlTypes(cstate.toType);  // start with default switches/pots/sliders
-
-  cstate.setComponent("Hardware");
-  cstate.setItemType("Int. Module");
+  cstate.setComponent(tr("Hardware"));
+  cstate.setSubComp(tr("Internal Module"));
   RadioDataConversionState::LogField oldData(internalModule, ModuleData::typeToString(internalModule));
 
   if (internalModule != MODULE_TYPE_NONE && (int)internalModule != g.currentProfile().defaultInternalModule()) {
@@ -355,66 +418,101 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
     cstate.setInvalid(oldData);
   }
 
-  // Try to intelligently copy any custom control names
+  //  Try to intelligently copy any custom controls
+  //  step 1 clear current config
+  memset(&inputConfig[0], '0', sizeof(InputConfig) * CPN_MAX_INPUTS);
+  memset(&switchConfig[0], '0', sizeof(SwitchConfig) * CPN_MAX_SWITCHES);
+  //  step 2 load default config
+  setDefaultControlTypes(cstate.toType);
+  //  step 3 copy matching config based on tags
+  cstate.setSubComp(tr("Axis & Pots"));
 
-  // SE and SG are skipped on X7 board
-  if (IS_TARANIS_X7(cstate.toType)) {
-    if (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType)) {
-      strncpy(switchName[4], switchName[5], sizeof(switchName[4]));
-      strncpy(switchName[5], switchName[7], sizeof(switchName[5]));
+  for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Inputs); i++) {
+    if (Boards::isInputConfigurable(i, cstate.fromType)) {
+      cstate.withComponentField("");
+      cstate.setItemType(Boards::isInputStick(i, cstate.fromType) ? tr("Axis") : tr("Pot"));
+      RadioDataConversionState::LogField oldData(i, Boards::getInputName(i, cstate.fromType));
+      const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), Board::LVT_TAG, cstate.toType);
+
+      if (idx > -1) {
+        const InputConfig &fromcfg = cstate.fromGS()->inputConfig[i];
+        InputConfig &tocfg = inputConfig[idx];
+        strncpy(tocfg.name, fromcfg.name, sizeof(inputConfig[0].name));
+        tocfg.type = fromcfg.type;
+
+        if (tocfg.type == Board::AIT_FLEX && !Boards::getCapability(cstate.toType, Board::FlexSwitches) &&
+            fromcfg.flexType == Board::FLEX_SWITCH) {
+          cstate.withComponentField(Boards::getInputName(i, cstate.fromType));
+          RadioDataConversionState::LogField oldFT(i, Boards::flexTypeToString(fromcfg.flexType));
+          tocfg.flexType = Board::FLEX_NONE;
+          cstate.setConverted(oldFT, RadioDataConversionState::LogField(i, Boards::flexTypeToString(tocfg.flexType)));
+        }
+        else
+          tocfg.flexType = fromcfg.flexType;
+
+        tocfg.inverted = fromcfg.inverted;
+        // do not copy calibration - use defaults as safer
+      }
+      else if (cstate.fromGS()->inputConfig[i].type == Board::AIT_FLEX && cstate.fromGS()->inputConfig[i].flexType != Board::FLEX_NONE) {
+        cstate.setUnsupported(oldData);
+      }
     }
   }
-  else if (IS_TARANIS_X7(cstate.fromType)) {
-    if (IS_TARANIS_X9(cstate.toType) || IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
-      strncpy(switchName[5], switchName[4], sizeof(switchName[5]));
-      strncpy(switchName[7], switchName[5], sizeof(switchName[7]));
-    }
-  }
 
-  if (IS_FAMILY_T12(cstate.toType)) {
-    if (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType)) {
-      strncpy(switchName[4], switchName[5], sizeof(switchName[0]));
-      strncpy(switchName[5], switchName[7], sizeof(switchName[0]));
-    }
-  }
+  cstate.setSubComp(tr("Switches"));
 
-  else if (IS_FAMILY_T12(cstate.fromType)) {
-    if (IS_TARANIS_X9(cstate.toType) || IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
-      strncpy(switchName[5], switchName[4], sizeof(switchName[0]));
-      strncpy(switchName[7], switchName[5], sizeof(switchName[0]));
-    }
-  }
+  for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Switches); i++) {
+    if (Boards::isSwitchConfigurable(i, cstate.fromType)) {
+      cstate.withComponentField("");
+      cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
+                         Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
+      RadioDataConversionState::LogField oldData(i, Boards::getSwitchName(i, cstate.fromType));
+      const int idx = Boards::getSwitchIndex(Boards::getSwitchTag(i, cstate.fromType), Board::LVT_TAG, cstate.toType);
 
-  // LS and RS sliders are after 2 aux sliders on X12 and X9E
-  if ((IS_HORUS_X12S(cstate.toType) || IS_TARANIS_X9E(cstate.toType)) && !IS_HORUS_X12S(cstate.fromType) && !IS_TARANIS_X9E(cstate.fromType)) {
-    strncpy(sliderName[0], sliderName[2], sizeof(sliderName[0]));
-    strncpy(sliderName[1], sliderName[3], sizeof(sliderName[1]));
-  }
-  else if (!IS_TARANIS_X9E(cstate.toType) && !IS_HORUS_X12S(cstate.toType) && (IS_HORUS_X12S(cstate.fromType) || IS_TARANIS_X9E(cstate.fromType))) {
-    strncpy(sliderName[2], sliderName[0], sizeof(sliderName[2]));
-    strncpy(sliderName[3], sliderName[1], sizeof(sliderName[3]));
-  }
+      if (idx > -1) {
+        const SwitchConfig &fromcfg = cstate.fromGS()->switchConfig[i];
+        SwitchConfig &tocfg = switchConfig[idx];
+        strncpy(tocfg.name, fromcfg.name, sizeof(switchConfig[0].name));
 
-  if (IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
-    // 6P switch is only on Horus (by default)
-    if (cstate.fromBoard.getCapability(Board::FactoryInstalledPots) == 2) {
-      strncpy(potName[2], potName[1], sizeof(potName[2]));
-      potName[1][0] = '\0';
+        if (Boards::getSwitchInfo(i, cstate.fromType).type > Boards::getSwitchInfo(idx, cstate.toType).type) {
+          cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
+          cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
+                             Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
+          RadioDataConversionState::LogField oldSWT(i, Boards::switchTypeToString(fromcfg.type));
+          // switch type not supported on to profile so leave as hw default eg from 3 Pos and to 2 Pos
+          // if switch position not supported it will be reported where used on each model
+          cstate.setConverted(oldSWT, RadioDataConversionState::LogField(i, Boards::switchTypeToString(tocfg.type)));
+        }
+        else
+          tocfg.type = fromcfg.type;
+
+        tocfg.inverted = fromcfg.inverted;
+
+        if (fromcfg.inputIdx != SWITCH_INPUTINDEX_NONE) {
+          if (!Boards::getCapability(cstate.toType, Board::FlexSwitches) ||
+              Boards::getInputIndex(Boards::getInputTag(fromcfg.inputIdx, cstate.fromType), Board::LVT_TAG, cstate.toType) < 0) {
+            cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
+            RadioDataConversionState::LogField oldFT(i, Boards::getInputName(fromcfg.inputIdx, cstate.fromType));
+            tocfg.inputIdx = SWITCH_INPUTINDEX_NONE;
+            cstate.setConverted(oldFT, RadioDataConversionState::LogField(i, tr("None")));
+          }
+          else
+            tocfg.inputIdx = fromcfg.inputIdx;
+        }
+      }
+      else if (cstate.fromGS()->switchConfig[i].type != Board::SWITCH_NOT_AVAILABLE)
+        cstate.setUnsupported(oldData);
     }
   }
 
   if (IS_TARANIS(cstate.toType)) {
-    // No S3 pot on Taranis boards by default
-    if (cstate.fromBoard.getCapability(Board::FactoryInstalledPots) > 2)
-      strncpy(potName[1], potName[2], sizeof(potName[1]));
-
     contrast = qBound<int>(getCurrentFirmware()->getCapability(MinContrast), contrast, getCurrentFirmware()->getCapability(MaxContrast));
   }
 
   // TODO: Would be nice at this point to have GUI pause and ask the user to set up any custom hardware they have on the destination radio.
 
   // Convert all global functions (do this after HW adjustments)
-  for (int i=0; i<CPN_MAX_SPECIAL_FUNCTIONS; i++) {
+  for (int i = 0; i < CPN_MAX_SPECIAL_FUNCTIONS; i++) {
     customFn[i].convert(cstate.withComponentIndex(i));
   }
 
@@ -503,6 +601,8 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("Debug");
     case AUX_SERIAL_SPACEMOUSE:
       return tr("SpaceMouse");
+    case AUX_SERIAL_EXT_MODULE:
+      return tr("External module");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -541,13 +641,13 @@ FieldRange GeneralSettings::getTxCurrentCalibration()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::antennaModeItemModel()
+AbstractStaticItemModel * GeneralSettings::antennaModeItemModel(bool model_setup)
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_GS_ANTENNAMODE);
 
   for (int i = ANTENNA_MODE_FIRST; i <= ANTENNA_MODE_LAST; i++) {
-    mdl->appendToItemList(antennaModeToString(i), i);
+    mdl->appendToItemList(antennaModeToString(i), i, model_setup ? i != ANTENNA_MODE_PER_MODEL : true);
   }
 
   mdl->loadItemList();
@@ -569,21 +669,27 @@ AbstractStaticItemModel * GeneralSettings::bluetoothModeItemModel()
 }
 
 //  static
-AbstractStaticItemModel * GeneralSettings::serialModeItemModel(int port_nr)
+AbstractStaticItemModel * GeneralSettings::serialModeItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(QString(AIM_GS_SERIALMODE).arg(port_nr));
+  mdl->setName(AIM_GS_SERIALMODE);
+
 
   for (int i = 0; i < AUX_SERIAL_COUNT; i++) {
-    if (port_nr == SP_VCP &&
-        (i == AUX_SERIAL_TELE_IN ||
-         i == AUX_SERIAL_SBUS_TRAINER ||
-         i == AUX_SERIAL_GPS ||
-         i == AUX_SERIAL_SPACEMOUSE)) {
-      // These are disabled on VCP
-      continue;
+    int contexts = AllAuxSerialModeContexts;
+
+    if (i == AUX_SERIAL_EXT_MODULE) {
+      contexts &= ~(AUX2Context | VCPContext);
     }
-    mdl->appendToItemList(serialModeToString(i), i);
+    else if (i == AUX_SERIAL_TELE_IN ||
+             i == AUX_SERIAL_SBUS_TRAINER ||
+             i == AUX_SERIAL_GPS ||
+             i == AUX_SERIAL_SPACEMOUSE ||
+             i == AUX_SERIAL_EXT_MODULE) {
+      contexts &= ~VCPContext;
+    }
+
+    mdl->appendToItemList(serialModeToString(i), i, true, 0, contexts);
   }
 
   mdl->loadItemList();
@@ -648,6 +754,164 @@ AbstractStaticItemModel * GeneralSettings::uartSampleModeItemModel()
 
   mdl->loadItemList();
   return mdl;
+}
+
+QString GeneralSettings::hatsModeToString() const
+{
+  return hatsModeToString(hatsMode);
+}
+
+bool GeneralSettings::fix6POSCalibration()
+{
+  bool changed = false;
+  // Fix default 6POS calibration
+  for (int i = CPN_MAX_STICKS; i < CPN_MAX_STICKS + CPN_MAX_POTS; i += 1) {
+    if ((potConfig[i-CPN_MAX_STICKS] == Board::POT_MULTIPOS_SWITCH) && (calibMid[i] == 0x200) && (calibSpanNeg[i] == 0x180) && (calibSpanPos[i] == 0x180)) {
+      calibMid[i] = 773;;
+      calibSpanNeg[i] = 5388;
+      calibSpanPos[i] = 9758;
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+//  static
+QString GeneralSettings::hatsModeToString(int value)
+{
+  switch(value) {
+    case HATSMODE_TRIMS_ONLY:
+      return tr("Trims only");
+    case HATSMODE_KEYS_ONLY:
+      return tr("Keys only");
+    case HATSMODE_SWITCHABLE:
+      return tr("Switchable");
+    case HATSMODE_GLOBAL:
+      return tr("Global");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::hatsModeItemModel(bool radio_setup)
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_HATSMODE);
+
+  for (int i = 0; i < HATSMODE_COUNT; i++) {
+    mdl->appendToItemList(hatsModeToString(i), i, i == HATSMODE_GLOBAL && radio_setup ? false : true);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+// Legacy mapping
+static const StringTagMappingTable potTypesConversionTable = {
+    {std::to_string(Board::POT_NONE),               std::to_string(Board::FLEX_NONE)},
+    {std::to_string(Board::POT_WITH_DETENT),        std::to_string(Board::FLEX_POT_CENTER)},
+    {std::to_string(Board::POT_MULTIPOS_SWITCH),    std::to_string(Board::FLEX_MULTIPOS)},
+    {std::to_string(Board::POT_WITHOUT_DETENT),     std::to_string(Board::FLEX_POT)},
+    {std::to_string(Board::POT_SLIDER_WITH_DETENT), std::to_string(Board::FLEX_SLIDER)},
+};
+
+static const StringTagMappingTable sliderTypesConversionTable = {
+    {std::to_string(Board::SLIDER_NONE),            std::to_string(Board::FLEX_NONE)},
+    {std::to_string(Board::SLIDER_WITH_DETENT),     std::to_string(Board::FLEX_SLIDER)},
+};
+
+// This copies the pre v2.10 config to the new structs
+bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
+{
+  for (int i = 0; i < CPN_MAX_STICKS && i < Boards::getCapability(board, Board::Sticks); i++) {
+    inputConfig[i].type = Board::AIT_STICK;
+    YamlValidateName(stickName[i], board);
+    strncpy(inputConfig[i].name, stickName[i], HARDWARE_NAME_LEN);
+    inputConfig[i].calib.mid = calibMid[i];
+    inputConfig[i].calib.spanNeg = calibSpanNeg[i];
+    inputConfig[i].calib.spanPos = calibSpanPos[i];
+  }
+
+  for (int i = 0; i < CPN_MAX_POTS && i < Boards::getCapability(board, Board::Pots); i++) {
+    int idx = 0;
+    if (IS_FAMILY_HORUS_OR_T16(board)) {
+      //  0 - 2 P1 - P3
+      //  3 - 6 EXT1 - EXT4
+      //  7 - 8 S1 - S2
+      if (i < 3)
+        idx = Boards::getInputPotIndex(i + 1, board);
+      else
+        idx = Boards::getInputExtIndex(i - 3 + 1, board);
+    }
+    else
+      idx = Boards::getInputPotIndex(i + 1, board);
+
+    // qDebug() << "i:" << i << "idx:" << idx << "pot name:" << potName[i];
+
+    if (idx >= 0) {
+      inputConfig[idx].type = Board::AIT_FLEX;
+      YamlValidateName(potName[i], board);
+      strncpy(inputConfig[idx].name, potName[i], HARDWARE_NAME_LEN);
+      inputConfig[idx].calib.mid = calibMid[i];
+      inputConfig[idx].calib.spanNeg = calibSpanNeg[i];
+      inputConfig[idx].calib.spanPos = calibSpanPos[i];
+      int ft = std::stoi(DataHelpers::getStringTagMappingTag(potTypesConversionTable, potConfig[i]));
+      if (ft > -1)
+        inputConfig[idx].flexType = (Board::FlexType)ft;
+    }
+  }
+
+  for (int i = 0; i < CPN_MAX_SLIDERS && i < Boards::getCapability(board, Board::Sliders); i++) {
+    int offset = 0;
+    if (IS_HORUS_X12S(board)) {
+      // 0 - 1  extra sliders eg L1 - L2 or S1 - S2
+      // 2 - 3  LS - RS
+      // hw json flips the pairs
+      if (i < 2)
+        offset = 2;
+      else
+        offset = -2;
+    }
+
+    int idx = Boards::getInputSliderIndex(i + offset + 1, board);
+
+    // qDebug() << "i:" << i << "idx:" << idx << "slider name:" << sliderName[i];
+
+    if (idx >= 0) {
+      inputConfig[idx].type = Board::AIT_FLEX;
+      YamlValidateName(sliderName[i], board);
+      strncpy(inputConfig[idx].name, sliderName[i], HARDWARE_NAME_LEN);
+      inputConfig[idx].calib.mid = calibMid[i];
+      inputConfig[idx].calib.spanNeg = calibSpanNeg[i];
+      inputConfig[idx].calib.spanPos = calibSpanPos[i];
+      int ft = std::stoi(DataHelpers::getStringTagMappingTag(sliderTypesConversionTable, sliderConfig[i]));
+      if (ft > -1)
+        inputConfig[idx].flexType = (Board::FlexType)ft;
+    }
+  }
+
+  for (int i = 0; i < CPN_MAX_SWITCHES && i < Boards::getCapability(board, Board::Switches); i++) {
+    switchConfig[i].type = (Board::SwitchType)swtchConfig[i];
+    YamlValidateName(swtchName[i], board);
+    strncpy(switchConfig[i].name, swtchName[i], HARDWARE_NAME_LEN);
+  }
+
+  return true;
+}
+
+void GeneralSettings::validateFlexSwitches()
+{
+  for (int i = 0; i < CPN_MAX_SWITCHES_FLEX; i++) {
+    if (inputConfig[switchConfig[i].inputIdx].flexType != Board::FLEX_SWITCH)
+      switchConfig[i].inputIdx = -1;
+
+    int idx = Boards::getSwitchIndex(QString("FL%1").arg(i), Board::LVT_TAG);
+    if (idx >= 0) {
+      if (switchConfig[idx].type == Board::SWITCH_NOT_AVAILABLE)
+        switchConfig[i].inputIdx = -1;
+    }
+  }
 }
 
 /*
@@ -720,6 +984,86 @@ AbstractStaticItemModel * TrainerMix::srcItemModel()
 
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
     mdl->appendToItemList(srcToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString GeneralSettings::stickModeToString() const
+{
+  return stickModeToString(stickMode);
+}
+
+//  static
+QString GeneralSettings::stickModeToString(int value)
+{
+  switch(value) {
+    case STICK_MODE_1:
+      return tr("Mode 1 (RUD ELE THR AIL)");
+    case STICK_MODE_2:
+      return tr("Mode 2 (RUD THR ELE AIL)");
+    case STICK_MODE_3:
+      return tr("Mode 3 (AIL ELE THR RUD)");
+    case STICK_MODE_4:
+      return tr("Mode 4 (AIL THR ELE RUD)");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::stickModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_STICKMODE);
+
+  for (int i = 0; i < STICK_MODE_COUNT; i++) {
+    mdl->appendToItemList(stickModeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+QString GeneralSettings::templateSetupToString() const
+{
+  return templateSetupToString(templateSetup, Boards::isAir());
+}
+
+//  static
+QString GeneralSettings::templateSetupToString(int value, bool isBoardAir)
+{
+  QString ret;
+  const QList<int> channels = useChannels(isBoardAir);
+  const QList<QChar> controls = useControls(isBoardAir);
+
+  if (value < (channels.size() / controls.size())) {
+    for (int i = 0; i < controls.size(); i++) {
+      if (i > 0)
+        ret.append(" ");
+
+      int idx = channels[controls.size() * value + i] - 1;
+      if (idx >= 0 && idx < controls.size())
+        ret.append(controls[channels[controls.size() * value + i] - 1]);
+    }
+  }
+
+  return ret;
+}
+
+//  static
+AbstractStaticItemModel * GeneralSettings::templateSetupItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_GS_TEMPLATESETUP);
+
+  for (int i = 0; i < (channelsCount(true) / controlsCount(true)); i++) {
+    mdl->appendToItemList(templateSetupToString(i, true), i, true, 0, RadioTypeContextAir);
+  }
+
+  for (int i = 0; i < (channelsCount(false) / controlsCount(false)); i++) {
+    mdl->appendToItemList(templateSetupToString(i, false), i, true, 0, RadioTypeContextSurface);
   }
 
   mdl->loadItemList();

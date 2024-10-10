@@ -23,27 +23,15 @@
 #define _MYEEPROM_H_
 
 #include "datastructs.h"
-#include "libopenui/src/bitfield.h"
+#include "bitfield.h"
 #include "storage/yaml/yaml_defs.h"
-
-#if defined(SDCARD_YAML)
-  #define EEPROM_VER           221
-#else
-  #define EEPROM_VER           220
-#endif
-#define FIRST_CONV_EEPROM_VER  219
+#include "hal/switch_driver.h"
 
 #define GET_MODULE_PPM_POLARITY(idx)             g_model.moduleData[idx].ppm.pulsePol
 #define GET_TRAINER_PPM_POLARITY()               g_model.trainerData.pulsePol
 #define GET_SBUS_POLARITY(idx)                   g_model.moduleData[idx].sbus.noninverted
 #define GET_MODULE_PPM_DELAY(idx)                (g_model.moduleData[idx].ppm.delay * 50 + 300)
 #define GET_TRAINER_PPM_DELAY()                  (g_model.trainerData.delay * 50 + 300)
-
-#if defined(HARDWARE_TRAINER_EXTERNAL_MODULE)
-  #define IS_TRAINER_EXTERNAL_MODULE()           (g_model.trainerData.mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || g_model.trainerData.mode == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE)
-#else
-  #define IS_TRAINER_EXTERNAL_MODULE()           false
-#endif
 
 #define IS_PLAY_FUNC(func)             ((func) >= FUNC_PLAY_SOUND && func <= FUNC_PLAY_VALUE)
 
@@ -59,11 +47,10 @@
   #define IS_HAPTIC_FUNC(func)         (0)
 #endif
 
-#define HAS_ENABLE_PARAM(func)         ((func) < FUNC_FIRST_WITHOUT_ENABLE || (func == FUNC_BACKLIGHT))
 #if defined(COLORLCD)
-#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_SET_SCREEN)
+#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT || func == FUNC_SET_SCREEN)
 #else
-#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) )
+#define HAS_REPEAT_PARAM(func)         (IS_PLAY_FUNC(func) || IS_HAPTIC_FUNC(func) || func == FUNC_PLAY_SCRIPT)
 #endif
 
 #define CFN_EMPTY(p)                   (!(p)->swtch)
@@ -71,48 +58,61 @@
 #define CFN_FUNC(p)                    ((p)->func)
 #define CFN_ACTIVE(p)                  ((p)->active)
 #define CFN_CH_INDEX(p)                ((p)->all.param)
+#define CFN_CS_INDEX(p)                ((p)->all.param)
 #define CFN_GVAR_INDEX(p)              ((p)->all.param)
 #define CFN_TIMER_INDEX(p)             ((p)->all.param)
-#define CFN_PLAY_REPEAT(p)             ((p)->active)
+#define CFN_PLAY_REPEAT(p)             ((p)->repeat)
 #define CFN_PLAY_REPEAT_MUL            1
-#define CFN_PLAY_REPEAT_NOSTART        0xFF
+#define CFN_PLAY_REPEAT_NOSTART        -1
 #define CFN_GVAR_MODE(p)               ((p)->all.mode)
 #define CFN_PARAM(p)                   ((p)->all.val)
+#define CFN_VAL2(p)                    ((p)->all.val2)
 #define CFN_RESET(p)                   ((p)->active=0, (p)->clear.val1=0, (p)->clear.val2=0)
 #define CFN_GVAR_CST_MIN               -GVAR_MAX
 #define CFN_GVAR_CST_MAX               GVAR_MAX
 #define MODEL_GVAR_MIN(idx)            (CFN_GVAR_CST_MIN + g_model.gvars[idx].min)
 #define MODEL_GVAR_MAX(idx)            (CFN_GVAR_CST_MAX - g_model.gvars[idx].max)
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
-  #define SWITCH_CONFIG(x)            (bfGet<swconfig_t>(g_eeGeneral.switchConfig, 2*(x), 2))
+// pots config
+#define POT_CFG_TYPE_BITS              3
+#define POT_CFG_INV_BITS               1
+#define POT_CFG_BITS                   (POT_CFG_TYPE_BITS + POT_CFG_INV_BITS)
+#define POT_CFG_MASK                   ((1 << POT_CFG_BITS) - 1)
+#define POT_CONFIG_POS(x)              (POT_CFG_BITS * (x))
+#define POT_CONFIG_MASK(x)             (POT_CFG_MASK << POT_CONFIG_POS(x))
+#define POT_CONFIG_DISABLE_MASK(x)     (~POT_CONFIG_MASK(x))
+
+#define SW_CFG_BITS                    2
+#define SW_CFG_MASK                    ((1 << SW_CFG_BITS) - 1)
+#define SWITCH_CONFIG_MASK(x)          ((swconfig_t)SW_CFG_MASK << (SW_CFG_BITS * (x)))
+
+#define SWITCH_CONFIG(x)              (bfGet<swconfig_t>(g_eeGeneral.switchConfig, SW_CFG_BITS * (x), SW_CFG_BITS))
 #if defined(FUNCTION_SWITCHES)
-  #define FSWITCH_CONFIG(x)           (bfGet<swconfig_t>(g_model.functionSwitchConfig, 2*(x), 2))
-  #define FSWITCH_GROUP(x)            (bfGet<swconfig_t>(g_model.functionSwitchGroup, 2*(x), 2))
-  #define IS_FSWITCH_GROUP_ON(x)      (bfGet<swconfig_t>(g_model.functionSwitchGroup, 2 * NUM_FUNCTIONS_SWITCHES + x, 1))
-  #define IS_SWITCH_FS(x)             (x >= NUM_REGULAR_SWITCHES)
+  #define FSW_CFG_BITS                2
+  #define FSWITCH_CONFIG(x)           (bfGet<swconfig_t>(g_model.functionSwitchConfig, FSW_CFG_BITS * (x), FSW_CFG_BITS))
+  #define FSWITCH_SET_CONFIG(x,v)     g_model.functionSwitchConfig = bfSet<swconfig_t>(g_model.functionSwitchConfig, v, FSW_CFG_BITS * (x), FSW_CFG_BITS)
+  #define FSWITCH_GROUP(x)            (bfGet<swconfig_t>(g_model.functionSwitchGroup, FSW_CFG_BITS * (x), FSW_CFG_BITS))
+  #define FSWITCH_SET_GROUP(x,v)      g_model.functionSwitchGroup = bfSet<swconfig_t>(g_model.functionSwitchGroup, v, FSW_CFG_BITS * (x), FSW_CFG_BITS)
+  #define FSWITCH_STARTUP(x)          (bfGet<swconfig_t>(g_model.functionSwitchStartConfig, FSW_CFG_BITS * (x), FSW_CFG_BITS))
+  #define FSWITCH_SET_STARTUP(x,v)    g_model.functionSwitchStartConfig = bfSet<swconfig_t>(g_model.functionSwitchStartConfig, v, FSW_CFG_BITS * (x), FSW_CFG_BITS)
+  #define IS_FSWITCH_GROUP_ON(x)      (bfGet<swconfig_t>(g_model.functionSwitchGroup, FSW_CFG_BITS * NUM_FUNCTIONS_SWITCHES + x, 1))
+  #define SET_FSWITCH_GROUP_ON(x,v)   g_model.functionSwitchGroup = bfSet<swconfig_t>(g_model.functionSwitchGroup, v, FSW_CFG_BITS * NUM_FUNCTIONS_SWITCHES + x, 1)
+  #define IS_SWITCH_FS(x)             (x >= switchGetMaxSwitches() && x < (switchGetMaxSwitches() + switchGetMaxFctSwitches()))
   #define SWITCH_EXISTS(x)            (IS_SWITCH_FS(x)  ? true : (SWITCH_CONFIG(x) != SWITCH_NONE))
-  #define IS_CONFIG_3POS(x)           (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - NUM_REGULAR_SWITCHES) == SWITCH_3POS) : (SWITCH_CONFIG(x) == SWITCH_3POS))
-  #define IS_CONFIG_TOGGLE(x)         (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - NUM_REGULAR_SWITCHES) == SWITCH_TOGGLE) : (SWITCH_CONFIG(x) == SWITCH_TOGGLE))
+  #define IS_CONFIG_3POS(x)           (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - switchGetMaxSwitches()) == SWITCH_3POS) : (SWITCH_CONFIG(x) == SWITCH_3POS))
+  #define IS_CONFIG_TOGGLE(x)         (IS_SWITCH_FS(x)  ? (FSWITCH_CONFIG(x - switchGetMaxSwitches()) == SWITCH_TOGGLE) : (SWITCH_CONFIG(x) == SWITCH_TOGGLE))
 #else
   #define SWITCH_EXISTS(x)            (SWITCH_CONFIG(x) != SWITCH_NONE)
   #define IS_CONFIG_3POS(x)           (SWITCH_CONFIG(x) == SWITCH_3POS)
   #define IS_CONFIG_TOGGLE(x)         (SWITCH_CONFIG(x) == SWITCH_TOGGLE)
   #define IS_SWITCH_FS(x)             (false)
 #endif
-  #define SWITCH_WARNING_ALLOWED(x)   (SWITCH_EXISTS(x) && !(IS_CONFIG_TOGGLE(x) || IS_SWITCH_FS(x)))
-#else
-  #define IS_CONFIG_3POS(x)           IS_3POS(x)
-  #define IS_CONFIG_TOGGLE(x)         IS_TOGGLE(x)
-  #define switchInfo(x)               ((x) >= 3 ? (x)-2 : 0)
-  #define SWITCH_EXISTS(x)            true
-#endif
+#define SWITCH_WARNING_ALLOWED(x)     (SWITCH_EXISTS(x) && !(IS_CONFIG_TOGGLE(x) || IS_SWITCH_FS(x)))
 
 #define ALTERNATE_VIEW                0x10
 
 #if defined(COLORLCD) && !defined(BOOT)
   #include "layout.h"
-  #include "theme.h"
   #include "topbar.h"
 #endif
 
@@ -159,17 +159,6 @@ enum CurveRefType {
 
 #define TRIM_OFF    (1)
 #define TRIM_ON     (0)
-#define TRIM_RUD    (-1)
-#define TRIM_ELE    (-2)
-#define TRIM_THR    (-3)
-#define TRIM_AIL    (-4)
-#if defined(PCBHORUS)
-  #define TRIM_T5   (-5)
-  #define TRIM_T6   (-6)
-  #define TRIM_LAST TRIM_T6
-#else
-  #define TRIM_LAST TRIM_AIL
-#endif
 
 enum MixerMultiplex {
   MLTPX_ADD  = 0,
@@ -203,7 +192,6 @@ enum LogicalSwitchesFunctions {
   LS_FUNC_VALMOSTEQUAL, // v~=offset
   LS_FUNC_VPOS,   // v>offset
   LS_FUNC_VNEG,   // v<offset
-  LS_FUNC_RANGE,
   LS_FUNC_APOS,   // |v|>offset
   LS_FUNC_ANEG,   // |v|<offset
   LS_FUNC_AND,
@@ -261,6 +249,7 @@ enum SwashType {
 
 #define TRIMS_ARRAY_SIZE  8
 #define TRIM_MODE_NONE  0x1F  // 0b11111
+#define TRIM_MODE_3POS  (2 * MAX_FLIGHT_MODES)
 
 #define IS_MANUAL_RESET_TIMER(idx)     (g_model.timers[idx].persistent == 2)
 
@@ -277,14 +266,6 @@ enum DisplayTrims
 
 extern RadioData g_eeGeneral;
 extern ModelData g_model;
-
-PACK(union u_int8int16_t {
-  struct {
-    int8_t  lo;
-    uint8_t hi;
-  } bytes_t;
-  int16_t word;
-});
 
 constexpr uint8_t EE_GENERAL = 0x01;
 constexpr uint8_t EE_MODEL = 0x02;

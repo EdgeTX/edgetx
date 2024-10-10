@@ -19,21 +19,25 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GTESTS_H_
-#define _GTESTS_H_
+#pragma once
 
 #include <QtCore/QString>
 #include <math.h>
 #include <gtest/gtest.h>
 
 #define SWAP_DEFINED
-#include "opentx.h"
+#include "edgetx.h"
 #include "model_init.h"
+#include "switches.h"
+#include "hal/switch_driver.h"
 
 #define CHANNEL_MAX (1024*256)
 
 extern int32_t lastAct;
-extern uint16_t anaInValues[NUM_STICKS+NUM_POTS+NUM_SLIDERS];
+
+// from hal/adc_driver.cpp
+extern void anaResetFiltered();
+extern void anaSetFiltered(uint8_t chan, uint16_t val);
 
 void doMixerCalculations();
 
@@ -51,12 +55,12 @@ extern const char * nchar2string(const char * string, int size);
 
 inline void SYSTEM_RESET()
 {
-#if defined(EEPROM)
+#if !defined(STORAGE_MODELSLIST)
   memset(modelHeaders, 0, sizeof(modelHeaders));
 #endif
   generalDefault();
   g_eeGeneral.templateSetup = 0;
-  for (int i=0; i<NUM_SWITCHES; i++) {
+  for (int i=0; i<switchGetMaxSwitches(); i++) {
     simuSetSwitch(i, -1);
   }
 }
@@ -64,7 +68,7 @@ inline void SYSTEM_RESET()
 inline void MODEL_RESET()
 {
   memset(&g_model, 0, sizeof(g_model));
-  memset(&anaInValues, 0, sizeof(anaInValues));
+  anaResetFiltered();
   extern uint8_t s_mixer_first_run_done;
   s_mixer_first_run_done = false;
   evalMixes(1);  // this is needed to reset fp_act
@@ -77,7 +81,7 @@ inline void MIXER_RESET()
   memset(chans, 0, sizeof(chans));
   memset(ex_chans, 0, sizeof(ex_chans));
   memset(act, 0, sizeof(act));
-  memset(swOn, 0, sizeof(swOn));
+  memset(mixState, 0, sizeof(mixState));
   mixerCurrentFlightMode = lastFlightMode = 0;
   lastAct = 0;
   logicalSwitchesReset();
@@ -110,5 +114,3 @@ class OpenTxTest : public testing::Test
       RADIO_RESET();
     }
 };
-
-#endif // _GTESTS_H_

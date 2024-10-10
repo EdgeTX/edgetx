@@ -102,6 +102,8 @@
 #define ACCY_LAST_ID              0x071F
 #define ACCZ_FIRST_ID             0x0720
 #define ACCZ_LAST_ID              0x072F
+#define ANGLE_FIRST_ID            0x0730
+#define ANGLE_LAST_ID             0x073F
 #define GPS_LONG_LATI_FIRST_ID    0x0800
 #define GPS_LONG_LATI_LAST_ID     0x080F
 #define GPS_ALT_FIRST_ID          0x0820
@@ -186,12 +188,10 @@
 #define SP2UART_A_ID              0xFD00
 #define SP2UART_B_ID              0xFD01
 
-#if defined(MULTIMODULE)
 // Virtual IDs, value can be changed to anything only used for display
 #define RX_LQI_ID                 0xFFFC
 #define TX_LQI_ID                 0xFFFD
 #define TX_RSSI_ID                0xFFFE
-#endif
 
 // Default sensor data IDs (Physical IDs + CRC)
 #define DATA_ID_VARIO             0x00 // 0

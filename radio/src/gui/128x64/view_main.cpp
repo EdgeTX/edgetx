@@ -19,20 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
 
-#if defined(HARDWARE_NO_TRIMS)
-struct {
-  int8_t preStickIdx = -1;
-  int8_t curStickIdx = -1;
-  tmr10ms_t preEnterTime;
-  bool preEnterValid = false;
-} trimSelection;
-#endif
+#include "switches.h"
+#include "input_mapping.h"
 
 #define BIGSIZE       DBLSIZE
 #if defined (PCBTARANIS)
-  #define LBOX_CENTERX  (LCD_W/4 + 14)
+  #define LBOX_CENTERX  (LCD_W/4 + 12)
   #define RBOX_CENTERX  (3*LCD_W/4 - 13)
 #else
   #define LBOX_CENTERX  (LCD_W/4 + 10)
@@ -46,20 +42,38 @@ struct {
 #define VBATT_X       (6*FW-1)
 #define VBATT_Y       (2*FH)
 #define VBATTUNIT_Y   (3*FH)
-#define REBOOT_X      (20*FW-3)
+#define REBOOT_X      (2)
 #define BAR_HEIGHT    (BOX_WIDTH-1l) // don't remove the l here to force 16bits maths on 9X
-#define TRIM_LH_X     (LCD_W*1/4+2)
+#define TRIM_LEN      21
+#define TRIM_LH_X     (TRIM_LEN+4)
 #define TRIM_LV_X     3
 #define TRIM_RV_X     (LCD_W-4)
-#define TRIM_RH_X     (LCD_W*3/4-2)
-#define TRIM_LH_NEG   (TRIM_LH_X+1*FW)
-#define TRIM_LH_POS   (TRIM_LH_X-4*FW)
-#define TRIM_RH_NEG   (TRIM_RH_X+1*FW)
-#define TRIM_RH_POS   (TRIM_RH_X-4*FW)
+#define TRIM_RH_X     (LCD_W-TRIM_LEN-5)
+#define TRIM_LH_NEG   (TRIM_LH_X+3*FW+1)
+#define TRIM_LH_POS   (TRIM_LH_X-4*FW+3)
+#define TRIM_RH_NEG   (TRIM_RH_X+3*FW+1)
+#define TRIM_RH_POS   (TRIM_RH_X-4*FW+3)
 #define RSSSI_X       (30)
 #define RSSSI_Y       (31)
 #define RSSI_MAX      105
-#define TRIM_LEN      23
+#define CLOCK_X       53
+#define CLOCK_Y       57
+
+#if defined(ASTERISK) || (!defined(USE_WATCHDOG) && !defined(SIMU)) || defined(LOG_TELEMETRY) || \
+    defined(LOG_BLUETOOTH) || defined(DEBUG_LATENCY)
+
+static bool isAsteriskDisplayed() {
+  return true;
+}
+
+#else
+
+#include "hal/abnormal_reboot.h"
+
+static bool isAsteriskDisplayed() {
+  return UNEXPECTED_SHUTDOWN();
+}
+#endif
 
 void drawExternalAntennaAndRSSI()
 {
@@ -83,168 +97,176 @@ void drawExternalAntennaAndRSSI()
 
 void drawPotsBars()
 {
-  // Optimization by Mike Blandford
-  for (uint8_t x = LCD_W / 2 - (NUM_POTS + NUM_SLIDERS - 1) * 5 / 2, i = NUM_STICKS; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; x += 5, i++) {
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+  uint8_t offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  uint8_t configured_pots = 0;
+
+  for (uint8_t i = 0; i < max_pots; i++) {
     if (IS_POT_SLIDER_AVAILABLE(i)) {
-      uint8_t len = ((calibratedAnalogs[i] + RESX) * BAR_HEIGHT / (RESX * 2)) + 1l;  // calculate once per loop
-      V_BAR(x, LCD_H - 8, len);
+      configured_pots ++;
+    }
+  }
+
+  uint8_t lines = configured_pots > 3 ? 2 : 1;
+  uint8_t cols =  configured_pots > 4 ? 3 : configured_pots % 2 ? 3 : 2;
+  coord_t xstart =  LCD_W / 2 - (cols % 2 ? 5 : 3);
+
+  for (uint8_t i = 0; i < max_pots; i++) {
+    if (IS_POT_SLIDER_AVAILABLE(i)) {
+      coord_t x = xstart + (i % cols) * 5;
+      coord_t y = lines == 1 ? (LCD_H - 8) : i >= cols ? (LCD_H - 8) : (LCD_H - 8 - BAR_HEIGHT / 2 - 1);
+      auto v = calibratedAnalogs[offset + i] + RESX;
+      uint8_t len = (v * (BAR_HEIGHT - (lines - 1)) / (RESX * 2 * lines)) + 1l;
+      V_BAR(x, y, len);
     }
   }
 }
 
 void doMainScreenGraphics()
 {
-  int16_t calibStickVert = calibratedAnalogs[CONVERT_MODE(1)];
-  if (g_model.throttleReversed && CONVERT_MODE(1) == THR_STICK)
+#if defined(SURFACE_RADIO)
+  drawWheel(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_ST]);
+  drawThrottle(LBOX_CENTERX, calibratedAnalogs[ADC_MAIN_TH]);
+#else
+  int16_t calibStickVert = calibratedAnalogs[ADC_MAIN_LV];
+  if (g_model.throttleReversed &&
+      inputMappingConvertMode(ADC_MAIN_LV) == inputMappingGetThrottle()) {
     calibStickVert = -calibStickVert;
-  drawStick(LBOX_CENTERX, calibratedAnalogs[CONVERT_MODE(0)], calibStickVert);
+  }
+  drawStick(LBOX_CENTERX, calibratedAnalogs[ADC_MAIN_LH], calibStickVert);
 
-  calibStickVert = calibratedAnalogs[CONVERT_MODE(2)];
-  if (g_model.throttleReversed && CONVERT_MODE(2) == THR_STICK)
+  calibStickVert = calibratedAnalogs[ADC_MAIN_RV];
+  if (g_model.throttleReversed &&
+      inputMappingConvertMode(ADC_MAIN_RV) == inputMappingGetThrottle()) {
     calibStickVert = -calibStickVert;
-  drawStick(RBOX_CENTERX, calibratedAnalogs[CONVERT_MODE(3)], calibStickVert);
-#if defined(HARDWARE_POT1)
+  }
+  drawStick(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_RH], calibStickVert);
+#endif
+
   drawPotsBars();
-#endif
 }
-
-#if defined(HARDWARE_NO_TRIMS)
-void doMainScreenGraphics(uint8_t views, uint32_t ptr)
-{
-  int16_t * calibStickValPtr = nullptr;
-  int16_t calibStickVert = 0;
-
-  if (ptr)
-    calibStickValPtr = (int16_t *)(ptr);
-  else
-    calibStickValPtr = calibratedAnalogs;
-  calibStickVert = calibStickValPtr[CONVERT_MODE(1)];
-
-  if (views & MAINSCREEN_GRAPHICS_STICKS) {
-    if (g_model.throttleReversed && CONVERT_MODE(1) == THR_STICK)
-      calibStickVert = -calibStickVert;
-    drawStick(LBOX_CENTERX, calibStickValPtr[CONVERT_MODE(0)], calibStickVert);
-
-    calibStickVert = calibStickValPtr[CONVERT_MODE(2)];
-    if (g_model.throttleReversed && CONVERT_MODE(2) == THR_STICK)
-      calibStickVert = -calibStickVert;
-    drawStick(RBOX_CENTERX, calibStickValPtr[CONVERT_MODE(3)], calibStickVert);
-  }
-
-  if (views & MAINSCREEN_GRAPHICS_POTS) {
-    drawPotsBars();
-  }
-}
-#endif
 
 void displayTrims(uint8_t phase)
 {
-  for (uint8_t i = 0; i < 4; i++) {
-    static coord_t x[4] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X};
-    static uint8_t vert[4] = {0, 1, 1, 0};
-    coord_t xm, ym;
-    uint8_t stickIndex = CONVERT_MODE(i);
-    xm = x[stickIndex];
+#if defined(SURFACE_RADIO)
+  static uint8_t x[] = {TRIM_RH_X, TRIM_LH_X, TRIM_RV_X, TRIM_LV_X, TRIM_LV_X};
+  static uint8_t vert[] = {0, 0, 1, 1, 1};
+#else
+  static uint8_t x[] = {TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X, TRIM_LH_X, TRIM_LV_X, TRIM_RH_X, TRIM_RV_X};
+  static uint8_t vert[] = {0, 1, 1, 0, 0, 1, 0, 1};
+#endif
+
+  bool squareMarker = (keysGetMaxTrims() <= 4);
+
+  for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
+
+    if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
+      continue;
+
+    coord_t ym;
+    uint8_t stickIndex = inputMappingConvertMode(i);
+    coord_t xm = x[stickIndex];
     uint8_t att = ROUND;
     int16_t val = getTrimValue(phase, i);
-
-    if (getRawTrimValue(phase, i).mode == TRIM_MODE_NONE)
-      continue;
 
     int16_t dir = val;
     bool exttrim = false;
     if (val < TRIM_MIN || val > TRIM_MAX) {
       exttrim = true;
     }
-    if (val < -(TRIM_LEN + 1) * 4) {
-      val = -(TRIM_LEN + 1);
+    val = (val * TRIM_LEN) / TRIM_MAX;
+    if (val < -TRIM_LEN) {
+      val = -TRIM_LEN;
     }
-    else if (val > (TRIM_LEN + 1) * 4) {
-      val = TRIM_LEN + 1;
-    }
-    else {
-      val /= 4;
+    else if (val > TRIM_LEN) {
+      val = TRIM_LEN;
     }
 
+    uint8_t nx, ny;
+    LcdFlags nFlg = TINSIZE;
+
     if (vert[i]) {
-#if defined(HARDWARE_NO_TRIMS)
-      ym = 61;
-      if (trimSelection.curStickIdx == i) {
-        lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2);
-        if (i != 2 || !g_model.thrTrim) {
-          lcdDrawSolidVerticalLine(xm - 1, ym - TRIM_LEN, TRIM_LEN * 2);
-          lcdDrawSolidVerticalLine(xm + 1, ym - TRIM_LEN, TRIM_LEN * 2);
-        }
-      }
-      else {
-        lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2);
+      ym = 31;
+      if (!getPixel(xm, ym))
+        lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2 + 1);
+      if (squareMarker) {
         if (i != 2 || !g_model.thrTrim) {
           lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
           lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
         }
-      }
-#else
-      ym = 31;
-      lcdDrawSolidVerticalLine(xm, ym - TRIM_LEN, TRIM_LEN * 2);
-      if (i != 2 || !g_model.thrTrim) {
-        lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
-        lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
-      }
-#endif
-      ym -= val;
-      lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
-      if (dir >= 0) {
-        lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
-      }
-      if (dir <= 0) {
-        lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
-      }
-      if (exttrim) {
-        lcdDrawSolidHorizontalLine(xm - 1, ym, 3);
-      }
-      if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0) {
-        if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS || (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-          lcdDrawNumber(dir > 0 ? 12 : 40, xm - 2, -abs(dir), TINSIZE | VERTICAL);
+        ym -= val;
+        lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
+        if (dir >= 0) {
+          lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
         }
-      }
-    }
-    else {
-#if defined(HARDWARE_NO_TRIMS)
-      ym = 92;
-      if (trimSelection.curStickIdx == i) {
-        lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym,   TRIM_LEN * 2);
-        lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym - 1, TRIM_LEN * 2);
-        lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym + 1, TRIM_LEN * 2);
+        if (dir <= 0) {
+          lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
+        }
+        if (exttrim) {
+          lcdDrawSolidHorizontalLine(xm - 1, ym, 3);
+        }
       }
       else {
-        lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2);
-        lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
-        lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
-      }
-#else
-      ym = 60;
-      lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2);
-      lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
-      lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
-#endif
-      xm += val;
-      lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
-      if (dir >= 0) {
-        lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
-      }
-      if (dir <= 0) {
-        lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
-      }
-      if (exttrim) {
-        lcdDrawSolidVerticalLine(xm, ym - 1, 3);
-      }
-      if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0) {
-        if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS || (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
-          lcdDrawNumber((stickIndex == 0 ? (dir > 0 ? TRIM_LH_POS : TRIM_LH_NEG) : (dir > 0 ? TRIM_RH_POS : TRIM_RH_NEG)), ym - 2, -abs(dir), TINSIZE);
+        ym -= val;
+        if ((i > 3 && xm < LCD_W / 2) || (i < 4 && xm > LCD_W / 2) ) {
+          lcdDrawSolidVerticalLine(xm - 1, ym, 1);
+          lcdDrawSolidVerticalLine(xm - 2, ym - 1, 3);
+          lcdDrawSolidVerticalLine(xm - 3, ym - 2, 5);
+        }
+        else {
+          lcdDrawSolidVerticalLine(xm + 1, ym, 1);
+          lcdDrawSolidVerticalLine(xm + 2, ym - 1, 3);
+          lcdDrawSolidVerticalLine(xm + 3, ym - 2, 5);
         }
       }
+      nx = dir > 0 ? 12 : 52;
+      ny = xm - 2;
+      nFlg |= VERTICAL;
     }
-    lcdDrawSquare(xm - 3, ym - 3, 7, att);
+    else {
+      ym = 60;
+      if (!getPixel(xm, ym))
+        lcdDrawSolidHorizontalLine(xm - TRIM_LEN, ym, TRIM_LEN * 2 + 1);
+      if (squareMarker) {
+        lcdDrawSolidHorizontalLine(xm - 1, ym - 1, 3);
+        lcdDrawSolidHorizontalLine(xm - 1, ym + 1, 3);
+        xm += val;
+        lcdDrawFilledRect(xm - 3, ym - 3, 7, 7, SOLID, att | ERASE);
+        if (dir >= 0) {
+          lcdDrawSolidVerticalLine(xm + 1, ym - 1, 3);
+        }
+        if (dir <= 0) {
+          lcdDrawSolidVerticalLine(xm - 1, ym - 1, 3);
+        }
+        if (exttrim) {
+          lcdDrawSolidVerticalLine(xm, ym - 1, 3);
+        }
+      }
+      else {
+        xm += val;
+        if (i > 3) {
+          lcdDrawSolidHorizontalLine(xm, ym + 1, 1);
+          lcdDrawSolidHorizontalLine(xm - 1, ym + 2, 3);
+          lcdDrawSolidHorizontalLine(xm - 2, ym + 3, 5);
+        }
+        else {
+          lcdDrawSolidHorizontalLine(xm, ym - 1, 1);
+          lcdDrawSolidHorizontalLine(xm - 1, ym - 2, 3);
+          lcdDrawSolidHorizontalLine(xm - 2, ym - 3, 5);
+        }
+      }
+      nx = xm < LCD_W / 2 ? (dir > 0 ? TRIM_LH_POS : TRIM_LH_NEG)
+                          : (dir > 0 ? TRIM_RH_POS : TRIM_RH_NEG);
+      ny = ym - 2;
+    }
+    if (g_model.displayTrims != DISPLAY_TRIMS_NEVER && dir != 0 && i < 4) {
+      if (g_model.displayTrims == DISPLAY_TRIMS_ALWAYS ||
+          (trimsDisplayTimer > 0 && (trimsDisplayMask & (1 << i)))) {
+        lcdDrawNumber(nx, ny, -abs(dir), nFlg | (dir < 0 ? RIGHT : 0));
+      }
+    }
+    if (squareMarker)
+      lcdDrawSquare(xm - 3, ym - 3, 7, att);
   }
 }
 
@@ -282,29 +304,29 @@ void displayBattVoltage()
 #if defined(RADIO_T8) || defined(RADIO_COMMANDO8)
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_FIRST(KEY_PAGEDN)
-#define EVT_KEY_NEXT_PAGE              EVT_KEY_FIRST(KEY_PLUS)
-#define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_FIRST(KEY_MINUS)
-#define EVT_KEY_MODEL_MENU             EVT_KEY_FIRST(KEY_MODEL)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_FIRST(KEY_SYS)
+#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
+#define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_PLUS)
+#define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_MINUS)
+#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
+#define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
 #define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGEUP)
 #elif defined(NAVIGATION_X7_TX12)
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_FIRST(KEY_PAGEUP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_FIRST(KEY_PAGEDN)
+#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
+#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
 #define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
-#define EVT_KEY_MODEL_MENU             EVT_KEY_FIRST(KEY_MODEL)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_FIRST(KEY_SYS)
-#define EVT_KEY_TELEMETRY              EVT_KEY_FIRST(KEY_TELE)
+#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
+#define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
+#define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_TELE)
 #elif defined(NAVIGATION_X7)  || defined(NAVIGATION_TBS)
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGE)
+#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
 #define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
 #define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MENU)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_MENU)
-#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGE)
+#define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_PAGEUP)
 #elif defined(NAVIGATION_XLITE)
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_UP)
@@ -316,14 +338,19 @@ void displayBattVoltage()
 #define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_DOWN)
 #define EVT_KEY_STATISTICS             EVT_KEY_LONG(KEY_UP)
 #else
+#if defined(NAVIGATION_9X)
+#define EVT_KEY_CONTEXT_MENU           EVT_KEY_BREAK(KEY_ENTER)
+#define EVT_KEY_LAST_MENU              EVT_KEY_LONG(KEY_ENTER)
+#else
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_BREAK(KEY_MENU)
+#define EVT_KEY_LAST_MENU              EVT_KEY_LONG(KEY_MENU)
+#endif
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_UP)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_DOWN)
 #define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_RIGHT)
 #define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_LEFT)
 #define EVT_KEY_MODEL_MENU             EVT_KEY_LONG(KEY_RIGHT)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_LEFT)
-#define EVT_KEY_LAST_MENU              EVT_KEY_LONG(KEY_MENU)
 #define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_DOWN)
 #define EVT_KEY_STATISTICS             EVT_KEY_LONG(KEY_UP)
 #endif
@@ -345,12 +372,7 @@ void onMainViewMenu(const char * result)
     pushModelNotes();
   }
   else if (result == STR_RESET_SUBMENU) {
-    POPUP_MENU_ADD_ITEM(STR_RESET_FLIGHT);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER1);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER2);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER3);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TELEMETRY);
-    POPUP_MENU_START(onMainViewMenu);
+    POPUP_MENU_START(onMainViewMenu, 5, STR_RESET_FLIGHT, STR_RESET_TIMER1, STR_RESET_TIMER2, STR_RESET_TIMER3, STR_RESET_TELEMETRY);
   }
   else if (result == STR_RESET_TELEMETRY) {
     telemetryReset();
@@ -418,85 +440,34 @@ void menuMainView(event_t event)
       */
     case EVT_KEY_NEXT_PAGE:
     case EVT_KEY_PREVIOUS_PAGE:
-#if defined(HARDWARE_NO_TRIMS)
-      if (g_trimEditMode == EDIT_TRIM_DISABLED) {
-        if (view_base == VIEW_INPUTS)
-          g_eeGeneral.view ^= ALTERNATE_VIEW;
-        else
-          g_eeGeneral.view = (g_eeGeneral.view + (4 * ALTERNATE_VIEW) + ((event == EVT_KEY_PREVIOUS_PAGE) ? -ALTERNATE_VIEW : ALTERNATE_VIEW)) % (4 * ALTERNATE_VIEW);
-      }
-      break;
-#else
       if (view_base == VIEW_INPUTS)
         g_eeGeneral.view ^= ALTERNATE_VIEW;
       else
         g_eeGeneral.view = (g_eeGeneral.view + (4 * ALTERNATE_VIEW) + ((event == EVT_KEY_PREVIOUS_PAGE) ? -ALTERNATE_VIEW : ALTERNATE_VIEW)) % (4 * ALTERNATE_VIEW);
       break;
-#endif
 
     case EVT_KEY_CONTEXT_MENU:
-      killEvents(event);
-
       if (modelHasNotes()) {
         POPUP_MENU_ADD_ITEM(STR_VIEW_NOTES);
       }
 
-      POPUP_MENU_ADD_ITEM(STR_RESET_SUBMENU);
-
-      POPUP_MENU_ADD_ITEM(STR_STATISTICS);
-      POPUP_MENU_ADD_ITEM(STR_ABOUT_US);
-      POPUP_MENU_START(onMainViewMenu);
+      POPUP_MENU_START(onMainViewMenu, 3, STR_RESET_SUBMENU, STR_STATISTICS, STR_ABOUT_US);
       break;
 
 #if defined(EVT_KEY_LAST_MENU)
     case EVT_KEY_LAST_MENU:
       pushMenu(lastPopMenu());
-      killEvents(event);
       break;
 #endif
 
     case EVT_KEY_MODEL_MENU:
       pushMenu(menuModelSelect);
-      killEvents(event);
       break;
 
     case EVT_KEY_GENERAL_MENU:
-      pushMenu(menuTabGeneral[0]);
-      killEvents(event);
+      pushMenu(menuTabGeneral[0].menuFunc);
       break;
 
-#if defined(HARDWARE_NO_TRIMS)
-      case EVT_KEY_FIRST(KEY_ENTER):
-        if (!trimSelection.preEnterValid) {
-          trimSelection.preEnterValid = true;
-          trimSelection.preEnterTime = get_tmr10ms();
-        }
-        else {
-          trimSelection.preEnterValid = false;
-          if (++g_trimEditMode > EDIT_TRIM_MAX) {
-            g_trimEditMode = EDIT_TRIM_1;
-          }
-
-          trimSelection.curStickIdx = CONVERT_MODE_TRIMS(g_trimEditMode - 1);
-
-          if (trimSelection.preStickIdx != trimSelection.curStickIdx) {
-            if (trimSelection.curStickIdx == RUD_STICK) {
-              AUDIO_RUDDER_TRIM();
-            }
-            else if (trimSelection.curStickIdx == ELE_STICK) {
-              AUDIO_ELEVATOR_TRIM();
-            }
-            else if (trimSelection.curStickIdx == THR_STICK) {
-              AUDIO_THROTTLE_TRIM();
-            }
-            else if (trimSelection.curStickIdx == AIL_STICK) {
-              AUDIO_AILERON_TRIM();
-            }
-            trimSelection.preStickIdx = trimSelection.curStickIdx;
-          }
-        }
-        break;
-#endif
 #if defined(EVT_KEY_PREVIOUS_VIEW)
       // TODO try to split those 2 cases on 9X
     case EVT_KEY_PREVIOUS_VIEW:
@@ -516,13 +487,11 @@ void menuMainView(event_t event)
 #if defined(EVT_KEY_STATISTICS)
     case EVT_KEY_STATISTICS:
       chainMenu(menuStatisticsView);
-      killEvents(event);
       break;
 #endif
 
     case EVT_KEY_TELEMETRY:
       chainMenu(menuViewTelemetry);
-      killEvents(event);
       break;
 
 
@@ -532,21 +501,8 @@ void menuMainView(event_t event)
         gvarDisplayTimer = 0;
       }
 #endif
-#if defined(HARDWARE_NO_TRIMS)
-      if (g_trimEditMode != EDIT_TRIM_DISABLED) {
-        g_trimEditMode = EDIT_TRIM_DISABLED;
-        AUDIO_MAIN_MENU();
-        trimSelection.curStickIdx = -1;
-        trimSelection.preStickIdx = -1;
-      }
-#endif
       break;
   }
-#if defined(HARDWARE_NO_TRIMS)
-  if (trimSelection.preEnterValid && (get_tmr10ms() - trimSelection.preEnterTime) > 50) {
-    trimSelection.preEnterValid = false;
-  }
-#endif
 
   switch (view_base) {
     case VIEW_CHAN_MONITOR:
@@ -570,13 +526,13 @@ void menuMainView(event_t event)
 #else
           y0 = i / 4 * FH + 40;
 #endif
-#if defined(PPM_UNIT_US)
-          lcdDrawNumber(x0 + 4 * FW, y0, PPM_CH_CENTER(chan) + val / 2, RIGHT);
-#elif defined(PPM_UNIT_PERCENT_PREC1)
-          lcdDrawNumber(x0 + 4 * FW, y0, calcRESXto1000(val), RIGHT | PREC1);
-#else
-          lcdDrawNumber(x0+4*FW , y0, calcRESXto1000(val)/10, RIGHT); // G: Don't like the decimal part*
-#endif
+          if (g_eeGeneral.ppmunit == PPM_US) {
+            lcdDrawNumber(x0 + 4 * FW, y0, PPM_CH_CENTER(chan) + val / 2, RIGHT);
+          } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+            lcdDrawNumber(x0 + 4 * FW, y0, calcRESXto1000(val), RIGHT | PREC1);
+          } else {
+            lcdDrawNumber(x0+4*FW , y0, calcRESXto1000(val)/10, RIGHT); // G: Don't like the decimal part*
+          }
         }
         else {
           constexpr coord_t WBAR2 = (50 / 2);
@@ -612,98 +568,44 @@ void menuMainView(event_t event)
       if (view == VIEW_INPUTS) {
         // Sticks + Pots
         doMainScreenGraphics();
-
+        
         // Switches
-#if defined(PCBX9LITES)
-        static const uint8_t x[NUM_SWITCHES-2] = {2*FW-2, 2*FW-2, 17*FW+1, 2*FW-2, 17*FW+1};
-        static const uint8_t y[NUM_SWITCHES-2] = {4*FH+1, 5*FH+1, 5*FH+1, 6*FH+1, 6*FH+1};
-        for (int i=0; i<NUM_SWITCHES - 2; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x[i], y[i], sw, 0, false);
-          }
-        }
-        drawSmallSwitch(29, 5*FH+1, 4, SW_SF);
-        drawSmallSwitch(16*FW+1, 5*FH+1, 4, SW_SG);
-#elif defined(PCBX9LITE)
-        static const uint8_t x[NUM_SWITCHES] = {2 * FW - 2, 2 * FW - 2, 16 * FW + 1, 2 * FW - 2, 16 * FW + 1};
-        static const uint8_t y[NUM_SWITCHES] = {4 * FH + 1, 5 * FH + 1, 5 * FH + 1, 6 * FH + 1, 6 * FH + 1};
-        for (int i = 0; i < NUM_SWITCHES; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x[i], y[i], sw, 0, false);
-          }
-        }
-#elif defined(PCBXLITES)
-        static const uint8_t x[NUM_SWITCHES] = {2*FW-2, 16*FW+1, 2*FW-2, 16*FW+1, 2*FW-2, 16*FW+1};
-        static const uint8_t y[NUM_SWITCHES] = {4*FH+1, 4*FH+1, 6*FH+1, 6*FH+1, 5*FH+1, 5*FH+1};
-        for (int i=0; i<NUM_SWITCHES; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x[i], y[i], sw, 0, false);
-          }
-        }
-#elif defined(PCBTARANIS)
-        uint8_t switches = min(NUM_SWITCHES- NUM_FUNCTIONS_SWITCHES, 6);
-        for (int i = 0; i < switches; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 1;
-            if (i >= switches / 2) {
-              x = 16 * FW + 1;
-              y -= (switches / 2) * FH;
-            }
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x, y, sw, 0, false);
-          }
-        }
-#elif defined(PCBTANGO)
-        int sw_i;
-        for (int i = 0; i < NUM_SWITCHES; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 20;
-            if (i >= NUM_SWITCHES / 2) {
-              x = 16 * FW + 6;
-              y -= (NUM_SWITCHES / 2) * FH;
-            }
-            //TDOD : move switchesReorder definition in board.h
-            static const uint8_t switchesReorder[] = {0, 1, 5, 3, 2, 4};
+        // -> 2 columns: one for each side
+        // -> 4 slots on each side (3 normal / 1 small)
+        uint8_t switches = switchGetMaxSwitches();
+        uint8_t configured_switches = 0;
 
-            // re-arrange order according to physical layout
-            i = switchesReorder[i];
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + sw_i);
-            getvalue_t sw = ((val < 0) ? 3 * sw_i + 1 : ((val == 0) ? 3 * sw_i + 2 : 3 * sw_i + 3));
-            drawSwitch(x, y, sw, 0);
+        for (uint8_t i = 0; i < switches; i++) {
+          if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
+            configured_switches ++;
           }
         }
-#elif defined(PCBMAMBO)
-        for (int i = 0; i < NUM_SWITCHES; ++i) {
-          if (SWITCH_EXISTS(i)) {
-            uint8_t x = 2 * FW - 2, y = 4 * FH + i * FH + 1;
-            if (i >= NUM_SWITCHES / 2) {
-              x = 16 * FW + 6;
-              y -= (NUM_SWITCHES / 2) * FH;
+
+        if (configured_switches < 7) {
+          for (int i = 0; i < switches; ++i) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
+              auto switch_display = switchGetDisplayPosition(i);
+              coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
+              coord_t y = 33 + switch_display.row * FH;
+              getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+              if (val == 0) x -= 1;
+              getvalue_t sw =
+                  ((val < 0) ? 3 * i + 1
+                              : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
+              drawSwitch(x, y, sw, CENTERED, false);
             }
-            getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
-            getvalue_t sw = ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-            drawSwitch(x, y, sw, 0);
           }
         }
-#else
-        // The ID0 3-POS switch is merged with the TRN switch
-        for (uint8_t i = SWSRC_THR; i <= SWSRC_TRN; i++) {
-          int8_t sw = (i == SWSRC_TRN ? (switchState(SW_ID0) ? SWSRC_ID0 : (switchState(SW_ID1) ? SWSRC_ID1 : SWSRC_ID2)) : i);
-          uint8_t x = 2 * FW - 2, y = i * FH + 1;
-          if (i >= SWSRC_AIL) {
-            x = 17 * FW - 1;
-            y -= 3 * FH;
+        else {
+          for (int i = 0; i < switches; ++i) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
+              auto switch_display = switchGetDisplayPosition(i);
+              coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
+              if (configured_switches < 9) x += 3;
+              drawSmallSwitch(x, 5 * FH + 1, 4, i);
+            }
           }
-          drawSwitch(x, y, sw, getSwitch(i) ? INVERS : 0, false);
         }
-#endif
       }
       else {
         // Logical Switches
@@ -711,7 +613,7 @@ void menuMainView(event_t event)
         uint8_t y = LCD_H - 20;
         for (uint8_t line = 0; line < 2; line++) {
           for (uint8_t column = 0; column < MAX_LOGICAL_SWITCHES / 2; column++) {
-            int8_t len = getSwitch(SWSRC_SW1 + index) ? 10 : 1;
+            int8_t len = getSwitch(SWSRC_FIRST_LOGICAL_SWITCH + index) ? 10 : 1;
             uint8_t x = (16 + 3 * column);
             lcdDrawSolidVerticalLine(x - 1, y - len, len);
             lcdDrawSolidVerticalLine(x, y - len, len);
@@ -745,7 +647,7 @@ void menuMainView(event_t event)
 
     // And ! in case of unexpected shutdown
     if (isAsteriskDisplayed()) {
-      lcdDrawChar(REBOOT_X, 0 * FH, '!', INVERS);
+      lcdDrawChar(REBOOT_X, 1, '!', INVERS|BLINK);
     }
   }
 
@@ -771,6 +673,17 @@ void menuMainView(event_t event)
     // Issue 98
     lcdDrawText(15 * FW, 0, "BIND", 0);
   }
+#if defined(RTCLOCK)
+  else if (view_base != VIEW_CHAN_MONITOR && rtcIsValid()) {
+    drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);
+  }
+#endif
+#else
+#if defined(RTCLOCK)
+  if (view_base != VIEW_CHAN_MONITOR && rtcIsValid()) {
+    drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);
+  }
+#endif
 #endif
 }
 

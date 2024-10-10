@@ -74,12 +74,16 @@ class MultiFirmwareInformation
 
     bool isMultiInternalFirmware() const
     {
-      return (boardType == FIRMWARE_MULTI_STM && optibootSupport && bootloaderCheck && telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
+      return (boardType == FIRMWARE_MULTI_STM && optibootSupport &&
+              bootloaderCheck &&
+              telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
     }
 
     bool isMultiExternalFirmware() const
     {
-      return ((telemetryInversion || boardType == FIRMWARE_MULTI_STM ) && optibootSupport && bootloaderCheck && telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
+      return ((telemetryInversion || boardType == FIRMWARE_MULTI_STM) &&
+              optibootSupport && bootloaderCheck &&
+              telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
     }
 
     const char * readMultiFirmwareInformation(const char * filename);

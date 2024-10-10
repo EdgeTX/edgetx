@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -21,26 +22,20 @@
 #include "yaml_ops.h"
 #include "generalsettings.h"
 
-struct CalibData {
-  int16_t mid;
-  int16_t spanNeg;
-  int16_t spanPos;
-};
-
 struct YamlCalibData {
-  CalibData calib[CPN_MAX_ANALOGS];
+   GeneralSettings::InputCalib calib[CPN_MAX_ANALOGS];
 
   YamlCalibData();
-  YamlCalibData(const int* calibMid, const int* calibSpanNeg, const int* calibSpanPos);
-  void copy(int* calibMid, int* calibSpanNeg, int* calibSpanPos) const;
+  YamlCalibData(const GeneralSettings::InputConfig* rhs);
+  void copy(GeneralSettings::InputConfig* rhs) const;
 };
 
 namespace YAML
 {
 template <>
-struct convert<CalibData> {
-  static Node encode(const CalibData& rhs);
-  static bool decode(const Node& node, CalibData& rhs);
+struct convert<GeneralSettings::InputCalib> {
+  static Node encode(const  GeneralSettings::InputCalib& rhs);
+  static bool decode(const Node& node,  GeneralSettings::InputCalib& rhs);
 };
 
 template <>

@@ -19,12 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include "storage.h"
 #include "sdcard_common.h"
 #include "modelslist.h"
-#include "conversions/conversions.h"
 #include "model_init.h"
+
+#include "hal/abnormal_reboot.h"
+
+#if defined(COLORLCD)
+  #include "theme_manager.h"
+#endif
 
 void getModelPath(char * path, const char * filename, const char* pathName)
 {
@@ -40,7 +45,7 @@ void storageEraseAll(bool warn)
 
 #if defined(COLORLCD)
   // the theme has not been loaded before
-  static_cast<OpenTxTheme*>(theme)->load();
+  ThemePersistance::instance()->loadDefaultTheme();
 #endif
 
   // Init backlight mode before entering alert screens
@@ -54,7 +59,7 @@ void storageEraseAll(bool warn)
     ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
   }
 
-  RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, NULL, AU_NONE);
+  RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
 
   storageFormat();
   storageDirty(EE_GENERAL);
@@ -72,6 +77,9 @@ void storageFormat()
 
 void storageCheck(bool immediately)
 {
+  // Don't write anything to SD card if in EM
+  if (UNEXPECTED_SHUTDOWN()) return;
+
   if (storageDirtyMsk & EE_GENERAL) {
     TRACE("eeprom write general");
     storageDirtyMsk &= ~EE_GENERAL;
@@ -122,6 +130,10 @@ const char * createModel()
     storageDirty(EE_GENERAL);
     storageDirty(EE_MODEL);
     storageCheck(true);
+#if defined(COLORLCD)
+    // Default layout loaded when setting model defaults - neeed to remove it.
+    LayoutFactory::deleteCustomScreens();
+#endif
   }
   postModelLoad(false);
 
@@ -181,6 +193,10 @@ void storageReadAll()
   modelslist.clear();
 #endif
 
+  // Some radio defaults overriden by config loading:
+  // - screens disabled by default:
+  g_eeGeneral.modelCustomScriptsDisabled = true;
+  
   if (loadRadioSettings() != nullptr) {
     storageEraseAll(true);
   }

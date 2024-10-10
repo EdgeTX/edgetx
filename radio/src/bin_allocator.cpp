@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "bin_allocator.h"
 
 
@@ -46,14 +46,14 @@ void * bin_malloc(size_t size) {
 
 void * bin_realloc(void * ptr, size_t size)
 {
-  if (ptr == 0) {
+  if (ptr == nullptr) {
     //no previous data, try our malloc
     return bin_malloc(size);
   }
   else {
     if (! (slots1.is_member(ptr) || slots2.is_member(ptr)) ) {
       // not our data, leave it to libc realloc
-      return 0;
+      return nullptr;
     }
 
     //we have existing data
@@ -70,13 +70,13 @@ void * bin_realloc(void * ptr, size_t size)
 
     //we need a bigger slot
     void * res = bin_malloc(size);
-    if (res == 0) {
+    if (res == nullptr) {
       // we don't have the space, use libc malloc
       // TRACE("bin_malloc [%lu] FAILURE", size);
       res = malloc(size);
-      if (res == 0) {
+      if (res == nullptr) {
         TRACE("libc malloc [%lu] FAILURE", size);  
-        return 0;
+        return nullptr;
       }
     }
     //copy data
@@ -119,7 +119,7 @@ void *bin_l_alloc (void *ud, void *ptr, size_t osize, size_t nsize)
     if (res && ptr) {
       // TRACE("OUR realloc %p[%lu] -> %p[%lu]", ptr, osize, res, nsize); 
     }
-    if (res == 0) {
+    if (res == nullptr) {
       res = realloc(ptr, nsize);
       // TRACE("libc realloc %p[%lu] -> %p[%lu]", ptr, osize, res, nsize);
       // if (res == 0 ){

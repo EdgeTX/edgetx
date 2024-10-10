@@ -22,51 +22,8 @@ tts_languages = {
     "pt"
 }
 
-
-options_sky9x = {
-    "heli": ("HELI", "YES", "NO"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
-    "gvars": ("GVARS", "YES", "NO"),
-    "potscroll": ("NAVIGATION", "POTS", "NO"),
-    "autosource": ("AUTOSOURCE", "YES", "NO"),
-    "autoswitch": ("AUTOSWITCH", "YES", "NO"),
-    "dblkeys": ("DBLKEYS", "YES", "NO"),
-    "nographics": ("GRAPHICS", "NO", "YES"),
-    "battgraph": ("BATTGRAPH", "YES", "NO"),
-    "nobold": ("BOLD", "NO", "YES"),
-    "sqt5font": ("FONT", "SQT5", None),
-    "imperial": ("UNITS", "IMPERIAL", "METRIC"),
-    "bluetooth": ("BLUETOOTH", "YES", "NO"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None)
-}
-
-options_ar9x = {
-    "heli": ("HELI", "YES", "NO"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
-    "gvars": ("GVARS", "YES", "NO"),
-    "potscroll": ("NAVIGATION", "POTS", "NO"),
-    "autosource": ("AUTOSOURCE", "YES", "NO"),
-    "autoswitch": ("AUTOSWITCH", "YES", "NO"),
-    "dblkeys": ("DBLKEYS", "YES", "NO"),
-    "nographics": ("GRAPHICS", "NO", "YES"),
-    "battgraph": ("BATTGRAPH", "YES", "NO"),
-    "nobold": ("BOLD", "NO", "YES"),
-    "sqt5font": ("FONT", "SQT5", None),
-    "imperial": ("UNITS", "IMPERIAL", "METRIC"),
-    "bluetooth": ("BLUETOOTH", "YES", "NO"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    # "rtc": ("RTCLOCK", "YES", "NO"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None)
-}
-
 options_taranis_x9d = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "haptic": ("HAPTIC", "YES", "NO"),
     "nogvars": ("GVARS", "NO", "YES"),
@@ -82,7 +39,6 @@ options_taranis_x9d = {
 
 options_taranis_x9dp = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "sqt5font": ("FONT", "SQT5", None),
@@ -96,7 +52,6 @@ options_taranis_x9dp = {
 }
 options_taranis_x7 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "sqt5font": ("FONT", "SQT5", None),
@@ -109,7 +64,6 @@ options_taranis_x7 = {
 
 options_taranis_x9lite = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "sqt5font": ("FONT", "SQT5", None),
@@ -123,7 +77,6 @@ options_taranis_x9lite = {
 
 options_taranis_xlite = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "sqt5font": ("FONT", "SQT5", None),
@@ -137,7 +90,6 @@ options_taranis_xlite = {
 
 options_taranis_xlites = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "sqt5font": ("FONT", "SQT5", None),
@@ -151,7 +103,6 @@ options_taranis_xlites = {
 
 options_taranis_x9e = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "sqt5font": ("FONT", "SQT5", None),
@@ -167,7 +118,6 @@ options_taranis_x9e = {
 
 options_horus_x12s = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -182,7 +132,6 @@ options_horus_x12s = {
 
 options_horus_x10 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -196,7 +145,6 @@ options_horus_x10 = {
 
 options_horus_x10express = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "luac": ("LUA_COMPILER", "YES", "NO"),
     "nogvars": ("GVARS", "NO", "YES"),
@@ -209,7 +157,6 @@ options_horus_x10express = {
 
 options_betafpv_lr3pro = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -220,7 +167,6 @@ options_betafpv_lr3pro = {
 
 options_jumper_tlite = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -229,10 +175,8 @@ options_jumper_tlite = {
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
 }
 
-
 options_jumper_t12 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -245,7 +189,6 @@ options_jumper_t12 = {
 
 options_jumper_t16 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -259,7 +202,6 @@ options_jumper_t16 = {
 
 options_jumper_t18 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -272,7 +214,6 @@ options_jumper_t18 = {
 
 options_radiomaster_tx12 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -284,7 +225,6 @@ options_radiomaster_tx12 = {
 
 options_radiomaster_tx12mk2 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -297,7 +237,42 @@ options_radiomaster_tx12mk2 = {
 
 options_radiomaster_zorro = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
+    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
+    "nogvars": ("GVARS", "NO", "YES"),
+    "faimode": ("FAI", "YES", None),
+    "faichoice": ("FAI", "CHOICE", None),
+    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
+    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
+    "afhds3": ("AFHDS3", "YES", "NO"),
+    "internalelrs": ("INTERNAL_MODULE_ELRS", "YES", "NO"),
+}
+
+options_radiomaster_boxer = {
+    "noheli": ("HELI", "NO", "YES"),
+    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
+    "nogvars": ("GVARS", "NO", "YES"),
+    "faimode": ("FAI", "YES", None),
+    "faichoice": ("FAI", "CHOICE", None),
+    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
+    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
+    "afhds3": ("AFHDS3", "YES", "NO"),
+    "internalelrs": ("INTERNAL_MODULE_ELRS", "YES", "NO"),
+}
+
+options_radiomaster_pocket = {
+    "noheli": ("HELI", "NO", "YES"),
+    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
+    "nogvars": ("GVARS", "NO", "YES"),
+    "faimode": ("FAI", "YES", None),
+    "faichoice": ("FAI", "CHOICE", None),
+    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
+    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
+    "afhds3": ("AFHDS3", "YES", "NO"),
+    "internalelrs": ("INTERNAL_MODULE_ELRS", "YES", "NO"),
+}
+
+options_radiomaster_mt12 = {
+    "noheli": ("HELI", "NO", "YES"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -310,7 +285,6 @@ options_radiomaster_zorro = {
 
 options_radiomaster_t8 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -321,7 +295,32 @@ options_radiomaster_t8 = {
 
 options_radiomaster_tx16s = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
+    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
+    "nogvars": ("GVARS", "NO", "YES"),
+    "faimode": ("FAI", "YES", None),
+    "faichoice": ("FAI", "CHOICE", None),
+    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
+    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
+    "bluetooth": ("BLUETOOTH", "YES", "NO"),
+    "internalgps": ("INTERNAL_GPS", "YES", "NO"),
+    "externalaccessmod": ("HARDWARE_EXTERNAL_ACCESS_MOD", "YES", "NO"),
+}
+
+options_fatfish_f16 = {
+    "noheli": ("HELI", "NO", "YES"),
+    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
+    "nogvars": ("GVARS", "NO", "YES"),
+    "faimode": ("FAI", "YES", None),
+    "faichoice": ("FAI", "CHOICE", None),
+    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
+    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
+    "bluetooth": ("BLUETOOTH", "YES", "NO"),
+    "internalgps": ("INTERNAL_GPS", "YES", "NO"),
+    "externalaccessmod": ("HARDWARE_EXTERNAL_ACCESS_MOD", "YES", "NO"),
+}
+
+options_helloradiosky_v16 = {
+    "noheli": ("HELI", "NO", "YES"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),
@@ -335,7 +334,6 @@ options_radiomaster_tx16s = {
 
 options_commando8_t8 = {
     "noheli": ("HELI", "NO", "YES"),
-    "ppmus": ("PPM_UNIT", "US", "PERCENT_PREC1"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
     "nogvars": ("GVARS", "NO", "YES"),
     "faimode": ("FAI", "YES", None),

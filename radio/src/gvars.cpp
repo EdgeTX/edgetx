@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 uint8_t gvarDisplayTimer = 0;
 uint8_t gvarLastChanged = 0;
@@ -61,7 +61,12 @@ void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
 {
   fm = getGVarFlightMode(fm, gv);
   if (GVAR_VALUE(gv, fm) != value) {
-    SET_GVAR_VALUE(gv, fm, value);
+    GVAR_VALUE(gv, fm) = value;
+    storageDirty(EE_MODEL);
+    if (g_model.gvars[gv].popup) {
+      gvarLastChanged = gv;
+      gvarDisplayTimer = GVAR_DISPLAY_TIME;
+    }
   }
 }
 
@@ -84,4 +89,11 @@ int32_t getGVarFieldValuePrec1(int16_t val, int16_t min, int16_t max, int8_t fm)
     val *= 10;
   }
   return limit<int>(min*10, val, max*10);
+}
+
+void getGVarIncDecRange(int16_t & valMin, int16_t & valMax)
+{
+  int16_t rng = abs(valMax - valMin);
+  valMin = -rng;
+  valMax = rng;
 }

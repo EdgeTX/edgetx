@@ -212,6 +212,14 @@
     <file>images/simulator/JumperTPRO/left.png</file>
     <file>images/simulator/JumperTPRO/right.png</file>
     <file>images/simulator/JumperTPRO/top.png</file>
+    <file>images/simulator/JumperTPROS/bottom.png</file>
+    <file>images/simulator/JumperTPROS/left.png</file>
+    <file>images/simulator/JumperTPROS/right.png</file>
+    <file>images/simulator/JumperTPROS/right-ent.png</file>
+    <file>images/simulator/JumperTPROS/top.png</file>
+    <file>images/simulator/JumperTPROS/exit.png</file>
+    <file>images/simulator/JumperTPROS/menu.png</file>
+    <file>images/simulator/JumperTPROS/page.png</file>
     <file>images/simulator/TX12/left.png</file>
     <file>images/simulator/TX12/left-pageup.png</file>
     <file>images/simulator/TX12/left-pagedn.png</file>
@@ -234,6 +242,17 @@
     <file>images/simulator/Zorro/right-mdl.png</file>
     <file>images/simulator/Zorro/bottom.png</file>
     <file>images/simulator/Zorro/top.png</file>
+    <file>images/simulator/Boxer/bottom.png</file>
+    <file>images/simulator/Boxer/left.png</file>
+    <file>images/simulator/Boxer/left-sys.png</file>
+    <file>images/simulator/Boxer/left-pageup.png</file>
+    <file>images/simulator/Boxer/left-pagedn.png</file>
+    <file>images/simulator/Boxer/left-rtn.png</file>
+    <file>images/simulator/Boxer/left-tele.png</file>
+    <file>images/simulator/Boxer/right.png</file>
+    <file>images/simulator/Boxer/right-mdl.png</file>
+    <file>images/simulator/Boxer/right-ent.png</file>
+    <file>images/simulator/Boxer/top.png</file>
     <file>images/simulator/T8/left.png</file>
     <file>images/simulator/T8/left-pageup.png</file>
     <file>images/simulator/T8/left-pagedn.png</file>
@@ -246,6 +265,29 @@
     <file>images/simulator/T8/right-dn.png</file>
     <file>images/simulator/T8/bottom.png</file>
     <file>images/simulator/T8/top.png</file>
+    <file>images/simulator/Fatfish/F16/left.png</file>
+    <file>images/simulator/Fatfish/F16/right.png</file>
+    <file>images/simulator/Fatfish/F16/top.png</file>
+    <file>images/simulator/Fatfish/F16/bottom.png</file>
+    <file>images/simulator/JumperT12max/bottom.png</file>
+    <file>images/simulator/JumperT12max/left.png</file>
+    <file>images/simulator/JumperT12max/right.png</file>
+    <file>images/simulator/JumperT12max/right-ent.png</file>
+    <file>images/simulator/JumperT12max/top.png</file>
+    <file>images/simulator/JumperT12max/exit.png</file>
+    <file>images/simulator/JumperT12max/menu.png</file>
+    <file>images/simulator/JumperT12max/page.png</file>
+    <file>images/simulator/JumperT14/bottom.png</file>
+    <file>images/simulator/JumperT14/left.png</file>
+    <file>images/simulator/JumperT14/right.png</file>
+    <file>images/simulator/JumperT14/top.png</file>
+    <file>images/simulator/JumperT15/left.png</file>
+    <file>images/simulator/JumperT15/right.png</file>
+    <file>images/simulator/JumperT15/top.png</file>
+    <file>images/simulator/JumperT15/bottom.png</file>
+    <file>images/simulator/JumperT15/model.png</file>
+    <file>images/simulator/JumperT15/exit.png</file>
+    <file>images/simulator/JumperT15/page.png</file>
     <file>images/simulator/JumperT16/left.png</file>
     <file>images/simulator/JumperT16/right.png</file>
     <file>images/simulator/JumperT16/top.png</file>
@@ -267,6 +309,10 @@
     <file>images/simulator/JumperT18/left_tele.png</file>
     <file>images/simulator/JumperT18/right_ent.png</file>
     <file>images/simulator/JumperT18/right_rtn.png</file>
+    <file>images/simulator/JumperT20/left.png</file>
+    <file>images/simulator/JumperT20/right.png</file>
+    <file>images/simulator/JumperT20/top.png</file>
+    <file>images/simulator/JumperT20/bottom.png</file>
     <file>images/simulator/TX16S/left.png</file>
     <file>images/simulator/TX16S/right.png</file>
     <file>images/simulator/TX16S/top.png</file>
@@ -282,6 +328,23 @@
     <file>images/simulator/NV14/right.png</file>
     <file>images/simulator/NV14/top.png</file>
     <file>images/simulator/NV14/bottom.png</file>
+    <file>images/simulator/PL18/left.png</file>
+    <file>images/simulator/PL18/right.png</file>
+    <file>images/simulator/PL18/top.png</file>
+    <file>images/simulator/PL18/bottom.png</file>
+    <file>images/simulator/Pocket/left.png</file>
+    <file>images/simulator/Pocket/right.png</file>
+    <file>images/simulator/Pocket/top.png</file>
+    <file>images/simulator/Pocket/bottom.png</file>
+    <file>images/simulator/V16/left.png</file>
+    <file>images/simulator/V16/left_pagedn.png</file>
+    <file>images/simulator/V16/left_pageup.png</file>
+    <file>images/simulator/V16/left_rtn.png</file>
+    <file>images/simulator/V16/left_sys.png</file>
+    <file>images/simulator/V16/left_tele.png</file>
+    <file>images/simulator/V16/right.png</file>
+    <file>images/simulator/V16/right_ent.png</file>
+    <file>images/simulator/V16/right_mdl.png</file>    
     <file>images/wizard/ailerons.png</file>
     <file>images/wizard/airbrakes.png</file>
     <file>images/wizard/elevons.png</file>
@@ -1262,20 +1325,39 @@
     <file>themes/yerico/48/stop.png</file>
     <file>themes/yerico/48/write_eeprom.png</file>
     <file>themes/yerico/48/sdsync.png</file>
+    <file>sounds/0.wav</file>
+    <file>sounds/1.wav</file>
+    <file>sounds/2.wav</file>
+    <file>sounds/3.wav</file>
+    <file>sounds/4.wav</file>
+    <file>sounds/5.wav</file>
+    <file>sounds/6.wav</file>
+    <file>sounds/7.wav</file>
+    <file>sounds/8.wav</file>
+    <file>sounds/9.wav</file>
+    <file>sounds/10.wav</file>
+    <file>sounds/11.wav</file>
+    <file>sounds/12.wav</file>
+    <file>sounds/13.wav</file>
+    <file>sounds/14.wav</file>
+    <file>sounds/15.wav</file>
   </qresource>
   <qresource prefix="/layouts/">
-    <file alias="mask_layout1p2.png">../../radio/src/gui/colorlcd/layouts/mask_layout1+2.png</file>
-    <file alias="mask_layout1p3.png">../../radio/src/gui/colorlcd/layouts/mask_layout1+3.png</file>
-    <file alias="mask_layout1x1.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x1.png</file>
-    <file alias="mask_layout1x2.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x2.png</file>
-    <file alias="mask_layout1x3.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x3.png</file>
-    <file alias="mask_layout1x4.png">../../radio/src/gui/colorlcd/layouts/mask_layout1x4.png</file>
-    <file alias="mask_layout2p1.png">../../radio/src/gui/colorlcd/layouts/mask_layout2+1.png</file>
-    <file alias="mask_layout2p3.png">../../radio/src/gui/colorlcd/layouts/mask_layout2+3.png</file>
-    <file alias="mask_layout2x1.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x1.png</file>
-    <file alias="mask_layout2x2.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x2.png</file>
-    <file alias="mask_layout2x3.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x3.png</file>
-    <file alias="mask_layout2x4.png">../../radio/src/gui/colorlcd/layouts/mask_layout2x4.png</file>
-    <file alias="mask_layout4p2.png">../../radio/src/gui/colorlcd/layouts/mask_layout4+2.png</file>
+    <file alias="mask_layout1p2.png">images/layouts/mask_layout1+2.png</file>
+    <file alias="mask_layout1p3.png">images/layouts/mask_layout1+3.png</file>
+    <file alias="mask_layout1p4.png">images/layouts/mask_layout1+4.png</file>
+    <file alias="mask_layout1x1.png">images/layouts/mask_layout1x1.png</file>
+    <file alias="mask_layout1x1am.png">images/layouts/mask_layout1x1.png</file>
+    <file alias="mask_layout1x2.png">images/layouts/mask_layout1x2.png</file>
+    <file alias="mask_layout1x3.png">images/layouts/mask_layout1x3.png</file>
+    <file alias="mask_layout1x4.png">images/layouts/mask_layout1x4.png</file>
+    <file alias="mask_layout2p1.png">images/layouts/mask_layout2+1.png</file>
+    <file alias="mask_layout2p3.png">images/layouts/mask_layout2+3.png</file>
+    <file alias="mask_layout2x1.png">images/layouts/mask_layout2x1.png</file>
+    <file alias="mask_layout2x2.png">images/layouts/mask_layout2x2.png</file>
+    <file alias="mask_layout2x3.png">images/layouts/mask_layout2x3.png</file>
+    <file alias="mask_layout2x4.png">images/layouts/mask_layout2x4.png</file>
+    <file alias="mask_layout4p2.png">images/layouts/mask_layout4+2.png</file>
+    <file alias="mask_layout4p2b.png">images/layouts/mask_layout4+2b.png</file>
   </qresource>
 </RCC>

@@ -19,7 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
+
+const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT] = {
+#if defined(RADIO_TOOLS)
+  { menuRadioTools, nullptr },
+#endif
+  { menuRadioSdManager, nullptr },
+  { menuRadioSetup, nullptr },
+  { menuRadioSpecialFunctions, radioGFEnabled },
+  { menuRadioTrainer, radioTrainerEnabled },
+  { menuRadioHardware, nullptr },
+  { menuRadioVersion, nullptr }
+};
 
 void menuRadioSpecialFunctions(event_t event)
 {
@@ -30,7 +42,7 @@ void menuRadioSpecialFunctions(event_t event)
   }
 #endif
 
-  MENU(STR_MENUSPECIALFUNCS, menuTabGeneral, MENU_RADIO_SPECIAL_FUNCTIONS, HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|4/*repeated*/ });
+  MENU(STR_MENUSPECIALFUNCS, menuTabGeneral, MENU_RADIO_SPECIAL_FUNCTIONS, HEADER_LINE+MAX_SPECIAL_FUNCTIONS, { HEADER_LINE_COLUMNS NAVIGATION_LINE_BY_LINE|5/*repeated*/ });
 
   menuSpecialFunctions(event, g_eeGeneral.customFn, &globalFunctionsContext);
 

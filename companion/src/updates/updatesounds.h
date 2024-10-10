@@ -35,18 +35,10 @@ class UpdateSounds : public UpdateInterface
     virtual ~UpdateSounds();
 
   protected:
-    virtual void initAssetSettings() override;
-
     virtual bool flagAssets() override;
+    virtual void assetSettingsInit() override;
 
   private:
-    enum ItemModelDataRoles {
-      IMDR_Language = Qt::UserRole,
-      IMDR_Name,
-      IMDR_Directory,
-    };
-    Q_ENUM(ItemModelDataRoles)
-
     QStandardItemModel *langPacks;
 
     bool flagLanguageAsset(QString lang);

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum PortuguesePrompts {
   PT_PROMPT_NUMBERS_BASE = 0,
@@ -67,7 +67,7 @@ enum PortuguesePrompts {
 };
 
 
-  #define PT_PUSH_UNIT_PROMPT(u) pt_pushUnitPrompt((u), id)
+#define PT_PUSH_UNIT_PROMPT(u) pt_pushUnitPrompt((u), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(pt, pushUnitPrompt, uint8_t unitprompt)
 {
@@ -138,43 +138,43 @@ I18N_PLAY_FUNCTION(pt, playDuration, int seconds PLAY_DURATION_ATT)
     seconds = -seconds;
   }
 
-  uint8_t ore = 0;
-  uint8_t tmp;
-  if (IS_PLAY_LONG_TIMER()) {
-    tmp = seconds / 60;
-    if (seconds % 60 >= 30) tmp += 1;
-    if (tmp > 0) PLAY_NUMBER(tmp, UNIT_MINUTES, 0);
-  } else {
-    tmp = seconds / 3600;
-    seconds %= 3600;
-    if (tmp > 0 || IS_PLAY_TIME()) {
-      ore = tmp;
-      if (tmp > 2) {
-        PLAY_NUMBER(tmp, 0, 0);
-        PUSH_UNIT_PROMPT(UNIT_HOURS, 1);
-      } else if (tmp == 2) {
-        PUSH_NUMBER_PROMPT(PT_PROMPT_DUAS);
-        PUSH_UNIT_PROMPT(UNIT_HOURS, 1);
-      } else if (tmp == 1) {
-        PUSH_NUMBER_PROMPT(PT_PROMPT_UMA);
-        PUSH_UNIT_PROMPT(UNIT_HOURS, 0);
-      }
-    }
+  int hours, minutes;
+  hours = seconds / 3600;
+  seconds = seconds % 3600;
+  minutes = seconds / 60;
+  seconds = seconds % 60;
 
-    tmp = seconds / 60;
-    seconds %= 60;
-    if (tmp > 0 || ore > 0) {
-      if (tmp != 1) {
-        PLAY_NUMBER(tmp, 0, 0);
-        PUSH_UNIT_PROMPT(UNIT_MINUTES, 1);
-      } else {
-        PUSH_NUMBER_PROMPT(PT_PROMPT_NUMBERS_BASE + 1);
-        PUSH_UNIT_PROMPT(UNIT_MINUTES, 0);
-      }
+  if (IS_PLAY_LONG_TIMER() && seconds >= 30) {
+    minutes += 1;
+  }
+
+  if (hours > 0 || IS_PLAY_TIME()) {
+    if (hours > 2) {
+      PLAY_NUMBER(hours, 0, 0);
+      PUSH_UNIT_PROMPT(UNIT_HOURS, 1);
+    } else if (hours == 2) {
+      PUSH_NUMBER_PROMPT(PT_PROMPT_DUAS);
+      PUSH_UNIT_PROMPT(UNIT_HOURS, 1);
+    } else if (hours == 1) {
+      PUSH_NUMBER_PROMPT(PT_PROMPT_UMA);
+      PUSH_UNIT_PROMPT(UNIT_HOURS, 0);
+    }
+  }
+
+  if (hours > 0 || minutes > 0) {
+    if (minutes > 1) {
+      PLAY_NUMBER(minutes, 0, 0);
+      PUSH_UNIT_PROMPT(UNIT_MINUTES, 1);
+    } else {
+      PUSH_NUMBER_PROMPT(PT_PROMPT_NUMBERS_BASE + 1);
+      PUSH_UNIT_PROMPT(UNIT_MINUTES, 0);
+    }
+  }
+
+  if (!IS_PLAY_LONG_TIMER() && seconds > 0) {
+    if (hours || minutes)
       PUSH_NUMBER_PROMPT(PT_PROMPT_E);
-    }
-
-    if (seconds != 1) {
+    if (seconds > 1) {
       PLAY_NUMBER(seconds, 0, 0);
       PUSH_UNIT_PROMPT(UNIT_SECONDS, 1);
     } else {

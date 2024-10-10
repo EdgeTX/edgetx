@@ -20,11 +20,11 @@
  */
 
 #include "lua_event.h"
-#include "opentx_helpers.h"
+#include "lua_api.h"
+#include "edgetx_helpers.h"
 #include "board_common.h"
 #include "timers_driver.h"
 #include "keys.h"
-
 
 extern "C" {
   #include "lua.h"
@@ -82,20 +82,6 @@ LuaEventData* luaGetEventSlot(event_t event)
 #define EVT_TOUCH_SWIPE_TIMEOUT 50
 
 static tmr10ms_t _swipeTimeOut = 0;
-
-static void l_pushtableint(lua_State* ls, const char * key, int value)
-{
-  lua_pushstring(ls, key);
-  lua_pushinteger(ls, value);
-  lua_settable(ls, -3);
-}
-
-static void l_pushtablebool(lua_State* ls, const char * key, bool value)
-{
-  lua_pushstring(ls, key);
-  lua_pushboolean(ls, value);
-  lua_settable(ls, -3);
-}
 
 void luaPushTouchEventTable(lua_State* ls, LuaEventData* evt)
 {

@@ -7,10 +7,8 @@ option(LOG_TELEMETRY "Telemetry Logs on SD card" OFF)
 option(LOG_BLUETOOTH "Bluetooth Logs on SD card" OFF)
 option(TRACE_SD_CARD "Traces SD enabled" OFF)
 option(TRACE_FATFS "Traces FatFS enabled" OFF)
-option(TRACE_AUDIO "Traces audio enabled" OFF)
 option(DEBUG_TRACE_BUFFER "Debug Trace Screen" OFF)
 option(XJT "XJT TX Module" ON)
-option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(PPM "PPM TX Module" ON)
 option(DSM2 "DSM2 TX Module" ON)
 option(SBUS "SBUS TX Module" ON)
@@ -24,17 +22,19 @@ option(DEBUG_USB_INTERRUPTS "Count individual USB interrupts" OFF)
 option(DEBUG_TIMERS "Time critical parts of the code" OFF)
 option(DEBUG_BLUETOOTH "Debug Bluetooth" OFF)
 
-# option to select the default internal module
-#set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
-set_property(CACHE DEFAULT_INTERNAL_MODULE PROPERTY STRINGS ${INTERNAL_MODULES})
+if(INTERNAL_MODULES)
+  # option to select the default internal module
+  #set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
+  set_property(CACHE DEFAULT_INTERNAL_MODULE PROPERTY STRINGS ${INTERNAL_MODULES})
 
-# define variables for internal modules
-foreach(module ${INTERNAL_MODULES})
-  set(INTERNAL_MODULE_${module} ON CACHE BOOL "Support for ${module} internal module")
-  if (INTERNAL_MODULE_${module})
-    message("-- Adding support for ${module} as internal module")
-  endif()
-endforeach()
+  # define variables for internal modules
+  foreach(module ${INTERNAL_MODULES})
+    set(INTERNAL_MODULE_${module} ON CACHE BOOL "Support for ${module} internal module")
+    if (INTERNAL_MODULE_${module})
+      message("-- Adding support for ${module} as internal module")
+    endif()
+  endforeach()
+endif()
 
 if(INTERNAL_MODULE_PXX1)
   add_definitions(-DHARDWARE_INTERNAL_MODULE)
@@ -50,13 +50,11 @@ endif()
 if(INTERNAL_MODULE_MULTI)
   add_definitions(-DHARDWARE_INTERNAL_MODULE)
   add_definitions(-DINTERNAL_MODULE_MULTI)
-  add_definitions(-DINTERNAL_MODULE_SERIAL_TELEMETRY)
 endif()
 
 if(INTERNAL_MODULE_CRSF)
   add_definitions(-DHARDWARE_INTERNAL_MODULE)
   add_definitions(-DINTERNAL_MODULE_CRSF)
-  add_definitions(-DINTERNAL_MODULE_SERIAL_TELEMETRY)
 endif()
 
 if(INTERNAL_MODULE_AFHDS2A)
@@ -78,8 +76,25 @@ if(DEFAULT_INTERNAL_MODULE)
   add_definitions(-DDEFAULT_INTERNAL_MODULE=MODULE_TYPE_${DEFAULT_INTERNAL_MODULE})
 endif()
 
+if(MODULE_SIZE_STD)
+  add_definitions(-DHARDWARE_EXTERNAL_MODULE_SIZE_STD)
+endif()
+
+if(MODULE_SIZE_SML)
+  add_definitions(-DHARDWARE_EXTERNAL_MODULE_SIZE_SML)
+endif()
+
+if(NOT MODULE_SIZE_STD AND NOT MODULE_SIZE_SML)
+  set(HARDWARE_EXTERNAL_MODULE NO)
+  set(GHOST NO)
+endif()
+
 if(HARDWARE_EXTERNAL_MODULE)
   add_definitions(-DHARDWARE_EXTERNAL_MODULE)
+endif()
+
+if(MULTIMODULE STREQUAL INTERNAL)
+  add_definitions(-DINTERNAL_MODULE_MULTI)
 endif()
 
 if(TIMERS EQUAL 3)
@@ -104,12 +119,6 @@ endif()
 
 if(TRACE_FATFS)
   add_definitions(-DTRACE_FATFS)
-  set(DEBUG ON)
-  set(DEBUG_TRACE_BUFFER ON)
-endif()
-
-if(TRACE_AUDIO)
-  add_definitions(-DTRACE_AUDIO)
   set(DEBUG ON)
   set(DEBUG_TRACE_BUFFER ON)
 endif()
@@ -167,20 +176,16 @@ if(ENABLE_SERIAL_PASSTHROUGH)
   add_definitions(-DENABLE_SERIAL_PASSTHROUGH)
 endif()
 
-if(DEBUG)
-  add_definitions(-DDEBUG)
-endif()
-
 if(HAPTIC)
   add_definitions(-DHAPTIC)
   set(SRC ${SRC} haptic.cpp)
-  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} haptic_driver.cpp)
 endif()
 
 # Protocols supported
 
 if(PPM)
   add_definitions(-DPPM)
+  set(SRC ${SRC} telemetry/mlink.cpp)
 endif()
 
 if(DSM2)
@@ -195,6 +200,7 @@ if(PXX1)
   add_definitions(-DPXX -DPXX1)
   set(PULSES_SRC
     ${PULSES_SRC}
+    pxx.cpp
     pxx1.cpp
     )
 endif()
@@ -204,25 +210,15 @@ if(PXX2)
   set(PULSES_SRC
     ${PULSES_SRC}
     pxx2.cpp
+    pxx2_ota.cpp
     )
-endif()
-
-if(XJT)
-  add_definitions(-DXJT)
-endif()
-
-if(MODULE_SIZE_STD)
-  add_definitions(-DHARDWARE_EXTERNAL_MODULE_SIZE_STD)
-endif()
-
-if(MULTIMODULE STREQUAL INTERNAL)
-  add_definitions(-DINTERNAL_MODULE_MULTI)
 endif()
 
 if(MULTIMODULE)
   add_definitions(-DMULTIMODULE)
   set(SRC ${SRC} pulses/multi.cpp telemetry/hitec.cpp telemetry/hott.cpp telemetry/mlink.cpp telemetry/multi.cpp io/multi_firmware_update.cpp)
 endif()
+
 if(MULTIMODULE OR AFHDS3)
   set(SRC ${SRC} telemetry/flysky_ibus.cpp)
 endif()
@@ -275,7 +271,6 @@ add_definitions(-g)
 add_definitions(-DCPUARM)
 add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
-add_definitions(-DSBUS_TRAINER)
 
 foreach(LANGUAGE ${TTS_LANGUAGES})
   string(TOLOWER ${LANGUAGE} lang_lower)
@@ -286,7 +281,6 @@ set(SRC
   ${SRC}
   main.cpp
   tasks.cpp
-  audio.cpp
   telemetry/telemetry.cpp
   telemetry/telemetry_sensors.cpp
   telemetry/frsky.cpp
@@ -300,9 +294,8 @@ set(SRC
 
 set(FIRMWARE_TARGET_SRC
   ${FIRMWARE_TARGET_SRC}
-  keys_driver.cpp
-  diskio.cpp
-  telemetry_driver.cpp
+  # keys_driver.cpp
+  # telemetry_driver.cpp
 )
 
 set(PULSES_SRC

@@ -19,18 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GVARS_H_
-#define _GVARS_H_
+#pragma once
 
-  // GVars have one value per flight mode
-  #define GVAR_VALUE(gv, fm)           g_model.flightModeData[fm].gvars[gv]
-  #define SET_GVAR_VALUE(idx, phase, value) \
-    GVAR_VALUE(idx, phase) = value; \
-    storageDirty(EE_MODEL); \
-    if (g_model.gvars[idx].popup) { \
-      gvarLastChanged = idx; \
-      gvarDisplayTimer = GVAR_DISPLAY_TIME; \
-    }
+// GVars have one value per flight mode
+#define GVAR_VALUE(gv, fm)           g_model.flightModeData[fm].gvars[gv]
 
 #if defined(GVARS)
     uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv);
@@ -72,4 +64,4 @@ constexpr int32_t MIX_WEIGHT_MIN = -500;
 constexpr int32_t MIX_OFFSET_MAX = 500;       
 constexpr int32_t MIX_OFFSET_MIN = -500;      
 
-#endif // _GVARS_H_
+void getGVarIncDecRange(int16_t & valMin, int16_t & valMax);

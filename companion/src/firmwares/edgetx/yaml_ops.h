@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -21,6 +22,9 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include "helpers.h"
+#include "boards.h"
+
 #include <algorithm>
 #include <QString>
 
@@ -121,6 +125,9 @@ void operator>>(const YAML::Node& node, T (&value)[N])
   }
 }
 
+void YamlValidateName(char *input, Board::Type board);
+void YamlValidateLabel(QString &input);
+
 namespace YAML {
 
 std::string LookupValue(const YamlLookupTable& lut, const int& value);
@@ -171,3 +178,6 @@ struct convert_enum
       return convert_enum<enum_type>::decode(node, lut, rhs);   \
     }                                                          \
   }
+
+extern SemanticVersion radioSettingsVersion;
+extern SemanticVersion modelSettingsVersion;

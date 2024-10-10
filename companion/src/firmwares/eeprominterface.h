@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -36,11 +37,16 @@
 #include <iostream>
 #include <string>
 
-const uint8_t modn12x3[4][4]= {
-  {1, 2, 3, 4},
-  {1, 3, 2, 4},
-  {4, 2, 3, 1},
-  {4, 3, 2, 1} };
+const uint8_t modn12x3[8][4]= {
+  {1, 2, 3, 4}, // air mode 1
+  {1, 3, 2, 4}, // air mode 2
+  {4, 2, 3, 1}, // air mode 3
+  {4, 3, 2, 1}, // air mode 4
+  {2, 3, 4, 1}, // surface mode 1
+  {2, 3, 4, 1}, // surface mode 2
+  {2, 3, 4, 1}, // surface mode 3
+  {2, 3, 4, 1}  // surface mode 4
+};
 
 enum Capability {
   Models,
@@ -118,7 +124,6 @@ enum Capability {
   HasModuleR9MFlex,
   HasModuleR9MMini,
   PPMCenter,
-  PPMUnitMicroseconds,
   SYMLimits,
   HastxCurrentCalibration,
   HasVolume,
@@ -129,9 +134,6 @@ enum Capability {
   PermTimers,
   HasSDLogs,
   CSFunc,
-  LcdWidth,
-  LcdHeight,
-  LcdDepth,
   GetThrSwitch,
   HasDisplayText,
   HasTopLcd,
@@ -162,7 +164,6 @@ enum Capability {
   HasAux2SerialMode,
   HasVCPSerialMode,
   HasBluetooth,
-  HasAntennaChoice,
   HasADCJitterFilter,
   HasTelemetryBaudrate,
   TopBarZones,
@@ -174,6 +175,7 @@ enum Capability {
   HasIntModuleCRSF,
   HasIntModuleELRS,
   HasIntModuleFlySky,
+  BacklightLevelMin,
 };
 
 class EEPROMInterface
@@ -287,26 +289,14 @@ class Firmware
     typedef QList<OptionsGroup> OptionsList;
 
 
-    explicit Firmware(const QString & id, const QString & name, Board::Type board) :
-      Firmware(nullptr, id, name, board)
+    explicit Firmware(const QString & id, const QString & name, Board::Type board, const QString & downloadId = QString(),
+                      const QString & simulatorId = QString(), const QString & hwdefnId = QString()) :
+      Firmware(nullptr, id, name, board, downloadId, simulatorId, hwdefnId)
     { }
 
-    explicit Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board) :
-      id(id),
-      name(name),
-      board(board),
-      variantBase(0),
-      base(base),
-      eepromInterface(nullptr),
-      analogInputNamesLookupTable(Boards::getAnalogNamesLookupTable(board)),
-      switchesLookupTable(Boards::getSwitchesLookupTable(board)),
-      trimSwitchesLookupTable(Boards::getTrimSwitchesLookupTable(board)),
-      trimSourcesLookupTable(Boards::getTrimSourcesLookupTable(board)),
-      rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
-      rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable()),
-      rawSourceCyclicLookupTable(RawSource::getCyclicLookupTable())
-    {
-    }
+    explicit Firmware(Firmware * base, const QString & id, const QString & name, Board::Type board,
+                      const QString & downloadId = QString(), const QString & simulatorId = QString(),
+                      const QString & hwdefnId = QString());
 
     virtual ~Firmware() { }
 
@@ -413,6 +403,15 @@ class Firmware
       currentVariant = value;
     }
 
+    static void sortRegisteredFirmwares()
+    {
+      std::sort(registeredFirmwares.begin(), registeredFirmwares.end(),
+                [](const Firmware *a, const Firmware *b) {
+                  return QString::compare(a->getName(), b->getName(),
+                                          Qt::CaseInsensitive) < 0;
+                });
+    }
+
     QString getFlavour();
 
     static Firmware * getFirmwareForFlavour(const QString & flavour)
@@ -420,18 +419,9 @@ class Firmware
       return getFirmwareForId(FIRMWARE_ID_PREFIX + flavour);
     }
 
-    const StringTagMappingTable* getAnalogIndexNamesLookupTable()
-    {
-      return &analogInputNamesLookupTable;
-    }
-
-    STRINGTAGMAPPINGFUNCS(analogInputNamesLookupTable, AnalogInput);
-    STRINGTAGMAPPINGFUNCS(switchesLookupTable, Switches);
-    STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitches);
-    STRINGTAGMAPPINGFUNCS(trimSourcesLookupTable, TrimSources);
-    STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchTypes);
-    STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialTypes);
-    STRINGTAGMAPPINGFUNCS(rawSourceCyclicLookupTable, RawSourceCyclic);
+    const QString getDownloadId() { return getFirmwareBase()->downloadId.isEmpty() ? getFlavour() : getFirmwareBase()->downloadId; }
+    const QString getSimulatorId() { return getFirmwareBase()->simulatorId.isEmpty() ? getId() : getFirmwareBase()->simulatorId; }
+    const QString getHwDefnId() { return getFirmwareBase()->hwdefnId.isEmpty() ? getFlavour() : getFirmwareBase()->hwdefnId; }
 
   protected:
     QString id;
@@ -440,15 +430,9 @@ class Firmware
     unsigned int variantBase;
     Firmware * base;
     EEPROMInterface * eepromInterface;
-
-    //  used by YAML encode and decode
-    const StringTagMappingTable analogInputNamesLookupTable;
-    const StringTagMappingTable switchesLookupTable;
-    const StringTagMappingTable trimSwitchesLookupTable;
-    const StringTagMappingTable trimSourcesLookupTable;
-    const StringTagMappingTable rawSwitchTypesLookupTable;
-    const StringTagMappingTable rawSourceSpecialTypesLookupTable;
-    const StringTagMappingTable rawSourceCyclicLookupTable;
+    QString downloadId;
+    QString simulatorId;
+    QString hwdefnId;
 
     QList<const char *> languages;
     //QList<const char *> ttslanguages;

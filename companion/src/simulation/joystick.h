@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _JOYSTICK_H_
-#define _JOYSTICK_H_
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -62,6 +62,8 @@ class Joystick : public QObject
     }
     int getAxisValue(int);
 
+    int findCurrent(QString jsName);
+
   private:
     QMap<int, Sint16> axes;
     QMap<int, Uint8> buttons;
@@ -79,5 +81,3 @@ class Joystick : public QObject
   public slots:
     void processEvents();
 };
-
-#endif // _JOYSTICK_H_

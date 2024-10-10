@@ -19,28 +19,27 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "hal/i2c_driver.h"
+#include "stm32_gpio.h"
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "stm32_i2c_driver.h"
+#include "stm32_gpio_driver.h"
+#include "stm32_exti_driver.h"
 
 #include "hal.h"
 #include "tp_gt911.h"
 #include "delays_driver.h"
 
 #include "rtos.h"
-#include "opentx_types.h"
+#include "edgetx_types.h"
 #include "debug.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 #define TP_GT911_ID "911"
-
-#define TPRST_LOW()   LL_GPIO_ResetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN)
-#define TPRST_HIGH()  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN)
-
-#define TPINT_LOW()   LL_GPIO_ResetOutputPin(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN)
-#define TPINT_HIGH()  LL_GPIO_SetOutputPin(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN)
 
 #if defined (RADIO_T18)
 const uint8_t TOUCH_GT911_Cfg[] = {
@@ -439,91 +438,17 @@ static short tapCount = 0;
 
 static TouchState internalTouchState = {};
 
-static void TOUCH_AF_ExtiStop(void)
+static void _gt911_exti_isr(void)
 {
-  LL_EXTI_InitTypeDef extiInit;
-  LL_EXTI_StructInit(&extiInit);
-
-  extiInit.Line_0_31 = TOUCH_INT_EXTI_Line;
-  extiInit.Mode = LL_EXTI_MODE_IT;
-  extiInit.Trigger = LL_EXTI_TRIGGER_RISING;
-  extiInit.LineCommand = DISABLE;
-  LL_EXTI_Init(&extiInit);
-
-  NVIC_DisableIRQ(TOUCH_INT_EXTI_IRQn);
-}
-
-static void TOUCH_AF_ExtiConfig(void)
-{
-  __HAL_RCC_SYSCFG_CLK_ENABLE();
-  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
-
-  LL_EXTI_InitTypeDef extiInit;
-  LL_EXTI_StructInit(&extiInit);
-
-  extiInit.Line_0_31 = TOUCH_INT_EXTI_Line;
-  extiInit.Mode = LL_EXTI_MODE_IT;
-  extiInit.Trigger = LL_EXTI_TRIGGER_RISING;
-  extiInit.LineCommand = ENABLE;
-  LL_EXTI_Init(&extiInit);
-
-  NVIC_SetPriority(TOUCH_INT_EXTI_IRQn, 9);
-  NVIC_EnableIRQ(TOUCH_INT_EXTI_IRQn);
-}
-
-static int gt911_enable_gpio_clock(GPIO_TypeDef *GPIOx)
-{
-  if (GPIOx == GPIOF)
-    __HAL_RCC_GPIOF_CLK_ENABLE();
-  else if (GPIOx == GPIOH)
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-  else
-    return -1;
-
-  return 0;
-}
-
-static void TOUCH_AF_GPIOConfig(void)
-{
-  LL_GPIO_InitTypeDef gpioInit;
-  LL_GPIO_StructInit(&gpioInit);
-
-  gt911_enable_gpio_clock(TOUCH_RST_GPIO);
-  gt911_enable_gpio_clock(TOUCH_INT_GPIO);
-  
-  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpioInit.Pull = LL_GPIO_PULL_NO;
-
-  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
-  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
-  LL_GPIO_ResetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
-
-  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
-  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
-  LL_GPIO_ResetOutputPin(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN);
-}
-
-void TOUCH_AF_INT_Change(void)
-{
-  LL_GPIO_InitTypeDef gpioInit;
-  LL_GPIO_StructInit(&gpioInit);
-
-  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
-  gpioInit.Mode = LL_GPIO_MODE_INPUT;
-  gpioInit.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  gpioInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
+  touchEventOccured = true;
 }
 
 void I2C_Init_Radio(void)
 {
   TRACE("GT911 I2C Init");
 
-  if (stm32_i2c_init(TOUCH_I2C_BUS, TOUCH_I2C_CLK_RATE) < 0) {
-    TRACE("GT911 ERROR: stm32_i2c_init failed");
+  if (i2c_init(TOUCH_I2C_BUS) < 0) {
+    TRACE("GT911 ERROR: i2c_init failed");
     return;
   }
 }
@@ -599,7 +524,7 @@ bool I2C_GT911_SendConfig(uint8_t cfgVer)
 
 void touchPanelDeInit(void)
 {
-  TOUCH_AF_ExtiStop();
+  gpio_int_disable(TOUCH_INT_GPIO);
   touchGT911Flag = false;
 }
 
@@ -610,25 +535,26 @@ bool touchPanelInit(void)
   uint8_t tmp[4] = {0};
 
   if (touchGT911Flag) {
-    TOUCH_AF_ExtiConfig();
+    gpio_init_int(TOUCH_INT_GPIO, GPIO_IN_PU, GPIO_RISING, _gt911_exti_isr);
     return true;
   } else {
     TRACE("Touchpanel init start ...");
 
-    TOUCH_AF_GPIOConfig();  // SET RST=OUT INT=OUT INT=LOW
+    gpio_init(TOUCH_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+    gpio_init(TOUCH_INT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
     I2C_Init_Radio();
 
-    TPRST_LOW();
-    TPINT_HIGH();
+    gpio_clear(TOUCH_RST_GPIO);
+    gpio_set(TOUCH_INT_GPIO);
     delay_us(200);
 
-    TPRST_HIGH();
+    gpio_set(TOUCH_RST_GPIO);
     delay_ms(6);
 
-    TPINT_LOW();
+    gpio_clear(TOUCH_INT_GPIO);
     delay_ms(55);
 
-    TOUCH_AF_INT_Change();  // Set INT INPUT INT=LOW
+    gpio_init(TOUCH_INT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 
     delay_ms(50);
 
@@ -673,7 +599,7 @@ bool touchPanelInit(void)
       }
       touchGT911Flag = true;
 
-      TOUCH_AF_ExtiConfig();
+      gpio_init_int(TOUCH_INT_GPIO, GPIO_IN_PU, GPIO_RISING, _gt911_exti_isr);
 
       return true;
     }
@@ -808,18 +734,6 @@ struct TouchState touchPanelRead()
 
   TRACE("touch event = %s", event2str(internalTouchState.event));
   return internalTouchState;
-}
-
-#if !defined(TOUCH_INT_EXTI_IRQHandler)
-  #error "TOUCH_INT_EXTI_IRQHandler is not defined"
-#endif
-extern "C" void TOUCH_INT_EXTI_IRQHandler(void)
-{
-  if (LL_EXTI_IsEnabledIT_0_31(TOUCH_INT_EXTI_Line) &&
-      LL_EXTI_IsActiveFlag_0_31(TOUCH_INT_EXTI_Line)) {
-    touchEventOccured = true;
-    LL_EXTI_ClearFlag_0_31(TOUCH_INT_EXTI_Line);
-  }
 }
 
 bool touchPanelEventOccured()

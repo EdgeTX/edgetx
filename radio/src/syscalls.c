@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -27,10 +28,10 @@
 
 #undef errno
 extern int errno;
-extern int _end;
+extern int _heap_start;
 extern int _heap_end;
 
-unsigned char * heap = (unsigned char *)&_end;
+unsigned char * heap = (unsigned char *)&_heap_start;
 
 extern caddr_t _sbrk(int nbytes)
 {

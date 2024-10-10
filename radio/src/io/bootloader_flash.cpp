@@ -20,14 +20,18 @@
  */
 
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
+
 #include "bootloader_flash.h"
 #include "timers_driver.h"
+#include "flash_driver.h"
+
+#include "hal/watchdog_driver.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #else
-  #include "libopenui/src/libopenui_file.h"
+  #include "lib_file.h"
 #endif
 
 bool isBootloader(const char * filename)
@@ -41,7 +45,15 @@ bool isBootloader(const char * filename)
     return false;
   }
 
-  return isBootloaderStart(buffer);
+  // Check firmware is for this radio
+  for (int i = 0; i < 1024; i++) {
+    if (memcmp(buffer + i, FLAVOUR, sizeof(FLAVOUR) - 1) == 0) {
+      if (buffer[i + sizeof(FLAVOUR) - 1] == '-')
+        return isBootloaderStart(buffer);;
+      return false;
+    }
+  }
+  return false;
 }
 
 void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
@@ -50,7 +62,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
   uint8_t buffer[1024];
   UINT count;
 
-  pausePulses();
+  pulsesStop();
 
   f_open(&file, filename, FA_READ);
 
@@ -84,7 +96,9 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
       break;
     }
     for (UINT j = 0; j < count; j += FLASH_PAGESIZE) {
+      WDG_ENABLE(3000);
       flashWrite(CONVERT_UINT_PTR(FIRMWARE_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
+      WDG_ENABLE(WDG_DURATION);
     }
     progressHandler("Bootloader", STR_WRITING, i, flash_size);
 
@@ -110,5 +124,5 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
 
   f_close(&file);
 
-  resumePulses();
+  pulsesStart();
 }

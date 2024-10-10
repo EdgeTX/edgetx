@@ -19,6 +19,12 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
+#include "stm32_exti_driver.h"
+#include "stm32_hal_ll.h"
+
 #include "mixer_scheduler.h"
 #include "board.h"
 #include "debug.h"
@@ -32,33 +38,23 @@
 
 volatile HeartbeatCapture heartbeatCapture;
 
+static void trigger_intmodule_heartbeat()
+{
+#if defined(DEBUG_LATENCY)
+  heartbeatCapture.count++;
+#endif
+
+  mixerSchedulerSoftTrigger();
+}
+
 void init_intmodule_heartbeat()
 {
   TRACE("init_intmodule_heartbeat");
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Pin = INTMODULE_HEARTBEAT_GPIO_PIN;
-  GPIO_Init(INTMODULE_HEARTBEAT_GPIO, &GPIO_InitStructure);
 
-  SYSCFG_EXTILineConfig(INTMODULE_HEARTBEAT_EXTI_PortSource,
-                        INTMODULE_HEARTBEAT_EXTI_PinSource);
+  gpio_init_int(INTMODULE_HEARTBEAT_GPIO, GPIO_IN_PU,
+		INTMODULE_HEARTBEAT_TRIGGER,
+		trigger_intmodule_heartbeat);
 
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_StructInit(&EXTI_InitStructure);
-  EXTI_InitStructure.EXTI_Line = INTMODULE_HEARTBEAT_EXTI_LINE;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = INTMODULE_HEARTBEAT_TRIGGER;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-
-  NVIC_SetPriority(INTMODULE_HEARTBEAT_EXTI_IRQn,
-                   // Highest priority interrupt
-                   configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
-
-  NVIC_EnableIRQ(INTMODULE_HEARTBEAT_EXTI_IRQn);
   heartbeatCapture.valid = true;
 }
 
@@ -67,40 +63,7 @@ void stop_intmodule_heartbeat()
   TRACE("stop_intmodule_heartbeat");
   heartbeatCapture.valid = false;
 
-#if !defined(INTMODULE_HEARTBEAT_REUSE_INTERRUPT_ROTARY_ENCODER)
-  NVIC_DisableIRQ(INTMODULE_HEARTBEAT_EXTI_IRQn);
-#endif
-
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_StructInit(&EXTI_InitStructure);
-  EXTI_InitStructure.EXTI_Line = INTMODULE_HEARTBEAT_EXTI_LINE;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = INTMODULE_HEARTBEAT_TRIGGER;
-  EXTI_InitStructure.EXTI_LineCmd = DISABLE;
-  EXTI_Init(&EXTI_InitStructure);
+  stm32_exti_disable(INTMODULE_HEARTBEAT_EXTI_LINE);
 }
 
-void check_intmodule_heartbeat()
-{
-  if (EXTI_GetITStatus(INTMODULE_HEARTBEAT_EXTI_LINE) != RESET) {
-    heartbeatCapture.timestamp = getTmr2MHz();
-#if defined(DEBUG_LATENCY)
-    heartbeatCapture.count++;
-#endif
-    EXTI_ClearITPendingBit(INTMODULE_HEARTBEAT_EXTI_LINE);
-
-    mixerSchedulerResetTimer();
-    mixerSchedulerISRTrigger();
-  }
-}
-#endif
-
-#if defined(INTMODULE_HEARTBEAT) && !defined(INTMODULE_HEARTBEAT_REUSE_INTERRUPT_ROTARY_ENCODER)
-extern "C" void INTMODULE_HEARTBEAT_EXTI_IRQHandler()
-{
-  check_intmodule_heartbeat();
-  #if defined(TELEMETRY_EXTI_REUSE_INTERRUPT_INTMODULE_HEARTBEAT)
-    check_telemetry_exti();
-  #endif
-}
 #endif

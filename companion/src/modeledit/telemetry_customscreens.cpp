@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -158,7 +159,7 @@ void CustomScreen::updateBar(int line)
     float maxVal = screen.body.bars[line].barMax;
     maxVal = range.getValue(maxVal);
 
-    if (source.isTimeBased()) {
+    if (source.type == SOURCE_TYPE_TIMER) {
       minTime[line]->setVisible(true);
       minTime[line]->setTimeRange(range.min, range.max);
       minTime[line]->setSingleStep(range.step);

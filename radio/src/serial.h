@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SERIAL_H_
-#define _SERIAL_H_
+#pragma once
 
 #include <stdint.h>
 #include "hal/serial_port.h"
@@ -30,10 +29,17 @@
 #define SERIAL_CONF_POWER_BIT        7    /* MSBit of the configuration byte */
 
 const etx_serial_port_t* serialGetPort(uint8_t port_nr);
+
 int  serialGetMode(uint8_t port_nr);
 void serialSetMode(uint8_t port_nr, int mode);
+
 bool serialGetPower(uint8_t port_nr);
 void serialSetPower(uint8_t port_nr, bool enabled);
+
+uint32_t serialGetBaudrate(uint8_t port_nr);
+void serialSetBaudrate(uint8_t port_nr, uint32_t baudrate);
+
+int serialGetModePort(int mode);
 
 void initSerialPorts();
 void serialInit(uint8_t port_nr, int mode);
@@ -62,6 +68,3 @@ void dbgSerialSetSendCb(void* ctx, void (*cb)(void*, uint8_t));
 // Query debug callback
 void (*dbgSerialGetSendCb())(void*, uint8_t);
 void* dbgSerialGetSendCbCtx();
-
-#endif // _SERIAL_H_
-

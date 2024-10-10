@@ -19,15 +19,19 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+#include "stm32_timer.h"
+#include "stm32_dma.h"
+
+#include "edgetx.h"
 
 #if !defined(SIMU)
-const AudioBuffer * nextBuffer = 0;
+const AudioBuffer * nextBuffer = nullptr;
 
 void setSampleRate(uint32_t frequency)
 {
   uint32_t timer = (PERI1_FREQUENCY * TIMER_MULT_APB1) / frequency - 1 ;         // MCK/8 and 100 000 Hz
-
   AUDIO_TIMER->CR1 &= ~TIM_CR1_CEN ;
   AUDIO_TIMER->CNT = 0 ;
   AUDIO_TIMER->ARR = limit<uint32_t>(2, timer, 65535) ;
@@ -37,38 +41,30 @@ void setSampleRate(uint32_t frequency)
 // Start TIMER6 at 100000Hz, used for DAC trigger
 void dacTimerInit()
 {
-  AUDIO_TIMER->PSC = 0 ;                                                                                                 // Max speed
+  stm32_timer_enable_clock(AUDIO_TIMER);
+  AUDIO_TIMER->PSC = 0 ;                                                       // Max speed
   AUDIO_TIMER->ARR = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 100000 - 1 ;        // 10 uS, 100 kHz
   AUDIO_TIMER->CR2 = 0 ;
   AUDIO_TIMER->CR2 = 0x20 ;
   AUDIO_TIMER->CR1 = TIM_CR1_CEN ;
 }
 
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
 static inline void setMutePin(bool enabled)
 {
-  if (enabled) {
 #if defined(INVERTED_MUTE_PIN)
-    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+  enabled = !enabled;
 #endif
-  } else {
-#if defined(INVERTED_MUTE_PIN)
-    GPIO_SetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-    GPIO_ResetBits(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#endif
-  }
+  gpio_write(AUDIO_MUTE_GPIO, enabled);
 }
 
 static inline bool getMutePin(void)
 {
+  bool enabled = gpio_read(AUDIO_MUTE_GPIO) ? 1 : 0;
 #if defined(INVERTED_MUTE_PIN)
-  return !GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
-#else
-  return GPIO_ReadOutputDataBit(AUDIO_MUTE_GPIO, AUDIO_MUTE_GPIO_PIN);
+  enabled = !enabled;
 #endif  
+  return enabled;
 }
 #endif
 
@@ -76,27 +72,17 @@ static inline bool getMutePin(void)
 // Not sure why PB14 has not be allocated to the DAC, although it is an EXTRA function
 // So maybe it is automatically done
 void dacInit()
-{
-  dacTimerInit();
-
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-#if defined(AUDIO_MUTE_GPIO_PIN)
-  GPIO_InitStructure.GPIO_Pin = AUDIO_MUTE_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(AUDIO_MUTE_GPIO, &GPIO_InitStructure);
+{  
+#if defined(AUDIO_MUTE_GPIO)
+  // Mute before init anything
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   setMutePin(true);
 #endif
 
-  GPIO_InitStructure.GPIO_Pin = AUDIO_OUTPUT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(AUDIO_OUTPUT_GPIO, &GPIO_InitStructure);
+  dacTimerInit();
+
+  gpio_init_analog(AUDIO_OUTPUT_GPIO);
+  stm32_dma_enable_clock(AUDIO_DMA);
 
   // Chan 7, 16-bit wide, Medium priority, memory increments
   AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN ;              // Disable DMA
@@ -108,6 +94,7 @@ void dacInit()
   AUDIO_DMA_Stream->FCR = 0x05 ; //DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0 ;
   // AUDIO_DMA_Stream->NDTR = 100 ;
 
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC1);
   DAC->DHR12R1 = 2010 ;
   DAC->SR = DAC_SR_DMAUDR1 ;              // Write 1 to clear flag
   DAC->CR = DAC_CR_TEN1 | DAC_CR_EN1 ;                    // Enable DAC
@@ -117,9 +104,10 @@ void dacInit()
   NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
 }
 
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
 void audioMute()
 {
+  if (!g_eeGeneral.audioMuteEnable) return;
 #if defined(AUDIO_UNMUTE_DELAY)
   tmr10ms_t now = get_tmr10ms();
   if (!audioQueue.lastAudioPlayTime) {
@@ -128,7 +116,7 @@ void audioMute()
   }
   else if (now - audioQueue.lastAudioPlayTime > AUDIO_MUTE_DELAY / 10) {
     // delay expired, we may mute
-  setMutePin(true);
+    setMutePin(true);
   }
 #else
   // mute
@@ -138,6 +126,11 @@ void audioMute()
 
 void audioUnmute()
 {
+if(isFunctionActive(FUNCTION_DISABLE_AUDIO_AMP)) {
+  setMutePin(true);
+  return;
+}
+
 #if defined(AUDIO_UNMUTE_DELAY)
   // if muted
   if (getMutePin()) {
@@ -158,7 +151,7 @@ void audioConsumeCurrentBuffer()
   if (!nextBuffer) {
     nextBuffer = audioQueue.buffersFifo.getNextFilledBuffer();
     if (nextBuffer) {
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
       audioUnmute();
 #endif
       AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA channel
@@ -169,7 +162,7 @@ void audioConsumeCurrentBuffer()
       DAC->SR = DAC_SR_DMAUDR1; // Write 1 to clear flag
       DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1; // Enable DAC
     }
-#if defined(AUDIO_MUTE_GPIO_PIN)
+#if defined(AUDIO_MUTE_GPIO)
     else {
       audioMute();
     }

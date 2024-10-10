@@ -19,9 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
-#define EXPO_ONE_2ND_COLUMN (7*FW+3*FW+2)
+#define EXPO_ONE_2ND_COLUMN (6*FW+1)
 
 int expoFn(int x)
 {
@@ -48,22 +48,22 @@ enum ExposFields {
   EXPO_FIELD_MAX
 };
 
+uint8_t FM_ROW(uint8_t value)
+{
+  if (modelFMEnabled())
+    return value;
+  return HIDDEN_ROW;
+}
+
 void menuModelExpoOne(event_t event)
 {
-#if defined(KEYS_GPIO_REG_MDL)
-  if (event == EVT_KEY_FIRST(KEY_MODEL)) {
+#if defined(NAVIGATION_XLITE)
+  if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
     pushMenu(menuChannelsView);
-    killEvents(event);
   }
-#elif defined(NAVIGATION_X7)
-  if (event == EVT_KEY_FIRST(KEY_MENU)) {
+#else
+  if (event == EVT_KEY_BREAK(KEY_MODEL) || event == EVT_KEY_BREAK(KEY_MENU)) {
     pushMenu(menuChannelsView);
-    killEvents(event);
-  }
-#elif defined(NAVIGATION_XLITE)
-  if (event == EVT_KEY_FIRST(KEY_ENTER) && IS_SHIFT_PRESSED()) {
-    pushMenu(menuChannelsView);
-    killEvents(event);
   }
 #endif
   ExpoData * ed = expoAddress(s_currIdx);
@@ -71,7 +71,9 @@ void menuModelExpoOne(event_t event)
 
   uint8_t old_editMode = s_editMode;
 
-  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX, {0, 0, 0, ed->srcRaw >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1, CASE_FLIGHT_MODES(LABEL(Flight Mode)) CASE_FLIGHT_MODES((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE) 0 /*, ...*/});
+  SUBMENU(STR_MENUINPUTS, EXPO_FIELD_MAX,
+          {0, 0, 0, abs(ed->srcRaw) >= MIXSRC_FIRST_TELEM ? (uint8_t)0 : (uint8_t)HIDDEN_ROW, 0, 0, LABEL(Curve), 1,
+           CASE_FLIGHT_MODES(FM_ROW(LABEL(Flight Mode))) CASE_FLIGHT_MODES(FM_ROW((MAX_FLIGHT_MODES-1) | NAVIGATION_LINE_BY_LINE)) 0 /*, ...*/});
 
   int8_t sub = menuVerticalPosition;
 
@@ -88,39 +90,39 @@ void menuModelExpoOne(event_t event)
 
     switch (i) {
       case EXPO_FIELD_INPUT_NAME:
-        editSingleName(EXPO_ONE_2ND_COLUMN - LEN_INPUT_NAME * FW, y,
+        editSingleName(EXPO_ONE_2ND_COLUMN, y,
                        STR_INPUTNAME, g_model.inputNames[ed->chn],
                        LEN_INPUT_NAME, event, (attr != 0), old_editMode);
         break;
 
       case EXPO_FIELD_LINE_NAME:
-        editSingleName(EXPO_ONE_2ND_COLUMN - LEN_EXPOMIX_NAME * FW, y,
+        editSingleName(EXPO_ONE_2ND_COLUMN, y,
                        STR_EXPONAME, ed->name, LEN_EXPOMIX_NAME, event,
                        (attr != 0), old_editMode);
         break;
 
       case EXPO_FIELD_SOURCE:
         lcdDrawTextAlignedLeft(y, STR_SOURCE);
-        drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, RIGHT|STREXPANDED|attr);
+        drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
         if (attr)
-          ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|NO_INCDEC_MARKS, isSourceAvailableInInputs);
+          ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailableInInputs);
         break;
 
       case EXPO_FIELD_SCALE:
         lcdDrawTextAlignedLeft(y, STR_SCALE);
-        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, (ed->srcRaw - MIXSRC_FIRST_TELEM)/3, convertTelemValue(ed->srcRaw - MIXSRC_FIRST_TELEM + 1, ed->scale),  RIGHT | attr);
+        drawSensorCustomValue(EXPO_ONE_2ND_COLUMN, y, (abs(ed->srcRaw) - MIXSRC_FIRST_TELEM)/3, convertTelemValue(abs(ed->srcRaw) - MIXSRC_FIRST_TELEM + 1, ed->scale),  attr);
         if (attr)
-          ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(ed->srcRaw - MIXSRC_FIRST_TELEM + 1), EE_MODEL);
+          ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(abs(ed->srcRaw) - MIXSRC_FIRST_TELEM + 1), EE_MODEL);
         break;
 
       case EXPO_FIELD_WEIGHT:
-        lcdDrawTextAlignedLeft(y, STR_WEIGHT);
-        ed->weight = GVAR_MENU_ITEM(EXPO_ONE_2ND_COLUMN, y, ed->weight, -100, 100, RIGHT | attr, 0, event);
+        ed->weight = editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_WEIGHT, ed->weight,
+                        -100, 100, attr, event, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
       case EXPO_FIELD_OFFSET:
-        lcdDrawTextAlignedLeft(y, STR_OFFSET);
-        ed->offset = GVAR_MENU_ITEM(EXPO_ONE_2ND_COLUMN, y, ed->offset, -100, 100, RIGHT | attr, 0, event);
+        ed->offset = editSrcVarFieldValue(EXPO_ONE_2ND_COLUMN, y, STR_OFFSET, ed->offset,
+                        -100, 100, attr, event, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
       case EXPO_FIELD_CURVE_LABEL:
@@ -128,7 +130,7 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_CURVE:
-        editCurveRef(EXPO_ONE_2ND_COLUMN, y, ed->curve, s_editMode > 0 ? event : 0, RIGHT | attr);
+        editCurveRef(FW + 1, y, ed->curve, event, attr, isSourceAvailable, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
 #if defined(FLIGHT_MODES)
@@ -137,25 +139,33 @@ void menuModelExpoOne(event_t event)
         break;
 
       case EXPO_FIELD_FLIGHT_MODES:
-        ed->flightModes = editFlightModes(EXPO_ONE_2ND_COLUMN-9*FW+1, y, event, ed->flightModes, attr);
+        ed->flightModes = editFlightModes(EXPO_ONE_2ND_COLUMN-5*FW-2, y, event, ed->flightModes, attr);
         break;
 #endif
 
       case EXPO_FIELD_SWITCH:
-        ed->swtch = editSwitch(EXPO_ONE_2ND_COLUMN, y, ed->swtch, RIGHT | attr, event);
+        ed->swtch = editSwitch(EXPO_ONE_2ND_COLUMN, y, ed->swtch, attr, event);
         break;
 
       case EXPO_FIELD_SIDE:
-        ed->mode = 4 - editChoice(EXPO_ONE_2ND_COLUMN, y, STR_SIDE, STR_VCURVEFUNC, 4-ed->mode, 1, 3, RIGHT | attr, event);
+        ed->mode = 4 - editChoice(EXPO_ONE_2ND_COLUMN, y, STR_SIDE, STR_VCURVEFUNC, 4-ed->mode, 1, 3, attr, event);
         break;
 
       case EXPO_FIELD_TRIM:
-        uint8_t notStick = (ed->srcRaw > MIXSRC_Ail);
-        int8_t carryTrim = -ed->carryTrim;
         lcdDrawTextAlignedLeft(y, STR_TRIM);
-        lcdDrawTextAtIndex(EXPO_ONE_2ND_COLUMN, y, STR_VMIXTRIMS, (notStick && carryTrim == 0) ? 0 : carryTrim+1, RIGHT | (menuHorizontalPosition==0 ? attr : 0));
-        if (attr)
-          ed->carryTrim = -checkIncDecModel(event, carryTrim, notStick ? TRIM_ON : -TRIM_OFF, -TRIM_LAST);
+        {
+          const char* trim_str = getTrimSourceLabel(abs(ed->srcRaw), ed->trimSource);
+          LcdFlags flags = (menuHorizontalPosition==0 ? attr : 0);
+          lcdDrawText(EXPO_ONE_2ND_COLUMN, y, trim_str, flags);
+
+          if (attr) {
+            int8_t min = TRIM_ON;
+            if (abs(ed->srcRaw) >= MIXSRC_FIRST_STICK && abs(ed->srcRaw) <= MIXSRC_LAST_STICK) {
+              min = -TRIM_OFF;
+            }
+            ed->trimSource = -checkIncDecModel(event, -ed->trimSource, min, keysGetMaxTrims());
+          }
+        }
         break;
     }
     y += FH;

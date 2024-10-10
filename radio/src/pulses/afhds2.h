@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef PULSES_AFHDS2_H_
-#define PULSES_AFHDS2_H_
+#pragma once
 
 #include <inttypes.h>
 #include <functional>
@@ -32,18 +31,5 @@
 
 #define AFHDS2_PERIOD (2 * 1000) /* us */
 
-struct FlySkySerialPulsesData {
-  uint8_t  pulses[64];
-  uint8_t  * ptr;
-  uint8_t  frame_index;
-  uint8_t  crc;
-  uint8_t  state;
-  uint8_t  timeout;
-  uint8_t  esc_state;
-} __attribute__((__packed__));
-
-
 extern const etx_serial_init afhds2SerialInitParams;
-extern const etx_module_driver_t Afhds2InternalDriver;
-
-#endif /* PULSES_AFHDS2_H_ */
+extern const etx_proto_driver_t Afhds2InternalDriver;

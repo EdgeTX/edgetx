@@ -19,23 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#include "usb_driver.h"
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
+#else
+#include "edgetx_helpers.h"
+#include "dataconstants.h"
+#include "globals.h"
+#endif
 
 extern "C" {
-#include "usb_conf.h"
-#include "usb_dcd_int.h"
-#include "usb_bsp.h"
+#include "usbd_conf.h"
 #include "usbd_core.h"
-#include "usbd_msc_core.h"
+#include "usbd_msc.h"
 #include "usbd_desc.h"
-#include "usbd_usr.h"
-#include "usbd_hid_core.h"
-#include "usbd_cdc_core.h"
+#include "usbd_hid.h"
+#include "usbd_cdc.h"
 }
 
-#include "board.h"
+#include "stm32_hal_ll.h"
+#include "stm32_hal.h"
+
+#include "stm32_gpio.h"
+
+#include "hal/gpio.h"
+#include "hal/usb_driver.h"
+
+#include "hal.h"
 #include "debug.h"
-#include "debounce.h"
+
+#if defined(USE_USB_HS)
+  #define DEVICE_ID DEVICE_HS
+#else
+  #define DEVICE_ID DEVICE_FS
+#endif
 
 static bool usbDriverStarted = false;
 #if defined(BOOT)
@@ -43,6 +59,8 @@ static usbMode selectedUsbMode = USB_MASS_STORAGE_MODE;
 #else
 static usbMode selectedUsbMode = USB_UNSELECTED_MODE;
 #endif
+
+USBD_HandleTypeDef hUsbDevice;
 
 int getSelectedUsbMode()
 {
@@ -54,59 +72,119 @@ void setSelectedUsbMode(int mode)
   selectedUsbMode = usbMode(mode);
 }
 
+#if defined(USB_GPIO_VBUS)
 int usbPlugged()
 {
-  static PinDebounce debounce;
-  return debounce.debounce(USB_GPIO, USB_GPIO_PIN_VBUS);
+#if defined(DEBUG_DISABLE_USB)
+  return(false);
+#endif
+
+  static uint8_t debouncedState = 0;
+  static uint8_t lastState = 0;
+
+#if defined(USB_GPIO_VBUS_OPEN_DRAIN)
+  uint8_t state = gpio_read(USB_GPIO_VBUS) ? 0 : 1;
+#else
+  uint8_t state = gpio_read(USB_GPIO_VBUS) ? 1 : 0;
+#endif
+  if (state == lastState)
+    debouncedState = state;
+  else
+    lastState = state;
+
+  return debouncedState;
 }
+#endif
 
-USB_OTG_CORE_HANDLE USB_OTG_dev;
+extern PCD_HandleTypeDef hpcd_USB_OTG;
 
+#if defined(USE_USB_HS)
+extern "C" void OTG_HS_IRQHandler()
+{
+  DEBUG_INTERRUPT(INT_OTG_FS);
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG);
+}
+#else
 extern "C" void OTG_FS_IRQHandler()
 {
   DEBUG_INTERRUPT(INT_OTG_FS);
-  USBD_OTG_ISR_Handler(&USB_OTG_dev);
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG);
 }
+#endif
 
 void usbInit()
 {
-  // Initialize hardware
-  USB_OTG_BSP_Init(&USB_OTG_dev);
+  gpio_init_af(USB_GPIO_DM, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_init_af(USB_GPIO_DP, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
+  
+#if defined(USB_GPIO_VBUS)
+#if defined(USB_GPIO_VBUS_OPEN_DRAIN)
+  gpio_init(USB_GPIO_VBUS, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+#else
+  gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
+#endif
+#endif
+
+// TODO: seems this is only needed for USB wakeup,
+//       which we do not support.
+#if !defined(STM32H7RS)
+#if defined(LL_APB2_GRP1_PERIPH_SYSCFG)
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+#elif defined(LL_APB4_GRP1_PERIPH_SYSCFG)
+  LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SYSCFG);
+#else
+  #error "Unable to enable SYSCFG peripheral clock"
+#endif
+#endif
+
   usbDriverStarted = false;
 }
 
 extern void usbInitLUNs();
+extern USBD_HandleTypeDef hUsbDevice;
+extern "C" USBD_StorageTypeDef USBD_Storage_Interface_fops;
+extern USBD_CDC_ItfTypeDef USBD_Interface_fops;
 
 void usbStart()
 {
+  USBD_Init(&hUsbDevice, &FS_Desc, DEVICE_ID);
   switch (getSelectedUsbMode()) {
 #if !defined(BOOT)
     case USB_JOYSTICK_MODE:
       // initialize USB as HID device
-      USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_HID_cb, &USR_cb);
-      break;
+#if defined(USBJ_EX)
+      setupUSBJoystick();
 #endif
+      USBD_RegisterClass(&hUsbDevice, &USBD_HID);
+      break;
 #if defined(USB_SERIAL)
     case USB_SERIAL_MODE:
       // initialize USB as CDC device (virtual serial port)
-      USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
+      USBD_RegisterClass(&hUsbDevice, &USBD_CDC);
+      USBD_CDC_RegisterInterface(&hUsbDevice, &USBD_Interface_fops);
       break;
+#endif
 #endif
     default:
     case USB_MASS_STORAGE_MODE:
       // initialize USB as MSC device
       usbInitLUNs();
-      USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_MSC_cb, &USR_cb);
+      USBD_RegisterClass(&hUsbDevice, &USBD_MSC);
+      USBD_MSC_RegisterStorage(&hUsbDevice, &USBD_Storage_Interface_fops);
       break;
   }
-  usbDriverStarted = true;
+
+  if (USBD_Start(&hUsbDevice) == USBD_OK) {
+    usbDriverStarted = true;
+  }
 }
 
 void usbStop()
 {
   usbDriverStarted = false;
-  USBD_DeInit(&USB_OTG_dev);
+  USBD_DeInit(&hUsbDevice);
 }
+
 
 bool usbStarted()
 {
@@ -114,7 +192,21 @@ bool usbStarted()
 }
 
 #if !defined(BOOT)
-#include "globals.h"
+
+#if defined(USBJ_EX)
+extern "C" void delay_ms(uint32_t count);
+void usbJoystickRestart()
+{
+  if (!usbDriverStarted || getSelectedUsbMode() != USB_JOYSTICK_MODE) return;
+
+  USBD_DeInit(&hUsbDevice);
+  delay_ms(100);
+  USBD_Init(&hUsbDevice, &FS_Desc, DEVICE_ID);
+  USBD_RegisterClass(&hUsbDevice, &USBD_HID);
+  USBD_Start(&hUsbDevice);
+}
+#endif
+
 
 /*
   Prepare and send new USB data packet
@@ -125,38 +217,35 @@ bool usbStarted()
 */
 void usbJoystickUpdate()
 {
-  static uint8_t HID_Buffer[HID_IN_PACKET];
+#if !defined(USBJ_EX)
+   static uint8_t HID_Buffer[HID_IN_PACKET];
 
-  // test to se if TX buffer is free
-  if (USBD_HID_SendReport(&USB_OTG_dev, 0, 0) == USBD_OK) {
-    //buttons
-    HID_Buffer[0] = 0;
-    HID_Buffer[1] = 0;
-    HID_Buffer[2] = 0;
-    for (int i = 0; i < 8; ++i) {
-      if ( channelOutputs[i+8] > 0 ) {
-        HID_Buffer[0] |= (1 << i);
-      }
-      if ( channelOutputs[i+16] > 0 ) {
-        HID_Buffer[1] |= (1 << i);
-      }
-      if ( channelOutputs[i+24] > 0 ) {
-        HID_Buffer[2] |= (1 << i);
-      }
-    }
+   //buttons
+   HID_Buffer[0] = 0;
+   HID_Buffer[1] = 0;
+   HID_Buffer[2] = 0;
+   for (int i = 0; i < 8; ++i) {
+     if ( channelOutputs[i+8] > 0 ) {
+       HID_Buffer[0] |= (1 << i);
+     }
+     if ( channelOutputs[i+16] > 0 ) {
+       HID_Buffer[1] |= (1 << i);
+     }
+     if ( channelOutputs[i+24] > 0 ) {
+       HID_Buffer[2] |= (1 << i);
+     }
+   }
 
-    //analog values
-    //uint8_t * p = HID_Buffer + 1;
-    for (int i = 0; i < 8; ++i) {
-
-      int16_t value = channelOutputs[i] + 1024;
-      if ( value > 2047 ) value = 2047;
-      else if ( value < 0 ) value = 0;
-      HID_Buffer[i*2 +3] = static_cast<uint8_t>(value & 0xFF);
-      HID_Buffer[i*2 +4] = static_cast<uint8_t>((value >> 8) & 0x07);
-
-    }
-    USBD_HID_SendReport(&USB_OTG_dev, HID_Buffer, HID_IN_PACKET);
-  }
+   //analog values
+   for (int i = 0; i < 8; ++i) {
+     int16_t value = limit<int16_t>(0, channelOutputs[i] + 1024, 2048);;
+     HID_Buffer[i*2 +3] = static_cast<uint8_t>(value & 0xFF);
+     HID_Buffer[i*2 +4] = static_cast<uint8_t>(value >> 8);
+   }
+   USBD_HID_SendReport(&hUsbDevice, HID_Buffer, HID_IN_PACKET);
+#else
+  usbReport_t ret = usbReport();
+  USBD_HID_SendReport(&hUsbDevice, ret.ptr, ret.size);
+#endif
 }
 #endif

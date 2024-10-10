@@ -25,14 +25,15 @@
 
 using std::list;
 
-#if defined(SDCARD_YAML)
-#include "opentx.h"
+#include "edgetx.h"
 #include "storage/sdcard_yaml.h"
 #include "yaml/yaml_datastructs.h"
 #include "yaml/yaml_labelslist.h"
 #include "yaml/yaml_modelslist.h"
 #include "yaml/yaml_parser.h"
 
+#if defined(USBJ_EX)
+#include "usb_joystick.h"
 #endif
 
 #include <cstring>
@@ -206,7 +207,7 @@ ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls)
 }
 
 /**
- * @brief Returns all models that are in multiple labels (AND function)
+ * @brief Returns all models that match the selected labels
  *
  * @param lbls Labels to search
  * @return ModelsVector aka vector<ModelCell*> of all models belonging to a
@@ -225,17 +226,37 @@ ModelsVector ModelMap::getModelsInLabels(const LabelsVector &lbls)
 
   for (const auto &mdl : modelslist) {
     bool hasAllLabels = true;
+    bool hasAnyLabels = false;
+    bool favLabelIncluded = false;
+    bool hasFavLabel = false;
     LabelsVector mdllables = getLabelsByModel(mdl);
     for (const auto &lbl : lbls) {
       if (lbl == STR_UNLABELEDMODEL)  // If requesting unlabeled model ignore it
         break;
-      if (std::find(mdllables.begin(), mdllables.end(), lbl) ==
-          mdllables.end()) {
-        hasAllLabels = false;
-        break;
+      bool hasLabel = std::find(mdllables.begin(), mdllables.end(), lbl) != mdllables.end();
+      if (lbl == STR_FAVORITE_LABEL) {
+        favLabelIncluded = true;
+        hasFavLabel = hasLabel;
+      } else {
+        if (hasLabel) {
+          hasAnyLabels = true;
+        } else {
+          hasAllLabels = false;
+        }
       }
     }
-    if (hasAllLabels) rv.push_back(mdl);
+    if (favLabelIncluded) {
+      if (g_eeGeneral.favMultiMode == 0) {
+        hasAnyLabels = hasAnyLabels && hasFavLabel;
+        hasAllLabels = hasAllLabels && hasFavLabel;
+      } else if (g_eeGeneral.favMultiMode == 1) {
+        hasAnyLabels = hasAnyLabels || hasFavLabel;
+        hasAllLabels = hasAllLabels && hasFavLabel;
+      }
+    }
+    if (((g_eeGeneral.labelMultiMode == 0) && hasAllLabels) ||
+        ((g_eeGeneral.labelMultiMode == 1) && hasAnyLabels))
+      rv.push_back(mdl);
   }
 
   sortModelsBy(rv, _sortOrder);
@@ -438,15 +459,25 @@ std::string ModelMap::toCSV(const LabelsVector &labels)
  * @return vector of all labels
  */
 
-LabelsVector ModelMap::fromCSV(const char *str)
+LabelsVector ModelMap::fromCSV(const char* str)
 {
   LabelsVector lbls;
-  std::istringstream f(str);
-  std::string lbl;
-  while (std::getline(f, lbl, ',')) {
+  const char* prev_c = str;
+  const char* c = strchr(prev_c, ',');
+  while(c != nullptr) {
+    std::string lbl(prev_c, c - prev_c);
+    unEscapeCSV(lbl);
+    lbls.push_back(lbl);
+    prev_c = ++c;
+    c = strchr(c, ',');
+  }
+
+  std::string lbl(prev_c);
+  if (!lbl.empty()) {
     unEscapeCSV(lbl);
     lbls.push_back(lbl);
   }
+
   return lbls;
 }
 
@@ -651,6 +682,7 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
     if(curlen + csvto.size() - csvfrom.size() > LABELS_LENGTH - 1) {
       TRACE("Labels: Rename Error! Labels too long on %s", model->modelName);
       if (progress != nullptr) progress("", 100); // Kill progress dialog
+      free(modeldata);
       return true;
     }
   }
@@ -826,7 +858,7 @@ bool ModelMap::updateModelFile(ModelCell *cell)
 /**
  * @brief Sorts a ModelsVector by sortby
  *
- * @param mv ModeslVector to sort
+ * @param mv ModelsVector to sort
  * @param sortby NO_SORT, NAME_ASC, NAME_DES, DATE_ASC, DATE_DES,
  */
 
@@ -842,11 +874,11 @@ void ModelMap::sortModelsBy(ModelsVector &mv, ModelsSortBy sortby)
     });
   } else if (sortby == NAME_ASC) {
     std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b) -> bool {
-      return strcmp(a->modelName, b->modelName) < 0;
+      return strcasecmp(a->modelName, b->modelName) < 0;
     });
   } else if (sortby == NAME_DES) {
     std::sort(mv.begin(), mv.end(), [](ModelCell *a, ModelCell *b) -> bool {
-      return strcmp(a->modelName, b->modelName) > 0;
+      return strcasecmp(a->modelName, b->modelName) > 0;
     });
   }
 }
@@ -884,44 +916,6 @@ void ModelsList::clear()
   std::vector<ModelCell *>::clear();
   init();
 }
-
-/**
- * @brief Load and parse the models.txt file
- *
- * @return true On Success
- * @return false On Failure
- */
-
-bool ModelsList::loadTxt()
-{
-  char line[LEN_MODELS_IDX_LINE + 1];
-  ModelCell *model = nullptr;
-
-  FRESULT result =
-      f_open(&file, RADIO_MODELSLIST_PATH, FA_OPEN_EXISTING | FA_READ);
-  if (result == FR_OK) {
-    // TXT reader
-    while (readNextLine(line, LEN_MODELS_IDX_LINE)) {
-      int len = strlen(line);  // TODO could be returned by readNextLine
-      if (len > 2 && line[0] == '[' && line[len - 1] == ']') {
-        line[len - 1] = '\0';
-      } else if (len > 0) {
-        model = new ModelCell(line);
-        push_back(model);
-        if (!strncmp(line, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME)) {
-          currentModel = model;
-        }
-      }
-    }
-
-    f_close(&file);
-    return true;
-  }
-
-  return false;
-}
-
-#if defined(SDCARD_YAML)
 
 /**
  * @brief Opens a YAML file, reads the data and updates the ModelCell
@@ -1187,35 +1181,19 @@ bool ModelsList::loadYaml()
 
   return true;
 }
-#endif
 
 /**
  * @brief Called to load the model data from file
  *
- * @param fmt Format::txt - Opens models.txt file, Format::yaml_txt - Opens
- * labels.yml
  * @return true on success
  * @return false on failure
  */
 
-bool ModelsList::load(Format fmt)
+bool ModelsList::load()
 {
   if (loaded) return true;
 
-  bool res = false;
-#if !defined(SDCARD_YAML)
-  (void)fmt;
-  res = loadTxt();
-#else
-  FILINFO fno;
-  if (fmt == Format::txt ||
-      (fmt == Format::yaml_txt && f_stat(MODELSLIST_YAML_PATH, &fno) != FR_OK &&
-       f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) != FR_OK)) {
-    res = loadTxt();
-  } else {
-    res = loadYaml();
-  }
-#endif
+  bool res = loadYaml();
 
   if (!currentModel) {
     TRACE("ERROR no Current Model Found");
@@ -1248,13 +1226,8 @@ bool ModelsList::load(Format fmt)
 
 const char *ModelsList::save(LabelsVector newOrder)
 {
-#if !defined(SDCARD_YAML)
-  FRESULT result =
-      f_open(&file, RADIO_MODELSLIST_PATH, FA_CREATE_ALWAYS | FA_WRITE);
-#else
   FRESULT result =
       f_open(&file, LABELSLIST_YAML_PATH, FA_CREATE_ALWAYS | FA_WRITE);
-#endif
   if (result != FR_OK) return "Couldn't open labels.yml for writing";
 
   // Save current selection
@@ -1330,6 +1303,10 @@ void ModelsList::setCurrentModel(ModelCell *cell)
   gettime(&t);
   cell->lastOpened = gmktime(&t);
   modelslabels.setDirty();
+
+#if defined(USBJ_EX) && defined(STM32) && !defined(SIMU)
+  onUSBJoystickModelChanged();
+#endif
 }
 
 /**
@@ -1342,7 +1319,7 @@ void ModelsList::updateCurrentModelCell()
   if (currentModel) {
 #if LEN_BITMAP_NAME > 0
     strncpy(currentModel->modelBitmap, g_model.header.bitmap, LEN_BITMAP_NAME);
-    currentModel->modelBitmap[LEN_BITMAP_NAME - 1] = '\0';
+    currentModel->modelBitmap[LEN_BITMAP_NAME] = '\0';
 #endif
     strncpy(currentModel->modelFilename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
     currentModel->modelFilename[LEN_MODEL_FILENAME] = '\0';
@@ -1352,32 +1329,6 @@ void ModelsList::updateCurrentModelCell()
   } else {
     TRACE("ModelList Error - No Current Model");
   }
-}
-
-/**
- * @brief Reads a line from a file. Used by loadTxt
- *
- * @param line Storage for the read line
- * @param maxlen maximum read length
- * @return true Success
- * @return false Failure
- */
-
-bool ModelsList::readNextLine(char *line, int maxlen)
-{
-  if (f_gets(line, maxlen, &file) != NULL) {
-    int curlen = strlen(line) - 1;
-    if (line[curlen] ==
-        '\n') {  // remove unwanted chars if file was edited using windows
-      if (line[curlen - 1] == '\r') {
-        line[curlen - 1] = 0;
-      } else {
-        line[curlen] = 0;
-      }
-    }
-    return true;
-  }
-  return false;
 }
 
 /**
@@ -1521,7 +1472,7 @@ bool ModelsList::isModelIdUnique(uint8_t moduleIdx, char *warn_buf,
 
       // you cannot rely exactly on WARNING_LINE_LEN so using WARNING_LINE_LEN-2
       // (-2 for the ",")
-      if ((warn_buf_len - 2 - (curr - warn_buf)) > LEN_MODEL_NAME) {
+      if ((int)(warn_buf_len - 2 - (curr - warn_buf)) > LEN_MODEL_NAME) {
         if (warn_buf[0] != 0) curr = strAppend(curr, ", ");
         if (modelName[0] == 0) {
           size_t len = min<size_t>(strlen(modelFilename), LEN_MODEL_NAME);

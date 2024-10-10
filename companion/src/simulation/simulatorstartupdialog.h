@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef SIMULATORSTARTUPDIALOG_H
-#define SIMULATORSTARTUPDIALOG_H
+#pragma once
 
 #include "simulator.h"
 #include <QDialog>
@@ -28,18 +28,26 @@ namespace Ui {
 class SimulatorStartupDialog;
 }
 
+class QSortFilterProxyModel;
+
 class SimulatorStartupDialog : public QDialog
 {
     Q_OBJECT
 
   public:
 
+    enum ItemModelDataRoles {
+      IMDR_Id = Qt::UserRole,
+      IMDR_SimulatorId
+    };
+    Q_ENUM(ItemModelDataRoles)
+
     explicit SimulatorStartupDialog(SimulatorOptions * options, int * profId, QWidget *parent = 0);
     ~SimulatorStartupDialog();
 
     static bool usesCategorizedStorage(const QString & name);
     static QString findRadioId(const QString & str);
-    static QString radioEepromFileName(const QString & firmwareId, QString folder = "");
+    static QString radioEepromFileName(const QString & simulatorId, QString folder = "");
 
     void updateContainerTypes();
 
@@ -62,6 +70,7 @@ class SimulatorStartupDialog : public QDialog
     Ui::SimulatorStartupDialog *ui;
     SimulatorOptions * m_options;
     int * m_profileId;
-};
+    QSortFilterProxyModel * m_simProxy;
 
-#endif // SIMULATORSTARTUPDIALOG_H
+    void setGlobalFirmware(const QString & id);
+};

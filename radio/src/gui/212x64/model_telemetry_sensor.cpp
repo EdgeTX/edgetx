@@ -19,14 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum SensorFields {
   SENSOR_FIELD_NAME,
   SENSOR_FIELD_TYPE,
   SENSOR_FIELD_ID,
   SENSOR_FIELD_FORMULA=SENSOR_FIELD_ID,
-  SENSOR_FILED_RECEIVER_NAME,
+  // SENSOR_FIELD_RECEIVER_NAME,
   SENSOR_FIELD_UNIT,
   SENSOR_FIELD_PRECISION,
   SENSOR_FIELD_PARAM1,
@@ -45,7 +45,7 @@ enum SensorFields {
 #define SENSOR_3RD_COLUMN      (18*FW)
 
 #define SENSOR_UNIT_ROWS       ((sensor->type == TELEM_TYPE_CALCULATED && (sensor->formula == TELEM_FORMULA_DIST)) || sensor->isConfigurable() ? (uint8_t)0 : HIDDEN_ROW)
-#define SENSOR_PREC_ROWS       (sensor->isPrecConfigurable() && sensor->unit != UNIT_FAHRENHEIT  ? (uint8_t)0 : HIDDEN_ROW)
+#define SENSOR_PREC_ROWS       (sensor->isPrecConfigurable() ? (uint8_t)0 : HIDDEN_ROW)
 #define SENSOR_PARAM1_ROWS     (sensor->unit >= UNIT_FIRST_VIRTUAL ? HIDDEN_ROW : (uint8_t)0)
 #define SENSOR_PARAM2_ROWS     (sensor->unit == UNIT_GPS || sensor->unit == UNIT_DATETIME || sensor->unit == UNIT_CELLS || (sensor->type==TELEM_TYPE_CALCULATED && (sensor->formula==TELEM_FORMULA_CONSUMPTION || sensor->formula==TELEM_FORMULA_TOTALIZE)) ? HIDDEN_ROW : (uint8_t)0)
 #define SENSOR_PARAM3_ROWS     (sensor->type == TELEM_TYPE_CALCULATED && sensor->formula < TELEM_FORMULA_MULTIPLY) ? (uint8_t)0 : HIDDEN_ROW
@@ -69,7 +69,7 @@ void menuModelSensor(event_t event)
     0,  //Name
     0,  // Type
     sensor->type == TELEM_TYPE_CALCULATED ? (uint8_t)0 : (uint8_t)1, // ID / Formula
-    sensor->type == TELEM_TYPE_CALCULATED ? HIDDEN_ROW : READONLY_ROW, // Receiver name
+    // sensor->type == TELEM_TYPE_CALCULATED ? HIDDEN_ROW : READONLY_ROW, // Receiver name
     SENSOR_UNIT_ROWS, 
     SENSOR_PREC_ROWS,
     SENSOR_PARAM1_ROWS,
@@ -103,7 +103,7 @@ void menuModelSensor(event_t event)
                        TELEM_LABEL_LEN, event, attr, old_editMode);
         break;
       case SENSOR_FIELD_TYPE:
-        sensor->type = editChoice(SENSOR_2ND_COLUMN, y, NO_INDENT(STR_TYPE), STR_VSENSORTYPES, sensor->type, 0, 1, attr, event);
+        sensor->type = editChoice(SENSOR_2ND_COLUMN, y, STR_TYPE, STR_VSENSORTYPES, sensor->type, 0, 1, attr, event);
         if (attr && checkIncDec_Ret) {
           sensor->instance = 0;
           if (sensor->type == TELEM_TYPE_CALCULATED) {
@@ -118,7 +118,7 @@ void menuModelSensor(event_t event)
         if (sensor->type == TELEM_TYPE_CUSTOM) {
           lcdDrawTextAlignedLeft(y, STR_ID);
           lcdDrawHexNumber(SENSOR_2ND_COLUMN, y, sensor->id, LEFT|(menuHorizontalPosition==0 ? attr : 0));
-          lcdDrawNumber(SENSOR_3RD_COLUMN, y, (sensor->instance  & 0x1F) + 1, LEFT|(menuHorizontalPosition==1 ? attr : 0));
+          lcdDrawNumber(SENSOR_3RD_COLUMN, y, sensor->instance  & 0x1F, LEFT|(menuHorizontalPosition==1 ? attr : 0));
           if (attr) {
             switch (menuHorizontalPosition) {
               case 0:
@@ -151,19 +151,22 @@ void menuModelSensor(event_t event)
         }
         break;
 
-      case SENSOR_FILED_RECEIVER_NAME:
-        lcdDrawTextAlignedLeft(y, STR_SOURCE);
-        if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT && sensor->frskyInstance.rxIndex != TELEMETRY_ENDPOINT_SPORT) {
-          drawReceiverName(SENSOR_2ND_COLUMN, y, sensor->frskyInstance.rxIndex >> 2, sensor->frskyInstance.rxIndex & 0x03, 0);
-        }
-        else if (isModuleUsingSport(INTERNAL_MODULE, g_model.moduleData[INTERNAL_MODULE].type)) {
-          // far from perfect
-          lcdDrawText(SENSOR_2ND_COLUMN, y, STR_INTERNAL_MODULE);
-        }
-        else {
-          lcdDrawText(SENSOR_2ND_COLUMN, y, STR_EXTERNAL_MODULE);
-        }
-        break;
+      // case SENSOR_FIELD_RECEIVER_NAME:
+      //   lcdDrawTextAlignedLeft(y, STR_SOURCE);
+      //   // TODO: this needs to be known from the sensor data alone!
+      //   if (telemetryProtocol == PROTOCOL_TELEMETRY_FRSKY_SPORT &&
+      //       sensor->frskyInstance.rxIndex != TELEMETRY_ENDPOINT_SPORT) {
+      //     drawReceiverName(SENSOR_2ND_COLUMN, y, sensor->frskyInstance.rxIndex >> 2,
+      //                      sensor->frskyInstance.rxIndex & 0x03, 0);
+      //   }
+      //   else if (isModuleUsingSport(INTERNAL_MODULE, g_model.moduleData[INTERNAL_MODULE].type)) {
+      //     // far from perfect
+      //     lcdDrawText(SENSOR_2ND_COLUMN, y, STR_INTERNAL_MODULE);
+      //   }
+      //   else {
+      //     lcdDrawText(SENSOR_2ND_COLUMN, y, STR_EXTERNAL_MODULE);
+      //   }
+      //   break;
         
       case SENSOR_FIELD_UNIT:
         lcdDrawTextAlignedLeft(y, STR_UNIT);
@@ -231,10 +234,15 @@ void menuModelSensor(event_t event)
           else {
             lcdDrawTextAlignedLeft(y, STR_RATIO);
             if (attr) sensor->custom.ratio = checkIncDec(event, sensor->custom.ratio, 0, 30000, EE_MODEL|NO_INCDEC_MARKS|INCDEC_REP10);
-            if (sensor->custom.ratio == 0)
+            if (sensor->custom.ratio == 0) {
               lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
-            else
+            } else {  // Ratio + Ratio Percent
               lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.ratio, LEFT|attr|PREC1);
+              uint32_t ratio = (sensor->custom.ratio * 1000) / 255;
+              int ratio_len = countDigits(ratio);
+              lcdDrawNumber(SENSOR_3RD_COLUMN, y, ratio, LEFT|PREC1);
+              lcdDrawChar(SENSOR_3RD_COLUMN+(FWNUM*ratio_len)+3, y, '%', 0);
+            }
             break;
           }
         }
@@ -303,7 +311,7 @@ void menuModelSensor(event_t event)
         break;
 
       case SENSOR_FIELD_PERSISTENT:
-        sensor->persistent = editCheckBox(sensor->persistent, SENSOR_2ND_COLUMN, y, NO_INDENT(STR_PERSISTENT), attr, event);
+        sensor->persistent = editCheckBox(sensor->persistent, SENSOR_2ND_COLUMN, y, STR_PERSISTENT, attr, event, INDENT_WIDTH);
         if (checkIncDec_Ret && !sensor->persistent) {
           sensor->persistentValue = 0;
         }

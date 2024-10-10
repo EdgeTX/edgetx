@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RTC_H_
-#define _RTC_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -50,6 +49,7 @@ struct gtm
 extern gtime_t g_rtcTime;
 extern uint8_t g_ms100; // global to allow time set function to reset to zero
 
+bool rtcIsValid();
 void rtcInit();
 void rtcSetTime(const struct gtm * tm);
 gtime_t gmktime (struct gtm *tm);
@@ -62,5 +62,3 @@ void gettime(struct gtm * tm);
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
-
-#endif // _RTC_H_

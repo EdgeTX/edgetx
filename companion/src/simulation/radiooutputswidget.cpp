@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -163,9 +164,9 @@ void RadioOutputsWidget::setupChannelsDisplay(bool mixes)
 
   // populate outputs
   int column = 0;
-  for (int i=0; i < outputs; i++) {
+  for (int i = 0; i < outputs; i++) {
     QLabel * label = new QLabel(channelsWidget);
-    label->setText(" " + RawSource(SOURCE_TYPE_CH, i).toString() + " ");
+    label->setText(" " + RawSource(SOURCE_TYPE_CH, i + 1).toString() + " ");
     label->setAlignment(Qt::AlignCenter);
     label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     channelsLayout->addWidget(label, 0, column, 1, 1);
@@ -221,16 +222,17 @@ void RadioOutputsWidget::setupGVarsDisplay()
   ui->globalVarsScroll->setWidget(gvarsWidget);
 
   QPalette::ColorRole bgrole = QPalette::AlternateBase;
+  const bool isAir = Boards::isAir();
   for (int fm=0; fm < fmodes; fm++) {
     QLabel * label = new QLabel(gvarsWidget);
-    label->setText(QString(tr("FM%1")).arg(fm));
+    label->setText(QString("%1%2").arg(isAir ? tr("FM") : tr("DM")).arg(fm));
     label->setAlignment(Qt::AlignCenter);
     label->setBackgroundRole(bgrole);
     gvarsLayout->addWidget(label, 0, fm+1);
   }
   QHash<int, QLabel *> fmMap;
   for (int gv=0; gv < gvars; gv++) {
-    bgrole = ((gv % 2) ? QPalette::Background : QPalette::AlternateBase);
+    bgrole = ((gv % 2) ? QPalette::Window : QPalette::AlternateBase);
     QLabel * label = new QLabel(gvarsWidget);
     label->setText(QString(tr("GV%1")).arg(gv+1));
     label->setAutoFillBackground(true);
@@ -335,7 +337,7 @@ void RadioOutputsWidget::onVirtSwValueChange(quint8 index, qint32 value)
     return;
 
   QLabel * ls = m_logicSwitchMap.value(index);
-  ls->setBackgroundRole(value ? QPalette::Dark : QPalette::Background);
+  ls->setBackgroundRole(value ? QPalette::Dark : QPalette::Window);
   ls->setForegroundRole(value ? QPalette::BrightText : QPalette::WindowText);
   ls->setFrameShadow(value ? QFrame::Sunken : QFrame::Raised);
   QFont font = ls->font();
@@ -381,7 +383,7 @@ void RadioOutputsWidget::onPhaseChanged(qint32 phase, const QString &)
       }
       else {
         fgrole =  QPalette::WindowText;
-        bgrole = ((gv.key() % 2) ? QPalette::Background : QPalette::AlternateBase);
+        bgrole = ((gv.key() % 2) ? QPalette::Window : QPalette::AlternateBase);
         font.setBold(false);
       }
       lbl->setForegroundRole(fgrole);

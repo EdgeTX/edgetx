@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 constexpr coord_t CHANNEL_NAME_OFFSET = 1;
 constexpr coord_t CHANNEL_VALUE_OFFSET = CHANNEL_NAME_OFFSET + 42;
@@ -38,8 +38,8 @@ constexpr coord_t CHANNEL_PROPERTIES_OFFSET = CHANNEL_GAUGE_OFFSET + CHANNEL_BAR
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
 #define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
 #elif defined(NAVIGATION_X7)
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_LONG(KEY_PAGE)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGE)
+#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
+#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
 #define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
 #elif defined(NAVIGATION_XLITE)
@@ -54,6 +54,13 @@ constexpr coord_t CHANNEL_PROPERTIES_OFFSET = CHANNEL_GAUGE_OFFSET + CHANNEL_BAR
 #define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_LEFT)
 #endif
 
+struct ViewChannelsState {
+    bool longNames;
+    bool mixersView;
+};
+
+static ViewChannelsState viewChannels = { false, false };
+
 void menuChannelsViewCommon(event_t event)
 {
   bool newLongNames = false;
@@ -61,19 +68,15 @@ void menuChannelsViewCommon(event_t event)
   uint8_t ch;
 
   switch (event) {
-    case EVT_ENTRY:
-      memclear(&reusableBuffer.viewChannels, sizeof(reusableBuffer.viewChannels));
-      break;
-
     case EVT_KEY_BREAK(KEY_ENTER):
-      reusableBuffer.viewChannels.mixersView = !reusableBuffer.viewChannels.mixersView;
+      viewChannels.mixersView = !viewChannels.mixersView;
       break;
   }
 
   ch = 8 * (g_eeGeneral.view / ALTERNATE_VIEW);
 
   // Screen title
-  lcdDrawText(LCD_W / 2, 0, reusableBuffer.viewChannels.mixersView ? STR_MIXERS_MONITOR : STR_CHANNELS_MONITOR, CENTERED);
+  lcdDrawText(LCD_W / 2, 0, viewChannels.mixersView ? STR_MIXERS_MONITOR : STR_CHANNELS_MONITOR, CENTERED);
   lcdInvertLine(0);
 
   int16_t limits = 512 * 2;
@@ -82,13 +85,13 @@ void menuChannelsViewCommon(event_t event)
   for (uint8_t line = 0; line < 8; line++) {
     LimitData * ld = limitAddress(ch);
     const uint8_t y = 9 + line * 7;
-    const int32_t val = reusableBuffer.viewChannels.mixersView ? ex_chans[ch] : channelOutputs[ch];
+    const int32_t val = viewChannels.mixersView ? ex_chans[ch] : channelOutputs[ch];
     const uint8_t lenLabel = ZLEN(g_model.limitData[ch].name);
 
     // Channel name if present, number if not
     if (lenLabel > 0) {
       if (lenLabel > 4)
-        reusableBuffer.viewChannels.longNames = true;
+        viewChannels.longNames = true;
       lcdDrawSizedText(CHANNEL_NAME_OFFSET, y, g_model.limitData[ch].name, sizeof(g_model.limitData[ch].name), SMLSIZE);
     }
     else {
@@ -96,18 +99,18 @@ void menuChannelsViewCommon(event_t event)
     }
 
     // Value
-#if defined(PPM_UNIT_US)
-    lcdDrawNumber(CHANNEL_VALUE_OFFSET, y + 1, PPM_CH_CENTER(ch) + val / 2, TINSIZE | RIGHT);
-#elif defined(PPM_UNIT_PERCENT_PREC1)
-    lcdDrawNumber(CHANNEL_VALUE_OFFSET, y + 1, calcRESXto1000(val), PREC1 | TINSIZE | RIGHT);
-#else
-    lcdDrawNumber(CHANNEL_VALUE_OFFSET, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
-#endif
+    if (g_eeGeneral.ppmunit == PPM_US) {
+      lcdDrawNumber(CHANNEL_VALUE_OFFSET, y + 1, PPM_CH_CENTER(ch) + val / 2, TINSIZE | RIGHT);
+    } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+      lcdDrawNumber(CHANNEL_VALUE_OFFSET, y + 1, calcRESXto1000(val), PREC1 | TINSIZE | RIGHT);
+    } else {
+      lcdDrawNumber(CHANNEL_VALUE_OFFSET, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
+    }
 
     // Gauge
     drawGauge(CHANNEL_GAUGE_OFFSET, y, CHANNEL_BAR_WIDTH, 6, val, limits);
 
-    if (!reusableBuffer.viewChannels.mixersView) {
+    if (!viewChannels.mixersView) {
       // Properties
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
       if (safetyCh[ch] != OVERRIDE_CHANNEL_UNDEFINED)
@@ -122,7 +125,7 @@ void menuChannelsViewCommon(event_t event)
     ++ch;
   }
 
-  reusableBuffer.viewChannels.longNames = newLongNames;
+  viewChannels.longNames = newLongNames;
 }
 
 void menuChannelsView(event_t event)

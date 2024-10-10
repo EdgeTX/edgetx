@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -19,6 +20,11 @@
  */
 
 #include "yaml_ops.h"
+#include "labelvalidator.h"
+#include "namevalidator.h"
+
+SemanticVersion radioSettingsVersion;
+SemanticVersion modelSettingsVersion;
 
 YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 {
@@ -32,7 +38,7 @@ YAML::Node operator >> (const YAML::Node& node, const YamlLookupTable& lut)
 
     if (it != lut.end()) {
       return YAML::Node(it->first);
-    }  
+    }
     return YAML::Node();
   }
 
@@ -54,6 +60,32 @@ void operator >> (const YAML::Node& node, bool& value)
   }
 }
 
+void YamlValidateLabel(QString &input)
+{
+  LabelValidator *lv = new LabelValidator();
+
+  if (!lv->isValid(input)) {
+    lv->fixup(input);
+    input = input.trimmed();
+  }
+
+  delete lv;
+}
+
+void YamlValidateName(char *input, Board::Type board)
+{
+  NameValidator *nv = new NameValidator(board);
+  QString in(input);
+
+  if (!nv->isValid(in)) {
+    nv->fixup(in);
+    in = in.trimmed();
+  }
+
+  strcpy(input, in.toLatin1().data());
+  delete nv;
+}
+
 namespace YAML {
 
 std::string LookupValue(const YamlLookupTable& lut, const int& value)
@@ -63,7 +95,7 @@ std::string LookupValue(const YamlLookupTable& lut, const int& value)
         if (elmt.first == value) return true;
         return false;
       });
-  
+
   if (it != lut.end()) {
     return it->second;
   }

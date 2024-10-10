@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _WIZARDDIALOG_H_
-#define _WIZARDDIALOG_H_
+#pragma once
 
 #include <QtWidgets>
 #include "wizarddata.h"
@@ -370,7 +370,3 @@ private:
   QString vehicleName( Vehicle );
   QString printChannel( Input, int, Input, int );
 };
-#endif // _WIZARDDIALOG_H_
-
-
-

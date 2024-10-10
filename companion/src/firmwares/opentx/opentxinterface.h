@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -88,25 +89,37 @@ class OpenTxFirmware: public Firmware
 
   public:
     OpenTxFirmware(const QString & id, OpenTxFirmware * parent):
-      Firmware(parent, id, parent->getName(), parent->getBoard())
+      Firmware(parent, id, parent->getName(), parent->getBoard(),
+               parent->getDownloadId(), parent->getSimulatorId(), parent->getHwDefnId())
     {
       setEEpromInterface(parent->getEEpromInterface());
     }
 
-    OpenTxFirmware(const QString & id, const QString & name, const Board::Type board):
-      Firmware(id, name, board)
+    OpenTxFirmware(const QString & id, const QString & name, const Board::Type board,
+                   const QString & downloadId = QString(), const QString & simulatorId = QString(), const QString & hwdefnId = QString()):
+      Firmware(id, name, board, downloadId, simulatorId, hwdefnId)
     {
+      //  Note: these align with the radio NOT computer locales - TODO harmonise with ISO and one list!!!
       addLanguage("en");
+      addLanguage("cn");
       addLanguage("cz");
       addLanguage("da");
       addLanguage("de");
       addLanguage("es");
+      addLanguage("fi");
       addLanguage("fr");
+      addLanguage("he");
+      addLanguage("hu");
       addLanguage("it");
+      addLanguage("jp");
       addLanguage("nl");
       addLanguage("pl");
       addLanguage("pt");
+      addLanguage("ru");
       addLanguage("se");
+      addLanguage("sk");
+      addLanguage("tw");
+      addLanguage("ua");
     }
 
     virtual Firmware * getFirmwareVariant(const QString & id);
@@ -121,11 +134,20 @@ class OpenTxFirmware: public Firmware
 
     virtual QString getCapabilityStr(Capability);
 
-    virtual QString getAnalogInputName(unsigned int index);
+    virtual QString getAnalogInputName(unsigned int index)
+    {
+      qDebug() << "WARNING: Depreciate function called. Always returns empty string!";
+      return QString();
+    }
 
     virtual QTime getMaxTimerStart();
 
-    virtual bool isAvailable(PulsesProtocol proto, int port=0);
+    //  moved to ModuleData EdgeTX v2.9
+    virtual bool isAvailable(PulsesProtocol proto, int port=0)
+    {
+      qDebug() << "WARNING: Depreciate function called. Always returns false!";
+      return false;
+    }
 
   protected:
 

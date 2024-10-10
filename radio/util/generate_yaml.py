@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import os
 import sys
+import find_clang
+
 from clang.cindex import *
 
 # debug
@@ -145,7 +147,7 @@ class FieldAST(AST_Element):
             if self.type == 'char':
                 self.type = 'string'
         else:
-            self.type = map_type(t.spelling)
+            self.type = map_type(t.get_canonical().spelling)
 
 
 class StructAST(AST_Element):
@@ -158,7 +160,7 @@ class StructAST(AST_Element):
         if len(alt_name) > 0:
             name = alt_name
 
-        if name == '':
+        if name == '' or (isinstance(cursor,Cursor) and cursor.is_anonymous()):
             name = self.name_prefix() + 'anonymous_' + get_next_anon()
         else:
             name = self.name_prefix() + name
@@ -267,8 +269,8 @@ def parse_union(ast, node):
             return old_st
 
     for c in node.get_children():
-        parse_field(st,c)
-
+        if c.kind == CursorKind.FIELD_DECL:
+            parse_field(st,c)
 
     ann = get_annotations(node)
     if len(ann) > 0:
@@ -383,10 +385,11 @@ def parse_field(ast,node):
 
     ann = get_annotations(node)
     if len(ann) > 0:
+        is_cust = False
+        is_enum = False
         for a in ann:
             if a['type'] == 'enum':
-                if not hasattr(f,'f_read'):
-                    f.type = 'enum'
+                is_enum = True
                 enum_name = 'enum_' + a['val']
                 f.var_type = enum_name
                 if not RootAST.has_enum(enum_name):
@@ -397,8 +400,10 @@ def parse_field(ast,node):
                 f.name = a['val']
             elif a['type'] == 'read':
                 f.f_read = a['val']
+                is_cust = True
             elif a['type'] == 'write':
                 f.f_write = a['val']
+                is_cust = True
             elif a['type'] == 'array':
                 array_attrs = a['val'].split('|')
                 elmt_size = int(array_attrs[0])
@@ -409,8 +414,13 @@ def parse_field(ast,node):
             elif a['type'] == 'skip':
                 f.skip = True
 
+        if is_enum and not is_cust:
+            f.type = 'enum'
+
     if len(f.name) == 0:
-        print_error("in '{}', field of type '{}' does not have a name".format(ast.name,f.var_type))
+        print_error("in '{}', field of type '{}' does not have a name"
+                    .format(ast.name,f.var_type))
+        return
 
     ast.append(f)
 
@@ -483,22 +493,15 @@ def print_ast_node(ast_node):
 if len(sys.argv) < 2:
     bail_out(f"usage: {sys.argv[0]} [header file name] [template] [node name] [additional compile args]")
 
-CLANG_LIB_LOCATIONS = [
-    '/usr/local/Cellar/llvm/6.0.0/lib/libclang.dylib',
-    '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib',
-    '/Library/Developer/CommandLineTools/usr/lib/libclang.dylib',
-    '/usr/lib/x86_64-linux-gnu/libclang-6.0.so.1'
-]
+if not find_clang.initLibClang():
+    sys.exit(-1)
 
-# set clang lib file
-for lib in CLANG_LIB_LOCATIONS:
-    if os.path.exists(lib):
-        Config.set_library_file(lib)
-        break
+index = find_clang.index
+args = ['-x', 'c++', '-std=c++11', '-Wno-deprecated-register'] + sys.argv[4:]
+if find_clang.builtin_hdr_path:
+    args.append("-I" + find_clang.builtin_hdr_path)
 
-# compile source file
-index = Index.create()
-translation_unit = index.parse(sys.argv[1], ['-x', 'c++', '-std=c++11', '-Wno-deprecated-register'] + sys.argv[4:])
+translation_unit = index.parse(sys.argv[1], args)
 
 def show_tu_diags(diags, prefix=''):
     tu_errors =  0
@@ -557,11 +560,16 @@ def max_bits(struct):
             bits = s.bits
     return bits
 
+def padding_bits(array):
+    array_bits = (array.bits // array.length) * array.length
+    return array.bits - array_bits
+
 template = jinja2.Template(open(sys.argv[2]).read(), lstrip_blocks=True, trim_blocks=True)
 
 template.globals['max_len'] = max_len
 template.globals['get_max_len'] = get_max_len
 template.globals['max_bits'] = max_bits
+template.globals['padding_bits'] = padding_bits
 
 ## fixme: root_node_name needs to be mangled (contains ',')
 print(template.render(root=RootAST,root_nodes=top_node_names,root_node_name=root_nodes_name))

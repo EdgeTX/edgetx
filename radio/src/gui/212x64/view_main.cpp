@@ -19,7 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
+#include "hal/trainer_driver.h"
+#include "hal/adc_driver.h"
+#include "hal/switch_driver.h"
+#include "hal/usb_driver.h"
+
+#include "switches.h"
+#include "input_mapping.h"
 
 #define BIGSIZE       MIDSIZE
 #define LBOX_CENTERX  (BOX_WIDTH/2 + 16)
@@ -70,47 +77,66 @@ const unsigned char icons[]  = {
 #define ICON_REBOOT   91, 11
 #define ICON_ALTITUDE 102, 9
 
+#if defined(ASTERISK) || (!defined(USE_WATCHDOG) && !defined(SIMU)) || defined(LOG_TELEMETRY) || \
+    defined(LOG_BLUETOOTH) || defined(DEBUG_LATENCY)
+
+static bool isAsteriskDisplayed() {
+  return true;
+}
+
+#else
+
+#include "hal/abnormal_reboot.h"
+
+static bool isAsteriskDisplayed() {  
+  return UNEXPECTED_SHUTDOWN();
+}
+#endif
+
 void doMainScreenGraphics()
 {
-  int16_t calibStickVert = calibratedAnalogs[CONVERT_MODE(1)];
-  if (g_model.throttleReversed && CONVERT_MODE(1) == THR_STICK)
+  int16_t calibStickVert = calibratedAnalogs[ADC_MAIN_LV];
+  if (g_model.throttleReversed &&
+      inputMappingConvertMode(ADC_MAIN_LV) == inputMappingGetThrottle()) {
     calibStickVert = -calibStickVert;
-  drawStick(LBOX_CENTERX, calibratedAnalogs[CONVERT_MODE(0)], calibStickVert);
+  }
+  drawStick(LBOX_CENTERX, calibratedAnalogs[ADC_MAIN_LH], calibStickVert);
 
-  calibStickVert = calibratedAnalogs[CONVERT_MODE(2)];
-  if (g_model.throttleReversed && CONVERT_MODE(2) == THR_STICK)
+  calibStickVert = calibratedAnalogs[ADC_MAIN_RV];
+  if (g_model.throttleReversed &&
+      inputMappingConvertMode(ADC_MAIN_RV) == inputMappingGetThrottle()) {
     calibStickVert = -calibStickVert;
-  drawStick(RBOX_CENTERX, calibratedAnalogs[CONVERT_MODE(3)], calibStickVert);
+  }
+  drawStick(RBOX_CENTERX, calibratedAnalogs[ADC_MAIN_RH], calibStickVert);
 }
 
 void displayTrims(uint8_t phase)
 {
-  for (unsigned int i=0; i<NUM_STICKS; i++) {
-    coord_t x[4] = { TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X };
-    uint8_t vert[4] = { 0, 1, 1, 0 };
-    coord_t xm, ym;
-    unsigned int stickIndex = CONVERT_MODE(i);
-    xm = x[stickIndex];
+  static uint8_t x[] = { TRIM_LH_X, TRIM_LV_X, TRIM_RV_X, TRIM_RH_X };
+  static uint8_t vert[] = { 0, 1, 1, 0 };
+
+  for (unsigned int i = 0; i < MAX_STICKS; i++) {
+    if(getRawTrimValue(phase, i).mode == TRIM_MODE_NONE || getRawTrimValue(phase, i).mode == TRIM_MODE_3POS)
+      continue;
+
+    coord_t ym;
+    unsigned int stickIndex = inputMappingConvertMode(i);
+    coord_t xm = x[stickIndex];
 
     uint32_t att = ROUND;
     int32_t trim = getTrimValue(phase, i);
     int32_t val = trim;
     bool exttrim = false;
 
-    if(getRawTrimValue(phase, i).mode == TRIM_MODE_NONE)
-      continue;
-
     if (val < TRIM_MIN || val > TRIM_MAX) {
       exttrim = true;
     }
-    if (val < -(TRIM_LEN+1)*4) {
-      val = -(TRIM_LEN+1);
+    val = (val * TRIM_LEN) / TRIM_MAX;
+    if (val < -TRIM_LEN) {
+      val = -TRIM_LEN;
     }
-    else if (val > (TRIM_LEN+1)*4) {
-      val = TRIM_LEN+1;
-    }
-    else {
-      val /= 4;
+    else if (val > TRIM_LEN) {
+      val = TRIM_LEN;
     }
 
     if (vert[i]) {
@@ -163,26 +189,45 @@ void displayTrims(uint8_t phase)
   }
 }
 
+// Pots & sliders
+// X9E: only sliders (1 to 4)
+// Other: POT1, POT2, SLIDERS1 and SLIDER2
+//
+static const coord_t _pot_slots[] = {
+  3, LCD_H / 2 + 1,         // SLIDER1 (x,y)
+  LCD_W - 5, LCD_H / 2 + 1, // SLIDER2 (x,y)
+  3, 1,                     // SLIDER3 (x,y)
+  LCD_W - 5, 1,             // SLIDER4 (x,y)
+};
+
 void drawSliders()
 {
-  for (uint8_t i = NUM_STICKS; i < NUM_STICKS + NUM_POTS + NUM_SLIDERS; i++) {
+  uint8_t slot_idx = 0;
+  uint8_t max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
+  uint8_t offset = adcGetInputOffset(ADC_INPUT_FLEX);
+
+  for (uint8_t i = 0; i < max_pots; i++) {
+
+    // TODO: move this into board implementation
 #if defined(PCBX9E)
-    if (i < SLIDER1)
-      continue;  // TODO change and display more values
-    coord_t x = ((i==SLIDER1 || i==SLIDER3) ? 3 : LCD_W-5);
-    int8_t y = (i<SLIDER3 ? LCD_H/2+1 : 1);
+    // Only sliders
+    if (!IS_SLIDER(i)) continue;
 #else
-    if (i == POT3)
-      continue;
-    coord_t x = ((i==POT1 || i==SLIDER1) ? 3 : LCD_W-5);
-    int8_t y = (i>=SLIDER1 ? LCD_H/2+1 : 1);
+    // Skip POT3
+    if (i == 2 && !IS_SLIDER(i)) continue;
 #endif
-    lcdDrawSolidVerticalLine(x, y, LCD_H/2-2);
-    lcdDrawSolidVerticalLine(x+1, y, LCD_H/2-2);
+    
+    coord_t x = _pot_slots[slot_idx++];
+    coord_t y = _pot_slots[slot_idx++];
+
+    lcdDrawSolidVerticalLine(x, y, LCD_H / 2 - 2);
+    lcdDrawSolidVerticalLine(x + 1, y, LCD_H / 2 - 2);
+
+    // calculate once per loop
     y += LCD_H / 2 - 4;
-    y -= ((calibratedAnalogs[i]+RESX)*(LCD_H/2-4)/(RESX*2));  // calculate once per loop
-    lcdDrawSolidVerticalLine(x-1, y, 2);
-    lcdDrawSolidVerticalLine(x+2, y, 2);
+    y -= ((calibratedAnalogs[offset + i] + RESX) * (LCD_H / 2 - 4) / (RESX * 2));
+    lcdDrawSolidVerticalLine(x - 1, y, 2);
+    lcdDrawSolidVerticalLine(x + 2, y, 2);
   }
 }
 
@@ -262,12 +307,12 @@ void displayTopBar()
   }
 
   if (SLAVE_MODE()) {
-    if (TRAINER_CONNECTED()) {
+    if (is_trainer_dsc_connected()) {
       LCD_NOTIF_ICON(x, ICON_TRAINEE);
       x -= 12;
     }
   }
-  else if (IS_TRAINER_INPUT_VALID()) {
+  else if (isTrainerConnected()) {
     LCD_NOTIF_ICON(x, ICON_TRAINER);
     x -= 12;
   }
@@ -290,7 +335,7 @@ void displayTopBar()
     LCD_ICON(BAR_VOLUME_X, BAR_Y, ICON_SPEAKER3);
 
   /* RTC time */
-  drawRtcTime(BAR_TIME_X, BAR_Y+1, LEFT|TIMEBLINK);
+  if (rtcIsValid()) drawRtcTime(BAR_TIME_X, BAR_Y+1, LEFT|TIMEBLINK);
 
   /* The background */
   lcdDrawFilledRect(BAR_X, BAR_Y, BAR_W, BAR_H, SOLID, FILL_WHITE|GREY(12)|ROUND);
@@ -324,7 +369,7 @@ void displayTimers()
         val = (int)timerData.start - (int)timerState.val;
       drawTimer(TIMERS_X, y, val, TIMEHOUR|MIDSIZE|LEFT, TIMEHOUR|MIDSIZE|LEFT);
       if (timerData.persistent) {
-        lcdDrawChar(TIMERS_R, y+1, 'P', SMLSIZE);
+        lcdDrawChar(TIMERS_R, y-7, 'P', SMLSIZE);
       }
       if (timerState.val < 0) {
         if (BLINK_ON_PHASE) {
@@ -338,7 +383,7 @@ void displayTimers()
 void menuMainViewChannelsMonitor(event_t event)
 {
   switch(event) {
-    case EVT_KEY_BREAK(KEY_PAGE):
+    case EVT_KEY_BREAK(KEY_PAGEDN):
     case EVT_KEY_BREAK(KEY_EXIT):
       chainMenu(menuMainView);
       event = 0;
@@ -365,12 +410,7 @@ void onMainViewMenu(const char * result)
     pushModelNotes();
   }
   else if (result == STR_RESET_SUBMENU) {
-    POPUP_MENU_ADD_ITEM(STR_RESET_FLIGHT);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER1);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER2);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TIMER3);
-    POPUP_MENU_ADD_ITEM(STR_RESET_TELEMETRY);
-    POPUP_MENU_START(onMainViewMenu);
+    POPUP_MENU_START(onMainViewMenu, 5, STR_RESET_FLIGHT, STR_RESET_TIMER1, STR_RESET_TIMER2, STR_RESET_TIMER3, STR_RESET_TELEMETRY);
   }
   else if (result == STR_RESET_TELEMETRY) {
     telemetryReset();
@@ -416,17 +456,6 @@ void displaySwitch(coord_t x, coord_t y, int width, unsigned int index)
   }
 }
 
-int getSwitchCount()
-{
-  int count = 0;
-  for (int i=0; i<NUM_SWITCHES; ++i) {
-    if (SWITCH_EXISTS(i)) {
-      ++count;
-    }
-  }
-  return count;
-}
-
 void menuMainView(event_t event)
 {
   static bool secondPage = false;
@@ -434,8 +463,8 @@ void menuMainView(event_t event)
   switch(event) {
     case EVT_ENTRY:
       killEvents(KEY_EXIT);
-      killEvents(KEY_UP);
-      killEvents(KEY_DOWN);
+      killEvents(KEY_PLUS);
+      killEvents(KEY_MINUS);
       // no break
 
     case EVT_ENTRY_UP:
@@ -443,14 +472,10 @@ void menuMainView(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_ENTER):
-      killEvents(event);
       if (modelHasNotes()) {
         POPUP_MENU_ADD_ITEM(STR_VIEW_NOTES);
       }
-      POPUP_MENU_ADD_ITEM(STR_RESET_SUBMENU);
-      POPUP_MENU_ADD_ITEM(STR_STATISTICS);
-      POPUP_MENU_ADD_ITEM(STR_ABOUT_US);
-      POPUP_MENU_START(onMainViewMenu);
+      POPUP_MENU_START(onMainViewMenu, 3, STR_RESET_SUBMENU, STR_STATISTICS, STR_ABOUT_US);
       break;
 
     case EVT_KEY_BREAK(KEY_MENU):
@@ -458,11 +483,10 @@ void menuMainView(event_t event)
       break;
 
     case EVT_KEY_LONG(KEY_MENU):
-      pushMenu(menuTabGeneral[0]);
-      killEvents(event);
+      pushMenu(menuTabGeneral[0].menuFunc);
       break;
 
-    case EVT_KEY_BREAK(KEY_PAGE):
+    case EVT_KEY_BREAK(KEY_PAGEDN):
       storageDirty(EE_MODEL);
       g_model.view += 1;
       if (g_model.view >= VIEW_COUNT) {
@@ -471,9 +495,8 @@ void menuMainView(event_t event)
       }
       break;
 
-    case EVT_KEY_LONG(KEY_PAGE):
+    case EVT_KEY_BREAK(KEY_PAGEUP):
       chainMenu(menuViewTelemetry);
-      killEvents(event);
       break;
 
     case EVT_KEY_FIRST(KEY_EXIT):
@@ -484,8 +507,8 @@ void menuMainView(event_t event)
 #endif
       break;
 
-    case EVT_KEY_FIRST(KEY_RIGHT):
-    case EVT_KEY_FIRST(KEY_LEFT):
+    case EVT_KEY_FIRST(KEY_PLUS):
+    case EVT_KEY_FIRST(KEY_MINUS):
 #if defined(ROTARY_ENCODER_NAVIGATION)
     case EVT_ROTARY_LEFT:
     case EVT_ROTARY_RIGHT:
@@ -513,34 +536,52 @@ void menuMainView(event_t event)
   lcdDrawBitmap(BITMAP_X, BITMAP_Y, modelBitmap);
 
   // Switches
-  if (getSwitchCount() > 8) {
-    for (int i=0; i<NUM_SWITCHES; ++i) {
-      div_t qr = div(i, 9);
-      if (g_model.view == VIEW_INPUTS) {
-        div_t qr2 = div(qr.rem, 5);
-        if (i >= 14) qr2.rem += 1;
-        const coord_t x[4] = { 50, 142 };
-        const coord_t y[4] = { 25, 42, 25, 42 };
-        displaySwitch(x[qr.quot]+qr2.rem*4, y[qr2.quot], 3, i);
-      }
-      else {
-        displaySwitch(17+qr.rem*6, 25+qr.quot*17, 5, i);
+  // Regular radio
+  // -> 2 columns: one for each side
+  // -> 8 slots on each side (2 columns of 4)
+
+  uint8_t switches = switchGetMaxSwitches();
+  if (getSwitchCount() > 16) {    // beware, there is a desired col/row swap in this special mode
+    for (int i = 0; i < switches; ++i) {
+      if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
+        auto switch_display = switchGetDisplayPosition(i);
+        if (g_model.view == VIEW_INPUTS) {
+          coord_t x = 50 + (switch_display.row % 5) * 4 +
+                      (switch_display.col == 0 ? 0 : 93) +
+                      (switch_display.row < 5 ? 0 : 2);
+          coord_t y = switch_display.row < 5 ? 25 : 40;
+          displaySwitch(x, y, 3, i);
+        } else {
+          displaySwitch(17 + switch_display.row * 6,
+                        25 + switch_display.col * 17, 5, i);
+        }
       }
     }
   }
   else {
-    int index = 0;
-    for (int i=0; i<NUM_SWITCHES; ++i) {
-      if (SWITCH_EXISTS(i)) {
-        getvalue_t val = getValue(MIXSRC_FIRST_SWITCH+i);
-        getvalue_t sw = ((val < 0) ? 3*i+1 : ((val == 0) ? 3*i+2 : 3*i+3));
-        drawSwitch((g_model.view == VIEW_INPUTS) ? (index<4 ? 8*FW+1 : 23*FW+2) : (index<4 ? 3*FW+1 : 8*FW-2), (index%4)*FH+3*FH, sw, 0, false);
-        index++;
+    coord_t shiftright = switchGetMaxRow(1) < 4 ? 20 : 0;
+    for (int i = 0; i < switches; ++i) {
+      if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
+        auto switch_display = switchGetDisplayPosition(i);
+        if (g_model.view == VIEW_INPUTS) {
+          coord_t x = (switch_display.col == 0 ? 50 : 125) +
+                      (switch_display.row < 4 ? 0 : 20) +
+                      (switch_display.col == 0 ? 0 : shiftright);
+          coord_t y = 25 + (switch_display.row % 4) * FH;
+          getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
+          getvalue_t sw =
+              ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
+          drawSwitch(x, y, sw, 0, false);
+        }
+        else {
+          displaySwitch(17 + switch_display.row * 6,
+                        25 + switch_display.col * 17, 5, i);
+        }
       }
     }
   }
 
-  if (g_model.view == VIEW_TIMERS) {
+    if (g_model.view == VIEW_TIMERS) {
     displayTimers();
   }
   else if (g_model.view == VIEW_INPUTS) {
@@ -565,7 +606,7 @@ void menuMainView(event_t event)
         lcdDrawSolidHorizontalLine(x, y+6, 4);
         lcdDrawSolidHorizontalLine(x, y+7, 4);
       }
-      else if (getSwitch(SWSRC_SW1+sw)) {
+      else if (getSwitch(SWSRC_FIRST_LOGICAL_SWITCH+sw)) {
         lcdDrawFilledRect(x, y, 4, 8);
       }
       else {

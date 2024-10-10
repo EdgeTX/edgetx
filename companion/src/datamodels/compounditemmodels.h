@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -43,9 +44,9 @@ class AbstractItemModel: public QStandardItemModel
       IMID_CustomFuncAction,
       IMID_CustomFuncResetParam,
       IMID_TeleSource,
-      IMID_RssiSource,
       IMID_CurveRefType,
       IMID_CurveRefFunc,
+      IMID_FlexSwitches,
       IMID_ReservedCount,
       IMID_Custom
     };
@@ -197,7 +198,7 @@ class RawSourceItemModel: public AbstractDynamicItemModel
 
   protected:
     virtual void setDynamicItemData(QStandardItem * item, const RawSource & src) const;
-    void addItems(const RawSourceType & type, const int group, const int count, const int start = 0);
+    void addItems(const RawSourceType & type, const int group, int count, const int start = 0);
 };
 
 class RawSwitchItemModel: public AbstractDynamicItemModel
@@ -307,21 +308,6 @@ class TelemetrySourceItemModel: public AbstractDynamicItemModel
     virtual void setDynamicItemData(QStandardItem * item, const int value) const;
 };
 
-class RssiSourceItemModel: public AbstractDynamicItemModel
-{
-    Q_OBJECT
-  public:
-    explicit RssiSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                      Firmware * firmware, const Boards * const board, const Board::Type boardType);
-    virtual ~RssiSourceItemModel() {};
-
-  public slots:
-    virtual void update(const int event = IMUE_SystemRefresh) override;
-
-  protected:
-    virtual void setDynamicItemData(QStandardItem * item, const int value) const;
-};
-
 class CurveRefTypeItemModel : public AbstractStaticItemModel
 {
     Q_OBJECT
@@ -347,6 +333,22 @@ class PrecisionItemModel : public AbstractStaticItemModel
     explicit PrecisionItemModel(const int minDecimals, const int maxDecimals, const QString suffix = "", const bool placeholders = false);
     virtual ~PrecisionItemModel() {};
 };
+
+class FlexSwitchesItemModel: public AbstractDynamicItemModel
+{
+    Q_OBJECT
+  public:
+    explicit FlexSwitchesItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
+                                      Firmware * firmware, const Boards * const board, const Board::Type boardType);
+    virtual ~FlexSwitchesItemModel() {};
+
+  public slots:
+    virtual void update(const int event = IMUE_SystemRefresh) override;
+
+  protected:
+    virtual void setDynamicItemData(QStandardItem * item, const int value) const;
+};
+
 
 //
 //  CompoundItemModelFactory

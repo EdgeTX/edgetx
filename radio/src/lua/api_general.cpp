@@ -19,64 +19,28 @@
  * GNU General Public License for more details.
  */
 
+#define LUA_LIB
+
 #include <ctype.h>
 #include <stdio.h>
-#include "opentx.h"
+#include "edgetx.h"
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
-#include "aux_serial_driver.h"
+#include "hal/module_port.h"
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
+#include "switches.h"
+#include "input_mapping.h"
+#if defined(LED_STRIP_GPIO)
+#include "boards/generic_stm32/rgb_leds.h"
+#endif
+
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
   #include "api_colorlcd.h"
   #include "standalone_lua.h"
-#endif
-
-#if defined(PCBX12S)
-  #include "lua/lua_exports_x12s.inc"   // this line must be after lua headers
-#elif defined(RADIO_FAMILY_T16)
-  #include "lua/lua_exports_t16.inc"
-#elif defined(PCBX10)
-  #include "lua/lua_exports_x10.inc"
-#elif defined(PCBX9E)
-  #include "lua/lua_exports_x9e.inc"
-#elif defined(RADIO_X7ACCESS)
-  #include "lua/lua_exports_x7access.inc"
-#elif defined(RADIO_X7)
-  #include "lua/lua_exports_x7.inc"
-#elif defined(RADIO_T12)
-  #include "lua/lua_exports_t12.inc"
-#elif defined(RADIO_TLITE)
-  #include "lua/lua_exports_tlite.inc"
-#elif defined(RADIO_TPRO)
-  #include "lua/lua_exports_tpro.inc"
-#elif defined(RADIO_TX12)
-  #include "lua/lua_exports_tx12.inc"
-#elif defined(RADIO_TX12MK2)
-  #include "lua/lua_exports_tx12mk2.inc"
-#elif defined(RADIO_LR3PRO)
-  #include "lua/lua_exports_lr3pro.inc"
-#elif defined(RADIO_ZORRO)
-  #include "lua/lua_exports_zorro.inc"
-#elif defined(RADIO_T8)
-  #include "lua/lua_exports_t8.inc"
-#elif defined(RADIO_COMMANDO8)
-  #include "lua/lua_exports_commando8.inc"
-#elif defined(PCBX9LITES)
-  #include "lua/lua_exports_x9lites.inc"
-#elif defined(PCBX9LITE)
-  #include "lua/lua_exports_x9lite.inc"
-#elif defined(PCBXLITES)
-  #include "lua/lua_exports_xlites.inc"
-#elif defined(PCBXLITE)
-  #include "lua/lua_exports_xlite.inc"
-#elif defined(RADIO_X9DP2019)
-  #include "lua/lua_exports_x9d+2019.inc"
-#elif defined(PCBTARANIS)
-  #include "lua/lua_exports_x9d.inc"
-#elif defined(PCBNV14)
-  #include "lua/lua_exports_nv14.inc"
 #endif
 
 #include "telemetry/frsky.h"
@@ -102,12 +66,6 @@
 #define VERSION_OSNAME "EdgeTX"
 
 #define FIND_FIELD_DESC  0x01
-
-#define KEY_EVENTS(xxx, yyy)  \
-  { "EVT_"#xxx"_FIRST", EVT_KEY_FIRST(yyy) }, \
-  { "EVT_"#xxx"_BREAK", EVT_KEY_BREAK(yyy) }, \
-  { "EVT_"#xxx"_LONG", EVT_KEY_LONG(yyy) }, \
-  { "EVT_"#xxx"_REPT", EVT_KEY_REPT(yyy) }
 
 // see strhelpers.cpp for pre-instantiation of function-template
 // getSourceString() for this parametrization
@@ -390,9 +348,89 @@ void luaGetValueAndPush(lua_State* L, int src)
   else if (src == MIXSRC_TX_VOLTAGE) {
     lua_pushnumber(L, float(value) * 0.1f);
   }
+  #if defined(GVARS)
+  else if(src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
+   if(g_model.gvars[src - MIXSRC_FIRST_GVAR].prec)
+     lua_pushnumber(L, float(value) * 0.1f);    // prec "0.0"
+  else
+     lua_pushinteger(L, value);                 // prec "0.-"
+  } 
+  #endif
   else {
     lua_pushinteger(L, value);
   }
+}
+
+struct LuaSingleField {
+  uint16_t id;
+  const char* name;
+  const char* desc;
+};
+
+const LuaSingleField luaSingleFields[] = {
+#if defined(IMU)
+    {MIXSRC_TILT_X, "tiltx", "Tilt X"},
+    {MIXSRC_TILT_Y, "tilty", "Tilt Y"},
+#endif
+
+#if defined(PCBHORUS)
+    {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
+    {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
+    {MIXSRC_SPACEMOUSE_C, "smc", "SpaceMouse C"},
+    {MIXSRC_SPACEMOUSE_D, "smd", "SpaceMouse D"},
+    {MIXSRC_SPACEMOUSE_E, "sme", "SpaceMouse E"},
+    {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
+#endif
+
+    {MIXSRC_MIN, "min", "MIN"},
+    {MIXSRC_MAX, "max", "MAX"},
+
+    {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
+    {MIXSRC_TX_TIME, "clock", "RTC clock [minutes from midnight]"},
+};
+
+// Legacy input names
+// TODO: move to some HAL/driver functions
+#include "lua_inputs.inc"
+
+struct LuaMultipleField {
+  uint16_t id;
+  const char* name;
+  const char* desc;
+  uint8_t count;
+};
+
+// The list of Lua fields that have a range of values
+const LuaMultipleField luaMultipleFields[] = {
+    {MIXSRC_FIRST_INPUT, "input", "Input [I%d]", MAX_INPUTS},
+    {MIXSRC_FIRST_LUA, "lua", "Lua mix output %d", MAX_SCRIPTS * MAX_SCRIPT_OUTPUTS},
+    {MIXSRC_FIRST_LOGICAL_SWITCH, "ls", "Logical switch L%d", MAX_LOGICAL_SWITCHES},
+    {MIXSRC_FIRST_TRAINER, "trn", "Trainer input %d", MAX_TRAINER_CHANNELS},
+    {MIXSRC_FIRST_CH, "ch", "Channel CH%d", MAX_OUTPUT_CHANNELS},
+    {MIXSRC_FIRST_GVAR, "gvar", "Global variable %d", MAX_GVARS},
+    {MIXSRC_FIRST_TELEM, "telem", "Telemetry sensor %d", MAX_TELEMETRY_SENSORS},
+    {MIXSRC_FIRST_TIMER, "timer", "Timer %d value [seconds]", MAX_TIMERS},
+    {MIXSRC_FIRST_HELI, "cyc", "Cyclic %d", 3},
+};
+
+static bool _searchSingleFieldsByName(const char* name, LuaField& field,
+                                unsigned int flags,
+                                const LuaSingleField* fields, size_t n_fields)
+{
+  for (unsigned int n = 0; n < n_fields; ++n) {
+    if (!strcmp(name, fields[n].name)) {
+      field.id = fields[n].id;
+      if (flags & FIND_FIELD_DESC) {
+        strncpy(field.desc, fields[n].desc, sizeof(field.desc) - 1);
+        field.desc[sizeof(field.desc) - 1] = '\0';
+      } else {
+        field.desc[0] = '\0';
+      }
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -400,25 +438,36 @@ void luaGetValueAndPush(lua_State* L, int src)
 */
 bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
 {
+  auto len = strlen(name);
   strncpy(field.name, name, sizeof(field.name) - 1);
   field.name[sizeof(field.name) - 1] = '\0';
-  // TODO better search method (binary lookup)
-  for (unsigned int n=0; n<DIM(luaSingleFields); ++n) {
-    if (!strcmp(name, luaSingleFields[n].name)) {
-      field.id = luaSingleFields[n].id;
+
+  // hardware specific inputs
+  if (_searchSingleFieldsByName(name, field, flags, _lua_inputs, DIM(_lua_inputs)))
+    return true;
+  
+  // well known single fields
+  if (_searchSingleFieldsByName(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
+    return true;
+
+  // check switches from 'sa' to 'sz'
+  // TODO: does not work with function switches!
+  if (len == 2 && name[0] == 's' && name[1] >= 'a' && name[1] <= 'z') {
+    auto c = name[1] - 'a' + 'A';
+    auto sw_idx = switchLookupIdx(c);
+    if (sw_idx >= 0) {
+      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
       if (flags & FIND_FIELD_DESC) {
-        strncpy(field.desc, luaSingleFields[n].desc, sizeof(field.desc)-1);
+        snprintf(field.desc, sizeof(field.desc)-1, "Switch %c", c);
         field.desc[sizeof(field.desc)-1] = '\0';
-      }
-      else {
+      } else {
         field.desc[0] = '\0';
       }
       return true;
     }
   }
-
+  
   // search in multiples
-  unsigned int len = strlen(name);
   for (unsigned int n=0; n<DIM(luaMultipleFields); ++n) {
     const char * fieldName = luaMultipleFields[n].name;
     unsigned int fieldLen = strlen(fieldName);
@@ -482,6 +531,24 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   return false;  // not found
 }
 
+static bool _searchSingleFieldsById(int id, LuaField& field,
+                                unsigned int flags,
+                                const LuaSingleField* fields, size_t n_fields)
+{
+  for (unsigned int n = 0; n < n_fields; ++n) {
+    if (id == fields[n].id) {
+      strncpy(field.name, fields[n].name, sizeof(field.name) - 1);
+      if (flags & FIND_FIELD_DESC) {
+        strncpy(field.desc, fields[n].desc, sizeof(field.desc) - 1);
+        field.desc[sizeof(field.desc) - 1] = '\0';
+      }
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // Return field data for a given field id
 bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
 {
@@ -489,17 +556,13 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
   field.name[sizeof(field.name) - 1] = '\0';
   field.desc[0] = '\0';
 
-  // TODO better search method (binary lookup)
-  for (unsigned int n = 0; n < DIM(luaSingleFields); ++n) {
-    if (id == luaSingleFields[n].id) {
-      strncpy(field.name, luaSingleFields[n].name, sizeof(field.name) - 1);
-      if (flags & FIND_FIELD_DESC) {
-        strncpy(field.desc, luaSingleFields[n].desc, sizeof(field.desc) - 1);
-        field.desc[sizeof(field.desc) - 1] = '\0';
-      }
-      return true;
-    }
-  }
+  // hardware specific inputs
+  if (_searchSingleFieldsById(id, field, flags, _lua_inputs, DIM(_lua_inputs)))
+    return true;
+  
+  // well known single fields
+  if (_searchSingleFieldsById(id, field, flags, luaSingleFields, DIM(luaSingleFields)))
+    return true;
 
   // search in multiples
   for (unsigned int n = 0; n < DIM(luaMultipleFields); ++n) {
@@ -569,7 +632,7 @@ The list of valid sources is available:
  * `id`   (number) field identifier
  * `name` (string) field name
  * `desc` (string) field description
- * 'unit' (number) unit identifier [Full list](../appendix/units.html)
+ * `unit` (number) unit identifier [Full list](../appendix/units.html)
 
 @retval nil the requested field was not found
 
@@ -805,17 +868,13 @@ static int luaGetSourceValue(lua_State * L)
 Return rotary encoder current speed
 
 @retval number in list: ROTENC_LOWSPEED, ROTENC_MIDSPEED, ROTENC_HIGHSPEED
-        return 0 on radio without rotary encoder
+        returns ROTENC_LOWSPEED on radio without rotary encoder
 
 @status current Introduced in 2.3.10
 */
 static int luaGetRotEncSpeed(lua_State * L)
 {
-#if defined(ROTARY_ENCODER_NAVIGATION)
-  lua_pushunsigned(L, rotencSpeed);
-#else
-  lua_pushunsigned(L, 0);
-#endif
+  lua_pushunsigned(L, max(rotaryEncoderGetAccel(), (int8_t)1));
   return 1;
 }
 
@@ -831,7 +890,7 @@ Return rotary encoder mode
 */
 static int luaGetRotEncMode(lua_State * L)
 {
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   lua_pushunsigned(L, g_eeGeneral.rotEncMode);
 #else
   lua_pushunsigned(L, 0);
@@ -913,10 +972,20 @@ When called without parameters, it will only return the status of the output buf
 @status current Introduced in 2.2.0, retval nil added in 2.3.4
 */
 
+static bool _supports_sport(uint8_t module)
+{
+  return IS_NATIVE_FRSKY_PROTOCOL(module) ||
+    (isModuleMultimodule(module) &&
+     (IS_D16_MULTI(module) || IS_R9_MULTI(module)));
+}
+
 static int luaSportTelemetryPush(lua_State * L)
 {
+  bool extmod = _supports_sport(EXTERNAL_MODULE);
+  bool intmod = _supports_sport(INTERNAL_MODULE);
+  
   // dirty hack until 2 simultanous protocols are supported
-  if (isModuleCrossfire(INTERNAL_MODULE) || !IS_FRSKY_SPORT_PROTOCOL()) {
+  if (!extmod && !intmod) {
     lua_pushnil(L);
     return 1;
   }
@@ -964,9 +1033,11 @@ static int luaSportTelemetryPush(lua_State * L)
       packet.dataId = dataId;
       packet.value = luaL_checkunsigned(L, 4);
       outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
-#if defined(PXX2)
-      uint8_t destination = (IS_INTERNAL_MODULE_ON() ? INTERNAL_MODULE : EXTERNAL_MODULE);
-      outputTelemetryBuffer.setDestination(isModulePXX2(destination) ? (destination << 2) : TELEMETRY_ENDPOINT_SPORT);
+#if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
+      uint8_t destination = (intmod ? INTERNAL_MODULE : EXTERNAL_MODULE);
+      outputTelemetryBuffer.setDestination(isModulePXX2(destination)
+                                           ? (destination << 2)
+                                           : TELEMETRY_ENDPOINT_SPORT);
 #else
       outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
 #endif
@@ -1116,39 +1187,65 @@ When called without parameters, it will only return the status of the output buf
 
 @status current Introduced in 2.2.0, retval nil added in 2.3.4
 */
-static int luaCrossfireTelemetryPush(lua_State * L)
+static int luaCrossfireTelemetryPush(lua_State* L)
 {
-  bool sport = (telemetryProtocol == PROTOCOL_TELEMETRY_CROSSFIRE);
-  bool internal = (moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
+  bool external =
+      (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
+  bool internal =
+      (moduleState[INTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_CROSSFIRE);
 
-  if (!internal && !sport) {
+  if (!internal && !external) {
     lua_pushnil(L);
     return 1;
   }
 
   if (lua_gettop(L) == 0) {
     lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
-  }
-  else if (lua_gettop(L) > TELEMETRY_OUTPUT_BUFFER_SIZE ) {
+  } else if (lua_gettop(L) > TELEMETRY_OUTPUT_BUFFER_SIZE) {
     lua_pushboolean(L, false);
     return 1;
-  }
-  else if (outputTelemetryBuffer.isAvailable()) {
+  } else if (outputTelemetryBuffer.isAvailable()) {
     uint8_t command = luaL_checkunsigned(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
     uint8_t length = luaL_len(L, 2);
+
     outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
-    outputTelemetryBuffer.pushByte(2 + length); // 1(COMMAND) + data length + 1(CRC)
-    outputTelemetryBuffer.pushByte(command); // COMMAND
-    for (int i=0; i<length; i++) {
-      lua_rawgeti(L, 2, i+1);
+
+    // LENGTH
+    if (command == COMMAND_ID) {
+      // 1(COMMAND) + length(data) + 1(CRC_BA) + 1(CRC_D5)
+      outputTelemetryBuffer.pushByte(3 + length);
+    } else {
+      // 1(COMMAND) + length(data) + 1(CRC_D5)
+      outputTelemetryBuffer.pushByte(2 + length);
+    }
+
+    // COMMAND
+    outputTelemetryBuffer.pushByte(command);
+
+    // PAYLOAD
+    for (int i = 0; i < length; i++) {
+      lua_rawgeti(L, 2, i + 1);
       outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
     }
-    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 1 + length));
+
+    // CRC
+    if (command == COMMAND_ID) {
+      // 1 byte CRC8_BA (counted from COMMAND byte)
+      outputTelemetryBuffer.pushByte(
+          crc8_BA(outputTelemetryBuffer.data + 2, 1 + length));
+      // 1 byte CRC8_D5 (counted from COMMAND byte including CRC8_BA byte)
+      outputTelemetryBuffer.pushByte(
+          crc8(outputTelemetryBuffer.data + 2, 2 + length));
+    } else {
+      // 1 byte CRC8_D5 (counted from COMMAND byte)
+      outputTelemetryBuffer.pushByte(
+          crc8(outputTelemetryBuffer.data + 2, 1 + length));
+    }
+
     outputTelemetryBuffer.setDestination(internal ? 0 : TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
-  }
-  else {
+  } else {
     lua_pushboolean(L, false);
   }
   return 1;
@@ -1187,7 +1284,7 @@ static int luaGhostTelemetryPop(lua_State * L)
     lua_newtable(L);
     for (uint8_t i=0; i<length-2; i++) {
       luaInputTelemetryFifo->pop(data);
-      lua_pushinteger(L, i+1);
+      lua_pushinteger(L, i + 1);
       lua_pushinteger(L, data);
       lua_settable(L, -3);
     }
@@ -1216,9 +1313,8 @@ When called without parameters, it will only return the status of the output buf
 */
 static int luaGhostTelemetryPush(lua_State * L)
 {
-  bool sport = (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST);
-
-  if (!sport) {
+  bool extmod = (moduleState[EXTERNAL_MODULE].protocol == PROTOCOL_CHANNELS_GHOST);
+  if (!extmod) {
     lua_pushnil(L);
     return 1;
   }
@@ -1240,18 +1336,20 @@ static int luaGhostTelemetryPush(lua_State * L)
       return 1;
     }
 
-    // Ghost frames are fixed 14B
-    outputTelemetryBuffer.pushByte(getGhostModuleAddr());         // addr (1B)
-    outputTelemetryBuffer.pushByte(12);           // len = payload length(10B) + type(1B) + crc(1B)
+    // Ghost frames are fixed 14B:
+    // address(1B) + len (1B) + type(1B) + payload(10B) + crc(1B)
+    // -> address + len up-front are inserted later
     outputTelemetryBuffer.pushByte(type);         // type (1B)
-    for (int i=0; i<length; i++) {                // data, max 10B
-      lua_rawgeti(L, 2, i+1);
+    int i = 0;
+    for (; i < length; i++) {                     // data, max 10B
+      lua_rawgeti(L, 2, i + 1);
       outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
     }
-    for (int i=0; i<10-length; i++) {             // fill zeroes to frame size
+    for (; i < 10; i++) {                         // fill zeroes to frame size
       outputTelemetryBuffer.pushByte(0);
     }
-    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data + 2, 11 ));  // Start at type, CRC over type (1B) + payload (10B)
+    // CRC over type (1B) + payload (10B)
+    outputTelemetryBuffer.pushByte(crc8(outputTelemetryBuffer.data, 11 ));
     outputTelemetryBuffer.setDestination(TELEMETRY_ENDPOINT_SPORT);
     lua_pushboolean(L, true);
   }
@@ -1293,12 +1391,12 @@ Return the internal GPS position or nil if no valid hardware found
 @retval table representing the current radio position
  * `lat` (number) internal GPS latitude, positive is North
  * `lon` (number) internal GPS longitude, positive is East
- * 'numsat' (number) current number of sats locked in by the GPS sensor
- * 'fix' (boolean) fix status
- * 'alt' (number) internal GPS altitude in 0.1m
- * 'speed' (number) internal GPSspeed in 0.1m/s
- * 'heading'  (number) internal GPS ground course estimation in degrees * 10
- * 'hdop' (number)  internal GPS horizontal dilution of precision
+ * `numsat` (number) current number of sats locked in by the GPS sensor
+ * `fix` (boolean) fix status
+ * `alt` (number) internal GPS altitude in 0.1m
+ * `speed` (number) internal GPSspeed in 0.1m/s
+ * `heading`  (number) internal GPS ground course estimation in degrees * 10
+ * `hdop` (number)  internal GPS horizontal dilution of precision
 
 @status current Introduced in 2.2.2
 */
@@ -1353,35 +1451,53 @@ static int luaGetFlightMode(lua_State * L)
 }
 
 /*luadoc
-@function playFile(name)
+@function playFile(filename [, volume])
 
 Play a file from the SD card
 
-@param path (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
+@param filename (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
 Introduced in 2.1.0: If you use a relative path, the current language is appended
 to the path (example: for English language: `/SOUNDS/en` is appended)
 
-@status current Introduced in 2.0.0, changed in 2.1.0
+@param volume (number):
+ - (1..5) override radio settings Wav volume for the duration of file
+ - omitting the parameter uses radio settings Wav volume
+
+@retval none 
+
+@status current Introduced in 2.0.0, changed in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// playFile("armed.wav", 5) -- play file armed.wav, use Wav volume 2
+// playFile("armed.wav", 1) -- play file armed.wav, use Wav volume 1
+// playFile("armed.wav")		-- play file armed.wav, use radio settings Wav volume
 */
 static int luaPlayFile(lua_State * L)
 {
   const char * filename = luaL_checkstring(L, 1);
+  int volume = luaL_optinteger(L, 2, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
   if (filename[0] != '/') {
     // relative sound file path - use current language dir for absolute path
     char file[AUDIO_FILENAME_MAXLEN+1];
     char * str = getAudioPath(file);
     strncpy(str, filename, AUDIO_FILENAME_MAXLEN - (str-file));
     file[AUDIO_FILENAME_MAXLEN] = 0;
-    PLAY_FILE(file, 0, 0);
+    audioQueue.playFile(file, 0, 0, volume);
   }
   else {
-    PLAY_FILE(filename, 0, 0);
+    audioQueue.playFile(filename, 0, 0, volume);
   }
   return 0;
 }
 
 /*luadoc
-@function playNumber(value, unit [, attributes])
+@function playNumber(value, unit [, attributes [, volume]])
 
 Play a numerical value (text to speech)
 
@@ -1393,21 +1509,39 @@ Play a numerical value (text to speech)
  * `0 or not present` plays integral part of the number (for a number 123 it plays 123)
  * `PREC1` plays a number with one decimal place (for a number 123 it plays 12.3)
  * `PREC2` plays a number with two decimal places (for a number 123 it plays 1.23)
+ 
+ @param volume (number):
+ - (1..5) override radio settings Wav volume for the duration of file
+ - omitting the parameter uses radio settings Wav volume
 
-@status current Introduced in 2.0.0
+@retval none 
 
+@status current Introduced in 2.0.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// playNumber(123, 3, 0, 5) -- play number 123, unit mAh, use Wav volume 5
+// playNumber(123, 3, 0, 1) -- play number 123, unit mAh, use Wav volume 1
+// playNumber(123, 3, 0)    -- play number 123, unit mAh, use radio settings Wav volume
 */
+
 static int luaPlayNumber(lua_State * L)
 {
   int number = luaL_checkinteger(L, 1);
   int unit = luaL_checkinteger(L, 2);
   unsigned int att = luaL_optunsigned(L, 3, 0);
-  playNumber(number, unit, att, 0);
+  int volume = luaL_optinteger(L, 4, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
+  playNumber(number, unit, att, 0, volume);
   return 0;
 }
 
 /*luadoc
-@function playDuration(duration [, hourFormat])
+@function playDuration(duration [, hourFormat [, volume]])
 
 Play a time value (text to speech)
 
@@ -1416,19 +1550,38 @@ Play a time value (text to speech)
 @param hourFormat (number):
  * `0 or not present` play format: minutes and seconds.
  * `!= 0` play format: hours, minutes and seconds.
+ * 
+@param volume (number):
+ - (1..5) override radio settings Wav volume for the duration of file
+ - omitting the parameter uses radio settings Wav volume
 
-@status current Introduced in 2.1.0
+@retval none 
+
+@status current Introduced in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// playDuration(101, 0, 5) -- play duration 101s, seconds format, use Wav volume 5
+// playDuration(101, 0, 1) -- play duration 101s, seconds format, use Wav volume 1
+// playDuration(101, 1)    -- play duration 101s, hour format, use radio settings Wav volume
 */
+
 static int luaPlayDuration(lua_State * L)
 {
   int duration = luaL_checkinteger(L, 1);
   bool playTime = (luaL_optinteger(L, 2, 0) != 0);
-  playDuration(duration, playTime ? PLAY_TIME : 0, 0);
+  int volume = luaL_optinteger(L, 3, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
+  playDuration(duration, playTime ? PLAY_TIME : 0, 0, volume);
   return 0;
 }
 
 /*luadoc
-@function playTone(frequency, duration, pause [, flags [, freqIncr]])
+@function playTone(frequency, duration, pause [, flags [, freqIncr [, volume]]])
 
 Play a tone
 
@@ -1447,7 +1600,20 @@ Play a tone
 negative number decreases it. The frequency changes every 10 milliseconds, the change is `freqIncr * 10Hz`.
 The valid range is from -127 to 127.
 
-@status current Introduced in 2.1.0
+@param volume (number):
+ - (1..5) override radio settings Beep volume for the duration of file
+ - omitting the parameter uses radio settings Beep volume
+
+@retval none 
+
+@status current Introduced in 2.1.0, changed in 2.10
+
+// targets: BW, COLOR
+//
+// EXAMPLES:
+// playTone(2550, 160, 20, 3, -10, 5) -- play tone, use Beep volume 5
+// playTone(2550, 160, 20, 3, -10, 1) -- play tone, use Beep volume 1
+// playTone(2550, 160, 20, 3, -10)		-- play tone, use radio settings Beep volume
 */
 static int luaPlayTone(lua_State * L)
 {
@@ -1456,7 +1622,36 @@ static int luaPlayTone(lua_State * L)
   int pause = luaL_checkinteger(L, 3);
   int flags = luaL_optinteger(L, 4, 0);
   int freqIncr = luaL_optinteger(L, 5, 0);
-  audioQueue.playTone(frequency, length, pause, flags, freqIncr);
+  int volume = luaL_optinteger(L, 6, USE_SETTINGS_VOLUME);
+
+  if(volume != USE_SETTINGS_VOLUME)
+    volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
+
+  audioQueue.playTone(frequency, length, pause, flags, freqIncr, volume);
+  return 0;
+}
+
+/*luadoc
+@name screenshot
+
+@description Takes a screenshot, which is saved to the SCREENSHOTS folder on the radio SD card.
+
+@syntax screenshot()
+
+@return none
+
+@notes This command is currently not rate limited, so repeated frequent calls will slow down the UI and can even freeze the entire radio, so should be used with care. 
+
+@target [BW]
+@target [GS]
+@target [COLOR]
+
+@status current Introduced in 2.11
+*/
+static int luaScreenshot(lua_State * L)
+{
+  UNUSED(L);
+  writeScreenshot();
   return 0;
 }
 
@@ -1500,6 +1695,15 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 */
 static int luaKillEvents(lua_State * L)
 {
+#if defined(KEYS_GPIO_REG_MENU)
+  #define IS_MASKABLE(key)                                      \
+    ((key) != KEY_EXIT && (key) != KEY_ENTER &&                 \
+     ((scriptInternalData[0].reference == SCRIPT_STANDALONE) || \
+      (key) != KEY_PAGEDN))
+#else
+  #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
+#endif
+
   event_t key = EVT_KEY_MASK(luaL_checkinteger(L, 1));
   // prevent killing maskable keys (only in telemetry scripts)
   // TODO add which type of script is running before lua_resume()
@@ -1763,7 +1967,7 @@ Get stick that is assigned to a channel. See Default Channel Order in General Se
 static int luaDefaultStick(lua_State * L)
 {
   uint8_t channel = luaL_checkinteger(L, 1);
-  lua_pushinteger(L, channelOrder(channel+1)-1);
+  lua_pushinteger(L, inputMappingChannelOrder(channel));
   return 1;
 }
 
@@ -1778,7 +1982,7 @@ static int luaDefaultStick(lua_State * L)
 
 @param value fed to the sensor
 
-@param unit unit of the sensor [Full list](../appendix/units.html)
+@param unit unit of the sensor [Full list](../../appendix/units.html)
 
 @param precision the precision of the sensor
  * `0 or not present` no decimal precision.
@@ -1821,6 +2025,9 @@ static int luaSetTelemetryValue(lua_State * L)
       telemetrySensor.subId = subId;
       telemetrySensor.instance = instance;
       telemetrySensor.init(name ? name: name_buf, unit, prec);
+      
+      storageDirty(EE_MODEL);
+      
       lua_pushboolean(L, true);
     } else {
       lua_pushboolean(L, false);
@@ -1847,10 +2054,10 @@ Get channel assigned to stick. See Default Channel Order in General Settings
 static int luaDefaultChannel(lua_State * L)
 {
   uint8_t stick = luaL_checkinteger(L, 1);
-  for (int i=1; i<=4; i++) {
-    int tmp = channelOrder(i) - 1;
+  for (int i = 0; i < adcGetMaxInputs(ADC_INPUT_MAIN); i++) {
+    int tmp = inputMappingChannelOrder(i);
     if (tmp == stick) {
-      lua_pushinteger(L, i-1);
+      lua_pushinteger(L, i);
       return 1;
     }
   }
@@ -1893,24 +2100,6 @@ static int luaGetRSSI(lua_State * L)
   lua_pushunsigned(L, g_model.rfAlarms.warning);
   lua_pushunsigned(L, g_model.rfAlarms.critical);
   return 3;
-}
-
-/*luadoc
-@function chdir(directory)
-
- Change the working directory
-
-@param directory (string) New working directory
-
-@status current Introduced in 2.3.0
-
-*/
-
-static int luaChdir(lua_State * L)
-{
-  const char * directory = luaL_optstring(L, 1, nullptr);
-  f_chdir(directory);
-  return 0;
 }
 
 /*luadoc
@@ -2003,7 +2192,15 @@ Get percent of already used Lua instructions in current script execution cycle.
 */
 static int luaGetUsage(lua_State * L)
 {
+#if defined(COLORLCD)
+  if (luaLvglManager && luaLvglManager->useLvglLayout()) {
+    lua_pushinteger(L, luaLvglManager->refreshInstructionsPercent);
+  } else {
+    lua_pushinteger(L, instructionsPercent);
+  }
+#else
   lua_pushinteger(L, instructionsPercent);
+#endif
   return 1;
 }
 
@@ -2103,24 +2300,13 @@ Set baudrate for serial port(s) affected to LUA
 */
 static int luaSetSerialBaudrate(lua_State * L)
 {
-// #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-//   unsigned int baudrate = luaL_checkunsigned(L, 1);
-// #endif
+  int port_nr = serialGetModePort(UART_MODE_LUA);
+  if (port_nr < 0) return 0;
 
-// TODO: add some callbacks for serial settings
-// #if defined(AUX_SERIAL)
-//   if (auxSerialMode == UART_MODE_LUA) {
-//     auxSerialStop();
-//     auxSerialSetup(baudrate, false);
-//   }
-// #endif
-// #if defined(AUX2_SERIAL)
-//   if (aux2SerialMode == UART_MODE_LUA) {
-//     aux2SerialStop();
-//     aux2SerialSetup(baudrate, false);
-//   }
-// #endif
-  return 1;
+  uint32_t baudrate = luaL_checkunsigned(L, 1);
+  serialSetBaudrate(port_nr, baudrate);
+
+  return 0;
 }
 
 /*luadoc
@@ -2166,7 +2352,6 @@ Reads characters from the serial port. The string is allowed to contain any char
 */
 static int luaSerialRead(lua_State * L)
 {
-#if defined(LUA) && !defined(CLI)
   int num = luaL_optunsigned(L, 1, 0);
 
   uint8_t str[LUA_FIFO_SIZE];
@@ -2195,12 +2380,91 @@ static int luaSerialRead(lua_State * L)
     }
   }
   lua_pushlstring(L, (const char*)str, p - str);
-#else
-  lua_pushlstring(L, "", 0);
-#endif
 
   return 1;
 }
+
+#if defined(SWSERIALPOWER) && !defined(SIMU)
+/*luadoc
+@function serialGetPower(port_nr)
+
+@param port_nr: valid values are only 0 and 1 on radios that have SWSERIALPOWER defined
+                0 - first serial port, e.g. on TX16S AUX1
+                1 - second serial port, e.g. on TX16S AUX2
+
+@retval value: true for power enabled, false for power disabled.
+
+@retval nil the serial port power control not available on this radio
+
+@status current Introduced in 2.9.0
+
+*/
+static int luaSerialGetPower(lua_State* L)
+{
+  uint8_t port_nr = luaL_checkunsigned(L, 1) & 0x3;
+
+  #if defined(AUX_SERIAL)
+    if (port_nr == SP_AUX1)
+    {
+      bool res = serialGetPower(SP_AUX1);
+      lua_pushboolean(L, res);
+      return 1;
+    }
+  #endif
+  #if defined(AUX2_SERIAL)
+    if (port_nr == SP_AUX2)
+    {
+      bool res = serialGetPower(SP_AUX2);
+      lua_pushboolean(L, res);
+      return 1;
+    }
+  #endif
+  return 0;
+}
+
+/*luadoc
+@function serialSetPower(port_nr, value)
+
+@param port_nr: valid values are only 0 and 1 on radios that have SWSERIALPOWER defined
+                0 - first serial port, e.g. on TX16S AUX1
+                1 - second serial port, e.g. on TX16S AUX2
+
+@param value: 0 - disable power
+              1 - enable power
+
+@retval success: true/false.
+
+@status current Introduced in 2.9.0
+
+*/
+static int luaSerialSetPower(lua_State* L)
+{
+  uint8_t port_nr = luaL_checkunsigned(L, 1) & 0x3;
+  uint8_t value = luaL_checkunsigned(L, 2) & 0x3;
+
+  if (value < 2)
+  {
+  #if defined(AUX_SERIAL)
+    if (port_nr == SP_AUX1)
+    {
+      serialSetPower(SP_AUX1, value);
+      lua_pushboolean(L, true);
+      return 1;
+    }
+  #endif
+  #if defined(AUX2_SERIAL)
+    if (port_nr == SP_AUX2)
+    {
+      serialSetPower(SP_AUX2, value);
+      lua_pushboolean(L, true);
+      return 1;
+    }
+  #endif
+  }
+  lua_pushboolean(L, false);
+  return 1;
+}
+#endif
 
 #if defined(COLORLCD)
 static int shmVar[16] = {0};
@@ -2587,7 +2851,7 @@ static int luaSources(lua_State * L)
 static int luaGetOutputValue(lua_State * L)
 {
   mixsrc_t idx = luaL_checkinteger(L, 1);
-  if (idx >= 0 && idx < MAX_OUTPUT_CHANNELS) {
+  if (idx < MAX_OUTPUT_CHANNELS) {           // mixsrc_t is unsigned, no need to check for <0
     lua_pushinteger(L, channelOutputs[idx]);
   } else {
     lua_pushinteger(L, 0);
@@ -2595,501 +2859,435 @@ static int luaGetOutputValue(lua_State * L)
   return 1;
 }
 
-const luaL_Reg opentxLib[] = {
-  { "getTime", luaGetTime },
-  { "getDateTime", luaGetDateTime },
+/*luadoc
+@function getTrainerStatus()
+
+@retval value current output value (number).
+ 0 - Not Connected
+ 1 - Connected
+ 2 - Disconnected
+ 3 - Reconnected
+
+@status current Introduced in 2.9.0
+*/
+static int luaGetTrainerStatus(lua_State * L)
+{
+  extern uint8_t trainerStatus;
+  lua_pushinteger(L, trainerStatus);
+  return 1;
+}
+
+#if defined(LED_STRIP_GPIO)
+/*luadoc
+@function setRGBLedColor(id, rvalue, bvalue, cvalue)
+
+@param id: integer identifying a led in the led chain
+
+@param rvalue: interger, value of red channel
+
+@param gvalue: interger, value of green channel
+
+@param bvalue: interger, value of blue channel
+
+@status current Introduced in 2.10
+*/
+
+static int luaSetRgbLedColor(lua_State * L)
+{
+  uint8_t id = luaL_checkunsigned(L, 1);
+  uint8_t r = luaL_checkunsigned(L, 2);
+  uint8_t g = luaL_checkunsigned(L, 3);
+  uint8_t b = luaL_checkunsigned(L, 4);
+
+  rgbSetLedColor(id, r, g, b);
+
+  return 1;
+}
+
+/*luadoc
+@function applyRGBLedColors()
+
+ Apply RGB led colors previously defined by setRGBLedColor
+
+@status current Introduced in 2.10
+*/
+
+static int luaApplyRGBLedColors(lua_State * L)
+{
+
+  rgbLedColorApply();
+
+  return 1;
+}
+
+#endif
+
+#define KEY_EVENTS(xxx, yyy)                                    \
+  { "EVT_"#xxx"_FIRST", LRO_NUMVAL(EVT_KEY_FIRST(yyy)) },       \
+  { "EVT_"#xxx"_BREAK", LRO_NUMVAL(EVT_KEY_BREAK(yyy)) },       \
+  { "EVT_"#xxx"_LONG",  LRO_NUMVAL(EVT_KEY_LONG(yyy)) },        \
+  { "EVT_"#xxx"_REPT",  LRO_NUMVAL(EVT_KEY_REPT(yyy)) },
+
+LROT_BEGIN(etxlib, NULL, 0)
+  LROT_FUNCENTRY( getTime, luaGetTime )
+  LROT_FUNCENTRY( getDateTime, luaGetDateTime )
 #if defined(RTCLOCK)
-  { "getRtcTime", luaGetRtcTime },
+  LROT_FUNCENTRY( getRtcTime, luaGetRtcTime )
 #endif
-  { "getVersion", luaGetVersion },
-  { "getGeneralSettings", luaGetGeneralSettings },
-  { "getGlobalTimer", luaGetGlobalTimer },
-  { "getRotEncSpeed", luaGetRotEncSpeed },
-  { "getRotEncMode", luaGetRotEncMode },
-  { "getValue", luaGetValue },
-  { "getOutputValue", luaGetOutputValue },
-  { "getSourceValue", luaGetSourceValue },
-  { "getRAS", luaGetRAS },
-  { "getTxGPS", luaGetTxGPS },
-  { "getFieldInfo", luaGetFieldInfo },
-  { "getSourceInfo", luaGetFieldInfo },
-  { "getFlightMode", luaGetFlightMode },
-  { "playFile", luaPlayFile },
-  { "playNumber", luaPlayNumber },
-  { "playDuration", luaPlayDuration },
-  { "playTone", luaPlayTone },
-  { "playHaptic", luaPlayHaptic },
-  { "flushAudio", luaFlushAudio },
+  LROT_FUNCENTRY( getVersion, luaGetVersion )
+  LROT_FUNCENTRY( getGeneralSettings, luaGetGeneralSettings )
+  LROT_FUNCENTRY( getGlobalTimer, luaGetGlobalTimer )
+  LROT_FUNCENTRY( getRotEncSpeed, luaGetRotEncSpeed )
+  LROT_FUNCENTRY( getRotEncMode, luaGetRotEncMode )
+  LROT_FUNCENTRY( getValue, luaGetValue )
+  LROT_FUNCENTRY( getOutputValue, luaGetOutputValue )
+  LROT_FUNCENTRY( getSourceValue, luaGetSourceValue )
+  LROT_FUNCENTRY( getTrainerStatus, luaGetTrainerStatus )
+  LROT_FUNCENTRY( getRAS, luaGetRAS )
+  LROT_FUNCENTRY( getTxGPS, luaGetTxGPS )
+  LROT_FUNCENTRY( getFieldInfo, luaGetFieldInfo )
+  LROT_FUNCENTRY( getSourceInfo, luaGetFieldInfo )
+  LROT_FUNCENTRY( getFlightMode, luaGetFlightMode )
+  LROT_FUNCENTRY( playFile, luaPlayFile )
+  LROT_FUNCENTRY( playNumber, luaPlayNumber )
+  LROT_FUNCENTRY( playDuration, luaPlayDuration )
+  LROT_FUNCENTRY( playTone, luaPlayTone )
+  LROT_FUNCENTRY( playHaptic, luaPlayHaptic )
+  LROT_FUNCENTRY( flushAudio, luaFlushAudio )
+  LROT_FUNCENTRY( screenshot, luaScreenshot )
 #if defined(ENABLE_LUA_POPUP_INPUT)
-  { "popupInput", luaPopupInput },
+  LROT_FUNCENTRY( popupInput, luaPopupInput )
 #endif
-  { "popupWarning", luaPopupWarning },
-  { "popupConfirmation", luaPopupConfirmation },
-  { "defaultStick", luaDefaultStick },
-  { "defaultChannel", luaDefaultChannel },
-  { "getRSSI", luaGetRSSI },
-  { "killEvents", luaKillEvents },
-  { "dir", luaDir },
-  { "fstat", luaFstat },
-  { "chdir", luaChdir },
-  { "loadScript", luaLoadScript },
-  { "getUsage", luaGetUsage },
-  { "getAvailableMemory", luaGetAvailableMemory },
-  { "resetGlobalTimer", luaResetGlobalTimer },
+  LROT_FUNCENTRY( popupWarning, luaPopupWarning )
+  LROT_FUNCENTRY( popupConfirmation, luaPopupConfirmation )
+  LROT_FUNCENTRY( defaultStick, luaDefaultStick )
+  LROT_FUNCENTRY( defaultChannel, luaDefaultChannel )
+  LROT_FUNCENTRY( getRSSI, luaGetRSSI )
+  LROT_FUNCENTRY( killEvents, luaKillEvents )
+  LROT_FUNCENTRY( loadScript, luaLoadScript )
+  LROT_FUNCENTRY( getUsage, luaGetUsage )
+  LROT_FUNCENTRY( getAvailableMemory, luaGetAvailableMemory )
+  LROT_FUNCENTRY( resetGlobalTimer, luaResetGlobalTimer )
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
-  { "GREY", luaGrey },
+  LROT_FUNCENTRY( GREY, luaGrey )
 #endif
 #if defined(PXX2)
-  { "accessTelemetryPush", luaAccessTelemetryPush },
+  LROT_FUNCENTRY( accessTelemetryPush, luaAccessTelemetryPush )
 #endif
-  { "sportTelemetryPop", luaSportTelemetryPop },
-  { "sportTelemetryPush", luaSportTelemetryPush },
-  { "setTelemetryValue", luaSetTelemetryValue },
+  LROT_FUNCENTRY( sportTelemetryPop, luaSportTelemetryPop )
+  LROT_FUNCENTRY( sportTelemetryPush, luaSportTelemetryPush )
+  LROT_FUNCENTRY( setTelemetryValue, luaSetTelemetryValue )
 #if defined(CROSSFIRE)
-  { "crossfireTelemetryPop", luaCrossfireTelemetryPop },
-  { "crossfireTelemetryPush", luaCrossfireTelemetryPush },
+  LROT_FUNCENTRY( crossfireTelemetryPop, luaCrossfireTelemetryPop )
+  LROT_FUNCENTRY( crossfireTelemetryPush, luaCrossfireTelemetryPush )
 #endif
 #if defined(GHOST)
-  { "ghostTelemetryPop", luaGhostTelemetryPop },
-  { "ghostTelemetryPush", luaGhostTelemetryPush },
+  LROT_FUNCENTRY( ghostTelemetryPop, luaGhostTelemetryPop )
+  LROT_FUNCENTRY( ghostTelemetryPush, luaGhostTelemetryPush )
 #endif
 #if defined(MULTIMODULE)
-  { "multiBuffer", luaMultiBuffer },
+  LROT_FUNCENTRY( multiBuffer, luaMultiBuffer )
 #endif
-  { "setSerialBaudrate", luaSetSerialBaudrate },
-  { "serialWrite", luaSerialWrite },
-  { "serialRead", luaSerialRead },
+  LROT_FUNCENTRY( setSerialBaudrate, luaSetSerialBaudrate )
+  LROT_FUNCENTRY( serialWrite, luaSerialWrite )
+  LROT_FUNCENTRY( serialRead, luaSerialRead )
+#if defined(SWSERIALPOWER) && !defined(SIMU)
+  LROT_FUNCENTRY( serialGetPower, luaSerialGetPower )
+  LROT_FUNCENTRY( serialSetPower, luaSerialSetPower )
+#endif
 #if defined(COLORLCD)
-  { "setShmVar", luaSetShmVar },
-  { "getShmVar", luaGetShmVar },
+  LROT_FUNCENTRY( setShmVar, luaSetShmVar )
+  LROT_FUNCENTRY( getShmVar, luaGetShmVar )
 #endif
-  { "setStickySwitch", luaSetStickySwitch },
-  { "getLogicalSwitchValue", luaGetLogicalSwitchValue },
-  { "getSwitchIndex", luaGetSwitchIndex },
-  { "getSwitchName", luaGetSwitchName },
-  { "getSwitchValue", luaGetSwitchValue },
-  { "switches", luaSwitches },
-  { "getSourceIndex", luaGetSourceIndex },
-  { "getSourceName", luaGetSourceName },
-  { "sources", luaSources },
-  { nullptr, nullptr }  /* sentinel */
-};
+  LROT_FUNCENTRY( setStickySwitch, luaSetStickySwitch )
+  LROT_FUNCENTRY( getLogicalSwitchValue, luaGetLogicalSwitchValue )
+  LROT_FUNCENTRY( getSwitchIndex, luaGetSwitchIndex )
+  LROT_FUNCENTRY( getSwitchName, luaGetSwitchName )
+  LROT_FUNCENTRY( getSwitchValue, luaGetSwitchValue )
+  LROT_FUNCENTRY( switches, luaSwitches )
+  LROT_FUNCENTRY( getSourceIndex, luaGetSourceIndex )
+  LROT_FUNCENTRY( getSourceName, luaGetSourceName )
+  LROT_FUNCENTRY( sources, luaSources )
+#if defined(LED_STRIP_GPIO)
+  LROT_FUNCENTRY(setRGBLedColor, luaSetRgbLedColor )
+  LROT_FUNCENTRY(applyRGBLedColors, luaApplyRGBLedColors )
+#endif
+LROT_END(etxlib, NULL, 0)
 
-const luaR_value_entry opentxConstants[] = {
-  { "FULLSCALE", RESX },
+LROT_BEGIN(etxcst, NULL, 0)
+  // Constants
+  LROT_NUMENTRY( FULLSCALE, RESX )
 #if defined(COLORLCD)
-  { "XXLSIZE", FONT(XXL) },
-  { "DBLSIZE", FONT(XL) },
-  { "MIDSIZE", FONT(L) },
-  { "SMLSIZE", FONT(XS) },
-  { "TINSIZE", FONT(XXS) },
-  { "BLINK", BLINK },
-  { "INVERS", INVERS },
+  LROT_NUMENTRY( STDSIZE, FONT(STD) )
+  LROT_NUMENTRY( XXLSIZE, FONT(XXL) )
+  LROT_NUMENTRY( DBLSIZE, FONT(XL) )
+  LROT_NUMENTRY( MIDSIZE, FONT(L) )
+  LROT_NUMENTRY( SMLSIZE, FONT(XS) )
+  LROT_NUMENTRY( TINSIZE, FONT(XXS) )
+  LROT_NUMENTRY( BOLD, FONT(BOLD) )
+  LROT_NUMENTRY( BLINK, BLINK )
+  LROT_NUMENTRY( INVERS, INVERS )
+  LROT_NUMENTRY( VCENTER, VCENTERED )
 #else
-  { "XXLSIZE", XXLSIZE },
-  { "DBLSIZE", DBLSIZE },
-  { "MIDSIZE", MIDSIZE },
-  { "SMLSIZE", SMLSIZE },
-  { "BLINK", BLINK },
-  { "INVERS", INVERS },
+  LROT_NUMENTRY( XXLSIZE, XXLSIZE )
+  LROT_NUMENTRY( DBLSIZE, DBLSIZE )
+  LROT_NUMENTRY( MIDSIZE, MIDSIZE )
+  LROT_NUMENTRY( SMLSIZE, SMLSIZE )
+  LROT_NUMENTRY( BOLD, BOLD )
+  LROT_NUMENTRY( BLINK, BLINK )
+  LROT_NUMENTRY( INVERS, INVERS )
+#endif
+  LROT_NUMENTRY( RIGHT, RIGHT )
+  LROT_NUMENTRY( LEFT, LEFT )
+  LROT_NUMENTRY( CENTER, CENTERED )
+  LROT_NUMENTRY( PREC1, PREC1 )
+  LROT_NUMENTRY( PREC2, PREC2 )
+  LROT_NUMENTRY( VALUE, INPUT_TYPE_VALUE )
+  LROT_NUMENTRY( SOURCE, INPUT_TYPE_SOURCE )
+  LROT_NUMENTRY( REPLACE, MLTPX_REPL )
+  LROT_NUMENTRY( MIXSRC_MIN, MIXSRC_MIN )
+  LROT_NUMENTRY( MIXSRC_MAX, MIXSRC_MAX )
+  LROT_NUMENTRY( MIXSRC_FIRST_INPUT, MIXSRC_FIRST_INPUT )
+  #include "lua_mixsrc.inc"
+  LROT_NUMENTRY( MIXSRC_CH1, MIXSRC_FIRST_CH )
+  LROT_NUMENTRY( SWSRC_LAST, SWSRC_LAST_LOGICAL_SWITCH )
+  LROT_NUMENTRY( SWITCH_COUNT, SWSRC_COUNT )
+  LROT_NUMENTRY( MAX_SENSORS, MAX_TELEMETRY_SENSORS )
+
+  LROT_NUMENTRY( MAX_OUTPUT_CHANNELS, MAX_OUTPUT_CHANNELS )
+  LROT_NUMENTRY( LIMIT_EXT_PERCENT, LIMIT_EXT_PERCENT )
+  LROT_NUMENTRY( LIMIT_STD_PERCENT, LIMIT_STD_PERCENT )
+
+  LROT_NUMENTRY( LS_FUNC_NONE, LS_FUNC_NONE )
+  LROT_NUMENTRY( LS_FUNC_VEQUAL, LS_FUNC_VEQUAL )
+  LROT_NUMENTRY( LS_FUNC_VALMOSTEQUAL, LS_FUNC_VALMOSTEQUAL )
+  LROT_NUMENTRY( LS_FUNC_VPOS, LS_FUNC_VPOS )
+  LROT_NUMENTRY( LS_FUNC_VNEG, LS_FUNC_VNEG )
+  LROT_NUMENTRY( LS_FUNC_APOS, LS_FUNC_APOS )
+  LROT_NUMENTRY( LS_FUNC_ANEG, LS_FUNC_ANEG )
+  LROT_NUMENTRY( LS_FUNC_AND, LS_FUNC_AND )
+  LROT_NUMENTRY( LS_FUNC_OR, LS_FUNC_OR )
+  LROT_NUMENTRY( LS_FUNC_XOR, LS_FUNC_XOR )
+  LROT_NUMENTRY( LS_FUNC_EDGE, LS_FUNC_EDGE )
+  LROT_NUMENTRY( LS_FUNC_EQUAL, LS_FUNC_EQUAL )
+  LROT_NUMENTRY( LS_FUNC_GREATER, LS_FUNC_GREATER )
+  LROT_NUMENTRY( LS_FUNC_LESS, LS_FUNC_LESS )
+  LROT_NUMENTRY( LS_FUNC_DIFFEGREATER, LS_FUNC_DIFFEGREATER )
+  LROT_NUMENTRY( LS_FUNC_ADIFFEGREATER, LS_FUNC_ADIFFEGREATER )
+  LROT_NUMENTRY( LS_FUNC_TIMER, LS_FUNC_TIMER )
+  LROT_NUMENTRY( LS_FUNC_STICKY, LS_FUNC_STICKY )
+
+  LROT_NUMENTRY( FUNC_OVERRIDE_CHANNEL, FUNC_OVERRIDE_CHANNEL )
+  LROT_NUMENTRY( FUNC_TRAINER, FUNC_TRAINER )
+  LROT_NUMENTRY( FUNC_INSTANT_TRIM, FUNC_INSTANT_TRIM )
+  LROT_NUMENTRY( FUNC_RESET, FUNC_RESET )
+  LROT_NUMENTRY( FUNC_SET_TIMER, FUNC_SET_TIMER )
+  LROT_NUMENTRY( FUNC_ADJUST_GVAR, FUNC_ADJUST_GVAR )
+  LROT_NUMENTRY( FUNC_VOLUME, FUNC_VOLUME )
+  LROT_NUMENTRY( FUNC_SET_FAILSAFE, FUNC_SET_FAILSAFE )
+  LROT_NUMENTRY( FUNC_RANGECHECK, FUNC_RANGECHECK )
+  LROT_NUMENTRY( FUNC_BIND, FUNC_BIND )
+  LROT_NUMENTRY( FUNC_PLAY_SOUND, FUNC_PLAY_SOUND )
+  LROT_NUMENTRY( FUNC_PLAY_TRACK, FUNC_PLAY_TRACK )
+  LROT_NUMENTRY( FUNC_PLAY_VALUE, FUNC_PLAY_VALUE )
+  LROT_NUMENTRY( FUNC_PLAY_SCRIPT, FUNC_PLAY_SCRIPT )
+  LROT_NUMENTRY( FUNC_BACKGND_MUSIC, FUNC_BACKGND_MUSIC )
+  LROT_NUMENTRY( FUNC_BACKGND_MUSIC_PAUSE, FUNC_BACKGND_MUSIC_PAUSE )
+  LROT_NUMENTRY( FUNC_VARIO, FUNC_VARIO )
+  LROT_NUMENTRY( FUNC_HAPTIC, FUNC_HAPTIC )
+  LROT_NUMENTRY( FUNC_LOGS, FUNC_LOGS )
+  LROT_NUMENTRY( FUNC_BACKLIGHT, FUNC_BACKLIGHT )
+  LROT_NUMENTRY( FUNC_SCREENSHOT, FUNC_SCREENSHOT )
+  LROT_NUMENTRY( FUNC_RACING_MODE, FUNC_RACING_MODE )
+#if defined(FUNCTION_SWITCHES)
+  LROT_NUMENTRY( FUNC_PUSH_CUST_SWITCH, FUNC_PUSH_CUST_SWITCH )
 #endif
 #if defined(COLORLCD)
-  { "BOLD", FONT(BOLD) },
-  { "VCENTER", VCENTERED },
-#else
-  { "BOLD", BOLD },
-#endif
-  { "RIGHT", RIGHT },
-  { "LEFT", LEFT },
-  { "CENTER", CENTERED },
-  { "PREC1", PREC1 },
-  { "PREC2", PREC2 },
-  { "VALUE", INPUT_TYPE_VALUE },
-  { "SOURCE", INPUT_TYPE_SOURCE },
-  { "REPLACE", MLTPX_REPL },
-  { "MIXSRC_MAX", MIXSRC_MAX },
-  { "MIXSRC_FIRST_INPUT", MIXSRC_FIRST_INPUT },
-  { "MIXSRC_Rud", MIXSRC_Rud },
-  { "MIXSRC_Ele", MIXSRC_Ele },
-  { "MIXSRC_Thr", MIXSRC_Thr },
-  { "MIXSRC_Ail", MIXSRC_Ail },
-  { "MIXSRC_SA", MIXSRC_SA },
-  { "MIXSRC_SB", MIXSRC_SB },
-  { "MIXSRC_SC", MIXSRC_SC },
-  { "MIXSRC_SD", MIXSRC_SD },
-#if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBX9LITE)
-  { "MIXSRC_SE", MIXSRC_SE },
-  { "MIXSRC_SG", MIXSRC_SG },
-#endif
-#if defined(HARDWARE_SWITCH_F)
-  { "MIXSRC_SF", MIXSRC_SF },
-#endif
-#if defined(HARDWARE_SWITCH_H)
-  { "MIXSRC_SH", MIXSRC_SH },
-#endif
-  { "MIXSRC_CH1", MIXSRC_CH1 },
-  { "SWSRC_LAST", SWSRC_LAST_LOGICAL_SWITCH },
-  { "SWITCH_COUNT", SWSRC_COUNT },
-  { "MAX_SENSORS", MAX_TELEMETRY_SENSORS },
+  LROT_NUMENTRY( FUNC_DISABLE_TOUCH, FUNC_DISABLE_TOUCH )
+  LROT_NUMENTRY( FUNC_SET_SCREEN, FUNC_SET_SCREEN )
 
-  { "MAX_OUTPUT_CHANNELS", MAX_OUTPUT_CHANNELS },
-  { "LIMIT_EXT_PERCENT", LIMIT_EXT_PERCENT },
-  { "LIMIT_STD_PERCENT", LIMIT_STD_PERCENT },
-
-  { "LS_FUNC_NONE", LS_FUNC_NONE },
-  { "LS_FUNC_VEQUAL", LS_FUNC_VEQUAL },
-  { "LS_FUNC_VALMOSTEQUAL", LS_FUNC_VALMOSTEQUAL },
-  { "LS_FUNC_VPOS", LS_FUNC_VPOS },
-  { "LS_FUNC_VNEG", LS_FUNC_VNEG },
-  { "LS_FUNC_RANGE", LS_FUNC_RANGE },
-  { "LS_FUNC_APOS", LS_FUNC_APOS },
-  { "LS_FUNC_ANEG", LS_FUNC_ANEG },
-  { "LS_FUNC_AND", LS_FUNC_AND },
-  { "LS_FUNC_OR", LS_FUNC_OR },
-  { "LS_FUNC_XOR", LS_FUNC_XOR },
-  { "LS_FUNC_EDGE", LS_FUNC_EDGE },
-  { "LS_FUNC_EQUAL", LS_FUNC_EQUAL },
-  { "LS_FUNC_GREATER", LS_FUNC_GREATER },
-  { "LS_FUNC_LESS", LS_FUNC_LESS },
-  { "LS_FUNC_DIFFEGREATER", LS_FUNC_DIFFEGREATER },
-  { "LS_FUNC_ADIFFEGREATER", LS_FUNC_ADIFFEGREATER },
-  { "LS_FUNC_TIMER", LS_FUNC_TIMER },
-  { "LS_FUNC_STICKY", LS_FUNC_STICKY },
-
-  { "FUNC_OVERRIDE_CHANNEL", FUNC_OVERRIDE_CHANNEL },
-  { "FUNC_TRAINER", FUNC_TRAINER },
-  { "FUNC_INSTANT_TRIM", FUNC_INSTANT_TRIM },
-  { "FUNC_RESET", FUNC_RESET },
-  { "FUNC_SET_TIMER", FUNC_SET_TIMER },
-  { "FUNC_ADJUST_GVAR", FUNC_ADJUST_GVAR },
-  { "FUNC_VOLUME", FUNC_VOLUME },
-  { "FUNC_SET_FAILSAFE", FUNC_SET_FAILSAFE },
-  { "FUNC_RANGECHECK", FUNC_RANGECHECK },
-  { "FUNC_BIND", FUNC_BIND },
-  { "FUNC_PLAY_SOUND", FUNC_PLAY_SOUND },
-  { "FUNC_PLAY_TRACK", FUNC_PLAY_TRACK },
-  { "FUNC_PLAY_VALUE", FUNC_PLAY_VALUE },
-  { "FUNC_PLAY_SCRIPT", FUNC_PLAY_SCRIPT },
-  { "FUNC_BACKGND_MUSIC", FUNC_BACKGND_MUSIC },
-  { "FUNC_BACKGND_MUSIC_PAUSE", FUNC_BACKGND_MUSIC_PAUSE },
-  { "FUNC_VARIO", FUNC_VARIO },
-  { "FUNC_HAPTIC", FUNC_HAPTIC },
-  { "FUNC_LOGS", FUNC_LOGS },
-  { "FUNC_BACKLIGHT", FUNC_BACKLIGHT },
-  { "FUNC_SCREENSHOT", FUNC_SCREENSHOT },
-  { "FUNC_RACING_MODE", FUNC_RACING_MODE },
-#if defined(COLORLCD)
-  { "FUNC_DISABLE_TOUCH", FUNC_DISABLE_TOUCH },
-  { "FUNC_SET_SCREEN", FUNC_SET_SCREEN },
-
-  { "SHADOWED", SHADOWED },
-  { "COLOR", ZoneOption::Color },
-  { "BOOL", ZoneOption::Bool },
-  { "STRING", ZoneOption::String },
-  { "TIMER", ZoneOption::Timer },
-  { "TEXT_SIZE", ZoneOption::TextSize },
-  { "MENU_HEADER_HEIGHT", COLOR2FLAGS(MENU_HEADER_HEIGHT) },
+  LROT_NUMENTRY( SHADOWED, SHADOWED )
+  // ZoneType::Integer == INPUT_TYPE_VALUE - use VALUE in widget options
+  // ZoneType::Source == INPUT_TYPE_SOURCE - use SOURCE in widget options
+  LROT_NUMENTRY( COLOR, ZoneOption::Color )
+  LROT_NUMENTRY( BOOL, ZoneOption::Bool )
+  LROT_NUMENTRY( STRING, ZoneOption::String )
+  LROT_NUMENTRY( TIMER, ZoneOption::Timer )
+  LROT_NUMENTRY( TEXT_SIZE, ZoneOption::TextSize )
+  LROT_NUMENTRY( ALIGNMENT, ZoneOption::Align )
+  LROT_NUMENTRY( SWITCH, ZoneOption::Switch )
+  LROT_NUMENTRY( SLIDER, ZoneOption::Slider )
+  LROT_NUMENTRY( CHOICE, ZoneOption::Choice )
+  LROT_NUMENTRY( MENU_HEADER_HEIGHT, COLOR2FLAGS(EdgeTxStyles::MENU_HEADER_HEIGHT) )
 
   // Colors gui/colorlcd/colors.h
-  { "COLOR_THEME_PRIMARY1", COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX) },
-  { "COLOR_THEME_PRIMARY2", COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) },
-  { "COLOR_THEME_PRIMARY3", COLOR2FLAGS(COLOR_THEME_PRIMARY3_INDEX) },
-  { "COLOR_THEME_SECONDARY1", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "COLOR_THEME_SECONDARY2", COLOR2FLAGS(COLOR_THEME_SECONDARY2_INDEX) },
-  { "COLOR_THEME_SECONDARY3", COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) },
-  { "COLOR_THEME_FOCUS", COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) },
-  { "COLOR_THEME_EDIT", COLOR2FLAGS(COLOR_THEME_EDIT_INDEX) },
-  { "COLOR_THEME_ACTIVE", COLOR2FLAGS(COLOR_THEME_ACTIVE_INDEX) },
-  { "COLOR_THEME_WARNING", COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) },
-  { "COLOR_THEME_DISABLED", COLOR2FLAGS(COLOR_THEME_DISABLED_INDEX) },
-  { "CUSTOM_COLOR", COLOR2FLAGS(CUSTOM_COLOR_INDEX) },
+  LROT_NUMENTRY( COLOR_THEME_PRIMARY1, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_PRIMARY2, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_PRIMARY3, COLOR2FLAGS(COLOR_THEME_PRIMARY3_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_SECONDARY1, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_SECONDARY2, COLOR2FLAGS(COLOR_THEME_SECONDARY2_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_SECONDARY3, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_FOCUS, COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_EDIT, COLOR2FLAGS(COLOR_THEME_EDIT_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_ACTIVE, COLOR2FLAGS(COLOR_THEME_ACTIVE_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_WARNING, COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) )
+  LROT_NUMENTRY( COLOR_THEME_DISABLED, COLOR2FLAGS(COLOR_THEME_DISABLED_INDEX) )
+  LROT_NUMENTRY( CUSTOM_COLOR, COLOR2FLAGS(CUSTOM_COLOR_INDEX) )
 
   // Old style theme color constants
-  { "ALARM_COLOR", COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) },
-  { "BARGRAPH_BGCOLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) },
-  { "BARGRAPH1_COLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "BARGRAPH2_COLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY2_INDEX) },
-  { "CURVE_AXIS_COLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY2_INDEX) },
-  { "CURVE_COLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "CURVE_CURSOR_COLOR", COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) },
-  { "HEADER_BGCOLOR", COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) },
-  { "HEADER_COLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "HEADER_CURRENT_BGCOLOR", COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) },
-  { "HEADER_ICON_BGCOLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "LINE_COLOR", COLOR2FLAGS(COLOR_THEME_PRIMARY3_INDEX) },
-  { "MAINVIEW_GRAPHICS_COLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "MAINVIEW_PANES_COLOR", COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) },
-  { "MENU_TITLE_BGCOLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "MENU_TITLE_COLOR", COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) },
-  { "MENU_TITLE_DISABLE_COLOR", COLOR2FLAGS(COLOR_THEME_PRIMARY3_INDEX) },
-  { "OVERLAY_COLOR", COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX) },
-  { "SCROLLBOX_COLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) },
-  { "TEXT_BGCOLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) },
-  { "TEXT_COLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "TEXT_DISABLE_COLOR", COLOR2FLAGS(COLOR_THEME_DISABLED_INDEX) },
-  { "TEXT_INVERTED_BGCOLOR", COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) },
-  { "TEXT_INVERTED_COLOR", COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) },
-  { "TITLE_BGCOLOR", COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) },
-  { "TRIM_BGCOLOR", COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) },
-  { "TRIM_SHADOW_COLOR", COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX) },
-  { "WARNING_COLOR", COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) },
+  LROT_NUMENTRY( ALARM_COLOR, COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) )
+  LROT_NUMENTRY( BARGRAPH_BGCOLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) )
+  LROT_NUMENTRY( BARGRAPH1_COLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( BARGRAPH2_COLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY2_INDEX) )
+  LROT_NUMENTRY( CURVE_AXIS_COLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY2_INDEX) )
+  LROT_NUMENTRY( CURVE_COLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( CURVE_CURSOR_COLOR, COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) )
+  LROT_NUMENTRY( HEADER_BGCOLOR, COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) )
+  LROT_NUMENTRY( HEADER_COLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( HEADER_CURRENT_BGCOLOR, COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) )
+  LROT_NUMENTRY( HEADER_ICON_BGCOLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( LINE_COLOR, COLOR2FLAGS(COLOR_THEME_PRIMARY3_INDEX) )
+  LROT_NUMENTRY( MAINVIEW_GRAPHICS_COLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( MAINVIEW_PANES_COLOR, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) )
+  LROT_NUMENTRY( MENU_TITLE_BGCOLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( MENU_TITLE_COLOR, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) )
+  LROT_NUMENTRY( MENU_TITLE_DISABLE_COLOR, COLOR2FLAGS(COLOR_THEME_PRIMARY3_INDEX) )
+  LROT_NUMENTRY( OVERLAY_COLOR, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX) )
+  LROT_NUMENTRY( SCROLLBOX_COLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) )
+  LROT_NUMENTRY( TEXT_BGCOLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX) )
+  LROT_NUMENTRY( TEXT_COLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( TEXT_DISABLE_COLOR, COLOR2FLAGS(COLOR_THEME_DISABLED_INDEX) )
+  LROT_NUMENTRY( TEXT_INVERTED_BGCOLOR, COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) )
+  LROT_NUMENTRY( TEXT_INVERTED_COLOR, COLOR2FLAGS(COLOR_THEME_PRIMARY2_INDEX) )
+  LROT_NUMENTRY( TITLE_BGCOLOR, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX) )
+  LROT_NUMENTRY( TRIM_BGCOLOR, COLOR2FLAGS(COLOR_THEME_FOCUS_INDEX) )
+  LROT_NUMENTRY( TRIM_SHADOW_COLOR, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX) )
+  LROT_NUMENTRY( WARNING_COLOR, COLOR2FLAGS(COLOR_THEME_WARNING_INDEX) )
 
   // Literal colors
-  { "BLACK", RGB2FLAGS(0x00, 0x00, 0x00) },
-  { "WHITE", RGB2FLAGS(0xFF, 0xFF, 0xFF) },
-  { "LIGHTWHITE", RGB2FLAGS(0xEA, 0xEA, 0xEA) },
-  { "YELLOW", RGB2FLAGS(0xFF, 0xFF, 0x00) },
-  { "BLUE", RGB2FLAGS(0x00, 0x00, 0xFF) },
-  { "DARKBLUE", RGB2FLAGS(0x00, 0x00, 0xA0) },
-  { "GREY", RGB2FLAGS(0x60, 0x60, 0x60) },
-  { "DARKGREY", RGB2FLAGS(0x40, 0x40, 0x40) },
-  { "LIGHTGREY", RGB2FLAGS(0xC0, 0xC0, 0xC0) },
-  { "RED", RGB2FLAGS(0xFF, 0x00, 0x00) },
-  { "DARKRED", RGB2FLAGS(0xA0, 0x00, 0x00) },
-  { "GREEN", RGB2FLAGS(0x00, 0xFF, 0x00) },
-  { "DARKGREEN", RGB2FLAGS(0x00, 0xA0, 0x00) },
-  { "LIGHTBROWN", RGB2FLAGS(0x9C, 0x6D, 0x20) },
-  { "DARKBROWN", RGB2FLAGS(0x6A, 0x48, 0x10) },
-  { "BRIGHTGREEN", RGB2FLAGS(0x00, 0xB4, 0x3C) },
-  { "ORANGE", RGB2FLAGS(0xE5, 0x64, 0x1E) },
+  LROT_NUMENTRY( BLACK, COLOR2FLAGS(COLOR_BLACK_INDEX) )
+  LROT_NUMENTRY( WHITE, COLOR2FLAGS(COLOR_WHITE_INDEX) )
+  LROT_NUMENTRY( LIGHTWHITE, RGB2FLAGS(0xEA, 0xEA, 0xEA) )
+  LROT_NUMENTRY( YELLOW, RGB2FLAGS(0xFF, 0xFF, 0x00) )
+  LROT_NUMENTRY( BLUE, RGB2FLAGS(0x00, 0x00, 0xFF) )
+  LROT_NUMENTRY( DARKBLUE, RGB2FLAGS(0x00, 0x00, 0xA0) )
+  LROT_NUMENTRY( GREY, RGB2FLAGS(0x60, 0x60, 0x60) )
+  LROT_NUMENTRY( DARKGREY, RGB2FLAGS(0x40, 0x40, 0x40) )
+  LROT_NUMENTRY( LIGHTGREY, RGB2FLAGS(0xC0, 0xC0, 0xC0) )
+  LROT_NUMENTRY( RED, RGB2FLAGS(0xFF, 0x00, 0x00) )
+  LROT_NUMENTRY( DARKRED, RGB2FLAGS(0xA0, 0x00, 0x00) )
+  LROT_NUMENTRY( GREEN, RGB2FLAGS(0x00, 0xFF, 0x00) )
+  LROT_NUMENTRY( DARKGREEN, RGB2FLAGS(0x00, 0xA0, 0x00) )
+  LROT_NUMENTRY( LIGHTBROWN, RGB2FLAGS(0x9C, 0x6D, 0x20) )
+  LROT_NUMENTRY( DARKBROWN, RGB2FLAGS(0x6A, 0x48, 0x10) )
+  LROT_NUMENTRY( BRIGHTGREEN, RGB2FLAGS(0x00, 0xB4, 0x3C) )
+  LROT_NUMENTRY( ORANGE, RGB2FLAGS(0xE5, 0x64, 0x1E) )
 
 #else
-  { "FIXEDWIDTH", FIXEDWIDTH },
+  LROT_NUMENTRY( FIXEDWIDTH, FIXEDWIDTH )
 #endif
 
-// Virtual events
-#if defined(ROTARY_ENCODER_NAVIGATION)
-  { "EVT_VIRTUAL_PREV", EVT_ROTARY_LEFT },
-  { "EVT_VIRTUAL_NEXT", EVT_ROTARY_RIGHT },
-  { "EVT_VIRTUAL_DEC", EVT_ROTARY_LEFT },
-  { "EVT_VIRTUAL_INC", EVT_ROTARY_RIGHT },
-  { "ROTENC_LOWSPEED", ROTENC_LOWSPEED },
-  { "ROTENC_MIDSPEED", ROTENC_MIDSPEED },
-  { "ROTENC_HIGHSPEED", ROTENC_HIGHSPEED },
-#elif defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)// key reverted between field nav and value change
-  { "EVT_VIRTUAL_PREV", EVT_KEY_FIRST(KEY_PLUS) },
-  { "EVT_VIRTUAL_PREV_REPT", EVT_KEY_REPT(KEY_PLUS) },
-  { "EVT_VIRTUAL_NEXT", EVT_KEY_FIRST(KEY_MINUS) },
-  { "EVT_VIRTUAL_NEXT_REPT", EVT_KEY_REPT(KEY_MINUS) },
-  { "EVT_VIRTUAL_DEC", EVT_KEY_FIRST(KEY_MINUS) },
-  { "EVT_VIRTUAL_DEC_REPT", EVT_KEY_REPT(KEY_MINUS) },
-  { "EVT_VIRTUAL_INC", EVT_KEY_FIRST(KEY_PLUS) },
-  { "EVT_VIRTUAL_INC_REPT", EVT_KEY_REPT(KEY_PLUS) },
-#else
-  { "EVT_VIRTUAL_PREV", EVT_KEY_FIRST(KEY_UP) },
-  { "EVT_VIRTUAL_PREV_REPT", EVT_KEY_REPT(KEY_UP) },
-  { "EVT_VIRTUAL_NEXT", EVT_KEY_FIRST(KEY_DOWN) },
-  { "EVT_VIRTUAL_NEXT_REPT", EVT_KEY_REPT(KEY_DOWN) },
-  { "EVT_VIRTUAL_DEC", EVT_KEY_FIRST(KEY_DOWN) },
-  { "EVT_VIRTUAL_DEC_REPT", EVT_KEY_REPT(KEY_DOWN) },
-  { "EVT_VIRTUAL_INC", EVT_KEY_FIRST(KEY_UP) },
-  { "EVT_VIRTUAL_INC_REPT", EVT_KEY_REPT(KEY_UP) },
-#endif
+  // Key events
+  #include "lua_keys.inc"
 
-#if defined(NAVIGATION_9X)
-  { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_LONG(KEY_LEFT) },
-  { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_LEFT) },
-  { "EVT_VIRTUAL_MENU", EVT_KEY_BREAK(KEY_RIGHT) },
-  { "EVT_VIRTUAL_MENU_LONG", EVT_KEY_LONG(KEY_RIGHT) },
-  { "EVT_VIRTUAL_ENTER", EVT_KEY_BREAK(KEY_ENTER) },
-  { "EVT_VIRTUAL_ENTER_LONG", EVT_KEY_LONG(KEY_ENTER) },
-  { "EVT_VIRTUAL_EXIT", EVT_KEY_BREAK(KEY_EXIT) },
-#elif defined(NAVIGATION_XLITE)
-  { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_LONG(KEY_LEFT) },
-  { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_LONG(KEY_RIGHT) },
-  { "EVT_VIRTUAL_MENU", EVT_KEY_BREAK(KEY_SHIFT) },
-  { "EVT_VIRTUAL_MENU_LONG", EVT_KEY_LONG(KEY_SHIFT) },
-  { "EVT_VIRTUAL_ENTER", EVT_KEY_BREAK(KEY_ENTER) },
-  { "EVT_VIRTUAL_ENTER_LONG", EVT_KEY_LONG(KEY_ENTER) },
-  { "EVT_VIRTUAL_EXIT", EVT_KEY_BREAK(KEY_EXIT) },
-#elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-#if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_ZORRO) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_BREAK(KEY_PAGEUP) },
-  { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_PAGEDN) },
-  { "EVT_VIRTUAL_MENU", EVT_KEY_BREAK(KEY_MODEL) },
-  { "EVT_VIRTUAL_MENU_LONG", EVT_KEY_LONG(KEY_MODEL) },
-#else
-  { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_LONG(KEY_PAGE) },
-  { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_PAGE) },
-  { "EVT_VIRTUAL_MENU", EVT_KEY_BREAK(KEY_MENU) },
-  { "EVT_VIRTUAL_MENU_LONG", EVT_KEY_LONG(KEY_MENU) },
-#endif
-  { "EVT_VIRTUAL_ENTER", EVT_KEY_BREAK(KEY_ENTER) },
-  { "EVT_VIRTUAL_ENTER_LONG", EVT_KEY_LONG(KEY_ENTER) },
-  { "EVT_VIRTUAL_EXIT", EVT_KEY_BREAK(KEY_EXIT) },
-#elif defined(COLORLCD)
-#if defined(KEYS_GPIO_REG_PGUP)
-  { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_BREAK(KEY_PGUP) },
-  { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_PGDN) },
-#elif defined(PCBNV14)
-  { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_BREAK(KEY_LEFT) },
-  { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_RIGHT) },
-#else
-  { "EVT_VIRTUAL_PREV_PAGE", EVT_KEY_LONG(KEY_PGDN) },
-  { "EVT_VIRTUAL_NEXT_PAGE", EVT_KEY_BREAK(KEY_PGDN) },
-#endif
-  { "EVT_VIRTUAL_MENU", EVT_KEY_BREAK(KEY_MODEL) },
-  { "EVT_VIRTUAL_MENU_LONG", EVT_KEY_LONG(KEY_MODEL) },
-  { "EVT_VIRTUAL_ENTER", EVT_KEY_BREAK(KEY_ENTER) },
-  { "EVT_VIRTUAL_ENTER_LONG", EVT_KEY_LONG(KEY_ENTER) },
-  { "EVT_VIRTUAL_EXIT", EVT_KEY_BREAK(KEY_EXIT) },
-#endif
-
-  { "EVT_EXIT_BREAK", EVT_KEY_BREAK(KEY_EXIT) },
-
-#if defined(KEYS_GPIO_REG_ENTER)
-  KEY_EVENTS(ENTER, KEY_ENTER),
-#endif
-
-#if defined(KEYS_GPIO_REG_MENU)
-  KEY_EVENTS(MENU, KEY_MENU),
-#endif
-
-#if defined(KEYS_GPIO_REG_RIGHT) && defined(COLORLCD)
-  KEY_EVENTS(TELEM, KEY_TELEM),
-#elif defined(KEYS_GPIO_REG_RIGHT)
-  KEY_EVENTS(RIGHT, KEY_RIGHT),
-#endif
-
-#if defined(KEYS_GPIO_REG_UP) && defined(COLORLCD)
-  KEY_EVENTS(MODEL, KEY_MODEL),
-#elif defined(KEYS_GPIO_REG_UP)
-  KEY_EVENTS(UP, KEY_UP),
-#endif
-
-#if defined(KEYS_GPIO_REG_LEFT) && defined(COLORLCD)
-  KEY_EVENTS(SYS, KEY_RADIO),
-#elif defined(KEYS_GPIO_REG_LEFT)
-  KEY_EVENTS(LEFT, KEY_LEFT),
-#endif
-
-#if defined(KEYS_GPIO_REG_DOWN) && defined(COLORLCD)
-  { "EVT_RTN_FIRST", EVT_KEY_BREAK(KEY_EXIT) },
-#else
-  KEY_EVENTS(DOWN, KEY_DOWN),
-#endif
-
-#if defined(KEYS_GPIO_REG_PGUP)
-  KEY_EVENTS(PAGEUP, KEY_PGUP),
-#endif
-
-#if defined(KEYS_GPIO_REG_PGDN)
-  KEY_EVENTS(PAGEDN, KEY_PGDN),
-#endif
-
-#if defined(KEYS_GPIO_REG_PAGE)
-  KEY_EVENTS(PAGE, KEY_PAGE),
-#endif
-
-#if defined(KEYS_GPIO_REG_SHIFT)
-  KEY_EVENTS(SHIFT, KEY_SHIFT),
-#endif
-
-#if defined(KEYS_GPIO_REG_PLUS)
-  KEY_EVENTS(PLUS, KEY_PLUS),
-#endif
-
-#if defined(KEYS_GPIO_REG_MINUS)
-  KEY_EVENTS(MINUS, KEY_MINUS),
-#endif
-
-#if defined(ROTARY_ENCODER_NAVIGATION)
-  KEY_EVENTS(ROT, KEY_ENTER),
-  { "EVT_ROT_LEFT", EVT_ROTARY_LEFT },
-  { "EVT_ROT_RIGHT", EVT_ROTARY_RIGHT },
-#endif
-
+// touch events
 #if defined(HARDWARE_TOUCH)
-  { "EVT_TOUCH_FIRST", EVT_TOUCH_FIRST },
-  { "EVT_TOUCH_BREAK", EVT_TOUCH_BREAK },
-  { "EVT_TOUCH_SLIDE", EVT_TOUCH_SLIDE },
-  { "EVT_TOUCH_TAP", EVT_TOUCH_TAP },
+  LROT_NUMENTRY( EVT_TOUCH_FIRST, EVT_TOUCH_FIRST )
+  LROT_NUMENTRY( EVT_TOUCH_BREAK, EVT_TOUCH_BREAK )
+  LROT_NUMENTRY( EVT_TOUCH_SLIDE, EVT_TOUCH_SLIDE )
+  LROT_NUMENTRY( EVT_TOUCH_TAP, EVT_TOUCH_TAP )
 #endif
 
+// misc definitions
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
-  { "FILL_WHITE", FILL_WHITE },
-  { "GREY_DEFAULT", GREY_DEFAULT },
+  LROT_NUMENTRY( FILL_WHITE, FILL_WHITE )
+  LROT_NUMENTRY( GREY_DEFAULT, GREY_DEFAULT )
 #endif
 
 #if LCD_W <= 212
-  { "FORCE", FORCE },
-  { "ERASE", ERASE },
-  { "ROUND", ROUND },
+  LROT_NUMENTRY( FORCE, FORCE )
+  LROT_NUMENTRY( ERASE, ERASE )
+  LROT_NUMENTRY( ROUND, ROUND )
 #endif
 
-  { "SOLID", SOLID },
-  { "DOTTED", DOTTED },
-  { "LCD_W", LCD_W },
-  { "LCD_H", LCD_H },
-  { "PLAY_NOW", PLAY_NOW },
-  { "PLAY_BACKGROUND", PLAY_BACKGROUND },
-  { "TIMEHOUR", TIMEHOUR },
+  LROT_NUMENTRY( SOLID, SOLID )
+  LROT_NUMENTRY( DOTTED, DOTTED )
+  LROT_NUMENTRY( LCD_W, LCD_W )
+  LROT_NUMENTRY( LCD_H, LCD_H )
+  LROT_NUMENTRY( PLAY_NOW, PLAY_NOW )
+  LROT_NUMENTRY( PLAY_BACKGROUND, PLAY_BACKGROUND )
+  LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
+#if defined(LED_STRIP_GPIO)
+  #if defined(RADIO_V16)
+    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - 6)
+  #else
+    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH )
+  #endif
+#endif
+  LROT_NUMENTRY( UNIT_RAW, UNIT_RAW )
+  LROT_NUMENTRY( UNIT_VOLTS, UNIT_VOLTS )
+  LROT_NUMENTRY( UNIT_AMPS, UNIT_AMPS )
+  LROT_NUMENTRY( UNIT_MILLIAMPS, UNIT_MILLIAMPS )
+  LROT_NUMENTRY( UNIT_KTS, UNIT_KTS )
+  LROT_NUMENTRY( UNIT_METERS_PER_SECOND, UNIT_METERS_PER_SECOND )
+  LROT_NUMENTRY( UNIT_FEET_PER_SECOND, UNIT_FEET_PER_SECOND )
+  LROT_NUMENTRY( UNIT_KMH, UNIT_KMH )
+  LROT_NUMENTRY( UNIT_MPH, UNIT_MPH )
+  LROT_NUMENTRY( UNIT_METERS, UNIT_METERS )
+  LROT_NUMENTRY( UNIT_KM, UNIT_KM )
+  LROT_NUMENTRY( UNIT_FEET, UNIT_FEET )
+  LROT_NUMENTRY( UNIT_CELSIUS, UNIT_CELSIUS )
+  LROT_NUMENTRY( UNIT_FAHRENHEIT, UNIT_FAHRENHEIT )
+  LROT_NUMENTRY( UNIT_PERCENT, UNIT_PERCENT )
+  LROT_NUMENTRY( UNIT_MAH, UNIT_MAH )
+  LROT_NUMENTRY( UNIT_WATTS, UNIT_WATTS )
+  LROT_NUMENTRY( UNIT_MILLIWATTS, UNIT_MILLIWATTS )
+  LROT_NUMENTRY( UNIT_DB, UNIT_DB )
+  LROT_NUMENTRY( UNIT_RPMS, UNIT_RPMS )
+  LROT_NUMENTRY( UNIT_G, UNIT_G )
+  LROT_NUMENTRY( UNIT_DEGREE, UNIT_DEGREE )
+  LROT_NUMENTRY( UNIT_RADIANS, UNIT_RADIANS )
+  LROT_NUMENTRY( UNIT_MILLILITERS, UNIT_MILLILITERS )
+  LROT_NUMENTRY( UNIT_FLOZ, UNIT_FLOZ )
+  LROT_NUMENTRY( UNIT_MILLILITERS_PER_MINUTE, UNIT_MILLILITERS_PER_MINUTE )
+  LROT_NUMENTRY( UNIT_HERTZ, UNIT_HERTZ )
+  LROT_NUMENTRY( UNIT_MS, UNIT_MS )
+  LROT_NUMENTRY( UNIT_US, UNIT_US )
+  LROT_NUMENTRY( UNIT_DBM, UNIT_DBM )
+  LROT_NUMENTRY( UNIT_HOURS, UNIT_HOURS )
+  LROT_NUMENTRY( UNIT_MINUTES, UNIT_MINUTES )
+  LROT_NUMENTRY( UNIT_SECONDS, UNIT_SECONDS )
+  LROT_NUMENTRY( UNIT_CELLS, UNIT_CELLS )
+  LROT_NUMENTRY( UNIT_DATETIME, UNIT_DATETIME )
+  LROT_NUMENTRY( UNIT_GPS, UNIT_GPS )
+  LROT_NUMENTRY( UNIT_BITFIELD, UNIT_BITFIELD )
+  LROT_NUMENTRY( UNIT_TEXT, UNIT_TEXT )
 
-  {"UNIT_RAW", UNIT_RAW },
-  {"UNIT_VOLTS", UNIT_VOLTS },
-  {"UNIT_AMPS", UNIT_AMPS },
-  {"UNIT_MILLIAMPS", UNIT_MILLIAMPS },
-  {"UNIT_KTS", UNIT_KTS },
-  {"UNIT_METERS_PER_SECOND", UNIT_METERS_PER_SECOND },
-  {"UNIT_FEET_PER_SECOND", UNIT_FEET_PER_SECOND },
-  {"UNIT_KMH", UNIT_KMH },
-  {"UNIT_MPH", UNIT_MPH },
-  {"UNIT_METERS", UNIT_METERS },
-  {"UNIT_KM", UNIT_KM },
-  {"UNIT_FEET", UNIT_FEET },
-  {"UNIT_CELSIUS", UNIT_CELSIUS },
-  {"UNIT_FAHRENHEIT", UNIT_FAHRENHEIT },
-  {"UNIT_PERCENT", UNIT_PERCENT },
-  {"UNIT_MAH", UNIT_MAH },
-  {"UNIT_WATTS", UNIT_WATTS },
-  {"UNIT_MILLIWATTS", UNIT_MILLIWATTS },
-  {"UNIT_DB", UNIT_DB },
-  {"UNIT_RPMS", UNIT_RPMS },
-  {"UNIT_G", UNIT_G },
-  {"UNIT_DEGREE", UNIT_DEGREE },
-  {"UNIT_RADIANS", UNIT_RADIANS },
-  {"UNIT_MILLILITERS", UNIT_MILLILITERS },
-  {"UNIT_FLOZ", UNIT_FLOZ },
-  {"UNIT_MILLILITERS_PER_MINUTE", UNIT_MILLILITERS_PER_MINUTE },
-  {"UNIT_HERTZ", UNIT_HERTZ },
-  {"UNIT_MS", UNIT_MS },
-  {"UNIT_US", UNIT_US },
-  {"UNIT_HOURS", UNIT_HOURS },
-  {"UNIT_MINUTES", UNIT_MINUTES },
-  {"UNIT_SECONDS", UNIT_SECONDS },
-  {"UNIT_CELLS", UNIT_CELLS},
-  {"UNIT_DATETIME", UNIT_DATETIME},
-  {"UNIT_GPS", UNIT_GPS},
-  {"UNIT_BITFIELD", UNIT_BITFIELD},
-  {"UNIT_TEXT", UNIT_TEXT},
+  LROT_NUMENTRY( AM_RDO, AM_RDO )
+  LROT_NUMENTRY( AM_HID, AM_HID )
+  LROT_NUMENTRY( AM_SYS, AM_SYS )
+  LROT_NUMENTRY( AM_DIR, AM_DIR )
+  LROT_NUMENTRY( AM_ARC, AM_ARC )
+LROT_END(etxcst, NULL, 0)
 
-  {"AM_RDO", AM_RDO},
-  {"AM_HID", AM_HID},
-  {"AM_SYS", AM_SYS},
-  {"AM_DIR", AM_DIR},
-  {"AM_ARC", AM_ARC},
-
-  { nullptr, 0 }  /* sentinel */
-};
-
-const luaR_string_entry edgetxStrings[] = {
-  { "CHAR_RIGHT", STR_CHAR_RIGHT },
-  { "CHAR_LEFT", STR_CHAR_LEFT },
-  { "CHAR_UP", STR_CHAR_UP },
-  { "CHAR_DOWN", STR_CHAR_DOWN },
-  { "CHAR_DELTA", STR_CHAR_DELTA },
-  { "CHAR_STICK", STR_CHAR_STICK },
-  { "CHAR_POT", STR_CHAR_POT },
-  { "CHAR_SLIDER", STR_CHAR_SLIDER },
-  { "CHAR_SWITCH", STR_CHAR_SWITCH },
-  { "CHAR_TRIM", STR_CHAR_TRIM },
-  { "CHAR_INPUT", STR_CHAR_INPUT },
-  { "CHAR_FUNCTION", STR_CHAR_FUNCTION },
-  { "CHAR_CYC", STR_CHAR_CYC },
-  { "CHAR_TRAINER", STR_CHAR_TRAINER },
-  { "CHAR_CHANNEL", STR_CHAR_CHANNEL },
-  { "CHAR_TELEMETRY", STR_CHAR_TELEMETRY },
-  { "CHAR_LUA", STR_CHAR_LUA },
-
-  { nullptr, "" }  /* sentinel */
-};
+// LUA strings cannot be encoded statically,
+// use light user data instead
+LROT_BEGIN(etxstr, NULL, 0)
+  LROT_LUDENTRY( CHAR_RIGHT, STR_CHAR_RIGHT )
+  LROT_LUDENTRY( CHAR_LEFT, STR_CHAR_LEFT )
+  LROT_LUDENTRY( CHAR_UP, STR_CHAR_UP )
+  LROT_LUDENTRY( CHAR_DOWN, STR_CHAR_DOWN )
+  LROT_LUDENTRY( CHAR_DELTA, STR_CHAR_DELTA )
+  LROT_LUDENTRY( CHAR_STICK, STR_CHAR_STICK )
+  LROT_LUDENTRY( CHAR_POT, STR_CHAR_POT )
+  LROT_LUDENTRY( CHAR_SLIDER, STR_CHAR_SLIDER )
+  LROT_LUDENTRY( CHAR_SWITCH, STR_CHAR_SWITCH )
+  LROT_LUDENTRY( CHAR_TRIM, STR_CHAR_TRIM )
+  LROT_LUDENTRY( CHAR_INPUT, STR_CHAR_INPUT )
+  LROT_LUDENTRY( CHAR_FUNCTION, STR_CHAR_FUNCTION )
+  LROT_LUDENTRY( CHAR_CYC, STR_CHAR_CYC )
+  LROT_LUDENTRY( CHAR_TRAINER, STR_CHAR_TRAINER )
+  LROT_LUDENTRY( CHAR_CHANNEL, STR_CHAR_CHANNEL )
+  LROT_LUDENTRY( CHAR_TELEMETRY, STR_CHAR_TELEMETRY )
+  LROT_LUDENTRY( CHAR_LUA, STR_CHAR_LUA )
+LROT_END(etxstr, NULL, 0)

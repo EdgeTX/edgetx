@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MENUS_H_
-#define _MENUS_H_
+#pragma once
 
 #include "keys.h"
 #include "common/stdlcd/menus.h"
+#include "common/stdlcd/features.h"
 
 inline bool isRadioMenuDisplayed()
 {
@@ -79,7 +79,7 @@ void menuRadioSpectrumAnalyser(event_t event);
 void menuRadioPowerMeter(event_t event);
 void menuGhostModuleConfig(event_t event);
 
-extern const MenuHandlerFunc menuTabGeneral[MENU_RADIO_PAGES_COUNT];
+extern const MenuHandler menuTabGeneral[MENU_RADIO_PAGES_COUNT];
 
 enum MenuModelIndexes {
   MENU_MODEL_SELECT,
@@ -122,7 +122,8 @@ void menuModelCustomScripts(event_t event);
 void menuModelTelemetry(event_t event);
 void menuModelSensor(event_t event);
 void menuModelDisplay(event_t event);
+#if defined(USBJ_EX)
+void menuModelUSBJoystick(event_t event);
+#endif
 
-extern const MenuHandlerFunc menuTabModel[MENU_MODEL_PAGES_COUNT];
-
-#endif // _MENUS_H_
+extern const MenuHandler menuTabModel[MENU_MODEL_PAGES_COUNT];

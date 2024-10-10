@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -26,11 +27,16 @@
 #include <QString>
 
 class AbstractStaticItemModel;
+class SemanticVersion;
+class BoardJson;
+class GeneralSettings;
 
 // identiying names of static abstract item models
 constexpr char AIM_BOARDS_POT_TYPE[]        {"boards.pottype"};
 constexpr char AIM_BOARDS_SLIDER_TYPE[]     {"boards.slidertype"};
 constexpr char AIM_BOARDS_SWITCH_TYPE[]     {"boards.switchtype"};
+constexpr char AIM_BOARDS_MODULE_SIZE[]     {"boards.extmodulesize"};
+constexpr char AIM_BOARDS_FLEX_TYPE[]       {"boards.flextype"};
 
 // TODO create a Board class with all these functions
 
@@ -56,18 +62,33 @@ namespace Board {
     BOARD_TARANIS_X9LITE,
     BOARD_TARANIS_X9LITES,
     BOARD_JUMPER_T12,
+    BOARD_JUMPER_T12MAX,
+    BOARD_JUMPER_T14,
+    BOARD_JUMPER_T15,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
     BOARD_JUMPER_T18,
+    BOARD_JUMPER_T20,
     BOARD_RADIOMASTER_TX12,
     BOARD_RADIOMASTER_TX12_MK2,
+    BOARD_RADIOMASTER_BOXER,
     BOARD_RADIOMASTER_T8,
     BOARD_JUMPER_TLITE,
+    BOARD_JUMPER_TLITE_F4,
     BOARD_FLYSKY_NV14,
+    BOARD_FLYSKY_PL18,
     BOARD_RADIOMASTER_ZORRO,
     BOARD_JUMPER_TPRO,
     BOARD_BETAFPV_LR3PRO,
     BOARD_IFLIGHT_COMMANDO8,
+    BOARD_FLYSKY_EL18,
+    BOARD_JUMPER_TPROV2,
+    BOARD_JUMPER_TPROS,
+    BOARD_RADIOMASTER_POCKET,
+    BOARD_JUMPER_T20V2,
+    BOARD_FATFISH_F16,
+    BOARD_HELLORADIOSKY_V16,
+    BOARD_RADIOMASTER_MT12,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -78,6 +99,7 @@ namespace Board {
     POT_WITH_DETENT,
     POT_MULTIPOS_SWITCH,
     POT_WITHOUT_DETENT,
+    POT_SLIDER_WITH_DETENT,
     POT_TYPE_COUNT
   };
 
@@ -94,6 +116,7 @@ namespace Board {
     SWITCH_TOGGLE,
     SWITCH_2POS,
     SWITCH_3POS,
+    SWITCH_FUNC,
     SWITCH_TYPE_COUNT
   };
 
@@ -112,6 +135,8 @@ namespace Board {
     TRIM_AXIS_RH,
     TRIM_AXIS_T5,
     TRIM_AXIS_T6,
+    TRIM_AXIS_T7,
+    TRIM_AXIS_T8,
     TRIM_AXIS_COUNT
   };
 
@@ -129,38 +154,95 @@ namespace Board {
     TRIM_SW_T5_INC,
     TRIM_SW_T6_DEC,
     TRIM_SW_T6_INC,
+    TRIM_SW_T7_DEC,
+    TRIM_SW_T7_INC,
+    TRIM_SW_T8_DEC,
+    TRIM_SW_T8_INC,
     TRIM_SW_COUNT
   };
 
-  enum Capability {
-    Sticks,
-    Pots,
-    FactoryInstalledPots,
-    Sliders,
-    MouseAnalogs,
-    GyroAnalogs,
-    MaxAnalogs,
-    MultiposPots,
-    MultiposPotsPositions,
-    Switches,
-    FunctionSwitches,
-    SwitchPositions,
-    NumFunctionSwitchesPositions,
-    FactoryInstalledSwitches,
-    NumTrims,
-    NumTrimSwitches,
-    HasRTC,
-    HasColorLcd,
-    HasSDCard,
-    HasInternalModuleSupport,
-    HasExternalModuleSupport,
-    SportMaxBaudRate
+  enum StickAxesSurface {
+    STICK_AXIS_SURFACE_RH = 0, // Steering
+    STICK_AXIS_SURFACE_LV,     // Throttle
+    STICK_AXIS_SURFACE_COUNT
   };
 
-  struct SwitchInfo
+  enum TrimAxesSurface {
+    TRIM_AXIS_SURFACE_RH = 0,
+    TRIM_AXIS_SURFACE_LH, // Throttle axis vertical but its trim horizontal in lcd
+    TRIM_AXIS_SURFACE_T3,
+    TRIM_AXIS_SURFACE_T4,
+    TRIM_AXIS_SURFACE_T5,
+    TRIM_AXIS_SURFACE_T6,
+    TRIM_AXIS_SURFACE_T7,
+    TRIM_AXIS_SURFACE_T8,
+    TRIM_AXIS_SURFACE_COUNT
+  };
+
+  enum TrimSwitchesSurface
   {
-    SwitchType config;
-    QString name;
+    TRIM_SW_SURFACE_RH_DEC,
+    TRIM_SW_SURFACE_RH_INC,
+    TRIM_SW_SURFACE_LH_DEC, // Throttle axis vertical but its trim horizontal in lcd
+    TRIM_SW_SURFACE_LH_INC, // Throttle axis vertical but its trim horizontal in lcd
+    TRIM_SW_SURFACE_T3_DEC,
+    TRIM_SW_SURFACE_T3_INC,
+    TRIM_SW_SURFACE_T4_DEC,
+    TRIM_SW_SURFACE_T4_INC,
+    TRIM_SW_SURFACE_T5_DEC,
+    TRIM_SW_SURFACE_T5_INC,
+    TRIM_SW_SURFACE_T6_DEC,
+    TRIM_SW_SURFACE_T6_INC,
+    TRIM_SW_SURFACE_T7_DEC,
+    TRIM_SW_SURFACE_T7_INC,
+    TRIM_SW_SURFACE_T8_DEC,
+    TRIM_SW_SURFACE_T8_INC,
+    TRIM_SW_SURFACE_COUNT
+  };
+
+  enum Capability {
+    Air,
+    FactoryInstalledPots,
+    FactoryInstalledSwitches,
+    FlexInputs,
+    FlexSwitches,
+    FunctionSwitches,
+    Gyros,
+    GyroAxes,
+    HasAudioMuteGPIO,
+    HasColorLcd,
+    HasExternalModuleSupport,
+    HasIMU,
+    HasInternalModuleSupport,
+    HasIntModuleHeartbeatGPIO,
+    HasLedStripGPIO,
+    HasRTC,
+    HasSDCard,
+    HasTrainerModuleCPPM,
+    HasTrainerModuleSBUS,
+    HasVBat,
+    LcdDepth,
+    LcdHeight,
+    LcdWidth,
+    MaxAnalogs,
+    Inputs,
+    InputSwitches,
+    Joysticks,
+    JoystickAxes,
+    Keys,
+    MultiposPots,
+    MultiposPotsPositions,
+    NumFunctionSwitchesPositions,
+    NumTrims,
+    NumTrimSwitches,
+    Pots,
+    Sliders,
+    SportMaxBaudRate,
+    StandardSwitches,
+    Sticks,
+    Surface,
+    Switches,
+    SwitchesPositions,
   };
 
   struct SwitchPosition {
@@ -174,12 +256,110 @@ namespace Board {
   };
 
   enum SwitchTypeMasks {
-    SwitchTypeFlag2Pos    = 0x01,
-    SwitchTypeFlag3Pos    = 0x02,
-    SwitchTypeContext2Pos = SwitchTypeFlag2Pos,
-    SwitchTypeContext3Pos = SwitchTypeFlag2Pos | SwitchTypeFlag3Pos
+    SwitchTypeFlagNone    = 1 << 1,
+    SwitchTypeFlag2Pos    = 1 << 2,
+    SwitchTypeFlag3Pos    = 1 << 3,
+    SwitchTypeContextNone = SwitchTypeFlagNone,
+    SwitchTypeContext2Pos = SwitchTypeContextNone | SwitchTypeFlag2Pos,
+    SwitchTypeContext3Pos = SwitchTypeContext2Pos | SwitchTypeFlag3Pos
   };
 
+  enum ExternalModuleSizes {
+    EXTMODSIZE_NONE,
+    EXTMODSIZE_STD,
+    EXTMODSIZE_SMALL,
+    EXTMODSIZE_BOTH,
+    EXTMODSIZE_COUNT
+  };
+
+  enum AnalogInputType
+  {
+    AIT_NONE,
+    AIT_STICK,
+    AIT_FLEX,
+    AIT_VBAT,
+    AIT_RTC_BAT,
+    AIT_SWITCH,
+  };
+
+  enum FlexType {
+    FLEX_NONE = 0,
+    FLEX_POT,
+    FLEX_POT_CENTER,
+    FLEX_SLIDER,
+    FLEX_MULTIPOS,
+    FLEX_AXIS_X,
+    FLEX_AXIS_Y,
+    FLEX_SWITCH,
+    FLEX_TYPE_COUNT
+  };
+
+  enum FlexTypeMasks {
+    FlexTypeFlagNotSwitch   = 1 << 1,
+    FlexTypeFlagSwitch      = 1 << 2,
+    FlexTypeContextNoSwitch = FlexTypeFlagNotSwitch,
+    FlexTypeContextSwitch   = FlexTypeContextNoSwitch | FlexTypeFlagSwitch
+  };
+
+  enum LookupValueType {
+    LVT_TAG = 0,
+    LVT_NAME
+  };
+
+  struct InputInfo {
+    InputInfo() :
+      type(AIT_NONE),
+      tag(""),
+      name(""),
+      shortName(""),
+      flexType(FLEX_NONE),
+      inverted(false)
+    {}
+
+    AnalogInputType type;
+    std::string tag;
+    std::string name;
+    std::string label;
+    std::string shortName;
+    FlexType flexType;
+    bool inverted;
+  };
+
+  struct SwitchInfo {
+    SwitchInfo() :
+      type(SWITCH_NOT_AVAILABLE),
+      tag(""),
+      name(""),
+      dflt(SWITCH_NOT_AVAILABLE),
+      inverted(false)
+    {}
+
+    SwitchType type;
+    std::string tag;
+    std::string name;
+    SwitchType dflt;
+    bool inverted;
+  };
+
+  struct KeyInfo {
+    KeyInfo() :
+      key(""),
+      name(""),
+      label("")
+    {}
+
+    std::string key;
+    std::string name;
+    std::string label;
+  };
+
+  struct TrimInfo {
+    TrimInfo() :
+      name("")
+    {}
+
+    std::string name;
+  };
 }
 
 class Boards
@@ -188,10 +368,8 @@ class Boards
 
   public:
 
-    Boards(Board::Type board)
-    {
-      setBoardType(board);
-    }
+    Boards(Board::Type board);
+    virtual ~Boards() {}
 
     void setBoardType(const Board::Type & board);
     Board::Type getBoardType() const { return m_boardType; }
@@ -199,37 +377,93 @@ class Boards
     const uint32_t getFourCC() const { return getFourCC(m_boardType); }
     const int getEEpromSize() const { return getEEpromSize(m_boardType); }
     const int getFlashSize() const { return getFlashSize(m_boardType); }
-    const Board::SwitchInfo getSwitchInfo(int index) const { return getSwitchInfo(m_boardType, index); }
     const int getCapability(Board::Capability capability) const { return getCapability(m_boardType, capability); }
-    const QString getAnalogInputName(int index) const { return getAnalogInputName(m_boardType, index); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 
     static uint32_t getFourCC(Board::Type board);
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);
-    static Board::SwitchInfo getSwitchInfo(Board::Type board, int index);
-    static StringTagMappingTable getSwitchesLookupTable(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
-    static StringTagMappingTable getAnalogNamesLookupTable(Board::Type board);
-    static QString getAnalogInputName(Board::Type board, int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
-    static QString potTypeToString(int value);
-    static QString sliderTypeToString(int value);
     static QString switchTypeToString(int value);
-    static AbstractStaticItemModel * potTypeItemModel();
-    static AbstractStaticItemModel * sliderTypeItemModel();
     static AbstractStaticItemModel * switchTypeItemModel();
     static AbstractStaticItemModel * intModuleTypeItemModel();
-    static StringTagMappingTable getTrimSwitchesLookupTable(Board::Type board);
-    static StringTagMappingTable getTrimSourcesLookupTable(Board::Type board);
     static QList<int> getSupportedInternalModules(Board::Type board);
     static int getDefaultInternalModules(Board::Type board);
+    static int getDefaultExternalModuleSize(Board::Type board);
+    static void getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int& vwarn);
+    static QString externalModuleSizeToString(int value);
+    static AbstractStaticItemModel * externalModuleSizeItemModel();
 
-  protected:
+    static BoardJson* getBoardJson(Board::Type board = Board::BOARD_UNKNOWN);
 
-    Board::Type m_boardType;
+    static int getInputsCalibrated(Board::Type board = Board::BOARD_UNKNOWN);
+
+    static Board::InputInfo getInputInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputExtIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputPotIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputSliderIndex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputTagOffset(QString tag, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputThrottleIndex(Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputTypeOffset(Board::AnalogInputType type, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getInputYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getInputYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static Board::KeyInfo getKeyInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getKeyIndex(QString key, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchName(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchTagNum(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchTypeOffset(Board::SwitchType type, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getSwitchYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static int getTrimYamlIndex(QString val, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getTrimYamlName(int index, int ylt, Board::Type board = Board::BOARD_UNKNOWN);
+
+    STRINGTAGMAPPINGFUNCS(legacyTrimSourcesLookupTable, LegacyTrimSource);
+    STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
+    STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);
+    STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
+
+    static bool isInputAvailable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputCalibrated(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputIgnored(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputPot(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isInputStick(int index, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static bool isSwitchConfigurable(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSwitchFlex(int index, Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSwitchFunc(int index, Board::Type board = Board::BOARD_UNKNOWN);
+
+    static QString flexTypeToString(int value);
+    static AbstractStaticItemModel * flexTypeItemModel();
+
+    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type board = Board::BOARD_UNKNOWN);
+    static QString getRadioTypeString(Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
+    static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
+
+  private:
+
+    Board::Type m_boardType = Board::BOARD_UNKNOWN;
+    BoardJson* m_boardJson = nullptr;
+
+    const StringTagMappingTable legacyTrimSourcesLookupTable;
+    const StringTagMappingTable trimSwitchesLookupTable;
+    const StringTagMappingTable rawSwitchTypesLookupTable;
+    const StringTagMappingTable rawSourceSpecialTypesLookupTable;
+
+    static StringTagMappingTable getLegacyAnalogsLookupTable(Board::Type board = Board::BOARD_UNKNOWN);
 };
 
 // temporary aliases for transition period, use Boards class instead.
@@ -262,12 +496,32 @@ inline bool IS_JUMPER_T12(Board::Type board)
 
 inline bool IS_JUMPER_TLITE(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_TLITE;
+  return board == Board::BOARD_JUMPER_TLITE || board == Board::BOARD_JUMPER_TLITE_F4;
 }
 
 inline bool IS_JUMPER_TPRO(Board::Type board)
 {
+  return board == Board::BOARD_JUMPER_TPRO || board == Board::BOARD_JUMPER_TPROV2 || board == Board::BOARD_JUMPER_TPROS;
+}
+
+inline bool IS_JUMPER_TPROV1(Board::Type board)
+{
   return board == Board::BOARD_JUMPER_TPRO;
+}
+
+inline bool IS_JUMPER_TPROV2(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_TPROV2;
+}
+
+inline bool IS_JUMPER_TPROS(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_TPROS;
+}
+
+inline bool IS_JUMPER_T15(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T15;
 }
 
 inline bool IS_JUMPER_T16(Board::Type board)
@@ -275,9 +529,24 @@ inline bool IS_JUMPER_T16(Board::Type board)
   return board == Board::BOARD_JUMPER_T16;
 }
 
+inline bool IS_JUMPER_T12MAX(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T12MAX;
+}
+
+inline bool IS_JUMPER_T14(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T14;
+}
+
 inline bool IS_JUMPER_T18(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T18;
+}
+
+inline bool IS_JUMPER_T20(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T20 || board == Board::BOARD_JUMPER_T20V2;
 }
 
 inline bool IS_RADIOMASTER_TX16S(Board::Type board)
@@ -300,25 +569,60 @@ inline bool IS_RADIOMASTER_ZORRO(Board::Type board)
   return board == Board::BOARD_RADIOMASTER_ZORRO;
 }
 
+inline bool IS_RADIOMASTER_BOXER(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_BOXER;
+}
+
+inline bool IS_RADIOMASTER_MT12(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_MT12;
+}
+
+inline bool IS_RADIOMASTER_POCKET(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_POCKET;
+}
+
 inline bool IS_RADIOMASTER_T8(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_T8;
 }
 
+inline bool IS_FATFISH_F16(Board::Type board)
+{
+  return board == Board::BOARD_FATFISH_F16;
+}
+
+inline bool IS_HELLORADIOSKY_V16(Board::Type board)
+{
+  return board == Board::BOARD_HELLORADIOSKY_V16;
+}
+
 inline bool IS_FAMILY_T16(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18;
+  return board == Board::BOARD_JUMPER_T15 || board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18 || board == Board::BOARD_FATFISH_F16 || board == Board::BOARD_HELLORADIOSKY_V16;
 }
 
 inline bool IS_FAMILY_T12(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T12 ||
+         board == Board::BOARD_JUMPER_T12MAX ||
+         board == Board::BOARD_JUMPER_T14 ||
+         board == Board::BOARD_JUMPER_T20 ||
+         board == Board::BOARD_JUMPER_T20V2 ||
+         board == Board::BOARD_JUMPER_TLITE ||
+         board == Board::BOARD_JUMPER_TLITE_F4 ||
+         board == Board::BOARD_JUMPER_TPRO ||
+         board == Board::BOARD_JUMPER_TPROV2 ||
+         board == Board::BOARD_JUMPER_TPROS ||
          board == Board::BOARD_RADIOMASTER_TX12 ||
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
+         board == Board::BOARD_RADIOMASTER_BOXER ||
+         board == Board::BOARD_RADIOMASTER_MT12 ||
+         board == Board::BOARD_RADIOMASTER_POCKET ||
          board == Board::BOARD_RADIOMASTER_T8 ||
-         board == Board::BOARD_JUMPER_TLITE ||
-         board == Board::BOARD_JUMPER_TPRO ||
          board == Board::BOARD_BETAFPV_LR3PRO ||
          board == Board::BOARD_IFLIGHT_COMMANDO8;
 }
@@ -326,6 +630,16 @@ inline bool IS_FAMILY_T12(Board::Type board)
 inline bool IS_FLYSKY_NV14(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_NV14);
+}
+
+inline bool IS_FLYSKY_EL18(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_EL18);
+}
+
+inline bool IS_FLYSKY_PL18(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_PL18);
 }
 
 inline bool IS_TARANIS_XLITE(Board::Type board)
@@ -405,7 +719,9 @@ inline bool IS_FAMILY_HORUS(Board::Type board)
 
 inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
-  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board)/*generally*/;
+  return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) ||
+    IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
+    || IS_FLYSKY_PL18(board);
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)
@@ -415,7 +731,8 @@ inline bool IS_HORUS_OR_TARANIS(Board::Type board)
 
 inline bool IS_STM32(Board::Type board)
 {
-  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) || IS_FLYSKY_NV14(board);
+  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) ||
+    IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PL18(board);
 }
 
 inline bool IS_ARM(Board::Type board)
@@ -430,7 +747,7 @@ inline bool HAS_LARGE_LCD(Board::Type board)
 
 inline bool HAS_EXTERNAL_ANTENNA(Board::Type board)
 {
-  return (board == Board::BOARD_X10 || board == Board::BOARD_HORUS_X12S || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board)));
+  return (IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board)));
 }
 
 inline bool IS_TARANIS_X9DP_2019(Board::Type board)

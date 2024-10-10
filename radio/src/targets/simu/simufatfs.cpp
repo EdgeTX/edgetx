@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "opentx.h"
+#include "edgetx.h"
 
 #if defined(SIMU_USE_SDCARD)  // rest of file is excluded otherwise
 
@@ -33,7 +33,7 @@
   #define MSVC_BUILD    0
 #endif
 
-// NOTE: the #include order is important here, sensitive on different platoforms.
+// NOTE: the #include order is important here, sensitive on different platforms.
 #include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>
@@ -124,20 +124,12 @@ bool redirectToSettingsDirectory(const std::string & path)
       * model (*.bin) files in /MODELS directory
   */
   if (!simuSettingsDirectory.empty()) {
-#if defined(SDCARD_RAW) || defined(SDCARD_YAML)
     if (path == MODELS_PATH || path == RADIO_PATH) return true;
-  #if !defined(EEPROM_RLC)
-    if (path == RADIO_MODELSLIST_PATH || path == RADIO_SETTINGS_PATH)
-      return true;
     if (startsWith(path, MODELS_PATH) && endsWith(path, MODELS_EXT))
       return true;
-  #endif
-#endif
-#if defined(SDCARD_YAML)
     if (path == MODELSLIST_YAML_PATH || path == RADIO_SETTINGS_YAML_PATH || path == RADIO_SETTINGS_TMPFILE_YAML_PATH || path == RADIO_SETTINGS_ERRORFILE_YAML_PATH)
       return true;
     if (startsWith(path, MODELS_PATH) && endsWith(path, YAML_EXT)) return true;
-#endif
   }
   return false;
 }
@@ -334,7 +326,7 @@ FRESULT f_open (FIL * fil, const TCHAR *name, BYTE flag)
     fil->obj.objsize = tmp.st_size;
     fil->fptr = 0;
   }
-  fil->obj.fs = (FATFS*)fopen(realPath.c_str(), (flag & FA_WRITE) ? ((flag & FA_CREATE_ALWAYS) ? "wb+" : "ab+") : "rb+");
+  fil->obj.fs = (FATFS*)fopen(realPath.c_str(), (flag & FA_WRITE) ? ((flag & FA_CREATE_ALWAYS) ? "wb+" : "ab+") : "rb");
   fil->fptr = 0;
   if (fil->obj.fs) {
     TRACE_SIMPGMSPACE("f_open(%s, %x) = %p (FIL %p)", path.c_str(), flag, fil->obj.fs, fil);
@@ -489,17 +481,21 @@ FRESULT f_mkfs (const TCHAR* path, BYTE opt, DWORD au, void* work, UINT len)
 FRESULT f_mkdir (const TCHAR * name)
 {
   std::string path = convertToSimuPath(name);
+  if (f_stat(name, nullptr) != FR_OK) {
 #if defined(WIN32) && defined(__GNUC__)
-  if (mkdir(path.c_str())) {
+    if (mkdir(path.c_str())) {
 #else
-  if (mkdir(path.c_str(), 0777)) {
+    if (mkdir(path.c_str(), 0777)) {
 #endif
-    TRACE_SIMPGMSPACE("mkdir(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
-    return FR_INVALID_NAME;
-  }
-  else {
-    TRACE_SIMPGMSPACE("mkdir(%s) = OK", path.c_str());
-    return FR_OK;
+      TRACE_SIMPGMSPACE("mkdir(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
+      return FR_INVALID_NAME;
+    }
+    else {
+      TRACE_SIMPGMSPACE("mkdir(%s) = OK", path.c_str());
+      return FR_OK;
+    }
+  } else {
+    return FR_EXIST;
   }
   return FR_OK;
 }
@@ -507,13 +503,24 @@ FRESULT f_mkdir (const TCHAR * name)
 FRESULT f_unlink (const TCHAR * name)
 {
   std::string path = convertToSimuPath(name);
-  if (unlink(path.c_str())) {
-    TRACE_SIMPGMSPACE("f_unlink(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
-    return FR_INVALID_NAME;
-  }
-  else {
-    TRACE_SIMPGMSPACE("f_unlink(%s) = OK", path.c_str());
-    return FR_OK;
+  if (isFile(path)) {
+    if (unlink(path.c_str())) {
+      TRACE_SIMPGMSPACE("f_unlink(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
+      return FR_INVALID_NAME;
+    }
+    else {
+      TRACE_SIMPGMSPACE("f_unlink(%s) = OK", path.c_str());
+      return FR_OK;
+    }
+  } else {
+    if (rmdir(path.c_str())) {
+      TRACE_SIMPGMSPACE("f_unlink(%s) = error %d (%s)", path.c_str(), errno, strerror(errno));
+      return FR_INVALID_NAME;
+    }
+    else {
+      TRACE_SIMPGMSPACE("f_unlink(%s) = OK", path.c_str());
+      return FR_OK;
+    }
   }
 }
 
@@ -613,5 +620,11 @@ FRESULT f_getfree (const TCHAR* path, DWORD* nclst, FATFS** fatfs)
   return FR_OK;
 }
 
+#include "hal/storage.h"
+
+void storageInit() {}
+void storageDeInit() {}
+void storagePreMountHook() {}
+bool storageIsPresent() { return true; }
 
 #endif  // #if defined(SIMU_USE_SDCARD)

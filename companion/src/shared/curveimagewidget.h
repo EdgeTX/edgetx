@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -34,7 +35,8 @@ class CurveImageWidget : public QLabel
     CurveImageWidget(QWidget * parent);
     virtual ~CurveImageWidget() {}
 
-    void set(ModelData * model, Firmware * firmware, CompoundItemModelFactory * sharedItemModels, int index, QColor penColor = Qt::black, qreal penWidth = 2);
+    void set(ModelData * model, Firmware * firmware, CompoundItemModelFactory * sharedItemModels, int index, QColor penColor = Qt::black,
+             qreal penWidth = 2);
     void setIndex(int index);
     void setGrid(QColor color = Qt::darkGray, qreal width = 1);
     void setPen(QColor color = Qt::black, qreal width = 2);

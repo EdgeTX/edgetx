@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 constexpr uint16_t BMP_HEADERSIZE = 0x76;
 
@@ -56,6 +56,11 @@ const char * writeScreenshot()
   UINT written;
   char filename[42]; // /SCREENSHOTS/screen-2013-01-01-123540.bmp
 
+  if (sdIsFull()) {
+    POPUP_WARNING(STR_SDCARD_FULL_EXT);
+    return STR_SDCARD_FULL_EXT;
+  }
+
   // check and create folder here
   strcpy(filename, SCREENSHOTS_PATH);
   const char * error = sdCheckAndCreateDirectory(filename);
@@ -88,7 +93,7 @@ const char * writeScreenshot()
   auto h = snapshot->header.h;
 
   for (int y = h - 1; y >= 0; y--) {
-    for (int x = 0; x < w; x++) {
+    for (uint32_t x = 0; x < w; x++) {
 
       lv_color_t pixel = lv_img_buf_get_px_color(snapshot, x, y, {});
 
@@ -112,6 +117,9 @@ const char * writeScreenshot()
   for (int y=LCD_H-1; y>=0; y-=1) {
     for (int x=0; x<8*((LCD_W+7)/8); x+=2) {
       pixel_t byte = getPixel(x+1, y) + (getPixel(x, y) << 4);
+#if defined(OLED_SCREEN)
+      byte ^= 0xFF;
+#endif
       if (f_write(&bmpFile, &byte, 1, &written) != FR_OK || written != 1) {
         f_close(&bmpFile);
         return SDCARD_ERROR(result);

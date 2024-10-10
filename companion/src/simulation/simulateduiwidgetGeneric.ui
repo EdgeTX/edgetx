@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SimulatedUIWidgetGeneric</class>
+ <widget class="QWidget" name="SimulatedUIWidgetGeneric">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>737</width>
+    <height>246</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>737</width>
+    <height>246</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>737</width>
+    <height>246</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Generic Simulator</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="ButtonsWidget" name="leftbuttons" native="true">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>241</width>
+     <height>246</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>241</width>
+     <height>246</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>241</width>
+     <height>246</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+  </widget>
+  <widget class="ButtonsWidget" name="rightbuttons" native="true">
+   <property name="geometry">
+    <rect>
+     <x>496</x>
+     <y>0</y>
+     <width>241</width>
+     <height>246</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>241</width>
+     <height>246</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>241</width>
+     <height>246</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QWidget" name="bottom" native="true">
+   <property name="geometry">
+    <rect>
+     <x>241</x>
+     <y>188</y>
+     <width>255</width>
+     <height>58</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>255</width>
+     <height>58</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>255</width>
+     <height>58</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="LcdWidget" name="lcd" native="true">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>59</y>
+     <width>256</width>
+     <height>128</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>100</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>424</width>
+     <height>180</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(215, 243, 255);</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="top" native="true">
+   <property name="geometry">
+    <rect>
+     <x>241</x>
+     <y>0</y>
+     <width>255</width>
+     <height>59</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>255</width>
+     <height>59</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>255</width>
+     <height>59</height>
+    </size>
+   </property>
+  </widget>
+  <zorder>bottom</zorder>
+  <zorder>top</zorder>
+  <zorder>rightbuttons</zorder>
+  <zorder>leftbuttons</zorder>
+  <zorder>lcd</zorder>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LcdWidget</class>
+   <extends>QWidget</extends>
+   <header>lcdwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ButtonsWidget</class>
+   <extends>QWidget</extends>
+   <header>buttonswidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../companion.qrc"/>
+ </resources>
+ <connections/>
+</ui>

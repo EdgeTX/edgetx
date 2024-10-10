@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 /* Full telemetry 
 packet[0] = TX RSSI value
@@ -104,9 +104,9 @@ data byte 3 -> Alti2L			Altitude filtered
 struct HitecSensor
 {
   const uint16_t id;
-  const char * name;
   const TelemetryUnit unit;
   const uint8_t precision;
+  const char * name;
 };
 
 // telemetry frames
@@ -160,49 +160,53 @@ enum
   HITEC_ID_TX_LQI = 0xFF01,    // Pseudo id outside 1 byte range of Hitec sensors
 };
 
+// clang-format off
+#define HS(id,name,unit,precision) {id,unit,precision,name}
+
 const HitecSensor hitecSensors[] = {
   //frame 00
-  {HITEC_ID_RX_VOLTAGE,   STR_SENSOR_BATT,       UNIT_VOLTS,             2},  // RX_Batt Voltage
+  HS(HITEC_ID_RX_VOLTAGE,   STR_SENSOR_BATT,       UNIT_VOLTS,             2),  // RX_Batt Voltage
   //frame 11
   //frame 12
-  {HITEC_ID_GPS_LAT_LONG, STR_SENSOR_GPS,        UNIT_GPS,               0},  // GPS position
+  HS(HITEC_ID_GPS_LAT_LONG, STR_SENSOR_GPS,        UNIT_GPS,               0),  // GPS position
   //frame 13
-  {HITEC_ID_TEMP2,        STR_SENSOR_TEMP2,      UNIT_CELSIUS,           0},  // Temperature sensor 2
+  HS(HITEC_ID_TEMP2,        STR_SENSOR_TEMP2,      UNIT_CELSIUS,           0),  // Temperature sensor 2
   //frame 14
-  {HITEC_ID_GPS_SPEED,    STR_SENSOR_GSPD,       UNIT_KMH,               0},  // GPS speed
-  {HITEC_ID_GPS_ALTITUDE, STR_SENSOR_GPSALT,     UNIT_METERS,            0},  // GPS altitude sea level
-  {HITEC_ID_TEMP1,        STR_SENSOR_TEMP1,      UNIT_CELSIUS,           0},  // Temperature sensor 1
+  HS(HITEC_ID_GPS_SPEED,    STR_SENSOR_GSPD,       UNIT_KMH,               0),  // GPS speed
+  HS(HITEC_ID_GPS_ALTITUDE, STR_SENSOR_GPSALT,     UNIT_METERS,            0),  // GPS altitude sea level
+  HS(HITEC_ID_TEMP1,        STR_SENSOR_TEMP1,      UNIT_CELSIUS,           0),  // Temperature sensor 1
   //frame 15
-  {HITEC_ID_FUEL,         STR_SENSOR_FUEL,       UNIT_PERCENT,           0},  // Fuel
-  {HITEC_ID_RPM1,         STR_SENSOR_RPM,        UNIT_RPMS,              0},  // RPM1
-  {HITEC_ID_RPM2,   STR_SENSOR_RPM2,             UNIT_RPMS,              0},  // RPM2
+  HS(HITEC_ID_FUEL,         STR_SENSOR_FUEL,       UNIT_PERCENT,           0),  // Fuel
+  HS(HITEC_ID_RPM1,         STR_SENSOR_RPM,        UNIT_RPMS,              0),  // RPM1
+  HS(HITEC_ID_RPM2,         STR_SENSOR_RPM2,       UNIT_RPMS,              0),  // RPM2
   //frame 16
-  {HITEC_ID_GPS_DATETIME, STR_SENSOR_GPS,        UNIT_DATETIME,          0},  // GPS date time
+  HS(HITEC_ID_GPS_DATETIME, STR_SENSOR_GPS,        UNIT_DATETIME,          0),  // GPS date time
   //frame 17
-  {HITEC_ID_GPS_HEADING,  STR_SENSOR_HDG,        UNIT_DEGREE,            0},  // GPS Heading
-  {HITEC_ID_GPS_COUNT,    STR_SENSOR_SATELLITES, UNIT_RAW,               0},  // GPS count
-  {HITEC_ID_TEMP3,  STR_SENSOR_TEMP3,            UNIT_CELSIUS,           0},  // Temperature sensor 3
-  {HITEC_ID_TEMP4,  STR_SENSOR_TEMP4,            UNIT_CELSIUS,           0},  // Temperature sensor 4
+  HS(HITEC_ID_GPS_HEADING,  STR_SENSOR_HDG,        UNIT_DEGREE,            0),  // GPS Heading
+  HS(HITEC_ID_GPS_COUNT,    STR_SENSOR_SATELLITES, UNIT_RAW,               0),  // GPS count
+  HS(HITEC_ID_TEMP3,        STR_SENSOR_TEMP3,      UNIT_CELSIUS,           0),  // Temperature sensor 3
+  HS(HITEC_ID_TEMP4,        STR_SENSOR_TEMP4,      UNIT_CELSIUS,           0),  // Temperature sensor 4
   //frame 18
-  {HITEC_ID_VOLTAGE,      STR_SENSOR_A1,         UNIT_VOLTS,             1},  // Voltage sensor
-  {HITEC_ID_AMP,          STR_SENSOR_CURR,       UNIT_AMPS,              0},  // Amp sensor
-  {HITEC_ID_C50,    STR_SENSOR_C50,              UNIT_AMPS,              1},  // Amp sensor C50
-  {HITEC_ID_C200,   STR_SENSOR_C200,             UNIT_AMPS,              0},  // Amp sensor C200
+  HS(HITEC_ID_VOLTAGE,      STR_SENSOR_A1,         UNIT_VOLTS,             1),  // Voltage sensor
+  HS(HITEC_ID_AMP,          STR_SENSOR_CURR,       UNIT_AMPS,              0),  // Amp sensor
+  HS(HITEC_ID_C50,          STR_SENSOR_C50,        UNIT_AMPS,              1),  // Amp sensor C50
+  HS(HITEC_ID_C200,         STR_SENSOR_C200,       UNIT_AMPS,              0),  // Amp sensor C200
   //frame 19
-  {HITEC_ID_AMP_S1, STR_SENSOR_CURR_SERVO1,      UNIT_AMPS,              1},  // Amp sensor
-  {HITEC_ID_AMP_S2, STR_SENSOR_CURR_SERVO2,      UNIT_AMPS,              1},  // Amp sensor
-  {HITEC_ID_AMP_S3, STR_SENSOR_CURR_SERVO3,      UNIT_AMPS,              1},  // Amp sensor
-  {HITEC_ID_AMP_S4, STR_SENSOR_CURR_SERVO4,      UNIT_AMPS,              1},  // Amp sensor
+  HS(HITEC_ID_AMP_S1, STR_SENSOR_CURR_SERVO1,      UNIT_AMPS,              1),  // Amp sensor
+  HS(HITEC_ID_AMP_S2, STR_SENSOR_CURR_SERVO2,      UNIT_AMPS,              1),  // Amp sensor
+  HS(HITEC_ID_AMP_S3, STR_SENSOR_CURR_SERVO3,      UNIT_AMPS,              1),  // Amp sensor
+  HS(HITEC_ID_AMP_S4, STR_SENSOR_CURR_SERVO4,      UNIT_AMPS,              1),  // Amp sensor
   //frame 1A
-  {HITEC_ID_AIR_SPEED,    STR_SENSOR_ASPD,       UNIT_KMH,               0},  // Air speed
+  HS(HITEC_ID_AIR_SPEED,    STR_SENSOR_ASPD,       UNIT_KMH,               0),  // Air speed
   //frame 1B
-  {HITEC_ID_VARIO,        STR_SENSOR_VSPD,       UNIT_METERS_PER_SECOND, 1},  // Vario
-  {HITEC_ID_ALT,          STR_SENSOR_ALT,        UNIT_METERS,            1},  // Altitude
+  HS(HITEC_ID_VARIO,        STR_SENSOR_VSPD,       UNIT_METERS_PER_SECOND, 1),  // Vario
+  HS(HITEC_ID_ALT,          STR_SENSOR_ALT,        UNIT_METERS,            1),  // Altitude
 
-  {HITEC_ID_TX_RSSI,      STR_SENSOR_TX_RSSI,    UNIT_RAW,               0},  // Pseudo id outside 1 byte range of Hitec sensors
-  {HITEC_ID_TX_LQI,       STR_SENSOR_TX_QUALITY, UNIT_RAW,               0},  // Pseudo id outside 1 byte range of Hitec sensors// Pseudo sensor for TLQI
-  {0x00,                  NULL,            UNIT_RAW,               0},  // sentinel
+  HS(HITEC_ID_TX_RSSI,      STR_SENSOR_TX_RSSI,    UNIT_RAW,               0),  // Pseudo id outside 1 byte range of Hitec sensors
+  HS(HITEC_ID_TX_LQI,       STR_SENSOR_TX_QUALITY, UNIT_RAW,               0),  // Pseudo id outside 1 byte range of Hitec sensors// Pseudo sensor for TLQI
+  HS(0x00,                  NULL,                  UNIT_RAW,               0),  // sentinel
 };
+// clang-format on
 
 const HitecSensor * getHitecSensor(uint16_t id)
 {

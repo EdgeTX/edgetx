@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -13,7 +14,7 @@
  * published by the Free Software Foundation.
  *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
@@ -41,11 +42,11 @@ QStringList const Translations::getAvailableTranslations()
             << "es_ES"
             << "fi_FI"
             << "fr_FR"
-                          //<< "he_IL"
+            << "he_IL"
             << "it_IT"
-                          //<< "nl_NL"
+            << "nl_NL"
             << "pl_PL"
-                          //<< "pt_PT"
+            << "pt_PT"
             << "ru_RU"
             << "sv_SE"
             << "zh_CN"

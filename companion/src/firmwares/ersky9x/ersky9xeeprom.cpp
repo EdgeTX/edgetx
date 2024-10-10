@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -140,7 +141,7 @@ Ersky9xGeneral::operator GeneralSettings ()
   result.inactivityTimer = inactivityTimer + 10;
   result.minuteBeep = minuteBeep;
   result.preBeep = preBeep;
-  result.flashBeep = flashBeep;
+  result.alarmsFlash = alarmsFlash;
   result.splashMode = disableSplashScreen;
   result.templateSetup = templateSetup;
   result.PPM_Multiplier = PPM_Multiplier;
@@ -186,7 +187,7 @@ t_Ersky9xMixData_v10::operator MixData ()
     c9x.srcRaw = RawSource(SOURCE_TYPE_NONE);
   }
   else if (srcRaw <= 7) {
-    c9x.srcRaw = RawSource(SOURCE_TYPE_STICK, srcRaw-1);
+    c9x.srcRaw = RawSource(SOURCE_TYPE_INPUT, srcRaw-1);
   }
   else if (srcRaw == 8) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_MAX);
@@ -256,7 +257,7 @@ t_Ersky9xMixData_v11::operator MixData ()
     c9x.srcRaw = RawSource(SOURCE_TYPE_NONE);
   }
   else if (srcRaw <= 7) {
-    c9x.srcRaw = RawSource(SOURCE_TYPE_STICK, srcRaw-1);
+    c9x.srcRaw = RawSource(SOURCE_TYPE_INPUT, srcRaw-1);
   }
   else if (srcRaw == 8) {
     c9x.srcRaw = RawSource(SOURCE_TYPE_MAX);
@@ -318,7 +319,7 @@ RawSource ersky9xToSource_v10(int8_t value)
     return RawSource(SOURCE_TYPE_NONE);
   }
   else if (value <= 7) {
-    return RawSource(SOURCE_TYPE_STICK, value - 1);
+    return RawSource(SOURCE_TYPE_INPUT, value - 1);
   }
   else if (value == 8) {
     return RawSource(SOURCE_TYPE_MAX);
@@ -346,7 +347,7 @@ RawSource ersky9xToSource_v11(int8_t value)
     return RawSource(SOURCE_TYPE_NONE);
   }
   else if (value <= 7) {
-    return RawSource(SOURCE_TYPE_STICK, value - 1);
+    return RawSource(SOURCE_TYPE_INPUT, value - 1);
   }
   else if (value == 8) {
     return RawSource(SOURCE_TYPE_MAX);

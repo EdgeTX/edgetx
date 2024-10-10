@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -23,6 +24,7 @@
 #include "ui_telemetry_sensor.h"
 #include "helpers.h"
 #include "appdata.h"
+#include "namevalidator.h"
 
 constexpr char FIM_RAWSOURCE[]       {"Raw Source"};
 constexpr char FIM_TELEALLSRC[]      {"Tele All Source"};
@@ -32,7 +34,7 @@ constexpr char FIM_SENSORFORMULA[]   {"Sensor.Formula"};
 constexpr char FIM_SENSORCELLINDEX[] {"Sensor.CellIndex"};
 constexpr char FIM_SENSORUNIT[]      {"Sensor.Unit"};
 constexpr char FIM_SENSORPRECISION[] {"Sensor.Precision"};
-constexpr char FIM_RSSISOURCE[]      {"Rssi Source"};
+constexpr char FIM_TELEVARIOSRC[]    {"Tele Vario Source"};
 
 TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor, int sensorIndex, int sensorCapability, ModelData & model,
                                            GeneralSettings & generalSettings, Firmware * firmware, const bool & parentLock,
@@ -65,6 +67,7 @@ TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor,
   ui->numLabel->setToolTip(tr("Popup menu available"));
   ui->numLabel->setMouseTracking(true);
   connect(ui->numLabel, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(on_customContextMenuRequested(QPoint)));
+  ui->name->setValidator(new NameValidator(firmware->getBoard(), this));
   ui->name->setField(sensor.label, SENSOR_LABEL_LEN);
   connect(ui->name, SIGNAL(currentDataChanged()), this, SLOT(on_nameDataChanged()));
   ui->id->setField(sensor.id, this);
@@ -234,6 +237,7 @@ void TelemetrySensorPanel::on_unitDataChanged()
 {
   sensor.unitChanged();
   update();
+  emit dataModified();
 }
 
 void TelemetrySensorPanel::on_precDataChanged()
@@ -402,13 +406,13 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
   connectItemModelEvents(id);
 
   id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_TeleSource),
-                                                                        FilteredItemModel::PositiveFilter),
+                                                                        SensorData::SensorTypeContextPos),
                                                   FIM_TELEPOSSRC);
   connectItemModelEvents(id);
 
-
-  id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RssiSource)),
-                                                  FIM_RSSISOURCE);
+  id = panelFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_TeleSource),
+                                                                        SensorData::SensorTypeContextVario),
+                                                  FIM_TELEVARIOSRC);
   connectItemModelEvents(id);
 
   id = panelItemModels->registerItemModel(SensorData::typeItemModel());
@@ -434,7 +438,7 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
     model.frsky.usrProto = 1;
   }
 
-  ui->varioSource->setModel(panelFilteredItemModels->getItemModel(FIM_TELEPOSSRC));
+  ui->varioSource->setModel(panelFilteredItemModels->getItemModel(FIM_TELEVARIOSRC));
   ui->varioSource->setField(model.frsky.varioSource, this);
   ui->varioCenterSilent->setField(model.frsky.varioCenterSilent, this);
   ui->A1GB->hide();
@@ -481,15 +485,6 @@ void TelemetryPanel::update()
   lock = true;
 
   if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    if (model->moduleData[0].protocol == PULSES_OFF && model->moduleData[1].protocol == PULSES_PPM) {
-      ui->telemetryProtocol->setEnabled(true);
-    }
-    else {
-      ui->telemetryProtocol->setEnabled(false);
-      ui->telemetryProtocol->setCurrentIndex(0);
-    }
-
-    ui->rssiSourceCB->updateValue();
     ui->voltsSource->updateValue();
     ui->altitudeSource->updateValue();
     ui->varioSource->updateValue();
@@ -506,28 +501,14 @@ void TelemetryPanel::setup()
 {
   lock = true;
 
-  ui->telemetryProtocol->addItem(tr("FrSky S.PORT"), 0);
-  ui->telemetryProtocol->addItem(tr("FrSky D"), 1);
-  if (IS_9XRPRO(firmware->getBoard()) ||
-      (IS_TARANIS(firmware->getBoard()) &&
-       generalSettings.serialPort[GeneralSettings::SP_AUX1] ==
-           GeneralSettings::AUX_SERIAL_TELE_IN)) {
-    ui->telemetryProtocol->addItem(tr("FrSky D (cable)"), 2);
-  }
-  ui->telemetryProtocol->setCurrentIndex(model->telemetryProtocol);
   ui->ignoreSensorIds->setField(model->frsky.ignoreSensorIds, this);
+  ui->showInstanceIds->setField(model->showInstanceIds, this);
   ui->disableTelemetryAlarms->setField(model->rssiAlarms.disabled);
 
   ui->rssiAlarmWarningSB->setRange(0, 127);
   ui->rssiAlarmWarningSB->setValue(model->rssiAlarms.warning);
   ui->rssiAlarmCriticalSB->setRange(0, 127);
   ui->rssiAlarmCriticalSB->setValue(model->rssiAlarms.critical);
-
-  ui->rssiSourceLabel->show();
-  ui->rssiSourceLabel->setText(tr("Source"));
-  ui->rssiSourceCB->setModel(panelFilteredItemModels->getItemModel(FIM_RSSISOURCE));
-  ui->rssiSourceCB->setField(model->rssiSource, this);
-  ui->rssiSourceCB->show();
 
   ui->rssiAlarmWarningCB->hide();
   ui->rssiAlarmCriticalCB->hide();
@@ -573,14 +554,6 @@ void TelemetryPanel::setup()
   ui->variousGB->hide();
 
   lock = false;
-}
-
-void TelemetryPanel::on_telemetryProtocol_currentIndexChanged(int index)
-{
-  if (!isLocked()) {
-    model->telemetryProtocol = index;
-    emit modified();
-  }
 }
 
 void TelemetryPanel::onModified()

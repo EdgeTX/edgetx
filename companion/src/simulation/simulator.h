@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#pragma once
 
 #include <QColor>
 #include <QDataStream>
@@ -32,7 +32,7 @@
 #define SIMULATOR_FLAGS_NOTX         0x01  // simulating a single model from Companion
 #define SIMULATOR_FLAGS_STANDALONE   0x02  // started from stanalone simulator
 
-#define SIMULATOR_OPTIONS_VERSION    2
+#define SIMULATOR_OPTIONS_VERSION    3
 
 namespace Simulator
 {
@@ -129,13 +129,16 @@ struct SimulatorOptions
     QByteArray windowState;           // SimulatorMainWindow dock/toolbar/options UI state
     QByteArray dbgConsoleState;       // DebugOutput UI state
     QByteArray radioOutputsState;     // RadioOutputsWidget UI state
+    // added in v3
+    QString simulatorId;
 
     quint16 loadedVersion() const { return m_version; }  //! loaded structure definition version (0 if none/error)
 
     friend QDataStream & operator << (QDataStream &out, const SimulatorOptions & o)
     {
       out << quint16(SIMULATOR_OPTIONS_VERSION) << o.startupDataType << o.firmwareId << o.dataFile << o.dataFolder
-          << o.sdPath << o.windowGeometry << o.controlsState << o.lcdColor << o.windowState << o.dbgConsoleState << o.radioOutputsState;
+          << o.sdPath << o.windowGeometry << o.controlsState << o.lcdColor << o.windowState << o.dbgConsoleState << o.radioOutputsState
+          << o.simulatorId;
       return out;
     }
 
@@ -147,6 +150,8 @@ struct SimulatorOptions
            >> o.sdPath >> o.windowGeometry >> o.controlsState >> o.lcdColor;
         if (o.m_version >= 2)
           in >> o.windowState >> o.dbgConsoleState >> o.radioOutputsState;
+        if (o.m_version >= 3)
+          in >> o.simulatorId;
       }
       else {
         qWarning() << "Error loading SimulatorOptions, saved version not valid:" << o.m_version << "Expected <=" << SIMULATOR_OPTIONS_VERSION;
@@ -176,7 +181,7 @@ struct SimulatorOptions
     friend QDebug operator << (QDebug d, const SimulatorOptions & o)
     {
       QDebugStateSaver saver(d);
-      d.nospace() << "SimulatorOptions: firmwareId=" << o.firmwareId << "; dataFile=" << o.dataFile << "; dataFolder=" << o.dataFolder
+      d.nospace() << "SimulatorOptions: firmwareId=" << o.firmwareId << "; simulatorId=" << o.simulatorId << "; dataFile=" << o.dataFile << "; dataFolder=" << o.dataFolder
                   << "; sdPath=" << o.sdPath << "; startupDataType=" << o.startupDataType;
       return d;
     }
@@ -189,6 +194,3 @@ struct SimulatorOptions
 };
 
 Q_DECLARE_METATYPE(SimulatorOptions)
-
-
-#endif // SIMULATOR_H

@@ -19,17 +19,135 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
+
+#if defined(PXX2)
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
 
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
+#include "pulses/pxx2.h"
+#include "pulses/pxx2_transport.h"
 
-static_assert(PXX2_FRAME_MAXLENGTH <= INTMODULE_FIFO_SIZE);
+static_assert(PXX2_FRAME_MAXLENGTH <= INTMODULE_FIFO_SIZE, "");
+
+static const char * const PXX2ModulesNames[] = {
+  "---",
+  "XJT",
+  "ISRM",
+  "ISRM-PRO",
+  "ISRM-S",
+  "R9M",
+  "R9M Lite",
+  "R9M Lite Pro",
+  "ISRM-N",
+  "ISRM-S-X9",
+  "ISRM-S-X10E",
+  "XJT Lite",
+  "ISRM-S-X10S",
+  "ISRM-X9LiteS"
+};
+
+const char * getPXX2ModuleName(uint8_t modelId)
+{
+  if (modelId < DIM(PXX2ModulesNames))
+    return PXX2ModulesNames[modelId];
+  else
+    return PXX2ModulesNames[0];
+}
+
+static const char * const PXX2ReceiversNames[] = {
+    "---",
+    "X8R",
+    "RX8R",
+    "RX8R Pro",
+    "RX6R",
+    "RX4R",
+    "G-RX8",
+    "G-RX6",
+    "X6R",
+    "X4R",
+    "X4R SB",
+    "XSR",
+    "XSR M",
+    "RXSR",
+    "S6R",
+    "S8R",
+    "XM",
+    "XM+",
+    "XMR",
+    "R9",
+    "R9 SLIM",
+    "R9 SLIM+",
+    "R9 MINI",
+    "R9 MM",
+    "R9 Stab",
+    "R9 Mini OTA",
+    "R9 MM OTA",
+    "R9 SLIM+ OTA",
+    "Archer X",
+    "R9MX",
+    "R9SX",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "---",
+    "SR10 Plus", // 0x40
+    "R10 Plus",
+    "GR8 Plus",
+    "R8 Plus",
+    "SR8 Plus",
+    "GR6 Plus",
+    "R6 Plus",
+    "R6M (ESC DC)",
+    "Rs Plus",
+    "RS Mini",
+    "R6FB",
+    "GR6FB",
+    "SR12 Plus",
+    "R12 Plus",
+    "R6 Mini ESC",
+    "SR6 Mini",
+    "SR6 Mini ESC", // 0x50
+};
+
+const char * getPXX2ReceiverName(uint8_t modelId)
+{
+  if (modelId < DIM(PXX2ReceiversNames))
+    return PXX2ReceiversNames[modelId];
+  else
+    return PXX2ReceiversNames[0];
+}
 
 static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
 {
@@ -52,7 +170,7 @@ static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
       POPUP_WARNING(STR_MODULE_UPGRADE_ALERT);
     }
   }
-  else if (index < PXX2_MAX_RECEIVERS_PER_MODULE && modelId < DIM(PXX2ReceiversNames)) {
+  else if (index < PXX2_MAX_RECEIVERS_PER_MODULE) {
     memcpy(&destination->receivers[index].information, &frame[4], length);
     destination->receivers[index].timestamp = get_tmr10ms();
     if (destination->receivers[index].information.capabilities & ~((1 << RECEIVER_CAPABILITY_COUNT) - 1))
@@ -106,7 +224,10 @@ static void processReceiverSettingsFrame(uint8_t module, const uint8_t * frame)
   if (frame[4] & PXX2_RX_SETTINGS_FLAG1_FPORT2)
     destination->fport2 = 1;
 
-  uint8_t outputsCount = min<uint8_t>(16, frame[0] - 4);
+  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_SBUS24)
+    destination->sbus24 = 1;
+
+  uint8_t outputsCount = min<uint8_t>(PXX2_MAX_CHANNELS, frame[0] - 4);
   destination->outputsCount = outputsCount;
   for (uint8_t pin = 0; pin < outputsCount; pin++) {
     destination->outputsMapping[pin] = frame[5 + pin];
@@ -216,14 +337,8 @@ static void processResetFrame(uint8_t module, const uint8_t * frame)
 
 static void processTelemetryFrame(uint8_t module, const uint8_t * frame)
 {
-  for (uint8_t i = 0; i < 1 + frame[0]; i++) {
-    telemetryMirrorSend(frame[i]);
-  }
-  
-  uint8_t origin = (module << 2) + (frame[3] & 0x03);
-  if (origin != TELEMETRY_ENDPOINT_SPORT) {
-    sportProcessTelemetryPacketWithoutCrc(origin, &frame[4]);
-  }
+  uint8_t origin = frame[3] & 0x03;
+  sportProcessTelemetryPacketWithoutCrc(module, origin, &frame[4]);
 }
 
 #if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)
@@ -254,9 +369,10 @@ static void processAuthenticationFrame(uint8_t module, const uint8_t * frame,
 
     moduleState[module].mode = MODULE_MODE_AUTHENTICATION;
 
-    Pxx2Pulses &pxx2 = intmodulePulsesData.pxx2;
-    pxx2.setupAuthenticationFrame(module, cryptoType, (const uint8_t *)messageDigest);
-    drv->sendBuffer(ctx, pxx2.getData(), pxx2.getSize());
+    uint8_t* module_buffer = pulsesGetModuleBuffer(module);
+    Pxx2Pulses pxx2(module_buffer);
+    pxx2.setupAuthenticationFrame(module, cryptoType, (const uint8_t *)messageDigest);    
+    drv->sendBuffer(ctx, module_buffer, pxx2.getSize());
 
     // we remain in AUTHENTICATION mode to avoid a CHANNELS frame is sent at the
     // end of the mixing process
@@ -417,3 +533,4 @@ void processPXX2Frame(uint8_t module, const uint8_t * frame,
   }
 }
 
+#endif

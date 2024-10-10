@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #include "simulateduiwidget.h"
 #include "ui_simulateduiwidgetT8.h"
 
@@ -13,28 +34,28 @@ SimulatedUIWidgetT8::SimulatedUIWidgetT8(SimulatorInterface *simulator, QWidget 
 
   // add actions in order of appearance on the help menu
 
-  act = new RadioUiAction(5, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
+  act = new RadioUiAction(KEY_MODEL, QList<int>() << Qt::Key_Up, SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL);
   addRadioWidget(ui->rightbuttons->addArea(QRect(25, 40, 35, 20), "T8/right-mdl.png", act));
 
-  act = new RadioUiAction(6, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
+  act = new RadioUiAction(KEY_PLUS, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP);
   addRadioWidget(ui->rightbuttons->addArea(QRect(25, 90, 35, 20), "T8/right-up.png", act));
 
-  act = new RadioUiAction(7, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
+  act = new RadioUiAction(KEY_MINUS, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN);
   addRadioWidget(ui->rightbuttons->addArea(QRect(25, 135, 35, 20), "T8/right-dn.png", act));
 
-  act = new RadioUiAction(1, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ENT);
+  act = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ENT);
   addRadioWidget(ui->rightbuttons->addArea(QRect(25, 180, 35, 20), "T8/right-ent.png", act));
 
-  act = new RadioUiAction(4, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
+  act = new RadioUiAction(KEY_SYS, QList<int>() << Qt::Key_Left, SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS);
   addRadioWidget(ui->leftbuttons->addArea(QRect(60, 45, 35, 20), "T8/left-sys.png", act));
 
-  act = new RadioUiAction(0, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
+  act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Down << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->leftbuttons->addArea(QRect(60, 85, 35, 20), "T8/left-rtn.png", act));
 
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
+  act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_PageDown, SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN);
   addRadioWidget(ui->leftbuttons->addArea(QRect(60, 135, 35, 20), "T8/left-pagedn.png", act));
 
-  act = new RadioUiAction(2, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
+  act = new RadioUiAction(KEY_PAGEUP, QList<int>() << Qt::Key_PageUp, SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP);
   addRadioWidget(ui->leftbuttons->addArea(QRect(60, 180, 35, 20), "T8/left-pageup.png", act));
 
 

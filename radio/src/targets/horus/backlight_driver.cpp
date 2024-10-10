@@ -19,7 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx_types.h"
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+#include "stm32_timer.h"
+
+#include "edgetx_types.h"
 #include "board.h"
 
 #if !defined(BOOT)
@@ -29,25 +33,14 @@
 void backlightInit()
 {
   // PIN init
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = BACKLIGHT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(BACKLIGHT_GPIO, &GPIO_InitStructure);
-  GPIO_PinAFConfig(BACKLIGHT_GPIO, BACKLIGHT_GPIO_PinSource, BACKLIGHT_GPIO_AF);
+  gpio_init_af(BACKLIGHT_GPIO, BACKLIGHT_GPIO_AF, GPIO_PIN_SPEED_LOW);
 
 #if defined(KEYS_BACKLIGHT_GPIO)
-  GPIO_InitStructure.GPIO_Pin = KEYS_BACKLIGHT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(KEYS_BACKLIGHT_GPIO, &GPIO_InitStructure);
+  gpio_init(KEYS_BACKLIGHT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 
   // TIMER init
+  stm32_timer_enable_clock(BACKLIGHT_TIMER);
 #if defined(PCBX12S) && PCBREV >= 13
   BACKLIGHT_TIMER->ARR = 100;
   BACKLIGHT_TIMER->PSC = BACKLIGHT_TIMER_FREQ / 10000 - 1; // 1kHz
@@ -89,10 +82,10 @@ void backlightEnable(uint8_t dutyCycle)
 
 #if defined(KEYS_BACKLIGHT_GPIO) && !defined(BOOT)
   if (dutyCycle == 0 || g_eeGeneral.keysBacklight == 0) {
-    GPIO_ResetBits(KEYS_BACKLIGHT_GPIO, KEYS_BACKLIGHT_GPIO_PIN);
+    gpio_clear(KEYS_BACKLIGHT_GPIO);
   }
   else {
-    GPIO_SetBits(KEYS_BACKLIGHT_GPIO, KEYS_BACKLIGHT_GPIO_PIN);
+    gpio_set(KEYS_BACKLIGHT_GPIO);
   }
 #endif
 

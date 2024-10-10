@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -37,24 +38,24 @@ SimulatedUIWidgetX9E::SimulatedUIWidgetX9E(SimulatorInterface *simulator, QWidge
   QPoint ctr(70, 100);
 
   polygon << polyArc(ctr.x(), ctr.y(), 60, -90, 0) << ctr;
-  act = new RadioUiAction(0, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU);
+  act = new RadioUiAction(KEY_MENU, QList<int>() << Qt::Key_Up << Qt::Key_PageUp, SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "X9E/left_menu.png", act));
 
   polygon.clear();
   polygon << polyArc(ctr.x(), ctr.y(), 45, 0, 180);
-  act = new RadioUiAction(3, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
+  act = new RadioUiAction(KEY_PAGEDN, QList<int>() << Qt::Key_Down << Qt::Key_PageDown, SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_PAGE);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "X9E/left_page.png", act));
 
   polygon.clear();
   polygon << polyArc(ctr.x(), ctr.y(), 60, 180, 270) << ctr;
-  act = new RadioUiAction(1, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
+  act = new RadioUiAction(KEY_EXIT, QList<int>() << Qt::Key_Delete << Qt::Key_Escape << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT);
   addRadioWidget(ui->leftbuttons->addArea(polygon, "X9E/left_exit.png", act));
 
   m_scrollUpAction = addRadioAction(new RadioUiAction(-1, QList<int>() << Qt::Key_Minus << Qt::Key_Left, SIMU_STR_HLP_KEYS_GO_LFT, SIMU_STR_HLP_ACT_ROT_LFT));
   m_scrollDnAction = addRadioAction(new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Equal << Qt::Key_Right, SIMU_STR_HLP_KEYS_GO_RGT, SIMU_STR_HLP_ACT_ROT_RGT));
   connectScrollActions();
 
-  m_mouseMidClickAction = new RadioUiAction(2, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
+  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return, SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
   addRadioWidget(ui->rightbuttons->addArea(polyArc(90, 100, 50), "X9E/right_enter.png", m_mouseMidClickAction));
 
   addRadioWidget(ui->leftbuttons->addArea(QRect(10, 170, 30, 30), "X9E/left_scrnshot.png", m_screenshotAction));

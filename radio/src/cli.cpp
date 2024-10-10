@@ -22,9 +22,22 @@
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/stream_buffer.h>
 
-#include "opentx.h"
-#include "diskio.h"
+#include "edgetx.h"
 #include "timers_driver.h"
+#include "hal/watchdog_driver.h"
+
+#if defined(BLUETOOTH)
+#include "bluetooth_driver.h"
+#endif
+
+#include "hal/adc_driver.h"
+#include "hal/module_port.h"
+#include "hal/fatfs_diskio.h"
+#include "hal/storage.h"
+#include "hal/usb_driver.h"
+
+#include "tasks.h"
+#include "tasks/mixer_task.h"
 
 #include "cli.h"
 
@@ -33,10 +46,6 @@
 #include <new>
 #include <stdarg.h>
 
-
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
-#endif
 
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
@@ -47,7 +56,7 @@
 #define CLI_PRINT_BUFFER_SIZE 128
 
 RTOS_TASK_HANDLE cliTaskId;
-RTOS_DEFINE_STACK(cliStack, CLI_STACK_SIZE);
+RTOS_DEFINE_STACK(cliTaskId, cliStack, CLI_STACK_SIZE);
 
 static uint8_t cliRxBufferStorage[CLI_RX_BUFFER_SIZE];
 static StaticStreamBuffer_t cliRxBufferStatic;
@@ -340,8 +349,9 @@ int cliReadSD(const char ** argv)
   uint32_t bytesRead = numberOfSectors * 512;
   tmr10ms_t start = get_tmr10ms();
 
+  auto drv = storageGetDefaultDriver();
   while (numberOfSectors > 0) {
-    DRESULT res = __disk_read(0, buffer, startSector, bufferSectors);
+    DRESULT res = drv->read(0, buffer, startSector, bufferSectors);
     if (res != RES_OK) {
       cliSerialPrint("disk_read error: %d, sector: %d(%d)", res, startSector, numberOfSectors);
     }
@@ -378,10 +388,11 @@ int cliReadSD(const char ** argv)
 int cliTestSD(const char ** argv)
 {
   // Do the read test on the SD card and report back the result
+  auto drv = storageGetDefaultDriver();
 
   // get sector count
   uint32_t sectorCount;
-  if (disk_ioctl(0, GET_SECTOR_COUNT, &sectorCount) != RES_OK) {
+  if (drv->ioctl(0, GET_SECTOR_COUNT, &sectorCount) != RES_OK) {
     cliSerialPrint("Error: can't read sector count");
     return 0;
   }
@@ -394,8 +405,9 @@ int cliTestSD(const char ** argv)
     cliSerialPrint("Not enough memory");
     return 0;
   }
+
   for (uint32_t s = sectorCount - 16; s<sectorCount; ++s) {
-    DRESULT res = __disk_read(0, buffer, s, 1);
+    DRESULT res = drv->read(0, buffer, s, 1);
     if (res != RES_OK) {
       cliSerialPrint("sector %d read FAILED, err: %d", s, res);
     }
@@ -414,8 +426,8 @@ int cliTestSD(const char ** argv)
   }
 
   cliSerialPrint("Starting multiple sector read test, reading two sectors at the time");
-  for (uint32_t s = sectorCount - 16; s<sectorCount; s+=2) {
-    DRESULT res = __disk_read(0, buffer, s, 2);
+  for (uint32_t s = sectorCount - 16; s < sectorCount; s += 2) {
+    DRESULT res = drv->read(0, buffer, s, 2);
     if (res != RES_OK) {
       cliSerialPrint("sector %d-%d read FAILED, err: %d", s, s+1, res);
     }
@@ -434,7 +446,7 @@ int cliTestSD(const char ** argv)
   }
 
   cliSerialPrint("Starting multiple sector read test, reading 16 sectors at the time");
-  DRESULT res = __disk_read(0, buffer, sectorCount-16, 16);
+  DRESULT res = drv->read(0, buffer, sectorCount - 16, 16);
   if (res != RES_OK) {
     cliSerialPrint("sector %d-%d read FAILED, err: %d", sectorCount-16, sectorCount-1, res);
   }
@@ -449,14 +461,14 @@ int cliTestSD(const char ** argv)
 
 int cliTestNew()
 {
-  char * tmp = 0;
+  char * tmp = nullptr;
   cliSerialPrint("Allocating 1kB with new()");
   RTOS_WAIT_MS(200);
   tmp = new char[1024];
   if (tmp) {
     cliSerialPrint("\tsuccess");
     delete[] tmp;
-    tmp = 0;
+    tmp = nullptr;
   }
   else {
     cliSerialPrint("\tFAILURE");
@@ -468,7 +480,7 @@ int cliTestNew()
   if (tmp) {
     cliSerialPrint("\tFAILURE, tmp = %p", tmp);
     delete[] tmp;
-    tmp = 0;
+    tmp = nullptr;
   }
   else {
     cliSerialPrint("\tsuccess, allocaton failed, tmp = 0");
@@ -480,7 +492,7 @@ int cliTestNew()
   if (tmp) {
     cliSerialPrint("\tFAILURE, tmp = %p", tmp);
     delete[] tmp;
-    tmp = 0;
+    tmp = nullptr;
   }
   else {
     cliSerialPrint("\tsuccess, allocaton failed, tmp = 0");
@@ -581,7 +593,7 @@ int cliTestGraphics()
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   float result = 0;
@@ -607,7 +619,7 @@ int cliTestGraphics()
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -714,7 +726,7 @@ int cliTestMemorySpeed()
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   float result = 0;
@@ -749,7 +761,7 @@ int cliTestMemorySpeed()
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
@@ -843,15 +855,19 @@ int cliTrace(const char ** argv)
 
 int cliStackInfo(const char ** argv)
 {
-  cliSerialPrint("[MAIN] %d available / %d bytes", stackAvailable()*4, stackSize()*4);
+  cliSerialPrint("[MAIN] %d available / %d bytes", mainStackAvailable()*4, stackSize()*4);
   cliSerialPrint("[MENUS] %d available / %d bytes", menusStack.available()*4, menusStack.size());
   cliSerialPrint("[MIXER] %d available / %d bytes", mixerStack.available()*4, mixerStack.size());
+#if defined(AUDIO)
   cliSerialPrint("[AUDIO] %d available / %d bytes", audioStack.available()*4, audioStack.size());
+#endif
+#if defined(CLI)
   cliSerialPrint("[CLI] %d available / %d bytes", cliStack.available()*4, cliStack.size());
+#endif
   return 0;
 }
 
-extern int _end;
+extern int _heap_start;
 extern int _heap_end;
 extern unsigned char *heap;
 
@@ -878,10 +894,10 @@ int cliMemoryInfo(const char ** argv)
   cliSerialPrint("\tkeepcost %d bytes", info.keepcost);
 
   cliSerialPrint("\nHeap:");
-  cliSerialPrint("\tstart %p", (unsigned char *)&_end);
+  cliSerialPrint("\tstart %p", (unsigned char *)&_heap_start);
   cliSerialPrint("\tend   %p", (unsigned char *)&_heap_end);
   cliSerialPrint("\tcurr  %p", heap);
-  cliSerialPrint("\tused  %d bytes", (int)(heap - (unsigned char *)&_end));
+  cliSerialPrint("\tused  %d bytes", (int)(heap - (unsigned char *)&_heap_start));
   cliSerialPrint("\tfree  %d bytes", (int)((unsigned char *)&_heap_end - heap));
 
 #if defined(LUA)
@@ -906,7 +922,7 @@ int cliReboot(const char ** argv)
 #if !defined(SIMU)
   if (!strcmp(argv[1], "wdt")) {
     // do a user requested watchdog test by pausing mixer thread
-    pausePulses();
+    pulsesStop();
   }
   else {
     NVIC_SystemReset();
@@ -953,7 +969,7 @@ int cliSet(const char **argv)
       return -1;
     }
   }
-#if !defined(SOFTWARE_VOLUME)
+#if !defined(SOFTWARE_VOLUME) && defined(AUDIO)
   else if (!strcmp(argv[1], "volume")) {
     int level = 0;
     if (toInt(argv, 2, &level) > 0) {
@@ -973,41 +989,33 @@ int cliSet(const char **argv)
     }
     if (!strcmp(argv[3], "power")) {
       if (!strcmp("on", argv[4])) {
-        if (module == 0) {
-          INTERNAL_MODULE_ON();
-        } else {
-          EXTERNAL_MODULE_ON();
-        }
+        modulePortSetPower(module, true);
       } else if (!strcmp("off", argv[4])) {
-        if (module == 0) {
-          INTERNAL_MODULE_OFF();
-        } else {
-          EXTERNAL_MODULE_OFF();
-        }
+        modulePortSetPower(module, false);
       } else {
         cliSerialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
         return -1;
       }
       cliSerialPrint("%s: rfmod %d power %s", argv[0], module, argv[4]);
     }
-#if defined(INTMODULE_BOOTCMD_GPIO)
     else if (!strcmp(argv[3], "bootpin")) {
       int level = 0;
       if (toInt(argv, 4, &level) < 0) {
         cliSerialPrint("%s: invalid bootpin argument '%s'", argv[0], argv[4]);
         return -1;
       }
-      if (module == 0) {
-        if (level) {
-          GPIO_SetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-          cliSerialPrint("%s: bootpin set", argv[0]);
-        } else {
-          GPIO_ResetBits(INTMODULE_BOOTCMD_GPIO, INTMODULE_BOOTCMD_GPIO_PIN);
-          cliSerialPrint("%s: bootpin reset", argv[0]);
-        }
+      const auto* mod = modulePortGetModuleDescription(INTERNAL_MODULE);
+      if (!mod || !mod->set_bootcmd) {
+        cliSerialPrint("%s: invalid module or has no bootcmd pin", argv[0]);
+        return -1;
+      }
+      mod->set_bootcmd(level);
+      if (level) {
+        cliSerialPrint("%s: bootcmd set", argv[0]);
+      } else {
+        cliSerialPrint("%s: bootcmd reset", argv[0]);
       }
     }
-#endif
     else {
       if (strlen(argv[2]) == 0) {
         cliSerialPrint("%s: missing rfmod arguments", argv[0]);
@@ -1026,10 +1034,10 @@ int cliSet(const char **argv)
 
     if (level) {
       cliSerialPrint("%s: pulses start", argv[0]);
-      startPulses();
+      pulsesStart();
     } else {
       cliSerialPrint("%s: pulses stop", argv[0]);
-      stopPulses();
+      pulsesStop();
     }
   }
 
@@ -1037,23 +1045,28 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-static void *spInternalModuleCTX = nullptr;
+#if defined(HARDWARE_INTERNAL_MODULE)
+static etx_module_state_t *spInternalModuleState = nullptr;
+
 static void spInternalModuleTx(uint8_t* buf, uint32_t len)
 {
+  auto drv = modulePortGetSerialDrv(spInternalModuleState->tx);
+  auto ctx = modulePortGetCtx(spInternalModuleState->tx);
+
   while (len > 0) {
-    IntmoduleSerialDriver.sendByte(spInternalModuleCTX, *(buf++));
+    drv->sendByte(ctx, *(buf++));
     len--;
   }
 }
 
 static const etx_serial_init spIntmoduleSerialInitParams = {
   .baudrate = 0,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = true,
+  .encoding = ETX_Encoding_8N1,
+  .direction = ETX_Dir_TX_RX,
+  .polarity = ETX_Pol_Normal,
 };
 
+#endif // HARDWARE_INTERNAL_MODULE
 // TODO: use proper method instead
 extern bool cdcConnected;
 extern uint32_t usbSerialBaudRate(void*);
@@ -1100,7 +1113,7 @@ int cliSerialPassthrough(const char **argv)
     
     //  stop pulses
     watchdogSuspend(200/*2s*/);
-    stopPulses();
+    pulsesStop();
 
     // suspend RTOS scheduler
     vTaskSuspendAll();
@@ -1114,30 +1127,27 @@ int cliSerialPassthrough(const char **argv)
       etx_serial_init params(spIntmoduleSerialInitParams);
       params.baudrate = baudrate;
 
-      void* uart_ctx = IntmoduleSerialDriver.init(&params);
-      spInternalModuleCTX = uart_ctx;
+      spInternalModuleState = modulePortInitSerial(port_n, ETX_MOD_PORT_UART,
+                                                   &params, false);
+
+      auto drv = modulePortGetSerialDrv(spInternalModuleState->rx);
+      auto ctx = modulePortGetCtx(spInternalModuleState->rx);
 
       // backup and swap CLI input
       auto backupCB = cliReceiveCallBack;
       cliReceiveCallBack = spInternalModuleTx;
 
-
       // loop until cable disconnected
-      while (cdcConnected) {
+      while (usbPlugged()) {
 
         uint32_t cli_br = cliGetBaudRate();
         if (cli_br && (cli_br != (uint32_t)baudrate)) {
           baudrate = cli_br;
-
-          etx_serial_init params(spIntmoduleSerialInitParams);
-          params.baudrate = baudrate;
-
-          // re-configure serial port
-          spInternalModuleCTX = IntmoduleSerialDriver.init(&params);
+          drv->setBaudrate(ctx, baudrate);
         }
 
         uint8_t data;
-        if (IntmoduleSerialDriver.getByte(uart_ctx, &data) > 0) {
+        if (drv->getByte(ctx, &data) > 0) {
 
           uint8_t timeout = 10; // 10 ms
           while(!usbSerialFreeSpace() && (timeout > 0)) {
@@ -1154,13 +1164,13 @@ int cliSerialPassthrough(const char **argv)
 
       // restore callsbacks
       cliReceiveCallBack = backupCB;
-      spInternalModuleCTX = nullptr;
 
       // and stop module
-      IntmoduleSerialDriver.deinit(uart_ctx);
+      modulePortDeInit(spInternalModuleState);
+      spInternalModuleState = nullptr;
 
       // power off the module and wait for a bit
-      INTERNAL_MODULE_OFF();
+      modulePortSetPower(port_n, false);
       delay_ms(200);
     }
 #endif
@@ -1169,7 +1179,7 @@ int cliSerialPassthrough(const char **argv)
     //  - external module (S.PORT?)
 
     watchdogSuspend(200/*2s*/);
-    startPulses();
+    pulsesStart();
 
     // suspend RTOS scheduler
     xTaskResumeAll();
@@ -1257,6 +1267,13 @@ void printAudioVars()
 #endif
 
 #if defined(DEBUG)
+
+#include "hal/switch_driver.h"
+
+#if defined(DISK_CACHE)
+#include "disk_cache.h"
+#endif
+
 int cliDisplay(const char ** argv)
 {
   long long int address = 0;
@@ -1269,32 +1286,32 @@ int cliDisplay(const char ** argv)
   }
 
   if (!strcmp(argv[1], "keys")) {
-    for (int i=0; i<TRM_BASE; i++) {
-      cliSerialPrint("[%s] = %s", STR_VKEYS[i]+1, keys[i].state() ? "on" : "off");
+    for (int i = 0; i <= MAX_KEYS; i++) {
+      if (keysGetSupported() & (1 << i)) {
+        cliSerialPrint("[Key %s] = %s",
+                       keysGetLabel((EnumKeys)i),
+                       keysGetState(i) ? "on" : "off");
+      }
     }
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    typedef int32_t rotenc_t;
-    extern volatile rotenc_t rotencValue;
-    cliSerialPrint("[Enc.] = %d", rotencValue / ROTARY_ENCODER_GRANULARITY);
-#endif
-    for (int i=TRM_BASE; i<=TRM_LAST; i++) {
-      cliSerialPrint("[Trim%d] = %s", i-TRM_BASE, keys[i].state() ? "on" : "off");
+    for (int i = 0; i < keysGetMaxTrims(); i++) {
+      cliSerialPrint("[Trim %s] = %s", getTrimLabel(i),
+                     keysGetTrimState(i) ? "on" : "off");
     }
-    for (int i=MIXSRC_FIRST_SWITCH; i<=MIXSRC_LAST_SWITCH; i++) {
-      mixsrc_t sw = i - MIXSRC_FIRST_SWITCH;
-      if (SWITCH_EXISTS(sw)) {
-        static const char * const SWITCH_POSITIONS[] = { "down", "mid", "up" };
-        cliSerialPrint("[%s] = %s", STR_VSWITCHES[sw]+1, SWITCH_POSITIONS[1 + getValue(i) / 1024]);
+    for (int i = 0; i < switchGetMaxSwitches(); i++) {
+      if (SWITCH_EXISTS(i)) {
+        static const char * const SWITCH_POSITIONS[] = { "up", "mid", "down" };
+        auto pos = switchGetPosition(i);
+        cliSerialPrint("[%s] = %s", switchGetName(i), SWITCH_POSITIONS[pos]);
       }
     }
   }
   else if (!strcmp(argv[1], "adc")) {
-    for (int i=0; i<NUM_ANALOGS; i++) {
-      cliSerialPrint("adc[%d] = %04X", i, (int)adcValues[i]);
+    for (int i = 0; i < adcGetMaxInputs(ADC_INPUT_ALL); i++) {
+      cliSerialPrint("adc[%d] = %04X", i, getAnalogValue(i));
     }
   }
   else if (!strcmp(argv[1], "outputs")) {
-    for (int i=0; i<MAX_OUTPUT_CHANNELS; i++) {
+    for (int i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
       cliSerialPrint("outputs[%d] = %04d", i, (int)channelOutputs[i]);
     }
   }
@@ -1390,18 +1407,11 @@ int cliDisplay(const char ** argv)
 
 int cliDebugVars(const char ** argv)
 {
-#if defined(PCBHORUS)
-  extern uint32_t ioMutexReq, ioMutexRel;
-  extern uint32_t sdReadRetries;
-  cliSerialPrint("ioMutexReq=%d", ioMutexReq);
-  cliSerialPrint("ioMutexRel=%d", ioMutexRel);
-  cliSerialPrint("sdReadRetries=%d", sdReadRetries);
-#if defined(ACCESS_DENIED)
+#if defined(INTERNAL_MODULE_PXX2) && defined(ACCESS_DENIED) && !defined(SIMU)
   extern volatile int32_t authenticateFrames;
   cliSerialPrint("authenticateFrames=%d", authenticateFrames);
-#endif
 #elif defined(PCBTARANIS)
-  cliSerialPrint("telemetryErrors=%d", telemetryErrors);
+  //cliSerialPrint("telemetryErrors=%d", telemetryErrors);
 #endif
 
   return 0;
@@ -1439,11 +1449,13 @@ int cliRepeat(const char ** argv)
 int cliShowJitter(const char ** argv)
 {
   cliSerialPrint(  "#   anaIn   rawJ   avgJ");
-  for (int i=0; i<NUM_ANALOGS; i++) {
-    cliSerialPrint("A%02d %04X %04X %3d %3d", i, getAnalogValue(i), anaIn(i), rawJitter[i].get(), avgJitter[i].get());
-    if (IS_POT_MULTIPOS(i)) {
-      StepsCalibData * calib = (StepsCalibData *) &g_eeGeneral.calib[i];
-      for (int j=0; j<calib->count; j++) {
+  for (int i = 0; i < MAX_ANALOG_INPUTS; i++) {
+    cliSerialPrint("A%02d %04X %04X %3d %3d", i, getAnalogValue(i), anaIn(i),
+                   rawJitter[i].get(), avgJitter[i].get());
+
+    if (i >= MAX_STICKS && IS_POT_MULTIPOS(i - MAX_STICKS)) {
+      StepsCalibData *calib = (StepsCalibData *)&g_eeGeneral.calib[i];
+      for (int j = 0; j < calib->count; j++) {
         cliSerialPrint("    s%d %04X", j, calib->steps[j]);
       }
     }
@@ -1549,7 +1561,7 @@ int cliCrypt(const char ** argv)
   if (pulsesStarted()) {
     pausePulses();
   }
-  pauseMixerCalculations();
+  mixerTaskStop();
   perMainEnabled = false;
 
   uint32_t startMs = RTOS_GET_MS();
@@ -1564,15 +1576,14 @@ int cliCrypt(const char ** argv)
   if (pulsesStarted()) {
     resumePulses();
   }
-  resumeMixerCalculations();
+  mixerTaskStart();
   watchdogSuspend(0);
 
   return 0;
 }
 #endif
 
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
-
+#if defined(TP_GT911)
 // from tp_gt911.cpp
 extern uint8_t tp_gt911_cfgVer;
 
@@ -1587,7 +1598,7 @@ int cliResetGT911(const char** argv)
 
     // stop pulses & suspend RTOS scheduler
     watchdogSuspend(200/*2s*/);
-    stopPulses();
+    pulsesStop();
     vTaskSuspendAll();
 
     // reset touch controller
@@ -1598,7 +1609,7 @@ int cliResetGT911(const char** argv)
     cliSerialPrintf("GT911: new config version is %u\n", tp_gt911_cfgVer);
 
     // restart pulses & RTOS scheduler
-    startPulses();
+    pulsesStart();
     xTaskResumeAll();
 
     return 0;
@@ -1643,7 +1654,7 @@ const CliCommand cliCommands[] = {
 #if defined(ACCESS_DENIED) && defined(DEBUG_CRYPT)
   { "crypt", cliCrypt, "<string to be encrypted>" },
 #endif
-#if defined(HARDWARE_TOUCH) && !defined(PCBNV14)
+#if defined(TP_GT911)
   { "reset_gt911", cliResetGT911, ""},
 #endif
   { nullptr, nullptr, nullptr }  /* sentinel */
@@ -1719,7 +1730,7 @@ void cliTask(void * pdata)
     const TickType_t xTimeout = 100 / RTOS_MS_PER_TICK;
     size_t xReceivedBytes = xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout);
 
-    if (s_pulses_paused) {
+    if (!mixerTaskRunning()) {
       WDG_RESET();
     }
 

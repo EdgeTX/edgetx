@@ -22,7 +22,7 @@
 #include "chooserdialog.h"
 #include "ui_chooserdialog.h"
 
-ChooserDialog::ChooserDialog(QWidget * parent, QString title, QStandardItemModel * itemModel) :
+ChooserDialog::ChooserDialog(QWidget * parent, QString title, QStandardItemModel * itemModel, QAbstractItemView::SelectionMode mode) :
   QDialog(parent),
   ui(new Ui::ChooserDialog)
 {
@@ -32,6 +32,7 @@ ChooserDialog::ChooserDialog(QWidget * parent, QString title, QStandardItemModel
 
   ui->listView->setModel(itemModel);
   ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  ui->listView->setSelectionMode(mode);
 
   connect(ui->buttonBox, &QDialogButtonBox::accepted, [=]() {
     QDialog::accept();

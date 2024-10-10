@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -92,7 +93,7 @@ class AppMessages
       msgBox.setText(infoTxt);
 
       if (!transient)
-        msgBox.setCheckBox(new QCheckBox(tr("Show this message again at next startup?")));
+        msgBox.setCheckBox(new QCheckBox(QObject::tr("Show this message again at next startup?")));
 
       msgBox.exec();
 

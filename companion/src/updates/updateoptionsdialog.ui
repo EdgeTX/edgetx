@@ -23,14 +23,14 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLabel" name="lblCurrentRelease">
+      <widget class="QLabel" name="lblreleaseCurrent">
        <property name="text">
         <string>Current Release:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="txtCurrentRelease">
+      <widget class="QLabel" name="txtreleaseCurrent">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -43,7 +43,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnClearRelease">
+      <widget class="QPushButton" name="btnReleaseClear">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>

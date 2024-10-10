@@ -19,14 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
-#include "mixer_scheduler.h"
-#include "hal/module_driver.h"
-
-#if defined(INTMODULE_USART)
-#include "intmodule_serial_driver.h"
+#if !defined(SIMU)
+#include "stm32_exti_driver.h"
+#include "stm32_hal_ll.h"
 #endif
 
+#include "edgetx.h"
+#include "mixer_scheduler.h"
+#include "hal/module_driver.h"
+#include "hal/module_port.h"
+
+#include "crossfire.h"
 #include "telemetry/crossfire.h"
 
 #define CROSSFIRE_CH_BITS           11
@@ -37,6 +40,41 @@
   #define CROSSFIRE_CENTER_CH_OFFSET(ch)            (0)
 #endif
 
+#define MIN_FRAME_LEN 3
+
+#define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
+static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
+static bool moduleAlive[NUM_MODULES];                 // module alive status
+
+uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  uint8_t * buf = frame;
+  *buf++ = UART_SYNC;                                 /* device address */
+  *buf++ = 7;                                         /* frame length */
+  *buf++ = COMMAND_ID;                                /* cmd type */
+  if (TELEMETRY_STREAMING())
+    *buf++ = RECEIVER_ADDRESS;                        /* Destination is receiver (unbind) */
+  else
+    *buf++ = MODULE_ADDRESS;                          /* Destination is module */
+  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
+  *buf++ = SUBCOMMAND_CRSF;                           /* sub command */
+  *buf++ = SUBCOMMAND_CRSF_BIND;                      /* initiate bind */
+  *buf++ = crc8_BA(frame + 2, 5);
+  *buf++ = crc8(frame + 2, 6);
+  return buf - frame;
+}
+
+uint8_t createCrossfirePingFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  uint8_t * buf = frame;
+  *buf++ = UART_SYNC;                                 /* device address */
+  *buf++ = 4;                                         /* frame length */
+  *buf++ = PING_DEVICES_ID;                           /* cmd type */
+  *buf++ = BROADCAST_ADDRESS;                         /* Destination Address */
+  *buf++ = RADIO_ADDRESS;                             /* Origin Address */
+  *buf++ = crc8(frame + 2, 3);
+  return buf - frame;
+}
 
 uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 {
@@ -78,26 +116,58 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
   return buf - frame;
 }
 
-static void setupPulsesCrossfire(uint8_t idx, CrossfirePulsesData* p_data,
+static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
                                  uint8_t endpoint, int16_t* channels,
                                  uint8_t nChannels)
 {
 #if defined(LUA)
   if (outputTelemetryBuffer.destination == endpoint) {
-    memcpy(p_data->pulses, outputTelemetryBuffer.data,
-           outputTelemetryBuffer.size);
-    p_data->length = outputTelemetryBuffer.size;
+    auto len = outputTelemetryBuffer.size;
+    memcpy(p_buf, outputTelemetryBuffer.data, len);
     outputTelemetryBuffer.reset();
+    p_buf += len;
   } else
 #endif
   {
-    if (moduleState[idx].counter == CRSF_FRAME_MODELID) {
-      p_data->length = createCrossfireModelIDFrame(idx, p_data->pulses);
-      moduleState[idx].counter = CRSF_FRAME_MODELID_SENT;
+    //
+    // An ELRS module stores the RF parameters in a model specific way using the
+    // modelID as index. If the module resets after it was initally initialized the modelID 
+    // needs to be resent as otherwise the module assumes modelID 0 which leads to the
+    // module using the stored RF parameters for the model with modelID 0. This is not only
+    // annoying but also potentially dangerous as a receiver will no longer re-connect.
+    //
+    // Reasons for a module resetting might be:
+    // - power surge
+    // - internal non-recoverable error
+    // - after flashing in WiFi mode
+    // - putting the module in WiFi mode and exiting WiFi mode (LUA script)
+    // 
+    // This logic takes care of sending the modelID again after a module comes back to 
+    // live after a module reset
+    // 
+    if(moduleState[module].counter != CRSF_FRAME_MODELID ) {            // skip the reset check logic if first init
+      if((get_tmr10ms() - lastAlive[module]) > MODULE_ALIVE_TIMEOUT) {  // check if module has recently sent CRSF frames 
+        moduleAlive[module] = false;                                    // no, declare it as dead  
+      } else {
+        if(moduleAlive[module] == false) {                              // if the module was dead and came back to live, e.g. reset
+          moduleAlive[module] = true;                                   // declare the module as alive
+          moduleState[module].counter = CRSF_FRAME_MODELID;             // and send it the modelID again 
+          TRACE("[XF] sending ModelID after module reset");
+        }
+      }
+    }
+
+    if (moduleState[module].counter == CRSF_FRAME_MODELID) {
+      p_buf += createCrossfireModelIDFrame(module, p_buf);
+      moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
+    } else if (moduleState[module].counter == CRSF_FRAME_MODELID_SENT && crossfireModuleStatus[module].queryCompleted == false) {
+      p_buf += createCrossfirePingFrame(module, p_buf);
+    } else if (moduleState[module].mode == MODULE_MODE_BIND) {
+      p_buf += createCrossfireBindFrame(module, p_buf);
+      moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
-      p_data->length = createCrossfireChannelsFrame(
-          p_data->pulses,
-          channels /*TODO: nChannels*/);
+      /* TODO: nChannels */
+      p_buf += createCrossfireChannelsFrame(p_buf, channels);
     }
   }
 }
@@ -108,227 +178,251 @@ static void crossfireSetupMixerScheduler(uint8_t module)
   if (status.isValid()) {
     mixerSchedulerSetPeriod(module, status.getAdjustedRefreshRate());
   } else {
-    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module));
   }
 }
 
 static bool _checkFrameCRC(uint8_t* rxBuffer)
 {
   uint8_t len = rxBuffer[1];
-  uint8_t crc = crc8(&rxBuffer[2], len-1);
-  return (crc == rxBuffer[len+1]);
+  uint8_t crc = crc8(&rxBuffer[2], len - 1);
+  // TRACE("[XF] crc = %d; pkt = %d", crc, rxBuffer[len + 1]);
+  return (crc == rxBuffer[len + 1]);
 }
 
-struct CrossfireState {
-  uint8_t                    module;
-  CrossfirePulsesData*       data;
-  const etx_serial_driver_t* uart_drv;
-  void*                      uart_ctx;
-  uint8_t                    endpoint;
-
-  void init(uint8_t _module, CrossfirePulsesData* _data,
-            const etx_serial_driver_t* _drv, void* _ctx, uint8_t _endpoint)
-  {
-    module = _module;
-    data = _data;
-    uart_drv = _drv;
-    uart_ctx = _ctx;
-    endpoint = _endpoint;
-  }
-  
-  void deinit() { uart_drv->deinit(uart_ctx); }
-};
-
-static CrossfireState crossfireState[NUM_MODULES];
-
-static void crossfireSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_t nChannels)
 {
-  auto state = (CrossfireState*)context;
-  crossfireSetupMixerScheduler(state->module);
-  setupPulsesCrossfire(state->module, state->data, state->endpoint, channels, nChannels);
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+  crossfireSetupMixerScheduler(module);
+
+  uint8_t endpoint = 0;  
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (module == EXTERNAL_MODULE) endpoint = TELEMETRY_ENDPOINT_SPORT;
+#endif
+  auto p_buf = buffer;
+  setupPulsesCrossfire(module, p_buf, endpoint, channels, nChannels);
+
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto drv_ctx = modulePortGetCtx(mod_st->tx);
+  drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
 }
 
-static void crossfireSendPulses(void* context)
+static bool _lenIsSane(uint32_t len)
 {
-  auto state = (CrossfireState*)context;
-  auto data = state->data;
-
-  if (state->uart_drv) {
-    auto drv = state->uart_drv;
-    auto ctx = state->uart_ctx;
-    drv->sendBuffer(ctx, data->pulses, data->length);
-  } else {
-    sportSendBuffer(data->pulses, data->length);
-  }
+  // packet len must be at least 3 bytes (type + payload + crc)
+  // and 2 bytes < MAX (hdr + len)
+  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE - 1);
 }
 
-static int crossfireGetByte(void* context, uint8_t* data)
+static bool _validHdr(uint8_t* buf)
 {
-  auto state = (CrossfireState*)context;
-  if (state->uart_drv) {
-    auto drv = state->uart_drv;
-    auto ctx = state->uart_ctx;
-    return drv->getByte(ctx, data);
-  } else {
-    return sportGetByte(data);
-  }
+  return buf[0] == RADIO_ADDRESS || buf[0] == UART_SYNC;
 }
 
-static bool _lenIsSane(uint8_t len)
+static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
 {
-  // packet len must be at least 3 bytes (type+payload+crc) and 2 bytes < MAX (hdr+len)
-  return (len > 2 && len < TELEMETRY_RX_PACKET_SIZE-1);
-}
+  uint8_t* p_buf = buf;
+  while (len >= MIN_FRAME_LEN) {
 
-static void _seekStart(uint8_t* buffer, uint8_t* len)
-{
-  // Bad telemetry packets frequently are just truncated packets, with the start
-  // of a new packet contained in the data. This causes multiple packet drops as
-  // the parser tries to resync.
-  // Search through the rxBuffer for a sync byte, shift the contents if found
-  // and reduce rxBufferCount
-  for (uint8_t idx = 1; idx < *len; ++idx) {
-    uint8_t data = buffer[idx];
-    if (data == RADIO_ADDRESS || data == UART_SYNC) {
-      uint8_t remain = *len - idx;
-      // If there's at least 2 bytes, check the length for validity too
-      if (remain > 1 && !_lenIsSane(buffer[idx + 1])) continue;
+    if (!_validHdr(p_buf)) {
+      TRACE("[XF] skipping invalid start bytes");
+      do { p_buf++; len--; } while(len > 0 && !_validHdr(p_buf));
+      if (len < MIN_FRAME_LEN) break;
+    }
 
-      // TRACE("Found 0x%02x with %u remain", data, remain);
-      // copy the data to the front of the buffer
-      for (uint8_t src = idx; src < *len; ++src) {
-        buffer[src - idx] = buffer[src];
-      }
+    uint32_t pkt_len = p_buf[1] + 2;
+    if (!_lenIsSane(pkt_len)) {
+      TRACE("[XF] pkt len error (%d)", pkt_len);
+      len = 0;
+      break;
+    }
 
-      *len = remain;
-      return;
-    }  // if found sync
-  }
+    if (pkt_len > (uint32_t)len) {
+      // incomplete packet
+      break;
+    }
 
-  // Not found, clear the buffer
-  *len = 0;
-}
-
-static void crossfireProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_t* len)
-{
-  if (*len == 0 && data != RADIO_ADDRESS && data != UART_SYNC) {
-    TRACE("[XF] address 0x%02X error", data);
-    return;
-  }
-
-  if (*len == 1 && !_lenIsSane(data)) {
-    TRACE("[XF] length 0x%02X error", data);
-    *len = 0;
-    return;
-  }
-
-  if (*len < TELEMETRY_RX_PACKET_SIZE) {
-    buffer[(*len)++] = data;
-  }
-  else {
-    TRACE("[XF] array size %d error", *len);
-    *len = 0;
-  }
-
-  // rxBuffer[1] holds the packet length-2, check if the whole packet was received
-  while (*len > 4 && (buffer[1]+2) == *len) {
-    // TODO: module in context?
-    if (_checkFrameCRC(buffer)) {
+    if (!_checkFrameCRC(p_buf)) {
+      TRACE("[XF] CRC error ");
+    } else {
 #if defined(BLUETOOTH)
+      // TODO: generic telemetry mirror to BT
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
           bluetooth.state == BLUETOOTH_STATE_CONNECTED) {
-        bluetooth.write(buffer, *len);
+        bluetooth.write(p_buf, pkt_len);
       }
 #endif
-      auto state = (CrossfireState*)context;
-      processCrossfireTelemetryFrame(state->module);
-      *len = 0;
+      auto mod_st = (etx_module_state_t*)ctx;
+      auto module = modulePortGetModule(mod_st);
+      lastAlive[module] = get_tmr10ms();                              // valid frame received, note timestamp
+      processCrossfireTelemetryFrame(module, p_buf, pkt_len);
     }
-    else {
-      TRACE("[XF] CRC error ");
-      _seekStart(buffer, len); // adjusts len
+
+    p_buf += pkt_len;
+    len -= pkt_len;
+  }
+  
+  return p_buf;
+}
+
+static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
+                                  uint8_t* buf, uint8_t* p_len)
+{
+  if (frame_len < MIN_FRAME_LEN) return;
+
+  uint8_t& len = *p_len;
+  if (len == 0) {
+    // buffer is empty: no re-assembly
+    if (!_validHdr(frame)) {
+      TRACE("[XF] invalid frame start");
+      return;
+    }
+
+    // process frames directly out of RX buffer
+    uint8_t* p_buf = _processFrames(ctx, frame, frame_len);
+    if (frame_len > 0) {
+      memcpy(buf, p_buf, frame_len);
+      len = frame_len;
+    }
+  } else {
+    uint32_t defrag_len = (uint32_t)len + (uint32_t)frame_len;
+    if (defrag_len > TELEMETRY_RX_PACKET_SIZE) {
+      TRACE("[XF] overflow (%d > %d)", defrag_len, TELEMETRY_RX_PACKET_SIZE);
+      frame_len = TELEMETRY_RX_PACKET_SIZE - len;
+      defrag_len = (uint32_t)len + (uint32_t)frame_len;
+    }
+
+    memcpy(buf + len, frame, frame_len);
+    len = (uint8_t)defrag_len;
+
+    uint8_t* p_buf = _processFrames(ctx, buf, len);
+    if ((len > 0) && (p_buf != buf)) {
+      memmove(buf, p_buf, len);
     }
   }
 }
 
-#if defined(INTERNAL_MODULE_CRSF)
-static const etx_serial_init intmoduleCrossfireInitParams = {
+static const etx_serial_init crsfSerialParams = {
   .baudrate = 0,
-  .parity = ETX_Parity_None,
-  .stop_bits = ETX_StopBits_One,
-  .word_length = ETX_WordLength_8,
-  .rx_enable = true,
+  .encoding = ETX_Encoding_8N1,
+  .direction = ETX_Dir_TX_RX,
+  .polarity = ETX_Pol_Normal,
 };
 
-static void* crossfireInitInternal(uint8_t module)
+#if !defined(SIMU)
+
+#if defined(INTERNAL_MODULE_CRSF)
+static void _crsf_intmodule_frame_received(void*)
 {
-  // serial port setup
-  etx_serial_init params(intmoduleCrossfireInitParams);
-  params.baudrate = INT_CROSSFIRE_BAUDRATE;
-  INTERNAL_MODULE_ON();
-
-  auto state = &crossfireState[module];
-  state->init(module, &intmodulePulsesData.crossfire,
-              &IntmoduleSerialDriver, IntmoduleSerialDriver.init(&params), 0);
-
-  return state;
+  telemetryFrameTrigger_ISR(INTERNAL_MODULE, &CrossfireDriver);
 }
-
-static void crossfireDeInitInternal(void* context)
-{
-  INTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(INTERNAL_MODULE, 0);
-
-  auto state = (CrossfireState*)context;
-  state->deinit();
-}
-
-etx_module_driver_t CrossfireInternalDriver = {
-  .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
-  .init = crossfireInitInternal,
-  .deinit = crossfireDeInitInternal,
-  .setupPulses = crossfireSetupPulses,
-  .sendPulses = crossfireSendPulses,
-  .getByte = crossfireGetByte,
-  .processData = crossfireProcessData,
-};
 #endif
 
-static void* crossfireInitExternal(uint8_t module)
+#if defined(HARDWARE_EXTERNAL_MODULE)
+static void _crsf_extmodule_frame_received()
 {
-  // telemetryInit(PROTOCOL_TELEMETRY_CROSSFIRE);
-  telemetryProtocol = PROTOCOL_TELEMETRY_CROSSFIRE;
-  telemetryPortInit(EXT_CROSSFIRE_BAUDRATE, TELEMETRY_SERIAL_DEFAULT);
-#if defined(LUA)
-  outputTelemetryBuffer.reset();
+  telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
+}
+
+// proxy trigger to avoid calling
+// FreeRTOS methods from ISR with prio 0
+static void _soft_irq_trigger(void*)
+{
+#ifndef STM32H7
+  EXTI->SWIER = TELEMETRY_RX_FRAME_EXTI_LINE;
+#else
+  EXTI->SWIER1 = TELEMETRY_RX_FRAME_EXTI_LINE;
 #endif
-  telemetryPortSetDirectionOutput();
-
-  mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD);
-  EXTERNAL_MODULE_ON();
-  
-  auto state = &crossfireState[module];
-  state->init(module, &extmodulePulsesData.crossfire, nullptr, nullptr,
-              TELEMETRY_ENDPOINT_SPORT);
-  
-  return state;
 }
+#endif
 
-static void crossfireDeInitExternal(void* context)
+#endif // !SIMU
+
+static void* crossfireInit(uint8_t module)
 {
-  (void)context;
-  telemetryProtocol = 0xFF;
+  etx_module_state_t* mod_st = nullptr;
+  etx_serial_init params(crsfSerialParams);
 
-  EXTERNAL_MODULE_OFF();
-  mixerSchedulerSetPeriod(EXTERNAL_MODULE, 0);
+#if defined(INTERNAL_MODULE_CRSF)
+  if (module == INTERNAL_MODULE) {
+    params.baudrate = INT_CROSSFIRE_BAUDRATE;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
+
+    if (mod_st) {
+      auto drv = modulePortGetSerialDrv(mod_st->rx);
+      auto ctx = modulePortGetCtx(mod_st->rx);
+
+      auto& rx_count = getTelemetryRxBufferCount(INTERNAL_MODULE);
+      rx_count = 0;
+
+#if !defined(SIMU)
+      if (drv && ctx && drv->setIdleCb) {
+        drv->setIdleCb(ctx, _crsf_intmodule_frame_received, nullptr);
+      }
+#endif
+    }
+  }
+#endif
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  if (module == EXTERNAL_MODULE) {
+    params.baudrate = EXT_CROSSFIRE_BAUDRATE;
+    mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params, false);
+
+    if (mod_st) {
+      auto drv = modulePortGetSerialDrv(mod_st->rx);
+      auto ctx = modulePortGetCtx(mod_st->rx);
+
+      auto& rx_count = getTelemetryRxBufferCount(EXTERNAL_MODULE);
+      rx_count = 0;
+
+#if !defined(SIMU)
+      if (drv && ctx && drv->setIdleCb) {
+        drv->setIdleCb(ctx, _soft_irq_trigger, nullptr);
+        stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0,
+                          _crsf_extmodule_frame_received);
+      }
+#endif
+    }
+
+    memset(&crossfireModuleStatus[module], 0, sizeof(crossfireModuleStatus[module]));
+  }
+#endif
+
+  if (mod_st) {
+    mixerSchedulerSetPeriod(module, CROSSFIRE_PERIOD(module));
+  }
+
+  return (void*)mod_st;
 }
 
-etx_module_driver_t CrossfireExternalDriver = {
+static void crossfireDeInit(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+
+  memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0,
+         sizeof(CrossfireModuleStatus));
+
+#if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
+  if (mod_st && (modulePortGetModule(mod_st) == EXTERNAL_MODULE)) {
+    auto drv = modulePortGetSerialDrv(mod_st->rx);
+    auto ctx = modulePortGetCtx(mod_st->rx);
+    if (drv && ctx && drv->setIdleCb) {
+      stm32_exti_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
+    }
+  }
+#endif
+
+  modulePortDeInit(mod_st);
+}
+
+const etx_proto_driver_t CrossfireDriver = {
   .protocol = PROTOCOL_CHANNELS_CROSSFIRE,
-  .init = crossfireInitExternal,
-  .deinit = crossfireDeInitExternal,
-  .setupPulses = crossfireSetupPulses,
+  .init = crossfireInit,
+  .deinit = crossfireDeInit,
   .sendPulses = crossfireSendPulses,
-  .getByte = crossfireGetByte,
-  .processData = crossfireProcessData,
+  .processData = nullptr,
+  .processFrame = crossfireProcessFrame,
+  .onConfigChange = nullptr,
 };

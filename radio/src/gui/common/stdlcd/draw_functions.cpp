@@ -19,8 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 #include <math.h>
+
+#include "hal/adc_driver.h"
+#include "analogs.h"
 
 #if defined(MULTIMODULE)
 void lcdDrawMultiProtocolString(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t protocol, LcdFlags flags)
@@ -74,8 +77,9 @@ void drawTrimMode(coord_t x, coord_t y, uint8_t flightMode, uint8_t idx, LcdFlag
 
   if (mode == TRIM_MODE_NONE) {
     lcdDrawText(x, y, "--", att);
-  }
-  else {
+  } else if (mode == TRIM_MODE_3POS) {
+    lcdDrawText(x, y, "3P", att);
+  } else {
     if (mode % 2 == 0)
       lcdDrawChar(x, y, ':', att|FIXEDWIDTH);
     else
@@ -155,26 +159,18 @@ char getPreviousChar(char c, uint8_t position)
   return c - 1;
 }
 
-static bool isNameCharset(int v)
+static const char nameChars[] = " abcdefghijklmnopqrstuvwxyz0123456789_-,.";
+
+static int nameCharIdx(char v)
 {
-  char c = (char)v;
-
-  if (c == ' ')
-    return true;
-
-  if (c == '-')
-    return true;
-
-  if (c >= '0' && c <= '9')
-    return true;
-
-  if (c >= 'A' && c <= 'Z')
-    return true;
-
-  if (c >= 'a' && c <= 'z')
-    return true;
-
-  return false;
+  if (islower(v)) return v - 'a' + 1;
+  if (isupper(v)) return v - 'A' + 1;
+  if (isdigit(v)) return v - '0' + 27;
+  if (v == '_') return 37;
+  if (v == '-') return 38;
+  if (v == ',') return 39;
+  if (v == '.') return 40;
+  return 0;
 }
 
 void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
@@ -198,7 +194,9 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
       int8_t v = c ? c : ' ';
 
       if (IS_NEXT_EVENT(event) || IS_PREVIOUS_EVENT(event)) {
-        v = checkIncDec(event, abs(v), ' ', 'z', 0, isNameCharset);
+        bool caps = isupper(v);
+        v = nameChars[checkIncDec(event, nameCharIdx(v), 0, DIM(nameChars)-2)];
+        if (caps && islower(v)) v = toupper(v);
       }
 
       switch (event) {
@@ -233,11 +231,11 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
 #else
         case EVT_KEY_LONG(KEY_ENTER):
 #endif
+          killEvents(event);
 
 #if !defined(NAVIGATION_XLITE)
           if (v == ' ') {
             s_editMode = 0;
-            killEvents(event);
             break;
           }
           else
@@ -251,7 +249,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
 
 #if defined(NAVIGATION_9X)
           if (event==EVT_KEY_LONG(KEY_LEFT))
-            killEvents(KEY_LEFT);
 #endif
           break;
       }
@@ -290,14 +287,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
   }
 }
 
-void gvarWeightItem(coord_t x, coord_t y, MixData * md, LcdFlags attr, event_t event)
-{
-  u_int8int16_t weight;
-  MD_WEIGHT_TO_UNION(md, weight);
-  weight.word = GVAR_MENU_ITEM(x, y, weight.word, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, attr, 0, event);
-  MD_UNION_TO_WEIGHT(weight, md);
-}
-
 void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
 {
   char s[8];
@@ -305,12 +294,15 @@ void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
   lcdDrawText(x, y, s, flags);
 }
 
-void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event, LcdFlags flags, uint8_t old_editMode)
+void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
+                               LcdFlags flags, uint8_t old_editMode)
 {
-  lcdDrawTextAtIndex(INDENT_WIDTH, y, STR_VSRCRAW, idx+1, 0);
-  if (g_eeGeneral.anaNames[idx][0] || (flags && s_editMode > 0))
-    editName(x, y, g_eeGeneral.anaNames[idx], LEN_ANA_NAME, event, (flags != 0),
-             flags, old_editMode);
+  lcdDrawTextIndented(y, STR_CHAR_STICK);
+  lcdDrawText(lcdNextPos, y, analogGetCanonicalName(ADC_INPUT_MAIN, idx), 0);
+
+  if (analogHasCustomLabel(ADC_INPUT_MAIN, idx) || (flags && s_editMode > 0))
+    editName(x, y, (char*)analogGetCustomLabel(ADC_INPUT_MAIN, idx),
+             LEN_ANA_NAME, event, (flags != 0), flags, old_editMode);
   else
     lcdDrawMMM(x, y, flags);
 }
@@ -325,18 +317,18 @@ bool isSwitchAvailableInCustomFunctions(int swtch)
 
 void drawPower(coord_t x, coord_t y, int8_t dBm, LcdFlags att)
 {
-  float power_W_PREC1 = pow(10.0, (dBm - 30.0) / 10.0) * 10;
+  float power_W_PREC1 = powf(10.0, (dBm - 30.0) / 10.0) * 10;
   if (dBm >= 30) {
     lcdDrawNumber(x, y, power_W_PREC1, PREC1 | att);
     lcdDrawText(lcdNextPos, y, "W", att);
   }
   else if (dBm < 10) {
-    uint16_t power_MW_PREC1 = round(power_W_PREC1 * 1000);
+    uint16_t power_MW_PREC1 = roundf(power_W_PREC1 * 1000);
     lcdDrawNumber(x, y, power_MW_PREC1, PREC1 | att);
     lcdDrawText(lcdNextPos, y, "mW", att);
   }
   else {
-    uint16_t power_MW = round(power_W_PREC1 * 100);
+    uint16_t power_MW = roundf(power_W_PREC1 * 100);
     if (power_MW >= 50) {
       power_MW = (power_MW / 5) * 5;
       lcdDrawNumber(x, y, power_MW, att);
@@ -400,12 +392,12 @@ void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags att)
     switch (curve.type) {
       case CURVE_REF_DIFF:
         lcdDrawText(x, y, "D", att);
-        GVAR_MENU_ITEM(lcdNextPos, y, curve.value, -100, 100, LEFT|att, 0, 0);
+        editSrcVarFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
       case CURVE_REF_EXPO:
         lcdDrawText(x, y, "E", att);
-        GVAR_MENU_ITEM(lcdNextPos, y, curve.value, -100, 100, LEFT|att, 0, 0);
+        editSrcVarFieldValue(lcdNextPos, y, nullptr, curve.value, -100, 100, LEFT|att, 0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
         break;
 
       case CURVE_REF_FUNC:
@@ -440,94 +432,23 @@ void drawSensorCustomValue(coord_t x, coord_t y, uint8_t sensor, int32_t value, 
   else if (telemetrySensor.unit == UNIT_GPS) {
     drawGPSSensorValue(x, y, telemetryItem, flags);
   }
-  else if (telemetrySensor.unit == UNIT_BITFIELD) {
-    if (IS_FRSKY_SPORT_PROTOCOL()) {
-      if (telemetrySensor.id >= RBOX_STATE_FIRST_ID && telemetrySensor.id <= RBOX_STATE_LAST_ID) {
-        if (telemetrySensor.subId == 0) {
-          if (value == 0) {
-            lcdDrawText(x, y, "OK", flags);
-          }
-          else {
-            for (uint8_t i = 0; i < 16; i++) {
-              if (value & (1u << i)) {
-                char s[] = "CH__ KO";
-                strAppendUnsigned(&s[2], i + 1, 2);
-                lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, s, flags & ~DBLSIZE);
-                break;
-              }
-            }
-          }
-        }
-        else {
-          if (value == 0) {
-            lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, "Rx OK", flags & ~DBLSIZE);
-          }
-          else {
-            static const char * const RXS_STATUS[] = {
-              "Rx1 Ovl",
-              "Rx2 Ovl",
-              "SBUS Ovl",
-              "Rx1 FS",
-              "Rx1 LF",
-              "Rx2 FS",
-              "Rx2 LF",
-              "Rx1 Lost",
-              "Rx2 Lost",
-              "Rx1 NS",
-              "Rx2 NS",
-              "Rx3 FS",
-              "Rx3 LF",
-              "Rx3 Lost",
-              "Rx3 NS"
-            };
-            for (uint8_t i = 0; i < DIM(RXS_STATUS); i++) {
-              if (value & (1u << i)) {
-                lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, RXS_STATUS[i], flags & ~DBLSIZE);
-                break;
-              }
-            }
-          }
-        }
-      }
-      else if (telemetrySensor.id >= RB3040_OUTPUT_FIRST_ID && telemetrySensor.id <= RB3040_OUTPUT_LAST_ID) {
-        if (telemetrySensor.subId == 0) {
-          if (value == 0) {
-            lcdDrawText(x, y, "OK", flags);     
-          }
-          else {
-            for (uint8_t i = 0; i < 9; i++) {
-              if (value & (1u << i)) {
-                if (i < 8) {
-                  char s[] = "CH__ KO";
-                  strAppendUnsigned(&s[2], i + 17, 2);
-                  lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, s, flags & ~DBLSIZE);
-                  break;
-                }
-                else {
-                  char s[] = "S.P Ovl";
-                  lcdDrawText(x, flags & DBLSIZE ? y + 1 : y, s, flags & ~DBLSIZE);
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
   else if (telemetrySensor.unit == UNIT_TEXT) {
-    lcdDrawSizedText(x, flags & DBLSIZE ? y + 1 : y, telemetryItem.text, sizeof(telemetryItem.text), flags & ~DBLSIZE);
-  }
-  else {
+    lcdDrawSizedText(x, flags & DBLSIZE ? y + 1 : y, telemetryItem.text,
+                     sizeof(telemetryItem.text), flags & ~DBLSIZE);
+  } else {
     if (telemetrySensor.prec > 0) {
       flags |= (telemetrySensor.prec == 1 ? PREC1 : PREC2);
     }
-    drawValueWithUnit(x, y, value, telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit, flags);
+    drawValueWithUnit(x, y, value,
+        telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit,
+        flags);
   }
 }
 
-void drawSourceCustomValue(coord_t x, coord_t y, source_t source, int32_t value, LcdFlags flags)
+void drawSourceCustomValue(coord_t x, coord_t y, mixsrc_t source, int32_t value, LcdFlags flags)
 {
+  source = abs(source);
+
   if (source >= MIXSRC_FIRST_TELEM) {
     source = (source-MIXSRC_FIRST_TELEM) / 3;
     drawSensorCustomValue(x, y, source, value, flags);
@@ -559,11 +480,11 @@ void drawSourceCustomValue(coord_t x, coord_t y, source_t source, int32_t value,
     lcdDrawNumber(x, y, calcRESXto100(value), flags);
   }
   else if (source <= MIXSRC_LAST_CH) {
-#if defined(PPM_UNIT_PERCENT_PREC1)
-    lcdDrawNumber(x, y, calcRESXto1000(value), flags|PREC1);
-#else
-    lcdDrawNumber(x, y, calcRESXto100(value), flags);
-#endif
+    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+      lcdDrawNumber(x, y, calcRESXto1000(value), flags|PREC1);
+    } else {
+      lcdDrawNumber(x, y, calcRESXto100(value), flags);
+    }
   }
   else {
     lcdDrawNumber(x, y, value, flags);
@@ -607,5 +528,90 @@ void runFatalErrorScreen(const char * message)
       }
       WDG_RESET();
     }
+  }
+}
+
+void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
+{
+  uint16_t aidx = abs(idx);
+  bool inverted = idx < 0;
+
+  if (aidx == MIXSRC_NONE) {
+    lcdDrawText(x, y, STR_EMPTY, att);
+  }
+  else if (aidx <= MIXSRC_LAST_INPUT) {
+    if (att & RIGHT) {
+      if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
+        lcdDrawSizedText(x, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
+      else
+        lcdDrawNumber(x, y, aidx, att|LEADING0, 2);
+      x = lcdLastLeftPos - 5;
+      if (inverted)
+        lcdDrawChar(x-5, y, '-');
+      lcdDrawChar(x, y+1, CHR_INPUT, RIGHT|TINSIZE);
+      lcdDrawSolidFilledRect(x-1, y, 5, 7);
+    } else {
+      if (inverted) {
+        lcdDrawChar(x-1, y, '-');
+        x += 3;
+      }
+      lcdDrawChar(x+1, y+1, CHR_INPUT, TINSIZE);
+      lcdDrawSolidFilledRect(x, y, 5, 7);
+      if (g_model.inputNames[aidx-MIXSRC_FIRST_INPUT][0])
+        lcdDrawSizedText(x+6, y, g_model.inputNames[aidx-MIXSRC_FIRST_INPUT], LEN_INPUT_NAME, att);
+      else
+        lcdDrawNumber(x+6, y, aidx, att|LEADING0, 2);
+    }
+  }
+#if defined(LUA_INPUTS)
+  else if (aidx <= MIXSRC_LAST_LUA) {
+    div_t qr = div((uint16_t)(aidx-MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
+    if (att & RIGHT) {
+#if defined(LUA_MODEL_SCRIPTS)
+      if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+        lcdDrawSizedText(x, y, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, att & STREXPANDED ? 9 : 4, att);
+        x = lcdLastLeftPos - 4;
+        if (inverted)
+          lcdDrawChar(x-5, y, '-');
+        lcdDrawChar(x, y+1, '1'+qr.quot, TINSIZE);
+        lcdDrawFilledRect(x-1, y, 5, 7, SOLID);
+      }
+      else
+#endif
+      {
+        lcdDrawChar(x, y, 'a' + qr.rem, att);
+        drawStringWithIndex(lcdLastLeftPos, y, "LUA", qr.quot+1, att);
+#if defined(LUA_MODEL_SCRIPTS)
+        if (inverted)
+          lcdDrawChar(lcdLastLeftPos, y, '-', att);
+#endif
+      }
+    } else {
+#if defined(LUA_MODEL_SCRIPTS)
+      if (inverted) {
+        lcdDrawChar(x-1, y, '-');
+        x += 3;
+      }
+      if (qr.quot < MAX_SCRIPTS && qr.rem < scriptInputsOutputs[qr.quot].outputsCount) {
+        lcdDrawChar(x+1, y+1, '1'+qr.quot, TINSIZE);
+        lcdDrawFilledRect(x, y, 5, 7, SOLID);
+        lcdDrawSizedText(x+5, y, scriptInputsOutputs[qr.quot].outputs[qr.rem].name, att & STREXPANDED ? 9 : 4, att);
+      }
+      else
+#endif
+      {
+        drawStringWithIndex(x, y, "LUA", qr.quot+1, att);
+        lcdDrawChar(lcdLastRightPos, y, 'a' + qr.rem, att);
+      }
+    }
+  }
+#endif
+  else {
+    const char* s = getSourceString(idx);
+#if LCD_W < 212
+    if (idx >= MIXSRC_FIRST_TELEM && idx <= MIXSRC_LAST_TELEM)
+      s += strlen(STR_CHAR_TELEMETRY);
+#endif
+    lcdDrawText(x, y, s, att);
   }
 }

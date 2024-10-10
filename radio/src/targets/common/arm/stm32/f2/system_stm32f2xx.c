@@ -1,8 +1,9 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
- *   th9x - http://code.google.com/p/th9x 
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
  *
@@ -31,6 +32,7 @@
   */
 
 #include "stm32f2xx.h"
+#include "stm32_hal.h"
 
 /**
   * @}
@@ -87,8 +89,8 @@
 
   uint32_t SystemCoreClock = 120000000;
 
-  __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-  __I uint8_t APBPrescTable[8] = {0, 0, 0, 0, 1, 2, 3, 4};
+  const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+  const uint8_t APBPrescTable[8] = {0, 0, 0, 0, 1, 2, 3, 4};
 
 /**
   * @}

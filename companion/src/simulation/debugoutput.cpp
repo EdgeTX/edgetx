@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -21,10 +22,10 @@
 #include "debugoutput.h"
 #include "ui_debugoutput.h"
 
-#include "appdebugmessagehandler.h"
 #include "appdata.h"
 #include "filteredtextbuffer.h"
 
+#include <AppDebugMessageHandler>
 #include <QElapsedTimer>
 #include <QMessageBox>
 #include <QRegularExpression>
@@ -300,9 +301,6 @@ QRegularExpression DebugOutput::makeRegEx(const QString & input, bool * isExlusi
   QString output(input);
   QRegularExpression re;
   QRegularExpression::PatternOptions reFlags = QRegularExpression::DontCaptureOption;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
-  reFlags |= QRegularExpression::OptimizeOnFirstUsageOption;
-#endif
 
   if (input.left(1) == "!") {
     output.remove(0, 1);

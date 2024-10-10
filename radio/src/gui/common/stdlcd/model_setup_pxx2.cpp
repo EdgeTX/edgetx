@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 void onPXX2R9MBindModeMenu(const char * result)
 {
@@ -72,9 +72,7 @@ void onPXX2BindMenu(const char * result)
     }
     else if (isModuleR9MAccess(moduleIdx) && reusableBuffer.moduleSetup.pxx2.moduleInformation.information.variant == PXX2_VARIANT_FLEX) {
       reusableBuffer.moduleSetup.bindInformation.step = BIND_RX_NAME_SELECTED;
-      POPUP_MENU_ADD_ITEM(STR_FLEX_868);
-      POPUP_MENU_ADD_ITEM(STR_FLEX_915);
-      POPUP_MENU_START(onPXX2R9MBindModeMenu);
+      POPUP_MENU_START(onPXX2R9MBindModeMenu, 2, STR_FLEX_868, STR_FLEX_915);
     }
     else {
 #if defined(SIMU)
@@ -184,6 +182,7 @@ void runPopupRegister(event_t event)
       // no break
 
     case EVT_KEY_LONG(KEY_EXIT):
+      killEvents(event);
       s_editMode = 0;
       // no break;
 
@@ -332,11 +331,6 @@ void modelSetupModulePxx2ReceiverLine(uint8_t moduleIdx, uint8_t receiverIdx, co
   }
 
   if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
-    POPUP_MENU_ADD_ITEM(STR_BIND);
-    POPUP_MENU_ADD_ITEM(STR_OPTIONS);
-    POPUP_MENU_ADD_ITEM(STR_SHARE);
-    POPUP_MENU_ADD_ITEM(STR_DELETE);
-    POPUP_MENU_ADD_ITEM(STR_RESET);
-    POPUP_MENU_START(onPXX2ReceiverMenu);
+    POPUP_MENU_START(onPXX2ReceiverMenu, 5, STR_BIND, STR_OPTIONS, STR_SHARE, STR_DELETE, STR_RESET);
   }
 }

@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum CzechPrompts {
   CZ_PROMPT_NUMBERS_BASE = 0,
@@ -39,7 +39,7 @@ enum CzechPrompts {
 };
 
 
-  #define CZ_PUSH_UNIT_PROMPT(u, p) cz_pushUnitPrompt((u), (p), id)
+#define CZ_PUSH_UNIT_PROMPT(u, p) cz_pushUnitPrompt((u), (p), id, fragmentVolume)
 
 #define MALE     0x80
 #define FEMALE     0x81
@@ -163,27 +163,26 @@ I18N_PLAY_FUNCTION(cz, playDuration, int seconds PLAY_DURATION_ATT)
     seconds = -seconds;
   }
 
-  uint8_t tmp;
-  if (IS_PLAY_LONG_TIMER()) {
-    tmp = seconds / 60;
-    if (seconds % 60 >= 30) tmp += 1;
-    if (tmp > 0) PLAY_NUMBER(tmp, UNIT_MINUTES, 0);
-  } else {
-    tmp = seconds / 3600;
-    seconds %= 3600;
-    if (tmp > 0 || IS_PLAY_TIME()) {
-      PLAY_NUMBER(tmp, UNIT_HOURS, FEMALE);
-    }
+  int hours, minutes;
+  hours = seconds / 3600;
+  seconds = seconds % 3600;
+  minutes = seconds / 60;
+  seconds = seconds % 60;
 
-    tmp = seconds / 60;
-    seconds %= 60;
-    if (tmp > 0) {
-      PLAY_NUMBER(tmp, UNIT_MINUTES, FEMALE);
-    }
+  if (IS_PLAY_LONG_TIMER() && seconds >= 30) {
+    minutes += 1;
+  }
 
-    if (seconds > 0) {
-      PLAY_NUMBER(seconds, UNIT_SECONDS, FEMALE);
-    }
+  if (hours > 0 || IS_PLAY_TIME()) {
+    PLAY_NUMBER(hours, UNIT_HOURS, FEMALE);
+  }
+
+  if (minutes > 0) {
+    PLAY_NUMBER(minutes, UNIT_MINUTES, FEMALE);
+  }
+
+  if (!IS_PLAY_LONG_TIMER() && seconds > 0) {
+    PLAY_NUMBER(seconds, UNIT_SECONDS, FEMALE);
   }
 }
 

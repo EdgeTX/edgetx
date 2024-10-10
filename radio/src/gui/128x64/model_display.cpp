@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
 
 enum MenuModelDisplayItems {
   ITEM_DISPLAY_SCREEN_LABEL1,
@@ -51,7 +51,7 @@ enum MenuModelDisplayItems {
 #else
   #define DISPLAY_COL2                (8*FW)
 #endif
-#define DISPLAY_COL3                  (17*FW+2)
+#define DISPLAY_COL3                  (15*FW+2)
 
 inline uint8_t SCREEN_TYPE_COLUMNS(uint8_t screenIndex)
 {
@@ -162,7 +162,7 @@ void menuModelDisplay(event_t event)
           else
             lcdDrawTextAtIndex(DISPLAY_COL2+7*FW, y, STR_VCSWFUNC, 0, (menuHorizontalPosition==1 ? attr : 0));
 
-          if (menuHorizontalPosition==1 && attr && event==EVT_KEY_BREAK(KEY_ENTER) && READ_ONLY_UNLOCKED()) {
+          if (menuHorizontalPosition==1 && attr && event==EVT_KEY_BREAK(KEY_ENTER)) {
             s_editMode = 0;
             if (sdListFiles(SCRIPTS_TELEM_PATH, SCRIPTS_EXT, sizeof(g_model.screens[screenIndex].script.file), g_model.screens[screenIndex].script.file)) {
               POPUP_MENU_START(onTelemetryScriptFileSelectionMenu);
@@ -262,7 +262,7 @@ void menuModelDisplay(event_t event)
             }
           }
           if (attr && menuHorizontalPosition == NUM_LINE_ITEMS) {
-            REPEAT_LAST_CURSOR_MOVE();
+            repeatLastCursorMove(event);
           }
         }
         break;

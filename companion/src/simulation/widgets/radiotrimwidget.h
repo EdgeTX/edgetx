@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -18,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIOTRIMWIDGET_H_
-#define _RADIOTRIMWIDGET_H_
+#pragma once
 
 #include "radiowidget.h"
 #include "boards.h"
@@ -65,13 +65,19 @@ class RadioTrimWidget : public RadioWidget
         setValue(value);
     }
 
-    void setValue(const int & value)
+    void setValue(const int & value) override
     {
       if (sender() && qobject_cast<SliderWidget *>(sender())) {
         RadioWidget::setValue(value);
       }
       else if (m_slider) {
         m_slider->setValue(value);
+      }
+    }
+
+    void chgValueQual(const RadioWidgetType & type, const int & index, const int offset, const bool state) override {
+      if (type == m_type && index == m_index) {
+        emit valueChange(m_type, (offset < 0) ? m_btnDecIndex : m_btnIncIndex, state ? RADIO_TRIM_BTN_ON : RADIO_TRIM_BTN_OFF);
       }
     }
 
@@ -131,5 +137,3 @@ class RadioTrimWidget : public RadioWidget
     int m_btnDecIndex;
     int m_btnIncIndex;
 };
-
-#endif // _RADIOTRIMWIDGET_H_

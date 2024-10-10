@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -35,17 +36,18 @@ VirtualJoystickWidget::VirtualJoystickWidget(QWidget *parent, QChar side, bool s
   QWidget(parent),
   stickSide(side),
   prefSize(size),
-  hTrimWidget(NULL),
-  vTrimWidget(NULL),
-  btnHoldX(NULL),
-  btnHoldY(NULL),
-  btnFixX(NULL),
-  btnFixY(NULL),
-  nodeLabelX(NULL),
-  nodeLabelY(NULL),
+  hTrimWidget(nullptr),
+  vTrimWidget(nullptr),
+  btnHoldX(nullptr),
+  btnHoldY(nullptr),
+  btnFixX(nullptr),
+  btnFixY(nullptr),
+  nodeLabelX(nullptr),
+  nodeLabelY(nullptr),
   m_stickScale(1024),
   m_stickPressed(false)
 {
+  isBoardSurface = Boards::isSurface(getCurrentBoard());
   ar = (float)size.width() / size.height();
   extraSize = QSize(0, 0);
 
@@ -91,6 +93,13 @@ VirtualJoystickWidget::VirtualJoystickWidget(QWidget *parent, QChar side, bool s
     hTrimWidget = createTrimWidget('H');
     vTrimWidget = createTrimWidget('V');
 
+    if (isBoardSurface) {
+      if (stickSide == 'L')
+        vTrimWidget->hide();
+      else
+        vTrimWidget->hide();
+    }
+
     layout->addWidget(vTrimWidget, 1, colvt, 1, 1);
     layout->addWidget(hTrimWidget, 2, 2, 1, 1);
 
@@ -108,6 +117,18 @@ VirtualJoystickWidget::VirtualJoystickWidget(QWidget *parent, QChar side, bool s
     btnbox->addWidget(btnFixY = createButtonWidget(FIX_Y));
     btnbox->addWidget(btnFixX = createButtonWidget(FIX_X));
     btnbox->addWidget(btnHoldX = createButtonWidget(HOLD_X));
+    if (isBoardSurface) {
+      if (stickSide == 'L') {
+        btnHoldX->hide();
+        btnFixY->hide();
+        btnFixX->hide();
+      }
+      else {
+        btnHoldY->hide();
+        btnFixY->hide();
+        btnFixX->hide();
+      }
+    }
 
     layout->addLayout(btnbox, 1, colbb, 1, 1);
 
@@ -170,23 +191,37 @@ void VirtualJoystickWidget::setStickAxisValue(int index, int value)
   using namespace Board;
   qreal rvalue = value / 1024.0f;
 
-  switch (index) {
-    case STICK_AXIS_LH :
-      if (stickSide == 'L')
-        setStickX(rvalue);
-      break;
-    case STICK_AXIS_RH :
-      if (stickSide == 'R')
-        setStickX(rvalue);
-      break;
-    case STICK_AXIS_LV :
-      if (stickSide == 'L')
-        setStickY(rvalue);
-      break;
-    case STICK_AXIS_RV :
-      if (stickSide == 'R')
-        setStickY(rvalue);
-      break;
+  if (isBoardSurface) {
+    switch (index) {
+      case STICK_AXIS_SURFACE_LV :
+        if (stickSide == 'L')
+          setStickY(rvalue);
+        break;
+      case STICK_AXIS_SURFACE_RH :
+        if (stickSide == 'R')
+          setStickX(rvalue);
+        break;
+    }
+  }
+  else {
+    switch (index) {
+      case STICK_AXIS_LH :
+        if (stickSide == 'L')
+          setStickX(rvalue);
+        break;
+      case STICK_AXIS_RH :
+        if (stickSide == 'R')
+          setStickX(rvalue);
+        break;
+      case STICK_AXIS_LV :
+        if (stickSide == 'L')
+          setStickY(rvalue);
+        break;
+      case STICK_AXIS_RV :
+        if (stickSide == 'R')
+          setStickY(rvalue);
+        break;
+    }
   }
 }
 
@@ -298,10 +333,24 @@ void VirtualJoystickWidget::setStickColor(const QColor & color)
 
 void VirtualJoystickWidget::loadDefaultsForMode(const unsigned mode)
 {
-  if (((mode & 1) && stickSide == 'L') || (!(mode & 1) && stickSide == 'R')) {
-    setStickConstraint(HOLD_Y, true);
-    setStickY(1.0);
-    onNodeYChanged();
+  if (isBoardSurface) {
+    if (stickSide == 'L') {
+      setStickX(0.0);
+      setStickConstraint(FIX_X, true);
+      onNodeXChanged();
+    }
+    else {
+      setStickY(0.0);
+      setStickConstraint(FIX_Y, true);
+      onNodeYChanged();
+    }
+  }
+  else {
+    if (((mode & 1) && stickSide == 'L') || (!(mode & 1) && stickSide == 'R')) {
+      setStickConstraint(HOLD_Y, true);
+      setStickY(-1.0);
+      onNodeYChanged();
+    }
   }
 }
 
@@ -323,7 +372,7 @@ void VirtualJoystickWidget::onNodeXChanged()
 
 void VirtualJoystickWidget::onNodeYChanged()
 {
-  emit valueChange(RadioWidget::RADIO_WIDGET_STICK, m_yIndex, int(-m_stickScale * getStickY()));
+  emit valueChange(RadioWidget::RADIO_WIDGET_STICK, m_yIndex, int(m_stickScale * getStickY()));
   updateNodeValueLabels();
 }
 
@@ -399,22 +448,22 @@ QToolButton * VirtualJoystickWidget::createButtonWidget(int type)
   switch (type) {
     case HOLD_Y:
       btnLabel = tr("Hld Y");
-      tooltip = tr("Hold Vertical stick position.");
+      tooltip = tr("Hold Vertical position.");
       icon = Simulator::SimulatorIcon("hold_y");
       break;
     case FIX_Y:
       btnLabel = tr("Fix Y");
-      tooltip = tr("Prevent Vertical movement of stick.");
+      tooltip = tr("Prevent Vertical movement.");
       icon = Simulator::SimulatorIcon("fixed_y");
       break;
     case FIX_X:
       btnLabel = tr("Fix X");
-      tooltip = tr("Prevent Horizontal movement of stick.");
+      tooltip = tr("Prevent Horizontal movement.");
       icon = Simulator::SimulatorIcon("fixed_x");
       break;
     case HOLD_X:
       btnLabel = tr("Hld X");
-      tooltip = tr("Hold Horizontal stick position.");
+      tooltip = tr("Hold Horizontal position.");
       icon = Simulator::SimulatorIcon("hold_x");
       break;
     default:
@@ -444,11 +493,7 @@ QLayout *VirtualJoystickWidget::createNodeValueLayout(QChar type, QLabel *& valL
   val->setObjectName(QString("val_%1").arg(type));
   val->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   val->setAlignment(Qt::AlignCenter);
-#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-  val->setMinimumWidth(val->fontMetrics().width("-100 "));
-#else
   val->setMinimumWidth(val->fontMetrics().horizontalAdvance("-100 "));
-#endif
   QVBoxLayout * layout = new QVBoxLayout();
   layout->setContentsMargins(2, 2, 2, 2);
   layout->setSpacing(2);
@@ -463,17 +508,33 @@ int VirtualJoystickWidget::getStickIndex(QChar type)
 {
   using namespace Board;
 
-  if (stickSide == 'L') {
-    if (type == 'H')
-      return STICK_AXIS_LH;
-    else
-      return STICK_AXIS_LV;
+  if (isBoardSurface) {
+    if (stickSide == 'L') {
+      if (type == 'H')
+        return STICK_AXIS_SURFACE_LV;
+      else
+        return STICK_AXIS_SURFACE_LV;
+    }
+    else {
+      if (type == 'H')
+        return STICK_AXIS_SURFACE_RH;
+      else
+        return STICK_AXIS_SURFACE_RH;
+    }
   }
   else {
-    if (type == 'H')
-      return STICK_AXIS_RH;
-    else
-      return STICK_AXIS_RV;
+    if (stickSide == 'L') {
+      if (type == 'H')
+        return STICK_AXIS_LH;
+      else
+        return STICK_AXIS_LV;
+    }
+    else {
+      if (type == 'H')
+        return STICK_AXIS_RH;
+      else
+        return STICK_AXIS_RV;
+    }
   }
 }
 
@@ -481,17 +542,33 @@ int VirtualJoystickWidget::getTrimSliderType(QChar type)
 {
   using namespace Board;
 
-  if (stickSide == 'L') {
-    if (type == 'H')
-      return TRIM_AXIS_LH;
-    else
-      return TRIM_AXIS_LV;
+  if (isBoardSurface) {
+    if (stickSide == 'L') {
+      if (type == 'H')
+        return TRIM_AXIS_SURFACE_LH;
+      else
+        return TRIM_AXIS_SURFACE_LH;
+    }
+    else {
+      if (type == 'H')
+        return TRIM_AXIS_SURFACE_RH;
+      else
+        return TRIM_AXIS_SURFACE_RH;
+    }
   }
   else {
-    if (type == 'H')
-      return TRIM_AXIS_RH;
-    else
-      return TRIM_AXIS_RV;
+    if (stickSide == 'L') {
+      if (type == 'H')
+        return TRIM_AXIS_LH;
+      else
+        return TRIM_AXIS_LV;
+    }
+    else {
+      if (type == 'H')
+        return TRIM_AXIS_RH;
+      else
+        return TRIM_AXIS_RV;
+    }
   }
 }
 
@@ -499,45 +576,86 @@ int VirtualJoystickWidget::getTrimButtonType(QChar type, int pos)
 {
   using namespace Board;
 
-  if (stickSide == 'L') {
-    if (type == 'H') {
-      if (pos == 0)
-        return TRIM_SW_LH_DEC;
-      else
-        return TRIM_SW_LH_INC;
+  if (isBoardSurface) {
+    if (stickSide == 'L') {
+      if (type == 'H') {
+        if (pos == 0)
+          return TRIM_SW_SURFACE_LH_DEC;
+        else
+          return TRIM_SW_SURFACE_LH_INC;
+      }
+      else {
+        if (pos == 0)
+          return TRIM_SW_SURFACE_LH_DEC;
+        else
+          return TRIM_SW_SURFACE_LH_INC;
+      }
     }
+    // right side
     else {
-      if (pos == 0)
-        return TRIM_SW_LV_DEC;
-      else
-        return TRIM_SW_LV_INC;
+      if (type == 'H') {
+        if (pos == 0)
+          return TRIM_SW_SURFACE_RH_DEC;
+        else
+          return TRIM_SW_SURFACE_RH_INC;
+      }
+      else {
+        if (pos == 0)
+          return TRIM_SW_SURFACE_RH_DEC;
+        else
+          return TRIM_SW_SURFACE_RH_INC;
+      }
     }
   }
-  // right side
   else {
-    if (type == 'H') {
-      if (pos == 0)
-        return TRIM_SW_RH_DEC;
-      else
-        return TRIM_SW_RH_INC;
+    if (stickSide == 'L') {
+      if (type == 'H') {
+        if (pos == 0)
+          return TRIM_SW_LH_DEC;
+        else
+          return TRIM_SW_LH_INC;
+      }
+      else {
+        if (pos == 0)
+          return TRIM_SW_LV_DEC;
+        else
+          return TRIM_SW_LV_INC;
+      }
     }
+    // right side
     else {
-      if (pos == 0)
-        return TRIM_SW_RV_DEC;
-      else
-        return TRIM_SW_RV_INC;
+      if (type == 'H') {
+        if (pos == 0)
+          return TRIM_SW_RH_DEC;
+        else
+          return TRIM_SW_RH_INC;
+      }
+      else {
+        if (pos == 0)
+          return TRIM_SW_RV_DEC;
+        else
+          return TRIM_SW_RV_INC;
+      }
     }
   }
 }
 
 RadioTrimWidget * VirtualJoystickWidget::getTrimWidget(int which)
 {
-  if ((stickSide == 'L' && which == Board::TRIM_AXIS_LH) || (stickSide == 'R' && which == Board::TRIM_AXIS_RH))
-    return hTrimWidget;
-  else if ((stickSide == 'L' && which == Board::TRIM_AXIS_LV) || (stickSide == 'R' && which == Board::TRIM_AXIS_RV))
-    return vTrimWidget;
-  else
-    return NULL;
+  if (isBoardSurface) {
+    if ((stickSide == 'L' && which == Board::TRIM_AXIS_SURFACE_LH) || (stickSide == 'R' && which == Board::TRIM_AXIS_SURFACE_RH))
+      return hTrimWidget;
+    else
+      return nullptr;
+  }
+  else {
+    if ((stickSide == 'L' && which == Board::TRIM_AXIS_LH) || (stickSide == 'R' && which == Board::TRIM_AXIS_RH))
+      return hTrimWidget;
+    else if ((stickSide == 'L' && which == Board::TRIM_AXIS_LV) || (stickSide == 'R' && which == Board::TRIM_AXIS_RV))
+      return vTrimWidget;
+    else
+      return nullptr;
+  }
 }
 
 void VirtualJoystickWidget::onButtonChange(bool checked)
@@ -563,10 +681,26 @@ void VirtualJoystickWidget::onButtonChange(bool checked)
 
 void VirtualJoystickWidget::updateNodeValueLabels()
 {
-  if (nodeLabelX)
-    nodeLabelX->setText(QString("%1").arg(node->getX() *  100.0f, 2, 'f', 0));
-  if (nodeLabelY)
-    nodeLabelY->setText(QString("%1").arg(node->getY() * -100.0f, 2, 'f', 0));
+  if (isBoardSurface) {
+    if (nodeLabelX) {
+      if (stickSide == 'L')
+        nodeLabelX->setText(QString("%1").arg(0));  // workaround for resize event and no analog mapped to set
+      else
+        nodeLabelX->setText(QString("%1").arg(getStickX() * 100.0f, 2, 'f', 0));
+    }
+    if (nodeLabelY) {
+      if (stickSide == 'L')
+        nodeLabelY->setText(QString("%1").arg(getStickY() * 100.0f, 2, 'f', 0));
+      else
+        nodeLabelY->setText(QString("%1").arg(0));  // workaround for resize event and no analog mapped to set
+    }
+  }
+  else {
+    if (nodeLabelX)
+      nodeLabelX->setText(QString("%1").arg(getStickX() * 100.0f, 2, 'f', 0));
+    if (nodeLabelY)
+      nodeLabelY->setText(QString("%1").arg(getStickY() * 100.0f, 2, 'f', 0));
+  }
 }
 
 void VirtualJoystickWidget::onGsMouseEvent(QGraphicsSceneMouseEvent * event)

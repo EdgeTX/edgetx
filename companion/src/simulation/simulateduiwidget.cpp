@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -24,6 +25,10 @@
 #include "radiouiaction.h"
 #include "radiokeywidget.h"
 #include "simulatorinterface.h"
+#include "buttonswidget.h"
+
+#include <QPushButton>
+#include <QVBoxLayout>
 
 //#define FLASH_DURATION 10
 //#define CBEEP_ON      "QLabel { background-color: #FF364E }"
@@ -33,11 +38,11 @@ SimulatedUIWidget::SimulatedUIWidget(SimulatorInterface * simulator, QWidget * p
   QWidget(parent),
   m_simulator(simulator),
   m_parent(parent),
-  m_lcd(NULL),
-  m_scrollUpAction(NULL),
-  m_scrollDnAction(NULL),
-  m_mouseMidClickAction(NULL),
-  m_screenshotAction(NULL),
+  m_lcd(nullptr),
+  m_scrollUpAction(nullptr),
+  m_scrollDnAction(nullptr),
+  m_mouseMidClickAction(nullptr),
+  m_screenshotAction(nullptr),
   m_board(getCurrentBoard()),
   m_backLight(0),
   m_beepShow(0),
@@ -148,7 +153,7 @@ void SimulatedUIWidget::captureScreenshot()
       path = "./";
     QDir dir(path);
     if (dir.exists() && dir.isReadable()) {
-      QStringList fwid = getCurrentFirmware()->getId().split("-", QString::SkipEmptyParts);
+      QStringList fwid = getCurrentFirmware()->getId().split("-", Qt::SkipEmptyParts);
       QString flavor = fwid.at(qMin(1, fwid.size()));
       QString fnpfx = tr("screenshot", "Simulator LCD screenshot file name prefix");
       fileName = "%1/%2_%3_%4.png";
@@ -173,7 +178,7 @@ void SimulatedUIWidget::wheelEvent(QWheelEvent * event)
 
 void SimulatedUIWidget::mousePressEvent(QMouseEvent * event)
 {
-  if (event->button() == Qt::MidButton && m_mouseMidClickAction)
+  if (event->button() == Qt::MiddleButton && m_mouseMidClickAction)
     m_mouseMidClickAction->trigger(true);
   else
     event->ignore();
@@ -181,7 +186,7 @@ void SimulatedUIWidget::mousePressEvent(QMouseEvent * event)
 
 void SimulatedUIWidget::mouseReleaseEvent(QMouseEvent * event)
 {
-  if (event->button() == Qt::MidButton && m_mouseMidClickAction)
+  if (event->button() == Qt::MiddleButton && m_mouseMidClickAction)
     m_mouseMidClickAction->trigger(false);
   else
     event->ignore();
@@ -190,11 +195,11 @@ void SimulatedUIWidget::mouseReleaseEvent(QMouseEvent * event)
 void SimulatedUIWidget::setLcd(LcdWidget * lcd)
 {
   m_lcd = lcd;
-  Firmware * firmware = getCurrentFirmware();
+  Board::Type board = getCurrentBoard();
 
-  auto width = firmware->getCapability(LcdWidth);
-  auto height = firmware->getCapability(LcdHeight);
-  auto depth = firmware->getCapability(LcdDepth);
+  auto width = Boards::getCapability(board, Board::LcdWidth);
+  auto height = Boards::getCapability(board, Board::LcdHeight);
+  auto depth = Boards::getCapability(board, Board::LcdDepth);
   m_lcd->setData(width, height, depth);
 
   if (!m_backlightColors.size())
@@ -224,5 +229,143 @@ void SimulatedUIWidget::connectScrollActions()
       emit simulatorWheelEvent(1);
       m_scrollDnAction->toggle(false);
     });
+  }
+}
+
+// static
+int SimulatedUIWidget::strKeyToInt(std::string key)
+{
+  QStringList keys = {
+    "KEY_MENU",
+    "KEY_EXIT",
+    "KEY_ENTER",
+    "KEY_PAGEUP",
+    "KEY_PAGEDN",
+    "KEY_UP",
+    "KEY_DOWN",
+    "KEY_LEFT",
+    "KEY_RIGHT",
+    "KEY_PLUS",
+    "KEY_MINUS",
+    "KEY_MODEL",
+    "KEY_TELE",
+    "KEY_SYS",
+    "KEY_SHIFT",
+    "KEY_BIND"
+  };
+
+  return keys.indexOf(key.c_str());
+}
+
+void SimulatedUIWidget::addScrollActions()
+{
+  //  Note: the keys cannot duplicate those used for radio buttons
+  m_scrollUpAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Minus,
+                                       SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT);
+  m_scrollDnAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Equal,
+                                       SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT);
+  connectScrollActions();
+}
+
+void SimulatedUIWidget::addMouseActions()
+{
+  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return,
+                                            SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
+}
+
+//  Notes: unused rows will be hidden and squashed
+//         keys cannot duplicate those used for scrolling tefer m_mouseMidClickAction
+static const QList<GenericKeyDefinition> genericKeyDefinitions = {
+  { KEY_SYS,    'R', 0, 0, QList<int>() << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
+
+  { KEY_MODEL,  'R', 0, 1, QList<int>() << Qt::Key_Up,        SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
+
+  { KEY_PAGEUP, 'R', 1, 0, QList<int>() << Qt::Key_PageUp,    SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP },
+
+  { KEY_PAGEDN, 'R', 1, 1, QList<int>() << Qt::Key_PageDown,  SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
+
+  { KEY_UP,     'R', 2, 0, QList<int>() << Qt::Key_Up
+                                        << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP },
+
+  { KEY_DOWN,   'R', 2, 1, QList<int>() << Qt::Key_Down
+                                        << Qt::Key_PageDown,  SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
+
+  { KEY_LEFT,   'R', 3, 0, QList<int>() << Qt::Key_Left
+                                        << Qt::Key_Minus,     SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
+
+  { KEY_RIGHT,  'R', 3, 1, QList<int>() << Qt::Key_Right
+                                        << Qt::Key_Plus,      SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
+
+  { KEY_MINUS,  'R', 4, 0, QList<int>() << Qt::Key_Minus
+                                        << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN },
+
+  { KEY_PLUS,   'R', 4, 1, QList<int>() << Qt::Key_Plus
+                                        << Qt::Key_Equal
+                                        << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS },
+
+  { KEY_TELE,   'R', 5, 1, QList<int>() << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
+
+  { KEY_MENU,   'R', 6, 0, QList<int>() << Qt::Key_Up
+                                        << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU },
+
+  { KEY_SHIFT,  'R', 6, 1, QList<int>() << Qt::Key_S,         SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT },
+
+  { KEY_EXIT,   'R', 7, 0, QList<int>() << Qt::Key_Down
+                                        << Qt::Key_Delete
+                                        << Qt::Key_Escape
+                                        << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
+
+  { KEY_ENTER,  'R', 7, 1, QList<int>() << Qt::Key_Enter
+                                        << Qt::Key_Return,    SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
+};
+
+void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
+{
+  QGridLayout * leftButtonsGrid = new QGridLayout();
+  QGridLayout * rightButtonsGrid = new QGridLayout();
+
+  for (int i = 0; i < Boards::getCapability(m_board, Board::Keys); i++) {
+    Board::KeyInfo info = Boards::getKeyInfo(i, m_board);
+    int idx = strKeyToInt(info.key);
+    //qDebug() << "key:" << info.key.c_str() << info.name.c_str() << info.label.c_str() << idx;
+    if (idx >= 0)
+      addGenericPushButton(idx, info.label.c_str(), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+    else
+      qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
+  }
+
+  QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
+  gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
+  gridLeft->addLayout(leftButtonsGrid, 0, 1);
+  //gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
+
+  QGridLayout * gridRight = new QGridLayout((QWidget *)rightButtons);
+  //gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
+  gridRight->addLayout(rightButtonsGrid, 0, 1);
+  gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
+}
+
+void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
+                                             ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid)
+{
+  if (index >= genericKeyDefinitions.size())
+    return;
+
+  for (int i = 0; i < genericKeyDefinitions.size(); i++) {
+    const GenericKeyDefinition defn = genericKeyDefinitions.at(i);
+
+    if (defn.index == index) {
+      QPushButton * b = new QPushButton(label);
+      b->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+      b->setMinimumSize(60, 30);
+      b->setMaximumSize(60, 30);
+      RadioUiAction * act = new RadioUiAction();
+      ButtonsWidget * btns = defn.side == 'L' ? leftButtons : rightButtons;
+      QGridLayout * grid = defn.side == 'L' ? leftButtonsGrid : rightButtonsGrid;
+      grid->addWidget(b, defn.gridRow, defn.gridCol);
+      act = new RadioUiAction(defn.index, defn.keys, defn.helpKeys, defn.helpActions);
+      addRadioWidget(btns->addPushButton(b, act));
+      break;
+    }
   }
 }

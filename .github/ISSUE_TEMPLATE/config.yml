@@ -1,8 +1,14 @@
 blank_issues_enabled: false
 contact_links:
+  - name: SD Card Pack - e.g. included Templates, Lua Widgets, Themes
+    url: https://github.com/EdgeTX/edgetx-sdcard/issues/new
+    about: If you have a request or issue with a Lua widget or something else that is part of the SD Card pack, please head over there to open an issue. 
+  - name: SD Card Voice Pack 
+    url: https://github.com/EdgeTX/edgetx-sdcard-sounds/issues/new/choose
+    about: If you have a request or issue with the sound card packs, please head over there to open an issue. 
   - name: Community Support
     url: https://discord.gg/wF9wUKnZ6H
-    about: Please ask and answer support "how do I?"questions here.
+    about: Please ask and answer support "how do I?" questions here.
   - name: Discussion Forum
     url: https://github.com/EdgeTX/edgetx/discussions
-    about: Please raise ideas and feature suggestions here.
+    about: Please raise ideas, ask questions, discuss feature suggestions and showcase stuff here.

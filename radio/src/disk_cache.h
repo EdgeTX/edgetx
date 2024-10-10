@@ -19,33 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _DISK_CACHE_H_
-#define _DISK_CACHE_H_
+#pragma once
 
-#include "diskio.h"
-#include "sdio_sd.h"
+#include "hal/fatfs_diskio.h"
 
 // tunable parameters
 #define DISK_CACHE_BLOCKS_NUM      32   // no cache blocks
 #define DISK_CACHE_BLOCK_SECTORS   16   // no sectors
-
-#define DISK_CACHE_BLOCK_SIZE   (DISK_CACHE_BLOCK_SECTORS * BLOCK_SIZE)
-
-class DiskCacheBlock
-{
-public:
-  DiskCacheBlock();
-  bool read(BYTE* buff, DWORD sector, UINT count);
-  DRESULT fill(BYTE drv, BYTE* buff, DWORD sector, UINT count);
-  void free(DWORD sector, UINT count);
-  void free();
-  bool empty() const;
-
-private:
-  uint8_t data[DISK_CACHE_BLOCK_SIZE];
-  DWORD startSector;
-  DWORD endSector;
-};
 
 struct DiskCacheStats
 {
@@ -54,22 +34,35 @@ struct DiskCacheStats
   uint32_t noWrites;
 };
 
+class DiskCacheBlock;
+
 class DiskCache
 {
-  public:
-    DiskCache();
-    DRESULT read(BYTE drv, BYTE* buff, DWORD sector, UINT count);
-    DRESULT write(BYTE drv, const BYTE* buff, DWORD sector, UINT count);
-    const DiskCacheStats & getStats() const;
-    int getHitRate() const;
-    void clear();
+ public:
+  DiskCache();
 
-  private:
-    DiskCacheStats stats;
-    uint32_t lastBlock;
-    DiskCacheBlock * blocks;
+  void initialize(const diskio_driver_t* drv);
+  void clear();
+
+  DRESULT read(BYTE drv, BYTE* buff, DWORD sector, UINT count);
+  DRESULT write(BYTE drv, const BYTE* buff, DWORD sector, UINT count);
+
+  const DiskCacheStats& getStats() const;
+  int getHitRate() const;
+
+ private:
+  DiskCacheStats stats;
+  uint32_t lastBlock;
+  DiskCacheBlock* blocks;
+  const diskio_driver_t* diskDrv;
+  uint32_t sectors;
+
+  uint32_t getSectors(uint8_t lun);
 };
 
 extern DiskCache diskCache;
 
-#endif // _DISK_CACHE_H_
+DRESULT disk_cache_read(BYTE drv, BYTE* buff, DWORD sector, UINT count);
+DRESULT disk_cache_write(BYTE drv, const BYTE* buff, DWORD sector, UINT count);
+
+

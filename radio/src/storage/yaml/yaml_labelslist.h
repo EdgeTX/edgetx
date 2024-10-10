@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _YAML_LABELSLIST_H_
-#define _YAML_LABELSLIST_H_
+#pragma once
 
 #define MODULE_ID_STR "mod%did"
 #define MODULE_TYPE_STR "mod%dtype"
@@ -30,5 +29,3 @@ struct YamlParserCalls;
 
 void* get_labelslist_iter();
 const YamlParserCalls* get_labelslist_parser_calls();
-
-#endif

@@ -1,0 +1,25 @@
+name: 'Auto-close marked issues'
+on:
+  schedule:
+    - cron: '30 1 * * *'
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v8
+        with:
+          # Issue closure message
+          close-issue-message: 'This issue has been closed due to no activity in over four weeks after having been marked as closure pending.'
+          # Issue close reason
+          close-issue-reason: not_planned
+          # Do not mark issues or PRs as stale automaticaly
+          days-before-stale: -1
+          # Close issue/PR if no activity for four weeks after closure pending warning
+          days-before-close: 28
+          # Do not auto close PRs
+          days-before-pr-close: -1
+          # Do not auto-close an issue if it is assigned to a milestone
+          exempt-all-issue-milestones: true
+          # Stale issue label
+          stale-issue-label: 'closing 🚪'

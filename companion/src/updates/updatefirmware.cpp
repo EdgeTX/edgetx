@@ -23,14 +23,15 @@
 #include "flashfirmwaredialog.h"
 
 UpdateFirmware::UpdateFirmware(QWidget * parent) :
-  UpdateInterface(parent)
+  UpdateInterface(parent, CID_Firmware, tr("Firmware"), Repo::REPO_TYPE_GITHUB,
+                  QString(GH_API_REPOS_EDGETX).append("/edgetx"), "nightly")
 {
-  init(CID_Firmware, tr("Firmware"), QString(GH_REPOS_EDGETX).append("/edgetx"), "nightly");
+  init(); // call after UpdateInterface ctor due to virtual functions
 }
 
-void UpdateFirmware::initAssetSettings()
+void UpdateFirmware::assetSettingsInit()
 {
-  if (!isValidSettingsIndex())
+  if (!isSettingsIndexValid())
     return;
 
   g.component[id()].initAllAssets();
@@ -44,40 +45,40 @@ void UpdateFirmware::initAssetSettings()
   cad.filter("edgetx-firmware");
   cad.maxExpected(1);
   cad.destSubDir("FIRMWARE");
-  cad.copyFilterType(UpdateParameters::UFT_Expression);
+  cad.copyFilterType(UpdateParameters::UFT_Pattern);
   cad.copyFilter("^%FWFLAVOUR%-.*\\.bin$");
 
   qDebug() << "Asset settings initialised";
 }
 
-bool UpdateFirmware::asyncInstall()
+int UpdateFirmware::asyncInstall()
 {
-  //reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
+  status()->reportProgress(tr("Write firmware to radio: %1").arg(g.currentProfile().burnFirmware() ? tr("true") : tr("false")), QtDebugMsg);
 
   if (!g.currentProfile().burnFirmware())
     return true;
 
-  progressMessage(tr("Install"));
+  status()->progressMessage(tr("Install"));
 
-  assets->setFilterFlags(UPDFLG_AsyncInstall);
-  //reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(assets->count()), QtDebugMsg);
+  repo()->assets()->setFilterFlags(UPDFLG_AsyncInstall);
+  status()->reportProgress(tr("Asset filter applied: %1 Assets found: %2").arg(updateFlagsToString(UPDFLG_AsyncInstall)).arg(repo()->assets()->count()), QtDebugMsg);
 
-  if (assets->count() < 1)
+  if (repo()->assets()->count() < 1)
     return true;
 
-  if (assets->count() != params->assets.at(0).maxExpected) {
-    reportProgress(tr("Expected %1 asset for install but %2 found").arg(params->assets.at(0).maxExpected).arg(assets->count()), QtCriticalMsg);
+  if (repo()->assets()->count() != params()->assets.at(0).maxExpected) {
+    status()->reportProgress(tr("Expected %1 asset for install but %2 found").arg(params()->assets.at(0).maxExpected).arg(repo()->assets()->count()), QtCriticalMsg);
     return false;
   }
 
-  QString destPath = updateDir;
+  QString destPath = updateDir();
 
-  if (!assets->subDirectory().isEmpty())
-    destPath.append("/" % assets->subDirectory());
+  if (!repo()->assets()->subDirectory().isEmpty())
+    destPath.append("/" % repo()->assets()->subDirectory());
 
-  const UpdateParameters::AssetParams &ap = params->assets.at(0);
+  const UpdateParameters::AssetParams &ap = params()->assets.at(0);
 
-  QString pattern(params->buildFilterPattern(ap.copyFilterType, ap.copyFilter));
+  QString pattern(params()->buildFilterPattern(ap.copyFilterType, ap.copyFilter));
   QRegularExpression filter(pattern, QRegularExpression::CaseInsensitiveOption);
 
   QDirIterator it(destPath);
@@ -97,13 +98,13 @@ bool UpdateFirmware::asyncInstall()
   }
 
   if (!found) {
-    reportProgress(tr("Firmware not found in %1 using filter %2").arg(destPath).arg(filter.pattern()), QtCriticalMsg);
+    status()->reportProgress(tr("Firmware not found in %1 using filter %2").arg(destPath).arg(filter.pattern()), QtCriticalMsg);
     return false;
   }
 
   g.currentProfile().fwName(destPath);
 
-  int ret = QMessageBox::question(progress, CPN_STR_APP_NAME, tr("Write the updated firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
+  int ret = QMessageBox::question(status()->progress(), CPN_STR_APP_NAME, tr("Write the updated firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
   if (ret == QMessageBox::Yes) {
     FlashFirmwareDialog *dlg = new FlashFirmwareDialog(this);
     dlg->exec();

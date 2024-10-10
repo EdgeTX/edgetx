@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _TELEMETRY_H_
-#define _TELEMETRY_H_
+#pragma once
 
 #include "dataconstants.h"
 #include "myeeprom.h"
@@ -76,13 +75,16 @@ void telemetryMirrorSend(uint8_t data);
 void telemetryWakeup();
 void telemetryReset();
 
-extern uint8_t telemetryProtocol;
-void telemetryInit(uint8_t protocol);
-
 void telemetryInterrupt10ms();
 
 void telemetryStart();
 void telemetryStop();
+
+struct etx_proto_driver_t;
+
+// Call from ISR to schedule telemetry frame
+// processing for that module.
+void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv);
 
 #define TELEMETRY_AVERAGE_COUNT        3
 
@@ -129,82 +131,12 @@ void frskyDSetDefault(int index, uint16_t id);
 #define IS_DISTANCE_UNIT(unit)         ((unit) == UNIT_METERS || (unit) == UNIT_FEET)
 #define IS_SPEED_UNIT(unit)            ((unit) >= UNIT_KTS && (unit) <= UNIT_MPH)
 
-extern uint8_t telemetryProtocol;
+typedef struct {
+  const char *label;
+  const char *unit;
+} rxStatStruct;
 
-inline const char* getRssiLabel()
-{
-#if defined(MULTIMODULE)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_MULTIMODULE &&
-      (g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
-           MODULE_SUBTYPE_MULTI_FS_AFHDS2A ||
-       g_model.moduleData[EXTERNAL_MODULE].multi.rfProtocol ==
-           MODULE_SUBTYPE_MULTI_HOTT)) {
-    return "RQly";
-  }
-#endif
-#if defined(GHOST)
-  if (telemetryProtocol == PROTOCOL_TELEMETRY_GHOST) {
-    return "RQly";
-  }
-#endif
-#if defined (PCBNV14)
-  extern uint32_t NV14internalModuleFwVersion;
-  if ( (telemetryProtocol == PROTOCOL_TELEMETRY_FLYSKY_NV14) 
-        && (NV14internalModuleFwVersion >=  0x1000E) )
-    return "Sgnl";
-#endif
-  return "RSSI";
-}
-
-// TODO: this should handle only the external S.PORT line
-//  - and go away in the end: one proto per module, not global!
-//
-inline uint8_t modelTelemetryProtocol()
-{
-  bool sportUsed = isSportLineUsedByInternalModule();
-
-#if defined(CROSSFIRE)
-  if (isModuleCrossfire(EXTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_CROSSFIRE;
-  }
-#endif
-
-#if defined(GHOST)
-  if (isModuleGhost(EXTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_GHOST;
-  }
-#endif
-
-  if (!sportUsed && isModulePPM(EXTERNAL_MODULE)) {
-    return g_model.telemetryProtocol;
-  }
-
-#if defined(MULTIMODULE)
-  if (!sportUsed && isModuleMultimodule(EXTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_MULTIMODULE;
-  }
-#endif
-
-#if defined(AFHDS3)
-  if (isModuleAFHDS3(EXTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_AFHDS3;
-  }
-#endif
-
-  // TODO: Check if that is really necessary...
-#if defined(AFHDS2)
-  if (isModuleAFHDS2A(INTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_FLYSKY_NV14;
-  }
-#endif
-
-  if (isModuleDSMP(EXTERNAL_MODULE)) {
-    return PROTOCOL_TELEMETRY_DSMP;
-  }
-  
-  // default choice
-  return PROTOCOL_TELEMETRY_FRSKY_SPORT;
-}
+rxStatStruct *getRxStatLabels();
 
 #include "telemetry_sensors.h"
 
@@ -341,5 +273,3 @@ struct ModuleSyncStatus
 };
 
 ModuleSyncStatus& getModuleSyncStatus(uint8_t moduleIdx);
-
-#endif // _TELEMETRY_H_

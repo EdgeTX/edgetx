@@ -19,113 +19,22 @@
  * GNU General Public License for more details.
  */
 
-#include "opentx.h"
+#include "edgetx.h"
+#include "tasks/mixer_task.h"
+#include "hal/adc_driver.h"
+#include "input_mapping.h"
+#include "mixes.h"
 
 #define _STR_MAX(x)                     "/" #x
 #define STR_MAX(x)                     _STR_MAX(x)
 
-uint8_t getMixesCount()
-{
-  uint8_t count = 0;
-  uint8_t ch;
-
-  for (int i=MAX_MIXERS-1; i>=0; i--) {
-    ch = mixAddress(i)->srcRaw;
-    if (ch != 0) {
-      count++;
-    }
-  }
-  return count;
-}
-
 bool reachMixesLimit()
 {
-  if (getMixesCount() >= MAX_MIXERS) {
+  if (getMixCount() >= MAX_MIXERS) {
     POPUP_WARNING(STR_NOFREEMIXER);
     return true;
   }
   return false;
-}
-
-void deleteMix(uint8_t idx)
-{
-  pauseMixerCalculations();
-  MixData * mix = mixAddress(idx);
-  memmove(mix, mix+1, (MAX_MIXERS-(idx+1))*sizeof(MixData));
-  memclear(&g_model.mixData[MAX_MIXERS-1], sizeof(MixData));
-  resumeMixerCalculations();
-  storageDirty(EE_MODEL);
-}
-
-void insertMix(uint8_t idx)
-{
-  pauseMixerCalculations();
-  MixData * mix = mixAddress(idx);
-  memmove(mix+1, mix, (MAX_MIXERS-(idx+1))*sizeof(MixData));
-  memclear(mix, sizeof(MixData));
-  mix->destCh = s_currCh-1;
-  mix->srcRaw = s_currCh;
-  if (!isSourceAvailable(mix->srcRaw)) {
-    mix->srcRaw = (s_currCh > 4 ? MIXSRC_Rud - 1 + s_currCh : MIXSRC_Rud - 1 + channelOrder(s_currCh));
-    while (!isSourceAvailable(mix->srcRaw)) {
-      mix->srcRaw += 1;
-    }
-  }
-  mix->weight = 100;
-  resumeMixerCalculations();
-  storageDirty(EE_MODEL);
-}
-
-void copyMix(uint8_t idx)
-{
-  pauseMixerCalculations();
-  MixData * mix = mixAddress(idx);
-  memmove(mix+1, mix, (MAX_MIXERS-(idx+1))*sizeof(MixData));
-  resumeMixerCalculations();
-  storageDirty(EE_MODEL);
-}
-
-bool swapMixes(uint8_t & idx, uint8_t up)
-{
-  MixData * x, * y;
-  int8_t tgt_idx = (up ? idx-1 : idx+1);
-
-  x = mixAddress(idx);
-
-  if (tgt_idx < 0) {
-    if (x->destCh == 0)
-      return false;
-    x->destCh--;
-    return true;
-  }
-
-  if (tgt_idx == MAX_MIXERS) {
-    if (x->destCh == MAX_OUTPUT_CHANNELS-1)
-      return false;
-    x->destCh++;
-    return true;
-  }
-
-  y = mixAddress(tgt_idx);
-  uint8_t destCh = x->destCh;
-  if(!y->srcRaw || destCh != y->destCh) {
-    if (up) {
-      if (destCh>0) x->destCh--;
-      else return false;
-    }
-    else {
-      if (destCh<MAX_OUTPUT_CHANNELS-1) x->destCh++;
-      else return false;
-    }
-    return true;
-  }
-
-  pauseMixerCalculations();
-  memswap(x, y, sizeof(MixData));
-  resumeMixerCalculations();
-
-  idx = tgt_idx;
-  return true;
 }
 
 void onMixesMenu(const char * result)
@@ -139,7 +48,7 @@ void onMixesMenu(const char * result)
     if (!reachMixesLimit()) {
       s_currCh = chn;
       if (result == STR_INSERT_AFTER) { s_currIdx++; menuVerticalPosition++; }
-      insertMix(s_currIdx);
+      insertMix(s_currIdx, s_currCh - 1);
       pushMenu(menuModelMixOne);
     }
   }
@@ -232,6 +141,7 @@ void displayMixInfos(coord_t y, MixData * md)
 void displayMixLine(coord_t y, MixData * md, bool active)
 {
   if(active && md->name[0]) {
+    lcdDrawFilledRect(FW*sizeof(TR_MIXES)+FW/2, 0, FW*4+1, MENU_HEADER_HEIGHT, 0xFF, ERASE);
     lcdDrawSizedText(FW*sizeof(TR_MIXES)+FW/2, 0, md->name, sizeof(md->name), 0);
     if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
       displayMixInfos(y, md);
@@ -266,9 +176,9 @@ void menuModelMixAll(event_t event)
       s_copyTgtOfs = 0;
       break;
     case EVT_KEY_LONG(KEY_EXIT):
+      killEvents(event);
       if (s_copyMode && s_copyTgtOfs == 0) {
         deleteMix(s_currIdx);
-        killEvents(event);
         event = 0;
       }
       // no break
@@ -281,7 +191,7 @@ void menuModelMixAll(event_t event)
           }
           else {
             do {
-              swapMixes(s_currIdx, s_copyTgtOfs > 0);
+              s_currIdx = moveMix(s_currIdx, s_copyTgtOfs > 0);
               s_copyTgtOfs += (s_copyTgtOfs < 0 ? +1 : -1);
             } while (s_copyTgtOfs != 0);
             storageDirty(EE_MODEL);
@@ -294,7 +204,7 @@ void menuModelMixAll(event_t event)
       }
       break;
     case EVT_KEY_BREAK(KEY_ENTER):
-      if ((!s_currCh || (s_copyMode && !s_copyTgtOfs)) && !READ_ONLY()) {
+      if (sub >= 0 && (!s_currCh || (s_copyMode && !s_copyTgtOfs))) {
         s_copyMode = (s_copyMode == COPY_MODE ? MOVE_MODE : COPY_MODE);
         s_copySrcIdx = s_currIdx;
         s_copySrcCh = chn;
@@ -310,83 +220,66 @@ void menuModelMixAll(event_t event)
         s_copyTgtOfs = 0;
       }
       else {
-        if (READ_ONLY()) {
-          if (!s_currCh) {
-            pushMenu(menuModelMixOne);
-          }
-        }
-        else {
-          if (s_copyMode) s_currCh = 0;
-          if (s_currCh) {
-            if (reachMixesLimit()) break;
-            insertMix(s_currIdx);
-            pushMenu(menuModelMixOne);
-            s_copyMode = 0;
-          }
-          else {
-            event = 0;
-            s_copyMode = 0;
-            POPUP_MENU_ADD_ITEM(STR_EDIT);
-            POPUP_MENU_ADD_ITEM(STR_INSERT_BEFORE);
-            POPUP_MENU_ADD_ITEM(STR_INSERT_AFTER);
-            POPUP_MENU_ADD_ITEM(STR_COPY);
-            POPUP_MENU_ADD_ITEM(STR_MOVE);
-            POPUP_MENU_ADD_ITEM(STR_DELETE);
-            POPUP_MENU_START(onMixesMenu);
-          }
-        }
-      }
-      break;
-    case EVT_KEY_LONG(KEY_LEFT):
-    case EVT_KEY_LONG(KEY_RIGHT):
-      if (s_copyMode && !s_copyTgtOfs) {
-        if (reachMixesLimit()) break;
-        s_currCh = chn;
-        if (event == EVT_KEY_LONG(KEY_RIGHT)) { s_currIdx++; menuVerticalPosition++; }
-        insertMix(s_currIdx);
-        pushMenu(menuModelMixOne);
-        s_copyMode = 0;
-        killEvents(event);
-      }
-      break;
-    case EVT_KEY_FIRST(KEY_UP):
-    case EVT_KEY_REPT(KEY_UP):
-    case EVT_KEY_FIRST(KEY_DOWN):
-    case EVT_KEY_REPT(KEY_DOWN):
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    case EVT_ROTARY_RIGHT:
-    case EVT_ROTARY_LEFT:
-#endif
-      if (s_copyMode) {
-        uint8_t next_ofs = (IS_PREVIOUS_EVENT(event) ? s_copyTgtOfs - 1 : s_copyTgtOfs + 1);
-
-        if (s_copyTgtOfs==0 && s_copyMode==COPY_MODE) {
-          // insert a mix on the same channel (just above / just below)
+        if (s_copyMode) s_currCh = 0;
+        if (s_currCh) {
           if (reachMixesLimit()) break;
-          copyMix(s_currIdx);
-          if (IS_NEXT_EVENT(event))
-            s_currIdx++;
-          else if (sub - menuVerticalOffset >= 6)
-            menuVerticalOffset++;
+          insertMix(s_currIdx, s_currCh - 1);
+          pushMenu(menuModelMixOne);
+          s_copyMode = 0;
         }
-        else if (next_ofs==0 && s_copyMode==COPY_MODE) {
-          // delete the mix
-          deleteMix(s_currIdx);
-          if (IS_PREVIOUS_EVENT(event))
-            s_currIdx--;
+        else if (sub >= 0) {
+          event = 0;
+          s_copyMode = 0;
+          POPUP_MENU_START(onMixesMenu, 6, STR_EDIT, STR_INSERT_BEFORE, STR_INSERT_AFTER, STR_COPY, STR_MOVE, STR_DELETE);
         }
-        else {
-          // only swap the mix with its neighbor
-          if (!swapMixes(s_currIdx, IS_PREVIOUS_EVENT(event))) break;
-          storageDirty(EE_MODEL);
-        }
-
-        s_copyTgtOfs = next_ofs;
       }
       break;
+
+      // TODO: add PLUS / MINUS?
+    // case EVT_KEY_LONG(KEY_LEFT):
+    // case EVT_KEY_LONG(KEY_RIGHT):
+    //   killEvents(event);
+    //   if (s_copyMode && !s_copyTgtOfs) {
+    //     if (reachMixesLimit()) break;
+    //     s_currCh = chn;
+    //     if (event == EVT_KEY_LONG(KEY_RIGHT)) { s_currIdx++; menuVerticalPosition++; }
+    //     insertMix(s_currIdx, s_currCh - 1);
+    //     pushMenu(menuModelMixOne);
+    //     s_copyMode = 0;
+    //   }
+    //   break;
   }
 
-  lcdDrawNumber(FW*sizeof(TR_MIXES)+FW/2, 0, getMixesCount(), 0);
+  if (s_copyMode &&
+      (IS_NEXT_EVENT(event) || IS_PREVIOUS_EVENT(event))) {
+
+    uint8_t next_ofs = (IS_PREVIOUS_EVENT(event) ? s_copyTgtOfs - 1 : s_copyTgtOfs + 1);
+
+    if (s_copyTgtOfs==0 && s_copyMode==COPY_MODE) {
+      // insert a mix on the same channel (just above / just below)
+      if (!reachMixesLimit()) {
+        copyMix(s_currIdx, s_currIdx, mixAddress(s_currIdx)->destCh);
+        if (IS_NEXT_EVENT(event))
+          s_currIdx++;
+        else if (sub - menuVerticalOffset >= 6)
+          menuVerticalOffset++;
+      }
+    }
+    else if (next_ofs==0 && s_copyMode==COPY_MODE) {
+      // delete the mix
+      deleteMix(s_currIdx);
+      if (IS_PREVIOUS_EVENT(event))
+        s_currIdx--;
+    }
+    else {
+      // only swap the mix with its neighbor
+      s_currIdx = moveMix(s_currIdx, IS_PREVIOUS_EVENT(event));
+    }
+
+    s_copyTgtOfs = next_ofs;
+  }
+
+  lcdDrawNumber(FW*sizeof(TR_MIXES)+FW/2, 0, getMixCount(), 0);
   lcdDrawText(lcdNextPos, 0, STR_MAX(MAX_MIXERS));
 
   // Value
@@ -413,11 +306,11 @@ void menuModelMixAll(event_t event)
   int i = 0;
 
   for (uint8_t ch=1; ch<=MAX_OUTPUT_CHANNELS; ch++) {
-    MixData * md;
     coord_t y = MENU_HEADER_HEIGHT+1+(cur-menuVerticalOffset)*FH;
-    if (i<MAX_MIXERS && (md=mixAddress(i))->srcRaw && md->destCh+1 == ch) {
+    MixData * md = mixAddress(i);
+    if (i < getMixCount() && (md->destCh + 1 == ch)) {
       if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-        putsChn(0, y, ch, 0); // show CHx
+        putsChn(0, y, ch, ((s_copyMode || sub != cur) ? 0 : INVERS)); // show CHx
       }
       uint8_t mixCnt = 0;
       do {
@@ -436,18 +329,13 @@ void menuModelMixAll(event_t event)
           s_currIdx = i;
         }
         if (cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES) {
-          LcdFlags attr = ((s_copyMode || sub != cur) ? 0 : INVERS);
-
-          if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, 0);
+          if (mixCnt > 0) lcdDrawTextAtIndex(FW, y, STR_VMLTPX2, md->mltpx, ((s_copyMode || sub != cur) ? 0 : INVERS));
 
           drawSource(MIX_LINE_SRC_POS, y, md->srcRaw, 0);
 
-          if (mixCnt == 0 && md->mltpx == 1) {
-            lcdDrawText(MIX_LINE_WEIGHT_POS, y, "MULT!", RIGHT | attr | (isMixActive(i) ? BOLD : 0));
-          }
-          else {
-            gvarWeightItem(MIX_LINE_WEIGHT_POS, y, md, RIGHT | attr | (isMixActive(i) ? BOLD : 0), 0);
-          }
+          editSrcVarFieldValue(MIX_LINE_WEIGHT_POS, y, nullptr, md->weight, 
+                      MIX_WEIGHT_MIN, MIX_WEIGHT_MAX, RIGHT | ((isMixActive(i) ? BOLD : 0)),
+                      0, 0, MIXSRC_FIRST, INPUTSRC_LAST);
 
 #if LCD_W >= 212
           displayMixLine(y, md);
@@ -462,12 +350,12 @@ void menuModelMixAll(event_t event)
             }
             if (cur == sub) {
               /* invert the raw when it's the current one */
-              lcdDrawSolidFilledRect(23, y, LCD_W-24, 7);
+              lcdDrawSolidFilledRect(0, y, LCD_W, 7);
             }
           }
         }
         cur++; y+=FH; mixCnt++; i++; md++;
-      } while (i<MAX_MIXERS && md->srcRaw && md->destCh+1 == ch);
+      } while (i < getMixCount() && (md->destCh + 1 == ch));
       if (s_copyMode == MOVE_MODE && cur-menuVerticalOffset >= 0 && cur-menuVerticalOffset < NUM_BODY_LINES && s_copySrcCh == ch && i == (s_copySrcIdx + (s_copyTgtOfs<0))) {
         lcdDrawRect(22, y-1, LCD_W-22, 9, DOTTED);
         cur++;

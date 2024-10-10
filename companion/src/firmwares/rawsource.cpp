@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -22,6 +23,7 @@
 
 #include "eeprominterface.h"
 #include "radiodata.h"
+#include "modeldata.h"
 #include "radiodataconversionstate.h"
 
 #include <float.h>
@@ -85,7 +87,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
     }
 
     case SOURCE_TYPE_SPECIAL:
-      if (index == 0)  {  //Batt
+      if (index == 0)  {       //Batt
         result.step = 0.1;
         result.decimals = 1;
         result.max = 25.5;
@@ -100,12 +102,13 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
         result.max = 30000;
         result.min = -result.max;
       }
-      else {      // Timers 1 - 3
-        result.step = 1;
-        result.max = 9 * 60 * 60 - 1;  // 8:59:59 (to match firmware)
-        result.min = -result.max;
-        result.unit = tr("s");
-      }
+      break;
+
+    case SOURCE_TYPE_TIMER:
+      result.step = 1;
+      result.max = 9 * 60 * 60 - 1;  // 8:59:59 (to match firmware)
+      result.min = -result.max;
+      result.unit = tr("s");
       break;
 
     case SOURCE_TYPE_CH:
@@ -126,32 +129,36 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   return result;
 }
 
-QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board) const
+QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board, bool prefixCustomName) const
 {
-  if (board == Board::BOARD_UNKNOWN) {
-    board = getCurrentBoard();
-  }
+  if (index < 0)
+    return CPN_STR_SRC_INDICATOR_NEG % RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
 
-  static const QString trims[] = {
-    tr("TrmR"), tr("TrmE"), tr("TrmT"), tr("TrmA"), tr("Trm5"), tr("Trm6")
+  if (board == Board::BOARD_UNKNOWN)
+    board = getCurrentBoard();
+
+  static const QString trimsAir[] = {
+    "", tr("Trim Rud"), tr("Trim Ele"), tr("Trim Thr"), tr("Trim Ail"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
+  };
+
+  static const QString trimsSurface[] = {
+    "", tr("Trim ST"), tr("Trim TH"), tr("Trim 3"), tr("Trim 4"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
   };
 
   static const QString trims2[] = {
-    tr("TrmH"), tr("TrmV")
+    "", tr("TrmH"), tr("TrmV")
   };
 
   static const QString special[] = {
-    tr("Batt"), tr("Time"), tr("GPS"), tr("Reserved1"), tr("Reserved2"), tr("Reserved3"), tr("Reserved4")
+    "", tr("Batt"), tr("Time"), tr("GPS"), tr("Reserved1"), tr("Reserved2"), tr("Reserved3"), tr("Reserved4")
   };
 
-  static const QString rotary[]  = { tr("REa"), tr("REb") };
-
-  if (index<0) {
-    return QString(CPN_STR_UNKNOWN_ITEM);
-  }
+  static const QString rotary[]  = { "", tr("REa"), tr("REb") };
 
   QString result;
-  int genAryIdx = 0;
+  QString dfltName;
+  QString custName;
+
   switch (type) {
     case SOURCE_TYPE_NONE:
       return QString(CPN_STR_NONE_ITEM);
@@ -159,83 +166,88 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
     case SOURCE_TYPE_VIRTUAL_INPUT:
     {
       const char * name = nullptr;
-      if (model)
-        name = model->inputNames[index];
-      return RadioData::getElementName(tr("I", "as in Input"), index + 1, name);
+      if (model && index <= CPN_MAX_INPUTS)
+        name = model->inputNames[index - 1];
+      return RadioData::getElementName(tr("I", "as in Input"), index, name);
     }
 
     case SOURCE_TYPE_LUA_OUTPUT:
-      return tr("LUA%1%2").arg(index / 16 + 1).arg(QChar('a' + index % 16));
-
-    case SOURCE_TYPE_STICK:
-      if (generalSettings) {
-        if (isPot(&genAryIdx))
-          result = QString(generalSettings->potName[genAryIdx]);
-        else if (isSlider(&genAryIdx))
-          result = QString(generalSettings->sliderName[genAryIdx]);
-        else if (isStick(&genAryIdx))
-          result = QString(generalSettings->stickName[genAryIdx]);
+      {
+        div_t qr = div(index - 1, 16);
+        return tr("LUA%1%2").arg(qr.quot + 1).arg(QChar('a' + qr.rem));
       }
-      if (result.trimmed().isEmpty())
-        result = Boards::getAnalogInputName(board, index);
-      return result;
+
+    case SOURCE_TYPE_INPUT:
+      dfltName = Boards::getInputName(index - 1, board);
+      if (generalSettings && index <= CPN_MAX_INPUTS)
+        custName = QString(generalSettings->inputConfig[index - 1].name).trimmed();
+      return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_TRIM:
-      return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) : CHECK_IN_ARRAY(trims, index));
+      return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) :
+              (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsAir, index) :
+               CHECK_IN_ARRAY(trimsSurface, index)));
 
     case SOURCE_TYPE_ROTARY_ENCODER:
       return CHECK_IN_ARRAY(rotary, index);
+
+    case SOURCE_TYPE_MIN:
+      return tr("MIN");
 
     case SOURCE_TYPE_MAX:
       return tr("MAX");
 
     case SOURCE_TYPE_SWITCH:
-      if (generalSettings)
-        result = QString(generalSettings->switchName[index]).trimmed();
-      if (result.isEmpty())
-        result = Boards::getSwitchInfo(board, index).name;
-      return result;
+      dfltName = Boards::getSwitchInfo(index - 1, board).name.c_str();
+      if (Boards::isSwitchFunc(index - 1, board)) {
+        if (model) {
+          int fsindex = Boards::getSwitchTagNum(index - 1, board) - 1;
+          if (fsindex >= 0 && fsindex < CPN_MAX_SWITCHES_FUNCTION)
+            custName = QString(model->functionSwitchNames[fsindex]).trimmed();
+        }
+      }
+      else {
+        if (generalSettings && index <= CPN_MAX_SWITCHES) {
+          custName = QString(generalSettings->switchConfig[index - 1].name).trimmed();
+        }
+      }
 
-    case SOURCE_TYPE_FUNCTIONSWITCH:
-      if (model)
-        result = QString(model->functionSwitchNames[index]).trimmed();
-      if (result.isEmpty())
-        result = tr("SW%1").arg(index + 1);
-      return result;
+      return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_CUSTOM_SWITCH:
-      return RawSwitch(SWITCH_TYPE_VIRTUAL, index + 1).toString();
+      return RawSwitch(SWITCH_TYPE_VIRTUAL, index).toString();  // RawSwitch uses 1 based index
 
     case SOURCE_TYPE_CYC:
-      return tr("CYC%1").arg(index + 1);
+      return tr("CYC%1").arg(index);
 
     case SOURCE_TYPE_PPM:
-      return RadioData::getElementName(tr("TR", "as in Trainer"), index + 1);
+      return RadioData::getElementName(tr("TR", "as in Trainer"), index);
 
     case SOURCE_TYPE_CH:
-      if (model)
-        return model->limitData[index].nameToString(index);
-      else
-        return LimitData().nameToString(index);
+      if (model && index <= CPN_MAX_CHNOUT)
+        result = QString(model->limitData[index - 1].nameToString(index - 1)).trimmed();
+      if (result.isEmpty())
+        return LimitData().nameToString(index - 1);
+
+      return result;
 
     case SOURCE_TYPE_SPECIAL:
-      if (index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER) {
-        if (model)
-          result = model->timers[index - SOURCE_TYPE_SPECIAL_FIRST_TIMER].nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER);
-        else
-          result = TimerData().nameToString(index - SOURCE_TYPE_SPECIAL_FIRST_TIMER);
-      }
-      else
-        result = CHECK_IN_ARRAY(special, index);
+      return CHECK_IN_ARRAY(special, index);
+
+    case SOURCE_TYPE_TIMER:
+      if (model && index <= CPN_MAX_TIMERS)
+        result = QString(model->timers[index - 1].nameToString(index - 1)).trimmed();
+      if (result.isEmpty())
+        result = TimerData().nameToString(index - 1);
 
       return result;
 
     case SOURCE_TYPE_TELEMETRY:
       {
-        div_t qr = div(index, 3);
-        if (model)
-          result = model->sensorData[qr.quot].nameToString(qr.quot);
-        else
+        div_t qr = div(index - 1, 3);
+        if (model && qr.quot < CPN_MAX_SENSORS)
+          result = QString(model->sensorData[qr.quot].nameToString(qr.quot)).trimmed();
+        if (result.isEmpty())
           result = SensorData().nameToString(qr.quot);
         if (qr.rem)
           result += (qr.rem == 1 ? "-" : "+");
@@ -243,123 +255,139 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       }
 
     case SOURCE_TYPE_GVAR:
-      if (model)
-        return model->gvarData[index].nameToString(index);
-      else
-        return GVarData().nameToString(index);
+      if (model && index <= CPN_MAX_GVARS)
+        result = QString(model->gvarData[index - 1].nameToString(index - 1)).trimmed();
+      if (result.isEmpty())
+        result = GVarData().nameToString(index - 1);
+      return result;
 
     case SOURCE_TYPE_SPACEMOUSE:
-      return tr("sm%1").arg(QChar('A' + index));
+      return tr("sm%1").arg(QChar('A' + (index - 1)));
+
+    case SOURCE_TYPE_FUNCTIONSWITCH_GROUP:
+      return tr("GR%1").arg(index);
 
     default:
       return QString(CPN_STR_UNKNOWN_ITEM);
   }
 }
 
-bool RawSource::isStick(int * stickIndex, Board::Type board) const
+bool RawSource::isStick(Board::Type board) const
 {
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
 
-  if (type == SOURCE_TYPE_STICK && index < Boards::getCapability(board, Board::Sticks)) {
-    if (stickIndex)
-      *stickIndex = index;
+  if (type == SOURCE_TYPE_INPUT && index - 1 < Boards::getCapability(board, Board::Sticks)) {
     return true;
   }
   return false;
-}
-
-bool RawSource::isPot(int * potsIndex, Board::Type board) const
-{
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
-
-  Boards b(board);
-  if (type == SOURCE_TYPE_STICK &&
-          index >= b.getCapability(Board::Sticks) &&
-          index < b.getCapability(Board::Sticks) + b.getCapability(Board::Pots)) {
-    if (potsIndex)
-      *potsIndex = index - b.getCapability(Board::Sticks);
-    return true;
-  }
-  return false;
-}
-
-bool RawSource::isSlider(int * sliderIndex, Board::Type board) const
-{
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
-
-  Boards b(board);
-  if (type == SOURCE_TYPE_STICK &&
-          index >= b.getCapability(Board::Sticks) + b.getCapability(Board::Pots) &&
-          index < b.getCapability(Board::Sticks) + b.getCapability(Board::Pots) + b.getCapability(Board::Sliders)) {
-    if (sliderIndex)
-      *sliderIndex = index - b.getCapability(Board::Sticks) - b.getCapability(Board::Pots);
-    return true;
-  }
-  return false;
-}
-
-bool RawSource::isTimeBased(Board::Type board) const
-{
-  return (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_TIMER && index <= SOURCE_TYPE_SPECIAL_LAST_TIMER);
 }
 
 bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings * const gs, Board::Type board) const
 {
+  if (type == SOURCE_TYPE_NONE && index == 0)
+    return true;
+
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
 
   Boards b(board);
+  Firmware *firmware = getCurrentFirmware();
 
-  if (type == SOURCE_TYPE_STICK && index >= b.getCapability(Board::MaxAnalogs))
+  if (type == SOURCE_TYPE_CH && abs(index) > CPN_MAX_CHNOUT)
     return false;
 
-  if (type == SOURCE_TYPE_SWITCH && index >= b.getCapability(Board::Switches))
+  if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && index >= b.getCapability(Board::FunctionSwitches))
     return false;
 
-  if (type == SOURCE_TYPE_FUNCTIONSWITCH)
-    if (!model || index >= b.getCapability(Board::FunctionSwitches))
-      return false;
+  if (type == SOURCE_TYPE_CUSTOM_SWITCH && abs(index) > CPN_MAX_LOGICAL_SWITCHES)
+    return false;
 
-  if (type == SOURCE_TYPE_SPECIAL && index >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED && index <= SOURCE_TYPE_SPECIAL_LAST_RESERVED)
+  if (type == SOURCE_TYPE_LUA_OUTPUT && div(abs(index - 1), 16).quot >= CPN_MAX_SCRIPTS)
+    return false;
+
+  if (type == SOURCE_TYPE_INPUT && abs(index) > b.getCapability(Board::Inputs))
+    return false;
+
+  if (type == SOURCE_TYPE_SWITCH && abs(index) > b.getCapability(Board::Switches))
+    return false;
+
+  if (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED)
+    return false;
+
+  if (type == SOURCE_TYPE_TIMER && abs(index) > CPN_MAX_TIMERS)
+    return false;
+
+  if (type == SOURCE_TYPE_TELEMETRY && div(abs(index), 3).quot > CPN_MAX_SENSORS)
+    return false;
+
+  if (type == SOURCE_TYPE_CYC && !firmware->getCapability(Heli))
     return false;
 
   if (model) {
-    if (type == SOURCE_TYPE_FUNCTIONSWITCH && !model->isFunctionSwitchSourceAllowed(index))
+    if (type == SOURCE_TYPE_TIMER && model->timers[abs(index) - 1].isModeOff())
       return false;
 
-    if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(index))
+    if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(abs(index) - 1, board) &&
+        !model->isFunctionSwitchSourceAllowed(b.getSwitchTagNum(abs(index) - 1, board) - 1))
+      return false;
+
+    if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(abs(index) - 1))
       return false;
 
     if (type == SOURCE_TYPE_PPM && model->trainerMode == TRAINER_MODE_OFF)
       return false;
 
-    if (type == SOURCE_TYPE_CUSTOM_SWITCH && model->logicalSw[index].isEmpty())
+    if (type == SOURCE_TYPE_CUSTOM_SWITCH && model->logicalSw[abs(index) - 1].isEmpty())
       return false;
 
     if (type == SOURCE_TYPE_TELEMETRY) {
-      if (!model->sensorData[div(index, 3).quot].isAvailable()) {
+      if (!model->sensorData[div(abs(index) - 1, 3).quot].isAvailable()) {
         return false;
       }
     }
+
+    if (type == SOURCE_TYPE_CH && !model->hasMixes(abs(index) - 1))
+      return false;
+
+    if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP) {
+      if (!b.getCapability(Board::FunctionSwitches))
+        return false;
+      else if (model->getFuncGroupSwitchCount(abs(index), CPN_MAX_SWITCHES_FUNCTION) == 0)
+        return false;
+    }
+  }
+  else {
+    if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && b.getCapability(Board::FunctionSwitches))
+      return false;
   }
 
   if (gs) {
-    int gsIdx = 0;
-    if (type == SOURCE_TYPE_STICK && ((isPot(&gsIdx) && !gs->isPotAvailable(gsIdx)) || (isSlider(&gsIdx) && !gs->isSliderAvailable(gsIdx))))
-      return false;
+    if (type == SOURCE_TYPE_INPUT) {
+      if (!gs->isInputAvailable(abs(index) - 1))
+        return false;
+      if (gs->inputConfig[abs(index) - 1].flexType == Board::FLEX_SWITCH)
+        return false;
+    }
 
-    if (type == SOURCE_TYPE_SWITCH && IS_HORUS_OR_TARANIS(board) && !gs->switchSourceAllowedTaranis(index))
+    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(abs(index) - 1, board) && IS_HORUS_OR_TARANIS(board) &&
+        !gs->switchSourceAllowed(abs(index) - 1))
       return false;
   }
+  else {
+    if (type == SOURCE_TYPE_INPUT) {
+      if (!Boards::isInputAvailable(abs(index) - 1, board))
+        return false;
+      if (Boards::getInputInfo(abs(index) - 1, board).flexType == Board::FLEX_SWITCH)
+        return false;
+    }
+  }
 
-  if (type == SOURCE_TYPE_TRIM && index >= b.getCapability(Board::NumTrims))
+  if (type == SOURCE_TYPE_TRIM && abs(index) > b.getCapability(Board::NumTrims))
     return false;
 
   if (type == SOURCE_TYPE_SPACEMOUSE &&
-     (index >= CPN_MAX_SPACEMOUSE ||
+     (abs(index) > CPN_MAX_SPACEMOUSE ||
      (!(gs->serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_SPACEMOUSE ||
         gs->serialPort[GeneralSettings::SP_AUX2] == GeneralSettings::AUX_SERIAL_SPACEMOUSE))))
     return false;
@@ -369,80 +397,22 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
 
 RawSource RawSource::convert(RadioDataConversionState & cstate)
 {
-  cstate.setItemType(tr("SRC"), 1);
-  RadioDataConversionState::EventType evt = RadioDataConversionState::EVT_NONE;
+  cstate.setItemType(tr("Source"), 1);
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType));
 
-  if (type == SOURCE_TYPE_STICK) {
-    QStringList fromStickList(getStickList(cstate.fromBoard));
-    QStringList toStickList(getStickList(cstate.toBoard));
-    if (oldData.id < fromStickList.count())
-      index = toStickList.indexOf(fromStickList.at(oldData.id));
-    else
-      index = -1;
-    // perform forced mapping
-  }
-
-  if (type == SOURCE_TYPE_SWITCH) {
-    QStringList fromSwitchList(getSwitchList(cstate.fromBoard));
-    QStringList toSwitchList(getSwitchList(cstate.toBoard));
-    // index set to -1 if no match found
-    if (oldData.id < fromSwitchList.count())
-      index = toSwitchList.indexOf(fromSwitchList.at(oldData.id));
-    else
-      index = -1;
-    // perform forced mapping
-    if (index < 0) {
-      if (IS_TARANIS_X7(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {
-        // No SE and SG on X7 board
-        index = toSwitchList.indexOf("SD");
-        if (index >= 0)
-          evt = RadioDataConversionState::EVT_CVRT;
-      }
-      else if (IS_FAMILY_T12(cstate.toType) && (IS_TARANIS_X9(cstate.fromType) || IS_FAMILY_HORUS_OR_T16(cstate.fromType))) {
-        // No SE and SG on T12 board
-        index = toSwitchList.indexOf("SD");
-        if (index >= 0)
-          evt = RadioDataConversionState::EVT_CVRT;
-      }
-    }
-  }
+  if (type == SOURCE_TYPE_INPUT)
+    index = Boards::getInputIndex(Boards::getInputTag(oldData.id, cstate.fromType), Board::LVT_TAG, cstate.toType);
+  else if (type == SOURCE_TYPE_SWITCH)
+    index = Boards::getSwitchIndex(Boards::getSwitchTag(oldData.id, cstate.fromType), Board::LVT_TAG, cstate.toType);
 
   // final validation (we do not pass model to isAvailable() because we don't know what has or hasn't been converted)
-  if (index < 0 || !isAvailable(NULL, cstate.toGS(), cstate.toType)) {
+  if (index < 0 || !isAvailable(nullptr, cstate.toGS(), cstate.toType)) {
     cstate.setInvalid(oldData);
-    // no source is safer than an invalid one
-    clear();
-  }
-  else if (evt == RadioDataConversionState::EVT_CVRT) {
-    cstate.setConverted(oldData, RadioDataConversionState::LogField(index, toString(cstate.toModel(), cstate.toGS(), cstate.toType)));
-  }
-  else if (oldData.id != index) {
-    // provide info by default if anything changed
-    cstate.setMoved(oldData, RadioDataConversionState::LogField(index, toString(cstate.toModel(), cstate.toGS(), cstate.toType)));
+    clear();  // no source is safer than an invalid one
+    cstate.setConverted(oldData, RadioDataConversionState::LogField(index, tr("None")));
   }
 
   return *this;
-}
-
-QStringList RawSource::getStickList(Boards board) const
-{
-  QStringList ret;
-
-  for (int i = 0; i < board.getCapability(Board::MaxAnalogs); i++) {
-    ret.append(board.getAnalogInputName(i));
-  }
-  return ret;
-}
-
-QStringList RawSource::getSwitchList(Boards board) const
-{
-  QStringList ret;
-
-  for (int i = 0; i < board.getCapability(Board::Switches); i++) {
-    ret.append(board.getSwitchInfo(i).name);
-  }
-  return ret;
 }
 
 // static
@@ -451,6 +421,7 @@ StringTagMappingTable RawSource::getSpecialTypesLookupTable()
   StringTagMappingTable tbl;
 
 tbl.insert(tbl.end(), {
+                          {std::to_string(SOURCE_TYPE_SPECIAL_NONE),       "NONE"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_TX_BATT),    "TX_VOLTAGE"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_TX_TIME),    "TX_TIME"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_TX_GPS),     "TX_GPS"},
@@ -458,23 +429,6 @@ tbl.insert(tbl.end(), {
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED2),  "RESERVED2"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED3),  "RESERVED3"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED4),  "RESERVED4"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER1),     "TIMER1"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER2),     "TIMER2"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_TIMER3),     "TIMER3"},
-                          });
-
-  return tbl;
-}
-
-// static
-StringTagMappingTable RawSource::getCyclicLookupTable()
-{
-  StringTagMappingTable tbl;
-
-tbl.insert(tbl.end(), {
-                          {"0", "CYC1"},
-                          {"1", "CYC2"},
-                          {"2", "CYC3"},
                           });
 
   return tbl;

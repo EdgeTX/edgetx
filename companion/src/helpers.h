@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -29,6 +30,8 @@
 #include <QTime>
 #include <QElapsedTimer>
 #include <QStandardItemModel>
+#include <QDialog>
+#include <QComboBox>
 
 extern const QColor colors[CPN_MAX_CURVES];
 
@@ -36,7 +39,8 @@ extern const QColor colors[CPN_MAX_CURVES];
 
 //convert from mode 1 to mode generalSettings.stickMode
 //NOTICE!  =>  1..4 -> 1..4
-#define CONVERT_MODE(x)  (((x)<=4) ? modn12x3[generalSettings.stickMode][((x)-1)] : (x))
+#define CONVERT_AIRMODE(x)      (((x)<=4) ? modn12x3[generalSettings.stickMode][((x)-1)] : (x))
+#define CONVERT_SURFACEMODE(x)  (((x)<=4) ? modn12x3[4 + generalSettings.stickMode][((x)-1)] : (x))
 
 #define CURVE_BASE   7
 #define CH(x) (SRC_CH1+(x)-1-(SRC_SWC-SRC_3POS))
@@ -50,6 +54,7 @@ extern const QColor colors[CPN_MAX_CURVES];
 #define TRIM_OFFSET 2
 
 #define TRIM_MODE_NONE  0x1F  // 0b11111
+#define TRIM_MODE_3POS  (2 * CPN_MAX_FLIGHT_MODES)
 
 bool displayT16ImportWarning();
 
@@ -102,8 +107,6 @@ class GVarGroup: public QObject {
 
 namespace Helpers
 {
-  void populateGvarUseCB(QComboBox *b, unsigned int phase);
-
   void populateFileComboBox(QComboBox * b, const QSet<QString> & set, const QString & current);
   void getFileComboBoxValue(QComboBox * b, char * dest, int length);
 
@@ -113,14 +116,20 @@ namespace Helpers
   QString getChecklistFilename(const ModelData * model);
   QString getChecklistFilePath(const ModelData * model);
   QString removeAccents(const QString & str);
-  unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits = 1, const unsigned int offset = 0);
-  void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index, unsigned int numbits = 1, unsigned int offset = 0);
+  unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index = 0, const unsigned int numbits = 1, const unsigned int offset = 0);
+  void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index = 0, unsigned int numbits = 1, unsigned int offset = 0);
+  int getFirstPosValueIndex(QComboBox * cbo);
 
 }  // namespace Helpers
 
 // TODO : move globals to Helpers namespace
 
 void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx);
+
+#ifdef __APPLE__
+// Flag when simulator is running
+bool isSimulatorRunning();
+#endif
 
 // Format a pixmap to fit on the current firmware
 QPixmap makePixMap(const QImage & image);
@@ -244,11 +253,22 @@ extern Stopwatch gStopwatch;
 class SemanticVersion
 {
   public:
-    explicit SemanticVersion(QString vers);
-    ~SemanticVersion() = default;;
+    explicit SemanticVersion(const QString vers);
+    explicit SemanticVersion() {}
+    ~SemanticVersion() {}
 
     bool isValid(const QString vers);
+    bool isValid();
+    bool fromString(const QString vers);
     QString toString() const;
+    unsigned int toInt() const;
+    bool fromInt(const unsigned int val);
+    bool isEmpty(const QString vers);
+    bool isEmpty();
+    bool isPreRelease(const QString vers);
+    bool isPreRelease();
+
+    SemanticVersion& operator=(const SemanticVersion& rhs);
 
     bool operator==(const SemanticVersion& rhs) {
       return compare(rhs) == 0;
@@ -275,23 +295,41 @@ class SemanticVersion
     }
 
   private:
-    enum PreRelease {
+    enum PreReleaseTypes {
       PR_ALPHA = 0,
-      PR_BETA = 1,
-      PR_RC = 2,
-      PR_NONE = 3
+      PR_BETA,
+      PR_RC,
+      PR_NONE
     };
 
+    const QStringList PreReleaseTypesStringList = { "alpha", "beta", "rc"};
+
     struct Version {
-      int major                     = 0;
-      int minor                     = 1;
-      int patch                     = 0;
-      PreRelease preReleaseType     = PR_NONE;
-      int preReleaseNumber          = 0;
+      int major            = 0;
+      int minor            = 0;
+      int patch            = 0;
+      int preReleaseType   = PR_NONE;
+      int preReleaseNumber = 0;
     };
 
     Version version;
 
     int compare(const SemanticVersion& other);
+    inline QString preReleaseTypeToString() const { return PreReleaseTypesStringList.value(version.preReleaseType, ""); }
+    inline int preReleaseTypeToInt(QString preRelType) const { return PreReleaseTypesStringList.indexOf(preRelType); }
 
+};
+
+class StatusDialog: public QDialog
+{
+    Q_OBJECT
+
+  public:
+    StatusDialog(QWidget * parent = nullptr, const QString title = "", QString msgtext = "", const int width = 200);
+    virtual ~StatusDialog();
+
+    void update(QString text);
+
+  private:
+    QLabel *msg;
 };

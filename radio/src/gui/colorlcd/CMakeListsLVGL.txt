@@ -1,0 +1,120 @@
+set(LVGL_SOURCES_MINIMAL
+  core/lv_refr.c
+
+  draw/lv_draw_img.c
+  draw/lv_draw_label.c
+  draw/lv_draw_line.c
+  draw/lv_draw_mask.c
+  draw/lv_draw_rect.c
+  draw/lv_draw.c
+  draw/lv_img_buf.c
+  draw/lv_img_cache.c
+  draw/lv_img_decoder.c
+
+  draw/sw/lv_draw_sw_arc.c
+  draw/sw/lv_draw_sw_blend.c
+  draw/sw/lv_draw_sw_img.c
+  draw/sw/lv_draw_sw_letter.c
+  draw/sw/lv_draw_sw_line.c
+  draw/sw/lv_draw_sw_polygon.c
+  draw/sw/lv_draw_sw_rect.c
+  draw/sw/lv_draw_sw.c
+
+  # STM32 specific
+  draw/stm32_dma2d/lv_gpu_stm32_dma2d.c
+  
+  hal/lv_hal_disp.c
+  hal/lv_hal_tick.c
+
+  font/lv_font.c
+  font/lv_font_fmt_txt.c
+  
+  misc/lv_area.c
+  misc/lv_async.c
+  misc/lv_color.c
+  misc/lv_gc.c
+  misc/lv_ll.c
+  misc/lv_math.c
+  misc/lv_mem.c
+  misc/lv_timer.c
+  misc/lv_txt.c
+  misc/lv_utils.c
+)
+
+set(LVGL_SOURCES
+  ${LVGL_SOURCES_MINIMAL}
+
+  core/lv_disp.c
+  core/lv_event.c
+  core/lv_group.c
+  core/lv_indev_scroll.c
+  core/lv_indev.c
+  core/lv_obj_class.c
+  core/lv_obj_draw.c
+  core/lv_obj_pos.c
+  core/lv_obj_scroll.c
+  core/lv_obj_style_gen.c
+  core/lv_obj_style.c
+  core/lv_obj_tree.c
+  core/lv_obj.c
+  core/lv_theme.c
+
+  draw/lv_draw_arc.c
+  draw/lv_draw_triangle.c
+
+  draw/sw/lv_draw_sw_gradient.c
+
+  hal/lv_hal_indev.c
+
+  misc/lv_anim.c
+  misc/lv_bidi.c
+  misc/lv_fs.c
+  misc/lv_log.c
+  misc/lv_lru.c
+  misc/lv_printf.c
+  misc/lv_style_gen.c
+  misc/lv_style.c
+  misc/lv_templ.c
+  misc/lv_tlsf.c
+  misc/lv_txt_ap.c
+
+  widgets/lv_arc.c
+  widgets/lv_bar.c
+  widgets/lv_btn.c
+  widgets/lv_btnmatrix.c
+  widgets/lv_canvas.c
+  widgets/lv_checkbox.c
+  widgets/lv_img.c
+  widgets/lv_label.c
+  widgets/lv_line.c
+  widgets/lv_objx_templ.c
+  widgets/lv_slider.c
+  widgets/lv_switch.c
+  widgets/lv_table.c
+  widgets/lv_textarea.c
+
+  extra/lv_extra.c
+
+  extra/layouts/flex/lv_flex.c
+  extra/layouts/grid/lv_grid.c
+  extra/libs/fsdrv/lv_fs_fatfs.c
+  extra/libs/qrcode/lv_qrcode.c
+  extra/libs/qrcode/qrcodegen.c
+  extra/others/snapshot/lv_snapshot.c
+  extra/widgets/imgbtn/lv_imgbtn.c
+  extra/widgets/keyboard/lv_keyboard.c
+  extra/widgets/list/lv_list.c
+  extra/widgets/menu/lv_menu.c
+  extra/widgets/tabview/lv_tabview.c
+  extra/widgets/tileview/lv_tileview.c
+  extra/widgets/win/lv_win.c
+)
+
+set(LVGL_SRC_DIR thirdparty/lvgl/src)
+
+list(TRANSFORM LVGL_SOURCES_MINIMAL PREPEND ${LVGL_SRC_DIR}/)
+list(TRANSFORM LVGL_SOURCES PREPEND ${LVGL_SRC_DIR}/)
+
+foreach(LVGL_FILE ${LVGL_SOURCES})
+  SET_SOURCE_FILES_PROPERTIES(${LVGL_FILE} PROPERTIES COMPILE_FLAGS -O3)
+endforeach()

@@ -1,7 +1,8 @@
 /*
- * Copyright (C) OpenTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
+ *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
@@ -75,14 +76,23 @@ bool CompareDialog::handleMimeData(const QMimeData * mimeData)
 {
   QVector<ModelData> mList;
   GeneralSettings gs;
+  QString fdata;
+
   if (!ModelsListModel::decodeMimeData(mimeData, &mList, &gs) || mList.isEmpty())
     return false;
+
+  if (!ModelsListModel::decodeFileData(mimeData, &fdata))
+    return false;
+
   for (int i=0; i < mList.size(); ++i) {
     GMData data;
     data.model = mList[i];
     data.gs = gs;
+    data.fname = fdata;
+    qDebug() << "filename" << data.fname;
     modelsList.append(data);
   }
+
   return true;
 }
 
@@ -117,6 +127,7 @@ void CompareDialog::compare()
     if (name.isEmpty())
       name = tr("Unnamed Model %1").arg(i+1);
 
+    name.append(QString(" (%1)").arg(modelsList[i].fname));
     QWidget * hdr = new QWidget(this);
     hdr->setLayout(new QHBoxLayout());
     hdr->layout()->setContentsMargins(0, 0, 0, 0);
@@ -155,7 +166,7 @@ void CompareDialog::removeModelBtnClicked()
 void CompareDialog::on_printButton_clicked()
 {
   QPrinter printer;
-  printer.setPageMargins(10.0, 10.0, 10.0, 10.0, printer.Millimeter);
+  printer.setPageMargins(QMarginsF(10.0, 10.0, 10.0, 10.0), QPageLayout::Millimeter);
   QPrintDialog * dialog = new QPrintDialog(&printer, this);
   dialog->setWindowTitle(tr("Print Document"));
   if (dialog->exec() != QDialog::Accepted)
@@ -167,9 +178,9 @@ void CompareDialog::on_printFileButton_clicked()
 {
   QPrinter printer;
   QString filename = QFileDialog::getSaveFileName(this, tr("Select PDF output file"), QString(), "Pdf File(*.pdf)");
-  printer.setPageMargins(10.0, 10.0, 10.0, 10.0, printer.Millimeter);
+  printer.setPageMargins(QMarginsF(10.0, 10.0, 10.0, 10.0), QPageLayout::Millimeter);
   printer.setOutputFormat(QPrinter::PdfFormat);
-  printer.setOrientation(QPrinter::Landscape);
+  printer.setPageOrientation(QPageLayout::Portrait);
   printer.setColorMode(QPrinter::Color);
   if (!filename.isEmpty()) {
     if (QFileInfo(filename).suffix().isEmpty())
