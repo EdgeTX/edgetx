@@ -152,8 +152,6 @@ void readModelNotes();
 void menuChannelsView(event_t event);
 void menuChannelsViewCommon(event_t event);
 
-void repeatLastCursorMove(event_t event);
-
 #define EDIT_MODE_INIT 0
 
 extern uint8_t editNameCursorPos;
