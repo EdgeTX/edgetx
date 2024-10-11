@@ -24,6 +24,9 @@
 /* clang-format off */
 
 #include <stdint.h>
+#if !defined(LV_SKIP_DEFINES)
+#include "hal.h"
+#endif
 
 /*====================
    COLOR SETTINGS
@@ -409,52 +412,46 @@
 
 #if !defined(BOOT)
 
+#if LANDSCAPE_LCD_SMALL
 #if defined(TRANSLATIONS_CN)
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_noto_cn_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_noto_cn_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_noto_cn_STD_s)
+  #define LV_FONT_DEFAULT &lv_font_noto_cn_STD_s
 #elif defined(TRANSLATIONS_TW)
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_noto_tw_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_noto_tw_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_noto_tw_STD_s)
+  #define LV_FONT_DEFAULT &lv_font_noto_tw_STD_s
 #elif defined(TRANSLATIONS_RU)
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_arimo_ru_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_arimo_ru_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_arimo_ru_STD_s)
+  #define LV_FONT_DEFAULT &lv_font_arimo_ru_STD_s
 #elif defined(TRANSLATIONS_JP)
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_noto_jp_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_noto_jp_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_noto_jp_STD_s)
+  #define LV_FONT_DEFAULT &lv_font_noto_jp_STD_s
 #elif defined(TRANSLATIONS_HE)
-  #define LV_FONT_CUSTOM_DECLARE                  \
-    LV_FONT_DECLARE(lv_font_arimo_he_16)
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_arimo_he_16
-
-#elif defined(TRANSLATIONS_UA)
-  #define LV_FONT_CUSTOM_DECLARE                  \
-    LV_FONT_DECLARE(lv_font_arimo_ua_16)
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_arimo_ua_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_arimo_he_STD_s)
+  #define LV_FONT_DEFAULT &lv_font_arimo_he_STD_s
 #else
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_roboto_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_roboto_16
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_roboto_STD_s)
+  #define LV_FONT_DEFAULT &lv_font_roboto_STD_s
+#endif
+#else
+#if defined(TRANSLATIONS_CN)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_noto_cn_STD)
+  #define LV_FONT_DEFAULT &lv_font_noto_cn_STD
+#elif defined(TRANSLATIONS_TW)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_noto_tw_STD)
+  #define LV_FONT_DEFAULT &lv_font_noto_tw_STD
+#elif defined(TRANSLATIONS_RU)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_arimo_ru_STD)
+  #define LV_FONT_DEFAULT &lv_font_arimo_ru_STD
+#elif defined(TRANSLATIONS_JP)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_noto_jp_STD)
+  #define LV_FONT_DEFAULT &lv_font_noto_jp_STD
+#elif defined(TRANSLATIONS_HE)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_arimo_he_STD)
+  #define LV_FONT_DEFAULT &lv_font_arimo_he_STD
+#else
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_roboto_STD)
+  #define LV_FONT_DEFAULT &lv_font_roboto_STD
+#endif
 #endif
 
 #else

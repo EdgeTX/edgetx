@@ -29,7 +29,7 @@ class RadioSetupPage: public PageTab {
 
   void build(Window * window) override;
 
-  static LAYOUT_VAL(NUM_W, 80, 80)
-  static LAYOUT_VAL(BTN_COLS, 3, 2)
-  static LAYOUT_VAL(BTN_H, 62, 62)
+  static LAYOUT_VAL(NUM_W, 80, 80, LS(80))
+  static LAYOUT_VAL(BTN_COLS, 3, 2, 3)
+  static LAYOUT_VAL(BTN_H, 62, 62, LS(62))
 };
