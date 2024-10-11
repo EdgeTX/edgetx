@@ -192,6 +192,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
     case BOARD_JUMPER_TPROV2:
+    case BOARD_JUMPER_BUMBLEBEE:
     case BOARD_JUMPER_TPROS:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
@@ -249,6 +250,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_TPRO:
     case BOARD_JUMPER_TPROV2:
     case BOARD_JUMPER_TPROS:
+    case BOARD_JUMPER_BUMBLEBEE:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
     case BOARD_RADIOMASTER_ZORRO:
@@ -292,7 +294,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 8;
       else if (IS_JUMPER_TPROV2(board))
         return 6;
-      else if (IS_JUMPER_TLITE(board) || IS_JUMPER_TPROV1(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board))
+      else if (IS_JUMPER_TLITE(board) || IS_JUMPER_TPROV1(board) || IS_BETAFPV_LR3PRO(board) || IS_IFLIGHT_COMMANDO8(board) || IS_JUMPER_BUMBLEBEE(board))
         return 4;
       else if(IS_RADIOMASTER_ZORRO(board))
         return 8;
@@ -543,6 +545,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T-Pro S";
     case BOARD_JUMPER_T12MAX:
       return "Jumper T12 MAX";
+    case BOARD_JUMPER_BUMBLEBEE:
+      return "Jumper Bumblebee";
     case BOARD_JUMPER_T14:
       return "Jumper T14";
     case BOARD_JUMPER_T15:
@@ -693,6 +697,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_T20V2:
   case BOARD_JUMPER_TPROS:
   case BOARD_JUMPER_T15:
+  case BOARD_JUMPER_BUMBLEBEE:
   case BOARD_FATFISH_F16:
     return (int)MODULE_TYPE_CROSSFIRE;
 
