@@ -91,6 +91,18 @@ SWITCH_CONFIG = {
         "SI": { "default": "TOGGLE"   },
         "SJ": { "default": "TOGGLE"   },
     },
+    "pa01": {
+        "SA": { "default": "2POS"   },
+        "SB": { "default": "3POS"   },
+        "SC": { "default": "3POS"   },
+        "SD": { "default": "2POS"   },
+        "SE": { "default": "2POS"   },
+        "SF": { "default": "2POS"   },
+        "SG": { "default": "TOGGLE"   },
+        "SH": { "default": "TOGGLE"   },
+        "SI": { "default": "TOGGLE"   },
+        "SJ": { "default": "TOGGLE"   },
+    },
     "lr3pro": {
         # left side
         "SA": {"default": "3POS",   "display": [0, 0]},
