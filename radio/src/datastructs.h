@@ -122,6 +122,8 @@ static inline void check_struct()
   CHKSIZE(ModelData, 27295);
 #elif defined(PCBST16)
   CHKSIZE(ModelData, 27761);
+#elif defined(PCBPA01)
+  CHKSIZE(ModelData, 22262);
 #elif defined(RADIO_T15)
   CHKSIZE(ModelData, 27683);
 #elif defined(RADIO_H7RS)

@@ -244,6 +244,10 @@ POT_CONFIG = {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"},
     },
+    "pa01": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+    },
 }
 
 
