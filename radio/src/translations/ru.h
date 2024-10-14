@@ -397,6 +397,7 @@
 #define TR_PLAY_HELLO                  "Звук запуска"
 #define TR_PWR_ON_DELAY                "Время включ"
 #define TR_PWR_OFF_DELAY               "Время выключ"
+#define TR_PWR_AUTO_OFF                TR("Pwr Auto Off","Power Auto Off") 
 #define TR_PWR_ON_OFF_HAPTIC           TR("Pwr ON/OFF Haptic","Power ON/OFF Haptic")
 #define TR_THROTTLE_WARNING            TR("Г-Предупр", "Статис газа")
 #define TR_CUSTOM_THROTTLE_WARNING     TR("Свое пол", "Свое пол?")
