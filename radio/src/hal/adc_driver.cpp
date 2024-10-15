@@ -314,7 +314,10 @@ uint16_t getBatteryVoltage()
   int32_t instant_vbat = anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
 
   // TODO: remove BATT_SCALE / BATTERY_DIVIDER defines
-#if defined(BATT_SCALE)
+#if defined(VBAT_MOSFET_DROP)
+  // 1000 is used as multiplier for both numerator and denominator to allow to stay in integer domain
+  return (uint16_t)((instant_vbat * ADC_VREF_PREC2 * ((((1000 + g_eeGeneral.txVoltageCalibration)) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1)) / (2*RESX*1000)) + VBAT_MOSFET_DROP;
+#elif defined(BATT_SCALE)
   instant_vbat =
       (instant_vbat * BATT_SCALE * (128 + g_eeGeneral.txVoltageCalibration)) /
       BATTERY_DIVIDER;
