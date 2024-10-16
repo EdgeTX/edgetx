@@ -45,7 +45,7 @@ void LuaEventHandler::event_cb(lv_event_t* e)
   auto win = (Window*)lv_obj_get_user_data(obj);
   if (!win) return;
 
-  lv_event_code_t code = lv_event_get_code(e);
+  const lv_event_code_t code = lv_event_get_code(e);
   if (code == LV_EVENT_KEY) {
     uint32_t key = *(uint32_t*)lv_event_get_param(e);
     if (key == LV_KEY_LEFT) {
@@ -90,9 +90,7 @@ void LuaEventHandler::event_cb(lv_event_t* e)
 
       // If we already have a SLIDE going, then accumulate slide values instead
       // of allocating an empty slot
-      LuaEventData* es = luaGetEventSlot(EVT_TOUCH_SLIDE);
-
-      if (es) {
+      if (LuaEventData* const es = luaGetEventSlot(EVT_TOUCH_SLIDE); es) {
         es->event = EVT_TOUCH_SLIDE;
         es->touchX = rel_pos.x;
         es->touchY = rel_pos.y;
@@ -103,8 +101,7 @@ void LuaEventHandler::event_cb(lv_event_t* e)
         TRACE("EVT_TOUCH_SLIDE [%d,%d]", rel_pos.x, rel_pos.y);
       }
     } else {
-      LuaEventData* es = luaGetEventSlot();
-      if (es) {
+      if (LuaEventData* const es = luaGetEventSlot(); es) {
         es->event = EVT_TOUCH_FIRST;
         es->touchX = rel_pos.x;
         es->touchY = rel_pos.y;
@@ -117,14 +114,10 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       downTime = RTOS_GET_MS();
     }
   } else if (code == LV_EVENT_RELEASED) {
-
-      LuaEventData* es = luaGetEventSlot();
-      if (es) {
-        es->event = EVT_TOUCH_RELEASE;
-        TRACE("EVT_TOUCH_RELEASE");
-      }
-
-
+    if (LuaEventData* const es = luaGetEventSlot(); es) {
+      es->event = EVT_TOUCH_BREAK;
+      TRACE("EVT_TOUCH_BREAK");
+    }
       // tap count handling
     uint32_t now = RTOS_GET_MS();
     if (now - downTime <= LUA_TAP_TIME) {
@@ -150,18 +143,15 @@ void LuaEventHandler::onClicked()
     lv_point_t point_act;
     lv_indev_get_point(click_source, &point_act);
 
-    LuaEventData* es = luaGetEventSlot();
+    LuaEventData* const es = luaGetEventSlot();
     if (!es) return;
 
     if (tapCount > 0) {
       es->event = EVT_TOUCH_TAP;
       es->tapCount = tapCount;
-    } else {
-      es->event = EVT_TOUCH_BREAK;
+      es->touchX = point_act.x;
+      es->touchY = point_act.y;
     }
-
-    es->touchX = point_act.x;
-    es->touchY = point_act.y;
 
     _sliding = false;
     return;
