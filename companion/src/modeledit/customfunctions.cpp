@@ -354,10 +354,6 @@ void CustomFunctionsPanel::functionEdited()
     functions[index].swtch = swtch;
     functions[index].func = (AssignFunc)fswtchFunc[index]->currentData().toInt();
     functions[index].enabled = true;
-    if (functions[index].func == FuncPlayScript || functions[index].func == FuncRGBLed)
-      fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatLuaId));
-    else
-      fswtchRepeat[index]->setModel(tabModelFactory->getItemModel(repeatId));
     if (functions[index].func == FuncLogs)
       functions[index].param = 10;  // 1 sec
     refreshCustomFunction(index);
@@ -477,6 +473,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         if (modified)
           cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
         widgetsMask |= CUSTOM_FUNCTION_REPEAT;
+        fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatId));
         fswtchRepeat[i]->setCurrentIndex(fswtchRepeat[i]->findData(cfn.repeatParam));
       }
       if (func == FuncPlayValue) {
@@ -573,6 +570,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
       }
       Helpers::populateFileComboBox(fswtchParamArmT[i], scriptsSet, cfn.paramarm);
+      fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatLuaId));
       fswtchRepeat[i]->setCurrentIndex(fswtchRepeat[i]->findData(cfn.repeatParam));
     }
     else {
