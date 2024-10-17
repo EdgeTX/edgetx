@@ -20,19 +20,7 @@ set(SIMU_DRIVERS
   bt_driver.cpp
   timers_driver.cpp
   abnormal_reboot.cpp
-  rs232-linux.c
   )
-
-  option(SIMU_AUX "Allow the simulator to use the host's RS-232 port" OFF)
-  set(SIMU_COM_PORT "2" CACHE STRING "Set COM port number to use")
-
-if (SIMU_AUX)
-  if(WIN32)
-    set(SIMU_DRIVERS ${SIMU_DRIVERS} rs232-win.c)
-  else()
-    set(SIMU_DRIVERS ${SIMU_DRIVERS} rs232-linux.c)
-  endif()
-endif()
 
 set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
@@ -112,7 +100,7 @@ if(Qt5Widgets_FOUND)
 
   target_compile_options(${SIMULATOR_TARGET} PRIVATE ${SIMU_SRC_OPTIONS})
   target_compile_definitions(${SIMULATOR_TARGET} PUBLIC ${APP_COMMON_DEFINES})
-  target_link_libraries(${SIMULATOR_TARGET} ${SDL2_LIBRARIES} Qt5::Core)
+  target_link_libraries(${SIMULATOR_TARGET} ${SDL2_LIBRARIES} Qt5::Core Qt5::SerialPort)
 
   # Remove debug symbols on release builds
   if(NOT CLANG)

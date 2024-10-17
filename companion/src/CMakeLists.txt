@@ -191,6 +191,7 @@ target_link_libraries(common
   Qt5::Core
   Qt5::Xml
   Qt5::Widgets
+  Qt5::SerialPort
   ${PTHREAD_LIBRARY}
   ${SDL2_LIBRARIES}
   ${WIN_LINK_LIBRARIES}
