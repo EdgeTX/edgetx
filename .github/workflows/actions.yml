@@ -70,6 +70,7 @@ jobs:
           - xlite
           - xlites
           - mt12
+          - nb4p
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -115,6 +116,7 @@ jobs:
           - x9lite;x9lites
           - xlite;xlites
           - mt12
+          - nb4p
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
