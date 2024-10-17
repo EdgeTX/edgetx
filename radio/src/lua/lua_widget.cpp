@@ -118,7 +118,7 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       es->event = EVT_TOUCH_BREAK;
       TRACE("EVT_TOUCH_BREAK");
     }
-      
+
     // tap count handling
     uint32_t now = RTOS_GET_MS();
     if (now - downTime <= LUA_TAP_TIME) {
