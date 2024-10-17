@@ -681,8 +681,8 @@ enum Functions {
   FUNC_RACING_MODE,
 #if defined(COLORLCD) || defined(CFN_ONLY)
   FUNC_DISABLE_TOUCH,
-  FUNC_SET_SCREEN,
 #endif
+  FUNC_SET_SCREEN,
   FUNC_DISABLE_AUDIO_AMP,
   FUNC_RGB_LED,
 #if defined(VIDEO_SWITCH) || defined(CFN_ONLY)
