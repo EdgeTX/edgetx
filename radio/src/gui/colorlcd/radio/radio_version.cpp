@@ -189,11 +189,10 @@ class VersionDialog : public BaseDialog
 #if defined(CROSSFIRE)
     // CRSF is able to provide status
     if (isModuleCrossfire(module)) {
-      char statusText[64];
+     char statusText[64];
 
-      auto hz = 1000000 / getMixerSchedulerPeriod();
-      // snprintf(statusText, 64, "%d Hz %" PRIu32 " Err", hz, telemetryErrors);
-      snprintf(statusText, 64, "%d Hz", hz);
+      snprintf(statusText, 64, "%d Hz", 1000000 / getMixerSchedulerRealPeriod(module));
+
       status->setText(statusText);
       snprintf(statusText, 64, "%s V%u.%u.%u", crossfireModuleStatus[module].name, crossfireModuleStatus[module].major, crossfireModuleStatus[module].minor, crossfireModuleStatus[module].revision);
       name->setText(statusText);
@@ -217,9 +216,12 @@ class VersionDialog : public BaseDialog
 #if defined(MULTIMODULE)
     // MPM is able to provide status
     if (isModuleMultimodule(module)) {
-      char statusText[64];
+      char mpmStatusText[20];
+      char statusText[40];
+      
+      getMultiModuleStatus(module).getStatusString(mpmStatusText);
+      snprintf(statusText, 40, "%s %d Hz", mpmStatusText, 1000000 / getMixerSchedulerRealPeriod(module));
 
-      getMultiModuleStatus(module).getStatusString(statusText);
       status->setText(statusText);
       module_status_w->show();
     }
@@ -255,6 +257,9 @@ class VersionDialog : public BaseDialog
           mod_ver += " ";
           mod_ver += variants[variant];
         }
+
+        snprintf(tmp, 20, " %d Hz", 1000000 / getMixerSchedulerRealPeriod(module));
+        mod_ver += tmp;
       }
       status->setText(mod_ver);
       module_status_w->show();
