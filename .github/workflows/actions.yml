@@ -35,11 +35,17 @@ on:
       - 'fw.json'
   workflow_dispatch:
 
+# cancel all previous runs of this workflow on re-trigger
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false # continue with other targets if one fails
       matrix:
         target:
           - x9dp2019
@@ -94,6 +100,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false # continue with other targets if one fails
       matrix:
         target:
           - nv14;el18

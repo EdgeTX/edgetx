@@ -21,6 +21,11 @@ env:
   MINGW_VERSION: "win32_mingw81"
   MINGW_PATH: "mingw81_32"
 
+# cancel all previous runs of this workflow on re-trigger
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     # The CMake configure and build commands are platform agnostic and should work equally
