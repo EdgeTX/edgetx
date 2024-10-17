@@ -159,6 +159,7 @@ PACK(struct LogicalSwitchData {
   int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;
+  NOBACKUP(char custName[LEN_LOGICSW_NAME]);
 });
 
 /*
@@ -168,6 +169,7 @@ PACK(struct LogicalSwitchData {
 PACK(struct CustomFunctionData {
   int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint16_t func:6 ENUM(Functions); // TODO: 6 bits for Functions?
+  NOBACKUP(char custName[LEN_SPEC_FN_NAME]);
   CUST_ATTR(def,r_customFn,w_customFn);
   PACK(union {
     NOBACKUP(PACK(struct {

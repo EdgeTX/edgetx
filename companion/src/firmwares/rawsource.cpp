@@ -215,7 +215,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_CUSTOM_SWITCH:
-      return RawSwitch(SWITCH_TYPE_VIRTUAL, index).toString();  // RawSwitch uses 1 based index
+      return RawSwitch(SWITCH_TYPE_VIRTUAL, index + 1) .toString(board, generalSettings, model);  // RawSwitch uses 1 based index
 
     case SOURCE_TYPE_CYC:
       return tr("CYC%1").arg(index);

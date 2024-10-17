@@ -108,6 +108,10 @@ class LogicalSwitchEditPage : public Page
     LogicalSwitchData* cs = lswAddress(index);
     uint8_t cstate = lswFamily(cs->func);
 
+    // new StaticText(logicalSwitchOneWindow, grid.getLabelSlot(), STR_CUST_LOGICALSWITCH_LABEL, 0, COLOR_THEME_PRIMARY1);
+    // new ModelTextEdit(logicalSwitchOneWindow, grid.getFieldSlot(), cs->custName, LEN_LOGICSW_NAME);
+    // grid.nextLine();
+
     // V1
     auto line = logicalSwitchOneWindow->newLine(grid);
     new StaticText(line, rect_t{}, STR_V1);
@@ -115,6 +119,7 @@ class LogicalSwitchEditPage : public Page
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
+      case LS_FUNC_SAFE:
         choice = new SwitchChoice(
             line, rect_t{}, SWSRC_FIRST_IN_LOGICAL_SWITCHES,
             SWSRC_LAST_IN_LOGICAL_SWITCHES, GET_SET_DEFAULT(cs->v1));
@@ -216,11 +221,13 @@ class LogicalSwitchEditPage : public Page
     }
 
     // AND switch
-    line = logicalSwitchOneWindow->newLine(grid);
-    new StaticText(line, rect_t{}, STR_AND_SWITCH);
-    choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW,
-                              GET_SET_DEFAULT(cs->andsw));
-    choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+    if (cs->func != LS_FUNC_SAFE) {
+      line = logicalSwitchOneWindow->newLine(grid);
+      new StaticText(line, rect_t{}, STR_AND_SWITCH);
+      choice = new SwitchChoice(line, rect_t{}, -MAX_LS_ANDSW, MAX_LS_ANDSW,
+                                GET_SET_DEFAULT(cs->andsw));
+      choice->setAvailableHandler(isSwitchAvailableInLogicalSwitches);
+    }
 
     // Duration
     line = logicalSwitchOneWindow->newLine(grid);
@@ -426,11 +433,14 @@ class LogicalSwitchButton : public ListLineButton
         lsName, getSwitchPositionName(SWSRC_FIRST_LOGICAL_SWITCH + index));
     lv_label_set_text(lsFunc, STR_VCSWFUNC[ls->func]);
 
+    //dc->drawText(col1, line1, ls->custName, COLOR_THEME_SECONDARY1);
+
     // CSW params - V1
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
       case LS_FAMILY_EDGE:
+      case LS_FUNC_SAFE:
         lv_label_set_text(lsV1, getSwitchPositionName(ls->v1));
         break;
       case LS_FAMILY_TIMER:
@@ -453,6 +463,7 @@ class LogicalSwitchButton : public ListLineButton
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
+      case LS_FUNC_SAFE:
         lv_label_set_text(lsV2, getSwitchPositionName(ls->v2));
         break;
       case LS_FAMILY_EDGE:

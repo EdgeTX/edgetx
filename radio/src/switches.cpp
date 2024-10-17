@@ -518,77 +518,80 @@ bool getLogicalSwitch(uint8_t idx)
   LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[idx];
   bool result;
 
-  swsrc_t s = ls->andsw;
+  if (ls->func == LS_FAMILY_SAFE) {
+    result = lswFm[mixerCurrentFlightMode].lsw[idx].state;
+  } else {
+    swsrc_t s = ls->andsw;
 
-  if (ls->func == LS_FUNC_NONE || (s && !getSwitch(s))) {
-    if (ls->func != LS_FUNC_STICKY && ls->func != LS_FUNC_EDGE ) {
-      // AND switch must not affect STICKY and EDGE processing
-      context.lastValue = CS_LAST_VALUE_INIT;
+    if (ls->func == LS_FUNC_NONE || (s && !getSwitch(s))) {
+      if (ls->func != LS_FUNC_STICKY && ls->func != LS_FUNC_EDGE ) {
+        // AND switch must not affect STICKY and EDGE processing
+        context.lastValue = CS_LAST_VALUE_INIT;
+      }
+      result = false;
     }
-    result = false;
-  }
-  else if ((s=lswFamily(ls->func)) == LS_FAMILY_BOOL) {
-    bool res1 = getSwitch(ls->v1);
-    bool res2 = getSwitch(ls->v2);
-    switch (ls->func) {
-      case LS_FUNC_AND:
-        result = (res1 && res2);
-        break;
-      case LS_FUNC_OR:
-        result = (res1 || res2);
-        break;
-      // case LS_FUNC_XOR:
-      default:
-        result = (res1 ^ res2);
-        break;
-    }
-  }
-  else if (s == LS_FAMILY_TIMER) {
-    result = (context.lastValue <= 0);
-  }
-  else if (s == LS_FAMILY_STICKY) {
-    result = (context.lastValue & (1<<0));
-  }
-  else if (s == LS_FAMILY_EDGE) {
-    result = (context.lastValue & (1<<0));
-  }
-  else {
-    getvalue_t x = getValueForLogicalSwitch(ls->v1);
-    getvalue_t y;
-    if (s == LS_FAMILY_COMP) {
-      y = getValueForLogicalSwitch(ls->v2);
-
+    else if ((s=lswFamily(ls->func)) == LS_FAMILY_BOOL) {
+      bool res1 = getSwitch(ls->v1);
+      bool res2 = getSwitch(ls->v2);
       switch (ls->func) {
-        case LS_FUNC_EQUAL:
-          result = (x==y);
+        case LS_FUNC_AND:
+          result = (res1 && res2);
           break;
-        case LS_FUNC_GREATER:
-          result = (x>y);
+        case LS_FUNC_OR:
+          result = (res1 || res2);
           break;
+        // case LS_FUNC_XOR:
         default:
-          result = (x<y);
+          result = (res1 ^ res2);
           break;
       }
+    }
+    else if (s == LS_FAMILY_TIMER) {
+      result = (context.lastValue <= 0);
+    }
+    else if (s == LS_FAMILY_STICKY) {
+      result = (context.lastValue & (1<<0));
+    }
+    else if (s == LS_FAMILY_EDGE) {
+      result = (context.lastValue& (1<<0));
     }
     else {
-      mixsrc_t v1 = ls->v1;
-      // Telemetry
-      if (v1 >= MIXSRC_FIRST_TELEM) {
-        if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(v1-1)) {
-          result = false;
-          goto DurationAndDelayProcessing;
+      getvalue_t x = getValueForLogicalSwitch(ls->v1);
+      getvalue_t y;
+      if (s == LS_FAMILY_COMP) {
+        y = getValueForLogicalSwitch(ls->v2);
+
+        switch (ls->func) {
+          case LS_FUNC_EQUAL:
+            result = (x==y);
+            break;
+          case LS_FUNC_GREATER:
+            result = (x>y);
+            break;
+          default:
+            result = (x<y);
+            break;
         }
-
-        y = convertLswTelemValue(ls);
-
-
-      }
-      else if (v1 >= MIXSRC_FIRST_GVAR) {
-        y = ls->v2;
       }
       else {
-        y = calc100toRESX(ls->v2);
-      }
+        mixsrc_t v1 = ls->v1;
+        // Telemetry
+        if (v1 >= MIXSRC_FIRST_TELEM) {
+          if (!TELEMETRY_STREAMING() || IS_FAI_FORBIDDEN(v1 - 1)) {
+            result = false;
+            goto DurationAndDelayProcessing;
+          }
+
+          y = convertLswTelemValue(ls);
+
+
+        }
+        else if (v1 >= MIXSRC_FIRST_GVAR) {
+          y = ls->v2;
+        }
+        else {
+          y = calc100toRESX(ls->v2);
+        }
 
       switch (ls->func) {
         case LS_FUNC_VEQUAL:
@@ -689,7 +692,7 @@ DurationAndDelayProcessing:
         context.timer = 0;
       }
     }
-
+  }
   return result;
 }
 
@@ -782,6 +785,24 @@ uint8_t getXPotPosition(uint8_t idx)
   return potsPos[idx] & 0x0F;
 }
 
+void evalLogicalSwitch_FUNC_SAFE(LogicalSwitchData *ls,
+                                 LogicalSwitchContext &context)
+{
+  if (ls->v1 != SWSRC_NONE) {
+    if (getSwitch(ls->v2)) {
+      // ON
+      if (getSwitch(ls->v1)) {
+        context.state = 1;
+      }
+      // OFF
+      if (!getSwitch(ls->v1)) {
+        context.state = 0;
+      }
+    }
+  } else {  // no source set therfore switch is off
+    context.state = 0;
+  }
+}
 
 /**
   @brief Calculates new state of logical switches for mixerCurrentFlightMode
@@ -790,19 +811,25 @@ void evalLogicalSwitches(bool isCurrentFlightmode)
 {
   for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
     LogicalSwitchContext & context = lswFm[mixerCurrentFlightMode].lsw[idx];
-    bool result = getLogicalSwitch(idx);
-    if (isCurrentFlightmode) {
-      if (result) {
-        if (!context.state) PLAY_LOGICAL_SWITCH_ON(idx);
+    
+    LogicalSwitchData *ls = lswAddress(idx);
+    if (ls->func == LS_FUNC_SAFE) {
+      evalLogicalSwitch_FUNC_SAFE(ls, context);
+    } else {
+      bool result = getLogicalSwitch(idx);
+      if (isCurrentFlightmode) {
+        if (result) {
+          if (!context.state) PLAY_LOGICAL_SWITCH_ON(idx);
+        }
+        else {
+          if (context.state) PLAY_LOGICAL_SWITCH_OFF(idx);
+        }
       }
-      else {
-        if (context.state) PLAY_LOGICAL_SWITCH_OFF(idx);
+      context.state = result;
+      if ((g_model.logicalSw[idx].func == LS_FUNC_STICKY) && (g_model.logicalSw[idx].lsState != result)) {
+        g_model.logicalSw[idx].lsState = result;
+        storageDirty(EE_MODEL);
       }
-    }
-    context.state = result;
-    if ((g_model.logicalSw[idx].func == LS_FUNC_STICKY) && (g_model.logicalSw[idx].lsState != result)) {
-      g_model.logicalSw[idx].lsState = result;
-      storageDirty(EE_MODEL);
     }
   }
 }
@@ -1117,6 +1144,9 @@ void logicalSwitchesTimerTick()
                 }
             }
         }
+      } else if (ls->func == LS_FUNC_SAFE) {
+        LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[i];
+        evalLogicalSwitch_FUNC_SAFE(ls, context);
       } else if (ls->func == LS_FUNC_EDGE) {
         ls_stay_struct & lastValue = (ls_stay_struct &)LS_LAST_VALUE(fm, i);
         // if this ls was reset by the logicalSwitchesReset() the lastValue will be set to CS_LAST_VALUE_INIT(0x8000)

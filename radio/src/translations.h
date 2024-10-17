@@ -811,6 +811,8 @@ extern const char STR_FAV_MATCH[];
 extern const char* const STR_LABELS_SELECT_MODE[];
 extern const char* const STR_LABELS_MATCH_MODE[];
 extern const char* const STR_FAV_MATCH_MODE[];
+extern const char STR_CUST_LOGICALSWITCH_LABEL[];
+extern const char STR_CUST_FUNC_CUST_LABEL[];
 #endif
 extern const char STR_EXECUTE_FILE[];
 extern const char STR_DELETE_FILE[];

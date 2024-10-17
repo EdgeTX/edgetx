@@ -110,9 +110,19 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
 
       case SWITCH_TYPE_VIRTUAL:
         if (modelData)
-          return modelData->logicalSw[index].nameToString(index - 1);
+          return modelData->logicalSw[index - 1].nameToString(index - 1);
         else
           return LogicalSwitchData().nameToString(index - 1);
+
+      case SWITCH_TYPE_FUNCTIONSWITCH:
+        if (!Boards::getCapability(board, Board::FunctionSwitches))
+          return CPN_STR_UNKNOWN_ITEM;
+        qr = div(index - 1, 3);
+        if (modelData)
+          swName = QString(modelData->functionSwitchNames[qr.quot]).trimmed();
+        if (swName.isEmpty())
+          swName = tr("SW%1").arg(qr.quot + 1);
+        return swName + directionIndicators.at(qr.rem > -1 && qr.rem < directionIndicators.size() ? qr.rem : 1);
 
       case SWITCH_TYPE_MULTIPOS_POT:
         if (!Boards::getCapability(board, Board::MultiposPotsPositions))

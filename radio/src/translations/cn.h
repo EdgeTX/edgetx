@@ -76,6 +76,7 @@
 #define TR_CSWTIMER                  "定时"
 #define TR_CSWSTICKY                 "粘滞"
 #define TR_CSWSTAY                   "边沿"
+#define TR_CSWSAFE                   "Safe"
 
 #define TR_CSWEQUAL                    "a=x"
 #define TR_VCSWFUNC                    "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
@@ -514,6 +515,10 @@
 #define TR_MENULIMITS                  "输出设置"
 #define TR_MENUCURVES                  "曲线设置"
 #define TR_MENUCURVE                   "曲线"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "名称"
+#define TR_CUST_FUNC_CUST_LABEL        "名称"
+#endif
 #define TR_MENULOGICALSWITCH           "逻辑开关"
 #define TR_MENULOGICALSWITCHES         "逻辑开关设置"
 #define TR_MENUCUSTOMFUNC              "特殊功能设置"
