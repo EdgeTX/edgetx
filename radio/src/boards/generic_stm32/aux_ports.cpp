@@ -82,7 +82,7 @@ const etx_serial_port_t auxSerialPort = {
   .name = "AUX1",
   .uart = &STM32SerialDriver,
   .hw_def = REF_STM32_SERIAL_PORT(Aux),
-  AUX_PWR_FCT
+  .set_pwr = AUX_PWR_FCT
 };
 #define AUX_SERIAL_PORT &auxSerialPort
 #else
@@ -121,7 +121,7 @@ const etx_serial_port_t aux2SerialPort = {
   .name = "AUX2",
   .uart = &STM32SerialDriver,
   .hw_def = REF_STM32_SERIAL_PORT(Aux2),
-  AUX2_PWR_FCT
+  .set_pwr = AUX2_PWR_FCT
 };
 #define AUX2_SERIAL_PORT &aux2SerialPort
 #else
