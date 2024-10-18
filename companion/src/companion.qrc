@@ -220,6 +220,14 @@
     <file>images/simulator/JumperTPROS/exit.png</file>
     <file>images/simulator/JumperTPROS/menu.png</file>
     <file>images/simulator/JumperTPROS/page.png</file>
+    <file>images/simulator/JumperBumblebee/top.png</file>
+    <file>images/simulator/JumperBumblebee/bottom.png</file>
+    <file>images/simulator/JumperBumblebee/enter.png</file>
+    <file>images/simulator/JumperBumblebee/exit.png</file>
+    <file>images/simulator/JumperBumblebee/left.png</file>
+    <file>images/simulator/JumperBumblebee/menu.png</file>
+    <file>images/simulator/JumperBumblebee/page.png</file>
+    <file>images/simulator/JumperBumblebee/right.png</file>
     <file>images/simulator/TX12/left.png</file>
     <file>images/simulator/TX12/left-pageup.png</file>
     <file>images/simulator/TX12/left-pagedn.png</file>

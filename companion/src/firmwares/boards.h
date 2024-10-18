@@ -86,6 +86,7 @@ namespace Board {
     BOARD_JUMPER_TPROS,
     BOARD_RADIOMASTER_POCKET,
     BOARD_JUMPER_T20V2,
+    BOARD_JUMPER_BUMBLEBEE,
     BOARD_FATFISH_F16,
     BOARD_HELLORADIOSKY_V16,
     BOARD_RADIOMASTER_MT12,
@@ -514,6 +515,11 @@ inline bool IS_JUMPER_TPROV2(Board::Type board)
   return board == Board::BOARD_JUMPER_TPROV2;
 }
 
+inline bool IS_JUMPER_BUMBLEBEE(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_BUMBLEBEE;
+}
+
 inline bool IS_JUMPER_TPROS(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_TPROS;
@@ -616,6 +622,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_JUMPER_TPRO ||
          board == Board::BOARD_JUMPER_TPROV2 ||
          board == Board::BOARD_JUMPER_TPROS ||
+         board == Board::BOARD_JUMPER_BUMBLEBEE ||
          board == Board::BOARD_RADIOMASTER_TX12 ||
          board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
          board == Board::BOARD_RADIOMASTER_ZORRO ||
