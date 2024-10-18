@@ -5273,22 +5273,22 @@ Dieses sind für alle Modelle im gleichen EEPROM gültig.</translation>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1003"/>
         <source>Mode 1 (RUD ELE THR AIL)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mode 1 (Seite Höhe Gas Quer)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1005"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mode 2 (Seite Gas Höhe Quer)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1007"/>
         <source>Mode 3 (AIL ELE THR RUD)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mode 3 (Quer Höhe Gas Seite)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1009"/>
         <source>Mode 4 (AIL THR ELE RUD)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mode 4 (Quer Gas Höhe Seite)</translation>
     </message>
 </context>
 <context>

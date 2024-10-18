@@ -5368,17 +5368,17 @@ These will be relevant for all models in the same EEPROM.</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1003"/>
         <source>Mode 1 (RUD ELE THR AIL)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MODE1 日本手 ↕升降↔方向   ↕油門↔副翼</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1005"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MODE2 美國手 ↕油門↔方向 ↕升降↔副翼</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1007"/>
         <source>Mode 3 (AIL ELE THR RUD)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MODE3 中國手 ↕升降↔副翼 ↕油門↔方向</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1009"/>
@@ -9684,7 +9684,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modelprinter.cpp" line="486"/>
         <source>Flight modes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">飛行模式  [Modes]</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="486"/>

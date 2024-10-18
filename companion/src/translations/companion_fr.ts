@@ -5328,22 +5328,22 @@ Communs à tous les modèles d&apos;une même EEPROM.</translation>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1003"/>
         <source>Mode 1 (RUD ELE THR AIL)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mode 1 (DIR PROF GAZ AIL)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1005"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mode 2 (DIR GAZ PROF AIL)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1007"/>
         <source>Mode 3 (AIL ELE THR RUD)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mode 3 (AIL PROF GAZ DIR)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1009"/>
         <source>Mode 4 (AIL THR ELE RUD)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mode 4 (AIL GAZ PROF DIR)</translation>
     </message>
 </context>
 <context>

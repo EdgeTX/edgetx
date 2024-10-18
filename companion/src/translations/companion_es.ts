@@ -5338,7 +5338,7 @@ Estos puede ser relevantes para todos los modelos en el mismo EEPROM.</translati
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1005"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modo 2 (RUD THR ELE AIL)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1007"/>
