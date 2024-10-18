@@ -100,7 +100,7 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses, bool RCe
   *buf++ = MODULE_ADDRESS;
   *buf++ = 24 + extAdjust ; // 1(ID) + 22 + (+1 if RCext) + 1(CRC)
   uint8_t * crc_start = buf;
-  *buf++ = RCext ? CHANNELS_ID_EXT : CHANNELS_ID;
+  *buf++ = RCext ? CHANNELS_EXT_ID : CHANNELS_ID;
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
   for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
