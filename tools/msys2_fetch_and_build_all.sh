@@ -237,6 +237,14 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
+echo "=== Step $((STEP++)): Building radio simulator library ==="
+make -C native -j`nproc` libsimulator
+check_command $? "make -C native -j`nproc` libsimulator"
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
+
 echo "=== Step $((STEP++)): Building Companion ==="
 make -C native -j`nproc` companion
 check_command $? "make -C native -j`nproc` companion"
@@ -248,14 +256,6 @@ fi
 echo "=== Step $((STEP++)): Building Simulator ==="
 make -C native -j`nproc` simulator
 check_command $? "make -C native -j`nproc` simulator"
-if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
-  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
-  read
-fi
-
-echo "=== Step $((STEP++)): Building radio simulator library ==="
-make -C native -j`nproc` libsimulator
-check_command $? "make -C native -j`nproc` libsimulator"
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
