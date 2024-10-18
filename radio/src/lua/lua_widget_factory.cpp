@@ -81,7 +81,7 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   lua_newtable(lsWidgets);
   int i = 0;
   for (const ZoneOption* option = options; option->name; option++, i++) {
-    if (option->type == ZoneOption::String) {
+    if (option->type == ZoneOption::String || option->type == ZoneOption::File) {
       lua_pushstring(lsWidgets, option->name);
       // Zero-terminated string for Lua
       char str[LEN_ZONE_OPTION_STRING + 1] = {0};

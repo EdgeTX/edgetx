@@ -3118,6 +3118,7 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( SWITCH, ZoneOption::Switch )
   LROT_NUMENTRY( SLIDER, ZoneOption::Slider )
   LROT_NUMENTRY( CHOICE, ZoneOption::Choice )
+  LROT_NUMENTRY( FILE, ZoneOption::File )
   LROT_NUMENTRY( MENU_HEADER_HEIGHT, COLOR2FLAGS(EdgeTxStyles::MENU_HEADER_HEIGHT) )
 
   // Colors gui/colorlcd/colors.h

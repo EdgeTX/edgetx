@@ -27,6 +27,7 @@
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "view_main.h"
+#include "filechoice.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -190,6 +191,20 @@ WidgetSettings::WidgetSettings(Widget* w) :
               optVal->unsignedValue = newValue + 1;
               SET_DIRTY();
             });
+        break;
+
+      case ZoneOption::File:
+        new FileChoice(line, rect_t{}, opt->fileSelectPath, nullptr, LEN_ZONE_OPTION_STRING,
+                        [=]() {
+                          char s[LEN_ZONE_OPTION_STRING + 1];
+                          strncpy(s, optVal->stringValue, LEN_ZONE_OPTION_STRING);
+                          s[LEN_ZONE_OPTION_STRING] = 0;
+                          return std::string(s);
+                        },
+                        [=](std::string s) {
+                          strncpy(optVal->stringValue, s.c_str(), LEN_ZONE_OPTION_STRING);
+                          SET_DIRTY();
+                        });
         break;
     }
 

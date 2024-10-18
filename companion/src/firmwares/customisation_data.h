@@ -97,6 +97,7 @@ struct ZoneOption
     Align,
     Slider,
     Choice,
+    File,
   };
 
   const char * name;

@@ -25,7 +25,7 @@
 #include "storage/yaml/yaml_defs.h"
 #include <vector>
 
-#define LEN_ZONE_OPTION_STRING         8
+#define LEN_ZONE_OPTION_STRING 12
 
 #if defined(_MSC_VER)
   #define OPTION_VALUE_UNSIGNED(x)    { uint32_t(x) }
@@ -74,6 +74,7 @@ struct ZoneOption
     Align,
     Slider,
     Choice,
+    File,
   };
 
   const char * name;
@@ -82,6 +83,7 @@ struct ZoneOption
   ZoneOptionValue min;
   ZoneOptionValue max;
   const char * displayName;
+  std::string fileSelectPath;
   std::vector<std::string> choiceValues;
 };
 
@@ -105,6 +107,7 @@ inline ZoneOptionValueEnum zoneValueEnumFromType(ZoneOption::Type type)
 {
   switch(type) {
   case ZoneOption::String:
+  case ZoneOption::File:
     return ZOV_String;
 
   case ZoneOption::Integer:
