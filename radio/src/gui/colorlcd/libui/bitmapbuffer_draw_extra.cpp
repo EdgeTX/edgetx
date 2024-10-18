@@ -27,6 +27,8 @@
 #include "telemetry/telemetry_sensors.h"
 #include "translations.h"
 
+#include <cmath>
+
 // Drawing functions used by Lua API
 
 void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h,
