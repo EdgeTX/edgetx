@@ -2829,6 +2829,10 @@
   #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 #endif
 
+#if defined(RADIO_GX12)
+  #define HALL_SYNC                                GPIO_PIN(GPIOE, 7)  // PE.07
+#endif
+
 // Top LCD on X9E
 #if defined(PCBX9E)
   #define TOPLCD_GPIO
