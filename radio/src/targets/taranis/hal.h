@@ -53,6 +53,21 @@
   #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
   #define KEYS_GPIO_REG_ENTER           GPIOF
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_0  // PF.00
+#elif defined(PCBXLITE) && defined(XLITE_ALT_LAYOUT)
+  #define KEYS_GPIO_REG_SHIFT           GPIOE
+  #define KEYS_GPIO_PIN_SHIFT           LL_GPIO_PIN_11 // PE.11
+  #define KEYS_GPIO_REG_EXIT            GPIOE
+  #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_7  // PE.07
+  #define KEYS_GPIO_REG_ENTER           GPIOE
+  #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_8  // PE.08
+  #define KEYS_GPIO_REG_UP              GPIOB
+  #define KEYS_GPIO_PIN_UP              LL_GPIO_PIN_0  // PB.00
+  #define KEYS_GPIO_REG_DOWN            GPIOB
+  #define KEYS_GPIO_PIN_DOWN            LL_GPIO_PIN_1  // PB.01
+  #define KEYS_GPIO_REG_LEFT            GPIOC
+  #define KEYS_GPIO_PIN_LEFT            LL_GPIO_PIN_4  // PC.04
+  #define KEYS_GPIO_REG_RIGHT           GPIOC
+  #define KEYS_GPIO_PIN_RIGHT           LL_GPIO_PIN_5  // PC.05
 #elif defined(PCBXLITE)
   #define KEYS_GPIO_REG_SHIFT           GPIOE
   #define KEYS_GPIO_PIN_SHIFT           LL_GPIO_PIN_8  // PE.08
@@ -355,6 +370,15 @@
   #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_2  // PC.02
   #define TRIMS_GPIO_REG_RHR            GPIOC
   #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_13 // PC.13
+#elif defined(PCBXLITE) && defined(XLITE_ALT_LAYOUT)
+  #define TRIMS_GPIO_REG_LHL            GPIOE
+  #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_12 // PE.12
+  #define TRIMS_GPIO_REG_LHR            GPIOE
+  #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_13 // PE.13
+  #define TRIMS_GPIO_REG_LVU            GPIOE
+  #define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_10 // PE.10
+  #define TRIMS_GPIO_REG_LVD            GPIOE
+  #define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_14 // PE.14
 #elif defined(PCBXLITE)
   #define TRIMS_GPIO_REG_LHL            GPIOC
   #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_4  // PC.04
