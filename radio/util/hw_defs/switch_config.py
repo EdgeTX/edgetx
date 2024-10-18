@@ -226,7 +226,7 @@ SWITCH_CONFIG = {
         "SA": {"default": "3POS",   "display": [0, 0]},
         "SC": {"default": "TOGGLE", "display": [0, 1]},
         "SE": {"default": "2POS",   "display": [0, 2]},
-        "SG": {"default": "TOGGLE",  "display": [0, 3]},
+        "SG": {"default": "TOGGLE", "display": [0, 3]},
         # right side
         "SB": {"default": "3POS",   "display": [1, 0]},
         "SD": {"default": "TOGGLE", "display": [1, 1]},
