@@ -217,6 +217,9 @@ Functions cfn_sorted[] = {
   /* Überschreibe */ FUNC_OVERRIDE_CHANNEL,
   /* Vario */ FUNC_VARIO,
 #elif defined(TRANSLATIONS_ES)
+#if !defined(COLORLCD)
+  /* Ajus. pantalla */ FUNC_SET_SCREEN,
+#endif
   /* Ajuste */ FUNC_SET_TIMER,
   /* Ajuste */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
@@ -255,9 +258,6 @@ Functions cfn_sorted[] = {
   /* Seguro */ FUNC_OVERRIDE_CHANNEL,
 #if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
-#endif
-#if !defined(COLORLCD)
-  /* Set Screen */ FUNC_SET_SCREEN,
 #endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
