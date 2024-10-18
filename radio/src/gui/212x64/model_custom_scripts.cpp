@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "lua/lua_states.h"
 
 void onModelCustomScriptMenu(const char *result)
 {

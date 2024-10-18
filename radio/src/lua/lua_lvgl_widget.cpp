@@ -31,8 +31,7 @@
 
 //-----------------------------------------------------------------------------
 
-static int pcallcont (lua_State *L) {
-  int status = lua_getctx(L, NULL);
+static int pcallcont (lua_State *L, int status, lua_KContext extra) {
   return status == LUA_OK;
 }
 

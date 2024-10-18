@@ -178,9 +178,9 @@ static int luaGetVersion(lua_State * L)
 {
   lua_pushstring(L, VERSION);
   lua_pushstring(L, RADIO_VERSION);
-  lua_pushnumber(L, VERSION_MAJOR);
-  lua_pushnumber(L, VERSION_MINOR);
-  lua_pushnumber(L, VERSION_REVISION);
+  lua_pushinteger(L, VERSION_MAJOR);
+  lua_pushinteger(L, VERSION_MINOR);
+  lua_pushinteger(L, VERSION_REVISION);
   lua_pushstring(L, VERSION_OSNAME);
   return 6;
 }
@@ -200,7 +200,7 @@ overflows will not happen.
 */
 static int luaGetTime(lua_State * L)
 {
-  lua_pushunsigned(L, get_tmr10ms());
+  lua_pushinteger(L, get_tmr10ms());
   return 1;
 }
 
@@ -268,7 +268,7 @@ in 2038.
 #if defined(RTCLOCK)
 static int luaGetRtcTime(lua_State * L)
 {
-  lua_pushunsigned(L, g_rtcTime);
+  lua_pushinteger(L, g_rtcTime);
   return 1;
 }
 #endif
@@ -300,7 +300,7 @@ static void luaPushCells(lua_State* L, TelemetrySensor & telemetrySensor, Teleme
   else {
     lua_createtable(L, telemetryItem.cells.count, 0);
     for (int i = 0; i < telemetryItem.cells.count; i++) {
-      lua_pushnumber(L, i + 1);
+      lua_pushinteger(L, i + 1);
       lua_pushnumber(L, telemetryItem.cells.values[i].value * 0.01f);
       lua_settable(L, -3);
     }
@@ -874,7 +874,7 @@ Return rotary encoder current speed
 */
 static int luaGetRotEncSpeed(lua_State * L)
 {
-  lua_pushunsigned(L, max(rotaryEncoderGetAccel(), (int8_t)1));
+  lua_pushinteger(L, max(rotaryEncoderGetAccel(), (int8_t)1));
   return 1;
 }
 
@@ -891,9 +891,9 @@ Return rotary encoder mode
 static int luaGetRotEncMode(lua_State * L)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
-  lua_pushunsigned(L, g_eeGeneral.rotEncMode);
+  lua_pushinteger(L, g_eeGeneral.rotEncMode);
 #else
-  lua_pushunsigned(L, 0);
+  lua_pushinteger(L, 0);
 #endif
   return 1;
 }
@@ -929,10 +929,10 @@ static int luaSportTelemetryPop(lua_State * L)
     for (uint8_t i=0; i<sizeof(packet); i++) {
       luaInputTelemetryFifo->pop(packet.raw[i]);
     }
-    lua_pushnumber(L, packet.physicalId);
-    lua_pushnumber(L, packet.primId);
-    lua_pushnumber(L, packet.dataId);
-    lua_pushunsigned(L, packet.value);
+    lua_pushinteger(L, packet.physicalId);
+    lua_pushinteger(L, packet.primId);
+    lua_pushinteger(L, packet.dataId);
+    lua_pushinteger(L, packet.value);
     return 4;
   }
 
@@ -999,7 +999,7 @@ static int luaSportTelemetryPush(lua_State * L)
     return 1;
   }
 
-  uint16_t dataId = luaL_checkunsigned(L, 3);
+  uint16_t dataId = luaL_checkinteger(L, 3);
 
   if (outputTelemetryBuffer.isAvailable()) {
     for (uint8_t i=0; i<MAX_TELEMETRY_SENSORS; i++) {
@@ -1007,17 +1007,17 @@ static int luaSportTelemetryPush(lua_State * L)
       if (sensor.id == dataId) {
         if (sensor.frskyInstance.rxIndex == TELEMETRY_ENDPOINT_SPORT) {
           SportTelemetryPacket packet;
-          packet.physicalId = getDataId(luaL_checkunsigned(L, 1));
-          packet.primId = luaL_checkunsigned(L, 2);
+          packet.physicalId = getDataId(luaL_checkinteger(L, 1));
+          packet.primId = luaL_checkinteger(L, 2);
           packet.dataId = dataId;
-          packet.value = luaL_checkunsigned(L, 4);
+          packet.value = luaL_checkinteger(L, 4);
           outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
         }
         else {
-          outputTelemetryBuffer.sport.physicalId = getDataId(luaL_checkunsigned(L, 1));
-          outputTelemetryBuffer.sport.primId = luaL_checkunsigned(L, 2);
+          outputTelemetryBuffer.sport.physicalId = getDataId(luaL_checkinteger(L, 1));
+          outputTelemetryBuffer.sport.primId = luaL_checkinteger(L, 2);
           outputTelemetryBuffer.sport.dataId = dataId;
-          outputTelemetryBuffer.sport.value = luaL_checkunsigned(L, 4);
+          outputTelemetryBuffer.sport.value = luaL_checkinteger(L, 4);
         }
         outputTelemetryBuffer.setDestination(sensor.frskyInstance.rxIndex);
         lua_pushboolean(L, true);
@@ -1028,10 +1028,10 @@ static int luaSportTelemetryPush(lua_State * L)
     // sensor not found, we send the frame to the SPORT line
     {
       SportTelemetryPacket packet;
-      packet.physicalId = getDataId(luaL_checkunsigned(L, 1));
-      packet.primId = luaL_checkunsigned(L, 2);
+      packet.physicalId = getDataId(luaL_checkinteger(L, 1));
+      packet.primId = luaL_checkinteger(L, 2);
       packet.dataId = dataId;
-      packet.value = luaL_checkunsigned(L, 4);
+      packet.value = luaL_checkinteger(L, 4);
       outputTelemetryBuffer.pushSportPacketWithBytestuffing(packet);
 #if defined(PXX2) && defined(HARDWARE_EXTERNAL_MODULE)
       uint8_t destination = (intmod ? INTERNAL_MODULE : EXTERNAL_MODULE);
@@ -1101,7 +1101,7 @@ static int luaAccessTelemetryPush(lua_State * L)
 
   if (outputTelemetryBuffer.isAvailable()) {
     int8_t module = luaL_checkinteger(L, 1);
-    uint8_t rxUid = luaL_checkunsigned(L, 2);
+    uint8_t rxUid = luaL_checkinteger(L, 2);
     uint8_t destination;
 
     if (module < 0) {
@@ -1114,10 +1114,10 @@ static int luaAccessTelemetryPush(lua_State * L)
       destination = (module << 2) + rxUid;
     }
 
-    outputTelemetryBuffer.sport.physicalId = getDataId(luaL_checkunsigned(L, 3));
-    outputTelemetryBuffer.sport.primId = luaL_checkunsigned(L, 4);
-    outputTelemetryBuffer.sport.dataId = luaL_checkunsigned(L, 5);
-    outputTelemetryBuffer.sport.value = luaL_checkunsigned(L, 6);
+    outputTelemetryBuffer.sport.physicalId = getDataId(luaL_checkinteger(L, 3));
+    outputTelemetryBuffer.sport.primId = luaL_checkinteger(L, 4);
+    outputTelemetryBuffer.sport.dataId = luaL_checkinteger(L, 5);
+    outputTelemetryBuffer.sport.value = luaL_checkinteger(L, 6);
     outputTelemetryBuffer.setDestination(destination);
     lua_pushboolean(L, true);
     return 1;
@@ -1156,7 +1156,7 @@ static int luaCrossfireTelemetryPop(lua_State * L)
     // length value includes the length field
     luaInputTelemetryFifo->pop(length);
     luaInputTelemetryFifo->pop(data); // command
-    lua_pushnumber(L, data);
+    lua_pushinteger(L, data);
     lua_newtable(L);
     for (uint8_t i=1; i<length-1; i++) {
       luaInputTelemetryFifo->pop(data);
@@ -1205,7 +1205,7 @@ static int luaCrossfireTelemetryPush(lua_State* L)
     lua_pushboolean(L, false);
     return 1;
   } else if (outputTelemetryBuffer.isAvailable()) {
-    uint8_t command = luaL_checkunsigned(L, 1);
+    uint8_t command = luaL_checkinteger(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
     uint8_t length = luaL_len(L, 2);
 
@@ -1226,7 +1226,7 @@ static int luaCrossfireTelemetryPush(lua_State* L)
     // PAYLOAD
     for (int i = 0; i < length; i++) {
       lua_rawgeti(L, 2, i + 1);
-      outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
+      outputTelemetryBuffer.pushByte(luaL_checkinteger(L, -1));
     }
 
     // CRC
@@ -1280,7 +1280,7 @@ static int luaGhostTelemetryPop(lua_State * L)
     // length value includes type(1B), payload, crc(1B)
     luaInputTelemetryFifo->pop(length);
     luaInputTelemetryFifo->pop(data); // type
-    lua_pushnumber(L, data);          // return type
+    lua_pushinteger(L, data);          // return type
     lua_newtable(L);
     for (uint8_t i=0; i<length-2; i++) {
       luaInputTelemetryFifo->pop(data);
@@ -1327,7 +1327,7 @@ static int luaGhostTelemetryPush(lua_State * L)
     return 1;
   }
   else if (outputTelemetryBuffer.isAvailable()) {
-    uint8_t type = luaL_checkunsigned(L, 1);
+    uint8_t type = luaL_checkinteger(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
     uint8_t length = luaL_len(L, 2);              // payload length
 
@@ -1343,7 +1343,7 @@ static int luaGhostTelemetryPush(lua_State * L)
     int i = 0;
     for (; i < length; i++) {                     // data, max 10B
       lua_rawgeti(L, 2, i + 1);
-      outputTelemetryBuffer.pushByte(luaL_checkunsigned(L, -1));
+      outputTelemetryBuffer.pushByte(luaL_checkinteger(L, -1));
     }
     for (; i < 10; i++) {                         // fill zeroes to frame size
       outputTelemetryBuffer.pushByte(0);
@@ -1442,7 +1442,7 @@ static int luaGetFlightMode(lua_State * L)
   if (mode < 0 || mode >= MAX_FLIGHT_MODES) {
     mode = mixerCurrentFlightMode;
   }
-  lua_pushnumber(L, mode);
+  lua_pushinteger(L, mode);
   char name[sizeof(g_model.flightModeData[0].name)+1];
   strncpy(name, g_model.flightModeData[mode].name, sizeof(g_model.flightModeData[0].name));
   name[sizeof(g_model.flightModeData[0].name)] = '\0';
@@ -1530,7 +1530,7 @@ static int luaPlayNumber(lua_State * L)
 {
   int number = luaL_checkinteger(L, 1);
   int unit = luaL_checkinteger(L, 2);
-  unsigned int att = luaL_optunsigned(L, 3, 0);
+  unsigned int att = luaL_optinteger(L, 3, 0);
   int volume = luaL_optinteger(L, 4, USE_SETTINGS_VOLUME);
 
   if(volume != USE_SETTINGS_VOLUME)
@@ -1729,7 +1729,7 @@ Returns gray value which can be used in LCD functions
 static int luaGrey(lua_State * L)
 {
   int index = luaL_checkinteger(L, 1);
-  lua_pushunsigned(L, GREY(index));
+  lua_pushinteger(L, GREY(index));
   return 1;
 }
 #endif
@@ -2001,12 +2001,12 @@ must be different from zero.
 */
 static int luaSetTelemetryValue(lua_State * L)
 {
-  uint16_t id = luaL_checkunsigned(L, 1);
-  uint8_t subId = luaL_checkunsigned(L, 2) & 0x7;
-  uint8_t instance = luaL_checkunsigned(L, 3);
+  uint16_t id = luaL_checkinteger(L, 1);
+  uint8_t subId = luaL_checkinteger(L, 2) & 0x7;
+  uint8_t instance = luaL_checkinteger(L, 3);
   int32_t value = luaL_checkinteger(L, 4);
-  uint32_t unit = luaL_optunsigned(L, 5, 0);
-  uint32_t prec = luaL_optunsigned(L, 6, 0);
+  uint32_t unit = luaL_optinteger(L, 5, 0);
+  uint32_t prec = luaL_optinteger(L, 6, 0);
 
   char name_buf[TELEM_LABEL_LEN]; // 4
   const char* name = luaL_optstring(L, 7, NULL);
@@ -2094,11 +2094,11 @@ Get RSSI value as well as low and critical RSSI alarm levels (in dB)
 static int luaGetRSSI(lua_State * L)
 {
   if (TELEMETRY_STREAMING())
-    lua_pushunsigned(L, min((uint8_t)99, TELEMETRY_RSSI()));
+    lua_pushinteger(L, min((uint8_t)99, TELEMETRY_RSSI()));
   else
-    lua_pushunsigned(L, 0);
-  lua_pushunsigned(L, g_model.rfAlarms.warning);
-  lua_pushunsigned(L, g_model.rfAlarms.critical);
+    lua_pushinteger(L, 0);
+  lua_pushinteger(L, g_model.rfAlarms.warning);
+  lua_pushinteger(L, g_model.rfAlarms.critical);
   return 3;
 }
 
@@ -2213,7 +2213,7 @@ Get available memory remaining in the Heap for Lua.
 */
 static int luaGetAvailableMemory(lua_State * L)
 {
-  lua_pushunsigned(L, availableMemory());
+  lua_pushinteger(L, availableMemory());
   return 1;
 }
 
@@ -2273,7 +2273,7 @@ uint8_t * Multi_Buffer = nullptr;
 
 static int luaMultiBuffer(lua_State * L)
 {
-  uint8_t address = luaL_checkunsigned(L, 1);
+  uint8_t address = luaL_checkinteger(L, 1);
   if (!Multi_Buffer)
     Multi_Buffer = (uint8_t *) malloc(MULTI_BUFFER_SIZE);
 
@@ -2281,7 +2281,7 @@ static int luaMultiBuffer(lua_State * L)
     lua_pushinteger(L, 0);
     return 0;
   }
-  uint16_t value = luaL_optunsigned(L, 2, 0x100);
+  uint16_t value = luaL_optinteger(L, 2, 0x100);
   if (value < 0x100) {
     Multi_Buffer[address] = value;
   }
@@ -2352,7 +2352,7 @@ Reads characters from the serial port. The string is allowed to contain any char
 */
 static int luaSerialRead(lua_State * L)
 {
-  int num = luaL_optunsigned(L, 1, 0);
+  int num = luaL_optinteger(L, 1, 0);
 
   uint8_t str[LUA_FIFO_SIZE];
   uint8_t *p = str;
@@ -2401,7 +2401,7 @@ static int luaSerialRead(lua_State * L)
 */
 static int luaSerialGetPower(lua_State* L)
 {
-  uint8_t port_nr = luaL_checkunsigned(L, 1) & 0x3;
+  uint8_t port_nr = luaL_checkinteger(L, 1) & 0x3;
 
   #if defined(AUX_SERIAL)
     if (port_nr == SP_AUX1)
@@ -2439,8 +2439,8 @@ static int luaSerialGetPower(lua_State* L)
 */
 static int luaSerialSetPower(lua_State* L)
 {
-  uint8_t port_nr = luaL_checkunsigned(L, 1) & 0x3;
-  uint8_t value = luaL_checkunsigned(L, 2) & 0x3;
+  uint8_t port_nr = luaL_checkinteger(L, 1) & 0x3;
+  uint8_t value = luaL_checkinteger(L, 2) & 0x3;
 
   if (value < 2)
   {

@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include <stdarg.h>
 
 const char * warningText = nullptr;
 const char * warningInfoText;
