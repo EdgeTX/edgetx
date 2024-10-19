@@ -471,9 +471,6 @@ Functions cfn_sorted[] = {
 #endif
   /* RGB LED */ FUNC_RGB_LED,
   /* SDログ出力 */ FUNC_LOGS,
-#if !defined(COLORLCD)
-  /* Set Screen */ FUNC_SET_SCREEN,
-#endif
   /* オーディオアンプ OFF */ FUNC_DISABLE_AUDIO_AMP,
   /* サウンド再生 */ FUNC_PLAY_SOUND,
   /* ダイヤル */ FUNC_VOLUME,
@@ -495,6 +492,9 @@ Functions cfn_sorted[] = {
   /* レンジチェック */ FUNC_RANGECHECK,
   /* 音源再生 */ FUNC_PLAY_TRACK,
   /* 画面キャプチャ */ FUNC_SCREENSHOT,
+#if !defined(COLORLCD)
+  /* 画面設定 */ FUNC_SET_SCREEN,
+#endif
 #if defined(OLED_SCREEN)
   /* 輝度 */ FUNC_BACKLIGHT,
 #endif
