@@ -67,6 +67,10 @@ POT_CONFIG = {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"}
     },
+    "bumblebee": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"}
+    },
     "t20": {
         "P1":  {"default": "POT_CENTER"},
         "P2":  {"default": "POT_CENTER"},
