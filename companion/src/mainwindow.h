@@ -116,7 +116,7 @@ class MainWindow : public QMainWindow
     void downloads();
     void doUpdates(bool check, bool interactive = true);
 
-    void openFile(const QString & fileName, bool updateLastUsedDir = false);
+    void openFile(const QString & fileName);
 
   private:
     QAction * addAct(const QString & icon, const char * slot = NULL, const QKeySequence & shortcut = 0, QObject * slotObj = NULL, const char * signal = NULL);
