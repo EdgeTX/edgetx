@@ -93,14 +93,20 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 }
 
 // Range for pulses (channels output) is [-1024:+1024]
-uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses, bool RCext, uint8_t armStatus)
+uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
 {
-  uint8_t extAdjust = RCext ? 1: 0;
+  //
+  // sends channel data and also communicates commanded armed status in arming mode Function.
+  // frame len 24 -> arming mode Channel: module will use channel 5
+  // frame len 25 -> arming mode Function: send commanded armed status in extra byte after channel data
+  // 
+  uint8_t armingMode = g_model.crsfArmingMode; // 0 = Channel mode, 1 = Function mode
+
   uint8_t * buf = frame;
   *buf++ = MODULE_ADDRESS;
-  *buf++ = 24 + extAdjust ; // 1(ID) + 22 + (+1 if RCext) + 1(CRC)
+  *buf++ = 24 + armingMode ;                   // 1(ID) + 22(channel data) + (+1 extra byte if arming is Function mode) + 1(CRC)
   uint8_t * crc_start = buf;
-  *buf++ = RCext ? CHANNELS_EXT_ID : CHANNELS_ID;
+  *buf++ = CHANNELS_ID;
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
   for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
@@ -114,14 +120,14 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses, bool RCe
     }
   }
   
-  if (RCext) {
-    TRACE("[XF] RCext arm %d", armStatus);
-    *buf++ = armStatus;  // Arm status
+  if (armingMode) {
+    TRACE("[XF] RC Channels arm status %d", isFunctionActive(FUNCTION_ARM));
+    *buf++ = isFunctionActive(FUNCTION_ARM);  // commanded armed status via SF Arm in armimg mode Function
   } else {
     TRACE("[XF] RC");
   }
 
-  *buf++ = crc8(crc_start, 23 + extAdjust);
+  *buf++ = crc8(crc_start, 23 + armingMode);
   return buf - frame;
 }
 
@@ -178,8 +184,7 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
       /* TODO: nChannels */
-      bool crsfArmingMode = g_model.crsfArmingMode;
-      p_buf += createCrossfireChannelsFrame(p_buf, channels, g_model.crsfArmingMode, crsfArmingMode && isFunctionActive(FUNCTION_ARM));
+      p_buf += createCrossfireChannelsFrame(p_buf, channels);
     }
   }
 }

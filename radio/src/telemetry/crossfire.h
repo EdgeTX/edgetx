@@ -37,8 +37,6 @@
 #define BARO_ALT_ID                    0x09
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
-#define SUBSET_CHANNELS_ID             0x17
-#define CHANNELS_EXT_ID                0x18
 #define LINK_RX_ID                     0x1C
 #define LINK_TX_ID                     0x1D
 #define ATTITUDE_ID                    0x1E
