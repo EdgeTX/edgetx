@@ -33,7 +33,7 @@ class ModelFlightModesPage : public PageTab
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL(TRIM_CHK_H, 40, 40)
+  static LAYOUT_VAL(TRIM_CHK_H, 40, 40, LS(40))
 
  protected:
   TextButton* trimCheck = nullptr;

@@ -34,9 +34,9 @@ struct FMMatrix : public ButtonMatrix {
   bool isActive(uint8_t btn_id);
   void setTextAndState(uint8_t btn_id);
 
-  static LAYOUT_VAL(FM_BTN_W, 48, 48)
-  static LAYOUT_VAL(FM_COLS, 5, 3)
-  static LAYOUT_VAL(FM_ROWS, 2, 3)
+  static LAYOUT_VAL(FM_BTN_W, 48, 48, LS(48))
+  static LAYOUT_VAL(FM_COLS, 5, 3, 5)
+  static LAYOUT_VAL(FM_ROWS, 2, 3, 2)
 };
 
 extern template struct FMMatrix<ExpoData>;
