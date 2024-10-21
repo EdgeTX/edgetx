@@ -1325,8 +1325,6 @@ bool MdiChild::saveAs(bool isNew)
   }
   while (QFileInfo(fileName).suffix().toLower() != "etx");
 
-  g.eepromDir(QFileInfo(fileName).dir().absolutePath());
-
   return saveFile(fileName, true);
 }
 
@@ -1338,6 +1336,8 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
   if (!result) {
     return false;
   }
+
+  g.eepromDir(QFileInfo(filename).dir().absolutePath());
 
   for (int i = 0; i < (int)radioData.models.size(); i++) {
     if (!radioData.models[i].isEmpty())

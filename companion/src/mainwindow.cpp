@@ -349,13 +349,9 @@ void MainWindow::openDocURL()
   QDesktopServices::openUrl(QUrl(link));
 }
 
-void MainWindow::openFile(const QString & fileName, bool updateLastUsedDir)
+void MainWindow::openFile(const QString & fileName)
 {
   if (!fileName.isEmpty()) {
-    if (updateLastUsedDir) {
-      g.eepromDir(QFileInfo(fileName).dir().absolutePath());
-    }
-
     QMdiSubWindow *existing = findMdiChild(fileName);
     if (existing) {
       mdiArea->setActiveSubWindow(existing);
@@ -413,7 +409,7 @@ void MainWindow::openRecentFile()
   QAction *action = qobject_cast<QAction *>(sender());
   if (action) {
     QString fileName = action->data().toString();
-    openFile(fileName, false);
+    openFile(fileName);
   }
 }
 
