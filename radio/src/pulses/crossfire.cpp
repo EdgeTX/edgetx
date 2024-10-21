@@ -121,10 +121,7 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
   }
   
   if (armingMode) {
-    TRACE("[XF] RC Channels arm status %d", isFunctionActive(FUNCTION_ARM));
     *buf++ = isFunctionActive(FUNCTION_ARM);  // commanded armed status via SF Arm in armimg mode Function
-  } else {
-    TRACE("[XF] RC");
   }
 
   *buf++ = crc8(crc_start, 23 + armingMode);
@@ -176,10 +173,8 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       p_buf += createCrossfireModelIDFrame(module, p_buf);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;
     } else if (moduleState[module].counter == CRSF_FRAME_MODELID_SENT && crossfireModuleStatus[module].queryCompleted == false) {
-      TRACE("[XF] Ping");
       p_buf += createCrossfirePingFrame(module, p_buf);
     } else if (moduleState[module].mode == MODULE_MODE_BIND) {
-      TRACE("[XF] Bind");
       p_buf += createCrossfireBindFrame(module, p_buf);
       moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
