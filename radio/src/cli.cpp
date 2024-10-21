@@ -46,6 +46,7 @@
 #include <new>
 #include <stdarg.h>
 
+#include "lua/lua_states.h"
 
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
