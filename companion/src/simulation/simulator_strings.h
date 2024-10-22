@@ -73,6 +73,9 @@
 #define SIMU_STR_HLP_ACT_TELE          QCoreApplication::translate("SimulatedUIWidget", "<pre>[ TELE ]</pre>")
 #define SIMU_STR_HLP_ACT_MENU_ICN      QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&#x2261;</font>")  // ≡
 
+#define SIMU_STR_HLP_ACT_PREVINC       QCoreApplication::translate("SimulatedUIWidget", "<pre>[ Prev/Inc ]</pre>")
+#define SIMU_STR_HLP_ACT_NEXTDEC       QCoreApplication::translate("SimulatedUIWidget", "<pre>[ Next/Dec ]</pre>")
+
 
 #define SIMU_STR_HLP_KEYS_EXIT         SIMU_STR_HLP_KEY_DEL % "|" % SIMU_STR_HLP_KEY_BKSP % "|" % SIMU_STR_HLP_KEY_ESC
 #define SIMU_STR_HLP_KEYS_ACTIVATE     SIMU_STR_HLP_KEY_ENTER % "|" % SIMU_STR_HLP_MOUSE_MID
