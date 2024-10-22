@@ -281,6 +281,11 @@ void ModelOutputsPage::build(Window* window)
         storageDirty(EE_MODEL);
         btn->refresh();
       });
+      menu->addLine(STR_COPY_MIN_MAX_TO_OUTPUTS, [=]() {
+        copyMinMaxToOutputs(ch);
+        storageDirty(EE_MODEL);
+        btn->refresh();
+      });
       return 0;
     });
   }
