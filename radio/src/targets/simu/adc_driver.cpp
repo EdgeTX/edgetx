@@ -44,7 +44,10 @@ static bool simu_start_conversion()
   // set VBAT / RTC_BAT
   if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
     uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
-#if defined(BATT_SCALE)
+#if defined(VBAT_MOSFET_DROP)
+    // 1000 is used as multiplier for both numerator and denominator to allow to stay in integer domain
+    return (uint16_t)((vbat * ADC_VREF_PREC2 * ((((1000 + g_eeGeneral.txVoltageCalibration)) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1)) / (2*1024*1000)) + VBAT_MOSFET_DROP;
+#elif defined(BATT_SCALE)
     vbat = ((vbat - VOLTAGE_DROP) * BATTERY_DIVIDER) / (BATT_SCALE * 128);
 #else
     vbat = (vbat * BATTERY_DIVIDER) / 1000;
