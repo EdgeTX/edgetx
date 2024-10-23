@@ -417,7 +417,7 @@ void setTopBatteryValue(uint32_t volts);
 #if defined(MANUFACTURER_JUMPER)
 #define VBAT_MOSFET_DROP   50 // * 10mV
 #else
-#define VBAT_MOSFET_DROP   20 // * 10mV
+#define VBAT_MOSFET_DROP   25 // * 10mV
 #endif
 #else //--- MOSFET ---- R2 --- MCU
 #if defined (RADIO_T8) || defined(RADIO_COMMANDO8)
