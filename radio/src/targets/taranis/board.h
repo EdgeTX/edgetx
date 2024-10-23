@@ -408,14 +408,18 @@ void setTopBatteryValue(uint32_t volts);
 
 #define INTMODULE_FIFO_SIZE            128
 
-#if defined(MANUFACTURER_RADIOMASTER)
+#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER)
 // --- MOSFET ---- R2 --- MCU
 //                     |__ R1 --- GND
 //
 #define VBAT_DIV_R1       160 // kOhms
 #define VBAT_DIV_R2       499 // kOhms
-#define VBAT_MOSFET_DROP   20 // * 10mV
+#if defined(MANUFACTURER_JUMPER)
+#define VBAT_MOSFET_DROP   50 // * 10mV
 #else
+#define VBAT_MOSFET_DROP   20 // * 10mV
+#endif
+#else //--- MOSFET ---- R2 --- MCU
 #if defined (RADIO_T8) || defined(RADIO_COMMANDO8)
   #define BATTERY_DIVIDER 50000
 #elif defined (RADIO_LR3PRO)
@@ -423,12 +427,7 @@ void setTopBatteryValue(uint32_t volts);
 #else
   #define BATTERY_DIVIDER 26214
 #endif 
-
-#if defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20)
-  #define VOLTAGE_DROP 60
-#else
-  #define VOLTAGE_DROP 20
-#endif
+#define VOLTAGE_DROP 20
 #endif //--- MOSFET ---- R2 --- MCU
 
 #if defined(RADIO_FAMILY_T20)
