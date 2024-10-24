@@ -1,5 +1,8 @@
 #! /usr/bin/env bash
 
+# exit on first error
+set -e
+
 ## Bash script to show how to get EdgeTX source from GitHub,
 ## how to build firmware, Companion, Simulator, radio simulator
 ## library and how to create an installation package.
@@ -14,48 +17,25 @@ if [[ "$MSYSTEM" == "MSYS" ]]; then
   exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 # == Include common variables and functions ==
-source msys2_common_32_64.sh
+. ${SCRIPT_DIR}/msys2_common_32_64.sh
+
+# download latest supported radio simulators and build options
+wget -qLO https://github.com/edgetx/edgetx/raw/main/tools/build-common.sh
+. ${SCRIPT_DIR}/build-common.sh
+
+# download latest supported radio firmwares
+wget -qlO https://github.com/edgetx/edgetx/raw/main/fw.json
+
+declare -a supported_radios=(all)
+
+for radio_target in $(cat fw.json | jq -r '.targets[] | .[1]'); do
+  supported_radios+=(${radio_target%-})
+done
 
 # == Initialise variables ==
-declare -a supported_radios=( \
-  "all          |" \
-  "x9lite       |-DPCB=X9LITE" \
-  "x9lites      |-DPCB=X9LITES" \
-  "x7           |-DPCB=X7" \
-  "x7-access    |-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES" \
-  "t8           |-DPCB=X7 -DPCBREV=T8" \
-  "t12          |-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON" \
-  "tx12         |-DPCB=X7 -DPCBREV=TX12" \
-  "tx12mk2      |-DPCB=X7 -DPCBREV=TX12MK2" \
-  "boxer        |-DPCB=X7 -DPCBREV=BOXER" \
-  "t8           |-DPCB=X7 -DPCBREV=T8" \
-  "zorro        |-DPCB=X7 -DPCBREV=ZORRO" \
-  "pocket       |-DPCB=X7 -DPCBREV=POCKET" \
-  "mt12         |-DPCB=X7 -DPCBREV=MT12" \
-  "tlite        |-DPCB=X7 -DPCBREV=TLITE" \
-  "tpro         |-DPCB=X7 -DPCBREV=TPRO" \
-  "tprov2       |-DPCB=X7 -DPCBREV=TPROV2" \
-  "t20          |-DPCB=X7 -DPCBREV=T20" \
-  "lr3pro       |-DPCB=X7 -DPCBREV=LR3PRO" \
-  "xlite        |-DPCB=XLITE" \
-  "xlites       |-DPCB=XLITES" \
-  "x9d          |-DPCB=X9D" \
-  "x9dp         |-DPCB=X9D+" \
-  "x9dp2019     |-DPCB=X9D+ -DPCBREV=2019" \
-  "x9e          |-DPCB=X9E" \
-  "x9e-hall     |-DPCB=X9E -DSTICKS=HORUS" \
-  "x10          |-DPCB=X10" \
-  "x10-access   |-DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES" \
-  "x12s         |-DPCB=X12S" \
-  "t15          |-DPCB=X10 -DPCBREV=T15" \
-  "t16          |-DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON" \
-  "t18          |-DPCB=X10 -DPCBREV=T18" \
-  "tx16s        |-DPCB=X10 -DPCBREV=TX16S" \
-  "nv14         |-DPCB=NV14" \
-  "el18         |-DPCB=NV14 -DPCBREV=EL18" \
-  "commando8    |-DPCB=X7 -DPCBREV=COMMANDO8" \
-)
 
 REPO_OWNER="EdgeTX"
 REPO_NAME="edgetx"
@@ -79,6 +59,7 @@ OUTPUT_DELETE=0
 CPN_FLDR=companion
 
 BUILD_OPTIONS=""
+EXTRA_BUILD_OPTIONS=""
 BUILD_TYPE=Release
 
 BUILD_COMPANION=0
@@ -137,42 +118,43 @@ function validate_radio_types() {
   	local radio_found=0
 
     for ((j = 0; j < ${#supported_radios[@]}; ++j)); do
-      IFS='|' read -ra radiodefn <<< "${supported_radios[(j)]}"
-      radio=$(trim_spaces "${radiodefn[0],,}")
-
-      if [[ "${RADIO_TYPES[i],,}" == "${radio,,}" ]]; then
+      if [[ "${RADIO_TYPES[i],,}" == "${supported_radios[j],,}" ]]; then
         radio_found=1
         break;
       fi
     done
 
     if [[ radio_found -eq 0 ]]; then
-      fail "Unsupported ratio type: '${RADIO_TYPES[i]}'"
+      fail "Unsupported radio type: '${RADIO_TYPES[i]}'"
     fi
 	done
 }
 
-function get_radio_build_options() {
-	#	Parameters:
-	#	1 - Radio type
+function validate_radio_build_options() {
 
-  # Output: radio options
-
-  # Result code: 0 = success 1 = error
-
-	for ((i = 0; i < ${#supported_radios[@]}; ++i));  do
-		IFS='|' read -ra supported_radio <<< "${supported_radios[(i)]}"
-    radio="$(trim_spaces "${supported_radio[0],,}")"
-
-		if [[ "${1,,}" == "${radio}" ]]; then
-			echo "$(trim_spaces "${supported_radio[1]}")"
-      return 0;
-		fi
+  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+    if ! get_target_build_options ${RADIO_TYPES[@],,}; then
+      fail "No buid options for radio type: '${RADIO_TYPES[i]}'"
+    fi
 	done
+}
 
-  # radio type not found
-  echo ""
-  return 1
+function validate_simulator_plugins() {
+
+  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+  	local sim_found=0
+
+    for ((j = 0; j < ${#simulator_plugins[@]}; ++j)); do
+      if [[ "${RADIO_TYPES[i],,}" == "${simulator_plugins[j],,}" ]]; then
+        sim_found=1
+        break;
+      fi
+    done
+
+    if [[ sim_found -eq 0 ]]; then
+      fail "Unsupported radio simulator: '${RADIO_TYPES[i]}'"
+    fi
+	done
 }
 
 function get_all_radio_types() {
@@ -236,7 +218,7 @@ function prep_target() {
   BUILD_COMMON_OPTIONS="--fresh -G 'MSYS Makefiles' -Wno-dev -DCMAKE_PREFIX_PATH=${QT_PATH} -DSDL2_LIBRARY_PATH=${MSYSTEM_PREFIX}/bin/ \
   -DOPENSSL_ROOT_DIR=${MSYSTEM_PREFIX}/bin/ -DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
 
-  run_step "Generating CMake build environment" "cmake ${BUILD_COMMON_OPTIONS} ${BUILD_OPTIONS} ${BUILD_RADIO_OPTIONS} ${SOURCE_PATH}"
+  run_step "Generating CMake build environment" "cmake ${BUILD_COMMON_OPTIONS} ${BUILD_OPTIONS} ${EXTRA_BUILD_OPTIONS} ${SOURCE_PATH}"
   run_step "Running CMake clean" "cmake --build . --target clean"
   run_step "Running CMake configure: ${1}" "cmake --build . --target ${1}-configure"
 }
@@ -267,7 +249,7 @@ Parser command options.
 Options:
   -a, --all-targets                    build companion, firmware(s), radio libsim(s), simulator and installer
   -b, --branch <branch>                git branch use (default: main)
-      --build-options <options>        eg -DTRANSLATIONS=DE
+      --extra_build-options <options>  eg -DTRANSLATIONS=DE
                                        Note: radio options will be appended
       --build-type <type>              cmake build type default: ${BUILD_TYPE}
   -c, --clean                          delete local repo and output directory
@@ -306,7 +288,7 @@ exit 1
 # == Parse the command line ==
 short_options=ab:ce:hm:o:pq:r:s:
 long_options="all-targets, branch:, clean, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
-build-options:, build-type:, clone, companion, delete-output, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
+extra_build-options:, build-type:, clone, companion, delete-output, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
 repo-name:, repo-owner:, simulator, hw-defs, hw-defs-radio-types"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
@@ -347,7 +329,7 @@ do
                                 OUTPUT_DIR="${2}"                               ; shift 2 ;;
 		-o | --output-dir)          OUTPUT_DIR="${2}"                               ; shift 2 ;;
          --delete-output)       OUTPUT_DELETE=1                                 ; shift   ;;
-		     --build-options)       BUILD_OPTIONS="${2}"                            ; shift 2 ;;
+		     --extra-build-options) EXTRA_BUILD_OPTIONS="${2}"                      ; shift 2 ;;
 		     --build-type)          BUILD_TYPE="${2}"                               ; shift 2 ;;
          --clone)               REPO_CLONE=1                                    ; shift   ;;
          --fetch)               REPO_FETCH=1                                    ; shift   ;;
@@ -385,6 +367,8 @@ fi
 
 RADIO_TYPES=($@)
 validate_radio_types
+validate_simulator_plugins
+validate_radio_build_options
 
 # option --hw-defs
 if [[ ${BUILD_HWDEFS} -eq 1 ]]; then
@@ -472,7 +456,7 @@ cat << EOF
 EdgeTX version:             ${EDGETX_VERSION}
 Qt version:                 ${QT_VERSION}
 Radio types:                ${RADIO_TYPES[@]}
-Extra build options:        ${BUILD_OPTIONS}
+Extra build options:        ${EXTRA_BUILD_OPTIONS}
 Build type:                 ${BUILD_TYPE}
 Repo owner:                 ${REPO_OWNER}
      name:                  ${REPO_NAME}
@@ -570,7 +554,7 @@ if [[ $BUILD_FIRMWARE -eq 1 ]]; then
 
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
     create_output_dir ${RADIO_TYPES[i]}
-    BUILD_RADIO_OPTIONS=$(get_radio_build_options ${RADIO_TYPES[i]})
+    get_target_build_options ${RADIO_TYPES[i]}
     prep_and_build_target arm-none-eabi firmware-size
 
     if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
@@ -582,7 +566,7 @@ fi
 if [[ $BUILD_LIBSIMS -eq 1 ]]; then
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
     create_output_dir ${RADIO_TYPES[i]}
-    BUILD_RADIO_OPTIONS=$(get_radio_build_options ${RADIO_TYPES[i]})
+    get_target_build_options ${RADIO_TYPES[i]}
     prep_and_build_target native libsimulator
   done
 fi
@@ -610,13 +594,13 @@ if [[ $BUILD_HWDEFS -ne 0 ]]; then
 
   # generate all hardware definition json files for inclusion as resources in Companion and Simulator
   for ((i = 0; i < ${#HWDEFS_RADIO_TYPES[@]}; ++i)); do
-    BUILD_RADIO_OPTIONS=$(get_radio_build_options ${HWDEFS_RADIO_TYPES[i]})
+    get_target_build_options ${RADIO_TYPES[i]}
     prep_and_build_target native hardware_defs
   done
 else
   if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
     # just use the first radio as cmake will fail without a radio
-    BUILD_RADIO_OPTIONS=$(get_radio_build_options ${RADIO_TYPES[0]})
+    get_target_build_options ${RADIO_TYPES[0]}
     prep_target native
   fi
 fi
