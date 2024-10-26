@@ -23,16 +23,20 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . ${SCRIPT_DIR}/msys2_common_32_64.sh
 
 # download latest supported radio simulators and build options
-wget -qLO https://github.com/edgetx/edgetx/raw/main/tools/build-common.sh
+wget --no-cache -q -O build-common.sh https://github.com/edgetx/edgetx/raw/main/tools/build-common.sh
 . ${SCRIPT_DIR}/build-common.sh
 
+# force lower case for comparision purposes
+simulator_plugins=${simulator_plugins[*],,}
+
 # download latest supported radio firmwares
-wget -qlO https://github.com/edgetx/edgetx/raw/main/fw.json
+wget --no-cache -q -O fw.json https://github.com/edgetx/edgetx/raw/main/fw.json
 
 declare -a supported_radios=(all)
 
 for radio_target in $(cat fw.json | jq -r '.targets[] | .[1]'); do
-  supported_radios+=(${radio_target%-})
+  # remove trailing hyphen and force lower case for comparision purposes
+  supported_radios+=(${radio_target%-,,})
 done
 
 # == Initialise variables ==
@@ -67,10 +71,9 @@ BUILD_FIRMWARE=0
 BUILD_INSTALLER=0
 BUILD_LIBSIMS=0
 BUILD_SIMULATOR=0
-BUILD_HWDEFS=0
+BUILD_HWDEFS=all
 
 declare -a HWDEFS_RADIO_TYPES=()
-
 declare -a RADIO_TYPES=()
 
 # == End initialise variables ==
@@ -115,16 +118,7 @@ function branch_version() {
 function validate_radio_types() {
 
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-  	local radio_found=0
-
-    for ((j = 0; j < ${#supported_radios[@]}; ++j)); do
-      if [[ "${RADIO_TYPES[i],,}" == "${supported_radios[j],,}" ]]; then
-        radio_found=1
-        break;
-      fi
-    done
-
-    if [[ radio_found -eq 0 ]]; then
+    if [[ ! " ${supported_radios[*]} " =~ [[:space:]]${RADIO_TYPES[i]}[[:space:]] ]]; then
       fail "Unsupported radio type: '${RADIO_TYPES[i]}'"
     fi
 	done
@@ -139,45 +133,38 @@ function validate_radio_build_options() {
 	done
 }
 
-function validate_simulator_plugins() {
+function is_libsim_supported() {
+	#	Parameters:
+	#	1 - Radio type
 
-  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-  	local sim_found=0
-
-    for ((j = 0; j < ${#simulator_plugins[@]}; ++j)); do
-      if [[ "${RADIO_TYPES[i],,}" == "${simulator_plugins[j],,}" ]]; then
-        sim_found=1
-        break;
-      fi
-    done
-
-    if [[ sim_found -eq 0 ]]; then
-      fail "Unsupported radio simulator: '${RADIO_TYPES[i]}'"
-    fi
-	done
+  [[ " ${simulator_plugins[*]} " =~ [[:space:]]${1}[[:space:]] ]] && return 0 || return 1
 }
 
-function get_all_radio_types() {
-	#	Parameters:
-	#	1 - variable to old the radio list
+function validate_libsims() {
 
-	local -a radios
+  if [ ! "${RADIO_TYPES[0]}" == "all" ]; then
+    for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+      if ! is_libsim_supported ${RADIO_TYPES[i]}; then
+        fail "Unsupported radio simulator: '${RADIO_TYPES[i]}'"
+      fi
+    done
+  fi
+}
 
-  # start at 1 to skip 'all' entry
-  for ((i = 1; i < ${#supported_radios[@]}; ++i));  do
-		IFS='|' read -ra supported_radio <<< "${supported_radios[(i)]}"
-    radio="$(trim_spaces "${supported_radio[0],,}")"
-		radios+=(${radio})
-	done
+function validate_option_hwdefs() {
 
-  eval "${1}=(${radios[@]})"
+  local valid_hwdefs=("all" "radio" "none")
+  if [[ ! " ${valid_hwdefs[*]} " =~ [[:space:]]${BUILD_HWDEFS}[[:space:]] ]]; then
+    fail "--hwdefs: '${BUILD_HWDEFS}'"
+  fi
 }
 
 function build_output_path() {
 	#	Parameters:
 	#	1 - Target
 
-  outpath="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
+  local outpath="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
+
   if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then
     outpath+="${1}";
   else
@@ -190,7 +177,7 @@ function create_output_dir() {
 	#	Parameters:
 	#	1 - Target
 
-  crpath="$(build_output_path ${1})"
+  local crpath="$(build_output_path ${1})"
 
   if [[ ! -d ${crpath} ]]; then
     run_step "Creating output directory: ${crpath}" "mkdir -p ${crpath}"
@@ -260,13 +247,10 @@ Options:
       --fetch                          refresh local source directory from github
       --firmware                       compile firmware
   -h, --help                           display help text and exit
-      --hw-defs                        generate all hardware definition json files for Companion and Simulator
-                                       Note: hardware definitions must be generated at least once
-      --hw-defs-radio-types            generate hardware definition json files for only radio-types specified in command line
-                                       Note: generating all supported radios takes a considerable amount of time
-                                             recommended to generate all at least once
+      --hwdefs <all|radios|none>       generate all hardware definition json files for Companion and Simulator (default: all)
+                                       Recommended: all hardware definitions should be generated at least once
       --installer                      build the installer
-      --libsims                        compile radio simulator dlls
+      --libsims                        compile radio library simulator(s)
   -m, --arm-toolchain-dir              fully qualified path to arm toolchain directory (default: Windows installer default folder)
       --no-append-target               do not append target (radio type|companion) to build output directory name
   -o, --output-dir <path>              relative path to root directory for build output files (default: $OUTPUT_DIR)
@@ -289,7 +273,7 @@ exit 1
 short_options=ab:ce:hm:o:pq:r:s:
 long_options="all-targets, branch:, clean, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
 extra_build-options:, build-type:, clone, companion, delete-output, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
-repo-name:, repo-owner:, simulator, hw-defs, hw-defs-radio-types"
+repo-name:, repo-owner:, simulator, hwdefs"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
 if [[ $? -gt 0 ]]; then
@@ -338,8 +322,7 @@ do
          --installer)           BUILD_INSTALLER=1                               ; shift   ;;
          --libsims)             BUILD_LIBSIMS=1                                 ; shift   ;;
          --simulator)           BUILD_SIMULATOR=1                               ; shift   ;;
-         --hw-defs-radio-types) BUILD_HWDEFS=2                                  ; shift   ;;
-         --hw-defs)             BUILD_HWDEFS=1                                  ; shift   ;;
+         --hw-defs)             BUILD_HWDEFS="${2,,}"                           ; shift 2 ;;
          --no-append-target)    OUTPUT_APPEND_TARGET=0                          ; shift   ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
@@ -366,19 +349,11 @@ if [[ ${BUILD_FIRMWARE} -eq 1 ]] && [[ ! -d "${ARM_TOOLCHAIN_DIR}" ]]; then
 fi
 
 RADIO_TYPES=($@)
-validate_radio_types
-validate_simulator_plugins
-validate_radio_build_options
 
-# option --hw-defs
-if [[ ${BUILD_HWDEFS} -eq 1 ]]; then
-    HWDEFS_RADIO_TYPES=("all")
-else
-  # option --hw-defs-radio-types
-  if [[ ${BUILD_HWDEFS} -eq 2 ]]; then
-    HWDEFS_RADIO_TYPES=(${RADIO_TYPES[@]})
-  fi
-fi
+validate_radio_types
+validate_radio_build_options
+validate_libsims
+validate_option_hwdefs
 
 SOURCE_PATH="${ROOT_DIR}/${SOURCE_DIR}"
 OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
@@ -406,22 +381,22 @@ if [[ ! -d "$QT_PATH" ]]; then
   fail "Unable to find Qt install directory $QT_PATH"
 fi
 
-unset archdir
+unset ARCHDIR
 
 for d in $QT_PATH/*; do
   dirname="$(basename $d)"
 
   if [[ "${dirname}" == *_${MSYSTEM:(-2)} ]];then
-    archdir="${dirname}"
+    ARCHDIR="${dirname}"
     break
   fi
 done
 
-if [[ -z "$archdir" ]]; then
+if [[ -z "$ARCHDIR" ]]; then
   fail "Unable to find suitable Qt architecture directory in $QT_PATH for $MSYSTEM"
 fi
 
-QT_PATH+="/${archdir}"
+QT_PATH+="/${ARCHDIR}"
 
 # this should never be true but included as a script logic safeguard
 if [[ ! -d "$QT_PATH" ]]; then
@@ -478,7 +453,7 @@ Options:
   Build installer:          $(bool_to_text ${BUILD_INSTALLER})
   Build libsims:            $(bool_to_text ${BUILD_LIBSIMS})
   Build Simulator:          $(bool_to_text ${BUILD_SIMULATOR})
-  Generate hardware defns:  $(bool_to_text ${BUILD_HWDEFS}) : ${HWDEFS_RADIO_TYPES[@]}
+  Generate hardware defns:  $(bool_to_text ${BUILD_HWDEFS})
   Pause after each step:    $(bool_to_text ${STEP_PAUSE})
 EOF
 
@@ -486,12 +461,14 @@ read -p "Press Enter key to continue or Ctrl+C to abort"
 
 ## ============== Execute ==============
 
-if [[ ${RADIO_TYPES,,} == "all" ]]; then
-  get_all_radio_types RADIO_TYPES
+if [ "${RADIO_TYPES[0]}" == "all" ]; then
+  # omit the 'all' validation entry
+  RADIO_TYPES=("${supported_radios[@]:1}")
 fi
 
-if [[ ${HWDEFS_RADIO_TYPES,,} == "all" ]]; then
-  get_all_radio_types HWDEFS_RADIO_TYPES
+if [ "${BUILD_HWDEFS}" == "all" ]; then
+  # omit the 'all' validation entry
+  HWDEFS_RADIO_TYPES=("${supported_radios[@]:1}")
 fi
 
 if [[ $REPO_CLONE -eq 1 ]] && [[ -d ${SOURCE_PATH} ]]; then
@@ -565,44 +542,58 @@ fi
 
 if [[ $BUILD_LIBSIMS -eq 1 ]]; then
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-    create_output_dir ${RADIO_TYPES[i]}
-    get_target_build_options ${RADIO_TYPES[i]}
-    prep_and_build_target native libsimulator
+    # not all radios may have libsim support when radio type 'all'
+    if is_libsim_supported ${RADIO_TYPES[i]}; then
+      create_output_dir ${RADIO_TYPES[i]}
+      get_target_build_options ${RADIO_TYPES[i]}
+      prep_and_build_target native libsimulator
+    fi
   done
 fi
 
-if [[ $BUILD_HWDEFS -ne 0 ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
   create_output_dir ${CPN_FLDR}
 fi
 
-if [[ $BUILD_HWDEFS -ne 0 ]]; then
-  new_step "Removing previous hw defs"
+if [ "${BUILD_HWDEFS}" == "all" ]; then
+  new_step "Removing existing radio hardware definitions"
   # clean up from previous runs to force regeneration
 	radiodir="$(build_output_path ${CPN_FLDR})/native/radio/src"
 	if [ -d ${radiodir} ]; then
 		rm -f ${radiodir}/*.json*
 	fi
+	unset radiodir
+  end_step 0 "Removing existing radio hardware definitions"
+fi
 
-	# forces cmake to rebuild from latest set of json files
+if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_LIBSIMS -eq 1 ]]; then
+  new_step "Clean Companion hardware definitions resource"
+	# forces cmake to rebuild resource from latest set of json files
 	cpndir="$(build_output_path ${CPN_FLDR})/native/companion/src"
 	if [ -d ${cpndir} ]; then
 		rm -f ${cpndir}/hwdefs.qrc*
 		rm -f ${cpndir}/qrc_hwdefs.cpp*
 	fi
+	unset cpndir
+  end_step 0 "Clean Companion hardware definitions resource"
+fi
 
-  end_step 0 "Removing previous hw defs"
-
-  # generate all hardware definition json files for inclusion as resources in Companion and Simulator
+# libsimulator target generates its radio hardware definition so no need to double up
+if [[ $BUILD_LIBSIMS -eq 0 ]] && [[ ! "${BUILD_HWDEFS}" == "none" ]]; then
+  new_step "Generate radio hardware definitions"
+  # generate hardware definition json files for inclusion as resources in Companion and Simulator
   for ((i = 0; i < ${#HWDEFS_RADIO_TYPES[@]}; ++i)); do
     get_target_build_options ${RADIO_TYPES[i]}
     prep_and_build_target native hardware_defs
   done
-else
-  if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
-    # just use the first radio as cmake will fail without a radio
-    get_target_build_options ${RADIO_TYPES[0]}
-    prep_target native
-  fi
+
+  end_step 0 "Generate radio hardware definitions"
+fi
+
+if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+  # use the first radio as cmake will fail without a radio
+  get_target_build_options ${RADIO_TYPES[0]}
+  prep_target native
 fi
 
 if [[ $BUILD_COMPANION -eq 1 ]]; then build_target native companion; fi
