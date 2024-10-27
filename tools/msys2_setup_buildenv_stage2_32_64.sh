@@ -72,11 +72,13 @@ do
     -h | --help)                  usage                               ; shift   ;;
          --no-arm-installer)      ARM_INST=0                          ; shift   ;;
          --no-install-arm)        INSTALL_ARM=0                       ; shift   ;;
-         --no-arm)                ARM_INST=0; INSTALL_ARM=0           ; shift   ;;
+         --no-arm)                ARM_INST=0                          ;
+                                  INSTALL_ARM=0                       ; shift   ;;
          --no-install-packages)   INSTALL_PACKAGES=0                  ; shift   ;;
          --no-qt-installer)       QT_INST=0                           ; shift   ;;
          --no-qt-bins)            QT_BINS=0                           ; shift   ;;
-         --no-qt)                 QT_INST=0; QT_BINS=0                ; shift   ;;
+         --no-qt)                 QT_INST=0                           ;
+                                  QT_BINS=0                           ; shift   ;;
     -p | --pause)                 STEP_PAUSE=1                        ; shift   ;;
     -q | --qt-version)            QT_VERSION="${2}"                   ; shift 2 ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
