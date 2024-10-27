@@ -2,6 +2,8 @@
 
 # exit on first error
 set -e
+# echo
+# set -x
 
 ## Bash script to show how to get EdgeTX source from GitHub,
 ## how to build firmware, Companion, Simulator, radio simulator
@@ -23,21 +25,25 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . ${SCRIPT_DIR}/msys2_common_32_64.sh
 
 # download latest supported radio simulators and build options
-wget --no-cache -q -O build-common.sh https://github.com/edgetx/edgetx/raw/main/tools/build-common.sh
+wget --no-cache -q -O ${SCRIPT_DIR}/build-common.sh https://github.com/edgetx/edgetx/raw/main/tools/build-common.sh
 . ${SCRIPT_DIR}/build-common.sh
 
-# force lower case for comparision purposes
-simulator_plugins=${simulator_plugins[*],,}
+# echo ${simulator_plugins[*]}
 
 # download latest supported radio firmwares
-wget --no-cache -q -O fw.json https://github.com/edgetx/edgetx/raw/main/fw.json
+wget --no-cache -q -O ${SCRIPT_DIR}/fw.json https://github.com/edgetx/edgetx/raw/main/fw.json
 
 declare -a supported_radios=(all)
 
+declare -l radio
+
 for radio_target in $(cat fw.json | jq -r '.targets[] | .[1]'); do
-  # remove trailing hyphen and force lower case for comparision purposes
-  supported_radios+=(${radio_target%-,,})
+  # remove trailing hyphen to end of string
+  radio=${radio_target%-*}
+  supported_radios+=("${radio}")
 done
+
+# echo ${supported_radios[*]}
 
 # == Initialise variables ==
 
@@ -72,7 +78,8 @@ BUILD_INSTALLER=0
 BUILD_LIBSIMS=0
 BUILD_SIMULATOR=0
 BUILD_HWDEFS=all
-
+RADIO_TYPES_VALIDATION=1
+LIBSIMS_VALIDATION=1
 declare -a HWDEFS_RADIO_TYPES=()
 declare -a RADIO_TYPES=()
 
@@ -117,11 +124,13 @@ function branch_version() {
 
 function validate_radio_types() {
 
-  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-    if [[ ! " ${supported_radios[*]} " =~ [[:space:]]${RADIO_TYPES[i]}[[:space:]] ]]; then
-      fail "Unsupported radio type: '${RADIO_TYPES[i]}'"
-    fi
-	done
+  if [[ $RADIO_TYPES_VALIDATION -eq 1 ]]; then
+    for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+      if [[ ! " ${supported_radios[*]} " =~ [[:space:]]${RADIO_TYPES[i]}[[:space:]] ]]; then
+        fail "Unsupported radio type: '${RADIO_TYPES[i]}'"
+      fi
+    done
+  fi
 }
 
 function validate_radio_build_options() {
@@ -142,18 +151,20 @@ function is_libsim_supported() {
 
 function validate_libsims() {
 
-  if [ ! "${RADIO_TYPES[0]}" == "all" ]; then
-    for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-      if ! is_libsim_supported ${RADIO_TYPES[i]}; then
-        fail "Unsupported radio simulator: '${RADIO_TYPES[i]}'"
-      fi
-    done
+  if [[ $LIBSIMS_VALIDATION -eq 1 ]]; then
+    if [ ! "${RADIO_TYPES[0]}" == "all" ]; then
+      for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+        if ! is_libsim_supported ${RADIO_TYPES[i]}; then
+          fail "Unsupported radio simulator: '${RADIO_TYPES[i]}'"
+        fi
+      done
+    fi
   fi
 }
 
 function validate_option_hwdefs() {
 
-  local valid_hwdefs=("all" "radio" "none")
+  local valid_hwdefs=("all" "radios" "none")
   if [[ ! " ${valid_hwdefs[*]} " =~ [[:space:]]${BUILD_HWDEFS}[[:space:]] ]]; then
     fail "--hwdefs: '${BUILD_HWDEFS}'"
   fi
@@ -263,6 +274,8 @@ Options:
   -r, --root-dir <path>                base path for files (default: $ROOT_DIR)
   -s, --source-dir <path>              relative path to root directory for source files (default: $SOURCE_DIR)
       --simulator                      compile Simulator
+      --no-rt-check                    do not validate radio type(s) against fw.json
+      --no-libsim-check                do not validate radio type(s) against simulator_plugins
 EOF
 exit 1
 }
@@ -273,7 +286,7 @@ exit 1
 short_options=ab:ce:hm:o:pq:r:s:
 long_options="all-targets, branch:, clean, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
 extra_build-options:, build-type:, clone, companion, delete-output, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
-repo-name:, repo-owner:, simulator, hwdefs"
+repo-name:, repo-owner:, simulator, hwdefs:, no-rt-check, no-libsim-check"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
 if [[ $? -gt 0 ]]; then
@@ -296,8 +309,7 @@ do
                                 BUILD_COMPANION=1
                                 BUILD_SIMULATOR=1
                                 BUILD_LIBSIMS=1
-                                BUILD_INSTALLER=1
-                                BUILD_HWDEFS=1                                  ; shift   ;;
+                                BUILD_INSTALLER=1                               ; shift   ;;
 		-b | --branch)	            BRANCH_NAME="${2}"                              ; shift 2 ;;
 		-e | --edgetx-version)	    EDGETX_VERSION="${2}"
                                 QT_VERSION="$(get_qt_version ${2})"             ; shift 2 ;;
@@ -322,8 +334,10 @@ do
          --installer)           BUILD_INSTALLER=1                               ; shift   ;;
          --libsims)             BUILD_LIBSIMS=1                                 ; shift   ;;
          --simulator)           BUILD_SIMULATOR=1                               ; shift   ;;
-         --hw-defs)             BUILD_HWDEFS="${2,,}"                           ; shift 2 ;;
+         --hwdefs)              BUILD_HWDEFS="${2,,}"                           ; shift 2 ;;
          --no-append-target)    OUTPUT_APPEND_TARGET=0                          ; shift   ;;
+         --no-rt-check)         RADIO_TYPES_VALIDATION=0                        ; shift   ;;
+         --no-libsim-check)     LIBSIMS_VALIDATION=0                            ; shift   ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
     *) >&2 echo Unsupported option: $1
@@ -419,12 +433,6 @@ else
   fi
 fi
 
-if [[ $OUTPUT_DELETE -eq 1 ]]; then
-  if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
-    BUILD_HWDEFS=1
-  fi
-fi
-
 # Display confirmation message with option to exit
 
 cat << EOF
@@ -453,8 +461,10 @@ Options:
   Build installer:          $(bool_to_text ${BUILD_INSTALLER})
   Build libsims:            $(bool_to_text ${BUILD_LIBSIMS})
   Build Simulator:          $(bool_to_text ${BUILD_SIMULATOR})
-  Generate hardware defns:  $(bool_to_text ${BUILD_HWDEFS})
+  Generate hardware defns:  ${BUILD_HWDEFS}
   Pause after each step:    $(bool_to_text ${STEP_PAUSE})
+  Radio types check:        $(bool_to_text ${RADIO_TYPES_VALIDATION})
+  Libsims check:            $(bool_to_text ${LIBSIMS_VALIDATION})
 EOF
 
 read -p "Press Enter key to continue or Ctrl+C to abort"
@@ -469,6 +479,8 @@ fi
 if [ "${BUILD_HWDEFS}" == "all" ]; then
   # omit the 'all' validation entry
   HWDEFS_RADIO_TYPES=("${supported_radios[@]:1}")
+else if [ "${BUILD_HWDEFS}" == "radios" ]; then
+  HWDEFS_RADIO_TYPES=("${RADIO_TYPES[@]}")
 fi
 
 if [[ $REPO_CLONE -eq 1 ]] && [[ -d ${SOURCE_PATH} ]]; then
