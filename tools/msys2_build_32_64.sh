@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # exit on first error
-set -e
+# set -e
 # echo
 # set -x
 
@@ -240,33 +240,32 @@ Parser command options.
 
 Options:
   -a, --all                       companion, firmware(s), all hwdefs, installer, libsim(s) and simulator
-  -b, --branch <branch>           git branch use (default: $BRANCH_NAME)
-      --build-opts "<options>"    eg "-DTRANSLATIONS=DE"
-                                  Note: in addition to default radio-type build options
-      --build-type <type>         cmake build type (default: $BUILD_TYPE)
-  -c, --clean                     delete local repo and output directory (default: $(bool_to_text $REPO_CLEAN))
-      --clone                     force clone the repo from github even if exists locally (default: $(bool_to_text $REPO_CLONE))
-      --companion                 compile Companion (default: $(bool_to_text $BUILD_COMPANION))
-      --delete-output             delete existing output directories before building (default: $(bool_to_text $OUTPUT_DELETE))
-  -d, --defs <radios|all|none>    generate hardware definition files for Companion and Simulator (default: $BUILD_HWDEFS)
-  -e, --edgetx-version <version>  sets the version of Qt to compile against (default: $EDGETX_VERSION)
-      --fetch                     refresh local source directory from github
-      --firmware                  compile firmware (default: $(bool_to_text $BUILD_FIRMWARE))
+  -b, --branch <branch>           git branch to use (default: main)
+      --build-opts "<options>"    in addition to default radio-type build options eg "-DTRANSLATIONS=DE"
+      --build-type <type>         cmake build type (default: Release)
+  -c, --clean-all                 delete local repo and output directory (default: false))
+      --clean-output              delete existing output directories before building (default: false))
+      --clone                     force clone the repo from github even if exists locally (default: false)
+      --companion                 build Companion (default: false)
+  -d, --defs <radios|all|none>    generate hardware definition files for Companion and Simulator (default: radios)
+  -e, --edgetx-version <version>  sets the version of Qt to compile against (default: ${supported_edgetx_versions[0]})
+      --fetch                     refresh local source directory from github (default: false)
+      --firmware                  build firmware (default: false)
   -h, --help                      display help text and exit
-      --installer                 build the installer (default: $(bool_to_text $BUILD_INSTALLER))
-      --libsims                   compile radio library simulator(s) (default: $(bool_to_text $BUILD_LIBSIMS))
+      --installer                 build the installer (default: false)
+      --libsims                   build radio library simulator(s) (default: false)
   -m, --arm-toolchain-dir         fully qualified path to arm toolchain directory (default: Windows installer default folder)
       --no-append-target          do not append target (radio-type|companion) to build output directory name
-  -o, --output-dir <path>         relative path to root directory for build output files (default: $OUTPUT_DIR)
-                                  Note: radio type will be appended unless --no-append-radio
-  -p, --pause                     pause after each command (default: $(bool_to_text $STEP_PAUSE))
-  -q, --qt-root-dir <path>        base path for qt install files (default: $QT_ROOT_DIR)
-      --qt-version <version>      overide the version of Qt to compile against (default: $QT_VERSION)
-      --repo-name <name>          github repo name (default: $REPO_NAME)
-      --repo-owner <owner>        github repo owner. This allows using forks of $REPO_NAME (default: $REPO_OWNER}
-  -r, --root-dir <path>           base path for files (default: $ROOT_DIR)
-  -s, --source-dir <path>         relative path to root directory for source files (default: $SOURCE_DIR)
-      --simulator                 compile Simulator (default: $(bool_to_text $BUILD_SIMULATOR))
+  -o, --output-dir <path>         relative path to root directory for build output files (default: EdgeTX/edgetx/build-<target>)
+                                  Note: radio-type or companion will be appended unless --no-append-target
+  -p, --pause                     pause after each command (default: false)
+  -q, --qt-root-dir <path>        base path for qt install files (default: ${HOME}/qt)
+      --qt-version <version>      overide the version of Qt to compile against (default: ${supported_qt_versions[0]})
+      --repo-name <name>          github repo name (default: edgetx). This allows using forks of EdgeTX.
+      --repo-owner <owner>        github repo owner. This allows using forks of EdgeTX (default: EdgeTX}
+  -r, --root-dir <path>           base path for files (default: ${HOME})
+  -s, --source-dir <path>         relative path to root directory for source files (default: EdgeTX/edgetx)
+      --simulator                 build Simulator (default: false)
       --no-rt-check               do not validate radio type(s) for when not yet formally supported
 EOF
 exit 1
@@ -276,8 +275,9 @@ exit 1
 
 # == Parse the command line ==
 short_options=ab:cd:e:hm:o:pq:r:s:
-long_options="all, branch:, clean, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
-build-options:, build-type:, clone, companion, delete-output, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
+
+long_options="all, branch:, clean-all, clean-output, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
+build-options:, build-type:, clone, companion, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
 repo-name:, repo-owner:, simulator, defs:, no-rt-check"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
@@ -295,8 +295,6 @@ fi
 while true
 do
 	case $1 in
-    -c | --clean)               OUTPUT_DELETE=1
-                                REPO_CLONE=1                                    ; shift   ;;
     -a | --all)                 BUILD_FIRMWARE=1
                                 BUILD_COMPANION=1
                                 BUILD_SIMULATOR=1
@@ -304,6 +302,9 @@ do
                                 BUILD_INSTALLER=1
                                 BUILD_HWDEFS=all                                ; shift   ;;
 		-b | --branch)	            BRANCH_NAME="${2}"                              ; shift 2 ;;
+    -c | --clean-all)           OUTPUT_DELETE=1
+                                REPO_CLONE=1                                    ; shift   ;;
+         --clean-output)        OUTPUT_DELETE=1                                 ; shift   ;;
     -d | --defs)                BUILD_HWDEFS="${2}"                             ; shift 2 ;;
 		-e | --edgetx-version)	    EDGETX_VERSION="${2}"
                                 QT_VERSION="$(get_qt_version ${2})"             ; shift 2 ;;
@@ -318,7 +319,6 @@ do
 		-s | --source-dir)          SOURCE_DIR="${2}"
                                 OUTPUT_DIR="${2}"                               ; shift 2 ;;
 		-o | --output-dir)          OUTPUT_DIR="${2}"                               ; shift 2 ;;
-         --delete-output)       OUTPUT_DELETE=1                                 ; shift   ;;
 		     --build-options)       EXTRA_BUILD_OPTIONS="${2}"                      ; shift 2 ;;
 		     --build-type)          BUILD_TYPE="${2}"                               ; shift 2 ;;
          --clone)               REPO_CLONE=1                                    ; shift   ;;
@@ -329,7 +329,7 @@ do
          --libsims)             BUILD_LIBSIMS=1                                 ; shift   ;;
          --simulator)           BUILD_SIMULATOR=1                               ; shift   ;;
          --no-append-target)    OUTPUT_APPEND_TARGET=0                          ; shift   ;;
-         --no-rt-check)         VALIDATE_RADIO_TYPES=0                        ; shift   ;;
+         --no-rt-check)         VALIDATE_RADIO_TYPES=0                          ; shift   ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
     *) >&2 echo Unsupported option: $1
@@ -470,7 +470,7 @@ fi
 if [ "${BUILD_HWDEFS}" == "all" ]; then
   # omit the 'all' validation entry
   HWDEFS_RADIO_TYPES=("${supported_radios[@]:1}")
-else if [ "${BUILD_HWDEFS}" == "radios" ]; then
+elif [ "${BUILD_HWDEFS}" == "radios" ]; then
   HWDEFS_RADIO_TYPES=("${RADIO_TYPES[@]}")
 fi
 
