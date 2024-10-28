@@ -493,7 +493,7 @@ if [[ $OUTPUT_DELETE -eq 1 ]]; then
       delete_output_dir ${CPN_FLDR}
     fi
   fi
-  end_step 0 "Deleting old build outputs"
+  end_step 0
 fi
 
 # github source
@@ -524,7 +524,7 @@ if [[ $REPO_CLONE -eq 1 ]] || [[ $REPO_FETCH -eq 1 ]]; then
     read
   fi
 
-  end_step 0 "Checking required Qt version for branch"
+  end_step 0
 fi
 
 # builds
@@ -566,7 +566,7 @@ if [ "${BUILD_HWDEFS}" == "all" ]; then
 		rm -f ${radiodir}/*.json*
 	fi
 	unset radiodir
-  end_step 0 "Removing existing radio hardware definitions"
+  end_step 0
 fi
 
 if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_LIBSIMS -eq 1 ]]; then
@@ -578,7 +578,7 @@ if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_LIBSIMS -eq 1 ]]; then
 		rm -f ${cpndir}/qrc_hwdefs.cpp*
 	fi
 	unset cpndir
-  end_step 0 "Clean Companion hardware definitions resource"
+  end_step 0
 fi
 
 # libsimulator target generates its radio hardware definition so no need to double up
@@ -590,7 +590,7 @@ if [[ $BUILD_LIBSIMS -eq 0 ]] && [[ ! "${BUILD_HWDEFS}" == "none" ]]; then
     prep_and_build_target native hardware_defs
   done
 
-  end_step 0 "Generate radio hardware definitions"
+  end_step 0
 fi
 
 if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then

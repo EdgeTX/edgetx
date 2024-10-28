@@ -12,8 +12,10 @@ EDGETX_VERSION="${supported_edgetx_versions[0]}"
 QT_VERSION="${supported_qt_versions[0]}"
 STEP_PAUSE=0
 STEP=0
+STEP_MSG=""
 
 function log() {
+  echo ""
   echo "=== [INFO] $*"
 }
 
@@ -24,6 +26,7 @@ function fail() {
 }
 
 function warn() {
+  echo ""
   echo "=== [WARNING] $*"
 }
 
@@ -33,10 +36,10 @@ function check_command() {
   # 2 - Message
 
   local result=$1
-  local cli_info=$2
+  local msg=$( [ ! -z "${2}" ] && echo "${2}" || echo "${STEP_MSG}" )
 
   if [[ $result -ne 0 ]]; then
-    fail "${cli_info} (exit-code=$result)"
+    fail "${msg} (exit-code=$result)"
   else
     log "Step $STEP: Finished - OK"
 
@@ -52,7 +55,9 @@ function check_command() {
 function new_step() {
 	#	Parameters:
 	#	1 - Message
-  log "Step $((++STEP)): ${1}"
+
+	STEP_MSG="${1}"
+  log "Step $((++STEP)): ${STEP_MSG}"
 }
 
 function end_step() {
@@ -77,11 +82,7 @@ function bool_to_text() {
 	#	Parameters:
 	#	1 - boolean
 
-  if [[ $1 -eq 0 ]]; then
-    echo "No"
-  else
-    echo "Yes"
-  fi
+  [[ $1 -eq 0 ]] && echo "No" || echo "Yes"
 }
 
 function trim_spaces() {
@@ -100,10 +101,12 @@ function check_qt_arch_support() {
 }
 
 function get_qt_version() {
+	# For a supplied EdgeTX version return the associated Qt version
+
 	#	Parameters:
 	#	1 - EdgeTX version
 
-  # Return dependent Qt version
+  # Return Qt version
 
   local etxarr
   local supparr
@@ -143,9 +146,9 @@ function split_version() {
   eval "vers=\${$1}"
   IFS='.' read -ra arr <<< "${vers}"
 
-  if [[ ${#arr[@]} -gt 0 ]]; then eval "${1}_MAJOR=${arr[0]}"; fi
-  if [[ ${#arr[@]} -gt 1 ]]; then eval "${1}_MINOR=${arr[1]}"; fi
-  if [[ ${#arr[@]} -gt 2 ]]; then eval "${1}_PATCH=${arr[2]}"; else eval "${1}_PATCH=0"; fi
+  [[ ${#arr[@]} -gt 0 ]] && eval "${1}_MAJOR=${arr[0]}"
+  [[ ${#arr[@]} -gt 1 ]] && eval "${1}_MINOR=${arr[1]}"
+  [[ ${#arr[@]} -gt 2 ]] && eval "${1}_PATCH=${arr[2]}" || eval "${1}_PATCH=0"
 }
 
 function validate_version() {

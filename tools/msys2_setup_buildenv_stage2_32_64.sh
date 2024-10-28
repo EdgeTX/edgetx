@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
-set -e
+# exit on first error
+# set -e
 
 ## Bash script to setup EdgeTX development environment second stage.
 
@@ -57,9 +58,7 @@ short_options=d:,e:,h,p,q:
 long_options="download-dir:, edgetx-version:, help, no-arm, no-arm-installer, no-install-arm, no-install-packages, no-qt, no-qt-installer, no-qt-bins, pause, qt-version:"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
-if [[ $? -gt 0 ]]; then
-  usage
-fi
+[[ $? -gt 0 ]] && usage
 
 eval set -- ${args}
 
@@ -106,6 +105,9 @@ check_qt_arch_support
 clear
 
 cat << EOF
+
+Setup MSYS2 Build Environment for EdgeTX 32 and 64 bit - Stage 2
+
 Executing with the following options:
   EdgeTX version:          ${EDGETX_VERSION}
   Qt version:              ${QT_VERSION}
