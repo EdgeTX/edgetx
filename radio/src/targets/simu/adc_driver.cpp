@@ -43,10 +43,13 @@ static bool simu_start_conversion()
 
   // set VBAT / RTC_BAT
   if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
+#if defined(VBAT_MOSFET_DROP)
+    uint32_t vbat = (2 * (BATTERY_MAX + BATTERY_MIN) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1;
+#elif defined(BATT_SCALE)
     uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
-#if defined(BATT_SCALE)
     vbat = ((vbat - VOLTAGE_DROP) * BATTERY_DIVIDER) / (BATT_SCALE * 128);
 #else
+    uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
     vbat = (vbat * BATTERY_DIVIDER) / 1000;
 #endif
     setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat * 2);
