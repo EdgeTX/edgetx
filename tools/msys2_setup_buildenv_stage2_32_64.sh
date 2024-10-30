@@ -13,7 +13,9 @@ if [[ "$MSYSTEM" == "MSYS" ]]; then
 fi
 
 # == Include common variables and functions ==
-source msys2_common_32_64.sh
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+source ${SCRIPT_DIR}/msys2_common_32_64.sh
 
 # == Initialise variables ==
 INSTALL_PACKAGES=1
