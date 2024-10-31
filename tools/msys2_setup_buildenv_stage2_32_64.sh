@@ -51,6 +51,7 @@ Options:
   -q, --qt-version <version>       version of Qt to install (default: ${QT_VERSION})
                                    Note: Overrides EdgeTX dependent version. Allows installing multiple versions.
 EOF
+
 exit 1
 }
 

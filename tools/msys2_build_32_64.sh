@@ -35,6 +35,9 @@ BRANCH_EDGETX_VERSION=unknown
 BRANCH_QT_VERSION=unknown
 
 LOCAL_CONFIG=0
+CONFIG_COMMON="build-common.sh"
+CONFIG_FIRMWARES="fw.json"
+
 ARM_TOOLCHAIN_DIR="/c/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major/bin"
 QT_ROOT_DIR="${HOME}/qt"
 ROOT_DIR="${HOME}"
@@ -100,6 +103,43 @@ function branch_version_revision() {
 
 function branch_version() {
 	echo "$(branch_version_major).$(branch_version_minor).$(branch_version_revision)"
+}
+
+function download_file() {
+
+	# Usage:
+	# download_file [options] sourcefile
+
+	#	Options:
+	#	-sd - source directory relative to repo root
+	#	-df - destination file name if not same as source filename
+	# -dd - destination directory if not current script directory
+	# -b  - branch if not main
+
+	local srcfile
+	local srcdir
+	local destfile
+	local destdir="${SCRIPT_DIR}"
+	local branch=main
+
+  while [[ -n $1 ]]; do
+    case $1 in
+      -sf) shift ; srcfile=${1}  ;;
+      -sd) shift ; srcdir=${1}   ;;
+      -df) shift ; destfile=${1} ;;
+      -dd) shift ; destdir=${1}  ;;
+      -b)  shift ; branch=${1}   ;;
+      *)           srcfile=${1}  ;;
+    esac
+    shift
+  done
+
+	[[ -z "${srcfile}" ]] && fail "Sourcefile parameter not supplied"
+	srcdir=$([ ! -z "${srcdir}" ] && echo "${srcdir}/")
+	destfile=$([ -z "${destfile}" ] && echo "${srcfile}")
+
+  wget --no-cache -q -O ${destdir}/${destfile} https://github.com/${REPO_OWNER}/${REPO_NAME}/raw/${branch}/${srcdir}${srcfile}
+  [[ $? -gt 0 ]] && fail "Unable to download ${branch}/${srcdir}${srcfile} from ${REPO_OWNER}/${REPO_NAME}"
 }
 
 function validate_radio_types() {
@@ -240,7 +280,7 @@ Options:
   -h, --help                      display help text and exit
   -i, --installer                 build the installer (default: false)
   -l, --libsims                   build radio library simulator(s) (default: false)
-      --local-config              use local build-common.sh and fw.json files (default: download latest from repo)
+      --local-config              use local ${CONFIG_COMMON} and ${CONFIG_FIRMWARES} files (default: download latest from repo)
   -m, --arm-toolchain-dir         fully qualified path to arm toolchain directory (default: Windows installer default folder)
       --no-append-target          do not append target (radio-type|companion) to build output directory name
   -o, --output-dir <path>         relative path to root directory for build output files (default: EdgeTX/edgetx/build-<target>)
@@ -324,21 +364,21 @@ done
 
 # == End parse command line =="
 
-# load configuration files
+# download latest files from repo unless using custom versions
 if [[ ${LOCAL_CONFIG} -eq 0 ]]; then
-  # download latest supported radio simulators and build options
-  wget --no-cache -q -O ${SCRIPT_DIR}/build-common.sh - https://github.com/edgetx/edgetx/raw/main/tools/build-common.sh
-
-  # download latest supported radio firmwares
-  wget --no-cache -q -O ${SCRIPT_DIR}/fw.json https://github.com/edgetx/edgetx/raw/main/fw.json
+  # supported radio simulators and build options
+  download_file -sd tools "${CONFIG_COMMON}"
+  # supported radio firmwares
+  download_file "${CONFIG_FIRMWARES}"
 fi
 
-[ ! -f ${SCRIPT_DIR}/build-common.sh ] && fail "${SCRIPT_DIR}/build-common.sh not found"
-source ${SCRIPT_DIR}/build-common.sh
+# load downloaded or local configuration files
+[ ! -f ${SCRIPT_DIR}/${CONFIG_COMMON} ] && fail "${SCRIPT_DIR}/${CONFIG_COMMON} not found"
+source ${SCRIPT_DIR}/${CONFIG_COMMON}
 
-[ ! -f ${SCRIPT_DIR}/fw.json ] && fail "${SCRIPT_DIR}/fw.json not found"
+[ ! -f ${SCRIPT_DIR}/${CONFIG_FIRMWARES} ] && fail "${SCRIPT_DIR}/${CONFIG_FIRMWARES} not found"
 
-for radio_target in $(cat fw.json | jq -r '.targets[] | .[1]'); do
+for radio_target in $(cat ${SCRIPT_DIR}/${CONFIG_FIRMWARES} | jq -r '.targets[] | .[1]'); do
   # remove trailing hyphen to end of string
   supported_radios+=("${radio_target%-*}")
 done
