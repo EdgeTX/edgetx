@@ -24,22 +24,6 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # == Include common variables and functions ==
 source ${SCRIPT_DIR}/msys2_common_32_64.sh
 
-# download latest supported radio simulators and build options
-source <(wget --no-cache -qO - https://github.com/edgetx/edgetx/raw/main/tools/build-common.sh)
-
-# download latest supported radio firmwares
-wget --no-cache -q -O ${SCRIPT_DIR}/fw.json https://github.com/edgetx/edgetx/raw/main/fw.json
-
-# 'all' is required for validation
-declare -a supported_radios=(all)
-
-for radio_target in $(cat fw.json | jq -r '.targets[] | .[1]'); do
-  # remove trailing hyphen to end of string
-  supported_radios+=("${radio_target%-*}")
-done
-
-# echo ${supported_radios[*]}
-
 # == Initialise variables ==
 
 REPO_OWNER="EdgeTX"
@@ -50,11 +34,11 @@ BRANCH_NAME="main"
 BRANCH_EDGETX_VERSION=unknown
 BRANCH_QT_VERSION=unknown
 
+LOCAL_CONFIG=0
 ARM_TOOLCHAIN_DIR="/c/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major/bin"
 QT_ROOT_DIR="${HOME}/qt"
 ROOT_DIR="${HOME}"
 SOURCE_DIR="${REPO_OWNER}/${REPO_NAME}"
-
 OUTPUT_DIR_PREFIX="build-"
 OUTPUT_TARGET_PLACEHOLDER="<target>"
 OUTPUT_DIR="${SOURCE_DIR}"
@@ -72,10 +56,12 @@ BUILD_FIRMWARE=0
 BUILD_INSTALLER=0
 BUILD_LIBSIMS=0
 BUILD_SIMULATOR=0
-VALIDATE_RADIO_TYPES=1
-declare -l BUILD_HWDEFS=radios
+
+# 'all' is required for validation
+declare -a supported_radios=(all)
 declare -a HWDEFS_RADIO_TYPES=()
 declare -a RADIO_TYPES=()
+declare -l BUILD_HWDEFS=radios
 
 # == End initialise variables ==
 
@@ -118,13 +104,11 @@ function branch_version() {
 
 function validate_radio_types() {
 
-  if [[ $VALIDATE_RADIO_TYPES -eq 1 ]]; then
-    for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-      if [[ ! " ${supported_radios[*]} " =~ [[:space:]]${RADIO_TYPES[i]}[[:space:]] ]]; then
-        fail "Unsupported radio type: '${RADIO_TYPES[i]}'"
-      fi
-    done
-  fi
+  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+    if [[ ! " ${supported_radios[*]} " =~ [[:space:]]${RADIO_TYPES[i]}[[:space:]] ]]; then
+      fail "Unsupported radio type: '${RADIO_TYPES[i]}'"
+    fi
+  done
 }
 
 function validate_radio_build_options() {
@@ -145,14 +129,12 @@ function is_libsim_supported() {
 
 function validate_libsims() {
 
-  if [[ $VALIDATE_RADIO_TYPES -eq 1 ]]; then
-    if [ ! "${RADIO_TYPES[0]}" == "all" ]; then
-      for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-        if ! is_libsim_supported ${RADIO_TYPES[i]}; then
-          fail "Unsupported radio simulator: '${RADIO_TYPES[i]}'"
-        fi
-      done
-    fi
+  if [ ! "${RADIO_TYPES[0]}" == "all" ]; then
+    for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+      if ! is_libsim_supported ${RADIO_TYPES[i]}; then
+        fail "Unsupported radio simulator: '${RADIO_TYPES[i]}'"
+      fi
+    done
   fi
 }
 
@@ -170,11 +152,7 @@ function build_output_path() {
 
   local outpath="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
 
-  if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then
-    outpath+="${1}";
-  else
-    outpath+="output";
-  fi
+  [[ $OUTPUT_APPEND_TARGET -eq 1 ]] && outpath+="${1}" || outpath+="output"
   echo ${outpath}
 }
 
@@ -184,9 +162,7 @@ function create_output_dir() {
 
   local crpath="$(build_output_path ${1})"
 
-  if [[ ! -d ${crpath} ]]; then
-    run_step "Creating output directory: ${crpath}" "mkdir -p ${crpath}"
-  fi
+  [ ! -d ${crpath} ] && run_step "Creating output directory: ${crpath}" "mkdir -p ${crpath}"
 
   run_step "Switching to output directory" "cd ${crpath}"
 }
@@ -231,8 +207,18 @@ function prep_and_build_target() {
 }
 
 function usage() {
->&2 cat << EOF
+	#	Parameters:
+  # 1 - message
 
+  if [ ! -z ${1} ]; then
+>&2 cat << EOF
+""
+"${1}"
+""
+EOF
+  fi
+
+>&2 cat << EOF
 Usage:
   $(basename $0) [options] [all|<radio-type> <radio-type> ...]
 
@@ -243,17 +229,18 @@ Options:
   -b, --branch <branch>           git branch to use (default: main)
       --build-opts "<options>"    in addition to default radio-type build options eg "-DTRANSLATIONS=DE"
       --build-type <type>         cmake build type (default: Release)
-  -c, --clean-all                 delete local repo and output directory (default: false))
+      --clean-all                 delete local repo and output directory (default: false))
       --clean-output              delete existing output directories before building (default: false))
       --clone                     force clone the repo from github even if exists locally (default: false)
-      --companion                 build Companion (default: false)
+  -c, --companion                 build Companion (default: false)
   -d, --defs <radios|all|none>    generate hardware definition files for Companion and Simulator (default: radios)
   -e, --edgetx-version <version>  sets the version of Qt to compile against (default: ${supported_edgetx_versions[0]})
       --fetch                     refresh local source directory from github (default: false)
-      --firmware                  build firmware (default: false)
+  -f, --firmware                  build firmware (default: false)
   -h, --help                      display help text and exit
-      --installer                 build the installer (default: false)
-      --libsims                   build radio library simulator(s) (default: false)
+  -i, --installer                 build the installer (default: false)
+  -l, --libsims                   build radio library simulator(s) (default: false)
+      --local-config              use local build-common.sh and fw.json files (default: download latest from repo)
   -m, --arm-toolchain-dir         fully qualified path to arm toolchain directory (default: Windows installer default folder)
       --no-append-target          do not append target (radio-type|companion) to build output directory name
   -o, --output-dir <path>         relative path to root directory for build output files (default: EdgeTX/edgetx/build-<target>)
@@ -264,33 +251,29 @@ Options:
       --repo-name <name>          github repo name (default: edgetx). This allows using forks of EdgeTX.
       --repo-owner <owner>        github repo owner. This allows using forks of EdgeTX (default: EdgeTX}
   -r, --root-dir <path>           base path for files (default: ${HOME})
-  -s, --source-dir <path>         relative path to root directory for source files (default: EdgeTX/edgetx)
-      --simulator                 build Simulator (default: false)
-      --no-rt-check               do not validate radio type(s) for when not yet formally supported
+      --source-dir <path>         relative path to root directory for source files (default: EdgeTX/edgetx)
+  -s, --simulator                 build Simulator (default: false)
 EOF
+
 exit 1
 }
 
 # == End functions ==
 
 # == Parse the command line ==
-short_options=ab:cd:e:hm:o:pq:r:s:
+short_options=ab:cd:e:fhilm:o:pq:r:s
 
 long_options="all, branch:, clean-all, clean-output, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
 build-options:, build-type:, clone, companion, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
-repo-name:, repo-owner:, simulator, defs:, no-rt-check"
+repo-name:, repo-owner:, simulator, defs:, local-config"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
-if [[ $? -gt 0 ]]; then
-  usage
-fi
+[[ $? -gt 0 ]] && usage
 
 eval set -- ${args}
 
 ## No parameters passed to script
-if [[ $# -eq 1 ]]; then
-  usage
-fi
+[[ $# -eq 1 ]] && usage "No parameters passed to script"
 
 while true
 do
@@ -302,7 +285,7 @@ do
                                 BUILD_INSTALLER=1
                                 BUILD_HWDEFS=all                                ; shift   ;;
 		-b | --branch)	            BRANCH_NAME="${2}"                              ; shift 2 ;;
-    -c | --clean-all)           OUTPUT_DELETE=1
+         --clean-all)           OUTPUT_DELETE=1
                                 REPO_CLONE=1                                    ; shift   ;;
          --clean-output)        OUTPUT_DELETE=1                                 ; shift   ;;
     -d | --defs)                BUILD_HWDEFS="${2}"                             ; shift 2 ;;
@@ -312,24 +295,24 @@ do
     -h | --help)                usage                                           ; shift   ;;
 		     --repo-owner)	        REPO_OWNER="${2}"                               ; shift 2 ;;
 		     --repo-name)	          REPO_NAME="${2}"                                ; shift 2 ;;
+         --local-config)        LOCAL_CONFIG=1                                  ; shift   ;;
 		-m | --arm-toolchain-dir)   ARM_TOOLCHAIN_DIR="${2}"                        ; shift 2 ;;
 		-p | --pause)               STEP_PAUSE=1                                    ; shift   ;;
 		-q | --qt-root-dir)         QT_ROOT_DIR="${2}"                              ; shift 2 ;;
 		-r | --root-dir)            ROOT_DIR="${2}"                                 ; shift 2 ;;
-		-s | --source-dir)          SOURCE_DIR="${2}"
+         --source-dir)          SOURCE_DIR="${2}"
                                 OUTPUT_DIR="${2}"                               ; shift 2 ;;
 		-o | --output-dir)          OUTPUT_DIR="${2}"                               ; shift 2 ;;
 		     --build-options)       EXTRA_BUILD_OPTIONS="${2}"                      ; shift 2 ;;
 		     --build-type)          BUILD_TYPE="${2}"                               ; shift 2 ;;
          --clone)               REPO_CLONE=1                                    ; shift   ;;
          --fetch)               REPO_FETCH=1                                    ; shift   ;;
-         --companion)           BUILD_COMPANION=1                               ; shift   ;;
-         --firmware)            BUILD_FIRMWARE=1                                ; shift   ;;
-         --installer)           BUILD_INSTALLER=1                               ; shift   ;;
-         --libsims)             BUILD_LIBSIMS=1                                 ; shift   ;;
-         --simulator)           BUILD_SIMULATOR=1                               ; shift   ;;
+    -c | --companion)           BUILD_COMPANION=1                               ; shift   ;;
+    -f | --firmware)            BUILD_FIRMWARE=1                                ; shift   ;;
+    -i | --installer)           BUILD_INSTALLER=1                               ; shift   ;;
+    -l | --libsims)             BUILD_LIBSIMS=1                                 ; shift   ;;
+    -s | --simulator)           BUILD_SIMULATOR=1                               ; shift   ;;
          --no-append-target)    OUTPUT_APPEND_TARGET=0                          ; shift   ;;
-         --no-rt-check)         VALIDATE_RADIO_TYPES=0                          ; shift   ;;
     # -- means the end of the arguments; drop this, and break out of the while loop
     --) shift; break ;;
     *) >&2 echo Unsupported option: $1
@@ -337,20 +320,36 @@ do
 	esac
 done
 
-if [[ $# -eq 0 ]]; then
-  fail "No radio types specified"
-  usage
-fi
+[[ $# -eq 0 ]] && usage "No radio-types specified"
 
 # == End parse command line =="
 
-# == Validation ==
+# load configuration files
+if [[ ${LOCAL_CONFIG} -eq 0 ]]; then
+  # download latest supported radio simulators and build options
+  wget --no-cache -q -O ${SCRIPT_DIR}/build-common.sh - https://github.com/edgetx/edgetx/raw/main/tools/build-common.sh
 
-if [[ ! -d "$ROOT_DIR" ]]; then
-  fail "Unable to find root directory $ROOT_DIR"
+  # download latest supported radio firmwares
+  wget --no-cache -q -O ${SCRIPT_DIR}/fw.json https://github.com/edgetx/edgetx/raw/main/fw.json
 fi
 
-if [[ ${BUILD_FIRMWARE} -eq 1 ]] && [[ ! -d "${ARM_TOOLCHAIN_DIR}" ]]; then
+[ ! -f ${SCRIPT_DIR}/build-common.sh ] && fail "${SCRIPT_DIR}/build-common.sh not found"
+source ${SCRIPT_DIR}/build-common.sh
+
+[ ! -f ${SCRIPT_DIR}/fw.json ] && fail "${SCRIPT_DIR}/fw.json not found"
+
+for radio_target in $(cat fw.json | jq -r '.targets[] | .[1]'); do
+  # remove trailing hyphen to end of string
+  supported_radios+=("${radio_target%-*}")
+done
+
+# echo ${supported_radios[*]}
+
+# == Validation ==
+
+[ ! -d "$ROOT_DIR" ] && fail "Unable to find root directory $ROOT_DIR"
+
+if [[ ${BUILD_FIRMWARE} -eq 1 ]] && [[ ! -d "${ARM_TOOLCHAIN_DIR}" ]] ; then
   fail "Unable to find ARM toolchain directory ${ARM_TOOLCHAIN_DIR}"
 fi
 
@@ -364,11 +363,7 @@ validate_option_hwdefs
 SOURCE_PATH="${ROOT_DIR}/${SOURCE_DIR}"
 OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
 
-if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then
-  OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}"
-else
-  OUTPUT_PATH+="output"
-fi
+[[ $OUTPUT_APPEND_TARGET -eq 1 ]] && OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}" || OUTPUT_PATH+="output"
 
 validate_edgetx_version
 split_version EDGETX_VERSION
@@ -383,9 +378,7 @@ split_version QT_VERSION
 check_qt_arch_support
 QT_PATH="${QT_ROOT_DIR}/${QT_VERSION}"
 
-if [[ ! -d "$QT_PATH" ]]; then
-  fail "Unable to find Qt install directory $QT_PATH"
-fi
+[ ! -d "$QT_PATH" ] && fail "Unable to find Qt install directory $QT_PATH"
 
 unset ARCHDIR
 
@@ -398,22 +391,18 @@ for d in $QT_PATH/*; do
   fi
 done
 
-if [[ -z "$ARCHDIR" ]]; then
-  fail "Unable to find suitable Qt architecture directory in $QT_PATH for $MSYSTEM"
-fi
+[ -z "$ARCHDIR" ] && fail "Unable to find suitable Qt architecture directory in $QT_PATH for $MSYSTEM"
 
 QT_PATH+="/${ARCHDIR}"
 
 # this should never be true but included as a script logic safeguard
-if [[ ! -d "$QT_PATH" ]]; then
-  fail "Unable to find Qt install directory $QT_PATH"
-fi
+[ ! -d "$QT_PATH" ] && fail "Unable to find Qt install directory $QT_PATH"
 
 # == End validation ==
 
 # Option overrides
 
-if [[ ! -d "${SOURCE_PATH}/.git" ]] || [[ ! -f "${SOURCE_PATH}/CMakeLists.txt" ]]; then
+if [ ! -d "${SOURCE_PATH}/.git" ] || [ ! -f "${SOURCE_PATH}/CMakeLists.txt" ]; then
   REPO_CLONE=1
   REPO_FETCH=0
 else
@@ -448,6 +437,7 @@ Paths:
   Qt package:               ${QT_PATH}
 Options:
   Generate hardware defns:  ${BUILD_HWDEFS}
+  Use local config files:   $(bool_to_text ${LOCAL_CONFIG})
   Delete output dirs:       $(bool_to_text ${OUTPUT_DELETE})
   Build Companion:          $(bool_to_text ${BUILD_COMPANION})
   Build firmware:           $(bool_to_text ${BUILD_FIRMWARE})
@@ -455,7 +445,6 @@ Options:
   Build libsims:            $(bool_to_text ${BUILD_LIBSIMS})
   Build Simulator:          $(bool_to_text ${BUILD_SIMULATOR})
   Pause after each step:    $(bool_to_text ${STEP_PAUSE})
-  Radio types check:        $(bool_to_text ${VALIDATE_RADIO_TYPES})
 EOF
 
 read -p "Press Enter key to continue or Ctrl+C to abort"
@@ -481,6 +470,7 @@ fi
 # tidy output directories before builds
 if [[ $OUTPUT_DELETE -eq 1 ]]; then
   new_step "Deleting old build outputs"
+
   if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
     delete_output_dir
   else
@@ -493,6 +483,7 @@ if [[ $OUTPUT_DELETE -eq 1 ]]; then
       delete_output_dir ${CPN_FLDR}
     fi
   fi
+
   end_step 0
 fi
 
@@ -599,18 +590,18 @@ if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INS
   prep_target native
 fi
 
-if [[ $BUILD_COMPANION -eq 1 ]]; then build_target native companion; fi
+[[ $BUILD_COMPANION -eq 1 ]] && build_target native companion
 
-if [[ $BUILD_SIMULATOR -eq 1 ]]; then build_target native simulator; fi
+[[ $BUILD_SIMULATOR -eq 1 ]] && build_target native simulator
 
-if [[ $BUILD_INSTALLER -eq 1 ]]; then build_target native installer; fi
+[[ $BUILD_INSTALLER -eq 1 ]] && build_target native installer
 
 echo ""
 echo "Completed successfully"
 echo ""
 
 OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
-if [[ $OUTPUT_APPEND_TARGET -eq 1 ]]; then OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}"; fi
+[[ $OUTPUT_APPEND_TARGET -eq 1 ]] && OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}"
 
 if [[ $BUILD_FIRMWARE -eq 1 ]]; then
   if [[ OUTPUT_APPEND_TARGET -eq 0 ]]; then
@@ -620,7 +611,7 @@ if [[ $BUILD_FIRMWARE -eq 1 ]]; then
   fi
 fi
 
-if [[ $BUILD_COMPANION -eq 1 ]]; then echo "Companion   : ${OUTPUT_PATH}/native/Release/companion.exe"; fi
-if [[ $BUILD_SIMULATOR -eq 1 ]]; then echo "Simulator   : ${OUTPUT_PATH}/native/Release/simulator.exe"; fi
-if [[ $BUILD_LIBSIMS   -eq 1 ]]; then echo "Libsims     : ${OUTPUT_PATH}/native/Release/libedgetx-[radio-type]-simulator.dll"; fi
-if [[ $BUILD_INSTALLER -eq 1 ]]; then echo "Installer   : ${OUTPUT_PATH}/native/companion/companion-windows-x.x.x.exe"; fi
+[[ $BUILD_COMPANION -eq 1 ]] && echo "Companion   : ${OUTPUT_PATH}/native/Release/companion.exe"
+[[ $BUILD_SIMULATOR -eq 1 ]] && echo "Simulator   : ${OUTPUT_PATH}/native/Release/simulator.exe"
+[[ $BUILD_LIBSIMS   -eq 1 ]] && echo "Libsims     : ${OUTPUT_PATH}/native/Release/libedgetx-[radio-type]-simulator.dll"
+[[ $BUILD_INSTALLER -eq 1 ]] && echo "Installer   : ${OUTPUT_PATH}/native/companion/companion-windows-x.x.x.exe"
