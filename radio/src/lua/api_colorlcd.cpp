@@ -34,37 +34,8 @@
 
 #define BITMAP_METATABLE "BITMAP*"
 
-constexpr coord_t INVERT_BOX_MARGIN = 2;
-constexpr int8_t text_horizontal_offset[7] = {-2,-1,-2,-2,-2,-2,-2};
-constexpr int8_t text_vertical_offset[7] = {0,0,0,0,0,-1,7};
-
 BitmapBuffer* luaLcdBuffer  = nullptr;
 LuaWidget *runningFS = nullptr;
-
-static int8_t getTextHorizontalOffset(LcdFlags flags)
-{
-  // no need to adjust if not right aligned
-  if (!(flags & RIGHT)) {
-      return 0;
-  }
-  const uint8_t font_index = FONT_INDEX(flags);
-  if (font_index >= sizeof(text_horizontal_offset)) {
-    return 0;
-  }
-  return 0;//text_horizontal_offset[font_index];
-}
-
-static int8_t getTextVerticalOffset(LcdFlags flags)
-{
-  const uint8_t font_index = FONT_INDEX(flags);
-  if (font_index >= sizeof(text_vertical_offset)) {
-    return 0;
-  }
-  int vcenter = 0;
-  if (flags & VCENTERED)
-    vcenter = 0.5 * getFontHeight(flags & 0xFFFF);
-  return text_vertical_offset[font_index] - vcenter;
-}
 
 /*luadoc
 @function lcd.refresh()
@@ -210,10 +181,6 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
 
-  // apply text offsets, needed to align 2.4.x to 2.3.x font baselines
-  x += getTextHorizontalOffset(flags);
-  y += getTextVerticalOffset(flags);
-
   bool invers = flags & INVERS;
   if (flags & BLINK)
     invers = invers && !BLINK_ON_PHASE;
@@ -230,6 +197,7 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
     flags = (flags & 0xFFFF) | invColor;
     
     // Draw color box
+    constexpr coord_t INVERT_BOX_MARGIN = 2;
     int height = getFontHeight(flags & 0xFFFF) + 2 * INVERT_BOX_MARGIN;
     int width = getTextWidth(s, 0, flags);
     int ix = x - INVERT_BOX_MARGIN;
@@ -291,7 +259,7 @@ static int luaLcdSizeText(lua_State *L)
   const char * s = luaL_checkstring(L, 1);
   LcdFlags flags = luaL_optunsigned(L, 2, 0);
   lua_pushinteger(L, getTextWidth(s, 0, flags));
-  lua_pushinteger(L, getFontHeight(flags & 0xFFFF) + getTextVerticalOffset(flags & ~VCENTERED));
+  lua_pushinteger(L, getFontHeight(flags & 0xFFFF));
   return 2;
 }
 
