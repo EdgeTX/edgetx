@@ -25,7 +25,7 @@
 
 #if defined(CROSSFIRE)
 
-uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses);
+uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses);
 TEST(Crossfire, createCrossfireChannelsFrame)
 {
   int16_t pulsesStart[MAX_TRAINER_CHANNELS];
@@ -36,7 +36,7 @@ TEST(Crossfire, createCrossfireChannelsFrame)
     pulsesStart[i] = -1024 + (2048 / MAX_TRAINER_CHANNELS) * i;
   }
 
-  createCrossfireChannelsFrame(crossfire, pulsesStart);
+  createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart);
 
   // TODO check
 }
