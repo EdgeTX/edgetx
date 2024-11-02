@@ -154,6 +154,7 @@ function validate_radio_types() {
 function validate_radio_build_options() {
 
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+    unset BUILD_OPTIONS
     if ! get_target_build_options ${RADIO_TYPES[@],,}; then
       fail "No buid options for radio type: '${RADIO_TYPES[i]}'"
     fi
@@ -196,7 +197,7 @@ function build_output_path() {
   echo ${outpath}
 }
 
-function create_output_dir() {
+function create_switch_output_dir() {
 	#	Parameters:
 	#	1 - Target
 
@@ -204,7 +205,7 @@ function create_output_dir() {
 
   [ ! -d ${crpath} ] && run_step "Creating output directory: ${crpath}" "mkdir -p ${crpath}"
 
-  run_step "Switching to output directory" "cd ${crpath}"
+  run_step "Switching to output directory: ${crpath}" "cd ${crpath}"
 }
 
 function delete_output_dir() {
@@ -217,6 +218,15 @@ function delete_output_dir() {
     log "Deleting: ${delpath}"
     rm -rf ${delpath}
   fi
+}
+
+function set_build_options() {
+	#	Parameters:
+  # 1 - radio type
+
+  unset BUILD_OPTIONS
+  get_target_build_options "${1}"
+  #log "Build options: ${BUILD_OPTIONS}"
 }
 
 function prep_target() {
@@ -564,8 +574,9 @@ if [[ $BUILD_FIRMWARE -eq 1 ]]; then
   PATH=${ARM_TOOLCHAIN_DIR}:${PATH}
 
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-    create_output_dir ${RADIO_TYPES[i]}
-    get_target_build_options ${RADIO_TYPES[i]}
+    log "Generating firmware: ${RADIO_TYPES[i]}"
+    create_switch_output_dir ${RADIO_TYPES[i]}
+    set_build_options ${RADIO_TYPES[i]}
     prep_and_build_target arm-none-eabi firmware-size
 
     if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
@@ -578,20 +589,20 @@ if [[ $BUILD_LIBSIMS -eq 1 ]]; then
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
     # not all radios may have libsim support when radio type 'all'
     if is_libsim_supported ${RADIO_TYPES[i]}; then
-      create_output_dir ${RADIO_TYPES[i]}
-      get_target_build_options ${RADIO_TYPES[i]}
+      log "Generating libsim: ${RADIO_TYPES[i]}"
+      create_switch_output_dir ${RADIO_TYPES[i]}
+      set_build_options ${RADIO_TYPES[i]}
       prep_and_build_target native libsimulator
     fi
   done
 fi
 
 if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
-  create_output_dir ${CPN_FLDR}
+  create_switch_output_dir ${CPN_FLDR}
 fi
 
 if [ "${BUILD_HWDEFS}" == "all" ]; then
   new_step "Removing existing radio hardware definitions"
-  # clean up from previous runs to force regeneration
 	radiodir="$(build_output_path ${CPN_FLDR})/native/radio/src"
 	if [ -d ${radiodir} ]; then
 		rm -f ${radiodir}/*.json*
@@ -600,7 +611,18 @@ if [ "${BUILD_HWDEFS}" == "all" ]; then
   end_step 0
 fi
 
-if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_LIBSIMS -eq 1 ]]; then
+if [ ! "${BUILD_HWDEFS}" == "none" ]; then
+  if [[ $OUTPUT_APPEND_TARGET -eq 1 ]] || [[ $BUILD_LIBSIMS -eq 0 ]]; then
+    # generate hardware definition json files for inclusion as resources in Companion and Simulator
+    for ((i = 0; i < ${#HWDEFS_RADIO_TYPES[@]}; ++i)); do
+      log "Generating hardware definition: ${RADIO_TYPES[i]}"
+      set_build_options ${RADIO_TYPES[i]}
+      prep_and_build_target native hardware_defs
+    done
+  fi
+fi
+
+if [[ $BUILD_COMPANION -eq 1 ]]; then
   new_step "Clean Companion hardware definitions resource"
 	# forces cmake to rebuild resource from latest set of json files
 	cpndir="$(build_output_path ${CPN_FLDR})/native/companion/src"
@@ -612,21 +634,9 @@ if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_LIBSIMS -eq 1 ]]; then
   end_step 0
 fi
 
-# libsimulator target generates its radio hardware definition so no need to double up
-if [[ $BUILD_LIBSIMS -eq 0 ]] && [[ ! "${BUILD_HWDEFS}" == "none" ]]; then
-  new_step "Generate radio hardware definitions"
-  # generate hardware definition json files for inclusion as resources in Companion and Simulator
-  for ((i = 0; i < ${#HWDEFS_RADIO_TYPES[@]}; ++i)); do
-    get_target_build_options ${RADIO_TYPES[i]}
-    prep_and_build_target native hardware_defs
-  done
-
-  end_step 0
-fi
-
 if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
   # use the first radio as cmake will fail without a radio
-  get_target_build_options ${RADIO_TYPES[0]}
+  set_build_options ${RADIO_TYPES[0]}
   prep_target native
 fi
 
