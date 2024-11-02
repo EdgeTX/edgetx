@@ -510,6 +510,7 @@ void ModulePanel::update()
         module.channelsCount = 16;
         ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
         ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
+        ui->crsfArmingMode->setCurrentIndex(module.crsf.crsfArmingMode);
         break;
       case PULSES_GHOST:
         mask |= MASK_CHANNELS_RANGE | MASK_GHOST | MASK_BAUDRATE;
@@ -840,10 +841,6 @@ void ModulePanel::update()
     }
   }
 
-  if (mask & MASK_CSRF_ARMING_MODE) {
-    ui->crsfArmingMode->setCurrentIndex(model->crsfArmingMode);
-  }
-
   ui->label_rxFreq->setVisible((mask & MASK_RX_FREQ));
   ui->rxFreq->setVisible((mask & MASK_RX_FREQ));
 
@@ -852,7 +849,7 @@ void ModulePanel::update()
 
 void ModulePanel::on_crsfArmingMode_currentIndexChanged(int index)
 {
-  model->crsfArmingMode = index;
+  module.crsf.crsfArmingMode = index;
   emit modified();
 }
 

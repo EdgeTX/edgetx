@@ -68,6 +68,8 @@
 #define TR_VVARIOCENTER                "Tom","silêncio"
 #define TR_CURVE_TYPES                 "Normal","Custom"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES             "Global","DESL","LIG"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
@@ -119,7 +121,6 @@
 
 #define TR_SF_SCREENSHOT               "Capt. Tela"
 #define TR_SF_RACING_MODE              "ModCorrida"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Desl"
 #define TR_SF_SET_SCREEN               "Def Tela Princ"

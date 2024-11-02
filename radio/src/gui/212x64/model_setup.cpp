@@ -127,6 +127,7 @@ enum MenuModelSetupItems {
 #endif
 #if defined(CROSSFIRE)
   ITEM_MODEL_SETUP_ARMING_MODE,
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER,
 #endif
 #if defined (MULTIMODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL,
@@ -423,11 +424,13 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #else
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #endif
-#define IF_MODULE_ARMED(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)    
+#define IF_MODULE_ARMED(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#define IF_MODULE_ARMED_TRIGGER(module, xxx) (isModuleCrossfire(module)  && g_model.moduleData[module].crsf.crsfArmingMode ? (uint8_t)(xxx) : HIDDEN_ROW)  
 #else
 #define IF_MODULE_SYNCED(module, xxx)
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx)
 #define IF_MODULE_ARMED(module, xxx)
+#define IF_MODULE_ARMED_TRIGGER(module, xxx)
 #endif
 
 #if defined(PXX2)
@@ -552,6 +555,7 @@ void menuModelSetup(event_t event)
       IF_MODULE_BAUDRATE_ADJUST(EXTERNAL_MODULE, 0),    // ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE
       IF_MODULE_SYNCED(EXTERNAL_MODULE, 0),             // ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS
       IF_MODULE_ARMED(EXTERNAL_MODULE, 0),              // ITEM_MODEL_SETUP_ARMING_MODE
+      IF_MODULE_ARMED_TRIGGER(EXTERNAL_MODULE, 0),      // ITEM_MODEL_SETUP_ARMING_TRIGGER
       MULTIMODULE_TYPE_ROW(EXTERNAL_MODULE)             // ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL
       MULTIMODULE_DSM_CLONED_RAW(EXTERNAL_MODULE),      // ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSM_CLONED
       MULTIMODULE_STATUS_ROWS(EXTERNAL_MODULE)          // ITEM_MODEL_SETUP_EXTERNAL_MODULE_STATUS + ITEM_MODEL_SETUP_EXTERNAL_MODULE_SYNCSTATUS
@@ -1274,8 +1278,14 @@ void menuModelSetup(event_t event)
 
 #if defined(CROSSFIRE)
       case ITEM_MODEL_SETUP_ARMING_MODE:
-        g_model.crsfArmingMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_ARMING_MODE, STR_CRSF_ARMING_MODES, 
-                                            g_model.crsfArmingMode, 0, 1, attr, event, INDENT_WIDTH);
+        g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = 
+          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_ARMING_MODE, STR_CRSF_ARMING_MODES, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode, 0, 1, attr, event, INDENT_WIDTH);
+        break;
+
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER:
+        lcdDrawTextIndented(y, STR_SWITCH);
+        drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, attr);
+        CHECK_INCDEC_MODELSWITCH(event, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableForArming);
         break;
 #endif
 

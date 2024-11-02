@@ -679,7 +679,6 @@ enum Functions {
   FUNC_BACKLIGHT,
   FUNC_SCREENSHOT,
   FUNC_RACING_MODE,
-  FUNC_ARM,
 #if defined(COLORLCD) || defined(CFN_ONLY)
   FUNC_DISABLE_TOUCH,
 #endif

@@ -147,7 +147,6 @@ class ModelData {
     bool      extendedTrims;
     bool      throttleReversed;
     bool      checklistInteractive;
-    int       crsfArmingMode;
     FlightModeData flightModeData[CPN_MAX_FLIGHT_MODES];
     MixData   mixData[CPN_MAX_MIXERS];
     LimitData limitData[CPN_MAX_CHNOUT];

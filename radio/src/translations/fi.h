@@ -69,6 +69,8 @@
 #define TR_VVARIOCENTER                "Tone","Silent"
 #define TR_CURVE_TYPES                 "Standard","Custom"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES             "Global","Off","On"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
@@ -116,7 +118,6 @@
 
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "RacingMode"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN               "Set Main Screen"

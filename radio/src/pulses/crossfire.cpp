@@ -93,18 +93,20 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
 }
 
 // Range for pulses (channels output) is [-1024:+1024]
-uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
+uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses)
 {
   //
-  // sends channel data and also communicates commanded armed status in arming mode Function.
-  // frame len 24 -> arming mode Channel: module will use channel 5
-  // frame len 25 -> arming mode Function: send commanded armed status in extra byte after channel data
+  // sends channel data and also communicates commanded armed status in arming mode Switch.
+  // frame len 24 -> arming mode CH5: module will use channel 5
+  // frame len 25 -> arming mode Switch: send commanded armed status in extra byte after channel data
   // 
-  uint8_t armingMode = g_model.crsfArmingMode; // 0 = Channel mode, 1 = Function mode
+  ModuleData *md = &g_model.moduleData[moduleIdx];
+
+  uint8_t armingMode = md->crsf.crsfArmingMode; // 0 = Channel mode, 1 = Switch mode
 
   uint8_t * buf = frame;
   *buf++ = MODULE_ADDRESS;
-  *buf++ = 24 + armingMode ;                   // 1(ID) + 22(channel data) + (+1 extra byte if arming is Function mode) + 1(CRC)
+  *buf++ = 24 + armingMode ;                   // 1(ID) + 22(channel data) + (+1 extra byte if Switch mode) + 1(CRC)
   uint8_t * crc_start = buf;
   *buf++ = CHANNELS_ID;
   uint32_t bits = 0;
@@ -121,9 +123,11 @@ uint8_t createCrossfireChannelsFrame(uint8_t * frame, int16_t * pulses)
   }
   
   if (armingMode) {
-    *buf++ = isFunctionActive(FUNCTION_ARM);  // commanded armed status via SF Arm in armimg mode Function
-  }
+    swsrc_t sw =  md->crsf.crsfArmingTrigger;
 
+    *buf++ = (sw != SWSRC_NONE) && getSwitch(sw, 0);  // commanded armed status in Switch mode
+  }
+  
   *buf++ = crc8(crc_start, 23 + armingMode);
   return buf - frame;
 }
@@ -179,7 +183,7 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
       /* TODO: nChannels */
-      p_buf += createCrossfireChannelsFrame(p_buf, channels);
+      p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
     }
   }
 }

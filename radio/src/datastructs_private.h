@@ -535,9 +535,12 @@ PACK(struct ModuleData {
       uint8_t telemetryBaudrate:3;
       uint8_t spare1:4 SKIP;
     } ghost);
-    NOBACKUP(struct {
+    NOBACKUP(PACK(struct {
       uint8_t telemetryBaudrate:3;
-    } crsf);
+      uint8_t crsfArmingMode:1;
+      uint8_t spare2:4 SKIP;
+      int16_t crsfArmingTrigger;
+    }) crsf);
     NOBACKUP(struct {
       uint8_t flags;
     } dsmp);
@@ -693,12 +696,11 @@ PACK(struct ModelData {
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
   uint8_t   checklistInteractive:1;
-  uint8_t   crsfArmingMode:1;
 #if defined(USE_HATS_AS_KEYS)
   NOBACKUP(uint8_t hatsMode:2 ENUM(HatsMode));
-  uint8_t   spare3:1 SKIP;  // padding to 8-bit aligment
+  uint8_t   spare3:2 SKIP;  // padding to 8-bit aligment
 #else
-  uint8_t   spare3:3 SKIP;  // padding to 8-bit aligment
+  uint8_t   spare3:4 SKIP;  // padding to 8-bit aligment
 #endif
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
@@ -996,6 +998,8 @@ PACK(struct RadioData {
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
   NOBACKUP(uint8_t spare:3 SKIP);
+#else
+  NOBACKUP(uint8_t spare:4 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);

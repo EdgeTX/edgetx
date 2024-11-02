@@ -66,6 +66,8 @@
 #define TR_VVARIOCENTER                 "音調","靜音"
 #define TR_CURVE_TYPES                  "標準","自定義"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES              "全局","禁用","开启"
 
 #define TR_VCURVETYPE                  "單邊","指數","函數","自定義"
@@ -112,7 +114,6 @@
 
 #define TR_SF_SCREENSHOT               "截屏"
 #define TR_SF_RACING_MODE              "競速模式"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "禁用觸摸"
 #define TR_SF_DISABLE_AUDIO_AMP        "關閉音頻功放"
 #define TR_SF_SET_SCREEN               "選擇主屏"

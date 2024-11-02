@@ -66,6 +66,7 @@
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Ton","Cicho"
 #define TR_CURVE_TYPES         "Standard","Własny"
+#define TR_CRSF_ARMING_MODES   "CH5","Switch"
 #define TR_ADCFILTERVALUES     "Globalne","WYŁ","ZAŁ"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
@@ -112,7 +113,6 @@
 
 #define TR_SF_SCREENSHOT      "Zrzut Ekra"
 #define TR_SF_RACING_MODE     "RacingMode"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP TR("Wycisz wzm.", "Wycisz wzmacniacz audio")
 #define TR_SF_SET_SCREEN      "Set Main Screen"

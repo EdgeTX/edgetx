@@ -68,6 +68,8 @@
 #define TR_VVARIOCENTER                "Tón","Ticho"
 #define TR_CURVE_TYPES                 "Rastr-X","Volná-XY"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES             "Globální","Vyp","Zap",
 
 #define TR_VCURVETYPE                  "Diff","Expo","Funk","Vlas"
@@ -118,7 +120,6 @@
 
 #define TR_SF_SCREENSHOT               "Snímek LCD"
 #define TR_SF_RACING_MODE              "Závodní režim"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "Deaktivace dotyku"
 #define TR_SF_DISABLE_AUDIO_AMP        "Vypnutí zesilovače zvuku"
 #define TR_SF_SET_SCREEN               "Vybrat hlavní obrazovku"

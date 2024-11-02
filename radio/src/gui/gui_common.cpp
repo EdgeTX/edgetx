@@ -536,6 +536,11 @@ bool isSwitchAvailableInMixes(int swtch)
   return isSwitchAvailable(swtch, MixesContext);
 }
 
+bool isSwitchAvailableForArming(int swtch)
+{
+  return isSwitchAvailable(swtch, ModelCustomFunctionsContext);
+}
+
 #if defined(COLORLCD)
 bool isSwitch2POSWarningStateAvailable(int state)
 {

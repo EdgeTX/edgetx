@@ -67,6 +67,8 @@
 #define TR_VVARIOCENTER                "Тон","Тихо"
 #define TR_CURVE_TYPES                 "Стд","Выбор"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES             "Глоб","Вык","Вкл"
 
 #define TR_VCURVETYPE                  "Разн", "Экспо", "Функц", "Польз"
@@ -118,7 +120,6 @@
 
 #define TR_SF_SCREENSHOT               "Скриншот"
 #define TR_SF_RACING_MODE              "Режим гонка"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "Сенсор вык"
 #define TR_SF_DISABLE_AUDIO_AMP        "Вык аудио усил."
 #define TR_SF_SET_SCREEN               "Выбр глав экран"

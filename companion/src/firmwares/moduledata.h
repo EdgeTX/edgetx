@@ -191,6 +191,8 @@ class ModuleData {
 
     struct CRSF {
       unsigned int telemetryBaudrate;
+      unsigned int crsfArmingMode;
+      unsigned int crsfArmingTrigger;
     } crsf;
 
     struct Access {

@@ -72,6 +72,8 @@
 #define TR_VVARIOCENTER                "Tone","Stille"
 #define TR_CURVE_TYPES                 "Standard","Tilpasset"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES             "Global","Fra","Til"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Funk","Egen"
@@ -118,7 +120,6 @@
 
 #define TR_SF_SCREENSHOT               "Skærm klip"
 #define TR_SF_RACING_MODE              "Ræs tilstand"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
 #define TR_SF_DISABLE_AUDIO_AMP        TR("Sluk audio amp", "Sluk audio amplifier")
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"

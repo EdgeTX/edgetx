@@ -2177,11 +2177,6 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
         <translation>Mode Course/Racing</translation>
     </message>
     <message>
-        <location filename="../firmwares/customfunctiondata.cpp" line="124"/>
-        <source>Arm</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="126"/>
         <source>Disable Touch</source>
         <translation>Désactiver Touches</translation>
@@ -10305,6 +10300,21 @@ p, li { white-space: pre-wrap; }
         <location filename="../modeledit/setup_module.ui" line="507"/>
         <source>Receiver No.</source>
         <translation>Récepteur No.</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>Arming</source>
+        <translation type="unfinished">Arming</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>CH5</source>
+        <translation type="unfinished">CH5</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>Switch</source>
+        <translation type="unfinished">Switch</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_module.ui" line="1050"/>

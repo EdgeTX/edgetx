@@ -65,6 +65,8 @@
 #define TR_VVARIOCENTER                "トーン","消音"
 #define TR_CURVE_TYPES                 "スタンダード","カスタム"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES             "グローバル","OFF","ON"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
@@ -116,7 +118,6 @@
 
 #define TR_SF_SCREENSHOT               "画面キャプチャ"
 #define TR_SF_RACING_MODE              "レースモード"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "非タッチ"
 #define TR_SF_DISABLE_AUDIO_AMP        "オーディオアンプ OFF"
 #define TR_SF_SET_SCREEN               "メイン画面設定"

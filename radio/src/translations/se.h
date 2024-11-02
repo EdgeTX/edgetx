@@ -74,6 +74,8 @@
 #define TR_VVARIOCENTER                 "Pip","Tyst"
 #define TR_CURVE_TYPES                  "Normal","Anpassad"
 
+#define TR_CRSF_ARMING_MODES            "CH5","Switch"
+
 #define TR_ADCFILTERVALUES              "Global","Av","På"
 
 #define TR_VCURVETYPE                   "Diff","Expo","Funk","Egen"                                  
@@ -120,7 +122,6 @@
 
 #define TR_SF_SCREENSHOT                "Skärmbild"
 #define TR_SF_RACING_MODE               "Tävlingsläge"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH             "Ej pekskärm"
 #define TR_SF_DISABLE_AUDIO_AMP         TR("Audioförst. av","Audioförstärkare av")
 #define TR_SF_SET_SCREEN                "Sätt huvudskärm"

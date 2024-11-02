@@ -68,6 +68,8 @@
 #define TR_VVARIOCENTER                "Tone","Silent"
 #define TR_CURVE_TYPES                 "סטנדרטי","עיצוב מיוחד"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES             "Global","Off","On"
 
 #define TR_VCURVETYPE                  "דיפרנציאלי","אקספו","פונקציה","עריכת מיוחד"
@@ -119,7 +121,6 @@
 
 #define TR_SF_SCREENSHOT               "צילום מסך"
 #define TR_SF_RACING_MODE              "מצב תחרות"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "ללא מסך מגע"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN               "הגדרת מסך ראשי"

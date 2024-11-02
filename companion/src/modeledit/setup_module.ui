@@ -440,12 +440,12 @@
           <widget class="QComboBox" name="crsfArmingMode">
             <item>
               <property name="text">
-                <string>Channel</string>
+                <string>CH5</string>
               </property>
             </item>
             <item>
               <property name="text">
-                <string>Function</string>
+                <string>Switch</string>
               </property>
             </item>
           </widget>

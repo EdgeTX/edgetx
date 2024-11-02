@@ -70,6 +70,8 @@
 #define TR_VVARIOCENTER                 "Tono","Silenz."
 #define TR_CURVE_TYPES                  "Standard","Personali"
 
+#define TR_CRSF_ARMING_MODES           "CH5","Switch"
+
 #define TR_ADCFILTERVALUES              "Globali","Off","On"
 
 #define TR_VCURVETYPE                   "Diff","Espo","Funz","Pers"
@@ -116,7 +118,6 @@
 
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "Modo Racing"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Off"
 #define TR_SF_SET_SCREEN               "Setta Schermo Princ."

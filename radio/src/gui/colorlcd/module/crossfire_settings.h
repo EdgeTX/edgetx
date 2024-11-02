@@ -23,14 +23,19 @@
 
 #include "window.h"
 #include "module_setup.h"
+#include "switchchoice.h"
 
 struct ModuleData;
 
 class CrossfireSettings : public Window, public ModuleOptions
 {
   ModuleData* md;
+  SwitchChoice *switchChoice;
 
-  void update() override {}
+  void checkEvents() override;
+  void update() override;
+
+  uint8_t lastCrsfArmingMode;
   
 public:
   CrossfireSettings(Window* parent, const FlexGridLayout& g, uint8_t moduleIdx);

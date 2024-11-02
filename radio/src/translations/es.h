@@ -66,6 +66,7 @@
 #define TR_COUNTDOWNVALUES     "5s","10s","20s","30s"
 #define TR_VVARIOCENTER        "Tono","Silencio"
 #define TR_CURVE_TYPES         "Normal","Custom"
+#define TR_CRSF_ARMING_MODES    "CH5","Switch"
 #define TR_ADCFILTERVALUES     "Global","Off","On"
 
 #define TR_VCURVETYPE          "Diff","Expo","Func","Cstm"
@@ -113,7 +114,6 @@
 
 #define TR_SF_SCREENSHOT      "Captura"
 #define TR_SF_RACING_MODE     "RacingMode"
-#define TR_SF_ARM                      "Arm"
 #define TR_SF_DISABLE_TOUCH   "No Touch"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN      "Set Main Screen"

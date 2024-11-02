@@ -66,8 +66,35 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     sprintf(msg, "%d Hz", 1000000 / getMixerSchedulerPeriod());
     return std::string(msg);
   });
+ 
+  auto armingLine = newLine(grid);
+  new StaticText(armingLine, rect_t{}, STR_ARMING_MODE);
+  auto box = new Window(armingLine, rect_t{});
+  box->padAll(PAD_TINY);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
+  new Choice(box, rect_t{}, STR_CRSF_ARMING_MODES, 0, 1, GET_SET_DEFAULT(md->crsf.crsfArmingMode));
+  switchChoice = new SwitchChoice(box, rect_t{}, SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(md->crsf.crsfArmingTrigger));
+  switchChoice->setAvailableHandler([=](int sw) { return isSwitchAvailableForArming(sw); });
 
-  auto line1 = newLine(grid);
-  new StaticText(line1, rect_t{}, STR_ARMING_MODE);
-  new Choice(line1, rect_t{}, STR_CRSF_ARMING_MODES, 0, 1, GET_SET_DEFAULT(g_model.crsfArmingMode));
+  lastCrsfArmingMode = 0xff;    // force update
+
+  update();                      
+}
+
+void CrossfireSettings::update() {
+  if(lastCrsfArmingMode != md->crsf.crsfArmingMode) {
+    if(md->crsf.crsfArmingMode) {
+      switchChoice->show();
+    } else {
+      switchChoice->hide();
+    }
+
+    lastCrsfArmingMode = md->crsf.crsfArmingMode;
+  }
+}
+
+void CrossfireSettings::checkEvents() {
+  update();
+
+  Window::checkEvents();
 }
