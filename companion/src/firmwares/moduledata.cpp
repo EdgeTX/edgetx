@@ -770,3 +770,35 @@ AbstractStaticItemModel * ModuleData::afhds3EmiItemModel()
   mdl->loadItemList();
   return mdl;
 }
+
+QString ModuleData::crsfArmingModeToString() const
+{
+  return crsfArmingModeToString(crsf.crsfArmingMode);
+}
+
+// static
+QString ModuleData::crsfArmingModeToString(int mode)
+{
+  switch (mode) {
+    case CRSF_ARMING_MODE_CH5:
+      return tr("CH5");
+    case CRSF_ARMING_MODE_SWITCH:
+      return tr("Switch");
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}
+
+// static
+AbstractStaticItemModel * ModuleData::crsfArmingModeItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName(AIM_MODULE_CRSFARMINGMODE);
+
+  for (int i = 0; i < CRSF_ARMING_MODE_COUNT; i++) {
+    mdl->appendToItemList(crsfArmingModeToString(i), i);
+  }
+
+  mdl->loadItemList();
+  return mdl;
+}

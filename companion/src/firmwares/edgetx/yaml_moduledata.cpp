@@ -23,6 +23,7 @@
 #include "yaml_generalsettings.h"
 #include "eeprominterface.h"
 #include "rawsource.h"
+#include "yaml_rawswitch.h"
 #include "multiprotocols.h"
 
 //  type: TYPE_MULTIMODULE

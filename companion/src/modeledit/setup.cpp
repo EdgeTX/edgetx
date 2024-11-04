@@ -34,11 +34,13 @@
 
 #include <QDir>
 
-constexpr char FIM_TIMERSWITCH[] {"Timer Switch"};
-constexpr char FIM_THRSOURCE[]   {"Throttle Source"};
-// constexpr char FIM_TRAINERMODE[] {"Trainer Mode"};
-constexpr char FIM_ANTENNAMODE[] {"Antenna Mode"};
-constexpr char FIM_HATSMODE[]    {"Hats Mode"};
+constexpr char FIM_TIMERSWITCH[]   {"Timer Switch"};
+constexpr char FIM_THRSOURCE[]     {"Throttle Source"};
+// constexpr char FIM_TRAINERMODE[]   {"Trainer Mode"};
+constexpr char FIM_ANTENNAMODE[]   {"Antenna Mode"};
+constexpr char FIM_HATSMODE[]      {"Hats Mode"};
+constexpr char FIM_CRSFARMSWITCH[] {"CRSF Arming Switch"};
+
 
 TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer, GeneralSettings & generalSettings, Firmware * firmware,
                        QWidget * prevFocus, FilteredItemModelFactory * panelFilteredModels, CompoundItemModelFactory * panelItemModels):
@@ -231,11 +233,12 @@ void TimerPanel::onModeChanged(int index)
 #define MASK_MULTI_BAYANG_OPT      (1<<21)
 #define MASK_AFHDS                 (1<<22)
 #define MASK_CSRF_ARMING_MODE      (1<<23)
+#define MASK_CSRF_ARMING_TRIGGER   (1<<24)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
 ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & module, GeneralSettings & generalSettings, Firmware * firmware, int moduleIdx,
-                         FilteredItemModelFactory * panelFilteredItemModels):
+                         FilteredItemModelFactory * panelFilteredItemModels, CompoundItemModelFactory * panelItemModels):
   ModelPanel(parent, model, generalSettings, firmware),
   module(module),
   moduleIdx(moduleIdx),
@@ -311,6 +314,11 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
 
   ui->registrationId->setText(model.registrationId);
 
+  if (panelItemModels) {
+    ui->crsfArmingMode->setModel(panelItemModels->getItemModel(AIM_MODULE_CRSFARMINGMODE));
+    ui->crsfArmingTrigger->setModel(panelFilteredItemModels->getItemModel(FIM_CRSFARMSWITCH));
+  }
+
   setupFailsafes();
 
   disableMouseScrolling();
@@ -348,6 +356,21 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
       else
         this->module.afhds3.emi = ui->cboAfhdsOpt2->currentData().toInt();
 
+      emit modified();
+    });
+
+  connect(ui->crsfArmingMode, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index)
+    {
+      this->module.crsf.crsfArmingMode = ui->crsfArmingMode->currentData().toInt();
+      if (this->module.crsf.crsfArmingMode != ModuleData::CRSF_ARMING_MODE_SWITCH)
+        this->module.crsf.crsfArmingTrigger = RawSwitch(SWITCH_TYPE_NONE);
+      update();
+      emit modified();
+    });
+
+  connect(ui->crsfArmingTrigger, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=] (int index)
+    {
+      this->module.crsf.crsfArmingTrigger = RawSwitch(ui->crsfArmingTrigger->currentData().toInt());
       emit modified();
     });
 
@@ -511,6 +534,10 @@ void ModulePanel::update()
         ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol));
         ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
         ui->crsfArmingMode->setCurrentIndex(module.crsf.crsfArmingMode);
+        if (module.crsf.crsfArmingMode == ModuleData::CRSF_ARMING_MODE_SWITCH) {
+          mask |= MASK_CSRF_ARMING_TRIGGER;
+          ui->crsfArmingTrigger->setCurrentIndex(ui->crsfArmingTrigger->findData(RawSwitch(module.crsf.crsfArmingTrigger).toValue()));
+        }
         break;
       case PULSES_GHOST:
         mask |= MASK_CHANNELS_RANGE | MASK_GHOST | MASK_BAUDRATE;
@@ -606,6 +633,7 @@ void ModulePanel::update()
   ui->channelsCount->setSingleStep(firmware->getCapability(HasPPMStart) ? 1 : 2);
   ui->label_crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
   ui->crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
+  ui->crsfArmingTrigger->setVisible(mask & MASK_CSRF_ARMING_TRIGGER);
 
   // PPM settings fields
   ui->label_ppmPolarity->setVisible(mask & MASK_SBUSPPM_FIELDS);
@@ -845,12 +873,6 @@ void ModulePanel::update()
   ui->rxFreq->setVisible((mask & MASK_RX_FREQ));
 
   lock = false;
-}
-
-void ModulePanel::on_crsfArmingMode_currentIndexChanged(int index)
-{
-  module.crsf.crsfArmingMode = index;
-  emit modified();
 }
 
 void ModulePanel::onProtocolChanged(int index)
@@ -1573,9 +1595,16 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
                                          FIM_TIMERSWITCH);
   connectItemModelEvents(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
 
+  panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
+                                                               RawSwitch::MixesContext),
+                                         FIM_CRSFARMSWITCH);
+  connectItemModelEvents(panelFilteredModels->getItemModel(FIM_CRSFARMSWITCH));
+
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_ThrSource)),
                                          FIM_THRSOURCE);
   connectItemModelEvents(panelFilteredModels->getItemModel(FIM_THRSOURCE));
+
+  panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel(false)), FIM_HATSMODE);
 
   panelItemModels = new CompoundItemModelFactory(&generalSettings, &model);
   panelItemModels->registerItemModel(TimerData::countdownBeepItemModel());
@@ -1583,7 +1612,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::persistentItemModel());
   panelItemModels->registerItemModel(TimerData::modeItemModel());
   panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
-  panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel(false)), FIM_HATSMODE);
+  panelItemModels->registerItemModel(ModuleData::crsfArmingModeItemModel());
 
   Board::Type board = firmware->getBoard();
 
@@ -1817,7 +1846,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   }
 
   for (int i = firmware->getCapability(NumFirstUsableModule); i < firmware->getCapability(NumModules); i++) {
-    modules[i] = new ModulePanel(this, model, model.moduleData[i], generalSettings, firmware, i, panelFilteredModels);
+    modules[i] = new ModulePanel(this, model, model.moduleData[i], generalSettings, firmware, i, panelFilteredModels, panelItemModels);
     ui->modulesLayout->addWidget(modules[i]);
     connect(modules[i], &ModulePanel::modified, this, &SetupPanel::modified);
     connect(modules[i], &ModulePanel::updateItemModels, this, &SetupPanel::onModuleUpdateItemModels);

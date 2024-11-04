@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1075</width>
-    <height>527</height>
+    <height>543</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -437,18 +437,14 @@
          </widget>
         </item>
         <item row="15" column="1">
-          <widget class="QComboBox" name="crsfArmingMode">
-            <item>
-              <property name="text">
-                <string>CH5</string>
-              </property>
-            </item>
-            <item>
-              <property name="text">
-                <string>Switch</string>
-              </property>
-            </item>
-          </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_crsfarm">
+          <item>
+           <widget class="QComboBox" name="crsfArmingMode"/>
+          </item>
+          <item>
+           <widget class="QComboBox" name="crsfArmingTrigger"/>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
