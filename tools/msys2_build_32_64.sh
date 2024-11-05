@@ -233,12 +233,15 @@ function prep_target() {
 	#	Parameters:
   # 1 - config
 
+  local cfg="${1}"
+
   BUILD_COMMON_OPTIONS="--fresh -G 'MSYS Makefiles' -Wno-dev -DCMAKE_PREFIX_PATH=${QT_PATH} -DSDL2_LIBRARY_PATH=${MSYSTEM_PREFIX}/bin/ \
   -DOPENSSL_ROOT_DIR=${MSYSTEM_PREFIX}/bin/ -DCMAKE_BUILD_TYPE=${BUILD_TYPE}"
 
+  run_step "Deleting CMake cache files" "rm -f CMakeCache.txt ${cfg}/CMakeCache.txt"
   run_step "Generating CMake build environment" "cmake ${BUILD_COMMON_OPTIONS} ${BUILD_OPTIONS} ${EXTRA_BUILD_OPTIONS} ${SOURCE_PATH}"
   run_step "Running CMake clean" "cmake --build . --target clean"
-  run_step "Running CMake configure: ${1}" "cmake --build . --target ${1}-configure"
+  run_step "Running CMake configure: ${cfg}" "cmake --build . --target ${cfg}-configure"
 }
 
 function build_target() {
@@ -519,17 +522,17 @@ fi
 
 # tidy output directories before builds
 if [[ $OUTPUT_DELETE -eq 1 ]]; then
-  new_step "Deleting old build outputs"
+  new_step "Deleting old build output directories"
 
   if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
     delete_output_dir
   else
-    if [[ $BUILD_FIRMWARE -eq 1 ]] || [[ $BUILD_RADIO_SIM -eq 1 ]]; then
+    if [[ $BUILD_FIRMWARE -eq 1 ]] || [[ $BUILD_LIBSIMS -eq 1 ]]; then
       for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
         delete_output_dir ${RADIO_TYPES[i]}
       done
     fi
-    if [[ $BUILD_HWDEFS -ne 0 ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+    if [[ ! "$BUILD_HWDEFS" == "none" ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
       delete_output_dir ${CPN_FLDR}
     fi
   fi
@@ -646,10 +649,6 @@ fi
 
 [[ $BUILD_INSTALLER -eq 1 ]] && build_target native installer
 
-echo ""
-echo "Completed successfully"
-echo ""
-
 OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
 [[ $OUTPUT_APPEND_TARGET -eq 1 ]] && OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}"
 
@@ -665,3 +664,7 @@ fi
 [[ $BUILD_SIMULATOR -eq 1 ]] && echo "Simulator   : ${OUTPUT_PATH}/native/Release/simulator.exe"
 [[ $BUILD_LIBSIMS   -eq 1 ]] && echo "Libsims     : ${OUTPUT_PATH}/native/Release/libedgetx-[radio-type]-simulator.dll"
 [[ $BUILD_INSTALLER -eq 1 ]] && echo "Installer   : ${OUTPUT_PATH}/native/companion/companion-windows-x.x.x.exe"
+
+echo ""
+echo "Build(s) finished"
+echo ""
