@@ -76,7 +76,7 @@ function branch_version_part() {
 
 	local verspart
 
-  if [[ -f "${SOURCE_PATH}/CMakeLists.txt" ]]; then
+  if [ -f "${SOURCE_PATH}/CMakeLists.txt" ]; then
     searchstr="set(VERSION_${1}"
     if [ $(grep -m 1 -c "${searchstr}" "${SOURCE_PATH}/CMakeLists.txt") -eq 1 ]; then
       verspart=$(grep -m 1 "${searchstr}" "${SOURCE_PATH}/CMakeLists.txt" | cut -c $(expr ${#searchstr} + 1)-)
@@ -134,7 +134,7 @@ function download_file() {
     shift
   done
 
-	[[ -z "${srcfile}" ]] && fail "Sourcefile parameter not supplied"
+	[ -z "${srcfile}" ] && fail "Sourcefile parameter not supplied"
 	srcdir=$([ ! -z "${srcdir}" ] && echo "${srcdir}/")
 	destfile=$([ -z "${destfile}" ] && echo "${srcfile}")
 
@@ -170,7 +170,7 @@ function is_libsim_supported() {
 
 function validate_libsims() {
 
-  if [ ! "${RADIO_TYPES[0]}" == "all" ]; then
+  if [ "${RADIO_TYPES[0]}" != "all" ]; then
     for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
       if ! is_libsim_supported ${RADIO_TYPES[i]}; then
         fail "Unsupported radio simulator: '${RADIO_TYPES[i]}'"
@@ -214,7 +214,7 @@ function delete_output_dir() {
 
   local delpath="$(build_output_path ${1})"
 
-  if [[ -d ${delpath} ]]; then
+  if [ -d ${delpath} ]; then
     log "Deleting: ${delpath}"
     rm -rf ${delpath}
   fi
@@ -378,7 +378,7 @@ done
 # == End parse command line =="
 
 # download latest files from repo unless using custom versions
-if [[ ${LOCAL_CONFIG} -eq 0 ]]; then
+if [ ${LOCAL_CONFIG} -eq 0 ]; then
   # supported radio simulators and build options
   download_file -sd tools "${CONFIG_COMMON}"
   # supported radio firmwares
@@ -402,7 +402,7 @@ done
 
 [ ! -d "$ROOT_DIR" ] && fail "Unable to find root directory $ROOT_DIR"
 
-if [[ ${BUILD_FIRMWARE} -eq 1 ]] && [[ ! -d "${ARM_TOOLCHAIN_DIR}" ]] ; then
+if [[ ${BUILD_FIRMWARE} -eq 1 && ! -d "${ARM_TOOLCHAIN_DIR}" ]] ; then
   fail "Unable to find ARM toolchain directory ${ARM_TOOLCHAIN_DIR}"
 fi
 
@@ -416,12 +416,12 @@ validate_option_hwdefs
 SOURCE_PATH="${ROOT_DIR}/${SOURCE_DIR}"
 OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
 
-[[ $OUTPUT_APPEND_TARGET -eq 1 ]] && OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}" || OUTPUT_PATH+="output"
+[ $OUTPUT_APPEND_TARGET -eq 1 ] && OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}" || OUTPUT_PATH+="output"
 
 validate_edgetx_version
 split_version EDGETX_VERSION
 
-if [[ -f "${SOURCE_PATH}/CMakeLists.txt" ]] && [[ $REPO_CLONE -eq 0 ]] && [[ $REPO_FETCH -eq 0 ]]; then
+if [[ -f "${SOURCE_PATH}/CMakeLists.txt" && $REPO_CLONE -eq 0 && $REPO_FETCH -eq 0 ]]; then
   BRANCH_EDGETX_VERSION=$(branch_version)
   BRANCH_QT_VERSION=$(get_qt_version "${BRANCH_EDGETX_VERSION}")
 fi
@@ -459,10 +459,10 @@ if [ ! -d "${SOURCE_PATH}/.git" ] || [ ! -f "${SOURCE_PATH}/CMakeLists.txt" ]; t
   REPO_CLONE=1
   REPO_FETCH=0
 else
-  if [[ $REPO_FETCH -eq 1 ]]; then
+  if [ $REPO_FETCH -eq 1 ]; then
     REPO_CLONE=0
   fi
-  if [[ $REPO_CLONE -eq 1 ]]; then
+  if [ $REPO_CLONE -eq 1 ]; then
     REPO_FETCH=0
   fi
 fi
@@ -516,23 +516,23 @@ elif [ "${BUILD_HWDEFS}" == "radios" ]; then
   HWDEFS_RADIO_TYPES=("${RADIO_TYPES[@]}")
 fi
 
-if [[ $REPO_CLONE -eq 1 ]] && [[ -d ${SOURCE_PATH} ]]; then
+if [[ $REPO_CLONE -eq 1 && -d "${SOURCE_PATH}" ]]; then
   run_step "Deleting existing source directory" "rm -rf ${SOURCE_PATH}"
 fi
 
 # tidy output directories before builds
-if [[ $OUTPUT_DELETE -eq 1 ]]; then
+if [ $OUTPUT_DELETE -eq 1 ]; then
   new_step "Deleting old build output directories"
 
-  if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
+  if [ $OUTPUT_APPEND_TARGET -eq 0 ]; then
     delete_output_dir
   else
-    if [[ $BUILD_FIRMWARE -eq 1 ]] || [[ $BUILD_LIBSIMS -eq 1 ]]; then
+    if [[ $BUILD_FIRMWARE -eq 1 || $BUILD_LIBSIMS -eq 1 ]]; then
       for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
         delete_output_dir ${RADIO_TYPES[i]}
       done
     fi
-    if [[ ! "$BUILD_HWDEFS" == "none" ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+    if [[ "$BUILD_HWDEFS" != "none" || $BUILD_COMPANION -eq 1 || $BUILD_SIMULATOR -eq 1 || $BUILD_INSTALLER -eq 1 ]]; then
       delete_output_dir ${OUTPUT_DIR_SUFFIX_CPN}
     fi
   fi
@@ -541,13 +541,13 @@ if [[ $OUTPUT_DELETE -eq 1 ]]; then
 fi
 
 # github source
-if [[ $REPO_CLONE -eq 1 ]]; then
+if [ $REPO_CLONE -eq 1 ]; then
   run_step "Cloning GitHub repo" \
            "git clone --recursive -b ${BRANCH_NAME} https://github.com/${REPO_OWNER}/${REPO_NAME}.git ${SOURCE_PATH}"
   run_step "Switching to source directory" "cd ${SOURCE_PATH}"
 fi
 
-if [[ $REPO_FETCH -eq 1 ]]; then
+if [ $REPO_FETCH -eq 1 ]; then
   run_step "Switching to source directory" "cd ${SOURCE_PATH}"
   run_step "Fetching latest commits" "git fetch --all"
   run_step "Checking out branch" "git checkout ${BRANCH_NAME}"
@@ -557,12 +557,12 @@ if [[ $REPO_FETCH -eq 1 ]]; then
 fi
 
 # (re)check Qt version suitable for branch
-if [[ $REPO_CLONE -eq 1 ]] || [[ $REPO_FETCH -eq 1 ]]; then
+if [[ $REPO_CLONE -eq 1 || $REPO_FETCH -eq 1 ]]; then
   new_step "Checking required Qt version for branch"
   BRANCH_EDGETX_VERSION=$(branch_version)
   BRANCH_QT_VERSION=$(get_qt_version "${BRANCH_EDGETX_VERSION}")
 
-  if [[ "${BRANCH_QT_VERSION}" != "${QT_VERSION}" ]]; then
+  if [ "${BRANCH_QT_VERSION}" != "${QT_VERSION}" ]; then
     warn "Qt version ${QT_VERSION} branch '${BRANCH_NAME}' expects Qt version ${BRANCH_QT_VERSION}"
     warn "Press Enter to continue or Ctrl+C to abort."
     read
@@ -572,7 +572,7 @@ if [[ $REPO_CLONE -eq 1 ]] || [[ $REPO_FETCH -eq 1 ]]; then
 fi
 
 # builds
-if [[ $BUILD_FIRMWARE -eq 1 ]]; then
+if [ $BUILD_FIRMWARE -eq 1 ]; then
   # required for compile and elf-size-report.sh
   PATH=${ARM_TOOLCHAIN_DIR}:${PATH}
 
@@ -582,17 +582,17 @@ if [[ $BUILD_FIRMWARE -eq 1 ]]; then
     set_build_options ${RADIO_TYPES[i]}
     prep_and_build_target arm-none-eabi firmware-size
 
-    if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
+    if [ $OUTPUT_APPEND_TARGET -eq 0 ]; then
       run_step "Renaming firmware binary" "mv arm-none-eabi/firmware.bin arm-none-eabi/firmware-${RADIO_TYPES[i]}.bin"
     fi
   done
 fi
 
-if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_LIBSIMS -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+if [[ "${BUILD_HWDEFS}" != "none" || $BUILD_COMPANION -eq 1 || $BUILD_SIMULATOR -eq 1 || $BUILD_LIBSIMS -eq 1 || $BUILD_INSTALLER -eq 1 ]]; then
   create_switch_output_dir ${OUTPUT_DIR_SUFFIX_CPN}
 fi
 
-if [[ $BUILD_LIBSIMS -eq 1 ]]; then
+if [ $BUILD_LIBSIMS -eq 1 ]; then
   for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
     # not all radios may have libsim support when radio type 'all'
     if is_libsim_supported ${RADIO_TYPES[i]}; then
@@ -613,8 +613,8 @@ if [ "${BUILD_HWDEFS}" == "all" ]; then
   end_step 0
 fi
 
-if [ ! "${BUILD_HWDEFS}" == "none" ]; then
-  if [[ $OUTPUT_APPEND_TARGET -eq 1 ]] || [[ $BUILD_LIBSIMS -eq 0 ]]; then
+if [ "${BUILD_HWDEFS}" != "none" ]; then
+  if [[ $OUTPUT_APPEND_TARGET -eq 1 || ( $BUILD_LIBSIMS -eq 0 && ( $BUILD_COMPANION -eq 1 || $BUILD_SIMULATOR -eq 1 ) ) ]]; then
     # generate hardware definition json files for inclusion as resources in Companion and Simulator
     for ((i = 0; i < ${#HWDEFS_RADIO_TYPES[@]}; ++i)); do
       log "Generating hardware definition: ${RADIO_TYPES[i]}"
@@ -624,7 +624,7 @@ if [ ! "${BUILD_HWDEFS}" == "none" ]; then
   fi
 fi
 
-if [[ $BUILD_COMPANION -eq 1 ]]; then
+if [ $BUILD_COMPANION -eq 1 ]; then
   new_step "Clean Companion hardware definitions resource"
 	# forces cmake to rebuild resource from latest set of json files
 	cpndir="$(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/companion/src"
@@ -636,27 +636,27 @@ if [[ $BUILD_COMPANION -eq 1 ]]; then
   end_step 0
 fi
 
-if [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+if [[ $BUILD_COMPANION -eq 1 || $BUILD_SIMULATOR -eq 1 || $BUILD_INSTALLER -eq 1 ]]; then
   # use the first radio as cmake will fail without a radio
   set_build_options ${RADIO_TYPES[0]}
   prep_target native
 fi
 
-[[ $BUILD_COMPANION -eq 1 ]] && build_target native companion
+[ $BUILD_COMPANION -eq 1 ] && build_target native companion
 
-[[ $BUILD_SIMULATOR -eq 1 ]] && build_target native simulator
+[ $BUILD_SIMULATOR -eq 1 ] && build_target native simulator
 
-[[ $BUILD_INSTALLER -eq 1 ]] && build_target native installer
+[ $BUILD_INSTALLER -eq 1 ] && build_target native installer
 
-if [[ $BUILD_FIRMWARE -eq 1 ]]; then
+if [ $BUILD_FIRMWARE -eq 1 ]; then
   [[ OUTPUT_APPEND_TARGET -eq 0 ]] && RADIO_FIRMWARE_FILE="firmware-[radio-type].bin" || RADIO_FIRMWARE_FILE="firmware.bin"
   echo "Firmwares   : $(build_output_path '[radio-type]')/arm-none-eabi/${RADIO_FIRMWARE_FILE}"
 fi
 
-[[ $BUILD_COMPANION -eq 1 ]] && echo "Companion   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/companion.exe"
-[[ $BUILD_SIMULATOR -eq 1 ]] && echo "Simulator   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/simulator.exe"
-[[ $BUILD_LIBSIMS   -eq 1 ]] && echo "Libsims     : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/libedgetx-[radio-type]-simulator.dll"
-[[ $BUILD_INSTALLER -eq 1 ]] && echo "Installer   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/companion/companion-windows-x.x.x.exe"
+[ $BUILD_COMPANION -eq 1 ] && echo "Companion   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/companion.exe"
+[ $BUILD_SIMULATOR -eq 1 ] && echo "Simulator   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/simulator.exe"
+[ $BUILD_LIBSIMS   -eq 1 ] && echo "Libsims     : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/libedgetx-[radio-type]-simulator.dll"
+[ $BUILD_INSTALLER -eq 1 ] && echo "Installer   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/companion/companion-windows-x.x.x.exe"
 
 echo ""
 echo "Build(s) finished"

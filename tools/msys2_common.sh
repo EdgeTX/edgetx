@@ -38,12 +38,12 @@ function check_command() {
   local result=$1
   local msg=$( [ ! -z "${2}" ] && echo "${2}" || echo "${STEP_MSG}" )
 
-  if [[ $result -ne 0 ]]; then
+  if [ $result -ne 0 ]; then
     fail "${msg} (exit-code=$result)"
   else
     log "Step $STEP: Finished - OK"
 
-    if [[ $STEP_PAUSE -eq 1 ]]; then
+    if [ $STEP_PAUSE -eq 1 ]; then
       echo "Step finished. Please check the output above and press Enter key to continue or Ctrl+C to stop."
       read
     fi
@@ -95,7 +95,7 @@ function trim_spaces() {
 }
 
 function check_qt_arch_support() {
-  if [[ "$MSYSTEM" == "MINGW32" ]] && [[ $QT_VERSION_MAJOR -gt 5 ]]; then
+  if [[ "$MSYSTEM" == "MINGW32" && $QT_VERSION_MAJOR -gt 5 ]]; then
     fail "Qt versions later than 5 do not support 32-bit architectures"
   fi
 }
@@ -119,13 +119,13 @@ function get_qt_version() {
     IFS='.' read -ra supparr <<< "${supported_edgetx_versions[i]}"
 
     for ((j = 0; j < ${#supparr[@]}; ++j)); do
-      if [[ "${etxarr[j]}" != "${supparr[j]}" ]]; then
+      if [ "${etxarr[j]}" != "${supparr[j]}" ]; then
         found=0
         break
       fi
     done
 
-    if [[ $found -eq 1 ]]; then
+    if [ $found -eq 1 ]; then
       echo ${supported_qt_versions[i]}
       return 0
     fi
@@ -164,7 +164,7 @@ function validate_version() {
 
   for arrver in "${arr}"
   do
-    if [[ "${checkver}" == "${arrver}" ]]; then
+    if [ "${checkver}" == "${arrver}" ]; then
       return 0
     fi
   done
