@@ -48,7 +48,7 @@ OUTPUT_DIR="${SOURCE_DIR}"
 OUTPUT_APPEND_TARGET=1
 OUTPUT_DELETE=0
 
-CPN_FLDR=companion
+OUTPUT_DIR_SUFFIX_CPN=companion
 
 BUILD_OPTIONS=""
 EXTRA_BUILD_OPTIONS=""
@@ -533,7 +533,7 @@ if [[ $OUTPUT_DELETE -eq 1 ]]; then
       done
     fi
     if [[ ! "$BUILD_HWDEFS" == "none" ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
-      delete_output_dir ${CPN_FLDR}
+      delete_output_dir ${OUTPUT_DIR_SUFFIX_CPN}
     fi
   fi
 
@@ -583,9 +583,13 @@ if [[ $BUILD_FIRMWARE -eq 1 ]]; then
     prep_and_build_target arm-none-eabi firmware-size
 
     if [[ $OUTPUT_APPEND_TARGET -eq 0 ]]; then
-      run_step "Renaming firmware binary" "mv arm-none-eabi/firmware.bin arm-none-eabi/firmware_${RADIO_TYPES[i]}.bin"
+      run_step "Renaming firmware binary" "mv arm-none-eabi/firmware.bin arm-none-eabi/firmware-${RADIO_TYPES[i]}.bin"
     fi
   done
+fi
+
+if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_LIBSIMS -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
+  create_switch_output_dir ${OUTPUT_DIR_SUFFIX_CPN}
 fi
 
 if [[ $BUILD_LIBSIMS -eq 1 ]]; then
@@ -593,20 +597,15 @@ if [[ $BUILD_LIBSIMS -eq 1 ]]; then
     # not all radios may have libsim support when radio type 'all'
     if is_libsim_supported ${RADIO_TYPES[i]}; then
       log "Generating libsim: ${RADIO_TYPES[i]}"
-      create_switch_output_dir ${RADIO_TYPES[i]}
       set_build_options ${RADIO_TYPES[i]}
       prep_and_build_target native libsimulator
     fi
   done
 fi
 
-if [[ ! "${BUILD_HWDEFS}" == "none" ]] || [[ $BUILD_COMPANION -eq 1 ]] || [[ $BUILD_SIMULATOR -eq 1 ]] || [[ $BUILD_INSTALLER -eq 1 ]]; then
-  create_switch_output_dir ${CPN_FLDR}
-fi
-
 if [ "${BUILD_HWDEFS}" == "all" ]; then
   new_step "Removing existing radio hardware definitions"
-	radiodir="$(build_output_path ${CPN_FLDR})/native/radio/src"
+	radiodir="$(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/radio/src"
 	if [ -d ${radiodir} ]; then
 		rm -f ${radiodir}/*.json*
 	fi
@@ -628,7 +627,7 @@ fi
 if [[ $BUILD_COMPANION -eq 1 ]]; then
   new_step "Clean Companion hardware definitions resource"
 	# forces cmake to rebuild resource from latest set of json files
-	cpndir="$(build_output_path ${CPN_FLDR})/native/companion/src"
+	cpndir="$(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/companion/src"
 	if [ -d ${cpndir} ]; then
 		rm -f ${cpndir}/hwdefs.qrc*
 		rm -f ${cpndir}/qrc_hwdefs.cpp*
@@ -649,21 +648,15 @@ fi
 
 [[ $BUILD_INSTALLER -eq 1 ]] && build_target native installer
 
-OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
-[[ $OUTPUT_APPEND_TARGET -eq 1 ]] && OUTPUT_PATH+="${OUTPUT_TARGET_PLACEHOLDER}"
-
 if [[ $BUILD_FIRMWARE -eq 1 ]]; then
-  if [[ OUTPUT_APPEND_TARGET -eq 0 ]]; then
-    echo "Firmwares   : ${OUTPUT_PATH}/arm-none-eabi/firmware[-radio type].bin"
-  else
-    echo "Firmwares   : ${OUTPUT_PATH}/arm-none-eabi/firmware.bin"
-  fi
+  [[ OUTPUT_APPEND_TARGET -eq 0 ]] && RADIO_FIRMWARE_FILE="firmware-[radio-type].bin" || RADIO_FIRMWARE_FILE="firmware.bin"
+  echo "Firmwares   : $(build_output_path '[radio-type]')/arm-none-eabi/${RADIO_FIRMWARE_FILE}"
 fi
 
-[[ $BUILD_COMPANION -eq 1 ]] && echo "Companion   : ${OUTPUT_PATH}/native/Release/companion.exe"
-[[ $BUILD_SIMULATOR -eq 1 ]] && echo "Simulator   : ${OUTPUT_PATH}/native/Release/simulator.exe"
-[[ $BUILD_LIBSIMS   -eq 1 ]] && echo "Libsims     : ${OUTPUT_PATH}/native/Release/libedgetx-[radio-type]-simulator.dll"
-[[ $BUILD_INSTALLER -eq 1 ]] && echo "Installer   : ${OUTPUT_PATH}/native/companion/companion-windows-x.x.x.exe"
+[[ $BUILD_COMPANION -eq 1 ]] && echo "Companion   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/companion.exe"
+[[ $BUILD_SIMULATOR -eq 1 ]] && echo "Simulator   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/simulator.exe"
+[[ $BUILD_LIBSIMS   -eq 1 ]] && echo "Libsims     : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/libedgetx-[radio-type]-simulator.dll"
+[[ $BUILD_INSTALLER -eq 1 ]] && echo "Installer   : $(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/companion/companion-windows-x.x.x.exe"
 
 echo ""
 echo "Build(s) finished"
