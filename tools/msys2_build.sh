@@ -22,7 +22,7 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # == Include common variables and functions ==
-source ${SCRIPT_DIR}/msys2_common_32_64.sh
+source ${SCRIPT_DIR}/msys2_common.sh
 
 # == Initialise variables ==
 

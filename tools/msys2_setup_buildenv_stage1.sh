@@ -30,7 +30,7 @@ read -p "Press Enter key to continue or Ctrl+C to abort"
 # == Include common variables and functions ==
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-source ${SCRIPT_DIR}/msys2_common_32_64.sh
+source ${SCRIPT_DIR}/msys2_common.sh
 
 # Defaults
 INSTALL_64BIT=1
