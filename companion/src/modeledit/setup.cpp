@@ -1596,7 +1596,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   connectItemModelEvents(panelFilteredModels->getItemModel(FIM_TIMERSWITCH));
 
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSwitch),
-                                                               RawSwitch::MixesContext),
+                                                               RawSwitch::SpecialFunctionsContext),
                                          FIM_CRSFARMSWITCH);
   connectItemModelEvents(panelFilteredModels->getItemModel(FIM_CRSFARMSWITCH));
 
