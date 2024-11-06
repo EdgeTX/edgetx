@@ -47,6 +47,7 @@ class LvglWidgetObjectBase
   virtual void hide() = 0;
 
   virtual void setColor(LcdFlags newColor) {}
+  virtual void setOpacity(uint8_t newOpa) {}
   virtual void setPos(coord_t x, coord_t y) {}
   virtual void setSize(coord_t w, coord_t h) {}
 
@@ -67,7 +68,9 @@ class LvglWidgetObjectBase
   coord_t x = 0, y = 0, w = LV_SIZE_CONTENT, h = LV_SIZE_CONTENT;
   LcdFlags color = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX);
   LcdFlags currentColor = -1;
+  uint8_t opacity = LV_OPA_COVER;
   int getColorFunction = LUA_REFNIL;
+  int getOpacityFunction = LUA_REFNIL;
   int getVisibleFunction = LUA_REFNIL;
   int getSizeFunction = LUA_REFNIL;
   int getPosFunction = LUA_REFNIL;
@@ -120,6 +123,7 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject
   void setText(const char *s);
   void setColor(LcdFlags newColor) override;
   void setFont(LcdFlags font);
+  void setAlign(LcdFlags align);
 
   void build(lua_State *L) override;
   bool callRefs(lua_State *L) override;
@@ -130,14 +134,17 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject
 
   const char *txt = "";
   LcdFlags font = FONT(STD);
+  LcdFlags align = LEFT;
   int getTextFunction = LUA_REFNIL;
   int getFontFunction = LUA_REFNIL;
+  int getAlignFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
   {
     setText(txt);
     setFont(font);
+    setAlign(align);
     LvglSimpleWidgetObject::refresh();
   }
 };
@@ -150,6 +157,7 @@ class LvglWidgetLineBase : public LvglSimpleWidgetObject
   LvglWidgetLineBase() : LvglSimpleWidgetObject() {}
 
   void setColor(LcdFlags newColor) override;
+  void setOpacity(uint8_t newOpa) override;
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
 
@@ -195,6 +203,7 @@ class LvglWidgetLine : public LvglSimpleWidgetObject
   LvglWidgetLine() : LvglSimpleWidgetObject() {}
 
   void setColor(LcdFlags newColor) override;
+  void setOpacity(uint8_t newOpa) override;
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
 
@@ -298,6 +307,7 @@ class LvglWidgetBorderedObject : public LvglWidgetObject
   LvglWidgetBorderedObject() : LvglWidgetObject() {}
 
   void setColor(LcdFlags newColor) override;
+  void setOpacity(uint8_t newOpa) override;
 
   void build(lua_State *L) override;
 
@@ -369,6 +379,7 @@ class LvglWidgetArc : public LvglWidgetRoundObject
   LvglWidgetArc() : LvglWidgetRoundObject() {}
 
   void setColor(LcdFlags newColor) override;
+  void setOpacity(uint8_t newOpa) override;
   void setStartAngle(coord_t angle);
   void setEndAngle(coord_t angle);
 
