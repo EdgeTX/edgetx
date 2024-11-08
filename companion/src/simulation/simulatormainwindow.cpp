@@ -181,6 +181,8 @@ SimulatorMainWindow::~SimulatorMainWindow()
     }
     delete m_simulator;
   }
+
+  delete hostSerialConnector;
   SimulatorLoader::unloadSimulator(m_simulatorId);
 }
 
