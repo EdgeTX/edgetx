@@ -529,6 +529,9 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
   menu->addLine(STR_DELETE_FILE, [=]() {
     f_unlink(fullpath);
     browser->refresh();
+    loadPreview = 0;
+    preview->setFile(nullptr);
+    loading->hide();
   });
 }
 
