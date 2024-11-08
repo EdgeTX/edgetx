@@ -270,6 +270,17 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         crossfireModuleStatus[module].major = rxBuffer[14 + nameSize];
         crossfireModuleStatus[module].minor = rxBuffer[15 + nameSize];
         crossfireModuleStatus[module].revision = rxBuffer[16 + nameSize];
+
+        ModuleData *md = &g_model.moduleData[module];
+
+        if(!CRSF_ELRS_MIN_VER(module, 4, 0) &&
+           (md->crsf.crsfArmingMode != ARMING_MODE_CH5 || md->crsf.crsfArmingMode != SWSRC_NONE)) {
+          md->crsf.crsfArmingMode = ARMING_MODE_CH5;
+          md->crsf.crsfArmingTrigger = SWSRC_NONE;
+
+          storageDirty(EE_MODEL);
+        }
+
         crossfireModuleStatus[module].queryCompleted = true;
       }
 

@@ -30,7 +30,7 @@
 
 CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
                                      uint8_t moduleIdx) :
-    Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
+    Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx]), moduleIdx(moduleIdx)
 {
   FlexGridLayout grid(g);
   setFlexLayout();
@@ -67,30 +67,34 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     return std::string(msg);
   });
  
+  moduleIdx = moduleIdx;
+
   auto armingLine = newLine(grid);
-  new StaticText(armingLine, rect_t{}, STR_ARMING_MODE);
+  lblArmMode = new StaticText(armingLine, rect_t{}, STR_ARMING_MODE);
   auto box = new Window(armingLine, rect_t{});
   box->padAll(PAD_TINY);
   box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
-  new Choice(box, rect_t{}, STR_CRSF_ARMING_MODES, 0, 1, GET_SET_DEFAULT(md->crsf.crsfArmingMode));
-  switchChoice = new SwitchChoice(box, rect_t{}, SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(md->crsf.crsfArmingTrigger));
-  switchChoice->setAvailableHandler([=](int sw) { return isSwitchAvailableForArming(sw); });
-
-  lastCrsfArmingMode = 0xff;    // force update
+  choArmMode = new Choice(box, rect_t{}, STR_CRSF_ARMING_MODES, 0, 1, GET_SET_DEFAULT(md->crsf.crsfArmingMode));
+  choArmSwitch = new SwitchChoice(box, rect_t{}, SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(md->crsf.crsfArmingTrigger));
+  choArmSwitch->setAvailableHandler([=](int sw) { return isSwitchAvailableForArming(sw); });
 
   update();                      
 }
 
 void CrossfireSettings::update() {
-  if(lastCrsfArmingMode != md->crsf.crsfArmingMode) {
-    if(md->crsf.crsfArmingMode) {
-      switchChoice->show();
-    } else {
-      switchChoice->hide();
-    }
+    if(CRSF_ELRS_MIN_VER(moduleIdx, 4, 0)) {
+      lblArmMode->show();
+      choArmMode->show();
 
-    lastCrsfArmingMode = md->crsf.crsfArmingMode;
-  }
+      if(md->crsf.crsfArmingMode == ARMING_MODE_SWITCH)
+        choArmSwitch->show();
+      else
+        choArmSwitch->hide();
+    } else {
+      lblArmMode->hide();
+      choArmMode->hide();
+      choArmSwitch->hide();
+    }
 }
 
 void CrossfireSettings::checkEvents() {
