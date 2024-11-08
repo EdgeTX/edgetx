@@ -425,7 +425,7 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #endif
 #define IF_MODULE_ARMED(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
-#define IF_MODULE_ARMED_TRIGGER(module, xxx) (isModuleCrossfire(module)  && g_model.moduleData[module].crsf.crsfArmingMode ? (uint8_t)(xxx) : HIDDEN_ROW)  
+#define IF_MODULE_ARMED_TRIGGER(module, xxx) ((isModuleCrossfire(module)  && (g_model.moduleData[module].crsf.crsfArmingMode)) ? (uint8_t)(xxx) : HIDDEN_ROW)  
 #else
 #define IF_MODULE_SYNCED(module, xxx)
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx)
@@ -1279,13 +1279,15 @@ void menuModelSetup(event_t event)
 #if defined(CROSSFIRE)
       case ITEM_MODEL_SETUP_ARMING_MODE:
         g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = 
-          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_ARMING_MODE, STR_CRSF_ARMING_MODES, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode, 0, 1, attr, event, INDENT_WIDTH);
+          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_ARMING_MODE, STR_CRSF_ARMING_MODES,
+          g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode, ARMING_MODE_FIRST, ARMING_MODE_LAST, attr, event, INDENT_WIDTH);
         break;
 
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER:
         lcdDrawTextIndented(y, STR_SWITCH);
         drawSwitch(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, attr);
-        CHECK_INCDEC_MODELSWITCH(event, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWSRC_FIRST_IN_MIXES, SWSRC_LAST_IN_MIXES, isSwitchAvailableForArming);
+        if(attr)
+          CHECK_INCDEC_SWITCH(event, g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
         break;
 #endif
 

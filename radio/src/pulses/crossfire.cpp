@@ -103,10 +103,11 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
   ModuleData *md = &g_model.moduleData[moduleIdx];
 
   uint8_t armingMode = md->crsf.crsfArmingMode; // 0 = Channel mode, 1 = Switch mode
+  uint8_t lenAdjust = (armingMode == ARMING_MODE_SWITCH) ? 1 : 0;
 
   uint8_t * buf = frame;
   *buf++ = MODULE_ADDRESS;
-  *buf++ = 24 + armingMode ;                   // 1(ID) + 22(channel data) + (+1 extra byte if Switch mode) + 1(CRC)
+  *buf++ = 24 + lenAdjust;      // 1(ID) + 22(channel data) + (+1 extra byte if Switch mode) + 1(CRC)
   uint8_t * crc_start = buf;
   *buf++ = CHANNELS_ID;
   uint32_t bits = 0;
@@ -122,13 +123,13 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
     }
   }
   
-  if (armingMode) {
+  if (armingMode == ARMING_MODE_SWITCH) {
     swsrc_t sw =  md->crsf.crsfArmingTrigger;
 
     *buf++ = (sw != SWSRC_NONE) && getSwitch(sw, 0);  // commanded armed status in Switch mode
   }
   
-  *buf++ = crc8(crc_start, 23 + armingMode);
+  *buf++ = crc8(crc_start, 23 + lenAdjust);
   return buf - frame;
 }
 
