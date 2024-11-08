@@ -707,14 +707,14 @@ void OpenTxSimulator::drv_auxSerialDeinit(quint8 port_nr)
 
 void OpenTxSimulator::drv_auxSerialSendByte(quint8 port_nr, uint8_t b)
 {
-  QByteArray data = QByteArray::fromRawData((const char *)&b, 1);
+  QByteArray data = QByteArray((const char *)&b, 1);
 
   emit auxSerialSendData(port_nr, data);
 }
 
 void OpenTxSimulator::drv_auxSerialSendBuffer(quint8 port_nr, const uint8_t* b, uint32_t l)
 {
-  QByteArray data = QByteArray::fromRawData((const char *)b, l);
+  QByteArray data = QByteArray((const char *)b, l);
 
   emit auxSerialSendData(port_nr, data);
 }
