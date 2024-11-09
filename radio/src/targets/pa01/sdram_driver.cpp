@@ -137,7 +137,7 @@ extern "C" void SDRAM_InitSequence(void)
   /* Configure a PALL (precharge all) command */
   FMC_SDRAMCommandStructure.CommandMode = FMC_SDRAM_CMD_PALL;
   FMC_SDRAMCommandStructure.CommandTarget = FMC_SDRAM_CMD_TARGET_BANK1;
-  FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
+  FMC_SDRAMCommandStructure.AutoRefreshNumber = 8;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* Wait until the SDRAM controller is ready */
   // timeout = SDRAM_TIMEOUT;
@@ -178,7 +178,7 @@ extern "C" void SDRAM_InitSequence(void)
   /* Configure a load Mode register command*/
   FMC_SDRAMCommandStructure.CommandMode = FMC_SDRAM_CMD_LOAD_MODE;
   FMC_SDRAMCommandStructure.CommandTarget = FMC_SDRAM_CMD_TARGET_BANK1;
-  FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
+  FMC_SDRAMCommandStructure.AutoRefreshNumber = 8;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = tmpr;
 
   /* Wait until the SDRAM controller is ready */
@@ -195,8 +195,8 @@ extern "C" void SDRAM_InitSequence(void)
   /* Set the refresh rate counter */
   /* (15.62 us x Freq) - 20 */
   /* Set the device refresh counter */
-  FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6_R, 0x103);//904
-  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 0x88);
+  FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6_R, 15);
+  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1021);
   /* Wait until the SDRAM controller is ready */
   // timeout = SDRAM_TIMEOUT;
   // while((__FMC_SDRAM_GET_FLAG(FMC_Bank5_6_R, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
@@ -239,13 +239,13 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAMInitStructure.InternalBankNumber = FMC_SDRAM_INTERN_BANKS_NUM_4;
   FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_3;
   FMC_SDRAMInitStructure.WriteProtection = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
-  FMC_SDRAMInitStructure.SDClockPeriod = FMC_SDRAM_CLOCK_PERIOD_2;
+  FMC_SDRAMInitStructure.SDClockPeriod = FMC_SDRAM_CLOCK_PERIOD_3;
   FMC_SDRAMInitStructure.ReadBurst = FMC_SDRAM_RBURST_ENABLE;
   FMC_SDRAMInitStructure.ReadPipeDelay = FMC_SDRAM_RPIPE_DELAY_0;
 
   /* FMC SDRAM bank initialization */
   FMC_SDRAM_Init(FMC_Bank5_6_R, &FMC_SDRAMInitStructure);
-  FMC_SDRAM_Timing_Init(FMC_Bank5_6_R, &FMC_SDRAMTimingInitStructure, FMC_SDRAM_BANK2);
+  FMC_SDRAM_Timing_Init(FMC_Bank5_6_R, &FMC_SDRAMTimingInitStructure, FMC_SDRAM_BANK1);
 
   __FMC_ENABLE();
 
