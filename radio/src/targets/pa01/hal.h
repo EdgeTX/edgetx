@@ -41,7 +41,7 @@
 
 // Keys
 #define KEYS_GPIO_REG_ENTER           GPIOG
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_14  // PG.14
+#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_13  // PG.13
 #define KEYS_GPIO_REG_PAGEDN          GPIOA
 #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8   // PA.08
 #define KEYS_GPIO_REG_EXIT            GPIOC
@@ -84,10 +84,10 @@
 // active 4x4 column/row based key-matrix to support up to 16 buttons with only 8 GPIOs
 #define TRIMS_GPIO_OUT1                 GPIOG
 #define TRIMS_GPIO_OUT1_PIN             LL_GPIO_PIN_2  // PG.02
-#define TRIMS_GPIO_OUT2                 GPIOG
-#define TRIMS_GPIO_OUT2_PIN             LL_GPIO_PIN_10 // PG.10
-#define TRIMS_GPIO_OUT3                 GPIOG
-#define TRIMS_GPIO_OUT3_PIN             LL_GPIO_PIN_11 // PG.11
+//#define TRIMS_GPIO_OUT2                 GPIOG
+//#define TRIMS_GPIO_OUT2_PIN             LL_GPIO_PIN_10 // PG.10
+//#define TRIMS_GPIO_OUT3                 GPIOG
+//#define TRIMS_GPIO_OUT3_PIN             LL_GPIO_PIN_11 // PG.11
 // OUT4 routed on MCU PCB, but not attached to any physical buttons, free to use for extensions
 #define TRIMS_GPIO_OUT4                 GPIOH
 #define TRIMS_GPIO_OUT4_PIN             LL_GPIO_PIN_7  // PH.07
@@ -127,14 +127,14 @@
 // PC8 allocated to SDIO D0, is not required to sample SWA !
 #define KEYS_GPIOC_PINS (LL_GPIO_PIN_13)
 
-#define KEYS_GPIOD_PINS (LL_GPIO_PIN_7)
+#define KEYS_GPIOD_PINS ()
 
 #define KEYS_GPIOH_PINS							\
   (LL_GPIO_PIN_8 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
 
 #define KEYS_GPIOJ_PINS (LL_GPIO_PIN_12)
 
-#define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
+#define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_2 )
 
 #define KEYS_OUT_GPIOH_PINS (LL_GPIO_PIN_7)
 
@@ -168,7 +168,7 @@
   (ADC_GPIO_PIN_SWA|ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_STICK_LH | \
    ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
 
-#define ADC_GPIOB_PINS (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SLIDER2)
+#define ADC_GPIOB_PINS (ADC_GPIO_PIN_POT2 )
 
 #define ADC_GPIOC_PINS ( ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_BATT)
 
@@ -306,7 +306,7 @@
 
 // USB
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 0)  // PC.00
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 0)  // PB.00
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
@@ -334,13 +334,13 @@
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // SPI NOR Flash
-#define FLASH_SPI                      SPI6
-#define FLASH_SPI_CS_GPIO              GPIOG
-#define FLASH_SPI_CS_GPIO_PIN          LL_GPIO_PIN_6  // PG.06
-#define FLASH_SPI_GPIO                 GPIOG
-#define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_13 // PG.13
-#define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_12 // PG.12
-#define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_14 // PG.14
+//#define FLASH_SPI                      SPI6
+//#define FLASH_SPI_CS_GPIO              GPIOG
+//#define FLASH_SPI_CS_GPIO_PIN          LL_GPIO_PIN_6  // PG.06
+//#define FLASH_SPI_GPIO                 GPIOG
+//#define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_13 // PG.13
+//#define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_12 // PG.12
+//#define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_14 // PG.14
 // #define FLASH_SPI_DMA                  DMA2
 // #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_1
 // #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
@@ -350,11 +350,23 @@
 // #define FLASH_SPI_DMA_RX_IRQn          DMA2_Stream6_IRQn
 // #define FLASH_SPI_DMA_RX_IRQHandler    DMA2_Stream6_IRQHandler
 
-#define SD_PRESENT_GPIO                GPIO_PIN(GPIOD, 3) // PD.03
+//#define SD_PRESENT_GPIO                GPIO_PIN(GPIOD, 3) // PD.03
 #define SD_SDIO                        SDMMC1
 #define SD_SDIO_CLK_DIV(fq)            ((240000000 + (2*fq) -1) / (2 *fq)) /* make sure the resulting frequency is not higher than expected */
 #define SD_SDIO_INIT_CLK_DIV           SD_SDIO_CLK_DIV(400000)
 #define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(20000000)
+#define SD_SDIO_PIN_D0                 GPIO_PIN(GPIOC,  8)
+#define SD_SDIO_AF_D0                  GPIO_AF12
+#define SD_SDIO_PIN_D1                 GPIO_PIN(GPIOC,  9)
+#define SD_SDIO_AF_D1                  GPIO_AF12
+#define SD_SDIO_PIN_D2                 GPIO_PIN(GPIOC, 10)
+#define SD_SDIO_AF_D2                  GPIO_AF12
+#define SD_SDIO_PIN_D3                 GPIO_PIN(GPIOC, 11)
+#define SD_SDIO_AF_D3                  GPIO_AF12
+#define SD_SDIO_PIN_CLK                GPIO_PIN(GPIOC, 12)
+#define SD_SDIO_AF_CLK                 GPIO_AF12
+#define SD_SDIO_PIN_CMD                GPIO_PIN(GPIOD,  2)
+#define SD_SDIO_AF_CMD                 GPIO_AF12
 #define STORAGE_USE_SDIO
 
 
@@ -374,22 +386,23 @@
 
 // I2C Bus
 #define I2C_B1                          I2C1
-#define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOB, 7)  // PB.07
+#define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOB, 9)  // PB.09
 #define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOB, 8)  // PB.08
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B1_CLK_RATE                 400000
 
-#define I2C_B2                          I2C3
-#define I2C_B2_SDA_GPIO                 GPIO_PIN(GPIOH, 8)  // PH.08
-#define I2C_B2_SCL_GPIO                 GPIO_PIN(GPIOH, 7)  // PH.07
+#define I2C_B2                          I2C2
+#define I2C_B2_SDA_GPIO                 GPIO_PIN(GPIOB, 10)  // PB.10
+#define I2C_B2_SCL_GPIO                 GPIO_PIN(GPIOB, 11)  // PB.11
 #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B2_CLK_RATE                 400000
 
+
 // Haptic: TIM3_CH2
 #define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOB, 5) // PB.05
-#define HAPTIC_GPIO_TIMER               TIM3
-#define HAPTIC_GPIO_AF                  GPIO_AF2
+#define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 15) // PA.15
+#define HAPTIC_GPIO_TIMER               TIM2
+#define HAPTIC_GPIO_AF                  GPIO_AF1
 #define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
@@ -423,8 +436,8 @@
 
 
 // Internal Module
-#define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
-#define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 10) // PB.10
+#define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 15) // PB.15
+#define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 14) // PB.14
 #define INTMODULE_USART                 USART3
 #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
 #define INTMODULE_USART_IRQn            USART3_IRQn
@@ -448,8 +461,8 @@
 // External Module
 #define EXTMODULE
 #define EXTMODULE_PULSES
-#define EXTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 9)  // PB.09
-#define EXTMODULE_RX_GPIO               GPIO_PIN(GPIOI, 9)  // PI.09
+#define EXTMODULE_TX_GPIO               GPIO_PIN(GPIOC, 6)  // PC.06
+#define EXTMODULE_RX_GPIO               GPIO_PIN(GPIOC, 7)  // PC.07
 #define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
 #define EXTMODULE_TIMER                 TIM8
 #define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
@@ -461,8 +474,8 @@
 
 //USART
 #define EXTMODULE_USART                    UART4
-#define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOI, 9)
-#define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOB, 9)
+#define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOA, 0)
+#define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOA, 1)
 #define EXTMODULE_USART_TX_DMA             DMA2
 #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMAMUX1_REQ_UART4_TX
 #define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_STREAM_6
@@ -539,11 +552,11 @@
 #define LANDSCAPE_LCD true
 #define PORTRAIT_LCD false
 
-#define LCD_W                           480
-#define LCD_H                           320
+#define LCD_W                           320
+#define LCD_H                           240
 
-#define LCD_PHYS_W                      LCD_H
-#define LCD_PHYS_H                      LCD_W
+#define LCD_PHYS_W                      LCD_W
+#define LCD_PHYS_H                      LCD_H
 
 #define LCD_DEPTH                       16
 
