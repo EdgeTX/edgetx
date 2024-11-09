@@ -195,7 +195,7 @@ bool readSettings(const QString & filename, ProgressWidget * progress)
 
 bool readSettingsSDCard(const QString & filename, ProgressWidget * progress)
 {
-  QString radioPath = findMassstoragePath("RADIO", true);
+  QString radioPath = findMassstoragePath("RADIO", true, progress);
   qDebug() << "Searching for SD card, found" << radioPath;
   if (radioPath.isEmpty()) {
     QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
@@ -297,29 +297,33 @@ bool writeSettings(const QString & filename, ProgressWidget * progress)
   return false;
 }
 
-QString findMassstoragePath(const QString & filename, bool onlyPath)
+QString findMassstoragePath(const QString & filename, bool onlyPath, ProgressWidget *progress)
 {
   QString temppath;
   QString probefile;
-  bool found = false;
+  int found = 0;
+  const qint64 maxStorage = 64000000000; // screen out non-radio sD cards use 64GB but SD card recommendation 32GB or less
 
   QRegularExpression fstypeRe("^(v?fat|msdos|lifs)", QRegularExpression::CaseInsensitiveOption);  // Linux: "vfat"; macOS: "msdos" or "lifs"; Win: "FAT32"
 
   foreach(const QStorageInfo & si, QStorageInfo::mountedVolumes()) {
-    //qDebug() << si.rootPath() << si.name() << si.device() << si.displayName() << si.fileSystemType() << si.isReady();
-    if (!si.isReady() || !QString(si.fileSystemType()).contains(fstypeRe))
+    //qDebug() << si.rootPath() << si.name() << si.device() << si.displayName() << si.fileSystemType() << si.isReady() << si.bytesTotal() << si.blockSize();
+    if (!si.isReady() || si.isReadOnly() || si.bytesTotal() > maxStorage || !QString(si.fileSystemType()).contains(fstypeRe))
       continue;
     temppath = si.rootPath();
     probefile = temppath % "/" % filename;
     qDebug() << "Searching for" << probefile;
     if (QFile::exists(probefile)) {
-      found = true;
-      break;
+      found++;
+      qDebug() << probefile << "found";
     }
   }
 
-  if (found)
+  if (found == 1)
     return onlyPath ? temppath : probefile;
-  else
-    return QString();
+  else if (found > 1) {
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, filename % " " % QCoreApplication::translate("RadioInterface", "found in multiple locations"));
+  }
+
+  return QString();
 }
