@@ -32,6 +32,8 @@ extern lcdSpiInitFucPtr lcdOnFunction;
 
 #define LCD_NRST_HIGH()               gpio_set(LCD_NRST)
 #define LCD_NRST_LOW()                gpio_clear(LCD_NRST)
+#define LCD_COMMAND_MODE()            gpio_clear(LCD_SPI_RS)
+#define LCD_DATA_MODE()               gpio_set(LCD_SPI_RS)
 
 #endif
 
