@@ -20,6 +20,7 @@
  */
 
 #include "hostserialconnector.h"
+#include <QMessageBox>
 
 HostSerialConnector::HostSerialConnector(QObject *parent, SimulatorInterface *simulator)
   : simulator(simulator)
@@ -166,7 +167,7 @@ void HostSerialConnector::serialStart(const quint8 index)
   if (port->open(QIODevice::ReadWrite))
     qDebug() << "Opened host serial " << index;
   else
-    qDebug() << "Failed to open host serial " << index << ": " << port->errorString();
+    QMessageBox::warning(nullptr, tr("Host Serial Error"), port->errorString(), QMessageBox::Cancel, QMessageBox::Cancel);
 }
 
 void HostSerialConnector::serialStop(const quint8 index)
