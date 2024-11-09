@@ -302,13 +302,12 @@ QString findMassstoragePath(const QString & filename, bool onlyPath, ProgressWid
   QString temppath;
   QString probefile;
   int found = 0;
-  const qint64 maxStorage = 64000000000; // screen out non-radio sD cards use 64GB but SD card recommendation 32GB or less
 
   QRegularExpression fstypeRe("^(v?fat|msdos|lifs)", QRegularExpression::CaseInsensitiveOption);  // Linux: "vfat"; macOS: "msdos" or "lifs"; Win: "FAT32"
 
   foreach(const QStorageInfo & si, QStorageInfo::mountedVolumes()) {
     //qDebug() << si.rootPath() << si.name() << si.device() << si.displayName() << si.fileSystemType() << si.isReady() << si.bytesTotal() << si.blockSize();
-    if (!si.isReady() || si.isReadOnly() || si.bytesTotal() > maxStorage || !QString(si.fileSystemType()).contains(fstypeRe))
+    if (!si.isReady() || si.isReadOnly() || !QString(si.fileSystemType()).contains(fstypeRe))
       continue;
     temppath = si.rootPath();
     probefile = temppath % "/" % filename;
