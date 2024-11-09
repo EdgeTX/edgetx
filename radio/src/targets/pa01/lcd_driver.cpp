@@ -69,23 +69,22 @@ static void lcdSpiConfig(void) {
   lcdSpi.MISO = LCD_SPI_MISO;
   lcdSpi.MOSI = LCD_SPI_MOSI;
   lcdSpi.SCK = LCD_SPI_CLK;
-  lcdSpi.DMA = LCD_SPI_DMA;
+  lcdSpi.DMA = nullptr;
 #if 0
+ lcdSpi.DMA = LCD_SPI_DMA;
   lcdSpi.rxDMA_Stream = LCD_SPI_RX_DMA_STREAM;
   lcdSpi.txDMA_Stream = LCD_SPI_TX_DMA_STREAM;
   lcdSpi.rxDMA_PeriphRequest = LCD_SPI_RX_DMA;
   lcdSpi.txDMA_PeriphRequest = LCD_SPI_TX_DMA;
 #endif
-  stm32_spi_init(&lcdSpi, 8);
-  stm32_spi_set_max_baudrate(&lcdSpi, LCD_SPI_BAUD);
+  stm32_spi_init(&lcdSpi, LL_SPI_DATAWIDTH_8BIT);
+//  stm32_spi_set_max_baudrate(&lcdSpi, LCD_SPI_BAUD);
+  stm32_spi_set_max_baudrate(&lcdSpi, 100000000);
 
 //#define LCD_FMARK                       GPIO_PIN(GPIOB,  7)
 
   gpio_init(LCD_NRST, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
-
-//
-//  GPIO_InitStructure.Pin        = LCD_NRST_GPIO_PIN;
-//  LL_GPIO_Init(LCD_NRST_GPIO, &GPIO_InitStructure);
+  gpio_init(LCD_SPI_RS, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
 }
 
 void lcdDelay() {
@@ -100,17 +99,43 @@ static void lcdReset() {
   delay_ms(100);
 
   LCD_NRST_HIGH();
-  delay_ms(100);
+  delay_ms(120);
 }
 
-unsigned char LCD_ReadRegister(unsigned char Register) {
-  unsigned char ReadData = 0;
+static void lcdWriteCommand(uint8_t cmd)
+{
+  LCD_COMMAND_MODE();
+  stm32_spi_select(&lcdSpi);
+  stm32_spi_transfer_byte(&lcdSpi, cmd);
+  delay_ms(1);
+  stm32_spi_unselect(&lcdSpi);
+  delay_ms(1);
+}
 
-/*  lcdWriteByte(0, Register);
-  lcdDelay();
-  lcdDelay();
-  ReadData = LCD_ReadByte();*/
-  return (ReadData);
+static void lcdWriteReg(uint8_t reg, uint8_t data) {
+  LCD_COMMAND_MODE();
+  stm32_spi_select(&lcdSpi);
+  delay_ms(1);
+  stm32_spi_transfer_byte(&lcdSpi, reg);
+  delay_ms(1);
+  LCD_DATA_MODE();
+  delay_ms(1);
+  stm32_spi_transfer_byte(&lcdSpi, data);
+  delay_ms(1);
+  stm32_spi_unselect(&lcdSpi);
+}
+
+static uint8_t lcdReadReg(uint8_t reg) {
+  uint8_t data = 0;
+  LCD_COMMAND_MODE();
+  stm32_spi_select(&lcdSpi);
+  stm32_spi_transfer_byte(&lcdSpi, reg);
+  delay_ms(1);
+  LCD_DATA_MODE();
+  data = stm32_spi_transfer_byte(&lcdSpi, 0xFF);
+  delay_ms(1);
+  stm32_spi_unselect(&lcdSpi);
+  return data;
 }
 
 extern "C"
@@ -119,6 +144,19 @@ void lcdSetInitalFrameBuffer(void* fbAddress)
  // initialFrameBuffer = fbAddress;
 }
 
+static void lcdSetOn(void)
+{
+  lcdWriteCommand(0x29);
+}
+
+static void lcdSetOff(void)
+{
+  lcdWriteCommand(0x28);
+}
+
+static uint8_t outBuf[48000];
+extern pixel_t LCD_FIRST_FRAME_BUFFER[];
+
 extern "C"
 void lcdInit()
 {
@@ -126,6 +164,7 @@ void lcdInit()
 
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();
+  stm32_spi_unselect(&lcdSpi);
 
   /* Reset the LCD --------------------------------------------------------*/
   lcdReset();
@@ -133,7 +172,37 @@ void lcdInit()
   /* Configure the LCD Control pins */
   LCD_AF_GPIOConfig();
 
+  lcdWriteCommand(0x11); // sleep out
+  delay_ms(10);
+  lcdWriteCommand(0x13); // normal mode
+
+  lcdWriteReg(0x3A, 0x55);
+
+
+  lcdSetOn();
+
+memset(LCD_FIRST_FRAME_BUFFER, DWT->CYCCNT, DISPLAY_BUFFER_SIZE*2);
+LCD_COMMAND_MODE();
+
+stm32_spi_select(&lcdSpi);
+delay_ms(1);
+
+stm32_spi_transfer_byte(&lcdSpi, 0x2C);
+delay_ms(1);
+//
+////  stm32_spi_unselect(&lcdSpi);
+LCD_DATA_MODE();
+stm32_spi_transfer_bytes(&lcdSpi, (uint8_t*)LCD_FIRST_FRAME_BUFFER, nullptr, DISPLAY_BUFFER_SIZE*2);
+//stm32_spi_dma_transmit_bytes(&lcdSpi, (uint8_t*)LCD_FIRST_FRAME_BUFFER, DISPLAY_BUFFER_SIZE*2);
+delay_ms(1);
+//
+stm32_spi_unselect(&lcdSpi);
+LCD_COMMAND_MODE();
+
+
 //  lcdInitFunction();
+  lcdOnFunction = lcdSetOn;
+  lcdOffFunction = lcdSetOff;
 
   lcdSetFlushCb(startLcdRefresh);
 }
