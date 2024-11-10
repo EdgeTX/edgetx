@@ -29,7 +29,7 @@ class ProgressWidget;
 
 QString getRadioInterfaceCmd();
 
-QString findMassstoragePath(const QString &filename, bool onlyPath = false);
+QString findMassstoragePath(const QString &filename, bool onlyPath = false, ProgressWidget *progress = nullptr);
 
 QStringList getSambaArgs(const QString &tcl);
 QStringList getDfuArgs(const QString &cmd, const QString &filename);
