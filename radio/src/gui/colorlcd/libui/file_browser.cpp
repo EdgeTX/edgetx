@@ -269,6 +269,7 @@ void FileBrowser::onSelected(const char* name, bool is_dir)
 {
   if (is_dir) {
     if (fileSelected) fileSelected(nullptr, nullptr, nullptr, is_dir);
+    selected = nullptr;
     return;
   }
 
@@ -285,6 +286,7 @@ void FileBrowser::onPress(const char* name, bool is_dir)
   if (is_dir) {
     f_chdir(fullpath);
     if (fileSelected) fileSelected(nullptr, nullptr, nullptr, is_dir);
+    selected = nullptr;
     refresh();
     return;
   }
