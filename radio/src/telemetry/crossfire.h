@@ -156,6 +156,11 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
         % DIM(CROSSFIRE_BAUDRATES)
 #endif
 
+#define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) \
+        (crossfireModuleStatus[moduleIdx].isELRS \
+         && crossfireModuleStatus[moduleIdx].major >= maj \
+         && crossfireModuleStatus[moduleIdx].minor >= min)
+
 #if defined(HARDWARE_INTERNAL_MODULE)
 #define INT_CROSSFIRE_BR_IDX   CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)
 #define INT_CROSSFIRE_BAUDRATE CROSSFIRE_BAUDRATES[INT_CROSSFIRE_BR_IDX]
