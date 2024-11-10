@@ -46,6 +46,7 @@ class FileBrowser : public TableField
   void onSelected(uint16_t row, uint16_t col) override;
   void onPress(uint16_t row, uint16_t col) override;
   bool onPressLong(uint16_t row, uint16_t col) override;
+  bool onLongPress() override { return false; }
 
  protected:
   void onSelected(const char* name, bool is_dir);
