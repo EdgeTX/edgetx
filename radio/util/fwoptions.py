@@ -280,6 +280,7 @@ options_radiomaster_mt12 = {
     "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
     "afhds3": ("AFHDS3", "YES", "NO"),
+    "bluetooth": ("BLUETOOTH", "YES", "NO"),
     "internalelrs": ("INTERNAL_MODULE_ELRS", "YES", "NO"),
 }
 
