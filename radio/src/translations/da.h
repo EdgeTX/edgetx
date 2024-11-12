@@ -72,8 +72,6 @@
 #define TR_VVARIOCENTER                "Tone","Stille"
 #define TR_CURVE_TYPES                 "Standard","Tilpasset"
 
-#define TR_CRSF_ARMING_MODES           "CH5","Switch"
-
 #define TR_ADCFILTERVALUES             "Global","Fra","Til"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Funk","Egen"
@@ -716,7 +714,8 @@
 #define TR_TIME                        "Tid"
 #define TR_MAXBAUDRATE                 "Max bauds"
 #define TR_BAUDRATE                    "Baudrate"
-#define TR_ARMING_MODE                 "Arming"
+#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 "Måle tilstand"
 #define TR_SAMPLE_MODES                "Normal","EnBit"
 #define TR_LOADING                     "Indlæser..."

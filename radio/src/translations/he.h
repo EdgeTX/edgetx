@@ -68,8 +68,6 @@
 #define TR_VVARIOCENTER                "Tone","Silent"
 #define TR_CURVE_TYPES                 "סטנדרטי","עיצוב מיוחד"
 
-#define TR_CRSF_ARMING_MODES           "CH5","Switch"
-
 #define TR_ADCFILTERVALUES             "Global","Off","On"
 
 #define TR_VCURVETYPE                  "דיפרנציאלי","אקספו","פונקציה","עריכת מיוחד"
@@ -715,7 +713,8 @@
 #define TR_TIME                        "זמן"
 #define TR_MAXBAUDRATE                 "Max bauds"
 #define TR_BAUDRATE                    "Baudrate"
-#define TR_ARMING_MODE                 "Arming"
+#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 "Sample Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 #define TR_LOADING                     "...טוען"

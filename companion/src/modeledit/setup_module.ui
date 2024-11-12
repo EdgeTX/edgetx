@@ -432,7 +432,7 @@
         <item row="15" column="0">
          <widget class="QLabel" name="label_crsfArmingMode">
           <property name="text">
-           <string>Arming</string>
+           <string>Arm using</string>
           </property>
          </widget>
         </item>

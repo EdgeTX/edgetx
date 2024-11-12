@@ -10135,8 +10135,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../modeledit/setup_module.ui" line="507"/>
-        <source>Arming</source>
-        <translation type="unfinished">Arming</translation>
+        <source>Arm using</source>
+        <translation type="unfinished">Arm using</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_module.ui" line="507"/>

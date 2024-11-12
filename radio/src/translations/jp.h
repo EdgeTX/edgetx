@@ -65,8 +65,6 @@
 #define TR_VVARIOCENTER                "トーン","消音"
 #define TR_CURVE_TYPES                 "スタンダード","カスタム"
 
-#define TR_CRSF_ARMING_MODES           "CH5","Switch"
-
 #define TR_ADCFILTERVALUES             "グローバル","OFF","ON"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
@@ -715,7 +713,8 @@
 #define TR_TIME                        "時間"
 #define TR_MAXBAUDRATE                 "最大ボーレート"
 #define TR_BAUDRATE                    "ボーレート"
-#define TR_ARMING_MODE                 "Arming"
+#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 "サンプルモード"
 #define TR_SAMPLE_MODES                "標準","OneBit"
 #define TR_LOADING                     "読み込み中..."

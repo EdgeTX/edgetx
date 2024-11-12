@@ -70,7 +70,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
   moduleIdx = moduleIdx;
 
   auto armingLine = newLine(grid);
-  lblArmMode = new StaticText(armingLine, rect_t{}, STR_ARMING_MODE);
+  lblArmMode = new StaticText(armingLine, rect_t{}, STR_CRSF_ARMING_MODE);
   auto box = new Window(armingLine, rect_t{});
   box->padAll(PAD_TINY);
   box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);

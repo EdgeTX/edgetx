@@ -67,8 +67,6 @@
 #define TR_VVARIOCENTER                "Тон","Тихо"
 #define TR_CURVE_TYPES                 "Стд","Выбор"
 
-#define TR_CRSF_ARMING_MODES           "CH5","Switch"
-
 #define TR_ADCFILTERVALUES             "Глоб","Вык","Вкл"
 
 #define TR_VCURVETYPE                  "Разн", "Экспо", "Функц", "Польз"
@@ -718,7 +716,8 @@
 #define TR_TIME                        "Время"
 #define TR_MAXBAUDRATE                 "Макс скорость"
 #define TR_BAUDRATE                    "Скор пер"
-#define TR_ARMING_MODE                 "Arming"
+#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 TR("Реж выб","Реж выб")
 #define TR_SAMPLE_MODES                "Обыч","Один бит"
 #define TR_LOADING                     "Загрузка..."

@@ -220,7 +220,6 @@ extern const char* const STR_FLYSKY_PULSE_PROTO[];
 extern const char* const STR_FLYSKY_SERIAL_PROTO[];
 
 extern const char* const STR_CURVE_TYPES[];
-extern const char* const STR_CRSF_ARMING_MODES[];
 extern const char* const STR_VSENSORTYPES[];
 extern const char* const STR_VFORMULAS[];
 extern const char* const STR_VPREC[];
@@ -826,7 +825,8 @@ extern const char STR_TEMP_CALIB[];
 extern const char STR_TIME[];
 extern const char STR_MAXBAUDRATE[];
 extern const char STR_BAUDRATE[];
-extern const char STR_ARMING_MODE[];
+extern const char STR_CRSF_ARMING_MODE[];
+extern const char* const STR_CRSF_ARMING_MODES[];
 extern const char STR_SAMPLE_MODE[];
 extern const char* const STR_SAMPLE_MODES[];
 extern const char STR_BLUETOOTH_BAUDRATE[];

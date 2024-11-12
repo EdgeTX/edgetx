@@ -1434,7 +1434,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_MODE:
 #endif 
         g_model.moduleData[moduleIdx].crsf.crsfArmingMode = 
-          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_ARMING_MODE, STR_CRSF_ARMING_MODES, 
+          editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_ARMING_MODE, STR_CRSF_ARMING_MODES, 
           g_model.moduleData[moduleIdx].crsf.crsfArmingMode, ARMING_MODE_FIRST, ARMING_MODE_LAST, attr, event, INDENT_WIDTH);
         break;
 

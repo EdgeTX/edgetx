@@ -69,8 +69,6 @@
 #define TR_VVARIOCENTER                "Son","Silencieux"
 #define TR_CURVE_TYPES                 "Standard","Libre"
 
-#define TR_CRSF_ARMING_MODES           "CH5","Switch"
-
 #define TR_ADCFILTERVALUES             "Global","Off","On"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Fonct","Perso."
@@ -712,7 +710,8 @@
 #define TR_TIME                        "Heure"
 #define TR_MAXBAUDRATE                 "Max bauds"
 #define TR_BAUDRATE                    "Baudrate"
-#define TR_ARMING_MODE                 "Arming"
+#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 "Mode"
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 #define TR_LOADING                     "Chargement..."

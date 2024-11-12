@@ -66,8 +66,6 @@
 #define TR_VVARIOCENTER                 "音調","靜音"
 #define TR_CURVE_TYPES                  "標準","自定義"
 
-#define TR_CRSF_ARMING_MODES           "CH5","Switch"
-
 #define TR_ADCFILTERVALUES              "全局","禁用","开启"
 
 #define TR_VCURVETYPE                  "單邊","指數","函數","自定義"
@@ -717,7 +715,8 @@
 #define TR_TIME                        "時間"
 #define TR_MAXBAUDRATE                 "最大帶寬"
 #define TR_BAUDRATE                    "波特率"
-#define TR_ARMING_MODE                 "Arming"
+#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 "採樣模式"
 #define TR_SAMPLE_MODES                "標準","OneBit"
 #define TR_LOADING                     "加載中..."

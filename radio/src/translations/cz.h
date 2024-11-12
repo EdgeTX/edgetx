@@ -68,8 +68,6 @@
 #define TR_VVARIOCENTER                "Tón","Ticho"
 #define TR_CURVE_TYPES                 "Rastr-X","Volná-XY"
 
-#define TR_CRSF_ARMING_MODES           "CH5","Switch"
-
 #define TR_ADCFILTERVALUES             "Globální","Vyp","Zap",
 
 #define TR_VCURVETYPE                  "Diff","Expo","Funk","Vlas"
@@ -723,7 +721,8 @@
 #define TR_TIME                        "Čas"
 #define TR_MAXBAUDRATE                 "Max baudů"
 #define TR_BAUDRATE                    "Baudrate"
-#define TR_ARMING_MODE                 "Arming"
+#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 "Vzorkovací režim"
 #define TR_SAMPLE_MODES                "Normální","OneBit"
 #define TR_LOADING                     "Načítání..."

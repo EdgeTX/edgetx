@@ -74,8 +74,6 @@
 #define TR_VVARIOCENTER                 "Pip","Tyst"
 #define TR_CURVE_TYPES                  "Normal","Anpassad"
 
-#define TR_CRSF_ARMING_MODES            "CH5","Switch"
-
 #define TR_ADCFILTERVALUES              "Global","Av","På"
 
 #define TR_VCURVETYPE                   "Diff","Expo","Funk","Egen"                                  
@@ -725,7 +723,8 @@
 #define TR_TEMP_CALIB                   "Temp. kalib."
 #define TR_TIME                         "Tid"
 #define TR_BAUDRATE                     "Baudrate"
-#define TR_ARMING_MODE                  "Arming"
+#define TR_CRSF_ARMING_MODE             "Arm using"
+#define TR_CRSF_ARMING_MODES            TR_CH"5", TR_SWITCH
 #define TR_MAXBAUDRATE                  "Max bauds"
 #define TR_SAMPLE_MODE                  TR("Sampling","Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"

@@ -68,8 +68,6 @@
 #define TR_VVARIOCENTER                "Tom","silêncio"
 #define TR_CURVE_TYPES                 "Normal","Custom"
 
-#define TR_CRSF_ARMING_MODES           "CH5","Switch"
-
 #define TR_ADCFILTERVALUES             "Global","DESL","LIG"
 
 #define TR_VCURVETYPE                  "Diff","Expo","Func","Cstm"
@@ -719,7 +717,8 @@
 #define TR_TIME                        "Hora"
 #define TR_MAXBAUDRATE                 "Bauds Max"
 #define TR_BAUDRATE                    "Baudrate"
-#define TR_ARMING_MODE                 "Arming"
+#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 TR("Sampling","Sample Mode")
 #define TR_SAMPLE_MODES                "Normal","OneBit"
 #define TR_LOADING                     "Carregando..."
