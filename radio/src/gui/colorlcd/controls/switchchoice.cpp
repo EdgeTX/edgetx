@@ -63,7 +63,6 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
         choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
 
-#if defined(HARDWARE_TOUCH)
     invertBtn = new MenuToolbarButton(this, {0, 0, LV_PCT(100), 0},
                                       STR_SELECT_MENU_INV);
     invertBtn->check(choice->inverted);
@@ -74,7 +73,6 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
       invertChoice();
       return choice->inverted;
     });
-#endif
   }
 
   void invertChoice()
@@ -84,9 +82,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
     auto idx = menu->selection();
     switchChoice->fillMenu(menu, filter);
     menu->select(idx);
-#if defined(HARDWARE_TOUCH)
     invertBtn->check(switchChoice->inverted);
-#endif
   }
 
   void longPress()
@@ -98,9 +94,7 @@ class SwitchChoiceMenuToolbar : public MenuToolbar
   }
 
  protected:
-#if defined(HARDWARE_TOUCH)
   MenuToolbarButton* invertBtn = nullptr;
-#endif
 };
 
 bool SwitchChoice::onLongPress()
@@ -139,6 +133,8 @@ void SwitchChoice::openMenu()
 
   auto tb = new SwitchChoiceMenuToolbar(this, menu);
   menu->setToolbar(tb);
+
+  menu->setLongPressHandler([=]() { tb->invertChoice(); });
 
 #if defined(AUTOSWITCH)
   menu->setWaitHandler([=]() {

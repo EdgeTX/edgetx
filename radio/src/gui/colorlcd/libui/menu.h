@@ -37,6 +37,7 @@ class Menu : public ModalWindow
 
   void setCancelHandler(std::function<void()> handler);
   void setWaitHandler(std::function<void()> handler);
+  void setLongPressHandler(std::function<void()> handler);
 
   void setToolbar(MenuToolbar *window);
 
@@ -83,12 +84,15 @@ class Menu : public ModalWindow
     }
   }
 
+  void handleLongPress();
+
  protected:
   bool multiple;
   MenuWindowContent *content;
   MenuToolbar *toolbar = nullptr;
   std::function<void()> waitHandler;
   std::function<void()> cancelHandler;
+  std::function<void()> longPressHandler;
 
   void updatePosition();
 };
