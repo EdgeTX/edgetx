@@ -29,29 +29,6 @@
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
 
-static void fb_event(lv_event_t* e)
-{
-  static bool nested = false;
-  if (nested) return;
-  
-  lv_event_code_t code = lv_event_get_code(e);
-  lv_obj_t* obj = lv_event_get_target(e);
-  if (!obj) return;
-
-  lv_group_t* g = (lv_group_t*)lv_obj_get_group(obj);
-  if (!g) return;
-
-  if (code == LV_EVENT_FOCUSED) {
-    lv_group_set_editing(g, true);
-  }  else if (code == LV_EVENT_DEFOCUSED) {
-    // hack to get rid 'FOCUSED' event sent
-    // when calling 'lv_group_set_editing'
-    nested = true;
-    lv_group_set_editing(g, false);
-    nested = false;
-  }
-}
-
 static const char* getFullPath(const char* filename)
 {
   static char full_path[FF_MAX_LFN + 1];
@@ -164,14 +141,15 @@ static int scan_files(std::list<std::string>& files,
 FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
     TableField(parent, rect)
 {
-  lv_obj_add_event_cb(lvobj, fb_event, LV_EVENT_ALL, nullptr);
-
   f_chdir(dir);
 
-  if (lv_obj_has_state(lvobj, LV_STATE_FOCUSED)) {
-    lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-    if (g) lv_group_set_editing(g, true);
-  }
+  setAutoEdit();
+
+  setLongPressHandler([=]() {
+    int row = getSelected();
+    bool is_dir = lv_table_has_cell_ctrl(lvobj, row, 0, CELL_CTRL_DIR);
+    onPressLong(lv_table_get_cell_value(lvobj, row, 0), is_dir);
+  });
 }
 
 void FileBrowser::setFileAction(FileAction fct) { fileAction = std::move(fct); }
@@ -220,13 +198,6 @@ void FileBrowser::onPress(uint16_t row, uint16_t col)
 {
   bool is_dir = lv_table_has_cell_ctrl(lvobj, row, col, CELL_CTRL_DIR);
   onPress(lv_table_get_cell_value(lvobj, row, col), is_dir);  
-}
-
-bool FileBrowser::onPressLong(uint16_t row, uint16_t col)
-{
-  bool is_dir = lv_table_has_cell_ctrl(lvobj, row, col, CELL_CTRL_DIR);
-  onPressLong(lv_table_get_cell_value(lvobj, row, col), is_dir);
-  return true;
 }
 
 void FileBrowser::onDrawBegin(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)

@@ -74,17 +74,11 @@ class MenuBody : public TableField
 
     setColumnWidth(0, rect.w);
 
-    lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-    if (g) {
-      setFocusHandler([=](bool focus) {
-        if (focus) {
-          lv_group_set_focus_cb(g, MenuBody::force_editing);
-        } else {
-          lv_group_set_focus_cb(g, nullptr);
-        }
-      });
-      lv_group_set_editing(g, true);
-    }
+    setAutoEdit();
+
+    setLongPressHandler([=]() {
+      getParentMenu()->handleLongPress();
+    });
   }
 
   ~MenuBody()
@@ -273,24 +267,11 @@ class MenuBody : public TableField
 
   void onSelected(uint16_t row, uint16_t col) override { selectedIndex = row; }
 
-  bool onPressLong(uint16_t row, uint16_t col) override
-  {
-    return true;
-  }
-
-  bool onLongPress() override
-  {
-    getParentMenu()->handleLongPress();
-    return false;
-  }
-
  protected:
   std::vector<MenuLine*> lines;
   int selectedIndex = 0;
 
   Menu* getParentMenu() { return static_cast<Menu*>(getParent()->getParent()); }
-
-  static void force_editing(lv_group_t* g) { lv_group_set_editing(g, true); }
 };
 
 //-----------------------------------------------------------------------------
