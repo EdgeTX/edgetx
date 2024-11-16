@@ -34,10 +34,6 @@ BRANCH_NAME="main"
 BRANCH_EDGETX_VERSION=unknown
 BRANCH_QT_VERSION=unknown
 
-LOCAL_CONFIG=0
-CONFIG_COMMON="build-common.sh"
-CONFIG_FIRMWARES="fw.json"
-
 ARM_TOOLCHAIN_DIR="/c/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major/bin"
 QT_ROOT_DIR="${HOME}/qt"
 ROOT_DIR="${HOME}"
@@ -111,31 +107,31 @@ function download_file() {
 	# download_file [options] sourcefile
 
 	#	Options:
-	#	-sd - source directory relative to repo root
-	#	-df - destination file name if not same as source filename
-	# -dd - destination directory if not current script directory
 	# -b  - branch if not main
+	# -dd - destination directory if not current script directory
+	#	-df - destination file name if not same as source filename
+	#	-sd - source directory relative to repo root
 
-	local srcfile
-	local srcdir
-	local destfile
-	local destdir="${SCRIPT_DIR}"
 	local branch=main
+	local destdir
+	local destfile
+	local srcdir
+	local srcfile
 
   while [[ -n $1 ]]; do
     case $1 in
-      -sf) shift ; srcfile=${1}  ;;
-      -sd) shift ; srcdir=${1}   ;;
-      -df) shift ; destfile=${1} ;;
-      -dd) shift ; destdir=${1}  ;;
       -b)  shift ; branch=${1}   ;;
+      -dd) shift ; destdir=${1}  ;;
+      -df) shift ; destfile=${1} ;;
+      -sd) shift ; srcdir=${1}   ;;
       *)           srcfile=${1}  ;;
     esac
     shift
   done
 
-	[ -z "${srcfile}" ] && fail "Sourcefile parameter not supplied"
+	[ -z "${srcfile}" ] && fail "Source file not supplied"
 	srcdir=$([ ! -z "${srcdir}" ] && echo "${srcdir}/")
+	destdir=$([ -z "${destdir}" ] && echo "${srcdir}")
 	destfile=$([ -z "${destfile}" ] && echo "${srcfile}")
 
   wget --no-cache -q -O ${destdir}/${destfile} https://github.com/${REPO_OWNER}/${REPO_NAME}/raw/${branch}/${srcdir}${srcfile}
@@ -293,7 +289,6 @@ Options:
   -h, --help                      display help text and exit
   -i, --installer                 build the installer (default: false)
   -l, --libsims                   build radio library simulator(s) (default: false)
-      --local-config              use local ${CONFIG_COMMON} and ${CONFIG_FIRMWARES} files (default: download latest from repo)
   -m, --arm-toolchain-dir         fully qualified path to arm toolchain directory (default: Windows installer default folder)
       --no-append-target          do not append target (radio-type|companion) to build output directory name
   -o, --output-dir <path>         relative path to root directory for build output files (default: EdgeTX/edgetx/build-<target>)
@@ -318,7 +313,7 @@ short_options=ab:cd:e:fhilm:o:pq:r:s
 
 long_options="all, branch:, clean-all, clean-output, edgetx-version:, help, output-dir:, pause, arm-toolchain-dir:, qt-root-dir:, root-dir:, source-dir:, \
 build-options:, build-type:, clone, companion, fetch, firmware, installer, no-append-target, qt-version:, libsims, \
-repo-name:, repo-owner:, simulator, defs:, local-config"
+repo-name:, repo-owner:, simulator, defs:"
 
 args=$(getopt --options "$short_options" --longoptions "$long_options" -- "$@")
 [[ $? -gt 0 ]] && usage
@@ -348,7 +343,6 @@ do
     -h | --help)                usage                                           ; shift   ;;
 		     --repo-owner)	        REPO_OWNER="${2}"                               ; shift 2 ;;
 		     --repo-name)	          REPO_NAME="${2}"                                ; shift 2 ;;
-         --local-config)        LOCAL_CONFIG=1                                  ; shift   ;;
 		-m | --arm-toolchain-dir)   ARM_TOOLCHAIN_DIR="${2}"                        ; shift 2 ;;
 		-p | --pause)               STEP_PAUSE=1                                    ; shift   ;;
 		-q | --qt-root-dir)         QT_ROOT_DIR="${2}"                              ; shift 2 ;;
@@ -373,45 +367,17 @@ do
 	esac
 done
 
+# remaining args should be a list of radio-types
 [[ $# -eq 0 ]] && usage "No radio-types specified"
+RADIO_TYPES=($@)
 
 # == End parse command line =="
-
-# download latest files from repo unless using custom versions
-if [ ${LOCAL_CONFIG} -eq 0 ]; then
-  # supported radio simulators and build options
-  download_file -sd tools "${CONFIG_COMMON}"
-  # supported radio firmwares
-  download_file "${CONFIG_FIRMWARES}"
-fi
-
-# load downloaded or local configuration files
-[ ! -f ${SCRIPT_DIR}/${CONFIG_COMMON} ] && fail "${SCRIPT_DIR}/${CONFIG_COMMON} not found"
-source ${SCRIPT_DIR}/${CONFIG_COMMON}
-
-[ ! -f ${SCRIPT_DIR}/${CONFIG_FIRMWARES} ] && fail "${SCRIPT_DIR}/${CONFIG_FIRMWARES} not found"
-
-for radio_target in $(cat ${SCRIPT_DIR}/${CONFIG_FIRMWARES} | jq -r '.targets[] | .[1]'); do
-  # remove trailing hyphen to end of string
-  supported_radios+=("${radio_target%-*}")
-done
-
-# echo ${supported_radios[*]}
-
-# == Validation ==
 
 [ ! -d "$ROOT_DIR" ] && fail "Unable to find root directory $ROOT_DIR"
 
 if [[ ${BUILD_FIRMWARE} -eq 1 && ! -d "${ARM_TOOLCHAIN_DIR}" ]] ; then
   fail "Unable to find ARM toolchain directory ${ARM_TOOLCHAIN_DIR}"
 fi
-
-RADIO_TYPES=($@)
-
-validate_radio_types
-validate_radio_build_options
-validate_libsims
-validate_option_hwdefs
 
 SOURCE_PATH="${ROOT_DIR}/${SOURCE_DIR}"
 OUTPUT_PATH="${ROOT_DIR}/${OUTPUT_DIR}/${OUTPUT_DIR_PREFIX}"
@@ -451,8 +417,6 @@ QT_PATH+="/${ARCHDIR}"
 # this should never be true but included as a script logic safeguard
 [ ! -d "$QT_PATH" ] && fail "Unable to find Qt install directory $QT_PATH"
 
-# == End validation ==
-
 # Option overrides
 
 if [ ! -d "${SOURCE_PATH}/.git" ] || [ ! -f "${SOURCE_PATH}/CMakeLists.txt" ]; then
@@ -466,6 +430,42 @@ else
     REPO_FETCH=0
   fi
 fi
+
+CONFIG_COMMON_FILE="build-common.sh"
+CONFIG_COMMON_REPO_DIR="tools"
+CONFIG_FIRMWARES_FILE="fw.json"
+
+# download latest config files from repo if local do not exist or to possibly be overwritten
+if [ $REPO_FETCH -eq 1 || $REPO_CLONE -eq 1 ]; then
+  # supported radio simulators and build options
+  download_file -sd ${CONFIG_COMMON_REPO_DIR} -dd "${SCRIPT_DIR}" "${CONFIG_COMMON_FILE}"
+  CONFIG_COMMON_PATH="${SCRIPT_DIR}/${CONFIG_COMMON_FILE}"
+  # supported radio firmwares
+  download_file "${CONFIG_FIRMWARES_FILE}"
+  CONFIG_FIRMWARES_PATH="${SCRIPT_DIR}/${CONFIG_FIRMWARES_FILE}"
+else
+  # use the repo versions
+  CONFIG_COMMON_PATH="${SOURCE_PATH}/${CONFIG_COMMON_REPO_DIR}/${CONFIG_COMMON_FILE}"
+  CONFIG_FIRMWARES_PATH="${SOURCE_PATH}/${CONFIG_FIRMWARES_FILE}"
+fi
+
+# load downloaded or local configuration files
+[ ! -f ${CONFIG_COMMON_PATH} ] && fail "${CONFIG_COMMON_PATH} not found"
+source "${CONFIG_COMMON_PATH}"
+
+[ ! -f "${CONFIG_FIRMWARES_PATH}" ] && fail "${CONFIG_FIRMWARES_PATH} not found"
+
+for radio_target in $(cat '${CONFIG_FIRMWARES_PATH}' | jq -r '.targets[] | .[1]'); do
+  # remove trailing hyphen to end of string
+  supported_radios+=("${radio_target%-*}")
+done
+
+# echo ${supported_radios[*]}
+
+validate_radio_types
+validate_radio_build_options
+validate_libsims
+validate_option_hwdefs
 
 # Display confirmation message with option to exit
 
@@ -490,7 +490,6 @@ Paths:
   Qt package:               ${QT_PATH}
 Options:
   Generate hardware defns:  ${BUILD_HWDEFS}
-  Use local config files:   $(bool_to_text ${LOCAL_CONFIG})
   Delete output dirs:       $(bool_to_text ${OUTPUT_DELETE})
   Build Companion:          $(bool_to_text ${BUILD_COMPANION})
   Build firmware:           $(bool_to_text ${BUILD_FIRMWARE})
