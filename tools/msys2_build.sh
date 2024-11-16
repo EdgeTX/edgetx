@@ -19,10 +19,10 @@ if [[ "$MSYSTEM" == "MSYS" ]]; then
   exit 1
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # == Include common variables and functions ==
-source ${SCRIPT_DIR}/msys2_common.sh
+source ${SCRIPTS_DIR}/msys2_common.sh
 
 # == Initialise variables ==
 
@@ -438,11 +438,11 @@ CONFIG_FIRMWARES_FILE="fw.json"
 # download latest config files from repo if local do not exist or to possibly be overwritten
 if [ $REPO_FETCH -eq 1 || $REPO_CLONE -eq 1 ]; then
   # supported radio simulators and build options
-  download_file -sd ${CONFIG_COMMON_REPO_DIR} -dd "${SCRIPT_DIR}" "${CONFIG_COMMON_FILE}"
-  CONFIG_COMMON_PATH="${SCRIPT_DIR}/${CONFIG_COMMON_FILE}"
+  download_file -sd ${CONFIG_COMMON_REPO_DIR} -dd "${SCRIPTS_DIR}" "${CONFIG_COMMON_FILE}"
+  CONFIG_COMMON_PATH="${SCRIPTS_DIR}/${CONFIG_COMMON_FILE}"
   # supported radio firmwares
   download_file "${CONFIG_FIRMWARES_FILE}"
-  CONFIG_FIRMWARES_PATH="${SCRIPT_DIR}/${CONFIG_FIRMWARES_FILE}"
+  CONFIG_FIRMWARES_PATH="${SCRIPTS_DIR}/${CONFIG_FIRMWARES_FILE}"
 else
   # use the repo versions
   CONFIG_COMMON_PATH="${SOURCE_PATH}/${CONFIG_COMMON_REPO_DIR}/${CONFIG_COMMON_FILE}"
