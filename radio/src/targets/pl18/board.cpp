@@ -100,11 +100,6 @@ void boardInit()
   __enable_irq();
 #endif
 
-#if defined(DEBUG) && defined(AUX_SERIAL)
-  serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
-  serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
-#endif
-
   TRACE("\nPL18 board started :)");
   delay_ms(10);
   TRACE("RCC->CSR = %08x", RCC->CSR);
