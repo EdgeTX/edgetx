@@ -62,6 +62,9 @@ declare -a HWDEFS_RADIO_TYPES=()
 declare -a RADIO_TYPES=()
 declare -l BUILD_HWDEFS=radios
 
+# if only building Companion, Simulator or Installer
+DEFAULT_RADIO_TYPE=tx16s
+
 # == End initialise variables ==
 
 # == Functions ==
@@ -149,12 +152,14 @@ function validate_radio_types() {
 
 function validate_radio_build_options() {
 
-  for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
-    unset BUILD_OPTIONS
-    if ! get_target_build_options ${RADIO_TYPES[@],,}; then
-      fail "No buid options for radio type: '${RADIO_TYPES[i]}'"
-    fi
-	done
+  if [ "${RADIO_TYPES[0]}" != "all" ]; then
+    for ((i = 0; i < ${#RADIO_TYPES[@]}; ++i)); do
+      unset BUILD_OPTIONS
+      if ! get_target_build_options ${RADIO_TYPES[@],,}; then
+        fail "No buid options for radio type: '${RADIO_TYPES[i]}'"
+      fi
+    done
+  fi
 }
 
 function is_libsim_supported() {
@@ -259,11 +264,11 @@ function usage() {
 	#	Parameters:
   # 1 - message
 
-  if [ ! -z ${1} ]; then
+  if [ ! -z "${1}" ]; then
 >&2 cat << EOF
-""
-"${1}"
-""
+
+ERROR: ${1}
+
 EOF
   fi
 
@@ -368,8 +373,21 @@ do
 done
 
 # remaining args should be a list of radio-types
-[[ $# -eq 0 ]] && usage "No radio-types specified"
-RADIO_TYPES=($@)
+if [ $# -eq 0 ]; then
+  if [ $BUILD_FIRMWARE -eq 1 ] || [ $BUILD_LIBSIMS -eq 1 ]; then
+    usage "No radio-type(s) specified"
+  elif [ "$BUILD_HWDEFS" == "radios" ] && [ $BUILD_COMPANION -eq 0 ] && [ $BUILD_SIMULATOR -eq 0 ] && [ $BUILD_INSTALLER -eq 0 ]; then
+    usage "No radio-type(s) specified"
+  elif [ "$BUILD_HWDEFS" == "all" ]; then
+    RADIO_TYPES=(all)
+  elif [ "$BUILD_HWDEFS" == "none" ]; then
+    RADIO_TYPES=()
+  else
+    RADIO_TYPES=(${DEFAULT_RADIO_TYPE})
+  fi
+else
+  RADIO_TYPES=($@)
+fi
 
 # == End parse command line =="
 
@@ -436,7 +454,7 @@ CONFIG_COMMON_REPO_DIR="tools"
 CONFIG_FIRMWARES_FILE="fw.json"
 
 # download latest config files from repo if local do not exist or to possibly be overwritten
-if [ $REPO_FETCH -eq 1 || $REPO_CLONE -eq 1 ]; then
+if [ $REPO_FETCH -eq 1 ] || [ $REPO_CLONE -eq 1 ]; then
   # supported radio simulators and build options
   download_file -sd ${CONFIG_COMMON_REPO_DIR} -dd "${SCRIPTS_DIR}" "${CONFIG_COMMON_FILE}"
   CONFIG_COMMON_PATH="${SCRIPTS_DIR}/${CONFIG_COMMON_FILE}"
@@ -455,7 +473,7 @@ source "${CONFIG_COMMON_PATH}"
 
 [ ! -f "${CONFIG_FIRMWARES_PATH}" ] && fail "${CONFIG_FIRMWARES_PATH} not found"
 
-for radio_target in $(cat '${CONFIG_FIRMWARES_PATH}' | jq -r '.targets[] | .[1]'); do
+for radio_target in $(cat "${CONFIG_FIRMWARES_PATH}" | jq -r '.targets[] | .[1]'); do
   # remove trailing hyphen to end of string
   supported_radios+=("${radio_target%-*}")
 done
@@ -466,6 +484,17 @@ validate_radio_types
 validate_radio_build_options
 validate_libsims
 validate_option_hwdefs
+
+if [ $REPO_FETCH -eq 0 ] && \
+    [ $REPO_CLONE -eq 0 ] && \
+    [ $BUILD_FIRMWARE -eq 0 ] && \
+    [ $BUILD_LIBSIMS -eq 0 ] && \
+    [ $BUILD_COMPANION -eq 0 ] && \
+    [ $BUILD_SIMULATOR -eq 0 ] && \
+    [ $BUILD_INSTALLER -eq 0 ] && \
+    [ "$BUILD_HWDEFS" == "none" ]; then
+  usage "Nothing to do!"
+fi
 
 # Display confirmation message with option to exit
 
@@ -497,6 +526,7 @@ Options:
   Build libsims:            $(bool_to_text ${BUILD_LIBSIMS})
   Build Simulator:          $(bool_to_text ${BUILD_SIMULATOR})
   Pause after each step:    $(bool_to_text ${STEP_PAUSE})
+
 EOF
 
 read -p "Press Enter key to continue or Ctrl+C to abort"
