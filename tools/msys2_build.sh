@@ -632,24 +632,17 @@ if [ $BUILD_LIBSIMS -eq 1 ]; then
   done
 fi
 
-if [ "${BUILD_HWDEFS}" == "all" ]; then
-  new_step "Removing existing radio hardware definitions"
-	radiodir="$(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/radio/src"
-	if [ -d ${radiodir} ]; then
-		rm -f ${radiodir}/*.json*
-	fi
-	unset radiodir
-  end_step 0
-fi
-
 if [ "${BUILD_HWDEFS}" != "none" ]; then
   if [[ $OUTPUT_APPEND_TARGET -eq 1 || ( $BUILD_LIBSIMS -eq 0 && ( $BUILD_COMPANION -eq 1 || $BUILD_SIMULATOR -eq 1 ) ) ]]; then
+    hwdefsdir="$(build_output_path ${OUTPUT_DIR_SUFFIX_CPN})/native/radio/src"
     # generate hardware definition json files for inclusion as resources in Companion and Simulator
     for ((i = 0; i < ${#HWDEFS_RADIO_TYPES[@]}; ++i)); do
       log "Generating hardware definition: ${HWDEFS_RADIO_TYPES[i]}"
+      rm -f ${hwdefsdir}/${HWDEFS_RADIO_TYPES[i]}.json*
       set_build_options ${HWDEFS_RADIO_TYPES[i]}
       prep_and_build_target native hardware_defs
     done
+    unset hwdefsdir
   fi
 fi
 
