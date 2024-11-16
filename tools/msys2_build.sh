@@ -617,8 +617,8 @@ if [ "${BUILD_HWDEFS}" != "none" ]; then
   if [[ $OUTPUT_APPEND_TARGET -eq 1 || ( $BUILD_LIBSIMS -eq 0 && ( $BUILD_COMPANION -eq 1 || $BUILD_SIMULATOR -eq 1 ) ) ]]; then
     # generate hardware definition json files for inclusion as resources in Companion and Simulator
     for ((i = 0; i < ${#HWDEFS_RADIO_TYPES[@]}; ++i)); do
-      log "Generating hardware definition: ${RADIO_TYPES[i]}"
-      set_build_options ${RADIO_TYPES[i]}
+      log "Generating hardware definition: ${HWDEFS_RADIO_TYPES[i]}"
+      set_build_options ${HWDEFS_RADIO_TYPES[i]}
       prep_and_build_target native hardware_defs
     done
   fi
