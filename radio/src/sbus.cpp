@@ -19,54 +19,63 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include "sbus.h"
+
+#include "edgetx.h"
 #include "timers_driver.h"
 
-#define SBUS_FRAME_GAP_DELAY_US 500
+#define SBUS_FRAME_SIZE 25
+#define SBUS_START_BYTE 0x0F
+#define SBUS_END_BYTE 0x00
+#define SBUS_FLAGS_IDX 23
+#define SBUS_FRAMELOST_BIT 2
+#define SBUS_FAILSAFE_BIT 3
 
-#define SBUS_START_BYTE        0x0F
-#define SBUS_END_BYTE          0x00
-#define SBUS_FLAGS_IDX         23
-#define SBUS_FRAMELOST_BIT     2
-#define SBUS_FAILSAFE_BIT      3
+#define SBUS_CH_BITS 11
+#define SBUS_CH_MASK ((1 << SBUS_CH_BITS) - 1)
 
-#define SBUS_CH_BITS           11
-#define SBUS_CH_MASK           ((1<<SBUS_CH_BITS) - 1)
+#define SBUS_CH_CENTER 0x3E0
 
-#define SBUS_CH_CENTER         0x3E0
+static const etx_serial_driver_t* _sbus_drv = nullptr;
+static void* _sbus_ctx = nullptr;
+static bool _sbus_aux_enabled = false;
 
-static int (*_sbusAuxGetByte)(void*, uint8_t*) = nullptr;
-static void* _sbusAuxGetByteCtx = nullptr;
+static void sbusProcessFrame(int16_t* pulses, uint8_t* sbus, uint32_t size);
 
-void sbusSetAuxGetByte(void* ctx, int (*fct)(void*, uint8_t*))
+void sbusSetReceiveCtx(void* ctx, const etx_serial_driver_t* drv)
 {
-  _sbusAuxGetByte = nullptr;
-  _sbusAuxGetByteCtx = ctx;
-  _sbusAuxGetByte = fct;
+  _sbus_ctx = ctx;
+  _sbus_drv = drv;
 }
 
-int sbusAuxGetByte(uint8_t* byte)
+void sbusAuxFrameReceived(void*)
 {
-  auto _getByte = _sbusAuxGetByte;
-  auto _ctx = _sbusAuxGetByteCtx;
+  if (!_sbus_aux_enabled) return;
+  sbusFrameReceived(nullptr);
+}
 
-  if (_getByte) {
-    return _getByte(_ctx, byte);
+void sbusAuxSetEnabled(bool enabled) { _sbus_aux_enabled = enabled; }
+
+void sbusFrameReceived(void*)
+{
+  if (!_sbus_drv || !_sbus_ctx || !_sbus_drv->copyRxBuffer ||
+      !_sbus_drv->getBufferedBytes)
+    return;
+
+  if (_sbus_drv->getBufferedBytes(_sbus_ctx) != SBUS_FRAME_SIZE) {
+    _sbus_drv->clearRxBuffer(_sbus_ctx);
+    return;
   }
 
-  return -1;
-}
+  uint8_t frame[SBUS_FRAME_SIZE];
+  int received = _sbus_drv->copyRxBuffer(_sbus_ctx, frame, SBUS_FRAME_SIZE);
+  if (received < 0) return;
 
-static int (*sbusGetByte)(uint8_t*) = nullptr;
-
-void sbusSetGetByte(int (*fct)(uint8_t*))
-{
-  sbusGetByte = fct;
+  sbusProcessFrame(trainerInput, frame, received);
 }
 
 // Range for pulses (ppm input) is [-512:+512]
-void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
+static void sbusProcessFrame(int16_t* pulses, uint8_t* sbus, uint32_t size)
 {
   if (size != SBUS_FRAME_SIZE || sbus[0] != SBUS_START_BYTE ||
       sbus[SBUS_FRAME_SIZE - 1] != SBUS_END_BYTE) {
@@ -77,55 +86,19 @@ void processSbusFrame(uint8_t * sbus, int16_t * pulses, uint32_t size)
     return;  // SBUS invalid frame or failsafe mode
   }
 
-  sbus++; // skip start byte
+  sbus++;  // skip start byte
 
   uint32_t inputbitsavailable = 0;
   uint32_t inputbits = 0;
-  for (uint32_t i=0; i<MAX_TRAINER_CHANNELS; i++) {
+  for (uint32_t i = 0; i < MAX_TRAINER_CHANNELS; i++) {
     while (inputbitsavailable < SBUS_CH_BITS) {
       inputbits |= *sbus++ << inputbitsavailable;
       inputbitsavailable += 8;
     }
-    *pulses++ = ((int32_t) (inputbits & SBUS_CH_MASK) - SBUS_CH_CENTER) * 5 / 8;
+    *pulses++ = ((int32_t)(inputbits & SBUS_CH_MASK) - SBUS_CH_CENTER) * 5 / 8;
     inputbitsavailable -= SBUS_CH_BITS;
     inputbits >>= SBUS_CH_BITS;
   }
 
   trainerResetTimer();
-}
-
-void processSbusInput()
-{
-
-  // TODO: place this outside of the function
-  static uint8_t SbusIndex = 0;
-  static uint32_t SbusTimer;
-  static uint8_t SbusFrame[SBUS_FRAME_SIZE];
-
-  uint32_t active = 0;
-
-  // Drain input first (if existing)
-  uint8_t rxchar;
-  auto _getByte = sbusGetByte;
-  while (_getByte && (_getByte(&rxchar) > 0)) {
-    active = 1;
-    if (SbusIndex > SBUS_FRAME_SIZE - 1) {
-      SbusIndex = SBUS_FRAME_SIZE - 1;
-    }
-    SbusFrame[SbusIndex++] = rxchar;
-  }
-
-  // Data has been received
-  if (active) {
-    SbusTimer = timersGetUsTick();
-    return;
-  }
-
-  // Check if end-of-frame is detected
-  if (SbusIndex) {
-    if ((uint32_t)(timersGetUsTick() - SbusTimer) > SBUS_FRAME_GAP_DELAY_US) {
-      processSbusFrame(SbusFrame, trainerInput, SbusIndex);
-      SbusIndex = 0;
-    }
-  }
 }

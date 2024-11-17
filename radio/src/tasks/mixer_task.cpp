@@ -122,9 +122,6 @@ constexpr uint8_t MIXER_MAX_PERIOD = MAX_REFRESH_RATE / 1000 /*ms*/;
 
 void execMixerFrequentActions()
 {
-  // SBUS trainer
-  processSbusInput();
-
 #if defined(IMU)
   gyro.wakeup();
 #endif
