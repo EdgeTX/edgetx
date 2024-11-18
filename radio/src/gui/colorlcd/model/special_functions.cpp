@@ -190,6 +190,7 @@ void FunctionLineButton::refresh()
     case FUNC_PLAY_TRACK:
     case FUNC_BACKGND_MUSIC:
     case FUNC_PLAY_SCRIPT:
+    case FUNC_RGB_LED:
       if (ZEXIST(cfn->play.name)) {
         strAppend(s + strlen(s), cfn->play.name, LEN_FUNCTION_NAME);
       } else {
