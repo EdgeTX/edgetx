@@ -80,7 +80,9 @@ class ViewMain : public NavWindow
   void hideTopBarEdgeTxButton();
 
   bool hasTopbar();
+  bool hasTopbar(unsigned view);
   bool isAppMode();
+  bool isAppMode(unsigned view);
 
   void runBackground();
   void refreshWidgetSelectTimer();
@@ -103,6 +105,7 @@ class ViewMain : public NavWindow
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);
+  void setEdgeTxButtonVisible(float visible);
 
   static void ws_timer(lv_timer_t* t);
 

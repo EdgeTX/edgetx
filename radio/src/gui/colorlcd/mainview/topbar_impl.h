@@ -50,9 +50,8 @@ class TopBar: public TopBarBase
     rect_t getZone(unsigned int index) const override;
 
     void setVisible(float visible);
+    void setEdgeTxButtonVisible(float visible);
     coord_t getVisibleHeight(float visible) const; // 0.0 -> 1.0
-    void showEdgeTxButton();
-    void hideEdgeTxButton();
   
     void checkEvents() override;
 

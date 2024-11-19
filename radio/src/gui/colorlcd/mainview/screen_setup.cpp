@@ -338,7 +338,13 @@ void ScreenSetupPage::buildLayoutOptions()
     // Option value
     switch (option->type) {
       case ZoneOption::Bool:
-        new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(value->boolValue));
+        new ToggleSwitch(line, rect_t{},
+                         GET_DEFAULT(value->boolValue),
+                         [=](int newValue) {
+                           value->boolValue = newValue;
+                           customScreens[customScreenIndex]->show();
+                           SET_DIRTY();
+                         });
         break;
 
       case ZoneOption::Color:

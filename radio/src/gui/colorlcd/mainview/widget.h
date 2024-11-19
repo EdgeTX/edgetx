@@ -51,15 +51,6 @@ class Widget : public ButtonBase
     return &persistentData->options[index].value;
   }
 
-  //
-  // TODO: for some reason, this one crashes on the radio...
-  //
-  // inline void setOptionValue(unsigned int index, const ZoneOptionValue&
-  // value)
-  // {
-  //   persistentData->options[index].value = value;
-  // }
-
   PersistentData* getPersistentData() { return persistentData; }
 
 #if defined(DEBUG_WINDOWS)

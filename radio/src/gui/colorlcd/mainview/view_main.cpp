@@ -116,6 +116,7 @@ void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
 }
 
 void ViewMain::setTopbarVisible(float visible) { topbar->setVisible(visible); }
+void ViewMain::setEdgeTxButtonVisible(float visible) { topbar->setEdgeTxButtonVisible(visible); }
 
 unsigned ViewMain::getMainViewsCount() const
 {
@@ -169,16 +170,6 @@ void ViewMain::previousMainView()
 
 TopBar* ViewMain::getTopbar() { return topbar; }
 
-static bool hasTopbar(unsigned view)
-{
-  if (view < sizeof(g_model.screenData)) {
-    const auto& layoutData = g_model.screenData[view].layoutData;
-    return layoutData.options[LAYOUT_OPTION_TOPBAR].value.boolValue;
-  }
-
-  return false;
-}
-
 void ViewMain::enableTopbar()
 {
   if (topbar) topbar->show();
@@ -200,28 +191,51 @@ void ViewMain::updateTopbarVisibility()
   int leftScroll = scrollPos % width();
   if (leftScroll == 0) {
     int view = scrollPos / pageWidth;
-    setTopbarVisible(::hasTopbar(view));
+    setTopbarVisible(hasTopbar(view));
+    setEdgeTxButtonVisible(hasTopbar(view) || isAppMode(view));
     if (customScreens[view]) customScreens[view]->adjustLayout();
   } else {
     int leftIdx = scrollPos / pageWidth;
-    bool leftTopbar = ::hasTopbar(leftIdx);
-    bool rightTopbar = ::hasTopbar(leftIdx + 1);
+    bool leftTopbar = hasTopbar(leftIdx);
+    bool rightTopbar = hasTopbar(leftIdx + 1);
 
-    if (leftTopbar != rightTopbar) {
-      float ratio = (float)leftScroll / (float)pageWidth;
+    float ratio;
 
-      if (leftTopbar) {
-        // scrolling from a screen with Topbar
-        ratio = 1.0 - ratio;
-      } else {
-        // scrolling to a screen with Topbar
-        // -> ratio is ok
-      }
-
-      setTopbarVisible(ratio);
-      customScreens[leftIdx]->adjustLayout();
-      customScreens[leftIdx + 1]->adjustLayout();
+    if (leftTopbar && rightTopbar) {
+      ratio = 1.0;
+    } else if (leftTopbar) {
+      // scrolling from a screen with Topbar
+      ratio = 1.0 - (float)leftScroll / (float)pageWidth;
+    } else if (rightTopbar) {
+      // scrolling to a screen with Topbar
+      ratio = (float)leftScroll / (float)pageWidth;
+    } else {
+      ratio = 0.0;
     }
+
+    setTopbarVisible(ratio);
+
+    leftTopbar = hasTopbar(leftIdx) || isAppMode(leftIdx);
+    rightTopbar = hasTopbar(leftIdx + 1) || isAppMode(leftIdx + 1);
+
+    ratio = (float)leftScroll / (float)pageWidth;
+
+    if (leftTopbar && rightTopbar) {
+      ratio = 1.0;
+    } else if (leftTopbar) {
+      // scrolling from a screen with Topbar
+      ratio = 1.0 - (float)leftScroll / (float)pageWidth;
+    } else if (rightTopbar) {
+      // scrolling to a screen with Topbar
+      ratio = (float)leftScroll / (float)pageWidth;
+    } else {
+      ratio = 0.0;
+    }
+
+    setEdgeTxButtonVisible(ratio);
+
+    customScreens[leftIdx]->adjustLayout();
+    customScreens[leftIdx + 1]->adjustLayout();
   }
 }
 
@@ -359,11 +373,8 @@ void ViewMain::show(bool visible)
   if (deleted()) return;
   isVisible = visible;
   int view = getCurrentMainView();
-  setTopbarVisible(visible && ::hasTopbar(view));
-  if (visible && (::hasTopbar(view) || isAppMode()))
-    topbar->showEdgeTxButton();
-  else
-    topbar->hideEdgeTxButton();
+  setTopbarVisible(visible && hasTopbar(view));
+  setEdgeTxButtonVisible(visible && (hasTopbar(view) || isAppMode()));
   if (customScreens[view]) {
     customScreens[view]->show(visible);
     customScreens[view]->showWidgets(visible);
@@ -372,25 +383,36 @@ void ViewMain::show(bool visible)
 
 bool ViewMain::isAppMode()
 {
-  int view = getCurrentMainView();
-  if (!customScreens[view]) return false;
-  return ((Layout*)customScreens[view])->isAppMode();
+  return isAppMode(getCurrentMainView());
+}
+
+bool ViewMain::isAppMode(unsigned view)
+{
+  if (view < MAX_CUSTOM_SCREENS && customScreens[view])
+    return ((Layout*)customScreens[view])->isAppMode();
+  return false;
 }
 
 bool ViewMain::hasTopbar()
 {
-  int view = getCurrentMainView();
-  return ::hasTopbar(view);
+  return hasTopbar(getCurrentMainView());
+}
+
+bool ViewMain::hasTopbar(unsigned view)
+{
+  if (view < MAX_CUSTOM_SCREENS)
+    return g_model.screenData[view].layoutData.options[LAYOUT_OPTION_TOPBAR].value.boolValue;
+  return false;
 }
 
 void ViewMain::showTopBarEdgeTxButton()
 {
-  topbar->showEdgeTxButton();
+  topbar->setEdgeTxButtonVisible(hasTopbar() || isAppMode());
 }
 
 void ViewMain::hideTopBarEdgeTxButton()
 {
-  topbar->hideEdgeTxButton();
+  topbar->setEdgeTxButtonVisible(0.0);
 }
 
 void ViewMain::runBackground()
