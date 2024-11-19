@@ -10374,7 +10374,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/setup_module.ui" line="507"/>
         <source>Arm using</source>
-        <translation type="unfinished">Arm using</translation>
+        <translation>解鎖類型</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_module.ui" line="507"/>

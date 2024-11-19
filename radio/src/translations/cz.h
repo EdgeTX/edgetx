@@ -721,7 +721,7 @@
 #define TR_TIME                        "Čas"
 #define TR_MAXBAUDRATE                 "Max baudů"
 #define TR_BAUDRATE                    "Baudrate"
-#define TR_CRSF_ARMING_MODE            "Arm using"
+#define TR_CRSF_ARMING_MODE            "Arm mód"
 #define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 "Vzorkovací režim"
 #define TR_SAMPLE_MODES                "Normální","OneBit"
