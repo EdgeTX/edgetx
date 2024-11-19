@@ -1724,7 +1724,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
   }
 
   if (HAS_REPEAT_PARAM(func)) {
-    if (func == FUNC_PLAY_SCRIPT) {
+    if (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
       if (val_len == 2 && val[0] == '1' && val[1] == 'x')
         CFN_PLAY_REPEAT(cfn) = 1;
       else
@@ -1887,7 +1887,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     // ","
     if (!wf(opaque,",",1)) return false;
 
-    if (func == FUNC_PLAY_SCRIPT) {
+    if (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
       if (!wf(opaque,(CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x",2)) return false;
     } else if (CFN_PLAY_REPEAT(cfn) == 0) {
       // "1x"
