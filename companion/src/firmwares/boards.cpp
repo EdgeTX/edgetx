@@ -332,7 +332,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
 
     case HasLedStripGPIO:
-      return IS_RADIOMASTER_MT12(board) || (board == BOARD_HELLORADIOSKY_V16);
+      return IS_RADIOMASTER_MT12(board) || (board == BOARD_HELLORADIOSKY_V16) ||
+             IS_FLYSKY_PL18(board);
 
     case HasSDCard:
       return IS_STM32(board);
