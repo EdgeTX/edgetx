@@ -332,8 +332,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
 
     case HasLedStripGPIO:
-      // No current radio do support that feature
-      return false;
+      return (IS_RADIOMASTER_MT12(board) || IS_FLYSKY_PL18(board) ||
+              IS_HELLORADIOSKY_V16(board));
 
     case HasSDCard:
       return IS_STM32(board);
