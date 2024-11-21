@@ -24,6 +24,8 @@
 
 #include <QtCore>
 
+#define LS_CUSTNAME_LEN       10
+
 class RadioDataConversionState;
 
 enum CSFunction {
@@ -48,8 +50,9 @@ enum CSFunction {
   LS_FN_TIMER,
   LS_FN_STICKY,
   LS_FN_EDGE,
+  LS_FN_SAFE,
   // later ... LS_FN_RANGE,
-    LS_FN_MAX
+  LS_FN_MAX
 };
 
 enum CSFunctionFamily {
@@ -59,6 +62,7 @@ enum CSFunctionFamily {
   LS_FAMILY_TIMER,
   LS_FAMILY_STICKY,
   LS_FAMILY_EDGE,
+  LS_FAMILY_SAFE
 };
 
 class LogicalSwitchData {
@@ -79,6 +83,7 @@ class LogicalSwitchData {
     int andsw;
     bool lsState;
     bool lsPersist;
+    char custName[LS_CUSTNAME_LEN + 1];
 
     void clear() { memset(this, 0, sizeof(LogicalSwitchData)); }
     bool isEmpty() const;

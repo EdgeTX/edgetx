@@ -399,6 +399,18 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
 {
   QString str = "&nbsp;";
 
+  if (firmware->getCapability(HasMixerNames) && mix.name[0]){
+    std::string strMixName(mix.name);
+    str += QString(" [%1]").arg(mix.name).toHtmlEscaped();
+    for (int i = 0; i < (6- strMixName.length()); i++) {
+      str += "&nbsp;";
+    }
+  }
+  else {
+    str += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+  }
+  str += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+  
   if (showMultiplex) {
     switch(mix.mltpx) {
       case (1): str += "*="; break;
@@ -537,6 +549,9 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
       result += tr("Sticky") + QString("(%1, %2)").arg(sw1Name).arg(sw2Name);
       if (ls.lsPersist)
         result += tr(" Persistent");
+      break;
+    case LS_FAMILY_SAFE:
+      result += tr("Safe") + QString("(%1, %2)").arg(sw1Name).arg(sw2Name);
       break;
     case LS_FAMILY_TIMER:
       result += tr("Timer") + QString("(%1, %2)").arg(ValToTim(ls.val1)).arg(ValToTim(ls.val2));

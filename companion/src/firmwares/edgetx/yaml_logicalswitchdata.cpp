@@ -42,6 +42,7 @@ static const YamlLookupTable funcLut = {
     {LS_FN_DAPOS, "FUNC_ADIFFEGREATER"},
     {LS_FN_TIMER, "FUNC_TIMER"},
     {LS_FN_STICKY, "FUNC_STICKY"},
+    {LS_FN_SAFE, "FUNC_SAFE"},
 };
 
 static int timerValue2lsw(uint32_t t)
@@ -75,6 +76,12 @@ Node convert<LogicalSwitchData>::encode(const LogicalSwitchData& rhs)
   switch (rhs.getFunctionFamily()) {
   case LS_FAMILY_VBOOL:
   case LS_FAMILY_STICKY: {
+    def += YamlRawSwitchEncode(RawSwitch(rhs.val1));
+    def += ",";
+    def += YamlRawSwitchEncode(RawSwitch(rhs.val2));
+  } break;
+
+  case LS_FAMILY_SAFE: {
     def += YamlRawSwitchEncode(RawSwitch(rhs.val1));
     def += ",";
     def += YamlRawSwitchEncode(RawSwitch(rhs.val2));
@@ -119,7 +126,7 @@ Node convert<LogicalSwitchData>::encode(const LogicalSwitchData& rhs)
   node["andsw"] = YamlRawSwitchEncode(RawSwitch(rhs.andsw));
   node["lsPersist"] = (int)rhs.lsPersist;
   node["lsState"] = (int)rhs.lsState;
-
+  node["custName"] = rhs.custName;
   return node;
 }
 
@@ -127,6 +134,7 @@ bool convert<LogicalSwitchData>::decode(const Node& node,
                                         LogicalSwitchData& rhs)
 {
   node["func"] >> funcLut >> rhs.func;
+  node["custName"] >> rhs.custName;
 
   std::string def_str;
   node["def"] >> def_str;
@@ -135,6 +143,14 @@ bool convert<LogicalSwitchData>::decode(const Node& node,
   switch (rhs.getFunctionFamily()) {
   case LS_FAMILY_VBOOL:
   case LS_FAMILY_STICKY: {
+    std::string sw_str;
+    getline(def, sw_str, ',');
+    rhs.val1 = YamlRawSwitchDecode(sw_str).toValue();
+    getline(def, sw_str);
+    rhs.val2 = YamlRawSwitchDecode(sw_str).toValue();
+  } break;
+
+case LS_FAMILY_SAFE: {
     std::string sw_str;
     getline(def, sw_str, ',');
     rhs.val1 = YamlRawSwitchDecode(sw_str).toValue();

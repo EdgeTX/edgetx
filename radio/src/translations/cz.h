@@ -81,10 +81,12 @@
 
 #if LCD_W >= 212
   #define TR_CSWTIMER                  "Stopky"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWSTICKY                 "Sticky"
   #define TR_CSWSTAY                   "Edge"
 #else
   #define TR_CSWTIMER                  "Tim"
+  #define TR_CSWSAFE                   "Safe"
   #define TR_CSWSTICKY                 "Stky"
   #define TR_CSWSTAY                   "Edge"
 #endif
@@ -531,6 +533,10 @@
 
 #define TR_MENUCURVES                  "KŘIVKY"
 #define TR_MENUCURVE                   "\002K"
+#if defined(COLORLCD)
+#define TR_CUST_LOGICALSWITCH_LABEL    "Název"
+#define TR_CUST_FUNC_CUST_LABEL        "Název"
+#endif
 #define TR_MENULOGICALSWITCH           "LOG. SPÍNAČ"
 #define TR_MENULOGICALSWITCHES         "LOGICKÉ SPÍNAČE"
 #define TR_MENUCUSTOMFUNC              "SPECIÁLNÍ FUNKCE"

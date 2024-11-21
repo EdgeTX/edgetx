@@ -22,6 +22,7 @@
 #include "customfunctions.h"
 #include "helpers.h"
 #include "appdata.h"
+#include "namevalidator.h"
 
 #include <TimerEdit>
 
@@ -33,6 +34,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   mediaPlayer(nullptr),
   modelsUpdateCnt(0)
 {
+  Board::Type board = firmware->getBoard();
   lock = true;
   fswCapability = model ? firmware->getCapability(CustomFunctions) : firmware->getCapability(GlobalFunctions);
 
@@ -86,7 +88,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     }
   }
 
-  if (IS_STM32(firmware->getBoard())) {
+  if (IS_STM32(board)) {
     scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/FUNCTIONS", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
     for (int i = 0; i < fswCapability; i++) {
       if (functions[i].func == FuncPlayScript) {
@@ -98,7 +100,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     }
   }
 
-  if (IS_STM32(firmware->getBoard())) {
+  if (IS_STM32(board)) {
     scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
     for (int i = 0; i < fswCapability; i++) {
       if (functions[i].func == FuncRGBLed) {
@@ -114,7 +116,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   playIcon.addImage("stop.png", QIcon::Normal, QIcon::On);
 
   QStringList headerLabels;
-  headerLabels << "#" << tr("Switch") << tr("Action") << tr("Parameters") << tr("Repeat") << tr("Enable");
+  headerLabels << "#" << tr("Name") << tr("Switch") << tr("Action") << tr("Parameters") << tr("Repeat") << tr("Enable");
   TableLayout * tableLayout = new TableLayout(this, fswCapability, headerLabels);
 
   for (int i = 0; i < fswCapability; i++) {
@@ -132,6 +134,15 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     connect(label, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
     tableLayout->addWidget(i, 0, label);
 
+    // The Custom Name
+    name[i] = new QLineEdit(this);
+    name[i]->setProperty("index", i);
+    name[i]->setMaxLength(CF_CUSTNAME_LEN);
+    name[i]->setValidator(new NameValidator(board, this));
+    name[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    connect(name[i], SIGNAL(editingFinished()), this, SLOT(onNameEdited()));
+    tableLayout->addWidget(i, 1, name[i]);
+
     // The switch
     fswtchSwtch[i] = new QComboBox(this);
     fswtchSwtch[i]->setProperty("index", i);
@@ -141,7 +152,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     fswtchSwtch[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     fswtchSwtch[i]->setMaxVisibleItems(10);
     connect(fswtchSwtch[i], SIGNAL(currentIndexChanged(int)), this, SLOT(customFunctionEdited()));
-    tableLayout->addWidget(i, 1, fswtchSwtch[i]);
+    tableLayout->addWidget(i, 2, fswtchSwtch[i]);
 
     // The function
     fswtchFunc[i] = new QComboBox(this);
@@ -150,11 +161,11 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     fswtchFunc[i]->setCurrentIndex(fswtchFunc[i]->findData(functions[i].func));
     fswtchFunc[i]->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(fswtchFunc[i], SIGNAL(currentIndexChanged(int)), this, SLOT(functionEdited()));
-    tableLayout->addWidget(i, 2, fswtchFunc[i]);
+    tableLayout->addWidget(i, 3, fswtchFunc[i]);
 
     // The parameters
     QHBoxLayout * paramLayout = new QHBoxLayout();
-    tableLayout->addLayout(i, 3, paramLayout);
+    tableLayout->addLayout(i, 4, paramLayout);
 
     fswtchGVmode[i] = new QComboBox(this);
     fswtchGVmode[i]->setProperty("index", i);
@@ -205,7 +216,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     connect(playBT[i], &QToolButton::clicked, this, &CustomFunctionsPanel::toggleSound);
 
     QHBoxLayout * repeatLayout = new QHBoxLayout();
-    tableLayout->addLayout(i, 4, repeatLayout);
+    tableLayout->addLayout(i, 5, repeatLayout);
     fswtchRepeat[i] = new QComboBox(this);
     fswtchRepeat[i]->setProperty("index", i);
     if (functions[i].func == FuncPlayScript || functions[i].func == FuncRGBLed)
@@ -230,7 +241,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
 
   disableMouseScrolling();
   tableLayout->resizeColumnsToContents();
-  tableLayout->setColumnWidth(3, 300);
+  tableLayout->setColumnWidth(5, 300);
   tableLayout->pushRowsUp(fswCapability + 1);
 
   update();
@@ -353,16 +364,32 @@ void CustomFunctionsPanel::functionEdited()
     lock = true;
     int index = sender()->property("index").toInt();
     RawSwitch swtch = functions[index].swtch;
+    int paramTemp =functions[index].param;
+
     functions[index].clear();
     functions[index].swtch = swtch;
     functions[index].func = (AssignFunc)fswtchFunc[index]->currentData().toInt();
     functions[index].enabled = true;
     if (functions[index].func == FuncLogs)
       functions[index].param = 10;  // 1 sec
+    functions[index].param = paramTemp;
+    strcpy(functions[index].custName, name[index]->text().toLatin1());
+
     refreshCustomFunction(index);
     emit modified();
     lock = false;
   }
+}
+
+void CustomFunctionsPanel::onNameEdited()
+{
+    QLineEdit *le = qobject_cast<QLineEdit*>(sender());
+    int index = le->property("index").toInt();
+    CustomFunctionData & cfn = functions[index];
+    if (cfn.custName != le->text()) {
+      strcpy(cfn.custName, le->text().toLatin1());
+      emit modified();
+    }
 }
 
 void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
@@ -377,6 +404,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
     cfn.enabled = fswtchEnable[i]->isChecked();
   }
   else {
+    name[i]->setText(cfn.custName);
     fswtchSwtch[i]->setCurrentIndex(fswtchSwtch[i]->findData(cfn.swtch.toValue()));
     fswtchFunc[i]->setCurrentIndex(fswtchFunc[i]->findData(cfn.func));
     fswtchEnable[i]->setChecked(cfn.enabled);
@@ -385,6 +413,8 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
   if (!cfn.isEmpty()) {
     widgetsMask |= CUSTOM_FUNCTION_SHOW_FUNC | CUSTOM_FUNCTION_ENABLE;
 
+    name[i]->setText(cfn.custName);
+
     if (func >= FuncOverrideCH1 && func <= FuncOverrideCHLast) {
       if (model) {
         int channelsMax = model->getChannelsMax(true);
@@ -392,8 +422,11 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         fswtchParam[i]->setSingleStep(1);
         fswtchParam[i]->setMinimum(-channelsMax);
         fswtchParam[i]->setMaximum(channelsMax);
+        name[i]->setText(cfn.custName);
+
         if (modified) {
           cfn.param = fswtchParam[i]->value();
+          strcpy(cfn.custName, name[i]->text().toLatin1());
         }
         fswtchParam[i]->setValue(cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM;
@@ -801,6 +834,7 @@ void CustomFunctionsPanel::swapData(int idx1, int idx2)
 void CustomFunctionsPanel::resetCBsAndRefresh(int idx)
 {
   lock = true;
+  name[idx]->clear();
   fswtchSwtch[idx]->setCurrentIndex(fswtchSwtch[idx]->findData(functions[idx].swtch.toValue()));
   fswtchFunc[idx]->setCurrentIndex(fswtchFunc[idx]->findData(functions[idx].func));
   fswtchGVmode[idx]->setCurrentIndex(functions[idx].adjustMode);
