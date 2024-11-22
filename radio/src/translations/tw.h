@@ -715,6 +715,8 @@
 #define TR_TIME                        "時間"
 #define TR_MAXBAUDRATE                 "最大帶寬"
 #define TR_BAUDRATE                    "波特率"
+#define TR_CRSF_ARMING_MODE            "解鎖類型"
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                 "採樣模式"
 #define TR_SAMPLE_MODES                "標準","OneBit"
 #define TR_LOADING                     "加載中..."

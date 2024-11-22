@@ -23,6 +23,7 @@
 #include "yaml_generalsettings.h"
 #include "eeprominterface.h"
 #include "rawsource.h"
+#include "yaml_rawswitch.h"
 #include "multiprotocols.h"
 
 //  type: TYPE_MULTIMODULE
@@ -242,6 +243,8 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         Node crsf;
         YamlTelemetryBaudrate br(&rhs.crsf.telemetryBaudrate);
         crsf["telemetryBaudrate"] = br.value;
+        crsf["crsfArmingMode"] = rhs.crsf.crsfArmingMode;
+        crsf["crsfArmingTrigger"] = rhs.crsf.crsfArmingTrigger;
         mod["crsf"] = crsf;
     } break;
     case PULSES_LEMON_DSMP: {
@@ -399,6 +402,8 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           YamlTelemetryBaudrate telemetryBaudrate;
           crsf["telemetryBaudrate"] >> telemetryBaudrate.value;
           telemetryBaudrate.toCpn(&rhs.crsf.telemetryBaudrate, getCurrentFirmware()->getBoard());
+          crsf["crsfArmingMode"] >> rhs.crsf.crsfArmingMode;
+          crsf["crsfArmingTrigger"] >> rhs.crsf.crsfArmingTrigger;
       } else if (mod["dsmp"]) {
           Node dsmp = mod["dsmp"];
           dsmp["flags"] >> rhs.dsmp.flags;

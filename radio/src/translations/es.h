@@ -705,6 +705,8 @@
 #define TR_TIME                "Hora"
 #define TR_MAXBAUDRATE         "Máx bauds"
 #define TR_BAUDRATE            "Baudrate"
+#define TR_CRSF_ARMING_MODE            TR("Modo Arm.", "Modo Armado")
+#define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE         "Modo de muestra"
 #define TR_SAMPLE_MODES        "Normal","OneBit"
 #define TR_LOADING                     "Loading..."

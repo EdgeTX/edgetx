@@ -708,6 +708,8 @@
 #define TR_TIME                         "Ora"
 #define TR_MAXBAUDRATE                  "Max Bauds"
 #define TR_BAUDRATE                     "Baudrate"
+#define TR_CRSF_ARMING_MODE             TR("Modo arm", "Modo d'armamento")
+#define TR_CRSF_ARMING_MODES            TR_CH"5", TR_SWITCH
 #define TR_SAMPLE_MODE                  "Modo Semplice"
 #define TR_SAMPLE_MODES                 "Normale","OneBit"
 #define TR_LOADING                      "Caricamento..."

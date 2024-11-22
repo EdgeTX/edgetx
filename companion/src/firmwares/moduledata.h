@@ -23,8 +23,11 @@
 
 #include "constants.h"
 #include "radio/src/MultiProtoDefs.h"
+#include "rawswitch.h"
 
 #include <QtCore>
+
+constexpr char AIM_MODULE_CRSFARMINGMODE[]  {"moduledata.crsfArmingMode"};
 
 class Firmware;
 class RadioDataConversionState;
@@ -114,6 +117,12 @@ class ModuleData {
   Q_DECLARE_TR_FUNCTIONS(ModuleData)
 
   public:
+    enum CrsfArmingMode {
+      CRSF_ARMING_MODE_CH5,
+      CRSF_ARMING_MODE_SWITCH,
+      CRSF_ARMING_MODE_COUNT
+    };
+
     ModuleData()
     {
       clear();
@@ -191,6 +200,8 @@ class ModuleData {
 
     struct CRSF {
       unsigned int telemetryBaudrate;
+      unsigned int crsfArmingMode;
+      RawSwitch crsfArmingTrigger;
     } crsf;
 
     struct Access {
@@ -203,7 +214,7 @@ class ModuleData {
       unsigned int flags;
     } dsmp;
 
-    void clear() { memset(this, 0, sizeof(ModuleData)); }
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(ModuleData)); }
     void convert(RadioDataConversionState & cstate);
     bool isPxx2Module() const;
     bool supportRxNum() const;
@@ -234,4 +245,8 @@ class ModuleData {
     static AbstractStaticItemModel * afhds2aMode2ItemModel();
     static AbstractStaticItemModel * afhds3PhyModeItemModel();
     static AbstractStaticItemModel * afhds3EmiItemModel();
+
+    QString crsfArmingModeToString() const;
+    static QString crsfArmingModeToString(int mode);
+    static AbstractStaticItemModel * crsfArmingModeItemModel();
 };

@@ -10119,6 +10119,21 @@ p, li { white-space: pre-wrap; }
         <translation>Mottagarnummer</translation>
     </message>
     <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>Arm using</source>
+        <translation>Aktivera m.</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>CH5</source>
+        <translation>KA5</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>Switch</source>
+        <translation type="unfinished">Switch</translation>
+    </message>
+    <message>
         <location filename="../modeledit/setup_module.ui" line="482"/>
         <source>CH </source>
         <translation>KA </translation>

@@ -10362,6 +10362,21 @@ p, li { white-space: pre-wrap; }
         <translation>接收机编号  [Receiver No.].</translation>
     </message>
     <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>Arm using</source>
+        <translation>解锁类型</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>CH5</source>
+        <translation type="unfinished">CH5</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>Switch</source>
+        <translation type="unfinished">Switch</translation>
+    </message>
+    <message>
         <location filename="../modeledit/setup_module.ui" line="1050"/>
         <source>Output type</source>
         <translation>输出类型  [Output type]</translation>

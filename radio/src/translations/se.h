@@ -723,6 +723,8 @@
 #define TR_TEMP_CALIB                   "Temp. kalib."
 #define TR_TIME                         "Tid"
 #define TR_BAUDRATE                     "Baudrate"
+#define TR_CRSF_ARMING_MODE             TR("Aktivera m.", "Aktivera med")
+#define TR_CRSF_ARMING_MODES            TR_CH"5", TR_SWITCH
 #define TR_MAXBAUDRATE                  "Max bauds"
 #define TR_SAMPLE_MODE                  TR("Sampling","Sample Mode")
 #define TR_SAMPLE_MODES                 "Normal","OneBit"

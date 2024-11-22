@@ -535,9 +535,13 @@ PACK(struct ModuleData {
       uint8_t telemetryBaudrate:3;
       uint8_t spare1:4 SKIP;
     } ghost);
-    NOBACKUP(struct {
+    NOBACKUP(PACK(struct {
       uint8_t telemetryBaudrate:3;
-    } crsf);
+      uint8_t crsfArmingMode:1;
+      uint8_t spare2:4 SKIP;
+      int16_t crsfArmingTrigger:10 CUST(r_swtchSrc,w_swtchSrc);
+      int16_t spare3:6;
+    }) crsf);
     NOBACKUP(struct {
       uint8_t flags;
     } dsmp);

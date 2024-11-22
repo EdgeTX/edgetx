@@ -10372,6 +10372,21 @@ p, li { white-space: pre-wrap; }
         <translation>開漏輸出  [Open Drain]</translation>
     </message>
     <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>Arm using</source>
+        <translation>解鎖類型</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>CH5</source>
+        <translation type="unfinished">CH5</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <source>Switch</source>
+        <translation type="unfinished">Switch</translation>
+    </message>
+    <message>
         <location filename="../modeledit/setup_module.ui" line="1072"/>
         <source>Push Pull</source>
         <translation>推挽輸出  [Push Pull]</translation>

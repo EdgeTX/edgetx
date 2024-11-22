@@ -119,8 +119,6 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
 void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
 
-uint8_t createCrossfireModelIDFrame(uint8_t* frame);
-
 const uint32_t CROSSFIRE_BAUDRATES[] = {
   115200,
   400000,
@@ -157,6 +155,11 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
     (i + (DIM(CROSSFIRE_BAUDRATES) - CROSSFIRE_DEFAULT_INDEX)) \
         % DIM(CROSSFIRE_BAUDRATES)
 #endif
+
+#define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) \
+        (crossfireModuleStatus[moduleIdx].isELRS \
+         && crossfireModuleStatus[moduleIdx].major >= maj \
+         && crossfireModuleStatus[moduleIdx].minor >= min)
 
 #if defined(HARDWARE_INTERNAL_MODULE)
 #define INT_CROSSFIRE_BR_IDX   CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate)
