@@ -165,6 +165,8 @@ class LvglWidgetLineBase : public LvglSimpleWidgetObject
 
  protected:
   bool rounded = false;
+  int dashGap = 0;
+  int dashWidth = 0;
   lv_point_t pts[2];
 
   virtual void setLine() = 0;
