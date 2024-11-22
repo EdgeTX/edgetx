@@ -4,17 +4,14 @@ project(storage)
 set(${PROJECT_NAME}_NAMES
   hexinterface
   mountlist
-  rlefile
   appdata
   firmwareinterface
   storage
-  bineeprom
   eepe
   hexeeprom
   labeled
   sdcard
   etx
-  otx
   yaml
   crc
   minizinterface

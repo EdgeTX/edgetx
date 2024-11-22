@@ -224,7 +224,6 @@ set(companion_NAMES
   burnconfigdialog
   comparedialog
   customizesplashdialog
-  flasheepromdialog
   flashfirmwaredialog
   helpers_html
   labels

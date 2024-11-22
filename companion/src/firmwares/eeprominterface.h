@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _EEPROMINTERFACE_H_
-#define _EEPROMINTERFACE_H_
+#pragma once
 
 #include "boards.h"
 #include "macros.h"
@@ -149,7 +148,6 @@ enum Capability {
   EnhancedCurves,
   HasFasOffset,
   HasMahPersistent,
-  SimulatorVariant,
   MavlinkTelemetry,
   HasInputDiff,
   HasMixerExpo,
@@ -178,97 +176,11 @@ enum Capability {
   BacklightLevelMin,
 };
 
-class EEPROMInterface
-{
-  Q_DECLARE_TR_FUNCTIONS(EEPROMInterface)
-
-  public:
-
-    EEPROMInterface(Board::Type board):
-      board(board)
-    {
-    }
-
-    virtual ~EEPROMInterface() {}
-
-    inline Board::Type getBoard() { return board; }
-
-    virtual unsigned long load(RadioData &radioData, const uint8_t * eeprom, int size) = 0;
-
-    virtual unsigned long loadBackup(RadioData & radioData, const uint8_t * eeprom, int esize, int index) = 0;
-
-    virtual int save(uint8_t * eeprom, const RadioData & radioData, uint8_t version=0, uint32_t variant=0) = 0;
-
-    virtual int getSize(const ModelData &) = 0;
-
-    virtual int getSize(const GeneralSettings &) = 0;
-
-    //static void showEepromErrors(QWidget *parent, const QString &title, const QString &mainMessage, unsigned long errorsFound);
-    static QString getEepromWarnings(unsigned long errorsFound);
-
-  protected:
-
-    Board::Type board;
-
-  private:
-
-    EEPROMInterface();
-
-};
-
-/* EEPROM string conversion function (used only by er9xeeprom and ersky9xeeprom) */
-inline void getEEPROMString(char *dst, const char *src, int size)
-{
-  memcpy(dst, src, size);
-  dst[size] = '\0';
-  for (int i=size-1; i>=0; i--) {
-    if (dst[i] == ' ')
-      dst[i] = '\0';
-    else
-      break;
-  }
-}
-
-// (used only by er9xeeprom and ersky9xeeprom)
-inline int applyStickMode(int stick, unsigned int mode)
-{
-  if (mode == 0 || mode > 4) {
-    std::cerr << "Incorrect stick mode" << mode;
-    return stick;
-  }
-
-  if (stick >= 1 && stick <= 4)
-    return modn12x3[mode-1][stick-1];
-  else
-    return stick;
-}
-
 float ValToTim(int value);
 int TimToVal(float value);
 
-void registerEEpromInterfaces();
-void unregisterEEpromInterfaces();
 void registerOpenTxFirmwares();
 void unregisterOpenTxFirmwares();
-
-enum EepromLoadErrors {
-  ALL_OK,
-  UNKNOWN_ERROR,
-  UNSUPPORTED_NEWER_VERSION,
-  WRONG_SIZE,
-  WRONG_FILE_SYSTEM,
-  NOT_OPENTX,
-  NOT_ERSKY9X,
-  UNKNOWN_BOARD,
-  WRONG_BOARD,
-  BACKUP_NOT_SUPPORTED,
-
-  HAS_WARNINGS,
-  OLD_VERSION,
-  WARNING_WRONG_FIRMWARE,
-
-  NUM_ERRORS
-};
 
 constexpr char FIRMWARE_ID_PREFIX[] = { "edgetx-" };
 
@@ -328,16 +240,6 @@ class Firmware
     Board::Type getBoard() const
     {
       return board;
-    }
-
-    void setEEpromInterface(EEPROMInterface * eeprom)
-    {
-      eepromInterface = eeprom;
-    }
-
-    EEPROMInterface * getEEpromInterface()
-    {
-      return eepromInterface;
     }
 
     QString getName() const
@@ -429,7 +331,6 @@ class Firmware
     Board::Type board;
     unsigned int variantBase;
     Firmware * base;
-    EEPROMInterface * eepromInterface;
     QString downloadId;
     QString simulatorId;
     QString hwdefnId;
@@ -449,11 +350,6 @@ inline Firmware * getCurrentFirmware()
   return Firmware::getCurrentVariant();
 }
 
-inline EEPROMInterface * getCurrentEEpromInterface()
-{
-  return Firmware::getCurrentVariant()->getEEpromInterface();
-}
-
 inline Board::Type getCurrentBoard()
 {
   return Firmware::getCurrentVariant()->getBoard();
@@ -461,15 +357,10 @@ inline Board::Type getCurrentBoard()
 
 inline int divRoundClosest(const int n, const int d)
 {
-  return ((n < 0) ^ (d < 0)) ? ((n - d/2)/d) : ((n + d/2)/d);
+  return ((n < 0) ^ (d < 0)) ? ((n - d / 2) / d) : ((n + d / 2) / d);
 }
 
 inline int calcRESXto100(int x)
 {
-  return divRoundClosest(x*100, 1024);
+  return divRoundClosest(x * 100, 1024);
 }
-
-extern QList<EEPROMInterface *> eepromInterfaces;
-
-
-#endif // _EEPROMINTERFACE_H_

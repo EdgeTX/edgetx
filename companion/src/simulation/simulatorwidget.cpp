@@ -316,8 +316,10 @@ bool SimulatorWidget::setStartupData(const QByteArray & dataSource, bool fromFil
   }
   // Assume a byte array of radio data was passed, load it.
   else if (!dataSource.isEmpty()) {
-    ret = firmware->getEEpromInterface()->load(simuData, (uint8_t *)dataSource.constData(), Boards::getEEpromSize(m_board));
-    startupData = dataSource;  // save the data for start()
+    //ret = firmware->getEEpromInterface()->load(simuData, (uint8_t *)dataSource.constData(), Boards::getEEpromSize(m_board));
+    //startupData = dataSource;  // save the data for start()
+    error = tr("Unable to handle byte array.");
+    ret = 0;
   }
   // we're :-(
   else {
@@ -352,11 +354,11 @@ bool SimulatorWidget::setRadioData(RadioData * radioData)
   if (ret) {
     if (!hasSdCard) {
       startupData.fill(0, Boards::getEEpromSize(m_board));
-      if (firmware->getEEpromInterface()->save(
-              (uint8_t *)startupData.data(), *radioData, 0,
-              firmware->getCapability(SimulatorVariant)) <= 0) {
+      //if (firmware->getEEpromInterface()->save(
+      //        (uint8_t *)startupData.data(), *radioData, 0,
+      //        firmware->getCapability(SimulatorVariant)) <= 0) {
         ret = false;
-      }
+      //}
     } else {
       ret = saveRadioData(radioData, radioDataPath);
     }
@@ -452,13 +454,14 @@ bool SimulatorWidget::saveTempData()
             fh.close();
         }
 
-        if (!firmware->getEEpromInterface()->load(radioData, (uint8_t *)startupData.constData(), Boards::getEEpromSize(m_board))) {
-          error = tr("Error saving data: could not get data from simulator interface.");
-        }
-        else {
-          radioData.fixModelFilenames();
-          ret = true;
-        }
+        qDebug() << "ERROR: WE DO NOT WANT TO BE HERE";
+//        if (!firmware->getEEpromInterface()->load(radioData, (uint8_t *)startupData.constData(), Boards::getEEpromSize(m_board))) {
+//          error = tr("Error saving data: could not get data from simulator interface.");
+//        }
+//        else {
+//          radioData.fixModelFilenames();
+//          ret = true;
+//        }
       }
     }
     else {

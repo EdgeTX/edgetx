@@ -19,32 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#include "bineeprom.h"
-#include "eepe.h"
-#include "otx.h"
 #include "etx.h"
-#include "sdcard.h"
 #include "yaml.h"
-#include "firmwareinterface.h"
-#include "eeprominterface.h"
+#include "sdcard.h"
+
 #include <QFileInfo>
 
 StorageType getStorageType(const QString & filename)
 {
   QString suffix = QFileInfo(filename).suffix().toUpper();
-  if (suffix == "HEX")
-    return STORAGE_TYPE_HEX;
-  else if (suffix == "BIN")
-    return STORAGE_TYPE_BIN;
-  else if (suffix == "EEPM")
-    return STORAGE_TYPE_EEPM;
-  else if (suffix == "EEPE")
-    return STORAGE_TYPE_EEPE;
-  else if (suffix == "XML")
-    return STORAGE_TYPE_XML;
-  else if (suffix == "OTX")
-    return STORAGE_TYPE_OTX;
-  else if (suffix == "ETX")
+
+  if (suffix == "ETX")
     return STORAGE_TYPE_ETX;
   else if (suffix == "YML")
     return STORAGE_TYPE_YML;
@@ -64,10 +49,6 @@ void registerStorageFactory(StorageFactory * factory)
 
 void registerStorageFactories()
 {
-  registerStorageFactory(new DefaultStorageFactory<BinEepromFormat>("bin"));
-  registerStorageFactory(new DefaultStorageFactory<EepeFormat>("eepe"));
-  registerStorageFactory(new DefaultStorageFactory<HexEepromFormat>("hex"));
-  registerStorageFactory(new DefaultStorageFactory<OtxFormat>("otx"));
   registerStorageFactory(new DefaultStorageFactory<EtxFormat>("etx"));
   registerStorageFactory(new DefaultStorageFactory<YamlFormat>("yml"));
   registerStorageFactory(new SdcardStorageFactory());
@@ -88,7 +69,7 @@ bool Storage::load(RadioData & radioData)
   }
 
   bool ret = false;
-  foreach(StorageFactory * factory, registeredStorageFactories) {
+  foreach (StorageFactory * factory, registeredStorageFactories) {
     if (factory->probe(filename)) {
       StorageFormat * format = factory->instance(filename);
       if (format->load(radioData)) {
@@ -111,7 +92,7 @@ bool Storage::load(RadioData & radioData)
 bool Storage::write(const RadioData & radioData)
 {
   bool ret = false;
-  foreach(StorageFactory * factory, registeredStorageFactories) {
+  foreach (StorageFactory * factory, registeredStorageFactories) {
     if (factory->probe(filename)) {
       StorageFormat * format = factory->instance(filename);
       ret = format->write(radioData);
@@ -125,7 +106,7 @@ bool Storage::write(const RadioData & radioData)
 bool Storage::writeModel(const RadioData & radioData, const int modelIndex)
 {
   bool ret = false;
-  foreach(StorageFactory * factory, registeredStorageFactories) {
+  foreach (StorageFactory * factory, registeredStorageFactories) {
     if (factory->probe(filename)) {
       StorageFormat * format = factory->instance(filename);
       ret = format->writeModel(radioData, modelIndex);
@@ -135,76 +116,3 @@ bool Storage::writeModel(const RadioData & radioData, const int modelIndex)
   }
   return ret;
 }
-
-bool convertEEprom(const QString & sourceEEprom, const QString & destinationEEprom, const QString & firmwareFilename)
-{
-  FirmwareInterface firmware(firmwareFilename);
-  if (!firmware.isValid())
-    return false;
-
-  uint8_t version = firmware.getEEpromVersion();
-  unsigned int variant = firmware.getEEpromVariant();
-
-  QSharedPointer<RadioData> radioData = QSharedPointer<RadioData>(new RadioData());
-  Storage storage(sourceEEprom);
-  if (!storage.load(*radioData))
-    return false;
-
-  QByteArray eeprom(Boards::getEEpromSize(Board::BOARD_UNKNOWN), 0);
-  int size = getCurrentEEpromInterface()->save((uint8_t *)eeprom.data(), *radioData, version, variant);
-  if (size == 0) {
-    return false;
-  }
-
-  QFile destinationFile(destinationEEprom);
-  if (!destinationFile.open(QIODevice::WriteOnly)) {
-    return false;
-  }
-
-  int result = destinationFile.write(eeprom.constData(), size);
-  destinationFile.close();
-  return (result == size);
-}
-
-#if 0
-unsigned long LoadBackup(RadioData & radioData, uint8_t * eeprom, int size, int index)
-{
-  std::bitset<NUM_ERRORS> errors;
-
-    foreach(EEPROMInterface *eepromInterface, eepromInterfaces) {
-      std::bitset<NUM_ERRORS> result((unsigned long long)eepromInterface->loadBackup(radioData, eeprom, size, index));
-      if (result.test(ALL_OK)) {
-        return result.to_ulong();
-      }
-      else {
-        errors |= result;
-      }
-    }
-
-  if (errors.none()) {
-    errors.set(UNKNOWN_ERROR);
-  }
-  return errors.to_ulong();
-}
-
-
-unsigned long LoadEepromXml(RadioData & radioData, QDomDocument & doc)
-{
-  std::bitset<NUM_ERRORS> errors;
-
-    foreach(EEPROMInterface *eepromInterface, eepromInterfaces) {
-      std::bitset<NUM_ERRORS> result((unsigned long long)eepromInterface->loadxml(radioData, doc));
-      if (result.test(ALL_OK)) {
-        return result.to_ulong();
-      }
-      else {
-        errors |= result;
-      }
-    }
-
-  if (errors.none()) {
-    errors.set(UNKNOWN_ERROR);
-  }
-  return errors.to_ulong();
-}
-#endif

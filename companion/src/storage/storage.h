@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
+#pragma once
 
 #include "radiodata.h"
 
@@ -31,13 +30,8 @@
 enum StorageType
 {
   STORAGE_TYPE_UNKNOWN,
-  STORAGE_TYPE_BIN,
-  STORAGE_TYPE_HEX,
-  STORAGE_TYPE_EEPE,
-  STORAGE_TYPE_EEPM,
-  STORAGE_TYPE_XML,
+  STORAGE_TYPE_HEX,   // needed for FirmwareInterface
   STORAGE_TYPE_SDCARD,
-  STORAGE_TYPE_OTX,
   STORAGE_TYPE_ETX,
   STORAGE_TYPE_YML
 };
@@ -164,13 +158,3 @@ class Storage : public StorageFormat
 
 void registerStorageFactories();
 void unregisterStorageFactories();
-
-#if 0
-unsigned long LoadBackup(RadioData &radioData, uint8_t *eeprom, int esize, int index);
-unsigned long LoadEeprom(RadioData &radioData, const uint8_t *eeprom, int size);
-unsigned long LoadEepromXml(RadioData &radioData, QDomDocument &doc);
-#endif
-
-bool convertEEprom(const QString & sourceEEprom, const QString & destinationEEprom, const QString & firmware);
-
-#endif // _STORAGE_H_
