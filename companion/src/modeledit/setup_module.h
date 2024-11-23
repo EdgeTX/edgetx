@@ -25,7 +25,8 @@
 #include "eeprominterface.h"
 #include "filtereditemmodels.h"
 
-constexpr char FIM_ANTENNAMODE[] {"Antenna Mode"};
+constexpr char FIM_ANTENNAMODE[]   {"Antenna Mode"};
+constexpr char FIM_CRSFARMSWITCH[] {"CRSF Arming Switch"};
 
 namespace Ui {
   class Module;
@@ -37,7 +38,7 @@ class ModulePanel : public ModelPanel
 
   public:
     ModulePanel(QWidget * parent, ModelData & model, ModuleData & module, GeneralSettings & generalSettings, Firmware * firmware, int moduleIdx,
-                FilteredItemModelFactory * panelFilteredItemModels = nullptr);
+                FilteredItemModelFactory * panelFilteredItemModels = nullptr, CompoundItemModelFactory * panelItemModels = nullptr);
     virtual ~ModulePanel();
 
     virtual void update();
