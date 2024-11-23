@@ -40,6 +40,17 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   addScrollActions();
 
   setLcd(ui->lcd);
+
+  QString css = "#radioUiWidget {"
+                "background-color: rgb(0, 0, 0);"
+                "}";
+
+  QTimer * tim = new QTimer(this);
+  tim->setSingleShot(true);
+  connect(tim, &QTimer::timeout, [this, css]() {
+      emit customStyleRequest(css);
+  });
+  tim->start(100);
 }
 
 SimulatedUIWidgetGeneric::~SimulatedUIWidgetGeneric()
