@@ -500,6 +500,12 @@ void LvglWidgetLineBase::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "rounded")) {
     rounded = lua_toboolean(L, -1);
+  } else if (!strcmp(key, "dashGap")) {
+    dashGap = luaL_checkinteger(L, -1);
+    if (dashGap < 0) dashGap = 0;
+  } else if (!strcmp(key, "dashWidth")) {
+    dashWidth = luaL_checkinteger(L, -1);
+    if (dashWidth < 0) dashWidth = 0;
   } else {
     LvglSimpleWidgetObject::parseParam(L, key);
   }
@@ -550,6 +556,10 @@ void LvglWidgetLineBase::refresh()
   setOpacity(opacity);
   setLine();
   lv_obj_set_style_line_rounded(lvobj, rounded, LV_PART_MAIN);
+  if (dashGap > 0 && dashWidth > 0) {
+    lv_obj_set_style_line_dash_gap(lvobj, dashGap, LV_PART_MAIN);
+    lv_obj_set_style_line_dash_width(lvobj, dashWidth, LV_PART_MAIN);
+  }
 }
 
 //-----------------------------------------------------------------------------
