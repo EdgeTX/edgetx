@@ -40,6 +40,7 @@ static void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS);
   etx_obj_add_style(obj, table_cell, LV_PART_ITEMS);
   etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY2_INDEX], LV_PART_ITEMS);
+  etx_obj_add_style(obj, styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
 
   etx_bg_color(obj, COLOR_THEME_FOCUS_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
   etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
@@ -85,13 +86,7 @@ void TableField::table_event(const lv_obj_class_t* class_p, lv_event_t* e)
               // Otherwise it's a click
               if (lv_group_get_editing((lv_group_t*)lv_obj_get_group(obj)) ||
                   indev_type == LV_INDEV_TYPE_POINTER) {
-                if (tf->isLongPress) {
-                  tf->isLongPress = false;
-                  if (!tf->onPressLong(row, col))
-                    tf->onPress(row, col);
-                } else {
-                  tf->onPress(row, col);
-                }
+                tf->onPress(row, col);
               } else {
                 tf->onClicked();
               }
@@ -152,9 +147,6 @@ void TableField::table_event(const lv_obj_class_t* class_p, lv_event_t* e)
             lv_draw_rect(draw_ctx, &rect_dsc, &coords);
           }
         } break;
-        case LV_EVENT_LONG_PRESSED:
-          tf->isLongPress = true;
-          break;
         case LV_EVENT_RELEASED:
         {
           lv_table_t* table = (lv_table_t*)obj;
@@ -289,5 +281,42 @@ void TableField::onEvent(event_t event)
     selectNext(-1);
   } else {
     Window::onEvent(event);
+  }
+}
+
+int TableField::getSelected() const
+{
+  uint16_t row, col;
+  lv_table_get_selected_cell(lvobj, &row, &col);
+  if (row != LV_TABLE_CELL_NONE) {
+    return row;
+  }
+  return -1;
+}
+
+bool TableField::onLongPress()
+{
+  TRACE("LONG_PRESS");
+  if (longPressHandler) {
+    longPressHandler();
+    lv_indev_wait_release(lv_indev_get_act());
+    return false;
+  }
+  return true;
+}
+
+void TableField::setAutoEdit()
+{
+  autoedit = true;
+  lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
+  if (g) {
+    setFocusHandler([=](bool focus) {
+      if (focus) {
+        lv_group_set_focus_cb(g, TableField::force_editing);
+      } else {
+        lv_group_set_focus_cb(g, nullptr);
+      }
+    });
+    lv_group_set_editing(g, true);
   }
 }

@@ -25,9 +25,7 @@
 #include "table.h"
 #include "etx_lv_theme.h"
 
-constexpr coord_t MENUS_WIDTH = 200;
-
-static void _force_editing(lv_group_t* g) { lv_group_set_editing(g, true); }
+//-----------------------------------------------------------------------------
 
 class MenuBody : public TableField
 {
@@ -76,17 +74,11 @@ class MenuBody : public TableField
 
     setColumnWidth(0, rect.w);
 
-    lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-    if (g) {
-      setFocusHandler([=](bool focus) {
-        if (focus) {
-          lv_group_set_focus_cb(g, _force_editing);
-        } else {
-          lv_group_set_focus_cb(g, nullptr);
-        }
-      });
-      lv_group_set_editing(g, true);
-    }
+    setAutoEdit();
+
+    setLongPressHandler([=]() {
+      getParentMenu()->handleLongPress();
+    });
   }
 
   ~MenuBody()
@@ -276,8 +268,6 @@ class MenuBody : public TableField
   void onSelected(uint16_t row, uint16_t col) override { selectedIndex = row; }
 
  protected:
-  bool isLongPressed = false;
-
   std::vector<MenuLine*> lines;
   int selectedIndex = 0;
 
@@ -356,6 +346,8 @@ class MenuWindowContent : public Window
   {
     body->addLine(icon_mask, text, onPress, isChecked, update);
   }
+
+  static constexpr coord_t MENUS_WIDTH = 200;
 
  protected:
   StaticText* header = nullptr;
@@ -451,6 +443,17 @@ void Menu::setCancelHandler(std::function<void()> handler)
 void Menu::setWaitHandler(std::function<void()> handler)
 {
   waitHandler = std::move(handler);
+}
+
+void Menu::setLongPressHandler(std::function<void()> handler)
+{
+  longPressHandler = std::move(handler);
+}
+
+void Menu::handleLongPress()
+{
+  if (longPressHandler)
+    longPressHandler();
 }
 
 unsigned Menu::count() const { return content->count(); }

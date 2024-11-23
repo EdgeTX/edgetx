@@ -595,7 +595,7 @@ void ThemeSetupPage::setupListbox(Window *window, rect_t r,
 {
   listBox = new ListBox(window, r, tp->getNames());
   etx_scrollbar(listBox->getLvObj());
-  listBox->setAutoEdit(true);
+  listBox->setAutoEdit();
   listBox->setSelected(currentTheme);
   listBox->setActiveItem(tp->getThemeIndex());
   listBox->setLongPressHandler([=]() {

@@ -104,7 +104,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
         choice->isValueAvailable(0))
       addButton(STR_SELECT_MENU_CLR, 0, 0, nullptr, nullptr, true);
 
-#if defined(HARDWARE_TOUCH)
     if (choice->canInvert) {
       invertBtn = new MenuToolbarButton(this, {0, 0, LV_PCT(100), 0},
                                         STR_SELECT_MENU_INV);
@@ -117,7 +116,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
         return choice->inverted;
       });
     }
-#endif
   }
 
   void invertChoice()
@@ -128,9 +126,7 @@ class SourceChoiceMenuToolbar : public MenuToolbar
       auto idx = menu->selection();
       sourceChoice->fillMenu(menu, filter);
       menu->select(idx);
-#if defined(HARDWARE_TOUCH)
       invertBtn->check(sourceChoice->inverted);
-#endif
     }
   }
 
@@ -145,9 +141,7 @@ class SourceChoiceMenuToolbar : public MenuToolbar
   static LAYOUT_VAL(FILTER_COLUMNS, 3, 2)
 
  protected:
-#if defined(HARDWARE_TOUCH)
   MenuToolbarButton* invertBtn = nullptr;
-#endif
 };
 
 bool SourceChoice::onLongPress()
@@ -191,6 +185,9 @@ void SourceChoice::openMenu()
 
   auto tb = new SourceChoiceMenuToolbar(this, menu);
   menu->setToolbar(tb);
+
+  if (canInvert)
+    menu->setLongPressHandler([=]() { tb->invertChoice(); });
 
 #if defined(AUTOSOURCE)
   menu->setWaitHandler([=]() {
