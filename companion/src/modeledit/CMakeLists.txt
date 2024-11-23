@@ -17,6 +17,9 @@ set(${PROJECT_NAME}_NAMES
   mixerslistwidget
   modeledit
   modeloptions
+  setup_timer
+  setup_module
+  setup_function_switches
   setup
   telemetry
   telemetry_customscreens
