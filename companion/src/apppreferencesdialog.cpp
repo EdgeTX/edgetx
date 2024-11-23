@@ -84,12 +84,9 @@ void AppPreferencesDialog::accept()
   g.showSplash(ui->showSplash->isChecked());
   g.sortProfiles(ui->sortProfiles->isChecked());
   g.promptProfile(ui->chkPromptProfile->isChecked());
-  g.simuSW(ui->simuSW->isChecked());
-  g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
   g.removeModelSlots(ui->opt_removeBlankSlots->isChecked());
   g.newModelAction((AppData::NewModelAction)ui->cboNewModelAction->currentIndex());
   g.historySize(ui->historySize->value());
-  g.backLight(ui->backLightColor->currentIndex());
   profile.volumeGain(round(ui->volumeGain->value() * 10.0));
   g.libDir(ui->libraryPath->text());
   g.gePath(ui->ge_lineedit->text());
@@ -100,6 +97,13 @@ void AppPreferencesDialog::accept()
   g.fwTraceLog(ui->opt_fwTraceLog->isChecked());
   g.appLogsDir(ui->appLogsDir->text());
   g.runAppInstaller(ui->chkPromptInstall->isChecked());
+
+//  Simulator tab
+  g.simuSW(ui->simuSW->isChecked());
+  g.backLight(ui->backLightColor->currentIndex());
+  g.simuGenericKeysPos((AppData::SimuGenericKeysPos)ui->cboSimuGenericKeysPos->currentIndex());
+
+  g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
 
   if (ui->joystickChkB ->isChecked()) {
     g.jsSupport(ui->joystickChkB ->isChecked());
@@ -228,28 +232,12 @@ void AppPreferencesDialog::initSettings()
 {
   const Profile & profile = g.currentProfile();
 
-  ui->snapshotClipboardCKB->setChecked(g.snapToClpbrd());
   ui->burnFirmware->setChecked(profile.burnFirmware());
-  ui->snapshotPath->setText(g.snapshotDir());
-  ui->snapshotPath->setReadOnly(true);
-  if (ui->snapshotClipboardCKB->isChecked()) {
-    ui->snapshotPath->setDisabled(true);
-    ui->snapshotPathButton->setDisabled(true);
-  }
 
   ui->showSplash->setChecked(g.showSplash());
   ui->sortProfiles->setChecked(g.sortProfiles());
   ui->chkPromptProfile->setChecked(g.promptProfile());
   ui->historySize->setValue(g.historySize());
-  ui->backLightColor->setCurrentIndex(g.backLight());
-  ui->volumeGain->setValue(profile.volumeGain() / 10.0);
-
-  if (IS_HORUS_OR_TARANIS(getCurrentBoard())) {
-    ui->backLightColor->setEnabled(false);
-  }
-
-  ui->simuSW->setChecked(g.simuSW());
-  ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
   ui->opt_removeBlankSlots->setChecked(g.removeModelSlots());
   ui->cboNewModelAction->addItems(AppData::newModelActionsList());
   ui->cboNewModelAction->setCurrentIndex(g.newModelAction());
@@ -276,6 +264,24 @@ void AppPreferencesDialog::initSettings()
   ui->appLogsDir->setText(g.appLogsDir());
   toggleAppLogSettings();
   ui->chkPromptInstall->setChecked(g.runAppInstaller());
+
+  //  Simulator tab
+  ui->snapshotPath->setText(g.snapshotDir());
+  ui->snapshotPath->setReadOnly(true);
+  ui->snapshotClipboardCKB->setChecked(g.snapToClpbrd());
+  if (ui->snapshotClipboardCKB->isChecked()) {
+    ui->snapshotPath->setDisabled(true);
+    ui->snapshotPathButton->setDisabled(true);
+  }
+  ui->simuSW->setChecked(g.simuSW());
+  ui->backLightColor->setCurrentIndex(g.backLight());
+  if (IS_HORUS_OR_TARANIS(getCurrentBoard())) {
+    ui->backLightColor->setEnabled(false);
+  }
+  ui->volumeGain->setValue(profile.volumeGain() / 10.0);
+  ui->cboSimuGenericKeysPos->addItems(AppData::simuGenericKeysPosList());
+  ui->cboSimuGenericKeysPos->setCurrentIndex(g.simuGenericKeysPos());
+  ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
 
 #if defined(JOYSTICKS)
   ui->joystickChkB->setChecked(g.jsSupport());
