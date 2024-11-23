@@ -69,14 +69,13 @@ struct GenericKeyDefinition {
   int index = 0;
   QChar side = 'L';
   int gridRow = 0;
-  int gridCol = 0;
   QList<int> keys = QList<int>();
   QString helpKeys = "";
   QString helpActions = "";
 
-  GenericKeyDefinition(int index, QChar side, int gridRow, int gridCol,
+  GenericKeyDefinition(int index, QChar side, int gridRow,
                        QList<int> keys, QString helpKeys, QString helpActions) :
-                       index(index), side(side), gridRow(gridRow), gridCol(gridCol),
+                       index(index), side(side), gridRow(gridRow),
                        keys(keys), helpKeys(helpKeys), helpActions(helpActions) {}
 
   GenericKeyDefinition() = default;
