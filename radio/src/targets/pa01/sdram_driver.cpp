@@ -196,7 +196,7 @@ extern "C" void SDRAM_InitSequence(void)
   /* (15.62 us x Freq) - 20 */
   /* Set the device refresh counter */
   FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6_R, 15);
-  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1021);
+  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1855);
   /* Wait until the SDRAM controller is ready */
   // timeout = SDRAM_TIMEOUT;
   // while((__FMC_SDRAM_GET_FLAG(FMC_Bank5_6_R, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
@@ -225,9 +225,9 @@ extern "C" void SDRAM_Init(void)
   /* Timing configuration for 80 Mhz of SD clock */
   FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 2;
   FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 7;
-  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 15;
+  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 4;
   FMC_SDRAMTimingInitStructure.RowCycleDelay        = 7;
-  FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 2;
+  FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 3;
   FMC_SDRAMTimingInitStructure.RPDelay              = 2;
   FMC_SDRAMTimingInitStructure.RCDDelay             = 2;
 
