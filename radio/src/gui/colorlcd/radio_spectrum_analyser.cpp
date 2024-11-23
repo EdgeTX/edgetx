@@ -150,10 +150,21 @@ class SpectrumWindow: public Window
       for (coord_t x= 0; x < width(); x++) {
         uint8_t power = rand() % 80;
         reusableBuffer.spectrumAnalyser.bars[x] = power;
-        reusableBuffer.spectrumAnalyser.bars[x+1] = power;
+        //do not touch the adjacent field in the spectrumAnalyser type
+        if (x+1 < width()) {
+          reusableBuffer.spectrumAnalyser.bars[x+1] = power;
+        }
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
           reusableBuffer.spectrumAnalyser.max[x] = power;
-          reusableBuffer.spectrumAnalyser.max[x+1] = power;
+          if (x+1 < width()) {
+              reusableBuffer.spectrumAnalyser.max[x+1] = power;
+          }
+        }
+        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+          reusableBuffer.spectrumAnalyser.peak[x] = power;
+          if (x+1 < width()) {
+              reusableBuffer.spectrumAnalyser.peak[x+1] = power;
+          }
         }
       }
 #endif
@@ -180,8 +191,13 @@ class SpectrumWindow: public Window
       constexpr uint8_t step = 4;
 
       for (coord_t xv = 0; xv < width(); xv += step) {
-        coord_t yv = SCALE_TOP - 1 - limit<int>(0, getAverage(step, &reusableBuffer.spectrumAnalyser.bars[xv]) << 1, SCALE_TOP);
+        int bars_avg = getAverage(step, &reusableBuffer.spectrumAnalyser.bars[xv]);
+        coord_t yv = SCALE_TOP - 1 - limit<int>(0, bars_avg << 1, SCALE_TOP);
+        if (bars_avg > reusableBuffer.spectrumAnalyser.peak[xv]) {
+          reusableBuffer.spectrumAnalyser.peak[xv] = bars_avg;
+        }
         coord_t max_yv = SCALE_TOP - 1 - limit<int>(0, getAverage(step, &reusableBuffer.spectrumAnalyser.max[xv]) << 1, SCALE_TOP);
+        coord_t peak_yv = SCALE_TOP - 1 - limit<int>(0, reusableBuffer.spectrumAnalyser.peak[xv] << 1, SCALE_TOP);
 
         // Signal bar
         dc->drawSolidFilledRect(xv, yv, step - 1, SCALE_TOP - yv, COLOR_THEME_ACTIVE);
@@ -189,6 +205,8 @@ class SpectrumWindow: public Window
 
         // Signal max
         dc->drawSolidHorizontalLine(xv, max_yv, step - 1, COLOR_THEME_PRIMARY1);
+        // Peak hold
+        dc->drawSolidHorizontalLine(xv, peak_yv, step - 1, COLOR_THEME_WARNING);
 
         // Decay max values
         if (max_yv < yv) { // Those value are INVERTED (MENU_FOOTER_TOP - value)
