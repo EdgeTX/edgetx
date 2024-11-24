@@ -417,8 +417,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       else if (trimDown(tidx + 1)) return RESX;
       return 0;
     }
-    auto trim_value = getTrimValue(mixerCurrentFlightMode, i);
-    return calc1000toRESX((int16_t)8 * trim_value);
+    return 8 * getTrimValue(mixerCurrentFlightMode, i);
   }
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_SWITCH) {
     auto sw_idx = (uint8_t)(i - MIXSRC_FIRST_SWITCH);
@@ -428,7 +427,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       auto fct_idx = sw_idx - max_reg_switches;
       auto max_fct_switches = switchGetMaxFctSwitches();
       if (fct_idx < max_fct_switches) {
-	return _switch_2pos_lookup[getFSLogicalState(fct_idx)];
+        return _switch_2pos_lookup[getFSLogicalState(fct_idx)];
       }
     }
 #endif
