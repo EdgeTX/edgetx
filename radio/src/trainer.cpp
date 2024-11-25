@@ -103,7 +103,7 @@ void stopTrainer()
       break;
 
     case TRAINER_MODE_MASTER_SERIAL:
-      sbusSetGetByte(nullptr);
+      sbusAuxSetEnabled(false);
       break;
 
     case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
@@ -111,7 +111,6 @@ void stopTrainer()
       break;
 
     case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
-      sbusSetGetByte(nullptr);
       trainer_stop_module_sbus();
       break;
   }
@@ -141,7 +140,7 @@ void checkTrainerSettings()
         break;
 
       case TRAINER_MODE_MASTER_SERIAL:
-        sbusSetGetByte(sbusAuxGetByte);
+        sbusAuxSetEnabled(true);
         break;
 
       case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
@@ -150,7 +149,6 @@ void checkTrainerSettings()
 
       case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
         trainer_init_module_sbus();
-        sbusSetGetByte(sbus_trainer_get_byte);
         break;
     }
 
@@ -190,7 +188,15 @@ static void trainer_init_module_sbus()
   }
 
   if (sbus_trainer_mod_st) {
-    modulePortSetPower(EXTERNAL_MODULE,true);
+    // configure IDLE IRQ callback
+    auto drv = modulePortGetSerialDrv(sbus_trainer_mod_st->rx);
+    auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
+
+    sbusSetReceiveCtx(ctx, drv);
+    drv->setIdleCb(ctx, sbusFrameReceived, nullptr);
+
+    // switch ON
+    modulePortSetPower(EXTERNAL_MODULE, true);
   }
 }
 
@@ -200,18 +206,4 @@ static void trainer_stop_module_sbus()
   modulePortDeInit(sbus_trainer_mod_st);
   modulePortSetPower(EXTERNAL_MODULE,false);
   sbus_trainer_mod_st = nullptr;
-}
-
-static int sbus_trainer_get_byte(uint8_t* data)
-{
-  if (!sbus_trainer_mod_st) return 0;
-
-  auto serial_driver = modulePortGetSerialDrv(sbus_trainer_mod_st->rx);
-  auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
-
-  if (ctx) {
-    return serial_driver->getByte(ctx, data);
-  }
-
-  return 0;
 }
