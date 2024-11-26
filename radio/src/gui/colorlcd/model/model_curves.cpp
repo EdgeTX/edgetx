@@ -109,7 +109,7 @@ void initPoints(const CurveHeader &curve, int8_t *points)
   }
 }
 
-ModelCurvesPage::ModelCurvesPage() : PageTab(STR_MENUCURVES, ICON_MODEL_CURVES)
+ModelCurvesPage::ModelCurvesPage(PageDef& pageDef) : PageTab(pageDef)
 {
 }
 

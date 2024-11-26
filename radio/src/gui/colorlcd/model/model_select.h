@@ -74,7 +74,6 @@ class ModelLabelsWindow : public Page
   void moveLabel(int selected, int direction);
 
 #if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;
   void onPressTELE() override;
