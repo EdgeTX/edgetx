@@ -21,13 +21,13 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "pagegroup.h"
 
-class ModelMixerScriptsPage : public PageTab
+class ModelMixerScriptsPage : public PageGroupItem
 {
  public:
-  ModelMixerScriptsPage();
+  ModelMixerScriptsPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelCustomScriptsEnabled(); }
 

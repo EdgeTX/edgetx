@@ -238,7 +238,7 @@ class RadioKeyDiagsWindow : public Window
 
 void RadioKeyDiagsPage::buildHeader(Window *window)
 {
-  header->setTitle(STR_RADIO_SETUP);
+  header->setTitle(STR_HARDWARE);
   header->setTitle2(STR_MENU_RADIO_SWITCHES);
 }
 

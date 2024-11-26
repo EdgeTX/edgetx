@@ -105,8 +105,8 @@ class RadioCustSwitchesDiagsWindow : public Window
 
 void RadioCustSwitchesDiagsPage::buildHeader(Window *window)
 {
-  header->setTitle(STR_RADIO_SETUP);
-  header->setTitle2(STR_MENU_FSWITCH);
+  header->setTitle(STR_HARDWARE);
+  header->setTitle2(STR_FUNCTION_SWITCHES);
 }
 
 void RadioCustSwitchesDiagsPage::buildBody(Window *window)

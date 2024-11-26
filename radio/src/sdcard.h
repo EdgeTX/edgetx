@@ -76,7 +76,6 @@ const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 #define    SPLASH_FILE             "splash.png"
 #define    SHUTDOWN_SPLASH_FILE    "shutdown.png"
 
-#define MODELS_EXT          ".bin"
 #define LOGS_EXT            ".csv"
 #define SOUNDS_EXT          ".wav"
 #define BMP_EXT             ".bmp"
