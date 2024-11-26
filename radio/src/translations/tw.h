@@ -38,6 +38,82 @@
 // If the number of minutes is above this value PLURAL2 is used
 #define TR_USE_PLURAL2 INT_MAX
 
+// Main menu
+#define TR_QM_MANAGE_MODELS             "Manage\nModels"
+#define TR_QM_MODEL_SETUP               "Model\nSetup"
+#define TR_QM_RADIO_SETUP               "Radio\nSetup"
+#define TR_QM_UI_SETUP                  "UI\nSetup"
+#define TR_QM_TOOLS                     "Tools"
+#define TR_QM_GEN_SETTINGS              "General\nSettings"
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
+#define TR_QM_INPUTS                    "Inputs"
+#define TR_QM_MIXES                     "Mixes"
+#define TR_QM_OUTPUTS                   "Outputs"
+#define TR_QM_CURVES                    "Curves"
+#define TR_QM_GLOBAL_VARS               "Global\nVariables"
+#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
+#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
+#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
+#define TR_QM_TELEM                     "Telemetry"
+#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
+#define TR_QM_TRAINER                   "Trainer"
+#define TR_QM_HARDWARE                  "Hardware"
+#define TR_QM_ABOUT                     "About\nEdgeTX"
+#define TR_QM_THEMES                    "Themes"
+#define TR_QM_TOP_BAR                   "Top Bar"
+#define TR_QM_SCREEN_1                  "Screen 1"
+#define TR_QM_SCREEN_2                  "Screen 2"
+#define TR_QM_SCREEN_3                  "Screen 3"
+#define TR_QM_SCREEN_4                  "Screen 4"
+#define TR_QM_SCREEN_5                  "Screen 5"
+#define TR_QM_SCREEN_6                  "Screen 6"
+#define TR_QM_SCREEN_7                  "Screen 7"
+#define TR_QM_SCREEN_8                  "Screen 8"
+#define TR_QM_SCREEN_9                  "Screen 9"
+#define TR_QM_SCREEN_10                 "Screen 10"
+#define TR_QM_ADD_SCREEN                "Add\nScreen"
+#define TR_QM_APPS                      "Apps"
+#define TR_QM_STORAGE                   "Storage"
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
+#define TR_QM_CHAN_MON                  "Channel\nMonitor"
+#define TR_QM_LS_MON                    "LS\nMonitor"
+#define TR_QM_STATS                     "Statistics"
+#define TR_QM_DEBUG                     "Debug"
+#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MENU_MANAGE_MODELS    "模型管理"
+#define TR_MAIN_MENU_MODEL_NOTES      "模型說明"
+#define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
+#define TR_MONITOR_SWITCHES            "邏輯開關查看"
+#define TR_MAIN_MENU_MODEL_SETTINGS   "模型設置"
+#define TR_MAIN_MENU_RADIO_SETTINGS   "系統設置"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
+#define TR_MAIN_MENU_STATISTICS       "統計信息"
+#define TR_MAIN_MENU_ABOUT_EDGETX     "關於"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_MAIN_MENU_THEMES               "主題"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "直升機設置"
+#define TR_MENUFLIGHTMODES             TRSA("駕駛模式", "飛行模式設置")
+#define TR_MENUFLIGHTMODE              TRSA("駕駛模式", "飛行模式")
+#define TR_MENUINPUTS                  "輸入設置"
+#define TR_MENULIMITS                  "輸出設置"
+#define TR_MENUCURVES                  "曲線設置"
+#define TR_MIXES                       "混控設置"
+#define TR_MENU_GLOBAL_VARS            "全局變量功能"
+#define TR_MENULOGICALSWITCHES         "邏輯開關設置"
+#define TR_MENUCUSTOMFUNC              "特殊功能設置"
+#define TR_MENUCUSTOMSCRIPTS           "自定義腳本設置"
+#define TR_MENUTELEMETRY               "回傳"
+#define TR_MENUSPECIALFUNCS            "全局功能"
+#define TR_MENUTRAINER                 "教練"
+#define TR_HARDWARE                    "硬件"
+#define TR_USER_INTERFACE               "Top Bar"
+#define TR_SD_CARD                     "SD卡"
+#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "開關及按鍵測試")
+#define TR_MENUCALIBRATION             "校準"
+#define TR_FUNCTION_SWITCHES           "可自定義開關"
+// End Main menu
+
 #define TR_MINUTE_SINGULAR              "分鐘"
 #define TR_MINUTE_PLURAL1               "分鐘"
 #define TR_MINUTE_PLURAL2               "分鐘"
@@ -294,7 +370,6 @@
 #define TR_WARN_5VOLTS                 "注意輸出電平是5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "開關"
-#define TR_FUNCTION_SWITCHES           "可自定義開關"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -348,7 +423,6 @@
 #define TR_DELAYUP                     "上行延時"
 #define TR_SLOWDOWN                    TR("下慢放", "下行慢動作")
 #define TR_SLOWUP                      "上行慢動作"
-#define TR_MIXES                       "混控設置"
 #define TR_CV                          "曲線"
 #if defined(PCBPL18)
   #define TR_GV                        "GV"
@@ -431,19 +505,12 @@
   #define TR_MOVESTICKSPOTS            "校準邊界，按[Enter]保存並完成"
 #else
   #define TR_MENUTOSTART               "按" TR_ENTER " 開始"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "校準中點"
-  #define TR_MOVESTICKSPOTS            "校準邊界"
-#else
-  #define TR_SETMIDPOINT               TR("校準中點", "校準中點")
-  #define TR_MOVESTICKSPOTS            "校準邊界"
-#endif
+  #define TR_SETMIDPOINT               TRSA("校準中點", TR("校準中點", "校準中點"))
+  #define TR_MOVESTICKSPOTS            TRSA("校準邊界", "校準邊界")
   #define TR_MENUWHENDONE              TR_ENTER " 完成"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -473,10 +540,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "模型"
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "FM"
+#define TR_FM                          TRSA("DM", "FM")
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "按任意鍵跳過"
@@ -491,14 +555,10 @@
 #define TR_STORAGE_FORMAT              "存儲準備"
 #define TR_EEPROMOVERFLOW              "存儲超限"
 #define TR_RADIO_SETUP                 "系統設置"
-#define TR_MENUTRAINER                 "教練"
-#define TR_MENUSPECIALFUNCS            "全局功能"
 #define TR_MENUVERSION                 "版本"
-#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "開關及按鍵測試")
 #define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "類比輸入測試")
 #define TR_MENU_RADIO_ANALOGS_CALIB     "已校準的類比值"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "原始類比值 (5 Hz)"
-#define TR_MENUCALIBRATION             "校準"
 #define TR_MENU_FSWITCH                "可自定義開關"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "將當前微調量保存至中點"
@@ -509,31 +569,14 @@
 #define TR_CHANNEL2FAILSAFE            "導入當前通道值"
 #define TR_MENUMODELSEL                TR("模型選擇", "模型選擇")
 #define TR_MENU_MODEL_SETUP            TR("模型設置", "模型設置")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "駕駛模式"
-  #define TR_MENUFLIGHTMODE            "駕駛模式"
-#else
-  #define TR_MENUFLIGHTMODES           "飛行模式設置"
-  #define TR_MENUFLIGHTMODE            "飛行模式"
-#endif
-#define TR_MENUHELISETUP               "直升機設置"
-
-#define TR_MENUINPUTS                  "輸入設置"
-#define TR_MENULIMITS                  "輸出設置"
-#define TR_MENUCURVES                  "曲線設置"
 #define TR_MENUCURVE                   "曲線"
 #define TR_MENULOGICALSWITCH           "邏輯開關"
-#define TR_MENULOGICALSWITCHES         "邏輯開關設置"
-#define TR_MENUCUSTOMFUNC              "特殊功能設置"
-#define TR_MENUCUSTOMSCRIPTS           "自定義腳本設置"
-#define TR_MENUTELEMETRY               "回傳"
 #define TR_MENUSTAT                    "統計"
 #define TR_MENUDEBUG                   "調試"
 #define TR_MONITOR_CHANNELS1           "1-8通道查看"
 #define TR_MONITOR_CHANNELS2           "9-16通道查看"
 #define TR_MONITOR_CHANNELS3           "17-24通道查看"
 #define TR_MONITOR_CHANNELS4           "25-32通道查看"
-#define TR_MONITOR_SWITCHES            "邏輯開關查看"
 #define TR_MONITOR_OUTPUT_DESC         "輸出查看"
 #define TR_MONITOR_MIXER_DESC          "混控查看"
 #define TR_RECEIVER_NUM                TR("RxNum", "接收機ID.")
@@ -695,8 +738,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "持續時間"
 #define TR_DELAY                       "延時"
-#define TR_SD_CARD                     "SD卡"
-#define TR_SDHC_CARD                   "SD-HC卡"
 #define TR_NO_SOUNDS_ON_SD             "存儲卡中無音頻"
 #define TR_NO_MODELS_ON_SD             "存儲卡中無模型"
 #define TR_NO_BITMAPS_ON_SD            "存儲卡中無圖片"
@@ -715,7 +756,6 @@
 #define TR_REMOVED                     "已刪除"
 #define TR_SD_INFO                     "信息"
 #define TR_NA                          "N/A"
-#define TR_HARDWARE                    "硬件"
 #define TR_FORMATTING                  "正在格式化..."
 #define TR_TEMP_CALIB                  "溫度校準"
 #define TR_TIME                        "時間"
@@ -771,13 +811,11 @@
 #define TR_SD_SECTORS                  "扇區:"
 #define TR_SD_SIZE                     "容量:"
 #define TR_TYPE                        "類型"
-#define TR_GLOBAL_VARS                 "全局變量"
 #define TR_GVARS                       "全局變量"
 #define TR_GLOBAL_VAR                  "全局變量"
-#define TR_MENU_GLOBAL_VARS            "全局變量功能"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "日期"
-#define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec " }
+#define TR_MONTHS                      "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec "
 #define TR_ROTARY_ENCODER              "滾輪"
 #define TR_ROTARY_ENC_MODE              TR("滾輪模式","滾輪模式")
 #define TR_CHANNELS_MONITOR            "通道查看器"
@@ -977,7 +1015,6 @@
 #define TR_TOUCH_PANEL                 "觸摸屏:"
 #define TR_FILE_SIZE                   "文件大小"
 #define TR_FILE_OPEN                   "強制打開?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名稱"
@@ -1002,7 +1039,7 @@
 #define TR_INVERTED                    "反向"
 
 
-#define TR_LSW_DESCRIPTIONS            { "比較類型或功能", "第一個變量", "第二個變量或常量", "第二個變量或常量", "啟用本行的附加條件", "邏輯開關持續時間", "邏輯開關延時開啟" }
+#define TR_LSW_DESCRIPTIONS            "比較類型或功能", "第一個變量", "第二個變量或常量", "第二個變量或常量", "啟用本行的附加條件", "邏輯開關持續時間", "邏輯開關延時開啟"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1019,10 +1056,9 @@
   #define TR_ALIGNMENT                 "對齊"
   #define TR_ALIGN_LABEL               "对齐名称"
   #define TR_ALIGN_VALUE               "对齐值"
-  #define TR_ALIGN_OPTS                { "左", "中", "右" }
+  #define TR_ALIGN_OPTS                "左", "中", "右"
   #define TR_TEXT                      "文本"
   #define TR_COLOR                     "顏色"
-  #define TR_MAIN_VIEW_X               "Main view XX"
   #define TR_PANEL1_BACKGROUND         "面板1背景"
   #define TR_PANEL2_BACKGROUND         "面板2背景"
   #define TR_WIDGET_GAUGE              "行程"
@@ -1086,11 +1122,9 @@
 #define TR_WIDGET_SETTINGS             "小部件設置"
 #define TR_REMOVE_SCREEN               "移除頁面"
 #define TR_SETUP_WIDGETS               "設置小部件"
-#define TR_USER_INTERFACE              "用戶界面"
 #define TR_THEME                       "主題"
 #define TR_SETUP                       "設置"
 #define TR_LAYOUT                      "佈局"
-#define TR_ADD_MAIN_VIEW               "添加主視圖"
 #define TR_TEXT_COLOR                  "文本顏色"
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "輸入"
 #define TR_MENU_LUA                     STR_CHAR_LUA "LUA腳本"
@@ -1158,20 +1192,6 @@
 #define TR_CANCEL                     "取消"
 #define TR_EDIT_THEME                 "編輯主題"
 #define TR_DETAILS                    "詳細信息"
-#define TR_THEME_EDITOR               "主題"
-
-// Main menu
-#define TR_MAIN_MENU_SELECT_MODEL     "模型選擇"
-#define TR_MAIN_MENU_MANAGE_MODELS    "模型管理"
-#define TR_MAIN_MENU_MODEL_NOTES      "模型說明"
-#define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
-#define TR_MAIN_MENU_MODEL_SETTINGS   "模型設置"
-#define TR_MAIN_MENU_RADIO_SETTINGS   "系統設置"
-#define TR_MAIN_MENU_SCREEN_SETTINGS  "顯示設置"
-#define TR_MAIN_MENU_RESET_TELEMETRY  "復位功能"
-#define TR_MAIN_MENU_STATISTICS       "統計信息"
-#define TR_MAIN_MENU_ABOUT_EDGETX     "關於"
-// End Main menu
 
 #define TR_PROTOCOL                    "協議"
 

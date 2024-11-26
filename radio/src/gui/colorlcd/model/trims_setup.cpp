@@ -79,6 +79,6 @@ static SetupLineDef setupLines[] = {
   },
 };
 
-TrimsSetup::TrimsSetup() : SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_TRIMS, setupLines, DIM(setupLines))
+TrimsSetup::TrimsSetup() : SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_TRIMS, setupLines, DIM(setupLines))
 {
 }

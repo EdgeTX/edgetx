@@ -21,14 +21,13 @@
 
 #include "model_select.h"
 
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
-#include "model_templates.h"
 #include "edgetx.h"
+#include "model_templates.h"
 #include "standalone_lua.h"
 #include "etx_lv_theme.h"
+#include "view_main.h"
 #include "view_channels.h"
+#include "screen_setup.h"
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -520,8 +519,10 @@ class ModelLayoutButton : public IconButton
 
 //-----------------------------------------------------------------------------
 
-ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL, PAD_ZERO, true)
+ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 {
+  QuickMenu::setCurrentPage(QuickMenu::MANAGE_MODELS);
+
   buildHead(header);
   buildBody(body);
 
@@ -546,26 +547,21 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL, PAD_ZERO, true)
 }
 
 #if defined(HARDWARE_KEYS)
-void ModelLabelsWindow::onPressSYS()
-{
-  onCancel();
-  new RadioMenu();
-}
 void ModelLabelsWindow::onLongPressSYS()
 {
   onCancel();
   // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
+  PageGroup::RadioMenu();
 }
 void ModelLabelsWindow::onPressMDL()
 {
   onCancel();
-  new ModelMenu();
+  PageGroup::ModelMenu();
 }
 void ModelLabelsWindow::onPressTELE()
 {
   onCancel();
-  new ScreenMenu();
+  (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
 }
 void ModelLabelsWindow::onLongPressTELE()
 {
@@ -682,8 +678,9 @@ void ModelLabelsWindow::buildHead(Window *hdr)
   // page title
   setTitle();
 
+#if !PORTRAIT
   // new model button
-  new TextButton(hdr, {LCD_W - NEW_BTN_W - PAD_LARGE, PAD_MEDIUM, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
+  new TextButton(hdr, {LCD_W - PageGroup::PAGE_TOP_BAR_H - NEW_BTN_W - PAD_LARGE, PAD_MEDIUM, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
     auto menu = new Menu();
     menu->setTitle(STR_CREATE_NEW);
     menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
@@ -691,7 +688,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     return 0;
   });
 
-  mdlLayout = new ModelLayoutButton(this, LCD_W - LAYOUT_BTN_XO, PAD_MEDIUM, g_eeGeneral.modelSelectLayout, [=]() {
+  mdlLayout = new ModelLayoutButton(this, LCD_W - PageGroup::PAGE_TOP_BAR_H - LAYOUT_BTN_XO, PAD_MEDIUM, g_eeGeneral.modelSelectLayout, [=]() {
     uint8_t l = mdlLayout->getLayout();
     l = (l + 1) & 3;
     mdlLayout->setLayout(l);
@@ -700,6 +697,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
     mdlselector->reload();
     return 0;
   });
+#endif
 }
 
 void ModelLabelsWindow::buildBody(Window *window)
@@ -730,6 +728,27 @@ void ModelLabelsWindow::buildBody(Window *window)
       [=]() { return mdlselector->getSortOrder(); },
       [=](int newValue) { mdlselector->setSortOrder((ModelsSortBy)newValue); },
       STR_SORT_MODELS_BY);
+
+#if PORTRAIT
+  // new model button
+  new TextButton(window, {LCD_W - NEW_BTN_W - PAD_LARGE, LABELS_Y + LABELS_HEIGHT + PAD_SMALL, NEW_BTN_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_NEW, [=]() {
+    auto menu = new Menu();
+    menu->setTitle(STR_CREATE_NEW);
+    menu->addLine(STR_NEW_MODEL, [=]() { newModel(); });
+    menu->addLine(STR_NEW_LABEL, [=]() { newLabel(); });
+    return 0;
+  });
+
+  mdlLayout = new ModelLayoutButton(window, LCD_W - LAYOUT_BTN_XO, LABELS_Y + LABELS_HEIGHT + PAD_SMALL, g_eeGeneral.modelSelectLayout, [=]() {
+    uint8_t l = mdlLayout->getLayout();
+    l = (l + 1) & 3;
+    mdlLayout->setLayout(l);
+    g_eeGeneral.modelSelectLayout = l;
+    storageDirty(EE_GENERAL);
+    mdlselector->reload();
+    return 0;
+  });
+#endif
 
   std::set<uint32_t> filteredLabels = modelslabels.filteredLabels();
 
