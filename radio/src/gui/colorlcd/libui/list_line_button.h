@@ -116,7 +116,7 @@ class InputMixGroupBase : public Window
 class InputMixPageBase : public PageTab
 {
  public:
-  InputMixPageBase(const char* title, EdgeTxIcon icon) : PageTab(title, icon) {}
+  InputMixPageBase(PageDef& pageDef) : PageTab(pageDef) {}
 
  protected:
   std::list<InputMixButtonBase*> lines;
