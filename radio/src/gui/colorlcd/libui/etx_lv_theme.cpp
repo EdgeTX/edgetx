@@ -223,6 +223,23 @@ const lv_style_const_prop_t disabled_props[] = {
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::disabled, disabled_props);
 
+static lv_color_t darkgrey_filter_cb(const lv_color_filter_dsc_t* f,
+                                 lv_color_t color, lv_opa_t opa)
+{
+  LV_UNUSED(f);
+  return lv_color_mix(lv_palette_darken(LV_PALETTE_GREY, 2), color, opa);
+}
+
+const lv_color_filter_dsc_t darkgrey_filter = {.filter_cb = darkgrey_filter_cb,
+                                           .user_data = 0};
+
+const lv_style_const_prop_t qm_disabled_props[] = {
+    LV_STYLE_CONST_COLOR_FILTER_DSC(&darkgrey_filter),
+    LV_STYLE_CONST_COLOR_FILTER_OPA(LV_OPA_90),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::qmdisabled, qm_disabled_props);
+
 /**********************
  *   Variable Styles
  **********************/
