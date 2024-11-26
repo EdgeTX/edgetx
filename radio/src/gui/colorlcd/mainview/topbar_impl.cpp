@@ -26,26 +26,12 @@
 
 constexpr uint32_t TOPBAR_REFRESH = 1000 / 10; // 10 Hz
 
-class TopBarEdgeTx : public HeaderIcon
-{
- public:
-  TopBarEdgeTx(Window* parent) : HeaderIcon(parent, ICON_EDGETX)
-  {
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-  }
-
-  void onClicked() override
-  {
-    ViewMain::instance()->openMenu();
-  }
-};
-
 TopBar::TopBar(Window * parent) :
   TopBarBase(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}, &g_model.topbarData)
 {
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-  headerIcon = new TopBarEdgeTx(parent);
+  headerIcon = new HeaderIcon(parent, ICON_EDGETX, [=]() { ViewMain::instance()->openMenu(); });
 }
 
 unsigned int TopBar::getZonesCount() const

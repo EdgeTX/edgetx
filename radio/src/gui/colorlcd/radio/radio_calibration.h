@@ -24,6 +24,7 @@
 #include "page.h"
 
 class StaticText;
+class TextButton;
 
 class RadioCalibrationPage: public Page {
   public:

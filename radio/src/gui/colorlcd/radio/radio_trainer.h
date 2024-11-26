@@ -21,13 +21,13 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "pagegroup.h"
 
-class RadioTrainerPage : public PageTab
+class RadioTrainerPage : public PageGroupItem
 {
  public:
-  RadioTrainerPage();
+  RadioTrainerPage(PageDef& pageDef);
 
   bool isVisible() const override { return radioTrainerEnabled(); }
 

@@ -40,6 +40,83 @@
 // If the number of minutes is above this value PLURAL2 is used
 #define TR_USE_PLURAL2 20
 
+// Main menu
+#define TR_QM_MANAGE_MODELS             "Manage\nModels"
+#define TR_QM_MODEL_SETUP               "Model\nSetup"
+#define TR_QM_RADIO_SETUP               "Radio\nSetup"
+#define TR_QM_UI_SETUP                  "UI\nSetup"
+#define TR_QM_TOOLS                     "Tools"
+#define TR_QM_GEN_SETTINGS              "General\nSettings"
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
+#define TR_QM_INPUTS                    "Inputs"
+#define TR_QM_MIXES                     "Mixes"
+#define TR_QM_OUTPUTS                   "Outputs"
+#define TR_QM_CURVES                    "Curves"
+#define TR_QM_GLOBAL_VARS               "Global\nVariables"
+#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
+#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
+#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
+#define TR_QM_TELEM                     "Telemetry"
+#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
+#define TR_QM_TRAINER                   "Trainer"
+#define TR_QM_HARDWARE                  "Hardware"
+#define TR_QM_ABOUT                     "About\nEdgeTX"
+#define TR_QM_THEMES                    "Themes"
+#define TR_QM_TOP_BAR                   "Top Bar"
+#define TR_QM_SCREEN_1                  "Screen 1"
+#define TR_QM_SCREEN_2                  "Screen 2"
+#define TR_QM_SCREEN_3                  "Screen 3"
+#define TR_QM_SCREEN_4                  "Screen 4"
+#define TR_QM_SCREEN_5                  "Screen 5"
+#define TR_QM_SCREEN_6                  "Screen 6"
+#define TR_QM_SCREEN_7                  "Screen 7"
+#define TR_QM_SCREEN_8                  "Screen 8"
+#define TR_QM_SCREEN_9                  "Screen 9"
+#define TR_QM_SCREEN_10                 "Screen 10"
+#define TR_QM_ADD_SCREEN                "Add\nScreen"
+#define TR_QM_APPS                      "Apps"
+#define TR_QM_STORAGE                   "Storage"
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
+#define TR_QM_CHAN_MON                  "Channel\nMonitor"
+#define TR_QM_LS_MON                    "LS\nMonitor"
+#define TR_QM_STATS                     "Statistics"
+#define TR_QM_DEBUG                     "Debug"
+#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Správa modelů"
+#define TR_MAIN_MENU_MODEL_NOTES        "Poznámky modelu"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanálů"
+#define TR_MONITOR_SWITCHES            "MONITOR LOGICKÝCH SPÍNAČŮ"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení modelu"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení rádia"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
+#define TR_MAIN_MENU_STATISTICS         "Statistiky"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_MAIN_MENU_THEMES                 "Motivy"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "HELI"
+#define TR_MENUFLIGHTMODES             TRSA("REŽIM JÍZDA", "LETOVÉ REŽIMY")
+#define TR_MENUFLIGHTMODE              TRSA("REŽIM JÍZDA", "LETOVÝ REŽIM")
+#define TR_MENUINPUTS                  "VSTUPY"
+#define TR_MENULIMITS                  "SERVA"
+#define TR_MENUCURVES                  "KŘIVKY"
+#define TR_MIXES                       "MIXER"
+#define TR_MENU_GLOBAL_VARS            "Globální Proměnné"
+#define TR_MENULOGICALSWITCHES         "LOGICKÉ SPÍNAČE"
+#define TR_MENUCUSTOMFUNC              "SPECIÁLNÍ FUNKCE"
+#define TR_MENUCUSTOMSCRIPTS           "SKRIPTY LUA"
+#define TR_MENUTELEMETRY               "TELEMETRIE"
+#define TR_MENUSPECIALFUNCS            "GLOBÁLNÍ FUNKCE"
+#define TR_MENUTRAINER                 "TRENÉR"
+#define TR_HARDWARE                    "HARDWARE"
+#define TR_USER_INTERFACE               "Top Bar"
+#define TR_SD_CARD                     "SD"
+#define TR_DEBUG                       "Debug"
+#define TR_MENU_RADIO_SWITCHES         "DIAG"
+#define TR_MENUCALIBRATION              "KALIBRACE"
+#define TR_FUNCTION_SWITCHES           "Nastavitelné přepínače"
+// End Main menu
+
 #define TR_MINUTE_SINGULAR             "minuta"
 #define TR_MINUTE_PLURAL1              "minuty"
 #define TR_MINUTE_PLURAL2              "minut"
@@ -302,7 +379,6 @@
 #define TR_WARN_5VOLTS                 "Varování: výstupní úroveň je 5 voltů"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Spínač"
-#define TR_FUNCTION_SWITCHES           "Nastavitelné přepínače"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -356,7 +432,6 @@
 #define TR_DELAYUP                     TR3("Zpoždění Zap", "Zdržet(\43)", "Zpoždění Zap")
 #define TR_SLOWDOWN                    TR3("Zpomalení(-)", "Zpomal(\177)", "Zpomalení(\177)")
 #define TR_SLOWUP                      TR3("Zpomalení(+)", "Zpomal(\176)", "Zpomalení(\176)")
-#define TR_MIXES                       "MIXER"
 #define TR_CV                          "K"
 #if defined(PCBPL18)
 #define TR_GV                          "GP"
@@ -440,19 +515,12 @@
   #define TR_MOVESTICKSPOTS            "HÝBAT OSY/POTY"
 #else
   #define TR_MENUTOSTART               TR_ENTER " = START"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "NASTAVIT STŘED POTU"
-  #define TR_MOVESTICKSPOTS            "HÝBAT TOČIT/PLYN/POTY/OSY"
-#else
-  #define TR_SETMIDPOINT               TR("NASTAVIT STŘED OSY", "STŘED OSY/SLIDERU")
-  #define TR_MOVESTICKSPOTS            "HÝBAT OSY/POTY"
-#endif
+  #define TR_SETMIDPOINT               TRSA("NASTAVIT STŘED POTU", TR("NASTAVIT STŘED OSY", "STŘED OSY/SLIDERU"))
+  #define TR_MOVESTICKSPOTS            TRSA("HÝBAT TOČIT/PLYN/POTY/OSY", "HÝBAT OSY/POTY")
   #define TR_MENUWHENDONE              TR_ENTER " > DALŠÍ"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "ŽÁDNÁ DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -484,10 +552,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "LR"
+#define TR_FM                          TRSA("DM", "LR")
 #endif
 #define TR_EEPROMLOWMEM                "Dochází EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       TR("\003Klávesa >>> přeskočit", "Klávesa >>> přeskočit")
@@ -502,14 +567,10 @@
 #define TR_STORAGE_FORMAT              "Příprava úložiště"
 #define TR_EEPROMOVERFLOW              "Přetekla EEPROM"
 #define TR_RADIO_SETUP                 "NASTAVENÍ RÁDIA"
-#define TR_MENUTRAINER                 "TRENÉR"
-#define TR_MENUSPECIALFUNCS            "GLOBÁLNÍ FUNKCE"
 #define TR_MENUVERSION                 "VERZE"
-#define TR_MENU_RADIO_SWITCHES         "DIAG"
 #define TR_MENU_RADIO_ANALOGS          "ANALOGY"
 #define TR_MENU_RADIO_ANALOGS_CALIB    "KALIBROVAT ANALOGY"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGY (5 Hz)"
-#define TR_MENUCALIBRATION              "KALIBRACE"
 #define TR_MENU_FSWITCH                 "NASTAVITELNÉ PŘEPÍNAČE"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trimy => Subtrimy"
@@ -520,32 +581,15 @@
 #define TR_CHANNEL2FAILSAFE            "Kanál=>Failsafe"
 #define TR_MENUMODELSEL                "MODEL"
 #define TR_MENU_MODEL_SETUP            "NASTAVENÍ"
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "REŽIM JÍZDA"
-#define TR_MENUFLIGHTMODE              "REŽIM JÍZDA"
-#else
-#define TR_MENUFLIGHTMODE              "LETOVÝ REŽIM"
-#define TR_MENUFLIGHTMODES             "LETOVÉ REŽIMY"
-#endif
-#define TR_MENUHELISETUP               "HELI"
 
-#define TR_MENULIMITS                  "SERVA"
-#define TR_MENUINPUTS                  "VSTUPY"
-
-#define TR_MENUCURVES                  "KŘIVKY"
 #define TR_MENUCURVE                   "\002K"
 #define TR_MENULOGICALSWITCH           "LOG. SPÍNAČ"
-#define TR_MENULOGICALSWITCHES         "LOGICKÉ SPÍNAČE"
-#define TR_MENUCUSTOMFUNC              "SPECIÁLNÍ FUNKCE"
-#define TR_MENUCUSTOMSCRIPTS           "SKRIPTY LUA"
-#define TR_MENUTELEMETRY               "TELEMETRIE"
 #define TR_MENUSTAT                    "STATISTIKA"
 #define TR_MENUDEBUG                   "DIAG"
 #define TR_MONITOR_CHANNELS1           "MONITOR KANÁLŮ 1/8"
 #define TR_MONITOR_CHANNELS2           "MONITOR KANÁLŮ 9/16"
 #define TR_MONITOR_CHANNELS3           "MONITOR KANÁLŮ 17/24"
 #define TR_MONITOR_CHANNELS4           "MONITOR KANÁLŮ 25/32"
-#define TR_MONITOR_SWITCHES            "MONITOR LOGICKÝCH SPÍNAČŮ"
 #define TR_MONITOR_OUTPUT_DESC         "Výstupy"
 #define TR_MONITOR_MIXER_DESC          "Mixy"
 #define TR_RECEIVER_NUM                TR("RX číslo", "Číslo přijímače")
@@ -701,8 +745,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Trvání"
 #define TR_DELAY                       "Zdržet"
-#define TR_SD_CARD                     "SD"
-#define TR_SDHC_CARD                   "SD-HC"
 #define TR_NO_SOUNDS_ON_SD             "žádný zvuk na SD"
 #define TR_NO_MODELS_ON_SD             "žádný model na SD"
 #define TR_NO_BITMAPS_ON_SD            "žádné obrázky na SD"
@@ -721,7 +763,6 @@
 #define TR_REMOVED                     "odstraněn"
 #define TR_SD_INFO                     "Informace"
 #define TR_NA                          "[X]"
-#define TR_HARDWARE                    "HARDWARE"
 #define TR_FORMATTING                  "Formátovaní..."
 #define TR_TEMP_CALIB                  "+=\006Teplota"
 #define TR_TIME                        "Čas"
@@ -776,13 +817,11 @@
 #define TR_SD_SECTORS                  "Sektorů :"
 #define TR_SD_SIZE                     "Velikost:"
 #define TR_TYPE                        "Typ"
-#define TR_GLOBAL_VARS                 "Globální proměnné"
 #define TR_GVARS                       "GLOB.PROM."
 #define TR_GLOBAL_VAR                  "Globální proměnná"
-#define TR_MENU_GLOBAL_VARS            "GLOBÁLNÍ PROMĚNNÉ"
 #define TR_OWN                         "\043"
 #define TR_DATE                        "Datum"
-#define TR_MONTHS                      { "Led", "Úno", "Bře", "Dub", "Kvě", "Čvn", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro" }
+#define TR_MONTHS                      "Led", "Úno", "Bře", "Dub", "Kvě", "Čvn", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro"
 #define TR_ROTARY_ENCODER              "R.Enko"
 #define TR_ROTARY_ENC_MODE             TR("R.Enko mód","Režim otočného tlačítka")
 #define TR_CHANNELS_MONITOR            "MONITOR KANÁLU"
@@ -899,7 +938,6 @@
 #define TR_RANGE_TEST                  "Test dosahu"
 #define TR_RECEIVER_OPTIONS            TR("MOŽNOSTI RX", "MOŽNOSTI PŘIJÍMAČE")
 #define TR_RESET_BTN                   BUTTON("Reset")
-#define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                    BUTTON(TR("SW","Přepínače"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogy"))
 #define TR_FS_BTN                      BUTTON(TR("Vlastní Sw", TR_FUNCTION_SWITCHES))
@@ -987,7 +1025,6 @@
 #define TR_TOUCH_PANEL                 "Dotyková obrazovka:"
 #define TR_FILE_SIZE                   "Velikost souboru"
 #define TR_FILE_OPEN                   "Otevřít?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Název"
@@ -1012,7 +1049,7 @@
 #define TR_INVERTED                    "Invertováno"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Typ porovnávací funkce", "První proměnná", "Druhá proměnná nebo konstanta", "Druhá proměnná nebo konstanta", "Další stav povolující tenko spínač", "Minimální doba trvání sepnutého stavu", "Minimální doba platné podmínky pro aktivaci" }
+#define TR_LSW_DESCRIPTIONS            "Typ porovnávací funkce", "První proměnná", "Druhá proměnná nebo konstanta", "Druhá proměnná nebo konstanta", "Další stav povolující tenko spínač", "Minimální doba trvání sepnutého stavu", "Minimální doba platné podmínky pro aktivaci"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1029,10 +1066,9 @@
   #define TR_ALIGNMENT                 "Zarovnání"
   #define TR_ALIGN_LABEL               "Zarovnat název"
   #define TR_ALIGN_VALUE               "Zarovnat hodnotu"
-  #define TR_ALIGN_OPTS                { "Vlevo", "Uprostřed", "Vpravo" }
+  #define TR_ALIGN_OPTS                "Vlevo", "Uprostřed", "Vpravo"
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Barva"
-  #define TR_MAIN_VIEW_X               "Hlavní pohled XX"
   #define TR_PANEL1_BACKGROUND         "Panel1 pozadí"
   #define TR_PANEL2_BACKGROUND         "Panel2 pozadí"
   #define TR_WIDGET_GAUGE              "Měřidlo"
@@ -1096,11 +1132,9 @@
 #define TR_WIDGET_SETTINGS             "Nastavení widgetu"
 #define TR_REMOVE_SCREEN               "Odstranit panel"
 #define TR_SETUP_WIDGETS               "Nastavit widgety"
-#define TR_USER_INTERFACE              "Uživatelské rozhraní"
 #define TR_THEME                       "Motiv"
 #define TR_SETUP                       "Nastavení"
 #define TR_LAYOUT                      "Rozložení"
-#define TR_ADD_MAIN_VIEW               "Přidat hlavní panel"
 #define TR_TEXT_COLOR                  "Barva textu"
 
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Vstupy"
@@ -1169,20 +1203,6 @@
 #define TR_CANCEL                       "Zrušit"
 #define TR_EDIT_THEME                   "EDITOVAT MOTIV"
 #define TR_DETAILS                      "Detaily"
-#define TR_THEME_EDITOR                 "Motivy"
-
-// Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Vybrat\nmodel"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Správa\nmodelů"
-#define TR_MAIN_MENU_MODEL_NOTES        "Poznámky\nmodelu"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanálů"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení\nmodelu"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení\nrádia"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Nastavení\nobrazovky"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\ntelemetrie"
-#define TR_MAIN_MENU_STATISTICS         "Statistiky"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "O\nEdgeTX"
-// End Main menu
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "Angličtina"

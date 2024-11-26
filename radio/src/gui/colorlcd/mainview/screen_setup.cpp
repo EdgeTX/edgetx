@@ -35,6 +35,8 @@
 #define BUTTON_HEIGHT 30
 #define BUTTON_WIDTH 75
 
+extern PageDef screensMenuItems[];
+
 class LayoutChoice : public Button
 {
  public:
@@ -100,76 +102,6 @@ class LayoutChoice : public Button
   }
 };
 
-ScreenAddPage::ScreenAddPage(ScreenMenu* menu, uint8_t pageIndex) :
-    PageTab(STR_ADD_MAIN_VIEW, ICON_THEME_ADD_VIEW),
-    menu(menu),
-    pageIndex(pageIndex)
-{
-}
-
-void ScreenAddPage::update(uint8_t index)
-{
-  pageIndex = index;
-}
-
-void ScreenAddPage::build(Window* window)
-{
-  new TextButton(window,
-                 rect_t{LCD_W / 2 - ADD_TXT_W / 2, window->height() / 2 - EdgeTxStyles::UI_ELEMENT_HEIGHT, ADD_TXT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
-                 STR_ADD_MAIN_VIEW, [this]() -> uint8_t {
-                   // First page is "User interface", subtract it
-                   auto newIdx = pageIndex - 1;
-                   TRACE("ScreenAddPage: add screen: newIdx = %d", newIdx);
-
-                   auto& screen = customScreens[newIdx];
-                   auto& screenData = g_model.screenData[newIdx];
-
-                   TRACE("ScreenAddPage: add screen: screen = %p", screen);
-
-                   const LayoutFactory* factory = defaultLayout;
-                   if (factory) {
-                     TRACE("ScreenAddPage: add screen: factory = %p", factory);
-
-                     auto viewMain = ViewMain::instance();
-                     screen = factory->create(viewMain, &screenData.layoutData);
-                     viewMain->addMainView(screen, newIdx);
-
-                     strncpy(screenData.LayoutId, factory->getId(),
-                             sizeof(screenData.LayoutId));
-                     TRACE("ScreenAddPage: add screen: LayoutId = %s",
-                           screenData.LayoutId);
-
-                     auto tab = new ScreenSetupPage(menu, newIdx);
-                     std::string title(STR_MAIN_VIEW_X);
-                     if (newIdx >= 9) {
-                       title[title.size() - 2] = '1';
-                       title.back() = (newIdx - 9) + '0';
-                     } else {
-                       title[title.size() - 2] = newIdx + '1';
-                       title.back() = ' ';
-                     }
-                     tab->setTitle(title);
-                     tab->setIcon((EdgeTxIcon)(ICON_THEME_VIEW1 + newIdx));
-
-                     // remove current tab first
-                     menu->setCurrentTab(0);
-                     menu->removeTab(pageIndex);
-
-                     // add the new one
-                     menu->addTab(tab);
-
-                     if (menu->tabCount() <= MAX_CUSTOM_SCREENS) {
-                       menu->addTab(new ScreenAddPage(menu, menu->tabCount()));
-                     }
-
-                     menu->setCurrentTab(pageIndex);
-                   } else {
-                     TRACE("Add main view: factory is NULL");
-                   }
-                   return 0;
-                 });
-}
-
 #if LANDSCAPE
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
                                           LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
@@ -180,27 +112,15 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-ScreenSetupPage::ScreenSetupPage(ScreenMenu* menu, unsigned index) :
-    PageTab(),
-    menu(menu)
+ScreenSetupPage::ScreenSetupPage(unsigned index, PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
-  update(index + 1);
+  update(index + FIRST_SCREEN_OFFSET);
 }
 
 void ScreenSetupPage::update(uint8_t index)
 {
-  customScreenIndex = index - 1;
-
-  std::string title(STR_MAIN_VIEW_X);
-  if (customScreenIndex >= 9) {
-    title[title.size() - 2] = '1';
-    title.back() = (customScreenIndex - 9) + '0';
-  } else {
-    title[title.size() - 2] = customScreenIndex + '1';
-    title.back() = ' ';
-  }
-  setTitle(title);
-  setIcon((EdgeTxIcon)(ICON_THEME_VIEW1 + customScreenIndex));
+  customScreenIndex = index - FIRST_SCREEN_OFFSET;
 }
 
 void ScreenSetupPage::build(Window* window)
@@ -213,8 +133,7 @@ void ScreenSetupPage::build(Window* window)
   auto line = window->newLine(grid);
   auto label = new StaticText(line, rect_t{}, STR_LAYOUT);
 
-  lv_obj_set_style_grid_cell_y_align(label->getLvObj(), LV_GRID_ALIGN_CENTER,
-                                     0);
+  lv_obj_set_style_grid_cell_y_align(label->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
 
   // Dynamic options window...
   LayoutChoice::LayoutFactoryGetter getFactory =
@@ -267,7 +186,7 @@ void ScreenSetupPage::build(Window* window)
 #endif
   btn = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
                        [=]() -> uint8_t {
-    menu->deleteLater();
+    window->getParent()->deleteLater();
     new SetupWidgetsPage(customScreenIndex);
     return 0;
   });
@@ -293,9 +212,10 @@ void ScreenSetupPage::build(Window* window)
           // ... and reload
           LayoutFactory::loadCustomScreens();
 
-          // Let's try to stay on the same page
-          menu->removeTab(customScreenIndex + 1);
-          menu->setCurrentTab(customScreenIndex);
+          // Rest to first screen so user knows something has happened
+          PageGroup* menu = (PageGroup*)window->getParent();
+          menu->setCurrentTab(FIRST_SCREEN_OFFSET);
+
           return 0;
         });
     auto obj = btn->getLvObj();
