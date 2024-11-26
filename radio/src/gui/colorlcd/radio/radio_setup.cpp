@@ -926,7 +926,7 @@ static SetupLineDef setupLines[] = {
   },
 };
 
-RadioSetupPage::RadioSetupPage() : PageTab(STR_RADIO_SETUP, ICON_RADIO_SETUP, PAD_TINY) {}
+RadioSetupPage::RadioSetupPage(PageDef& pageDef) : PageTab(pageDef, PAD_TINY) {}
 
 void RadioSetupPage::build(Window* window)
 {
