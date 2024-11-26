@@ -820,7 +820,7 @@ void checkThrottleStick()
   }
   // first - display warning; also deletes inputs if any have been before
   LED_ERROR_BEGIN();
-  RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
+  RAISE_ALERT(STR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_THROTTLE_ALERT);
 
 #if defined(PWR_BUTTON_PRESS)
   bool refresh = false;
@@ -842,7 +842,7 @@ void checkThrottleStick()
       refresh = true;
     }
     else if (power == e_power_on && refresh) {
-      RAISE_ALERT(TR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
+      RAISE_ALERT(STR_THROTTLE_UPPERCASE, throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
       refresh = false;
     }
 #else
@@ -1755,14 +1755,14 @@ uint32_t pwrCheck()
           POPUP_CONFIRMATION(STR_MODEL_SHUTDOWN, nullptr);
 
           const char* msg = STR_MODEL_STILL_POWERED;
-          uint8_t msg_len = sizeof(TR_MODEL_STILL_POWERED);
+          uint8_t msg_len = strlen(STR_MODEL_STILL_POWERED);
           if (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) {
             msg = STR_USB_STILL_CONNECTED;
-            msg_len = sizeof(TR_USB_STILL_CONNECTED);
+            msg_len = strlen(STR_USB_STILL_CONNECTED);
           }
           else if (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm) {
             msg = STR_TRAINER_STILL_CONNECTED;
-            msg_len = sizeof(TR_TRAINER_STILL_CONNECTED);
+            msg_len = strlen(STR_TRAINER_STILL_CONNECTED);
           }
           event_t evt = getEvent();
           SET_WARNING_INFO(msg, msg_len, 0);

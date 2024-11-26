@@ -21,6 +21,7 @@
 
 #pragma once
 
+<<<<<<<< HEAD:radio/src/targets/tx15/touch_driver.h
 #include "touch.h"
 
 extern void touchPanelDeInit();
@@ -29,3 +30,12 @@ extern bool touchPanelInit();
 struct TouchState touchPanelRead();
 bool touchPanelEventOccured();
 struct TouchState getInternalTouchState();
+========
+#include "pagegroup.h"
+
+class StatisticsViewPageGroup : public PageGroup
+{
+ public:
+  StatisticsViewPageGroup();
+};
+>>>>>>>> 63f64f877 (New quick menu for 3.0.):radio/src/gui/colorlcd/setup_menus/menu_statistics.h

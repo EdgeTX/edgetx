@@ -72,7 +72,7 @@ void menuModelGVarOne(event_t event)
 {
   GVarData * gvar = &g_model.gvars[s_currIdx];
 
-  drawStringWithIndex(PSIZE(TR_GVARS)*FW+FW, 0, STR_GV, s_currIdx+1, 0);
+  drawStringWithIndex(strlen(STR_GVARS)*FW+FW, 0, STR_GV, s_currIdx+1, 0);
   drawGVarValue(32*FW, 0, s_currIdx, getGVarValue(s_currIdx, getFlightMode()));
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 

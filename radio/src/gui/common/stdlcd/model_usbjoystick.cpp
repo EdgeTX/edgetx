@@ -87,7 +87,7 @@ void menuModelUSBJoystickOne(event_t event)
         break;
 
       case USBJ_FIELD_INVERSION:
-        lcdDrawTextAlignedLeft(y, TR_USBJOYSTICK_CH_INVERSION);
+        lcdDrawTextAlignedLeft(y, STR_USBJOYSTICK_CH_INVERSION);
         drawCheckBox(USBJ_ONE_2ND_COLUMN, y, cch->inversion, attr);
         if (attr) cch->inversion = checkIncDecModel(event, cch->inversion, 0, 1);
         break;
@@ -123,7 +123,7 @@ void menuModelUSBJoystickOne(event_t event)
         break;
 
       case USBJ_FIELD_BTNNUM:
-        lcdDrawTextAlignedLeft(y, TR_USBJOYSTICK_CH_BTNNUM);
+        lcdDrawTextAlignedLeft(y, STR_USBJOYSTICK_CH_BTNNUM);
         uint8_t last = cch->lastBtnNumNoCLip();
         uint8_t limited = 0;
         if(last >= USBJ_BUTTON_SIZE) {
