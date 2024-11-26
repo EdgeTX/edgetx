@@ -28,49 +28,45 @@
  *  \0               -ends current string
  */
 
-#include "MultiProtoDefs.h"
+#define TR_MIN_PLURAL2 2
 
-#define TR_FUNC_SW                     "SW"
-
-#define TR_VTRAINERMODES                                                \
-        TR_VTRAINER_MASTER_OFF, TR_VTRAINER_MASTER_JACK, TR_VTRAINER_SLAVE_JACK, \
-        TR_VTRAINER_MASTER_SBUS_MODULE, TR_VTRAINER_MASTER_CPPM_MODULE, \
-        TR_VTRAINER_MASTER_BATTERY, TR_VTRAINER_BLUETOOTH, TR_VTRAINER_MULTI, TR_VTRAINER_CRSF
-
-#if defined(PCBHORUS)
-  #define TR_SM_VSRCRAW               "smA","smB","smC","smD","smE","smF",
+#if defined(TRANSLATIONS_CZ) || defined(TRANSLATIONS_PL)
+  #define TR_MAX_PLURAL2 4
+  #define TR_USE_PLURAL2_SPECIAL_CASE 1
 #else
-  #define TR_SM_VSRCRAW
+  #define TR_MAX_PLURAL2 2
+  #define TR_USE_PLURAL2_SPECIAL_CASE 0
 #endif
 
-#define TR_EMPTY                       "---"
+// For this number of minute in the last decimal place singular form is used in plural
+#if defined(TRANSLATIONS_CN) || defined(TRANSLATIONS_DA) || defined(TRANSLATIONS_DE) || defined(TRANSLATIONS_ES) || \
+    defined(TRANSLATIONS_FI) || defined(TRANSLATIONS_FR) || defined(TRANSLATIONS_JP) || defined(TRANSLATIONS_NL) || \
+    defined(TRANSLATIONS_PT) || defined(TRANSLATIONS_SE) || defined(TRANSLATIONS_TW)
+  #define TR_USE_SINGULAR_IN_PLURAL 1
+#else
+  #define TR_USE_SINGULAR_IN_PLURAL 0
+#endif
 
-#define TR_CRSF_BAUDRATE               "115k","400k","921k","1.87M","3.75M","5.25M"
+// If the number of minutes is above this value PLURAL2 is used
+#if defined(TRANSLATIONS_CZ)
+  #define TR_USE_PLURAL2 20
+#else
+  #define TR_USE_PLURAL2 INT_MAX
+#endif
 
-#define TR_MODULE_R9M_LITE             "R9MLite"
+constexpr int g_max_plural2 = TR_MAX_PLURAL2;
+constexpr int g_min_plural2 = TR_MIN_PLURAL2;
+constexpr int g_use_singular_in_plural = TR_USE_SINGULAR_IN_PLURAL;
+constexpr int g_use_plural2_special_case = TR_USE_PLURAL2_SPECIAL_CASE;
+constexpr int g_use_plural2 = TR_USE_PLURAL2;
 
-#define TR_MODULE_PROTOCOLS          \
-    TR_OFF,                          \
-    "PPM",                           \
-    "XJT",                           \
-    "ISRM",                          \
-    "DSM2",                          \
-    "CRSF",                          \
-    "MULTI",                         \
-    "R9M",                           \
-    "R9M ACCESS",                    \
-    TR_MODULE_R9M_LITE,              \
-    "R9ML ACCESS",                   \
-    "GHST",                          \
-    "R9MLP ACCESS",                  \
-    "SBUS",                          \
-    "XJT Lite",                      \
-    "AFHDS2A",                       \
-    "AFHDS3",                        \
-    TR("Lemon DSMP","LemonRx DSMP")
+extern const char CHR_HOUR;
+extern const char CHR_INPUT;
 
-#define TR_XJT_ACCST_RF_PROTOCOLS      "D16","D8","LR12"
-#define TR_ISRM_RF_PROTOCOLS           "ACCESS","D16","LR12"
+#define STR_UPDATE_LIST STR_DELAYDOWN
+
+#define STR_V (STR_VTELEMUNIT[1])
+#define STR_A (STR_VTELEMUNIT[2])
 
 // ACCESS STUFF
 #define STR_SBUSIN                     "SBUS in"
@@ -78,35 +74,6 @@
 #define STR_SPORT                      "S.PORT"
 #define STR_FBUS                       "FBUS"
 #define STR_SBUS24                     "SBUS24"
-#define TR_SPORT_MODES                 STR_SPORT,"F.PORT",STR_FBUS
-#define TR_R9M_PXX2_RF_PROTOCOLS       "ACCESS","FCC","EU","Flex"
-#define TR_R9M_REGION                  "FCC","EU","868MHz","915MHz"
-#define TR_R9M_LITE_FCC_POWER_VALUES   "(100mW)"
-#define TR_R9M_LITE_LBT_POWER_VALUES   "25mW 8CH","25mW 16CH","100mW NoTele"
-#define TR_R9M_FCC_POWER_VALUES        "10mW","100mW","500mW","1W (auto)"
-#define TR_R9M_LBT_POWER_VALUES        "25mW 8CH","25mW 16CH","200mW NoTele","500mW NoTele"
-
-#define TR_PPM_PROTOCOLS               TR("No Telem", "No Telemetry"),"MLink","SPort"
-#define TR_SBUS_PROTOCOLS              TR("No Telem", "No Telemetry"),"SPort"
-#define TR_DSM_PROTOCOLS               "LP45","DSM2","DSMX"
-
-#define TR_MULTI_PROTOCOLS             PROTO_NAMES
-#define TR_MULTI_BAYANG_OPTIONS        BAYANG_OPTION_TELEMETRY_NAMES
-#define TR_MULTI_DSM_OPTIONS           DSM2_OPTION_SERVOFREQ_NAMES
-#define TR_MULTI_DSM_CLONE             DSM_CLONE_NAMES
-
-#define TR_MULTI_POWER                 "1.6mW","2.0mW","2.5mW","3.2mW","4.0mW","5.0mW","6.3mW","7.9mW","10mW","13mW","16mW","20mW","25mW","32mW","40mW","50mW"
-#define TR_MULTI_WBUS_MODE             "WBUS","PPM"
-
-#define TR_AFHDS3_PROTOCOLS            "PWM/IBUS","PWM/SBUS","PPM/IBUS","PPM/SBUS"
-#define TR_AFHDS3_POWERS               "25mW","50mW","100mW","250mW","500mW","1W","2W"
-#define TR_FLYSKY_PULSE_PROTO          "PWM","PPM"
-#define TR_FLYSKY_SERIAL_PROTO         "iBUS","SBUS"
-#define TR_PPM_POL                     "-","+"
-#define TR_PWR_OFF_DELAYS              "0s","0.5s","1s","2s","3s"
-#if defined(COLORLCD)
-#define TR_SPLASHSCREEN_DELAYS         "1s","2s","3s","4s","6s","8s","10s","15s"
-#endif
 
 // Telemetry sensor name definitions
 #define STR_SENSOR_RSSI                      "RSSI"
@@ -308,22 +275,8 @@
 #define STR_CHAR_LS        "\302\225"
 #define STR_CHAR_CURVE     "\302\226"
 
-#if !defined(COLORLCD)
-  // '~' is remapped to 0x7B in B&W font
-  #define STR_CHAR_TILDE "{"
-#else
-  #define STR_CHAR_TILDE "~"
-#endif
-
 #define STR_CHAR_BW_GREATEREQUAL '}'
 #define STR_CHAR_BW_DEGREE       '@'
-
-#define TR_FSGROUPS                     "-","1","2","3","4"
-#if defined(COLORLCD)
-#define TR_FSSWITCHES                   TR_LAST, "SW1", "SW2", "SW3", "SW4", "SW5", "SW6", TR_OFF
-#else
-#define TR_FSSWITCHES                   "=", "SW1", "SW2", "SW3", "SW4", "SW5", "SW6", TR_OFF
-#endif
 
 //
 // HoTT Telemetry sensor names by Hott device

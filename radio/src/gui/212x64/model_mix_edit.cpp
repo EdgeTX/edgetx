@@ -98,7 +98,7 @@ void menuModelMixOne(event_t event)
   }
 
   MixData * md2 = mixAddress(s_currIdx) ;
-  putsChn(PSIZE(TR_MIXES)*FW+FW, 0, md2->destCh+1,0);
+  putsChn(strlen(STR_MIXES)*FW+FW, 0, md2->destCh+1,0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
   uint8_t old_editMode = s_editMode;

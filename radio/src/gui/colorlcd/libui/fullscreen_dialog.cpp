@@ -101,7 +101,7 @@ void FullScreenDialog::build()
   } else {
     if (type == WARNING_TYPE_CONFIRM) {
       auto btn = new TextButton(
-          this, {LCD_W / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_EXIT,
+          this, {LCD_W / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_CANCEL,
           [=]() {
             deleteLater();
             return 0;

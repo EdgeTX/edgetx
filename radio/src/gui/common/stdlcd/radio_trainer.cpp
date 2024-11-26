@@ -100,7 +100,7 @@ void menuRadioTrainer(event_t event)
   attr = (menuVerticalPosition==HEADER_LINE+4) ? blink : 0;
   if (g_model.trainerData.mode == TRAINER_MODE_MASTER_TRAINER_JACK) {
       lcdDrawTextAlignedLeft(y, STR_MULTIPLIER);
-      lcdDrawNumber(LEN_MULTIPLIER * FW + 3 * FW, y, g_eeGeneral.PPM_Multiplier + 10, attr | PREC1 | RIGHT);
+      lcdDrawNumber(strlen(STR_MULTIPLIER) * FW + 3 * FW, y, g_eeGeneral.PPM_Multiplier + 10, attr | PREC1 | RIGHT);
       if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.PPM_Multiplier, -10, 40);
   }
   y += FH;

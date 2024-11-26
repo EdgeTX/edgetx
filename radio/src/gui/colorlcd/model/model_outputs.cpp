@@ -117,9 +117,12 @@ class OutputLineButton : public ListLineButton
 #if !NARROW_LAYOUT
       lv_obj_add_state(source, ETX_STATE_NAME_FONT_SMALL);
 #endif
-      lv_label_set_text_fmt(source, "%s\n" TR_CH "%u",
-                            getSourceString(MIXSRC_FIRST_CH + index),
-                            index + 1);
+      char chanStr[LEN_CHANNEL_NAME + 16];
+      char* s = strAppend(chanStr, getSourceString(MIXSRC_FIRST_CH + index));
+      s = strAppend(s, "\n");
+      s = strAppend(s, STR_CH);
+      strAppendUnsigned(s, index + 1);
+      lv_label_set_text(source, chanStr);
     } else {
 #if !NARROW_LAYOUT
       lv_obj_clear_state(source, ETX_STATE_NAME_FONT_SMALL);

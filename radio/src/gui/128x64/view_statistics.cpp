@@ -154,7 +154,7 @@ void menuStatisticsDebug(event_t event)
   y += FH;
 
 #if defined(LUA)
-  lcdDrawTextAlignedLeft(y, TR_LUA_SCRIPTS_LABEL);
+  lcdDrawTextAlignedLeft(y, STR_LUA_SCRIPTS_LABEL);
   lcdDrawText(MENU_DEBUG_COL1_OFS, y+1, STR_DURATION_MS, SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, 10*maxLuaDuration, LEFT);
   lcdDrawText(lcdLastRightPos+2, y+1, STR_INTERVAL_MS, SMLSIZE);

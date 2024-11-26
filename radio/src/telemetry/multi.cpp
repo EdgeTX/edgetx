@@ -546,7 +546,8 @@ void MultiModuleStatus::getStatusString(char * statusText) const
     tmp = strAppendUnsigned(tmp, patch);
 
     if (isBinding()) {
-      strcpy(tmp, " " TR_MODULE_BINDING);
+      tmp[0] = ' ';
+      strcpy(tmp + 1, STR_MODULE_BINDING);
     }
     else if (ch_order != 0xFF) {
       uint8_t temp = ch_order;
