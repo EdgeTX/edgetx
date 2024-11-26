@@ -245,6 +245,11 @@ void storageReadAll()
     if (!strncmp(g_eeGeneral.ttsLanguage, languagePacks[i]->id, 2)) {
       currentLanguagePackIdx = i;
       currentLanguagePack = languagePacks[i];
+#if defined(ALL_LANGS)
+      currentLangStrings = langStrings[currentLanguagePackIdx];
+      extern void setLanguageFont(int n);
+      setLanguageFont(currentLanguagePackIdx);
+#endif
       break;
     }
   }

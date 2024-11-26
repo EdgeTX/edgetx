@@ -331,12 +331,6 @@
 #define TR_SURFACE_NAMES0              "ST"
 #define TR_SURFACE_NAMES1              "TH"
 
-#define TR_RFPOWER_AFHDS2_1           "Default"
-#define TR_RFPOWER_AFHDS2_2           "High"
-
-#define TR_ROTARY_ENCODERS
-#define TR_ROTENC_SWITCHES
-
 #define TR_ON_ONE_SWITCHES_1           "ON"
 #define TR_ON_ONE_SWITCHES_2           "One"
 
@@ -421,7 +415,7 @@
 #define TR_VCELLINDEX_9                "8"
 #define TR_VCELLINDEX_10               "最高值"
 #define TR_VCELLINDEX_11               "差值"
-#define TR_SUBTRIMMODES_1              STR_CHAR_DELTA "(中点)"
+#define TR_SUBTRIMMODES_1              CHAR_DELTA "(中点)"
 #define TR_SUBTRIMMODES_2              "=(整體)"
 #define TR_TIMER_DIR_1                 TR("Remain", "Show Remain")
 #define TR_TIMER_DIR_2                 TR("Elaps.", "Show Elapsed")
@@ -438,7 +432,6 @@
 #define TR_OK                          TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
 #define TR_EXIT                        TR_BW_COL("EXIT", "RTN")
 
-#define TR_FREE                        "空閒"
 #define TR_YES                         "是"
 #define TR_NO                          "否"
 #define TR_DELETEMODEL                 "刪除 模型"
@@ -512,8 +505,6 @@
 #define TR_SIDE                        "單邊"
 #define TR_OFFSET                      "偏移量"
 #define TR_TRIM                        "使用微調"
-#define TR_DREX                        "DRex"
-#define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "曲線"
 #define TR_FLMODE                      TR("飛行模式", "飛行模式")
 #define TR_MIXWARNING                  "警告"
@@ -1103,8 +1094,6 @@
 #define TR_SCRIPT                      "腳本"
 #define TR_INPUTS                      "輸入"
 #define TR_OUTPUTS                     "輸出"
-#define STR_EEBACKUP                   "EEPROM 數據備份"
-#define STR_FACTORYRESET               "恢復出廠設置"
 #define TR_CONFIRMRESET                TR("是否清除", "是否清除所有模型和設置數據?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Lua腳本數量超出限制!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 電源"
@@ -1222,20 +1211,20 @@
 #define TR_SETUP                       "設置"
 #define TR_LAYOUT                      "佈局"
 #define TR_TEXT_COLOR                  "文本顏色"
-#define TR_MENU_INPUTS                  STR_CHAR_INPUT "輸入"
-#define TR_MENU_LUA                     STR_CHAR_LUA "LUA腳本"
-#define TR_MENU_STICKS                  STR_CHAR_STICK "搖桿(軸)"
-#define TR_MENU_POTS                    STR_CHAR_POT "旋鈕"
-#define TR_MENU_MIN                     STR_CHAR_FUNCTION "最小"
-#define TR_MENU_MAX                     STR_CHAR_FUNCTION "最大"
-#define TR_MENU_HELI                    STR_CHAR_CYC "斜盤混控CYC"
-#define TR_MENU_TRIMS                   STR_CHAR_TRIM "微調"
-#define TR_MENU_SWITCHES                STR_CHAR_SWITCH "開關"
-#define TR_MENU_LOGICAL_SWITCHES        STR_CHAR_SWITCH "邏輯開關"
-#define TR_MENU_TRAINER                 STR_CHAR_TRAINER "教練"
-#define TR_MENU_CHANNELS                STR_CHAR_CHANNEL "通道"
-#define TR_MENU_GVARS                   STR_CHAR_SLIDER "全局變量"
-#define TR_MENU_TELEMETRY               STR_CHAR_TELEMETRY "回傳"
+#define TR_MENU_INPUTS                  CHAR_INPUT "輸入"
+#define TR_MENU_LUA                     CHAR_LUA "LUA腳本"
+#define TR_MENU_STICKS                  CHAR_STICK "搖桿(軸)"
+#define TR_MENU_POTS                    CHAR_POT "旋鈕"
+#define TR_MENU_MIN                     CHAR_FUNCTION "最小"
+#define TR_MENU_MAX                     CHAR_FUNCTION "最大"
+#define TR_MENU_HELI                    CHAR_CYC "斜盤混控CYC"
+#define TR_MENU_TRIMS                   CHAR_TRIM "微調"
+#define TR_MENU_SWITCHES                CHAR_SWITCH "開關"
+#define TR_MENU_LOGICAL_SWITCHES        CHAR_SWITCH "邏輯開關"
+#define TR_MENU_TRAINER                 CHAR_TRAINER "教練"
+#define TR_MENU_CHANNELS                CHAR_CHANNEL "通道"
+#define TR_MENU_GVARS                   CHAR_SLIDER "全局變量"
+#define TR_MENU_TELEMETRY               CHAR_TELEMETRY "回傳"
 #define TR_MENU_DISPLAY                "顯示"
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
@@ -1294,6 +1283,7 @@
 #define TR_VOICE_DEUTSCH              "德語"
 #define TR_VOICE_DUTCH                "荷蘭語"
 #define TR_VOICE_ESPANOL              "西班牙語"
+#define TR_VOICE_FINNISH              "Finnish"
 #define TR_VOICE_FRANCAIS             "法語"
 #define TR_VOICE_HUNGARIAN            "匈牙利語"
 #define TR_VOICE_ITALIANO             "意大利語"

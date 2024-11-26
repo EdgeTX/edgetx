@@ -31,7 +31,7 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-const char* _fct_sw_start[] = {STR_CHAR_UP, STR_CHAR_DOWN, STR_LAST};
+const char* _fct_sw_start[] = {CHAR_UP, CHAR_DOWN, STR_LAST};
 
 const char* edgetx_fs_manual_url =
     "https://edgetx.gitbook.io/edgetx-user-manual/b-and-w-radios/model-select/"
@@ -45,7 +45,7 @@ class FunctionSwitch : public Window
   {
     padAll(PAD_TINY);
 
-    std::string s(STR_CHAR_SWITCH);
+    std::string s(CHAR_SWITCH);
     s += switchGetDefaultName(switchIndex);
 
     new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::STD_FONT_HEIGHT}, s);
