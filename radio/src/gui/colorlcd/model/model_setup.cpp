@@ -74,10 +74,10 @@ static void viewOption(Window* parent, coord_t x, coord_t y,
 
 static SetupLineDef viewOptionsPageSetupLines[] = {
   {
-    STR_RADIO_MENU_TABS, nullptr,
+    STR_DEF(STR_RADIO_MENU_TABS), nullptr,
   },
   {
-    STR_MAIN_MENU_THEMES,
+    STR_DEF(STR_MAIN_MENU_THEMES),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.radioThemesDisabled),
@@ -85,7 +85,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MENUSPECIALFUNCS,
+    STR_DEF(STR_MENUSPECIALFUNCS),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.radioGFDisabled),
@@ -93,7 +93,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MENUTRAINER,
+    STR_DEF(STR_MENUTRAINER),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.radioTrainerDisabled),
@@ -101,11 +101,11 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MODEL_MENU_TABS, nullptr,
+    STR_DEF(STR_MODEL_MENU_TABS), nullptr,
   },
 #if defined(HELI)
   {
-    STR_MENUHELISETUP,
+    STR_DEF(STR_MENUHELISETUP),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelHeliDisabled),
@@ -115,7 +115,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
 #endif
 #if defined(FLIGHT_MODES)
   {
-    STR_MENUFLIGHTMODES,
+    STR_DEF(STR_MENUFLIGHTMODES),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelFMDisabled),
@@ -125,7 +125,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
 #endif
 #if defined(GVARS)
   {
-    STR_MENU_GLOBAL_VARS,
+    STR_DEF(STR_MENU_GLOBAL_VARS),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelGVDisabled),
@@ -134,7 +134,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
   },
 #endif
   {
-    STR_MENUCURVES,
+    STR_DEF(STR_MENUCURVES),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelCurvesDisabled),
@@ -142,7 +142,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MENULOGICALSWITCHES,
+    STR_DEF(STR_MENULOGICALSWITCHES),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelLSDisabled),
@@ -150,7 +150,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     }
   },
   {
-    STR_MENUCUSTOMFUNC,
+    STR_DEF(STR_MENUCUSTOMFUNC),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelSFDisabled),
@@ -159,7 +159,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
   },
 #if defined(LUA_MODEL_SCRIPTS)
   {
-    STR_MENUCUSTOMSCRIPTS,
+    STR_DEF(STR_MENUCUSTOMSCRIPTS),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelCustomScriptsDisabled),
@@ -168,7 +168,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
   },
 #endif
   {
-    STR_MENUTELEMETRY,
+    STR_DEF(STR_MENUTELEMETRY),
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_DEFAULT(g_model.modelTelemetryDisabled),
@@ -259,14 +259,14 @@ struct CenterBeepsMatrix : public ButtonMatrix {
 
 static SetupLineDef otherPageSetupLines[] = {
   {
-    STR_JITTER_FILTER,
+    STR_DEF(STR_JITTER_FILTER),
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_ADCFILTERVALUES, 0, 2,
                 GET_SET_DEFAULT(g_model.jitterFilter));
     }
   },
   {
-    STR_BEEPCTR, [](Window* parent, coord_t x, coord_t y) {}
+    STR_DEF(STR_BEEPCTR), [](Window* parent, coord_t x, coord_t y) {}
   },
   {
     nullptr,
@@ -280,7 +280,7 @@ static SetupLineDef otherPageSetupLines[] = {
 static SetupLineDef setupLines[] = {
   {
     // Model name
-    STR_MODELNAME,
+    STR_DEF(STR_MODELNAME),
     [](Window* parent, coord_t x, coord_t y) {
       new ModelTextEdit(parent, {x, y, ModelSetupPage::NAM_W, 0},
                         g_model.header.name, sizeof(g_model.header.name),
@@ -295,7 +295,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Model labels
-    STR_LABELS,
+    STR_DEF(STR_LABELS),
     [](Window* parent, coord_t x, coord_t y) {
       auto curmod = modelslist.getCurrentModel();
       TextButton* btn = new TextButton(parent, {x, y, 0, 0}, modelslabels.getBulletLabelString(curmod, STR_UNLABELEDMODEL));
@@ -328,7 +328,7 @@ static SetupLineDef setupLines[] = {
   },
   {
     // Model bitmap
-    STR_BITMAP,
+    STR_DEF(STR_BITMAP),
     [](Window* parent, coord_t x, coord_t y) {
       new FileChoice(parent, {x, y, 0, 0}, BITMAPS_PATH, BITMAPS_EXT, LEN_BITMAP_NAME,
                      [=]() {
@@ -353,27 +353,27 @@ void ModelSetupPage::build(Window * window)
 
   new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
     // Modules
-    {STR_INTERNALRF, []() { new ModulePage(INTERNAL_MODULE); }, []() { return g_model.moduleData[INTERNAL_MODULE].type > 0; }},
-    {STR_EXTERNALRF, []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; }},
-    {STR_TRAINER, []() { new TrainerPage(); }, []() { return g_model.trainerData.mode > 0; }},
+    {STR_DEF(STR_INTERNALRF), []() { new ModulePage(INTERNAL_MODULE); }, []() { return g_model.moduleData[INTERNAL_MODULE].type > 0; }},
+    {STR_DEF(STR_EXTERNALRF), []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; }},
+    {STR_DEF(STR_TRAINER), []() { new TrainerPage(); }, []() { return g_model.trainerData.mode > 0; }},
     // Timer buttons
-    {STR_TIMER_1, []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
-    {STR_TIMER_2, []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; }},
-    {STR_TIMER_3, []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
+    {STR_DEF(STR_TIMER_1), []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
+    {STR_DEF(STR_TIMER_2), []() { new TimerWindow(1); }, []() { return g_model.timers[1].mode > 0; }},
+    {STR_DEF(STR_TIMER_3), []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
 
-    {STR_PREFLIGHT, []() { new PreflightChecks(); }},
-    {STR_TRIMS, []() { new TrimsSetup(); }},
-    {STR_THROTTLE_LABEL, []() { new ThrottleParams(); }},
-    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
+    {STR_DEF(STR_PREFLIGHT), []() { new PreflightChecks(); }},
+    {STR_DEF(STR_TRIMS), []() { new TrimsSetup(); }},
+    {STR_DEF(STR_THROTTLE_LABEL), []() { new ThrottleParams(); }},
+    {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
 #if defined(USBJ_EX)
-    {STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); }},
+    {STR_DEF(STR_USBJOYSTICK_LABEL), []() { new ModelUSBJoystickPage(); }},
 #endif
 #if defined(FUNCTION_SWITCHES)
-    {STR_FUNCTION_SWITCHES, []() { new ModelFunctionSwitches(); }},
+    {STR_DEF(STR_FUNCTION_SWITCHES), []() { new ModelFunctionSwitches(); }},
 #endif
-    {STR_MENU_OTHER, []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
+    {STR_DEF(STR_MENU_OTHER), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
 #if defined(HELI)
-    {STR_MENUHELISETUP, []() { return new ModelHeliPage(); }, nullptr, modelHeliEnabled},
+    {STR_DEF(STR_MENUHELISETUP), []() { return new ModelHeliPage(); }, nullptr, modelHeliEnabled},
 #endif
   }, BTN_H);
 }

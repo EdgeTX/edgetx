@@ -22,6 +22,7 @@
 #include <list>
 #include <string>
 
+#include "definitions.h"
 #include "LvglWrapper.h"
 #include "bitmapbuffer.h"
 #include "libopenui_defines.h"
@@ -255,12 +256,13 @@ class NavWindow : public Window
 };
 
 struct PageButtonDef {
-  const char* title;
+  STR_TYP title;
   std::function<void()> createPage;
   std::function<bool()> isActive;
   std::function<bool()> enabled;
 
-  PageButtonDef(const char* title,
+  PageButtonDef(
+                STR_TYP title,
                 std::function<void()> createPage,
                 std::function<bool()> isActive = nullptr,
                 std::function<bool()> enabled = nullptr) :
@@ -280,7 +282,7 @@ class SetupButtonGroup : public Window
 };
 
 struct SetupLineDef {
-  const char* title;
+  STR_TYP title;
   std::function<void(Window*, coord_t, coord_t)> createEdit;
 };
 

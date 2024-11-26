@@ -42,7 +42,7 @@ class RadioFunctionSwitch : public Window
   {
     padAll(PAD_TINY);
 
-    std::string s(STR_CHAR_SWITCH);
+    std::string s(CHAR_SWITCH);
     s += switchGetDefaultName(switchIndex);
 
     new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::STD_FONT_HEIGHT}, s);

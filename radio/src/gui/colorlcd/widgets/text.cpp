@@ -41,12 +41,12 @@ class TextWidget : public Widget
     lv_style_set_width(&style, lv_pct(100));
     lv_style_set_height(&style, lv_pct(100));
 
-    shadow = lv_label_create(lvobj);
+    shadow = etx_label_create(lvobj);
     lv_obj_add_style(shadow, &style, LV_PART_MAIN);
     lv_obj_set_style_text_color(shadow, lv_color_black(), LV_PART_MAIN);
     lv_obj_set_pos(shadow, 1, 1);
 
-    label = lv_label_create(lvobj);
+    label = etx_label_create(lvobj);
     lv_obj_add_style(label, &style, LV_PART_MAIN);
 
     update();

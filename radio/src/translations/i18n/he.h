@@ -336,12 +336,6 @@
 #define TR_SURFACE_NAMES0              "ST"
 #define TR_SURFACE_NAMES1              "TH"
 
-#define TR_RFPOWER_AFHDS2_1           "Default"
-#define TR_RFPOWER_AFHDS2_2           "High"
-
-#define TR_ROTARY_ENCODERS
-#define TR_ROTENC_SWITCHES
-
 #define TR_ON_ONE_SWITCHES_1           "ON"
 #define TR_ON_ONE_SWITCHES_2           "One"
 
@@ -426,7 +420,7 @@
 #define TR_VCELLINDEX_9                "8"
 #define TR_VCELLINDEX_10               "Highest"
 #define TR_VCELLINDEX_11               "Delta"
-#define TR_SUBTRIMMODES_1              STR_CHAR_DELTA " (center only)"
+#define TR_SUBTRIMMODES_1              CHAR_DELTA " (center only)"
 #define TR_SUBTRIMMODES_2              "= (symmetrical)"
 #define TR_TIMER_DIR_1                 TR("Remain", "Show Remain")
 #define TR_TIMER_DIR_2                 TR("Elaps.", "Show Elapsed")
@@ -443,7 +437,6 @@
 #define TR_OK                          TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
 #define TR_EXIT                        TR_BW_COL("חזרה", "RTN")
 
-#define TR_FREE                        "חופשי"
 #define TR_YES                         "כן"
 #define TR_NO                          "לא"
 #define TR_DELETEMODEL                 "! מחיקת מודל"
@@ -518,8 +511,6 @@
 #define TR_SIDE                        "Side"
 #define TR_OFFSET                       "Offset"
 #define TR_TRIM                        "קיזוז"
-#define TR_DREX                        "DRex"
-#define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "עקומה"
 #define TR_FLMODE                      TR("מצב", "מצבים")
 #define TR_MIXWARNING                  "התראה"
@@ -1104,8 +1095,6 @@
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "כניסות"
 #define TR_OUTPUTS                     "יציאות"
-#define STR_EEBACKUP                   "EEPROM backup"
-#define STR_FACTORYRESET               "איפוס לנתוני יצרן"
 #define TR_CONFIRMRESET                TR("Erase ALL", "Erase ALL models and settings?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Too many Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
@@ -1159,6 +1148,8 @@
 #define TR_COLOR                     "צבע"
 #define TR_PANEL1_BACKGROUND         "Panel1 background"
 #define TR_PANEL2_BACKGROUND         "Panel2 background"
+#define TR_PANEL_BACKGROUND          "Background"
+#define TR_PANEL_COLOR               "  Color"
 #define TR_WIDGET_GAUGE              "מקור"
 #define TR_WIDGET_MODELBMP           "תמונה מודל"
 #define TR_WIDGET_OUTPUTS            "יציאות"
@@ -1223,20 +1214,20 @@
 #define TR_SETUP                       "להגדיר"
 #define TR_LAYOUT                      "תצוגת מסך"
 #define TR_TEXT_COLOR                  "צבע טקסט"
-#define TR_MENU_INPUTS                 STR_CHAR_INPUT "כניסות"
-#define TR_MENU_LUA                    STR_CHAR_LUA "Lua סקריפטים"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "סטיקים"
-#define TR_MENU_POTS                   STR_CHAR_POT "גלגלות"
-#define TR_MENU_MIN                    STR_CHAR_FUNCTION "מינימום"
-#define TR_MENU_MAX                    STR_CHAR_FUNCTION "מקסימום"
-#define TR_MENU_HELI                   STR_CHAR_CYC "Cyclic"
-#define TR_MENU_TRIMS                  STR_CHAR_TRIM "קיזוזים"
-#define TR_MENU_SWITCHES               STR_CHAR_SWITCH "מתגים"
-#define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "מתגים לוגים"
-#define TR_MENU_TRAINER                STR_CHAR_TRAINER "טריינר"
-#define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "עורצים"
-#define TR_MENU_GVARS                  STR_CHAR_SLIDER "GVars"
-#define TR_MENU_TELEMETRY              STR_CHAR_TELEMETRY "טלמטריה"
+#define TR_MENU_INPUTS                 CHAR_INPUT "כניסות"
+#define TR_MENU_LUA                    CHAR_LUA "Lua סקריפטים"
+#define TR_MENU_STICKS                 CHAR_STICK "סטיקים"
+#define TR_MENU_POTS                   CHAR_POT "גלגלות"
+#define TR_MENU_MIN                    CHAR_FUNCTION "מינימום"
+#define TR_MENU_MAX                    CHAR_FUNCTION "מקסימום"
+#define TR_MENU_HELI                   CHAR_CYC "Cyclic"
+#define TR_MENU_TRIMS                  CHAR_TRIM "קיזוזים"
+#define TR_MENU_SWITCHES               CHAR_SWITCH "מתגים"
+#define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "מתגים לוגים"
+#define TR_MENU_TRAINER                CHAR_TRAINER "טריינר"
+#define TR_MENU_CHANNELS               CHAR_CHANNEL "עורצים"
+#define TR_MENU_GVARS                  CHAR_SLIDER "GVars"
+#define TR_MENU_TELEMETRY              CHAR_TELEMETRY "טלמטריה"
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
@@ -1284,7 +1275,6 @@
 #define TR_CANCEL                       "ביטול"
 #define TR_EDIT_THEME                   "עריכת ערכת נושא"
 #define TR_DETAILS                      "פרטים"
-#define TR_THEME_EDITOR                 "ערכות נושא"
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "English"
@@ -1294,6 +1284,7 @@
 #define TR_VOICE_DEUTSCH                "German"
 #define TR_VOICE_DUTCH                  "Dutch"
 #define TR_VOICE_ESPANOL                "Spanish"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "French"
 #define TR_VOICE_HEBREW                 "Hebrew"
 #define TR_VOICE_HUNGARIAN              "Hungarian"

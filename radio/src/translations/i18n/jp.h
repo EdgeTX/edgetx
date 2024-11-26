@@ -331,12 +331,6 @@
 #define TR_SURFACE_NAMES0              "ST"
 #define TR_SURFACE_NAMES1              "TH"
 
-#define TR_RFPOWER_AFHDS2_1         "初期値"
-#define TR_RFPOWER_AFHDS2_2         "高出力"
-
-#define TR_ROTARY_ENCODERS
-#define TR_ROTENC_SWITCHES
-
 #define TR_ON_ONE_SWITCHES_1           "ON"
 #define TR_ON_ONE_SWITCHES_2           "One"
 
@@ -422,7 +416,7 @@
 #define TR_VCELLINDEX_9                "8"
 #define TR_VCELLINDEX_10               "最高値"
 #define TR_VCELLINDEX_11               "差分"
-#define TR_SUBTRIMMODES_1              STR_CHAR_DELTA " (中央)"
+#define TR_SUBTRIMMODES_1              CHAR_DELTA " (中央)"
 #define TR_SUBTRIMMODES_2              "= (全体)"
 #define TR_TIMER_DIR_1                 TR("Remain", "残り時間表示")
 #define TR_TIMER_DIR_2                 TR("Elaps.", "経過時間表示")
@@ -439,7 +433,6 @@
 #define TR_OK                          TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
 #define TR_EXIT                        TR_BW_COL("EXIT", "RTN")
 
-#define TR_FREE                        "フリー"
 #define TR_YES                         "はい"
 #define TR_NO                          "いいえ"
 #define TR_DELETEMODEL                 "モデルを削除"
@@ -514,8 +507,6 @@
 #define TR_SIDE                        "末端"
 #define TR_OFFSET                      "オフセット"
 #define TR_TRIM                        "トリム"
-#define TR_DREX                        "DRex"
-#define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "カーブ"
 #define TR_FLMODE                      TR("Mode", "モード")
 #define TR_MIXWARNING                  "警告"
@@ -1100,8 +1091,6 @@
 #define TR_SCRIPT                      "スクリプト"
 #define TR_INPUTS                      "入力"
 #define TR_OUTPUTS                     "出力"
-#define STR_EEBACKUP                   "EEPROMバックアップ"
-#define STR_FACTORYRESET               "ファクトリーリセット"
 #define TR_CONFIRMRESET                TR("Erase ALL", "全モデルと全設定を消去しますか？")
 #define TR_TOO_MANY_LUA_SCRIPTS        "LUAスクリプトが多すぎます!!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP 電源"
@@ -1155,6 +1144,8 @@
 #define TR_COLOR                     "カラー"
 #define TR_PANEL1_BACKGROUND         "パネル1 背景"
 #define TR_PANEL2_BACKGROUND         "パネル2 背景"
+#define TR_PANEL_BACKGROUND          "Background"
+#define TR_PANEL_COLOR               "  Color"
 #define TR_WIDGET_GAUGE              "ゲージ"
 #define TR_WIDGET_MODELBMP           "モデル"
 #define TR_WIDGET_OUTPUTS            "出力"
@@ -1219,20 +1210,20 @@
 #define TR_SETUP                       "設定"
 #define TR_LAYOUT                      "レイアウト"
 #define TR_TEXT_COLOR                  "テキスト色"
-#define TR_MENU_INPUTS                 STR_CHAR_INPUT "入力"
-#define TR_MENU_LUA                    STR_CHAR_LUA "LUAスクリプト"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "スティック"
-#define TR_MENU_POTS                   STR_CHAR_POT "ダイヤル"
-#define TR_MENU_MIN                    STR_CHAR_FUNCTION "最小"
-#define TR_MENU_MAX                    STR_CHAR_FUNCTION "最大"
-#define TR_MENU_HELI                   STR_CHAR_CYC "サイクリック"
-#define TR_MENU_TRIMS                  STR_CHAR_TRIM "トリム"
-#define TR_MENU_SWITCHES               STR_CHAR_SWITCH "スイッチ"
-#define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "論理スイッチ"
-#define TR_MENU_TRAINER                STR_CHAR_TRAINER "トレーナー"
-#define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "チャンネル"
-#define TR_MENU_GVARS                  STR_CHAR_SLIDER "グローバル変数"
-#define TR_MENU_TELEMETRY              STR_CHAR_TELEMETRY "テレメトリー"
+#define TR_MENU_INPUTS                 CHAR_INPUT "入力"
+#define TR_MENU_LUA                    CHAR_LUA "LUAスクリプト"
+#define TR_MENU_STICKS                 CHAR_STICK "スティック"
+#define TR_MENU_POTS                   CHAR_POT "ダイヤル"
+#define TR_MENU_MIN                    CHAR_FUNCTION "最小"
+#define TR_MENU_MAX                    CHAR_FUNCTION "最大"
+#define TR_MENU_HELI                   CHAR_CYC "サイクリック"
+#define TR_MENU_TRIMS                  CHAR_TRIM "トリム"
+#define TR_MENU_SWITCHES               CHAR_SWITCH "スイッチ"
+#define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "論理スイッチ"
+#define TR_MENU_TRAINER                CHAR_TRAINER "トレーナー"
+#define TR_MENU_CHANNELS               CHAR_CHANNEL "チャンネル"
+#define TR_MENU_GVARS                  CHAR_SLIDER "グローバル変数"
+#define TR_MENU_TELEMETRY              CHAR_TELEMETRY "テレメトリー"
 #define TR_MENU_DISPLAY                "表示"
 #define TR_MENU_OTHER                  "その他"
 #define TR_MENU_INVERT                 "リバース"
@@ -1280,7 +1271,6 @@
 #define TR_CANCEL                       "キャンセル"
 #define TR_EDIT_THEME                   "テーマ編集"
 #define TR_DETAILS                      "詳細情報"
-#define TR_THEME_EDITOR                 "テーマ"
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "アメリカ-EN"
@@ -1290,6 +1280,7 @@
 #define TR_VOICE_DEUTSCH                "ドイツ-DE"
 #define TR_VOICE_DUTCH                  "オランダ-NL"
 #define TR_VOICE_ESPANOL                "スペイン-ES"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "フランス-FR"
 #define TR_VOICE_HUNGARIAN              "ハンガリー-HU"
 #define TR_VOICE_ITALIANO               "イタリア-IT"

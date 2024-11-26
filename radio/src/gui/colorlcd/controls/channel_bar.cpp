@@ -46,13 +46,12 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
 
   coord_t yo = (height() < 10) ? -1 : -PAD_TINY;
 
-  valText = lv_label_create(lvobj);
+  valText = etx_label_create(lvobj, FONT_XS_INDEX);
   lv_obj_set_pos(valText, width() / 2 + VAL_XO, yo);
   lv_obj_set_size(valText, VAL_W, VAL_H);
   etx_obj_add_style(valText, styles->text_align_left, LV_PART_MAIN);
   lv_obj_set_style_translate_x(valText, VAL_XT, LV_STATE_USER_1);
   etx_obj_add_style(valText, styles->text_align_right, LV_STATE_USER_1);
-  etx_font(valText, FONT_XS_INDEX);
   etx_txt_color(valText, txtColorIndex);
   lv_label_set_text(valText, "");
 

@@ -214,7 +214,7 @@ struct HottSensor
   const uint16_t id;
   const TelemetryUnit unit;
   const uint8_t precision;
-  const char * name;
+  STR_TYP name;
 };
 
 // clang-format off
@@ -222,73 +222,73 @@ struct HottSensor
 
 const HottSensor hottSensors[] = {
   // TX
-  HS( HOTT_ID_TX_RSSI_DL,   STR_SENSOR_HOTT_ID_TX_RSSI_DL,  UNIT_DB, 0),                	// downlink signal strength (rx --> tx as seen by tx) 
-  HS( HOTT_ID_TX_LQI_DL,    STR_SENSOR_HOTT_ID_TX_LQI_DL,   UNIT_RAW, 0),               	// downlink signal quality (rx --> tx s seen by tx)
+  HS( HOTT_ID_TX_RSSI_DL,   STR_DEF(STR_SENSOR_HOTT_ID_TX_RSSI_DL),  UNIT_DB, 0),                	// downlink signal strength (rx --> tx as seen by tx) 
+  HS( HOTT_ID_TX_LQI_DL,    STR_DEF(STR_SENSOR_HOTT_ID_TX_LQI_DL),   UNIT_RAW, 0),               	// downlink signal quality (rx --> tx s seen by tx)
 
   // RX
-  HS( HOTT_ID_RX_RSSI_UL,   STR_SENSOR_HOTT_ID_RX_RSSI_UL,  UNIT_DB, 0 ),               	// uplink signal strength (tx --> rx as seen by rx)
-  HS( HOTT_ID_RX_LQI_UL,    STR_SENSOR_HOTT_ID_RX_LQI_UL,   UNIT_RAW, 0 ),              	// uplink signal quality (tx --> rx as seen by rx)
-  HS( HOTT_ID_RX_VLT,       STR_SENSOR_HOTT_ID_RX_VLT,      UNIT_VOLTS, 1 ),            	// RX battery voltage
-  HS( HOTT_ID_RX_TMP,       STR_SENSOR_HOTT_ID_RX_TMP,      UNIT_CELSIUS, 0 ),          	// RX temperature
-  HS( HOTT_ID_RX_BAT_MIN,   STR_SENSOR_HOTT_ID_RX_BAT_MIN,  UNIT_VOLTS, 1 ),            	// RX lowest rx voltage
-  HS( HOTT_ID_RX_VPCK,      STR_SENSOR_HOTT_ID_RX_VPCK,     UNIT_MS, 0 ),               	// RX VPack
-  HS( HOTT_ID_RX_EVENT,     STR_SENSOR_HOTT_ID_RX_EVENT,    UNIT_RAW, 0 ),              	// RX event and other devices warnings
+  HS( HOTT_ID_RX_RSSI_UL,   STR_DEF(STR_SENSOR_HOTT_ID_RX_RSSI_UL),  UNIT_DB, 0 ),               	// uplink signal strength (tx --> rx as seen by rx)
+  HS( HOTT_ID_RX_LQI_UL,    STR_DEF(STR_SENSOR_HOTT_ID_RX_LQI_UL),   UNIT_RAW, 0 ),              	// uplink signal quality (tx --> rx as seen by rx)
+  HS( HOTT_ID_RX_VLT,       STR_DEF(STR_SENSOR_HOTT_ID_RX_VLT),      UNIT_VOLTS, 1 ),            	// RX battery voltage
+  HS( HOTT_ID_RX_TMP,       STR_DEF(STR_SENSOR_HOTT_ID_RX_TMP),      UNIT_CELSIUS, 0 ),          	// RX temperature
+  HS( HOTT_ID_RX_BAT_MIN,   STR_DEF(STR_SENSOR_HOTT_ID_RX_BAT_MIN),  UNIT_VOLTS, 1 ),            	// RX lowest rx voltage
+  HS( HOTT_ID_RX_VPCK,      STR_DEF(STR_SENSOR_HOTT_ID_RX_VPCK),     UNIT_MS, 0 ),               	// RX VPack
+  HS( HOTT_ID_RX_EVENT,     STR_DEF(STR_SENSOR_HOTT_ID_RX_EVENT),    UNIT_RAW, 0 ),              	// RX event and other devices warnings
   
   // Vario 
-  HS( HOTT_ID_VARIO_ALT,    STR_SENSOR_HOTT_ID_VARIO_ALT,   UNIT_METERS, 0 ),           	// Vario altitude
-  HS( HOTT_ID_VARIO_VV,     STR_SENSOR_HOTT_ID_VARIO_VV,    UNIT_METERS_PER_SECOND, 2 ),	// Vario vertical velocity
-  HS( HOTT_ID_VARIO_HDG,    STR_SENSOR_HOTT_ID_VARIO_HDG,   UNIT_DEGREE, 0 ),           	// Vario heading
+  HS( HOTT_ID_VARIO_ALT,    STR_DEF(STR_SENSOR_HOTT_ID_VARIO_ALT),   UNIT_METERS, 0 ),           	// Vario altitude
+  HS( HOTT_ID_VARIO_VV,     STR_DEF(STR_SENSOR_HOTT_ID_VARIO_VV),    UNIT_METERS_PER_SECOND, 2 ),	// Vario vertical velocity
+  HS( HOTT_ID_VARIO_HDG,    STR_DEF(STR_SENSOR_HOTT_ID_VARIO_HDG),   UNIT_DEGREE, 0 ),           	// Vario heading
 
   // GPS
-  HS( HOTT_ID_GPS_HDG,      STR_SENSOR_HOTT_ID_GPS_HDG,     UNIT_DEGREE, 0 ),           	// GPS heading
-  HS( HOTT_ID_GPS_SPEED,    STR_SENSOR_HOTT_ID_GPS_SPEED,   UNIT_KMH,  0 ) ,            	// GPS ground speed
-  HS( HOTT_ID_GPS_LL,       STR_SENSOR_HOTT_ID_GPS_LL,      UNIT_GPS, 0 ),              	// GPS lat/long
-  HS( HOTT_ID_GPS_DST,      STR_SENSOR_HOTT_ID_GPS_DST,     UNIT_METERS, 0 ),           	// GPS distance
-  HS( HOTT_ID_GPS_ALT,      STR_SENSOR_HOTT_ID_GPS_ALT,     UNIT_METERS, 0 ),           	// GPS altitude
-  HS( HOTT_ID_GPS_VV,       STR_SENSOR_HOTT_ID_GPS_VV,      UNIT_METERS_PER_SECOND, 2), 	// GPS vertical velocity
-  HS( HOTT_ID_GPS_NSATS,    STR_SENSOR_HOTT_ID_GPS_NSATS,   UNIT_RAW, 0 ),              	// GPS number of satellites
+  HS( HOTT_ID_GPS_HDG,      STR_DEF(STR_SENSOR_HOTT_ID_GPS_HDG),     UNIT_DEGREE, 0 ),           	// GPS heading
+  HS( HOTT_ID_GPS_SPEED,    STR_DEF(STR_SENSOR_HOTT_ID_GPS_SPEED),   UNIT_KMH,  0 ) ,            	// GPS ground speed
+  HS( HOTT_ID_GPS_LL,       STR_DEF(STR_SENSOR_HOTT_ID_GPS_LL),      UNIT_GPS, 0 ),              	// GPS lat/long
+  HS( HOTT_ID_GPS_DST,      STR_DEF(STR_SENSOR_HOTT_ID_GPS_DST),     UNIT_METERS, 0 ),           	// GPS distance
+  HS( HOTT_ID_GPS_ALT,      STR_DEF(STR_SENSOR_HOTT_ID_GPS_ALT),     UNIT_METERS, 0 ),           	// GPS altitude
+  HS( HOTT_ID_GPS_VV,       STR_DEF(STR_SENSOR_HOTT_ID_GPS_VV),      UNIT_METERS_PER_SECOND, 2), 	// GPS vertical velocity
+  HS( HOTT_ID_GPS_NSATS,    STR_DEF(STR_SENSOR_HOTT_ID_GPS_NSATS),   UNIT_RAW, 0 ),              	// GPS number of satellites
 
   // ESC
-  HS( HOTT_ID_ESC_VLT,      STR_SENSOR_HOTT_ID_ESC_VLT,     UNIT_VOLTS, 1 ),            	// ESC battery voltage
-  HS( HOTT_ID_ESC_CAP,      STR_SENSOR_HOTT_ID_ESC_CAP,     UNIT_MAH, 0 ),              	// ESC battery capacity consumed
-  HS( HOTT_ID_ESC_TMP,      STR_SENSOR_HOTT_ID_ESC_TMP,     UNIT_CELSIUS, 0 ),          	// ESC temperature
-  HS( HOTT_ID_ESC_CUR,      STR_SENSOR_HOTT_ID_ESC_CUR,     UNIT_AMPS, 1 ),             	// ESC current
-  HS( HOTT_ID_ESC_RPM,      STR_SENSOR_HOTT_ID_ESC_RPM,     UNIT_RPMS, 0 ),             	// ESC motor rpm 
-  HS( HOTT_ID_ESC_BEC_VLT,  STR_SENSOR_HOTT_ID_ESC_BEC_VLT, UNIT_VOLTS, 1 ),            	// ESC BEC voltage
-  HS( HOTT_ID_ESC_BEC_CUR,  STR_SENSOR_HOTT_ID_ESC_BEC_CUR, UNIT_AMPS, 1 ),             	// ESC BEC current
-  HS( HOTT_ID_ESC_BEC_TMP,  STR_SENSOR_HOTT_ID_ESC_BEC_TMP, UNIT_CELSIUS, 0 ),          	// BEC BEC temperature
-  HS( HOTT_ID_ESC_MOT_TMP,  STR_SENSOR_HOTT_ID_ESC_MOT_TMP, UNIT_CELSIUS, 0 ),         	  // ESC motor or external temperature
+  HS( HOTT_ID_ESC_VLT,      STR_DEF(STR_SENSOR_HOTT_ID_ESC_VLT),     UNIT_VOLTS, 1 ),            	// ESC battery voltage
+  HS( HOTT_ID_ESC_CAP,      STR_DEF(STR_SENSOR_HOTT_ID_ESC_CAP),     UNIT_MAH, 0 ),              	// ESC battery capacity consumed
+  HS( HOTT_ID_ESC_TMP,      STR_DEF(STR_SENSOR_HOTT_ID_ESC_TMP),     UNIT_CELSIUS, 0 ),          	// ESC temperature
+  HS( HOTT_ID_ESC_CUR,      STR_DEF(STR_SENSOR_HOTT_ID_ESC_CUR),     UNIT_AMPS, 1 ),             	// ESC current
+  HS( HOTT_ID_ESC_RPM,      STR_DEF(STR_SENSOR_HOTT_ID_ESC_RPM),     UNIT_RPMS, 0 ),             	// ESC motor rpm 
+  HS( HOTT_ID_ESC_BEC_VLT,  STR_DEF(STR_SENSOR_HOTT_ID_ESC_BEC_VLT), UNIT_VOLTS, 1 ),            	// ESC BEC voltage
+  HS( HOTT_ID_ESC_BEC_CUR,  STR_DEF(STR_SENSOR_HOTT_ID_ESC_BEC_CUR), UNIT_AMPS, 1 ),             	// ESC BEC current
+  HS( HOTT_ID_ESC_BEC_TMP,  STR_DEF(STR_SENSOR_HOTT_ID_ESC_BEC_TMP), UNIT_CELSIUS, 0 ),          	// BEC BEC temperature
+  HS( HOTT_ID_ESC_MOT_TMP,  STR_DEF(STR_SENSOR_HOTT_ID_ESC_MOT_TMP), UNIT_CELSIUS, 0 ),         	  // ESC motor or external temperature
 
   // GAM
-  HS( HOTT_ID_GAM_CELS,     STR_SENSOR_HOTT_ID_GAM_CELS,    UNIT_CELLS, 2),             	// GAM Cels L
-  HS( HOTT_ID_GAM_VLT1,     STR_SENSOR_HOTT_ID_GAM_VLT1,    UNIT_VOLTS, 1 ),            	// GAM voltage battery 1
-  HS( HOTT_ID_GAM_VLT2,     STR_SENSOR_HOTT_ID_GAM_VLT2,    UNIT_VOLTS, 1 ),            	// GAM volatge battery 2
-  HS( HOTT_ID_GAM_TMP1,     STR_SENSOR_HOTT_ID_GAM_TMP1,    UNIT_CELSIUS, 0 ),          	// GAM temperature 1
-  HS( HOTT_ID_GAM_TMP2,     STR_SENSOR_HOTT_ID_GAM_TMP2,    UNIT_CELSIUS, 0 ),          	// GAM temperature 2
-  HS( HOTT_ID_GAM_FUEL,     STR_SENSOR_HOTT_ID_GAM_FUEL,    UNIT_PERCENT, 0),           	// GAM fuel percentage  
-  HS( HOTT_ID_GAM_RPM1,     STR_SENSOR_HOTT_ID_GAM_RPM1,    UNIT_RPMS, 0 ),             	// GAM rpm 1  
-  HS( HOTT_ID_GAM_ALT,      STR_SENSOR_HOTT_ID_GAM_ALT,     UNIT_METERS, 0 ),           	// GAM altitude
-  HS( HOTT_ID_GAM_VV,       STR_SENSOR_HOTT_ID_GAM_VV,      UNIT_METERS_PER_SECOND, 2 ),	// GAM vertical velocity
-  HS( HOTT_ID_GAM_CUR,      STR_SENSOR_HOTT_ID_GAM_CUR,     UNIT_AMPS, 1 ),             	// GAM current  
-  HS( HOTT_ID_GAM_VLT3,     STR_SENSOR_HOTT_ID_GAM_VLT3,    UNIT_VOLTS, 1 ),            	// GAM voltage battery 3
-  HS( HOTT_ID_GAM_CAP,      STR_SENSOR_HOTT_ID_GAM_CAP,     UNIT_MAH, 0 ),              	// GAM battery capacity
-  HS( HOTT_ID_GAM_SPEED,    STR_SENSOR_HOTT_ID_GAM_SPEED,   UNIT_KMH,  0 ) ,            	// GAM speed
-  HS( HOTT_ID_GAM_RPM2,     STR_SENSOR_HOTT_ID_GAM_RPM2,    UNIT_RPMS, 0 ),             	// GAM rmp 2
+  HS( HOTT_ID_GAM_CELS,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_CELS),    UNIT_CELLS, 2),             	// GAM Cels L
+  HS( HOTT_ID_GAM_VLT1,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_VLT1),    UNIT_VOLTS, 1 ),            	// GAM voltage battery 1
+  HS( HOTT_ID_GAM_VLT2,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_VLT2),    UNIT_VOLTS, 1 ),            	// GAM volatge battery 2
+  HS( HOTT_ID_GAM_TMP1,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_TMP1),    UNIT_CELSIUS, 0 ),          	// GAM temperature 1
+  HS( HOTT_ID_GAM_TMP2,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_TMP2),    UNIT_CELSIUS, 0 ),          	// GAM temperature 2
+  HS( HOTT_ID_GAM_FUEL,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_FUEL),    UNIT_PERCENT, 0),           	// GAM fuel percentage  
+  HS( HOTT_ID_GAM_RPM1,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_RPM1),    UNIT_RPMS, 0 ),             	// GAM rpm 1  
+  HS( HOTT_ID_GAM_ALT,      STR_DEF(STR_SENSOR_HOTT_ID_GAM_ALT),     UNIT_METERS, 0 ),           	// GAM altitude
+  HS( HOTT_ID_GAM_VV,       STR_DEF(STR_SENSOR_HOTT_ID_GAM_VV),      UNIT_METERS_PER_SECOND, 2 ),	// GAM vertical velocity
+  HS( HOTT_ID_GAM_CUR,      STR_DEF(STR_SENSOR_HOTT_ID_GAM_CUR),     UNIT_AMPS, 1 ),             	// GAM current  
+  HS( HOTT_ID_GAM_VLT3,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_VLT3),    UNIT_VOLTS, 1 ),            	// GAM voltage battery 3
+  HS( HOTT_ID_GAM_CAP,      STR_DEF(STR_SENSOR_HOTT_ID_GAM_CAP),     UNIT_MAH, 0 ),              	// GAM battery capacity
+  HS( HOTT_ID_GAM_SPEED,    STR_DEF(STR_SENSOR_HOTT_ID_GAM_SPEED),   UNIT_KMH,  0 ) ,            	// GAM speed
+  HS( HOTT_ID_GAM_RPM2,     STR_DEF(STR_SENSOR_HOTT_ID_GAM_RPM2),    UNIT_RPMS, 0 ),             	// GAM rmp 2
 
   //EAM
-  HS( HOTT_ID_EAM_CELS_L,   STR_SENSOR_HOTT_ID_EAM_CELS_L,  UNIT_CELLS, 2),             	// EAM Cells L voltage
-  HS( HOTT_ID_EAM_CELS_H,   STR_SENSOR_HOTT_ID_EAM_CELS_H,  UNIT_CELLS, 2),             	// EAM Cells H voltage
-  HS( HOTT_ID_EAM_VLT1,     STR_SENSOR_HOTT_ID_EAM_VLT1,    UNIT_VOLTS, 1 ),            	// EAM Voltage battery 1
-  HS( HOTT_ID_EAM_VLT2,     STR_SENSOR_HOTT_ID_EAM_VLT2,    UNIT_VOLTS, 1 ),            	// EAM Voltage battery 2
-  HS( HOTT_ID_EAM_TMP1,     STR_SENSOR_HOTT_ID_EAM_TMP1,    UNIT_CELSIUS, 0 ),          	// EAM temperature 1
-  HS( HOTT_ID_EAM_TMP2,     STR_SENSOR_HOTT_ID_EAM_TMP2,    UNIT_CELSIUS, 0 ),          	// EAM temperature 2
-  HS( HOTT_ID_EAM_ALT,      STR_SENSOR_HOTT_ID_EAM_ALT,     UNIT_METERS, 0 ),           	// EAM altitude
-  HS( HOTT_ID_EAM_CUR,      STR_SENSOR_HOTT_ID_EAM_CUR,     UNIT_AMPS, 1 ),             	// EAM current  
-  HS( HOTT_ID_EAM_VLT3,     STR_SENSOR_HOTT_ID_EAM_VLT3,    UNIT_VOLTS, 1 ),            	// EAM battery voltage 3
-  HS( HOTT_ID_EAM_CAP,      STR_SENSOR_HOTT_ID_EAM_CAP,     UNIT_MAH, 0 ),              	// EAM Batt capacity
-  HS( HOTT_ID_EAM_VV,       STR_SENSOR_HOTT_ID_EAM_VV,      UNIT_METERS_PER_SECOND, 2 ),	// EAM vertical velcocity
-  HS( HOTT_ID_EAM_RPM,      STR_SENSOR_HOTT_ID_EAM_RPM,     UNIT_RPMS, 0 ),              	// EAM rpm  
-  HS( HOTT_ID_EAM_SPEED,    STR_SENSOR_HOTT_ID_EAM_SPEED,   UNIT_KMH,  0 ) ,            	// EAM speed
+  HS( HOTT_ID_EAM_CELS_L,   STR_DEF(STR_SENSOR_HOTT_ID_EAM_CELS_L),  UNIT_CELLS, 2),             	// EAM Cells L voltage
+  HS( HOTT_ID_EAM_CELS_H,   STR_DEF(STR_SENSOR_HOTT_ID_EAM_CELS_H),  UNIT_CELLS, 2),             	// EAM Cells H voltage
+  HS( HOTT_ID_EAM_VLT1,     STR_DEF(STR_SENSOR_HOTT_ID_EAM_VLT1),    UNIT_VOLTS, 1 ),            	// EAM Voltage battery 1
+  HS( HOTT_ID_EAM_VLT2,     STR_DEF(STR_SENSOR_HOTT_ID_EAM_VLT2),    UNIT_VOLTS, 1 ),            	// EAM Voltage battery 2
+  HS( HOTT_ID_EAM_TMP1,     STR_DEF(STR_SENSOR_HOTT_ID_EAM_TMP1),    UNIT_CELSIUS, 0 ),          	// EAM temperature 1
+  HS( HOTT_ID_EAM_TMP2,     STR_DEF(STR_SENSOR_HOTT_ID_EAM_TMP2),    UNIT_CELSIUS, 0 ),          	// EAM temperature 2
+  HS( HOTT_ID_EAM_ALT,      STR_DEF(STR_SENSOR_HOTT_ID_EAM_ALT),     UNIT_METERS, 0 ),           	// EAM altitude
+  HS( HOTT_ID_EAM_CUR,      STR_DEF(STR_SENSOR_HOTT_ID_EAM_CUR),     UNIT_AMPS, 1 ),             	// EAM current  
+  HS( HOTT_ID_EAM_VLT3,     STR_DEF(STR_SENSOR_HOTT_ID_EAM_VLT3),    UNIT_VOLTS, 1 ),            	// EAM battery voltage 3
+  HS( HOTT_ID_EAM_CAP,      STR_DEF(STR_SENSOR_HOTT_ID_EAM_CAP),     UNIT_MAH, 0 ),              	// EAM Batt capacity
+  HS( HOTT_ID_EAM_VV,       STR_DEF(STR_SENSOR_HOTT_ID_EAM_VV),      UNIT_METERS_PER_SECOND, 2 ),	// EAM vertical velcocity
+  HS( HOTT_ID_EAM_RPM,      STR_DEF(STR_SENSOR_HOTT_ID_EAM_RPM),     UNIT_RPMS, 0 ),              	// EAM rpm  
+  HS( HOTT_ID_EAM_SPEED,    STR_DEF(STR_SENSOR_HOTT_ID_EAM_SPEED),   UNIT_KMH,  0 ) ,            	// EAM speed
   
   // sentinel
   HS(0x00,                  NULL,                           UNIT_RAW, 0)                  // sentinel
@@ -931,7 +931,7 @@ void hottSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   if (sensor) {
     TelemetryUnit unit = sensor->unit;
     uint8_t prec = min<uint8_t>(2, sensor->precision);
-    telemetrySensor.init(sensor->name, unit, prec);
+    telemetrySensor.init(STR_VAL(sensor->name), unit, prec);
     if (unit == UNIT_RPMS) {
       telemetrySensor.custom.ratio = 1;
       telemetrySensor.custom.offset = 1;

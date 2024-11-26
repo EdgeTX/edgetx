@@ -65,6 +65,15 @@ class ButtonBase : public FormField
   std::function<void(void)> checkHandler;
 };
 
+class OverlayButton : public ButtonBase
+{
+ public:
+  OverlayButton(Window* parent, std::function<uint8_t(void)> pressHandler = nullptr) :
+      ButtonBase(parent, {0, 0, LV_PCT(100), LV_PCT(100)}, pressHandler, window_create)
+  {
+  }
+};
+
 class Button : public ButtonBase
 {
  public:
@@ -86,13 +95,7 @@ class TextButton : public ButtonBase
   std::string getName() const override { return "TextButton \"" + text + "\""; }
 #endif
 
-  void setText(std::string value)
-  {
-    if (value != text) {
-      text = std::move(value);
-      lv_label_set_text(label, text.c_str());
-    }
-  }
+  void setText(std::string value);
 
   void setFont(FontIndex font)
   {

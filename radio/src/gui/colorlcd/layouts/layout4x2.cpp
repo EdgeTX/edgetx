@@ -25,12 +25,12 @@
 // 4x2 layout: 4 rows, 2 columns
 // Suitable for portrait screens and vertical screen usage
 
-const ZoneOption OPTIONS_LAYOUT_4x2[] = {
+const LayoutOption OPTIONS_LAYOUT_4x2[] = {
     LAYOUT_COMMON_OPTIONS,
-    {"Panel1 background", ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {"  Color", ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
-    {"Panel2 background", ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
-    {"  Color", ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
+    {STR_DEF(STR_PANEL1_BACKGROUND), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
+    {STR_DEF(STR_PANEL_COLOR), ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
+    {STR_DEF(STR_PANEL2_BACKGROUND), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},
+    {STR_DEF(STR_PANEL_COLOR), ZoneOption::Color, RGB2FLAGS(77, 112, 203)},
     LAYOUT_OPTIONS_END};
 
 class Layout4x2 : public Layout

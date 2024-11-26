@@ -29,6 +29,8 @@
 #include "colors.h"
 #include "fonts.h"
 
+class Window;
+
 /*********************
  *      Layout
  *********************/
@@ -180,6 +182,9 @@ void etx_remove_img_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_
 void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                    lv_style_selector_t selector = LV_PART_MAIN);
 
+lv_obj_t* etx_label_create(lv_obj_t* parent, FontIndex fontIdx = FONT_STD_INDEX);
+lv_obj_t* etx_label_create(Window* parent, FontIndex fontIdx);
+
 // Create a style with a single property
 #define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)               \
   const lv_style_t var_name = {.v_p = {.value1 = {.num = value}},       \
@@ -262,6 +267,7 @@ class EdgeTxStyles
 
   void init();
   void applyColors();
+  void setFonts();
 
   static LAYOUT_VAL_SCALED(STD_FONT_HEIGHT, 21)
   static LAYOUT_VAL_SCALED(UI_ELEMENT_HEIGHT, 32)
@@ -274,6 +280,7 @@ class EdgeTxStyles
 };
 
 extern EdgeTxStyles* styles;
+extern void setAllFonts();
 
 #define etx_obj_add_style(obj, style, part) \
   lv_obj_add_style(obj, (lv_style_t*)&(style), part)

@@ -335,12 +335,6 @@
 #define TR_SURFACE_NAMES0              "ST"
 #define TR_SURFACE_NAMES1              "TH"
 
-#define TR_RFPOWER_AFHDS2_1           "По умолч"
-#define TR_RFPOWER_AFHDS2_2           "Высокий"
-
-#define TR_ROTARY_ENCODERS
-#define TR_ROTENC_SWITCHES
-
 #define TR_ON_ONE_SWITCHES_1           "Вкл"
 #define TR_ON_ONE_SWITCHES_2           "Один"
 
@@ -425,7 +419,7 @@
 #define TR_VCELLINDEX_9                "8"
 #define TR_VCELLINDEX_10               "Выс"
 #define TR_VCELLINDEX_11               "Дельта"
-#define TR_SUBTRIMMODES_1              STR_CHAR_DELTA " (Тол цен)"
+#define TR_SUBTRIMMODES_1              CHAR_DELTA " (Тол цен)"
 #define TR_SUBTRIMMODES_2              "= (Симметр)"
 #define TR_TIMER_DIR_1                 TR("Остал", "Остал")
 #define TR_TIMER_DIR_2                 TR("Прошло", "Прошед")
@@ -442,7 +436,6 @@
 #define TR_OK                          TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
 #define TR_EXIT                        TR_BW_COL("ВЫХОД", "ВОЗВР")
 
-#define TR_FREE                        "Свободн"
 #define TR_YES                         "Да"
 #define TR_NO                          "Нет"
 #define TR_DELETEMODEL                 "Удалить модель"
@@ -517,8 +510,6 @@
 #define TR_SIDE                        "Сторона"
 #define TR_OFFSET                       "Смещение"
 #define TR_TRIM                        "Трим"
-#define TR_DREX                        "DRex"
-#define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "Кривая"
 #define TR_FLMODE                      TR("Режим", "Режим")
 #define TR_MIXWARNING                  "Предупр"
@@ -1103,8 +1094,6 @@
 #define TR_SCRIPT                      "Скрипт"
 #define TR_INPUTS                      "Входные"
 #define TR_OUTPUTS                     "Выходные"
-#define STR_EEBACKUP                   "EEPROM Резерв копия"
-#define STR_FACTORYRESET               "Сброс к завод настройкам"
 #define TR_CONFIRMRESET                TR("Удалить все?", "Удалить все?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Много Lua-скриптов!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Режим питания"
@@ -1158,6 +1147,8 @@
 #define TR_COLOR                     "Цвет"
 #define TR_PANEL1_BACKGROUND         "Фон панели 1"
 #define TR_PANEL2_BACKGROUND         "Фон панели 2"
+#define TR_PANEL_BACKGROUND          "Background"
+#define TR_PANEL_COLOR               "  Color"
 #define TR_WIDGET_GAUGE              "Шкала"
 #define TR_WIDGET_MODELBMP           "Информация о модели"
 #define TR_WIDGET_OUTPUTS            "Выходы"
@@ -1222,20 +1213,20 @@
 #define TR_SETUP                       "Настройка"
 #define TR_LAYOUT                      "Макет"
 #define TR_TEXT_COLOR                  "Цвет текста"
-#define TR_MENU_INPUTS                 STR_CHAR_INPUT "Входы"
-#define TR_MENU_LUA                    STR_CHAR_LUA "Скрипты Lua"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "Стики"
-#define TR_MENU_POTS                   STR_CHAR_POT "Потенц"
-#define TR_MENU_MIN                    STR_CHAR_FUNCTION "Мин"
-#define TR_MENU_MAX                    STR_CHAR_FUNCTION "Макс"
-#define TR_MENU_HELI                   STR_CHAR_CYC "Циклич управл"
-#define TR_MENU_TRIMS                  STR_CHAR_TRIM "Триммеры"
-#define TR_MENU_SWITCHES               STR_CHAR_SWITCH "Тумблеры"
-#define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Логич тумблеры"
-#define TR_MENU_TRAINER                STR_CHAR_TRAINER "Тренажер"
-#define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "Каналы"
-#define TR_MENU_GVARS                  STR_CHAR_SLIDER "Глоб перем"
-#define TR_MENU_TELEMETRY              STR_CHAR_TELEMETRY "Телеметрия"
+#define TR_MENU_INPUTS                 CHAR_INPUT "Входы"
+#define TR_MENU_LUA                    CHAR_LUA "Скрипты Lua"
+#define TR_MENU_STICKS                 CHAR_STICK "Стики"
+#define TR_MENU_POTS                   CHAR_POT "Потенц"
+#define TR_MENU_MIN                    CHAR_FUNCTION "Мин"
+#define TR_MENU_MAX                    CHAR_FUNCTION "Макс"
+#define TR_MENU_HELI                   CHAR_CYC "Циклич управл"
+#define TR_MENU_TRIMS                  CHAR_TRIM "Триммеры"
+#define TR_MENU_SWITCHES               CHAR_SWITCH "Тумблеры"
+#define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "Логич тумблеры"
+#define TR_MENU_TRAINER                CHAR_TRAINER "Тренажер"
+#define TR_MENU_CHANNELS               CHAR_CHANNEL "Каналы"
+#define TR_MENU_GVARS                  CHAR_SLIDER "Глоб перем"
+#define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Телеметрия"
 #define TR_MENU_DISPLAY                "ДИСПЛЕЙ"
 #define TR_MENU_OTHER                  "Другое"
 #define TR_MENU_INVERT                 "Инвертир"
@@ -1283,7 +1274,6 @@
 #define TR_CANCEL                       "Отменить"
 #define TR_EDIT_THEME                   "РЕДАК ТЕМУ"
 #define TR_DETAILS                      "Детали"
-#define TR_THEME_EDITOR                 "ТЕМЫ"
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                TR("Англ","Английский")
@@ -1293,6 +1283,7 @@
 #define TR_VOICE_DEUTSCH                TR("Немец","Немецкий")
 #define TR_VOICE_DUTCH                  TR("Голланд","Голландск")
 #define TR_VOICE_ESPANOL                TR("Испанс","Испанский")
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               TR("Францу","Французск")
 #define TR_VOICE_HUNGARIAN              TR("Венгер","Венгерский")
 #define TR_VOICE_ITALIANO               TR("Итальян","Итальянск")

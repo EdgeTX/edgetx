@@ -333,12 +333,6 @@
 #define TR_SURFACE_NAMES0              "Smě"
 #define TR_SURFACE_NAMES1              "Pln"
 
-#define TR_RFPOWER_AFHDS2_1           "Defaultní"
-#define TR_RFPOWER_AFHDS2_2           "Vysoký"
-
-#define TR_ROTARY_ENCODERS
-#define TR_ROTENC_SWITCHES
-
 #define TR_ON_ONE_SWITCHES_1           "ZAP"
 #define TR_ON_ONE_SWITCHES_2           "One"
 
@@ -424,7 +418,7 @@
 #define TR_VCELLINDEX_9                "8"
 #define TR_VCELLINDEX_10               "Nejvíce"
 #define TR_VCELLINDEX_11               "Delta"
-#define TR_SUBTRIMMODES_1              STR_CHAR_DELTA"(pouze středy)"
+#define TR_SUBTRIMMODES_1              CHAR_DELTA"(pouze středy)"
 #define TR_SUBTRIMMODES_2              "= (symetrický)"
 #define TR_TIMER_DIR_1                 TR("Zbývající", "Zobrazit zbývající")
 #define TR_TIMER_DIR_2                 TR("Uplynulý", "Zobrazit uplynulý")
@@ -441,7 +435,6 @@
 #define TR_OK                          TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
 #define TR_EXIT                        TR_BW_COL("EXIT", "RTN")
 
-#define TR_FREE                        TR("volné:", "volných")
 #define TR_YES                         "Ano"
 #define TR_NO                          "Ne"
 #define TR_DELETEMODEL                 "SMAZAT MODEL"
@@ -516,8 +509,6 @@
 #define TR_SIDE                        "Strana"
 #define TR_OFFSET                      "Ofset"
 #define TR_TRIM                        "Trim"
-#define TR_DREX                        "DR/Expo"
-#define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "Křivka"
 #define TR_FLMODE                      "Režim"
 #define TR_MIXWARNING                  "Varování"
@@ -1104,8 +1095,6 @@
 #define TR_SCRIPT                      "Skript"
 #define TR_INPUTS                      "Vstupy"
 #define TR_OUTPUTS                     "Výstupy"
-#define STR_EEBACKUP                   "Záloha EEPROM"
-#define STR_FACTORYRESET               "Tovární reset"
 #define TR_CONFIRMRESET                TR("Smazat vše?", "Smazat modely a nastavení?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Příliš mnoho skriptů!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP výkon"
@@ -1159,6 +1148,8 @@
 #define TR_COLOR                     "Barva"
 #define TR_PANEL1_BACKGROUND         "Panel1 pozadí"
 #define TR_PANEL2_BACKGROUND         "Panel2 pozadí"
+#define TR_PANEL_BACKGROUND          "Background"
+#define TR_PANEL_COLOR               "  Color"
 #define TR_WIDGET_GAUGE              "Měřidlo"
 #define TR_WIDGET_MODELBMP           "Model info"
 #define TR_WIDGET_OUTPUTS            "Výstupy"
@@ -1224,20 +1215,20 @@
 #define TR_LAYOUT                      "Rozložení"
 #define TR_TEXT_COLOR                  "Barva textu"
 
-#define TR_MENU_INPUTS                 STR_CHAR_INPUT "Vstupy"
-#define TR_MENU_LUA                    STR_CHAR_LUA "Lua skripty"
-#define TR_MENU_STICKS                 STR_CHAR_STICK "Osa"
-#define TR_MENU_POTS                   STR_CHAR_POT "Potenciometry"
-#define TR_MENU_MIN                    STR_CHAR_FUNCTION "MIN"
-#define TR_MENU_MAX                    STR_CHAR_FUNCTION "MAX"
-#define TR_MENU_HELI                   STR_CHAR_CYC "Cyklika"
-#define TR_MENU_TRIMS                  STR_CHAR_TRIM "Trimy"
-#define TR_MENU_SWITCHES               STR_CHAR_SWITCH "Spínače"
-#define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Logické spínače"
-#define TR_MENU_TRAINER                STR_CHAR_TRAINER "Trenér"
-#define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "Kanály"
-#define TR_MENU_GVARS                  STR_CHAR_SLIDER "Glob.proměnné"
-#define TR_MENU_TELEMETRY              STR_CHAR_TELEMETRY "Telemetrie"
+#define TR_MENU_INPUTS                 CHAR_INPUT "Vstupy"
+#define TR_MENU_LUA                    CHAR_LUA "Lua skripty"
+#define TR_MENU_STICKS                 CHAR_STICK "Osa"
+#define TR_MENU_POTS                   CHAR_POT "Potenciometry"
+#define TR_MENU_MIN                    CHAR_FUNCTION "MIN"
+#define TR_MENU_MAX                    CHAR_FUNCTION "MAX"
+#define TR_MENU_HELI                   CHAR_CYC "Cyklika"
+#define TR_MENU_TRIMS                  CHAR_TRIM "Trimy"
+#define TR_MENU_SWITCHES               CHAR_SWITCH "Spínače"
+#define TR_MENU_LOGICAL_SWITCHES       CHAR_SWITCH "Logické spínače"
+#define TR_MENU_TRAINER                CHAR_TRAINER "Trenér"
+#define TR_MENU_CHANNELS               CHAR_CHANNEL "Kanály"
+#define TR_MENU_GVARS                  CHAR_SLIDER "Glob.proměnné"
+#define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetrie"
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Ostatní"
 #define TR_MENU_INVERT                 "Invertovat"
@@ -1285,7 +1276,6 @@
 #define TR_CANCEL                       "Zrušit"
 #define TR_EDIT_THEME                   "EDITOVAT MOTIV"
 #define TR_DETAILS                      "Detaily"
-#define TR_THEME_EDITOR                 "Motivy"
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "Angličtina"
@@ -1295,6 +1285,7 @@
 #define TR_VOICE_DEUTSCH                "Němčina"
 #define TR_VOICE_DUTCH                  "Nizozemština"
 #define TR_VOICE_ESPANOL                "Španělština"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "Francouzština"
 #define TR_VOICE_HUNGARIAN              "Maďarština"
 #define TR_VOICE_ITALIANO               "Italština"

@@ -241,7 +241,7 @@ void menuModelLimits(event_t event)
 #if defined(PPM_LIMITS_SYMETRICAL)
         case ITEM_LIMITS_SYMETRICAL:
           lcdDrawSizedText(LCD_W - FW - MENUS_SCROLLBAR_WIDTH, y,
-                           ld->symetrical ? "=" : STR_CHAR_DELTA, 2, attr);
+                           ld->symetrical ? "=" : CHAR_DELTA, 2, attr);
           if (active) {
             CHECK_INCDEC_MODELVAR_ZERO(event, ld->symetrical, 1);
           }

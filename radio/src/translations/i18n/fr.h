@@ -335,12 +335,6 @@
 #define TR_SURFACE_NAMES0              "Dir"
 #define TR_SURFACE_NAMES1              "Gaz"
 
-#define TR_RFPOWER_AFHDS2_1           "Défaut"
-#define TR_RFPOWER_AFHDS2_2           "Haut"
-
-#define TR_ROTARY_ENCODERS
-#define TR_ROTENC_SWITCHES
-
 #define TR_ON_ONE_SWITCHES_1           "ON"
 #define TR_ON_ONE_SWITCHES_2           "Un"
 
@@ -425,7 +419,7 @@
 #define TR_VCELLINDEX_9                "8"
 #define TR_VCELLINDEX_10               "Maxi."
 #define TR_VCELLINDEX_11               "Diff."
-#define TR_SUBTRIMMODES_1              STR_CHAR_DELTA " (centre seulement)"
+#define TR_SUBTRIMMODES_1              CHAR_DELTA " (centre seulement)"
 #define TR_SUBTRIMMODES_2              "= (symétrique)"
 #define TR_TIMER_DIR_1                 TR("Reste", "Voir restant")
 #define TR_TIMER_DIR_2                 TR("Écoulé", "Voir écoulé")
@@ -442,7 +436,6 @@
 #define TR_OK                          TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
 #define TR_EXIT                        TR_BW_COL("EXIT", "QUITTER")
 
-#define TR_FREE                        "disp."
 #define TR_YES                         "Oui"
 #define TR_NO                          "Non"
 #define TR_DELETEMODEL                 "SUPPR. MODÈLE"
@@ -517,8 +510,6 @@
 #define TR_SIDE                        "Coté"
 #define TR_OFFSET                      "Décalage"
 #define TR_TRIM                        "Trim"
-#define TR_DREX                        "DRex"
-#define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "Courbe"
 #define TR_FLMODE                      TR("Phase", "Phases")
 #define TR_MIXWARNING                  "Alerte"
@@ -1104,8 +1095,6 @@
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "Entrées"
 #define TR_OUTPUTS                     "Sorties"
-#define STR_EEBACKUP                   TR("Sauvegarde", "Sauvegarder l'EEPROM")
-#define STR_FACTORYRESET               "RAZ d'usine"
 #define TR_CONFIRMRESET                TR("Effacer TOUT?","Effacer TOUS modèles/réglages?")
 #define TR_TOO_MANY_LUA_SCRIPTS         "Trop de scripts lua!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
@@ -1159,6 +1148,8 @@
 #define TR_COLOR                     "Couleur"
 #define TR_PANEL1_BACKGROUND         "Arrière-plan Ecran1"
 #define TR_PANEL2_BACKGROUND         "Arrière-plan Ecran2"
+#define TR_PANEL_BACKGROUND          "Background"
+#define TR_PANEL_COLOR               "  Color"
 #define TR_WIDGET_GAUGE              "Jauge"
 #define TR_WIDGET_MODELBMP           "Modèle"
 #define TR_WIDGET_OUTPUTS            "Sorties"
@@ -1224,20 +1215,20 @@
 #define TR_LAYOUT                      "Disposition"
 #define TR_TEXT_COLOR                  "Couleur Texte"
 
-#define TR_MENU_INPUTS                  STR_CHAR_INPUT "Entrées"
-#define TR_MENU_LUA                     STR_CHAR_LUA "Scripts Lua"
-#define TR_MENU_STICKS                   STR_CHAR_STICK "Manches"
-#define TR_MENU_POTS                    STR_CHAR_POT "Pots"
-#define TR_MENU_MIN                     STR_CHAR_FUNCTION "MIN"
-#define TR_MENU_MAX                     STR_CHAR_FUNCTION "MAX"
-#define TR_MENU_HELI                    STR_CHAR_CYC "Cyclique"
-#define TR_MENU_TRIMS                    STR_CHAR_TRIM "Trims"
-#define TR_MENU_SWITCHES                STR_CHAR_SWITCH "Inters"
-#define TR_MENU_LOGICAL_SWITCHES        STR_CHAR_SWITCH "Inters logiques"
-#define TR_MENU_TRAINER                 STR_CHAR_TRAINER "Écolage"
-#define TR_MENU_CHANNELS                STR_CHAR_CHANNEL "Canaux"
-#define TR_MENU_GVARS                   STR_CHAR_SLIDER "Var. Glob."
-#define TR_MENU_TELEMETRY               STR_CHAR_TELEMETRY "Télémétrie"
+#define TR_MENU_INPUTS                  CHAR_INPUT "Entrées"
+#define TR_MENU_LUA                     CHAR_LUA "Scripts Lua"
+#define TR_MENU_STICKS                   CHAR_STICK "Manches"
+#define TR_MENU_POTS                    CHAR_POT "Pots"
+#define TR_MENU_MIN                     CHAR_FUNCTION "MIN"
+#define TR_MENU_MAX                     CHAR_FUNCTION "MAX"
+#define TR_MENU_HELI                    CHAR_CYC "Cyclique"
+#define TR_MENU_TRIMS                    CHAR_TRIM "Trims"
+#define TR_MENU_SWITCHES                CHAR_SWITCH "Inters"
+#define TR_MENU_LOGICAL_SWITCHES        CHAR_SWITCH "Inters logiques"
+#define TR_MENU_TRAINER                 CHAR_TRAINER "Écolage"
+#define TR_MENU_CHANNELS                CHAR_CHANNEL "Canaux"
+#define TR_MENU_GVARS                   CHAR_SLIDER "Var. Glob."
+#define TR_MENU_TELEMETRY               CHAR_TELEMETRY "Télémétrie"
 #define TR_MENU_DISPLAY                "AFFICHAGE"
 #define TR_MENU_OTHER                  "Autres"
 #define TR_MENU_INVERT                 "Inverser"
@@ -1290,7 +1281,6 @@
 #define TR_CANCEL                       "Annuler"
 #define TR_EDIT_THEME                   "ÉDITER THÈME"
 #define TR_DETAILS                      "Détails"
-#define TR_THEME_EDITOR                 "THÈMES"
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "English"
@@ -1300,6 +1290,7 @@
 #define TR_VOICE_DEUTSCH                "Deutsch"
 #define TR_VOICE_DUTCH                  "Dutch"
 #define TR_VOICE_ESPANOL                "Espanol"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "Francais"
 #define TR_VOICE_HUNGARIAN              "Hungarian"
 #define TR_VOICE_ITALIANO               "Italiano"

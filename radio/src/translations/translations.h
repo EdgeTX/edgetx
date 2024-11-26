@@ -26,12 +26,81 @@
 #include "translations/untranslated.h"
 #include "translations/tts/tts.h"
 
+#if !defined(ALL_LANGS) || defined(BOOT)
+
 // Static string
 #define STR(x) extern const char STR_##x[];
 // Static string array
 #define STRARRAY(x) extern const char* const STR_##x[];
 
-#include "translations/string_list.h"
+#include "string_list.h"
+#include "string_list_notrans.h"
 
 #undef STR
 #undef STRARRAY
+
+#else
+
+// Static string
+#define STR(x) extern const char STR_##x[];
+// Static string array
+#define STRARRAY(x) extern const char* const STR_##x[];
+
+#include "string_list_notrans.h"
+
+#undef STR
+#undef STRARRAY
+
+// Static string
+#define STR(x) const char* STR_##x;
+// Static string array
+#define STRARRAY(x) const char* const* STR_##x;
+
+struct LangStrings {
+#include "string_list.h"
+};
+
+#undef STR
+#undef STRARRAY
+
+extern const LangStrings cnLangStrings;
+extern const LangStrings czLangStrings;
+extern const LangStrings daLangStrings;
+extern const LangStrings deLangStrings;
+extern const LangStrings enLangStrings;
+extern const LangStrings esLangStrings;
+extern const LangStrings fiLangStrings;
+extern const LangStrings frLangStrings;
+extern const LangStrings heLangStrings;
+extern const LangStrings huLangStrings;
+extern const LangStrings itLangStrings;
+extern const LangStrings koLangStrings;
+extern const LangStrings jpLangStrings;
+extern const LangStrings nlLangStrings;
+extern const LangStrings plLangStrings;
+extern const LangStrings ptLangStrings;
+extern const LangStrings ruLangStrings;
+extern const LangStrings seLangStrings;
+extern const LangStrings twLangStrings;
+extern const LangStrings uaLangStrings;
+
+extern const LangStrings* const langStrings[];
+extern const LangStrings* currentLangStrings;
+
+#include "sim_string_list.h"
+
+#undef STR
+#undef STRARRAY
+
+// Static string
+#define STR(x) extern const char* STR_##x##_FN();
+// Static string array
+#define STRARRAY(x) extern const char* const* STR_##x##_FN();
+
+#include "string_list.h"
+#include "string_list_notrans.h"
+
+#undef STR
+#undef STRARRAY
+
+#endif

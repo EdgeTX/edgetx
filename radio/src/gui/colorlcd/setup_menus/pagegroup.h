@@ -37,8 +37,8 @@ enum PageDefAction {
 
 struct PageDef {
   EdgeTxIcon icon;
-  const char* qmTitle;
-  const char* title;
+  STR_TYP qmTitle;
+  STR_TYP title;
   PageDefAction pageAction;
   QuickMenu::SubMenu subMenu;
   std::function<PageGroupItem*(PageDef& pageDef)> create;
@@ -61,7 +61,7 @@ class PageGroupItem
   {}
 
   PageGroupItem(PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
-      title(std::move(pageDef.title)), icon(pageDef.icon), quickMenuId(pageDef.subMenu),
+      title(STR_VAL(pageDef.title)), icon(pageDef.icon), quickMenuId(pageDef.subMenu),
       padding(padding)
   {}
 
@@ -151,6 +151,9 @@ class PageGroupBase : public NavWindow
 
   bool hasSubMenu(QuickMenu::SubMenu n);
 
+  coord_t getScrollY();
+  void setScrollY(coord_t y);
+
  protected:
   PageGroupHeaderBase* header = nullptr;
   Window* body = nullptr;
@@ -197,6 +200,7 @@ class PageGroup : public PageGroupBase
   bool isPageGroup() override { return true; }
 
   static PageGroup* ScreenMenu();
+  static PageGroup* RadioMenu();
   static PageGroup* ToolsMenu();
   static PageGroup* ModelMenu();
 
