@@ -21,20 +21,11 @@
 
 #pragma once
 
-#include "window.h"
+#include "pagegroup.h"
 
-class ViewMainMenu : public Window
+class RadioMenu : public PageGroup
 {
  public:
-  ViewMainMenu(Window* parent, std::function<void()> closeHandler);
-
-  void onCancel() override;
-  void onClicked() override;
-  void deleteLater(bool detach = true, bool trash = true) override;
-
-  static LAYOUT_ORIENTATION(QM_COLS, 4, 3)
-  static LAYOUT_ORIENTATION(QM_ROWS, 2, 3)
-
- protected:
-  std::function<void()> closeHandler = nullptr;
+  RadioMenu();
+  ~RadioMenu();
 };

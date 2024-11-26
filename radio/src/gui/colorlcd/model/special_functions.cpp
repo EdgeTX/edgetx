@@ -703,9 +703,9 @@ void FunctionEditPage::buildBody(Window *form)
 
 //-----------------------------------------------------------------------------
 
-FunctionsPage::FunctionsPage(CustomFunctionData *functions, const char *title,
-                             const char *prefix, EdgeTxIcon icon) :
-    PageTab(title, icon), functions(functions), title(title), prefix(prefix)
+FunctionsPage::FunctionsPage(CustomFunctionData *functions, PageDef& pageDef,
+                             const char *prefix) :
+    PageTab(pageDef), functions(functions), prefix(prefix)
 {
 }
 
@@ -973,9 +973,8 @@ class SpecialFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-SpecialFunctionsPage::SpecialFunctionsPage() :
-    FunctionsPage(g_model.customFn, STR_MENUCUSTOMFUNC, "SF",
-                  ICON_MODEL_SPECIAL_FUNCTIONS)
+SpecialFunctionsPage::SpecialFunctionsPage(PageDef& pageDef) :
+    FunctionsPage(g_model.customFn, pageDef, "SF")
 {
 }
 
@@ -1054,9 +1053,8 @@ class GlobalFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-GlobalFunctionsPage::GlobalFunctionsPage() :
-    FunctionsPage(g_eeGeneral.customFn, STR_MENUSPECIALFUNCS, "GF",
-                  ICON_RADIO_GLOBAL_FUNCTIONS)
+GlobalFunctionsPage::GlobalFunctionsPage(PageDef& pageDef) :
+    FunctionsPage(g_eeGeneral.customFn, pageDef, "GF")
 {
 }
 
