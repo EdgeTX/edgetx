@@ -225,8 +225,8 @@ class OutputLineButton : public ListLineButton
   }
 };
 
-ModelOutputsPage::ModelOutputsPage() :
-    PageTab(STR_MENULIMITS, ICON_MODEL_OUTPUTS)
+ModelOutputsPage::ModelOutputsPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 
