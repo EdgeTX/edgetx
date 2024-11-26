@@ -22,10 +22,11 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelSetupPage: public PageTab {
  public:
-  ModelSetupPage();
+  ModelSetupPage(PageDef& pageDef);
 
   void build(Window * window) override;
 
