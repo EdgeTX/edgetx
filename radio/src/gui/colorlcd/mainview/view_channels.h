@@ -22,21 +22,18 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
-class ModelMenu;
+class ChannelsViewPage : public PageTab
+{
+ public:
+  explicit ChannelsViewPage(uint8_t pageIndex, PageDef& pageDef) :
+      PageTab(pageDef), pageIndex(pageIndex)
+  {
+  }
 
-class ChannelsViewMenu: public TabsGroup {
-  public:
-    ChannelsViewMenu(ModelMenu* parent = nullptr);
+ protected:
+  uint8_t pageIndex = 0;
 
-  protected:
-    ModelMenu* parentMenu = nullptr;
-
-#if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-#endif
+  void build(Window* window) override;
 };
