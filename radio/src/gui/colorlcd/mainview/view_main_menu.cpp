@@ -65,24 +65,28 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
   // Save focus
   Layer::push(this);
 
-  coord_t w = QuickMenuGroup::FAB_BUTTON_WIDTH * QM_COLS + PAD_LARGE * 2;
-  coord_t h = QuickMenuGroup::FAB_BUTTON_HEIGHT * QM_ROWS + PAD_LARGE * 3;
-
-  bool hasNotes = modelHasNotes();
+  w = QuickMenuGroup::FAB_BUTTON_WIDTH * QM_COLS + PAD_LARGE * 2;
+  h = QuickMenuGroup::FAB_BUTTON_HEIGHT * QM_ROWS + PAD_LARGE * 3;
 
 #if !PORTRAIT_LCD
-  if (hasNotes)
+  if (modelHasNotes())
     w += QuickMenuGroup::FAB_BUTTON_WIDTH;
 #endif
 
-  auto box =
-      new Window(this, {(LCD_W - w) / 2, (LCD_H - h) / 2, w, h},
-                 etx_modal_dialog_create);
+  box = new Window(this, {(LCD_W - w) / 2, (LCD_H - h) / 2, w, h}, etx_modal_dialog_create);
   box->padAll(PAD_MEDIUM);
 
   mainMenu = new QuickMenuGroup(box,
           {0, 0, w - PAD_MEDIUM * 2, QMMAIN_ROWS * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
           true);
+
+  mainMenu->setGroup();
+
+  buildMainMenu();
+}
+
+void ViewMainMenu::buildMainMenu()
+{
   mainMenu->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_MANAGE_MODELS,
                       [=]() -> uint8_t {
                         deleteLater();
@@ -90,7 +94,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
                         return 0;
                       });
 
-  if (hasNotes)
+  if (modelHasNotes())
     mainMenu->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
                         [=]() -> uint8_t {
                           deleteLater();
@@ -111,6 +115,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
                         mainMenu->setDisabled(false);
                         mainMenu->defocus();
                         lv_event_send(modelBtn->getLvObj(), LV_EVENT_FOCUSED, nullptr);
+                        if (!modelSubMenu) buildModelMenu();
                         modelSubMenu->setGroup();
                         modelSubMenu->setFocus();
                         modelSubMenu->setEnabled();
@@ -119,8 +124,8 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
                       });
   modelBtn->setFocusHandler([=](bool focus) {
     if (focus) mainMenu->setCurrent(modelBtn);
-    if (modelSubMenu)
-      modelSubMenu->show(focus);
+    if (!modelSubMenu) buildModelMenu();
+    modelSubMenu->show(focus);
     if (!focus && mainMenu)
       mainMenu->setGroup();
   });
@@ -131,6 +136,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
                         mainMenu->setDisabled(false);
                         mainMenu->defocus();
                         lv_event_send(radioBtn->getLvObj(), LV_EVENT_FOCUSED, nullptr);
+                        if (!radioSubMenu) buildRadioMenu();
                         radioSubMenu->setGroup();
                         radioSubMenu->setFocus();
                         radioSubMenu->setEnabled();
@@ -139,8 +145,8 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
                       });
   radioBtn->setFocusHandler([=](bool focus) {
     if (focus) mainMenu->setCurrent(radioBtn);
-    if (radioSubMenu)
-      radioSubMenu->show(focus);
+    if (!radioSubMenu) buildRadioMenu();
+    radioSubMenu->show(focus);
     if (!focus && mainMenu)
       mainMenu->setGroup();
   });
@@ -176,11 +182,16 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
                         new AboutUs();
                         return 0;
                       });
+}
 
+void ViewMainMenu::buildModelMenu()
+{
   modelSubMenu = new QuickMenuGroup(box,
           {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT * QMMAIN_ROWS) + PAD_MEDIUM, w - PAD_MEDIUM * 2,
            (QM_ROWS - QMMAIN_ROWS) * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
           true);
+  modelSubMenu->hide();
+
   modelSubMenu->addButton(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, [=]() -> uint8_t {
     deleteLater();
     (new ModelMenu())->setCurrentTab(0);
@@ -249,14 +260,18 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
       (new ModelMenu())->setCurrentTab(11);
       return 0;
     });
-  modelSubMenu->hide();
   modelSubMenu->defocus();
   modelSubMenu->setDisabled(true);
+}
 
+void ViewMainMenu::buildRadioMenu()
+{
   radioSubMenu = new QuickMenuGroup(box,
           {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT * QMMAIN_ROWS) + PAD_MEDIUM, w - PAD_MEDIUM * 2,
            (QM_ROWS - QMMAIN_ROWS) * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
           true);
+  radioSubMenu->hide();
+
   radioSubMenu->addButton(ICON_RADIO_TOOLS, STR_MENUTOOLS, [=]() -> uint8_t {
     deleteLater();
     (new RadioMenu())->setCurrentTab(0);
@@ -300,11 +315,8 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
     (new RadioMenu())->setCurrentTab(7);
     return 0;
   });
-  radioSubMenu->hide();
   radioSubMenu->defocus();
   radioSubMenu->setDisabled(true);
-
-  mainMenu->setGroup();
 }
 
 void ViewMainMenu::deleteLater(bool detach, bool trash)
