@@ -52,8 +52,8 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-ModelSetupPage::ModelSetupPage() :
-    PageTab(STR_MENU_MODEL_SETUP, ICON_MODEL_SETUP)
+ModelSetupPage::ModelSetupPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 
