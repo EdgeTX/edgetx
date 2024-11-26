@@ -23,6 +23,9 @@
 
 #include "window.h"
 
+class QuickMenuGroup;
+class ButtonBase;
+
 class ViewMainMenu : public Window
 {
  public:
@@ -32,9 +35,16 @@ class ViewMainMenu : public Window
   void onClicked() override;
   void deleteLater(bool detach = true, bool trash = true) override;
 
-  static LAYOUT_VAL(QM_COLS, 4, 3)
-  static LAYOUT_VAL(QM_ROWS, 2, 3)
+  static LAYOUT_VAL(QM_COLS, 8, 5)
+  static LAYOUT_VAL(QM_ROWS, 3, 5)
+  static LAYOUT_VAL(QMMAIN_ROWS, 1, 2)
 
  protected:
   std::function<void()> closeHandler = nullptr;
+  bool inSubMenu = false;
+  QuickMenuGroup* mainMenu = nullptr;
+  QuickMenuGroup* modelSubMenu = nullptr;
+  QuickMenuGroup* radioSubMenu = nullptr;
+  ButtonBase* modelBtn = nullptr;
+  ButtonBase* radioBtn = nullptr;
 };
