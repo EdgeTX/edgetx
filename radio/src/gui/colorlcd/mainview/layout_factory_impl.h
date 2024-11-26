@@ -33,18 +33,18 @@
 #include <memory>
 
 #define LAYOUT_COMMON_OPTIONS                                       \
-  {STR_TOP_BAR, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},         \
-  {STR_FLIGHT_MODE, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},     \
-  {STR_SLIDERS, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},         \
-  {STR_TRIMS, ZoneOption::Bool, OPTION_VALUE_BOOL(true)},           \
-  {STR_MIRROR, ZoneOption::Bool, OPTION_VALUE_BOOL(false)}
+  {STR_DEF(STR_TOP_BAR), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},         \
+  {STR_DEF(STR_FLIGHT_MODE), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},     \
+  {STR_DEF(STR_SLIDERS), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},         \
+  {STR_DEF(STR_TRIMS), ZoneOption::Bool, OPTION_VALUE_BOOL(true)},           \
+  {STR_DEF(STR_MIRROR), ZoneOption::Bool, OPTION_VALUE_BOOL(false)}
 
 #define LAYOUT_OPTIONS_END \
   { nullptr, ZoneOption::Bool }
 
 typedef WidgetsContainerImpl<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS> LayoutBase;
 
-extern const ZoneOption defaultZoneOptions[];
+extern const LayoutOption defaultZoneOptions[];
 
 #define LAYOUT_MAP_DIV      60
 #define LAYOUT_MAP_0        0
@@ -132,7 +132,7 @@ class BaseLayoutFactory: public LayoutFactory
 {
   public:
     BaseLayoutFactory(const char * id, const char * name,
-                      const ZoneOption * options, uint8_t zoneCount, uint8_t* zoneMap):
+                      const LayoutOption * options, uint8_t zoneCount, uint8_t* zoneMap):
       LayoutFactory(id, name),
       options(options),
       zoneCount(zoneCount),
@@ -179,7 +179,7 @@ class BaseLayoutFactory: public LayoutFactory
 
     const MaskBitmap* getBitmap() const override { return bitmap; }
 
-    const ZoneOption * getLayoutOptions() const override
+    const LayoutOption * getLayoutOptions() const override
     {
       return options;
     }
@@ -212,9 +212,9 @@ class BaseLayoutFactory: public LayoutFactory
       }
       if (options) {
         int i = 0;
-        for (const ZoneOption* option = options; option->name; option++, i++) {
+        for (const LayoutOption* option = options; option->name; option++, i++) {
           TRACE("LayoutFactory::initPersistentData() setting option '%s'",
-                option->name);
+                STR_VAL(option->name));
           // TODO compiler bug? The CPU freezes ... persistentData->options[i++]
           // = option->deflt;
           auto optVal = &persistentData->options[i];
@@ -228,7 +228,7 @@ class BaseLayoutFactory: public LayoutFactory
 
   protected:
     MaskBitmap * bitmap = nullptr;
-    const ZoneOption * options;
+    const LayoutOption * options;
     uint8_t zoneCount;
     uint8_t* zoneMap;
 };

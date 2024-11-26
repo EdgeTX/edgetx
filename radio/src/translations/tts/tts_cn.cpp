@@ -33,7 +33,6 @@ enum ChinesePrompts {
   CN_PROMPT_POINT_BASE = 167, //.0 - .9
 };
 
-
 #define CN_PUSH_UNIT_PROMPT(u, p) cn_pushUnitPrompt((u), (p), id, fragmentVolume)
 
 I18N_PLAY_FUNCTION(cn, pushUnitPrompt, uint8_t unitprompt, int16_t number)
@@ -50,7 +49,6 @@ I18N_PLAY_FUNCTION(cn, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     PUSH_NUMBER_PROMPT(CN_PROMPT_MINUS);
     number = -number;
   }
-
 
   int8_t mode = MODE(att);
   if (mode > 0) {
@@ -130,4 +128,3 @@ I18N_PLAY_FUNCTION(cn, playDuration, int seconds PLAY_DURATION_ATT)
 }
 
 LANGUAGE_PACK_DECLARE(cn, STR_VOICE_CHINESE);
-

@@ -144,7 +144,7 @@ void ViewTextWindow::buildBody(Window* window)
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
     auto g = lv_group_get_default();
-    lb = lv_label_create(obj);
+    lb = etx_label_create(obj);
     lv_obj_set_size(lb, lv_pct(100), LV_SIZE_CONTENT);
     etx_obj_add_style(lb, styles->pad_medium, LV_PART_MAIN);
 
@@ -185,12 +185,12 @@ FRESULT ViewTextWindow::sdReadTextFileBlock(const uint32_t bufSize,
             escape_chars[escape - 1] = c;
 
             if (escape == 2 && !strncmp(escape_chars, "up", 2)) {
-              *ptr++ = STR_CHAR_UP[0];
-              c = STR_CHAR_UP[1];
+              *ptr++ = CHAR_UP[0];
+              c = CHAR_UP[1];
               escape = 0;
             } else if (escape == 2 && !strncmp(escape_chars, "dn", 2)) {
-              *ptr++ = STR_CHAR_DOWN[0];
-              c = STR_CHAR_DOWN[1];
+              *ptr++ = CHAR_DOWN[0];
+              c = CHAR_DOWN[1];
               escape = 0;
             } else if (escape == 3) {
               int val = atoi(escape_chars);
@@ -388,7 +388,7 @@ class ViewChecklistWindow : public ViewTextWindow
             checkBoxes.push_back(cb);
           }
 
-          auto lbl = lv_label_create(row);
+          auto lbl = etx_label_create(row);
           lv_obj_set_width(lbl, w);
           lv_label_set_long_mode(lbl, LV_LABEL_LONG_WRAP);
           lv_label_set_text_static(lbl, &buffer[cur]);

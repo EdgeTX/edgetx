@@ -173,7 +173,7 @@ void menuModelLimitsOne(event_t event)
       case ITEM_OUTPUTONE_SYMETRICAL:
         lcdDrawTextAlignedLeft(y, STR_LIMITS_HEADERS_SUBTRIMMODE);
         lcdDrawSizedText(LIMITS_ONE_2ND_COLUMN, y,
-                         ld->symetrical ? "=" : STR_CHAR_DELTA, 2, attr);
+                         ld->symetrical ? "=" : CHAR_DELTA, 2, attr);
         if (active) {
           CHECK_INCDEC_MODELVAR_ZERO(event, ld->symetrical, 1);
         }
@@ -319,7 +319,7 @@ void menuModelLimits(event_t event)
           break;
 
         case ITEM_OUTPUTS_SYMETRICAL:
-          lcdDrawSizedText(LCD_W-FW, y, ld->symetrical ? "=" : STR_CHAR_DELTA, 2, 0);
+          lcdDrawSizedText(LCD_W-FW, y, ld->symetrical ? "=" : CHAR_DELTA, 2, 0);
           break;
       }
     }

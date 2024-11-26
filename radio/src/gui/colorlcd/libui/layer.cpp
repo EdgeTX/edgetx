@@ -94,3 +94,11 @@ Window* Layer::walk(std::function<bool(Window* w)> check)
 
   return nullptr;
 }
+
+Window* Layer::getPageGroup()
+{
+  Window* w = Layer::walk([=](Window *w) mutable -> bool {
+    return w->isPageGroup();
+  });
+  return w;
+}

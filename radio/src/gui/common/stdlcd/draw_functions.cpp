@@ -287,7 +287,7 @@ void drawGVarName(coord_t x, coord_t y, int8_t idx, LcdFlags flags)
 void editStickHardwareSettings(coord_t x, coord_t y, int idx, event_t event,
                                LcdFlags flags, uint8_t old_editMode)
 {
-  lcdDrawTextIndented(y, STR_CHAR_STICK);
+  lcdDrawTextIndented(y, CHAR_STICK);
   lcdDrawText(lcdNextPos, y, analogGetCanonicalName(ADC_INPUT_MAIN, idx), 0);
 
   if (analogHasCustomLabel(ADC_INPUT_MAIN, idx) || (flags && s_editMode > 0))
@@ -600,7 +600,7 @@ void drawSource(coord_t x, coord_t y, mixsrc_t idx, LcdFlags att)
     const char* s = getSourceString(idx);
 #if LCD_W < 212
     if (idx >= MIXSRC_FIRST_TELEM && idx <= MIXSRC_LAST_TELEM)
-      s += strlen(STR_CHAR_TELEMETRY);
+      s += strlen(CHAR_TELEMETRY);
 #endif
     lcdDrawText(x, y, s, att);
   }

@@ -65,9 +65,92 @@
 const char CHR_HOUR = TR_CHR_HOUR;
 const char CHR_INPUT = TR_CHR_INPUT;
 
+#if !defined(ALL_LANGS) || defined(BOOT)
+
 // Static string
 #define STR(x) const char STR_##x[] = TR_##x;
 // Static string array
 #define STRARRAY(x) const char* const STR_##x[] = { TR_##x };
 
-#include "translations/string_list.h"
+#include "string_list.h"
+#include "string_list_notrans.h"
+
+#undef STR
+#undef STRARRAY
+
+#else
+
+// Order must match languagePack[]
+#if defined(COLORLCD)
+const LangStrings* const langStrings[] = {
+  &cnLangStrings,
+  &czLangStrings,
+  &daLangStrings,
+  &deLangStrings,
+  &enLangStrings,
+  &esLangStrings,
+  &fiLangStrings,
+  &frLangStrings,
+  &heLangStrings,
+  &enLangStrings,
+  &itLangStrings,
+  &jpLangStrings,
+  &koLangStrings,
+  &nlLangStrings,
+  &plLangStrings,
+  &ptLangStrings,
+  &ruLangStrings,
+  &seLangStrings,
+  &enLangStrings,
+  &twLangStrings,
+  &uaLangStrings,
+};
+#else
+const LangStrings* const langStrings[] = {
+  &enLangStrings,
+  &czLangStrings,
+  &daLangStrings,
+  &deLangStrings,
+  &enLangStrings,
+  &esLangStrings,
+  &fiLangStrings,
+  &frLangStrings,
+  &enLangStrings,
+  &enLangStrings,
+  &itLangStrings,
+  &enLangStrings,
+  &enLangStrings,
+  &enLangStrings,
+  &plLangStrings,
+  &ptLangStrings,
+  &ruLangStrings,
+  &seLangStrings,
+  &enLangStrings,
+  &enLangStrings,
+  &uaLangStrings,
+};
+#endif
+const LangStrings* currentLangStrings = &enLangStrings;
+
+// Static string
+#define STR(x) const char STR_##x[] = TR_##x;
+// Static string array
+#define STRARRAY(x) const char* const STR_##x[] = { TR_##x };
+
+#include "string_list_notrans.h"
+
+#undef STR
+#undef STRARRAY
+
+// Static string
+#define STR(x) const char* STR_##x##_FN() { return STR_##x; }
+// Static string array
+#define STRARRAY(x) const char* const* STR_##x##_FN() { return STR_##x; }
+
+#include "string_list.h"
+#include "string_list_notrans.h"
+
+#undef STR
+#undef STRARRAY
+
+#endif
