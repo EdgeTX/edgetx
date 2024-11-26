@@ -47,4 +47,11 @@ class ViewMainMenu : public Window
   QuickMenuGroup* radioSubMenu = nullptr;
   ButtonBase* modelBtn = nullptr;
   ButtonBase* radioBtn = nullptr;
+  bool loaded = false;
+  coord_t w, h;
+  Window* box = nullptr;
+
+  void buildMainMenu();
+  void buildModelMenu();
+  void buildRadioMenu();
 };
