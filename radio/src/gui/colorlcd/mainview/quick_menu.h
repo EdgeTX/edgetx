@@ -24,23 +24,38 @@
 #include "form.h"
 #include "bitmaps.h"
 
-class SelectFabCarousel : public Window
+class ButtonBase;
+
+class QuickMenuGroup : public Window
 {
  public:
-  explicit SelectFabCarousel(Window* parent);
+  QuickMenuGroup(Window* parent, const rect_t &rect, bool createGroup);
 
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "SelectFabCarousel"; }
+  std::string getName() const override { return "QuickMenuGroup"; }
 #endif
 
   // Add a new button to the carousel
-  void addButton(EdgeTxIcon icon, const char* title,
+  ButtonBase* addButton(EdgeTxIcon icon, const char* title,
                  std::function<uint8_t(void)> pressHandler);
 
-  static LAYOUT_VAL(FAB_BUTTON_WIDTH, 80, 80)
-  static LAYOUT_VAL(FAB_BUTTON_HEIGHT, 114, 114)
+  void defocus();
+  void setGroup();
+  void setFocus();
+  void setDisabled(bool all);
+  void setEnabled();
+  void setCurrent(ButtonBase* b) { curBtn = b; }
 
-  static LAYOUT_VAL(FAB_ICON_SIZE, 52, 52)
-  static LAYOUT_VAL(FAB_TXT_YO, 48, 48)
-  static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH - PAD_MEDIUM;
+  static LAYOUT_VAL(FAB_BUTTON_WIDTH, 50, 50)
+  static LAYOUT_VAL(FAB_BUTTON_HEIGHT, 74, 74)
+
+  static LAYOUT_VAL(FAB_ICON_SIZE, 38, 38)
+  static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH;
+
+ protected:
+  std::vector<ButtonBase*> btns;
+  ButtonBase* curBtn = nullptr;
+  lv_group_t* group = nullptr;
+
+  void deleteLater(bool detach = true, bool trash = true) override;
 };
