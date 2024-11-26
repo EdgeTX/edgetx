@@ -23,6 +23,7 @@
 
 #include "form.h"
 #include "bitmaps.h"
+#include <vector>
 
 class ButtonBase;
 
