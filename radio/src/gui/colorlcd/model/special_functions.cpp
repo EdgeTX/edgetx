@@ -90,19 +90,19 @@ void FunctionLineButton::delayedInit()
 {
   lv_obj_enable_style_refresh(false);
 
-  sfName = lv_label_create(lvobj);
+  sfName = etx_label_create(lvobj);
   lv_obj_set_pos(sfName, NM_X, NM_Y);
   lv_obj_set_size(sfName, NM_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-  sfSwitch = lv_label_create(lvobj);
+  sfSwitch = etx_label_create(lvobj);
   lv_obj_set_pos(sfSwitch, SW_X, SW_Y);
   lv_obj_set_size(sfSwitch, SW_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-  sfFunc = lv_label_create(lvobj);
+  sfFunc = etx_label_create(lvobj);
   lv_obj_set_pos(sfFunc, FN_X, FN_Y);
   lv_obj_set_size(sfFunc, FN_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-  sfRepeat = lv_label_create(lvobj);
+  sfRepeat = etx_label_create(lvobj);
   lv_obj_set_pos(sfRepeat, RP_X, RP_Y);
   lv_obj_set_size(sfRepeat, RP_W, EdgeTxStyles::STD_FONT_HEIGHT);
 

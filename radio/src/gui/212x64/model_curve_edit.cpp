@@ -50,7 +50,7 @@ void runPopupCurvePreset(event_t event)
   }
 
   lcdDrawNumber(WARNING_LINE_X+FW*7, WARNING_LINE_Y, 45 * reusableBuffer.curveEdit.preset / 4, LEFT|INVERS);
-  lcdDrawChar(lcdLastRightPos, WARNING_LINE_Y, STR_CHAR_BW_DEGREE, INVERS);
+  lcdDrawChar(lcdLastRightPos, WARNING_LINE_Y, CHAR_BW_DEGREE, INVERS);
 
   if (warningResult) {
     warningResult = 0;

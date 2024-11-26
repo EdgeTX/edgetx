@@ -184,21 +184,19 @@ MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
   coord_t x = MULTIPOS_W_SPACING / 4 + MainViewSlider::SLIDER_BAR_SIZE / 4;
   for (uint8_t value = 0; value < XPOTS_MULTIPOS_COUNT; value++) {
     num[0] = value + '1';
-    auto p = lv_label_create(lvobj);
+    auto p = etx_label_create(lvobj, FONT_XS_INDEX);
     lv_label_set_text(p, num);
     lv_obj_set_size(p, MULTIPOS_SZ, MULTIPOS_SZ);
     lv_obj_set_pos(p, x, 0);
     etx_txt_color(p, COLOR_THEME_SECONDARY1_INDEX, LV_PART_MAIN);
-    etx_font(p, FONT_XS_INDEX, LV_PART_MAIN);
     x += MULTIPOS_W_SPACING;
   }
 
   posIcon = new SliderIcon(this);
-  posVal = lv_label_create(posIcon->getLvObj());
+  posVal = etx_label_create(posIcon->getLvObj(), FONT_BOLD_INDEX);
   lv_obj_set_pos(posVal, PAD_THREE, -PAD_TINY);
   lv_obj_set_size(posVal, MULTIPOS_SZ, MULTIPOS_SZ);
   etx_txt_color(posVal, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
-  etx_font(posVal, FONT_BOLD_INDEX, LV_PART_MAIN);
 
   checkEvents();
 }
