@@ -21,13 +21,14 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelFlightModesPage : public PageTab
 {
  public:
-  ModelFlightModesPage();
+  ModelFlightModesPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelFMEnabled(); }
 

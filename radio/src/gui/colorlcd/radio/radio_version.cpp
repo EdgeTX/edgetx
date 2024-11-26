@@ -333,8 +333,8 @@ class VersionDialog : public BaseDialog
 #endif
 };
 
-RadioVersionPage::RadioVersionPage() :
-    PageTab(STR_MENUVERSION, ICON_RADIO_VERSION)
+RadioVersionPage::RadioVersionPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 
