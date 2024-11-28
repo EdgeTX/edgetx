@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "simulateduiwidgetGeneric.h"
+#include "simulateduiwidget.h"
 
 SimulatedUIWidgetMT12::SimulatedUIWidgetMT12(SimulatorInterface *simulator, QWidget * parent):
   SimulatedUIWidgetGeneric(simulator, parent)
