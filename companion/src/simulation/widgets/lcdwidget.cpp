@@ -33,6 +33,10 @@ void LcdWidget::setData(int width, int height, int depth)
 
   localBuf = (unsigned char *)malloc(lcdSize);
   memset(localBuf, 0, lcdSize);
+
+  setMinimumSize(width * 2, height * 2);
+  setMaximumSize(width * 2, height * 2);
+  setFixedSize(width * 2, height * 2);
 }
 
 void LcdWidget::setBgDefaultColor(const QColor &color)
