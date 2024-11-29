@@ -1651,6 +1651,16 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
       generalSettings.bluetoothMode)
     return false;
 
+  if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
+      !Boards::getCapability(board, Board::HasTrainerModuleSBUS))
+    return false;
+
+  if ((value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) &&
+      (Boards::getCapability(board, Board::HasTrainerModuleCPPM) ||
+       Boards::getCapability(board, Board::HasTrainerModuleSBUS)) &&
+      moduleData[1].protocol != PULSES_OFF)
+    return false;
+
   if (value == TRAINER_MODE_MASTER_SERIAL &&
       (generalSettings.serialPort[GeneralSettings::SP_AUX1] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER &&
        generalSettings.serialPort[GeneralSettings::SP_AUX2] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER))
@@ -1667,16 +1677,6 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
 
   if (value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE &&
       !Boards::getCapability(board, Board::HasTrainerModuleCPPM))
-    return false;
-
-  if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
-      !Boards::getCapability(board, Board::HasTrainerModuleSBUS))
-    return false;
-
-  if ((value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) &&
-      (Boards::getCapability(board, Board::HasTrainerModuleCPPM) ||
-       Boards::getCapability(board, Board::HasTrainerModuleSBUS)) &&
-      moduleData[1].protocol != PULSES_OFF)
     return false;
 
   if (value == TRAINER_MODE_MULTI &&
