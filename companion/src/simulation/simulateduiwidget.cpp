@@ -336,14 +336,14 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
   }
 
   QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
-  gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
+  //gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
   gridLeft->addLayout(leftButtonsGrid, 0, 1);
   //gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
 
   QGridLayout * gridRight = new QGridLayout((QWidget *)rightButtons);
   //gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
   gridRight->addLayout(rightButtonsGrid, 0, 1);
-  gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
+  //gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
 }
 
 void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,

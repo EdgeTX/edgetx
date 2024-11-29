@@ -53,13 +53,11 @@ set(${PROJECT_NAME}_SRCS
   simulateduiwidgetJumperTPROS.cpp
   simulateduiwidgetJumperBumblebee.cpp
   simulateduiwidgetLR3PRO.cpp
-  simulateduiwidgetMT12.cpp
   simulateduiwidgetNV14.cpp
   simulateduiwidgetPL18.cpp
   simulateduiwidgetPocket.cpp
   simulateduiwidgetT8.cpp
   simulateduiwidgetTX12.cpp
-  simulateduiwidgetTX16S.cpp
   simulateduiwidgetV16.cpp
   simulateduiwidgetX10.cpp
   simulateduiwidgetX12.cpp
