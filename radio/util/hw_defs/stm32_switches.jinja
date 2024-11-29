@@ -59,9 +59,11 @@ static inline void _init_switches()
   pinInit.Mode = LL_GPIO_MODE_INPUT;
   pinInit.Pull = LL_GPIO_PULL_UP;
 {% for sw_gpio, pins in switch_gpios.items() | sort %}
+  {% if sw_gpio %}
   stm32_gpio_enable_clock({{ sw_gpio }});
   pinInit.Pin = {{ pins | join('|') }};
   LL_GPIO_Init({{ sw_gpio }}, &pinInit);
+  {% endif %}
 {% endfor %}
 }
 
