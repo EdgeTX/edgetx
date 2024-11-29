@@ -149,6 +149,7 @@ if [[ $INSTALL_PACKAGES -eq 1 ]]; then
   ${MINGW_PACKAGE_PREFIX}-openssl \
   ${MINGW_PACKAGE_PREFIX}-wget \
   ${MINGW_PACKAGE_PREFIX}-python-psutil \
+  ${MINGW_PACKAGE_PREFIX}-python-pyelftools \
   ${MINGW_PACKAGE_PREFIX}-jq
 
   end_step $? "pacman -S --noconfirm <packages>"
