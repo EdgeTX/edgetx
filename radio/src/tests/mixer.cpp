@@ -660,6 +660,8 @@ TEST_F(MixerTest, RecursiveAddChannel)
 
 TEST_F(MixerTest, RecursiveAddChannelAfterInactivePhase)
 {
+  if (switchGetMaxSwitches() < 4) return;
+  
   g_model.flightModeData[1].swtch = SWSRC_FIRST_SWITCH + 1;
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
