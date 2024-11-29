@@ -62,6 +62,12 @@
   #define TRIMS_GPIO_REG_LVU
   #define TRIMS_GPIO_PIN_LVU
 
+  // Switches
+  #define SWITCHES_GPIO_REG_A
+  #define SWITCHES_GPIO_PIN_A
+  #define SWITCHES_GPIO_REG_B
+  #define SWITCHES_GPIO_PIN_B
+  
   // Keys
   #define KEYS_GPIO_PIN_ENTER
   #define KEYS_GPIO_REG_ENTER
