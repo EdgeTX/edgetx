@@ -32,18 +32,14 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   ui(new Ui::SimulatedUIWidgetGeneric)
 {
   ui->setupUi(this);
-
-  addGenericPushButtons(ui->leftbuttons, ui->rightbuttons);
-
-  addScrollActions();
-
   setLcd(ui->lcd);
-
+  setMinimumHeight(ui->lcd->height() + 10);
+  setMaximumHeight(ui->lcd->height() + 10);
+  addGenericPushButtons(ui->leftbuttons, ui->rightbuttons);
+  addScrollActions();
   m_backlightColors << QColor(47, 123, 227);
 
-  QString css = "#radioUiWidget {"
-                "background-color: rgb(0, 0, 0);"
-                "}";
+  QString css = "#radioUiWidget { background-color: rgb(0, 0, 0); }";
 
   QTimer * tim = new QTimer(this);
   tim->setSingleShot(true);
