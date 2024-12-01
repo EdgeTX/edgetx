@@ -202,7 +202,7 @@ QString ModelPrinter::printModule(int idx)
   else {
     str << printLabelValue(tr("Protocol"), ModuleData::protocolToString(module.protocol));
     if (module.protocol) {
-      if (module.protocol == PULSES_PPM)
+      if (module.protocol == PULSES_PPM|| module.protocol == PULSES_SBUS)
         str << printLabelValue(tr("Sub Type"), module.subTypeToString());
       str << printLabelValue(tr("Channels"), QString("%1-%2").arg(module.channelsStart + 1).arg(module.channelsStart + module.channelsCount));
       if (module.protocol == PULSES_PPM || module.protocol == PULSES_SBUS) {

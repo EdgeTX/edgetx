@@ -258,7 +258,13 @@ QString ModuleData::subTypeToString(int type) const
 
   static const QString ppmSubTypeStrings[PPM_NUM_SUBTYPES] = {
     tr("No Telemetry"),
-    tr("MLink")
+    tr("MLink"),
+    tr("SPort")
+  };
+
+  static const QString sbusSubTypeStrings[SBUS_NUM_SUBTYPES] = {
+    tr("No Telemetry"),
+    tr("SPort")
   };
 
   if (type < 0)
@@ -269,6 +275,8 @@ QString ModuleData::subTypeToString(int type) const
       return Multiprotocols::subTypeToString((int)multi.rfProtocol, (unsigned)type);
     case PULSES_PPM:
       return CHECK_IN_ARRAY(ppmSubTypeStrings, type);
+    case PULSES_SBUS:
+      return CHECK_IN_ARRAY(sbusSubTypeStrings, type);
     case PULSES_PXX_R9M:
       return CHECK_IN_ARRAY(strings, type);
     default:
