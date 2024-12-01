@@ -127,6 +127,11 @@ enum ModuleSubtypePPM {
   PPM_PROTO_TLM_SPORT
 };
 
+enum ModuleSubtypeSBUS {
+  SBUS_PROTO_TLM_NONE,
+  SBUS_PROTO_TLM_SPORT
+};
+
 enum ModuleSubtypeDSM2 {
   DSM2_PROTO_LP45,
   DSM2_PROTO_DSM2,
