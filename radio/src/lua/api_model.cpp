@@ -1701,8 +1701,6 @@ static int luaModelSetGlobalVariableDetails(lua_State *L)
   }
   return 0;
 }
-
-
 #endif
 
 /*luadoc
