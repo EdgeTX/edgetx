@@ -635,7 +635,7 @@ class ModuleSubTypeChoice : public Choice
 #if defined(PPM)
     else if (isModulePPM(moduleIdx)) {
       setMin(PPM_PROTO_TLM_NONE);
-      setMax(PPM_PROTO_TLM_MLINK);
+      setMax(PPM_PROTO_TLM_SPORT);
       setValues(STR_PPM_PROTOCOLS);
       setTextHandler(nullptr);
     }

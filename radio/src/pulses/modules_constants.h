@@ -123,7 +123,8 @@ enum MMDSM2Subtypes {
 
 enum ModuleSubtypePPM {
   PPM_PROTO_TLM_NONE,
-  PPM_PROTO_TLM_MLINK
+  PPM_PROTO_TLM_MLINK,
+  PPM_PROTO_TLM_SPORT
 };
 
 enum ModuleSubtypeDSM2 {

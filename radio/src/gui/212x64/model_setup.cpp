@@ -1149,7 +1149,7 @@ void menuModelSetup(event_t event)
                 else if (isModulePPM(EXTERNAL_MODULE)) {
                   CHECK_INCDEC_MODELVAR(
                       event, g_model.moduleData[EXTERNAL_MODULE].subType,
-                      PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
+                      PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_SPORT);
                 }
 #endif
 #if defined(MULTIMODULE)

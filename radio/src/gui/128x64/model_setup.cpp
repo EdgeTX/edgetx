@@ -1334,7 +1334,7 @@ void menuModelSetup(event_t event)
                 } else if (isModulePPM(moduleIdx)) {
                   CHECK_INCDEC_MODELVAR(event,
                                         g_model.moduleData[moduleIdx].subType,
-                                        PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
+                                        PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_SPORT);
 #endif
                 } else if (isModuleR9MNonAccess(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType =
