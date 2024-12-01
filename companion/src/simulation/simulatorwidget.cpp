@@ -181,6 +181,7 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
 
   connect(radioUiWidget, &SimulatedUIWidget::controlValueChange, this, &SimulatorWidget::onRadioWidgetValueChange);
   connect(radioUiWidget, &SimulatedUIWidget::customStyleRequest, this, &SimulatorWidget::setUiAreaStyle);
+  connect(radioUiWidget, &SimulatedUIWidget::resizeRequest, radioUiWidget, &SimulatedUIWidget::shrink);
 
   vJoyLeft = new VirtualJoystickWidget(this, 'L');
   ui->leftStickLayout->addWidget(vJoyLeft);

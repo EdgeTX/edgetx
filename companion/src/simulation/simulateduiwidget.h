@@ -114,11 +114,14 @@ class SimulatedUIWidget : public QWidget
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 
+    virtual void shrink() { };
+
   signals:
 
     void controlValueChange(RadioWidget::RadioWidgetType type, int index, int value);
     void customStyleRequest(const QString & style);
     void simulatorWheelEvent(qint8 steps);
+    void resizeRequest();
 
   protected slots:
 
@@ -200,9 +203,11 @@ class SimulatedUIWidgetGeneric: public SimulatedUIWidget
     explicit SimulatedUIWidgetGeneric(SimulatorInterface * simulator, QWidget * parent = nullptr);
     virtual ~SimulatedUIWidgetGeneric();
 
+  public slots:
+    virtual void shrink();
+
   private:
     Ui::SimulatedUIWidgetGeneric * ui;
-
 };
 
 class SimulatedUIWidget9X: public SimulatedUIWidget

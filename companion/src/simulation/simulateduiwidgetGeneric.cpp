@@ -21,6 +21,7 @@
 
 #include "simulateduiwidget.h"
 #include "ui_simulateduiwidgetGeneric.h"
+#include "eeprominterface.h"
 
 /*
     Note: This class is not expected to be instantiated directly but as the base for each firmware that uses it
@@ -33,10 +34,39 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
 {
   ui->setupUi(this);
   setLcd(ui->lcd);
-  setMinimumHeight(ui->lcd->height() + 10);
-  setMaximumHeight(ui->lcd->height() + 10);
+
+  Board::Type board = getCurrentBoard();
+  auto lcdDepth = Boards::getCapability(board, Board::LcdDepth);
+  auto lcdWidth = Boards::getCapability(board, Board::LcdWidth) * (lcdDepth < 12 ? 2 : 1);
+  auto lcdHeight = Boards::getCapability(board, Board::LcdHeight) * (lcdDepth < 12 ? 2 : 1);
+
+  ui->lcd->setMaximumSize(lcdWidth, lcdHeight);
+  ui->lcd->setMinimumSize(lcdWidth, lcdHeight);
+  ui->lcd->setFixedSize(lcdWidth, lcdHeight);
+
   addGenericPushButtons(ui->leftbuttons, ui->rightbuttons);
   addScrollActions();
+
+  int widgetHeight = lcdHeight;
+
+  if (ui->leftbuttons->height() > widgetHeight)
+    widgetHeight = ui->leftbuttons->height();
+
+  if (ui->rightbuttons->height() > widgetHeight)
+    widgetHeight = ui->rightbuttons->height();
+
+  int widgetWidth = lcdWidth + ui->leftbuttons->width() + ui->rightbuttons->width();
+
+  setMaximumSize(widgetWidth, 50 + widgetHeight);
+  setMinimumSize(maximumSize());
+
+  QTimer * t1 = new QTimer(this);
+  t1->setSingleShot(true);
+  connect(t1, &QTimer::timeout, [this]() {
+      emit resizeRequest();
+  });
+  t1->start(100);
+
   m_backlightColors << QColor(47, 123, 227);
 
   QString css = "#radioUiWidget { background-color: rgb(0, 0, 0); }";
@@ -52,4 +82,13 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
 SimulatedUIWidgetGeneric::~SimulatedUIWidgetGeneric()
 {
   delete ui;
+}
+
+void SimulatedUIWidgetGeneric::shrink()
+{
+  adjustSize();
+  //resize(0, 0);
+
+  ui->lcd->adjustSize();
+  ui->lcd->resize(0, 0);
 }
