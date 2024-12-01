@@ -855,7 +855,7 @@ void processDSMBindPacket(uint8_t module, const uint8_t *packet)
     g_model.moduleData[module].channelsCount = channels - 8;
 
     TRACE("[SPK] DSMP bind packet: 0x%X / %i",
-          packet[0] & 0x3F, packet[2]);
+          packet[0] & 0x47, packet[2]);
 
     storageDirty(EE_MODEL);
 

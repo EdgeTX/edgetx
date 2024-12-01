@@ -101,6 +101,14 @@ static void setupPulsesDSM2(uint8_t module, uint8_t type, uint8_t*& p_buf)
 
 #define DSMP_BITRATE 115200
 
+#define DSMP_USE_DSMX 0x01    // dsmX flag, else dsm2 use
+#define DSMP_USE_11MS 0x02    // 11 mSec flag, else 22 mSec
+#define DSMP_USE_11BIT 0x04   // 11 bit flag, else 10 bit resolution
+#define DSMP_USE_TM 0x08      // have a telemetry answer
+#define DSMP_USE_FUTABA 0x10  // futaba channel "AETR"
+#define DSMP_USE_DEVO 0x20    // walkera DEVO
+#define DSMP_AUTO_MODE 0x40   // auto DSM2/DSMX
+
 static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 {
   static uint8_t pass = 0;
@@ -109,7 +117,7 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
 
   uint8_t start_channel = md.channelsStart;
   auto channels = md.getChannelsCount();
-  auto flags = md.dsmp.flags & 0x3F;
+  auto flags = md.dsmp.flags & (DSMP_USE_DSMX | DSMP_USE_11MS | DSMP_USE_11BIT | DSMP_AUTO_MODE);
 
   // Force setup packet in Bind mode.
   auto module_mode = getModuleMode(module);
