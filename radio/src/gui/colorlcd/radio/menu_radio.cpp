@@ -37,7 +37,7 @@
 #include "special_functions.h"
 #include "view_channels.h"
 
-RadioMenu::RadioMenu() : TabsGroup(ICON_RADIO) { build(); }
+RadioMenu::RadioMenu() : PageGroup(ICON_RADIO) { build(); }
 
 RadioMenu::~RadioMenu() { storageCheck(true); }
 

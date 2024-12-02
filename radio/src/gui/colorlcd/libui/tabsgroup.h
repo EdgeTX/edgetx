@@ -23,6 +23,7 @@
 
 #include "bitmaps.h"
 #include "button.h"
+#include "quick_menu.h"
 
 class TabsGroup;
 class TabsGroupHeader;
@@ -56,6 +57,8 @@ class PageTab
 
   virtual void update(uint8_t index) {}
   virtual void cleanup() {}
+
+  virtual QuickMenu::SubMenu subMenu() { return QuickMenu::SubMenu::NONE; }
 
  protected:
   std::string title;
