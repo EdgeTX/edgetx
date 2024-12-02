@@ -31,6 +31,8 @@ class ModelMixesPage : public InputMixPageBase
 
   void build(Window* window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_MIXES; }
+
  protected:
   bool showMonitors = false;
 

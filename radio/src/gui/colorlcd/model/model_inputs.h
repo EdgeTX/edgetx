@@ -31,6 +31,8 @@ class ModelInputsPage : public InputMixPageBase
 
   void build(Window *window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_INPUTS; }
+
  protected:
   InputMixGroupBase* getGroupByIndex(uint8_t index) override;
   
