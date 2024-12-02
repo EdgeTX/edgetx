@@ -40,7 +40,7 @@
 #include "translations.h"
 #include "view_channels.h"
 
-ModelMenu::ModelMenu() : TabsGroup(ICON_MODEL) { build(); }
+ModelMenu::ModelMenu() : PageGroup(ICON_MODEL) { build(); }
 
 void ModelMenu::build()
 {
