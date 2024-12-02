@@ -32,6 +32,8 @@ class RadioToolsPage : public PageTab
 
   void checkEvents() override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_TOOLSCRIPTS; }
+
  protected:
   void rebuild(Window* window);
   Window* window = nullptr;

@@ -33,6 +33,8 @@ class ModelFlightModesPage : public PageTab
 
   void build(Window* window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_FLIGHTMODES; }
+
   static LAYOUT_VAL(TRIM_CHK_H, 40, 40)
 
  protected:
