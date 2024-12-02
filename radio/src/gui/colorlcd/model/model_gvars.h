@@ -22,6 +22,7 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 #include "edgetx.h"
 
 class ModelGVarsPage : public PageTab
@@ -32,6 +33,8 @@ class ModelGVarsPage : public PageTab
   bool isVisible() const override { return modelGVEnabled(); }
 
   void cleanup() override;
+
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_GVARS; }
 
  protected:
   Window* hdr = nullptr;

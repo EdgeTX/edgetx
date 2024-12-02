@@ -165,6 +165,8 @@ class SpecialFunctionsPage : public FunctionsPage
 
   bool isVisible() const override { return modelSFEnabled(); }
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_SF; }
+
  protected:
   CustomFunctionData* customFunctionData(uint8_t index) const override;
   FunctionEditPage* editPage(uint8_t index) const override;
@@ -181,6 +183,8 @@ class GlobalFunctionsPage : public FunctionsPage
   GlobalFunctionsPage();
 
   bool isVisible() const override { return radioGFEnabled(); }
+
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_GF; }
 
  protected:
   CustomFunctionData* customFunctionData(uint8_t index) const override;

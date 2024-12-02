@@ -31,6 +31,8 @@ class ModelOutputsPage : public PageTab
   ModelOutputsPage();
   void build(Window* window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_OUTPUTS; }
+
   static constexpr coord_t ADD_TRIMS_X = PAD_SMALL;
   static constexpr coord_t ADD_TRIMS_Y = PAD_SMALL;
   static LAYOUT_VAL2(ADD_TRIMS_W, (LCD_W / 2) - PAD_LARGE, LCD_W - 12)

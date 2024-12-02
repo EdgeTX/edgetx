@@ -34,7 +34,9 @@ class ModelCurvesPage : public PageTab
 
   virtual void build(Window* window) override;
 
-  static LAYOUT_VAL2(PER_ROW, 3, 2)
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_CURVES; }
+
+  static LAYOUT_VAL(PER_ROW, 3, 2)
 
  protected:
   uint8_t focusIndex = -1;

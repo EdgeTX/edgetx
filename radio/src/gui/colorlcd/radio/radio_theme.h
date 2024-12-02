@@ -25,7 +25,7 @@
 #include "edgetx.h"
 
 class ListBox;
-class TabsGroup;
+class PageGroup;
 class ThemeColorPreview;
 class ThemePersistance;
 class ThemeFile;
@@ -34,7 +34,7 @@ class FileCarosell;
 class ThemeSetupPage : public PageTab
 {
  public:
-  ThemeSetupPage(TabsGroup *tabsGroup);
+  ThemeSetupPage(PageGroup *tabsGroup);
 
   void build(Window *window) override;
   void checkEvents() override;
@@ -48,8 +48,10 @@ class ThemeSetupPage : public PageTab
   static constexpr int LIST_WIDTH = ((LCD_W - PAD_MEDIUM * 2) / 2 - COLOR_PREVIEW_SIZE);
 #endif
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_THEMES; }
+
  protected:
-  TabsGroup *tabsGroup = nullptr;
+  PageGroup *tabsGroup = nullptr;
   Window *pageWindow = nullptr;
   Window *previewWindow = nullptr;
   FileCarosell *fileCarosell = nullptr;

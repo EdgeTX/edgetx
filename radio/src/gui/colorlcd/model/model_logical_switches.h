@@ -33,6 +33,8 @@ class ModelLogicalSwitchesPage : public PageTab
 
   virtual void build(Window* window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_LS; }
+
  protected:
   int8_t focusIndex = -1;
   int8_t prevFocusIndex = -1;

@@ -32,4 +32,6 @@ class ModelHeliPage : public PageTab
   bool isVisible() const override { return modelHeliEnabled(); }
 
   void build(Window* window) override;
+
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_HELI; }
 };

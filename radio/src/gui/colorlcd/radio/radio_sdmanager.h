@@ -64,4 +64,6 @@ class RadioSdManagerPage : public PageTab
 #endif
 
   void checkEvents() override; 
+
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_SD; }
 };

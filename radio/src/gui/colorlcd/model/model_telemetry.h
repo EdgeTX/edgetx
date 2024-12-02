@@ -33,6 +33,8 @@ class ModelTelemetryPage : public PageTab
 
   void build(Window* window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_TELEMETRY; }
+
   static LAYOUT_VAL(NUM_EDIT_W, 100, 65, LS(100))
 
  protected:

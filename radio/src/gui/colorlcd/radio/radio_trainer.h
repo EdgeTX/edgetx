@@ -32,4 +32,6 @@ class RadioTrainerPage : public PageTab
   bool isVisible() const override { return radioTrainerEnabled(); }
 
   void build(Window* window) override;
+
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_TRAINER; }
 };

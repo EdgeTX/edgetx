@@ -28,7 +28,7 @@
 #include "edgetx.h"
 #include "topbar_impl.h"
 #include "view_channels.h"
-#include "view_main_menu.h"
+#include "quick_menu.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)
 {
@@ -341,7 +341,7 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  viewMainMenu = new ViewMainMenu(this, [=]() { viewMainMenu = nullptr; });
+  viewMainMenu = new QuickMenu(this, [=]() { viewMainMenu = nullptr; });
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)
