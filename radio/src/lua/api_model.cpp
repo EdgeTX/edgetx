@@ -1648,10 +1648,10 @@ static int luaModelGetGlobalVariableDetails(lua_State *L)
   if (idx < MAX_GVARS) {
     lua_newtable(L);
     lua_pushtablenstring(L, "name", g_model.gvars[idx].name);
-    lua_pushtableinteger(L, "raw_min", g_model.gvars[idx].min);
-    lua_pushtableinteger(L, "raw_max", g_model.gvars[idx].max);
-    lua_pushtableboolean(L, "prec", g_model.gvars[idx].prec);
-    lua_pushtableboolean(L, "unit", g_model.gvars[idx].unit);
+    lua_pushtableinteger(L, "min", GVAR_MIN + g_model.gvars[idx].min);
+    lua_pushtableinteger(L, "max", GVAR_MAX - g_model.gvars[idx].max);
+    lua_pushtableinteger(L, "prec", g_model.gvars[idx].prec);
+    lua_pushtableinteger(L, "unit", g_model.gvars[idx].unit);
     lua_pushtableboolean(L, "popup", g_model.gvars[idx].popup);
   }
   else
@@ -1681,17 +1681,17 @@ static int luaModelSetGlobalVariableDetails(lua_State *L)
         const char * name = luaL_checkstring(L, -1);
         strncpy(g_model.gvars[idx].name, name, sizeof(g_model.gvars[idx].name));
       }
-      if (!strcmp(key, "raw_min")) {
-        g_model.gvars[idx].min = luaL_checkinteger(L, -1);
+      if (!strcmp(key, "min")) {
+        g_model.gvars[idx].min = luaL_checkinteger(L, -1) - GVAR_MIN;
       }
-      if (!strcmp(key, "raw_max")) {
-        g_model.gvars[idx].max = luaL_checkinteger(L, -1);
+      if (!strcmp(key, "max")) {
+        g_model.gvars[idx].max = GVAR_MAX - luaL_checkinteger(L, -1);
       }
       if (!strcmp(key, "unit")) {
-        g_model.gvars[idx].unit = lua_toboolean(L, -1);
+        g_model.gvars[idx].unit = luaL_checkinteger(L, -1);
       }
       if (!strcmp(key, "prec")) {
-        g_model.gvars[idx].prec = lua_toboolean(L, -1);
+        g_model.gvars[idx].prec = luaL_checkinteger(L, -1);
       }
       if (!strcmp(key, "popup")) {
         g_model.gvars[idx].popup = lua_toboolean(L, -1);
