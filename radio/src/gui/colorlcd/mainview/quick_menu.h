@@ -21,42 +21,65 @@
 
 #pragma once
 
-#include "form.h"
-#include "bitmaps.h"
-#include <vector>
+#include "window.h"
 
+class QuickMenuGroup;
 class ButtonBase;
 
-class QuickMenuGroup : public Window
+class QuickMenu : public Window
 {
  public:
-  QuickMenuGroup(Window* parent, const rect_t &rect, bool createGroup);
+  enum SubMenu {
+    NONE = 0,
+    MODEL_SETUP,
+    MODEL_HELI,
+    MODEL_FLIGHTMODES,
+    MODEL_INPUTS,
+    MODEL_MIXES,
+    MODEL_OUTPUTS,
+    MODEL_CURVES,
+    MODEL_GVARS,
+    MODEL_LS,
+    MODEL_SF,
+    MODEL_SCRIPTS,
+    MODEL_TELEMETRY,
+    RADIO_TOOLSCRIPTS,
+    RADIO_SD,
+    RADIO_SETUP,
+    RADIO_THEMES,
+    RADIO_GF,
+    RADIO_TRAINER,
+    RADIO_HARDWARE,
+    RADIO_VERSION,
+  };
 
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "QuickMenuGroup"; }
-#endif
+  QuickMenu(Window* parent, std::function<void()> cancelHandler,
+            std::function<void()> selectHandler = nullptr);
 
-  // Add a new button to the carousel
-  ButtonBase* addButton(EdgeTxIcon icon, const char* title,
-                 std::function<uint8_t(void)> pressHandler);
+  void onCancel() override;
+  void onSelect();
+  void closeMenu();
+  void deleteLater(bool detach = true, bool trash = true) override;
 
-  void defocus();
-  void setGroup();
-  void setFocus();
-  void setDisabled(bool all);
-  void setEnabled();
-  void setCurrent(ButtonBase* b) { curBtn = b; }
+  void setFocus(SubMenu selection);
 
-  static LAYOUT_VAL(FAB_BUTTON_WIDTH, 50, 50)
-  static LAYOUT_VAL(FAB_BUTTON_HEIGHT, 74, 74)
-
-  static LAYOUT_VAL(FAB_ICON_SIZE, 38, 38)
-  static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH;
+  static LAYOUT_VAL(QM_COLS, 8, 5)
+  static LAYOUT_VAL(QM_ROWS, 3, 5)
+  static LAYOUT_VAL(QMMAIN_ROWS, 1, 2)
 
  protected:
-  std::vector<ButtonBase*> btns;
-  ButtonBase* curBtn = nullptr;
-  lv_group_t* group = nullptr;
+  std::function<void()> cancelHandler = nullptr;
+  std::function<void()> selectHandler = nullptr;
+  bool inSubMenu = false;
+  QuickMenuGroup* mainMenu = nullptr;
+  QuickMenuGroup* modelSubMenu = nullptr;
+  QuickMenuGroup* radioSubMenu = nullptr;
+  ButtonBase* modelBtn = nullptr;
+  ButtonBase* radioBtn = nullptr;
+  coord_t w, h;
+  Window* box = nullptr;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  void buildMainMenu();
+  void buildModelMenu();
+  void buildRadioMenu();
 };

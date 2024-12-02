@@ -28,4 +28,6 @@ class RadioVersionPage: public PageTab {
     RadioVersionPage();
 
     void build(Window * window) override;
+
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_VERSION; }
 };

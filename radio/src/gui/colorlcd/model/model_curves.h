@@ -34,6 +34,8 @@ class ModelCurvesPage : public PageTab
 
   virtual void build(Window* window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_CURVES; }
+
   static LAYOUT_VAL(PER_ROW, 3, 2)
 
  protected:

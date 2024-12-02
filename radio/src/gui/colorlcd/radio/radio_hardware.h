@@ -32,6 +32,8 @@ class RadioHardwarePage : public PageTab
 
   void build(Window* window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_HARDWARE; }
+
   static LAYOUT_VAL(NUM_EDIT_W, 80, 80)
   static LAYOUT_VAL(BTN_COLS, 4, 3)
   static LAYOUT_VAL(FS_BTN_COLS, 2, 2)

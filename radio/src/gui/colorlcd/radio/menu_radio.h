@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class RadioMenu : public TabsGroup
+class RadioMenu : public PageGroup
 {
  public:
   RadioMenu();

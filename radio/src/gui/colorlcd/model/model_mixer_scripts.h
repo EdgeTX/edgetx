@@ -33,6 +33,8 @@ class ModelMixerScriptsPage : public PageTab
 
   virtual void build(Window* window) override { build(window, 0); }
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_SCRIPTS; }
+
  protected:
   void build(Window* window, int8_t focusIdx);
   void rebuild(Window* window, int8_t focusIdx);
