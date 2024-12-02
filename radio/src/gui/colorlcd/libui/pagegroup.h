@@ -21,37 +21,50 @@
 
 #pragma once
 
-#include "window.h"
+#include "bitmaps.h"
+#include "button.h"
 
-class QuickMenuGroup;
-class ButtonBase;
+class PageTab;
+class PageGroupHeader;
+class QuickMenu;
 
-class ViewMainMenu : public Window
+class PageGroup : public NavWindow
 {
  public:
-  ViewMainMenu(Window* parent, std::function<void()> closeHandler);
+  explicit PageGroup(EdgeTxIcon icon);
 
-  void onCancel() override;
-  void onClicked() override;
   void deleteLater(bool detach = true, bool trash = true) override;
 
-  static LAYOUT_VAL(QM_COLS, 8, 5)
-  static LAYOUT_VAL(QM_ROWS, 3, 5)
-  static LAYOUT_VAL(QMMAIN_ROWS, 1, 2)
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "PageGroup"; }
+#endif
+
+  uint8_t tabCount() const;
+
+  void addTab(PageTab* page);
+
+  void removeTab(unsigned index);
+
+  void setCurrentTab(unsigned index);
+
+  void checkEvents() override;
+
+  void onClicked() override;
+  void onCancel() override;
+
+  void openMenu();
+
+  static LAYOUT_VAL(MENU_TITLE_TOP, 44, 44)
+  static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_TITLE_TOP;
 
  protected:
-  std::function<void()> closeHandler = nullptr;
-  bool inSubMenu = false;
-  QuickMenuGroup* mainMenu = nullptr;
-  QuickMenuGroup* modelSubMenu = nullptr;
-  QuickMenuGroup* radioSubMenu = nullptr;
-  ButtonBase* modelBtn = nullptr;
-  ButtonBase* radioBtn = nullptr;
-  bool loaded = false;
-  coord_t w, h;
-  Window* box = nullptr;
+  PageGroupHeader* header = nullptr;
+  Window* body = nullptr;
+  PageTab* currentTab = nullptr;
+  QuickMenu* quickMenu = nullptr;
 
-  void buildMainMenu();
-  void buildModelMenu();
-  void buildRadioMenu();
+#if defined(HARDWARE_KEYS)
+  void onPressPGUP() override;
+  void onPressPGDN() override;
+#endif
 };

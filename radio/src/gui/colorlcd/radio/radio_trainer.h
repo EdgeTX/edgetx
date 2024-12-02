@@ -33,5 +33,7 @@ class RadioTrainerPage : public PageTab
 
   void build(Window* window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_TRAINER; }
+
   static LAYOUT_VAL(NUM_EDIT_W, 80, 65)
 };
