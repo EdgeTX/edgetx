@@ -49,6 +49,13 @@ if(PXX2 OR MULTIMODULE)
     )
 endif()
 
+#if(BAITBOAT)
+  set(GUI_SRC
+    ${GUI_SRC}
+    ../common/stdlcd/radio_inav.cpp
+    )
+#endif()
+
 if(PXX2)
   set(GUI_SRC
     ${GUI_SRC}

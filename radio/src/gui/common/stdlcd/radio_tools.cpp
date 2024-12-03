@@ -193,6 +193,12 @@ void menuRadioTools(event_t event)
     addRadioModuleTool(index++, "Ghost Menu", menuGhostModuleConfig, EXTERNAL_MODULE);
 #endif
 
+#if true || defined(BAITBOAT)
+  addRadioModuleTool(index++, "INAV Lite", menuRadioInavLite, EXTERNAL_MODULE);
+#endif
+
+
+
 #endif
 
   if (index == 0) {
