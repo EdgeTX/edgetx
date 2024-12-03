@@ -81,10 +81,10 @@ SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
   if (idx <= 1) {
 //    uint16_t swVal = getAnalogValue(4);
     uint16_t swVal = getAnalogValue(5);
-    if (idx == 0 && (swVal < 512 || (swVal >= 1536 && swVal < 2560))) {
+    if (idx == 0 && (swVal >= 3584 || (swVal >= 1536 && swVal < 2560))) {
       return SWITCH_HW_DOWN;
     }
-    if (idx == 1 && (swVal >= 3584 || (swVal >= 1536 && swVal < 2560))) {
+    if (idx == 1 && (swVal < 512 || (swVal >= 1536 && swVal < 2560))) {
       return SWITCH_HW_DOWN;
     }
   } /*else if (idx <= 3) {
