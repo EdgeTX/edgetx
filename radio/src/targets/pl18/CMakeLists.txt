@@ -175,7 +175,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
 if(PCBREV STREQUAL NB4P)
-  target_sources(board PRIVATE ${TARGET_SRC_DIR}/switch_driver.cpp)
+  target_sources(board PRIVATE ${TARGET_SRC_DIR}/nb4p_switch_driver.cpp)
 endif()
 
 set(FIRMWARE_SRC

@@ -707,34 +707,6 @@ LEGACY_NAMES = [
                 "label": "VR1R",
                 "short_label": "2",
                 "description": "Potentiometer 2"
-            },
-            "EXT1": {
-                "yaml": "EXT1",
-                "lua": "ext1",
-                "label": "EXT1",
-                "short_label": "E1",
-                "description": "Ext 1"
-            },
-            "EXT2": {
-                "yaml": "EXT2",
-                "lua": "ext2",
-                "label": "EXT2",
-                "short_label": "E2",
-                "description": "Ext 2"
-            },
-            "EXT3": {
-                "yaml": "EXT3",
-                "lua": "ext3",
-                "label": "EXT3",
-                "short_label": "E3",
-                "description": "Ext 3"
-            },
-            "EXT4": {
-                "yaml": "EXT4",
-                "lua": "ext4",
-                "label": "EXT4",
-                "short_label": "E4",
-                "description": "Ext 4"
             }
         }
     },
