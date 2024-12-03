@@ -53,14 +53,14 @@
 
 #if defined(RADIO_NB4P)
   // Trims
-  #define TRIMS_GPIO_REG_LHL
-  #define TRIMS_GPIO_PIN_LHL
-  #define TRIMS_GPIO_REG_LHR
-  #define TRIMS_GPIO_PIN_LHR
-  #define TRIMS_GPIO_REG_LVD
-  #define TRIMS_GPIO_PIN_LVD
-  #define TRIMS_GPIO_REG_LVU
-  #define TRIMS_GPIO_PIN_LVU
+  #define TRIMS_GPIO_REG_T1L
+  #define TRIMS_GPIO_PIN_T1L
+  #define TRIMS_GPIO_REG_T1R
+  #define TRIMS_GPIO_PIN_T1R
+  #define TRIMS_GPIO_REG_T2L
+  #define TRIMS_GPIO_PIN_T2L
+  #define TRIMS_GPIO_REG_T2R
+  #define TRIMS_GPIO_PIN_T2R
 
   // Switches
   #define SWITCHES_GPIO_REG_A
