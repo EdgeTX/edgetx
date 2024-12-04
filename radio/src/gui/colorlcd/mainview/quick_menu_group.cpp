@@ -154,7 +154,7 @@ QuickMenuGroup::QuickMenuGroup(Window* parent, const rect_t &rect, bool createGr
 }
 
 ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
-                                  std::function<uint8_t(void)> pressHandler)
+                                  std::function<uint8_t(void)> pressHandler, bool visible)
 {
   ButtonBase* b = new QuickMenuButton(this, icon, title, pressHandler);
   btns.push_back(b);
@@ -163,6 +163,7 @@ ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
     if (focus) curBtn = b;
   });
   if (btns.size() == 1) curBtn = b;
+  b->show(visible);
   return b;
 }
 
@@ -193,12 +194,21 @@ void QuickMenuGroup::setFocus()
   }
 }
 
+void QuickMenuGroup::clearFocus()
+{
+  if (curBtn) {
+    ((QuickMenuButton*)curBtn)->setEnabled();
+    lv_event_send(curBtn->getLvObj(), LV_EVENT_DEFOCUSED, nullptr);
+  }
+}
+
 void QuickMenuGroup::setDisabled(bool all)
 {
   for (size_t i = 0; i < btns.size(); i += 1) {
-    if (btns[i] != curBtn || all)
+    if (btns[i] != curBtn || all) {
       ((QuickMenuButton*)btns[i])->setDisabled();
-    lv_event_send(btns[i]->getLvObj(), LV_EVENT_DEFOCUSED, nullptr);
+      lv_event_send(btns[i]->getLvObj(), LV_EVENT_DEFOCUSED, nullptr);
+    }
   }
 }
 
