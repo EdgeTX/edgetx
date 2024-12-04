@@ -24,9 +24,13 @@
 #include "drivers/pca95xx.h"
 #include "stm32_i2c_driver.h"
 #include "timers_driver.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
+
+#include "myeeprom.h"
+#include "bitfield.h"
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -130,11 +134,14 @@ struct bsp_io_sw_def {
   uint32_t pin_low;
 };
 
+static constexpr uint32_t RGB_OFFSET = (1 << 16); // first after bspio pins
+static uint16_t soft2POSLogicalState = 0xFFFF;
+
 static const bsp_io_sw_def _switch_defs[] = {
-  { SWITCH_A, 0 },
+  { SWITCH_A, RGB_OFFSET + 7 },
   { SWITCH_B_H, SWITCH_B_L },
   { SWITCH_C_H, SWITCH_C_L },
-  { SWITCH_D, 0 },
+  { SWITCH_D, RGB_OFFSET + 6 },
   { SWITCH_E_H, SWITCH_E_L },
   { SWITCH_F_H, SWITCH_F_L },
   { SWITCH_G, 0 },
@@ -143,11 +150,40 @@ static const bsp_io_sw_def _switch_defs[] = {
 
 static SwitchHwPos _get_switch_pos(uint8_t idx)
 {
+  static uint32_t oldState = 0;
   SwitchHwPos pos = SWITCH_HW_UP;
   const bsp_io_sw_def* def = &_switch_defs[idx];
 
-  uint32_t state = _io_switches.state;  
-  if (!def->pin_low) {
+  uint32_t state = _io_switches.state;
+
+  if (def->pin_low > RGB_OFFSET) {
+    // Potential soft 2pos
+    if ((SWITCH_CONFIG(idx) == SWITCH_TOGGLE)) {
+      if ((state & def->pin_high) == 0) {
+        pos = SWITCH_HW_DOWN;
+      }
+    }
+    else {
+      if (((state & def->pin_high) == 0) && ((state & def->pin_high) != (oldState & def->pin_high))) {
+        soft2POSLogicalState ^= def->pin_high;
+      }
+      if ((soft2POSLogicalState & def->pin_high) == 0) {
+        pos = SWITCH_HW_DOWN;
+      }
+      else {
+        pos = SWITCH_HW_UP;
+      }
+
+    }
+
+    if(pos == SWITCH_HW_UP) {
+      rgbSetLedColor(def->pin_low - RGB_OFFSET, 0x0, 0x0, 0x0);
+    }
+    else {
+      rgbSetLedColor(def->pin_low - RGB_OFFSET, 0xFF, 0xFF, 0xFF);
+    }
+  }
+  else if (!def->pin_low) {
     // 2POS switch
     if ((state & def->pin_high) == 0) {
       pos = SWITCH_HW_DOWN;
@@ -162,6 +198,9 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
       pos = SWITCH_HW_DOWN;
     }
   }
+
+  if (idx == switchGetMaxSwitches() - 1)
+    oldState = state;
 
   return pos;
 }
