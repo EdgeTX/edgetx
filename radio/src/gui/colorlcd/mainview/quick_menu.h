@@ -24,6 +24,7 @@
 #include "window.h"
 
 class QuickMenuGroup;
+class PageGroup;
 class ButtonBase;
 
 class QuickMenu : public Window
@@ -53,8 +54,15 @@ class QuickMenu : public Window
     RADIO_VERSION,
   };
 
+  enum SubMenuGroup {
+    NO_GROUP = 0,
+    MODEL_GROUP,
+    RADIO_GROUP,
+  };
+
   QuickMenu(Window* parent, std::function<void()> cancelHandler,
-            std::function<void()> selectHandler = nullptr);
+            std::function<void()> selectHandler = nullptr,
+            PageGroup* pageGroup = nullptr, SubMenu curPage = NONE);
 
   void onCancel() override;
   void onSelect();
@@ -78,8 +86,17 @@ class QuickMenu : public Window
   ButtonBase* radioBtn = nullptr;
   coord_t w, h;
   Window* box = nullptr;
+  PageGroup* pageGroup = nullptr;
+  SubMenu curPage;
 
   void buildMainMenu();
   void buildModelMenu();
   void buildRadioMenu();
+
+  void enableSubMenu(QuickMenuGroup* subMenu);
+
+  void openModelPage(SubMenu newPage);
+  void openRadioPage(SubMenu newPage);
+
+  SubMenuGroup subMenuGroup(SubMenu subMenu);
 };

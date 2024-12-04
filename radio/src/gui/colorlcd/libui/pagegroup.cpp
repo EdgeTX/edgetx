@@ -288,7 +288,7 @@ void PageGroup::onPressPGDN() { header->nextTab(); }
 
 void PageGroup::openMenu()
 {
-  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; }, [=]() { onCancel(); });
+  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; }, [=]() { onCancel(); }, this, currentTab->subMenu());
   quickMenu->setFocus(currentTab->subMenu());
 }
 

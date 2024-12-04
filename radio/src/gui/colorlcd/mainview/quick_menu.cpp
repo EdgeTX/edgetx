@@ -58,10 +58,12 @@ static lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
   return etx_create(&etx_modal_dialog_class, parent);
 }
 
-QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::function<void()> selectHandler) :
+QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::function<void()> selectHandler,
+                     PageGroup* pageGroup, SubMenu curPage) :
     Window(parent, {0, 0, LCD_W, LCD_H}),
     cancelHandler(std::move(cancelHandler)),
-    selectHandler(std::move(selectHandler))
+    selectHandler(std::move(selectHandler)),
+    pageGroup(pageGroup), curPage(curPage)
 {
   setWindowFlag(OPAQUE);
 
@@ -108,40 +110,38 @@ void QuickMenu::buildMainMenu()
                       [=]() -> uint8_t {
                         mainMenu->setCurrent(modelBtn);
                         mainMenu->setDisabled(false);
-                        mainMenu->setFocus();
+                        mainMenu->clearFocus();
                         if (!modelSubMenu) buildModelMenu();
-                        modelSubMenu->setGroup();
-                        modelSubMenu->setFocus();
-                        modelSubMenu->setEnabled();
-                        inSubMenu = true;
+                        enableSubMenu(modelSubMenu);
                         return 0;
                       });
   modelBtn->setFocusHandler([=](bool focus) {
-    if (focus) mainMenu->setCurrent(modelBtn);
-    if (!modelSubMenu) buildModelMenu();
-    modelSubMenu->show(focus);
-    if (!focus && !deleted() && mainMenu)
-      mainMenu->setGroup();
+    if (!deleted()) {
+      if (focus) mainMenu->setCurrent(modelBtn);
+      if (!modelSubMenu) buildModelMenu();
+      modelSubMenu->show(focus);
+      if (!focus && mainMenu)
+        mainMenu->setGroup();
+    }
   });
 
   radioBtn = mainMenu->addButton(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS,
                       [=]() -> uint8_t {
                         mainMenu->setCurrent(radioBtn);
                         mainMenu->setDisabled(false);
-                        mainMenu->setFocus();
+                        mainMenu->clearFocus();
                         if (!radioSubMenu) buildRadioMenu();
-                        radioSubMenu->setGroup();
-                        radioSubMenu->setFocus();
-                        radioSubMenu->setEnabled();
-                        inSubMenu = true;
+                        enableSubMenu(radioSubMenu);
                         return 0;
                       });
   radioBtn->setFocusHandler([=](bool focus) {
-    if (focus) mainMenu->setCurrent(radioBtn);
-    if (!radioSubMenu) buildRadioMenu();
-    radioSubMenu->show(focus);
-    if (!focus && !deleted() && mainMenu)
-      mainMenu->setGroup();
+    if (!deleted()) {
+      if (focus) mainMenu->setCurrent(radioBtn);
+      if (!radioSubMenu) buildRadioMenu();
+      radioSubMenu->show(focus);
+      if (!focus && mainMenu)
+        mainMenu->setGroup();
+    }
   });
 
   mainMenu->addButton(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS,
@@ -195,73 +195,53 @@ void QuickMenu::buildModelMenu()
   ButtonBase* btn;
 
   modelSubMenu->addButton(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(0);
+    openModelPage(MODEL_SETUP);
     return 0;
   });
   btn = modelSubMenu->addButton(ICON_MODEL_HELI, STR_MENUHELISETUP, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(1);
+    openModelPage(MODEL_HELI);
     return 0;
-  });
-  btn->show(modelHeliEnabled());
+  }, modelHeliEnabled());
   btn = modelSubMenu->addButton(ICON_MODEL_FLIGHT_MODES, STR_MENUFLIGHTMODES, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(2);
+    openModelPage(MODEL_FLIGHTMODES);
     return 0;
-  });
-  btn->show(modelFMEnabled());
+  }, modelFMEnabled());
   modelSubMenu->addButton(ICON_MODEL_INPUTS, STR_MENUINPUTS, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(3);
+    openModelPage(MODEL_INPUTS);
     return 0;
   });
   modelSubMenu->addButton(ICON_MODEL_MIXER, STR_MIXES, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(4);
+    openModelPage(MODEL_MIXES);
     return 0;
   });
   modelSubMenu->addButton(ICON_MODEL_OUTPUTS, STR_MENULIMITS, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(5);
+    openModelPage(MODEL_OUTPUTS);
     return 0;
   });
   btn = modelSubMenu->addButton(ICON_MODEL_CURVES, STR_MENUCURVES, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(6);
+    openModelPage(MODEL_CURVES);
     return 0;
-  });
-  btn->show(modelCurvesEnabled());
+  }, modelCurvesEnabled());
   btn = modelSubMenu->addButton(ICON_MODEL_GVARS, STR_MENU_GLOBAL_VARS, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(7);
+    openModelPage(MODEL_GVARS);
     return 0;
-  });
-  btn->show(modelGVEnabled());
+  }, modelGVEnabled());
   btn = modelSubMenu->addButton(ICON_MODEL_LOGICAL_SWITCHES, STR_MENULOGICALSWITCHES, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(8);
+    openModelPage(MODEL_LS);
     return 0;
-  });
-  btn->show(modelLSEnabled());
+  }, modelLSEnabled());
   btn = modelSubMenu->addButton(ICON_MODEL_SPECIAL_FUNCTIONS, STR_MENUCUSTOMFUNC, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(9);
+    openModelPage(MODEL_SF);
     return 0;
-  });
-  btn->show(modelSFEnabled());
+  }, modelSFEnabled());
   btn = modelSubMenu->addButton(ICON_MODEL_LUA_SCRIPTS, STR_MENUCUSTOMSCRIPTS, [=]() -> uint8_t {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(10);
+    openModelPage(MODEL_SCRIPTS);
     return 0;
-  });
-  btn->show(modelCustomScriptsEnabled());
+  }, modelCustomScriptsEnabled());
   btn = modelSubMenu->addButton(ICON_MODEL_TELEMETRY, STR_MENUTELEMETRY, [=]() -> uint8_t {
-      onSelect();
-      (new ModelMenu())->setCurrentTab(11);
-      return 0;
-    });
-  btn->show(modelTelemetryEnabled());
+    openModelPage(MODEL_TELEMETRY);
+    return 0;
+  }, modelTelemetryEnabled());
 
   modelSubMenu->hide();
   modelSubMenu->setDisabled(true);
@@ -277,51 +257,62 @@ void QuickMenu::buildRadioMenu()
   ButtonBase* btn;
 
   radioSubMenu->addButton(ICON_RADIO_TOOLS, STR_MENUTOOLS, [=]() -> uint8_t {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(0);
+    openRadioPage(RADIO_TOOLSCRIPTS);
     return 0;
   });
   radioSubMenu->addButton(ICON_RADIO_SD_MANAGER, STR_SD_CARD, [=]() -> uint8_t {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(1);
+    openRadioPage(RADIO_SD);
     return 0;
   });
   radioSubMenu->addButton(ICON_RADIO_SETUP, STR_RADIO_SETUP, [=]() -> uint8_t {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(2);
+    openRadioPage(RADIO_SETUP);
     return 0;
   });
   btn = radioSubMenu->addButton(ICON_RADIO_EDIT_THEME, STR_THEME_EDITOR, [=]() -> uint8_t {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(3);
+    openRadioPage(RADIO_THEMES);
     return 0;
-  });
-  btn->show(radioThemesEnabled());
+  }, radioThemesEnabled());
   btn = radioSubMenu->addButton(ICON_RADIO_GLOBAL_FUNCTIONS, STR_MENUSPECIALFUNCS, [=]() -> uint8_t {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(4);
+    openRadioPage(RADIO_GF);
     return 0;
-  });
-  btn->show(radioGFEnabled());
+  }, radioGFEnabled());
   btn = radioSubMenu->addButton(ICON_RADIO_TRAINER, STR_MENUTRAINER, [=]() -> uint8_t {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(5);
+    openRadioPage(RADIO_TRAINER);
     return 0;
-  });
-  btn->show(radioTrainerEnabled());
+  }, radioTrainerEnabled());
   radioSubMenu->addButton(ICON_RADIO_HARDWARE, STR_HARDWARE, [=]() -> uint8_t {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(6);
+    openRadioPage(RADIO_HARDWARE);
     return 0;
   });
   radioSubMenu->addButton(ICON_RADIO_VERSION, STR_MENUVERSION, [=]() -> uint8_t {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(7);
+    openRadioPage(RADIO_VERSION);
     return 0;
   });
 
   radioSubMenu->hide();
   radioSubMenu->setDisabled(true);
+}
+
+void QuickMenu::openModelPage(SubMenu newPage)
+{
+  if (pageGroup && (subMenuGroup(newPage) == subMenuGroup(curPage))) {
+    deleteLater();
+    pageGroup->setCurrentTab(newPage - MODEL_SETUP);
+  } else {
+    onSelect();
+    (new ModelMenu())->setCurrentTab(newPage - MODEL_SETUP);
+  }
+}
+
+void QuickMenu::openRadioPage(SubMenu newPage)
+{
+  if (pageGroup && (subMenuGroup(newPage) == subMenuGroup(curPage))) {
+    deleteLater();
+    pageGroup->setCurrentTab(newPage - MODEL_SETUP);
+  } else {
+    onSelect();
+    (new RadioMenu())->setCurrentTab(newPage - RADIO_TOOLSCRIPTS);
+  }
 }
 
 void QuickMenu::deleteLater(bool detach, bool trash)
@@ -346,6 +337,7 @@ void QuickMenu::onCancel()
 {
   if (inSubMenu) {
     inSubMenu = false;
+    mainMenu->setFocus();
     mainMenu->setEnabled();
     mainMenu->setGroup();
     radioSubMenu->setDisabled(true);
@@ -357,23 +349,35 @@ void QuickMenu::onCancel()
 
 void QuickMenu::setFocus(SubMenu selection)
 {
-  if (selection >= MODEL_SETUP && selection <= MODEL_TELEMETRY) {
+  if (subMenuGroup(selection) == MODEL_GROUP) {
     mainMenu->setCurrent(modelBtn);
     mainMenu->setDisabled(false);
-    mainMenu->setFocus();
+    if (!modelSubMenu) buildModelMenu();
     modelSubMenu->setCurrent(selection - MODEL_SETUP);
-    modelSubMenu->setGroup();
-    modelSubMenu->setFocus();
-    modelSubMenu->setEnabled();
-    inSubMenu = true;
-  } else if (selection >= RADIO_TOOLSCRIPTS && selection <= RADIO_VERSION) {
+    enableSubMenu(modelSubMenu);
+  } else if (subMenuGroup(selection) == RADIO_GROUP) {
     mainMenu->setCurrent(radioBtn);
     mainMenu->setDisabled(false);
-    mainMenu->setFocus();
+    if (!radioSubMenu) buildRadioMenu();
     radioSubMenu->setCurrent(selection - RADIO_TOOLSCRIPTS);
-    radioSubMenu->setGroup();
-    radioSubMenu->setFocus();
-    radioSubMenu->setEnabled();
-    inSubMenu = true;
+    enableSubMenu(radioSubMenu);
   }
+}
+
+void QuickMenu::enableSubMenu(QuickMenuGroup* subMenu)
+{
+  subMenu->show();
+  subMenu->setGroup();
+  subMenu->setFocus();
+  subMenu->setEnabled();
+  inSubMenu = true;
+}
+
+QuickMenu::SubMenuGroup QuickMenu::subMenuGroup(SubMenu subMenu)
+{
+  if (subMenu >= MODEL_SETUP && subMenu <= MODEL_TELEMETRY)
+    return MODEL_GROUP;
+  if (subMenu >= RADIO_TOOLSCRIPTS && subMenu <= RADIO_VERSION)
+    return RADIO_GROUP;
+  return NO_GROUP;
 }
