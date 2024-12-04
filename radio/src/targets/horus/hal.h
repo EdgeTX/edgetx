@@ -568,7 +568,7 @@
 #elif defined(RADIO_TX16S) || defined(RADIO_F16)
   #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
 #elif defined(RADIO_V16)
-  #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
+  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,   -1,1,1,1,  -1,1 }
 #elif defined(PCBX10)
   #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,-1,1,1,   1,-1 }
 #elif defined(PCBX12S)
@@ -633,6 +633,9 @@
   #define PCBREV_GPIO_PIN               (GPIO_Pin_8)  // PH.08
   #define PCBREV_VALUE()                (GPIO_ReadInputDataBit(PCBREV_GPIO, PCBREV_GPIO_PIN))
   #define LL_PCBREV_VALUE()             (LL_GPIO_IsInputPinSet(PCBREV_GPIO, GPIO_PIN_8))
+#elif defined(RADIO_V16)
+    #define PCBREV_RCC_AHB1Periph         0
+    #define PCBREV_VALUE()  {0}
 #elif defined(PCBX10) && defined(MANUFACTURER_FRSKY)
   #define PCBREV_RCC_AHB1Periph         RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_GPIOA
   #define PCBREV_GPIO                   GPIOH
@@ -790,7 +793,7 @@
 
 // Telemetry
 #if defined(RADIO_V16)
-#define TELEMETRY_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOJ | RCC_AHB1Periph_DMA1)
+#define TELEMETRY_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOH | RCC_AHB1Periph_DMA1)
 #define TELEMETRY_RCC_APB1Periph        RCC_APB1Periph_USART2
 #define TELEMETRY_RCC_APB2Periph        0
 #define TELEMETRY_REV_GPIO              GPIOH
