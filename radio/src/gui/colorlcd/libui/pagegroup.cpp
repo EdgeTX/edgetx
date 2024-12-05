@@ -58,11 +58,6 @@ class PageGroupButton
   {
   }
 
-  ~PageGroupButton()
-  {
-    delete pageTab;
-  }
-
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "PageGroupButton"; }
 #endif

@@ -70,8 +70,8 @@ QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::f
   // Save focus
   Layer::push(this);
 
-  w = QuickMenuGroup::FAB_BUTTON_WIDTH * QM_COLS + PAD_LARGE * 2;
-  h = QuickMenuGroup::FAB_BUTTON_HEIGHT * QM_ROWS + PAD_LARGE * 3;
+  w = (QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_TINY) * QM_COLS - PAD_TINY + PAD_LARGE * 2;
+  h = (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY) * QM_ROWS - PAD_TINY + PAD_LARGE * 3;
 
 #if !PORTRAIT_LCD
   if (modelHasNotes())
@@ -99,12 +99,24 @@ void QuickMenu::buildMainMenu()
                         return 0;
                       });
 
-  mainMenu->addButton(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR,
+  channelsBtn = mainMenu->addButton(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR,
                       [=]() -> uint8_t {
-                        onSelect();
-                        new ChannelsViewMenu();
+                        mainMenu->setCurrent(channelsBtn);
+                        mainMenu->setDisabled(false);
+                        mainMenu->clearFocus();
+                        if (!channelsSubMenu) buildChannelsMenu();
+                        enableSubMenu(channelsSubMenu);
                         return 0;
                       });
+  channelsBtn->setFocusHandler([=](bool focus) {
+    if (!deleted()) {
+      if (focus) mainMenu->setCurrent(channelsBtn);
+      if (!channelsSubMenu) buildChannelsMenu();
+      channelsSubMenu->show(focus);
+      if (!focus && mainMenu)
+        mainMenu->setGroup();
+    }
+  });
 
   modelBtn = mainMenu->addButton(ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS,
                       [=]() -> uint8_t {
@@ -144,12 +156,24 @@ void QuickMenu::buildMainMenu()
     }
   });
 
-  mainMenu->addButton(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS,
+  screensBtn = mainMenu->addButton(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS,
                       [=]() -> uint8_t {
-                        onSelect();
-                        new ScreenMenu();
+                        mainMenu->setCurrent(screensBtn);
+                        mainMenu->setDisabled(false);
+                        mainMenu->clearFocus();
+                        if (!screensSubMenu) buildScreensMenu();
+                        enableSubMenu(screensSubMenu);
                         return 0;
                       });
+  screensBtn->setFocusHandler([=](bool focus) {
+    if (!deleted()) {
+      if (focus) mainMenu->setCurrent(screensBtn);
+      if (!screensSubMenu) buildScreensMenu();
+      screensSubMenu->show(focus);
+      if (!focus && mainMenu)
+        mainMenu->setGroup();
+    }
+  });
 
   mainMenu->addButton(
       ICON_MODEL_TELEMETRY, STR_MAIN_MENU_RESET_TELEMETRY, [=]() -> uint8_t {
@@ -163,10 +187,22 @@ void QuickMenu::buildMainMenu()
         return 0;
       });
 
-  mainMenu->addButton(ICON_STATS, STR_MAIN_MENU_STATISTICS, [=]() -> uint8_t {
-    onSelect();
-    new StatisticsViewPageGroup();
+  statsBtn = mainMenu->addButton(ICON_STATS, STR_MAIN_MENU_STATISTICS, [=]() -> uint8_t {
+                        mainMenu->setCurrent(statsBtn);
+                        mainMenu->setDisabled(false);
+                        mainMenu->clearFocus();
+                        if (!statsSubMenu) buildStatsMenu();
+                        enableSubMenu(statsSubMenu);
     return 0;
+  });
+  statsBtn->setFocusHandler([=](bool focus) {
+    if (!deleted()) {
+      if (focus) mainMenu->setCurrent(statsBtn);
+      if (!statsSubMenu) buildStatsMenu();
+      statsSubMenu->show(focus);
+      if (!focus && mainMenu)
+        mainMenu->setGroup();
+    }
   });
 
   mainMenu->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX,
@@ -183,136 +219,6 @@ void QuickMenu::buildMainMenu()
                           readModelNotes(true);
                           return 0;
                         });
-}
-
-void QuickMenu::buildModelMenu()
-{
-  modelSubMenu = new QuickMenuGroup(box,
-          {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT * QMMAIN_ROWS) + PAD_MEDIUM, w - PAD_MEDIUM * 2,
-           (QM_ROWS - QMMAIN_ROWS) * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
-          true);
-
-  ButtonBase* btn;
-
-  modelSubMenu->addButton(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, [=]() -> uint8_t {
-    openModelPage(MODEL_SETUP);
-    return 0;
-  });
-  btn = modelSubMenu->addButton(ICON_MODEL_HELI, STR_MENUHELISETUP, [=]() -> uint8_t {
-    openModelPage(MODEL_HELI);
-    return 0;
-  }, modelHeliEnabled());
-  btn = modelSubMenu->addButton(ICON_MODEL_FLIGHT_MODES, STR_MENUFLIGHTMODES, [=]() -> uint8_t {
-    openModelPage(MODEL_FLIGHTMODES);
-    return 0;
-  }, modelFMEnabled());
-  modelSubMenu->addButton(ICON_MODEL_INPUTS, STR_MENUINPUTS, [=]() -> uint8_t {
-    openModelPage(MODEL_INPUTS);
-    return 0;
-  });
-  modelSubMenu->addButton(ICON_MODEL_MIXER, STR_MIXES, [=]() -> uint8_t {
-    openModelPage(MODEL_MIXES);
-    return 0;
-  });
-  modelSubMenu->addButton(ICON_MODEL_OUTPUTS, STR_MENULIMITS, [=]() -> uint8_t {
-    openModelPage(MODEL_OUTPUTS);
-    return 0;
-  });
-  btn = modelSubMenu->addButton(ICON_MODEL_CURVES, STR_MENUCURVES, [=]() -> uint8_t {
-    openModelPage(MODEL_CURVES);
-    return 0;
-  }, modelCurvesEnabled());
-  btn = modelSubMenu->addButton(ICON_MODEL_GVARS, STR_MENU_GLOBAL_VARS, [=]() -> uint8_t {
-    openModelPage(MODEL_GVARS);
-    return 0;
-  }, modelGVEnabled());
-  btn = modelSubMenu->addButton(ICON_MODEL_LOGICAL_SWITCHES, STR_MENULOGICALSWITCHES, [=]() -> uint8_t {
-    openModelPage(MODEL_LS);
-    return 0;
-  }, modelLSEnabled());
-  btn = modelSubMenu->addButton(ICON_MODEL_SPECIAL_FUNCTIONS, STR_MENUCUSTOMFUNC, [=]() -> uint8_t {
-    openModelPage(MODEL_SF);
-    return 0;
-  }, modelSFEnabled());
-  btn = modelSubMenu->addButton(ICON_MODEL_LUA_SCRIPTS, STR_MENUCUSTOMSCRIPTS, [=]() -> uint8_t {
-    openModelPage(MODEL_SCRIPTS);
-    return 0;
-  }, modelCustomScriptsEnabled());
-  btn = modelSubMenu->addButton(ICON_MODEL_TELEMETRY, STR_MENUTELEMETRY, [=]() -> uint8_t {
-    openModelPage(MODEL_TELEMETRY);
-    return 0;
-  }, modelTelemetryEnabled());
-
-  modelSubMenu->hide();
-  modelSubMenu->setDisabled(true);
-}
-
-void QuickMenu::buildRadioMenu()
-{
-  radioSubMenu = new QuickMenuGroup(box,
-          {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT * QMMAIN_ROWS) + PAD_MEDIUM, w - PAD_MEDIUM * 2,
-           (QM_ROWS - QMMAIN_ROWS) * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
-          true);
-
-  ButtonBase* btn;
-
-  radioSubMenu->addButton(ICON_RADIO_TOOLS, STR_MENUTOOLS, [=]() -> uint8_t {
-    openRadioPage(RADIO_TOOLSCRIPTS);
-    return 0;
-  });
-  radioSubMenu->addButton(ICON_RADIO_SD_MANAGER, STR_SD_CARD, [=]() -> uint8_t {
-    openRadioPage(RADIO_SD);
-    return 0;
-  });
-  radioSubMenu->addButton(ICON_RADIO_SETUP, STR_RADIO_SETUP, [=]() -> uint8_t {
-    openRadioPage(RADIO_SETUP);
-    return 0;
-  });
-  btn = radioSubMenu->addButton(ICON_RADIO_EDIT_THEME, STR_THEME_EDITOR, [=]() -> uint8_t {
-    openRadioPage(RADIO_THEMES);
-    return 0;
-  }, radioThemesEnabled());
-  btn = radioSubMenu->addButton(ICON_RADIO_GLOBAL_FUNCTIONS, STR_MENUSPECIALFUNCS, [=]() -> uint8_t {
-    openRadioPage(RADIO_GF);
-    return 0;
-  }, radioGFEnabled());
-  btn = radioSubMenu->addButton(ICON_RADIO_TRAINER, STR_MENUTRAINER, [=]() -> uint8_t {
-    openRadioPage(RADIO_TRAINER);
-    return 0;
-  }, radioTrainerEnabled());
-  radioSubMenu->addButton(ICON_RADIO_HARDWARE, STR_HARDWARE, [=]() -> uint8_t {
-    openRadioPage(RADIO_HARDWARE);
-    return 0;
-  });
-  radioSubMenu->addButton(ICON_RADIO_VERSION, STR_MENUVERSION, [=]() -> uint8_t {
-    openRadioPage(RADIO_VERSION);
-    return 0;
-  });
-
-  radioSubMenu->hide();
-  radioSubMenu->setDisabled(true);
-}
-
-void QuickMenu::openModelPage(SubMenu newPage)
-{
-  if (pageGroup && (subMenuGroup(newPage) == subMenuGroup(curPage))) {
-    deleteLater();
-    pageGroup->setCurrentTab(newPage - MODEL_SETUP);
-  } else {
-    onSelect();
-    (new ModelMenu())->setCurrentTab(newPage - MODEL_SETUP);
-  }
-}
-
-void QuickMenu::openRadioPage(SubMenu newPage)
-{
-  if (pageGroup && (subMenuGroup(newPage) == subMenuGroup(curPage))) {
-    deleteLater();
-    pageGroup->setCurrentTab(newPage - MODEL_SETUP);
-  } else {
-    onSelect();
-    (new RadioMenu())->setCurrentTab(newPage - RADIO_TOOLSCRIPTS);
-  }
 }
 
 void QuickMenu::deleteLater(bool detach, bool trash)
@@ -340,8 +246,11 @@ void QuickMenu::onCancel()
     mainMenu->setFocus();
     mainMenu->setEnabled();
     mainMenu->setGroup();
-    radioSubMenu->setDisabled(true);
     modelSubMenu->setDisabled(true);
+    radioSubMenu->setDisabled(true);
+    channelsSubMenu->setDisabled(true);
+    screensSubMenu->setDisabled(true);
+    statsSubMenu->setDisabled(true);
   } else {
     deleteLater();
   }
@@ -353,14 +262,32 @@ void QuickMenu::setFocus(SubMenu selection)
     mainMenu->setCurrent(modelBtn);
     mainMenu->setDisabled(false);
     if (!modelSubMenu) buildModelMenu();
-    modelSubMenu->setCurrent(selection - MODEL_SETUP);
+    modelSubMenu->setCurrent(selection - MODEL_FIRST);
     enableSubMenu(modelSubMenu);
   } else if (subMenuGroup(selection) == RADIO_GROUP) {
     mainMenu->setCurrent(radioBtn);
     mainMenu->setDisabled(false);
     if (!radioSubMenu) buildRadioMenu();
-    radioSubMenu->setCurrent(selection - RADIO_TOOLSCRIPTS);
+    radioSubMenu->setCurrent(selection - RADIO_FIRST);
     enableSubMenu(radioSubMenu);
+  } else if (subMenuGroup(selection) == CHANNELS_GROUP) {
+    mainMenu->setCurrent(channelsBtn);
+    mainMenu->setDisabled(false);
+    if (!channelsSubMenu) buildChannelsMenu();
+    channelsSubMenu->setCurrent(selection - CHANNELS_FIRST);
+    enableSubMenu(channelsSubMenu);
+  } else if (subMenuGroup(selection) == SCREENS_GROUP) {
+    mainMenu->setCurrent(screensBtn);
+    mainMenu->setDisabled(false);
+    if (!screensSubMenu) buildScreensMenu();
+    screensSubMenu->setCurrent(selection - SCREENS_FIRST);
+    enableSubMenu(screensSubMenu);
+  } else if (subMenuGroup(selection) == STATS_GROUP) {
+    mainMenu->setCurrent(statsBtn);
+    mainMenu->setDisabled(false);
+    if (!statsSubMenu) buildStatsMenu();
+    statsSubMenu->setCurrent(selection - STATS_FIRST);
+    enableSubMenu(statsSubMenu);
   }
 }
 
@@ -375,9 +302,161 @@ void QuickMenu::enableSubMenu(QuickMenuGroup* subMenu)
 
 QuickMenu::SubMenuGroup QuickMenu::subMenuGroup(SubMenu subMenu)
 {
-  if (subMenu >= MODEL_SETUP && subMenu <= MODEL_TELEMETRY)
+  if (subMenu >= MODEL_FIRST && subMenu <= MODEL_LAST)
     return MODEL_GROUP;
-  if (subMenu >= RADIO_TOOLSCRIPTS && subMenu <= RADIO_VERSION)
+  if (subMenu >= RADIO_FIRST && subMenu <= RADIO_LAST)
     return RADIO_GROUP;
+  if (subMenu >= CHANNELS_FIRST && subMenu <= CHANNELS_LAST)
+    return CHANNELS_GROUP;
+  if (subMenu >= SCREENS_FIRST && subMenu <= SCREENS_LAST)
+    return SCREENS_GROUP;
+  if (subMenu >= STATS_FIRST && subMenu <= STATS_LAST)
+    return STATS_GROUP;
   return NO_GROUP;
+}
+
+struct SubMenuItem {
+  EdgeTxIcon icon;
+  const char* title;
+  QuickMenu::SubMenu subMenu;
+  std::function<bool()> enabled;
+};
+
+static SubMenuItem modelMenuItems[] = {
+  { ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, QuickMenu::MODEL_SETUP},
+  { ICON_MODEL_HELI, STR_MENUHELISETUP, QuickMenu::MODEL_HELI, modelHeliEnabled},
+  { ICON_MODEL_FLIGHT_MODES, STR_MENUFLIGHTMODES, QuickMenu::MODEL_FLIGHTMODES, modelFMEnabled},
+  { ICON_MODEL_INPUTS, STR_MENUINPUTS, QuickMenu::MODEL_INPUTS},
+  { ICON_MODEL_MIXER, STR_MIXES, QuickMenu::MODEL_MIXES},
+  { ICON_MODEL_OUTPUTS, STR_MENULIMITS, QuickMenu::MODEL_OUTPUTS},
+  { ICON_MODEL_CURVES, STR_MENUCURVES, QuickMenu::MODEL_CURVES, modelCurvesEnabled},
+  { ICON_MODEL_GVARS, STR_MENU_GLOBAL_VARS, QuickMenu::MODEL_GVARS, modelGVEnabled},
+  { ICON_MODEL_LOGICAL_SWITCHES, STR_MENULOGICALSWITCHES, QuickMenu::MODEL_LS, modelSFEnabled},
+  { ICON_MODEL_SPECIAL_FUNCTIONS, STR_MENUCUSTOMFUNC, QuickMenu::MODEL_SF, modelSFEnabled},
+  { ICON_MODEL_LUA_SCRIPTS, STR_MENUCUSTOMSCRIPTS, QuickMenu::MODEL_SCRIPTS, modelCustomScriptsEnabled},
+  { ICON_MODEL_TELEMETRY, STR_MENUTELEMETRY, QuickMenu::MODEL_TELEMETRY, modelTelemetryEnabled},
+};
+
+static SubMenuItem radioMenuItems[] = {
+  { ICON_RADIO_TOOLS, STR_MENUTOOLS, QuickMenu::RADIO_TOOLSCRIPTS},
+  { ICON_RADIO_SD_MANAGER, STR_SD_CARD, QuickMenu::RADIO_SD},
+  { ICON_RADIO_SETUP, STR_RADIO_SETUP, QuickMenu::RADIO_SETUP},
+  { ICON_RADIO_EDIT_THEME, STR_THEME_EDITOR, QuickMenu::RADIO_THEMES, radioThemesEnabled},
+  { ICON_RADIO_GLOBAL_FUNCTIONS, STR_MENUSPECIALFUNCS, QuickMenu::RADIO_GF, radioGFEnabled},
+  { ICON_RADIO_TRAINER, STR_MENUTRAINER, QuickMenu::RADIO_TRAINER, radioTrainerEnabled},
+  { ICON_RADIO_HARDWARE, STR_HARDWARE, QuickMenu::RADIO_HARDWARE},
+  { ICON_RADIO_VERSION, STR_MENUVERSION, QuickMenu::RADIO_VERSION},
+};
+
+static SubMenuItem channelsMenuItems[] = {
+  { ICON_MONITOR_CHANNELS1, STR_MONITOR_CHANNELS[0], QuickMenu::CHANNELS_PG1},
+  { ICON_MONITOR_CHANNELS2, STR_MONITOR_CHANNELS[1], QuickMenu::CHANNELS_PG2},
+  { ICON_MONITOR_CHANNELS3, STR_MONITOR_CHANNELS[2], QuickMenu::CHANNELS_PG3},
+  { ICON_MONITOR_CHANNELS3, STR_MONITOR_CHANNELS[3], QuickMenu::CHANNELS_PG4},
+  { ICON_MONITOR_LOGICAL_SWITCHES, STR_MONITOR_SWITCHES, QuickMenu::CHANNELS_LS},
+};
+
+static SubMenuItem statsMenuItems[] = {
+  { ICON_STATS_THROTTLE_GRAPH, STR_STATISTICS, QuickMenu::STATS_STATS},
+  { ICON_STATS_DEBUG, STR_DEBUG, QuickMenu::STATS_DEBUG},
+};
+
+QuickMenuGroup* QuickMenu::buildSubMenu(struct SubMenuItem* items, int count, std::function<PageGroup*()> create, SubMenu first)
+{
+  auto subMenu = new QuickMenuGroup(box,
+          {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT * QMMAIN_ROWS) + PAD_MEDIUM, w - PAD_MEDIUM * 2,
+           (QM_ROWS - QMMAIN_ROWS) * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
+          true);
+
+  for (int i = 0; i < count; i += 1) {
+    subMenu->addButton(items[i].icon, items[i].title, [=]() -> uint8_t {
+      if (pageGroup && (subMenuGroup(items[i].subMenu) == subMenuGroup(curPage))) {
+        deleteLater();
+        pageGroup->setCurrentTab(items[i].subMenu - first);
+      } else {
+        onSelect();
+        create()->setCurrentTab(items[i].subMenu - first);
+      }
+      return 0;
+    }, items[i].enabled ? items[i].enabled() : true);
+  }
+
+  subMenu->hide();
+  subMenu->setDisabled(true);
+
+  return subMenu;
+}
+
+void QuickMenu::buildModelMenu()
+{
+  modelSubMenu = buildSubMenu(modelMenuItems, DIM(modelMenuItems), [=]() { return new ModelMenu(); }, MODEL_FIRST);
+}
+
+void QuickMenu::buildRadioMenu()
+{
+  radioSubMenu = buildSubMenu(radioMenuItems, DIM(radioMenuItems), [=]() { return new RadioMenu(); }, RADIO_FIRST);
+}
+
+void QuickMenu::buildChannelsMenu()
+{
+  channelsSubMenu = buildSubMenu(channelsMenuItems, DIM(channelsMenuItems), [=]() { return new ChannelsViewMenu(); }, CHANNELS_FIRST);
+}
+
+void QuickMenu::buildStatsMenu()
+{
+  statsSubMenu = buildSubMenu(statsMenuItems, DIM(statsMenuItems), [=]() { return new StatisticsViewPageGroup(); }, STATS_FIRST);
+}
+
+void QuickMenu::buildScreensMenu()
+{
+  screensSubMenu = new QuickMenuGroup(box,
+          {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT * QMMAIN_ROWS) + PAD_MEDIUM, w - PAD_MEDIUM * 2,
+           (QM_ROWS - QMMAIN_ROWS) * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
+          true);
+
+  screensSubMenu->addButton(ICON_THEME_SETUP, STR_USER_INTERFACE, [=]() -> uint8_t {
+    if (pageGroup && (SCREENS_GROUP == subMenuGroup(curPage))) {
+      deleteLater();
+      pageGroup->setCurrentTab(0);
+    } else {
+      onSelect();
+      new ScreenMenu(0);
+    }
+    return 0;
+  });
+
+  int viewCount = 0;
+
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
+    std::string title(STR_MAIN_VIEW_X);
+    if (i >= 9) {
+      title[title.size() - 2] = '1';
+      title.back() = (i - 9) + '0';
+    } else {
+      title[title.size() - 2] = i + '1';
+      title.back() = ' ';
+    }
+    screensSubMenu->addButton((EdgeTxIcon)(ICON_THEME_VIEW1 + i), title.c_str(), [=]() -> uint8_t {
+      if (pageGroup && (SCREENS_GROUP == subMenuGroup(curPage))) {
+        deleteLater();
+        pageGroup->setCurrentTab(i +1);
+      } else {
+        onSelect();
+        new ScreenMenu(i + 1);
+      }
+      return 0;
+    }, customScreens[i] != nullptr);
+    if (customScreens[i]) viewCount += 1;
+  }
+
+  screensSubMenu->addButton(ICON_THEME_ADD_VIEW, STR_ADD_MAIN_VIEW, [=]() -> uint8_t {
+    if (pageGroup && (SCREENS_GROUP == subMenuGroup(curPage))) {
+      deleteLater();
+      pageGroup->setCurrentTab(viewCount + 1);
+    } else {
+      onSelect();
+      new ScreenMenu(viewCount + 1);
+    }
+    return 0;
+  });
 }
