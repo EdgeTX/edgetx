@@ -49,9 +49,9 @@ class QuickMenuGroup : public Window
   void setCurrent(int b) { setCurrent(btns[b]); }
 
   static LAYOUT_VAL(FAB_BUTTON_WIDTH, 50, 50)
-  static LAYOUT_VAL(FAB_BUTTON_HEIGHT, 74, 74)
+  static LAYOUT_VAL(FAB_BUTTON_HEIGHT, 70, 70)
 
-  static LAYOUT_VAL(FAB_ICON_SIZE, 38, 38)
+  static LAYOUT_VAL(FAB_ICON_SIZE, 30, 30)
   static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH;
 
  protected:

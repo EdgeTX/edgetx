@@ -30,7 +30,7 @@
 #include "view_channels.h"
 #include "view_main.h"
 
-ScreenMenu::ScreenMenu(int8_t tabIdx) : TabsGroup(ICON_THEME)
+ScreenMenu::ScreenMenu(int8_t tabIdx) : PageGroup(ICON_THEME)
 {
   addTab(new ScreenUserInterfacePage(this));
 

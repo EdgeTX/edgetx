@@ -26,6 +26,7 @@
 #include "tasks/mixer_task.h"
 #include "mixer_scheduler.h"
 #include "lua/lua_states.h"
+#include "tabsgroup.h"
 
 class StatisticsViewPage : public PageTab
 {
@@ -35,6 +36,8 @@ class StatisticsViewPage : public PageTab
   {
   }
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::STATS_STATS; }
+
  protected:
   void build(Window* window) override;
 };
@@ -43,6 +46,8 @@ class DebugViewPage : public PageTab
 {
  public:
   DebugViewPage() : PageTab(STR_DEBUG, ICON_STATS_DEBUG, PAD_ZERO) {}
+
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::STATS_DEBUG; }
 
  protected:
   void build(Window* window) override;
@@ -105,7 +110,7 @@ class DebugInfoNumber : public Window
   }
 };
 
-StatisticsViewPageGroup::StatisticsViewPageGroup() : TabsGroup(ICON_STATS)
+StatisticsViewPageGroup::StatisticsViewPageGroup() : PageGroup(ICON_STATS)
 {
   addTab(new StatisticsViewPage());
   addTab(new DebugViewPage());

@@ -32,7 +32,8 @@ class QuickMenu : public Window
  public:
   enum SubMenu {
     NONE = 0,
-    MODEL_SETUP,
+    MODEL_FIRST,
+    MODEL_SETUP = MODEL_FIRST,
     MODEL_HELI,
     MODEL_FLIGHTMODES,
     MODEL_INPUTS,
@@ -44,7 +45,9 @@ class QuickMenu : public Window
     MODEL_SF,
     MODEL_SCRIPTS,
     MODEL_TELEMETRY,
-    RADIO_TOOLSCRIPTS,
+    MODEL_LAST = MODEL_TELEMETRY,
+    RADIO_FIRST,
+    RADIO_TOOLSCRIPTS = RADIO_FIRST,
     RADIO_SD,
     RADIO_SETUP,
     RADIO_THEMES,
@@ -52,12 +55,41 @@ class QuickMenu : public Window
     RADIO_TRAINER,
     RADIO_HARDWARE,
     RADIO_VERSION,
+    RADIO_LAST = RADIO_VERSION,
+    CHANNELS_FIRST,
+    CHANNELS_PG1 = CHANNELS_FIRST,
+    CHANNELS_PG2,
+    CHANNELS_PG3,
+    CHANNELS_PG4,
+    CHANNELS_LS,
+    CHANNELS_LAST = CHANNELS_LS,
+    SCREENS_FIRST,
+    SCREENS_UI_SETUP = SCREENS_FIRST,
+    SCREENS_PG1,
+    SCREENS_PG2,
+    SCREENS_PG3,
+    SCREENS_PG4,
+    SCREENS_PG5,
+    SCREENS_PG6,
+    SCREENS_PG7,
+    SCREENS_PG8,
+    SCREENS_PG9,
+    SCREENS_PG10,
+    SCREENS_ADD_PG,
+    SCREENS_LAST = SCREENS_ADD_PG,
+    STATS_FIRST,
+    STATS_STATS = STATS_FIRST,
+    STATS_DEBUG,
+    STATS_LAST = STATS_DEBUG,
   };
 
   enum SubMenuGroup {
     NO_GROUP = 0,
     MODEL_GROUP,
     RADIO_GROUP,
+    CHANNELS_GROUP,
+    SCREENS_GROUP,
+    STATS_GROUP,
   };
 
   QuickMenu(Window* parent, std::function<void()> cancelHandler,
@@ -82,21 +114,28 @@ class QuickMenu : public Window
   QuickMenuGroup* mainMenu = nullptr;
   QuickMenuGroup* modelSubMenu = nullptr;
   QuickMenuGroup* radioSubMenu = nullptr;
+  QuickMenuGroup* channelsSubMenu = nullptr;
+  QuickMenuGroup* screensSubMenu = nullptr;
+  QuickMenuGroup* statsSubMenu = nullptr;
   ButtonBase* modelBtn = nullptr;
   ButtonBase* radioBtn = nullptr;
+  ButtonBase* channelsBtn = nullptr;
+  ButtonBase* screensBtn = nullptr;
+  ButtonBase* statsBtn = nullptr;
   coord_t w, h;
   Window* box = nullptr;
   PageGroup* pageGroup = nullptr;
   SubMenu curPage;
 
+  QuickMenuGroup* buildSubMenu(struct SubMenuItem* items, int count, std::function<PageGroup*()> create, SubMenu first);
   void buildMainMenu();
   void buildModelMenu();
   void buildRadioMenu();
+  void buildChannelsMenu();
+  void buildScreensMenu();
+  void buildStatsMenu();
 
   void enableSubMenu(QuickMenuGroup* subMenu);
-
-  void openModelPage(SubMenu newPage);
-  void openRadioPage(SubMenu newPage);
 
   SubMenuGroup subMenuGroup(SubMenu subMenu);
 };

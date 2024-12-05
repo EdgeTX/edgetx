@@ -165,6 +165,8 @@ void ScreenAddPage::build(Window* window)
                      }
 
                      menu->setCurrentTab(pageIndex);
+
+                     delete this;
                    } else {
                      TRACE("Add main view: factory is NULL");
                    }
@@ -298,6 +300,8 @@ void ScreenSetupPage::build(Window* window)
           // Let's try to stay on the same page
           menu->removeTab(customScreenIndex + 1);
           menu->setCurrentTab(customScreenIndex);
+
+          delete this;
           return 0;
         });
     auto obj = btn->getLvObj();

@@ -35,7 +35,9 @@ class ScreenUserInterfacePage : public PageTab
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL(WWBTN_W, 60, 60, LS(60))
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::SCREENS_UI_SETUP; }
+
+  static LAYOUT_VAL(WWBTN_W, 60, 60, LS(60)))
 
  protected:
   ScreenMenu* menu;

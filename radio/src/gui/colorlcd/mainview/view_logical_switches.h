@@ -30,6 +30,8 @@ class LogicalSwitchesViewPage : public PageTab
  public:
   LogicalSwitchesViewPage();
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::CHANNELS_LS; }
+
   static LAYOUT_VAL(FOOTER_HEIGHT, 20, 40, LS(20))
   static LAYOUT_VAL(BTN_WIDTH, 57, 76, LS(57))
   static LAYOUT_VAL(BTN_HEIGHT, 20, 21, 18)
