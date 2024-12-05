@@ -21,11 +21,11 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelMenu;
 
-class ChannelsViewMenu: public TabsGroup {
+class ChannelsViewMenu: public PageGroup {
   public:
     ChannelsViewMenu(ModelMenu* parent = nullptr);
 
