@@ -565,7 +565,7 @@
 #elif defined(RADIO_TX16S) || defined(RADIO_F16)
   #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
 #elif defined(RADIO_V16)
-  #define ADC_DIRECTION                 {1,-1,1,-1,  1,1,1,   -1,1,1,1,  -1,1 }
+  #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,   -1,1,1,1,  -1,1 }
 #elif defined(PCBX10)
   #define ADC_DIRECTION                 {1,-1,1,-1,  -1,1,-1,  1,-1,1,1,   1,-1 }
 #elif defined(PCBX12S)
@@ -609,6 +609,8 @@
 #if defined(RADIO_T15)
   #define PCBREV_GPIO                   GPIO_PIN(GPIOH, 8) // PH.08
   #define PCBREV_VALUE()                (gpio_read(PCBREV_GPIO) >> 8)
+#elif defined(RADIO_V16)
+    #define PCBREV_VALUE()  {0}
 #elif defined(PCBX10)
   #define PCBREV_GPIO_1                 GPIO_PIN(GPIOH, 7) // PH.07
   #define PCBREV_GPIO_2                 GPIO_PIN(GPIOH, 8) // PH.08
@@ -1126,18 +1128,14 @@
 #endif
 
 // Heartbeat
-#define INTMODULE_HEARTBEAT
-#if defined(RADIO_V16)
-  #define INTMODULE_HEARTBEAT_GPIO                GPIO_PIN(GPIOB, 11) // PB.11 / TIM2_CH4
-  #define INTMODULE_HEARTBEAT_EXTI_PORT           LL_SYSCFG_EXTI_PORTB
-  #define INTMODULE_HEARTBEAT_EXTI_SYS_LINE       LL_SYSCFG_EXTI_LINE11
-  #define INTMODULE_HEARTBEAT_EXTI_LINE           LL_EXTI_LINE_11
-#else
+#if !defined(RADIO_V16)
+  #define INTMODULE_HEARTBEAT
   #define INTMODULE_HEARTBEAT_GPIO                GPIO_PIN(GPIOD, 12) // PD.12 / TIM4_CH1
   #define INTMODULE_HEARTBEAT_EXTI_PORT           LL_SYSCFG_EXTI_PORTH
   #define INTMODULE_HEARTBEAT_EXTI_SYS_LINE       LL_SYSCFG_EXTI_LINE12
   #define INTMODULE_HEARTBEAT_EXTI_LINE           LL_EXTI_LINE_12
 #endif
+
 // INTMODULE_HEARTBEAT_EXTI IRQ
 #if !defined(USE_EXTI15_10_IRQ)
   #define USE_EXTI15_10_IRQ
@@ -1168,13 +1166,15 @@
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // Trainer CPPM input on heartbeat pin
-#define TRAINER_MODULE_CPPM_TIMER            TIM4
-#define TRAINER_MODULE_CPPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define TRAINER_MODULE_CPPM_GPIO             INTMODULE_HEARTBEAT_GPIO
-#define TRAINER_MODULE_CPPM_TIMER_Channel    LL_TIM_CHANNEL_CH1
-#define TRAINER_MODULE_CPPM_TIMER_IRQn       TIM4_IRQn
-#define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM4_IRQHandler
-#define TRAINER_MODULE_CPPM_GPIO_AF          LL_GPIO_AF_2
+#if !defined(RADIO_V16)
+  #define TRAINER_MODULE_CPPM_TIMER            TIM4
+  #define TRAINER_MODULE_CPPM_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
+  #define TRAINER_MODULE_CPPM_GPIO             INTMODULE_HEARTBEAT_GPIO
+  #define TRAINER_MODULE_CPPM_TIMER_Channel    LL_TIM_CHANNEL_CH1
+  #define TRAINER_MODULE_CPPM_TIMER_IRQn       TIM4_IRQn
+  #define TRAINER_MODULE_CPPM_TIMER_IRQHandler TIM4_IRQHandler
+  #define TRAINER_MODULE_CPPM_GPIO_AF          LL_GPIO_AF_2
+#endif
 
 // Millisecond timer
 #define MS_TIMER                        TIM14
