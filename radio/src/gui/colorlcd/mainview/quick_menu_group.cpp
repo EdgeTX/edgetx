@@ -31,6 +31,7 @@ static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
   etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
   etx_txt_color(obj, COLOR_WHITE_INDEX, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->pad_medium, LV_PART_MAIN);
+  etx_solid_bg(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
 
   etx_obj_add_style(obj, styles->outline, LV_PART_MAIN | LV_STATE_FOCUSED);
   lv_obj_set_style_outline_color(obj, lv_color_white(), LV_PART_MAIN | LV_STATE_FOCUSED);
@@ -57,10 +58,6 @@ static lv_obj_t* etx_quick_button_create(lv_obj_t* parent)
 static void etx_quick_icon_constructor(const lv_obj_class_t* class_p,
                                        lv_obj_t* obj)
 {
-  // etx_obj_add_style(obj, styles->outline_thin, LV_PART_MAIN);
-  // lv_obj_set_style_outline_color(obj, lv_color_white(), LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->circle, LV_PART_MAIN);
-  etx_solid_bg(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
 }
 
@@ -91,19 +88,10 @@ class QuickMenuButton : public ButtonBase
   {
     padAll(PAD_ZERO);
 
-    auto iconLayout =
-        new Window(this,
-                   {(QuickMenuGroup::FAB_BUTTON_INNER_WIDTH - QuickMenuGroup::FAB_ICON_SIZE) / 2,
-                    (QuickMenuGroup::FAB_BUTTON_INNER_WIDTH - QuickMenuGroup::FAB_ICON_SIZE) / 2,
-                    QuickMenuGroup::FAB_ICON_SIZE, QuickMenuGroup::FAB_ICON_SIZE},
-                   etx_quick_icon_create);
-    iconLayout->setWindowFlag(NO_FOCUS);
-
-    iconPtr = new StaticIcon(iconLayout, 0, 0, icon, COLOR_WHITE_INDEX);
-    iconPtr->center(QuickMenuGroup::FAB_ICON_SIZE, QuickMenuGroup::FAB_ICON_SIZE);
+    iconPtr = new StaticIcon(this, (QuickMenuGroup::FAB_BUTTON_INNER_WIDTH - QuickMenuGroup::FAB_ICON_SIZE) / 2, PAD_TINY, icon, COLOR_WHITE_INDEX);
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
 
-    textPtr = new StaticText(this, {0, QuickMenuGroup::FAB_BUTTON_INNER_WIDTH - 2, QuickMenuGroup::FAB_BUTTON_INNER_WIDTH, 0},
+    textPtr = new StaticText(this, {0, QuickMenuGroup::FAB_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::FAB_BUTTON_INNER_WIDTH, 0},
                    title, COLOR_WHITE_INDEX, CENTERED | FONT(XXS));
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
   }
@@ -147,7 +135,7 @@ QuickMenuGroup::QuickMenuGroup(Window* parent, const rect_t &rect, bool createGr
         Window(parent, rect)
 {
   padAll(PAD_TINY);
-  setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_ZERO);
+  setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_TINY);
 
   if (createGroup)
     group = lv_group_create();

@@ -34,6 +34,8 @@ class ScreenAddPage : public PageTab
 
   void update(uint8_t index) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::SCREENS_ADD_PG; }
+
  protected:
   ScreenMenu* menu;
   uint8_t pageIndex;
@@ -47,6 +49,8 @@ class ScreenSetupPage : public PageTab
   void build(Window* form) override;
 
   void update(uint8_t index) override;
+
+  QuickMenu::SubMenu subMenu() override { return (QuickMenu::SubMenu)((int)QuickMenu::SubMenu::SCREENS_PG1 + customScreenIndex); }
 
  protected:
   ScreenMenu* menu;
