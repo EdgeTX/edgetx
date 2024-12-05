@@ -791,7 +791,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_RADIOMASTER_POCKET:
     case BOARD_RADIOMASTER_ZORRO:
     case BOARD_RADIOMASTER_MT12:
-    case BOARD_RADIOMASTER_GX12
+    case BOARD_RADIOMASTER_GX12:
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_T14:
     case BOARD_JUMPER_TPRO:
