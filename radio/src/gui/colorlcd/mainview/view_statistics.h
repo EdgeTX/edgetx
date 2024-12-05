@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class StatisticsViewPageGroup : public TabsGroup
+class StatisticsViewPageGroup : public PageGroup
 {
  public:
   StatisticsViewPageGroup();
