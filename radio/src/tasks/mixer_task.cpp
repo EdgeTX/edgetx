@@ -28,8 +28,10 @@
 #include "hal/usb_driver.h"
 
 #include "hal/watchdog_driver.h"
+#if defined(HALL_SYNC) && !defined(SIMU)
 #include "stm32_gpio.h"
 #include "hal/gpio.h"
+#endif
 
 RTOS_TASK_HANDLE mixerTaskId;
 RTOS_DEFINE_STACK(mixerTaskId, mixerStack, MIXER_STACK_SIZE);
@@ -226,7 +228,7 @@ void doMixerCalculations()
 
   tmr10ms_t tmr10ms = get_tmr10ms();
 
-#if defined(HALL_SYNC)
+#if defined(HALL_SYNC) && !defined(SIMU)
   gpio_set(HALL_SYNC);
 #endif
 
@@ -256,7 +258,7 @@ void doMixerCalculations()
   evalMixes(tick10ms);
   DEBUG_TIMER_STOP(debugTimerEvalMixes);
 
-#if defined(HALL_SYNC)
+#if defined(HALL_SYNC) && !defined(SIMU)
   gpio_clear(HALL_SYNC);
 #endif
 }
