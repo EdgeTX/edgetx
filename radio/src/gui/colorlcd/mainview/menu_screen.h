@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class ScreenMenu : public TabsGroup
+class ScreenMenu : public PageGroup
 {
  public:
   ScreenMenu(int8_t tabIdx = -1);
