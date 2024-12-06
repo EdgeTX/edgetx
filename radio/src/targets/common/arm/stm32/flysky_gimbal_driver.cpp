@@ -35,7 +35,7 @@
 
 static const stm32_usart_t fsUSART = {
   .USARTx = FLYSKY_HALL_SERIAL_USART,
-  .txGPIO = GPIO_UNDEF,
+  .txGPIO = FLYSKY_HALL_SERIAL_TX_GPIO,
   .rxGPIO = FLYSKY_HALL_SERIAL_RX_GPIO,
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 6,
@@ -48,6 +48,13 @@ static const stm32_usart_t fsUSART = {
 };
 
 DEFINE_STM32_SERIAL_PORT(FSGimbal, fsUSART, HALLSTICK_BUFF_SIZE, 0);
+
+static const etx_serial_port_t _fs_gimbal_serial_port = {
+  .name = "gimbals",
+  .uart = &STM32SerialDriver,
+  .hw_def = REF_STM32_SERIAL_PORT(FSGimbal),
+  .set_pwr = nullptr,
+};
 
 static STRUCT_HALL HallProtocol = { 0 };
 
@@ -150,7 +157,7 @@ static void flysky_gimbal_loop(void*)
   }
 }
 
-static void flysky_gimbal_deinit()
+void flysky_gimbal_deinit()
 {
   STM32SerialDriver.deinit(_fs_usart_ctx);
 }
@@ -180,4 +187,9 @@ bool flysky_gimbal_init()
 
   flysky_gimbal_deinit();
   return false;
+}
+
+const etx_serial_port_t* flysky_gimbal_get_port()
+{
+  return &_fs_gimbal_serial_port;
 }
