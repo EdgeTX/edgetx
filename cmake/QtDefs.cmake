@@ -13,6 +13,7 @@ find_package(Qt5LinguistTools)
 find_package(Qt5PrintSupport)
 find_package(Qt5Multimedia)
 find_package(Qt5Svg)
+find_package(Qt5SerialPort)
 
 if(Qt5Core_FOUND)
   message(STATUS "Qt Version: ${Qt5Core_VERSION}")

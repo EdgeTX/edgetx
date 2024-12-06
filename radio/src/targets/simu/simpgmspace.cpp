@@ -36,9 +36,6 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <string>
-#ifdef SIMU_COM_PORT
-  #include "rs232.h"
-#endif
 
 #if !defined (_MSC_VER) || defined (__GNUC__)
   #include <chrono>
@@ -601,78 +598,47 @@ const etx_serial_port_t UsbSerialPort = { "USB-VCP", nullptr, nullptr };
 #endif
 
 #if defined(AUX_SERIAL) || defined(AUX2_SERIAL)
-static void* _fake_drv_init(void* n, const etx_serial_init* dev) {
-#ifdef SIMU_COM_PORT
-  static bool init = false;
-  if (!init) {
-    comEnumerate();
-    init=true;
-  }
-  comOpen(SIMU_COM_PORT, dev->baudrate);
-#endif
-  return (void*)1;
-  }
-static void _fake_drv_fct1(void*) {
-#ifdef SIMU_COM_PORT
-  comClose(SIMU_COM_PORT);
-#endif
-}
-static void _fake_drv_send_byte(void*, uint8_t b) {
-#ifdef SIMU_COM_PORT
-  comWrite(SIMU_COM_PORT, (char*)&b, 1);
-#endif
-}
-static void _fake_drv_send_buffer(void*, const uint8_t* b, uint32_t l) {
-#ifdef SIMU_COM_PORT
-  comWrite(SIMU_COM_PORT, (char*)b, l);
-#endif
-}
-static int _fake_drv_get_byte(void*, uint8_t* b) {
-#ifdef SIMU_COM_PORT
-  return comRead(SIMU_COM_PORT, (char*)b, 1);
-#else
-  return 0;
-#endif
-  }
-static void _fake_drv_set_baudrate(void*, uint32_t baudrate) {
-#ifdef SIMU_COM_PORT
-  comClose(SIMU_COM_PORT);
-  comOpen(SIMU_COM_PORT, baudrate);
-#endif
-}
-static const etx_serial_driver_t _fake_drv = {
-  .init = _fake_drv_init,
-  .deinit = _fake_drv_fct1,
-  .sendByte = _fake_drv_send_byte,
-  .sendBuffer = _fake_drv_send_buffer,
+static void* null_drv_init(void* hw_def, const etx_serial_init* dev) { return nullptr; }
+static void null_drv_deinit(void* ctx) { }
+static void null_drv_send_byte(void* ctx, uint8_t b) { }
+static void null_drv_send_buffer(void* ctx, const uint8_t* b, uint32_t l) { }
+static int null_drv_get_byte(void* ctx, uint8_t* b) { return 0; }
+static void null_drv_set_baudrate(void* ctx, uint32_t baudrate) { }
+
+const etx_serial_driver_t null_drv = {
+  .init = null_drv_init,
+  .deinit = null_drv_deinit,
+  .sendByte = null_drv_send_byte,
+  .sendBuffer = null_drv_send_buffer,
   .txCompleted = nullptr,
   .waitForTxCompleted = nullptr,
   .enableRx = nullptr,
-  .getByte = _fake_drv_get_byte,
+  .getByte = null_drv_get_byte,
   .getLastByte = nullptr,
   .getBufferedBytes = nullptr,
   .copyRxBuffer = nullptr,
   .clearRxBuffer = nullptr,
   .getBaudrate = nullptr,
-  .setBaudrate = _fake_drv_set_baudrate,
+  .setBaudrate = null_drv_set_baudrate,
   .setPolarity = nullptr,
   .setHWOption = nullptr,
   .setReceiveCb = nullptr,
   .setIdleCb = nullptr,
   .setBaudrateCb = nullptr,
 };
+
+static void null_pwr_aux(uint8_t) {}
 #endif
 
 #if defined(AUX_SERIAL)
 #if defined(AUX_SERIAL_PWR_GPIO)
-  static void _fake_pwr_aux(uint8_t) {}
-  #define AUX_SERIAL_PWR _fake_pwr_aux
+  #define AUX_SERIAL_PWR null_pwr_aux
 #else
   #define AUX_SERIAL_PWR nullptr
 #endif
-static const etx_serial_port_t auxSerialPort = {
+static etx_serial_port_t auxSerialPort = {
   "AUX1",
-  &_fake_drv,
+  &null_drv,
   nullptr,
   AUX_SERIAL_PWR
 };
@@ -683,14 +649,13 @@ static const etx_serial_port_t auxSerialPort = {
 
 #if defined(AUX2_SERIAL)
 #if defined(AUX_SERIAL_PWR_GPIO)
-  static void _fake_pwr_aux2(uint8_t) {}
-  #define AUX2_SERIAL_PWR _fake_pwr_aux2
+  #define AUX2_SERIAL_PWR null_pwr_aux
 #else
   #define AUX2_SERIAL_PWR nullptr
 #endif
-static const etx_serial_port_t aux2SerialPort = {
+static etx_serial_port_t aux2SerialPort = {
   "AUX2",
-  &_fake_drv,
+  &null_drv,
   nullptr,
   AUX2_SERIAL_PWR
 };
@@ -699,7 +664,7 @@ static const etx_serial_port_t aux2SerialPort = {
 #define AUX2_SERIAL_PORT nullptr
 #endif // AUX2_SERIAL
 
-static const etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
+etx_serial_port_t* serialPorts[MAX_AUX_SERIAL] = {
   AUX_SERIAL_PORT,
   AUX2_SERIAL_PORT,
 };
