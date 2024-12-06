@@ -1058,6 +1058,31 @@
   #define TR_BL_FLASH_KEY             "Halte [ENT] gedrückt, zum schreiben"
   #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
   #define TR_BL_EXIT_KEY              "[RTN] zum beenden"
+#elif defined(PCBPL18)
+   // Bootloader PL18/NB4+ specific - ASCII characters only
+  #define TR_BL_RF_USB_ACCESS         "RF USB Zugriff"
+  #define TR_BL_CURRENT_FW            "Aktuelle Firmware:"
+  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
+  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
+  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
+  #define TR_BL_ENABLE                "Aktivieren"
+  #define TR_BL_DISABLE               "Deaktivieren"
+  #if defined(RADIO_NV14_FAMILY)
+    #define TR_BL_SELECT_KEY          "[R TRIM] um Datei auszuwählen"
+    #define TR_BL_FLASH_KEY           "Halte [R TRIM] gedrückt, zum schreiben"
+    #define TR_BL_ERASE_KEY           "Halte [R TRIM] gedrückt, to erase"
+    #define TR_BL_EXIT_KEY            "[L TRIM] zum beenden"
+  #elif defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY          "[SW1A] um Datei auszuwählen"
+    #define TR_BL_FLASH_KEY           "Halte [SW1A] gedrückt, zum schreiben"
+    #define TR_BL_ERASE_KEY           "Halte [SW1A] gedrückt, to erase"
+    #define TR_BL_EXIT_KEY            "[SW1B] zum beenden"
+  #else
+    #define TR_BL_SELECT_KEY          "[TR4 Dn] um Datei auszuwählen"
+    #define TR_BL_FLASH_KEY           "Halte [TR4 Dn] gedrückt, zum schreiben"
+    #define TR_BL_ERASE_KEY           "Halte [TR4 Dn] gedrückt, to erase"
+    #define TR_BL_EXIT_KEY            "[TR4 Up] zum beenden"
+  #endif
 #elif defined(PCBNV14)
    // Bootloader NV14 specific - ASCII characters only
   #define TR_BL_RF_USB_ACCESS         "RF USB Zugriff"
@@ -1067,16 +1092,6 @@
   #define TR_BL_EXIT_KEY              " [L TRIM] zum beenden"
   #define TR_BL_ENABLE                "Aktivieren"
   #define TR_BL_DISABLE               "Deaktivieren"
-#elif defined(PCBPL18)
-   // Bootloader PL18 specific - ASCII characters only
-  #define TR_BL_RF_USB_ACCESS         "RF USB access"
-  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn] to select file"
-  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] long to flash"
-  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] long to erase"
-  #define TR_BL_EXIT_KEY              " [TR4 Up] to exit"
 #endif
 
 // Taranis Info Zeile Anzeigen

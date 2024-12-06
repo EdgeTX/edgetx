@@ -21,13 +21,7 @@
  
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
-
-#include "stm32_gpio_driver.h"
 #include "stm32_ws2812.h"
-#include "boards/generic_stm32/rgb_leds.h"
-
-#include "board.h"
-#include "boards/generic_stm32/module_ports.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -36,13 +30,20 @@
 #include "hal/watchdog_driver.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/rotary_encoder.h"
+
+#include "board.h"
+#include "boards/generic_stm32/module_ports.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 #include "globals.h"
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
 
-#include "flysky_gimbal_driver.h"
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
 #include "timers_driver.h"
 
 #include "battery_driver.h"
@@ -56,15 +57,31 @@
 // Common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
-// Common LED driver
-extern const stm32_pulse_timer_t _led_timer;
-
 #if defined(SEMIHOSTING)
 extern "C" void initialise_monitor_handles();
 #endif
 
 #if defined(SPI_FLASH)
 extern "C" void flushFTL();
+#endif
+
+#if defined(RADIO_NV14_FAMILY)
+  HardwareOptions hardwareOptions;
+
+  static uint8_t boardGetPcbRev()
+  {
+    gpio_init(INTMODULE_PWR_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+    delay_ms(1); // delay to let the input settle, else it does not work properly
+
+    // detect NV14 vs EL18
+    if (gpio_read(INTMODULE_PWR_GPIO)) {
+      // pull-up connected: EL18
+      return PCBREV_EL18;
+    } else {
+      // pull-down connected: NV14
+      return PCBREV_NV14;
+    }
+  }
 #endif
 
 void delay_self(int count)
@@ -75,6 +92,10 @@ void delay_self(int count)
    }
 }
 
+#if defined(LED_STRIP_GPIO)
+// Common LED driver
+extern const stm32_pulse_timer_t _led_timer;
+
 void ledStripOff()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
@@ -82,11 +103,43 @@ void ledStripOff()
   }
   ws2812_update(&_led_timer);
 }
+#endif
+
+#if defined(RADIO_NB4P)
+void disableVoiceChip()
+{
+  gpio_init(VOICE_CHIP_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_clear(VOICE_CHIP_EN_GPIO);
+}
+#endif
 
 void boardBLInit()
 {
   // USB charger status pins
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+
+#if defined(USB_SW_GPIO)
+  gpio_init(USB_SW_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
+#if defined(RADIO_NV14_FAMILY)
+  // detect NV14 vs EL18
+  hardwareOptions.pcbrev = boardGetPcbRev();
+#endif
+}
+
+#if defined(RADIO_NB4P)
+void boardBLPreJump()
+{
+  LL_ADC_Disable(ADC_MAIN);
+}
+#endif
+
+static void monitorInit()
+{
+#if defined(VBUS_MONITOR_GPIO)
+  gpio_init(VBUS_MONITOR_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+#endif
 }
 
 void boardInit()
@@ -109,13 +162,19 @@ void boardInit()
 
   board_trainer_init();
   battery_charge_init();
-  flysky_gimbal_init();
+  
+  #if defined(FLYSKY_GIMBAL)
+    flysky_gimbal_init();
+  #endif
+  
   timersInit();
   touchPanelInit();
   usbInit();
 
+#if defined(LED_STRIP_GPIO)
   ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   ledStripOff();
+#endif
 
   uint32_t press_start = 0;
   uint32_t press_end = 0;
@@ -150,7 +209,14 @@ void boardInit()
 
   keysInit();
   switchInit();
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
+  rotaryEncoderInit();
+#endif
+#if defined(RADIO_NB4P)
+  disableVoiceChip();
+#endif
   audioInit();
+  monitorInit();
   adcInit(&_adc_driver);
   hapticInit();
 
@@ -190,10 +256,11 @@ void boardOff()
   rtcDisableBackupReg();
 
 #if !defined(BOOT)
+#if defined(LED_STRIP_GPIO)
   ledStripOff();
+#endif
   if (isChargerActive())
   {
-    delay_ms(100);  // Add a delay to wait for lcdOff
 //    RTC->BKP0R = SOFTRESET_REQUEST;
     NVIC_SystemReset();
   }
@@ -225,12 +292,14 @@ void boardOff()
   }
 }
 
+#if !defined(RADIO_NV14_FAMILY)
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
   static uint8_t lastState = 0;
 
-  uint8_t state = gpio_read(UCHARGER_GPIO) ? 1 : 0;
+  uint8_t state = IS_UCHARGER_ACTIVE();
+
   if (state == lastState)
     debouncedState = state;
   else
@@ -238,3 +307,4 @@ int usbPlugged()
   
   return debouncedState;
 }
+#endif

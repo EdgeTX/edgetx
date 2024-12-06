@@ -129,16 +129,19 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=V16"
             ;;
         nv14)
-            BUILD_OPTIONS+="-DPCB=NV14"
+            BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=NV14"
             ;;
         el18)
-            BUILD_OPTIONS+="-DPCB=NV14 -DPCBREV=EL18"
+            BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=EL18"
             ;;
         pl18)
             BUILD_OPTIONS+="-DPCB=PL18"
             ;;
         pl18ev)
             BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=PL18EV"
+            ;;
+        nb4p)
+            BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=NB4P"
             ;;
         *)
             echo "Unknown target: $target_name"
