@@ -141,14 +141,8 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
     case Board::BOARD_RADIOMASTER_BOXER:
       radioUiWidget = new SimulatedUIWidgetBoxer(simulator, this);
       break;
-    case Board::BOARD_RADIOMASTER_MT12:
-      radioUiWidget = new SimulatedUIWidgetMT12(simulator, this);
-      break;
     case Board::BOARD_RADIOMASTER_T8:
       radioUiWidget = new SimulatedUIWidgetT8(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_TX16S:
-      radioUiWidget = new SimulatedUIWidgetTX16S(simulator, this);
       break;
     case Board::BOARD_RADIOMASTER_POCKET:
       radioUiWidget = new SimulatedUIWidgetPocket(simulator, this);
@@ -169,7 +163,7 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
       radioUiWidget = new SimulatedUIWidgetV16(simulator, this);
       break;
     default:
-      radioUiWidget = new SimulatedUIWidget9X(simulator, this);
+      radioUiWidget = new SimulatedUIWidgetGeneric(simulator, this);
       break;
   }
 
@@ -184,6 +178,7 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
 
   connect(radioUiWidget, &SimulatedUIWidget::controlValueChange, this, &SimulatorWidget::onRadioWidgetValueChange);
   connect(radioUiWidget, &SimulatedUIWidget::customStyleRequest, this, &SimulatorWidget::setUiAreaStyle);
+  connect(radioUiWidget, &SimulatedUIWidget::resizeRequest, radioUiWidget, &SimulatedUIWidget::shrink);
 
   vJoyLeft = new VirtualJoystickWidget(this, 'L');
   ui->leftStickLayout->addWidget(vJoyLeft);

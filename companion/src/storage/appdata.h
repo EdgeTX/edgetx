@@ -653,10 +653,18 @@ class AppData: public CompStoreObj
     };
     Q_ENUM(UpdateCheckFreq)
 
+    enum SimuGenericKeysPos {
+      SIMU_GENERIC_KEYS_DEFAULT,
+      SIMU_GENERIC_KEYS_LEFT,
+      SIMU_GENERIC_KEYS_RIGHT
+    };
+    Q_ENUM(SimuGenericKeysPos)
+
     static QStringList newModelActionsList() { return { tr("None"), tr("Wizard"), tr("Editor"), tr("Template"), tr("Prompt") } ; }
     static QStringList updateCheckFreqsList() { return { tr("Manual"), tr("Startup"), tr("Daily"), tr("Weekly"), tr("Monthly") } ; }
     // refer enum QtMsgType
     static QStringList updateLogLevelsList() { return { tr("Debug"), tr("Warning"), tr("Critical"), tr("Fatal"), tr("Information") } ; }
+    static QStringList simuGenericKeysPosList() { return { tr("Default"), tr("Left"), tr("Right") } ; }
 
     explicit AppData();
     void init() override;
@@ -819,6 +827,8 @@ class AppData: public CompStoreObj
     PROPERTY(bool, simuSW,      true)
     PROPERTY(bool, disableJoystickWarning, false)
 
+    PROPERTY(SimuGenericKeysPos, simuGenericKeysPos, SIMU_GENERIC_KEYS_DEFAULT)
+
     // Message box confirmations
     PROPERTY(bool, confirmWriteModelsAndSettings, true)
 
@@ -827,6 +837,7 @@ class AppData: public CompStoreObj
 
     CREATE_ENUM_FRIEND_STREAM_OPS(AppData::NewModelAction)
     CREATE_ENUM_FRIEND_STREAM_OPS(AppData::UpdateCheckFreq)
+    CREATE_ENUM_FRIEND_STREAM_OPS(AppData::SimuGenericKeysPos)
 };
 
 extern AppData g;

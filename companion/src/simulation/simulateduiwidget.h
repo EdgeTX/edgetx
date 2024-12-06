@@ -69,14 +69,13 @@ struct GenericKeyDefinition {
   int index = 0;
   QChar side = 'L';
   int gridRow = 0;
-  int gridCol = 0;
   QList<int> keys = QList<int>();
   QString helpKeys = "";
   QString helpActions = "";
 
-  GenericKeyDefinition(int index, QChar side, int gridRow, int gridCol,
+  GenericKeyDefinition(int index, QChar side, int gridRow,
                        QList<int> keys, QString helpKeys, QString helpActions) :
-                       index(index), side(side), gridRow(gridRow), gridCol(gridCol),
+                       index(index), side(side), gridRow(gridRow),
                        keys(keys), helpKeys(helpKeys), helpActions(helpActions) {}
 
   GenericKeyDefinition() = default;
@@ -115,11 +114,14 @@ class SimulatedUIWidget : public QWidget
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
 
+    virtual void shrink() { };
+
   signals:
 
     void controlValueChange(RadioWidget::RadioWidgetType type, int index, int value);
     void customStyleRequest(const QString & style);
     void simulatorWheelEvent(qint8 steps);
+    void resizeRequest();
 
   protected slots:
 
@@ -184,7 +186,6 @@ namespace Ui {
   class SimulatedUIWidgetTX12;
   class SimulatedUIWidgetZorro;
   class SimulatedUIWidgetBoxer;
-  class SimulatedUIWidgetMT12;
   class SimulatedUIWidgetPocket;
   class SimulatedUIWidgetT8;
   class SimulatedUIWidgetFatfishF16;
@@ -202,9 +203,11 @@ class SimulatedUIWidgetGeneric: public SimulatedUIWidget
     explicit SimulatedUIWidgetGeneric(SimulatorInterface * simulator, QWidget * parent = nullptr);
     virtual ~SimulatedUIWidgetGeneric();
 
+  public slots:
+    virtual void shrink();
+
   private:
     Ui::SimulatedUIWidgetGeneric * ui;
-
 };
 
 class SimulatedUIWidget9X: public SimulatedUIWidget
@@ -487,18 +490,6 @@ class SimulatedUIWidgetTX12: public SimulatedUIWidget
     Ui::SimulatedUIWidgetTX12 * ui;
 };
 
-class SimulatedUIWidgetTX16S: public SimulatedUIWidget
-{
-  Q_OBJECT
-
-  public:
-    explicit SimulatedUIWidgetTX16S(SimulatorInterface * simulator, QWidget * parent = nullptr);
-    virtual ~SimulatedUIWidgetTX16S();
-
-  private:
-    Ui::SimulatedUIWidgetTX16S * ui;
-};
-
 class SimulatedUIWidgetZorro: public SimulatedUIWidget
 {
   Q_OBJECT
@@ -521,15 +512,6 @@ class SimulatedUIWidgetBoxer: public SimulatedUIWidget
 
   private:
     Ui::SimulatedUIWidgetBoxer * ui;
-};
-
-class SimulatedUIWidgetMT12: public SimulatedUIWidgetGeneric
-{
-  Q_OBJECT
-
-  public:
-    explicit SimulatedUIWidgetMT12(SimulatorInterface * simulator, QWidget * parent = nullptr);
-    virtual ~SimulatedUIWidgetMT12();
 };
 
 class SimulatedUIWidgetPocket: public SimulatedUIWidget
