@@ -1625,22 +1625,16 @@ static int luaModelSetGlobalVariable(lua_State *L)
 }
 
 /*luadoc
-@function model.getGlobalVariableDetails(index)
+@name model.getGlobalVariableDetails(index)
 
-Returns details about a Global Variable, but not values
+@description Returns details about a Global Variable, but not values
 
-@param index  zero based global variable index, use 0 for GV1, 8 for GV9
-
-@retval nil   requested global variable does not exist
-
-@retval table output parameters
-
-Example:
-
-```lua
-  -- get GV3 (index = 2)
-  val = model.getGlobalVariableDetails(2)
-```
+@syntax val = model.getGlobalVariableDetails(index)
+@arg index required integer
+@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
+@return table
+@returndesc table with keys - name (string), min (int), max, prec, unit and popup (bool) - if exists
+@apistat 2.11.0 introduced
 */
 static int luaModelGetGlobalVariableDetails(lua_State *L)
 {
@@ -1660,13 +1654,16 @@ static int luaModelGetGlobalVariableDetails(lua_State *L)
 }
 
 /*luadoc
-@function model.setGlobalVariableDetails(index)
+@name model.setGlobalVariableDetails(index, params)
 
-Sets details about a Global Variable, but not values
+@description Sets details about a Global Variable, but not values
 
-@param index  zero based global variable index, use 0 for GV1, 8 for GV9
-
-@param params see model.getGlobalVariableDetails return format for table format.
+@arg index required integer
+@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
+@arg table params
+@argdesc see model.getGlobalVariableDetails(index) return format for table format.
+@return none
+@apistat 2.11.0 introduced
 
 */
 static int luaModelSetGlobalVariableDetails(lua_State *L)
