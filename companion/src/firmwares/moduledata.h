@@ -103,7 +103,8 @@ enum ModuleSubtypeR9M {
   MODULE_SUBTYPE_R9M_LAST=MODULE_SUBTYPE_R9M_AUPLUS
 };
 
-#define PPM_NUM_SUBTYPES  2
+#define PPM_NUM_SUBTYPES  3
+#define SBUS_NUM_SUBTYPES  2
 
 constexpr int PXX2_MAX_RECEIVERS_PER_MODULE = 3;
 constexpr int PXX2_LEN_RX_NAME              = 8;

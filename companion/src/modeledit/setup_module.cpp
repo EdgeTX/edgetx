@@ -373,7 +373,7 @@ void ModulePanel::update()
         break;
       case PULSES_SBUS:
         module.channelsCount = 16;
-        mask |=  MASK_SBUSPPM_FIELDS| MASK_CHANNELS_RANGE;
+        mask |=  MASK_SUBTYPES | MASK_SBUSPPM_FIELDS| MASK_CHANNELS_RANGE;
         break;
       case PULSES_MULTIMODULE:
         mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_MULTIMODULE | MASK_SUBTYPES;
@@ -520,6 +520,9 @@ void ModulePanel::update()
       break;
     case PULSES_PPM:
         numEntries = PPM_NUM_SUBTYPES;
+        break;
+    case PULSES_SBUS:
+        numEntries = SBUS_NUM_SUBTYPES;
         break;
     default:
       break;

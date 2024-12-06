@@ -625,7 +625,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
 
     case FrskyTelemetryFallback:
       setMultiTelemetryBufferState(module, FrskyTelemetryFallbackFirstByte);
-      processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
+      processFrskySportTelemetryData(module, data, rxBuffer, &rxBufferCount);
       break;
 
     case FrskyTelemetryFallbackFirstByte:
@@ -633,7 +633,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
         setMultiTelemetryBufferState(module, MultiStatusOrFrskyData);
       }
       else {
-        processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
+        processFrskySportTelemetryData(module, data, rxBuffer, &rxBufferCount);
         if (data != 0x7e)
           setMultiTelemetryBufferState(module, FrskyTelemetryFallbackNextBytes);
       }
@@ -641,7 +641,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
       break;
 
     case FrskyTelemetryFallbackNextBytes:
-      processFrskySportTelemetryData(module, data, rxBuffer, rxBufferCount);
+      processFrskySportTelemetryData(module, data, rxBuffer, &rxBufferCount);
       if (data == 0x7e) {
         // end of packet or start of new packet
         setMultiTelemetryBufferState(module, FrskyTelemetryFallbackFirstByte);

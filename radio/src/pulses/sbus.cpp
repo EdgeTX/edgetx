@@ -93,12 +93,47 @@ static void setupPulsesSbus(uint8_t module, uint8_t*& p_buf)
 
 #define SBUS_BAUDRATE 100000
 
+typedef void (*ppm_telemetry_fct_t)(uint8_t module, uint8_t data, uint8_t* buffer, uint8_t* len);
+static ppm_telemetry_fct_t _processTelemetryData;
+
 const etx_serial_init sbusUartParams = {
     .baudrate = SBUS_BAUDRATE,
     .encoding = ETX_Encoding_8E2,
     .direction = ETX_Dir_TX,
     .polarity = ETX_Pol_Inverted,
 };
+
+static const etx_serial_init sbusSportSerialParams = {
+    .baudrate = FRSKY_SPORT_BAUDRATE,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_RX,
+    .polarity = ETX_Pol_Normal,
+};
+
+static bool sbusInitSPortTelemetry(uint8_t module)
+{
+  // Try S.PORT hardware USART (requires HW inverters)
+  if (modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &sbusSportSerialParams, false) != nullptr) {
+    return true;
+  }
+
+  return false;
+}
+
+static void _init_telemetry(uint8_t module, uint8_t telemetry_type)
+{
+  switch (telemetry_type) {
+    case SBUS_PROTO_TLM_SPORT:
+      if (sbusInitSPortTelemetry(module)) {
+        _processTelemetryData = processFrskySportTelemetryData;
+      }
+      break;
+
+    default:
+      _processTelemetryData = nullptr;
+      break;
+  }
+}
 
 static void* sbusInit(uint8_t module)
 {
@@ -111,6 +146,11 @@ static void* sbusInit(uint8_t module)
   if (!mod_st) return nullptr;
 
   mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
+
+  uint8_t telemetry_type = g_model.moduleData[module].subType;
+  mod_st->user_data = (void*)(uintptr_t)telemetry_type;
+
+  _init_telemetry(module, telemetry_type);
   return (void*)mod_st;
 }
 
@@ -148,12 +188,33 @@ static void sbusSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   mixerSchedulerSetPeriod(module, SBUS_PERIOD(module));
 }
 
+static void sbusProcessTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len) {
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  if (_processTelemetryData) {
+    _processTelemetryData(module, data, buffer, len);
+  }
+}
+
+static void sbusOnConfigChange(void* ctx)
+{
+  auto mod_st = (etx_module_state_t*)ctx;
+  auto module = modulePortGetModule(mod_st);
+
+  uint8_t telemetry_type = (uint8_t)(uintptr_t)mod_st->user_data;
+  if (telemetry_type != g_model.moduleData[module].subType) {
+    // restart during next mixer cycle
+    restartModuleAsync(module, 0);
+  }
+}
+
 const etx_proto_driver_t SBusDriver = {
   .protocol = PROTOCOL_CHANNELS_SBUS,
   .init = sbusInit,
   .deinit = sbusDeInit,
   .sendPulses = sbusSendPulses,
-  .processData = nullptr,
+  .processData = sbusProcessTelemetryData,
   .processFrame = nullptr,
-  .onConfigChange = nullptr,
+  .onConfigChange = sbusOnConfigChange,
 };

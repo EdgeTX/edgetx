@@ -318,7 +318,9 @@ static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value :
 
 inline uint8_t MODULE_TYPE_ROWS(int moduleIdx)
 {
-  if (isModuleXJT(moduleIdx) || isModuleISRM(moduleIdx) || isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx) || isModulePPM(moduleIdx))
+  if (isModuleXJT(moduleIdx) || isModuleISRM(moduleIdx) ||
+      isModuleR9MNonAccess(moduleIdx) || isModuleDSM2(moduleIdx) ||
+      isModuleSBUS(moduleIdx) || isModulePPM(moduleIdx))
     return 1;
   else
     return 0;
@@ -1250,6 +1252,10 @@ void menuModelSetup(event_t event)
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS,
                              g_model.moduleData[INTERNAL_MODULE].subType,
                              menuHorizontalPosition == 1 ? attr : 0);
+        else if (isModuleSBUS(moduleIdx))
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_SBUS_PROTOCOLS,
+                             g_model.moduleData[moduleIdx].subType,
+                             menuHorizontalPosition == 1 ? attr : 0);
 #if defined(PPM)
         else if (isModulePPM(moduleIdx))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_PPM_PROTOCOLS,
@@ -1330,11 +1336,15 @@ void menuModelSetup(event_t event)
                   CHECK_INCDEC_MODELVAR(event,
                                         g_model.moduleData[moduleIdx].subType,
                                         DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
+                } else if (isModuleSBUS(moduleIdx)) {
+                  CHECK_INCDEC_MODELVAR(event,
+                                        g_model.moduleData[moduleIdx].subType,
+                                        SBUS_PROTO_TLM_NONE, SBUS_PROTO_TLM_SPORT);
 #if defined(PPM)
                 } else if (isModulePPM(moduleIdx)) {
                   CHECK_INCDEC_MODELVAR(event,
                                         g_model.moduleData[moduleIdx].subType,
-                                        PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
+                                        PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_SPORT);
 #endif
                 } else if (isModuleR9MNonAccess(moduleIdx)) {
                   g_model.moduleData[moduleIdx].subType =
