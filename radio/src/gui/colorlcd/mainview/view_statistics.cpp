@@ -25,6 +25,7 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 #include "mixer_scheduler.h"
+#include "lua/lua_states.h"
 
 class StatisticsViewPage : public PageTab
 {
