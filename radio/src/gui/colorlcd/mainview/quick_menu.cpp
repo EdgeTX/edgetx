@@ -70,16 +70,16 @@ QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::f
   // Save focus
   Layer::push(this);
 
-  w = (QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_TINY) * QM_COLS - PAD_TINY + PAD_LARGE * 2;
-  h = (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY) * QM_ROWS - PAD_TINY + PAD_LARGE * 3;
+  w = (QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_TINY) * QM_COLS - PAD_TINY + PAD_MEDIUM * 2;
+  h = (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY) * QM_ROWS - PAD_TINY + PAD_SMALL + PAD_MEDIUM * 2;
 
 #if !PORTRAIT_LCD
   if (modelHasNotes())
-    w += QuickMenuGroup::FAB_BUTTON_WIDTH;
+    w += QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_TINY;
 #endif
 
   box = new Window(this, {(LCD_W - w) / 2, (LCD_H - h) / 2, w, h}, etx_modal_dialog_create);
-  box->padAll(PAD_MEDIUM);
+  box->padAll(PAD_SMALL);
 
   mainMenu = new QuickMenuGroup(box,
           {0, 0, w - PAD_MEDIUM * 2, QMMAIN_ROWS * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
