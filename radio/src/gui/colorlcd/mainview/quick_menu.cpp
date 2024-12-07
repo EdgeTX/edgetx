@@ -460,3 +460,13 @@ void QuickMenu::buildScreensMenu()
     return 0;
   });
 }
+
+void QuickMenu::onEvent(event_t event)
+{
+  if (event == EVT_KEY_LONG(KEY_EXIT)) {
+    inSubMenu = false;
+    onCancel();
+  } else {
+    Window::onEvent(event);
+  }
+}
