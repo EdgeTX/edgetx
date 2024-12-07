@@ -114,14 +114,12 @@ class QuickMenuButton : public ButtonBase
 
   void setDisabled()
   {
-    enable(false);
     iconPtr->enable(false);
     textPtr->enable(false);
   }
 
   void setEnabled()
   {
-    enable(true);
     iconPtr->enable(true);
     textPtr->enable(true);
   }
@@ -145,6 +143,7 @@ ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
                                   std::function<uint8_t(void)> pressHandler, bool visible)
 {
   ButtonBase* b = new QuickMenuButton(this, icon, title, pressHandler);
+  b->setLongPressHandler(pressHandler);
   btns.push_back(b);
   if (group) lv_group_add_obj(group, b->getLvObj());
   b->setFocusHandler([=](bool focus) {
