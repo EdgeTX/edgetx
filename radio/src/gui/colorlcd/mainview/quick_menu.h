@@ -100,6 +100,7 @@ class QuickMenu : public Window
   void onSelect();
   void closeMenu();
   void deleteLater(bool detach = true, bool trash = true) override;
+  void onEvent(event_t event) override;
 
   void setFocus(SubMenu selection);
 
