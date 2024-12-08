@@ -115,25 +115,25 @@ struct YamlNode
     .tag=(str)
 
 #define YAML_IDX                                \
-    { .size=0, .type=YDT_IDX, 0, YAML_TAG("idx") }
+    { .size=0, .type=YDT_IDX, .elmts=0, YAML_TAG("idx") }
 
 #define YAML_IDX_CUST(tag, f_read, f_write)                             \
-    { .size=0, .type=YDT_IDX, 0, YAML_TAG(tag), .u={._cust_idx={.read=(f_read), .write=(f_write) }} }
+    { .size=0, .type=YDT_IDX, .elmts=0, YAML_TAG(tag), .u={._cust_idx={.read=(f_read), .write=(f_write) }} }
 
 #define YAML_SIGNED(tag, bits)                          \
-    { .size=(bits), .type=YDT_SIGNED, 0, YAML_TAG(tag) }
+    { .size=(bits), .type=YDT_SIGNED, .elmts=0, YAML_TAG(tag) }
 
 #define YAML_UNSIGNED(tag, bits)                        \
-    { .size=(bits), .type=YDT_UNSIGNED, 0, YAML_TAG(tag) }
+    { .size=(bits), .type=YDT_UNSIGNED, .elmts=0, YAML_TAG(tag) }
 
 #define YAML_SIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)     \
-    { .size=(bits), .type=YDT_SIGNED, 0, YAML_TAG(tag), .u={._cust={ .cust_to_uint=f_cust_to_uint, .uint_to_cust=f_uint_to_cust }} }
+    { .size=(bits), .type=YDT_SIGNED, .elmts=0, YAML_TAG(tag), .u={._cust={ .cust_to_uint=f_cust_to_uint, .uint_to_cust=f_uint_to_cust }} }
 
 #define YAML_UNSIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)   \
-    { .size=(bits), .type=YDT_UNSIGNED, 0, YAML_TAG(tag), .u={._cust={ .cust_to_uint=f_cust_to_uint, .uint_to_cust=f_uint_to_cust }} }
+    { .size=(bits), .type=YDT_UNSIGNED, .elmts=0, YAML_TAG(tag), .u={._cust={ .cust_to_uint=f_cust_to_uint, .uint_to_cust=f_uint_to_cust }} }
 
 #define YAML_STRING(tag, max_len)                               \
-    { .size=((max_len)<<3), .type=YDT_STRING, 0, YAML_TAG(tag) }
+    { .size=((max_len)<<3), .type=YDT_STRING, .elmts=0, YAML_TAG(tag) }
 
 #define YAML_STRUCT(tag, bits, nodes, f_is_active)                     \
     { .size=(bits), .type=YDT_ARRAY, .elmts=1, YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.is_active=(f_is_active)}}} }
@@ -142,16 +142,16 @@ struct YamlNode
     { .size=(bits), .type=YDT_ARRAY, .elmts=(max_elmts), YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.is_active=(f_is_active)}}} }
 
 #define YAML_ENUM(tag, bits, id_strs)                                   \
-    { .size=(bits), .type=YDT_ENUM, 0, YAML_TAG(tag), .u={._enum={ .choices=(id_strs) }} }
+    { .size=(bits), .type=YDT_ENUM, .elmts=0, YAML_TAG(tag), .u={._enum={ .choices=(id_strs) }} }
 
 #define YAML_UNION(tag, bits, nodes, f_sel_m)                       \
-    { .size=(bits), .type=YDT_UNION, 0, YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.select_member=(f_sel_m) }}} }
+    { .size=(bits), .type=YDT_UNION, .elmts=0, YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.select_member=(f_sel_m) }}} }
 
 #define YAML_PADDING(bits)                      \
     { .size=(bits), .type=YDT_PADDING }
 
 #define YAML_CUSTOM(tag, f_read, f_write)       \
-    { .size=0, .type=YDT_CUSTOM, 0, YAML_TAG(tag), .u={._cust_attr={.read=(f_read), .write=(f_write) }} }
+    { .size=0, .type=YDT_CUSTOM, .elmts=0, YAML_TAG(tag), .u={._cust_attr={.read=(f_read), .write=(f_write) }} }
 
 #define YAML_END                                \
     { .size=0, .type=YDT_NONE }
@@ -170,22 +170,22 @@ struct YamlNode
     (str)
 
 #define YAML_IDX                                \
-    { 0, YDT_IDX, 0, YAML_TAG("idx") }
+    { 0, YDT_IDX, .elmts=0, YAML_TAG("idx") }
 
 #define YAML_SIGNED(tag, bits)                          \
-    { (bits), YDT_SIGNED, 0, YAML_TAG(tag) }
+    { (bits), YDT_SIGNED, .elmts=0, YAML_TAG(tag) }
 
 #define YAML_UNSIGNED(tag, bits)                        \
-    { (bits), YDT_UNSIGNED, 0, YAML_TAG(tag) }
+    { (bits), YDT_UNSIGNED, .elmts=0, YAML_TAG(tag) }
 
 #define YAML_SIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)     \
-    { (bits), YDT_SIGNED, 0, YAML_TAG(tag), {{ (const YamlNode*)f_cust_to_uint, {{ (YamlNode::is_active_func)f_uint_to_cust, 0 }}}} }
+    { (bits), YDT_SIGNED, .elmts=0, YAML_TAG(tag), {{ (const YamlNode*)f_cust_to_uint, {{ (YamlNode::is_active_func)f_uint_to_cust, 0 }}}} }
 
 #define YAML_UNSIGNED_CUST(tag, bits, f_cust_to_uint, f_uint_to_cust)   \
-    { (bits), YDT_UNSIGNED, 0, YAML_TAG(tag), {{ (const YamlNode*)f_cust_to_uint, {{ (YamlNode::is_active_func)f_uint_to_cust, 0}}}} }
+    { (bits), YDT_UNSIGNED, .elmts=0, YAML_TAG(tag), {{ (const YamlNode*)f_cust_to_uint, {{ (YamlNode::is_active_func)f_uint_to_cust, 0}}}} }
 
 #define YAML_STRING(tag, max_len)                               \
-    { ((max_len)<<3), YDT_STRING, 0, YAML_TAG(tag) }
+    { ((max_len)<<3), YDT_STRING, .elmts=0, YAML_TAG(tag) }
 
 #define YAML_STRUCT(tag, bits, nodes, f_is_active)                     \
     { (bits), YDT_ARRAY, 1, YAML_TAG(tag), {{ (nodes), {{ (f_is_active) }}}} }
@@ -194,10 +194,10 @@ struct YamlNode
     { (bits), YDT_ARRAY, (max_elmts), YAML_TAG(tag), {{ (nodes), {{ (f_is_active) }}}} }
 
 #define YAML_ENUM(tag, bits, id_strs)                                   \
-    { (bits), YDT_ENUM, 0, YAML_TAG(tag), {{ (const YamlNode*)(id_strs) }} }
+    { (bits), YDT_ENUM, .elmts=0, YAML_TAG(tag), {{ (const YamlNode*)(id_strs) }} }
 
 #define YAML_UNION(tag, bits, nodes, f_sel_m)                       \
-    { (bits), YDT_UNION, 0, YAML_TAG(tag), {{ (nodes), {{ (YamlNode::is_active_func)(f_sel_m) }}}} }
+    { (bits), YDT_UNION, .elmts=0, YAML_TAG(tag), {{ (nodes), {{ (YamlNode::is_active_func)(f_sel_m) }}}} }
 
 #define YAML_PADDING(bits)                      \
     { (bits), YDT_PADDING }
