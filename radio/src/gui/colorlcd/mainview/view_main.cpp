@@ -237,8 +237,7 @@ void ViewMain::updateTopbarVisibility()
 #if defined(HARDWARE_KEYS)
 void ViewMain::onPressSYS()
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new RadioMenu();
+  if (!viewMainMenu) openMenu();
 }
 void ViewMain::onLongPressSYS()
 {
