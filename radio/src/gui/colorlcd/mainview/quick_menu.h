@@ -105,7 +105,7 @@ class QuickMenu : public Window
   void setFocus(SubMenu selection);
 
   static LAYOUT_VAL(QM_COLS, 8, 5)
-  static LAYOUT_VAL(QM_ROWS, 3, 5)
+  static LAYOUT_VAL(QM_ROWS, 3, 6)
   static LAYOUT_VAL(QMMAIN_ROWS, 1, 2)
 
  protected:
