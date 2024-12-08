@@ -24,11 +24,13 @@
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 
-template <class T>
-FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
+template<class T>
+FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input, uint8_t columns) :
     ButtonMatrix(parent, r), input(input)
 {
-  initBtnMap(FM_COLS, MAX_FLIGHT_MODES);
+  if (columns == 0) columns = DEF_COLS;
+
+  initBtnMap(columns, MAX_FLIGHT_MODES);
 
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     setTextAndState(i);
@@ -36,10 +38,10 @@ FMMatrix<T>::FMMatrix(Window* parent, const rect_t& r, T* input) :
 
   update();
 
-  lv_obj_set_width(lvobj, FM_COLS * (FM_BTN_W + PAD_TINY) + PAD_TINY);
-  lv_obj_set_height(lvobj, FM_ROWS * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY) + PAD_TINY);
+  lv_obj_set_width(lvobj, columns * (FM_BTN_W + PAD_TINY) + PAD_TINY);
+  lv_obj_set_height(lvobj, ((MAX_FLIGHT_MODES + columns - 1) / columns) * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY) + PAD_TINY);
 
-  padAll(PAD_SMALL);
+  padAll(PAD_TINY);
 }
 
 template <class T>
