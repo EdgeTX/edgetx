@@ -84,32 +84,38 @@ class PageGroupHeader : public Window
       Window(menu, {0, 0, LCD_W, PageGroup::MENU_TITLE_TOP}),
       menu(menu)
   {
-    padAll(PAD_TINY);
+    padAll(PAD_ZERO);
 
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-    auto btn = new TextButton(this, {PAD_TINY, PAD_TINY, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL}, "", [=]() {
-      menu->openMenu();
-      return 0;
-    });
-    new StaticIcon(btn, 0, 0, ICON_EDGETX, COLOR_BLACK_INDEX);
+    auto icn = new StaticIcon(this, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX);
+    (new StaticIcon(icn, 0, 0, ICON_EDGETX, COLOR_THEME_PRIMARY2_INDEX))->center(icn->width(), icn->height());
+    new ButtonBase(
+        icn, {0, 0, PageGroup::MENU_TITLE_TOP, PageGroup::MENU_TITLE_TOP},
+        [=]() -> uint8_t {
+          menu->openMenu();
+          return 0;
+        },
+        window_create);
 
     titleLabel = lv_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
-    lv_obj_set_style_pad_left(titleLabel, PAD_MEDIUM, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(titleLabel, PAD_SMALL + PAD_MEDIUM, LV_PART_MAIN);
-    lv_obj_set_pos(titleLabel, TopBar::MENU_HEADER_BUTTONS_LEFT, 0);
-    lv_obj_set_size(titleLabel, LCD_W, PageGroup::MENU_TITLE_TOP);
+    lv_obj_set_pos(titleLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PAD_MEDIUM * 2);
+    lv_obj_set_size(titleLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 2 - PAD_LARGE * 2, PageGroup::MENU_TITLE_TOP);
     setTitle("");
 
-    new TextButton(this, {LCD_W - PAD_TINY * 3 - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_SMALL, PAD_TINY,
-                   EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL}, "X", [=]() {
-      menu->onCancel();
-      return 0;
-    });
+    icn = new StaticIcon(this, LCD_W - PageGroup::MENU_TITLE_TOP, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX);
+    new StaticText(icn, {PAD_LARGE * 2, PAD_TINY, 0, 0}, "X", COLOR_THEME_PRIMARY2_INDEX, FONT(XL));
+    new ButtonBase(
+        icn, {0, 0, PageGroup::MENU_TITLE_TOP, PageGroup::MENU_TITLE_TOP},
+        [=]() -> uint8_t {
+          menu->onCancel();
+          return 0;
+        },
+        window_create);
   }
 
-  void setTitle(const char* title) { lv_label_set_text(titleLabel, title); }
+  void setTitle(const char* title) { if (titleLabel) lv_label_set_text(titleLabel, title); }
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "PageGroupHeader"; }
@@ -161,6 +167,9 @@ class PageGroupHeader : public Window
   PageTab* pageTab(uint8_t idx) const { return buttons[idx]->page(); }
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return buttons.size(); }
+
+  void openMenu() { menu->openMenu(); }
+  void closePage() { menu->onCancel(); }
 
  protected:
   uint8_t currentIndex = 0;
@@ -277,6 +286,7 @@ void PageGroup::checkEvents()
 }
 
 #if defined(HARDWARE_KEYS)
+void PageGroup::onPressSYS() { if (!quickMenu) openMenu(); }
 void PageGroup::onPressPGUP() { header->prevTab(); }
 void PageGroup::onPressPGDN() { header->nextTab(); }
 #endif
