@@ -33,7 +33,6 @@ class ChannelsViewMenu: public PageGroup {
     ModelMenu* parentMenu = nullptr;
 
 #if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;
   void onLongPressMDL() override;

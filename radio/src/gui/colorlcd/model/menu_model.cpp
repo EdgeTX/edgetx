@@ -77,11 +77,6 @@ void ModelMenu::build()
 }
 
 #if defined(HARDWARE_KEYS)
-void ModelMenu::onPressSYS()
-{
-  onCancel();
-  new RadioMenu();
-}
 void ModelMenu::onLongPressSYS()
 {
   onCancel();
