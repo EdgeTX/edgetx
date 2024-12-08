@@ -554,11 +554,6 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL, PAD_ZERO, true)
 }
 
 #if defined(HARDWARE_KEYS)
-void ModelLabelsWindow::onPressSYS()
-{
-  onCancel();
-  new RadioMenu();
-}
 void ModelLabelsWindow::onLongPressSYS()
 {
   onCancel();

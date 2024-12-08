@@ -40,7 +40,7 @@
 #include "translations.h"
 #include "view_channels.h"
 
-ModelMenu::ModelMenu() : TabsGroup(ICON_MODEL) { build(); }
+ModelMenu::ModelMenu() : PageGroup(ICON_MODEL) { build(); }
 
 void ModelMenu::build()
 {
@@ -65,23 +65,18 @@ void ModelMenu::build()
 #endif
   addTab(new ModelTelemetryPage());
 
-#if defined(PCBNV14) || defined(PCBPL18)
-  new TextButton(
-      this,
-      {LCD_W / 2 + 6, MENU_TITLE_TOP, LCD_W / 2 - 8, MENU_TITLE_HEIGHT},
-      STR_OPEN_CHANNEL_MONITORS, [=]() {
-        new ChannelsViewMenu(this);
-        return 0;
-      });
-#endif
+// #if defined(PCBNV14) || defined(PCBPL18)
+//   new TextButton(
+//       this,
+//       {LCD_W / 2 + 6, MENU_TITLE_TOP, LCD_W / 2 - 8, MENU_TITLE_HEIGHT},
+//       STR_OPEN_CHANNEL_MONITORS, [=]() {
+//         new ChannelsViewMenu(this);
+//         return 0;
+//       });
+// #endif
 }
 
 #if defined(HARDWARE_KEYS)
-void ModelMenu::onPressSYS()
-{
-  onCancel();
-  new RadioMenu();
-}
 void ModelMenu::onLongPressSYS()
 {
   onCancel();

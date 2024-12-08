@@ -21,16 +21,15 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class ScreenMenu : public TabsGroup
+class ScreenMenu : public PageGroup
 {
  public:
   ScreenMenu(int8_t tabIdx = -1);
 
  protected:
 #if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;
   void onLongPressMDL() override;

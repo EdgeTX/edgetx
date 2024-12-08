@@ -29,6 +29,8 @@ class ModelSetupPage: public PageTab {
 
   void build(Window * window) override;
 
+  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_SETUP; }
+
   static LAYOUT_VAL(BTN_COLS, 3, 3)
   static LAYOUT_VAL(BTN_H, 62, 62)
   static LAYOUT_VAL(OPTS_W, 100, 100)

@@ -37,7 +37,7 @@
 #include "special_functions.h"
 #include "view_channels.h"
 
-RadioMenu::RadioMenu() : TabsGroup(ICON_RADIO) { build(); }
+RadioMenu::RadioMenu() : PageGroup(ICON_RADIO) { build(); }
 
 RadioMenu::~RadioMenu() { storageCheck(true); }
 
@@ -54,7 +54,6 @@ void RadioMenu::build()
 }
 
 #if defined(HARDWARE_KEYS)
-void RadioMenu::onPressSYS() { setCurrentTab(0); }
 void RadioMenu::onLongPressSYS() { setCurrentTab(2); }
 void RadioMenu::onPressMDL()
 {

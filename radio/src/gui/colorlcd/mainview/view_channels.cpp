@@ -80,6 +80,8 @@ class ChannelsViewPage : public PageTab
   {
   }
 
+  QuickMenu::SubMenu subMenu() override { return (QuickMenu::SubMenu)((int)QuickMenu::SubMenu::CHANNELS_PG1 + pageIndex); }
+
  protected:
   uint8_t pageIndex = 0;
 
@@ -113,7 +115,7 @@ class ChannelsViewPage : public PageTab
 //-----------------------------------------------------------------------------
 
 ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
-    TabsGroup(ICON_MONITOR), parentMenu(parent)
+    PageGroup(ICON_MONITOR), parentMenu(parent)
 {
   addTab(new ChannelsViewPage(0));
   addTab(new ChannelsViewPage(1));
@@ -123,12 +125,6 @@ ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
 }
 
 #if defined(HARDWARE_KEYS)
-void ChannelsViewMenu::onPressSYS()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new RadioMenu();
-}
 void ChannelsViewMenu::onLongPressSYS()
 {
   onCancel();

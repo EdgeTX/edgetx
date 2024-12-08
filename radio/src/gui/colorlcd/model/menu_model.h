@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class ModelMenu : public TabsGroup
+class ModelMenu : public PageGroup
 {
  public:
   ModelMenu();
@@ -36,7 +36,6 @@ class ModelMenu : public TabsGroup
   void build();
 
 #if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;
   void onLongPressMDL() override;
