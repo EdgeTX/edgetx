@@ -54,7 +54,6 @@ void RadioMenu::build()
 }
 
 #if defined(HARDWARE_KEYS)
-void RadioMenu::onPressSYS() { setCurrentTab(0); }
 void RadioMenu::onLongPressSYS() { setCurrentTab(2); }
 void RadioMenu::onPressMDL()
 {

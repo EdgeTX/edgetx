@@ -54,7 +54,7 @@ class PageGroup : public NavWindow
 
   void openMenu();
 
-  static LAYOUT_VAL(MENU_TITLE_TOP, 44, 44)
+  static LAYOUT_VAL(MENU_TITLE_TOP, 45, 45)
   static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_TITLE_TOP;
 
  protected:
@@ -64,6 +64,7 @@ class PageGroup : public NavWindow
   QuickMenu* quickMenu = nullptr;
 
 #if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
   void onPressPGUP() override;
   void onPressPGDN() override;
 #endif
