@@ -125,12 +125,6 @@ ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
 }
 
 #if defined(HARDWARE_KEYS)
-void ChannelsViewMenu::onPressSYS()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new RadioMenu();
-}
 void ChannelsViewMenu::onLongPressSYS()
 {
   onCancel();
