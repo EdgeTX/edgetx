@@ -60,11 +60,6 @@ ScreenMenu::ScreenMenu(int8_t tabIdx) : PageGroup(ICON_THEME)
 }
 
 #if defined(HARDWARE_KEYS)
-void ScreenMenu::onPressSYS()
-{
-  onCancel();
-  new RadioMenu();
-}
 void ScreenMenu::onLongPressSYS()
 {
   onCancel();
