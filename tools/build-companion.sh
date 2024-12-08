@@ -5,7 +5,7 @@ set -e
 set -x
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-. "$SCRIPT_DIR/build-common.sh" 
+. "$SCRIPT_DIR/build-common.sh"
 
 if [ "$(uname)" = "Darwin" ]; then
   num_cpus=$(sysctl -n hw.ncpu)
@@ -66,23 +66,12 @@ rm -rf build
 mkdir build
 cd build
 
-declare -a simulator_plugins=(x9lite x9lites
-                              x7 x7access
-                              t8 t12 t12max tx12 tx12mk2
-                              zorro commando8 boxer pocket mt12
-                              tlite tpro tprov2 tpros bumblebee lr3pro t14
-                              x9d x9dp x9dp2019 x9e
-                              xlite xlites
-                              nv14 el18 pl18 pl18ev
-                              x10 x10express x12s
-                              t15 t16 t18 t20 t20v2 tx16s f16 v16)
-
 for plugin in "${simulator_plugins[@]}"
 do
     BUILD_OPTIONS="${COMMON_OPTIONS} "
 
     echo "Building ${plugin}"
-    
+
     if ! get_target_build_options "$plugin"; then
         echo "Error: Failed to find a match for target '$plugin'"
         exit 1
@@ -92,7 +81,7 @@ do
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     cmake --build . --target native-configure
     cmake --build native -j"${JOBS}" --target libsimulator
-done                              
+done
 
 cmake --build . --target native-configure
 if [ "$(uname)" = "Darwin" ]; then
