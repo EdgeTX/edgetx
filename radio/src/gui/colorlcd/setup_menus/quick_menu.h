@@ -22,10 +22,12 @@
 #pragma once
 
 #include "window.h"
+#include <vector>
 
 class QuickMenuGroup;
 class PageGroup;
 class ButtonBase;
+class QuickSubMenu;
 
 class QuickMenu : public Window
 {
@@ -83,15 +85,6 @@ class QuickMenu : public Window
     STATS_LAST = STATS_DEBUG,
   };
 
-  enum SubMenuGroup {
-    NO_GROUP = 0,
-    MODEL_GROUP,
-    RADIO_GROUP,
-    CHANNELS_GROUP,
-    SCREENS_GROUP,
-    STATS_GROUP,
-  };
-
   QuickMenu(Window* parent, std::function<void()> cancelHandler,
             std::function<void()> selectHandler = nullptr,
             PageGroup* pageGroup = nullptr, SubMenu curPage = NONE);
@@ -104,6 +97,10 @@ class QuickMenu : public Window
 
   void setFocus(SubMenu selection);
 
+  void enableSubMenu();
+
+  SubMenu currentPage() const { return curPage; }
+
   static LAYOUT_VAL(QM_COLS, 8, 5)
   static LAYOUT_VAL(QM_ROWS, 3, 6)
   static LAYOUT_VAL(QMMAIN_ROWS, 1, 2)
@@ -113,30 +110,10 @@ class QuickMenu : public Window
   std::function<void()> selectHandler = nullptr;
   bool inSubMenu = false;
   QuickMenuGroup* mainMenu = nullptr;
-  QuickMenuGroup* modelSubMenu = nullptr;
-  QuickMenuGroup* radioSubMenu = nullptr;
-  QuickMenuGroup* channelsSubMenu = nullptr;
-  QuickMenuGroup* screensSubMenu = nullptr;
-  QuickMenuGroup* statsSubMenu = nullptr;
-  ButtonBase* modelBtn = nullptr;
-  ButtonBase* radioBtn = nullptr;
-  ButtonBase* channelsBtn = nullptr;
-  ButtonBase* screensBtn = nullptr;
-  ButtonBase* statsBtn = nullptr;
-  coord_t w, h;
+  std::vector<QuickSubMenu*> subMenus;
   Window* box = nullptr;
   PageGroup* pageGroup = nullptr;
   SubMenu curPage;
 
-  QuickMenuGroup* buildSubMenu(struct SubMenuItem* items, int count, std::function<PageGroup*()> create, SubMenu first);
   void buildMainMenu();
-  void buildModelMenu();
-  void buildRadioMenu();
-  void buildChannelsMenu();
-  void buildScreensMenu();
-  void buildStatsMenu();
-
-  void enableSubMenu(QuickMenuGroup* subMenu);
-
-  SubMenuGroup subMenuGroup(SubMenu subMenu);
 };
