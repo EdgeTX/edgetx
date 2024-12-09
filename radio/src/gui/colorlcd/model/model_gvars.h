@@ -21,20 +21,18 @@
 
 #pragma once
 
+#include "edgetx.h"
 #include "tabsgroup.h"
 #include "pagegroup.h"
-#include "edgetx.h"
 
 class ModelGVarsPage : public PageTab
 {
  public:
-  ModelGVarsPage();
+  ModelGVarsPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelGVEnabled(); }
 
   void cleanup() override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_GVARS; }
 
  protected:
   Window* hdr = nullptr;

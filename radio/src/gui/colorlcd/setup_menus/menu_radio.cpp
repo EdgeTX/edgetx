@@ -23,6 +23,7 @@
 
 #include "menu_model.h"
 #include "menu_screen.h"
+#include "menu_channels.h"
 #include "model_select.h"
 #include "myeeprom.h"
 #include "edgetx.h"
@@ -35,23 +36,24 @@
 #include "radio_trainer.h"
 #include "radio_version.h"
 #include "special_functions.h"
-#include "view_channels.h"
 
-RadioMenu::RadioMenu() : PageGroup(ICON_RADIO) { build(); }
+PageDef radioMenuItems[] = {
+  { ICON_RADIO_TOOLS, STR_MENUTOOLS, QuickMenu::RADIO_TOOLSCRIPTS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
+  { ICON_RADIO_SD_MANAGER, STR_SD_CARD, QuickMenu::RADIO_SD, [](PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
+  { ICON_RADIO_SETUP, STR_RADIO_SETUP, QuickMenu::RADIO_SETUP, [](PageDef& pageDef) { return new RadioSetupPage(pageDef); }},
+  { ICON_RADIO_EDIT_THEME, STR_THEME_EDITOR, QuickMenu::RADIO_THEMES, [](PageDef& pageDef) { return new ThemeSetupPage(pageDef); }, radioThemesEnabled},
+  { ICON_RADIO_GLOBAL_FUNCTIONS, STR_MENUSPECIALFUNCS, QuickMenu::RADIO_GF, [](PageDef& pageDef) { return new GlobalFunctionsPage(pageDef); }, radioGFEnabled},
+  { ICON_RADIO_TRAINER, STR_MENUTRAINER, QuickMenu::RADIO_TRAINER, [](PageDef& pageDef) { return new RadioTrainerPage(pageDef); }, radioTrainerEnabled},
+  { ICON_RADIO_HARDWARE, STR_HARDWARE, QuickMenu::RADIO_HARDWARE, [](PageDef& pageDef) { return new RadioHardwarePage(pageDef); }},
+  { ICON_RADIO_VERSION, STR_MENUVERSION, QuickMenu::RADIO_VERSION, [](PageDef& pageDef) { return new RadioVersionPage(pageDef); }},
+  { EDGETX_ICONS_COUNT }
+};
+
+RadioMenu::RadioMenu() : PageGroup(ICON_RADIO, radioMenuItems)
+{
+}
 
 RadioMenu::~RadioMenu() { storageCheck(true); }
-
-void RadioMenu::build()
-{
-  addTab(new RadioToolsPage());
-  addTab(new RadioSdManagerPage());
-  addTab(new RadioSetupPage());
-  addTab(new ThemeSetupPage(this));
-  addTab(new GlobalFunctionsPage());
-  addTab(new RadioTrainerPage());
-  addTab(new RadioHardwarePage());
-  addTab(new RadioVersionPage());
-}
 
 #if defined(HARDWARE_KEYS)
 void RadioMenu::onLongPressSYS() { setCurrentTab(2); }

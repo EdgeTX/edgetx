@@ -969,9 +969,8 @@ class SpecialFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-SpecialFunctionsPage::SpecialFunctionsPage() :
-    FunctionsPage(g_model.customFn, STR_MENUCUSTOMFUNC, "SF",
-                  ICON_MODEL_SPECIAL_FUNCTIONS)
+SpecialFunctionsPage::SpecialFunctionsPage(PageDef& pageDef) :
+    FunctionsPage(g_model.customFn, pageDef.title, "SF", pageDef.icon)
 {
 }
 
@@ -1050,9 +1049,8 @@ class GlobalFunctionEditPage : public FunctionEditPage
 
 //-----------------------------------------------------------------------------
 
-GlobalFunctionsPage::GlobalFunctionsPage() :
-    FunctionsPage(g_eeGeneral.customFn, STR_MENUSPECIALFUNCS, "GF",
-                  ICON_RADIO_GLOBAL_FUNCTIONS)
+GlobalFunctionsPage::GlobalFunctionsPage(PageDef& pageDef) :
+    FunctionsPage(g_eeGeneral.customFn, pageDef.title, "GF", pageDef.icon)
 {
 }
 
