@@ -29,8 +29,8 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-RadioTrainerPage::RadioTrainerPage() :
-    PageTab(STR_MENUTRAINER, ICON_RADIO_TRAINER)
+RadioTrainerPage::RadioTrainerPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 

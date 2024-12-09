@@ -24,10 +24,10 @@
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
+#include "menu_channels.h"
 #include "model_select.h"
 #include "edgetx.h"
 #include "topbar_impl.h"
-#include "view_channels.h"
 #include "quick_menu.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)

@@ -22,17 +22,16 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class RadioHardwarePage : public PageTab
 {
   void checkEvents() override;
 
  public:
-  RadioHardwarePage();
+  RadioHardwarePage(PageDef& pageDef);
 
   void build(Window* window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_HARDWARE; }
 
   static LAYOUT_VAL(NUM_EDIT_W, 80, 80)
   static LAYOUT_VAL(BTN_COLS, 4, 3)

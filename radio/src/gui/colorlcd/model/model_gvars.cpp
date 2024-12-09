@@ -527,8 +527,8 @@ class GVarEditWindow : public Page
   }
 };
 
-ModelGVarsPage::ModelGVarsPage() :
-    PageTab(STR_MENU_GLOBAL_VARS, ICON_MODEL_GVARS)
+ModelGVarsPage::ModelGVarsPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 

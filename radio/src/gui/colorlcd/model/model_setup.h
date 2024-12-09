@@ -22,14 +22,13 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelSetupPage: public PageTab {
  public:
-  ModelSetupPage();
+  ModelSetupPage(PageDef& pageDef);
 
   void build(Window * window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_SETUP; }
 
   static LAYOUT_VAL(BTN_COLS, 3, 3)
   static LAYOUT_VAL(BTN_H, 62, 62)
