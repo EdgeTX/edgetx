@@ -33,8 +33,6 @@ class ModelMenu : public PageGroup
 #endif
 
  protected:
-  void build();
-
 #if defined(HARDWARE_KEYS)
   void onLongPressSYS() override;
   void onPressMDL() override;

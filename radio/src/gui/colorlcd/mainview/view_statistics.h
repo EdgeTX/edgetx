@@ -21,10 +21,26 @@
 
 #pragma once
 
+#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class StatisticsViewPageGroup : public PageGroup
+class StatisticsViewPage : public PageTab
 {
  public:
-  StatisticsViewPageGroup();
+  StatisticsViewPage(PageDef& pageDef) :
+      PageTab(pageDef, PAD_ZERO)
+  {
+  }
+
+ protected:
+  void build(Window* window) override;
+};
+
+class DebugViewPage : public PageTab
+{
+ public:
+  DebugViewPage(PageDef& pageDef) : PageTab(pageDef, PAD_ZERO) {}
+
+ protected:
+  void build(Window* window) override;
 };

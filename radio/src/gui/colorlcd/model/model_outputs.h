@@ -22,16 +22,16 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class OutputLineButton;
 
 class ModelOutputsPage : public PageTab
 {
  public:
-  ModelOutputsPage();
-  void build(Window* window) override;
+  ModelOutputsPage(PageDef& pageDef);
 
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_OUTPUTS; }
+  void build(Window* window) override;
 
   static constexpr coord_t ADD_TRIMS_X = PAD_SMALL;
   static constexpr coord_t ADD_TRIMS_Y = PAD_SMALL;

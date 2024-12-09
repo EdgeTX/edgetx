@@ -25,11 +25,11 @@
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
+#include "menu_channels.h"
 #include "model_templates.h"
 #include "edgetx.h"
 #include "standalone_lua.h"
 #include "etx_lv_theme.h"
-#include "view_channels.h"
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
