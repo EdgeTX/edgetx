@@ -23,18 +23,18 @@
 
 #include "edgetx.h"
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelCurvesPage : public PageTab
 {
  public:
-  ModelCurvesPage();
+  ModelCurvesPage(PageDef& pageDef);
+
   static void pushEditCurve(int index, std::function<void(void)> refreshView, mixsrc_t source);
 
   bool isVisible() const override { return modelCurvesEnabled(); }
 
   virtual void build(Window* window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_CURVES; }
 
   static LAYOUT_VAL(PER_ROW, 3, 2)
 

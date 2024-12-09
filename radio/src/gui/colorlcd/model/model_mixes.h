@@ -22,16 +22,14 @@
 #pragma once
 
 #include "list_line_button.h"
-#include <list>
+#include "pagegroup.h"
 
 class ModelMixesPage : public InputMixPageBase
 {
  public:
-  ModelMixesPage();
+  ModelMixesPage(PageDef& pageDef);
 
   void build(Window* window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_MIXES; }
 
  protected:
   bool showMonitors = false;

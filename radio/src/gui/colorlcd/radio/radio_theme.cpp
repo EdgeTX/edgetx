@@ -438,8 +438,8 @@ class ThemeEditPage : public Page
   StaticText *_themeName = nullptr;
 };
 
-ThemeSetupPage::ThemeSetupPage(PageGroup *tabsGroup) :
-    PageTab(STR_THEME_EDITOR, ICON_RADIO_EDIT_THEME), tabsGroup(tabsGroup)
+ThemeSetupPage::ThemeSetupPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 

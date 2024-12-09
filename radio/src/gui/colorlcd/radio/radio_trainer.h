@@ -21,19 +21,18 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class RadioTrainerPage : public PageTab
 {
  public:
-  RadioTrainerPage();
+  RadioTrainerPage(PageDef& pageDef);
 
   bool isVisible() const override { return radioTrainerEnabled(); }
 
   void build(Window* window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_TRAINER; }
 
   static LAYOUT_VAL(NUM_EDIT_W, 80, 65)
 };
