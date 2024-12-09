@@ -1016,7 +1016,7 @@
   #define TR_ALIGN_OPTS                { "左", "中央", "右" }
   #define TR_TEXT                      "テキスト"
   #define TR_COLOR                     "カラー"
-  #define TR_MAIN_VIEW_X               "メインビュー XX"
+  #define TR_MAIN_VIEW_X               "メインビュー "
   #define TR_PANEL1_BACKGROUND         "パネル1 背景"
   #define TR_PANEL2_BACKGROUND         "パネル2 背景"
   #define TR_WIDGET_GAUGE              "ゲージ"

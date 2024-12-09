@@ -23,15 +23,27 @@
 
 #include "bitmaps.h"
 #include "button.h"
+#include "quick_menu.h"
 
 class PageTab;
 class PageGroupHeader;
-class QuickMenu;
+
+//-----------------------------------------------------------------------------
+
+struct PageDef {
+  EdgeTxIcon icon;
+  const char* title;
+  QuickMenu::SubMenu subMenu;
+  std::function<PageTab*(PageDef& pageDef)> createPage;
+  std::function<bool()> enabled;
+};
+
+//-----------------------------------------------------------------------------
 
 class PageGroup : public NavWindow
 {
  public:
-  explicit PageGroup(EdgeTxIcon icon);
+  explicit PageGroup(EdgeTxIcon icon, PageDef* pages);
 
   void deleteLater(bool detach = true, bool trash = true) override;
 
@@ -45,7 +57,7 @@ class PageGroup : public NavWindow
 
   void removeTab(unsigned index);
 
-  void setCurrentTab(unsigned index);
+  virtual void setCurrentTab(unsigned index);
 
   void checkEvents() override;
 

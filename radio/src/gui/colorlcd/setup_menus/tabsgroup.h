@@ -24,6 +24,9 @@
 #include "bitmaps.h"
 #include "button.h"
 #include "quick_menu.h"
+#include "tabsgroup.h"
+#include "pagegroup.h"
+#include "quick_menu.h"
 
 class TabsGroup;
 class TabsGroupHeader;
@@ -31,13 +34,15 @@ class TabsGroupHeader;
 class PageTab
 {
  public:
-  PageTab(PaddingSize padding = PAD_SMALL) : padding(padding) {}
-
   PageTab(std::string title, EdgeTxIcon icon,
           PaddingSize padding = PAD_SMALL) :
       title(std::move(title)), icon(icon), padding(padding)
-  {
-  }
+  {}
+
+  PageTab(PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
+      title(std::move(pageDef.title)), icon(pageDef.icon), quickMenuId(pageDef.subMenu),
+      padding(padding)
+  {}
 
   virtual ~PageTab() = default;
 
@@ -58,11 +63,12 @@ class PageTab
   virtual void update(uint8_t index) {}
   virtual void cleanup() {}
 
-  virtual QuickMenu::SubMenu subMenu() { return QuickMenu::SubMenu::NONE; }
+  QuickMenu::SubMenu subMenu() const { return quickMenuId; }
 
  protected:
   std::string title;
   EdgeTxIcon icon;
+  QuickMenu::SubMenu quickMenuId = QuickMenu::NONE;
   PaddingSize padding;
 };
 

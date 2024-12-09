@@ -1016,7 +1016,7 @@
   #define TR_ALIGN_OPTS                { "Venstre", "Center", "Højre" }
   #define TR_TEXT                      "Tekst"
   #define TR_COLOR                     "Farve"
-  #define TR_MAIN_VIEW_X               "Hoved visning XX"
+  #define TR_MAIN_VIEW_X               "Hoved visning "
   #define TR_PANEL1_BACKGROUND         "Panel1 baggrund"
   #define TR_PANEL2_BACKGROUND         "Panel2 baggrund"
   #define TR_WIDGET_GAUGE              "Måling"

@@ -23,15 +23,14 @@
 
 #include "edgetx.h"
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelHeliPage : public PageTab
 {
  public:
-  ModelHeliPage();
+  ModelHeliPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelHeliEnabled(); }
 
   void build(Window* window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_HELI; }
 };

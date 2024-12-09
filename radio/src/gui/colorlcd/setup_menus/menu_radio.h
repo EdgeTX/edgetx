@@ -21,35 +21,20 @@
 
 #pragma once
 
-#include "datastructs.h"
-#include "menu_screen.h"
-#include "screen_user_interface.h"
+#include "pagegroup.h"
 
-class ScreenAddPage : public PageTab
+class RadioMenu : public PageGroup
 {
  public:
-  ScreenAddPage(PageDef& pageDef);
-
-  void build(Window* window) override;
-
-  void update(uint8_t index) override;
-};
-
-class ScreenSetupPage : public PageTab
-{
- public:
-  ScreenSetupPage(unsigned customScreenIndex, PageDef& pageDef);
-
-  void build(Window* form) override;
-
-  void update(uint8_t index) override;
-
-  bool isVisible() const override { return customScreens[customScreenIndex] != nullptr; }
+  RadioMenu();
+  ~RadioMenu();
 
  protected:
-  unsigned customScreenIndex;
-  Window* layoutOptions = nullptr;
-
-  void clearLayoutOptions();
-  void buildLayoutOptions();
+#if defined(HARDWARE_KEYS)
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
+#endif
 };

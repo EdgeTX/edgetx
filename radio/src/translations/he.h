@@ -1016,7 +1016,7 @@
   #define TR_ALIGN_OPTS                { "שמאל", "מרכז", "ימין" }
   #define TR_TEXT                      "טקסט"
   #define TR_COLOR                     "צבע"
-  #define TR_MAIN_VIEW_X               "מסך תצוגה XX"
+  #define TR_MAIN_VIEW_X               "מסך תצוגה "
   #define TR_PANEL1_BACKGROUND         "Panel1 background"
   #define TR_PANEL2_BACKGROUND         "Panel2 background"
   #define TR_WIDGET_GAUGE              "מקור"

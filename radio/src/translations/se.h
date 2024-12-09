@@ -1042,7 +1042,7 @@
   #define TR_ALIGN_OPTS                 { "Vänster", "Mitten", "Höger" }
   #define TR_TEXT                       "Text"
   #define TR_COLOR                      "Färg"
-  #define TR_MAIN_VIEW_X                "Huvudvy XX"
+  #define TR_MAIN_VIEW_X                "Huvudvy "
   #define TR_PANEL1_BACKGROUND          "Panel 1 bakgrund"
   #define TR_PANEL2_BACKGROUND          "Panel 2 bakgrund"
   #define TR_WIDGET_GAUGE               "Mätare"

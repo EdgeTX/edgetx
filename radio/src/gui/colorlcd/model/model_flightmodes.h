@@ -21,19 +21,18 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelFlightModesPage : public PageTab
 {
  public:
-  ModelFlightModesPage();
+  ModelFlightModesPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelFMEnabled(); }
 
   void build(Window* window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_FLIGHTMODES; }
 
   static LAYOUT_VAL(TRIM_CHK_H, 40, 40, LS(40)))
 

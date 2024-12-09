@@ -26,6 +26,7 @@
 #include "edgetx.h"
 #include "page.h"
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 struct CustomFunctionData;
 class FunctionEditPage;
@@ -161,11 +162,9 @@ class FunctionsPage : public PageTab
 class SpecialFunctionsPage : public FunctionsPage
 {
  public:
-  SpecialFunctionsPage();
+  SpecialFunctionsPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelSFEnabled(); }
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_SF; }
 
  protected:
   CustomFunctionData* customFunctionData(uint8_t index) const override;
@@ -180,11 +179,9 @@ class SpecialFunctionsPage : public FunctionsPage
 class GlobalFunctionsPage : public FunctionsPage
 {
  public:
-  GlobalFunctionsPage();
+  GlobalFunctionsPage(PageDef& pageDef);
 
   bool isVisible() const override { return radioGFEnabled(); }
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_GF; }
 
  protected:
   CustomFunctionData* customFunctionData(uint8_t index) const override;

@@ -70,85 +70,28 @@ class ChannelsViewFooter : public Window
 
 //-----------------------------------------------------------------------------
 
-class ChannelsViewPage : public PageTab
+void ChannelsViewPage::build(Window* window)
 {
- public:
-  explicit ChannelsViewPage(uint8_t pageIndex = 0) :
-      PageTab(STR_MONITOR_CHANNELS[pageIndex],
-              (EdgeTxIcon)(ICON_MONITOR_CHANNELS1 + pageIndex)),
-      pageIndex(pageIndex)
-  {
-  }
+  constexpr coord_t hmargin = PAD_SMALL;
+  window->padAll(PAD_ZERO);
 
-  QuickMenu::SubMenu subMenu() override { return (QuickMenu::SubMenu)((int)QuickMenu::SubMenu::CHANNELS_PG1 + pageIndex); }
-
- protected:
-  uint8_t pageIndex = 0;
-
-  void build(Window* window) override
-  {
-    constexpr coord_t hmargin = PAD_SMALL;
-    window->padAll(PAD_ZERO);
-
-    // Channels bars
-    for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
+  // Channels bars
+  for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
 #if PORTRAIT_LCD
-      coord_t width = window->width() - (hmargin * 2);
-      coord_t xPos = hmargin;
-      coord_t yPos = (chan % 8) *
-                     ((window->height() - 24) / 8);
+    coord_t width = window->width() - (hmargin * 2);
+    coord_t xPos = hmargin;
+    coord_t yPos = (chan % 8) *
+                    ((window->height() - 24) / 8);
 #else
-      coord_t width = window->width() / 2 - (hmargin * 2);
-      coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
-      coord_t yPos = (chan % 4) *
-                     ((window->height() - 23) / 4);
+    coord_t width = window->width() / 2 - (hmargin * 2);
+    coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
+    coord_t yPos = (chan % 4) *
+                    ((window->height() - 23) / 4);
 #endif
-      new ComboChannelBar(window, {xPos, yPos, width, 3 * ChannelBar::BAR_HEIGHT + 3},
-                          chan);
-    }
-
-    // Footer
-    new ChannelsViewFooter(window);
+    new ComboChannelBar(window, {xPos, yPos, width, 3 * ChannelBar::BAR_HEIGHT + 3},
+                        chan);
   }
-};
 
-//-----------------------------------------------------------------------------
-
-ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
-    PageGroup(ICON_MONITOR), parentMenu(parent)
-{
-  addTab(new ChannelsViewPage(0));
-  addTab(new ChannelsViewPage(1));
-  addTab(new ChannelsViewPage(2));
-  addTab(new ChannelsViewPage(3));
-  addTab(new LogicalSwitchesViewPage());
+  // Footer
+  new ChannelsViewFooter(window);
 }
-
-#if defined(HARDWARE_KEYS)
-void ChannelsViewMenu::onLongPressSYS()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
-}
-void ChannelsViewMenu::onPressMDL()
-{
-  onCancel();
-  if (!parentMenu) {
-    new ModelMenu();
-  }
-}
-void ChannelsViewMenu::onLongPressMDL()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new ModelLabelsWindow();
-}
-void ChannelsViewMenu::onPressTELE()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new ScreenMenu();
-}
-#endif

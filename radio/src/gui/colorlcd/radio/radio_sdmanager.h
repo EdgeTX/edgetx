@@ -23,6 +23,7 @@
 
 #include "dataconstants.h"
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 enum MultiModuleType : short;
 
@@ -35,7 +36,7 @@ class RadioSdManagerPage : public PageTab
   FilePreview* preview = nullptr;
   
  public:
-  RadioSdManagerPage();
+  RadioSdManagerPage(PageDef& pageDef);
   void build(Window* window) override;
 
   static LAYOUT_VAL2(PREVIEW_W, LCD_W * 2 / 5 - PAD_SMALL * 2, LCD_W - PAD_MEDIUM * 2)
@@ -64,6 +65,4 @@ class RadioSdManagerPage : public PageTab
 #endif
 
   void checkEvents() override; 
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_SD; }
 };

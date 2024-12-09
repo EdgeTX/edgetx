@@ -21,19 +21,18 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelTelemetryPage : public PageTab
 {
  public:
-  ModelTelemetryPage();
+  ModelTelemetryPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelTelemetryEnabled(); }
 
   void build(Window* window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_TELEMETRY; }
 
   static LAYOUT_VAL(NUM_EDIT_W, 100, 65, LS(100))
 

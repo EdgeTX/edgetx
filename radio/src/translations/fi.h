@@ -1026,7 +1026,7 @@
   #define TR_ALIGN_OPTS                { "Vasen", "Keski", "Oikea" }
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Color"
-  #define TR_MAIN_VIEW_X               "Main view XX"
+  #define TR_MAIN_VIEW_X               "Main view "
   #define TR_PANEL1_BACKGROUND         "Panel1 background"
   #define TR_PANEL2_BACKGROUND         "Panel2 background"
   #define TR_WIDGET_GAUGE              "Gauge"

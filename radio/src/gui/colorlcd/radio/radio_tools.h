@@ -22,17 +22,16 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class RadioToolsPage : public PageTab
 {
  public:
-  RadioToolsPage();
+  RadioToolsPage(PageDef& pageDef);
 
   void build(Window* window) override;
 
   void checkEvents() override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_TOOLSCRIPTS; }
 
  protected:
   void rebuild(Window* window);

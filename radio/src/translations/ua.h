@@ -1019,7 +1019,7 @@
   #define TR_ALIGN_OPTS                { "Ліво", "Центр", "Право" }
   #define TR_TEXT                      "Текст"
   #define TR_COLOR                     "Колір"
-  #define TR_MAIN_VIEW_X               "Головний вид XX"
+  #define TR_MAIN_VIEW_X               "Головний вид "
   #define TR_PANEL1_BACKGROUND         "Панель1 фон"
   #define TR_PANEL2_BACKGROUND         "Панель2 фон"
   #define TR_WIDGET_GAUGE              "Шкала"

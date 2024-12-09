@@ -1028,7 +1028,7 @@
   #define TR_ALIGN_OPTS                { "Vlevo", "Uprostřed", "Vpravo" }
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Barva"
-  #define TR_MAIN_VIEW_X               "Hlavní pohled XX"
+  #define TR_MAIN_VIEW_X               "Hlavní pohled "
   #define TR_PANEL1_BACKGROUND         "Panel1 pozadí"
   #define TR_PANEL2_BACKGROUND         "Panel2 pozadí"
   #define TR_WIDGET_GAUGE              "Měřidlo"

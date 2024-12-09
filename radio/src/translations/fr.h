@@ -1027,7 +1027,7 @@
   #define TR_ALIGN_OPTS                { "Gauche", "Centre", "Droite" }
   #define TR_TEXT                      "Texte"
   #define TR_COLOR                     "Couleur"
-  #define TR_MAIN_VIEW_X               "Vue Principale XX"
+  #define TR_MAIN_VIEW_X               "Vue Principale "
   #define TR_PANEL1_BACKGROUND         "Arrière-plan Ecran1"
   #define TR_PANEL2_BACKGROUND         "Arrière-plan Ecran2"
   #define TR_WIDGET_GAUGE              "Jauge"

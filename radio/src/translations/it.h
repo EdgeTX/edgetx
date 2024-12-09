@@ -1011,7 +1011,7 @@
   #define TR_ALIGN_OPTS                { "Sinistra", "Mezzo", "Destra" }
   #define TR_TEXT                      "Testo"
   #define TR_COLOR                     "Colore"
-  #define TR_MAIN_VIEW_X               "Vista principale XX"
+  #define TR_MAIN_VIEW_X               "Vista principale "
   #define TR_PANEL1_BACKGROUND         "Sfondo Panello 1"
   #define TR_PANEL2_BACKGROUND         "Sfondo Panello 2"
   #define TR_WIDGET_GAUGE              "Indicatore"
