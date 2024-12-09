@@ -22,16 +22,14 @@
 #pragma once
 
 #include "list_line_button.h"
-#include <list>
+#include "pagegroup.h"
 
 class ModelInputsPage : public InputMixPageBase
 {
  public:
-  ModelInputsPage();
+  ModelInputsPage(PageDef& pageDef);
 
   void build(Window *window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_INPUTS; }
 
  protected:
   InputMixGroupBase* getGroupByIndex(uint8_t index) override;

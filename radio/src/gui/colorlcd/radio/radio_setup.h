@@ -22,14 +22,14 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
-class RadioSetupPage: public PageTab {
+class RadioSetupPage: public PageTab
+{
  public:
-  RadioSetupPage();
+  RadioSetupPage(PageDef& pageDef);
 
   void build(Window * window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_SETUP; }
 
   static LAYOUT_VAL(NUM_W, 80, 80)
   static LAYOUT_VAL(BTN_COLS, 3, 2)
