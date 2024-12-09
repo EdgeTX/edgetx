@@ -1004,7 +1004,7 @@
   #define TR_ALIGN_OPTS                { "Links", "Mitte", "Rechts" }
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Farbe"
-  #define TR_MAIN_VIEW_X               "Hauptansicht XX"
+  #define TR_MAIN_VIEW_X               "Hauptansicht "
   #define TR_PANEL1_BACKGROUND         "Panel1 Hintergrund"
   #define TR_PANEL2_BACKGROUND         "Panel2 Hintergrund"
   #define TR_WIDGET_GAUGE              "Pegel"
