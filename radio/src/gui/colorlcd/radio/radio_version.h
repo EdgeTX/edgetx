@@ -22,12 +22,12 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
-class RadioVersionPage: public PageTab {
+class RadioVersionPage: public PageTab
+{
   public:
-    RadioVersionPage();
+    RadioVersionPage(PageDef& pageDef);
 
     void build(Window * window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_VERSION; }
 };

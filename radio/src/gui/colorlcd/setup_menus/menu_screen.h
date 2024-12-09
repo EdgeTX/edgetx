@@ -28,6 +28,8 @@ class ScreenMenu : public PageGroup
  public:
   ScreenMenu(int8_t tabIdx = -1);
 
+  void setCurrentTab(unsigned index) override;
+
  protected:
 #if defined(HARDWARE_KEYS)
   void onLongPressSYS() override;

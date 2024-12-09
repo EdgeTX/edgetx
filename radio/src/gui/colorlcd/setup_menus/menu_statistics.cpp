@@ -19,37 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "menu_statistics.h"
 
-#include "datastructs.h"
-#include "menu_screen.h"
-#include "screen_user_interface.h"
+#include "edgetx.h"
+#include "view_statistics.h"
 
-class ScreenAddPage : public PageTab
-{
- public:
-  ScreenAddPage(PageDef& pageDef);
-
-  void build(Window* window) override;
-
-  void update(uint8_t index) override;
+PageDef statsMenuItems[] = {
+  { ICON_STATS_THROTTLE_GRAPH, STR_STATISTICS, QuickMenu::STATS_STATS, [](PageDef& pageDef) { return new StatisticsViewPage(pageDef); }},
+  { ICON_STATS_DEBUG, STR_DEBUG, QuickMenu::STATS_DEBUG, [](PageDef& pageDef) { return new DebugViewPage(pageDef); }},
+  { EDGETX_ICONS_COUNT }
 };
 
-class ScreenSetupPage : public PageTab
+StatisticsViewPageGroup::StatisticsViewPageGroup() : PageGroup(ICON_STATS, statsMenuItems)
 {
- public:
-  ScreenSetupPage(unsigned customScreenIndex, PageDef& pageDef);
-
-  void build(Window* form) override;
-
-  void update(uint8_t index) override;
-
-  bool isVisible() const override { return customScreens[customScreenIndex] != nullptr; }
-
- protected:
-  unsigned customScreenIndex;
-  Window* layoutOptions = nullptr;
-
-  void clearLayoutOptions();
-  void buildLayoutOptions();
-};
+}

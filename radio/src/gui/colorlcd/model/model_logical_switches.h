@@ -21,19 +21,18 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelLogicalSwitchesPage : public PageTab
 {
  public:
-  ModelLogicalSwitchesPage();
+  ModelLogicalSwitchesPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelLSEnabled(); }
 
   virtual void build(Window* window) override;
-
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::MODEL_LS; }
 
  protected:
   int8_t focusIndex = -1;

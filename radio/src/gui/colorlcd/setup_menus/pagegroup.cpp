@@ -184,7 +184,7 @@ class PageGroupHeader : public Window
   }
 };
 
-PageGroup::PageGroup(EdgeTxIcon icon) :
+PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
     NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
   etx_solid_bg(lvobj);
@@ -203,6 +203,11 @@ PageGroup::PageGroup(EdgeTxIcon icon) :
   lv_obj_add_event_cb(lvobj, on_draw_begin, LV_EVENT_COVER_CHECK, nullptr);
   lv_obj_add_event_cb(lvobj, on_draw_end, LV_EVENT_DRAW_POST_END, nullptr);
 #endif
+
+  for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {
+    if (!pages[i].enabled || pages[i].enabled())
+      addTab(pages[i].createPage(pages[i]));
+  }
 }
 
 uint8_t PageGroup::tabCount() const { return header->tabCount(); }
