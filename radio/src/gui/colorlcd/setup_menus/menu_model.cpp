@@ -22,9 +22,6 @@
 #include "menu_model.h"
 
 #include "edgetx.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
-#include "menu_channels.h"
 #include "model_curves.h"
 #include "model_flightmodes.h"
 #include "model_gvars.h"
@@ -66,24 +63,3 @@ PageDef modelMenuItems[] = {
 ModelMenu::ModelMenu() : PageGroup(ICON_MODEL, modelMenuItems)
 {
 }
-
-#if defined(HARDWARE_KEYS)
-void ModelMenu::onLongPressSYS()
-{
-  onCancel();
-  // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
-}
-void ModelMenu::onPressMDL() { new ChannelsViewMenu(this); }
-void ModelMenu::onLongPressMDL()
-{
-  onCancel();
-  new ModelLabelsWindow();
-}
-void ModelMenu::onPressTELE()
-{
-  onCancel();
-  new ScreenMenu();
-}
-void ModelMenu::onLongPressTELE() { new ChannelsViewMenu(this); }
-#endif
