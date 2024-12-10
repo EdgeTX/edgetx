@@ -21,13 +21,12 @@
 
 #include "menu_screen.h"
 
+#include "edgetx.h"
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_channels.h"
 #include "model_select.h"
-#include "edgetx.h"
 #include "screen_setup.h"
-#include "storage/storage.h"
 #include "view_main.h"
 
 PageDef screensMenuItems[] = {
