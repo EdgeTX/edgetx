@@ -22,11 +22,6 @@
 #include "menu_radio.h"
 
 #include "edgetx.h"
-#include "menu_model.h"
-#include "menu_screen.h"
-#include "menu_channels.h"
-#include "model_select.h"
-#include "myeeprom.h"
 #include "radio_hardware.h"
 #include "radio_sdmanager.h"
 #include "radio_setup.h"
@@ -53,27 +48,3 @@ RadioMenu::RadioMenu() : PageGroup(ICON_RADIO, radioMenuItems)
 }
 
 RadioMenu::~RadioMenu() { storageCheck(true); }
-
-#if defined(HARDWARE_KEYS)
-void RadioMenu::onLongPressSYS() { setCurrentTab(2); }
-void RadioMenu::onPressMDL()
-{
-  onCancel();
-  new ModelMenu();
-}
-void RadioMenu::onLongPressMDL()
-{
-  onCancel();
-  new ModelLabelsWindow();
-}
-void RadioMenu::onPressTELE()
-{
-  onCancel();
-  new ScreenMenu();
-}
-void RadioMenu::onLongPressTELE()
-{
-  onCancel();
-  new ChannelsViewMenu();
-}
-#endif
