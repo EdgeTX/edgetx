@@ -35,14 +35,14 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   ui->setupUi(this);
   setLcd(ui->lcd);
 
+  //  TODO: move to setLcd when all radios using generic
   Board::Type board = getCurrentBoard();
   auto lcdDepth = Boards::getCapability(board, Board::LcdDepth);
   auto lcdWidth = Boards::getCapability(board, Board::LcdWidth) * (lcdDepth < 12 ? 2 : 1);
   auto lcdHeight = Boards::getCapability(board, Board::LcdHeight) * (lcdDepth < 12 ? 2 : 1);
 
-  ui->lcd->setMaximumSize(lcdWidth, lcdHeight);
-  ui->lcd->setMinimumSize(lcdWidth, lcdHeight);
   ui->lcd->setFixedSize(lcdWidth, lcdHeight);
+  //  end TODO
 
   addGenericPushButtons(ui->leftbuttons, ui->rightbuttons);
   addScrollActions();
@@ -57,9 +57,21 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
 
   int widgetWidth = lcdWidth + ui->leftbuttons->width() + ui->rightbuttons->width();
 
-  setMaximumSize(widgetWidth, 50 + widgetHeight);
-  setMinimumSize(maximumSize());
+  setFixedSize(widgetWidth, 50 + widgetHeight);
 
+  //  load colors for OLED screens
+  m_backlightColors << QColor(47, 123, 227);  // default
+
+  //  TODO: more to add
+  if (IS_TARANIS_X7(board) || IS_TARANIS_X7_ACCESS(board)) {
+    m_backlightColors << QColor(215, 243, 255);  // X7 Blue
+    m_backlightColors << QColor(166,247,159);
+    m_backlightColors << QColor(247,159,166);
+    m_backlightColors << QColor(255,195,151);
+    m_backlightColors << QColor(247,242,159);
+  }
+
+  //  workaround to delay resize until after parent has been resized
   QTimer * t1 = new QTimer(this);
   t1->setSingleShot(true);
   connect(t1, &QTimer::timeout, [this]() {
@@ -67,16 +79,16 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   });
   t1->start(100);
 
-  m_backlightColors << QColor(47, 123, 227);
-
+  //  workaround to delay changing until after parent has been initialised
+  //  TODO: get from a new user controlled Simulator setting
   QString css = "#radioUiWidget { background-color: rgb(0, 0, 0); }";
 
-  QTimer * tim = new QTimer(this);
-  tim->setSingleShot(true);
-  connect(tim, &QTimer::timeout, [this, css]() {
+  QTimer * t2 = new QTimer(this);
+  t2->setSingleShot(true);
+  connect(t2, &QTimer::timeout, [this, css]() {
       emit customStyleRequest(css);
   });
-  tim->start(100);
+  t2->start(100);
 }
 
 SimulatedUIWidgetGeneric::~SimulatedUIWidgetGeneric()
@@ -86,9 +98,8 @@ SimulatedUIWidgetGeneric::~SimulatedUIWidgetGeneric()
 
 void SimulatedUIWidgetGeneric::shrink()
 {
+  //  adjust parent before child to ensure parent does not constrain child
   adjustSize();
-  //resize(0, 0);
-
   ui->lcd->adjustSize();
   ui->lcd->resize(0, 0);
 }
