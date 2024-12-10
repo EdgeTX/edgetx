@@ -26,7 +26,7 @@
 class ScreenMenu : public PageGroup
 {
  public:
-  ScreenMenu(int8_t tabIdx = -1);
+  ScreenMenu();
 
   void setCurrentTab(unsigned index) override;
 };
