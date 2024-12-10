@@ -21,6 +21,7 @@
 
 #include "menu_model.h"
 
+#include "edgetx.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
 #include "menu_channels.h"
@@ -36,9 +37,7 @@
 #include "model_select.h"
 #include "model_setup.h"
 #include "model_telemetry.h"
-#include "edgetx.h"
 #include "special_functions.h"
-#include "translations.h"
 
 PageDef modelMenuItems[] = {
   { ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, QuickMenu::MODEL_SETUP, [](PageDef& pageDef) { return new ModelSetupPage(pageDef); }},

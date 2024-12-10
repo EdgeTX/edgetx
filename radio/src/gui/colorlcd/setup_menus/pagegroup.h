@@ -22,7 +22,6 @@
 #pragma once
 
 #include "bitmaps.h"
-#include "button.h"
 #include "quick_menu.h"
 
 class PageTab;
