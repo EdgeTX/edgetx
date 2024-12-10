@@ -85,36 +85,29 @@ void boardBLInit()
 #if defined(SIXPOS_SWITCH_INDEX)
 uint8_t lastADCState = 0;
 uint8_t sixPosState = 0;
-bool sixPosInit = false;
-bool sixPosDirty = true;
+bool dirty = true;
 uint16_t getSixPosAnalogValue(uint16_t adcValue)
 {
-  if (sixPosInit) {
-    uint8_t currentADCState = 0;
-    if (adcValue > 3800)
-      currentADCState = 6;
-    else if (adcValue > 3100)
-      currentADCState = 5;
-    else if (adcValue > 2300)
-      currentADCState = 4;
-    else if (adcValue > 1500)
-      currentADCState = 3;
-    else if (adcValue > 1000)
-      currentADCState = 2;
-    else if (adcValue > 400)
-      currentADCState = 1;
-    if (lastADCState != currentADCState) {
-      lastADCState = currentADCState;
-    } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
-      sixPosState = lastADCState - 1;
-      sixPosDirty = true;
-    }
-  } else if (adcValue < 300) {
-    // Wait for nothing is pressed to start sampling, otherwise may goes into unknown state
-    sixPosInit = true;
+  uint8_t currentADCState = 0;
+  if (adcValue > 3800)
+    currentADCState = 6;
+  else if (adcValue > 3100)
+    currentADCState = 5;
+  else if (adcValue > 2300)
+    currentADCState = 4;
+  else if (adcValue > 1500)
+    currentADCState = 3;
+  else if (adcValue > 1000)
+    currentADCState = 2;
+  else if (adcValue > 400)
+    currentADCState = 1;
+  if (lastADCState != currentADCState) {
+    lastADCState = currentADCState;
+  } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
+    sixPosState = lastADCState - 1;
+    dirty = true;
   }
-
-  if (sixPosDirty) {
+  if (dirty) {
     for (uint8_t i = 0; i < 6; i++) {
       if (i == sixPosState)
         ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
@@ -122,9 +115,7 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
         ws2812_set_color(i, 0, 0, 0);
     }
     ws2812_update(&_led_timer);
-    sixPosDirty = false;
   }
-
   return (4096/5)*(sixPosState);
 }
 #endif

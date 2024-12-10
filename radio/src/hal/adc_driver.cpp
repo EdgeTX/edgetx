@@ -35,6 +35,9 @@ static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA;
 
 bool adcInit(const etx_hal_adc_driver_t* driver)
 {
+  // Init buffer, provides non random values before mixer task starts
+  memset(adcValues, 0, sizeof(adcValues));
+
   // If there is an init function, it MUST succeed
   if (driver && (!driver->init || driver->init())) {
     _hal_adc_driver = driver;
