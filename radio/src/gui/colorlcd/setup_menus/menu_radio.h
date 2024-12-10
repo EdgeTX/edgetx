@@ -28,13 +28,4 @@ class RadioMenu : public PageGroup
  public:
   RadioMenu();
   ~RadioMenu();
-
- protected:
-#if defined(HARDWARE_KEYS)
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
-#endif
 };

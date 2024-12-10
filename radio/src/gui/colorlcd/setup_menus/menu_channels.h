@@ -23,19 +23,7 @@
 
 #include "pagegroup.h"
 
-class ModelMenu;
-
 class ChannelsViewMenu: public PageGroup {
   public:
-    ChannelsViewMenu(ModelMenu* parent = nullptr);
-
-  protected:
-    ModelMenu* parentMenu = nullptr;
-
-#if defined(HARDWARE_KEYS)
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-#endif
+    ChannelsViewMenu();
 };
