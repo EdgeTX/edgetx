@@ -132,8 +132,8 @@ class ThemeView : public Window
   StaticText* description = nullptr;
 };
 
-ScreenUserInterfacePage::ScreenUserInterfacePage(ScreenMenu* menu) :
-    PageTab(STR_USER_INTERFACE, ICON_THEME_SETUP, PAD_TINY), menu(menu)
+ScreenUserInterfacePage::ScreenUserInterfacePage(PageDef& pageDef) :
+    PageTab(pageDef, PAD_TINY)
 {
 }
 
@@ -150,7 +150,7 @@ void ScreenUserInterfacePage::build(Window* window)
 
   new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
             [=]() -> uint8_t {
-                menu->deleteLater();
+                window->getParent()->deleteLater();
                 new SetupTopBarWidgetsPage();
                 return 0;
             });

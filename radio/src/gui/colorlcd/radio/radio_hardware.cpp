@@ -55,8 +55,8 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
 #endif
 
-RadioHardwarePage::RadioHardwarePage() :
-    PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE, PAD_TINY)
+RadioHardwarePage::RadioHardwarePage(PageDef& pageDef) :
+    PageTab(pageDef, PAD_TINY)
 {
   enableVBatBridge();
 }

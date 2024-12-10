@@ -21,19 +21,23 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class ScreenMenu : public TabsGroup
+class ModelMenu : public PageGroup
 {
  public:
-  ScreenMenu(int8_t tabIdx = -1);
+  ModelMenu();
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "ModelMenu"; }
+#endif
 
  protected:
 #if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;
   void onLongPressMDL() override;
+  void onPressTELE() override;
   void onLongPressTELE() override;
 #endif
 };

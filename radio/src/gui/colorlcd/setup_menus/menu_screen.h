@@ -21,20 +21,20 @@
 
 #pragma once
 
-#include "window.h"
+#include "pagegroup.h"
 
-class ViewMainMenu : public Window
+class ScreenMenu : public PageGroup
 {
  public:
-  ViewMainMenu(Window* parent, std::function<void()> closeHandler);
+  ScreenMenu(int8_t tabIdx = -1);
 
-  void onCancel() override;
-  void onClicked() override;
-  void deleteLater(bool detach = true, bool trash = true) override;
-
-  static LAYOUT_VAL(QM_COLS, 4, 3)
-  static LAYOUT_VAL(QM_ROWS, 2, 3)
+  void setCurrentTab(unsigned index) override;
 
  protected:
-  std::function<void()> closeHandler = nullptr;
+#if defined(HARDWARE_KEYS)
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onLongPressTELE() override;
+#endif
 };
