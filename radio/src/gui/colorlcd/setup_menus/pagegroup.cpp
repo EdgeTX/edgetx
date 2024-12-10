@@ -26,7 +26,6 @@
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "topbar_impl.h"
-#include "quick_menu.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
