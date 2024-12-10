@@ -21,13 +21,12 @@
 
 #include "menu_radio.h"
 
+#include "edgetx.h"
 #include "menu_model.h"
 #include "menu_screen.h"
 #include "menu_channels.h"
 #include "model_select.h"
 #include "myeeprom.h"
-#include "edgetx.h"
-#include "radio_calibration.h"
 #include "radio_hardware.h"
 #include "radio_sdmanager.h"
 #include "radio_setup.h"
