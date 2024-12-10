@@ -22,10 +22,6 @@
 #include "menu_screen.h"
 
 #include "edgetx.h"
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_channels.h"
-#include "model_select.h"
 #include "screen_setup.h"
 #include "view_main.h"
 
@@ -69,27 +65,3 @@ void ScreenMenu::setCurrentTab(unsigned index)
     index = tabCount() - 1;  
   PageGroup::setCurrentTab(index);
 }
-
-#if defined(HARDWARE_KEYS)
-void ScreenMenu::onLongPressSYS()
-{
-  onCancel();
-  // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
-}
-void ScreenMenu::onPressMDL()
-{
-  onCancel();
-  new ModelMenu();
-}
-void ScreenMenu::onLongPressMDL()
-{
-  onCancel();
-  new ModelLabelsWindow();
-}
-void ScreenMenu::onLongPressTELE()
-{
-  onCancel();
-  new ChannelsViewMenu();
-}
-#endif

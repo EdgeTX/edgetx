@@ -26,6 +26,11 @@
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "topbar_impl.h"
+#include "menu_model.h"
+#include "menu_radio.h"
+#include "menu_screen.h"
+#include "menu_channels.h"
+#include "model_select.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
@@ -184,7 +189,8 @@ class PageGroupHeader : public Window
 };
 
 PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
-    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
+    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
+    icon(icon)
 {
   etx_solid_bg(lvobj);
 
@@ -289,12 +295,6 @@ void PageGroup::checkEvents()
   ViewMain::instance()->runBackground();
 }
 
-#if defined(HARDWARE_KEYS)
-void PageGroup::onPressSYS() { if (!quickMenu) openMenu(); }
-void PageGroup::onPressPGUP() { header->prevTab(); }
-void PageGroup::onPressPGDN() { header->nextTab(); }
-#endif
-
 void PageGroup::openMenu()
 {
   quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; }, [=]() { onCancel(); }, this, currentTab->subMenu());
@@ -309,3 +309,60 @@ void PageGroup::onCancel()
   quickMenu = nullptr;
   deleteLater();
 }
+
+#if defined(HARDWARE_KEYS)
+void PageGroup::onPressSYS()
+{
+  if (!quickMenu) openMenu();
+}
+
+void PageGroup::onLongPressSYS()
+{
+  if (icon == ICON_RADIO) {
+    setCurrentTab(2);
+  } else {
+    onCancel();
+    (new RadioMenu())->setCurrentTab(2);
+  }
+}
+
+void PageGroup::onPressMDL()
+{
+  if (icon != ICON_MODEL) {
+    onCancel();
+    new ModelMenu();
+  }
+}
+
+void PageGroup::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+
+void PageGroup::onPressTELE()
+{
+  if (icon != ICON_THEME) {
+    onCancel();
+    new ScreenMenu();
+  }
+}
+
+void PageGroup::onLongPressTELE()
+{
+  if (icon != ICON_MONITOR) {
+    onCancel();
+    new ChannelsViewMenu();
+  }
+}
+
+void PageGroup::onPressPGUP()
+{
+  header->prevTab();
+}
+
+void PageGroup::onPressPGDN()
+{
+  header->nextTab();
+}
+#endif
