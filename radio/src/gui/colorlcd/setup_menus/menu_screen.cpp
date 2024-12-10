@@ -41,18 +41,8 @@ PageDef screensMenuItems[] = {
   { EDGETX_ICONS_COUNT }
 };
 
-ScreenMenu::ScreenMenu(int8_t tabIdx) : PageGroup(ICON_THEME, screensMenuItems)
+ScreenMenu::ScreenMenu() : PageGroup(ICON_THEME, screensMenuItems)
 {
-  // set the active tab to the currently shown screen on the MainView
-  auto viewMain = ViewMain::instance();
-  auto tab = viewMain->getCurrentMainView() + 1;
-
-  if (tabIdx >= 0) {
-    tab = tabIdx;
-  }
-
-  setCurrentTab(tab);
-
   setCloseHandler([] {
     ViewMain::instance()->updateTopbarVisibility();
     storageDirty(EE_MODEL);
