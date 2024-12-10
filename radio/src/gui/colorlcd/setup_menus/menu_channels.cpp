@@ -22,10 +22,6 @@
 #include "menu_channels.h"
 
 #include "edgetx.h"
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
-#include "model_select.h"
 #include "view_channels.h"
 #include "view_logical_switches.h"
 
@@ -38,36 +34,7 @@ PageDef channelsMenuItems[] = {
   { EDGETX_ICONS_COUNT }
 };
 
-ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
-    PageGroup(ICON_MONITOR, channelsMenuItems), parentMenu(parent)
+ChannelsViewMenu::ChannelsViewMenu() :
+    PageGroup(ICON_MONITOR, channelsMenuItems)
 {
 }
-
-#if defined(HARDWARE_KEYS)
-void ChannelsViewMenu::onLongPressSYS()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
-}
-void ChannelsViewMenu::onPressMDL()
-{
-  onCancel();
-  if (!parentMenu) {
-    new ModelMenu();
-  }
-}
-void ChannelsViewMenu::onLongPressMDL()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new ModelLabelsWindow();
-}
-void ChannelsViewMenu::onPressTELE()
-{
-  onCancel();
-  if (parentMenu) parentMenu->onCancel();
-  new ScreenMenu();
-}
-#endif
