@@ -73,9 +73,15 @@ class PageGroup : public NavWindow
   Window* body = nullptr;
   PageTab* currentTab = nullptr;
   QuickMenu* quickMenu = nullptr;
+  EdgeTxIcon icon;
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
   void onPressPGUP() override;
   void onPressPGDN() override;
 #endif

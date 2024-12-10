@@ -29,12 +29,4 @@ class ScreenMenu : public PageGroup
   ScreenMenu(int8_t tabIdx = -1);
 
   void setCurrentTab(unsigned index) override;
-
- protected:
-#if defined(HARDWARE_KEYS)
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onLongPressTELE() override;
-#endif
 };
