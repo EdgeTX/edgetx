@@ -344,7 +344,7 @@ void PageGroup::onPressTELE()
 {
   if (icon != ICON_THEME) {
     onCancel();
-    new ScreenMenu();
+    (new ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + 1);
   }
 }
 

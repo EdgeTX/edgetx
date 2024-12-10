@@ -258,7 +258,7 @@ void ViewMain::onLongPressMDL()
 void ViewMain::onPressTELE()
 {
   if (viewMainMenu) viewMainMenu->onCancel();
-  new ScreenMenu();
+  (new ScreenMenu())->setCurrentTab(getCurrentMainView() + 1);
 }
 void ViewMain::onLongPressTELE()
 {
