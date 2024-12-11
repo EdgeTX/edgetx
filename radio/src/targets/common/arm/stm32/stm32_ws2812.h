@@ -42,6 +42,8 @@
 
 void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len, uint8_t type);
 void ws2812_update(const stm32_pulse_timer_t* timer);
+bool ws2812_get_state(uint8_t led);
 void ws2812_dma_isr(const stm32_pulse_timer_t* timer);
 
 void ws2812_set_color(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
+uint32_t ws2812_get_color(uint8_t led);

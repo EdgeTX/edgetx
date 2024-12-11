@@ -259,6 +259,18 @@ options_radiomaster_boxer = {
     "internalelrs": ("INTERNAL_MODULE_ELRS", "YES", "NO"),
 }
 
+options_radiomaster_gx12 = {
+    "noheli": ("HELI", "NO", "YES"),
+    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
+    "nogvars": ("GVARS", "NO", "YES"),
+    "faimode": ("FAI", "YES", None),
+    "faichoice": ("FAI", "CHOICE", None),
+    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
+    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
+    "afhds3": ("AFHDS3", "YES", "NO"),
+    "internalelrs": ("INTERNAL_MODULE_ELRS", "YES", "NO"),
+}
+
 options_radiomaster_pocket = {
     "noheli": ("HELI", "NO", "YES"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),

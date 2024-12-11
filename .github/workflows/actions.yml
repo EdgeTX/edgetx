@@ -70,6 +70,7 @@ jobs:
           - xlite
           - xlites
           - mt12
+          - gx12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -103,7 +104,7 @@ jobs:
           - t8;zorro;pocket;mt12;commando8
           - tlite;tpro;tprov2;tpros;bumblebee;lr3pro
           - t20;t20v2;t14
-          - tx12;tx12mk2;boxer
+          - tx12;tx12mk2;boxer;gx12
           - tx16s
           - f16
           - v16
@@ -114,7 +115,7 @@ jobs:
           - x9e;x9e-hall
           - x9lite;x9lites
           - xlite;xlites
-          - mt12
+          - mt12;gx12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:

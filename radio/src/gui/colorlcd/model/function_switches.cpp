@@ -26,6 +26,13 @@
 #include "edgetx.h"
 #include "strhelpers.h"
 #include "switches.h"
+#include "color_picker.h"
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+   static constexpr coord_t LH = 72;
+#else
+   static constexpr coord_t LH = 36;
+#endif
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -115,6 +122,37 @@ class FunctionSwitch : public Window
           FSWITCH_SET_STARTUP(switchIndex, val);
           SET_DIRTY();
         });
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+   new StaticText(this, {8 , 6 + 36, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_FS_OFF_COLOR, COLOR_THEME_PRIMARY1);
+
+   auto offcolor = new ColorPicker(
+        this, rect_t{},
+        [=]() -> int {  // getValue
+          return g_model.functionSwitchLedOFFColor[switchIndex];
+        },
+        [=](int newValue) {  // setValue
+          g_model.functionSwitchLedOFFColor[switchIndex] =
+            (uint32_t)newValue;
+          TRACE("Color: %x", g_model.functionSwitchLedOFFColor[switchIndex]);
+          SET_DIRTY();
+      });
+    offcolor->setPos(NM_X, 36);
+
+    new StaticText(this, {TP_X, 6 + 36, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_FS_ON_COLOR, COLOR_THEME_PRIMARY1);
+
+    auto oncolor = new ColorPicker(
+        this, rect_t{},
+        [=]() -> int {  // getValue
+          return g_model.functionSwitchLedONColor[switchIndex];
+        },
+        [=](int newValue) {  // setValue
+          g_model.functionSwitchLedONColor[switchIndex] =
+            (uint32_t)newValue;
+          SET_DIRTY();
+      });
+    oncolor->setPos(GR_X, 36);
+#endif //FUNCTION_SWITCHES_RGB_LEDS
 
     setState();
   }

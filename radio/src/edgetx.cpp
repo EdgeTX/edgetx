@@ -1365,8 +1365,6 @@ void edgeTxInit()
   menuHandlers[1] = menuModelSelect;
 #endif
 
-  switchInit();
-
 #if defined(GUI) && !defined(COLORLCD)
   lcdRefreshWait();
   lcdClear();

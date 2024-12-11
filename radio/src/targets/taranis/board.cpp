@@ -30,6 +30,7 @@
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/rgbleds.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -198,12 +199,12 @@ void boardInit()
       delay_ms(20);
 #if defined(FUNCTION_SWITCHES)
       // Support for FS Led to indicate battery charge level
-      if (getBatteryVoltage() >= 660) fsLedOn(0);
-      if (getBatteryVoltage() >= 700) fsLedOn(1);
-      if (getBatteryVoltage() >= 740) fsLedOn(2);
-      if (getBatteryVoltage() >= 780) fsLedOn(3);
-      if (getBatteryVoltage() >= 820) fsLedOn(4);
-      if (getBatteryVoltage() >= 842) fsLedOn(5);
+      if (getBatteryVoltage() >= 660) setFSLedON(0);
+      if (getBatteryVoltage() >= 700) setFSLedON(1);
+      if (getBatteryVoltage() >= 740) setFSLedON(2);
+      if (getBatteryVoltage() >= 780) setFSLedON(3);
+      if (getBatteryVoltage() >= 820) setFSLedON(4);
+      if (getBatteryVoltage() >= 842) setFSLedON(5);
 #elif defined(STATUS_LEDS)
       // Use Status LED to indicate battery charge level instead
       if (getBatteryVoltage() <= 660) ledRed();         // low discharge
@@ -216,15 +217,15 @@ void boardInit()
   }
 #endif
 
+  delaysInit();
+  __enable_irq();
+
   keysInit();
   switchInit();
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotaryEncoderInit();
 #endif
-
-  delaysInit();
-  __enable_irq();
 
 #if defined(PWM_STICKS)
   sticksPwmDetect();
@@ -296,6 +297,11 @@ void boardInit()
 #if defined(GUI)
   lcdSetContrast(true);
 #endif
+
+#if defined(RADIO_GX12)
+  gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
 }
 #endif
 

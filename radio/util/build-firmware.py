@@ -164,6 +164,11 @@ def main():
         cmake_options["PCBREV"] = "MT12"
         firmware_options = options_radiomaster_mt12
         maxsize = 65536 * 8 * 2
+    elif board_name == "gx12":
+        cmake_options["PCB"] = "X7"
+        cmake_options["PCBREV"] = "GX12"
+        firmware_options = options_radiomaster_gx12
+        maxsize = 65536 * 8 * 2
     elif board_name == "t8":
         cmake_options["PCB"] = "X7"
         cmake_options["PCBREV"] = "T8"
