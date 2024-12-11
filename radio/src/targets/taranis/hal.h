@@ -2055,6 +2055,9 @@
   #define FSLED_GPIO_PIN_5              GPIO_PIN(FSLED_GPIO, 9)
   #define FSLED_GPIO_PIN_6              GPIO_PIN(FSLED_GPIO, 8)
 #elif defined(RADIO_FAMILY_T20)
+  #define GPIO_FSLED_GPIO_ON            GPIO_SetBits
+  #define GPIO_FSLED_GPIO_OFF           GPIO_ResetBits
+  #define FSLED_GPIO                    GPIOF
   #define FSLED_GPIO_PIN_1              GPIO_PIN(FSLED_GPIO, 10)
   #define FSLED_GPIO_PIN_2              GPIO_PIN(FSLED_GPIO, 9)
   #define FSLED_GPIO_PIN_3              GPIO_PIN(FSLED_GPIO, 8)
@@ -2062,6 +2065,9 @@
   #define FSLED_GPIO_PIN_5              GPIO_PIN(FSLED_GPIO, 6)
   #define FSLED_GPIO_PIN_6              GPIO_PIN(FSLED_GPIO, 13)
 #else
+  #define GPIO_FSLED_GPIO_ON            GPIO_SetBits
+  #define GPIO_FSLED_GPIO_OFF           GPIO_ResetBits
+  #define FSLED_GPIO                    GPIOF
   #define FSLED_GPIO_PIN_1              GPIO_PIN(FSLED_GPIO, 5)
   #define FSLED_GPIO_PIN_2              GPIO_PIN(FSLED_GPIO, 4)
   #define FSLED_GPIO_PIN_3              GPIO_PIN(FSLED_GPIO, 3)
