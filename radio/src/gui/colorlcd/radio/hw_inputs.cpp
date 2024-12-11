@@ -37,7 +37,7 @@ struct HWInputEdit : public RadioTextEdit {
   {
   }
 
-  static LAYOUT_VAL(HW_INP_W, 64, 64)
+  static LAYOUT_VAL(HW_INP_W, 64, 64, LS(64))
 };
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
@@ -246,8 +246,8 @@ class HWSwitch
     }
   }
 
-  static LAYOUT_VAL(SW_CTRL_W, 86, 75)
-  static LAYOUT_VAL(SW_CTRL_H, 36, 36)
+  static LAYOUT_VAL(SW_CTRL_W, 86, 75, LS(86))
+  static LAYOUT_VAL(SW_CTRL_H, 36, 36, 26)
 
  protected:
   Choice* channel = nullptr;

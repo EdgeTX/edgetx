@@ -293,6 +293,16 @@ SWITCH_CONFIG = {
         "SG": {"default": "3POS"},
         "SH": {"default": "TOGGLE"}
     },
+    "smallLCD": {
+        "SA": {"default": "3POS"},
+        "SB": {"default": "3POS"},
+        "SC": {"default": "3POS"},
+        "SD": {"default": "3POS"},
+        "SE": {"default": "3POS"},
+        "SF": {"default": "2POS"},
+        "SG": {"default": "3POS"},
+        "SH": {"default": "TOGGLE"}
+    },
     "tx12mk2": {
         # left side
         "SA": {"default": "TOGGLE", "display": [0, 0]},

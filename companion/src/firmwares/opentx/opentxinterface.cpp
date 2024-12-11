@@ -789,6 +789,12 @@ void registerOpenTxFirmwares()
   firmware->addOption("flyskygimbals", Firmware::tr("Support hardware mod: FlySky Paladin EV Gimbals"));
   registerOpenTxFirmware(firmware);
 
+  /* Test 320x240 */
+  firmware = new OpenTxFirmware(FIRMWAREID("smallLCD"), Firmware::tr("Test 320x240 LCD"), BOARD_SMALL_LCD);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  registerOpenTxFirmware(firmware);
+
   /* Radiomaster Zorro board */
   firmware = new OpenTxFirmware(FIRMWAREID("zorro"), QCoreApplication::translate("Firmware", "Radiomaster Zorro"), Board::BOARD_RADIOMASTER_ZORRO);
   addOpenTxCommonOptions(firmware);

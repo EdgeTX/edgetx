@@ -2,7 +2,7 @@
 
 LEGACY_NAMES = [
     {
-        "targets": {"x10", "x10express", "t16", "tx16s", "t18", "f16", "v16"},
+        "targets": {"x10", "x10express", "t16", "tx16s", "t18", "f16", "v16", "smallLCD"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",

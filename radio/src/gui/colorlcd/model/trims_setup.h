@@ -28,5 +28,5 @@ class TrimsSetup : public SubPage
  public:
   TrimsSetup();
 
-  static LAYOUT_VAL(HATSMODE_W, 120, 120)
+  static LAYOUT_VAL(HATSMODE_W, 120, 120, LS(120))
 };
