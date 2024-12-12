@@ -97,7 +97,7 @@ class PageGroupHeader : public Window
     titleLabel = lv_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_pos(titleLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PAD_MEDIUM * 2);
-    lv_obj_set_size(titleLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 2 - PAD_LARGE * 2, PageGroup::MENU_TITLE_TOP);
+    lv_obj_set_size(titleLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 2 - PAD_LARGE * 2, PageGroup::MENU_TITLE_TOP - PAD_MEDIUM * 2);
     setTitle("");
 
     new HeaderBackIcon(this, [=]() { menu->onCancel(); });
