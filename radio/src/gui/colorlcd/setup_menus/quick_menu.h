@@ -86,11 +86,11 @@ class QuickMenu : public Window
   };
 
   QuickMenu(Window* parent, std::function<void()> cancelHandler,
-            std::function<void()> selectHandler = nullptr,
+            std::function<void(bool close)> selectHandler = nullptr,
             PageGroup* pageGroup = nullptr, SubMenu curPage = NONE);
 
   void onCancel() override;
-  void onSelect();
+  void onSelect(bool close);
   void closeMenu();
   void deleteLater(bool detach = true, bool trash = true) override;
   void onEvent(event_t event) override;
@@ -107,7 +107,7 @@ class QuickMenu : public Window
 
  protected:
   std::function<void()> cancelHandler = nullptr;
-  std::function<void()> selectHandler = nullptr;
+  std::function<void(bool close)> selectHandler = nullptr;
   bool inSubMenu = false;
   QuickMenuGroup* mainMenu = nullptr;
   std::vector<QuickSubMenu*> subMenus;
