@@ -38,6 +38,7 @@ class ButtonsWidget;
 class QPushButton;
 
 // Match with /radio/src/hal/key_driver.h
+// key in sync with strKeyToInt
 enum EnumKeys {
   KEY_MENU,
   KEY_EXIT,
@@ -62,7 +63,9 @@ enum EnumKeys {
   KEY_SHIFT,
   KEY_BIND,
 
-  MAX_KEYS
+  //  these are only used by the simulator
+  KEY_SCROLL_UP,
+  KEY_SCROLL_DOWN
 };
 
 struct GenericKeyDefinition {
@@ -154,6 +157,7 @@ class SimulatedUIWidget : public QWidget
     void addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons);
     void addScrollActions();
     void addMouseActions();
+    const GenericKeyDefinition * getGenericKeyDefinition(const int key) const;
 };
 
 
