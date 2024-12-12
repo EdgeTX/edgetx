@@ -154,7 +154,7 @@ class TabsGroupHeader : public Window
 
     selectedIcon = new SelectedTabIcon(carousel);
 
-    new HeaderDateTime(this, LCD_W - DATE_XO, PAD_MEDIUM);
+    new HeaderBackIcon(this, [=]() { menu->onCancel(); })
   }
 
   void setTitle(const char* title) { lv_label_set_text(titleLabel, title); }
@@ -273,10 +273,6 @@ TabsGroup::TabsGroup(EdgeTxIcon icon) :
 #if defined(DEBUG)
   lv_obj_add_event_cb(lvobj, on_draw_begin, LV_EVENT_COVER_CHECK, nullptr);
   lv_obj_add_event_cb(lvobj, on_draw_end, LV_EVENT_DRAW_POST_END, nullptr);
-#endif
-
-#if defined(HARDWARE_TOUCH)
-  addBackButton();
 #endif
 }
 
