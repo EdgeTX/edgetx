@@ -236,6 +236,7 @@ void SimulatedUIWidget::connectScrollActions()
 // static
 int SimulatedUIWidget::strKeyToInt(std::string key)
 {
+//  MUST be kept in sync with EnumKeys
   QStringList keys = {
     "KEY_MENU",
     "KEY_EXIT",
@@ -258,67 +259,75 @@ int SimulatedUIWidget::strKeyToInt(std::string key)
   return keys.indexOf(key.c_str());
 }
 
+//  Notes: unused rows will be hidden and squashed
+static const QList<GenericKeyDefinition> genericKeyDefinitions = {
+  { KEY_SYS,    'L', 0, QList<int>()      << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
+
+  { KEY_MODEL,  'R', 0, QList<int>()      << Qt::Key_Up,        SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
+
+  { KEY_PAGEUP, 'L', 1, QList<int>()      << Qt::Key_PageUp,    SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP },
+
+  { KEY_PAGEDN, 'R', 1, QList<int>()      << Qt::Key_PageDown,  SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
+
+  { KEY_UP,     'L', 2, QList<int>()      << Qt::Key_Up
+                                          << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP },
+
+  { KEY_DOWN,   'R', 2, QList<int>()      << Qt::Key_Down
+                                          << Qt::Key_PageDown,  SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
+
+  { KEY_LEFT,   'L', 3, QList<int>()      << Qt::Key_Left
+                                          << Qt::Key_Minus,     SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
+
+  { KEY_RIGHT,  'R', 3, QList<int>()      << Qt::Key_Right
+                                          << Qt::Key_Plus,      SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
+
+  { KEY_MINUS,  'L', 4, QList<int>()      << Qt::Key_Minus
+                                          << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN },
+
+  { KEY_PLUS,   'R', 4, QList<int>()      << Qt::Key_Plus
+                                          << Qt::Key_Equal
+                                          << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS },
+
+  { KEY_TELE,   'R', 5, QList<int>()      << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
+
+  { KEY_MENU,   'L', 6, QList<int>()      << Qt::Key_Up
+                                          << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU },
+
+  { KEY_SHIFT,  'R', 6, QList<int>()      << Qt::Key_S,         SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT },
+
+  { KEY_EXIT,   'L', 7, QList<int>()      << Qt::Key_Down
+                                          << Qt::Key_Delete
+                                          << Qt::Key_Escape
+                                          << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
+
+  { KEY_ENTER,  'R', 7, QList<int>()      << Qt::Key_Enter
+                                          << Qt::Key_Return,    SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
+
+  { KEY_SCROLL_UP,   'L', 8, QList<int>() << Qt::Key_Minus,     SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT },
+
+  { KEY_SCROLL_DOWN, 'R', 8, QList<int>() << Qt::Key_Plus
+                                          << Qt::Key_Equal,     SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT },
+};
+
 void SimulatedUIWidget::addScrollActions()
 {
-  //  Note: the keys cannot duplicate those used for radio buttons
-  m_scrollUpAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Minus,
-                                       SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT);
-  m_scrollDnAction = new RadioUiAction(-1, QList<int>() << Qt::Key_Plus << Qt::Key_Equal,
-                                       SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT);
+  const GenericKeyDefinition *updefn = getGenericKeyDefinition(KEY_SCROLL_UP);
+  if (updefn)
+    m_scrollUpAction = new RadioUiAction(-1, updefn->keys, updefn->helpKeys, updefn->helpActions);
+
+  const GenericKeyDefinition *downdefn = getGenericKeyDefinition(KEY_SCROLL_DOWN);
+  if (downdefn)
+    m_scrollDnAction = new RadioUiAction(-1, downdefn->keys, downdefn->helpKeys, downdefn->helpActions);
+
   connectScrollActions();
 }
 
 void SimulatedUIWidget::addMouseActions()
 {
-  m_mouseMidClickAction = new RadioUiAction(KEY_ENTER, QList<int>() << Qt::Key_Enter << Qt::Key_Return,
-                                            SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN);
+  const GenericKeyDefinition *defn = getGenericKeyDefinition(KEY_ENTER);
+  if (defn)
+    m_mouseMidClickAction = new RadioUiAction(defn->index, defn->keys, defn->helpKeys, defn->helpActions);
 }
-
-//  Notes: unused rows will be hidden and squashed
-//         keys cannot duplicate those used for scrolling refer m_mouseMidClickAction
-static const QList<GenericKeyDefinition> genericKeyDefinitions = {
-  { KEY_SYS,    'L', 0, QList<int>() << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
-
-  { KEY_MODEL,  'R', 0, QList<int>() << Qt::Key_Up,        SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
-
-  { KEY_PAGEUP, 'L', 1, QList<int>() << Qt::Key_PageUp,    SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP },
-
-  { KEY_PAGEDN, 'R', 1, QList<int>() << Qt::Key_PageDown,  SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
-
-  { KEY_UP,     'L', 2, QList<int>() << Qt::Key_Up
-                                     << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP },
-
-  { KEY_DOWN,   'R', 2, QList<int>() << Qt::Key_Down
-                                     << Qt::Key_PageDown,  SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
-
-  { KEY_LEFT,   'L', 3, QList<int>() << Qt::Key_Left
-                                     << Qt::Key_Minus,     SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
-
-  { KEY_RIGHT,  'R', 3, QList<int>() << Qt::Key_Right
-                                     << Qt::Key_Plus,      SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
-
-  { KEY_MINUS,  'L', 4, QList<int>() << Qt::Key_Minus
-                                     << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN },
-
-  { KEY_PLUS,   'R', 4, QList<int>() << Qt::Key_Plus
-                                     << Qt::Key_Equal
-                                     << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS },
-
-  { KEY_TELE,   'R', 5, QList<int>() << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
-
-  { KEY_MENU,   'L', 6, QList<int>() << Qt::Key_Up
-                                     << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU },
-
-  { KEY_SHIFT,  'R', 6, QList<int>() << Qt::Key_S,         SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT },
-
-  { KEY_EXIT,   'L', 7, QList<int>() << Qt::Key_Down
-                                     << Qt::Key_Delete
-                                     << Qt::Key_Escape
-                                     << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
-
-  { KEY_ENTER,  'R', 7, QList<int>() << Qt::Key_Enter
-                                     << Qt::Key_Return,    SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
-};
 
 void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
 {
@@ -334,6 +343,11 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
     else
       qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
   }
+
+  /*if (g.simuScrollButtons()) {
+      addGenericPushButton(KEY_SCROLL_UP, "Scroll Up", leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+      addGenericPushButton(KEY_SCROLL_DOWN, "Scroll Down", leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+  }*/
 
   QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
   gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
@@ -372,4 +386,16 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWi
       break;
     }
   }
+}
+
+const GenericKeyDefinition * SimulatedUIWidget::getGenericKeyDefinition(const int key) const
+{
+  for (int i = 0; i < genericKeyDefinitions.size(); i++) {
+    const GenericKeyDefinition defn = genericKeyDefinitions.at(i);
+    if (defn.index == key)
+      return &genericKeyDefinitions.at(i);
+  }
+
+  qDebug() << "Unknown key:" << key;
+  return nullptr;
 }
