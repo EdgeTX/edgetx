@@ -110,7 +110,7 @@ void lcdHardwareInit()
 #if defined(OLED_VCC_CS)
   gpio_init(OLED_VCC_CS, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
-  // Comming from bootloader or EM, screen is already on
+  // Coming from bootloader or EM, screen is already on
   if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE())
     gpio_set(OLED_VCC_CS);
 #endif
