@@ -275,7 +275,7 @@ void SimulatedUIWidget::addMouseActions()
 }
 
 //  Notes: unused rows will be hidden and squashed
-//         keys cannot duplicate those used for scrolling tefer m_mouseMidClickAction
+//         keys cannot duplicate those used for scrolling refer m_mouseMidClickAction
 static const QList<GenericKeyDefinition> genericKeyDefinitions = {
   { KEY_SYS,    'L', 0, QList<int>() << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
 
@@ -286,38 +286,38 @@ static const QList<GenericKeyDefinition> genericKeyDefinitions = {
   { KEY_PAGEDN, 'R', 1, QList<int>() << Qt::Key_PageDown,  SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
 
   { KEY_UP,     'L', 2, QList<int>() << Qt::Key_Up
-                                        << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP },
+                                     << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP },
 
   { KEY_DOWN,   'R', 2, QList<int>() << Qt::Key_Down
-                                        << Qt::Key_PageDown,  SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
+                                     << Qt::Key_PageDown,  SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
 
   { KEY_LEFT,   'L', 3, QList<int>() << Qt::Key_Left
-                                        << Qt::Key_Minus,     SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
+                                     << Qt::Key_Minus,     SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
 
   { KEY_RIGHT,  'R', 3, QList<int>() << Qt::Key_Right
-                                        << Qt::Key_Plus,      SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
+                                     << Qt::Key_Plus,      SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
 
   { KEY_MINUS,  'L', 4, QList<int>() << Qt::Key_Minus
-                                        << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN },
+                                     << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN },
 
   { KEY_PLUS,   'R', 4, QList<int>() << Qt::Key_Plus
-                                        << Qt::Key_Equal
-                                        << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS },
+                                     << Qt::Key_Equal
+                                     << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS },
 
   { KEY_TELE,   'R', 5, QList<int>() << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
 
   { KEY_MENU,   'L', 6, QList<int>() << Qt::Key_Up
-                                        << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU },
+                                     << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU },
 
   { KEY_SHIFT,  'R', 6, QList<int>() << Qt::Key_S,         SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT },
 
   { KEY_EXIT,   'L', 7, QList<int>() << Qt::Key_Down
-                                        << Qt::Key_Delete
-                                        << Qt::Key_Escape
-                                        << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
+                                     << Qt::Key_Delete
+                                     << Qt::Key_Escape
+                                     << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
 
   { KEY_ENTER,  'R', 7, QList<int>() << Qt::Key_Enter
-                                        << Qt::Key_Return,    SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
+                                     << Qt::Key_Return,    SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
 };
 
 void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
