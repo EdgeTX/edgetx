@@ -92,15 +92,7 @@ class PageGroupHeader : public Window
 
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-    auto icn = new StaticIcon(this, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX);
-    (new StaticIcon(icn, 0, 0, ICON_EDGETX, COLOR_THEME_PRIMARY2_INDEX))->center(icn->width(), icn->height());
-    new ButtonBase(
-        icn, {0, 0, PageGroup::MENU_TITLE_TOP, PageGroup::MENU_TITLE_TOP},
-        [=]() -> uint8_t {
-          menu->openMenu();
-          return 0;
-        },
-        window_create);
+    new HeaderIcon(this, icon, [=]() { menu->openMenu(); });
 
     titleLabel = lv_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
@@ -108,15 +100,7 @@ class PageGroupHeader : public Window
     lv_obj_set_size(titleLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 2 - PAD_LARGE * 2, PageGroup::MENU_TITLE_TOP);
     setTitle("");
 
-    icn = new StaticIcon(this, LCD_W - PageGroup::MENU_TITLE_TOP, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX);
-    new StaticText(icn, {PAD_LARGE * 2, PAD_TINY, 0, 0}, "X", COLOR_THEME_PRIMARY2_INDEX, FONT(XL));
-    new ButtonBase(
-        icn, {0, 0, PageGroup::MENU_TITLE_TOP, PageGroup::MENU_TITLE_TOP},
-        [=]() -> uint8_t {
-          menu->onCancel();
-          return 0;
-        },
-        window_create);
+    new HeaderBackIcon(this, [=]() { menu->onCancel(); });
   }
 
   void setTitle(const char* title) { if (titleLabel) lv_label_set_text(titleLabel, title); }
@@ -171,9 +155,6 @@ class PageGroupHeader : public Window
   PageTab* pageTab(uint8_t idx) const { return buttons[idx]->page(); }
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return buttons.size(); }
-
-  void openMenu() { menu->openMenu(); }
-  void closePage() { menu->onCancel(); }
 
  protected:
   uint8_t currentIndex = 0;
@@ -297,7 +278,11 @@ void PageGroup::checkEvents()
 
 void PageGroup::openMenu()
 {
-  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; }, [=]() { onCancel(); }, this, currentTab->subMenu());
+  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; },
+    [=](bool close) {
+      if (close)
+        onCancel();
+    }, this, currentTab->subMenu());
   quickMenu->setFocus(currentTab->subMenu());
 }
 
