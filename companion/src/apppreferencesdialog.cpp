@@ -275,9 +275,8 @@ void AppPreferencesDialog::initSettings()
   }
   ui->simuSW->setChecked(g.simuSW());
   ui->backLightColor->setCurrentIndex(g.backLight());
-  if (IS_HORUS_OR_TARANIS(getCurrentBoard())) {
+  if (!Boards::getCapability(getCurrentBoard(), Board::HasBacklightColor))
     ui->backLightColor->setEnabled(false);
-  }
   ui->volumeGain->setValue(profile.volumeGain() / 10.0);
   ui->cboSimuGenericKeysPos->addItems(AppData::simuGenericKeysPosList());
   ui->cboSimuGenericKeysPos->setCurrentIndex(g.simuGenericKeysPos());
