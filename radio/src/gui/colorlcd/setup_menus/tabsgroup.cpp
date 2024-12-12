@@ -154,7 +154,7 @@ class TabsGroupHeader : public Window
 
     selectedIcon = new SelectedTabIcon(carousel);
 
-    new HeaderBackIcon(this, [=]() { menu->onCancel(); })
+    new HeaderBackIcon(this, [=]() { menu->onCancel(); });
   }
 
   void setTitle(const char* title) { lv_label_set_text(titleLabel, title); }
