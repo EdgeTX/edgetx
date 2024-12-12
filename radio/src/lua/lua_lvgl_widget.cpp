@@ -1699,9 +1699,9 @@ class WidgetPage : public NavWindow, public LuaEventHandler
       NavWindow(parent, {0, 0, LCD_W, LCD_H}), backAction(std::move(backAction))
   {
     if (iconFile.empty())
-      header = new PageHeader(this, ICON_EDGETX);
+      header = new PageHeader(this, ICON_EDGETX, [=]() { onCancel(); });
     else
-      header = new PageHeader(this, iconFile.c_str());
+      header = new PageHeader(this, iconFile.c_str(), [=]() { onCancel(); });
 
     body = new Window(
         this, {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
@@ -1714,10 +1714,6 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT,
                                 LV_PART_MAIN);
     etx_scrollbar(body->getLvObj());
-
-#if defined(HARDWARE_TOUCH)
-    addBackButton();
-#endif
   }
 
   Window *getBody() { return body; }
