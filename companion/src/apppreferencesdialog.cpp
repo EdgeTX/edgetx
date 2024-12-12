@@ -102,6 +102,7 @@ void AppPreferencesDialog::accept()
   g.simuSW(ui->simuSW->isChecked());
   g.backLight(ui->backLightColor->currentIndex());
   g.simuGenericKeysPos((AppData::SimuGenericKeysPos)ui->cboSimuGenericKeysPos->currentIndex());
+  g.simuScrollButtons(ui->chkSimuScrollButtons->isChecked());
 
   g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
 
@@ -280,6 +281,7 @@ void AppPreferencesDialog::initSettings()
   ui->volumeGain->setValue(profile.volumeGain() / 10.0);
   ui->cboSimuGenericKeysPos->addItems(AppData::simuGenericKeysPosList());
   ui->cboSimuGenericKeysPos->setCurrentIndex(g.simuGenericKeysPos());
+  ui->chkSimuScrollButtons->setChecked(g.simuScrollButtons());
   ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
 
 #if defined(JOYSTICKS)

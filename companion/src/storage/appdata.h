@@ -828,6 +828,7 @@ class AppData: public CompStoreObj
     PROPERTY(bool, disableJoystickWarning, false)
 
     PROPERTY(SimuGenericKeysPos, simuGenericKeysPos, SIMU_GENERIC_KEYS_DEFAULT)
+    PROPERTY(bool, simuScrollButtons, false)
 
     // Message box confirmations
     PROPERTY(bool, confirmWriteModelsAndSettings, true)
