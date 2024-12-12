@@ -33,10 +33,26 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   ui(new Ui::SimulatedUIWidgetGeneric)
 {
   ui->setupUi(this);
+  Board::Type board = getCurrentBoard();
+
+  if (Boards::getCapability(board, Board::HasBacklightColor)) {
+    m_backlightColors << QColor(215, 243, 255);   //  blue
+    m_backlightColors << QColor(166, 247, 159);   //  green
+    m_backlightColors << QColor(247, 159, 166);   //  red
+    m_backlightColors << QColor(255, 195, 151);   //  orange
+    m_backlightColors << QColor(247, 242, 159);   //  yellow
+  }
+  else
+    m_backlightColors << QColor(47, 123, 227);
+
+  if (Boards::getCapability(board, Board::LcdDarkTheme)) {
+    ui->lcd->setBgDefaultColor(QColor(0, 0, 0));        //  black
+    ui->lcd->setFgDefaultColor(QColor(255, 255, 255));  //  white
+  }
+
   setLcd(ui->lcd);
 
   //  TODO: move to setLcd when all radios using generic
-  Board::Type board = getCurrentBoard();
   auto lcdDepth = Boards::getCapability(board, Board::LcdDepth);
   auto lcdWidth = Boards::getCapability(board, Board::LcdWidth) * (lcdDepth < 12 ? 2 : 1);
   auto lcdHeight = Boards::getCapability(board, Board::LcdHeight) * (lcdDepth < 12 ? 2 : 1);
@@ -58,18 +74,6 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   int widgetWidth = lcdWidth + ui->leftbuttons->width() + ui->rightbuttons->width();
 
   setFixedSize(widgetWidth, 50 + widgetHeight);
-
-  //  load colors for OLED screens
-  m_backlightColors << QColor(47, 123, 227);  // default
-
-  //  TODO: more to add
-  if (IS_TARANIS_X7(board) || IS_TARANIS_X7_ACCESS(board)) {
-    m_backlightColors << QColor(215, 243, 255);  // X7 Blue
-    m_backlightColors << QColor(166,247,159);
-    m_backlightColors << QColor(247,159,166);
-    m_backlightColors << QColor(255,195,151);
-    m_backlightColors << QColor(247,242,159);
-  }
 
   //  workaround to delay resize until after parent has been resized
   QTimer * t1 = new QTimer(this);
