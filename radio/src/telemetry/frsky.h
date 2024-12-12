@@ -105,10 +105,10 @@ void sportProcessTelemetryPacketWithoutCrc(uint8_t module, uint8_t origin,
                                            const uint8_t *packet);
 
 void processFrskySportTelemetryData(uint8_t module, uint8_t data,
-                                    uint8_t* buffer, uint8_t& len);
+                                    uint8_t* buffer, uint8_t* len);
 
 void processFrskyDTelemetryData(uint8_t module, uint8_t data,
-                                uint8_t* buffer, uint8_t& len);
+                                uint8_t* buffer, uint8_t* len);
 
 #if defined(NO_RAS)
 inline bool isRasValueValid()

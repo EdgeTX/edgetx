@@ -382,7 +382,9 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 
 inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 {
-  if (isModuleXJT(EXTERNAL_MODULE) || isModuleR9MNonAccess(EXTERNAL_MODULE) || isModuleDSM2(EXTERNAL_MODULE) || isModuleAFHDS3(EXTERNAL_MODULE) || isModulePPM(EXTERNAL_MODULE))
+  if (isModuleXJT(EXTERNAL_MODULE) || isModuleR9MNonAccess(EXTERNAL_MODULE) ||
+      isModuleDSM2(EXTERNAL_MODULE) || isModuleAFHDS3(EXTERNAL_MODULE) ||
+      isModuleSBUS(EXTERNAL_MODULE) || isModulePPM(EXTERNAL_MODULE))
     return 1;
   else
     return 0;
@@ -1103,6 +1105,8 @@ void menuModelSetup(event_t event)
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MODULE_PROTOCOLS, reusableBuffer.moduleSetup.newType, menuHorizontalPosition==0 ? attr : 0);
         if (isModuleXJT(EXTERNAL_MODULE))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
+        else if (isModuleSBUS(EXTERNAL_MODULE))
+          lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_SBUS_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
 #if defined(PPM)
         else if (isModulePPM(EXTERNAL_MODULE))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_PPM_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
@@ -1145,11 +1149,16 @@ void menuModelSetup(event_t event)
                       event, g_model.moduleData[EXTERNAL_MODULE].subType,
                       DSM2_PROTO_LP45, DSM2_PROTO_DSMX);
                 }
+                else if (isModuleSBUS(EXTERNAL_MODULE)) {
+                  CHECK_INCDEC_MODELVAR(
+                      event, g_model.moduleData[EXTERNAL_MODULE].subType,
+                      SBUS_PROTO_TLM_NONE, SBUS_PROTO_TLM_SPORT);
+                }
 #if defined(PPM)
                 else if (isModulePPM(EXTERNAL_MODULE)) {
                   CHECK_INCDEC_MODELVAR(
                       event, g_model.moduleData[EXTERNAL_MODULE].subType,
-                      PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_MLINK);
+                      PPM_PROTO_TLM_NONE, PPM_PROTO_TLM_SPORT);
                 }
 #endif
 #if defined(MULTIMODULE)

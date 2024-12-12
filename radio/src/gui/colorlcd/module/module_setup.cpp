@@ -587,14 +587,15 @@ class ModuleSubTypeChoice : public Choice
 
   void setSubTypeValue(int32_t newValue)
   {
-    if (isModuleXJT(moduleIdx) || isModuleDSM2(moduleIdx) || isModuleR9MNonAccess(moduleIdx)
+    if (isModuleXJT(moduleIdx) || isModuleDSM2(moduleIdx) ||
+        isModuleR9MNonAccess(moduleIdx) || isModuleSBUS(moduleIdx)
 #if defined(PPM)
         || isModulePPM(moduleIdx)
 #endif
 #if defined(PXX2)
         || isModuleISRM(moduleIdx)
 #endif
-       ) {
+    ) {
       if (isModuleXJT(moduleIdx)) {
         g_model.moduleData[moduleIdx].channelsStart = 0;
         g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
@@ -632,10 +633,16 @@ class ModuleSubTypeChoice : public Choice
       setValues(STR_DSM_PROTOCOLS);
       setTextHandler(nullptr);
     }
+    else if (isModuleSBUS(moduleIdx)) {
+      setMin(SBUS_PROTO_TLM_NONE);
+      setMax(SBUS_PROTO_TLM_SPORT);
+      setValues(STR_SBUS_PROTOCOLS);
+      setTextHandler(nullptr);
+    }
 #if defined(PPM)
     else if (isModulePPM(moduleIdx)) {
       setMin(PPM_PROTO_TLM_NONE);
-      setMax(PPM_PROTO_TLM_MLINK);
+      setMax(PPM_PROTO_TLM_SPORT);
       setValues(STR_PPM_PROTOCOLS);
       setTextHandler(nullptr);
     }

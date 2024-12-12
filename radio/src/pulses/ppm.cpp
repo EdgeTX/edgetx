@@ -118,12 +118,35 @@ static bool ppmInitMLinkTelemetry(uint8_t module)
   return false;
 }
 
+static const etx_serial_init ppmSportSerialParams = {
+    .baudrate = FRSKY_SPORT_BAUDRATE,
+    .encoding = ETX_Encoding_8N1,
+    .direction = ETX_Dir_RX,
+    .polarity = ETX_Pol_Normal,
+};
+
+static bool ppmInitSPortTelemetry(uint8_t module)
+{
+  // Try S.PORT hardware USART (requires HW inverters)
+  if (modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &ppmSportSerialParams, false) != nullptr) {
+    return true;
+  }
+
+  return false;
+}
+
 static void _init_telemetry(uint8_t module, uint8_t telemetry_type)
 {
   switch (telemetry_type) {
     case PPM_PROTO_TLM_MLINK:
       if (ppmInitMLinkTelemetry(module)) {
         _processTelemetryData = processExternalMLinkSerialData;
+      }
+      break;
+
+    case PPM_PROTO_TLM_SPORT:
+      if (ppmInitSPortTelemetry(module)) {
+        _processTelemetryData = processFrskySportTelemetryData;
       }
       break;
 

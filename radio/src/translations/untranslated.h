@@ -86,7 +86,8 @@
 #define TR_R9M_FCC_POWER_VALUES        "10mW","100mW","500mW","1W (auto)"
 #define TR_R9M_LBT_POWER_VALUES        "25mW 8CH","25mW 16CH","200mW NoTele","500mW NoTele"
 
-#define TR_PPM_PROTOCOLS               TR("No Telem", "No Telemetry"),"MLink"
+#define TR_PPM_PROTOCOLS               TR("No Telem", "No Telemetry"),"MLink","SPort"
+#define TR_SBUS_PROTOCOLS              TR("No Telem", "No Telemetry"),"SPort"
 #define TR_DSM_PROTOCOLS               "LP45","DSM2","DSMX"
 
 #define TR_MULTI_PROTOCOLS             PROTO_NAMES
