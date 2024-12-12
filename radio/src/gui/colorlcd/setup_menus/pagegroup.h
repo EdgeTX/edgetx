@@ -56,6 +56,7 @@ class PageGroup : public NavWindow
 
   void removeTab(unsigned index);
 
+  PageTab* getCurrentTab() const { return currentTab; }
   virtual void setCurrentTab(unsigned index);
 
   void checkEvents() override;
@@ -65,15 +66,10 @@ class PageGroup : public NavWindow
 
   void openMenu();
 
+  bool isPageGroup() override { return true; }
+
   static LAYOUT_VAL(MENU_TITLE_TOP, 45, 45)
   static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_TITLE_TOP;
-
- protected:
-  PageGroupHeader* header = nullptr;
-  Window* body = nullptr;
-  PageTab* currentTab = nullptr;
-  QuickMenu* quickMenu = nullptr;
-  EdgeTxIcon icon;
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
@@ -85,4 +81,11 @@ class PageGroup : public NavWindow
   void onPressPGUP() override;
   void onPressPGDN() override;
 #endif
+
+ protected:
+  PageGroupHeader* header = nullptr;
+  Window* body = nullptr;
+  PageTab* currentTab = nullptr;
+  QuickMenu* quickMenu = nullptr;
+  EdgeTxIcon icon;
 };
