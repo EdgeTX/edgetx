@@ -55,7 +55,6 @@ uint32_t rgbGetLedColor(uint8_t led)
   return ws2812_get_color(led);
 }
 
-
 bool rgbGetState(uint8_t led)
 {
   return ws2812_get_state(led);
