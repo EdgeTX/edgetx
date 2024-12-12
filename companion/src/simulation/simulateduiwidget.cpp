@@ -344,10 +344,10 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
       qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
   }
 
-  /*if (g.simuScrollButtons()) {
-      addGenericPushButton(KEY_SCROLL_UP, "Scroll Up", leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
-      addGenericPushButton(KEY_SCROLL_DOWN, "Scroll Down", leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
-  }*/
+  if (g.simuScrollButtons()) {
+      addGenericPushButton(KEY_SCROLL_UP, tr("Scrl Up"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+      addGenericPushButton(KEY_SCROLL_DOWN, tr("Scrl Dn"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+  }
 
   QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
   gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
@@ -363,9 +363,6 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
 void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
                                              ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid)
 {
-  if (index >= genericKeyDefinitions.size())
-    return;
-
   for (int i = 0; i < genericKeyDefinitions.size(); i++) {
     const GenericKeyDefinition defn = genericKeyDefinitions.at(i);
 
@@ -381,7 +378,11 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWi
                            (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT ? leftButtonsGrid : rightButtonsGrid);
       int col = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? 0 : (defn.side == 'L' ? 0 : 1);
       grid->addWidget(b, defn.gridRow, col);
-      act = new RadioUiAction(defn.index, defn.keys, defn.helpKeys, defn.helpActions);
+      int idx = defn.index;
+      //  there are no radio keys
+      if (defn.index == KEY_SCROLL_UP || defn.index == KEY_SCROLL_DOWN)
+        idx = -1;
+      act = new RadioUiAction(idx, defn.keys, defn.helpKeys, defn.helpActions);
       addRadioWidget(btns->addPushButton(b, act));
       break;
     }
