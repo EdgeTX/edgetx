@@ -26,12 +26,13 @@
 #include "static.h"
 
 class Page;
+class QuickMenu;
 
 class PageHeader : public Window
 {
  public:
-  PageHeader(Window* parent, EdgeTxIcon icon);
-  PageHeader(Window* parent, const char* iconFile);
+  PageHeader(Window* parent, EdgeTxIcon icon, std::function<void()> tlAction = nullptr);
+  PageHeader(Window* parent, const char* iconFile, std::function<void()> tlAction = nullptr);
 
   void setTitle(std::string txt) { title->setText(std::move(txt)); }
   StaticText* setTitle2(std::string txt);
@@ -60,14 +61,25 @@ class Page : public NavWindow
 
   void enableRefresh();
 
+  void openMenu();
+
  protected:
   PageHeader* header = nullptr;
   Window* body = nullptr;
+  QuickMenu* quickMenu = nullptr;
 
   void checkEvents() override;
   bool bubbleEvents() override { return false; }
 
+  NavWindow* navWindow();
+
 #if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
   void onLongPressRTN() override;
 #endif
 };

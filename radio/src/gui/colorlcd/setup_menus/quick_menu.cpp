@@ -136,9 +136,10 @@ class QuickSubMenu
   {
     if (pageGroup && isSubMenu(quickMenu->currentPage())) {
       quickMenu->deleteLater();
+      quickMenu->onSelect(false);
       pageGroup->setCurrentTab(n);
     } else {
-      quickMenu->onSelect();
+      quickMenu->onSelect(true);
       create()->setCurrentTab(n);
     }
     return 0;
@@ -172,7 +173,7 @@ static lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
   return etx_create(&etx_modal_dialog_class, parent);
 }
 
-QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::function<void()> selectHandler,
+QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::function<void(bool close)> selectHandler,
                      PageGroup* pageGroup, SubMenu curPage) :
     Window(parent, {0, 0, LCD_W, LCD_H}),
     cancelHandler(std::move(cancelHandler)),
@@ -208,7 +209,7 @@ void QuickMenu::buildMainMenu()
 {
   mainMenu->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_MANAGE_MODELS,
                       [=]() -> uint8_t {
-                        onSelect();
+                        onSelect(true);
                         new ModelLabelsWindow();
                         return 0;
                       });
@@ -237,7 +238,7 @@ void QuickMenu::buildMainMenu()
 
   mainMenu->addButton(
       ICON_MODEL_TELEMETRY, STR_MAIN_MENU_RESET_TELEMETRY, [=]() -> uint8_t {
-        onSelect();
+        onSelect(true);
         Menu* resetMenu = new Menu();
         resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
         resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
@@ -254,7 +255,7 @@ void QuickMenu::buildMainMenu()
 
   mainMenu->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX,
                       [=]() -> uint8_t {
-                        onSelect();
+                        onSelect(true);
                         new AboutUs();
                         return 0;
                       });
@@ -262,7 +263,7 @@ void QuickMenu::buildMainMenu()
   if (modelHasNotes())
     mainMenu->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
                         [=]() -> uint8_t {
-                          onSelect();
+                          onSelect(true);
                           readModelNotes(true);
                           return 0;
                         });
@@ -275,10 +276,11 @@ void QuickMenu::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 }
 
-void QuickMenu::onSelect()
+void QuickMenu::onSelect(bool close)
 {
-  deleteLater();
-  if (selectHandler) selectHandler();
+  if (close)
+    deleteLater();
+  if (selectHandler) selectHandler(close);
 }
 
 void QuickMenu::closeMenu()

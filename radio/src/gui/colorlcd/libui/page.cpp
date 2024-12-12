@@ -24,15 +24,18 @@
 #include "theme_manager.h"
 #include "etx_lv_theme.h"
 #include "view_main.h"
+#include "quick_menu.h"
+#include "pagegroup.h"
+#include "tabsgroup.h"
 
-PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
+PageHeader::PageHeader(Window* parent, EdgeTxIcon icon, std::function<void()> tlAction) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
 {
   setWindowFlag(NO_FOCUS | OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-  new HeaderIcon(this, icon);
+  new HeaderIcon(this, icon, tlAction);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
@@ -40,14 +43,14 @@ PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
                          "", COLOR_THEME_PRIMARY2_INDEX);
 }
 
-PageHeader::PageHeader(Window* parent, const char* iconFile) :
+PageHeader::PageHeader(Window* parent, const char* iconFile, std::function<void()> tlAction) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
 {
   setWindowFlag(NO_FOCUS | OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-  new HeaderIcon(this, iconFile);
+  new HeaderIcon(this, iconFile, tlAction);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
@@ -73,7 +76,10 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
   if (pauseRefresh)
     lv_obj_enable_style_refresh(false);
 
-  header = new PageHeader(this, icon);
+  header = new PageHeader(this, icon, [=]() { openMenu(); });
+
+  new HeaderBackIcon(header, [=]() { onCancel(); });
+
   body = new Window(this,
                     {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
   body->setWindowFlag(NO_FOCUS);
@@ -87,10 +93,6 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
   Layer::push(this);
 
   body->padAll(padding);
-
-#if defined(HARDWARE_TOUCH)
-  addBackButton();
-#endif
 }
 
 void Page::deleteLater(bool detach, bool trash)
@@ -101,7 +103,37 @@ void Page::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 }
 
-void Page::onCancel() { deleteLater(); }
+void Page::openMenu()
+{
+  PageGroup* p = nullptr;
+  QuickMenu::SubMenu subMenu = QuickMenu::NONE;
+  Window* w = Layer::walk([=](Window *w) mutable -> bool {
+    return w->isPageGroup();
+  });
+  if (w) {
+    p = (PageGroup*)w;
+    subMenu = p->getCurrentTab()->subMenu();
+  }
+  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; },
+    [=](bool close) {
+      onCancel();
+      if (p) {
+        while (!Layer::back()->isPageGroup()) {
+          Layer::back()->deleteLater();
+        }
+        if (close)
+          Layer::back()->onCancel();
+      }
+    }, p, subMenu);
+  quickMenu->setFocus(subMenu);
+}
+
+void Page::onCancel()
+{
+  if (quickMenu) quickMenu->closeMenu();
+  quickMenu = nullptr;
+  deleteLater();
+}
 
 void Page::onClicked() { Keyboard::hide(false); }
 
@@ -117,7 +149,64 @@ void Page::enableRefresh()
   lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
+NavWindow* Page::navWindow()
+{
+  auto p = Layer::back();
+  if (p->isNavWindow()) return (NavWindow*)p;
+  return nullptr;
+}
+
 #if defined(HARDWARE_KEYS)
+void Page::onPressSYS()
+{
+  if (!quickMenu) openMenu();
+}
+
+void Page::onLongPressSYS()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onLongPressSYS();
+  }
+}
+
+void Page::onPressMDL()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onPressMDL();
+  }
+}
+
+void Page::onLongPressMDL()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onLongPressMDL();
+  }
+}
+
+void Page::onPressTELE()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onPressTELE();
+  }
+}
+
+void Page::onLongPressTELE()
+{
+  auto p = navWindow();
+  if (p) {
+    onCancel();
+    p->onLongPressTELE();
+  }
+}
+
 void Page::onLongPressRTN() { onCancel(); }
 #endif
 

@@ -51,7 +51,7 @@ void RadioTrainerPage::build(Window* form)
   form->padAll(PAD_SMALL);
 
   if (SLAVE_MODE()) {
-    form->setHeight(TabsGroup::MENU_BODY_HEIGHT);
+    form->setHeight(PageGroup::MENU_BODY_HEIGHT);
     auto txt = new StaticText(form, rect_t{}, STR_SLAVE, COLOR_THEME_PRIMARY1_INDEX, FONT(L));
     lv_obj_align(txt->getLvObj(), LV_ALIGN_CENTER, 0, 0);
   } else {
