@@ -73,7 +73,7 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
 
   int widgetWidth = lcdWidth + ui->leftbuttons->width() + ui->rightbuttons->width();
 
-  setFixedSize(widgetWidth, 50 + widgetHeight);
+  setFixedSize(50 + widgetWidth, 50 + widgetHeight);
 
   //  workaround to delay resize until after parent has been resized
   QTimer * t1 = new QTimer(this);
@@ -104,5 +104,4 @@ void SimulatedUIWidgetGeneric::shrink()
   //  adjust parent before child to ensure parent does not constrain child
   adjustSize();
   ui->lcd->adjustSize();
-  ui->lcd->resize(0, 0);
 }
