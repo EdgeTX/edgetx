@@ -310,13 +310,16 @@ static const QList<GenericKeyDefinition> genericKeyDefinitions = {
 
 void SimulatedUIWidget::addScrollActions()
 {
+  if (g.simuScrollButtons())
+    return;
+
   const GenericKeyDefinition *updefn = getGenericKeyDefinition(KEY_SCROLL_UP);
   if (updefn)
-    m_scrollUpAction = new RadioUiAction(-1, updefn->keys, updefn->helpKeys, updefn->helpActions);
+    m_scrollUpAction = new RadioUiAction(-2, updefn->keys, updefn->helpKeys, updefn->helpActions);
 
   const GenericKeyDefinition *downdefn = getGenericKeyDefinition(KEY_SCROLL_DOWN);
   if (downdefn)
-    m_scrollDnAction = new RadioUiAction(-1, downdefn->keys, downdefn->helpKeys, downdefn->helpActions);
+    m_scrollDnAction = new RadioUiAction(-3, downdefn->keys, downdefn->helpKeys, downdefn->helpActions);
 
   connectScrollActions();
 }
@@ -346,6 +349,7 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
   if (g.simuScrollButtons()) {
       addGenericPushButton(KEY_SCROLL_UP, tr("Scrl Up"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       addGenericPushButton(KEY_SCROLL_DOWN, tr("Scrl Dn"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+      connectScrollActions();
   }
 
   QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
@@ -377,11 +381,30 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWi
                            (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT ? leftButtonsGrid : rightButtonsGrid);
       int col = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? 0 : (defn.side == 'L' ? 0 : 1);
       grid->addWidget(b, defn.gridRow, col);
-      int idx = defn.index;
-      //  there are no radio keys
-      if (defn.index == KEY_SCROLL_UP || defn.index == KEY_SCROLL_DOWN)
-        idx = -1;
+      int idx = -1;
+
+      switch (defn.index) {
+        case KEY_SCROLL_UP:
+          idx = -2;
+          break;
+        case KEY_SCROLL_DOWN:
+          idx = -3;
+          break;
+        default:
+          idx = defn.index;
+      }
+
       act = new RadioUiAction(idx, defn.keys, defn.helpKeys, defn.helpActions);
+
+      switch (defn.index) {
+        case KEY_SCROLL_UP:
+          m_scrollUpAction = act;
+          break;
+        case KEY_SCROLL_DOWN:
+          m_scrollDnAction = act;
+          break;
+      }
+
       addRadioWidget(btns->addPushButton(b, act));
       break;
     }
