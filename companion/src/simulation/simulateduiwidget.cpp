@@ -196,11 +196,10 @@ void SimulatedUIWidget::mouseReleaseEvent(QMouseEvent * event)
 void SimulatedUIWidget::setLcd(LcdWidget * lcd)
 {
   m_lcd = lcd;
-  Board::Type board = getCurrentBoard();
 
-  auto width = Boards::getCapability(board, Board::LcdWidth);
-  auto height = Boards::getCapability(board, Board::LcdHeight);
-  auto depth = Boards::getCapability(board, Board::LcdDepth);
+  auto width = Boards::getCapability(m_board, Board::LcdWidth);
+  auto height = Boards::getCapability(m_board, Board::LcdHeight);
+  auto depth = Boards::getCapability(m_board, Board::LcdDepth);
   m_lcd->setData(width, height, depth);
 
   if (!m_backlightColors.size())
