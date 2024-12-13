@@ -30,7 +30,7 @@ class ButtonBase;
 class QuickMenuGroup : public Window
 {
  public:
-  QuickMenuGroup(Window* parent, const rect_t &rect, bool createGroup);
+  QuickMenuGroup(Window* parent, const rect_t &rect);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "QuickMenuGroup"; }
