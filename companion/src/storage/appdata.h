@@ -37,6 +37,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QColor>
 
 //! CPN_SETTINGS_REVISION is used to track settings changes independently of EdgeTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
 //! \note !! Increment this value if properties are removed or refactored. It will trigger a conversion/cleanup of any stored settings. \sa AppData::convertSettings()
@@ -829,6 +830,7 @@ class AppData: public CompStoreObj
 
     PROPERTY(SimuGenericKeysPos, simuGenericKeysPos, SIMU_GENERIC_KEYS_DEFAULT)
     PROPERTY(bool, simuScrollButtons, false)
+    PROPERTY(QColor, simuRadioBackground, QColor(Qt::black))
 
     // Message box confirmations
     PROPERTY(bool, confirmWriteModelsAndSettings, true)

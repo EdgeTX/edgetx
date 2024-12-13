@@ -32,6 +32,8 @@
 #include "filtereditemmodels.h"
 #include "updates/updatefactories.h"
 #include "updates/updateoptionsdialog.h"
+#include <QPalette>
+#include <QColorDialog>
 
 constexpr char FIM_TEMPLATESETUP[]    {"Template Setup"};
 
@@ -103,6 +105,7 @@ void AppPreferencesDialog::accept()
   g.backLight(ui->backLightColor->currentIndex());
   g.simuGenericKeysPos((AppData::SimuGenericKeysPos)ui->cboSimuGenericKeysPos->currentIndex());
   g.simuScrollButtons(ui->chkSimuScrollButtons->isChecked());
+  g.simuRadioBackground(ui->lblRadioColorSample->palette().button().color());
 
   g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
 
@@ -229,6 +232,14 @@ void AppPreferencesDialog::on_snapshotPathButton_clicked()
   }
 }
 
+void AppPreferencesDialog::on_pbtnRadioColor_clicked()
+{
+  QColorDialog *dlg = new QColorDialog(this);
+  QColor color = dlg->getColor(g.simuRadioBackground(), this);
+  ui->lblRadioColorSample->setPalette(QPalette(color));
+  ui->lblRadioColorSample->repaint();
+}
+
 void AppPreferencesDialog::initSettings()
 {
   const Profile & profile = g.currentProfile();
@@ -282,6 +293,7 @@ void AppPreferencesDialog::initSettings()
   ui->cboSimuGenericKeysPos->addItems(AppData::simuGenericKeysPosList());
   ui->cboSimuGenericKeysPos->setCurrentIndex(g.simuGenericKeysPos());
   ui->chkSimuScrollButtons->setChecked(g.simuScrollButtons());
+  ui->lblRadioColorSample->setPalette(QPalette(g.simuRadioBackground()));
   ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
 
 #if defined(JOYSTICKS)
