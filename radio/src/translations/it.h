@@ -1222,16 +1222,16 @@
 #define TR_THEME_EDITOR                 "TEMI"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Seleziona\nModello"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Gestione\nModelli"
-#define TR_MAIN_MENU_MODEL_NOTES        "Note\nModello"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nCanali"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Settaggi\nModello"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Settaggi\nRadio"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Settaggi\nSchermo"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Resetta\nTelemetria"
+#define TR_MAIN_MENU_SELECT_MODEL       "Seleziona Modello"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Gestione Modelli"
+#define TR_MAIN_MENU_MODEL_NOTES        "Note Modello"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor Canali"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Settaggi Modello"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Settaggi Radio"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Settaggi Schermo"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Resetta Telemetria"
 #define TR_MAIN_MENU_STATISTICS         "Statistiche"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "Riguardo\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Riguardo EdgeTX"
 // End Main menu
 
 // Voice in native language

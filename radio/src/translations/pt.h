@@ -1232,16 +1232,16 @@
 #define TR_THEME_EDITOR                 "TEMAS"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Selecionar\nModelo"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Gerenciar\nModelos"
-#define TR_MAIN_MENU_MODEL_NOTES        "Notas\nModelo"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nCanais"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Config.\nModelo"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Config.\nRádio"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Config.\nTela"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\nTelem."
+#define TR_MAIN_MENU_SELECT_MODEL       "Selecionar Modelo"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Gerenciar Modelos"
+#define TR_MAIN_MENU_MODEL_NOTES        "Notas Modelo"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor Canais"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Config. Modelo"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Config. Rádio"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Config. Tela"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset Telem."
 #define TR_MAIN_MENU_STATISTICS         "Estatist."
-#define TR_MAIN_MENU_ABOUT_EDGETX       "Sobre\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Sobre EdgeTX"
 // End Main menu
 
 // Voice in native language

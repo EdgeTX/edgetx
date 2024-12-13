@@ -1231,16 +1231,16 @@
 #define TR_THEME_EDITOR                 "ТЕМЫ"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Выбор\nМодели"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Меню\nМоделей"
-#define TR_MAIN_MENU_MODEL_NOTES        "Заметки\nМодели"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Монитор\nКаналов"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Меню\nМодели"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Меню\nПульта"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Меню\nЭкрана"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Сброс\nТел-рии"
-#define TR_MAIN_MENU_STATISTICS         "Стат-ка\nПульта"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "Инфо\nEdgeTX"
+#define TR_MAIN_MENU_SELECT_MODEL       "Выбор Модели"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Меню Моделей"
+#define TR_MAIN_MENU_MODEL_NOTES        "Заметки Модели"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Монитор Каналов"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Меню Модели"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Меню Пульта"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Меню Экрана"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Сброс Тел-рии"
+#define TR_MAIN_MENU_STATISTICS         "Стат-ка Пульта"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Инфо EdgeTX"
 // End Main menu
 
 // Voice in native language

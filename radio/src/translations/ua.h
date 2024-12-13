@@ -1231,16 +1231,16 @@
 #define TR_THEME_EDITOR                "ТЕМИ"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Обрати\nМодель"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Керувати\nМоделями"
-#define TR_MAIN_MENU_MODEL_NOTES        "Моделі\nНотатки"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Канал\nМонітор"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Модель\nНалаштування"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Радіо\nНалаштування"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Екрани\nНалаштування"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Скидання\nТелеметрії"
+#define TR_MAIN_MENU_SELECT_MODEL       "Обрати Модель"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Керувати Моделями"
+#define TR_MAIN_MENU_MODEL_NOTES        "Моделі Нотатки"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Канал Монітор"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Модель Налаштування"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Радіо Налаштування"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Екрани Налаштування"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Скидання Телеметрії"
 #define TR_MAIN_MENU_STATISTICS         "Статистика"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "Про...\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Про... EdgeTX"
 // End Main menu
 
 // Voice in native language

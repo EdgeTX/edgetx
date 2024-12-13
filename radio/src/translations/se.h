@@ -1264,16 +1264,16 @@
 #define TR_THEME_EDITOR                 "TEMAN"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Välj\nmodell"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Hantera\nmodell"
-#define TR_MAIN_MENU_MODEL_NOTES        "Modell-\nanteckn."
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal-\nmonitor"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Modell-\ninställn."
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio-\ninställn."
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Skärm-\ninställn."
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Återställ\ntelemetri"
+#define TR_MAIN_MENU_SELECT_MODEL       "Välj modell"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Hantera modell"
+#define TR_MAIN_MENU_MODEL_NOTES        "Modell- anteckn."
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal- monitor"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Modell- inställn."
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Radio- inställn."
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Skärm- inställn."
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Återställ telemetri"
 #define TR_MAIN_MENU_STATISTICS         "Statistik"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "Om\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Om EdgeTX"
 // End Main menu
 
 // Voice in native language

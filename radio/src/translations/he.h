@@ -1228,16 +1228,16 @@
 #define TR_THEME_EDITOR                 "ערכות נושא"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "מודל\nבחירת"
-#define TR_MAIN_MENU_MANAGE_MODELS      "ניהול\nמודלים"
-#define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "מצגי\nערוצים"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "הגדרות\nמודל"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "הגדרות\nשלט"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "הגדרות\nמסכים"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "איפוס\nשעונים"
+#define TR_MAIN_MENU_SELECT_MODEL       "מודל בחירת"
+#define TR_MAIN_MENU_MANAGE_MODELS      "ניהול מודלים"
+#define TR_MAIN_MENU_MODEL_NOTES        "Model Notes"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "מצגי ערוצים"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "הגדרות מודל"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "הגדרות שלט"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "הגדרות מסכים"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "איפוס שעונים"
 #define TR_MAIN_MENU_STATISTICS         "סטטיסטיקות"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "מידע על\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "מידע על EdgeTX"
 // End Main menu
 
 // Voice in native language

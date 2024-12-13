@@ -1227,16 +1227,16 @@
 #define TR_THEME_EDITOR                 "Szablony"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Wybierz\nmodel"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Menadżer\nmodeli"
-#define TR_MAIN_MENU_MODEL_NOTES        "Notatki\nmodelu"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanałów"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia\nmodelu"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Ustawienia\nradia"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Ustawienia\nekranów"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\ntelemetrii"
+#define TR_MAIN_MENU_SELECT_MODEL       "Wybierz model"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Menadżer modeli"
+#define TR_MAIN_MENU_MODEL_NOTES        "Notatki modelu"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanałów"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia modelu"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Ustawienia radia"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Ustawienia ekranów"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset telemetrii"
 #define TR_MAIN_MENU_STATISTICS         "Statystyki"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "O\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
 // End Main menu
 
 // Voice in native language
