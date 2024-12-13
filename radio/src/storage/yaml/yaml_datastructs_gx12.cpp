@@ -82,6 +82,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_BACKLIGHT, "BACKLIGHT"  },
   {  FUNC_SCREENSHOT, "SCREENSHOT"  },
   {  FUNC_RACING_MODE, "RACING_MODE"  },
+  {  FUNC_SET_SCREEN, "SET_SCREEN"  },
   {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
   {  FUNC_RGB_LED, "RGB_LED"  },
   {  FUNC_PUSH_CUST_SWITCH, "PUSH_CUST_SWITCH"  },
@@ -602,6 +603,10 @@ static const struct YamlNode struct_anonymous_11[] = {
 };
 static const struct YamlNode struct_anonymous_12[] = {
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
+  YAML_UNSIGNED( "crsfArmingMode", 1 ),
+  YAML_PADDING( 4 ),
+  YAML_SIGNED_CUST( "crsfArmingTrigger", 10, r_swtchSrc, w_swtchSrc ),
+  YAML_SIGNED( "spare3", 6 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_13[] = {
@@ -618,7 +623,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("flysky", 56, struct_anonymous_9, NULL),
   YAML_STRUCT("afhds3", 16, struct_anonymous_10, NULL),
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
-  YAML_STRUCT("crsf", 8, struct_anonymous_12, NULL),
+  YAML_STRUCT("crsf", 24, struct_anonymous_12, NULL),
   YAML_STRUCT("dsmp", 8, struct_anonymous_13, NULL),
   YAML_END
 };
