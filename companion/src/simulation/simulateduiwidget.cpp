@@ -68,7 +68,8 @@ SimulatedUIWidget::~SimulatedUIWidget()
   }
 }
 
-RadioWidget * SimulatedUIWidget::addRadioWidget(RadioWidget * widget)
+RadioWidget * SimulatedUIWidget::
+addRadioWidget(RadioWidget * widget)
 {
   if (widget && !m_widgets.contains(widget)) {
     m_widgets.append(widget);
