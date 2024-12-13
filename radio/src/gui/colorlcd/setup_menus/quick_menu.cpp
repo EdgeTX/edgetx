@@ -70,9 +70,12 @@ class QuickSubMenu
 
     menuButton->setFocusHandler([=](bool focus) {
       if (!quickMenu->deleted()) {
-        if (focus) topMenu->setCurrent(menuButton);
-        if (!subMenu) buildSubMenu();
-        subMenu->show(focus);
+        if (focus) {
+          topMenu->setCurrent(menuButton);
+          if (!subMenu) buildSubMenu();
+        }
+        if (subMenu)
+          subMenu->show(focus);
         if (!focus && topMenu)
           topMenu->setGroup();
       }
@@ -83,14 +86,18 @@ class QuickSubMenu
 
   void enableSubMenu()
   {
-    subMenu->show();
     subMenu->setGroup();
     subMenu->setFocus();
     subMenu->setEnabled();
+    subMenu->show();
     quickMenu->enableSubMenu();
   }
 
-  void setDisabled(bool all) { subMenu->setDisabled(all); }
+  void setDisabled(bool all)
+  {
+    if (subMenu)
+      subMenu->setDisabled(all);
+  }
 
   void setCurrent(int b)
   {
@@ -119,8 +126,7 @@ class QuickSubMenu
   {
     subMenu = new QuickMenuGroup(parent,
             {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT * QuickMenu::QMMAIN_ROWS) + PAD_MEDIUM, parent->width() - PAD_MEDIUM * 2,
-            (QuickMenu::QM_ROWS - QuickMenu::QMMAIN_ROWS) * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
-            true);
+            (QuickMenu::QM_ROWS - QuickMenu::QMMAIN_ROWS) * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2});
 
     for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
       subMenu->addButton(items[i].icon, items[i].title,
@@ -197,8 +203,7 @@ QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::f
   box->padAll(PAD_SMALL);
 
   mainMenu = new QuickMenuGroup(box,
-          {0, 0, w - PAD_MEDIUM * 2, QMMAIN_ROWS * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2},
-          true);
+          {0, 0, w - PAD_MEDIUM * 2, QMMAIN_ROWS * QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_TINY * 2});
 
   buildMainMenu();
 
