@@ -129,14 +129,12 @@ class QuickMenuButton : public ButtonBase
   StaticText* textPtr = nullptr;
 };
 
-QuickMenuGroup::QuickMenuGroup(Window* parent, const rect_t &rect, bool createGroup) :
+QuickMenuGroup::QuickMenuGroup(Window* parent, const rect_t &rect) :
         Window(parent, rect)
 {
   padAll(PAD_TINY);
   setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_TINY);
-
-  if (createGroup)
-    group = lv_group_create();
+  group = lv_group_create();
 }
 
 ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
