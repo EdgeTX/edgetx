@@ -334,8 +334,65 @@ void SimulatedUIWidget::addMouseActions()
 
 void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
 {
-  QGridLayout * leftButtonsGrid = new QGridLayout();
-  QGridLayout * rightButtonsGrid = new QGridLayout();
+  QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
+  QGridLayout * leftButtonsGrid = new QGridLayout((QWidget *)gridLeft);
+
+  if (g.simuGenericKeysPos() != AppData::SIMU_GENERIC_KEYS_RIGHT) {
+    leftButtons->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+    gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
+
+    int width = 0;
+    int col = 0;
+    leftButtonsGrid->setColumnMinimumWidth(col++, 60);
+    width += 60;
+
+    if (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT) {
+      leftButtonsGrid->setColumnMinimumWidth(col++, 2);
+      width += 2;
+      leftButtonsGrid->setColumnMinimumWidth(col++, 60);
+      width += 60;
+    }
+
+    leftButtonsGrid->setColumnMinimumWidth(col++, 2);
+    width += 2;
+    gridLeft->addLayout(leftButtonsGrid, 0, 1);
+    leftButtons->setMinimumWidth(width);
+    leftButtons->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+  }
+  else {
+    leftButtons->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    leftButtons->setFixedSize(0, 0);
+  }
+
+  QGridLayout * gridRight = new QGridLayout((QWidget *)rightButtons);
+  QGridLayout * rightButtonsGrid = new QGridLayout((QWidget *)gridRight);
+
+  if (g.simuGenericKeysPos() != AppData::SIMU_GENERIC_KEYS_LEFT) {
+    rightButtons->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+    int width = 0;
+    int col = 0;
+    rightButtonsGrid->setColumnMinimumWidth(col++, 60);
+    width += 60;
+
+    if (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_RIGHT) {
+      rightButtonsGrid->setColumnMinimumWidth(col++, 2);
+      width += 2;
+      rightButtonsGrid->setColumnMinimumWidth(col++, 60);
+      width += 60;
+    }
+
+    rightButtonsGrid->setColumnMinimumWidth(col++, 2);
+    width += 2;
+
+    gridRight->addLayout(rightButtonsGrid, 0, 0);
+    gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 1);
+    rightButtons->setMinimumWidth(width);
+    rightButtons->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+  }
+  else {
+    rightButtons->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    rightButtons->setFixedSize(0, 0);
+  }
 
   for (int i = 0; i < Boards::getCapability(m_board, Board::Keys); i++) {
     Board::KeyInfo info = Boards::getKeyInfo(i, m_board);
@@ -352,16 +409,6 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
       addGenericPushButton(KEY_SCROLL_DOWN, tr("Scrl Dn"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       connectScrollActions();
   }
-
-  QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
-  gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
-  gridLeft->addLayout(leftButtonsGrid, 0, 1);
-  //gridLeft->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
-
-  QGridLayout * gridRight = new QGridLayout((QWidget *)rightButtons);
-  //gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 0);
-  gridRight->addLayout(rightButtonsGrid, 0, 1);
-  gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 2);
 }
 
 void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
@@ -380,7 +427,8 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWi
                              (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT ? leftButtons : rightButtons);
       QGridLayout * grid = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? (defn.side == 'L' ? leftButtonsGrid : rightButtonsGrid) :
                            (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT ? leftButtonsGrid : rightButtonsGrid);
-      int col = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? 0 : (defn.side == 'L' ? 0 : 1);
+      int col = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? 0 : (defn.side == 'L' ? 0 : 2);
+      grid->setRowMinimumHeight(defn.gridRow, 32);
       grid->addWidget(b, defn.gridRow, col);
       int idx = -1;
 
