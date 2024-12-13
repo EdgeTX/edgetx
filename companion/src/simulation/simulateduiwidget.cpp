@@ -358,6 +358,7 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
     gridLeft->addLayout(leftButtonsGrid, 0, 1);
     leftButtons->setMinimumWidth(width);
     leftButtons->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+
   }
   else {
     leftButtons->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
