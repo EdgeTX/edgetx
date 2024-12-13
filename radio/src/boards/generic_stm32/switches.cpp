@@ -46,17 +46,17 @@ __weak const char* boardSwitchGetName(uint8_t cat, uint8_t idx)
   return _switch_offsets[cat][idx].name;
 }
 
-__weak SwitchHwType boardSwitchGetType(uint8_t cat, uint8_t idx)
+SwitchHwType boardSwitchGetType(uint8_t cat, uint8_t idx)
 {
   return _switch_offsets[cat][idx].type;
 }
 
-__weak uint8_t boardGetMaxSwitches() { return n_switches; }
-__weak uint8_t boardGetMaxFctSwitches() { return n_fct_switches; }
+uint8_t boardGetMaxSwitches() { return n_switches; }
+uint8_t boardGetMaxFctSwitches() { return n_fct_switches; }
 
-__weak swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }
+swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }
 
-__weak switch_display_pos_t switchGetDisplayPosition(uint8_t idx)
+switch_display_pos_t switchGetDisplayPosition(uint8_t idx)
 {
   // TODO: find a solution for FLEX switches so they can be displayed on main view
   if (idx >= DIM(_switch_display)) return {0, 0};

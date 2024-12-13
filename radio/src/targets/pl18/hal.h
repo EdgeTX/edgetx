@@ -63,10 +63,8 @@
   #define TRIMS_GPIO_PIN_T2R
 
   // Switches
-  #define SWITCHES_GPIO_REG_A
-  #define SWITCHES_GPIO_PIN_A
-  #define SWITCHES_GPIO_REG_B
-  #define SWITCHES_GPIO_PIN_B
+  #define SWITCHES_A_2POS
+  #define SWITCHES_B_2POS
   
   // Keys
   #define KEYS_GPIO_PIN_ENTER
