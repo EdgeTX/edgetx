@@ -24,6 +24,7 @@
 #include "hal/switch_driver.h"
 #include "hal/key_driver.h"
 #include "switches.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 void displayKeyState(uint8_t x, uint8_t y, uint8_t key)
 {
@@ -54,9 +55,15 @@ static EnumKeys get_ith_key(uint8_t i)
 #if defined(FUNCTION_SWITCHES)
 void menuRadioDiagFS(event_t event)
 {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  constexpr coord_t FS_1ST_COLUMN = 32;
+  constexpr coord_t FS_2ND_COLUMN = 60;
+  constexpr coord_t FS_3RD_COLUMN = 80;
+#else
   constexpr coord_t FS_1ST_COLUMN = 40;
   constexpr coord_t FS_2ND_COLUMN = 70;
   constexpr coord_t FS_3RD_COLUMN = 100;
+#endif
   SIMPLE_SUBMENU(STR_MENU_FSWITCH, 1);
   lcdDrawText(FS_1ST_COLUMN, MENU_HEADER_HEIGHT + 1, "Phys");
   lcdDrawText(FS_2ND_COLUMN, MENU_HEADER_HEIGHT + 1, "Log");
@@ -68,7 +75,11 @@ void menuRadioDiagFS(event_t event)
     lcdDrawText(lcdNextPos, y, switchGetName(i+switchGetMaxSwitches()), 0);
     lcdDrawText(FS_1ST_COLUMN + 7, y, getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
     lcdDrawText(FS_2ND_COLUMN + 5, y, getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
-    lcdDrawText(FS_3RD_COLUMN, y, STR_OFFON[getFSLedState(i)]);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+    lcdDrawText(FS_3RD_COLUMN, y, STR_FS_COLOR_LIST[getRGBColorIndex(rgbGetLedColor(i))], 0);
+#else
+    lcdDrawText(FS_3RD_COLUMN, y, STR_OFFON[fsLedState(i)]);
+#endif
   }
 }
 #endif

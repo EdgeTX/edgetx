@@ -5,11 +5,25 @@ SWITCH_CONFIG = {
         # left side
         "SA": {"default": "2POS",   "display": [0, 0]},
         "SB": {"default": "3POS",   "display": [0, 1]},
-        "SE": {"default": "2POS",   "display": [0, 2]},
+        "SE": {"default": "3POS",   "display": [0, 2]},
+        "SG": {"default": "2POS",   "display": [0, 3]},
         # right side
         "SC": {"default": "3POS",   "display": [1, 0]},
         "SD": {"default": "2POS",   "display": [1, 1]},
         "SF": {"default": "TOGGLE", "display": [1, 2]},
+        "SH": {"default": "2POS", "display": [1, 3]},
+    },
+    "gx12": {
+        # left side
+        "SA": {"default": "TOGGLE", "display": [0, 0]},
+        "SB": {"default": "3POS",   "display": [0, 1]},
+        "SE": {"default": "3POS",   "display": [0, 2]},
+        "SG": {"default": "TOGGLE", "display": [0, 3]},
+        # right side
+        "SC": {"default": "3POS",   "display": [1, 1]},
+        "SD": {"default": "TOGGLE", "display": [1, 0]},
+        "SF": {"default": "3POS",   "display": [1, 2]},
+        "SH": {"default": "TOGGLE", "display": [1, 3]},
     },
     "commando8": {
         # left side

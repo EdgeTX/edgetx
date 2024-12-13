@@ -19,33 +19,34 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "edgetx.h"
+#include "rgbleds.h"
+#include "boards/generic_stm32/rgb_leds.h"
+#include "definitions.h"
+#include "dataconstants.h"
 
-#include <stdint.h>
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+void setFSLedOFF(uint8_t index) {
+  fsLedRGB(index, g_model.functionSwitchLedOFFColor[index].getColor());
+}
 
-enum AbnormalRebootCause {
-  ARC_None = 0,
-  ARC_Watchdog,
-  ARC_Software,
-};
+void setFSLedON(uint8_t index) {
+  fsLedRGB(index, g_model.functionSwitchLedONColor[index].getColor());
+}
 
-// Enable detecting abnormal reboots
-// This should be called after booting
-void abnormalRebootEnableDetection();
+bool getFSLedState(uint8_t index) {
+  return rgbGetLedColor(index) == g_model.functionSwitchLedONColor[index].getColor();
+}
+#else
+void setFSLedOFF(uint8_t index) {
+  fsLedOff(index);
+}
 
-// Disable detecting abnormal reboots
-// This should be called on normal shutdowns / reboots
-void abnormalRebootDisableDetection();
+void setFSLedON(uint8_t index) {
+  fsLedOn(index);
+}
 
-// Test for abnormal reboot conditions
-// (see AbnormalRebootCause)
-uint32_t abnormalRebootGetCause();
-
-#define UNEXPECTED_SHUTDOWN() \
-  (abnormalRebootGetCause() == ARC_Watchdog)
-
-#define WAS_RESET_BY_WATCHDOG_OR_SOFTWARE() \
-  (abnormalRebootGetCause() != ARC_None)
-
-#define WAS_RESET_BY_SOFTWARE() \
-  (abnormalRebootGetCause() == ARC_Software)
+bool getFSLedState(uint8_t index) {
+  return fsLedState(index);
+}
+#endif

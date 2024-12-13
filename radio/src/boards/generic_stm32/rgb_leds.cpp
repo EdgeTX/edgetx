@@ -50,6 +50,16 @@ void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 #endif
 }
 
+uint32_t rgbGetLedColor(uint8_t led)
+{
+  return ws2812_get_color(led);
+}
+
+bool rgbGetState(uint8_t led)
+{
+  return ws2812_get_state(led);
+}
+
 void rgbLedColorApply()
 {
   ws2812_update(&_led_timer);;

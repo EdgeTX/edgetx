@@ -104,6 +104,7 @@ ISTR(PREFLIGHT_POTSLIDER_CHECK);
 ISTR(PPMUNIT);
 #if defined(FUNCTION_SWITCHES)
 ISTR(FUNCTION_SWITCH_GROUPS);
+ISTR(FS_COLOR_LIST);
 #endif
 
 #if defined(HELI)
@@ -167,6 +168,8 @@ const char STR_MS[] = TR_MS;
 const char STR_SWITCH[] = TR_SWITCH;
 #if defined(FUNCTION_SWITCHES)
 const char STR_GROUPS[] = TR_GROUPS;
+const char STR_FS_ON_COLOR[] = TR_FS_ON_COLOR;
+const char STR_FS_OFF_COLOR[] = TR_FS_OFF_COLOR;
 const char STR_LAST[] = TR_LAST;
 const char STR_MORE_INFO[]  = TR_MORE_INFO;
 const char STR_SWITCH_TYPE[] = TR_SWITCH_TYPE;

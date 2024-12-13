@@ -606,7 +606,7 @@ static const struct YamlNode struct_anonymous_12[] = {
   YAML_UNSIGNED( "crsfArmingMode", 1 ),
   YAML_PADDING( 4 ),
   YAML_SIGNED_CUST( "crsfArmingTrigger", 10, r_swtchSrc, w_swtchSrc ),
-  YAML_PADDING( 6 ),
+  YAML_SIGNED( "spare3", 6 ),
   YAML_END
 };
 static const struct YamlNode struct_anonymous_13[] = {

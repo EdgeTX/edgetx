@@ -11,15 +11,18 @@ static const stm32_switch_t _switch_defs[] = {
   {% if switch.type == '2POS' %}
   {
     "{{ switch.name }}",
-    {{ switch.gpio }}, {{ switch.pin }},
+    {{ switch.gpio or "nullptr" }},
+    {{ switch.pin or 0 }},
     nullptr, 0,
     SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
   },
   {% elif switch.type == '3POS' %}
   {
     "{{ switch.name }}",
-    {{ switch.gpio_high }}, {{ switch.pin_high }},
-    {{ switch.gpio_low }}, {{ switch.pin_low }},
+    {{ switch.gpio_high or "nullptr" }},
+    {{ switch.pin_high or 0 }},
+    {{ switch.gpio_low or "nullptr" }},
+    {{ switch.pin_low or 0 }},
     SWITCH_HW_3POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
   },
   {% elif switch.type == 'ADC' %}
@@ -34,7 +37,8 @@ static const stm32_switch_t _switch_defs[] = {
 {% for switch in function_switches %}
   {
     "{{ switch.name }}",
-    {{ switch.gpio }}, {{ switch.pin }},
+    {{ switch.gpio or "nullptr" }},
+    {{ switch.pin or 0 }},
     nullptr, 0,
     SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
   },

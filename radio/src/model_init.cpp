@@ -114,6 +114,12 @@ void applyDefaultTemplate()
   g_model.functionSwitchGroup = DEFAULT_FS_GROUPS;
   g_model.functionSwitchStartConfig = DEFAULT_FS_STARTUP_CONFIG;
   g_model.functionSwitchLogicalState = 0;
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
+    g_model.functionSwitchLedOFFColor[i].setColor(0);
+    g_model.functionSwitchLedONColor[i].setColor(0xFFFFFF);
+  }
+#endif
 #endif
 
 #if defined(COLORLCD)

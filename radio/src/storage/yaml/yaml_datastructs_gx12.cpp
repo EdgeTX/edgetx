@@ -493,7 +493,7 @@ static const struct YamlNode struct_trim_t[] = {
 };
 static const struct YamlNode struct_FlightModeData[] = {
   YAML_IDX,
-  YAML_ARRAY("trim", 16, 8, struct_trim_t, NULL),
+  YAML_ARRAY("trim", 16, 6, struct_trim_t, NULL),
   YAML_STRING("name", 6),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_PADDING( 6 ),
@@ -774,6 +774,13 @@ static const struct YamlNode struct_TelemetryScreenData[] = {
   YAML_UNION("u", 192, union_TelemetryScreenData_u_elmts, select_tele_screen_data),
   YAML_END
 };
+static const struct YamlNode struct_RGBLedColor[] = {
+  YAML_IDX,
+  YAML_UNSIGNED( "r", 8 ),
+  YAML_UNSIGNED( "g", 8 ),
+  YAML_UNSIGNED( "b", 8 ),
+  YAML_END
+};
 static const struct YamlNode struct_USBJoystickChData[] = {
   YAML_IDX,
   YAML_ENUM("mode", 3, enum_USBJoystickCh),
@@ -813,7 +820,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
-  YAML_ARRAY("flightModeData", 352, 9, struct_FlightModeData, fmd_is_active),
+  YAML_ARRAY("flightModeData", 320, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
   YAML_ARRAY("switchWarning", 3, 21, struct_swtchWarn, nullptr),
@@ -844,6 +851,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "functionSwitchStartConfig", 16 ),
   YAML_UNSIGNED( "functionSwitchLogicalState", 8 ),
   YAML_ARRAY("switchNames", 24, 6, struct_string_24, NULL),
+  YAML_ARRAY("functionSwitchLedONColor", 24, 6, struct_RGBLedColor, NULL),
+  YAML_ARRAY("functionSwitchLedOFFColor", 24, 6, struct_RGBLedColor, NULL),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
   YAML_ENUM("usbJoystickIfMode", 3, enum_USBJoystickIfMode),
   YAML_UNSIGNED( "usbJoystickCircularCut", 4 ),

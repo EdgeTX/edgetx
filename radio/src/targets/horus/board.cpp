@@ -30,6 +30,7 @@
 #include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/rgbleds.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -127,7 +128,7 @@ void boardInit()
   board_set_bor_level();
 #endif
 
-#if defined(FUNCTION_SWITCHES) && !defined(DEBUG)
+#if defined(MANUFACTURER_JUMPER) && defined(FUNCTION_SWITCHES) && !defined(DEBUG)
   // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
   // prime debounce state...

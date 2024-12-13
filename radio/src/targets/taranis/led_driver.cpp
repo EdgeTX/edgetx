@@ -20,11 +20,19 @@
  */
 
 #include "hal/gpio.h"
+#include "hal/rgbleds.h"
 #include "stm32_gpio.h"
-
+#include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
+#if defined(LED_STRIP_GPIO)
+#include "boards/generic_stm32/rgb_leds.h"
+#endif
 
-#if defined(FUNCTION_SWITCHES)
+#define GET_RED(color) (((color) & 0xF80000) >>16)
+#define GET_GREEN(color) (((color) & 0x000F800) >> 8)
+#define GET_BLUE(color) (((color) & 0xF8))
+
+#if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
 static const uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
 				  FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4,
 				  FSLED_GPIO_PIN_5, FSLED_GPIO_PIN_6};
@@ -44,14 +52,32 @@ void ledInit()
   gpio_init(LED_BLUE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 
-#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
   for (size_t i = 0; i < DIM(fsLeds); i++) {
     gpio_init(fsLeds[i], GPIO_OUT, GPIO_PIN_SPEED_LOW);
   }
 #endif
 }
 
-#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+// used to map switch number to led number in the rgbled chain
+uint8_t ledMapping[] = {0, 1, 2, 3, 4, 5, 6};
+
+void fsLedRGB(uint8_t index, uint32_t color)
+{
+   rgbSetLedColor(ledMapping[index], GET_RED(color), \
+   GET_GREEN(color),GET_BLUE(color));
+}
+
+uint8_t getRGBColorIndex(uint32_t color)
+{
+  for (uint8_t i = 0; i < (sizeof(colorTable) / sizeof(colorTable[0])); i++) {
+    if (color == colorTable[i])
+      return(i);
+  }
+  return 5; // Custom value set with Companion
+}
+#elif defined(FUNCTION_SWITCHES)
 void fsLedOff(uint8_t index)
 {
   gpio_clear(fsLeds[index]);
@@ -62,7 +88,7 @@ void fsLedOn(uint8_t index)
   gpio_set(fsLeds[index]);
 }
 
-bool getFSLedState(uint8_t index)
+bool fsLedState(uint8_t index)
 {
   return gpio_read(fsLeds[index]) ? true : false;
 }

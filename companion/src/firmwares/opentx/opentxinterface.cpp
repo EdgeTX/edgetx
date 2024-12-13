@@ -781,6 +781,13 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
+  /* Radiomaster GX12 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("gx12"), QCoreApplication::translate("Firmware", "Radiomaster GX12"), BOARD_RADIOMASTER_GX12);
+  addOpenTxCommonOptions(firmware);
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+
   /* Radiomaster TX16S board */
   firmware = new OpenTxFirmware(FIRMWAREID("tx16s"), Firmware::tr("Radiomaster TX16S / SE / Hall / Masterfire"), BOARD_RADIOMASTER_TX16S);
   addOpenTxFrskyOptions(firmware);
