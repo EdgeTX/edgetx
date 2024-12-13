@@ -35,6 +35,7 @@
 #include "hal/fatfs_diskio.h"
 #include "hal/storage.h"
 #include "hal/usb_driver.h"
+#include "hal/serial_driver.h"
 
 #include "tasks.h"
 #include "tasks/mixer_task.h"
@@ -1045,28 +1046,77 @@ int cliSet(const char **argv)
 }
 
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-#if defined(HARDWARE_INTERNAL_MODULE)
-static etx_module_state_t *spInternalModuleState = nullptr;
 
-static void spInternalModuleTx(uint8_t* buf, uint32_t len)
+static const etx_serial_driver_t* _sp_drv = nullptr;
+static void* _sp_ctx = nullptr;
+
+static void _sp_Tx(uint8_t* buf, uint32_t len)
 {
-  auto drv = modulePortGetSerialDrv(spInternalModuleState->tx);
-  auto ctx = modulePortGetCtx(spInternalModuleState->tx);
-
   while (len > 0) {
-    drv->sendByte(ctx, *(buf++));
+    _sp_drv->sendByte(_sp_ctx, *(buf++));
     len--;
   }
 }
 
-static const etx_serial_init spIntmoduleSerialInitParams = {
-  .baudrate = 0,
-  .encoding = ETX_Encoding_8N1,
-  .direction = ETX_Dir_TX_RX,
-  .polarity = ETX_Pol_Normal,
-};
+#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
+static etx_module_state_t *spModuleState = nullptr;
+
+static void spModuleInit(int port_n, int baudrate)
+{
+  etx_serial_init params = {
+      .baudrate = (uint32_t)baudrate,
+      .encoding = ETX_Encoding_8N1,
+      .direction = ETX_Dir_TX_RX,
+      .polarity = ETX_Pol_Normal,
+  };
+
+  spModuleState =
+      modulePortInitSerial(port_n, ETX_MOD_PORT_UART, &params, false);
+  _sp_drv = modulePortGetSerialDrv(spModuleState->rx);
+  _sp_ctx = modulePortGetCtx(spModuleState->rx);
+}
+
+static void spModuleDeInit(int port_n)
+{
+  // and stop module
+  modulePortDeInit(spModuleState);
+  spModuleState = nullptr;
+
+  // power off the module and wait for a bit
+  modulePortSetPower(port_n, false);
+  delay_ms(200);
+}
 
 #endif // HARDWARE_INTERNAL_MODULE
+
+#if defined(FLYSKY_GIMBAL)
+#include "flysky_gimbal_driver.h"
+
+static void spGimbalInit(int port_n, int baudrate)
+{
+  etx_serial_init params = {
+      .baudrate = (uint32_t)baudrate,
+      .encoding = ETX_Encoding_8N1,
+      .direction = ETX_Dir_TX_RX,
+      .polarity = ETX_Pol_Normal,
+  };
+
+  (void)port_n;
+  flysky_gimbal_deinit();
+
+  auto port = flysky_gimbal_get_port();
+  _sp_drv = port->uart;
+  _sp_ctx = _sp_drv->init(port->hw_def, &params); 
+}
+
+static void spGimbalDeInit(int port_n)
+{
+  (void)port_n;
+  _sp_drv->deinit(_sp_ctx);
+  flysky_gimbal_init();
+}
+#endif
+
 // TODO: use proper method instead
 extern bool cdcConnected;
 extern uint32_t usbSerialBaudRate(void*);
@@ -1074,121 +1124,116 @@ extern uint32_t usbSerialBaudRate(void*);
 int cliSerialPassthrough(const char **argv)
 {
   const char* port_type = argv[1];
-  const char* port_num  = argv[2];
 
-  // 3rd argument (baudrate is optional)
-  if (!port_type || !port_num) {
+  if (!port_type) {
     cliSerialPrint("%s: missing argument", argv[0]);
     return -1;
   }
 
+  int baudrate = 0;
+  void (*initCB)(int, int) = nullptr;
+  void (*deinitCB)(int) = nullptr;
+
   int port_n = 0;
-  int err = toInt(argv, 2, &port_n);
-  if (err == -1) return err;
-  if (err == 0) {
-    cliSerialPrint("%s: missing port #", argv[0]);
+  if (!strcmp("rfmod", port_type)) {
+    // parse port number
+    if (toInt(argv, 2, &port_n) <= 0) {
+      cliSerialPrint("%s: invalid or missing port number", argv[0]);
+      return -1;
+    }
+    // 3rd argument (baudrate is optional)
+    if (toInt(argv, 3, &baudrate) <= 0) {
+      baudrate = 0;
+    }
+
+    switch(port_n) {
+#if defined(HARDWARE_INTERNAL_MODULE)
+    case INTERNAL_MODULE:
+      initCB = spModuleInit;
+      deinitCB = spModuleDeInit;
+      break;
+#endif
+    // TODO:
+    //  - external module (S.PORT?)
+    default:
+      cliSerialPrint("%s: invalid port # '%i'", port_n);
+      return -1;
+    }
+  } else if (!strcmp("gimbals", port_type)) {
+#if defined(FLYSKY_GIMBAL)
+    // 2nd argument (baudrate is optional)
+    if (toInt(argv, 2, &baudrate) <= 0) {
+      baudrate = 0;
+    }
+
+    initCB = spGimbalInit;
+    deinitCB = spGimbalDeInit;
+#else
+    cliSerialPrint("%s: serial gimbals not supported");
+    return -1;
+#endif
+  } else {
+    cliSerialPrint("%s: invalid port type '%s'", port_type);
     return -1;
   }
 
-  int baudrate = 0;
-  err = toInt(argv, 3, &baudrate);
-  if (err <= 0) {
+  //  stop pulses
+  watchdogSuspend(200/*2s*/);
+  pulsesStop();
+
+  // suspend RTOS scheduler
+  vTaskSuspendAll();
+
+  if (baudrate <= 0) {
     // use current baudrate
     baudrate = cliGetBaudRate();
     if (!baudrate) {
-      // default to 115200
       baudrate = 115200;
       cliSerialPrint("%s: baudrate is 0, default to 115200", argv[0]);
     }
   }
 
-  if (!strcmp("rfmod", port_type)) {
+  if (initCB) initCB(port_n, baudrate);
 
-    if (port_n >= NUM_MODULES
-        // only internal module supported for now
-        && port_n != INTERNAL_MODULE) {
-      cliSerialPrint("%s: invalid port # '%s'", port_num);
-      return -1;
-    }
+  if (_sp_drv != nullptr) {
+    auto backupCB = cliReceiveCallBack;
+    cliReceiveCallBack = _sp_Tx;
     
-    //  stop pulses
-    watchdogSuspend(200/*2s*/);
-    pulsesStop();
+    // loop until cable disconnected
+    while (usbPlugged()) {
 
-    // suspend RTOS scheduler
-    vTaskSuspendAll();
-
-#if defined(HARDWARE_INTERNAL_MODULE)
-    if (port_n == INTERNAL_MODULE) {
-
-      // setup serial com
-
-      // TODO: '8n1' param
-      etx_serial_init params(spIntmoduleSerialInitParams);
-      params.baudrate = baudrate;
-
-      spInternalModuleState = modulePortInitSerial(port_n, ETX_MOD_PORT_UART,
-                                                   &params, false);
-
-      auto drv = modulePortGetSerialDrv(spInternalModuleState->rx);
-      auto ctx = modulePortGetCtx(spInternalModuleState->rx);
-
-      // backup and swap CLI input
-      auto backupCB = cliReceiveCallBack;
-      cliReceiveCallBack = spInternalModuleTx;
-
-      // loop until cable disconnected
-      while (usbPlugged()) {
-
-        uint32_t cli_br = cliGetBaudRate();
-        if (cli_br && (cli_br != (uint32_t)baudrate)) {
-          baudrate = cli_br;
-          drv->setBaudrate(ctx, baudrate);
-        }
-
-        uint8_t data;
-        if (drv->getByte(ctx, &data) > 0) {
-
-          uint8_t timeout = 10; // 10 ms
-          while(!usbSerialFreeSpace() && (timeout > 0)) {
-            delay_ms(1);
-            timeout--;
-          }
-
-          cliSerialPutc(data);
-        }
-
-        // keep us up & running
-        WDG_RESET();
+      uint32_t cli_br = cliGetBaudRate();
+      if (cli_br && (cli_br != (uint32_t)baudrate)) {
+        baudrate = cli_br;
+        _sp_drv->setBaudrate(_sp_ctx, baudrate);
       }
 
-      // restore callsbacks
-      cliReceiveCallBack = backupCB;
+      uint8_t data;
+      if (_sp_drv->getByte(_sp_ctx, &data) > 0) {
+        uint8_t timeout = 10; // 10 ms
+        while(!usbSerialFreeSpace() && (timeout > 0)) {
+          delay_ms(1);
+          timeout--;
+        }
 
-      // and stop module
-      modulePortDeInit(spInternalModuleState);
-      spInternalModuleState = nullptr;
+        cliSerialPutc(data);
+      }
 
-      // power off the module and wait for a bit
-      modulePortSetPower(port_n, false);
-      delay_ms(200);
+      // keep us up & running
+      WDG_RESET();
     }
-#endif
 
-    // TODO:
-    //  - external module (S.PORT?)
-
-    watchdogSuspend(200/*2s*/);
-    pulsesStart();
-
-    // suspend RTOS scheduler
-    xTaskResumeAll();
-    
-  } else {
-    cliSerialPrint("%s: invalid port type '%s'", port_type);
-    return -1;
+    // restore callsbacks
+    cliReceiveCallBack = backupCB;
+    if (deinitCB != nullptr) deinitCB(port_n);
   }
-  
+
+  watchdogSuspend(200/*2s*/);
+  pulsesStart();
+
+  // suspend RTOS scheduler
+  xTaskResumeAll();
+
   return 0;
 }
 #endif
@@ -1626,7 +1671,7 @@ const CliCommand cliCommands[] = {
   { "reboot", cliReboot, "[wdt]" },
   { "set", cliSet, "<what> <value>" },
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-  { "serialpassthrough", cliSerialPassthrough, "<port type> <port number>"},
+  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>]"},
 #endif
 #if defined(DEBUG)
   { "print", cliDisplay, "<address> [<size>] | <what>" },
