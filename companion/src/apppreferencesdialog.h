@@ -79,6 +79,8 @@ class AppPreferencesDialog : public QDialog
     void on_joystickcalButton_clicked();
 #endif
 
+    void on_pbtnRadioColor_clicked();
+
   private:
     void initSettings();
     void populateFirmwareOptions(const Firmware *);
