@@ -224,7 +224,7 @@ namespace Board {
     HasTrainerModuleCPPM,
     HasTrainerModuleSBUS,
     HasVBat,
-    LcdDarkTheme,
+    LcdOLED,
     LcdDepth,
     LcdHeight,
     LcdWidth,

@@ -45,7 +45,7 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   else
     m_backlightColors << QColor(47, 123, 227);
 
-  if (Boards::getCapability(board, Board::LcdDarkTheme)) {
+  if (Boards::getCapability(board, Board::LcdOLED)) {
     ui->lcd->setBgDefaultColor(QColor(0, 0, 0));        //  black
     ui->lcd->setFgDefaultColor(QColor(255, 255, 255));  //  white
   }
