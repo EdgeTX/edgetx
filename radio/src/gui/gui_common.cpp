@@ -341,7 +341,8 @@ bool isSourceAvailable(int source)
 bool isSourceAvailableInGlobalFunctions(int source)
 {
   return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER
+            SRC_STICK | SRC_POT | SRC_TILT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
+            SRC_SWITCH
             );
 }
 
