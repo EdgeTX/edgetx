@@ -93,6 +93,7 @@ LROT_BEGIN(rotables, LROT_TABLEREF(rotables_meta), 0)
   LROT_TABENTRY( lcd, lcdlib )
   LROT_TABENTRY( model, modellib )
   LROT_TABENTRY( bitmap, bitmaplib )
+  LROT_TABENTRY( Bitmap, bitmaplib ) /* TODO: obsolete after 2.11 */
 #if defined(COLORLCD)
   LROT_TABENTRY( lvgl, lvgllib )
   LROT_TABENTRY( table, tablib )
