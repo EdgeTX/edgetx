@@ -322,7 +322,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_FAMILY_HORUS_OR_T16(board) && !IS_HORUS_X12S(board)) || IS_FAMILY_T12(board);
 
     case HasBacklightColor:
-      return IS_TARANIS_PLUS(board);
+      return IS_TARANIS_PLUS(board) || IS_TARANIS_X9DP_2019(board);
 
     case HasColorLcd:
       return IS_FAMILY_HORUS_OR_T16(board);
