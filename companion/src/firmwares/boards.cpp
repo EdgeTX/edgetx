@@ -353,8 +353,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
               (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
 
-    case LcdDarkTheme:
-      return IS_JUMPER_TPROV2(board) || IS_BETAFPV_LR3PRO(board);
+    case LcdOLED:
+      return IS_BETAFPV_LR3PRO(board) || IS_JUMPER_TPROV2(board) || IS_JUMPER_TPROS(board) || IS_JUMPER_T20(board) ||
+             IS_JUMPER_T14(board) || IS_JUMPER_BUMBLEBEE(board) || IS_RADIOMASTER_GX12(board);
 
     case LcdDepth:
       if (IS_FAMILY_HORUS_OR_T16(board))
