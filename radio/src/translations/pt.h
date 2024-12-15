@@ -217,6 +217,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Mestre/Serial"
 #define TR_VTRAINER_BLUETOOTH          "Mestre/" TR("BT","Bluetooth"), "Escrv/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Mestre/Multi"
+#define TR_VTRAINER_CRSF               "Mestre/CRSF"
 #define TR_VFAILSAFE                   "Nao def","Manter","Custom","Sem Pulsos","Receptor"
 #define TR_VSENSORTYPES                "Custom","Calculado"
 #define TR_VFORMULAS                   "Soma","Média","Min","Max","Multipl","Totalizar","Cell","Consumido","Distâcia"

@@ -210,6 +210,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serie"
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT","Master/Bluetooth"),TR("Esclavo/BT","Esclavo/Bluetooth")
 #define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_CRSF               "Master/CRSF"
 #define TR_VFAILSAFE                   "No","Hold","Custom","No pulsos","Receptor"
 #define TR_VSENSORTYPES                "Custom","Calculado"
 #define TR_VFORMULAS                   "Suma","Media","Min","Máx","Multipl.","Total","Cell","Consumo","Distancia"

@@ -1101,6 +1101,18 @@ bool isTrainerModeAvailable(int mode)
 #endif
   }
 
+  if (mode == TRAINER_MODE_CRSF) {
+
+#if !defined(CROSSFIRE)
+    return false;
+#else
+    if ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
+         (!isModuleCrossfire(INTERNAL_MODULE) &&
+          !isModuleCrossfire(EXTERNAL_MODULE)))
+      return false;
+#endif
+  }
+
   return true;
 }
 

@@ -216,6 +216,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "教練主機/端口"
 #define TR_VTRAINER_BLUETOOTH          "教練主機/藍牙","教練從機/藍牙"
 #define TR_VTRAINER_MULTI              "教練主機/多協議"
+#define TR_VTRAINER_CRSF               "教練主機/CRSF"
 #define TR_VFAILSAFE                   "未設置","失控保持","自定義","無脈衝", "接收機"
 #define TR_VSENSORTYPES                "自定義","運算"
 #define TR_VFORMULAS                   "加","平均值","最小值","最大值","乘","總計值","單節電池","消耗量","距離"

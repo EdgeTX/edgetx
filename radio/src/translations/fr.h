@@ -217,6 +217,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Maître/Série"
 #define TR_VTRAINER_BLUETOOTH          TR("Maître/BT","Maître/Bluetooth"),TR("Élève/BT","Élève/Bluetooth")
 #define TR_VTRAINER_MULTI              "Maître/Multi"
+#define TR_VTRAINER_CRSF               "Maître/CRSF"
 #define TR_VFAILSAFE                   "Pas déf.","Maintien",TR("Prédéf.","Prédéfini"),"Pas d'imp","Récepteur"
 #define TR_VSENSORTYPES                "Perso","Calculé"
 #define TR_VFORMULAS                   "Addition","Moyenne","Min","Max","Multipl.","Totalise","Élém.","Consomm.","Distance"
