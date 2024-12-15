@@ -355,10 +355,8 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
 
     leftButtonsGrid->setColumnMinimumWidth(col++, 2);
     width += 2;
-    gridLeft->addLayout(leftButtonsGrid, 0, 1);
     leftButtons->setMinimumWidth(width);
-    leftButtons->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
-
+    gridLeft->addLayout(leftButtonsGrid, 0, 1);
   }
   else {
     leftButtons->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -385,10 +383,9 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
     rightButtonsGrid->setColumnMinimumWidth(col++, 2);
     width += 2;
 
+    rightButtons->setMinimumWidth(width);
     gridRight->addLayout(rightButtonsGrid, 0, 0);
     gridRight->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum), 0, 1);
-    rightButtons->setMinimumWidth(width);
-    rightButtons->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
   }
   else {
     rightButtons->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -421,15 +418,17 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWi
     if (defn.index == index) {
       QPushButton * b = new QPushButton(label);
       b->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-      b->setMinimumSize(60, 30);
-      b->setMaximumSize(60, 30);
+      int btnwidth = 60;
+      int btnheight = 30;
+      b->setMinimumSize(btnwidth, btnheight);
+      b->setMaximumSize(b->minimumSize());
       RadioUiAction * act = new RadioUiAction();
       ButtonsWidget * btns = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? (defn.side == 'L' ? leftButtons : rightButtons) :
                              (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT ? leftButtons : rightButtons);
       QGridLayout * grid = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? (defn.side == 'L' ? leftButtonsGrid : rightButtonsGrid) :
                            (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT ? leftButtonsGrid : rightButtonsGrid);
       int col = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? 0 : (defn.side == 'L' ? 0 : 2);
-      grid->setRowMinimumHeight(defn.gridRow, 32);
+      grid->setRowMinimumHeight(defn.gridRow, btnheight);
       grid->addWidget(b, defn.gridRow, col);
       int idx = -1;
 
