@@ -87,7 +87,7 @@ static void _fs_parse(STRUCT_SERIAL_GIMBAL *sgBuffer, unsigned char ch)
       sgBuffer->status = GET_DATA;
       if (0 == sgBuffer->length) {
         sgBuffer->status = GET_CHECKSUM;
-        hallBsgBufferuffer->checkSum = 0;
+        sgBuffer->checkSum = 0;
       }
       break;
 
