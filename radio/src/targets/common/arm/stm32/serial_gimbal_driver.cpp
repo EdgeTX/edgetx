@@ -47,92 +47,92 @@ static const stm32_usart_t SGUSART = {
   .rxDMA_Channel = SERIAL_GIMBAL_DMA_Channel,
 };
 
-DEFINE_STM32_SERIAL_PORT(SerGimbal, SGUSART, SERIAL_GIMBAL_BUFF_SIZE, 0);
+DEFINE_STM32_SERIAL_PORT(SerGimbal, SGUSART, SERIAL_GIMBAL_BUFFER_SIZE, 0);
 
-static const etx_serial_port_t _fs_gimbal_serial_port = {
+static const etx_serial_port_t _serial_gimbal_serial_port = {
   .name = "gimbals",
   .uart = &STM32SerialDriver,
   .hw_def = REF_STM32_SERIAL_PORT(SerGimbal),
   .set_pwr = nullptr,
 };
 
-static STRUCT_HALL HallProtocol = { 0 };
+static STRUCT_SERIAL_GIMBAL HallProtocol = { 0 };
 
-static void* _fs_usart_ctx = nullptr;
+static void* _serial_gimbal_usart_ctx = nullptr;
 
-static int _fs_get_byte(uint8_t* data)
+static int _serial_gimbal_get_byte(uint8_t* data)
 {
-  return STM32SerialDriver.getByte(_fs_usart_ctx, data);
+  return STM32SerialDriver.getByte(_serial_gimbal_usart_ctx, data);
 }
 
-static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
+static void _fs_parse(STRUCT_SERIAL_GIMBAL *sgBuffer, unsigned char ch)
 {
-  switch (hallBuffer->status) {
+  switch (sgBuffer->status) {
     case GET_START:
       if (SERIAL_GIMBAL_PROTOLO_HEAD == ch) {
-        hallBuffer->head = SERIAL_GIMBAL_PROTOLO_HEAD;
-        hallBuffer->status = GET_ID;
-        hallBuffer->msg_OK = 0;
+        sgBuffer->head = SERIAL_GIMBAL_PROTOLO_HEAD;
+        sgBuffer->status = GET_ID;
+        sgBuffer->msg_OK = 0;
       }
       break;
 
     case GET_ID:
-      hallBuffer->hallID.ID = ch;
-      hallBuffer->status = GET_LENGTH;
+      sgBuffer->serGimbalID.ID = ch;
+      sgBuffer->status = GET_LENGTH;
       break;
 
     case GET_LENGTH:
-      hallBuffer->length = ch;
-      hallBuffer->dataIndex = 0;
-      hallBuffer->status = GET_DATA;
-      if (0 == hallBuffer->length) {
-        hallBuffer->status = GET_CHECKSUM;
-        hallBuffer->checkSum = 0;
+      sgBuffer->length = ch;
+      sgBuffer->dataIndex = 0;
+      sgBuffer->status = GET_DATA;
+      if (0 == sgBuffer->length) {
+        sgBuffer->status = GET_CHECKSUM;
+        hallBsgBufferuffer->checkSum = 0;
       }
       break;
 
     case GET_DATA:
-      hallBuffer->data[hallBuffer->dataIndex++] = ch;
-      if (hallBuffer->dataIndex >= hallBuffer->length) {
-        hallBuffer->checkSum = 0;
-        hallBuffer->dataIndex = 0;
-        hallBuffer->status = GET_STATE;
+      sgBuffer->data[sgBuffer->dataIndex++] = ch;
+      if (sgBuffer->dataIndex >= sgBuffer->length) {
+        sgBuffer->checkSum = 0;
+        sgBuffer->dataIndex = 0;
+        sgBuffer->status = GET_STATE;
       }
       break;
 
     case GET_STATE:
-      hallBuffer->checkSum = 0;
-      hallBuffer->dataIndex = 0;
-      hallBuffer->status = GET_CHECKSUM;
+      sgBuffer->checkSum = 0;
+      sgBuffer->dataIndex = 0;
+      sgBuffer->status = GET_CHECKSUM;
       // fall through!
 
     case GET_CHECKSUM:
-      hallBuffer->checkSum |= ch << ((hallBuffer->dataIndex++) * 8);
-      if (hallBuffer->dataIndex >= 2) {
-        hallBuffer->dataIndex = 0;
-        hallBuffer->status = CHECKSUM;
+      sgBuffer->checkSum |= ch << ((sgBuffer->dataIndex++) * 8);
+      if (sgBuffer->dataIndex >= 2) {
+        sgBuffer->dataIndex = 0;
+        sgBuffer->status = CHECKSUM;
         // fall through!
       } else {
         break;
       }
 
     case CHECKSUM:
-      if (hallBuffer->checkSum ==
-          crc16(CRC_1021, &hallBuffer->head, hallBuffer->length + 3, 0xffff)) {
-        hallBuffer->msg_OK = 1;
+      if (sgBuffer->checkSum ==
+          crc16(CRC_1021, &sgBuffer->head, sgBuffer->length + 3, 0xffff)) {
+        sgBuffer->msg_OK = 1;
       }
-      hallBuffer->status = GET_START;
+      sgBuffer->status = GET_START;
       break;
   }
 }
 
-static volatile bool _fs_gimbal_detected;
+static volatile bool _serial_gimbal_detected;
 
 static void serial_gimbal_loop(void*)
 {
   uint8_t byte;
 
-  while (_fs_get_byte(&byte)) {
+  while (_serial_gimbal_get_byte(&byte)) {
     HallProtocol.index++;
 
     _fs_parse(&HallProtocol, byte);
@@ -140,9 +140,9 @@ static void serial_gimbal_loop(void*)
       HallProtocol.msg_OK = 0;
       HallProtocol.stickState = HallProtocol.data[HallProtocol.length - 1];
 
-      switch (HallProtocol.hallID.hall_Id.receiverID) {
+      switch (HallProtocol.serGimbalID.sg_Id.receiverID) {
         case TRANSFER_DIR_TXMCU:
-          if (HallProtocol.hallID.hall_Id.packetID ==
+          if (HallProtocol.serGimbalID.sg_Id.packetID ==
               SERIAL_GIMBAL_RESP_TYPE_VALUES) {
             int16_t* p_values = (int16_t*)HallProtocol.data;
             uint16_t* adcValues = getAnalogValues();
@@ -152,14 +152,14 @@ static void serial_gimbal_loop(void*)
           }
           break;
       }
-      _fs_gimbal_detected = true;
+      _serial_gimbal_detected = true;
     }
   }
 }
 
 void serial_gimbal_deinit()
 {
-  STM32SerialDriver.deinit(_fs_usart_ctx);
+  STM32SerialDriver.deinit(_serial_gimbal_usart_ctx);
 }
 
 bool serial_gimbal_init()
@@ -171,14 +171,14 @@ bool serial_gimbal_init()
     .polarity = ETX_Pol_Normal,
   };
 
-  _fs_gimbal_detected = false;
-  _fs_usart_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(SerGimbal), &cfg);
-  STM32SerialDriver.setIdleCb(_fs_usart_ctx, serial_gimbal_loop, 0);
+  _serial_gimbal_detected = false;
+  _serial_gimbal_usart_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(SerGimbal), &cfg);
+  STM32SerialDriver.setIdleCb(_serial_gimbal_usart_ctx, serial_gimbal_loop, 0);
 
   // Wait 70ms for Serial gimbals to respond. According to LA trace, minimally 23ms is required
   for (uint8_t i = 0; i < 70; i++) {
     delay_ms(1);
-    if (_fs_gimbal_detected) {
+    if (_serial_gimbal_detected) {
       // Mask the first 4 inputs (sticks)
       stm32_hal_set_inputs_mask(0xF);
       return true;
@@ -191,5 +191,5 @@ bool serial_gimbal_init()
 
 const etx_serial_port_t* serial_gimbal_get_port()
 {
-  return &_fs_gimbal_serial_port;
+  return &_serial_gimbal_serial_port;
 }
