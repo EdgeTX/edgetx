@@ -37,7 +37,6 @@
 enum PaddingSize {
   PAD_ZERO = 0,
   PAD_TINY = 1,
-  PAD_TINY_GAP = 2,
   PAD_SMALL = 3,
   PAD_MEDIUM = 4,
   PAD_LARGE = 6
@@ -46,7 +45,6 @@ enum PaddingSize {
 enum PaddingSize {
   PAD_ZERO = 0,
   PAD_TINY = 2,
-  PAD_TINY_GAP = 2,
   PAD_SMALL = 4,
   PAD_MEDIUM = 6,
   PAD_LARGE = 8
@@ -187,9 +185,6 @@ class EdgeTxStyles
   // Static styles
   static const lv_style_t pad_zero;
   static const lv_style_t pad_tiny;
-#if LANDSCAPE_LCD_SMALL
-  static const lv_style_t pad_tiny_gap;
-#endif
   static const lv_style_t pad_small;
   static const lv_style_t pad_medium;
   static const lv_style_t pad_large;

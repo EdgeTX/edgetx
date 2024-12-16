@@ -67,7 +67,7 @@ class FunctionLineButton : public ListLineButton
   static constexpr coord_t RP_Y = NM_Y;
   static constexpr coord_t RP_H = NM_H;
   static constexpr coord_t EN_X = RP_X + RP_W + PAD_TINY;
-  static constexpr coord_t EN_Y = NM_Y + PAD_TINY_GAP;
+  static constexpr coord_t EN_Y = NM_Y + PAD_TINY;
   static LAYOUT_VAL(EN_SZ, 16, 16, LS(16))
 
  protected:
