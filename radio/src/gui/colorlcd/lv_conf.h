@@ -459,7 +459,7 @@
 
 #else
   /* Bootloader font */
-#if defined(LANDSCAPE_LCD_SMALL)
+#if LANDSCAPE_LCD_SMALL
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_roboto_bl_11)
   #define LV_FONT_DEFAULT &lv_font_roboto_bl_11
 #else
