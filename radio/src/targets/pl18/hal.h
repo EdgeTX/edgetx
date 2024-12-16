@@ -493,7 +493,7 @@
 #define SERIAL_GIMBAL_SERIAL_USART_IRQn          UART4_IRQn
 #define SERIAL_GIMBAL_SERIAL_DMA                 DMA1
 #define SERIAL_GIMBAL_DMA_Stream_RX              LL_DMA_STREAM_2
-#define FSERIAL_GIMBAL_DMA_Stream_TX             LL_DMA_STREAM_4
+#define SERIAL_GIMBAL_DMA_Stream_TX              LL_DMA_STREAM_4
 
 // LED Strip
 #define LED_STRIP_LENGTH                  4
