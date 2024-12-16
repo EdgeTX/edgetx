@@ -459,8 +459,13 @@
 
 #else
   /* Bootloader font */
+#if defined(LANDSCAPE_LCD_SMALL)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_roboto_bl_11)
+  #define LV_FONT_DEFAULT &lv_font_roboto_bl_11
+#else
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_roboto_bl_16)
   #define LV_FONT_DEFAULT &lv_font_roboto_bl_16
+#endif
 #endif
 
 /*Enable handling large font and/or fonts with a lot of characters.
