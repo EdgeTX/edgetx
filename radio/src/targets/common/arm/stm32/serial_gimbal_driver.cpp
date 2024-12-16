@@ -33,7 +33,7 @@
 
 #include <string.h>
 
-static const stm32_usart_t SGSART = {
+static const stm32_usart_t SGUSART = {
   .USARTx = SERIAL_GIMBAL_SERIAL_USART,
   .txGPIO = SERIAL_GIMBAL_SERIAL_TX_GPIO,
   .rxGPIO = SERIAL_GIMBAL_SERIAL_RX_GPIO,
