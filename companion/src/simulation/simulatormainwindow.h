@@ -22,6 +22,7 @@
 #pragma once
 
 #include "simulator.h"
+#include "hostserialconnector.h"
 
 #include <QDockWidget>
 #include <QFile>
@@ -80,6 +81,7 @@ class SimulatorMainWindow : public QMainWindow
     void setRadioSizePolicy(int fixType);
     void toggleRadioDocked(bool dock);
     void openJoystickDialog(bool);
+    void openSerialPortsDialog(bool);
     void showHelp(bool show);
 
   protected:
@@ -87,6 +89,7 @@ class SimulatorMainWindow : public QMainWindow
     void addTool(QDockWidget * widget, Qt::DockWidgetArea area, QIcon icon = QIcon(), QKeySequence shortcut = QKeySequence());
 
     SimulatorInterface  * m_simulator;
+    HostSerialConnector * hostSerialConnector;
 
     Ui::SimulatorMainWindow * ui;
     SimulatorWidget * m_simulatorWidget;

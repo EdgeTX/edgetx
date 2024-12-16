@@ -22,6 +22,7 @@
 #pragma once
 
 #include "simulatorinterface.h"
+#include "dataconstants.h"
 
 #include <QMutex>
 #include <QObject>
@@ -58,6 +59,13 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
 
     static QVector<QIODevice *> tracebackDevices;
 
+    void drv_auxSerialInit(quint8 port_num, const etx_serial_init* dev);
+    void drv_auxSerialDeinit(quint8 port_num);
+    void drv_auxSerialSetBaudrate(quint8 port_num, uint32_t baudrate);
+    void drv_auxSerialSendByte(quint8 port_num, uint8_t byte);
+    void drv_auxSerialSendBuffer(quint8 port_num, const uint8_t* data, uint32_t size);
+    int drv_auxSerialGetByte(quint8 port_num, uint8_t* data);
+
   public slots:
 
     virtual void init();
@@ -83,6 +91,7 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     virtual void setLuaStateReloadPermanentScripts();
     virtual void addTracebackDevice(QIODevice * device);
     virtual void removeTracebackDevice(QIODevice * device);
+    virtual void receiveAuxSerialData(const quint8 port_num, const QByteArray & data);
 
   protected slots:
     void run();
