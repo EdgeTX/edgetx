@@ -140,7 +140,8 @@ function make_font_set() {
 make_font_set "roboto" "Roboto/Roboto-Regular.ttf" "Roboto/Roboto-Bold.ttf" ",${LATIN1}"
 
 # Bootloader font
-make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 16
+make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 16   # 480x272, 480x320, 320x480
+make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 11   # 320x240
 
 # CJK fonts
 make_font_set "noto_tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${TW_SYMBOLS}"

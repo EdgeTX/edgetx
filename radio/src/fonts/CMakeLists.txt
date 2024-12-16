@@ -8,7 +8,14 @@ file(GLOB LVGL_FONTS
 
 set(LVGL_FONT_SOURCES ${LVGL_FONTS} PARENT_SCOPE)
 
+if (BITMAPS_DIR STREQUAL 320x240)
+set(LVGL_FONT_SOURCES_MINIMAL
+  fonts/lvgl/lv_font_roboto_bl_11.c
+  PARENT_SCOPE
+)
+else()
 set(LVGL_FONT_SOURCES_MINIMAL
   fonts/lvgl/lv_font_roboto_bl_16.c
   PARENT_SCOPE
 )
+endif()
