@@ -2777,16 +2777,16 @@
 #endif
 
 #if defined(RADIO_BOXER) || defined(RADIO_FAMILY_T20) || defined(RADIO_X9DP2019) || defined (RADIO_V14) || defined(RADIO_GX12)
-  // Flysky Hall Stick
-  #define FLYSKY_HALL_SERIAL_USART                 UART4
-  #define FLYSKY_HALL_SERIAL_GPIO                  GPIOA
-  #define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
-  #define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOA, 0) // PA.00
-  #define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOA, 1) // PA.01
-  #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-  #define FLYSKY_HALL_SERIAL_DMA                   DMA1
-  #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
-  #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
+  // Serial gimbals
+  #define SERIAL_GIMBAL_SERIAL_USART               UART4
+  #define SERIAL_GIMBAL_SERIAL_GPIO                GPIOA
+  #define SERIAL_GIMBAL_DMA_Channel                LL_DMA_CHANNEL_4
+  #define SERIAL_GIMBAL_SERIAL_TX_GPIO             GPIO_PIN(GPIOA, 0) // PA.00
+  #define SERIAL_GIMBAL_SERIAL_RX_GPIO             GPIO_PIN(GPIOA, 1) // PA.01
+  #define SERIAL_GIMBAL_SERIAL_USART_IRQn          UART4_IRQn
+  #define SERIAL_GIMBAL_SERIAL_DMA                 DMA1
+  #define SERIAL_GIMBAL_DMA_Stream_RX              LL_DMA_STREAM_2
+  #define SERIAL_GIMBAL_DMA_Stream_TX              LL_DMA_STREAM_4
 #endif
 
 #if defined(RADIO_GX12)

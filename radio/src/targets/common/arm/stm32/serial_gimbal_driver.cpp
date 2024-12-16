@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "flysky_gimbal_driver.h"
+#include "serial_gimbal_driver.h"
 #include "stm32_serial_driver.h"
 #include "stm32_gpio.h"
 #include "stm32_adc.h"
@@ -33,26 +33,26 @@
 
 #include <string.h>
 
-static const stm32_usart_t fsUSART = {
-  .USARTx = FLYSKY_HALL_SERIAL_USART,
-  .txGPIO = FLYSKY_HALL_SERIAL_TX_GPIO,
-  .rxGPIO = FLYSKY_HALL_SERIAL_RX_GPIO,
-  .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
+static const stm32_usart_t SGSART = {
+  .USARTx = SERIAL_GIMBAL_SERIAL_USART,
+  .txGPIO = SERIAL_GIMBAL_SERIAL_TX_GPIO,
+  .rxGPIO = SERIAL_GIMBAL_SERIAL_RX_GPIO,
+  .IRQn = SERIAL_GIMBAL_SERIAL_USART_IRQn,
   .IRQ_Prio = 4,
   .txDMA = nullptr,
   .txDMA_Stream = 0,
   .txDMA_Channel = 0,
-  .rxDMA = FLYSKY_HALL_SERIAL_DMA,
-  .rxDMA_Stream = FLYSKY_HALL_DMA_Stream_RX,
-  .rxDMA_Channel = FLYSKY_HALL_DMA_Channel,
+  .rxDMA = SERIAL_GIMBAL_SERIAL_DMA,
+  .rxDMA_Stream = SERIAL_GIMBAL_DMA_Stream_RX,
+  .rxDMA_Channel = SERIAL_GIMBAL_DMA_Channel,
 };
 
-DEFINE_STM32_SERIAL_PORT(FSGimbal, fsUSART, HALLSTICK_BUFF_SIZE, 0);
+DEFINE_STM32_SERIAL_PORT(SerGimbal, SGUSART, SERIAL_GIMBAL_BUFF_SIZE, 0);
 
 static const etx_serial_port_t _fs_gimbal_serial_port = {
   .name = "gimbals",
   .uart = &STM32SerialDriver,
-  .hw_def = REF_STM32_SERIAL_PORT(FSGimbal),
+  .hw_def = REF_STM32_SERIAL_PORT(SerGimbal),
   .set_pwr = nullptr,
 };
 
@@ -69,8 +69,8 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
 {
   switch (hallBuffer->status) {
     case GET_START:
-      if (FLYSKY_HALL_PROTOLO_HEAD == ch) {
-        hallBuffer->head = FLYSKY_HALL_PROTOLO_HEAD;
+      if (SERIAL_GIMBAL_PROTOLO_HEAD == ch) {
+        hallBuffer->head = SERIAL_GIMBAL_PROTOLO_HEAD;
         hallBuffer->status = GET_ID;
         hallBuffer->msg_OK = 0;
       }
@@ -128,7 +128,7 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
 
 static volatile bool _fs_gimbal_detected;
 
-static void flysky_gimbal_loop(void*)
+static void serial_gimbal_loop(void*)
 {
   uint8_t byte;
 
@@ -143,11 +143,11 @@ static void flysky_gimbal_loop(void*)
       switch (HallProtocol.hallID.hall_Id.receiverID) {
         case TRANSFER_DIR_TXMCU:
           if (HallProtocol.hallID.hall_Id.packetID ==
-              FLYSKY_HALL_RESP_TYPE_VALUES) {
+              SERIAL_GIMBAL_RESP_TYPE_VALUES) {
             int16_t* p_values = (int16_t*)HallProtocol.data;
             uint16_t* adcValues = getAnalogValues();
             for (uint8_t i = 0; i < 4; i++) {
-              adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
+              adcValues[i] = SERIAL_GIMBAL_OFFSET_VALUE - p_values[i];
             }
           }
           break;
@@ -157,25 +157,25 @@ static void flysky_gimbal_loop(void*)
   }
 }
 
-void flysky_gimbal_deinit()
+void serial_gimbal_deinit()
 {
   STM32SerialDriver.deinit(_fs_usart_ctx);
 }
 
-bool flysky_gimbal_init()
+bool serial_gimbal_init()
 {
   etx_serial_init cfg = {
-    .baudrate = FLYSKY_HALL_BAUDRATE,
+    .baudrate = SERIAL_GIMBAL_BAUDRATE,
     .encoding = ETX_Encoding_8N1,
     .direction = ETX_Dir_RX,
     .polarity = ETX_Pol_Normal,
   };
 
   _fs_gimbal_detected = false;
-  _fs_usart_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(FSGimbal), &cfg);
-  STM32SerialDriver.setIdleCb(_fs_usart_ctx, flysky_gimbal_loop, 0);
+  _fs_usart_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(SerGimbal), &cfg);
+  STM32SerialDriver.setIdleCb(_fs_usart_ctx, serial_gimbal_loop, 0);
 
-  // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally 23ms is required
+  // Wait 70ms for Serial gimbals to respond. According to LA trace, minimally 23ms is required
   for (uint8_t i = 0; i < 70; i++) {
     delay_ms(1);
     if (_fs_gimbal_detected) {
@@ -185,11 +185,11 @@ bool flysky_gimbal_init()
     }
   }
 
-  flysky_gimbal_deinit();
+  serial_gimbal_deinit();
   return false;
 }
 
-const etx_serial_port_t* flysky_gimbal_get_port()
+const etx_serial_port_t* serial_gimbal_get_port()
 {
   return &_fs_gimbal_serial_port;
 }

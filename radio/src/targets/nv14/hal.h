@@ -117,8 +117,8 @@
 
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_5      // PC.05
 
-// FLYSKY_HALL_STICKS
-// #define ADC_GPIOA_PINS_FS               (GPIO_Pin_6 | GPIO_Pin_7)
+// SERIAL_GIMBAL_STICKS
+// #define ADC_GPIOA_PINS_FS            (GPIO_Pin_6 | GPIO_Pin_7)
 #define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH \
                                          | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SWH)
 #define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_SWA | ADC_GPIO_PIN_SWC)
@@ -354,15 +354,15 @@
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR1
 
-// Flysky Hall Stick
-#define FLYSKY_HALL_SERIAL_USART                 UART4
-#define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
-#define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOA, 0) // PA.00
-#define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOA, 1) // PA.01
-#define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-#define FLYSKY_HALL_SERIAL_DMA                   DMA1
-#define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
-#define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
+// Serial gimbals
+#define SERIAL_GIMBAL_SERIAL_USART               UART4
+#define SERIAL_GIMBAL_DMA_Channel                LL_DMA_CHANNEL_4
+#define SERIAL_GIMBAL_SERIAL_TX_GPIO             GPIO_PIN(GPIOA, 0) // PA.00
+#define SERIAL_GIMBAL_SERIAL_RX_GPIO             GPIO_PIN(GPIOA, 1) // PA.01
+#define SERIAL_GIMBAL_SERIAL_USART_IRQn          UART4_IRQn
+#define SERIAL_GIMBAL_SERIAL_DMA                 DMA1
+#define SERIAL_GIMBAL_DMA_Stream_RX              LL_DMA_STREAM_2
+#define SERIAL_GIMBAL_DMA_Stream_TX              LL_DMA_STREAM_4
 
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOH, 9) // PH.09

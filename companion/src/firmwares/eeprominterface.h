@@ -166,7 +166,7 @@ enum Capability {
   HasTelemetryBaudrate,
   TopBarZones,
   HasModelsList,
-  HasFlySkyGimbals,
+  HasSerialGimbals,
   RotaryEncoderNavigation,
   HasSoftwareSerialPower,
   HasIntModuleMulti,

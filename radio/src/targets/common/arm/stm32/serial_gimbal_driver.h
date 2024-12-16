@@ -23,20 +23,20 @@
 
 #include "hal/serial_port.h"
  
-#define HALLSTICK_BUFF_SIZE             ( 512 )
-#define FLYSKY_HALL_BAUDRATE            ( 921600 )
-#define FLYSKY_HALL_CHANNEL_COUNT       ( 4 )
+#define SERIAL_GIMBAL_BUFF_SIZE         ( 512 )
+#define SERIAL_GIMBAL_BAUDRATE          ( 921600 )
+#define SERIAL_GIMBAL_CHANNEL_COUNT     ( 4 )
 
 // This value has been chosen arbitrarily to allow
 // for 13-bit precision.
 //
-// Note: Flysky gimbals provide signed 16-bit values, whereby
+// Note: Serial gimbals provide signed 16-bit values, whereby
 //       ADC sampling uses unsigned 16-bit values.
 //
-#define FLYSKY_OFFSET_VALUE             ( 1 << 12 )
+#define SERIAL_GIMBAL_OFFSET_VALUE      ( 1 << 12 )
 
-#define FLYSKY_HALL_PROTOLO_HEAD        0x55
-#define FLYSKY_HALL_RESP_TYPE_VALUES    0x0c
+#define SERIAL_GIMBAL_PROTOLO_HEAD      0x55
+#define SERIAL_GIMBAL_RESP_TYPE_VALUES  0x0c
 
 typedef  struct
 {
@@ -81,7 +81,7 @@ typedef  struct
   unsigned char head;
   STRUCT_ID hallID;
   unsigned char length;
-  unsigned char data[HALLSTICK_BUFF_SIZE];
+  unsigned char data[SERIAL_GIMBAL_BUFF_SIZE];
   unsigned char reserved[15];
   unsigned short checkSum;
   unsigned char stickState;
@@ -122,11 +122,11 @@ enum TRANSFER_DIR_E {
   TRANSFER_DIR_RFMODULE,
 };
 
-extern signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
-extern unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
+extern signed short hall_raw_values[SERIAL_GIMBAL_CHANNEL_COUNT];
+extern unsigned short hall_adc_values[SERIAL_GIMBAL_CHANNEL_COUNT];
 
 // returns true if the gimbals were detected properly
-bool flysky_gimbal_init();
+bool serial_gimbal_init();
 
-void flysky_gimbal_deinit();
-const etx_serial_port_t* flysky_gimbal_get_port();
+void serial_gimbal_deinit();
+const etx_serial_port_t* serial_gimbal_get_port();
