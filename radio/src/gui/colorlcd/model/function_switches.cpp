@@ -57,9 +57,9 @@ class FunctionSwitch : public Window
 {
  public:
   FunctionSwitch(Window* parent, uint8_t sw) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2}), switchIndex(sw)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}), switchIndex(sw)
   {
-    padAll(PAD_TINY_GAP);
+    padAll(PAD_TINY);
 
     std::string s(STR_CHAR_SWITCH);
     s += switchGetName(switchIndex + switchGetMaxSwitches());
@@ -246,9 +246,9 @@ class SwitchGroup : public Window
 {
  public:
   SwitchGroup(Window* parent, uint8_t group) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2}), groupIndex(group)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}), groupIndex(group)
   {
-    padAll(PAD_TINY_GAP);
+    padAll(PAD_TINY);
 
     new StaticText(this, {0, PAD_MEDIUM, NM_W, EdgeTxStyles::PAGE_LINE_HEIGHT},
                    STR_FUNCTION_SWITCH_GROUPS[groupIndex]);
