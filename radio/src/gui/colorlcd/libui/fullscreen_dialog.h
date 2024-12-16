@@ -66,6 +66,10 @@ class FullScreenDialog : public Window
     static LAYOUT_VAL(ALERT_TITLE_LEFT, 146, 140, LS(146))
     static LAYOUT_VAL(ALERT_MESSAGE_TOP, ALERT_TITLE_TOP + 85, ALERT_TITLE_TOP + 130, ALERT_TITLE_TOP + LS(85))
     static LAYOUT_VAL(ALERT_MESSAGE_LEFT, ALERT_TITLE_LEFT, 15, ALERT_TITLE_LEFT)
+    static LAYOUT_VAL(ONEBTN_W, 280, 280, LS(280))
+    static LAYOUT_VAL(ONEBTN_H, 40, 40, LS(40))
+    static LAYOUT_VAL(TWOBTN_W, 100, 100, LS(100))
+    static LAYOUT_VAL(TWOBTN_H, 40, 40, LS(40))
 
   protected:
     uint8_t type;
