@@ -40,7 +40,7 @@ FullScreenDialog::FullScreenDialog(
     confirmHandler(confirmHandler)
 {
   setWindowFlag(OPAQUE);
-  etx_solid_bg(lvobj, COLOR_THEME_WARNING_INDEX);
+  etx_solid_bg(lvobj, (type == WARNING_TYPE_ALERT) ? COLOR_THEME_WARNING_INDEX : COLOR_THEME_SECONDARY1_INDEX);
 
   // In case alert raised while splash screen is showing.
   cancelSplash();
