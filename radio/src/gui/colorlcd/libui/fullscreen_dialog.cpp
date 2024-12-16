@@ -40,12 +40,10 @@ FullScreenDialog::FullScreenDialog(
     confirmHandler(confirmHandler)
 {
   setWindowFlag(OPAQUE);
+  etx_solid_bg(lvobj, COLOR_THEME_WARNING_INDEX);
 
   // In case alert raised while splash screen is showing.
   cancelSplash();
-
-  Window* p = Layer::back();
-  if (p) p->hide();
 
   Layer::push(this);
 
@@ -72,8 +70,7 @@ void FullScreenDialog::build()
 {
   auto div = new Window(this, {0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT});
   div->setWindowFlag(NO_FOCUS);
-  etx_bg_color(div->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
-  etx_obj_add_style(div->getLvObj(), styles->bg_opacity_50, LV_PART_MAIN);
+  etx_solid_bg(div->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
 
   new StaticIcon(
       this, ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
@@ -175,8 +172,8 @@ void FullScreenDialog::deleteLater(bool detach, bool trash)
     Layer::pop(this);
     Window::deleteLater(detach, trash);
   }
-  Window* p = Layer::back();
-  if (p) p->show();
+  // Window* p = Layer::back();
+  // if (p) p->show();
 }
 
 void FullScreenDialog::setMessage(std::string text)
