@@ -348,13 +348,37 @@ void luaFree(lua_State * L, ScriptInternalData & sid)
 }
 
 #if defined(LUA_COMPILER)
+// Buffer for reducing the number of SD writes when dumping .luac files
+#define DLEN 256
+uint8_t dbuf[DLEN];
+int16_t dpos = 0;
+FRESULT dresult = FR_OK;
+
 /// callback for luaU_dump()
 static int luaDumpWriter(lua_State * L, const void* p, size_t size, void* u)
 {
   UNUSED(L);
-  UINT written;
-  FRESULT result = f_write((FIL *)u, p, size, &written);
-  return (result != FR_OK && !written);
+  const uint8_t* b = (const uint8_t*)p;
+  while (size > 0) {
+    int len;
+    if (size + dpos > DLEN)
+      len = DLEN - dpos;
+    else
+      len = size;
+    // Copy bytes to the buffer
+    memcpy(&dbuf[dpos], b, len);
+    dpos += len;
+    size -= len;
+    b += len;
+    if (dpos >= DLEN) {
+      // Write to SD when buffer full
+      dresult = f_write((FIL *)u, dbuf, dpos, nullptr);
+      dpos = 0;
+      if (dresult != FR_OK)
+        break;
+    }
+  }
+  return (dresult != FR_OK);
 }
 
 /*
@@ -371,10 +395,21 @@ static void luaDumpState(lua_State * L, const char * filename, const FILINFO * f
 {
   FIL D;
   if (f_open(&D, filename, FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
+    dpos = 0;
+    dresult = FR_OK;
     lua_lock(L);
     luaU_dump(L, getproto(L->top - 1), luaDumpWriter, &D, stripDebug);
     lua_unlock(L);
-    if (f_close(&D) == FR_OK) {
+    if (dpos > 0) {
+      // Write last piece
+      dresult = f_write(&D, dbuf, dpos, nullptr);
+    }
+    if (dresult != FR_OK) {
+      // Save failed, close file handle and delete file.
+      f_close(&D);
+      f_unlink(filename);
+      TRACE("luaDumpState(%s): Error saving bytecode to file.", filename);
+    } else if (f_close(&D) == FR_OK) {
       if (finfo != nullptr)
         f_utime(filename, finfo);  // set the file mod time
       TRACE("luaDumpState(%s): Saved bytecode to file.", filename);
