@@ -42,6 +42,7 @@ bool addRadioTool(uint8_t index, const char * label)
   if (index >= menuVerticalOffset) {
     uint8_t lineIndex = index - menuVerticalOffset;
     if (lineIndex < NUM_BODY_LINES) {
+      strncpy(reusableBuffer.radioTools.scriptName[index], label, sizeof(reusableBuffer.radioTools.scriptName[0]));
       int8_t sub = menuVerticalPosition - HEADER_LINE;
       LcdFlags attr = (sub == index ? INVERS : 0);
       coord_t y = MENU_HEADER_HEIGHT + lineIndex * FH;
@@ -101,6 +102,9 @@ void addRadioScriptTool(uint8_t index, const char * path)
 
 void menuRadioTools(event_t event)
 {
+
+  static uint8_t oldPosition = 0xFF;
+
   if (event == EVT_ENTRY  || event == EVT_ENTRY_UP) {
     memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
 #if defined(PXX2)
@@ -115,6 +119,13 @@ void menuRadioTools(event_t event)
   SIMPLE_MENU(STR_MENUTOOLS, menuTabGeneral, MENU_RADIO_TOOLS, HEADER_LINE + reusableBuffer.radioTools.linesCount);
 
   uint8_t index = 0;
+
+  if (oldPosition == menuVerticalPosition) {
+    for(uint8_t line =0; line < reusableBuffer.radioTools.linesCount; line++) {
+      addRadioTool(line, reusableBuffer.radioTools.scriptName[line]);
+    }
+    return;
+  }
 
 #if defined(LUA)
   FILINFO fno;
@@ -200,4 +211,5 @@ void menuRadioTools(event_t event)
   }
 
   reusableBuffer.radioTools.linesCount = index;
+  oldPosition = menuVerticalPosition;
 }

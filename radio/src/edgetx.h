@@ -702,6 +702,9 @@ union ReusableBuffer
 #endif
 
   struct {
+#if defined(NUM_BODY_LINES)
+    char scriptName[NUM_BODY_LINES][(LCD_W / FW) + 1];
+#endif
 #if defined(PXX2)
     ModuleInformation modules[NUM_MODULES];
 #endif
