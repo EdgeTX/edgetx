@@ -701,9 +701,17 @@ union ReusableBuffer
   PXX2HardwareAndSettings hardwareAndSettings; // radio_version
 #endif
 
+  struct scriptInfo{
+      uint8_t index;
+      char label[(LCD_W / FW) + 1];
+      uint8_t module;
+      void (* tool)(event_t);
+      char path[LEN_FILE_PATH_MAX+10+1];
+  };
+
   struct {
 #if defined(NUM_BODY_LINES)
-    char scriptName[NUM_BODY_LINES][(LCD_W / FW) + 1];
+    scriptInfo script[NUM_BODY_LINES];
 #endif
 #if defined(PXX2)
     ModuleInformation modules[NUM_MODULES];
