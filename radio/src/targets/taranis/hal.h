@@ -2790,7 +2790,7 @@
 #endif
 
 #if defined(RADIO_GX12)
-  #define HALL_SYNC                                GPIO_PIN(GPIOE, 7)  // PE.07
+  #define SERIAL_GIMBAL_SYNC                       GPIO_PIN(GPIOE, 7)  // PE.07
 #endif
 
 // Top LCD on X9E

@@ -28,7 +28,7 @@
 #include "hal/usb_driver.h"
 
 #include "hal/watchdog_driver.h"
-#if defined(HALL_SYNC) && !defined(SIMU)
+#if defined(SERIAL_GIMBAL_SYNC) && !defined(SIMU)
 #include "stm32_gpio.h"
 #include "hal/gpio.h"
 #endif
@@ -228,8 +228,8 @@ void doMixerCalculations()
 
   tmr10ms_t tmr10ms = get_tmr10ms();
 
-#if defined(HALL_SYNC) && !defined(SIMU)
-  gpio_set(HALL_SYNC);
+#if defined(SERIAL_GIMBAL_SYNC) && !defined(SIMU)
+  gpio_set(SERIAL_GIMBAL_SYNC);
 #endif
 
 #if defined(DEBUG_LATENCY_MIXER_RF) || defined(DEBUG_LATENCY_RF_ONLY)
@@ -258,7 +258,7 @@ void doMixerCalculations()
   evalMixes(tick10ms);
   DEBUG_TIMER_STOP(debugTimerEvalMixes);
 
-#if defined(HALL_SYNC) && !defined(SIMU)
-  gpio_clear(HALL_SYNC);
+#if defined(SERIAL_GIMBAL_SYNC) && !defined(SIMU)
+  gpio_clear(SERIAL_GIMBAL_SYNC);
 #endif
 }
