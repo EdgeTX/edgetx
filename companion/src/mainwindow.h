@@ -118,6 +118,9 @@ class MainWindow : public QMainWindow
 
     void openFile(const QString & fileName);
 
+    void readSettingsSDPath();
+    void writeSettingsSDPath();
+
   private:
     QAction * addAct(const QString & icon, const char * slot = NULL, const QKeySequence & shortcut = 0, QObject * slotObj = NULL, const char * signal = NULL);
     QAction * addActToGroup(QActionGroup * aGroup, const QString & sName, const QString & lName, const char * propName = 0,
@@ -143,6 +146,7 @@ class MainWindow : public QMainWindow
 
     bool readSettingsFromRadio(const QString & filename);
     bool readFirmwareFromRadio(const QString & filename);
+    bool readSettingsFromSDPath(const QString & filename);
 
     bool checkProfileRadioExists(int profId);
 
@@ -205,4 +209,6 @@ class MainWindow : public QMainWindow
     QAction *actTileWindows;
     QAction *actCascadeWindows;
     QAction *actCloseAllWindows;
+    QAction *writeSettingsSDPathAct;
+    QAction *readSettingsSDPathAct;
 };
