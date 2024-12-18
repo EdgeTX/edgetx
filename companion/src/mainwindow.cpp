@@ -677,6 +677,8 @@ void MainWindow::updateMenus()
   compareAct->setEnabled(activeChild);
   writeSettingsAct->setEnabled(activeChild);
   readSettingsAct->setEnabled(true);
+  writeSettingsSDPathAct->setEnabled(activeChild && !g.currentProfile().sdPath().isEmpty());
+  readSettingsSDPathAct->setEnabled(!g.currentProfile().sdPath().isEmpty());
   writeBUToRadioAct->setEnabled(false);
   readBUToFileAct->setEnabled(false);
   editSplashAct->setDisabled(IS_FAMILY_HORUS_OR_T16(getCurrentBoard()));
@@ -823,8 +825,10 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(sdsyncAct,          tr("Synchronize SD"),             tr("SD card synchronization"));
 
   //trAct(openDocURLAct,      tr("Manuals and other Documents"),         tr("Open the EdgeTX document page in a web browser"));
-  trAct(writeSettingsAct,   tr("Write Models and Settings To Radio"),  tr("Write Models and Settings to Radio"));
-  trAct(readSettingsAct,    tr("Read Models and Settings From Radio"), tr("Read Models and Settings from Radio"));
+  trAct(writeSettingsAct,   tr("Write Models and Settings to Radio"),  tr("Write Models and Settings to Radio"));
+  trAct(readSettingsAct,    tr("Read Models and Settings from Radio"), tr("Read Models and Settings from Radio"));
+  trAct(writeSettingsSDPathAct,   tr("Write Models and Settings to SD Path"),  tr("Write Models and Settings to SD Path"));
+  trAct(readSettingsSDPathAct,    tr("Read Models and Settings from SD Path"), tr("Read Models and Settings from SD Path"));
   trAct(burnConfigAct,      tr("Configure Communications..."),         tr("Configure software for communicating with the Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
@@ -882,6 +886,9 @@ void MainWindow::createActions()
   writeFlashAct =      addAct("write_flash.png",       SLOT(writeFlash()));
   writeSettingsAct =   addAct("write_eeprom.png",      SLOT(writeSettings()));
   readSettingsAct =    addAct("read_eeprom.png",       SLOT(readSettings()));
+  writeSettingsSDPathAct =   addAct("save.png",      SLOT(writeSettingsSDPath()));
+  readSettingsSDPathAct =    addAct("open.png",       SLOT(readSettingsSDPath()));
+
   burnConfigAct =      addAct("configure.png",         SLOT(burnConfig()));
 
   writeBUToRadioAct = addAct("write_eeprom_file.png", SLOT(writeBackup()));
@@ -973,6 +980,9 @@ void MainWindow::createMenus()
   burnMenu->addAction(writeSettingsAct);
   burnMenu->addAction(readSettingsAct);
   burnMenu->addSeparator();
+  burnMenu->addAction(writeSettingsSDPathAct);
+  burnMenu->addAction(readSettingsSDPathAct);
+  burnMenu->addSeparator();
   burnMenu->addAction(writeBUToRadioAct);
   burnMenu->addAction(readBUToFileAct);
   burnMenu->addSeparator();
@@ -1059,6 +1069,9 @@ void MainWindow::createToolBars()
   burnToolBar->setObjectName("Write");
   burnToolBar->addAction(writeSettingsAct);
   burnToolBar->addAction(readSettingsAct);
+  burnToolBar->addSeparator();
+  burnToolBar->addAction(writeSettingsSDPathAct);
+  burnToolBar->addAction(readSettingsSDPathAct);
   burnToolBar->addSeparator();
   burnToolBar->addAction(writeBUToRadioAct);
   burnToolBar->addAction(readBUToFileAct);
@@ -1415,4 +1428,44 @@ void MainWindow::chooseProfile()
     if (!checkProfileRadioExists(g.sessionId()))
       g.warningId(g.warningId() | AppMessages::MSG_NO_RADIO_TYPE);
   }
+}
+
+void MainWindow::readSettingsSDPath()
+{
+  QString tempFile;
+  tempFile = generateProcessUniqueTempFileName("temp.etx");
+  qDebug() << "Reading models and settings from SD path into temp file: " << tempFile;
+
+  if (readSettingsFromSDPath(tempFile)) {
+    MdiChild * child = createMdiChild();
+    child->newFile(false);
+    child->loadFile(tempFile, false);
+    child->show();
+    qunlink(tempFile);
+  }
+}
+
+bool MainWindow::readSettingsFromSDPath(const QString & filename)
+{
+  ProgressDialog progressDialog(this, tr("Read Models and Settings from SD path"), CompanionIcon("read_eeprom.png"));
+  bool result = ::readSettingsSDCard(filename, progressDialog.progress(), false);
+  if (!result) {
+    if (!progressDialog.isEmpty()) {
+      progressDialog.exec();
+    }
+  }
+  else {
+    statusBar()->showMessage(tr("Models and Settings read"), 2000);
+  }
+  return result;
+}
+
+void MainWindow::writeSettingsSDPath()
+{
+  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to SD path"), tr("In progress..."), 400);
+
+  if (activeMdiChild())
+    activeMdiChild()->writeSettings(status, false);
+
+  delete status;
 }

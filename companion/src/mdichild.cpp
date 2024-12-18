@@ -1481,12 +1481,12 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeSettings(StatusDialog * status)  // write to Tx
+void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to Tx
 {
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
-    msgbox.setText(tr("You are about to overwrite ALL models on the Radio."));
-    msgbox.setInformativeText(tr("Do you want to continue?"));
+    msgbox.setText(tr("You are about to overwrite ALL models."));
+    msgbox.setInformativeText(tr("Continue?"));
     msgbox.setIcon(QMessageBox::Icon::Question);
     msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
     msgbox.setDefaultButton(QMessageBox::Abort);
@@ -1499,21 +1499,31 @@ void MdiChild::writeSettings(StatusDialog * status)  // write to Tx
       return;
   }
 
-  QString radioPath = findMassstoragePath("RADIO", true);
-  qDebug() << "Searching for SD card, found" << radioPath;
+  QString radioPath;
+
+  if (toRadio) {
+    radioPath = findMassstoragePath("RADIO", true);
+    qDebug() << "Searching for SD card, found" << radioPath;
+  }
+  else {
+    radioPath = g.currentProfile().sdPath();
+    if (!QFile(radioPath % "/RADIO").exists())
+      radioPath.clear();
+  }
+
   if (radioPath.isEmpty()) {
     qDebug() << "Radio SD card not found";
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find SD card!"));
     return;
   }
 
   if (saveFile(radioPath, false)) {
     status->hide();
-    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written to radio"));
+    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written"));
   }
   else {
     status->hide();
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings to radio!"));
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
   }
 }
 
