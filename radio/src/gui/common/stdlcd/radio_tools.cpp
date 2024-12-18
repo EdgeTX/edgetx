@@ -178,6 +178,7 @@ void menuRadioTools(event_t event)
 
   if (event == EVT_ENTRY  || event == EVT_ENTRY_UP) {
     memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
+    oldPosition = 0xFF;
 #if defined(PXX2)
     for (uint8_t module = 0; module < NUM_MODULES; module++) {
       if (isModulePXX2(module) && (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE) : modulePortPowered(EXTERNAL_MODULE))) {
