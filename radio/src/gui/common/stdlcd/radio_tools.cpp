@@ -171,12 +171,9 @@ void addRadioScriptToolHandler(uint8_t index, const char * path)
 
 void menuRadioTools(event_t event)
 {
-
-  static uint8_t oldPosition = 0xFF;
-
   if (event == EVT_ENTRY  || event == EVT_ENTRY_UP) {
     memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
-    oldPosition = 0xFF;
+    reusableBuffer.radioTools.oldOffset = 0xFF;
 #if defined(PXX2)
     for (uint8_t module = 0; module < NUM_MODULES; module++) {
       if (isModulePXX2(module) && (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE) : modulePortPowered(EXTERNAL_MODULE))) {
@@ -190,7 +187,7 @@ void menuRadioTools(event_t event)
 
   uint8_t index = 0;
 
-  if (oldPosition == menuVerticalOffset) {
+  if (reusableBuffer.radioTools.oldOffset == menuVerticalOffset) {
     for(uint8_t line =0; line < reusableBuffer.radioTools.linesCount; line++) {
       displayRadioTool(line);
     }
@@ -281,5 +278,5 @@ void menuRadioTools(event_t event)
   }
 
   reusableBuffer.radioTools.linesCount = index;
-  oldPosition = menuVerticalOffset;
+  reusableBuffer.radioTools.oldOffset = menuVerticalOffset;
 }

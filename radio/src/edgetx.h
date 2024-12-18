@@ -712,6 +712,7 @@ union ReusableBuffer
   struct {
 #if defined(NUM_BODY_LINES)
     scriptInfo script[NUM_BODY_LINES];
+    uint8_t oldOffset;
 #endif
 #if defined(PXX2)
     ModuleInformation modules[NUM_MODULES];
