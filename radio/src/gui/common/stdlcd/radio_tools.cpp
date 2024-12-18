@@ -56,11 +56,9 @@ void displayRadioTool(uint8_t index)
         }
         else if (reusableBuffer.radioTools.script[index].path != nullptr) {
           char toolName[RADIO_TOOL_NAME_MAXLEN + 1];
-
           if (!readToolName(toolName, reusableBuffer.radioTools.script[index].path)) {
             strAppendFilename(toolName, getBasename(reusableBuffer.radioTools.script[index].path), RADIO_TOOL_NAME_MAXLEN);
           }
-
           char toolPath[FF_MAX_LFN];
           strcpy(toolPath, reusableBuffer.radioTools.script[index].path);
           *((char *)getBasename(toolPath)-1) = '\0';
@@ -192,7 +190,7 @@ void menuRadioTools(event_t event)
 
   uint8_t index = 0;
 
-  if (oldPosition == menuVerticalPosition) {
+  if (oldPosition == menuVerticalOffset) {
     for(uint8_t line =0; line < reusableBuffer.radioTools.linesCount; line++) {
       displayRadioTool(line);
     }
@@ -283,5 +281,5 @@ void menuRadioTools(event_t event)
   }
 
   reusableBuffer.radioTools.linesCount = index;
-  oldPosition = menuVerticalPosition;
+  oldPosition = menuVerticalOffset;
 }
