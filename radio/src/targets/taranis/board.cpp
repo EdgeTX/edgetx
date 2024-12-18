@@ -299,7 +299,7 @@ void boardInit()
 #endif
 
 #if defined(RADIO_GX12)
-  gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(SERIAL_GIMBAL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 
 }
