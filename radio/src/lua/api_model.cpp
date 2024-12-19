@@ -1623,6 +1623,81 @@ static int luaModelSetGlobalVariable(lua_State *L)
   }
   return 0;
 }
+
+/*luadoc
+@name model.getGlobalVariableDetails(index)
+
+@description Returns details about a Global Variable, but not values
+
+@syntax val = model.getGlobalVariableDetails(index)
+@arg index required integer
+@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
+@return table
+@returndesc table with keys - name (string), min (int), max, prec, unit and popup (bool) - if exists
+@apistat 2.11.0 introduced
+*/
+static int luaModelGetGlobalVariableDetails(lua_State *L)
+{
+  unsigned int idx = luaL_checkunsigned(L, 1);
+  if (idx < MAX_GVARS) {
+    lua_newtable(L);
+    lua_pushtablenstring(L, "name", g_model.gvars[idx].name);
+    lua_pushtableinteger(L, "min", GVAR_MIN + g_model.gvars[idx].min);
+    lua_pushtableinteger(L, "max", GVAR_MAX - g_model.gvars[idx].max);
+    lua_pushtableinteger(L, "prec", g_model.gvars[idx].prec);
+    lua_pushtableinteger(L, "unit", g_model.gvars[idx].unit);
+    lua_pushtableboolean(L, "popup", g_model.gvars[idx].popup);
+  }
+  else
+    lua_pushnil(L);
+  return 1;
+}
+
+/*luadoc
+@name model.setGlobalVariableDetails(index, params)
+
+@description Sets details about a Global Variable, but not values
+
+@arg index required integer
+@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
+@arg table params
+@argdesc see model.getGlobalVariableDetails(index) return format for table format.
+@return none
+@apistat 2.11.0 introduced
+
+*/
+static int luaModelSetGlobalVariableDetails(lua_State *L)
+{
+  unsigned int idx = luaL_checkunsigned(L, 1);
+  if (idx < MAX_GVARS) {
+    luaL_checktype(L, -1, LUA_TTABLE);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      luaL_checktype(L, -2, LUA_TSTRING); // key is string
+      const char * key = luaL_checkstring(L, -2);
+      if (!strcmp(key, "name")) {
+        const char * name = luaL_checkstring(L, -1);
+        strncpy(g_model.gvars[idx].name, name, sizeof(g_model.gvars[idx].name));
+      }
+      if (!strcmp(key, "min")) {
+        g_model.gvars[idx].min = luaL_checkinteger(L, -1) - GVAR_MIN;
+      }
+      if (!strcmp(key, "max")) {
+        g_model.gvars[idx].max = GVAR_MAX - luaL_checkinteger(L, -1);
+      }
+      if (!strcmp(key, "unit")) {
+        g_model.gvars[idx].unit = luaL_checkinteger(L, -1);
+      }
+      if (!strcmp(key, "prec")) {
+        g_model.gvars[idx].prec = luaL_checkinteger(L, -1);
+      }
+      if (!strcmp(key, "popup")) {
+        g_model.gvars[idx].popup = lua_toboolean(L, -1);
+      }
+    }
+    storageDirty(EE_MODEL);
+  }
+  return 0;
+}
 #endif
 
 /*luadoc
@@ -1805,6 +1880,8 @@ LROT_BEGIN(modellib, NULL, 0)
 #if defined (GVARS)
   LROT_FUNCENTRY( getGlobalVariable, luaModelGetGlobalVariable )
   LROT_FUNCENTRY( setGlobalVariable, luaModelSetGlobalVariable )
+  LROT_FUNCENTRY( getGlobalVariableDetails, luaModelGetGlobalVariableDetails )
+  LROT_FUNCENTRY( setGlobalVariableDetails, luaModelSetGlobalVariableDetails )
 #endif
   LROT_FUNCENTRY( getSensor, luaModelGetSensor )
   LROT_FUNCENTRY( resetSensor, luaModelResetSensor )
