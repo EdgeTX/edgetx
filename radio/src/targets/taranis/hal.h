@@ -2725,7 +2725,7 @@
   #define JACK_DETECT_GPIO              GPIO_PIN(GPIOC, 13) // PC.13
   #define AUDIO_SPEAKER_ENABLE_GPIO     GPIO_PIN(GPIOD, 14) // PD.14
   #define HEADPHONE_TRAINER_SWITCH_GPIO GPIO_PIN(GPIOD, 9)  // PD.09
-#elif defined(RADIO_FAMILY_T20)
+#elif defined(RADIO_FAMILY_T20) || defined(RADIO_BUMBLEBEE)
   #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOG, 4) // PG.04
   #define AUDIO_MUTE_DELAY              500  // ms
   #define AUDIO_UNMUTE_DELAY            150  // ms
