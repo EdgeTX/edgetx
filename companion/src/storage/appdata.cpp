@@ -429,6 +429,7 @@ AppData::AppData() :
   qRegisterMetaTypeStreamOperators<SimulatorOptions>("SimulatorOptions");
   qRegisterMetaTypeStreamOperators<AppData::NewModelAction>("AppData::NewModelAction");
   qRegisterMetaTypeStreamOperators<AppData::UpdateCheckFreq>("AppData::UpdateCheckFreq");
+  qRegisterMetaTypeStreamOperators<AppData::SimuGenericKeysPos>("AppData::SimuGenericKeysPos");
 
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 
@@ -495,7 +496,7 @@ void AppData::saveNamedJS()
       return;
     }
   }
-  
+
   unsigned int oldestTime = namedJS[0].jsLastUsed();
   int oldestN = 0;
   for (int i = 1; i < MAX_NAMED_JOYSTICKS; i += 1) {

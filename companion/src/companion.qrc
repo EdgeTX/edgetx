@@ -321,17 +321,6 @@
     <file>images/simulator/JumperT20/right.png</file>
     <file>images/simulator/JumperT20/top.png</file>
     <file>images/simulator/JumperT20/bottom.png</file>
-    <file>images/simulator/TX16S/left.png</file>
-    <file>images/simulator/TX16S/right.png</file>
-    <file>images/simulator/TX16S/top.png</file>
-    <file>images/simulator/TX16S/bottom.png</file>
-    <file>images/simulator/TX16S/left_page.png</file>
-    <file>images/simulator/TX16S/left_page2.png</file>
-    <file>images/simulator/TX16S/left_rtn.png</file>
-    <file>images/simulator/TX16S/left_sys.png</file>
-    <file>images/simulator/TX16S/left_tele.png</file>
-    <file>images/simulator/TX16S/right_ent.png</file>
-    <file>images/simulator/TX16S/right_mdl.png</file>
     <file>images/simulator/NV14/top.png</file>
     <file>images/simulator/NV14/bottom.png</file>
     <file>images/simulator/NV14/lhs.png</file>
@@ -362,7 +351,7 @@
     <file>images/simulator/V16/left_tele.png</file>
     <file>images/simulator/V16/right.png</file>
     <file>images/simulator/V16/right_ent.png</file>
-    <file>images/simulator/V16/right_mdl.png</file>    
+    <file>images/simulator/V16/right_mdl.png</file>
     <file>images/wizard/ailerons.png</file>
     <file>images/wizard/airbrakes.png</file>
     <file>images/wizard/elevons.png</file>
