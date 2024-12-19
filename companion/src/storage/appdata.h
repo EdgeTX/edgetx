@@ -503,6 +503,7 @@ class Profile: public CompStoreObj
     PROPERTY(bool, telemSimEnabled,         false)
     PROPERTY(bool, telemSimPauseOnHide,     true)
     PROPERTY(bool, telemSimResetRssiOnStop, false)
+    PROPERTY(QColor, radioSimCaseColor, QColor(Qt::black))
 
     // Firmware Variables
     PROPERTYSTR2(beeper,        "Beeper")
@@ -830,7 +831,6 @@ class AppData: public CompStoreObj
 
     PROPERTY(SimuGenericKeysPos, simuGenericKeysPos, SIMU_GENERIC_KEYS_DEFAULT)
     PROPERTY(bool, simuScrollButtons, false)
-    PROPERTY(QColor, simuRadioBackground, QColor(Qt::black))
 
     // Message box confirmations
     PROPERTY(bool, confirmWriteModelsAndSettings, true)
