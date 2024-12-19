@@ -765,11 +765,12 @@ bool GeneralSettings::fix6POSCalibration()
 {
   bool changed = false;
   // Fix default 6POS calibration
-  for (int i = CPN_MAX_STICKS; i < CPN_MAX_STICKS + CPN_MAX_POTS; i += 1) {
-    if ((potConfig[i-CPN_MAX_STICKS] == Board::POT_MULTIPOS_SWITCH) && (calibMid[i] == 0x200) && (calibSpanNeg[i] == 0x180) && (calibSpanPos[i] == 0x180)) {
-      calibMid[i] = 773;;
-      calibSpanNeg[i] = 5388;
-      calibSpanPos[i] = 9758;
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    if (inputConfig[i].type == Board::AIT_FLEX && inputConfig[i].flexType == Board::FLEX_MULTIPOS &&
+        inputConfig[i].calib.mid == 0x200 && inputConfig[i].calib.spanNeg == 0x180 && inputConfig[i].calib.spanPos == 0x180) {
+      inputConfig[i].calib.mid = 773;;
+      inputConfig[i].calib.spanNeg = 5388;
+      inputConfig[i].calib.spanPos = 9758;
       changed = true;
     }
   }
@@ -820,85 +821,6 @@ static const StringTagMappingTable sliderTypesConversionTable = {
     {std::to_string(Board::SLIDER_NONE),            std::to_string(Board::FLEX_NONE)},
     {std::to_string(Board::SLIDER_WITH_DETENT),     std::to_string(Board::FLEX_SLIDER)},
 };
-
-// This copies the pre v2.10 config to the new structs
-bool GeneralSettings::convertLegacyConfiguration(Board::Type board)
-{
-  for (int i = 0; i < CPN_MAX_STICKS && i < Boards::getCapability(board, Board::Sticks); i++) {
-    inputConfig[i].type = Board::AIT_STICK;
-    YamlValidateName(stickName[i], board);
-    strncpy(inputConfig[i].name, stickName[i], HARDWARE_NAME_LEN);
-    inputConfig[i].calib.mid = calibMid[i];
-    inputConfig[i].calib.spanNeg = calibSpanNeg[i];
-    inputConfig[i].calib.spanPos = calibSpanPos[i];
-  }
-
-  for (int i = 0; i < CPN_MAX_POTS && i < Boards::getCapability(board, Board::Pots); i++) {
-    int idx = 0;
-    if (IS_FAMILY_HORUS_OR_T16(board)) {
-      //  0 - 2 P1 - P3
-      //  3 - 6 EXT1 - EXT4
-      //  7 - 8 S1 - S2
-      if (i < 3)
-        idx = Boards::getInputPotIndex(i + 1, board);
-      else
-        idx = Boards::getInputExtIndex(i - 3 + 1, board);
-    }
-    else
-      idx = Boards::getInputPotIndex(i + 1, board);
-
-    // qDebug() << "i:" << i << "idx:" << idx << "pot name:" << potName[i];
-
-    if (idx >= 0) {
-      inputConfig[idx].type = Board::AIT_FLEX;
-      YamlValidateName(potName[i], board);
-      strncpy(inputConfig[idx].name, potName[i], HARDWARE_NAME_LEN);
-      inputConfig[idx].calib.mid = calibMid[i];
-      inputConfig[idx].calib.spanNeg = calibSpanNeg[i];
-      inputConfig[idx].calib.spanPos = calibSpanPos[i];
-      int ft = std::stoi(DataHelpers::getStringTagMappingTag(potTypesConversionTable, potConfig[i]));
-      if (ft > -1)
-        inputConfig[idx].flexType = (Board::FlexType)ft;
-    }
-  }
-
-  for (int i = 0; i < CPN_MAX_SLIDERS && i < Boards::getCapability(board, Board::Sliders); i++) {
-    int offset = 0;
-    if (IS_HORUS_X12S(board)) {
-      // 0 - 1  extra sliders eg L1 - L2 or S1 - S2
-      // 2 - 3  LS - RS
-      // hw json flips the pairs
-      if (i < 2)
-        offset = 2;
-      else
-        offset = -2;
-    }
-
-    int idx = Boards::getInputSliderIndex(i + offset + 1, board);
-
-    // qDebug() << "i:" << i << "idx:" << idx << "slider name:" << sliderName[i];
-
-    if (idx >= 0) {
-      inputConfig[idx].type = Board::AIT_FLEX;
-      YamlValidateName(sliderName[i], board);
-      strncpy(inputConfig[idx].name, sliderName[i], HARDWARE_NAME_LEN);
-      inputConfig[idx].calib.mid = calibMid[i];
-      inputConfig[idx].calib.spanNeg = calibSpanNeg[i];
-      inputConfig[idx].calib.spanPos = calibSpanPos[i];
-      int ft = std::stoi(DataHelpers::getStringTagMappingTag(sliderTypesConversionTable, sliderConfig[i]));
-      if (ft > -1)
-        inputConfig[idx].flexType = (Board::FlexType)ft;
-    }
-  }
-
-  for (int i = 0; i < CPN_MAX_SWITCHES && i < Boards::getCapability(board, Board::Switches); i++) {
-    switchConfig[i].type = (Board::SwitchType)swtchConfig[i];
-    YamlValidateName(swtchName[i], board);
-    strncpy(switchConfig[i].name, swtchName[i], HARDWARE_NAME_LEN);
-  }
-
-  return true;
-}
 
 void GeneralSettings::validateFlexSwitches()
 {
