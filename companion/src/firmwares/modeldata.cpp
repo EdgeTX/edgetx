@@ -1748,7 +1748,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupStartSwitchModel(int switchc
   mdl->setName(AIM_MODELDATA_FUNCSWITCHGROUPSTARTSWITCH);
 
   mdl->appendToItemList(tr("Restore"), 0);
-  for (unsigned int i = 1; i <= switchcnt; i += 1) {
+  for (int i = 1; i <= switchcnt; i += 1) {
     mdl->appendToItemList(tr("SW") + QString::number(i), i);
   }
   mdl->appendToItemList(tr("Off"), switchcnt + 1);
@@ -1857,7 +1857,7 @@ void ModelData::setFuncGroupSwitchStart(unsigned int group, unsigned int value, 
     if (getFuncSwitchGroup(i) == group)
       setFuncSwitchStart(i, value ? ModelData::FUNC_SWITCH_START_OFF : ModelData::FUNC_SWITCH_START_PREVIOUS);
   }
-  if (value > 0 && value <= switchcnt) {
+  if (value > 0 && value <= (unsigned int)switchcnt) {
     setFuncSwitchStart(value - 1, ModelData::FUNC_SWITCH_START_ON);
   }
 }
@@ -1873,7 +1873,7 @@ void ModelData::setGroupSwitchState(uint8_t group, int switchcnt)
         setFuncSwitchConfig(j, FUNC_SWITCH_CONFIG_2POS); // Toggle not valid
       }
     }
-    if (getFuncGroupSwitchStart(group, switchcnt) == switchcnt + 1) {
+    if (getFuncGroupSwitchStart(group, switchcnt) == (unsigned int)switchcnt + 1) {
       // Start state for all switches is off - set all to 'last'
       for (int j = 0; j < switchcnt; j += 1)
         if (getFuncSwitchGroup(j) == group)

@@ -629,7 +629,7 @@ const QString BoardJson::getTrimYamlName(int index, YamlLookupType ylt) const
 
 const bool BoardJson::isInputAvailable(int index) const
 {
-  return (index >=0 && index < m_inputs->size()) ? isInputAvailable(m_inputs->at(index)) : false;
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputAvailable(m_inputs->at(index)) : false;
 }
 
 // static
@@ -641,7 +641,7 @@ bool BoardJson::isInputAvailable(const InputDefn & defn)
 
 const bool BoardJson::isInputCalibrated(int index) const
 {
-  return (index >=0 && index < m_inputs->size()) ? isInputCalibrated(m_inputs->at(index)) : false;
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputCalibrated(m_inputs->at(index)) : false;
 }
 
 // static
@@ -652,7 +652,7 @@ bool BoardJson::isInputCalibrated(const InputDefn & defn)
 
 const bool BoardJson::isInputConfigurable(int index) const
 {
-  return (index >=0 && index < m_inputs->size()) ? isInputConfigurable(m_inputs->at(index)) : false;
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputConfigurable(m_inputs->at(index)) : false;
 }
 
 // static
@@ -663,7 +663,7 @@ bool BoardJson::isInputConfigurable(const InputDefn & defn)
 
 const bool BoardJson::isInputIgnored(int index) const
 {
-  return (index >=0 && index < m_inputs->size()) ? isInputIgnored(m_inputs->at(index)) : true;
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputIgnored(m_inputs->at(index)) : true;
 }
 
 // static
@@ -698,7 +698,7 @@ bool BoardJson::isInputFlexJoystickAxis(const InputDefn & defn)
 
 const bool BoardJson::isInputFlexPot(int index) const
 {
-  return (index >=0 && index < m_inputs->size()) ? isInputFlexPot(m_inputs->at(index)) : false;
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexPot(m_inputs->at(index)) : false;
 }
 
 // static
@@ -741,7 +741,7 @@ bool BoardJson::isInputRTCBat(const InputDefn & defn)
 
 const bool BoardJson::isInputStick(int index) const
 {
-  return (index >=0 && index < m_inputs->size()) ? isInputStick(m_inputs->at(index)) : false;
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputStick(m_inputs->at(index)) : false;
 }
 
 // static
@@ -752,7 +752,7 @@ bool BoardJson::isInputStick(const InputDefn & defn)
 
 const bool BoardJson::isInputSwitch(int index) const
 {
-  return (index >=0 && index < m_inputs->size()) ? isInputSwitch(m_inputs->at(index)) : false;
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputSwitch(m_inputs->at(index)) : false;
 }
 
 // static
@@ -792,7 +792,7 @@ bool BoardJson::isSwitchStd(const SwitchDefn & defn)
 
 const bool BoardJson::isSwitchFlex(int index) const
 {
-  return (index >=0 && index < m_switches->size()) ? isSwitchFlex(m_switches->at(index)) : false;
+  return (index >=0 && index < (int)m_switches->size()) ? isSwitchFlex(m_switches->at(index)) : false;
 }
 
 // static
@@ -806,7 +806,7 @@ bool BoardJson::isSwitchFlex(const SwitchDefn & defn)
 
 const bool BoardJson::isSwitchFunc(int index) const
 {
-  return (index >=0 && index < m_switches->size()) ? isSwitchFunc(m_switches->at(index)) : false;
+  return (index >=0 && index < (int)m_switches->size()) ? isSwitchFunc(m_switches->at(index)) : false;
 }
 
 // static
