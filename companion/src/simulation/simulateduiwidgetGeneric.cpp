@@ -84,7 +84,7 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   t1->start(100);
 
   //  workaround to delay changing until after parent has been initialised
-  QString css = "#radioUiWidget { background-color: " + QVariant(g.simuRadioBackground()).toString() + "; }";
+  QString css = "#radioUiWidget { background-color: " + QVariant(g.currentProfile().radioSimCaseColor()).toString() + "; }";
 
   QTimer * t2 = new QTimer(this);
   t2->setSingleShot(true);

@@ -79,7 +79,7 @@ class AppPreferencesDialog : public QDialog
     void on_joystickcalButton_clicked();
 #endif
 
-    void on_pbtnRadioColor_clicked();
+    void on_btnRadioColor_clicked();
 
   private:
     void initSettings();

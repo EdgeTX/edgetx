@@ -105,7 +105,6 @@ void AppPreferencesDialog::accept()
   g.backLight(ui->backLightColor->currentIndex());
   g.simuGenericKeysPos((AppData::SimuGenericKeysPos)ui->cboSimuGenericKeysPos->currentIndex());
   g.simuScrollButtons(ui->chkSimuScrollButtons->isChecked());
-  g.simuRadioBackground(ui->lblRadioColorSample->palette().button().color());
 
   g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
 
@@ -177,6 +176,7 @@ void AppPreferencesDialog::accept()
   profile.penableBackup(ui->pbackupEnable->isChecked());
   profile.splashFile(ui->SplashFileName->text());
   profile.runSDSync(ui->chkPromptSDSync->isChecked());
+  profile.radioSimCaseColor(ui->lblRadioColorSample->palette().button().color());
 
   // The profile name may NEVER be empty
   if (ui->profileNameLE->text().isEmpty())
@@ -232,10 +232,11 @@ void AppPreferencesDialog::on_snapshotPathButton_clicked()
   }
 }
 
-void AppPreferencesDialog::on_pbtnRadioColor_clicked()
+void AppPreferencesDialog::on_btnRadioColor_clicked()
 {
+  Profile & profile = g.currentProfile();
   QColorDialog *dlg = new QColorDialog(this);
-  QColor color = dlg->getColor(g.simuRadioBackground(), this);
+  QColor color = dlg->getColor(profile.radioSimCaseColor(), this);
   ui->lblRadioColorSample->setPalette(QPalette(color));
   ui->lblRadioColorSample->repaint();
 }
@@ -293,7 +294,6 @@ void AppPreferencesDialog::initSettings()
   ui->cboSimuGenericKeysPos->addItems(AppData::simuGenericKeysPosList());
   ui->cboSimuGenericKeysPos->setCurrentIndex(g.simuGenericKeysPos());
   ui->chkSimuScrollButtons->setChecked(g.simuScrollButtons());
-  ui->lblRadioColorSample->setPalette(QPalette(g.simuRadioBackground()));
   ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
 
 #if defined(JOYSTICKS)
@@ -369,6 +369,7 @@ void AppPreferencesDialog::initSettings()
   }
   ui->lblGeneralSettings->setText(hwSettings);
   ui->chkPromptSDSync->setChecked(profile.runSDSync());
+  ui->lblRadioColorSample->setPalette(QPalette(profile.radioSimCaseColor()));
 
   QString currType = QStringList(profile.fwType().split('-').mid(0, 2)).join('-');
   foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
