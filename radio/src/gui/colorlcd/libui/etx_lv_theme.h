@@ -189,6 +189,7 @@ class EdgeTxStyles
   static const lv_style_t rounded;
   static const lv_style_t circle;
   static const lv_style_t disabled;
+  static const lv_style_t qmdisabled;
   static const lv_style_t pressed;
   static const lv_style_t scrollbar;
   static const lv_style_t border;
