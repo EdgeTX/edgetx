@@ -885,7 +885,11 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SW5:
       case ITEM_MODEL_SETUP_SW6:
       {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
         int index = (k - ITEM_MODEL_SETUP_SW1) / 2;
+#else
+        int index = (k - ITEM_MODEL_SETUP_SW1);
+#endif
         lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
 
         // TODO: restore following line when switchGetName(index+switchGetMaxSwitches()) doesn't crash anymore
