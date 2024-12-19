@@ -29,7 +29,7 @@ class WidgetSettings : public BaseDialog
  public:
   WidgetSettings(Widget* widget);
 
-  static LAYOUT_VAL(SLIDER_W, 150, 120)
+  static LAYOUT_VAL(SLIDER_W, 150, 120, LS(150))
 
  protected:
   Widget* widget;

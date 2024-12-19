@@ -192,6 +192,7 @@ namespace Ui {
   class SimulatedUIWidgetEL18;
   class SimulatedUIWidgetPL18;
   class SimulatedUIWidgetV16;
+  class SimulatedUIWidget320x240;
 }
 
 class SimulatedUIWidgetGeneric: public SimulatedUIWidget
@@ -614,4 +615,16 @@ class SimulatedUIWidgetV16: public SimulatedUIWidget
 
   private:
     Ui::SimulatedUIWidgetV16 * ui;
+};
+
+class SimulatedUIWidget320x240: public SimulatedUIWidget
+{
+  Q_OBJECT
+
+  public:
+    explicit SimulatedUIWidget320x240(SimulatorInterface * simulator, QWidget * parent = nullptr);
+    virtual ~SimulatedUIWidget320x240();
+
+  private:
+    Ui::SimulatedUIWidget320x240 * ui;
 };
