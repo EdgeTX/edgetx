@@ -68,7 +68,7 @@ enum EnumKeys {
   KEY_SCROLL_DOWN
 };
 
-struct GenericKeyDefinition {
+struct RadioKeyDefinition {
   int index = 0;
   QChar side = 'L';
   int gridRow = 0;
@@ -76,12 +76,12 @@ struct GenericKeyDefinition {
   QString helpKeys = "";
   QString helpActions = "";
 
-  GenericKeyDefinition(int index, QChar side, int gridRow,
-                       QList<int> keys, QString helpKeys, QString helpActions) :
-                       index(index), side(side), gridRow(gridRow),
-                       keys(keys), helpKeys(helpKeys), helpActions(helpActions) {}
+  RadioKeyDefinition(int index, QChar side, int gridRow,
+                     QList<int> keys, QString helpKeys, QString helpActions) :
+                     index(index), side(side), gridRow(gridRow),
+                     keys(keys), helpKeys(helpKeys), helpActions(helpActions) {}
 
-  GenericKeyDefinition() = default;
+  RadioKeyDefinition() = default;
 };
 
 /*
@@ -152,10 +152,10 @@ class SimulatedUIWidget : public QWidget
 
     static int strKeyToInt(std::string key);
 
-    void addGenericPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
-                              ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid);
-    void addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons);
+    void addPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
+                       ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid);
+    void addPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons);
     void addScrollActions();
     void addMouseActions();
-    const GenericKeyDefinition * getGenericKeyDefinition(const int key) const;
+    const RadioKeyDefinition * getRadioKeyDefinition(const int key) const;
 };

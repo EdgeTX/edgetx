@@ -260,7 +260,7 @@ int SimulatedUIWidget::strKeyToInt(std::string key)
 }
 
 //  Notes: unused rows will be hidden and squashed
-static const QList<GenericKeyDefinition> genericKeyDefinitions = {
+static const QList<RadioKeyDefinition> radioKeyDefinitions = {
   { KEY_SYS,    'L', 0, QList<int>()      << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
 
   { KEY_MODEL,  'R', 0, QList<int>()      << Qt::Key_Up,        SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
@@ -314,11 +314,11 @@ void SimulatedUIWidget::addScrollActions()
   if (g.simuScrollButtons())
     return;
 
-  const GenericKeyDefinition *updefn = getGenericKeyDefinition(KEY_SCROLL_UP);
+  const RadioKeyDefinition *updefn = getRadioKeyDefinition(KEY_SCROLL_UP);
   if (updefn)
     m_scrollUpAction = new RadioUiAction(-2, updefn->keys, updefn->helpKeys, updefn->helpActions);
 
-  const GenericKeyDefinition *downdefn = getGenericKeyDefinition(KEY_SCROLL_DOWN);
+  const RadioKeyDefinition *downdefn = getRadioKeyDefinition(KEY_SCROLL_DOWN);
   if (downdefn)
     m_scrollDnAction = new RadioUiAction(-3, downdefn->keys, downdefn->helpKeys, downdefn->helpActions);
 
@@ -327,12 +327,12 @@ void SimulatedUIWidget::addScrollActions()
 
 void SimulatedUIWidget::addMouseActions()
 {
-  const GenericKeyDefinition *defn = getGenericKeyDefinition(KEY_ENTER);
+  const RadioKeyDefinition *defn = getRadioKeyDefinition(KEY_ENTER);
   if (defn)
     m_mouseMidClickAction = new RadioUiAction(defn->index, defn->keys, defn->helpKeys, defn->helpActions);
 }
 
-void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
+void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidget * rightButtons)
 {
   QGridLayout * gridLeft = new QGridLayout((QWidget *)leftButtons);
   QGridLayout * leftButtonsGrid = new QGridLayout((QWidget *)gridLeft);
@@ -397,23 +397,23 @@ void SimulatedUIWidget::addGenericPushButtons(ButtonsWidget * leftButtons, Butto
     int idx = strKeyToInt(info.key);
     //qDebug() << "key:" << info.key.c_str() << info.name.c_str() << info.label.c_str() << idx;
     if (idx >= 0)
-      addGenericPushButton(idx, info.label.c_str(), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+      addPushButton(idx, info.label.c_str(), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
     else
       qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
   }
 
   if (g.simuScrollButtons()) {
-      addGenericPushButton(KEY_SCROLL_UP, tr("Scrl Up"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
-      addGenericPushButton(KEY_SCROLL_DOWN, tr("Scrl Dn"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+      addPushButton(KEY_SCROLL_UP, tr("Scrl Up"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
+      addPushButton(KEY_SCROLL_DOWN, tr("Scrl Dn"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       connectScrollActions();
   }
 }
 
-void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
-                                             ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid)
+void SimulatedUIWidget::addPushButton(int index, QString label, ButtonsWidget * leftButtons, QGridLayout * leftButtonsGrid,
+                                      ButtonsWidget * rightButtons, QGridLayout * rightButtonsGrid)
 {
-  for (int i = 0; i < genericKeyDefinitions.size(); i++) {
-    const GenericKeyDefinition defn = genericKeyDefinitions.at(i);
+  for (int i = 0; i < radioKeyDefinitions.size(); i++) {
+    const RadioKeyDefinition defn = radioKeyDefinitions.at(i);
 
     if (defn.index == index) {
       QPushButton * b = new QPushButton(label);
@@ -460,12 +460,12 @@ void SimulatedUIWidget::addGenericPushButton(int index, QString label, ButtonsWi
   }
 }
 
-const GenericKeyDefinition * SimulatedUIWidget::getGenericKeyDefinition(const int key) const
+const RadioKeyDefinition * SimulatedUIWidget::getRadioKeyDefinition(const int key) const
 {
-  for (int i = 0; i < genericKeyDefinitions.size(); i++) {
-    const GenericKeyDefinition defn = genericKeyDefinitions.at(i);
+  for (int i = 0; i < radioKeyDefinitions.size(); i++) {
+    const RadioKeyDefinition defn = radioKeyDefinitions.at(i);
     if (defn.index == key)
-      return &genericKeyDefinitions.at(i);
+      return &radioKeyDefinitions.at(i);
   }
 
   qDebug() << "Unknown key:" << key;

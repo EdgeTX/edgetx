@@ -60,7 +60,7 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   ui->lcd->setFixedSize(lcdWidth, lcdHeight);
   //  end TODO
 
-  addGenericPushButtons(ui->leftbuttons, ui->rightbuttons);
+  addPushButtons(ui->leftbuttons, ui->rightbuttons);
   addScrollActions();
 
   int widgetHeight = lcdHeight;
