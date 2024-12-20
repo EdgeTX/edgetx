@@ -21,6 +21,7 @@ set(${PROJECT_NAME}_NAMES
   widgets/virtualjoystickwidget
   serialportsdialog
   hostserialconnector
+  simulateduiwidgetGeneric
 )
 
 if(SDL2_FOUND)
@@ -32,11 +33,6 @@ if(SDL2_FOUND)
 endif()
 
 AddHeadersSources()
-
-set(${PROJECT_NAME}_SRCS
-  ${${PROJECT_NAME}_SRCS}
-  simulateduiwidgetGeneric.cpp
-)
 
 set(${PROJECT_NAME}_HDRS
   ${${PROJECT_NAME}_HDRS}

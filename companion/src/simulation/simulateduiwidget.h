@@ -159,24 +159,3 @@ class SimulatedUIWidget : public QWidget
     void addMouseActions();
     const GenericKeyDefinition * getGenericKeyDefinition(const int key) const;
 };
-
-
-// Each subclass is responsible for its own Ui
-namespace Ui {
-  class SimulatedUIWidgetGeneric;
-}
-
-class SimulatedUIWidgetGeneric: public SimulatedUIWidget
-{
-  Q_OBJECT
-
-  public:
-    explicit SimulatedUIWidgetGeneric(SimulatorInterface * simulator, QWidget * parent = nullptr);
-    virtual ~SimulatedUIWidgetGeneric();
-
-  public slots:
-    virtual void shrink();
-
-  private:
-    Ui::SimulatedUIWidgetGeneric * ui;
-};
