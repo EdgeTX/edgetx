@@ -332,6 +332,17 @@
     <file>images/simulator/TX16S/left_tele.png</file>
     <file>images/simulator/TX16S/right_ent.png</file>
     <file>images/simulator/TX16S/right_mdl.png</file>
+    <file>images/simulator/320x240/left.png</file>
+    <file>images/simulator/320x240/right.png</file>
+    <file>images/simulator/320x240/top.png</file>
+    <file>images/simulator/320x240/bottom.png</file>
+    <file>images/simulator/320x240/left_page.png</file>
+    <file>images/simulator/320x240/left_page2.png</file>
+    <file>images/simulator/320x240/left_rtn.png</file>
+    <file>images/simulator/320x240/left_sys.png</file>
+    <file>images/simulator/320x240/left_tele.png</file>
+    <file>images/simulator/320x240/right_ent.png</file>
+    <file>images/simulator/320x240/right_mdl.png</file>
     <file>images/simulator/NV14/top.png</file>
     <file>images/simulator/NV14/bottom.png</file>
     <file>images/simulator/NV14/lhs.png</file>

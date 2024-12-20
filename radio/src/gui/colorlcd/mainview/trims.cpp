@@ -31,6 +31,19 @@ class TrimIcon : public SliderIcon
  public:
   TrimIcon(Window* parent, bool isVertical) : SliderIcon(parent)
   {
+#if LANDSCAPE_LCD_SMALL
+    if (isVertical) {
+      barPoints[0] = {2, 3};
+      barPoints[1] = {9, 3};
+      barPoints[2] = {2, 7};
+      barPoints[3] = {9, 7};
+    } else {
+      barPoints[0] = {7, 2};
+      barPoints[1] = {7, 9};
+      barPoints[2] = {3, 2};
+      barPoints[3] = {3, 9};
+    }
+#else
     if (isVertical) {
       barPoints[0] = {3, 4};
       barPoints[1] = {12, 4};
@@ -42,6 +55,7 @@ class TrimIcon : public SliderIcon
       barPoints[2] = {4, 3};
       barPoints[3] = {4, 12};
     }
+#endif
 
     bar1 = lv_line_create(lvobj);
     etx_obj_add_style(bar1, styles->div_line_white, LV_PART_MAIN);

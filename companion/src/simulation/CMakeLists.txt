@@ -69,6 +69,7 @@ set(${PROJECT_NAME}_SRCS
   simulateduiwidgetX9LITE.cpp
   simulateduiwidgetXLITE.cpp
   simulateduiwidgetZorro.cpp
+  simulateduiwidget320x240.cpp
 )
 
 set(${PROJECT_NAME}_HDRS
