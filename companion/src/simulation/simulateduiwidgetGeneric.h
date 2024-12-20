@@ -23,6 +23,9 @@
 
 #include "simulateduiwidget.h"
 
+//  This class could be merged into the base class however in the future there maybe a requirement
+//  for another generic or specialised simulator ui so keep the separation
+
 namespace Ui {
   class SimulatedUIWidgetGeneric;
 }
