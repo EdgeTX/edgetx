@@ -26,33 +26,6 @@
 #include "tasks/mixer_task.h"
 #include "mixer_scheduler.h"
 
-class StatisticsViewPage : public PageTab
-{
- public:
-  StatisticsViewPage() :
-      PageTab(STR_STATISTICS, ICON_STATS_THROTTLE_GRAPH, PAD_ZERO)
-  {
-  }
-
- protected:
-  void build(Window* window) override;
-};
-
-class DebugViewPage : public PageTab
-{
- public:
-  DebugViewPage() : PageTab(STR_DEBUG, ICON_STATS_DEBUG, PAD_ZERO) {}
-
- protected:
-  void build(Window* window) override;
-};
-
-class DebugViewMenu : public TabsGroup
-{
- public:
-  DebugViewMenu();
-};
-
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
@@ -103,12 +76,6 @@ class DebugInfoNumber : public Window
                                 numberHandler);
   }
 };
-
-StatisticsViewPageGroup::StatisticsViewPageGroup() : TabsGroup(ICON_STATS)
-{
-  addTab(new StatisticsViewPage());
-  addTab(new DebugViewPage());
-}
 
 class ThrottleCurveWindow : public Window
 {

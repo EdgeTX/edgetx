@@ -65,6 +65,15 @@ class ButtonBase : public FormField
   std::function<void(void)> checkHandler;
 };
 
+class OverlayButton : public ButtonBase
+{
+ public:
+  OverlayButton(Window* parent, std::function<uint8_t(void)> pressHandler = nullptr) :
+      ButtonBase(parent, {0, 0, LV_PCT(100), LV_PCT(100)}, pressHandler, window_create)
+  {
+  }
+};
+
 class Button : public ButtonBase
 {
  public:
