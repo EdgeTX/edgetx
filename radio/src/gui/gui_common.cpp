@@ -1107,8 +1107,8 @@ bool isTrainerModeAvailable(int mode)
     return false;
 #else
     if ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
-         (!isModuleCrossfire(INTERNAL_MODULE) &&
-          !isModuleCrossfire(EXTERNAL_MODULE)))
+         (!(isModuleELRS(INTERNAL_MODULE) && CRSF_ELRS_MIN_VER(INTERNAL_MODULE, 4, 0)) &&
+          !(isModuleELRS(EXTERNAL_MODULE) && CRSF_ELRS_MIN_VER(EXTERNAL_MODULE, 4, 0))))
       return false;
 #endif
   }
