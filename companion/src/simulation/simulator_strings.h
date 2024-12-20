@@ -40,8 +40,8 @@
 #define SIMU_STR_HLP_KEY_PLS           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>+</font>")
 #define SIMU_STR_HLP_KEY_MIN           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>-</font>")
 #define SIMU_STR_HLP_KEY_EQL           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>=</font>")
-#define SIMU_STR_HLP_KEY_GT            QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&gt</font>")
-#define SIMU_STR_HLP_KEY_LT            QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&lt</font>")
+#define SIMU_STR_HLP_KEY_GT            QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&gt;</font>")
+#define SIMU_STR_HLP_KEY_LT            QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&lt;</font>")
 
 #define SIMU_STR_HLP_KEY_LFT           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&larr;</font>")  // ←
 #define SIMU_STR_HLP_KEY_RGT           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>&rarr;</font>")  // →
