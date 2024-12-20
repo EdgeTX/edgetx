@@ -37,6 +37,7 @@
 #include "joystick.h"
 #include "joystickdialog.h"
 #endif
+#include "simulateduiwidgetGeneric.h"
 
 #include <AppDebugMessageHandler>
 #include <QFile>

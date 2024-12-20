@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "simulateduiwidget.h"
+#include "simulateduiwidgetGeneric.h"
 #include "ui_simulateduiwidgetGeneric.h"
 #include "eeprominterface.h"
 
