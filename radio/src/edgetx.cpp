@@ -1881,7 +1881,12 @@ uint32_t availableMemory()
 
   struct mallinfo info = mallinfo();
 
+#if defined(USE_BIN_ALLOCATOR)
+  extern int bin_avail();
+  return ((uint32_t)((unsigned char *)&_heap_end - heap)) + info.fordblks + bin_avail();
+#else
   return ((uint32_t)((unsigned char *)&_heap_end - heap)) + info.fordblks;
+#endif
 #endif
 }
 
