@@ -59,6 +59,8 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
 
   windowName = tr("Radio Simulator (%1)").arg(firmware->getName());
   setWindowTitle(windowName);
+
+  //  add extra radio simulator uis here where the generic one does not satisfy
   radioUiWidget = new SimulatedUIWidgetGeneric(simulator, this);
 
   foreach (keymapHelp_t item, radioUiWidget->getKeymapHelp())
