@@ -23,21 +23,19 @@
 
 #include "hal/serial_port.h"
  
-#define HALLSTICK_BUFF_SIZE             ( 512 )
-#define FLYSKY_HALL_BAUDRATE            ( 921600 )
-#define FLYSKY_HALL_CHANNEL_COUNT       ( 4 )
+#define SERIAL_GIMBAL_BUFFER_SIZE       ( 512 )
+#define SERIAL_GIMBAL_BAUDRATE          ( 921600 )
+#define SERIAL_GIMBAL_CHANNEL_COUNT     ( 4 )
 
-// This value has been chosen arbitrarily to allow
-// for 13-bit precision.
-//
-// Note: Flysky gimbals provide signed 16-bit values, whereby
+// Note: Serial gimbals provide signed 16-bit values, whereby
 //       ADC sampling uses unsigned 16-bit values.
 //
-#define FLYSKY_OFFSET_VALUE             ( 1 << 12 )
+#define SERIAL_GIMBAL_OFFSET_VALUE      ( 1 << 12 )
 
-#define FLYSKY_HALL_PROTOLO_HEAD        0x55
-#define FLYSKY_HALL_RESP_TYPE_VALUES    0x0c
+#define SERIAL_GIMBAL_PROTOLO_HEAD      0x55
+#define SERIAL_GIMBAL_RESP_TYPE_VALUES  0x0c
 
+/*
 typedef  struct
 {
   signed short channel[4];
@@ -53,35 +51,36 @@ typedef  struct
   unsigned char packetID:4;
   unsigned char length;
   STRUCT_CHANNEL_PACK payload;
-} STRUCT_HALLDATA;
+} STRUCT_SERIAL_GIMBAL_DATA;
+*/
 
 typedef  struct
 {
   unsigned char senderID:2;
   unsigned char receiverID:2;
   unsigned char packetID:4;
-} STRUCT_HALLID;
+} STRUCT_SERIAL_GIMBAL_ID;
 
 typedef union
 {
-  STRUCT_HALLID hall_Id;
+  STRUCT_SERIAL_GIMBAL_ID sg_Id;
   unsigned char ID;
 } STRUCT_ID;
 
 
-typedef union
+/*typedef union
 {
-  STRUCT_HALLDATA halldat;
+  STRUCT_SERIAL_GIMBAL_DATA halldat;
   unsigned char buffer[30];
 } UNION_HALLDATA;
-
+*/
 
 typedef  struct
 {
   unsigned char head;
-  STRUCT_ID hallID;
+  STRUCT_ID serGimbalID;
   unsigned char length;
-  unsigned char data[HALLSTICK_BUFF_SIZE];
+  unsigned char data[SERIAL_GIMBAL_BUFFER_SIZE];
   unsigned char reserved[15];
   unsigned short checkSum;
   unsigned char stickState;
@@ -94,7 +93,7 @@ typedef  struct
   unsigned char status;
   unsigned char recevied;
   unsigned char msg_OK;
-} STRUCT_HALL;
+} STRUCT_SERIAL_GIMBAL;
 
 enum
 {
@@ -122,11 +121,11 @@ enum TRANSFER_DIR_E {
   TRANSFER_DIR_RFMODULE,
 };
 
-extern signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
-extern unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
+//extern signed short hall_raw_values[SERIAL_GIMBAL_CHANNEL_COUNT];
+//extern unsigned short hall_adc_values[SERIAL_GIMBAL_CHANNEL_COUNT];
 
 // returns true if the gimbals were detected properly
-bool flysky_gimbal_init();
+bool serial_gimbal_init();
 
-void flysky_gimbal_deinit();
-const etx_serial_port_t* flysky_gimbal_get_port();
+void serial_gimbal_deinit();
+const etx_serial_port_t* serial_gimbal_get_port();
