@@ -326,7 +326,9 @@ void TableField::deleteLater(bool detach, bool trash)
   if (!deleted())
     if (autoedit) {
       lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-      lv_group_set_focus_cb(g, nullptr);
-      lv_group_set_editing(g, false);
+      if (g) {
+        lv_group_set_focus_cb(g, nullptr);
+        lv_group_set_editing(g, false);
+      }
     }
 }
