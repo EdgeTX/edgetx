@@ -211,6 +211,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serial"
 #define TR_VTRAINER_BLUETOOTH          "Master/" TR("BT","Bluetooth"), "Slave/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_CRSF               "Master/CRSF"
 #define TR_VFAILSAFE                   "Niet Gezet","Vasthouden","Custom","Geen Pulsen","Ontvanger"
 #define TR_VSENSORTYPES                "Custom","Berekend"
 #define TR_VFORMULAS                   "Optellen","Gemiddeld","Min","Max","Vermenigvuld","Totaal","Cellen","Verbruik","Afstand"

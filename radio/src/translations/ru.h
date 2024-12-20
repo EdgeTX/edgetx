@@ -216,6 +216,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Мастер/Серийный"
 #define TR_VTRAINER_BLUETOOTH          "Мастер/" TR("BT","Bluetooth"), "Раб/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Мастер/Мульти"
+#define TR_VTRAINER_CRSF               "Мастер/CRSF"
 #define TR_VFAILSAFE                   "Не устан","Удерж","Настр","Нет импул","Прием"
 #define TR_VSENSORTYPES                "Настроен","Рассчитан"
 #define TR_VFORMULAS                   "Добав","Средн","Мин","Макс","Умнож","Суммир","Ячейка","Расх","Дист"

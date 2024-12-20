@@ -213,6 +213,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "マスター/シリアル"
 #define TR_VTRAINER_BLUETOOTH          "マスター/" TR("BT","Bluetooth"), "スレーブ/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "マスター/Multi"
+#define TR_VTRAINER_CRSF               "マスター/CRSF"
 #define TR_VFAILSAFE                   "設定なし","ホールド","カスタム","信号なし","受信機"
 #define TR_VSENSORTYPES                "カスタム","演算"
 #define TR_VFORMULAS                   "加算値","平均値","最小値","最大値","乗算値","合計値","セル","消費量","距離"

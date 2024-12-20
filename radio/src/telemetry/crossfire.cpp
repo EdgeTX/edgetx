@@ -22,8 +22,14 @@
 #include "crossfire.h"
 #include "edgetx.h"
 
+#include "trainer.h"
+
 // clang-format off
 #define CS(id,subId,name,unit,precision) {id,subId,unit,precision,name}
+
+#define CROSSFIRE_CH_BITS           11
+#define CROSSFIRE_CH_MASK           ((1 << CROSSFIRE_CH_BITS) - 1)
+#define CROSSFIRE_CH_CENTER         0x3E0
 
 const CrossfireSensor crossfireSensors[] = {
   CS(LINK_ID,        0, STR_SENSOR_RX_RSSI1,      UNIT_DB,                0),
@@ -191,6 +197,27 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
             }
           }
         }
+      }
+      break;
+
+    case CHANNELS_ID:
+      if (g_model.trainerData.mode == TRAINER_MODE_CRSF) {
+        uint8_t inputbitsavailable = 0;
+        uint32_t inputbits = 0;
+        uint8_t  byteIdx = 3;
+        int16_t *pulses = trainerInput;
+
+        for (int i = 0; i < min(CROSSFIRE_CHANNELS_COUNT, MAX_TRAINER_CHANNELS); i++) {
+          while (inputbitsavailable < CROSSFIRE_CH_BITS) {
+            inputbits |= (uint32_t)(rxBuffer[byteIdx++]) << inputbitsavailable;
+            inputbitsavailable += 8;
+          }
+          *pulses++ = ((int32_t)(inputbits & CROSSFIRE_CH_MASK) - CROSSFIRE_CH_CENTER) * 5 / 8;
+          inputbitsavailable -= CROSSFIRE_CH_BITS;
+          inputbits >>= CROSSFIRE_CH_BITS;
+        }
+
+        trainerResetTimer();
       }
       break;
 

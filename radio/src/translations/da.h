@@ -217,6 +217,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Træner/Seriel"
 #define TR_VTRAINER_BLUETOOTH          "Træner/" TR("BT","Bluetooth"), "Elev/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Træner/Multi"
+#define TR_VTRAINER_CRSF               "Træner/CRSF"
 #define TR_VFAILSAFE                   "Ikke sat","Hold","Tilpasset","Ingen puls","Modtager"
 #define TR_VSENSORTYPES                "Tilpasset","Beregnet"
 #define TR_VFORMULAS                   "Tillæg","Gennems.","Min","Max","Gange","Sum","Cell","Forbrug","Afstand"

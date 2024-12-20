@@ -211,6 +211,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "教练主机/串口"
 #define TR_VTRAINER_BLUETOOTH          "教练主机/蓝牙","教练从机/蓝牙"
 #define TR_VTRAINER_MULTI              "教练主机/多协议"
+#define TR_VTRAINER_CRSF               "教练主机/CRSF"
 #define TR_VFAILSAFE                   "未设置","失控保持","自定义","无脉冲","接收机"
 #define TR_VSENSORTYPES                "自定义","运算"
 #define TR_VFORMULAS                   "加","平均值","最小值","最大值","乘","总计值","单节电池","消耗量","距离"
