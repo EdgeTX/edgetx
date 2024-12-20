@@ -339,7 +339,7 @@ ui(new Ui::GeneralSetup)
     ui->stickReverse4->hide();
   }
 
-  if (IS_TARANIS_PLUS(board)) {
+  if (Boards::getCapability(board, Board::HasBacklightColor)) {
     ui->backlightColor_SL->setValue(generalSettings.backlightColor);
   }
   else {

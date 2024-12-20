@@ -37,6 +37,7 @@
 #include "joystick.h"
 #include "joystickdialog.h"
 #endif
+#include "simulateduiwidgetGeneric.h"
 
 #include <AppDebugMessageHandler>
 #include <QFile>
@@ -59,122 +60,9 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
   windowName = tr("Radio Simulator (%1)").arg(firmware->getName());
   setWindowTitle(windowName);
 
-  switch(m_board) {
-    case Board::BOARD_TARANIS_X9LITE:
-    case Board::BOARD_TARANIS_X9LITES:
-      radioUiWidget = new SimulatedUIWidgetX9LITE(simulator, this);
-      break;
-    case Board::BOARD_TARANIS_X7:
-    case Board::BOARD_TARANIS_X7_ACCESS:
-      radioUiWidget = new SimulatedUIWidgetX7(simulator, this);
-      break;
-    case Board::BOARD_TARANIS_X9D:
-    case Board::BOARD_TARANIS_X9DP:
-      radioUiWidget = new SimulatedUIWidgetX9(simulator, this);
-      break;
-    case Board::BOARD_TARANIS_X9DP_2019:
-      radioUiWidget = new SimulatedUIWidgetX9D2019(simulator, this);
-      break;
-    case Board::BOARD_TARANIS_XLITE:
-    case Board::BOARD_TARANIS_XLITES:
-      radioUiWidget = new SimulatedUIWidgetXLITE(simulator, this);
-      break;
-    case Board::BOARD_TARANIS_X9E:
-      radioUiWidget = new SimulatedUIWidgetX9E(simulator, this);
-      break;
-    case Board::BOARD_HORUS_X12S:
-      radioUiWidget = new SimulatedUIWidgetX12(simulator, this);
-      break;
-    case Board::BOARD_X10:
-    case Board::BOARD_X10_EXPRESS:
-      radioUiWidget = new SimulatedUIWidgetX10(simulator, this);
-      break;
-    case Board::BOARD_BETAFPV_LR3PRO:
-      radioUiWidget = new SimulatedUIWidgetLR3PRO(simulator, this);
-      break;
-    case Board::BOARD_IFLIGHT_COMMANDO8:
-      radioUiWidget = new SimulatedUIWidgetCommando8(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_T12:
-      radioUiWidget = new SimulatedUIWidgetJumperT12(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_TLITE:
-    case Board::BOARD_JUMPER_TLITE_F4:
-      radioUiWidget = new SimulatedUIWidgetJumperTLITE(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_TPRO:
-    case Board::BOARD_JUMPER_TPROV2:
-      radioUiWidget = new SimulatedUIWidgetJumperTPRO(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_TPROS:
-      radioUiWidget = new SimulatedUIWidgetJumperTPROS(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_BUMBLEBEE:
-      radioUiWidget = new SimulatedUIWidgetJumperBumblebee(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_T12MAX:
-      radioUiWidget = new SimulatedUIWidgetJumperT12max(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_T14:
-      radioUiWidget = new SimulatedUIWidgetJumperT14(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_T15:
-      radioUiWidget = new SimulatedUIWidgetJumperT15(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_T16:
-      radioUiWidget = new SimulatedUIWidgetJumperT16(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_T18:
-      radioUiWidget = new SimulatedUIWidgetJumperT18(simulator, this);
-      break;
-    case Board::BOARD_JUMPER_T20:
-    case Board::BOARD_JUMPER_T20V2:
-      radioUiWidget = new SimulatedUIWidgetJumperT20(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_TX12:
-    case Board::BOARD_RADIOMASTER_TX12_MK2:
-      radioUiWidget = new SimulatedUIWidgetTX12(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_ZORRO:
-      radioUiWidget = new SimulatedUIWidgetZorro(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_BOXER:
-      radioUiWidget = new SimulatedUIWidgetBoxer(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_MT12:
-      radioUiWidget = new SimulatedUIWidgetMT12(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_GX12:
-      radioUiWidget = new SimulatedUIWidgetGeneric(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_T8:
-      radioUiWidget = new SimulatedUIWidgetT8(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_TX16S:
-      radioUiWidget = new SimulatedUIWidgetTX16S(simulator, this);
-      break;
-    case Board::BOARD_RADIOMASTER_POCKET:
-      radioUiWidget = new SimulatedUIWidgetPocket(simulator, this);
-      break;
-    case Board::BOARD_FATFISH_F16:
-      radioUiWidget = new SimulatedUIWidgetFatfishF16(simulator, this);
-      break;
-    case Board::BOARD_FLYSKY_NV14:
-      radioUiWidget = new SimulatedUIWidgetNV14(simulator, this);
-      break;
-    case Board::BOARD_FLYSKY_EL18:
-      radioUiWidget = new SimulatedUIWidgetEL18(simulator, this);
-      break;
-    case Board::BOARD_FLYSKY_PL18:
-      radioUiWidget = new SimulatedUIWidgetPL18(simulator, this);
-      break;
-    case Board::BOARD_HELLORADIOSKY_V16:
-      radioUiWidget = new SimulatedUIWidgetV16(simulator, this);
-      break;
-    default:
-      radioUiWidget = new SimulatedUIWidget9X(simulator, this);
-      break;
-  }
+  //  add extra radio simulator uis here where the generic one does not satisfy
+
+  radioUiWidget = new SimulatedUIWidgetGeneric(simulator, this);
 
   foreach (keymapHelp_t item, radioUiWidget->getKeymapHelp())
     keymapHelp.append(item);
@@ -187,11 +75,14 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
 
   connect(radioUiWidget, &SimulatedUIWidget::controlValueChange, this, &SimulatorWidget::onRadioWidgetValueChange);
   connect(radioUiWidget, &SimulatedUIWidget::customStyleRequest, this, &SimulatorWidget::setUiAreaStyle);
+  connect(radioUiWidget, &SimulatedUIWidget::resizeRequest, radioUiWidget, &SimulatedUIWidget::shrink);
 
-  vJoyLeft = new VirtualJoystickWidget(this, 'L');
+  vJoyLeft = new VirtualJoystickWidget(this, 'L', Boards::getCapability(m_board, Board::Surface) ? false : true);
   ui->leftStickLayout->addWidget(vJoyLeft);
 
-  vJoyRight = new VirtualJoystickWidget(this, 'R', (m_board == Board::BOARD_TARANIS_XLITE || m_board == Board::BOARD_TARANIS_XLITES ? false : true));  // TODO: maybe remove trims for both joysticks and add a cross in the middle?
+  vJoyRight = new VirtualJoystickWidget(this, 'R', (Boards::getCapability(m_board, Board::Surface) ||
+                                                    m_board == Board::BOARD_TARANIS_XLITE ||
+                                                    m_board == Board::BOARD_TARANIS_XLITES ? false : true));  // TODO: maybe remove trims for both joysticks and add a cross in the middle?
   ui->rightStickLayout->addWidget(vJoyRight);
 
   connect(vJoyLeft, &VirtualJoystickWidget::valueChange, this, &SimulatorWidget::onRadioWidgetValueChange);
@@ -614,7 +505,8 @@ void SimulatorWidget::setupRadioWidgets()
   const int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
   const int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
   const int ttlInputs = Boards::getCapability(m_board, Board::Inputs);
-  const int extraTrims = Boards::getCapability(m_board, Board::NumTrims) - ttlSticks;
+  const int stickTrims = Boards::getCapability(m_board, Board::Air) ? ttlSticks : 0;
+  const int extraTrims = Boards::getCapability(m_board, Board::NumTrims) - stickTrims;
 
   // First clear out any existing widgets.
   foreach (RadioWidget * rw, m_radioWidgets) {
@@ -683,17 +575,16 @@ void SimulatorWidget::setupRadioWidgets()
 
   // extra trims around faders
   int tc = 0;
-  int tridx = ttlSticks;
+  int tridx = stickTrims;
   for (i = 0; i < extraTrims; i += 1, tridx += 1) {
-    wname = RawSource(RawSourceType::SOURCE_TYPE_TRIM, tridx + 1).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
-    wname = wname.left(1) % wname.right(1);
+    wname = QString("T%1").arg(stickTrims + i + 1);
     RadioTrimWidget * tw = new RadioTrimWidget(Qt::Vertical, ui->radioWidgetsVC);
     tw->setIndices(tridx, tridx * 2, tridx * 2 + 1);
     tw->setLabelText(wname);
     if (i == extraTrims / 2)
-      tc += (fc + extraTrims / 2 - 1);
+      tc = (fc + i - 1);
     ui->VCGridLayout->addWidget(tw, 0, tc, 1, 1);
-    tc += (i >= extraTrims / 2) ? -1 : 1;
+    tc++;
 
     connect(simulator, &SimulatorInterface::trimValueChange, tw, &RadioTrimWidget::setTrimValue);
     connect(simulator, &SimulatorInterface::trimRangeChange, tw, &RadioTrimWidget::setTrimRangeQual);

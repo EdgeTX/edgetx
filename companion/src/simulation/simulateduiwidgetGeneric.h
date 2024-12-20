@@ -22,27 +22,25 @@
 #pragma once
 
 #include "simulateduiwidget.h"
-#include "ui_simulateduiwidgetGeneric.h"
 
-/*
-    Note: This class is not expected to be instantiated directly but as the base for each firmware that uses it
-          due to the methods and functions surrounding the building and loading of radio simulators
-*/
+//  This class could be merged into the base class however in the future there maybe a requirement
+//  for another generic or specialised simulator ui so keep the separation
 
-SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator, QWidget * parent):
-  SimulatedUIWidget(simulator, parent),
-  ui(new Ui::SimulatedUIWidgetGeneric)
-{
-  ui->setupUi(this);
-
-  addGenericPushButtons(ui->leftbuttons, ui->rightbuttons);
-
-  addScrollActions();
-
-  setLcd(ui->lcd);
+namespace Ui {
+  class SimulatedUIWidgetGeneric;
 }
 
-SimulatedUIWidgetGeneric::~SimulatedUIWidgetGeneric()
+class SimulatedUIWidgetGeneric: public SimulatedUIWidget
 {
-  delete ui;
-}
+  Q_OBJECT
+
+  public:
+    explicit SimulatedUIWidgetGeneric(SimulatorInterface * simulator, QWidget * parent = nullptr);
+    virtual ~SimulatedUIWidgetGeneric();
+
+  public slots:
+    virtual void shrink();
+
+  private:
+    Ui::SimulatedUIWidgetGeneric * ui;
+};
