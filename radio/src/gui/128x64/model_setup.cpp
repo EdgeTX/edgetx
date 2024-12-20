@@ -379,7 +379,7 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 #define EXTRA_MODULE_ROWS
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-#define FUNCTION_SWITCHES_ROWS        1,                       \
+  #define FUNCTION_SWITCHES_ROWS        0, \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
                                         FS_ROW(1), \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
@@ -402,7 +402,7 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
                                         FS_ROW(G3_ROW(0)),  \
                                         FS_ROW(G3_ROW(0)),
 #elif defined(FUNCTION_SWITCHES)
-  #define FUNCTION_SWITCHES_ROWS        1,                       \
+  #define FUNCTION_SWITCHES_ROWS        0, \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
                                         FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
