@@ -261,52 +261,41 @@ int SimulatedUIWidget::strKeyToInt(std::string key)
 
 //  Notes: unused rows will be hidden and squashed
 static const QList<RadioKeyDefinition> radioKeyDefinitions = {
-  { KEY_SYS,    'L', 0, QList<int>()      << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_SYS },
+  { KEY_SYS,    'L', 0, QList<int>()      << Qt::Key_S,         SIMU_STR_HLP_KEY_S, SIMU_STR_HLP_ACT_SYS },
 
-  { KEY_MODEL,  'R', 0, QList<int>()      << Qt::Key_Up,        SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_MDL },
+  { KEY_MODEL,  'R', 0, QList<int>()      << Qt::Key_M,         SIMU_STR_HLP_KEY_M, SIMU_STR_HLP_ACT_MDL },
 
   { KEY_PAGEUP, 'L', 1, QList<int>()      << Qt::Key_PageUp,    SIMU_STR_HLP_KEY_PGUP, SIMU_STR_HLP_ACT_PGUP },
 
   { KEY_PAGEDN, 'R', 1, QList<int>()      << Qt::Key_PageDown,  SIMU_STR_HLP_KEY_PGDN, SIMU_STR_HLP_ACT_PGDN },
 
-  { KEY_UP,     'L', 2, QList<int>()      << Qt::Key_Up
-                                          << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_UP },
+  { KEY_UP,     'L', 2, QList<int>()      << Qt::Key_Up,        SIMU_STR_HLP_KEY_UP, SIMU_STR_HLP_ACT_UP },
 
-  { KEY_DOWN,   'R', 2, QList<int>()      << Qt::Key_Down
-                                          << Qt::Key_PageDown,  SIMU_STR_HLP_KEYS_GO_DN, SIMU_STR_HLP_ACT_DN },
+  { KEY_DOWN,   'R', 2, QList<int>()      << Qt::Key_Down,      SIMU_STR_HLP_KEY_DN, SIMU_STR_HLP_ACT_DOWN },
 
-  { KEY_LEFT,   'L', 3, QList<int>()      << Qt::Key_Left
-                                          << Qt::Key_Minus,     SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
+  { KEY_LEFT,   'L', 3, QList<int>()      << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT, SIMU_STR_HLP_ACT_LFT },
 
-  { KEY_RIGHT,  'R', 3, QList<int>()      << Qt::Key_Right
-                                          << Qt::Key_Plus,      SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
+  { KEY_RIGHT,  'R', 3, QList<int>()      << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_RGT },
 
-  { KEY_MINUS,  'L', 4, QList<int>()      << Qt::Key_Minus
-                                          << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT % "|" % SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_MIN },
+  { KEY_MINUS,  'L', 4, QList<int>()      << Qt::Key_Minus,     SIMU_STR_HLP_KEY_MIN, SIMU_STR_HLP_ACT_MIN },
 
-  { KEY_PLUS,   'R', 4, QList<int>()      << Qt::Key_Plus
-                                          << Qt::Key_Equal
-                                          << Qt::Key_Left,      SIMU_STR_HLP_KEY_LFT % "|" % SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_PLS },
+  { KEY_PLUS,   'R', 4, QList<int>()      << Qt::Key_Plus,      SIMU_STR_HLP_KEY_PLS, SIMU_STR_HLP_ACT_PLS },
 
-  { KEY_TELE,   'R', 5, QList<int>()      << Qt::Key_Right,     SIMU_STR_HLP_KEY_RGT, SIMU_STR_HLP_ACT_TELE },
+  { KEY_TELE,   'R', 5, QList<int>()      << Qt::Key_T,         SIMU_STR_HLP_KEY_T, SIMU_STR_HLP_ACT_TELE },
 
-  { KEY_MENU,   'L', 6, QList<int>()      << Qt::Key_Up
-                                          << Qt::Key_PageUp,    SIMU_STR_HLP_KEYS_GO_UP, SIMU_STR_HLP_ACT_MENU },
+  { KEY_MENU,   'L', 6, QList<int>()      << Qt::Key_Equal,     SIMU_STR_HLP_KEY_EQL, SIMU_STR_HLP_ACT_MENU },
 
-  { KEY_SHIFT,  'R', 6, QList<int>()      << Qt::Key_S,         SIMU_STR_HLP_KEY_SHIFT, SIMU_STR_HLP_ACT_SHIFT },
+  { KEY_SHIFT,  'R', 6, QList<int>()      << Qt::Key_Insert,    SIMU_STR_HLP_KEY_INS, SIMU_STR_HLP_ACT_SHIFT },
 
-  { KEY_EXIT,   'L', 7, QList<int>()      << Qt::Key_Down
-                                          << Qt::Key_Delete
-                                          << Qt::Key_Escape
-                                          << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
+  { KEY_EXIT,   'L', 7, QList<int>()      << Qt::Key_Escape,    SIMU_STR_HLP_KEY_ESC, SIMU_STR_HLP_ACT_EXIT },
 
   { KEY_ENTER,  'R', 7, QList<int>()      << Qt::Key_Enter
-                                          << Qt::Key_Return,    SIMU_STR_HLP_KEYS_ACTIVATE, SIMU_STR_HLP_ACT_ROT_DN },
+                                          << Qt::Key_Return,    SIMU_STR_HLP_KEY_ENTER, SIMU_STR_HLP_ACT_ENTER },
 
-  { KEY_SCROLL_UP,   'L', 8, QList<int>() << Qt::Key_Minus,     SIMU_STR_HLP_KEY_MIN % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT },
+  //  keep these on the last row
+  { KEY_SCROLL_UP,   'L', 8, QList<int>() << Qt::Key_Less,      SIMU_STR_HLP_KEY_LT % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT },
 
-  { KEY_SCROLL_DOWN, 'R', 8, QList<int>() << Qt::Key_Plus
-                                          << Qt::Key_Equal,     SIMU_STR_HLP_KEY_PLS % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT },
+  { KEY_SCROLL_DOWN, 'R', 8, QList<int>() << Qt::Key_Greater,   SIMU_STR_HLP_KEY_GT % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT },
 };
 
 void SimulatedUIWidget::addScrollActions()

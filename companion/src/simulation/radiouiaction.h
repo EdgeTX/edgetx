@@ -115,7 +115,8 @@ class RadioUiAction : public QObject
     {
       if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if ((!keyEvent->modifiers() || keyEvent->modifiers() == Qt::KeypadModifier) && m_keys.contains(keyEvent->key())) {
+        if ((!keyEvent->modifiers() || keyEvent->modifiers() == Qt::ShiftModifier || keyEvent->modifiers() == Qt::KeypadModifier) &&
+             m_keys.contains(keyEvent->key())) {
           trigger(event->type() == QEvent::KeyPress);
           return true;
         }
