@@ -85,7 +85,7 @@ class Layout2x4 : public Layout
         lv_obj_add_flag(panel1, LV_OBJ_FLAG_HIDDEN);
     }
     vis = getOptionValue(OPTION_PANEL2_BACKGROUND)->boolValue;
-    if (vis != lv_obj_has_flag(panel2, LV_OBJ_FLAG_HIDDEN)) {
+    if (vis == lv_obj_has_flag(panel2, LV_OBJ_FLAG_HIDDEN)) {
       if (vis)
         lv_obj_clear_flag(panel2, LV_OBJ_FLAG_HIDDEN);
       else
