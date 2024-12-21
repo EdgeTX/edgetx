@@ -14,9 +14,32 @@ do
 done
 
 echo "=== Step $((STEP++)): Installing packages ==="
-pacman -S --noconfirm mingw-w64-x86_64-cmake mingw-w64-x86_64-python-pip mingw-w64-x86_64-python-pillow mingw-w64-x86_64-python-lz4 mingw-w64-x86_64-arm-none-eabi-gcc mingw-w64-x86_64-libjpeg-turbo mingw-w64-x86_64-zlib mingw-w64-x86_64-libtiff mingw-w64-x86_64-freetype mingw-w64-x86_64-lcms2 mingw-w64-x86_64-libwebp mingw-w64-x86_64-openjpeg2 mingw-w64-x86_64-libimagequant mingw-w64-x86_64-libraqm mingw-w64-x86_64-SDL2 mingw-w64-x86_64-nsis mingw-w64-x86_64-clang mingw-w64-x86_64-openssl
+pacman -S --noconfirm mingw-w64-x86_64-cmake mingw-w64-x86_64-python-pip mingw-w64-x86_64-python-pillow mingw-w64-x86_64-python-lz4 mingw-w64-x86_64-libjpeg-turbo mingw-w64-x86_64-zlib mingw-w64-x86_64-libtiff mingw-w64-x86_64-freetype mingw-w64-x86_64-lcms2 mingw-w64-x86_64-libwebp mingw-w64-x86_64-openjpeg2 mingw-w64-x86_64-libimagequant mingw-w64-x86_64-libraqm mingw-w64-x86_64-SDL2 mingw-w64-x86_64-nsis mingw-w64-x86_64-clang mingw-w64-x86_64-openssl unzip wget
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
+
+echo "=== Step $((STEP++)): Downloading ARM gcc toolchain ==="
+wget https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-mingw-w64-i686-arm-none-eabi.zip
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
+
+echo "=== Step $((STEP++)): Installing ARM gcc toolchain ==="
+unzip arm-gnu-toolchain-13.2.rel1-mingw-w64-i686-arm-none-eabi.zip
+rm arm-gnu-toolchain-13.2.rel1-mingw-w64-i686-arm-none-eabi.zip
+mv arm-gnu-toolchain-13.2.Rel1-mingw-w64-i686-arm-none-eabi /opt/gcc-arm-none-eabi
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
+
+echo "=== Step $((STEP++)): Adding GNU Arm Embedded Toolchain to PATH of current user ==="
+echo 'export PATH="/opt/gcc-arm-none-eabi/bin:$PATH"' >> ~/.bashrc
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
@@ -26,8 +49,8 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
-echo "=== Step $((STEP++)): Installing Python jinja2 ==="
 
+echo "=== Step $((STEP++)): Installing Python jinja2 ==="
 python -m pip install jinja2
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
