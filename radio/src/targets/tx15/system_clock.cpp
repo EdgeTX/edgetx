@@ -97,7 +97,7 @@ void SystemClock_Config(void)
   LL_RCC_PLL3_SetN(4);
   LL_RCC_PLL3_SetP(2);
   LL_RCC_PLL3_SetQ(2);
-  LL_RCC_PLL3_SetR(2);
+  LL_RCC_PLL3_SetR(20);
   LL_RCC_PLL3_Enable();
   while (LL_RCC_PLL3_IsReady() != 1) {
   }

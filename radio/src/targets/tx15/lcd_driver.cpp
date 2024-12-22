@@ -93,55 +93,31 @@ enum ENUM_IO_MODE
 
 static void LCD_AF_GPIOConfig(void) {
   //HAL_RCCEx_PeriphCLKConfig();
-  /**LTDC GPIO Configuration
-  PI10     ------> LTDC_HSYNC
-  PF10     ------> LTDC_DE
-  PA4     ------> LTDC_VSYNC
-  PH9     ------> LTDC_R3
-  PH10     ------> LTDC_R4
-  PH11     ------> LTDC_R5
-  PH12     ------> LTDC_R6
-  PG6     ------> LTDC_R7
-  PG7     ------> LTDC_CLK
-  PH13     ------> LTDC_G2
-  PH14     ------> LTDC_G3
-  PH15     ------> LTDC_G4
-  PI0     ------> LTDC_G5
-  PI1     ------> LTDC_G6
-  PI2     ------> LTDC_G7
-  PG11     ------> LTDC_B3
-  PI4     ------> LTDC_B4
-  PI5     ------> LTDC_B5
-  PI6     ------> LTDC_B6
-  PI7     ------> LTDC_B7
-  */
 
-  gpio_init_af(GPIO_PIN(GPIOI, 0), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOI, 1), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOI, 2), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOI, 4), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOI, 5), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOI, 6), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOI, 7), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOI, 10), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOI, 12), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOI, 13), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOI, 14), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
 
+  gpio_init_af(GPIO_PIN(GPIOJ, 1), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 2), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 3), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 4), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 5), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 6), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 9), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 10), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 11), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 14), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOJ, 15), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
 
-  gpio_init_af(GPIO_PIN(GPIOF, 10), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-
-  gpio_init_af(GPIO_PIN(GPIOA, 4), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-
-  
-  gpio_init_af(GPIO_PIN(GPIOH,  9), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOH, 10), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOH, 11), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOH, 12), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOH, 13), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOH, 14), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOH, 15), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-
-  gpio_init_af(GPIO_PIN(GPIOG,  6), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOG,  7), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
-  gpio_init_af(GPIO_PIN(GPIOG, 11), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOK, 0), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOK, 1), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOK, 2), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOK, 3), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOK, 4), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOK, 5), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOK, 6), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
+  gpio_init_af(GPIO_PIN(GPIOK, 7), GPIO_AF14, GPIO_SPEED_FREQ_LOW);
 
 }
 
@@ -155,6 +131,9 @@ static void lcdSpiConfig(void) {
   GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
   LL_GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
+
+  GPIO_InitStructure.Pin        = LCD_SPI_CS_GPIO_PIN;
+  LL_GPIO_Init(LCD_SPI_CS_GPIO, &GPIO_InitStructure);
 
   /* Set the chip select pin always low */
   LCD_CS_LOW();
@@ -1262,7 +1241,7 @@ void LCD_ST7796S_Init(void) {
   delay_ms(120);
 
   if( TouchControllerType == 1 ) {
-    lcdWriteCommand( 0x21 );
+//    lcdWriteCommand( 0x21 );
   }
 
   LCD_ST7796S_On();

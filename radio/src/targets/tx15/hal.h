@@ -286,18 +286,21 @@
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
-#define LCD_SPI_CS_GPIO                 GPIOH
-#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_6  // PH.06
+#define LCD_SPI_CS_GPIO                 GPIOG
+#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_6
 #define LCD_SPI_GPIO                    GPIOF
-#define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_4  // PE.04
-#define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_8  // PE.03
+#define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_10
+#define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_8
 #define LTDC_IRQ_PRIO                   4
 #define DMA_SCREEN_IRQ_PRIO             6
 
+#define LCD_RESET_GPIO                  GPIOJ
+#define LCD_RESET_GPIO_PIN              12
+
 // Backlight
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOI, 2) // TIM3_CH1
+#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOI, 2) // TIM8_CH4
 #define BACKLIGHT_TIMER                 TIM8
-#define BACKLIGHT_GPIO_AF               GPIO_AF2
+#define BACKLIGHT_GPIO_AF               GPIO_AF3
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // SPI NOR Flash
