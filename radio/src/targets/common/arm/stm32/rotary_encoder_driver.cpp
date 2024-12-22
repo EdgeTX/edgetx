@@ -154,6 +154,7 @@ void rotaryEncoderStartDelay()
 
 void rotaryEncoderInit()
 {
+#if defined(ROTARY_ENCODER_GPIO)
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Mode = LL_GPIO_MODE_INPUT;
@@ -186,6 +187,44 @@ void rotaryEncoderInit()
   uint32_t trigger = LL_EXTI_TRIGGER_RISING_FALLING;
   stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE1, trigger, rotaryEncoderStartDelay);
   stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE2, trigger, rotaryEncoderStartDelay);
+#else
+  LL_GPIO_InitTypeDef pinInit;
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Mode = LL_GPIO_MODE_INPUT;
+  pinInit.Pull = LL_GPIO_PULL_UP;
+  pinInit.Pin = ROTARY_ENCODER_GPIO_PIN_A;
+
+  stm32_gpio_enable_clock(ROTARY_ENCODER_GPIO_A);
+  stm32_gpio_enable_clock(ROTARY_ENCODER_GPIO_B);
+  LL_GPIO_Init(ROTARY_ENCODER_GPIO_A, &pinInit);
+  pinInit.Pin = ROTARY_ENCODER_GPIO_PIN_B;
+  LL_GPIO_Init(ROTARY_ENCODER_GPIO_B, &pinInit);
+
+  stm32_timer_enable_clock(ROTARY_ENCODER_TIMER);
+  ROTARY_ENCODER_TIMER->ARR = 99; // 100uS
+  ROTARY_ENCODER_TIMER->PSC = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 1000000 - 1; // 1uS
+  ROTARY_ENCODER_TIMER->CCER = 0;
+  ROTARY_ENCODER_TIMER->CCMR1 = 0;
+  ROTARY_ENCODER_TIMER->EGR = 0;
+  ROTARY_ENCODER_TIMER->CR1 = 0;
+  ROTARY_ENCODER_TIMER->DIER |= TIM_DIER_UIE;
+
+#if defined(LL_APB4_GRP1_PERIPH_SYSCFG)
+  LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SYSCFG);
+#elif defined(LL_APB2_GRP1_PERIPH_SYSCFG)
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+#else
+  #error "Unsupported SYSCFG clock"
+#endif
+
+  LL_SYSCFG_SetEXTISource(ROTARY_ENCODER_EXTI_PORT_A, ROTARY_ENCODER_EXTI_SYS_LINE1);
+  LL_SYSCFG_SetEXTISource(ROTARY_ENCODER_EXTI_PORT_B, ROTARY_ENCODER_EXTI_SYS_LINE2);
+
+  uint32_t trigger = LL_EXTI_TRIGGER_RISING_FALLING;
+  stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE1, trigger, rotaryEncoderStartDelay);
+  stm32_exti_enable(ROTARY_ENCODER_EXTI_LINE2, trigger, rotaryEncoderStartDelay);
+#endif
+
     
   NVIC_EnableIRQ(ROTARY_ENCODER_TIMER_IRQn);
   NVIC_SetPriority(ROTARY_ENCODER_TIMER_IRQn, 7);
