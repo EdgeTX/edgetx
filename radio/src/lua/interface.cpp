@@ -358,6 +358,7 @@ FRESULT dresult = FR_OK;
 static int luaDumpWriter(lua_State * L, const void* p, size_t size, void* u)
 {
   UNUSED(L);
+  UINT written;
   const uint8_t* b = (const uint8_t*)p;
   while (size > 0) {
     int len;
@@ -372,7 +373,7 @@ static int luaDumpWriter(lua_State * L, const void* p, size_t size, void* u)
     b += len;
     if (dpos >= DLEN) {
       // Write to SD when buffer full
-      dresult = f_write((FIL *)u, dbuf, dpos, nullptr);
+      dresult = f_write((FIL *)u, dbuf, dpos, &written);
       dpos = 0;
       if (dresult != FR_OK)
         break;
@@ -402,7 +403,8 @@ static void luaDumpState(lua_State * L, const char * filename, const FILINFO * f
     lua_unlock(L);
     if (dpos > 0) {
       // Write last piece
-      dresult = f_write(&D, dbuf, dpos, nullptr);
+      UINT written;
+      dresult = f_write(&D, dbuf, dpos, &written);
     }
     if (dresult != FR_OK) {
       // Save failed, close file handle and delete file.
