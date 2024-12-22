@@ -185,8 +185,10 @@
 #if LV_USE_GPU_STM32_DMA2D
     /*Must be defined to include path of CMSIS header of target processor
     e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
-#ifdef STM32H7
+#if defined(STM32H7)
     #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32h7xx.h"
+#elif defined(STM32H7RS)
+    #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32h7rsxx.h"
 #else
     #define LV_GPU_DMA2D_CMSIS_INCLUDE "stm32f4xx.h"
 #endif
@@ -352,11 +354,15 @@
 /*Compiler prefix for a big array declaration in RAM*/
 #define LV_ATTRIBUTE_LARGE_RAM_ARRAY
 
+#if !defined(BOOT) && !defined(YAML_GENERATOR) && !defined(SIMU)
 /*Place performance critical functions into a faster memory (e.g RAM)*/
+#define LV_ATTRIBUTE_FAST_MEM __attribute__((section(".iram")))
+#else
 #define LV_ATTRIBUTE_FAST_MEM
+#endif
 
 /*Prefix variables that are used in GPU accelerated operations, often these need to be placed in RAM sections that are DMA accessible*/
-#define LV_ATTRIBUTE_DMA
+#define LV_ATTRIBUTE_DMA __DMA
 
 /*Export integer constant to binding. This macro is used with constants in the form of LV_<CONST> that
  *should also appear on LVGL binding API such as Micropython.*/

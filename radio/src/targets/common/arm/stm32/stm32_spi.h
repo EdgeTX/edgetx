@@ -22,15 +22,16 @@
 #pragma once
 
 #include "stm32_hal_ll.h"
+#include "hal/gpio.h"
 #include <stdint.h>
 
 
 struct stm32_spi_t {
   SPI_TypeDef*   SPIx;
-  GPIO_TypeDef*  SPI_GPIOx;
-  uint32_t       SPI_Pins; // SCK, MISO, MOSI
-  GPIO_TypeDef*  CS_GPIOx;
-  uint32_t       CS_Pin;   // CS
+  gpio_t         SCK;
+  gpio_t         MISO;
+  gpio_t         MOSI;
+  gpio_t         CS;
 
   DMA_TypeDef*   DMA;
 #if defined(STM32H7) || defined(STM32H7RS)

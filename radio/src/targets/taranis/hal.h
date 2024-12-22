@@ -2686,21 +2686,20 @@
   // Using chip, so no detect
 #else
 #if defined(PCBXLITE) || defined(PCBX9LITE)
-  #define SD_PRESENT_GPIO               GPIO_PIN(GPIOD, 10) // PD.10
+  #define SD_PRESENT_GPIO           GPIO_PIN(GPIOD, 10) // PD.10
 #elif defined(RADIO_COMMANDO8)
-  #define SD_PRESENT_GPIO               GPIO_PIN(GPIOD, 8)  // PD.08
+  #define SD_PRESENT_GPIO           GPIO_PIN(GPIOD, 8)  // PD.08
 #else
-  #define SD_PRESENT_GPIO               GPIO_PIN(GPIOD, 9)  // PD.09
+  #define SD_PRESENT_GPIO           GPIO_PIN(GPIOD, 9)  // PD.09
 #endif
 #endif
 
 #define STORAGE_USE_SDCARD_SPI
 
-#define SD_GPIO                         GPIOB
-#define SD_GPIO_PIN_CS                  LL_GPIO_PIN_12 // PB.12
-#define SD_GPIO_PIN_SCK                 LL_GPIO_PIN_13 // PB.13
-#define SD_GPIO_PIN_MISO                LL_GPIO_PIN_14 // PB.14
-#define SD_GPIO_PIN_MOSI                LL_GPIO_PIN_15 // PB.15
+#define SD_GPIO_PIN_CS                  GPIO_PIN(GPIOB, 12) // PB.12
+#define SD_GPIO_PIN_SCK                 GPIO_PIN(GPIOB, 13) // PB.13
+#define SD_GPIO_PIN_MISO                GPIO_PIN(GPIOB, 14) // PB.14
+#define SD_GPIO_PIN_MOSI                GPIO_PIN(GPIOB, 15) // PB.15
 
 #define SD_SPI                          SPI2
 #define SD_SPI_DMA                      DMA1

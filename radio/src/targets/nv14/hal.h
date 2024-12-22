@@ -275,53 +275,29 @@
 
 // SPI NOR Flash 
 #define FLASH_SPI                      SPI6
-#define FLASH_SPI_CS_GPIO              GPIOG
-#define FLASH_SPI_CS_GPIO_PIN          LL_GPIO_PIN_6  // PG.06
-#define FLASH_SPI_GPIO                 GPIOG
-#define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_13 // PG.13
-#define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_12 // PG.12
-#define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_14 // PG.14
+#define FLASH_SPI_CS_GPIO              GPIO_PIN(GPIOG, 6)  // PG.06
+#define FLASH_SPI_SCK_GPIO             GPIO_PIN(GPIOG, 13) // PG.13
+#define FLASH_SPI_MISO_GPIO            GPIO_PIN(GPIOG, 12) // PG.12
+#define FLASH_SPI_MOSI_GPIO            GPIO_PIN(GPIOG, 14) // PG.14
 #define FLASH_SPI_DMA                  DMA2
 #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_1
 #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
 #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
 
-// SPI FLASH
-#define EEPROM_RCC_AHB1Periph           RCC_AHB1Periph_GPIOG
-#define EEPROM_RCC_APB1Periph           RCC_APB1Periph_SPI6
-#define EEPROM_SPI_CS_GPIO              GPIOG
-#define EEPROM_SPI_CS_GPIO_PIN          GPIO_Pin_6 // PG.06
-#define EEPROM_SPI_SCK_GPIO             GPIOG
-#define EEPROM_SPI_SCK_GPIO_PIN         GPIO_Pin_13 // PG.13
-#define EEPROM_SPI_SCK_GPIO_PinSource   GPIO_PinSource13
-#define EEPROM_SPI_MISO_GPIO            GPIOG
-#define EEPROM_SPI_MISO_GPIO_PIN        GPIO_Pin_12 // PG.12
-#define EEPROM_SPI_MISO_GPIO_PinSource  GPIO_PinSource12
-#define EEPROM_SPI_MOSI_GPIO            GPIOG
-#define EEPROM_SPI_MOSI_GPIO_PIN        GPIO_Pin_14 // PG.14
-#define EEPROM_SPI_MOSI_GPIO_PinSource  GPIO_PinSource14
-
 // Audio
-#define AUDIO_XDCS_GPIO               GPIOH
-#define AUDIO_XDCS_GPIO_PIN           LL_GPIO_PIN_14 // PH.14
-#define AUDIO_CS_GPIO                 GPIOH
-#define AUDIO_CS_GPIO_PIN             LL_GPIO_PIN_13 // PH.13
-#define AUDIO_DREQ_GPIO               GPIOH
-#define AUDIO_DREQ_GPIO_PIN           LL_GPIO_PIN_15 // PH.15
-#define AUDIO_RST_GPIO                GPIOD
-#define AUDIO_RST_GPIO_PIN            LL_GPIO_PIN_4  // PD.04
+#define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOH, 14) // PH.14
+#define AUDIO_CS_GPIO                 GPIO_PIN(GPIOH, 13) // PH.13
+#define AUDIO_DREQ_GPIO               GPIO_PIN(GPIOH, 15) // PH.15
+#define AUDIO_RST_GPIO                GPIO_PIN(GPIOD, 14) // PD.04
 #define AUDIO_SPI                     SPI1
 #define AUDIO_SPI_GPIO_AF             LL_GPIO_AF_5
-#define AUDIO_SPI_SCK_GPIO            GPIOB
-#define AUDIO_SPI_SCK_GPIO_PIN        LL_GPIO_PIN_3  // PB.03
-#define AUDIO_SPI_MISO_GPIO           GPIOB
-#define AUDIO_SPI_MISO_GPIO_PIN       LL_GPIO_PIN_4  // PB.04
-#define AUDIO_SPI_MOSI_GPIO           GPIOB
-#define AUDIO_SPI_MOSI_GPIO_PIN       LL_GPIO_PIN_5  // PB.05
+#define AUDIO_SPI_SCK_GPIO            GPIO_PIN(GPIOB, 3)  // PB.03
+#define AUDIO_SPI_MISO_GPIO           GPIO_PIN(GPIOB, 4)  // PB.04
+#define AUDIO_SPI_MOSI_GPIO           GPIO_PIN(GPIOB, 5)  // PB.05
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 8) // PH.08 audio amp control pin
 #define AUDIO_UNMUTE_DELAY            120  // ms
 #define AUDIO_MUTE_DELAY              500  // ms
-#define INVERTED_MUTE_PIN
+#define AUDIO_MUTE_POL                VS1053B_MUTE_INVERTED
 
 // I2C Bus
 #define I2C_B1                        I2C1

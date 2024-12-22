@@ -19,30 +19,23 @@
  * GNU General Public License for more details.
  */
 
-// #if !defined(SIMU)
-// #include "stm32_hal_ll.h"
-// #include "stm32_hal.h"
-// #include "stm32_timer.h"
-// #endif
-
 #include "hal/usb_driver.h"
+#include "hal/abnormal_reboot.h"
+#include "hal/rotary_encoder.h"
+
+#include "board.h"
+#include "boot.h"
+#include "firmware_files.h"
+#include "lcd.h"
+#include "debug.h"
+
+#include "timers_driver.h"
+
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
   #include "stm32_serial_driver.h"
 #endif
-
-#include "board.h"
-#include "boot.h"
-#include "bin_files.h"
-#include "lcd.h"
-#include "debug.h"
-
-#include "timers_driver.h"
-#include "flash_driver.h"
-
-#include "hal/abnormal_reboot.h"
-#include "hal/rotary_encoder.h"
 
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
@@ -58,6 +51,8 @@
   #include "diskio_spi_flash.h"
   #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
+
+#define REBOOT_CMD_DFU 0x55464442
 
 #if !defined(SIMU)
 // Bootloader marker:
@@ -75,13 +70,8 @@ const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
 volatile tmr10ms_t g_tmr10ms;
 volatile uint8_t tenms = 1;
 
-uint32_t firmwareSize;
-uint32_t firmwareAddress = FIRMWARE_ADDRESS;
-uint32_t firmwareWritten = 0;
-
 FlashCheckRes valid;
 MemoryType memoryType;
-uint32_t unlocked = 0;
 
 void per5ms() {} // make linker happy
 
@@ -104,35 +94,11 @@ void per10ms()
 #endif
 }
 
-uint32_t isValidBufferStart(const uint8_t * buffer)
-{
-#if !defined(SIMU)
-  return isFirmwareStart(buffer);
-#else
-  return 1;
-#endif
-}
 
-FlashCheckRes checkFlashFile(unsigned int index, FlashCheckRes res)
-{
-  if (res != FC_UNCHECKED)
-    return res;
-
-  if (openBinFile(memoryType, index) != FR_OK)
-    return FC_ERROR;
-
-  if (closeBinFile() != FR_OK)
-    return FC_ERROR;
-
-  if (!isValidBufferStart(Block_buffer))
-    return FC_ERROR;
-
-  return FC_OK;
-}
 
 int menuFlashFile(uint32_t index, event_t event)
 {
-  valid = checkFlashFile(index, valid);
+  valid = checkFirmwareFile(index, memoryType, valid);
 
   if (valid == FC_ERROR) {
     if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER))
@@ -143,31 +109,12 @@ int menuFlashFile(uint32_t index, event_t event)
 
   if (event == EVT_KEY_LONG(KEY_ENTER)) {
 
-    return (openBinFile(memoryType, index) == FR_OK) && isValidBufferStart(Block_buffer);
+    return openFirmwareFile(memoryType, index) == FR_OK;
   }
   else if (event == EVT_KEY_BREAK(KEY_EXIT))
     return 0;
 
   return -1;
-}
-
-void flashWriteBlock()
-{
-  // TODO: use some board provided driver instead
-  uint32_t blockOffset = 0;
-#if !defined(SIMU)
-  while (BlockCount) {
-    flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
-    blockOffset += FLASH_PAGESIZE;
-    firmwareAddress += FLASH_PAGESIZE;
-    if (BlockCount > FLASH_PAGESIZE) {
-      BlockCount -= FLASH_PAGESIZE;
-    }
-    else {
-      BlockCount = 0;
-    }
-  }
-#endif // SIMU
 }
 
 #if !defined(SIMU)
@@ -184,13 +131,14 @@ static __attribute__((noreturn)) void jumpTo(uint32_t addr)
 }
 
 // Optional board hook
-__weak void boardBLInit() {}
+__weak void boardBLEarlyInit() {}
 __weak bool boardBLStartCondition() { return false; }
 __weak void boardBLPreJump() {}
+__weak void boardBLInit() {}
 
 void bootloaderInitApp()
 {
-  boardBLInit();
+  boardBLEarlyInit();
 
 #if defined(DEBUG_SEGGER_RTT)
   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_SKIP);
@@ -198,18 +146,25 @@ void bootloaderInitApp()
 
   pwrInit();
   keysInit();
+  delaysInit();
 
-  // wait a bit for the inputs to stabilize...
-  if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
-    for (uint32_t i = 0; i < 150000; i++) {
-      __ASM volatile("nop");
+  bool boot_dfu = abnormalRebootGetCmd() == REBOOT_CMD_DFU; 
+  if (!boot_dfu) {
+    bool start_firmware = true;
+
+    // wait a bit for the inputs to stabilize...
+    if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
+      delay_us(200);
     }
-  }
 
-  if (!boardBLStartCondition()) {
-    // Start main application
-    boardBLPreJump();
-    jumpTo(APP_START_ADDRESS);
+    start_firmware = !boardBLStartCondition(); 
+    if (start_firmware) {
+      // Start main application
+      boardBLPreJump();
+      jumpTo(APP_START_ADDRESS);
+    }
+  } else {
+     setSelectedUsbMode(USB_DFU_MODE);
   }
 
   // TODO: move all this into board specifics
@@ -218,8 +173,6 @@ void bootloaderInitApp()
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   rotaryEncoderInit();
 #endif
-
-  delaysInit(); // needed for lcdInit()
 
 #if defined(DEBUG)
   initSerialPorts();
@@ -241,6 +194,7 @@ void bootloaderInitApp()
   // SD card detect pin
   sdInit();
   usbInit();
+  boardBLInit();
 }
 
 int main()
@@ -276,10 +230,6 @@ int  bootloaderMain()
           && state != ST_FLASH_DONE && state != ST_RADIO_MENU) {
         if (usbPlugged()) {
           state = ST_USB;
-          if (!unlocked) {
-            unlocked = 1;
-            unlockFlash();
-          }
 #if !defined(SIMU)
           usbStart();
 #endif
@@ -292,10 +242,6 @@ int  bootloaderMain()
 #if !defined(SIMU)
           usbStop();
 #endif
-          if (unlocked) {
-            lockFlash();
-            unlocked = 0;
-          }
           state = ST_START;
         }
         bootloaderDrawScreen(state, 0);
@@ -343,12 +289,12 @@ int  bootloaderMain()
         }
       }
       else if (state == ST_DIR_CHECK) {
-        fr = openBinDir(memoryType);
+        fr = openFirmwareDir(memoryType);
 
         if (fr == FR_OK) {
           index = vpos = 0;
           state = ST_FILE_LIST;
-          nameCount = fetchBinFiles(index);
+          nameCount = fetchFirmwareFiles(index);
           continue;
         }
         else {
@@ -375,7 +321,7 @@ int  bootloaderMain()
           else {
             if (nameCount > limit) {
               index += 1;
-              nameCount = fetchBinFiles(index);
+              nameCount = fetchFirmwareFiles(index);
             }
           }
         }
@@ -386,7 +332,7 @@ int  bootloaderMain()
           else {
             if (index) {
               index -= 1;
-              nameCount = fetchBinFiles(index);
+              nameCount = fetchFirmwareFiles(index);
             }
           }
         }
@@ -394,7 +340,7 @@ int  bootloaderMain()
         bootloaderDrawScreen(state, 0);
 
         for (uint32_t i = 0; i < limit; i++) {
-          bootloaderDrawFilename(binFiles[i].name, i, (vpos == i));
+          bootloaderDrawFilename(getFirmwareFileNameByIndex(i), i, (vpos == i));
         }
 
         if (event == EVT_KEY_BREAK(KEY_ENTER)) {
@@ -410,7 +356,7 @@ int  bootloaderMain()
         }
       }
       else if (state == ST_FLASH_CHECK) {
-        bootloaderDrawScreen(state, valid, binFiles[vpos].name);
+        bootloaderDrawScreen(state, valid, getFirmwareFileNameByIndex(vpos));
 
         int result = menuFlashFile(vpos, event);
         if (result == 0) {
@@ -421,36 +367,25 @@ int  bootloaderMain()
           // confirmed
 
           if (memoryType == MEM_FLASH) {
-            firmwareSize = FIRMWARE_LEN(binFiles[vpos].size);
-            firmwareAddress = APP_START_ADDRESS;
-            firmwareWritten = 0;
+            firmwareInitWrite(vpos);
           }
           state = ST_FLASHING;
         }
       }
       else if (state == ST_FLASHING) {
-        // commit to flashing
-        if (!unlocked && (memoryType == MEM_FLASH)) {
-          unlocked = 1;
-          unlockFlash();
+        if(memoryType != MEM_FLASH)
+        {
+          state = ST_FLASH_DONE;
+          continue;
         }
 
-        int progress = 0;
-        if (memoryType == MEM_FLASH) {
-          flashWriteBlock();
-          firmwareWritten += sizeof(Block_buffer);
-          progress = (100 * firmwareWritten) / firmwareSize;
-        }
+        uint32_t progress = 0;
+        bool done = firmwareWriteBlock(&progress);
 
         bootloaderDrawScreen(state, progress);
 
-        fr = readBinFile();
-        if (BlockCount == 0) {
-          state = ST_FLASH_DONE; // EOF
-        }
-        else if (memoryType == MEM_FLASH && firmwareWritten >= FIRMWARE_MAX_LEN) {
-          state = ST_FLASH_DONE; // Backstop
-        }
+        if(done)
+          state = ST_FLASH_DONE;
 #if defined(SPI_FLASH)
       } else if (state == ST_CLEAR_FLASH_CHECK) {
         bootloaderDrawScreen(state, vpos);
@@ -490,10 +425,12 @@ int  bootloaderMain()
       }
 
       if (state == ST_FLASH_DONE) {
+#ifndef FIRMWARE_QSPI
         if (unlocked) {
           lockFlash();
           unlocked = 0;
         }
+#endif
 
         if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
           state = ST_START;

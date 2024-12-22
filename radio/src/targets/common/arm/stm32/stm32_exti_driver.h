@@ -38,3 +38,19 @@ void stm32_exti_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb);
 
 // Reset callback and disable IRQ if no more handlers
 void stm32_exti_disable(uint32_t line);
+
+// trigger software interrupt
+void stm32_exti_trigger_swi(uint32_t line);
+
+
+#if defined(USE_CUSTOM_EXTI_IRQ)
+// Set callback and enable IRQ
+void stm32_exti_custom_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb);
+
+// Reset callback and disable IRQ if no more handlers
+void stm32_exti_custom_disable(uint32_t line);
+
+// trigger software interrupt
+void stm32_exti_custom_trigger_swi(uint32_t line);
+
+#endif

@@ -24,9 +24,11 @@
 #include <inttypes.h>
 #include "cpu_id.h"
 
-#if !defined(SIMU) && !defined(BACKUP)
+#if !defined(SIMU) && !defined(BACKUP) && !defined(YAML_GENERATOR)
 #if defined(STM32H7)
   #include "stm32h7xx.h"
+#elif defined(STM32H7RS)
+  #include "stm32h7rsxx.h"
 #elif defined(STM32F4)
   #include "stm32f4xx.h"
 #elif defined(STM32F2)

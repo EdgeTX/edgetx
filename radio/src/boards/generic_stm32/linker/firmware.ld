@@ -9,6 +9,7 @@ SECTIONS
 {
   .bootloader :
   {
+    FILL(0xFFFF)
     KEEP(*(.bootloader))
     . = BOOTLOADER_SIZE;
   } > REGION_BOOTLOADER
@@ -41,12 +42,6 @@ SECTIONS
   } > REGION_TEXT AT> REGION_TEXT_STORAGE
 
   _text_load = LOADADDR(.text);
-
-  /* Firmware bootstrap code to load ISR vector and code sections */
-  .bootstrap :
-  {
-    *(.bootstrap)
-  } > REGION_TEXT_STORAGE
 
   INCLUDE common_sections.ld
 }

@@ -19,8 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "hal.h"
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
+#include "stm32_spi.h"
+#include "vs1053b.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -82,7 +85,28 @@ static uint8_t boardGetPcbRev()
   }
 }
 
-void boardBLInit()
+stm32_spi_t audioSpi =
+{
+    .SPIx = AUDIO_SPI,
+    .SCK = AUDIO_SPI_SCK_GPIO,
+    .MISO = AUDIO_SPI_MISO_GPIO,
+    .MOSI = AUDIO_SPI_MOSI_GPIO,
+    .CS = AUDIO_CS_GPIO,
+};
+
+vs1053b_t audioConfig =
+{
+  .spi = &audioSpi,
+  .XDCS = AUDIO_XDCS_GPIO,
+  .DREQ = AUDIO_DREQ_GPIO,
+  .RST = AUDIO_RST_GPIO,
+  .MUTE = AUDIO_MUTE_GPIO,
+  .flags = AUDIO_MUTE_POL,
+  .mute_delay_ms = AUDIO_MUTE_DELAY,
+  .unmute_delay_ms = AUDIO_UNMUTE_DELAY,
+};
+
+void boardBLEarlyInit()
 {
 #if defined(USB_SW_GPIO)
   gpio_init(USB_SW_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
@@ -120,6 +144,9 @@ void boardInit()
 
   pwrInit();
   boardInitModulePorts();
+
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
 
   board_trainer_init();
   battery_charge_init();
@@ -167,7 +194,7 @@ void boardInit()
 
   keysInit();
   switchInit();
-  audioInit();
+  vs1053b_init(&audioConfig);
   monitorInit();
   adcInit(&_adc_driver);
   hapticInit();
@@ -178,16 +205,6 @@ void boardInit()
 #endif
 
   lcdSetInitalFrameBuffer(lcdFront->getData());
-
-#if defined(DEBUG)
-/*  DBGMCU_APB1PeriphConfig(
-      DBGMCU_IWDG_STOP | DBGMCU_TIM1_STOP | DBGMCU_TIM2_STOP |
-          DBGMCU_TIM3_STOP | DBGMCU_TIM4_STOP | DBGMCU_TIM5_STOP |
-          DBGMCU_TIM6_STOP | DBGMCU_TIM7_STOP | DBGMCU_TIM8_STOP |
-          DBGMCU_TIM9_STOP | DBGMCU_TIM10_STOP | DBGMCU_TIM11_STOP |
-          DBGMCU_TIM12_STOP | DBGMCU_TIM13_STOP | DBGMCU_TIM14_STOP,
-      ENABLE);*/
-#endif
 }
 
 extern void rtcDisableBackupReg();

@@ -1388,9 +1388,11 @@ int cliDisplay(const char ** argv)
         case 2:
           tim = TIM2;
           break;
+#if defined(TIM8)
         case 8:
           tim = TIM8;
           break;
+#endif
         case 13:
           tim = TIM13;
           break;
@@ -1417,10 +1419,12 @@ int cliDisplay(const char ** argv)
       cliSerialPrint(" CCR4   0x%x", tim->CCR4);
     }
   }
+#if defined(DMA1_Stream7)
   else if (!strcmp(argv[1], "dma")) {
     cliSerialPrint("DMA1_Stream7");
     cliSerialPrint(" CR    0x%x", DMA1_Stream7->CR);
   }
+#endif
 #if defined(DEBUG_INTERRUPTS)
   else if (!strcmp(argv[1], "int")) {
     printInterrupts();
