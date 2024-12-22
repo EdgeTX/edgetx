@@ -64,8 +64,8 @@ enum EnumKeys {
   KEY_BIND,
 
   //  these are only used by the simulator
-  KEY_SCROLL_UP,
-  KEY_SCROLL_DOWN
+  KEY_SCRLUP,
+  KEY_SCRLDN
 };
 
 struct RadioKeyDefinition {
