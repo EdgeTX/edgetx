@@ -12,8 +12,18 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   ${RADIO_SRC_DIR}/syscalls.c
   ${RADIO_SRC_DIR}/crc.cpp
   boot.cpp
-  bin_files.cpp
 )
+
+if(FIRMWARE_QSPI)
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+    uf2_fw_files.cpp
+    ${RADIO_SRC_DIR}/io/uf2_flash.cpp
+  )
+else()
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+    bin_fw_files.cpp
+  )
+endif()
 
 if(DEBUG_SEGGER_RTT)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC}

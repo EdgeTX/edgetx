@@ -40,7 +40,7 @@
 #define LABELS_LENGTH 100 // Maximum length of the label string
 #define LABEL_LENGTH 16
 
-#if defined(COLORLCD) || defined(STM32H747xx)
+#if defined(COLORLCD)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
   #define MAX_FLIGHT_MODES             9

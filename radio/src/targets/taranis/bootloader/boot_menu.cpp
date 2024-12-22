@@ -29,7 +29,7 @@
 #include "fw_version.h"
 #include "translations.h"
 #include "../../common/arm/stm32/bootloader/boot.h"
-#include "../../common/arm/stm32/bootloader/bin_files.h"
+#include "bootloader/firmware_files.h"
 
 extern MemoryType memoryType;
 
@@ -96,7 +96,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   else if (st == ST_DIR_CHECK) {
     if (opt == FR_NO_PATH) {
       bootloaderDrawMsg(INDENT_WIDTH, TR_BL_DIR_MISSING, 1, false);
-      bootloaderDrawMsg(INDENT_WIDTH, getBinaryPath(memoryType), 2, false);
+      bootloaderDrawMsg(INDENT_WIDTH, getFirmwarePath(memoryType), 2, false);
     }
     else {
       bootloaderDrawMsg(INDENT_WIDTH, TR_BL_DIR_EMPTY, 1, false);

@@ -202,3 +202,13 @@ void gpio_write(gpio_t pin, int value)
     gpio_clear(pin);
   }
 }
+
+GPIO_TypeDef* gpio_get_port(gpio_t pin)
+{
+  return _port(pin);
+}
+
+uint32_t gpio_get_pin(gpio_t pin)
+{
+  return _pin_num(pin);
+}

@@ -21,8 +21,9 @@
 
 #include "stm32_spi.h"
 #include "stm32_dma.h"
-#include "stm32_gpio_driver.h"
+#include "stm32_gpio.h"
 #include "definitions.h"
+#include "stm32_hal.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -36,35 +37,31 @@
 void stm32_spi_enable_clock(SPI_TypeDef *SPIx)
 {
   if (SPIx == SPI1) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+    __HAL_RCC_SPI1_CLK_ENABLE();
   }
 #if defined(SPI2)
   else if (SPIx == SPI2) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);
+    __HAL_RCC_SPI2_CLK_ENABLE();
   }
 #endif
 #if defined(SPI3)
   else if (SPIx == SPI3) {
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI3);
+    __HAL_RCC_SPI3_CLK_ENABLE();
   }
 #endif
 #if defined(SPI4)
   else if (SPIx == SPI4) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI4);
+    __HAL_RCC_SPI4_CLK_ENABLE();
   }
 #endif
 #if defined(SPI5)
   else if (SPIx == SPI5) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI5);
+    __HAL_RCC_SPI5_CLK_ENABLE();
   }
 #endif
 #if defined(SPI6)
   else if (SPIx == SPI6) {
-#if defined(LL_APB2_GRP1_PERIPH_SPI6)
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI6);
-#elif defined(LL_APB4_GRP1_PERIPH_SPI6)
-    LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SPI6);
-#endif
+    __HAL_RCC_SPI6_CLK_ENABLE();
   }
 #endif
 }
@@ -82,7 +79,10 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
   LL_RCC_ClocksTypeDef RCC_Clocks;
   LL_RCC_GetSystemClocksFreq(&RCC_Clocks);
 
-  uint32_t pclk = RCC_Clocks.PCLK2_Frequency;
+#if defined(STM32H7) || defined(STM32H7RS)
+  uint32_t pclk =   LL_RCC_GetSPIClockFreq(LL_RCC_SPI123_CLKSOURCE);
+#else
+ uint32_t pclk = RCC_Clocks.PCLK2_Frequency;
 #if defined(SPI2)
   if (SPIx == SPI2) {
     pclk = RCC_Clocks.PCLK1_Frequency;
@@ -93,7 +93,7 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
     pclk = RCC_Clocks.PCLK1_Frequency;
   }
 #endif
-
+#endif // STM32H7 || STM32H7RS
   uint32_t divider = (pclk + max_freq) / max_freq;
   uint32_t presc;
   if (divider > 128) {
@@ -119,26 +119,11 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
 
 static void _init_gpios(const stm32_spi_t* spi)
 {
-  stm32_gpio_enable_clock(spi->SPI_GPIOx);
-  stm32_gpio_enable_clock(spi->CS_GPIOx);
+  gpio_init_af(spi->SCK, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_init_af(spi->MISO, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_init_af(spi->MOSI, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
 
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-
-  // SCK, MISO, MOSI
-  pinInit.Pin = spi->SPI_Pins;
-  pinInit.Mode = LL_GPIO_MODE_ALTERNATE;
-  pinInit.Alternate = _get_spi_af(spi->SPIx);
-  pinInit.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-  pinInit.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(spi->SPI_GPIOx, &pinInit);
-
-  // CS
-  pinInit.Pin = spi->CS_Pin;
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Alternate = LL_GPIO_AF_0;
-  pinInit.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(spi->CS_GPIOx, &pinInit);
+  gpio_init(spi->CS, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
 }
 
 #if defined(USE_SPI_DMA)
@@ -215,6 +200,9 @@ void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width)
 
   LL_SPI_Init(SPIx, &spiInit);
   LL_SPI_Enable(SPIx);
+#if defined(STM32H7) || defined(STM32H7RS)
+  LL_SPI_StartMasterTransfer(SPIx);
+#endif
 
 #if defined(USE_SPI_DMA)
   if (spi->DMA) {
@@ -227,19 +215,26 @@ void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width)
 
 void stm32_spi_select(const stm32_spi_t* spi)
 {
-  LL_GPIO_ResetOutputPin(spi->CS_GPIOx, spi->CS_Pin);
+  gpio_clear(spi->CS);
 }
 
 void stm32_spi_unselect(const stm32_spi_t* spi)
 {
-  LL_GPIO_SetOutputPin(spi->CS_GPIOx, spi->CS_Pin);
+  gpio_set(spi->CS);
 }
 
 void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate)
 {
   auto* SPIx = spi->SPIx;
   uint32_t presc = _get_spi_prescaler(SPIx, baudrate);
+#if defined(STM32H7) || defined(STM32H7RS)
+  LL_SPI_Disable(SPIx);
+#endif
   LL_SPI_SetBaudRatePrescaler(SPIx, presc);
+#if defined(STM32H7) || defined(STM32H7RS)
+  LL_SPI_Enable(SPIx);
+  LL_SPI_StartMasterTransfer(SPIx);
+#endif
 }
 
 uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out)

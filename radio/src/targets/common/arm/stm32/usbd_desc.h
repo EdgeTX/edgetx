@@ -46,91 +46,101 @@
   * @brief Constants.
   * @{
   */
-#define         DEVICE_ID1          (UID_BASE)
-#define         DEVICE_ID2          (UID_BASE + 0x4)
-#define         DEVICE_ID3          (UID_BASE + 0x8)
+#if defined(STM32H7)
+  #define DEVICE_ID1 (0x5C001000)
+  #define DEVICE_ID2 (0x5C001004)
+  #define DEVICE_ID3 (0x5C001008)
+#else
+  #define DEVICE_ID1 (UID_BASE)
+  #define DEVICE_ID2 (UID_BASE + 0x4)
+  #define DEVICE_ID3 (UID_BASE + 0x8)
+#endif
 
-/* USER CODE BEGIN EXPORTED_CONSTANTS */
+#define  USB_SIZ_STRING_SERIAL 0x1A
 
-/* USER CODE END EXPORTED_CONSTANTS */
+ /* USER CODE BEGIN EXPORTED_CONSTANTS */
 
-/**
+ /* USER CODE END EXPORTED_CONSTANTS */
+
+ /**
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_Defines USBD_DESC_Exported_Defines
+ /** @defgroup USBD_DESC_Exported_Defines USBD_DESC_Exported_Defines
   * @brief Defines.
   * @{
   */
 
-/* USER CODE BEGIN EXPORTED_DEFINES */
+ /* USER CODE BEGIN EXPORTED_DEFINES */
 
-/* USER CODE END EXPORTED_DEFINES */
+ /* USER CODE END EXPORTED_DEFINES */
 
-/**
+ /**
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_TypesDefinitions USBD_DESC_Exported_TypesDefinitions
+ /** @defgroup USBD_DESC_Exported_TypesDefinitions
+  * USBD_DESC_Exported_TypesDefinitions
   * @brief Types.
   * @{
   */
 
-/* USER CODE BEGIN EXPORTED_TYPES */
+ /* USER CODE BEGIN EXPORTED_TYPES */
 
-/* USER CODE END EXPORTED_TYPES */
+ /* USER CODE END EXPORTED_TYPES */
 
-/**
+ /**
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_Macros USBD_DESC_Exported_Macros
+ /** @defgroup USBD_DESC_Exported_Macros USBD_DESC_Exported_Macros
   * @brief Aliases.
   * @{
   */
 
-/* USER CODE BEGIN EXPORTED_MACRO */
+ /* USER CODE BEGIN EXPORTED_MACRO */
 
-/* USER CODE END EXPORTED_MACRO */
+ /* USER CODE END EXPORTED_MACRO */
 
-/**
+ /**
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_Variables USBD_DESC_Exported_Variables
+ /** @defgroup USBD_DESC_Exported_Variables USBD_DESC_Exported_Variables
   * @brief Public variables.
   * @{
   */
 
-/** Descriptor for the Usb device. */
-extern USBD_DescriptorsTypeDef FS_Desc;
+ /** Descriptor for the Usb device. */
+ extern USBD_DescriptorsTypeDef FS_Desc;
 
-/* USER CODE BEGIN EXPORTED_VARIABLES */
+ /* USER CODE BEGIN EXPORTED_VARIABLES */
 
-/* USER CODE END EXPORTED_VARIABLES */
+ /* USER CODE END EXPORTED_VARIABLES */
 
-/**
+ /**
   * @}
   */
 
-/** @defgroup USBD_DESC_Exported_FunctionsPrototype USBD_DESC_Exported_FunctionsPrototype
+ /** @defgroup USBD_DESC_Exported_FunctionsPrototype
+  * USBD_DESC_Exported_FunctionsPrototype
   * @brief Public functions declaration.
   * @{
   */
 
-/* USER CODE BEGIN EXPORTED_FUNCTIONS */
+ /* USER CODE BEGIN EXPORTED_FUNCTIONS */
 
-/* USER CODE END EXPORTED_FUNCTIONS */
+ /* USER CODE END EXPORTED_FUNCTIONS */
 
-/**
+ /**
   * @}
   */
 
-/**
+ /**
   * @}
   */
 
-/**
+ /**
   * @}
   */
 

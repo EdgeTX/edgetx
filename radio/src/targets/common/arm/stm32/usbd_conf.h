@@ -88,8 +88,12 @@
 /*---------- -----------*/
 #define MSC_MEDIA_PACKET           MASS_STORAGE_BUFFER_SIZE
 
+/* Required for DFU media description */
+#define USBD_SUPPORT_USER_STRING_DESC 1U
+#define USBD_DFU_XFER_SIZE 4096U
+
 #if !defined(USBJ_EX)
-#define HID_IN_PACKET                19
+#define HID_IN_PACKET              19
 #endif
 
 /****************************************/

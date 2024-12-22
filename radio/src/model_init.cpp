@@ -122,6 +122,13 @@ void applyDefaultTemplate()
 #endif
 #endif
 
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
+    g_model.functionSwitchLedOFFColor[i].setColor(0);
+    g_model.functionSwitchLedONColor[i].setColor(0xFFFFFF);
+  }
+#endif
+
 #if defined(COLORLCD)
 
   LayoutFactory::loadDefaultLayout();

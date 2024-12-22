@@ -98,21 +98,23 @@ __SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLA
  */
 const char * getFirmwareVersion(const char * buffer)
 {
+#if !defined(FIRMWARE_QSPI)||1
   if (buffer == nullptr) {
-#if defined(BOOT)
+    return "no version found";
+#if defined(BOOT) && !defined(FIRMWARE_QSPI)
     buffer = (const char *)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE);
 #else
     buffer = (const char *)FIRMWARE_ADDRESS;
 #endif
   }
 
-  for (int i = 0; i < 1024; i++) {
+  for (int i = 0; i < 2024; i++) {
     if ((memcmp(buffer + i, "edgetx-", 7) == 0)
         || memcmp(buffer + i, "opentx-", 7) == 0) {
       return buffer + i;
     }
   }
-
+#endif
   return "no version found";
 }
 #else

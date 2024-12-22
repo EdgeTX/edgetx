@@ -21,6 +21,7 @@
 
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
+#include "stm32_spi.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -82,7 +83,42 @@ static uint8_t boardGetPcbRev()
   }
 }
 
-void boardBLInit()
+static void setAudioMuteHigh()
+{
+  gpio_set(AUDIO_MUTE_GPIO);
+}
+static void setAudioMuteLow()
+{
+  gpio_clear(AUDIO_MUTE_GPIO);
+}
+static void setAudioResetHigh()
+{
+  gpio_set(AUDIO_RST_GPIO);
+}
+static void setAudioResetLow()
+{
+  gpio_clear(AUDIO_RST_GPIO);
+}
+
+stm32_spi_t audioSpi =
+{
+    .SPIx = AUDIO_SPI,
+    .SCK = AUDIO_SPI_SCK_GPIO,
+    .MISO = AUDIO_SPI_MISO_GPIO,
+    .MOSI = AUDIO_SPI_MOSI_GPIO,
+    .CS = AUDIO_CS_GPIO,
+};
+
+AudioConfig_t audioConfig =
+{
+  .spi = &audioSpi,
+  .setMuteHigh = setAudioMuteHigh,
+  .setMuteLow = setAudioMuteLow,
+  .setResetHigh = setAudioResetHigh,
+  .setResetLow = setAudioResetLow
+};
+
+void boardBLEarlyInit()
 {
 #if defined(USB_SW_GPIO)
   gpio_init(USB_SW_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
@@ -120,6 +156,9 @@ void boardInit()
 
   pwrInit();
   boardInitModulePorts();
+
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
 
   board_trainer_init();
   battery_charge_init();
@@ -167,7 +206,7 @@ void boardInit()
 
   keysInit();
   switchInit();
-  audioInit();
+  audioInit(&audioConfig);
   monitorInit();
   adcInit(&_adc_driver);
   hapticInit();

@@ -30,7 +30,7 @@ class TextEdit : public TextButton
            std::function<void(void)> updateHandler = nullptr);
 
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "TextEdit \"" + text + "\""; }
+  std::string getName() const override { return std::string("TextEdit \"") + text + "\""; }
 #endif
 
   void preview(bool edited, char* text, uint8_t length);

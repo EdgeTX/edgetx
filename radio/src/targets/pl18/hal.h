@@ -420,12 +420,10 @@
 
 // SPI NOR Flash
 #define FLASH_SPI                      SPI6
-#define FLASH_SPI_CS_GPIO              GPIOG
-#define FLASH_SPI_CS_GPIO_PIN          LL_GPIO_PIN_6  // PG.06
-#define FLASH_SPI_GPIO                 GPIOG
-#define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_13 // PG.13
-#define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_12 // PG.12
-#define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_14 // PG.14
+#define FLASH_SPI_CS_GPIO              GPIO_PIN(GPIOG, 6)  // PG.06
+#define FLASH_SPI_SCK_GPIO             GPIO_PIN(GPIOG, 13) // PG.13
+#define FLASH_SPI_MISO_GPIO            GPIO_PIN(GPIOG, 12) // PG.12
+#define FLASH_SPI_MOSI_GPIO            GPIO_PIN(GPIOG, 14) // PG.14
 #define FLASH_SPI_DMA                  DMA2
 #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_1
 #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5

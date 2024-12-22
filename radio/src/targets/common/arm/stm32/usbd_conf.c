@@ -107,6 +107,13 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
     NVIC_EnableIRQ(OTG_FS_IRQn);
   }
 #endif
+  /**
+   * Disable DP pull-up for 50ms
+   * to force re-enumeration
+   */
+  HAL_PCD_DevDisconnect(pcdHandle);
+  HAL_Delay(50);
+  HAL_PCD_DevConnect(pcdHandle);
 }
 
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)

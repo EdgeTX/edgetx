@@ -26,6 +26,7 @@
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
 #include "io/bootloader_flash.h"
+#include "io/uf2_flash.h"
 #include "standalone_lua.h"
 #include "sdcard.h"
 #include "view_text.h"
@@ -354,6 +355,7 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       menu->addLine(STR_FLASH_EXTERNAL_ELRS, [=]() {
         MultiFirmwareUpdate(fullpath, EXTERNAL_MODULE, MULTI_TYPE_ELRS);
       });
+#endif
     } else if (!strcasecmp(BITMAPS_PATH, path) &&
                isExtensionMatching(ext, BITMAPS_EXT) &&
                strlen(name) <= LEN_BITMAP_NAME) {
@@ -382,10 +384,18 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       });
     }
     if (!strcasecmp(ext, FIRMWARE_EXT)) {
+#if defined(FIRMWARE_FORMAT_UF2)
+      if (isUF2FirmwareFile(fullpath)) {
+        menu->addLine(STR_FLASH_BOOTLOADER,
+                      [=]() { FirmwareUpdate(fullpath); });
+      }
+#else
       if (isBootloader(fullpath)) {
         menu->addLine(STR_FLASH_BOOTLOADER,
                       [=]() { BootloaderUpdate(fullpath); });
       }
+#endif
+#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
     } else if (!strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
 
       auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
@@ -535,6 +545,15 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
   });
 }
 
+#if defined(FIRMWARE_FORMAT_UF2)
+void RadioSdManagerPage::FirmwareUpdate(const char* fn)
+{
+  UF2FirmwareUpdate firmwareUpdate;
+  auto dialog =
+      new FlashDialog<UF2FirmwareUpdate>(firmwareUpdate);
+  dialog->flash(fn);
+}
+#else
 void RadioSdManagerPage::BootloaderUpdate(const char* fn)
 {
   BootloaderFirmwareUpdate bootloaderFirmwareUpdate;
@@ -542,6 +561,7 @@ void RadioSdManagerPage::BootloaderUpdate(const char* fn)
       new FlashDialog<BootloaderFirmwareUpdate>(bootloaderFirmwareUpdate);
   dialog->flash(fn);
 }
+#endif
 
 #if defined(BLUETOOTH)
 void RadioSdManagerPage::BluetoothFirmwareUpdate(const char* fn)

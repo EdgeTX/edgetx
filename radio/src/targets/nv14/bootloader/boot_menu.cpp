@@ -29,7 +29,7 @@
 #include "translations.h"
 
 #include "targets/common/arm/stm32/bootloader/boot.h"
-#include "targets/common/arm/stm32/bootloader/bin_files.h"
+#include "bootloader/firmware_files.h"
 
 #include <lvgl/lvgl.h>
 

@@ -27,6 +27,7 @@
 
 void pwrInit()
 {
+
 #if defined(SD_PRESENT_GPIO)
   gpio_init(SD_PRESENT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 #endif
@@ -37,13 +38,13 @@ void pwrInit()
 #endif
 
   // Internal module power
-#if defined(HARDWARE_INTERNAL_MODULE)
+#if defined(HARDWARE_INTERNAL_MODULE) && defined(INTMODULE_PWR_GPIO)
   gpio_init(INTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   INTERNAL_MODULE_OFF();
 #endif
 
   // External module power
-#if defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_EXTERNAL_MODULE) && defined(EXTMODULE_PWR_GPIO)
   gpio_init(EXTMODULE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   EXTERNAL_MODULE_PWR_OFF();
 #endif

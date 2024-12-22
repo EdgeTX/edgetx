@@ -88,9 +88,9 @@ uint8_t pulse_inc = 1;
 // DMA buffer contains pulses for 2 LED at a time
 // (allows for refill at HT and TC)
 #if defined(STM32_SUPPORT_32BIT_TIMERS)
-static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN * 2] __DMA;
+static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN * 2] __attribute__((__section__(".sram2")));
 #else
-static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN] __DMA;
+static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN] __attribute__((__section__(".sram2")));
 #endif
 
 static uint8_t _led_seq_cnt;
@@ -194,7 +194,7 @@ static void _init_timer(const stm32_pulse_timer_t* tim)
   LL_DMA_SetMode(tim->DMAx, tim->DMA_Stream, LL_DMA_MODE_CIRCULAR);
   LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, WS2821_DMA_BUFFER_LEN);
   LL_DMA_SetMemoryAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)_led_dma_buffer);
-  
+
   // we need to use a higher prio to avoid having
   // issues with some other things used during boot
   NVIC_SetPriority(tim->DMA_IRQn, WS2812_DMA_IRQ_PRIO);

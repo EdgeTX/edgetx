@@ -48,8 +48,12 @@ class RadioSdManagerPage : public PageTab
 
   void fileAction(const char* path, const char* name, const char* fullpath);
   void dirAction(const char* path, const char* name, const char* fullpath);
-  
+
+#if defined(FIRMWARE_FORMAT_UF2)
+  void FirmwareUpdate(const char* fn);
+#else
   void BootloaderUpdate(const char* fn);
+#endif
 #if defined(BLUETOOTH)
   void BluetoothFirmwareUpdate(const char* fn);
 #endif

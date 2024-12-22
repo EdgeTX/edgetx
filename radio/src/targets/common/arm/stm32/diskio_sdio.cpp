@@ -343,13 +343,13 @@ static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
     return RES_ERROR;
   }
 
-#if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
-#endif
-
   // Wait for the reading process to complete or a timeout to occur
   uint32_t timeout = HAL_GetTick();
   while((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT));
+
+#if __CORTEX_M >= 0x07
+  SCB_CleanInvalidateDCache();
+#endif
 
   if (ReadStatus == 0) {
     TRACE("SD read timeout (s:%u c:%u)", sector, (uint32_t)count);
