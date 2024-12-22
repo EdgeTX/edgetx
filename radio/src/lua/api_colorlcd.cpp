@@ -181,6 +181,10 @@ static void drawString(lua_State *L, const char * s, LcdFlags flags)
   int x = luaL_checkinteger(L, 1);
   int y = luaL_checkinteger(L, 2);
 
+  // If VCENTER flag is on then Y position is assumed to be center line for text.
+  if (flags & VCENTERED)
+    y -= getFontHeight(flags) / 2;
+
   bool invers = flags & INVERS;
   if (flags & BLINK)
     invers = invers && !BLINK_ON_PHASE;
