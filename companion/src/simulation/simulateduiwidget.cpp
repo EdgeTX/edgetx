@@ -291,15 +291,15 @@ static const QList<RadioKeyDefinition> radioKeyDefinitions = {
   { KEY_SHIFT,  'R', 6, QList<int>() << Qt::Key_Insert,   SIMU_STR_HLP_KEY_INS,   SIMU_STR_HLP_ACT_SHIFT },
 
   { KEY_EXIT,   'L', 7, QList<int>() << Qt::Key_Escape
-                                     << Qt::Key_Backspace, SIMU_STR_HLP_KEY_ESC % "|" % SIMU_STR_HLP_KEY_BKSP, SIMU_STR_HLP_ACT_EXIT },
+                                     << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
 
   { KEY_ENTER,  'R', 7, QList<int>() << Qt::Key_Enter
-                                     << Qt::Key_Return,   SIMU_STR_HLP_KEY_ENTER, SIMU_STR_HLP_ACT_ENTER },
+                                     << Qt::Key_Return,   SIMU_STR_HLP_KEYS_ENTER, SIMU_STR_HLP_ACT_ENTER },
 
   //  keep these on the last row
-  { KEY_SCRLUP, 'L', 8, QList<int>() << Qt::Key_Comma,    SIMU_STR_HLP_KEY_COMMA % "|" % SIMU_STR_HLP_MOUSE_UP, SIMU_STR_HLP_ACT_ROT_LFT },
+  { KEY_SCRLUP, 'L', 8, QList<int>() << Qt::Key_Comma,    SIMU_STR_HLP_KEYS_SCRLUP, SIMU_STR_HLP_ACT_ROT_LFT },
 
-  { KEY_SCRLDN, 'R', 8, QList<int>() << Qt::Key_Period,   SIMU_STR_HLP_KEY_PERIOD % "|" % SIMU_STR_HLP_MOUSE_DN, SIMU_STR_HLP_ACT_ROT_RGT },
+  { KEY_SCRLDN, 'R', 8, QList<int>() << Qt::Key_Period,   SIMU_STR_HLP_KEYS_SCRLDN, SIMU_STR_HLP_ACT_ROT_RGT },
 };
 
 void SimulatedUIWidget::addScrollActions()
@@ -410,18 +410,16 @@ void SimulatedUIWidget::addPushButton(int index, QString label, ButtonsWidget * 
 
     if (defn.index == index) {
       QPushButton * b = new QPushButton(label);
+      b->setToolTip(tr("Shortcut: %1").arg(defn.helpKeys));
       b->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-      int btnwidth = BUTTON_WIDTH;
-      int btnheight = BUTTON_HEIGHT;
-      b->setMinimumSize(btnwidth, btnheight);
+      b->setMinimumSize(BUTTON_WIDTH, BUTTON_HEIGHT);
       b->setMaximumSize(b->minimumSize());
-      RadioUiAction * act = new RadioUiAction();
       ButtonsWidget * btns = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? (defn.side == 'L' ? leftButtons : rightButtons) :
                              (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT ? leftButtons : rightButtons);
       QGridLayout * grid = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? (defn.side == 'L' ? leftButtonsGrid : rightButtonsGrid) :
                            (g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_LEFT ? leftButtonsGrid : rightButtonsGrid);
       int col = g.simuGenericKeysPos() == AppData::SIMU_GENERIC_KEYS_DEFAULT ? 0 : (defn.side == 'L' ? 0 : 2);
-      grid->setRowMinimumHeight(defn.gridRow, btnheight);
+      grid->setRowMinimumHeight(defn.gridRow, BUTTON_HEIGHT);
       grid->addWidget(b, defn.gridRow, col);
       int idx = -1;
 
@@ -436,7 +434,7 @@ void SimulatedUIWidget::addPushButton(int index, QString label, ButtonsWidget * 
           idx = defn.index;
       }
 
-      act = new RadioUiAction(idx, defn.keys, defn.helpKeys, defn.helpActions);
+      RadioUiAction * act = new RadioUiAction(idx, defn.keys, defn.helpKeys, defn.helpActions);
 
       switch (defn.index) {
         case KEY_SCRLUP:

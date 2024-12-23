@@ -30,13 +30,14 @@
 #define SIMU_STR_HLP_KEY_S             QCoreApplication::translate("SimulatedUIWidget", "S")
 #define SIMU_STR_HLP_KEY_T             QCoreApplication::translate("SimulatedUIWidget", "T")
 
-#define SIMU_STR_HLP_KEY_ENTER         QCoreApplication::translate("SimulatedUIWidget", "ENTER")
-#define SIMU_STR_HLP_KEY_PGUP          QCoreApplication::translate("SimulatedUIWidget", "PG-UP")
-#define SIMU_STR_HLP_KEY_PGDN          QCoreApplication::translate("SimulatedUIWidget", "PG-DN")
-#define SIMU_STR_HLP_KEY_DEL           QCoreApplication::translate("SimulatedUIWidget", "DEL")
-#define SIMU_STR_HLP_KEY_BKSP          QCoreApplication::translate("SimulatedUIWidget", "BKSP")
-#define SIMU_STR_HLP_KEY_ESC           QCoreApplication::translate("SimulatedUIWidget", "ESC")
-#define SIMU_STR_HLP_KEY_INS           QCoreApplication::translate("SimulatedUIWidget", "INSERT")
+#define SIMU_STR_HLP_KEY_ENTER         QCoreApplication::translate("SimulatedUIWidget", "enter")
+#define SIMU_STR_HLP_KEY_RETURN        QCoreApplication::translate("SimulatedUIWidget", "return")
+#define SIMU_STR_HLP_KEY_PGUP          QCoreApplication::translate("SimulatedUIWidget", "page up")
+#define SIMU_STR_HLP_KEY_PGDN          QCoreApplication::translate("SimulatedUIWidget", "page down")
+#define SIMU_STR_HLP_KEY_DEL           QCoreApplication::translate("SimulatedUIWidget", "delete")
+#define SIMU_STR_HLP_KEY_BKSP          QCoreApplication::translate("SimulatedUIWidget", "backspace")
+#define SIMU_STR_HLP_KEY_ESC           QCoreApplication::translate("SimulatedUIWidget", "esc")
+#define SIMU_STR_HLP_KEY_INS           QCoreApplication::translate("SimulatedUIWidget", "insert")
 #define SIMU_STR_HLP_KEY_PLS           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>+</font>")
 #define SIMU_STR_HLP_KEY_MIN           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>-</font>")
 #define SIMU_STR_HLP_KEY_EQL           QCoreApplication::translate("SimulatedUIWidget", "<font size=+3>=</font>")
@@ -88,6 +89,11 @@
 
 #define SIMU_STR_HLP_ACT_PREVINC       QCoreApplication::translate("SimulatedUIWidget", "<pre>[ Prev/Inc ]</pre>")
 #define SIMU_STR_HLP_ACT_NEXTDEC       QCoreApplication::translate("SimulatedUIWidget", "<pre>[ Next/Dec ]</pre>")
+
+#define SIMU_STR_HLP_KEYS_ENTER        SIMU_STR_HLP_KEY_ENTER % " | " % SIMU_STR_HLP_KEY_RETURN
+#define SIMU_STR_HLP_KEYS_EXIT         SIMU_STR_HLP_KEY_ESC % " | " % SIMU_STR_HLP_KEY_BKSP
+#define SIMU_STR_HLP_KEYS_SCRLUP       SIMU_STR_HLP_KEY_COMMA % " | " % SIMU_STR_HLP_MOUSE_UP
+#define SIMU_STR_HLP_KEYS_SCRLDN       SIMU_STR_HLP_KEY_PERIOD % " | " % SIMU_STR_HLP_MOUSE_DN
 
 #define SIMU_STR_HLP_KEYS_ACTIVATE     SIMU_STR_HLP_KEY_ENTER % "|" % SIMU_STR_HLP_MOUSE_MID
 #define SIMU_STR_HLP_KEYS_GO_UP        SIMU_STR_HLP_KEY_UP % "|" % SIMU_STR_HLP_KEY_PGUP
