@@ -181,7 +181,7 @@ void RadioWidget::onActionToggled(int index, bool active)
 
 void RadioWidget::onActionTriggered(int index, bool active)
 {
-  qDebug() << "Index:" << index << "Active:" << active;
+  // qDebug() << "Index:" << index << "Active:" << active;
 }
 
 void RadioWidget::addLayout()

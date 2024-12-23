@@ -113,16 +113,12 @@ class RadioUiAction : public QObject
 
     bool eventFilter(QObject * obj, QEvent * event)
     {
-      if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
-        QFocusEvent *focusEvent = static_cast<QFocusEvent *>(event);
-        qDebug() << "Focus event - Got:" << focusEvent->gotFocus() << "Lost:" << focusEvent->lostFocus() << "Reason:" << focusEvent->reason();
-      }
-      else if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+      if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         // Note: Qt::KeypadModifier is required for arrow keys as they are considered part of the keypad
         if (((keyEvent->modifiers() == Qt::NoModifier) || (keyEvent->modifiers() & Qt::ShiftModifier) || (keyEvent->modifiers() & Qt::KeypadModifier)) &&
              m_keys.contains(keyEvent->key())) {
-          qDebug() << "Event:" << event->type() << "Key:" << QString("0x%1").arg(keyEvent->key(), 8, 16, QLatin1Char( '0' )) << "Text:" << keyEvent->text() << "found";
+          // qDebug() << "Event:" << event->type() << "Key:" << QString("0x%1").arg(keyEvent->key(), 8, 16, QLatin1Char( '0' )) << "Text:" << keyEvent->text() << "found";
           trigger(event->type() == QEvent::KeyPress);
           return true;
         }

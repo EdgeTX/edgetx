@@ -74,7 +74,7 @@ class ButtonsWidget : public QWidget
                 QString blnkcol = "background-color: rgb(239, 41, 41)";
                 // pressing the same key in rapid seccession can affect the order of the events see TODO
                 if (csssave != blnkcol) {
-                  pushbtn->setFocus();
+                  // pushbtn->setFocus(); TODO remove. This takes focus from SimulatedUiWidget which inhibits arrow keys
                   pushbtn->setStyleSheet(blnkcol);
                   QTimer * tim = new QTimer(this);
                   tim->setSingleShot(true);
