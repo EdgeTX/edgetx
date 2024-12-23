@@ -52,7 +52,7 @@ void SystemClock_Config(void)
   LL_RCC_PLL1_SetM(3);
   LL_RCC_PLL1_SetN(60);
   LL_RCC_PLL1_SetP(2);
-  LL_RCC_PLL1_SetQ(25);
+  LL_RCC_PLL1_SetQ(20);
   LL_RCC_PLL1_SetR(2);
   LL_RCC_PLL1_Enable();
   while (LL_RCC_PLL1_IsReady() != 1) {

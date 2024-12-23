@@ -136,7 +136,7 @@ static void lcdReset() {
   delay_ms(1);
 
   LCD_NRST_LOW(); // RESET();
-  delay_ms(100);
+  delay_ms(10);
 
   LCD_NRST_HIGH();
   delay_ms(100);
@@ -251,12 +251,8 @@ void LCD_ST7365_On(void) {
   LCD_CS_HIGH();
 }
 
-#define SPI_WriteComm lcdWriteCommand
-#define SPI_WriteData lcdWriteData
-
 void LCD_ST7365_Init(void) {
 
-  delay_ms(120);
   LCD_CS_LOW();
   delay_ms(1);
   lcdWriteCommand( 0x11 );
@@ -269,111 +265,111 @@ void LCD_ST7365_Init(void) {
   lcdWriteData( 0x96 );
 
 
-  SPI_WriteComm(0x11);
+  lcdWriteCommand(0x11);
 
   delay_ms(120);
 
-  SPI_WriteComm(0xF0);     // Command Set Control
-  SPI_WriteData(0xC3);
+  lcdWriteCommand(0xF0);     // Command Set Control
+  lcdWriteData(0xC3);
 
-  SPI_WriteComm(0xF0);
-  SPI_WriteData(0x96);
+  lcdWriteCommand(0xF0);
+  lcdWriteData(0x96);
 
-  SPI_WriteComm(0x36);     // Memory Data Access Control MY,MX~~
-  SPI_WriteData(0xE8);
+  lcdWriteCommand(0x36);     // Memory Data Access Control MY,MX~~
+  lcdWriteData(0xE8);
 
-  SPI_WriteComm(0x2A);//480-1
-  SPI_WriteData(0x00);
-  SPI_WriteData(0x00);
-  SPI_WriteData(0x01);
-  SPI_WriteData(0xDF);
+  lcdWriteCommand(0x2A);//480-1
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x01);
+  lcdWriteData(0xDF);
 
-  SPI_WriteComm(0x2B);
-  SPI_WriteData(0x00);
-  SPI_WriteData(0x00);
-  SPI_WriteData(0x01);
-  SPI_WriteData(0x3F); //320-1
-
-
-  SPI_WriteComm(0x3A);
-  SPI_WriteData(0x66);   //55:RGB565 66:RGB666 77:RGB888
-
-  SPI_WriteComm(0xB4);
-  SPI_WriteData(0x01);
-
-  SPI_WriteComm(0xB6);    //RGB
-  SPI_WriteData(0x20);
-  SPI_WriteData(0x02);     //02
-  SPI_WriteData(0x3B);
-
-  SPI_WriteComm(0xB7);
-  SPI_WriteData(0xC6);
-
-  SPI_WriteComm(0xC0);
-  SPI_WriteData(0x80);
-  SPI_WriteData(0x45);
-
-  SPI_WriteComm(0xC1);
-  SPI_WriteData(0x0F );   //18  //00
-
-  SPI_WriteComm(0xC2);
-  SPI_WriteData(0xA7);   //A7
-
-  SPI_WriteComm(0xC5);
-  SPI_WriteData(0x0A);
-
-  SPI_WriteComm(0xE8);
-  SPI_WriteData(0x40);
-  SPI_WriteData(0x8A);
-  SPI_WriteData(0x00);
-  SPI_WriteData(0x00);
-  SPI_WriteData(0x29);
-  SPI_WriteData(0x19);
-  SPI_WriteData(0xA5);
-  SPI_WriteData(0x33);
-
-  SPI_WriteComm(0xE0);
-  SPI_WriteData(0xD0);
-  SPI_WriteData(0x08);
-  SPI_WriteData(0x0F);
-  SPI_WriteData(0x06);
-  SPI_WriteData(0x06);
-  SPI_WriteData(0x33);
-  SPI_WriteData(0x30);
-  SPI_WriteData(0x33);
-  SPI_WriteData(0x47);
-  SPI_WriteData(0x17);
-  SPI_WriteData(0x13);
-  SPI_WriteData(0x13);
-  SPI_WriteData(0x2B);
-  SPI_WriteData(0x31);
-
-  SPI_WriteComm(0xE1);
-  SPI_WriteData(0xD0);
-  SPI_WriteData(0x0A);
-  SPI_WriteData(0x11);
-  SPI_WriteData(0x0B);
-  SPI_WriteData(0x09);
-  SPI_WriteData(0x07);
-  SPI_WriteData(0x2F);
-  SPI_WriteData(0x33);
-  SPI_WriteData(0x47);
-  SPI_WriteData(0x38);
-  SPI_WriteData(0x15);
-  SPI_WriteData(0x16);
-  SPI_WriteData(0x2C);
-  SPI_WriteData(0x32);
+  lcdWriteCommand(0x2B);
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x01);
+  lcdWriteData(0x3F); //320-1
 
 
-  SPI_WriteComm(0xF0);
-  SPI_WriteData(0x3C);
+  lcdWriteCommand(0x3A);
+  lcdWriteData(0x66);   //55:RGB565 66:RGB666 77:RGB888
 
-  SPI_WriteComm(0xF0);
-  SPI_WriteData(0x69);
+  lcdWriteCommand(0xB4);
+  lcdWriteData(0x01);
+
+  lcdWriteCommand(0xB6);    //RGB
+  lcdWriteData(0x20);
+  lcdWriteData(0x02);     //02
+  lcdWriteData(0x3B);
+
+  lcdWriteCommand(0xB7);
+  lcdWriteData(0xC6);
+
+  lcdWriteCommand(0xC0);
+  lcdWriteData(0x80);
+  lcdWriteData(0x45);
+
+  lcdWriteCommand(0xC1);
+  lcdWriteData(0x0F );   //18  //00
+
+  lcdWriteCommand(0xC2);
+  lcdWriteData(0xA7);   //A7
+
+  lcdWriteCommand(0xC5);
+  lcdWriteData(0x0A);
+
+  lcdWriteCommand(0xE8);
+  lcdWriteData(0x40);
+  lcdWriteData(0x8A);
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x29);
+  lcdWriteData(0x19);
+  lcdWriteData(0xA5);
+  lcdWriteData(0x33);
+
+  lcdWriteCommand(0xE0);
+  lcdWriteData(0xD0);
+  lcdWriteData(0x08);
+  lcdWriteData(0x0F);
+  lcdWriteData(0x06);
+  lcdWriteData(0x06);
+  lcdWriteData(0x33);
+  lcdWriteData(0x30);
+  lcdWriteData(0x33);
+  lcdWriteData(0x47);
+  lcdWriteData(0x17);
+  lcdWriteData(0x13);
+  lcdWriteData(0x13);
+  lcdWriteData(0x2B);
+  lcdWriteData(0x31);
+
+  lcdWriteCommand(0xE1);
+  lcdWriteData(0xD0);
+  lcdWriteData(0x0A);
+  lcdWriteData(0x11);
+  lcdWriteData(0x0B);
+  lcdWriteData(0x09);
+  lcdWriteData(0x07);
+  lcdWriteData(0x2F);
+  lcdWriteData(0x33);
+  lcdWriteData(0x47);
+  lcdWriteData(0x38);
+  lcdWriteData(0x15);
+  lcdWriteData(0x16);
+  lcdWriteData(0x2C);
+  lcdWriteData(0x32);
+
+
+  lcdWriteCommand(0xF0);
+  lcdWriteData(0x3C);
+
+  lcdWriteCommand(0xF0);
+  lcdWriteData(0x69);
 
   delay_ms(120);
 
-  SPI_WriteComm(0x21);
+  lcdWriteCommand(0x21);
   LCD_CS_HIGH();
   delay_ms(1);
   LCD_ST7365_On();
@@ -385,39 +381,6 @@ void LCD_ST7365_Off(void) {
   lcdWriteCommand(0x28);
   LCD_CS_HIGH();
 }
-
-unsigned int LCD_ST7365_ReadID(void) {
-//  lcdReset();
-  unsigned int ID = 0;
-  LCD_CS_LOW();
-  lcdDelay();
-
-  lcdWriteCommand( 0x0a );
-//  lcdWriteData( 0x00);
-
-  LCD_MOSI_AS_INPUT();
-  LCD_SCK_LOW();
-  lcdDelay();
-  lcdDelay();
-  LCD_SCK_HIGH();
-  lcdDelay();
-  lcdDelay();
-  /*
-  LCD_ReadByte();
-  ID += (uint32_t)(LCD_ReadByte())<<8;
-  */
-  ID = LCD_ReadByte();
-  ID |= ((uint32_t)LCD_ReadByte())<<8;
-  ID |= ((uint32_t)LCD_ReadByte())<<16;
-  ID |= ((uint32_t)LCD_ReadByte())<<24;
-
-  LCD_CS_HIGH();
-  lcdDelay();
-  lcdDelay();
-
-
-   return (ID);
- }
 
 void LCD_Init_LTDC() {
   hltdc.Instance = LTDC;
@@ -454,21 +417,21 @@ void LCD_Init_LTDC() {
   hltdc.Init.Backcolor.Blue = 0;
 
   /* Configure horizontal synchronization width */
-  hltdc.Init.HorizontalSync = HSW;
+  hltdc.Init.HorizontalSync = HSW-1;
   /* Configure vertical synchronization height */
-  hltdc.Init.VerticalSync = VSH;
+  hltdc.Init.VerticalSync = VSH-1;
   /* Configure accumulated horizontal back porch */
-  hltdc.Init.AccumulatedHBP = HBP;
+  hltdc.Init.AccumulatedHBP = HSW+HBP-1;
   /* Configure accumulated vertical back porch */
-  hltdc.Init.AccumulatedVBP = VBP;
+  hltdc.Init.AccumulatedVBP = VSH+VBP-1;
   /* Configure accumulated active width */
-  hltdc.Init.AccumulatedActiveW = lcd_phys_w + HBP;
+  hltdc.Init.AccumulatedActiveW = lcd_phys_w + HBP+HSW-1;
   /* Configure accumulated active height */
-  hltdc.Init.AccumulatedActiveH = lcd_phys_h + VBP;
+  hltdc.Init.AccumulatedActiveH = lcd_phys_h + VBP+VSH-1;
   /* Configure total width */
-  hltdc.Init.TotalWidth = lcd_phys_w + HBP + HFP;
+  hltdc.Init.TotalWidth = lcd_phys_w + HBP + HFP + HSW -1;
   /* Configure total height */
-  hltdc.Init.TotalHeigh = lcd_phys_h + VBP + VFP;
+  hltdc.Init.TotalHeigh = lcd_phys_h + VBP + VFP+VSH-1;
 
   HAL_LTDC_Init(&hltdc);
 
@@ -538,7 +501,7 @@ void lcdInit(void)
 
   /* Configure the LCD Control pins */
   LCD_AF_GPIOConfig();
-  LCD_ST7365_ReadID();
+
   /* Send LCD initialization commands */
   TRACE("LCD INIT (default): ST7365");
   boardLcdType = "ST7365 (Default)";

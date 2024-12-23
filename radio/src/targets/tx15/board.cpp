@@ -152,6 +152,7 @@ void boardBLEarlyInit()
   timersInit();
   bsp_io_init();
   qspiInit();
+  gpio_clear(UCHARGER_EN_GPIO);
 }
 
 #if defined(FIRMWARE_QSPI)
@@ -178,6 +179,7 @@ void boardInit()
 
   timersInit();
   bsp_io_init();
+  gpio_clear(UCHARGER_EN_GPIO);
   bsp_output_set(BSP_PWR_LED);
 #endif
 
@@ -317,7 +319,7 @@ void boardOff()
 
   }
 }
-/*
+
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
@@ -330,9 +332,9 @@ int usbPlugged()
   else
     lastState = state;
   
-  return debouncedState||1;
+  return debouncedState;
 }
-*/
+
 
 // extern "C" void * memcpy(void* dst, const void*src, size_t count)
 // {

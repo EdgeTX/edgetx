@@ -23,6 +23,7 @@
 #include "drivers/pca95xx.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_switch_driver.h"
+#include "hal.h"
 
 #define BSP_IN_I2C_BUS I2C_Bus_2
 #define BSP_IN_I2C_ADDR 0x20
@@ -72,6 +73,7 @@ static void bsp_input_read()
 
 int bsp_io_init()
 {
+#if 0
   // init outputs
   BSP_CHECK(pca95xx_init(&output_exp, BSP_OUT_I2C_BUS, BSP_OUT_I2C_ADDR));
   BSP_CHECK(pca95xx_write(&output_exp, BSP_OUT_MASK,
@@ -80,11 +82,12 @@ int bsp_io_init()
 
   // init inputs
   BSP_CHECK(pca95xx_init(&input_exp, BSP_IN_I2C_BUS, BSP_IN_I2C_ADDR));
-
-  gpio_init_int(GPIO_PIN(GPIOH, 6), GPIO_IN, GPIO_FALLING, bsp_port_extender_irq_handler);
+#endif
+  //gpio_init_int(GPIO_PIN(GPIOH, 6), GPIO_IN, GPIO_FALLING, bsp_port_extender_irq_handler);
   updateInputState = true;
   bsp_input_read();
-
+  gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(UCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
   return 0;
 }

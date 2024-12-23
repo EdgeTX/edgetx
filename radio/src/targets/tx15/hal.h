@@ -220,7 +220,9 @@
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOH, 12)
 
 // Chargers (USB and wireless)
-#define UCHARGER_GPIO               GPIO_PIN(GPIOD, 11)
+//#define UCHARGER_GPIO               GPIO_PIN(GPIOD, 11)
+#define UCHARGER_GPIO GPIO_PIN(GPIOH, 5)
+#define UCHARGER_EN_GPIO            GPIO_PIN(GPIOB, 12)
 
 // TODO! Check IOLL1 to PI.01 connectivity!
 
@@ -280,7 +282,7 @@
 
 // USB
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOH, 5)
+//#define USB_GPIO_VBUS                   GPIO_PIN(GPIOH, 5)
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11)
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12)
 #define USB_GPIO_AF                     GPIO_AF10
@@ -295,7 +297,7 @@
 #define DMA_SCREEN_IRQ_PRIO             6
 
 #define LCD_RESET_GPIO                  GPIOJ
-#define LCD_RESET_GPIO_PIN              12
+#define LCD_RESET_GPIO_PIN              LL_GPIO_PIN_12
 
 // Backlight
 #define BACKLIGHT_GPIO                  GPIO_PIN(GPIOI, 2) // TIM8_CH4

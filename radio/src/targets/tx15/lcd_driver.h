@@ -24,14 +24,14 @@
 
 #include "bsp_io.h"
 
-#define HBP  ( 24 ) // TODO use names from FlySky
+#define HBP  ( 20 )
 #define VBP  ( 10 )
 
-#define HSW  ( 4 )
+#define HSW  ( 6 )
 #define VSH  ( 2 )
 
-#define HFP  ( 140 - HBP )
-#define VFP  ( 22 - VBP )
+#define HFP  ( 40 )
+#define VFP  ( 10 )
 
 #define LCD_DELAY()         LCD_Delay()
 
@@ -61,25 +61,6 @@ extern lcdSpiInitFucPtr lcdOnFunction;
 #define LCD_MOSI_AS_OUTPUT()          SET_IO_OUTPUT( LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN )
 
 #define LCD_READ_DATA_PIN()           LL_GPIO_IsInputPinSet(LCD_SPI_GPIO, LCD_SPI_MOSI_GPIO_PIN)
-
-
-#if 1
-#define HORIZONTAL_SYNC_WIDTH 			       ( 4 )
-#define HORIZONTAL_BACK_PORCH		               ( 24 )
-#define HORIZONTAL_FRONT_PORCH                         ( 140 - HORIZONTAL_BACK_PORCH )
-#define VERTICAL_SYNC_HEIGHT   		               ( 2 )
-#define VERTICAL_BACK_PORCH  		               ( 10 )
-#define VERTICAL_FRONT_PORCH    	               ( 22 - VERTICAL_BACK_PORCH )
-#else
-#define HORIZONTAL_SYNC_WIDTH 			       ( 4 )
-#define HORIZONTAL_BACK_PORCH		               ( 20 )
-#define HORIZONTAL_FRONT_PORCH                         ( 60 - HORIZONTAL_BACK_PORCH )
-#define VERTICAL_SYNC_HEIGHT   		               ( 2 )
-#define VERTICAL_BACK_PORCH  		               ( 6 )
-#define VERTICAL_FRONT_PORCH    	               ( 14 - VERTICAL_BACK_PORCH )
-#endif
-
-
 
 #endif
 

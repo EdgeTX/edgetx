@@ -25,7 +25,7 @@
 #include "lcd.h"
 
 #include "translations.h"
-
+#include "../../common/arm/stm32/stm32_qspi.h"
 #include "../../common/arm/stm32/bootloader/boot.h"
 #include "bootloader/firmware_files.h"
 #include "../../common/arm/stm32/stm32_gpio.h"
@@ -60,9 +60,11 @@ static bool rfUsbAccess = false;
 
 void bootloaderInitScreen()
 {
+  qspiDeInit();
   lcdInitDisplayDriver();
   backlightInit();
   backlightEnable(100);
+  qspiInit();
 }
 
 static void bootloaderDrawTitle(const char* text)
