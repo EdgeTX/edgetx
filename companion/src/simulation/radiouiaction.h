@@ -114,26 +114,27 @@ class RadioUiAction : public QObject
     bool eventFilter(QObject * obj, QEvent * event)
     {
       if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
-
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        qDebug() << "Key:" << keyEvent->key() <<
-                    "Text:" << keyEvent->text() <<
-                    "Modifiers:" << keyEvent->modifiers() <<
-                    "Shift:" << (bool)(keyEvent->modifiers() & Qt::ShiftModifier) <<
-                    "Keypad:" << (bool)(keyEvent->modifiers() & Qt::KeypadModifier) <<
-                    "Ctrl:" << (bool)(keyEvent->modifiers() & Qt::ControlModifier) <<
-                    "Alt:" << (bool)(keyEvent->modifiers() & Qt::AltModifier) <<
-                    "Meta:" << (bool)(keyEvent->modifiers() & Qt::MetaModifier);
         // Note: Qt::KeypadModifier is required for arrow keys as they are considered part of the keypad
         if (((keyEvent->modifiers() == Qt::NoModifier) || (keyEvent->modifiers() & Qt::ShiftModifier) || (keyEvent->modifiers() & Qt::KeypadModifier)) &&
              m_keys.contains(keyEvent->key())) {
-          qDebug() << "Key found in list";
+          qDebug() << "Event:" << event->type() << "Key:" << QString("0x%1").arg(keyEvent->key(), 8, 16, QLatin1Char( '0' )) << "Text:" << keyEvent->text() << "found";
           trigger(event->type() == QEvent::KeyPress);
           return true;
         }
-        else
-          qDebug() << "Key not found in list";
+        else {
+          // qDebug() << "Key not found";
+          // qDebug() << "Event:" << event->type() <<
+          //             "Key:" << QString("0x%1").arg(keyEvent->key(), 8, 16, QLatin1Char( '0' )) <<
+          //             "Text:" << keyEvent->text() <<
+          //             "Shift:" << (bool)(keyEvent->modifiers() & Qt::ShiftModifier) <<
+          //             "Keypad:" << (bool)(keyEvent->modifiers() & Qt::KeypadModifier) <<
+          //             "Ctrl:" << (bool)(keyEvent->modifiers() & Qt::ControlModifier) <<
+          //             "Alt:" << (bool)(keyEvent->modifiers() & Qt::AltModifier) <<
+          //             "Meta:" << (bool)(keyEvent->modifiers() & Qt::MetaModifier);
+        }
       }
+
       return QObject::eventFilter(obj, event);
     }
 
