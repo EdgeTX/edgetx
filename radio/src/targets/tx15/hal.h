@@ -280,9 +280,9 @@
 
 // USB
 #define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOH, 5)  // PC.00
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOH, 5)
+#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11)
+#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12)
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
@@ -303,22 +303,20 @@
 #define BACKLIGHT_GPIO_AF               GPIO_AF3
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
-// SPI NOR Flash
-//#define FLASH_SPI                      SPI6
-//#define FLASH_SPI_CS_GPIO              GPIOG
-//#define FLASH_SPI_CS_GPIO_PIN          LL_GPIO_PIN_6  // PG.06
-//#define FLASH_SPI_GPIO                 GPIOG
-//#define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_13 // PG.13
-//#define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_12 // PG.12
-//#define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_14 // PG.14
-// #define FLASH_SPI_DMA                  DMA2
-// #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_1
-// #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
-// #define FLASH_SPI_DMA_TX_IRQn          DMA2_Stream5_IRQn
-// #define FLASH_SPI_DMA_TX_IRQHandler    DMA2_Stream5_IRQHandler
-// #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
-// #define FLASH_SPI_DMA_RX_IRQn          DMA2_Stream6_IRQn
-// #define FLASH_SPI_DMA_RX_IRQHandler    DMA2_Stream6_IRQHandler
+// QSPI Flash
+#define QSPI_CLK_GPIO                   GPIO_PIN(GPIOF, 10)
+#define QSPI_CLK_GPIO_AF                GPIO_AF9
+#define QSPI_CS_GPIO                    GPIO_PIN(GPIOG, 6)
+#define QSPI_CS_GPIO_AF                 GPIO_AF10
+#define QSPI_MISO_GPIO                  GPIO_PIN(GPIOF, 9)
+#define QSPI_MISO_GPIO_AF               GPIO_AF10
+#define QSPI_MOSI_GPIO                  GPIO_PIN(GPIOF, 8)
+#define QSPI_MOSI_GPIO_AF               GPIO_AF10
+#define QSPI_WP_GPIO                    GPIO_PIN(GPIOF, 7)
+#define QSPI_WP_GPIO_AF                 GPIO_AF9
+#define QSPI_HOLD_GPIO                  GPIO_PIN(GPIOF, 6)
+#define QSPI_HOLD_GPIO_AF               GPIO_AF9
+
 
 //#define SD_PRESENT_GPIO                GPIO_PIN(GPIOD, 3) // PD.03
 #define SD_SDIO                        SDMMC1
@@ -483,7 +481,7 @@
 #define ROTARY_ENCODER_GPIO_B           GPIOJ
 #define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_8
 //#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 2) & 0x03)
-#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO_A->IDR >> 7) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 7) & 0x01))
+#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO_A->IDR >> 7) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 7) & 0x02))
 #define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_7
 #define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_8
 #if !defined(USE_EXTI7_IRQ)

@@ -33,12 +33,6 @@
 
 #include <lvgl/lvgl.h>
 
-#define RADIO_MENU_LEN 2
-
-#define USB_SW_TO_INTERNAL_MODULE() bsp_output_set(BSP_USB_SW);
-#define USB_SW_TO_MCU()             bsp_output_clear(BSP_USB_SW);
-
-
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
 #define DOUBLE_PADDING  56
@@ -101,21 +95,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         coord_t pos = lcd->drawText(124, 75, TR_BL_WRITE_FW, BL_FOREGROUND);
         pos += 8;
 
-        lcd->drawText(97, 110, LV_SYMBOL_WIFI, BL_FOREGROUND);
-        lcd->drawText(124, 110, TR_BL_RF_USB_ACCESS, BL_FOREGROUND);
-        pos += 8;
-
-#if defined(SPI_FLASH)
-        lcd->drawText(102, 145, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
-        pos = lcd->drawText(124, 145, TR_BL_ERASE_FLASH, BL_FOREGROUND);
-        pos += 8;
-
-        lcd->drawText(100, 180, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(124, 180, TR_BL_EXIT, BL_FOREGROUND);
-#else
-        lcd->drawText(100, 145, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(124, 145, TR_BL_EXIT, BL_FOREGROUND);
-#endif
+        lcd->drawText(100, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
+        lcd->drawText(124, 110, TR_BL_EXIT, BL_FOREGROUND);
 
         pos -= 92;
         lcd->drawSolidRect(92, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
@@ -129,34 +110,6 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         bootloaderDrawFooter();
         lcd->drawText(center, LCD_H - DEFAULT_PADDING, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
     }
-#if defined(SPI_FLASH)
-    else if (st == ST_CLEAR_FLASH_CHECK) {
-
-        bootloaderDrawTitle(TR_BL_ERASE_INT_FLASH);
-
-        lcd->drawText(102, 75, LV_SYMBOL_SD_CARD, BL_FOREGROUND);
-        coord_t pos = lcd->drawText(124, 75, TR_BL_ERASE_FLASH, BL_FOREGROUND);
-        pos += 8;
-
-        lcd->drawText(100, 110, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
-        lcd->drawText(124, 110, TR_BL_EXIT, BL_FOREGROUND);
-
-        pos -= 92;
-        lcd->drawSolidRect(92, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
-
-        bootloaderDrawFooter();
-        lcd->drawText(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING,
-                      LV_SYMBOL_SD_CARD TR_BL_ERASE_KEY, BL_FOREGROUND);
-        lcd->drawText(305, LCD_H - DEFAULT_PADDING,
-                      LV_SYMBOL_NEW_LINE TR_BL_EXIT_KEY, BL_FOREGROUND);
-    }
-    else if (st == ST_CLEAR_FLASH) {
-        bootloaderDrawTitle(TR_BL_ERASE_INT_FLASH);
-
-        lcd->drawText(center, 75, TR_BL_ERASE_FLASH_MSG, CENTERED | BL_FOREGROUND);
-        bootloaderDrawFooter();
-    }
-#endif
 
     else if (st == ST_USB) {
       lcd->drawBitmap(center - 26, 98, (const BitmapBuffer*)&BMP_USB_PLUGGED);
@@ -274,46 +227,12 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 }
 uint32_t bootloaderGetMenuItemCount(int baseCount)
 {
-    return baseCount + 1;
+    return baseCount;
 }
 
 bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
 {
-  static int pos = 0;
-
-  if (IS_NEXT_EVENT(event)) {
-      if (pos < RADIO_MENU_LEN-1)
-          pos++;
-  } else if (IS_PREVIOUS_EVENT(event)) {
-      if (pos > 0)
-          pos--;
-  } else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-      switch (pos) {
-      case 0:
-          if (rfUsbAccess)
-          {
-              rfUsbAccess = false;
-              INTERNAL_MODULE_OFF();
-              USB_SW_TO_MCU();
-          } else {
-              rfUsbAccess = true;
-              INTERNAL_MODULE_ON();
-              USB_SW_TO_INTERNAL_MODULE();
-          }
-          break;
-      case 1: // fall through
-      default:
-          USB_SW_TO_MCU();
-          pos = 0;
-          return true;
-      }
-  } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-    USB_SW_TO_MCU();
-    pos = 0;
-    return true;
-  }
-  bootloaderDrawScreen(ST_RADIO_MENU, pos, nullptr);
-  return false;
+  return true;
 }
 
 void blExit(void)

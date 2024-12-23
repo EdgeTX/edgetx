@@ -33,7 +33,7 @@ set(FUNCTION_SWITCHES_WITH_RGB YES)
 set(IMU ON)
 
 # for size report script
-set(CPU_TYPE_FULL STM32H750Ix)
+set(CPU_TYPE_FULL STM32H750Xx)
 set(TARGET_LINKER_DIR stm32h750_sdram)
 set(TARGET_LINKER_PARAMS "-Wl,--defsym=__SDRAM_START__=0xD0000000")
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
@@ -65,7 +65,7 @@ set(FUNCTION_SWITCHES ON)
 
 
 add_definitions(
-  -DSTM32H750IBTx -DSTM32H750xx
+  -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
   -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
@@ -74,7 +74,8 @@ add_definitions(
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
+#add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
+add_definitions(-DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
@@ -153,7 +154,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/vs1053b.cpp
   targets/common/arm/stm32/stm32_ws2812.cpp
   targets/common/arm/stm32/trainer_driver.cpp
 )

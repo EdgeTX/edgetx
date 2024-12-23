@@ -33,12 +33,6 @@
 #define HFP  ( 140 - HBP )
 #define VFP  ( 22 - VBP )
 
-#define LCD_ST7796S_ID      ( 0x7796 )
-#define LCD_ILI9481_ID      ( 0x9481 )
-#define LCD_ILI9486_ID      ( 0x9486 )
-#define LCD_ILI9488_ID      ( 0x9488 )
-#define LCD_HX8357D_ID      ( 0x99 )
-
 #define LCD_DELAY()         LCD_Delay()
 
 typedef void (*lcdSpiInitFucPtr)(void);
