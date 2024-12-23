@@ -134,3 +134,11 @@ extern void _kill(int pid, int sig)
 {
   return;
 }
+
+extern void __assert_func (const char *p1, int p2, const char *p3, const char *p4)
+{
+  asm("BKPT");
+#if defined(DEBUG)
+  while(1);
+#endif
+}

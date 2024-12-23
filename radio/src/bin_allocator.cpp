@@ -100,7 +100,7 @@ typedef BinAllocator<28,400> BinAllocator_slots1;
 typedef BinAllocator<92,90> BinAllocator_slots2;
 #else
 typedef BinAllocator<28,415> BinAllocator_slots1;
-typedef BinAllocator<92,100> BinAllocator_slots2;
+typedef BinAllocator<92,98> BinAllocator_slots2;
 #endif
 #else
 typedef BinAllocator<28,200> BinAllocator_slots1;
