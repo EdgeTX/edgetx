@@ -27,7 +27,7 @@
 
 /*
  * This class is somewhat like a QAction but specific for the radio UI.
- * Actions can have one or more keyboard shortcuts associated with them (currently single-key only, w/out modifiers).
+ * Actions can have one or more keyboard shortcuts associated with them.
  */
 class RadioUiAction : public QObject
 {
@@ -113,7 +113,11 @@ class RadioUiAction : public QObject
 
     bool eventFilter(QObject * obj, QEvent * event)
     {
-      if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+      if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut) {
+        QFocusEvent *focusEvent = static_cast<QFocusEvent *>(event);
+        qDebug() << "Focus event - Got:" << focusEvent->gotFocus() << "Lost:" << focusEvent->lostFocus() << "Reason:" << focusEvent->reason();
+      }
+      else if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         // Note: Qt::KeypadModifier is required for arrow keys as they are considered part of the keypad
         if (((keyEvent->modifiers() == Qt::NoModifier) || (keyEvent->modifiers() & Qt::ShiftModifier) || (keyEvent->modifiers() & Qt::KeypadModifier)) &&
