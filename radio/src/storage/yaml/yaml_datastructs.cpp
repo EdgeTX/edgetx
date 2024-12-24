@@ -46,6 +46,8 @@
  #endif
 #elif defined(PCBNV14)
  #include "yaml_datastructs_nv14.cpp"
+#elif defined(PCBST16)
+ #include "yaml_datastructs_st16.cpp"
 #elif defined(PCBX7)
  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
   #include "yaml_datastructs_tpro.cpp"

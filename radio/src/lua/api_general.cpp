@@ -1464,7 +1464,7 @@ static int luaGetFlightMode(lua_State * L)
 
 Play a file from the SD card
 
-@param filename (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
+@param filename (string) full path to wav file (i.e. 鈥?SOUNDS/en/system/tada.wav鈥?
 Introduced in 2.1.0: If you use a relative path, the current language is appended
 to the path (example: for English language: `/SOUNDS/en` is appended)
 
@@ -1810,9 +1810,9 @@ Raises a pop-up on screen that allows uses input
 @param event (number) the event variable that is passed in from the
 Run function (key pressed)
 
-@param input (number) value that can be adjusted by the +/­- keys
+@param input (number) value that can be adjusted by the +/颅- keys
 
-@param min  (number) min value that input can reach (by pressing the -­ key)
+@param min  (number) min value that input can reach (by pressing the -颅 key)
 
 @param max  (number) max value that input can reach
 
@@ -2268,7 +2268,7 @@ static int luaResetGlobalTimer(lua_State * L)
 /*luadoc
 @function multiBuffer(address[,value])
 
-This function reads/writes the Multi protocol buffer to interact with a protocol².
+This function reads/writes the Multi protocol buffer to interact with a protocol虏.
 
 @param address to read/write in the buffer
 @param (optional): value to write in the buffer

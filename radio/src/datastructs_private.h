@@ -620,7 +620,7 @@ PACK(struct CustomScreenData {
   #define TOPBAR_DATA
 #endif
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14) || defined(PCBPL18) || defined(PCBST16)
   #define SCRIPT_DATA \
     NOBACKUP(ScriptData scriptsData[MAX_SCRIPTS]);
 #else
