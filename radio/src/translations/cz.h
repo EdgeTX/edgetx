@@ -102,13 +102,13 @@
 #define TR_SF_MOD_BIND                 "ModuleBind"
 #define TR_SF_RGBLEDS                  "RGB světlo"
 
-#define TR_SOUND                       TR3("\200\201Zvuk", "\200\201Zvuk", "Hrát zvuk")
-#define TR_PLAY_TRACK                  TR3("\200\201Stopa", "\200\201Stopa", "Přehrát wav")
-#define TR_PLAY_VALUE                  TR3("\200\201Hlásit ", "\200\201Hlásit ", "Hlásit stav")
+#define TR_SOUND                       TR3("\204\205Zvuk", "\204\205Zvuk", "Hrát zvuk")
+#define TR_PLAY_TRACK                  TR3("\204\205Stopa", "\204\205Stopa", "Přehrát wav")
+#define TR_PLAY_VALUE                  TR3("\204\205Hlásit ", "\204\205Hlásit ", "Hlásit stav")
 #define TR_SF_HAPTIC                   "Vibrovat"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua Skript")
-#define TR_SF_BG_MUSIC                 TR3("\200\201Hudba","\200\201Hudba","Hudba")
-#define TR_SF_BG_MUSIC_PAUSE           TR3("\200\201Hudba ||","\200\201Hudba ||","Hudba pauza")
+#define TR_SF_BG_MUSIC                 TR3("\204\205Hudba","\204\205Hudba","Hudba")
+#define TR_SF_BG_MUSIC_PAUSE           TR3("\204\205Hudba ||","\204\205Hudba ||","Hudba pauza")
 #define TR_SF_LOGS                     "Loguj na SD"
 #define TR_ADJUST_GVAR                 "Nastav"
 #define TR_SF_BACKLIGHT                "Podsvětlení"

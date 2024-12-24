@@ -29,8 +29,8 @@ constexpr int FONT_BASE_CNT = 96;       // Number of characters in standard 5x7 
 constexpr int FONT_BASE_CNT_10x14 = 68; // Number of characters in compressed 10x14 font
 
 constexpr int FONT_SYMS_CNT = 21;       // Max # of extra symbols (based on 5x7 standard font)
-constexpr int FONT_SYMS_CNT_4x6 = 8;    // # of extra symbols in 4x6 font (adjust if font is changed)
-constexpr int FONT_SYMS_CNT_10x14 = 8;  // # of extra symbols in 10x14 font (adjust if font is changed)
+constexpr int FONT_SYMS_CNT_4x6 = 4;    // # of extra symbols in 4x6 font (adjust if font is changed)
+constexpr int FONT_SYMS_CNT_10x14 = 4;  // # of extra symbols in 10x14 font (adjust if font is changed)
 
 extern const unsigned char font_5x7[];
 extern const unsigned char font_5x7_B[];
