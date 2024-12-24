@@ -177,7 +177,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
           } else if (opt == FC_OK) {
             VersionTag tag;
             memset(&tag, 0, sizeof(tag));
-            extractFirmwareVersion(&tag);
+            getFirmwareVersion(&tag);
 
             if (strcmp(tag.flavour, FLAVOUR)) {
               lcd->drawText(94, 168, LV_SYMBOL_CLOSE " " TR_BL_INVALID_FIRMWARE,
