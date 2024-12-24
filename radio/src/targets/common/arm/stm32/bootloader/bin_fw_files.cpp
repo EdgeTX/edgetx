@@ -29,6 +29,7 @@
 #include "fw_version.h"
 #include "strhelpers.h"
 #include "hal/storage.h"
+#include "flash_driver.h"
 
 // Size of the block read when checking / writing BIN files
 #define BLOCK_LEN 4096
@@ -232,7 +233,7 @@ FRESULT openFirmwareFile(MemoryType mt, unsigned int index)
 
 void getFirmwareVersion(VersionTag* tag)
 {
-    const char * vers = getFirmwareVersion((const char *)Block_buffer);
+    const char * vers = getFirmwareVersion((const uint8_t *)Block_buffer);
     if (!vers || (vers[0] == 'n' && vers[1] == 'o')) { // "no version found"
       memcpy(tag->flavour, "unknown", sizeof("unknown"));
       tag->version = "unknown";
@@ -280,15 +281,15 @@ bool firmwareWriteBlock(uint32_t* progress)
 
   flashWriteBlock();
   firmwareWritten += sizeof(Block_buffer);
-  progress = (100 * firmwareWritten) / firmwareSize;
+  *progress = (100 * firmwareWritten) / firmwareSize;
 
-  bootloaderDrawScreen(state, progress);
-
-  FRESULT fr = readFirmwareFile();
+  readFirmwareFile();
   if (BlockCount == 0) {
+    lockFlash();
     return true;
   }
   else if (firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
+    lockFlash();
     return true;
   }
   return false;

@@ -112,17 +112,16 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
     else if (opt == FC_OK) {
       bool flavorCheck = false;
       if (memoryType == MEM_FLASH) {
-        const char * vers = getFirmwareVersion((const char *)Block_buffer);
+        VersionTag tag;
+        getFirmwareVersion(&tag);
 #if LCD_W < 212
         // Remove "edgetx-" from string
-        if (strncmp(vers, "edgetx-", 7) == 0)
-          vers += 7;
-        flavorCheck = checkFirmwareFlavor(vers);
+        flavorCheck = checkFirmwareFlavor(tag.flavour);
 #else
-        flavorCheck = checkFirmwareFlavor(vers + 7);
+        flavorCheck = checkFirmwareFlavor(tag.flavour);
 #endif
 
-        bootloaderDrawMsg(INDENT_WIDTH, vers, 0, false);
+        bootloaderDrawMsg(INDENT_WIDTH, tag.version, 0, false);
       }
       if (flavorCheck)
         bootloaderDrawMsg(0, TR_BL_HOLD_ENTER_TO_START, 2, false);

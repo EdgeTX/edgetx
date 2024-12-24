@@ -108,7 +108,9 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       lcd->drawText(195, LCD_H - 72, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
 
       bootloaderDrawFooter();
-      lcd->drawText(LCD_W / 2, LCD_H - 30, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
+      VersionTag tag;
+      getFirmwareVersion(&tag);
+      lcd->drawText(LCD_W / 2, LCD_H - 30, tag.version, CENTERED | BL_FOREGROUND);
     }
 #if defined(SPI_FLASH)
     else if (st == ST_CLEAR_FLASH_CHECK) {
