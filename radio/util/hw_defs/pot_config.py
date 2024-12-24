@@ -231,6 +231,12 @@ POT_CONFIG = {
     "pocket": {
         "P1": {"default": "POT"}
     },
+    "st16": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
+    },
 }
 
 
