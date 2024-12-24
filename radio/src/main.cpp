@@ -24,6 +24,7 @@
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
 #include "edgetx.h"
+#include "lua/lua_states.h"
 
 #if defined(LIBOPENUI)
 #include "libopenui.h"

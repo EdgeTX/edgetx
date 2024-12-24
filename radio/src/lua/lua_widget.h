@@ -25,6 +25,7 @@
 
 #include "window.h"
 #include "widget.h"
+#include "lua_states.h"
 #include "lua_api.h"
 #include "lua_lvgl_widget.h"
 

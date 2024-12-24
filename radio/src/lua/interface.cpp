@@ -276,6 +276,15 @@ void luaClose(lua_State ** L)
   }
 }
 
+void luaClose()
+{
+#if defined(COLORLCD)
+  luaClose(&lsWidgets);
+  extern lua_State* lsStandalone;
+  luaClose(&lsStandalone);
+#endif
+  luaClose(&lsScripts);
+}
 
 void luaRegisterLibraries(lua_State * L)
 {
@@ -629,10 +638,12 @@ static bool luaLoad(const char * pathname, ScriptInternalData & sid)
 
 template<unsigned int LD, unsigned int LF>
 static bool luaLoadFile(const char (&dirname)[LD], const char (&filename)[LF], ScriptInternalData & sid) {
-    constexpr size_t maxlen{LD  + LF + (sizeof(SCRIPT_EXT) - 1) + 1 + 1};  // iff dirname is string-literal (LD includes '\0') this is one byte too large, but with C++11 there is no chance to check if dirname is a literal or a (maybe-unterminated) char-array
-    char pathname[maxlen];
-    snprintf(pathname, maxlen, "%.*s/%.*s%s", LD, dirname, LF, filename, SCRIPT_EXT);    
-    return luaLoad(pathname, sid);
+  // iff dirname is string-literal (LD includes '\0') this is one byte too large,
+  // but with C++11 there is no chance to check if dirname is a literal or a (maybe-unterminated) char-array
+  constexpr size_t maxlen{LD  + LF + (sizeof(SCRIPT_EXT) - 1) + 1 + 1};
+  char pathname[maxlen];
+  snprintf(pathname, maxlen, "%.*s/%.*s%s", LD, dirname, LF, filename, SCRIPT_EXT);    
+  return luaLoad(pathname, sid);
 }
 
 #if defined(LUA_MODEL_SCRIPTS)
@@ -1015,6 +1026,8 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 
 } // luaLoadScripts
 
+void luaGetValueAndPush(lua_State *L, int src);
+
 void luaExec(const char * filename)
 {
   luaState = INTERPRETER_LOADING;
@@ -1086,7 +1099,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           luaNextEvent(&evt);
 
           lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
-          lua_pushunsigned(lsScripts, evt.event);
+          lua_pushinteger(lsScripts, evt.event);
           inputsCount = 1;
 
 #if defined(HARDWARE_TOUCH)
@@ -1345,7 +1358,7 @@ void luaInit()
     lsScriptsTrace.script = "lua_newstate(scripts)";
     L = lua_newstate(tracer_alloc, &lsScriptsTrace);   //we use tracer allocator
 #else
-    L = lua_newstate(l_alloc, nullptr);   //we use Lua default allocator
+    L = luaL_newstate();   //we use Lua default allocator
 #endif
     if (L) {
       // install our panic handler

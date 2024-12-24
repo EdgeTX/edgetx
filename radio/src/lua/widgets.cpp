@@ -32,6 +32,8 @@
 #include "lua_widget.h"
 #include "lua_widget_factory.h"
 
+#include "lua_states.h"
+
 #define MAX_INSTRUCTIONS       (20000/100)
 #define LUA_WARNING_INFO_LEN    64
 
@@ -348,7 +350,7 @@ void luaInitThemesAndWidgets()
   lsWidgetsTrace.script = "lua_newstate(widgets)";
   lsWidgets = lua_newstate(tracer_alloc, &lsWidgetsTrace);   //we use tracer allocator
 #else
-  lsWidgets = lua_newstate(l_alloc, NULL);   //we use Lua default allocator
+  lsWidgets = luaL_newstate();   //we use Lua default allocator
 #endif
   if (lsWidgets) {
     // install our panic handler

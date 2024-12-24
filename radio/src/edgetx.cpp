@@ -73,6 +73,10 @@
 #include <malloc.h>
 #endif
 
+#if defined(LUA)
+#include "lua/lua_states.h"
+#endif
+
 RadioData  g_eeGeneral;
 ModelData  g_model;
 
@@ -1085,10 +1089,6 @@ void edgeTxClose(uint8_t shutdown)
 #endif
   }
 
-#if defined(LUA)
-  luaClose(&lsScripts);
-#endif
-
   logsClose();
 
   storageFlushCurrentModel();
@@ -1112,9 +1112,11 @@ void edgeTxClose(uint8_t shutdown)
   MainWindow::instance()->shutdown();
 #if defined(LUA)
   luaUnregisterWidgets();
-  luaClose(&lsWidgets);
-  lsWidgets = 0;
 #endif
+#endif
+
+#if defined(LUA)
+  luaClose();
 #endif
 
   sdDone();

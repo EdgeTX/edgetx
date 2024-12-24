@@ -19,7 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "definitions.h"
+#include "lua_states.h"
 
 #define DIR_METATABLE "DIR*"
 
