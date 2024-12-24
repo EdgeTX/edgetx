@@ -1,11 +1,13 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
+option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
+option(USE_RTC_CLOCK "RTC Clock" ON)
 
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
@@ -19,11 +21,6 @@ set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
-
-#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
-#option(AFHDS2 "Support for AFHDS2" OFF)
-
-option(USE_RTC_CLOCK "RTC Clock" ON)
 
 # for size report script
 set(CPU_TYPE_FULL STM32F429xI)
