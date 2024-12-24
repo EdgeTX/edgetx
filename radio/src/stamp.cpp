@@ -96,30 +96,23 @@ __SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLA
  * Tries to find EdgeTX or OpenTX version in the first 1024 byte of either firmware/bootloader (the one not running) or the buffer
  * @param buffer If non-null find the firmware version in the buffer instead
  */
-const char * getFirmwareVersion(const char * buffer)
+const char * getFirmwareVersion(const uint8_t* buffer)
 {
-#if !defined(FIRMWARE_QSPI)||1
-  if (buffer == nullptr) {
-    return "no version found";
+  if(buffer == nullptr)
+  {
 #if defined(BOOT) && !defined(FIRMWARE_QSPI)
-    buffer = (const char *)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE);
+    buffer = (const uint8_t *)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE);
 #else
-    buffer = (const char *)FIRMWARE_ADDRESS;
+    buffer = (const uint8_t *)FIRMWARE_ADDRESS;
 #endif
   }
 
   for (int i = 0; i < 2024; i++) {
     if ((memcmp(buffer + i, "edgetx-", 7) == 0)
         || memcmp(buffer + i, "opentx-", 7) == 0) {
-      return buffer + i;
+      return (const char*)buffer + i;
     }
   }
 #endif
   return "no version found";
 }
-#else
-const char * getFirmwareVersion(const char * buffer)
-{
-  return "edgetx-" FLAVOUR "-" VERSION DISPLAY_VERSION " (" GIT_STR ")";
-}
-#endif

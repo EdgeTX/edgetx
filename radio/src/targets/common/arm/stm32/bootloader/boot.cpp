@@ -425,13 +425,6 @@ int  bootloaderMain()
       }
 
       if (state == ST_FLASH_DONE) {
-#ifndef FIRMWARE_QSPI
-        if (unlocked) {
-          lockFlash();
-          unlocked = 0;
-        }
-#endif
-
         if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
           state = ST_START;
           vpos = 0;
