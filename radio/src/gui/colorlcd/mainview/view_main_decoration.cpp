@@ -117,11 +117,15 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
   if (IS_POT_AVAILABLE(pot)) {
     sliders[pot] = new MainViewHorizontalSlider(bl, pot);
   }
+#if defined(RADIO_PL18U)
+  pot += 2;
+#else
   pot += 1;
+#endif
 
   // Bottom center 6POS
   if (IS_POT_AVAILABLE(pot)) {
-#if defined(RADIO_PL18) || defined(RADIO_PL18EV)
+#if defined(RADIO_PL18) || defined(RADIO_PL18EV) || defined(RADIO_PL18U)
     sliders[pot] = new MainViewHorizontalSlider(bc, pot);
     pot += 1;
 #else
@@ -136,10 +140,18 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
   }
 
   // Bottom right horizontal slider
+
+#if defined(RADIO_PL18U)
+  pot -= 2;
+#endif
   if (IS_POT_AVAILABLE(pot)) {
     sliders[pot] = new MainViewHorizontalSlider(br, pot);
   }
+#if defined(RADIO_PL18U)
+  pot += 2;
+#else
   pot += 1;
+#endif
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   if (max_pots > pot) {
