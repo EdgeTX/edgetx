@@ -504,7 +504,7 @@
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
     0,0,0,   /* pots */       \
-    -1,-1,   /* sliders */    \
+    -1,1,   /* sliders */    \
     0,	     /* vbat */       \
     0,       /* rtc_bat */    \
     -1,      /* SWB */        \
