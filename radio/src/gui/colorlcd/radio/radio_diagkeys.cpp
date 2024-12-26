@@ -26,8 +26,8 @@
 #include "edgetx.h"
 
 #if defined(RADIO_PL18U)
-  static const uint8_t _trimMap[MAX_TRIMS * 2] = {8, 9, 10, 11, 2, 3, 4, 5,
-                                                  0, 1, 6, 7, 12, 13, 14, 15};
+  static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1,
+                                                  10, 11, 8, 9, 12, 13, 14, 15};
 #elif defined(RADIO_NB4P)
   static const uint8_t _trimMap[MAX_TRIMS * 2] = {0, 1, 2, 3, 4, 5, 6, 7,
                                                   8, 9, 10, 11, 12, 13, 14, 15};
