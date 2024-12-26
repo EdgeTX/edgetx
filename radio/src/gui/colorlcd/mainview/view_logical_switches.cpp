@@ -106,6 +106,8 @@ class LogicalSwitchDisplayFooter : public Window
 
   void refresh()
   {
+    if (deleted()) return;
+
     LogicalSwitchData* ls = lswAddress(lsIndex);
     uint8_t lsFamily = lswFamily(ls->func);
 
