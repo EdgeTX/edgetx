@@ -25,6 +25,7 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 #include "mixer_scheduler.h"
+#include "lua/lua_states.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
