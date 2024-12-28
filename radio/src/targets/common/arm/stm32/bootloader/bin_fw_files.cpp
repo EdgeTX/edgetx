@@ -231,7 +231,7 @@ FRESULT openFirmwareFile(MemoryType mt, unsigned int index)
   return FR_INVALID_OBJECT;
 }
 
-void getFirmwareVersion(VersionTag* tag)
+void getFileFirmwareVersion(VersionTag* tag)
 {
     const char * vers = getFirmwareVersion((const uint8_t *)Block_buffer);
     if (!vers || (vers[0] == 'n' && vers[1] == 'o')) { // "no version found"

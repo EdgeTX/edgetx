@@ -62,7 +62,7 @@ FRESULT openFirmwareFile(MemoryType mt, unsigned int index);
 
 // Can be called right after openBinFile() to extract the version information
 // from a firmware file
-void getFirmwareVersion(VersionTag* tag);
+void getFileFirmwareVersion(VersionTag* tag);
 
 // Read the next BLOCK_LEN bytes into 'Block_buffer'
 // Check 'BlockCount' for # of bytes read

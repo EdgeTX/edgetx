@@ -177,7 +177,7 @@ const char* getFirmwareFileNameByIndex(unsigned int index)
   return fwFiles[index].name;
 }
 
-void getFirmwareVersion(VersionTag* tag)
+void getFileFirmwareVersion(VersionTag* tag)
 {
 
   extractFirmwareVersion((UF2_Block*)Block_buffer, tag);

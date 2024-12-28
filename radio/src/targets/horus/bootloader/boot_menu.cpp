@@ -108,9 +108,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       lcd->drawText(195, LCD_H - 72, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
 
       bootloaderDrawFooter();
-      VersionTag tag;
-      getFirmwareVersion(&tag);
-      lcd->drawText(LCD_W / 2, LCD_H - 30, tag.version, CENTERED | BL_FOREGROUND);
+      lcd->drawText(LCD_W / 2, LCD_H - 30, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
     }
 #if defined(SPI_FLASH)
     else if (st == ST_CLEAR_FLASH_CHECK) {
@@ -177,7 +175,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
           } else if (opt == FC_OK) {
             VersionTag tag;
             memset(&tag, 0, sizeof(tag));
-            getFirmwareVersion(&tag);
+            getFileFirmwareVersion(&tag);
 
             if (strcmp(tag.flavour, FLAVOUR)) {
               lcd->drawText(94, 168, LV_SYMBOL_CLOSE " " TR_BL_INVALID_FIRMWARE,

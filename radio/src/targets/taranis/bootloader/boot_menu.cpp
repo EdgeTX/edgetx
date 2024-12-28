@@ -113,7 +113,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
       bool flavorCheck = false;
       if (memoryType == MEM_FLASH) {
         VersionTag tag;
-        getFirmwareVersion(&tag);
+        getFileFirmwareVersion(&tag);
 #if LCD_W < 212
         // Remove "edgetx-" from string
         flavorCheck = checkFirmwareFlavor(tag.flavour);
