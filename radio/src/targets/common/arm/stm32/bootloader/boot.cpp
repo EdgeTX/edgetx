@@ -164,7 +164,9 @@ void bootloaderInitApp()
       jumpTo(APP_START_ADDRESS);
     }
   } else {
+#if defined(FIRMWARE_QSPI)
      setSelectedUsbMode(USB_DFU_MODE);
+#endif
   }
 
   // TODO: move all this into board specifics

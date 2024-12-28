@@ -15,7 +15,7 @@
   *
   ******************************************************************************
   */
-
+#if defined(FIRMWARE_QSPI)
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_dfu.h"
 
@@ -142,3 +142,4 @@ static uint16_t MEM_If_GetStatus(uint32_t Add, uint8_t Cmd, uint8_t *buffer)
   }
   return (0);
 }
+#endif // defined(FIRMWARE_QSPI)
