@@ -119,7 +119,7 @@ class QuickSubMenu
   QuickMenu::SubMenu last;
   std::function<PageGroup*()> create;
   PageDef* items;
-  QuickMenuGroup* subMenu;
+  QuickMenuGroup* subMenu = nullptr;
   ButtonBase* menuButton = nullptr;
 
   void buildSubMenu()
