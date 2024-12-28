@@ -169,7 +169,8 @@ void evalFunctionSwitches()
   uint8_t fct_switches = switchGetMaxFctSwitches();
   for (uint8_t i = 0; i < fct_switches; i++) {
     if (FSWITCH_CONFIG(i) == SWITCH_NONE) {
-      fsLedRGB(i, 0);
+      setFSLedOFF(i);
+      //fsLedRGB(i, 0);
       continue;
     }
 
