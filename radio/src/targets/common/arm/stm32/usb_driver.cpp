@@ -58,7 +58,9 @@ extern "C" {
 
 // TODO: configured where needed
 #define DEFAULT_USB_MODE USB_MASS_STORAGE_MODE;
+#if defined(FIRMWARE_QSPI)
 static const USBD_DFU_MediaTypeDef* _dfu_media[USBD_DFU_MAX_ITF_NUM] = {nullptr};
+#endif
 
 #else
 #define DEFAULT_USB_MODE USB_UNSELECTED_MODE;
@@ -168,6 +170,7 @@ void usbStart()
       break;
 
 #if defined(BOOT)
+#if defined(FIRMWARE_QSPI)
     case USB_DFU_MODE:
       USBD_RegisterClass(&hUsbDevice, &USBD_DFU);
       for (unsigned i = 0; i < USBD_DFU_MAX_ITF_NUM; i++){
@@ -177,6 +180,7 @@ void usbStart()
         }
       }
       break;
+#endif // !defined(STM32H7) && !defined(STM32H7RS)
 #else
     case USB_JOYSTICK_MODE:
       // initialize USB as HID device
@@ -216,7 +220,7 @@ bool usbStarted()
 }
 
 #if defined(BOOT)
-
+#if defined(FIRMWARE_QSPI)
 int usbRegisterDFUMedia(const void* dfu_media)
 {
   for (unsigned i = 0; i < USBD_DFU_MAX_ITF_NUM; i++) {
@@ -227,7 +231,7 @@ int usbRegisterDFUMedia(const void* dfu_media)
   }
   return -1;
 }
-
+#endif //  !defined(FIRMWARE_QSPI)
 #else // !BOOT
 
 #if defined(USBJ_EX)
