@@ -113,6 +113,6 @@ const char * getFirmwareVersion(const uint8_t* buffer)
       return (const char*)buffer + i;
     }
   }
-#endif
   return "no version found";
 }
+#endif
