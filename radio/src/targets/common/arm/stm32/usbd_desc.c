@@ -68,8 +68,12 @@
 #define USBD_VID_PID_CODES                  0x1209    // https://pid.codes
 
 #define USBD_LANGID_STRING                  0x409
-#define USBD_MANUFACTURER_STRING            "OpenTX"
+#define USBD_MANUFACTURER_STRING            "EdgeTX"
+#if defined(FIRMWARE_QSPI)
 #define USB_SIZ_STRING_SERIAL               0x1A
+#else
+#define USBD_SERIALNUMBER_FS_STRING         "00000000001B"
+#endif
 
 #if defined(BOOT)
 #define USBD_MSC_PRODUCT_FS_STRING          USB_NAME " Bootloader"
@@ -94,11 +98,13 @@
 #define USBD_CDC_CONFIGURATION_FS_STRING    "VSP Config"
 #define USBD_CDC_INTERFACE_FS_STRING        "VSP Interface"
 
+#if defined(FIRMWARE_QSPI)
 #define USBD_DFU_VID                        USBD_VID_STM
 #define USBD_DFU_PID                        0xDF11
 #define USBD_DFU_PRODUCT_STRING             USB_NAME " DFU"
 #define USBD_DFU_CONFIGURATION_STRING       "DFU Config"
 #define USBD_DFU_INTERFACE_STRING           "DFU Interface"
+#endif
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 
@@ -129,10 +135,10 @@
   * @brief Private functions declaration.
   * @{
   */
-
+#if defined(FIRMWARE_QSPI)
 static void Get_SerialNum(void);
 static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
-
+#endif
 /**
   * @}
   */
@@ -260,6 +266,7 @@ __ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END =
 /* Internal string descriptor. */
 __ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
 
+#if defined(FIRMWARE_QSPI)
 #if defined ( __ICCARM__ )      /* !< IAR Compiler */
   #pragma data_alignment=4
 #endif
@@ -267,6 +274,7 @@ __ALIGN_BEGIN uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL] __ALIGN_END = {
   USB_SIZ_STRING_SERIAL,
   USB_DESC_TYPE_STRING,
 };
+#endif
 
 /**
   * @}
@@ -304,12 +312,12 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
       vid = USBD_MSC_VID;
       pid = USBD_MSC_PID;
       break;
-
+#if defined(FIRMWARE_QSPI)
     case USB_DFU_MODE:
       vid = USBD_DFU_VID;
       pid = USBD_DFU_PID;
       break;
-
+#endif
     default:
       vid = 0;
       pid = 0;
@@ -379,9 +387,11 @@ uint8_t * USBD_FS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
     case USB_MASS_STORAGE_MODE:
       USBD_GetString ((uint8_t*)USBD_MSC_PRODUCT_FS_STRING, USBD_StrDesc, length);
       break;
+#if defined(FIRMWARE_QSPI)
     case USB_DFU_MODE:
       USBD_GetString ((uint8_t*)USBD_DFU_PRODUCT_STRING, USBD_StrDesc, length);
       break;
+#endif
   }
   return USBD_StrDesc;
 }
@@ -407,6 +417,7 @@ uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
   */
 uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
+#if defined(FIRMWARE_QSPI)
   *length = USB_SIZ_STRING_SERIAL;
 
   /* Update the serial number string descriptor with the data from the unique
@@ -414,6 +425,10 @@ uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   Get_SerialNum();
 
   return (uint8_t *)USBD_StringSerial;
+#else
+  USBD_GetString ((uint8_t*)USBD_SERIALNUMBER_FS_STRING, USBD_StrDesc, length);
+  return USBD_StrDesc;
+#endif
 }
 
 /**
@@ -434,9 +449,11 @@ uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
     case USB_MASS_STORAGE_MODE:
       USBD_GetString ((uint8_t*)USBD_MSC_CONFIGURATION_FS_STRING, USBD_StrDesc, length);
       break;
+#if defined(FIRMWARE_QSPI)
     case USB_DFU_MODE:
       USBD_GetString ((uint8_t*)USBD_DFU_CONFIGURATION_STRING, USBD_StrDesc, length);
       break;
+#endif
   }
   return USBD_StrDesc;
 }
@@ -459,9 +476,11 @@ uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *leng
     case USB_MASS_STORAGE_MODE:
       USBD_GetString ((uint8_t*)USBD_MSC_INTERFACE_FS_STRING, USBD_StrDesc, length);
       break;
+#if defined(FIRMWARE_QSPI)
     case USB_DFU_MODE:
       USBD_GetString ((uint8_t*)USBD_DFU_INTERFACE_STRING, USBD_StrDesc, length);
       break;
+#endif
   }
   return USBD_StrDesc;
 }
@@ -481,6 +500,7 @@ uint8_t * USBD_FS_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 }
 #endif /* (USBD_LPM_ENABLED == 1) */
 
+#if defined(FIRMWARE_QSPI)
 /**
   * @brief  Create the serial number string descriptor
   * @param  None
@@ -532,6 +552,7 @@ static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len)
     pbuf[2 * idx + 1] = 0;
   }
 }
+#endif // FIRMWARE_QSPI
 /**
   * @}
   */
