@@ -23,7 +23,7 @@
 
 #include "hal/serial_port.h"
  
-#define HALLSTICK_BUFF_SIZE             ( 512 )
+#define HALLSTICK_BUFF_SIZE             ( 272 ) // 1 start byte, 1 ID byte, 1 length Byte, max 256 bytes of data, 2 bytes checksum = 261 bytes max
 #define FLYSKY_HALL_BAUDRATE            ( 921600 )
 #define FLYSKY_HALL_CHANNEL_COUNT       ( 4 )
 
