@@ -530,7 +530,7 @@ void SimulatorMainWindow::showHelp(bool show)
 
 void SimulatorMainWindow::showAbout(bool show)
 {
-  QString aboutStr = "<center><img src=\":/images/companion-title.png\"></center><br/>";
+  QString aboutStr = "<center><img src=\":/images/simulator-title.png\"></center><br/>";
   aboutStr.append(tr("EdgeTX Home Page: <a href='%1'>%1</a>").arg(EDGETX_HOME_PAGE_URL));
   aboutStr.append("<br/><br/>");
   aboutStr.append(tr("The EdgeTX project was originally forked from <a href='%1'>OpenTX</a>").arg("https://github.com/opentx/opentx"));
