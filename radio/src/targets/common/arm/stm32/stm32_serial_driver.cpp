@@ -63,7 +63,7 @@ enum _STM32_USART {
   _STM32_UART4,
 #endif
 
-#if defined(UART5)
+#if defined(UART5) && (defined(STM32H7) || defined(STM32H7RS))
   _STM32_UART5,
 #endif
 
@@ -162,7 +162,7 @@ static inline void _usart_isr_handler(_STM32_USART n)
   DEFINE_USART_IRQ(UART4);
 #endif
 
-#if defined (UART5)
+#if defined (UART5) && (defined(STM32H7) || defined(STM32H7RS))
   DEFINE_USART_IRQ(UART5);
 #endif
 
@@ -193,7 +193,7 @@ static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 #if defined (UART4)
   if (usart->USARTx == UART4) return &_serial_states[_STM32_UART4];
 #endif
-#if defined (UART5)
+#if defined (UART5) && (defined(STM32H7) || defined(STM32H7RS))
   if (usart->USARTx == UART5) return &_serial_states[_STM32_UART5];
 #endif
 #if defined (USART6)
