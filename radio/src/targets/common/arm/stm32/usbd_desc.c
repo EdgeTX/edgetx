@@ -68,7 +68,7 @@
 #define USBD_VID_PID_CODES                  0x1209    // https://pid.codes
 
 #define USBD_LANGID_STRING                  0x409
-#define USBD_MANUFACTURER_STRING            "EdgeTX"
+#define USBD_MANUFACTURER_STRING            "OpenTX"
 #if defined(FIRMWARE_QSPI)
 #define USB_SIZ_STRING_SERIAL               0x1A
 #else
