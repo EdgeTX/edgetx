@@ -96,6 +96,9 @@
 
 #define CPN_STR_SRC_INDICATOR_NEG      QCoreApplication::translate("RawSource", "-")             // Source negative value indicator.
 
-#define EDGETX_HOME_PAGE_URL           "https://edgetx.org"
+#define EDGETX_HOME_PAGE_URL           QStringLiteral("https://edgetx.org")
+#define EDGETX_DONATE_URL              QStringLiteral("https://opencollective.com/edgetx/donate")
+#define EDGETX_COMMIT_URL              QStringLiteral("https://github.com/EdgeTX/edgetx/commit/")
+#define EDGETX_ISSUES_URL              QStringLiteral("https://github.com/EdgeTX/edgetx/issues/new/choose")
 
 #define CPN_ADC_REFACTOR_VERSION       "2.10.0"
