@@ -87,10 +87,16 @@ uint8_t pulse_inc = 1;
 
 // DMA buffer contains pulses for 2 LED at a time
 // (allows for refill at HT and TC)
-#if defined(STM32_SUPPORT_32BIT_TIMERS)
-static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN * 2] __attribute__((__section__(".sram2")));
+#if defined (SDRAM)
+#define DMA_BUFFER_SECTION __attribute__((__section__(".sram2")))
 #else
-static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN] __attribute__((__section__(".sram2")));
+#define DMA_BUFFER_SECTION __DMA
+#endif
+
+#if defined(STM32_SUPPORT_32BIT_TIMERS)
+static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN * 2] DMA_BUFFER_SECTION;
+#else
+static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN] DMA_BUFFER_SECTION;
 #endif
 
 static uint8_t _led_seq_cnt;
