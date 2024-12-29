@@ -166,7 +166,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         } else if (opt == FC_OK) {
           VersionTag tag;
           memset(&tag, 0, sizeof(tag));
-          getFirmwareVersion(&tag);
+          getFileFirmwareVersion(&tag);
 
           lcd->drawText(LCD_W / 4 + DEFAULT_PADDING,
                         MESSAGE_TOP - DEFAULT_PADDING,
