@@ -206,6 +206,7 @@ class FunctionSwitch : public Window
   RGBLedColor offValue;
   RGBLedColor onValue;
 
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
   void previewColor(int newValue)
   {
     // Convert color index to RGB
@@ -216,6 +217,7 @@ class FunctionSwitch : public Window
       g_model.functionSwitchLedOFFColor[switchIndex].setColor(newValue);
     }
   }
+#endif
 
   void setState()
   {
