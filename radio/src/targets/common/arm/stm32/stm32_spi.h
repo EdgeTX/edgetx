@@ -50,7 +50,7 @@ struct stm32_spi_t {
 
 void stm32_spi_enable_clock(SPI_TypeDef *SPIx);
 
-void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width);
+void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp = false);
 void stm32_spi_deinit(const stm32_spi_t* spi);
 
 void stm32_spi_select(const stm32_spi_t* spi);
