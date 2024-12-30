@@ -117,13 +117,16 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
   return presc;
 }
 
-static void _init_gpios(const stm32_spi_t* spi)
+static void _init_gpios(const stm32_spi_t* spi, bool enableMisoPullUp)
 {
-  gpio_init(spi->MISO, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH); // hack to test if this helps on other radios
-  gpio_init(spi->MOSI, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_init(spi->SCK, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  if(enableMisoPullUp)
+  {
+    gpio_init(spi->MISO, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+    gpio_set_af(spi->MISO, _get_spi_af(spi->SPIx));
+  } else {
+    gpio_init_af(spi->MISO, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
+  }
   gpio_init_af(spi->SCK, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_init_af(spi->MISO, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(spi->MOSI, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
 
   gpio_init(spi->CS, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
@@ -185,9 +188,9 @@ static void _config_dma_streams(const stm32_spi_t* spi)
 }
 #endif
 
-void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width)
+void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp)
 {
-  _init_gpios(spi);
+  _init_gpios(spi, misoPullUp);
 
   auto SPIx = spi->SPIx;
   stm32_spi_enable_clock(SPIx);
