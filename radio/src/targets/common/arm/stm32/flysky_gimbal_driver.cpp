@@ -85,7 +85,9 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
       hallBuffer->length = ch;
       hallBuffer->dataIndex = 0;
       hallBuffer->status = GET_DATA;
-      if (0 == hallBuffer->length) {
+      if(hallBuffer->length > HALLSTICK_BUFF_SIZE - 5) { // buffer size - header size
+        hallBuffer->status = GET_START;
+      } else if (0 == hallBuffer->length) {
         hallBuffer->status = GET_CHECKSUM;
         hallBuffer->checkSum = 0;
       }
