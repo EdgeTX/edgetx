@@ -51,7 +51,7 @@ add_definitions(-DRADIO_TX15)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
-set(DEFAULT_INTERNAL_MODULE CRSF CACHE STRING "Default internal module")
+set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET x10_bitmaps)
 set(FONTS_TARGET x12_fonts)
