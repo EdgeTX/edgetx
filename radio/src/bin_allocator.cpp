@@ -96,8 +96,8 @@ typedef BinAllocator<40,300> BinAllocator_slots1;
 typedef BinAllocator<80,100> BinAllocator_slots2;
 #elif defined(CCMRAM)
 #if defined(DEBUG)
-typedef BinAllocator<28,400> BinAllocator_slots1;
-typedef BinAllocator<92,90> BinAllocator_slots2;
+typedef BinAllocator<28,395> BinAllocator_slots1;
+typedef BinAllocator<92,85> BinAllocator_slots2;
 #else
 typedef BinAllocator<28,415> BinAllocator_slots1;
 typedef BinAllocator<92,98> BinAllocator_slots2;
