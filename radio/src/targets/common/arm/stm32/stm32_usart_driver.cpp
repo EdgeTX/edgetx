@@ -202,9 +202,9 @@ static gpio_speed_t _get_pin_speed(uint32_t baudrate)
 
 static gpio_af_t _get_usart_af(gpio_t pin, USART_TypeDef* USARTx)
 {
+#if defined(STM32H7)
   GPIO_TypeDef* port = gpio_get_port(pin);
   uint32_t pinNr = gpio_get_pin(pin);
-#if defined(STM32H7)
   if(USARTx == USART1)
   {
     if(port == GPIOA)
