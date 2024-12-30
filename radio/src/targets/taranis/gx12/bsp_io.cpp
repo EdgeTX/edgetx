@@ -215,7 +215,7 @@ static SwitchHwPos _get_fs_switch_pos(uint8_t idx)
   }
 }
 
-SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
+SwitchHwPos boardSwitchGetPosition(SwitchCategory cat, uint8_t idx)
 {
   if (cat == SWITCH_PHYSICAL) {
     return _get_switch_pos(idx);
