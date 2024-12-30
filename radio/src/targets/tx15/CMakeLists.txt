@@ -23,7 +23,7 @@ set(TARGET_DIR tx15)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
-set(INTERNAL_MODULE_AFHDS3 YES)
+set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 
@@ -49,9 +49,9 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 set(FLAVOUR tx15)
 add_definitions(-DRADIO_TX15)
 
-# Defines internal modules for PL18 via UART7
-# set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
-# set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+# defines existing internal modules
+set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
+set(DEFAULT_INTERNAL_MODULE CRSF CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET x10_bitmaps)
 set(FONTS_TARGET x12_fonts)
