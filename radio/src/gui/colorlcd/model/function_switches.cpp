@@ -200,11 +200,13 @@ class FunctionSwitch : public Window
   Choice* typeChoice = nullptr;
   Choice* groupChoice = nullptr;
   Choice* startChoice = nullptr;
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
   ColorPicker* offColor = nullptr;
   ColorPicker* onColor = nullptr;
-  int lastType = -1;
   RGBLedColor offValue;
   RGBLedColor onValue;
+#endif
+  int lastType = -1;
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   void previewColor(int newValue)
@@ -223,8 +225,10 @@ class FunctionSwitch : public Window
   {
     startChoice->show(FSWITCH_CONFIG(switchIndex) == SWITCH_2POS && FSWITCH_GROUP(switchIndex) == 0);
     groupChoice->show(FSWITCH_CONFIG(switchIndex) != SWITCH_NONE);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
     offColor->show(FSWITCH_CONFIG(switchIndex) != SWITCH_NONE);
     onColor->show(FSWITCH_CONFIG(switchIndex) != SWITCH_NONE);
+#endif
   }
 
   void checkEvents() override
