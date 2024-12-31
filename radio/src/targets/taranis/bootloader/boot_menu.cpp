@@ -56,14 +56,14 @@ void bootloaderDrawFilename(const char *str, uint8_t line, bool selected)
   bootloaderDrawMsg(INDENT_WIDTH, str, line, selected);
 }
 
-bool checkFirmwareFlavor(const char * vers)
+bool checkFirmwareFlavor(const char * flavour)
 {
-  if (strncmp(vers,FLAVOUR, sizeof(FLAVOUR) - 1) != 0)
+  if (strncmp(flavour,FLAVOUR, sizeof(FLAVOUR) - 1) != 0)
     return false;
 
-  char * tmp = (char *) vers;
-  while (*tmp != '-') tmp++;
-  if ((tmp - vers) != (sizeof(FLAVOUR) - 1))
+  char * tmp = (char *) flavour;
+  while (*tmp != 0) tmp++;
+  if ((tmp - flavour) != (sizeof(FLAVOUR) - 1))
     return false;
 
   return true;
