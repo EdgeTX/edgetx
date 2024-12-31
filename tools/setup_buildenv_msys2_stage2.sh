@@ -20,17 +20,17 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   read
 fi
 
-echo "=== Step $((STEP++)): Downloading ARM gcc toolchain ==="
+echo "=== Step $((STEP++)): Downloading GNU Arm Embedded Toolchain ==="
 wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-mingw-w64-i686-arm-none-eabi.zip
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
-echo "=== Step $((STEP++)): Installing ARM gcc toolchain ==="
-unzip arm-gnu-toolchain-14.2.rel1-mingw-w64-i686-arm-none-eabi.zip
+echo "=== Step $((STEP++)): Installing GNU Arm Embedded Toolchain ==="
+unzip arm-gnu-toolchain-14.2.rel1-mingw-w64-i686-arm-none-eabi.zip -d gcc-arm-none-eabi
 rm arm-gnu-toolchain-14.2.rel1-mingw-w64-i686-arm-none-eabi.zip
-mv arm-gnu-toolchain-14.2.rel1-mingw-w64-i686-arm-none-eabi /opt/gcc-arm-none-eabi
+mv gcc-arm-none-eabi/ /opt/gcc-arm-none-eabi
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
