@@ -233,10 +233,12 @@ FRESULT openFirmwareFile(MemoryType mt, unsigned int index)
 
 void getFileFirmwareVersion(VersionTag* tag)
 {
+    memset(tag->flavour, 0, sizeof(tag->flavour));
     const char * vers = getFirmwareVersion((const uint8_t *)Block_buffer);
     if (!vers || (vers[0] == 'n' && vers[1] == 'o')) { // "no version found"
       memcpy(tag->flavour, "unknown", sizeof("unknown"));
       tag->version = "unknown";
+      tag->flavour[sizeof(tag->flavour)-1] = 0;
       return;
     }
 
@@ -248,6 +250,7 @@ void getFileFirmwareVersion(VersionTag* tag)
     char* fl = tag->flavour;
     while(*vers != '-')
         *(fl++) = *(vers++);
+    tag->flavour[sizeof(tag->flavour)-1] = 0;
 
     // skip '-'
     tag->version = ++vers;
