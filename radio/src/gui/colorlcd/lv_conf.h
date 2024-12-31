@@ -354,7 +354,7 @@
 /*Compiler prefix for a big array declaration in RAM*/
 #define LV_ATTRIBUTE_LARGE_RAM_ARRAY
 
-#if !defined(BOOT) && !defined(YAML_GENERATOR) && !defined(SIMU)
+#if !defined(BOOT) && !defined(YAML_GENERATOR) && !defined(SIMU) && (defined(STM32H7) || defined(STM32H7RS))
 /*Place performance critical functions into a faster memory (e.g RAM)*/
 #define LV_ATTRIBUTE_FAST_MEM __attribute__((section(".iram")))
 #else
