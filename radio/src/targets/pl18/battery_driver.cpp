@@ -25,6 +25,9 @@
 
 #define  __BATTERY_DRIVER_C__
 
+// Debug driver
+//#define BATTERY_DRIVER_DEBUG
+
 #define BATTERY_W 140
 #define BATTERY_H (LCD_H - 120)
 #define BATTERY_TOP ((LCD_H - BATTERY_H)/2)
@@ -168,19 +171,17 @@ void chargeEndDetection(STRUCT_BATTERY_CHARGER* charger, uint8_t chargeEndPinAct
   }
 }
 
-uint16_t get_battery_charge_state()
+uint16_t get_uCharger_state(uint16_t state)
 {
-  uint16_t state = CHARGE_UNKNOWN;
-
   chargerDetection(&uCharger, IS_UCHARGER_ACTIVE(), UCHARGER_SAMPLING_CNT);
   if (uCharger.isChargerDetectionReady)
   {
     if (uCharger.hasCharger)  // USB charger can be detected properly no matter it is enabled or not
     {
-#if defined(RADIO_PL18U) && defined(WIRELESS_CHARGER)
-      DISABLE_WCHARGER();
-#endif
+#if !defined(RADIO_PL18U)
+      // Enable USB charger when USB power is detected
       ENABLE_UCHARGER();
+#endif
       chargeEndDetection(&uCharger, IS_UCHARGER_CHARGE_END_ACTIVE(), UCHARGER_CHARGING_SAMPLING_CNT, UCHARGER_CHARGE_END_SAMPLING_CNT);
       if (uCharger.isChargingDetectionReady)
       {
@@ -198,20 +199,29 @@ uint16_t get_battery_charge_state()
     {
       resetChargeEndDetection(&uCharger);
 
+#if !defined(RADIO_PL18U)
       // Disable USB charger if it is not present, so that wireless charger can be detected properly
       DISABLE_UCHARGER();
-#if defined(RADIO_PL18U) && defined(WIRELESS_CHARGER)
-      ENABLE_WCHARGER();
 #endif
     }
   }
 
+  return state;
+}
+
+uint16_t get_wCharger_state(uint16_t state)
+{
 #if defined(WIRELESS_CHARGER)
   chargerDetection(&wCharger, IS_WCHARGER_ACTIVE(), WCHARGER_SAMPLING_CNT);
   if (wCharger.isChargerDetectionReady)
   {
     if (wCharger.hasCharger)  // Wireless charger can only be detected when USB charger is disabled
     {
+#if defined(RADIO_PL18U)
+      // Disable USB charger when wireless charger is present, otherwise USB charger detection will be wrong
+      DISABLE_UCHARGER();
+      ENABLE_WCHARGER();
+#endif
       chargeEndDetection(&wCharger, IS_WCHARGER_CHARGE_END_ACTIVE(), WCHARGER_CHARGING_SAMPLING_CNT, WCHARGER_CHARGE_END_SAMPLING_CNT);
       if (wCharger.isChargingDetectionReady)
       {
@@ -240,6 +250,11 @@ uint16_t get_battery_charge_state()
     else
     {
       resetChargeEndDetection(&wCharger);
+#if defined(RADIO_PL18U)
+      // Enable USB charger only if wireless charger is not present
+      DISABLE_WCHARGER();
+      ENABLE_UCHARGER();
+#endif
 
       // Charge current control
       wirelessHighCurrentDelay = 0;
@@ -256,6 +271,22 @@ uint16_t get_battery_charge_state()
   }
 
 #endif  // defined(WIRELESS_CHARGER)
+
+  return state;
+}
+
+uint16_t get_battery_charge_state()
+{
+  uint16_t state = CHARGE_UNKNOWN;
+
+#if defined(RADIO_PL18U)
+  // PL18U wireless charger takes precedence
+  state = get_wCharger_state(state);
+  state = get_uCharger_state(state);
+#else
+  state = get_uCharger_state(state);
+  state = get_wCharger_state(state);
+#endif
 
   return state;
 }
@@ -413,7 +444,7 @@ void battery_charge_end()
 
 #define CHARGE_INFO_DURATION 5000 // ms
 
-//this method should be called by timer interrupt or by GPIO interrupt
+// This method should be called by timer interrupt or by GPIO interrupt
 void handle_battery_charge(uint32_t last_press_time)
 {
 #if !defined(SIMU)
@@ -427,13 +458,13 @@ void handle_battery_charge(uint32_t last_press_time)
   if (chargeState != CHARGE_UNKNOWN) {
 
     if (lastState != chargeState) {
-      //avoid positive check when none and unknown
+      // Avoid positive check when none and unknown
       if (lastState + chargeState > 1) {
-        //charge state changed - last state known
+        // Charge state changed - last state known
         info_until = now + (CHARGE_INFO_DURATION);
       }
     }
-    //power buttons pressed
+    // Power buttons pressed
     else if (now - last_press_time < POWER_ON_DELAY) {
       info_until = now + CHARGE_INFO_DURATION;
     }
@@ -451,6 +482,7 @@ void handle_battery_charge(uint32_t last_press_time)
     updateTime = timersGetMsTick();
     ledChargingInfo(chargeState);
 
+#if !defined(BATTERY_DRIVER_DEBUG)
     if(now > info_until) {
       info_until = 0;
       BACKLIGHT_DISABLE();
@@ -458,13 +490,14 @@ void handle_battery_charge(uint32_t last_press_time)
         lcdOff();
       }
     } else {
+#endif
       if (lcdInited) {
         lcdOn();
       }
       drawChargingInfo(chargeState);
 
       // DEBUG INFO - TODO delete or replace with LVGL objects
-#if 0
+#if defined(BATTERY_DRIVER_DEBUG)
       char buffer[1024];
 
       sprintf(buffer, "%d,%d,%d,%d", uCharger.isChargerDetectionReady, uCharger.hasCharger, IS_UCHARGER_ACTIVE(), uCharger.chargerSamplingCount);
@@ -484,8 +517,9 @@ void handle_battery_charge(uint32_t last_press_time)
       sprintf(buffer, "%d", isChargerActive());
       lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
 #endif
+#if !defined(BATTERY_DRIVER_DEBUG)
     }
-
+#endif
   }
 #endif
 }
