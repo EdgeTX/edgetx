@@ -326,13 +326,11 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasFlySkyGimbals:
       return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
     case RotaryEncoderNavigation:
-      return (IS_TARANIS_X9E(board) || IS_TARANIS_X9DP_2019(board) ||
-              IS_TARANIS_X7(board) || IS_JUMPER_TPRO(board) ||
-              IS_TARANIS_X9LITE(board) || IS_RADIOMASTER_TX12(board) ||
-              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_ZORRO(board) ||
-              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_TX16S(board) ||
-              IS_JUMPER_T18(board) || IS_JUMPER_T20(board) ||
-              IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_MT12(board));
+      return (IS_TARANIS_X7(board) || IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X9E(board) || IS_TARANIS_X9LITE(board) ||
+              IS_JUMPER_T15(board) || IS_JUMPER_T18(board) || IS_JUMPER_T20(board) || IS_JUMPER_TPRO(board) ||
+              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_GX12(board) || IS_RADIOMASTER_MT12(board) ||
+              IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) || IS_RADIOMASTER_TX12_MK2(board) ||
+              IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:

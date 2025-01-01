@@ -133,6 +133,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   setStyleSheet(SimulatorStyle::styleSheet());
 
   connect(ui->actionShowKeymap, &QAction::triggered, this, &SimulatorMainWindow::showHelp);
+  connect(ui->actionAbout, &QAction::triggered, this, &SimulatorMainWindow::showAbout);
   connect(ui->actionJoystickSettings, &QAction::triggered, this, &SimulatorMainWindow::openJoystickDialog);
   connect(ui->actionSerialPorts, &QAction::triggered, this, &SimulatorMainWindow::openSerialPortsDialog);
   connect(ui->actionToggleMenuBar, &QAction::toggled, this, &SimulatorMainWindow::showMenuBar);
@@ -525,4 +526,32 @@ void SimulatorMainWindow::showHelp(bool show)
   msgBox->setText(helpText);
   msgBox->setModal(false);
   msgBox->show();
+}
+
+void SimulatorMainWindow::showAbout(bool show)
+{
+  QString aboutStr = "<center><img src=\":/images/simulator-title.png\"></center><br/>";
+  aboutStr.append(tr("EdgeTX Home Page: <a href='%1'>%1</a>").arg(EDGETX_HOME_PAGE_URL));
+  aboutStr.append("<br/><br/>");
+  aboutStr.append(tr("The EdgeTX project was originally forked from <a href='%1'>OpenTX</a>").arg("https://github.com/opentx/opentx"));
+  aboutStr.append("<br/><br/>");
+  aboutStr.append(tr("If you've found this program useful, please support by <a href='%1'>donating</a>").arg(EDGETX_DONATE_URL));
+  aboutStr.append("<br/><br/>");
+#if defined(VERSION_TAG)
+  aboutStr.append(QString("Version %1 \"%2\", %3").arg(VERSION_TAG).arg(CODENAME).arg(__DATE__));
+#else
+  aboutStr.append(QString("Version %1-%2, %3").arg(VERSION).arg(VERSION_SUFFIX).arg(__DATE__));
+  aboutStr.append("<br/>");
+  aboutStr.append(QString("Commit <a href='%1'>%2</a>").arg(EDGETX_COMMIT_URL % GIT_STR).arg(GIT_STR));
+#endif
+  aboutStr.append("<br/><br/>");
+  aboutStr.append(tr("File new <a href='%1'>Issue or Request</a>").arg(EDGETX_ISSUES_URL));
+  aboutStr.append("<br/><br/>");
+  aboutStr.append(tr("Copyright") + QString(" &copy; 2021-%1 EdgeTX<br/>").arg(BUILD_YEAR));
+
+  QMessageBox msgBox(this);
+  msgBox.setWindowIcon(CompanionIcon("information.png"));
+  msgBox.setWindowTitle(tr("About EdgeTX Simulator"));
+  msgBox.setText(aboutStr);
+  msgBox.exec();
 }

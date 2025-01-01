@@ -32,6 +32,8 @@
 #include "filtereditemmodels.h"
 #include "updates/updatefactories.h"
 #include "updates/updateoptionsdialog.h"
+#include <QPalette>
+#include <QColorDialog>
 
 constexpr char FIM_TEMPLATESETUP[]    {"Template Setup"};
 
@@ -84,12 +86,9 @@ void AppPreferencesDialog::accept()
   g.showSplash(ui->showSplash->isChecked());
   g.sortProfiles(ui->sortProfiles->isChecked());
   g.promptProfile(ui->chkPromptProfile->isChecked());
-  g.simuSW(ui->simuSW->isChecked());
-  g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
   g.removeModelSlots(ui->opt_removeBlankSlots->isChecked());
   g.newModelAction((AppData::NewModelAction)ui->cboNewModelAction->currentIndex());
   g.historySize(ui->historySize->value());
-  g.backLight(ui->backLightColor->currentIndex());
   profile.volumeGain(round(ui->volumeGain->value() * 10.0));
   g.libDir(ui->libraryPath->text());
   g.gePath(ui->ge_lineedit->text());
@@ -100,6 +99,14 @@ void AppPreferencesDialog::accept()
   g.fwTraceLog(ui->opt_fwTraceLog->isChecked());
   g.appLogsDir(ui->appLogsDir->text());
   g.runAppInstaller(ui->chkPromptInstall->isChecked());
+
+//  Simulator tab
+  g.simuSW(ui->simuSW->isChecked());
+  g.backLight(ui->backLightColor->currentIndex());
+  g.simuGenericKeysPos((AppData::SimuGenericKeysPos)ui->cboSimuGenericKeysPos->currentIndex());
+  g.simuScrollButtons(ui->chkSimuScrollButtons->isChecked());
+
+  g.disableJoystickWarning(ui->joystickWarningCB->isChecked());
 
   if (ui->joystickChkB ->isChecked()) {
     g.jsSupport(ui->joystickChkB ->isChecked());
@@ -169,6 +176,7 @@ void AppPreferencesDialog::accept()
   profile.penableBackup(ui->pbackupEnable->isChecked());
   profile.splashFile(ui->SplashFileName->text());
   profile.runSDSync(ui->chkPromptSDSync->isChecked());
+  profile.radioSimCaseColor(ui->lblRadioColorSample->palette().button().color());
 
   // The profile name may NEVER be empty
   if (ui->profileNameLE->text().isEmpty())
@@ -224,32 +232,25 @@ void AppPreferencesDialog::on_snapshotPathButton_clicked()
   }
 }
 
+void AppPreferencesDialog::on_btnRadioColor_clicked()
+{
+  Profile & profile = g.currentProfile();
+  QColorDialog *dlg = new QColorDialog(this);
+  QColor color = dlg->getColor(profile.radioSimCaseColor(), this);
+  ui->lblRadioColorSample->setPalette(QPalette(color));
+  ui->lblRadioColorSample->repaint();
+}
+
 void AppPreferencesDialog::initSettings()
 {
   const Profile & profile = g.currentProfile();
 
-  ui->snapshotClipboardCKB->setChecked(g.snapToClpbrd());
   ui->burnFirmware->setChecked(profile.burnFirmware());
-  ui->snapshotPath->setText(g.snapshotDir());
-  ui->snapshotPath->setReadOnly(true);
-  if (ui->snapshotClipboardCKB->isChecked()) {
-    ui->snapshotPath->setDisabled(true);
-    ui->snapshotPathButton->setDisabled(true);
-  }
 
   ui->showSplash->setChecked(g.showSplash());
   ui->sortProfiles->setChecked(g.sortProfiles());
   ui->chkPromptProfile->setChecked(g.promptProfile());
   ui->historySize->setValue(g.historySize());
-  ui->backLightColor->setCurrentIndex(g.backLight());
-  ui->volumeGain->setValue(profile.volumeGain() / 10.0);
-
-  if (IS_HORUS_OR_TARANIS(getCurrentBoard())) {
-    ui->backLightColor->setEnabled(false);
-  }
-
-  ui->simuSW->setChecked(g.simuSW());
-  ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
   ui->opt_removeBlankSlots->setChecked(g.removeModelSlots());
   ui->cboNewModelAction->addItems(AppData::newModelActionsList());
   ui->cboNewModelAction->setCurrentIndex(g.newModelAction());
@@ -276,6 +277,24 @@ void AppPreferencesDialog::initSettings()
   ui->appLogsDir->setText(g.appLogsDir());
   toggleAppLogSettings();
   ui->chkPromptInstall->setChecked(g.runAppInstaller());
+
+  //  Simulator tab
+  ui->snapshotPath->setText(g.snapshotDir());
+  ui->snapshotPath->setReadOnly(true);
+  ui->snapshotClipboardCKB->setChecked(g.snapToClpbrd());
+  if (ui->snapshotClipboardCKB->isChecked()) {
+    ui->snapshotPath->setDisabled(true);
+    ui->snapshotPathButton->setDisabled(true);
+  }
+  ui->simuSW->setChecked(g.simuSW());
+  ui->backLightColor->setCurrentIndex(g.backLight());
+  if (!Boards::getCapability(getCurrentBoard(), Board::HasBacklightColor))
+    ui->backLightColor->setEnabled(false);
+  ui->volumeGain->setValue(profile.volumeGain() / 10.0);
+  ui->cboSimuGenericKeysPos->addItems(AppData::simuGenericKeysPosList());
+  ui->cboSimuGenericKeysPos->setCurrentIndex(g.simuGenericKeysPos());
+  ui->chkSimuScrollButtons->setChecked(g.simuScrollButtons());
+  ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
 
 #if defined(JOYSTICKS)
   ui->joystickChkB->setChecked(g.jsSupport());
@@ -350,6 +369,7 @@ void AppPreferencesDialog::initSettings()
   }
   ui->lblGeneralSettings->setText(hwSettings);
   ui->chkPromptSDSync->setChecked(profile.runSDSync());
+  ui->lblRadioColorSample->setPalette(QPalette(profile.radioSimCaseColor()));
 
   QString currType = QStringList(profile.fwType().split('-').mid(0, 2)).join('-');
   foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {

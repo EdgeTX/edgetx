@@ -83,6 +83,7 @@ class SimulatorMainWindow : public QMainWindow
     void openJoystickDialog(bool);
     void openSerialPortsDialog(bool);
     void showHelp(bool show);
+    void showAbout(bool show);
 
   protected:
     void createDockWidgets();
