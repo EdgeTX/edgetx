@@ -231,11 +231,7 @@ void stm32_exti_disable(uint32_t line)
 
 void stm32_exti_trigger_swi(uint32_t line)
 {
-#ifndef STM32H7
-  EXTI->SWIER = line;
-#else
   LL_EXTI_GenerateSWI_0_31(line);
-#endif
 }
 
 #if defined(USE_CUSTOM_EXTI_IRQ)

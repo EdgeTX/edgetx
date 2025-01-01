@@ -74,15 +74,42 @@ static inline uint32_t _get_spi_af(SPI_TypeDef *SPIx)
   return LL_GPIO_AF_5;
 }
 
+#if defined(STM32H7) || defined(STM32H7RS)
+static inline uint32_t _get_spi_clocksource(SPI_TypeDef* SPIx)
+{
+#if defined(LL_RCC_SPI123_CLKSOURCE)
+  return LL_RCC_SPI123_CLKSOURCE;
+#endif
+
+#if defined(LL_RCC_SPI1_CLKSOURCE)
+  if (SPIx == SPI1) return LL_RCC_SPI1_CLKSOURCE;
+#endif
+
+#if defined(LL_RCC_SPI23_CLKSOURCE)
+  if (SPIx == SPI2 || SPIx == SPI3) return LL_RCC_SPI23_CLKSOURCE;
+#endif
+
+#if defined(LL_RCC_SPI45_CLKSOURCE)
+  if (SPIx == SPI4 || SPIx == SPI5) return LL_RCC_SPI45_CLKSOURCE;
+#endif
+
+#if defined(LL_RCC_SPI6_CLKSOURCE)
+  if (SPIx == SPI6) return LL_RCC_SPI6_CLKSOURCE;
+#endif
+
+  return 0;
+}
+#endif
+
 static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
 {
   LL_RCC_ClocksTypeDef RCC_Clocks;
   LL_RCC_GetSystemClocksFreq(&RCC_Clocks);
 
 #if defined(STM32H7) || defined(STM32H7RS)
-  uint32_t pclk =   LL_RCC_GetSPIClockFreq(LL_RCC_SPI123_CLKSOURCE);
+  uint32_t pclk = LL_RCC_GetSPIClockFreq(_get_spi_clocksource(SPIx));
 #else
- uint32_t pclk = RCC_Clocks.PCLK2_Frequency;
+  uint32_t pclk = RCC_Clocks.PCLK2_Frequency;
 #if defined(SPI2)
   if (SPIx == SPI2) {
     pclk = RCC_Clocks.PCLK1_Frequency;

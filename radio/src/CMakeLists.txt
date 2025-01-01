@@ -601,14 +601,14 @@ else()
 endif()
 
 if(FIRMWARE_FORMAT_UF2)
-#  set(VERSION_STRING "${VERSION_SUFFIX} edgetx-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})")
-  string(CONCAT VERSION_STRING "edgetx-" ${VERSION} "-" ${VERSION_SUFFIX} )
-  string(CONCAT GIT_STRING "(" ${GIT_STR} ")" )
-
-add_custom_command(
-  TARGET firmware POST_BUILD
-  COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py --reboot auto --device ${FLAVOUR} --version \"${VERSION_STRING} ${GIT_STRING}\" -i firmware.elf firmware.uf2
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  add_custom_command(
+    TARGET firmware POST_BUILD
+    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py
+        --reboot auto --device "${FLAVOUR}"
+        --version "edgetx-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})"
+        -i firmware.elf firmware.uf2
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    VERBATIM
   )
 endif()
   
