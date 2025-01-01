@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -20,121 +20,201 @@
  */
 
 #include "bsp_io.h"
+#include "hal/switch_driver.h"
 #include "drivers/pca95xx.h"
 #include "stm32_i2c_driver.h"
-#include "stm32_switch_driver.h"
-#include "hal.h"
+#include "timers_driver.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
-#define BSP_IN_I2C_BUS I2C_Bus_2
-#define BSP_IN_I2C_ADDR 0x20
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/timers.h>
 
-#define BSP_IN_MASK 0xFFFF
+#include "bitfield.h"
+#include "debug.h"
 
-#define BSP_OUT_I2C_BUS I2C_Bus_2
-#define BSP_OUT_I2C_ADDR 0x21
+struct bsp_io_expander {
+    pca95xx_t exp;
+    uint32_t mask;
+    uint32_t state;
+};
 
-#define BSP_OUT_MASK                                               \
-  (PCA95XX_PIN_0 | PCA95XX_PIN_1 | PCA95XX_PIN_2 | PCA95XX_PIN_3 | \
-   PCA95XX_PIN_4 | PCA95XX_PIN_5 | PCA95XX_PIN_6 | PCA95XX_PIN_7 | \
-   PCA95XX_PIN_8 | PCA95XX_PIN_9 | PCA95XX_PIN_10)
+static bsp_io_expander _io_switches;
+static bsp_io_expander _io_fs_switches;
 
-#define BSP_CHECK(x) if ((x) < 0) return -1
 
-static pca95xx_t output_exp;
-static pca95xx_t input_exp;
-
-static uint16_t inputState = 0;
-static bool updateInputState = false;
-
-void bsp_port_extender_irq_handler()
+static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
 {
-  updateInputState = true;
+  io->mask = mask;
+  io->state = 0;
 }
 
-static void bsp_input_read()
+static uint32_t _read_io_expander(bsp_io_expander* io)
 {
-  static int readCount = 0; // this is a fall back, the interrupts from the port extender
-  readCount++;             // are unreliable under some circumstances
-
-  if(!updateInputState && readCount < 50)
-    return;
-
-  uint16_t value;
-
-  readCount++;
-  updateInputState = false;
-
-  if (pca95xx_read(&input_exp, BSP_IN_MASK, &value) < 0)
-    return;
-  inputState = value;
+  uint16_t value = 0;
+  if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
+    io->state = value;
+  }
+  return io->state;
 }
 
+static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
+{
+  (void)ulParameter2;
+  bsp_io_expander* io = (bsp_io_expander*)pvParameter1;
+  _read_io_expander(io);
+}
 
+#if !defined(BOOT)
+static void _io_int_handler(bsp_io_expander* io)
+{
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    xTimerPendFunctionCallFromISR(_poll_switches, (void*)io, 0,
+                                  &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  } else {
+    _read_io_expander(io);
+  }
+}
+
+static void _io_int_handler() {
+  _io_int_handler(&_io_switches);
+  _io_int_handler(&_io_fs_switches);
+}
+#endif
+
+extern uint32_t readTrims();
 
 int bsp_io_init()
 {
-#if 0
-  // init outputs
-  BSP_CHECK(pca95xx_init(&output_exp, BSP_OUT_I2C_BUS, BSP_OUT_I2C_ADDR));
-  BSP_CHECK(pca95xx_write(&output_exp, BSP_OUT_MASK,
-                          BSP_CHARGE_EN | BSP_EXT_PWR | BSP_INT_PWR));
-  BSP_CHECK(pca95xx_set_direction(&output_exp, BSP_OUT_MASK, 0));
+  timersInit();
 
-  // init inputs
-  BSP_CHECK(pca95xx_init(&input_exp, BSP_IN_I2C_BUS, BSP_IN_I2C_ADDR));
+  int i2cError = i2c_init(I2C_Bus_1);
+  if (i2cError < 0) {
+    TRACE("I2C INIT ERROR: %d", i2cError);
+    return -1;
+  }
+
+  // setup expanders reset pin
+  gpio_init(IO_RESET_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_clear(IO_RESET_GPIO);
+  gpio_set(IO_RESET_GPIO);
+
+  // configure expander 1
+  _init_io_expander(&_io_fs_switches, 0xFFFC);
+  if (pca95xx_init(&_io_fs_switches.exp, I2C_Bus_1, 0x74) < 0) {
+    TRACE("EXP1 INIT ERROR");
+    return -1;
+  }
+
+  // configure expander 2
+  _init_io_expander(&_io_switches, 0x3F);
+  if (pca95xx_init(&_io_switches.exp, I2C_Bus_1, 0x75) < 0) {
+    TRACE("EXP2 INIT ERROR");
+    return -1;
+  }
+
+#if !defined(BOOT)
+  // setup expanders pin change interrupt
+  gpio_init_int(IO_INT_GPIO, GPIO_IN, GPIO_FALLING, _io_int_handler);
 #endif
-  //gpio_init_int(GPIO_PIN(GPIOH, 6), GPIO_IN, GPIO_FALLING, bsp_port_extender_irq_handler);
-  updateInputState = true;
-  bsp_input_read();
-  gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
-  gpio_init(UCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
+  TRACE("SWITCHES: %x", bsp_io_read_switches());
+  TRACE("FS: %x",bsp_io_read_fs_switches());
+  TRACE("TRIMS: %x", readTrims());
   return 0;
 }
 
-void bsp_output_set(uint16_t pin)
+uint32_t bsp_io_read_switches()
 {
-  pca95xx_write(&output_exp, pin, pin); 
+  return _read_io_expander(&_io_switches);
 }
 
-void bsp_output_clear(uint16_t pin)
+uint32_t bsp_io_read_fs_switches()
 {
-  pca95xx_write(&output_exp, pin, 0);
+  return _read_io_expander(&_io_fs_switches);
 }
 
-uint16_t bsp_input_get()
+void boardInitSwitches()
 {
-  bsp_input_read();
-  return inputState;
+  bsp_io_init();
 }
 
+struct bsp_io_sw_def {
+    uint32_t pin_high;
+    uint32_t pin_low;
+};
 
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx)
+static constexpr uint32_t RGB_OFFSET = (1 << 16); // first after bspio pins
+static uint16_t soft2POSLogicalState = 0xFFFF;
+
+static const bsp_io_sw_def _switch_defs[] = {
+        { SWITCH_A_H, SWITCH_A_L },
+        { SWITCH_B_H, SWITCH_B_L },
+        { SWITCH_C_H, SWITCH_C_L },
+        { SWITCH_D_H, SWITCH_D_L },
+        { SWITCH_E_H, SWITCH_E_L },
+        { SWITCH_F_H, SWITCH_F_L },
+};
+
+static SwitchHwPos _get_switch_pos(uint8_t idx)
 {
-  bool val = false;
-  uint16_t pins = bsp_input_get();
+  static uint32_t oldState = 0;
+  SwitchHwPos pos = SWITCH_HW_UP;
+  const bsp_io_sw_def* def = &_switch_defs[idx];
 
-  if(cat == SWITCH_PHYSICAL)
-  {
-    switch(idx)
-    {
-    case 6: val = (pins & BSP_BACK_KEY1) != 0; break;
-    case 7: val = (pins & BSP_BACK_KEY2) != 0; break;
+  uint32_t state = _io_switches.state;
+
+  if (!def->pin_low) {
+    // 2POS switch
+    if ((state & def->pin_high) == 0) {
+      pos = SWITCH_HW_DOWN;
     }
-  } else if (cat == SWITCH_FUNCTION) {
-    switch(idx)
-    {
-    case 0: val = (pins & BSP_EXT_KEY1) != 0; break;
-    case 1: val = (pins & BSP_EXT_KEY2) != 0; break;
-    case 2: val = (pins & BSP_EXT_KEY3) != 0; break;
-    case 3: val = (pins & BSP_EXT_KEY4) != 0; break;
-    case 4: val = (pins & BSP_EXT_KEY5) != 0; break;
-    case 5: val = (pins & BSP_EXT_KEY6) != 0; break;
+  } else {
+    bool hi = state & def->pin_high;
+    bool lo = state & def->pin_low;
+
+    if (hi && lo) {
+      pos = SWITCH_HW_MID;
+    } else if (!hi && lo) {
+      pos = SWITCH_HW_DOWN;
     }
   }
 
-  if(sw->flags & SWITCH_HW_INVERTED)
-    val = !val;
+  if (idx == switchGetMaxSwitches() - 1)
+    oldState = state;
 
-  return val?SWITCH_HW_UP:SWITCH_HW_DOWN;
+  return pos;
+}
+
+static SwitchHwPos _get_fs_switch_pos(uint8_t idx)
+{
+  uint32_t state = _io_fs_switches.state;
+  if ((state & (1 << idx)) == 0) {
+    return SWITCH_HW_DOWN;
+  } else {
+    return SWITCH_HW_UP;
+  }
+}
+
+SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
+{
+  if (cat == SWITCH_PHYSICAL) {
+    return _get_switch_pos(idx);
+  } else if (cat == SWITCH_FUNCTION){
+    return _get_fs_switch_pos(idx);
+  }
+
+  return SWITCH_HW_UP;
+}
+
+SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx)
+{
+  if (cat == SWITCH_PHYSICAL) {
+    return _get_switch_pos(idx);
+  } else if (cat == SWITCH_FUNCTION){
+    return _get_fs_switch_pos(idx);
+  }
+
+  return SWITCH_HW_UP;
 }

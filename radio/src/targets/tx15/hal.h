@@ -327,6 +327,9 @@
 #define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(20000000)
 #define STORAGE_USE_SDIO
 
+// AUDIO
+#define AUDIO_RESET_PIN               GPIO_PIN(GPIOH, 10) // PH.10
+
 /*
 // Audio
 #define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOG, 12) // PG.12
@@ -346,8 +349,8 @@
 */
 // I2C Bus
 #define I2C_B1                          I2C4
-#define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOD, 12)
-#define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOD, 13)
+#define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOD, 13) // PD.13
+#define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOD, 12) // PD.12
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B1_CLK_RATE                 400000
 /*
@@ -392,9 +395,14 @@
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 
 #define STATUS_LEDS
-
+#define GPIO_LED_GPIO_ON                  gpio_clear
+#define GPIO_LED_GPIO_OFF                 gpio_set
+#define LED_RED_GPIO                      GPIO_PIN(GPIOI, 8)   // PI.08
+#define LED_GREEN_GPIO                    GPIO_PIN(GPIOI, 11)  // PI.11
+#define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
 
 // Internal Module
+#define INTMODULE_POWER                 GPIO_PIN(GPIOB, 13) // PB.13
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOG, 14)
 #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOG,  9)
 #define INTMODULE_USART                 USART6
@@ -420,6 +428,7 @@
 // External Module
 #define EXTMODULE
 #define EXTMODULE_PULSES
+#define EXTMODULE_POWER                 GPIO_PIN(GPIOD, 4) // PD.04
 #define EXTMODULE_TX_GPIO               GPIO_PIN(GPIOA, 2)
 #define EXTMODULE_RX_GPIO               GPIO_PIN(GPIOA, 3)
 #define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1

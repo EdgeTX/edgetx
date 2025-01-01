@@ -31,6 +31,7 @@
 #include "keys.h"
 
 #include "stm32_keys.inc"
+#include "debug.h"
 
 void keysInit() { _init_keys(); }
 
@@ -61,7 +62,7 @@ enum PhysicalTrims {
 uint32_t readTrims()
 {
   uint32_t result = 0;
-  uint16_t keys = bsp_input_get();
+  uint32_t keys = bsp_io_read_fs_switches();
   
 #define _TRIM(t) \
   if ((keys & BSP_##t) == 0) result |= 1 << t;

@@ -360,7 +360,14 @@ static int i2c_init_clock_source(I2C_TypeDef* instance)
 #endif
 
 #if defined(LL_RCC_I2C123_CLKSOURCE)
-  LL_RCC_SetClockSource(LL_RCC_I2C123_CLKSOURCE_PCLK1);
+# if defined(LL_RCC_I2C4_CLKSOURCE)
+  if (instance == I2C4) {
+    LL_RCC_SetClockSource(LL_RCC_I2C4_CLKSOURCE_PCLK4);
+  } else
+# endif
+  {
+    LL_RCC_SetClockSource(LL_RCC_I2C123_CLKSOURCE_PCLK1);
+  }
 #endif
 
   return 0;
@@ -371,15 +378,17 @@ static int i2c_init_clock_source(I2C_TypeDef* instance)
 static int i2c_enable_clock(I2C_TypeDef* instance)
 {
   /* Peripheral clock enable */
-  if (instance == I2C1) {
+  if (instance == I2C1)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
-  } else if (instance == I2C2) {
+  else if (instance == I2C2)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C2);
-  } else if (instance == I2C3) {
+  else if (instance == I2C3)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C3);
-  } else {
-    return -1;
-  }
+#if defined(I2C4)
+  else if (instance == I2C4)
+    LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_I2C4);
+#endif
+  else return -1;
 
   return 0;
 }
@@ -393,6 +402,10 @@ static int i2c_disable_clock(I2C_TypeDef* instance)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C2);
   else if (instance == I2C3)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C3);
+#if defined(I2C4)
+  else if (instance == I2C4)
+    LL_APB4_GRP1_DisableClock(LL_APB4_GRP1_PERIPH_I2C4);
+#endif
   else
     return -1;
 
@@ -472,17 +485,17 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
 
   if (i2c_gpio_init(hw_def) < 0) {
     TRACE("I2C ERROR: HAL_I2C_MspInit() I2C_GPIO misconfiguration");
-    return -1;
+    return -2;
   }
 
   if (i2c_enable_clock(hw_def->I2Cx) < 0) {
     TRACE("I2C ERROR: HAL_I2C_MspInit() I2C misconfiguration");
-    return -1;
+    return -3;
   }
 
   if (HAL_I2C_Init(h) != HAL_OK) {
     TRACE("I2C ERROR: HAL_I2C_Init() failed");
-    return -1;
+    return -4;
   }
 
 #if defined(I2C_FLTR_ANOFF) && defined(I2C_FLTR_DNF) || defined(STM32H7) || \

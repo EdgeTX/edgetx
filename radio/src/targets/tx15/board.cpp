@@ -93,39 +93,39 @@ static void led_strip_off()
 
 static void setAudioMuteHigh()
 {
-  bsp_output_set(BSP_PA_NMUTE);
+  // Is there mute ?
 }
 static void setAudioMuteLow()
 {
-  bsp_output_clear(BSP_PA_NMUTE);
+  // Is there mute ?
 }
 static void setAudioResetHigh()
 {
-  bsp_output_set(BSP_AUDIO_RST);
+  gpio_set(AUDIO_RESET_PIN);
 }
 static void setAudioResetLow()
 {
-  bsp_output_clear(BSP_AUDIO_RST);
+  gpio_clear(AUDIO_RESET_PIN);
 }
 
 void INTERNAL_MODULE_ON()
 {
-  bsp_output_clear(BSP_INT_PWR);
+  gpio_set(INTMODULE_POWER);
 }
 
 void INTERNAL_MODULE_OFF()
 {
-  bsp_output_set(BSP_INT_PWR);
+  gpio_clear(INTMODULE_POWER);
 }
 
 void EXTERNAL_MODULE_ON()
 {
-  bsp_output_clear(BSP_EXT_PWR);
+  gpio_set(EXTMODULE_POWER);
 }
 
 void EXTERNAL_MODULE_OFF()
 {
-  bsp_output_set(BSP_EXT_PWR);
+  gpio_clear(EXTMODULE_POWER);
 }
 
 /*
@@ -180,7 +180,7 @@ void boardInit()
   timersInit();
   bsp_io_init();
   gpio_clear(UCHARGER_EN_GPIO);
-  bsp_output_set(BSP_PWR_LED);
+  gpio_set(LED_BLUE_GPIO);
 #endif
 
 #if defined(DEBUG)
