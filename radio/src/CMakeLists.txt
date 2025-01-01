@@ -115,9 +115,6 @@ endif()
 
 if(ARCH STREQUAL ARM)
   include(targets/common/arm/CMakeLists.txt)
-  if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "14.2.1")
-    message(WARNING "Only Arm GNU Toolchain version 14.2.rel1 is supported")
-  endif()
 endif()
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
@@ -481,6 +478,11 @@ set(SRC ${SRC} ${FIRMWARE_SRC})
 if(NATIVE_BUILD)
   message(STATUS "firmware target disabled")
   return()
+endif()
+
+if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "14.2.1")
+  message(WARNING "Only Arm GNU Toolchain version 14.2.rel1 is supported")
+  message("CPP Compiler: ${CMAKE_CXX_COMPILER}, version ${CMAKE_CXX_COMPILER_VERSION}")
 endif()
 
 set(CMAKE_C_FLAGS "${FIRMWARE_C_FLAGS}")
