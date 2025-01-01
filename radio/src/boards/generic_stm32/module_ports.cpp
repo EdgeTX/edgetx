@@ -328,11 +328,9 @@ static void _sport_direction_init()
 static void _sport_set_inverted(uint8_t enable)
 {
 #if defined(STM32H7) || defined(STM32H7RS)
-#ifdef TELEMETRY_USART
+#if defined(TELEMETRY_USART)
   stm32_usart_rx_inversion(&sportUSART, !enable);
   stm32_usart_tx_inversion(&sportUSART, !enable);
-#else
-#error no UART to invert
 #endif
 #else
   gpio_write(TELEMETRY_TX_REV_GPIO, !enable);
