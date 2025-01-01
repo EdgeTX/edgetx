@@ -54,7 +54,7 @@ void displayRadioTool(uint8_t index)
           g_moduleIdx = reusableBuffer.radioTools.script[index].module;
           pushMenu(reusableBuffer.radioTools.script[index].tool);
         }
-        else if (reusableBuffer.radioTools.script[index].path != nullptr) {
+        else if (reusableBuffer.radioTools.script[index].path[0]) {
           char toolName[RADIO_TOOL_NAME_MAXLEN + 1];
           if (!readToolName(toolName, reusableBuffer.radioTools.script[index].path)) {
             strAppendFilename(toolName, getBasename(reusableBuffer.radioTools.script[index].path), RADIO_TOOL_NAME_MAXLEN);

@@ -111,6 +111,7 @@ const etx_serial_driver_t _fakeSerialDriver = {
     .setBaudrateCb = nullptr,
 };
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
 static void* module_timer_init(void* hw_def, const etx_timer_config_t* cfg)
 { return (void*)1; }
 
@@ -125,6 +126,7 @@ const etx_timer_driver_t _fakeTimerDriver = {
   .deinit = module_timer_deinit,
   .send = module_timer_send,
 };
+#endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
 const etx_module_port_t _internal_ports[] = {

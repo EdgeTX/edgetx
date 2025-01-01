@@ -496,7 +496,7 @@ find_program(BASH bash
   DOC "bash shell for firmware size report (eg. c:/cygwin/bin/bash.exe on Windows)."
   )
 
-set(OPT "s" CACHE STRING "Optimization mode (0/1/2/s")
+set(OPT "s" CACHE STRING "Optimization mode (0/1/2/s)")
 
 set(COMMON_FLAGS "-mcpu=${MCU} -mthumb -fomit-frame-pointer -fverbose-asm -Wa,-ahlms=firmware.lst")
 set(COMMON_FLAGS "${COMMON_FLAGS} -gdwarf-2 -fno-exceptions -fdata-sections -ffunction-sections")
@@ -505,7 +505,9 @@ set(COMMON_FLAGS "${COMMON_FLAGS} -O${OPT} ${FPU_FLAGS}")
 set(COMMON_FLAGS "${COMMON_FLAGS} ${WARNING_FLAGS}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -Wimplicit")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -fno-rtti")
+
+# "-Wno-register" because ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver uses invalid C++17 storage class specifier
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -fno-rtti -Wno-register")
 
 if(SDRAM)
   # Target with SDRAM do not need a custom allocator for now

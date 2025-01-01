@@ -627,7 +627,9 @@ const etx_serial_driver_t null_drv = {
   .setBaudrateCb = nullptr,
 };
 
+#if defined(AUX_SERIAL_PWR_GPIO)
 static void null_pwr_aux(uint8_t) {}
+#endif
 #endif
 
 #if defined(AUX_SERIAL)
