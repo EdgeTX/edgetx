@@ -30,10 +30,10 @@
 #define TIMER_MULT_APB2         2
 
 // Keys
-#define KEYS_GPIO_REG_PAGEUP          GPIOA
-#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_8  // PA.08
-#define KEYS_GPIO_REG_PAGEDN          GPIOG
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_7  // PG.07
+#define KEYS_GPIO_REG_PAGEDN          GPIOA
+#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8  // PA.08
+#define KEYS_GPIO_REG_PAGEUP          GPIOG
+#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PG.07
 #define KEYS_GPIO_REG_SYS             GPIOB
 #define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_2  // PB.02
 #define KEYS_GPIO_REG_ENTER           GPIOG
@@ -477,8 +477,17 @@
 #define TRAINER_GPIO_AF                 LL_GPIO_AF_4
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
+
+// Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1
-#define TOUCH_I2C_CLK_RATE              100000
+#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOE, 2) // PE.02
+#define TOUCH_RST_GPIO                  GPIO_PIN(GPIOJ, 13) // PJ.13
+
+// TOUCH_INT_EXTI IRQ
+#if !defined(USE_EXTI2_IRQ)
+#define USE_EXTI2_IRQ
+#define EXTI2_IRQ_Priority  9
+#endif
 
 #define IMU_I2C_BUS                     I2C_Bus_1
 #define IMU_I2C_ADDRESS                 0x6A
@@ -497,11 +506,11 @@
 #define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_8
 #if !defined(USE_EXTI7_IRQ)
   #define USE_EXTI7_IRQ
-  #define EXTI2_IRQ_Priority 5
+  #define EXTI7_IRQ_Priority 5
 #endif
 #if !defined(USE_EXTI8_IRQ)
   #define USE_EXTI8_IRQ
-  #define EXTI3_IRQ_Priority 5
+  #define EXTI8_IRQ_Priority 5
 #endif
 #define ROTARY_ENCODER_EXTI_PORT_A      LL_SYSCFG_EXTI_PORTI
 #define ROTARY_ENCODER_EXTI_PORT_B      LL_SYSCFG_EXTI_PORTJ
