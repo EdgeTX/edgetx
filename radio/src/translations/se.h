@@ -224,6 +224,7 @@
 #define TR_VTRAINER_MASTER_BATTERY      "Lärare/Seriell"
 #define TR_VTRAINER_BLUETOOTH           TR("Lärare/BT","Lärare/Bluetooth"),TR("Elev/BT","Elev/Bluetooth")
 #define TR_VTRAINER_MULTI               "Lärare/Multi"
+#define TR_VTRAINER_CRSF                "Lärare/CRSF"
 
 #define TR_VFAILSAFE                    "Ej inställt","Lås senaste",TR("Eget","Egna värden"),"Inga pulser","Mottagare"
 #define TR_VSENSORTYPES                 "Anpassad","Beräknad"

@@ -221,6 +221,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Učitel/Serial"
 #define TR_VTRAINER_BLUETOOTH          TR("Učitel/BT","Učitel/Bluetooth"),TR("Žák/BT","Žák/Bluetooth")
 #define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_CRSF               "Master/CRSF"
 #define TR_VFAILSAFE                   "Nenastaven","Držet","Vlastní","Bez pulzů","Přijímač"
 #define TR_VSENSORTYPES                "Vlastní","Vypočtený"
 #define TR_VFORMULAS                   "Součet","Průměr","Min","Max","Násobení","Celkem","Článek","Spotřeba","Vzdálenost"

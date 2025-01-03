@@ -1634,6 +1634,8 @@ QString ModelData::trainerModeToString(int value)
       return tr("Slave/Bluetooth");
     case TRAINER_MODE_MULTI:
       return tr("Master/Multi");
+    case TRAINER_MODE_CRSF:
+      return tr("Master/CRSF");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

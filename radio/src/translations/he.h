@@ -218,6 +218,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serial"
 #define TR_VTRAINER_BLUETOOTH          "Master/" TR("BT","Bluetooth"), "Slave/" TR("BT","Bluetooth")
 #define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_CRSF               "Master/CRSF"
 #define TR_VFAILSAFE                   "לא מוגדר","מוחזק","הגדרה ידנית - מומלץ!","ללא שינוי","מקלט"
 #define TR_VSENSORTYPES                "Custom","Calculated"
 #define TR_VFORMULAS                   "Add","Average","Min","Max","Multiply","Totalize","Cell","Consumpt","Distance"

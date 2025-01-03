@@ -219,6 +219,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Master/Serial"
 #define TR_VTRAINER_BLUETOOTH          TR("Master/BT","Master/Bluetooth"),TR("Slave/BT","Slave/Bluetooth")
 #define TR_VTRAINER_MULTI              "Master/Multi"
+#define TR_VTRAINER_CRSF               "Master/CRSF"
 #define TR_VFAILSAFE                   "Not set","Hold","Custom","No pulses","Receiver"
 #define TR_VSENSORTYPES                "Custom","Calculated"
 #define TR_VFORMULAS                   "Add","Average","Min","Max","Multiply","Totalize","Cell","Kulutus","Etäisyys"

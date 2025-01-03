@@ -212,6 +212,7 @@
 #define TR_VTRAINER_MASTER_BATTERY     "Lehrer/Serial"
 #define TR_VTRAINER_BLUETOOTH          TR("Lehrer/BT","Lehrer/Bluetooth"),TR("Schüler/BT","Schüler/Bluetooth")
 #define TR_VTRAINER_MULTI              "Lehrer/Multi"
+#define TR_VTRAINER_CRSF               "Lehrer/CRSF"
 #define TR_VFAILSAFE                   "Kein Failsafe","Halte Pos.","Kanäle","Kein Signal","Empfänger"
 #define TR_VSENSORTYPES                "Sensor","Berechnung"
 #define TR_VFORMULAS                   "Addieren","Mittelwert","Min","Max","Multiplizier","Gesamt","Zelle","Verbrauch","Distanz"
