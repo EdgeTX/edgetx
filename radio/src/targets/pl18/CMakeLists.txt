@@ -56,6 +56,7 @@ elseif(PCBREV STREQUAL NV14)
     set(FLYSKY_GIMBAL ON)
     set(USE_VS1053B ON)
     set(AFHDS2 ON)
+    set(AFHDS3 ON)
 
     # defines existing internal modules
     set(INTERNAL_MODULES AFHDS2A CACHE STRING "Internal modules")
