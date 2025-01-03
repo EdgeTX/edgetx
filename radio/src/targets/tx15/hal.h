@@ -79,6 +79,14 @@
 #define FUNCTION_SWITCH_5               I2C
 #define FUNCTION_SWITCH_6               I2C
 
+// Extender Switches
+#define SWITCHES_A_3POS
+#define SWITCHES_B_3POS
+#define SWITCHES_C_3POS
+#define SWITCHES_D_3POS
+#define SWITCHES_E_3POS
+#define SWITCHES_F_3POS
+
 // Direct switches
 #if 0
 // Key 1
@@ -107,6 +115,15 @@
 #define HARDWARE_SWITCH_J
 #define SWITCHES_GPIO_REG_J           GPIOI
 #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_11 // PI.11
+#endif
+
+
+// Expanders
+#define IO_INT_GPIO GPIO_PIN(GPIOD, 3)
+#define IO_RESET_GPIO GPIO_PIN(GPIOG, 10)
+#if !defined(USE_EXTI3_IRQ)
+#define USE_EXTI3_IRQ
+#define EXTI3_IRQ_Priority  9
 #endif
 
 // ADC

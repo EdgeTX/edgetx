@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "hal.h"
 #include "bsp_io.h"
 #include "hal/switch_driver.h"
 #include "drivers/pca95xx.h"
@@ -101,14 +102,14 @@ int bsp_io_init()
   gpio_set(IO_RESET_GPIO);
 
   // configure expander 1
-  _init_io_expander(&_io_fs_switches, 0xFFFC);
+  _init_io_expander(&_io_fs_switches, 0xFF3F);
   if (pca95xx_init(&_io_fs_switches.exp, I2C_Bus_1, 0x74) < 0) {
     TRACE("EXP1 INIT ERROR");
     return -1;
   }
 
   // configure expander 2
-  _init_io_expander(&_io_switches, 0x3F);
+  _init_io_expander(&_io_switches, 0xFFF8);
   if (pca95xx_init(&_io_switches.exp, I2C_Bus_1, 0x75) < 0) {
     TRACE("EXP2 INIT ERROR");
     return -1;
@@ -119,9 +120,9 @@ int bsp_io_init()
   gpio_init_int(IO_INT_GPIO, GPIO_IN, GPIO_FALLING, _io_int_handler);
 #endif
 
-  TRACE("SWITCHES: %x", bsp_io_read_switches());
-  TRACE("FS: %x",bsp_io_read_fs_switches());
-  TRACE("TRIMS: %x", readTrims());
+  bsp_io_read_switches();
+  bsp_io_read_fs_switches();
+
   return 0;
 }
 
