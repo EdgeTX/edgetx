@@ -180,7 +180,13 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
     bool hi = state & def->pin_high;
     bool lo = state & def->pin_low;
 
-    if (hi && lo) {
+    if(!isSwitch3Pos(idx))
+    {
+      // Switch not declared as 3POS installed in a 3POS HW
+      if (!(hi && lo)) {
+        pos = SWITCH_HW_DOWN;
+      }
+    } else if (hi && lo) {
       pos = SWITCH_HW_MID;
     } else if (!hi && lo) {
       pos = SWITCH_HW_DOWN;

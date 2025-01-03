@@ -58,6 +58,8 @@
 #define FSSWITCH_5 PCA95XX_P4
 #define FSSWITCH_6 PCA95XX_P5
 
+extern uint8_t isSwitch3Pos(uint8_t idx);
+
 int bsp_io_init();
 uint32_t bsp_io_read_switches();
 uint32_t bsp_io_read_fs_switches();
