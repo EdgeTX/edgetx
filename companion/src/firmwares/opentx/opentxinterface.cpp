@@ -323,8 +323,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return Boards::getCapability(board, Board::LcdWidth) > Boards::getCapability(board, Board::LcdHeight) ? 4 : 2;
     case HasModelsList:
       return IS_FAMILY_HORUS_OR_T16(board);
-    case HasFlySkyGimbals:
-      return (IS_RADIOMASTER_TX16S(board) && id.contains("flyskygimbals"));
+    case HasSerialGimbals:
+      return (IS_RADIOMASTER_TX16S(board) && id.contains("serialgimbals"));
     case RotaryEncoderNavigation:
       return (IS_TARANIS_X7(board) || IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X9E(board) || IS_TARANIS_X9LITE(board) ||
               IS_JUMPER_T15(board) || IS_JUMPER_T18(board) || IS_JUMPER_T20(board) || IS_JUMPER_TPRO(board) ||
@@ -481,7 +481,7 @@ void registerOpenTxFirmwares()
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
-  firmware->addOption("flyskygimbals", Firmware::tr("Support hardware mod: FlySky Paladin EV Gimbals"));
+  firmware->addOption("serialgimbals", Firmware::tr("Support hardware mod: Serial gimbals"));
   registerOpenTxFirmware(firmware);
 
   /* FlySky NV14 board */
@@ -791,7 +791,7 @@ void registerOpenTxFirmwares()
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
-  firmware->addOption("flyskygimbals", Firmware::tr("Support hardware mod: FlySky Paladin EV Gimbals"));
+  firmware->addOption("serialgimbals", Firmware::tr("Support hardware mod: Serial gimbals"));
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster Zorro board */

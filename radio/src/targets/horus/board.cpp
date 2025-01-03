@@ -47,8 +47,8 @@
 
 #include <string.h>
 
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
+#if defined(SERIAL_GIMBAL)
+  #include "serial_gimbal_driver.h"
 #endif
 
 #if defined(CSD203_SENSOR)
@@ -182,8 +182,8 @@ void boardInit()
   sticksPwmDetect();
 #endif
   
-#if defined(FLYSKY_GIMBAL)
-  flysky_gimbal_init();
+#if defined(SERIAL_GIMBAL)
+  serial_gimbal_init();
 #endif
 
   if (!adcInit(&_adc_driver))
