@@ -680,6 +680,37 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {
+            "nb4p"
+        },
+        "inputs": {
+            "ST": {
+                "yaml": "ST",
+                "lua": "ste",
+                "description": "Steering"
+            },
+            "TH": {
+                "yaml": "TH",
+                "lua": "thr",
+                "description": "Throttle"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "s1",
+                "label": "VR1L",
+                "short_label": "1",
+                "description": "Potentiometer 1"
+            },
+            "P2": {
+                "yaml": "POT2",
+                "lua": "s2",
+                "label": "VR1R",
+                "short_label": "2",
+                "description": "Potentiometer 2"
+            }
+        }
+    },
+    {
         "targets": {"v12", "v14"},
         "inputs": {
             "LH": {
