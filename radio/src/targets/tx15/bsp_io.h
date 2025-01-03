@@ -61,6 +61,7 @@
 int bsp_io_init();
 uint32_t bsp_io_read_switches();
 uint32_t bsp_io_read_fs_switches();
+uint32_t bsp_get_fs_switches();
 
 uint16_t bsp_input_get();
 struct stm32_switch_t;

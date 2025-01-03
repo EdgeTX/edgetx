@@ -136,6 +136,11 @@ uint32_t bsp_io_read_fs_switches()
   return _read_io_expander(&_io_fs_switches);
 }
 
+uint32_t bsp_get_fs_switches()
+{
+  return _io_fs_switches.state;
+}
+
 void boardInitSwitches()
 {
   bsp_io_init();

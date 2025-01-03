@@ -62,7 +62,7 @@ enum PhysicalTrims {
 uint32_t readTrims()
 {
   uint32_t result = 0;
-  uint32_t keys = bsp_io_read_fs_switches();
+  uint32_t keys = bsp_get_fs_switches();
   
 #define _TRIM(t) \
   if ((keys & BSP_##t) == 0) result |= 1 << t;
