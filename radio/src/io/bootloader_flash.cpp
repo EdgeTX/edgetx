@@ -34,6 +34,10 @@
   #include "lib_file.h"
 #endif
 
+#ifndef BOOTLOADER_ADDRESS
+#define BOOTLOADER_ADDRESS FIRMWARE_ADDRESS
+#endif
+
 bool isBootloader(const char * filename)
 {
   FIL file;
@@ -97,7 +101,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
     }
     for (UINT j = 0; j < count; j += FLASH_PAGESIZE) {
       WDG_ENABLE(3000);
-      flashWrite(CONVERT_UINT_PTR(FIRMWARE_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
+      flashWrite(CONVERT_UINT_PTR(BOOTLOADER_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
       WDG_ENABLE(WDG_DURATION);
     }
     progressHandler("Bootloader", STR_WRITING, i, flash_size);

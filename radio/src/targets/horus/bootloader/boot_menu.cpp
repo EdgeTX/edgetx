@@ -26,7 +26,7 @@
 #include "translations.h"
 
 #include "targets/common/arm/stm32/bootloader/boot.h"
-#include "targets/common/arm/stm32/bootloader/bin_files.h"
+#include "bootloader/firmware_files.h"
 
 #include <lvgl/lvgl.h>
 
@@ -175,7 +175,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
           } else if (opt == FC_OK) {
             VersionTag tag;
             memset(&tag, 0, sizeof(tag));
-            extractFirmwareVersion(&tag);
+            getFileFirmwareVersion(&tag);
 
             if (strcmp(tag.flavour, FLAVOUR)) {
               lcd->drawText(94, 168, LV_SYMBOL_CLOSE " " TR_BL_INVALID_FIRMWARE,

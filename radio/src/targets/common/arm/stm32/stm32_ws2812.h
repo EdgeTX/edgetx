@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+* Copyright (C) EdgeTx
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx

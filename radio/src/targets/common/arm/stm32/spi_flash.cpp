@@ -21,6 +21,7 @@
 
 #include "stm32_spi.h"
 #include "delays_driver.h"
+#include "stm32_gpio.h"
 
 #include "hal.h"
 
@@ -70,10 +71,10 @@ struct SpiFlashDescriptor {
 
 const stm32_spi_t _flash_spi = {
   .SPIx = FLASH_SPI,
-  .SPI_GPIOx = FLASH_SPI_GPIO,
-  .SPI_Pins = FLASH_SPI_SCK_GPIO_PIN | FLASH_SPI_MISO_GPIO_PIN | FLASH_SPI_MOSI_GPIO_PIN,
-  .CS_GPIOx = FLASH_SPI_CS_GPIO,
-  .CS_Pin = FLASH_SPI_CS_GPIO_PIN,
+  .SCK = FLASH_SPI_SCK_GPIO,
+  .MISO = FLASH_SPI_MISO_GPIO,
+  .MOSI = FLASH_SPI_MOSI_GPIO,
+  .CS = FLASH_SPI_CS_GPIO,
   .DMA = FLASH_SPI_DMA,
   .DMA_Channel = FLASH_SPI_DMA_CHANNEL,
   .txDMA_Stream = FLASH_SPI_DMA_TX_STREAM,

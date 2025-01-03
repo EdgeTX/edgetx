@@ -64,12 +64,12 @@ uint16_t lcdColorTable[] = {
 
 uint32_t HSVtoRGB(float H, float S, float V)
 {
-  if (H > 360 || H < 0 || S > 100 || S < 0 || V > 100 || V < 0) {
+  if (H > 360 || H < 0 || S > MAX_SATURATION || S < 0 || V > MAX_BRIGHTNESS || V < 0) {
     return 0;
   }
 
-  float s = S / 100;
-  float v = V / 100;
+  float s = S / MAX_SATURATION;
+  float v = V / MAX_BRIGHTNESS;
   float C = s * v;
   float X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
   float m = v - C;
@@ -93,6 +93,39 @@ uint32_t HSVtoRGB(float H, float S, float V)
   int B = (b + m) * 255;
 
   return RGB(R, G, B);
+}
+
+uint32_t HSVtoRGB32(float H, float S, float V)
+{
+  if (H > 360 || H < 0 || S > MAX_SATURATION || S < 0 || V > MAX_BRIGHTNESS || V < 0) {
+    return 0;
+  }
+
+  float s = S / MAX_SATURATION;
+  float v = V / MAX_BRIGHTNESS;
+  float C = s * v;
+  float X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
+  float m = v - C;
+  float r, g, b;
+
+  if (H >= 0 && H < 60) {
+    r = C, g = X, b = 0;
+  } else if (H >= 60 && H < 120) {
+    r = X, g = C, b = 0;
+  } else if (H >= 120 && H < 180) {
+    r = 0, g = C, b = X;
+  } else if (H >= 180 && H < 240) {
+    r = 0, g = X, b = C;
+  } else if (H >= 240 && H < 300) {
+    r = X, g = 0, b = C;
+  } else {
+    r = C, g = 0, b = X;
+  }
+  int R = (r + m) * 255;
+  int G = (g + m) * 255;
+  int B = (b + m) * 255;
+
+  return RGB32(R, G, B);
 }
 
 void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float &fH, float &fS, float &fV)
@@ -150,6 +183,19 @@ LcdFlags colorToRGB(LcdFlags colorFlags)
     return colorFlags;
 
   return (colorFlags & 0xFFFF) | COLOR(COLOR_VAL(colorFlags)) | RGB_FLAG;
+}
+
+uint32_t color32ToRGB(uint32_t color)
+{
+  // RGB or indexed color?
+  if (color & RGB888_FLAG)
+    return color;
+
+  color = COLOR_VAL(COLOR(color));
+  auto r = GET_RED(color);
+  auto g = GET_GREEN(color);
+  auto b = GET_BLUE(color);
+  return RGB32(r, g, b) | RGB888_FLAG;
 }
 
 /**

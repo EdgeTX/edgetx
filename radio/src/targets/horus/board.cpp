@@ -22,6 +22,7 @@
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
+#include "stm32_spi.h"
 #include "stm32_ws2812.h"
 
 #include "hal/adc_driver.h"
@@ -74,15 +75,44 @@ bool boardBacklightOn = false;
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
 
-void boardBLInit()
+void boardBLEarlyInit()
 {
   videoSwitchInit();
 }
 #endif
 
+
 #if !defined(BOOT)
 #include "edgetx.h"
 
+#if defined(PCBX12S)
+static void setAudioResetHigh()
+{
+  gpio_set(AUDIO_RST_GPIO);
+}
+static void setAudioResetLow()
+{
+  gpio_clear(AUDIO_RST_GPIO);
+}
+
+stm32_spi_t audioSpi =
+{
+    .SPIx = AUDIO_SPI,
+    .SCK = AUDIO_SPI_SCK_GPIO,
+    .MISO = AUDIO_SPI_MISO_GPIO,
+    .MOSI = AUDIO_SPI_MOSI_GPIO,
+    .CS = AUDIO_CS_GPIO,
+};
+
+AudioConfig_t audioConfig =
+{
+  .spi = &audioSpi,
+  .setMuteHigh = nullptr,
+  .setMuteLow = nullptr,
+  .setResetHigh = setAudioResetHigh,
+  .setResetLow = setAudioResetLow
+};
+#endif
 #if defined(SIXPOS_SWITCH_INDEX)
 uint8_t lastADCState = 0;
 uint8_t sixPosState = 0;
@@ -168,7 +198,12 @@ void boardInit()
   TRACE("\nHorus board started :)");
   TRACE("RCC->CSR = %08x", RCC->CSR);
 
+#if defined(PCBX12S)
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+  audioInit(&audioConfig);
+#else
   audioInit();
+#endif
 
   keysInit();
   switchInit();

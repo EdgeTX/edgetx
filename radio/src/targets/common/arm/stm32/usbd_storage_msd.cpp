@@ -172,7 +172,7 @@ int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_
   }
 
   *block_num  = sector_count;
-return (USBD_OK);
+  return (USBD_OK);
 }
 
 uint8_t lunReady[STORAGE_LUN_NBR];

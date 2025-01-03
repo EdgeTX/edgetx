@@ -1054,41 +1054,34 @@
   #define TR_BL_INVALID_EEPROM         "\004Ikke en EEPROM fil!          "
 #endif
 
-#if defined(PCBTARANIS)
-   // Bootloader Taranis specific - ASCII characters only
-  #define TR_BL_RESTORE_EEPROM        "Genskab EEPROM"
-  #if defined(RADIO_COMMANDO8)
-    #define TR_BL_POWER_KEY           "Tryk power knap."
-    #define TR_BL_FLASH_EXIT          "Forlad installation tilstand."
-  #endif
-#elif defined(PCBHORUS)
-   // Bootloader Horus specific - ASCII characters only
-  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            "[ENT] for at bruge fil"
-  #define TR_BL_FLASH_KEY             "[ENT] længe, for at starte"
-  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
-  #define TR_BL_EXIT_KEY              "[RTN] for at forlade"
-#elif defined(PCBNV14)
-   // Bootloader NV14 specific - ASCII characters only
-  #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
-  #define TR_BL_CURRENT_FW            "Firmware version:"
-  #define TR_BL_SELECT_KEY            "[R TRIM] for at bruge fil"
-  #define TR_BL_FLASH_KEY             "[R TRIM] længe, for at starte"
-  #define TR_BL_EXIT_KEY              "[L TRIM] for at forlade"
-  #define TR_BL_ENABLE                "Aktiver"
-  #define TR_BL_DISABLE               "Deaktiver"
+// Bootloader Taranis specific - ASCII characters only
+#define TR_BL_RESTORE_EEPROM           "Genskab EEPROM"
+#define TR_BL_POWER_KEY                "Tryk power knap."
+#define TR_BL_FLASH_EXIT               "Forlad installation tilstand."
+
+// Bootloader Horus specific - ASCII characters only
+#define TR_BL_ERASE_INT_FLASH          "Slet intern flash lager"
+#define TR_BL_ERASE_FLASH              "Slet flash lager"
+#define TR_BL_ERASE_FLASH_MSG          "Dette kan vare op til 200s"
+#define TR_BL_RF_USB_ACCESS            "RF USB adgang"
+#define TR_BL_CURRENT_FW               "Current firmware:"
+
+#if defined(PCBNV14)
+  #define TR_BL_SELECT_KEY             "[R TRIM] for at bruge fil"
+  #define TR_BL_FLASH_KEY              "[R TRIM] længe, for at starte"
+  #define TR_BL_EXIT_KEY               "[L TRIM] for at forlade"
+  #define TR_BL_ENABLE                 "Aktiver"
+  #define TR_BL_DISABLE                "Deaktiver"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - ASCII characters only
-  #define TR_BL_RF_USB_ACCESS         "RF USB adgang"
-  #define TR_BL_ERASE_INT_FLASH       "Slet intern flash lager"
-  #define TR_BL_ERASE_FLASH           "Slet flash lager"
-  #define TR_BL_ERASE_FLASH_MSG       "Dette kan vare op til 200s"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn] for at bruge fil"
-  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] længe, for brænding"
-  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] længe, for sletning"
-  #define TR_BL_EXIT_KEY              " [TR4 Up] for at forlade"
+  #define TR_BL_SELECT_KEY             " [TR4 Dn] for at bruge fil"
+  #define TR_BL_FLASH_KEY              " Hold [TR4 Dn] længe, for brænding"
+  #define TR_BL_ERASE_KEY              " Hold [TR4 Dn] længe, for sletning"
+  #define TR_BL_EXIT_KEY               " [TR4 Up] for at forlade"
+#else
+  #define TR_BL_SELECT_KEY             "[ENT] for at bruge fil"
+  #define TR_BL_FLASH_KEY              "[ENT] længe, for at starte"
+  #define TR_BL_ERASE_KEY              "Hold [ENT] long to erase"
+  #define TR_BL_EXIT_KEY               "[RTN] for at forlade"
 #endif
 
 // About screen

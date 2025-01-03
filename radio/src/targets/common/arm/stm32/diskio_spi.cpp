@@ -30,6 +30,7 @@
 #include "hal/gpio.h"
 #include "sdcard_spi.h"
 
+
 #include "hal.h"
 
 #if defined(SD_SPI)
@@ -39,10 +40,10 @@
 
 static const stm32_spi_t _sd_spi_hw = {
     .SPIx = SD_SPI,
-    .SPI_GPIOx = SD_GPIO,
-    .SPI_Pins = SD_GPIO_PIN_SCK | SD_GPIO_PIN_MISO | SD_GPIO_PIN_MOSI,
-    .CS_GPIOx = SD_GPIO,
-    .CS_Pin = SD_GPIO_PIN_CS,
+    .SCK = SD_GPIO_PIN_SCK,
+    .MISO = SD_GPIO_PIN_MISO,
+    .MOSI = SD_GPIO_PIN_MOSI,
+    .CS = SD_GPIO_PIN_CS,
     .DMA = SD_SPI_DMA,
     .DMA_Channel = SD_SPI_DMA_CHANNEL,
     .txDMA_Stream = SD_SPI_DMA_TX_STREAM,

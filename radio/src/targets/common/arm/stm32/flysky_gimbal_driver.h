@@ -23,7 +23,7 @@
 
 #include "hal/serial_port.h"
  
-#define HALLSTICK_BUFF_SIZE             ( 512 )
+#define HALLSTICK_BUFF_SIZE             ( 256 ) // this is smaller than the theoretical max packet size, but packets that alrge will never come
 #define FLYSKY_HALL_BAUDRATE            ( 921600 )
 #define FLYSKY_HALL_CHANNEL_COUNT       ( 4 )
 

@@ -215,6 +215,21 @@ uint32_t isFirmwareStart(const uint8_t * buffer)
   if ((block[2] & 0xFFC00000) != 0x08000000) {
     return 0;
   }
+#elif defined(STM32H7)
+//  // Stack pointer in D1 RAM
+//  if ((block[0] & 0xFFFC0000) != 0x24080000) {
+  // Stack pointer in DTCM RAM
+  if ((block[0] & 0xFFFF0000) != 0x20020000) {
+    return 0;
+  }
+  // First ISR pointer in FLASH
+  if ((block[1] & 0xF0000000) != 0x90000000) {
+    return 0;
+  }
+  // Second ISR pointer in FLASH
+  if ((block[2] & 0xF0000000) != 0xC0000000) {
+    return 0;
+  }
 #else
   // Stack pointer in RAM
   if ((block[0] & 0xFFFC0000) != 0x20000000) {
