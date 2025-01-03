@@ -44,7 +44,6 @@ if (PCBREV STREQUAL EL18)
     # defines existing internal modules
     set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")
     set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS3 CACHE STRING "Default internal module")
-    set(AFHDS3 ON)
 else()
     set(FLAVOUR nv14)
     # defines existing internal modules
@@ -63,6 +62,7 @@ set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 
 set(HARDWARE_TOUCH ON)
 set(FLYSKY_GIMBAL ON)
+set(AFHDS3 ON)
 
 add_definitions(
   -DSTM32F429_439xx -DSTM32F429xx
