@@ -480,9 +480,9 @@ if(NATIVE_BUILD)
   return()
 endif()
 
-if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "14.2.1")
-  message(WARNING "Only Arm GNU Toolchain version 14.2.rel1 is supported")
+if(NOT USE_UNSUPPORTED_TOOLCHAIN AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "14.2.1")
   message("CPP Compiler: ${CMAKE_CXX_COMPILER}, version ${CMAKE_CXX_COMPILER_VERSION}")
+  message(FATAL_ERROR "Only Arm GNU Toolchain version 14.2.rel1 is supported!!")
 endif()
 
 set(CMAKE_C_FLAGS "${FIRMWARE_C_FLAGS}")
