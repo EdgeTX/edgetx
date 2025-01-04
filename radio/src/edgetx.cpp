@@ -210,7 +210,7 @@ void timer_10ms()
   evalFunctionSwitches();
 #endif
 
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(LIBOPENUI)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(COLORLCD)
   if (rotaryEncoderPollingCycle()) {
     inactivityTimerReset(ActivitySource::Keys);
   }
