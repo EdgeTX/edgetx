@@ -107,8 +107,8 @@ class MainWindow : public QMainWindow
     void copyProfile();
     void deleteProfile(const int pid);
     void deleteCurrentProfile();
-    void exportSettings();
-    void importSettings();
+    void exportAppSettings();
+    void importAppSettings();
     void autoClose();
     void chooseProfile();
     void autoCheckForUpdates();
@@ -118,6 +118,15 @@ class MainWindow : public QMainWindow
 
     void openFile(const QString & fileName);
 
+    void readSettingsSDPath();
+    void writeSettingsSDPath();
+
+    void viewFileToolbar();
+    void viewEditToolbar();
+    void viewRadioToolbar();
+    void viewSettingsToolbar();
+    void viewToolsToolbar();
+
   private:
     QAction * addAct(const QString & icon, const char * slot = NULL, const QKeySequence & shortcut = 0, QObject * slotObj = NULL, const char * signal = NULL);
     QAction * addActToGroup(QActionGroup * aGroup, const QString & sName, const QString & lName, const char * propName = 0,
@@ -125,6 +134,8 @@ class MainWindow : public QMainWindow
     void trAct(QAction * act, const QString & text, const QString & descript);
 
     QMenu * createLanguageMenu(QWidget * parent = Q_NULLPTR);
+
+    void setActCheckability(QAction * act, bool checked);
 
     void createActions();
     void createMenus();
@@ -143,8 +154,11 @@ class MainWindow : public QMainWindow
 
     bool readSettingsFromRadio(const QString & filename);
     bool readFirmwareFromRadio(const QString & filename);
+    bool readSettingsFromSDPath(const QString & filename);
 
     bool checkProfileRadioExists(int profId);
+
+    bool isSDPathValid();
 
     QMdiArea *mdiArea;
 
@@ -155,21 +169,30 @@ class MainWindow : public QMainWindow
     QVector<QAction *> profileActs;
     QList<QAction *> fileWindowActions;
 
+    // top level menus
     QMenu *fileMenu;
     QMenu *editMenu;
+    QMenu *viewMenu;
     QMenu *settingsMenu;
-    QMenu *burnMenu;
-    QMenu *helpMenu;
+    QMenu *radioMenu;
+    QMenu *toolsMenu;
     QMenu *windowMenu;
+    QMenu *helpMenu;
+
+    // sub menus
     QMenu *iconThemeSizeMenu;
     QMenu *themeMenu;
     QMenu *recentFilesMenu;
     QMenu *profilesMenu;
+
     QActionGroup * windowsListActions;
+
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
-    QToolBar *burnToolBar;
-    QToolBar *helpToolBar;
+    QToolBar *radioToolBar;
+    QToolBar *settingsToolBar;
+    QToolBar *toolsToolBar;
+
     QAction *newAct;
     QAction *openAct;
     QAction *saveAct;
@@ -198,11 +221,17 @@ class MainWindow : public QMainWindow
     QAction *createProfileAct;
     QAction *copyProfileAct;
     QAction *deleteProfileAct;
-    QAction *exportSettingsAct;
-    QAction *importSettingsAct;
-    //QAction *openDocURLAct;
+    QAction *exportAppSettingsAct;
+    QAction *importAppSettingsAct;
     QAction *actTabbedWindows;
     QAction *actTileWindows;
     QAction *actCascadeWindows;
     QAction *actCloseAllWindows;
+    QAction *writeSettingsSDPathAct;
+    QAction *readSettingsSDPathAct;
+    QAction *viewFileToolbarAct;
+    QAction *viewEditToolbarAct;
+    QAction *viewRadioToolbarAct;
+    QAction *viewSettingsToolbarAct;
+    QAction *viewToolsToolbarAct;
 };

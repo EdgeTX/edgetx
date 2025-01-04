@@ -835,6 +835,13 @@ class AppData: public CompStoreObj
     // Message box confirmations
     PROPERTY(bool, confirmWriteModelsAndSettings, true)
 
+    // Toolbars visibility
+    PROPERTY(bool, fileToolbarVisible, true)
+    PROPERTY(bool, editToolbarVisible, true)
+    PROPERTY(bool, radioToolbarVisible, true)
+    PROPERTY(bool, settingsToolbarVisible, true)
+    PROPERTY(bool, toolsToolbarVisible, true)
+
     bool firstUse;
     QString upgradeFromVersion;
 
