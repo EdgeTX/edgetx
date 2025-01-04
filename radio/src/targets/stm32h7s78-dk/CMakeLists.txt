@@ -70,6 +70,8 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/system_init.cpp
   ${TARGET_SRC_DIR}/lcd_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
+  # ${TARGET_SRC_DIR}/seesaw.cpp
+  # ${TARGET_SRC_DIR}/bsp_io.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/dma2d.cpp
   targets/common/arm/stm32/pwr_driver.cpp
