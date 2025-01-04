@@ -114,6 +114,7 @@ class SimulatorWidget : public QWidget
     void onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value);
     void onjoystickAxisValueChanged(int axis, int value);
     void onjoystickButtonValueChanged(int button, bool state);
+    void onBatteryVoltageChanged(qint16 volts);
 
     void setRadioProfileId(int value);
     void setupRadioWidgets();

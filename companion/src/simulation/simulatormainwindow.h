@@ -71,6 +71,7 @@ class SimulatorMainWindow : public QMainWindow
   signals:
     void simulatorStart();
     void simulatorRestart();
+    void batteryVoltageChanged(qint16 volts);
 
   protected slots:
     virtual void closeEvent(QCloseEvent *);
@@ -84,6 +85,7 @@ class SimulatorMainWindow : public QMainWindow
     void openSerialPortsDialog(bool);
     void showHelp(bool show);
     void showAbout(bool show);
+    void openBatteryVoltageDialog();
 
   protected:
     void createDockWidgets();

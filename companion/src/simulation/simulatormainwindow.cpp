@@ -143,6 +143,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   connect(ui->actionReloadRadioData, &QAction::triggered, this, &SimulatorMainWindow::simulatorRestart);
 
   connect(ui->actionReloadLua, &QAction::triggered, m_simulator, &SimulatorInterface::setLuaStateReloadPermanentScripts);
+  connect(ui->actionBatteryVoltage, &QAction::triggered, this, &SimulatorMainWindow::openBatteryVoltageDialog);
 
   if (m_outputsWidget) {
     connect(this, &SimulatorMainWindow::simulatorStart, m_outputsWidget, &RadioOutputsWidget::start);
@@ -554,4 +555,38 @@ void SimulatorMainWindow::showAbout(bool show)
   msgBox.setWindowTitle(tr("About EdgeTX Simulator"));
   msgBox.setText(aboutStr);
   msgBox.exec();
+}
+
+void SimulatorMainWindow::openBatteryVoltageDialog()
+{
+  // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
+  int vBatMin, vBatMax;
+  unsigned int vBatWarn;
+  Boards::getBattRange(getCurrentBoard(), vBatMin, vBatMax, vBatWarn);
+
+  QDialog *dlg = new QDialog(this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+
+  QLabel *lbl = new QLabel(tr("Set voltage"));
+  QDoubleSpinBox *sb = new QDoubleSpinBox();
+  sb->setDecimals(1);
+  sb->setMinimum((float)((vBatMin + 90) / 10));
+  sb->setMaximum((float)((vBatMax + 120) / 10));
+  sb->setSingleStep(0.1);
+  sb->setSuffix(tr("V"));
+  sb->setValue(vBatWarn + 20);
+
+  auto *btnBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+  connect(btnBox, &QDialogButtonBox::accepted, dlg, &QDialog::accept);
+  connect(btnBox, &QDialogButtonBox::rejected, dlg, &QDialog::reject);
+
+  auto * lo = new QGridLayout(dlg);
+  lo->addWidget(lbl, 0, 0);
+  lo->addWidget(sb, 0, 1);
+  lo->addWidget(btnBox, 1, 0, 1, 2);
+
+  dlg->setWindowTitle(tr("Battery"));
+  dlg->deleteLater();
+
+  if(dlg->exec())
+    emit batteryVoltageChanged((int)(sb->value() * 10));
 }

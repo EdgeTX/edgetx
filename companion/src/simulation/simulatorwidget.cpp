@@ -38,6 +38,7 @@
 #include "joystickdialog.h"
 #endif
 #include "simulateduiwidgetGeneric.h"
+#include "simulatormainwindow.h"
 
 #include <AppDebugMessageHandler>
 #include <QFile>
@@ -105,6 +106,8 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
   connect(simulator, &SimulatorInterface::heartbeat, this, &SimulatorWidget::onSimulatorHeartbeat);
   connect(simulator, &SimulatorInterface::runtimeError, this, &SimulatorWidget::onSimulatorError);
   connect(simulator, &SimulatorInterface::phaseChanged, this, &SimulatorWidget::onPhaseChanged);
+
+  connect((SimulatorMainWindow *)parent, &SimulatorMainWindow::batteryVoltageChanged, this, &SimulatorWidget::onBatteryVoltageChanged);
 
   m_timer.setInterval(SIMULATOR_INTERFACE_HEARTBEAT_PERIOD * 6);
   connect(&m_timer, &QTimer::timeout, this, &SimulatorWidget::onTimerEvent);
@@ -671,7 +674,7 @@ void SimulatorWidget::restoreRadioWidgetsState()
   emit stickModeChange(radioSettings.stickMode);
 
   // TODO : custom voltages
-  qint16 volts = radioSettings.vBatWarn + 20; // 1V above min
+  qint16 volts = radioSettings.vBatWarn + 20; // +2V
   emit inputValueChange(SimulatorInterface::INPUT_SRC_TXVIN, 0, volts);
 }
 
@@ -888,4 +891,9 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
     emit widgetValueAdjust(RadioWidget::RADIO_WIDGET_TRIM, swtch, offset, state);
   }
 #endif
+}
+
+void SimulatorWidget::onBatteryVoltageChanged(qint16 volts)
+{
+  emit inputValueChange(SimulatorInterface::INPUT_SRC_TXVIN, 0, volts);
 }
