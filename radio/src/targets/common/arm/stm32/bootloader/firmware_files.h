@@ -28,12 +28,7 @@
 #endif
 #include "boards/FirmwareVersionTag.h"
 
-enum MemoryType {
-  MEM_FLASH,
-  MEM_EEPROM
-};
-
-#define getFirmwarePath(mt)  (FIRMWARES_PATH)
+#define getFirmwarePath()  (FIRMWARES_PATH)
 
 #if LCD_H == 480
 #define MAX_NAMES_ON_SCREEN   13
@@ -44,8 +39,8 @@ enum MemoryType {
 #define MAX_FW_FILES         (MAX_NAMES_ON_SCREEN+1)
 
 
-// Open directory for EEPROM / firmware files
-FRESULT openFirmwareDir(MemoryType mt);
+// Open directory for firmware files
+FRESULT openFirmwareDir();
 
 // Fetch file names and sizes into binFiles,
 // starting at the provided index.
@@ -56,7 +51,7 @@ const char* getFirmwareFileNameByIndex(unsigned int index);
 
 // Open file indexed in binFiles and read the first BLOCK_LEN bytes
 // Bootloader is skipped in firmware files
-FRESULT openFirmwareFile(MemoryType mt, unsigned int index);
+FRESULT openFirmwareFile(unsigned int index);
 
 
 
@@ -76,8 +71,9 @@ enum FlashCheckRes {
     FC_OK,
     FC_ERROR
 };
-FlashCheckRes checkFirmwareFile(unsigned int index, MemoryType memoryType, FlashCheckRes res);
+FlashCheckRes checkFirmwareFile(unsigned int index, FlashCheckRes res);
 
 void firmwareInitWrite(uint32_t index);
+bool firmwareEraseBlock(uint32_t* progress);
 bool firmwareWriteBlock(uint32_t* progress);
 

@@ -98,8 +98,7 @@ __SECTION_USED(".bootversiondata") const char boot_version[] =     "edgetx-" FLA
  */
 const char * getFirmwareVersion(const uint8_t* buffer)
 {
-  if(buffer == nullptr)
-  {
+  if(buffer == nullptr) {
 #if defined(BOOT) && !defined(FIRMWARE_QSPI)
     buffer = (const uint8_t *)(FIRMWARE_ADDRESS + BOOTLOADER_SIZE);
 #else

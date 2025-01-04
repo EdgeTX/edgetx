@@ -14,13 +14,15 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   boot.cpp
 )
 
-if(FIRMWARE_QSPI)
+if(FIRMWARE_FORMAT_UF2)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
-    uf2_fw_files.cpp
-    ${RADIO_SRC_DIR}/io/uf2_flash.cpp
+    boot_uf2.cpp
+    ${RADIO_SRC_DIR}/io/uf2.cpp
+    ${RADIO_SRC_DIR}/drivers/uf2_ghostfat.cpp
   )
 else()
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+    boot_menu.cpp
     bin_fw_files.cpp
   )
 endif()

@@ -20,31 +20,12 @@
  */
 
 #pragma once
-#include <stdint.h>
-#include <bitset>
-#include "uf2/uf2.h"
 
-#include "boards/FirmwareVersionTag.h"
+#include "io/uf2.h"
+#include "edgetx.h"
 
-#define UF2_VERSION_TAG 0x9FC7BC
-#define UF2_DEVICE_TAG  0x650D9D
-
-bool isUF2FirmwareImage(const uint8_t* buffer, size_t length);
-bool isUF2FirmwareFile(const char * filename);
-bool extractFirmwareVersion(const UF2_Block* block, VersionTag* tag);
-static const size_t eraseSectorSize = 4096;
-bool uf2WriteBuffer(
-    UF2_Block* uf2Data,
-    size_t count,
-    std::bitset<FIRMWARE_MAX_LEN/eraseSectorSize>& erasedSectors,
-    size_t* blockCount,
-    size_t* totalBlocks);
-
-
-#ifndef BOOT
 class UF2FirmwareUpdate
 {
-  public:
-    void flashFirmware(const char * filename, ProgressHandler progressHandler);
+ public:
+  void flashFirmware(const char* filename, ProgressHandler progressHandler);
 };
-#endif

@@ -19,10 +19,14 @@
  * GNU General Public License for more details.
  */
 
+#include "flash_driver.h"
+
 #include "stm32_cmsis.h"
 #include "stm32_hal.h"
 
-uint32_t stm32_flash_get_size_kb()
+#include <string.h>
+
+static uint32_t stm32_flash_get_size_kb()
 {
   uint32_t flash_size_kb = *(const uint32_t*)FLASHSIZE_BASE;
   return flash_size_kb;
@@ -30,7 +34,7 @@ uint32_t stm32_flash_get_size_kb()
 
 #if defined(STM32F2) || defined(STM32F4)
 
-uint32_t stm32_flash_get_sector(uint32_t address)
+static uint32_t stm32_flash_get_sector(uint32_t address)
 {
   uint32_t sector;
   uint32_t sector_addr = address & 0xFFFFF;
@@ -68,12 +72,12 @@ static uint32_t _flash_sector_address(uint32_t sector, uint32_t bank)
   return addr;
 }
 
-uint32_t stm32_flash_get_sector_size(uint32_t sector)
+static uint32_t stm32_flash_get_sector_size(uint32_t sector)
 {
   // bank 2
   if (sector >= 12) sector -= 12;
 
-  // first 4: 16KB  
+  // first 4: 16KB
   if (sector < 4) return 16 * 1024;
   // sector 4: 64KB
   if (sector == 4) return 64 * 1024;
@@ -83,7 +87,7 @@ uint32_t stm32_flash_get_sector_size(uint32_t sector)
 
 #elif defined(STM32H7) || defined(STM32H7RS)
 
-uint32_t stm32_flash_get_sector(uint32_t address)
+static uint32_t stm32_flash_get_sector(uint32_t address)
 {
   uint32_t sector_addr = address & 0xFFFFF;
   return sector_addr / FLASH_SECTOR_SIZE;
@@ -99,7 +103,7 @@ static uint32_t _flash_sector_address(uint32_t sector, uint32_t bank)
   return addr;
 }
 
-uint32_t stm32_flash_get_sector_size(uint32_t sector)
+static uint32_t stm32_flash_get_sector_size(uint32_t sector)
 {
   (void)sector;
   return FLASH_SECTOR_SIZE;
@@ -107,7 +111,7 @@ uint32_t stm32_flash_get_sector_size(uint32_t sector)
 
 #endif
 
-uint32_t stm32_flash_get_bank(uint32_t address)
+static uint32_t stm32_flash_get_bank(uint32_t address)
 {
 #if defined(DUAL_BANK)
   return ((address & 0x100000) != 0x100000) ? FLASH_BANK_1 : FLASH_BANK_2;
@@ -120,10 +124,10 @@ uint32_t stm32_flash_get_bank(uint32_t address)
 #endif
 }
 
-void stm32_flash_unlock() { HAL_FLASH_Unlock(); }
-void stm32_flash_lock() { HAL_FLASH_Lock(); }
+static inline void stm32_flash_unlock() { HAL_FLASH_Unlock(); }
+static inline void stm32_flash_lock() { HAL_FLASH_Lock(); }
 
-int stm32_flash_erase_sector(uint32_t address)
+static int stm32_flash_erase_sector(uint32_t address)
 {
   FLASH_EraseInitTypeDef eraseInit;
   eraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
@@ -138,12 +142,16 @@ int stm32_flash_erase_sector(uint32_t address)
   eraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;
 #endif
 
+  int ret = 0;
   uint32_t sector_errors = 0;
+
+  stm32_flash_unlock();
   if (HAL_FLASHEx_Erase(&eraseInit, &sector_errors) != HAL_OK) {
-    return -1;
+    ret = -1;
   }
 
-  return 0;
+  stm32_flash_lock();
+  return ret;
 }
 
 #if defined(STM32H7)
@@ -160,22 +168,41 @@ int stm32_flash_erase_sector(uint32_t address)
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *p_data)
 #endif
 
-int stm32_flash_program(uint32_t address, uint8_t* data, uint32_t len)
+static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
 {
   uint32_t* p_data = (uint32_t*)data;
   uint32_t end_addr = address + len;
 
+  int ret = 0;
+  stm32_flash_unlock();
   while (address < end_addr) {
     if (_FLASH_PROGRAM(address, p_data) != HAL_OK) {
-      return -1;
+      ret = -1;
+      break;
     }
 
     address += sizeof(uint32_t) * FLASH_PROG_WORDS;
     p_data += FLASH_PROG_WORDS;
   }
 
+  stm32_flash_lock();
+  return ret;
+}
+
+static int stm32_flash_read(uint32_t address, void* data, uint32_t len)
+{
+  memcpy(data, (void*)address, len);
   return 0;
 }
+
+const etx_flash_driver_t stm32_flash_driver = {
+  .get_size_kb = stm32_flash_get_size_kb,
+  .get_sector = stm32_flash_get_sector,
+  .get_sector_size = stm32_flash_get_sector_size,
+  .erase_sector = stm32_flash_erase_sector,
+  .program = stm32_flash_program,
+  .read = stm32_flash_read,
+};
 
 // Legacy API
 

@@ -1,5 +1,6 @@
 #include "extflash_driver.h"
 #include "stm32_xspi_nor.h"
+#include "stm32h7rsxx_hal_xspi.h"
 
 
 #define XSPI_NOR_PAGE_SIZE 256
@@ -60,15 +61,8 @@ static void XSPI_NOR_MspInit()
   HAL_GPIO_Init(GPION, &GPIO_InitStruct);
 }
 
-/**
- * @brief  Initializes the XSPI interface.
- * @retval BSP status
- */
-int32_t ExtFLASH_Init(bool memory_mapped)
+static void ExtFLASH_InitHALStruct()
 {
-  // init pins
-  XSPI_NOR_MspInit();
-
   hxspi_nor.Instance = XSPI2;
   hxspi_nor.Init.FifoThresholdByte = 4;
   hxspi_nor.Init.MemoryMode = HAL_XSPI_SINGLE_MEM;
@@ -85,13 +79,22 @@ int32_t ExtFLASH_Init(bool memory_mapped)
   hxspi_nor.Init.MaxTran = 0;
   hxspi_nor.Init.Refresh = 0;
   hxspi_nor.Init.MemorySelect = HAL_XSPI_CSSEL_NCS1;
+}
+
+/**
+ * @brief  Initializes the XSPI interface.
+ * @retval BSP status
+ */
+int32_t ExtFLASH_Init()
+{
+  // init pins
+  XSPI_NOR_MspInit();
+
+  // init HAL hxspi_nur
+  ExtFLASH_InitHALStruct();
 
   if (stm32_xspi_nor_init(&xspi_dev) != 0) {
     return BSP_ERROR_PERIPH_FAILURE;
-  }
-
-  if (!memory_mapped) {
-    return BSP_ERROR_NONE;
   }
 
   if (stm32_xspi_nor_memory_mapped(&xspi_dev) != 0) {
@@ -100,6 +103,14 @@ int32_t ExtFLASH_Init(bool memory_mapped)
 
   /* Return BSP status */
   return BSP_ERROR_NONE;
+}
+
+void ExtFLASH_InitRuntime()
+{
+  // init HAL hxspi_nur
+  ExtFLASH_InitHALStruct();
+  hxspi_nor.State = HAL_XSPI_STATE_BUSY_MEM_MAPPED;
+  hxspi_nor.Timeout = 5000;
 }
 
 //
@@ -166,10 +177,9 @@ const etx_flash_driver_t extflash_driver = {
   .erase_sector = extflash_erase_sector,
   .program = extflash_program,
   .read = extflash_read,
-  .unlock = nullptr,
-  .lock = nullptr,
 };
 
+#if defined(BOOT)
 //
 // USB DFU interface
 //
@@ -242,3 +252,5 @@ const USBD_DFU_MediaTypeDef _extflash_dfu_media = {
 };
 
 const void* extflash_dfu_media = &_extflash_dfu_media;
+
+#endif // BOOT

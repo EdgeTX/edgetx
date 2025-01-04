@@ -51,6 +51,7 @@ enum BootloaderState {
   ST_OPEN_DIR,
   ST_FILE_LIST,
   ST_FLASH_CHECK,
+  ST_ERASING,
   ST_FLASHING,
   ST_FLASH_DONE,
   ST_RESTORE_MENU,
@@ -63,13 +64,11 @@ enum BootloaderState {
   ST_REBOOT,
 };
 
+// interactive bootloader
+void bootloaderMenu();
 
-
-typedef struct {
-  const char* description;
-} flash_media_t;
-
-void bootloaderRegisterFlash(const char* desc, etx_flash_driver_t* drv);
+// non-interactive UF2 bootloader
+void bootloaderUF2();
 
 // Declarations of functions that need to be implemented
 // for each target with a bootloader
@@ -91,4 +90,5 @@ uint32_t bootloaderGetMenuItemCount(int baseCount);
 // returns true on submenu exit
 bool bootloaderRadioMenu(uint32_t menuItem, event_t event);
 
+void sdInit();
 void blExit();

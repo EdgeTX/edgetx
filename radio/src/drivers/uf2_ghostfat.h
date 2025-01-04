@@ -19,10 +19,27 @@
  * GNU General Public License for more details.
  */
 
-#if defined(BOOT)
-  #define MASS_STORAGE_BUFFER_SIZE 4096U
-#else
-  #define MASS_STORAGE_BUFFER_SIZE 512U
+#pragma once
+
+#include <stdint.h>
+
+#define UF2_NUM_BLOCKS 32768 // at least 16MB
+
+#if !defined(UF2_MAX_FW_SIZE)
+#define UF2_MAX_FW_SIZE (2 * 1024 * 1024)
 #endif
 
-#define USBD_CLASS_BOS_ENABLED 0
+#define UF2_MAX_BLOCKS (UF2_MAX_FW_SIZE / 256)
+
+#define UF2_ERASE_BLOCK_SIZE (8 * 1024)
+#define UF2_ERASE_BLOCKS (UF2_MAX_FW_SIZE / UF2_ERASE_BLOCK_SIZE)
+
+typedef struct {
+    uint32_t num_blocks;
+    uint32_t num_written;
+    uint32_t written_mask[UF2_MAX_BLOCKS / 32];
+    uint32_t erased_mask[UF2_ERASE_BLOCKS / 32];
+} uf2_fat_write_state_t;
+
+void uf2_fat_read_block(uint32_t block_no, uint8_t *data);
+int uf2_fat_write_block(uint32_t block_no, uint8_t *data, uf2_fat_write_state_t *state);
