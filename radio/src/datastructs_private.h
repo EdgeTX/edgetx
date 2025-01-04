@@ -973,12 +973,8 @@ PACK(struct RadioData {
 
   char ownerRegistrationID[PXX2_LEN_REGISTRATION_ID];
 
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
   NOBACKUP(uint8_t  rotEncMode:3);
-#else
-  NOBACKUP(uint8_t  rotEncModeSpare:3 SKIP);
-#endif
 
   NOBACKUP(int8_t   uartSampleMode:2); // See UartSampleModes
 
