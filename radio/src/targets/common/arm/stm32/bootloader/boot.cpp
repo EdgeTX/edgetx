@@ -19,18 +19,16 @@
  * GNU General Public License for more details.
  */
 
+#include "boot.h"
+
 #include "hal/usb_driver.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/rotary_encoder.h"
 
 #include "board.h"
-#include "boot.h"
-#include "firmware_files.h"
-#include "lcd.h"
 #include "debug.h"
 
 #include "timers_driver.h"
-
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
@@ -39,17 +37,6 @@
 
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
-#endif
-
-#if defined(SPI_FLASH)
-  #define MAIN_MENU_LEN 3
-#else
-  #define MAIN_MENU_LEN 2
-#endif
-
-#if defined(SPI_FLASH)
-  #include "diskio_spi_flash.h"
-  #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
 
 #define REBOOT_CMD_DFU 0x55464442
@@ -66,56 +53,6 @@ const uint8_t bootloaderVersion[] __attribute__ ((section(".version"), used)) =
 #elif !defined(__weak)
   #define __weak __attribute__((weak))
 #endif
-
-volatile tmr10ms_t g_tmr10ms;
-volatile uint8_t tenms = 1;
-
-FlashCheckRes valid;
-MemoryType memoryType;
-
-void per5ms() {} // make linker happy
-
-void per10ms()
-{
-  tenms |= 1u; // 10 mS has passed
-  g_tmr10ms++;
-
-  keysPollingCycle();
-
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
-  static rotenc_t rePreviousValue;
-
-  rotenc_t reNewValue = rotaryEncoderGetValue();
-  int8_t scrollRE = reNewValue - rePreviousValue;
-  if (scrollRE) {
-    rePreviousValue = reNewValue;
-    pushEvent(scrollRE < 0 ? EVT_ROTARY_LEFT : EVT_ROTARY_RIGHT);
-  }
-#endif
-}
-
-
-
-int menuFlashFile(uint32_t index, event_t event)
-{
-  valid = checkFirmwareFile(index, memoryType, valid);
-
-  if (valid == FC_ERROR) {
-    if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER))
-      return 0;
-
-    return -1;
-  }
-
-  if (event == EVT_KEY_LONG(KEY_ENTER)) {
-
-    return openFirmwareFile(memoryType, index) == FR_OK;
-  }
-  else if (event == EVT_KEY_BREAK(KEY_EXIT))
-    return 0;
-
-  return -1;
-}
 
 #if !defined(SIMU)
 
@@ -193,8 +130,6 @@ void bootloaderInitApp()
 
   timersInit();
 
-  // SD card detect pin
-  sdInit();
   usbInit();
   boardBLInit();
 }
@@ -205,13 +140,6 @@ void bootloaderInitApp() {}
 int  bootloaderMain()
 #endif
 {
-  BootloaderState state = ST_START;
-  uint32_t vpos = 0;
-  uint32_t radioMenuItem = 0;
-  uint8_t index = 0;
-  FRESULT fr;
-  uint32_t nameCount = 0;
-
   // init hardware (may jump to app)
   bootloaderInitApp();
 
@@ -223,244 +151,11 @@ int  bootloaderMain()
   while (pwrPressed()) {}
 #endif
 
-  for (;;) {
-
-    if (tenms) {
-      tenms = 0;
-
-      if (state != ST_USB && state != ST_FLASHING
-          && state != ST_FLASH_DONE && state != ST_RADIO_MENU) {
-        if (usbPlugged()) {
-          state = ST_USB;
-#if !defined(SIMU)
-          usbStart();
-#endif
-        }
-      }
-
-      if (state == ST_USB) {
-        if (usbPlugged() == 0) {
-          vpos = 0;
-#if !defined(SIMU)
-          usbStop();
-#endif
-          state = ST_START;
-        }
-        bootloaderDrawScreen(state, 0);
-      }
-
-      lcdRefreshWait();
-      event_t event = getEvent();
-
-      if (state == ST_START) {
-
-        bootloaderDrawScreen(state, vpos);
-
-        if (IS_NEXT_EVENT(event)) {
-          if (vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN) - 1) { vpos++; }
-          continue;
-        }
-        else if (IS_PREVIOUS_EVENT(event)) {
-          if (vpos > 0) { vpos--; }
-          continue;
-        }
-        else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-          switch (vpos) {
-            case 0:
-              memoryType = MEM_FLASH;
-              state = ST_DIR_CHECK;
-              break;
-#if defined(SPI_FLASH)
-            case 1:
-              state = ST_CLEAR_FLASH_CHECK;
-              break;
-#endif
-            default:
-              if(vpos < bootloaderGetMenuItemCount(MAIN_MENU_LEN-1))
-              {
-                state = ST_RADIO_MENU;
-                radioMenuItem = vpos - MAIN_MENU_LEN - 1;
-              } else {
-                state = ST_REBOOT;
-              }
-              break;
-          }
-
-          // next loop
-          continue;
-        }
-      }
-      else if (state == ST_DIR_CHECK) {
-        fr = openFirmwareDir(memoryType);
-
-        if (fr == FR_OK) {
-          index = vpos = 0;
-          state = ST_FILE_LIST;
-          nameCount = fetchFirmwareFiles(index);
-          continue;
-        }
-        else {
-          bootloaderDrawScreen(state, fr);
-
-          if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
-            vpos = 0;
-            state = ST_START;
-            continue;
-          }
-        }
-      }
-
-      if (state == ST_FILE_LIST) {
-        uint32_t limit = MAX_NAMES_ON_SCREEN;
-        if (nameCount < limit) {
-          limit = nameCount;
-        }
-
-        if (IS_NEXT_EVENT(event)) {
-          if (vpos < limit - 1) {
-            vpos += 1;
-          }
-          else {
-            if (nameCount > limit) {
-              index += 1;
-              nameCount = fetchFirmwareFiles(index);
-            }
-          }
-        }
-        else if (IS_PREVIOUS_EVENT(event)) {
-          if (vpos > 0) {
-            vpos -= 1;
-          }
-          else {
-            if (index) {
-              index -= 1;
-              nameCount = fetchFirmwareFiles(index);
-            }
-          }
-        }
-
-        bootloaderDrawScreen(state, 0);
-
-        for (uint32_t i = 0; i < limit; i++) {
-          bootloaderDrawFilename(getFirmwareFileNameByIndex(i), i, (vpos == i));
-        }
-
-        if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-          // Select file to flash
-          state = ST_FLASH_CHECK;
-          valid = FC_UNCHECKED;
-          continue;
-        }
-        else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-          state = ST_START;
-          vpos = 0;
-          continue;
-        }
-      }
-      else if (state == ST_FLASH_CHECK) {
-        bootloaderDrawScreen(state, valid, getFirmwareFileNameByIndex(vpos));
-
-        int result = menuFlashFile(vpos, event);
-        if (result == 0) {
-          // canceled
-          state = ST_FILE_LIST;
-        }
-        else if (result == 1) {
-          // confirmed
-
-          if (memoryType == MEM_FLASH) {
-            firmwareInitWrite(vpos);
-          }
-          state = ST_FLASHING;
-        }
-      }
-      else if (state == ST_FLASHING) {
-        if(memoryType != MEM_FLASH)
-        {
-          state = ST_FLASH_DONE;
-          continue;
-        }
-
-        uint32_t progress = 0;
-        bool done = firmwareWriteBlock(&progress);
-
-        bootloaderDrawScreen(state, progress);
-
-        if(done)
-          state = ST_FLASH_DONE;
-#if defined(SPI_FLASH)
-      } else if (state == ST_CLEAR_FLASH_CHECK) {
-        bootloaderDrawScreen(state, vpos);
-        if (IS_NEXT_EVENT(event)) {
-          if (vpos < SEL_CLEAR_FLASH_STORAGE_MENU_LEN - 1) { vpos++; }
-          continue;
-        }
-        if (IS_PREVIOUS_EVENT(event)) {
-          if (vpos > 0) { vpos--; }
-          continue;
-        }
-        if (event == EVT_KEY_LONG(KEY_ENTER) && vpos == 0)
-        {
-          state = ST_CLEAR_FLASH;
-        } else if (event == EVT_KEY_BREAK(KEY_EXIT) ||
-            (event == EVT_KEY_BREAK(KEY_ENTER) && vpos == 1) ) {
-          vpos = 0;
-          state = ST_START;
-          continue;
-        }
-      } else if (state == ST_CLEAR_FLASH) {
-        bootloaderDrawScreen(state, 0);
-        lcdRefresh();
-        sdDone();
-        spiFlashDiskEraseAll();
-        sdInit();
-        vpos = 0;
-        state = ST_START;
-#endif
-      } else if (state == ST_RADIO_MENU) {
-        if(bootloaderRadioMenu(radioMenuItem, event))
-        {
-          state = ST_START;
-          vpos = 0;
-          bootloaderDrawScreen(state, vpos);
-        }
-      }
-
-      if (state == ST_FLASH_DONE) {
-        if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
-          state = ST_START;
-          vpos = 0;
-        }
-
-        bootloaderDrawScreen(state, 100);
-      }
-
-      if (event == EVT_KEY_LONG(KEY_EXIT)) {
-        // Start the main application
-        state = ST_REBOOT;
-      }
-
-      lcdRefresh();
-
-    }
-
-    if (state != ST_FLASHING && state != ST_USB) {
-      if (pwrOffPressed()) {
-        sdDone();
-        boardOff();
-      }
-    }
-
-    if (state == ST_REBOOT) {
-      sdDone();
-#if !defined(SIMU)
-      blExit();
-      NVIC_SystemReset();
+#if !defined(FIRMWARE_FORMAT_UF2)
+  bootloaderMenu();
 #else
-      exit(1);
+  bootloaderUF2();
 #endif
-    }
-  }
 
   return 0;
 }

@@ -31,7 +31,9 @@ typedef struct {
   int (*erase_sector)(uint32_t address);
   int (*program)(uint32_t address, void* data, uint32_t len);
   int (*read)(uint32_t address, void* data, uint32_t len);
-
-  void (*unlock)();
-  void (*lock)();
 } etx_flash_driver_t;
+
+void flashRegisterDriver(uint32_t start_addr, uint32_t length,
+                         const etx_flash_driver_t* drv);
+
+const etx_flash_driver_t* flashFindDriver(uint32_t addr);

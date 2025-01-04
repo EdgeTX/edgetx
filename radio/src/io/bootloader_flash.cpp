@@ -70,12 +70,6 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
 
   f_open(&file, filename, FA_READ);
 
-  static uint8_t unlocked = 0;
-  if (!unlocked) {
-    unlocked = 1;
-    unlockFlash();
-  }
-
   UINT flash_size = file.obj.objsize;
   if (flash_size > BOOTLOADER_SIZE) {
     flash_size = BOOTLOADER_SIZE;
@@ -121,12 +115,6 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
   watchdogSuspend(0);
   WDG_RESET();
 
-  if (unlocked) {
-    lockFlash();
-    unlocked = 0;
-  }
-
   f_close(&file);
-
   pulsesStart();
 }

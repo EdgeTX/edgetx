@@ -50,7 +50,6 @@ if(NOT NATIVE_BUILD)
   add_library(stm32usb_device_bl OBJECT EXCLUDE_FROM_ALL    
     ${STM32_DRIVER_DIR}/usbd_conf.c
     ${STM32_DRIVER_DIR}/usbd_desc.c
-    ${STM32_DRIVER_DIR}/usbd_dfu.cpp
     ${STM32_DRIVER_DIR}/usbd_storage_msd.cpp
     ${STM32_DRIVER_DIR}/usb_driver.cpp
   )
@@ -155,6 +154,11 @@ set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
 
 set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/cpu_id.cpp)
 set(SRC ${SRC} io/bootloader_flash.cpp)
+
 if(FIRMWARE_FORMAT_UF2)
-  set(SRC ${SRC} io/uf2_flash.cpp)
+  add_definitions(-DFIRMWARE_FORMAT_UF2)
+  set(SRC ${SRC}
+    io/uf2.cpp
+    io/uf2_flash.cpp
+  )
 endif()

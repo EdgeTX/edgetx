@@ -72,6 +72,7 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   # ${TARGET_SRC_DIR}/seesaw.cpp
   # ${TARGET_SRC_DIR}/bsp_io.cpp
+  ${TARGET_SRC_DIR}/extflash_driver.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/dma2d.cpp
   targets/common/arm/stm32/pwr_driver.cpp
@@ -87,7 +88,6 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/system_clock.cpp
   ${TARGET_SRC_DIR}/extram_driver.cpp
-  ${TARGET_SRC_DIR}/extflash_driver.cpp
   ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
 )
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
