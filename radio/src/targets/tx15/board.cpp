@@ -320,6 +320,7 @@ void boardOff()
   }
 }
 
+#if defined(USB_CHARGER)
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
@@ -334,6 +335,7 @@ int usbPlugged()
   
   return debouncedState;
 }
+#endif
 
 
 // extern "C" void * memcpy(void* dst, const void*src, size_t count)
