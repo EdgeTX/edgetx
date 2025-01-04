@@ -229,7 +229,7 @@
 #define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOB, 9)  // PB.09
 #define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOB, 6)  // PB.06
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
-#define I2C_B1_CLK_RATE                 100000
+#define I2C_B1_CLK_RATE                 400000
 
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1
