@@ -792,12 +792,6 @@ union ReusableBuffer
     ModuleInformation internalModule;
 #endif
   } viewMain;
-
-#if !defined(SIMU)
-  // Data for the USB mass storage driver. If USB mass storage
-  // runs no menu is not allowed to be displayed
-  uint8_t MSC_BOT_Data[MASS_STORAGE_BUFFER_SIZE];
-#endif
 };
 
 extern ReusableBuffer reusableBuffer;
