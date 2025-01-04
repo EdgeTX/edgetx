@@ -57,9 +57,11 @@ class RadioSdManagerPage : public PageTab
 #if defined(BLUETOOTH)
   void BluetoothFirmwareUpdate(const char* fn);
 #endif
+#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
   void FrSkyFirmwareUpdate(const char* fn, ModuleIndex module);
   void MultiFirmwareUpdate(const char* fn, ModuleIndex module,
                            MultiModuleType type);
+#endif
 
   void checkEvents() override; 
 };

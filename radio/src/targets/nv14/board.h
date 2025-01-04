@@ -61,6 +61,8 @@ enum {
   PCBREV_EL18 = 1,
 };
 
+#define HAS_HARDWARE_OPTIONS
+
 typedef struct {
   uint8_t pcbrev;
 } HardwareOptions;
