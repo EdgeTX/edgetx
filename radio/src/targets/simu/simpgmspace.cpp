@@ -499,14 +499,6 @@ void setSelectedUsbMode(int mode) {}
 void delay_ms(uint32_t ms) { }
 void delay_us(uint16_t us) { }
 
-void unlockFlash()
-{
-}
-
-void lockFlash()
-{
-}
-
 void flashWrite(uint32_t *address, const uint32_t *buffer)
 {
   simuSleep(10);

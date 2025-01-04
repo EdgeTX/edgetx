@@ -29,4 +29,8 @@
 extern const etx_flash_driver_t extflash_driver;
 extern const void* extflash_dfu_media;
 
-int32_t ExtFLASH_Init(bool memory_mapped);
+// init external FLASH hardware
+int32_t ExtFLASH_Init();
+
+// init only runtime structures
+void ExtFLASH_InitRuntime();

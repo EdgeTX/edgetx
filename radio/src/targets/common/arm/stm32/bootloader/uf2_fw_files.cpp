@@ -24,31 +24,30 @@
 
 #include "boot.h"
 #include "board.h"
+#include "hal/flash_driver.h"
 #include "sdcard.h"
 #include "firmware_files.h"
 #include "fw_version.h"
 #include "strhelpers.h"
 #include "hal/storage.h"
-#include "io/uf2_flash.h"
+
+#include "io/uf2.h"
+#include "uf2/uf2.h"
 
 #include "flash_driver.h"
 
-# if defined(FIRMWARE_QSPI)
-#   include "stm32_qspi.h"
-# endif
-
-// Size of the block read when checking / writing BIN files
-#define BLOCK_LEN 4096
+// Size of the block read when checking / writing files
+#define BLOCK_LEN (16 * 1024)
 
 // 'private'
 static DIR  dir;
 static FIL firmwareFile;
 
-#ifndef FIRMWARE_QSPI
 static uint32_t firmwareSize;
-static uint32_t firmwareAddress = FIRMWARE_ADDRESS;
-static uint32_t firmwareWritten = 0;
-#endif
+static uint32_t firmwareAddress;
+static uint32_t firmwareWritten;
+static uint32_t firmwareErased;
+static uint32_t lastErased;
 
 struct FWFileInfo {
     TCHAR        name[FF_MAX_LFN + 1];
@@ -58,7 +57,6 @@ struct FWFileInfo {
 // 'public' variables
 static FWFileInfo  fwFiles[MAX_FW_FILES];
 static uint8_t     Block_buffer[BLOCK_LEN];
-static UINT        BlockCount;
 
 void sdInit(void)
 {
@@ -77,28 +75,35 @@ void sdDone()
   storageDeInit();
 }
 
-FRESULT openFirmwareDir(MemoryType mt)
+FRESULT openFirmwareDir()
 {
-    FRESULT fr = f_chdir(getFirmwarePath(mt));
+    FRESULT fr = f_chdir(getFirmwarePath());
     if (fr != FR_OK) return fr;
     
     return f_opendir(&dir, ".");
 }
 
-FlashCheckRes checkFirmwareFile(unsigned int index, MemoryType memoryType, FlashCheckRes res)
+FlashCheckRes checkFirmwareFile(unsigned int index, FlashCheckRes res)
 {
-  if(memoryType != MEM_FLASH)
-    return FC_ERROR;
-
   if (res != FC_UNCHECKED)
     return res;
 
-  if(openFirmwareFile(memoryType, index) != FR_OK)
+  if(openFirmwareFile(index) != FR_OK)
     return FC_ERROR;
 
   f_close(&firmwareFile);
   return FC_OK;
 }
+
+#define match_uf2_ext(ext)                 \
+  (((ext)[0] == 'u' || (ext)[0] == 'U') && \
+   ((ext)[1] == 'f' || (ext)[1] == 'F') && \
+   ((ext)[2] == '2' || (ext)[2] == '2'))
+
+#define match_bin_ext(ext)                 \
+  (((ext)[0] == 'b' || (ext)[0] == 'B') && \
+   ((ext)[1] == 'i' || (ext)[1] == 'I') && \
+   ((ext)[2] == 'n' || (ext)[2] == 'N'))
 
 static FRESULT findNextFile(FILINFO* fno)
 {
@@ -115,23 +120,13 @@ static FRESULT findNextFile(FILINFO* fno)
       continue;  // Ignore hidden files under UNIX, but not ..
 
     int32_t len = strlen(fno->fname) - 4;
-    if (len < 0)
-        continue;
+    if (len < 0) continue;
 
-    if (fno->fname[len] != '.')
-        continue;
-    
-    if ((fno->fname[len + 1] != 'u') && (fno->fname[len + 1] != 'U'))
-        continue;
+    const char* ext = fno->fname + len;
+    if (*ext != '.') continue;
+    ext++;
 
-    if ((fno->fname[len + 2] != 'f') && (fno->fname[len + 2] != 'F'))
-        continue;
-
-    if ((fno->fname[len + 3] != '2') && (fno->fname[len + 3] != '2'))
-        continue;
-
-    // match!
-    break;
+    if (match_uf2_ext(ext) || match_bin_ext(ext)) break;
 
   } while (1);
 
@@ -143,27 +138,22 @@ unsigned int fetchFirmwareFiles(unsigned int index)
   FILINFO file_info;
 
   // rewind
-  if (f_readdir(&dir, NULL) != FR_OK)
-      return 0;
+  if (f_readdir(&dir, NULL) != FR_OK) return 0;
 
   // skip 'index' .bin files
   for (unsigned int i = 0; i <= index; i++) {
-      
-      if (findNextFile(&file_info) != FR_OK /*|| file_info.fname[0] == 0*/)
-          return 0;
+    if (findNextFile(&file_info) != FR_OK) return 0;
   }
 
   strAppend(fwFiles[0].name, file_info.fname);
   fwFiles[0].size = file_info.fsize;
 
   unsigned int i = 1;
-  for (; i < MAX_NAMES_ON_SCREEN+1; i++) {
+  for (; i < MAX_NAMES_ON_SCREEN + 1; i++) {
+    if (findNextFile(&file_info) != FR_OK || file_info.fname[0] == 0) return i;
 
-      if (findNextFile(&file_info) != FR_OK || file_info.fname[0] == 0)
-          return i;
-  
-      strAppend(fwFiles[i].name, file_info.fname);
-      fwFiles[i].size = file_info.fsize;
+    strAppend(fwFiles[i].name, file_info.fname);
+    fwFiles[i].size = file_info.fsize;
   }
 
   return i;
@@ -171,112 +161,130 @@ unsigned int fetchFirmwareFiles(unsigned int index)
 
 const char* getFirmwareFileNameByIndex(unsigned int index)
 {
-  if(index >= MAX_FW_FILES)
-    return "";
-
+  if (index >= MAX_FW_FILES) return "";
   return fwFiles[index].name;
 }
 
 void getFileFirmwareVersion(VersionTag* tag)
 {
-
-  extractFirmwareVersion((UF2_Block*)Block_buffer, tag);
+  extractUF2FirmwareVersion(Block_buffer, tag);
 }
 
-FRESULT openFirmwareFile(MemoryType mt, unsigned int index)
+FRESULT openFirmwareFile(unsigned int index)
 {
-  TCHAR full_path[FF_MAX_LFN+1];
-  FRESULT fr;
+  TCHAR full_path[FF_MAX_LFN + 1];
+  FRESULT res;
 
   // build full_path: [bin path]/[filename]
-  char* s = strAppend(full_path, getFirmwarePath(mt));
+  char* s = strAppend(full_path, getFirmwarePath());
   s = strAppend(s, "/");
   strAppend(s, fwFiles[index].name);
 
-  BlockCount = 0;
-  
   // open the file
-  if ((fr = f_open(&firmwareFile, full_path, FA_READ)) != FR_OK)
-    return fr;
-#if !defined(STM32H7)
-  // skip bootloader in firmware
-  if (mt == MEM_FLASH &&
-      ((fr = f_lseek(&firmwareFile, BOOTLOADER_SIZE)) != FR_OK))
-      return fr;
-#endif
-  // ... and fetch BLOCK_LEN bytes
-  fr = f_read(&firmwareFile, Block_buffer, sizeof(Block_buffer), &BlockCount);
+  res = f_open(&firmwareFile, full_path, FA_READ);
+  if (res != FR_OK) return res;
 
-  if (BlockCount == BLOCK_LEN && isUF2FirmwareImage(Block_buffer, sizeof(Block_buffer)))
-  {
-      return fr;
+  // ... and fetch BLOCK_LEN bytes
+  UINT bytes_read = 0;
+  res = f_read(&firmwareFile, Block_buffer, sizeof(Block_buffer), &bytes_read);
+  if (bytes_read == BLOCK_LEN &&
+      isUF2FirmwareImage(Block_buffer, sizeof(Block_buffer))) {
+      return res;
   }
 
   f_close(&firmwareFile);
-
   return FR_INVALID_OBJECT;
 }
 
-
-
-
 FRESULT readFirmwareFile()
 {
-    BlockCount = 0;
-    return f_read(&firmwareFile, Block_buffer, sizeof(Block_buffer), &BlockCount);
+  UINT bytes_read = 0;
+  return f_read(&firmwareFile, Block_buffer, sizeof(Block_buffer), &bytes_read);
 }
 
-FRESULT closeFirmwareFile()
-{
-    return f_close(&firmwareFile);
-}
-
+FRESULT closeFirmwareFile() { return f_close(&firmwareFile); }
 
 void firmwareInitWrite(uint32_t index)
 {
-#ifndef FIRMWARE_QSPI
-  firmwareSize = fwFiles[vpos].size - BOOTLOADER_SIZE;
-  firmwareAddress = FIRMWARE_ADDRESS + BOOTLOADER_SIZE;
+  firmwareSize = fwFiles[index].size;
+  firmwareAddress = FIRMWARE_ADDRESS;
   firmwareWritten = 0;
-#endif
+  firmwareErased = 0;
+  lastErased = 0;
+
+  // assume file is open
+  f_rewind(&firmwareFile);
 }
 
-//static const size_t eraseSectorSize = 4096;
-static std::bitset<FIRMWARE_MAX_LEN/eraseSectorSize> erasedSectors;
-size_t blockCount = 0;
-size_t totalBlocks = 0;
+bool firmwareEraseBlock(uint32_t* progress)
+{
+  FRESULT res;
+  UINT bytes_read = 0;
+  res = f_read(&firmwareFile, Block_buffer, sizeof(Block_buffer), &bytes_read);
+
+  if (res != FR_OK || bytes_read == 0) {
+    // TODO: some error?
+    return true;
+  }
+
+  auto block = (const UF2_Block*)Block_buffer;
+  while(bytes_read >= sizeof(UF2_Block)) {
+    if ((block->flags & UF2_FLAG_NOFLASH) == 0) {
+      uint32_t addr = block->targetAddr;
+      if (lastErased <= addr) {
+        auto drv = flashFindDriver(addr);
+        if (drv) {
+          uint32_t sector = drv->get_sector(addr);
+          uint32_t sect_len = drv->get_sector_size(sector);
+          if (drv->erase_sector(addr) < 0) {
+            *progress = 100;
+            return true;
+          }
+          lastErased = addr + sect_len - 1;
+        }
+      }
+    }
+    block++;
+    bytes_read -= sizeof(UF2_Block);
+    firmwareErased += sizeof(UF2_Block);
+  }
+
+  *progress = (100 * firmwareErased) / firmwareSize;
+  return firmwareErased >= firmwareSize;
+}
 
 bool firmwareWriteBlock(uint32_t* progress)
 {
-#ifndef FIRMWARE_QSPI
-  // commit to flashing
-  if (!unlocked && (MEM_FLASH)) {
-    unlocked = 1;
-    unlockFlash();
-  }
-#else
-
-  uf2WriteBuffer((UF2_Block*)Block_buffer, BlockCount/sizeof(UF2_Block), erasedSectors, &blockCount, &totalBlocks);
-  *progress = (100*blockCount)/totalBlocks;
-  if(blockCount==totalBlocks)
+  if (firmwareWritten == 0 && f_rewind(&firmwareFile) != FR_OK) {
+    // TODO: some error?
     return true;
-  readFirmwareFile();
+  }
+  
+  FRESULT res;
+  UINT bytes_read = 0;
+  res = f_read(&firmwareFile, Block_buffer, sizeof(Block_buffer), &bytes_read);
 
-#endif
+  if (res != FR_OK || bytes_read == 0) {
+    // TODO: some error?
+    return true;
+  }
 
+  auto block = (const UF2_Block*)Block_buffer;
+  while(bytes_read >= sizeof(UF2_Block)) {
+    if ((block->flags & UF2_FLAG_NOFLASH) == 0) {
+      uint32_t addr = block->targetAddr;
+      auto drv = flashFindDriver(addr);
+      if (drv) {
+        uint32_t len = block->payloadSize;
+        uint8_t* data = (uint8_t*)block->data;
+        drv->program(addr, data, len);
+      }
+    }
+    block++;
+    bytes_read -= sizeof(UF2_Block);
+    firmwareWritten += sizeof(UF2_Block);
+  }
 
-#ifndef FIRMWARE_QSPI
-  flashWriteBlock();
-  firmwareWritten += sizeof(Block_buffer);
   *progress = (100 * firmwareWritten) / firmwareSize;
-
-  FRESULT fr = readFirmwareFile();
-  if (BlockCount == 0) {
-    return true;
-  }
-  else if (firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
-    return true;
-  }
-#endif
-  return false;
+  return firmwareWritten >= firmwareSize;
 }

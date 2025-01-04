@@ -20,11 +20,10 @@
  */
  
 #include "bootloader/boot.h"
+#include "flash_driver.h"
+#include "hal/flash_driver.h"
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
-
-// #include "stm32_ws2812.h"
-// #include "boards/generic_stm32/rgb_leds.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -68,7 +67,7 @@ bool boardBLStartCondition()
 void boardBLPreJump()
 {
   timersInit();
-  ExtFLASH_Init(true);
+  ExtFLASH_Init();
   ExtRAM_Init();
 
   // Stop 1ms timer
@@ -77,10 +76,15 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
-  ExtFLASH_Init(false);
+  ExtFLASH_Init();
   ExtRAM_Init();
 
+  // register external FLASH for DFU
   usbRegisterDFUMedia((void*)extflash_dfu_media);
+
+  // register internal & external FLASH for UF2
+  flashRegisterDriver(0x08000000, 2 * 1024 * 1024, &stm32_flash_driver);
+  flashRegisterDriver(0x70000000, 256 * 1024 * 1024, &extflash_driver);
 }
 
 void boardInit()
@@ -97,6 +101,12 @@ void boardInit()
 
   delaysInit();
   timersInit();
+
+  ExtFLASH_InitRuntime();
+
+  // register internal & external FLASH for UF2
+  flashRegisterDriver(0x08000000, 2 * 1024 * 1024, &stm32_flash_driver);
+  flashRegisterDriver(0x70000000, 256 * 1024 * 1024, &extflash_driver);
 
   usbInit();
 

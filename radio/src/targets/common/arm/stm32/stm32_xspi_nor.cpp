@@ -242,6 +242,7 @@ int stm32_xspi_nor_init(const stm32_xspi_nor_t* dev)
     return -1;
   }
 
+#if defined(BOOT)
 #if defined(HAL_XSPIM_IOPORT_1) || defined(HAL_XSPIM_IOPORT_2)
   // XSPI I/O manager init Function
   XSPIM_CfgTypeDef xspi_mgr_cfg;
@@ -260,6 +261,7 @@ int stm32_xspi_nor_init(const stm32_xspi_nor_t* dev)
     return -1;
   }
 #endif /* XSPIM */
+#endif
 
   if (xspi_nor_config_mem(dev) != 0) {
     return -1;
@@ -307,6 +309,22 @@ int stm32_xspi_nor_memory_mapped(const stm32_xspi_nor_t* dev)
   return 0;
 }
 
+static bool xspi_nor_is_memory_mapped(const stm32_xspi_nor_t* dev)
+{
+  return ((READ_BIT(dev->hxspi->Instance->CR, XSPI_CR_FMODE) == XSPI_CR_FMODE)
+              ? true
+              : false);
+}
+
+static int xspi_nor_abort(const stm32_xspi_nor_t* dev)
+{
+  if (HAL_XSPI_Abort(dev->hxspi) != HAL_OK) {
+    return -1;
+  }
+
+  return 0;
+}
+
 int stm32_xspi_nor_read(const stm32_xspi_nor_t* dev, uint32_t address, void* data,
                         uint32_t len)
 {
@@ -334,6 +352,10 @@ int stm32_xspi_nor_read(const stm32_xspi_nor_t* dev, uint32_t address, void* dat
 
 int stm32_xspi_nor_erase_sector(const stm32_xspi_nor_t* dev, uint32_t address)
 {
+  if (xspi_nor_is_memory_mapped(dev)) {
+    if (xspi_nor_abort(dev) != 0) return -1;
+  }
+  
   if (xspi_nor_write_enable(dev) != 0) {
     return -1;
   }
@@ -358,6 +380,10 @@ int stm32_xspi_nor_erase_sector(const stm32_xspi_nor_t* dev, uint32_t address)
 int stm32_xspi_nor_program(const stm32_xspi_nor_t* dev, uint32_t address,
                            void* data, uint32_t len)
 {
+  if (xspi_nor_is_memory_mapped(dev)) {
+    if (xspi_nor_abort(dev) != 0) return -1;
+  }
+
   if (xspi_nor_write_enable(dev) != 0) {
     return -1;
   }

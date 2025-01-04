@@ -23,9 +23,12 @@
 
 struct VersionTag
 {
-    char        flavour[11];
+    char        flavour[12];
+    char        full_version[44];
     const char* version;
     const char* fork;
 };
+
 // Ensure flavour can hold FLAVOUR defined in target cmakefile
-static_assert(sizeof(((VersionTag){}).flavour) >= sizeof(FLAVOUR), "VersionTag flavour size too small");
+static_assert(sizeof(((VersionTag){}).flavour) >= sizeof(FLAVOUR),
+              "VersionTag flavour size too small");

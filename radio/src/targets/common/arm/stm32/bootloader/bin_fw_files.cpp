@@ -89,9 +89,9 @@ void sdDone()
   storageDeInit();
 }
 
-FRESULT openFirmwareDir(MemoryType mt)
+FRESULT openFirmwareDir()
 {
-    FRESULT fr = f_chdir(getFirmwarePath(mt));
+    FRESULT fr = f_chdir(getFirmwarePath());
     if (fr != FR_OK) return fr;
 
     return f_opendir(&dir, ".");
@@ -106,12 +106,12 @@ static uint32_t isValidBufferStart(const uint8_t * buffer)
 #endif
 }
 
-FlashCheckRes checkFirmwareFile(unsigned int index, MemoryType memoryType, FlashCheckRes res)
+FlashCheckRes checkFirmwareFile(unsigned int index, FlashCheckRes res)
 {
   if (res != FC_UNCHECKED)
     return res;
 
-  if (openFirmwareFile(memoryType, index) != FR_OK)
+  if (openFirmwareFile(index) != FR_OK)
     return FC_ERROR;
 
   if (closeFirmwareFile() != FR_OK)
@@ -201,33 +201,31 @@ const char* getFirmwareFileNameByIndex(unsigned int index)
   return fwFiles[index].name;
 }
 
-FRESULT openFirmwareFile(MemoryType mt, unsigned int index)
+FRESULT openFirmwareFile(unsigned int index)
 {
   TCHAR full_path[FF_MAX_LFN+1];
-  FRESULT fr;
+  FRESULT res;
 
   // build full_path: [bin path]/[filename]
-  char* s = strAppend(full_path, getFirmwarePath(mt));
+  char* s = strAppend(full_path, getFirmwarePath());
   s = strAppend(s, "/");
   strAppend(s, fwFiles[index].name);
 
   BlockCount = 0;
-  
-  // open the file
-  if ((fr = f_open(&FlashFile, full_path, FA_READ)) != FR_OK)
-    return fr;
-  // skip bootloader in firmware
-  if (mt == MEM_FLASH &&
-      ((fr = f_lseek(&FlashFile, BOOTLOADER_SIZE)) != FR_OK))
-      return fr;
-  // ... and fetch BLOCK_LEN bytes
-  fr = f_read(&FlashFile, Block_buffer, BLOCK_LEN, &BlockCount);
 
-  if (BlockCount == BLOCK_LEN && isValidBufferStart(Block_buffer))
-      return fr;
+  // open the file
+  res = f_open(&FlashFile, full_path, FA_READ);
+  if (res != FR_OK) return res;
+
+  // skip bootloader in firmware
+  res = f_lseek(&FlashFile, BOOTLOADER_SIZE);
+  if (res != FR_OK) return res;
+
+  // ... and fetch BLOCK_LEN bytes
+  res = f_read(&FlashFile, Block_buffer, BLOCK_LEN, &BlockCount);
+  if (BlockCount == BLOCK_LEN && isValidBufferStart(Block_buffer)) return res;
 
   f_close(&FlashFile);
-
   return FR_INVALID_OBJECT;
 }
 
