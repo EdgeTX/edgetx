@@ -39,6 +39,7 @@
 #include "tp_gt911.h"
 #endif
 
+#define HAS_HARDWARE_OPTIONS
 
 PACK(typedef struct {
   uint8_t pcbrev:2;

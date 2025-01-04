@@ -571,6 +571,7 @@ void RadioSdManagerPage::BluetoothFirmwareUpdate(const char* fn)
 }
 #endif
 
+#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
 void RadioSdManagerPage::FrSkyFirmwareUpdate(const char* fn,
                                              ModuleIndex module)
 {
@@ -589,3 +590,4 @@ void RadioSdManagerPage::MultiFirmwareUpdate(const char* fn,
       new FlashDialog<MultiDeviceFirmwareUpdate>(deviceFirmwareUpdate);
   dialog->flash(fn);
 }
+#endif
