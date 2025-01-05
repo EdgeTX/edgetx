@@ -26,11 +26,6 @@
 
 #include "boards/FirmwareVersionTag.h"
 
-#define UF2_FLAG_FILE_CONTAINER       0x1000
-#define UF2_FLAG_FAMILYID_PRESENT     0x2000
-#define UF2_FLAG_MD5_CHECKSUM_PRESENT 0x4000
-#define UF2_FLAG_EXTENSION_PRESENT    0x8000
-
 #define UF2_VERSION_TAG 0x9FC7BC
 #define UF2_DEVICE_TAG  0x650D9D
 
