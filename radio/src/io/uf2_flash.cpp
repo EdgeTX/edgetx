@@ -56,7 +56,7 @@ static bool checkUF2Block(UF2_Block* block)
 
 size_t getUF2Extension(const UF2_Block* block, uint32_t extension, char** data)
 {
-  if((block->flags & UF2_FLAG_EXTENSION_PRESENT) == 0)
+  if((block->flags & UF2_FLAG_EXTENSION_TAGS) == 0)
     return 0;
 
   uint32_t* ptr = (uint32_t*)(block->data + block->payloadSize);
