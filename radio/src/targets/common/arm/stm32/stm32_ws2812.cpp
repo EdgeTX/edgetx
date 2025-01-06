@@ -87,7 +87,7 @@ uint8_t pulse_inc = 1;
 
 // DMA buffer contains pulses for 2 LED at a time
 // (allows for refill at HT and TC)
-#if defined (SDRAM)
+#if defined (STM32H7)
 #define DMA_BUFFER_SECTION __attribute__((__section__(".sram2")))
 #else
 #define DMA_BUFFER_SECTION __DMA
