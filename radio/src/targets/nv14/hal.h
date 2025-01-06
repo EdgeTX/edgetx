@@ -288,13 +288,13 @@
 #define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOH, 14) // PH.14
 #define AUDIO_CS_GPIO                 GPIO_PIN(GPIOH, 13) // PH.13
 #define AUDIO_DREQ_GPIO               GPIO_PIN(GPIOH, 15) // PH.15
-#define AUDIO_RST_GPIO                GPIO_PIN(GPIOD, 14) // PD.04
+#define AUDIO_RST_GPIO                GPIO_PIN(GPIOD, 4)  // PD.04
 #define AUDIO_SPI                     SPI1
 #define AUDIO_SPI_GPIO_AF             LL_GPIO_AF_5
 #define AUDIO_SPI_SCK_GPIO            GPIO_PIN(GPIOB, 3)  // PB.03
 #define AUDIO_SPI_MISO_GPIO           GPIO_PIN(GPIOB, 4)  // PB.04
 #define AUDIO_SPI_MOSI_GPIO           GPIO_PIN(GPIOB, 5)  // PB.05
-#define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 8) // PH.08 audio amp control pin
+#define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 8)  // PH.08 audio amp control pin
 #define AUDIO_UNMUTE_DELAY            120  // ms
 #define AUDIO_MUTE_DELAY              500  // ms
 #define AUDIO_MUTE_POL                VS1053B_MUTE_INVERTED
