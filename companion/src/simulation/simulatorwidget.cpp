@@ -673,8 +673,7 @@ void SimulatorWidget::restoreRadioWidgetsState()
   // Set throttle stick down and locked, side depends on mode
   emit stickModeChange(radioSettings.stickMode);
 
-  // TODO : custom voltages
-  qint16 volts = radioSettings.vBatWarn + 20; // +2V
+  qint16 volts = radioSettings.vBatWarn + 5; // +0.5V
   emit inputValueChange(SimulatorInterface::INPUT_SRC_TXVIN, 0, volts);
 }
 
@@ -688,7 +687,6 @@ void SimulatorWidget::saveRadioWidgetsState(QList<QByteArray> & state)
     }
   }
 }
-
 
 /*
  * Event handlers/private slots

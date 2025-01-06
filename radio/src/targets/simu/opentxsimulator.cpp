@@ -182,7 +182,7 @@ OpenTxSimulator::OpenTxSimulator() :
   tracebackDevices.clear();
   traceCallback = firmwareTraceCb;
 
-  // When we create the simulator, we change the UART driver 
+  // When we create the simulator, we change the UART driver
   for (int i = 0; i < MAX_AUX_SERIAL; i++) {
     etx_serial_port_t * port = serialPorts[i];
     if (port != nullptr) {
@@ -893,15 +893,10 @@ const char * OpenTxSimulator::getError()
 
 const int OpenTxSimulator::voltageToAdc(const int volts)
 {
-  int ret = 0;
-#if defined(PCBHORUS) || defined(PCBX7)
-  ret = (float)volts * 16.2f;
-#elif defined(PCBTARANIS)
-  ret = (float)volts * 13.3f;
-#else
-  ret = (float)volts * 14.15f;
-#endif
-  return ret;
+  // this math makes the result close to real calculation to minimise unexpected
+  // results when value is retieved by adc driver getBatteryVoltage and used
+  // * 10 precision 1 to 2
+  return volts * 10 * BATTERY_DIVIDER / 1000;
 }
 
 

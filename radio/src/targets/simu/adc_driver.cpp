@@ -41,18 +41,25 @@ static bool simu_start_conversion()
     setAnalogValue(i, simu_get_analog(i));
   }
 
-  // set VBAT / RTC_BAT
+  // set batteries default voltage
   if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
+    // use default voltage on 1st call as it may have been overriden in user ui
+    int i = adcGetInputOffset(ADC_INPUT_VBAT);
+    if (simu_get_analog(i) < 1000) {
 #if defined(VBAT_MOSFET_DROP)
-    uint32_t vbat = (2 * (BATTERY_MAX + BATTERY_MIN) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1;
+      uint32_t vbat = (2 * (BATTERY_MAX + BATTERY_MIN) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1;
 #elif defined(BATT_SCALE)
-    uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
-    vbat = ((vbat - VOLTAGE_DROP) * BATTERY_DIVIDER) / (BATT_SCALE * 128);
+      uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
+      vbat = ((vbat - VOLTAGE_DROP) * BATTERY_DIVIDER) / (BATT_SCALE * 128);
 #else
-    uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
-    vbat = (vbat * BATTERY_DIVIDER) / 1000;
+      uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
+      vbat = (vbat * BATTERY_DIVIDER) / 1000;
 #endif
-    setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat * 2);
+      setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat);
+    }
+    else {
+      setAnalogValue(i, simu_get_analog(i));
+    }
   }
 
   if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) > 0) {

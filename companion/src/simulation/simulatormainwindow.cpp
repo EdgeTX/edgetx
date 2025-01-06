@@ -588,5 +588,5 @@ void SimulatorMainWindow::openBatteryVoltageDialog()
   dlg->deleteLater();
 
   if(dlg->exec())
-    emit batteryVoltageChanged((int)(sb->value() * 10));
+    emit batteryVoltageChanged((int)(sb->value() * 10.0f));
 }

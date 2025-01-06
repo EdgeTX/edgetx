@@ -67,7 +67,7 @@ static bool adcSingleRead()
 bool adcRead()
 {
   adcSingleRead();
-  
+
   // TODO: this hack needs to go away...
   if (isVBatBridgeEnabled()) {
     disableVBatBridge();
@@ -309,14 +309,19 @@ tmr10ms_t jitterResetTime = 0;
 
 uint16_t getBatteryVoltage()
 {
-#if defined(CSD203_SENSOR) && !defined(SIMU)
+#if defined(SIMU)
+  // use the value managed by the sim so ensure the math mirrors OpenTxSimulator::voltageToAdc
+  return getAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT)) * 1000 / BATTERY_DIVIDER;
+#else
+#if defined(CSD203_SENSOR)
   return getCSD203BatteryVoltage() / 10;
 #else
   // using filtered ADC value on purpose
   if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
   int32_t instant_vbat = anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
+#endif
 
-  // TODO: remove BATT_SCALE / BATTERY_DIVIDER defines
+// TODO: remove BATT_SCALE / BATTERY_DIVIDER defines
 #if defined(VBAT_MOSFET_DROP)
   // 1000 is used as multiplier for both numerator and denominator to allow to stay in integer domain
   return (uint16_t)((instant_vbat * ADC_VREF_PREC2 * ((((1000 + g_eeGeneral.txVoltageCalibration)) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1)) / (2*RESX*1000)) + VBAT_MOSFET_DROP;
