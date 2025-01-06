@@ -320,23 +320,6 @@ void boardOff()
   }
 }
 
-#if defined(USB_CHARGER)
-int usbPlugged()
-{
-  static uint8_t debouncedState = 0;
-  static uint8_t lastState = 0;
-
-  uint8_t state = gpio_read(UCHARGER_GPIO);
-
-  if (state == lastState)
-    debouncedState = state;
-  else
-    lastState = state;
-  
-  return debouncedState;
-}
-#endif
-
 
 // extern "C" void * memcpy(void* dst, const void*src, size_t count)
 // {

@@ -213,11 +213,11 @@
 #define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
 #define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_64CYCLES_5
 
-#define ADC_VREF_PREC2                  329
+#define ADC_VREF_PREC2                  250
 
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
-    0,0,     /* pots */       \
+    -1,-1,   /* pots */       \
     0,0,     /* sliders */    \
     0,	     /* vbat */       \
     0,       /* rtc_bat */    \
