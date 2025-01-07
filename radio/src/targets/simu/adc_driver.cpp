@@ -41,21 +41,27 @@ static bool simu_start_conversion()
     setAnalogValue(i, simu_get_analog(i));
   }
 
-  // set batteries default voltage
-  if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
-    int i = adcGetInputOffset(ADC_INPUT_VBAT);
+  // set batteries default voltages
+  int i = adcGetInputOffset(ADC_INPUT_VBAT);
+
+  if (i > 0) {
     // calculate default voltage on 1st call
-    if (simu_get_analog(i) < 100) {
+    TRACE("Old ana: %d", simu_get_analog(i));
+    if (simu_get_analog(i) <= 2048) {
 #if defined(VBAT_MOSFET_DROP)
+      TRACE("min: %d max: %d r1: %d r2: %d", BATTERY_MIN, BATTERY_MAX, VBAT_DIV_R1, VBAT_DIV_R2);
       uint32_t vbat = (2 * (BATTERY_MAX + BATTERY_MIN) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1;
 #elif defined(BATT_SCALE)
+      TRACE("min: %d max: %d div: %d drop: %d", BATTERY_MIN, BATTERY_MAX, BATTERY_DIVIDER, VOLTAGE_DROP);
       uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
       vbat = ((vbat - VOLTAGE_DROP) * BATTERY_DIVIDER) / (BATT_SCALE * 128);
 #else
+      TRACE("min: %d max: %d div: %d", BATTERY_MIN, BATTERY_MAX, BATTERY_DIVIDER);
       uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
       vbat = (vbat * BATTERY_DIVIDER) / 1000;
 #endif
-      setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat * 2);
+      TRACE("vbat: %d", vbat);
+      setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat);
     }
     else {
       // use last saved voltage as can be manually adjusted via ui

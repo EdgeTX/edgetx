@@ -894,7 +894,7 @@ const char * OpenTxSimulator::getError()
 const int OpenTxSimulator::voltageToAdc(const int volts)
 {
 #if defined(VBAT_MOSFET_DROP)
-  return (2 * volts) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1;
+  return (2 * volts) * (VBAT_DIV_R2 + VBAT_DIV_R1) / VBAT_DIV_R1;
 #elif defined(BATT_SCALE)
   return ((volts - VOLTAGE_DROP) * BATTERY_DIVIDER) / (BATT_SCALE * 128);
 #else
