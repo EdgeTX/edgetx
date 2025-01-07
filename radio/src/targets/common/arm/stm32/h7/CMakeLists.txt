@@ -170,4 +170,9 @@ if(NOT NATIVE_BUILD)
   # System and FreeRTOS port files
   #
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:freertos>)
+
+  #
+  # Firmware description
+  #
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} fw_desc.c)
 endif()
