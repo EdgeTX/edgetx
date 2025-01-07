@@ -45,7 +45,7 @@ static bool simu_start_conversion()
   if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
     // use default voltage on 1st call
     int i = adcGetInputOffset(ADC_INPUT_VBAT);
-    if (simu_get_analog(i) < 1000) {
+    if (simu_get_analog(i) < 100) {
 #if defined(VBAT_MOSFET_DROP)
       uint32_t vbat = (2 * (BATTERY_MAX + BATTERY_MIN) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1;
 #elif defined(BATT_SCALE)
@@ -55,7 +55,7 @@ static bool simu_start_conversion()
       uint32_t vbat = (BATTERY_MAX + BATTERY_MIN) * 5; // * 10 / 2
       vbat = (vbat * BATTERY_DIVIDER) / 1000;
 #endif
-      setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat);
+      setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat * 2);
     }
     else {
       // use last saved voltage
