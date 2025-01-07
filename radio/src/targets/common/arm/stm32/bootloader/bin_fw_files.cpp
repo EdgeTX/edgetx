@@ -274,25 +274,15 @@ void firmwareInitWrite(uint32_t index)
 
 bool firmwareWriteBlock(uint32_t* progress)
 {
-  // commit to flashing
-  if (!unlocked) {
-    unlocked = 1;
-    unlockFlash();
-  }
-
   flashWriteBlock();
   firmwareWritten += sizeof(Block_buffer);
   *progress = (100 * firmwareWritten) / firmwareSize;
 
   readFirmwareFile();
-  if (BlockCount == 0) {
-    lockFlash();
+  if (BlockCount == 0 || firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
     return true;
   }
-  else if (firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
-    lockFlash();
-    return true;
-  }
+
   return false;
 }
 
