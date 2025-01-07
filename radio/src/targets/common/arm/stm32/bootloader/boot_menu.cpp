@@ -1,6 +1,8 @@
 #include "boot.h"
 #include "firmware_files.h"
+
 #include "hal/usb_driver.h"
+#include "hal/rotary_encoder.h"
 
 #include "lcd.h"
 
@@ -211,13 +213,6 @@ void bootloaderMenu()
         } else if (result == 1) {
           // confirmed
           firmwareInitWrite(vpos);
-          state = ST_ERASING;
-        }
-      } else if (state == ST_ERASING) {
-        uint32_t progress = 0;
-        bool done = firmwareEraseBlock(&progress);
-        bootloaderDrawScreen(state, progress);
-        if (done) {
           state = ST_FLASHING;
         }
       } else if (state == ST_FLASHING) {
