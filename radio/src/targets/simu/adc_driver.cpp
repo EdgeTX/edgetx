@@ -43,8 +43,8 @@ static bool simu_start_conversion()
 
   // set batteries default voltage
   if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
-    // use default voltage on 1st call
     int i = adcGetInputOffset(ADC_INPUT_VBAT);
+    // calculate default voltage on 1st call
     if (simu_get_analog(i) < 100) {
 #if defined(VBAT_MOSFET_DROP)
       uint32_t vbat = (2 * (BATTERY_MAX + BATTERY_MIN) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1;
@@ -58,7 +58,7 @@ static bool simu_start_conversion()
       setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), vbat * 2);
     }
     else {
-      // use last saved voltage
+      // use last saved voltage as can be manually adjusted via ui
       setAnalogValue(i, simu_get_analog(i));
     }
   }

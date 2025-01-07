@@ -893,10 +893,13 @@ const char * OpenTxSimulator::getError()
 
 const int OpenTxSimulator::voltageToAdc(const int volts)
 {
-  // this math makes the result close to real calculation to minimise unexpected
-  // results when value is retieved by adc driver getBatteryVoltage and used
-  // * 10 precision 1 to 2
-  return volts * 10 * BATTERY_DIVIDER / 1000;
+#if defined(VBAT_MOSFET_DROP)
+  return (2 * volts) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1;
+#elif defined(BATT_SCALE)
+  return ((volts - VOLTAGE_DROP) * BATTERY_DIVIDER) / (BATT_SCALE * 128);
+#else
+  return (volts * BATTERY_DIVIDER) / 1000;
+#endif
 }
 
 
