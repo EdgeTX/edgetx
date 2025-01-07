@@ -14,9 +14,16 @@ SECTIONS
     . = BOOTLOADER_SIZE;
   } > REGION_BOOTLOADER
 
+  /* Used only with H7 */
+  .firmware_header :
+  {
+    KEEP(*(.fwdescription))
+  } > REGION_TEXT AT> REGION_TEXT_STORAGE
+  
   /* ISR vector to be loaded */
   .isr_vector :
   {
+    . = ALIGN(4);
     _sisr_vector = .;
     KEEP(*(.isr_vector))
 
@@ -44,4 +51,8 @@ SECTIONS
   _text_load = LOADADDR(.text);
 
   INCLUDE common_sections.ld
+
+  .text_end_section : {} > REGION_TEXT AT > REGION_TEXT_STORAGE
+  _firmware_length = LOADADDR(.text_end_section) - LOADADDR(.firmware_header);
+  _firmware_version = _text_load;
 }
