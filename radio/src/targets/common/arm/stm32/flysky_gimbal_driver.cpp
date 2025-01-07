@@ -263,9 +263,9 @@ bool flysky_gimbal_init()
 {
   if (flysky_gimbal_init_uart() != 0) return false;
 
-  // Wait 100ms for serial gimbals to respond
-  for (uint8_t i = 0; i < 100; i++) {
-    delay_ms(1);
+  // Wait 400ms for serial gimbals to respond
+  for (uint16_t i = 0; i < 40; i++) {
+    delay_ms(10);
     if (_fs_gimbal_detected) {
       // Try to obtain the version of gimbal for operation mode selection
       _fs_cmd_get_version();
