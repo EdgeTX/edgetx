@@ -107,7 +107,7 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
   connect(simulator, &SimulatorInterface::runtimeError, this, &SimulatorWidget::onSimulatorError);
   connect(simulator, &SimulatorInterface::phaseChanged, this, &SimulatorWidget::onPhaseChanged);
 
-  connect((SimulatorMainWindow *)parent, &SimulatorMainWindow::batteryVoltageChanged, this, &SimulatorWidget::onBatteryVoltageChanged);
+  connect((SimulatorMainWindow *)parent, &SimulatorMainWindow::txBatteryVoltageChanged, this, &SimulatorWidget::onTxBatteryVoltageChanged);
 
   m_timer.setInterval(SIMULATOR_INTERFACE_HEARTBEAT_PERIOD * 6);
   connect(&m_timer, &QTimer::timeout, this, &SimulatorWidget::onTimerEvent);
@@ -891,7 +891,7 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
 #endif
 }
 
-void SimulatorWidget::onBatteryVoltageChanged(qint16 volts)
+void SimulatorWidget::onTxBatteryVoltageChanged(qint16 volts)
 {
   emit inputValueChange(SimulatorInterface::INPUT_SRC_TXVIN, 0, volts);
 }

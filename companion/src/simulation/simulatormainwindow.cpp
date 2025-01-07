@@ -143,7 +143,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   connect(ui->actionReloadRadioData, &QAction::triggered, this, &SimulatorMainWindow::simulatorRestart);
 
   connect(ui->actionReloadLua, &QAction::triggered, m_simulator, &SimulatorInterface::setLuaStateReloadPermanentScripts);
-  connect(ui->actionBatteryVoltage, &QAction::triggered, this, &SimulatorMainWindow::openBatteryVoltageDialog);
+  connect(ui->actionSetTxBatteryVoltage, &QAction::triggered, this, &SimulatorMainWindow::openTxBatteryVoltageDialog);
 
   if (m_outputsWidget) {
     connect(this, &SimulatorMainWindow::simulatorStart, m_outputsWidget, &RadioOutputsWidget::start);
@@ -557,7 +557,7 @@ void SimulatorMainWindow::showAbout(bool show)
   msgBox.exec();
 }
 
-void SimulatorMainWindow::openBatteryVoltageDialog()
+void SimulatorMainWindow::openTxBatteryVoltageDialog()
 {
   // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
   int vBatMin, vBatMax;
@@ -588,5 +588,5 @@ void SimulatorMainWindow::openBatteryVoltageDialog()
   dlg->deleteLater();
 
   if(dlg->exec())
-    emit batteryVoltageChanged((int)(sb->value() * 10.0f));
+    emit txBatteryVoltageChanged((int)(sb->value() * 10.0f));
 }
