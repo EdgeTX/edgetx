@@ -304,11 +304,15 @@
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
-#define LCD_SPI_CS_GPIO                 GPIOG
-#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_6
+#define LCD_SPI_CS_GPIO                 GPIOA
+#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_7
 #define LCD_SPI_GPIO                    GPIOF
 #define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_10
 #define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_8
+
+// TODO
+#define LCD_SPI_CONFLICTS_WITH_QSPI
+
 #define LTDC_IRQ_PRIO                   4
 #define DMA_SCREEN_IRQ_PRIO             6
 
