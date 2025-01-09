@@ -559,7 +559,7 @@ void SimulatorMainWindow::showAbout(bool show)
 
 void SimulatorMainWindow::openTxBatteryVoltageDialog()
 {
-  // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
+  // TODO: use GeneralSettings
   int vBatMin, vBatMax;
   unsigned int vBatWarn;
   Boards::getBattRange(getCurrentBoard(), vBatMin, vBatMax, vBatWarn);
@@ -569,11 +569,12 @@ void SimulatorMainWindow::openTxBatteryVoltageDialog()
   QLabel *lbl = new QLabel(tr("Set voltage"));
   QDoubleSpinBox *sb = new QDoubleSpinBox();
   sb->setDecimals(1);
+  // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
   sb->setMinimum((float)((vBatMin + 90) / 10));
   sb->setMaximum((float)((vBatMax + 120) / 10));
   sb->setSingleStep(0.1);
   sb->setSuffix(tr("V"));
-  sb->setValue(vBatWarn + 20);
+  sb->setValue(vBatWarn + 5); // + 0.5V
 
   auto *btnBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
   connect(btnBox, &QDialogButtonBox::accepted, dlg, &QDialog::accept);
