@@ -589,5 +589,5 @@ void SimulatorMainWindow::openTxBatteryVoltageDialog()
   dlg->deleteLater();
 
   if(dlg->exec())
-    emit txBatteryVoltageChanged((int)(sb->value() * 10.0f));
+    emit txBatteryVoltageChanged((int)(sb->value() * 10.0f)); // float -> int
 }

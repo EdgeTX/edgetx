@@ -106,7 +106,7 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     const char * getPhaseName(unsigned int phase);
     const QString getCurrentPhaseName();
     const char * getError();
-    const int voltageToAdc(const int volts);
+    const int voltageToAdc(const int voltage);
 
     QString simuSdDirectory;
     QString simuSettingsDirectory;
