@@ -314,7 +314,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       }
 
 #if defined(COLORLCD)
-      const bool consumed = luaTelemetryQueueMgr.push(etx::span<const uint8_t>{&rxBuffer[1], rxBufferCount - 2}); // adds complete/valid frame
+      const bool consumed = luaTelemetryQueueMgr.push(etx::span<const uint8_t>{&rxBuffer[1], (size_t)(rxBufferCount - 2)}); // adds complete/valid frame (rxCount > 2)
 #else
       const bool consumed = false;
 #endif
