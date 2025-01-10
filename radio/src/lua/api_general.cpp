@@ -73,7 +73,7 @@
 // getSourceString() for this parametrization
 static constexpr uint8_t maxSourceNameLength{16};
 
-#ifdef CROSSFIRE
+#if defined(CROSSFIRE) && defined(COLORLCD)
 luaTelemetryQueueManager_t luaTelemetryQueueMgr;
 #endif
 
@@ -1135,6 +1135,7 @@ static int luaAccessTelemetryPush(lua_State * L)
 #endif
 
 #if defined(CROSSFIRE)
+#if defined(COLORLCD)
 static int luaCrossfireTelemetryRemovePrivateQueue(lua_State * const L) 
 {
   const int id = luaL_checkinteger(L, 1);
@@ -1209,6 +1210,7 @@ static int luaCrossfireTelemetryPopPrivate(lua_State * const L)
     }
   });
 }
+#endif
 
 /*luadoc
 @function crossfireTelemetryPop()
@@ -3061,9 +3063,11 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if defined(CROSSFIRE)
   LROT_FUNCENTRY( crossfireTelemetryPop, luaCrossfireTelemetryPop )
   LROT_FUNCENTRY( crossfireTelemetryPush, luaCrossfireTelemetryPush )
+  #if defined(COLORLCD)
   LROT_FUNCENTRY( crossfireTelemetryCreatePrivateQueue, luaCrossfireTelemetryCreatePrivateQueue )
   LROT_FUNCENTRY( crossfireTelemetryPopPrivate, luaCrossfireTelemetryPopPrivate )
   LROT_FUNCENTRY( crossfireTelemetryRemovePrivateQueue, luaCrossfireTelemetryRemovePrivateQueue )
+  #endif
 #endif
 #if defined(GHOST)
   LROT_FUNCENTRY( ghostTelemetryPop, luaGhostTelemetryPop )
