@@ -16,12 +16,7 @@ int32_t ExtFLASH_Init()
   return stm32_qspi_nor_memory_mapped();
 }
 
-void ExtFLASH_InitRuntime()
-{
-  // TODO: we shouldn't need this
-  stm32_qspi_nor_deinit();
-  stm32_qspi_nor_init();
-}
+void ExtFLASH_InitRuntime() { stm32_qspi_no_init_runtime(); }
 
 //
 // ETX HAL flash interface
