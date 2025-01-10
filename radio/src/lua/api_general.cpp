@@ -21,6 +21,8 @@
 
 #define LUA_LIB
 
+#include <memory>
+
 #include <ctype.h>
 #include <stdio.h>
 #include "edgetx.h"
@@ -70,6 +72,10 @@
 // see strhelpers.cpp for pre-instantiation of function-template
 // getSourceString() for this parametrization
 static constexpr uint8_t maxSourceNameLength{16};
+
+#ifdef CROSSFIRE
+luaTelemetryQueueManager_t luaTelemetryQueueMgr;
+#endif
 
 // Note:
 // - luaRxFifo & luaReceiveData are used only for USB serial
@@ -1129,6 +1135,81 @@ static int luaAccessTelemetryPush(lua_State * L)
 #endif
 
 #if defined(CROSSFIRE)
+static int luaCrossfireTelemetryRemovePrivateQueue(lua_State * const L) 
+{
+  const int id = luaL_checkinteger(L, 1);
+  TRACE("crossfireTelemetryRemovePrivateQueue: %d", id);
+  luaTelemetryQueueMgr.remove(id);
+  return 0;
+}
+
+static int luaCrossfireTelemetryCreatePrivateQueue(lua_State * const L)
+{
+  const int id = luaL_checkinteger(L, 1);
+  luaL_checktype(L, 2, LUA_TTABLE);
+  const uint8_t filterLength = luaL_len(L, 2);
+
+  TRACE("crossfireTelemetryCreatePrivateQueue: %d filterlength: %d", id, filterLength);
+
+  // check if filter exists
+  if (luaTelemetryQueueMgr.contains(filterLength, [&](const uint8_t index){
+      lua_rawgeti(L, 2, index + 1);
+      const uint8_t v =  luaL_checkinteger(L, -1);
+      TRACE("containes f[%d] = %d", index, v);
+      return v;})) {
+    TRACE("equal filter already exists");
+    lua_pushinteger(L, -1); // error number
+    return 1;
+  }
+  if (const auto [n, ptr] = luaTelemetryQueueMgr.create(id); ptr) {
+    const uint8_t lmax = std::min((size_t)filterLength, ptr->filter.size());
+    ptr->filterLength = lmax;
+    for(uint8_t i = 0; i < lmax; ++i) {
+      lua_rawgeti(L, 2, i + 1);
+      const uint8_t v =  luaL_checkinteger(L, -1);
+      ptr->filter[i] = v;
+      TRACE("create f[%d] = %d", i, v);
+    }
+    lua_pushinteger(L, n); // return internal number if successfull
+    return 1;
+  }
+    lua_pushinteger(L, -2); // error number
+    return 1;
+}
+
+static int luaCrossfireTelemetryPopPrivate(lua_State * const L)
+{
+  const int id = luaL_checkinteger(L, 1);
+  TRACE("crossfireTelemetryPopPrivate: %d", id);
+
+  return luaTelemetryQueueMgr.pop(id, [&](Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE>* const fifo){
+    // length is always +1 since CRC (and start byte ) is not in the data anymore
+    const uint8_t length = [&]{
+      uint8_t value = 0;
+      fifo->pop(value);
+      return value - 1;
+    }();
+    if ((length > 0) && (length < (CROSSFIRE_FRAME_MAXLEN - 2))) { // safety-check
+      uint8_t command = 0;
+      fifo->pop(command); // command
+      lua_pushinteger(L, command);
+      lua_newtable(L);
+      for (uint8_t i = 0; i < (length-1); i++) { // command was already extracted 
+        uint8_t data = 0;
+        fifo->pop(data);
+        lua_pushinteger(L, i + 1);
+        lua_pushinteger(L, data);
+        lua_settable(L, -3);
+      }
+      return 2;
+    }
+    else {
+      fifo->clear(); // corrupted frame got here, discard this and following messages
+      return 0;
+    }
+  });
+}
+
 /*luadoc
 @function crossfireTelemetryPop()
 
@@ -2980,6 +3061,9 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if defined(CROSSFIRE)
   LROT_FUNCENTRY( crossfireTelemetryPop, luaCrossfireTelemetryPop )
   LROT_FUNCENTRY( crossfireTelemetryPush, luaCrossfireTelemetryPush )
+  LROT_FUNCENTRY( crossfireTelemetryCreatePrivateQueue, luaCrossfireTelemetryCreatePrivateQueue )
+  LROT_FUNCENTRY( crossfireTelemetryPopPrivate, luaCrossfireTelemetryPopPrivate )
+  LROT_FUNCENTRY( crossfireTelemetryRemovePrivateQueue, luaCrossfireTelemetryRemovePrivateQueue )
 #endif
 #if defined(GHOST)
   LROT_FUNCENTRY( ghostTelemetryPop, luaGhostTelemetryPop )

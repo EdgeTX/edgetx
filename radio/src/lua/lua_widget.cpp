@@ -41,6 +41,11 @@ coord_t LuaEventHandler::_startY;
 bool LuaEventHandler::_sliding = false;
 #endif
 
+#if defined(CROSSFIRE)
+#include "telemetry/crossfire.h"
+extern luaTelemetryQueueManager_t luaTelemetryQueueMgr;
+#endif
+
 void LuaEventHandler::event_cb(lv_event_t* e)
 {
   auto obj = lv_event_get_target(e);
@@ -240,7 +245,11 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
 
 LuaWidget::~LuaWidget()
 {
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
+  #if defined(CROSSFIRE)
+  TRACE("LuaWidget remove: %d", optionsDataRef);
+  luaTelemetryQueueMgr.remove(optionsDataRef); // remove the filter (if any)
+  #endif
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
   free(errorMessage);
 }
@@ -482,15 +491,17 @@ void LuaWidget::refresh(BitmapBuffer* dc)
 
   if (fullscreen) {
     lua_pushinteger(lsWidgets, evt.event);
-  } else
+  } else {
     lua_pushnil(lsWidgets);
-
+  }
+  
 #if defined(HARDWARE_TOUCH)
   if (fullscreen && IS_TOUCH_EVENT(evt.event)) {
     luaPushTouchEventTable(lsWidgets, &evt);
-  } else
-#endif
+  } else {
     lua_pushnil(lsWidgets);
+  }
+#endif
 
   // Enable drawing into the current LCD buffer
   luaLcdBuffer = dc;

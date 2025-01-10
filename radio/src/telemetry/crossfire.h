@@ -21,8 +21,46 @@
 
 #pragma once
 
+#include <memory>
+#include <optional>
+#include <array>
+
 #include <inttypes.h>
 #include "dataconstants.h"
+#include "debug.h"
+
+#if defined(LUA)
+#include "fifo.h"
+#if __cpp_lib_span
+#include <span>
+namespace etx {
+  template<typename T>
+  using span = std::span<T>;
+}
+#else
+  namespace etx {
+    template<typename T>
+    struct span {
+      using size_type = size_t;
+      using value_type = T;
+      size_t size() const {
+        return mSize;
+      }
+      const T& operator[](size_t index) const {
+        return mData[index];
+      }
+      const T* begin() const {
+        return &mData[0];
+      } 
+      const T* end() const {
+        return &mData[mSize];
+      } 
+      T* mData;
+      size_t mSize;
+    };
+  }
+#endif
+#endif
 
 // Device address
 #define BROADCAST_ADDRESS              0x00
@@ -186,3 +224,113 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
 #endif
 
 #define CROSSFIRE_TELEM_MIRROR_BAUDRATE   115200
+
+#if defined(LUA)
+
+template<auto N>
+struct LuaTelemetryQueueManager {
+  static inline constexpr uint8_t  numberOfQueues = N;
+  static inline constexpr uint16_t fifoSize = 256;
+  using fifo_t = Fifo<uint8_t, fifoSize>;
+  using ptr_t = std::unique_ptr<fifo_t>;
+  struct Entry {
+    size_t id = 0;
+    ptr_t fifo = nullptr;
+    uint8_t filterLength = 0;
+    std::array<uint8_t, 8> filter = {};
+  };
+  inline std::pair<uint8_t, Entry*> create(const size_t id) {
+    for(uint8_t i = 0; i < fifos.size(); ++i) {
+      if (fifos[i].id == id) { // already there
+        return {i, &fifos[i]};
+      }
+    }
+    // if not there, create one if possible
+    for(uint8_t i = 0; i < fifos.size(); ++i) {
+      if (!fifos[i].fifo) {
+        fifos[i].id = id;
+        fifos[i].fifo = std::make_unique<fifo_t>();
+        return {i, &fifos[i]};
+      }
+    }
+    return {-1, nullptr};
+  }
+  inline void remove(const size_t id) {
+    for(uint8_t i = 0; i < fifos.size(); ++i) {
+      if (fifos[i].id == id) {
+        fifos[i].id = 0;
+        fifos[i].fifo = nullptr;
+        fifos[i].filterLength = 0;
+      }
+    }
+  }
+  inline const Entry* get(const size_t id) const {
+    for(uint8_t i = 0; i < fifos.size(); ++i) {
+      if (fifos[i].id == id) {
+        return &fifos[i];
+      }
+      return nullptr;
+    }
+  }
+  template<typename F>
+  inline int pop(const size_t id, const F f){
+    for(uint8_t i = 0; i < fifos.size(); ++i) {
+      if (fifos[i].id == id) {
+        return f(fifos[i].fifo.get());
+      }
+    }
+    return 0;
+  }
+  template<typename F>
+  inline bool contains(const uint8_t length, const F getFilterValue){
+    bool oneEqual = false;
+    for(uint8_t i = 0; i < fifos.size(); ++i) {
+      bool equal = true;
+      if (fifos[i].fifo && (fifos[i].filterLength == length)) {
+        for(uint8_t n = 0; n < length; ++n) {
+          const uint8_t a = getFilterValue(n);
+          const uint8_t b = fifos[i].filter[n];
+          if ((a != 0) && (b != 0) && (a != b)) {
+            equal = false;
+            break;
+          }
+        }
+        if (equal) {
+          oneEqual = true;
+        }
+      }
+    }
+    return oneEqual;
+  }
+  inline bool push(const etx::span<const uint8_t>& values) { // the packet values do not contain the start byte and the CRC
+    TRACE("push");
+    for(uint8_t i = 0; i < fifos.size(); ++i) {
+      if (fifos[i].fifo) {
+        TRACE("try: %d", i);
+        bool match = true;
+        for(uint8_t n = 0; n < fifos[i].filterLength; ++n) {
+          TRACE("cmp: %d %d %d ", i, values[n], fifos[i].filter[n]);
+          if ((values[n] != fifos[i].filter[n]) && (fifos[i].filter[n] != 0)) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          TRACE("match: %d", fifos[i].id);
+          if (fifos[i].fifo->hasSpace(std::size(values))) {
+            for(const uint8_t b : values) {
+              fifos[i].fifo->push(b);
+            }   
+          }
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  private:
+  std::array<Entry, numberOfQueues> fifos = {};
+};
+
+using luaTelemetryQueueManager_t = LuaTelemetryQueueManager<8>;
+#endif
