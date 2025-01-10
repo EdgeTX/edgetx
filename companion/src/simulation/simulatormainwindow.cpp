@@ -597,8 +597,10 @@ void SimulatorMainWindow::openTxBatteryVoltageDialog()
   dlg->setWindowTitle(tr("Battery"));
   dlg->deleteLater();
 
-  if(dlg->exec())
+  if(dlg->exec()) {
     m_batVoltage = (int)(sb->value() * 10.0f);
+    emit txBatteryVoltageChanged((int)(sb->value() * 10.0f));
+  }
 }
 
 void SimulatorMainWindow::onTxBatteryVoltageChanged(const int voltage)
