@@ -8,45 +8,43 @@ include_directories(${CMSIS_DIR}/Include)
 
 include_directories(${CMSIS_DIR}/Device/ST/STM32H5xx/Include)
 set(CMSIS_SRC
-  targets/common/arm/stm32/h7/system_stm32h5xx.c
+  targets/common/arm/stm32/h5/system_stm32h5xx.c
 )
 
 
 if(NOT NATIVE_BUILD)
-    set(STM32CUBE_PREFIX stm32h5xx)
-    set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32H5xx_HAL_Driver)
-    set(STM32CUBE_SRC_PREFIX ${STM32CUBE_DIR}/Src/${STM32CUBE_PREFIX})
-    set(STM32CUBE_SRC
-      # LL drivers
-      ${STM32CUBE_SRC_PREFIX}_ll_gpio.c
-      ${STM32CUBE_SRC_PREFIX}_ll_fmc.c
-      ${STM32CUBE_SRC_PREFIX}_ll_tim.c
-      ${STM32CUBE_SRC_PREFIX}_ll_dma.c
-      ${STM32CUBE_SRC_PREFIX}_ll_usart.c
-      ${STM32CUBE_SRC_PREFIX}_ll_rcc.c
-      ${STM32CUBE_SRC_PREFIX}_ll_exti.c
-      ${STM32CUBE_SRC_PREFIX}_ll_sdmmc.c
-      ${STM32CUBE_SRC_PREFIX}_ll_adc.c
-      ${STM32CUBE_SRC_PREFIX}_ll_spi.c
-      ${STM32CUBE_SRC_PREFIX}_ll_usb.c
-      # HAL drivers
-      ${STM32CUBE_SRC_PREFIX}_hal.c
-      ${STM32CUBE_SRC_PREFIX}_hal_pwr.c
-      ${STM32CUBE_SRC_PREFIX}_hal_pwr_ex.c
-      ${STM32CUBE_SRC_PREFIX}_hal_rcc.c
-      ${STM32CUBE_SRC_PREFIX}_hal_rcc_ex.c
-      ${STM32CUBE_SRC_PREFIX}_hal_rtc.c
-      ${STM32CUBE_SRC_PREFIX}_hal_sd.c
-      ${STM32CUBE_SRC_PREFIX}_hal_dma.c
-      ${STM32CUBE_SRC_PREFIX}_hal_mdma.c
-      ${STM32CUBE_SRC_PREFIX}_hal_pcd.c
-      ${STM32CUBE_SRC_PREFIX}_hal_pcd_ex.c
-      ${STM32CUBE_SRC_PREFIX}_hal_flash.c
-      ${STM32CUBE_SRC_PREFIX}_hal_flash_ex.c
-      ${STM32CUBE_SRC_PREFIX}_hal_cortex.c
-      ${STM32CUBE_SRC_PREFIX}_hal_gpio.c
-    )
-  endif()
+  set(STM32CUBE_PREFIX stm32h5xx)
+  set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32H5xx_HAL_Driver)
+  set(STM32CUBE_SRC_PREFIX ${STM32CUBE_DIR}/Src/${STM32CUBE_PREFIX})
+  set(STM32CUBE_SRC
+    # LL drivers
+    ${STM32CUBE_SRC_PREFIX}_ll_gpio.c
+    ${STM32CUBE_SRC_PREFIX}_ll_fmc.c
+    ${STM32CUBE_SRC_PREFIX}_ll_tim.c
+    ${STM32CUBE_SRC_PREFIX}_ll_dma.c
+    ${STM32CUBE_SRC_PREFIX}_ll_usart.c
+    ${STM32CUBE_SRC_PREFIX}_ll_rcc.c
+    ${STM32CUBE_SRC_PREFIX}_ll_exti.c
+    ${STM32CUBE_SRC_PREFIX}_ll_sdmmc.c
+    ${STM32CUBE_SRC_PREFIX}_ll_adc.c
+    ${STM32CUBE_SRC_PREFIX}_ll_spi.c
+    ${STM32CUBE_SRC_PREFIX}_ll_usb.c
+    # HAL drivers
+    ${STM32CUBE_SRC_PREFIX}_hal.c
+    ${STM32CUBE_SRC_PREFIX}_hal_pwr.c
+    ${STM32CUBE_SRC_PREFIX}_hal_pwr_ex.c
+    ${STM32CUBE_SRC_PREFIX}_hal_rcc.c
+    ${STM32CUBE_SRC_PREFIX}_hal_rcc_ex.c
+    ${STM32CUBE_SRC_PREFIX}_hal_rtc.c
+    ${STM32CUBE_SRC_PREFIX}_hal_sd.c
+    ${STM32CUBE_SRC_PREFIX}_hal_dma.c
+    ${STM32CUBE_SRC_PREFIX}_hal_pcd.c
+    ${STM32CUBE_SRC_PREFIX}_hal_pcd_ex.c
+    ${STM32CUBE_SRC_PREFIX}_hal_flash.c
+    ${STM32CUBE_SRC_PREFIX}_hal_flash_ex.c
+    ${STM32CUBE_SRC_PREFIX}_hal_cortex.c
+    ${STM32CUBE_SRC_PREFIX}_hal_gpio.c
+  )
 
   # STM32 HAL/LL library
   include_directories(${STM32CUBE_DIR}/Inc)
@@ -86,15 +84,15 @@ if(NOT NATIVE_BUILD)
     ${RTOS_DIR}/event_groups.c
     ${RTOS_DIR}/timers.c
     ${RTOS_DIR}/stream_buffer.c
-    ${RTOS_DIR}/portable/GCC/ARM_CM33_NTZ/port.c
+    ${RTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c
     )
 
   target_include_directories(freertos
-    PUBLIC  ${RTOS_DIR}/portable/GCC/ARM_CM33_NTZ
+    PUBLIC  ${RTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure
     PRIVATE ${RTOS_DIR}/include
     )
 
-  include_directories(${RTOS_DIR}/portable/GCC/ARM_CM33_NTZ)
+  include_directories(${RTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure)
   
   # EdgeTx Compat layer
   set(FIRMWARE_SRC ${FIRMWARE_SRC} rtos.c)
