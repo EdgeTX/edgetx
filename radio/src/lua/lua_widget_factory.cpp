@@ -102,7 +102,13 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   // Push stored options for 'create' call
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
 
+#if defined(CROSSFIRE)
+  lua_pushinteger(lsWidgets, optionsDataRef); // optionsDataRef serves as a widget-id (last argument to create() LUA function)
+  bool err = lua_pcall(lsWidgets, 3, 1, 0);
+#else
   bool err = lua_pcall(lsWidgets, 2, 1, 0);
+#endif
+
   int widgetData = err ? LUA_NOREF : luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
   LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData, zoneRectDataRef, optionsDataRef);
   if (err) lw->setErrorMessage("create()");
