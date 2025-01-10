@@ -17,6 +17,7 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
 if(FIRMWARE_FORMAT_UF2)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
     boot_uf2.cpp
+    boot_dfu.cpp
     ${RADIO_SRC_DIR}/io/uf2.cpp
     ${RADIO_SRC_DIR}/drivers/uf2_ghostfat.cpp
   )

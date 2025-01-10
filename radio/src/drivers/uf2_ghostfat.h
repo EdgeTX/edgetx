@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #define UF2_NUM_BLOCKS 32768 // at least 16MB
+#define UF2_INVALID_NUM_BLOCKS 0xFFFFFFFF
 
 #if !defined(UF2_MAX_FW_SIZE)
 #define UF2_MAX_FW_SIZE (2 * 1024 * 1024)
@@ -31,7 +32,7 @@
 
 #define UF2_MAX_BLOCKS (UF2_MAX_FW_SIZE / 256)
 
-#define UF2_ERASE_BLOCK_SIZE (8 * 1024)
+#define UF2_ERASE_BLOCK_SIZE (4 * 1024)
 #define UF2_ERASE_BLOCKS (UF2_MAX_FW_SIZE / UF2_ERASE_BLOCK_SIZE)
 
 typedef struct {
@@ -41,5 +42,8 @@ typedef struct {
     uint32_t erased_mask[UF2_ERASE_BLOCKS / 32];
 } uf2_fat_write_state_t;
 
+void uf2_fat_reset_state();
+const uf2_fat_write_state_t* uf2_fat_get_state();
+
 void uf2_fat_read_block(uint32_t block_no, uint8_t *data);
-int uf2_fat_write_block(uint32_t block_no, uint8_t *data, uf2_fat_write_state_t *state);
+int uf2_fat_write_block(uint32_t block_no, uint8_t *data);

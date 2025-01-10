@@ -37,3 +37,4 @@ void flashRegisterDriver(uint32_t start_addr, uint32_t length,
                          const etx_flash_driver_t* drv);
 
 const etx_flash_driver_t* flashFindDriver(uint32_t addr);
+uint32_t flashGetSize(uint32_t addr);
