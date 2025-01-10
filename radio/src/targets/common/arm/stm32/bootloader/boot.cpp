@@ -102,7 +102,8 @@ void bootloaderInitApp()
     }
   } else {
 #if defined(FIRMWARE_QSPI)
-     setSelectedUsbMode(USB_DFU_MODE);
+    abnormalRebootResetCmd();
+    setSelectedUsbMode(USB_DFU_MODE);
 #endif
   }
 
@@ -145,6 +146,12 @@ int  bootloaderMain()
 
   // init screen
   bootloaderInitScreen();
+
+#if defined(FIRMWARE_FORMAT_UF2)
+  if (getSelectedUsbMode() == USB_DFU_MODE) {
+    bootloaderDFU();
+  }
+#endif
 
 #if defined(PWR_BUTTON_PRESS)
   // wait until power button is released

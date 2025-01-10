@@ -69,6 +69,9 @@ void bootloaderMenu();
 // non-interactive UF2 bootloader
 void bootloaderUF2();
 
+// non-interactive DFU bootloader
+void bootloaderDFU();
+
 // Declarations of functions that need to be implemented
 // for each target with a bootloader
 
@@ -88,6 +91,8 @@ uint32_t bootloaderGetMenuItemCount(int baseCount);
 // when a radio specifc menu is used, all events are forwarded to that menu code
 // returns true on submenu exit
 bool bootloaderRadioMenu(uint32_t menuItem, event_t event);
+
+void bootloaderDrawDFUScreen();
 
 void sdInit();
 void blExit();

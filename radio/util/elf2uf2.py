@@ -153,7 +153,7 @@ class ELFReader:
             if i >= 0:
                 buffer += self.elf.get_segment(i).data()
             else:
-                buffer += b"\00" * size
+                buffer += b"\x00" * size
             # then drain it
             while len(buffer) >= block_size:
                 yield buffer[:block_size]
@@ -216,6 +216,10 @@ def write_uf2(
                     extensions=insert_block.extensions,
                 )
                 insert_block = None
+
+            if len(block) < DATA_BLOCK_SIZE:
+                block = block + b"\xff" * (DATA_BLOCK_SIZE - len(block))
+
             uf2._write_block(block_addr, block, nblocks)
             block_addr += len(block)
 
@@ -320,4 +324,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
