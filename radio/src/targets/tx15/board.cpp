@@ -22,7 +22,6 @@
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
-#include "stm32_qspi.h"
 #include "stm32_hal.h"
 #include "stm32_ws2812.h"
 #include "stm32_spi.h"
@@ -136,13 +135,12 @@ void boardBLEarlyInit()
 {
   timersInit();
   bsp_io_init();
-  qspiInit();
   gpio_clear(UCHARGER_EN_GPIO);
 }
 
 void boardBLPreJump()
 {
-  stm32_qspi_nor_memory_mapped();
+  ExtFLASH_Init();
   SDRAM_Init();
 
   // Stop 1ms timer
@@ -151,7 +149,7 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
-  stm32_qspi_nor_memory_mapped();
+  ExtFLASH_Init();
   SDRAM_Init();
 
   // register external FLASH for DFU
@@ -164,40 +162,35 @@ void boardBLInit()
 
 void boardInit()
 {
-#if defined(SEMIHOSTING)
-  initialise_monitor_handles();
-#endif
-
-#if !defined(SIMU)
   // enable interrupts
   __enable_irq();
-
-  timersInit();
-  bsp_io_init();
-  gpio_clear(UCHARGER_EN_GPIO);
-  gpio_set(LED_BLUE_GPIO);
-#endif
 
 #if defined(DEBUG)
   serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
   serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
 #endif
 
-  TRACE("\nTX15 board started :)");
+  boardInitModulePorts();
 
   pwrInit();
-  qspiDeInit();
-  qspiInit();
-  boardInitModulePorts();
+  delaysInit();
+  timersInit();
+
+  bsp_io_init();
+  gpio_clear(UCHARGER_EN_GPIO);
+  gpio_set(LED_BLUE_GPIO);
+
+  ExtFLASH_InitRuntime();
 
   // init_trainer();
   flysky_gimbal_init();
 
   usbInit();
+
+#if !defined(DEBUG_SEGGER_RTT)
   // prime debounce state...
   usbPlugged();
 
-#if !defined(DEBUG_SEGGER_RTT)
   if (usbPlugged()) {
     delaysInit();
     ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
@@ -256,22 +249,11 @@ void boardInit()
   adcInit(&_adc_driver);
   hapticInit();
 
-
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
  
   lcdSetInitalFrameBuffer(lcdFront->getData());
-    
-#if defined(DEBUG)&&0
-  DBGMCU_APB1PeriphConfig(
-      DBGMCU_IWDG_STOP | DBGMCU_TIM1_STOP | DBGMCU_TIM2_STOP |
-          DBGMCU_TIM3_STOP | DBGMCU_TIM4_STOP | DBGMCU_TIM5_STOP |
-          DBGMCU_TIM6_STOP | DBGMCU_TIM7_STOP | DBGMCU_TIM8_STOP |
-          DBGMCU_TIM9_STOP | DBGMCU_TIM10_STOP | DBGMCU_TIM11_STOP |
-          DBGMCU_TIM12_STOP | DBGMCU_TIM13_STOP | DBGMCU_TIM14_STOP,
-      ENABLE);
-#endif
 }
 
 extern void rtcDisableBackupReg();
