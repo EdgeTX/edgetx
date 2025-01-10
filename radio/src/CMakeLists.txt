@@ -106,6 +106,10 @@ if(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
   include(targets/common/arm/stm32/h7/CMakeLists.txt)
 endif()
 
+if(CPU_TYPE STREQUAL STM32H5)
+  include(targets/common/arm/stm32/h5/CMakeLists.txt)
+endif()
+
 if(CPU_TYPE STREQUAL STM32F4)
   include(targets/common/arm/stm32/f4/CMakeLists.txt)
 endif()
