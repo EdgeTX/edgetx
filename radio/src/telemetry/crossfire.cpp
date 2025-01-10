@@ -313,7 +313,11 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         crossfireModuleStatus[module].queryCompleted = true;
       }
 
+#if defined(COLORLCD)
       const bool consumed = luaTelemetryQueueMgr.push(etx::span<const uint8_t>{&rxBuffer[1], rxBufferCount - 2}); // adds complete/valid frame
+#else
+      const bool consumed = false;
+#endif
       if (!consumed) {
         TRACE("[XF] not consumed: %d", rxBufferCount);
         if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(rxBufferCount - 2)) {
