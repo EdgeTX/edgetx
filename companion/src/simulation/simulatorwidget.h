@@ -99,6 +99,7 @@ class SimulatorWidget : public QWidget
     void simulatorStop();
     void simulatorSdPathChange(const QString & sdPath, const QString & dataPath);
     void simulatorVolumeGainChange(const int gain);
+    void settingsBatteryChanged(const int batMin, const int batMax, const unsigned int batWarn);
 
   private slots:
     virtual void mousePressEvent(QMouseEvent *event);

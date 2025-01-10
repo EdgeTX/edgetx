@@ -60,7 +60,11 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   m_radioSizeConstraint(Qt::Horizontal | Qt::Vertical),
   m_firstShow(true),
   m_showRadioDocked(true),
-  m_showMenubar(true)
+  m_showMenubar(true),
+  m_batMin(0),
+  m_batMax(0),
+  m_batWarn(0),
+  m_batVoltage(0)
 {
   if (m_simulatorId.isEmpty()) {
     m_simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
@@ -155,6 +159,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
     connect(this, &SimulatorMainWindow::simulatorRestart, m_simulatorWidget, &SimulatorWidget::restart);
     connect(ui->actionScreenshot, &QAction::triggered, m_simulatorWidget, &SimulatorWidget::captureScreenshot);
     connect(m_simulatorWidget, &SimulatorWidget::windowTitleChanged, this, &SimulatorMainWindow::setWindowTitle);
+    connect(m_simulatorWidget, &SimulatorWidget::settingsBatteryChanged, this, &SimulatorMainWindow::onSettingsBatteryChanged);
   }
 
   connect(m_simulator, &SimulatorInterface::auxSerialSendData, hostSerialConnector, &HostSerialConnector::sendSerialData);
@@ -162,6 +167,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   connect(m_simulator, &SimulatorInterface::auxSerialSetBaudrate, hostSerialConnector, &HostSerialConnector::setSerialBaudRate);
   connect(m_simulator, &SimulatorInterface::auxSerialStart, hostSerialConnector, &HostSerialConnector::serialStart);
   connect(m_simulator, &SimulatorInterface::auxSerialStop, hostSerialConnector, &HostSerialConnector::serialStop);
+  connect(m_simulator, &SimulatorInterface::txBatteryVoltageChanged, this, &SimulatorMainWindow::onTxBatteryVoltageChanged);
 }
 
 SimulatorMainWindow::~SimulatorMainWindow()
@@ -557,24 +563,27 @@ void SimulatorMainWindow::showAbout(bool show)
   msgBox.exec();
 }
 
+void SimulatorMainWindow::onSettingsBatteryChanged(const int batMin, const int batMax, const unsigned int batWarn)
+{
+  m_batMin = batMin;
+  m_batMax = batMax;
+  m_batWarn = batWarn;
+  m_batVoltage = batWarn + 5; // abitary +0.5V
+}
+
 void SimulatorMainWindow::openTxBatteryVoltageDialog()
 {
-  // TODO: use GeneralSettings
-  int vBatMin, vBatMax;
-  unsigned int vBatWarn;
-  Boards::getBattRange(getCurrentBoard(), vBatMin, vBatMax, vBatWarn);
-
   QDialog *dlg = new QDialog(this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
 
   QLabel *lbl = new QLabel(tr("Set voltage"));
   QDoubleSpinBox *sb = new QDoubleSpinBox();
   sb->setDecimals(1);
   // vBatWarn is voltage in 100mV, vBatMin is in 100mV but with -9V offset, vBatMax has a -12V offset
-  sb->setMinimum((float)((vBatMin + 90) / 10));
-  sb->setMaximum((float)((vBatMax + 120) / 10));
+  sb->setMinimum((float)((m_batMin + 90) / 10));
+  sb->setMaximum((float)((m_batMax + 120) / 10));
   sb->setSingleStep(0.1);
   sb->setSuffix(tr("V"));
-  sb->setValue(vBatWarn + 5); // + 0.5V
+  sb->setValue(m_batVoltage);
 
   auto *btnBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
   connect(btnBox, &QDialogButtonBox::accepted, dlg, &QDialog::accept);
@@ -589,5 +598,10 @@ void SimulatorMainWindow::openTxBatteryVoltageDialog()
   dlg->deleteLater();
 
   if(dlg->exec())
-    emit txBatteryVoltageChanged((int)(sb->value() * 10.0f)); // float -> int
+    m_batVoltage = (int)(sb->value() * 10.0f);
+}
+
+void SimulatorMainWindow::onTxBatteryVoltageChanged(const int voltage)
+{
+  m_batVoltage = voltage;
 }

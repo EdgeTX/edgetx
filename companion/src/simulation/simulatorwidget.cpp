@@ -157,6 +157,7 @@ void SimulatorWidget::setPaths(const QString & sdPath, const QString & dataPath)
 void SimulatorWidget::setRadioSettings(const GeneralSettings settings)
 {
   radioSettings = settings;
+  emit settingsBatteryChanged(settings.vBatMin, settings.vBatMax, settings.vBatWarn);
 }
 
 /*
@@ -231,7 +232,7 @@ bool SimulatorWidget::setStartupData(const QByteArray & dataSource, bool fromFil
     return false;
   }
 
-  radioSettings = simuData.generalSettings;
+  setRadioSettings(simuData.generalSettings);
   startupFromFile = fromFile;
 
   return true;
@@ -262,7 +263,7 @@ bool SimulatorWidget::setRadioData(RadioData * radioData)
   }
 
   if (ret)
-    radioSettings = radioData->generalSettings;
+    setRadioSettings(radioData->generalSettings);
 
   return ret;
 }

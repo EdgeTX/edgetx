@@ -86,6 +86,8 @@ class SimulatorMainWindow : public QMainWindow
     void showHelp(bool show);
     void showAbout(bool show);
     void openTxBatteryVoltageDialog();
+    void onSettingsBatteryChanged(const int batMin, const int batMax, const unsigned int batWarn);
+    void onTxBatteryVoltageChanged(const int voltage);
 
   protected:
     void createDockWidgets();
@@ -116,6 +118,10 @@ class SimulatorMainWindow : public QMainWindow
     bool m_firstShow;
     bool m_showRadioDocked;
     bool m_showMenubar;
+    int m_batMin;
+    int m_batMax;
+    unsigned int m_batWarn;
+    unsigned int m_batVoltage;
 
     const static quint16 m_savedUiStateVersion;
 };

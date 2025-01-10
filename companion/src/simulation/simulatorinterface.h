@@ -192,6 +192,7 @@ class SimulatorInterface : public QObject
     void auxSerialSetBaudrate(const quint8 port_num, const quint32 baudrate);
     void auxSerialStart(const quint8 port_num);
     void auxSerialStop(const quint8 port_num);
+    void txBatteryVoltageChanged(const int voltage);
 };
 
 class SimulatorFactory {
