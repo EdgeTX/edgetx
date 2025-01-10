@@ -120,6 +120,7 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/lcd_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
+  ${TARGET_SRC_DIR}/extflash_driver.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp

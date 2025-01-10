@@ -27,12 +27,16 @@
 #include "stm32_ws2812.h"
 #include "stm32_spi.h"
 
+#include "flash_driver.h"
+#include "extflash_driver.h"
+
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "bsp_io.h"
 
 #include "hal/adc_driver.h"
+#include "hal/flash_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"
@@ -91,22 +95,22 @@ static void led_strip_off()
   ws2812_update(&_led_timer);
 }
 
-static void setAudioMuteHigh()
-{
-  // Is there mute ?
-}
-static void setAudioMuteLow()
-{
-  // Is there mute ?
-}
-static void setAudioResetHigh()
-{
-  gpio_set(AUDIO_RESET_PIN);
-}
-static void setAudioResetLow()
-{
-  gpio_clear(AUDIO_RESET_PIN);
-}
+// static void setAudioMuteHigh()
+// {
+//   // Is there mute ?
+// }
+// static void setAudioMuteLow()
+// {
+//   // Is there mute ?
+// }
+// static void setAudioResetHigh()
+// {
+//   gpio_set(AUDIO_RESET_PIN);
+// }
+// static void setAudioResetLow()
+// {
+//   gpio_clear(AUDIO_RESET_PIN);
+// }
 
 void INTERNAL_MODULE_ON()
 {
@@ -128,25 +132,6 @@ void EXTERNAL_MODULE_OFF()
   gpio_clear(EXTMODULE_POWER);
 }
 
-/*
-stm32_spi_t audioSpi =
-{
-    .SPIx = AUDIO_SPI,
-    .SCK = AUDIO_SPI_SCK_GPIO,
-    .MISO = AUDIO_SPI_MISO_GPIO,
-    .MOSI = AUDIO_SPI_MOSI_GPIO,
-    .CS = AUDIO_CS_GPIO,
-};
-
-AudioConfig_t audioConfig =
-{
-  .spi = &audioSpi,
-  .setMuteHigh = setAudioMuteHigh,
-  .setMuteLow = setAudioMuteLow,
-  .setResetHigh = setAudioResetHigh,
-  .setResetLow = setAudioResetLow
-};
-*/
 void boardBLEarlyInit()
 {
   timersInit();
@@ -155,17 +140,27 @@ void boardBLEarlyInit()
   gpio_clear(UCHARGER_EN_GPIO);
 }
 
-#if defined(FIRMWARE_QSPI)
-#include "stm32_qspi.h"
-
 void boardBLPreJump()
 {
-  qspiEnableMemoryMappedMode();
+  stm32_qspi_nor_memory_mapped();
+  SDRAM_Init();
 
   // Stop 1ms timer
   MS_TIMER->CR1 &= ~TIM_CR1_CEN;
 }
-#endif
+
+void boardBLInit()
+{
+  stm32_qspi_nor_memory_mapped();
+  SDRAM_Init();
+
+  // register external FLASH for DFU
+  usbRegisterDFUMedia((void*)extflash_dfu_media);
+
+  // register internal & external FLASH for UF2
+  flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
+  flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
+}
 
 void boardInit()
 {

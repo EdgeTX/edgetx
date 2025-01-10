@@ -24,7 +24,9 @@
 #include "stm32h7xx_ll_system.h"
 #include "stm32h7xx_ll_bus.h"
 
-extern "C"
+#define BOOTSTRAP __attribute__((section(".bootstrap")))
+
+extern "C" BOOTSTRAP
 void SystemClock_Config(void)
 {
   /* Power Configuration */
