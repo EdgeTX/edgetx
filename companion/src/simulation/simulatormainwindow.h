@@ -71,7 +71,7 @@ class SimulatorMainWindow : public QMainWindow
   signals:
     void simulatorStart();
     void simulatorRestart();
-    void txBatteryVoltageChanged(qint16 volts);
+    void txBatteryVoltageChanged(int volts); // this changed value
 
   protected slots:
     virtual void closeEvent(QCloseEvent *);
@@ -86,8 +86,9 @@ class SimulatorMainWindow : public QMainWindow
     void showHelp(bool show);
     void showAbout(bool show);
     void openTxBatteryVoltageDialog();
+    // TODO: detect if changed via ui as currently event only on GeneralSettings (re)load
     void onSettingsBatteryChanged(const int batMin, const int batMax, const unsigned int batWarn);
-    void onTxBatteryVoltageChanged(const int voltage);
+    void onTxBatteryVoltageChanged(const unsigned int voltage); // something else changed voltage
 
   protected:
     void createDockWidgets();

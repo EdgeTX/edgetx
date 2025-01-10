@@ -380,7 +380,7 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
       if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
         auto idx = adcGetInputOffset(ADC_INPUT_VBAT);
         setAnalogValue(idx, voltageToAdc(value));
-        emit txBatteryVoltageChanged(value);
+        emit txBatteryVoltageChanged((unsigned int)value);
       }
       break;
     case INPUT_SRC_SWITCH :

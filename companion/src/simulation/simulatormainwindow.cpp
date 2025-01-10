@@ -598,12 +598,13 @@ void SimulatorMainWindow::openTxBatteryVoltageDialog()
   dlg->deleteLater();
 
   if(dlg->exec()) {
-    m_batVoltage = (int)(sb->value() * 10.0f);
-    emit txBatteryVoltageChanged((int)(sb->value() * 10.0f));
+    unsigned int volts = (unsigned int)((float)sb->value() * 10.0f);
+    m_batVoltage = volts;
+    emit txBatteryVoltageChanged(volts);
   }
 }
 
-void SimulatorMainWindow::onTxBatteryVoltageChanged(const int voltage)
+void SimulatorMainWindow::onTxBatteryVoltageChanged(const unsigned int voltage)
 {
   m_batVoltage = voltage;
 }
