@@ -189,7 +189,10 @@ void boardInit()
 
   // init_trainer();
   auto inittime = flysky_gimbal_init();
-  TRACE("Serial gimbal detected in %d ms", inittime);
+  if (inittime)
+    TRACE("Serial gimbal detected in %d ms", inittime);
+  else
+    TRACE("No serial gimbal detected");
 
   usbInit();
 
