@@ -263,21 +263,27 @@ bool flysky_gimbal_init()
 {
   if (flysky_gimbal_init_uart() != 0) return false;
 
-  // Wait 400ms for serial gimbals to respond
-  for (uint16_t i = 0; i < 40; i++) {
-    delay_ms(10);
+  // Wait 70ms for serial gimbals to respond
+  for (uint16_t i = 0; i < 70; i++) {
+#if defined(HALL_SYNC) && !defined(SIMU)
+    gpio_set(HALL_SYNC);
+#endif
+    delay_ms(1);
+#if defined(HALL_SYNC) && !defined(SIMU)
+    gpio_clear(HALL_SYNC);
+#endif
     if (_fs_gimbal_detected) {
       // Try to obtain the version of gimbal for operation mode selection
       _fs_cmd_get_version();
 
       // Mask the first 4 inputs (sticks)
       stm32_hal_set_inputs_mask(0xF);
-      return true;
+      return i + 1;
     }
   }
   
   flysky_gimbal_deinit();
-  return false;
+  return 0;
 }
 
 void flysky_gimbal_start_read()

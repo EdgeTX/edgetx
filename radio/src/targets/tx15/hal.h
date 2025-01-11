@@ -151,19 +151,11 @@
 #endif
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PH.03
 
-#define ADC_GPIOA_PINS                                                \
-  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
+#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
+#define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2)
+#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
+#define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT)
 
-#define ADC_GPIOB_PINS (ADC_GPIO_PIN_POT2)
-
-#define ADC_GPIOC_PINS (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
-
-#define ADC_GPIOH_PINS (ADC_GPIO_PIN_BATT)
-
-#if 0
-#define ADC_GPIOF_PINS \
-  (ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWD | ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWF)
-#endif
 
 #define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_3    // ADC12_INP3
 #define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_1    // ADC12_INP1
@@ -173,21 +165,6 @@
 // Each ADC cannot map more than 8 channels, otherwise it will cause problems
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_11   // ADC12_INP11
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#if 0
-// Ext inputs: analog gimbal channel re-use
-#define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_14    // ADC12_INP14
-#define ADC_CHANNEL_EXT2                LL_ADC_CHANNEL_15    // ADC12_INP15
-#define ADC_CHANNEL_EXT3                LL_ADC_CHANNEL_16    // ADC12_INP16
-#define ADC_CHANNEL_EXT4                LL_ADC_CHANNEL_17    // ADC12_INP17
-
-// Analog switches
-#define ADC_CHANNEL_SWA                 LL_ADC_CHANNEL_0    // ADC3_INP0
-#define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_1    // ADC3_INP1
-#define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_2    // ADC3_INP2
-#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_3    // ADC3_INP3
-#define ADC_CHANNEL_SWE                 LL_ADC_CHANNEL_8    // ADC3_INP8
-#define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_7    // ADC3_INP7
-#endif
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_11   // ADC123_INP11
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC12_IN14
 
@@ -198,14 +175,7 @@
 #define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
 #define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
 #define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_64CYCLES_5
-#if 0
-#define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                                                \
-  {                                                                     \
-    ADC_CHANNEL_SWA, ADC_CHANNEL_SWB, ADC_CHANNEL_SWC, ADC_CHANNEL_SWD, \
-        ADC_CHANNEL_SWE, ADC_CHANNEL_SWF, ADC_CHANNEL_BATT              \
-  }
-#endif
+
 #define ADC_EXT_DMA                     DMA2
 #define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
 #define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
@@ -228,6 +198,9 @@
     0,       /* SWE */        \
     0        /* SWF */        \
   }
+
+// Serial gimbal sync port
+#define HALL_SYNC                                GPIO_PIN(GPIOH, 11)
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5

@@ -179,6 +179,7 @@ void boardInit()
   bsp_io_init();
   gpio_clear(UCHARGER_EN_GPIO);
   gpio_set(LED_BLUE_GPIO);
+  gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
   ExtFLASH_InitRuntime();
 
@@ -187,7 +188,8 @@ void boardInit()
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
   // init_trainer();
-  flysky_gimbal_init();
+  auto inittime = flysky_gimbal_init();
+  TRACE("Serial gimbal detected in %d ms", inittime);
 
   usbInit();
 
