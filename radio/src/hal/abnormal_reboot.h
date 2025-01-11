@@ -44,6 +44,9 @@ uint32_t abnormalRebootGetCause();
 // Retrieve last reboot command
 uint32_t abnormalRebootGetCmd();
 
+// Reset reboot command
+void abnormalRebootResetCmd();
+
 #define UNEXPECTED_SHUTDOWN() \
   (abnormalRebootGetCause() == ARC_Watchdog)
 
