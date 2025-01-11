@@ -387,8 +387,8 @@ SWITCH_CONFIG = {
         "SB": {"default": "3POS"},
         "SC": {"default": "3POS"},
         "SD": {"default": "3POS"},
-        "SE": {"default": "3POS"},
-        "SF": {"default": "3POS"},
+        "SE": {"default": "2POS"},
+        "SF": {"default": "2POS"},
     },
     "tx16s": {
         "SA": {"default": "3POS"},
