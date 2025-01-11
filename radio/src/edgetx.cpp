@@ -34,6 +34,7 @@
 #include "hal/watchdog_driver.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
+#include "hal/audio_driver.h"
 
 #include "timers_driver.h"
 
@@ -1461,7 +1462,7 @@ void edgeTxInit()
   currentSpeakerVolume = requiredSpeakerVolume =
       g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
 #if !defined(SOFTWARE_VOLUME)
-  setScaledVolume(currentSpeakerVolume);
+  audioSetVolume(currentSpeakerVolume);
 #endif
 #endif
 

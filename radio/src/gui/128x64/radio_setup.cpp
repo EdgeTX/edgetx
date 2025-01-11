@@ -25,6 +25,7 @@
 #include "tasks/mixer_task.h"
 #include "hal/adc_driver.h"
 #include "hal/usb_driver.h"
+#include "hal/audio_driver.h"
 #include "input_mapping.h"
 
 const unsigned char sticks[]  = {

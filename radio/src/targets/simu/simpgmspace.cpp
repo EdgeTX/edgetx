@@ -32,6 +32,7 @@
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
+#include "hal/audio_driver.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -250,7 +251,7 @@ void simuStop()
 struct SimulatorAudio {
   int volumeGain;
   int currentVolume;
-  uint16_t leftoverData[AUDIO_BUFFER_SIZE];
+  int16_t leftoverData[AUDIO_BUFFER_SIZE];
   int leftoverLen;
   bool threadRunning;
   pthread_t threadPid;
@@ -275,28 +276,19 @@ void audioConsumeCurrentBuffer()
 {
 }
 
-void setScaledVolume(uint8_t volume)
+void audioSetVolume(uint8_t volume)
 {
   simuAudio.currentVolume = 127 * volume * simuAudio.volumeGain / VOLUME_LEVEL_MAX / 10;
   // TRACE_SIMPGMSPACE("setVolume(): in: %u, out: %u", volume, simuAudio.currentVolume);
 }
 
-void setVolume(uint8_t volume)
-{
-}
-
-int32_t getVolume()
-{
-  return 0;
-}
-
 #if defined(SIMU_AUDIO)
-void copyBuffer(uint8_t * dest, const uint16_t * buff, unsigned int samples)
+void copyBuffer(void* dest, const int16_t* buff, unsigned samples)
 {
-  for(unsigned int i=0; i<samples; i++) {
-    int sample = ((int32_t)(uint32_t)(buff[i]) - 0x8000);  // conversion from uint16_t
-    *((uint16_t*)dest) = (int16_t)((sample * simuAudio.currentVolume)/127);
-    dest += 2;
+  for (unsigned i = 0; i < samples; i++) {
+    int16_t sample = buff[i];
+    *((int16_t*)dest) = (int16_t)((sample * simuAudio.currentVolume) / 127);
+    dest = (int16_t*)dest + 1;
   }
 }
 
@@ -314,29 +306,29 @@ void fillAudioBuffer(void *udata, Uint8 *stream, int len)
     if (simuAudio.leftoverLen) return;		// buffer fully filled
   }
 
-  if (audioQueue.buffersFifo.filledAtleast(len/(AUDIO_BUFFER_SIZE*2)+1) ) {
-    while(true) {
-      const AudioBuffer * nextBuffer = audioQueue.buffersFifo.getNextFilledBuffer();
+  if (audioQueue.buffersFifo.filledAtleast(len / (AUDIO_BUFFER_SIZE * 2) + 1)) {
+    while (true) {
+      const AudioBuffer* nextBuffer =
+          audioQueue.buffersFifo.getNextFilledBuffer();
       if (nextBuffer) {
-        if (len >= nextBuffer->size*2) {
+        if (len >= nextBuffer->size * 2) {
           copyBuffer(stream, nextBuffer->data, nextBuffer->size);
-          stream += nextBuffer->size*2;
-          len -= nextBuffer->size*2;
+          stream += nextBuffer->size * 2;
+          len -= nextBuffer->size * 2;
           // putchar('+');
           audioQueue.buffersFifo.freeNextFilledBuffer();
-        }
-        else {
-          //partial
-          copyBuffer(stream, nextBuffer->data, len/2);
-          simuAudio.leftoverLen = (nextBuffer->size-len/2);
-          memcpy(simuAudio.leftoverData, &nextBuffer->data[len/2], simuAudio.leftoverLen*2);
+        } else {
+          // partial
+          copyBuffer(stream, nextBuffer->data, len / 2);
+          simuAudio.leftoverLen = (nextBuffer->size - len / 2);
+          memcpy(simuAudio.leftoverData, &nextBuffer->data[len / 2],
+                 simuAudio.leftoverLen * 2);
           len = 0;
           // putchar('p');
           audioQueue.buffersFifo.freeNextFilledBuffer();
           break;
         }
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -367,7 +359,8 @@ void * audioThread(void *)
   wanted.freq = AUDIO_SAMPLE_RATE;
   wanted.format = AUDIO_S16SYS;
   wanted.channels = 1;    /* 1 = mono, 2 = stereo */
-  wanted.samples = AUDIO_BUFFER_SIZE*2;  /* Good low-latency value for callback */
+  wanted.samples =
+      AUDIO_BUFFER_SIZE * 2; /* Good low-latency value for callback */
   wanted.callback = fillAudioBuffer;
   wanted.userdata = nullptr;
 
@@ -395,7 +388,7 @@ void startAudioThread(int volumeGain)
   simuAudio.threadRunning = true;
   simuAudio.volumeGain = volumeGain;
   TRACE_SIMPGMSPACE("startAudioThread(%d)", volumeGain);
-  setScaledVolume(VOLUME_LEVEL_DEF);
+  audioSetVolume(VOLUME_LEVEL_DEF);
 
   pthread_attr_t attr;
   pthread_attr_init(&attr);

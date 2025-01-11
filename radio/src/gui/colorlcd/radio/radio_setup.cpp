@@ -25,6 +25,8 @@
 
 #include "hal/adc_driver.h"
 #include "hal/usb_driver.h"
+#include "hal/audio_driver.h"
+
 #include "input_mapping.h"
 #include "libopenui.h"
 #include "edgetx.h"

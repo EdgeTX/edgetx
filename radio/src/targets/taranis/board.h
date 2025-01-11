@@ -246,18 +246,9 @@ uint8_t isBacklightEnabled();
 void debugPutc(const char c);
 
 // Audio driver
-void audioInit() ;
-void audioEnd() ;
-void dacStart();
-void dacStop();
-void setSampleRate(uint32_t frequency);
-#define VOLUME_LEVEL_MAX  23
-#define VOLUME_LEVEL_DEF  12
-#if !defined(SOFTWARE_VOLUME)
-void setScaledVolume(uint8_t volume);
-void setVolume(uint8_t volume);
-int32_t getVolume();
-#endif
+void audioInit();
+void audioEnd();
+
 #if defined(AUDIO_SPEAKER_ENABLE_GPIO)
 void initSpeakerEnable();
 void enableSpeaker();
@@ -267,6 +258,7 @@ static inline void initSpeakerEnable() { }
 static inline void enableSpeaker() { }
 static inline void disableSpeaker() { }
 #endif
+
 #if defined(HEADPHONE_TRAINER_SWITCH_GPIO)
 void initHeadphoneTrainerSwitch();
 void enableHeadphone();
@@ -276,13 +268,13 @@ static inline void initHeadphoneTrainerSwitch() { }
 static inline void enableHeadphone() { }
 static inline void enableTrainer() { }
 #endif
+
 #if defined(JACK_DETECT_GPIO)
 void initJackDetect();
 bool isJackPlugged();
 #endif
+
 void audioConsumeCurrentBuffer();
-#define audioDisableIrq()               __disable_irq()
-#define audioEnableIrq()                __enable_irq()
 
 // Haptic driver
 void hapticInit();

@@ -22,20 +22,21 @@
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/stream_buffer.h>
 
+#include "hal/adc_driver.h"
+#include "hal/audio_driver.h"
+#include "hal/fatfs_diskio.h"
+#include "hal/module_port.h"
 #include "hal/serial_driver.h"
+#include "hal/storage.h"
+#include "hal/usb_driver.h"
+#include "hal/watchdog_driver.h"
+
 #include "edgetx.h"
 #include "timers_driver.h"
-#include "hal/watchdog_driver.h"
 
 #if defined(BLUETOOTH)
 #include "bluetooth_driver.h"
 #endif
-
-#include "hal/adc_driver.h"
-#include "hal/module_port.h"
-#include "hal/fatfs_diskio.h"
-#include "hal/storage.h"
-#include "hal/usb_driver.h"
 
 #include "tasks.h"
 #include "tasks/mixer_task.h"
@@ -975,7 +976,7 @@ int cliSet(const char **argv)
   else if (!strcmp(argv[1], "volume")) {
     int level = 0;
     if (toInt(argv, 2, &level) > 0) {
-      setVolume(level);
+      audioSetVolume(level);
     } else {
       cliSerialPrint("%s: Invalid argument \"%s\" \"%s\"", argv[0], argv[1],
                   argv[2]);
