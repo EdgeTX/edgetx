@@ -74,16 +74,12 @@ void SystemClock_Config(void)
 
   /* Config & activate PLL2 */
   LL_RCC_PLL2P_Enable();
-  LL_RCC_PLL2Q_Enable();
-  LL_RCC_PLL2R_Enable();
   LL_RCC_PLL2FRACN_Disable();
   LL_RCC_PLL2_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
   LL_RCC_PLL2_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL2_SetM(3);
-  LL_RCC_PLL2_SetN(10);
-  LL_RCC_PLL2_SetP(2);
-  LL_RCC_PLL2_SetQ(2);
-  LL_RCC_PLL2_SetR(1);
+  LL_RCC_PLL2_SetM(24);
+  LL_RCC_PLL2_SetN(172);
+  LL_RCC_PLL2_SetP(7); // 49.142 MHz
   LL_RCC_PLL2_Enable();
   while (LL_RCC_PLL2_IsReady() != 1) {
   }
@@ -110,8 +106,7 @@ void SystemClock_Config(void)
                            LL_AHB2_GRP1_PERIPH_D2SRAM3);
 
   /* Set periph clock sources */
-  LL_RCC_SetFMCClockSource(LL_RCC_FMC_CLKSOURCE_HCLK);
-  LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL3P);
+  LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL2P); 
   LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL1Q);
-  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_PLL2P);
+  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_CLKP);
 }
