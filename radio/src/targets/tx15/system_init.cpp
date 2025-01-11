@@ -65,6 +65,12 @@ void Reset_Handler()
     "bl naked_copy      \n"
   );
  
+#if defined(BOOT)
+  asm inline (
+    "bl pwrResetHandler \n"
+  );
+#endif
+
   // Zero fill bss segment
   asm inline (
     "ldr r2, =_sbss    \n"
