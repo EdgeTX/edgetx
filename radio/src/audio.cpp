@@ -30,6 +30,7 @@
 #endif
 
 #include "model_audio.h"
+#include "hal/audio_driver.h"
 
 extern RTOS_MUTEX_HANDLE audioMutex;
 
@@ -366,8 +367,6 @@ void audioTask(void * pdata)
     RTOS_WAIT_TICKS(1);
   }
 
-  setSampleRate(AUDIO_SAMPLE_RATE);
-
 #if defined(PCBX12S) || defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
   // The audio amp needs ~2s to start
   RTOS_WAIT_MS(1000); // 1s
@@ -378,14 +377,14 @@ void audioTask(void * pdata)
     DEBUG_TIMER_START(debugTimerAudioDuration);
     audioQueue.wakeup();
     DEBUG_TIMER_STOP(debugTimerAudioDuration);
-    RTOS_WAIT_MS(4);
+    RTOS_WAIT_MS(4); // ???
   }
 }
 #endif
 
 inline void mixSample(audio_data_t * result, int sample, unsigned int fade)
 {
-  *result = limit(AUDIO_DATA_MIN, *result + ((sample >> fade) >> (16-AUDIO_BITS_PER_SAMPLE)), AUDIO_DATA_MAX);
+  *result += (sample >> fade);
 }
 
 #define RIFF_CHUNK_SIZE 12
@@ -646,15 +645,13 @@ void AudioQueue::wakeup()
           buffer->data[i] = (int16_t) (((tmpSample * currentSpeakerVolume) / VOLUME_LEVEL_MAX) + AUDIO_DATA_SILENCE);
         }
         buffersFifo.audioPushBuffer();
-      }
-      else {
+      } else {
         break;
       }
 #else
       buffersFifo.audioPushBuffer();
 #endif
-    }
-    else {
+    } else {
       // break the endless loop
       break;
     }
