@@ -289,7 +289,7 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Inter."
 #define TR_FUNCTION_SWITCHES            "Interruttori personalizzabili"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Yellow","Orange","Blue","Pink","Off","Custom"
+#define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_GROUPS                      "Always on groups"

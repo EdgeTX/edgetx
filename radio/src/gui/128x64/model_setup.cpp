@@ -643,6 +643,13 @@ bool checkCFSSwitchAvailable(int sw)
 }
 #endif
 
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+bool checkCFSColorAvailable(int col)
+{
+  return col > 0;
+}
+#endif
+
 void menuModelSetup(event_t event)
 {
   int8_t old_editMode = s_editMode;
@@ -963,18 +970,18 @@ void menuModelSetup(event_t event)
         // ON
         selectedColor = getRGBColorIndex(g_model.functionSwitchLedONColor[index].getColor());
         selectedColor = editChoice(INDENT_WIDTH + getTextWidth(STR_FS_ON_COLOR) + 2, y, STR_FS_ON_COLOR, \
-          STR_FS_COLOR_LIST, selectedColor, 0, (sizeof(colorTable) / sizeof(colorTable[0])) - 1, menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH);
+          STR_FS_COLOR_LIST, selectedColor, 0, DIM(colorTable), menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH, checkCFSColorAvailable);
         if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
-          g_model.functionSwitchLedONColor[index].setColor(colorTable[selectedColor]);
+          g_model.functionSwitchLedONColor[index].setColor(colorTable[selectedColor - 1]);
           storageDirty(EE_MODEL);
         }
 
         // OFF
         selectedColor = getRGBColorIndex(g_model.functionSwitchLedOFFColor[index].getColor());
         selectedColor = editChoice((30 + 5*FW) + getTextWidth(STR_FS_OFF_COLOR) + 2, y, STR_FS_OFF_COLOR, \
-          STR_FS_COLOR_LIST, selectedColor, 0, (sizeof(colorTable) / sizeof(colorTable[0])) - 1, menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW);
+          STR_FS_COLOR_LIST, selectedColor, 0, DIM(colorTable), menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW, checkCFSColorAvailable);
         if (attr && menuHorizontalPosition == 1 && checkIncDec_Ret) {
-          g_model.functionSwitchLedOFFColor[index].setColor(colorTable[selectedColor]);
+          g_model.functionSwitchLedOFFColor[index].setColor(colorTable[selectedColor - 1]);
           storageDirty(EE_MODEL);
         }
 
