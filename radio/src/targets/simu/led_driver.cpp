@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include "hal/rgbleds.h"
+#include "definitions.h"
 
 bool usbChargerLed() { return true; }
 void ledRed() {}
