@@ -69,6 +69,7 @@
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionSetTxBatteryVoltage"/>
     <addaction name="actionScreenshot"/>
     <addaction name="actionJoystickSettings"/>
     <addaction name="actionSerialPorts"/>
@@ -232,6 +233,14 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionSetTxBatteryVoltage">
+   <property name="text">
+    <string>TX Battery Voltage...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open set transmitter battery voltage dialog</string>
    </property>
   </action>
  </widget>

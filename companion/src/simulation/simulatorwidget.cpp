@@ -38,6 +38,7 @@
 #include "joystickdialog.h"
 #endif
 #include "simulateduiwidgetGeneric.h"
+#include "simulatormainwindow.h"
 
 #include <AppDebugMessageHandler>
 #include <QFile>
@@ -106,6 +107,8 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
   connect(simulator, &SimulatorInterface::runtimeError, this, &SimulatorWidget::onSimulatorError);
   connect(simulator, &SimulatorInterface::phaseChanged, this, &SimulatorWidget::onPhaseChanged);
 
+  connect((SimulatorMainWindow *)parent, &SimulatorMainWindow::txBatteryVoltageChanged, this, &SimulatorWidget::onTxBatteryVoltageChanged);
+
   m_timer.setInterval(SIMULATOR_INTERFACE_HEARTBEAT_PERIOD * 6);
   connect(&m_timer, &QTimer::timeout, this, &SimulatorWidget::onTimerEvent);
 
@@ -154,6 +157,7 @@ void SimulatorWidget::setPaths(const QString & sdPath, const QString & dataPath)
 void SimulatorWidget::setRadioSettings(const GeneralSettings settings)
 {
   radioSettings = settings;
+  emit settingsBatteryChanged(settings.vBatMin, settings.vBatMax, settings.vBatWarn);
 }
 
 /*
@@ -228,7 +232,7 @@ bool SimulatorWidget::setStartupData(const QByteArray & dataSource, bool fromFil
     return false;
   }
 
-  radioSettings = simuData.generalSettings;
+  setRadioSettings(simuData.generalSettings);
   startupFromFile = fromFile;
 
   return true;
@@ -259,7 +263,7 @@ bool SimulatorWidget::setRadioData(RadioData * radioData)
   }
 
   if (ret)
-    radioSettings = radioData->generalSettings;
+    setRadioSettings(radioData->generalSettings);
 
   return ret;
 }
@@ -670,8 +674,7 @@ void SimulatorWidget::restoreRadioWidgetsState()
   // Set throttle stick down and locked, side depends on mode
   emit stickModeChange(radioSettings.stickMode);
 
-  // TODO : custom voltages
-  qint16 volts = radioSettings.vBatWarn + 20; // 1V above min
+  qint16 volts = radioSettings.vBatWarn + 5; // +0.5V
   emit inputValueChange(SimulatorInterface::INPUT_SRC_TXVIN, 0, volts);
 }
 
@@ -685,7 +688,6 @@ void SimulatorWidget::saveRadioWidgetsState(QList<QByteArray> & state)
     }
   }
 }
-
 
 /*
  * Event handlers/private slots
@@ -888,4 +890,9 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
     emit widgetValueAdjust(RadioWidget::RADIO_WIDGET_TRIM, swtch, offset, state);
   }
 #endif
+}
+
+void SimulatorWidget::onTxBatteryVoltageChanged(qint16 volts)
+{
+  emit inputValueChange(SimulatorInterface::INPUT_SRC_TXVIN, 0, volts);
 }

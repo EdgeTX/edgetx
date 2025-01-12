@@ -71,6 +71,7 @@ class SimulatorMainWindow : public QMainWindow
   signals:
     void simulatorStart();
     void simulatorRestart();
+    void txBatteryVoltageChanged(int volts); // this changed value
 
   protected slots:
     virtual void closeEvent(QCloseEvent *);
@@ -84,6 +85,10 @@ class SimulatorMainWindow : public QMainWindow
     void openSerialPortsDialog(bool);
     void showHelp(bool show);
     void showAbout(bool show);
+    void openTxBatteryVoltageDialog();
+    // TODO: detect if changed via ui as currently event only on GeneralSettings (re)load
+    void onSettingsBatteryChanged(const int batMin, const int batMax, const unsigned int batWarn);
+    void onTxBatteryVoltageChanged(const unsigned int voltage); // something else changed voltage
 
   protected:
     void createDockWidgets();
@@ -114,6 +119,10 @@ class SimulatorMainWindow : public QMainWindow
     bool m_firstShow;
     bool m_showRadioDocked;
     bool m_showMenubar;
+    int m_batMin;
+    int m_batMax;
+    unsigned int m_batWarn;
+    unsigned int m_batVoltage;
 
     const static quint16 m_savedUiStateVersion;
 };

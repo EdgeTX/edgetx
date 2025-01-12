@@ -67,7 +67,7 @@ static bool adcSingleRead()
 bool adcRead()
 {
   adcSingleRead();
-  
+
   // TODO: this hack needs to go away...
   if (isVBatBridgeEnabled()) {
     disableVBatBridge();

@@ -24,6 +24,7 @@
 #include "simulcd.h"
 #include "switches.h"
 #include "serial.h"
+#include "myeeprom.h"
 
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
@@ -61,6 +62,8 @@ extern etx_serial_port_t * serialPorts[MAX_AUX_SERIAL];
 
 uint16_t simu_get_analog(uint8_t idx)
 {
+  // TODO: return raw values for ADC_INPUT_VBAT and ADC_INPUT_RTC_BAT
+
   // 6POS simu mechanism use a different scale, so needs specific offset
   if (IS_POT_MULTIPOS(idx - adcGetInputOffset(ADC_INPUT_FLEX))) {
     // Use radio calibration data to determine conversion factor
@@ -182,7 +185,7 @@ OpenTxSimulator::OpenTxSimulator() :
   tracebackDevices.clear();
   traceCallback = firmwareTraceCb;
 
-  // When we create the simulator, we change the UART driver 
+  // When we create the simulator, we change the UART driver
   for (int i = 0; i < MAX_AUX_SERIAL; i++) {
     etx_serial_port_t * port = serialPorts[i];
     if (port != nullptr) {
@@ -377,6 +380,7 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
       if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
         auto idx = adcGetInputOffset(ADC_INPUT_VBAT);
         setAnalogValue(idx, voltageToAdc(value));
+        emit txBatteryVoltageChanged((unsigned int)value);
       }
       break;
     case INPUT_SRC_SWITCH :
@@ -891,17 +895,26 @@ const char * OpenTxSimulator::getError()
   return main_thread_error;
 }
 
-const int OpenTxSimulator::voltageToAdc(const int volts)
+const int OpenTxSimulator::voltageToAdc(const int voltage)
 {
-  int ret = 0;
-#if defined(PCBHORUS) || defined(PCBX7)
-  ret = (float)volts * 16.2f;
-#elif defined(PCBTARANIS)
-  ret = (float)volts * 13.3f;
+  int volts = voltage * 10;  // prec2
+  int adc = 0;
+
+#if defined(VBAT_MOSFET_DROP)
+  // TRACE("volts: %d r1: %d r2: %d drop: %d vref: %d calib: %d", volts, VBAT_DIV_R1, VBAT_DIV_R2, VBAT_MOSFET_DROP, ADC_VREF_PREC2, g_eeGeneral.txVoltageCalibration);
+  adc = (volts - VBAT_MOSFET_DROP) * (2 * RESX * 1000) / ADC_VREF_PREC2 / (((1000 + g_eeGeneral.txVoltageCalibration) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1);
+#elif defined(BATT_SCALE)
+  // TRACE("volts: %d div: %d drop: %d scale: %d calib: %d", volts, BATTERY_DIVIDER, VOLTAGE_DROP, BATT_SCALE, g_eeGeneral.txVoltageCalibration);
+  adc = (volts - VOLTAGE_DROP) * BATTERY_DIVIDER / (128 + g_eeGeneral.txVoltageCalibration) / BATT_SCALE;
+#elif defined(VOLTAGE_DROP)
+  // TRACE("volts: %d div: %d drop: %d", volts, BATTERY_DIVIDER, VOLTAGE_DROP);
+  adc = (volts - VOLTAGE_DROP) * BATTERY_DIVIDER / (1000 + g_eeGeneral.txVoltageCalibration);
 #else
-  ret = (float)volts * 14.15f;
+  // TRACE("volts: %d div: %d calib: %d", volts, BATTERY_DIVIDER, g_eeGeneral.txVoltageCalibration);
+  adc = volts * BATTERY_DIVIDER / (1000 + g_eeGeneral.txVoltageCalibration);
 #endif
-  return ret;
+  // TRACE("calc adc: %d", adc);
+  return adc * 2; // div by 2 in firmware filtered adc calcs
 }
 
 
