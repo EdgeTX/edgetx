@@ -289,7 +289,7 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Switch"
 #define TR_FUNCTION_SWITCHES           "Customizable Switches"
-#define TR_FS_COLOR_LIST               "White","Red","Green","Yellow","Orange","Blue","Pink","Off","Custom"
+#define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_FS_ON_COLOR                 TR("ON:","ON Color")

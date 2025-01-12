@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include "hal/rgbleds.h"
+#include "definitions.h"
 
 bool usbChargerLed() { return true; }
 void ledRed() {}
@@ -36,11 +37,15 @@ void rgbLedColorApply() {}
 
 uint8_t getRGBColorIndex(uint32_t color)
 {
-  for (uint8_t i = 0; i < (sizeof(colorTable) / sizeof(colorTable[0])); i++) {
+  for (uint8_t i = 0; i < DIM(colorTable); i++) {
     if (color == colorTable[i])
-      return(i);
+      return(i + 1);
   }
-  return 5; // Custom value set with Companion
+  for (uint8_t i = 0; i < DIM(colorTabl2); i++) {
+    if (color == colorTabl2[i])
+      return(i + 1);
+  }
+  return 0; // Custom value set with Companion
 }
 
 // RGB
