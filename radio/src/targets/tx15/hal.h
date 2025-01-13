@@ -134,21 +134,6 @@
 
 #define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_1      // PC.01 POT1
 #define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 POT2
-
-#if 0
-// If serial gimbals are used, we can reuse the channels
-#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_0      // PA.00 EXT1
-#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_1      // PA.01 EXT2
-#define ADC_GPIO_PIN_EXT3               LL_GPIO_PIN_2      // PA.02 EXT3
-#define ADC_GPIO_PIN_EXT4               LL_GPIO_PIN_3      // PA.03 EXT4
-
-#define ADC_GPIO_PIN_SWA                LL_GPIO_PIN_2      // PC.02_C
-#define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_3      // PC.03_C
-#define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_9      // PF.09
-#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_7      // PF.07
-#define ADC_GPIO_PIN_SWE                LL_GPIO_PIN_8      // PF.08
-#define ADC_GPIO_PIN_SWF                LL_GPIO_PIN_6      // PF.06
-#endif
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PH.03
 
 #define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
@@ -165,7 +150,7 @@
 // Each ADC cannot map more than 8 channels, otherwise it will cause problems
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_11   // ADC12_INP11
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_11   // ADC123_INP11
+#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC123_INP14
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC12_IN14
 
 #define ADC_MAIN                        ADC1
@@ -183,7 +168,7 @@
 #define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
 #define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_64CYCLES_5
 
-#define ADC_VREF_PREC2                  250
+#define ADC_VREF_PREC2                  330
 
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
@@ -200,7 +185,7 @@
   }
 
 // Serial gimbal sync port
-#define HALL_SYNC                                GPIO_PIN(GPIOH, 11)
+#define HALL_SYNC                   GPIO_PIN(GPIOH, 11)
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5
