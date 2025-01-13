@@ -30,11 +30,7 @@
   #include <windows.h>
 #endif
 
-#ifndef SIMULATOR_INTERFACE_LOADER_METHOD
-  #define SIMULATOR_INTERFACE_LOADER_DYNAMIC    1  // How to load simulator libraries: 1=dynamic load and unload; 0=load once (old way)
-#endif
-
-QMap<QString, QLibrary *> SimulatorLoader::registeredSimulators;
+QMap<QString, QPair<QString, QLibrary *>> SimulatorLoader::registeredSimulators;
 
 QStringList SimulatorLoader::getAvailableSimulators()
 {
@@ -45,42 +41,26 @@ int SimulatorLoader::registerSimulators(const QDir & dir)
 {
   QStringList filters;
 #if defined(__APPLE__)
-  filters << "*-simulator.dylib";
+  filters << "libedgetx-*-simulator.dylib";
 #elif defined(WIN32) || defined(__CYGWIN__)
-  filters << "*-simulator.dll";
+  filters << "libedgetx-*-simulator.dll";
 #else
-  filters << "*-simulator.so";
+  filters << "libedgetx-*-simulator.so";
 #endif
   registeredSimulators.clear();
 
   qCDebug(simulatorInterfaceLoader) << "Searching for simulators in" << dir.path() << "matching pattern" << filters;
 
   foreach(QString filename, dir.entryList(filters, QDir::Files)) {
-    QLibrary * lib = new QLibrary( dir.path() + "/" + filename);
+    QString simuName(filename.mid(3, filename.lastIndexOf('-') - 3));
+    QString libPath(dir.path() + "/" + filename);
 
-    qCDebug(simulatorInterfaceLoader) << "Trying to register simulator in " << filename;
+    if (getAvailableSimulators().contains(simuName))
+      continue;
 
-    SimulatorFactory * factory;
-    RegisterSimulator registerFunc = (RegisterSimulator)lib->resolve("registerSimu");
-
-    if (registerFunc && (factory = registerFunc())) {
-      if (getAvailableSimulators().contains(factory->name()))
-        continue;
-
-      lib->setProperty("instances_used", 0);
-      registeredSimulators.insert(factory->name(), lib);
-      delete factory;
-#if SIMULATOR_INTERFACE_LOADER_DYNAMIC
-      lib->unload();
-#endif
-      qCDebug(simulatorInterfaceLoader) << "Registered" << registeredSimulators.lastKey() << "simulator in " << lib->fileName() << "and unloaded:" << !lib->isLoaded();
-    }
-    else {
-      qWarning() << "Library error" << lib->fileName() << lib->errorString();
-      delete lib;
-    }
-
+    registeredSimulators.insert(simuName, {libPath, nullptr});
   }
+
   qCDebug(simulatorInterfaceLoader) << "Found libraries:" << (registeredSimulators.size() ? registeredSimulators.keys() : QStringList() << "none");
   return registeredSimulators.size();
 }
@@ -106,8 +86,10 @@ void SimulatorLoader::registerSimulators()
 
 void SimulatorLoader::unregisterSimulators()
 {
-  foreach(QLibrary * lib, registeredSimulators)
-    delete lib;
+  for(QPair<QString, QLibrary *> lib : registeredSimulators) {
+    if (lib.second)
+      delete lib.second;
+  }
 }
 
 QString SimulatorLoader::findSimulatorByName(const QString & name)
@@ -133,21 +115,28 @@ QString SimulatorLoader::findSimulatorByName(const QString & name)
 
 SimulatorInterface * SimulatorLoader::loadSimulator(const QString & name)
 {
-  SimulatorInterface * si = NULL;
-  QString libname = findSimulatorByName(name);
+  SimulatorInterface * si = nullptr;
+  QString simuName = findSimulatorByName(name);
 
-  if (libname.isEmpty()) {
+  if (simuName.isEmpty()) {
     qWarning() << "Simulator" << name << "not found.";
     return si;
   }
 
-  QLibrary * lib = registeredSimulators.value(libname, NULL);
-  if (!lib) {
-    qWarning() << "Simulator library is NULL";
-    return si;
-  }
+  QPair<QString, QLibrary *> libInfo = registeredSimulators.value(simuName, {QString(), nullptr});
+  QString libPath = libInfo.first;
+  QLibrary *lib = libInfo.second;
+  qCDebug(simulatorInterfaceLoader) << "Trying to load simulator in " << libPath;
 
-  qCDebug(simulatorInterfaceLoader) << "Trying to load simulator in " << lib->fileName();
+  if (!lib) {
+    lib = new QLibrary(libPath);
+    if (lib)
+      registeredSimulators.insert(simuName, {libPath, lib});
+    else {
+      qWarning() << "Unable to load library";
+      return si;
+    }
+  }
 
   SimulatorFactory * factory;
   RegisterSimulator registerFunc = (RegisterSimulator)lib->resolve("registerSimu");
@@ -158,20 +147,21 @@ SimulatorInterface * SimulatorLoader::loadSimulator(const QString & name)
     delete factory;
   }
   else {
-    qWarning() << "Library error" << lib->fileName() << lib->errorString();
+    qWarning() << "Library error" << libPath << lib->errorString();
   }
+
   return si;
 }
 
 bool SimulatorLoader::unloadSimulator(const QString & name)
 {
   bool ret = false;
-#if SIMULATOR_INTERFACE_LOADER_DYNAMIC
   QString simuName = findSimulatorByName(name);
+
   if (simuName.isEmpty())
     return ret;
 
-  QLibrary * lib = registeredSimulators.value(simuName, NULL);
+  QLibrary * lib = registeredSimulators.value(simuName).second;
 
   if (lib && lib->isLoaded()) {
     quint8 instance = lib->property("instances_used").toUInt();
@@ -188,9 +178,6 @@ bool SimulatorLoader::unloadSimulator(const QString & name)
   else {
     qCDebug(simulatorInterfaceLoader) << "Simulator library for " << simuName << "already unloaded.";
   }
-#else
-  qCDebug(simulatorInterfaceLoader) << "Keeping simulator library" << simuName << "loaded.";
-#endif
 
   return ret;
 }
