@@ -41,7 +41,7 @@ __weak SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
   return stm32_switch_get_position(&_switch_offsets[cat][idx]);
 }
 
-const char* boardSwitchGetName(uint8_t cat, uint8_t idx)
+__weak const char* boardSwitchGetName(uint8_t cat, uint8_t idx)
 {
   return _switch_offsets[cat][idx].name;
 }
