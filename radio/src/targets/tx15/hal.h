@@ -300,7 +300,7 @@
 
 //#define SD_PRESENT_GPIO                GPIO_PIN(GPIOD, 3) // PD.03
 #define SD_SDIO                        SDMMC1
-#define SD_SDIO_CLK_DIV(fq)            ((HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) + (2*fq) -1) / (2 *fq)) /* make sure the resulting frequency is not higher than expected */
+#define SD_SDIO_CLK_DIV(fq)            (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
 #define SD_SDIO_INIT_CLK_DIV           SD_SDIO_CLK_DIV(400000)
 #define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(20000000)
 #define STORAGE_USE_SDIO
