@@ -216,18 +216,11 @@ void MdiChild::setupNavigation()
   addAct(ACT_GEN_PST, "paste.png",    SLOT(pasteGeneralSettings()), tr("Ctrl+Alt+V"));
   addAct(ACT_GEN_SIM, "simulate.png", SLOT(radioSimulate()),        tr("Alt+Shift+S"));
 
-  addAct(ACT_ITM_EDT, "edit.png",  SLOT(edit()),          Qt::Key_Enter);
-  addAct(ACT_ITM_DEL, "clear.png", SLOT(confirmDelete()), QKeySequence::Delete);
-
+  addAct(ACT_MDL_EDT, "edit.png",   SLOT(edit()),          Qt::Key_Enter);
+  addAct(ACT_MDL_DEL, "clear.png",  SLOT(confirmDelete()), QKeySequence::Delete);
   addAct(ACT_MDL_ADD, "add.png",    SLOT(modelAdd()),   tr("Alt+A"));
   addAct(ACT_MDL_RTR, "open.png",   SLOT(loadBackup()), tr("Alt+R"));
   addAct(ACT_MDL_WIZ, "wizard.png", SLOT(wizardEdit()), tr("Alt+W"));
-
-  addAct(ACT_LBL_ADD, "add.png",    SLOT(labelAdd()), tr("Alt-L"));
-  addAct(ACT_LBL_DEL, "clear.png",  SLOT(labelDelete()), tr("Alt-L"));
-  addAct(ACT_LBL_REN, "edit.png",   SLOT(labelRename()), tr("Alt-R"));
-  addAct(ACT_LBL_MVU, "moveup.png", SLOT(labelMoveUp()), tr("Alt-+"));
-  addAct(ACT_LBL_MVD, "movedown.png", SLOT(labelMoveDown()), tr("Alt--"));
 
   addAct(ACT_MDL_DFT, "currentmodel.png", SLOT(setDefault()),     tr("Alt+U"));
   addAct(ACT_MDL_PRT, "print.png",        SLOT(print()),          QKeySequence::Print);
@@ -243,6 +236,12 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_MOV, "arrow-right.png");
   QMenu * catsMenu = new QMenu(this);
   action[ACT_MDL_MOV]->setMenu(catsMenu);
+
+  addAct(ACT_LBL_ADD, "add.png",      SLOT(labelAdd()), tr("Alt-L"));
+  addAct(ACT_LBL_DEL, "clear.png",    SLOT(labelDelete()), tr("Alt-L"));
+  addAct(ACT_LBL_REN, "edit.png",     SLOT(labelRename()), tr("Alt-R"));
+  addAct(ACT_LBL_MVU, "moveup.png",   SLOT(labelMoveUp()), tr("Alt-+"));
+  addAct(ACT_LBL_MVD, "movedown.png", SLOT(labelMoveDown()), tr("Alt--"));
 
   // set up the toolbars
 
@@ -352,6 +351,8 @@ void MdiChild::updateNavigation()
   }
   action[ACT_GEN_SRT]->setVisible(hasLabels);
 
+  action[ACT_MDL_DEL]->setEnabled(modelsSelected);
+  action[ACT_MDL_DEL]->setText(tr("Delete") % (modelsSelected ? sp % modelsRemvTxt : ns));
   action[ACT_MDL_CUT]->setEnabled(modelsSelected);
   action[ACT_MDL_CUT]->setText(tr("Cut") % (modelsSelected ? sp % modelsRemvTxt : ns));
   action[ACT_MDL_CPY]->setEnabled(modelsSelected);
@@ -379,8 +380,8 @@ void MdiChild::retranslateUi()
   action[ACT_GEN_SIM]->setText(tr("Simulate Radio"));
   cboModelSortOrder->setToolTip(tr("Radio Models Order"));
 
-  action[ACT_ITM_EDT]->setText(tr("Edit Model"));
-  action[ACT_ITM_DEL]->setText(tr("Delete"));
+  action[ACT_MDL_EDT]->setText(tr("Edit Model"));
+  action[ACT_MDL_DEL]->setText(tr("Delete Model"));
 
   action[ACT_LBL_ADD]->setText(tr("Add"));
   action[ACT_LBL_DEL]->setText(tr("Delete"));
@@ -407,10 +408,13 @@ void MdiChild::retranslateUi()
 QList<QAction *> MdiChild::getGeneralActions()
 {
   QList<QAction *> actGrp;
-  actGrp.append(getAction(ACT_GEN_SIM));
   actGrp.append(getAction(ACT_GEN_EDT));
   actGrp.append(getAction(ACT_GEN_CPY));
   actGrp.append(getAction(ACT_GEN_PST));
+  QAction * sep = new QAction(this);
+  sep->setSeparator(true);
+  actGrp.append(sep);
+  actGrp.append(getAction(ACT_GEN_SIM));
   return actGrp;
 }
 
@@ -421,8 +425,8 @@ QList<QAction *> MdiChild::getEditActions()
   QAction * sep2 = new QAction(this);
   sep2->setSeparator(true);
   actGrp.append(sep2);
-  actGrp.append(getAction(ACT_ITM_EDT));
-  actGrp.append(getAction(ACT_ITM_DEL));
+  actGrp.append(getAction(ACT_MDL_EDT));
+  actGrp.append(getAction(ACT_MDL_DEL));
   actGrp.append(getAction(ACT_MDL_CUT));
   actGrp.append(getAction(ACT_MDL_CPY));
   actGrp.append(getAction(ACT_MDL_PST));

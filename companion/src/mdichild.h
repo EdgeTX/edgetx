@@ -55,14 +55,9 @@ class MdiChild : public QWidget
       ACT_GEN_PST,
       ACT_GEN_SIM,
       ACT_GEN_SRT,  // model sort order
-      ACT_ITM_EDT,
-      ACT_ITM_DEL,
-      ACT_LBL_ADD,
-      ACT_LBL_DEL,
-      ACT_LBL_MVU,  // Move up
-      ACT_LBL_MVD,  // Move down
-      ACT_LBL_REN,  // Move down
-      ACT_MDL_ADD,  // model actions...
+      ACT_MDL_EDT,  // model actions...
+      ACT_MDL_DEL,
+      ACT_MDL_ADD,
       ACT_MDL_CPY,
       ACT_MDL_CUT,
       ACT_MDL_PST,
@@ -75,6 +70,11 @@ class MdiChild : public QWidget
       ACT_MDL_DFT,  // set as DeFaulT
       ACT_MDL_PRT,  // print
       ACT_MDL_SIM,
+      ACT_LBL_ADD,  // label actions..
+      ACT_LBL_DEL,
+      ACT_LBL_MVU,  // Move up
+      ACT_LBL_MVD,  // Move down
+      ACT_LBL_REN,  // Move down
       ACT_ENUM_END
     };
 

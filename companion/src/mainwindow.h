@@ -101,19 +101,19 @@ class MainWindow : public QMainWindow
     void customizeSplash();
     void about();
     void compare();
-    void appPrefs();
     void updateMenus();
     void createProfile();
     void copyProfile();
     void deleteProfile(const int pid);
     void deleteCurrentProfile();
+    void editAppSettings();
     void exportAppSettings();
     void importAppSettings();
     void autoClose();
     void chooseProfile();
     void autoCheckForUpdates();
     void manualCheckForUpdates();
-    void downloads();
+    void updates();
     void doUpdates(bool check, bool interactive = true);
 
     void openFile(const QString & fileName);
@@ -200,8 +200,8 @@ class MainWindow : public QMainWindow
     QAction *closeAct;
     QAction *recentFilesAct;
     QAction *exitAct;
-    QAction *appPrefsAct;
-    QAction *downloadsAct;
+    QAction *editAppSettingsAct;
+    QAction *updatesAct;
     QAction *manualChkForUpdAct;
     QAction *sdsyncAct;
     QAction *changelogAct;
@@ -223,10 +223,10 @@ class MainWindow : public QMainWindow
     QAction *deleteProfileAct;
     QAction *exportAppSettingsAct;
     QAction *importAppSettingsAct;
-    QAction *actTabbedWindows;
-    QAction *actTileWindows;
-    QAction *actCascadeWindows;
-    QAction *actCloseAllWindows;
+    QAction *tabbedWindowsAct;
+    QAction *tileWindowsAct;
+    QAction *cascadeWindowsAct;
+    QAction *closeAllWindowsAct;
     QAction *writeSettingsSDPathAct;
     QAction *readSettingsSDPathAct;
     QAction *viewFileToolbarAct;
