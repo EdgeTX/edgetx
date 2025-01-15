@@ -69,6 +69,8 @@ const CrossfireSensor crossfireSensors[] = {
 
 CrossfireModuleStatus crossfireModuleStatus[2] = {0};
 
+extern LuaTelemetryQueueManager<8> luaTelemetryQueueMgr;
+
 const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
 {
   if (id == LINK_ID)
@@ -311,11 +313,22 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         crossfireModuleStatus[module].queryCompleted = true;
       }
 
-      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(rxBufferCount - 2)) {
-        for (uint8_t i = 1; i < rxBufferCount - 1; i++) {
-          // destination address and CRC are skipped
-          luaInputTelemetryFifo->push(rxBuffer[i]);
+#if defined(COLORLCD)
+      const bool consumed = luaTelemetryQueueMgr.push(etx::span<const uint8_t>{&rxBuffer[1], (size_t)(rxBufferCount - 2)}); // adds complete/valid frame (rxCount > 2)
+#else
+      const bool consumed = false;
+#endif
+      if (!consumed) {
+        TRACE("[XF] not consumed: %d", rxBufferCount);
+        if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(rxBufferCount - 2)) {
+          for (uint8_t i = 1; i < rxBufferCount - 1; i++) {
+            // start byte and CRC are skipped
+            luaInputTelemetryFifo->push(rxBuffer[i]);
+          }
         }
+      }
+      else {
+        TRACE("[XF] consumed: %d", rxBufferCount);
       }
       break;
 #endif
