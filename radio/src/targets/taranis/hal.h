@@ -248,8 +248,6 @@
   #define KEYS_GPIO_PIN_MINUS           LL_GPIO_PIN_11 // PE.11
   #define KEYS_GPIO_REG_ENTER           GPIOE
   #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_12 // PE.12
-  #define KEYS_GPIO_REG_SYS             GPIOB
-  #define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_4  // PB.04
 #endif
 
 // Rotary Encoder
@@ -565,19 +563,19 @@
   #define TRIMS_GPIO_REG_LHL            GPIOD
   #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_15 // PD.15
   #define TRIMS_GPIO_REG_LHR            GPIOC
-  #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_6  // PC.06 
+  #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_6  // PC.06
   #define TRIMS_GPIO_REG_LVD            GPIOE
-  #define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_6  // PE.06 
+  #define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_6  // PE.06
   #define TRIMS_GPIO_REG_LVU            GPIOE
-  #define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_1  // PE.01 
+  #define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_1  // PE.01
   #define TRIMS_GPIO_REG_RVD            GPIOC
   #define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_3  // PC.03
   #define TRIMS_GPIO_REG_RHL            GPIOE
-  #define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_0  // PE.00 
+  #define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_0  // PE.00
   #define TRIMS_GPIO_REG_RVU            GPIOC
-  #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_7  // PC.07 
+  #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_7  // PC.07
   #define TRIMS_GPIO_REG_RHR            GPIOE
-  #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_15  // PE.15  
+  #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_15  // PE.15
 #elif defined(PCBX9LITE)
   #define TRIMS_GPIO_REG_LHR            GPIOC
   #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_4  // PC.04
@@ -802,9 +800,9 @@
   #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_1  // PE.01
 #elif defined(RADIO_COMMANDO8)
   #define SWITCHES_GPIO_REG_C_L         GPIOC
-  #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_4  // PC.04 
+  #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_4  // PC.04
   #define SWITCHES_GPIO_REG_C_H         GPIOA
-  #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_6  // PA.06   
+  #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_6  // PA.06
 #elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_LR3PRO)
   #define SWITCHES_GPIO_REG_C           GPIOE
   #define SWITCHES_GPIO_PIN_C           LL_GPIO_PIN_14 // PE.14
@@ -829,7 +827,7 @@
 #elif defined(PCBX7)
   #define SWITCHES_GPIO_REG_C_L         GPIOD
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_11 // PD.11
-  #if defined(PCBX7ACCESS)    
+  #if defined(PCBX7ACCESS)
     #define SWITCHES_GPIO_REG_C_H       GPIOD
     #define SWITCHES_GPIO_PIN_C_H       LL_GPIO_PIN_10 // PD.10
   #else
@@ -1457,17 +1455,17 @@
 #elif defined(RADIO_COMMANDO8)
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_1  // PA.01
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_0  // PA.00
-  #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_2  // PA.02  
+  #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_2  // PA.02
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_3  // PA.03
-  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_2  // ADC1_IN2  
-  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_3  // ADC1_IN3  
-  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_0  // ADC1_IN0  
-  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_1  // ADC1_IN1  
-  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_5  // PC.05 
+  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_2  // ADC1_IN2
+  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_3  // ADC1_IN3
+  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_0  // ADC1_IN0
+  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_1  // ADC1_IN1
+  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_5  // PC.05
   #define ADC_GPIOB_PINS                0
   #define ADC_GPIOC_PINS                ADC_GPIO_PIN_BATT
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_15
-  #define ADC_VREF_PREC2                320  
+  #define ADC_VREF_PREC2                320
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
   #define PWM_STICKS
   #define PWM_IRQHandler                TIM5_IRQHandler
