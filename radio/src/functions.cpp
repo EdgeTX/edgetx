@@ -21,6 +21,9 @@
 
 #include "edgetx.h"
 #include "switches.h"
+
+#include "hal/audio_driver.h"
+
 #include "boards/generic_stm32/rgb_leds.h"
 
 #if defined(COLORLCD)

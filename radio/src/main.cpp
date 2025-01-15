@@ -23,6 +23,8 @@
 #include "hal/storage.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
+#include "hal/audio_driver.h"
+
 #include "edgetx.h"
 #include "lua/lua_states.h"
 
@@ -251,7 +253,7 @@ void checkSpeakerVolume()
   if (currentSpeakerVolume != requiredSpeakerVolume) {
     currentSpeakerVolume = requiredSpeakerVolume;
 #if !defined(SOFTWARE_VOLUME)
-    setScaledVolume(currentSpeakerVolume);
+    audioSetVolume(currentSpeakerVolume);
 #endif
   }
 #endif

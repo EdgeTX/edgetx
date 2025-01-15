@@ -29,6 +29,7 @@
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/audio_driver.h"
 
 #define DELAY_POS_MARGIN   3
 

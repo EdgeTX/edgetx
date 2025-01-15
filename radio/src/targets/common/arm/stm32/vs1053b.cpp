@@ -25,7 +25,9 @@
 #include "stm32_spi.h"
 
 #include "hal/gpio.h"
+#include "hal/audio_driver.h"
 
+#include "board.h"
 #include "edgetx.h"
 
 #if !defined(SIMU)
@@ -187,25 +189,7 @@ uint16_t audioSpiReadReg(uint8_t address)
   return result;
 }
 
-uint16_t audioSpiReadCmd(uint8_t address)
-{
-  if (!audioWaitDreq(100))
-    return 0;
-
-  audioSpiSetSpeed(SPI_SPEED_64);
-  XDCS_HIGH();
-  CS_LOW();
-  audioSpiReadWriteByte(VS_READ_COMMAND);
-  audioSpiReadWriteByte(address);
-  uint16_t result = audioSpiReadWriteByte(0) << 8;
-  result |= audioSpiReadWriteByte(0);
-  delay_01us(50); // 5us
-  CS_HIGH();
-  audioSpiSetSpeed(SPI_SPEED_8);
-  return result;
-}
-
-uint8_t audioSpiWriteCmd(uint8_t address, uint16_t data)
+static uint8_t audioSpiWriteCmd(uint8_t address, uint16_t data)
 {
   if (!audioWaitDreq(100))
     return 0;
@@ -400,9 +384,19 @@ void audioInit()
   audioSendRiffHeader();
 }
 
-uint8_t * currentBuffer = nullptr;
-uint32_t currentSize = 0;
-int16_t newVolume = -1;
+static uint8_t * currentBuffer = nullptr;
+static uint32_t currentSize = 0;
+static int16_t newVolume = -1;
+
+static void set_volume(uint8_t volume)
+{
+  newVolume = volume;
+}
+
+static int32_t get_volume()
+{
+  return -1; // TODO
+}
 
 void audioSetCurrentBuffer(const AudioBuffer * buffer)
 {
@@ -454,29 +448,19 @@ void audioConsumeCurrentBuffer()
 // max value is 126
 #define VOLUME_MIN_DB     40
 
-void setScaledVolume(uint8_t volume)
+void audioSetVolume(uint8_t volume)
 {
   if (volume > VOLUME_LEVEL_MAX) {
     volume = VOLUME_LEVEL_MAX;
   }
   // maximum volume is 0x00 and total silence is 0xFE
   if (volume == 0) {
-    setVolume(0xFE);  // silence  
+    set_volume(0xFE);  // silence  
   }
   else {
     uint32_t vol = (VOLUME_MIN_DB * 2) - ((uint32_t)volume * (VOLUME_MIN_DB * 2)) / VOLUME_LEVEL_MAX;
-    setVolume(vol);
+    set_volume(vol);
   }
-}
-
-void setVolume(uint8_t volume)
-{
-  newVolume = volume;
-}
-
-int32_t getVolume()
-{
-  return -1; // TODO
 }
 
 #endif

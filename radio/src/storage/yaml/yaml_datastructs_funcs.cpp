@@ -32,6 +32,7 @@
 
 #include "hal/switch_driver.h"
 #include "hal/adc_driver.h"
+#include "hal/audio_driver.h"
 
 //
 // WARNING:

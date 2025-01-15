@@ -21,6 +21,7 @@
 
 #include "hal/adc_driver.h"
 #include "hal/usb_driver.h"
+#include "hal/audio_driver.h"
 
 #define LANGUAGE_PACKS_DEFINITION
 
