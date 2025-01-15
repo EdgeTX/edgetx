@@ -181,39 +181,8 @@ bool isBacklightEnabled();
 #endif
 
 // Audio driver
-void audioInit();
+int audioInit();
 void audioConsumeCurrentBuffer();
-void audioSpiWriteBuffer(const uint8_t * buffer, uint32_t size);
-void audioSpiSetSpeed(uint8_t speed);
-uint8_t audioHardReset();
-uint8_t audioSoftReset();
-void audioSendRiffHeader();
-void audioOn();
-void audioOff();
-bool isAudioReady();
-bool audioChipReset();
-
-#define SPI_SPEED_2                    0
-#define SPI_SPEED_4                    1
-#define SPI_SPEED_8                    2
-#define SPI_SPEED_16                   3
-#define SPI_SPEED_32                   4
-#define SPI_SPEED_64                   5
-#define SPI_SPEED_128                  6
-#define SPI_SPEED_256                  7
-
-#define audioDisableIrq()             // interrupts must stay enabled on Horus
-#define audioEnableIrq()              // interrupts must stay enabled on Horus
-#if defined(PCBNV14)
-#define setSampleRate(freq)
-#else
-void setSampleRate(uint32_t frequency);
-#endif
-void setScaledVolume(uint8_t volume);
-void setVolume(uint8_t volume);
-static inline int32_t getVolume() { return 0; }
-#define VOLUME_LEVEL_MAX               23
-#define VOLUME_LEVEL_DEF               12
 
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512

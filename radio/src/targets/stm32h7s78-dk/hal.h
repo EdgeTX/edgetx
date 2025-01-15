@@ -227,6 +227,8 @@
 // #define AUDIO_TIMER                     TIM6
 // #define AUDIO_DMA                       DMA1
 
+#define AUDIO_SPI SPI6
+
 // I2C Bus
 #define I2C_B1                          I2C1
 #define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOB, 9)  // PB.09

@@ -215,30 +215,6 @@ static void LTDC_MspInit()
 }
 
 /**
-  * @brief  LTDC Clock Config for LCD TFT display.
-  * @param  hltdc  LTDC Handle
-  *         Being __weak it can be overwritten by the application
-  * @retval HAL_status
-  */
-static HAL_StatusTypeDef LTDC_ClockConfig(LTDC_HandleTypeDef *hltdc)
-{
-  LL_RCC_PLL3R_Enable();
-  LL_RCC_PLL3FRACN_Disable();
-  LL_RCC_PLL3_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_4_8);
-  LL_RCC_PLL3_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL3_SetM(2);
-  LL_RCC_PLL3_SetN(50);
-  LL_RCC_PLL3_SetP(2);
-  LL_RCC_PLL3_SetQ(2);
-  LL_RCC_PLL3_SetR(24);
-  LL_RCC_PLL3_Enable();
-  while (LL_RCC_PLL3_IsReady() != 1) {
-  }
-  
-  return HAL_OK;
-}
-
-/**
   * @brief  Initializes the LTDC.
   * @param  hltdc  LTDC handle
   * @param  Width  LTDC width
@@ -340,9 +316,7 @@ static int32_t LCD_InitEx(uint32_t Orientation, uint32_t PixelFormat,
     /* Assert display enable LCD_DISP_CTRL pin */
     HAL_GPIO_WritePin(LCD_DISP_EN_GPIO_PORT, LCD_DISP_EN_PIN, GPIO_PIN_SET);
 
-    if (LTDC_ClockConfig(&hlcd_ltdc) != HAL_OK) {
-      ret = LCD_ERROR_PERIPH_FAILURE;
-    } else if (LTDC_Init(&hlcd_ltdc, Width, Height) != HAL_OK) {
+    if (LTDC_Init(&hlcd_ltdc, Width, Height) != HAL_OK) {
       ret = LCD_ERROR_PERIPH_FAILURE;
     }
 
