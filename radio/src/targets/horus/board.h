@@ -293,7 +293,7 @@ void telemetryPortInvertedInit(uint32_t baudrate);
 
 // Aux serial port driver
 #if defined(RADIO_TX16S) || defined(RADIO_F16)
-  #define DEBUG_BAUDRATE                  400000
+  #define DEBUG_BAUDRATE                  460800
   #define LUA_DEFAULT_BAUDRATE            115200
 #else
   #define DEBUG_BAUDRATE                  115200
