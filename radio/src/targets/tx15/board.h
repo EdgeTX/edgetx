@@ -202,27 +202,8 @@ bool isBacklightEnabled();
 }
 #endif
 
-// Audio driver
-class stm32_spi_t;
-struct AudioConfig_t
-{
-  stm32_spi_t* spi;
-  void (*setMuteHigh)();
-  void (*setMuteLow)();
-  void (*setResetHigh)();
-  void (*setResetLow)();
-};
-void audioInit(const AudioConfig_t* cfg);
+int audioInit();
 void audioConsumeCurrentBuffer();
-
-#define audioDisableIrq()             // interrupts must stay enabled on Horus
-#define audioEnableIrq()              // interrupts must stay enabled on Horus
-#define setSampleRate(freq)
-void setScaledVolume(uint8_t volume);
-void setVolume(uint8_t volume);
-int32_t getVolume();
-#define VOLUME_LEVEL_MAX               23
-#define VOLUME_LEVEL_DEF               12
 
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512

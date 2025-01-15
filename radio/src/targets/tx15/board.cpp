@@ -254,7 +254,7 @@ void boardInit()
   switchInit();
   rotaryEncoderInit();
   touchPanelInit();
-  //audioInit(&audioConfig);
+  audioInit();
   adcInit(&_adc_driver);
   hapticInit();
 

@@ -196,7 +196,7 @@ void MPU_Init()
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
 #endif
 
-  /* Region 3: SRAM1 memory range */
+  /* Region 3: RAM_D2 memory range */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER4;
   MPU_InitStruct.BaseAddress = 0x30000000;

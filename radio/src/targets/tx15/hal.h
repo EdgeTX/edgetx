@@ -326,6 +326,8 @@
 #define AUDIO_MUTE_DELAY              200  // ms
 #define INVERTED_MUTE_PIN
 */
+#define AUDIO_SPI SPI2
+
 // I2C Bus
 #define I2C_B1                          I2C4
 #define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOD, 13) // PD.13

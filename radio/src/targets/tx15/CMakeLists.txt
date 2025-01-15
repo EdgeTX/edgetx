@@ -45,6 +45,7 @@ add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
+add_definitions(-DSOFTWARE_VOLUME)
 
 set(FLAVOUR tx15)
 add_definitions(-DRADIO_TX15)
@@ -76,8 +77,7 @@ add_definitions(
 
 set(SDRAM ON)
 
-#add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
-add_definitions(-DRTCLOCK)
+add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
@@ -149,6 +149,8 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/led_driver.cpp
   ${TARGET_SRC_DIR}/tp_gt911.cpp
+  ${TARGET_SRC_DIR}/audio_driver.cpp
+  drivers/tas2505.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/lsm6ds_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
@@ -156,6 +158,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
+  targets/common/arm/stm32/stm32_i2s.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/stm32_ws2812.cpp
   targets/common/arm/stm32/trainer_driver.cpp
