@@ -90,7 +90,7 @@ MainWindow::MainWindow():
 
   if (g.isFirstUse()) {
     g.warningId(g.warningId() | AppMessages::MSG_WELCOME);
-    QTimer::singleShot(updateDelay-500, this, SLOT(appPrefs()));  // must be shown before warnings dialog but after splash
+    QTimer::singleShot(updateDelay-500, this, SLOT(editAppSettings()));  // must be shown before warnings dialog but after splash
   }
   else {
     if (!g.previousVersion().isEmpty())
@@ -205,7 +205,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 #endif
   g.mainWinGeo(saveGeometry());
   g.mainWinState(saveState());
-  g.tabbedMdi(actTabbedWindows->isChecked());
+  g.tabbedMdi(tabbedWindowsAct->isChecked());
   QApplication::closeAllWindows();
   mdiArea->closeAllSubWindows();
   if (mdiArea->currentSubWindow()) {
@@ -255,7 +255,7 @@ void MainWindow::manualCheckForUpdates()
   statusBar()->clearMessage();
 }
 
-void MainWindow::downloads()
+void MainWindow::updates()
 {
   doUpdates(false);
 }
@@ -325,13 +325,13 @@ void MainWindow::onIconSizeChanged(QAction * act)
 void MainWindow::setTabbedWindows(bool on)
 {
   mdiArea->setViewMode(on ? QMdiArea::TabbedView : QMdiArea::SubWindowView);
-  if (actTileWindows)
-    actTileWindows->setDisabled(on);
-  if (actCascadeWindows)
-    actCascadeWindows->setDisabled(on);
+  if (tileWindowsAct)
+    tileWindowsAct->setDisabled(on);
+  if (cascadeWindowsAct)
+    cascadeWindowsAct->setDisabled(on);
 
-  if (actTabbedWindows->isChecked() != on)
-    actTabbedWindows->setChecked(on);
+  if (tabbedWindowsAct->isChecked() != on)
+    tabbedWindowsAct->setChecked(on);
 }
 
 void MainWindow::newFile()
@@ -452,7 +452,7 @@ void MainWindow::loadProfile()
   }
 }
 
-void MainWindow::appPrefs()
+void MainWindow::editAppSettings()
 {
   AppPreferencesDialog * dialog = new AppPreferencesDialog(this, updateFactories);
   dialog->setMainWinHasDirtyChild(anyChildrenDirty());
@@ -460,6 +460,7 @@ void MainWindow::appPrefs()
   connect(dialog, &AppPreferencesDialog::firmwareProfileChanged, this, &MainWindow::onCurrentProfileChanged);
   dialog->exec();
   dialog->deleteLater();
+  updateMenus();
 }
 
 void MainWindow::sdsync(bool postUpdate)
@@ -677,6 +678,8 @@ void MainWindow::updateMenus()
   compareAct->setEnabled(activeChild);
   writeSettingsAct->setEnabled(activeChild);
   readSettingsAct->setEnabled(true);
+  writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid());
+  readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
   readBUToFileAct->setEnabled(false);
   editSplashAct->setDisabled(IS_FAMILY_HORUS_OR_T16(getCurrentBoard()));
@@ -692,7 +695,9 @@ void MainWindow::updateMenus()
     if (act->isSeparator() && act->parent() == this)
       delete act;
   }
+
   fileWindowActions.clear();
+
   if (activeChild) {
     editMenu->clear();
     editMenu->addActions(activeMdiChild()->getEditActions());
@@ -703,6 +708,7 @@ void MainWindow::updateMenus()
     editToolBar->clear();
     editToolBar->addActions(activeMdiChild()->getEditActions());
     editToolBar->setEnabled(true);
+
     if (activeMdiChild()->getAction(MdiChild::ACT_MDL_MOV)) {
       // workaround for default split button appearance of action with menu  :-/
       QToolButton * btn;
@@ -713,9 +719,9 @@ void MainWindow::updateMenus()
     fileWindowActions = activeMdiChild()->getGeneralActions();
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
-    fileWindowActions.append(sep);
-    fileMenu->insertActions(logsAct, fileWindowActions);
-    fileToolBar->insertActions(logsAct, fileWindowActions);
+    fileWindowActions.insert(0, sep);
+    radioMenu->addActions(fileWindowActions);
+    editToolBar->addActions(fileWindowActions); // do not put these in lhs toolbar
   }
   else {
     editToolBar->setDisabled(true);
@@ -732,7 +738,7 @@ void MainWindow::updateMenus()
 
   updateRecentFileActions();
   updateProfilesActions();
-  setWindowTitle(tr("EdgeTX Companion %1 - Radio: %2 - Profile: %3").arg(VERSION).arg(getCurrentFirmware()->getName()).arg(g.profile[g.id()].name()));
+  setWindowTitle(tr("%1 %2 - Radio: %3 - Profile: %").arg(CPN_STR_APP_NAME).arg(VERSION).arg(getCurrentFirmware()->getName()).arg(g.profile[g.id()].name()));
 }
 
 MdiChild * MainWindow::createMdiChild()
@@ -801,59 +807,70 @@ void MainWindow::trAct(QAction * act, const QString & text, const QString & desc
 
 void MainWindow::retranslateUi(bool showMsg)
 {
-  trAct(newAct,    tr("New"),        tr("Create a new Models and Settings file"));
-  trAct(openAct,   tr("Open..."),    tr("Open Models and Settings file"));
-  trAct(saveAct,   tr("Save"),       tr("Save Models and Settings file"));
-  trAct(saveAsAct, tr("Save As..."), tr("Save Models and Settings file"));
-  trAct(closeAct,  tr("Close"),      tr("Close Models and Settings file"));
-  trAct(exitAct,   tr("Exit"),       tr("Exit the application"));
-  trAct(aboutAct,  tr("About Companion..."),   tr("Show the application's About box"));
+  trAct(newAct,                 tr("New"),                                   tr("Create a new Models and Settings file"));
+  trAct(openAct,                tr("Open..."),                               tr("Open an existing Models and Settings file"));
+  trAct(saveAct,                tr("Save"),                                  tr("Save to Models and Settings file"));
+  trAct(saveAsAct,              tr("Save As..."),                            tr("Save Models and Settings to another file name"));
+  trAct(closeAct,               tr("Close"),                                 tr("Close Models and Settings file"));
+  trAct(recentFilesAct,         tr("Recent Files"),                          tr("List of recently used files"));
+  trAct(writeSettingsSDPathAct, tr("Write Models and Settings to SD Path"),  tr("Write Models and Settings to SD Path"));
+  trAct(readSettingsSDPathAct,  tr("Read Models and Settings from SD Path"), tr("Read Models and Settings from SD Path"));
+  trAct(exitAct,                tr("Exit"),                                  tr("Exit the application"));
 
-  trAct(recentFilesAct,     tr("Recent Files"),               tr("List of recently used files"));
-  trAct(profilesMenuAct,    tr("Radio Profiles"),             tr("Create or Select Radio Profiles"));
-  trAct(logsAct,            tr("View Log File..."),           tr("Open and view log file"));
-  trAct(appPrefsAct,        tr("Settings..."),                tr("Edit Settings"));
-  trAct(downloadsAct,       tr("Download components..."),     tr("Download EdgeTX components and supporting resources"));
-  trAct(manualChkForUpdAct, tr("Check for updates..."),       tr("Check for updates to EdgeTX and supporting resources"));
-  trAct(changelogAct,       tr("Release notes..."),           tr("Show release notes"));
-  trAct(compareAct,         tr("Compare Models..."),          tr("Compare models"));
-  trAct(editSplashAct,      tr("Edit Radio Splash Image..."), tr("Edit the splash image of your Radio"));
-  trAct(readFlashAct,       tr("Read Firmware from Radio"),   tr("Read firmware from Radio"));
-  trAct(writeFlashAct,      tr("Write Firmware to Radio"),    tr("Write firmware to Radio"));
-  trAct(sdsyncAct,          tr("Synchronize SD"),             tr("SD card synchronization"));
+  trAct(editAppSettingsAct,   tr("Edit Settings..."),  tr("Edit %1 and Simulator settings (including radio profiles) settings").arg(CPN_STR_APP_NAME));
+  trAct(exportAppSettingsAct, tr("Export Settings..."), tr("Save all the current %1 and Simulator settings (including radio profiles) to a file.").arg(CPN_STR_APP_NAME));
+  trAct(importAppSettingsAct, tr("Import Settings..."), tr("Load %1 and Simulator settings from a prevously exported settings file.").arg(CPN_STR_APP_NAME));
 
-  //trAct(openDocURLAct,      tr("Manuals and other Documents"),         tr("Open the EdgeTX document page in a web browser"));
-  trAct(writeSettingsAct,   tr("Write Models and Settings To Radio"),  tr("Write Models and Settings to Radio"));
-  trAct(readSettingsAct,    tr("Read Models and Settings From Radio"), tr("Read Models and Settings from Radio"));
-  trAct(burnConfigAct,      tr("Configure Communications..."),         tr("Configure software for communicating with the Radio"));
+  trAct(burnConfigAct,      tr("Configure Radio Communications..."),   tr("Configure Companion for communicating with the Radio"));
+  trAct(editSplashAct,      tr("Edit Radio Splash Image..."),          tr("Edit the splash image of your Radio"));
+  trAct(readFlashAct,       tr("Read Firmware from Radio"),            tr("Read firmware from Radio"));
+  trAct(writeFlashAct,      tr("Write Firmware to Radio"),             tr("Write firmware to Radio"));
+  trAct(writeSettingsAct,   tr("Write Models and Settings to Radio"),  tr("Write Models and Settings to Radio"));
+  trAct(readSettingsAct,    tr("Read Models and Settings from Radio"), tr("Read Models and Settings from Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
 
+  trAct(compareAct,         tr("Compare Models..."),      tr("Compare models"));
+  trAct(updatesAct,         tr("Update components..."),   tr("Download and update EdgeTX components and supporting resources"));
+  trAct(sdsyncAct,          tr("Synchronize SD card..."), tr("SD card synchronization"));
+  trAct(logsAct,            tr("View Log File..."),       tr("Open and view log file"));
+
+  trAct(profilesMenuAct,    tr("Radio Profiles"),                  tr("Create or Select Radio Profiles"));
   trAct(createProfileAct,   tr("Add Radio Profile"),               tr("Create a new Radio Settings Profile"));
   trAct(copyProfileAct,     tr("Copy Current Radio Profile"),      tr("Duplicate current Radio Settings Profile"));
   trAct(deleteProfileAct,   tr("Delete Current Radio Profile..."), tr("Delete the current Radio Settings Profile"));
 
-  trAct(exportSettingsAct,   tr("Export Application Settings.."),  tr("Save all the current %1 and Simulator settings (including radio profiles) to a file.").arg(CPN_STR_APP_NAME));
-  trAct(importSettingsAct,   tr("Import Application Settings.."),  tr("Load %1 and Simulator settings from a prevously exported settings file.").arg(CPN_STR_APP_NAME));
+  trAct(viewFileToolbarAct,     tr("File Toolbar"),     tr("Configure File toolbar visibility"));
+  trAct(viewEditToolbarAct,     tr("Edit Toolbar"),     tr("Configure Edit toolbar visibility"));
+  trAct(viewRadioToolbarAct,    tr("Radio Toolbar"),    tr("Configure Radio toolbar visibility"));
+  trAct(viewSettingsToolbarAct, tr("Settings Toolbar"), tr("Configure Settings toolbar visibility"));
+  trAct(viewToolsToolbarAct,    tr("Tools Toolbar"),    tr("Configure Tools toolbar visibility"));
 
-  trAct(actTabbedWindows,   tr("Tabbed Windows"),    tr("Use tabs to arrange open windows."));
-  trAct(actTileWindows,     tr("Tile Windows"),      tr("Arrange open windows across all the available space."));
-  trAct(actCascadeWindows,  tr("Cascade Windows"),   tr("Arrange all open windows in a stack."));
-  trAct(actCloseAllWindows, tr("Close All Windows"), tr("Closes all open files (prompts to save if necessary."));
+  trAct(tabbedWindowsAct,   tr("Tabbed Windows"),    tr("Use tabs to arrange open windows."));
+  trAct(tileWindowsAct,     tr("Tile Windows"),      tr("Arrange open windows across all the available space."));
+  trAct(cascadeWindowsAct,  tr("Cascade Windows"),   tr("Arrange all open windows in a stack."));
+  trAct(closeAllWindowsAct, tr("Close All Windows"), tr("Closes all open files (prompts to save if necessary."));
+
+  trAct(manualChkForUpdAct, tr("Check for updates..."), tr("Check for updates to EdgeTX and supporting resources"));
+  trAct(changelogAct,       tr("Release notes..."),     tr("Show release notes"));
+  trAct(aboutAct,           tr("About"),                tr("Show the application's About box"));
 
   editMenu->setTitle(tr("Edit"));
   fileMenu->setTitle(tr("File"));
   settingsMenu->setTitle(tr("Settings"));
+  viewMenu->setTitle(tr("View"));
   themeMenu->setTitle(tr("Set Icon Theme"));
   iconThemeSizeMenu->setTitle(tr("Set Icon Size"));
-  burnMenu->setTitle(tr("Read/Write"));
+  radioMenu->setTitle(tr("Radio"));
+  toolsMenu->setTitle(tr("Tools"));
   windowMenu->setTitle(tr("Window"));
   helpMenu->setTitle(tr("Help"));
 
   fileToolBar->setWindowTitle(tr("File"));
   editToolBar->setWindowTitle(tr("Edit"));
-  burnToolBar->setWindowTitle(tr("Write"));
-  helpToolBar->setWindowTitle(tr("Help"));
+  radioToolBar->setWindowTitle(tr("Radio"));
+  radioToolBar->setWindowTitle(tr("Settings"));
+  toolsToolBar->setWindowTitle(tr("Tools"));
 
   showReadyStatus();
 
@@ -863,60 +880,71 @@ void MainWindow::retranslateUi(bool showMsg)
 
 void MainWindow::createActions()
 {
-  newAct =             addAct("new.png",    SLOT(newFile()),                  QKeySequence::New);
-  openAct =            addAct("open.png",   SLOT(openFile()),                 QKeySequence::Open);
-  saveAct =            addAct("save.png",   SLOT(save()),                     QKeySequence::Save);
-  saveAsAct =          addAct("saveas.png", SLOT(saveAs()),                   tr("Ctrl+Shift+S"));       // Windows doesn't have "native" save-as key, Lin/OSX both use this one anyway
-  closeAct =           addAct("clear.png",  SLOT(closeFile())             /*, QKeySequence::Close*/);    // setting/showing this shortcut interferes with the system one (Ctrl+W/Ctrl-F4)
-  exitAct =            addAct("exit.png",   SLOT(closeAllWindows()),          QKeySequence::Quit, qApp);
+  newAct =                 addAct("new.png",                SLOT(newFile()),          QKeySequence::New);
+  openAct =                addAct("open.png",               SLOT(openFile()),         QKeySequence::Open);
+  saveAct =                addAct("save.png",               SLOT(save()),             QKeySequence::Save);
+  saveAsAct =              addAct("saveas.png",             SLOT(saveAs()),           tr("Ctrl+Shift+S"));       // Windows doesn't have "native" save-as key, Lin/OSX both use this one anyway
+  // assigned menus in createMenus()
+  recentFilesAct =         addAct("recentdocument.png");
+  closeAct =               addAct("clear.png",              SLOT(closeFile())        /*, QKeySequence::Close*/); // setting/showing this shortcut interferes with the system one (Ctrl+W/Ctrl-F4)
+  // TODO change to more appropriate icon sets and uncomment toolbar actions
+  writeSettingsSDPathAct = addAct("save.png",               SLOT(writeSettingsSDPath()));
+  readSettingsSDPathAct =  addAct("open.png",               SLOT(readSettingsSDPath()));
+  // end TODO
+  exitAct =                addAct("exit.png",               SLOT(closeAllWindows()),  QKeySequence::Quit, qApp);
 
-  logsAct =            addAct("logs.png",           SLOT(logFile()),          tr("Ctrl+Alt+L"));
-  appPrefsAct =        addAct("apppreferences.png", SLOT(appPrefs()),         QKeySequence::Preferences);
-  downloadsAct =       addAct("download.png",       SLOT(downloads()),        tr("Ctrl+Alt+D"));
-  compareAct =         addAct("compare.png",        SLOT(compare()),          tr("Ctrl+Alt+R"));
-  sdsyncAct =          addAct("sdsync.png",         SLOT(sdsync()));
+  editAppSettingsAct =     addAct("apppreferences.png",     SLOT(editAppSettings()),         QKeySequence::Preferences);
+  exportAppSettingsAct =   addAct("saveas.png",             SLOT(exportAppSettings()));
+  importAppSettingsAct =   addAct("open.png",               SLOT(importAppSettings()));
+  burnConfigAct =          addAct("configure.png",          SLOT(burnConfig()));
 
-  editSplashAct =      addAct("paintbrush.png",        SLOT(customizeSplash()));
-  burnListAct =        addAct("list.png",              SLOT(burnList()));
-  readFlashAct =       addAct("read_flash.png",        SLOT(readFlash()));
-  writeFlashAct =      addAct("write_flash.png",       SLOT(writeFlash()));
-  writeSettingsAct =   addAct("write_eeprom.png",      SLOT(writeSettings()));
-  readSettingsAct =    addAct("read_eeprom.png",       SLOT(readSettings()));
-  burnConfigAct =      addAct("configure.png",         SLOT(burnConfig()));
+  compareAct =             addAct("compare.png",            SLOT(compare()),          tr("Ctrl+Alt+R"));
+  updatesAct =             addAct("download.png",           SLOT(updates()),          tr("Ctrl+Alt+D"));
+  editSplashAct =          addAct("paintbrush.png",         SLOT(customizeSplash()));
+  // assigned menus in createMenus()
+  profilesMenuAct =        addAct("profiles.png");
+  createProfileAct =       addAct("new.png",                SLOT(createProfile()));
+  copyProfileAct   =       addAct("copy.png",               SLOT(copyProfile()));
+  deleteProfileAct =       addAct("clear.png",              SLOT(deleteCurrentProfile()));
+  sdsyncAct =              addAct("sdsync.png",             SLOT(sdsync()));
+  logsAct =                addAct("logs.png",               SLOT(logFile()),          tr("Ctrl+Alt+L"));
 
-  writeBUToRadioAct = addAct("write_eeprom_file.png", SLOT(writeBackup()));
-  readBUToFileAct = addAct("read_eeprom_file.png", SLOT(readBackup()));
+  burnListAct =            addAct("list.png",               SLOT(burnList()));
+  readFlashAct =           addAct("read_flash.png",         SLOT(readFlash()));
+  writeFlashAct =          addAct("write_flash.png",        SLOT(writeFlash()));
+  writeSettingsAct =       addAct("write_eeprom.png",       SLOT(writeSettings()));
+  readSettingsAct =        addAct("read_eeprom.png",        SLOT(readSettings()));
+  writeBUToRadioAct =      addAct("write_eeprom_file.png",  SLOT(writeBackup()));
+  readBUToFileAct =        addAct("read_eeprom_file.png",   SLOT(readBackup()));
 
-  createProfileAct =   addAct("new.png",   SLOT(createProfile()));
-  copyProfileAct   =   addAct("copy.png",  SLOT(copyProfile()));
-  deleteProfileAct =   addAct("clear.png", SLOT(deleteCurrentProfile()));
+  viewFileToolbarAct =     addAct("",                       SLOT(viewFileToolbar()));
+  viewEditToolbarAct =     addAct("",                       SLOT(viewEditToolbar()));
+  viewRadioToolbarAct =    addAct("",                       SLOT(viewRadioToolbar()));
+  viewSettingsToolbarAct = addAct("",                       SLOT(viewSettingsToolbar()));
+  viewToolsToolbarAct =    addAct("",                       SLOT(viewToolsToolbar()));
 
-  exportSettingsAct =  addAct("saveas.png",  SLOT(exportSettings()));
-  importSettingsAct =  addAct("open.png",    SLOT(importSettings()));
+  tabbedWindowsAct =       addAct("",                       SLOT(setTabbedWindows(bool)), 0, this, SIGNAL(triggered(bool)));
+  tileWindowsAct =         addAct("",                       SLOT(tileSubWindows()),       0, mdiArea);
+  cascadeWindowsAct =      addAct("",                       SLOT(cascadeSubWindows()),    0, mdiArea);
+  closeAllWindowsAct =     addAct("",                       SLOT(closeAllSubWindows()),   0, mdiArea);
 
-  actTabbedWindows =   addAct("", SLOT(setTabbedWindows(bool)), 0, this, SIGNAL(triggered(bool)));
-  actTileWindows =     addAct("", SLOT(tileSubWindows()),       0, mdiArea);
-  actCascadeWindows =  addAct("", SLOT(cascadeSubWindows()),    0, mdiArea);
-  actCloseAllWindows = addAct("", SLOT(closeAllSubWindows()),   0, mdiArea);
-
-  manualChkForUpdAct = addAct("update.png",         SLOT(manualCheckForUpdates()));
-  aboutAct =           addAct("information.png",    SLOT(about()));
-  //openDocURLAct =      addAct("changelog.png",      SLOT(openDocURL()));
-  changelogAct =       addAct("changelog.png",      SLOT(changelog()));
-
-  // these two get assigned menus in createMenus()
-  recentFilesAct =     addAct("recentdocument.png");
-  profilesMenuAct =    addAct("profiles.png");
+  manualChkForUpdAct =     addAct("update.png",             SLOT(manualCheckForUpdates()));
+  changelogAct =           addAct("changelog.png",          SLOT(changelog()));
+  aboutAct =               addAct("information.png",        SLOT(about()));
 
   exitAct->setMenuRole(QAction::QuitRole);
   aboutAct->setMenuRole(QAction::AboutRole);
-  appPrefsAct->setMenuRole(QAction::PreferencesRole);
-  //openDocURLAct->setMenuRole(QAction::ApplicationSpecificRole);
-  //manualChkForUpdAct->setMenuRole(QAction::ApplicationSpecificRole);
+  editAppSettingsAct->setMenuRole(QAction::PreferencesRole);
   changelogAct->setMenuRole(QAction::ApplicationSpecificRole);
 
-  actTabbedWindows->setCheckable(true);
   compareAct->setEnabled(false);
+
+  setActCheckability(tabbedWindowsAct, false);
+  setActCheckability(viewFileToolbarAct, g.fileToolbarVisible());
+  setActCheckability(viewEditToolbarAct, g.editToolbarVisible());
+  setActCheckability(viewRadioToolbarAct, g.radioToolbarVisible());
+  setActCheckability(viewSettingsToolbarAct, g.settingsToolbarVisible());
+  setActCheckability(viewToolsToolbarAct, g.toolsToolbarVisible());
 }
 
 void MainWindow::createMenus()
@@ -929,19 +957,23 @@ void MainWindow::createMenus()
   fileMenu->addAction(closeAct);
   fileMenu->addAction(recentFilesAct);
   fileMenu->addSeparator();
-  fileMenu->addAction(logsAct);
-  fileMenu->addAction(downloadsAct);
-  fileMenu->addAction(compareAct);
-  fileMenu->addAction(sdsyncAct);
+  fileMenu->addAction(readSettingsSDPathAct);
+  fileMenu->addAction(writeSettingsSDPathAct);
   fileMenu->addSeparator();
   fileMenu->addAction(exitAct);
 
   editMenu = menuBar()->addMenu("");
 
-  settingsMenu = menuBar()->addMenu("");
-  settingsMenu->addMenu(createLanguageMenu(settingsMenu));
+  viewMenu = menuBar()->addMenu("");
+  viewMenu->addAction(viewFileToolbarAct);
+  viewMenu->addAction(viewEditToolbarAct);
+  viewMenu->addAction(viewRadioToolbarAct);
+  viewMenu->addAction(viewSettingsToolbarAct);
+  viewMenu->addAction(viewToolsToolbarAct);
+  viewMenu->addSeparator();
+  viewMenu->addMenu(createLanguageMenu(viewMenu));
 
-  themeMenu = settingsMenu->addMenu("");
+  themeMenu = viewMenu->addMenu("");
   QActionGroup * themeGroup = new QActionGroup(themeMenu);
   addActToGroup(themeGroup, tr("Classical"),  tr("The classic companion9x icon theme"),  "themeId", 0, g.theme());
   addActToGroup(themeGroup, tr("Yerico"),     tr("Yellow round honey sweet icon theme"), "themeId", 1, g.theme());
@@ -951,7 +983,7 @@ void MainWindow::createMenus()
   connect(themeGroup, &QActionGroup::triggered, this, &MainWindow::onThemeChanged);
   themeMenu->addActions(themeGroup->actions());
 
-  iconThemeSizeMenu = settingsMenu->addMenu("");
+  iconThemeSizeMenu = viewMenu->addMenu("");
   QActionGroup * szGroup = new QActionGroup(iconThemeSizeMenu);
   addActToGroup(szGroup, tr("Small"),  tr("Use small toolbar icons"),       "sizeId", 0, g.iconSize());
   addActToGroup(szGroup, tr("Normal"), tr("Use normal size toolbar icons"), "sizeId", 1, g.iconSize());
@@ -960,41 +992,44 @@ void MainWindow::createMenus()
   connect(szGroup, &QActionGroup::triggered, this, &MainWindow::onIconSizeChanged);
   iconThemeSizeMenu->addActions(szGroup->actions());
 
-  settingsMenu->addSeparator();
-  settingsMenu->addAction(appPrefsAct);
-  settingsMenu->addAction(profilesMenuAct);
-  settingsMenu->addAction(editSplashAct);
-  settingsMenu->addAction(burnConfigAct);
-  settingsMenu->addSeparator();
-  settingsMenu->addAction(exportSettingsAct);
-  settingsMenu->addAction(importSettingsAct);
+  radioMenu = menuBar()->addMenu("");
+  radioMenu->addAction(writeSettingsAct);
+  radioMenu->addAction(readSettingsAct);
+  radioMenu->addSeparator();
+  radioMenu->addAction(writeBUToRadioAct);
+  radioMenu->addAction(readBUToFileAct);
+  radioMenu->addSeparator();
+  radioMenu->addAction(writeFlashAct);
+  radioMenu->addAction(readFlashAct);
+  radioMenu->addSeparator();
+  radioMenu->addAction(burnConfigAct);
+  radioMenu->addSeparator();
+  radioMenu->addAction(editSplashAct);
 
-  burnMenu = menuBar()->addMenu("");
-  burnMenu->addAction(writeSettingsAct);
-  burnMenu->addAction(readSettingsAct);
-  burnMenu->addSeparator();
-  burnMenu->addAction(writeBUToRadioAct);
-  burnMenu->addAction(readBUToFileAct);
-  burnMenu->addSeparator();
-  burnMenu->addAction(writeFlashAct);
-  burnMenu->addAction(readFlashAct);
-  burnMenu->addSeparator();
-  burnMenu->addSeparator();
+  settingsMenu = menuBar()->addMenu("");
+  settingsMenu->addAction(editAppSettingsAct);
+  settingsMenu->addAction(exportAppSettingsAct);
+  settingsMenu->addAction(importAppSettingsAct);
+  settingsMenu->addSeparator();
+  settingsMenu->addAction(profilesMenuAct);
+
+  toolsMenu = menuBar()->addMenu("");
+  toolsMenu->addAction(compareAct);
+  toolsMenu->addAction(updatesAct);
+  toolsMenu->addAction(sdsyncAct);
+  toolsMenu->addAction(logsAct);
+  toolsMenu->addSeparator();
 
   windowMenu = menuBar()->addMenu("");
-  windowMenu->addAction(actTabbedWindows);
-  windowMenu->addAction(actTileWindows);
-  windowMenu->addAction(actCascadeWindows);
-  windowMenu->addAction(actCloseAllWindows);
+  windowMenu->addAction(tabbedWindowsAct);
+  windowMenu->addAction(tileWindowsAct);
+  windowMenu->addAction(cascadeWindowsAct);
+  windowMenu->addAction(closeAllWindowsAct);
   windowMenu->addSeparator();
 
   helpMenu = menuBar()->addMenu("");
   helpMenu->addAction(manualChkForUpdAct);
-  //helpMenu->addSeparator();
-  //helpMenu->addAction(openDocURLAct);
-  //helpMenu->addSeparator();
   helpMenu->addAction(changelogAct);
-  //helpMenu->addSeparator();
   helpMenu->addAction(aboutAct);
 
   recentFilesMenu = new QMenu(this);
@@ -1008,7 +1043,7 @@ void MainWindow::createMenus()
 
   profilesMenu = new QMenu(this);
   QActionGroup *profilesGroup = new QActionGroup(this);
-  for (int i=0; i < MAX_PROFILES; i++) {
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profileActs.append(profilesMenu->addAction(""));
     profileActs[i]->setVisible(false);
     profileActs[i]->setCheckable(true);
@@ -1032,16 +1067,9 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(saveAct);
   fileToolBar->addAction(closeAct);
   fileToolBar->addSeparator();
-  fileToolBar->addAction(logsAct);
-  fileToolBar->addAction(downloadsAct);
-  fileToolBar->addSeparator();
-  fileToolBar->addAction(appPrefsAct);
-  fileToolBar->addAction(profilesMenuAct);
-  fileToolBar->addAction(editSplashAct);
-  fileToolBar->addAction(editSplashAct);
-  fileToolBar->addSeparator();
-  fileToolBar->addAction(compareAct);
-  fileToolBar->addAction(sdsyncAct);
+  // TODO add after icon set changed to more appropriate as currently same as read and write file
+  // fileToolBar->addAction(readSettingsSDPathAct);
+  // fileToolBar->addAction(writeSettingsSDPathAct);
 
   // workaround for default split button appearance of action with menu  :-/
   QToolButton * btn;
@@ -1054,24 +1082,31 @@ void MainWindow::createToolBars()
   editToolBar = addToolBar("");
   editToolBar->setObjectName("Edit");
 
-  burnToolBar = new QToolBar(this);
-  addToolBar( Qt::LeftToolBarArea, burnToolBar );
-  burnToolBar->setObjectName("Write");
-  burnToolBar->addAction(writeSettingsAct);
-  burnToolBar->addAction(readSettingsAct);
-  burnToolBar->addSeparator();
-  burnToolBar->addAction(writeBUToRadioAct);
-  burnToolBar->addAction(readBUToFileAct);
-  burnToolBar->addSeparator();
-  burnToolBar->addAction(writeFlashAct);
-  burnToolBar->addAction(readFlashAct);
-  burnToolBar->addSeparator();
-  burnToolBar->addAction(burnConfigAct);
+  radioToolBar = new QToolBar(this);
+  addToolBar(Qt::LeftToolBarArea, radioToolBar);
+  radioToolBar->setObjectName("Radio");
+  radioToolBar->addAction(writeSettingsAct);
+  radioToolBar->addAction(readSettingsAct);
+  radioToolBar->addSeparator();
+  radioToolBar->addAction(writeBUToRadioAct);
+  radioToolBar->addAction(readBUToFileAct);
+  radioToolBar->addSeparator();
+  radioToolBar->addAction(writeFlashAct);
+  radioToolBar->addAction(readFlashAct);
+  radioToolBar->addSeparator();
+  radioToolBar->addAction(burnConfigAct);
 
-  helpToolBar = addToolBar("");
-  helpToolBar->setObjectName("Help");
-  helpToolBar->addAction(manualChkForUpdAct);
-  helpToolBar->addAction(aboutAct);
+  settingsToolBar = addToolBar("");
+  settingsToolBar->setObjectName("Settings");
+  settingsToolBar->addAction(editAppSettingsAct);
+  settingsToolBar->addAction(profilesMenuAct);
+
+  toolsToolBar = addToolBar("");
+  toolsToolBar->setObjectName("Tools");
+  toolsToolBar->addAction(compareAct);
+  toolsToolBar->addAction(updatesAct);
+  toolsToolBar->addAction(sdsyncAct);
+  toolsToolBar->addAction(logsAct);
 }
 
 QMenu * MainWindow::createLanguageMenu(QWidget * parent)
@@ -1262,7 +1297,7 @@ int MainWindow::newProfile(bool loadProfile)
 
   if (loadProfile) {
     if (loadProfileId(i))
-      appPrefs();
+      editAppSettings();
   }
 
   return i;
@@ -1281,7 +1316,7 @@ void MainWindow::copyProfile()
     g.profile[newId] = g.profile[g.id()];
     g.profile[newId].name(g.profile[newId].name() + tr(" - Copy"));
     if (loadProfileId(newId))
-      appPrefs();
+      editAppSettings();
   }
 }
 
@@ -1316,12 +1351,12 @@ void MainWindow::deleteCurrentProfile()
   deleteProfile(g.id());
 }
 
-void MainWindow::exportSettings()
+void MainWindow::exportAppSettings()
 {
   Helpers::exportAppSettings();
 }
 
-void MainWindow::importSettings()
+void MainWindow::importAppSettings()
 {
   if (anyChildrenDirty()) {
     QMessageBox::warning(this, CPN_STR_APP_NAME, tr("Please save or close all modified files before importing settings"));
@@ -1415,4 +1450,91 @@ void MainWindow::chooseProfile()
     if (!checkProfileRadioExists(g.sessionId()))
       g.warningId(g.warningId() | AppMessages::MSG_NO_RADIO_TYPE);
   }
+}
+
+void MainWindow::readSettingsSDPath()
+{
+  QString tempFile;
+  tempFile = generateProcessUniqueTempFileName("temp.etx");
+  qDebug() << "Reading models and settings from SD path into temp file: " << tempFile;
+
+  if (readSettingsFromSDPath(tempFile)) {
+    MdiChild * child = createMdiChild();
+    child->newFile(false);
+    child->loadFile(tempFile, false);
+    child->show();
+    qunlink(tempFile);
+  }
+}
+
+bool MainWindow::readSettingsFromSDPath(const QString & filename)
+{
+  ProgressDialog progressDialog(this, tr("Read Models and Settings from SD path"), CompanionIcon("read_eeprom.png"));
+  bool result = ::readSettingsSDCard(filename, progressDialog.progress(), false);
+  if (!result) {
+    if (!progressDialog.isEmpty()) {
+      progressDialog.exec();
+    }
+  }
+  else {
+    statusBar()->showMessage(tr("Models and Settings read"), 2000);
+  }
+  return result;
+}
+
+void MainWindow::writeSettingsSDPath()
+{
+  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to SD path"), tr("In progress..."), 400);
+
+  if (activeMdiChild())
+    activeMdiChild()->writeSettings(status, false);
+
+  delete status;
+}
+
+bool MainWindow::isSDPathValid()
+{
+  bool ret = false;
+  const QString sdPath = g.currentProfile().sdPath();
+  if (!sdPath.isEmpty()) {
+    if (QFile::exists(sdPath))
+      ret = true;
+  }
+  return ret;
+}
+
+void MainWindow::setActCheckability(QAction * act, bool checked)
+{
+  act->setCheckable(true);
+  act->setChecked(checked);
+}
+
+void MainWindow::viewFileToolbar()
+{
+  g.fileToolbarVisible(viewFileToolbarAct->isChecked());
+  fileToolBar->setVisible(viewFileToolbarAct->isChecked());
+}
+
+void MainWindow::viewEditToolbar()
+{
+  g.editToolbarVisible(viewEditToolbarAct->isChecked());
+  editToolBar->setVisible(viewEditToolbarAct->isChecked());
+}
+
+void MainWindow::viewRadioToolbar()
+{
+  g.radioToolbarVisible(viewRadioToolbarAct->isChecked());
+  radioToolBar->setVisible(viewRadioToolbarAct->isChecked());
+}
+
+void MainWindow::viewSettingsToolbar()
+{
+  g.settingsToolbarVisible(viewSettingsToolbarAct->isChecked());
+  settingsToolBar->setVisible(viewSettingsToolbarAct->isChecked());
+}
+
+void MainWindow::viewToolsToolbar()
+{
+  g.toolsToolbarVisible(viewToolsToolbarAct->isChecked());
+  toolsToolBar->setVisible(viewToolsToolbarAct->isChecked());
 }

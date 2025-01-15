@@ -189,21 +189,25 @@ bool readSettings(const QString & filename, ProgressWidget * progress)
     return readSettingsEeprom(filename, progress);
 }
 
-bool readSettingsSDCard(const QString & filename, ProgressWidget * progress)
+bool readSettingsSDCard(const QString & filename, ProgressWidget * progress, bool fromRadio)
 {
-  QString radioPath = findMassstoragePath("RADIO", true, progress);
-  qDebug() << "Searching for SD card, found" << radioPath;
-  if (radioPath.isEmpty()) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
-                          QCoreApplication::translate("RadioInterface", "Unable to find radio SD card!"));
-    return false;
+  QString radioPath;
+
+  if (fromRadio) {
+    radioPath = findMassstoragePath("RADIO", true, progress);
+    qDebug() << "Searching for SD card, found" << radioPath;
+  }
+  else {
+    radioPath = g.currentProfile().sdPath();
+    if (!QFile::exists(radioPath % "/RADIO"))
+      radioPath.clear();
   }
 
-  // if radio.yml it is a converted radio
-  // if radio.bin unconverted pre 2.6
-  // if neither then unconverted eeprom or empty
-  if (!QFile::exists(radioPath % "/RADIO/radio.yml") && !QFile::exists(radioPath % "/RADIO/radio.bin"))
-    return readSettingsEeprom(filename, progress);
+  if (radioPath.isEmpty()) {
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
+                          QCoreApplication::translate("RadioInterface", "Unable to find SD card!"));
+    return false;
+  }
 
   RadioData radioData;
   Storage inputStorage(radioPath);
