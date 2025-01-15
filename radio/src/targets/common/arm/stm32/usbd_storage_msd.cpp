@@ -62,7 +62,6 @@
 
 #if USE_UF2_DRIVE
 #include "drivers/uf2_ghostfat.h"
-uf2_fat_write_state_t _uf2_write_state;
 #endif
 
 enum MassstorageLuns {
@@ -134,7 +133,7 @@ int8_t STORAGE_Init(uint8_t lun)
 {
 #if USE_UF2_DRIVE
   if (lun == STORAGE_UF2_LUN) {
-    memset(&_uf2_write_state, 0, sizeof(_uf2_write_state));
+    uf2_fat_reset_state();
     return USBD_OK;
   }
 #endif
@@ -263,8 +262,7 @@ int8_t STORAGE_Write(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_
 #if USE_UF2_DRIVE
   if (lun == STORAGE_UF2_LUN) {
     int wr_ret;
-    while ((blk_len--) && (wr_ret = uf2_fat_write_block(
-                               blk_addr, buf, &_uf2_write_state)) > 0) {
+    while ((blk_len--) && (wr_ret = uf2_fat_write_block(blk_addr, buf)) > 0) {
       blk_addr += 512;
       buf += 512;
     }

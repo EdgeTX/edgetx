@@ -17,10 +17,14 @@
 
 #include <stdint.h>
 
-void qspiInit();
-void qspiDeInit();
-void qspiEnableMemoryMappedMode();
-void qspiEraseSector(intptr_t address);
-void qspiWritePage(intptr_t address, uint8_t* data);
-void qspiWriteBlock(intptr_t address, uint8_t* data);
+int stm32_qspi_nor_init();
+void stm32_qspi_nor_deinit();
+
+void stm32_qspi_no_init_runtime();
+
+int stm32_qspi_nor_memory_mapped();
+int stm32_qspi_nor_read(uint32_t address, void* data, uint32_t len);
+
+int stm32_qspi_nor_erase_sector(uint32_t address);
+int stm32_qspi_nor_program(uint32_t address, void* data, uint32_t len);
 

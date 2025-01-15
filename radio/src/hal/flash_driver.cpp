@@ -34,3 +34,15 @@ const etx_flash_driver_t* flashFindDriver(uint32_t addr)
 
   return nullptr;
 }
+
+uint32_t flashGetSize(uint32_t addr)
+{
+  for (int i = 0; i < 2; i++) {
+    const flash_media_t& fm = _flash_media[i];
+    if (!fm.drv) continue;
+    if (fm.start_addr <= addr && fm.end_addr >= addr)
+      return fm.end_addr - fm.start_addr + 1;
+  }
+
+  return 0;
+}

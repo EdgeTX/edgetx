@@ -50,46 +50,65 @@ void bootloaderInitScreen()
 
 static void bootloaderDrawTitle(const char* text)
 {
-    lcd->drawText(LCD_W/2, DEFAULT_PADDING, text, CENTERED | BL_FOREGROUND);
-    lcd->drawSolidFilledRect(DEFAULT_PADDING, DOUBLE_PADDING, LCD_W - DOUBLE_PADDING, 2, BL_FOREGROUND);
+  lcd->drawText(LCD_W / 2, DEFAULT_PADDING, text, CENTERED | BL_FOREGROUND);
+  lcd->drawSolidFilledRect(DEFAULT_PADDING, DOUBLE_PADDING,
+                           LCD_W - DOUBLE_PADDING, 2, BL_FOREGROUND);
 }
 
 static void bootloaderDrawFooter()
 {
-    lcd->drawSolidFilledRect(DEFAULT_PADDING, LCD_H - (DEFAULT_PADDING + 10), LCD_W - DOUBLE_PADDING, 2, BL_FOREGROUND);
+  lcd->drawSolidFilledRect(DEFAULT_PADDING, LCD_H - (DEFAULT_PADDING + 10),
+                           LCD_W - DOUBLE_PADDING, 2, BL_FOREGROUND);
 }
 
-static void bootloaderDrawBackground()
-{
-    lcd->clear(BL_BACKGROUND);
-}
+static void bootloaderDrawBackground() { lcd->clear(BL_BACKGROUND); }
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 {
-    lcdInitDirectDrawing();
-    bootloaderDrawBackground();
+  lcdInitDirectDrawing();
+  bootloaderDrawBackground();
+  bootloaderDrawTitle(BOOTLOADER_TITLE);
 
-    int center = LCD_W/2;
+  if (st == ST_START || st == ST_USB) {
+
+    const char* msg = nullptr;
     if (st == ST_START) {
-        bootloaderDrawTitle(BOOTLOADER_TITLE);
-        lcd->drawText(195, 223, TR_BL_USB_PLUGIN, BL_FOREGROUND);
-        lcd->drawText(195, 248, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
-        bootloaderDrawFooter();
-        // lcd->drawText(center, LCD_H - DEFAULT_PADDING, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
+      msg = "Plug USB cable";
     } else if (st == ST_USB) {
-      lcd->drawText(center, 168, TR_BL_USB_CONNECTED, CENTERED | BL_FOREGROUND);
+      msg = "Copy firmware.uf2 to flash";
     }
+
+    coord_t x = LCD_W/2;
+    coord_t y = LCD_H/2;
+    lcd->drawText(x, y, msg, CENTERED | BL_FOREGROUND);
+
+    bootloaderDrawFooter();
+
+    const char* fw_ver = getFirmwareVersion();
+    if (!fw_ver) fw_ver = "no version";
+    lcd->drawText(x, LCD_H - DEFAULT_PADDING, fw_ver,
+                  CENTERED | BL_FOREGROUND);
+
+  } else if (st == ST_FLASHING || st == ST_FLASH_DONE) {
+
+    const coord_t pb_h = 31;
+    const coord_t pb_x = 70;
+    const coord_t pb_y = (LCD_H - pb_h) / 2;
+
+    const char* msg = (st == ST_FLASH_DONE) ? TR_BL_WRITING_COMPL : TR_BL_WRITING_FW;
+    lcd->drawText(pb_x, pb_y - 28, msg, BL_FOREGROUND);
+    lcd->drawRect(pb_x, pb_y, 340, pb_h, 2, SOLID, BL_SELECTED);
+
+    LcdFlags color = (st == ST_FLASH_DONE) ? BL_GREEN : BL_RED;
+    lcd->drawSolidFilledRect(pb_x + 4, pb_y + 4, (332 * opt) / 100, 23, color);
+  }
 }
 
-void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
+void bootloaderDrawDFUScreen()
 {
-    lcd->drawText(DEFAULT_PADDING, 75 + (line * 25), LV_SYMBOL_FILE, BL_FOREGROUND);
-    lcd->drawText(DEFAULT_PADDING + 30, 75 + (line * 25), str, BL_FOREGROUND);
-
-    if (selected) {
-        lcd->drawSolidRect(DEFAULT_PADDING + 25, 72 + (line * 25),
-                           LCD_W - (DEFAULT_PADDING + 25) - 28, 26, 2, BL_SELECTED);
-    }
+  lcdInitDirectDrawing();
+  bootloaderDrawBackground();
+  lcd->drawText(LCD_W / 2, LCD_H / 2, "DFU mode", CENTERED | BL_FOREGROUND);
 }
 
 void blExit(void)

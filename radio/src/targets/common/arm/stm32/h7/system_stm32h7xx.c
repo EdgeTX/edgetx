@@ -178,7 +178,10 @@
   * @param  None
   * @retval None
   */
-void SystemInit (void)
+
+#define BOOTSTRAP __attribute__((section(".bootstrap")))
+
+BOOTSTRAP void SystemInit (void)
 {
 #if defined (DATA_IN_D2_SRAM)
  __IO uint32_t tmpreg;
