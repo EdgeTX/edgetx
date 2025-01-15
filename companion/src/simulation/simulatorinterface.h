@@ -218,5 +218,5 @@ class SimulatorLoader
     typedef SimulatorFactory * (*RegisterSimulator)();
 
     static int registerSimulators(const QDir & dir);
-    static QMap<QString, QLibrary *> registeredSimulators;
+    static QMap<QString, QPair<QString, QLibrary *>> registeredSimulators;
 };
