@@ -47,6 +47,7 @@ if(NOT NATIVE_BUILD)
       ${STM32CUBE_SRC_PREFIX}_hal_rtc.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2c.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2c_ex.c
+      ${STM32CUBE_SRC_PREFIX}_hal_i2s.c
       ${STM32CUBE_SRC_PREFIX}_hal_sd.c
       ${STM32CUBE_SRC_PREFIX}_hal_dma.c
       ${STM32CUBE_SRC_PREFIX}_hal_pcd.c
@@ -87,6 +88,7 @@ if(NOT NATIVE_BUILD)
       ${STM32CUBE_SRC_PREFIX}_hal_rtc.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2c.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2c_ex.c
+      ${STM32CUBE_SRC_PREFIX}_hal_i2s.c
       ${STM32CUBE_SRC_PREFIX}_hal_sd.c
       ${STM32CUBE_SRC_PREFIX}_hal_dma.c
       ${STM32CUBE_SRC_PREFIX}_hal_mdma.c
