@@ -112,7 +112,7 @@ void boardInit()
 
   keysInit();
   switchInit();
-  // audioInit();
+  audioInit();
 
   adcInit(&_adc_driver);
   setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), 840 * 2);

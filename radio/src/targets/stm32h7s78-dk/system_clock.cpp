@@ -98,31 +98,34 @@ void SystemClock_Config()
   }
 
   /* PLL2 configuration and activation */
-  // LL_RCC_PLL2P_Enable();
-  // LL_RCC_PLL2Q_Enable();
-  // LL_RCC_PLL2R_Enable();
   LL_RCC_PLL2S_Enable();
+  LL_RCC_PLL2Q_Enable();
   LL_RCC_PLL2FRACN_Disable();
   LL_RCC_PLL2_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
   LL_RCC_PLL2_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
   LL_RCC_PLL2_SetM(2);
-  LL_RCC_PLL2_SetN(50);
-  // LL_RCC_PLL2_SetP(1);
-  // LL_RCC_PLL2_SetQ(2);
-  // LL_RCC_PLL2_SetR(2);
-  LL_RCC_PLL2_SetS(3);
+  LL_RCC_PLL2_SetN(64);
+  LL_RCC_PLL2_SetP(2);  // disabled
+  LL_RCC_PLL2_SetQ(47); // 16.340 MHz
+  LL_RCC_PLL2_SetR(2);  // disabled
+  LL_RCC_PLL2_SetS(4);  // 192 MHz
   LL_RCC_PLL2_Enable();
   while (LL_RCC_PLL2_IsReady() != 1) {
   }
 
-  /* Enable SRAM1, SRAM2 & SRAM3 */
-  // LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_D2SRAM1 |
-  //                          LL_AHB2_GRP1_PERIPH_D2SRAM2 |
-  //                          LL_AHB2_GRP1_PERIPH_D2SRAM3);
-
-  /* Set periph clock sources */
-  // LL_RCC_SetFMCClockSource(LL_RCC_FMC_CLKSOURCE_HCLK);
-  // LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL3P);
+  /* PLL2 configuration and activation */
+  LL_RCC_PLL3R_Enable();
+  LL_RCC_PLL3FRACN_Disable();
+  LL_RCC_PLL3_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_4_8);
+  LL_RCC_PLL3_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
+  LL_RCC_PLL3_SetM(2);
+  LL_RCC_PLL3_SetN(50);
+  LL_RCC_PLL3_SetP(2);
+  LL_RCC_PLL3_SetQ(2);
+  LL_RCC_PLL3_SetR(24);
+  LL_RCC_PLL3_Enable();
+  while (LL_RCC_PLL3_IsReady() != 1) {
+  }
 
 #if defined(USE_USB_HS)
   LL_RCC_SetUSBPHYCClockSource(LL_RCC_USBPHYC_CLKSOURCE_HSE);
@@ -134,8 +137,12 @@ void SystemClock_Config()
   LL_RCC_SetOTGFSClockSource(LL_RCC_OTGFS_CLKSOURCE_HSI48);
 #endif
 
+  // 192 MHz
   LL_RCC_SetXSPIClockSource(LL_RCC_XSPI1_CLKSOURCE_PLL2S);
   LL_RCC_SetXSPIClockSource(LL_RCC_XSPI2_CLKSOURCE_PLL2S);
+
+  // 16.340 MHz
+  LL_RCC_SetSPIClockSource(LL_RCC_SPI6_CLKSOURCE_PLL2Q);
 
   // Only required if using Async ADC clock ???
   LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_CLKP);

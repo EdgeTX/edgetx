@@ -46,6 +46,7 @@ add_definitions(
   -DSTM32H7S7xx -DCORE_CM7 -DFIRMWARE_QSPI
   -DSDRAM -DCOLORLCD -DLIBOPENUI -DPCBHORUS -DPCBX10 -DPCBFRSKY
   -DHARDWARE_TOUCH -DSOFTWARE_KEYBOARD
+  -DAUDIO -DVOICE -DSOFTWARE_VOLUME
 )
 
 # Make malloc() thread-safe
@@ -96,9 +97,12 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/tp_gt911.cpp
+  ${TARGET_SRC_DIR}/audio_driver.cpp
+  drivers/wm8904.cpp
   targets/common/arm/stm32/lsm6ds_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
+  targets/common/arm/stm32/stm32_i2s.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
