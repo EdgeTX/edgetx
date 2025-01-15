@@ -487,7 +487,7 @@ class ModuleWindow : public Window
 
   uint8_t getModuleIdx() const { return moduleIdx; }
 
-  static LAYOUT_VAL(NUM_W, 60, 60)
+  static LAYOUT_VAL(NUM_W, 60, 60, LS(60))
 
  protected:
   uint8_t moduleIdx;
