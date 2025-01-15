@@ -51,6 +51,70 @@
 // PL18/PL18EV only has virtual keys via trim buttons
 // #define KEYS_GPIO_PIN_PGUP              /* for activating PGUP in keys diagnose screen */
 
+#if defined(RADIO_NB4P)
+  // Trims
+  #define TRIMS_GPIO_REG_T1L
+  #define TRIMS_GPIO_PIN_T1L
+  #define TRIMS_GPIO_REG_T1R
+  #define TRIMS_GPIO_PIN_T1R
+  #define TRIMS_GPIO_REG_T2L
+  #define TRIMS_GPIO_PIN_T2L
+  #define TRIMS_GPIO_REG_T2R
+  #define TRIMS_GPIO_PIN_T2R
+
+  // Switches
+  #define SWITCHES_A_2POS
+  #define SWITCHES_B_2POS
+  
+  // Keys
+  #define KEYS_GPIO_PIN_ENTER
+  #define KEYS_GPIO_REG_ENTER
+  #define KEYS_GPIO_PIN_EXIT
+  #define KEYS_GPIO_REG_EXIT
+
+  #define ADC_GPIO_PIN_STICK_TH         LL_GPIO_PIN_3       // PA.03
+  #define ADC_GPIO_PIN_STICK_ST         LL_GPIO_PIN_2       // PA.02
+  #define ADC_CHANNEL_STICK_TH          LL_ADC_CHANNEL_3    // ADC123_IN3 -> ADC1_IN3
+  #define ADC_CHANNEL_STICK_ST          LL_ADC_CHANNEL_2    // ADC123_IN2 -> ADC1_IN2
+  #define ADC_GPIO_RAW1                 GPIOC
+  #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_2       // PC.02
+  #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_7       // PA.07
+  #define ADC_GPIO_PIN_RAW1             LL_GPIO_PIN_1       // PC.01 (SW1)
+  #define ADC_GPIO_PIN_RAW2             LL_GPIO_PIN_0       // PC.00 (SW2 SW3)
+  #define ADC_GPIO_PIN_RAW3             LL_GPIO_PIN_6       // PA.06 (TR1)
+  #define ADC_GPIO_PIN_RAW4             LL_GPIO_PIN_4       // PC.04 (TR2)
+  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_5       // PC.05
+  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_12   // ADC123_IN12 -> ADC1_IN12
+  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_7    // ADC12_IN7 -> ADC1_IN7
+  #define ADC_CHANNEL_RAW1              LL_ADC_CHANNEL_11   // ADC123_IN11 -> ADC1_IN11
+  #define ADC_CHANNEL_RAW2              LL_ADC_CHANNEL_10   // ADC123_IN10 -> ADC1_IN10  
+  #define ADC_CHANNEL_RAW3              LL_ADC_CHANNEL_6    // ADC12_IN6 -> ADC1_IN6
+  #define ADC_CHANNEL_RAW4              LL_ADC_CHANNEL_14   // ADC12_IN14 -> ADC1_IN14
+  #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_15   // ADC12_IN15  -> ADC1_IN15
+  #define ADC_CHANNEL_RTC_BAT           LL_ADC_CHANNEL_VBAT // ADC1_IN18
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_TH | ADC_GPIO_PIN_STICK_ST | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_RAW3)
+  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_RAW1 | ADC_GPIO_PIN_RAW2 | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_RAW4 | ADC_GPIO_PIN_BATT)
+
+  #define ADC_MAIN                        ADC1
+  #define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_28CYCLES
+  #define ADC_DMA                         DMA2
+  #define ADC_DMA_CHANNEL                 LL_DMA_CHANNEL_0
+  #define ADC_DMA_STREAM                  LL_DMA_STREAM_4
+  #define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
+  #define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
+
+  #define ADC_VREF_PREC2                  660
+
+  #define ADC_DIRECTION {       \
+      0,0,     /* gimbals */    \
+      0,0,     /* pots */       \
+      0,0,0,0, /* raw1-4 */     \
+      0,	     /* vbat */       \
+      0       /* rtc_bat */    \
+    }
+
+#else // !defined(RADIO_NB4P)
+
 // Trims
 #define TRIMS_GPIO_REG_LHL
 #define TRIMS_GPIO_PIN_LHL
@@ -303,16 +367,24 @@
   }
 #endif
 
+#endif
+
+
 // Power
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOI, 11)  // PI.11
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOI, 14)  // PI.14
 
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14) // PB.14 input
-
 #define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13) // PB.13 input
+#if defined(RADIO_NB4P)
+  #define UCHARGER_GPIO_PIN_INV
+  #define UCHARGER_CHARGE_END_GPIO_PIN_INV
+#endif
 
-#define UCHARGER_EN_GPIO            GPIO_PIN(GPIOG, 3)  // PG.03 output
+#if defined(RADIO_PL18) || defined(RADIO_PL18EV)
+  #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)  // PG.03 output
+#endif
 
 #if defined (WIRELESS_CHARGER)
   #define WCHARGER_GPIO               GPIO_PIN(GPIOI, 9)  // PI.09 input
@@ -416,7 +488,26 @@
 //used in BOOTLOADER
 #define SERIAL_RCC_AHB1Periph           0
 #define SERIAL_RCC_APB1Periph           0
-#define ROTARY_ENCODER_RCC_APB1Periph   0
+
+#if defined(RADIO_NB4P)
+// Rotary Encoder
+#define ROTARY_ENCODER_GPIO             GPIOH
+#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_11 // PH.11
+#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_10 // PH.10
+#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x03)
+#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_11
+#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_10
+#if !defined(USE_EXTI15_10_IRQ)
+  #define USE_EXTI15_10_IRQ
+  #define EXTI15_10_IRQ_Priority 5
+#endif
+#define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTH
+#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE11
+#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE10
+#define ROTARY_ENCODER_TIMER            TIM13
+#define ROTARY_ENCODER_TIMER_IRQn       TIM8_UP_TIM13_IRQn
+#define ROTARY_ENCODER_TIMER_IRQHandler TIM8_UP_TIM13_IRQHandler
+#endif
 
 // SPI NOR Flash
 #define FLASH_SPI                      SPI6
@@ -448,6 +539,14 @@
 #define AUDIO_TIMER                     TIM6
 #define AUDIO_DMA                       DMA1
 
+#if defined(RADIO_NB4P)
+  #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 9) // PH.09 audio amp control pin
+  #define AUDIO_UNMUTE_DELAY            120  // ms
+  #define AUDIO_MUTE_DELAY              500  // ms
+  #define INVERTED_MUTE_PIN
+  #define VOICE_CHIP_EN_GPIO            GPIO_PIN(GPIOI, 5) // PI.05
+#endif
+
 // I2C Bus
 #define I2C_B1                          I2C1
 #define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOB, 8)  // PB.08
@@ -471,13 +570,23 @@
 #endif
 
 // Haptic: TIM1_CH1
+#if defined(RADIO_NB4P)
+#define HAPTIC_PWM
+#define HAPTIC_GPIO                     GPIO_PIN(GPIOB, 0) // PB.00
+#define HAPTIC_GPIO_TIMER               TIM1
+#define HAPTIC_GPIO_AF                  GPIO_AF1
+#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2NE
+#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
+#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
+#else
 #define HAPTIC_PWM
 #define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 8) // PA.08
 #define HAPTIC_GPIO_TIMER               TIM1
 #define HAPTIC_GPIO_AF                  GPIO_AF1
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC1E | TIM_CCER_CC1NE;
+#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC1E | TIM_CCER_CC1NE
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1PE
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR1
+#endif
 
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
@@ -514,31 +623,49 @@
 
 // Internal Module
 #if defined(RADIO_PL18)
-#define INTMODULE_RCC_AHB1Periph        (RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_DMA1)
-#define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 0)  // PI.00
-#define INTMODULE_TX_GPIO               GPIO_PIN(GPIOF, 7) // PF.07
-#define INTMODULE_RX_GPIO               GPIO_PIN(GPIOF, 6) // PF.06
-#define INTMODULE_USART                 UART7
-#define INTMODULE_GPIO_AF               LL_GPIO_AF_8
-#define INTMODULE_USART_IRQn            UART7_IRQn
-#define INTMODULE_USART_IRQHandler      UART7_IRQHandler
-#define INTMODULE_DMA                   DMA1
-#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
-#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
-#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
-#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
-#define INTMODULE_RX_DMA                DMA1
-#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
-#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 0)  // PI.00
+  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOF, 7) // PF.07
+  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOF, 6) // PF.06
+  #define INTMODULE_USART                 UART7
+  #define INTMODULE_GPIO_AF               LL_GPIO_AF_8
+  #define INTMODULE_USART_IRQn            UART7_IRQn
+  #define INTMODULE_USART_IRQHandler      UART7_IRQHandler
+  #define INTMODULE_DMA                   DMA1
+  #define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
+  #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
+  #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
+  #define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
+  #define INTMODULE_RX_DMA                DMA1
+  #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
+  #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
 // #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
 // #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
 
-#define INTMODULE_TIMER                 TIM3
-#define INTMODULE_TIMER_IRQn            TIM3_IRQn
-#define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
-#define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#else
-#define INTMODULE_RCC_AHB1Periph        0
+  #define INTMODULE_TIMER                 TIM3
+  #define INTMODULE_TIMER_IRQn            TIM3_IRQn
+  #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
+  #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#elif defined(RADIO_NB4P)
+  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 8)  // PI.08
+  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 10) // PB.10
+  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
+  #define INTMODULE_USART                 USART3
+  #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
+  #define INTMODULE_USART_IRQn            USART3_IRQn
+  #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
+  #define INTMODULE_DMA                   DMA1
+  #define INTMODULE_DMA_STREAM            LL_DMA_STREAM_3
+  #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream3_IRQn
+  #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
+  #define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_4
+  #define INTMODULE_RX_DMA                DMA1
+  #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_1
+  #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_4
+
+  #define INTMODULE_TIMER                 TIM3
+  #define INTMODULE_TIMER_IRQn            TIM3_IRQn
+  #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
+  #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #endif
 
 // External Module
@@ -552,8 +679,13 @@
 #define EXTMODULE_RX_GPIO_AF_USART      GPIO_AF_USART6
 #define EXTMODULE_TIMER                 TIM8
 #define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
+#if defined(RADIO_NB4P)
+#define EXTMODULE_TIMER_IRQn            TIM5_IRQn
+#define EXTMODULE_TIMER_IRQHandler      TIM5_IRQHandler
+#else
 #define EXTMODULE_TIMER_IRQn            TIM8_UP_TIM13_IRQn
 #define EXTMODULE_TIMER_IRQHandler      TIM8_UP_TIM13_IRQHandler
+#endif
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_3
 //USART
@@ -604,6 +736,7 @@
 #define ROTARY_ENCODER_NAVIGATION
 
 //BLUETOOTH
+#if !defined(RADIO_NB4P)
 #define BT_EN_GPIO                      GPIOI
 #define BT_EN_GPIO_PIN                  GPIO_Pin_8 // PI.8
 
@@ -626,6 +759,7 @@
 
 #define BT_CMD_MODE_GPIO                GPIOH
 #define BT_CMD_MODE_GPIO_PIN            GPIO_Pin_6 // PH.6
+#endif
 
 // Millisecond timer
 #define MS_TIMER                        TIM14
@@ -641,11 +775,17 @@
 // SDRAM
 #define SDRAM_BANK1
 
-#define PORTRAIT_LCD false
-#define LANDSCAPE_LCD true
-
-#define LCD_W                           480
-#define LCD_H                           320
+#if defined(RADIO_NB4P)
+  #define PORTRAIT_LCD true
+  #define LANDSCAPE_LCD false
+  #define LCD_W                         320
+  #define LCD_H                         480
+#else
+  #define PORTRAIT_LCD false
+  #define LANDSCAPE_LCD true
+  #define LCD_W                         480
+  #define LCD_H                         320
+#endif
 
 #define LCD_PHYS_W                      320
 #define LCD_PHYS_H                      480

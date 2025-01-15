@@ -39,6 +39,10 @@ POT_CONFIG = {
         "EXT3": {"default": "MULTIPOS"},
         "EXT4": {"default": "MULTIPOS"}
     },
+    "nb4p": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"}
+    },
     "v12": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
