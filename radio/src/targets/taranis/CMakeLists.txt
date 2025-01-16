@@ -685,6 +685,12 @@ if(FLAVOUR STREQUAL gx12)
   target_include_directories(board PRIVATE ${TARGET_SRC_DIR}/gx12)
 endif()
 
+if(FLAVOUR STREQUAL xlites)
+  target_sources(board PRIVATE
+    ${TARGET_SRC_DIR}/shared_dsc_headphone.cpp
+  )
+endif()
+
 set(SRC ${SRC}
   io/frsky_firmware_update.cpp
   io/multi_firmware_update.cpp

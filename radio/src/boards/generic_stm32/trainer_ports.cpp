@@ -30,7 +30,7 @@
 
 #include "hal.h"
 
-void board_trainer_init()
+__WEAK void board_trainer_init()
 {
 #if defined(TRAINER_DETECT_GPIO)
   gpio_init(TRAINER_DETECT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
@@ -96,7 +96,7 @@ void trainer_init_dsc_in() {}
 void trainer_stop_dsc() {}
 #endif
 
-bool is_trainer_dsc_connected()
+__WEAK bool is_trainer_dsc_connected()
 {
 #if defined(TRAINER_DETECT_GPIO)
   bool set = gpio_read(TRAINER_DETECT_GPIO);
