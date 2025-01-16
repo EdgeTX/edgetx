@@ -408,13 +408,11 @@ void MdiChild::retranslateUi()
 QList<QAction *> MdiChild::getGeneralActions()
 {
   QList<QAction *> actGrp;
+  actGrp.append(getAction(ACT_GEN_SIM));
+  actGrp.append(actionsSeparator());
   actGrp.append(getAction(ACT_GEN_EDT));
   actGrp.append(getAction(ACT_GEN_CPY));
   actGrp.append(getAction(ACT_GEN_PST));
-  QAction * sep = new QAction(this);
-  sep->setSeparator(true);
-  actGrp.append(sep);
-  actGrp.append(getAction(ACT_GEN_SIM));
   return actGrp;
 }
 
@@ -422,9 +420,7 @@ QList<QAction *> MdiChild::getEditActions()
 {
   QList<QAction *> actGrp;
   actGrp.append(action[ACT_MDL_ADD]);
-  QAction * sep2 = new QAction(this);
-  sep2->setSeparator(true);
-  actGrp.append(sep2);
+  actGrp.append(actionsSeparator());
   actGrp.append(getAction(ACT_MDL_EDT));
   actGrp.append(getAction(ACT_MDL_DEL));
   actGrp.append(getAction(ACT_MDL_CUT));
@@ -432,17 +428,20 @@ QList<QAction *> MdiChild::getEditActions()
   actGrp.append(getAction(ACT_MDL_PST));
   actGrp.append(getAction(ACT_MDL_INS));
   actGrp.append(getAction(ACT_MDL_DUP));
-  actGrp.append(getAction(ACT_MDL_MOV));
   actGrp.append(getAction(ACT_MDL_EXP));
+  actGrp.append(getAction(ACT_MDL_MOV));
   return actGrp;
 }
 
 QList<QAction *> MdiChild::getModelActions()
 {
   QList<QAction *> actGrp;
-  actGrp.append(getAction(ACT_MDL_RTR));
   actGrp.append(getAction(ACT_MDL_WIZ));
   actGrp.append(getAction(ACT_MDL_DFT));
+  // TODO remove
+  // the function has been hobbled as expects eeprom binary backup so do not list
+  // can just open another etx so use case doubtful
+  //actGrp.append(getAction(ACT_MDL_RTR));
   actGrp.append(getAction(ACT_MDL_PRT));
   actGrp.append(getAction(ACT_MDL_SIM));
   return actGrp;
@@ -1847,4 +1846,11 @@ void MdiChild::setModelModified(const int modelIndex, bool cascade)
     if (cascade)
       setModified();
   }
+}
+
+QAction * MdiChild::actionsSeparator()
+{
+  QAction * act = new QAction(this);
+  act->setSeparator(true);
+  return act;
 }

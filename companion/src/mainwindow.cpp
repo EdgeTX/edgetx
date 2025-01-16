@@ -682,7 +682,7 @@ void MainWindow::updateMenus()
   readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
   readBUToFileAct->setEnabled(false);
-  editSplashAct->setDisabled(IS_FAMILY_HORUS_OR_T16(getCurrentBoard()));
+  editSplashAct->setDisabled(Boards::getBoardCapability(getCurrentBoard(), Board::HasColorLcd));
 
   foreach (QAction * act, fileWindowActions) {
     if (!act)
@@ -1003,7 +1003,6 @@ void MainWindow::createMenus()
   radioMenu->addAction(readFlashAct);
   radioMenu->addSeparator();
   radioMenu->addAction(burnConfigAct);
-  radioMenu->addSeparator();
   radioMenu->addAction(editSplashAct);
 
   settingsMenu = menuBar()->addMenu("");
