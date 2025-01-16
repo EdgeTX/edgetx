@@ -22,10 +22,8 @@
 #include "edgetx.h"
 
 constexpr coord_t CHANNEL_NAME_OFFSET = 0;
-constexpr coord_t CHANNEL_VALUE_OFFSET = CHANNEL_NAME_OFFSET + 42;
-constexpr coord_t CHANNEL_GAUGE_OFFSET = CHANNEL_VALUE_OFFSET;
+constexpr coord_t CHANNEL_VALUE_OFFSET = CHANNEL_NAME_OFFSET + 41;
 constexpr coord_t CHANNEL_BAR_WIDTH = 70;
-constexpr coord_t CHANNEL_PROPERTIES_OFFSET = CHANNEL_GAUGE_OFFSET + CHANNEL_BAR_WIDTH + 2;
 
 #if defined(RADIO_T8) || defined(RADIO_COMMANDO8)
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
@@ -68,11 +66,16 @@ void menuChannelsViewCommon(event_t event)
 
   ch = 8 * (g_eeGeneral.view / ALTERNATE_VIEW);
 
+  coord_t vx = CHANNEL_VALUE_OFFSET;
+  coord_t bw = CHANNEL_BAR_WIDTH;
+  if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+    vx += 8;
+    bw -= 8;
+  }
+
   // Screen title
   lcdDrawText(LCD_W / 2, 0, mixersView ? STR_MIXERS_MONITOR : STR_CHANNELS_MONITOR, CENTERED);
   lcdInvertLine(0);
-
-  int16_t limits = 512 * 2;
 
   // Channels
   for (uint8_t line = 0; line < 8; line++) {
@@ -89,26 +92,42 @@ void menuChannelsViewCommon(event_t event)
     }
 
     // Value
-    if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
-      lcdDrawNumber(CHANNEL_VALUE_OFFSET, y + 1, calcRESXto1000(val), PREC1 | TINSIZE | RIGHT);
+    if (g_eeGeneral.ppmunit == PPM_US) {
+      lcdDrawNumber(vx, y + 1, PPM_CH_CENTER(ch) + val / 2, TINSIZE | RIGHT);
+    } else if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) {
+      lcdDrawNumber(vx, y + 1, calcRESXto1000(val), PREC1 | TINSIZE | RIGHT);
     } else {
-      lcdDrawNumber(CHANNEL_VALUE_OFFSET, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
+      lcdDrawNumber(vx, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
     }
 
-    lcdDrawNumber(LCD_W + 1, y + 1, PPM_CH_CENTER(ch) + val / 2, TINSIZE | RIGHT);
-
     // Gauge
-    drawGauge(CHANNEL_GAUGE_OFFSET, y, CHANNEL_BAR_WIDTH, 6, val, limits);
+    drawGauge(vx, y, bw, 6, val, RESX);
 
     if (!mixersView) {
+      int phase = (g_blinkTmr10ms >> 6) & 3;
+      if (phase == 3) phase = 0;
+
       // Properties
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
-      if (safetyCh[ch] != OVERRIDE_CHANNEL_UNDEFINED)
-        lcdDrawText(CHANNEL_PROPERTIES_OFFSET, y, "OVR", TINSIZE);
-      else
+      if (phase == 1) {
+        if (safetyCh[ch] != OVERRIDE_CHANNEL_UNDEFINED)
+          lcdDrawText(LCD_W + 1, y + 1, "OVR", TINSIZE | RIGHT);
+        else
+          phase = 0;
+      }
 #endif
-      if (ld && ld->revert) {
-        lcdDrawText(CHANNEL_PROPERTIES_OFFSET, y, "INV", TINSIZE);
+      if (phase == 2) {
+        if (ld && ld->revert)
+          lcdDrawText(LCD_W + 1, y + 1, "INV", TINSIZE | RIGHT);
+        else
+          phase = 0;
+      }
+
+      if (phase == 0) {
+        if (g_eeGeneral.ppmunit == PPM_US)
+          lcdDrawNumber(LCD_W + 1, y + 1, calcRESXto1000(val) / 10, TINSIZE | RIGHT);
+        else
+          lcdDrawNumber(LCD_W + 1, y + 1, PPM_CH_CENTER(ch) + val / 2, TINSIZE | RIGHT);
       }
     }
 
