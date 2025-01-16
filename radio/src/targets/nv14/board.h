@@ -188,25 +188,6 @@ bool isBacklightEnabled();
 
 // Audio driver
 void audioInit();
-void audioConsumeCurrentBuffer();
-void audioSpiWriteBuffer(const uint8_t * buffer, uint32_t size);
-void audioSpiSetSpeed(uint8_t speed);
-uint8_t audioHardReset();
-uint8_t audioSoftReset();
-void audioSendRiffHeader();
-void audioOn();
-void audioOff();
-bool isAudioReady();
-bool audioChipReset();
-
-#define SPI_SPEED_2                    0
-#define SPI_SPEED_4                    1
-#define SPI_SPEED_8                    2
-#define SPI_SPEED_16                   3
-#define SPI_SPEED_32                   4
-#define SPI_SPEED_64                   5
-#define SPI_SPEED_128                  6
-#define SPI_SPEED_256                  7
 
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512

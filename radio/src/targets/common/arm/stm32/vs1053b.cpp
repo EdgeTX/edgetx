@@ -30,8 +30,6 @@
 #include "board.h"
 #include "edgetx.h"
 
-#if !defined(SIMU)
-
 #define VS_WRITE_COMMAND 	           0x02
 #define VS_READ_COMMAND 	           0x03
 
@@ -96,7 +94,7 @@ static const stm32_spi_t _audio_spi = {
   .CS_Pin = AUDIO_CS_GPIO_PIN,
 };
 
-void audioSpiInit(void)
+static void audioSpiInit(void)
 {
   stm32_gpio_enable_clock(AUDIO_XDCS_GPIO);
   stm32_gpio_enable_clock(AUDIO_RST_GPIO);
@@ -119,13 +117,13 @@ void audioSpiInit(void)
   stm32_spi_init(&_audio_spi, LL_SPI_DATAWIDTH_8BIT);
 }
 
-void audioWaitReady()
-{
-  // The audio amp needs ~2s to start
-  RTOS_WAIT_MS(2000); // 2s
-}
+// static void audioWaitReady()
+// {
+//   // The audio amp needs ~2s to start
+//   RTOS_WAIT_MS(2000); // 2s
+// }
 
-void audioSpiSetSpeed(uint8_t speed)
+static void audioSpiSetSpeed(uint8_t speed)
 {
   AUDIO_SPI->CR1 &= 0xFFC7; // Fsck=Fcpu/256
   switch (speed) {
@@ -157,12 +155,12 @@ void audioSpiSetSpeed(uint8_t speed)
   AUDIO_SPI->CR1 |= 0x01 << 6;
 }
 
-uint8_t audioSpiReadWriteByte(uint8_t value)
+static uint8_t audioSpiReadWriteByte(uint8_t value)
 {
   return stm32_spi_transfer_byte(&_audio_spi, value);
 }
 
-uint8_t audioWaitDreq(int32_t delay_us)
+static uint8_t audioWaitDreq(int32_t delay_us)
 {
   while (READ_DREQ() == 0) {
     if (delay_us-- == 0) return 0;
@@ -171,7 +169,7 @@ uint8_t audioWaitDreq(int32_t delay_us)
   return 1;
 }
 
-uint16_t audioSpiReadReg(uint8_t address)
+static uint16_t audioSpiReadReg(uint8_t address)
 {
   if (!audioWaitDreq(100))
     return 0;
@@ -207,13 +205,13 @@ static uint8_t audioSpiWriteCmd(uint8_t address, uint16_t data)
   return 1;
 }
 
-void audioResetDecodeTime(void)
+static void audioResetDecodeTime(void)
 {
   audioSpiWriteCmd(SPI_DECODE_TIME, 0x0000);
   audioSpiWriteCmd(SPI_DECODE_TIME, 0x0000);
 }
 
-uint8_t audioHardReset(void)
+static uint8_t audioHardReset(void)
 {
   XDCS_HIGH();
   CS_HIGH();
@@ -228,7 +226,7 @@ uint8_t audioHardReset(void)
   return 1;
 }
 
-uint8_t audioSoftReset(void)
+static uint8_t audioSoftReset(void)
 {
   audioSpiSetSpeed(SPI_SPEED_64);
   if (!audioWaitDreq(100))
@@ -262,7 +260,7 @@ uint8_t audioSoftReset(void)
   return 1;
 }
 
-uint32_t audioSpiWriteData(const uint8_t * buffer, uint32_t size)
+static uint32_t audioSpiWriteData(const uint8_t * buffer, uint32_t size)
 {
   XDCS_LOW();
 
@@ -275,7 +273,7 @@ uint32_t audioSpiWriteData(const uint8_t * buffer, uint32_t size)
   return index;
 }
 
-void audioSpiWriteBuffer(const uint8_t * buffer, uint32_t size)
+static void audioSpiWriteBuffer(const uint8_t * buffer, uint32_t size)
 {
   const uint8_t * p = buffer;
   while (size > 0) {
@@ -306,7 +304,7 @@ const uint8_t RiffHeader[] = {
   0x00, 0x00, 0x00, 0x00, // data
 };
 
-void audioSendRiffHeader()
+static void audioSendRiffHeader()
 {
   audioSpiWriteBuffer(RiffHeader, sizeof(RiffHeader));
 }
@@ -329,7 +327,7 @@ static inline bool getMutePin(void)
   return muted;
 }
 
-void audioMute()
+static void audioMute()
 {
 #if defined(AUDIO_UNMUTE_DELAY)
   tmr10ms_t now = get_tmr10ms();
@@ -346,7 +344,7 @@ void audioMute()
 #endif
 }
 
-void audioUnmute()
+static void audioUnmute()
 {
   if(isFunctionActive(FUNCTION_DISABLE_AUDIO_AMP)) {
     setMutePin(true);
@@ -369,7 +367,7 @@ void audioUnmute()
 #endif
 
 #if defined(PCBX12S)
-void audioShutdownInit()
+static void audioShutdownInit()
 {
   gpio_init(AUDIO_SHUTDOWN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 
@@ -407,12 +405,7 @@ static void set_volume(uint8_t volume)
   newVolume = volume;
 }
 
-static int32_t get_volume()
-{
-  return -1; // TODO
-}
-
-void audioSetCurrentBuffer(const AudioBuffer * buffer)
+static void audioSetCurrentBuffer(const AudioBuffer * buffer)
 {
   if (buffer) {
     currentBuffer = (uint8_t *)buffer->data;
@@ -476,5 +469,3 @@ void audioSetVolume(uint8_t volume)
     set_volume(vol);
   }
 }
-
-#endif

@@ -34,4 +34,5 @@
 
 
 void audioSetVolume(uint8_t volume);
+void audioConsumeCurrentBuffer();
 
