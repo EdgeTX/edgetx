@@ -55,7 +55,7 @@ rm -rf build && mkdir build && cd build
 output_error_log() {
     local log_file="$1"
     local context="$2"
-    
+
     if [[ -f "$log_file" ]]; then
         echo "------------------------------------------"
         echo " Full error output from $log_file:"
@@ -66,12 +66,12 @@ output_error_log() {
     fi
 }
 
-# Function to show last N lines of a log file for warnings  
+# Function to show last N lines of a log file for warnings
 show_log_summary() {
     local log_file="$1"
     local lines="${2:-50}"
     local context="$3"
-    
+
     if [[ -f "$log_file" ]]; then
         echo "------------------------------------------"
         echo "Last $lines lines from $log_file:"
@@ -86,7 +86,7 @@ run_pipeline() {
     local context="$3"
     local show_details="${4:-false}"
     local cmake_opts="--parallel ${MAX_JOBS} ${QUIET_FLAGS}"
-    
+
     case "$pipeline_type" in
         "plugin")
             clean_build
@@ -118,20 +118,20 @@ run_pipeline() {
             fi
             ;;
     esac
-    
+
     return 0
 }
 
 execute_with_output() {
     local description="$1"
-    local command="$2" 
+    local command="$2"
     local log_file="$3"
     local show_output="${4:-false}"
-    
+
     if [[ "$show_output" == "true" && "$log_file" != "/dev/null" ]]; then
-        echo "    $description..." 
+        echo "    $description..."
     fi
-    
+
     eval "$command" >> "$log_file" 2>&1
 }
 
@@ -144,14 +144,14 @@ get_platform_config() {
     case "$platform" in
         "Darwin")
             PACKAGE_TARGET="package"
-            PACKAGE_FILES="*.dmg"  
+            PACKAGE_FILES="*.dmg"
             PACKAGE_NAME="macOS DMG"
             PACKAGE_EMOJI="🍎"
             ;;
         "Linux")
             PACKAGE_TARGET="package"
             PACKAGE_FILES="*.AppImage"
-            PACKAGE_NAME="Linux AppImage" 
+            PACKAGE_NAME="Linux AppImage"
             PACKAGE_EMOJI="🐧"
             ;;
         *)
@@ -168,9 +168,9 @@ build_plugin() {
     local plugin="$1"
     local log_file="build_${plugin}.log"
     local verbose="${2:-false}"
-    
+
     BUILD_OPTIONS="${COMMON_OPTIONS} "
-    
+
     if ! get_target_build_options "$plugin" >> "$log_file" 2>&1; then
         if [[ -n "$GITHUB_ACTIONS" ]]; then
             echo "::error::Failed to get build options for $plugin"
@@ -178,17 +178,17 @@ build_plugin() {
         output_error_log "$log_file" "$plugin (Build Options)"
         return 1
     fi
-    
+
     # Only show detailed output in GitHub Actions or if verbose is requested
     local show_details="false"
     if [[ -n "$GITHUB_ACTIONS" || "$verbose" == "true" ]]; then
         show_details="true"
     fi
-    
+
     if ! run_pipeline "plugin" "$log_file" "$plugin" "$show_details"; then
         return 1
     fi
-    
+
     # Check for warnings and show summary if found
     if grep -q -i "warning" "$log_file"; then
         echo "    ⚠️ $plugin completed with warnings"
@@ -205,7 +205,7 @@ build_plugin() {
 declare -a simulator_plugins=(
     x9lite x9lites x9d x9dp x9dp2019 x9e
     x7 x7access
-    t8 t12 t12max tx12 tx12mk2 t15 t16 t18 t20 t20v2
+    t8 t12 t12max tx12 tx12mk2 t15 t15pro t16 t18 t20 t20v2
     xlite xlites
     x10 x10express x12s
     zorro tx16s tx15
@@ -233,7 +233,7 @@ for i in "${!simulator_plugins[@]}"; do
         echo "🔨 [$current/$TOTAL] ($percent%) Building $plugin..."
     fi
 
-    error_status=0    
+    error_status=0
     if ! build_plugin "$plugin"; then
         FAILED_PLUGINS+=("$plugin")
         error_status=1
@@ -257,12 +257,12 @@ if [ ${#FAILED_PLUGINS[@]} -gt 0 ]; then
         echo "❌ Build Failures Summary"
         echo "=========================================="
     fi
-    
+
     echo "The following plugins failed to build:"
     for failed_plugin in "${FAILED_PLUGINS[@]}"; do
         echo "    ❌ $failed_plugin"
     done
-    
+
     if [[ -n "$GITHUB_ACTIONS" ]]; then
         echo "::endgroup::"
     else
@@ -287,7 +287,7 @@ if run_pipeline "final" "final.log" "companion" "true"; then
         echo "    ❌ Failed to copy package files to output directory"
         echo "    📁 Directory Contents:"
         echo "    ----------------------"
-        
+
         echo "Contents of native/ directory:"
         ls -la native/ || echo "native/ directory not found"
         echo "Looking for files matching: $PACKAGE_FILES"

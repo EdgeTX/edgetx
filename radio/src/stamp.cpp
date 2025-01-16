@@ -112,6 +112,7 @@ const char * getFirmwareVersion(const uint8_t* buffer)
       return (const char*)buffer + i;
     }
   }
+
   return nullptr;
 }
 #endif

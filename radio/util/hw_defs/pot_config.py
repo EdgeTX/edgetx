@@ -146,6 +146,10 @@ POT_CONFIG = {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"},
     },
+    "t15pro": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+    },
     "tx16s": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "MULTIPOS"},

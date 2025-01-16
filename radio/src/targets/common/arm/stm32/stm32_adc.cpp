@@ -84,6 +84,7 @@ static uint16_t _adc_oversampling[MAX_ADC_INPUTS];
 
 // Indicates ADC timeout has occured
 static volatile bool _adc_timeout_error;
+unsigned _adc_timeout_errors = 0;
 
 void stm32_hal_set_inputs_mask(uint32_t inputs)
 {

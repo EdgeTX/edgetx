@@ -535,6 +535,7 @@ static const etx_module_port_t _external_ports[] = {
     .set_inverted = nullptr,
   },
 #endif
+
   // TX/RX half-duplex on S.PORT
   {
     .port = ETX_MOD_PORT_SPORT,
@@ -548,6 +549,7 @@ static const etx_module_port_t _external_ports[] = {
     .set_inverted = nullptr,
 #endif
   },
+
 #if defined(TELEMETRY_TIMER)
   // RX soft-serial sampled bit-by-bit via timer IRQ on S.PORT
   {

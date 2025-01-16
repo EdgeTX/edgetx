@@ -261,7 +261,7 @@ static int flysky_gimbal_init_uart()
   return 0;
 }
 
-bool flysky_gimbal_init()
+int flysky_gimbal_init()
 {
   if (flysky_gimbal_init_uart() != 0) return false;
 
@@ -282,12 +282,12 @@ bool flysky_gimbal_init()
 
       // Mask the first 4 inputs (sticks)
       stm32_hal_set_inputs_mask(0xF);
-      return true;
+      return i + 1;
     }
   }
   
   flysky_gimbal_deinit();
-  return false;
+  return 0;
 }
 
 void flysky_gimbal_start_read()
