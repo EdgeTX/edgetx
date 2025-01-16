@@ -260,7 +260,6 @@ bool isBacklightEnabled();
 
 // Audio driver
 void audioInit();
-void audioConsumeCurrentBuffer();
 
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512
