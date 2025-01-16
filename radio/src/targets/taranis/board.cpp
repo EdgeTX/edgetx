@@ -279,15 +279,6 @@ void boardInit()
   usbChargerInit();
 #endif
 
-#if defined(JACK_DETECT_GPIO)
-  initJackDetect();
-#endif
-
-  initSpeakerEnable();
-  enableSpeaker();
-
-  initHeadphoneTrainerSwitch();
-
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
@@ -356,65 +347,3 @@ void boardOff()
 
   // this function must not return!
 }
-
-#if defined(AUDIO_SPEAKER_ENABLE_GPIO)
-void initSpeakerEnable()
-{
-  gpio_init(AUDIO_SPEAKER_ENABLE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-}
-
-void enableSpeaker()
-{
-  gpio_set(AUDIO_SPEAKER_ENABLE_GPIO);
-}
-
-void disableSpeaker()
-{
-  gpio_clear(AUDIO_SPEAKER_ENABLE_GPIO);
-}
-#endif
-
-#if defined(HEADPHONE_TRAINER_SWITCH_GPIO)
-void initHeadphoneTrainerSwitch()
-{
-  gpio_init(HEADPHONE_TRAINER_SWITCH_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-}
-
-void enableHeadphone()
-{
-  gpio_clear(HEADPHONE_TRAINER_SWITCH_GPIO);
-}
-
-void enableTrainer()
-{
-  gpio_set(HEADPHONE_TRAINER_SWITCH_GPIO);
-}
-#endif
-
-#if defined(JACK_DETECT_GPIO)
-void initJackDetect(void)
-{
-  gpio_init(JACK_DETECT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-}
-
-bool isJackPlugged()
-{
-  // debounce
-  static bool debounced_state = 0;
-  static bool last_state = 0;
-
-  if (gpio_read(JACK_DETECT_GPIO)) {
-    if (!last_state) {
-      debounced_state = false;
-    }
-    last_state = false;
-  }
-  else {
-    if (last_state) {
-      debounced_state = true;
-    }
-    last_state = true;
-  }
-  return debounced_state;
-}
-#endif

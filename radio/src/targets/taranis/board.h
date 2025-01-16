@@ -89,31 +89,6 @@ enum {
 // Trainer driver
 #define SLAVE_MODE()                    (g_model.trainerData.mode == TRAINER_MODE_SLAVE)
 
-#if defined(TRAINER_DETECT_GPIO)
-  // Trainer detect is a switch on the jack
-  #if defined(TRAINER_DETECT_INVERTED)
-    #define TRAINER_CONNECTED()           (gpio_read(TRAINER_DETECT_GPIO) ? 0 : 1)
-  #else
-    #define TRAINER_CONNECTED()           (gpio_read(TRAINER_DETECT_GPIO) ? 1 : 0)
-  #endif
-#elif defined(PCBXLITES)
-  // Trainer is on the same connector than Headphones
-  enum JackState
-  {
-    SPEAKER_ACTIVE,
-    HEADPHONE_ACTIVE,
-    TRAINER_ACTIVE,
-  };
-  extern uint8_t jackState;
-  #define TRAINER_CONNECTED()           (jackState == TRAINER_ACTIVE)
-#elif defined(PCBXLITE)
-  // No Tainer jack on Taranis X-Lite
-  #define TRAINER_CONNECTED()           false
-#else
-  // Trainer detect catches PPM, detection would use more CPU
-  #define TRAINER_CONNECTED()           true
-#endif
-
 // POTS and SLIDERS default configuration
 #if defined(RADIO_BOXER)
 #define XPOS_CALIB_DEFAULT  {0x5, 0xd, 0x16, 0x1f, 0x28}
@@ -249,32 +224,10 @@ void debugPutc(const char c);
 void audioInit();
 void audioEnd();
 
-#if defined(AUDIO_SPEAKER_ENABLE_GPIO)
-void initSpeakerEnable();
-void enableSpeaker();
-void disableSpeaker();
-#else
-static inline void initSpeakerEnable() { }
-static inline void enableSpeaker() { }
-static inline void disableSpeaker() { }
+#if defined(PCBXLITES)
+#define SHARED_DSC_HEADPHONE_JACK
+void handleJackConnection();
 #endif
-
-#if defined(HEADPHONE_TRAINER_SWITCH_GPIO)
-void initHeadphoneTrainerSwitch();
-void enableHeadphone();
-void enableTrainer();
-#else
-static inline void initHeadphoneTrainerSwitch() { }
-static inline void enableHeadphone() { }
-static inline void enableTrainer() { }
-#endif
-
-#if defined(JACK_DETECT_GPIO)
-void initJackDetect();
-bool isJackPlugged();
-#endif
-
-void audioConsumeCurrentBuffer();
 
 // Haptic driver
 void hapticInit();

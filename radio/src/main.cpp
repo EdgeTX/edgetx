@@ -206,47 +206,6 @@ void handleUsbConnection()
 #endif  // defined(STM32) && !defined(SIMU)
 }
 
-#if defined(PCBXLITES)
-uint8_t jackState = SPEAKER_ACTIVE;
-
-const char STR_JACK_HEADPHONE[] = "Headphone";
-const char STR_JACK_TRAINER[] = "Trainer";
-
-void onJackConnectMenu(const char* result)
-{
-  if (result == STR_JACK_HEADPHONE) {
-    jackState = HEADPHONE_ACTIVE;
-    disableSpeaker();
-    enableHeadphone();
-  } else if (result == STR_JACK_TRAINER) {
-    jackState = TRAINER_ACTIVE;
-    enableTrainer();
-  }
-}
-
-void handleJackConnection()
-{
-  if (jackState == SPEAKER_ACTIVE && isJackPlugged()) {
-    if (g_eeGeneral.jackMode == JACK_HEADPHONE_MODE) {
-      jackState = HEADPHONE_ACTIVE;
-      disableSpeaker();
-      enableHeadphone();
-    } else if (g_eeGeneral.jackMode == JACK_TRAINER_MODE) {
-      jackState = TRAINER_ACTIVE;
-      enableTrainer();
-    } else if (popupMenuItemsCount == 0) {
-      POPUP_MENU_START(onJackConnectMenu, 2, STR_JACK_HEADPHONE, STR_JACK_TRAINER);
-    }
-  } else if (jackState == SPEAKER_ACTIVE && !isJackPlugged() &&
-             popupMenuItemsCount > 0 && popupMenuHandler == onJackConnectMenu) {
-    popupMenuItemsCount = 0;
-  } else if (jackState != SPEAKER_ACTIVE && !isJackPlugged()) {
-    jackState = SPEAKER_ACTIVE;
-    enableSpeaker();
-  }
-}
-#endif
-
 void checkSpeakerVolume()
 {
 #if defined(AUDIO)
@@ -528,7 +487,7 @@ void perMain()
 
   handleUsbConnection();
 
-#if defined(PCBXLITES)
+#if defined(SHARED_DSC_HEADPHONE_JACK)
   handleJackConnection();
 #endif
 
