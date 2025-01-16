@@ -61,7 +61,7 @@ static uint8_t get_switch_index(uint8_t cat, uint8_t idx)
   }  
 }
 
-SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
+SwitchHwPos boardSwitchGetPosition(SwitchCategory cat, uint8_t idx)
 {
   idx = get_switch_index(cat, idx);
 
@@ -80,13 +80,13 @@ SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
     return SWITCH_HW_DOWN;
 }
 
-const char* boardSwitchGetName(uint8_t cat, uint8_t idx)
+const char* boardSwitchGetName(SwitchCategory cat, uint8_t idx)
 {
   idx = get_switch_index(cat, idx);
   return _switch_defs[idx].name;
 }
 
-SwitchHwType boardSwitchGetType(uint8_t cat, uint8_t idx)
+SwitchHwType boardSwitchGetType(SwitchCategory cat, uint8_t idx)
 {
   idx = get_switch_index(cat, idx);
   return _switch_defs[idx].type;

@@ -22,18 +22,23 @@
 #pragma once
 
 #include "button.h"
+#include "color_editor.h"
 
 class ColorPicker : public Button
 {
   uint32_t color;
   std::function<void(uint32_t)> setValue;
+  std::function<void(uint32_t)> preview;
+  COLOR_EDITOR_FMT format;
 
   void updateColor(uint32_t c);
 
 public:
   ColorPicker(Window* parent, const rect_t& rect,
               std::function<uint32_t()> getValue,
-              std::function<void(uint32_t)> setValue = nullptr);
+              std::function<void(uint32_t)> setValue = nullptr,
+              std::function<void(uint32_t)> preview = nullptr,
+              COLOR_EDITOR_FMT fmt = RGB565);
 
   void setColor(uint32_t c);
   uint32_t getColor() const { return color; }

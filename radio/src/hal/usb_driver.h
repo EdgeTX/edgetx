@@ -33,10 +33,11 @@ enum usbMode {
   USB_JOYSTICK_MODE,
   USB_MASS_STORAGE_MODE,
   USB_SERIAL_MODE,
+  USB_DFU_MODE,
 #if defined(USB_SERIAL)
-  USB_MAX_MODE=USB_SERIAL_MODE
+  USB_MAX_MODE=USB_SERIAL_MODE,
 #else
-  USB_MAX_MODE=USB_MASS_STORAGE_MODE
+  USB_MAX_MODE=USB_MASS_STORAGE_MODE,
 #endif
 };
 
@@ -53,11 +54,15 @@ bool usbStarted();
 EXTERN_C(int getSelectedUsbMode());
 void setSelectedUsbMode(int mode);
 
+// USB CDC
 uint32_t usbSerialFreeSpace();
+extern const etx_serial_port_t UsbSerialPort;
 
+// USB HID
 #if defined(USBJ_EX)
 void usbJoystickRestart();
 #endif
 void usbJoystickUpdate();
 
-extern const etx_serial_port_t UsbSerialPort;
+// USB DFU
+int usbRegisterDFUMedia(const void* dfu_media);

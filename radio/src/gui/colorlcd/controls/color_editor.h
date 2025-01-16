@@ -37,7 +37,9 @@ class ColorEditor : public Window
 {
  public:
   ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
-              std::function<void(uint32_t rgb)> setValue = nullptr);
+              std::function<void(uint32_t rgb)> setValue = nullptr,
+              std::function<void(uint32_t rgb)> preview = nullptr,
+              COLOR_EDITOR_FMT fmt = RGB565);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ColorEditor"; }
@@ -57,10 +59,11 @@ class ColorEditor : public Window
  protected:
   ColorType* _colorType = nullptr;
   std::function<void(uint32_t)> _setValue;
+  std::function<void(uint32_t)> _preview;
   uint32_t _color;
+  COLOR_EDITOR_FMT format;
 
   void setText();
-  void setHSV();
   void setRGB();
   static void value_changed(lv_event_t* e);
 };

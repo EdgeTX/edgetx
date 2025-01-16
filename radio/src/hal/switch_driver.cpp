@@ -31,10 +31,10 @@
 // Board API
 void boardInitSwitches();
 
-SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx);
+SwitchHwPos boardSwitchGetPosition(SwitchCategory cat, uint8_t idx);
 
-const char* boardSwitchGetName(uint8_t cat, uint8_t idx);
-SwitchHwType boardSwitchGetType(uint8_t cat, uint8_t idx);
+const char* boardSwitchGetName(SwitchCategory cat, uint8_t idx);
+SwitchHwType boardSwitchGetType(SwitchCategory cat, uint8_t idx);
 
 uint8_t boardGetMaxSwitches();
 uint8_t boardGetMaxFctSwitches();

@@ -25,19 +25,52 @@
 #include "boot.h"
 #include "board.h"
 #include "sdcard.h"
-#include "bin_files.h"
+#include "firmware_files.h"
 #include "fw_version.h"
 #include "strhelpers.h"
 #include "hal/storage.h"
+#include "flash_driver.h"
+
+// Size of the block read when checking / writing BIN files
+#define BLOCK_LEN 4096
 
 // 'private'
 static DIR  dir;
 static FIL FlashFile;
 
+static uint32_t firmwareSize;
+static uint32_t firmwareAddress = FIRMWARE_ADDRESS;
+static uint32_t firmwareWritten = 0;
+uint32_t unlocked = 0;
+
+struct FWFileInfo {
+    TCHAR        name[FF_MAX_LFN + 1];
+    unsigned int size;
+};
+
 // 'public' variables
-BinFileInfo binFiles[MAX_BIN_FILES];
-uint8_t     Block_buffer[BLOCK_LEN];
-UINT        BlockCount;
+static FWFileInfo  fwFiles[MAX_FW_FILES];
+static uint8_t     Block_buffer[BLOCK_LEN];
+static UINT        BlockCount;
+
+static void flashWriteBlock()
+{
+  // TODO: use some board provided driver instead
+  uint32_t blockOffset = 0;
+#if !defined(SIMU)
+  while (BlockCount) {
+    flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
+    blockOffset += FLASH_PAGESIZE;
+    firmwareAddress += FLASH_PAGESIZE;
+    if (BlockCount > FLASH_PAGESIZE) {
+      BlockCount -= FLASH_PAGESIZE;
+    }
+    else {
+      BlockCount = 0;
+    }
+  }
+#endif // SIMU
+}
 
 void sdInit(void)
 {
@@ -56,13 +89,40 @@ void sdDone()
   storageDeInit();
 }
 
-FRESULT openBinDir(MemoryType mt)
+FRESULT openFirmwareDir()
 {
-    FRESULT fr = f_chdir(getBinaryPath(mt));
+    FRESULT fr = f_chdir(getFirmwarePath());
     if (fr != FR_OK) return fr;
-    
+
     return f_opendir(&dir, ".");
 }
+
+static uint32_t isValidBufferStart(const uint8_t * buffer)
+{
+#if !defined(SIMU)
+  return isFirmwareStart(buffer);
+#else
+  return 1;
+#endif
+}
+
+FlashCheckRes checkFirmwareFile(unsigned int index, FlashCheckRes res)
+{
+  if (res != FC_UNCHECKED)
+    return res;
+
+  if (openFirmwareFile(index) != FR_OK)
+    return FC_ERROR;
+
+  if (closeFirmwareFile() != FR_OK)
+    return FC_ERROR;
+
+  if (!isValidBufferStart(Block_buffer))
+    return FC_ERROR;
+
+  return FC_OK;
+}
+
 
 static FRESULT findNextBinFile(FILINFO* fno)
 {
@@ -102,7 +162,7 @@ static FRESULT findNextBinFile(FILINFO* fno)
   return fr;
 }
 
-unsigned int fetchBinFiles(unsigned int index)
+unsigned int fetchFirmwareFiles(unsigned int index)
 {
   FILINFO file_info;
 
@@ -117,8 +177,8 @@ unsigned int fetchBinFiles(unsigned int index)
           return 0;
   }
 
-  strAppend(binFiles[0].name, file_info.fname);
-  binFiles[0].size = file_info.fsize;
+  strAppend(fwFiles[0].name, file_info.fname);
+  fwFiles[0].size = file_info.fsize;
 
   unsigned int i = 1;
   for (; i < MAX_NAMES_ON_SCREEN+1; i++) {
@@ -126,49 +186,57 @@ unsigned int fetchBinFiles(unsigned int index)
       if (findNextBinFile(&file_info) != FR_OK || file_info.fname[0] == 0)
           return i;
   
-      strAppend(binFiles[i].name, file_info.fname);
-      binFiles[i].size = file_info.fsize;
+      strAppend(fwFiles[i].name, file_info.fname);
+      fwFiles[i].size = file_info.fsize;
   }
 
   return i;
 }
 
-FRESULT openBinFile(MemoryType mt, unsigned int index)
+const char* getFirmwareFileNameByIndex(unsigned int index)
+{
+  if(index >= MAX_FW_FILES)
+    return "";
+
+  return fwFiles[index].name;
+}
+
+FRESULT openFirmwareFile(unsigned int index)
 {
   TCHAR full_path[FF_MAX_LFN+1];
-  FRESULT fr;
+  FRESULT res;
 
   // build full_path: [bin path]/[filename]
-  char* s = strAppend(full_path, getBinaryPath(mt));
+  char* s = strAppend(full_path, getFirmwarePath());
   s = strAppend(s, "/");
-  strAppend(s, binFiles[index].name);
+  strAppend(s, fwFiles[index].name);
 
   BlockCount = 0;
-  
+
   // open the file
-  if ((fr = f_open(&FlashFile, full_path, FA_READ)) != FR_OK)
-    return fr;
+  res = f_open(&FlashFile, full_path, FA_READ);
+  if (res != FR_OK) return res;
 
   // skip bootloader in firmware
-  if (mt == MEM_FLASH &&
-      ((fr = f_lseek(&FlashFile, BOOTLOADER_SIZE)) != FR_OK))
-      return fr;
+  res = f_lseek(&FlashFile, BOOTLOADER_SIZE);
+  if (res != FR_OK) return res;
 
   // ... and fetch BLOCK_LEN bytes
-  fr = f_read(&FlashFile, Block_buffer, BLOCK_LEN, &BlockCount);
+  res = f_read(&FlashFile, Block_buffer, BLOCK_LEN, &BlockCount);
+  if (BlockCount == BLOCK_LEN && isValidBufferStart(Block_buffer)) return res;
 
-  if (BlockCount == BLOCK_LEN)
-      return fr;
-
+  f_close(&FlashFile);
   return FR_INVALID_OBJECT;
 }
 
-void extractFirmwareVersion(VersionTag* tag)
+void getFileFirmwareVersion(VersionTag* tag)
 {
-    const char * vers = getFirmwareVersion((const char *)Block_buffer);
+    memset(tag->flavour, 0, sizeof(tag->flavour));
+    const char * vers = getFirmwareVersion((const uint8_t *)Block_buffer);
     if (!vers || (vers[0] == 'n' && vers[1] == 'o')) { // "no version found"
       memcpy(tag->flavour, "unknown", sizeof("unknown"));
       tag->version = "unknown";
+      tag->flavour[sizeof(tag->flavour)-1] = 0;
       return;
     }
 
@@ -180,18 +248,41 @@ void extractFirmwareVersion(VersionTag* tag)
     char* fl = tag->flavour;
     while(*vers != '-')
         *(fl++) = *(vers++);
+    tag->flavour[sizeof(tag->flavour)-1] = 0;
 
     // skip '-'
     tag->version = ++vers;
 }
 
-FRESULT readBinFile()
+FRESULT readFirmwareFile()
 {
     BlockCount = 0;
     return f_read(&FlashFile, Block_buffer, sizeof(Block_buffer), &BlockCount);
 }
 
-FRESULT closeBinFile()
+FRESULT closeFirmwareFile()
 {
     return f_close(&FlashFile);
 }
+
+void firmwareInitWrite(uint32_t index)
+{
+  firmwareSize = fwFiles[index].size - BOOTLOADER_SIZE;
+  firmwareAddress = FIRMWARE_ADDRESS + BOOTLOADER_SIZE;
+  firmwareWritten = 0;
+}
+
+bool firmwareWriteBlock(uint32_t* progress)
+{
+  flashWriteBlock();
+  firmwareWritten += sizeof(Block_buffer);
+  *progress = (100 * firmwareWritten) / firmwareSize;
+
+  readFirmwareFile();
+  if (BlockCount == 0 || firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
+    return true;
+  }
+
+  return false;
+}
+

@@ -15,3 +15,7 @@
 	path = radio/src/thirdparty/lvgl
     url = https://github.com/EdgeTX/lvgl.git
     branch = release/v8.2
+[submodule "radio/src/thirdparty/uf2"]
+	path = radio/src/thirdparty/uf2
+	url = https://github.com/microsoft/uf2.git
+	shallow = true

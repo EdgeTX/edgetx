@@ -39,6 +39,7 @@
 #include "tp_gt911.h"
 #endif
 
+#define HAS_HARDWARE_OPTIONS
 
 PACK(typedef struct {
   uint8_t pcbrev:2;
@@ -259,7 +260,20 @@ bool isBacklightEnabled();
 #endif
 
 // Audio driver
+#if defined(PCBX12S)
+struct stm32_spi_t;
+struct AudioConfig_t
+{
+  stm32_spi_t* spi;
+  void (*setMuteHigh)();
+  void (*setMuteLow)();
+  void (*setResetHigh)();
+  void (*setResetLow)();
+};
+void audioInit(const AudioConfig_t* cfg);
+#else
 void audioInit();
+#endif
 void audioConsumeCurrentBuffer();
 #define audioDisableIrq()             // interrupts must stay enabled on Horus
 #define audioEnableIrq()              // interrupts must stay enabled on Horus

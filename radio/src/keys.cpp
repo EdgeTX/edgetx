@@ -548,9 +548,4 @@ bool rotaryEncoderPollingCycle()
   return false;
 }
 
-#elif !defined(COLORLCD)
-
-int8_t rotaryEncoderGetAccel() { return ROTENC_LOWSPEED; }
-void rotaryEncoderResetAccel() {}
-
 #endif

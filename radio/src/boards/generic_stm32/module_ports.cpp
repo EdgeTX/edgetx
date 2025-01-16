@@ -124,30 +124,6 @@ DEFINE_STM32_SOFTSERIAL_PORT(InternalModule, intmoduleTimer);
 
 #define EXTMODULE_USART_IRQ_PRIORITY 6
 
-#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
-
-#define HAS_EXTMODULE_INVERTERS
-
-static void _extmod_set_inverted(uint8_t enable)
-{
-  // In EdgeTX the external module is normally always
-  // inverted, so invert the logic here
-  gpio_write(EXTMODULE_TX_INVERT_GPIO, !enable);
-  gpio_write(EXTMODULE_RX_INVERT_GPIO, !enable);
-}
-
-static void _extmod_init_inverter()
-{
-  gpio_init(EXTMODULE_TX_INVERT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_init(EXTMODULE_RX_INVERT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-
-  // this sets the output to idle-low as is
-  // the default in EdgeTX on external module
-  // (historically, most radios work this way)
-  _extmod_set_inverted(false);
-}
-#endif
-
 static const stm32_usart_t extmoduleUSART = {
   .USARTx = EXTMODULE_USART,
   .txGPIO = EXTMODULE_TX_GPIO,
@@ -166,6 +142,44 @@ static const stm32_usart_t extmoduleUSART = {
 };
 
 DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0);
+
+
+#if (defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)) \
+  || defined(STM32H7) || defined(STM32H7RS)
+
+#define HAS_EXTMODULE_INVERTERS
+
+static void _extmod_set_inverted(uint8_t enable)
+{
+#if defined(STM32H7) || defined(STM32H7RS)
+#ifdef EXTMODULE_USART
+  stm32_usart_rx_inversion(&extmoduleUSART, !enable);
+  stm32_usart_tx_inversion(&extmoduleUSART, !enable);
+#else
+#error no UART to invert
+#endif
+#else
+  // In EdgeTX the external module is normally always
+  // inverted, so invert the logic here
+  gpio_write(EXTMODULE_TX_INVERT_GPIO, !enable);
+  gpio_write(EXTMODULE_RX_INVERT_GPIO, !enable);
+#endif
+
+}
+
+static void _extmod_init_inverter()
+{
+#if defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)
+  gpio_init(EXTMODULE_TX_INVERT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(EXTMODULE_RX_INVERT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
+  // this sets the output to idle-low as is
+  // the default in EdgeTX on external module
+  // (historically, most radios work this way)
+  _extmod_set_inverted(false);
+}
+#endif
 
 #elif defined(TRAINER_MODULE_SBUS_USART)
 
@@ -269,24 +283,6 @@ static void _set_sport_input(uint8_t enable)
 #endif
 }
 
-#if defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)
-
-#define HAS_SPORT_INVERTER
-
-static void _sport_set_inverted(uint8_t enable)
-{
-  gpio_write(TELEMETRY_TX_REV_GPIO, !enable);
-  gpio_write(TELEMETRY_RX_REV_GPIO, !enable);
-}
-
-static void _sport_init_inverter()
-{
-  gpio_init(TELEMETRY_TX_REV_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_init(TELEMETRY_RX_REV_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  _sport_set_inverted(false);
-}
-#endif
-
 #if defined(TELEMETRY_USART)
 static const stm32_usart_t sportUSART = {
   .USARTx = TELEMETRY_USART,
@@ -300,7 +296,11 @@ static const stm32_usart_t sportUSART = {
   .rxDMA = nullptr,
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
+#if defined(STM32H7) || (STM32H7RS)
+  .set_input = nullptr,
+#else
   .set_input = _set_sport_input,
+#endif
   .txDMA_IRQn = TELEMETRY_DMA_TX_Stream_IRQ,
   .txDMA_IRQ_Prio = TELEMETRY_DMA_IRQ_PRIORITY,
 };
@@ -318,6 +318,34 @@ static void _sport_direction_init()
   gpio_init(TELEMETRY_DIR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
 }
 #endif
+#endif
+
+
+#if (defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)) || defined(STM32H7) || defined(STM32H7RS)
+
+#define HAS_SPORT_INVERTER
+
+static void _sport_set_inverted(uint8_t enable)
+{
+#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(TELEMETRY_USART)
+  stm32_usart_rx_inversion(&sportUSART, !enable);
+  stm32_usart_tx_inversion(&sportUSART, !enable);
+#endif
+#else
+  gpio_write(TELEMETRY_TX_REV_GPIO, !enable);
+  gpio_write(TELEMETRY_RX_REV_GPIO, !enable);
+#endif
+}
+
+static void _sport_init_inverter()
+{
+#if defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)
+  gpio_init(TELEMETRY_TX_REV_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(TELEMETRY_RX_REV_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+  _sport_set_inverted(false);
+}
 #endif
 
 #if defined(TELEMETRY_TIMER)

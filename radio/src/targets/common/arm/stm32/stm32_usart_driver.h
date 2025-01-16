@@ -61,6 +61,12 @@ void stm32_usart_enable_tx_irq(const stm32_usart_t* usart);
 void stm32_usart_set_idle_irq(const stm32_usart_t* usart, uint32_t enabled);
 void stm32_usart_deinit(const stm32_usart_t* usart);
 void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart);
+
+#if defined(STM32H7) || defined(STM32H7RS)
+void stm32_usart_rx_inversion(const stm32_usart_t* usart, bool on);
+void stm32_usart_tx_inversion(const stm32_usart_t* usart, bool off);
+#endif
+
 void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte);
 void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, uint32_t size);
 uint8_t stm32_usart_tx_completed(const stm32_usart_t* usart);
@@ -71,3 +77,4 @@ void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate);
 void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option);
 void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb);
 void stm32_usart_tx_dma_isr(const stm32_usart_t* usart);
+

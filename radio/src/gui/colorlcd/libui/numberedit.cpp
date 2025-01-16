@@ -56,7 +56,10 @@ class NumberArea : public FormField
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override
   {
-    return "NumberArea(" + std::to_string(getValue()) + ")";
+    if(numEdit)
+       return "NumberArea(" + numEdit->getName() + ")";
+    else
+       return "NumberArea(unknown)";
   }
 #endif
 

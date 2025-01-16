@@ -29,9 +29,7 @@
 #include "fw_version.h"
 #include "translations.h"
 #include "../../common/arm/stm32/bootloader/boot.h"
-#include "../../common/arm/stm32/bootloader/bin_files.h"
-
-extern MemoryType memoryType;
+#include "bootloader/firmware_files.h"
 
 void bootloaderInitScreen()
 {
@@ -56,14 +54,14 @@ void bootloaderDrawFilename(const char *str, uint8_t line, bool selected)
   bootloaderDrawMsg(INDENT_WIDTH, str, line, selected);
 }
 
-bool checkFirmwareFlavor(const char * vers)
+bool checkFirmwareFlavor(const char * flavour)
 {
-  if (strncmp(vers,FLAVOUR, sizeof(FLAVOUR) - 1) != 0)
+  if (strncmp(flavour,FLAVOUR, sizeof(FLAVOUR) - 1) != 0)
     return false;
 
-  char * tmp = (char *) vers;
-  while (*tmp != '-') tmp++;
-  if ((tmp - vers) != (sizeof(FLAVOUR) - 1))
+  char * tmp = (char *) flavour;
+  while (*tmp != 0) tmp++;
+  if ((tmp - flavour) != (sizeof(FLAVOUR) - 1))
     return false;
 
   return true;
@@ -96,7 +94,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   else if (st == ST_DIR_CHECK) {
     if (opt == FR_NO_PATH) {
       bootloaderDrawMsg(INDENT_WIDTH, TR_BL_DIR_MISSING, 1, false);
-      bootloaderDrawMsg(INDENT_WIDTH, getBinaryPath(memoryType), 2, false);
+      bootloaderDrawMsg(INDENT_WIDTH, getFirmwarePath(), 2, false);
     }
     else {
       bootloaderDrawMsg(INDENT_WIDTH, TR_BL_DIR_EMPTY, 1, false);
@@ -104,26 +102,19 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   }
   else if (st == ST_FLASH_CHECK) {
     if (opt == FC_ERROR) {
-      if (memoryType == MEM_FLASH)
-        bootloaderDrawMsg(0, TR_BL_INVALID_FIRMWARE, 2, false);
-      else
-        bootloaderDrawMsg(0, TR_BL_INVALID_EEPROM, 2, false);
+      bootloaderDrawMsg(0, TR_BL_INVALID_FIRMWARE, 2, false);
     }
     else if (opt == FC_OK) {
       bool flavorCheck = false;
-      if (memoryType == MEM_FLASH) {
-        const char * vers = getFirmwareVersion((const char *)Block_buffer);
+      VersionTag tag;
+      getFileFirmwareVersion(&tag);
 #if LCD_W < 212
-        // Remove "edgetx-" from string
-        if (strncmp(vers, "edgetx-", 7) == 0)
-          vers += 7;
-        flavorCheck = checkFirmwareFlavor(vers);
+      // Remove "edgetx-" from string
+      flavorCheck = checkFirmwareFlavor(tag.flavour);
 #else
-        flavorCheck = checkFirmwareFlavor(vers + 7);
+      flavorCheck = checkFirmwareFlavor(tag.flavour);
 #endif
-
-        bootloaderDrawMsg(INDENT_WIDTH, vers, 0, false);
-      }
+      bootloaderDrawMsg(INDENT_WIDTH, tag.version, 0, false);
       if (flavorCheck)
         bootloaderDrawMsg(0, TR_BL_HOLD_ENTER_TO_START, 2, false);
       else

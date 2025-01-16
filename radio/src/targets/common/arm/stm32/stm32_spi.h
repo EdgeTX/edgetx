@@ -22,15 +22,16 @@
 #pragma once
 
 #include "stm32_hal_ll.h"
+#include "hal/gpio.h"
 #include <stdint.h>
 
 
 struct stm32_spi_t {
   SPI_TypeDef*   SPIx;
-  GPIO_TypeDef*  SPI_GPIOx;
-  uint32_t       SPI_Pins; // SCK, MISO, MOSI
-  GPIO_TypeDef*  CS_GPIOx;
-  uint32_t       CS_Pin;   // CS
+  gpio_t         SCK;
+  gpio_t         MISO;
+  gpio_t         MOSI;
+  gpio_t         CS;
 
   DMA_TypeDef*   DMA;
 #if defined(STM32H7) || defined(STM32H7RS)
@@ -49,7 +50,7 @@ struct stm32_spi_t {
 
 void stm32_spi_enable_clock(SPI_TypeDef *SPIx);
 
-void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width);
+void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp = false);
 void stm32_spi_deinit(const stm32_spi_t* spi);
 
 void stm32_spi_select(const stm32_spi_t* spi);

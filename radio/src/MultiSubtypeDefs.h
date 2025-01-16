@@ -62,9 +62,9 @@
 
   #define STR_MULTI_DEFAULT                    QT_TRANSLATE_NOOP("Multiprotocols", "DEFAULT")
   STRLIST(NO_SUBTYPE, {STR_MULTI_DEFAULT})
-#else
+#elif defined(MULTIMODULE)
   #define STRLIST(x, ...) const char* const x[] = __VA_ARGS__;
-  #define PROTODEF const mm_protocol_definition multi_protocols[]
+  #define PROTODEF(...) const mm_protocol_definition multi_protocols[] = __VA_ARGS__
 
   const char* const mm_options_strings::options[] = {
     nullptr,
@@ -81,6 +81,9 @@
   };
 
   #define NO_SUBTYPE nullptr
+#else
+  #define STRLIST(x, ...)
+  #define PROTODEF(...)
 #endif
 
 //
@@ -161,7 +164,7 @@ STRLIST(STR_SUBTYPE_NN,        { SPARE_SUBTYPE_NAMES })
 // failsafe support yes/no, channel map disabled yes/no, reference to the suptype options strings above
 // and further protocol options, e.g. RF tune, video frequency.
 //
-PROTODEF {
+PROTODEF ({
   {MODULE_SUBTYPE_MULTI_FLYSKY,     4, false, true,   STR_SUBTYPE_FLYSKY,    nullptr},
   {MODULE_SUBTYPE_MULTI_HUBSAN,     2, false, false,  STR_SUBTYPE_HUBSAN,    STR_MULTI_VIDFREQ},
   {MODULE_SUBTYPE_MULTI_FRSKY,      1, false, false,  STR_SUBTYPE_FRSKYD,    STR_MULTI_RFTUNE},
@@ -273,6 +276,6 @@ PROTODEF {
 
   // Sentinel and default for protocols not listed above (MM_RF_CUSTOM is 0xff)
   {MODULE_SUBTYPE_MULTI_SENTINEL,   0, false, false,  NO_SUBTYPE,            nullptr},
-};
+});
 
 #endif // MULTIMODULE

@@ -19,5 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#define MASS_STORAGE_BUFFER_SIZE 512U
+#if defined(BOOT)
+  #define MASS_STORAGE_BUFFER_SIZE 4096U
+#else
+  #define MASS_STORAGE_BUFFER_SIZE 512U
+#endif
+
 #define USBD_CLASS_BOS_ENABLED 0

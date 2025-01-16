@@ -247,7 +247,7 @@ static sd_init_fsm_state_t _init_sd_fsm_step(const stm32_spi_t* spi,
   switch (state) {
   case SD_INIT_START:
     TRACE("SD_INIT_START");
-    stm32_spi_init(spi, LL_SPI_DATAWIDTH_8BIT);
+    stm32_spi_init(spi, LL_SPI_DATAWIDTH_8BIT, true);
     stm32_spi_set_max_baudrate(spi, SD_SPI_CLK_400K);
     return SD_INIT_SPI_POWER_SEQ;
 

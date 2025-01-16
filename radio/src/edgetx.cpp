@@ -146,6 +146,8 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x463
 #elif defined(STM32H750xx) || defined(STM32H747xx)
   #define TARGET_IDCODE   0x450
+#elif defined(STM32H7RS)
+  #define TARGET_IDCODE   0x485
 #else
   // Ensure new radio get registered :)
   #warning "Target MCU code undefined"
@@ -211,7 +213,7 @@ void timer_10ms()
   evalFunctionSwitches();
 #endif
 
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(LIBOPENUI)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(COLORLCD)
   if (rotaryEncoderPollingCycle()) {
     inactivityTimerReset(ActivitySource::Keys);
   }
@@ -1126,7 +1128,7 @@ void edgeTxResume()
 {
   TRACE("edgeTxResume");
 
-  sdMount();
+  if (!sdMounted()) sdInit();
 #if defined(COLORLCD) && defined(LUA)
   // reload widgets
   luaInitThemesAndWidgets();
@@ -1599,7 +1601,7 @@ int main()
   checkValidMCU();
 #endif
 
-#if defined(PCBHORUS)
+#if defined(IS_FIRMWARE_COMPATIBLE_WITH_BOARD)
   if (!IS_FIRMWARE_COMPATIBLE_WITH_BOARD()) {
     runFatalErrorScreen(STR_WRONG_PCBREV);
   }

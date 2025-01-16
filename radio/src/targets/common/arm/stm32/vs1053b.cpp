@@ -23,9 +23,9 @@
 #include "stm32_gpio_driver.h"
 #include "stm32_gpio.h"
 #include "stm32_spi.h"
-
+//#include "bsp_io.h"
 #include "hal/gpio.h"
-
+#include "board.h"
 #include "edgetx.h"
 
 #if !defined(SIMU)
@@ -66,55 +66,40 @@
 #define SM_LINE1         	           0x4000
 #define SM_CLK_RANGE     	           0x8000
 
-#define SPI_SPEED_2                    0
-#define SPI_SPEED_4                    1
-#define SPI_SPEED_8                    2
-#define SPI_SPEED_16                   3
-#define SPI_SPEED_32                   4
-#define SPI_SPEED_64                   5
-#define SPI_SPEED_128                  6
-#define SPI_SPEED_256                  7
+#define SPI_LOW_SPEED                  1755000
+#define SPI_HIGH_SPEED                 9216000
 
 #define MP3_BUFFER_SIZE                32
 
-#define CS_HIGH()    stm32_spi_unselect(&_audio_spi)
-#define CS_LOW()     stm32_spi_select(&_audio_spi)
-#define XDCS_HIGH()  do { AUDIO_XDCS_GPIO->BSRR = AUDIO_XDCS_GPIO_PIN; } while (0)
-#define XDCS_LOW()   do { AUDIO_XDCS_GPIO->BSRR = AUDIO_XDCS_GPIO_PIN << 16; } while (0)
-#define RST_HIGH()   do { AUDIO_RST_GPIO->BSRR = AUDIO_RST_GPIO_PIN; } while (0)
-#define RST_LOW()    do { AUDIO_RST_GPIO->BSRR = AUDIO_RST_GPIO_PIN << 16; } while (0)
+#define XDCS_HIGH()  gpio_set(AUDIO_XDCS_GPIO)
+#define XDCS_LOW()   gpio_clear(AUDIO_XDCS_GPIO)
 
-#define READ_DREQ()  (LL_GPIO_IsInputPinSet(AUDIO_DREQ_GPIO, AUDIO_DREQ_GPIO_PIN))
+#define READ_DREQ()  gpio_read(AUDIO_DREQ_GPIO)
+
+const AudioConfig_t* audioCfg = nullptr;
 
 static const stm32_spi_t _audio_spi = {
   .SPIx = AUDIO_SPI,
-  .SPI_GPIOx = AUDIO_SPI_SCK_GPIO,
-  .SPI_Pins = AUDIO_SPI_SCK_GPIO_PIN | AUDIO_SPI_MISO_GPIO_PIN | AUDIO_SPI_MOSI_GPIO_PIN,
-  .CS_GPIOx = AUDIO_CS_GPIO,
-  .CS_Pin = AUDIO_CS_GPIO_PIN,
+  .SCK = AUDIO_SPI_SCK_GPIO,
+  .MISO = AUDIO_SPI_MISO_GPIO,
+  .MOSI = AUDIO_SPI_MOSI_GPIO,
+  .CS = AUDIO_CS_GPIO,
 };
 
-void audioSpiInit(void)
+static void audioSpiInit(void)
 {
-  stm32_gpio_enable_clock(AUDIO_XDCS_GPIO);
-  stm32_gpio_enable_clock(AUDIO_RST_GPIO);
-  stm32_gpio_enable_clock(AUDIO_DREQ_GPIO);
+  gpio_init(AUDIO_XDCS_GPIO, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
+  gpio_init(AUDIO_DREQ_GPIO, GPIO_IN, GPIO_PIN_SPEED_HIGH);
+//#ifdef(AUDIO_RST_GPIO)
+//  stm32_gpio_enable_clock(AUDIO_RST_GPIO);
+//#endif
   
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
+//#ifdef(AUDIO_RST_GPIO)
+//  pinInit.Pin = AUDIO_RST_GPIO_PIN;READ_DREQ
+//  LL_GPIO_Init(AUDIO_RST_GPIO, &pinInit);
+//#endif
 
-  pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pin = AUDIO_XDCS_GPIO_PIN;
-  LL_GPIO_Init(AUDIO_XDCS_GPIO, &pinInit);
-
-  pinInit.Pin = AUDIO_RST_GPIO_PIN;
-  LL_GPIO_Init(AUDIO_RST_GPIO, &pinInit);
-
-  pinInit.Pin = AUDIO_DREQ_GPIO_PIN;
-  pinInit.Mode = LL_GPIO_MODE_INPUT;
-  LL_GPIO_Init(AUDIO_DREQ_GPIO, &pinInit);
-
-  stm32_spi_init(&_audio_spi, LL_SPI_DATAWIDTH_8BIT);
+  stm32_spi_init(audioCfg->spi, LL_SPI_DATAWIDTH_8BIT);
 }
 
 void audioWaitReady()
@@ -123,44 +108,12 @@ void audioWaitReady()
   RTOS_WAIT_MS(2000); // 2s
 }
 
-void audioSpiSetSpeed(uint8_t speed)
+static uint8_t audioSpiReadWriteByte(uint8_t value)
 {
-  AUDIO_SPI->CR1 &= 0xFFC7; // Fsck=Fcpu/256
-  switch (speed) {
-    case SPI_SPEED_2:
-      AUDIO_SPI->CR1 |= 0x00 << 3; // Fsck=Fpclk/2=36Mhz
-      break;
-    case SPI_SPEED_4:
-      AUDIO_SPI->CR1 |= 0x01 << 3; // Fsck=Fpclk/4=18Mhz
-      break;
-    case SPI_SPEED_8:
-      AUDIO_SPI->CR1 |= 0x02 << 3; // Fsck=Fpclk/8=9Mhz
-      break;
-    case SPI_SPEED_16:
-      AUDIO_SPI->CR1 |= 0x03 << 3; // Fsck=Fpclk/16=4.5Mhz
-      break;
-    case SPI_SPEED_32:
-      AUDIO_SPI->CR1 |= 0x04 << 3; // Fsck=Fpclk/32=2.25Mhz
-      break;
-    case SPI_SPEED_64:
-      AUDIO_SPI->CR1 |= 0x05 << 3; // Fsck=Fpclk/16=1.125Mhz
-      break;
-    case SPI_SPEED_128:
-      AUDIO_SPI->CR1 |= 0x06 << 3; // Fsck=Fpclk/16=562.5Khz
-      break;
-    case SPI_SPEED_256:
-      AUDIO_SPI->CR1 |= 0x07 << 3; // Fsck=Fpclk/16=281.25Khz
-      break;
-  }
-  AUDIO_SPI->CR1 |= 0x01 << 6;
+  return stm32_spi_transfer_byte(audioCfg->spi, value);
 }
 
-uint8_t audioSpiReadWriteByte(uint8_t value)
-{
-  return stm32_spi_transfer_byte(&_audio_spi, value);
-}
-
-uint8_t audioWaitDreq(int32_t delay_us)
+static uint8_t audioWaitDreq(int32_t delay_us)
 {
   while (READ_DREQ() == 0) {
     if (delay_us-- == 0) return 0;
@@ -169,73 +122,74 @@ uint8_t audioWaitDreq(int32_t delay_us)
   return 1;
 }
 
-uint16_t audioSpiReadReg(uint8_t address)
+static uint16_t audioSpiReadReg(uint8_t address)
 {
   if (!audioWaitDreq(100))
     return 0;
 
-  audioSpiSetSpeed(SPI_SPEED_64);
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_LOW_SPEED);
   XDCS_HIGH();
-  CS_LOW();
+  stm32_spi_select(audioCfg->spi);
   audioSpiReadWriteByte(VS_READ_COMMAND);
   audioSpiReadWriteByte(address);
-  uint16_t result = audioSpiReadWriteByte(0xff) << 8;
+  volatile uint16_t result = audioSpiReadWriteByte(0xff) << 8;
   result += audioSpiReadWriteByte(0xff);
   delay_01us(100); // 10us
-  CS_HIGH();
-  audioSpiSetSpeed(SPI_SPEED_8);
+  stm32_spi_unselect(audioCfg->spi);
+
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_HIGH_SPEED);
   return result;
 }
 
-uint16_t audioSpiReadCmd(uint8_t address)
+static uint16_t audioSpiReadCmd(uint8_t address)
 {
   if (!audioWaitDreq(100))
     return 0;
 
-  audioSpiSetSpeed(SPI_SPEED_64);
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_LOW_SPEED);
   XDCS_HIGH();
-  CS_LOW();
+  stm32_spi_select(audioCfg->spi);
   audioSpiReadWriteByte(VS_READ_COMMAND);
   audioSpiReadWriteByte(address);
   uint16_t result = audioSpiReadWriteByte(0) << 8;
   result |= audioSpiReadWriteByte(0);
   delay_01us(50); // 5us
-  CS_HIGH();
-  audioSpiSetSpeed(SPI_SPEED_8);
+  stm32_spi_unselect(audioCfg->spi);
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_HIGH_SPEED);
   return result;
 }
 
-uint8_t audioSpiWriteCmd(uint8_t address, uint16_t data)
+static uint8_t audioSpiWriteCmd(uint8_t address, uint16_t data)
 {
   if (!audioWaitDreq(100))
     return 0;
 
-  audioSpiSetSpeed(SPI_SPEED_64);
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_LOW_SPEED);
   XDCS_HIGH();
-  CS_LOW();
+  stm32_spi_select(audioCfg->spi);
   audioSpiReadWriteByte(VS_WRITE_COMMAND);
   audioSpiReadWriteByte(address);
   audioSpiReadWriteByte(data >> 8);
   audioSpiReadWriteByte(data);
   delay_01us(50); // 5us
-  CS_HIGH();
-  audioSpiSetSpeed(SPI_SPEED_8);
+  stm32_spi_unselect(audioCfg->spi);
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_HIGH_SPEED);
   return 1;
 }
 
-void audioResetDecodeTime(void)
+static void audioResetDecodeTime()
 {
   audioSpiWriteCmd(SPI_DECODE_TIME, 0x0000);
   audioSpiWriteCmd(SPI_DECODE_TIME, 0x0000);
 }
 
-uint8_t audioHardReset(void)
+static uint8_t audioHardReset()
 {
   XDCS_HIGH();
-  CS_HIGH();
-  RST_LOW();
+  stm32_spi_unselect(audioCfg->spi);
+  audioCfg->setResetLow();
   delay_ms(100); // 100ms
-  RST_HIGH();
+  audioCfg->setResetHigh();
 
   if (!audioWaitDreq(5000))
     return 0;
@@ -244,9 +198,9 @@ uint8_t audioHardReset(void)
   return 1;
 }
 
-uint8_t audioSoftReset(void)
+static uint8_t audioSoftReset()
 {
-  audioSpiSetSpeed(SPI_SPEED_64);
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_LOW_SPEED);
   if (!audioWaitDreq(100))
     return 0;
 
@@ -257,6 +211,7 @@ uint8_t audioSoftReset(void)
   while (audioSpiReadReg(SPI_MODE) != mode && retry < 100) {
     retry++;
     audioSpiWriteCmd(SPI_MODE, mode | SM_RESET);
+    delay_ms(2);
   }
 
   // wait for set up successful
@@ -267,7 +222,7 @@ uint8_t audioSoftReset(void)
   }
 
   audioResetDecodeTime(); // reset the decoding time
-  audioSpiSetSpeed(SPI_SPEED_8);
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_HIGH_SPEED);
   XDCS_LOW();
   audioSpiReadWriteByte(0X0);
   audioSpiReadWriteByte(0X0);
@@ -278,7 +233,7 @@ uint8_t audioSoftReset(void)
   return 1;
 }
 
-uint32_t audioSpiWriteData(const uint8_t * buffer, uint32_t size)
+static uint32_t audioSpiWriteData(const uint8_t * buffer, uint32_t size)
 {
   XDCS_LOW();
 
@@ -291,7 +246,7 @@ uint32_t audioSpiWriteData(const uint8_t * buffer, uint32_t size)
   return index;
 }
 
-void audioSpiWriteBuffer(const uint8_t * buffer, uint32_t size)
+static void audioSpiWriteBuffer(const uint8_t * buffer, uint32_t size)
 {
   const uint8_t * p = buffer;
   while (size > 0) {
@@ -314,25 +269,23 @@ void audioSendRiffHeader()
 }
 
 #if defined(AUDIO_MUTE_GPIO)
+static bool isMuted = true;
 static inline void setMutePin(bool enabled)
 {
+  isMuted = enabled;
 #if defined(INVERTED_MUTE_PIN)
   enabled = !enabled;
 #endif
-  gpio_write(AUDIO_MUTE_GPIO, enabled);
-}
-
-static inline bool getMutePin(void)
-{
-  bool muted = gpio_read(AUDIO_MUTE_GPIO) ? 1 : 0;
-#if defined(INVERTED_MUTE_PIN)
-  muted = !muted;
-#endif
-  return muted;
+  if(enabled)
+    audioCfg->setMuteHigh();
+  else
+    audioCfg->setMuteLow();
 }
 
 void audioMute()
 {
+  if(isMuted)
+    return;
 #if defined(AUDIO_UNMUTE_DELAY)
   tmr10ms_t now = get_tmr10ms();
   if (!audioQueue.lastAudioPlayTime) {
@@ -357,7 +310,7 @@ void audioUnmute()
 
 #if defined(AUDIO_UNMUTE_DELAY)
   // if muted
-  if (getMutePin()) {
+  if (isMuted) {
     // ..un-mute
     setMutePin(false);
     RTOS_WAIT_MS(AUDIO_UNMUTE_DELAY);
@@ -380,11 +333,11 @@ void audioShutdownInit()
 }
 #endif
 
-void audioInit()
+void audioInit(const AudioConfig_t* cfg)
 {
+  audioCfg = cfg;
 #if defined(AUDIO_MUTE_GPIO)
   // Mute before init anything
-  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   setMutePin(true);
 #endif
 
@@ -395,7 +348,7 @@ void audioInit()
   audioSpiInit();
   audioHardReset();
   audioSoftReset();
-  audioSpiSetSpeed(SPI_SPEED_8);
+  stm32_spi_set_max_baudrate(audioCfg->spi, SPI_HIGH_SPEED);
   delay_ms(1); // 1ms
   audioSendRiffHeader();
 }
@@ -415,6 +368,8 @@ void audioSetCurrentBuffer(const AudioBuffer * buffer)
     currentSize = 0;
   }
 }
+
+static const uint8_t nullBytes[32] = {0};
 
 void audioConsumeCurrentBuffer()
 {
@@ -444,6 +399,8 @@ void audioConsumeCurrentBuffer()
   }
 #if defined(AUDIO_MUTE_GPIO)
   else {
+    if(gpio_read(AUDIO_DREQ_GPIO) != 0)
+      audioSpiWriteData(nullBytes, sizeof(nullBytes));
     audioMute();
   }
 #endif
