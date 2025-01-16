@@ -22,13 +22,14 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class LogicalSwitchDisplayFooter;
 
 class LogicalSwitchesViewPage : public PageTab
 {
  public:
-  LogicalSwitchesViewPage();
+  LogicalSwitchesViewPage(PageDef& pageDef);
 
   static LAYOUT_VAL(FOOTER_HEIGHT, 20, 40)
   static LAYOUT_VAL(BTN_WIDTH, 57, 76)

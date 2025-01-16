@@ -21,23 +21,12 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class RadioMenu : public TabsGroup
+class ScreenMenu : public PageGroup
 {
  public:
-  RadioMenu();
-  ~RadioMenu();
+  ScreenMenu();
 
- protected:
-  void build();
-
-#if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
-#endif
+  void setCurrentTab(unsigned index) override;
 };
