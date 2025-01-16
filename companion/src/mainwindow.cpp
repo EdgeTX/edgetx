@@ -738,7 +738,7 @@ void MainWindow::updateMenus()
 
   updateRecentFileActions();
   updateProfilesActions();
-  setWindowTitle(tr("%1 %2 - Radio: %3 - Profile: %").arg(CPN_STR_APP_NAME).arg(VERSION).arg(getCurrentFirmware()->getName()).arg(g.profile[g.id()].name()));
+  setWindowTitle(tr("%1 %2 - Radio: %3 - Profile: %4").arg(CPN_STR_APP_NAME).arg(VERSION).arg(getCurrentFirmware()->getName()).arg(g.profile[g.id()].name()));
 }
 
 MdiChild * MainWindow::createMdiChild()
