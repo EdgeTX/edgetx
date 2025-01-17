@@ -382,9 +382,16 @@ void audioTask(void * pdata)
 }
 #endif
 
-inline void mixSample(audio_data_t * result, int sample, unsigned int fade)
+#if !defined(__SSAT)
+  #define _sat_s16(x) ((int16_t)limit<int32_t>(INT16_MIN, (x), INT16_MAX))
+#else
+  #define _sat_s16(x) __SSAT((x), 16)
+#endif
+
+inline void mixSample(audio_data_t * result, int16_t sample, unsigned int fade)
 {
-  *result += (sample >> fade);
+  int32_t tmp = (int32_t)*result + ((int32_t)sample >> fade);
+  *result = (audio_data_t)_sat_s16(tmp);
 }
 
 #define RIFF_CHUNK_SIZE 12

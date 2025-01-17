@@ -285,10 +285,12 @@ void audioSetVolume(uint8_t volume)
 #if defined(SIMU_AUDIO)
 void copyBuffer(void* dest, const int16_t* buff, unsigned samples)
 {
+  int16_t* i16_dst = (int16_t*)dest;
   for (unsigned i = 0; i < samples; i++) {
-    int16_t sample = buff[i];
-    *((int16_t*)dest) = (int16_t)((sample * simuAudio.currentVolume) / 127);
-    dest = (int16_t*)dest + 1;
+    int32_t sample = (((int32_t)buff[i] * (int32_t)simuAudio.currentVolume) / 127);
+    if (sample > INT16_MAX) sample = INT16_MAX;
+    else if (sample < INT16_MIN) sample = INT16_MIN;
+    *(i16_dst++) = (int16_t)sample;
   }
 }
 
