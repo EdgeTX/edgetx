@@ -1206,6 +1206,19 @@ Node convert<ModelData>::encode(const ModelData& rhs)
         node["switchNames"][std::to_string(i)]["val"] = rhs.functionSwitchNames[i];
       }
     }
+
+    if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+      for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
+        node["functionSwitchLedONColor"][std::to_string(i)]["r"] = rhs.functionSwitchLedONColor[i].r;
+        node["functionSwitchLedONColor"][std::to_string(i)]["g"] = rhs.functionSwitchLedONColor[i].g;
+        node["functionSwitchLedONColor"][std::to_string(i)]["b"] = rhs.functionSwitchLedONColor[i].b;
+      }
+      for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
+        node["functionSwitchLedOFFColor"][std::to_string(i)]["r"] = rhs.functionSwitchLedOFFColor[i].r;
+        node["functionSwitchLedOFFColor"][std::to_string(i)]["g"] = rhs.functionSwitchLedOFFColor[i].g;
+        node["functionSwitchLedOFFColor"][std::to_string(i)]["b"] = rhs.functionSwitchLedOFFColor[i].b;
+      }
+    }
   }
 
   // Custom USB joytsick mapping
@@ -1474,6 +1487,20 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
   node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
   node["switchNames"] >> rhs.functionSwitchNames;
+  if (node["functionSwitchLedONColor"]) {
+    for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
+      node["functionSwitchLedONColor"][std::to_string(i)]["r"] >> rhs.functionSwitchLedONColor[i].r;
+      node["functionSwitchLedONColor"][std::to_string(i)]["g"] >> rhs.functionSwitchLedONColor[i].g;
+      node["functionSwitchLedONColor"][std::to_string(i)]["b"] >> rhs.functionSwitchLedONColor[i].b;
+    }
+  }
+  if (node["functionSwitchLedOFFColor"]) {
+    for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
+      node["functionSwitchLedOFFColor"][std::to_string(i)]["r"] >> rhs.functionSwitchLedOFFColor[i].r;
+      node["functionSwitchLedOFFColor"][std::to_string(i)]["g"] >> rhs.functionSwitchLedOFFColor[i].g;
+      node["functionSwitchLedOFFColor"][std::to_string(i)]["b"] >> rhs.functionSwitchLedOFFColor[i].b;
+    }
+  }
 
   // Custom USB joytsick mapping
   node["usbJoystickExtMode"] >> rhs.usbJoystickExtMode;

@@ -104,6 +104,15 @@ class USBJoystickChData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(USBJoystickChData)); }
 };
 
+class RGBLedColor {
+  public:
+    RGBLedColor() { clear(); }
+    int r;
+    int g;
+    int b;
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(RGBLedColor)); }
+};
+
 class ModelData {
   Q_DECLARE_TR_FUNCTIONS(ModelData)
 
@@ -232,6 +241,8 @@ class ModelData {
     unsigned int functionSwitchStartConfig;
     unsigned int functionSwitchLogicalState;
     char functionSwitchNames[CPN_MAX_SWITCHES_FUNCTION][HARDWARE_NAME_LEN + 1];
+    RGBLedColor functionSwitchLedONColor[CPN_MAX_SWITCHES_FUNCTION];
+    RGBLedColor functionSwitchLedOFFColor[CPN_MAX_SWITCHES_FUNCTION];
 
     // Custom USB joytsick mapping
     unsigned int usbJoystickExtMode;

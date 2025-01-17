@@ -405,6 +405,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case Surface:
       return IS_RADIOMASTER_MT12(board);
 
+    case FunctionSwitchColors:
+      return IS_RADIOMASTER_GX12(board);
+
     default:
       return getBoardJson(board)->getCapability(capability);
   }
