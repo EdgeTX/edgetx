@@ -94,7 +94,6 @@ uint8_t heartbeat;
 safetych_t safetyCh[MAX_OUTPUT_CHANNELS];
 #endif
 
-// __DMA for the MSC_BOT_Data member
 union ReusableBuffer reusableBuffer __DMA;
 
 #if defined(DEBUG_LATENCY)

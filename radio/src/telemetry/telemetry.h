@@ -231,7 +231,7 @@ class OutputTelemetryBuffer {
     uint8_t destination;
 };
 
-extern OutputTelemetryBuffer outputTelemetryBuffer __DMA;
+extern OutputTelemetryBuffer outputTelemetryBuffer __DMA_NO_CACHE;
 
 #if defined(LUA)
 #include "fifo.h"

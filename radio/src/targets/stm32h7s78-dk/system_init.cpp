@@ -9,7 +9,9 @@
 
 // Linker script symbols
 extern uint32_t _sisr_vector;
+extern uint32_t _dram_addr;
 extern uint32_t PSRAM_START;
+extern uint32_t NORFLASH_START;
 
 extern "C" NAKED BOOTSTRAP
 void Reset_Handler()
@@ -158,12 +160,11 @@ void MPU_Init()
   MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-#if defined(FIRMWARE_QSPI)
-  /* Region 2: QSPI memory range, bank1 */
+  /* Region 2: XSPI memory range, bank1 */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER2;
-  MPU_InitStruct.BaseAddress = 0x70000000;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_8MB;
+  MPU_InitStruct.BaseAddress = (uint32_t)&NORFLASH_START;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_128MB;
   MPU_InitStruct.SubRegionDisable = 0x0;
   MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
   MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
@@ -172,9 +173,7 @@ void MPU_Init()
   MPU_InitStruct.IsCacheable = MPU_ACCESS_CACHEABLE;
   MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
-#endif
 
-#if defined(SDRAM)
   /* Region 3: SDRAM memory range */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER3;
@@ -188,13 +187,12 @@ void MPU_Init()
   MPU_InitStruct.IsCacheable = MPU_ACCESS_CACHEABLE;
   MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
-#endif
 
-  /* Region 3: SRAM1 memory range */
+  /* Region 3: DMA memory range */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER4;
-  MPU_InitStruct.BaseAddress = 0x30000000;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_32KB;
+  MPU_InitStruct.BaseAddress = (uint32_t)&_dram_addr;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_64KB; // actually 72KB
   MPU_InitStruct.SubRegionDisable = 0x0;
   MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
   MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;

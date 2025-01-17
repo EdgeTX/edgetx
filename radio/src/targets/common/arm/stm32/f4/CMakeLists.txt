@@ -97,6 +97,8 @@ set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
 
 if(NOT NATIVE_BUILD)
+  include_directories(targets/common/arm/stm32/f4)
+
   #
   # FreeRTOS port specific include
   #

@@ -24,6 +24,7 @@
 /* clang-format off */
 
 #include <stdint.h>
+#include "definitions.h"
 
 /*====================
    COLOR SETTINGS
@@ -354,12 +355,8 @@
 /*Compiler prefix for a big array declaration in RAM*/
 #define LV_ATTRIBUTE_LARGE_RAM_ARRAY
 
-#if !defined(BOOT) && !defined(YAML_GENERATOR) && !defined(SIMU) && (defined(STM32H7) || defined(STM32H7RS))
 /*Place performance critical functions into a faster memory (e.g RAM)*/
-#define LV_ATTRIBUTE_FAST_MEM __attribute__((section(".iram")))
-#else
-#define LV_ATTRIBUTE_FAST_MEM
-#endif
+#define LV_ATTRIBUTE_FAST_MEM __IRAM
 
 /*Prefix variables that are used in GPU accelerated operations, often these need to be placed in RAM sections that are DMA accessible*/
 #define LV_ATTRIBUTE_DMA __DMA

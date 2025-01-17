@@ -94,11 +94,11 @@ struct stm32_softserial_tx_port {
   stm32_softserial_tx_state* st;
 };
 
-#define DEFINE_STM32_SOFTSERIAL_PORT(p,timer)                           \
-  static stm32_softserial_tx_state p ## _SoftserialState __DMA;         \
-  static const stm32_softserial_tx_port p ## _STM32Softserial = {       \
-    &timer,                                                             \
-    & p ## _SoftserialState,                                            \
+#define DEFINE_STM32_SOFTSERIAL_PORT(p, timer)                         \
+  static stm32_softserial_tx_state p##_SoftserialState __DMA_NO_CACHE; \
+  static const stm32_softserial_tx_port p##_STM32Softserial = {        \
+      &timer,                                                          \
+      &p##_SoftserialState,                                            \
   }
 
 #define REF_STM32_SOFTSERIAL_PORT(p) ((void*)& p ## _STM32Softserial)

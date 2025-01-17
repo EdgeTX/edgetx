@@ -20,6 +20,7 @@
  */
 
 #include "stm32_spi.h"
+#include "memory_sections.h"
 #include "stm32_dma.h"
 #include "stm32_gpio.h"
 #include "definitions.h"
@@ -327,14 +328,20 @@ uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out)
 }
 
 #if defined(USE_SPI_DMA)
-static uint16_t _scratch_byte __DMA;
-static uint8_t _scratch_buffer[512] __DMA;
+static uint16_t _scratch_byte __DMA_NO_CACHE;
+static uint8_t _scratch_buffer[512] __DMA_NO_CACHE;
 
-#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32F4)
+#if defined(STM32F4)
 extern uint32_t _sram;
 extern uint32_t _eram;
 #define _IS_DMA_BUFFER(addr) \
   ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
+#elif defined(STM32H7) || defined(STM32H7RS)
+extern uint32_t _s_dram;
+extern uint32_t _e_dram;
+#define _IS_DMA_BUFFER(addr)                 \
+  ((intptr_t)(addr) >= (intptr_t)&_s_dram && \
+   (intptr_t)(addr) <= (intptr_t)&_e_dram)
 #else
 #define _IS_DMA_BUFFER(addr) (true)
 #endif

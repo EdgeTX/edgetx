@@ -125,17 +125,28 @@
 #define BLOCK_SIZE FF_MAX_SS
 #define SD_TIMEOUT 300 /* 300ms */
 
-#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32F4)
+#if defined(STM32F4)
 extern uint32_t _sram;
 extern uint32_t _heap_start;
 #if defined(SDRAM)
-#define _IS_DMA_BUFFER(addr)                                           \
+#define _IS_DMA_BUFFER(addr)                                                   \
   (((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000)) || \
-   ((((intptr_t)(addr)) & 0xFC000000) == (((intptr_t)&_heap_start) & 0xFC000000)))
+   ((((intptr_t)(addr)) & 0xFC000000) ==                                       \
+    (((intptr_t)&_heap_start) & 0xFC000000)))
 #else
 #define _IS_DMA_BUFFER(addr) \
   ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000))
 #endif
+#elif defined(STM32H7) || defined(STM32H7RS)
+extern uint32_t _sram;
+extern uint32_t _s_dram;
+extern uint32_t _heap_start;
+#define _IS_DMA_BUFFER(addr)                                                   \
+  (((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000)) || \
+   ((((intptr_t)(addr)) & 0xFFF60000) ==                                       \
+    (((intptr_t)&_s_dram) & 0xFFF60000)) ||                                    \
+   ((((intptr_t)(addr)) & 0xFC000000) ==                                       \
+    (((intptr_t)&_heap_start) & 0xFC000000)))
 #else
 #define _IS_DMA_BUFFER(addr) (true)
 #endif

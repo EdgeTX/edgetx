@@ -65,7 +65,7 @@
 #endif
 
 static module_pulse_driver _module_drivers[MAX_MODULES];
-static module_pulse_buffer _module_buffers[MAX_MODULES] __DMA;
+static module_pulse_buffer _module_buffers[MAX_MODULES] __DMA_NO_CACHE;
 
 void pulsesInit()
 {
@@ -83,7 +83,7 @@ uint8_t* pulsesGetModuleBuffer(uint8_t module)
 }
 
 ModuleState moduleState[NUM_MODULES];
-TrainerPulsesData trainerPulsesData __DMA;
+TrainerPulsesData trainerPulsesData __DMA_NO_CACHE;
 
 void pulsesStart()
 {

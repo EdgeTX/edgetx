@@ -125,6 +125,10 @@ endif()
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
+if(NATIVE_BUILD)
+  include_directories(targets/simu)
+endif()
+
 foreach(LANGUAGE ${RADIO_LANGUAGES})
   if(TRANSLATIONS STREQUAL ${LANGUAGE})
     add_definitions(-DTRANSLATIONS_${LANGUAGE} -DTRANSLATIONS="${LANGUAGE}")

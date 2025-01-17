@@ -20,6 +20,7 @@
  */
 
 #include "stm32_adc.h"
+#include "memory_sections.h"
 #include "stm32_dma.h"
 #include "stm32_gpio_driver.h"
 
@@ -61,7 +62,7 @@ static uint32_t _adc_input_inhibt_mask = 0;
 static volatile uint32_t _adc_inhibit_mask;
 
 // DMA buffers
-static uint16_t _adc_dma_buffer[MAX_ADC_INPUTS] __DMA;
+static uint16_t _adc_dma_buffer[MAX_ADC_INPUTS] __DMA_NO_CACHE;
 
 // ADCs started
 static volatile uint8_t _adc_started_mask;

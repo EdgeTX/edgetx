@@ -143,6 +143,8 @@ set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:cmsis>)
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:cmsis>)
 
 if(NOT NATIVE_BUILD)
+  include_directories(targets/common/arm/stm32/h7)
+
   #
   # FreeRTOS port specific include
   #

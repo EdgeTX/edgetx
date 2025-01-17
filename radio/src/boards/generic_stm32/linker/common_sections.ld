@@ -43,7 +43,7 @@ _sidata = LOADADDR(.data);
   _ebss = .;         /* define a global symbol at bss end */
 } > REGION_BSS
 
-/* collect all uninitialized .ram sections (force DMA accessible) */
+/* collect all uninitialized .ram sections */
 .ram (NOLOAD) : AT (ADDR(.ram))
 {
   . = ALIGN(4);

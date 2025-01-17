@@ -1,4 +1,5 @@
 
+/* Task stacks */
 .ccm (NOLOAD) :
 {
   . = ALIGN(4);
@@ -6,16 +7,17 @@
   *(.ccm)
   . = ALIGN(4);
   _eccm = .;
-} > RAM
+} > DTCMRAM
 
-/* Reserve stack space in RAM_D3 */
-.stack(NOLOAD) : AT (ADDR(.stack))
+/* Reserve stack space */
+.stack(NOLOAD) :
 {
   . = ALIGN(4);
   . = . + MAIN_STACK_SIZE;
   . = ALIGN(4);
-} > RAM
+} > DTCMRAM
 
+/* Fast code */
 .iram (NOLOAD) :
 {
   . = ALIGN(4);
@@ -23,17 +25,22 @@
   *(.iram)
   . = ALIGN(4);
   _eiram = .;
-} > RAM AT> REGION_TEXT_STORAGE
+} > ITCMRAM AT> REGION_TEXT_STORAGE
 
 _stext_iram = LOADADDR(.iram);
 
-.sram2 (NOLOAD) :
+/* Extra DMA section */
+.dram (NOLOAD) :
 {
   . = ALIGN(4);
-  *(.sram2)
-} > RAM
+  _s_dram = .;
+  *(.dram)
+  _e_dram = .;
+} > DMA
 
-.sdram(NOLOAD) :
+_dram_addr = ADDR(.dram);
+
+.sdram (NOLOAD) :
 {
   . = ALIGN(4);
   *(.sdram)
