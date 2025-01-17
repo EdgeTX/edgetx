@@ -1334,9 +1334,9 @@ bool MdiChild::saveAs(bool isNew)
 
 bool MdiChild::saveFile(const QString & filename, bool setCurrent)
 {
-  int cnt = 0;
-
   for (int i = 0; i < (int)radioData.models.size(); i++) {
+    int cnt = 0;
+
     if (!radioData.models[i].isEmpty()) {
       for (int j = 0; j < CPN_MAX_INPUTS; j++) {
         if (!radioData.models[i].expoData[j].isEmpty() && radioData.models[i].expoData[j].srcRaw == SOURCE_TYPE_NONE)
