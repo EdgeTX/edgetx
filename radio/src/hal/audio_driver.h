@@ -30,7 +30,7 @@
 #define AUDIO_SAMPLE_RATE 32000
 
 #define AUDIO_SAMPLE_FMT_S16 0
-#define AUDIO_SAMPLE_FMT_U12 1
+#define AUDIO_SAMPLE_FMT_U16 1
 
 
 void audioSetVolume(uint8_t volume);

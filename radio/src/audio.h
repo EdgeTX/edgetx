@@ -84,7 +84,7 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
   #if defined(SIMU) || defined(AUDIO_SPI)
     #define AUDIO_SAMPLE_FMT AUDIO_SAMPLE_FMT_S16
   #else
-    #define AUDIO_SAMPLE_FMT AUDIO_SAMPLE_FMT_U12
+    #define AUDIO_SAMPLE_FMT AUDIO_SAMPLE_FMT_U16
   #endif
 #endif
 
@@ -107,7 +107,7 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
 #if AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_S16
   typedef int16_t audio_data_t;
   #define AUDIO_DATA_SILENCE 0
-#elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U12
+#elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U16
   typedef uint16_t audio_data_t;
   #define AUDIO_DATA_SILENCE 0x8000 
 #else

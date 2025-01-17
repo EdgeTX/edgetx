@@ -388,14 +388,24 @@ void audioTask(void * pdata)
   #define _sat_s16(x) __SSAT((x), 16)
 #endif
 
+#if !defined(__USAT)
+  #define _sat_u16(x) ((uint16_t)limit<uint32_t>(UINT16_MIN, (x), UINT16_MAX))
+#else
+  #define _sat_u16(x) __USAT((x), 16)
+#endif
+
 inline void mixSample(audio_data_t * result, int16_t sample, unsigned int fade)
 {
   int32_t tmp = (int32_t)*result + ((int32_t)sample >> fade);
+#if AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_S16
   *result = (audio_data_t)_sat_s16(tmp);
+#elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U16
+  *result = (audio_data_t)_sat_u16((uint32_t)tmp);
+#endif 
 }
 
 #define RIFF_CHUNK_SIZE 12
-uint8_t wavBuffer[AUDIO_BUFFER_SIZE*2] __DMA;
+uint8_t wavBuffer[AUDIO_BUFFER_SIZE * 2] __DMA;
 
 int WavContext::mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade)
 {
@@ -648,8 +658,11 @@ void AudioQueue::wakeup()
 #if defined(SOFTWARE_VOLUME)
       if (currentSpeakerVolume > 0) {
         for (uint32_t i=0; i<buffer->size; ++i) {
-          int32_t tmpSample = (int32_t) ((uint32_t) (buffer->data[i]) - AUDIO_DATA_SILENCE);  // conversion from uint16_t
-          buffer->data[i] = (int16_t) (((tmpSample * currentSpeakerVolume) / VOLUME_LEVEL_MAX) + AUDIO_DATA_SILENCE);
+          int32_t tmpSample =
+              (int32_t)((uint32_t)(buffer->data[i]) - AUDIO_DATA_SILENCE);
+          buffer->data[i] = (int16_t)(((tmpSample * currentSpeakerVolume) /
+                                       VOLUME_LEVEL_MAX) +
+                                      AUDIO_DATA_SILENCE);
         }
         buffersFifo.audioPushBuffer();
       } else {
