@@ -837,7 +837,7 @@ class AppData: public CompStoreObj
 
     // Toolbars visibility
     PROPERTY(bool, fileToolbarVisible, true)
-    PROPERTY(bool, editToolbarVisible, true)
+    PROPERTY(bool, modelsToolbarVisible, true)
     PROPERTY(bool, radioToolbarVisible, true)
     PROPERTY(bool, settingsToolbarVisible, true)
     PROPERTY(bool, toolsToolbarVisible, true)

@@ -699,20 +699,22 @@ void MainWindow::updateMenus()
   fileWindowActions.clear();
 
   if (activeChild) {
-    editMenu->clear();
-    editMenu->addActions(activeMdiChild()->getEditActions());
-    editMenu->addSeparator();
-    editMenu->addActions(activeMdiChild()->getModelActions());  // maybe separate menu/toolbar?
-    editMenu->setEnabled(true);
+    modelsMenu->clear();
+    modelsMenu->addActions(activeMdiChild()->getEditActions());
+    modelsMenu->addSeparator();
+    modelsMenu->addActions(activeMdiChild()->getModelActions());  // maybe separate menu/toolbar?
+    modelsMenu->addAction(compareAct);
+    modelsMenu->setEnabled(true);
 
-    editToolBar->clear();
-    editToolBar->addActions(activeMdiChild()->getEditActions());
-    editToolBar->setEnabled(true);
+    modelsToolBar->clear();
+    modelsToolBar->addActions(activeMdiChild()->getEditActions());
+    modelsToolBar->addAction(compareAct);
+    modelsToolBar->setEnabled(true);
 
     if (activeMdiChild()->getAction(MdiChild::ACT_MDL_MOV)) {
       // workaround for default split button appearance of action with menu  :-/
       QToolButton * btn;
-      if ((btn = qobject_cast<QToolButton *>(editToolBar->widgetForAction(activeMdiChild()->getAction(MdiChild::ACT_MDL_MOV)))))
+      if ((btn = qobject_cast<QToolButton *>(modelsToolBar->widgetForAction(activeMdiChild()->getAction(MdiChild::ACT_MDL_MOV)))))
         btn->setPopupMode(QToolButton::InstantPopup);
     }
 
@@ -721,11 +723,11 @@ void MainWindow::updateMenus()
     sep->setSeparator(true);
     fileWindowActions.insert(0, sep);
     radioMenu->addActions(fileWindowActions);
-    editToolBar->addActions(fileWindowActions); // do not put these in lhs toolbar
+    modelsToolBar->addActions(fileWindowActions); // do not put these in lhs toolbar
   }
   else {
-    editToolBar->setDisabled(true);
-    editMenu->setDisabled(true);
+    modelsToolBar->setDisabled(true);
+    modelsMenu->setDisabled(true);
   }
 
   foreach (QAction * act, windowsListActions->actions()) {
@@ -830,7 +832,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
 
-  trAct(compareAct,         tr("Compare Models..."),      tr("Compare models"));
+  trAct(compareAct,         tr("Compare Models"),         tr("Compare models"));
   trAct(updatesAct,         tr("Update components..."),   tr("Download and update EdgeTX components and supporting resources"));
   trAct(sdsyncAct,          tr("Synchronize SD card..."), tr("SD card synchronization"));
   trAct(logsAct,            tr("View Log File..."),       tr("Open and view log file"));
@@ -841,7 +843,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(deleteProfileAct,   tr("Delete Current Radio Profile..."), tr("Delete the current Radio Settings Profile"));
 
   trAct(viewFileToolbarAct,     tr("File Toolbar"),     tr("Configure File toolbar visibility"));
-  trAct(viewEditToolbarAct,     tr("Edit Toolbar"),     tr("Configure Edit toolbar visibility"));
+  trAct(viewModelsToolbarAct,   tr("Models Toolbar"),   tr("Configure Models toolbar visibility"));
   trAct(viewRadioToolbarAct,    tr("Radio Toolbar"),    tr("Configure Radio toolbar visibility"));
   trAct(viewSettingsToolbarAct, tr("Settings Toolbar"), tr("Configure Settings toolbar visibility"));
   trAct(viewToolsToolbarAct,    tr("Tools Toolbar"),    tr("Configure Tools toolbar visibility"));
@@ -855,10 +857,10 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(changelogAct,       tr("Release notes..."),     tr("Show release notes"));
   trAct(aboutAct,           tr("About"),                tr("Show the application's About box"));
 
-  editMenu->setTitle(tr("Edit"));
   fileMenu->setTitle(tr("File"));
-  settingsMenu->setTitle(tr("Settings"));
   viewMenu->setTitle(tr("View"));
+  modelsMenu->setTitle(tr("Models"));
+  settingsMenu->setTitle(tr("Settings"));
   themeMenu->setTitle(tr("Set Icon Theme"));
   iconThemeSizeMenu->setTitle(tr("Set Icon Size"));
   radioMenu->setTitle(tr("Radio"));
@@ -867,7 +869,7 @@ void MainWindow::retranslateUi(bool showMsg)
   helpMenu->setTitle(tr("Help"));
 
   fileToolBar->setWindowTitle(tr("File"));
-  editToolBar->setWindowTitle(tr("Edit"));
+  modelsToolBar->setWindowTitle(tr("Models"));
   radioToolBar->setWindowTitle(tr("Radio"));
   radioToolBar->setWindowTitle(tr("Settings"));
   toolsToolBar->setWindowTitle(tr("Tools"));
@@ -918,7 +920,7 @@ void MainWindow::createActions()
   readBUToFileAct =        addAct("read_eeprom_file.png",   SLOT(readBackup()));
 
   viewFileToolbarAct =     addAct("",                       SLOT(viewFileToolbar()));
-  viewEditToolbarAct =     addAct("",                       SLOT(viewEditToolbar()));
+  viewModelsToolbarAct =   addAct("",                       SLOT(viewmodelsToolbar()));
   viewRadioToolbarAct =    addAct("",                       SLOT(viewRadioToolbar()));
   viewSettingsToolbarAct = addAct("",                       SLOT(viewSettingsToolbar()));
   viewToolsToolbarAct =    addAct("",                       SLOT(viewToolsToolbar()));
@@ -941,7 +943,7 @@ void MainWindow::createActions()
 
   setActCheckability(tabbedWindowsAct, false);
   setActCheckability(viewFileToolbarAct, g.fileToolbarVisible());
-  setActCheckability(viewEditToolbarAct, g.editToolbarVisible());
+  setActCheckability(viewModelsToolbarAct, g.modelsToolbarVisible());
   setActCheckability(viewRadioToolbarAct, g.radioToolbarVisible());
   setActCheckability(viewSettingsToolbarAct, g.settingsToolbarVisible());
   setActCheckability(viewToolsToolbarAct, g.toolsToolbarVisible());
@@ -962,16 +964,16 @@ void MainWindow::createMenus()
   fileMenu->addSeparator();
   fileMenu->addAction(exitAct);
 
-  editMenu = menuBar()->addMenu("");
-
   viewMenu = menuBar()->addMenu("");
   viewMenu->addAction(viewFileToolbarAct);
-  viewMenu->addAction(viewEditToolbarAct);
+  viewMenu->addAction(viewModelsToolbarAct);
   viewMenu->addAction(viewRadioToolbarAct);
   viewMenu->addAction(viewSettingsToolbarAct);
   viewMenu->addAction(viewToolsToolbarAct);
   viewMenu->addSeparator();
   viewMenu->addMenu(createLanguageMenu(viewMenu));
+
+  modelsMenu = menuBar()->addMenu("");
 
   themeMenu = viewMenu->addMenu("");
   QActionGroup * themeGroup = new QActionGroup(themeMenu);
@@ -1013,7 +1015,6 @@ void MainWindow::createMenus()
   settingsMenu->addAction(profilesMenuAct);
 
   toolsMenu = menuBar()->addMenu("");
-  toolsMenu->addAction(compareAct);
   toolsMenu->addAction(updatesAct);
   toolsMenu->addAction(sdsyncAct);
   toolsMenu->addAction(logsAct);
@@ -1074,12 +1075,10 @@ void MainWindow::createToolBars()
   QToolButton * btn;
   if ((btn = qobject_cast<QToolButton *>(fileToolBar->widgetForAction(recentFilesAct))))
     btn->setPopupMode(QToolButton::InstantPopup);
-  if ((btn = qobject_cast<QToolButton *>(fileToolBar->widgetForAction(profilesMenuAct))))
-    btn->setPopupMode(QToolButton::InstantPopup);
 
   // gets populated later
-  editToolBar = addToolBar("");
-  editToolBar->setObjectName("Edit");
+  modelsToolBar = addToolBar("");
+  modelsToolBar->setObjectName("Models");
 
   radioToolBar = new QToolBar(this);
   addToolBar(Qt::LeftToolBarArea, radioToolBar);
@@ -1100,9 +1099,11 @@ void MainWindow::createToolBars()
   settingsToolBar->addAction(editAppSettingsAct);
   settingsToolBar->addAction(profilesMenuAct);
 
+  if ((btn = qobject_cast<QToolButton *>(settingsToolBar->widgetForAction(profilesMenuAct))))
+    btn->setPopupMode(QToolButton::InstantPopup);
+
   toolsToolBar = addToolBar("");
   toolsToolBar->setObjectName("Tools");
-  toolsToolBar->addAction(compareAct);
   toolsToolBar->addAction(updatesAct);
   toolsToolBar->addAction(sdsyncAct);
   toolsToolBar->addAction(logsAct);
@@ -1514,10 +1515,10 @@ void MainWindow::viewFileToolbar()
   fileToolBar->setVisible(viewFileToolbarAct->isChecked());
 }
 
-void MainWindow::viewEditToolbar()
+void MainWindow::viewModelsToolbar()
 {
-  g.editToolbarVisible(viewEditToolbarAct->isChecked());
-  editToolBar->setVisible(viewEditToolbarAct->isChecked());
+  g.modelsToolbarVisible(viewModelsToolbarAct->isChecked());
+  modelsToolBar->setVisible(viewModelsToolbarAct->isChecked());
 }
 
 void MainWindow::viewRadioToolbar()

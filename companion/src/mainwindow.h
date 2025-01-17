@@ -122,7 +122,7 @@ class MainWindow : public QMainWindow
     void writeSettingsSDPath();
 
     void viewFileToolbar();
-    void viewEditToolbar();
+    void viewModelsToolbar();
     void viewRadioToolbar();
     void viewSettingsToolbar();
     void viewToolsToolbar();
@@ -171,7 +171,7 @@ class MainWindow : public QMainWindow
 
     // top level menus
     QMenu *fileMenu;
-    QMenu *editMenu;
+    QMenu *modelsMenu;
     QMenu *viewMenu;
     QMenu *settingsMenu;
     QMenu *radioMenu;
@@ -188,7 +188,7 @@ class MainWindow : public QMainWindow
     QActionGroup * windowsListActions;
 
     QToolBar *fileToolBar;
-    QToolBar *editToolBar;
+    QToolBar *modelsToolBar;
     QToolBar *radioToolBar;
     QToolBar *settingsToolBar;
     QToolBar *toolsToolBar;
@@ -230,7 +230,7 @@ class MainWindow : public QMainWindow
     QAction *writeSettingsSDPathAct;
     QAction *readSettingsSDPathAct;
     QAction *viewFileToolbarAct;
-    QAction *viewEditToolbarAct;
+    QAction *viewModelsToolbarAct;
     QAction *viewRadioToolbarAct;
     QAction *viewSettingsToolbarAct;
     QAction *viewToolsToolbarAct;
