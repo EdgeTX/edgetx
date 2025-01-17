@@ -1014,7 +1014,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   for (int i = 0; i < CPN_MAX_MIXERS; i++) {
     const MixData& mix = rhs.mixData[i];
-    if (!mix.isEmpty()) {
+    if (!mix.isEmpty() && mix.srcRaw != SOURCE_TYPE_NONE) {
       node["mixData"].push_back(Node(mix));
     }
   }
@@ -1029,7 +1029,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   std::set<int> inputs;
   for (int i = 0; i < CPN_MAX_EXPOS; i++) {
     const ExpoData& expo = rhs.expoData[i];
-    if (!expo.isEmpty()) {
+    if (!expo.isEmpty() && expo.srcRaw != SOURCE_TYPE_NONE) {
       Node expoNode;
       expoNode = expo;
       node["expoData"].push_back(expoNode);

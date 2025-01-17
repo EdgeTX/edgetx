@@ -1334,6 +1334,35 @@ bool MdiChild::saveAs(bool isNew)
 
 bool MdiChild::saveFile(const QString & filename, bool setCurrent)
 {
+  int cnt = 0;
+
+  for (int i = 0; i < (int)radioData.models.size(); i++) {
+    if (!radioData.models[i].isEmpty()) {
+      for (int j = 0; j < CPN_MAX_INPUTS; j++) {
+        if (!radioData.models[i].expoData[j].isEmpty() && radioData.models[i].expoData[j].srcRaw == SOURCE_TYPE_NONE)
+          cnt++;
+      }
+
+      if (cnt > 0) {
+        if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Model %1 has %2 inputs with no source and these inputs will not be saved. Continue?").arg(radioData.models[i].name).arg(cnt),
+                                  QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+          return false;
+      }
+
+      cnt = 0;
+      for (int j = 0; j < CPN_MAX_MIXERS; j++) {
+        if (!radioData.models[i].mixData[j].isEmpty() && radioData.models[i].mixData[j].srcRaw == SOURCE_TYPE_NONE)
+          cnt++;
+      }
+
+      if (cnt > 0) {
+        if (QMessageBox::question(this, CPN_STR_APP_NAME, tr("Model %1 has %2 mixes with no source and these mixes will not be saved. Continue?").arg(radioData.models[i].name).arg(cnt),
+                                  QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+          return false;
+      }
+    }
+  }
+
   radioData.fixModelFilenames();
   Storage storage(filename);
   bool result = storage.write(radioData);
