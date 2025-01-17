@@ -3956,8 +3956,8 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1259"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1552"/>
-        <source>Support hardware mod: FlySky Paladin EV Gimbals</source>
-        <translation>Stöd för intern hårdvarumodd: FlySky Paladin EV Gimbals</translation>
+        <source>Support hardware mod: Serial gimbals</source>
+        <translation>Stöd för intern hårdvarumodd: Serial gimbals</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1467"/>

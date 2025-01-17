@@ -3921,7 +3921,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1259"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1552"/>
-        <source>Support hardware mod: FlySky Paladin EV Gimbals</source>
+        <source>Support hardware mod: Serial gimbals</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

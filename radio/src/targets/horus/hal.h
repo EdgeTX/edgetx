@@ -1010,15 +1010,15 @@
   #define HAPTIC_TIMER_OUTPUT_ENABLE    TIM_CCER_CC2E
   #define HAPTIC_TIMER_MODE             TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2
   #define HAPTIC_TIMER_COMPARE_VALUE    HAPTIC_GPIO_TIMER->CCR2
-  // FlySky Hall Sticks
-  #define FLYSKY_HALL_SERIAL_USART                 UART4
-  #define FLYSKY_HALL_DMA_Channel                  LL_DMA_CHANNEL_4
-  #define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOA, 0) // PA.00
-  #define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOA, 1) // PA.01
-  #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
-  #define FLYSKY_HALL_SERIAL_DMA                   DMA1
-  #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
-  // #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
+  // Serial gimbals
+  #define SERIAL_GIMBAL_SERIAL_USART               UART4
+  #define SERIAL_GIMBAL_DMA_Channel                LL_DMA_CHANNEL_4
+  #define SERIAL_GIMBAL_SERIAL_TX_GPIO             GPIO_PIN(GPIOA, 0) // PA.00
+  #define SERIAL_GIMBAL_SERIAL_RX_GPIO             GPIO_PIN(GPIOA, 1) // PA.01
+  #define SERIAL_GIMBAL_SERIAL_USART_IRQn          UART4_IRQn
+  #define SERIAL_GIMBAL_SERIAL_DMA                 DMA1
+  #define SERIAL_GIMBAL_DMA_Stream_RX              LL_DMA_STREAM_2
+  // #define SERIAL_GIMBAL_DMA_Stream_TX           LL_DMA_STREAM_4
 #endif
 
 #if defined(RADIO_V16)

@@ -106,10 +106,10 @@ HWPots::HWPots(Window* parent) :
   for (int i = 0; i < max_pots; i++) {
     // TODO: check initialised ADC inputs instead!
 
-    // Display EX3 & EX4 (= last two pots) only when FlySky gimbals are present
+    // Display EX3 & EX4 (= last two pots) only when Serial gimbals are present
     // TODO: use input disabled mask instead
     // #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
-    //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
+    //     if (!globalData.serialgimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
     new StaticText(this,
                    rect_t{P_LBL_X, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, 0},

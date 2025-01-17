@@ -1091,8 +1091,8 @@ static void spModuleDeInit(int port_n)
 
 #endif // HARDWARE_INTERNAL_MODULE
 
-#if defined(FLYSKY_GIMBAL)
-#include "flysky_gimbal_driver.h"
+#if defined(SERIAL_GIMBAL)
+#include "serial_gimbal_driver.h"
 
 static void spGimbalInit(int port_n, int baudrate)
 {
@@ -1104,9 +1104,9 @@ static void spGimbalInit(int port_n, int baudrate)
   };
 
   (void)port_n;
-  flysky_gimbal_deinit();
+  serial_gimbal_deinit();
 
-  auto port = flysky_gimbal_get_port();
+  auto port = serial_gimbal_get_port();
   _sp_drv = port->uart;
   _sp_ctx = _sp_drv->init(port->hw_def, &params);
 }
@@ -1115,7 +1115,7 @@ static void spGimbalDeInit(int port_n)
 {
   (void)port_n;
   _sp_drv->deinit(_sp_ctx);
-  flysky_gimbal_init();
+  serial_gimbal_init();
 }
 #endif
 
@@ -1162,7 +1162,7 @@ int cliSerialPassthrough(const char **argv)
       return -1;
     }
   } else if (!strcmp("gimbals", port_type)) {
-#if defined(FLYSKY_GIMBAL)
+#if defined(SERIAL_GIMBAL)
     // 2nd argument (baudrate is optional)
     if (toInt(argv, 2, &baudrate) <= 0) {
       baudrate = 0;
