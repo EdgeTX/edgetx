@@ -90,8 +90,8 @@ void getCPUUniqueID(char * s);
 
 #define BATTERY_WARN                  37 // 3.7V
 #define BATTERY_MIN                   35 // 3.4V
-#define BATTERY_MAX                   43 // 4.3V
-#define BATTERY_DIVIDER               962
+#define BATTERY_MAX                   84 // 8.4V
+#define BATTERY_DIVIDER             1000
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {

@@ -113,7 +113,11 @@ void boardInit()
   keysInit();
   switchInit();
   // audioInit();
+
   adcInit(&_adc_driver);
+  setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), 840 * 2);
+  setAnalogValue(adcGetInputOffset(ADC_INPUT_RTC_BAT), 300 * 2);
+
   // hapticInit();
 
 #if defined(RTCLOCK)
