@@ -29,6 +29,25 @@
 #include "memory_sections.h"
 #endif
 
+#ifndef __CCMRAM
+#define __CCMRAM
+#endif
+#ifndef __DMA
+#define __DMA
+#endif
+#ifndef __DMA_NO_CACHE
+#define __DMA_NO_CACHE
+#endif
+#ifndef __IRAM
+#define __IRAM
+#endif
+#ifndef __SDRAM
+#define __SDRAM
+#endif
+#ifndef __SDRAMFONTS
+#define __SDRAMFONTS
+#endif
+
 #if !defined(M_PI)
 #define M_PI         3.14159265358979323846   // pi
 #define M_PI_2       1.57079632679489661923   // pi/2
