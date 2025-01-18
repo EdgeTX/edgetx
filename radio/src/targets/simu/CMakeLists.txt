@@ -35,6 +35,7 @@ set(SIMU_DRIVERS ${SIMU_DRIVERS}
   ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
   )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(../../targets/simu)
 
 if(SDL2_FOUND)
   include_directories(${SDL2_INCLUDE_DIRS})
