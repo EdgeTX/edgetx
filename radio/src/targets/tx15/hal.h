@@ -150,7 +150,7 @@
 // Each ADC cannot map more than 8 channels, otherwise it will cause problems
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_11   // ADC12_INP11
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC123_INP14
+#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC3_INP14
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC12_IN14
 
 #define ADC_MAIN                        ADC1
@@ -161,6 +161,8 @@
 #define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
 #define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_64CYCLES_5
 
+#define ADC_EXT                         ADC3
+#define ADC_EXT_CHANNELS                { ADC_CHANNEL_BATT }
 #define ADC_EXT_DMA                     DMA2
 #define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
 #define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
