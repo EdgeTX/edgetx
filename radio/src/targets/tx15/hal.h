@@ -296,6 +296,7 @@
 #define QSPI_WP_GPIO_AF                 GPIO_AF9
 #define QSPI_HOLD_GPIO                  GPIO_PIN(GPIOF, 6)
 #define QSPI_HOLD_GPIO_AF               GPIO_AF9
+#define QSPI_FLASH_SIZE                 0x1000000
 
 
 //#define SD_PRESENT_GPIO                GPIO_PIN(GPIOD, 3) // PD.03
