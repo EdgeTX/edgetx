@@ -85,7 +85,7 @@ static uint32_t stm32_flash_get_sector_size(uint32_t sector)
   return 128 * 1024;
 }
 
-#elif defined(STM32H7) || defined(STM32H7RS)
+#elif defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
 
 static uint32_t stm32_flash_get_sector(uint32_t address)
 {
@@ -158,7 +158,7 @@ static int stm32_flash_erase_sector(uint32_t address)
   #define FLASH_PROG_WORDS FLASH_NB_32BITWORD_IN_FLASHWORD
   #define _FLASH_PROGRAM(address, p_data) \
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uintptr_t)p_data)
-#elif defined(STM32H7RS)
+#elif defined(STM32H7RS) || defined(STM32H5)
   #define FLASH_PROG_WORDS 4UL
   #define _FLASH_PROGRAM(address, p_data) \
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_QUADWORD, address, (uintptr_t)p_data)

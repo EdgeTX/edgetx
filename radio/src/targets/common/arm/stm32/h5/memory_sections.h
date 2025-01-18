@@ -21,25 +21,16 @@
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
+#define __CCMRAM       __attribute__((section(".ccm"), aligned(4)))
+#define __DMA          __attribute__((section(".ram"), aligned(4)))
+#define __DMA_NO_CACHE __DMA
+#define __IRAM
+
+#if defined(SDRAM)
+  #define __SDRAM      __attribute__((section(".sdram"), aligned(4)))
+  #define __SDRAMFONTS __attribute__((section(".sdram_fonts"), aligned(4)))
+#else
+  #define __SDRAM
+  #define __SDRAMFONTS
 #endif
-  #if defined(STM32F4)
-    #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
-    #include "stm32f4xx_hal.h"
-  #elif defined(STM32F2)
-    #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
-    #include "stm32f2xx_hal.h"
-  #elif defined(STM32H7)
-    #include "CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h"
-    #include "stm32h7xx_hal.h"
-  #elif defined(STM32H7RS)
-    #include "CMSIS/Device/ST/STM32H7RS/Include/stm32h7rsxx.h"
-    #include "stm32h7rsxx_hal.h"
-  #elif defined(STM32H5)
-    #include "CMSIS/Device/ST/STM32H5xx/Include/stm32h562xx.h"
-    #include "stm32h5xx_hal.h"
-  #endif
-#ifdef __cplusplus
-}
-#endif
+
