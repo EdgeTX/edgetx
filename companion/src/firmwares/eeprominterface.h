@@ -24,7 +24,6 @@
 #include "boards.h"
 #include "macros.h"
 #include "radiodata.h"
-#include "../../radio/src/definitions.h"
 #include "simulatorinterface.h"
 #include "datahelpers.h"
 
