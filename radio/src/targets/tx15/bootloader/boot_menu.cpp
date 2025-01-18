@@ -106,6 +106,13 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
   }
 }
 
+void bootloaderDrawDFUScreen()
+{
+  lcdInitDirectDrawing();
+  bootloaderDrawBackground();
+  lcd->drawText(LCD_W / 2, LCD_H / 2, "DFU mode", CENTERED | BL_FOREGROUND);
+}
+
 void blExit(void)
 {
   lcdClear();
