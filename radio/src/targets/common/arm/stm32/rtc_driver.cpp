@@ -61,7 +61,7 @@ void rtcInit()
 {
   rtc.Instance = RTC;
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
+#if !defined(STM32H7) && !defined(STM32H7RS) && !defined(STM32H5)
   // Power management peripheral is active by default at startup level in
   // STM32h7xx lines.
   __HAL_RCC_PWR_CLK_ENABLE();

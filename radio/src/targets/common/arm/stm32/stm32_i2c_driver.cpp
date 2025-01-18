@@ -71,7 +71,7 @@ static void i2c_ensure_mutex(stm32_i2c_device* dev)
 #define I2CMutex(bus)
 #endif
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
 
 /* ST's I2C timing computation */
 
@@ -405,7 +405,10 @@ static int i2c_enable_clock(I2C_TypeDef* instance)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
   else if (instance == I2C2)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C2);
-  else if (instance == I2C3)
+  } else if (instance == I2C3) {
+#if defined(LL_APB3_GRP1_PERIPH_I2C3)
+    LL_APB3_GRP1_EnableClock(LL_APB3_GRP1_PERIPH_I2C3);
+#else
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C3);
 #if defined(I2C4)
   else if (instance == I2C4)
@@ -424,6 +427,9 @@ static int i2c_disable_clock(I2C_TypeDef* instance)
   else if (instance == I2C2)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C2);
   else if (instance == I2C3)
+#if defined(LL_APB3_GRP1_PERIPH_I2C3)
+    LL_APB3_GRP1_DisableClock(LL_APB3_GRP1_PERIPH_I2C3);
+#else
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C3);
 #if defined(I2C4)
   else if (instance == I2C4)
@@ -482,7 +488,7 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
   auto h = &dev->handle;
   I2C_InitTypeDef& init = h->Init;
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   i2c_init_clock_source(h->Instance);
 # if defined(LL_RCC_I2C123_CLKSOURCE_PCLK1)
   uint32_t pclk_freq = LL_RCC_GetI2CClockFreq(LL_RCC_I2C123_CLKSOURCE_PCLK1);
@@ -522,7 +528,7 @@ int stm32_i2c_init(uint8_t bus, uint32_t clock_rate, const stm32_i2c_hw_def_t* h
   }
 
 #if defined(I2C_FLTR_ANOFF) && defined(I2C_FLTR_DNF) || defined(STM32H7) || \
-    defined(STM32H7RS)
+    defined(STM32H7RS) || defined(STM32H5)
   // Configure Analogue filter
   if (HAL_I2CEx_ConfigAnalogFilter(h, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
     TRACE("I2C ERROR: HAL_I2CEx_ConfigAnalogFilter() failed");

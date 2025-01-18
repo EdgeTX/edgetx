@@ -452,9 +452,12 @@ static bool stm32_softserial_tx_dma_tc_isr(void* ctx)
     return false;
 
   uint16_t length = _fill_pulses(st);
+#if defined(STM32H7RS) || defined(STM32H5)
+#warning DMA not implemented for softserial
+#else
   LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, length);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
-
+#endif
   return true;
 }
 
