@@ -112,8 +112,12 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
 
 void boardInit()
 {
+#if defined(AUDIO)
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
+#endif
+#if defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+#endif
 
 #if defined(USB_CHARGE_LED) && !defined(DEBUG)
   usbInit();

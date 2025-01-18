@@ -274,14 +274,14 @@ void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate)
 uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out)
 {
   auto* SPIx = spi->SPIx;
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   while (!LL_SPI_IsActiveFlag_TXP(SPIx));
 #else
   while (!LL_SPI_IsActiveFlag_TXE(SPIx));
 #endif
   LL_SPI_TransmitData8(SPIx, out);
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   while (!LL_SPI_IsActiveFlag_RXP(SPIx));
 #else
   while (!LL_SPI_IsActiveFlag_RXNE(SPIx));
@@ -312,14 +312,14 @@ uint16_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
 uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out)
 {
   auto* SPIx = spi->SPIx;
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   while (!LL_SPI_IsActiveFlag_TXP(SPIx));
 #else
   while (!LL_SPI_IsActiveFlag_TXE(SPIx));
 #endif
   LL_SPI_TransmitData16(SPIx, out);
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   while (!LL_SPI_IsActiveFlag_RXP(SPIx));
 #else
   while (!LL_SPI_IsActiveFlag_RXNE(SPIx));
@@ -352,7 +352,7 @@ static void _dma_enable_stream(DMA_TypeDef* DMAx, uint32_t stream,
 			       const void* data, uint32_t length)
 {
   stm32_dma_check_tc_flag(DMAx, stream);
-#if !defined(STM32H7RS)
+#if !defined(STM32H7RS) && !defined(STM32H5)
   LL_DMA_SetMemoryAddress(DMAx, stream, (uintptr_t)data);
   LL_DMA_SetDataLength(DMAx, stream, length);
   LL_DMA_EnableStream(DMAx, stream);
@@ -377,7 +377,7 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
   LL_SPI_EnableDMAReq_RX(spi->SPIx);
 
   _scratch_byte = 0xFFFF;
-#if !defined(STM32H7RS)
+#if !defined(STM32H7RS) && !defined(STM32H5)
   LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_NOINCREMENT);
 #endif
   _dma_enable_stream(spi->DMA, spi->txDMA_Stream, &_scratch_byte, length);
@@ -386,7 +386,7 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
   // Wait for end of DMA transfer
   while(!stm32_dma_check_tc_flag(spi->DMA, spi->rxDMA_Stream));
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
+#if !defined(STM32H7) && !defined(STM32H7RS) && !defined(STM32H5)
   // Wait for TXE=1
   while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
   
@@ -426,7 +426,7 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
     data = _scratch_buffer;
   }
 
-#if !defined(STM32H7RS)
+#if !defined(STM32H7RS) && !defined(STM32H5)
   LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_INCREMENT);
 #endif
 
@@ -436,7 +436,7 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
   // Wait for end of DMA transfer
   while (!stm32_dma_check_tc_flag(spi->DMA, spi->txDMA_Stream));
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
+#if !defined(STM32H7) && !defined(STM32H7RS) && !defined(STM32H5)
   // Wait for TXE=1
   while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
 

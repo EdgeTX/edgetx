@@ -347,7 +347,7 @@ static DSTATUS sdio_status(BYTE lun)
 static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
 {
   ReadStatus = 0;
-#if __CORTEX_M >= 0x07
+#if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
   SCB_CleanInvalidateDCache();
 #endif
 
@@ -360,7 +360,7 @@ static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
   uint32_t timeout = HAL_GetTick();
   while((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT));
 
-#if __CORTEX_M >= 0x07
+#if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
   SCB_CleanInvalidateDCache();
 #endif
 
@@ -406,7 +406,7 @@ static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 
 static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
 {
-#if __CORTEX_M >= 0x07
+#if defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
   SCB_CleanDCache();
 #endif
 

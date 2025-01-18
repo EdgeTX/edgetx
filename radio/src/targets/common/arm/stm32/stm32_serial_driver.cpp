@@ -216,7 +216,7 @@ static void stm32_serial_free_state(stm32_serial_state* st)
 
 static inline uint32_t _dma_get_data_length(DMA_TypeDef* DMAx, uint32_t stream)
 {
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
   return LL_DMA_GetBlkDataLength(DMAx, stream);
 #else
   return LL_DMA_GetDataLength(DMAx, stream);

@@ -2342,12 +2342,14 @@
 #define TELEMETRY_EXTI_LINE             LL_EXTI_LINE_6
 #define TELEMETRY_EXTI_TRIGGER          LL_EXTI_TRIGGER_RISING
 // TELEMETRY_EXTI IRQ
+#if !defined(RADIO_H5TEST)
 #if !defined(USE_EXTI9_5_IRQ)
   #define USE_EXTI9_5_IRQ
 #endif
 // overwrite priority
 #undef EXTI9_5_IRQ_Priority
 #define EXTI9_5_IRQ_Priority            TELEMETRY_EXTI_PRIO
+#endif
 
 #define TELEMETRY_TIMER                 TIM11
 #define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
@@ -2877,5 +2879,10 @@
 // Mixer scheduler timer
 #define MIXER_SCHEDULER_TIMER                TIM12
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#if defined(STM32H5)
+#define MIXER_SCHEDULER_TIMER_IRQn           TIM12_IRQn
+#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM12_IRQHandler
+#else
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
+#endif

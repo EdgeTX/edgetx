@@ -61,7 +61,7 @@ void rtcInit()
 {
   rtc.Instance = RTC;
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
+#if !defined(STM32H7) && !defined(STM32H7RS) && !defined(STM32H5)
   // Power management peripheral is active by default at startup level in
   // STM32h7xx lines.
   __HAL_RCC_PWR_CLK_ENABLE();
@@ -98,7 +98,8 @@ void rtcInit()
   g_rtcTime = gmktime(&utm);
 #endif
 
-#if defined(RTC_BACKUP_RAM) && !defined(BOOT)
+#if defined(RTC_BACKUP_RAM) && !defined(BOOT) && 0
+#warning qergwqer
   __HAL_RCC_BKPSRAM_CLK_ENABLE();
   HAL_PWREx_EnableBkUpReg();
 #endif

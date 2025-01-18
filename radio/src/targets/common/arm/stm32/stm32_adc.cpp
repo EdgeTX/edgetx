@@ -42,7 +42,7 @@
 // to avoid issues with preemption between these 2
 #define ADC_IRQ_PRIO   configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
 #  define _ENABLE_EOCIE(ADCx) SET_BIT(ADCx->IER, ADC_IER_EOCIE)
 #  define _DISABLE_EOCIE(ADCx) CLEAR_BIT(ADCx->IER, ADC_IER_EOCIE)
 #  define _START_ADC_SINGLE(ADCx) SET_BIT(ADCx->CR, ADC_CR_ADSTART)
@@ -183,7 +183,7 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   LL_ADC_REG_InitTypeDef adcRegInit;
   LL_ADC_REG_StructInit(&adcRegInit);
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
+#if !defined(STM32H7) && !defined(STM32H7RS) && !defined(STM32H5)
   if (nconv > 1) {
     adcInit.SequencersScanMode = LL_ADC_SEQ_SCAN_ENABLE;
   } else {
@@ -191,12 +191,12 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   }
 #endif
 
-#if !defined(STM32H7)
+#if !defined(STM32H7) && !defined(STM32H5)
   adcInit.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
 #endif
 
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   /* - Exit from deep-power-down mode and ADC voltage regulator enable        */
   if (LL_ADC_IsDeepPowerDownEnabled(ADCx) != 0UL)
   {
@@ -246,7 +246,7 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   LL_ADC_REG_Init(ADCx, &adcRegInit);
 
   // Enable ADC
-#if defined(STM32H7RS) || defined(STM32H7)
+#if defined(STM32H7RS) || defined(STM32H7) || defined(STM32H5)
   LL_ADC_ClearFlag_ADRDY(ADCx);
   LL_ADC_Enable(ADCx);
   while(!LL_ADC_IsActiveFlag_ADRDY(ADCx)) {
@@ -356,7 +356,7 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
   adc_dma_clear_flags(DMAx, stream);
 
   // setup DMA request
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
   LL_DMA_SetSrcAddress(DMAx, stream, (intptr_t)&adc->DR);
   LL_DMA_ConfigTransfer(DMAx, stream,
                         LL_DMA_SRC_DATAWIDTH_HALFWORD |
@@ -488,8 +488,16 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
           NVIC_SetPriority(ADC_IRQn, ADC_IRQ_PRIO);
           NVIC_EnableIRQ(ADC_IRQn);
         }
-#else
+#elif defined(STM32H5)
+        if (adc->ADCx == ADC2) {
+          NVIC_SetPriority(ADC2_IRQn, ADC_IRQ_PRIO);
+          NVIC_EnableIRQ(ADC2_IRQn);
+        } else {
+          NVIC_SetPriority(ADC1_IRQn, ADC_IRQ_PRIO);
+          NVIC_EnableIRQ(ADC1_IRQn);
+        }
 
+#else
 #if defined(STM32H7RS)
 #  define ADC_IRQn ADC1_2_IRQn
 #endif
@@ -506,7 +514,7 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   return true;
 }
 
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
 
 static inline DMA_Channel_TypeDef* _dma_get_stream(DMA_TypeDef *DMAx, uint32_t Channel)
 {
@@ -539,7 +547,7 @@ static inline DMA_Stream_TypeDef* _dma_get_stream(DMA_TypeDef *DMAx, uint32_t St
 
 static void adc_dma_clear_flags(DMA_TypeDef* DMAx, uint32_t stream)
 {
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
   DMA_Channel_TypeDef* ch = _dma_get_stream(DMAx, stream);
   WRITE_REG(ch->CFCR, DMA_CFCR_DTEF | DMA_CFCR_HTF | DMA_CFCR_TCF);
 #else
@@ -569,7 +577,7 @@ static void adc_start_dma_conversion(const stm32_adc_t* adc)
   _DISABLE_EOCIE(ADCx);
 
   // Enable DMA
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
   // transfer length must be configured for every transfer
   uint32_t seq_len = LL_ADC_REG_GetSequencerLength(ADCx) + 1;
   LL_DMA_SetBlkDataLength(DMAx, stream, seq_len * 2);
@@ -592,7 +600,7 @@ static void adc_start_dma_conversion(const stm32_adc_t* adc)
 
 static bool adc_disable_dma(DMA_TypeDef* DMAx, uint32_t stream)
 {
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
   DMA_Channel_TypeDef* ch = _dma_get_stream(DMAx, stream);
   CLEAR_BIT(ch->CCR, DMA_CCR_TCIE | DMA_CCR_DTEIE);
 
@@ -657,7 +665,7 @@ static void adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
 
     // more than one channel enabled on this ADC
     bool seq_mode_enabled = false;
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
     seq_mode_enabled = (LL_ADC_REG_GetSequencerLength(ADCx) != LL_ADC_REG_SEQ_SCAN_DISABLE);
 #else
     seq_mode_enabled = (LL_ADC_GetSequencersScanMode(ADCx) == LL_ADC_SEQ_SCAN_ENABLE);
@@ -789,7 +797,7 @@ void stm32_hal_adc_dma_isr(const stm32_adc_t* adc)
   // Disable IRQ
   adc_dma_clear_flags(adc->DMAx, adc->DMA_Stream);
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
+#if !defined(STM32H7) && !defined(STM32H7RS) && !defined(STM32H5)
   // Disable DMA
   CLEAR_BIT(adc->ADCx->CR2, ADC_CR2_DMA);
 #endif
@@ -804,7 +812,7 @@ void stm32_hal_adc_isr(const stm32_adc_t* adc)
 {
   // check if this ADC triggered the IRQ
   auto ADCx = adc->ADCx;
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   if (!LL_ADC_IsActiveFlag_EOC(ADCx) || !LL_ADC_IsEnabledIT_EOC(ADCx))
     return;
 #else
