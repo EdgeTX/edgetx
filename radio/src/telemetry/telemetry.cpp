@@ -452,7 +452,7 @@ void logTelemetryWriteByte(uint8_t data)
 }
 #endif
 
-OutputTelemetryBuffer outputTelemetryBuffer __DMA;
+OutputTelemetryBuffer outputTelemetryBuffer __DMA_NO_CACHE;
 
 #if defined(LUA)
 Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo = NULL;

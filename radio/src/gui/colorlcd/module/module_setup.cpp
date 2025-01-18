@@ -603,6 +603,7 @@ class ModuleSubTypeChoice : public Choice
       g_model.moduleData[moduleIdx].subType = newValue;
       SET_DIRTY();
     } else {
+#if defined(MULTIMODULE)
       g_model.moduleData[moduleIdx].multi.rfProtocol = newValue;
       g_model.moduleData[moduleIdx].subType = 0;
       resetMultiProtocolsOptions(moduleIdx);
@@ -614,6 +615,7 @@ class ModuleSubTypeChoice : public Choice
       while (!status.isValid() && (RTOS_GET_MS() - startUpdate < 250))
         ;
       SET_DIRTY();
+#endif
     }
 
     if (moduleWindow)

@@ -3,6 +3,8 @@
 //   This file has been generated from the target's JSON hardware description
 //
 
+#include "stm32_gpio.h"
+
 static const stm32_adc_input_t _ADC_inputs[] = {
 {% for input in adc_inputs.inputs %}
   {
@@ -52,9 +54,9 @@ static const stm32_spi_adc_t _ADC_spi[] = {
   {
     .spi = {
       {{ adc.adc }},
-      {{ adc.gpio }},
-      {{ adc.gpio_pin_miso }} | {{ adc.gpio_pin_mosi }} | {{ adc.gpio_pin_sck }},
-      {{ adc.gpio }},
+      {{ adc.gpio_pin_sck }},
+      {{ adc.gpio_pin_miso }},
+      {{ adc.gpio_pin_mosi }},
       {{ adc.gpio_pin_cs }},
     },
     _ADC_{{ adc.name }}_channels,

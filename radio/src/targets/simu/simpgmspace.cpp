@@ -494,14 +494,6 @@ void setSelectedUsbMode(int mode) {}
 void delay_ms(uint32_t ms) { }
 void delay_us(uint16_t us) { }
 
-void unlockFlash()
-{
-}
-
-void lockFlash()
-{
-}
-
 void flashWrite(uint32_t *address, const uint32_t *buffer)
 {
   simuSleep(10);
@@ -529,7 +521,7 @@ void boardOff()
 
 void hapticOff() {}
 
-#if defined(PCBFRSKY) || defined(PCBNV14)
+#if defined(HAS_HARDWARE_OPTIONS)
 HardwareOptions hardwareOptions;
 #endif
 

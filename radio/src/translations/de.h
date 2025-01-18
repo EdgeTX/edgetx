@@ -1044,41 +1044,34 @@
   #define TR_BL_INVALID_EEPROM         "Kein gültiges EEPROM!"
 #endif
 
-#if defined(PCBTARANIS)
-   // Bootloader Taranis specific - ASCII characters only
-  #define TR_BL_RESTORE_EEPROM        "EEPROM wiederherstellen"
-  #if defined(RADIO_COMMANDO8)
-    #define TR_BL_POWER_KEY           "Drücke den Power Knopf."
-    #define TR_BL_FLASH_EXIT          "Verlasse den Flashmodus."
-  #endif
-#elif defined(PCBHORUS)
-   // Bootloader Horus specific - ASCII characters only
-  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            "[ENT] um Datei auszuwählen"
-  #define TR_BL_FLASH_KEY             "Halte [ENT] gedrückt, zum schreiben"
-  #define TR_BL_ERASE_KEY             "Hold [ENT] long to erase"
-  #define TR_BL_EXIT_KEY              "[RTN] zum beenden"
-#elif defined(PCBNV14)
-   // Bootloader NV14 specific - ASCII characters only
-  #define TR_BL_RF_USB_ACCESS         "RF USB Zugriff"
-  #define TR_BL_CURRENT_FW            "Aktuelle Firmware:"
-  #define TR_BL_SELECT_KEY            "[R TRIM] um Datei auszuwählen"
-  #define TR_BL_FLASH_KEY             "Halte [R TRIM] gedrückt, zum schreiben"
-  #define TR_BL_EXIT_KEY              " [L TRIM] zum beenden"
-  #define TR_BL_ENABLE                "Aktivieren"
-  #define TR_BL_DISABLE               "Deaktivieren"
+// Bootloader Taranis specific - ASCII characters only
+#define TR_BL_RESTORE_EEPROM           "EEPROM wiederherstellen"
+#define TR_BL_POWER_KEY                "Drücke den Power Knopf."
+#define TR_BL_FLASH_EXIT               "Verlasse den Flashmodus."
+
+// Bootloader Horus specific - ASCII characters only
+#define TR_BL_ERASE_INT_FLASH          "Erase Internal Flash Storage"
+#define TR_BL_ERASE_FLASH              "Erase Flash Storage"
+#define TR_BL_ERASE_FLASH_MSG          "This may take up to 200s"
+#define TR_BL_RF_USB_ACCESS            "RF USB Zugriff"
+#define TR_BL_CURRENT_FW               "Aktuelle Firmware:"
+
+#if defined(PCBNV14)
+  #define TR_BL_SELECT_KEY             "[R TRIM] um Datei auszuwählen"
+  #define TR_BL_FLASH_KEY              "Halte [R TRIM] gedrückt, zum schreiben"
+  #define TR_BL_EXIT_KEY               " [L TRIM] zum beenden"
+  #define TR_BL_ENABLE                 "Aktivieren"
+  #define TR_BL_DISABLE                "Deaktivieren"
 #elif defined(PCBPL18)
-   // Bootloader PL18 specific - ASCII characters only
-  #define TR_BL_RF_USB_ACCESS         "RF USB access"
-  #define TR_BL_ERASE_INT_FLASH       "Erase Internal Flash Storage"
-  #define TR_BL_ERASE_FLASH           "Erase Flash Storage"
-  #define TR_BL_ERASE_FLASH_MSG       "This may take up to 200s"
-  #define TR_BL_SELECT_KEY            " [TR4 Dn] to select file"
-  #define TR_BL_FLASH_KEY             " Hold [TR4 Dn] long to flash"
-  #define TR_BL_ERASE_KEY             " Hold [TR4 Dn] long to erase"
-  #define TR_BL_EXIT_KEY              " [TR4 Up] to exit"
+  #define TR_BL_SELECT_KEY             " [TR4 Dn] to select file"
+  #define TR_BL_FLASH_KEY              " Hold [TR4 Dn] long to flash"
+  #define TR_BL_ERASE_KEY              " Hold [TR4 Dn] long to erase"
+  #define TR_BL_EXIT_KEY               " [TR4 Up] to exit"
+#else
+  #define TR_BL_SELECT_KEY             "[ENT] um Datei auszuwählen"
+  #define TR_BL_FLASH_KEY              "Halte [ENT] gedrückt, zum schreiben"
+  #define TR_BL_ERASE_KEY              "Hold [ENT] long to erase"
+  #define TR_BL_EXIT_KEY               "[RTN] zum beenden"
 #endif
 
 // Taranis Info Zeile Anzeigen

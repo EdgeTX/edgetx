@@ -28,20 +28,21 @@
 #include "switches.h"
 #include "color_picker.h"
 
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-   static constexpr coord_t LH = 72;
-#else
-   static constexpr coord_t LH = 36;
-#endif
-
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 static const lv_coord_t line_col_dsc1[] = {LV_GRID_CONTENT,
                                            LV_GRID_TEMPLATE_LAST};
 
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+static const lv_coord_t line_col_dsc2[] = {
+    LV_GRID_FR(13), LV_GRID_FR(11), LV_GRID_FR(11),
+    LV_GRID_FR(12), LV_GRID_FR(10), LV_GRID_FR(7), LV_GRID_FR(7),
+    LV_GRID_TEMPLATE_LAST};
+#else
 static const lv_coord_t line_col_dsc2[] = {
     LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(10),
     LV_GRID_FR(12), LV_GRID_FR(8),  LV_GRID_TEMPLATE_LAST};
+#endif
 
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
@@ -124,60 +125,110 @@ class FunctionSwitch : public Window
         });
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-   new StaticText(this, {8 , 6 + 36, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_FS_OFF_COLOR, COLOR_THEME_PRIMARY1);
+    offValue = g_model.functionSwitchLedOFFColor[switchIndex];
+    onValue = g_model.functionSwitchLedONColor[switchIndex];
 
-   auto offcolor = new ColorPicker(
-        this, rect_t{},
+    offColor = new ColorPicker(
+        this, {C1_X, 0, C1_W, 0},
         [=]() -> int {  // getValue
-          return g_model.functionSwitchLedOFFColor[switchIndex];
+          return g_model.functionSwitchLedOFFColor[switchIndex].getColor();
         },
         [=](int newValue) {  // setValue
-          g_model.functionSwitchLedOFFColor[switchIndex] =
-            (uint32_t)newValue;
-          TRACE("Color: %x", g_model.functionSwitchLedOFFColor[switchIndex]);
+          g_model.functionSwitchLedOFFColor[switchIndex] = offValue;
+          g_model.functionSwitchLedONColor[switchIndex] = onValue;
+
+          // Convert color index to RGB
+          newValue = color32ToRGB(newValue);
+          g_model.functionSwitchLedOFFColor[switchIndex].setColor(newValue);
+
+          offValue = g_model.functionSwitchLedOFFColor[switchIndex];
           SET_DIRTY();
-      });
-    offcolor->setPos(NM_X, 36);
+        },
+        [=](int newValue) { previewColor(newValue); }, RGB888);
 
-    new StaticText(this, {TP_X, 6 + 36, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_FS_ON_COLOR, COLOR_THEME_PRIMARY1);
-
-    auto oncolor = new ColorPicker(
-        this, rect_t{},
+    onColor = new ColorPicker(
+        this, {C2_X, 0, C2_W, 0},
         [=]() -> int {  // getValue
-          return g_model.functionSwitchLedONColor[switchIndex];
+          return g_model.functionSwitchLedONColor[switchIndex].getColor();
         },
         [=](int newValue) {  // setValue
-          g_model.functionSwitchLedONColor[switchIndex] =
-            (uint32_t)newValue;
+          g_model.functionSwitchLedOFFColor[switchIndex] = offValue;
+          g_model.functionSwitchLedONColor[switchIndex] = onValue;
+
+          // Convert color index to RGB
+          newValue = color32ToRGB(newValue);
+          g_model.functionSwitchLedONColor[switchIndex].setColor(newValue);
+
+          onValue = g_model.functionSwitchLedONColor[switchIndex];
           SET_DIRTY();
-      });
-    oncolor->setPos(GR_X, 36);
+        },
+        [=](int newValue) { previewColor(newValue); }, RGB888);
 #endif //FUNCTION_SWITCHES_RGB_LEDS
 
     setState();
   }
 
-  static constexpr coord_t SW_W = (LCD_W - 4 * 2 - 2 * 4) / 5;
-  static constexpr coord_t NM_X = SW_W + 2;
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  static constexpr coord_t SW_X = PAD_SMALL;
+  static constexpr coord_t SW_W = 70;
+  static constexpr coord_t NM_X = SW_X + SW_W;
+  static constexpr coord_t NM_W = 60;
+  static constexpr coord_t TP_X = NM_X + NM_W + PAD_SMALL;
+  static constexpr coord_t TP_W = 78;
+  static constexpr coord_t GR_X = TP_X + TP_W + PAD_SMALL;
+  static constexpr coord_t GR_W = 84;
+  static constexpr coord_t ST_X = GR_X + GR_W + PAD_SMALL;
+  static constexpr coord_t ST_W = 60;
+  static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
+  static constexpr coord_t C1_W = 40;
+  static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
+  static constexpr coord_t C2_W = 40;
+#else
+  static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY_GAP * 4) / 5;
+  static constexpr coord_t NM_X = SW_W + PAD_TINY_GAP;
   static constexpr coord_t NM_W = 80;
-  static constexpr coord_t TP_X = NM_X + SW_W + 2;
+  static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY_GAP;
   static constexpr coord_t TP_W = 86;
-  static constexpr coord_t GR_X = TP_X + SW_W + 2;
+  static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY_GAP;
   static constexpr coord_t GR_W = 94;
   static constexpr coord_t ST_X = GR_X + SW_W + 20;
   static constexpr coord_t ST_W = 70;
+#endif
 
  protected:
   uint8_t switchIndex;
   Choice* typeChoice = nullptr;
   Choice* groupChoice = nullptr;
   Choice* startChoice = nullptr;
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  ColorPicker* offColor = nullptr;
+  ColorPicker* onColor = nullptr;
+  RGBLedColor offValue;
+  RGBLedColor onValue;
+#endif
   int lastType = -1;
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  void previewColor(int newValue)
+  {
+    // Convert color index to RGB
+    newValue = color32ToRGB(newValue);
+    if (getFSLogicalState(switchIndex)) {
+      g_model.functionSwitchLedONColor[switchIndex].setColor(newValue);
+    } else {
+      g_model.functionSwitchLedOFFColor[switchIndex].setColor(newValue);
+    }
+  }
+#endif
 
   void setState()
   {
     startChoice->show(FSWITCH_CONFIG(switchIndex) == SWITCH_2POS && FSWITCH_GROUP(switchIndex) == 0);
     groupChoice->show(FSWITCH_CONFIG(switchIndex) != SWITCH_NONE);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+    offColor->show(FSWITCH_CONFIG(switchIndex) != SWITCH_NONE);
+    onColor->show(FSWITCH_CONFIG(switchIndex) != SWITCH_NONE);
+#endif
   }
 
   void checkEvents() override
@@ -276,6 +327,10 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   startupHeader = new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  new StaticText(line, rect_t{}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(line, rect_t{}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+#endif
 
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
     new FunctionSwitch(body, i);

@@ -22,7 +22,9 @@
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
+#include "stm32_spi.h"
 #include "stm32_ws2812.h"
+#include "vs1053b.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -74,14 +76,39 @@ bool boardBacklightOn = false;
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
 
-void boardBLInit()
+void boardBLEarlyInit()
 {
   videoSwitchInit();
 }
 #endif
 
+
 #if !defined(BOOT)
 #include "edgetx.h"
+
+#if defined(PCBX12S)
+void audioInit()
+{
+  static stm32_spi_t spi_dev = {
+      .SPIx = AUDIO_SPI,
+      .SCK = AUDIO_SPI_SCK_GPIO,
+      .MISO = AUDIO_SPI_MISO_GPIO,
+      .MOSI = AUDIO_SPI_MOSI_GPIO,
+      .CS = AUDIO_CS_GPIO,
+  };
+
+  static vs1053b_t vs1053 = {
+      .spi = &spi_dev,
+      .XDCS = AUDIO_XDCS_GPIO,
+      .DREQ = AUDIO_DREQ_GPIO,
+      .RST = AUDIO_RST_GPIO,
+  };
+
+  gpio_init(AUDIO_SHUTDOWN_GPIO, GPIO_OUT, 0);
+  gpio_set(AUDIO_SHUTDOWN_GPIO);
+  vs1053b_init(&vs1053);
+}
+#endif
 
 #if defined(SIXPOS_SWITCH_INDEX)
 uint8_t lastADCState = 0;
@@ -169,7 +196,6 @@ void boardInit()
   TRACE("RCC->CSR = %08x", RCC->CSR);
 
   audioInit();
-
   keysInit();
   switchInit();
   rotaryEncoderInit();

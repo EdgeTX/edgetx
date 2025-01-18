@@ -25,6 +25,8 @@
 #include "stamp.h"
 #include "keys.h"
 
+#include "hal/flash_driver.h"
+
 #if LCD_W < 212
   #if defined(VERSION_TAG)
     #define BOOTLOADER_TITLE               " Bootloader - " VERSION_TAG
@@ -61,11 +63,14 @@ enum BootloaderState {
   ST_REBOOT,
 };
 
-enum FlashCheckRes {
-    FC_UNCHECKED=0,
-    FC_OK,
-    FC_ERROR
-};
+// interactive bootloader
+void bootloaderMenu();
+
+// non-interactive UF2 bootloader
+void bootloaderUF2();
+
+// non-interactive DFU bootloader
+void bootloaderDFU();
 
 // Declarations of functions that need to be implemented
 // for each target with a bootloader
@@ -87,4 +92,7 @@ uint32_t bootloaderGetMenuItemCount(int baseCount);
 // returns true on submenu exit
 bool bootloaderRadioMenu(uint32_t menuItem, event_t event);
 
+void bootloaderDrawDFUScreen();
+
+void sdInit();
 void blExit();

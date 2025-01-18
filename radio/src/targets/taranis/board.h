@@ -123,6 +123,8 @@ enum {
   #define SURFACE_RADIO  true
 #endif
 
+#define HAS_HARDWARE_OPTIONS
+
 PACK(typedef struct {
   uint8_t pcbrev:2;
 }) HardwareOptions;

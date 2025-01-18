@@ -21,7 +21,6 @@
 
 #include "color_picker.h"
 
-#include "color_editor.h"
 #include "color_list.h"
 #include "etx_lv_theme.h"
 
@@ -44,14 +43,23 @@ class ColorEditorPopup : public BaseDialog
   ColorSwatch* colorPad = nullptr;
   StaticText* hexStr = nullptr;
   uint32_t m_color;
+  uint32_t origColor;
+  std::function<void(uint32_t)> setValue;
+  COLOR_EDITOR_FMT format;
 
   void updateColor(uint32_t c)
   {
     m_color = c;
 
-    auto rgb = COLOR_VAL(colorToRGB(m_color));
+    uint8_t r, g, b;
 
-    uint8_t r = GET_RED(rgb), g = GET_GREEN(rgb), b = GET_BLUE(rgb);
+    if (format == RGB565) {
+      auto rgb = COLOR_VAL(colorToRGB(m_color));
+      r = GET_RED(rgb); g = GET_GREEN(rgb); b = GET_BLUE(rgb);
+    } else {
+      auto rgb = color32ToRGB(m_color);
+      r = GET_RED32(rgb); g = GET_GREEN32(rgb); b = GET_BLUE32(rgb);
+    }
 
     colorPad->setColor(r, g, b);
 
@@ -60,18 +68,27 @@ class ColorEditorPopup : public BaseDialog
     hexStr->setText(s);
   }
 
+  void onCancel() override
+  {
+    if (setValue) setValue(origColor);
+    this->deleteLater();
+  }
+
  public:
   ColorEditorPopup(uint32_t color,
-                   std::function<void(uint32_t)> _setValue) :
+                   std::function<void(uint32_t)> _setValue,
+                   std::function<void(uint32_t)> _preview,
+                   COLOR_EDITOR_FMT fmt) :
       BaseDialog(STR_COLOR_PICKER, false, COLOR_EDIT_WIDTH,
-                 LV_SIZE_CONTENT)
+                 LV_SIZE_CONTENT),
+      origColor(color), setValue(std::move(_setValue)), format(fmt)
   {
     FlexGridLayout grid(col_dsc, row_dsc);
     auto line = form->newLine(grid);
 
     rect_t r{0, 0, CE_SZ, CE_SZ};
     auto cedit =
-        new ColorEditor(line, r, color, [=](uint32_t c) { updateColor(c); });
+        new ColorEditor(line, r, color, [=](uint32_t c) { updateColor(c); }, _preview, format);
     lv_obj_set_style_grid_cell_x_align(cedit->getLvObj(), LV_GRID_ALIGN_CENTER,
                                        0);
 
@@ -138,12 +155,12 @@ class ColorEditorPopup : public BaseDialog
     lv_obj_set_flex_grow(hbox->getLvObj(), 1);
 
     new TextButton(hbox, rect_t{0, 0, BTN_W, 0}, STR_CANCEL, [=]() -> int8_t {
-      this->deleteLater();
+      onCancel();
       return 0;
     });
 
     new TextButton(hbox, rect_t{0, 0, BTN_W, 0}, STR_SAVE, [=]() -> int8_t {
-      if (_setValue) _setValue(m_color);
+      if (setValue) setValue(m_color);
       this->deleteLater();
       return 0;
     });
@@ -161,16 +178,18 @@ class ColorEditorPopup : public BaseDialog
 
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
                          std::function<uint32_t()> getValue,
-                         std::function<void(uint32_t)> setValue) :
-    Button(parent, {rect.x, rect.y, ColorEditorPopup::COLOR_PAD_WIDTH, ColorEditorPopup::COLOR_PAD_HEIGHT}),
-    setValue(std::move(setValue))
+                         std::function<void(uint32_t)> setValue,
+                         std::function<void(uint32_t)> preview,
+                         COLOR_EDITOR_FMT fmt) :
+    Button(parent, {rect.x, rect.y, rect.w == 0 ? ColorEditorPopup::COLOR_PAD_WIDTH : rect.w, ColorEditorPopup::COLOR_PAD_HEIGHT}),
+    setValue(std::move(setValue)), preview(std::move(preview)), format(fmt)
 {
   updateColor(getValue());
 }
 
 void ColorPicker::onClicked()
 {
-  new ColorEditorPopup(getColor(), [=](uint32_t c) { setColor(c); });
+  new ColorEditorPopup(getColor(), [=](uint32_t c) { setColor(c); }, preview, format);
 }
 
 void ColorPicker::setColor(uint32_t c)
@@ -183,8 +202,16 @@ void ColorPicker::updateColor(uint32_t c)
 {
   color = c;
 
-  auto rgb = COLOR_VAL(colorToRGB(color));
-  auto lvcolor =
-      lv_color_make(GET_RED(rgb), GET_GREEN(rgb), GET_BLUE(rgb));
+  uint8_t r, g, b;
+
+  if (format == RGB565) {
+    auto rgb = COLOR_VAL(colorToRGB(color));
+    r = GET_RED(rgb); g = GET_GREEN(rgb); b = GET_BLUE(rgb);
+  } else {
+    auto rgb = color32ToRGB(color);
+    r = GET_RED32(rgb); g = GET_GREEN32(rgb); b = GET_BLUE32(rgb);
+  }
+
+  auto lvcolor = lv_color_make(r, g, b);
   lv_obj_set_style_bg_color(lvobj, lvcolor, LV_PART_MAIN);
 }

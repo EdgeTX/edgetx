@@ -61,6 +61,8 @@ enum {
   PCBREV_EL18 = 1,
 };
 
+#define HAS_HARDWARE_OPTIONS
+
 typedef struct {
   uint8_t pcbrev;
 } HardwareOptions;
@@ -185,9 +187,6 @@ bool isBacklightEnabled();
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
-
-// Audio driver
-void audioInit();
 
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512

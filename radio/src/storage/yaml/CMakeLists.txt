@@ -14,7 +14,7 @@ endif()
 # Warning: this file must be kept in sync with 'yaml_datastructs.cpp'
 #          in the same directory.
 
-if((PCB STREQUAL X10) OR (PCB STREQUAL X12S))
+if((PCB STREQUAL X10) OR (PCB STREQUAL X12S) OR (PCB STREQUAL STM32H7S78_DK))
   if(PCBREV STREQUAL T15)
     set(YAML_GEN_OUTPUT storage/yaml/yaml_datastructs_t15.cpp)
   elseif(PCBREV STREQUAL F16)

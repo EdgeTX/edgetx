@@ -170,6 +170,7 @@ void evalFunctionSwitches()
   for (uint8_t i = 0; i < fct_switches; i++) {
     if (FSWITCH_CONFIG(i) == SWITCH_NONE) {
       setFSLedOFF(i);
+      //fsLedRGB(i, 0);
       continue;
     }
 

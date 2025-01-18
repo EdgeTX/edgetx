@@ -12,8 +12,21 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   ${RADIO_SRC_DIR}/syscalls.c
   ${RADIO_SRC_DIR}/crc.cpp
   boot.cpp
-  bin_files.cpp
 )
+
+if(FIRMWARE_FORMAT_UF2)
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+    boot_uf2.cpp
+    boot_dfu.cpp
+    ${RADIO_SRC_DIR}/io/uf2.cpp
+    ${RADIO_SRC_DIR}/drivers/uf2_ghostfat.cpp
+  )
+else()
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
+    boot_menu.cpp
+    bin_fw_files.cpp
+  )
+endif()
 
 if(DEBUG_SEGGER_RTT)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC}

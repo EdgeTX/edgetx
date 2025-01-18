@@ -85,7 +85,9 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
       hallBuffer->length = ch;
       hallBuffer->dataIndex = 0;
       hallBuffer->status = GET_DATA;
-      if (0 == hallBuffer->length) {
+      if(hallBuffer->length > HALLSTICK_BUFF_SIZE - 5) { // buffer size - header size (1 byte header + 1 byte ID + 1 byte length + 2 bytes CRC = 5 bytes)
+        hallBuffer->status = GET_START;
+      } else if (0 == hallBuffer->length) {
         hallBuffer->status = GET_CHECKSUM;
         hallBuffer->checkSum = 0;
       }
@@ -142,6 +144,7 @@ static void flysky_gimbal_loop(void*)
 
       switch (HallProtocol.hallID.hall_Id.receiverID) {
         case TRANSFER_DIR_TXMCU:
+        case TRANSFER_DIR_RFMODULE:
           if (HallProtocol.hallID.hall_Id.packetID ==
               FLYSKY_HALL_RESP_TYPE_VALUES) {
             int16_t* p_values = (int16_t*)HallProtocol.data;

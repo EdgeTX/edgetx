@@ -57,7 +57,11 @@ option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
-option(USBJ_EX "Enable USB Joystick Extension" ON)
+if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
+  option(USBJ_EX "Enable USB Joystick Extension" OFF)
+else()
+  option(USBJ_EX "Enable USB Joystick Extension" ON)
+endif()
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -79,6 +83,8 @@ elseif(PCB STREQUAL NV14)
   include(targets/nv14/CMakeLists.txt)
 elseif(PCB STREQUAL PL18)
   include(targets/pl18/CMakeLists.txt)
+elseif(PCB STREQUAL STM32H7S78_DK)
+  include(targets/stm32h7s78-dk/CMakeLists.txt)
 elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X9D OR PCB STREQUAL X7 OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES OR PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
   include(targets/taranis/CMakeLists.txt)
 else()
@@ -96,7 +102,7 @@ include(hal/CMakeLists.txt)
 add_subdirectory(bitmaps)
 add_subdirectory(fonts)
 
-if(CPU_TYPE STREQUAL STM32H7)
+if(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
   include(targets/common/arm/stm32/h7/CMakeLists.txt)
 endif()
 
@@ -118,6 +124,10 @@ if(ARCH STREQUAL ARM)
 endif()
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
+
+if(NATIVE_BUILD)
+  include_directories(targets/simu)
+endif()
 
 foreach(LANGUAGE ${RADIO_LANGUAGES})
   if(TRANSLATIONS STREQUAL ${LANGUAGE})
@@ -544,8 +554,10 @@ if(DEBUG)
   target_compile_definitions(stm32_drivers_w_dbg_fw PRIVATE -DDEBUG)
 endif()
 
+set(LINKER_SCRIPT firmware.ld)
+
 target_link_options(firmware PRIVATE
-  -lm -T${LINKER_DIR}/firmware.ld
+  -lm -T${LINKER_DIR}/${LINKER_SCRIPT}
   -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections
   --specs=nano.specs
 )
@@ -592,11 +604,24 @@ else()
   message("-- Bootloader contained in firmware binary")
 endif()
 
+if(FIRMWARE_FORMAT_UF2)
+  add_custom_command(
+    TARGET firmware POST_BUILD
+    COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py
+        --reboot auto --device "${FLAVOUR}"
+        --version "edgetx-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})"
+        -i firmware.elf firmware.uf2
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    VERBATIM
+  )
+endif()
+  
 add_custom_command(
   TARGET firmware POST_BUILD
   COMMAND ${CMAKE_OBJCOPY} -O binary ${OBJCOPY_ARGS} firmware.elf firmware.bin
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
+  
 
 find_program(GAWK gawk
   HINTS "c:/cygwin/bin/" "c:/msys/bin/"

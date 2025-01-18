@@ -79,6 +79,22 @@ extern "C" {
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_iwdg.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_pwr.h"
+#elif defined(STM32H7RS)
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_bus.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_fmc.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_dma2d.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_gpio.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_tim.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_dma.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_usart.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_exti.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_system.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_rcc.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_adc.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_spi.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_iwdg.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_usb.h"
+  #include "STM32H7RS_HAL_Driver/Inc/stm32h7rsxx_ll_pwr.h"
 #endif
 
 #if defined(__cplusplus)

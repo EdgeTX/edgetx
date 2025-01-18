@@ -27,7 +27,7 @@
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
 
-static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA;
+static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA_NO_CACHE;
 
 #if defined(CSD203_SENSOR)
   extern uint16_t getCSD203BatteryVoltage(void);

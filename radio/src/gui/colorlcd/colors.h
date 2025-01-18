@@ -132,9 +132,25 @@ constexpr int MAX_HUE = 360;
 constexpr int MAX_BRIGHTNESS = 100;
 
 extern uint32_t HSVtoRGB(float H, float S, float V);
+extern uint32_t HSVtoRGB32(float H, float S, float V);
 extern void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float& fH, float& fS,
                      float& fV);
 
 LcdFlags colorToRGB(LcdFlags colorFlags);
+uint32_t color32ToRGB(uint32_t color);
 
 lv_color_t makeLvColor(uint32_t colorFlags);
+
+constexpr uint32_t RGB888_FLAG = 0x1000000;
+
+enum COLOR_EDITOR_FMT {
+  RGB565 = 0,
+  RGB888
+};
+
+#define RGB32(r, g, b) \
+  (uint32_t)((((r) & 0xFF) << 16) + (((g) & 0xFF) << 8) + ((b) & 0xFF))
+
+#define GET_RED32(color) (((color) & 0xFF0000) >> 16)
+#define GET_GREEN32(color) (((color) & 0x00FF00) >> 8)
+#define GET_BLUE32(color) ((color) & 0x0000FF)

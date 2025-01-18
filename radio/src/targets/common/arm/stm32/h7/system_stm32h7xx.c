@@ -178,7 +178,10 @@
   * @param  None
   * @retval None
   */
-void SystemInit (void)
+
+#define BOOTSTRAP __attribute__((section(".bootstrap")))
+
+BOOTSTRAP void SystemInit (void)
 {
 #if defined (DATA_IN_D2_SRAM)
  __IO uint32_t tmpreg;
@@ -481,21 +484,21 @@ void I2C2_EV_IRQHandler(void){asm("BKPT");}
 void I2C2_ER_IRQHandler(void){asm("BKPT");}
 void SPI1_IRQHandler(void){asm("BKPT");}
 void SPI2_IRQHandler(void){asm("BKPT");}
-void EXTI15_10_IRQHandler(void){asm("BKPT");}
+//void EXTI15_10_IRQHandler(void){asm("BKPT");}
 void RTC_Alarm_IRQHandler(void){asm("BKPT");}
 void TIM8_CC_IRQHandler(void){asm("BKPT");}
-void DMA1_Stream7_IRQHandler(void){asm("BKPT");}
+//void DMA1_Stream7_IRQHandler(void){asm("BKPT");}
 void FMC_IRQHandler(void){asm("BKPT");}
 void TIM5_IRQHandler(void){asm("BKPT");}
 void SPI3_IRQHandler(void){asm("BKPT");}
-void UART5_IRQHandler(void){asm("BKPT");}
+//void UART5_IRQHandler(void){asm("BKPT");}
 void TIM7_IRQHandler(void){asm("BKPT");}
 //void DMA2_Stream0_IRQHandler(void){asm("BKPT");}
 void DMA2_Stream2_IRQHandler(void){asm("BKPT");}
 void DMA2_Stream3_IRQHandler(void){asm("BKPT");}
 //void DMA2_Stream4_IRQHandler(void){asm("BKPT");}
 void ETH_IRQHandler(void){asm("BKPT");}
-void ETH_WKUP_IRQHandler(void){asm("BKPT");}
+//void ETH_WKUP_IRQHandler(void){asm("BKPT");}
 void FDCAN_CAL_IRQHandler(void){asm("BKPT");}
 void DMA2_Stream5_IRQHandler(void){asm("BKPT");}
 void DMA2_Stream6_IRQHandler(void){asm("BKPT");}
@@ -510,7 +513,7 @@ void DCMI_IRQHandler(void){asm("BKPT");}
 void CRYP_IRQHandler(void){asm("BKPT");}
 void HASH_RNG_IRQHandler(void){asm("BKPT");}
 void FPU_IRQHandler(void){asm("BKPT");}
-void UART8_IRQHandler(void){asm("BKPT");}
+//void UART8_IRQHandler(void){asm("BKPT");}
 void SPI4_IRQHandler(void){asm("BKPT");}
 void SPI5_IRQHandler(void){asm("BKPT");}
 void SPI6_IRQHandler(void){asm("BKPT");}
@@ -541,7 +544,6 @@ void DFSDM1_FLT2_IRQHandler(void){asm("BKPT");}
 void DFSDM1_FLT3_IRQHandler(void){asm("BKPT");}
 void SAI3_IRQHandler(void){asm("BKPT");}
 void SWPMI1_IRQHandler(void){asm("BKPT");}
-void TIM15_IRQHandler(void){asm("BKPT");}
 void TIM16_IRQHandler(void){asm("BKPT");}
 void MDIOS_WKUP_IRQHandler(void){asm("BKPT");}
 void MDIOS_IRQHandler(void){asm("BKPT");}

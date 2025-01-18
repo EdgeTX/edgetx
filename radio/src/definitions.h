@@ -25,6 +25,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "memory_sections.h"
+
 #if !defined(M_PI)
 #define M_PI         3.14159265358979323846   // pi
 #define M_PI_2       1.57079632679489661923   // pi/2
@@ -52,30 +54,6 @@
 #else
   #define __ALIGNED(x)        __attribute__((aligned(x)))
   #define __SECTION_USED(s)   __attribute__((section(s), used))
-#endif
-#endif
-
-#if defined(SIMU)
-  #define __DMA
-#else
-  #define __DMA               __attribute__((section(".ram"), aligned(4)))
-#endif
-
-#if defined(CCMRAM) && !defined(SIMU)
-  #define __CCMRAM            __attribute__((section(".ccm"), aligned(4)))
-#else
-  #define __CCMRAM
-#endif
-
-#if defined(SDRAM) && !defined(SIMU)
-  #define __SDRAM   __attribute__((section(".sdram"), aligned(4)))
-#if defined(COLORLCD)
-  #define __SDRAMFONTS __attribute__((section(".sdram_fonts"), aligned(4)))
-#endif
-#else
-  #define __SDRAM   __DMA
-#if defined(COLORLCD)
-  #define __SDRAMFONTS __DMA
 #endif
 #endif
 
