@@ -139,7 +139,7 @@ void usbInit()
 
 // TODO: seems this is only needed for USB wakeup,
 //       which we do not support.
-#if !defined(STM32H7RS)
+#if !defined(STM32H7RS) && !defined(STM32H5)
 #if defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 #elif defined(LL_APB4_GRP1_PERIPH_SYSCFG)

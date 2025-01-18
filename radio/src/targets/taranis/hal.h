@@ -2694,6 +2694,19 @@
 #endif
 #endif
 
+#if defined(RADIO_H5TEST)
+#define STORAGE_USE_SDIO
+
+/*
+ * SDIO pins:
+ *  - SDMMC1_D0-D3 (PC.08-11)
+ *  - SDMMC1_CK    (PC.12)
+ *  - SDMMC1_CMD   (PD.02)
+ */
+#define SD_SDIO SDMMC1
+#define SD_SDIO_TRANSFER_CLK_DIV SDMMC_NSPEED_CLK_DIV
+
+#else
 #define STORAGE_USE_SDCARD_SPI
 
 #define SD_GPIO_PIN_CS                  GPIO_PIN(GPIOB, 12) // PB.12
@@ -2706,6 +2719,7 @@
 #define SD_SPI_DMA_RX_STREAM            LL_DMA_STREAM_3
 #define SD_SPI_DMA_TX_STREAM            LL_DMA_STREAM_4
 #define SD_SPI_DMA_CHANNEL              LL_DMA_CHANNEL_0
+#endif
 
 // Audio
 #define AUDIO_RCC_APB1Periph            LL_APB1_GRP1_PERIPH_DAC1
@@ -2742,6 +2756,16 @@
 
 // Haptic
 #if defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2)|| defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_T20V2)  || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12)
+  #define HAPTIC_PWM
+  #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 3) // PB.03
+  #define HAPTIC_GPIO_AF                GPIO_AF1
+  #define HAPTIC_TIMER                  TIM2 // Timer 2 Channel1
+  #define HAPTIC_TIMER_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
+  #define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR2
+  #define HAPTIC_CCMR1                  TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2
+  #define HAPTIC_CCER                   TIM_CCER_CC2E
+  #define BACKLIGHT_BDTR                TIM_BDTR_MOE
+#elif defined(RADIO_H5TEST)
   #define HAPTIC_PWM
   #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 3) // PB.03
   #define HAPTIC_GPIO_AF                GPIO_AF1
@@ -2842,8 +2866,13 @@
 
 // Millisecond timer
 #define MS_TIMER                        TIM14
+#if defined(RADIO_H5TEST)
+#define MS_TIMER_IRQn                   TIM14_IRQn
+#define MS_TIMER_IRQHandler             IRQHandler
+#else
 #define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
 #define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
+#endif
 
 // Mixer scheduler timer
 #define MIXER_SCHEDULER_TIMER                TIM12

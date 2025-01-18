@@ -327,7 +327,8 @@ void boardOff()
 
   while (1) {
     WDG_RESET();
-#if defined(PWR_BUTTON_PRESS)
+#if defined(PWR_BUTTON_PRESS) && 0
+#warning todo
     // X9E/X7 needs watchdog reset because CPU is still running while
     // the power key is held pressed by the user.
     // The power key should be released by now, but we must make sure

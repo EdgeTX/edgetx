@@ -30,7 +30,7 @@
    (stream) == LL_DMA_STREAM_4 || (stream) == LL_DMA_STREAM_5 || \
    (stream) == LL_DMA_STREAM_6 || (stream) == LL_DMA_STREAM_7)
 
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
 
 inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
 {

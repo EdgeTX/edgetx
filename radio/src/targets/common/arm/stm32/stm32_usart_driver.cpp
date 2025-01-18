@@ -686,7 +686,7 @@ void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option)
   }
 }
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
 # define USART_STATUS_REG ISR
 # define USART_IDLE USART_ISR_IDLE
 # define USART_TXE USART_ISR_TXE_TXFNF

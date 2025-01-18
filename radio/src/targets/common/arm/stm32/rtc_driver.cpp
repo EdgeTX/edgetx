@@ -106,7 +106,8 @@ void rtcInit()
 
 void rtcDisableBackupReg()
 {
-#if defined(RTC_BACKUP_RAM)
+#if defined(RTC_BACKUP_RAM) && 0
+#warning asdsad
   __HAL_RCC_BKPSRAM_CLK_DISABLE();
   HAL_PWREx_DisableBkUpReg();
 #endif

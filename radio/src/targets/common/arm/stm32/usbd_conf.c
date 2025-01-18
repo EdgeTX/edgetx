@@ -91,7 +91,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
     NVIC_SetPriority(OTG_HS_IRQn, 11);
     NVIC_EnableIRQ(OTG_HS_IRQn);
   }
-#else
+#elif defined(USB_OTG_FS)
   if(pcdHandle->Instance==USB_OTG_FS)
   {
 #if defined(STM32H7) || defined(STM32H7RS)
@@ -106,6 +106,21 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
     NVIC_SetPriority(OTG_FS_IRQn, 11);
     NVIC_EnableIRQ(OTG_FS_IRQn);
   }
+#elif defined(USB_DRD_FS)
+  if(pcdHandle->Instance==USB_DRD_FS)
+  {
+    /* Enable USB Voltage detector */
+    HAL_PWREx_EnableUSBVoltageDetector();
+
+    __HAL_RCC_USB_CLK_ENABLE();
+
+    /* Peripheral interrupt init */
+    NVIC_SetPriority(USB_DRD_FS_IRQn, 11);
+    NVIC_EnableIRQ(USB_DRD_FS_IRQn);
+  }
+
+#else
+#error unknown USB HW
 #endif
   /**
    * Disable DP pull-up for 50ms
@@ -130,7 +145,7 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
     /* Peripheral interrupt Deinit*/
     NVIC_DisableIRQ(OTG_HS_IRQn);
   }
-#else
+#elif defined(USB_OTG_FS)
   if(pcdHandle->Instance==USB_OTG_FS)
   {
     /* Peripheral clock disable */
@@ -139,6 +154,17 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
     /* Peripheral interrupt Deinit*/
     NVIC_DisableIRQ(OTG_FS_IRQn);
   }
+#elif defined(USB_DRD_FS)
+  if(pcdHandle->Instance==USB_DRD_FS)
+  {
+    /* Peripheral clock disable */
+    __HAL_RCC_USB_CLK_ENABLE();
+
+    /* Peripheral interrupt Deinit*/
+    NVIC_DisableIRQ(USB_DRD_FS_IRQn);
+  }
+#else
+#error unknown USB hardware
 #endif
 }
 
@@ -238,6 +264,7 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
   * @param  hpcd: PCD handle
   * @retval None
   */
+#if !defined(STM32H5)
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
 static void PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
 #else
@@ -256,7 +283,7 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
   }
   /* USER CODE END 2 */
 }
-
+#endif
 /**
   * @brief  Resume callback.
   * When Low power mode is enabled the debug cannot be used (IAR, Keil doesn't support it)
@@ -369,7 +396,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG, 0, 0x40);
     HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG, 1, 0x100);
   }
-#else
+#elif defined(USB_OTG_FS)
   if (pdev->id == DEVICE_FS) {
     /* Link the driver to the stack. */
     hpcd_USB_OTG.pData = pdev;
@@ -397,6 +424,38 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG, 0, 0x40);
     HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG, 1, 0x80);
   }
+#elif defined(USB_DRD_FS)
+  if (pdev->id == DEVICE_FS) {
+    /* Link the driver to the stack. */
+    hpcd_USB_OTG.pData = pdev;
+    pdev->pData = &hpcd_USB_OTG;
+
+    hpcd_USB_OTG.Instance = USB_DRD_FS;
+    hpcd_USB_OTG.Init.dev_endpoints = 4;
+    hpcd_USB_OTG.Init.speed = PCD_SPEED_FULL;
+    hpcd_USB_OTG.Init.dma_enable = DISABLE;
+    hpcd_USB_OTG.Init.phy_itface = PCD_PHY_EMBEDDED;
+    hpcd_USB_OTG.Init.Sof_enable = ENABLE;
+    hpcd_USB_OTG.Init.low_power_enable = DISABLE;
+    hpcd_USB_OTG.Init.lpm_enable = DISABLE;
+#if defined(VBUS_SENSING_ENABLED)
+    hpcd_USB_OTG.Init.vbus_sensing_enable = ENABLE;
+#else
+    hpcd_USB_OTG.Init.vbus_sensing_enable = DISABLE;
+#endif
+    if (HAL_PCD_Init(&hpcd_USB_OTG) != HAL_OK)
+    {
+      Error_Handler( );
+    }
+#if 0
+#warning TODO
+    HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG, 0x80);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG, 0, 0x40);
+    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG, 1, 0x80);
+#endif
+  }
+#else
+#error unkown USB hardware
 #endif
   return USBD_OK;
 }

@@ -168,8 +168,10 @@ static void _sd_sdio_clk_enable(SD_SDIO_TypeDef* periph)
 #if defined(SDMMC1)
   if (periph == SDMMC1) {
     __HAL_RCC_SDMMC1_CLK_ENABLE();
+#if defined(SDMMC2)
   } else if(periph == SDMMC2) {
     __HAL_RCC_SDMMC2_CLK_ENABLE();
+#endif
   }
 #else
   (void)periph;
