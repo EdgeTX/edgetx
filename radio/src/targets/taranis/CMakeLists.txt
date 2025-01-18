@@ -17,7 +17,8 @@ set(HSE_VALUE 12000000)
 set(TARGET_DIR taranis)
 set(PPM_LIMITS_SYMETRICAL YES)
 
-add_definitions(-DPCBTARANIS)
+#add_definitions(-DPCBTARANIS)
+add_definitions(-DPCBFRSKY -DPCBTARANIS)
 
 if(PCB STREQUAL X9E)
   set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -103,7 +104,7 @@ elseif(PCB STREQUAL X7)
   set(BITMAPS_DIR 128x64)
   set(BITMAPS_TARGET 9x_bitmaps)
   set(FONTS_TARGET 9x_fonts_1bit)
-  set(LCD_DRIVER lcd_driver_spi.cpp)
+#  set(LCD_DRIVER lcd_driver_spi.cpp)
   set(STATUS_LEDS YES)
   add_definitions(-DPCBX7 -DSOFTWARE_VOLUME)
   add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -647,7 +648,7 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/volume_i2c.cpp
-  targets/common/arm/stm32/audio_dac_driver.cpp
+#  targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
@@ -656,7 +657,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
+#  targets/common/arm/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
