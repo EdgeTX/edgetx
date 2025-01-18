@@ -13,6 +13,8 @@ set(CMSIS_SRC
 
 
 if(NOT NATIVE_BUILD)
+  include_directories(targets/common/arm/stm32/h5)
+  
   set(STM32CUBE_PREFIX stm32h5xx)
   set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32H5xx_HAL_Driver)
   set(STM32CUBE_SRC_PREFIX ${STM32CUBE_DIR}/Src/${STM32CUBE_PREFIX})
