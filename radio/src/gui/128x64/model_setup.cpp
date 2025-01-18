@@ -71,30 +71,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER3_PERSISTENT,
   ITEM_MODEL_SETUP_TIMER3_MINUTE_BEEP,
   ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP,
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  ITEM_MODEL_SETUP_LABEL,
-  ITEM_MODEL_SETUP_SW1,
-  ITEM_MODEL_SETUP_SW1_COLOR,
-  ITEM_MODEL_SETUP_SW2,
-  ITEM_MODEL_SETUP_SW2_COLOR,
-  ITEM_MODEL_SETUP_SW3,
-  ITEM_MODEL_SETUP_SW3_COLOR,
-  ITEM_MODEL_SETUP_SW4,
-  ITEM_MODEL_SETUP_SW4_COLOR,
-  ITEM_MODEL_SETUP_SW5,
-  ITEM_MODEL_SETUP_SW5_COLOR,
-  ITEM_MODEL_SETUP_SW6,
-  ITEM_MODEL_SETUP_SW6_COLOR,
-  ITEM_MODEL_SETUP_GROUP1_LABEL,
-  ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON,
-  ITEM_MODEL_SETUP_GROUP1_START,
-  ITEM_MODEL_SETUP_GROUP2_LABEL,
-  ITEM_MODEL_SETUP_GROUP2_ALWAYS_ON,
-  ITEM_MODEL_SETUP_GROUP2_START,
-  ITEM_MODEL_SETUP_GROUP3_LABEL,
-  ITEM_MODEL_SETUP_GROUP3_ALWAYS_ON,
-  ITEM_MODEL_SETUP_GROUP3_START,
-#elif defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES)
   ITEM_MODEL_SETUP_LABEL,
   ITEM_MODEL_SETUP_SW1,
   ITEM_MODEL_SETUP_SW2,
@@ -378,37 +355,14 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 
 #define EXTRA_MODULE_ROWS
 
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHES_ROWS        0, \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
-                                        FS_ROW(1), \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
-                                        FS_ROW(1), \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
-                                        FS_ROW(1), \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
-                                        FS_ROW(1), \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
-                                        FS_ROW(1), \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3), \
-                                        FS_ROW(1), \
-                                        FS_ROW(G1_ROW(LABEL())), \
-                                        FS_ROW(G1_ROW(0)),  \
-                                        FS_ROW(G1_ROW(0)),  \
-                                        FS_ROW(G2_ROW(LABEL())), \
-                                        FS_ROW(G2_ROW(0)),  \
-                                        FS_ROW(G2_ROW(0)),  \
-                                        FS_ROW(G3_ROW(LABEL())), \
-                                        FS_ROW(G3_ROW(0)),  \
-                                        FS_ROW(G3_ROW(0)),
-#elif defined(FUNCTION_SWITCHES)
-  #define FUNCTION_SWITCHES_ROWS        0, \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
-                                        FS_ROW(NAVIGATION_LINE_BY_LINE|3),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
                                         FS_ROW(G1_ROW(LABEL())), \
                                         FS_ROW(G1_ROW(0)),  \
                                         FS_ROW(G1_ROW(0)),  \
@@ -619,8 +573,8 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
 }
 
 #if defined(FUNCTION_SWITCHES)
-int cfsIndex;
-uint8_t cfsGroup;
+static int cfsIndex;
+static uint8_t cfsGroup;
 
 bool checkCFSTypeAvailable(int val)
 {
@@ -641,12 +595,153 @@ bool checkCFSSwitchAvailable(int sw)
 {
   return (sw == 0) || (sw == NUM_FUNCTIONS_SWITCHES + 1) || (FSWITCH_GROUP(sw - 1) == cfsGroup);
 }
-#endif
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 bool checkCFSColorAvailable(int col)
 {
   return col > 0;
+}
+#endif
+
+enum CFSFields {
+  CFS_FIELD_NAME,
+  CFS_FIELD_TYPE,
+  CFS_FIELD_GROUP,
+  CFS_FIELD_START,
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  CFS_FIELD_COLOR_LABEL,
+  CFS_FIELD_ON_COLOR,
+  CFS_FIELD_OFF_COLOR,
+#endif
+  CFS_FIELD_COUNT
+};
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+static void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags attr, event_t event)
+{
+  uint8_t selectedColor = getRGBColorIndex(color.getColor());
+  selectedColor = editChoice(30, y, title, \
+    STR_FS_COLOR_LIST, selectedColor, 0, DIM(colorTable), menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH, checkCFSColorAvailable);
+  if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
+    color.setColor(colorTable[selectedColor - 1]);
+    storageDirty(EE_MODEL);
+  }
+
+  lcdDrawNumber(LCD_W - 6 * FW, y, color.r, (menuHorizontalPosition == 1 ? attr : 0) | RIGHT);
+  if (attr && menuHorizontalPosition == 1)
+    color.r = checkIncDecModel(event, color.r, 0, 255);
+
+  lcdDrawNumber(LCD_W - 3 * FW, y, color.g, (menuHorizontalPosition == 2 ? attr : 0) | RIGHT);
+  if (attr && menuHorizontalPosition == 2)
+    color.g = checkIncDecModel(event, color.g, 0, 255);
+
+  lcdDrawNumber(LCD_W, y, color.b, (menuHorizontalPosition == 3 ? attr : 0) | RIGHT);
+  if (attr && menuHorizontalPosition == 3)
+    color.b = checkIncDecModel(event, color.b, 0, 255);
+}
+#endif
+
+void menuModelCFSOne(event_t event)
+{
+  std::string s(STR_CHAR_SWITCH);
+  s += switchGetName(cfsIndex + switchGetMaxSwitches());
+
+  int config = FSWITCH_CONFIG(cfsIndex);
+  uint8_t group = FSWITCH_GROUP(cfsIndex);
+  int startPos = FSWITCH_STARTUP(cfsIndex);
+
+  SUBMENU(s.c_str(), CFS_FIELD_COUNT,
+    {
+      0,
+      0,
+      (uint8_t)((config != SWITCH_NONE) ? 0 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_TOGGLE && group == 0) ? 0 : HIDDEN_ROW),
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      LABEL(),
+      3,
+      3,
+#endif
+    });
+  
+  int8_t sub = menuVerticalPosition;
+  int8_t editMode = s_editMode;
+
+  coord_t y = MENU_HEADER_HEIGHT + 1;
+
+  for (int k = 0; k < NUM_BODY_LINES; k += 1) {
+    int i = k + menuVerticalOffset;
+    for (int j = 0; j <= i; j += 1) {
+      if (j < (int)DIM(mstate_tab) && mstate_tab[j] == HIDDEN_ROW) {
+        i += 1;
+      }
+    }
+    LcdFlags attr = (sub == i ? (editMode > 0 ? BLINK | INVERS : INVERS) : 0);
+
+    switch(i) {
+      case CFS_FIELD_NAME:
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_NAME, g_model.switchNames[cfsIndex],
+                       LEN_SWITCH_NAME, event, (attr != 0),
+                       editMode);
+        break;
+
+      case CFS_FIELD_TYPE:
+        config = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SWITCH_TYPE, STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, attr, event, 0, checkCFSTypeAvailable);
+        if (attr && checkIncDec_Ret) {
+          FSWITCH_SET_CONFIG(cfsIndex, config);
+          if (config == SWITCH_TOGGLE) {
+            FSWITCH_SET_STARTUP(cfsIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
+          }
+        }
+        break;
+
+      case CFS_FIELD_GROUP:
+        group = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SWITCH_GROUP, STR_FSGROUPS, group, 0, 3, attr, event, 0, checkCFSGroupAvailable);
+        if (attr && checkIncDec_Ret) {
+          int oldGroup = FSWITCH_GROUP(cfsIndex);
+          if (groupHasSwitchOn(group))
+            setFSLogicalState(cfsIndex, 0);
+          FSWITCH_SET_GROUP(cfsIndex, group);
+          if (group > 0) {
+            FSWITCH_SET_STARTUP(cfsIndex, groupDefaultSwitch(group) == -1 ? FS_START_PREVIOUS : FS_START_OFF);
+            if (config == SWITCH_TOGGLE && IS_FSWITCH_GROUP_ON(group))
+              FSWITCH_SET_CONFIG(cfsIndex, SWITCH_2POS);
+            setGroupSwitchState(group, cfsIndex);
+          } else {
+            FSWITCH_SET_STARTUP(cfsIndex, FS_START_PREVIOUS);
+          }
+          setGroupSwitchState(oldGroup);
+        }
+        break;
+
+      case CFS_FIELD_START:
+        lcdDrawText(0, y, STR_SWITCH_STARTUP);
+        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, _fct_sw_start[startPos], attr ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
+        if (attr) {
+          startPos = checkIncDec(event, startPos, FS_START_ON, FS_START_PREVIOUS, EE_MODEL);
+          FSWITCH_SET_STARTUP(cfsIndex, startPos);
+        }
+        break;
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      case CFS_FIELD_COLOR_LABEL:
+        lcdDrawText(0, y, STR_BLCOLOR);
+        lcdDrawText(LCD_W - 6 * FW, y, "R", RIGHT | SMLSIZE);
+        lcdDrawText(LCD_W - 3 * FW, y, "G", RIGHT | SMLSIZE);
+        lcdDrawText(LCD_W, y, "B", RIGHT | SMLSIZE);
+        break;
+
+      case CFS_FIELD_ON_COLOR:
+        menuCFSColor(y, g_model.functionSwitchLedONColor[cfsIndex], STR_OFFON[1], attr, event);
+        break;
+
+      case CFS_FIELD_OFF_COLOR:
+        menuCFSColor(y, g_model.functionSwitchLedOFFColor[cfsIndex], STR_OFFON[0], attr, event);
+        break;
+#endif
+    }
+
+    y += FH;
+  }
 }
 #endif
 
@@ -892,102 +987,34 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SW5:
       case ITEM_MODEL_SETUP_SW6:
       {
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-        int index = (k - ITEM_MODEL_SETUP_SW1) / 2;
-#else
         int index = (k - ITEM_MODEL_SETUP_SW1);
-#endif
-        lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, menuHorizontalPosition < 0 ? attr : 0);
+        lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, attr);
+        lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), attr);
 
-        // TODO: restore following line when switchGetName(index+switchGetMaxSwitches()) doesn't crash anymore
-        //lcdDrawText(lcdNextPos, y, switchGetName(index+switchGetMaxSwitches()), menuHorizontalPosition < 0 ? attr : 0);
-
-        // TODO : delete next 2 lines when switchGetName(index+switchGetMaxSwitches()) doesn't crash anymore
-        lcdDrawText(lcdNextPos, y, "SW", menuHorizontalPosition < 0 ? attr : 0);
-        lcdDrawChar(lcdNextPos, y, '1' + index, menuHorizontalPosition < 0 ? attr : 0);
-
-        if (ZEXIST(g_model.switchNames[index]) || (attr && s_editMode > 0 && menuHorizontalPosition == 0))
-          editName(35, y, g_model.switchNames[index], LEN_SWITCH_NAME, event, menuHorizontalPosition == 0 ? attr : 0, 0, old_editMode);
-        else
-          lcdDrawMMM(35, y, menuHorizontalPosition == 0 ? attr : 0);
-
-        cfsIndex = index;
-        int config = FSWITCH_CONFIG(index);
-        config = editChoice(30 + 5*FW, y, "", STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, menuHorizontalPosition == 1 ? attr : 0, event, 0, checkCFSTypeAvailable);
-        if (attr && checkIncDec_Ret && menuHorizontalPosition == 1) {
-          FSWITCH_SET_CONFIG(index, config);
-          if (config == SWITCH_TOGGLE) {
-            FSWITCH_SET_STARTUP(index, FS_START_PREVIOUS);  // Toggle switches do not have startup position
-          }
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
+          cfsIndex = index;
+          pushMenu(menuModelCFSOne);
         }
+
+        if (ZEXIST(g_model.switchNames[index]))
+          lcdDrawText(35, y, g_model.switchNames[index]);
+        else
+          lcdDrawMMM(35, y, 0);
+
+        int config = FSWITCH_CONFIG(index);
+        lcdDrawText(30 + 5 * FW, y, STR_SWTYPES[config]);
 
         if (config != SWITCH_NONE) {
           uint8_t group = FSWITCH_GROUP(index);
-          group = editChoice(30 + 13 * FW, y, "", STR_FSGROUPS, group, 0, 3, menuHorizontalPosition == 2 ? attr : 0, event, 0, checkCFSGroupAvailable);
-          if (attr && checkIncDec_Ret && menuHorizontalPosition == 2) {
-            int oldGroup = FSWITCH_GROUP(index);
-            if (groupHasSwitchOn(group))
-              setFSLogicalState(index, 0);
-            FSWITCH_SET_GROUP(index, group);
-            if (group > 0) {
-              FSWITCH_SET_STARTUP(index, groupDefaultSwitch(group) == -1 ? FS_START_PREVIOUS : FS_START_OFF);
-              if (config == SWITCH_TOGGLE && IS_FSWITCH_GROUP_ON(group))
-                FSWITCH_SET_CONFIG(index, SWITCH_2POS);
-              setGroupSwitchState(group, index);
-            } else {
-              FSWITCH_SET_STARTUP(index, FS_START_PREVIOUS);
-            }
-            setGroupSwitchState(oldGroup);
-          }
+          lcdDrawText(30 + 13 * FW, y, STR_FSGROUPS[group]);
 
           if (config != SWITCH_TOGGLE && group == 0) {
             int startPos = FSWITCH_STARTUP(index);
-            lcdDrawText(30 + 15 * FW, y, _fct_sw_start[startPos], attr && (menuHorizontalPosition == 3) ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
-            if (attr && menuHorizontalPosition == 3) {
-              startPos = checkIncDec(event, startPos, FS_START_ON, FS_START_PREVIOUS, EE_MODEL);
-              FSWITCH_SET_STARTUP(index, startPos);
-            }
-          } else if (attr && menuHorizontalPosition == 3) {
-            repeatLastCursorMove(event);
+            lcdDrawText(30 + 15 * FW, y, _fct_sw_start[startPos]);
           }
-        } else if (attr && menuHorizontalPosition >= 2) {
-          repeatLastCursorMove(event);
         }
         break;
       }
-
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-      case ITEM_MODEL_SETUP_SW1_COLOR:
-      case ITEM_MODEL_SETUP_SW2_COLOR:
-      case ITEM_MODEL_SETUP_SW3_COLOR:
-      case ITEM_MODEL_SETUP_SW4_COLOR:
-      case ITEM_MODEL_SETUP_SW5_COLOR:
-      case ITEM_MODEL_SETUP_SW6_COLOR:
-      {
-        int index = (k - ITEM_MODEL_SETUP_SW1_COLOR) / 2;
-        uint8_t selectedColor = 0;
-
-        // ON
-        selectedColor = getRGBColorIndex(g_model.functionSwitchLedONColor[index].getColor());
-        selectedColor = editChoice(INDENT_WIDTH + getTextWidth(STR_FS_ON_COLOR) + 2, y, STR_FS_ON_COLOR, \
-          STR_FS_COLOR_LIST, selectedColor, 0, DIM(colorTable), menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH, checkCFSColorAvailable);
-        if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
-          g_model.functionSwitchLedONColor[index].setColor(colorTable[selectedColor - 1]);
-          storageDirty(EE_MODEL);
-        }
-
-        // OFF
-        selectedColor = getRGBColorIndex(g_model.functionSwitchLedOFFColor[index].getColor());
-        selectedColor = editChoice((30 + 5*FW) + getTextWidth(STR_FS_OFF_COLOR) + 2, y, STR_FS_OFF_COLOR, \
-          STR_FS_COLOR_LIST, selectedColor, 0, DIM(colorTable), menuHorizontalPosition == 1 ? attr : 0, event, 30 + 5*FW, checkCFSColorAvailable);
-        if (attr && menuHorizontalPosition == 1 && checkIncDec_Ret) {
-          g_model.functionSwitchLedOFFColor[index].setColor(colorTable[selectedColor - 1]);
-          storageDirty(EE_MODEL);
-        }
-
-        break;
-      }
-#endif
 
       case ITEM_MODEL_SETUP_GROUP1_LABEL:
       case ITEM_MODEL_SETUP_GROUP2_LABEL:
