@@ -40,12 +40,6 @@ int8_t slider_5pos(coord_t y, int8_t value, event_t event, uint8_t attr, const c
   return editChoice(RADIO_SETUP_2ND_COLUMN, y, title, nullptr, value, -2, +2, attr, event, INDENT_WIDTH);
 }
 
-#if defined(BATTGRAPH)
-  #define CASE_BATTGRAPH(x) x,
-#else
-  #define CASE_BATTGRAPH(x)
-#endif
-
 #if !defined(SURFACE_RADIO)
 #define CASE_TX_MODE(x) x,
 #else
@@ -55,7 +49,6 @@ int8_t slider_5pos(coord_t y, int8_t value, event_t event, uint8_t attr, const c
 enum {
   CASE_RTCLOCK(ITEM_RADIO_SETUP_DATE)
   CASE_RTCLOCK(ITEM_RADIO_SETUP_TIME)
-  CASE_BATTGRAPH(ITEM_RADIO_SETUP_BATT_RANGE)
   ITEM_RADIO_SETUP_SOUND_LABEL,
   CASE_AUDIO(ITEM_RADIO_SETUP_BEEP_MODE)
   CASE_BUZZER(ITEM_RADIO_SETUP_BUZZER_MODE)
@@ -180,7 +173,7 @@ void menuRadioSetup(event_t event)
 
   MENU(STR_RADIO_SETUP, menuTabGeneral, MENU_RADIO_SETUP, ITEM_RADIO_SETUP_MAX, {
     HEADER_LINE_COLUMNS
-    CASE_RTCLOCK(2) CASE_RTCLOCK(2) CASE_BATTGRAPH(1)
+    CASE_RTCLOCK(2) CASE_RTCLOCK(2)
     // Sound
     0, 
      CASE_AUDIO(SOUND_ROW(0))
@@ -338,21 +331,6 @@ void menuRadioSetup(event_t event)
         }
         if (attr && checkIncDec_Ret) {
           g_rtcTime = gmktime(&t); // update local timestamp and get wday calculated
-        }
-        break;
-#endif
-
-#if defined(BATTGRAPH)
-      case ITEM_RADIO_SETUP_BATT_RANGE:
-        lcdDrawTextAlignedLeft(y, STR_BATTERY_RANGE);
-        putsVolts(LCD_W-1, y, 120+g_eeGeneral.vBatMax, (menuHorizontalPosition>0 ? attr : 0)|RIGHT|NO_UNIT);
-        lcdDrawChar(lcdLastLeftPos - FW, y, '-');
-        putsVolts(lcdLastLeftPos - FW, y,  90+g_eeGeneral.vBatMin, (menuHorizontalPosition==0 ? attr : 0)|RIGHT|NO_UNIT);
-        if (attr && s_editMode>0) {
-          if (menuHorizontalPosition==0)
-            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMin, -60, g_eeGeneral.vBatMax+29); // min=3.0V
-          else
-            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMax, g_eeGeneral.vBatMin-29, +40); // max=16.0V
         }
         break;
 #endif
