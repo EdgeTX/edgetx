@@ -45,6 +45,8 @@ static inline void _enable_clock(GPIO_TypeDef* port)
 #elif defined(RCC_AHB1ENR_GPIOAEN)
   uint32_t reg_msk = RCC_AHB1ENR_GPIOAEN << reg_idx;
   LL_AHB1_GRP1_EnableClock(reg_msk);
+#elif defined(RCC_AHB2ENR_GPIOAEN)
+  LL_AHB2_GRP1_EnableClock(RCC_AHB2ENR_GPIOAEN);
 #else
   #error "Unsupported GPIO clock"
 #endif
@@ -103,16 +105,20 @@ void gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank, gpio_cb_t c
   LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SYSCFG);
 #elif defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+#elif defined(LL_APB3_GRP1_PERIPH_SBS)
+# define SYSCFG SBS
+  LL_APB3_GRP1_EnableClock(LL_APB3_GRP1_PERIPH_SBS);
 #elif defined(LL_APB4_GRP1_PERIPH_SBS)
 # define SYSCFG SBS
   LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SBS);
 #else
   #error "Unsupported SYSCFG clock"
 #endif
-
+#warning exti NOK
+#if 0
   SYSCFG->EXTICR[pin_num >> 2] &= ~(0xf << ((pin_num & 0x03) * 4));
   SYSCFG->EXTICR[pin_num >> 2] |= (port_num << ((pin_num & 0x03) * 4));
-
+#endif
   stm32_exti_enable(1 << pin_num, (uint8_t)flank, cb);
 }
 

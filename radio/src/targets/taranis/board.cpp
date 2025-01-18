@@ -126,7 +126,12 @@ static void gyroInit()
 
 void boardInit()
 {
+#if defined(AUDIO)
+  LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
+#endif
+#if defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+#endif
 
   delaysInit();
   timersInit();
