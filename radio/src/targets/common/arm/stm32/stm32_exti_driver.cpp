@@ -40,12 +40,12 @@
   {                                                                     \
     /* Read Pending register */                                         \
     /* (shifted by start line) */                                       \
-    uint32_t pr = LL_EXTI_ReadReg(_PR_Reg) >> first;                    \
+    uint32_t pr = __HAL_GPIO_EXTI_GET_IT(0xFFFFFFFF) >> first;          \
     pr &=  _PR_MASK(first,last);                                        \
     while (pr) {                                                        \
       uint32_t i = POSITION_VAL(pr);                                    \
       /* Clear Pending Flag */                                          \
-      LL_EXTI_ClearFlag_0_31(1 << (first + i));                         \
+      __HAL_GPIO_EXTI_CLEAR_IT(1 << (first + i));                       \
       pr &= ~(1 << i);                                                  \
       /* ... and trigger handler */                                     \
       stm32_exti_handler_t h_fct = _EXTI_HANDLERS(irq_name) [i];        \
@@ -159,7 +159,6 @@ void stm32_exti_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb)
 #elif defined(LL_CKGA_PERIPH_EXTI)
   LL_CKGA_Enable(LL_CKGA_PERIPH_EXTI);
 #endif
-
 
   LL_EXTI_InitTypeDef EXTI_init;
   LL_EXTI_StructInit(&EXTI_init);
