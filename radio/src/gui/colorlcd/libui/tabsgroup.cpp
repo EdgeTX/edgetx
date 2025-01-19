@@ -37,13 +37,13 @@ static bool timepg = false;
 static void on_draw_begin(lv_event_t* e)
 {
   if (timepg) {
-    dsms = RTOS_GET_MS();
+    dsms = lv_tick_get();
   }
 }
 static void on_draw_end(lv_event_t* e)
 {
   timepg = false;
-  dems = RTOS_GET_MS();
+  dems = lv_tick_get();
   TRACE("tab time: build %ld layout %ld draw %ld total %ld",
         end_ms - start_ms, dsms - end_ms, dems - dsms, dems - start_ms);
 }
@@ -301,7 +301,7 @@ void TabsGroup::setCurrentTab(unsigned index)
     currentTab = tab;
 
 #if defined(DEBUG)
-    start_ms = RTOS_GET_MS();
+    start_ms = lv_tick_get();
     timepg = true;
 #endif
 
@@ -321,7 +321,7 @@ void TabsGroup::setCurrentTab(unsigned index)
     lv_obj_refresh_style(body->getLvObj(), LV_PART_ANY, LV_STYLE_PROP_ANY);
 
 #if defined(DEBUG)
-    end_ms = RTOS_GET_MS();
+    end_ms = lv_tick_get();
 #endif
   }
 }

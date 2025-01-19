@@ -137,7 +137,7 @@ void rotaryEncoderCheck()
   rotenc_t diff = (value - last_value);
 
   if (diff != 0) {
-    uint32_t now = RTOS_GET_MS();
+    uint32_t now = timersGetMsTick();
     uint32_t dt = now - last_tick;
     // pre-compute accumulated dt (dx/dt is done later in LVGL driver)
     rotencDt += dt;

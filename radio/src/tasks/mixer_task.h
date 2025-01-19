@@ -19,13 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "rtos.h"
+#include "os/task.h"
 
 // needed by the mixer scheduler
-extern RTOS_TASK_HANDLE mixerTaskId;
+extern task_handle_t mixerTaskId;
 
 // function running the mixer task
-TASK_FUNCTION(mixerTask);
+void mixerTask();
 
 // init, create and start the OS task itself
 void mixerTaskInit();

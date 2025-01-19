@@ -465,9 +465,8 @@ void guiMain(event_t evt)
 }
 #endif
 
-#if !defined(SIMU)
+// from logs.cpp
 void initLoggingTimer();
-#endif
 
 void perMain()
 {
@@ -477,12 +476,7 @@ void perMain()
 
   if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
     checkStorageUpdate();
-
-#if !defined(SIMU)       // use FreeRTOS software timer if radio firmware
     initLoggingTimer();  // initialize software timer for logging
-#else
-    logsWrite();  // call logsWrite the old way for simu
-#endif
   }
 
   handleUsbConnection();

@@ -26,6 +26,7 @@
 #include "myeeprom.h"
 #include "edgetx.h"
 #include "edgetx_constants.h"
+#include "os/sleep.h"
 #include "switches.h"
 #include "input_mapping.h"
 #include "inactivity_timer.h"
@@ -1051,8 +1052,7 @@ void checkSwitches()
     checkBacklight();
 
     WDG_RESET();
-
-    RTOS_WAIT_MS(10);
+    sleep_ms(10);
   }
 
   LED_ERROR_END();

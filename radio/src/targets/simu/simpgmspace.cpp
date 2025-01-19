@@ -34,6 +34,9 @@
 #include "hal/usb_driver.h"
 #include "hal/audio_driver.h"
 
+#include "os/task.h"
+#include "os/timer_pthread_impl.h"
+
 #include <errno.h>
 #include <stdarg.h>
 #include <string>
@@ -211,6 +214,7 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   lcdInit();
 
 #if !defined(SIMU_BOOTLOADER)
+  timer_queue::instance().start();
   simuMain();
 #else
   pthread_attr_t attr;
@@ -232,8 +236,8 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 #endif
 }
 
-extern RTOS_TASK_HANDLE mixerTaskId;
-extern RTOS_TASK_HANDLE menusTaskId;
+extern task_handle_t mixerTaskId;
+extern task_handle_t menusTaskId;
 
 void simuStop()
 {
@@ -242,8 +246,12 @@ void simuStop()
 
   simu_shutdown = true;
 
-  pthread_join(mixerTaskId, nullptr);
-  pthread_join(menusTaskId, nullptr);
+  pthread_join(mixerTaskId._thread_handle, nullptr);
+  pthread_join(menusTaskId._thread_handle, nullptr);
+
+#if defined(SIMU_AUDIO)
+  stopAudio();
+#endif
 
   simu_running = false;
 }
@@ -253,8 +261,6 @@ struct SimulatorAudio {
   int currentVolume;
   int16_t leftoverData[AUDIO_BUFFER_SIZE];
   int leftoverLen;
-  bool threadRunning;
-  pthread_t threadPid;
 } simuAudio;
 
 bool simuIsRunning()
@@ -264,10 +270,9 @@ bool simuIsRunning()
 
 uint8_t simuSleep(uint32_t ms)
 {
-  for (uint32_t i = 0; i < ms; ++i){
-    if (simu_shutdown || !simu_running)
-      return 1;
-    sleep(1);
+  for (uint32_t i = 0; i < ms; i++) {
+    if (simu_shutdown || !simu_running) return 1;
+    usleep(1);
   }
   return 0;
 }
@@ -336,77 +341,44 @@ void fillAudioBuffer(void *udata, Uint8 *stream, int len)
     }
   }
 
-  //fill the rest of buffer with silence
+  // fill the rest of buffer with silence
   if (len > 0) {
     SDL_memset(stream, 0x8000, len);  // make sure this is silence.
-    // putchar('.');
   }
 }
 
-void * audioThread(void *)
+int startAudio(int volumeGain)
 {
-  /*
-    Checking here if SDL audio was initialized is wrong, because
-    the SDL_CloseAudio() de-initializes it.
+  simuAudio = {
+    .volumeGain = volumeGain,
+    .leftoverLen = 0,
+  };
 
-    if ( !SDL_WasInit(SDL_INIT_AUDIO) ) {
-      fprintf(stderr, "ERROR: couldn't initialize SDL audio support\n");
-      return 0;
-    }
-  */
-
-  SDL_AudioSpec wanted, have;
-
-  /* Set the audio format */
-  wanted.freq = AUDIO_SAMPLE_RATE;
-  wanted.format = AUDIO_S16SYS;
-  wanted.channels = 1;    /* 1 = mono, 2 = stereo */
-  wanted.samples =
-      AUDIO_BUFFER_SIZE * 2; /* Good low-latency value for callback */
-  wanted.callback = fillAudioBuffer;
-  wanted.userdata = nullptr;
-
-  /*
-    SDL_OpenAudio() internally calls SDL_InitSubSystem(SDL_INIT_AUDIO),
-    which initializes SDL Audio subsystem if necessary
-  */
-  if ( SDL_OpenAudio(&wanted, &have) < 0 ) {
-    fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
-    return nullptr;
-  }
-  SDL_PauseAudio(0);
-
-  while (simuAudio.threadRunning) {
-    audioQueue.wakeup();
-    sleep(1);
-  }
-  SDL_CloseAudio();
-  return nullptr;
-}
-
-void startAudioThread(int volumeGain)
-{
-  simuAudio.leftoverLen = 0;
-  simuAudio.threadRunning = true;
-  simuAudio.volumeGain = volumeGain;
-  TRACE_SIMPGMSPACE("startAudioThread(%d)", volumeGain);
+  TRACE("startAudioThread(%d)", volumeGain);
   audioSetVolume(VOLUME_LEVEL_DEF);
 
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  struct sched_param sp;
-  sp.sched_priority = SCHED_RR;
-  pthread_attr_setschedparam(&attr, &sp);
-  pthread_create(&simuAudio.threadPid, &attr, &audioThread, nullptr);
-#ifdef __linux__
-  pthread_setname_np(simuAudio.threadPid, "audio");
-#endif
+  /* Set the audio format */
+  SDL_AudioSpec desired = {
+    .freq = AUDIO_SAMPLE_RATE,
+    .format = AUDIO_S16SYS,
+    .channels = 1,
+    .samples = AUDIO_BUFFER_SIZE * 2,
+    .callback = fillAudioBuffer,
+    .userdata = nullptr,
+  };
+
+  SDL_AudioSpec obtained;
+  if ( SDL_OpenAudio(&desired, &obtained) < 0 ) {
+    fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
+    return -1;
+  }
+  SDL_PauseAudio(0);
+  return 0;
 }
 
-void stopAudioThread()
+void stopAudio()
 {
-  simuAudio.threadRunning = false;
-  pthread_join(simuAudio.threadPid, nullptr);
+  SDL_CloseAudio();
 }
 #endif // #if defined(SIMU_AUDIO)
 
@@ -675,6 +647,3 @@ struct TouchState getInternalTouchState()
   return simTouchState;
 }
 #endif
-
-void telemetryStart() {}
-void telemetryStop() {}

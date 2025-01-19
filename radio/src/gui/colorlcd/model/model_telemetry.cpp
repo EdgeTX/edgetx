@@ -367,7 +367,7 @@ class SensorButton : public ListLineButton
     else
       lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
 
-    uint32_t now = RTOS_GET_MS();
+    uint32_t now = lv_tick_get();
     TelemetryItem& telemetryItem = telemetryItems[index];
 
     // Update value
@@ -479,7 +479,7 @@ class SensorEditWindow : public SubPage
 
   void checkEvents() override
   {
-    uint32_t now = RTOS_GET_MS();
+    uint32_t now = lv_tick_get();
     TelemetryItem& telemetryItem = telemetryItems[index];
 
     if ((now - lastRefresh >= 200) || telemetryItem.isFresh()) {

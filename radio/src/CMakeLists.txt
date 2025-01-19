@@ -484,9 +484,16 @@ if(NATIVE_BUILD)
     ${RADIOLIB_NATIVE_SRC}
   )
 
-  # Add -DSIMU here PUBLIC, so it can be imported by other targets
+  # Add SIMU and POSIX_THREAD here PUBLIC, so it can be imported by other targets
   # via INTERFACE_COMPILE_OPTIONS
-  target_compile_options(radiolib_native PUBLIC -DSIMU)
+  target_compile_options(radiolib_native PUBLIC -DSIMU -DPOSIX_THREADS)
+  target_sources(radiolib_native PUBLIC
+    os/async_native.cpp
+    os/sleep_native.cpp
+    os/task_pthread.cpp
+    os/time_native.cpp
+    os/timer_pthread.cpp
+  )
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
@@ -554,12 +561,22 @@ if(BOOTLOADER)
   set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} bootloader)
 endif()
 
-add_definitions(-DFREE_RTOS)
-
 add_executable(firmware ${SRC})
 link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+target_compile_definitions(board PUBLIC FREE_RTOS)
+target_compile_definitions(board_lib PUBLIC FREE_RTOS)
+target_compile_definitions(firmware PUBLIC FREE_RTOS)
+
+target_sources(firmware PUBLIC
+  os/async_freertos.cpp
+  os/sleep_freertos.cpp
+  os/task_freertos.cpp
+  os/time_freertos.cpp
+  os/timer_freertos.cpp
+)
 
 if(DEBUG)
   target_compile_definitions(board PRIVATE -DDEBUG)
