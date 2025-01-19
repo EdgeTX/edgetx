@@ -28,6 +28,7 @@
 
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
+#include "os/time.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -270,9 +271,9 @@ void OpenTxSimulator::start(const char * filename, bool tests)
 
   QMutexLocker lckr(&m_mtxSimuMain);
   QMutexLocker slckr(&m_mtxSettings);
-  startEepromThread(filename);
-  startAudioThread(volumeGain);
-  simuStart(tests, simuSdDirectory.toLatin1().constData(), simuSettingsDirectory.toLatin1().constData());
+  startAudio(volumeGain);
+  simuStart(tests, simuSdDirectory.toLatin1().constData(),
+            simuSettingsDirectory.toLatin1().constData());
 
   emit started();
   QTimer::singleShot(0, this, SLOT(run()));  // old style for Qt < 5.4
@@ -288,8 +289,6 @@ void OpenTxSimulator::stop()
 
   QMutexLocker lckr(&m_mtxSimuMain);
   simuStop();
-  stopAudioThread();
-  stopEepromThread();
 
   emit stopped();
 }
@@ -309,20 +308,20 @@ void OpenTxSimulator::setVolumeGain(const int value)
 
 void OpenTxSimulator::setRadioData(const QByteArray & data)
 {
-#if defined(EEPROM_SIZE)
-  QMutexLocker lckr(&m_mtxRadioData);
-  eeprom = (uint8_t *)malloc(qMin<int>(EEPROM_SIZE, data.size()));
-  memcpy(eeprom, data.data(), qMin<int>(EEPROM_SIZE, data.size()));
-#endif
+// #if defined(EEPROM_SIZE)
+//   QMutexLocker lckr(&m_mtxRadioData);
+//   eeprom = (uint8_t *)malloc(qMin<int>(EEPROM_SIZE, data.size()));
+//   memcpy(eeprom, data.data(), qMin<int>(EEPROM_SIZE, data.size()));
+// #endif
 }
 
 void OpenTxSimulator::readRadioData(QByteArray & dest)
 {
-#if defined(EEPROM_SIZE)
-  QMutexLocker lckr(&m_mtxRadioData);
-  if (eeprom)
-    memcpy(dest.data(), eeprom, qMin<int>(EEPROM_SIZE, dest.size()));
-#endif
+// #if defined(EEPROM_SIZE)
+//   QMutexLocker lckr(&m_mtxRadioData);
+//   if (eeprom)
+//     memcpy(dest.data(), eeprom, qMin<int>(EEPROM_SIZE, dest.size()));
+// #endif
 }
 
 uint8_t * OpenTxSimulator::getLcd()
@@ -416,7 +415,7 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
       steps *= -1;
     rotencValue += steps * ROTARY_ENCODER_GRANULARITY;
     // TODO: set rotencDt
-    uint32_t now = RTOS_GET_MS();
+    uint32_t now = time_get_ms();
     uint32_t dt = now - last_tick;
     rotencDt += dt;
     last_tick = now;
@@ -758,8 +757,6 @@ void OpenTxSimulator::run()
   }
 
   ++loops;
-
-  per10ms();
 
   checkLcdChanged();
 

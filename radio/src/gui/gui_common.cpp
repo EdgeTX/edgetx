@@ -27,6 +27,7 @@
 #include "edgetx.h"
 #include "switches.h"
 #include "mixes.h"
+#include "os/sleep.h"
 
 #undef CPN
 #include "MultiSubtypeDefs.h"
@@ -753,7 +754,7 @@ static void runAntennaSelectionMenu()
     WDG_RESET();
     MainWindow::instance()->run();
     LvglWrapper::runNested();
-    RTOS_WAIT_MS(20);
+    sleep_ms(20);
   }
 }
 #else
@@ -1226,7 +1227,7 @@ bool confirmModelChange()
   if (TELEMETRY_STREAMING()) {
     RAISE_ALERT(STR_MODEL, STR_MODEL_STILL_POWERED, STR_PRESS_ENTER_TO_CONFIRM, AU_MODEL_STILL_POWERED);
     while (TELEMETRY_STREAMING()) {
-      RTOS_WAIT_MS(20);
+      sleep_ms(20);
       if (readKeys() == (1 << KEY_ENTER)) {
         killEvents(KEY_ENTER);
         return true;

@@ -7,7 +7,6 @@ endif()
 
 set(SIMU_DRIVERS
   simpgmspace.cpp
-  simueeprom.cpp
   simufatfs.cpp
   simudisk.cpp
   simulcd.cpp
@@ -186,7 +185,7 @@ if(FOX_FOUND)
 
   target_include_directories(simu PUBLIC ${FOX_INCLUDE_DIR} )
   target_link_libraries(simu ${FOX_LIBRARY} pthread ${SDL2_LIBRARIES})
-  target_compile_options(simu PRIVATE -DSIMU)
+  target_compile_options(simu PRIVATE ${SIMU_SRC_OPTIONS})
 endif()
 
 if(APPLE)
