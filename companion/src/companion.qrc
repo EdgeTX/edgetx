@@ -190,6 +190,8 @@
     <file>themes/monochrome/16/stop.png</file>
     <file>themes/monochrome/16/write_eeprom.png</file>
     <file>themes/monochrome/16/sdsync.png</file>
+    <file>themes/monochrome/16/folder-tree-read.png</file>
+    <file>themes/monochrome/16/folder-tree-write.png</file>
     <file>themes/monochrome/24/paintbrush.png</file>
     <file>themes/monochrome/24/open.png</file>
     <file>themes/monochrome/24/edit.png</file>
@@ -234,6 +236,8 @@
     <file>themes/monochrome/24/stop.png</file>
     <file>themes/monochrome/24/write_eeprom.png</file>
     <file>themes/monochrome/24/sdsync.png</file>
+    <file>themes/monochrome/24/folder-tree-read.png</file>
+    <file>themes/monochrome/24/folder-tree-write.png</file>
     <file>themes/monochrome/32/paintbrush.png</file>
     <file>themes/monochrome/32/open.png</file>
     <file>themes/monochrome/32/edit.png</file>
@@ -278,6 +282,8 @@
     <file>themes/monochrome/32/stop.png</file>
     <file>themes/monochrome/32/write_eeprom.png</file>
     <file>themes/monochrome/32/sdsync.png</file>
+    <file>themes/monochrome/32/folder-tree-read.png</file>
+    <file>themes/monochrome/32/folder-tree-write.png</file>
     <file>themes/monochrome/48/paintbrush.png</file>
     <file>themes/monochrome/48/open.png</file>
     <file>themes/monochrome/48/edit.png</file>
@@ -322,6 +328,8 @@
     <file>themes/monochrome/48/stop.png</file>
     <file>themes/monochrome/48/write_eeprom.png</file>
     <file>themes/monochrome/48/sdsync.png</file>
+    <file>themes/monochrome/48/folder-tree-read.png</file>
+    <file>themes/monochrome/48/folder-tree-write.png</file>
     <file>themes/classic/16/paintbrush.png</file>
     <file>themes/classic/16/open.png</file>
     <file>themes/classic/16/edit.png</file>
@@ -366,6 +374,8 @@
     <file>themes/classic/16/stop.png</file>
     <file>themes/classic/16/write_eeprom.png</file>
     <file>themes/classic/16/sdsync.png</file>
+    <file>themes/classic/16/folder-tree-read.png</file>
+    <file>themes/classic/16/folder-tree-write.png</file>
     <file>themes/classic/24/paintbrush.png</file>
     <file>themes/classic/24/open.png</file>
     <file>themes/classic/24/edit.png</file>
@@ -410,6 +420,8 @@
     <file>themes/classic/24/stop.png</file>
     <file>themes/classic/24/write_eeprom.png</file>
     <file>themes/classic/24/sdsync.png</file>
+    <file>themes/classic/24/folder-tree-read.png</file>
+    <file>themes/classic/24/folder-tree-write.png</file>
     <file>themes/classic/32/paintbrush.png</file>
     <file>themes/classic/32/open.png</file>
     <file>themes/classic/32/edit.png</file>
@@ -454,6 +466,8 @@
     <file>themes/classic/32/stop.png</file>
     <file>themes/classic/32/write_eeprom.png</file>
     <file>themes/classic/32/sdsync.png</file>
+    <file>themes/classic/32/folder-tree-read.png</file>
+    <file>themes/classic/32/folder-tree-write.png</file>
     <file>themes/classic/48/paintbrush.png</file>
     <file>themes/classic/48/open.png</file>
     <file>themes/classic/48/edit.png</file>
@@ -498,6 +512,8 @@
     <file>themes/classic/48/stop.png</file>
     <file>themes/classic/48/write_eeprom.png</file>
     <file>themes/classic/48/sdsync.png</file>
+    <file>themes/classic/48/folder-tree-read.png</file>
+    <file>themes/classic/48/folder-tree-write.png</file>
     <file>themes/monoblue/16/paintbrush.png</file>
     <file>themes/monoblue/16/open.png</file>
     <file>themes/monoblue/16/edit.png</file>
@@ -542,6 +558,8 @@
     <file>themes/monoblue/16/stop.png</file>
     <file>themes/monoblue/16/write_eeprom.png</file>
     <file>themes/monoblue/16/sdsync.png</file>
+    <file>themes/monoblue/16/folder-tree-read.png</file>
+    <file>themes/monoblue/16/folder-tree-write.png</file>
     <file>themes/monoblue/24/paintbrush.png</file>
     <file>themes/monoblue/24/open.png</file>
     <file>themes/monoblue/24/edit.png</file>
@@ -586,6 +604,8 @@
     <file>themes/monoblue/24/stop.png</file>
     <file>themes/monoblue/24/write_eeprom.png</file>
     <file>themes/monoblue/24/sdsync.png</file>
+    <file>themes/monoblue/24/folder-tree-read.png</file>
+    <file>themes/monoblue/24/folder-tree-write.png</file>
     <file>themes/monoblue/32/paintbrush.png</file>
     <file>themes/monoblue/32/open.png</file>
     <file>themes/monoblue/32/edit.png</file>
@@ -630,6 +650,8 @@
     <file>themes/monoblue/32/stop.png</file>
     <file>themes/monoblue/32/write_eeprom.png</file>
     <file>themes/monoblue/32/sdsync.png</file>
+    <file>themes/monoblue/32/folder-tree-read.png</file>
+    <file>themes/monoblue/32/folder-tree-write.png</file>
     <file>themes/monoblue/48/paintbrush.png</file>
     <file>themes/monoblue/48/open.png</file>
     <file>themes/monoblue/48/edit.png</file>
@@ -674,6 +696,8 @@
     <file>themes/monoblue/48/stop.png</file>
     <file>themes/monoblue/48/write_eeprom.png</file>
     <file>themes/monoblue/48/sdsync.png</file>
+    <file>themes/monoblue/48/folder-tree-read.png</file>
+    <file>themes/monoblue/48/folder-tree-write.png</file>
     <file>themes/monowhite/16/paintbrush.png</file>
     <file>themes/monowhite/16/open.png</file>
     <file>themes/monowhite/16/edit.png</file>
@@ -718,6 +742,8 @@
     <file>themes/monowhite/16/stop.png</file>
     <file>themes/monowhite/16/write_eeprom.png</file>
     <file>themes/monowhite/16/sdsync.png</file>
+    <file>themes/monowhite/16/folder-tree-read.png</file>
+    <file>themes/monowhite/16/folder-tree-write.png</file>
     <file>themes/monowhite/24/paintbrush.png</file>
     <file>themes/monowhite/24/open.png</file>
     <file>themes/monowhite/24/edit.png</file>
@@ -762,6 +788,8 @@
     <file>themes/monowhite/24/stop.png</file>
     <file>themes/monowhite/24/write_eeprom.png</file>
     <file>themes/monowhite/24/sdsync.png</file>
+    <file>themes/monowhite/24/folder-tree-read.png</file>
+    <file>themes/monowhite/24/folder-tree-write.png</file>
     <file>themes/monowhite/32/paintbrush.png</file>
     <file>themes/monowhite/32/open.png</file>
     <file>themes/monowhite/32/edit.png</file>
@@ -806,6 +834,8 @@
     <file>themes/monowhite/32/stop.png</file>
     <file>themes/monowhite/32/write_eeprom.png</file>
     <file>themes/monowhite/32/sdsync.png</file>
+    <file>themes/monowhite/32/folder-tree-read.png</file>
+    <file>themes/monowhite/32/folder-tree-write.png</file>
     <file>themes/monowhite/48/paintbrush.png</file>
     <file>themes/monowhite/48/open.png</file>
     <file>themes/monowhite/48/edit.png</file>
@@ -850,6 +880,8 @@
     <file>themes/monowhite/48/stop.png</file>
     <file>themes/monowhite/48/write_eeprom.png</file>
     <file>themes/monowhite/48/sdsync.png</file>
+    <file>themes/monowhite/48/folder-tree-read.png</file>
+    <file>themes/monowhite/48/folder-tree-write.png</file>
     <file>themes/yerico/16/paintbrush.png</file>
     <file>themes/yerico/16/open.png</file>
     <file>themes/yerico/16/edit.png</file>
@@ -894,6 +926,8 @@
     <file>themes/yerico/16/stop.png</file>
     <file>themes/yerico/16/write_eeprom.png</file>
     <file>themes/yerico/16/sdsync.png</file>
+    <file>themes/yerico/16/folder-tree-read.png</file>
+    <file>themes/yerico/16/folder-tree-write.png</file>
     <file>themes/yerico/24/paintbrush.png</file>
     <file>themes/yerico/24/open.png</file>
     <file>themes/yerico/24/edit.png</file>
@@ -938,6 +972,8 @@
     <file>themes/yerico/24/stop.png</file>
     <file>themes/yerico/24/write_eeprom.png</file>
     <file>themes/yerico/24/sdsync.png</file>
+    <file>themes/yerico/24/folder-tree-read.png</file>
+    <file>themes/yerico/24/folder-tree-write.png</file>
     <file>themes/yerico/32/paintbrush.png</file>
     <file>themes/yerico/32/open.png</file>
     <file>themes/yerico/32/edit.png</file>
@@ -982,6 +1018,8 @@
     <file>themes/yerico/32/stop.png</file>
     <file>themes/yerico/32/write_eeprom.png</file>
     <file>themes/yerico/32/sdsync.png</file>
+    <file>themes/yerico/32/folder-tree-read.png</file>
+    <file>themes/yerico/32/folder-tree-write.png</file>
     <file>themes/yerico/48/paintbrush.png</file>
     <file>themes/yerico/48/open.png</file>
     <file>themes/yerico/48/edit.png</file>
@@ -1026,6 +1064,8 @@
     <file>themes/yerico/48/stop.png</file>
     <file>themes/yerico/48/write_eeprom.png</file>
     <file>themes/yerico/48/sdsync.png</file>
+    <file>themes/yerico/48/folder-tree-read.png</file>
+    <file>themes/yerico/48/folder-tree-write.png</file>
     <file>sounds/0.wav</file>
     <file>sounds/1.wav</file>
     <file>sounds/2.wav</file>

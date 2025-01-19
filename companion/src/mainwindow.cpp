@@ -890,8 +890,8 @@ void MainWindow::createActions()
   recentFilesAct =         addAct("recentdocument.png");
   closeAct =               addAct("clear.png",              SLOT(closeFile())        /*, QKeySequence::Close*/); // setting/showing this shortcut interferes with the system one (Ctrl+W/Ctrl-F4)
   // TODO change to more appropriate icon sets and uncomment toolbar actions
-  writeSettingsSDPathAct = addAct("save.png",               SLOT(writeSettingsSDPath()));
-  readSettingsSDPathAct =  addAct("open.png",               SLOT(readSettingsSDPath()));
+  writeSettingsSDPathAct = addAct("folder-tree-write.png",  SLOT(writeSettingsSDPath()));
+  readSettingsSDPathAct =  addAct("folder-tree-read.png",   SLOT(readSettingsSDPath()));
   // end TODO
   exitAct =                addAct("exit.png",               SLOT(closeAllWindows()),  QKeySequence::Quit, qApp);
 
@@ -1067,9 +1067,8 @@ void MainWindow::createToolBars()
   fileToolBar->addAction(saveAct);
   fileToolBar->addAction(closeAct);
   fileToolBar->addSeparator();
-  // TODO add after icon set changed to more appropriate as currently same as read and write file
-  // fileToolBar->addAction(readSettingsSDPathAct);
-  // fileToolBar->addAction(writeSettingsSDPathAct);
+  fileToolBar->addAction(readSettingsSDPathAct);
+  fileToolBar->addAction(writeSettingsSDPathAct);
 
   // workaround for default split button appearance of action with menu  :-/
   QToolButton * btn;
