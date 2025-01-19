@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MDICHILD_H_
-#define _MDICHILD_H_
+#pragma once
 
 #include "eeprominterface.h"
 #include "modelslist.h"
@@ -201,6 +200,7 @@ class MdiChild : public QWidget
     bool convertStorage(Board::Type from, Board::Type to, bool newFile = false);
     void showWarning(const QString & msg);
     int askQuestion(const QString & msg, QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No), QMessageBox::StandardButton defaultButton = QMessageBox::No);
+
     QDialog * getChildDialog(QRegularExpression & regexp);
     QDialog * getModelEditDialog(int row);
     QList<QDialog *> * getChildrenDialogsList(QRegularExpression & regexp);
@@ -262,5 +262,3 @@ class ItemViewProxyStyle: public QProxyStyle
       }
     }
 };
-
-#endif // _MDICHILD_H_

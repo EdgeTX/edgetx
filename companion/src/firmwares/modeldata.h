@@ -366,6 +366,8 @@ class ModelData {
     static AbstractStaticItemModel * funcSwitchStartItemModel();
 
     int getCustomScreensCount() const;
+    bool isValid(QWidget * parent = nullptr);
+    void fixErrors();
 
   protected:
     void removeGlobalVar(int & var);

@@ -343,3 +343,19 @@ AbstractStaticItemModel * RadioData::modelSortOrderItemModel()
   mdl->loadItemList();
   return mdl;
 }
+
+int RadioData::invalidModels(QWidget * parent)
+{
+  int cnt = 0;
+
+  for(auto &model: models)
+    cnt += model.isValid(parent) ? 0 : 1;
+
+  return cnt;
+}
+
+void RadioData::fixInvalidModels()
+{
+  for(auto &model: models)
+    model.fixErrors();
+}

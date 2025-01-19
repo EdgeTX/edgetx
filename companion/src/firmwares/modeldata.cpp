@@ -29,6 +29,8 @@
 #include "adjustmentreference.h"
 #include "compounditemmodels.h"
 
+#include <QMessageBox>
+
 ModelData::ModelData()
 {
   clear();
@@ -1923,4 +1925,49 @@ int ModelData::getCustomScreensCount() const
   }
 
   return cnt;
+}
+
+bool ModelData::isValid(QWidget * parent)
+{
+  int inputerrors = 0;
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)
+      inputerrors++;
+  }
+
+  int mixerrors = 0;
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE)
+      mixerrors++;
+  }
+
+  if (inputerrors > 0 || mixerrors > 0) {
+    QString msg = tr("Model %1 has the following errors:").arg(name) % "\n\n";
+    if (inputerrors > 0)
+      msg.append(tr("- %1 inputs with no source").arg(inputerrors) % "\n");
+    if (mixerrors > 0)
+      msg.append(tr("- %1 mixes with no source").arg(mixerrors));
+
+    QMessageBox::information(parent, CPN_STR_APP_NAME, msg);
+    return false;
+  }
+
+  return true;
+}
+
+void ModelData::fixErrors()
+{
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE) {
+      //  delete input line and fix up anything else then update refs
+      //updateAllReferences(ModelData::REF_UPD_TYPE_INPUT, REF_UPD_ACT_CLEAR, i);
+    }
+  }
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE) {
+      //  delete mixer line and fix up anything like numbering??
+    }
+  }
+
 }
