@@ -209,6 +209,7 @@ namespace Board {
     FlexInputs,
     FlexSwitches,
     FunctionSwitches,
+    FunctionSwitchColors,
     Gyros,
     GyroAxes,
     HasAudioMuteGPIO,
