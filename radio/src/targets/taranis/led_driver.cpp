@@ -75,10 +75,6 @@ uint8_t getRGBColorIndex(uint32_t color)
     if (color == colorTable[i])
       return(i + 1);
   }
-  for (uint8_t i = 0; i < DIM(colorTabl2); i++) {
-    if (color == colorTabl2[i])
-      return(i + 1);
-  }
   return 0; // Custom value set with Companion
 }
 #elif defined(FUNCTION_SWITCHES)
