@@ -39,9 +39,17 @@
 #if LCD_W >= 212
   #define HW_SETTINGS_COLUMN1            12*FW
   #define HW_SETTINGS_COLUMN2            (20*FW - 3)
+  #define HW_SETTINGS_COLUMN3            HW_SETTINGS_COLUMN2
 #else
   #define HW_SETTINGS_COLUMN1            30
   #define HW_SETTINGS_COLUMN2            (HW_SETTINGS_COLUMN1 + 5*FW)
+  #define HW_SETTINGS_COLUMN3            HW_SETTINGS_COLUMN2 + FW
+#endif
+
+#if defined(BATTGRAPH)
+  #define CASE_BATTGRAPH(x) x,
+#else
+  #define CASE_BATTGRAPH(x)
 #endif
 
 enum {
@@ -54,6 +62,7 @@ enum {
   ITEM_RADIO_HARDWARE_LABEL_SWITCHES,
   ITEM_RADIO_HARDWARE_SWITCH,
   ITEM_RADIO_HARDWARE_SWITCH_END = ITEM_RADIO_HARDWARE_SWITCH + MAX_SWITCHES - 1,
+  CASE_BATTGRAPH(ITEM_RADIO_HARDWARE_BATT_RANGE)
   ITEM_RADIO_HARDWARE_BATTERY_CALIB,
   ITEM_RADIO_HARDWARE_RTC_BATTERY,
   ITEM_RADIO_HARDWARE_RTC_CHECK,
@@ -144,6 +153,9 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     tab[i] = switchIsFlex(idx) ? 2 : idx < max_switches ? 1 : HIDDEN_ROW;
   }
 
+#if defined(BATTGRAPH)
+  tab[ITEM_RADIO_HARDWARE_BATT_RANGE] = 1;
+#endif
   tab[ITEM_RADIO_HARDWARE_BATTERY_CALIB] = 0;
   tab[ITEM_RADIO_HARDWARE_RTC_BATTERY] = READONLY_ROW;
   tab[ITEM_RADIO_HARDWARE_RTC_CHECK] = 0;
@@ -268,9 +280,24 @@ void menuRadioHardware(event_t event)
         lcdDrawTextAlignedLeft(y, STR_SWITCHES);
         break;
 
+#if defined(BATTGRAPH)
+      case ITEM_RADIO_HARDWARE_BATT_RANGE:
+        lcdDrawTextAlignedLeft(y, STR_BATTERY_RANGE);
+        putsVolts(HW_SETTINGS_COLUMN3, y, 90+g_eeGeneral.vBatMin, (menuHorizontalPosition==0 ? attr : 0)|NO_UNIT);
+        lcdDrawChar(lcdNextPos, y, '-');
+        putsVolts(lcdNextPos, y, 120+g_eeGeneral.vBatMax, (menuHorizontalPosition>0 ? attr : 0)|NO_UNIT);
+        if (attr && s_editMode>0) {
+          if (menuHorizontalPosition==0)
+            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMin, -60, g_eeGeneral.vBatMax+29); // min=3.0V
+          else
+            CHECK_INCDEC_GENVAR(event, g_eeGeneral.vBatMax, g_eeGeneral.vBatMin-29, +40); // max=16.0V
+        }
+        break;
+#endif
+
       case ITEM_RADIO_HARDWARE_BATTERY_CALIB:
         lcdDrawTextAlignedLeft(y, STR_BATT_CALIB);
-        putsVolts(HW_SETTINGS_COLUMN2, y, getBatteryVoltage(), attr|PREC2|LEFT);
+        putsVolts(HW_SETTINGS_COLUMN3, y, getBatteryVoltage(), attr|PREC2|LEFT);
         if (attr) {
           CHECK_INCDEC_GENVAR(event, g_eeGeneral.txVoltageCalibration, -127, 127);
         }
@@ -278,7 +305,7 @@ void menuRadioHardware(event_t event)
 
       case ITEM_RADIO_HARDWARE_RTC_BATTERY:
         lcdDrawTextAlignedLeft(y, STR_RTC_BATT);
-        putsVolts(HW_SETTINGS_COLUMN2, y, getRTCBatteryVoltage(), PREC2|LEFT);
+        putsVolts(HW_SETTINGS_COLUMN3, y, getRTCBatteryVoltage(), PREC2|LEFT);
         break;
 
       case ITEM_RADIO_HARDWARE_RTC_CHECK:
