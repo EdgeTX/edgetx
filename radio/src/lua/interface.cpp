@@ -26,7 +26,7 @@
 #include <algorithm>
 
 #include "edgetx.h"
-#include "bin_allocator.h"
+#include "custom_allocator.h"
 
 #include "lua_api.h"
 #include "lua_event.h"
@@ -1351,8 +1351,8 @@ void luaInit()
   L = nullptr;
 
   if (luaState != INTERPRETER_PANIC) {
-#if defined(USE_BIN_ALLOCATOR)
-    L = lua_newstate(bin_l_alloc, nullptr);   //we use our own allocator!
+#if defined(USE_CUSTOM_ALLOCATOR)
+    L = lua_newstate(custom_l_alloc, nullptr);   //we use our own allocator!
 #elif defined(LUA_ALLOCATOR_TRACER)
     memclear(&lsScriptsTrace, sizeof(lsScriptsTrace));
     lsScriptsTrace.script = "lua_newstate(scripts)";

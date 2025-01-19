@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "bin_allocator.h"
+#include <stddef.h>
 #include "edgetx.h"
 
 template <int SIZE_SLOT, int NUM_BINS>
@@ -94,14 +94,6 @@ class BinAllocator
 #if defined(SIMU)
   typedef BinAllocator<40,300> BinAllocator_slots1;
   typedef BinAllocator<80,100> BinAllocator_slots2;
-#elif defined(STM32F4)
-  #if defined(DEBUG)
-    typedef BinAllocator<28,395> BinAllocator_slots1;
-    typedef BinAllocator<92,85> BinAllocator_slots2;
-  #else
-    typedef BinAllocator<28,415> BinAllocator_slots1;
-    typedef BinAllocator<92,98> BinAllocator_slots2;
-  #endif
 #else
   typedef BinAllocator<28,200> BinAllocator_slots1;
   typedef BinAllocator<92,50> BinAllocator_slots2;
@@ -118,7 +110,7 @@ int missedAlloc = 0;
 int missedFree = 0;
 #endif 
 
-int bin_avail()
+int custom_avail()
 {
   return slots1.avail() + slots2.avail();
 }
@@ -188,7 +180,7 @@ static void * bin_realloc(void * ptr, size_t size)
   }
 }
 
-void *bin_l_alloc (void *ud, void *ptr, size_t osize, size_t nsize)
+void *custom_l_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
 {
   // (void)ud; (void)osize;  /* not used */
 

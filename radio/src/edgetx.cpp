@@ -76,6 +76,7 @@
 
 #if defined(LUA)
 #include "lua/lua_states.h"
+#include "lua/custom_allocator.h"
 #endif
 
 RadioData  g_eeGeneral;
@@ -1891,9 +1892,8 @@ uint32_t availableMemory()
 
   struct mallinfo info = mallinfo();
 
-#if defined(USE_BIN_ALLOCATOR)
-  extern int bin_avail();
-  return ((uint32_t)((unsigned char *)&_heap_end - heap)) + info.fordblks + bin_avail();
+#if defined(USE_CUSTOM_ALLOCATOR)
+  return ((uint32_t)((unsigned char *)&_heap_end - heap)) + info.fordblks + custom_avail();
 #else
   return ((uint32_t)((unsigned char *)&_heap_end - heap)) + info.fordblks;
 #endif

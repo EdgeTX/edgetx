@@ -343,8 +343,8 @@ void luaInitThemesAndWidgets()
 {
   TRACE("luaInitThemesAndWidgets");
 
-#if defined(USE_BIN_ALLOCATOR)
-  lsWidgets = lua_newstate(bin_l_alloc, NULL);   //we use our own allocator!
+#if defined(USE_CUSTOM_ALLOCATOR)
+  lsWidgets = lua_newstate(custom_l_alloc, NULL);   //we use our own allocator!
 #elif defined(LUA_ALLOCATOR_TRACER)
   memclear(&lsWidgetsTrace, sizeof(lsWidgetsTrace));
   lsWidgetsTrace.script = "lua_newstate(widgets)";
