@@ -162,6 +162,10 @@ void checkValidMCU(void)
 #endif
 }
 
+#if defined(SIMU)
+static bool evalFSok = false;
+#endif
+
 void timer_10ms()
 {
   DEBUG_TIMER_START(debugTimerPer10ms);
@@ -206,7 +210,12 @@ void timer_10ms()
   }
 
 #if defined(FUNCTION_SWITCHES)
+#if defined(SIMU)
+  if (evalFSok)
+    evalFunctionSwitches();
+#else
   evalFunctionSwitches();
+#endif
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(COLORLCD)
@@ -1518,9 +1527,10 @@ void edgeTxInit()
 #endif
 
 #if defined(FUNCTION_SWITCHES)
-    if (!UNEXPECTED_SHUTDOWN()) {
-      setFSStartupPosition();
-    }
+    setFSStartupPosition();
+#if defined(SIMU)
+    evalFSok = true;
+#endif
 #endif
 
 #if defined(GUI)
