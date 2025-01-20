@@ -24,7 +24,9 @@
 /* clang-format off */
 
 #include <stdint.h>
+#if !defined(LV_SKIP_DEFINES)
 #include "definitions.h"
+#endif
 
 /*====================
    COLOR SETTINGS

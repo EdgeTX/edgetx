@@ -49,6 +49,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define __IRAM
+#define LV_SKIP_DEFINES 1
 #include "../../gui/colorlcd/lv_conf.h"
 #define LV_CONF_SKIP 1
 #include "../../gui/colorlcd/lz4_fonts.h"
