@@ -28,9 +28,9 @@
 #include "boards/generic_stm32/rgb_leds.h"
 #endif
 
-#define GET_RED(color) (((color) & 0xF80000) >>16)
-#define GET_GREEN(color) (((color) & 0x000F800) >> 8)
-#define GET_BLUE(color) (((color) & 0xF8))
+#define GET_RED(color) (((color) & 0xFF0000) >>16)
+#define GET_GREEN(color) (((color) & 0x000FF00) >> 8)
+#define GET_BLUE(color) (((color) & 0xFF))
 
 #if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
 static const uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
@@ -73,10 +73,6 @@ uint8_t getRGBColorIndex(uint32_t color)
 {
   for (uint8_t i = 0; i < DIM(colorTable); i++) {
     if (color == colorTable[i])
-      return(i + 1);
-  }
-  for (uint8_t i = 0; i < DIM(colorTabl2); i++) {
-    if (color == colorTabl2[i])
       return(i + 1);
   }
   return 0; // Custom value set with Companion
