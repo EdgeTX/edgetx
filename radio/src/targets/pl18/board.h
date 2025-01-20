@@ -65,6 +65,8 @@ void getCPUUniqueID(char * s);
     PCBREV_EL18 = 1,
   };
   
+  #define HAS_HARDWARE_OPTIONS
+
   typedef struct {
     uint8_t pcbrev;
   } HardwareOptions;
@@ -250,8 +252,10 @@ bool isBacklightEnabled();
   #define DISABLE_UCHARGER()
 #endif
 
-// Audio driver
-void audioInit();
+#if !defined(AUDIO_SPI)
+  // DAC Audio driver
+  void audioInit();
+#endif
 
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512

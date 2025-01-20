@@ -22,6 +22,7 @@
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_ws2812.h"
+#include "stm32_spi.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -40,6 +41,10 @@
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
+
+#if defined(AUDIO_SPI)
+  #include "vs1053b.h"
+#endif
 
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
@@ -82,6 +87,29 @@ extern "C" void flushFTL();
       return PCBREV_NV14;
     }
   }
+#endif
+
+#if defined(AUDIO_SPI)
+stm32_spi_t audioSpi =
+{
+    .SPIx = AUDIO_SPI,
+    .SCK = AUDIO_SPI_SCK_GPIO,
+    .MISO = AUDIO_SPI_MISO_GPIO,
+    .MOSI = AUDIO_SPI_MOSI_GPIO,
+    .CS = AUDIO_CS_GPIO,
+};
+
+vs1053b_t audioConfig =
+{
+  .spi = &audioSpi,
+  .XDCS = AUDIO_XDCS_GPIO,
+  .DREQ = AUDIO_DREQ_GPIO,
+  .RST = AUDIO_RST_GPIO,
+  .MUTE = AUDIO_MUTE_GPIO,
+  .flags = AUDIO_MUTE_POL,
+  .mute_delay_ms = AUDIO_MUTE_DELAY,
+  .unmute_delay_ms = AUDIO_UNMUTE_DELAY,
+};
 #endif
 
 void delay_self(int count)
@@ -160,6 +188,11 @@ void boardInit()
   pwrInit();
   boardInitModulePorts();
 
+#if defined(AUDIO_SPI)
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+#endif
+
   board_trainer_init();
   battery_charge_init();
   
@@ -215,7 +248,11 @@ void boardInit()
 #if defined(RADIO_NB4P)
   disableVoiceChip();
 #endif
+#if defined(AUDIO_SPI)
+  vs1053b_init(&audioConfig);
+#else
   audioInit();
+#endif
   monitorInit();
   adcInit(&_adc_driver);
   hapticInit();
@@ -227,16 +264,6 @@ void boardInit()
   ledBlue();
 
   lcdSetInitalFrameBuffer(lcdFront->getData());
-    
-#if defined(DEBUG)
-/*  DBGMCU_APB1PeriphConfig(
-      DBGMCU_IWDG_STOP | DBGMCU_TIM1_STOP | DBGMCU_TIM2_STOP |
-          DBGMCU_TIM3_STOP | DBGMCU_TIM4_STOP | DBGMCU_TIM5_STOP |
-          DBGMCU_TIM6_STOP | DBGMCU_TIM7_STOP | DBGMCU_TIM8_STOP |
-          DBGMCU_TIM9_STOP | DBGMCU_TIM10_STOP | DBGMCU_TIM11_STOP |
-          DBGMCU_TIM12_STOP | DBGMCU_TIM13_STOP | DBGMCU_TIM14_STOP,
-      ENABLE);*/
-#endif
 }
 
 extern void rtcDisableBackupReg();
