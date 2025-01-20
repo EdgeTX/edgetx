@@ -83,7 +83,7 @@ const etx_flash_driver_t extflash_driver = {
 //
 #include "usbd_dfu.h"
 
-#define MEDIA_DESC_STR "@External Flash   /0x70000000/2048*004Kg"
+#define MEDIA_DESC_STR "@External Flash   /0x70000000/128*064Kg"
 
 static uint16_t extflash_dfu_init()
 {
