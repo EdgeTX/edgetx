@@ -67,6 +67,7 @@ class Widget : public ButtonBase
   // Set/unset fullscreen mode
   void setFullscreen(bool enable);
   void closeFullscreen() { closeFS = true; }
+  bool isFullscreen() const { return fullscreen; }
 
   // Called when the widget options have changed
   virtual void update();

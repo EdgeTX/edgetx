@@ -52,10 +52,10 @@ class LuaLvglManager
   virtual void clear() = 0;
   virtual bool useLvglLayout() const = 0;
   virtual bool isAppMode() const = 0;
+  virtual bool isWidget() = 0;
+  virtual bool isFullscreen() = 0;
 
   virtual void luaShowError() = 0;
-
-  virtual bool isWidget() = 0;
 
   uint8_t refreshInstructionsPercent;
 
@@ -119,12 +119,12 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
   bool useLvglLayout() const override;
   bool isAppMode() const override;
+  bool isWidget() override { return !inSettings; }
+  bool isFullscreen() override { return Widget::isFullscreen(); }
 
   void luaShowError() override {}
 
   void pushOptionsTable();
-
-  bool isWidget() override { return !inSettings; }
 
  protected:
   bool inSettings = false;

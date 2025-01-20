@@ -185,7 +185,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
       obj = new LvglWidgetBox();
     else if (strcasecmp(p.type, "setting") == 0)
       obj = new LvglWidgetSetting();
-    else if (!luaLvglManager->isWidget()) {
+    else if (!luaLvglManager->isWidget() || (luaLvglManager->isAppMode() && luaLvglManager->isFullscreen())) {
       if (strcasecmp(p.type, "button") == 0)
         obj = new LvglWidgetTextButton();
       else if (strcasecmp(p.type, "toggle") == 0)
@@ -269,11 +269,22 @@ static int luaLvglIsAppMode(lua_State *L)
   return 1;
 }
 
+static int luaLvglIsFullscreen(lua_State *L)
+{
+  if (luaLvglManager) {
+    lua_pushboolean(L, luaLvglManager->isFullscreen());
+  } else {
+    lua_pushboolean(L, false);
+  }
+  return 1;
+}
+
 // lvgl functions
 LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(clear, luaLvglClear)
   LROT_FUNCENTRY(build, luaLvglBuild)
   LROT_FUNCENTRY(isAppMode, luaLvglIsAppMode)
+  LROT_FUNCENTRY(isFullscreen, luaLvglIsFullscreen)
   // Objects - widgets and standalone
   LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
   LROT_FUNCENTRY(rectangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetRectangle(); }); })
