@@ -19,11 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
-
-#include <stddef.h>
-
-#if defined(USE_BIN_ALLOCATOR)
-// wrapper for our BinAllocator for Lua
-void *bin_l_alloc (void *ud, void *ptr, size_t osize, size_t nsize);
-#endif   //#if defined(USE_BIN_ALLOCATOR)
+#if defined(STM32F4)
+#include "ccm_allocator.cpp"
+#else
+#include "bin_allocator.cpp"
+#endif
