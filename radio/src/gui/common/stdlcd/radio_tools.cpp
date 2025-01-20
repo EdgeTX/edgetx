@@ -37,64 +37,53 @@ inline bool LuaScript_compare_nocase(LuaScript first, LuaScript second)
   return strcasecmp(first.label.c_str(), second.label.c_str()) < 0;
 }
 
-static LcdFlags dispTool(uint8_t index, const char* label)
+static LcdFlags dispTool(uint8_t index)
 {
   int8_t sub = menuVerticalPosition - HEADER_LINE;
   LcdFlags attr = (sub == index ? INVERS : 0);
   coord_t y = MENU_HEADER_HEIGHT + (index - menuVerticalOffset) * FH;
   lcdDrawNumber(3, y, index + 1, LEADING0 | LEFT, 2);
-  lcdDrawText(3 * FW, y, reusableBuffer.radioTools.script[index].label, attr);
+  lcdDrawText(3 * FW, y, reusableBuffer.radioTools.script[index - menuVerticalOffset].label, attr);
   return attr;
 }
 
 void displayRadioTool(uint8_t index)
 {
-  if (index >= menuVerticalOffset) {
-    if ((index - menuVerticalOffset) < NUM_BODY_LINES) {
-      auto attr = dispTool(index, reusableBuffer.radioTools.script[index].label);
-      if (attr && s_editMode > 0) {
-        s_editMode = 0;
-        killAllEvents();
-        if (reusableBuffer.radioTools.script[index].tool != nullptr) {
-          g_moduleIdx = reusableBuffer.radioTools.script[index].module;
-          pushMenu(reusableBuffer.radioTools.script[index].tool);
-        }
-        else if (reusableBuffer.radioTools.script[index].path[0]) {
-          char toolPath[FF_MAX_LFN];
-          strcpy(toolPath, reusableBuffer.radioTools.script[index].path);
-          *((char *)getBasename(toolPath)-1) = '\0';
-          f_chdir(toolPath);
-          luaExec(reusableBuffer.radioTools.script[index].path);
-        }
-      }
+  auto attr = dispTool(index);
+  if (attr && s_editMode > 0) {
+    s_editMode = 0;
+    killAllEvents();
+    if (reusableBuffer.radioTools.script[index - menuVerticalOffset].tool != nullptr) {
+      g_moduleIdx = reusableBuffer.radioTools.script[index - menuVerticalOffset].module;
+      pushMenu(reusableBuffer.radioTools.script[index - menuVerticalOffset].tool);
+    }
+    else if (reusableBuffer.radioTools.script[index - menuVerticalOffset].path[0]) {
+      char toolPath[FF_MAX_LFN];
+      strcpy(toolPath, reusableBuffer.radioTools.script[index - menuVerticalOffset].path);
+      *((char *)getBasename(toolPath)-1) = '\0';
+      f_chdir(toolPath);
+      luaExec(reusableBuffer.radioTools.script[index - menuVerticalOffset].path);
     }
   }
 }
 
 void addRadioTool(uint8_t index, const char * label)
 {
-  if (index >= menuVerticalOffset) {
-    if ((index - menuVerticalOffset) < NUM_BODY_LINES) {
-      strncpy(reusableBuffer.radioTools.script[index].label, label, sizeof(reusableBuffer.radioTools.script[0].label));
-      auto attr = dispTool(index, label);
-      if (attr && s_editMode > 0) {
-        s_editMode = 0;
-        killAllEvents();
-      }
-    }
+  strAppend(reusableBuffer.radioTools.script[index - menuVerticalOffset].label, label, TOOL_NAME_MAX_LEN);
+  auto attr = dispTool(index);
+  if (attr && s_editMode > 0) {
+    s_editMode = 0;
+    killAllEvents();
   }
 }
 
 void addRadioModuleToolHandler(uint8_t index, const char * label, void (* tool)(event_t), uint8_t module)
 {
-  if (index >= menuVerticalOffset) {
-    uint8_t lineIndex = index - menuVerticalOffset;
-    if (lineIndex < NUM_BODY_LINES) {
-      memclear(&reusableBuffer.radioTools.script[index], sizeof(reusableBuffer.radioTools.script[0]));
-      reusableBuffer.radioTools.script[index].tool = tool;
-      reusableBuffer.radioTools.script[index].module = module;
-      addRadioTool(index, label);
-    }
+  if (index >= menuVerticalOffset && index < menuVerticalOffset + NUM_BODY_LINES) {
+    memclear(&reusableBuffer.radioTools.script[index - menuVerticalOffset], sizeof(reusableBuffer.radioTools.script[0]));
+    reusableBuffer.radioTools.script[index - menuVerticalOffset].tool = tool;
+    reusableBuffer.radioTools.script[index - menuVerticalOffset].module = module;
+    addRadioTool(index, label);
   }
 }
 
@@ -103,9 +92,12 @@ void addRadioScriptToolHandler(std::vector<LuaScript> luaScripts)
 {
   uint8_t index = 0;
   for (auto luaScript : luaScripts) {
-    memclear(&reusableBuffer.radioTools.script[index], sizeof(reusableBuffer.radioTools.script[0]));
-    strncpy(reusableBuffer.radioTools.script[index].path, luaScript.path.c_str(), sizeof(reusableBuffer.radioTools.script[0].path));
-    addRadioTool(index++, luaScript.label.c_str());
+    if (index >= menuVerticalOffset && index < menuVerticalOffset + NUM_BODY_LINES) {
+      memclear(&reusableBuffer.radioTools.script[index - menuVerticalOffset], sizeof(reusableBuffer.radioTools.script[0]));
+      strAppend(reusableBuffer.radioTools.script[index - menuVerticalOffset].path, luaScript.path.c_str(), TOOL_PATH_MAX_LEN);
+      addRadioTool(index, luaScript.label.c_str());
+    }
+    index += 1;
   }
 }
 #endif
@@ -130,7 +122,9 @@ void menuRadioTools(event_t event)
 
   if (reusableBuffer.radioTools.oldOffset == menuVerticalOffset) {
     for(uint8_t line = 0; line < reusableBuffer.radioTools.linesCount; line++) {
-      displayRadioTool(line);
+      if (line >= menuVerticalOffset && line < menuVerticalOffset + NUM_BODY_LINES) {
+        displayRadioTool(line);
+      }
     }
     return;
   }
