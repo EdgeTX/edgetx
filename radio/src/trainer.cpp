@@ -192,7 +192,8 @@ static void trainer_init_module_sbus()
     auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
 
     sbusSetReceiveCtx(ctx, drv);
-    drv->setIdleCb(ctx, sbusFrameReceived, nullptr);
+    if (drv && drv->setIdleCb)
+      drv->setIdleCb(ctx, sbusFrameReceived, nullptr);
 
     // switch ON
     modulePortSetPower(EXTERNAL_MODULE, true);
