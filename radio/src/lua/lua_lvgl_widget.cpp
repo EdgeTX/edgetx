@@ -1733,6 +1733,7 @@ void LvglWidgetAlignPicker::build(lua_State *L)
 
 void LvglWidgetColorPicker::build(lua_State *L)
 {
+  if (w == LV_SIZE_CONTENT) w = 0;
   if (h == LV_SIZE_CONTENT) h = 0;
   window = new ColorPicker(
       lvglManager->getCurrentParent(), {x, y, w, h},
