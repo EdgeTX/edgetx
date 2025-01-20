@@ -184,12 +184,12 @@ class FunctionSwitch : public Window
   static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
   static constexpr coord_t C2_W = 40;
 #else
-  static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY_GAP * 4) / 5;
-  static constexpr coord_t NM_X = SW_W + PAD_TINY_GAP;
+  static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY * 4) / 5;
+  static constexpr coord_t NM_X = SW_W + PAD_TINY;
   static constexpr coord_t NM_W = 80;
-  static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY_GAP;
+  static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY;
   static constexpr coord_t TP_W = 86;
-  static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY_GAP;
+  static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY;
   static constexpr coord_t GR_W = 94;
   static constexpr coord_t ST_X = GR_X + SW_W + 20;
   static constexpr coord_t ST_W = 70;
