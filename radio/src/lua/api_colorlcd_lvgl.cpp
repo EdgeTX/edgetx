@@ -285,7 +285,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(build, luaLvglBuild)
   LROT_FUNCENTRY(isAppMode, luaLvglIsAppMode)
   LROT_FUNCENTRY(isFullscreen, luaLvglIsFullscreen)
-  // Objects - widgets and standalone
+  // Objects - widgets and standalone scripts
   LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
   LROT_FUNCENTRY(rectangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetRectangle(); }); })
   LROT_FUNCENTRY(hline, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetHLine(); }); })
@@ -296,7 +296,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(arc, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetArc(); }); })
   LROT_FUNCENTRY(image, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetImage(); }); })
   LROT_FUNCENTRY(qrcode, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetQRCode(); }); })
-  // Objects - standalone scripts only
+  // Objects - standalone scripts and full screen widgets only
   LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }, true); })
   LROT_FUNCENTRY(toggle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetToggleSwitch(); }, true); })
   LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextEdit(); }, true); })
