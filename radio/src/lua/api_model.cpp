@@ -595,10 +595,10 @@ Return input data for given input and line number
  * `curveValue` (number) curve index
  * `carryTrim` deprecated, please use trimSource instead. WARNING: carryTrim was getting negative values (carryTrim = - trimSource)
  * 'trimSource' (number) a positive number representing trim source
- * 'mode' (number) input side (positive, negative or all)
+ * 'side' (number) input side (positive, negative or all)
  * 'flightModes' (number) bit-mask of active flight modes
 
-@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1, scale added in 2.10, mode added in 2.11
+@status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1, scale added in 2.10, side added in 2.11
 */
 static int luaModelGetInput(lua_State *L)
 {
@@ -619,7 +619,7 @@ static int luaModelGetInput(lua_State *L)
     lua_pushtableinteger(L, "curveType", expo->curve.type);
     lua_pushtableinteger(L, "curveValue", expo->curve.value);
     lua_pushtableinteger(L, "trimSource", - expo->trimSource);
-    lua_pushtableinteger(L, "mode", expo->mode);
+    lua_pushtableinteger(L, "side", expo->mode);
     lua_pushtableinteger(L, "flightModes", expo->flightModes);
   }
   else {
@@ -676,7 +676,7 @@ static int luaModelInsertInput(lua_State *L)
       else if (!strcmp(key, "scale")) {
         expo->scale = luaL_checkinteger(L, -1);
       }
-      else if (!strcmp(key, "mode")) {
+      else if (!strcmp(key, "side")) {
         expo->mode = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
