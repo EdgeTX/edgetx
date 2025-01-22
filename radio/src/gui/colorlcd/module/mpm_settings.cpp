@@ -172,6 +172,7 @@ struct MPMSubtype : public FormLine {
     }
 
     choice->setValues(rfProto->subProtos);
+    choice->update();
     choice->setMax(rfProto->subProtos.size() - 1);
 
     show();
