@@ -30,9 +30,9 @@
 
 LuaLvglManager *luaLvglManager = nullptr;
 
-static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool standalone = false)
+static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
 {
-  if (luaLvglManager && (!standalone || !luaLvglManager->isWidget())) {
+  if (luaLvglManager && (!fullscreenOnly || luaLvglManager->isFullscreen())) {
     auto obj = create();
     obj->getParams(L, 1);
     obj->build(L);
@@ -44,9 +44,9 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
   return 1;
 }
 
-static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool standalone = false)
+static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
 {
-  if (luaLvglManager && (!standalone || !luaLvglManager->isWidget())) {
+  if (luaLvglManager && (!fullscreenOnly || !luaLvglManager->isFullscreen())) {
     LvglWidgetObjectBase* p = nullptr;
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
@@ -345,7 +345,7 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_TABENTRY(__index, lvgl_mt)
   LROT_FUNCENTRY(clear, luaLvglClear)
   LROT_FUNCENTRY(build, luaLvglBuild)
-  // Objects - widgets and standalone
+  // Objects - widgets and standalone scripts
   LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
   LROT_FUNCENTRY(rectangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetRectangle(); }); })
   LROT_FUNCENTRY(hline, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetHLine(); }); })
@@ -356,7 +356,7 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(arc, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetArc(); }); })
   LROT_FUNCENTRY(image, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetImage(); }); })
   LROT_FUNCENTRY(qrcode, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetQRCode(); }); })
-  // Objects - standalone scripts only
+  // Objects - standalone scripts and full screen widgets only
   LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }, true); })
   LROT_FUNCENTRY(toggle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetToggleSwitch(); }, true); })
   LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextEdit(); }, true); })

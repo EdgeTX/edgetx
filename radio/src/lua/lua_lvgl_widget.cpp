@@ -126,9 +126,11 @@ void LvglWidgetObjectBase::pcallSimpleFunc(lua_State *L, int funcRef)
   if (funcRef != LUA_REFNIL) {
     PROTECT_LUA()
     {
+      luaLvglManager = lvglManager;
       if (!pcallFunc(L, funcRef, 0)) {
         lvglManager->luaShowError();
       }
+      luaLvglManager = nullptr;
     }
     UNPROTECT_LUA();
   }
@@ -137,39 +139,47 @@ void LvglWidgetObjectBase::pcallSimpleFunc(lua_State *L, int funcRef)
 bool LvglWidgetObjectBase::pcallUpdateBool(lua_State *L, int getFuncRef,
                                            std::function<void(bool)> update)
 {
+  bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
       bool val = lua_toboolean(L, -1);
       update(val);
       lua_settop(L, t);
     } else {
-      return false;
+      res = false;
     }
+    lvglManager = nullptr;
   }
-  return true;
+  return res;
 }
 
 bool LvglWidgetObjectBase::pcallUpdate1Int(lua_State *L, int getFuncRef,
                                            std::function<void(int)> update)
 {
+  bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
       int val = luaL_checkunsigned(L, -1);
       update(val);
       lua_settop(L, t);
     } else {
-      return false;
+      res = false;
     }
+    lvglManager = nullptr;
   }
-  return true;
+  return res;
 }
 
 bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, int getFuncRef,
                                            std::function<void(int, int)> update)
 {
+  bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 2)) {
       int v1 = luaL_checkunsigned(L, -2);
@@ -177,16 +187,18 @@ bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, int getFuncRef,
       update(v1, v2);
       lua_settop(L, t);
     } else {
-      return false;
+      res = false;
     }
+    lvglManager = nullptr;
   }
-  return true;
+  return res;
 }
 
 int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
 {
   int val = 0;
   if (getFuncRef != LUA_REFNIL) {
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
     {
@@ -202,6 +214,7 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
+    lvglManager = nullptr;
   }
   return val;
 }
@@ -209,6 +222,7 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
 void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
 {
   if (setFuncRef != LUA_REFNIL) {
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
     {
@@ -222,6 +236,7 @@ void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
+    lvglManager = nullptr;
   }
 }
 
@@ -1515,6 +1530,7 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   void onEvent(event_t evt) override
   {
     LuaEventHandler::onEvent(evt);
+    parent->onEvent(evt);
   }
 
  protected:
