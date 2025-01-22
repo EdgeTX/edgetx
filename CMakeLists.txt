@@ -4,7 +4,7 @@ project(EdgeTX)
 
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "10")
-set(VERSION_REVISION "5")
+set(VERSION_REVISION "6")
 set(CODENAME "Centurion")
 string(TIMESTAMP BUILD_YEAR "%Y")
 
