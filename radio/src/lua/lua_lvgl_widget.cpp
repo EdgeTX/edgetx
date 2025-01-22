@@ -1024,6 +1024,12 @@ void LvglWidgetBox::build(lua_State* L)
 {
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
+  lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
+  if (luaLvglManager->isWidget()) {
+    lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
+  } else {
+    etx_scrollbar(window->getLvObj());
+  }
   if (setFlex())
     lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 }

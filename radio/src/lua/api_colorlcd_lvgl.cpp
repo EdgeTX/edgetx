@@ -183,8 +183,6 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
       obj = new LvglWidgetQRCode();
     else if (strcasecmp(p.type, "box") == 0)
       obj = new LvglWidgetBox();
-    else if (strcasecmp(p.type, "setting") == 0)
-      obj = new LvglWidgetSetting();
     else if (luaLvglManager->isFullscreen()) {
       if (strcasecmp(p.type, "button") == 0)
         obj = new LvglWidgetTextButton();
@@ -212,6 +210,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         obj = new LvglWidgetSwitchPicker();
       else if (strcasecmp(p.type, "source") == 0)
         obj = new LvglWidgetSourcePicker();
+      else if (strcasecmp(p.type, "setting") == 0)
+        obj = new LvglWidgetSetting();
     }
     if (obj) {
       obj->getParams(L, -1);
