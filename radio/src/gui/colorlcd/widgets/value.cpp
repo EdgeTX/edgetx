@@ -197,7 +197,6 @@ class ValueWidget : public Widget
 
     // Get positions, alignment and value font size.
     if (height() < 50) {
-      valueFlags = NO_UNIT;
       if (width() >= 120) {
         lblAlign = ALIGN_LEFT;
         valAlign = ALIGN_RIGHT;
