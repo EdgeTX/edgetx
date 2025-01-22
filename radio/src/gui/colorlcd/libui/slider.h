@@ -30,10 +30,7 @@ class Slider : public Window
   std::string getName() const override { return "Slider"; }
 #endif
 
-  void setValue(int value)
-  {
-    if (_setValue != nullptr) _setValue(limit(vmin, value, vmax));
-  }
+  void setValue(int value);
 
   void update();
 

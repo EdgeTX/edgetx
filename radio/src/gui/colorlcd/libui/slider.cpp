@@ -157,3 +157,9 @@ void Slider::deleteLater(bool detach, bool trash)
     Window::deleteLater(detach, trash);
   }
 }
+
+void Slider::setValue(int value)
+{
+  if (_setValue != nullptr)
+    _setValue(limit(vmin, value, vmax));
+}

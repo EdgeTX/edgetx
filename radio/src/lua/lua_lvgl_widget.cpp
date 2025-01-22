@@ -1524,7 +1524,7 @@ void LvglWidgetSlider::build(lua_State *L)
   window = new Slider(
       lvglManager->getCurrentParent(), w, vmin, vmax,
       [=]() { return pcallGetIntVal(L, getValueFunction); },
-      [=](uint8_t val) { pcallSetIntVal(L, setValueFunction, val); });
+      [=](int val) { pcallSetIntVal(L, setValueFunction, val); });
   window->setPos(x, y);
 }
 
