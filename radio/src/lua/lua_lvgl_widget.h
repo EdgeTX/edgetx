@@ -454,6 +454,7 @@ class LvglWidgetTextButton : public LvglWidgetObject
 
   const char *txt = "";
   int pressFunction = LUA_REFNIL;
+  int longPressFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
 };

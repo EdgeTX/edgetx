@@ -1319,6 +1319,8 @@ void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
     txt = luaL_checkstring(L, -1);
   } else if (!strcmp(key, "press")) {
     pressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "longpress")) {
+    longPressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -1343,10 +1345,16 @@ void LvglWidgetTextButton::setText(const char *s)
 void LvglWidgetTextButton::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
-  window =
+  auto btn =
       new TextButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt, [=]() {
         return pcallGetOptIntVal(L, pressFunction, 0);
       });
+  if (longPressFunction != LUA_REFNIL) {
+    btn->setLongPressHandler([=]() {
+      return pcallGetOptIntVal(L, longPressFunction, 0);
+    });
+  }
+  window = btn;
 }
 
 //-----------------------------------------------------------------------------
