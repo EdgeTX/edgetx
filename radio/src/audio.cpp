@@ -213,6 +213,17 @@ void referenceSystemAudioFiles()
 
   sdAvailableSystemAudioFiles.reset();
 
+#if defined(SIMU)
+  // f_readdir does an f_stat call on every file when running in the simulator
+  // so it is faster to just call f_stat on the files we are interested in
+  for (int i=0; i<AU_SPECIAL_SOUND_FIRST; i++) {
+    getSystemAudioFile(path, i);
+    if (f_stat(path, nullptr) == FR_OK)
+      sdAvailableSystemAudioFiles.setBit(i);
+  }
+#else
+  // On the radio f_readdir on the whole SYSTEM folder is faster than
+  // calling f_stat for each audio file name
   char * filename = strAppendSystemAudioPath(path);
   *(filename-1) = '\0';
 
@@ -227,8 +238,9 @@ void referenceSystemAudioFiles()
       if (len < 5 || strcasecmp(fno.fname+len-4, SOUNDS_EXT) || (fno.fattrib & AM_DIR)) continue;
 
       for (int i=0; i<AU_SPECIAL_SOUND_FIRST; i++) {
-        getSystemAudioFile(path, i);
-        if (!strcasecmp(filename, fno.fname)) {
+        strcpy(path, audioFilenames[i]);
+        strcat(path, SOUNDS_EXT);
+        if (!strcasecmp(path, fno.fname)) {
           sdAvailableSystemAudioFiles.setBit(i);
           break;
         }
@@ -236,6 +248,7 @@ void referenceSystemAudioFiles()
     }
     f_closedir(&dir);
   }
+#endif
 }
 
 void referenceModelAudioFiles()
