@@ -146,7 +146,11 @@ bool LvglWidgetObjectBase::pcallUpdateBool(lua_State *L, int getFuncRef,
     luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
-      bool val = lua_toboolean(L, -1);
+      bool val = false;
+      if (lua_isboolean(L, -1))
+        val = lua_toboolean(L, -1);
+      else
+        val = luaL_optinteger(L, -1, 0) != 0;
       update(val);
       lua_settop(L, t);
     } else {
@@ -234,7 +238,10 @@ int LvglWidgetObjectBase::pcallGetOptIntVal(lua_State *L, int getFuncRef, int de
     PROTECT_LUA()
     {
       if (pcallFunc(L, getFuncRef, 1)) {
-        val = luaL_optinteger(L, -1, defVal);
+        if (lua_isboolean(L, -1))
+          val = lua_toboolean(L, -1);
+        else
+          val = luaL_optinteger(L, -1, defVal);
       } else {
         lvglManager->luaShowError();
       }
@@ -987,6 +994,8 @@ void LvglWidgetObject::parseParam(lua_State *L, const char *key)
     flexFlow = luaL_checkinteger(L, -1);
   } else if (!strcmp(key, "flexPad")) {
     flexPad = luaL_checkinteger(L, -1);
+  } else if (!strcmp(key, "active")) {
+    getActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
     LvglWidgetObjectBase::parseParam(L, key);
   }
@@ -1016,6 +1025,20 @@ bool LvglWidgetObject::setFlex()
     window->padAll(PAD_ZERO);
     return false;
   }
+}
+
+bool LvglWidgetObject::callRefs(lua_State *L)
+{
+  if (!pcallUpdateBool(L, getActiveFunction,
+                       [=](bool active) { if (active) enable(); else disable(); }))
+    return false;
+  return LvglWidgetObjectBase::callRefs(L);
+}
+
+void LvglWidgetObject::clearRefs(lua_State *L)
+{
+  clearRef(L, getActiveFunction);
+  LvglWidgetObjectBase::clearRefs(L);
 }
 
 //-----------------------------------------------------------------------------
@@ -1335,6 +1358,7 @@ void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
 void LvglWidgetTextButton::clearRefs(lua_State *L)
 {
   clearRef(L, pressFunction);
+  clearRef(L, longPressFunction);
   LvglWidgetObject::clearRefs(L);
 }
 

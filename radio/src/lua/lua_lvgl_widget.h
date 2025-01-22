@@ -45,6 +45,8 @@ class LvglWidgetObjectBase
 
   virtual void show() = 0;
   virtual void hide() = 0;
+  virtual void enable() {};
+  virtual void disable() {};
 
   virtual void setColor(LcdFlags newColor) {}
   virtual void setOpacity(uint8_t newOpa) {}
@@ -259,9 +261,14 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
   void show() override { window->show(); }
   void hide() override { window->hide(); }
+  void enable() override { window->enable(); }
+  void disable() override { window->disable(); }
 
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
+
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
 
   Window *getWindow() const override { return window; }
 
@@ -269,6 +276,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
   Window *window = nullptr;
   int8_t flexFlow = -1;
   int8_t flexPad = PAD_TINY;
+  int getActiveFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
 
