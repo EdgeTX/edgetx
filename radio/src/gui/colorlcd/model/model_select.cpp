@@ -660,7 +660,7 @@ void ModelLabelsWindow::newModel()
       int len = strlen(path);
       snprintf(path + len, LEN_BUFFER - len, "/%s%s", name.c_str(), SCRIPT_EXT);
       if (f_stat(path, 0) == FR_OK) {
-        luaExec(path);
+        luaExecStandalone(path);
       }
 #endif
     }
