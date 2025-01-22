@@ -561,10 +561,12 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
   TRACE("luaLoadScriptFileToState(%s, %s): loading %s", filename, lmode, filenameFull);
 
   // we don't pass <mode> on to loadfilex() because we want lua to load whatever file we specify, regardless of content
+  int t = lua_gettop(L);
   lstatus = luaL_loadfilex(L, filenameFull, nullptr);
 #if defined(LUA_COMPILER)
   // Check for bytecode encoding problem, eg. compiled for x64. Unfortunately Lua doesn't provide a unique error code for this. See Lua/src/lundump.c.
   if (lstatus == LUA_ERRSYNTAX && loadFileType == 2 && frLuaS == FR_OK && strstr(lua_tostring(L, -1), "precompiled")) {
+    lua_settop(L, t); // reset stack to prevent phantom error
     loadFileType = 1;
     scriptNeedsCompile = true;
     strcpy(filenameFull + fnamelen, SCRIPT_EXT);
