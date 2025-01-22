@@ -85,7 +85,7 @@ class ValueWidget: public Widget
         yValue = -2;
         xLabel = NUMBERS_PADDING;
         yLabel = +2;
-        attrValue = RIGHT | NO_UNIT | FONT(L);
+        attrValue = RIGHT | FONT(L);
       }
       else {
         switch (label_alignment) {
