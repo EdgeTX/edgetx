@@ -91,6 +91,7 @@ class LvglWidgetObjectBase
   bool pcallUpdate2Int(lua_State *L, int getFuncRef,
                        std::function<void(int, int)> update);
   int pcallGetIntVal(lua_State *L, int getFuncRef);
+  int pcallGetOptIntVal(lua_State *L, int getFuncRef, int defVal);
   void pcallSetIntVal(lua_State *L, int setFuncRef, int val);
 };
 

@@ -126,11 +126,12 @@ void LvglWidgetObjectBase::pcallSimpleFunc(lua_State *L, int funcRef)
   if (funcRef != LUA_REFNIL) {
     PROTECT_LUA()
     {
+      auto save = luaLvglManager;
       luaLvglManager = lvglManager;
       if (!pcallFunc(L, funcRef, 0)) {
         lvglManager->luaShowError();
       }
-      luaLvglManager = nullptr;
+      luaLvglManager = save;
     }
     UNPROTECT_LUA();
   }
@@ -141,6 +142,7 @@ bool LvglWidgetObjectBase::pcallUpdateBool(lua_State *L, int getFuncRef,
 {
   bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
     luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
@@ -150,7 +152,7 @@ bool LvglWidgetObjectBase::pcallUpdateBool(lua_State *L, int getFuncRef,
     } else {
       res = false;
     }
-    lvglManager = nullptr;
+    lvglManager = save;
   }
   return res;
 }
@@ -160,6 +162,7 @@ bool LvglWidgetObjectBase::pcallUpdate1Int(lua_State *L, int getFuncRef,
 {
   bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
     luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
@@ -169,7 +172,7 @@ bool LvglWidgetObjectBase::pcallUpdate1Int(lua_State *L, int getFuncRef,
     } else {
       res = false;
     }
-    lvglManager = nullptr;
+    lvglManager = save;
   }
   return res;
 }
@@ -179,6 +182,7 @@ bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, int getFuncRef,
 {
   bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
     luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 2)) {
@@ -189,7 +193,7 @@ bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, int getFuncRef,
     } else {
       res = false;
     }
-    lvglManager = nullptr;
+    lvglManager = save;
   }
   return res;
 }
@@ -198,6 +202,7 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
 {
   int val = 0;
   if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
     luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
@@ -214,7 +219,33 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
-    lvglManager = nullptr;
+    lvglManager = save;
+  }
+  return val;
+}
+
+int LvglWidgetObjectBase::pcallGetOptIntVal(lua_State *L, int getFuncRef, int defVal)
+{
+  int val = 0;
+  if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
+    luaLvglManager = lvglManager;
+    int t = lua_gettop(L);
+    PROTECT_LUA()
+    {
+      if (pcallFunc(L, getFuncRef, 1)) {
+        val = luaL_optinteger(L, -1, defVal);
+      } else {
+        lvglManager->luaShowError();
+      }
+    }
+    else
+    {
+      lvglManager->luaShowError();
+    }
+    UNPROTECT_LUA();
+    lua_settop(L, t);
+    lvglManager = save;
   }
   return val;
 }
@@ -222,6 +253,7 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
 void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
 {
   if (setFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
     luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
@@ -236,7 +268,7 @@ void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
-    lvglManager = nullptr;
+    lvglManager = save;
   }
 }
 
@@ -1313,8 +1345,7 @@ void LvglWidgetTextButton::build(lua_State *L)
   if (h == LV_SIZE_CONTENT) h = 0;
   window =
       new TextButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt, [=]() {
-        pcallSimpleFunc(L, pressFunction);
-        return 0;
+        return pcallGetOptIntVal(L, pressFunction, 0);
       });
 }
 
