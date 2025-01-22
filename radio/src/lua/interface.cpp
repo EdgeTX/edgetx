@@ -1207,6 +1207,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           lua_pop(lsScripts, 1);  /* pop returned value */
          
           if (scriptResult != 0) {
+            killAllEvents();
             TRACE("Script finished with status %d", scriptResult);
             luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           }
