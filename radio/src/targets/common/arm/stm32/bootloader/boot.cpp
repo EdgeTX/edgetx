@@ -91,7 +91,7 @@ void bootloaderInitApp()
 
     // wait a bit for the inputs to stabilize...
     if (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
-      delay_us(200);
+      delay_ms(10);
     }
 
     start_firmware = !boardBLStartCondition(); 
