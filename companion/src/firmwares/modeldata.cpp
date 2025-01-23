@@ -1932,34 +1932,34 @@ void ModelData::validate()
   modelErrors = false;
 
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
-    if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)
-      modelErrors = true;
-      return;
-  }
-
-  int mixerrors = 0;
-  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
-    if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE)
-      modelErrors = true;
-      return;
-  }
-}
-
-void ModelData::fixErrors()
-{
-  if (!modelErrors)
-    return;
-
-  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
     if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE) {
-      //  delete input line and fix up anything else then update refs
-      //updateAllReferences(ModelData::REF_UPD_TYPE_INPUT, REF_UPD_ACT_CLEAR, i);
+      modelErrors = true;
+      return;
     }
   }
 
   for (int i = 0; i < CPN_MAX_MIXERS; i++) {
     if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE) {
-      //  delete mixer line and fix up anything like numbering??
+      modelErrors = true;
+      return;
     }
   }
+}
+
+QList<QString> ModelData::errorsList()
+{
+  QList<QString> list;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)
+      list.append(tr("Input: %1 Error: %2").arg(i + 1).arg(tr("has no source")));
+  }
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    // fix line # wrong !!!!!!
+    if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE)
+      list.append(tr("Mix: %1 Line: %2 Error: %3").arg(mixData[i].destCh).arg(i + 1).arg(tr("has no source")));
+  }
+
+  return list;
 }

@@ -359,9 +359,3 @@ int RadioData::invalidModels()
 
   return cnt;
 }
-
-void RadioData::fixInvalidModels()
-{
-  for(auto &model: models)
-    model.fixErrors();
-}

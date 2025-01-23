@@ -367,10 +367,10 @@ class ModelData {
     static AbstractStaticItemModel * funcSwitchStartItemModel();
 
     int getCustomScreensCount() const;
-    void fixErrors();
     bool hasErrors() { return modelErrors; }
     bool isValid() { return !hasErrors(); }
     void validate();
+    QList<QString> errorsList();
 
   protected:
     void removeGlobalVar(int & var);

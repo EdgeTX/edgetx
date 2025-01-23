@@ -1336,19 +1336,6 @@ bool MdiChild::saveAs(bool isNew)
 
 bool MdiChild::saveFile(const QString & filename, bool setCurrent)
 {
-  //  do not check for etx files as we accept errors
-  int cnt = radioData.invalidModels();
-  if (cnt) {
-    if (askQuestion(tr("%1 models have errors. Repair?").arg(cnt), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Yes) {
-      radioData.fixInvalidModels();
-      // NOW NEED TO REFRESH GUI if Model Edit open !!!!!!!
-      // refresh inputs and mixes lists
-      // update any data models
-    }
-    else
-      return false;
-  }
-
   radioData.fixModelFilenames();
   Storage storage(filename);
   bool result = storage.write(radioData);
