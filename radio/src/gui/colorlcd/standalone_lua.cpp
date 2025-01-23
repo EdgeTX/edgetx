@@ -237,6 +237,8 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 
   luaState = prevLuaState;
 
+  luaEmptyEventBuffer();
+
   Window::deleteLater(detach, trash);
 }
 

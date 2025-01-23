@@ -46,7 +46,7 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
 
 static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
 {
-  if (luaLvglManager && (!fullscreenOnly || !luaLvglManager->isFullscreen())) {
+  if (luaLvglManager && (!fullscreenOnly || luaLvglManager->isFullscreen())) {
     LvglWidgetObjectBase* p = nullptr;
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
