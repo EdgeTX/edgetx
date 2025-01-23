@@ -871,7 +871,7 @@ void MainWindow::retranslateUi(bool showMsg)
   fileToolBar->setWindowTitle(tr("File"));
   modelsToolBar->setWindowTitle(tr("Models"));
   radioToolBar->setWindowTitle(tr("Radio"));
-  radioToolBar->setWindowTitle(tr("Settings"));
+  settingsToolBar->setWindowTitle(tr("Settings"));
   toolsToolBar->setWindowTitle(tr("Tools"));
 
   showReadyStatus();
