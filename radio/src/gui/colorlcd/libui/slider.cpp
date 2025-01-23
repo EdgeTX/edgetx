@@ -163,3 +163,13 @@ void Slider::setValue(int value)
   if (_setValue != nullptr)
     _setValue(limit(vmin, value, vmax));
 }
+
+void Slider::checkEvents()
+{
+  Window::checkEvents();
+  if (_getValue != nullptr) {
+    int v = _getValue();
+    if (v != lv_slider_get_value(slider))
+      update();
+  }
+}

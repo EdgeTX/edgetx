@@ -212,7 +212,10 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
     PROTECT_LUA()
     {
       if (pcallFunc(L, getFuncRef, 1)) {
-        val = luaL_checkinteger(L, -1);
+        if (lua_isboolean(L, -1))
+          val = lua_toboolean(L, -1);
+        else
+          val = luaL_checkinteger(L, -1);
       } else {
         lvglManager->luaShowError();
       }

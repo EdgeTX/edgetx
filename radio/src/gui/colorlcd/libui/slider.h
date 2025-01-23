@@ -49,4 +49,5 @@ class Slider : public Window
   void delayedInit();
 
   void deleteLater(bool detach, bool trash) override;
+  void checkEvents() override;
 };
