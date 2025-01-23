@@ -723,7 +723,7 @@ void MainWindow::updateMenus()
     sep->setSeparator(true);
     fileWindowActions.insert(0, sep);
     radioMenu->addActions(fileWindowActions);
-    modelsToolBar->addActions(fileWindowActions); // do not put these in lhs toolbar
+    modelsToolBar->addActions(fileWindowActions); // do not put these in radio toolbar
   }
   else {
     modelsToolBar->setDisabled(true);
@@ -920,7 +920,7 @@ void MainWindow::createActions()
   readBUToFileAct =        addAct("read_eeprom_file.png",   SLOT(readBackup()));
 
   viewFileToolbarAct =     addAct("",                       SLOT(viewFileToolbar()));
-  viewModelsToolbarAct =   addAct("",                       SLOT(viewmodelsToolbar()));
+  viewModelsToolbarAct =   addAct("",                       SLOT(viewModelsToolbar()));
   viewRadioToolbarAct =    addAct("",                       SLOT(viewRadioToolbar()));
   viewSettingsToolbarAct = addAct("",                       SLOT(viewSettingsToolbar()));
   viewToolsToolbarAct =    addAct("",                       SLOT(viewToolsToolbar()));
@@ -1106,6 +1106,42 @@ void MainWindow::createToolBars()
   toolsToolBar->addAction(updatesAct);
   toolsToolBar->addAction(sdsyncAct);
   toolsToolBar->addAction(logsAct);
+
+  connect(fileToolBar, &QToolBar::visibilityChanged, [=](bool visible)
+    {
+      g.fileToolbarVisible(visible);
+      const QSignalBlocker blocker(viewFileToolbarAct);
+      viewFileToolbarAct->setChecked(g.fileToolbarVisible());
+    });
+
+  connect(modelsToolBar, &QToolBar::visibilityChanged, [=](bool visible)
+    {
+      g.modelsToolbarVisible(visible);
+      const QSignalBlocker blocker(viewModelsToolbarAct);
+      viewModelsToolbarAct->setChecked(g.modelsToolbarVisible());
+    });
+
+  connect(radioToolBar, &QToolBar::visibilityChanged, [=](bool visible)
+    {
+      g.radioToolbarVisible(visible);
+      const QSignalBlocker blocker(viewRadioToolbarAct);
+      viewRadioToolbarAct->setChecked(g.radioToolbarVisible());
+    });
+
+  connect(settingsToolBar, &QToolBar::visibilityChanged, [=](bool visible)
+    {
+      g.settingsToolbarVisible(visible);
+      const QSignalBlocker blocker(viewSettingsToolbarAct);
+      viewSettingsToolbarAct->setChecked(g.settingsToolbarVisible());
+    });
+
+  connect(toolsToolBar, &QToolBar::visibilityChanged, [=](bool visible)
+    {
+      g.toolsToolbarVisible(visible);
+      const QSignalBlocker blocker(viewToolsToolbarAct);
+      viewToolsToolbarAct->setChecked(g.toolsToolbarVisible());
+    });
+
 }
 
 QMenu * MainWindow::createLanguageMenu(QWidget * parent)
@@ -1511,29 +1547,34 @@ void MainWindow::setActCheckability(QAction * act, bool checked)
 void MainWindow::viewFileToolbar()
 {
   g.fileToolbarVisible(viewFileToolbarAct->isChecked());
+  const QSignalBlocker blocker(fileToolBar);
   fileToolBar->setVisible(viewFileToolbarAct->isChecked());
 }
 
 void MainWindow::viewModelsToolbar()
 {
   g.modelsToolbarVisible(viewModelsToolbarAct->isChecked());
+  const QSignalBlocker blocker(modelsToolBar);
   modelsToolBar->setVisible(viewModelsToolbarAct->isChecked());
 }
 
 void MainWindow::viewRadioToolbar()
 {
   g.radioToolbarVisible(viewRadioToolbarAct->isChecked());
+  const QSignalBlocker blocker(radioToolBar);
   radioToolBar->setVisible(viewRadioToolbarAct->isChecked());
 }
 
 void MainWindow::viewSettingsToolbar()
 {
   g.settingsToolbarVisible(viewSettingsToolbarAct->isChecked());
+  const QSignalBlocker blocker(settingsToolBar);
   settingsToolBar->setVisible(viewSettingsToolbarAct->isChecked());
 }
 
 void MainWindow::viewToolsToolbar()
 {
   g.toolsToolbarVisible(viewToolsToolbarAct->isChecked());
+  const QSignalBlocker blocker(toolsToolBar);
   toolsToolBar->setVisible(viewToolsToolbarAct->isChecked());
 }
