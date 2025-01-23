@@ -1607,7 +1607,7 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 
   void onEvent(event_t evt) override
   {
-    LuaEventHandler::onEvent(evt);
+    LuaEventHandler::onLuaEvent(evt);
     parent->onEvent(evt);
   }
 

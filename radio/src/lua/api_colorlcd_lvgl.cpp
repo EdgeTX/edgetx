@@ -297,12 +297,24 @@ static int luaLvglIsFullscreen(lua_State *L)
   return 1;
 }
 
+static int luaLvglGetContext(lua_State *L)
+{
+  if (luaLvglManager && luaLvglManager->getContext() != LUA_REFNIL) {
+    // Push context tanle onto Lua stack (return object)
+    lua_rawgeti(L, LUA_REGISTRYINDEX, luaLvglManager->getContext());
+  } else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
 // lvgl functions
 LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(clear, luaLvglClear)
   LROT_FUNCENTRY(build, luaLvglBuild)
   LROT_FUNCENTRY(isAppMode, luaLvglIsAppMode)
   LROT_FUNCENTRY(isFullscreen, luaLvglIsFullscreen)
+  LROT_FUNCENTRY(getContext, luaLvglGetContext)
   // Objects - widgets and standalone scripts
   LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
   LROT_FUNCENTRY(rectangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetRectangle(); }); })

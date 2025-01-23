@@ -324,7 +324,7 @@ void StandaloneLuaWindow::onCancel() { LuaEventHandler::onCancel(); }
 
 void StandaloneLuaWindow::onEvent(event_t evt)
 {
-  LuaEventHandler::onEvent(evt);
+  LuaEventHandler::onLuaEvent(evt);
 }
 
 void StandaloneLuaWindow::popupPaint(BitmapBuffer* dc, coord_t x, coord_t y, coord_t w, coord_t h,

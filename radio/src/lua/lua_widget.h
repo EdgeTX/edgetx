@@ -48,6 +48,8 @@ class LuaLvglManager
   void setTempParent(LvglWidgetObjectBase *p) { tempParent = p; }
   LvglWidgetObjectBase* getTempParent() const { return tempParent; }
 
+  int getContext() const { return luaScriptContextRef; }
+
   virtual Window* getCurrentParent() const = 0;
   virtual void clear() = 0;
   virtual bool useLvglLayout() const = 0;
@@ -60,12 +62,19 @@ class LuaLvglManager
   uint8_t refreshInstructionsPercent;
 
  protected:
+  int luaScriptContextRef = 0;
   std::vector<int> lvglObjectRefs;
   LvglWidgetObjectBase* tempParent = nullptr;
 };
 
 class LuaEventHandler
 {
+public:
+  LuaEventHandler() = default;
+  void setupHandler(Window* w);
+  void removeHandler(Window* w);
+
+protected:
 #if defined(HARDWARE_TOUCH)
   // "tap" handling
   static uint32_t downTime;
@@ -79,15 +88,9 @@ class LuaEventHandler
 #endif
   static void event_cb(lv_event_t* e);
 
-protected:
   void onClicked();
   void onCancel();
-  void onEvent(event_t event);
-
-public:
-  LuaEventHandler() = default;
-  void setupHandler(Window* w);
-  void removeHandler(Window* w);
+  void onLuaEvent(event_t event);
 };
 
 class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
@@ -96,7 +99,7 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-            WidgetPersistentData* persistentData, int luaWidgetDataRef, int zoneRectDataRef,
+            WidgetPersistentData* persistentData, int luaScriptContextRef, int zoneRectDataRef,
             int optionsDataRef);
   ~LuaWidget() override;
 
@@ -131,7 +134,6 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
   lv_obj_t* errorLabel = nullptr;
   int zoneRectDataRef;
   int optionsDataRef;
-  int luaWidgetDataRef = 0;
   char* errorMessage;
   bool refreshed = false;
 
