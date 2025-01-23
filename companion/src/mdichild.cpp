@@ -1298,6 +1298,8 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
     refresh();
   }
 
+  radioData.validateModels();
+
   return true;
 }
 
@@ -1334,7 +1336,8 @@ bool MdiChild::saveAs(bool isNew)
 
 bool MdiChild::saveFile(const QString & filename, bool setCurrent)
 {
-  int cnt = radioData.invalidModels(this);
+  //  do not check for etx files as we accept errors
+  int cnt = radioData.invalidModels();
   if (cnt) {
     if (askQuestion(tr("%1 models have errors. Repair?").arg(cnt), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Yes) {
       radioData.fixInvalidModels();
@@ -1356,8 +1359,10 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
   g.eepromDir(QFileInfo(filename).dir().absolutePath());
 
   for (int i = 0; i < (int)radioData.models.size(); i++) {
-    if (!radioData.models[i].isEmpty())
+    if (!radioData.models[i].isEmpty()) {
       radioData.models[i].modelUpdated = false;
+      radioData.models[i].validate();
+    }
   }
 
   refresh();

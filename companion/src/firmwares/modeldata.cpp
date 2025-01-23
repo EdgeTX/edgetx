@@ -1927,36 +1927,29 @@ int ModelData::getCustomScreensCount() const
   return cnt;
 }
 
-bool ModelData::isValid(QWidget * parent)
+void ModelData::validate()
 {
-  int inputerrors = 0;
+  modelErrors = false;
+
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
     if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)
-      inputerrors++;
+      modelErrors = true;
+      return;
   }
 
   int mixerrors = 0;
   for (int i = 0; i < CPN_MAX_MIXERS; i++) {
     if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE)
-      mixerrors++;
+      modelErrors = true;
+      return;
   }
-
-  if (inputerrors > 0 || mixerrors > 0) {
-    QString msg = tr("Model %1 has the following errors:").arg(name) % "\n\n";
-    if (inputerrors > 0)
-      msg.append(tr("- %1 inputs with no source").arg(inputerrors) % "\n");
-    if (mixerrors > 0)
-      msg.append(tr("- %1 mixes with no source").arg(mixerrors));
-
-    QMessageBox::information(parent, CPN_STR_APP_NAME, msg);
-    return false;
-  }
-
-  return true;
 }
 
 void ModelData::fixErrors()
 {
+  if (!modelErrors)
+    return;
+
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
     if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE) {
       //  delete input line and fix up anything else then update refs
@@ -1969,5 +1962,4 @@ void ModelData::fixErrors()
       //  delete mixer line and fix up anything like numbering??
     }
   }
-
 }

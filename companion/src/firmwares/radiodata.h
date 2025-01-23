@@ -66,7 +66,8 @@ class RadioData {
     void setCurrentModel(unsigned int index);
     void fixModelFilenames();
     QString getNextModelFilename();
-    int invalidModels(QWidget * parent = nullptr);
+    void validateModels();
+    int invalidModels();
     void fixInvalidModels();
 
     static QString modelSortOrderToString(int value);

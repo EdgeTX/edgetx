@@ -140,6 +140,7 @@ class ModelData {
     char      labels[100];
     int       modelIndex;      // Companion only, temporary index position managed by data model.
     bool      modelUpdated;    // Companion only, used to highlight if changed in models list
+    bool      modelErrors;     // Companion only, used to highlight if data errors in models list
 
     TimerData timers[CPN_MAX_TIMERS];
     bool      noGlobalFunctions;
@@ -366,8 +367,10 @@ class ModelData {
     static AbstractStaticItemModel * funcSwitchStartItemModel();
 
     int getCustomScreensCount() const;
-    bool isValid(QWidget * parent = nullptr);
     void fixErrors();
+    bool hasErrors() { return modelErrors; }
+    bool isValid() { return !hasErrors(); }
+    void validate();
 
   protected:
     void removeGlobalVar(int & var);
