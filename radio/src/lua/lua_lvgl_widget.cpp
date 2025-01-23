@@ -1346,6 +1346,8 @@ void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "text")) {
     txt = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "checked")) {
+    checked = lua_toboolean(L, -1);
   } else if (!strcmp(key, "press")) {
     pressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "longpress")) {
@@ -1372,6 +1374,12 @@ void LvglWidgetTextButton::setText(const char *s)
   }
 }
 
+void LvglWidgetTextButton::setChecked(bool checked)
+{
+  this->checked = checked;
+  ((TextButton*)window)->check(checked);
+}
+
 void LvglWidgetTextButton::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
@@ -1385,6 +1393,7 @@ void LvglWidgetTextButton::build(lua_State *L)
     });
   }
   window = btn;
+  setChecked(checked);
 }
 
 //-----------------------------------------------------------------------------

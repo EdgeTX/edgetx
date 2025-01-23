@@ -453,6 +453,7 @@ class LvglWidgetTextButton : public LvglWidgetObject
   LvglWidgetTextButton() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
   void setText(const char *s);
+  void setChecked(bool check);
 
   void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
@@ -461,10 +462,16 @@ class LvglWidgetTextButton : public LvglWidgetObject
   uint32_t textHash = -1;
 
   const char *txt = "";
+  bool checked = false;
   int pressFunction = LUA_REFNIL;
   int longPressFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
+  void refresh() override
+  {
+    setChecked(checked);
+    LvglWidgetObject::refresh();
+  }
 };
 
 //-----------------------------------------------------------------------------
