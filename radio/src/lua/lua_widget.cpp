@@ -247,7 +247,6 @@ LuaWidget::~LuaWidget()
 
 void LuaWidget::onClicked()
 {
-  TRACE(">>>>> LW oC %p %p",this,ViewMain::instance());
   if (!fullscreen) {
     ButtonBase::onClicked();
     return;

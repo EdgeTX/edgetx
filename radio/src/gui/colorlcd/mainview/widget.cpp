@@ -99,6 +99,8 @@ void Widget::setFullscreen(bool enable)
   if (!enable) {
     clearWindowFlag(OPAQUE);
 
+    lv_group_remove_obj(lvobj);
+
     // re-enable scroll chaining (sliding main view)
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
@@ -117,6 +119,9 @@ void Widget::setFullscreen(bool enable)
     setRect(parent->getRect());
 
     bringToTop();
+
+    if (!lv_obj_get_group(lvobj))
+      lv_group_add_obj(lv_group_get_default(), lvobj);
 
     // disable scroll chaining (sliding main view)
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);

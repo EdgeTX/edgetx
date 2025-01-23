@@ -1380,6 +1380,13 @@ void LvglWidgetTextButton::setChecked(bool checked)
   ((TextButton*)window)->check(checked);
 }
 
+void LvglWidgetTextButton::setSize(coord_t w, coord_t h)
+{
+  if (w == LV_SIZE_CONTENT || w == 0) w = lv_obj_get_width(window->getLvObj());
+  if (h == LV_SIZE_CONTENT || h == 0) h = lv_obj_get_height(window->getLvObj());
+  LvglWidgetObject::setSize(w, h);
+}
+
 void LvglWidgetTextButton::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;

@@ -454,6 +454,7 @@ class LvglWidgetTextButton : public LvglWidgetObject
 
   void setText(const char *s);
   void setChecked(bool check);
+  void setSize(coord_t w, coord_t h) override;
 
   void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
