@@ -676,9 +676,9 @@ void MainWindow::updateMenus()
   saveAsAct->setEnabled(activeChild);
   closeAct->setEnabled(activeChild);
   compareAct->setEnabled(activeChild);
-  writeSettingsAct->setEnabled(activeChild);
+  writeSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
   readSettingsAct->setEnabled(true);
-  writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid());
+  writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid() && !activeMdiChild()->invalidModels());
   readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
   readBUToFileAct->setEnabled(false);

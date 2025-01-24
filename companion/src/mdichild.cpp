@@ -349,6 +349,7 @@ void MdiChild::updateNavigation()
     cboModelSortOrder->setCurrentIndex(radioData.sortOrder);
     cboModelSortOrder->blockSignals(false);
   }
+  action[ACT_GEN_SIM]->setEnabled(!invalidModels());
   action[ACT_GEN_SRT]->setVisible(hasLabels);
 
   action[ACT_MDL_DEL]->setEnabled(modelsSelected);
@@ -369,7 +370,7 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_WIZ]->setEnabled(singleModelSelected);
   action[ACT_MDL_DFT]->setEnabled(singleModelSelected && getCurrentModel() != (int)radioData.generalSettings.currModelIndex);
   action[ACT_MDL_PRT]->setEnabled(singleModelSelected);
-  action[ACT_MDL_SIM]->setEnabled(singleModelSelected);
+  action[ACT_MDL_SIM]->setEnabled(singleModelSelected && !invalidModels());
 }
 
 void MdiChild::retranslateUi()
@@ -1490,6 +1491,13 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
 
 void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to Tx
 {
+  //  safeguard as the menu actions should be disabled
+  int cnt = radioData.invalidModels();
+  if (cnt) {
+    QMessageBox::critical(this, tr("Write Models and Settings"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
+    return;
+  }
+
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
     msgbox.setText(tr("You are about to overwrite ALL models."));
@@ -1857,4 +1865,9 @@ QAction * MdiChild::actionsSeparator()
   QAction * act = new QAction(this);
   act->setSeparator(true);
   return act;
+}
+
+bool MdiChild::invalidModels()
+{
+  return (bool)radioData.invalidModels();
 }

@@ -88,6 +88,7 @@ class MdiChild : public QWidget
     QList<QAction *> getModelActions();
     QList<QAction *> getLabelsActions();
     QAction * getAction(const Actions type);
+    bool invalidModels();
 
   public slots:
     void newFile(bool createDefaults = true);
