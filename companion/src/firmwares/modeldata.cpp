@@ -1952,7 +1952,7 @@ QStringList ModelData::errorsList()
 
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
     if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)
-      list.append(tr("Error - Input: %1 Line: %2 %3").arg(i + 1).arg(getInputLine(i)).arg(tr("has no source")));
+      list.append(tr("Error - Input: %1 Line: %2 %3").arg(expoData[i].chn + 1).arg(getInputLine(i)).arg(tr("has no source")));
   }
 
   for (int i = 0; i < CPN_MAX_MIXERS; i++) {
