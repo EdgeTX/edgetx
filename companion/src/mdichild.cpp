@@ -216,18 +216,11 @@ void MdiChild::setupNavigation()
   addAct(ACT_GEN_PST, "paste.png",    SLOT(pasteGeneralSettings()), tr("Ctrl+Alt+V"));
   addAct(ACT_GEN_SIM, "simulate.png", SLOT(radioSimulate()),        tr("Alt+Shift+S"));
 
-  addAct(ACT_ITM_EDT, "edit.png",  SLOT(edit()),          Qt::Key_Enter);
-  addAct(ACT_ITM_DEL, "clear.png", SLOT(confirmDelete()), QKeySequence::Delete);
-
+  addAct(ACT_MDL_EDT, "edit.png",   SLOT(edit()),          Qt::Key_Enter);
+  addAct(ACT_MDL_DEL, "clear.png",  SLOT(confirmDelete()), QKeySequence::Delete);
   addAct(ACT_MDL_ADD, "add.png",    SLOT(modelAdd()),   tr("Alt+A"));
   addAct(ACT_MDL_RTR, "open.png",   SLOT(loadBackup()), tr("Alt+R"));
   addAct(ACT_MDL_WIZ, "wizard.png", SLOT(wizardEdit()), tr("Alt+W"));
-
-  addAct(ACT_LBL_ADD, "add.png",    SLOT(labelAdd()), tr("Alt-L"));
-  addAct(ACT_LBL_DEL, "clear.png",  SLOT(labelDelete()), tr("Alt-L"));
-  addAct(ACT_LBL_REN, "edit.png",   SLOT(labelRename()), tr("Alt-R"));
-  addAct(ACT_LBL_MVU, "moveup.png", SLOT(labelMoveUp()), tr("Alt-+"));
-  addAct(ACT_LBL_MVD, "movedown.png", SLOT(labelMoveDown()), tr("Alt--"));
 
   addAct(ACT_MDL_DFT, "currentmodel.png", SLOT(setDefault()),     tr("Alt+U"));
   addAct(ACT_MDL_PRT, "print.png",        SLOT(print()),          QKeySequence::Print);
@@ -243,6 +236,12 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_MOV, "arrow-right.png");
   QMenu * catsMenu = new QMenu(this);
   action[ACT_MDL_MOV]->setMenu(catsMenu);
+
+  addAct(ACT_LBL_ADD, "add.png",      SLOT(labelAdd()), tr("Alt-L"));
+  addAct(ACT_LBL_DEL, "clear.png",    SLOT(labelDelete()), tr("Alt-L"));
+  addAct(ACT_LBL_REN, "edit.png",     SLOT(labelRename()), tr("Alt-R"));
+  addAct(ACT_LBL_MVU, "moveup.png",   SLOT(labelMoveUp()), tr("Alt-+"));
+  addAct(ACT_LBL_MVD, "movedown.png", SLOT(labelMoveDown()), tr("Alt--"));
 
   // set up the toolbars
 
@@ -352,6 +351,8 @@ void MdiChild::updateNavigation()
   }
   action[ACT_GEN_SRT]->setVisible(hasLabels);
 
+  action[ACT_MDL_DEL]->setEnabled(modelsSelected);
+  action[ACT_MDL_DEL]->setText(tr("Delete") % (modelsSelected ? sp % modelsRemvTxt : ns));
   action[ACT_MDL_CUT]->setEnabled(modelsSelected);
   action[ACT_MDL_CUT]->setText(tr("Cut") % (modelsSelected ? sp % modelsRemvTxt : ns));
   action[ACT_MDL_CPY]->setEnabled(modelsSelected);
@@ -379,8 +380,8 @@ void MdiChild::retranslateUi()
   action[ACT_GEN_SIM]->setText(tr("Simulate Radio"));
   cboModelSortOrder->setToolTip(tr("Radio Models Order"));
 
-  action[ACT_ITM_EDT]->setText(tr("Edit Model"));
-  action[ACT_ITM_DEL]->setText(tr("Delete"));
+  action[ACT_MDL_EDT]->setText(tr("Edit Model"));
+  action[ACT_MDL_DEL]->setText(tr("Delete Model"));
 
   action[ACT_LBL_ADD]->setText(tr("Add"));
   action[ACT_LBL_DEL]->setText(tr("Delete"));
@@ -408,6 +409,7 @@ QList<QAction *> MdiChild::getGeneralActions()
 {
   QList<QAction *> actGrp;
   actGrp.append(getAction(ACT_GEN_SIM));
+  actGrp.append(actionsSeparator());
   actGrp.append(getAction(ACT_GEN_EDT));
   actGrp.append(getAction(ACT_GEN_CPY));
   actGrp.append(getAction(ACT_GEN_PST));
@@ -418,27 +420,28 @@ QList<QAction *> MdiChild::getEditActions()
 {
   QList<QAction *> actGrp;
   actGrp.append(action[ACT_MDL_ADD]);
-  QAction * sep2 = new QAction(this);
-  sep2->setSeparator(true);
-  actGrp.append(sep2);
-  actGrp.append(getAction(ACT_ITM_EDT));
-  actGrp.append(getAction(ACT_ITM_DEL));
+  actGrp.append(actionsSeparator());
+  actGrp.append(getAction(ACT_MDL_EDT));
+  actGrp.append(getAction(ACT_MDL_DEL));
   actGrp.append(getAction(ACT_MDL_CUT));
   actGrp.append(getAction(ACT_MDL_CPY));
   actGrp.append(getAction(ACT_MDL_PST));
   actGrp.append(getAction(ACT_MDL_INS));
   actGrp.append(getAction(ACT_MDL_DUP));
-  actGrp.append(getAction(ACT_MDL_MOV));
   actGrp.append(getAction(ACT_MDL_EXP));
+  actGrp.append(getAction(ACT_MDL_MOV));
   return actGrp;
 }
 
 QList<QAction *> MdiChild::getModelActions()
 {
   QList<QAction *> actGrp;
-  actGrp.append(getAction(ACT_MDL_RTR));
   actGrp.append(getAction(ACT_MDL_WIZ));
   actGrp.append(getAction(ACT_MDL_DFT));
+  // TODO remove
+  // the function has been hobbled as expects eeprom binary backup so do not list
+  // can just open another etx so use case doubtful
+  //actGrp.append(getAction(ACT_MDL_RTR));
   actGrp.append(getAction(ACT_MDL_PRT));
   actGrp.append(getAction(ACT_MDL_SIM));
   return actGrp;
@@ -1481,12 +1484,12 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeSettings(StatusDialog * status)  // write to Tx
+void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to Tx
 {
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
-    msgbox.setText(tr("You are about to overwrite ALL models on the Radio."));
-    msgbox.setInformativeText(tr("Do you want to continue?"));
+    msgbox.setText(tr("You are about to overwrite ALL models."));
+    msgbox.setInformativeText(tr("Continue?"));
     msgbox.setIcon(QMessageBox::Icon::Question);
     msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
     msgbox.setDefaultButton(QMessageBox::Abort);
@@ -1499,21 +1502,31 @@ void MdiChild::writeSettings(StatusDialog * status)  // write to Tx
       return;
   }
 
-  QString radioPath = findMassstoragePath("RADIO", true);
-  qDebug() << "Searching for SD card, found" << radioPath;
+  QString radioPath;
+
+  if (toRadio) {
+    radioPath = findMassstoragePath("RADIO", true);
+    qDebug() << "Searching for SD card, found" << radioPath;
+  }
+  else {
+    radioPath = g.currentProfile().sdPath();
+    if (!QFile(radioPath % "/RADIO").exists())
+      radioPath.clear();
+  }
+
   if (radioPath.isEmpty()) {
     qDebug() << "Radio SD card not found";
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find SD card!"));
     return;
   }
 
   if (saveFile(radioPath, false)) {
     status->hide();
-    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written to radio"));
+    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written"));
   }
   else {
     status->hide();
-    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings to radio!"));
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
   }
 }
 
@@ -1833,4 +1846,11 @@ void MdiChild::setModelModified(const int modelIndex, bool cascade)
     if (cascade)
       setModified();
   }
+}
+
+QAction * MdiChild::actionsSeparator()
+{
+  QAction * act = new QAction(this);
+  act->setSeparator(true);
+  return act;
 }

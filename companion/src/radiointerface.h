@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _RADIOINTERFACE_H_
-#define _RADIOINTERFACE_H_
+#pragma once
 
 #include <QString>
 #include <QStringList>
@@ -42,8 +41,6 @@ QStringList getWriteFirmwareArgs(const QString &filename);
 bool readFirmware(const QString &filename, ProgressWidget *progress);
 bool writeFirmware(const QString &filename, ProgressWidget *progress);
 bool readSettings(const QString &filename, ProgressWidget *progress);
-bool readSettingsSDCard(const QString &filename, ProgressWidget *progress);
+bool readSettingsSDCard(const QString &filename, ProgressWidget *progress, bool fromRadio = true);
 bool readSettingsEeprom(const QString &filename, ProgressWidget *progress);
 bool writeSettings(const QString &filename, ProgressWidget *progress);
-
-#endif // _RADIOINTERFACE_H_
