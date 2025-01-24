@@ -572,6 +572,11 @@
   #error "Missing ADC_DIRECTION array"
 #endif
 
+#if defined(RADIO_TX16S)
+  #define DEFAULT_6POS_CALIB          {3, 12, 21, 30, 38}
+  #define DEFAULT_6POS_IDX            5
+#endif
+
   
 // Power
 #if defined(RADIO_T18)
