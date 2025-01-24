@@ -376,6 +376,9 @@ class ModelData {
     void removeGlobalVar(int & var);
 
   private:
+    int getMixLine(int index) const;
+    int getInputLine(int index) const;
+
     QVector<UpdateReferenceParams> *updRefList = nullptr;
 
     struct UpdateReferenceInfo
@@ -426,6 +429,4 @@ class ModelData {
         value = swtch.toValue();
     }
     void updateResetParam(CustomFunctionData * cfd);
-    int getMixLine(int index) const;
-    int getInputLine(int index) const;
 };

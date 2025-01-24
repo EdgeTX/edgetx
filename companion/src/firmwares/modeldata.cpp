@@ -1956,7 +1956,6 @@ QStringList ModelData::errorsList()
   }
 
   for (int i = 0; i < CPN_MAX_MIXERS; i++) {
-    // fix line # wrong !!!!!!
     if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE)
       list.append(tr("Error - Mix: %1 Line: %2 %3").arg(mixData[i].destCh).arg(getMixLine(i)).arg(tr("has no source")));
   }
@@ -1978,9 +1977,10 @@ int ModelData::getInputLine(int index) const
 {
   int cnt = 1;
 
-  for (int i = 0; i < index; i++)
+  for (int i = 0; i < index; i++) {
     if (expoData[i].chn == expoData[index].chn)
       cnt++;
+  }
 
   return cnt;
 }
