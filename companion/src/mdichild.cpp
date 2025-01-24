@@ -227,11 +227,12 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_SIM, "simulate.png",     SLOT(modelSimulate()),  tr("Alt+S"));
   addAct(ACT_MDL_DUP, "duplicate.png",    SLOT(modelDuplicate()), QKeySequence::Underline);
 
-  addAct(ACT_MDL_CUT, "cut.png",   SLOT(cut()),           QKeySequence::Cut);
-  addAct(ACT_MDL_CPY, "copy.png",  SLOT(copy()),          QKeySequence::Copy);
-  addAct(ACT_MDL_PST, "paste.png", SLOT(paste()),         QKeySequence::Paste);
-  addAct(ACT_MDL_INS, "list.png",  SLOT(insert()),        QKeySequence::Italic);
-  addAct(ACT_MDL_EXP, "save.png",  SLOT(modelExport()),   tr("Ctrl+Alt+S"));
+  addAct(ACT_MDL_CUT, "cut.png",         SLOT(cut()),             QKeySequence::Cut);
+  addAct(ACT_MDL_CPY, "copy.png",        SLOT(copy()),            QKeySequence::Copy);
+  addAct(ACT_MDL_PST, "paste.png",       SLOT(paste()),           QKeySequence::Paste);
+  addAct(ACT_MDL_INS, "list.png",        SLOT(insert()),          QKeySequence::Italic);
+  addAct(ACT_MDL_EXP, "save.png",        SLOT(modelExport()),     tr("Ctrl+Alt+S"));
+  addAct(ACT_MDL_ERR, "information.png", SLOT(modelShowErrors()), tr("Ctrl+Alt+E"));
 
   addAct(ACT_MDL_MOV, "arrow-right.png");
   QMenu * catsMenu = new QMenu(this);
@@ -371,6 +372,7 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_DFT]->setEnabled(singleModelSelected && getCurrentModel() != (int)radioData.generalSettings.currModelIndex);
   action[ACT_MDL_PRT]->setEnabled(singleModelSelected);
   action[ACT_MDL_SIM]->setEnabled(singleModelSelected && !invalidModels());
+  action[ACT_MDL_ERR]->setEnabled(singleModelSelected && radioData.models[getCurrentModel()].modelErrors);
 }
 
 void MdiChild::retranslateUi()
@@ -400,6 +402,7 @@ void MdiChild::retranslateUi()
   action[ACT_MDL_PRT]->setText(tr("Print Model"));
   action[ACT_MDL_SIM]->setText(tr("Simulate Model"));
   action[ACT_MDL_DUP]->setText(tr("Duplicate Model"));
+  action[ACT_MDL_ERR]->setText(tr("Show Model Errors"));
 
   radioToolbar->setWindowTitle(tr("Show Radio Actions Toolbar"));
   modelsToolbar->setWindowTitle(tr("Show Model Actions Toolbar"));
@@ -445,6 +448,7 @@ QList<QAction *> MdiChild::getModelActions()
   //actGrp.append(getAction(ACT_MDL_RTR));
   actGrp.append(getAction(ACT_MDL_PRT));
   actGrp.append(getAction(ACT_MDL_SIM));
+  actGrp.append(getAction(ACT_MDL_ERR));
   return actGrp;
 }
 
@@ -1870,4 +1874,10 @@ QAction * MdiChild::actionsSeparator()
 bool MdiChild::invalidModels()
 {
   return (bool)radioData.invalidModels();
+}
+
+void MdiChild::modelShowErrors()
+{
+  ModelData &mdl = radioData.models[getCurrentModel()];
+  QMessageBox::information(this, tr("Model: %1 Information").arg(mdl.name), mdl.errorsList().join("\n"));
 }

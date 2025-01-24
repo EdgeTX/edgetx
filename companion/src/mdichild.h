@@ -69,6 +69,7 @@ class MdiChild : public QWidget
       ACT_MDL_DFT,  // set as DeFaulT
       ACT_MDL_PRT,  // print
       ACT_MDL_SIM,
+      ACT_MDL_ERR,
       ACT_LBL_ADD,  // label actions..
       ACT_LBL_DEL,
       ACT_LBL_MVU,  // Move up
@@ -153,6 +154,7 @@ class MdiChild : public QWidget
     void labelsFault(QString msg);
     void wizardEdit();
     void modelDuplicate();
+    void modelShowErrors();
 
     void openModelWizard(int row = -1);
     void openModelEditWindow(int row = -1);

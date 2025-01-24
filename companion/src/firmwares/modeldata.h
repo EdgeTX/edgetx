@@ -370,7 +370,7 @@ class ModelData {
     bool hasErrors() { return modelErrors; }
     bool isValid() { return !hasErrors(); }
     void validate();
-    QList<QString> errorsList();
+    QStringList errorsList();
 
   protected:
     void removeGlobalVar(int & var);
@@ -426,4 +426,6 @@ class ModelData {
         value = swtch.toValue();
     }
     void updateResetParam(CustomFunctionData * cfd);
+    int getMixLine(int index) const;
+    int getInputLine(int index) const;
 };
