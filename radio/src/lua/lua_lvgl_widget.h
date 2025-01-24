@@ -477,6 +477,29 @@ class LvglWidgetTextButton : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
+class LvglWidgetMomentaryButton : public LvglWidgetObject
+{
+ public:
+  LvglWidgetMomentaryButton() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
+
+  void setText(const char *s);
+  void setSize(coord_t w, coord_t h) override;
+
+  void build(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  uint32_t textHash = -1;
+
+  const char *txt = "";
+  int pressFunction = LUA_REFNIL;
+  int releaseFunction = LUA_REFNIL;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetToggleSwitch : public LvglWidgetObject
 {
  public:

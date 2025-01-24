@@ -102,9 +102,8 @@ class TextButton : public ButtonBase
   }
 
  protected:
-  lv_obj_t* label = nullptr;
-
   std::string text;
+  lv_obj_t* label = nullptr;
 };
 
 class IconButton : public ButtonBase
@@ -117,4 +116,36 @@ class IconButton : public ButtonBase
 
  protected:
   StaticIcon* iconImage = nullptr;
+};
+
+// Button class that is in checked state while pressed and
+// returns to normal state when released.
+// Used by Lua scripts.
+class MomentaryButton : public FormField
+{
+ public:
+  MomentaryButton(Window* parent, const rect_t& rect, std::string text,
+             std::function<void(void)> pressHandler = nullptr,
+             std::function<void(void)> releaseHandler = nullptr);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "MomentaryButton"; }
+#endif
+
+  void onPressed() override;
+  void onReleased() override;
+
+  void setText(std::string value)
+  {
+    if (value != text) {
+      text = std::move(value);
+      lv_label_set_text(label, text.c_str());
+    }
+  }
+
+ protected:
+  std::function<void(void)> pressHandler;
+  std::function<void(void)> releaseHandler;
+  std::string text;
+  lv_obj_t* label = nullptr;
 };

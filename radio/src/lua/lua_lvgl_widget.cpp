@@ -1408,6 +1408,58 @@ void LvglWidgetTextButton::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetMomentaryButton::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "text")) {
+    txt = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "press")) {
+    pressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "release")) {
+    releaseFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetMomentaryButton::clearRefs(lua_State *L)
+{
+  clearRef(L, pressFunction);
+  clearRef(L, releaseFunction);
+  LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetMomentaryButton::setText(const char *s)
+{
+  uint32_t h = hash(s, strlen(s));
+  if (h != textHash) {
+    txt = s;
+    textHash = h;
+    ((TextButton *)window)->setText(s);
+  }
+}
+
+void LvglWidgetMomentaryButton::setSize(coord_t w, coord_t h)
+{
+  if (w == LV_SIZE_CONTENT || w == 0) w = lv_obj_get_width(window->getLvObj());
+  if (h == LV_SIZE_CONTENT || h == 0) h = lv_obj_get_height(window->getLvObj());
+  LvglWidgetObject::setSize(w, h);
+}
+
+void LvglWidgetMomentaryButton::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  window =
+      new MomentaryButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt,
+          [=]() {
+            pcallSimpleFunc(L, pressFunction);
+          },
+          [=]() {
+            pcallSimpleFunc(L, releaseFunction);
+          });
+}
+
+//-----------------------------------------------------------------------------
+
 void LvglWidgetToggleSwitch::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "get")) {

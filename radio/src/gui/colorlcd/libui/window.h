@@ -146,6 +146,8 @@ class Window
   virtual void onClicked();
   virtual void onCancel();
   virtual bool onLongPress();
+  virtual void onPressed() {}
+  virtual void onReleased() {}
 
   void invalidate();
 
