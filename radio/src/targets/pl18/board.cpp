@@ -261,7 +261,9 @@ void boardInit()
  #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
+#if defined(LED_STRIP_GPIO)
   ledBlue();
+#endif
 
   lcdSetInitalFrameBuffer(lcdFront->getData());
 }
