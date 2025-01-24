@@ -889,10 +889,8 @@ void MainWindow::createActions()
   // assigned menus in createMenus()
   recentFilesAct =         addAct("recentdocument.png");
   closeAct =               addAct("clear.png",              SLOT(closeFile())        /*, QKeySequence::Close*/); // setting/showing this shortcut interferes with the system one (Ctrl+W/Ctrl-F4)
-  // TODO change to more appropriate icon sets and uncomment toolbar actions
   writeSettingsSDPathAct = addAct("folder-tree-write.png",  SLOT(writeSettingsSDPath()));
   readSettingsSDPathAct =  addAct("folder-tree-read.png",   SLOT(readSettingsSDPath()));
-  // end TODO
   exitAct =                addAct("exit.png",               SLOT(closeAllWindows()),  QKeySequence::Quit, qApp);
 
   editAppSettingsAct =     addAct("apppreferences.png",     SLOT(editAppSettings()),         QKeySequence::Preferences);
