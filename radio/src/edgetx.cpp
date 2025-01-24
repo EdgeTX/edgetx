@@ -419,6 +419,16 @@ void generalDefault()
   g_eeGeneral.hatsMode = HATSMODE_SWITCHABLE;
 #endif
 
+#if defined(RADIO_TX16S)
+  // Pre calibrate 6POS on TX16S
+  constexpr uint8_t defaultCalib[]= {3, 12, 21, 30, 38};
+  StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[5];
+
+  for (int i = 0; i < 5; i++) {
+    calib->steps[i] = defaultCalib[i];
+  }
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
