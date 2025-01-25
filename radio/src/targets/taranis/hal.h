@@ -2261,6 +2261,22 @@
   // #define INTMODULE_DMA                   NULL
   // #define INTMODULE_DMA_CHANNEL           0
   // #define INTMODULE_DMA_STREAM            0
+#elif defined(RADIO_H5TEST)
+  #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOD, 15) // PD.15
+  #define INTMODULE_TX_GPIO                GPIO_PIN(GPIOA, 10) // PA.10
+  #define INTMODULE_TX_GPIO_AF             LL_GPIO_AF_1
+  #define INTMODULE_TIMER                  TIM1
+  #define INTMODULE_TIMER_Channel          LL_TIM_CHANNEL_CH3
+  #define INTMODULE_TIMER_IRQn             TIM1_UP_IRQn
+  #define INTMODULE_TIMER_IRQHandler       TIM1_UP_IRQHandler
+/*
+  #define INTMODULE_TIMER_DMA              DMA2
+  #define INTMODULE_TIMER_DMA_CHANNEL      LL_DMA_CHANNEL_6
+  #define INTMODULE_TIMER_DMA_STREAM       LL_DMA_STREAM_5
+  #define INTMODULE_TIMER_DMA_STREAM_IRQn  DMA2_Stream5_IRQn
+  #define INTMODULE_TIMER_DMA_IRQHandler   DMA2_Stream5_IRQHandler
+  #define INTMODULE_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
+  */
 #else
   #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOD, 15) // PD.15
   #define INTMODULE_TX_GPIO                GPIO_PIN(GPIOA, 10) // PA.10
@@ -2694,6 +2710,20 @@
 #else
   #define LCD_RST_GPIO                  GPIO_PIN(GPIOD, 12) // PD.12
 #endif
+  #define LCD_DMA                       DMA1
+  #define LCD_DMA_Stream                DMA1_Stream7
+  #define LCD_DMA_Stream_IRQn           DMA1_Stream7_IRQn
+  #define LCD_DMA_Stream_IRQHandler     DMA1_Stream7_IRQHandler
+  #define LCD_DMA_FLAGS                 (DMA_HIFCR_CTCIF7 | DMA_HIFCR_CHTIF7 | DMA_HIFCR_CTEIF7 | DMA_HIFCR_CDMEIF7 | DMA_HIFCR_CFEIF7)
+  #define LCD_DMA_FLAG_INT              DMA_HIFCR_CTCIF7
+  #define LCD_SPI                       SPI3
+  #define LCD_GPIO_AF                   GPIO_AF6
+#elif defined(RADIO_H5TEST)
+  #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOD, 10) // PD.10
+  #define LCD_CLK_GPIO                  GPIO_PIN(GPIOD, 11) // PD.11
+  #define LCD_A0_GPIO                   GPIO_PIN(GPIOD, 13) // PD.13
+  #define LCD_NCS_GPIO                  GPIO_PIN(GPIOD, 14) // PD.14
+  #define LCD_RST_GPIO                  GPIO_PIN(GPIOD, 12) // PD.12
   #define LCD_DMA                       DMA1
   #define LCD_DMA_Stream                DMA1_Stream7
   #define LCD_DMA_Stream_IRQn           DMA1_Stream7_IRQn

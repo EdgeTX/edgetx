@@ -528,6 +528,33 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {
+		"tlitef4", "tpro", "tprov2", "tpros", "bumblebee","h5test"
+        },
+        "inputs": {
+            "LH": {
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
+            },
+            "LV": {
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
+            },
+            "RV": {
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
+            },
+            "RH": {
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
+            },
+        }
+    },
+    {
         "targets": {"pl18", "pl18u"},
         "inputs": {
             "LH": {
