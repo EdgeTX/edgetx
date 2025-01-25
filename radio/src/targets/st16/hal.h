@@ -293,6 +293,7 @@
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // QSPI Flash
+#define QSPI_MAX_FREQ                   80000000U // 80 MHz
 #define QSPI_CLK_GPIO                   GPIO_PIN(GPIOB, 2)
 #define QSPI_CLK_GPIO_AF                GPIO_AF9
 #define QSPI_CS_GPIO                    GPIO_PIN(GPIOB, 6)
