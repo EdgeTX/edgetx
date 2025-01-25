@@ -67,8 +67,8 @@ class MPlexIcon : public Window
     index = i;
   }
 
-  static LAYOUT_VAL(MPLEX_ICON_W, 25, 25)
-  static LAYOUT_VAL(MPLEX_ICON_H, 29, 29)
+  static LAYOUT_VAL(MPLEX_ICON_W, 25, 25, LS(25))
+  static LAYOUT_VAL(MPLEX_ICON_H, 29, 29, 22)
 
  protected:
   uint8_t index;
@@ -156,7 +156,7 @@ class MixLineButton : public InputMixButtonBase
     }
   }
 
-  static LAYOUT_VAL(MPLEX_XO, 28, 28)
+  static LAYOUT_VAL(MPLEX_XO, 28, 28, LS(28))
 
  protected:
   MPlexIcon* mplex = nullptr;
@@ -214,10 +214,10 @@ class MixGroup : public InputMixGroupBase
     setHeight(y + 4);
   }
 
-  static LAYOUT_VAL(CHNUM_Y, 17, 17)
-  static LAYOUT_VAL(CHBAR_XO, 118, 118)
-  static LAYOUT_VAL(CHBAR_W, 100, 100)
-  static LAYOUT_VAL(CHBAR_H, 14, 14)
+  static LAYOUT_VAL(CHNUM_Y, 17, 17, LS(17))
+  static LAYOUT_VAL(CHBAR_XO, 118, 118, 81)
+  static LAYOUT_VAL(CHBAR_W, 100, 100, LS(100))
+  static LAYOUT_VAL(CHBAR_H, 14, 14, LS(14))
 
  protected:
   MixerChannelBar* monitor = nullptr;
