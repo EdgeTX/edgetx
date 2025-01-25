@@ -1056,7 +1056,7 @@ static void processAS3XPacket(const uint8_t *packet)
     uint8_t flightMode = packetData[2] & 0x0F;
 
     char text[50]; 
-
+   
     auto pos = strAppendUnsigned(text,flightMode + 1);  // Replaced sprintf 
     pos = strAppend(pos," ");
 
@@ -1086,8 +1086,7 @@ static void processAlpha6Packet(const uint8_t *packet)
   uint8_t flightMode = packetData[2] >> 4 & 0x0F;
 
   char text[50];
-  char *pos = text;
-
+  
   auto pos = strAppendUnsigned(text,flightMode);  // Replaced sprintf 
   pos = strAppend(pos," ");
 
