@@ -98,24 +98,23 @@ static inline uint32_t _read_dreq() { return gpio_read(_instance->DREQ); }
 
 static inline void _reset_high()
 {
-  if (_instance->RST != GPIO_UNDEF) {
-    gpio_set(_instance->RST);
+  if (_instance->set_rst_pin) {
+    _instance->set_rst_pin(true);
   }
 }
 
 static inline void _reset_low()
 {
-  if (_instance->RST != GPIO_UNDEF) {
-    gpio_clear(_instance->RST);
+  if (_instance->set_rst_pin) {
+    _instance->set_rst_pin(false);
   }
 }
 
 static inline void _set_mute_pin(bool muted)
 {
-  if (_instance->MUTE != GPIO_UNDEF) {
+  if (_instance->set_mute_pin) {
     _is_muted = muted;
-    bool inv = _instance->flags & VS1053B_MUTE_INVERTED;
-    gpio_write(_instance->MUTE, inv ? !muted : muted);
+    _instance->set_mute_pin(muted);
   }
 }
 
@@ -124,14 +123,7 @@ static void vs1053b_gpio_init(void)
   gpio_init(_instance->XDCS, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
   gpio_init(_instance->DREQ, GPIO_IN, GPIO_PIN_SPEED_HIGH);
 
-  if (_instance->RST != GPIO_UNDEF) {
-    gpio_init(_instance->RST, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
-  }
-
-  if (_instance->MUTE != GPIO_UNDEF) {
-    gpio_init(_instance->MUTE, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
-    _set_mute_pin(true);
-  }
+  _set_mute_pin(true);
 
   stm32_spi_init(_instance->spi, LL_SPI_DATAWIDTH_8BIT);
 }
