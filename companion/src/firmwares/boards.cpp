@@ -160,6 +160,10 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4878746F;
     case BOARD_FLYSKY_ST16:
       return 0x4C78746F;
+    case BOARD_SMALL_LCD:
+      return 0x3878746F;
+    case BOARD_BIG_LCD:
+      return 0x3878746F;
     default:
       return 0;
   }
@@ -281,6 +285,8 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
+    case BOARD_SMALL_LCD:
+    case BOARD_BIG_LCD:
       return FSIZE_HORUS;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -381,6 +387,10 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
+      else if (board == BOARD_SMALL_LCD)
+        return 240;
+      else if (board == BOARD_BIG_LCD)
+        return 480;
       else
         return 64;
 
@@ -391,6 +401,10 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 480;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
+      else if (board == BOARD_SMALL_LCD)
+        return 320;
+      else if (board == BOARD_BIG_LCD)
+        return 800;
       else if (IS_TARANIS_SMALL(board))
         return 128;
       else if (IS_TARANIS(board))
@@ -671,6 +685,10 @@ QString Boards::getBoardName(Board::Type board)
       return "Fatfish F16";
     case BOARD_HELLORADIOSKY_V16:
       return "HelloRadioSky V16";
+    case BOARD_SMALL_LCD:
+      return "320x240 Test";
+    case BOARD_BIG_LCD:
+      return "800x480 Test";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -776,6 +794,8 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_FLYSKY_PL18:
   case BOARD_FLYSKY_PL18EV:
   case BOARD_FLYSKY_ST16:
+  case BOARD_SMALL_LCD:
+  case BOARD_BIG_LCD:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
