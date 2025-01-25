@@ -338,7 +338,7 @@ RadioVersionPage::RadioVersionPage() :
 {
 }
 
-#if defined(PCBNV14) || defined(PCBPL18) || defined(PCBST16)
+#if defined(PCBNV14) || defined(PCBPL18)
 extern const char* boardLcdType;
 extern const char* boardTouchType;
 #endif
@@ -367,7 +367,7 @@ void RadioVersionPage::build(Window* window)
   version += '0' + hardwareOptions.pcbrev;
 #endif
 
-#if (defined(PCBNV14) || defined(PCBPL18) || defined(PCBST16)) && !defined(SIMU)
+#if (defined(PCBNV14) || defined(PCBPL18)) && !defined(SIMU)
   version += nl;
   version += "LCD: ";
   version += boardLcdType;

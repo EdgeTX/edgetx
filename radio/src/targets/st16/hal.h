@@ -292,6 +292,21 @@
 #define BACKLIGHT_GPIO_AF               GPIO_AF2
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
+// QSPI Flash
+#define QSPI_CLK_GPIO                   GPIO_PIN(GPIOB, 2)
+#define QSPI_CLK_GPIO_AF                GPIO_AF9
+#define QSPI_CS_GPIO                    GPIO_PIN(GPIOB, 6)
+#define QSPI_CS_GPIO_AF                 GPIO_AF10
+#define QSPI_MISO_GPIO                  GPIO_PIN(GPIOD, 12)
+#define QSPI_MISO_GPIO_AF               GPIO_AF9
+#define QSPI_MOSI_GPIO                  GPIO_PIN(GPIOD, 11)
+#define QSPI_MOSI_GPIO_AF               GPIO_AF9
+#define QSPI_WP_GPIO                    GPIO_PIN(GPIOE, 2)
+#define QSPI_WP_GPIO_AF                 GPIO_AF9
+#define QSPI_HOLD_GPIO                  GPIO_PIN(GPIOD, 13)
+#define QSPI_HOLD_GPIO_AF               GPIO_AF9
+#define QSPI_FLASH_SIZE                 0x800000
+
 // SPI NOR Flash
 #define FLASH_SPI                      SPI6
 #define FLASH_SPI_CS_GPIO              GPIOG
@@ -311,7 +326,7 @@
 
 #define SD_PRESENT_GPIO                GPIO_PIN(GPIOD, 3) // PD.03
 #define SD_SDIO                        SDMMC1
-#define SD_SDIO_CLK_DIV(fq)            ((HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) + (2*fq) -1) / (2 *fq)) /* make sure the resulting frequency is not higher than expected */
+#define SD_SDIO_CLK_DIV(fq)            (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
 #define SD_SDIO_INIT_CLK_DIV           SD_SDIO_CLK_DIV(400000)
 #define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(20000000)
 #define STORAGE_USE_SDIO
@@ -321,14 +336,12 @@
 #define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOG, 12) // PG.12
 #define AUDIO_CS_GPIO                 GPIO_PIN(GPIOG, 10) // PG.10
 #define AUDIO_DREQ_GPIO               GPIO_PIN(GPIOG, 13) // PG.13
-//#define AUDIO_RST_GPIO                GPIOD
-//#define AUDIO_RST_GPIO_PIN            LL_GPIO_PIN_4  // PD.04
 #define AUDIO_SPI                     SPI1
 #define AUDIO_SPI_GPIO_AF             LL_GPIO_AF_5
 #define AUDIO_SPI_SCK_GPIO            GPIO_PIN(GPIOA, 5)  // PA.05
 #define AUDIO_SPI_MISO_GPIO           GPIO_PIN(GPIOG, 9)  // PG.09
 #define AUDIO_SPI_MOSI_GPIO           GPIO_PIN(GPIOD, 7)  // PD.07
-#define AUDIO_MUTE_GPIO
+#define AUDIO_MUTE_GPIO               0
 #define AUDIO_UNMUTE_DELAY            180  // ms
 #define AUDIO_MUTE_DELAY              200  // ms
 #define INVERTED_MUTE_PIN
