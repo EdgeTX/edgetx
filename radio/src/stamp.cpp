@@ -106,12 +106,12 @@ const char * getFirmwareVersion(const uint8_t* buffer)
 #endif
   }
 
-  for (int i = 0; i < 2024; i++) {
+  for (int i = 0; i < 1024; i++) {
     if ((memcmp(buffer + i, "edgetx-", 7) == 0)
         || memcmp(buffer + i, "opentx-", 7) == 0) {
       return (const char*)buffer + i;
     }
   }
-  return "no version found";
+  return nullptr;
 }
 #endif
