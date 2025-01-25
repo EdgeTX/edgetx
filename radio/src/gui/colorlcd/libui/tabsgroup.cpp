@@ -63,8 +63,8 @@ class SelectedTabIcon : public StaticIcon
   std::string getName() const override { return "SelectedTabIcon"; }
 #endif
 
-  static LAYOUT_VAL(SEL_DOT_X, 10, 10)
-  static LAYOUT_VAL(SEL_DOT_Y, 39, 39)
+  static LAYOUT_VAL(SEL_DOT_X, 10, 10, 6)
+  static LAYOUT_VAL(SEL_DOT_Y, 39, 39, LS(39))
 };
 
 class TabsGroupButton : public ButtonBase
@@ -101,7 +101,7 @@ class TabsGroupButton : public ButtonBase
     pageTab->update(index);
   }
 
-  static LAYOUT_VAL(ICON_Y, 7, 7)
+  static LAYOUT_VAL(ICON_Y, 7, 7, LS(7))
 
  protected:
   PageTab* pageTab;
@@ -227,9 +227,9 @@ class TabsGroupHeader : public Window
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return buttons.size(); }
 
-  static LAYOUT_VAL(DATE_XO, 48, 48)
-  static LAYOUT_VAL(MENU_HEADER_BUTTON_WIDTH, 33, 33)
-  static LAYOUT_VAL(HDR_DATE_FULL_WIDTH, 51, 51)
+  static LAYOUT_VAL(DATE_XO, 48, 48, LS(48))
+  static LAYOUT_VAL(MENU_HEADER_BUTTON_WIDTH, 33, 33, LS(33))
+  static LAYOUT_VAL(HDR_DATE_FULL_WIDTH, 51, 51, LS(51))
 
  protected:
   uint8_t currentIndex = 0;
