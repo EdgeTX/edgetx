@@ -67,6 +67,17 @@ LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::text_align_center, LV_STYLE_TEXT_ALIGN,
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::pad_left_2, LV_STYLE_PAD_LEFT, 2);
 
 // Scrollbar
+#if LANDSCAPE_LCD_SMALL
+const lv_style_const_prop_t scrollbar_props[] = {
+    LV_STYLE_CONST_BG_OPA(LV_OPA_50),
+    LV_STYLE_CONST_PAD_TOP(2),
+    LV_STYLE_CONST_PAD_BOTTOM(2),
+    LV_STYLE_CONST_PAD_LEFT(2),
+    LV_STYLE_CONST_PAD_RIGHT(2),
+    LV_STYLE_CONST_WIDTH(PAD_SMALL),
+    LV_STYLE_PROP_INV,
+};
+#else
 const lv_style_const_prop_t scrollbar_props[] = {
     LV_STYLE_CONST_BG_OPA(LV_OPA_50),
     LV_STYLE_CONST_PAD_TOP(3),
@@ -76,6 +87,7 @@ const lv_style_const_prop_t scrollbar_props[] = {
     LV_STYLE_CONST_WIDTH(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
+#endif
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::scrollbar, scrollbar_props);
 
 // Padding
@@ -88,12 +100,22 @@ const lv_style_const_prop_t pad_zero_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_zero, pad_zero_props);
 
 const lv_style_const_prop_t pad_tiny_props[] = {
-    LV_STYLE_CONST_PAD_TOP(2),  LV_STYLE_CONST_PAD_BOTTOM(2),
-    LV_STYLE_CONST_PAD_LEFT(2), LV_STYLE_CONST_PAD_RIGHT(2),
-    LV_STYLE_CONST_PAD_ROW(2),  LV_STYLE_CONST_PAD_COLUMN(2),
+    LV_STYLE_CONST_PAD_TOP(PAD_TINY),  LV_STYLE_CONST_PAD_BOTTOM(PAD_TINY),
+    LV_STYLE_CONST_PAD_LEFT(PAD_TINY), LV_STYLE_CONST_PAD_RIGHT(PAD_TINY),
+    LV_STYLE_CONST_PAD_ROW(PAD_TINY),  LV_STYLE_CONST_PAD_COLUMN(PAD_TINY),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_tiny, pad_tiny_props);
+
+#if LANDSCAPE_LCD_SMALL
+const lv_style_const_prop_t pad_tiny_gap_props[] = {
+    LV_STYLE_CONST_PAD_TOP(PAD_TINY_GAP),  LV_STYLE_CONST_PAD_BOTTOM(PAD_TINY_GAP),
+    LV_STYLE_CONST_PAD_LEFT(PAD_TINY_GAP), LV_STYLE_CONST_PAD_RIGHT(PAD_TINY_GAP),
+    LV_STYLE_CONST_PAD_ROW(PAD_TINY_GAP),  LV_STYLE_CONST_PAD_COLUMN(PAD_TINY_GAP),
+    LV_STYLE_PROP_INV,
+};
+LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_tiny_gap, pad_tiny_gap_props);
+#endif
 
 const lv_style_const_prop_t pad_small_props[] = {
     LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
@@ -535,12 +557,20 @@ void etx_padding(lv_obj_t* obj, PaddingSize padding,
                  lv_style_selector_t selector)
 {
   lv_obj_remove_style(obj, (lv_style_t*)&styles->pad_tiny, selector);
+#if LANDSCAPE_LCD_SMALL
+  lv_obj_remove_style(obj, (lv_style_t*)&styles->pad_tiny_gap, selector);
+#endif
   lv_obj_remove_style(obj, (lv_style_t*)&styles->pad_small, selector);
   lv_obj_remove_style(obj, (lv_style_t*)&styles->pad_medium, selector);
   lv_obj_remove_style(obj, (lv_style_t*)&styles->pad_large, selector);
   lv_obj_remove_style(obj, (lv_style_t*)&styles->pad_zero, selector);
   lv_obj_remove_style(obj, (lv_style_t*)&styles->pad_button, selector);
   switch (padding) {
+#if LANDSCAPE_LCD_SMALL
+    case PAD_TINY_GAP:
+      etx_obj_add_style(obj, styles->pad_tiny_gap, selector);
+      break;
+#endif
     case PAD_TINY:
       etx_obj_add_style(obj, styles->pad_tiny, selector);
       break;

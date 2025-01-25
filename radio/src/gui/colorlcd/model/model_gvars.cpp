@@ -66,14 +66,14 @@ class GVarButton : public ListLineButton
     if (line) line->build();
   }
 
-  static LAYOUT_VAL(GVAR_NAME_SIZE, 44, 44)
+  static LAYOUT_VAL(GVAR_NAME_SIZE, 44, 44, LS(44))
   static constexpr coord_t GVAR_VAL_H = EdgeTxStyles::PAGE_LINE_HEIGHT + 2;
-  static LAYOUT_VAL(GVAR_VAL_W, 45, 50)
-  static LAYOUT_VAL(GVAR_COLS, MAX_FLIGHT_MODES, 5)
-  static LAYOUT_VAL(BTN_H, EdgeTxStyles::UI_ELEMENT_HEIGHT, 50)
-  static LAYOUT_VAL(GVAR_NM_Y, 4, 13)
-  static LAYOUT_VAL(GVAR_YO, 4, 2)
-  static LAYOUT_VAL(HDR_H, EdgeTxStyles::PAGE_LINE_HEIGHT + 2, EdgeTxStyles::PAGE_LINE_HEIGHT * 2 + 2)
+  static LAYOUT_VAL(GVAR_VAL_W, 45, 50, LS(45))
+  static LAYOUT_VAL(GVAR_COLS, MAX_FLIGHT_MODES, 5, MAX_FLIGHT_MODES)
+  static LAYOUT_VAL(BTN_H, EdgeTxStyles::UI_ELEMENT_HEIGHT, 50, EdgeTxStyles::UI_ELEMENT_HEIGHT)
+  static LAYOUT_VAL(GVAR_NM_Y, 4, 13, LS(4))
+  static LAYOUT_VAL(GVAR_YO, 4, 2, LS(4))
+  static LAYOUT_VAL(HDR_H, EdgeTxStyles::PAGE_LINE_HEIGHT + 2, EdgeTxStyles::PAGE_LINE_HEIGHT * 2 + 2, EdgeTxStyles::PAGE_LINE_HEIGHT + 2)
 
   static const lv_obj_class_t gv_label_class;
   static const lv_obj_class_t gv_value_class;

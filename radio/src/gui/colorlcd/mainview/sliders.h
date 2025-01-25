@@ -38,19 +38,19 @@ class MainViewSlider : public Window
   MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
                  bool isVertical);
 
-  static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4)
-  static LAYOUT_VAL(SLIDER_VTICKS_COUNT, 40, 30)
+  static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4, LS(4))
+  static LAYOUT_VAL(SLIDER_VTICKS_COUNT, 40, 30, 36)
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
   static constexpr coord_t SLIDER_HTICKS_COUNT = 34;
 #else
-  static LAYOUT_VAL(SLIDER_HTICKS_COUNT, 40, 30)
+  static LAYOUT_VAL(SLIDER_HTICKS_COUNT, 40, 30, 36)
 #endif
   static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH =
       SLIDER_HTICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
   static constexpr coord_t VERTICAL_SLIDERS_HEIGHT =
       SLIDER_VTICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
 
-  static LAYOUT_VAL(SL_SZ, 15, 15)
+  static LAYOUT_VAL(SL_SZ, 15, 15, 11)
 
  protected:
   uint8_t potIdx;
@@ -85,9 +85,9 @@ class MainView6POS : public Window
 
   void checkEvents() override;
 
-  static LAYOUT_VAL(MULTIPOS_W_SPACING, 12, 12)
-  static LAYOUT_VAL(MULTIPOS_SZ, 12, 12)
-  static LAYOUT_VAL(MULTIPOS_XO, 3, 3)
+  static LAYOUT_VAL(MULTIPOS_W_SPACING, 12, 12, LS(12))
+  static LAYOUT_VAL(MULTIPOS_SZ, 12, 12, LS(12))
+  static LAYOUT_VAL(MULTIPOS_XO, 3, 3, LS(3))
   static constexpr coord_t MULTIPOS_W = (XPOTS_MULTIPOS_COUNT + 1) * MULTIPOS_W_SPACING;
 
  protected:

@@ -46,7 +46,7 @@ const std::string git_str = "(" GIT_STR ")";
 #endif
 #endif
 
-static LAYOUT_VAL(TXT_H, 24, 24)
+static LAYOUT_VAL(TXT_H, 24, 24, LS(24))
 
 #if !PORTRAIT_LCD
 #define TXT_X (LCD_W * 4 / 5)
