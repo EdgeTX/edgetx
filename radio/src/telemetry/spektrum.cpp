@@ -628,6 +628,9 @@ void processSpektrumPacket(const uint8_t *packet)
     // SmartBat Hack
     // use type to create virtual I2CAddresses
     i2cAddress = i2cAddress + (packet[4] >> 4);
+    if (i2cAddress == I2C_SMART_BAT_ID || i2cAddress == I2C_SMART_BAT_LIMITS) {
+      return; // Ignore Smart BatID and Charging Limits.. seems to always comes as 0
+    } 
   } // I2C_SMART_BAT_BASE_ADDRESS
 
   else if (i2cAddress == I2C_REMOTE_ID) { 
