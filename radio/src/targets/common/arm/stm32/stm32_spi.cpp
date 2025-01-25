@@ -147,12 +147,15 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
 
 static void _init_gpios(const stm32_spi_t* spi, bool enableMisoPullUp)
 {
-  if(enableMisoPullUp)
+  if(spi->MISO != GPIO_UNDEF)
   {
-    gpio_init(spi->MISO, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-    gpio_set_af(spi->MISO, _get_spi_af(spi->SPIx));
-  } else {
-    gpio_init_af(spi->MISO, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
+    if(enableMisoPullUp)
+    {
+      gpio_init(spi->MISO, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+      gpio_set_af(spi->MISO, _get_spi_af(spi->SPIx));
+    } else {
+      gpio_init_af(spi->MISO, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
+    }
   }
   gpio_init_af(spi->SCK, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(spi->MOSI, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
