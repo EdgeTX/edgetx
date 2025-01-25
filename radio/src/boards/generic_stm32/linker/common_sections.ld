@@ -1,11 +1,11 @@
 
 /* C/C++ Exception handling (not used) */
-.ARM.extab :
+.ARM.extab (READONLY) :
 {
   *(.ARM.extab* .gnu.linkonce.armextab.*)
 } > REGION_TEXT AT> REGION_TEXT_STORAGE
 
-.ARM :
+.ARM (READONLY) :
 {
   PROVIDE(__exidx_start = .);
   *(.ARM.exidx* .gnu.linkonce.armexidx.*)
@@ -13,7 +13,7 @@
 } > REGION_TEXT AT> REGION_TEXT_STORAGE
 
 /* Bootstrap code to load ISR vector and code sections */
-.bootstrap :
+.bootstrap (READONLY) :
 {
   *(.bootstrap)
 } > REGION_TEXT_STORAGE
@@ -32,7 +32,7 @@
 _sidata = LOADADDR(.data);
 
 /* Uninitialized data section */
-.bss(NOLOAD) : AT (ADDR(.bss))
+.bss (NOLOAD) : AT (ADDR(.bss))
 {
   . = ALIGN(4);
   /* This is used by the startup in order to initialize the .bss secion */
