@@ -15,7 +15,7 @@ SECTIONS
   } > REGION_BOOTLOADER
 
   /* Used only with H7 */
-  .firmware_header :
+  .firmware_header (READONLY) :
   {
     KEEP(*(.fwdescription))
   } > REGION_TEXT AT> REGION_TEXT_STORAGE
@@ -34,7 +34,7 @@ SECTIONS
   _isr_load = LOADADDR(.isr_vector);
 
   /* Main code section */
-  .text :
+  .text (READONLY) :
   {
     FILL(0xFFFF)
     CREATE_OBJECT_SYMBOLS
