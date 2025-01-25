@@ -1057,19 +1057,20 @@ static void processAS3XPacket(const uint8_t *packet)
 
     char text[50];
 
-    sprintf(text, "%d ", flightMode + 1);
+    auto pos = strAppendUnsigned(text,flightMode + 1);  // Replaced sprintf 
+    pos = strAppend(pos," ");
 
     if (flags & FLITECTRL_FLAGS_IS_AS3X_STAB) {
-    strcat(text, "AS3X");
+      pos = strAppend(pos, "AS3X");
     }
 
     // only one should show
     if (flags & FLITECTRL_FLAGS_IS_ANGLE_DEMAND) {
-    strcat(text, " Level");
+      strAppend(pos, " Level");
     } else if (flags & FLITECTRL_FLAGS_IS_SAFE_ENVELOPE) {
-    strcat(text, " Envelope");
+      strAppend(pos, " Envelope");
     } else if (flags & FLITECTRL_FLAGS_IS_AS3X_HEADING) {
-    strcat(text, " Heading");
+      strAppend(pos, " Heading");
     }
 
     setTelemetryText(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_FM, 0, 0, text);
@@ -1085,21 +1086,23 @@ static void processAlpha6Packet(const uint8_t *packet)
   uint8_t flightMode = packetData[2] >> 4 & 0x0F;
 
   char text[50];
+  char *pos = text;
 
-  sprintf(text, "%d ", flightMode);
+  auto pos = strAppendUnsigned(text,flightMode);  // Replaced sprintf 
+  pos = strAppend(pos," ");
 
   if (flightMode == 0) {
-    strcat(text, "NOR");
+    pos = strAppend(pos, "NOR");
   } else if (flightMode == 1) {
-    strcat(text, "INT");
+    pos = strAppend(pos, "INT");
   } else if (flightMode == 2) {
-    strcat(text, "ADV");
+    pos = strAppend(pos, "ADV");
   } else if (flightMode == 5) {
-    strcat(text, "PANIC");
+    pos = strAppend(pos, "PANIC");
   }
 
   if (status == 2) {
-    strcat(text, " HOLD");
+    strAppend(pos, " HOLD");
   }
 
   setTelemetryText(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_FM, 0, 0, text);
