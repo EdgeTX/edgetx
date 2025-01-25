@@ -287,9 +287,9 @@ const SpektrumSensor spektrumSensors[] = {
   // 0x42 Smartbat
 //SS(I2C_SMART_BAT_REALTIME,     1,  int8,      STR_SMART_BAT_BTMP,    UNIT_CELSIUS,             0),  // disabled because sensor is a duplicate of cells sensors ones
   SS(I2C_SMART_BAT_REALTIME,     2,  uint32le,  STR_SENSOR_SMART_BAT_BCUR,    UNIT_MAH,    0),
-  SS(I2C_SMART_BAT_REALTIME,     6,  uint16le,  STR_SENSOR_SMART_BAT_BCAP,    UNIT_MAH,    0),
-  SS(I2C_SMART_BAT_REALTIME,     8,  uint16le,  STR_SENSOR_SMART_BAT_MIN_CEL, UNIT_VOLTS,  2),
-  SS(I2C_SMART_BAT_REALTIME,    10,  uint16le,  STR_SENSOR_SMART_BAT_MAX_CEL, UNIT_VOLTS,  2),
+//SS(I2C_SMART_BAT_REALTIME,     6,  uint16le,  STR_SENSOR_SMART_BAT_BCAP,    UNIT_MAH,    0),
+//SS(I2C_SMART_BAT_REALTIME,     8,  uint16le,  STR_SENSOR_SMART_BAT_MIN_CEL, UNIT_VOLTS,  2),
+//SS(I2C_SMART_BAT_REALTIME,    10,  uint16le,  STR_SENSOR_SMART_BAT_MAX_CEL, UNIT_VOLTS,  2),
 //SS(I2C_SMART_BAT_REALTIME,    12,  uint16le,  "RFU[2]",                     UNIT_RAW,    0),   // disabled to save sensors slots
 
   SS(I2C_SMART_BAT_CELLS_1_6,    1,  int8,      STR_SENSOR_SMART_BAT_BTMP,    UNIT_CELSIUS,  0),
@@ -319,11 +319,11 @@ const SpektrumSensor spektrumSensors[] = {
   //SS(I2C_SMART_BAT_ID,              1,  uint8,  "chemistery",  UNIT_RAW, 0),   // disabled to save sensors slots
   //SS(I2C_SMART_BAT_ID,              2,  uint8,  "number of cells",  UNIT_RAW, 0),   // disabled to save sensors slots
   //SS(I2C_SMART_BAT_ID,              3,  uint8,  "manufacturer code",  UNIT_RAW, 0),   // disabled to save sensors slots
-  SS(I2C_SMART_BAT_ID,              4,  uint16le,  STR_SENSOR_SMART_BAT_CYCLES,  UNIT_RAW,                 0),
+  //SS(I2C_SMART_BAT_ID,              4,  uint16le,  STR_SENSOR_SMART_BAT_CYCLES,  UNIT_RAW,                 0),
   //SS(I2C_SMART_BAT_ID,              6,  uint8,  "uniqueID[8]",  UNIT_RAW, 0),   // disabled to save sensors slots
 
   //SS(I2C_SMART_BAT_LIMITS,          1,  uint8,  "rfu",  UNIT_RAW, 0),   // disabled to save sensors slots
-  SS(I2C_SMART_BAT_LIMITS,          2,  uint16le,  STR_SENSOR_SMART_BAT_CAPACITY,UNIT_MAH,                 0),
+  //SS(I2C_SMART_BAT_LIMITS,          2,  uint16le,  STR_SENSOR_SMART_BAT_CAPACITY,UNIT_MAH,                 0),
   //SS(I2C_SMART_BAT_LIMITS,          4,  uint16le,  "dischargeCurrentRating",  UNIT_RAW, 0),   // disabled to save sensors slots
   //SS(I2C_SMART_BAT_LIMITS,          6,  uint16le,  "overDischarge_mV",  UNIT_RAW, 0),   // disabled to save sensors slots
   //SS(I2C_SMART_BAT_LIMITS,          8,  uint16le,  "zeroCapacity_mV",  UNIT_RAW, 0),   // disabled to save sensors slots
@@ -628,6 +628,9 @@ void processSpektrumPacket(const uint8_t *packet)
     // SmartBat Hack
     // use type to create virtual I2CAddresses
     i2cAddress = i2cAddress + (packet[4] >> 4);
+    if (i2cAddress == I2C_SMART_BAT_ID || i2cAddress == I2C_SMART_BAT_LIMITS) {
+      return; // Ignore Smart BatID and Charging Limits.. seems to always comes as 0
+    } 
   } // I2C_SMART_BAT_BASE_ADDRESS
 
   else if (i2cAddress == I2C_REMOTE_ID) { 
@@ -1055,21 +1058,22 @@ static void processAS3XPacket(const uint8_t *packet)
     //  0=Gains, 1=Headings, 2=Angle Limits
     uint8_t flightMode = packetData[2] & 0x0F;
 
-    char text[50];
-
-    sprintf(text, "%d ", flightMode + 1);
+    char text[50]; 
+   
+    auto pos = strAppendUnsigned(text,flightMode + 1);  // Replaced sprintf 
+    pos = strAppend(pos," ");
 
     if (flags & FLITECTRL_FLAGS_IS_AS3X_STAB) {
-    strcat(text, "AS3X");
+      pos = strAppend(pos, "AS3X");
     }
 
     // only one should show
     if (flags & FLITECTRL_FLAGS_IS_ANGLE_DEMAND) {
-    strcat(text, " Level");
+      strAppend(pos, " Level");
     } else if (flags & FLITECTRL_FLAGS_IS_SAFE_ENVELOPE) {
-    strcat(text, " Envelope");
+      strAppend(pos, " Envelope");
     } else if (flags & FLITECTRL_FLAGS_IS_AS3X_HEADING) {
-    strcat(text, " Heading");
+      strAppend(pos, " Heading");
     }
 
     setTelemetryText(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_FM, 0, 0, text);
@@ -1085,21 +1089,22 @@ static void processAlpha6Packet(const uint8_t *packet)
   uint8_t flightMode = packetData[2] >> 4 & 0x0F;
 
   char text[50];
-
-  sprintf(text, "%d ", flightMode);
+  
+  auto pos = strAppendUnsigned(text,flightMode);  // Replaced sprintf 
+  pos = strAppend(pos," ");
 
   if (flightMode == 0) {
-    strcat(text, "NOR");
+    pos = strAppend(pos, "NOR");
   } else if (flightMode == 1) {
-    strcat(text, "INT");
+    pos = strAppend(pos, "INT");
   } else if (flightMode == 2) {
-    strcat(text, "ADV");
+    pos = strAppend(pos, "ADV");
   } else if (flightMode == 5) {
-    strcat(text, "PANIC");
+    pos = strAppend(pos, "PANIC");
   }
 
   if (status == 2) {
-    strcat(text, " HOLD");
+    strAppend(pos, " HOLD");
   }
 
   setTelemetryText(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_FM, 0, 0, text);
