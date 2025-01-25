@@ -136,7 +136,7 @@ HWPots::HWPots(Window* parent) :
     pot->setAvailableHandler([=](int val) { return isPotTypeAvailable(val); });
 
     auto tgl = new ToggleSwitch(
-          this, rect_t{P_INV_X, P_Y(i) + P_OFST_Y + yo, P_INV_W, 0},
+          this, rect_t{P_INV_X, P_Y(i) + yo, P_INV_W, 0},
           [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
           [=](int8_t newValue) {
             setPotInversion(i, newValue);
