@@ -22,10 +22,13 @@
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
-#include "stm32_qspi.h"
 #include "stm32_hal.h"
 #include "stm32_ws2812.h"
 #include "stm32_spi.h"
+#include "vs1053b.h"
+
+#include "flash_driver.h"
+#include "extflash_driver.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -91,23 +94,6 @@ static void led_strip_off()
   ws2812_update(&_led_timer);
 }
 
-static void setAudioMuteHigh()
-{
-  bsp_output_set(BSP_PA_NMUTE);
-}
-static void setAudioMuteLow()
-{
-  bsp_output_clear(BSP_PA_NMUTE);
-}
-static void setAudioResetHigh()
-{
-  bsp_output_set(BSP_AUDIO_RST);
-}
-static void setAudioResetLow()
-{
-  bsp_output_clear(BSP_AUDIO_RST);
-}
-
 void INTERNAL_MODULE_ON()
 {
   bsp_output_clear(BSP_INT_PWR);
@@ -128,8 +114,7 @@ void EXTERNAL_MODULE_OFF()
   bsp_output_set(BSP_EXT_PWR);
 }
 
-
-stm32_spi_t audioSpi =
+static stm32_spi_t audioSpi =
 {
     .SPIx = AUDIO_SPI,
     .SCK = AUDIO_SPI_SCK_GPIO,
@@ -138,69 +123,102 @@ stm32_spi_t audioSpi =
     .CS = AUDIO_CS_GPIO,
 };
 
-AudioConfig_t audioConfig =
+static void audio_set_rst_pin(bool set)
+{
+  if (set) {
+    bsp_output_set(BSP_AUDIO_RST);
+  } else {
+    bsp_output_clear(BSP_AUDIO_RST);
+  }
+}
+
+static void audio_set_mute_pin(bool set)
+{
+  if (set) {
+    bsp_output_set(BSP_PA_NMUTE);
+  } else {
+    bsp_output_clear(BSP_PA_NMUTE);
+  }
+}
+
+static vs1053b_t audioConfig =
 {
   .spi = &audioSpi,
-  .setMuteHigh = setAudioMuteHigh,
-  .setMuteLow = setAudioMuteLow,
-  .setResetHigh = setAudioResetHigh,
-  .setResetLow = setAudioResetLow
+  .XDCS = AUDIO_XDCS_GPIO,
+  .DREQ = AUDIO_DREQ_GPIO,
+  .set_rst_pin = audio_set_rst_pin,
+  .set_mute_pin = audio_set_mute_pin,
+  .mute_delay_ms = AUDIO_MUTE_DELAY,
+  .unmute_delay_ms = AUDIO_UNMUTE_DELAY,
 };
+
+void audioInit(){
+  // assume BSP IO is already init
+  vs1053b_init(&audioConfig);
+}
 
 void boardBLEarlyInit()
 {
   timersInit();
   bsp_io_init();
-  qspiInit();
 }
-
-#if defined(FIRMWARE_QSPI)
-#include "stm32_qspi.h"
 
 void boardBLPreJump()
 {
-  qspiEnableMemoryMappedMode();
+  ExtFLASH_Init();
+  SDRAM_Init();
 
   // Stop 1ms timer
   MS_TIMER->CR1 &= ~TIM_CR1_CEN;
 }
-#endif
+
+void boardBLInit()
+{
+  ExtFLASH_Init();
+  SDRAM_Init();
+
+  // register external FLASH for DFU
+  usbRegisterDFUMedia((void*)extflash_dfu_media);
+
+  // register internal & external FLASH for UF2
+  flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
+  flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
+}
 
 void boardInit()
 {
-#if defined(SEMIHOSTING)
-  initialise_monitor_handles();
-#endif
-
-#if !defined(SIMU)
   // enable interrupts
   __enable_irq();
-
-  timersInit();
-  bsp_io_init();
-  bsp_output_set(BSP_PWR_LED);
-#endif
 
 #if defined(DEBUG)
   serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
   serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
 #endif
 
-  TRACE("\nST16 board started :)");
+  boardInitModulePorts();
 
   pwrInit();
-  qspiDeInit();
-  qspiInit();
-  boardInitModulePorts();
+  delaysInit();
+  timersInit();
+
+  bsp_io_init();
+  bsp_output_set(BSP_PWR_LED);
+
+  ExtFLASH_InitRuntime();
+
+  // register internal & external FLASH for UF2
+  flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
+  flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
   // init_trainer();
   flysky_gimbal_init();
 
   usbInit();
+
+#if !defined(DEBUG_SEGGER_RTT)
   // prime debounce state...
   usbPlugged();
 
-#if !defined(DEBUG_SEGGER_RTT)
   if (usbPlugged()) {
     delaysInit();
     ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
@@ -255,26 +273,15 @@ void boardInit()
   switchInit();
   rotaryEncoderInit();
   touchPanelInit();
-  audioInit(&audioConfig);
+  audioInit();
   adcInit(&_adc_driver);
   hapticInit();
-
 
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
  
   lcdSetInitalFrameBuffer(lcdFront->getData());
-    
-#if defined(DEBUG)&&0
-  DBGMCU_APB1PeriphConfig(
-      DBGMCU_IWDG_STOP | DBGMCU_TIM1_STOP | DBGMCU_TIM2_STOP |
-          DBGMCU_TIM3_STOP | DBGMCU_TIM4_STOP | DBGMCU_TIM5_STOP |
-          DBGMCU_TIM6_STOP | DBGMCU_TIM7_STOP | DBGMCU_TIM8_STOP |
-          DBGMCU_TIM9_STOP | DBGMCU_TIM10_STOP | DBGMCU_TIM11_STOP |
-          DBGMCU_TIM12_STOP | DBGMCU_TIM13_STOP | DBGMCU_TIM14_STOP,
-      ENABLE);
-#endif
 }
 
 extern void rtcDisableBackupReg();
