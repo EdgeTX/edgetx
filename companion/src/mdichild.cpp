@@ -1209,6 +1209,7 @@ void MdiChild::openModelEditWindow(int row)
   gStopwatch.report("ModelEdit created");
   t->setWindowTitle(tr("Editing model %1: ").arg(row+1) + QString(model.name) + QString("   (%1)").arg(userFriendlyCurrentFile()));
   connect(t, &ModelEdit::modified, this, &MdiChild::setCurrentModelModified);
+  connect(t, &ModelEdit::closed, this, &MdiChild::onModelEditClosed);
   gStopwatch.report("STARTING MODEL EDIT");
   t->show();
   QApplication::restoreOverrideCursor();
@@ -1880,4 +1881,10 @@ void MdiChild::modelShowErrors()
 {
   ModelData &mdl = radioData.models[getCurrentModel()];
   QMessageBox::critical(this, QString("%1").arg(mdl.name), mdl.errorsList().join("\n"));
+}
+
+void MdiChild::onModelEditClosed(int id)
+{
+  radioData.models[id].validate();
+  refresh();
 }

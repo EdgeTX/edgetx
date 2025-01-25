@@ -131,6 +131,7 @@ class MdiChild : public QWidget
     void onCurrentItemChanged(const QModelIndex &, const QModelIndex &);
     void onDataChanged(const QModelIndex & index);
     void onInternalModuleChanged();
+    void onModelEditClosed(int id);
 
     void generalEdit();
     void copyGeneralSettings();
