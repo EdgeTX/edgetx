@@ -425,7 +425,7 @@ static int read_chars (lua_State *L, FIL *f, size_t n) {
   luaL_Buffer b;
   luaL_buffinit(L, &b);
   p = luaL_prepbuffsize(&b, n);  /* prepare buffer to read whole block */
-  if (f_read(f, p, LUAL_BUFFERSIZE, &nr) != FR_OK) nr = 0; /* try to read 'n' chars */
+  if (f_read(f, p, n, &nr) != FR_OK) nr = 0; /* try to read 'n' chars */
   luaL_addsize(&b, nr);
   luaL_pushresult(&b);  /* close buffer */
   return (nr > 0);  /* true iff read something */
