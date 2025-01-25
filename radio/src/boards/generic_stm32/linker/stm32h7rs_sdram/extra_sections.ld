@@ -18,7 +18,7 @@
 } > DTCMRAM
 
 /* Fast code */
-.iram (NOLOAD) :
+.iram :
 {
   . = ALIGN(4);
   _siram = .;
