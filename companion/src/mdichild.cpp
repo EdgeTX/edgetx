@@ -1879,5 +1879,5 @@ bool MdiChild::invalidModels()
 void MdiChild::modelShowErrors()
 {
   ModelData &mdl = radioData.models[getCurrentModel()];
-  QMessageBox::information(this, tr("Model: %1 Information").arg(mdl.name), mdl.errorsList().join("\n"));
+  QMessageBox::critical(this, QString("%1").arg(mdl.name), mdl.errorsList().join("\n"));
 }
