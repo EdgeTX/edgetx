@@ -20,7 +20,6 @@
 
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
-#include "stm32_hal.h"
 #include "stm32_hal_ll.h"
 
 #include "board.h"
