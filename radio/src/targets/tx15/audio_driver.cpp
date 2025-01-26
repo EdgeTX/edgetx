@@ -143,24 +143,9 @@ static void audio_update_dma_buffer(uint8_t tc)
   }
 }
 
-// adjust this value for a volume level just above the silence
-// values is attenuation in dB, higher value - less volume
-// max value is 126
-#define VOLUME_MIN_DB     60
-
 void audioSetVolume(uint8_t volume)
 {
-  if (volume > VOLUME_LEVEL_MAX) {
-    volume = VOLUME_LEVEL_MAX;
-  }
-  // maximum volume is 0x00 and total silence is 0xFE
-  if (volume == 0) {
-    tas2505_set_volume(&_tas2505, 0xFE);  // silence
-  } else {
-    uint32_t vol = (VOLUME_MIN_DB * 2) -
-                   ((uint32_t)volume * (VOLUME_MIN_DB * 2)) / VOLUME_LEVEL_MAX;
-    tas2505_set_volume(&_tas2505, vol);
-  }
+  tas2505_set_volume(&_tas2505, volume);
 }
 
 extern "C" void DMA1_Stream4_IRQHandler(void)
