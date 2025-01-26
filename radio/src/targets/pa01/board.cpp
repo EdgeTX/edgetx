@@ -22,10 +22,12 @@
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
-#include "stm32_qspi.h"
 #include "stm32_hal.h"
 #include "stm32_ws2812.h"
 #include "stm32_spi.h"
+
+#include "flash_driver.h"
+#include "extflash_driver.h"
 
 #include "board.h"
 #include "boards/generic_stm32/module_ports.h"
@@ -53,6 +55,8 @@
 #include "bitmapbuffer.h"
 #include "colors.h"
 
+
+#include "touch_driver.h"
 
 #include <string.h>
 
@@ -122,44 +126,49 @@ void boardBLEarlyInit()
 
 void boardBLPreJump()
 {
-  qspiEnableMemoryMappedMode();
+  ExtFLASH_Init();
+  SDRAM_Init();
 
   // Stop 1ms timer
   MS_TIMER->CR1 &= ~TIM_CR1_CEN;
 }
-#endif
+
+void boardBLInit()
+{
+  ExtFLASH_Init();
+  SDRAM_Init();
 
 void boardInit()
 {
-#if defined(SEMIHOSTING)
-  initialise_monitor_handles();
-#endif
-
-#if !defined(SIMU)
   // enable interrupts
   __enable_irq();
-
-  timersInit();
-  bsp_io_init();
-  bsp_output_set(BSP_PWR_LED);
-#endif
 
 #if defined(DEBUG)
   serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
   serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
 #endif
 
-  TRACE("\nST16 board started :)");
+  boardInitModulePorts();
 
   pwrInit();
-  qspiDeInit();
-  qspiInit();
-  boardInitModulePorts();
+  delaysInit();
+  timersInit();
+
+  bsp_io_init();
+  bsp_output_set(BSP_PWR_LED);
+
+  ExtFLASH_InitRuntime();
+
+  // register internal & external FLASH for UF2
+  flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
+  flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
   // init_trainer();
   flysky_gimbal_init();
 
   usbInit();
+
+#if !defined(DEBUG_SEGGER_RTT)
   // prime debounce state...
   usbPlugged();
 
@@ -181,7 +190,7 @@ void boardInit()
     while(1) // Wait power to drain
       boardOff();
   }
-
+#endif
 
   ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   led_strip_off();
@@ -216,26 +225,16 @@ void boardInit()
   keysInit();
   switchInit();
   rotaryEncoderInit();
-//  audioInit();
+  touchPanelInit();
+ // audioInit();
   adcInit(&_adc_driver);
   hapticInit();
-
 
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
  
   lcdSetInitalFrameBuffer(lcdFront->getData());
-    
-#if defined(DEBUG)&&0
-  DBGMCU_APB1PeriphConfig(
-      DBGMCU_IWDG_STOP | DBGMCU_TIM1_STOP | DBGMCU_TIM2_STOP |
-          DBGMCU_TIM3_STOP | DBGMCU_TIM4_STOP | DBGMCU_TIM5_STOP |
-          DBGMCU_TIM6_STOP | DBGMCU_TIM7_STOP | DBGMCU_TIM8_STOP |
-          DBGMCU_TIM9_STOP | DBGMCU_TIM10_STOP | DBGMCU_TIM11_STOP |
-          DBGMCU_TIM12_STOP | DBGMCU_TIM13_STOP | DBGMCU_TIM14_STOP,
-      ENABLE);
-#endif
 }
 
 extern void rtcDisableBackupReg();

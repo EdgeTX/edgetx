@@ -35,7 +35,7 @@ set(IMU ON)
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
 set(TARGET_LINKER_DIR stm32h750_sdram)
-set(TARGET_LINKER_PARAMS "-Wl,--defsym=__SDRAM_START__=0xC0000000")
+set(TARGET_SDRAM_START 0xC0000000)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
@@ -119,6 +119,7 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/lcd_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
+  ${TARGET_SRC_DIR}/extflash_driver.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
