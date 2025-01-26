@@ -63,6 +63,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   if (parentWindow)
     parentWindow->setWindowIcon(windowIcon());
 
+  setupStatusBar();
   setupNavigation();
   initModelsList();
 
@@ -608,6 +609,7 @@ void MdiChild::refresh()
   }
   updateNavigation();
   updateTitle();
+  updateStatusBar();
 }
 
 void MdiChild::onItemActivated(const QModelIndex index)
@@ -1305,6 +1307,7 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
   }
 
   radioData.validateModels();
+  updateStatusBar();
 
   return true;
 }
@@ -1887,4 +1890,32 @@ void MdiChild::onModelEditClosed(int id)
 {
   radioData.models[id].validate();
   refresh();
+}
+
+void MdiChild::setupStatusBar()
+{
+  statusBar = new QStatusBar();
+  ui->statusBarLayout->addWidget(statusBar);
+  statusBarIcon = new QLabel();
+  statusBar->addPermanentWidget(statusBarIcon);
+  statusBarCount = new QLabel();
+  statusBar->addPermanentWidget(statusBarCount);
+}
+
+void MdiChild::updateStatusBar()
+{
+  QPixmap p;
+  QLabel cnt;
+  int invalid = radioData.invalidModels();
+
+  if (!invalidModels()) {
+    p.load(":/images/svg/circle-green.svg");
+  }
+  else {
+    p.load(":/images/svg/circle-red.svg");
+    cnt.setText(QString::number(invalid));
+  }
+
+  statusBarIcon->setPixmap(p.scaled(QSize(16, 16)));
+  statusBarCount->setText(cnt.text());
 }

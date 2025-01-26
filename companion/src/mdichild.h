@@ -32,6 +32,7 @@
 #include <QWidget>
 #include <QStyledItemDelegate>
 #include <QListWidget>
+#include <QStatusBar>
 
 class QToolBar;
 class StatusDialog;
@@ -223,6 +224,9 @@ class MdiChild : public QWidget
     QToolBar * modelsToolbar;
     QToolBar * labelsToolbar;
     QLabel *lblLabels;
+    QStatusBar *statusBar;
+    QLabel *statusBarIcon;
+    QLabel *statusBarCount;
 
     Firmware * firmware;
     RadioData radioData;
@@ -236,6 +240,8 @@ class MdiChild : public QWidget
     QComboBox* cboModelSortOrder;
     void setModelModified(const int modelIndex, bool cascade = true);
     QAction * actionsSeparator();
+    void setupStatusBar();
+    void updateStatusBar();
 };
 
 // This will draw the drop indicator across all columns of a model View (vs. in just one column), and lets us make the indicator more obvious.
