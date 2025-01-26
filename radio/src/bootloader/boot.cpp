@@ -95,7 +95,7 @@ void bootloaderInitApp()
     }
 
     start_firmware = !boardBLStartCondition(); 
-    if (start_firmware&&0) {
+    if (start_firmware) {
       // Start main application
       boardBLPreJump();
       jumpTo(APP_START_ADDRESS);
