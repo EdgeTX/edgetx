@@ -309,26 +309,9 @@
 #define STORAGE_USE_SDIO
 
 // AUDIO
-#define AUDIO_RESET_PIN               GPIO_PIN(GPIOH, 10) // PH.10
-
-/*
-// Audio
-#define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOG, 12) // PG.12
-#define AUDIO_CS_GPIO                 GPIO_PIN(GPIOG, 10) // PG.10
-#define AUDIO_DREQ_GPIO               GPIO_PIN(GPIOG, 13) // PG.13
-//#define AUDIO_RST_GPIO                GPIOD
-//#define AUDIO_RST_GPIO_PIN            LL_GPIO_PIN_4  // PD.04
-#define AUDIO_SPI                     SPI1
-#define AUDIO_SPI_GPIO_AF             LL_GPIO_AF_5
-#define AUDIO_SPI_SCK_GPIO            GPIO_PIN(GPIOA, 5)  // PA.05
-#define AUDIO_SPI_MISO_GPIO           GPIO_PIN(GPIOG, 9)  // PG.09
-#define AUDIO_SPI_MOSI_GPIO           GPIO_PIN(GPIOD, 7)  // PD.07
-#define AUDIO_MUTE_GPIO
-#define AUDIO_UNMUTE_DELAY            180  // ms
-#define AUDIO_MUTE_DELAY              200  // ms
-#define INVERTED_MUTE_PIN
-*/
-#define AUDIO_SPI SPI2
+#define AUDIO_SPI                       SPI2
+#define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
+#define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)
 
 // I2C Bus
 #define I2C_B1                          I2C4

@@ -22,6 +22,7 @@
 #include "tas2505.h"
 #include "stm32_i2s.h"
 #include "timers_driver.h"
+#include "hal/audio_driver.h"
 
 #include "debug.h"
 
@@ -125,4 +126,10 @@ int tas2505_init(tas2505_t* dev)
   }
 
   return 0;
+}
+
+void tas2505_set_volume(tas2505_t* dev, uint8_t volume)
+{
+  tas2505_write_reg(dev, TAS2505_SPKVOL1, volume);
+  tas2505_write_reg(dev, TAS2505_HP_VOL, volume);
 }

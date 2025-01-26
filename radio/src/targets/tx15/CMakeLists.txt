@@ -45,7 +45,6 @@ add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
-add_definitions(-DSOFTWARE_VOLUME)
 
 set(FLAVOUR tx15)
 add_definitions(-DRADIO_TX15)
