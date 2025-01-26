@@ -19,11 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
 #include "stm32_timer.h"
 #include "stm32_pulse_driver.h"
+
+#include "board.h"
 
 #define HAPTIC_TIMER_FREQ 200000000
 

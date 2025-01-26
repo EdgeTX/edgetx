@@ -1,32 +1,15 @@
 #include <stdint.h>
 #include "stm32_cmsis.h"
 #include "system_clock.h"
-#include "stm32h7xx_hal_cortex.h"
+
+#include "stm32_hal.h"
 
 #define NAKED __attribute__((naked))
-
-#if !defined(BOOT)
-#  define BOOTSTRAP __attribute__((section(".bootstrap")))
-#else
-#  define BOOTSTRAP
-#endif
+#define BOOTSTRAP __attribute__((section(".bootstrap")))
 
 // Linker script symbols
 extern uint32_t _sisr_vector;
 extern uint32_t SDRAM_START;
-
-extern "C" void set_vtor();
-extern "C" void CPU_CACHE_Enable();
-extern "C" void MPU_Init();
-extern "C" void clean_dcache();
-
-#if defined(SDRAM)
-// SDRAM driver
-extern "C" void SDRAM_Init();
-#endif
-
-extern "C" void __libc_init_array();
-extern "C" int main();
 
 extern "C" NAKED BOOTSTRAP
 void Reset_Handler()
@@ -34,21 +17,29 @@ void Reset_Handler()
   asm inline (
     "ldr sp, =_estack \n"
   );
-  
-#if defined(BOOT) || !defined(FIRMWARE_QSPI)
-  // MCU Init
+
+#if defined(BOOT)
   asm inline (
     "bl SystemInit \n"
     "bl SystemClock_Config \n"
-#if defined(SDRAM)
-    "bl SDRAM_Init \n"
-#endif
-    "bl MPU_Init \n"
     "bl CPU_CACHE_Enable \n"
   );
 #endif
 
-#if !defined(BOOT)
+  // Copy code into normal RAM
+  asm inline (
+    "ldr r0, =_stext    \n"
+    "ldr r1, =_etext    \n"
+    "ldr r2, =_text_load \n"
+    "bl naked_copy      \n"
+  );
+
+#if defined(BOOT)
+  asm inline (
+    "bl MPU_Init \n"
+  );
+#endif
+  
   // Copy / setup ISR vector
   asm inline (
     "ldr r0, =_sisr_vector \n"
@@ -66,15 +57,6 @@ void Reset_Handler()
     "bl naked_copy      \n"
   );
 
-  // Copy code into normal RAM
-  asm inline (
-    "ldr r0, =_stext    \n"
-    "ldr r1, =_etext    \n"
-    "ldr r2, =_text_load \n"
-    "bl naked_copy      \n"
-  );
-#endif
-
   // Copy initialized data segment
   asm inline (
     "ldr r0, =_sdata    \n"
@@ -82,6 +64,12 @@ void Reset_Handler()
     "ldr r2, =_sidata   \n"
     "bl naked_copy      \n"
   );
+
+#if defined(BOOT)
+  asm inline (
+    "bl pwrResetHandler \n"
+  );
+#endif
  
   // Zero fill bss segment
   asm inline (
@@ -138,7 +126,7 @@ extern "C" NAKED BOOTSTRAP void naked_copy() {
   );
 }
 
-extern "C" __attribute__((used))
+extern "C" BOOTSTRAP
 void CPU_CACHE_Enable()
 {
   /* Enable I-Cache */
