@@ -56,8 +56,6 @@
 #include "colors.h"
 
 
-#include "touch_driver.h"
-
 #include <string.h>
 
 // common ADC driver
@@ -73,25 +71,25 @@ extern "C" void initialise_monitor_handles();
 #if defined(SPI_FLASH)
 extern "C" void flushFTL();
 #endif
-
-static void led_strip_charge_animation(uint8_t ledOn)
-{
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    if (i == ledOn)
-      ws2812_set_color(i, 10, 10, 10);
-    else
-      ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
-}
-
-static void led_strip_off()
-{
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
-}
+//
+//static void led_strip_charge_animation(uint8_t ledOn)
+//{
+//  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+//    if (i == ledOn)
+//      ws2812_set_color(i, 10, 10, 10);
+//    else
+//      ws2812_set_color(i, 0, 0, 0);
+//  }
+//  ws2812_update(&_led_timer);
+//}
+//
+//static void led_strip_off()
+//{
+//  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+//    ws2812_set_color(i, 0, 0, 0);
+//  }
+//  ws2812_update(&_led_timer);
+//}
 
 void INTERNAL_MODULE_ON()
 {
@@ -118,11 +116,8 @@ void boardBLEarlyInit()
 {
   timersInit();
   bsp_io_init();
-  qspiInit();
 }
 
-#if defined(FIRMWARE_QSPI)
-#include "stm32_qspi.h"
 
 void boardBLPreJump()
 {
@@ -137,6 +132,14 @@ void boardBLInit()
 {
   ExtFLASH_Init();
   SDRAM_Init();
+
+  // register external FLASH for DFU
+  usbRegisterDFUMedia((void*)extflash_dfu_media);
+
+  // register internal & external FLASH for UF2
+  flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
+  flashRegisterDriver(QSPI_BASE, 8 * 1024 * 1024, &extflash_driver);
+}
 
 void boardInit()
 {
@@ -174,16 +177,16 @@ void boardInit()
 
   if (usbPlugged()) {
     delaysInit();
-    ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
+//    ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
     uint8_t ledOn = 0;
     while (usbPlugged()) {
       if(IS_UCHARGER_ACTIVE()) {
-        led_strip_charge_animation(ledOn++);
-        if (ledOn == LED_STRIP_LENGTH)
-          ledOn = 0;
+//        led_strip_charge_animation(ledOn++);
+//        if (ledOn == LED_STRIP_LENGTH)
+//          ledOn = 0;
       }
       else {
-        led_strip_off();
+//        led_strip_off();
       }
       delay_ms(1000);
     }
@@ -192,8 +195,8 @@ void boardInit()
   }
 #endif
 
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
-  led_strip_off();
+//  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
+//  led_strip_off();
 
   // uint32_t press_start = 0;
   // uint32_t press_end = 0;
@@ -225,7 +228,7 @@ void boardInit()
   keysInit();
   switchInit();
   rotaryEncoderInit();
-  touchPanelInit();
+//  touchPanelInit();
  // audioInit();
   adcInit(&_adc_driver);
   hapticInit();

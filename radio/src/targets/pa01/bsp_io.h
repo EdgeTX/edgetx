@@ -22,6 +22,8 @@
 #pragma once
 
 #include "drivers/pca95xx.h"
+#include "stm32_switch_driver.h"
+#include "hal/switch_driver.h"
 
 // Input port expander
 #define BSP_EXT_KEY1 PCA95XX_PIN_0
@@ -62,3 +64,4 @@ void bsp_output_set(uint16_t pin);
 void bsp_output_clear(uint16_t pin);
 
 uint16_t bsp_input_read();
+SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx);
