@@ -335,11 +335,11 @@ LEGACY_NAMES = [
                 "description": "Potentiometer 2"
             },
             "P3": {
-                "yaml": "POT3",
-                "lua": "s3",
-                "label": "S3",
+                "yaml": "6POS",
+                "lua": "6P",
+                "label": "6P",
                 "short_label": "3",
-                "description": "6 pos"
+                "description": "Multipos Switch"
             }
         }
     },

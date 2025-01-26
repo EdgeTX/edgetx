@@ -4,8 +4,7 @@ POT_CONFIG = {
     "boxer": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
-        "S1": {"default": "SLIDER"},
-        "S2": {"default": "SLIDER"}
+        "P3": {"default": "MULTIPOS"}
     },
     "gx12": {
         "P1": {"default": "POT_CENTER"},

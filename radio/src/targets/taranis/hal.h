@@ -1832,6 +1832,11 @@
   #define ADC_DIRECTION {1,-1,-1,1,  -1,1,  1,  1}
 #endif
 
+#if defined(RADIO_BOXER)
+  #define DEFAULT_6POS_CALIB          {5, 13, 22, 31, 40}
+  #define DEFAULT_6POS_IDX            6
+#endif
+
 // PWR and LED driver
 
 #if defined(PCBX9LITE)
