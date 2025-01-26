@@ -72,3 +72,9 @@ uint16_t bsp_input_read()
 //  return value;
   return 0;
 }
+
+SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw,
+                                    SwitchCategory cat, uint8_t idx)
+{
+  return SWITCH_HW_DOWN;
+}
