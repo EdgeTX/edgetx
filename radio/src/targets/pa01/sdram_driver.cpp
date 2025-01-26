@@ -52,7 +52,7 @@
 
 extern "C" void SDRAM_GPIOConfig(void)
 {
-  __HAL_RCC_SYSCFG_CLK_ENABLE(); // needed for syscfg register, to route P2C and P3C pins to the AF
+ // __HAL_RCC_SYSCFG_CLK_ENABLE(); // needed for syscfg register, to route P2C and P3C pins to the AF
   /*-- GPIOs Configuration -----------------------------------------------------*/
   /*
   */
@@ -136,7 +136,7 @@ extern "C" void SDRAM_InitSequence(void)
   /* Configure a PALL (precharge all) command */
   FMC_SDRAMCommandStructure.CommandMode = FMC_SDRAM_CMD_PALL;
   FMC_SDRAMCommandStructure.CommandTarget = FMC_SDRAM_CMD_TARGET_BANK1;
-  FMC_SDRAMCommandStructure.AutoRefreshNumber = 8;
+  FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* Wait until the SDRAM controller is ready */
   // timeout = SDRAM_TIMEOUT;
@@ -177,7 +177,7 @@ extern "C" void SDRAM_InitSequence(void)
   /* Configure a load Mode register command*/
   FMC_SDRAMCommandStructure.CommandMode = FMC_SDRAM_CMD_LOAD_MODE;
   FMC_SDRAMCommandStructure.CommandTarget = FMC_SDRAM_CMD_TARGET_BANK1;
-  FMC_SDRAMCommandStructure.AutoRefreshNumber = 8;
+  FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = tmpr;
 
   /* Wait until the SDRAM controller is ready */
@@ -250,4 +250,30 @@ extern "C" void SDRAM_Init(void)
 
   /* FMC SDRAM device initialization sequence */
   SDRAM_InitSequence();
+
+
+  uint32_t data = 0x12345678;
+  uint32_t* base = (uint32_t*)0xc0000000;
+  while(true&&0)
+  {
+    uint32_t dataStart = data;
+    uint32_t buf=dataStart;
+    for(int i=0; i<(8*1024*1024)/4; ++i)
+    {
+      base[i] = buf;
+      __asm__ ("ror %0, %1, %2" : "=r" (buf) : "r" (buf), "M" (1));
+    }
+    buf=dataStart;
+    SCB_CleanDCache();
+    delay_ms(100);
+    SCB_InvalidateDCache();
+    for(int i=0; i<(8*1024*1024)/4; ++i)
+    {
+      if(base[i] != buf)
+        asm("bkpt");
+      __asm__ ("ror %0, %1, %2" : "=r" (buf) : "r" (buf), "M" (1));
+    }
+
+    __asm__ ("ror %0, %1, %2" : "=r" (data) : "r" (data), "M" (1));
+  }
 }
