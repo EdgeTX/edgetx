@@ -51,8 +51,8 @@ void SystemClock_Config(void)
   LL_RCC_PLL1FRACN_Disable();
   LL_RCC_PLL1_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
   LL_RCC_PLL1_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL1_SetM(1);
-  LL_RCC_PLL1_SetN(100);
+  LL_RCC_PLL1_SetM(3);
+  LL_RCC_PLL1_SetN(200);
   LL_RCC_PLL1_SetP(2);
   LL_RCC_PLL1_SetQ(4);
   LL_RCC_PLL1_SetR(2);
@@ -79,8 +79,8 @@ void SystemClock_Config(void)
   LL_RCC_PLL2FRACN_Disable();
   LL_RCC_PLL2_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
   LL_RCC_PLL2_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL2_SetM(1);
-  LL_RCC_PLL2_SetN(120);
+  LL_RCC_PLL2_SetM(3);
+  LL_RCC_PLL2_SetN(240);
   LL_RCC_PLL2_SetP(12);
   LL_RCC_PLL2_SetQ(2);
   LL_RCC_PLL2_SetR(4);
@@ -95,8 +95,8 @@ void SystemClock_Config(void)
   LL_RCC_PLL3FRACN_Disable();
   LL_RCC_PLL3_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
   LL_RCC_PLL3_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL3_SetM(1);
-  LL_RCC_PLL3_SetN(120);
+  LL_RCC_PLL3_SetM(3);
+  LL_RCC_PLL3_SetN(240);
   LL_RCC_PLL3_SetP(5);
   LL_RCC_PLL3_SetQ(20);
   LL_RCC_PLL3_SetR(80);
