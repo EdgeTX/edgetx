@@ -333,6 +333,22 @@
 #define BACKLIGHT_GPIO_AF               GPIO_AF1
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
+// QSPI Flash
+#define QSPI_MAX_FREQ                   80000000U // 80 MHz
+#define QSPI_CLK_GPIO                   GPIO_PIN(GPIOB, 2)
+#define QSPI_CLK_GPIO_AF                GPIO_AF9
+#define QSPI_CS_GPIO                    GPIO_PIN(GPIOB, 6)
+#define QSPI_CS_GPIO_AF                 GPIO_AF10
+#define QSPI_MISO_GPIO                  GPIO_PIN(GPIOD, 12)
+#define QSPI_MISO_GPIO_AF               GPIO_AF9
+#define QSPI_MOSI_GPIO                  GPIO_PIN(GPIOD, 11)
+#define QSPI_MOSI_GPIO_AF               GPIO_AF9
+#define QSPI_WP_GPIO                    GPIO_PIN(GPIOE, 2)
+#define QSPI_WP_GPIO_AF                 GPIO_AF9
+#define QSPI_HOLD_GPIO                  GPIO_PIN(GPIOD, 13)
+#define QSPI_HOLD_GPIO_AF               GPIO_AF9
+#define QSPI_FLASH_SIZE                 0x800000
+
 // SPI NOR Flash
 //#define FLASH_SPI                      SPI6
 //#define FLASH_SPI_CS_GPIO              GPIOG
@@ -401,7 +417,7 @@
 // Haptic: TIM3_CH2
 #define HAPTIC_PWM
 #define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 15) // PA.15
-#define HAPTIC_GPIO_TIMER               TIM2
+#define HAPTIC_GPIO_TIMER               TIM4
 #define HAPTIC_GPIO_AF                  GPIO_AF1
 #define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
 #define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
@@ -411,13 +427,14 @@
 #define FLYSKY_HALL_SERIAL_USART                 USART2
 
 // #define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOD, 5)  // PD.05
+#define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_UNDEF
 #define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOD, 6)  // PD.06
 #define FLYSKY_HALL_SERIAL_USART_IRQn            USART2_IRQn
 
 #define FLYSKY_HALL_SERIAL_DMA                   DMA1
 #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_USART2_RX
-
+/*
 // LED Strip
 #define LED_STRIP_LENGTH                  24
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 15)  // PA.15 / TIM2_CH1
@@ -433,7 +450,7 @@
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 
 #define STATUS_LEDS
-
+*/
 
 // Internal Module
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 15) // PB.15
