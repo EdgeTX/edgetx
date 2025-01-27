@@ -857,13 +857,14 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
       return EXTMODSIZE_STD;
   }
 
-  if (IS_TARANIS_X9LITE(board)    ||
-      IS_RADIOMASTER_ZORRO(board) ||
-      IS_RADIOMASTER_MT12(board) ||
+  if (IS_TARANIS_X9LITE(board)     ||
+      IS_RADIOMASTER_ZORRO(board)  ||
+      IS_RADIOMASTER_MT12(board)   ||
       IS_RADIOMASTER_POCKET(board) ||
-      IS_JUMPER_TLITE(board)      ||
-      IS_JUMPER_TPRO(board)       ||
-      IS_JUMPER_T20(board)       ||
+      IS_JUMPER_TLITE(board)       ||
+      IS_JUMPER_TPRO(board)        ||
+      IS_JUMPER_T20(board)         ||
+      IS_JUMPER_BUMBLEBEE(board)  ||
       IS_BETAFPV_LR3PRO(board))
     return EXTMODSIZE_SMALL;
 
