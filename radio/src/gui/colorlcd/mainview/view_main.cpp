@@ -364,6 +364,7 @@ bool ViewMain::onLongPress()
   } else {
     enableWidgetSelect(true);
   }
+  killEvents(KEY_ENTER);
   lv_indev_wait_release(lv_indev_get_act());
   return false;
 }
