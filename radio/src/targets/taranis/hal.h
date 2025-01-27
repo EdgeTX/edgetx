@@ -208,6 +208,19 @@
   #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_11 // PE.11
   #define KEYS_GPIO_REG_TELE            GPIOD
   #define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_2  // PD.02
+#elif defined(RADIO_H5TEST)
+  #define KEYS_GPIO_REG_PAGEUP          GPIOB
+  #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_8  // PB.08
+  #define KEYS_GPIO_REG_PAGEDN          GPIOB
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_7  // PB.07
+  #define KEYS_GPIO_REG_EXIT            GPIOB
+  #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5  // PB.05
+  #define KEYS_GPIO_REG_ENTER           GPIOE
+  #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_10 // PE.10
+  #define KEYS_GPIO_REG_SYS             GPIOB
+  #define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_4  // PB.04
+  #define KEYS_GPIO_REG_MDL             GPIOB
+  #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_14 // PB.14
 #elif defined(PCBX7)
   #define KEYS_GPIO_REG_PAGEDN          GPIOD
   #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
@@ -344,6 +357,27 @@
   #if defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12)
     #define ROTARY_ENCODER_INVERTED
   #endif
+#elif defined(RADIO_H5TEST)
+  #define ROTARY_ENCODER_GPIO             GPIOE
+  #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_9 // PE.09
+  #define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_11 // PE.11
+  #define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 2) & 0x03)
+  #define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_9
+  #define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_11
+  #if !defined(USE_EXTI9_IRQ)
+    #define USE_EXTI2_IRQ
+    #define EXTI2_IRQ_Priority 5
+  #endif
+  #if !defined(USE_EXTI3_IRQ)
+    #define USE_EXTI3_IRQ
+    #define EXTI3_IRQ_Priority 5
+  #endif
+  #define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTG
+  #define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE9
+  #define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE11
+  #define ROTARY_ENCODER_TIMER            TIM17
+  #define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
+  #define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
 #endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
@@ -610,6 +644,23 @@
   #define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_13 // PC.13
   #define TRIMS_GPIO_REG_RHR            GPIOC
   #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_1  // PC.01
+#elif defined(RADIO_H5TEST)
+  #define TRIMS_GPIO_REG_LHL            GPIOC
+  #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_0  // PC.00
+  #define TRIMS_GPIO_REG_LHR            GPIOE
+  #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_0  // PE.00
+  #define TRIMS_GPIO_REG_LVD            GPIOC
+  #define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_1  // PC.01
+  #define TRIMS_GPIO_REG_LVU            GPIOC
+  #define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_13 // PC.13
+  #define TRIMS_GPIO_REG_RVD            GPIOE
+  #define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_12 // PE.12
+  #define TRIMS_GPIO_REG_RHL            GPIOB
+  #define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_1  // PB.01
+  #define TRIMS_GPIO_REG_RVU            GPIOE
+  #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_8  // PE.08
+  #define TRIMS_GPIO_REG_RHR            GPIOE
+  #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_7  // PE.07
 #else
   #define TRIMS_GPIO_REG_LHL            GPIOE
   #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_4  // PE.04
@@ -681,6 +732,9 @@
   #define HARDWARE_SWITCH_A
   #define SWITCHES_GPIO_REG_A           GPIOC
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_13  // PC.13
+#elif defined(RADIO_H5TEST)
+  #define SWITCHES_GPIO_REG_A           GPIOD
+  #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_4  // PD.04
 #elif defined(PCBX7)
   #define SWITCHES_GPIO_REG_A_L         GPIOE
   #define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_7  // PE.07
@@ -756,6 +810,11 @@
   #define SWITCHES_GPIO_PIN_B_L         PCA95XX_PIN_11
 #elif defined(RADIO_V14) || defined(RADIO_V12)
 // ADC based switch
+#elif defined(RADIO_H5TEST)
+  #define SWITCHES_GPIO_REG_B_L         GPIOD
+  #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_1   // PD.01
+  #define SWITCHES_GPIO_REG_B_H         GPIOD
+  #define SWITCHES_GPIO_PIN_B_H         LL_GPIO_PIN_3   // PD.03
 #elif defined(PCBX7)
   #define SWITCHES_GPIO_REG_B_L         GPIOE
   #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_15 // PE.15
@@ -838,6 +897,11 @@
   #define SWITCHES_GPIO_PIN_C_L         PCA95XX_PIN_4
 #elif defined(RADIO_V14) || defined(RADIO_V12)
 // ADC based switch
+#elif defined(RADIO_H5TEST)
+  #define SWITCHES_GPIO_REG_C_L         GPIOD
+  #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_8   // PD.08
+  #define SWITCHES_GPIO_REG_C_H         GPIOD
+  #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_9   // PD.09
 #elif defined(PCBX7)
   #define SWITCHES_GPIO_REG_C_L         GPIOD
   #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_11 // PD.11
@@ -911,6 +975,9 @@
   #define HARDWARE_SWITCH_D
   #define SWITCHES_GPIO_REG_D           GPIOE
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_8 // PE.08
+#elif defined(RADIO_H5TEST)
+  #define SWITCHES_GPIO_REG_D           GPIOB
+  #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_15 // PB.15
 #elif defined(PCBX7) && !defined(RADIO_COMMANDO8)
   #define SWITCHES_GPIO_REG_D_L         GPIOE
   #define SWITCHES_GPIO_PIN_D_L         LL_GPIO_PIN_1  // PE.01
@@ -988,6 +1055,9 @@
   #define SWITCHES_GPIO_PIN_E_L         PCA95XX_PIN_13
 #elif  defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
+#elif defined(RADIO_H5TEST)
+  #define SWITCHES_GPIO_REG_E           GPIOD
+  #define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_14  // PD.14
 #elif defined(PCBX7)
   // no SWE
 #else
@@ -1055,6 +1125,9 @@
   #define SWITCHES_GPIO_PIN_F_L         PCA95XX_PIN_2
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   // ADC based switch
+#elif defined(RADIO_H5TEST)
+  #define SWITCHES_GPIO_REG_F           GPIOD
+  #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_14  // PD.14
 #elif defined(PCBX7)
   #define SWITCHES_GPIO_REG_F           GPIOE
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_14 // PE.14
@@ -1138,6 +1211,8 @@
   #define SWITCHES_H_2POS
   #define SWITCHES_GPIO_REG_H
   #define SWITCHES_GPIO_PIN_H           PCA95XX_PIN_0
+#elif defined(RADIO_H5TEST)
+// no SWF
 #elif defined(PCBX7)
   #define SWITCHES_GPIO_REG_H           GPIOD
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_14 // PD.14
@@ -1262,6 +1337,8 @@
   #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_14  // PG.14
 #elif defined(RADIO_GX12)
   // I and J are part of function switches bellow
+#elif defined(RADIO_H5TEST)
+// no aditional switches
 #elif defined(PCBX7)
   #define SWITCHES_GPIO_REG_I           GPIOC
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_13  // PC.13
@@ -1389,14 +1466,18 @@
 // ADC
 #if !defined(RADIO_FAMILY_T20) && !defined(RADIO_BUMBLEBEE)
   #define ADC_MAIN                      ADC1
-  #define ADC_DMA                       DMA2
+  //#define ADC_DMA                       DMA2
   #define ADC_DMA_CHANNEL               LL_DMA_CHANNEL_0
   #define ADC_DMA_STREAM                LL_DMA_STREAM_4
   #define ADC_DMA_STREAM_IRQ            DMA2_Stream4_IRQn
   #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream4_IRQHandler
 #endif
 
+#if defined(RADIO_H5TEST)
+#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_24CYCLES_5
+#else
 #define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_28CYCLES
+#endif
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT
 
 #if defined(PCBX9E)
@@ -1792,6 +1873,20 @@
   #define ADC_EXT_CHANNELS              { ADC_CHANNEL_POT3 }
   #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
   #define ADC_VREF_PREC2                330
+#elif defined(RADIO_H5TEST)
+  #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_1  // PA.01
+  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_0  // PA.00
+  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PC.02
+  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_3  // PC.03
+  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_0  // PA.02
+  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_1  // ADC12_INP1
+  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_0  // ADC12_INP0
+  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_12 // ADC12_INP12
+  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_13 // ADC12_INP13
+  #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_14 // ADC12_INP14
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_BATT)
+  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH)
+  #define ADC_VREF_PREC2                330
 #elif defined(PCBX7)
   #define HARDWARE_POT1
   #define HARDWARE_POT2
@@ -1906,6 +2001,8 @@
   #define ADC_DIRECTION {1,-1,1,-1, -1,-1,1, 0, 1,1,1,1 }
 #elif defined(RADIO_V12)
   #define ADC_DIRECTION {1,-1,1,-1, -1,-1,1, 0, 1,1,1,1 }
+#elif defined(RADIO_H5TEST)
+  #define ADC_DIRECTION {-1,1,-1,1,  1,1}
 #elif defined(PCBX7)
   #define ADC_DIRECTION {-1,1,-1,1,  1,1,  1,  1}
 #elif defined(PCBX9LITE)
@@ -1936,6 +2033,9 @@
 #elif defined(RADIO_V14) || defined(RADIO_V12)
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOB, 2)  // PB.02
+#elif defined(RADIO_H5TEST)
+  #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 6)  // PD.06
+  #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 5)  // PD.05
 #else
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 0)  // PD.00
@@ -2021,6 +2121,8 @@
   #define LED_GREEN_GPIO                GPIO_PIN(GPIOE, 14)  // PE.14
   #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 13) // PE.13
   #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 2)  // PE.02
+#elif defined(RADIO_H5TEST)
+  // No status leds
 #elif defined(PCBX7)
   #define STATUS_LEDS
   #define GPIO_LED_GPIO_ON              gpio_set
@@ -2052,6 +2154,10 @@
   #define CFS_LED_STRIP_START               0
   #define CFS_LED_STRIP_LENGTH              8
   #define CFS_LEDS_PER_SWITCH               1
+#elif defined(RADIO_H5TEST
+  #define LED_STRIP_LENGTH                  1
+  #define BLING_LED_STRIP_START             0
+  #define BLING_LED_STRIP_LENGTH            1
 #else
   #define LED_STRIP_LENGTH                  7
   #define BLING_LED_STRIP_START             0
@@ -2061,7 +2167,7 @@
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1   // TIM1 / TIM2
   #define LED_STRIP_TIMER                   TIM1
   #define LED_STRIP_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
+  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH4
   #define LED_STRIP_TIMER_DMA               DMA2
   #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_6
   #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
@@ -2211,6 +2317,29 @@
   #define INTMODULE_RX_DMA                 DMA2
   #define INTMODULE_RX_DMA_STREAM          LL_DMA_STREAM_2
   #define INTMODULE_RX_DMA_CHANNEL         LL_DMA_CHANNEL_4
+#elif defined(RADIO_H5TEST)
+#undef HARDWARE_INTERNAL_MODULE
+  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 5)  // PE.05
+  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOE, 3)  // PE.03
+  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOE, 2)  // PE.02
+  #define INTMODULE_USART                 USART10
+//#define INTMODULE_GPIO_AF               LL_GPIO_AF_7
+//#define INTMODULE_USART_IRQn            USART10_IRQn
+//#define INTMODULE_USART_IRQHandler      USART10_IRQHandler
+//#define INTMODULE_DMA                   DMA1
+//#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
+//#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
+//#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
+//#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
+//#define INTMODULE_RX_DMA                DMA1
+//#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
+//#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+//#define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
+//#define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
+//#define INTMODULE_TIMER                 TIM3
+//#define INTMODULE_TIMER_IRQn            TIM3_IRQn
+//#define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
+//#define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #elif defined(PCBX9E) || defined(PCBX9DP) || defined(RADIO_X7)
   #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOC, 6)  // PC.06
   #define INTMODULE_TX_GPIO                GPIO_PIN(GPIOA, 10) // PA.10
@@ -2294,7 +2423,35 @@
 #endif
 
 // External Module
-#if defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019) || defined(PCBX7ACCESS) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12) || defined(RADIO_T12MAX) || defined(RADIO_GX12)
+#if defined(RADIO_H5TEST)
+  #undef HARDWARE_EXTERNAL_MODULE
+  #define EXTMODULE_PWR_GPIO                    GPIO_PIN(GPIOD, 0) // PD.00
+  #define EXTERNAL_MODULE_PWR_ON()              gpio_set(EXTMODULE_PWR_GPIO)
+  #define EXTERNAL_MODULE_PWR_OFF()             gpio_clear(EXTMODULE_PWR_GPIO)
+  #define IS_EXTERNAL_MODULE_ON()               gpio_read(EXTMODULE_PWR_GPIO)
+  #define EXTMODULE_TX_GPIO                     GPIO_PIN(GPIOA, 9)  // PA.09
+  #define EXTMODULE_RX_GPIO                     GPIO_PIN(GPIOA, 10) // PA.10
+  #define EXTMODULE_TX_GPIO_AF                  LL_GPIO_AF_7
+#define EXTMODULE_TIMER                       TIM8
+#define EXTMODULE_TIMER_Channel               LL_TIM_CHANNEL_CH1
+#define EXTMODULE_TIMER_FREQ                  (PERI2_FREQUENCY * TIMER_MULT_APB2)
+#define EXTMODULE_TIMER_IRQn                  TIM8_UP_TIM13_IRQn
+#define EXTMODULE_TIMER_IRQHandler            TIM8_UP_TIM13_IRQHandler
+#define EXTMODULE_TIMER_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
+#define EXTMODULE_TIMER_DMA_CHANNEL           LL_DMA_CHANNEL_7
+#define EXTMODULE_TIMER_DMA                   DMA2
+#define EXTMODULE_TIMER_DMA_STREAM            LL_DMA_STREAM_1
+#define EXTMODULE_TIMER_DMA_STREAM_IRQn       DMA2_Stream1_IRQn
+#define EXTMODULE_TIMER_DMA_IRQHandler        DMA2_Stream1_IRQHandler
+#define EXTMODULE_USART                       USART1
+#define EXTMODULE_USART_IRQn                  USART1_IRQn
+#define EXTMODULE_USART_IRQHandler            USART1_IRQHandler
+#define EXTMODULE_USART_TX_DMA                DMA2
+#define EXTMODULE_USART_TX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+#define EXTMODULE_USART_TX_DMA_STREAM         LL_DMA_STREAM_6
+#define EXTMODULE_USART_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+#define EXTMODULE_USART_RX_DMA_STREAM         LL_DMA_STREAM_1
+#elif defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019) || defined(PCBX7ACCESS) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12) || defined(RADIO_T12MAX) || defined(RADIO_GX12)
   #if defined(RADIO_X9DP2019) || defined(RADIO_X7ACCESS) || defined(RADIO_ZORRO)|| defined(RADIO_POCKET) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12)|| defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12)
     #define EXTMODULE_PWR_GPIO          GPIO_PIN(GPIOD, 8) // PD.08
   #elif defined(PCBX9LITE)
@@ -2370,6 +2527,7 @@
   #define EXTMODULE_TIMER_FREQ                  (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 
+// 3DJC IS HERE
 // Trainer Port
 #if defined(PCBXLITES) || defined(PCBX9LITE)
   // on these 2 radios the trainer port already uses DMA1_Stream6, we won't use the DMA
@@ -2389,6 +2547,17 @@
   #define TRAINER_TIMER                 TIM4
   #define TRAINER_TIMER_IRQn            TIM4_IRQn
   #define TRAINER_TIMER_IRQHandler      TIM4_IRQHandler
+#elif defined(RADIO_H5TEST)
+  #define TRAINER_DETECT_GPIO           GPIO_PIN(GPIOE, 15) // PE.15
+  #define TRAINER_IN_GPIO               GPIO_PIN(GPIOE, 13)  // PE.13 TIM1_CH3
+  #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH3
+  #define TRAINER_OUT_GPIO              GPIO_PIN(GPIOD, 14) // PD.12 TIM1_CH4
+  #define TRAINER_OUT_TIMER_Channel     LL_TIM_CHANNEL_CH4
+  #define TRAINER_GPIO_AF               LL_GPIO_AF_1
+  #define TRAINER_TIMER                 TIM1
+#define TRAINER_TIMER_IRQn            TIM15_IRQn
+  //#define TRAINER_TIMER_IRQHandler      TIM1_IRQHandler
+  #define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #else
   #define TRAINER_IN_GPIO               GPIO_PIN(GPIOC, 8) // PC.08
   #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH3
@@ -2413,7 +2582,7 @@
 #endif
 
 // Serial Port
-#if (defined(PCBX7) && !defined(AUX_SERIAL)) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019)
+#if (defined(PCBX7) && !defined(AUX_SERIAL)) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019) || defined(RADIO_H5TEST)
 #elif defined(RADIO_GX12)
   #define HARDWARE_TRAINER_AUX_SERIAL
   #define AUX_SERIAL_GPIO                   GPIOD
@@ -2437,6 +2606,9 @@
 #endif
 
 // Telemetry
+#if defined(STM32H562xx)
+// half duplex telem
+#else
 #define TELEMETRY_DIR_GPIO              GPIO_PIN(GPIOD, 4) // PD.04
 #if defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019) || \
     defined(RADIO_X7ACCESS)
@@ -2481,6 +2653,7 @@
 #define TELEMETRY_RX_FRAME_EXTI_LINE    LL_EXTI_LINE_4
 #define USE_EXTI4_IRQ
 #define EXTI4_IRQ_Priority 5
+#endif
 
 // PCBREV
 #if defined(RADIO_X7) && !defined(DEBUG_SEGGER_RTT)
@@ -2636,7 +2809,7 @@
   #define BACKLIGHT_CCMR1               TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2 // Channel 1, PWM
   #define BACKLIGHT_CCER                TIM_CCER_CC1E
   #define BACKLIGHT_COUNTER_REGISTER    BACKLIGHT_TIMER->CCR1
-#elif defined(RADIO_T8) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12)
+#elif defined(RADIO_T8) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12) || defined(RADIO_H5TEST)
   // No backlight: OLED display
 #elif defined(RADIO_COMMANDO8)
   #define BACKLIGHT_TIMER_FREQ          (PERI1_FREQUENCY * TIMER_MULT_APB1)
@@ -2719,19 +2892,19 @@
   #define LCD_SPI                       SPI3
   #define LCD_GPIO_AF                   GPIO_AF6
 #elif defined(RADIO_H5TEST)
-  #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOD, 10) // PD.10
-  #define LCD_CLK_GPIO                  GPIO_PIN(GPIOD, 11) // PD.11
-  #define LCD_A0_GPIO                   GPIO_PIN(GPIOD, 13) // PD.13
-  #define LCD_NCS_GPIO                  GPIO_PIN(GPIOD, 14) // PD.14
-  #define LCD_RST_GPIO                  GPIO_PIN(GPIOD, 12) // PD.12
-  #define LCD_DMA                       DMA1
-  #define LCD_DMA_Stream                DMA1_Stream7
-  #define LCD_DMA_Stream_IRQn           DMA1_Stream7_IRQn
-  #define LCD_DMA_Stream_IRQHandler     DMA1_Stream7_IRQHandler
-  #define LCD_DMA_FLAGS                 (DMA_HIFCR_CTCIF7 | DMA_HIFCR_CHTIF7 | DMA_HIFCR_CTEIF7 | DMA_HIFCR_CDMEIF7 | DMA_HIFCR_CFEIF7)
-  #define LCD_DMA_FLAG_INT              DMA_HIFCR_CTCIF7
-  #define LCD_SPI                       SPI3
-  #define LCD_GPIO_AF                   GPIO_AF6
+  #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOA, 7) // PA.07
+  #define LCD_CLK_GPIO                  GPIO_PIN(GPIOA, 5) // PA.05
+  #define LCD_A0_GPIO                   GPIO_PIN(GPIOA, 6) // PA.06
+  #define LCD_NCS_GPIO                  GPIO_PIN(GPIOC, 5) // PC.05
+  #define LCD_RST_GPIO                  GPIO_PIN(GPIOC, 4) // PC.04
+#define LCD_DMA                       DMA1
+#define LCD_DMA_Stream                DMA1_Stream7
+#define LCD_DMA_Stream_IRQn           DMA1_Stream7_IRQn
+#define LCD_DMA_Stream_IRQHandler     DMA1_Stream7_IRQHandler
+#define LCD_DMA_FLAGS                 (DMA_HIFCR_CTCIF7 | DMA_HIFCR_CHTIF7 | DMA_HIFCR_CTEIF7 | DMA_HIFCR_CDMEIF7 | DMA_HIFCR_CFEIF7)
+#define LCD_DMA_FLAG_INT              DMA_HIFCR_CTCIF7
+  #define LCD_SPI                       SPI6
+  #define LCD_GPIO_AF                   GPIO_AF8
 #else
   // Soft SPI: these pins are not connected to SPI periph on STM32F205
   #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOD, 10) // PD.10
@@ -2922,6 +3095,15 @@
   #define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR3
   #define HAPTIC_CCMR2                  TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2
   #define HAPTIC_CCER                   TIM_CCER_CC3E
+#elif defined(RADIO_H5_TEST)
+  #define HAPTIC_PWM
+  #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 10) // PB.10
+  #define HAPTIC_GPIO_AF                GPIO_AF
+  #define HAPTIC_TIMER                  TIM2  // Timer 2 Channel 3
+#define HAPTIC_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
+#define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR1
+#define HAPTIC_CCMR1                  TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2
+#define HAPTIC_CCER                   TIM_CCER_CC1E
 #elif defined(PCBX9E) || defined(PCBX9DP) || defined(PCBX7)
   #define HAPTIC_PWM
   #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 8) // PB.08
