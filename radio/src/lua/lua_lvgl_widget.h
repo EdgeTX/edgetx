@@ -447,24 +447,47 @@ class LvglWidgetQRCode : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetTextButton : public LvglWidgetObject
+class LvglWidgetTextButtonBase : public LvglWidgetObject
 {
  public:
-  LvglWidgetTextButton() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
+  LvglWidgetTextButtonBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE)
+  {
+    color = -1; // ignore unless overridden
+  }
 
   void setText(const char *s);
-  void setChecked(bool check);
   void setSize(coord_t w, coord_t h) override;
+  void setColor(LcdFlags newColor) override;
+  void setRounded();
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
   uint32_t textHash = -1;
 
   const char *txt = "";
-  bool checked = false;
+  coord_t rounded = -1;
+  LcdFlags textColor = -1;
+  LcdFlags currentTextColor = -1;
   int pressFunction = LUA_REFNIL;
+
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetTextButton : public LvglWidgetTextButtonBase
+{
+ public:
+  LvglWidgetTextButton() : LvglWidgetTextButtonBase() {}
+
+  void setChecked(bool check);
+
+  void build(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  bool checked = false;
   int longPressFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
@@ -477,22 +500,15 @@ class LvglWidgetTextButton : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetMomentaryButton : public LvglWidgetObject
+class LvglWidgetMomentaryButton : public LvglWidgetTextButtonBase
 {
  public:
-  LvglWidgetMomentaryButton() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
-
-  void setText(const char *s);
-  void setSize(coord_t w, coord_t h) override;
+  LvglWidgetMomentaryButton() : LvglWidgetTextButtonBase() {}
 
   void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
-  uint32_t textHash = -1;
-
-  const char *txt = "";
-  int pressFunction = LUA_REFNIL;
   int releaseFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;

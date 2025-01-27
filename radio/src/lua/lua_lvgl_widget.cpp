@@ -1345,29 +1345,28 @@ void LvglWidgetQRCode::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
+void LvglWidgetTextButtonBase::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "text")) {
     txt = luaL_checkstring(L, -1);
-  } else if (!strcmp(key, "checked")) {
-    checked = lua_toboolean(L, -1);
+  } else if (!strcmp(key, "cornerRadius")) {
+    rounded = luaL_checkunsigned(L, -1);
+  } else if (!strcmp(key, "textColor")) {
+    textColor = luaL_checkunsigned(L, -1);
   } else if (!strcmp(key, "press")) {
     pressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "longpress")) {
-    longPressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
 }
 
-void LvglWidgetTextButton::clearRefs(lua_State *L)
+void LvglWidgetTextButtonBase::clearRefs(lua_State *L)
 {
   clearRef(L, pressFunction);
-  clearRef(L, longPressFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
-void LvglWidgetTextButton::setText(const char *s)
+void LvglWidgetTextButtonBase::setText(const char *s)
 {
   uint32_t h = hash(s, strlen(s));
   if (h != textHash) {
@@ -1377,17 +1376,57 @@ void LvglWidgetTextButton::setText(const char *s)
   }
 }
 
-void LvglWidgetTextButton::setChecked(bool checked)
-{
-  this->checked = checked;
-  ((TextButton*)window)->check(checked);
-}
-
-void LvglWidgetTextButton::setSize(coord_t w, coord_t h)
+void LvglWidgetTextButtonBase::setSize(coord_t w, coord_t h)
 {
   if (w == LV_SIZE_CONTENT || w == 0) w = lv_obj_get_width(window->getLvObj());
   if (h == LV_SIZE_CONTENT || h == 0) h = lv_obj_get_height(window->getLvObj());
   LvglWidgetObject::setSize(w, h);
+}
+
+void LvglWidgetTextButtonBase::setColor(LcdFlags newColor)
+{
+  if (color != currentColor) {
+    currentColor = color;
+    etx_bg_color_from_flags(window->getLvObj(), color);
+  }
+  if (textColor != currentTextColor) {
+    currentTextColor = textColor;
+    etx_txt_color_from_flags(window->getLvObj(), textColor);
+  }
+}
+
+void LvglWidgetTextButtonBase::setRounded()
+{
+  if (rounded >= 0) {
+    lv_obj_remove_style(window->getLvObj(), (lv_style_t*)&styles->rounded, LV_PART_MAIN);
+    if (rounded > 0)
+      lv_obj_set_style_radius(window->getLvObj(), rounded, LV_PART_MAIN);
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "checked")) {
+    checked = lua_toboolean(L, -1);
+  } else if (!strcmp(key, "longpress")) {
+    longPressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else {
+    LvglWidgetTextButtonBase::parseParam(L, key);
+  }
+}
+
+void LvglWidgetTextButton::clearRefs(lua_State *L)
+{
+  clearRef(L, longPressFunction);
+  LvglWidgetTextButtonBase::clearRefs(L);
+}
+
+void LvglWidgetTextButton::setChecked(bool checked)
+{
+  this->checked = checked;
+  ((TextButton*)window)->check(checked);
 }
 
 void LvglWidgetTextButton::build(lua_State *L)
@@ -1404,45 +1443,25 @@ void LvglWidgetTextButton::build(lua_State *L)
   }
   window = btn;
   setChecked(checked);
+  setColor(color);
+  setRounded();
 }
 
 //-----------------------------------------------------------------------------
 
 void LvglWidgetMomentaryButton::parseParam(lua_State *L, const char *key)
 {
-  if (!strcmp(key, "text")) {
-    txt = luaL_checkstring(L, -1);
-  } else if (!strcmp(key, "press")) {
-    pressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else if (!strcmp(key, "release")) {
+  if (!strcmp(key, "release")) {
     releaseFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
-    LvglWidgetObject::parseParam(L, key);
+    LvglWidgetTextButtonBase::parseParam(L, key);
   }
 }
 
 void LvglWidgetMomentaryButton::clearRefs(lua_State *L)
 {
-  clearRef(L, pressFunction);
   clearRef(L, releaseFunction);
-  LvglWidgetObject::clearRefs(L);
-}
-
-void LvglWidgetMomentaryButton::setText(const char *s)
-{
-  uint32_t h = hash(s, strlen(s));
-  if (h != textHash) {
-    txt = s;
-    textHash = h;
-    ((TextButton *)window)->setText(s);
-  }
-}
-
-void LvglWidgetMomentaryButton::setSize(coord_t w, coord_t h)
-{
-  if (w == LV_SIZE_CONTENT || w == 0) w = lv_obj_get_width(window->getLvObj());
-  if (h == LV_SIZE_CONTENT || h == 0) h = lv_obj_get_height(window->getLvObj());
-  LvglWidgetObject::setSize(w, h);
+  LvglWidgetTextButtonBase::clearRefs(L);
 }
 
 void LvglWidgetMomentaryButton::build(lua_State *L)
@@ -1456,6 +1475,8 @@ void LvglWidgetMomentaryButton::build(lua_State *L)
           [=]() {
             pcallSimpleFunc(L, releaseFunction);
           });
+  setColor(color);
+  setRounded();
 }
 
 //-----------------------------------------------------------------------------
