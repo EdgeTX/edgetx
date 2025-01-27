@@ -153,10 +153,10 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_RADIOMASTER_T8:
       return 0x4378746F;
     case BOARD_FLYSKY_NV14:
-      return 0x3A78746F;
     case BOARD_FLYSKY_EL18:
       return 0x3A78746F;
     case BOARD_FLYSKY_PL18:
+    case BOARD_FLYSKY_PL18EV:
       return 0x4878746F;
     default:
       return 0;
@@ -215,6 +215,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
+    case BOARD_FLYSKY_PL18EV:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
       return 0;
@@ -273,6 +274,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
+    case BOARD_FLYSKY_PL18EV:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
       return FSIZE_HORUS;
@@ -307,7 +309,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 4;
       else if(IS_RADIOMASTER_ZORRO(board))
         return 8;
-      else if (board == BOARD_RADIOMASTER_POCKET)
+      else if (IS_RADIOMASTER_POCKET(board))
         return 5;
       else if (IS_FAMILY_T12(board))
         return 6;
@@ -337,7 +339,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return (IS_STM32(board) && !IS_TARANIS_X9(board));
 
     case HasLedStripGPIO:
-      return (IS_RADIOMASTER_MT12(board) || IS_FLYSKY_PL18(board) ||
+      return (IS_RADIOMASTER_MT12(board) || IS_FAMILY_PL18(board) ||
               IS_HELLORADIOSKY_V16(board));
 
     case HasSDCard:
@@ -371,7 +373,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 480;
-      else if (IS_FLYSKY_PL18(board) || IS_JUMPER_T15(board))
+      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board))
         return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
@@ -381,7 +383,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdWidth:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 320;
-      else if (IS_FLYSKY_PL18(board))
+      else if (IS_FAMILY_PL18(board))
         return 480;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
@@ -518,6 +520,19 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
                               {tr("SL1").toStdString(), "LS"},
                               {tr("SL2").toStdString(), "RS"},
                           });
+  } else if (IS_FLYSKY_PL18EV(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                              {tr("SL1").toStdString(), "LS"},
+                              {tr("SL2").toStdString(), "RS"},
+                              {tr("EXT1").toStdString(), "EXT1"},
+                              {tr("EXT2").toStdString(), "EXT2"},
+                              {tr("EXT3").toStdString(), "EXT3"},
+                              {tr("EXT4").toStdString(), "EXT4"},
+
+                          });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "S1"},
@@ -641,6 +656,8 @@ QString Boards::getBoardName(Board::Type board)
       return "FlySky EL18";
     case BOARD_FLYSKY_PL18:
       return "FlySky PL18";
+    case BOARD_FLYSKY_PL18EV:
+      return "FlySky PL18EV";        
     case BOARD_BETAFPV_LR3PRO:
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
@@ -752,6 +769,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TPRO:
   case BOARD_JUMPER_TPROV2:
   case BOARD_FLYSKY_PL18:
+  case BOARD_FLYSKY_PL18EV:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
@@ -836,6 +854,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
       BR(35, 42, 37)
       break;
     case BOARD_FLYSKY_PL18:
+    case BOARD_FLYSKY_PL18EV:
       BR(35, 43, 37)
       break;
     case BOARD_IFLIGHT_COMMANDO8:

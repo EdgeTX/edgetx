@@ -222,6 +222,8 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "nv14");
   else if (IS_FLYSKY_PL18(board))
     strcpy(bluetoothName, "pl18");
+  else if (IS_FLYSKY_PL18EV(board))
+    strcpy(bluetoothName, "pl18ev");
   else if (IS_FAMILY_HORUS_OR_T16(board))
     strcpy(bluetoothName, "horus");
   else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
@@ -328,7 +330,7 @@ void GeneralSettings::init()
 
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
 
-  if (IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board))
+  if (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board))
     stickDeadZone = 2;
 
 }
