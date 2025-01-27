@@ -419,6 +419,15 @@ void generalDefault()
   g_eeGeneral.hatsMode = HATSMODE_SWITCHABLE;
 #endif
 
+#if defined(DEFAULT_6POS_CALIB)
+  uint8_t defaultCalib[] = DEFAULT_6POS_CALIB;
+  StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[DEFAULT_6POS_IDX];
+
+  for (int i = 0; i < 5; i++) {
+    calib->steps[i] = defaultCalib[i];
+  }
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
