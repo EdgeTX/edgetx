@@ -69,6 +69,9 @@ class Widget : public ButtonBase
   void closeFullscreen() { closeFS = true; }
   bool isFullscreen() const { return fullscreen; }
 
+  // Should rotary encoder events be enabled when full screen
+  virtual bool enableFullScreenRE() const { return true; }
+
   // Called when the widget options have changed
   virtual void update();
 

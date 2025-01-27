@@ -56,6 +56,7 @@ class LuaLvglManager
   virtual bool isAppMode() const = 0;
   virtual bool isWidget() = 0;
   virtual bool isFullscreen() = 0;
+  virtual void exitFullscreen() {}
 
   virtual void luaShowError() = 0;
 
@@ -124,6 +125,10 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
   bool isAppMode() const override;
   bool isWidget() override { return !inSettings; }
   bool isFullscreen() override { return Widget::isFullscreen(); }
+  void exitFullscreen() override { closeFullscreen(); }
+
+  // Should rotary encoder events be enabled when full screen
+  bool enableFullScreenRE() const override { return !useLvglLayout(); }
 
   void luaShowError() override {}
 

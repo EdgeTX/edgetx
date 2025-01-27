@@ -128,6 +128,10 @@ void Widget::setFullscreen(bool enable)
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
   }
 
+  // set group in editing mode (keys LEFT / RIGHT)
+  if (enableFullScreenRE())
+    lv_group_set_editing(lv_group_get_default(), enable);
+
   onFullscreen(enable);
 
   update();

@@ -299,6 +299,13 @@ static int luaLvglIsFullscreen(lua_State *L)
   return 1;
 }
 
+static int luaLvglExitFullscreen(lua_State *L)
+{
+  if (luaLvglManager)
+    luaLvglManager->exitFullscreen();
+  return 0;
+}
+
 static int luaLvglGetContext(lua_State *L)
 {
   if (luaLvglManager && luaLvglManager->getContext() != LUA_REFNIL) {
@@ -315,7 +322,8 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(clear, luaLvglClear)
   LROT_FUNCENTRY(build, luaLvglBuild)
   LROT_FUNCENTRY(isAppMode, luaLvglIsAppMode)
-  LROT_FUNCENTRY(isFullscreen, luaLvglIsFullscreen)
+  LROT_FUNCENTRY(isFullScreen, luaLvglIsFullscreen)
+  LROT_FUNCENTRY(exitFullScreen, luaLvglExitFullscreen)
   LROT_FUNCENTRY(getContext, luaLvglGetContext)
   // Objects - widgets and standalone scripts
   LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
