@@ -119,6 +119,7 @@ namespace Board {
     SWITCH_2POS,
     SWITCH_3POS,
     SWITCH_FUNC,
+    SWITCH_ADC,
     SWITCH_TYPE_COUNT
   };
 
