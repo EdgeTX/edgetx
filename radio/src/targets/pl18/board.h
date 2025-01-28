@@ -137,6 +137,7 @@ extern "C" void SDRAM_Init();
   #define BATTERY_MIN                   35 // 3.5V
   #define BATTERY_MAX                   42 // 4.2V
 #else
+  // LiHV battery thresholds
   #define BATTERY_WARN                  37 // 3.7V
   #define BATTERY_MIN                   35 // 3.4V
   #define BATTERY_MAX                   43 // 4.3V
