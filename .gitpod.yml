@@ -1,4 +1,4 @@
-image: ghcr.io/edgetx/gitpod-workspace:latest
+image: ghcr.io/edgetx/gitpod-workspace:2.10
 
 tasks:
   - name: Prep build folder
