@@ -84,7 +84,7 @@
 typedef enum {TC_NONE, TC_FT6236, TC_CST836U, TC_CST340, TC_CHSC5448} TouchController;
 
 #if defined(DEBUG)
-const char TOUCH_CONTROLLER_STR[][10] = {"", "FT6236", "CST340", "CHSC5448"};
+const char TOUCH_CONTROLLER_STR[][10] = {"", "FT6236", "CST836U", "CST340", "CHSC5448"};
 #endif
 
 TouchController touchController = TC_NONE;
