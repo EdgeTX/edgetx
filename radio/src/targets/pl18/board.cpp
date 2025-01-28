@@ -181,7 +181,16 @@ void boardInit()
   __enable_irq();
 #endif
 
+#if defined(RADIO_NV14_FAMILY)
+  // detect NV14 vs EL18
+  hardwareOptions.pcbrev = boardGetPcbRev();
+  TRACE("\n%s board started :)",
+        hardwareOptions.pcbrev == PCBREV_NV14 ?
+        "NV14" : "EL18");
+#else
   TRACE("\nPL18 board started :)");
+#endif
+
   delay_ms(10);
   TRACE("RCC->CSR = %08x", RCC->CSR);
 
