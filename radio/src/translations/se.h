@@ -1089,6 +1089,7 @@
 #define TR_BL_ERASE_INT_FLASH           "Radera interna flashminnet"
 #define TR_BL_ERASE_FLASH               "Radera flashminnet"
 #define TR_BL_ERASE_FLASH_MSG           "Detta kan ta upp till 200s"
+#define TR_BL_RF_USB_ACCESS             "RF USB-access"
 #define TR_BL_CURRENT_FW                "Nuvarande firmware:"
 
 #if defined(PCBNV14)
