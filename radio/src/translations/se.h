@@ -301,7 +301,7 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
 #define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
-#define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
+#define TR_FS_COLOR_LIST                "Anpassad","Av","Vit","Röd","Grön","Gul","Orange","Blå","Rosa"
 #define TR_GROUP                        "Grupp"
 #define TR_GROUP_ALWAYS_ON              "Alltid på"
 #define TR_GROUPS                       "Always on groups"
@@ -1083,12 +1083,13 @@
 // Bootloader Taranis specific - ASCII characters only
 #define TR_BL_RESTORE_EEPROM            "Aaterställ EEPROM"
 #define TR_BL_POWER_KEY                 "Tryck paa startknappen."
-#define TR_BL_FLASH_EXIT                "Avsluta flashningsläget."
+#define TR_BL_FLASH_EXIT                "Avsluta flashningslaeget."
 
 // Bootloader Horus specific - ASCII characters only
 #define TR_BL_ERASE_INT_FLASH           "Radera interna flashminnet"
 #define TR_BL_ERASE_FLASH               "Radera flashminnet"
 #define TR_BL_ERASE_FLASH_MSG           "Detta kan ta upp till 200s"
+#define TR_BL_RF_USB_ACCESS             "RF USB access"
 #define TR_BL_CURRENT_FW                "Nuvarande firmware:"
 
 #if defined(PCBNV14)
@@ -1098,24 +1099,14 @@
   #define TR_BL_ENABLE                  "Aktivera"
   #define TR_BL_DISABLE                 "Inaktivera"
 #elif defined(PCBPL18)
-  // Bootloader PL18/NB4+ specific - ASCII characters only
-  #define TR_BL_ENABLE                  "Aktivera"
-  #define TR_BL_DISABLE                 "Inaktivera"
-  #if defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY          "[SW1A] för att vaelja fil"
-    #define TR_BL_FLASH_KEY           "Haall [SW1A] foer att flasha"
-    #define TR_BL_ERASE_KEY           "Haall [SW1A] foer att radera"
-    #define TR_BL_EXIT_KEY            "[SW1B] to exit"
-  #else
-    #define TR_BL_SELECT_KEY          "[TR4 Ner] för att vaelja fil"
-    #define TR_BL_FLASH_KEY           "Haall [TR4 Ner] foer att flasha"
-    #define TR_BL_ERASE_KEY           "Haall [TR4 Ner] foer att radera"
-    #define TR_BL_EXIT_KEY            "[TR4 Upp] foer att avbryta"
-  #endif
+  #define TR_BL_SELECT_KEY              " Tryck [TR4 Ner] foer att vaelja fil"
+  #define TR_BL_FLASH_KEY               " Haall [TR4 Ner] foer att flasha"
+  #define TR_BL_ERASE_KEY               " Haall [TR4 Ner] foer att radera"
+  #define TR_BL_EXIT_KEY                " Tryck [TR4 Upp] foer att avbryta"
 #else
   #define TR_BL_SELECT_KEY              "[ENT] för att vaelja fil"
-  #define TR_BL_FLASH_KEY               "Haall [ENT] foer att flasha"
-  #define TR_BL_ERASE_KEY               "Haall [ENT] foer att raderag"
+  #define TR_BL_FLASH_KEY               "Tryck [ENT] foer att flasha"
+  #define TR_BL_ERASE_KEY               "Haall ner [ENT] foer att radera"
   #define TR_BL_EXIT_KEY                "[RTN] foer att avbryta"
 #endif
 
