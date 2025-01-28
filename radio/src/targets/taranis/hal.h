@@ -361,7 +361,7 @@
   #define ROTARY_ENCODER_GPIO             GPIOE
   #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_9 // PE.09
   #define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_11 // PE.11
-  #define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 2) & 0x03)
+#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 2) & 0x03)
   #define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_9
   #define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_11
   #if !defined(USE_EXTI9_IRQ)
@@ -2320,6 +2320,7 @@
 #elif defined(RADIO_H5TEST)
 #undef HARDWARE_INTERNAL_MODULE
   #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 5)  // PE.05
+  #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOE, 4)  // PE.04
   #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOE, 3)  // PE.03
   #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOE, 2)  // PE.02
   #define INTMODULE_USART                 USART10
@@ -2556,8 +2557,8 @@
   #define TRAINER_GPIO_AF               LL_GPIO_AF_1
   #define TRAINER_TIMER                 TIM1
 #define TRAINER_TIMER_IRQn            TIM15_IRQn
-  //#define TRAINER_TIMER_IRQHandler      TIM1_IRQHandler
-  #define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+//#define TRAINER_TIMER_IRQHandler      TIM1_IRQHandler
+#define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #else
   #define TRAINER_IN_GPIO               GPIO_PIN(GPIOC, 8) // PC.08
   #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH3
@@ -2582,7 +2583,18 @@
 #endif
 
 // Serial Port
-#if (defined(PCBX7) && !defined(AUX_SERIAL)) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019) || defined(RADIO_H5TEST)
+#if (defined(PCBX7) && !defined(AUX_SERIAL)) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019)
+#elif defined(RADIO_H5TEST)
+  #define HARDWARE_TRAINER_AUX_SERIAL
+  #define AUX_SERIAL_PWR_GPIO               GPIO_PIN(GPIOD, 12) // PD.12
+  #define AUX_SERIAL_GPIO                   GPIOB
+  #define AUX_SERIAL_TX_GPIO                GPIO_PIN(GPIOB, 12) // PB.12
+  #define AUX_SERIAL_RX_GPIO                GPIO_PIN(GPIOB, 13) // PB.13
+  #define AUX_SERIAL_USART                  USART5
+  #define AUX_SERIAL_USART_IRQn             USART54_IRQn
+  #define AUX_SERIAL_DMA_RX                 DMA1
+  #define AUX_SERIAL_DMA_RX_STREAM          LL_DMA_STREAM_1
+  #define AUX_SERIAL_DMA_RX_CHANNEL         LL_DMA_CHANNEL_4
 #elif defined(RADIO_GX12)
   #define HARDWARE_TRAINER_AUX_SERIAL
   #define AUX_SERIAL_GPIO                   GPIOD
@@ -2665,7 +2677,11 @@
 
 // USB Charger
 #if defined(USB_CHARGER)
+#if defined(RADIO_H5TEST)
+  #define USB_CHARGER_GPIO              GPIO_PIN(GPIOD, 7)
+#else
   #define USB_CHARGER_GPIO              GPIO_PIN(GPIOB, 5)
+#endif
 #endif
 
 // S.Port update connector
@@ -3051,6 +3067,10 @@
   #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOG, 4) // PG.04
   #define AUDIO_MUTE_DELAY              500  // ms
   #define AUDIO_UNMUTE_DELAY            150  // ms
+#elif defined(RADIO_H5TEST)
+  #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOB, 0)
+  #define AUDIO_MUTE_DELAY              500  // ms
+  #define AUDIO_UNMUTE_DELAY          150  // ms
 #elif defined(RADIO_COMMANDO8)
   #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOB, 1)
   #define AUDIO_MUTE_DELAY              500  // ms
