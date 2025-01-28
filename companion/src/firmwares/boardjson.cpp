@@ -51,6 +51,7 @@ static const StringTagMappingTable switchTypesLookupTable = {
     {std::to_string(Board::SWITCH_2POS),          "2POS"},
     {std::to_string(Board::SWITCH_3POS),          "3POS"},
     {std::to_string(Board::SWITCH_FUNC),          "FSWITCH"},
+    {std::to_string(Board::SWITCH_ADC),           "ADC"},
 };
 
 static const StringTagMappingTable stickNamesLookupTable = {
@@ -993,6 +994,17 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
           const QJsonArray &d = obj.value("display").toArray();
           sw.display.x = (unsigned int)d.at(0).toInt(0);
           sw.display.y = (unsigned int)d.at(1).toInt(0);
+        }
+
+        // special handing for ADC
+        if (sw.type == Board::SWITCH_ADC) {
+          if (sw.dflt == Board::SWITCH_TOGGLE) {
+            // this could be 2 or 3 position toggle so play safe
+            // it therefore has an impact on configuring hardware, available switches, simulator widget, yaml encode and decode
+            sw.dflt = Board::SWITCH_3POS;
+          }
+          // make the same
+          sw.type = sw.dflt;
         }
 
         switches->insert(switches->end(), sw);
