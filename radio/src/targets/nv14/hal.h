@@ -423,7 +423,7 @@
 #define BT_TX_GPIO                      GPIO_PIN(GPIOB, 10) // PB.10
 #define BT_RX_GPIO                      GPIO_PIN(GPIOB, 11) // PB.11
 #define BT_EN_GPIO                      GPIO_PIN(GPIOI, 8)  // PI.08
-#define BT_CONNECTED_GPIO               GPIO_PIN(GPIOJ, 10) // PJ.10
+#define BT_CONNECTED_GPIO               GPIO_PIN(GPIOJ, 1)  // PJ.01
 #define BT_CMD_MODE_GPIO                GPIO_PIN(GPIOH, 6)  // PH.06
 
 // Millisecond timer
