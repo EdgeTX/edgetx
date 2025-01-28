@@ -161,7 +161,7 @@ static void _i2c_reInit(void)
 
 static int _i2c_read(uint8_t addr, uint32_t reg, uint8_t regSize, uint8_t* data, uint16_t len, uint32_t timeout)
 {
-  if (regSize > 2) {
+  if (touchController == TC_CST836U || regSize > 2) {
     if(stm32_i2c_master_tx(TOUCH_I2C_BUS, addr, (uint8_t*) &reg, regSize, 3) < 0)
       return false;
     delay_us(5);
