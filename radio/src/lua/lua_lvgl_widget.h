@@ -466,6 +466,7 @@ class LvglWidgetTextButtonBase : public LvglWidgetObject
   uint32_t textHash = -1;
 
   const char *txt = "";
+  LcdFlags font = FONT(STD);
   coord_t rounded = -1;
   LcdFlags textColor = -1;
   LcdFlags currentTextColor = -1;
@@ -481,6 +482,7 @@ class LvglWidgetTextButton : public LvglWidgetTextButtonBase
  public:
   LvglWidgetTextButton() : LvglWidgetTextButtonBase() {}
 
+  void setFont(LcdFlags font);
   void setChecked(bool check);
 
   void build(lua_State *L) override;
@@ -504,6 +506,8 @@ class LvglWidgetMomentaryButton : public LvglWidgetTextButtonBase
 {
  public:
   LvglWidgetMomentaryButton() : LvglWidgetTextButtonBase() {}
+
+  void setFont(LcdFlags font);
 
   void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
@@ -573,12 +577,11 @@ class LvglWidgetNumberEdit : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetSlider : public LvglWidgetObject
+class LvglWidgetSliderBase : public LvglWidgetObject
 {
  public:
-  LvglWidgetSlider() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
+  LvglWidgetSliderBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -588,6 +591,26 @@ class LvglWidgetSlider : public LvglWidgetObject
   int setValueFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetSlider : public LvglWidgetSliderBase
+{
+ public:
+  LvglWidgetSlider() : LvglWidgetSliderBase() {}
+
+  void build(lua_State *L) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
+{
+ public:
+  LvglWidgetVerticalSlider() : LvglWidgetSliderBase() {}
+
+  void build(lua_State *L) override;
 };
 
 //-----------------------------------------------------------------------------

@@ -518,7 +518,7 @@ void LvglWidgetLabel::setFont(LcdFlags font)
 {
   if (lvobj) {
     this->font = font;
-    lv_obj_set_style_text_font(lvobj, getFont(font), LV_PART_MAIN);
+    etx_font(lvobj, FONT_INDEX(font));
   }
 }
 
@@ -1349,6 +1349,8 @@ void LvglWidgetTextButtonBase::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "text")) {
     txt = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "font")) {
+    font = luaL_checkunsigned(L, -1);
   } else if (!strcmp(key, "cornerRadius")) {
     rounded = luaL_checkunsigned(L, -1);
   } else if (!strcmp(key, "textColor")) {
@@ -1423,6 +1425,14 @@ void LvglWidgetTextButton::clearRefs(lua_State *L)
   LvglWidgetTextButtonBase::clearRefs(L);
 }
 
+void LvglWidgetTextButton::setFont(LcdFlags font)
+{
+  if (window) {
+    this->font = font;
+    ((TextButton*)window)->setFont(FONT_INDEX(font));
+  }
+}
+
 void LvglWidgetTextButton::setChecked(bool checked)
 {
   this->checked = checked;
@@ -1442,6 +1452,7 @@ void LvglWidgetTextButton::build(lua_State *L)
     });
   }
   window = btn;
+  setFont(font);
   setChecked(checked);
   setColor(color);
   setRounded();
@@ -1455,6 +1466,14 @@ void LvglWidgetMomentaryButton::parseParam(lua_State *L, const char *key)
     releaseFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
     LvglWidgetTextButtonBase::parseParam(L, key);
+  }
+}
+
+void LvglWidgetMomentaryButton::setFont(LcdFlags font)
+{
+  if (window) {
+    this->font = font;
+    ((MomentaryButton*)window)->setFont(FONT_INDEX(font));
   }
 }
 
@@ -1475,6 +1494,7 @@ void LvglWidgetMomentaryButton::build(lua_State *L)
           [=]() {
             pcallSimpleFunc(L, releaseFunction);
           });
+  setFont(font);
   setColor(color);
   setRounded();
 }
@@ -1613,7 +1633,7 @@ void LvglWidgetNumberEdit::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-void LvglWidgetSlider::parseParam(lua_State *L, const char *key)
+void LvglWidgetSliderBase::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "get")) {
     getValueFunction = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -1628,17 +1648,30 @@ void LvglWidgetSlider::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetSlider::clearRefs(lua_State *L)
+void LvglWidgetSliderBase::clearRefs(lua_State *L)
 {
   clearRef(L, getValueFunction);
   clearRef(L, setValueFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
+//-----------------------------------------------------------------------------
+
 void LvglWidgetSlider::build(lua_State *L)
 {
   window = new Slider(
       lvglManager->getCurrentParent(), w, vmin, vmax,
+      [=]() { return pcallGetIntVal(L, getValueFunction); },
+      [=](int val) { pcallSetIntVal(L, setValueFunction, val); });
+  window->setPos(x, y);
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetVerticalSlider::build(lua_State *L)
+{
+  window = new VerticalSlider(
+      lvglManager->getCurrentParent(), h, vmin, vmax,
       [=]() { return pcallGetIntVal(L, getValueFunction); },
       [=](int val) { pcallSetIntVal(L, setValueFunction, val); });
   window->setPos(x, y);

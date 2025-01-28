@@ -20,19 +20,17 @@
 
 #include "window.h"
 
-class Slider : public Window
+class SliderBase : public Window
 {
  public:
-  Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
+  SliderBase(Window* parent, coord_t width, coord_t height, int32_t vmin, int32_t vmax,
          std::function<int()> getValue, std::function<void(int)> setValue);
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "Slider"; }
-#endif
 
   void setValue(int value);
 
   void update();
+
+  void enable(bool enabled = true) override;
 
  protected:
   int vmin;
@@ -44,10 +42,38 @@ class Slider : public Window
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
 
-  static void slider_changed_cb(lv_event_t* e);
-  static void on_draw(lv_event_t* e);
-  void delayedInit();
-
   void deleteLater(bool detach, bool trash) override;
   void checkEvents() override;
+
+  static void slider_changed_cb(lv_event_t* e);
+};
+
+class Slider : public SliderBase
+{
+ public:
+  Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
+         std::function<int()> getValue, std::function<void(int)> setValue);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "Slider"; }
+#endif
+
+ protected:
+  static void on_draw(lv_event_t* e);
+  void delayedInit();
+};
+
+class VerticalSlider : public SliderBase
+{
+ public:
+  VerticalSlider(Window* parent, coord_t height, int32_t vmin, int32_t vmax,
+         std::function<int()> getValue, std::function<void(int)> setValue);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "VerticalSlider"; }
+#endif
+
+ protected:
+  static void on_draw(lv_event_t* e);
+  void delayedInit();
 };

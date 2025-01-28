@@ -94,6 +94,11 @@ class TextButton : public ButtonBase
     }
   }
 
+  void setFont(FontIndex font)
+  {
+    etx_font(label, font);
+  }
+
   void setWrap()
   {
     lv_obj_set_width(label, lv_pct(100));
@@ -141,6 +146,11 @@ class MomentaryButton : public FormField
       text = std::move(value);
       lv_label_set_text(label, text.c_str());
     }
+  }
+
+  void setFont(FontIndex font)
+  {
+    etx_font(label, font);
   }
 
  protected:
