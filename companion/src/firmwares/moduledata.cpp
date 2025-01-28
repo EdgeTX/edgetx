@@ -608,6 +608,8 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_CROSSFIRE:
               case MODULE_TYPE_MULTIMODULE:
               case MODULE_TYPE_GHOST:
+              case MODULE_TYPE_PPM:
+              case MODULE_TYPE_SBUS:
                 return true;
               default:
                 return false;

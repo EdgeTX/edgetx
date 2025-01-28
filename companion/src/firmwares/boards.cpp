@@ -349,8 +349,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasTrainerModuleSBUS:
       return ((IS_TARANIS_X9LITE(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_X9LITES(board)) ||
               IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X7_ACCESS(board) || IS_RADIOMASTER_ZORRO(board) ||
-              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board)) ||
-              IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
+              IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
+              IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_GX12(board) || IS_JUMPER_T20(board) || 
+              IS_JUMPER_BUMBLEBEE(board)) || IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
               (getCapability(board, HasExternalModuleSupport) && (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
 
     case LcdOLED:
@@ -856,13 +857,14 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
       return EXTMODSIZE_STD;
   }
 
-  if (IS_TARANIS_X9LITE(board)    ||
-      IS_RADIOMASTER_ZORRO(board) ||
-      IS_RADIOMASTER_MT12(board) ||
+  if (IS_TARANIS_X9LITE(board)     ||
+      IS_RADIOMASTER_ZORRO(board)  ||
+      IS_RADIOMASTER_MT12(board)   ||
       IS_RADIOMASTER_POCKET(board) ||
-      IS_JUMPER_TLITE(board)      ||
-      IS_JUMPER_TPRO(board)       ||
-      IS_JUMPER_T20(board)       ||
+      IS_JUMPER_TLITE(board)       ||
+      IS_JUMPER_TPRO(board)        ||
+      IS_JUMPER_T20(board)         ||
+      IS_JUMPER_BUMBLEBEE(board)  ||
       IS_BETAFPV_LR3PRO(board))
     return EXTMODSIZE_SMALL;
 
