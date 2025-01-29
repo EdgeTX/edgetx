@@ -80,30 +80,29 @@
   // Monitor pin
   #define VBUS_MONITOR_GPIO               GPIO_PIN(GPIOJ, 14) // PJ.14
 
-// Switches
-#define HARDWARE_SWITCH_A
-#define STORAGE_SWITCH_A
-#define HARDWARE_SWITCH_B
-#define STORAGE_SWITCH_B
-#define HARDWARE_SWITCH_C
-#define STORAGE_SWITCH_C
-#define HARDWARE_SWITCH_D
-#define STORAGE_SWITCH_D
-#define HARDWARE_SWITCH_E
-#define STORAGE_SWITCH_E
-#define HARDWARE_SWITCH_F
-#define STORAGE_SWITCH_F
-#define HARDWARE_SWITCH_G
-#define STORAGE_SWITCH_G
-#define HARDWARE_SWITCH_H
-#define STORAGE_SWITCH_H
+  // Switches
+  #define HARDWARE_SWITCH_A
+  #define STORAGE_SWITCH_A
+  #define HARDWARE_SWITCH_B
+  #define STORAGE_SWITCH_B
+  #define HARDWARE_SWITCH_C
+  #define STORAGE_SWITCH_C
+  #define HARDWARE_SWITCH_D
+  #define STORAGE_SWITCH_D
+  #define HARDWARE_SWITCH_E
+  #define STORAGE_SWITCH_E
+  #define HARDWARE_SWITCH_F
+  #define STORAGE_SWITCH_F
+  #define HARDWARE_SWITCH_G
+  #define STORAGE_SWITCH_G
+  #define HARDWARE_SWITCH_H
+  #define STORAGE_SWITCH_H
 
-// Index of all switches / trims
-#define KEYS_GPIO_ACTIVE_HIGH
-#define TRIMS_GPIO_ACTIVE_HIGH
+  // Index of all switches / trims
+  #define KEYS_GPIO_ACTIVE_HIGH
+  #define TRIMS_GPIO_ACTIVE_HIGH
 
   // ADC
-
   #define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_2      // PA.02
   #define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_3      // PA.03
   #define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_4      // PA.04
@@ -497,10 +496,6 @@
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14)   // PB.14 input
 #define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13)   // PB.13 input
-//#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
-//  #define UCHARGER_GPIO_INV
-//  #define UCHARGER_CHARGE_END_GPIO_INV
-//#endif
 
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
   #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)    // PG.03 output
