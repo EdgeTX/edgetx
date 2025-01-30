@@ -253,29 +253,6 @@ static bool isSourceTelemCompAvailable(int source) {
   return isTelemetryFieldComparisonAvailable(qr.quot);
 }
 
-enum SrcTypes {
-  SRC_INPUT = 1 << 0,
-  SRC_LUA = 1 << 1,
-  SRC_STICK = 1 << 2,
-  SRC_POT = 1 << 3,
-  SRC_TILT = 1 << 4,
-  SRC_SPACEMOUSE = 1 << 5,
-  SRC_MINMAX = 1 << 6,
-  SRC_HELI = 1 << 7,
-  SRC_TRIM = 1 << 8,
-  SRC_SWITCH = 1 << 9,
-  SRC_FUNC_SWITCH = 1 << 10,
-  SRC_LOGICAL_SWITCH = 1 << 11,
-  SRC_TRAINER = 1 << 12,
-  SRC_CHANNEL = 1 << 13,
-  SRC_CHANNEL_ALL = 1 << 14,
-  SRC_GVAR = 1 << 15,
-  SRC_TX = 1 << 16,
-  SRC_TIMER = 1 << 17,
-  SRC_TELEM = 1 << 18,
-  SRC_TELEM_COMP = 1 << 19,
-};
-
 struct sourceAvailableCheck {
   uint16_t first;
   uint16_t last;
@@ -310,6 +287,7 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM_COMP, isSourceTelemCompAvailable },
+  { MIXSRC_NONE, MIXSRC_NONE, SRC_NONE, sourceIsAvailable },
 };
 
 bool checkSourceAvailable(int source, uint32_t sourceTypes)

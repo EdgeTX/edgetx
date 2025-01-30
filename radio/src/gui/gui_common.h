@@ -57,6 +57,7 @@ enum SwitchContext
 
 int getFirstAvailable(int min, int max, IsValueAvailable isValueAvailable);
 
+bool checkSourceAvailable(int source, uint32_t sourceTypes);
 bool isInputAvailable(int input);
 bool isSourceAvailableInInputs(int source);
 bool isThrottleSourceAvailable(int source);

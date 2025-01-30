@@ -1991,15 +1991,28 @@ void LvglWidgetSwitchPicker::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetSourcePicker::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "filter")) {
+    filter = luaL_checkunsigned(L, -1);
+  } else {
+    LvglWidgetPicker::parseParam(L, key);
+  }
+}
+
 void LvglWidgetSourcePicker::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
-  window = new SourceChoice(
+  auto c = new SourceChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
       0, MIXSRC_LAST_TELEM,
       [=]() { return pcallGetIntVal(L, getFunction); },
       [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); },
-      true);
+      filter & SRC_INVERT);
+  c->setAvailableHandler([=](int value) {
+    return checkSourceAvailable(value, filter);
+  });
+  window = c;
 }
 
 //-----------------------------------------------------------------------------

@@ -784,6 +784,11 @@ class LvglWidgetSourcePicker : public LvglWidgetPicker
   LvglWidgetSourcePicker() : LvglWidgetPicker() {}
 
   void build(lua_State *L) override;
+
+ protected:
+  uint32_t filter = 0xFFFFFFFF;
+
+  void parseParam(lua_State *L, const char *key) override;
 };
 
 //-----------------------------------------------------------------------------
