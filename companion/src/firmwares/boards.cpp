@@ -531,7 +531,6 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
                               {tr("EXT2").toStdString(), "EXT2"},
                               {tr("EXT3").toStdString(), "EXT3"},
                               {tr("EXT4").toStdString(), "EXT4"},
-
                           });
   } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
     tbl.insert(tbl.end(), {
