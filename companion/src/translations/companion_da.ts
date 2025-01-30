@@ -710,7 +710,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1384"/>
         <source>Simulator controls</source>
-        <translation>Simulator indstilling</translation>
+        <translation>Simulator styring</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="112"/>
@@ -1158,7 +1158,7 @@ Error description: %4</source>
     <message>
         <location filename="../firmwares/boards.cpp" line="1095"/>
         <source>Flight</source>
-        <translation type="unfinished">Flyvning</translation>
+        <translation>Flyvning</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="1095"/>
@@ -2208,12 +2208,12 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="134"/>
         <source>LCD to Video</source>
-        <translation type="unfinished"></translation>
+        <translation>LCD til video</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="137"/>
         <source>Push Custom Switch %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Tryk tilpasset kontakt %1</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="299"/>
@@ -2233,7 +2233,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="305"/>
         <source>Trims</source>
-        <translation type="unfinished">Trim</translation>
+        <translation>Trim</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="356"/>
@@ -2318,12 +2318,12 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="387"/>
         <source>Source (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilde (%)</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="389"/>
         <source>Source (value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilde (værdi)</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="391"/>
@@ -2600,7 +2600,7 @@ Vil du indlæse indstillinger fra en fil?</translation>
     <message>
         <location filename="../modeledit/colorcustomscreens.cpp" line="336"/>
         <source>%1 mode</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 tilstand</translation>
     </message>
     <message>
         <location filename="../modeledit/colorcustomscreens.cpp" line="339"/>
@@ -3180,7 +3180,7 @@ EEPROM lager er på 4096 bytes, men kun de første 2048 bytes er i brug</transla
     <message>
         <location filename="../modeledit/expodialog.ui" line="86"/>
         <source>Modes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilstand</translation>
     </message>
     <message>
         <location filename="../modeledit/expodialog.ui" line="100"/>
@@ -3774,7 +3774,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1255"/>
         <source>Fatfish F16</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1277"/>
@@ -3784,7 +3784,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1371"/>
         <source>HelloRadioSky V16</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1408"/>
@@ -3794,12 +3794,12 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1418"/>
         <source>Jumper T-Pro S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1439"/>
         <source>Jumper T12 MAX</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1446"/>
@@ -3906,7 +3906,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1508"/>
         <source>Radiomaster MT12</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="1528"/>
@@ -4455,7 +4455,7 @@ Du anvender aktuelt:
     <message>
         <location filename="../firmwares/flightmodedata.cpp" line="46"/>
         <source>DM</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4463,7 +4463,7 @@ Du anvender aktuelt:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="155"/>
         <source>Rotary Encoder %1</source>
-        <translation>Indstillnings hjul %1</translation>
+        <translation>Drejekontakt %1</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="219"/>
@@ -4478,12 +4478,14 @@ Du anvender aktuelt:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="123"/>
         <source>Use Trim from %1 Mode %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>kontrol !</translatorcomment>
+        <translation>Brug trim fra %1 tilstand %2</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="125"/>
         <source>Use Trim from %1 Mode %2 + Own Trim as an offset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>kontrol !</translatorcomment>
+        <translation>Brug trim fra %1 tilstand %2 + eget trim som offset</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="193"/>
@@ -4498,27 +4500,28 @@ Du anvender aktuelt:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="227"/>
         <source>GV%1</source>
-        <translation type="unfinished">GV%1</translation>
+        <translation>GV%1</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="356"/>
         <source>Own value</source>
-        <translation type="unfinished">Egen værdi</translation>
+        <translation>Egen værdi</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="359"/>
         <source>%1 Mode %2 value</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>kontrol !</translatorcomment>
+        <translation>%1 tilstand %2 værdi</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="512"/>
         <source>Warning: Global variable links back to itself. %1 Mode 0 value used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Advarsel: Global værdi refererer til sig selv. %1 tilstand får værdi 0.</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="621"/>
         <source>Warning: Rotary encoder links back to itself. %1 Mode 0 value used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Advarsel: Drejekontakt refererer til sig selv. %1 tilstand får værdi 0.</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="698"/>
@@ -4529,47 +4532,47 @@ Du anvender aktuelt:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="740"/>
         <source>Clear %1 Mode. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Slet tilstand %1. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="777"/>
         <source>Clear all %1 Modes. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Slet alle %1 tilstande. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="812"/>
         <source>Cut %1 Mode. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Klip tilstand %1. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="820"/>
         <source>Delete %1 Mode. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Slet %1 tilstand. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="1176"/>
         <source>Clear Global Variable across all %1 Modes. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Slet Globale variable på tværs af alle %1 tilstande. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="1200"/>
         <source>Clear all Global Variables for all %1 Modes. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Slet alle Globale variable for alle %1 tilstande. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="1211"/>
         <source>Clear all Global Variables for this %1 Mode. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Slet alle Globale variable for denne %1 tilstand. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="1263"/>
         <source>Cut Global Variable across all %1 Modes. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Klip Golbal Værdi for alle tilstande %1. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="1341"/>
         <source>Paste to selected Global Variable across all %1 Modes. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Indsæt i valgte Globale variable på tværs af alle %1 tilstande. Er du sikker?</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="115"/>
@@ -4691,7 +4694,7 @@ Du anvender aktuelt:
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="1462"/>
         <source>%1 Mode %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 tilstand %2</translation>
     </message>
     <message>
         <location filename="../modeledit/flightmodes.cpp" line="1465"/>
@@ -5111,7 +5114,7 @@ Disse indstillinger gælder for alle modeller.</translation>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="71"/>
         <source>%1 Modes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 tilstand</translation>
     </message>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="77"/>
@@ -5323,22 +5326,22 @@ Disse indstillinger gælder for alle modeller.</translation>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1003"/>
         <source>Mode 1 (RUD ELE THR AIL)</source>
-        <translation type="unfinished">Mode 1 (SID HØJ GAS KRÆ)</translation>
+        <translation>Mode 1 (SID HØJ GAS KRÆ)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1005"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
-        <translation type="unfinished">Mode 2 (SID GAS HØJ KRÆ)</translation>
+        <translation>Mode 2 (SID GAS HØJ KRÆ)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1007"/>
         <source>Mode 3 (AIL ELE THR RUD)</source>
-        <translation type="unfinished">Mode 3 (KRÆ HØJ GAS SID)</translation>
+        <translation>Mode 3 (KRÆ HØJ GAS SID)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="1009"/>
         <source>Mode 4 (AIL THR ELE RUD)</source>
-        <translation type="unfinished">Mode 4 (KRÆ GAS HØJ SID)</translation>
+        <translation>Mode 4 (KRÆ GAS HØJ SID)</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="558"/>
@@ -5740,7 +5743,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2519"/>
         <source>Power Auto Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Strøm slukkes efter</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="582"/>
@@ -6323,12 +6326,12 @@ Værdier mellem 5 og 12 volt accepteres</translation>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="402"/>
         <source>Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Styring</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="402"/>
         <source>Keys + Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Knap + styring</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="437"/>
@@ -6509,12 +6512,12 @@ Er du sikker?</translation>
     <message>
         <location filename="../generaledit/hardware.cpp" line="361"/>
         <source>Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Skærm</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="363"/>
         <source>Invert</source>
-        <translation type="unfinished">Omvendt (INV)</translation>
+        <translation>Omvendt (INV)</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="383"/>
@@ -8401,8 +8404,8 @@ Vil du gemme ændringer?</translation>
         <location filename="../mdichild.cpp" line="1125"/>
         <source>Delete %n selected model(s)?</source>
         <translation>
-            <numerusform>Slet %n valgte model(ler)?</numerusform>
-            <numerusform></numerusform>
+            <numerusform>Slet %n valgte model?</numerusform>
+            <numerusform>Slet %n valgte modeller?</numerusform>
         </translation>
     </message>
     <message>
@@ -8720,7 +8723,7 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../storage/minizinterface.cpp" line="222"/>
         <source>Decompression interrupted</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekomprimering afbrudt</translation>
     </message>
     <message>
         <location filename="../storage/minizinterface.cpp" line="228"/>
@@ -8801,17 +8804,17 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../modeledit/mixerdialog.ui" line="278"/>
         <source>Modes</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilstand</translation>
     </message>
     <message>
         <location filename="../modeledit/mixerdialog.ui" line="296"/>
         <source>2 Beeps</source>
-        <translation type="unfinished"></translation>
+        <translation>2 bip</translation>
     </message>
     <message>
         <location filename="../modeledit/mixerdialog.ui" line="301"/>
         <source>3 Beeps</source>
-        <translation type="unfinished"></translation>
+        <translation>3 bip</translation>
     </message>
     <message>
         <location filename="../modeledit/mixerdialog.ui" line="479"/>
@@ -8821,7 +8824,7 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../modeledit/mixerdialog.ui" line="651"/>
         <source>Precision</source>
-        <translation type="unfinished">Præcision</translation>
+        <translation>Nøjagtighed</translation>
     </message>
     <message>
         <location filename="../modeledit/mixerdialog.ui" line="72"/>
@@ -9169,7 +9172,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1504"/>
         <source>TH</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1620"/>
@@ -9383,7 +9386,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/modeloptions.cpp" line="85"/>
         <source>%1 Modes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 tilstand</translation>
     </message>
     <message>
         <location filename="../modeledit/modeloptions.cpp" line="92"/>
@@ -9536,7 +9539,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modelprinter.cpp" line="443"/>
         <source>Delay precision(0.00)</source>
-        <translation type="unfinished"></translation>
+        <translation>Forsinkelse opløsning(0.00)</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="446"/>
@@ -10114,7 +10117,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/setup_module.ui" line="507"/>
         <source>Arm using</source>
-        <translation>Aktiver m.</translation>
+        <translation>Aktiver med</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_module.ui" line="507"/>
@@ -10124,7 +10127,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/setup_module.ui" line="507"/>
         <source>Switch</source>
-        <translation type="unfinished">Switch</translation>
+        <translation>Switch</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_module.ui" line="482"/>
@@ -11644,12 +11647,12 @@ x</translation>
     <message>
         <location filename="../simulation/radiooutputswidget.cpp" line="228"/>
         <source>FM</source>
-        <translation type="unfinished">FT</translation>
+        <translation>FT</translation>
     </message>
     <message>
         <location filename="../simulation/radiooutputswidget.cpp" line="228"/>
         <source>DM</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/radiooutputswidget.cpp" line="237"/>
@@ -11763,66 +11766,66 @@ x</translation>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="141"/>
         <source>Trim Rud</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim sideror</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="141"/>
         <source>Trim Ele</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim sideror</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="141"/>
         <source>Trim Thr</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim gas</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="141"/>
         <source>Trim Ail</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim krængror</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="141"/>
         <location filename="../firmwares/rawsource.cpp" line="145"/>
         <source>Trim 5</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim 5</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="141"/>
         <location filename="../firmwares/rawsource.cpp" line="145"/>
         <source>Trim 6</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim 6</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="141"/>
         <location filename="../firmwares/rawsource.cpp" line="145"/>
         <source>Trim 7</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim 7</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="141"/>
         <location filename="../firmwares/rawsource.cpp" line="145"/>
         <source>Trim 8</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim 8</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="145"/>
         <source>Trim ST</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="145"/>
         <source>Trim TH</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="145"/>
         <source>Trim 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim 3</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="145"/>
         <source>Trim 4</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim 4</translation>
     </message>
     <message>
         <location filename="../firmwares/rawsource.cpp" line="153"/>
@@ -11852,7 +11855,7 @@ x</translation>
     <message>
         <location filename="../constants.h" line="97"/>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
 </context>
 <context>
@@ -11916,130 +11919,130 @@ x</translation>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="41"/>
         <source>Trim Rud-</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim sid-</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="41"/>
         <source>Trim Rud+</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim sid+</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="42"/>
         <source>Trim Ele-</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim høj-</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="42"/>
         <source>Trim Ele+</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim høj+</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="43"/>
         <source>Trim Thr-</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim gas-</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="43"/>
         <source>Trim Thr+</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim gas+</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="44"/>
         <source>Trim Ail-</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim kræ-</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="44"/>
         <source>Trim Ail+</source>
-        <translation type="unfinished"></translation>
+        <translation>Trim kræ+</translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="45"/>
         <location filename="../firmwares/rawswitch.cpp" line="56"/>
         <source>Trim T5-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="45"/>
         <location filename="../firmwares/rawswitch.cpp" line="56"/>
         <source>Trim T5+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <location filename="../firmwares/rawswitch.cpp" line="57"/>
         <source>Trim T6-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="46"/>
         <location filename="../firmwares/rawswitch.cpp" line="57"/>
         <source>Trim T6+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <location filename="../firmwares/rawswitch.cpp" line="58"/>
         <source>Trim T7-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="47"/>
         <location filename="../firmwares/rawswitch.cpp" line="58"/>
         <source>Trim T7+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="48"/>
         <location filename="../firmwares/rawswitch.cpp" line="59"/>
         <source>Trim T8-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="48"/>
         <location filename="../firmwares/rawswitch.cpp" line="59"/>
         <source>Trim T8+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="52"/>
         <source>Trim ST-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="52"/>
         <source>Trim ST+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="53"/>
         <source>Trim TH-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="53"/>
         <source>Trim TH+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="54"/>
         <source>Trim T3-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="54"/>
         <source>Trim T3+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="55"/>
         <source>Trim T4-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="55"/>
         <source>Trim T4+</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/rawswitch.cpp" line="68"/>
@@ -13129,7 +13132,7 @@ NOTE: any existing EEPROM data incompatible with the selected radio type may be 
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="14"/>
         <source>EdgeTX Simulator</source>
-        <translation type="unfinished">EdgeTX simulator</translation>
+        <translation>EdgeTX simulator</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="48"/>
@@ -13334,7 +13337,7 @@ NOTE: any existing EEPROM data incompatible with the selected radio type may be 
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="481"/>
         <source>&lt;b&gt;Simulator Controls:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Simulator kontroller:&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Simulator styring:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="483"/>
@@ -13573,7 +13576,7 @@ Standard valg findes i den valgte radioprofil.</translation>
     <message>
         <location filename="../simulation/simulatorwidget.cpp" line="842"/>
         <source>Flight Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Flyve tilstand</translation>
     </message>
     <message>
         <location filename="../simulation/simulatorwidget.cpp" line="842"/>
@@ -14286,32 +14289,32 @@ For mange fejl - afbryder.</translation>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="20"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="82"/>
         <source>2RSS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="100"/>
         <source>TQly</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="112"/>
         <source>Sats</source>
-        <translation type="unfinished"></translation>
+        <translation>Satelitter</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="139"/>
         <source>RPWR</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="157"/>
         <source>RxBt</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="175"/>
@@ -14320,48 +14323,48 @@ For mange fejl - afbryder.</translation>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="945"/>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1278"/>
         <source>dB</source>
-        <translation type="unfinished">dB</translation>
+        <translation>dB</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="193"/>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1206"/>
         <source>GPS</source>
-        <translation type="unfinished">GPS</translation>
+        <translation>GPS</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="211"/>
         <source>dBm</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="229"/>
         <source>m</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="247"/>
         <source>ANT</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="265"/>
         <source>km/h</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="283"/>
         <source>VSpd</source>
-        <translation type="unfinished">Vertikal hastighed</translation>
+        <translation>Vertikal hastighed</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="301"/>
         <source>Hdg</source>
-        <translation type="unfinished">Retning</translation>
+        <translation>Retning</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="332"/>
         <source>RSNR</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="368"/>
@@ -14370,265 +14373,266 @@ For mange fejl - afbryder.</translation>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1038"/>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1441"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="422"/>
         <source>Degrees</source>
-        <translation type="unfinished">grader</translation>
+        <translation>grader</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="464"/>
         <source>Capa</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="498"/>
         <source>0mW</source>
-        <translation type="unfinished">2 W {0m?}</translation>
+        <translation>2 W {0m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="503"/>
         <source>10mW</source>
-        <translation type="unfinished">2 W {10m?}</translation>
+        <translation>2 W {10m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="508"/>
         <source>25mW</source>
-        <translation type="unfinished">2 W {25m?}</translation>
+        <translation>2 W {25m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="513"/>
         <source>50mW</source>
-        <translation type="unfinished">2 W {50m?}</translation>
+        <translation>2 W {50m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="518"/>
         <source>100mW</source>
-        <translation type="unfinished">2 W {100m?}</translation>
+        <translation>2 W {100m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="523"/>
         <source>250mW</source>
-        <translation type="unfinished">2 W {250m?}</translation>
+        <translation>2 W {250m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="528"/>
         <source>500mW</source>
-        <translation type="unfinished">2 W {500m?}</translation>
+        <translation>2 W {500m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="533"/>
         <source>1000mW</source>
-        <translation type="unfinished">2 W {1000m?}</translation>
+        <translation>2 W {1000m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="538"/>
         <source>2000mW</source>
-        <translation type="unfinished">2 W {2000m?}</translation>
+        <translation>2 W {2000m?}</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="575"/>
         <source>Bat%</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="605"/>
         <source>Save Telemetry Values</source>
-        <translation type="unfinished">Gem telemetri værdier</translation>
+        <translation>Gem telemetri værdier</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="623"/>
         <source>m/s</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="641"/>
         <source>Lat,Lon
 (dec.deg.)</source>
-        <translation type="unfinished">Lat,Lon
+        <translation>Bred,læng
 (dec.grad)</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="681"/>
         <source>GSpd</source>
-        <translation type="unfinished">GHast</translation>
+        <translation>GHast</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="729"/>
         <source>Yaw</source>
-        <translation type="unfinished"></translation>
+        <translation>Side</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="747"/>
         <source>FM</source>
-        <translation type="unfinished">FT</translation>
+        <translation>FT</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="783"/>
         <source>V</source>
-        <translation type="unfinished">V</translation>
+        <translation>V</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="801"/>
         <source>TPWR</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="849"/>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1315"/>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1459"/>
         <source>Radians</source>
-        <translation type="unfinished"></translation>
+        <translation>Radian</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="888"/>
         <source>TRSS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="906"/>
         <source>TSNR</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1002"/>
         <source>RFMD</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1050"/>
         <source>Battery Monitoring</source>
-        <translation type="unfinished"></translation>
+        <translation>Batteri overvåg</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1068"/>
         <source>Ptch</source>
-        <translation type="unfinished"></translation>
+        <translation>Stige</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1086"/>
         <source>RQly</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1104"/>
         <source>mAh</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1116"/>
         <source>Attitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Højde</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1194"/>
         <source>1RSS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1224"/>
         <source>Curr</source>
-        <translation type="unfinished">Strøm</translation>
+        <translation>Strøm</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1242"/>
         <source>TRSP</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1260"/>
         <source>Roll</source>
-        <translation type="unfinished"></translation>
+        <translation>Krænge</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1290"/>
         <source>Load Telemetry Values</source>
-        <translation type="unfinished">Indlæs telemetri værdier</translation>
+        <translation>Indlæs telemetri værdier</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1348"/>
         <source>Barometer</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1387"/>
         <source>mw</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1405"/>
         <source>Alt</source>
-        <translation type="unfinished">Højde</translation>
+        <translation>Højde</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1423"/>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1519"/>
         <source>RRSP</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1531"/>
         <source>Flight Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>Fartøj (FC)</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1543"/>
         <source>GPS Sim</source>
-        <translation type="unfinished"></translation>
+        <translation>GPS simulering</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1576"/>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="379"/>
         <source>Run</source>
-        <translation type="unfinished">Start</translation>
+        <translation>Start</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.ui" line="1588"/>
         <source>25.9973,-97.1572</source>
-        <translation type="unfinished">25.9973,-97.1572</translation>
+        <translation>25.9973,-97.1572</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="382"/>
         <source>Stop</source>
-        <translation type="unfinished">Stop</translation>
+        <translation>Stop</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="392"/>
         <source>Save Telemetry</source>
-        <translation type="unfinished">Gem telemetri</translation>
+        <translation>Gem telemetri</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="392"/>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="479"/>
         <source>.tlm Files (*.tlm)</source>
-        <translation type="unfinished"></translation>
+        <translation>.tlm fil (*.tlm)</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="398"/>
         <source>Unable to open file for writing.
 %1</source>
-        <translation type="unfinished">Ikke muligt at åbne fil for skrivning. %1</translation>
+        <translation>Ikke muligt at åbne fil for skrivning. %1</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="479"/>
         <source>Open Telemetry File</source>
-        <translation type="unfinished">Åbn telemetri fil</translation>
+        <translation>Åbn telemetri fil</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="486"/>
         <source>Unable to open file for reading.
 %1</source>
-        <translation type="unfinished">Ikke muligt at åbne fil for læsning. %1</translation>
+        <translation>Ikke muligt at åbne fil for læsning.
+%1</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="498"/>
         <source>Not a CRSF telemetry values file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikke en telemetri fil med CRSF værdier.</translation>
     </message>
 </context>
 <context>
@@ -14636,7 +14640,7 @@ For mange fejl - afbryder.</translation>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="20"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="64"/>
@@ -14653,295 +14657,295 @@ For mange fejl - afbryder.</translation>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2594"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2615"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="67"/>
         <source>Cels</source>
-        <translation type="unfinished">Celler</translation>
+        <translation>Celler</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="140"/>
         <source>Fuel Qty</source>
-        <translation type="unfinished">Brændstof mængde</translation>
+        <translation>Brændstof mgd</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="161"/>
         <source>GAlt</source>
-        <translation type="unfinished">GHøj</translation>
+        <translation>GHøj</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="173"/>
         <source>Save Telemetry Values</source>
-        <translation type="unfinished">Gem telemetri værdier</translation>
+        <translation>Gem telemetri værdier</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="194"/>
         <source>VFAS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="212"/>
         <source>ml</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="260"/>
         <source>A4</source>
-        <translation type="unfinished">A4</translation>
+        <translation>A4</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="281"/>
         <source>ASpd</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="434"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1987"/>
         <source>°C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="482"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2477"/>
         <source>Volts</source>
-        <translation type="unfinished">volt</translation>
+        <translation>volt</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="711"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1394"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1884"/>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="723"/>
         <source>Run/Stop</source>
-        <translation type="unfinished">Start/Stop</translation>
+        <translation>Start/Stop</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1070"/>
         <source>Tmp1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1088"/>
         <source>RxBt</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1109"/>
         <source>GPS</source>
-        <translation type="unfinished">GPS</translation>
+        <translation>GPS</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1232"/>
         <source>m/s</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1280"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1328"/>
         <source>Degrees</source>
-        <translation type="unfinished">grader</translation>
+        <translation>grader</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1340"/>
         <source>GPS sim</source>
-        <translation type="unfinished">GPS simulator</translation>
+        <translation>GPS simulator</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1358"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1650"/>
         <source>km/h</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1376"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2350"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2549"/>
         <source>V / ratio</source>
-        <translation type="unfinished">V / forhold</translation>
+        <translation>V / forhold</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1433"/>
         <source>*</source>
-        <translation type="unfinished">*</translation>
+        <translation>*</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1451"/>
         <source>AccZ</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1469"/>
         <source>dd-MM-yyyy
 hh:mm:ss</source>
-        <translation type="unfinished">dd-MM-åååå
+        <translation>dd-MM-åååå
 tt:mm:ss</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1491"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1942"/>
         <source>Meters</source>
-        <translation type="unfinished">meter</translation>
+        <translation>meter</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1539"/>
         <source>RAS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1557"/>
         <source>AccX</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1578"/>
         <source>Tmp2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1695"/>
         <source>dB</source>
-        <translation type="unfinished">dB</translation>
+        <translation>dB</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1713"/>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2368"/>
         <source>RPM</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1758"/>
         <source>A1</source>
-        <translation type="unfinished">A1</translation>
+        <translation>A1</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1776"/>
         <source>AccY</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1797"/>
         <source>VSpd</source>
-        <translation type="unfinished">Vertikal hastighed</translation>
+        <translation>Vertikal hastighed</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1809"/>
         <source>Load Telemetry Values</source>
-        <translation type="unfinished">Indlæs telemetri værdier</translation>
+        <translation>Indlæs telemetri værdier</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1902"/>
         <source>A2</source>
-        <translation type="unfinished">A2</translation>
+        <translation>A2</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="1920"/>
         <source>Lat,Lon
 (dec.deg.)</source>
-        <translation type="unfinished">Lat,Lon
+        <translation>Bred,læng
 (dec.grad)</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2143"/>
         <source>A3</source>
-        <translation type="unfinished">A3</translation>
+        <translation>A3</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2161"/>
         <source>Fuel</source>
-        <translation type="unfinished">Brændstof</translation>
+        <translation>Brændstof</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2179"/>
         <source>RSSI</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2200"/>
         <source>Hdg</source>
-        <translation type="unfinished">Retning</translation>
+        <translation>Retning</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2221"/>
         <source>Curr</source>
-        <translation type="unfinished">Strøm</translation>
+        <translation>Strøm</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2284"/>
         <source>Amps</source>
-        <translation type="unfinished">ampere</translation>
+        <translation>ampere</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2302"/>
         <source>25.9973,-97.1572</source>
-        <translation type="unfinished">25.9973,-97.1572</translation>
+        <translation>25.9973,-97.1572</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2380"/>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="878"/>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="884"/>
         <source>Run</source>
-        <translation type="unfinished">Start</translation>
+        <translation>Start</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2459"/>
         <source>Alt</source>
-        <translation type="unfinished">Højde</translation>
+        <translation>Højde</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2597"/>
         <source>Date</source>
-        <translation type="unfinished">Dato</translation>
+        <translation>Dato</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.ui" line="2618"/>
         <source>GSpd</source>
-        <translation type="unfinished">GHast</translation>
+        <translation>GHast</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="624"/>
         <source>Save Telemetry</source>
-        <translation type="unfinished">Gem telemetri</translation>
+        <translation>Gem telemetri</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="624"/>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="716"/>
         <source>.tlm Files (*.tlm)</source>
-        <translation type="unfinished"></translation>
+        <translation>.tlm fil (*.tlm)</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="630"/>
         <source>Unable to open file for writing.
 %1</source>
-        <translation type="unfinished">Ikke muligt at åbne fil for skrivning. %1</translation>
+        <translation>Ikke muligt at åbne fil for skrivning. %1</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="716"/>
         <source>Open Telemetry File</source>
-        <translation type="unfinished">Åbn telemetri fil</translation>
+        <translation>Åbn telemetri fil</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="723"/>
         <source>Unable to open file for reading.
 %1</source>
-        <translation type="unfinished">Ikke muligt at åbne fil for læsning. %1</translation>
+        <translation>Ikke muligt at åbne fil for læsning. %1</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="741"/>
         <source>Not a FrSky S.Port telemetry values file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikke en telemetri fil med FrSky S:Port værdier.</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrsky.cpp" line="879"/>
         <source>Stop</source>
-        <translation type="unfinished">Stop</translation>
+        <translation>Stop</translation>
     </message>
 </context>
 <context>
@@ -14949,273 +14953,275 @@ tt:mm:ss</translation>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="20"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="86"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="774"/>
         <source>Fuel</source>
-        <translation type="unfinished">Brændstof</translation>
+        <translation>Brændstof</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="98"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="347"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="597"/>
         <source>RPM</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="116"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="248"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1018"/>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="128"/>
         <source>Baro</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="146"/>
         <source>Tmp2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="158"/>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="326"/>
         <source>Run</source>
-        <translation type="unfinished">Start</translation>
+        <translation>Start</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="176"/>
         <source>VSpd</source>
-        <translation type="unfinished">Vertikal hastighed</translation>
+        <translation>Vertikal hastighed</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="194"/>
         <source>Hdg</source>
-        <translation type="unfinished">Retning</translation>
+        <translation>Retning</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="206"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="579"/>
         <source>°C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="266"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1048"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1108"/>
         <source>V</source>
-        <translation type="unfinished">V</translation>
+        <translation>V</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="311"/>
         <source>Date</source>
-        <translation type="unfinished">Dato</translation>
+        <translation>Dato</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="329"/>
         <source>m/s</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="365"/>
         <source>A2</source>
-        <translation type="unfinished">A2</translation>
+        <translation>A2</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="425"/>
         <source>AccX</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="437"/>
         <source>Accel</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="449"/>
         <source>Batt</source>
-        <translation type="unfinished">Batt</translation>
+        <translation>Batt</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="467"/>
         <source>GAlt</source>
-        <translation type="unfinished">GHøj</translation>
+        <translation>GHøj</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="485"/>
         <source>A1</source>
-        <translation type="unfinished">A1</translation>
+        <translation>A1</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="497"/>
         <source>Temp</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="515"/>
         <source>RSSI</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="567"/>
         <source>VFAS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="615"/>
         <source>Tmp1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="633"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="672"/>
         <source>Alt</source>
-        <translation type="unfinished">Højde</translation>
+        <translation>Højde</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="690"/>
         <source>AccZ</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="702"/>
         <source>Degrees</source>
-        <translation type="unfinished">grader</translation>
+        <translation>grader</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="720"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="819"/>
         <source>m</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="750"/>
         <source>Curr</source>
-        <translation type="unfinished">Strøm</translation>
+        <translation>Strøm</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="801"/>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="858"/>
         <source>Load Telemetry Values</source>
-        <translation type="unfinished">Indlæs telemetri værdier</translation>
+        <translation>Indlæs telemetri værdier</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="870"/>
         <source>Save Telemetry Values</source>
-        <translation type="unfinished">Gem telemetri værdier</translation>
+        <translation>Gem telemetri værdier</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="888"/>
         <source>GSpd</source>
-        <translation type="unfinished">GHast</translation>
+        <translation>GHast</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="942"/>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1066"/>
         <source>GPS</source>
-        <translation type="unfinished">GPS</translation>
+        <translation>GPS</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="960"/>
         <source>knots</source>
-        <translation type="unfinished"></translation>
+        <translation>knob</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="978"/>
         <source>Lat,Lon
 (dec.deg.)</source>
-        <translation type="unfinished">Lat,Lon
+        <translation>Bred,læng
 (dec.grad)</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1030"/>
         <source>GPS Sim</source>
-        <translation type="unfinished"></translation>
+        <translation>GPS simulator</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1120"/>
         <source>25.9973,-97.1572</source>
-        <translation type="unfinished">25.9973,-97.1572</translation>
+        <translation>25.9973,-97.1572</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1159"/>
         <source>AccY</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1231"/>
         <source>MultiModule</source>
-        <translation type="unfinished"></translation>
+        <translation>Multimodul</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1243"/>
         <source>TRSS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1255"/>
         <source>RQly</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1267"/>
         <source>TQly</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.ui" line="1279"/>
         <source>dB</source>
-        <translation type="unfinished">dB</translation>
+        <translation>dB</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="329"/>
         <source>Stop</source>
-        <translation type="unfinished">Stop</translation>
+        <translation>Stop</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="339"/>
         <source>Save Telemetry</source>
-        <translation type="unfinished">Gem telemetri</translation>
+        <translation>Gem telemetri</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="339"/>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="393"/>
         <source>.tlm Files (*.tlm)</source>
-        <translation type="unfinished"></translation>
+        <translation>.tlm fil (*.tlm)</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="345"/>
         <source>Unable to open file for writing.
 %1</source>
-        <translation type="unfinished">Ikke muligt at åbne fil for skrivning. %1</translation>
+        <translation>Ikke muligt at åbne fil for skrivning.
+%1</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="393"/>
         <source>Open Telemetry File</source>
-        <translation type="unfinished">Åbn telemetri fil</translation>
+        <translation>Åbn telemetri fil</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="400"/>
         <source>Unable to open file for reading.
 %1</source>
-        <translation type="unfinished">Ikke muligt at åbne fil for læsning. %1</translation>
+        <translation>Ikke muligt at åbne fil for læsning.
+%1</translation>
     </message>
     <message>
         <location filename="../simulation/telemetryproviderfrskyhub.cpp" line="413"/>
         <source>Not a FrSky Hub telemetry values file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ikke en telemetri fil med FrSky Hub værdier.</translation>
     </message>
 </context>
 <context>
@@ -15483,36 +15489,36 @@ Tidstempel</translation>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="482"/>
         <source>Internal Module</source>
-        <translation type="unfinished">Internt modul</translation>
+        <translation>Internt modul</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="493"/>
         <location filename="../simulation/telemetrysimu.ui" line="601"/>
         <source>None</source>
-        <translation type="unfinished">Ingen</translation>
+        <translation>Ingen</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="498"/>
         <location filename="../simulation/telemetrysimu.ui" line="606"/>
         <source>CRSF / ELRS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="503"/>
         <location filename="../simulation/telemetrysimu.ui" line="611"/>
         <source>FrSky Hub</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="508"/>
         <location filename="../simulation/telemetrysimu.ui" line="616"/>
         <source>FrSky S.Port</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.ui" line="590"/>
         <source>External Module</source>
-        <translation type="unfinished">Eksternt modul</translation>
+        <translation>Eksternt modul</translation>
     </message>
     <message>
         <location filename="../simulation/telemetrysimu.cpp" line="459"/>
@@ -15794,37 +15800,37 @@ Tidstempel</translation>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="54"/>
         <source>waiting</source>
-        <translation type="unfinished"></translation>
+        <translation>venter</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="56"/>
         <source>in progress</source>
-        <translation type="unfinished"></translation>
+        <translation>igang</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="58"/>
         <source>success</source>
-        <translation type="unfinished"></translation>
+        <translation>succes</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="60"/>
         <source>error</source>
-        <translation type="unfinished"></translation>
+        <translation>fejl</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="62"/>
         <source>timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>tid gået</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="64"/>
         <source>cancelled</source>
-        <translation type="unfinished"></translation>
+        <translation>afbrudt</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="66"/>
         <source>unknown</source>
-        <translation type="unfinished">ukendt</translation>
+        <translation>ukendt</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="113"/>
@@ -15910,27 +15916,27 @@ Tidstempel</translation>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="323"/>
         <source>Submit build request</source>
-        <translation type="unfinished"></translation>
+        <translation>Send byg ordre</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="358"/>
         <source>Build finish status: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Byg slut med status: %1</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="372"/>
         <source>Build cancelled</source>
-        <translation type="unfinished"></translation>
+        <translation>Byg afbrudt</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="380"/>
         <source>Build timeout. Retry later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Byg tid gået, Forsøg senere.</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="491"/>
         <source>Waiting for build to finish...</source>
-        <translation type="unfinished"></translation>
+        <translation>Venter på byg afsluttes...</translation>
     </message>
     <message>
         <location filename="../updates/updatecloudbuild.cpp" line="329"/>
@@ -16227,32 +16233,32 @@ Tidstempel</translation>
     <message>
         <location filename="../updates/updateinterface.cpp" line="419"/>
         <source>Copying files to destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere filer</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="422"/>
         <source>Unable to copy files</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke kopiere filer</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="431"/>
         <source>Decompressing files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dekomprimerer filer</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="434"/>
         <source>Unable to decompress flagged files</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke dekomprimere markerede filer</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="545"/>
         <source>Unable to download flagged files</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke hente markerede filer</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="719"/>
         <source>Update cancelled by user</source>
-        <translation type="unfinished"></translation>
+        <translation>Opdatering afbrudt af bruger</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="735"/>
@@ -16267,59 +16273,59 @@ Tidstempel</translation>
     <message>
         <location filename="../updates/updateinterface.cpp" line="875"/>
         <source>%1 start async %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 start asynkron %2</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="884"/>
         <location filename="../updates/updateinterface.cpp" line="929"/>
         <source>%1 preparation %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 klargør %2</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="893"/>
         <source>%1 copy to destination %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kopi til mål %2</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="902"/>
         <source>%1 decompress %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 dekomprimer %2</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="911"/>
         <source>%1 download %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 hent %2</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="920"/>
         <source>%1 housekeeping %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 oprydning %2</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="938"/>
         <source>%1 save release settings %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 gem release indstillinger %2</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="1161"/>
         <location filename="../updates/updateinterface.cpp" line="1164"/>
         <source>%1 update %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 opdater %2</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="1179"/>
         <source>failed</source>
-        <translation type="unfinished"></translation>
+        <translation>fejlet</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="1181"/>
         <source>successful</source>
-        <translation type="unfinished"></translation>
+        <translation>succes</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="1183"/>
         <source>cancelled</source>
-        <translation type="unfinished"></translation>
+        <translation>afbrudt</translation>
     </message>
     <message>
         <location filename="../updates/updateinterface.cpp" line="573"/>
@@ -16436,7 +16442,7 @@ Tidstempel</translation>
     <message>
         <location filename="../updates/updatenetwork.cpp" line="93"/>
         <source>Downloading</source>
-        <translation type="unfinished"></translation>
+        <translation>Henter</translation>
     </message>
     <message>
         <location filename="../updates/updatenetwork.cpp" line="209"/>
@@ -16461,7 +16467,7 @@ Tidstempel</translation>
     <message>
         <location filename="../updates/updatenetwork.cpp" line="218"/>
         <source>Download cancelled by user</source>
-        <translation type="unfinished"></translation>
+        <translation>Hent afbrudt af bruger</translation>
     </message>
     <message>
         <location filename="../updates/updatenetwork.cpp" line="231"/>
@@ -16471,7 +16477,7 @@ Tidstempel</translation>
     <message>
         <location filename="../updates/updatenetwork.cpp" line="408"/>
         <source>Download cancelled</source>
-        <translation type="unfinished"></translation>
+        <translation>Hent afbrudt</translation>
     </message>
     <message>
         <location filename="../updates/updatenetwork.cpp" line="101"/>
@@ -16968,22 +16974,22 @@ Indlæs dem nu?</translation>
     <message>
         <location filename="../simulation/widgets/virtualjoystickwidget.cpp" line="451"/>
         <source>Hold Vertical position.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fasthold højde.</translation>
     </message>
     <message>
         <location filename="../simulation/widgets/virtualjoystickwidget.cpp" line="456"/>
         <source>Prevent Vertical movement.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modvirk højde ændring.</translation>
     </message>
     <message>
         <location filename="../simulation/widgets/virtualjoystickwidget.cpp" line="461"/>
         <source>Prevent Horizontal movement.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modvirk retning/side ændring.</translation>
     </message>
     <message>
         <location filename="../simulation/widgets/virtualjoystickwidget.cpp" line="466"/>
         <source>Hold Horizontal position.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fasthold side retning.</translation>
     </message>
     <message>
         <location filename="../simulation/widgets/virtualjoystickwidget.cpp" line="455"/>
@@ -17195,7 +17201,7 @@ Indlæs dem nu?</translation>
     <message>
         <location filename="../wizarddialog.cpp" line="53"/>
         <source>Manually check the direction of each control surface and reverse any channels that make controls move in the wrong direction. Remove the propeller/propellers before you try to control your model for the first time.&lt;br&gt;Please note that continuing removes all old model settings!</source>
-        <translation>Guiden har sammenkædet radiokanaler til kontroller i din model. Nu skal du selv indstille retningen for kontrollerne. Test og vend de kanaler (INV) som bevæger sig i den forkerte retning.&lt;br&gt;Forsøg at tænde og teste din model, UDEN propeller er monteret.&lt;br&gt;OBS! Gennemføerer du guiden, sletter du alle tidligere indstillinger af modellen(modellen overskrives)!</translation>
+        <translation>Guiden har sammenkædet radiokanaler til styring i din model. Nu skal du selv indstille retningen for kontrollerne. Test og vend de kanaler (INV) som bevæger sig i den forkerte retning.&lt;br&gt;Forsøg at tænde og teste din model, UDEN propeller er monteret.&lt;br&gt;OBS! Gennemføerer du guiden, sletter du alle tidligere indstillinger af modellen(modellen overskrives)!</translation>
     </message>
     <message>
         <location filename="../wizarddialog.cpp" line="76"/>
@@ -17308,7 +17314,7 @@ Indlæs dem nu?</translation>
         <location filename="../wizarddialog.cpp" line="49"/>
         <location filename="../wizarddialog.cpp" line="50"/>
         <source>Select the controls for your helicopter</source>
-        <translation>Vælg kontroller til din helikopter</translation>
+        <translation>Vælg styring til din helikopter</translation>
     </message>
 </context>
 <context>
@@ -17550,7 +17556,7 @@ m2560 for v4.1-kort</translation>
     <message>
         <location filename="../burnconfigdialog.ui" line="202"/>
         <source>Use advanced controls</source>
-        <translation>Brug ekspert kontroller</translation>
+        <translation>Brug ekspert styring</translation>
     </message>
     <message>
         <location filename="../burnconfigdialog.ui" line="26"/>
@@ -17651,7 +17657,7 @@ Tryk på næste når du er klar</translation>
         <location filename="../simulation/joystickdialog.cpp" line="328"/>
         <source>Map joystick channels to controls using comboboxes.
 Press Next when done.</source>
-        <translation>Tildel joystik kanaler til kontroller med komboboxene.
+        <translation>Tildel styring til joystik kanaler med komboboxene.
 Tryk på næste når du er klar.</translation>
     </message>
     <message>

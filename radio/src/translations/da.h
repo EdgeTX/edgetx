@@ -46,7 +46,7 @@
 #define TR_OFFON                       "FRA","TIL"
 #define TR_MMMINV                      "---","INV"
 #define TR_VBEEPMODE                   "Stille","Alarm","NoKey","Alle"
-#define TR_VBLMODE                     "FRA","Taster",TR("Ctrl","Controls"),"Begge","TIL"
+#define TR_VBLMODE                     "FRA","Knap",TR("Styr","Styring"),"Begge","TIL"
 #define TR_TRNMODE                     "FRA",TR("+=","Læg til"),TR(":=","Erstat")
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
@@ -103,15 +103,15 @@
 #define TR_SF_RGBLEDS                  "RGB led"
 
 #define TR_SOUND                       "Spil lyd"
-#define TR_PLAY_TRACK                  TR("Ply Trk", "Afspil lydfil")
+#define TR_PLAY_TRACK                  TR("Spil Trk", "Spil lydfil")
 #define TR_PLAY_VALUE                  TR("Spil Vær","Spil Værdi")
 #define TR_SF_HAPTIC                   TR("Vib.", "Vibration")
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua Script")
-#define TR_SF_BG_MUSIC                 "BgMusik"
-#define TR_SF_BG_MUSIC_PAUSE           "BgMusik ||"
+#define TR_SF_BG_MUSIC                 TR("BgMusik", "Baggrund musik")
+#define TR_SF_BG_MUSIC_PAUSE           TR("BgMusik ||", "Baggrund musik ||")
 #define TR_SF_LOGS                     "SD Log"
 #define TR_ADJUST_GVAR                 "Juster"
-#define TR_SF_BACKLIGHT                "Baggrundslys"
+#define TR_SF_BACKLIGHT                TR("BgLys", "Baggrund lys")
 #define TR_SF_VARIO                    "Vario"
 #define TR_SF_TEST                     "Test"
 #define TR_SF_SAFETY                   TR("Overs.", "Overskriv")
@@ -126,13 +126,13 @@
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
-#define TR_FSW_RESET_TRIMS             "Trims"
+#define TR_FSW_RESET_TRIMS             "Trim"
 #define TR_FSW_RESET_TIMERS            "Tid1","Tid2","Tid3"
 
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("Alle","Flight"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
-#define TR_FUNCSOUNDS                  TR("Bi1","Bip1"),TR("Bi2","Bip2"),TR("Bi3","Bi3"),TR("Adv1","Advarsel1"),TR("Adv2","Advarsel2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Sirene"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","AlmClk")
+#define TR_FUNCSOUNDS                  TR("Bi1","Bip1"),TR("Bi2","Bip2"),TR("Bi3","Bi3"),TR("Adv1","Advarsel1"),TR("Adv2","Advarsel2"),TR("Chee","Cheep"),TR("Rata","Ratata"),"Tick",TR("Sirn","Sirene"),"Ring",TR("SciF","SciFi"),TR("Robt","Robot"),TR("Chrp","Chirp"),"Tada",TR("Crck","Crickt"),TR("Alrm","Alarm")
 
 #define LENGTH_UNIT_IMP                "ft"
 #define SPEED_UNIT_IMP                 "mph"
@@ -282,7 +282,7 @@
 #define TR_TTRACE                      TR("T-kilde", "kilde")
 #define TR_TTRIM                       TR("T-trim-tomg", "Trim tomgang alene")
 #define TR_TTRIM_SW                    TR("T-trim-ko", "Trim kontakt")
-#define TR_BEEPCTR                     TR("Bip ctr pos", "Bip ved center position")
+#define TR_BEEPCTR                     TR("Bip cen pos", "Bip ved center position")
 #define TR_USE_GLOBAL_FUNCS            TR("Glob.Funk.", "Brug global funk.")
 #define TR_PROTOCOL                    TR("Proto", "Protokol")
 #define TR_PPMFRAME                    "PPM frame"
@@ -680,8 +680,8 @@
 #define TR_LCD                         "LCD"
 #define TR_BRIGHTNESS                  "Skarphed"
 #define TR_CPU_TEMP                    "CPU temp."
-#define TR_COPROC                      "CoProc."
-#define TR_COPROC_TEMP                 "MB Temp."
+#define TR_COPROC                      "CoProc"
+#define TR_COPROC_TEMP                 TR("CoProc temp", "CoProc temp.")
 #define TR_TTL_WARNING                 "Advarsel: Spænding på TX/RX poler må ikke overstige 3,3V!"
 #define TR_FUNC                        "Funktion"
 #define TR_V1                          TR("V1", "Værdi 1")
@@ -772,7 +772,7 @@
 #define TR_DATE                        "Dato"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
 #define TR_ROTARY_ENCODER              "R.E."
-#define TR_ROTARY_ENC_MODE             TR("DrejeK. tilst.","Drejeknap tilstand")
+#define TR_ROTARY_ENC_MODE             TR("DrejeK. tilst.","Drejekontakt tilstand")
 #define TR_CHANNELS_MONITOR            "KANAL MONITOR"
 #define TR_MIXERS_MONITOR              "MIX MONITOR"
 #define TR_PATH_TOO_LONG               "Sti for lang"
@@ -1068,7 +1068,7 @@
 
 #if defined(PCBNV14)
   #define TR_BL_SELECT_KEY             "[R TRIM] for at bruge fil"
-  #define TR_BL_FLASH_KEY              "[R TRIM] længe, for at starte"
+  #define TR_BL_FLASH_KEY              "[R TRIM] laenge, for at starte"
   #define TR_BL_EXIT_KEY               "[L TRIM] for at forlade"
   #define TR_BL_ENABLE                 "Aktiver"
   #define TR_BL_DISABLE                "Deaktiver"
@@ -1076,19 +1076,19 @@
   // Bootloader PL18/NB4+ specific - ASCII characters only
   #if defined(RADIO_NB4P)
     #define TR_BL_SELECT_KEY            "[SW1A] for at bruge fil"
-    #define TR_BL_FLASH_KEY             "Hold [SW1A] længe, for brænding"
-    #define TR_BL_ERASE_KEY             "Hold [SW1A] længe, for sletning"
+    #define TR_BL_FLASH_KEY             "Hold [SW1A] laenge, for braending"
+    #define TR_BL_ERASE_KEY             "Hold [SW1A] laenge, for sletning"
     #define TR_BL_EXIT_KEY              "[SW1B] for at forlade"
   #else
     #define TR_BL_SELECT_KEY            "[TR4 Dn] for at bruge fil"
-    #define TR_BL_FLASH_KEY             "Hold [TR4 Dn] længe, for brænding"
-    #define TR_BL_ERASE_KEY             "Hold [TR4 Dn] længe, for sletning"
+    #define TR_BL_FLASH_KEY             "Hold [TR4 Dn] laenge, for braending"
+    #define TR_BL_ERASE_KEY             "Hold [TR4 Dn] laenge, for sletning"
     #define TR_BL_EXIT_KEY              "[TR4 Up] for at forlade"
   #endif
 #else
   #define TR_BL_SELECT_KEY             "[ENT] for at bruge fil"
-  #define TR_BL_FLASH_KEY              "[ENT] længe, for at starte"
-  #define TR_BL_ERASE_KEY              "Hold [ENT] long to erase"
+  #define TR_BL_FLASH_KEY              "[ENT] laenge, for at starte"
+  #define TR_BL_ERASE_KEY              "Hold [ENT] laenge, for at slette"
   #define TR_BL_EXIT_KEY               "[RTN] for at forlade"
 #endif
 
@@ -1322,4 +1322,4 @@
 
 #define TR_WIDGET_SIZE            "Widget størrelse"
 
-#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
+#define TR_DEL_DIR_NOT_EMPTY      "Katalog skal være tomt, før det kan slettes"
