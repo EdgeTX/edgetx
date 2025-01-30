@@ -48,61 +48,9 @@ const char* sanitizeForFilename(const char* name, int len)
   return _static_str_buffer;
 }
 
-char hex2zchar(uint8_t hex) { return (hex >= 10 ? hex - 9 : 27 + hex); }
-
 char hex2char(uint8_t hex) { return (hex >= 10 ? hex - 10 + 'A' : hex + '0'); }
 
-char zchar2char(int8_t idx)
-{
-  if (idx == 0) return ' ';
-  if (idx < 0) {
-    if (idx > -27) return 'a' - idx - 1;
-    idx = -idx;
-  }
-  if (idx < 27) return 'A' + idx - 1;
-  if (idx < 37) return '0' + idx - 27;
-  if (idx <= 40) return *(s_charTab + idx - 37);
-#if LEN_SPECIAL_CHARS > 0
-  if (idx <= (LEN_STD_CHARS + LEN_SPECIAL_CHARS)) return 'z' + 5 + idx - 40;
-#endif
-  return ' ';
-}
-
 char char2lower(char c) { return (c >= 'A' && c <= 'Z') ? c + 32 : c; }
-
-int8_t char2zchar(char c)
-{
-  if (c == '_') return 37;
-#if LEN_SPECIAL_CHARS > 0
-  if ((int8_t)c < 0 && c + 128 <= LEN_SPECIAL_CHARS) return 41 + (c + 128);
-#endif
-  if (c >= 'a') return 'a' - c - 1;
-  if (c >= 'A') return c - 'A' + 1;
-  if (c >= '0') return c - '0' + 27;
-  if (c == '-') return 38;
-  if (c == '.') return 39;
-  if (c == ',') return 40;
-  return 0;
-}
-
-void str2zchar(char *dest, const char *src, int size)
-{
-  memset(dest, 0, size);
-  for (int c = 0; c < size && src[c]; c++) {
-    dest[c] = char2zchar(src[c]);
-  }
-}
-
-int zchar2str(char *dest, const char *src, int size)
-{
-  for (int c = 0; c < size; c++) {
-    dest[c] = zchar2char(src[c]);
-  }
-  do {
-    dest[size--] = '\0';
-  } while (size >= 0 && dest[size] == ' ');
-  return size + 1;
-}
 
 int strnlen(const char *src, int max_size)
 {

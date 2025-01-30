@@ -876,8 +876,8 @@ uint8_t OpenTxSimulator::getStickMode()
 
 const char * OpenTxSimulator::getPhaseName(unsigned int phase)
 {
-  static char buff[sizeof(g_model.flightModeData[0].name)+1];
-  zchar2str(buff, g_model.flightModeData[phase].name, sizeof(g_model.flightModeData[0].name));
+  static char buff[LEN_FLIGHT_MODE_NAME+1];
+  strAppend(buff, g_model.flightModeData[phase].name, LEN_FLIGHT_MODE_NAME);
   return buff;
 }
 
