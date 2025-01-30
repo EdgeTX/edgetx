@@ -24,17 +24,15 @@
 #include "hal/gpio.h"
 #include "stm32_spi.h"
 
-#define VS1053B_MUTE_INVERTED (1 << 0)
-
 typedef struct {
   stm32_spi_t* spi;
 
   gpio_t       XDCS;
   gpio_t       DREQ;
-  gpio_t       RST;
-  gpio_t       MUTE;
 
-  uint32_t     flags;
+  void (*set_rst_pin)(bool set);
+  void (*set_mute_pin)(bool set);
+
   uint32_t     mute_delay_ms;
   uint32_t     unmute_delay_ms;
 } vs1053b_t;

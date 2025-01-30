@@ -87,6 +87,11 @@ void boardBLEarlyInit()
 #include "edgetx.h"
 
 #if defined(PCBX12S)
+static void audio_set_rst_pin(bool set)
+{
+  gpio_write(AUDIO_RST_GPIO, set);
+}
+
 void audioInit()
 {
   static stm32_spi_t spi_dev = {
@@ -101,11 +106,13 @@ void audioInit()
       .spi = &spi_dev,
       .XDCS = AUDIO_XDCS_GPIO,
       .DREQ = AUDIO_DREQ_GPIO,
-      .RST = AUDIO_RST_GPIO,
+      .set_rst_pin = audio_set_rst_pin,
   };
 
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, 0);
   gpio_init(AUDIO_SHUTDOWN_GPIO, GPIO_OUT, 0);
   gpio_set(AUDIO_SHUTDOWN_GPIO);
+
   vs1053b_init(&vs1053);
 }
 #endif
