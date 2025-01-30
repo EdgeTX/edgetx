@@ -190,7 +190,7 @@ ui(new Ui::GeneralSetup)
     ui->usbModeCB->hide();
   }
 
-  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) {
+  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
     ui->hatsModeCB->setModel(panelFilteredModels->getItemModel(FIM_HATSMODE));
     ui->hatsModeCB->setField(generalSettings.hatsMode, this);
   }

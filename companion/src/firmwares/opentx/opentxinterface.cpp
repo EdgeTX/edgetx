@@ -314,7 +314,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
              IS_RADIOMASTER_MT12(board);
     case HasBluetooth:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) || IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
-              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PL18(board)) ? true : false;
+              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) ? true : false;
     case HasADCJitterFilter:
       return IS_HORUS_OR_TARANIS(board);
     case HasTelemetryBaudrate:
@@ -500,6 +500,13 @@ void registerOpenTxFirmwares()
 
   /* FlySky PL18 board */
   firmware = new OpenTxFirmware(FIRMWAREID("pl18"), Firmware::tr("FlySky PL18"), BOARD_FLYSKY_PL18);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption(opt_bt);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
+  /* FlySky PL18EV board */
+  firmware = new OpenTxFirmware(FIRMWAREID("pl18ev"), Firmware::tr("FlySky PL18EV"), BOARD_FLYSKY_PL18EV);
   addOpenTxFrskyOptions(firmware);
   firmware->addOption(opt_bt);
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);

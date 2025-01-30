@@ -866,7 +866,7 @@ QString ModelPrinter::printSettingsTrim()
   str << printLabelValue(tr("Display"), printTrimsDisplayMode());
   str << printLabelValue(tr("Extended"), printBoolean(model.extendedTrims, BOOLEAN_YESNO));
   Board::Type board = firmware->getBoard();
-  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_PL18(board)) {
+  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
     str << printLabelValue(tr("Hats Mode"), printHatsMode());
   }
   return str.join(" ");
