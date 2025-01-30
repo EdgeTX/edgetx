@@ -1970,10 +1970,8 @@ void LvglWidgetTimerPicker::build(lua_State *L)
 
 void LvglWidgetSwitchPicker::parseParam(lua_State *L, const char *key)
 {
-  if (!strcmp(key, "min")) {
-    vmin = luaL_checkinteger(L, -1);
-  } else if (!strcmp(key, "max")) {
-    vmax = luaL_checkinteger(L, -1);
+  if (!strcmp(key, "filter")) {
+    filter = luaL_checkunsigned(L, -1);
   } else {
     LvglWidgetPicker::parseParam(L, key);
   }
@@ -1982,11 +1980,15 @@ void LvglWidgetSwitchPicker::parseParam(lua_State *L, const char *key)
 void LvglWidgetSwitchPicker::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
-  window = new SwitchChoice(
+  auto c = new SwitchChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
-      vmin, vmax,
+      SWSRC_FIRST, SWSRC_LAST,
       [=]() { return pcallGetIntVal(L, getFunction); },
       [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); });
+  c->setAvailableHandler([=](int value) {
+    return checkSwitchAvailable(value, filter);
+  });
+  window = c;
 }
 
 //-----------------------------------------------------------------------------

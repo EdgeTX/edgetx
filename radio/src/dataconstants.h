@@ -476,6 +476,16 @@ enum SwitchSources {
   SWSRC_INVERT SKIP = SWSRC_COUNT+1,
 };
 
+enum SwitchTypes {
+  SW_SWITCH = 1 << 0,
+  SW_TRIM = 1 << 1,
+  SW_LOGICAL_SWITCH = 1 << 2,
+  SW_FLIGHT_MODE = 1 << 3,
+  SW_TELEM = 1 << 4,
+  SW_OTHER = 1 << 5,
+  SW_NONE = 1 << 20,
+};
+
 enum MixSources {
   MIXSRC_NONE,
 

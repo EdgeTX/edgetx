@@ -429,6 +429,106 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
   return true;
 }
 
+static bool switchIsAvailable(int swtch, bool invert)
+{
+  return true;
+}
+
+static bool isSwitchSwitchAvailable(int swtch, bool invert) {
+  // Check normal switch
+  if (swtch < MAX_SWITCHES * 3) {
+    div_t swinfo = switchInfo(swtch);
+    if (swinfo.quot >= switchGetMaxSwitches() + switchGetMaxFctSwitches()) {
+      return false;
+    }
+
+    if (!SWITCH_EXISTS(swinfo.quot)) {
+      return false;
+    }
+
+    if (!IS_CONFIG_3POS(swinfo.quot)) {
+      if (swinfo.rem == 1) {
+        // mid position not available for 2POS switches
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Multipos switch
+  int index = (swtch - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
+  return (index < adcGetMaxInputs(ADC_INPUT_FLEX)) ? IS_POT_MULTIPOS(index) : false;
+}
+
+static bool isSwitchTrimAvailable(int swtch, bool invert) {
+  int index = swtch / 2;
+  return index < keysGetMaxTrims();
+}
+
+static bool isSwitchLSAvailable(int swtch, bool invert) {
+  return isLogicalSwitchAvailable(swtch);
+}
+
+static bool isSwitchFMAvailable(int swtch, bool invert) {
+  if (swtch == 0)
+    return true;
+  FlightModeData * fm = flightModeAddress(swtch);
+  return (fm->swtch != SWSRC_NONE);
+}
+
+static bool isSwitchTelemAvailable(int swtch, bool invert) {
+  return isTelemetryFieldAvailable(swtch);
+}
+
+static bool isSwitchOtherAvailable(int swtch, bool invert) {
+  swtch += SWSRC_ON;
+  if (invert && (swtch == SWSRC_ON || swtch == SWSRC_ONE))
+    return false;
+  if (swtch == SWSRC_ON || swtch == SWSRC_ONE || swtch == SWSRC_TELEMETRY_STREAMING ||
+      swtch == SWSRC_RADIO_ACTIVITY || swtch == SWSRC_TRAINER_CONNECTED)
+    return true;
+#if defined(DEBUG_LATENCY)
+  if (swtch == SWSRC_LATENCY_TOGGLE)
+    return true;
+#endif
+  return false;
+}
+
+struct switchAvailableCheck {
+  uint16_t first;
+  uint16_t last;
+  SwitchTypes type;
+  bool (*check)(int, bool);
+};
+
+static struct switchAvailableCheck switchChecks[] = {
+  { SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SW_SWITCH, isSwitchSwitchAvailable },
+  { SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SW_TRIM, isSwitchTrimAvailable },
+  { SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SW_LOGICAL_SWITCH, isSwitchLSAvailable },
+  { SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, SW_FLIGHT_MODE, isSwitchFMAvailable },
+  { SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SW_TELEM, isSwitchTelemAvailable },
+  { SWSRC_ON, SWSRC_COUNT - 1, SW_OTHER, isSwitchOtherAvailable },
+  { SWSRC_NONE, SWSRC_NONE, SW_NONE, switchIsAvailable },
+};
+
+bool checkSwitchAvailable(int swtch, uint32_t swtchTypes)
+{
+  bool invert = false;
+  if (swtch < 0) {
+    swtch = -swtch;
+    invert = true;
+  }
+
+  for (size_t i = 0 ; i < DIM(switchChecks); i += 1) {
+    if (switchChecks[i].type & swtchTypes && swtch >= switchChecks[i].first && swtch <= switchChecks[i].last) {
+      return switchChecks[i].check(swtch - switchChecks[i].first, invert);
+    }
+  }
+
+  return false;
+}
+
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
 #if defined(USB_SERIAL)

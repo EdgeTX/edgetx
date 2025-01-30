@@ -770,8 +770,7 @@ class LvglWidgetSwitchPicker : public LvglWidgetPicker
   void build(lua_State *L) override;
 
  protected:
-  int16_t vmin = SWSRC_FIRST;
-  int16_t vmax = SWSRC_LAST;
+  uint32_t filter = 0xFFFFFFFF;
 
   void parseParam(lua_State *L, const char *key) override;
 };
