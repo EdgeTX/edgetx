@@ -94,6 +94,14 @@ void SliderBase::enable(bool enabled)
   }
 }
 
+void SliderBase::setColor(LcdFlags color)
+{
+  etx_bg_color_from_flags(slider, color, LV_PART_KNOB);
+  if (tickPts)
+    for (int i = 0; i < (vmax - vmin - 1); i += 1)
+      etx_bg_color_from_flags(tickPts[i], color);
+}
+
 //-----------------------------------------------------------------------------
 
 // Slider
@@ -118,7 +126,7 @@ static void slider_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_bg_color(obj, COLOR_THEME_EDIT_INDEX,
                LV_PART_INDICATOR | LV_STATE_FOCUSED | LV_STATE_EDITED);
 
-  etx_obj_add_style(obj, styles->bg_opacity_cover, LV_PART_KNOB);
+  etx_solid_bg(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_KNOB);
   etx_obj_add_style(obj, slider_knob, LV_PART_KNOB);
   etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_MAIN);
   etx_obj_add_style(obj, styles->border_color[COLOR_THEME_FOCUS_INDEX],

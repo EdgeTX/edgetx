@@ -27,6 +27,7 @@ class SliderBase : public Window
          std::function<int()> getValue, std::function<void(int)> setValue);
 
   void setValue(int value);
+  void setColor(LcdFlags color);
 
   void update();
 

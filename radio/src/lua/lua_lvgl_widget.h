@@ -580,7 +580,12 @@ class LvglWidgetNumberEdit : public LvglWidgetObject
 class LvglWidgetSliderBase : public LvglWidgetObject
 {
  public:
-  LvglWidgetSliderBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
+  LvglWidgetSliderBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE)
+  {
+    color = -1;
+  }
+
+  void setColor(LcdFlags newColor) override;
 
   void clearRefs(lua_State *L) override;
 

@@ -1387,6 +1387,7 @@ void LvglWidgetTextButtonBase::setSize(coord_t w, coord_t h)
 
 void LvglWidgetTextButtonBase::setColor(LcdFlags newColor)
 {
+  color = newColor;
   if (color != currentColor) {
     currentColor = color;
     etx_bg_color_from_flags(window->getLvObj(), color);
@@ -1648,6 +1649,15 @@ void LvglWidgetSliderBase::parseParam(lua_State *L, const char *key)
   }
 }
 
+void LvglWidgetSliderBase::setColor(LcdFlags newColor)
+{
+  color = newColor;
+  if (color != currentColor) {
+    currentColor = color;
+    ((SliderBase*)window)->setColor(color);
+  }
+}
+
 void LvglWidgetSliderBase::clearRefs(lua_State *L)
 {
   clearRef(L, getValueFunction);
@@ -1664,6 +1674,7 @@ void LvglWidgetSlider::build(lua_State *L)
       [=]() { return pcallGetIntVal(L, getValueFunction); },
       [=](int val) { pcallSetIntVal(L, setValueFunction, val); });
   window->setPos(x, y);
+  setColor(color);
 }
 
 //-----------------------------------------------------------------------------
@@ -1675,6 +1686,7 @@ void LvglWidgetVerticalSlider::build(lua_State *L)
       [=]() { return pcallGetIntVal(L, getValueFunction); },
       [=](int val) { pcallSetIntVal(L, setValueFunction, val); });
   window->setPos(x, y);
+  setColor(color);
 }
 
 //-----------------------------------------------------------------------------
