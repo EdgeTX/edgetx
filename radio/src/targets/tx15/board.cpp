@@ -113,22 +113,22 @@ static void led_strip_off()
 
 void INTERNAL_MODULE_ON()
 {
-  gpio_set(INTMODULE_POWER);
+  gpio_set(INTMODULE_PWR_GPIO);
 }
 
 void INTERNAL_MODULE_OFF()
 {
-  gpio_clear(INTMODULE_POWER);
+  gpio_clear(INTMODULE_PWR_GPIO);
 }
 
 void EXTERNAL_MODULE_ON()
 {
-  gpio_set(EXTMODULE_POWER);
+  gpio_set(EXTMODULE_PWR_GPIO);
 }
 
 void EXTERNAL_MODULE_OFF()
 {
-  gpio_clear(EXTMODULE_POWER);
+  gpio_clear(EXTMODULE_PWR_GPIO);
 }
 
 void boardBLEarlyInit()

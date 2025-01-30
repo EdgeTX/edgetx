@@ -233,6 +233,8 @@
 // #define KEYS_BACKLIGHT_RCC_AHB1Periph 0
 
 // Telemetry
+ #define TELEMETRY_DIR_GPIO              GPIO_PIN(GPIOB, 17) // PB.17
+ #define TELEMETRY_SET_INPUT             0
  #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)
  #define TELEMETRY_RX_GPIO               GPIO_PIN(GPIOA, 10)
  #define TELEMETRY_USART                 USART1
@@ -245,6 +247,7 @@
  #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_3
  #define TELEMETRY_DMA_Channel_RX        LL_DMAMUX1_REQ_USART1_RX
  #define TELEMETRY_USART_IRQHandler      USART1_IRQHandler
+
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
 //#define USE_CUSTOM_EXTI_IRQ
@@ -368,7 +371,7 @@
 #define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
 
 // Internal Module
-#define INTMODULE_POWER                 GPIO_PIN(GPIOB, 13) // PB.13
+#define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOB, 13) // PB.13
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOG, 14)
 #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOG,  9)
 #define INTMODULE_USART                 USART6
@@ -394,37 +397,35 @@
 // External Module
 #define EXTMODULE
 #define EXTMODULE_PULSES
-#define EXTMODULE_POWER                 GPIO_PIN(GPIOD, 4) // PD.04
-#define EXTMODULE_TX_GPIO               GPIO_PIN(GPIOA, 2)
+#define EXTMODULE_PWR_GPIO              GPIO_PIN(GPIOD, 4) // PD.04
+#define EXTMODULE_TX_GPIO               GPIO_PIN(GPIOA, 2) // TIM2_CH3, TIM5_CH3,TIM15_CH1,
 #define EXTMODULE_RX_GPIO               GPIO_PIN(GPIOA, 3)
-#define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
-#define EXTMODULE_TIMER                 TIM8
-#define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
-#define EXTMODULE_TIMER_IRQn            TIM8_UP_TIM13_IRQn
-#define EXTMODULE_TIMER_IRQHandler      TIM8_UP_TIM13_IRQHandler
+#define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM5_CH3
+#define EXTMODULE_TIMER                 TIM5
+#define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH3
+#define EXTMODULE_TIMER_IRQn            TIM5_IRQn
+#define EXTMODULE_TIMER_IRQHandler      TIM5IRQHandler
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
-#define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_3
+#define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_2
 
 
 //USART
-#define EXTMODULE_USART                    UART4
+#define EXTMODULE_USART                    USART2
 #define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOA, 3)
 #define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOA, 2)
 #define EXTMODULE_USART_TX_DMA             DMA2
 #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMAMUX1_REQ_USART2_TX
 #define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_STREAM_6
-
 #define EXTMODULE_USART_RX_DMA_CHANNEL     LL_DMAMUX1_REQ_USART2_RX
 #define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_STREAM_4
-
 #define EXTMODULE_USART_IRQHandler         USART2_IRQHandler
 #define EXTMODULE_USART_IRQn               USART2_IRQn
 
 //TIMER
 // TODO
-#define EXTMODULE_TIMER_DMA_CHANNEL        LL_DMAMUX1_REQ_TIM8_CH1
+#define EXTMODULE_TIMER_DMA_CHANNEL        LL_DMAMUX1_REQ_TIM5_CH3
 #define EXTMODULE_TIMER_DMA                DMA2
-#define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_1
+#define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_3
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream1_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream1_IRQHandler
 

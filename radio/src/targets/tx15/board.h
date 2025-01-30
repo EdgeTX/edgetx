@@ -69,15 +69,15 @@ extern "C" void SDRAM_Init();
 // Pulses driver
 #if !defined(SIMU)
 
-void INTERNAL_MODULE_ON();            /*gpio_set(INTMODULE_PWR_GPIO)*/
-void INTERNAL_MODULE_OFF();           /*gpio_clear(INTMODULE_PWR_GPIO);*/
-void EXTERNAL_MODULE_ON();            /*gpio_set(EXTMODULE_PWR_GPIO)*/
-void EXTERNAL_MODULE_OFF();           /*gpio_clear(EXTMODULE_PWR_GPIO)*/
+void INTERNAL_MODULE_ON();
+void INTERNAL_MODULE_OFF();
+void EXTERNAL_MODULE_ON();
+void EXTERNAL_MODULE_OFF();
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
 #define BLUETOOTH_MODULE_ON()           gpio_clear(BLUETOOTH_ON_GPIO)
 #define BLUETOOTH_MODULE_OFF()          gpio_set(BLUETOOTH_ON_GPIO)
 #define IS_INTERNAL_MODULE_ON()         (false)
-#define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+#define IS_EXTERNAL_MODULE_ON()         (gpio_read(EXTMODULE_PWR_GPIO) ? 1 : 0)
 
 #else
 
