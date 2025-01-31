@@ -587,9 +587,6 @@
 
 #if defined(RADIO_NV14_FAMILY) 
 #define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
-#endif
-
-#if defined(RADIO_EL18)
 #define USB_SW_GPIO                     GPIO_PIN(GPIOI, 10) // PI.10
 #endif
 

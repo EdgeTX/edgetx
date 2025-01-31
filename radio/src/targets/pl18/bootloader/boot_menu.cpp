@@ -124,12 +124,17 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         y += 35;
 #endif
 #if defined(USB_SW_GPIO)
+#if defined(RADIO_NV14_FAMILY)
+      if(hardwareOptions.pcbrev == PCBREV_EL18)
+#endif
+      {
         lcd->drawText(menuItemX, y, LV_SYMBOL_WIFI, BL_FOREGROUND);
         npos = lcd->drawText(menuItemX + 24, y, TR_BL_RF_USB_ACCESS, BL_FOREGROUND);        
         npos += 8;
         if (npos > pos)
           pos = npos;
         y += 35;
+      }
 #endif
         lcd->drawText(menuItemX, y, LV_SYMBOL_NEW_LINE, BL_FOREGROUND);
         lcd->drawText(menuItemX + 24, y, TR_BL_EXIT, BL_FOREGROUND);
@@ -318,11 +323,14 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
 }
 uint32_t bootloaderGetMenuItemCount(int baseCount)
 {
+    uint8_t n = 0;
 #if defined(USB_SW_GPIO)
-    return baseCount+1;
-#else
-    return baseCount;
+#if defined(RADIO_NV14_FAMILY)
+    if(hardwareOptions.pcbrev == PCBREV_EL18)
 #endif
+    n = 1;
+#endif
+    return baseCount + n;
 }
 
 bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
