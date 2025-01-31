@@ -129,14 +129,6 @@ uint16_t simu_get_analog(uint8_t idx)
 }
 
 static char _stringResult[200];
-const char * zchar2string(const char * zstring, int size)
-{
-  if (size > (int)sizeof(_stringResult) ) {
-    return nullptr;
-  }
-  zchar2str(_stringResult, zstring, size);
-  return _stringResult;
-}
 
 const char * nchar2string(const char * string, int size)
 {
