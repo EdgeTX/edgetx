@@ -96,10 +96,22 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   ////  stm32_spi_unselect(&lcdSpi);
   LCD_DATA_MODE();
   SCB_CleanDCache_by_Addr(buffer, copy_area.w * copy_area.h * sizeof(uint16_t));
-//  memset((uint8_t*)buffer, 0xff, copy_area.w * copy_area.h * sizeof(uint16_t));
-  stm32_spi_transfer_bytes(&lcdSpi, (uint8_t*)buffer, nullptr, copy_area.w * copy_area.h * sizeof(uint16_t));
-//  stm32_spi_dma_transmit_bytes(&lcdSpi, (uint8_t*)buffer, copy_area.w * copy_area.h * sizeof(uint16_t));
+
+  stm32_spi_set_data_width(&lcdSpi, LL_SPI_DATAWIDTH_16BIT);
+
+  for(int i=0; i<copy_area.w * copy_area.h; ++i)
+  {
+    stm32_spi_transfer_word(&lcdSpi, buffer[i]);
+  }
+//  size_t len = copy_area.w * copy_area.h;
+//  while(len)
+//  {
+//    size_t transferLen  = std::min(len, (size_t)256);
+//    stm32_spi_dma_transmit_bytes(&lcdSpi, (uint8_t*)buffer, transferLen*2);
+//    len -= transferLen;
+//  }
   stm32_spi_unselect(&lcdSpi);
+  stm32_spi_set_data_width(&lcdSpi, LL_SPI_DATAWIDTH_8BIT);
 
 
 }
@@ -120,7 +132,7 @@ static void lcdSpiConfig(void) {
   lcdSpi.MOSI = LCD_SPI_MOSI;
   lcdSpi.SCK = LCD_SPI_CLK;
   lcdSpi.DMA = nullptr;
-#if 0
+#if 1
  lcdSpi.DMA = LCD_SPI_DMA;
   lcdSpi.rxDMA_Stream = LCD_SPI_RX_DMA_STREAM;
   lcdSpi.txDMA_Stream = LCD_SPI_TX_DMA_STREAM;
@@ -128,11 +140,9 @@ static void lcdSpiConfig(void) {
   lcdSpi.txDMA_PeriphRequest = LCD_SPI_TX_DMA;
 #endif
   stm32_spi_init(&lcdSpi, LL_SPI_DATAWIDTH_8BIT);
-//  stm32_spi_set_max_baudrate(&lcdSpi, LCD_SPI_BAUD);
-  stm32_spi_set_max_baudrate(&lcdSpi, 100000000);
+  stm32_spi_set_max_baudrate(&lcdSpi, LCD_SPI_BAUD);
 
 //#define LCD_FMARK                       GPIO_PIN(GPIOB,  7)
-
   gpio_init(LCD_NRST, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
   gpio_init(LCD_SPI_RS, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
 }
@@ -228,7 +238,7 @@ void lcdInit()
   lcdWriteReg(0x3A, 0x55);
 
   lcdWriteCommand( 0x36 );
-  lcdWriteData( 0xE6 );
+  lcdWriteData( 0xE8 );
 
   lcdWriteCommand( 0x2A );
   lcdWriteData( 0x00 );
