@@ -693,7 +693,7 @@
   #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 8) // PH.08 audio amp control pin
   #define AUDIO_UNMUTE_DELAY            120  // ms
   #define AUDIO_MUTE_DELAY              500  // ms
-  #define AUDIO_MUTE_POL                VS1053B_MUTE_INVERTED
+  #define INVERTED_MUTE_PIN
 #elif defined(RADIO_NB4P)
   #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 9) // PH.09 audio amp control pin
   #define AUDIO_UNMUTE_DELAY            120  // ms

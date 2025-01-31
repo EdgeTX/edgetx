@@ -90,26 +90,46 @@ extern "C" void flushFTL();
 #endif
 
 #if defined(AUDIO_SPI)
-stm32_spi_t audioSpi =
+static void audio_set_rst_pin(bool set)
 {
-    .SPIx = AUDIO_SPI,
-    .SCK = AUDIO_SPI_SCK_GPIO,
-    .MISO = AUDIO_SPI_MISO_GPIO,
-    .MOSI = AUDIO_SPI_MOSI_GPIO,
-    .CS = AUDIO_CS_GPIO,
-};
+  gpio_write(AUDIO_RST_GPIO, set);
+}
 
-vs1053b_t audioConfig =
+static void audio_set_mute_pin(bool set)
 {
-  .spi = &audioSpi,
-  .XDCS = AUDIO_XDCS_GPIO,
-  .DREQ = AUDIO_DREQ_GPIO,
-  .RST = AUDIO_RST_GPIO,
-  .MUTE = AUDIO_MUTE_GPIO,
-  .flags = AUDIO_MUTE_POL,
-  .mute_delay_ms = AUDIO_MUTE_DELAY,
-  .unmute_delay_ms = AUDIO_UNMUTE_DELAY,
-};
+#if defined(INVERTED_MUTE_PIN)
+  gpio_write(AUDIO_MUTE_GPIO, !set);
+#else
+  gpio_write(AUDIO_MUTE_GPIO, set);
+#endif
+}
+
+static void audioInit()
+{
+  static stm32_spi_t spi_dev = {
+      .SPIx = AUDIO_SPI,
+      .SCK = AUDIO_SPI_SCK_GPIO,
+      .MISO = AUDIO_SPI_MISO_GPIO,
+      .MOSI = AUDIO_SPI_MOSI_GPIO,
+      .CS = AUDIO_CS_GPIO,
+  };
+
+  static vs1053b_t vs1053 = {
+      .spi = &spi_dev,
+      .XDCS = AUDIO_XDCS_GPIO,
+      .DREQ = AUDIO_DREQ_GPIO,
+      .set_rst_pin = audio_set_rst_pin,
+      .set_mute_pin = audio_set_mute_pin,
+      .mute_delay_ms = AUDIO_MUTE_DELAY,
+      .unmute_delay_ms = AUDIO_UNMUTE_DELAY,
+  };
+
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, 0);
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, 0);
+  audio_set_mute_pin(true);
+
+  vs1053b_init(&vs1053);
+}
 #endif
 
 void delay_self(int count)
@@ -257,11 +277,8 @@ void boardInit()
 #if defined(RADIO_NB4P)
   disableVoiceChip();
 #endif
-#if defined(AUDIO_SPI)
-  vs1053b_init(&audioConfig);
-#else
+
   audioInit();
-#endif
   monitorInit();
   adcInit(&_adc_driver);
   hapticInit();
