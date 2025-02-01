@@ -2700,6 +2700,9 @@
 #endif
 
 #define STORAGE_USE_SDCARD_SPI
+#if defined(RADIO_GX12)
+#define SD_LONG_BUSY_WAIT               (true)
+#endif
 
 #define SD_GPIO_PIN_CS                  GPIO_PIN(GPIOB, 12) // PB.12
 #define SD_GPIO_PIN_SCK                 GPIO_PIN(GPIOB, 13) // PB.13

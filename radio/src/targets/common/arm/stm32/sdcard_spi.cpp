@@ -46,7 +46,11 @@
 #define INIT_CMD0_RETRY_US          (100UL)
 #define R1_POLLING_RETRY_US         (100 * US_PER_MS)
 #define SD_DATA_TOKEN_RETRY_US      (100 * US_PER_MS)
+#if defined(SD_LONG_BUSY_WAIT)
+#define SD_WAIT_FOR_NOT_BUSY_US     (500 * US_PER_MS)
+#else
 #define SD_WAIT_FOR_NOT_BUSY_US     (250 * US_PER_MS)
+#endif
 
 #define SD_BLOCK_READ_CMD_RETRY_US  (100UL)
 #define SD_BLOCK_WRITE_CMD_RETRY_US (100UL)
