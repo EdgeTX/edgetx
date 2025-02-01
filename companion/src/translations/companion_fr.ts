@@ -2147,6 +2147,11 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
         <translation>Jouer fichier</translation>
     </message>
     <message>
+        <location filename="../firmwares/customfunctiondata.cpp" line="92"/>
+        <source>Play User Track</source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="94"/>
         <source>Play Both</source>
         <translation>Jouer les deux</translation>

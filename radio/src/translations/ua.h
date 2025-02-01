@@ -99,6 +99,7 @@
 
 #define TR_SOUND                       "Грати Звук"
 #define TR_PLAY_TRACK                  "Грати Трек"
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  TR("Грати Знач.","Грати Знач.")
 #define TR_SF_HAPTIC                   "Вібро"
 #define TR_SF_PLAY_SCRIPT              "Lua Скрипт"

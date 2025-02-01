@@ -98,6 +98,7 @@
  
 #define TR_SOUND                       "播放聲音"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "播放音頻文件")
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  "播放數值"
 #define TR_SF_HAPTIC                   "振動"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua腳本")

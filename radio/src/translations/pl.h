@@ -98,6 +98,7 @@
  
 #define TR_SOUND              "GrajDźwięk"
 #define TR_PLAY_TRACK         TR("Ply Trk", "GrajŚcieżk")
+#define TR_PLAY_USER_TRACK    TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE         TR("Graj Wart","GrajWartoś")
 #define TR_SF_HAPTIC          "Wibracje"
 #define TR_SF_PLAY_SCRIPT     TR("Lua", "SkryptyLua")

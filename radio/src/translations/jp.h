@@ -97,6 +97,7 @@
 
 #define TR_SOUND                       "サウンド再生"
 #define TR_PLAY_TRACK                  "音源再生"
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  TR("Play Val","再生値")
 #define TR_SF_HAPTIC                   "バイブレート"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "LUAスクリプト")

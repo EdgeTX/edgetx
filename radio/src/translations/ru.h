@@ -99,6 +99,7 @@
  
 #define TR_SOUND                       "Воспр звук"
 #define TR_PLAY_TRACK                  TR("Ply Trk","Воспр трек")
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  TR("Play Val","Play Value")
 #define TR_SF_HAPTIC                   "Вибро"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua скрипт")

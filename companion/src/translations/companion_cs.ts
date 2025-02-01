@@ -2352,6 +2352,11 @@ Do you want to import settings from a file?</source>
         <translation>Přehrát stopu</translation>
     </message>
     <message>
+        <location filename="../firmwares/customfunctiondata.cpp" line="92"/>
+        <source>Play User Track</source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="94"/>
         <source>Play Both</source>
         <translation>Přehrát oboje</translation>

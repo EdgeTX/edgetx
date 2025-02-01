@@ -111,11 +111,23 @@ PLAY_FUNCTION(playValue, source_t idx)
 void playCustomFunctionFile(const CustomFunctionData * sd, uint8_t id)
 {
   if (sd->play.name[0] != '\0') {
-    char filename[sizeof(SOUNDS_PATH) + LEN_FUNCTION_NAME + sizeof(SOUNDS_EXT)] = SOUNDS_PATH "/";
-    strncpy(filename + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
-    strncpy(filename + sizeof(SOUNDS_PATH), sd->play.name, LEN_FUNCTION_NAME);
-    filename[sizeof(SOUNDS_PATH) + LEN_FUNCTION_NAME] = '\0';
-    strcat(filename + sizeof(SOUNDS_PATH), SOUNDS_EXT);
+    char filename[sizeof(SOUNDS_PATH) + (sizeof(SOUNDS_USER_FOLDER) - sizeof(SOUNDS_PATH)) + LEN_FUNCTION_NAME + sizeof(SOUNDS_EXT)];
+
+    uint8_t lenSoundsPath; 
+
+    if (CFN_FUNC(sd) == FUNC_PLAY_USER_TRACK) {
+      strcpy(filename, SOUNDS_USER_FOLDER PATH_SEPARATOR);
+      lenSoundsPath = sizeof(SOUNDS_USER_FOLDER);
+    } else {
+      strcpy(filename, SOUNDS_PATH PATH_SEPARATOR);
+      strncpy(filename + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
+      lenSoundsPath = sizeof(SOUNDS_PATH);
+    }
+
+    strncpy(filename + lenSoundsPath, sd->play.name, LEN_FUNCTION_NAME);
+    filename[lenSoundsPath + LEN_FUNCTION_NAME] = '\0';
+    strcat(filename, SOUNDS_EXT);
+
     PLAY_FILE(filename, sd->func == FUNC_BACKGND_MUSIC ? PLAY_BACKGROUND : 0, id);
   }
 }
@@ -320,6 +332,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
           case FUNC_PLAY_SOUND:
           case FUNC_PLAY_TRACK:
+          case FUNC_PLAY_USER_TRACK:
           case FUNC_PLAY_VALUE:
 #if defined(HAPTIC)
           case FUNC_HAPTIC:
@@ -532,6 +545,8 @@ const char* funcGetLabel(uint8_t func)
 #if defined(VOICE)
   case FUNC_PLAY_TRACK:
     return STR_PLAY_TRACK;
+  case FUNC_PLAY_USER_TRACK:
+    return STR_PLAY_USER_TRACK;
   case FUNC_PLAY_VALUE:
     return STR_PLAY_VALUE;
 #endif

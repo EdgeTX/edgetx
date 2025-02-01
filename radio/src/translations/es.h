@@ -99,6 +99,7 @@
  
 #define TR_SOUND                       "Oir sonido"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Oir pista")
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  "Oir valor"
 #define TR_SF_HAPTIC                   "Haptic"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua Script")

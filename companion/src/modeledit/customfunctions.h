@@ -93,6 +93,7 @@ class CustomFunctionsPanel : public GenericPanel
     int gvarAdjustModeId;
 
     QSet<QString> tracksSet;
+    QSet<QString> tracksSetUser;
     QSet<QString> scriptsSet;
     int mediaPlayerCurrent;
     QComboBox * fswtchSwtch[CPN_MAX_SPECIAL_FUNCTIONS];

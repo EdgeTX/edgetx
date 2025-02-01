@@ -2146,6 +2146,11 @@ Vil du indlæse indstillinger fra en fil?</translation>
         <translation>Afspil lydfil</translation>
     </message>
     <message>
+        <location filename="../firmwares/customfunctiondata.cpp" line="92"/>
+        <source>Play User Track</source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="94"/>
         <source>Play Both</source>
         <translation>Afspil begge</translation>

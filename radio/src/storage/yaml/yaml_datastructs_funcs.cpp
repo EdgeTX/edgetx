@@ -1578,6 +1578,7 @@ static void r_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_PLAY_TRACK:
+  case FUNC_PLAY_USER_TRACK:
   case FUNC_BACKGND_MUSIC:
   case FUNC_PLAY_SCRIPT:
   case FUNC_RGB_LED:
@@ -1805,6 +1806,7 @@ static bool w_customFn(void* user, uint8_t* data, uint32_t bitoffs,
     break;
 
   case FUNC_PLAY_TRACK:
+  case FUNC_PLAY_USER_TRACK:
   case FUNC_BACKGND_MUSIC:
   case FUNC_PLAY_SCRIPT:
   case FUNC_RGB_LED:

@@ -188,6 +188,7 @@ void FunctionLineButton::refresh()
       break;
 
     case FUNC_PLAY_TRACK:
+    case FUNC_PLAY_USER_TRACK:
     case FUNC_BACKGND_MUSIC:
     case FUNC_PLAY_SCRIPT:
     case FUNC_RGB_LED:
@@ -437,17 +438,21 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       break;
 
     case FUNC_PLAY_TRACK:
+    case FUNC_PLAY_USER_TRACK:
     case FUNC_BACKGND_MUSIC:
     case FUNC_PLAY_SCRIPT:
     case FUNC_RGB_LED:
       new StaticText(line, rect_t{}, STR_VALUE);
+
       new FileChoice(
           line, rect_t{},
           func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED
               ? (func == FUNC_PLAY_SCRIPT ? SCRIPTS_FUNCS_PATH
                                           : SCRIPTS_RGB_PATH)
-              : std::string(SOUNDS_PATH, SOUNDS_PATH_LNG_OFS) +
-                    std::string(currentLanguagePack->id, 2),
+              : (func == FUNC_PLAY_USER_TRACK
+                ? std::string(SOUNDS_USER_FOLDER)
+                : std::string(SOUNDS_PATH, SOUNDS_PATH_LNG_OFS) +
+                    std::string(currentLanguagePack->id, 2)),
           (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) ? SCRIPTS_EXT
                                                              : SOUNDS_EXT,
           sizeof(cfn->play.name),

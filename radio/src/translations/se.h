@@ -106,6 +106,7 @@
  
 #define TR_SOUND                       "Spela ljud"
 #define TR_PLAY_TRACK                  TR("Sp. upp", "Spela upp")
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  "Säg värdet"
 #define TR_SF_HAPTIC                   "Haptisk"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua-skript")

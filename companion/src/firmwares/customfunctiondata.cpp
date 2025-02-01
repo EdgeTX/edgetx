@@ -90,6 +90,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Vario");
   else if (func == FuncPlayPrompt)
     return tr("Play Track");
+  else if (func  == FuncPlayUserPrompt)
+    return tr("Play User Track");
   else if (func == FuncPlayBoth)
     return tr("Play Both");
   else if (func == FuncPlayValue)
@@ -181,7 +183,7 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   else if (func == FuncVolume || func == FuncPlayValue || func == FuncBacklight) {
     return RawSource(param).toString(model);
   }
-  else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
+  else if (func == FuncPlayPrompt || func == FuncPlayUserPrompt || func == FuncPlayBoth) {
     if ( getCurrentFirmware()->getCapability(VoicesAsNumbers)) {
       return QString("%1").arg(param);
     }
@@ -519,6 +521,7 @@ bool CustomFunctionData::isRepeatParamAvailable(const AssignFunc func)
     FuncPlayHaptic,
     FuncPlayValue,
     FuncPlayPrompt,
+    FuncPlayUserPrompt,
     FuncPlayBoth,
     FuncSetScreen
   };

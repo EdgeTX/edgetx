@@ -51,6 +51,7 @@ enum AssignFunc {
   FuncSetTimerLast = FuncSetTimer1 + CPN_MAX_TIMERS - 1,
   FuncVario,
   FuncPlayPrompt,
+  FuncPlayUserPrompt,
   FuncPlayBoth,
   FuncPlayValue,
   FuncPlayScript,

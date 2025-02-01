@@ -60,6 +60,9 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
     else if (func == FUNC_RGB_LED) {
       strcpy(directory, SCRIPTS_RGB_PATH);
     }
+    else if (func==FUNC_PLAY_USER_TRACK) { 
+      strcpy(directory, SOUNDS_USER_FOLDER);
+    }    
     else {
       strcpy(directory, SOUNDS_PATH);
       strncpy(directory+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
@@ -337,11 +340,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT);
           }
 #endif
-          else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
+          else if (func == FUNC_PLAY_TRACK || func == FUNC_PLAY_USER_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
             coord_t x = MODEL_SPECIAL_FUNC_3RD_COLUMN - 6;
             if (func == FUNC_PLAY_SCRIPT)
               x = x - 5 * FW;
-            else if (func == FUNC_PLAY_TRACK)
+            else if (func == FUNC_PLAY_TRACK || func == FUNC_PLAY_USER_TRACK)
               x = x - 3 * FW;
             else if (func == FUNC_BACKGND_MUSIC || func == FUNC_RGB_LED)
               x = x - 2 * FW;
@@ -357,6 +360,9 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               }
               else if (func==FUNC_RGB_LED) {
                 strcpy(directory, SCRIPTS_RGB_PATH);
+              }
+              else if (func==FUNC_PLAY_USER_TRACK) { 
+                strcpy(directory, SOUNDS_USER_FOLDER);
               }
               else {
                 strcpy(directory, SOUNDS_PATH);

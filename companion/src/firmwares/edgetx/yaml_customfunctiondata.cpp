@@ -26,7 +26,8 @@
 
 static bool fnHasRepeat(AssignFunc fn)
 {
-  return (fn == FuncPlayPrompt)
+  return (fn == FuncPlayPrompt) 
+    || (fn == FuncPlayUserPrompt) 
     || (fn == FuncPlayValue)
     || (fn == FuncPlayHaptic)
     || (fn == FuncPlaySound)
@@ -48,6 +49,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncBindInternalModule, "BIND"  },
   {  FuncPlaySound, "PLAY_SOUND"  },
   {  FuncPlayPrompt, "PLAY_TRACK"  },
+  {  FuncPlayUserPrompt, "PLAY_USER_TRACK"  },
   {  FuncPlayValue, "PLAY_VALUE"  },
   {  FuncPlayScript, "PLAY_SCRIPT"  },
   {  FuncBackgroundMusic, "BACKGND_MUSIC"  },
@@ -169,6 +171,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     def += std::to_string(rhs.param);
     break;
   case FuncPlayPrompt:
+  case FuncPlayUserPrompt:
   case FuncBackgroundMusic: {
     std::string temp(rhs.paramarm);
     temp.resize(getCurrentFirmware()->getCapability(VoicesMaxLength));
@@ -301,6 +304,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
     } catch(...) {}
   } break;
   case FuncPlayPrompt:
+  case FuncPlayUserPrompt:
   case FuncBackgroundMusic: {
     std::string file_str;
     getline(def, file_str, ',');

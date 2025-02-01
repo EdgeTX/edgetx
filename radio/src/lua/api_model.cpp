@@ -1395,7 +1395,8 @@ static int luaModelGetCustomFunction(lua_State *L)
     lua_newtable(L);
     lua_pushtableinteger(L, "switch", CFN_SWITCH(cfn));
     lua_pushtableinteger(L, "func", CFN_FUNC(cfn));
-    if (CFN_FUNC(cfn) == FUNC_PLAY_TRACK || CFN_FUNC(cfn) == FUNC_BACKGND_MUSIC || CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED) {
+    if (CFN_FUNC(cfn) == FUNC_PLAY_TRACK || CFN_FUNC(cfn) == FUNC_PLAY_USER_TRACK || CFN_FUNC(cfn) == FUNC_BACKGND_MUSIC || 
+        CFN_FUNC(cfn) == FUNC_PLAY_SCRIPT || CFN_FUNC(cfn) == FUNC_RGB_LED) {
       lua_pushtablenstring(L, "name", cfn->play.name);
     }
     else {

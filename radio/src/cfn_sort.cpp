@@ -32,6 +32,7 @@ Functions cfn_sorted[] = {
   /* 播放声音 */ FUNC_PLAY_SOUND,
   /* 播放数值 */ FUNC_PLAY_VALUE,
   /* 播放音频文件 */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* 测距模式 */ FUNC_RANGECHECK,
 #if defined(DEBUG)
   /* 测试 */ FUNC_TEST,
@@ -101,6 +102,7 @@ Functions cfn_sorted[] = {
   /* Podsvětlení */ FUNC_BACKLIGHT,
 #endif
   /* Přehrát wav */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
@@ -122,6 +124,7 @@ Functions cfn_sorted[] = {
   /* Změna */ FUNC_SET_TIMER,
 #elif defined(TRANSLATIONS_DA)
   /* Afspil lydfil */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Afstand kontrol */ FUNC_RANGECHECK,
 #if !defined(OLED_SCREEN)
   /* Baggrundslys */ FUNC_BACKLIGHT,
@@ -197,6 +200,7 @@ Functions cfn_sorted[] = {
   /* RGB LED */ FUNC_RGB_LED,
   /* Rücksetz. */ FUNC_RESET,
   /* Sag Text */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Sag Wert */ FUNC_PLAY_VALUE,
   /* Screenshot */ FUNC_SCREENSHOT,
   /* SD-Aufz. */ FUNC_LOGS,
@@ -246,6 +250,7 @@ Functions cfn_sorted[] = {
   /* No Touch */ FUNC_DISABLE_TOUCH,
 #endif
   /* Oir pista */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Oir sonido */ FUNC_PLAY_SOUND,
   /* Oir valor */ FUNC_PLAY_VALUE,
 #if defined(FUNCTION_SWITCHES)
@@ -287,6 +292,7 @@ Functions cfn_sorted[] = {
 #endif
   /* Play Sound */ FUNC_PLAY_SOUND,
   /* Play Track */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
@@ -326,6 +332,7 @@ Functions cfn_sorted[] = {
   /* Écolage */ FUNC_TRAINER,
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
   /* Jouer fichier */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Jouer son */ FUNC_PLAY_SOUND,
 #if defined(VIDEO_SWITCH)
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
@@ -378,6 +385,7 @@ Functions cfn_sorted[] = {
   /* Override */ FUNC_OVERRIDE_CHANNEL,
   /* Play Sound */ FUNC_PLAY_SOUND,
   /* Play Track */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
@@ -450,6 +458,7 @@ Functions cfn_sorted[] = {
 #endif
   /* Suona */ FUNC_PLAY_SOUND,
   /* Suona Traccia */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK, n
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -491,6 +500,7 @@ Functions cfn_sorted[] = {
   /* レースモード */ FUNC_RACING_MODE,
   /* レンジチェック */ FUNC_RANGECHECK,
   /* 音源再生 */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* 画面キャプチャ */ FUNC_SCREENSHOT,
 #if !defined(COLORLCD)
   /* 画面設定 */ FUNC_SET_SCREEN,
@@ -527,6 +537,7 @@ Functions cfn_sorted[] = {
 #endif
   /* Override */ FUNC_OVERRIDE_CHANNEL,
   /* Play Track */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
@@ -557,6 +568,7 @@ Functions cfn_sorted[] = {
   /* Głośność */ FUNC_VOLUME,
   /* GrajDźwięk */ FUNC_PLAY_SOUND,
   /* GrajŚcieżk */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* GrajWartoś */ FUNC_PLAY_VALUE,
   /* Inst-Trim */ FUNC_INSTANT_TRIM,
 #if defined(OLED_SCREEN)
@@ -643,6 +655,7 @@ Functions cfn_sorted[] = {
 #endif
   /* Tocar Som */ FUNC_PLAY_SOUND,
   /* Tocar Trilha */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Trainer */ FUNC_TRAINER,
   /* Trim Inst. */ FUNC_INSTANT_TRIM,
   /* Vario */ FUNC_VARIO,
@@ -668,6 +681,7 @@ Functions cfn_sorted[] = {
   /* Вибро */ FUNC_HAPTIC,
   /* Воспр звук */ FUNC_PLAY_SOUND,
   /* Воспр трек */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
 #if defined(COLORLCD)
   /* Выбр глав экран */ FUNC_SET_SCREEN,
 #endif
@@ -725,6 +739,7 @@ Functions cfn_sorted[] = {
   /* Spara trimmar */ FUNC_INSTANT_TRIM,
   /* Spela ljud */ FUNC_PLAY_SOUND,
   /* Spela upp */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Säg värdet */ FUNC_PLAY_VALUE,
   /* Sätt */ FUNC_SET_TIMER,
   /* Sätt failsafe */ FUNC_SET_FAILSAFE,
@@ -765,6 +780,7 @@ Functions cfn_sorted[] = {
   /* 播放聲音 */ FUNC_PLAY_SOUND,
   /* 播放背景音樂 */ FUNC_BACKGND_MUSIC,
   /* 播放音頻文件 */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* 教練 */ FUNC_TRAINER,
   /* 暫停背景音樂 */ FUNC_BACKGND_MUSIC_PAUSE,
   /* 模塊對頻 */ FUNC_BIND,
@@ -803,6 +819,7 @@ Functions cfn_sorted[] = {
   /* Грати Звук */ FUNC_PLAY_SOUND,
   /* Грати Знач. */ FUNC_PLAY_VALUE,
   /* Грати Трек */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Гучність */ FUNC_VOLUME,
   /* Митєв. трим. */ FUNC_INSTANT_TRIM,
   /* Модуль Bind */ FUNC_BIND,
@@ -864,6 +881,7 @@ Functions cfn_sorted[] = {
   /* Override */ FUNC_OVERRIDE_CHANNEL,
   /* Play Sound */ FUNC_PLAY_SOUND,
   /* Play Track */ FUNC_PLAY_TRACK,
+  /* Play User Track */ FUNC_PLAY_USER_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,

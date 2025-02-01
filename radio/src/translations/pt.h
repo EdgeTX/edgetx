@@ -100,6 +100,7 @@
  
 #define TR_SOUND                       "Tocar Som"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Tocar Trilha")
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  TR("RepValor","Rep Valor")
 #define TR_SF_HAPTIC                   "Vibrar"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Script Lua")

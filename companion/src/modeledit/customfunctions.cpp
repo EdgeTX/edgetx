@@ -75,12 +75,23 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   connectItemModelEvents(tabFilterFactory->getItemModel(rawSourceGVarsId));
 
   if (!firmware->getCapability(VoicesAsNumbers)) {
-    tracksSet = getFilesSet(getSoundsPath(generalSettings), QStringList() << "*.wav" << "*.WAV", firmware->getCapability(VoicesMaxLength));
+    QString pathUser = g.profile[g.id()].sdPath() + "/SOUNDS/USER";
+
+    QString pathSystem = g.profile[g.id()].sdPath() + "/SOUNDS/";
+    QString lang = generalSettings.ttsLanguage;
+    if (lang.isEmpty())
+      lang = "en";
+    pathSystem.append(lang);
+
+    tracksSet = getFilesSet(pathSystem, QStringList() << "*.wav" << "*.WAV", firmware->getCapability(VoicesMaxLength));
+    tracksSetUser = getFilesSet(pathUser, QStringList() << "*.wav" << "*.WAV", firmware->getCapability(VoicesMaxLength));
+
     for (int i = 0; i < fswCapability; i++) {
-      if (functions[i].func == FuncPlayPrompt || functions[i].func == FuncBackgroundMusic) {
+      if (functions[i].func == FuncPlayPrompt || functions[i].func == FuncPlayUserPrompt || functions[i].func == FuncBackgroundMusic) {
         QString temp = functions[i].paramarm;
+
         if (!temp.isEmpty()) {
-          tracksSet.insert(temp);
+          functions[i].func == FuncPlayUserPrompt ? tracksSetUser.insert(temp) : tracksSet.insert(temp);
         }
       }
     }
@@ -274,8 +285,13 @@ bool CustomFunctionsPanel::playSound(int index)
     }
     else {
       QString lang(generalSettings.ttsLanguage);
-      if (lang.isEmpty())
+
+      if (functions[index].func == FuncPlayUserPrompt) {
+        lang = "USER";
+      } else if (lang.isEmpty()) {
         lang = "en";
+      }
+
       path.append(QString("/SOUNDS/%1/%2.wav").arg(lang).arg(fswtchParamArmT[index]->currentText()));
     }
   }
@@ -471,7 +487,8 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
       populateFuncParamCB(fswtchParamT[i], func, cfn.param);
       widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM;
     }
-    else if (func == FuncPlaySound || func == FuncPlayHaptic || func == FuncPlayValue || func == FuncPlayPrompt || func == FuncPlayBoth || func == FuncBackgroundMusic || func == FuncSetScreen) {
+    else if (func == FuncPlaySound || func == FuncPlayHaptic || func == FuncPlayValue || func == FuncPlayPrompt || 
+             func == FuncPlayUserPrompt || func == FuncPlayBoth || func == FuncBackgroundMusic || func == FuncSetScreen) {
       if (func != FuncBackgroundMusic) {
         if (modified)
           cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
@@ -485,12 +502,12 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
         populateFuncParamCB(fswtchParamT[i], func, cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM | CUSTOM_FUNCTION_REPEAT;
       }
-      else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
+      else if (func == FuncPlayPrompt || func == FuncPlayUserPrompt || func == FuncPlayBoth) {
         if (firmware->getCapability(VoicesAsNumbers)) {
           fswtchParam[i]->setDecimals(0);
           fswtchParam[i]->setSingleStep(1);
           fswtchParam[i]->setMinimum(0);
-          if (func == FuncPlayPrompt) {
+          if (func == FuncPlayPrompt || func == FuncPlayUserPrompt) {
             widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM | CUSTOM_FUNCTION_REPEAT | CUSTOM_FUNCTION_GV_TOOGLE;
           }
           else {
@@ -524,7 +541,12 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool modified)
           if (modified) {
             Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, firmware->getCapability(VoicesMaxLength));
           }
-          Helpers::populateFileComboBox(fswtchParamArmT[i], tracksSet, cfn.paramarm);
+
+          if (func == FuncPlayUserPrompt)
+            Helpers::populateFileComboBox(fswtchParamArmT[i], tracksSetUser, cfn.paramarm);
+          else
+            Helpers::populateFileComboBox(fswtchParamArmT[i], tracksSet, cfn.paramarm);
+
           if (fswtchParamArmT[i]->currentText() != CPN_STR_NONE_ITEM) {
             widgetsMask |= CUSTOM_FUNCTION_PLAY;
           }

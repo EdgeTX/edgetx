@@ -303,6 +303,7 @@ extern const char STR_SWITCH_STARTUP[];
 extern const char* const STR_FUNCTION_SWITCH_GROUPS[];
 extern const char STR_ADJUST_GVAR[];
 extern const char STR_PLAY_TRACK[];
+extern const char STR_PLAY_USER_TRACK[];
 extern const char STR_PLAY_VALUE[];
 extern const char STR_SOUND[];
 extern const char STR_SF_BACKLIGHT[];

@@ -72,6 +72,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_BIND, "BIND"  },
   {  FUNC_PLAY_SOUND, "PLAY_SOUND"  },
   {  FUNC_PLAY_TRACK, "PLAY_TRACK"  },
+  {  FUNC_PLAY_USER_TRACK, "PLAY_USER_TRACK"  },
   {  FUNC_PLAY_VALUE, "PLAY_VALUE"  },
   {  FUNC_PLAY_SCRIPT, "PLAY_SCRIPT"  },
   {  FUNC_BACKGND_MUSIC, "BACKGND_MUSIC"  },

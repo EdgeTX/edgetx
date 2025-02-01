@@ -93,6 +93,7 @@
 
 #define TR_SOUND                       "播放声音"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "播放音频文件")
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  "播放数值"
 #define TR_SF_HAPTIC                   "振动"
 #define TR_SF_BG_MUSIC                 "播放背景音乐"

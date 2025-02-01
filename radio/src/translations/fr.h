@@ -101,6 +101,7 @@
  
 #define TR_SOUND                       "Jouer son"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Jouer fichier")
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  "Lire valeur"
 #define TR_SF_HAPTIC                   "Vibreur"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Script Lua")

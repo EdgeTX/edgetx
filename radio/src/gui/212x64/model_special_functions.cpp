@@ -53,6 +53,9 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
     if (func == FUNC_PLAY_SCRIPT) {
       strcpy(directory, SCRIPTS_FUNCS_PATH);
     }
+    else if (func == FUNC_PLAY_USER_TRACK) {
+      strcpy(directory, SOUNDS_USER_FOLDER);
+    } 
     else {
       strcpy(directory, SOUNDS_PATH);
       strncpy(directory+SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
@@ -318,7 +321,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT);
           }
 #endif
-          else if (func == FUNC_PLAY_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT) {
+          else if (func == FUNC_PLAY_TRACK || func == FUNC_PLAY_USER_TRACK || func == FUNC_BACKGND_MUSIC || func == FUNC_PLAY_SCRIPT) {
             coord_t x = MODEL_SPECIAL_FUNC_3RD_COLUMN;
             if (ZEXIST(cfn->play.name))
               lcdDrawSizedText(x, y, cfn->play.name, sizeof(cfn->play.name), attr);
@@ -326,9 +329,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               lcdDrawTextAtIndex(x, y, STR_VCSWFUNC, 0, attr);
             if (active && event==EVT_KEY_BREAK(KEY_ENTER)) {
               s_editMode = 0;
-              char directory[256];
+              char directory[32];
               if (func==FUNC_PLAY_SCRIPT) {
                 strcpy(directory, SCRIPTS_FUNCS_PATH);
+              }
+              else if (func==FUNC_PLAY_USER_TRACK) { 
+                strcpy(directory, SOUNDS_USER_FOLDER);
               }
               else {
                 strcpy(directory, SOUNDS_PATH);

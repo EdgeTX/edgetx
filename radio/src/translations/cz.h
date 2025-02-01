@@ -104,6 +104,7 @@
 
 #define TR_SOUND                       TR3("\204\205Zvuk", "\204\205Zvuk", "Hrát zvuk")
 #define TR_PLAY_TRACK                  TR3("\204\205Stopa", "\204\205Stopa", "Přehrát wav")
+#define TR_PLAY_USER_TRACK             TR3("Ply UTr", "Play User Trk" , "Play User Track")
 #define TR_PLAY_VALUE                  TR3("\204\205Hlásit ", "\204\205Hlásit ", "Hlásit stav")
 #define TR_SF_HAPTIC                   "Vibrovat"
 #define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua Skript")
