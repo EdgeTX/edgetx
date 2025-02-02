@@ -1367,11 +1367,6 @@ int cliDisplay(const char ** argv)
     gettime(&utm);
     cliSerialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
   }
-#if !defined(SOFTWARE_VOLUME)
-  else if (!strcmp(argv[1], "volume")) {
-    cliSerialPrint("volume = %d", getVolume());
-  }
-#endif
   else if (!strcmp(argv[1], "uid")) {
     char str[LEN_CPU_UID+1];
     getCPUUniqueID(str);
