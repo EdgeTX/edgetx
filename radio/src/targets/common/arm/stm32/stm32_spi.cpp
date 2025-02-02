@@ -75,7 +75,7 @@ static inline uint32_t _get_spi_af(SPI_TypeDef *SPIx)
   return LL_GPIO_AF_5;
 }
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
 static inline uint32_t _get_spi_clocksource(SPI_TypeDef* SPIx)
 {
 #if defined(LL_RCC_SPI123_CLKSOURCE)
@@ -107,7 +107,7 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
   LL_RCC_ClocksTypeDef RCC_Clocks;
   LL_RCC_GetSystemClocksFreq(&RCC_Clocks);
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   uint32_t pclk = LL_RCC_GetSPIClockFreq(_get_spi_clocksource(SPIx));
 #else
   uint32_t pclk = RCC_Clocks.PCLK2_Frequency;
@@ -121,7 +121,7 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
     pclk = RCC_Clocks.PCLK1_Frequency;
   }
 #endif
-#endif // STM32H7 || STM32H7RS
+#endif // STM32H7 || STM32H7RS || STM32H5
   uint32_t divider = (pclk + max_freq) / max_freq;
   uint32_t presc;
   if (divider > 128) {
@@ -237,7 +237,7 @@ void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp
 
   LL_SPI_Init(SPIx, &spiInit);
   LL_SPI_Enable(SPIx);
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   LL_SPI_StartMasterTransfer(SPIx);
 #endif
 
@@ -264,11 +264,11 @@ void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate)
 {
   auto* SPIx = spi->SPIx;
   uint32_t presc = _get_spi_prescaler(SPIx, baudrate);
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   LL_SPI_Disable(SPIx);
 #endif
   LL_SPI_SetBaudRatePrescaler(SPIx, presc);
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   LL_SPI_Enable(SPIx);
   LL_SPI_StartMasterTransfer(SPIx);
 #endif

@@ -33,6 +33,7 @@
 #include "hal/rgbleds.h"
 
 #include "board.h"
+#include "system_clock.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 #include "boards/generic_stm32/analog_inputs.h"
@@ -64,6 +65,13 @@ HardwareOptions hardwareOptions;
 
 #if defined(LED_STRIP_GPIO)
 extern const stm32_pulse_timer_t _led_timer;
+#endif
+
+#if defined(BOOT) && defined(STM32H5)
+void boardBLEarlyInit()
+{
+  SystemClock_Config();
+}
 #endif
 
 #if !defined(BOOT)
@@ -112,6 +120,7 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
 
 void boardInit()
 {
+  SystemClock_Config();
 #if defined(AUDIO)
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
 #endif

@@ -13,7 +13,12 @@ set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(TARGET_DIR taranis)
 
-set(HSE_VALUE 12000000)
+if(PCBREV STREQUAL H5TEST)
+  set(HSE_VALUE 8000000)
+else()
+  set(HSE_VALUE 12000000)
+endif()
+
 set(TARGET_DIR taranis)
 set(PPM_LIMITS_SYMETRICAL YES)
 
@@ -120,7 +125,7 @@ elseif(PCB STREQUAL X7)
   elseif(PCBREV STREQUAL H5TEST)
     set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
     set(INTERNAL_MODULE_SERIAL YES)
-    #set(LCD_DRIVER lcd_driver_newspi.cpp)
+    set(LCD_DRIVER lcd_driver_newspi.cpp)
     set(MODULE_SIZE_STD NO)
     set(USB_CHARGER YES)
     set(FLAVOUR h5test)
@@ -609,6 +614,7 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
+  ${TARGET_SRC_DIR}/system_clock.cpp
   ${TARGET_SRC_DIR}/led_driver.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
