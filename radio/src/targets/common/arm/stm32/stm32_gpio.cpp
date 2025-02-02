@@ -46,7 +46,8 @@ static inline void _enable_clock(GPIO_TypeDef* port)
   uint32_t reg_msk = RCC_AHB1ENR_GPIOAEN << reg_idx;
   LL_AHB1_GRP1_EnableClock(reg_msk);
 #elif defined(RCC_AHB2ENR_GPIOAEN)
-  LL_AHB2_GRP1_EnableClock(RCC_AHB2ENR_GPIOAEN);
+  uint32_t reg_msk = RCC_AHB2ENR_GPIOAEN << reg_idx;
+  LL_AHB2_GRP1_EnableClock(reg_msk);
 #else
   #error "Unsupported GPIO clock"
 #endif
