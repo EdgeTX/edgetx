@@ -254,7 +254,10 @@ void SystemInit(void)
   #ifdef VECT_TAB_SRAM
     SCB->VTOR = SRAM1_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
   #else
-    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+//    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+
+    extern uint32_t g_pfnVectors ;
+    SCB->VTOR = (uint32_t) &g_pfnVectors ; /* Vector Table Relocation in Internal FLASH */
   #endif /* VECT_TAB_SRAM */
 
   /* Check OPSR register to verify if there is an ongoing swap or option bytes update interrupted by a reset */
@@ -392,10 +395,10 @@ void MemManage_Handler() {  asm("BKPT"); }
 void BusFault_Handler() {  asm("BKPT"); }
 void UsageFault_Handler() {  asm("BKPT"); }
 void SecureFault_Handler() {  asm("BKPT"); }
-void SVC_Handler() {  asm("BKPT"); }
+// void SVC_Handler() {  asm("BKPT"); }
 void DebugMon_Handler() {  asm("BKPT"); }
-void PendSV_Handler() {  asm("BKPT"); }
-void SysTick_Handler() {  asm("BKPT"); }
+// void PendSV_Handler() {  asm("BKPT"); }
+// void SysTick_Handler() {  asm("BKPT"); }
 void WWDG_IRQHandler() {  asm("BKPT"); }
 void PVD_AVD_IRQHandler() {  asm("BKPT"); }
 void RTC_IRQHandler() {  asm("BKPT"); }
@@ -416,9 +419,9 @@ void EXTI5_IRQHandler() {  asm("BKPT"); }
 void EXTI6_IRQHandler() {  asm("BKPT"); }
 void EXTI7_IRQHandler() {  asm("BKPT"); }
 void EXTI8_IRQHandler() {  asm("BKPT"); }
-void EXTI9_IRQHandler() {  asm("BKPT"); }
+//void EXTI9_IRQHandler() {  asm("BKPT"); }
 void EXTI10_IRQHandler() {  asm("BKPT"); }
-void EXTI11_IRQHandler() {  asm("BKPT"); }
+//void EXTI11_IRQHandler() {  asm("BKPT"); }
 void EXTI12_IRQHandler() {  asm("BKPT"); }
 void EXTI13_IRQHandler() {  asm("BKPT"); }
 void EXTI14_IRQHandler() {  asm("BKPT"); }
@@ -468,7 +471,7 @@ void ADC2_IRQHandler() {  asm("BKPT"); }
 void LPTIM2_IRQHandler() {  asm("BKPT"); }
 void TIM15_IRQHandler() {  asm("BKPT"); }
 void TIM16_IRQHandler() {  asm("BKPT"); }
-void TIM17_IRQHandler() {  asm("BKPT"); }
+//void TIM17_IRQHandler() {  asm("BKPT"); }
 void USB_DRD_FS_IRQHandler() {  asm("BKPT"); }
 void CRS_IRQHandler() {  asm("BKPT"); }
 void UCPD1_IRQHandler() {  asm("BKPT"); }
@@ -507,7 +510,7 @@ void DTS_IRQHandler() {  asm("BKPT"); }
 void RNG_IRQHandler() {  asm("BKPT"); }
 void HASH_IRQHandler() {  asm("BKPT"); }
 void CEC_IRQHandler() {  asm("BKPT"); }
-void TIM12_IRQHandler() {  asm("BKPT"); }
+// void TIM12_IRQHandler() {  asm("BKPT"); }
 void TIM13_IRQHandler() {  asm("BKPT"); }
 // void TIM14_IRQHandler() {  asm("BKPT"); }
 void I3C1_EV_IRQHandler() {  asm("BKPT"); }
