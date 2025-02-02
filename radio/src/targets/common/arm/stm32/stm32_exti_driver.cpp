@@ -85,7 +85,7 @@
   _DEFINE_EXTI_IRQ_HANDLER(EXTI4_IRQ, 4, 4);
 #endif
 
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
 
 #if defined(USE_EXTI5_IRQ)
   _DEFINE_EXTI_IRQ_HANDLER(EXTI5_IRQ, 5, 5);
