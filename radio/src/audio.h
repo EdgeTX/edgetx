@@ -526,6 +526,9 @@ void audioTimerCountdown(uint8_t timer, int value);
 
 #include "buzzer.h"
 
+#define AUDIO_KEY_PRESS()
+#define AUDIO_KEY_ERROR()
+
 #define AUDIO_TIMER_COUNTDOWN(idx, val) 
 #define AUDIO_TIMER_ELAPSED(idx) 
 #define AUDIO_TRIM_MIN()
