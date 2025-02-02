@@ -55,7 +55,6 @@ extern "C" {
 #define LUA_WARNING_INFO_LEN                64
 #endif
 #define PERMANENT_SCRIPTS_MAX_INSTRUCTIONS 100
-#define LUA_TASK_PERIOD_TICKS                5   // 50 ms
 
 // #if defined(HARDWARE_TOUCH)
 // #include "touch.h"
@@ -1281,7 +1280,7 @@ bool luaTask(bool allowLcdUsage)
  
   // For preemption
   luaCycleStart = get_tmr10ms();
-
+ 
   switch (luaState) {
     case INTERPRETER_RELOAD_PERMANENT_SCRIPTS:
       init = true;

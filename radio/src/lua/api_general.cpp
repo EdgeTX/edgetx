@@ -2199,7 +2199,7 @@ static int luaGetUsage(lua_State * L)
     lua_pushinteger(L, instructionsPercent);
   }
 #else
-  lua_pushinteger(L, instructionsPercent);
+  lua_pushinteger(L, 100 * maxLuaDuration / LUA_TASK_PERIOD_TICKS);
 #endif
   return 1;
 }
