@@ -33,6 +33,7 @@
 #include "hal/rgbleds.h"
 
 #include "board.h"
+#include "system_clock.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 #include "boards/generic_stm32/analog_inputs.h"
@@ -62,6 +63,13 @@
 
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
+#endif
+
+#if defined(BOOT) && defined(STM32H5)
+void boardBLEarlyInit()
+{
+  SystemClock_Config();
+}
 #endif
 
 HardwareOptions hardwareOptions;
@@ -127,6 +135,7 @@ void SDLEDpwrInit()
 
 void boardInit()
 {
+  SystemClock_Config();
 #if defined(AUDIO)
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
 #endif
