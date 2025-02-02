@@ -88,7 +88,7 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
   #endif
 #endif
 
-#if defined(SIMU)
+#if defined(SIMU) && defined(SIMU_AUDIO)
   #define AUDIO_BUFFER_COUNT           (10) // simulator needs more buffers for smooth audio
 #elif defined(AUDIO_SPI)
   #define AUDIO_BUFFER_COUNT           (2)  // smaller than Taranis since there is also a buffer on the ADC chip
@@ -510,6 +510,11 @@ void audioTimerCountdown(uint8_t timer, int value);
 #define AUDIO_TRAINER_BACK()     audioEvent(AU_TRAINER_BACK)
 
 #else // AUDIO
+
+#include "buzzer.h"
+
+#define AUDIO_KEY_PRESS()
+#define AUDIO_KEY_ERROR()
 
 #define AUDIO_TIMER_COUNTDOWN(idx, val) 
 #define AUDIO_TIMER_ELAPSED(idx) 
