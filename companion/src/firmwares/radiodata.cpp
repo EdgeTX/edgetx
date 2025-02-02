@@ -343,3 +343,19 @@ AbstractStaticItemModel * RadioData::modelSortOrderItemModel()
   mdl->loadItemList();
   return mdl;
 }
+
+void RadioData::validateModels()
+{
+  for(auto &model: models)
+    model.validate();
+}
+
+int RadioData::invalidModels()
+{
+  int cnt = 0;
+
+  for(auto &model: models)
+    cnt += model.isValid() ? 0 : 1;
+
+  return cnt;
+}

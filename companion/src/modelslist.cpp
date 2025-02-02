@@ -186,6 +186,12 @@ QVariant ModelsListModel::data(const QModelIndex & index, int role) const
   }
 
   if (role == Qt::ForegroundRole && item->isModel()) {
+    if (index.column() == (hasLabels ? 0 : 1) && radioData->models[item->getModelIndex()].modelErrors) {
+      QBrush brush;
+      brush.setColor(Qt::red);
+      return brush;
+    }
+
     int col = item->columnCount() - 1;
     if(hasLabels)
         col --;

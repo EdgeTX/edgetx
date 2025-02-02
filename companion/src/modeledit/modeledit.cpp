@@ -140,7 +140,8 @@ ModelEdit::~ModelEdit()
 
 void ModelEdit::closeEvent(QCloseEvent *event)
 {
-  g.modelEditGeo( saveGeometry() );
+  g.modelEditGeo(saveGeometry());
+  emit closed(modelId);
 }
 
 void ModelEdit::addTab(GenericPanel *panel, QString text)
