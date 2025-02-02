@@ -361,7 +361,7 @@ static void* crossfireInit(uint8_t module)
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init params(crsfSerialParams);
 
-#if defined(INTERNAL_MODULE_CRSF)
+#if defined(HARDWARE_INTERNAL_MODULE) && defined(INTERNAL_MODULE_CRSF)
   if (module == INTERNAL_MODULE) {
     params.baudrate = INT_CROSSFIRE_BAUDRATE;
     mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
