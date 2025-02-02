@@ -2295,6 +2295,7 @@ void menuModelSetup(event_t event)
         break;
       }
 
+#if defined(HARDWARE_EXTERNAL_MODULE) || defined(HARDWARE_INTERNAL_MODULE)
 #if defined(INTERNAL_MODULE_MULTI)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_POWER:
 #endif
@@ -2498,6 +2499,7 @@ void menuModelSetup(event_t event)
         break;
       }
 #endif
+#endif // defined(HARDWARE_EXTERNAL_MODULE) || defined(HARDWARE_INTERNAL_MODULE)
 
 #if 0
       case ITEM_MODEL_SETUP_PPM2_PROTOCOL:
