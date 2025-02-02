@@ -252,7 +252,9 @@ void boardInit()
     TRACE("adcInit failed");
 
   lcdInit(); // delaysInit() must be called before
+#if defined(AUDIO)
   audioInit();
+#endif
   timersInit();
   usbInit();
 
