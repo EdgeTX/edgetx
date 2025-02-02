@@ -476,6 +476,16 @@ enum SwitchSources {
   SWSRC_INVERT SKIP = SWSRC_COUNT+1,
 };
 
+enum SwitchTypes {
+  SW_SWITCH = 1 << 0,
+  SW_TRIM = 1 << 1,
+  SW_LOGICAL_SWITCH = 1 << 2,
+  SW_FLIGHT_MODE = 1 << 3,
+  SW_TELEM = 1 << 4,
+  SW_OTHER = 1 << 5,
+  SW_NONE = 1 << 20,
+};
+
 enum MixSources {
   MIXSRC_NONE,
 
@@ -562,6 +572,31 @@ enum MixSources {
 #define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxSwitches() - 1)
 #define MIXSRC_FIRST_FS_SWITCH      (MIXSRC_LAST_REGULAR_SWITCH + 1)
 #endif
+
+enum SrcTypes {
+  SRC_INPUT = 1 << 0,
+  SRC_LUA = 1 << 1,
+  SRC_STICK = 1 << 2,
+  SRC_POT = 1 << 3,
+  SRC_TILT = 1 << 4,
+  SRC_SPACEMOUSE = 1 << 5,
+  SRC_MINMAX = 1 << 6,
+  SRC_HELI = 1 << 7,
+  SRC_TRIM = 1 << 8,
+  SRC_SWITCH = 1 << 9,
+  SRC_FUNC_SWITCH = 1 << 10,
+  SRC_LOGICAL_SWITCH = 1 << 11,
+  SRC_TRAINER = 1 << 12,
+  SRC_CHANNEL = 1 << 13,
+  SRC_CHANNEL_ALL = 1 << 14,
+  SRC_GVAR = 1 << 15,
+  SRC_TX = 1 << 16,
+  SRC_TIMER = 1 << 17,
+  SRC_TELEM = 1 << 18,
+  SRC_TELEM_COMP = 1 << 19,
+  SRC_NONE = 1 << 20,
+  SRC_INVERT = 1 << 21,
+};
 
 enum BacklightMode {
   e_backlight_mode_off  = 0,

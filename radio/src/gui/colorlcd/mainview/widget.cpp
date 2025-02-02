@@ -120,9 +120,8 @@ void Widget::setFullscreen(bool enable)
 
     bringToTop();
 
-    if (!lv_obj_get_group(lvobj)) {
+    if (!lv_obj_get_group(lvobj))
       lv_group_add_obj(lv_group_get_default(), lvobj);
-    }
 
     // disable scroll chaining (sliding main view)
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
@@ -130,7 +129,8 @@ void Widget::setFullscreen(bool enable)
   }
 
   // set group in editing mode (keys LEFT / RIGHT)
-  lv_group_set_editing(lv_group_get_default(), enable);
+  if (enableFullScreenRE())
+    lv_group_set_editing(lv_group_get_default(), enable);
 
   onFullscreen(enable);
 

@@ -109,7 +109,6 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   return lw;
 }
 
-
 void LuaWidgetFactory::translateOptions(ZoneOption * options)
 {
   if (lsWidgets == 0) return;

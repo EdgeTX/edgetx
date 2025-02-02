@@ -126,9 +126,12 @@ void LvglWidgetObjectBase::pcallSimpleFunc(lua_State *L, int funcRef)
   if (funcRef != LUA_REFNIL) {
     PROTECT_LUA()
     {
+      auto save = luaLvglManager;
+      luaLvglManager = lvglManager;
       if (!pcallFunc(L, funcRef, 0)) {
         lvglManager->luaShowError();
       }
+      luaLvglManager = save;
     }
     UNPROTECT_LUA();
   }
@@ -137,39 +140,54 @@ void LvglWidgetObjectBase::pcallSimpleFunc(lua_State *L, int funcRef)
 bool LvglWidgetObjectBase::pcallUpdateBool(lua_State *L, int getFuncRef,
                                            std::function<void(bool)> update)
 {
+  bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
-      bool val = lua_toboolean(L, -1);
+      bool val = false;
+      if (lua_isboolean(L, -1))
+        val = lua_toboolean(L, -1);
+      else
+        val = luaL_optinteger(L, -1, 0) != 0;
       update(val);
       lua_settop(L, t);
     } else {
-      return false;
+      res = false;
     }
+    lvglManager = save;
   }
-  return true;
+  return res;
 }
 
 bool LvglWidgetObjectBase::pcallUpdate1Int(lua_State *L, int getFuncRef,
                                            std::function<void(int)> update)
 {
+  bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
       int val = luaL_checkunsigned(L, -1);
       update(val);
       lua_settop(L, t);
     } else {
-      return false;
+      res = false;
     }
+    lvglManager = save;
   }
-  return true;
+  return res;
 }
 
 bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, int getFuncRef,
                                            std::function<void(int, int)> update)
 {
+  bool res = true;
   if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 2)) {
       int v1 = luaL_checkunsigned(L, -2);
@@ -177,21 +195,27 @@ bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, int getFuncRef,
       update(v1, v2);
       lua_settop(L, t);
     } else {
-      return false;
+      res = false;
     }
+    lvglManager = save;
   }
-  return true;
+  return res;
 }
 
 int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
 {
   int val = 0;
   if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
     {
       if (pcallFunc(L, getFuncRef, 1)) {
-        val = luaL_checkinteger(L, -1);
+        if (lua_isboolean(L, -1))
+          val = lua_toboolean(L, -1);
+        else
+          val = luaL_checkinteger(L, -1);
       } else {
         lvglManager->luaShowError();
       }
@@ -202,6 +226,36 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
+    lvglManager = save;
+  }
+  return val;
+}
+
+int LvglWidgetObjectBase::pcallGetOptIntVal(lua_State *L, int getFuncRef, int defVal)
+{
+  int val = 0;
+  if (getFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
+    luaLvglManager = lvglManager;
+    int t = lua_gettop(L);
+    PROTECT_LUA()
+    {
+      if (pcallFunc(L, getFuncRef, 1)) {
+        if (lua_isboolean(L, -1))
+          val = lua_toboolean(L, -1);
+        else
+          val = luaL_optinteger(L, -1, defVal);
+      } else {
+        lvglManager->luaShowError();
+      }
+    }
+    else
+    {
+      lvglManager->luaShowError();
+    }
+    UNPROTECT_LUA();
+    lua_settop(L, t);
+    lvglManager = save;
   }
   return val;
 }
@@ -209,6 +263,8 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
 void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
 {
   if (setFuncRef != LUA_REFNIL) {
+    auto save = luaLvglManager;
+    luaLvglManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
     {
@@ -222,6 +278,7 @@ void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
+    lvglManager = save;
   }
 }
 
@@ -461,7 +518,7 @@ void LvglWidgetLabel::setFont(LcdFlags font)
 {
   if (lvobj) {
     this->font = font;
-    lv_obj_set_style_text_font(lvobj, getFont(font), LV_PART_MAIN);
+    etx_font(lvobj, FONT_INDEX(font));
   }
 }
 
@@ -940,6 +997,8 @@ void LvglWidgetObject::parseParam(lua_State *L, const char *key)
     flexFlow = luaL_checkinteger(L, -1);
   } else if (!strcmp(key, "flexPad")) {
     flexPad = luaL_checkinteger(L, -1);
+  } else if (!strcmp(key, "active")) {
+    getActiveFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
     LvglWidgetObjectBase::parseParam(L, key);
   }
@@ -971,12 +1030,32 @@ bool LvglWidgetObject::setFlex()
   }
 }
 
+bool LvglWidgetObject::callRefs(lua_State *L)
+{
+  if (!pcallUpdateBool(L, getActiveFunction,
+                       [=](bool active) { if (active) enable(); else disable(); }))
+    return false;
+  return LvglWidgetObjectBase::callRefs(L);
+}
+
+void LvglWidgetObject::clearRefs(lua_State *L)
+{
+  clearRef(L, getActiveFunction);
+  LvglWidgetObjectBase::clearRefs(L);
+}
+
 //-----------------------------------------------------------------------------
 
 void LvglWidgetBox::build(lua_State* L)
 {
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
+  lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
+  if (luaLvglManager->isWidget()) {
+    lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
+  } else {
+    etx_scrollbar(window->getLvObj());
+  }
   if (setFlex())
     lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
 }
@@ -1266,10 +1345,16 @@ void LvglWidgetQRCode::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
+void LvglWidgetTextButtonBase::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "text")) {
     txt = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "font")) {
+    font = luaL_checkunsigned(L, -1);
+  } else if (!strcmp(key, "cornerRadius")) {
+    rounded = luaL_checkunsigned(L, -1);
+  } else if (!strcmp(key, "textColor")) {
+    textColor = luaL_checkunsigned(L, -1);
   } else if (!strcmp(key, "press")) {
     pressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
@@ -1277,13 +1362,13 @@ void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetTextButton::clearRefs(lua_State *L)
+void LvglWidgetTextButtonBase::clearRefs(lua_State *L)
 {
   clearRef(L, pressFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
-void LvglWidgetTextButton::setText(const char *s)
+void LvglWidgetTextButtonBase::setText(const char *s)
 {
   uint32_t h = hash(s, strlen(s));
   if (h != textHash) {
@@ -1293,14 +1378,126 @@ void LvglWidgetTextButton::setText(const char *s)
   }
 }
 
+void LvglWidgetTextButtonBase::setSize(coord_t w, coord_t h)
+{
+  if (w == LV_SIZE_CONTENT || w == 0) w = lv_obj_get_width(window->getLvObj());
+  if (h == LV_SIZE_CONTENT || h == 0) h = lv_obj_get_height(window->getLvObj());
+  LvglWidgetObject::setSize(w, h);
+}
+
+void LvglWidgetTextButtonBase::setColor(LcdFlags newColor)
+{
+  color = newColor;
+  if (color != currentColor) {
+    currentColor = color;
+    etx_bg_color_from_flags(window->getLvObj(), color);
+  }
+  if (textColor != currentTextColor) {
+    currentTextColor = textColor;
+    etx_txt_color_from_flags(window->getLvObj(), textColor);
+  }
+}
+
+void LvglWidgetTextButtonBase::setRounded()
+{
+  if (rounded >= 0) {
+    lv_obj_remove_style(window->getLvObj(), (lv_style_t*)&styles->rounded, LV_PART_MAIN);
+    if (rounded > 0)
+      lv_obj_set_style_radius(window->getLvObj(), rounded, LV_PART_MAIN);
+  }
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "checked")) {
+    checked = lua_toboolean(L, -1);
+  } else if (!strcmp(key, "longpress")) {
+    longPressFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else {
+    LvglWidgetTextButtonBase::parseParam(L, key);
+  }
+}
+
+void LvglWidgetTextButton::clearRefs(lua_State *L)
+{
+  clearRef(L, longPressFunction);
+  LvglWidgetTextButtonBase::clearRefs(L);
+}
+
+void LvglWidgetTextButton::setFont(LcdFlags font)
+{
+  if (window) {
+    this->font = font;
+    ((TextButton*)window)->setFont(FONT_INDEX(font));
+  }
+}
+
+void LvglWidgetTextButton::setChecked(bool checked)
+{
+  this->checked = checked;
+  ((TextButton*)window)->check(checked);
+}
+
 void LvglWidgetTextButton::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
-  window =
+  auto btn =
       new TextButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt, [=]() {
-        pcallSimpleFunc(L, pressFunction);
-        return 0;
+        return pcallGetOptIntVal(L, pressFunction, 0);
       });
+  if (longPressFunction != LUA_REFNIL) {
+    btn->setLongPressHandler([=]() {
+      return pcallGetOptIntVal(L, longPressFunction, 0);
+    });
+  }
+  window = btn;
+  setFont(font);
+  setChecked(checked);
+  setColor(color);
+  setRounded();
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetMomentaryButton::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "release")) {
+    releaseFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else {
+    LvglWidgetTextButtonBase::parseParam(L, key);
+  }
+}
+
+void LvglWidgetMomentaryButton::setFont(LcdFlags font)
+{
+  if (window) {
+    this->font = font;
+    ((MomentaryButton*)window)->setFont(FONT_INDEX(font));
+  }
+}
+
+void LvglWidgetMomentaryButton::clearRefs(lua_State *L)
+{
+  clearRef(L, releaseFunction);
+  LvglWidgetTextButtonBase::clearRefs(L);
+}
+
+void LvglWidgetMomentaryButton::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  window =
+      new MomentaryButton(lvglManager->getCurrentParent(), {x, y, w, h}, txt,
+          [=]() {
+            pcallSimpleFunc(L, pressFunction);
+          },
+          [=]() {
+            pcallSimpleFunc(L, releaseFunction);
+          });
+  setFont(font);
+  setColor(color);
+  setRounded();
 }
 
 //-----------------------------------------------------------------------------
@@ -1437,7 +1634,7 @@ void LvglWidgetNumberEdit::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-void LvglWidgetSlider::parseParam(lua_State *L, const char *key)
+void LvglWidgetSliderBase::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "get")) {
     getValueFunction = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -1452,20 +1649,44 @@ void LvglWidgetSlider::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetSlider::clearRefs(lua_State *L)
+void LvglWidgetSliderBase::setColor(LcdFlags newColor)
+{
+  color = newColor;
+  if (color != currentColor) {
+    currentColor = color;
+    ((SliderBase*)window)->setColor(color);
+  }
+}
+
+void LvglWidgetSliderBase::clearRefs(lua_State *L)
 {
   clearRef(L, getValueFunction);
   clearRef(L, setValueFunction);
   LvglWidgetObject::clearRefs(L);
 }
 
+//-----------------------------------------------------------------------------
+
 void LvglWidgetSlider::build(lua_State *L)
 {
   window = new Slider(
       lvglManager->getCurrentParent(), w, vmin, vmax,
       [=]() { return pcallGetIntVal(L, getValueFunction); },
-      [=](uint8_t val) { pcallSetIntVal(L, setValueFunction, val); });
+      [=](int val) { pcallSetIntVal(L, setValueFunction, val); });
   window->setPos(x, y);
+  setColor(color);
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetVerticalSlider::build(lua_State *L)
+{
+  window = new VerticalSlider(
+      lvglManager->getCurrentParent(), h, vmin, vmax,
+      [=]() { return pcallGetIntVal(L, getValueFunction); },
+      [=](int val) { pcallSetIntVal(L, setValueFunction, val); });
+  window->setPos(x, y);
+  setColor(color);
 }
 
 //-----------------------------------------------------------------------------
@@ -1514,7 +1735,8 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 
   void onEvent(event_t evt) override
   {
-    LuaEventHandler::onEvent(evt);
+    LuaEventHandler::onLuaEvent(evt);
+    parent->onEvent(evt);
   }
 
  protected:
@@ -1733,6 +1955,7 @@ void LvglWidgetAlignPicker::build(lua_State *L)
 
 void LvglWidgetColorPicker::build(lua_State *L)
 {
+  if (w == LV_SIZE_CONTENT) w = 0;
   if (h == LV_SIZE_CONTENT) h = 0;
   window = new ColorPicker(
       lvglManager->getCurrentParent(), {x, y, w, h},
@@ -1759,10 +1982,8 @@ void LvglWidgetTimerPicker::build(lua_State *L)
 
 void LvglWidgetSwitchPicker::parseParam(lua_State *L, const char *key)
 {
-  if (!strcmp(key, "min")) {
-    vmin = luaL_checkinteger(L, -1);
-  } else if (!strcmp(key, "max")) {
-    vmax = luaL_checkinteger(L, -1);
+  if (!strcmp(key, "filter")) {
+    filter = luaL_checkunsigned(L, -1);
   } else {
     LvglWidgetPicker::parseParam(L, key);
   }
@@ -1771,24 +1992,41 @@ void LvglWidgetSwitchPicker::parseParam(lua_State *L, const char *key)
 void LvglWidgetSwitchPicker::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
-  window = new SwitchChoice(
+  auto c = new SwitchChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
-      vmin, vmax,
+      SWSRC_FIRST, SWSRC_LAST,
       [=]() { return pcallGetIntVal(L, getFunction); },
       [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); });
+  c->setAvailableHandler([=](int value) {
+    return checkSwitchAvailable(value, filter);
+  });
+  window = c;
 }
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetSourcePicker::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "filter")) {
+    filter = luaL_checkunsigned(L, -1);
+  } else {
+    LvglWidgetPicker::parseParam(L, key);
+  }
+}
+
 void LvglWidgetSourcePicker::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
-  window = new SourceChoice(
+  auto c = new SourceChoice(
       lvglManager->getCurrentParent(), {x, y, w, h},
       0, MIXSRC_LAST_TELEM,
       [=]() { return pcallGetIntVal(L, getFunction); },
       [=](uint32_t val) { pcallSetIntVal(L, setFunction, val); },
-      true);
+      filter & SRC_INVERT);
+  c->setAvailableHandler([=](int value) {
+    return checkSourceAvailable(value, filter);
+  });
+  window = c;
 }
 
 //-----------------------------------------------------------------------------

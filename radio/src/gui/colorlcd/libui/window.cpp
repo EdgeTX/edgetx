@@ -96,6 +96,12 @@ void Window::eventHandler(lv_event_t *e)
       TRACE("LONG PRESS[%p]", this);
       _longPressed = onLongPress();
       break;
+    case LV_EVENT_PRESSED:
+      onPressed();
+      break;
+    case LV_EVENT_RELEASED:
+      onReleased();
+      break;
     default:
       break;
   }

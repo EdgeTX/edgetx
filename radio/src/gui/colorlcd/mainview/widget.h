@@ -67,6 +67,10 @@ class Widget : public ButtonBase
   // Set/unset fullscreen mode
   void setFullscreen(bool enable);
   void closeFullscreen() { closeFS = true; }
+  bool isFullscreen() const { return fullscreen; }
+
+  // Should rotary encoder events be enabled when full screen
+  virtual bool enableFullScreenRE() const { return true; }
 
   // Called when the widget options have changed
   virtual void update();

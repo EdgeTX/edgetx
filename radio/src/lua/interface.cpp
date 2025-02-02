@@ -55,7 +55,6 @@ extern "C" {
 #define LUA_WARNING_INFO_LEN                64
 #endif
 #define PERMANENT_SCRIPTS_MAX_INSTRUCTIONS 100
-#define LUA_TASK_PERIOD_TICKS                5   // 50 ms
 
 // #if defined(HARDWARE_TOUCH)
 // #include "touch.h"
@@ -74,7 +73,6 @@ ScriptInputsOutputs scriptInputsOutputs[MAX_SCRIPTS];
 
 uint16_t maxLuaInterval = 0;
 uint16_t maxLuaDuration = 0;
-uint8_t instructionsPercent = 0;
 tmr10ms_t luaCycleStart;
 char lua_warning_info[LUA_WARNING_INFO_LEN+1];
 uint8_t errorState;
@@ -1283,9 +1281,6 @@ bool luaTask(bool allowLcdUsage)
   // For preemption
   luaCycleStart = get_tmr10ms();
  
-  // Trying to replace CPU usage measure
-  instructionsPercent = 100 * maxLuaDuration / LUA_TASK_PERIOD_TICKS;
-
   switch (luaState) {
     case INTERPRETER_RELOAD_PERMANENT_SCRIPTS:
       init = true;

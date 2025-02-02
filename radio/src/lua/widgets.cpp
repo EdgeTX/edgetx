@@ -38,6 +38,7 @@
 #define LUA_WARNING_INFO_LEN    64
 
 lua_State * lsWidgets = NULL;
+uint8_t instructionsPercent = 0;
 
 extern int custom_lua_atpanic(lua_State *L);
 

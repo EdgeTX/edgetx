@@ -54,5 +54,7 @@ class ToggleSwitch : public FormField
   std::function<uint8_t()> _getValue;
   std::function<void(uint8_t)> _setValue;
 
+  void checkEvents() override;
+
   static void toggleswitch_event_handler(lv_event_t* e);
 };

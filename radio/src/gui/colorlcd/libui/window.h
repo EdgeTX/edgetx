@@ -146,6 +146,8 @@ class Window
   virtual void onClicked();
   virtual void onCancel();
   virtual bool onLongPress();
+  virtual void onPressed() {}
+  virtual void onReleased() {}
 
   void invalidate();
 
@@ -177,7 +179,7 @@ class Window
 
   virtual void show(bool visible = true);
   void hide() { show(false); }
-  void enable(bool enabled = true);
+  virtual void enable(bool enabled = true);
   void disable() { enable(false); }
 
  protected:

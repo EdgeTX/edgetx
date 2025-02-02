@@ -54,10 +54,6 @@ class SourceChoiceMenuToolbar : public MenuToolbar
         [=](int16_t index) {
           if (index >= MIXSRC_FIRST_POT && index <= MIXSRC_LAST_POT)
             return false;
-#if MAX_AXIS > 0
-          if (index >= MIXSRC_FIRST_AXIS && index <= MIXSRC_LAST_AXIS)
-            return false;
-#endif
           return index >= MIXSRC_FIRST_STICK && index <= lastSource;
         },
         STR_MENU_STICKS);
