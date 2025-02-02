@@ -87,6 +87,7 @@ if(NOT NATIVE_BUILD)
     ${RTOS_DIR}/timers.c
     ${RTOS_DIR}/stream_buffer.c
     ${RTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c
+    ${RTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c
     )
 
   target_include_directories(freertos
