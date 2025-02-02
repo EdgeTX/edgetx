@@ -88,6 +88,8 @@ MainWindow::MainWindow():
     updateDelay += (SPLASH_TIME*1000);
   }
 
+  updateFactories = new UpdateFactories();
+
   if (g.isFirstUse()) {
     g.warningId(g.warningId() | AppMessages::MSG_WELCOME);
     QTimer::singleShot(updateDelay-500, this, SLOT(editAppSettings()));  // must be shown before warnings dialog but after splash
@@ -143,8 +145,6 @@ MainWindow::MainWindow():
   if (printing) {
     QTimer::singleShot(0, this, SLOT(autoClose()));
   }
-
-  updateFactories = new UpdateFactories();
 
   if (checkProfileRadioExists(g.sessionId()))
     QTimer::singleShot(updateDelay, this, &MainWindow::autoCheckForUpdates);
