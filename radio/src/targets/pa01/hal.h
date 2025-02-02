@@ -42,11 +42,12 @@
 // Keys
 #define KEYS_GPIO_REG_ENTER           GPIOG
 #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_13  // PG.13
+/*
 #define KEYS_GPIO_REG_PAGEDN          GPIOA
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8   // PA.08
+#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_2   // PA.02
 #define KEYS_GPIO_REG_EXIT            GPIOC
 #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5   // PC.05
-
+*/
 // Trims
 #define TRIMS_GPIO_REG_LHL
 #define TRIMS_GPIO_PIN_LHL
