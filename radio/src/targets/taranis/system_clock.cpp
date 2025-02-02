@@ -39,6 +39,14 @@ void SystemClock_Config()
   while (LL_RCC_HSE_IsReady() != 1) {
   }
 
+#ifndef BOOT
+  LL_PWR_EnableBkUpAccess();
+//  LL_RCC_LSE_SetExternalClockType(LL_RCC_LSE_ANALOG_TYPE);
+//  LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_HIGH);
+  LL_RCC_LSE_Enable();
+  while (LL_RCC_LSE_IsReady() != 1) {
+  }
+#endif
   /* Set FLASH latency */
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_6);
 
@@ -104,13 +112,16 @@ void SystemClock_Config()
   while (LL_RCC_PLL3_IsReady() != 1) {
   }
 
+#ifndef BOOT
+  LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
+#endif
   LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL3Q);
 
 
   LL_RCC_SetSPIClockSource(LL_RCC_SPI1_CLKSOURCE_PLL1Q);
 
   // Only required if using Async ADC clock ???
-  //LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_CLKP);
+  LL_RCC_SetADCDACClockSource(LL_RCC_ADCDAC_CLKSOURCE_PLL2R);
 
   SystemCoreClockUpdate();
 }
