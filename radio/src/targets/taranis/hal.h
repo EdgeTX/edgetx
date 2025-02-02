@@ -33,6 +33,12 @@
   #define PERI2_FREQUENCY     84000000
   #define TIMER_MULT_APB1     2
   #define TIMER_MULT_APB2     2
+#elif defined(STM32H5)
+  #define CPU_FREQ            250000000
+  #define PERI1_FREQUENCY     250000000
+  #define PERI2_FREQUENCY     250000000
+  #define TIMER_MULT_APB1     1
+  #define TIMER_MULT_APB2     1
 #else
   #define CPU_FREQ            120000000
   #define PERI1_FREQUENCY     30000000
@@ -358,29 +364,30 @@
     #define ROTARY_ENCODER_INVERTED
   #endif
 #elif defined(RADIO_H5TEST)
+  #define ROTARY_ENCODER_NAVIGATION
   #define ROTARY_ENCODER_GPIO             GPIOE
   #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_9 // PE.09
   #define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_11 // PE.11
-#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 2) & 0x03)
+  #define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO->IDR >> 9) & 0x01)|((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x02))
   #define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_9
   #define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_11
   #if !defined(USE_EXTI9_IRQ)
-    #define USE_EXTI2_IRQ
-    #define EXTI2_IRQ_Priority 5
+    #define USE_EXTI9_IRQ
+    #define EXTI9_IRQ_Priority 5
   #endif
-  #if !defined(USE_EXTI3_IRQ)
-    #define USE_EXTI3_IRQ
-    #define EXTI3_IRQ_Priority 5
+  #if !defined(USE_EXTI11_IRQ)
+    #define USE_EXTI11_IRQ
+    #define EXTI11_IRQ_Priority 5
   #endif
-  #define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTG
-  #define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE9
-  #define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE11
+  #define ROTARY_ENCODER_EXTI_PORT        LL_EXTI_EXTI_PORTE
+  #define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_EXTI_EXTI_LINE9
+  #define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_EXTI_EXTI_LINE11
   #define ROTARY_ENCODER_TIMER            TIM17
   #define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
   #define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
 #endif
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(RADIO_H5TEST)
   #define ROTARY_ENCODER_TIMER            TIM5
   #define ROTARY_ENCODER_TIMER_IRQn       TIM5_IRQn
   #define ROTARY_ENCODER_TIMER_IRQHandler TIM5_IRQHandler
@@ -2034,8 +2041,8 @@
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOB, 2)  // PB.02
 #elif defined(RADIO_H5TEST)
-  #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 6)  // PD.06
-  #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 5)  // PD.05
+  #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 5)  // PD.05
+  #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 6)  // PD.06
 #else
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 0)  // PD.00
@@ -2632,8 +2639,13 @@
   #define TELEMETRY_RX_REV_GPIO           GPIO_PIN(GPIOE, 0)  // PE.00
   #define TELEMETRY_TX_REV_GPIO           GPIO_PIN(GPIOE, 0)  // PE.00
 #endif
+#if defined(RADIO_H5TEST)
+#define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 9) // PB.09
+#define TELEMETRY_RX_GPIO               GPIO_UNDEF
+#else
 #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOD, 5) // PD.05
 #define TELEMETRY_RX_GPIO               GPIO_PIN(GPIOD, 6) // PD.06
+#endif
 #define TELEMETRY_USART                 USART2
 #define TELEMETRY_DMA                   DMA1
 #define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
@@ -2862,7 +2874,7 @@
   #define LCD_HORIZONTAL_INVERT
   #define OLED_SCREEN
 #endif
-#if defined(RADIO_T14) || defined(RADIO_GX12) || defined(RADIO_V14)
+#if defined(RADIO_T14) || defined(RADIO_GX12) || defined(RADIO_V14) || defined(RADIO_H5TEST)
   #define SSD1309_LCD
 #endif
 #if defined(PCBX9E)
