@@ -2319,11 +2319,11 @@
   #define INTMODULE_RX_DMA_CHANNEL         LL_DMA_CHANNEL_4
 #elif defined(RADIO_H5TEST)
 #undef HARDWARE_INTERNAL_MODULE
-  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 5)  // PE.05
-  #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOE, 4)  // PE.04
-  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOE, 3)  // PE.03
-  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOE, 2)  // PE.02
-  #define INTMODULE_USART                 USART10
+//  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 5)  // PE.05
+//  #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOE, 4)  // PE.04
+//  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOE, 3)  // PE.03
+//  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOE, 2)  // PE.02
+//  #define INTMODULE_USART                 USART10
 //#define INTMODULE_GPIO_AF               LL_GPIO_AF_7
 //#define INTMODULE_USART_IRQn            USART10_IRQn
 //#define INTMODULE_USART_IRQHandler      USART10_IRQHandler
@@ -2791,7 +2791,11 @@
 #endif
 
 // USB
+#if defined(RADIO_H5TEST)
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOD, 7)  // PD.07
+#else
 #define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
+#endif
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
@@ -2889,7 +2893,22 @@
   #define LCD_DMA_FLAG_INT              DMA_HIFCR_CTCIF7
   #define LCD_SPI                       SPI3
   #define LCD_GPIO_AF                   GPIO_AF6
+#elif defined(RADIO_H5TEST)
+  #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOA, 7) // PA.07
+  #define LCD_CLK_GPIO                  GPIO_PIN(GPIOA, 5) // PA.05
+  #define LCD_A0_GPIO                   GPIO_PIN(GPIOA, 6) // PA.06
+  #define LCD_NCS_GPIO                  GPIO_PIN(GPIOC, 5) // PC.05
+  #define LCD_RST_GPIO                  GPIO_PIN(GPIOC, 4) // PC.04
+#define LCD_DMA                       DMA1
+#define LCD_DMA_Stream                DMA1_Stream7
+#define LCD_DMA_Stream_IRQn           DMA1_Stream7_IRQn
+#define LCD_DMA_Stream_IRQHandler     DMA1_Stream7_IRQHandler
+#define LCD_DMA_FLAGS                 (DMA_HIFCR_CTCIF7 | DMA_HIFCR_CHTIF7 | DMA_HIFCR_CTEIF7 | DMA_HIFCR_CDMEIF7 | DMA_HIFCR_CFEIF7)
+#define LCD_DMA_FLAG_INT              DMA_HIFCR_CTCIF7
+  #define LCD_SPI                       SPI1
+  #define LCD_GPIO_AF                   GPIO_AF8
 #elif defined(PCBX9DP) || defined(PCBX7)
+
   #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOC, 12) // PC.12
   #define LCD_CLK_GPIO                  GPIO_PIN(GPIOC, 10) // PC.10
   #define LCD_A0_GPIO                   GPIO_PIN(GPIOC, 11) // PC.11
@@ -2907,20 +2926,6 @@
   #define LCD_DMA_FLAG_INT              DMA_HIFCR_CTCIF7
   #define LCD_SPI                       SPI3
   #define LCD_GPIO_AF                   GPIO_AF6
-#elif defined(RADIO_H5TEST)
-  #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOA, 7) // PA.07
-  #define LCD_CLK_GPIO                  GPIO_PIN(GPIOA, 5) // PA.05
-  #define LCD_A0_GPIO                   GPIO_PIN(GPIOA, 6) // PA.06
-  #define LCD_NCS_GPIO                  GPIO_PIN(GPIOC, 5) // PC.05
-  #define LCD_RST_GPIO                  GPIO_PIN(GPIOC, 4) // PC.04
-#define LCD_DMA                       DMA1
-#define LCD_DMA_Stream                DMA1_Stream7
-#define LCD_DMA_Stream_IRQn           DMA1_Stream7_IRQn
-#define LCD_DMA_Stream_IRQHandler     DMA1_Stream7_IRQHandler
-#define LCD_DMA_FLAGS                 (DMA_HIFCR_CTCIF7 | DMA_HIFCR_CHTIF7 | DMA_HIFCR_CTEIF7 | DMA_HIFCR_CDMEIF7 | DMA_HIFCR_CFEIF7)
-#define LCD_DMA_FLAG_INT              DMA_HIFCR_CTCIF7
-  #define LCD_SPI                       SPI6
-  #define LCD_GPIO_AF                   GPIO_AF8
 #else
   // Soft SPI: these pins are not connected to SPI periph on STM32F205
   #define LCD_MOSI_GPIO                 GPIO_PIN(GPIOD, 10) // PD.10
@@ -3213,7 +3218,7 @@
 #define MS_TIMER                        TIM14
 #if defined(RADIO_H5TEST)
 #define MS_TIMER_IRQn                   TIM14_IRQn
-#define MS_TIMER_IRQHandler             IRQHandler
+#define MS_TIMER_IRQHandler             TIM14_IRQHandler
 #else
 #define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
 #define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
