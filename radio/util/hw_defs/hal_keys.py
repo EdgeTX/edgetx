@@ -5,7 +5,7 @@
 #
 # where 'trim' is one of:
 #
-#   (-)    (+)   
+#   (-)    (+)
 #  'LHL', 'LHR',
 #  'LVD', 'LVU',
 #  'RVD', 'RVU',
@@ -32,28 +32,56 @@ TRIMS = [
     { "name": "T6", "dec": "T6D", "inc": "T6U" },
 ]
 
-KEYS = [
-    { "name": "MENU", "key": "KEY_MENU", "label": "Menu" },
-    { "name": "EXIT", "key": "KEY_EXIT", "label": "Exit" },
-    { "name": "ENTER", "key": "KEY_ENTER", "label": "Enter" },
+KEYS_CONFIG = [
+    {
+        "targets": {"tx16s"},
+        "keys": [
+            { "name": "EXIT", "key": "KEY_EXIT", "label": "RTN" },
+            { "name": "ENTER", "key": "KEY_ENTER", "label": "Enter" },
+            { "name": "PAGEUP", "key": "KEY_PAGEUP", "label": "PAGE<" },
+            { "name": "PAGEDN", "key": "KEY_PAGEDN", "label": "PAGE>" },
+            { "name": "MDL", "key": "KEY_MODEL", "label": "MDL" },
+            { "name": "TELE", "key": "KEY_TELE", "label": "TELE" },
+            { "name": "SYS", "key": "KEY_SYS", "label": "SYS" }
+        ]
+    },
+    {
+        "targets": {"x9d+"},
+        "keys": [
+            { "name": "MENU", "key": "KEY_MENU", "label": "MENU" },
+            { "name": "EXIT", "key": "KEY_EXIT", "label": "EXIT" },
+            { "name": "ENTER", "key": "KEY_ENTER", "label": "ENT" },
+            { "name": "PAGEDN", "key": "KEY_PAGEDN", "label": "PAGE" },
+            { "name": "PLUS", "key": "KEY_PLUS", "label": "(+)" },
+            { "name": "MINUS", "key": "KEY_MINUS", "label": "(-)" }
+        ]
+    },
+    {
+        "targets": {"default"},
+        "keys": [
+            { "name": "MENU", "key": "KEY_MENU", "label": "Menu" },
+            { "name": "EXIT", "key": "KEY_EXIT", "label": "Exit" },
+            { "name": "ENTER", "key": "KEY_ENTER", "label": "Enter" },
 
-    { "name": "PAGEUP", "key": "KEY_PAGEUP", "label": "PgUp" },
-    { "name": "PAGEDN", "key": "KEY_PAGEDN", "label": "PgDn" },
+            { "name": "PAGEUP", "key": "KEY_PAGEUP", "label": "PgUp" },
+            { "name": "PAGEDN", "key": "KEY_PAGEDN", "label": "PgDn" },
 
-    { "name": "UP", "key": "KEY_UP", "label": "Up" },
-    { "name": "DOWN", "key": "KEY_DOWN", "label": "Down" },
+            { "name": "UP", "key": "KEY_UP", "label": "Up" },
+            { "name": "DOWN", "key": "KEY_DOWN", "label": "Down" },
 
-    { "name": "LEFT", "key": "KEY_LEFT", "label": "Left" },
-    { "name": "RIGHT", "key": "KEY_RIGHT", "label": "Right" },
+            { "name": "LEFT", "key": "KEY_LEFT", "label": "Left" },
+            { "name": "RIGHT", "key": "KEY_RIGHT", "label": "Right" },
 
-    { "name": "PLUS", "key": "KEY_PLUS", "label": "Plus" },
-    { "name": "MINUS", "key": "KEY_MINUS", "label": "Minus" },
+            { "name": "PLUS", "key": "KEY_PLUS", "label": "Plus" },
+            { "name": "MINUS", "key": "KEY_MINUS", "label": "Minus" },
 
-    { "name": "MDL", "key": "KEY_MODEL", "label": "MDL" },
-    { "name": "TELE", "key": "KEY_TELE", "label": "TELE" },
-    { "name": "SYS", "key": "KEY_SYS", "label": "SYS" },
+            { "name": "MDL", "key": "KEY_MODEL", "label": "MDL" },
+            { "name": "TELE", "key": "KEY_TELE", "label": "TELE" },
+            { "name": "SYS", "key": "KEY_SYS", "label": "SYS" },
 
-    { "name": "SHIFT", "key": "KEY_SHIFT", "label": "Shift" },
+            { "name": "SHIFT", "key": "KEY_SHIFT", "label": "Shift" }
+        ]
+    }
 ]
 
 class Key:
@@ -104,24 +132,41 @@ def parse_trims(hw_defs):
                 trims.append(Trim(name, None, None))
 
     return trims
-        
-    
-def parse_keys(hw_defs):
+
+
+def key_cfg_by_target(target):
+    for d in KEYS_CONFIG:
+        if target in d['targets']:
+            return d['keys']
+
+    return None
+
+
+def parse_keys(target, hw_defs):
 
     keys = []
-    for k in KEYS:
 
-        name = k['name']
-        gpio = f'KEYS_GPIO_REG_{name}'
-        pin  = f'KEYS_GPIO_PIN_{name}'
+    tgtkeys = key_cfg_by_target(target)
 
-        if (gpio in hw_defs) and (pin in hw_defs):
-            key = Key(hw_defs[gpio], hw_defs[pin])
-            key.key = k['key']
-            key.name = name
-            key.label = k['label']
-            if 'KEYS_GPIO_ACTIVE_HIGH' in hw_defs:
-                key.active_low = False
-            keys.append(key)
+    if not tgtkeys:
+        tgtkeys = key_cfg_by_target('default')
 
-    return keys
+    if tgtkeys:
+        for k in tgtkeys:
+
+            name = k['name']
+            gpio = f'KEYS_GPIO_REG_{name}'
+            pin  = f'KEYS_GPIO_PIN_{name}'
+
+            if (gpio in hw_defs) and (pin in hw_defs):
+                key = Key(hw_defs[gpio], hw_defs[pin])
+                key.key = k['key']
+                key.name = name
+                key.label = k['label']
+                if 'KEYS_GPIO_ACTIVE_HIGH' in hw_defs:
+                    key.active_low = False
+                keys.append(key)
+
+        return keys
+
+    return None
