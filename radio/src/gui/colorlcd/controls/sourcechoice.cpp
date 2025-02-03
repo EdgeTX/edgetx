@@ -138,7 +138,7 @@ class SourceChoiceMenuToolbar : public MenuToolbar
     }
   }
 
-  static LAYOUT_VAL(FILTER_COLUMNS, 3, 2)
+  static LAYOUT_VAL(FILTER_COLUMNS, 3, 2, LS(3))
 
  protected:
   MenuToolbarButton* invertBtn = nullptr;

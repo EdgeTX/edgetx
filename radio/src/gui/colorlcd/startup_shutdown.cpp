@@ -31,7 +31,7 @@ extern void checkSpeakerVolume();
 const std::string ver_str = "" VERSION_TAG;
 const std::string nam_str = "" CODENAME;
 #if PORTRAIT_LCD
-#define TXT_Y 404
+#define TXT_Y (LCD_H * 21 / 25))
 #else
 #define TXT_Y (LCD_H * 3 / 4)
 #endif
@@ -40,13 +40,15 @@ const std::string ver_str = "" VERSION;
 const std::string nam_str = "" VERSION_SUFFIX;
 const std::string git_str = "(" GIT_STR ")";
 #if PORTRAIT_LCD
-#define TXT_Y 380
+#define TXT_Y (LCD_H * 19 / 24)
 #else
 #define TXT_Y (LCD_H * 2 / 3)
 #endif
 #endif
 
-static LAYOUT_VAL(TXT_H, 24, 24)
+static LAYOUT_VAL(TXT_W, 200, 200, LS(200))
+static LAYOUT_VAL(TXT_H, 24, 24, LS(24))
+static LAYOUT_VAL(TXT_XO, 100, 100, LS(100))
 
 #if !PORTRAIT_LCD
 #define TXT_X (LCD_W * 4 / 5)
@@ -61,27 +63,6 @@ static LAYOUT_VAL(TXT_H, 24, 24)
 const uint8_t __bmp_splash_logo[]{
 #include "splash_logo.lbm"
 };
-
-void draw_splash_cb(lv_event_t* e)
-{
-  auto draw_ctx = lv_event_get_draw_ctx(e);
-  auto splashImg = (BitmapBuffer*)lv_event_get_user_data(e);
-
-  if (splashImg) {
-    lv_draw_img_dsc_t img_dsc;
-    lv_draw_img_dsc_init(&img_dsc);
-
-    lv_area_t coords;
-    coords.x1 = (LCD_W / 2) - (splashImg->width() / 2);
-    coords.y1 = (LCD_H / 2) - (splashImg->height() / 2);
-    coords.x2 = coords.x1 + splashImg->width() - 1;
-    coords.y2 = coords.y1 + splashImg->height() - 1;
-
-    lv_draw_img_decoded(draw_ctx, &img_dsc, &coords,
-                        (const uint8_t*)splashImg->getData(),
-                        LV_IMG_CF_TRUE_COLOR);
-  }
-}
 
 static Window* splashScreen = nullptr;
 
@@ -103,11 +84,11 @@ void drawSplash()
     new StaticLZ4Image(splashScreen, IMG_X - logo->width / 2,
                        IMG_Y - logo->height / 2, logo);
 
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y, 200, 24}, ver_str.c_str(), COLOR_GREY_INDEX, CENTERED);
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H, 200, TXT_H},
+    new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y, TXT_W, TXT_H}, ver_str.c_str(), COLOR_GREY_INDEX, CENTERED);
+    new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y + TXT_H, TXT_W, TXT_H},
                    nam_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #if !defined(VERSION_TAG)
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H * 2, 200, TXT_H},
+    new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y + TXT_H * 2, TXT_W, TXT_H},
                    git_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #endif
   }
@@ -174,7 +155,7 @@ void waitSplash()
   cancelSplash();
 }
 
-#define SHUTDOWN_CIRCLE_RADIUS 75
+static LAYOUT_VAL(SHUTDOWN_CIRCLE_RADIUS, 75, 75, LS(75))
 
 const int8_t bmp_shutdown_xo[] = {0, 0, -SHUTDOWN_CIRCLE_RADIUS,
                                   -SHUTDOWN_CIRCLE_RADIUS};
