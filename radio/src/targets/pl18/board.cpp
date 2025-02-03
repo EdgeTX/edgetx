@@ -21,13 +21,8 @@
  
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
-
-#include "stm32_gpio_driver.h"
 #include "stm32_ws2812.h"
-#include "boards/generic_stm32/rgb_leds.h"
-
-#include "board.h"
-#include "boards/generic_stm32/module_ports.h"
+#include "stm32_spi.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -38,10 +33,18 @@
 #include "hal/gpio.h"
 #include "hal/rotary_encoder.h"
 
+#include "board.h"
+#include "boards/generic_stm32/module_ports.h"
+#include "boards/generic_stm32/rgb_leds.h"
+
 #include "globals.h"
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
+
+#if defined(AUDIO_SPI)
+  #include "vs1053b.h"
+#endif
 
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
@@ -59,15 +62,74 @@
 // Common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
-// Common LED driver
-extern const stm32_pulse_timer_t _led_timer;
-
 #if defined(SEMIHOSTING)
 extern "C" void initialise_monitor_handles();
 #endif
 
 #if defined(SPI_FLASH)
 extern "C" void flushFTL();
+#endif
+
+#if defined(RADIO_NV14_FAMILY)
+  HardwareOptions hardwareOptions;
+
+  static uint8_t boardGetPcbRev()
+  {
+    gpio_init(INTMODULE_PWR_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+    delay_ms(1); // delay to let the input settle, else it does not work properly
+
+    // detect NV14 vs EL18
+    if (gpio_read(INTMODULE_PWR_GPIO)) {
+      // pull-up connected: EL18
+      return PCBREV_EL18;
+    } else {
+      // pull-down connected: NV14
+      return PCBREV_NV14;
+    }
+  }
+#endif
+
+#if defined(AUDIO_SPI)
+static void audio_set_rst_pin(bool set)
+{
+  gpio_write(AUDIO_RST_GPIO, set);
+}
+
+static void audio_set_mute_pin(bool set)
+{
+#if defined(INVERTED_MUTE_PIN)
+  gpio_write(AUDIO_MUTE_GPIO, !set);
+#else
+  gpio_write(AUDIO_MUTE_GPIO, set);
+#endif
+}
+
+static void audioInit()
+{
+  static stm32_spi_t spi_dev = {
+      .SPIx = AUDIO_SPI,
+      .SCK = AUDIO_SPI_SCK_GPIO,
+      .MISO = AUDIO_SPI_MISO_GPIO,
+      .MOSI = AUDIO_SPI_MOSI_GPIO,
+      .CS = AUDIO_CS_GPIO,
+  };
+
+  static vs1053b_t vs1053 = {
+      .spi = &spi_dev,
+      .XDCS = AUDIO_XDCS_GPIO,
+      .DREQ = AUDIO_DREQ_GPIO,
+      .set_rst_pin = audio_set_rst_pin,
+      .set_mute_pin = audio_set_mute_pin,
+      .mute_delay_ms = AUDIO_MUTE_DELAY,
+      .unmute_delay_ms = AUDIO_UNMUTE_DELAY,
+  };
+
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, 0);
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, 0);
+  audio_set_mute_pin(true);
+
+  vs1053b_init(&vs1053);
+}
 #endif
 
 void delay_self(int count)
@@ -78,6 +140,10 @@ void delay_self(int count)
    }
 }
 
+#if defined(LED_STRIP_GPIO)
+// Common LED driver
+extern const stm32_pulse_timer_t _led_timer;
+
 void ledStripOff()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
@@ -85,6 +151,7 @@ void ledStripOff()
   }
   ws2812_update(&_led_timer);
 }
+#endif
 
 #if defined(RADIO_NB4P)
 void disableVoiceChip()
@@ -98,6 +165,15 @@ void boardBLEarlyInit()
 {
   // USB charger status pins
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+
+#if defined(USB_SW_GPIO)
+  gpio_init(USB_SW_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+#endif
+
+#if defined(RADIO_NV14_FAMILY)
+  // detect NV14 vs EL18
+  hardwareOptions.pcbrev = boardGetPcbRev();
+#endif
 }
 
 #if defined(RADIO_NB4P)
@@ -106,6 +182,13 @@ void boardBLPreJump()
   LL_ADC_Disable(ADC_MAIN);
 }
 #endif
+
+static void monitorInit()
+{
+#if defined(VBUS_MONITOR_GPIO)
+  gpio_init(VBUS_MONITOR_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+#endif
+}
 
 void boardInit()
 {
@@ -118,12 +201,26 @@ void boardInit()
   __enable_irq();
 #endif
 
+#if defined(RADIO_NV14_FAMILY)
+  // detect NV14 vs EL18
+  hardwareOptions.pcbrev = boardGetPcbRev();
+  TRACE("\n%s board started :)",
+        hardwareOptions.pcbrev == PCBREV_NV14 ?
+        "NV14" : "EL18");
+#else
   TRACE("\nPL18 board started :)");
+#endif
+
   delay_ms(10);
   TRACE("RCC->CSR = %08x", RCC->CSR);
 
   pwrInit();
   boardInitModulePorts();
+
+#if defined(AUDIO_SPI)
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+#endif
 
   board_trainer_init();
   battery_charge_init();
@@ -136,8 +233,10 @@ void boardInit()
   touchPanelInit();
   usbInit();
 
+#if defined(LED_STRIP_GPIO)
   ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   ledStripOff();
+#endif
 
   uint32_t press_start = 0;
   uint32_t press_end = 0;
@@ -178,7 +277,9 @@ void boardInit()
 #if defined(RADIO_NB4P)
   disableVoiceChip();
 #endif
+
   audioInit();
+  monitorInit();
   adcInit(&_adc_driver);
   hapticInit();
 
@@ -186,19 +287,11 @@ void boardInit()
  #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
+#if defined(LED_STRIP_GPIO)
   ledBlue();
+#endif
 
   lcdSetInitalFrameBuffer(lcdFront->getData());
-    
-#if defined(DEBUG)
-/*  DBGMCU_APB1PeriphConfig(
-      DBGMCU_IWDG_STOP | DBGMCU_TIM1_STOP | DBGMCU_TIM2_STOP |
-          DBGMCU_TIM3_STOP | DBGMCU_TIM4_STOP | DBGMCU_TIM5_STOP |
-          DBGMCU_TIM6_STOP | DBGMCU_TIM7_STOP | DBGMCU_TIM8_STOP |
-          DBGMCU_TIM9_STOP | DBGMCU_TIM10_STOP | DBGMCU_TIM11_STOP |
-          DBGMCU_TIM12_STOP | DBGMCU_TIM13_STOP | DBGMCU_TIM14_STOP,
-      ENABLE);*/
-#endif
 }
 
 extern void rtcDisableBackupReg();
@@ -219,7 +312,9 @@ void boardOff()
   rtcDisableBackupReg();
 
 #if !defined(BOOT)
+#if defined(LED_STRIP_GPIO)
   ledStripOff();
+#endif
   if (isChargerActive())
   {
 //    RTC->BKP0R = SOFTRESET_REQUEST;
@@ -253,15 +348,13 @@ void boardOff()
   }
 }
 
+#if !defined(RADIO_NV14_FAMILY)
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
   static uint8_t lastState = 0;
 
-  uint8_t state = gpio_read(UCHARGER_GPIO) ? 1 : 0;
-#if defined(UCHARGER_GPIO_PIN_INV)
-  state = !state;
-#endif
+  uint8_t state = IS_UCHARGER_ACTIVE();
 
   if (state == lastState)
     debouncedState = state;
@@ -270,3 +363,4 @@ int usbPlugged()
   
   return debouncedState;
 }
+#endif

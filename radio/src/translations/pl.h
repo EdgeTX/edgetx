@@ -1063,27 +1063,32 @@
 #define TR_BL_RF_USB_ACCESS            "RF USB access"
 #define TR_BL_CURRENT_FW               "Obecny firmware:"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
+  // Bootloader PL18/NB4+ specific - ASCII characters only
+  #define TR_BL_ENABLE                 "Enable"
+  #define TR_BL_DISABLE                "Disable"
+  #if defined(RADIO_NV14_FAMILY)
+    #define TR_BL_SELECT_KEY           "[R TRIM] aby wybrac plik"
+    #define TR_BL_FLASH_KEY            "Przytrzymaj [R TRIM] aby flashowac"
+    #define TR_BL_ERASE_KEY            "Przytrzymaj [R TRIM] to erase"
+    #define TR_BL_EXIT_KEY             "[L TRIM] aby wyjsc"
+  #elif defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY           "[SW1A] aby wybrac plik"
+    #define TR_BL_FLASH_KEY            "Przytrzymaj [SW1A] aby flashowac"
+    #define TR_BL_ERASE_KEY            "Przytrzymaj [SW1A] to erase"
+    #define TR_BL_EXIT_KEY             "[SW1B] aby wyjsc"
+  #else
+    #define TR_BL_SELECT_KEY           "[TR4 Dn] aby wybrac plik"
+    #define TR_BL_FLASH_KEY            "Przytrzymaj [TR4 Dn] aby flashowac"
+    #define TR_BL_ERASE_KEY            "Przytrzymaj [TR4 Dn] to erase"
+    #define TR_BL_EXIT_KEY             "[TR4 Up] aby wyjsc"
+  #endif
+#elif defined(PCBNV14)
   #define TR_BL_SELECT_KEY             "[R TRIM] aby wybrac plik"
   #define TR_BL_FLASH_KEY              "Przytrzymaj [R TRIM] aby flashowac"
   #define TR_BL_EXIT_KEY               " [L TRIM] aby wyjsc"
   #define TR_BL_ENABLE                 "Enable"
   #define TR_BL_DISABLE                "Disable"
-#elif defined(PCBPL18)
-  // Bootloader PL18/NB4+ specific - ASCII characters only
-  #define TR_BL_ENABLE                 "Enable"
-  #define TR_BL_DISABLE                "Disable"
-  #if defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY          "[SW1A] aby wybrac plik"
-    #define TR_BL_FLASH_KEY           "Przytrzymaj [SW1A] aby flashowac"
-    #define TR_BL_ERASE_KEY           "Przytrzymaj [SW1A] long to erase"
-    #define TR_BL_EXIT_KEY            "[SW1B] aby wyjsc"
-  #else
-    #define TR_BL_SELECT_KEY          "[TR4 Dn] aby wybrac plik"
-    #define TR_BL_FLASH_KEY           "Przytrzymaj [TR4 Dn] aby flashowac"
-    #define TR_BL_ERASE_KEY           "Przytrzymaj [TR4 Dn] long to erase"
-    #define TR_BL_EXIT_KEY            "[TR4 Up] aby wyjsc"
-  #endif
 #else
   #define TR_BL_SELECT_KEY             "[ENT] aby wybrac plik"
   #define TR_BL_FLASH_KEY              "Przytrzymaj [ENT] aby flashowac"

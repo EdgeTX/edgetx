@@ -131,11 +131,17 @@ get_target_build_options() {
         v16)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=V16"
             ;;
-        nv14)
+        nv14-old)
             BUILD_OPTIONS+="-DPCB=NV14"
             ;;
-        el18)
+        el18-old)
             BUILD_OPTIONS+="-DPCB=NV14 -DPCBREV=EL18"
+            ;;
+        nv14)
+            BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=NV14"
+            ;;
+        el18)
+            BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=EL18"
             ;;
         pl18)
             BUILD_OPTIONS+="-DPCB=PL18"
