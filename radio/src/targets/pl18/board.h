@@ -80,7 +80,7 @@ extern "C" void SDRAM_Init();
 // Pulses driver
 #if !defined(SIMU)
 
-#if defined(RADIO_NV14_FAMILLY)
+#if defined(RADIO_NV14_FAMILY)
   #define INTERNAL_MODULE_OFF()                 \
   do {                                          \
     if (hardwareOptions.pcbrev == PCBREV_NV14)  \
