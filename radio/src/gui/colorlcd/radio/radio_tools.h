@@ -22,11 +22,12 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class RadioToolsPage : public PageTab
 {
  public:
-  RadioToolsPage();
+  RadioToolsPage(PageDef& pageDef);
 
   void build(Window* window) override;
 
