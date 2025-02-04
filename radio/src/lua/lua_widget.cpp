@@ -171,7 +171,7 @@ void LuaEventHandler::onCancel() {
   luaPushEvent(EVT_KEY_BREAK(KEY_EXIT));
 }
 
-void LuaEventHandler::onEvent(event_t event)
+void LuaEventHandler::onLuaEvent(event_t event)
 {
   luaPushEvent(event);
 }
@@ -223,11 +223,13 @@ void LuaWidget::redraw_cb(lv_event_t* e)
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
-                     int luaWidgetDataRef, int zoneRectDataRef, int optionsDataRef) :
+                     int luaScriptContextRef, int zoneRectDataRef, int optionsDataRef) :
     Widget(factory, parent, rect, persistentData),
-    zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef), luaWidgetDataRef(luaWidgetDataRef),
+    zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
     errorMessage(nullptr)
 {
+  this->luaScriptContextRef = luaScriptContextRef;
+
   if (useLvglLayout()) {
     update();
   } else {
@@ -238,7 +240,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
 
 LuaWidget::~LuaWidget()
 {
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
   free(errorMessage);
 }
@@ -318,7 +320,7 @@ void LuaWidget::update()
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
 
   // Get options table and update values
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
@@ -472,7 +474,7 @@ void LuaWidget::refresh(BitmapBuffer* dc)
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->refreshFunction);
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
 
   // Pass key event to fullscreen Lua widget
   LuaEventData evt;
@@ -518,7 +520,7 @@ void LuaWidget::background()
   if (luaFactory()->backgroundFunction) {
     luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);
-    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
     runningFS = this;
     if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
       setErrorMessage("background()");
@@ -530,7 +532,7 @@ void LuaWidget::background()
 void LuaWidget::onEvent(event_t event)
 {
   if (fullscreen) {
-    LuaEventHandler::onEvent(event);
+    LuaEventHandler::onLuaEvent(event);
   }
   Widget::onEvent(event);
 }

@@ -53,12 +53,12 @@ public:
   void clear() override;
   bool useLvglLayout() const override { return useLvgl; }
   bool isAppMode() const override { return false; }
+  bool isWidget() override { return false; }
+  bool isFullscreen() override { return true; }
 
   void luaShowError() override;
 
   void showError(bool firstCall, const char* title, const char* msg);
-
-  bool isWidget() override { return false; }
 
   static LAYOUT_VAL(POPUP_HEADER_HEIGHT, 30, 30);
   static LAYOUT_VAL(POPUP_X, 50, 40);
