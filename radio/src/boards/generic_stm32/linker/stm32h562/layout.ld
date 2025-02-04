@@ -6,7 +6,7 @@ STACK_ADDRESS = ORIGIN(RAM) + LENGTH(RAM); /* end of RAM */
 MAIN_STACK_SIZE = 1024;
 
 /* Maximum bootloader code size */
-BOOTLOADER_SIZE = 0x8000;
+BOOTLOADER_SIZE = 0x10000;
 
 /* Minimum Heap Size (indicative) */
 MIN_HEAP_SIZE = 0;
