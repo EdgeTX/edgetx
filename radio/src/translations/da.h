@@ -1066,28 +1066,35 @@
 #define TR_BL_RF_USB_ACCESS            "RF USB adgang"
 #define TR_BL_CURRENT_FW               "Current firmware:"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
+  // Bootloader PL18/NB4+ specific - ASCII characters only
+  #define TR_BL_ENABLE                 "Aktiver"
+  #define TR_BL_DISABLE                "Deaktiver"
+  #if defined(RADIO_NV14_FAMILY)
+    #define TR_BL_SELECT_KEY           "[R TRIM] for at bruge fil"
+    #define TR_BL_FLASH_KEY            "Hold [R TRIM] laenge, for at starte"
+    #define TR_BL_ERASE_KEY            "Hold [R TRIM] laenge, for at slette"
+    #define TR_BL_EXIT_KEY             "[L TRIM] for at forlade"
+  #elif defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY           "[SW1A] for at bruge fil"
+    #define TR_BL_FLASH_KEY            "Hold [SW1A] laenge, for at starte"
+    #define TR_BL_ERASE_KEY            "Hold [SW1A] laenge, for at slette"
+    #define TR_BL_EXIT_KEY             "[SW1B] for at forlade"
+  #else
+    #define TR_BL_SELECT_KEY           "[TR4 Dn] for at bruge fil"
+    #define TR_BL_FLASH_KEY            "Hold [TR4 Dn] laenge, for at starte"
+    #define TR_BL_ERASE_KEY            "Hold [TR4 Dn] laenge, for at slette"
+    #define TR_BL_EXIT_KEY             "[TR4 Up] for at forlade"
+  #endif
+#elif defined(PCBNV14)
   #define TR_BL_SELECT_KEY             "[R TRIM] for at bruge fil"
   #define TR_BL_FLASH_KEY              "[R TRIM] laenge, for at starte"
   #define TR_BL_EXIT_KEY               "[L TRIM] for at forlade"
   #define TR_BL_ENABLE                 "Aktiver"
   #define TR_BL_DISABLE                "Deaktiver"
-#elif defined(PCBPL18)
-  // Bootloader PL18/NB4+ specific - ASCII characters only
-  #if defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY            "[SW1A] for at bruge fil"
-    #define TR_BL_FLASH_KEY             "Hold [SW1A] laenge, for braending"
-    #define TR_BL_ERASE_KEY             "Hold [SW1A] laenge, for sletning"
-    #define TR_BL_EXIT_KEY              "[SW1B] for at forlade"
-  #else
-    #define TR_BL_SELECT_KEY            "[TR4 Dn] for at bruge fil"
-    #define TR_BL_FLASH_KEY             "Hold [TR4 Dn] laenge, for braending"
-    #define TR_BL_ERASE_KEY             "Hold [TR4 Dn] laenge, for sletning"
-    #define TR_BL_EXIT_KEY              "[TR4 Up] for at forlade"
-  #endif
 #else
   #define TR_BL_SELECT_KEY             "[ENT] for at bruge fil"
-  #define TR_BL_FLASH_KEY              "[ENT] laenge, for at starte"
+  #define TR_BL_FLASH_KEY              "Hold [ENT] laenge, for at starte"
   #define TR_BL_ERASE_KEY              "Hold [ENT] laenge, for at slette"
   #define TR_BL_EXIT_KEY               "[RTN] for at forlade"
 #endif

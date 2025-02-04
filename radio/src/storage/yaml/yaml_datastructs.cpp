@@ -36,14 +36,16 @@
  #else
   #include "yaml_datastructs_x10.cpp"
  #endif
-#elif defined(PCBNV14)
- #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBPL18)
  #if defined(RADIO_NB4P)
   #include "yaml_datastructs_nb4p.cpp"
+ #elif defined(RADIO_NV14_FAMILY)  
+  #include "yaml_datastructs_nv14_family.cpp"
  #else
   #include "yaml_datastructs_pl18.cpp"
  #endif
+#elif defined(PCBNV14)
+ #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBX7)
  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
   #include "yaml_datastructs_tpro.cpp"

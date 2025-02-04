@@ -1078,27 +1078,32 @@
 #define TR_BL_RF_USB_ACCESS            "RF USB access"
 #define TR_BL_CURRENT_FW               "Aktualni firmware:"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
+  // Bootloader PL18/NB4+ specific - ASCII characters only
+  #define TR_BL_ENABLE                 "Povoleno"
+  #define TR_BL_DISABLE                "Zakazano"
+  #if defined(RADIO_NV14_FAMILY)
+    #define TR_BL_SELECT_KEY           "[R TRIM] pro vybrani souboru"
+    #define TR_BL_FLASH_KEY            "Drzet dlouze [R TRIM] pro nahrani"
+    #define TR_BL_ERASE_KEY            "Drzet dlouze [R TRIM] long to erase"
+    #define TR_BL_EXIT_KEY             "[L TRIM] pro ukonceni"
+  #elif defined(RADIO_NB4P)
+    #define TR_BL_SELECT_KEY           "[SW1A] pro vybrani souboru"
+    #define TR_BL_FLASH_KEY            "Drzet dlouze [SW1A] pro nahrani"
+    #define TR_BL_ERASE_KEY            "Drzet dlouze [SW1A] long to erase"
+    #define TR_BL_EXIT_KEY             "[SW1B] pro ukonceni"
+  #else
+    #define TR_BL_SELECT_KEY           "[TR4 Dn] pro vybrani souboru"
+    #define TR_BL_FLASH_KEY            "Drzet dlouze [TR4 Dn] pro nahrani"
+    #define TR_BL_ERASE_KEY            "Drzet dlouze [TR4 Dn] long to erase"
+    #define TR_BL_EXIT_KEY             "[TR4 Up] pro ukonceni"
+  #endif
+#elif defined(PCBNV14)
   #define TR_BL_SELECT_KEY             "[R TRIM] pro vybrani souboru"
   #define TR_BL_FLASH_KEY              "Drzet dlouze [R TRIM] pro nahrani"
   #define TR_BL_EXIT_KEY               " [L TRIM] pro ukonceni"
   #define TR_BL_ENABLE                 "Povoleno"
   #define TR_BL_DISABLE                "Zakazano"
-#elif defined(PCBPL18)
-  // Bootloader PL18/NB4+ specific - ASCII characters only
-  #define TR_BL_ENABLE                 "Povoleno"
-  #define TR_BL_DISABLE                "Zakazano"
-  #if defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY          "[SW1A] to select file"
-    #define TR_BL_FLASH_KEY           "Hold [SW1A] long to flash"
-    #define TR_BL_ERASE_KEY           "Hold [SW1A] long to erase"
-    #define TR_BL_EXIT_KEY            "[SW1B] to exit"
-  #else
-    #define TR_BL_SELECT_KEY          "[TR4 Dn] to select file"
-    #define TR_BL_FLASH_KEY           "Hold [TR4 Dn] long to flash"
-    #define TR_BL_ERASE_KEY           "Hold [TR4 Dn] long to erase"
-    #define TR_BL_EXIT_KEY            "[TR4 Up] to exit"
-  #endif
 #else
   #define TR_BL_SELECT_KEY             "[ENT] pro vybrani souboru"
   #define TR_BL_FLASH_KEY              "Drzet dlouze [ENT] pro nahrani"

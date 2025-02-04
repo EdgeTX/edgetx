@@ -59,13 +59,44 @@ void boardOff();
 #define LEN_CPU_UID                     (3*8+2)
 void getCPUUniqueID(char * s);
 
+#if defined(RADIO_NV14_FAMILY)
+  enum {
+    PCBREV_NV14 = 0,
+    PCBREV_EL18 = 1,
+  };
+  
+  #define HAS_HARDWARE_OPTIONS
+
+  typedef struct {
+    uint8_t pcbrev;
+  } HardwareOptions;
+
+  extern HardwareOptions hardwareOptions;
+#endif
+
 // SDRAM driver
 extern "C" void SDRAM_Init();
 
 // Pulses driver
 #if !defined(SIMU)
 
-#if defined(RADIO_NB4P)
+#if defined(RADIO_NV14_FAMILY)
+  #define INTERNAL_MODULE_OFF()                 \
+  do {                                          \
+    if (hardwareOptions.pcbrev == PCBREV_NV14)  \
+      gpio_set(INTMODULE_PWR_GPIO);			    \
+    else                                        \
+      gpio_clear(INTMODULE_PWR_GPIO);           \
+  } while (0)
+
+  #define INTERNAL_MODULE_ON()                  \
+  do {                                          \
+    if (hardwareOptions.pcbrev == PCBREV_NV14)  \
+      gpio_clear(INTMODULE_PWR_GPIO);           \
+    else                                        \
+      gpio_set(INTMODULE_PWR_GPIO);             \
+  } while (0)
+#elif defined(RADIO_NB4P)
   #define INTERNAL_MODULE_ON()            gpio_clear(INTMODULE_PWR_GPIO)
   #define INTERNAL_MODULE_OFF()           gpio_set(INTMODULE_PWR_GPIO);
 #else
@@ -81,7 +112,7 @@ extern "C" void SDRAM_Init();
 #define IS_INTERNAL_MODULE_ON()         (false)
 #define IS_EXTERNAL_MODULE_ON()         (gpio_read(EXTMODULE_PWR_GPIO) ? 1 : 0)
 
-#else
+#else // defined(SIMU)
 
 #define INTERNAL_MODULE_OFF()
 #define INTERNAL_MODULE_ON()
@@ -101,14 +132,23 @@ extern "C" void SDRAM_Init();
 #define NUM_TRIMS                       8
 #define DEFAULT_STICK_DEADZONE          2
 
-#define BATTERY_WARN                  37 // 3.7V
-#define BATTERY_MIN                   35 // 3.4V
-#define BATTERY_MAX                   43 // 4.3V
-
-#if defined(RADIO_NB4P)
-  #define BATTERY_DIVIDER               3102 // = 2047 * (10k / 10k + 10k) * 10 / 3.3V
+#if defined(RADIO_NV14_FAMILY)
+  #define BATTERY_WARN                  36 // 3.6V
+  #define BATTERY_MIN                   35 // 3.5V
+  #define BATTERY_MAX                   42 // 4.2V
 #else
-  #define BATTERY_DIVIDER               962  // = 2047 * (22k / 120k + 22k) * 10 / 3.3V
+  // LiHV battery thresholds
+  #define BATTERY_WARN                  37 // 3.7V
+  #define BATTERY_MIN                   35 // 3.4V
+  #define BATTERY_MAX                   43 // 4.3V
+#endif
+
+#if defined(RADIO_NV14_FAMILY)
+  #define BATTERY_DIVIDER               3102 // = 2047 * 510k / (510k + 510k) * 10 / 3.3V
+#elif defined(RADIO_NB4P)
+  #define BATTERY_DIVIDER               3102 // = 2047 * 10k / (10k + 10k) * 10 / 3.3V
+#else
+  #define BATTERY_DIVIDER               962  // = 2047 * 22k / (120k + 22k) * 10 / 3.3V
 #endif
 
 #if defined(__cplusplus) && !defined(SIMU)
@@ -188,8 +228,35 @@ bool isBacklightEnabled();
 }
 #endif
 
-// Audio driver
-void audioInit();
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+  #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? (gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1) : 1  
+#else
+  #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
+#endif
+
+#if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
+  #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
+#else
+  #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 1 : 0
+#endif
+
+#if defined(UCHARGER_EN_GPIO)
+  #if defined(RADIO_NV14_FAMILY)
+    #define ENABLE_UCHARGER()               gpio_clear(UCHARGER_EN_GPIO)
+    #define DISABLE_UCHARGER()              gpio_set(UCHARGER_EN_GPIO)
+  #else
+    #define ENABLE_UCHARGER()               gpio_set(UCHARGER_EN_GPIO)
+    #define DISABLE_UCHARGER()              gpio_clear(UCHARGER_EN_GPIO)
+  #endif
+#else
+  #define ENABLE_UCHARGER()
+  #define DISABLE_UCHARGER()
+#endif
+
+#if !defined(AUDIO_SPI)
+  // DAC Audio driver
+  void audioInit();
+#endif
 
 // Telemetry driver
 #define INTMODULE_FIFO_SIZE            512
