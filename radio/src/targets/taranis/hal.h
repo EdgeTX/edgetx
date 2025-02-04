@@ -226,7 +226,8 @@
   #define KEYS_GPIO_REG_SYS             GPIOB
   #define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_4  // PB.04
   #define KEYS_GPIO_REG_MDL             GPIOB
-  #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_14 // PB.14
+//  #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_14 // PB.14
+  #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_2 // hack
 #elif defined(PCBX7)
   #define KEYS_GPIO_REG_PAGEDN          GPIOD
   #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
@@ -583,7 +584,7 @@
   #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_0  // PD.00
   #define TRIMS_GPIO_REG_RHR            GPIOE
   #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_4  // PE.04
-#elif defined(PCBX7) && !defined(RADIO_COMMANDO8)
+#elif defined(PCBX7) && !defined(RADIO_COMMANDO8) && !defined(RADIO_H5TEST)
   #define TRIMS_GPIO_REG_LHL            GPIOD
   #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_15 // PD.15
   #define TRIMS_GPIO_REG_LHR            GPIOC
@@ -1134,7 +1135,7 @@
   // ADC based switch
 #elif defined(RADIO_H5TEST)
   #define SWITCHES_GPIO_REG_F           GPIOD
-  #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_14  // PD.14
+  #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_13  // PD.13
 #elif defined(PCBX7)
   #define SWITCHES_GPIO_REG_F           GPIOE
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_14 // PE.14
@@ -1175,7 +1176,10 @@
   #define SWITCHES_G_2POS
   #define SWITCHES_GPIO_REG_G
   #define SWITCHES_GPIO_PIN_G           PCA95XX_PIN_15
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)  || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
+#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE) \
+  || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_MT12) \
+  || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX) \
+  || defined(RADIO_TPROS) || defined(RADIO_H5TEST)
   // no SWG
 #else
   #define SWITCHES_GPIO_REG_G_H         GPIOE
@@ -1194,7 +1198,7 @@
   // no SWH
 #elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   // no SWH
-#elif defined(RADIO_TX12) || defined(RADIO_MT12)
+#elif defined(RADIO_TX12) || defined(RADIO_MT12) || defined(RADIO_H5TEST)
 #elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_V14) || defined(RADIO_V12)
 #elif defined(RADIO_TPROV2)
   #define SWITCHES_GPIO_REG_H           GPIOG
@@ -1245,7 +1249,8 @@
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_14  // PE.14
   #define SWITCHES_GPIO_REG_J           GPIOD
   #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_14  // PD.14
-#elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_V14) || defined(RADIO_V12)
+#elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) \
+  || defined(RADIO_V14) || defined(RADIO_V12) || defined(RADIO_H5TEST)
   // no headers
 #elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
   // no SWI
@@ -2535,7 +2540,6 @@
   #define EXTMODULE_TIMER_FREQ                  (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 
-// 3DJC IS HERE
 // Trainer Port
 #if defined(PCBXLITES) || defined(PCBX9LITE)
   // on these 2 radios the trainer port already uses DMA1_Stream6, we won't use the DMA
@@ -2804,7 +2808,7 @@
 
 // USB
 #if defined(RADIO_H5TEST)
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOD, 7)  // PD.07
+//#define USB_GPIO_VBUS                   GPIO_PIN(GPIOD, 7)  // PD.07
 #else
 #define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
 #endif
@@ -2955,6 +2959,8 @@
   #define OLED_VCC_CS                   GPIO_PIN(GPIOD, 11) // PD.11
 #endif
 
+
+#if !defined(RADIO_H5TEST)
 // I2C Bus 1: EEPROM and CAT5137 digital pot for volume control
 #define I2C_B1                          I2C1
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
@@ -2967,6 +2973,7 @@
 #else
   #define I2C_B1_SCL_GPIO               GPIO_PIN(GPIOB, 6)  // PB.06
   #define I2C_B1_SDA_GPIO               GPIO_PIN(GPIOB, 7)  // PB.07
+#endif
 #endif
 
 // EEPROM
@@ -2983,6 +2990,8 @@
 #elif defined(RADIO_X9DP2019)
   #define EEPROM_WP_GPIO                GPIOF
   #define EEPROM_WP_GPIO_PIN            LL_GPIO_PIN_0  // PF.00
+#elif defined(RADIO_H5TEST)
+  // no EEPROM
 #else
   #define EEPROM_WP_GPIO                GPIOB
   #define EEPROM_WP_GPIO_PIN            LL_GPIO_PIN_9  // PB.09
@@ -2994,6 +3003,7 @@
   #define VOLUME_I2C_BUS                I2C_Bus_1
 #endif
 
+#if !defined(RADIO_H5TEST)
 #define I2C_B1_CLK_RATE                 400000
 
 // EEPROM
@@ -3001,7 +3011,7 @@
 #define EEPROM_I2C_BUS                  I2C_Bus_1
 #define EEPROM_PAGESIZE                 64
 #define EEPROM_SIZE                     (32*1024)
-
+#endif
 // Second I2C Bus: IMU
 #if defined(PCBXLITES)
   #define I2C_B2                        I2C3
@@ -3026,7 +3036,7 @@
 #endif
 
 // SD - SPI2
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12)
+#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12) || defined(RADIO_H5TEST)
   // Using chip, so no detect
 #else
 #if defined(PCBXLITE) || defined(PCBX9LITE)
