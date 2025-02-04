@@ -268,7 +268,7 @@ void lcdRefresh(bool wait)
   for (uint8_t y=0; y < 8; y++, p+=LCD_W) {
 #if defined(SSD1309_LCD)
     lcdPageSet(y);
-    lcdColumnSet(0);
+    lcdColumnSet(2);
 #else
     lcdWriteCommand(0x10); // Column addr 0
     lcdWriteCommand(0xB0 | y); // Page addr y
