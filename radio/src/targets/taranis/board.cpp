@@ -74,6 +74,10 @@ void boardBLEarlyInit()
 }
 #endif
 
+#if defined(RADIO_H5TEST)
+int usbPlugged(){ return false;}
+#endif
+
 #if !defined(BOOT)
 
 #if defined(FUNCTION_SWITCHES)
