@@ -249,7 +249,7 @@ LuaWidget::~LuaWidget()
   TRACE("LuaWidget remove: %d", optionsDataRef);
   luaTelemetryQueueMgr.remove(optionsDataRef); // remove the filter (if any)
   #endif
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaWidgetDataRef);
+  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
   free(errorMessage);
 }
