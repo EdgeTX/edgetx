@@ -58,15 +58,45 @@ KEYS = [
 
 KEY_LABELS = [
     {
+        "targets": {"bumblebee"},
+        "keys": {
+            "MENU": { "label": "Menu" },
+            "EXIT": { "label": "RTN" },
+            "PAGEDN": { "label": "Page" }
+        }
+    },
+    {
+        "targets": {"tlite", "tlitef4"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "ENTER": { "label": "ENT" },
+            "LEFT": { "label": "MDL/Left" },
+            "RIGHT": { "label": "SYS/Right" }
+        }
+    },
+    {
+        "targets": {"tpro", "tpros", "tprov2"},
+        "keys": {
+            "MENU": { "label": "MDL" },
+            "PAGEDN": { "label": "Page" }
+        }
+    },
+    {
         "targets": {"tx16s"},
         "keys": {
             "EXIT": { "label": "RTN" }
         }
     },
     {
-        "targets": {"x9d+"},
+        "targets": {"x9d+", "x9d+2019"},
         "keys": {
             "ENTER": { "label": "ENT" },
+            "PAGEDN": { "label": "PAGE" }
+        }
+    },
+    {
+        "targets": {"x9e"},
+        "keys": {
             "PAGEDN": { "label": "PAGE" }
         }
     }
