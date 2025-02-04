@@ -42,7 +42,11 @@ void rotaryEncoderCheck();
 #define FLASHSIZE                       0x80000  // 512k
 #endif
 #define FLASH_PAGESIZE                  256
+#if defined(STM32H5)
+#define BOOTLOADER_SIZE                 0x10000
+#else
 #define BOOTLOADER_SIZE                 0x8000
+#endif
 #define FIRMWARE_ADDRESS                0x08000000
 #define FIRMWARE_LEN(fsize)             (fsize - BOOTLOADER_SIZE)
 #define FIRMWARE_MAX_LEN                (FLASHSIZE - BOOTLOADER_SIZE)
