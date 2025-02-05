@@ -147,7 +147,6 @@ void _fs_cmd_get_version()
 
 static volatile bool _fs_gimbal_detected;
 static volatile uint8_t _fs_gimbal_version = GIMBAL_V1;
-static volatile uint8_t versionInfo[4];
 
 static void flysky_gimbal_loop(void*)
 {
@@ -164,21 +163,18 @@ static void flysky_gimbal_loop(void*)
       switch (HallProtocol.hallID.hall_Id.receiverID) {
         case TRANSFER_DIR_TXMCU:
         case TRANSFER_DIR_RFMODULE:
-          switch (HallProtocol.hallID.hall_Id.packetID) {
-            case FLYSKY_PACKET_CHANNEL_ID:
-              int16_t* p_values = (int16_t*)HallProtocol.data;
-              uint16_t* adcValues = getAnalogValues();
-              for (uint8_t i = 0; i < 4; i++) {
-                adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
-              }
-              break;
-            case FLYSKY_PACKET_VERSION_ID:
-              int8_t* p_values = (int8_t*)HallProtocol.data;
-              versionInfo[0] = p_values[12];
-              versionInfo[1] = p_values[13];
-              versionInfo[2] = p_values[14];
-              versionInfo[3] = p_values[15];
-              break;
+          int16_t* p_values = (int16_t*)HallProtocol.data;
+          if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_CHANNEL_ID) {
+            uint16_t* adcValues = getAnalogValues();
+            for (uint8_t i = 0; i < 4; i++) {
+              adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
+            }
+          } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_VERSION_ID) {
+            uint16_t minorVersion = p_values[6];
+            uint16_t majorVersion = p_values[7];
+            if (majorVersion == 2 && minorVersion >= 1) {
+              _fs_gimbal_version = GIMBAL_V2;
+            }
           }
           break;
       }
@@ -222,15 +218,15 @@ bool flysky_gimbal_init()
   for (uint8_t i = 0; i < 70; i++) {
     delay_ms(1);
     if (_fs_gimbal_detected) {
+      // Try to obtain the version of gimbal for operation mode selection
+      _fs_cmd_get_version();
+
       // Mask the first 4 inputs (sticks)
       stm32_hal_set_inputs_mask(0xF);
       return true;
     }
   }
   
-  // Try to obtain the version of gimbal for operation mode selection
-  _fs_cmd_get_version();
-
   flysky_gimbal_deinit();
   return false;
 }
