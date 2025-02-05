@@ -1896,6 +1896,8 @@ void MdiChild::setupStatusBar()
 {
   statusBar = new QStatusBar();
   ui->statusBarLayout->addWidget(statusBar);
+  QLabel *lbl = new QLabel(tr("Models status"));
+  statusBar->addPermanentWidget(lbl);
   statusBarIcon = new QLabel();
   statusBar->addPermanentWidget(statusBarIcon);
   statusBarCount = new QLabel();
@@ -1909,9 +1911,11 @@ void MdiChild::updateStatusBar()
   int invalid = radioData.invalidModels();
 
   if (!invalidModels()) {
+    statusBarIcon->setToolTip(tr("No errors"));
     p.load(":/images/svg/circle-green.svg");
   }
   else {
+    statusBarIcon->setToolTip(tr("Errors"));
     p.load(":/images/svg/circle-red.svg");
     cnt.setText(QString::number(invalid));
   }
