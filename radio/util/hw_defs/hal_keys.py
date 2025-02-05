@@ -58,48 +58,44 @@ KEYS = [
 
 KEY_LABELS = [
     {
-        "targets": {"bumblebee"},
-        "keys": {
-            "MENU": { "label": "Menu" },
-            "EXIT": { "label": "RTN" },
-            "PAGEDN": { "label": "Page" }
-        }
-    },
-    {
-        "targets": {"tlite", "tlitef4"},
-        "keys": {
-            "EXIT": { "label": "RTN" },
-            "ENTER": { "label": "ENT" },
-            "LEFT": { "label": "MDL/Left" },
-            "RIGHT": { "label": "SYS/Right" }
-        }
-    },
-    {
-        "targets": {"tpro", "tpros", "tprov2"},
-        "keys": {
-            "MENU": { "label": "MDL" },
-            "PAGEDN": { "label": "Page" }
-        }
-    },
-    {
-        "targets": {"tx16s"},
+        "targets": {"boxer", "f16", "mt12", "gx12", "pocket", "tx12", "tx12mk2", "tx16s", "v16", "zorro"},
         "keys": {
             "EXIT": { "label": "RTN" }
         }
     },
     {
-        "targets": {"x9d+", "x9d+2019"},
+        "targets": {"bumblebee", "t12max", "t14", "t15", "t20", "t20v2", "tpro", "tpros", "tprov2"},
+        "keys": {
+            "PAGEDN": { "label": "</>" },
+        }
+    },
+    {
+        "targets": {"x7", "x7access", "x9e"},
+        "keys": {
+            "PAGEDN": { "label": "PAGE" },
+        }
+    },
+    {
+        "targets": {"t16", "t18"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "PAGEDN": {"label": "PAGE" },
+        }
+    },
+    {
+        "targets": {"x9d", "x9d+", "x9d+2019"},
         "keys": {
             "ENTER": { "label": "ENT" },
             "PAGEDN": { "label": "PAGE" }
         }
     },
     {
-        "targets": {"x9e"},
+        "targets": {"x10", "x10express"},
         "keys": {
-            "PAGEDN": { "label": "PAGE" }
+            "EXIT": { "label": "RTN" },
+            "PAGEDN": { "label": "PgUp/Dn" }
         }
-    }
+    },
 ]
 
 class Key:
