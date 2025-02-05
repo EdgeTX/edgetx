@@ -62,6 +62,7 @@ if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
 else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
 endif()
+option(POWER_LED_BLUE  "Override Power LED to be normally Blue" OFF)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -432,6 +433,10 @@ if(USBJ_EX)
   set(SRC ${SRC}
     usb_joystick.cpp
   )
+endif()
+
+if(POWER_LED_BLUE)
+  add_definitions(-DPOWER_LED_BLUE)
 endif()
 
 foreach(FILE ${TARGET_SRC})
