@@ -38,7 +38,8 @@
 #define FLYSKY_OFFSET_VALUE             ( 1 << 12 )
 
 #define FLYSKY_HALL_PROTOLO_HEAD        0x55
-#define FLYSKY_HALL_RESP_TYPE_VALUES    0x0c
+#define FLYSKY_PACKET_VERSION_ID        0x0b
+#define FLYSKY_PACKET_CHANNEL_ID        0x0c
 
 typedef  struct
 {
@@ -124,6 +125,11 @@ enum TRANSFER_DIR_E {
   TRANSFER_DIR_RFMODULE,
 };
 
+enum FLYSKY_GIMBAL_VERSION {
+  GIMBAL_V1,
+  GIMBAL_V2
+};
+
 extern signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
 extern unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
 
@@ -133,4 +139,6 @@ bool flysky_gimbal_init();
 void flysky_gimbal_force_init();
 
 void flysky_gimbal_deinit();
+bool is_flysky_gimbal_sync_supported();
+
 const etx_serial_port_t* flysky_gimbal_get_port();

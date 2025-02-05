@@ -39,9 +39,9 @@ static const stm32_usart_t fsUSART = {
   .rxGPIO = FLYSKY_HALL_SERIAL_RX_GPIO,
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 4,
-  .txDMA = nullptr,
-  .txDMA_Stream = 0,
-  .txDMA_Channel = 0,
+  .txDMA = FLYSKY_HALL_SERIAL_DMA,
+  .txDMA_Stream = FLYSKY_HALL_DMA_Stream_TX,
+  .txDMA_Channel = FLYSKY_HALL_DMA_Channel,
   .rxDMA = FLYSKY_HALL_SERIAL_DMA,
   .rxDMA_Stream = FLYSKY_HALL_DMA_Stream_RX,
   .rxDMA_Channel = FLYSKY_HALL_DMA_Channel,
@@ -57,6 +57,8 @@ static const etx_serial_port_t _fs_gimbal_serial_port = {
 };
 
 static STRUCT_HALL HallProtocol = { 0 };
+
+static uint8_t _fs_hall_command[8] __DMA;
 
 static void* _fs_usart_ctx = nullptr;
 
@@ -128,7 +130,24 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
   }
 }
 
+void _fs_cmd_get_version()
+{
+  _fs_hall_command[0] = FLYSKY_HALL_PROTOLO_HEAD;
+  _fs_hall_command[1] = 0xb1;
+  _fs_hall_command[2] = 0x01;
+  _fs_hall_command[3] = 0x00;
+
+  unsigned short crc = crc16(CRC_1021, _fs_hall_command, 4, 0xffff);
+
+  _fs_hall_command[4] = crc & 0xff;
+  _fs_hall_command[5] = crc >>8 & 0xff ;
+
+  STM32SerialDriver.sendBuffer(_fs_usart_ctx, _fs_hall_command, 6);
+}
+
 static volatile bool _fs_gimbal_detected;
+static volatile uint8_t _fs_gimbal_version = GIMBAL_V1;
+static volatile uint8_t versionInfo[4];
 
 static void flysky_gimbal_loop(void*)
 {
@@ -145,13 +164,21 @@ static void flysky_gimbal_loop(void*)
       switch (HallProtocol.hallID.hall_Id.receiverID) {
         case TRANSFER_DIR_TXMCU:
         case TRANSFER_DIR_RFMODULE:
-          if (HallProtocol.hallID.hall_Id.packetID ==
-              FLYSKY_HALL_RESP_TYPE_VALUES) {
-            int16_t* p_values = (int16_t*)HallProtocol.data;
-            uint16_t* adcValues = getAnalogValues();
-            for (uint8_t i = 0; i < 4; i++) {
-              adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
-            }
+          switch (HallProtocol.hallID.hall_Id.packetID) {
+            case FLYSKY_PACKET_CHANNEL_ID:
+              int16_t* p_values = (int16_t*)HallProtocol.data;
+              uint16_t* adcValues = getAnalogValues();
+              for (uint8_t i = 0; i < 4; i++) {
+                adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
+              }
+              break;
+            case FLYSKY_PACKET_VERSION_ID:
+              int8_t* p_values = (int8_t*)HallProtocol.data;
+              versionInfo[0] = p_values[12];
+              versionInfo[1] = p_values[13];
+              versionInfo[2] = p_values[14];
+              versionInfo[3] = p_values[15];
+              break;
           }
           break;
       }
@@ -173,7 +200,7 @@ static int flysky_gimbal_init_uart()
   etx_serial_init cfg = {
     .baudrate = FLYSKY_HALL_BAUDRATE,
     .encoding = ETX_Encoding_8N1,
-    .direction = ETX_Dir_RX,
+    .direction = ETX_Dir_TX_RX,
     .polarity = ETX_Pol_Normal,
   };
 
@@ -200,9 +227,17 @@ bool flysky_gimbal_init()
       return true;
     }
   }
+  
+  // Try to obtain the version of gimbal for operation mode selection
+  _fs_cmd_get_version();
 
   flysky_gimbal_deinit();
   return false;
+}
+
+bool is_flysky_gimbal_sync_supported()
+{
+  return _fs_gimbal_version > GIMBAL_V1;
 }
 
 void flysky_gimbal_force_init()
