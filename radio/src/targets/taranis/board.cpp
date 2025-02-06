@@ -278,10 +278,14 @@ void boardInit()
   intmodulePxx2Probe();
 #endif
 
-#if defined(DEBUG) && !defined(STM32H5)
+#if defined(DEBUG)
+#if defined(STM32H5)
+  DBGMCU->APB1FZR1 = 0x000019FF;
+#else
   // Freeze timers & watchdog when core is halted
   DBGMCU->APB1FZ = 0x00E009FF;
   DBGMCU->APB2FZ = 0x00070003;
+#endif
 #endif
 
 #if defined(PWR_BUTTON_PRESS)
