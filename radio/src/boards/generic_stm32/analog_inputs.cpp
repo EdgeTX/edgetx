@@ -31,6 +31,10 @@
   #include "ads79xx.h"
 #endif
 
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
+
 #include "definitions.h"
 
 #include "myeeprom.h"
@@ -68,6 +72,9 @@ static bool adc_start_read()
     success = success && ads79xx_adc_start_read(&_ADC_spi[0], _ADC_inputs);
   }
 #endif
+#if defined(FLYSKY_GIMBAL)
+  flysky_gimbal_start_read();
+#endif
   return success;
 }
 
@@ -79,6 +86,9 @@ static void adc_wait_completion()
   if (n_ADC_spi > 0) ads79xx_adc_wait_completion(&_ADC_spi[0], _ADC_inputs);
 #endif
   stm32_hal_adc_wait_completion(_ADC_adc, n_ADC, _ADC_inputs, n_inputs);
+#if defined(FLYSKY_GIMBAL)
+  flysky_gimbal_wait_completion();
+#endif
 }
 
 const etx_hal_adc_driver_t _adc_driver = {
