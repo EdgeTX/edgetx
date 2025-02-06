@@ -86,7 +86,7 @@ void boardBLEarlyInit()
 #endif
 
 #if defined(RADIO_H5TEST)
-int usbPlugged(){ return false;}
+int usbPlugged(){ return true;}
 #endif
 
 #if !defined(BOOT)
