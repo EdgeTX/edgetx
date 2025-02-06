@@ -319,6 +319,14 @@ void displayBattVoltage()
 #define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
 #define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_TELE)
+#elif defined(RADIO_H5TEST) //TODO: Fixme, dirty hack
+#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
+#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
+#define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
+#define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
+#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
+#define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
+#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGEUP)
 #elif defined(NAVIGATION_X7) || defined(NAVIGATION_TBS)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT

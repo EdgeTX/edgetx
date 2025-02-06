@@ -223,7 +223,7 @@ void *custom_l_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
   }
 
 #if defined(DEBUG)
-  TRACE("bin_l_alloc(%p,%p,%lu,%lu) - S1F %d, S2F %d, TA %d, TF %d, MA %d, MF %d",ud,ptr,osize,nsize,slots1.freeSlots(),slots2.freeSlots(),totalAllocated,totalFreed,missedAlloc,missedFree);
+  //TRACE("bin_l_alloc(%p,%p,%lu,%lu) - S1F %d, S2F %d, TA %d, TF %d, MA %d, MF %d",ud,ptr,osize,nsize,slots1.freeSlots(),slots2.freeSlots(),totalAllocated,totalFreed,missedAlloc,missedFree);
 #endif
 
   return res;
