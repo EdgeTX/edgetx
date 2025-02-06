@@ -67,10 +67,21 @@ HardwareOptions hardwareOptions;
 extern const stm32_pulse_timer_t _led_timer;
 #endif
 
+#if !defined(USB_PD_SUPPORT) && defined(STM32H5)
+void disableUsbPdPins()
+{
+  LL_PWR_DisableUCPDDeadBattery(); // this allows PB13/PB14 to work properly
+}
+#endif
+
 #if defined(BOOT) && defined(STM32H5)
 void boardBLEarlyInit()
 {
   SystemClock_Config();
+
+#if !defined(USB_PD_SUPPORT) && defined(STM32H5)
+  disableUsbPdPins();
+#endif
 }
 #endif
 
@@ -125,6 +136,11 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
 void boardInit()
 {
   SystemClock_Config();
+
+#if !defined(USB_PD_SUPPORT) && defined(STM32H5)
+  disableUsbPdPins();
+#endif
+
 #if defined(AUDIO)
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
 #endif
