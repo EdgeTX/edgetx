@@ -45,8 +45,12 @@ void _init_reboot_cause()
 {
   if (_reboot_cause != _REBOOT_CAUSE_DEFAULT) return;
 
-#if defined(DEBUG) && !defined(STM32H5)
+#if defined(DEBUG)
+#if defined(STM32H5)
+  _dbg_csr = LL_RCC_ReadReg(RSR);
+#else
   _dbg_csr = LL_RCC_ReadReg(CSR);
+#endif
 #endif
   
 #ifdef STM32H7
