@@ -259,7 +259,7 @@ void boardInit()
   hapticInit();
 #endif
 
-#if defined(DEBUG)
+#if defined(DEBUG) && !defined(STM32H5)
   // Freeze timers & watchdog when core is halted
   DBGMCU->APB1FZ = 0x00E009FF;
   DBGMCU->APB2FZ = 0x00070003;
