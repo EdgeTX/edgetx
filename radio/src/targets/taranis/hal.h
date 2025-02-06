@@ -215,10 +215,10 @@
   #define KEYS_GPIO_REG_TELE            GPIOD
   #define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_2  // PD.02
 #elif defined(RADIO_H5TEST)
-  #define KEYS_GPIO_REG_PAGEUP          GPIOB
-  #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_8  // PB.08
   #define KEYS_GPIO_REG_PAGEDN          GPIOB
-  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_7  // PB.07
+  #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8  // PB.08
+  #define KEYS_GPIO_REG_PAGEUP          GPIOB
+  #define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PB.07
   #define KEYS_GPIO_REG_EXIT            GPIOB
   #define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5  // PB.05
   #define KEYS_GPIO_REG_ENTER           GPIOE
