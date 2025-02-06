@@ -226,8 +226,7 @@
   #define KEYS_GPIO_REG_SYS             GPIOB
   #define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_4  // PB.04
   #define KEYS_GPIO_REG_MDL             GPIOB
-//  #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_14 // PB.14
-  #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_2 // hack
+  #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_14 // PB.14
 #elif defined(PCBX7)
   #define KEYS_GPIO_REG_PAGEDN          GPIOD
   #define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_3  // PD.03
