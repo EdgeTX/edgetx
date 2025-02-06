@@ -278,8 +278,6 @@ void SystemInit(void)
     /* Lock the FLASH Option Control Register access */
     FLASH->OPTCR |= FLASH_OPTCR_OPTLOCK;
   }
-
-  LL_PWR_DisableUCPDDeadBattery(); // this allows PB14 to work properly
 }
 
 /**
