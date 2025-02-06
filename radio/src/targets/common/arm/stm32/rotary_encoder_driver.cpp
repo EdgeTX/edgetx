@@ -177,7 +177,9 @@ void rotaryEncoderInit()
 #elif defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 #else
-  //#error "Unsupported SYSCFG clock"
+  #if !defined(STM32H5) && !defined(STM32H7RS)
+    #error "Unsupported SYSCFG clock"
+  #endif
 #endif
 #if defined(STM32H5)
   LL_EXTI_SetEXTISource(ROTARY_ENCODER_EXTI_PORT, ROTARY_ENCODER_EXTI_SYS_LINE1);
