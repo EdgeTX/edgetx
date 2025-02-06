@@ -29,6 +29,8 @@
 #include "adjustmentreference.h"
 #include "compounditemmodels.h"
 
+#include <QMessageBox>
+
 ModelData::ModelData()
 {
   clear();
@@ -1919,6 +1921,64 @@ int ModelData::getCustomScreensCount() const
 
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
     if (customScreens.customScreenData[i].layoutId[0] != '\0')
+      cnt++;
+  }
+
+  return cnt;
+}
+
+void ModelData::validate()
+{
+  modelErrors = false;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE) {
+      modelErrors = true;
+      return;
+    }
+  }
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE) {
+      modelErrors = true;
+      return;
+    }
+  }
+}
+
+QStringList ModelData::errorsList()
+{
+  QStringList list;
+
+  for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+    if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)
+      list.append(tr("Error - Input %1 Line %2 %3").arg(expoData[i].chn + 1).arg(getInputLine(i)).arg(tr("has no source")));
+  }
+
+  for (int i = 0; i < CPN_MAX_MIXERS; i++) {
+    if (!mixData[i].isEmpty() && mixData[i].srcRaw == SOURCE_TYPE_NONE)
+      list.append(tr("Error - Mix %1 Line %2 %3").arg(mixData[i].destCh).arg(getMixLine(i)).arg(tr("has no source")));
+  }
+
+  return list;
+}
+
+int ModelData::getMixLine(int index) const
+{
+  int cnt = 1;
+
+  for (int i = index - 1; i >= 0 && mixData[i].destCh == mixData[index].destCh; i--)
+    cnt++;
+
+  return cnt;
+}
+
+int ModelData::getInputLine(int index) const
+{
+  int cnt = 1;
+
+  for (int i = 0; i < index; i++) {
+    if (expoData[i].chn == expoData[index].chn)
       cnt++;
   }
 

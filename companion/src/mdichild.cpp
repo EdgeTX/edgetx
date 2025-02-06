@@ -63,6 +63,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   if (parentWindow)
     parentWindow->setWindowIcon(windowIcon());
 
+  setupStatusBar();
   setupNavigation();
   initModelsList();
 
@@ -227,11 +228,12 @@ void MdiChild::setupNavigation()
   addAct(ACT_MDL_SIM, "simulate.png",     SLOT(modelSimulate()),  tr("Alt+S"));
   addAct(ACT_MDL_DUP, "duplicate.png",    SLOT(modelDuplicate()), QKeySequence::Underline);
 
-  addAct(ACT_MDL_CUT, "cut.png",   SLOT(cut()),           QKeySequence::Cut);
-  addAct(ACT_MDL_CPY, "copy.png",  SLOT(copy()),          QKeySequence::Copy);
-  addAct(ACT_MDL_PST, "paste.png", SLOT(paste()),         QKeySequence::Paste);
-  addAct(ACT_MDL_INS, "list.png",  SLOT(insert()),        QKeySequence::Italic);
-  addAct(ACT_MDL_EXP, "save.png",  SLOT(modelExport()),   tr("Ctrl+Alt+S"));
+  addAct(ACT_MDL_CUT, "cut.png",         SLOT(cut()),             QKeySequence::Cut);
+  addAct(ACT_MDL_CPY, "copy.png",        SLOT(copy()),            QKeySequence::Copy);
+  addAct(ACT_MDL_PST, "paste.png",       SLOT(paste()),           QKeySequence::Paste);
+  addAct(ACT_MDL_INS, "list.png",        SLOT(insert()),          QKeySequence::Italic);
+  addAct(ACT_MDL_EXP, "save.png",        SLOT(modelExport()),     tr("Ctrl+Alt+S"));
+  addAct(ACT_MDL_ERR, "information.png", SLOT(modelShowErrors()), tr("Ctrl+Alt+E"));
 
   addAct(ACT_MDL_MOV, "arrow-right.png");
   QMenu * catsMenu = new QMenu(this);
@@ -349,6 +351,7 @@ void MdiChild::updateNavigation()
     cboModelSortOrder->setCurrentIndex(radioData.sortOrder);
     cboModelSortOrder->blockSignals(false);
   }
+  action[ACT_GEN_SIM]->setEnabled(!invalidModels());
   action[ACT_GEN_SRT]->setVisible(hasLabels);
 
   action[ACT_MDL_DEL]->setEnabled(modelsSelected);
@@ -369,7 +372,8 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_WIZ]->setEnabled(singleModelSelected);
   action[ACT_MDL_DFT]->setEnabled(singleModelSelected && getCurrentModel() != (int)radioData.generalSettings.currModelIndex);
   action[ACT_MDL_PRT]->setEnabled(singleModelSelected);
-  action[ACT_MDL_SIM]->setEnabled(singleModelSelected);
+  action[ACT_MDL_SIM]->setEnabled(singleModelSelected && !invalidModels());
+  action[ACT_MDL_ERR]->setEnabled(singleModelSelected && radioData.models[getCurrentModel()].modelErrors);
 }
 
 void MdiChild::retranslateUi()
@@ -399,6 +403,7 @@ void MdiChild::retranslateUi()
   action[ACT_MDL_PRT]->setText(tr("Print Model"));
   action[ACT_MDL_SIM]->setText(tr("Simulate Model"));
   action[ACT_MDL_DUP]->setText(tr("Duplicate Model"));
+  action[ACT_MDL_ERR]->setText(tr("Show Model Errors"));
 
   radioToolbar->setWindowTitle(tr("Show Radio Actions Toolbar"));
   modelsToolbar->setWindowTitle(tr("Show Model Actions Toolbar"));
@@ -444,6 +449,7 @@ QList<QAction *> MdiChild::getModelActions()
   //actGrp.append(getAction(ACT_MDL_RTR));
   actGrp.append(getAction(ACT_MDL_PRT));
   actGrp.append(getAction(ACT_MDL_SIM));
+  actGrp.append(getAction(ACT_MDL_ERR));
   return actGrp;
 }
 
@@ -603,6 +609,7 @@ void MdiChild::refresh()
   }
   updateNavigation();
   updateTitle();
+  updateStatusBar();
 }
 
 void MdiChild::onItemActivated(const QModelIndex index)
@@ -1204,6 +1211,7 @@ void MdiChild::openModelEditWindow(int row)
   gStopwatch.report("ModelEdit created");
   t->setWindowTitle(tr("Editing model %1: ").arg(row+1) + QString(model.name) + QString("   (%1)").arg(userFriendlyCurrentFile()));
   connect(t, &ModelEdit::modified, this, &MdiChild::setCurrentModelModified);
+  connect(t, &ModelEdit::closed, this, &MdiChild::onModelEditClosed);
   gStopwatch.report("STARTING MODEL EDIT");
   t->show();
   QApplication::restoreOverrideCursor();
@@ -1298,6 +1306,9 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
     refresh();
   }
 
+  radioData.validateModels();
+  updateStatusBar();
+
   return true;
 }
 
@@ -1344,8 +1355,10 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
   g.eepromDir(QFileInfo(filename).dir().absolutePath());
 
   for (int i = 0; i < (int)radioData.models.size(); i++) {
-    if (!radioData.models[i].isEmpty())
+    if (!radioData.models[i].isEmpty()) {
       radioData.models[i].modelUpdated = false;
+      radioData.models[i].validate();
+    }
   }
 
   refresh();
@@ -1486,6 +1499,13 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
 
 void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to Tx
 {
+  //  safeguard as the menu actions should be disabled
+  int cnt = radioData.invalidModels();
+  if (cnt) {
+    QMessageBox::critical(this, tr("Write Models and Settings"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
+    return;
+  }
+
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
     msgbox.setText(tr("You are about to overwrite ALL models."));
@@ -1853,4 +1873,53 @@ QAction * MdiChild::actionsSeparator()
   QAction * act = new QAction(this);
   act->setSeparator(true);
   return act;
+}
+
+bool MdiChild::invalidModels()
+{
+  return (bool)radioData.invalidModels();
+}
+
+void MdiChild::modelShowErrors()
+{
+  ModelData &mdl = radioData.models[getCurrentModel()];
+  QMessageBox::critical(this, QString("%1").arg(mdl.name), mdl.errorsList().join("\n"));
+}
+
+void MdiChild::onModelEditClosed(int id)
+{
+  radioData.models[id].validate();
+  refresh();
+}
+
+void MdiChild::setupStatusBar()
+{
+  statusBar = new QStatusBar();
+  ui->statusBarLayout->addWidget(statusBar);
+  QLabel *lbl = new QLabel(tr("Models status"));
+  statusBar->addPermanentWidget(lbl);
+  statusBarIcon = new QLabel();
+  statusBar->addPermanentWidget(statusBarIcon);
+  statusBarCount = new QLabel();
+  statusBar->addPermanentWidget(statusBarCount);
+}
+
+void MdiChild::updateStatusBar()
+{
+  QPixmap p;
+  QLabel cnt;
+  int invalid = radioData.invalidModels();
+
+  if (!invalidModels()) {
+    statusBarIcon->setToolTip(tr("No errors"));
+    p.load(":/images/svg/circle-green.svg");
+  }
+  else {
+    statusBarIcon->setToolTip(tr("Errors"));
+    p.load(":/images/svg/circle-red.svg");
+    cnt.setText(QString::number(invalid));
+  }
+
+  statusBarIcon->setPixmap(p.scaled(QSize(16, 16)));
+  statusBarCount->setText(cnt.text());
 }
