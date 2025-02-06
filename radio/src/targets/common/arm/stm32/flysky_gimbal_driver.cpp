@@ -28,10 +28,15 @@
 #include "hal/adc_driver.h"
 #include "hal/gpio.h"
 
+#include "timers_driver.h"
+#include "debug.h"
+
 #include "hal.h"
 #include "crc.h"
 
 #include <string.h>
+
+#define SAMPLING_TIMEOUT_US 500
 
 static const stm32_usart_t fsUSART = {
   .USARTx = FLYSKY_HALL_SERIAL_USART,
@@ -61,6 +66,12 @@ static STRUCT_HALL HallProtocol = { 0 };
 static uint8_t _fs_hall_command[8] __DMA;
 
 static void* _fs_usart_ctx = nullptr;
+
+static volatile bool _fs_gimbal_detected;
+static uint8_t _fs_gimbal_version = GIMBAL_V1;
+static uint8_t _fs_gimbal_mode = V1_MODE;
+static uint8_t _fs_gimbal_mode_cmd = V1_MODE;
+static bool _fs_gimbal_read_finished = true;
 
 static int _fs_get_byte(uint8_t* data)
 {
@@ -130,12 +141,12 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
   }
 }
 
-void _fs_cmd_get_version()
+void _fs_send_cmd(uint8_t id, uint8_t payload)
 {
   _fs_hall_command[0] = FLYSKY_HALL_PROTOLO_HEAD;
-  _fs_hall_command[1] = 0xb1;
+  _fs_hall_command[1] = id;
   _fs_hall_command[2] = 0x01;
-  _fs_hall_command[3] = 0x00;
+  _fs_hall_command[3] = payload;
 
   unsigned short crc = crc16(CRC_1021, _fs_hall_command, 4, 0xffff);
 
@@ -145,8 +156,31 @@ void _fs_cmd_get_version()
   STM32SerialDriver.sendBuffer(_fs_usart_ctx, _fs_hall_command, 6);
 }
 
-static volatile bool _fs_gimbal_detected;
-static volatile uint8_t _fs_gimbal_version = GIMBAL_V1;
+void _fs_cmd_get_version()
+{
+  _fs_send_cmd(0xb1, 0x00);
+}
+
+void _fs_cmd_set_mode(V2_GIMBAL_MODE mode)
+{
+  if (_fs_gimbal_mode != _fs_gimbal_mode_cmd) {
+    // Last command not responsed yet
+    return;
+  }
+
+  _fs_gimbal_mode_cmd = mode;
+  _fs_send_cmd(0x41, mode);
+}
+
+void _fs_cmd_start_read()
+{
+  _fs_send_cmd(0xc1, 0x00);
+}
+
+bool _fs_sync_enabled()
+{
+  return _fs_gimbal_detected && _fs_gimbal_version > GIMBAL_V1 && _fs_gimbal_mode != V1_MODE;  
+}
 
 static void flysky_gimbal_loop(void*)
 {
@@ -169,12 +203,17 @@ static void flysky_gimbal_loop(void*)
             for (uint8_t i = 0; i < 4; i++) {
               adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
             }
+            _fs_gimbal_read_finished = true;
           } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_VERSION_ID) {
             uint16_t minorVersion = p_values[6];
             uint16_t majorVersion = p_values[7];
             if (majorVersion == 2 && minorVersion >= 1) {
               _fs_gimbal_version = GIMBAL_V2;
+              // Enable sync mode
+              _fs_cmd_set_mode(SYNC_1000Hz);
             }
+          } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_MODE_ID) {
+            _fs_gimbal_mode = _fs_gimbal_mode_cmd;
           }
           break;
       }
@@ -231,9 +270,28 @@ bool flysky_gimbal_init()
   return false;
 }
 
-bool is_flysky_gimbal_sync_supported()
+void flysky_gimbal_start_read()
 {
-  return _fs_gimbal_version > GIMBAL_V1;
+  if(_fs_sync_enabled()) {
+    if (_fs_gimbal_read_finished) {
+      _fs_gimbal_read_finished = false;
+      _fs_cmd_start_read();
+    }    
+  }
+}
+
+void flysky_gimbal_wait_completion()
+{
+  if(_fs_sync_enabled()) {
+    auto timeout = timersGetUsTick();
+    while(!_fs_gimbal_read_finished) {
+      // busy wait
+      if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
+        TRACE("Gimbal timeout");
+        return;
+      }
+    }
+  }
 }
 
 void flysky_gimbal_force_init()

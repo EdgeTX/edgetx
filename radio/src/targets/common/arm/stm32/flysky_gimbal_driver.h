@@ -38,6 +38,7 @@
 #define FLYSKY_OFFSET_VALUE             ( 1 << 12 )
 
 #define FLYSKY_HALL_PROTOLO_HEAD        0x55
+#define FLYSKY_PACKET_MODE_ID           0x04
 #define FLYSKY_PACKET_VERSION_ID        0x0b
 #define FLYSKY_PACKET_CHANNEL_ID        0x0c
 
@@ -125,9 +126,15 @@ enum TRANSFER_DIR_E {
   TRANSFER_DIR_RFMODULE,
 };
 
-enum FLYSKY_GIMBAL_VERSION {
+enum GIMBAL_VERSION {
   GIMBAL_V1,
   GIMBAL_V2
+};
+
+enum V2_GIMBAL_MODE {
+  V1_MODE = 0,
+  SYNC_400Hz = 1,
+  SYNC_1000Hz = 2
 };
 
 extern signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
@@ -139,6 +146,8 @@ bool flysky_gimbal_init();
 void flysky_gimbal_force_init();
 
 void flysky_gimbal_deinit();
-bool is_flysky_gimbal_sync_supported();
+
+void flysky_gimbal_start_read();
+void flysky_gimbal_wait_completion();
 
 const etx_serial_port_t* flysky_gimbal_get_port();
