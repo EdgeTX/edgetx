@@ -115,7 +115,7 @@ void SystemClock_Config()
 #ifndef BOOT
   LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
 #endif
-  LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL3Q);
+  LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL1Q);
 
 
   LL_RCC_SetSPIClockSource(LL_RCC_SPI1_CLKSOURCE_PLL1Q);
