@@ -241,10 +241,10 @@ void doMixerCalculations()
   DEBUG_TIMER_STOP(debugTimerGetAdc);
 
  // Need to put all in a group to ensure DMA transfer will not affect ADC sampling
-#if defined(FLYSKY_GIMBAL)
+#if defined(FLYSKY_GIMBAL) && !defined(SIMU)
   flysky_gimbal_start_read();
 #endif
-#if defined(FLYSKY_GIMBAL)
+#if defined(FLYSKY_GIMBAL) && !defined(SIMU)
   flysky_gimbal_wait_completion();
 #endif
 
