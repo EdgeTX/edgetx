@@ -39,7 +39,7 @@
 #define SAMPLING_TIMEOUT_US             1000  // us
 #define RESAMPLING_THRESHOLD            2500  // us, 400Hz freq = 2500us period
 #define RESAMPLING_SWITCHING_THRESHOLD   200  // us
-#define MODE_CHANGE_DELAY                100  // ms
+#define MODE_CHANGE_DELAY                 50  // ms
 
 static const stm32_usart_t fsUSART = {
   .USARTx = FLYSKY_HALL_SERIAL_USART,
@@ -72,13 +72,14 @@ static void* _fs_usart_ctx = nullptr;
 
 static volatile bool _fs_gimbal_detected;
 static uint8_t _fs_gimbal_version;
-static uint8_t _fs_gimbal_mode;
-static uint8_t _fs_gimbal_mode_change;
+static V2_GIMBAL_MODE _fs_gimbal_mode;
+static V2_GIMBAL_MODE _fs_gimbal_mode_change;
+static V2_GIMBAL_MODE _fs_gimbal_mode_detected;
 static uint32_t _fs_gimbal_last_mode_change_tick;
 static bool _fs_gimbal_cmd_finished;
 static uint32_t _fs_gimbal_lastReadTick;
 static uint32_t _fs_gimbal_readTick;
-static volatile uint32_t _fs_gimbal_sync_period;
+static uint32_t _fs_gimbal_sync_period;
 
 static int _fs_get_byte(uint8_t* data)
 {
@@ -186,11 +187,6 @@ void _fs_cmd_start_read()
   _fs_send_cmd(0xc1, 0x00);
 }
 
-bool _fs_sync_enabled()
-{
-  return _fs_gimbal_detected && _fs_gimbal_version > GIMBAL_V1 && _fs_gimbal_mode != V1_MODE;  
-}
-
 static void flysky_gimbal_loop(void*)
 {
   uint8_t byte;
@@ -219,8 +215,6 @@ static void flysky_gimbal_loop(void*)
             uint16_t majorVersion = p_values[7];
             if (majorVersion == 2 && minorVersion >= 1) {
               _fs_gimbal_version = GIMBAL_V2;
-              // Enable sync mode
-              _fs_cmd_set_mode(SYNC_RESAMPLING);
             }
           } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_MODE_ID) {
             _fs_gimbal_cmd_finished = true;
@@ -254,6 +248,7 @@ static int flysky_gimbal_init_uart()
   // Init variables
   _fs_gimbal_version = GIMBAL_V1;
   _fs_gimbal_mode = V1_MODE;
+  _fs_gimbal_mode_detected = V1_MODE;
   _fs_gimbal_last_mode_change_tick = 0;
   _fs_gimbal_cmd_finished = true;
   _fs_gimbal_lastReadTick = 0;
@@ -292,30 +287,42 @@ bool flysky_gimbal_init()
 
 void flysky_gimbal_start_read()
 {
-  if(_fs_sync_enabled()) {
+  if(_fs_gimbal_detected && _fs_gimbal_version > GIMBAL_V1) {
     _fs_gimbal_lastReadTick = _fs_gimbal_readTick;
     _fs_gimbal_readTick = timersGetUsTick();
     if (_fs_gimbal_lastReadTick != 0) {
       _fs_gimbal_sync_period = _fs_gimbal_readTick - _fs_gimbal_lastReadTick;
-      uint32_t tick = timersGetMsTick();
-      if (tick - _fs_gimbal_last_mode_change_tick >= MODE_CHANGE_DELAY) {    
-        // Prevent mode change too often
-        _fs_gimbal_last_mode_change_tick = tick;
-        if (_fs_gimbal_mode == SYNC_SAMPLING && _fs_gimbal_sync_period < RESAMPLING_THRESHOLD) {
-          _fs_cmd_set_mode(SYNC_RESAMPLING);
-        } else if(_fs_gimbal_mode == SYNC_RESAMPLING && _fs_gimbal_sync_period >= RESAMPLING_THRESHOLD + RESAMPLING_SWITCHING_THRESHOLD) {
-          _fs_cmd_set_mode(SYNC_SAMPLING);
+      V2_GIMBAL_MODE newMode = _fs_gimbal_mode_detected;
+      switch (_fs_gimbal_mode_detected) {
+        case V1_MODE:
+        case SYNC_SAMPLING:
+          newMode = _fs_gimbal_sync_period < RESAMPLING_THRESHOLD ? SYNC_RESAMPLING : SYNC_SAMPLING;
+          break;
+        case SYNC_RESAMPLING:
+          newMode = _fs_gimbal_sync_period >= RESAMPLING_THRESHOLD + RESAMPLING_SWITCHING_THRESHOLD ? SYNC_SAMPLING : SYNC_RESAMPLING;
+          break;
+      }
+      if (_fs_gimbal_mode_detected != newMode) {
+        _fs_gimbal_mode_detected = newMode;
+        _fs_gimbal_last_mode_change_tick = timersGetMsTick();
+      } else if (_fs_gimbal_mode != _fs_gimbal_mode_detected) {
+        uint32_t tick = timersGetMsTick();
+        if (tick - _fs_gimbal_last_mode_change_tick >= MODE_CHANGE_DELAY) {
+          // Update mode when mode is stable
+          _fs_cmd_set_mode(_fs_gimbal_mode_detected);
         }
       }
     }
-    _fs_cmd_start_read();
+    if (_fs_gimbal_mode != V1_MODE) {
+      _fs_cmd_start_read();
+    }
   }
 }
 
 void flysky_gimbal_wait_completion()
 {
-  if(_fs_sync_enabled()) {
-    auto timeout = timersGetUsTick();
+  if(_fs_gimbal_detected && _fs_gimbal_version > GIMBAL_V1 && _fs_gimbal_mode != V1_MODE) {
+      auto timeout = timersGetUsTick();
     while(!_fs_gimbal_cmd_finished) {
       // busy wait
       if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
