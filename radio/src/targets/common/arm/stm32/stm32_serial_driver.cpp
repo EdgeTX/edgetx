@@ -79,6 +79,10 @@ enum _STM32_USART {
   _STM32_UART8,
 #endif
 
+#if defined(USART10)
+    _STM32_USART10,
+#endif
+
   _STM32_MAX_UARTS
 };
 
@@ -178,6 +182,10 @@ static inline void _usart_isr_handler(_STM32_USART n)
   DEFINE_USART_IRQ(UART8);
 #endif
 
+#if defined (USART10)
+  DEFINE_USART_IRQ(USART10);
+#endif
+
 
 static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 {
@@ -204,6 +212,9 @@ static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 #endif
 #if defined (UART8)
   if (usart->USARTx == UART8) return &_serial_states[_STM32_UART8];
+#endif
+#if defined (USART10)
+  if (usart->USARTx == USART10) return &_serial_states[_STM32_USART10];
 #endif
 
   return nullptr;

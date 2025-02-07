@@ -485,7 +485,7 @@ void SPI4_IRQHandler() {  asm("BKPT"); }
 void SPI5_IRQHandler() {  asm("BKPT"); }
 void SPI6_IRQHandler() {  asm("BKPT"); }
 // void USART6_IRQHandler() {  asm("BKPT"); }
-void USART10_IRQHandler() {  asm("BKPT"); }
+// void USART10_IRQHandler() {  asm("BKPT"); }
 void USART11_IRQHandler() {  asm("BKPT"); }
 void SAI1_IRQHandler() {  asm("BKPT"); }
 void SAI2_IRQHandler() {  asm("BKPT"); }
