@@ -365,6 +365,7 @@
   #endif
 #elif defined(RADIO_H5TEST)
   #define ROTARY_ENCODER_NAVIGATION
+  #define ROTARY_ENCODER_INVERTED
   #define ROTARY_ENCODER_GPIO             GPIOE
   #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_9 // PE.09
   #define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_11 // PE.11
