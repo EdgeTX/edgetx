@@ -72,6 +72,9 @@ static uint8_t _fs_gimbal_version = GIMBAL_V1;
 static uint8_t _fs_gimbal_mode = V1_MODE;
 static uint8_t _fs_gimbal_mode_cmd = V1_MODE;
 static bool _fs_gimbal_read_finished = true;
+static uint32_t _fs_lastReadTick = 0;
+static uint32_t _fs_readTick;
+static uint32_t _fs_sync_period = 0;
 
 static int _fs_get_byte(uint8_t* data)
 {
@@ -210,7 +213,7 @@ static void flysky_gimbal_loop(void*)
             if (majorVersion == 2 && minorVersion >= 1) {
               _fs_gimbal_version = GIMBAL_V2;
               // Enable sync mode
-              _fs_cmd_set_mode(SYNC_1000Hz);
+              _fs_cmd_set_mode(SYNC_RESAMPLING);
             }
           } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_MODE_ID) {
             _fs_gimbal_mode = _fs_gimbal_mode_cmd;
@@ -275,6 +278,11 @@ void flysky_gimbal_start_read()
   if(_fs_sync_enabled()) {
     if (_fs_gimbal_read_finished) {
       _fs_gimbal_read_finished = false;
+      _fs_lastReadTick = _fs_readTick;
+      _fs_readTick = timersGetUsTick();
+      if (_fs_lastReadTick != 0) {
+        _fs_sync_period = _fs_readTick - _fs_lastReadTick;
+      }
       _fs_cmd_start_read();
     }    
   }

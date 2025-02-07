@@ -133,8 +133,8 @@ enum GIMBAL_VERSION {
 
 enum V2_GIMBAL_MODE {
   V1_MODE = 0,
-  SYNC_400Hz = 1,
-  SYNC_1000Hz = 2
+  SYNC_SAMPLING = 1,   // Can serve sampling frequency < 400Hz
+  SYNC_RESAMPLING = 2  // Can serve sampling frequency up to 1000Hz
 };
 
 extern signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
