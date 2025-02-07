@@ -73,7 +73,7 @@ jobs:
           - gx12
           - nb4p
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:2.11
       volumes:
         - ${{ github.workspace }}:/src
     steps:
@@ -119,7 +119,7 @@ jobs:
           - mt12;gx12
           - nb4p
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:2.11
       volumes:
         - ${{ github.workspace }}:/src
     steps:
