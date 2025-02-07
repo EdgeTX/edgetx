@@ -33,6 +33,10 @@
 #include "hal/gpio.h"
 #endif
 
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
+
 RTOS_TASK_HANDLE mixerTaskId;
 RTOS_DEFINE_STACK(mixerTaskId, mixerStack, MIXER_STACK_SIZE);
 
@@ -249,6 +253,14 @@ void doMixerCalculations()
   DEBUG_TIMER_START(debugTimerGetAdc);
   getADC();
   DEBUG_TIMER_STOP(debugTimerGetAdc);
+
+ // Need to put all in a group to ensure DMA transfer will not affect ADC sampling
+#if defined(FLYSKY_GIMBAL)
+  flysky_gimbal_start_read();
+#endif
+#if defined(FLYSKY_GIMBAL)
+  flysky_gimbal_wait_completion();
+#endif
 
   DEBUG_TIMER_START(debugTimerGetSwitches);
   getSwitchesPosition(!s_mixer_first_run_done);
