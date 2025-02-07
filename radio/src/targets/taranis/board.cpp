@@ -86,7 +86,7 @@ void boardBLEarlyInit()
 #endif
 
 #if defined(RADIO_H5TEST)
-int usbPlugged(){ return true;}
+int usbPlugged(){ return gpio_read(GPIO_PIN(GPIOD, 4));} //Switch A //TODO: REMOVE ME
 #endif
 
 #if !defined(BOOT)
