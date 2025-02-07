@@ -60,101 +60,116 @@
 <context>
     <name>AppData</name>
     <message>
-        <location filename="../storage/appdata.cpp" line="858"/>
+        <location filename="../storage/appdata.cpp" line="859"/>
         <source>Application Settings have been saved to
  %1</source>
         <translation>Les paramètres de l&apos;application ont été enregistrés dans
  %1</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.cpp" line="861"/>
+        <location filename="../storage/appdata.cpp" line="862"/>
         <source>Could not save Application Settings to file &quot;%1&quot;</source>
         <translation>Impossible d&apos;enregistrer les paramètres de l&apos;application dans le fichier &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.cpp" line="863"/>
+        <location filename="../storage/appdata.cpp" line="864"/>
         <source>because the file could not be saved (check access permissions).</source>
         <translation>car le fichier n&apos;a pas pu être enregistré (vérifiez les autorisations d&apos;accès).</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.cpp" line="865"/>
+        <location filename="../storage/appdata.cpp" line="866"/>
         <source>for unknown reasons.</source>
         <translation>pour raisons inconnues.</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="656"/>
+        <location filename="../storage/appdata.h" line="665"/>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="656"/>
+        <location filename="../storage/appdata.h" line="665"/>
         <source>Wizard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="656"/>
+        <location filename="../storage/appdata.h" line="665"/>
         <source>Editor</source>
         <translation>Edition</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="656"/>
+        <location filename="../storage/appdata.h" line="665"/>
         <source>Template</source>
         <translation>Modèle</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="656"/>
+        <location filename="../storage/appdata.h" line="665"/>
         <source>Prompt</source>
         <translation>Rapide</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="657"/>
+        <location filename="../storage/appdata.h" line="666"/>
         <source>Manual</source>
         <translation>Manuel</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="657"/>
+        <location filename="../storage/appdata.h" line="666"/>
         <source>Startup</source>
         <translation>Démarrage</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="657"/>
+        <location filename="../storage/appdata.h" line="666"/>
         <source>Daily</source>
         <translation>Quotidien</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="657"/>
+        <location filename="../storage/appdata.h" line="666"/>
         <source>Weekly</source>
         <translation>Hebdomadaire</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="657"/>
+        <location filename="../storage/appdata.h" line="666"/>
         <source>Monthly</source>
         <translation>Mensuel</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="659"/>
+        <location filename="../storage/appdata.h" line="668"/>
         <source>Debug</source>
         <translation>Débogage</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="659"/>
+        <location filename="../storage/appdata.h" line="668"/>
         <source>Warning</source>
         <translation>Avertissement</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="659"/>
+        <location filename="../storage/appdata.h" line="668"/>
         <source>Critical</source>
         <translation>Critique</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="659"/>
+        <location filename="../storage/appdata.h" line="668"/>
         <source>Fatal</source>
         <translation>Fatale</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="659"/>
+        <location filename="../storage/appdata.h" line="668"/>
         <source>Information</source>
         <translation>Information</translation>
+    </message>
+    <message>
+        <location filename="../storage/appdata.h" line="669"/>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../storage/appdata.h" line="669"/>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../storage/appdata.h" line="669"/>
+        <source>Right</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -170,22 +185,22 @@
         <translation>Profil de radio</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="687"/>
+        <location filename="../apppreferencesdialog.ui" line="492"/>
         <source>Default Channel Order</source>
         <translation>Ordre des voies par défaut</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="635"/>
+        <location filename="../apppreferencesdialog.ui" line="591"/>
         <source>Default Stick Mode</source>
         <translation>Mode Manches par défaut</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="229"/>
+        <location filename="../apppreferencesdialog.ui" line="270"/>
         <source>Select Image</source>
         <translation>Sélectionner une image</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="533"/>
+        <location filename="../apppreferencesdialog.ui" line="379"/>
         <source>Mode selection:
 
 Mode 1:
@@ -226,657 +241,682 @@ Manche Droit:  Profondeur, Direction
 </translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="558"/>
+        <location filename="../apppreferencesdialog.ui" line="404"/>
         <source>Mode 1 (RUD ELE THR AIL)</source>
         <translation>Mode 1 (DIR PROF GAZ AIL)</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="563"/>
+        <location filename="../apppreferencesdialog.ui" line="409"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
         <translation>Mode 2 (DIR GAZ PROF AIL)</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="568"/>
+        <location filename="../apppreferencesdialog.ui" line="414"/>
         <source>Mode 3 (AIL ELE THR RUD)</source>
         <translation>Mode 3 (AIL PROF GAZ DIR)</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="573"/>
+        <location filename="../apppreferencesdialog.ui" line="419"/>
         <source>Mode 4 (AIL THR ELE RUD)</source>
         <translation>Mode 4 (AIL GAZ PROF DIR)</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="212"/>
+        <location filename="../apppreferencesdialog.ui" line="253"/>
         <source>Splash Screen</source>
         <translation>Ecran d&apos;accueil</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="296"/>
-        <location filename="../apppreferencesdialog.ui" line="671"/>
+        <location filename="../apppreferencesdialog.ui" line="450"/>
+        <location filename="../apppreferencesdialog.ui" line="621"/>
         <source>The profile specific folder,  if set, will override general Backup folder</source>
         <translation>Dossier de sauvegarde spécifique au profil courant, si défini remplace le paramètre de l&apos;application</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="674"/>
+        <location filename="../apppreferencesdialog.ui" line="624"/>
         <source>Backup folder</source>
         <translation>Dossier de sauvegarde</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="119"/>
+        <location filename="../apppreferencesdialog.ui" line="463"/>
         <source>If set it will override the application general setting</source>
         <translation>Si défini, remplace le paramètre de l&apos;application pour ce profil</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="603"/>
+        <location filename="../apppreferencesdialog.ui" line="440"/>
         <source>if set, will override general backup enable</source>
         <translation>Si défini, remplace le paramètre de l&apos;application pour ce profil</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="397"/>
+        <location filename="../apppreferencesdialog.ui" line="93"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Channel order&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Defines the order of the default mixes created on a new model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ordre des voies&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Détermine l&apos;ordre des mixages par défaut sur un nouveau modèle.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="619"/>
+        <location filename="../apppreferencesdialog.ui" line="549"/>
         <source>Language</source>
         <translation>Langage</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="112"/>
+        <location filename="../apppreferencesdialog.ui" line="80"/>
         <source>Prompt to write firmware to radio after update</source>
         <translation>Invite à écrire le firmware sur la radio après la mise à jour</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="404"/>
+        <location filename="../apppreferencesdialog.ui" line="100"/>
         <source>R E T A</source>
         <translation>D P G A</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="409"/>
+        <location filename="../apppreferencesdialog.ui" line="105"/>
         <source>R E A T</source>
         <translation>D P A G</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="414"/>
+        <location filename="../apppreferencesdialog.ui" line="110"/>
         <source>R T E A</source>
         <translation>D G P A</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="419"/>
+        <location filename="../apppreferencesdialog.ui" line="115"/>
         <source>R T A E</source>
         <translation>D G A P</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="424"/>
+        <location filename="../apppreferencesdialog.ui" line="120"/>
         <source>R A E T</source>
         <translation>D A P G</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="429"/>
+        <location filename="../apppreferencesdialog.ui" line="125"/>
         <source>R A T E</source>
         <translation>D A G P</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="434"/>
+        <location filename="../apppreferencesdialog.ui" line="130"/>
         <source>E R T A</source>
         <translation>P D G A</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="439"/>
+        <location filename="../apppreferencesdialog.ui" line="135"/>
         <source>E R A T</source>
         <translation>P D A G</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="444"/>
+        <location filename="../apppreferencesdialog.ui" line="140"/>
         <source>E T R A</source>
         <translation>P G D A</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="449"/>
+        <location filename="../apppreferencesdialog.ui" line="145"/>
         <source>E T A R</source>
         <translation>P G A D</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="454"/>
+        <location filename="../apppreferencesdialog.ui" line="150"/>
         <source>E A R T</source>
         <translation>P A D G</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="459"/>
+        <location filename="../apppreferencesdialog.ui" line="155"/>
         <source>E A T R</source>
         <translation>P A G D</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="464"/>
+        <location filename="../apppreferencesdialog.ui" line="160"/>
         <source>T R E A</source>
         <translation>G D P A</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="469"/>
+        <location filename="../apppreferencesdialog.ui" line="165"/>
         <source>T R A E</source>
         <translation>G D A P</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="474"/>
+        <location filename="../apppreferencesdialog.ui" line="170"/>
         <source>T E R A</source>
         <translation>G P D A</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="479"/>
+        <location filename="../apppreferencesdialog.ui" line="175"/>
         <source>T E A R</source>
         <translation>G P A D</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="484"/>
+        <location filename="../apppreferencesdialog.ui" line="180"/>
         <source>T A R E</source>
         <translation>G A D P</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="489"/>
+        <location filename="../apppreferencesdialog.ui" line="185"/>
         <source>T A E R</source>
         <translation>G A P D</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="494"/>
+        <location filename="../apppreferencesdialog.ui" line="190"/>
         <source>A R E T</source>
         <translation>A D P G</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="499"/>
+        <location filename="../apppreferencesdialog.ui" line="195"/>
         <source>A R T E</source>
         <translation>A D G P</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="504"/>
+        <location filename="../apppreferencesdialog.ui" line="200"/>
         <source>A E R T</source>
         <translation>A P D G</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="509"/>
+        <location filename="../apppreferencesdialog.ui" line="205"/>
         <source>A E T R</source>
         <translation>A P G D</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="514"/>
+        <location filename="../apppreferencesdialog.ui" line="210"/>
         <source>A T R E</source>
         <translation>A G D P</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="519"/>
+        <location filename="../apppreferencesdialog.ui" line="215"/>
         <source>A T E R</source>
         <translation>A G P D</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="83"/>
-        <location filename="../apppreferencesdialog.ui" line="1560"/>
-        <location filename="../apppreferencesdialog.cpp" line="483"/>
+        <location filename="../apppreferencesdialog.ui" line="575"/>
+        <location filename="../apppreferencesdialog.ui" line="1608"/>
+        <location filename="../apppreferencesdialog.cpp" line="503"/>
         <source>Options</source>
         <translation>Options</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="299"/>
-        <location filename="../apppreferencesdialog.ui" line="642"/>
-        <location filename="../apppreferencesdialog.ui" line="873"/>
-        <location filename="../apppreferencesdialog.ui" line="971"/>
-        <location filename="../apppreferencesdialog.ui" line="1117"/>
-        <location filename="../apppreferencesdialog.ui" line="1271"/>
-        <location filename="../apppreferencesdialog.ui" line="1526"/>
-        <location filename="../apppreferencesdialog.ui" line="1536"/>
-        <location filename="../apppreferencesdialog.ui" line="1543"/>
+        <location filename="../apppreferencesdialog.ui" line="453"/>
+        <location filename="../apppreferencesdialog.ui" line="559"/>
+        <location filename="../apppreferencesdialog.ui" line="897"/>
+        <location filename="../apppreferencesdialog.ui" line="995"/>
+        <location filename="../apppreferencesdialog.ui" line="1141"/>
+        <location filename="../apppreferencesdialog.ui" line="1430"/>
+        <location filename="../apppreferencesdialog.ui" line="1574"/>
+        <location filename="../apppreferencesdialog.ui" line="1584"/>
+        <location filename="../apppreferencesdialog.ui" line="1591"/>
         <source>Select Folder</source>
         <translation>Sélectionner dossier</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="330"/>
+        <location filename="../apppreferencesdialog.ui" line="427"/>
         <source>Default Int. Module</source>
         <translation>Module Int. par Défaut</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="323"/>
+        <location filename="../apppreferencesdialog.ui" line="337"/>
         <source>Prompt to run SD Sync after update</source>
         <translation>Invite à exécuter SD Sync après mise à jour</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="316"/>
+        <location filename="../apppreferencesdialog.ui" line="608"/>
         <source>External Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="794"/>
+        <location filename="../apppreferencesdialog.ui" line="729"/>
+        <source>Simulator Case Colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../apppreferencesdialog.ui" line="746"/>
+        <source>Select Colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../apppreferencesdialog.ui" line="818"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep a log of all debugging messages generated by the desktop Companion/Simulator applications. An EdgeTX developer may request this to help diagnose an issue.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>Conservez un journal de tous les messages de débogage générés par  Companion/Simulateur. Un développeur EdgeTX peut demander cela pour aider à diagnostiquer un problème</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="923"/>
+        <location filename="../apppreferencesdialog.ui" line="947"/>
         <source>Show splash screen</source>
         <translation>Afficher l&apos;écran de démarrage</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1098"/>
+        <location filename="../apppreferencesdialog.ui" line="1122"/>
         <source>Remove empty model slots when deleting models (only applies for radios w/out labels)</source>
         <translation>Supprimez les emplacements vides lors de la suppression de modèles (s&apos;applique uniquement aux radios sans étiquettes)</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1126"/>
+        <location filename="../apppreferencesdialog.ui" line="1150"/>
         <source>Radio Profiles</source>
         <translation type="unfinished">Profil radio</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1133"/>
+        <location filename="../apppreferencesdialog.ui" line="1157"/>
         <source>Move selected Radio Profile to the top of the list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1411"/>
+        <location filename="../apppreferencesdialog.ui" line="1196"/>
+        <source>Display Scroll Buttons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../apppreferencesdialog.ui" line="1280"/>
         <source>Disable &apos;Cannot open joystick, joystick disabled&apos; warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1419"/>
+        <location filename="../apppreferencesdialog.ui" line="1326"/>
+        <source>BackLight Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../apppreferencesdialog.ui" line="1378"/>
+        <source>Enable for mouse without scroll wheel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../apppreferencesdialog.ui" line="1416"/>
+        <source>Position of Keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../apppreferencesdialog.ui" line="1467"/>
         <source>Update Settings</source>
         <translation>Mettre à jour paramètres</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1427"/>
+        <location filename="../apppreferencesdialog.ui" line="1475"/>
         <source>Check frequency</source>
         <translation>Vérifier fréquence</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1450"/>
+        <location filename="../apppreferencesdialog.ui" line="1498"/>
         <source>Reset to Defaults</source>
         <translation>Réinitialiser les paramètres par défaut</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1459"/>
+        <location filename="../apppreferencesdialog.ui" line="1507"/>
         <source>Folders</source>
         <translation>Dossiers</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1465"/>
+        <location filename="../apppreferencesdialog.ui" line="1513"/>
         <source>Download</source>
         <translation>Télécharger</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1482"/>
+        <location filename="../apppreferencesdialog.ui" line="1530"/>
         <source>Create sub-folders in Download folder</source>
         <translation>Créer des sous-dossiers dans le dossier de téléchargement</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1499"/>
+        <location filename="../apppreferencesdialog.ui" line="1547"/>
         <source>Decompress</source>
         <translation>Décompresser</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1506"/>
+        <location filename="../apppreferencesdialog.ui" line="1554"/>
         <source>Use Radio Profile SD Structure</source>
         <translation>Utiliser la structure SD du profil radio</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1553"/>
+        <location filename="../apppreferencesdialog.ui" line="1601"/>
         <source>Components</source>
         <translation>Composants</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1566"/>
+        <location filename="../apppreferencesdialog.ui" line="1614"/>
         <source>Delete downloads</source>
         <translation>Supprimer téléchargements</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1573"/>
+        <location filename="../apppreferencesdialog.ui" line="1621"/>
         <source>Delete decompressions</source>
         <translation>Supprimer les décompressions</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1593"/>
+        <location filename="../apppreferencesdialog.ui" line="1641"/>
         <source>Logging</source>
         <translation>Enregistrement</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="783"/>
+        <location filename="../apppreferencesdialog.ui" line="807"/>
         <source>Select Executable</source>
         <translation>Sélectionner exécutable</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="455"/>
+        <location filename="../apppreferencesdialog.cpp" line="475"/>
         <source>Release channel</source>
         <translation>Canal de version</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1339"/>
+        <location filename="../apppreferencesdialog.ui" line="1371"/>
         <source>Simulator Volume Gain</source>
         <translation>Gain de volume du simulateur</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1384"/>
+        <location filename="../apppreferencesdialog.ui" line="1423"/>
         <source>Simulator controls</source>
         <translation>Commandes du simulateur</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1397"/>
+        <location filename="../apppreferencesdialog.ui" line="1306"/>
         <source>Save switch/pot positions on simulator exit</source>
         <translation>Enregistrer les positions des inters/pots à la sortie du simulateur</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1404"/>
+        <location filename="../apppreferencesdialog.ui" line="1313"/>
         <source>Clear saved positions</source>
         <translation>Effacer les positions enregistrées</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="722"/>
+        <location filename="../apppreferencesdialog.ui" line="514"/>
         <source>Profile Name</source>
         <translation>Nom du profil</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="273"/>
+        <location filename="../apppreferencesdialog.ui" line="314"/>
         <source>Clear Image</source>
         <translation>Effacer l&apos;image</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="349"/>
+        <location filename="../apppreferencesdialog.ui" line="686"/>
         <source>Radio Type</source>
         <translation>Type de radio</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="371"/>
+        <location filename="../apppreferencesdialog.ui" line="533"/>
         <source>Other Settings</source>
         <translation>Autres paramètres</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="145"/>
+        <location filename="../apppreferencesdialog.ui" line="479"/>
         <source>General Settings</source>
         <translation>Paramètres Généraux</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="655"/>
+        <location filename="../apppreferencesdialog.ui" line="64"/>
         <source>SD Structure path</source>
         <translation>Chemin structure carte SD</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="730"/>
+        <location filename="../apppreferencesdialog.ui" line="754"/>
         <source>Application Settings</source>
         <translation>Paramètres de l&apos;application</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="606"/>
-        <location filename="../apppreferencesdialog.ui" line="1012"/>
+        <location filename="../apppreferencesdialog.ui" line="443"/>
+        <location filename="../apppreferencesdialog.ui" line="1036"/>
         <source>Enable automatic backup before writing firmware</source>
         <translation>Activer sauvegarde automatique avant écriture firmware</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1068"/>
+        <location filename="../apppreferencesdialog.ui" line="1092"/>
         <source>Splash Screen Library</source>
         <translation>Bibliothèque de l&apos;écran d&apos;accueil</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="822"/>
+        <location filename="../apppreferencesdialog.ui" line="846"/>
         <source>Google Earth Executable</source>
         <translation>Exécutable Google Earth</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="940"/>
+        <location filename="../apppreferencesdialog.ui" line="964"/>
         <source>Only show user splash images</source>
         <translation>Ne montrer que les images de l&apos;utilisateur</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="945"/>
+        <location filename="../apppreferencesdialog.ui" line="969"/>
         <source>Show user and companion splash images</source>
         <translation>Montrer les images de Companion et de l&apos;utilisateur</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="999"/>
+        <location filename="../apppreferencesdialog.ui" line="1023"/>
         <source>User Splash Screens</source>
         <translation>Ecrans d&apos;accueil personnalisés</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="851"/>
+        <location filename="../apppreferencesdialog.ui" line="875"/>
         <source>Automatic Backup Folder</source>
         <translation>Dossier des sauvegardes automatiques</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1163"/>
+        <location filename="../apppreferencesdialog.ui" line="1187"/>
         <source>Simulator Settings</source>
         <translation>Paramètres du simulateur</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1352"/>
-        <source>Simulator BackLight</source>
-        <translation>Rétroéclairage du simulateur</translation>
-    </message>
-    <message>
-        <location filename="../apppreferencesdialog.ui" line="1300"/>
+        <location filename="../apppreferencesdialog.ui" line="1358"/>
         <source>Enable</source>
         <translation>Activer</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="986"/>
+        <location filename="../apppreferencesdialog.ui" line="1010"/>
         <source>Action on New Model</source>
         <translation>Action lors Ajout Nouveau Modèle</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1095"/>
+        <location filename="../apppreferencesdialog.ui" line="1119"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This option  maintains the behaviour from older OpenTx versions where empty model slots are preserved when a model is deleted or moved. &lt;/p&gt;&lt;p&gt;When this option is de-selected, the other models may be re-arranged to fill the gap left by the removed  model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;&lt;u&gt;/!\&lt;/u&gt; Uniquement pour les radios sans catégories &lt;u&gt;/!\&lt;/u&gt;&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Cette option maintient le comportement des anciennes versions d’OpenTx où les emplacements des modèles vides sont conservés lorsqu&apos;un modèle est supprimé ou déplacé.&lt;/p&gt;&lt;p&gt;Lorsque cette option est désélectionnée, les autres modèles peuvent être réarrangés pour combler l&apos;écart laissé par le modèle supprimé.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1053"/>
+        <location filename="../apppreferencesdialog.ui" line="1077"/>
         <source>most recently used files</source>
         <translation>fichiers récemment utilisés</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1081"/>
+        <location filename="../apppreferencesdialog.ui" line="1105"/>
         <source>Startup Settings</source>
         <translation>Paramètres de démarrage</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="747"/>
+        <location filename="../apppreferencesdialog.ui" line="771"/>
         <source>Remember</source>
         <translation>Rappel</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="916"/>
+        <location filename="../apppreferencesdialog.ui" line="940"/>
         <source>Output Logs Folder</source>
         <translation>Dossier des logs sauvegardés</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="835"/>
+        <location filename="../apppreferencesdialog.ui" line="859"/>
         <source>Debug Output Logging</source>
         <translation>Log les messages de debug</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="797"/>
+        <location filename="../apppreferencesdialog.ui" line="821"/>
         <source>Application (Companion/Simulator)</source>
         <translation>Application (Companion/Simulateur)</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="804"/>
+        <location filename="../apppreferencesdialog.ui" line="828"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep a log of all messages generated by the radio firmware when running in Simulator. This is the same information one would also see in the Simulator &lt;span style=&quot; font-style:italic;&quot;&gt;Debug Output&lt;/span&gt; window.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Conserver un log de tous les messages générés par le firmware radio lors de l&apos;exécution du Simulateur. C&apos;est la même information visible depuis le Simulateur dans la &lt;span style=&quot; font-style:italic;&quot;&gt;Fenêtre de débogage&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="807"/>
+        <location filename="../apppreferencesdialog.ui" line="831"/>
         <source>Radio Firmware (in Simulator)</source>
         <translation>Firmware radio (dans Simulateur)</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1019"/>
+        <location filename="../apppreferencesdialog.ui" line="1043"/>
         <source>Prompt for radio profile</source>
         <translation>Afficher le choix du profil radio&quot; au démarrage</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="761"/>
+        <location filename="../apppreferencesdialog.ui" line="785"/>
         <source>Prompt to run installer after update</source>
         <translation>Invite à exécuter le programme d&apos;installation après la mise à jour</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="754"/>
-        <location filename="../apppreferencesdialog.ui" line="1475"/>
+        <location filename="../apppreferencesdialog.ui" line="778"/>
+        <location filename="../apppreferencesdialog.ui" line="1523"/>
         <source>Update</source>
         <translation>Mise à jour</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1236"/>
+        <location filename="../apppreferencesdialog.ui" line="1252"/>
         <source>Blue</source>
         <translation>Bleu</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1241"/>
+        <location filename="../apppreferencesdialog.ui" line="1257"/>
         <source>Green</source>
         <translation>Vert</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1246"/>
+        <location filename="../apppreferencesdialog.ui" line="1262"/>
         <source>Red</source>
         <translation>Rouge</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1251"/>
+        <location filename="../apppreferencesdialog.ui" line="1267"/>
         <source>Orange</source>
         <translation>Orange</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1256"/>
+        <location filename="../apppreferencesdialog.ui" line="1272"/>
         <source>Yellow</source>
         <translation>Jaune</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1222"/>
+        <location filename="../apppreferencesdialog.ui" line="1342"/>
         <source>Screenshot capture folder</source>
         <translation>Dossier des captures d&apos;écran</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1326"/>
+        <location filename="../apppreferencesdialog.ui" line="1459"/>
         <source>Joystick</source>
         <translation>Joystick</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1264"/>
+        <location filename="../apppreferencesdialog.ui" line="1238"/>
         <source>Calibrate</source>
         <translation>Calibrer</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.ui" line="1287"/>
+        <location filename="../apppreferencesdialog.ui" line="1293"/>
         <source>Only capture to clipboard</source>
         <translation>Capturer uniquement dans le presse-papier</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="175"/>
+        <location filename="../apppreferencesdialog.cpp" line="183"/>
         <source>My Radio</source>
         <translation>Ma radio</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="185"/>
+        <location filename="../apppreferencesdialog.cpp" line="193"/>
         <source>&lt;p&gt;&lt;b&gt;You cannot switch Radio Type or change Build Options while there are unsaved file changes. What do you wish to do?&lt;/b&gt;&lt;/p&gt; &lt;ul&gt;&lt;li&gt;&lt;i&gt;Save All&lt;/i&gt; - Save any open file(s) before saving Settings.&lt;li&gt;&lt;li&gt;&lt;i&gt;Reset&lt;/i&gt; - Revert to the previous Radio Type and Build Options before saving Settings.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Cancel&lt;/i&gt; - Return to the Settings editor dialog.&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Vous ne pouvez pas changer de type de radio ou modifier les options de compilation tant que les changements ne sont pas sauvegardés. Que souhaitez-vous faire?&lt;/b&gt;&lt;/p&gt; &lt;ul&gt;&lt;li&gt;&lt;i&gt;Sauvegarder tout&lt;/i&gt; - Enregistrez le(s) fichier(s) ouvert(s) avant d&apos;enregistrer les paramètres.&lt;li&gt;&lt;li&gt;&lt;i&gt;Réinitialiser&lt;/i&gt; - Revenir aux précédentes options de type et de compilation de la radio avant d&apos;enregistrer les paramètres&lt;/li&gt;&lt;li&gt;&lt;i&gt;Annuler&lt;/i&gt; - Retournez dans la boîte de dialogue de l&apos;éditeur de paramètres.&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="219"/>
+        <location filename="../apppreferencesdialog.cpp" line="227"/>
         <source>Select your snapshot folder</source>
         <translation>Sélectionner le dossier de captures d&apos;écran</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="119"/>
+        <location filename="../apppreferencesdialog.cpp" line="126"/>
         <source>Update Settings: Download folder path missing!</source>
         <translation>Paramètres de mise à jour: chemin du dossier de téléchargement manquant !</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="124"/>
+        <location filename="../apppreferencesdialog.cpp" line="131"/>
         <source>Update Settings: Decompress folder path missing!</source>
         <translation>Paramètres de mise à jour: chemin du dossier de décompression manquant !</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="129"/>
+        <location filename="../apppreferencesdialog.cpp" line="136"/>
         <source>Update Settings: Update folder path missing!</source>
         <translation>Paramètres de mise à jour : chemin du dossier de mise à jour manquant !</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="135"/>
+        <location filename="../apppreferencesdialog.cpp" line="142"/>
         <source>Update Settings: Decompress and download folders have the same path!</source>
         <translation>Paramètres de mise à jour: le dossier de décompression et de téléchargement ont le même chemin !</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="284"/>
-        <location filename="../apppreferencesdialog.cpp" line="613"/>
+        <location filename="../apppreferencesdialog.cpp" line="303"/>
+        <location filename="../apppreferencesdialog.cpp" line="633"/>
         <source>No joysticks found</source>
         <translation>Aucun Joystick trouvé</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="342"/>
+        <location filename="../apppreferencesdialog.cpp" line="361"/>
         <source>EMPTY: No radio settings stored in profile</source>
         <translation>VIDE: Aucune donnée stockée dans le profil</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="347"/>
+        <location filename="../apppreferencesdialog.cpp" line="366"/>
         <source>AVAILABLE: Radio settings of unknown age</source>
         <translation>DISPONIBLE: Paramètres enregistrés à une date inconnue</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="349"/>
+        <location filename="../apppreferencesdialog.cpp" line="368"/>
         <source>AVAILABLE: Radio settings stored %1</source>
         <translation>DISPONIBLE: Paramètres enregistrés le %1</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="369"/>
+        <location filename="../apppreferencesdialog.cpp" line="389"/>
         <source>Reset all update settings to defaults. Are you sure?</source>
         <translation>Réinitialisez tous les paramètres de mise à jour aux valeurs par défaut. Etes-vous sûr ?</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="373"/>
+        <location filename="../apppreferencesdialog.cpp" line="393"/>
         <source>Update settings have been reset. Please close and restart Companion to avoid unexpected behaviour!</source>
         <translation>Les paramètres de mise à jour ont été réinitialisés. Veuillez fermer et redémarrer Companion pour éviter tout comportement inattendu !</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="413"/>
+        <location filename="../apppreferencesdialog.cpp" line="433"/>
         <source>Select your download folder</source>
         <translation>Sélectionnez votre dossier de téléchargement</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="420"/>
+        <location filename="../apppreferencesdialog.cpp" line="440"/>
         <source>Select your decompress folder</source>
         <translation>Sélectionnez votre dossier de décompression</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="427"/>
+        <location filename="../apppreferencesdialog.cpp" line="447"/>
         <source>Select your update destination folder</source>
         <translation>Sélectionnez votre dossier de mise à jour</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="452"/>
+        <location filename="../apppreferencesdialog.cpp" line="472"/>
         <source>Check</source>
         <translation>Vérifier</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="544"/>
+        <location filename="../apppreferencesdialog.cpp" line="564"/>
         <source>Select your library folder</source>
         <translation>Sélectionner le dossier de bibliothèque</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="568"/>
-        <location filename="../apppreferencesdialog.cpp" line="578"/>
+        <location filename="../apppreferencesdialog.cpp" line="588"/>
+        <location filename="../apppreferencesdialog.cpp" line="598"/>
         <source>Select your Models and Settings backup folder</source>
         <translation>Sélectionner le dossier de sauvegarde des paramètres et modèles</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="588"/>
+        <location filename="../apppreferencesdialog.cpp" line="608"/>
         <source>Select a folder for application logs</source>
         <translation>Sélectionner un dossier pour le log des applications</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="596"/>
+        <location filename="../apppreferencesdialog.cpp" line="616"/>
         <source>Select Google Earth executable</source>
         <translation>Sélectionnez l&apos;emplacement de l&apos;exécutable Google Earth</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="647"/>
+        <location filename="../apppreferencesdialog.cpp" line="667"/>
         <source>Select the folder replicating your SD structure</source>
         <translation>Sélectionner le dossier contenant une copie des dossiers carte SD</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="679"/>
+        <location filename="../apppreferencesdialog.cpp" line="699"/>
         <source>Open Image to load</source>
         <translation>Ouvrir l&apos;image à charger</translation>
     </message>
     <message>
-        <location filename="../apppreferencesdialog.cpp" line="679"/>
+        <location filename="../apppreferencesdialog.cpp" line="699"/>
         <source>Images (%1)</source>
         <translation>Images (%1)</translation>
     </message>
@@ -916,63 +956,63 @@ Manche Droit:  Profondeur, Direction
 <context>
     <name>BoardJson</name>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="57"/>
+        <location filename="../firmwares/boardjson.cpp" line="58"/>
         <source>Rud</source>
         <translation type="unfinished">Dir.</translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="58"/>
+        <location filename="../firmwares/boardjson.cpp" line="59"/>
         <source>Ele</source>
         <translation type="unfinished">Prof.</translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="59"/>
+        <location filename="../firmwares/boardjson.cpp" line="60"/>
         <source>Thr</source>
         <translation type="unfinished">Gaz</translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="60"/>
+        <location filename="../firmwares/boardjson.cpp" line="61"/>
         <source>Ail</source>
         <translation type="unfinished">Ail.</translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="61"/>
+        <location filename="../firmwares/boardjson.cpp" line="62"/>
         <source>ST</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="62"/>
+        <location filename="../firmwares/boardjson.cpp" line="63"/>
         <source>TH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="875"/>
-        <location filename="../firmwares/boardjson.cpp" line="881"/>
-        <location filename="../firmwares/boardjson.cpp" line="890"/>
-        <location filename="../firmwares/boardjson.cpp" line="900"/>
+        <location filename="../firmwares/boardjson.cpp" line="876"/>
+        <location filename="../firmwares/boardjson.cpp" line="882"/>
+        <location filename="../firmwares/boardjson.cpp" line="891"/>
+        <location filename="../firmwares/boardjson.cpp" line="901"/>
         <source>Load Board Hardware Definition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="876"/>
+        <location filename="../firmwares/boardjson.cpp" line="877"/>
         <source>Board: %1
 Error: Unable to load file %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="882"/>
+        <location filename="../firmwares/boardjson.cpp" line="883"/>
         <source>Board: %1
 Error: Unable to open file %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="891"/>
+        <location filename="../firmwares/boardjson.cpp" line="892"/>
         <source>Board: %1
 Error: Unable to read file %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boardjson.cpp" line="901"/>
+        <location filename="../firmwares/boardjson.cpp" line="902"/>
         <source>Board: %1
 Error: %2 is not a valid json formatted file.
 Error code: %3
@@ -983,265 +1023,274 @@ Error description: %4</source>
 <context>
     <name>Boards</name>
     <message>
-        <location filename="../firmwares/boards.cpp" line="433"/>
-        <location filename="../firmwares/boards.cpp" line="435"/>
+        <location filename="../firmwares/boards.cpp" line="451"/>
+        <location filename="../firmwares/boards.cpp" line="453"/>
         <source>JSx</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="434"/>
-        <location filename="../firmwares/boards.cpp" line="436"/>
+        <location filename="../firmwares/boards.cpp" line="452"/>
+        <location filename="../firmwares/boards.cpp" line="454"/>
         <source>JSy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="510"/>
+        <location filename="../firmwares/boards.cpp" line="530"/>
+        <location filename="../firmwares/boards.cpp" line="540"/>
         <source>EXT1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="511"/>
+        <location filename="../firmwares/boards.cpp" line="531"/>
+        <location filename="../firmwares/boards.cpp" line="541"/>
         <source>EXT2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="512"/>
+        <location filename="../firmwares/boards.cpp" line="532"/>
+        <location filename="../firmwares/boards.cpp" line="542"/>
         <source>EXT3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="513"/>
+        <location filename="../firmwares/boards.cpp" line="533"/>
+        <location filename="../firmwares/boards.cpp" line="543"/>
         <source>EXT4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="642"/>
-        <location filename="../firmwares/boards.cpp" line="855"/>
-        <location filename="../firmwares/boards.cpp" line="885"/>
+        <location filename="../firmwares/boards.cpp" line="678"/>
+        <location filename="../firmwares/boards.cpp" line="897"/>
+        <location filename="../firmwares/boards.cpp" line="927"/>
         <source>None</source>
         <translation type="unfinished">Aucun</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="887"/>
+        <location filename="../firmwares/boards.cpp" line="929"/>
         <source>Pot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="889"/>
+        <location filename="../firmwares/boards.cpp" line="931"/>
         <source>Pot with detent</source>
         <translation type="unfinished">Potentiomètre avec centre</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="404"/>
+        <location filename="../firmwares/boards.cpp" line="422"/>
         <source>Left Horizontal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="405"/>
+        <location filename="../firmwares/boards.cpp" line="423"/>
         <source>Left Vertical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="406"/>
+        <location filename="../firmwares/boards.cpp" line="424"/>
         <source>Right Vertical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="407"/>
+        <location filename="../firmwares/boards.cpp" line="425"/>
         <source>Right Horizontal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="408"/>
+        <location filename="../firmwares/boards.cpp" line="426"/>
         <source>Aux. 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="409"/>
+        <location filename="../firmwares/boards.cpp" line="427"/>
         <source>Aux. 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="425"/>
+        <location filename="../firmwares/boards.cpp" line="443"/>
         <source>LH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="426"/>
+        <location filename="../firmwares/boards.cpp" line="444"/>
         <source>LV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="427"/>
+        <location filename="../firmwares/boards.cpp" line="445"/>
         <source>RV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="428"/>
+        <location filename="../firmwares/boards.cpp" line="446"/>
         <source>RH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="437"/>
-        <location filename="../firmwares/boards.cpp" line="439"/>
+        <location filename="../firmwares/boards.cpp" line="455"/>
+        <location filename="../firmwares/boards.cpp" line="457"/>
         <source>TILT_X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="438"/>
-        <location filename="../firmwares/boards.cpp" line="440"/>
+        <location filename="../firmwares/boards.cpp" line="456"/>
+        <location filename="../firmwares/boards.cpp" line="458"/>
         <source>TILT_Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="445"/>
-        <location filename="../firmwares/boards.cpp" line="454"/>
-        <location filename="../firmwares/boards.cpp" line="484"/>
-        <location filename="../firmwares/boards.cpp" line="494"/>
+        <location filename="../firmwares/boards.cpp" line="463"/>
+        <location filename="../firmwares/boards.cpp" line="472"/>
         <location filename="../firmwares/boards.cpp" line="502"/>
-        <location filename="../firmwares/boards.cpp" line="514"/>
-        <location filename="../firmwares/boards.cpp" line="521"/>
+        <location filename="../firmwares/boards.cpp" line="512"/>
+        <location filename="../firmwares/boards.cpp" line="520"/>
+        <location filename="../firmwares/boards.cpp" line="528"/>
+        <location filename="../firmwares/boards.cpp" line="544"/>
+        <location filename="../firmwares/boards.cpp" line="551"/>
         <source>SL1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="446"/>
-        <location filename="../firmwares/boards.cpp" line="450"/>
-        <location filename="../firmwares/boards.cpp" line="461"/>
-        <location filename="../firmwares/boards.cpp" line="466"/>
-        <location filename="../firmwares/boards.cpp" line="472"/>
-        <location filename="../firmwares/boards.cpp" line="476"/>
-        <location filename="../firmwares/boards.cpp" line="481"/>
-        <location filename="../firmwares/boards.cpp" line="489"/>
+        <location filename="../firmwares/boards.cpp" line="464"/>
+        <location filename="../firmwares/boards.cpp" line="468"/>
+        <location filename="../firmwares/boards.cpp" line="479"/>
+        <location filename="../firmwares/boards.cpp" line="484"/>
+        <location filename="../firmwares/boards.cpp" line="490"/>
+        <location filename="../firmwares/boards.cpp" line="494"/>
         <location filename="../firmwares/boards.cpp" line="499"/>
         <location filename="../firmwares/boards.cpp" line="507"/>
-        <location filename="../firmwares/boards.cpp" line="519"/>
+        <location filename="../firmwares/boards.cpp" line="517"/>
+        <location filename="../firmwares/boards.cpp" line="525"/>
+        <location filename="../firmwares/boards.cpp" line="537"/>
+        <location filename="../firmwares/boards.cpp" line="549"/>
         <source>P1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="451"/>
-        <location filename="../firmwares/boards.cpp" line="462"/>
-        <location filename="../firmwares/boards.cpp" line="467"/>
-        <location filename="../firmwares/boards.cpp" line="477"/>
-        <location filename="../firmwares/boards.cpp" line="482"/>
-        <location filename="../firmwares/boards.cpp" line="490"/>
+        <location filename="../firmwares/boards.cpp" line="469"/>
+        <location filename="../firmwares/boards.cpp" line="480"/>
+        <location filename="../firmwares/boards.cpp" line="485"/>
+        <location filename="../firmwares/boards.cpp" line="495"/>
         <location filename="../firmwares/boards.cpp" line="500"/>
         <location filename="../firmwares/boards.cpp" line="508"/>
-        <location filename="../firmwares/boards.cpp" line="520"/>
+        <location filename="../firmwares/boards.cpp" line="518"/>
+        <location filename="../firmwares/boards.cpp" line="526"/>
+        <location filename="../firmwares/boards.cpp" line="538"/>
+        <location filename="../firmwares/boards.cpp" line="550"/>
         <source>P2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="452"/>
-        <location filename="../firmwares/boards.cpp" line="468"/>
-        <location filename="../firmwares/boards.cpp" line="483"/>
-        <location filename="../firmwares/boards.cpp" line="491"/>
+        <location filename="../firmwares/boards.cpp" line="470"/>
+        <location filename="../firmwares/boards.cpp" line="486"/>
         <location filename="../firmwares/boards.cpp" line="501"/>
         <location filename="../firmwares/boards.cpp" line="509"/>
+        <location filename="../firmwares/boards.cpp" line="519"/>
+        <location filename="../firmwares/boards.cpp" line="527"/>
+        <location filename="../firmwares/boards.cpp" line="539"/>
         <source>P3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="453"/>
-        <location filename="../firmwares/boards.cpp" line="492"/>
+        <location filename="../firmwares/boards.cpp" line="471"/>
+        <location filename="../firmwares/boards.cpp" line="510"/>
         <source>P4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="455"/>
-        <location filename="../firmwares/boards.cpp" line="485"/>
-        <location filename="../firmwares/boards.cpp" line="495"/>
+        <location filename="../firmwares/boards.cpp" line="473"/>
         <location filename="../firmwares/boards.cpp" line="503"/>
-        <location filename="../firmwares/boards.cpp" line="515"/>
-        <location filename="../firmwares/boards.cpp" line="522"/>
+        <location filename="../firmwares/boards.cpp" line="513"/>
+        <location filename="../firmwares/boards.cpp" line="521"/>
+        <location filename="../firmwares/boards.cpp" line="529"/>
+        <location filename="../firmwares/boards.cpp" line="545"/>
+        <location filename="../firmwares/boards.cpp" line="552"/>
         <source>SL2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="456"/>
-        <location filename="../firmwares/boards.cpp" line="523"/>
+        <location filename="../firmwares/boards.cpp" line="474"/>
+        <location filename="../firmwares/boards.cpp" line="553"/>
         <source>SL3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="457"/>
-        <location filename="../firmwares/boards.cpp" line="524"/>
+        <location filename="../firmwares/boards.cpp" line="475"/>
+        <location filename="../firmwares/boards.cpp" line="554"/>
         <source>SL4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="493"/>
+        <location filename="../firmwares/boards.cpp" line="511"/>
         <source>P5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="644"/>
+        <location filename="../firmwares/boards.cpp" line="680"/>
         <source>2 Positions Toggle</source>
         <translation>2 Positions momentané</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="646"/>
+        <location filename="../firmwares/boards.cpp" line="682"/>
         <source>2 Positions</source>
         <translation>2 Positions</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="648"/>
+        <location filename="../firmwares/boards.cpp" line="684"/>
         <source>3 Positions</source>
         <translation type="unfinished">3 Positions</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="650"/>
+        <location filename="../firmwares/boards.cpp" line="686"/>
         <source>Function</source>
         <translation type="unfinished">Fonction</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="857"/>
+        <location filename="../firmwares/boards.cpp" line="899"/>
         <source>Standard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="859"/>
+        <location filename="../firmwares/boards.cpp" line="901"/>
         <source>Small</source>
         <translation type="unfinished">Petites</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="861"/>
+        <location filename="../firmwares/boards.cpp" line="903"/>
         <source>Both</source>
         <translation type="unfinished">Les 2</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="891"/>
+        <location filename="../firmwares/boards.cpp" line="933"/>
         <source>Slider</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="893"/>
+        <location filename="../firmwares/boards.cpp" line="935"/>
         <source>Multipos Switch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="895"/>
+        <location filename="../firmwares/boards.cpp" line="937"/>
         <source>Axis X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="897"/>
+        <location filename="../firmwares/boards.cpp" line="939"/>
         <source>Axis Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="899"/>
+        <location filename="../firmwares/boards.cpp" line="941"/>
         <source>Switch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="1095"/>
+        <location filename="../firmwares/boards.cpp" line="1137"/>
         <source>Flight</source>
         <translation type="unfinished">Vol</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="1095"/>
+        <location filename="../firmwares/boards.cpp" line="1137"/>
         <source>Drive</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1691,7 +1740,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
         <translation>Les paramètres de l&apos;application ont été réinitialisés et sauvegardés.</translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="59"/>
+        <location filename="../storage/appdata.h" line="60"/>
         <source>settings</source>
         <translation>paramètres</translation>
     </message>
@@ -1752,17 +1801,17 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
 <context>
     <name>ComponentData</name>
     <message>
-        <location filename="../storage/appdata.h" line="590"/>
+        <location filename="../storage/appdata.h" line="592"/>
         <source>Releases</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="590"/>
+        <location filename="../storage/appdata.h" line="592"/>
         <source>Pre-release</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/appdata.h" line="590"/>
+        <location filename="../storage/appdata.h" line="592"/>
         <source>Nightly</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2784,60 +2833,6 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     </message>
 </context>
 <context>
-    <name>DataField</name>
-    <message>
-        <location filename="../firmwares/eepromimportexport.h" line="777"/>
-        <source>Conversion error on field %1</source>
-        <translation>Erreur de conversion du champ %1</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="623"/>
-        <source>Switch</source>
-        <translation>Interrupteur</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="624"/>
-        <source>Switch </source>
-        <translation>L&apos;interrupteur </translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="624"/>
-        <source> cannot be exported on this board!</source>
-        <translation> n&apos;est pas supporté sur cette carte !</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="659"/>
-        <source>Source</source>
-        <translation>Source</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="659"/>
-        <source>Source %1 cannot be exported on this board!</source>
-        <translation>La source %1 n&apos;est pas supportée sur cette plateforme !</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="1416"/>
-        <source>OpenTX only accepts %1 points in all curves</source>
-        <translation>OpenTX n&apos;accepte que %1 points au maximum entre toutes les courbes</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="1423"/>
-        <source>OpenTx only accepts %1 points in all curves</source>
-        <translation>OpenTX n&apos;accepte que %1 points au maximum entre toutes les courbes</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="1736"/>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="1740"/>
-        <source>OpenTX on this board doesn&apos;t accept this function</source>
-        <translation>OpenTX ne supporte pas cette fonction sur cette carte</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxeeprom.cpp" line="2479"/>
-        <source>OpenTX doesn&apos;t accept this radio protocol</source>
-        <translation>OpenTX ne supporte pas ce protocole radio</translation>
-    </message>
-</context>
-<context>
     <name>DataHelpers</name>
     <message>
         <location filename="../firmwares/datahelpers.cpp" line="27"/>
@@ -2973,80 +2968,6 @@ Pour &lt;b&gt;retirer un filtre de l&apos;historique&lt;/b&gt;, sélectionnez-le
         <location filename="../simulation/debugoutput.cpp" line="293"/>
         <source>Debug Console Filter Help</source>
         <translation>Aide sur les filtres pour la console de débogage</translation>
-    </message>
-</context>
-<context>
-    <name>EEPROMInterface</name>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="76"/>
-        <source>Possible causes for this:</source>
-        <translation>Causes possibles:</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="78"/>
-        <source>- Eeprom is from a newer version of OpenTX</source>
-        <translation>- L&apos;EEPROM peut avoir été créée avec une version d&apos;OpenTX plus récente</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="79"/>
-        <source>- Eeprom is not from OpenTX</source>
-        <translation>- L&apos;EEPROM peut avoir été créée avec un firmware autre qu&apos;OpenTX</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="80"/>
-        <source>- Eeprom is not from ErSky9X</source>
-        <translation>- L&apos;EEPROM n&apos;est pas une EEPROM ErSky9X</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="81"/>
-        <source>- Eeprom size is invalid</source>
-        <translation>- La taille de l&apos;EEPROM est invalide</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="82"/>
-        <source>- Eeprom file system is invalid</source>
-        <translation>- Le système de fichier de l&apos;EEPROM est invalide</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="83"/>
-        <source>- Eeprom is from a unknown board</source>
-        <translation>- L&apos;EEPROM ne correspond à aucune carte supportée</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="84"/>
-        <source>- Eeprom is from the wrong board</source>
-        <translation>- L&apos;EEPROM ne correspond pas au type de radio sélectionné</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="85"/>
-        <source>- Eeprom backup not supported</source>
-        <translation>- Sauvegarde d&apos;EEPROM non supportée</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="87"/>
-        <source>- Something that couldn&apos;t be guessed, sorry</source>
-        <translation>- Erreur inconnue</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="90"/>
-        <source>Warning:</source>
-        <translation>Avertissement:</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="91"/>
-        <location filename="../firmwares/eeprominterface.cpp" line="110"/>
-        <source>- Your radio probably uses a wrong firmware,
- eeprom size is 4096 but only the first 2048 are used</source>
-        <translation>- Le firmware de la radio est probablement incorrect,
-la taille de l&apos;EEPROM est de 4096 mais seulement 2048 bytes sont utilisés.
-Vérifier la sélection (M64/M128)</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/eeprominterface.cpp" line="113"/>
-        <source>- Your eeprom is from an old version of OpenTX, upgrading!
- To keep your original file as a backup, please choose File -&gt; Save As specifying a different name.</source>
-        <translation>- Votre eeprom provient d&apos;une ancienne version d&apos;OpenTX, mettez à niveau!
- Pour conserver une sauvegarde de votre fichier d&apos;origine, choisissez &quot;Fichier → Enregistrer sous&quot; en spécifiant un autre nom.</translation>
     </message>
 </context>
 <context>
@@ -3570,411 +3491,384 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
 <context>
     <name>Firmware</name>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1166"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="409"/>
         <source>No OverrideCH functions available</source>
         <translation>Désactive la fonction spéciale &quot;Remplacer VOIExx&quot;</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1162"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="405"/>
         <source>Possibility to enable FAI MODE (no telemetry) at field</source>
         <translation>Possibilité d&apos;activer le mode FAI (télémétrie désactivée) sur le terrain</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1163"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="406"/>
         <source>FAI MODE (no telemetry) always enabled</source>
         <translation>Mode FAI (télémétrie toujours désactivée)</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1179"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="422"/>
         <source>Removes D8 FrSky protocol support which is not legal for use in the EU on radios sold after Jan 1st, 2015</source>
         <translation>Masque le protocole D8. Légalement obligatoire sur les radios Européennes importées après le 1er janvier 2015</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1205"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1247"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1380"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1390"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1400"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1410"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1420"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1430"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1490"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1500"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1519"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1530"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1540"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1558"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="448"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="472"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="612"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="622"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="632"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="642"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="652"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="662"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="672"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="732"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="742"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="761"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="772"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="782"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="807"/>
         <source>Disable HELI menu and cyclic mix support</source>
         <translation>Supprimer le menu HELICO et les mixages cycliques</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1206"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1248"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1381"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1391"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1401"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1411"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1421"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1431"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1491"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1501"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1510"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1520"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1531"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1541"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1559"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="449"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="473"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="613"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="623"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="633"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="643"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="653"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="663"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="673"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="733"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="743"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="752"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="762"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="773"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="783"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="808"/>
         <source>Disable Global variables</source>
         <translation>Supprimer le support des variables globales</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1207"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1249"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1382"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1392"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1402"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1412"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1422"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1432"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1492"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1502"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1511"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1521"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1532"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1542"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1560"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="450"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="474"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="614"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="624"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="634"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="644"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="654"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="664"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="674"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="734"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="744"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="753"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="763"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="774"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="784"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="809"/>
         <source>Enable Lua custom scripts screen</source>
         <translation>Activer l&apos;écran des scripts Lua personnalisés</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1199"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="442"/>
         <source>Use alternative SQT5 font</source>
         <translation>Utiliser la police alternative SQT5</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1343"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1351"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="575"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="583"/>
         <source>Disable RAS (SWR)</source>
         <translation>Désactiver le RAS (SWR). Utile uniquement pour les X9D+ avec un RAS/SWR non fonctionnel</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1221"/>
-        <source>Pots use in menus navigation</source>
-        <translation>Support de la navigation dans les menus avec les POTS</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1182"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="425"/>
         <source>Enable AFHDS3 support</source>
         <translation>Activer le support du AFHDS3</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1350"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="582"/>
         <source>FrSky Taranis X9D+</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1357"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="589"/>
         <source>FrSky Taranis X9D+ 2019</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1342"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="574"/>
         <source>FrSky Taranis X9D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1344"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="576"/>
         <source>Haptic module installed</source>
         <translation>Module vibreur installé</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1363"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="595"/>
         <source>FrSky Taranis X9E</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1364"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="596"/>
         <source>Confirmation before radio shutdown</source>
         <translation>Confirmation avant l&apos;arrêt de la radio</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1365"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="597"/>
         <source>Horus gimbals installed (Hall sensors)</source>
         <translation>Manches Horus à effet HALL installés</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1330"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="562"/>
         <source>FrSky Taranis X9-Lite</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1336"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="568"/>
         <source>FrSky Taranis X9-Lite S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1305"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="537"/>
         <source>FrSky Taranis X7 / X7S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1311"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="543"/>
         <source>FrSky Taranis X7 / X7S Access</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1324"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="556"/>
         <source>FrSky Taranis X-Lite S/PRO</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1317"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="549"/>
         <source>FrSky Taranis X-Lite</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1284"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="509"/>
+        <source>FlySky PL18EV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="516"/>
         <source>FrSky Horus X10 / X10S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1286"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1299"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="518"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="531"/>
         <source>Support for ACCESS internal module replacement</source>
         <translation>Prise en charge du module de remplacement interne ACCESS</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1291"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="523"/>
         <source>FrSky Horus X10 Express / X10S Express</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1297"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="529"/>
         <source>FrSky Horus X12S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1300"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="532"/>
         <source>Use ONLY with first DEV pcb version</source>
         <translation>Exclusivement pour les Horus DEV</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1371"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="603"/>
         <source>HelloRadioSky V16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1408"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="640"/>
         <source>Jumper T-Pro V2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1418"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="650"/>
         <source>Jumper T-Pro S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1433"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1461"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="660"/>
+        <source>Jumper Bumblebee</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="675"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="703"/>
         <source>Support for MULTI internal module</source>
         <translation>Prise en charge du module MULTI interne</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1388"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="620"/>
         <source>Jumper T-Lite</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1398"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="630"/>
         <source>Jumper T-Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1241"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="466"/>
         <source>Support for bluetooth module</source>
         <translation>Prise en charge du module Bluetooth</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1538"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="780"/>
         <source>Radiomaster TX12 Mark II</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1556"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="805"/>
         <source>Radiomaster Zorro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1441"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1448"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1476"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1483"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1561"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="683"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="690"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="718"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="725"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="810"/>
         <source>Select if internal ELRS module is installed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1439"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="681"/>
         <source>Jumper T12 MAX</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1446"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="688"/>
         <source>Jumper T14</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1453"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="695"/>
         <source>Jumper T15</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1481"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="723"/>
         <source>Jumper T20 V2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1488"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="730"/>
         <source>Radiomaster Boxer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1508"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="750"/>
         <source>Radiomaster MT12</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1517"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="759"/>
         <source>Radiomaster T8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1525"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="767"/>
         <source>Allow bind using bind key</source>
         <translation>Autoriser l&apos;appairage avec le bouton&quot;bind&quot;</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1242"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="467"/>
         <source>Support internal GPS</source>
         <translation>Prise en charge du GPS interne</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1259"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1552"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="484"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="801"/>
         <source>Support hardware mod: FlySky Paladin EV Gimbals</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1467"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="709"/>
         <source>Jumper T18</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1263"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="488"/>
         <source>FlySky NV14</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1245"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="470"/>
         <source>BETAFPV LiteRadio3 Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1378"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="610"/>
         <source>iFlight Commando8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1219"/>
-        <source>Enable HELI menu and cyclic mix support</source>
-        <translation>Activer le menu hélico et les mixages CCPM</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1220"/>
-        <source>Global variables</source>
-        <translation>Variables globales</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1180"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="423"/>
         <source>Enable non certified firmwares</source>
         <translation>Activer les firmwares non certifiés</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1181"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="424"/>
         <source>Enable AFHDS2A support</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1222"/>
-        <source>In model setup menus automatically set source by moving the control</source>
-        <translation>Sélectionner les sources des mixeurs en bougeant le contrôle désiré</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1223"/>
-        <source>In model setup menus automatically set switch by moving the control</source>
-        <translation>Sélectionner les interrupteurs en bougeant le contrôle désiré</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1224"/>
-        <source>No graphical check boxes and sliders</source>
-        <translation>Pas de cases à cocher et de curseurs graphiques</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1225"/>
-        <source>Battery graph</source>
-        <translation>Graphique de la batterie</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1226"/>
-        <source>Don&apos;t use bold font for highlighting active items</source>
-        <translation>Ne pas mettre les lignes actives en gras</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1229"/>
-        <source>Enable resetting values by pressing up and down at the same time</source>
-        <translation>Permet la remise à zéro des valeurs en pressant haut-bas en même temps, valeur min avec gauche/bas, valeur max avec haut/droite, inversion avec gauche/droite</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1255"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="480"/>
         <source>Fatfish F16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1270"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="495"/>
         <source>FlySky EL18</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1277"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="502"/>
         <source>FlySky PL18</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1474"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="716"/>
         <source>Jumper T20</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1498"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="740"/>
         <source>Radiomaster Pocket</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1528"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="770"/>
         <source>Radiomaster TX12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1548"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="790"/>
+        <source>Radiomaster GX12</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="797"/>
         <source>Radiomaster TX16S / SE / Hall / Masterfire</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1428"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="670"/>
         <source>Jumper T12 / T12 Pro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="1459"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="701"/>
         <source>Jumper T16 / T16+ / T16 Pro</source>
         <translation></translation>
     </message>
@@ -4005,124 +3899,6 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
         <location filename="../wizarddialog.cpp" line="517"/>
         <source>Second Flap Channel:</source>
         <translation>Deuxième voie de volets:</translation>
-    </message>
-</context>
-<context>
-    <name>FlashEEpromDialog</name>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="26"/>
-        <location filename="../flasheepromdialog.cpp" line="254"/>
-        <source>Write Models and Settings to Radio</source>
-        <translation>Transférer les paramètres et modèles vers la radio</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="66"/>
-        <source>Load...</source>
-        <translation>Parcourir...</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="81"/>
-        <source>Current Profile</source>
-        <translation>Profil courant</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="97"/>
-        <source>Allows Companion to write to older version of the firmware</source>
-        <translation>Permet à Companion de transférer des paramètres à une ancienne version de firmware</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="100"/>
-        <source>Check Firmware compatibility</source>
-        <translation>Vérifier la compatibilité du firmware</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="113"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Saves a dated copy of your eeprom to the backup folder you specified in the Companion settings before writing the current model to the radio.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enregistre une copie datée de votre eeprom actuelle dans le dossier de sauvegarde avant de transférer les modèles à la radio.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="116"/>
-        <source>Backup before Write</source>
-        <translation>Sauvegarder les paramètres actuels avant d&apos;écrire</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="123"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Modify calibration parameters using settings from current profile&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Charger l&apos;étalonnage du profil courant&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="126"/>
-        <source>Patch calibration setting from profile</source>
-        <translation>Patcher l&apos;étalonnage du profil courant</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="133"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Modify HW parameters using settings from current profile&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Charger les paramètres hardware du profil courant&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="136"/>
-        <source>Patch HW settings from profile</source>
-        <translation>Patcher les paramètres hardware du profil courant</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="164"/>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.ui" line="180"/>
-        <source>Write to TX</source>
-        <translation>Transférer</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="38"/>
-        <source>Current profile: %1</source>
-        <translation>Profil courant: %1</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="105"/>
-        <source>Choose Radio Backup file</source>
-        <translation>Sélectionner le fichier de sauvegarde</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="166"/>
-        <source>Wrong radio calibration data in profile, Settings not patched</source>
-        <translation>Données de calibration incorrectes dans le profil, les paramètres ne seront pas transférés</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="211"/>
-        <source>Wrong radio setting data in profile, Settings not patched</source>
-        <translation>Données de configuration incorrectes dans le profil, les paramètres ne seront pas transférés</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="240"/>
-        <source>Cannot write file %1:
-%2.</source>
-        <translation>Ecriture du fichier %1 impossible:
-%2.</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="246"/>
-        <source>Error writing file %1:
-%2.</source>
-        <translation>Erreur d&apos;écriture du fichier %1:
-%2.</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="285"/>
-        <source>The radio firmware belongs to another product family, check file and preferences!</source>
-        <translation>Ce firmware ne correspond pas à la radio sélectionnée, vérifiez le fichier et les préférences !</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="289"/>
-        <source>The radio firmware is outdated, please upgrade!</source>
-        <translation>Le firmware de la radio est obsolète, veuillez mettre à jour !</translation>
-    </message>
-    <message>
-        <location filename="../flasheepromdialog.cpp" line="294"/>
-        <source>Cannot check Models and Settings compatibility! Continue anyway?</source>
-        <translation>Impossible de vérifier la compatibilité des paramètres et modèles ! Continuer quand même ?</translation>
     </message>
 </context>
 <context>
@@ -4274,27 +4050,7 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
         <translation>Le nouveau firmware ne correspond pas à la version installée, vérifiez le type de radio !</translation>
     </message>
     <message>
-        <location filename="../flashfirmwaredialog.cpp" line="321"/>
-        <source>Conversion failed</source>
-        <translation>La conversion a échoué</translation>
-    </message>
-    <message>
-        <location filename="../flashfirmwaredialog.cpp" line="321"/>
-        <source>Cannot convert Models and Settings for use with this firmware, original data will be used</source>
-        <translation>Impossible de convertir les paramètres et modèles pour ce firmware, les données originales vont être utilisées</translation>
-    </message>
-    <message>
-        <location filename="../flashfirmwaredialog.cpp" line="325"/>
-        <source>Restore failed</source>
-        <translation>Echec de la restauration</translation>
-    </message>
-    <message>
-        <location filename="../flashfirmwaredialog.cpp" line="325"/>
-        <source>Could not restore Models and Settings to Radio. The models and settings data file can be found at: %1</source>
-        <translation>Impossible de restaurer les paramètres et modèles sur la radio. Le fichier peut être récupéré ici: %1</translation>
-    </message>
-    <message>
-        <location filename="../flashfirmwaredialog.cpp" line="329"/>
+        <location filename="../flashfirmwaredialog.cpp" line="330"/>
         <source>Flashing done</source>
         <translation>Programmation terminée</translation>
     </message>
@@ -4796,12 +4552,12 @@ Vous utilisez actuellement:
 <context>
     <name>FunctionSwitchesPanel</name>
     <message>
-        <location filename="../modeledit/setup.cpp" line="1297"/>
+        <location filename="../modeledit/setup_function_switches.cpp" line="75"/>
         <source>SW%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="1341"/>
+        <location filename="../modeledit/setup_function_switches.cpp" line="119"/>
         <source>Group %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5142,206 +4898,206 @@ Communs à tous les modèles d&apos;une même EEPROM.</translation>
 <context>
     <name>GeneralSettings</name>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="410"/>
+        <location filename="../firmwares/generalsettings.cpp" line="412"/>
         <source>Radio Settings</source>
         <translation>Paramètres de la radio</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="412"/>
+        <location filename="../firmwares/generalsettings.cpp" line="414"/>
         <source>Hardware</source>
         <translation type="unfinished">Matériel</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="413"/>
+        <location filename="../firmwares/generalsettings.cpp" line="415"/>
         <source>Internal Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="428"/>
+        <location filename="../firmwares/generalsettings.cpp" line="430"/>
         <source>Axis &amp; Pots</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="433"/>
+        <location filename="../firmwares/generalsettings.cpp" line="435"/>
         <source>Axis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="433"/>
+        <location filename="../firmwares/generalsettings.cpp" line="435"/>
         <source>Pot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="462"/>
+        <location filename="../firmwares/generalsettings.cpp" line="464"/>
         <source>Switches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="467"/>
-        <location filename="../firmwares/generalsettings.cpp" line="479"/>
+        <location filename="../firmwares/generalsettings.cpp" line="469"/>
+        <location filename="../firmwares/generalsettings.cpp" line="481"/>
         <source>Flex Switch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="468"/>
-        <location filename="../firmwares/generalsettings.cpp" line="480"/>
+        <location filename="../firmwares/generalsettings.cpp" line="470"/>
+        <location filename="../firmwares/generalsettings.cpp" line="482"/>
         <source>Function Switch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="468"/>
-        <location filename="../firmwares/generalsettings.cpp" line="480"/>
+        <location filename="../firmwares/generalsettings.cpp" line="470"/>
+        <location filename="../firmwares/generalsettings.cpp" line="482"/>
         <source>Switch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="497"/>
+        <location filename="../firmwares/generalsettings.cpp" line="499"/>
         <source>None</source>
         <translation type="unfinished">Aucun</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="551"/>
+        <location filename="../firmwares/generalsettings.cpp" line="553"/>
         <source>Internal</source>
         <translation type="unfinished">Interne</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="553"/>
+        <location filename="../firmwares/generalsettings.cpp" line="555"/>
         <source>Ask</source>
         <translation type="unfinished">Demander</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="555"/>
+        <location filename="../firmwares/generalsettings.cpp" line="557"/>
         <source>Per model</source>
         <translation type="unfinished">Par modèle</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="558"/>
+        <location filename="../firmwares/generalsettings.cpp" line="560"/>
         <source>Internal + External</source>
         <translation type="unfinished">Interne + Externe</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="558"/>
+        <location filename="../firmwares/generalsettings.cpp" line="560"/>
         <source>External</source>
         <translation type="unfinished">Externe</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="571"/>
-        <location filename="../firmwares/generalsettings.cpp" line="587"/>
+        <location filename="../firmwares/generalsettings.cpp" line="573"/>
+        <location filename="../firmwares/generalsettings.cpp" line="589"/>
         <source>OFF</source>
         <translation type="unfinished">Eteint</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="574"/>
+        <location filename="../firmwares/generalsettings.cpp" line="576"/>
         <source>Enabled</source>
         <translation type="unfinished">Activé</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="574"/>
+        <location filename="../firmwares/generalsettings.cpp" line="576"/>
         <source>Telemetry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="576"/>
+        <location filename="../firmwares/generalsettings.cpp" line="578"/>
         <source>Trainer</source>
         <translation type="unfinished">Écolage</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="589"/>
+        <location filename="../firmwares/generalsettings.cpp" line="591"/>
         <source>Telemetry Mirror</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="591"/>
+        <location filename="../firmwares/generalsettings.cpp" line="593"/>
         <source>Telemetry In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="593"/>
+        <location filename="../firmwares/generalsettings.cpp" line="595"/>
         <source>SBUS Trainer</source>
         <translation type="unfinished">Écolage SBUS</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="595"/>
+        <location filename="../firmwares/generalsettings.cpp" line="597"/>
         <source>LUA</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="597"/>
+        <location filename="../firmwares/generalsettings.cpp" line="599"/>
         <source>CLI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="599"/>
+        <location filename="../firmwares/generalsettings.cpp" line="601"/>
         <source>GPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="601"/>
+        <location filename="../firmwares/generalsettings.cpp" line="603"/>
         <source>Debug</source>
         <translation type="unfinished">Débogage</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="603"/>
+        <location filename="../firmwares/generalsettings.cpp" line="605"/>
         <source>SpaceMouse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="605"/>
+        <location filename="../firmwares/generalsettings.cpp" line="607"/>
         <source>External module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="638"/>
+        <location filename="../firmwares/generalsettings.cpp" line="640"/>
         <source>mA</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="737"/>
+        <location filename="../firmwares/generalsettings.cpp" line="739"/>
         <source>Normal</source>
         <translation type="unfinished">Normales</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="739"/>
+        <location filename="../firmwares/generalsettings.cpp" line="741"/>
         <source>OneBit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="784"/>
+        <location filename="../firmwares/generalsettings.cpp" line="787"/>
         <source>Trims only</source>
         <translation type="unfinished">Trims uniquement</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="786"/>
+        <location filename="../firmwares/generalsettings.cpp" line="789"/>
         <source>Keys only</source>
         <translation type="unfinished">Touches uniquement</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="788"/>
+        <location filename="../firmwares/generalsettings.cpp" line="791"/>
         <source>Switchable</source>
         <translation type="unfinished">Commutable</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="790"/>
+        <location filename="../firmwares/generalsettings.cpp" line="793"/>
         <source>Global</source>
         <translation type="unfinished">Global</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="1003"/>
+        <location filename="../firmwares/generalsettings.cpp" line="927"/>
         <source>Mode 1 (RUD ELE THR AIL)</source>
         <translation type="unfinished">Mode 1 (DIR PROF GAZ AIL)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="1005"/>
+        <location filename="../firmwares/generalsettings.cpp" line="929"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
         <translation type="unfinished">Mode 2 (DIR GAZ PROF AIL)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="1007"/>
+        <location filename="../firmwares/generalsettings.cpp" line="931"/>
         <source>Mode 3 (AIL ELE THR RUD)</source>
         <translation type="unfinished">Mode 3 (AIL PROF GAZ DIR)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="1009"/>
+        <location filename="../firmwares/generalsettings.cpp" line="933"/>
         <source>Mode 4 (AIL THR ELE RUD)</source>
         <translation type="unfinished">Mode 4 (AIL GAZ PROF DIR)</translation>
     </message>
@@ -6675,6 +6431,14 @@ Cette fonction ne peut pas être désactivée sur la radio.
     </message>
 </context>
 <context>
+    <name>HostSerialConnector</name>
+    <message>
+        <location filename="../simulation/hostserialconnector.cpp" line="170"/>
+        <source>Host Serial Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InputsPanel</name>
     <message>
         <location filename="../modeledit/inputs.cpp" line="50"/>
@@ -6870,96 +6634,75 @@ Cette fonction ne peut pas être désactivée sur la radio.
 <context>
     <name>LabelsStorageFormat</name>
     <message>
-        <location filename="../storage/labeled.cpp" line="67"/>
-        <source>Cannot extract RADIO/radio.bin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../storage/labeled.cpp" line="83"/>
-        <source>Cannot extract RADIO/models.txt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../storage/labeled.cpp" line="118"/>
-        <source>Cannot extract %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../storage/labeled.cpp" line="125"/>
-        <source>Error loading models</source>
-        <translation type="unfinished">Erreur de chargement des modèles</translation>
-    </message>
-    <message>
-        <location filename="../storage/labeled.cpp" line="146"/>
-        <location filename="../storage/labeled.cpp" line="320"/>
+        <location filename="../storage/labeled.cpp" line="179"/>
         <source>Favorites</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="183"/>
+        <location filename="../storage/labeled.cpp" line="44"/>
         <source>Cannot find %1/RADIO/radio.yml</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="185"/>
+        <location filename="../storage/labeled.cpp" line="46"/>
         <source>Found %1/RADIO/radio.yml</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="188"/>
+        <location filename="../storage/labeled.cpp" line="49"/>
         <source>Cannot find %1/MODELS/models.yml</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="190"/>
+        <location filename="../storage/labeled.cpp" line="51"/>
         <source>Found %1/MODELS/models.yml</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="194"/>
+        <location filename="../storage/labeled.cpp" line="55"/>
         <source>Cannot find %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="196"/>
+        <location filename="../storage/labeled.cpp" line="57"/>
         <source>Found %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="201"/>
+        <location filename="../storage/labeled.cpp" line="62"/>
         <source>Cannot extract RADIO/radio.yml</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="207"/>
-        <location filename="../storage/labeled.cpp" line="211"/>
+        <location filename="../storage/labeled.cpp" line="68"/>
+        <location filename="../storage/labeled.cpp" line="72"/>
         <source>Cannot load RADIO/radio.yml</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="229"/>
-        <location filename="../storage/labeled.cpp" line="232"/>
+        <location filename="../storage/labeled.cpp" line="90"/>
+        <location filename="../storage/labeled.cpp" line="93"/>
         <source>Can&apos;t load MODELS/labels.yml</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="283"/>
+        <location filename="../storage/labeled.cpp" line="144"/>
         <source>Cannot extract </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="294"/>
-        <location filename="../storage/labeled.cpp" line="298"/>
+        <location filename="../storage/labeled.cpp" line="155"/>
+        <location filename="../storage/labeled.cpp" line="159"/>
         <source>Cannot load </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="344"/>
+        <location filename="../storage/labeled.cpp" line="201"/>
         <source>Cannot list files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../storage/labeled.cpp" line="355"/>
+        <location filename="../storage/labeled.cpp" line="212"/>
         <source>Error deleting files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7408,363 +7151,325 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="857"/>
-        <location filename="../mainwindow.cpp" line="867"/>
-        <source>Edit</source>
-        <translation>Édition</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="858"/>
-        <location filename="../mainwindow.cpp" line="866"/>
+        <location filename="../mainwindow.cpp" line="860"/>
+        <location filename="../mainwindow.cpp" line="871"/>
         <source>File</source>
         <translation>Fichier</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="832"/>
+        <location filename="../mainwindow.cpp" line="835"/>
         <source>Compare models</source>
         <translation>Comparer les modèles</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="961"/>
+        <location filename="../mainwindow.cpp" line="980"/>
         <source>A monochrome black icon theme</source>
         <translation>Thème avec icônes monochromes noires</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="502"/>
-        <location filename="../mainwindow.cpp" line="836"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Synchronize SD</source>
         <translation>Synchroniser la carte SD</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="817"/>
+        <location filename="../mainwindow.cpp" line="812"/>
         <source>New</source>
         <translation>Nouveau</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="818"/>
+        <location filename="../mainwindow.cpp" line="813"/>
         <source>Open...</source>
         <translation>Ouvrir...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="963"/>
+        <location filename="../mainwindow.cpp" line="982"/>
         <source>A monochrome white icon theme</source>
         <translation>Thème avec icônes monochromes blanches</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="962"/>
+        <location filename="../mainwindow.cpp" line="981"/>
         <source>A monochrome blue icon theme</source>
         <translation>Thème avec icônes monochromes bleues</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="249"/>
-        <location filename="../mainwindow.cpp" line="256"/>
+        <location filename="../mainwindow.cpp" line="246"/>
+        <location filename="../mainwindow.cpp" line="253"/>
         <source>Checking for updates...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="969"/>
+        <location filename="../mainwindow.cpp" line="988"/>
         <source>Small</source>
         <translation>Petites</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="969"/>
+        <location filename="../mainwindow.cpp" line="988"/>
         <source>Use small toolbar icons</source>
         <translation>Petites icônes de barre d&apos;outils</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="970"/>
+        <location filename="../mainwindow.cpp" line="989"/>
         <source>Use normal size toolbar icons</source>
         <translation>Icônes de barre d&apos;outils normales</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="970"/>
+        <location filename="../mainwindow.cpp" line="989"/>
         <source>Normal</source>
         <translation>Normales</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="971"/>
+        <location filename="../mainwindow.cpp" line="990"/>
         <source>Use big toolbar icons</source>
         <translation>Grosses icônes de barre d&apos;outils</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="971"/>
+        <location filename="../mainwindow.cpp" line="990"/>
         <source>Big</source>
         <translation>Grandes</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="972"/>
+        <location filename="../mainwindow.cpp" line="991"/>
         <source>Use huge toolbar icons</source>
         <translation>Immenses icônes de barre d&apos;outils</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="972"/>
+        <location filename="../mainwindow.cpp" line="991"/>
         <source>Huge</source>
         <translation>Immenses</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="564"/>
-        <location filename="../mainwindow.cpp" line="834"/>
+        <location filename="../mainwindow.cpp" line="558"/>
+        <location filename="../mainwindow.cpp" line="828"/>
         <source>Read Firmware from Radio</source>
         <translation>Lire le firmware de la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="834"/>
+        <location filename="../mainwindow.cpp" line="828"/>
         <source>Read firmware from Radio</source>
         <translation>Lire le firmware de la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="835"/>
+        <location filename="../mainwindow.cpp" line="829"/>
         <source>Write Firmware to Radio</source>
         <translation>Transférer le firmware à la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="835"/>
+        <location filename="../mainwindow.cpp" line="829"/>
         <source>Write firmware to Radio</source>
         <translation>Transférer le firmware à la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="845"/>
+        <location filename="../mainwindow.cpp" line="841"/>
         <source>Add Radio Profile</source>
         <translation>Ajouter un profil de radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="839"/>
-        <source>Write Models and Settings To Radio</source>
-        <translation>Transférer les paramètres et modèles vers la radio</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="839"/>
+        <location filename="../mainwindow.cpp" line="830"/>
         <source>Write Models and Settings to Radio</source>
         <translation>Transférer les paramètres et modèles vers la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="574"/>
-        <location filename="../mainwindow.cpp" line="840"/>
+        <location filename="../mainwindow.cpp" line="568"/>
+        <location filename="../mainwindow.cpp" line="831"/>
         <source>Read Models and Settings from Radio</source>
         <translation>Lire les paramètres et modèles depuis la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="825"/>
+        <location filename="../mainwindow.cpp" line="817"/>
         <source>List of recently used files</source>
         <translation>Liste des fichiers récemment utilisés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="826"/>
+        <location filename="../mainwindow.cpp" line="840"/>
         <source>Radio Profiles</source>
         <translation>Profil radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="826"/>
+        <location filename="../mainwindow.cpp" line="840"/>
         <source>Create or Select Radio Profiles</source>
         <translation>Créer ou Sélectionner un profil radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="841"/>
-        <source>Configure Communications...</source>
-        <translation>Configurer les communications...</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="841"/>
-        <source>Configure software for communicating with the Radio</source>
-        <translation>Configurer le programme gérant les communications avec la radio</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="842"/>
+        <location filename="../mainwindow.cpp" line="832"/>
         <source>Write Backup to Radio</source>
         <translation>Transférer une sauvegarde à la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="842"/>
+        <location filename="../mainwindow.cpp" line="832"/>
         <source>Write Backup from file to Radio</source>
         <translation>Transférer une sauvegarde à la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="843"/>
+        <location filename="../mainwindow.cpp" line="833"/>
         <source>Backup Radio to File</source>
         <translation>Sauvegarder la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="843"/>
+        <location filename="../mainwindow.cpp" line="833"/>
         <source>Save a complete backup file of all settings and model data in the Radio</source>
         <translation>Créer une copie de sauvegarde de tous les paramètres et modèles de la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="836"/>
+        <location filename="../mainwindow.cpp" line="837"/>
         <source>SD card synchronization</source>
         <translation>Synchronisation de la carte SD</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="825"/>
+        <location filename="../mainwindow.cpp" line="817"/>
         <source>Recent Files</source>
         <translation>Fichiers récents</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="860"/>
+        <location filename="../mainwindow.cpp" line="864"/>
         <source>Set Icon Theme</source>
         <translation>Choisir le thème d&apos;icônes</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="861"/>
+        <location filename="../mainwindow.cpp" line="865"/>
         <source>Set Icon Size</source>
         <translation>Choisir la taille des icônes</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="868"/>
-        <source>Write</source>
-        <translation>Ecrire</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="660"/>
+        <location filename="../mainwindow.cpp" line="648"/>
         <source>If you&apos;ve found this program useful, please support by &lt;a href=&apos;%1&apos;&gt;donating&lt;/a&gt;</source>
         <translation>Si vous trouvez ce programme utile, merci de le supporter par une &lt;a href=&apos;%1&apos;&gt;donation&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1112"/>
+        <location filename="../mainwindow.cpp" line="1167"/>
         <source>Ready</source>
         <translation>Prêt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="823"/>
+        <location filename="../mainwindow.cpp" line="858"/>
         <source>Show the application&apos;s About box</source>
         <translation>Afficher la fenêtre &quot;A propos&quot; de l&apos;application</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="132"/>
-        <location filename="../mainwindow.cpp" line="368"/>
+        <location filename="../mainwindow.cpp" line="131"/>
+        <location filename="../mainwindow.cpp" line="361"/>
         <source>File loaded</source>
         <translation>Fichier chargé</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="379"/>
-        <location filename="../mainwindow.cpp" line="818"/>
+        <location filename="../mainwindow.cpp" line="372"/>
         <source>Open Models and Settings file</source>
         <translation>Ouvrir un fichier de paramètres et modèles</translation>
     </message>
     <message>
+        <location filename="../mainwindow.cpp" line="379"/>
         <location filename="../mainwindow.cpp" line="386"/>
-        <location filename="../mainwindow.cpp" line="393"/>
         <source>File saved</source>
         <translation>Fichier sauvegardé</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="840"/>
-        <source>Read Models and Settings From Radio</source>
-        <translation>Lire les paramètres et modèles depuis la radio</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="874"/>
+        <location filename="../mainwindow.cpp" line="880"/>
         <source>Some text will not be translated until the next time you start Companion. Please note that some translations may not be complete.</source>
         <translation>Certains textes ne seront pas traduits avant le prochain redémarrage de Companion. Veuillez noter que certaines traductions peuvent ne pas être complètes.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="582"/>
+        <location filename="../mainwindow.cpp" line="576"/>
+        <location filename="../mainwindow.cpp" line="1513"/>
         <source>Models and Settings read</source>
         <translation>Lecture des modèles et paramètres</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="504"/>
+        <location filename="../mainwindow.cpp" line="498"/>
         <source>Local Folder</source>
         <translation>Dossier &quot;Local&quot;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="505"/>
+        <location filename="../mainwindow.cpp" line="499"/>
         <source>Radio Folder</source>
         <translation>Dossier &quot;Radio&quot;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="590"/>
-        <location filename="../mainwindow.cpp" line="607"/>
+        <location filename="../mainwindow.cpp" line="583"/>
+        <location filename="../mainwindow.cpp" line="595"/>
         <source>This function is not yet implemented</source>
         <translation>Cette fonction n&apos;est pas implémentée pour l&apos;instant</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="611"/>
+        <location filename="../mainwindow.cpp" line="599"/>
         <source>Save Radio Backup to File</source>
         <translation>Sauvegarder la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="620"/>
+        <location filename="../mainwindow.cpp" line="608"/>
         <source>Read Radio Firmware to File</source>
         <translation>Sauvegarder le firmware de la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="817"/>
+        <location filename="../mainwindow.cpp" line="812"/>
         <source>Create a new Models and Settings file</source>
         <translation>Créer un nouveau fichier de paramètres et modèles</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="819"/>
-        <location filename="../mainwindow.cpp" line="820"/>
-        <source>Save Models and Settings file</source>
-        <translation>Enregistrer le fichier de paramètres et modèles</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="819"/>
+        <location filename="../mainwindow.cpp" line="814"/>
         <source>Save</source>
         <translation>Enregistrer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="820"/>
+        <location filename="../mainwindow.cpp" line="815"/>
         <source>Save As...</source>
         <translation>Enregistrer sous...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="821"/>
+        <location filename="../mainwindow.cpp" line="816"/>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="821"/>
+        <location filename="../mainwindow.cpp" line="816"/>
         <source>Close Models and Settings file</source>
         <translation>Fermer le fichier de paramètres et modèles</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="822"/>
+        <location filename="../mainwindow.cpp" line="820"/>
         <source>Exit the application</source>
         <translation>Quitter l&apos;application</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="822"/>
+        <location filename="../mainwindow.cpp" line="820"/>
         <source>Exit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="845"/>
+        <location filename="../mainwindow.cpp" line="841"/>
         <source>Create a new Radio Settings Profile</source>
         <translation>Créer un nouveau profil de paramètres et modèles</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="846"/>
+        <location filename="../mainwindow.cpp" line="842"/>
         <source>Copy Current Radio Profile</source>
         <translation>Copier le profil radio actuel</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="846"/>
+        <location filename="../mainwindow.cpp" line="842"/>
         <source>Duplicate current Radio Settings Profile</source>
         <translation>Dupliquer les paramètres radio du profil actuel</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="847"/>
+        <location filename="../mainwindow.cpp" line="843"/>
         <source>Delete the current Radio Settings Profile</source>
         <translation>Supprimer les paramètres radio du profil actuel</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1096"/>
+        <location filename="../mainwindow.cpp" line="1151"/>
         <source>Use default system language.</source>
         <translation>Utiliser le langage système par défaut.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1100"/>
+        <location filename="../mainwindow.cpp" line="1155"/>
         <source>Use %1 language (some translations may not be complete).</source>
         <translation>Utiliser la langue %1 (certaines traductions peuvent être incomplètes).</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="959"/>
+        <location filename="../mainwindow.cpp" line="978"/>
         <source>Classical</source>
         <translation>Classique</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="439"/>
+        <location filename="../mainwindow.cpp" line="432"/>
         <source>There are unsaved file changes which you may lose when switching radio types.
 
 Do you wish to continue?</source>
@@ -7773,373 +7478,492 @@ Do you wish to continue?</source>
 Êtes-vous sûr de vouloir continuer ?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="495"/>
+        <location filename="../mainwindow.cpp" line="489"/>
         <source>No local SD structure path configured!</source>
         <translation>Aucun chemin de configuré pour la structure SD en local !</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="497"/>
+        <location filename="../mainwindow.cpp" line="491"/>
         <source>No Radio or SD card detected!</source>
         <translation>Pas de Radio ou carte SD de détectée !</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="534"/>
+        <location filename="../mainwindow.cpp" line="528"/>
         <source>Writing models and settings to radio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="534"/>
+        <location filename="../mainwindow.cpp" line="528"/>
+        <location filename="../mainwindow.cpp" line="1520"/>
         <source>In progress...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="656"/>
+        <location filename="../mainwindow.cpp" line="644"/>
         <source>EdgeTX Home Page: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="658"/>
-        <source>The EdgeTX Companion project was originally forked from &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="670"/>
         <source>File new &lt;a href=&apos;%1&apos;&gt;Issue or Request&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="672"/>
+        <location filename="../mainwindow.cpp" line="660"/>
         <source>Copyright</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="748"/>
-        <source>EdgeTX Companion %1 - Radio: %2 - Profile: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="823"/>
-        <source>About Companion...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="829"/>
-        <source>Download components...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="829"/>
-        <source>Download EdgeTX components and supporting resources</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="830"/>
+        <location filename="../mainwindow.cpp" line="856"/>
         <source>Check for updates...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="830"/>
+        <location filename="../mainwindow.cpp" line="856"/>
         <source>Check for updates to EdgeTX and supporting resources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="831"/>
+        <location filename="../mainwindow.cpp" line="857"/>
         <source>Release notes...</source>
         <translation>Notes de version...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="831"/>
+        <location filename="../mainwindow.cpp" line="857"/>
         <source>Show release notes</source>
         <translation>Afficher les notes de version</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="847"/>
+        <location filename="../mainwindow.cpp" line="843"/>
         <source>Delete Current Radio Profile...</source>
         <translation>Supprimer le profil radio actuel...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="849"/>
-        <source>Export Application Settings..</source>
-        <translation>Exporter Préférences Application...</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="849"/>
+        <location filename="../mainwindow.cpp" line="823"/>
         <source>Save all the current %1 and Simulator settings (including radio profiles) to a file.</source>
         <translation>Enregistrez tous les paramètres actuels %1 et du simulateur (y compris les profils radio) dans un fichier.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="850"/>
-        <source>Import Application Settings..</source>
-        <translation>Importer les paramètres de l&apos;application...</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="850"/>
+        <location filename="../mainwindow.cpp" line="824"/>
         <source>Load %1 and Simulator settings from a prevously exported settings file.</source>
         <translation>Charger les paramètres %1 et les paramètres de Simulation depuis un fichier précédemment exporté.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="852"/>
+        <location filename="../mainwindow.cpp" line="851"/>
         <source>Tabbed Windows</source>
         <translation>Fenêtres à onglets</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="852"/>
+        <location filename="../mainwindow.cpp" line="851"/>
         <source>Use tabs to arrange open windows.</source>
         <translation>Utilisez les onglets pour organiser les fenêtres ouvertes.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="853"/>
+        <location filename="../mainwindow.cpp" line="852"/>
         <source>Tile Windows</source>
         <translation>Titre de la fenêtre</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="853"/>
+        <location filename="../mainwindow.cpp" line="852"/>
         <source>Arrange open windows across all the available space.</source>
         <translation>Disposez les fenêtres ouvertes sur tout l&apos;espace disponible.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="854"/>
+        <location filename="../mainwindow.cpp" line="853"/>
         <source>Cascade Windows</source>
         <translation>Fenêtres en cascade</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="854"/>
+        <location filename="../mainwindow.cpp" line="853"/>
         <source>Arrange all open windows in a stack.</source>
         <translation>Organisez toutes les fenêtres ouvertes dans une pile.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="855"/>
+        <location filename="../mainwindow.cpp" line="854"/>
         <source>Close All Windows</source>
         <translation>Fermer toutes les fenêtres</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="855"/>
+        <location filename="../mainwindow.cpp" line="854"/>
         <source>Closes all open files (prompts to save if necessary.</source>
         <translation>Fermer tous les fichiers ouverts (proposer de sauvegarder si nécessaire).</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="863"/>
+        <location filename="../mainwindow.cpp" line="868"/>
         <source>Window</source>
         <translation>Fenêtre</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="882"/>
+        <location filename="../mainwindow.cpp" line="888"/>
         <source>Ctrl+Shift+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="886"/>
+        <location filename="../mainwindow.cpp" line="910"/>
         <source>Ctrl+Alt+L</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="888"/>
+        <location filename="../mainwindow.cpp" line="902"/>
         <source>Ctrl+Alt+D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="646"/>
+        <source>The EdgeTX project was originally forked from &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="664"/>
+        <source>About EdgeTX Companion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="743"/>
+        <source>%1 %2 - Radio: %3 - Profile: %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="813"/>
+        <source>Open an existing Models and Settings file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="814"/>
+        <source>Save to Models and Settings file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="815"/>
+        <source>Save Models and Settings to another file name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="818"/>
+        <source>Write Models and Settings to SD Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="819"/>
+        <source>Read Models and Settings from SD Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="822"/>
+        <source>Edit Settings...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="822"/>
+        <source>Edit %1 and Simulator settings (including radio profiles) settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="823"/>
+        <source>Export Settings...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="824"/>
+        <source>Import Settings...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="826"/>
+        <source>Configure Radio Communications...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="826"/>
+        <source>Configure Companion for communicating with the Radio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="835"/>
+        <source>Compare Models</source>
+        <translation type="unfinished">Comparer les modèles</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="836"/>
+        <source>Update components...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="836"/>
+        <source>Download and update EdgeTX components and supporting resources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="837"/>
+        <source>Synchronize SD card...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="845"/>
+        <source>File Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="845"/>
+        <source>Configure File toolbar visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="846"/>
+        <source>Models Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="846"/>
+        <source>Configure Models toolbar visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="847"/>
+        <source>Radio Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="847"/>
+        <source>Configure Radio toolbar visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="848"/>
+        <source>Settings Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="848"/>
+        <source>Configure Settings toolbar visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="849"/>
+        <source>Tools Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="849"/>
+        <source>Configure Tools toolbar visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="858"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="861"/>
+        <source>View</source>
+        <translation type="unfinished">Vue</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="862"/>
+        <location filename="../mainwindow.cpp" line="872"/>
+        <source>Models</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="866"/>
+        <location filename="../mainwindow.cpp" line="873"/>
+        <source>Radio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="867"/>
+        <location filename="../mainwindow.cpp" line="875"/>
+        <source>Tools</source>
+        <translation type="unfinished">Outils</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Ctrl+Alt+R</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="959"/>
+        <location filename="../mainwindow.cpp" line="978"/>
         <source>The classic companion9x icon theme</source>
         <translation>Thème d&apos;icônes classique de Companion</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="960"/>
+        <location filename="../mainwindow.cpp" line="979"/>
         <source>Yerico</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="960"/>
+        <location filename="../mainwindow.cpp" line="979"/>
         <source>Yellow round honey sweet icon theme</source>
         <translation>Thème d&apos;icônes rondes jaunes</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="961"/>
+        <location filename="../mainwindow.cpp" line="980"/>
         <source>Monochrome</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="963"/>
+        <location filename="../mainwindow.cpp" line="982"/>
         <source>MonoWhite</source>
         <translation>Monochrome Blanc</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1193"/>
+        <location filename="../mainwindow.cpp" line="1248"/>
         <source>Alt+%1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1265"/>
+        <location filename="../mainwindow.cpp" line="1320"/>
         <source>Cannot add profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1265"/>
+        <location filename="../mainwindow.cpp" line="1320"/>
         <source>There is no space left to add a new profile. Delete an exsting profile before adding a new one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1295"/>
+        <location filename="../mainwindow.cpp" line="1350"/>
         <source> - Copy</source>
         <translation> - Copier</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1304"/>
+        <location filename="../mainwindow.cpp" line="1359"/>
         <source>Companion :: Open files warning</source>
         <translation>Companion::Ouvrir les fichiers d&apos;avertissement</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1304"/>
+        <location filename="../mainwindow.cpp" line="1359"/>
         <source>Please save or close modified file(s) before deleting the active profile.</source>
         <translation>Veuillez sauvegarder ou fermer le(s) fichier(s) modifié(s) avant de supprimer le profil actif.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1312"/>
+        <location filename="../mainwindow.cpp" line="1367"/>
         <source>Not possible to remove profile</source>
         <translation>Impossible de supprimer le profil</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1312"/>
+        <location filename="../mainwindow.cpp" line="1367"/>
         <source>The default profile can not be removed.</source>
         <translation>Le profil par défaut ne peut pas être supprimé.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1317"/>
+        <location filename="../mainwindow.cpp" line="1372"/>
         <source>Confirm Delete Profile</source>
         <translation>Confirmer la suppression du profil</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1318"/>
+        <location filename="../mainwindow.cpp" line="1373"/>
         <source>Are you sure you wish to delete the &quot;%1&quot; radio profile? There is no way to undo this action!</source>
         <translation>Etes-vous sûr de vouloir supprimer le profil radio %1? Cette action est irréversible !</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1340"/>
+        <location filename="../mainwindow.cpp" line="1395"/>
         <source>Please save or close all modified files before importing settings</source>
         <translation>Veuillez sauvegarder ou fermer tous les fichiers modifiés avant d&apos;importer les paramètres</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1343"/>
+        <location filename="../mainwindow.cpp" line="1398"/>
         <source>&lt;html&gt;&lt;p&gt;%1 and Simulator settings can be imported (restored) from a previosly saved export (backup) file. This will replace current settings with any settings found in the file.&lt;/p&gt;&lt;p&gt;An automatic backup of the current settings will be attempted. But if the current settings are useful then it is recommended that you make a manual backup first.&lt;/p&gt;&lt;p&gt;For best results when importing settings, &lt;b&gt;close any other %1 windows you may have open, and make sure the standalone Simulator application is not running.&lt;/p&gt;&lt;p&gt;Do you wish to continue?&lt;/p&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;p&gt;%1 et les paramètres du simulateur peuvent être importés (restaurés) à partir d’un fichier d’exportation (sauvegarde) préalablement sauvegardé. Ceci remplacera les paramètres actuels par tous les paramètres trouvés dans le fichier.&lt;/p&gt;&lt;p&gt;Une sauvegarde automatique des paramètres actuels sera tentée. Mais si les paramètres actuels sont utiles, il est recommandé de commencer par une sauvegarde manuelle.&lt;/p&gt;&lt;p&gt;Pour obtenir de meilleurs résultats lors de l&apos;importation des paramètres,&lt;b&gt; fermez les autres fenêtres %1 que vous avez éventuellement ouvertes et assurez-vous que l&apos;application autonome Simulator n&apos;est pas en cours d&apos;exécution. &lt;/p&gt;&lt;p&gt;Souhaitez-vous continuer ? &lt;/p&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1351"/>
+        <location filename="../mainwindow.cpp" line="1406"/>
         <source>Confirm Settings Import</source>
         <translation>Confirmer les paramètres d&apos;importation</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1356"/>
+        <location filename="../mainwindow.cpp" line="1411"/>
         <source>Select %1:</source>
         <translation>Sélectionnez %1:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1361"/>
+        <location filename="../mainwindow.cpp" line="1416"/>
         <source>backup</source>
         <translation>sauvegarde</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1363"/>
+        <location filename="../mainwindow.cpp" line="1418"/>
         <source>Press the &apos;Ignore&apos; button to continue anyway.</source>
         <translation>Appuyez sur le bouton &apos;Ignorer&apos; pour continuer quand même.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1373"/>
+        <location filename="../mainwindow.cpp" line="1428"/>
         <source>The settings could not be imported.</source>
         <translation>Les paramètres n&apos;ont pas pu être importés.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1376"/>
+        <location filename="../mainwindow.cpp" line="1431"/>
         <source>&lt;html&gt;&lt;p&gt;New settings have been imported from:&lt;br&gt; %1.&lt;/p&gt;&lt;p&gt;%2 will now re-initialize.&lt;/p&gt;&lt;p&gt;Note that you may need to close and restart %2 before some settings like language and icon theme take effect.&lt;/p&gt;</source>
         <translation>&lt;html&gt;&lt;p&gt;Les nouveaux paramètres ont été importés depuis:&lt;br&gt; %1. &lt;/p&gt;&lt;p&gt;%2 sera maintenant réinitialisé.&lt;/p&gt;&lt;p&gt;Notez que vous devrez peut-être fermer et redémarrer %2 avant que certains paramètres tels que la langue et le thème d’icône prennent effet.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1383"/>
+        <location filename="../mainwindow.cpp" line="1438"/>
         <source>&lt;p&gt;The previous settings were backed up to:&lt;br&gt; %1&lt;/p&gt;</source>
         <translation>&lt;p&gt;Les paramètres précédents ont été sauvegardés sous:&lt;br&gt; %1 &lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="962"/>
+        <location filename="../mainwindow.cpp" line="1505"/>
+        <source>Read Models and Settings from SD path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1520"/>
+        <source>Writing models and settings to SD path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="981"/>
         <source>MonoBlue</source>
         <translation>Monochrome Bleu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1096"/>
+        <location filename="../mainwindow.cpp" line="1151"/>
         <source>System language</source>
         <translation>Langue du système</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="827"/>
+        <location filename="../mainwindow.cpp" line="838"/>
         <source>View Log File...</source>
         <translation>Ouvrir un Log...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="827"/>
+        <location filename="../mainwindow.cpp" line="838"/>
         <source>Open and view log file</source>
         <translation>Ouvrir et visualiser un log</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="828"/>
-        <source>Settings...</source>
-        <translation>Préférences...</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="828"/>
-        <source>Edit Settings</source>
-        <translation>Éditer les préférences</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="832"/>
-        <source>Compare Models...</source>
-        <translation>Comparer 2 modèles...</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="833"/>
+        <location filename="../mainwindow.cpp" line="827"/>
         <source>Edit Radio Splash Image...</source>
         <translation>Éditer l&apos;écran d&apos;accueil de la radio...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="833"/>
+        <location filename="../mainwindow.cpp" line="827"/>
         <source>Edit the splash image of your Radio</source>
         <translation>Éditer l&apos;écran d&apos;accueil de la radio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="864"/>
         <location filename="../mainwindow.cpp" line="869"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="285"/>
+        <location filename="../mainwindow.cpp" line="282"/>
         <source>The new theme will be loaded the next time you start Companion.</source>
         <translation>Le nouveau thème sera utilisé lors du prochain lancement de Companion.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="676"/>
-        <source>About Companion</source>
-        <translation>A propos de Companion</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="1092"/>
+        <location filename="../mainwindow.cpp" line="1147"/>
         <source>Set Menu Language</source>
         <translation>Choisir la langue des menus</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="859"/>
+        <location filename="../mainwindow.cpp" line="863"/>
+        <location filename="../mainwindow.cpp" line="874"/>
         <source>Settings</source>
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="862"/>
-        <source>Read/Write</source>
-        <translation>Transfert</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="1165"/>
+        <location filename="../mainwindow.cpp" line="1220"/>
         <source>%2</source>
         <translation>%2</translation>
     </message>
@@ -8147,12 +7971,12 @@ Do you wish to continue?</source>
 <context>
     <name>MdiChild</name>
     <message>
-        <location filename="../mdichild.cpp" line="1544"/>
+        <location filename="../mdichild.cpp" line="1561"/>
         <source>Unable to find file %1!</source>
         <translation>Fichier %1 introuvable !</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1322"/>
+        <location filename="../mdichild.cpp" line="1335"/>
         <source>Save As</source>
         <translation>Enregister Sous</translation>
     </message>
@@ -8177,24 +8001,29 @@ Do you wish to continue?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="223"/>
+        <location filename="../mdichild.cpp" line="222"/>
         <source>Alt+A</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="224"/>
+        <location filename="../mdichild.cpp" line="223"/>
         <source>Alt+R</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="225"/>
+        <location filename="../mdichild.cpp" line="224"/>
         <source>Alt+W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="233"/>
+        <location filename="../mdichild.cpp" line="226"/>
         <source>Alt+U</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="236"/>
+        <source>Ctrl+Alt+E</source>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <location filename="../mdichild.cpp" line="338"/>
@@ -8220,38 +8049,38 @@ Do you wish to continue?</source>
         <translation>Rien n&apos;a été sélectionné</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="383"/>
+        <location filename="../mdichild.cpp" line="387"/>
         <source>Edit Model</source>
         <translation>Éditer le modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="357"/>
+        <location filename="../mdichild.cpp" line="360"/>
         <source>Cut</source>
         <translation>Couper</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="227"/>
-        <location filename="../mdichild.cpp" line="228"/>
+        <location filename="../mdichild.cpp" line="242"/>
+        <location filename="../mdichild.cpp" line="243"/>
         <source>Alt-L</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="229"/>
+        <location filename="../mdichild.cpp" line="244"/>
         <source>Alt-R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="230"/>
+        <location filename="../mdichild.cpp" line="245"/>
         <source>Alt-+</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="231"/>
+        <location filename="../mdichild.cpp" line="246"/>
         <source>Alt--</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="242"/>
+        <location filename="../mdichild.cpp" line="235"/>
         <source>Ctrl+Alt+S</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8261,18 +8090,18 @@ Do you wish to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="359"/>
+        <location filename="../mdichild.cpp" line="362"/>
         <source>Copy</source>
         <translation>Copier</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="361"/>
+        <location filename="../mdichild.cpp" line="364"/>
         <source>Paste</source>
         <translation>Coller</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="363"/>
-        <location filename="../mdichild.cpp" line="961"/>
+        <location filename="../mdichild.cpp" line="366"/>
+        <location filename="../mdichild.cpp" line="970"/>
         <source>Insert</source>
         <translation>Insérer</translation>
     </message>
@@ -8283,107 +8112,117 @@ Do you wish to continue?</source>
         <translation>Exporter</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="377"/>
+        <location filename="../mdichild.cpp" line="381"/>
         <source>Edit Radio Settings</source>
         <translation>Éditer Paramètres Radio</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="378"/>
+        <location filename="../mdichild.cpp" line="382"/>
         <source>Copy Radio Settings</source>
         <translation>Copier les paramètres radio</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="379"/>
+        <location filename="../mdichild.cpp" line="383"/>
         <source>Paste Radio Settings</source>
         <translation>Coller les paramètres radio</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="380"/>
+        <location filename="../mdichild.cpp" line="384"/>
         <source>Simulate Radio</source>
         <translation>Simuler Radio</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="381"/>
+        <location filename="../mdichild.cpp" line="385"/>
         <source>Radio Models Order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="392"/>
+        <location filename="../mdichild.cpp" line="388"/>
+        <source>Delete Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="396"/>
         <source>Add Model</source>
         <translation>Ajouter modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="393"/>
+        <location filename="../mdichild.cpp" line="397"/>
         <source>Model</source>
         <translation>Modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="394"/>
+        <location filename="../mdichild.cpp" line="398"/>
         <source>Export Model</source>
         <translation>Exporter Modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="396"/>
+        <location filename="../mdichild.cpp" line="400"/>
         <source>Restore from Backup</source>
         <translation>Restaurer depuis une sauvegarde</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="397"/>
+        <location filename="../mdichild.cpp" line="401"/>
         <source>Model Wizard</source>
         <translation>Assistant de configuration modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="398"/>
+        <location filename="../mdichild.cpp" line="402"/>
         <source>Set as Default</source>
         <translation>Définir par défaut</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="399"/>
+        <location filename="../mdichild.cpp" line="403"/>
         <source>Print Model</source>
         <translation>Imprimer modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="400"/>
+        <location filename="../mdichild.cpp" line="404"/>
         <source>Simulate Model</source>
         <translation>Simuler modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="401"/>
+        <location filename="../mdichild.cpp" line="405"/>
         <source>Duplicate Model</source>
         <translation>Dupliquer modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="403"/>
+        <location filename="../mdichild.cpp" line="406"/>
+        <source>Show Model Errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="408"/>
         <source>Show Radio Actions Toolbar</source>
         <translation>Afficher la barre d&apos;outils &quot;Radio&quot;</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="404"/>
+        <location filename="../mdichild.cpp" line="409"/>
         <source>Show Model Actions Toolbar</source>
         <translation>Afficher la barre d&apos;outils &quot;Modèle&quot;</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="709"/>
+        <location filename="../mdichild.cpp" line="718"/>
         <source>read only</source>
         <translation>lecture seule</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="777"/>
+        <location filename="../mdichild.cpp" line="786"/>
         <source>Cannot insert model, last model in list would be deleted.</source>
         <translation>Impossible d&apos;insérer le modèle, le dernier modèle dans la liste serait supprimé.</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="819"/>
+        <location filename="../mdichild.cpp" line="828"/>
         <source>Cannot add model, could not find an available model slot.</source>
         <translation>Impossible d&apos;ajouter un modèle, aucun emplacement libre n’est disponible.</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="939"/>
+        <location filename="../mdichild.cpp" line="948"/>
         <source>Cannot paste model, out of available model slots.</source>
         <translation>Impossible de coller le modèle, aucun emplacement libre n’est disponible.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../mdichild.cpp" line="1125"/>
+        <location filename="../mdichild.cpp" line="1134"/>
         <source>Delete %n selected model(s)?</source>
         <translation>
             <numerusform>Supprimer le modèle sélectionné ?</numerusform>
@@ -8391,219 +8230,239 @@ Do you wish to continue?</source>
         </translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1156"/>
+        <location filename="../mdichild.cpp" line="1165"/>
         <source>Cannot duplicate model, could not find an available model slot.</source>
         <translation>Impossible de dupliquer le modèle, aucun emplacement libre n’est disponible.</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1326"/>
-        <location filename="../mdichild.cpp" line="1809"/>
+        <location filename="../mdichild.cpp" line="1339"/>
+        <location filename="../mdichild.cpp" line="1826"/>
         <source>Invalid file extension!</source>
         <translation>Extension de fichier invalide</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1427"/>
+        <location filename="../mdichild.cpp" line="1442"/>
         <source>Do you wish to continue with the conversion?</source>
         <translation>Souhaitez-vous vraiment lancer la conversion ?</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1432"/>
+        <location filename="../mdichild.cpp" line="1447"/>
         <source>Choose &lt;i&gt;Apply&lt;/i&gt; to convert the file, or &lt;i&gt;Close&lt;/i&gt; to close it without conversion.</source>
         <translation>Choisissez &lt;i&gt;Appliquer&lt;/i&gt; pour convertir le fichier ou &lt;i&gt;Annuler&lt;/i&gt; pour le fermer sans conversion.</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1459"/>
+        <location filename="../mdichild.cpp" line="1474"/>
         <source>&lt;b&gt;The conversion generated some important messages, please review them below.&lt;/b&gt;</source>
         <translation>&lt;b&gt;La conversion a généré des messages importants, veuillez les consulter ci-dessous.&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1466"/>
+        <location filename="../mdichild.cpp" line="1481"/>
         <source>Companion :: Conversion Result for %1</source>
         <translation>Companion :: Résultat de conversion de %1</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1495"/>
+        <location filename="../mdichild.cpp" line="1505"/>
+        <source>Write Models and Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="1505"/>
+        <source>Operation aborted as %1 models have significant errors that may affect model operation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="1511"/>
+        <source>You are about to overwrite ALL models.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="1512"/>
+        <source>Continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="1517"/>
         <source>Do not show this message again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1516"/>
-        <source>Models and settings written to radio</source>
-        <translation>Modèles et paramètres écrit vers radio</translation>
+        <location filename="../mdichild.cpp" line="1539"/>
+        <source>Unable to find SD card!</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1521"/>
-        <source>Error writing models and settings to radio!</source>
-        <translation>Erreur écriture modèles et paramètres vers radio</translation>
+        <location filename="../mdichild.cpp" line="1545"/>
+        <source>Models and settings written</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1528"/>
-        <source>Cannot write temporary file!</source>
-        <translation>Ecriture de fichier temporaire impossible !</translation>
+        <location filename="../mdichild.cpp" line="1549"/>
+        <source>Error writing models and settings!</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1203"/>
+        <location filename="../mdichild.cpp" line="1899"/>
+        <source>Models status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="1914"/>
+        <source>No errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="1918"/>
+        <source>Errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mdichild.cpp" line="1212"/>
         <source>Editing model %1: </source>
         <translation>Édition du modèle %1 : </translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="365"/>
-        <location filename="../mdichild.cpp" line="395"/>
+        <location filename="../mdichild.cpp" line="368"/>
+        <location filename="../mdichild.cpp" line="399"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="386"/>
+        <location filename="../mdichild.cpp" line="390"/>
         <source>Add</source>
         <translation type="unfinished">Addition</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="388"/>
+        <location filename="../mdichild.cpp" line="392"/>
         <source>Rename</source>
         <translation>Renommer</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="389"/>
+        <location filename="../mdichild.cpp" line="393"/>
         <source>Move Up</source>
         <translation type="unfinished">Monter</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="390"/>
+        <location filename="../mdichild.cpp" line="394"/>
         <source>Move Down</source>
         <translation type="unfinished">Descendre</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="405"/>
+        <location filename="../mdichild.cpp" line="410"/>
         <source>Show Labels Actions Toolbar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="959"/>
+        <location filename="../mdichild.cpp" line="968"/>
         <source>Model already exists! Do you want to overwrite it or insert into a new slot?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="960"/>
+        <location filename="../mdichild.cpp" line="969"/>
         <source>Overwrite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1031"/>
+        <location filename="../mdichild.cpp" line="1040"/>
         <source>Unable to Edit Radio Settings whilst models are open for editing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1256"/>
+        <location filename="../mdichild.cpp" line="1266"/>
         <source>Favorites</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1489"/>
-        <source>You are about to overwrite ALL models on the Radio.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mdichild.cpp" line="1490"/>
-        <source>Do you want to continue?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mdichild.cpp" line="1564"/>
+        <location filename="../mdichild.cpp" line="1581"/>
         <source>Error reading file %1:
 %2.</source>
         <translation>Fichier %1 corrompu:
 %2.</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1640"/>
+        <location filename="../mdichild.cpp" line="1657"/>
         <source>Internal module protocol changed to &lt;b&gt;OFF&lt;/b&gt; for %1 models!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1652"/>
+        <location filename="../mdichild.cpp" line="1669"/>
         <source>Select a model template file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1694"/>
+        <location filename="../mdichild.cpp" line="1711"/>
         <source>Add a new model using</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1695"/>
+        <location filename="../mdichild.cpp" line="1712"/>
         <source>Defaults</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1696"/>
+        <location filename="../mdichild.cpp" line="1713"/>
         <source>Edit</source>
         <translation type="unfinished">Édition</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1697"/>
+        <location filename="../mdichild.cpp" line="1714"/>
         <source>Wizard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1698"/>
+        <location filename="../mdichild.cpp" line="1715"/>
         <source>Template</source>
         <translation type="unfinished">Modèle</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1705"/>
+        <location filename="../mdichild.cpp" line="1722"/>
         <source>Failed to remove temporary model!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1803"/>
+        <location filename="../mdichild.cpp" line="1820"/>
         <source>Export model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1553"/>
+        <location filename="../mdichild.cpp" line="1570"/>
         <source>Error opening file %1:
 %2.</source>
         <translation>Erreur à l&apos;ouverture du fichier %1:
 %2.</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="384"/>
-        <location filename="../mdichild.cpp" line="387"/>
+        <location filename="../mdichild.cpp" line="358"/>
+        <location filename="../mdichild.cpp" line="391"/>
         <source>Delete</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="235"/>
+        <location filename="../mdichild.cpp" line="228"/>
         <source>Alt+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1022"/>
+        <location filename="../mdichild.cpp" line="1031"/>
         <source>Do you want to overwrite radio general settings?</source>
         <translation>Voulez-vous vraiment écraser les paramètres généraux ?</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1425"/>
+        <location filename="../mdichild.cpp" line="1440"/>
         <source>&lt;p&gt;&lt;b&gt;Currently selected radio type (%1) is not compatible with file %3 (from %2), models and settings need to be converted.&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Le type de radio actuellement sélectionné (%1) n&apos;est pas compatible avec le fichier %3 (à partir de %2), les modèles et les paramètres doivent être convertis.&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1510"/>
-        <source>Unable to find radio SD card!</source>
-        <translation>Impossible de trouver la carte SD de la radio !</translation>
-    </message>
-    <message>
-        <location filename="../mdichild.cpp" line="1538"/>
+        <location filename="../mdichild.cpp" line="1555"/>
         <source>Open backup Models and Settings file</source>
         <translation>Ouvrir la sauvegarde de paramètres et modèles</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1574"/>
+        <location filename="../mdichild.cpp" line="1591"/>
         <source>Invalid binary backup File %1</source>
         <translation>Fichier de sauvegarde %1 invalide</translation>
     </message>
     <message>
-        <location filename="../mdichild.cpp" line="1370"/>
+        <location filename="../mdichild.cpp" line="1385"/>
         <source>%1 has been modified.
 Do you want to save your changes?</source>
         <translation>%1 a été modifié.
@@ -9153,114 +9012,135 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ModelData</name>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="445"/>
+        <location filename="../firmwares/modeldata.cpp" line="447"/>
         <source>Model: </source>
         <translation>Modèle: </translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="449"/>
+        <location filename="../firmwares/modeldata.cpp" line="451"/>
         <source>Throttle Source</source>
         <translation>Source des gaz</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1504"/>
+        <location filename="../firmwares/modeldata.cpp" line="1506"/>
         <source>THR</source>
         <translation>GAZ</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1504"/>
+        <location filename="../firmwares/modeldata.cpp" line="1506"/>
         <source>TH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1620"/>
+        <location filename="../firmwares/modeldata.cpp" line="1622"/>
         <source>OFF</source>
         <translation type="unfinished">Eteint</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1622"/>
+        <location filename="../firmwares/modeldata.cpp" line="1624"/>
         <source>Master/Jack</source>
         <translation type="unfinished">Maître/Jack</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1624"/>
+        <location filename="../firmwares/modeldata.cpp" line="1626"/>
         <source>Slave/Jack</source>
         <translation type="unfinished">Elève/Jack</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1626"/>
+        <location filename="../firmwares/modeldata.cpp" line="1628"/>
         <source>Master/SBUS Module</source>
         <translation type="unfinished">Maître/SBUS module</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1628"/>
+        <location filename="../firmwares/modeldata.cpp" line="1630"/>
         <source>Master/CPPM Module</source>
         <translation type="unfinished">Maître/CPPM Module</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1630"/>
+        <location filename="../firmwares/modeldata.cpp" line="1632"/>
         <source>Master/Serial</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1632"/>
+        <location filename="../firmwares/modeldata.cpp" line="1634"/>
         <source>Master/Bluetooth</source>
         <translation type="unfinished">Maître/Bluetooth</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1634"/>
+        <location filename="../firmwares/modeldata.cpp" line="1636"/>
         <source>Slave/Bluetooth</source>
         <translation type="unfinished">Elève/Bluetooth</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1636"/>
+        <location filename="../firmwares/modeldata.cpp" line="1638"/>
         <source>Master/Multi</source>
         <translation type="unfinished">Maître/Multi</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1723"/>
-        <source>NONE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firmwares/modeldata.cpp" line="1725"/>
-        <source>TOGGLE</source>
+        <location filename="../firmwares/modeldata.cpp" line="1640"/>
+        <source>Master/CRSF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1727"/>
+        <source>NONE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/modeldata.cpp" line="1729"/>
+        <source>TOGGLE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/modeldata.cpp" line="1731"/>
         <source>2POS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1752"/>
+        <location filename="../firmwares/modeldata.cpp" line="1756"/>
         <source>SW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1754"/>
-        <location filename="../firmwares/modeldata.cpp" line="1890"/>
+        <location filename="../firmwares/modeldata.cpp" line="1758"/>
+        <location filename="../firmwares/modeldata.cpp" line="1894"/>
         <source>Off</source>
         <translation type="unfinished">Aucun</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1765"/>
+        <location filename="../firmwares/modeldata.cpp" line="1769"/>
         <source>---</source>
         <translation type="unfinished">---</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1767"/>
+        <location filename="../firmwares/modeldata.cpp" line="1771"/>
         <source>Group </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1892"/>
+        <location filename="../firmwares/modeldata.cpp" line="1896"/>
         <source>On</source>
         <translation type="unfinished">Actif</translation>
     </message>
     <message>
-        <location filename="../firmwares/modeldata.cpp" line="1750"/>
-        <location filename="../firmwares/modeldata.cpp" line="1894"/>
+        <location filename="../firmwares/modeldata.cpp" line="1955"/>
+        <source>Error - Input %1 Line %2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/modeldata.cpp" line="1955"/>
+        <location filename="../firmwares/modeldata.cpp" line="1960"/>
+        <source>has no source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/modeldata.cpp" line="1960"/>
+        <source>Error - Mix %1 Line %2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/modeldata.cpp" line="1754"/>
+        <location filename="../firmwares/modeldata.cpp" line="1898"/>
         <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9420,32 +9300,32 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ModelPrinter</name>
     <message>
-        <location filename="../modelprinter.cpp" line="176"/>
+        <location filename="../modelprinter.cpp" line="171"/>
         <source>Exponential</source>
         <translation>Exponentiel</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="178"/>
+        <location filename="../modelprinter.cpp" line="173"/>
         <source>Extra Fine</source>
         <translation>Extra fin</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="180"/>
+        <location filename="../modelprinter.cpp" line="175"/>
         <source>Fine</source>
         <translation>Fin</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="182"/>
+        <location filename="../modelprinter.cpp" line="177"/>
         <source>Medium</source>
         <translation>Moyen</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="184"/>
+        <location filename="../modelprinter.cpp" line="179"/>
         <source>Coarse</source>
         <translation>Grossier</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="186"/>
+        <location filename="../modelprinter.cpp" line="181"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -9486,499 +9366,504 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="151"/>
-        <location filename="../modelprinter.cpp" line="291"/>
-        <location filename="../modelprinter.cpp" line="808"/>
+        <location filename="../modelprinter.cpp" line="292"/>
+        <location filename="../modelprinter.cpp" line="809"/>
         <source>OFF</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="159"/>
-        <source>bytes</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../modelprinter.cpp" line="196"/>
-        <location filename="../modelprinter.cpp" line="788"/>
+        <location filename="../modelprinter.cpp" line="191"/>
+        <location filename="../modelprinter.cpp" line="789"/>
         <source>Mode</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="199"/>
-        <location filename="../modelprinter.cpp" line="212"/>
+        <location filename="../modelprinter.cpp" line="194"/>
+        <location filename="../modelprinter.cpp" line="207"/>
         <source>Channels</source>
         <translation>Nombre de voies</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="200"/>
-        <location filename="../modelprinter.cpp" line="214"/>
+        <location filename="../modelprinter.cpp" line="195"/>
+        <location filename="../modelprinter.cpp" line="209"/>
         <source>Frame length</source>
         <translation>Longueur de Trame PPM</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="201"/>
+        <location filename="../modelprinter.cpp" line="196"/>
         <source>PPM delay</source>
         <translation>Impulsion</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="202"/>
-        <location filename="../modelprinter.cpp" line="215"/>
+        <location filename="../modelprinter.cpp" line="197"/>
+        <location filename="../modelprinter.cpp" line="210"/>
         <source>Polarity</source>
         <translation>Polarité</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="208"/>
+        <location filename="../modelprinter.cpp" line="203"/>
         <source>Protocol</source>
         <translation>Protocole</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="217"/>
-        <location filename="../modelprinter.cpp" line="644"/>
+        <location filename="../modelprinter.cpp" line="212"/>
+        <location filename="../modelprinter.cpp" line="645"/>
         <source>Delay</source>
         <translation>Délai</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="222"/>
-        <location filename="../modelprinter.cpp" line="855"/>
+        <location filename="../modelprinter.cpp" line="217"/>
+        <location filename="../modelprinter.cpp" line="856"/>
         <source>Receiver</source>
         <translation>Récepteur</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="225"/>
+        <location filename="../modelprinter.cpp" line="220"/>
         <source>Radio protocol</source>
         <translation>Protocole radio</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="226"/>
+        <location filename="../modelprinter.cpp" line="221"/>
         <source>Subtype</source>
         <translation>Sous-type</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="227"/>
+        <location filename="../modelprinter.cpp" line="222"/>
         <source>Option value</source>
         <translation>Valeur optionnelle</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="211"/>
-        <location filename="../modelprinter.cpp" line="230"/>
+        <location filename="../modelprinter.cpp" line="206"/>
+        <location filename="../modelprinter.cpp" line="225"/>
         <source>Sub Type</source>
         <translation>Sous-Type</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="231"/>
+        <location filename="../modelprinter.cpp" line="226"/>
         <source>RF Output Power</source>
         <translation>Puissance RF</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="240"/>
+        <location filename="../modelprinter.cpp" line="235"/>
         <source>Raw 12 bits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="256"/>
+        <location filename="../modelprinter.cpp" line="238"/>
+        <source>Arming mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modelprinter.cpp" line="240"/>
+        <source>Switch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modelprinter.cpp" line="257"/>
         <source>90</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="258"/>
+        <location filename="../modelprinter.cpp" line="259"/>
         <source>120</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="260"/>
+        <location filename="../modelprinter.cpp" line="261"/>
         <source>120X</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="262"/>
+        <location filename="../modelprinter.cpp" line="263"/>
         <source>140</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="293"/>
+        <location filename="../modelprinter.cpp" line="294"/>
         <source>3POS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="368"/>
+        <location filename="../modelprinter.cpp" line="369"/>
         <source>Scale(%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="371"/>
-        <location filename="../modelprinter.cpp" line="419"/>
+        <location filename="../modelprinter.cpp" line="372"/>
+        <location filename="../modelprinter.cpp" line="420"/>
         <source>Weight(%1)</source>
         <translation>Ratio(%1)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="380"/>
-        <location filename="../modelprinter.cpp" line="426"/>
+        <location filename="../modelprinter.cpp" line="381"/>
+        <location filename="../modelprinter.cpp" line="427"/>
         <source>Switch(%1)</source>
         <translation>Inter(%1)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="385"/>
+        <location filename="../modelprinter.cpp" line="386"/>
         <source>No Trim</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="446"/>
+        <location filename="../modelprinter.cpp" line="447"/>
         <source>Delay(u%1:d%2)</source>
         <translation>Délai(h%1:b%2)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="451"/>
+        <location filename="../modelprinter.cpp" line="452"/>
         <source>Slow precision(0.00)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="454"/>
+        <location filename="../modelprinter.cpp" line="455"/>
         <source>Slow(u%1:d%2)</source>
         <translation>Ralenti(h%1:b%2)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="456"/>
+        <location filename="../modelprinter.cpp" line="457"/>
         <source>Warn(%1)</source>
         <translation>Alerte(%1)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="486"/>
+        <location filename="../modelprinter.cpp" line="487"/>
         <source>Flight modes</source>
         <translation>Phases de Vol</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="486"/>
+        <location filename="../modelprinter.cpp" line="487"/>
         <source>Flight mode</source>
         <translation>Phase de vol</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="511"/>
+        <location filename="../modelprinter.cpp" line="512"/>
         <source>All</source>
         <translation>Tous</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="531"/>
+        <location filename="../modelprinter.cpp" line="532"/>
         <source>Edge</source>
         <translation>Flanc</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="532"/>
+        <location filename="../modelprinter.cpp" line="533"/>
         <source>infinite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="537"/>
+        <location filename="../modelprinter.cpp" line="538"/>
         <source>Sticky</source>
         <translation>Bistable</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="539"/>
+        <location filename="../modelprinter.cpp" line="540"/>
         <source> Persistent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="542"/>
+        <location filename="../modelprinter.cpp" line="543"/>
         <source>Timer</source>
         <translation>Chrono</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="569"/>
+        <location filename="../modelprinter.cpp" line="570"/>
         <source> missing</source>
         <translation> absent</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="642"/>
+        <location filename="../modelprinter.cpp" line="643"/>
         <source>Duration</source>
         <translation>Durée</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="751"/>
+        <location filename="../modelprinter.cpp" line="752"/>
         <source>Extended Limits</source>
         <translation>Limites étendues</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="753"/>
+        <location filename="../modelprinter.cpp" line="754"/>
         <source>Display Checklist</source>
         <translation>Afficher la checklist</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="755"/>
+        <location filename="../modelprinter.cpp" line="756"/>
         <source>Global Functions</source>
         <translation>Fonctions globales</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="810"/>
+        <location filename="../modelprinter.cpp" line="811"/>
         <source>Manual</source>
         <translation>Manuel</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="812"/>
+        <location filename="../modelprinter.cpp" line="813"/>
         <source>Auto</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="822"/>
+        <location filename="../modelprinter.cpp" line="823"/>
         <source>Failsafe Mode</source>
         <translation>Mode Failsafe</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="835"/>
-        <location filename="../modelprinter.cpp" line="849"/>
+        <location filename="../modelprinter.cpp" line="836"/>
+        <location filename="../modelprinter.cpp" line="850"/>
         <source>Hold</source>
         <translation>Maintien</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="837"/>
+        <location filename="../modelprinter.cpp" line="838"/>
         <source>No Pulse</source>
         <translation>Pas d&apos;impulsion</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="847"/>
+        <location filename="../modelprinter.cpp" line="848"/>
         <source>Not set</source>
         <translation>Non défini</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="853"/>
+        <location filename="../modelprinter.cpp" line="854"/>
         <source>No pulses</source>
         <translation>Pas d&apos;impulsions</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="864"/>
+        <location filename="../modelprinter.cpp" line="865"/>
         <source>Step</source>
         <translation>Pas</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="865"/>
+        <location filename="../modelprinter.cpp" line="866"/>
         <source>Display</source>
         <translation>Affichage</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="866"/>
+        <location filename="../modelprinter.cpp" line="867"/>
         <source>Extended</source>
         <translation>Étendu</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="869"/>
+        <location filename="../modelprinter.cpp" line="870"/>
         <source>Hats Mode</source>
         <translation type="unfinished">Mode joystick</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="893"/>
+        <location filename="../modelprinter.cpp" line="894"/>
         <source>Never</source>
         <translation>Jamais</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="895"/>
+        <location filename="../modelprinter.cpp" line="896"/>
         <source>On Change</source>
         <translation>Sur changement</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="897"/>
+        <location filename="../modelprinter.cpp" line="898"/>
         <source>Always</source>
         <translation>Toujours</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="907"/>
+        <location filename="../modelprinter.cpp" line="908"/>
         <source>Trims only</source>
         <translation type="unfinished">Trims uniquement</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="909"/>
+        <location filename="../modelprinter.cpp" line="910"/>
         <source>Keys only</source>
         <translation type="unfinished">Touches uniquement</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="911"/>
+        <location filename="../modelprinter.cpp" line="912"/>
         <source>Switchable</source>
         <translation type="unfinished">Commutable</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="913"/>
+        <location filename="../modelprinter.cpp" line="914"/>
         <source>Global</source>
         <translation type="unfinished">Global</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="935"/>
-        <location filename="../modelprinter.cpp" line="1070"/>
-        <location filename="../modelprinter.cpp" line="1080"/>
+        <location filename="../modelprinter.cpp" line="936"/>
+        <location filename="../modelprinter.cpp" line="1071"/>
+        <location filename="../modelprinter.cpp" line="1081"/>
         <source>Source</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="936"/>
+        <location filename="../modelprinter.cpp" line="937"/>
         <source>Trim idle only</source>
         <translation>Trim ralenti uniquement</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="937"/>
+        <location filename="../modelprinter.cpp" line="938"/>
         <source>Warning</source>
         <translation>Avertissement</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="938"/>
+        <location filename="../modelprinter.cpp" line="939"/>
         <source>Reversed</source>
         <translation>Inversé</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="942"/>
+        <location filename="../modelprinter.cpp" line="943"/>
         <source>Trim source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="956"/>
+        <location filename="../modelprinter.cpp" line="957"/>
         <source>FrSky S.PORT</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="958"/>
+        <location filename="../modelprinter.cpp" line="959"/>
         <source>FrSky D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="960"/>
+        <location filename="../modelprinter.cpp" line="961"/>
         <source>FrSky D (cable)</source>
         <translation>FrSky D (câble)</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="975"/>
+        <location filename="../modelprinter.cpp" line="976"/>
         <source>Alti</source>
         <translation>Alt</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="977"/>
+        <location filename="../modelprinter.cpp" line="978"/>
         <source>Alti+</source>
         <translation>Alt+</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="979"/>
+        <location filename="../modelprinter.cpp" line="980"/>
         <source>VSpeed</source>
         <translation>Vitesse verticale</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="981"/>
-        <location filename="../modelprinter.cpp" line="998"/>
-        <location filename="../modelprinter.cpp" line="1020"/>
+        <location filename="../modelprinter.cpp" line="982"/>
+        <location filename="../modelprinter.cpp" line="999"/>
+        <location filename="../modelprinter.cpp" line="1021"/>
         <source>A1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="983"/>
-        <location filename="../modelprinter.cpp" line="1000"/>
-        <location filename="../modelprinter.cpp" line="1022"/>
+        <location filename="../modelprinter.cpp" line="984"/>
+        <location filename="../modelprinter.cpp" line="1001"/>
+        <location filename="../modelprinter.cpp" line="1023"/>
         <source>A2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1002"/>
-        <location filename="../modelprinter.cpp" line="1024"/>
+        <location filename="../modelprinter.cpp" line="1003"/>
+        <location filename="../modelprinter.cpp" line="1025"/>
         <source>A3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1004"/>
-        <location filename="../modelprinter.cpp" line="1026"/>
+        <location filename="../modelprinter.cpp" line="1005"/>
+        <location filename="../modelprinter.cpp" line="1027"/>
         <source>A4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1006"/>
-        <location filename="../modelprinter.cpp" line="1028"/>
+        <location filename="../modelprinter.cpp" line="1007"/>
+        <location filename="../modelprinter.cpp" line="1029"/>
         <source>FAS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1008"/>
+        <location filename="../modelprinter.cpp" line="1009"/>
         <source>Cells</source>
         <translation>Velm</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1080"/>
+        <location filename="../modelprinter.cpp" line="1081"/>
         <source>Min</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1080"/>
+        <location filename="../modelprinter.cpp" line="1081"/>
         <source>Max</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1050"/>
+        <location filename="../modelprinter.cpp" line="1051"/>
         <source>Numbers</source>
         <translation>Chiffres</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1052"/>
+        <location filename="../modelprinter.cpp" line="1053"/>
         <source>Bars</source>
         <translation>Barres</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1054"/>
+        <location filename="../modelprinter.cpp" line="1055"/>
         <source>Script</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1101"/>
+        <location filename="../modelprinter.cpp" line="1102"/>
         <source>Filename</source>
         <translation>Nom de fichier</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="1111"/>
+        <location filename="../modelprinter.cpp" line="1112"/>
         <source>Error: Unable to open or read file!</source>
         <translation>Erreur: Impossible d&apos;ouvrir ou de lire le fichier!</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="264"/>
+        <location filename="../modelprinter.cpp" line="265"/>
         <source>Off</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="234"/>
+        <location filename="../modelprinter.cpp" line="229"/>
         <source>Options</source>
         <translation type="unfinished">Options</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="237"/>
+        <location filename="../modelprinter.cpp" line="232"/>
         <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="283"/>
-        <location filename="../modelprinter.cpp" line="498"/>
-        <location filename="../modelprinter.cpp" line="782"/>
-        <location filename="../modelprinter.cpp" line="1018"/>
-        <location filename="../modelprinter.cpp" line="1048"/>
+        <location filename="../modelprinter.cpp" line="284"/>
+        <location filename="../modelprinter.cpp" line="499"/>
+        <location filename="../modelprinter.cpp" line="783"/>
+        <location filename="../modelprinter.cpp" line="1019"/>
+        <location filename="../modelprinter.cpp" line="1049"/>
         <source>None</source>
         <translation>Aucun</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="301"/>
-        <location filename="../modelprinter.cpp" line="323"/>
-        <location filename="../modelprinter.cpp" line="337"/>
+        <location filename="../modelprinter.cpp" line="302"/>
+        <location filename="../modelprinter.cpp" line="324"/>
+        <location filename="../modelprinter.cpp" line="338"/>
         <source>FM%1</source>
         <translation>PV%1</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="305"/>
+        <location filename="../modelprinter.cpp" line="306"/>
         <source>FM%1%2</source>
         <translation>PV%1%2</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="307"/>
+        <location filename="../modelprinter.cpp" line="308"/>
         <source>FM%1+%2</source>
         <translation>PV%1+%2</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="429"/>
+        <location filename="../modelprinter.cpp" line="430"/>
         <source>NoTrim</source>
         <translation>Pas de trim</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="434"/>
+        <location filename="../modelprinter.cpp" line="435"/>
         <source>No DR/Expo</source>
         <translation>Pas d&apos;expo/DR</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="391"/>
-        <location filename="../modelprinter.cpp" line="436"/>
+        <location filename="../modelprinter.cpp" line="392"/>
+        <location filename="../modelprinter.cpp" line="437"/>
         <source>Offset(%1)</source>
         <translation>Décalage(%1)</translation>
     </message>
@@ -9993,22 +9878,22 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="443"/>
+        <location filename="../modelprinter.cpp" line="444"/>
         <source>Delay precision(0.00)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="477"/>
+        <location filename="../modelprinter.cpp" line="478"/>
         <source>Disabled in all flight modes</source>
         <translation>Désactivé pour toutes les phases de vol</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="532"/>
+        <location filename="../modelprinter.cpp" line="533"/>
         <source>instant</source>
         <translation>immédiat</translation>
     </message>
     <message>
-        <location filename="../modelprinter.cpp" line="851"/>
+        <location filename="../modelprinter.cpp" line="852"/>
         <source>Custom</source>
         <translation>Prédéfini</translation>
     </message>
@@ -10064,7 +9949,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modelslist.cpp" line="666"/>
+        <location filename="../modelslist.cpp" line="672"/>
         <source>Model %1</source>
         <extracomment>Translators: do NOT use accents here, this is a default model name.</extracomment>
         <translation type="unfinished">Modele %1</translation>
@@ -10078,27 +9963,27 @@ p, li { white-space: pre-wrap; }
         <translation>Mode Failsafe</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="454"/>
+        <location filename="../modeledit/setup_module.ui" line="471"/>
         <source>Start</source>
         <translation>1ère voie</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="885"/>
+        <location filename="../modeledit/setup_module.ui" line="902"/>
         <source>PPM delay</source>
         <translation>Impulsion</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="583"/>
+        <location filename="../modeledit/setup_module.ui" line="600"/>
         <source>Negative</source>
         <translation>Négative</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="588"/>
+        <location filename="../modeledit/setup_module.ui" line="605"/>
         <source>Positive</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="557"/>
+        <location filename="../modeledit/setup_module.ui" line="574"/>
         <source>Polarity</source>
         <translation>Polarité</translation>
     </message>
@@ -10108,32 +9993,32 @@ p, li { white-space: pre-wrap; }
         <translation>Mode écolage</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="935"/>
+        <location filename="../modeledit/setup_module.ui" line="952"/>
         <source>PPM Frame Length</source>
         <translation>Longueur de trame PPM</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="482"/>
+        <location filename="../modeledit/setup_module.ui" line="499"/>
         <source>CH </source>
         <translation>VOIE </translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="988"/>
+        <location filename="../modeledit/setup_module.ui" line="1005"/>
         <source>Antenna</source>
         <translation>Antenne</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1024"/>
+        <location filename="../modeledit/setup_module.ui" line="1041"/>
         <source>Option value</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="910"/>
+        <location filename="../modeledit/setup_module.ui" line="927"/>
         <source> us</source>
         <translation> µs</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="596"/>
+        <location filename="../modeledit/setup_module.ui" line="613"/>
         <source>RF Output Power</source>
         <translation>Puissance RF</translation>
     </message>
@@ -10158,34 +10043,34 @@ p, li { white-space: pre-wrap; }
         <translation>Désactiver &quot;Mapping&quot; des VOIES</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1121"/>
+        <location filename="../modeledit/setup_module.ui" line="1138"/>
         <source>Option check</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1135"/>
+        <location filename="../modeledit/setup_module.ui" line="1152"/>
         <source>Option combo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1203"/>
+        <location filename="../modeledit/setup_module.ui" line="1220"/>
         <source>Show values in:</source>
         <translation>Afficher les valeurs en:</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1210"/>
+        <location filename="../modeledit/setup_module.ui" line="1227"/>
         <source>%</source>
         <extracomment>abbreviation for percent</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1223"/>
+        <location filename="../modeledit/setup_module.ui" line="1240"/>
         <source>μs</source>
         <extracomment>abbreviation for microseconds</extracomment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="960"/>
+        <location filename="../modeledit/setup_module.ui" line="977"/>
         <source> ms</source>
         <translation></translation>
     </message>
@@ -10200,49 +10085,49 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Options</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="606"/>
+        <location filename="../modeledit/setup_module.ui" line="623"/>
         <source>Receiver 1</source>
         <translation>Récepteur 1</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="651"/>
-        <location filename="../modeledit/setup_module.ui" line="687"/>
-        <location filename="../modeledit/setup_module.ui" line="723"/>
+        <location filename="../modeledit/setup_module.ui" line="668"/>
+        <location filename="../modeledit/setup_module.ui" line="704"/>
+        <location filename="../modeledit/setup_module.ui" line="740"/>
         <source>X</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="663"/>
+        <location filename="../modeledit/setup_module.ui" line="680"/>
         <source>Receiver 2</source>
         <translation>Récepteur 2</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="699"/>
+        <location filename="../modeledit/setup_module.ui" line="716"/>
         <source>Receiver 3</source>
         <translation>Récepteur 3</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="772"/>
+        <location filename="../modeledit/setup_module.ui" line="789"/>
         <source>WARNING: changing RF Output Power needs RE-BIND</source>
         <translation>ATTENTION: RE-BIND nécessaire pour tout changement de puissance RF</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="788"/>
+        <location filename="../modeledit/setup_module.ui" line="805"/>
         <source>Low power mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="835"/>
+        <location filename="../modeledit/setup_module.ui" line="852"/>
         <source>Channels</source>
         <translation>Nb de voies</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1017"/>
+        <location filename="../modeledit/setup_module.ui" line="1034"/>
         <source>RX Frequency</source>
         <translation>Fréquence RX</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1108"/>
+        <location filename="../modeledit/setup_module.ui" line="1125"/>
         <source> Hz</source>
         <translation></translation>
     </message>
@@ -10282,7 +10167,7 @@ p, li { white-space: pre-wrap; }
         <translation>ID d&apos;enregistrement</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1161"/>
+        <location filename="../modeledit/setup_module.ui" line="1178"/>
         <source>Failsafe Positions</source>
         <translation>Positions Failsafe</translation>
     </message>
@@ -10297,37 +10182,27 @@ p, li { white-space: pre-wrap; }
         <translation>Protocole Multi</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <location filename="../modeledit/setup_module.ui" line="524"/>
         <source>Receiver No.</source>
         <translation>Récepteur No.</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="507"/>
+        <location filename="../modeledit/setup_module.ui" line="435"/>
         <source>Arm using</source>
         <translation>Mod. Arm.</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="507"/>
-        <source>CH5</source>
-        <translation type="unfinished">CH5</translation>
-    </message>
-    <message>
-        <location filename="../modeledit/setup_module.ui" line="507"/>
-        <source>Switch</source>
-        <translation type="unfinished">Switch</translation>
-    </message>
-    <message>
-        <location filename="../modeledit/setup_module.ui" line="1050"/>
+        <location filename="../modeledit/setup_module.ui" line="1067"/>
         <source>Output type</source>
         <translation>Type de sortie</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1067"/>
+        <location filename="../modeledit/setup_module.ui" line="1084"/>
         <source>Open Drain</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup_module.ui" line="1072"/>
+        <location filename="../modeledit/setup_module.ui" line="1089"/>
         <source>Push Pull</source>
         <translation></translation>
     </message>
@@ -10335,12 +10210,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ModuleData</name>
     <message>
-        <location filename="../firmwares/moduledata.h" line="210"/>
+        <location filename="../firmwares/moduledata.h" line="222"/>
         <source>Positive</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.h" line="210"/>
+        <location filename="../firmwares/moduledata.h" line="222"/>
         <source>Negative</source>
         <translation>Négative</translation>
     </message>
@@ -10351,6 +10226,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../firmwares/moduledata.cpp" line="260"/>
+        <location filename="../firmwares/moduledata.cpp" line="266"/>
         <source>No Telemetry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10360,323 +10236,339 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="289"/>
+        <location filename="../firmwares/moduledata.cpp" line="262"/>
+        <location filename="../firmwares/moduledata.cpp" line="267"/>
+        <source>SPort</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/moduledata.cpp" line="297"/>
         <source>Trainer Port</source>
         <translation>Port écolage</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="293"/>
+        <location filename="../firmwares/moduledata.cpp" line="301"/>
         <source>Internal Radio System</source>
         <translation>Module HF interne</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="293"/>
+        <location filename="../firmwares/moduledata.cpp" line="301"/>
         <source>External Radio Module</source>
         <translation>Module HF externe</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="295"/>
+        <location filename="../firmwares/moduledata.cpp" line="303"/>
         <source>Extra Radio System</source>
         <translation>Module HF supplémentaire</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="297"/>
+        <location filename="../firmwares/moduledata.cpp" line="305"/>
         <source>Radio System</source>
         <translation>Module HF</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="304"/>
+        <location filename="../firmwares/moduledata.cpp" line="312"/>
         <source>OFF</source>
         <translation type="unfinished">Eteint</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="305"/>
+        <location filename="../firmwares/moduledata.cpp" line="313"/>
         <source>PPM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="306"/>
+        <location filename="../firmwares/moduledata.cpp" line="314"/>
         <source>Silverlit A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="306"/>
+        <location filename="../firmwares/moduledata.cpp" line="314"/>
         <source>Silverlit B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="306"/>
+        <location filename="../firmwares/moduledata.cpp" line="314"/>
         <source>Silverlit C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="307"/>
+        <location filename="../firmwares/moduledata.cpp" line="315"/>
         <source>CTP1009</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="308"/>
+        <location filename="../firmwares/moduledata.cpp" line="316"/>
         <source>LP45</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="308"/>
+        <location filename="../firmwares/moduledata.cpp" line="316"/>
         <source>DSM2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="308"/>
+        <location filename="../firmwares/moduledata.cpp" line="316"/>
         <source>DSMX</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="309"/>
+        <location filename="../firmwares/moduledata.cpp" line="317"/>
         <source>PPM16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="309"/>
+        <location filename="../firmwares/moduledata.cpp" line="317"/>
         <source>PPMsim</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="310"/>
+        <location filename="../firmwares/moduledata.cpp" line="318"/>
         <source>FrSky XJT (D16)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="310"/>
+        <location filename="../firmwares/moduledata.cpp" line="318"/>
         <source>FrSky XJT (D8)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="310"/>
+        <location filename="../firmwares/moduledata.cpp" line="318"/>
         <source>FrSky XJT (LR12)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="310"/>
+        <location filename="../firmwares/moduledata.cpp" line="318"/>
         <source>FrSky DJT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="311"/>
+        <location filename="../firmwares/moduledata.cpp" line="319"/>
         <source>Crossfire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="312"/>
+        <location filename="../firmwares/moduledata.cpp" line="320"/>
         <source>Multi</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="313"/>
+        <location filename="../firmwares/moduledata.cpp" line="321"/>
         <source>FrSky R9M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="314"/>
+        <location filename="../firmwares/moduledata.cpp" line="322"/>
         <source>FrSky R9M Lite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="315"/>
+        <location filename="../firmwares/moduledata.cpp" line="323"/>
         <source>FrSky R9M Lite Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="316"/>
+        <location filename="../firmwares/moduledata.cpp" line="324"/>
         <source>SBUS output at VBat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="317"/>
+        <location filename="../firmwares/moduledata.cpp" line="325"/>
         <source>FrSky ACCESS ISRM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="317"/>
+        <location filename="../firmwares/moduledata.cpp" line="325"/>
         <source>FrSky ACCST ISRM D16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="318"/>
+        <location filename="../firmwares/moduledata.cpp" line="326"/>
         <source>FrSky ACCESS R9M 2019</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="319"/>
+        <location filename="../firmwares/moduledata.cpp" line="327"/>
         <source>FrSky ACCESS R9M Lite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="320"/>
+        <location filename="../firmwares/moduledata.cpp" line="328"/>
         <source>FrSky ACCESS R9M Lite Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="321"/>
+        <location filename="../firmwares/moduledata.cpp" line="329"/>
         <source>FrSky XJT lite (D16)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="321"/>
+        <location filename="../firmwares/moduledata.cpp" line="329"/>
         <source>FrSky XJT lite (D8)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="321"/>
+        <location filename="../firmwares/moduledata.cpp" line="329"/>
         <source>FrSky XJT lite (LR12)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="322"/>
+        <location filename="../firmwares/moduledata.cpp" line="330"/>
         <source>Flysky AFHDS2A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="322"/>
+        <location filename="../firmwares/moduledata.cpp" line="330"/>
         <source>Flysky AFHDS3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="323"/>
+        <location filename="../firmwares/moduledata.cpp" line="331"/>
         <source>Ghost</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="324"/>
+        <location filename="../firmwares/moduledata.cpp" line="332"/>
         <source>Lemon-Rx DSMP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="334"/>
+        <location filename="../firmwares/moduledata.cpp" line="342"/>
         <source>10mW - 16CH</source>
         <translation>10mW - 16 VOIES</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="334"/>
-        <location filename="../firmwares/moduledata.cpp" line="336"/>
+        <location filename="../firmwares/moduledata.cpp" line="342"/>
+        <location filename="../firmwares/moduledata.cpp" line="344"/>
         <source>100mW - 16CH</source>
         <translation>100mW - 16 VOIES</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="334"/>
+        <location filename="../firmwares/moduledata.cpp" line="342"/>
         <source>500mW - 16CH</source>
         <translation>500mW - 16 VOIES</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="334"/>
+        <location filename="../firmwares/moduledata.cpp" line="342"/>
         <source>Auto &lt;= 1W - 16CH</source>
         <translation>Auto &lt;= 1W - 16 VOIES</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="335"/>
-        <location filename="../firmwares/moduledata.cpp" line="337"/>
+        <location filename="../firmwares/moduledata.cpp" line="343"/>
+        <location filename="../firmwares/moduledata.cpp" line="345"/>
         <source>25mW - 8CH</source>
         <translation>25mW - 8 VOIES</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="335"/>
-        <location filename="../firmwares/moduledata.cpp" line="337"/>
+        <location filename="../firmwares/moduledata.cpp" line="343"/>
+        <location filename="../firmwares/moduledata.cpp" line="345"/>
         <source>25mW - 16CH</source>
         <translation>25mW - 16 VOIES</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="335"/>
+        <location filename="../firmwares/moduledata.cpp" line="343"/>
         <source>200mW - 16CH (no telemetry)</source>
         <translation>200mW - 16 VOIES (pas de télémétrie)</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="335"/>
+        <location filename="../firmwares/moduledata.cpp" line="343"/>
         <source>500mW - 16CH (no telemetry)</source>
         <translation>500mW - 16 VOIES (pas de télémétrie)</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="337"/>
+        <location filename="../firmwares/moduledata.cpp" line="345"/>
         <source>100mW - 16CH (no telemetry)</source>
         <translation>100mW - 16 VOIES (pas de télémétrie)</translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="340"/>
+        <location filename="../firmwares/moduledata.cpp" line="348"/>
         <source>25 mW</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="340"/>
+        <location filename="../firmwares/moduledata.cpp" line="348"/>
         <source>100 mW</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="340"/>
+        <location filename="../firmwares/moduledata.cpp" line="348"/>
         <source>500 mW</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="340"/>
+        <location filename="../firmwares/moduledata.cpp" line="348"/>
         <source>1 W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/moduledata.cpp" line="340"/>
+        <location filename="../firmwares/moduledata.cpp" line="348"/>
         <source>2 W</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/moduledata.cpp" line="794"/>
+        <source>CH5</source>
+        <translation type="unfinished">CH5</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/moduledata.cpp" line="796"/>
+        <source>Switch</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ModulePanel</name>
     <message>
-        <location filename="../modeledit/setup.cpp" line="278"/>
+        <location filename="../modeledit/setup_module.cpp" line="102"/>
         <source>internal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="278"/>
+        <location filename="../modeledit/setup_module.cpp" line="102"/>
         <source>external</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="279"/>
+        <location filename="../modeledit/setup_module.cpp" line="103"/>
         <source>hardware</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="279"/>
+        <location filename="../modeledit/setup_module.cpp" line="103"/>
         <source>profile</source>
         <translation type="unfinished">profil</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="281"/>
+        <location filename="../modeledit/setup_module.cpp" line="105"/>
         <source>Warning: The %1 module protocol &lt;b&gt;%2&lt;/b&gt; is incompatible with the &lt;b&gt;%3 %1 module %4&lt;/b&gt; and has been set to &lt;b&gt;OFF&lt;/b&gt;!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="408"/>
+        <location filename="../modeledit/setup_module.cpp" line="252"/>
         <source>Value</source>
         <translation>Valeur</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="409"/>
+        <location filename="../modeledit/setup_module.cpp" line="253"/>
         <source>Hold</source>
         <translation>Maintien</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="410"/>
+        <location filename="../modeledit/setup_module.cpp" line="254"/>
         <source>No Pulse</source>
         <translation>Pas d&apos;impulsion</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="699"/>
+        <location filename="../modeledit/setup_module.cpp" line="554"/>
         <source>Bind on channel</source>
         <translation>Bind avec VOIE</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="786"/>
+        <location filename="../modeledit/setup_module.cpp" line="641"/>
         <source>Options</source>
         <translation type="unfinished">Options</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="794"/>
+        <location filename="../modeledit/setup_module.cpp" line="649"/>
         <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11141,7 +11033,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Multiprotocols</name>
     <message>
-        <location filename="../modeledit/setup.cpp" line="741"/>
+        <location filename="../modeledit/setup_module.cpp" line="596"/>
         <source>Servo update rate</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11170,29 +11062,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>OpenTxEepromInterface</name>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="358"/>
-        <source>Unknown error</source>
-        <translation>Erreur inconnue</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="366"/>
-        <source> ... plus %1 errors</source>
-        <translation>... plus %1 erreurs</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="435"/>
-        <source>Cannot write radio settings</source>
-        <translation>Impossible d&apos;écrire les paramètres de la radio</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="447"/>
-        <source>Cannot write model %1</source>
-        <translation>Impossible d&apos;écrire le modèle %1</translation>
-    </message>
-</context>
-<context>
     <name>OptionsPage</name>
     <message>
         <location filename="../wizarddialog.cpp" line="958"/>
@@ -11208,49 +11077,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../wizarddialog.cpp" line="960"/>
         <source>Flight Timer</source>
         <translation>Chrono de vol</translation>
-    </message>
-</context>
-<context>
-    <name>OtxFormat</name>
-    <message>
-        <location filename="../storage/otx.cpp" line="32"/>
-        <source>Error opening file %1:
-%2.</source>
-        <translation>Erreur à l&apos;ouverture du fichier %1:
-%2.</translation>
-    </message>
-    <message>
-        <location filename="../storage/otx.cpp" line="43"/>
-        <source>Error opening OpenTX archive %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../storage/otx.cpp" line="58"/>
-        <source>Error initializing OpenTX archive writer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../storage/otx.cpp" line="79"/>
-        <source>Error creating OpenTX file %1:
-%2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../storage/otx.cpp" line="84"/>
-        <source>Error creating OpenTX archive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../storage/otx.cpp" line="111"/>
-        <source>Error adding %1 to OpenTX archive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../storage/otx.cpp" line="74"/>
-        <source>Error writing file %1:
-%2.</source>
-        <translation>Erreur d&apos;écriture du fichier %1:
-%2.</translation>
     </message>
 </context>
 <context>
@@ -11497,15 +11323,20 @@ p, li { white-space: pre-wrap; }
 %2.</translation>
     </message>
     <message>
-        <location filename="../radiointerface.cpp" line="141"/>
-        <location filename="../radiointerface.cpp" line="186"/>
+        <location filename="../radiointerface.cpp" line="137"/>
+        <location filename="../radiointerface.cpp" line="182"/>
         <source>Could not delete temporary file: %1</source>
         <translation>Impossible d&apos;effacer le fichier temporaire %1</translation>
     </message>
     <message>
-        <location filename="../radiointerface.cpp" line="202"/>
-        <source>Unable to find radio SD card!</source>
-        <translation>Impossible de trouver la carte SD de la radio!</translation>
+        <location filename="../radiointerface.cpp" line="208"/>
+        <source>Unable to find SD card!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../radiointerface.cpp" line="324"/>
+        <source>found in multiple locations</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../radiointerface.cpp" line="217"/>
@@ -12472,6 +12303,44 @@ E</translation>
     </message>
 </context>
 <context>
+    <name>SerialPortsDialog</name>
+    <message>
+        <location filename="../simulation/serialportsdialog.ui" line="20"/>
+        <source>Configure Serial Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/serialportsdialog.ui" line="35"/>
+        <source>AUX1 Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/serialportsdialog.ui" line="61"/>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuler</translation>
+    </message>
+    <message>
+        <location filename="../simulation/serialportsdialog.ui" line="68"/>
+        <source>AUX2 Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/serialportsdialog.ui" line="101"/>
+        <source>Ok</source>
+        <translation type="unfinished">OK</translation>
+    </message>
+    <message>
+        <location filename="../simulation/serialportsdialog.ui" line="108"/>
+        <source>Search for Serial Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/serialportsdialog.cpp" line="51"/>
+        <source>Not Assigned</source>
+        <translation type="unfinished">Non assigné</translation>
+    </message>
+</context>
+<context>
     <name>Setup</name>
     <message>
         <location filename="../modeledit/setup.ui" line="454"/>
@@ -12688,87 +12557,87 @@ Si cette option est cochée, la voie des gaz est inversée: le ralenti  est &apo
 <context>
     <name>SetupPanel</name>
     <message>
-        <location filename="../modeledit/setup.cpp" line="1659"/>
+        <location filename="../modeledit/setup.cpp" line="153"/>
         <source>Popup menu available</source>
         <translation>Menu contextuel disponible</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="1675"/>
+        <location filename="../modeledit/setup.cpp" line="169"/>
         <source>Timer %1</source>
         <translation>Chrono %1</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2178"/>
+        <location filename="../modeledit/setup.cpp" line="672"/>
         <source>Profile Settings</source>
         <translation>Paramètres du profil</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2178"/>
+        <location filename="../modeledit/setup.cpp" line="672"/>
         <source>SD structure path not specified or invalid</source>
         <translation>Chemin de la structure SD non spécifié ou invalide</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2193"/>
+        <location filename="../modeledit/setup.cpp" line="687"/>
         <source>Copy</source>
         <translation>Copier</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2194"/>
+        <location filename="../modeledit/setup.cpp" line="688"/>
         <source>Cut</source>
         <translation>Couper</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2195"/>
+        <location filename="../modeledit/setup.cpp" line="689"/>
         <source>Paste</source>
         <translation>Coller</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2196"/>
+        <location filename="../modeledit/setup.cpp" line="690"/>
         <source>Clear</source>
         <translation>Effacer</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2198"/>
+        <location filename="../modeledit/setup.cpp" line="692"/>
         <source>Insert</source>
         <translation>Insérer</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2199"/>
+        <location filename="../modeledit/setup.cpp" line="693"/>
         <source>Delete</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2200"/>
+        <location filename="../modeledit/setup.cpp" line="694"/>
         <source>Move Up</source>
         <translation>Monter</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2201"/>
+        <location filename="../modeledit/setup.cpp" line="695"/>
         <source>Move Down</source>
         <translation>Descendre</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2203"/>
+        <location filename="../modeledit/setup.cpp" line="697"/>
         <source>Clear All</source>
         <translation>Effacer Tout</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2238"/>
+        <location filename="../modeledit/setup.cpp" line="732"/>
         <source>Clear Timer. Are you sure?</source>
         <translation>Effacer le Chrono. Êtes-vous sûr?</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2250"/>
+        <location filename="../modeledit/setup.cpp" line="744"/>
         <source>Clear all Timers. Are you sure?</source>
         <translation>Effacer tous les Chronos. Êtes-vous sûr?</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2272"/>
+        <location filename="../modeledit/setup.cpp" line="766"/>
         <source>Cut Timer. Are you sure?</source>
         <translation>Couper le Chrono. Êtes-vous sûr?</translation>
     </message>
     <message>
-        <location filename="../modeledit/setup.cpp" line="2280"/>
+        <location filename="../modeledit/setup.cpp" line="774"/>
         <source>Delete Timer. Are you sure?</source>
         <translation>Supprimer le Chrono. Êtes-vous sûr?</translation>
     </message>
@@ -12784,206 +12653,296 @@ Si cette option est cochée, la voie des gaz est inversée: le ralenti  est &apo
 <context>
     <name>SimulatedUIWidget</name>
     <message>
-        <location filename="../simulation/simulateduiwidget.cpp" line="158"/>
+        <location filename="../simulation/simulateduiwidget.cpp" line="162"/>
         <source>screenshot</source>
         <comment>Simulator LCD screenshot file name prefix</comment>
         <translation>capture</translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="26"/>
-        <source>ENTER</source>
-        <translation>Entrer</translation>
+        <location filename="../simulation/simulateduiwidget.cpp" line="398"/>
+        <source>Scrl Up</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="27"/>
+        <location filename="../simulation/simulateduiwidget.cpp" line="399"/>
+        <source>Scrl Dn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulateduiwidget.cpp" line="412"/>
+        <source>Shortcut: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="30"/>
         <source>S</source>
         <translation></translation>
     </message>
     <message>
+        <location filename="../simulation/simulator_strings.h" line="26"/>
+        <source>D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="27"/>
+        <source>F</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../simulation/simulator_strings.h" line="28"/>
-        <source>PG-UP</source>
-        <translation>PgPréc</translation>
+        <source>M</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="29"/>
-        <source>PG-DN</source>
-        <translation>PgSuiv</translation>
-    </message>
-    <message>
-        <location filename="../simulation/simulator_strings.h" line="30"/>
-        <source>DEL</source>
-        <translation>Suppr</translation>
+        <source>N</source>
+        <translation type="unfinished">N</translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="31"/>
-        <source>BKSP</source>
-        <translation>RetArr</translation>
-    </message>
-    <message>
-        <location filename="../simulation/simulator_strings.h" line="32"/>
-        <source>ESC</source>
-        <translation>Échap</translation>
+        <source>T</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="33"/>
-        <source>INS</source>
-        <translation>Inser</translation>
+        <source>enter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="34"/>
+        <source>return</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="35"/>
+        <source>page up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="36"/>
+        <source>page down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="37"/>
+        <source>delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="38"/>
+        <source>backspace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="39"/>
+        <source>esc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="40"/>
+        <source>insert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="41"/>
         <source>&lt;font size=+3&gt;+&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="35"/>
+        <location filename="../simulation/simulator_strings.h" line="42"/>
         <source>&lt;font size=+3&gt;-&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="37"/>
+        <location filename="../simulation/simulator_strings.h" line="43"/>
+        <source>&lt;font size=+3&gt;=&lt;/font&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="44"/>
+        <source>&lt;font size=+3&gt;&amp;gt;&lt;/font&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="45"/>
+        <source>&lt;font size=+3&gt;&amp;lt;&lt;/font&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="46"/>
+        <source>&lt;font size=+3&gt;,&lt;/font&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="47"/>
+        <source>&lt;font size=+3&gt;.&lt;/font&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="49"/>
         <source>&lt;font size=+3&gt;&amp;larr;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="38"/>
+        <location filename="../simulation/simulator_strings.h" line="50"/>
         <source>&lt;font size=+3&gt;&amp;rarr;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="39"/>
+        <location filename="../simulation/simulator_strings.h" line="51"/>
         <source>&lt;font size=+3&gt;&amp;uarr;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="40"/>
+        <location filename="../simulation/simulator_strings.h" line="52"/>
         <source>&lt;font size=+3&gt;&amp;darr;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="42"/>
+        <location filename="../simulation/simulator_strings.h" line="54"/>
         <source>&lt;font size=+3&gt;&amp;#x2686;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="43"/>
+        <location filename="../simulation/simulator_strings.h" line="55"/>
         <source>&lt;font size=+3&gt;&amp;#x21b6;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="44"/>
+        <location filename="../simulation/simulator_strings.h" line="56"/>
         <source>&lt;font size=+3&gt;&amp;#x21b7;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="45"/>
+        <location filename="../simulation/simulator_strings.h" line="57"/>
         <source>&lt;font size=+3&gt;&amp;#x21c6;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="46"/>
-        <location filename="../simulation/simulator_strings.h" line="49"/>
+        <location filename="../simulation/simulator_strings.h" line="58"/>
+        <location filename="../simulation/simulator_strings.h" line="61"/>
         <source>&lt;font size=+3&gt;&amp;#x21d3;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="48"/>
+        <location filename="../simulation/simulator_strings.h" line="60"/>
         <source>&lt;font size=+3&gt;&amp;#x21d1;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="50"/>
+        <location filename="../simulation/simulator_strings.h" line="62"/>
         <source>&lt;font size=+3&gt;&amp;#x21d5;&lt;/font&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="52"/>
+        <location filename="../simulation/simulator_strings.h" line="64"/>
         <source>&lt;img src=&apos;qrc:/images/simulator/icons/svg/mouse.svg&apos; width=20 height=18 /&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="53"/>
+        <location filename="../simulation/simulator_strings.h" line="65"/>
         <source>&lt;img src=&apos;qrc:/images/simulator/icons/svg/arrow_click.svg&apos; width=18 height=18 /&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="59"/>
+        <location filename="../simulation/simulator_strings.h" line="71"/>
         <source>&lt;pre&gt;[ MENU ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="60"/>
+        <location filename="../simulation/simulator_strings.h" line="72"/>
         <source>&lt;pre&gt;[ PAGE ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="61"/>
+        <location filename="../simulation/simulator_strings.h" line="73"/>
         <source>&lt;pre&gt;[ EXIT ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="62"/>
+        <location filename="../simulation/simulator_strings.h" line="74"/>
         <source>&lt;pre&gt;[ ENT ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="63"/>
+        <location filename="../simulation/simulator_strings.h" line="75"/>
         <source>&lt;pre&gt;[ SHIFT ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="64"/>
+        <location filename="../simulation/simulator_strings.h" line="76"/>
         <source>&lt;pre&gt;[ UP ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="65"/>
+        <location filename="../simulation/simulator_strings.h" line="77"/>
         <source>&lt;pre&gt;[ DN ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="66"/>
+        <location filename="../simulation/simulator_strings.h" line="78"/>
+        <source>&lt;pre&gt;[ LEFT ]&lt;/pre&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="79"/>
+        <source>&lt;pre&gt;[ RIGHT ]&lt;/pre&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="80"/>
         <source>&lt;pre&gt;[ &lt;font size=+2&gt;+&lt;/font&gt; ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="67"/>
+        <location filename="../simulation/simulator_strings.h" line="81"/>
         <source>&lt;pre&gt;[ &lt;font size=+2&gt;-&lt;/font&gt; ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="68"/>
+        <location filename="../simulation/simulator_strings.h" line="82"/>
         <source>&lt;pre&gt;[ PgUp ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="69"/>
+        <location filename="../simulation/simulator_strings.h" line="83"/>
         <source>&lt;pre&gt;[ PgDn ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="70"/>
+        <location filename="../simulation/simulator_strings.h" line="84"/>
         <source>&lt;pre&gt;[ MDL ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="71"/>
+        <location filename="../simulation/simulator_strings.h" line="85"/>
         <source>&lt;pre&gt;[ RTN ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="72"/>
+        <location filename="../simulation/simulator_strings.h" line="86"/>
         <source>&lt;pre&gt;[ SYS ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="73"/>
+        <location filename="../simulation/simulator_strings.h" line="87"/>
         <source>&lt;pre&gt;[ TELE ]&lt;/pre&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulator_strings.h" line="74"/>
+        <location filename="../simulation/simulator_strings.h" line="88"/>
         <source>&lt;font size=+3&gt;&amp;#x2261;&lt;/font&gt;</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="90"/>
+        <source>&lt;pre&gt;[ Prev/Inc ]&lt;/pre&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulator_strings.h" line="91"/>
+        <source>&lt;pre&gt;[ Next/Dec ]&lt;/pre&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13141,201 +13100,271 @@ Profil ID: [%1]; Radio ID: [%2]</translation>
         <translation>Outils</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="82"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="79"/>
+        <source>Help</source>
+        <translation type="unfinished">Aide</translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.ui" line="91"/>
         <source>Toolbar</source>
         <translation>Barre d&apos;outils</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="103"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="112"/>
         <source>Reload Lua Scripts</source>
         <translation>Recharger le script Lua</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="106"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="115"/>
         <source>Reload the Lua environment on the simulated radio.</source>
         <translation>Recharger l&apos;environnement Lua dans le simulateur.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="109"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="118"/>
         <source>F7</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="118"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="127"/>
         <source>Reload Radio Data</source>
         <translation>Recharger les données radio</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="121"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="130"/>
         <source>Reload all radio data without restarting the simulator.</source>
         <translation>Recharger les données radio sans redémarrer le simulateur.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="124"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="133"/>
         <source>F9</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="133"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="142"/>
         <source>Key Mapping</source>
         <translation>Raccourcis clavier</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="136"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="145"/>
         <source>Show keyboard maping reference.</source>
         <translation>Afficher les raccourcis clavier.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="139"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="148"/>
         <source>F1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="148"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="157"/>
         <source>Joystick Settings</source>
         <translation>Paramètres Joystick</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="151"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="160"/>
         <source>Open joystick configuration settings dialog.</source>
         <translation>Ouvrir la boite de dialogue de la configuration du Joystick.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="154"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="163"/>
         <source>F3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="163"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="172"/>
         <source>LCD Screenshot</source>
         <translation>Capture LCD</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="166"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="175"/>
         <source>Save a screenshot of the current simulated LCD screen.</source>
         <translation>Enregistrez une capture de l&apos;écran LCD actuellement simulé.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="169"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="178"/>
         <source>F8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="177"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="186"/>
         <source>Dock In Main Window</source>
         <translation>Ancrer dans la fenêtre principale</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="180"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="189"/>
         <source>Show the radio in the main window or as a separate &quot;floating&quot; window.</source>
         <translation>Afficher la radio dans la fenêtre principale ou comme une fenêtre &quot;flottante&quot; séparée.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="188"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="197"/>
         <source>Menu Bar</source>
         <translation>Barre de menus</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="191"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="200"/>
         <source>Show or hide the top menu bar.</source>
         <translation>Afficher ou masquer la barre de menus.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="194"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="203"/>
         <source>Alt+M</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="202"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="211"/>
         <source>Constrain Width</source>
         <translation>Contraindre la largeur</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="205"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="214"/>
         <source>Set radio widget width to be a fixed size.</source>
         <translation>Défini la largeur du widget radio comme étant une taille fixe.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="213"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="222"/>
         <source>Constrain Height</source>
         <translation>Contraindre la hauteur</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.ui" line="216"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="225"/>
         <source>Set radio widget height to be a fixed size.</source>
         <translation>Défini la hauteur du widget radio comme étant une taille fixe.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="69"/>
+        <location filename="../simulation/simulatormainwindow.ui" line="230"/>
+        <source>Serial Ports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.ui" line="235"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.ui" line="240"/>
+        <source>TX Battery Voltage...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.ui" line="243"/>
+        <source>Open set transmitter battery voltage dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="74"/>
         <source>ERROR: Failed to create simulator interface, possibly missing or bad library.</source>
         <translation>ERREUR: Impossible de créer l&apos;interface du simulateur, bibliothèque éventuellement manquante ou mauvaise.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="108"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="115"/>
         <source>Alt+T</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="280"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="300"/>
         <source>Radio Outputs</source>
         <translation>Sorties de la radio</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="284"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="304"/>
         <source>F2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="289"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="309"/>
         <source>Telemetry Simulator</source>
         <translation>Simulateur de télémesure</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="293"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="313"/>
         <source>F4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="298"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="318"/>
         <source>Trainer Simulator</source>
         <translation>Simulateur d&apos;écolage</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="302"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="322"/>
         <source>F5</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="307"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="327"/>
         <source>Debug Output</source>
         <translation>Fenêtre de débogage</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="311"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="331"/>
         <source>F6</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="481"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="511"/>
         <source>&lt;b&gt;Simulator Controls:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Commandes simulateur:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="483"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="513"/>
         <source>&lt;tr&gt;&lt;th&gt;Key/Mouse&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;</source>
         <comment>note: must match html layout of each table row (keyTemplate).</comment>
         <translation>&lt;tr&gt;&lt;th&gt;Touche/Souris&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="485"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="515"/>
         <source>&lt;tr&gt;&lt;td&gt;&lt;kbd&gt;%1&lt;/kbd&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <comment>note: must match html layout of help text table header.</comment>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatormainwindow.cpp" line="501"/>
+        <location filename="../simulation/simulatormainwindow.cpp" line="531"/>
         <source>Simulator Help</source>
         <translation>Aide du simulateur</translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="541"/>
+        <source>EdgeTX Home Page: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="543"/>
+        <source>The EdgeTX project was originally forked from &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="545"/>
+        <source>If you&apos;ve found this program useful, please support by &lt;a href=&apos;%1&apos;&gt;donating&lt;/a&gt;</source>
+        <translation type="unfinished">Si vous trouvez ce programme utile, merci de le supporter par une &lt;a href=&apos;%1&apos;&gt;donation&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="555"/>
+        <source>File new &lt;a href=&apos;%1&apos;&gt;Issue or Request&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="557"/>
+        <source>Copyright</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="561"/>
+        <source>About EdgeTX Simulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="578"/>
+        <source>Set voltage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="585"/>
+        <source>V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatormainwindow.cpp" line="597"/>
+        <source>Battery</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13472,11 +13501,6 @@ La valeur par défaut est configurée dans le profil radio sélectionné.</trans
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorstartupdialog.cpp" line="307"/>
-        <source>All files (*.*)</source>
-        <translation>Tous les fichiers (*.*)</translation>
-    </message>
-    <message>
         <location filename="../simulation/simulatorstartupdialog.cpp" line="308"/>
         <source>Select a data file</source>
         <translation>Sélectionnez un fichier</translation>
@@ -13500,72 +13524,72 @@ La valeur par défaut est configurée dans le profil radio sélectionné.</trans
         <translation>Simulateur Companion</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="59"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="61"/>
         <source>Radio Simulator (%1)</source>
         <translation>Simulateur Radio (%1)</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="322"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="219"/>
+        <source>Unable to handle byte array.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../simulation/simulatorwidget.cpp" line="225"/>
         <source>Could not determine startup data source.</source>
         <translation>Impossible de déterminer les données source.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="327"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="230"/>
         <source>Could not load data, possibly wrong format.</source>
         <translation>Impossible de charger les données, mauvais format.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="328"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="231"/>
         <source>Data Load Error</source>
         <translation>Erreur de lecture des données</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="386"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="289"/>
         <source>Invalid startup data provided. Plese specify a proper file/path.</source>
         <translation>Données de démarrage fournies non valides. Veuillez spécifier un fichier/chemin approprié.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="387"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="290"/>
         <source>Simulator Startup Error</source>
         <translation>Erreur de démarrage du simulateur</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="447"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="350"/>
         <source>Error saving data: could open file for writing: &apos;%1&apos;</source>
         <translation>Erreur de sauvegarde des données: impossible d&apos;écrire le fichier &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="453"/>
-        <source>Error saving data: could not get data from simulator interface.</source>
-        <translation>Erreur de sauvegarde des données: impossible de récupérer les données depuis l&apos;interface de simulation.</translation>
-    </message>
-    <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="478"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="382"/>
         <source>An unexpected error occurred while attempting to save radio data to file &apos;%1&apos;.</source>
         <translation>Une erreur inattendue s&apos;est produite lors de l&apos;enregistrement des données radio dans le fichier &apos;%1&apos;.</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="479"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="383"/>
         <source>Data Save Error</source>
         <translation>Erreur de sauvegarde des données</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="739"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="643"/>
         <source>Cannot open joystick, joystick disabled</source>
         <translation>Impossible d&apos;accéder au Joystick, Joystick désactivé</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="837"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="739"/>
         <source>Radio firmware error: %1</source>
         <translation>Erreur firmware radio: %1</translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="842"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="744"/>
         <source>Flight Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../simulation/simulatorwidget.cpp" line="842"/>
+        <location filename="../simulation/simulatorwidget.cpp" line="744"/>
         <source>Drive Mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13618,7 +13642,7 @@ La valeur par défaut est configurée dans le profil radio sélectionné.</trans
 <context>
     <name>Storage</name>
     <message>
-        <location filename="../storage/storage.cpp" line="86"/>
+        <location filename="../storage/storage.cpp" line="67"/>
         <source>Unable to find file %1!</source>
         <translation>Fichier %1 introuvable !</translation>
     </message>
@@ -15715,22 +15739,22 @@ Horodatage</translation>
 <context>
     <name>TrainerMix</name>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="949"/>
+        <location filename="../firmwares/generalsettings.cpp" line="873"/>
         <source>OFF</source>
         <translation type="unfinished">Eteint</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="951"/>
+        <location filename="../firmwares/generalsettings.cpp" line="875"/>
         <source>+= (Sum)</source>
         <translation type="unfinished">+= (Additionner)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="953"/>
+        <location filename="../firmwares/generalsettings.cpp" line="877"/>
         <source>:= (Replace)</source>
         <translation type="unfinished">:= (Remplacer)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="962"/>
+        <location filename="../firmwares/generalsettings.cpp" line="886"/>
         <source>CH%1</source>
         <translation type="unfinished">VOIE%1</translation>
     </message>
@@ -17415,14 +17439,14 @@ Do you wish to continue?</source>
 <context>
     <name>YamlModelSettings</name>
     <message>
-        <location filename="../firmwares/edgetx/yaml_modeldata.cpp" line="1273"/>
+        <location filename="../firmwares/edgetx/yaml_modeldata.cpp" line="1288"/>
         <source>Warning: &apos;%1&apos; has settings version %2 that is not supported by this version of Companion!
 
 Model settings may be corrupted if you continue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/edgetx/yaml_modeldata.cpp" line="1276"/>
+        <location filename="../firmwares/edgetx/yaml_modeldata.cpp" line="1291"/>
         <source>Read Model Settings</source>
         <translation type="unfinished"></translation>
     </message>

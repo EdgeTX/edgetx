@@ -121,13 +121,12 @@ Functions cfn_sorted[] = {
   /* Závodní režim */ FUNC_RACING_MODE,
   /* Změna */ FUNC_SET_TIMER,
 #elif defined(TRANSLATIONS_DA)
-  /* Afspil lydfil */ FUNC_PLAY_TRACK,
   /* Afstand kontrol */ FUNC_RANGECHECK,
 #if !defined(OLED_SCREEN)
-  /* Baggrundslys */ FUNC_BACKLIGHT,
+  /* Baggrund lys */ FUNC_BACKLIGHT,
 #endif
-  /* BgMusik */ FUNC_BACKGND_MUSIC,
-  /* BgMusik || */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* Baggrund musik */ FUNC_BACKGND_MUSIC,
+  /* Baggrund musik || */ FUNC_BACKGND_MUSIC_PAUSE,
 #if defined(COLORLCD)
   /* Ikke berøringsaktiv */ FUNC_DISABLE_TOUCH,
 #endif
@@ -153,6 +152,7 @@ Functions cfn_sorted[] = {
   /* Skærm klip */ FUNC_SCREENSHOT,
   /* Sluk audio amplifier */ FUNC_DISABLE_AUDIO_AMP,
   /* Spil lyd */ FUNC_PLAY_SOUND,
+  /* Spil lydfil */ FUNC_PLAY_TRACK,
   /* Spil Værdi */ FUNC_PLAY_VALUE,
   /* Sæt */ FUNC_SET_TIMER,
   /* Sæt fejlsikring */ FUNC_SET_FAILSAFE,
