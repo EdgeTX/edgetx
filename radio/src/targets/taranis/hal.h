@@ -2222,29 +2222,19 @@
   #define INTMODULE_RX_DMA_STREAM          LL_DMA_STREAM_2
   #define INTMODULE_RX_DMA_CHANNEL         LL_DMA_CHANNEL_4
 #elif defined(RADIO_H5TEST)
-#undef HARDWARE_INTERNAL_MODULE
-//  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 5)  // PE.05
-//  #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOE, 4)  // PE.04
-//  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOE, 3)  // PE.03
-//  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOE, 2)  // PE.02
-//  #define INTMODULE_USART                 USART10
-//#define INTMODULE_GPIO_AF               LL_GPIO_AF_7
-//#define INTMODULE_USART_IRQn            USART10_IRQn
-//#define INTMODULE_USART_IRQHandler      USART10_IRQHandler
-//#define INTMODULE_DMA                   DMA1
-//#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
-//#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
-//#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
-//#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
-//#define INTMODULE_RX_DMA                DMA1
-//#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
-//#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
-//#define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
-//#define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
-//#define INTMODULE_TIMER                 TIM3
-//#define INTMODULE_TIMER_IRQn            TIM3_IRQn
-//#define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
-//#define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+  #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
+  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 5)  // PE.05
+  #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOE, 4)  // PE.04
+  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOE, 3)  // PE.03
+  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOE, 2)  // PE.02
+  #define INTMODULE_USART                 USART10
+  #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
+  #define INTMODULE_USART_IRQn            USART10_IRQn
+  #define INTMODULE_USART_IRQHandler      USART10_IRQHandler
+  #define INTMODULE_TIMER                 TIM3
+  #define INTMODULE_TIMER_IRQn            TIM3_IRQn
+  #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
+  #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #elif defined(PCBX9E) || defined(PCBX9DP) || defined(RADIO_X7)
   #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOC, 6)  // PC.06
   #define INTMODULE_TX_GPIO                GPIO_PIN(GPIOA, 10) // PA.10

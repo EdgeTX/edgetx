@@ -144,7 +144,11 @@ static void enable_usart_clock(USART_TypeDef* USARTx)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART8);
   }
 #endif
-
+#if defined(USART10)
+  else if (USARTx == USART10) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART10);
+  }
+#endif
 }
 
 static void disable_usart_clock(USART_TypeDef* USARTx)
@@ -180,6 +184,11 @@ static void disable_usart_clock(USART_TypeDef* USARTx)
 #if defined(UART8)
   else if (USARTx == UART8) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART8);
+  }
+#endif
+#if defined(USART10)
+  else if (USARTx == USART10) {
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_USART10);
   }
 #endif
 
@@ -240,6 +249,8 @@ static gpio_af_t _get_usart_af(gpio_t pin, USART_TypeDef* USARTx)
     return GPIO_AF7;
   } else if (USARTx == UART8) {
     return GPIO_AF8;
+  } else if (USARTx == USART10) {
+    return GPIO_AF7;
   }
   return 0;
 #else
