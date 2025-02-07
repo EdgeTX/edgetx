@@ -93,7 +93,7 @@ void postRadioSettingsLoad()
     setDefaultOwnerId();
   }
 #endif
-#if defined(PCBX12S)
+#if defined(PCBX12S) && defined(INTERNAL_GPS)
   // AUX2 is hardwired to AUX2 on X12S
   serialSetMode(SP_AUX2, UART_MODE_GPS);
 #endif
