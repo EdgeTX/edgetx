@@ -155,6 +155,7 @@ uint8_t find_sep(const char* val, uint8_t val_len)
 //  - ls(n): logical switches
 //  - tr(n): trainer input
 //  - ch(n): channels
+//  - vin(n): virtual inputs
 //  - gv(n): gvars
 //  - tele(n): telemetry
 //
@@ -206,7 +207,17 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       val += 3; val_len -= 3;
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_CH;
-      
+
+    } else if (val_len > 4 &&
+               val[0] == 'v' &&
+               val[1] == 'i' &&
+               val[2] == 'n' &&
+               val[3] == '(') {
+
+      val += 4; val_len -= 4;
+      // parse int and ignore closing ')'
+      return yaml_str2uint(val, val_len) + MIXSRC_FIRST_VCONTROL;
+
     } else if (val_len > 3 &&
                val[0] == 'g' &&
                val[1] == 'v' &&
@@ -388,6 +399,14 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
 
         val -= MIXSRC_FIRST_CH;
         if (!output_source_1_param("ch(", 3, val, wf, opaque))
+          return false;
+        str = closing_parenthesis;
+    }
+    else if (val >= MIXSRC_FIRST_VCONTROL
+             && val <= MIXSRC_LAST_VCONTROL) {
+
+        val -= MIXSRC_FIRST_VCONTROL;
+        if (!output_source_1_param("vin(", 4, val, wf, opaque))
           return false;
         str = closing_parenthesis;
     }
@@ -1052,6 +1071,12 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
       ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
     }
+    else if (val_len >= 2
+             && val[0] == 'V'
+             && (val[1] >= '0' && val[1] <= '9')) {
+
+      ival = SWSRC_FIRST_VIRTUAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
+    }
     else if (val_len == 3
              && val[0] == 'F'
              && val[1] == 'M'
@@ -1117,6 +1142,11 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
 
       wf(opaque, "L", 1);
       str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
+      return wf(opaque,str, strlen(str));
+    } else if (sval <= SWSRC_LAST_VIRTUAL_SWITCH) {
+
+      wf(opaque, "V", 1);
+      str = yaml_unsigned2str(sval - SWSRC_FIRST_VIRTUAL_SWITCH + 1);
       return wf(opaque,str, strlen(str));
     }
     else if (sval <= SWSRC_LAST_FLIGHT_MODE) {
