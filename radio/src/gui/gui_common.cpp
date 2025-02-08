@@ -223,10 +223,11 @@ static bool isSourceLSAvailable(int source) {
 static bool isSourceTrainerAvailable(int source) {
   return g_model.trainerData.mode > 0;
 }
-
+#if defined(VCONTROLS) && defined(COLORLCD)
 static bool isSourceVControlAvailable(int source) {
   return true;
 }
+#endif
 static bool isSourceGvarAvailable(int source) {
 #if defined(GVARS)
   return modelGVEnabled();
@@ -286,7 +287,9 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SRC_TRAINER, isSourceTrainerAvailable },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL, isChannelUsed },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
+#if defined(VCONTROLS) && defined(COLORLCD)
   { MIXSRC_FIRST_VCONTROL, MIXSRC_LAST_VCONTROL, SRC_VCONTROL, isSourceVControlAvailable },
+#endif
   { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SRC_GVAR, isSourceGvarAvailable },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
@@ -397,7 +400,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     return index < keysGetMaxTrims();
   }
 
-#if defined(VCONTROLS)
+#if defined(VCONTROLS) && defined(COLORLCD)
   if ((swtch >= SWSRC_FIRST_VIRTUAL_SWITCH) && (swtch <= SWSRC_LAST_VIRTUAL_SWITCH)) {
     return true;
   }  
