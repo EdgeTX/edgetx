@@ -3569,7 +3569,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="509"/>
         <source>FlySky PL18EV</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="603"/>
@@ -8136,7 +8136,7 @@ Vill du spara ändringarna?</translation>
     <message>
         <location filename="../mdichild.cpp" line="236"/>
         <source>Ctrl+Alt+E</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="362"/>
@@ -8227,7 +8227,7 @@ Vill du spara ändringarna?</translation>
     <message>
         <location filename="../mdichild.cpp" line="406"/>
         <source>Show Model Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa modellfel</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="408"/>
@@ -8290,17 +8290,17 @@ Vill du spara ändringarna?</translation>
     <message>
         <location filename="../mdichild.cpp" line="1899"/>
         <source>Models status</source>
-        <translation type="unfinished"></translation>
+        <translation>Modellstatus</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1914"/>
         <source>No errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga fel</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1918"/>
         <source>Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1440"/>
@@ -8453,12 +8453,12 @@ Vill du spara ändringarna?</translation>
     <message>
         <location filename="../mdichild.cpp" line="1505"/>
         <source>Write Models and Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriv modeller och inställningar</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1505"/>
         <source>Operation aborted as %1 models have significant errors that may affect model operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Operationen avböts då %1 modeller har avsevärda fel som kan påverka hanteringen av dem.</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1511"/>
@@ -9132,18 +9132,18 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1955"/>
         <source>Error - Input %1 Line %2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel - Input %1 rad %2 %3</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1955"/>
         <location filename="../firmwares/modeldata.cpp" line="1960"/>
         <source>has no source</source>
-        <translation type="unfinished"></translation>
+        <translation>saknar källa</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1960"/>
         <source>Error - Mix %1 Line %2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel - Mix %1 rad %2 %3</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1754"/>
@@ -9163,6 +9163,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../modeledit/modeledit.cpp" line="80"/>
         <source>Heli</source>
         <translation>Heli</translation>
+    </message>
+    <message>
+        <location filename="../modeledit/modeledit.cpp" line="84"/>
+        <source>%1 Modes</source>
+        <translation>%1lägen</translation>
     </message>
     <message>
         <location filename="../modeledit/modeledit.cpp" line="89"/>
