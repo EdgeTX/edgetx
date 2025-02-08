@@ -63,7 +63,7 @@
   #define RADIO_VERSION FLAVOUR
 #endif
 
-#if defined(VCONTROLS)
+#if defined(VCONTROLS) && defined(COLORLCD)
 #include <algorithm>
 #include "vcontrols.h"
 #endif
@@ -2480,7 +2480,7 @@ static int luaSerialSetPower(lua_State* L)
 }
 #endif
 
-#if defined(VCONTROLS)
+#if defined(VCONTROLS) && defined(COLORLCD)
 static int luaGetVirtualSwitch(lua_State * L)
 {
   const int sw = luaL_checkinteger(L, 1);
@@ -3031,7 +3031,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( setShmVar, luaSetShmVar )
   LROT_FUNCENTRY( getShmVar, luaGetShmVar )
 #endif
-#if defined(VCONTROLS)
+#if defined(VCONTROLS) && defined(COLORLCD)
   LROT_FUNCENTRY( setVirtualInput, luaSetVirtualInput)
   LROT_FUNCENTRY( setVirtualSwitch, luaSetVirtualSwitch)
   LROT_FUNCENTRY( getVirtualSwitch, luaGetVirtualSwitch)
