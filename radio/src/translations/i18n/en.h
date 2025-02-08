@@ -529,6 +529,7 @@
 #define TR_SLOWDOWN                    TR("Slow dn", "Slow down")
 #define TR_SLOWUP                      "Slow up"
 #define TR_CV                          "CV"
+#define TR_VC                          "VIn"
 #define TR_GV                          TR("G", "GV")
 #define TR_RANGE                       "Range"
 #define TR_CENTER                      "Center"
@@ -1235,8 +1236,10 @@
 #define TR_MENU_TRIMS                  STR_CHAR_TRIM "Trims"
 #define TR_MENU_SWITCHES               STR_CHAR_SWITCH "Switches"
 #define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Logical switches"
+#define TR_MENU_VIRTUAL_SWITCHES       STR_CHAR_SWITCH "Virtual switches"
 #define TR_MENU_TRAINER                STR_CHAR_TRAINER "Trainer"
 #define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "Channels"
+#define TR_MENU_VCONTROL               "Virtuals"
 #define TR_MENU_GVARS                  STR_CHAR_SLIDER "GVars"
 #define TR_MENU_TELEMETRY              STR_CHAR_TELEMETRY "Telemetry"
 #define TR_MENU_DISPLAY                "DISPLAY"
