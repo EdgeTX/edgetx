@@ -25,6 +25,7 @@
 #include "switches.h"
 #include "input_mapping.h"
 #include "mixes.h"
+#include "vcontrols.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -494,7 +495,15 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   } else if (i <= MIXSRC_LAST_CH) {
     return ex_chans[i - MIXSRC_FIRST_CH];
   }
-
+  else if (i <= MIXSRC_LAST_VCONTROL) {
+#if defined(VCONTROLS)
+//    TRACE("mixer: %d %d", (i - MIXSRC_FIRST_VCONTROL), virtualInputs[i - MIXSRC_FIRST_VCONTROL]);
+    return virtualInputs[i - MIXSRC_FIRST_VCONTROL];
+#else
+    if (valid != nullptr) *valid = false;
+    return 0;
+#endif
+  }
   else if (i <= MIXSRC_LAST_GVAR) {
 #if defined(GVARS)
     return GVAR_VALUE(i - MIXSRC_FIRST_GVAR, getGVarFlightMode(mixerCurrentFlightMode, i - MIXSRC_FIRST_GVAR));
@@ -503,7 +512,6 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
     return 0;
 #endif
   }
-
   else if (i == MIXSRC_TX_VOLTAGE) {
     return g_vbat100mV;
   } else if (i < MIXSRC_FIRST_TIMER) {
