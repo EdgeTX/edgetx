@@ -350,6 +350,7 @@
 #define TR_SLOWUP                      "Langs.Up"
 #define TR_MIXES                       "MISCHER"
 #define TR_CV                          "KV"
+#define TR_VC                          "VIn"
 #if defined(PCBNV14) || defined(PCBPL18)
 #define TR_GV                          "GV"
 #else
@@ -1103,8 +1104,10 @@
 #define TR_MENU_TRIMS                  STR_CHAR_TRIM "Trimmung"
 #define TR_MENU_SWITCHES               STR_CHAR_SWITCH "Schalter"
 #define TR_MENU_LOGICAL_SWITCHES       STR_CHAR_SWITCH "Log. Schalter"
+#define TR_MENU_VIRTUAL_SWITCHES       STR_CHAR_SWITCH "Virt. Schalter"
 #define TR_MENU_TRAINER                STR_CHAR_TRAINER "Trainer"
 #define TR_MENU_CHANNELS               STR_CHAR_CHANNEL "Kanäle"
+#define TR_MENU_VCONTROL               "Virtuals"
 #define TR_MENU_GVARS                  STR_CHAR_SLIDER "Glob. Vars"
 #define TR_MENU_TELEMETRY              STR_CHAR_TELEMETRY "Telemetrie"
 #define TR_MENU_DISPLAY                "TELM-SEITEN"

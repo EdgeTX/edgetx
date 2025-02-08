@@ -31,6 +31,9 @@
 #include "input_mapping.h"
 #include "inactivity_timer.h"
 #include "tasks/mixer_task.h"
+#if defined(VCONTROLS)
+#include "vcontrols.h"
+#endif
 
 #define CS_LAST_VALUE_INIT -32768
 
@@ -730,6 +733,15 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
       result = (idx == flightModeTransitionLast);
     else
       result = (idx == mixerCurrentFlightMode);
+#else
+    result = false;
+#endif
+  }
+  else if ((cs_idx >= SWSRC_FIRST_VIRTUAL_SWITCH) && (cs_idx <= SWSRC_LAST_VIRTUAL_SWITCH)) {
+#if defined(VCONTROLS)
+    cs_idx -= SWSRC_FIRST_VIRTUAL_SWITCH;
+    const uint64_t mask = (1 << cs_idx);
+    result = virtualSwitches & mask;
 #else
     result = false;
 #endif
