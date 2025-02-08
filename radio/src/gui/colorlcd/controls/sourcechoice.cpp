@@ -87,6 +87,10 @@ class SourceChoiceMenuToolbar : public MenuToolbar
               nullptr, STR_MENU_TRAINER);
     addButton(STR_CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
               STR_MENU_CHANNELS);
+#if defined(VCONTROLS) 
+    addButton("VI", MIXSRC_FIRST_VCONTROL, MIXSRC_LAST_VCONTROL, nullptr,
+              STR_MENU_VCONTROL);
+#endif
 #if defined(GVARS)
     if (modelGVEnabled())
       addButton(STR_CHAR_SLIDER, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, nullptr,
