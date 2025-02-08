@@ -62,6 +62,11 @@
   #define RADIO_VERSION FLAVOUR
 #endif
 
+#if defined(VCONTROLS)
+#include <algorithm>
+#include "vcontrols.h"
+#endif
+
 #define VERSION_OSNAME "EdgeTX"
 
 #define FIND_FIELD_DESC  0x01
@@ -2464,6 +2469,36 @@ static int luaSerialSetPower(lua_State* L)
 }
 #endif
 
+#if defined(VCONTROLS)
+static int luaSetVirtualSwitch(lua_State * L)
+{
+  const int sw = luaL_checkinteger(L, 1);
+  const bool on = lua_toboolean(L, 2);
+
+  if (1 <= sw && sw <= 64) {
+    if (on) {
+      virtualSwitches |= (1 << (sw - 1));
+    }
+    else {
+      virtualSwitches &= ~(1 << (sw - 1));
+    }
+//    TRACE("luaSetVirtualSwitch: %d, %b", (sw - 1), on);
+  }
+  return 0;
+}
+static int luaSetVirtualInput(lua_State * L)
+{
+  int ch = luaL_checkinteger(L, 1);
+  int value = std::clamp(luaL_checkinteger(L, 2), -1024, 1024);
+
+  if (1 <= ch && ch <= 16) {
+    virtualInputs[ch - 1] = value;
+//    TRACE("luaSetVirtualInput: %d, %d", (ch - 1), virtualInputs[ch - 1]);
+  }
+  return 0;
+}
+#endif
+
 #if defined(COLORLCD)
 static int shmVar[16] = {0};
 
@@ -3166,6 +3201,10 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if defined(COLORLCD)
   LROT_FUNCENTRY( setShmVar, luaSetShmVar )
   LROT_FUNCENTRY( getShmVar, luaGetShmVar )
+#endif
+#if defined(VCONTROLS)
+  LROT_FUNCENTRY( setVirtualInput, luaSetVirtualInput)
+  LROT_FUNCENTRY( setVirtualSwitch, luaSetVirtualSwitch)
 #endif
   LROT_FUNCENTRY( setStickySwitch, luaSetStickySwitch )
   LROT_FUNCENTRY( getLogicalSwitchValue, luaGetLogicalSwitchValue )
