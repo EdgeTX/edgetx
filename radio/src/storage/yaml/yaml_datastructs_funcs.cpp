@@ -212,6 +212,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_CH;
 
+#if defined(VCONTROLS) && defined(COLORLCD)
     } else if (val_len > 4 &&
                val[0] == 'v' &&
                val[1] == 'i' &&
@@ -221,7 +222,7 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       val += 4; val_len -= 4;
       // parse int and ignore closing ')'
       return yaml_str2uint(val, val_len) + MIXSRC_FIRST_VCONTROL;
-
+#endif
     } else if (val_len > 3 &&
                val[0] == 'g' &&
                val[1] == 'v' &&
@@ -406,6 +407,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
           return false;
         str = closing_parenthesis;
     }
+#if defined(VCONTROLS) && defined(COLORLCD)
     else if (val >= MIXSRC_FIRST_VCONTROL
              && val <= MIXSRC_LAST_VCONTROL) {
 
@@ -414,6 +416,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
           return false;
         str = closing_parenthesis;
     }
+#endif
     else if (val >= MIXSRC_FIRST_GVAR
              && val <= MIXSRC_LAST_GVAR) {
 
@@ -1373,12 +1376,14 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
 
       ival = SWSRC_FIRST_LOGICAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
     }
+#if defined(VCONTROLS) && defined(COLORLCD)
     else if (val_len >= 2
              && val[0] == 'V'
              && (val[1] >= '0' && val[1] <= '9')) {
 
       ival = SWSRC_FIRST_VIRTUAL_SWITCH + yaml_str2int(val+1, val_len-1) - 1;
     }
+#endif
     else if (val_len == 3
              && val[0] == 'F'
              && val[1] == 'M'
@@ -1445,12 +1450,15 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
       wf(opaque, "L", 1);
       str = yaml_unsigned2str(sval - SWSRC_FIRST_LOGICAL_SWITCH + 1);
       return wf(opaque,str, strlen(str));
-    } else if (sval <= SWSRC_LAST_VIRTUAL_SWITCH) {
+    } 
+#if defined(VCONTROLS) && defined(COLORLCD)
+    else if (sval <= SWSRC_LAST_VIRTUAL_SWITCH) {
 
       wf(opaque, "V", 1);
       str = yaml_unsigned2str(sval - SWSRC_FIRST_VIRTUAL_SWITCH + 1);
       return wf(opaque,str, strlen(str));
     }
+#endif
     else if (sval <= SWSRC_LAST_FLIGHT_MODE) {
 
       wf(opaque, "FM", 2);
