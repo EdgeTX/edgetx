@@ -524,6 +524,7 @@
 #define TR_SLOWDOWN                    "Langs.Ab"
 #define TR_SLOWUP                      "Langs.Auf"
 #define TR_CV                          "KV"
+#define TR_VC                          "VIn"
 #define TR_GV                          TR("G", "GV")
 #define TR_RANGE                       TR("Bereich", "Variobereich m/s")
 #define TR_CENTER                      TR("Mitte", "Variomitte     m/s")
@@ -1238,6 +1239,7 @@
 #define TR_MENU_CHANNELS               CHAR_CHANNEL "Kanäle"
 #define TR_MENU_GVARS                  CHAR_SLIDER "Glob. Vars"
 #define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetrie"
+#define TR_MENU_VCONTROL               "Virtuals"
 #define TR_MENU_DISPLAY                "TELM-SEITEN"
 #define TR_MENU_OTHER                  "Weitere"
 #define TR_MENU_INVERT                 TR_BW_COL("Invert.", "Invertieren")
