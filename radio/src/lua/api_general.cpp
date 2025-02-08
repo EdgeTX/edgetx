@@ -2470,6 +2470,20 @@ static int luaSerialSetPower(lua_State* L)
 #endif
 
 #if defined(VCONTROLS)
+static int luaGetVirtualSwitch(lua_State * L)
+{
+  const int sw = luaL_checkinteger(L, 1);
+
+  if (1 <= sw && sw <= 64) {
+    const bool v = virtualSwitches & (1 << (sw - 1));
+    lua_pushboolean(L, v);
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
 static int luaSetVirtualSwitch(lua_State * L)
 {
   const int sw = luaL_checkinteger(L, 1);
@@ -3205,6 +3219,7 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if defined(VCONTROLS)
   LROT_FUNCENTRY( setVirtualInput, luaSetVirtualInput)
   LROT_FUNCENTRY( setVirtualSwitch, luaSetVirtualSwitch)
+  LROT_FUNCENTRY( getVirtualSwitch, luaGetVirtualSwitch)
 #endif
   LROT_FUNCENTRY( setStickySwitch, luaSetStickySwitch )
   LROT_FUNCENTRY( getLogicalSwitchValue, luaGetLogicalSwitchValue )
