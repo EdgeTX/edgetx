@@ -523,6 +523,7 @@
 #define TR_SLOWDOWN                    TR("Slow dn", "Slow down")
 #define TR_SLOWUP                      "Slow up"
 #define TR_CV                          "CV"
+#define TR_VC                          "VIn"
 #define TR_GV                          TR("G", "GV")
 #define TR_RANGE                       "Range"
 #define TR_CENTER                      "Center"
@@ -1238,6 +1239,7 @@
 #define TR_MENU_CHANNELS               CHAR_CHANNEL "Channels"
 #define TR_MENU_GVARS                  CHAR_SLIDER "GVars"
 #define TR_MENU_TELEMETRY              CHAR_TELEMETRY "Telemetry"
+#define TR_MENU_VCONTROL               "Virtuals"
 #define TR_MENU_DISPLAY                "DISPLAY"
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"

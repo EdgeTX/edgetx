@@ -501,6 +501,9 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
   } else if (idx <= SWSRC_LAST_LOGICAL_SWITCH) {
     *s++ = 'L';
     strAppendUnsigned(s, idx - SWSRC_FIRST_LOGICAL_SWITCH + 1, 2);
+  } else if (idx <= SWSRC_LAST_VIRTUAL_SWITCH) {
+    *s++ = 'V';
+    strAppendUnsigned(s, idx - SWSRC_FIRST_VIRTUAL_SWITCH + 1, 2);
   } else if (idx <= SWSRC_ONE) {
     idx -= SWSRC_ON;
     getStringAtIndex(s, STR_ON_ONE_SWITCHES, idx);
@@ -775,6 +778,8 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     } else {
       strAppendStringWithIndex(dest, STR_CH, ch + 1);
     }
+  } else if (idx <= MIXSRC_LAST_VCONTROL) {
+    strAppendStringWithIndex(dest, STR_VC, idx + 1 - MIXSRC_FIRST_VCONTROL);
   } else if (idx <= MIXSRC_LAST_GVAR) {
     idx -= MIXSRC_FIRST_GVAR;
 #if defined(COLORLCD)
