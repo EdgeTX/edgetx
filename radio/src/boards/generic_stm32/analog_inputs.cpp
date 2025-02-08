@@ -31,10 +31,6 @@
   #include "ads79xx.h"
 #endif
 
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
-#endif
-
 #include "definitions.h"
 
 #include "myeeprom.h"
