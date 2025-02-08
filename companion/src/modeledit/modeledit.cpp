@@ -81,7 +81,7 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
     s1.report("Heli");
   }
 
-  QString radioType = QString("%1 Modes").arg(Boards::getRadioTypeString(firmware->getBoard()));
+  QString radioType = QString(tr("%1 Modes").arg(Boards::getRadioTypeString(firmware->getBoard())));
   FlightModesPanel *flightModesPanel = new FlightModesPanel(this, model, generalSettings, firmware, sharedItemModels);
   addTab(flightModesPanel, radioType);
   s1.report(radioType);
