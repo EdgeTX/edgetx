@@ -55,6 +55,8 @@
   #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        60
   #define MAX_CUSTOM_SCREENS           10
+  #define MAX_VIRTUAL_INPUTS           16
+  #define MAX_VIRTUAL_SWITCHES         64
 #elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
@@ -441,6 +443,11 @@ enum SwitchSources {
   SWSRC_FIRST_LOGICAL_SWITCH SKIP,
   SWSRC_LAST_LOGICAL_SWITCH SKIP = SWSRC_FIRST_LOGICAL_SWITCH + MAX_LOGICAL_SWITCHES - 1,
 
+#if defined(VCONTROLS)
+  SWSRC_FIRST_VIRTUAL_SWITCH SKIP,
+  SWSRC_LAST_VIRTUAL_SWITCH SKIP = SWSRC_FIRST_VIRTUAL_SWITCH + MAX_VIRTUAL_SWITCHES - 1,
+#endif
+
   SWSRC_ON,
   SWSRC_ONE,
 
@@ -483,6 +490,7 @@ enum SwitchTypes {
   SW_FLIGHT_MODE = 1 << 3,
   SW_TELEM = 1 << 4,
   SW_OTHER = 1 << 5,
+  SW_VIRTUAL = 1 << 6,
   SW_NONE = 1 << 20,
 };
 
@@ -547,6 +555,11 @@ enum MixSources {
   MIXSRC_FIRST_CH SKIP,
   MIXSRC_LAST_CH SKIP = MIXSRC_FIRST_CH + MAX_OUTPUT_CHANNELS - 1,
 
+#if defined(VCONTROLS)
+  MIXSRC_FIRST_VCONTROL SKIP,
+  MIXSRC_LAST_VCONTROL SKIP = MIXSRC_FIRST_VCONTROL + MAX_VIRTUAL_INPUTS - 1,
+#endif
+
   MIXSRC_FIRST_GVAR SKIP,
   MIXSRC_LAST_GVAR SKIP = MIXSRC_FIRST_GVAR + MAX_GVARS - 1,
 
@@ -596,6 +609,7 @@ enum SrcTypes {
   SRC_TELEM_COMP = 1 << 19,
   SRC_NONE = 1 << 20,
   SRC_INVERT = 1 << 21,
+  SRC_VCONTROL = 1 << 22,
 };
 
 enum BacklightMode {
