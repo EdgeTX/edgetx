@@ -745,7 +745,7 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
 #if defined(VCONTROLS) && defined(COLORLCD)  
   else if ((cs_idx >= SWSRC_FIRST_VIRTUAL_SWITCH) && (cs_idx <= SWSRC_LAST_VIRTUAL_SWITCH)) {
     cs_idx -= SWSRC_FIRST_VIRTUAL_SWITCH;
-    const uint64_t mask = (1 << cs_idx);
+    const uint64_t mask = (1UL << cs_idx);
     result = virtualSwitches & mask;
   }
 #endif
