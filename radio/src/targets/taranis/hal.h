@@ -2306,33 +2306,39 @@
 
 // External Module
 #if defined(RADIO_H5TEST)
-  #undef HARDWARE_EXTERNAL_MODULE
-  #define EXTMODULE_PWR_GPIO                    GPIO_PIN(GPIOD, 0) // PD.00
-  #define EXTERNAL_MODULE_PWR_ON()              gpio_set(EXTMODULE_PWR_GPIO)
-  #define EXTERNAL_MODULE_PWR_OFF()             gpio_clear(EXTMODULE_PWR_GPIO)
-  #define IS_EXTERNAL_MODULE_ON()               gpio_read(EXTMODULE_PWR_GPIO)
-  #define EXTMODULE_TX_GPIO                     GPIO_PIN(GPIOA, 9)  // PA.09
-  #define EXTMODULE_RX_GPIO                     GPIO_PIN(GPIOA, 10) // PA.10
-  #define EXTMODULE_TX_GPIO_AF                  LL_GPIO_AF_7
-#define EXTMODULE_TIMER                       TIM8
-#define EXTMODULE_TIMER_Channel               LL_TIM_CHANNEL_CH1
-#define EXTMODULE_TIMER_FREQ                  (PERI2_FREQUENCY * TIMER_MULT_APB2)
-#define EXTMODULE_TIMER_IRQn                  TIM8_UP_TIM13_IRQn
-#define EXTMODULE_TIMER_IRQHandler            TIM8_UP_TIM13_IRQHandler
-#define EXTMODULE_TIMER_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
-#define EXTMODULE_TIMER_DMA_CHANNEL           LL_DMA_CHANNEL_7
-#define EXTMODULE_TIMER_DMA                   DMA2
-#define EXTMODULE_TIMER_DMA_STREAM            LL_DMA_STREAM_1
-#define EXTMODULE_TIMER_DMA_STREAM_IRQn       DMA2_Stream1_IRQn
-#define EXTMODULE_TIMER_DMA_IRQHandler        DMA2_Stream1_IRQHandler
-#define EXTMODULE_USART                       USART1
-#define EXTMODULE_USART_IRQn                  USART1_IRQn
-#define EXTMODULE_USART_IRQHandler            USART1_IRQHandler
-#define EXTMODULE_USART_TX_DMA                DMA2
-#define EXTMODULE_USART_TX_DMA_CHANNEL        LL_DMA_CHANNEL_5
-#define EXTMODULE_USART_TX_DMA_STREAM         LL_DMA_STREAM_6
-#define EXTMODULE_USART_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
-#define EXTMODULE_USART_RX_DMA_STREAM         LL_DMA_STREAM_1
+  #define EXTMODULE_PWR_GPIO                 GPIO_PIN(GPIOD, 0) // PD.00
+  #define EXTERNAL_MODULE_PWR_ON()           gpio_set(EXTMODULE_PWR_GPIO)
+  #define EXTERNAL_MODULE_PWR_OFF()          gpio_clear(EXTMODULE_PWR_GPIO)
+  #define IS_EXTERNAL_MODULE_ON()            gpio_read(EXTMODULE_PWR_GPIO)
+  #define EXTMODULE_TX_GPIO                  GPIO_PIN(GPIOA, 9)  // PA.09 TIM1_CH2
+  #define EXTMODULE_RX_GPIO                  GPIO_PIN(GPIOA, 10) // PA.10
+  #define EXTMODULE_TX_GPIO_AF               LL_GPIO_AF_7
+  #define EXTMODULE_TIMER                    TIM1
+  #define EXTMODULE_TIMER_Channel            LL_TIM_CHANNEL_CH2
+  #define EXTMODULE_TIMER_IRQn               TIM1_UP_IRQn
+  #define EXTMODULE_TIMER_IRQHandler         TIM1_UP_IRQHandler
+  #define EXTMODULE_TIMER_FREQ               (PERI2_FREQUENCY * TIMER_MULT_APB2)
+  #define EXTMODULE_TIMER_TX_GPIO_AF         LL_GPIO_AF_1
+
+  //USART
+  #define EXTMODULE_USART                    USART1
+  #define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOA, 10)
+  #define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOA, 9)
+  #define EXTMODULE_USART_TX_DMA             GPDMA2
+  #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_GPDMA2_REQUEST_USART10_TX
+  #define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_CHANNEL_1
+  #define EXTMODULE_USART_RX_DMA_CHANNEL     LL_GPDMA2_REQUEST_USART10_RX
+  #define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_CHANNEL_2
+  #define EXTMODULE_USART_IRQHandler         USART1_IRQHandler
+  #define EXTMODULE_USART_IRQn               USART1_IRQn
+
+  //TIMER
+  // TIM1_CH2
+  #define EXTMODULE_TIMER_DMA_CHANNEL        LL_GPDMA2_REQUEST_TIM1_CH2
+  #define EXTMODULE_TIMER_DMA                GPDMA2
+  #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_CHANNEL_0
+  #define EXTMODULE_TIMER_DMA_STREAM_IRQn    GPDMA2_Channel0_IRQn
+  #define EXTMODULE_TIMER_DMA_IRQHandler     GPDMA2_Channel0_IRQHandler
 #elif defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019) || defined(PCBX7ACCESS) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12) || defined(RADIO_T12MAX) || defined(RADIO_GX12)
   #if defined(RADIO_X9DP2019) || defined(RADIO_X7ACCESS) || defined(RADIO_ZORRO)|| defined(RADIO_POCKET) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12)|| defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12)
     #define EXTMODULE_PWR_GPIO          GPIO_PIN(GPIOD, 8) // PD.08
