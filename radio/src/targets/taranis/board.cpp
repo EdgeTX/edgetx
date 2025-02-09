@@ -77,8 +77,10 @@ void boardBLEarlyInit()
 {
   SystemClock_Config();
 
-#if !defined(USB_PD_SUPPORT) && defined(STM32H5)
+#if defined(STM32H5)
+#if !defined(USB_PD_SUPPORT)
   disableUsbPdPins();
+#endif
 #endif
 }
 #endif

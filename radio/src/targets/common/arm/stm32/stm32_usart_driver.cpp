@@ -150,9 +150,24 @@ static void enable_usart_clock(USART_TypeDef* USARTx)
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART8);
   }
 #endif
+#if defined(UART9)
+  else if (USARTx == UART9) {
+    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_UART9);
+  }
+#endif
 #if defined(USART10)
   else if (USARTx == USART10) {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART10);
+  }
+#endif
+#if defined(USART11)
+  else if (USARTx == USART11) {
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART11);
+  }
+#endif
+#if defined(UART12)
+  else if (USARTx == UART12) {
+    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_UART12);
   }
 #endif
 }
@@ -192,11 +207,27 @@ static void disable_usart_clock(USART_TypeDef* USARTx)
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_UART8);
   }
 #endif
+#if defined(UART9)
+  else if (USARTx == UART9) {
+    LL_APB1_GRP2_DisableClock(LL_APB1_GRP2_PERIPH_UART9);
+  }
+#endif
 #if defined(USART10)
   else if (USARTx == USART10) {
     LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_USART10);
   }
 #endif
+#if defined(USART11)
+  else if (USARTx == USART11) {
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_USART11);
+  }
+#endif
+#if defined(UART12)
+  else if (USARTx == UART12) {
+    LL_APB1_GRP2_DisableClock(LL_APB1_GRP2_PERIPH_UART12);
+  }
+#endif
+
 
 }
 
@@ -225,8 +256,7 @@ static gpio_speed_t _get_pin_speed(uint32_t baudrate)
 
 static gpio_af_t _get_usart_af(gpio_t pin, USART_TypeDef* USARTx)
 {
-#if defined(STM32H7) || defined(STM32H5)
-#warning to be done for H5
+#if defined(STM32H7)
   GPIO_TypeDef* port = gpio_get_port(pin);
   uint32_t pinNr = gpio_get_pin(pin);
   if(USARTx == USART1)
@@ -259,6 +289,50 @@ static gpio_af_t _get_usart_af(gpio_t pin, USART_TypeDef* USARTx)
     return GPIO_AF7;
   }
   return 0;
+#elif defined(STM32H5)
+   GPIO_TypeDef* port = gpio_get_port(pin);
+   uint32_t pinNr = gpio_get_pin(pin);
+   if(USARTx == USART1)
+   {
+     if(port == GPIOA)
+     {
+       return GPIO_AF7;
+     } else { // GPIOB
+       if(pinNr < 14)
+         return GPIO_AF7;
+       return GPIO_AF4;
+     }
+   } else if (USARTx == USART2 || USARTx == USART3 || USARTx == USART6) {
+     return GPIO_AF7;
+   } else if (USARTx == UART4) {
+     if(port == GPIOA && (pin == 11 || pin == 12))
+         return GPIO_AF6;
+     return GPIO_AF8;
+   } else if (USARTx == UART5) {
+     if(port == GPIOB)
+       return GPIO_AF14;
+     return GPIO_AF8;
+   } else if (USARTx == UART7) {
+     if (port == GPIOA || port == GPIOB)
+       return GPIO_AF11;
+     return GPIO_AF7;
+   } else if (USARTx == UART8) {
+     if (port == GPIOH)
+       return GPIO_AF7;
+   } else if (USARTx == UART9) {
+     return GPIO_AF11;
+   } else if (USARTx == USART10) {
+     if (port == GPIOG)
+       return GPIO_AF6;
+     return GPIO_AF7;
+   } else if (USARTx == USART11) {
+     return GPIO_AF7;
+   } else if (USARTx == UART12) {
+     if (port == GPIOE || port == GPIOF)
+       return GPIO_AF6;
+     return GPIO_AF7;
+   }
+   return 0;
 #else
   return _AF7_USART(USARTx) ? GPIO_AF7 : GPIO_AF8;
 #endif
@@ -311,11 +385,21 @@ static uint32_t _get_usart_periph_clock(USART_TypeDef* USARTx)
     periphclk = rcc_clocks.PCLK2_Frequency;
   }
 #endif /* UART9 */
-#if defined(UART10)
-  else if (USARTx == UART10) {
+#if defined(USART10)
+  else if (USARTx == USART10) {
     periphclk = rcc_clocks.PCLK2_Frequency;
   }
-#endif /* UART10 */
+#endif /* USART10 */
+#if defined(USART11)
+  else if (USARTx == USART11) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  }
+#endif /* USART11 */
+#if defined(UART12)
+  else if (USARTx == UART12) {
+    periphclk = rcc_clocks.PCLK2_Frequency;
+  }
+#endif /* USART12 */
 
   return periphclk;
 }
@@ -347,7 +431,45 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
   LL_DMA_StructInit(&dmaInit);
 
 #if defined(STM32H7RS) || defined(STM32H5)
-  // TODO
+    dmaInit.DestAddress = (intptr_t)buffer;
+    dmaInit.SrcAddress =
+        LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_RECEIVE);
+    dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
+    dmaInit.BlkHWRequest = LL_DMA_HWREQUEST_SINGLEBURST;
+    dmaInit.DataAlignment = LL_DMA_DATA_ALIGN_ZEROPADD;
+    dmaInit.SrcBurstLength = 1;
+    dmaInit.DestBurstLength = 1;
+    dmaInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_BYTE;
+    dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_BYTE;
+    dmaInit.SrcIncMode = LL_DMA_SRC_FIXED;
+    dmaInit.DestIncMode = LL_DMA_DEST_INCREMENT;
+    dmaInit.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+    dmaInit.BlkDataLength = length;
+    dmaInit.TriggerMode = LL_DMA_TRIGM_BLK_TRANSFER;
+    dmaInit.TriggerPolarity = LL_DMA_TRIG_POLARITY_MASKED;
+    dmaInit.TriggerSelection = 0;
+    dmaInit.Request = usart->rxDMA_Channel;
+    dmaInit.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
+    dmaInit.SrcAllocatedPort = LL_DMA_SRC_ALLOCATED_PORT0;
+    dmaInit.DestAllocatedPort = LL_DMA_DEST_ALLOCATED_PORT0;
+    dmaInit.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
+    dmaInit.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
+    dmaInit.LinkedListBaseAddr = 0;
+    dmaInit.LinkedListAddrOffset = 0;
+    LL_DMA_Init(usart->rxDMA, usart->rxDMA_Stream, &dmaInit);
+
+    dmaInit.Mode = LL_DMA_NORMAL;
+
+    LL_DMA_EnableIT_HT(usart->rxDMA, usart->rxDMA_Stream);
+    LL_DMA_EnableIT_TC(usart->rxDMA, usart->rxDMA_Stream);
+    LL_DMA_EnableIT_USE(usart->rxDMA, usart->rxDMA_Stream);
+    LL_DMA_EnableIT_ULE(usart->rxDMA, usart->rxDMA_Stream);
+    LL_DMA_EnableIT_DTE(usart->rxDMA, usart->rxDMA_Stream);
+
+    LL_USART_EnableDMAReq_RX(usart->USARTx);
+    LL_DMA_EnableChannel(usart->rxDMA, usart->rxDMA_Stream);
+
+
 #else // STM32H7RS
 
 #if defined(STM32H7)
@@ -594,8 +716,47 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
 
     LL_DMA_InitTypeDef dmaInit;
     LL_DMA_StructInit(&dmaInit);
+#if defined(STM32H7RS) || defined(STM32H5)
+    dmaInit.DestAddress =
+        LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_TRANSMIT);
+    dmaInit.SrcAddress = (intptr_t)data;
+    dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+    dmaInit.BlkHWRequest = LL_DMA_HWREQUEST_SINGLEBURST;
+    dmaInit.DataAlignment = LL_DMA_DATA_ALIGN_ZEROPADD;
+    dmaInit.SrcBurstLength = 1;
+    dmaInit.DestBurstLength = 1;
+    dmaInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_BYTE;
+    dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_BYTE;
+    dmaInit.SrcIncMode = LL_DMA_SRC_INCREMENT;
+    dmaInit.DestIncMode = LL_DMA_DEST_FIXED;
+    dmaInit.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+    dmaInit.BlkDataLength = size;
+    dmaInit.TriggerMode = LL_DMA_TRIGM_BLK_TRANSFER;
+    dmaInit.TriggerPolarity = LL_DMA_TRIG_POLARITY_MASKED;
+    dmaInit.TriggerSelection = 0;
+    dmaInit.Request = usart->txDMA_Channel;
+    dmaInit.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
+    dmaInit.SrcAllocatedPort = LL_DMA_SRC_ALLOCATED_PORT0;
+    dmaInit.DestAllocatedPort = LL_DMA_DEST_ALLOCATED_PORT0;
+    dmaInit.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
+    dmaInit.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
+    dmaInit.LinkedListBaseAddr = 0;
+    dmaInit.LinkedListAddrOffset = 0;
+    LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
 
-#if !defined(STM32H7RS) && !defined(STM32H5)
+    dmaInit.Mode = LL_DMA_NORMAL;
+
+    LL_DMA_EnableIT_HT(usart->txDMA, usart->txDMA_Stream);
+    LL_DMA_EnableIT_TC(usart->txDMA, usart->txDMA_Stream);
+    LL_DMA_EnableIT_USE(usart->txDMA, usart->txDMA_Stream);
+    LL_DMA_EnableIT_ULE(usart->txDMA, usart->txDMA_Stream);
+    LL_DMA_EnableIT_DTE(usart->txDMA, usart->txDMA_Stream);
+
+    LL_USART_EnableDMAReq_TX(usart->USARTx);
+    LL_DMA_EnableChannel(usart->txDMA, usart->txDMA_Stream);
+
+
+#else
 
 #if defined(STM32H7)
     dmaInit.PeriphRequest = usart->txDMA_Channel;
@@ -692,6 +853,8 @@ void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart)
       break;
     }
   }
+#else
+  while(LL_DMA_IsEnabledChannel(usart->txDMA, usart->txDMA_Stream)); // is this correct?
 #endif
 }
 
