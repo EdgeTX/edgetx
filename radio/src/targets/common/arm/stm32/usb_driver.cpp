@@ -123,7 +123,7 @@ extern "C" void OTG_FS_IRQHandler()
 
 void usbInit()
 {
-#if defined(STM32H7)
+#if defined(STM32H7) || defined STM32H5
   HAL_PWREx_EnableUSBVoltageDetector();
 #endif
   gpio_init_af(USB_GPIO_DM, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
