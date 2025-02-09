@@ -840,13 +840,14 @@ Get configuration for specified Mix
  * `flightModes` (number) bit-mask of active flight modes
  * `carryTrim` (boolean) carry trim
  * `mixWarn` (number) warning (0 = off, 1 = 1 beep, .. 3 = 3 beeps)
+ * `delayPrec` precision of delay up/down (1 or 10)
  * `delayUp` (number) delay up (time in 1/10 s)
  * `delayDown` (number) delay down
  * `speedPrec` precision of speed up/down (1 or 10)
  * `speedUp` (number) speed up
  * `speedDown` (number) speed down
 
-@status current Introduced in 2.0.0, parameters below `multiplex` added in 2.0.13, `speedPrec` added in 2.10
+@status current Introduced in 2.0.0, parameters below `multiplex` added in 2.0.13, `speedPrec` added in 2.10, `delayPrec` added in 2.11
 */
 static int luaModelGetMix(lua_State *L)
 {
@@ -868,6 +869,7 @@ static int luaModelGetMix(lua_State *L)
     lua_pushtableinteger(L, "flightModes", mix->flightModes);
     lua_pushtableboolean(L, "carryTrim", mix->carryTrim);
     lua_pushtableinteger(L, "mixWarn", mix->mixWarn);
+    lua_pushtableinteger(L, "delayPrec", mix->delayPrec);
     lua_pushtableinteger(L, "delayUp", mix->delayUp);
     lua_pushtableinteger(L, "delayDown", mix->delayDown);
     lua_pushtableinteger(L, "speedPrec", mix->speedPrec);
@@ -954,6 +956,9 @@ static int luaModelInsertMix(lua_State *L)
       }
       else if (!strcmp(key, "mixWarn")) {
         mix->mixWarn = luaL_checkinteger(L, -1);
+      }
+      else if (!strcmp(key, "delayPrec")) {
+        mix->delayPrec = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "delayUp")) {
         mix->delayUp = luaL_checkinteger(L, -1);
