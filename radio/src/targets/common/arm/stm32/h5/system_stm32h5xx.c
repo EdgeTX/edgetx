@@ -473,7 +473,7 @@ void LPTIM2_IRQHandler() {  asm("BKPT"); }
 void TIM15_IRQHandler() {  asm("BKPT"); }
 void TIM16_IRQHandler() {  asm("BKPT"); }
 //void TIM17_IRQHandler() {  asm("BKPT"); }
-void USB_DRD_FS_IRQHandler() {  asm("BKPT"); }
+//void USB_DRD_FS_IRQHandler() {  asm("BKPT"); }
 void CRS_IRQHandler() {  asm("BKPT"); }
 void UCPD1_IRQHandler() {  asm("BKPT"); }
 void FMC_IRQHandler() {  asm("BKPT"); }
