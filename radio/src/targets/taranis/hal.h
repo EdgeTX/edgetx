@@ -2299,6 +2299,23 @@
   #define INTMODULE_DMA_STREAM_IRQ         DMA2_Stream7_IRQn
   #define INTMODULE_DMA_STREAM_IRQHandler  DMA2_Stream7_IRQHandler
   #define INTMODULE_DMA_CHANNEL            LL_DMA_CHANNEL_4
+#elif defined(RADIO_H5TEST)
+  #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
+  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 5)  // PE.05
+  #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOE, 4)  // PE.04
+  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOE, 3)  // PE.03
+  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOE, 2)  // PE.02
+  #define INTMODULE_USART                  USART10
+  #define INTMODULE_USART_IRQHandler       USART10_IRQHandler
+  #define INTMODULE_USART_IRQn             USART10_IRQn
+  #define INTMODULE_DMA                    GPDMA1
+  #define INTMODULE_DMA_STREAM             LL_DMA_CHANNEL_1
+  #define INTMODULE_DMA_STREAM_IRQ         GPDMA1_Channel1_IRQn
+  #define INTMODULE_DMA_STREAM_IRQHandler  GPDMA1_Channel1_IRQHandler
+  #define INTMODULE_DMA_CHANNEL            LL_GPDMA1_REQUEST_USART10_TX
+  #define INTMODULE_RX_DMA                 GPDMA1
+  #define INTMODULE_RX_DMA_STREAM          LL_DMA_CHANNEL_2
+  #define INTMODULE_RX_DMA_CHANNEL         LL_GPDMA1_REQUEST_USART10_RX
 #elif defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_T20V2) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12) || defined(RADIO_GX12) || defined(RADIO_BUMBLEBEE)
 #if defined(RADIO_T20V2)  || defined(RADIO_BUMBLEBEE)
   #define INTMODULE_BOOTCMD_GPIO           GPIO_PIN(GPIOE, 4) // PE.04
@@ -2329,20 +2346,6 @@
   #define INTMODULE_RX_DMA                 DMA2
   #define INTMODULE_RX_DMA_STREAM          LL_DMA_STREAM_2
   #define INTMODULE_RX_DMA_CHANNEL         LL_DMA_CHANNEL_4
-#elif defined(RADIO_H5TEST)
-  #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
-  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 5)  // PE.05
-  #define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOE, 4)  // PE.04
-  #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOE, 3)  // PE.03
-  #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOE, 2)  // PE.02
-  #define INTMODULE_USART                 USART10
-  #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
-  #define INTMODULE_USART_IRQn            USART10_IRQn
-  #define INTMODULE_USART_IRQHandler      USART10_IRQHandler
-  #define INTMODULE_TIMER                 TIM3
-  #define INTMODULE_TIMER_IRQn            TIM3_IRQn
-  #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
-  #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #elif defined(PCBX9E) || defined(PCBX9DP) || defined(RADIO_X7)
   #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOC, 6)  // PC.06
   #define INTMODULE_TX_GPIO                GPIO_PIN(GPIOA, 10) // PA.10
@@ -2393,22 +2396,6 @@
   // #define INTMODULE_DMA                   NULL
   // #define INTMODULE_DMA_CHANNEL           0
   // #define INTMODULE_DMA_STREAM            0
-#elif defined(RADIO_H5TEST)
-  #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOD, 15) // PD.15
-  #define INTMODULE_TX_GPIO                GPIO_PIN(GPIOA, 10) // PA.10
-  #define INTMODULE_TX_GPIO_AF             LL_GPIO_AF_1
-  #define INTMODULE_TIMER                  TIM1
-  #define INTMODULE_TIMER_Channel          LL_TIM_CHANNEL_CH3
-  #define INTMODULE_TIMER_IRQn             TIM1_UP_IRQn
-  #define INTMODULE_TIMER_IRQHandler       TIM1_UP_IRQHandler
-/*
-  #define INTMODULE_TIMER_DMA              DMA2
-  #define INTMODULE_TIMER_DMA_CHANNEL      LL_DMA_CHANNEL_6
-  #define INTMODULE_TIMER_DMA_STREAM       LL_DMA_STREAM_5
-  #define INTMODULE_TIMER_DMA_STREAM_IRQn  DMA2_Stream5_IRQn
-  #define INTMODULE_TIMER_DMA_IRQHandler   DMA2_Stream5_IRQHandler
-  #define INTMODULE_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
-  */
 #else
   #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOD, 15) // PD.15
   #define INTMODULE_TX_GPIO                GPIO_PIN(GPIOA, 10) // PA.10
