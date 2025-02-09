@@ -1,0 +1,60 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/*
+STM32H562 DMA
+Channel 0 to 3
+FIFO of 8 bytes, 2 words–fixed/contiguously incremented addressing
+These channels must be typically allocated for GPDMA transfers
+between an APB or AHB peripheral and SRAM.
+
+Channel 4 and 5
+FIFO of 32 bytes, 8 words–fixed/contiguously incremented addressing
+ These channels may be used for GPDMA transfers between a
+demanding AHB peripheral and SRAM, or for transfers from/to external
+memories
+
+Channel 6 and 7
+FIFO of 32 bytes, 8 words–2D addressing
+ These channels may be used for GPDMA transfers between a
+demanding AHB peripheral and SRAM, or for transfers from/to external
+memories
+*/
+
+GPDMA1
+Channel0:
+Channel1: INTMODULE_DMA_STREAM
+Channel2: INTMODULE_RX_DMA_STREAM
+Channel3:
+Channel4:
+Channel5:
+Channel6:
+Channel7:
+
+GPDMA2
+Channel0: EXTMODULE_TIMER_DMA_STREAM
+Channel1: EXTMODULE_USART_TX_DMA_STREAM
+Channel2: EXTMODULE_USART_RX_DMA_STREAM
+Channel3:
+Channel4:
+Channel5:
+Channel6:
+Channel7:
