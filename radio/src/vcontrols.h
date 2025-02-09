@@ -26,4 +26,7 @@
 #if defined(VCONTROLS) && defined(COLORLCD)
 extern int16_t virtualInputs[MAX_VIRTUAL_INPUTS];
 extern uint64_t virtualSwitches; 
+
+extern uint32_t activeVirtualInputs; 
+extern uint64_t activeVirtualSwitches; 
 #endif
