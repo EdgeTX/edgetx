@@ -111,6 +111,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
   {
     /* Enable USB Voltage detector */
     HAL_PWREx_EnableUSBVoltageDetector();
+    HAL_PWREx_EnableVddUSB();
 
     __HAL_RCC_USB_CLK_ENABLE();
 
@@ -436,13 +437,17 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     pdev->pData = &hpcd_USB_OTG;
 
     hpcd_USB_OTG.Instance = USB_DRD_FS;
-    hpcd_USB_OTG.Init.dev_endpoints = 4;
+    hpcd_USB_OTG.Init.dev_endpoints = 8;
     hpcd_USB_OTG.Init.speed = PCD_SPEED_FULL;
     hpcd_USB_OTG.Init.dma_enable = DISABLE;
     hpcd_USB_OTG.Init.phy_itface = PCD_PHY_EMBEDDED;
     hpcd_USB_OTG.Init.Sof_enable = ENABLE;
     hpcd_USB_OTG.Init.low_power_enable = DISABLE;
     hpcd_USB_OTG.Init.lpm_enable = DISABLE;
+    hpcd_USB_OTG.Init.battery_charging_enable = DISABLE;
+    hpcd_USB_OTG.Init.bulk_doublebuffer_enable = DISABLE;
+    hpcd_USB_OTG.Init.iso_singlebuffer_enable = DISABLE;
+
 #if defined(VBUS_SENSING_ENABLED)
     hpcd_USB_OTG.Init.vbus_sensing_enable = ENABLE;
 #else
@@ -452,12 +457,14 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     {
       Error_Handler( );
     }
-#if 0
-#warning TODO
-    HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG, 0x80);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG, 0, 0x40);
-    HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG, 1, 0x80);
-#endif
+
+    // hack to provide buffers for the maximum number of expected USB endpoints
+    HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x40);
+    HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x80);
+    HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x01 , PCD_SNG_BUF, 0xA0);
+    HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x02 , PCD_SNG_BUF, 0xE0);
+    HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x81 , PCD_SNG_BUF, 0x120);
+    HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x82 , PCD_SNG_BUF, 0x140);
   }
 #else
 #error unkown USB hardware

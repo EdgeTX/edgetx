@@ -113,6 +113,12 @@ extern "C" void OTG_HS_IRQHandler()
   DEBUG_INTERRUPT(INT_OTG_FS);
   HAL_PCD_IRQHandler(&hpcd_USB_OTG);
 }
+#elif defined(USB_DRD_FS)
+extern "C" void USB_DRD_FS_IRQHandler()
+{
+  DEBUG_INTERRUPT(INT_OTG_FS);
+  HAL_PCD_IRQHandler(&hpcd_USB_OTG);
+}
 #else
 extern "C" void OTG_FS_IRQHandler()
 {
@@ -126,6 +132,7 @@ void usbInit()
 #if defined(STM32H7) || defined STM32H5
   HAL_PWREx_EnableUSBVoltageDetector();
 #endif
+
   gpio_init_af(USB_GPIO_DM, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(USB_GPIO_DP, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
   
