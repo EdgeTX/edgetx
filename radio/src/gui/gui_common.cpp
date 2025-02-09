@@ -29,6 +29,10 @@
 #include "mixes.h"
 #include "os/sleep.h"
 
+#if defined(VCONTROLS) && defined(COLORLCD)
+#include "vcontrols.h"
+#endif
+
 #undef CPN
 #include "MultiSubtypeDefs.h"
 
@@ -225,7 +229,11 @@ static bool isSourceTrainerAvailable(int source) {
 }
 #if defined(VCONTROLS) && defined(COLORLCD)
 static bool isSourceVControlAvailable(int source) {
-  return true;
+  if (source >= 0) {
+    const uint32_t mask = (1UL << source);
+    return (activeVirtualInputs & mask);
+  }
+  return false;
 }
 #endif
 static bool isSourceGvarAvailable(int source) {
@@ -369,7 +377,8 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
 #if defined(VCONTROLS) && defined(COLORLCD)
   if ((swtch >= SWSRC_FIRST_VIRTUAL_SWITCH) && (swtch <= SWSRC_LAST_VIRTUAL_SWITCH)) {
-    return true;
+    const uint64_t mask = (1UL << (swtch - SWSRC_FIRST_VIRTUAL_SWITCH));
+    return (activeVirtualSwitches & mask);
   }  
 #endif
 
