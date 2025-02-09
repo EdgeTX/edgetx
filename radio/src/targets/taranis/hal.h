@@ -2829,7 +2829,7 @@
   #elif defined(PCBX9LITES)
     #define BT_EN_GPIO                  GPIO_PIN(GPIOD, 14) // PD.14
   #elif defined(MANUFACTURER_RADIOMASTER)
-    #if defined(RADIO_POCKET)
+    #if defined(RADIO_POCKET) || defined(RADIO_GX12)
       #define BT_EN_GPIO                GPIO_PIN(GPIOA, 6) // PA.06
     #endif
   #else
