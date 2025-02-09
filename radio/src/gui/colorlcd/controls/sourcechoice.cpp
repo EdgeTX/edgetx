@@ -80,7 +80,7 @@ class SourceChoiceMenuToolbar : public MenuToolbar
               nullptr, STR_MENU_TRAINER);
     addButton(CHAR_CHANNEL, MIXSRC_FIRST_CH, MIXSRC_LAST_CH, nullptr,
               STR_MENU_CHANNELS);
-#if defined(VCONTROLS) 
+#if defined(VCONTROLS) && defined(COLORLCD)
     addButton("VI", MIXSRC_FIRST_VCONTROL, MIXSRC_LAST_VCONTROL, nullptr,
               STR_MENU_VCONTROL);
 #endif
