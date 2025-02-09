@@ -96,6 +96,21 @@ KEY_LABELS = [
             "PAGEDN": { "label": "PgUp/Dn" }
         }
     },
+    {
+        "targets": {"x12s"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "PAGEUP": { "label": "PgUp" },
+            "PAGEDN": { "label": "PgDn" },
+        }
+    },
+    {
+        "targets": {"t8"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "ENTER": { "label": "ENT" }
+        }
+    },
 ]
 
 class Key:
