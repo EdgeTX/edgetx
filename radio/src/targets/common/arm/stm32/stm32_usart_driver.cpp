@@ -742,11 +742,10 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
     dmaInit.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
     dmaInit.LinkedListBaseAddr = 0;
     dmaInit.LinkedListAddrOffset = 0;
-    LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
-
     dmaInit.Mode = LL_DMA_NORMAL;
 
-    LL_DMA_EnableIT_HT(usart->txDMA, usart->txDMA_Stream);
+    LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
+
     LL_DMA_EnableIT_TC(usart->txDMA, usart->txDMA_Stream);
     LL_DMA_EnableIT_USE(usart->txDMA, usart->txDMA_Stream);
     LL_DMA_EnableIT_ULE(usart->txDMA, usart->txDMA_Stream);
@@ -798,7 +797,12 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
 uint8_t stm32_usart_tx_completed(const stm32_usart_t* usart)
 {
   if (LL_USART_IsEnabledDMAReq_TX(usart->USARTx)) {
-#if !defined(STM32H7RS) && !defined(STM32H5)
+#if defined(STM32H7RS) || defined(STM32H5)
+    // TX DMA is configured, let's check if the stream is currently enabled
+    if (LL_DMA_IsEnabledChannel(usart->txDMA, usart->txDMA_Stream) ||
+        !LL_USART_IsActiveFlag_TXE(usart->USARTx))
+      return 0;
+#else
     // TX DMA is configured, let's check if the stream is currently enabled
     if (LL_DMA_IsEnabledStream(usart->txDMA, usart->txDMA_Stream) ||
         !LL_USART_IsActiveFlag_TXE(usart->USARTx))
@@ -855,6 +859,7 @@ void stm32_usart_wait_for_tx_dma(const stm32_usart_t* usart)
   }
 #else
   while(LL_DMA_IsEnabledChannel(usart->txDMA, usart->txDMA_Stream)); // is this correct?
+  LL_DMA_ClearFlag_TC(usart->txDMA, usart->txDMA_Stream);
 #endif
 }
 
