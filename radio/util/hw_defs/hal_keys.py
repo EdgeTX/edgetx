@@ -5,7 +5,7 @@
 #
 # where 'trim' is one of:
 #
-#   (-)    (+)   
+#   (-)    (+)
 #  'LHL', 'LHR',
 #  'LVD', 'LVU',
 #  'RVD', 'RVU',
@@ -33,12 +33,12 @@ TRIMS = [
 ]
 
 KEYS = [
-    { "name": "MENU", "key": "KEY_MENU", "label": "Menu" },
-    { "name": "EXIT", "key": "KEY_EXIT", "label": "Exit" },
+    { "name": "MENU", "key": "KEY_MENU", "label": "MENU" },
+    { "name": "EXIT", "key": "KEY_EXIT", "label": "EXIT" },
     { "name": "ENTER", "key": "KEY_ENTER", "label": "Enter" },
 
-    { "name": "PAGEUP", "key": "KEY_PAGEUP", "label": "PgUp" },
-    { "name": "PAGEDN", "key": "KEY_PAGEDN", "label": "PgDn" },
+    { "name": "PAGEUP", "key": "KEY_PAGEUP", "label": "PAGE<" },
+    { "name": "PAGEDN", "key": "KEY_PAGEDN", "label": "PAGE>" },
 
     { "name": "UP", "key": "KEY_UP", "label": "Up" },
     { "name": "DOWN", "key": "KEY_DOWN", "label": "Down" },
@@ -46,14 +46,71 @@ KEYS = [
     { "name": "LEFT", "key": "KEY_LEFT", "label": "Left" },
     { "name": "RIGHT", "key": "KEY_RIGHT", "label": "Right" },
 
-    { "name": "PLUS", "key": "KEY_PLUS", "label": "Plus" },
-    { "name": "MINUS", "key": "KEY_MINUS", "label": "Minus" },
+    { "name": "PLUS", "key": "KEY_PLUS", "label": "(+)" },
+    { "name": "MINUS", "key": "KEY_MINUS", "label": "(-)" },
 
     { "name": "MDL", "key": "KEY_MODEL", "label": "MDL" },
     { "name": "TELE", "key": "KEY_TELE", "label": "TELE" },
     { "name": "SYS", "key": "KEY_SYS", "label": "SYS" },
 
-    { "name": "SHIFT", "key": "KEY_SHIFT", "label": "Shift" },
+    { "name": "SHIFT", "key": "KEY_SHIFT", "label": "Shift" }
+]
+
+KEY_LABELS = [
+    {
+        "targets": {"boxer", "f16", "mt12", "gx12", "pocket", "tx12", "tx12mk2", "tx16s", "v16", "zorro"},
+        "keys": {
+            "EXIT": { "label": "RTN" }
+        }
+    },
+    {
+        "targets": {"bumblebee", "t12max", "t14", "t15", "t20", "t20v2", "tpro", "tpros", "tprov2"},
+        "keys": {
+            "PAGEDN": { "label": "</>" },
+        }
+    },
+    {
+        "targets": {"x7", "x7access", "x9e"},
+        "keys": {
+            "PAGEDN": { "label": "PAGE" },
+        }
+    },
+    {
+        "targets": {"t16", "t18"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "PAGEDN": {"label": "PAGE" },
+        }
+    },
+    {
+        "targets": {"x9d", "x9d+", "x9d+2019"},
+        "keys": {
+            "ENTER": { "label": "ENT" },
+            "PAGEDN": { "label": "PAGE" }
+        }
+    },
+    {
+        "targets": {"x10", "x10express"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "PAGEDN": { "label": "PgUp/Dn" }
+        }
+    },
+    {
+        "targets": {"x12s"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "PAGEUP": { "label": "PgUp" },
+            "PAGEDN": { "label": "PgDn" },
+        }
+    },
+    {
+        "targets": {"t8"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "ENTER": { "label": "ENT" }
+        }
+    },
 ]
 
 class Key:
@@ -104,11 +161,23 @@ def parse_trims(hw_defs):
                 trims.append(Trim(name, None, None))
 
     return trims
-        
-    
-def parse_keys(hw_defs):
+
+
+def key_label(target, name):
+    for d in KEY_LABELS:
+        if target in d['targets']:
+            keys = d.get('keys')
+            key = keys.get(name)
+            if key:
+                return key['label']
+
+    return None
+
+
+def parse_keys(target, hw_defs):
 
     keys = []
+
     for k in KEYS:
 
         name = k['name']
@@ -119,7 +188,11 @@ def parse_keys(hw_defs):
             key = Key(hw_defs[gpio], hw_defs[pin])
             key.key = k['key']
             key.name = name
-            key.label = k['label']
+            label = key_label(target, name)
+            if label:
+                key.label = label
+            else:
+                key.label = k['label']
             if 'KEYS_GPIO_ACTIVE_HIGH' in hw_defs:
                 key.active_low = False
             keys.append(key)
