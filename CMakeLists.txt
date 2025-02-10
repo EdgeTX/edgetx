@@ -5,7 +5,7 @@ project(EdgeTX)
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "11")
 set(VERSION_REVISION "0")
-set(CODENAME "dev")
+set(CODENAME "Jolly Mon")
 string(TIMESTAMP BUILD_YEAR "%Y")
 
 if(MINGW OR WIN32)

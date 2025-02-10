@@ -120,7 +120,7 @@ KEY_LABELS = [
             "RIGHT": { "label": "Right/MDL" }
         }
     },
-        {
+    {
         "targets": {"commando8"},
         "keys": {
             "EXIT": { "label": "BCK" },
