@@ -44,13 +44,13 @@ add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
 if(PCBREV STREQUAL PL18U)
   set(FLAVOUR pl18u)
-  add_definitions(-DRADIO_PL18U -DUSE_HATS_AS_KEYS)
+  add_definitions(-DRADIO_PL18U)
   set(DISK_CACHE ON)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
   set(LED_STRIP ON)
   set(USE_VS1053B ON)
-  set(KEY_DRIVER key_driver.cpp)
+  set(KEY_DRIVER pl18u_key_driver.cpp)
 
   # Defines internal module for PL18U
   set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")
