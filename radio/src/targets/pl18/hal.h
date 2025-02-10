@@ -235,6 +235,14 @@
 
 #else // !defined(RADIO_NB4P) && !defined(RADIO_NV14_FAMILY)
 
+// Keys
+#if defined(RADIO_PL18U)
+#define KEYS_GPIO_PIN_ENTER
+#define KEYS_GPIO_REG_ENTER
+#define KEYS_GPIO_PIN_EXIT
+#define KEYS_GPIO_REG_EXIT
+#endif
+
 // Trims
 #define TRIMS_GPIO_REG_LHL
 #define TRIMS_GPIO_PIN_LHL
@@ -272,19 +280,19 @@
 #define TRIMS_GPIO_REG_RSU
 #define TRIMS_GPIO_PIN_RSU
 
-#define TRIMS_GPIO_REG_T7L
-#define TRIMS_GPIO_PIN_T7L
-
-#define TRIMS_GPIO_REG_T7R
-#define TRIMS_GPIO_PIN_T7R
-
-#define TRIMS_GPIO_REG_T8D
-#define TRIMS_GPIO_PIN_T8D
-
-#define TRIMS_GPIO_REG_T8U
-#define TRIMS_GPIO_PIN_T8U
-
 #if !defined(RADIO_PL18U)
+  #define TRIMS_GPIO_REG_T7L
+  #define TRIMS_GPIO_PIN_T7L
+
+  #define TRIMS_GPIO_REG_T7R
+  #define TRIMS_GPIO_PIN_T7R
+
+  #define TRIMS_GPIO_REG_T8D
+  #define TRIMS_GPIO_PIN_T8D
+
+  #define TRIMS_GPIO_REG_T8U
+  #define TRIMS_GPIO_PIN_T8U
+
   #define TRIMS_GPIO_REG_TR1U             GPIOH->IDR
   #define TRIMS_GPIO_PIN_TR1U             LL_GPIO_PIN_8  // PH.08
   #define TRIMS_GPIO_REG_TR1D             GPIOH->IDR
