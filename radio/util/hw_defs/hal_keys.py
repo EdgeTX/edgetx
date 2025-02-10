@@ -79,7 +79,7 @@ KEY_LABELS = [
         "targets": {"t16", "t18"},
         "keys": {
             "EXIT": { "label": "RTN" },
-            "PAGEDN": {"label": "PAGE" },
+            "PAGEDN": {"label": "PAGE" }
         }
     },
     {
@@ -101,7 +101,7 @@ KEY_LABELS = [
         "keys": {
             "EXIT": { "label": "RTN" },
             "PAGEUP": { "label": "PgUp" },
-            "PAGEDN": { "label": "PgDn" },
+            "PAGEDN": { "label": "PgDn" }
         }
     },
     {
@@ -109,6 +109,26 @@ KEY_LABELS = [
         "keys": {
             "EXIT": { "label": "RTN" },
             "ENTER": { "label": "ENT" }
+        }
+    },
+    {
+        "targets": {"tlite"},
+        "keys": {
+            "EXIT": { "label": "RTN" },
+            "ENTER": { "label": "ENT" },
+            "LEFT": { "label": "Left/SYS" },
+            "RIGHT": { "label": "Right/MDL" }
+        }
+    },
+        {
+        "targets": {"commando8"},
+        "keys": {
+            "EXIT": { "label": "BCK" },
+            "PAGEUP": { "label": "Left" },
+            "PAGEDN": { "label": "Right" },
+            "PLUS": { "label": "Up" },
+            "MINUS": { "label": "Down" },
+            "MENU": { "label": "Menu" }
         }
     },
 ]
