@@ -211,7 +211,7 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
             s_editMode = 0;
           break;
 
-#if defined(NAVIGATION_XLITE) || defined(NAVIGATION_9X)
+#if defined(HAS_LEFT_RIGHT_NAV_KEYS)
         case EVT_KEY_BREAK(KEY_LEFT):
           if (cur > 0)
             cur--;
@@ -223,33 +223,21 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
           break;
 #endif
 
-#if defined(NAVIGATION_XLITE)
         case EVT_KEY_BREAK(KEY_SHIFT):
-#elif defined(NAVIGATION_9X)
         case EVT_KEY_LONG(KEY_LEFT):
         case EVT_KEY_LONG(KEY_RIGHT):
-#else
         case EVT_KEY_LONG(KEY_ENTER):
-#endif
           killEvents(event);
 
-#if !defined(NAVIGATION_XLITE)
-          if (v == ' ') {
+          if ((event != EVT_KEY_BREAK(KEY_SHIFT)) && v == ' ') {
             s_editMode = 0;
             break;
-          }
-          else
-#endif
-          if (v >= 'A' && v <= 'Z') {
-            v = 'a' + v - 'A'; // toggle case
-          }
-          else if (v >= 'a' && v <= 'z') {
-            v = 'A' + v - 'a'; // toggle case
+          } else if (isupper(v)) {
+            v = tolower(v); // toggle case
+          } else if (islower(v)) {
+            v = toupper(v); // toggle case
           }
 
-#if defined(NAVIGATION_9X)
-          if (event==EVT_KEY_LONG(KEY_LEFT))
-#endif
           break;
       }
 
