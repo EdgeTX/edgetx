@@ -1370,6 +1370,15 @@ void edgeTxInit()
 {
   TRACE("edgeTxInit");
 
+  #if defined(COLORLCD)
+  // SD_CARD_PRESENT() does not work properly on most
+  // B&W targets, so that we need to delay the detection
+  // until the SD card is mounted (requires RTOS scheduler running)
+  if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
+    runFatalErrorScreen(STR_NO_SDCARD);
+  }
+#endif
+
   // Show splash screen (color LCD)
   if (!(startOptions & OPENTX_START_NO_SPLASH))
     startSplash();
@@ -1623,15 +1632,6 @@ int main()
   }
 #endif
 
-#if defined(COLORLCD)
-  // SD_CARD_PRESENT() does not work properly on most
-  // B&W targets, so that we need to delay the detection
-  // until the SD card is mounted (requires RTOS scheduler running)
-  if (!SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
-    runFatalErrorScreen(STR_NO_SDCARD);
-  }
-#endif
-  
   tasksStart();
 }
 
