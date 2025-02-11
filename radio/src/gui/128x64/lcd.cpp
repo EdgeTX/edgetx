@@ -662,6 +662,11 @@ void putsVBat(coord_t x, coord_t y, LcdFlags att)
   putsVolts(x, y, g_vbat100mV, att);
 }
 
+void putsChn(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
+{
+  drawStringWithIndex(x, y, STR_CH, idx, att);
+}
+
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 {
   lcdDrawText(x, y, getAnalogShortLabel(idx), att);
