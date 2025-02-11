@@ -287,7 +287,8 @@ static const QList<RadioKeyDefinition> radioKeyDefinitions = {
 
   { KEY_MENU,   'L', 6, QList<int>() << Qt::Key_Equal,    SIMU_STR_HLP_KEY_EQL,   SIMU_STR_HLP_ACT_MENU },
 
-  { KEY_SHIFT,  'R', 6, QList<int>() << Qt::Key_Insert,   SIMU_STR_HLP_KEY_INS,   SIMU_STR_HLP_ACT_SHIFT },
+  { KEY_SHIFT,  'R', 6, QList<int>() << Qt::Key_Insert
+                                     << Qt::Key_Shift,    SIMU_STR_HLP_KEY_INS,   SIMU_STR_HLP_ACT_SHIFT },
 
   { KEY_EXIT,   'L', 7, QList<int>() << Qt::Key_Escape
                                      << Qt::Key_Backspace, SIMU_STR_HLP_KEYS_EXIT, SIMU_STR_HLP_ACT_EXIT },
