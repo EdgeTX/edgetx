@@ -632,6 +632,11 @@ void drawMainControlLabel(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
   lcdDrawSizedText(x, y, getMainControlLabel(idx), UINT8_MAX, att);
 }
 
+void putsChn(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
+{
+  drawStringWithIndex(x, y, STR_CH, idx, att);
+}
+
 void putsChnLetter(coord_t x, coord_t y, uint8_t idx, LcdFlags att)
 {
   lcdDrawText(x, y, getAnalogShortLabel(idx), att);
