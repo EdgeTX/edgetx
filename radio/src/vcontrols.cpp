@@ -29,4 +29,13 @@ uint64_t virtualSwitches = 0;
 
 uint32_t activeVirtualInputs   = 0; 
 uint64_t activeVirtualSwitches = 0; 
+
+void resetVirtualControls() {
+    activeVirtualInputs   = 0;
+    activeVirtualSwitches = 0;
+    virtualSwitches = 0;
+    for(auto& vin: virtualInputs) {
+        vin = 0;
+    }
+}
 #endif
