@@ -275,6 +275,13 @@ void runFatalErrorScreen(const char* message)
 {
   lcdInitDisplayDriver();
 
+  drawFatalErrorScreen(message);
+
+  // On startup wait for power button to be released
+  while (pwrPressed()) {
+    WDG_RESET();
+  }
+
   while (true) {
     drawFatalErrorScreen(message);
     WDG_RESET();
