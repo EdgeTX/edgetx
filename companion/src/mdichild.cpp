@@ -374,6 +374,8 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_PRT]->setEnabled(singleModelSelected);
   action[ACT_MDL_SIM]->setEnabled(singleModelSelected && !invalidModels());
   action[ACT_MDL_ERR]->setEnabled(singleModelSelected && radioData.models[getCurrentModel()].modelErrors);
+
+  emit navigationUpdated();
 }
 
 void MdiChild::retranslateUi()

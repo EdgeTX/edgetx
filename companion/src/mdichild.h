@@ -106,6 +106,7 @@ class MdiChild : public QWidget
   signals:
     void modified();
     void newStatusMessage(const QString & msg, const int duration);
+    void navigationUpdated();
 
   protected:
     virtual void changeEvent(QEvent * event);
