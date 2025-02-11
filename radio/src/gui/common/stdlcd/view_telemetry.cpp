@@ -32,23 +32,6 @@ enum NavigationDirection {
 #define decrTelemetryScreen() direction = NAVIGATION_DIRECTION_UP
 #define incrTelemetryScreen() direction = NAVIGATION_DIRECTION_DOWN
 
-#if defined(NAVIGATION_XLITE)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_LEFT) && keysGetState(KEY_SHIFT))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_RIGHT) && keysGetState(KEY_SHIFT))
-#elif defined(KEYS_GPIO_REG_PAGEDN)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_FIRST(KEY_PAGEUP))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_FIRST(KEY_PAGEDN))
-#elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_BREAK(KEY_PAGEUP))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_BREAK(KEY_PAGEDN))
-#elif defined(NAVIGATION_9X)
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_LONG(KEY_UP))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_LONG(KEY_DOWN))
-#else
-  #define EVT_KEY_PREVIOUS_VIEW(evt)         (evt == EVT_KEY_FIRST(KEY_UP))
-  #define EVT_KEY_NEXT_VIEW(evt)             (evt == EVT_KEY_FIRST(KEY_DOWN))
-#endif
-
 void menuViewTelemetry(event_t event)
 {
   enum NavigationDirection direction = NAVIGATION_DIRECTION_NONE;
@@ -61,11 +44,11 @@ void menuViewTelemetry(event_t event)
     chainMenu(menuMainView);
   }
 #endif
-  else if (EVT_KEY_PREVIOUS_VIEW(event)) {
+  else if (EVT_KEY_PREVIOUS_TELEM_VIEW(event)) {
     killEvents(event);
     decrTelemetryScreen();
   }
-  else if (EVT_KEY_NEXT_VIEW(event)) {
+  else if (EVT_KEY_NEXT_TELEM_VIEW(event)) {
     killEvents(event);
     incrTelemetryScreen();
   }
@@ -109,6 +92,3 @@ void showTelemScreen(uint8_t index)
     }
   }
 }
-
-#undef EVT_KEY_PREVIOUS_VIEW
-#undef EVT_KEY_NEXT_VIEW

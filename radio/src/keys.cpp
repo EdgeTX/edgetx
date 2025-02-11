@@ -311,7 +311,7 @@ bool trimDown(uint8_t idx)
   return READ_TRIMS() & (1 << idx);
 }
 
-uint8_t keysGetState(uint8_t key)
+bool keysGetState(uint8_t key)
 {
   if (key >= MAX_KEYS) return 0;
   return keys[key].pressed();

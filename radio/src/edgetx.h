@@ -103,20 +103,6 @@ enum RotaryEncoderMode {
 #include "myeeprom.h"
 #include "curves.h"
 
-// Define navigation type based on available keys
-#if LCD_W == 212
-  #define NAVIGATION_X9D
-#elif defined(KEYS_GPIO_REG_SHIFT)
-  #define NAVIGATION_XLITE
-#elif defined(KEYS_GPIO_REG_LEFT)
-  #define NAVIGATION_9X
-#elif defined(KEYS_GPIO_REG_PAGEUP) && defined(KEYS_GPIO_REG_TELE)
-  #define NAVIGATION_X7
-  #define NAVIGATION_X7_TX12
-#else
-  #define NAVIGATION_X7
-#endif
-
 void memswap(void * a, void * b, uint8_t size);
 
 // TODO: move these config check macros somewhere else
