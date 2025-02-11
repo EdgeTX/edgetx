@@ -758,6 +758,7 @@ MdiChild * MainWindow::createMdiChild()
   connect(child, &MdiChild::modified, this, &MainWindow::onSubwindowModified);
   connect(child, &MdiChild::newStatusMessage, statusBar(), &QStatusBar::showMessage);
   connect(child, &MdiChild::destroyed, win, &QMdiSubWindow::close);
+  connect(child, &MdiChild::navigationUpdated, this, &MainWindow::updateMenus);
   connect(win, &QMdiSubWindow::destroyed, this, &MainWindow::updateWindowActions);
 
   updateWindowActions();
