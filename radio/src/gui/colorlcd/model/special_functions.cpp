@@ -702,9 +702,9 @@ void FunctionEditPage::buildBody(Window *form)
 
 //-----------------------------------------------------------------------------
 
-FunctionsPage::FunctionsPage(CustomFunctionData *functions, const char *title,
-                             const char *prefix, EdgeTxIcon icon) :
-    PageTab(title, icon), functions(functions), title(title), prefix(prefix)
+FunctionsPage::FunctionsPage(CustomFunctionData *functions, PageDef& pageDef,
+                             const char *prefix) :
+    PageTab(pageDef), functions(functions), prefix(prefix)
 {
 }
 
@@ -970,7 +970,7 @@ class SpecialFunctionEditPage : public FunctionEditPage
 //-----------------------------------------------------------------------------
 
 SpecialFunctionsPage::SpecialFunctionsPage(PageDef& pageDef) :
-    FunctionsPage(g_model.customFn, pageDef.title, "SF", pageDef.icon)
+    FunctionsPage(g_model.customFn, pageDef, "SF")
 {
 }
 
@@ -1050,7 +1050,7 @@ class GlobalFunctionEditPage : public FunctionEditPage
 //-----------------------------------------------------------------------------
 
 GlobalFunctionsPage::GlobalFunctionsPage(PageDef& pageDef) :
-    FunctionsPage(g_eeGeneral.customFn, pageDef.title, "GF", pageDef.icon)
+    FunctionsPage(g_eeGeneral.customFn, pageDef, "GF")
 {
 }
 
