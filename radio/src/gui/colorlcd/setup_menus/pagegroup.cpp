@@ -92,7 +92,7 @@ class PageGroupHeader : public Window
 
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-    new HeaderIcon(this, icon, [=]() { menu->openMenu(); });
+    new HeaderIcon(this, icon);
 
     titleLabel = lv_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
@@ -100,7 +100,7 @@ class PageGroupHeader : public Window
     lv_obj_set_size(titleLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 2 - PAD_LARGE * 2, PageGroup::MENU_TITLE_TOP - PAD_MEDIUM * 2);
     setTitle("");
 
-    new HeaderBackIcon(this, [=]() { menu->onCancel(); });
+    new HeaderBackIcon(this);
   }
 
   void setTitle(const char* title) { if (titleLabel) lv_label_set_text(titleLabel, title); }
@@ -190,7 +190,12 @@ PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
   lv_obj_add_event_cb(lvobj, on_draw_end, LV_EVENT_DRAW_POST_END, nullptr);
 #endif
 
-  for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {
+#if defined(HARDWARE_TOUCH)
+  addCustomButton(0, 0, [=]() { openMenu(); });
+  addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
+#endif
+
+for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {
     if (!pages[i].enabled || pages[i].enabled())
       addTab(pages[i].createPage(pages[i]));
   }
