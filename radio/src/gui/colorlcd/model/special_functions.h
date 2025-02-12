@@ -130,8 +130,7 @@ class FunctionEditPage : public Page
 class FunctionsPage : public PageTab
 {
  public:
-  FunctionsPage(CustomFunctionData* functions, const char* title,
-                const char* prefix, EdgeTxIcon icon);
+  FunctionsPage(CustomFunctionData* functions, PageDef& pageDef, const char* prefix);
 
   void build(Window* window) override;
 
@@ -143,7 +142,6 @@ class FunctionsPage : public PageTab
   bool isRebuilding = false;
   CustomFunctionData* functions;
   ButtonBase* addButton = nullptr;
-  const char* title = nullptr;
   const char* prefix = nullptr;
 
   void rebuild(Window* window);
