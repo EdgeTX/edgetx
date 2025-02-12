@@ -127,17 +127,17 @@
     <message>
         <location filename="../storage/appdata.h" line="669"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard valg</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="669"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Venstre</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="669"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Højre</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="665"/>
@@ -418,7 +418,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="64"/>
         <source>SD Structure path</source>
-        <translation>Sti til SD-struktur</translation>
+        <translation>Katalog med SD-struktur</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="754"/>
@@ -434,7 +434,7 @@ Mode 4:
         <location filename="../apppreferencesdialog.ui" line="443"/>
         <location filename="../apppreferencesdialog.ui" line="1036"/>
         <source>Enable automatic backup before writing firmware</source>
-        <translation>Dan sikkerhedskopi før firmware skrives</translation>
+        <translation>Dan sikkerhedskopi før firmware skrives til radio</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1092"/>
@@ -484,12 +484,12 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="729"/>
         <source>Simulator Case Colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulator kabinet farve</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="746"/>
         <source>Select Colour</source>
-        <translation type="unfinished"></translation>
+        <translation>Vælg farve</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1150"/>
@@ -504,7 +504,7 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1196"/>
         <source>Display Scroll Buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis rul knapper</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1252"/>
@@ -534,17 +534,17 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1326"/>
         <source>BackLight Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Bagrundslys farve</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1378"/>
         <source>Enable for mouse without scroll wheel</source>
-        <translation type="unfinished"></translation>
+        <translation>Muligt at anvende mus uden dreje knap</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1416"/>
         <source>Position of Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Jurstering af taster</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1459"/>
@@ -590,12 +590,12 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.cpp" line="366"/>
         <source>AVAILABLE: Radio settings of unknown age</source>
-        <translation>MULIGHED: Radio indstillinger af ukendt alder</translation>
+        <translation>Oplysning: Radio indstillinger er gemt på ukendt tidspunkt</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="368"/>
         <source>AVAILABLE: Radio settings stored %1</source>
-        <translation>MULIGHED: Radio indstillinger gemt %1</translation>
+        <translation>Oplysning: Radio indstillinger er gemt %1</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.cpp" line="564"/>
@@ -755,12 +755,12 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="80"/>
         <source>Prompt to write firmware to radio after update</source>
-        <translation>Spørg efter at brænde radio med firmware efter opdatering</translation>
+        <translation>Skal firmware skrives til radio efter opdatering er hentet</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="785"/>
         <source>Prompt to run installer after update</source>
-        <translation>Spørg efter at starte installation efter opdatering</translation>
+        <translation>Skal installation startes efter opdatering er hentet</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1467"/>
@@ -908,12 +908,12 @@ Mode 4:
     <message>
         <location filename="../apppreferencesdialog.ui" line="1280"/>
         <source>Disable &apos;Cannot open joystick, joystick disabled&apos; warning</source>
-        <translation></translation>
+        <translation>Skjul advarsel &apos;Kan ikke åbne joystik, joystik afkoblet&apos;</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="1122"/>
         <source>Remove empty model slots when deleting models (only applies for radios w/out labels)</source>
-        <translation>Slet &apos;tom&apos; model når modeller slettes (gælder kun for radio uden etikette)</translation>
+        <translation>Slet &apos;tom&apos; model når modeller slettes (gælder kun for radio uden label)</translation>
     </message>
     <message>
         <location filename="../apppreferencesdialog.ui" line="549"/>
@@ -3664,7 +3664,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="509"/>
         <source>FlySky PL18EV</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="603"/>
@@ -3684,7 +3684,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="660"/>
         <source>Jumper Bumblebee</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="681"/>
@@ -3811,7 +3811,7 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="790"/>
         <source>Radiomaster GX12</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="805"/>
@@ -6445,7 +6445,7 @@ Er du sikker?</translation>
     <message>
         <location filename="../simulation/hostserialconnector.cpp" line="170"/>
         <source>Host Serial Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Seriel fejl til vært</translation>
     </message>
 </context>
 <context>
@@ -7282,12 +7282,12 @@ Kolumnerna for højde (GAlt) og hastighed (GSpd) er valgfrie</translation>
         <location filename="../mainwindow.cpp" line="558"/>
         <location filename="../mainwindow.cpp" line="828"/>
         <source>Read Firmware from Radio</source>
-        <translation>Hent radio firmware</translation>
+        <translation>Hent firmware fra radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="828"/>
         <source>Read firmware from Radio</source>
-        <translation>Hent radio firmware</translation>
+        <translation>Hent firmware fra radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="829"/>
@@ -7504,7 +7504,7 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="489"/>
         <source>No local SD structure path configured!</source>
-        <translation>Katalog for lokalt SD katalogstruktur er ikke indstillet!</translation>
+        <translation>Katalog for lokal SD kort er ikke angivet!</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="491"/>
@@ -7554,92 +7554,92 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="646"/>
         <source>The EdgeTX project was originally forked from &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>EdgeTX projekt udspringer oprindeligt fra &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="664"/>
         <source>About EdgeTX Companion</source>
-        <translation type="unfinished"></translation>
+        <translation>Om EdgeTX Companion</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="743"/>
         <source>%1 %2 - Radio: %3 - Profile: %4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 --- radio: %3 --- profile: %4</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="813"/>
         <source>Open an existing Models and Settings file</source>
-        <translation type="unfinished"></translation>
+        <translation>Åbn model og indstillinger</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="814"/>
         <source>Save to Models and Settings file</source>
-        <translation type="unfinished"></translation>
+        <translation>Gem model og indstillinger</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="815"/>
         <source>Save Models and Settings to another file name</source>
-        <translation type="unfinished"></translation>
+        <translation>Gem kopi af model og indstillinger</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="818"/>
         <source>Write Models and Settings to SD Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Gem model og indstillinger i SD-kort katalog</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="819"/>
         <source>Read Models and Settings from SD Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Indlæs model og indstillinger i SD-kort katalog</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="822"/>
         <source>Edit Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rediger indstillinger...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="822"/>
         <source>Edit %1 and Simulator settings (including radio profiles) settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Rediger %1 og Simulator indstillinger (inkluisiv radio profiler)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="823"/>
         <source>Export Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport indstillinger...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="824"/>
         <source>Import Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Import indstillinger...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="826"/>
         <source>Configure Radio Communications...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rediger Radio kommunikation...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="826"/>
         <source>Configure Companion for communicating with the Radio</source>
-        <translation type="unfinished"></translation>
+        <translation>Rediger Campanion kommunikation med Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="835"/>
         <source>Compare Models</source>
-        <translation type="unfinished">Sammenlign modeller</translation>
+        <translation>Sammenlign modeller</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="836"/>
         <source>Update components...</source>
-        <translation type="unfinished"></translation>
+        <translation>Opdater komponenter...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="836"/>
         <source>Download and update EdgeTX components and supporting resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Hent og opdater EdgeTX komponenter og support</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="837"/>
         <source>Synchronize SD card...</source>
-        <translation type="unfinished"></translation>
+        <translation>Synkroniser SD-kort...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="842"/>
@@ -7664,52 +7664,52 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="845"/>
         <source>File Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Fil genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="845"/>
         <source>Configure File toolbar visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Visning af Fil genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="846"/>
         <source>Models Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Model genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="846"/>
         <source>Configure Models toolbar visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Visning af Model genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="847"/>
         <source>Radio Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="847"/>
         <source>Configure Radio toolbar visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Visning af Radio genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="848"/>
         <source>Settings Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Indstillinger genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="848"/>
         <source>Configure Settings toolbar visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Visning af Indstillinger genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="849"/>
         <source>Tools Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Værktøj genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="849"/>
         <source>Configure Tools toolbar visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Visning af Værktøj genvejsmenu</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="851"/>
@@ -7754,30 +7754,30 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="858"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Om</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="861"/>
         <source>View</source>
-        <translation type="unfinished">Vis</translation>
+        <translation>Vis</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="862"/>
         <location filename="../mainwindow.cpp" line="872"/>
         <source>Models</source>
-        <translation type="unfinished"></translation>
+        <translation>Modeller</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="866"/>
         <location filename="../mainwindow.cpp" line="873"/>
         <source>Radio</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="867"/>
         <location filename="../mainwindow.cpp" line="875"/>
         <source>Tools</source>
-        <translation type="unfinished">Værktøj</translation>
+        <translation>Værktøj</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="868"/>
@@ -7797,12 +7797,12 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1505"/>
         <source>Read Models and Settings from SD path</source>
-        <translation type="unfinished"></translation>
+        <translation>Løs modeller og indstillinger fra SD katalog</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1520"/>
         <source>Writing models and settings to SD path</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriv modeller og indstillinger til SD katalog</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="902"/>
@@ -7987,17 +7987,17 @@ Vil du fortsætte?</translation>
     <message>
         <location filename="../mdichild.cpp" line="1539"/>
         <source>Unable to find SD card!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke finde SD kort!</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1545"/>
         <source>Models and settings written</source>
-        <translation type="unfinished"></translation>
+        <translation>Model og indstillinger gemt</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1549"/>
         <source>Error writing models and settings!</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejl ved gem af model og indstillinger!</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1561"/>
@@ -8132,7 +8132,7 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../mdichild.cpp" line="236"/>
         <source>Ctrl+Alt+E</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="362"/>
@@ -8168,7 +8168,7 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../mdichild.cpp" line="384"/>
         <source>Simulate Radio</source>
-        <translation>Simulering af radio</translation>
+        <translation>Radio simulering</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="385"/>
@@ -8178,7 +8178,7 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../mdichild.cpp" line="388"/>
         <source>Delete Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Slet model</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="396"/>
@@ -8223,7 +8223,7 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../mdichild.cpp" line="406"/>
         <source>Show Model Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis fejl i model</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="408"/>
@@ -8286,17 +8286,17 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../mdichild.cpp" line="1899"/>
         <source>Models status</source>
-        <translation type="unfinished"></translation>
+        <translation>Model status</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1914"/>
         <source>No errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen fejl</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1918"/>
         <source>Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejl</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1440"/>
@@ -8449,22 +8449,22 @@ Vil du gemme ændringer?</translation>
     <message>
         <location filename="../mdichild.cpp" line="1505"/>
         <source>Write Models and Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Gem model og indstillinger</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1505"/>
         <source>Operation aborted as %1 models have significant errors that may affect model operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Handling afbrudt da %1 modeller har alvorlige fejl som kan påvirke model funktionalitet.</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1511"/>
         <source>You are about to overwrite ALL models.</source>
-        <translation type="unfinished"></translation>
+        <translation>Du er ved at overskrive ALLE modeller.</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1512"/>
         <source>Continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Fortsæt?</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1517"/>
@@ -9082,7 +9082,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1640"/>
         <source>Master/CRSF</source>
-        <translation type="unfinished"></translation>
+        <translation>Træner/CRSF</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1727"/>
@@ -9128,18 +9128,18 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1955"/>
         <source>Error - Input %1 Line %2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejl - Indgang %1 linje %2 %3</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1955"/>
         <location filename="../firmwares/modeldata.cpp" line="1960"/>
         <source>has no source</source>
-        <translation type="unfinished"></translation>
+        <translation>har ingen kilde</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1960"/>
         <source>Error - Mix %1 Line %2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Fejl - Mix %1 linje %2 %3</translation>
     </message>
     <message>
         <location filename="../firmwares/modeldata.cpp" line="1754"/>
@@ -9579,12 +9579,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modelprinter.cpp" line="238"/>
         <source>Arming mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiveret tilstand</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="240"/>
         <source>Switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakt</translation>
     </message>
     <message>
         <location filename="../modelprinter.cpp" line="284"/>
@@ -10344,7 +10344,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../firmwares/moduledata.cpp" line="262"/>
         <location filename="../firmwares/moduledata.cpp" line="267"/>
         <source>SPort</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/moduledata.cpp" line="313"/>
@@ -10499,12 +10499,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../firmwares/moduledata.cpp" line="794"/>
         <source>CH5</source>
-        <translation type="unfinished">KA5</translation>
+        <translation>KA5</translation>
     </message>
     <message>
         <location filename="../firmwares/moduledata.cpp" line="796"/>
         <source>Switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakt</translation>
     </message>
     <message>
         <location filename="../firmwares/moduledata.cpp" line="260"/>
@@ -11334,12 +11334,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../radiointerface.cpp" line="208"/>
         <source>Unable to find SD card!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke finde SD kort!</translation>
     </message>
     <message>
         <location filename="../radiointerface.cpp" line="324"/>
         <source>found in multiple locations</source>
-        <translation type="unfinished"></translation>
+        <translation>fundet flere steder</translation>
     </message>
     <message>
         <location filename="../radiointerface.cpp" line="217"/>
@@ -12320,37 +12320,37 @@ x</translation>
     <message>
         <location filename="../simulation/serialportsdialog.ui" line="20"/>
         <source>Configure Serial Ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Indstil serielle porte</translation>
     </message>
     <message>
         <location filename="../simulation/serialportsdialog.ui" line="35"/>
         <source>AUX1 Port</source>
-        <translation type="unfinished"></translation>
+        <translation>AUX1</translation>
     </message>
     <message>
         <location filename="../simulation/serialportsdialog.ui" line="61"/>
         <source>Cancel</source>
-        <translation type="unfinished">Afbryd</translation>
+        <translation>Afbryd</translation>
     </message>
     <message>
         <location filename="../simulation/serialportsdialog.ui" line="68"/>
         <source>AUX2 Port</source>
-        <translation type="unfinished"></translation>
+        <translation>AUX2</translation>
     </message>
     <message>
         <location filename="../simulation/serialportsdialog.ui" line="101"/>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/serialportsdialog.ui" line="108"/>
         <source>Search for Serial Ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Søg efter serielle porte</translation>
     </message>
     <message>
         <location filename="../simulation/serialportsdialog.cpp" line="51"/>
         <source>Not Assigned</source>
-        <translation type="unfinished">Ikke anvendt</translation>
+        <translation>Ikke anvendt</translation>
     </message>
 </context>
 <context>
@@ -12669,22 +12669,22 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
         <location filename="../simulation/simulateduiwidget.cpp" line="162"/>
         <source>screenshot</source>
         <comment>Simulator LCD screenshot file name prefix</comment>
-        <translation>Simulator LCD skærmklip fil prefix</translation>
+        <translation>Fil prefix for Simulator LCD skærmbillede</translation>
     </message>
     <message>
         <location filename="../simulation/simulateduiwidget.cpp" line="398"/>
         <source>Scrl Up</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulateduiwidget.cpp" line="399"/>
         <source>Scrl Dn</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulateduiwidget.cpp" line="412"/>
         <source>Shortcut: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Genvej: %1</translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="41"/>
@@ -12699,27 +12699,27 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     <message>
         <location filename="../simulation/simulator_strings.h" line="43"/>
         <source>&lt;font size=+3&gt;=&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="44"/>
         <source>&lt;font size=+3&gt;&amp;gt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="45"/>
         <source>&lt;font size=+3&gt;&amp;lt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="46"/>
         <source>&lt;font size=+3&gt;,&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="47"/>
         <source>&lt;font size=+3&gt;.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="49"/>
@@ -12820,12 +12820,12 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     <message>
         <location filename="../simulation/simulator_strings.h" line="78"/>
         <source>&lt;pre&gt;[ LEFT ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="79"/>
         <source>&lt;pre&gt;[ RIGHT ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="80"/>
@@ -12875,12 +12875,12 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     <message>
         <location filename="../simulation/simulator_strings.h" line="90"/>
         <source>&lt;pre&gt;[ Prev/Inc ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="91"/>
         <source>&lt;pre&gt;[ Next/Dec ]&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="30"/>
@@ -12890,67 +12890,67 @@ Gas er omvendt (INV) - betyder at tomgang er opad. Gas og trim advarsel vendes o
     <message>
         <location filename="../simulation/simulator_strings.h" line="26"/>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="27"/>
         <source>F</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="28"/>
         <source>M</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="29"/>
         <source>N</source>
-        <translation type="unfinished">N</translation>
+        <translation>N</translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="31"/>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="33"/>
         <source>enter</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="34"/>
         <source>return</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="35"/>
         <source>page up</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="36"/>
         <source>page down</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="37"/>
         <source>delete</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="38"/>
         <source>backspace</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="39"/>
         <source>esc</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="40"/>
         <source>insert</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../simulation/simulator_strings.h" line="75"/>
@@ -13116,7 +13116,7 @@ NOTE: any existing EEPROM data incompatible with the selected radio type may be 
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="79"/>
         <source>Help</source>
-        <translation type="unfinished">Hjælp</translation>
+        <translation>Hjælp</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="91"/>
@@ -13246,22 +13246,22 @@ NOTE: any existing EEPROM data incompatible with the selected radio type may be 
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="230"/>
         <source>Serial Ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Serielle porte</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="235"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Om</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="240"/>
         <source>TX Battery Voltage...</source>
-        <translation type="unfinished"></translation>
+        <translation>Radio batteri spænding...</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.ui" line="243"/>
         <source>Open set transmitter battery voltage dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Åbn dialog til strøm indstilling</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="74"/>
@@ -13321,47 +13321,47 @@ NOTE: any existing EEPROM data incompatible with the selected radio type may be 
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="541"/>
         <source>EdgeTX Home Page: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</source>
-        <translation type="unfinished">EdgeTX hjemmeside: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</translation>
+        <translation>EdgeTX hjemmeside: &lt;a href=&apos;%1&apos;&gt;%1&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="543"/>
         <source>The EdgeTX project was originally forked from &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>EdgeTX projekt udspringer oprindeligt fra &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="545"/>
         <source>If you&apos;ve found this program useful, please support by &lt;a href=&apos;%1&apos;&gt;donating&lt;/a&gt;</source>
-        <translation type="unfinished">Syntes du at programmet er brugbart, kan du støtte udviklingen ved at &lt;a href=&apos;%1&apos;&gt;donere.&lt;/a&gt;</translation>
+        <translation>Syntes du at programmet er brugbart, kan du støtte udviklingen ved at &lt;a href=&apos;%1&apos;&gt;donere.&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="555"/>
         <source>File new &lt;a href=&apos;%1&apos;&gt;Issue or Request&lt;/a&gt;</source>
-        <translation type="unfinished">Anmeld &lt;a href=&apos;%1&apos;&gt;problem eller ønske&lt;/a&gt;</translation>
+        <translation>Anmeld &lt;a href=&apos;%1&apos;&gt;problem eller ønske&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="557"/>
         <source>Copyright</source>
-        <translation type="unfinished">Copyright</translation>
+        <translation>Copyright</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="561"/>
         <source>About EdgeTX Simulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Om EdgeTX Simulator</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="578"/>
         <source>Set voltage</source>
-        <translation type="unfinished"></translation>
+        <translation>Sæt spænding</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="585"/>
         <source>V</source>
-        <translation type="unfinished">V</translation>
+        <translation>V</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="597"/>
         <source>Battery</source>
-        <translation type="unfinished"></translation>
+        <translation>Batteri</translation>
     </message>
     <message>
         <location filename="../simulation/simulatormainwindow.cpp" line="511"/>
@@ -13425,7 +13425,7 @@ Radiotypen i den valgte profil anvendes som forvalg.</translation>
     <message>
         <location filename="../simulation/simulatorstartupdialog.ui" line="137"/>
         <source>SD Image Path:</source>
-        <translation>Sti til SD-kort:</translation>
+        <translation>SD-kort katalog:</translation>
     </message>
     <message>
         <location filename="../simulation/simulatorstartupdialog.ui" line="176"/>
@@ -13481,7 +13481,7 @@ Standard valg findes i den valgte radioprofil.</translation>
     <message>
         <location filename="../simulation/simulatorstartupdialog.ui" line="347"/>
         <source>SD Path</source>
-        <translation>SD sti</translation>
+        <translation>SD katalog</translation>
     </message>
     <message>
         <location filename="../simulation/simulatorstartupdialog.cpp" line="51"/>
@@ -13545,7 +13545,7 @@ Standard valg findes i den valgte radioprofil.</translation>
     <message>
         <location filename="../simulation/simulatorwidget.cpp" line="219"/>
         <source>Unable to handle byte array.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan ikke læse data pakke.</translation>
     </message>
     <message>
         <location filename="../simulation/simulatorwidget.cpp" line="225"/>
@@ -13565,7 +13565,7 @@ Standard valg findes i den valgte radioprofil.</translation>
     <message>
         <location filename="../simulation/simulatorwidget.cpp" line="289"/>
         <source>Invalid startup data provided. Plese specify a proper file/path.</source>
-        <translation>Ugyldig startup data. Angiv korrekt fil/sti.</translation>
+        <translation>Ugyldig startup data. Angiv korrekt fil/katalog.</translation>
     </message>
     <message>
         <location filename="../simulation/simulatorwidget.cpp" line="290"/>

@@ -100,7 +100,7 @@
 #define TR_SF_FAILSAFE                 TR("Sæt fejlsik", "Sæt fejlsikring")
 #define TR_SF_RANGE_CHECK              TR("Afst. check", "Afstand kontrol")
 #define TR_SF_MOD_BIND                 "Modul tilslut"
-#define TR_SF_RGBLEDS                  "RGB led"
+#define TR_SF_RGBLEDS                  "RGB lys"
 
 #define TR_SOUND                       "Spil lyd"
 #define TR_PLAY_TRACK                  TR("Spil Trk", "Spil lydfil")
@@ -122,8 +122,8 @@
 #define TR_SF_DISABLE_AUDIO_AMP        TR("Sluk audio amp", "Sluk audio amplifier")
 #define TR_SF_SET_SCREEN               "Vælg hoved skærm"
 #define TR_SF_SET_TELEMSCREEN          "Vis skærm"
-#define TR_SF_PUSH_CUST_SWITCH         "Push CS"
-#define TR_SF_LCD_TO_VIDEO             "LCD to Video"
+#define TR_SF_PUSH_CUST_SWITCH         TR("Tryk BK", "Tryk bruger kontakt")
+#define TR_SF_LCD_TO_VIDEO             "LCD til Video"
 
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetri")
 #define TR_FSW_RESET_TRIMS             "Trim"
@@ -292,12 +292,12 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Kontakt"
 #define TR_FUNCTION_SWITCHES           "Kontakter der kan tilpasses"
-#define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
+#define TR_FS_COLOR_LIST               "Bruger","Fra","Hvid","Rød","Grøn","Gul","Orange","Blå","Pink"
 #define TR_GROUP                       "Group"
-#define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_GROUPS                      "Always on groups"
-#define TR_LAST                        "Last"
-#define TR_MORE_INFO                   "More info"
+#define TR_GROUP_ALWAYS_ON             "Altid til"
+#define TR_GROUPS                      "Altid til gruppe"
+#define TR_LAST                        "Sidste"
+#define TR_MORE_INFO                   "Mere info"
 #define TR_SWITCH_TYPE                 "Type"
 #define TR_SWITCH_STARTUP              "Start"
 #define TR_SWITCH_GROUP                "Gruppe"
@@ -323,7 +323,7 @@
 #else
   #define TR_LEFT_STICK                "Ven"
 #endif
-#define TR_SUBTYPE                     "Subtype"
+#define TR_SUBTYPE                     "Undertype"
 #define TR_NOFREEEXPO                  "Ingen fri expo!"
 #define TR_NOFREEMIXER                 "Ingen fri mix!"
 #define TR_SOURCE                      "Kilde"
@@ -630,7 +630,7 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16KA uden telem.", "16KA uden telemetri")
 #define TR_16CH_WITH_TELEMETRY         TR("16KA med telem.", "16KA med telemetri")
 #define TR_8CH_WITH_TELEMETRY          TR(" 8KA med telem.", " 8KA med telemetri")
-#define TR_EXT_ANTENNA                 "Ext. antenna"
+#define TR_EXT_ANTENNA                 TR("Ext. antenne", "Ekstern antenne")
 #define TR_PIN                         "Pind"
 #define TR_UPDATE_RX_OPTIONS           "Opdater RX tilvalg?"
 #define TR_UPDATE_TX_OPTIONS           "Opdater TX tilvalg?"
@@ -688,8 +688,8 @@
 #define TR_V2                          TR("V2", "Værdi 2")
 #define TR_DURATION                    "Varighed"
 #define TR_DELAY                       "Forsinkelse"
-#define TR_SD_CARD                     "SD CARD"
-#define TR_SDHC_CARD                   "SD-HC CARD"
+#define TR_SD_CARD                     "SD KORT"
+#define TR_SDHC_CARD                   "SD-HC KORT"
 #define TR_NO_SOUNDS_ON_SD             "Ingen lyde på SD"
 #define TR_NO_MODELS_ON_SD             "Ingen modeller på SD"
 #define TR_NO_BITMAPS_ON_SD            "Ingen bitmapper på SD"
@@ -778,13 +778,13 @@
 #define TR_PATH_TOO_LONG               "Sti for lang"
 #define TR_VIEW_TEXT                   "Vis tekst"
 #define TR_FLASH_BOOTLOADER            "Installer bootloader"
-#define TR_FLASH_DEVICE                TR("Inst. enhed","Installer enhed")
+#define TR_FLASH_DEVICE                TR("Inst. enhed", "Installer enhed")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Inst. S.Port", "Installer S.Port enhed")
 #define TR_FLASH_RECEIVER_OTA          "Installer modtager OTA"
-#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Installer RX via ext. OTA"
-#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Installer RX via int. OTA"
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Installer FC via ext. OTA"
-#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Installer FC via int. OTA"
+#define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA TR("Inst. RX via ext. OTA", "Installer RX via extern OTA")
+#define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA TR("Inst. RX via int. OTA", "Installer RX via intern OTA")
+#define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA TR("Inst. FC via ext. OTA", "Installer FC via extern OTA")
+#define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA TR("Inst. FC via int. OTA", "Installer FC via intern OTA")
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Inst. BT module", "Installer Bluetooth modul")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT "Installer strøm styring"
 #define TR_DEVICE_NO_RESPONSE          TR("Enhed svarer ikke", "Enhed svarer ikke")
@@ -913,7 +913,7 @@
 #define TR_UNIT                        "Enhed"
 #define TR_TELEMETRY_NEWSENSOR         "Tilføj ny"
 #define TR_CHANNELRANGE                TR("Kan. rækkev", "Kanal rækkevidde")
-#define TR_ANTENNACONFIRM1             "EXT. ANTENNE"
+#define TR_ANTENNACONFIRM1             TR("EXT. ANTENNE", "EKSTERN ANTENNE")
 #if defined(PCBX12S)
   #define TR_ANTENNA_MODES             "Intern","Spørg","Per model","Intern + Ekstern"
 #else
@@ -991,7 +991,7 @@
 #define TR_LIMITS_HEADERS_DIRECTION    "Retning"
 #define TR_LIMITS_HEADERS_CURVE        "Kurve"
 #define TR_LIMITS_HEADERS_PPMCENTER    "PPM Center"
-#define TR_LIMITS_HEADERS_SUBTRIMMODE  "Subtrim tilstand"
+#define TR_LIMITS_HEADERS_SUBTRIMMODE  TR("Undertrim tils.", "Undertrim tilstand")
 #define TR_INVERTED                    "Invers"
 
 #define TR_LSW_DESCRIPTIONS            { "Sammenlign type eller funktion", "Første variabel", "Anden variabel eller konstant", "Anden variabel eller konstant", "Endnu en betingelse for linje", "Minimum TIL varighed for logisk funktion", "Minimum SAND varighed for betingelse bliver sand" }
