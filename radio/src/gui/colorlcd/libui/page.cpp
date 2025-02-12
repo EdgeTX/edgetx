@@ -28,14 +28,14 @@
 #include "pagegroup.h"
 #include "tabsgroup.h"
 
-PageHeader::PageHeader(Window* parent, EdgeTxIcon icon, std::function<void()> tlAction) :
+PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
 {
   setWindowFlag(NO_FOCUS | OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-  new HeaderIcon(this, icon, tlAction);
+  new HeaderIcon(this, icon);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
@@ -43,14 +43,14 @@ PageHeader::PageHeader(Window* parent, EdgeTxIcon icon, std::function<void()> tl
                          "", COLOR_THEME_PRIMARY2_INDEX);
 }
 
-PageHeader::PageHeader(Window* parent, const char* iconFile, std::function<void()> tlAction) :
+PageHeader::PageHeader(Window* parent, const char* iconFile) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
 {
   setWindowFlag(NO_FOCUS | OPAQUE);
 
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-  new HeaderIcon(this, iconFile, tlAction);
+  new HeaderIcon(this, iconFile);
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
@@ -76,9 +76,14 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
   if (pauseRefresh)
     lv_obj_enable_style_refresh(false);
 
-  header = new PageHeader(this, icon, [=]() { openMenu(); });
+  header = new PageHeader(this, icon);
 
-  new HeaderBackIcon(header, [=]() { onCancel(); });
+  new HeaderBackIcon(header);
+
+#if defined(HARDWARE_TOUCH)
+  addCustomButton(0, 0, [=]() { openMenu(); });
+  addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
+#endif
 
   body = new Window(this,
                     {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});

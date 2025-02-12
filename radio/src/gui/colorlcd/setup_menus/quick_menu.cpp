@@ -331,3 +331,8 @@ void QuickMenu::onEvent(event_t event)
     Window::onEvent(event);
   }
 }
+
+void QuickMenu::onClicked()
+{
+  closeMenu();
+}

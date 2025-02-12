@@ -31,8 +31,8 @@ class QuickMenu;
 class PageHeader : public Window
 {
  public:
-  PageHeader(Window* parent, EdgeTxIcon icon, std::function<void()> tlAction = nullptr);
-  PageHeader(Window* parent, const char* iconFile, std::function<void()> tlAction = nullptr);
+  PageHeader(Window* parent, EdgeTxIcon icon);
+  PageHeader(Window* parent, const char* iconFile);
 
   void setTitle(std::string txt) { title->setText(std::move(txt)); }
   StaticText* setTitle2(std::string txt);
