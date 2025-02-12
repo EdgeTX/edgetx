@@ -116,4 +116,6 @@ class QuickMenu : public Window
   SubMenu curPage;
 
   void buildMainMenu();
+
+  void onClicked() override;
 };

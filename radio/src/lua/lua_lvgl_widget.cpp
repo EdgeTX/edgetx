@@ -1699,10 +1699,14 @@ class WidgetPage : public NavWindow, public LuaEventHandler
       NavWindow(parent, {0, 0, LCD_W, LCD_H}), backAction(std::move(backAction))
   {
     if (iconFile.empty())
-      header = new PageHeader(this, ICON_EDGETX, [=]() { onCancel(); });
+      header = new PageHeader(this, ICON_EDGETX);
     else
-      header = new PageHeader(this, iconFile.c_str(), [=]() { onCancel(); });
+      header = new PageHeader(this, iconFile.c_str());
 
+#if defined(HARDWARE_TOUCH)
+    addCustomButton(0, 0, [=]() { onCancel(); });
+#endif
+    
     body = new Window(
         this, {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
     body->setWindowFlag(NO_FOCUS);
