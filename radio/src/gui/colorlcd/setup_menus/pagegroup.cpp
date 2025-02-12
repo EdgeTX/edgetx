@@ -196,8 +196,7 @@ PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
 #endif
 
 for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {
-    if (!pages[i].enabled || pages[i].enabled())
-      addTab(pages[i].createPage(pages[i]));
+    addTab(pages[i].createPage(pages[i]));
   }
 }
 
