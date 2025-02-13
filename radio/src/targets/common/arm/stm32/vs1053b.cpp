@@ -68,8 +68,8 @@
 #define SM_LINE1         	           0x4000
 #define SM_CLK_RANGE     	           0x8000
 
-#define SPI_LOW_SPEED                1755000
-#define SPI_HIGH_SPEED               9216000
+#define SPI_LOW_SPEED                1500000
+#define SPI_HIGH_SPEED              12000000
 
 #define VS1053_BUFFER_SIZE           32
 
@@ -305,6 +305,7 @@ static void vs1053b_mute()
     if (!_last_play_ts) {
       // we start the mute delay now
       _last_play_ts = now;
+      return;
     } else if (now - _last_play_ts < _instance->mute_delay_ms) {
       // delay not expired, we may not mute yet
       return;
