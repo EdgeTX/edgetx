@@ -41,13 +41,14 @@ int HexInterface::load(uint8_t *data, int maxsize)
     QString line = stream.readLine();
 
     if(line.left(1)!=":") continue;
-    
+
     int byteCount = getValueFromLine(line,1);
     int address = getValueFromLine(line,3,4);
     int recType = getValueFromLine(line,7);
-    if (recType==0x02) {
-        offset+=0x010000;
-    }
+
+    if (recType==0x02)
+      offset+=0x010000;
+
     if(byteCount<0 || address<0 || recType<0)
       return 0;
 
@@ -59,11 +60,10 @@ int HexInterface::load(uint8_t *data, int maxsize)
     chkSum -= recType;
     chkSum -= address & 0xFF;
     chkSum -= address >> 8;
-    for(int i=0; i<byteCount; i++)
-    {
-        quint8 v = getValueFromLine(line,(i*2)+9) & 0xFF;
-        chkSum -= v;
-        ba.append(v);
+    for(int i=0; i<byteCount; i++) {
+      quint8 v = getValueFromLine(line,(i*2)+9) & 0xFF;
+      chkSum -= v;
+      ba.append(v);
     }
 
     quint8 retV = getValueFromLine(line,(byteCount*2)+9) & 0xFF;
@@ -80,10 +80,9 @@ int HexInterface::load(uint8_t *data, int maxsize)
       return 0;
     }
   }
-  
+
   return result;
 }
-
 
 bool HexInterface::save(const uint8_t * data, const int size)
 {
@@ -133,4 +132,3 @@ QString HexInterface::iHEXExtRec(quint8 bank)
   str += QString("%1").arg(chkSum, 2, 16, QChar('0'));
   return str.toUpper(); // output to file and lf;
 }
-

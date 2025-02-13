@@ -401,7 +401,7 @@ QString convertItemValue(QString sourceUnit, QString destUnit, QString value)
     return value;
 
   int i = 0;
-  while (conversions[i].source != NULL) {
+  while (!conversions[i].source.isNull()) {
     if (conversions[i].source == sourceUnit && conversions[i].destination == destUnit) {
       return ((conversions[i].converter)(value));
     }
