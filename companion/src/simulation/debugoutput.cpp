@@ -326,9 +326,9 @@ QRegularExpression DebugOutput::makeRegEx(const QString & input, bool * isExlusi
   }
   // no, convert arbitrary string to regex
   else {
-    output.replace(QRegExp("^\\\\/"), "/");  // remove escape before fwd-slash ("\/...")
+    output.replace(QRegularExpression("^\\\\/"), "/");  // remove escape before fwd-slash ("\/...")
     // escape all special chars except * and ?
-    output.replace(QRegExp("(\\\\|\\.|\\+|\\^|\\$|\\||\\)|\\(|\\]|\\[|\\}|\\{)"), "\\\\1");
+    output.replace(QRegularExpression("(\\\\|\\.|\\+|\\^|\\$|\\||\\)|\\(|\\]|\\[|\\}|\\{)"), "\\\\1");
     output.replace("\\*", "\x30").replace("\\?", "\x31");  // save escaped wildcard chars
     output.replace("*", ".*").replace("?", ".");  // convert common wildcards
     output.replace("\x30", "\\\\*").replace("\x31", "\\\\?");  // replace escaped wildcard chars

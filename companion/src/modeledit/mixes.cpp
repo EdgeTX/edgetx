@@ -419,27 +419,39 @@ void MixesPanel::mixerAdd()
   gm_openMix(index);
 }
 
+QAction * MixesPanel::addAct(const QString & icon, const QString & text, const char * slot, const QKeySequence & shortcut, bool enabled)
+{
+  QAction * newAction = new QAction(this);
+  newAction->setMenuRole(QAction::NoRole);
+  newAction->setText(text);
+  newAction->setIcon(CompanionIcon(icon));
+  newAction->setShortcut(shortcut);
+  newAction->setEnabled(enabled);
+  connect(newAction, SIGNAL(triggered()), this, slot);
+  return newAction;
+}
+
 void MixesPanel::mixerlistWidget_customContextMenuRequested(QPoint pos)
 {
   QPoint globalPos = mixersListWidget->mapToGlobal(pos);
 
   const QClipboard *clipboard = QApplication::clipboard();
   const QMimeData *mimeData = clipboard->mimeData();
-  bool hasData = mimeData->hasFormat("application/x-companion-mix");
+  bool hasClipData = mimeData->hasFormat("application/x-companion-mix");
 
   QMenu contextMenu;
-  contextMenu.addAction(CompanionIcon("add.png"),       tr("&Add"), this,              SLOT(mixerAdd()),        tr("Ctrl+A"));
-  contextMenu.addAction(CompanionIcon("edit.png"),      tr("&Edit"), this,             SLOT(mixerOpen()),       tr("Enter"));
-  contextMenu.addAction(CompanionIcon("fuses.png"),     tr("&Toggle highlight"), this, SLOT(mixerHighlight()),  tr("Ctrl+T"));
+  contextMenu.addAction(addAct("add.png",       tr("&Add"),               SLOT(mixerAdd()),        tr("Ctrl+A")));
+  contextMenu.addAction(addAct("edit.png",      tr("&Edit"),              SLOT(mixerOpen()),       tr("Enter")));
+  contextMenu.addAction(addAct("fuses.png",     tr("&Toggle highlight"),  SLOT(mixerHighlight()),  tr("Ctrl+T")));
   contextMenu.addSeparator();
-  contextMenu.addAction(CompanionIcon("clear.png"),     tr("&Delete"), this,           SLOT(mixersDelete()),    tr("Delete"));
-  contextMenu.addAction(CompanionIcon("copy.png"),      tr("&Copy"), this,             SLOT(mixersCopy()),      tr("Ctrl+C"));
-  contextMenu.addAction(CompanionIcon("cut.png"),       tr("C&ut"), this,              SLOT(mixersCut()),       tr("Ctrl+X"));
-  contextMenu.addAction(CompanionIcon("paste.png"),     tr("&Paste"), this,            SLOT(mixersPaste()),     tr("Ctrl+V"))->setEnabled(hasData);
-  contextMenu.addAction(CompanionIcon("duplicate.png"), tr("Du&plicate"), this,        SLOT(mixersDuplicate()), tr("Ctrl+U"));
+  contextMenu.addAction(addAct("clear.png",     tr("&Delete"),            SLOT(mixersDelete()),    tr("Delete")));
+  contextMenu.addAction(addAct("copy.png",      tr("&Copy"),              SLOT(mixersCopy()),      tr("Ctrl+C")));
+  contextMenu.addAction(addAct("cut.png",       tr("C&ut"),               SLOT(mixersCut()),       tr("Ctrl+X")));
+  contextMenu.addAction(addAct("paste.png",     tr("&Paste"),             SLOT(mixersPaste()),     tr("Ctrl+V"), hasClipData));
+  contextMenu.addAction(addAct("duplicate.png", tr("Du&plicate"),         SLOT(mixersDuplicate()), tr("Ctrl+U")));
   contextMenu.addSeparator();
-  contextMenu.addAction(CompanionIcon("moveup.png"),    tr("Move Up"), this,           SLOT(moveMixUp()),       tr("Ctrl+Up"));
-  contextMenu.addAction(CompanionIcon("movedown.png"),  tr("Move Down"), this,         SLOT(moveMixDown()),     tr("Ctrl+Down"));
+  contextMenu.addAction(addAct("moveup.png",    tr("Move Up"),            SLOT(moveMixUp()),       tr("Ctrl+Up")));
+  contextMenu.addAction(addAct("movedown.png",  tr("Move Down"),          SLOT(moveMixDown()),     tr("Ctrl+Down")));
   contextMenu.addSeparator();
   contextMenu.addActions(mixersListWidget->actions());
 
