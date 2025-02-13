@@ -92,7 +92,7 @@ void SplashLibraryDialog::getFileList()
     QDir myRes(":/images/library");
     QStringList tmp = myRes.entryList();
     for (int i = 0; i < tmp.size(); i++) {
-      QFileInfo fileInfo = tmp.at(i);
+      QFileInfo fileInfo(tmp.at(i));
       imageList.append(":/images/library/" + fileInfo.fileName());
     }
   }
@@ -107,7 +107,7 @@ void SplashLibraryDialog::getFileList()
       myDir.setNameFilters(supportedImageFormats);
       QStringList tmp = myDir.entryList();
       for (int i = 0; i < tmp.size(); i++) {
-        QFileInfo fileInfo = tmp.at(i);
+        QFileInfo fileInfo(tmp.at(i));
         QString filename = libraryPath + "/" + fileInfo.fileName();
         QImage image(filename);
         if (!image.isNull()) {

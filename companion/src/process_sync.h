@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef PROCESS_SYNC_H
-#define PROCESS_SYNC_H
+#pragma once
 
 #include <QObject>
 #include <QDateTime>
@@ -28,7 +27,7 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QReadWriteLock>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QVector>
 
 class SyncProcess : public QObject
@@ -139,7 +138,7 @@ class SyncProcess : public QObject
     SyncStatus m_stat;
     QReadWriteLock stopReqMutex;
     QString testRunStr;
-    QVector<QRegExp> m_excludeFilters;
+    QVector<QRegularExpression> m_excludeFilters;
     QStringList m_dirIteratorFilters;
     QDir::Filters m_dirFilters;
     QDateTime m_startTime;
@@ -151,5 +150,3 @@ Q_DECLARE_METATYPE(SyncProcess::SyncOptions)
 Q_DECLARE_TYPEINFO(SyncProcess::SyncOptions, Q_MOVABLE_TYPE);
 Q_DECLARE_METATYPE(SyncProcess::SyncStatus)
 Q_DECLARE_TYPEINFO(SyncProcess::SyncStatus, Q_PRIMITIVE_TYPE);
-
-#endif // PROCESS_SYNC_H
