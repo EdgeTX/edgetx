@@ -1,26 +1,28 @@
-if(APPLE AND DEFINED ENV{HOMEBREW_PREFIX} AND EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@5)
-  # If Homebrew is used, HOMEBREW_PREFIX should be defined
-  list(APPEND CMAKE_PREFIX_PATH "$ENV{HOMEBREW_PREFIX}/opt/qt@5")
-endif()
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5Core QUIET)
-find_package(Qt5Widgets QUIET)
-find_package(Qt5Xml QUIET)
-find_package(Qt5LinguistTools QUIET)
-find_package(Qt5PrintSupport QUIET)
-find_package(Qt5Multimedia QUIET)
-find_package(Qt5Svg QUIET)
-find_package(Qt5SerialPort QUIET)
+# No going versionless just yet
+#set(QT_NO_CREATE_VERSIONLESS_FUNCTIONS ON)
+#set(QT_NO_CREATE_VERSIONLESS_TARGETS ON)
 
-if(Qt5Core_FOUND)
-  message(STATUS "Qt Version: ${Qt5Core_VERSION}")
+if(APPLE AND DEFINED ENV{HOMEBREW_PREFIX})
+  # If Homebrew is used, HOMEBREW_PREFIX should be defined
+  if(EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@6)
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{HOMEBREW_PREFIX}/opt/qt@6")
+  elseif(EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@5)
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{HOMEBREW_PREFIX}/opt/qt@5")
+  endif()
+endif()
+
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Multimedia PrintSupport SerialPort Svg Xml)
+
+if(Qt${QT_VERSION_MAJOR}_FOUND)
+  message(STATUS "Qt Version: ${QT_VERSION}")
 
   ### Get locations of Qt binary executables & libs (libs are for distros, not for linking)
   # first set up some hints
-  get_target_property(QtCore_LOCATION Qt5::Core LOCATION)
+  get_target_property(QtCore_LOCATION Qt${QT_VERSION_MAJOR}::Core LOCATION)
   get_filename_component(qt_core_path ${QtCore_LOCATION} PATH)
   if(APPLE)
     get_filename_component(qt_core_path "${qt_core_path}/.." ABSOLUTE)

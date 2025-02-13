@@ -34,10 +34,6 @@
 #define PAUSE_MINTM           100UL
 #define PAUSE_MAXTM           75000UL
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 5, 0))
-  #define QtInfoMsg    QtMsgType(4)
-#endif
-
 #define PRINT_CREATE(str)     emitProgressMessage((str), QtInfoMsg)
 #define PRINT_REPLACE(str)    emitProgressMessage((str), QtWarningMsg)
 //#define PRINT_DELETE(str)   emitProgressMessage((str), QtCriticalMsg)  // unused
@@ -48,9 +44,6 @@
 
 #ifdef Q_OS_WIN
   extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
-  #define FILTER_RE_SYNTX     QRegExp::Wildcard
-#else
-  #define FILTER_RE_SYNTX     QRegExp::WildcardUnix
 #endif
 
 SyncProcess::SyncProcess(const SyncProcess::SyncOptions & options) :
@@ -72,7 +65,8 @@ SyncProcess::SyncProcess(const SyncProcess::SyncOptions & options) :
 
   if (!m_options.excludeFilter.isEmpty()) {
     for (const QString & f : m_options.excludeFilter.split(',', Qt::SkipEmptyParts))
-      m_excludeFilters.append(QRegExp(f, ((m_dirFilters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive), FILTER_RE_SYNTX));
+    m_excludeFilters.append(QRegularExpression(QRegularExpression::wildcardToRegularExpression(f),
+                                               ((m_dirFilters & QDir::CaseSensitive) ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption)));
   }
 
   if (m_options.flags & OPT_DRY_RUN)
@@ -193,8 +187,8 @@ SyncProcess::FileFilterResult SyncProcess::fileFilter(const QFileInfo & fileInfo
     return FILE_OVERSIZE;
 
   if (!m_excludeFilters.isEmpty() && (!(m_dirFilters & QDir::AllDirs) || fileInfo.isFile())) {
-    for (QVector<QRegExp>::const_iterator it = m_excludeFilters.constBegin(), end = m_excludeFilters.constEnd(); it != end; ++it) {
-      if (QRegExp(*it).exactMatch(fileInfo.fileName()))
+    for (QVector<QRegularExpression>::const_iterator it = m_excludeFilters.constBegin(), end = m_excludeFilters.constEnd(); it != end; ++it) {
+      if (QRegularExpression(*it).match(fileInfo.fileName()).hasMatch())
         return FILE_EXCLUDE;
     }
   }

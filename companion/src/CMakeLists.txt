@@ -21,7 +21,7 @@ endif()
 
 # This the name that the user will see in the generated DMG and what the application
 # will be called under /Applications. We include the version string to make installing
-# different versions for different eeproms easier, i.e. without manually renaming
+# different versions side-by-side
 set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
 
 option(DEBUG_STORAGE_IMPORT "Turn on debug output for storage import") # Disabled by default
@@ -106,7 +106,7 @@ foreach(language ${LANGUAGES})
   list(APPEND companion_TS translations/companion_${language}.ts)
 endforeach(language)
 # .ts -> .qm
-qt5_add_translation(companion_QM ${companion_TS})
+qt_add_translation(companion_QM ${companion_TS})
 
 # add Qt translations if found
 if(QT_TRANSLATIONS_DIR)
@@ -175,8 +175,8 @@ set(common_RESOURCES
   ${HWDEFS_QRC}
   )
 
-qt5_wrap_cpp(common_SRCS ${common_MOC_HDRS})
-qt5_add_resources(common_RCC ${common_RESOURCES})
+qt_wrap_cpp(common_SRCS ${common_MOC_HDRS})
+qt_add_resources(common_RCC ${common_RESOURCES})
 
 add_library(common ${common_SRCS} ${common_RCC})
 
@@ -187,10 +187,10 @@ target_link_libraries(common
   simulation
   storage
   maxLibQt
-  Qt5::Core
-  Qt5::Xml
-  Qt5::Widgets
-  Qt5::SerialPort
+  Qt::Core
+  Qt::Xml
+  Qt::Widgets
+  Qt::SerialPort
   ${SDL2_LIBRARIES}
   ${WIN_LINK_LIBRARIES}
   )
@@ -292,76 +292,22 @@ add_subdirectory(tests)
 
 # the current flavour is not automatically added if build in the current cmake iteration, so always
 # add its library name to be sure
-if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
-  set(FLAVOUR x7access)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T12)
-  set(FLAVOUR t12)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITE)
-  set(FLAVOUR tlite)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITEF4)
-  set(FLAVOUR tlitef4)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPRO)
-  set(FLAVOUR tpro)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPROV2)
-  set(FLAVOUR tprov2)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPROS)
-  set(FLAVOUR tpros)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL BUMBLEBEE)
-  set(FLAVOUR bumblebee)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20)
-  set(FLAVOUR t20)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20V2)
-  set(FLAVOUR t20v2)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12)
-  set(FLAVOUR tx12)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12MK2)
-  set(FLAVOUR tx12mk2)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL ZORRO)
-  set(FLAVOUR zorro)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL BOXER)
-  set(FLAVOUR boxer)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL GX12)
-  set(FLAVOUR gx12)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL POCKET)
-  set(FLAVOUR pocket)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
-  set(FLAVOUR lr3pro)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL COMMANDO8)
-  set(FLAVOUR commando8)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T8)
-  set(FLAVOUR t8)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL MT12)
-  set(FLAVOUR mt12)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL V14)
-  set(FLAVOUR v14)
+if(PCB STREQUAL X7)
+  if(PCBREV STREQUAL ACCESS)
+    set(FLAVOUR x7access)
+  else()
+    string(TOLOWER ${PCBREV} FLAVOUR)
+  endif()
 elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
   set(FLAVOUR x9d+2019)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
-  set(FLAVOUR x10express)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL TX16S)
-  set(FLAVOUR tx16s)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL F16)
-  set(FLAVOUR f16)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL V16)
-  set(FLAVOUR v16)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T14)
-  set(FLAVOUR t14)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T15)
-  set(FLAVOUR t15)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T16)
-  set(FLAVOUR t16)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T18)
-  set(FLAVOUR t18)
-elseif(PCB STREQUAL PL18 AND PCBREV STREQUAL EL18)
-  set(FLAVOUR el18)
-elseif(PCB STREQUAL PL18 AND PCBREV STREQUAL PL18EV)
-  set(FLAVOUR pl18ev)
-elseif(PCB STREQUAL PL18 AND PCBREV STREQUAL PL18U)
-  set(FLAVOUR pl18u)
+elseif(PCB STREQUAL X10)
+  if(PCBREV STREQUAL EXPRESS)
+    set(FLAVOUR x10express)
+  else()
+    string(TOLOWER ${PCBREV} FLAVOUR)
+  endif()
 elseif(PCB STREQUAL PL18)
-  set(FLAVOUR pl18)
-elseif(PCB STREQUAL ST16)
-  set(FLAVOR st16)
+  string(TOLOWER ${PCBREV} FLAVOUR)
 else()
   string(TOLOWER ${PCB} FLAVOUR)
 endif()
@@ -431,7 +377,7 @@ elseif(WIN32)
   endif()
 
   if(OPENSSL_FOUND)
-    if ((OPENSSL_VERSION VERSION_LESS "1.2.0" AND Qt5Core_VERSION VERSION_LESS "6.0.0") OR (OPENSSL_VERSION VERSION_GREATER "3.0.0" AND Qt5Core_VERSION VERSION_GREATER_EQUAL "6.0.0"))
+    if ((OPENSSL_VERSION VERSION_LESS "1.2.0" AND QT_VERSION VERSION_LESS "6.0.0") OR (OPENSSL_VERSION VERSION_GREATER "3.0.0" AND QT_VERSION VERSION_GREATER_EQUAL "6.0.0"))
       get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
       if(MINGW)
         # the dlls are stored in the bin directory
@@ -444,7 +390,7 @@ elseif(WIN32)
     endif()
   endif()
 
-  if(NOT OPENSSL_FOUND OR Qt5Core_VERSION VERSION_LESS "6.0.0")
+  if(NOT OPENSSL_FOUND OR QT_VERSION VERSION_LESS "6.0.0")
     if(MINGW AND $ENV{MSYSTEM} STREQUAL "MINGW32")
       install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libcrypto-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
       install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libssl-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
@@ -512,7 +458,7 @@ string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
 # very poor trace-backs from the users when they report Companion crash
 set(CPACK_STRIP_FILES FALSE)
 
-# Qt5 + Cmake + Mac is poorly documented. A lot of this is guesswork
+# Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
 # and trial and error. Do not hesitate to fix it for the better
 IF(APPLE)
   set(plugin_dest_dir ${COMPANION_NAME}.app/Contents/Plugins)
@@ -547,7 +493,7 @@ IF(APPLE)
   install(DIRECTORY ${PROJECT_SOURCE_DIR}/companion/targets/mac/qt_menu.nib DESTINATION "${companion_res_dir}" COMPONENT Runtime)
 
   # manually add the required plugins
-  foreach (plugin ${Qt5Multimedia_PLUGINS} ${Qt5PrintSupport_PLUGINS} ${Qt5Gui_PLUGINS} ${Qt5Svg_PLUGINS})
+  foreach (plugin ${Qt${QT_VERSION_MAJOR}Multimedia_PLUGINS} ${Qt${QT_VERSION_MAJOR}PrintSupport_PLUGINS} ${Qt${QT_VERSION_MAJOR}Gui_PLUGINS} ${Qt${QT_VERSION_MAJOR}Svg_PLUGINS})
     get_target_property(QPA_PLUGIN ${plugin} LOCATION)
     get_filename_component(QPA_PLUGIN_FILENAME ${QPA_PLUGIN} NAME)
     # Todo is there a nicer way to get the QT Plugin directory name?!

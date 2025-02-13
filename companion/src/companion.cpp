@@ -59,7 +59,7 @@ class MyProxyStyle : public QProxyStyle
 
 void importError()
 {
-  QMessageBox::critical(nullptr, CPN_STR_APP_NAME, QCoreApplication::translate("Companion", "The saved settings could not be imported, please try again or continue with current settings."), QMessageBox::Ok, 0);
+  QMessageBox::critical(nullptr, CPN_STR_APP_NAME, QCoreApplication::translate("Companion", "The saved settings could not be imported, please try again or continue with current settings."), QMessageBox::Ok, QMessageBox::NoButton);
 }
 
 void checkSettingsImport(bool force = false)
@@ -72,19 +72,23 @@ void checkSettingsImport(bool force = false)
   if (!found && !force)
     return;
 
-  QString msg;
   if (previousVersion.isEmpty()) {
     const QString impFileBtn = QCoreApplication::translate("Companion", "Import from File");
     const QString impNoneBtn = QCoreApplication::translate("Companion", "Do not import");
+
+    QString msg;
 
     if (found)
       msg = QCoreApplication::translate("Companion", "We have found possible Companion settings backup file(s).\nDo you want to import settings from a file?");
     else
       msg = QCoreApplication::translate("Companion", "Import settings from a file, or start with current values.");
 
-    const int ret = QMessageBox::question(nullptr, CPN_STR_APP_NAME, msg, impNoneBtn, impFileBtn, 0, 0);
+    QMessageBox msgBox(QMessageBox::Question, CPN_STR_APP_NAME, msg);
+    msgBox.addButton(impFileBtn, QMessageBox::AcceptRole);
+    QPushButton *btnCancel = msgBox.addButton(impNoneBtn, QMessageBox::RejectRole);
+    msgBox.exec();
 
-    if (!ret)
+    if (msgBox.clickedButton() == btnCancel)
       return;
   }
   else {
@@ -131,11 +135,6 @@ void printHelpText()
 
 int main(int argc, char *argv[])
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-  /* From doc: This attribute must be set before Q(Gui)Application is constructed. */
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-
   QApplication app(argc, argv);
   app.setApplicationName(APP_COMPANION);
   app.setOrganizationName(COMPANY);

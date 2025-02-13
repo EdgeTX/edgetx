@@ -24,7 +24,7 @@ else()
   message(STATUS "SDL not found! Simulator audio, and joystick inputs, will not work.")
 endif()
 
-if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
+if(Qt${QT_VERSION_MAJOR}Core_FOUND AND NOT DISABLE_COMPANION)
   find_package(Libusb1)
   if(LIBUSB1_FOUND)
     find_package(Dfuutil)
@@ -61,7 +61,7 @@ add_custom_target(tests-radio
   DEPENDS gtests-radio
   )
 
-if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
+if(Qt${QT_VERSION_MAJOR}Core_FOUND AND NOT DISABLE_COMPANION)
   add_subdirectory(${COMPANION_SRC_DIRECTORY})
   add_custom_target(tests-companion
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-companion

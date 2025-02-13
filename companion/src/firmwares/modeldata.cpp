@@ -965,7 +965,7 @@ void ModelData::updateTypeValueRef(R & curRef, const T type, const int idxAdj, c
 
       newRef.value += updRefInfo.shift;
 
-      if (newRef.value < (updRefInfo.index1 + idxAdj) || newRef.value > (updRefInfo.maxindex + idxAdj)) {
+      if ((newRef.value < (updRefInfo.index1 + idxAdj)) || (newRef.value > (updRefInfo.maxindex + idxAdj))) {
         if (defClear)
           newRef.clear();
         else {
