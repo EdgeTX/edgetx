@@ -102,7 +102,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
   if (!getFileList(filelist))
     return false;
 
-  const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)");
+  const std::regex yml_regex("MODELS/(model([0-9]+)\\.yml)", std::regex_constants::icase);
 
   for(const auto& f : filelist) {
     std::smatch match;
@@ -203,7 +203,7 @@ bool LabelsStorageFormat::write(const RadioData & radioData)
   }
 
   // Delete all old modelxx.yml from radio MODELS folder before writing new modelxx.yml files
-  const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)");
+  const std::regex yml_regex("MODELS/(model([0-9s]+)\\.yml)", std::regex_constants::icase);
   for (const auto& f : filelist) {
     std::smatch match;
     if (std::regex_match(f, match, yml_regex)) {
