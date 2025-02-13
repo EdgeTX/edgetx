@@ -53,8 +53,9 @@ class CustomFunctionsPanel : public GenericPanel
     bool playSound(int index);
     void stopSound(int index);
     void toggleSound(bool play);
-    void onMediaPlayerStateChanged(QMediaPlayer::State state);
-    void onMediaPlayerError(QMediaPlayer::Error error);
+    void onMediaPlayerPlaybackStateChanged(QMediaPlayer::PlaybackState state);
+    void onMediaPlayerErrorOccurred(QMediaPlayer::Error error, const QString &errorString);
+
     void cmDelete();
     void cmCopy();
     void cmPaste();
