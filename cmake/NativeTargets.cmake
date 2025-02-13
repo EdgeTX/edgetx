@@ -19,7 +19,7 @@ if(NOT DISABLE_COMPANION)
   include(QtDefs)
 endif(NOT DISABLE_COMPANION)
 
-if(Qt5Core_FOUND OR FOX_FOUND)
+if(Qt${QT_VERSION_MAJOR}Core_FOUND OR FOX_FOUND)
   set(SDL2_BUILDING_LIBRARY YES)  # this prevents FindSDL from appending SDLmain lib to the results, which we don't want
   find_package("SDL2")
   if(SDL2_FOUND)
@@ -38,7 +38,7 @@ if(Qt5Core_FOUND OR FOX_FOUND)
   endif()
 endif()
 
-if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
+if(Qt${QT_VERSION_MAJOR}Core_FOUND AND NOT DISABLE_COMPANION)
   find_package(Libusb1)
   if(LIBUSB1_FOUND)
     find_package(Dfuutil)
@@ -75,7 +75,7 @@ add_custom_target(tests-radio
   DEPENDS gtests-radio
   )
 
-if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
+if(Qt${QT_VERSION_MAJOR}Core_FOUND AND NOT DISABLE_COMPANION)
   add_subdirectory(${COMPANION_SRC_DIRECTORY})
   add_custom_target(tests-companion
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-companion
