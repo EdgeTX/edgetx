@@ -44,9 +44,9 @@ void RfScanDialog::checkEvents()
 {
   if (!protos->isScanning()) {
     closeDialog();
-  } else if (RTOS_GET_MS() - lastUpdate >= 200) {
+  } else if (lv_tick_elaps(lastUpdate) >= 200) {
     showProgress();
-    lastUpdate = RTOS_GET_MS();
+    lastUpdate = lv_tick_get();
   }
   
   ProgressDialog::checkEvents();

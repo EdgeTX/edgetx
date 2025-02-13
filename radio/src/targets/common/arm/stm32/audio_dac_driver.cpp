@@ -22,6 +22,7 @@
 #include "hal/gpio.h"
 #include "hal/audio_driver.h"
 
+#include "os/sleep.h"
 #include "stm32_gpio.h"
 #include "stm32_timer.h"
 #include "stm32_dma.h"
@@ -162,7 +163,7 @@ void audioUnmute()
   if (get_mute_pin()) {
     // ..un-mute
     set_mute_pin(false);
-    RTOS_WAIT_MS(AUDIO_UNMUTE_DELAY);
+    sleep_ms(AUDIO_UNMUTE_DELAY);
   }
   // reset the mute delay
   audioQueue.lastAudioPlayTime = 0;

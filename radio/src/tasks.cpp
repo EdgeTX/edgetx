@@ -20,6 +20,9 @@
  */
 
 #include "edgetx.h"
+#include "os/sleep.h"
+#include "os/task.h"
+#include "os/time.h"
 #include "timers_driver.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/watchdog_driver.h"
@@ -32,17 +35,17 @@
 #include "startup_shutdown.h"
 #endif
 
-RTOS_TASK_HANDLE menusTaskId;
-RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
+task_handle_t menusTaskId;
+TASK_DEFINE_STACK(menusStack, MENUS_STACK_SIZE);
 
 #if defined(AUDIO)
-RTOS_TASK_HANDLE audioTaskId;
-RTOS_DEFINE_STACK(audioTaskId, audioStack, AUDIO_STACK_SIZE);
+task_handle_t audioTaskId;
+TASK_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 #endif
 
-RTOS_MUTEX_HANDLE audioMutex;
+mutex_handle_t audioMutex;
 
-#define MENU_TASK_PERIOD_TICKS         (50 / RTOS_MS_PER_TICK)    // 50ms
+#define MENU_TASK_PERIOD (50)  // 50ms
 
 #if defined(COLORLCD) && defined(CLI)
 bool perMainEnabled = true;
@@ -65,13 +68,13 @@ TASK_FUNCTION(menusTask)
       break;
     }
     else if (pwr_check == e_power_press) {
-      RTOS_WAIT_TICKS(MENU_TASK_PERIOD_TICKS);
+      sleep_ms(MENU_TASK_PERIOD);
       continue;
     }
 #else
   while (pwrCheck() != e_power_off) {
 #endif
-    uint32_t start = (uint32_t)RTOS_GET_TIME();
+    uint32_t start = time_get_ms();
     DEBUG_TIMER_START(debugTimerPerMain);
 #if defined(COLORLCD) && defined(CLI)
     if (perMainEnabled) {
@@ -81,12 +84,12 @@ TASK_FUNCTION(menusTask)
     perMain();
 #endif
     DEBUG_TIMER_STOP(debugTimerPerMain);
-    // TODO remove completely massstorage from sky9x firmware
-    uint32_t runtime = ((uint32_t)RTOS_GET_TIME() - start);
+
     // deduct the thread run-time from the wait, if run-time was more than
     // desired period, then skip the wait all together
-    if (runtime < MENU_TASK_PERIOD_TICKS) {
-      RTOS_WAIT_TICKS(MENU_TASK_PERIOD_TICKS - runtime);
+    uint32_t runtime = (time_get_ms() - start);
+    if (runtime < MENU_TASK_PERIOD) {
+      sleep_ms(MENU_TASK_PERIOD - runtime);
     }
 
     resetForcePowerOffRequest();
@@ -100,23 +103,43 @@ TASK_FUNCTION(menusTask)
   edgeTxClose();
   boardOff();
 
-  TASK_RETURN();
+  TASK_RETURN;
+}
+
+TASK_FUNCTION(audioTask)
+{
+  while (!audioQueue.started()) {
+    sleep_ms(1);
+  }
+
+#if defined(PCBX12S) || defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
+  // The audio amp needs ~2s to start
+  sleep_ms(1000); // 1s
+#endif
+
+  while (true) {
+    DEBUG_TIMER_SAMPLE(debugTimerAudioIterval);
+    DEBUG_TIMER_START(debugTimerAudioDuration);
+    audioQueue.wakeup();
+    DEBUG_TIMER_STOP(debugTimerAudioDuration);
+    sleep_ms(4); // ???
+  }
 }
 
 void tasksStart()
 {
-  RTOS_CREATE_MUTEX(audioMutex);
+  mutex_create(&audioMutex);
 
 #if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
 
-  RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
-                   MENUS_STACK_SIZE, MENUS_TASK_PRIO);
+  task_create(&menusTaskId, menusTask, "menus", menusStack, MENUS_STACK_SIZE,
+              MENUS_TASK_PRIO);
 
-#if !defined(SIMU) && defined(AUDIO)
-  RTOS_CREATE_TASK(audioTaskId, audioTask, "audio", audioStack,
-                   AUDIO_STACK_SIZE, AUDIO_TASK_PRIO);
+#if defined(AUDIO)
+  task_create(&audioTaskId, audioTask, "audio", audioStack, AUDIO_STACK_SIZE,
+              AUDIO_TASK_PRIO);
 #endif
 
   RTOS_START();
