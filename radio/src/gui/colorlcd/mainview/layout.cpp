@@ -66,6 +66,8 @@ void LayoutFactory::deleteCustomScreens()
       screen = nullptr;
     }
   }
+
+  ViewMain::instance()->getTopbar()->removeAllWidgets();
 }
 
 void LayoutFactory::loadDefaultLayout()

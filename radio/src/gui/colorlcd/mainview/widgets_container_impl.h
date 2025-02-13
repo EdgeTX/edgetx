@@ -83,6 +83,12 @@ class WidgetsContainerImpl : public WidgetsContainer
 
   virtual void create() { memset(persistentData, 0, sizeof(PersistentData)); }
 
+  void removeAllWidgets()
+  {
+    for (unsigned int i = 0; i < N; i++)
+      removeWidget(i);
+  }
+
   virtual void load()
   {
     unsigned int count = getZonesCount();
