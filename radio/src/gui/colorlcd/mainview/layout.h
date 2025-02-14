@@ -64,7 +64,7 @@ class LayoutFactory
   static void disposeCustomScreen(unsigned idx);
 
   // delete all custom screens from memory
-  static void deleteCustomScreens();
+  static void deleteCustomScreens(bool clearTopBar = false);
 
   // intended for existing models
   static void loadCustomScreens();
