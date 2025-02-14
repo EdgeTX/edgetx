@@ -28,6 +28,10 @@
 #include "switches.h"
 #include "mixes.h"
 
+#if defined(VCONTROLS) && defined(COLORLCD)
+#include "vcontrols.h"
+#endif
+
 #undef CPN
 #include "MultiSubtypeDefs.h"
 
@@ -222,7 +226,15 @@ static bool isSourceLSAvailable(int source) {
 static bool isSourceTrainerAvailable(int source) {
   return g_model.trainerData.mode > 0;
 }
-
+#if defined(VCONTROLS) && defined(COLORLCD)
+static bool isSourceVControlAvailable(int source) {
+  if (source >= 0) {
+    const uint32_t mask = (1UL << source);
+    return (activeVirtualInputs & mask);
+  }
+  return false;
+}
+#endif
 static bool isSourceGvarAvailable(int source) {
 #if defined(GVARS)
   return modelGVEnabled();
@@ -282,6 +294,9 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_TRAINER, MIXSRC_LAST_TRAINER, SRC_TRAINER, isSourceTrainerAvailable },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL, isChannelUsed },
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
+#if defined(VCONTROLS) && defined(COLORLCD)
+  { MIXSRC_FIRST_VCONTROL, MIXSRC_LAST_VCONTROL, SRC_VCONTROL, isSourceVControlAvailable },
+#endif
   { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SRC_GVAR, isSourceGvarAvailable },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
@@ -306,7 +321,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 
 #define SRC_COMMON \
             SRC_STICK | SRC_POT | SRC_TILT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
-            SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR
+            SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR | SRC_VCONTROL
 
 bool isSourceAvailable(int source)
 {
@@ -391,7 +406,14 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     int index = (swtch - SWSRC_FIRST_TRIM) / 2;
     return index < keysGetMaxTrims();
   }
-  
+
+#if defined(VCONTROLS) && defined(COLORLCD)
+  if ((swtch >= SWSRC_FIRST_VIRTUAL_SWITCH) && (swtch <= SWSRC_LAST_VIRTUAL_SWITCH)) {
+    const uint64_t mask = (1UL << (swtch - SWSRC_FIRST_VIRTUAL_SWITCH));
+    return (activeVirtualSwitches & mask);
+  }  
+#endif
+
   if (swtch >= SWSRC_FIRST_LOGICAL_SWITCH && swtch <= SWSRC_LAST_LOGICAL_SWITCH) {
     if (context == GeneralCustomFunctionsContext) {
       return false;

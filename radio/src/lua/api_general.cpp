@@ -63,6 +63,11 @@
   #define RADIO_VERSION FLAVOUR
 #endif
 
+#if defined(VCONTROLS) && defined(COLORLCD)
+#include <algorithm>
+#include "vcontrols.h"
+#endif
+
 #define VERSION_OSNAME "EdgeTX"
 
 #define FIND_FIELD_DESC  0x01
@@ -2466,6 +2471,77 @@ static int luaSerialSetPower(lua_State* L)
 }
 #endif
 
+#if defined(VCONTROLS) && defined(COLORLCD)
+static int luaActivateVirtualSwitch(lua_State * L) {
+  const int sw = luaL_checkinteger(L, 1);
+  const bool on = lua_toboolean(L, 2);
+
+  if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
+    if (on) {
+      activeVirtualSwitches |= (1 << (sw - 1));
+    }
+    else {
+      activeVirtualSwitches &= ~(1 << (sw - 1));
+    }
+  }
+  return 0;
+}
+static int luaActivateVirtualInput(lua_State * L) {
+  const int ch = luaL_checkinteger(L, 1);
+  const bool on = lua_toboolean(L, 2);
+
+  if (1 <= ch && ch <= MAX_VIRTUAL_INPUTS) {
+    if (on) {
+      activeVirtualInputs |= (1 << (ch - 1));
+    }
+    else {
+      activeVirtualInputs &= ~(1 << (ch - 1));
+    }
+  }
+  return 0;
+}
+static int luaGetVirtualSwitch(lua_State * L)
+{
+  const int sw = luaL_checkinteger(L, 1);
+
+  if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
+    const bool v = virtualSwitches & (1 << (sw - 1));
+    lua_pushboolean(L, v);
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+static int luaSetVirtualSwitch(lua_State * L)
+{
+  const int sw = luaL_checkinteger(L, 1);
+  const bool on = lua_toboolean(L, 2);
+
+  if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
+    if (on) {
+      virtualSwitches |= (1 << (sw - 1));
+    }
+    else {
+      virtualSwitches &= ~(1 << (sw - 1));
+    }
+//    TRACE("luaSetVirtualSwitch: %d, %b", (sw - 1), on);
+  }
+  return 0;
+}
+static int luaSetVirtualInput(lua_State * L)
+{
+  int ch = luaL_checkinteger(L, 1);
+  int value = std::clamp(luaL_checkinteger(L, 2), -1024, 1024);
+
+  if (1 <= ch && ch <= MAX_VIRTUAL_INPUTS) {
+    virtualInputs[ch - 1] = value;
+  }
+  return 0;
+}
+#endif
+
 #if defined(COLORLCD)
 static int shmVar[16] = {0};
 
@@ -2998,6 +3074,13 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if defined(COLORLCD)
   LROT_FUNCENTRY( setShmVar, luaSetShmVar )
   LROT_FUNCENTRY( getShmVar, luaGetShmVar )
+#endif
+#if defined(VCONTROLS) && defined(COLORLCD)
+  LROT_FUNCENTRY( setVirtualInput, luaSetVirtualInput)
+  LROT_FUNCENTRY( setVirtualSwitch, luaSetVirtualSwitch)
+  LROT_FUNCENTRY( getVirtualSwitch, luaGetVirtualSwitch)
+  LROT_FUNCENTRY( activateVirtualSwitch, luaActivateVirtualSwitch)
+  LROT_FUNCENTRY( activateVirtualInput, luaActivateVirtualInput)
 #endif
   LROT_FUNCENTRY( setStickySwitch, luaSetStickySwitch )
   LROT_FUNCENTRY( getLogicalSwitchValue, luaGetLogicalSwitchValue )
