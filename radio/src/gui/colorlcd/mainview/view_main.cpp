@@ -111,7 +111,6 @@ void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
   lv_obj_add_event_cb(tile, tile_view_deleted_cb, LV_EVENT_CHILD_DELETED,
                       user_data);
 
-  view->adjustLayout();
   view->show();  
 }
 
@@ -193,7 +192,6 @@ void ViewMain::updateTopbarVisibility()
     int view = scrollPos / pageWidth;
     setTopbarVisible(hasTopbar(view));
     setEdgeTxButtonVisible(hasTopbar(view) || isAppMode(view));
-    if (customScreens[view]) customScreens[view]->adjustLayout();
   } else {
     int leftIdx = scrollPos / pageWidth;
     bool leftTopbar = hasTopbar(leftIdx);
@@ -233,9 +231,6 @@ void ViewMain::updateTopbarVisibility()
     }
 
     setEdgeTxButtonVisible(ratio);
-
-    customScreens[leftIdx]->adjustLayout();
-    customScreens[leftIdx + 1]->adjustLayout();
   }
 }
 
@@ -377,9 +372,11 @@ void ViewMain::show(bool visible)
   int view = getCurrentMainView();
   setTopbarVisible(visible && hasTopbar(view));
   setEdgeTxButtonVisible(visible && (hasTopbar(view) || isAppMode()));
-  if (customScreens[view]) {
-    customScreens[view]->show(visible);
-    customScreens[view]->showWidgets(visible);
+  for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
+    if (customScreens[i]) {
+      customScreens[i]->show(visible);
+      customScreens[i]->showWidgets(visible);
+    }
   }
 }
 

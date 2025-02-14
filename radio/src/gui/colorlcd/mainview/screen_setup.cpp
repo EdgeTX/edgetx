@@ -342,7 +342,6 @@ void ScreenSetupPage::buildLayoutOptions()
                          GET_DEFAULT(value->boolValue),
                          [=](int newValue) {
                            value->boolValue = newValue;
-                           customScreens[customScreenIndex]->show();
                            SET_DIRTY();
                          });
         break;

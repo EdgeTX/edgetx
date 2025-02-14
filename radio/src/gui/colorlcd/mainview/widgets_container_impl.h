@@ -132,7 +132,6 @@ class WidgetsContainerImpl : public WidgetsContainer
 
   void updateZones() override
   {
-    adjustLayout();
     for (int i = 0; i < N; i++) {
       if (widgets[i]) {
         auto zone = getZone(i);
@@ -150,8 +149,6 @@ class WidgetsContainerImpl : public WidgetsContainer
       }
     }
   }
-
-  void adjustLayout() override {}
 
   void runBackground() override
   {
