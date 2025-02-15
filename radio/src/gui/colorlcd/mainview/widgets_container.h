@@ -79,7 +79,6 @@ class WidgetsContainer: public Window
     virtual Widget * createWidget(unsigned int index, const WidgetFactory * factory) = 0;
     virtual Widget * getWidget(unsigned int index) = 0;
     virtual void removeWidget(unsigned int index) = 0;
-    virtual void adjustLayout() = 0;
     virtual void updateZones() = 0;
     virtual void showWidgets(bool visible = true) = 0;
     virtual void hideWidgets() { showWidgets(false); }

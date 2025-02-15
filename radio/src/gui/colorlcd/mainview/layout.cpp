@@ -58,7 +58,7 @@ WidgetsContainer* LayoutFactory::loadLayout(
 //
 // Detaches and deletes all custom screens
 //
-void LayoutFactory::deleteCustomScreens()
+void LayoutFactory::deleteCustomScreens(bool clearTopBar)
 {
   for (auto& screen : customScreens) {
     if (screen) {
@@ -67,7 +67,8 @@ void LayoutFactory::deleteCustomScreens()
     }
   }
 
-  ViewMain::instance()->getTopbar()->removeAllWidgets();
+  if (clearTopBar)
+    ViewMain::instance()->getTopbar()->removeAllWidgets();
 }
 
 void LayoutFactory::loadDefaultLayout()

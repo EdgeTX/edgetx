@@ -34,7 +34,6 @@ Layout::Layout(Window* parent, const LayoutFactory* factory,
     zoneCount(zoneCount),
     zoneMap(zoneMap)
 {
-  adjustLayout();
 }
 
 void Layout::setTrimsVisible(bool visible)
@@ -50,24 +49,6 @@ void Layout::setSlidersVisible(bool visible)
 void Layout::setFlightModeVisible(bool visible)
 {
   decoration->setFlightModeVisible(visible);
-}
-
-void Layout::adjustLayout()
-{
-  // Check if deco setting are still up-to-date
-  uint8_t checkSettings = (hasTopbar() ? DECORATION_TOPBAR : 0) |
-                          (hasSliders() ? DECORATION_SLIDERS : 0) |
-                          (hasTrims() ? DECORATION_TRIMS : 0) |
-                          (hasFlightMode() ? DECORATION_FLIGHTMODE : 0) |
-                          (isMirrored() ? DECORATION_MIRRORED : 0);
-
-  if (checkSettings == decorationSettings) {
-    // everything ok, exit!
-    return;
-  }
-
-  // Save settings
-  decorationSettings = checkSettings;
 }
 
 void Layout::show(bool visible)
@@ -86,8 +67,7 @@ void Layout::show(bool visible)
 rect_t Layout::getMainZone() const
 {
   rect_t zone = decoration->getMainZone();
-  if (decorationSettings &
-      (DECORATION_SLIDERS | DECORATION_TRIMS | DECORATION_FLIGHTMODE)) {
+  if (hasSliders() || hasTrims() || hasFlightMode()) {
     // some decoration activated
     zone.x += MAIN_ZONE_BORDER;
     zone.y += MAIN_ZONE_BORDER;

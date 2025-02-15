@@ -106,7 +106,6 @@ class Layout: public LayoutBase
     void setFlightModeVisible(bool visible);
 
     // Updates settings for trims, sliders, pots, etc...
-    void adjustLayout() override;
     void show(bool visible = true) override;
 
     bool isLayout() override { return true; }
@@ -118,19 +117,6 @@ class Layout: public LayoutBase
     std::unique_ptr<ViewMainDecoration> decoration;
     uint8_t zoneCount;
     uint8_t* zoneMap = nullptr;
-
-    enum DecorationSettings {
-        DECORATION_NONE       = 0x00,
-        DECORATION_TOPBAR     = 0x01,
-        DECORATION_SLIDERS    = 0x02,
-        DECORATION_TRIMS      = 0x04,
-        DECORATION_FLIGHTMODE = 0x08,
-        DECORATION_MIRRORED   = 0x10,
-        DECORATION_UNKNOWN    = 0xFF
-    };
-
-    // Decoration settings bitmask to detect updates
-    uint8_t  decorationSettings = DECORATION_UNKNOWN;
 
     // Last time we refreshed the window
     uint32_t lastRefresh = 0;

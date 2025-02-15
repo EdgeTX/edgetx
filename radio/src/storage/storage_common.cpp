@@ -73,7 +73,7 @@ void preModelLoad()
 
   stopTrainer();
 #if defined(COLORLCD)
-  LayoutFactory::deleteCustomScreens();
+  LayoutFactory::deleteCustomScreens(true);
 #endif
 
   if (needDelay)
