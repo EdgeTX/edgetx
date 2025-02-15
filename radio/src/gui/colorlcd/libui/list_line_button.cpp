@@ -76,6 +76,7 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   source = lv_label_create(lvobj);
   lv_obj_set_pos(source, SRC_X, SRC_Y);
   lv_obj_set_size(source, SRC_W, SRC_H);
+  etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
 
   opts = lv_label_create(lvobj);
   lv_obj_set_pos(opts, OPT_X, OPT_Y);
@@ -103,7 +104,12 @@ void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 void InputMixButtonBase::setSource(mixsrc_t idx)
 {
   char* s = getSourceString(idx);
-  lv_label_set_text(source, s);
+  if (getTextWidth(s, 0, FONT(STD)) > SRC_W)
+    lv_obj_add_state(source, LV_STATE_USER_1);
+  else
+    lv_obj_clear_state(source, LV_STATE_USER_1);
+
+    lv_label_set_text(source, s);
 }
 
 void InputMixButtonBase::setOpts(const char* s)
