@@ -1724,10 +1724,8 @@ void menuModelSetup(event_t event)
               for (uint8_t i=0; i<popupMenuItemsCount; i++) {
                 popupMenuItems[i] = reusableBuffer.moduleSetup.bt.devices[i];
               }
-              if (popupMenuHandler != onBluetoothConnectMenu) {
-                POPUP_MENU_TITLE(STR_BT_SELECT_DEVICE);
-                POPUP_MENU_START(onBluetoothConnectMenu);
-              }
+              POPUP_MENU_TITLE(STR_BT_SELECT_DEVICE);
+              POPUP_MENU_START(onBluetoothConnectMenu);
             }
           }
         }
