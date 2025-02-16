@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "os/sleep.h"
 #if !defined(SIMU)
 #include "stm32_ws2812.h"
 #include "boards/generic_stm32/rgb_leds.h"
@@ -45,6 +46,7 @@
 
 #include "tasks.h"
 #include "tasks/mixer_task.h"
+#include "os/async.h"
 
 #if defined(BLUETOOTH)
   #include "bluetooth_driver.h"
@@ -245,31 +247,18 @@ void timer_10ms()
   DEBUG_TIMER_STOP(debugTimerPer10ms);
 }
 
-#if !defined(SIMU)
-// Handle 10ms timer asynchronously
-#include <FreeRTOS/include/FreeRTOS.h>
-#include <FreeRTOS/include/timers.h>
-
-static void _timer_10ms_cb(void *pvParameter1, uint32_t ulParameter2)
+static void _timer_10ms_cb(void *param1, uint32_t param2)
 {
-  (void)pvParameter1;
-  (void)ulParameter2;
+  (void)param1;
+  (void)param2;
   timer_10ms();
 }
 
 void per10ms()
 {
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  }
+  // Handle 10ms timer asynchronously
+  async_call_isr(_timer_10ms_cb, nullptr, 0);
 }
-
-#else // !defined(SIMU)
-void per10ms() { timer_10ms(); }
-#endif
-
 
 FlightModeData *flightModeAddress(uint8_t idx)
 {
@@ -745,7 +734,7 @@ void checkAll(bool isBootCheck)
     showMessageBox(STR_KEYSTUCK);
     tmr10ms_t tgtime = get_tmr10ms() + 500;
     while (tgtime != get_tmr10ms()) {
-      RTOS_WAIT_MS(1);
+      sleep_ms(1);
       WDG_RESET();
     }
   }
@@ -863,8 +852,7 @@ void checkThrottleStick()
     checkBacklight();
 
     WDG_RESET();
-
-    RTOS_WAIT_MS(10);
+    sleep_ms(10);
   }
 
   LED_ERROR_END();
@@ -895,7 +883,7 @@ void alert(const char * title, const char * msg , uint8_t sound)
 #endif
 
   while (true) {
-    RTOS_WAIT_MS(10);
+    sleep_ms(10);
 
     if (getEvent())  // wait for key release
       break;
@@ -1119,10 +1107,10 @@ void edgeTxClose(uint8_t shutdown)
   storageCheck(true);
 
   while (IS_PLAYING(ID_PLAY_PROMPT_BASE + AU_BYE)) {
-    RTOS_WAIT_MS(10);
+    sleep_ms(10);
   }
 
-  RTOS_WAIT_MS(100);
+  sleep_ms(100);
 
 #if defined(COLORLCD)
   cancelShutdownAnimation();  // To prevent simulator crash
@@ -1875,7 +1863,7 @@ uint32_t pwrCheck()
       RAISE_ALERT(STR_MODEL, STR_MODEL_STILL_POWERED, STR_PRESS_ENTER_TO_CONFIRM, AU_MODEL_STILL_POWERED);
       while (TELEMETRY_STREAMING()) {
         resetForcePowerOffRequest();
-        RTOS_WAIT_MS(20);
+        sleep_ms(20);
         if (pwrPressed()) {
           return e_power_on;
         }

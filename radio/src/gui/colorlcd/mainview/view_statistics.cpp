@@ -20,6 +20,7 @@
  */
 
 #include "view_statistics.h"
+#include "os/task.h"
 
 #include "edgetx.h"
 #include "tasks.h"
@@ -333,14 +334,14 @@ void DebugViewPage::build(Window* window)
 #endif
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return menusStack.available(); }, STR_STACK_MENU);
+      [] { return task_get_stack_usage(&menusTaskId); }, STR_STACK_MENU);
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return mixerStack.available(); }, STR_STACK_MIX);
+      [] { return task_get_stack_usage(&mixerTaskId); }, STR_STACK_MIX);
 #if defined(AUDIO)
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
-      [] { return audioStack.available(); }, STR_STACK_AUDIO);
+      [] { return task_get_stack_usage(&audioTaskId); }, STR_STACK_AUDIO);
 #endif
 
 #if defined(DEBUG_LATENCY)
