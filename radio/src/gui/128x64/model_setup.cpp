@@ -430,8 +430,7 @@ void onBluetoothConnectMenu(const char * result)
     uint8_t index = (result - reusableBuffer.moduleSetup.bt.devices[0]) / sizeof(reusableBuffer.moduleSetup.bt.devices[0]);
     strncpy(bluetooth.distantAddr, reusableBuffer.moduleSetup.bt.devices[index], LEN_BLUETOOTH_ADDR);
     bluetooth.state = BLUETOOTH_STATE_BIND_REQUESTED;
-  }
-  else {
+  } else {
     reusableBuffer.moduleSetup.bt.devicesCount = 0;
     bluetooth.state = BLUETOOTH_STATE_DISCOVER_END;
   }
