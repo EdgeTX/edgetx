@@ -82,33 +82,39 @@ void storageCheck(bool immediately)
 
   if (storageDirtyMsk & EE_GENERAL) {
     TRACE("eeprom write general");
-    storageDirtyMsk &= ~EE_GENERAL;
     const char * error = writeGeneralSettings();
     if (error) {
       TRACE("writeGeneralSettings error=%s", error);
+    }
+    else {
+      storageDirtyMsk &= ~EE_GENERAL;
     }
   }
 
 #if defined(STORAGE_MODELSLIST)
   if (storageDirtyMsk & EE_LABELS) {
     TRACE("SD card write labels");
-    storageDirtyMsk &= ~EE_LABELS;
     const char * error = modelslist.save();
     if (error) {
       TRACE("writeLabels error=%s", error);
+    }
+    else {
+      storageDirtyMsk &= ~EE_LABELS;
     }
   }
 #endif
 
   if (storageDirtyMsk & EE_MODEL) {
     TRACE("eeprom write model");
-    storageDirtyMsk &= ~EE_MODEL;
     const char * error = writeModel();
 #if defined(STORAGE_MODELSLIST)
     modelslist.updateCurrentModelCell();
 #endif
     if (error) {
       TRACE("writeModel error=%s", error);
+    }
+    else {
+      storageDirtyMsk &= ~EE_MODEL;
     }
   }
 }
