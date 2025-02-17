@@ -67,8 +67,6 @@ void rtcInit()
   __HAL_RCC_PWR_CLK_ENABLE();
 #endif
 
-  HAL_PWR_EnableBkUpAccess();
-
   // Enable LSE Oscillator
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
@@ -101,6 +99,7 @@ void rtcInit()
 #if defined(RTC_BACKUP_RAM) && !defined(BOOT)
   __HAL_RCC_BKPSRAM_CLK_ENABLE();
   HAL_PWREx_EnableBkUpReg();
+  HAL_PWR_EnableBkUpAccess();
 #endif
 }
 
@@ -109,5 +108,6 @@ void rtcDisableBackupReg()
 #if defined(RTC_BACKUP_RAM)
   __HAL_RCC_BKPSRAM_CLK_DISABLE();
   HAL_PWREx_DisableBkUpReg();
+  HAL_PWR_DisableBkUpAccess();
 #endif
 }
