@@ -134,6 +134,8 @@ static void adc_enable_clock(ADC_TypeDef* ADCx)
   uint32_t adc_idx = (((uint32_t) ADCx) - ADC1_BASE) / 0x100UL;
   uint32_t adc_msk = RCC_APB2ENR_ADC1EN << adc_idx;
   LL_APB2_GRP1_EnableClock(adc_msk);
+#elif defined(LL_AHB2_GRP1_PERIPH_ADC)
+  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC);
 #else
 # warning "Unknown ADC clock enable"
 #endif

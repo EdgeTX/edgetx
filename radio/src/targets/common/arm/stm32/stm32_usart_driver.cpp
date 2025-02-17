@@ -423,6 +423,7 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
   LL_DMA_StructInit(&dmaInit);
 
 #if defined(STM32H7RS) || defined(STM32H5)
+#if 0
     dmaInit.DestAddress = (intptr_t)buffer;
     dmaInit.SrcAddress =
         LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_RECEIVE);
@@ -435,7 +436,7 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
     dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_BYTE;
     dmaInit.SrcIncMode = LL_DMA_SRC_FIXED;
     dmaInit.DestIncMode = LL_DMA_DEST_INCREMENT;
-    dmaInit.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+    dmaInit.Priority = LL_DMA_HIGH_PRIORITY;
     dmaInit.BlkDataLength = length;
     dmaInit.TriggerMode = LL_DMA_TRIGM_BLK_TRANSFER;
     dmaInit.TriggerPolarity = LL_DMA_TRIG_POLARITY_MASKED;
@@ -443,14 +444,68 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
     dmaInit.Request = usart->rxDMA_Channel;
     dmaInit.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
     dmaInit.SrcAllocatedPort = LL_DMA_SRC_ALLOCATED_PORT0;
-    dmaInit.DestAllocatedPort = LL_DMA_DEST_ALLOCATED_PORT0;
+    dmaInit.DestAllocatedPort = LL_DMA_DEST_ALLOC   ATED_PORT0;
     dmaInit.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
     dmaInit.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
     dmaInit.LinkedListBaseAddr = 0;
     dmaInit.LinkedListAddrOffset = 0;
-    LL_DMA_Init(usart->rxDMA, usart->rxDMA_Stream, &dmaInit);
-
     dmaInit.Mode = LL_DMA_NORMAL;
+    LL_DMA_Init(usart->rxDMA, usart->rxDMA_Stream, &dmaInit);
+#endif
+
+    LL_DMA_InitNodeTypeDef nodeInit;
+    LL_DMA_NodeStructInit(&nodeInit);
+
+    nodeInit.DestAllocatedPort = LL_DMA_DEST_ALLOCATED_PORT1;
+    nodeInit.DestHWordExchange = LL_DMA_DEST_HALFWORD_PRESERVE;
+    nodeInit.DestByteExchange = LL_DMA_DEST_BYTE_PRESERVE;
+    nodeInit.DestBurstLength = 1;
+    nodeInit.DestIncMode = LL_DMA_DEST_INCREMENT;
+    nodeInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_BYTE;
+    nodeInit.SrcAllocatedPort = LL_DMA_SRC_ALLOCATED_PORT0;
+    nodeInit.SrcByteExchange = LL_DMA_SRC_BYTE_PRESERVE;
+    nodeInit.DataAlignment = LL_DMA_DATA_ALIGN_ZEROPADD;
+    nodeInit.SrcBurstLength = 1;
+    nodeInit.SrcIncMode = LL_DMA_SRC_FIXED;
+    nodeInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_BYTE;
+    nodeInit.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
+    nodeInit.TriggerPolarity = LL_DMA_TRIG_POLARITY_MASKED;
+    nodeInit.BlkHWRequest = LL_DMA_HWREQUEST_SINGLEBURST;
+    nodeInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
+    nodeInit.Request = usart->rxDMA_Channel;
+    nodeInit.UpdateRegisters = (LL_DMA_UPDATE_CTR1 | LL_DMA_UPDATE_CTR2 | LL_DMA_UPDATE_CBR1 | LL_DMA_UPDATE_CSAR
+                                  | LL_DMA_UPDATE_CDAR | LL_DMA_UPDATE_CTR3 | LL_DMA_UPDATE_CBR2 | LL_DMA_UPDATE_CLLR);
+    nodeInit.NodeType = LL_DMA_GPDMA_LINEAR_NODE;
+    /* Additional settings */
+    nodeInit.SrcAddress = LL_USART_DMA_GetRegAddr(usart->USARTx, LL_USART_DMA_REG_DATA_RECEIVE);
+    nodeInit.DestAddress = (intptr_t)buffer;
+    /* Size is always in bytes! Width is determined by source and destination numbers */
+    nodeInit.BlkDataLength = length;
+    LL_DMA_CreateLinkNode(&nodeInit, (LL_DMA_LinkNodeTypeDef*)&usart->llNode);
+
+    /* Connect node to next node = to itself to achieve circular mode with one configuration */
+    LL_DMA_ConnectLinkNode((LL_DMA_LinkNodeTypeDef*)&usart->llNode, LL_DMA_CLLR_OFFSET5, (LL_DMA_LinkNodeTypeDef*)&usart->llNode, LL_DMA_CLLR_OFFSET5);
+
+    /*
+     * Set first linked list address to DMA channel
+     *
+     * Set link update mechanism - DMA fetches first configuration from first node
+     * on the start of DMA operation
+     */
+    LL_DMA_SetLinkedListBaseAddr(usart->rxDMA, usart->rxDMA_Stream, (intptr_t)&usart->llNode);
+    LL_DMA_ConfigLinkUpdate(usart->rxDMA, usart->rxDMA_Stream,
+                            (LL_DMA_UPDATE_CTR1 | LL_DMA_UPDATE_CTR2 | LL_DMA_UPDATE_CBR1 | LL_DMA_UPDATE_CSAR
+                             | LL_DMA_UPDATE_CDAR | LL_DMA_UPDATE_CTR3 | LL_DMA_UPDATE_CBR2 | LL_DMA_UPDATE_CLLR),
+                             (intptr_t)&usart->llNode);
+
+    LL_DMA_InitLinkedListTypeDef DMA_InitLinkedListStruct = {0};
+    /* Initialize linked list general setup for GPDMA CH0 - the way transfers are done */
+    DMA_InitLinkedListStruct.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+    DMA_InitLinkedListStruct.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
+    DMA_InitLinkedListStruct.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT0;
+    DMA_InitLinkedListStruct.TransferEventMode = LL_DMA_TCEM_LAST_LLITEM_TRANSFER;
+    LL_DMA_List_Init(usart->rxDMA, usart->rxDMA_Stream, &DMA_InitLinkedListStruct);
+
 
     LL_DMA_EnableIT_HT(usart->rxDMA, usart->rxDMA_Stream);
     LL_DMA_EnableIT_TC(usart->rxDMA, usart->rxDMA_Stream);
@@ -459,8 +514,6 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
     LL_DMA_EnableIT_DTE(usart->rxDMA, usart->rxDMA_Stream);
 
     LL_USART_EnableDMAReq_RX(usart->USARTx);
-    LL_DMA_EnableChannel(usart->rxDMA, usart->rxDMA_Stream);
-
 
 #else // STM32H7RS
 
@@ -486,7 +539,7 @@ void stm32_usart_init_rx_dma(const stm32_usart_t* usart, const void* buffer, uin
 
 #endif // !STM32H7RS
 
-  // Stream can be enable as the USART has alread been enabled
+  // Stream can be enable as the USART has already been enabled
 #if defined(STM32H7RS) || defined(STM32H5)
   LL_DMA_EnableChannel(usart->rxDMA, usart->rxDMA_Stream);
 #else
