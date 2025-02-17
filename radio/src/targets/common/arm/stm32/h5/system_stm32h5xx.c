@@ -461,7 +461,7 @@ void SPI3_IRQHandler() {  asm("BKPT"); }
 // void USART2_IRQHandler() {  asm("BKPT"); }
 // void USART3_IRQHandler() {  asm("BKPT"); }
 // void UART4_IRQHandler() {  asm("BKPT"); }
-void UART5_IRQHandler() {  asm("BKPT"); }
+// void UART5_IRQHandler() {  asm("BKPT"); }
 void LPUART1_IRQHandler() {  asm("BKPT"); }
 void LPTIM1_IRQHandler() {  asm("BKPT"); }
 void TIM8_BRK_IRQHandler() {  asm("BKPT"); }
@@ -486,7 +486,7 @@ void SPI5_IRQHandler() {  asm("BKPT"); }
 void SPI6_IRQHandler() {  asm("BKPT"); }
 // void USART6_IRQHandler() {  asm("BKPT"); }
 // void USART10_IRQHandler() {  asm("BKPT"); }
-void USART11_IRQHandler() {  asm("BKPT"); }
+// void USART11_IRQHandler() {  asm("BKPT"); }
 void SAI1_IRQHandler() {  asm("BKPT"); }
 void SAI2_IRQHandler() {  asm("BKPT"); }
 void GPDMA2_Channel0_IRQHandler() {  asm("BKPT"); }
@@ -499,8 +499,8 @@ void GPDMA2_Channel6_IRQHandler() {  asm("BKPT"); }
 void GPDMA2_Channel7_IRQHandler() {  asm("BKPT"); }
 // void UART7_IRQHandler() {  asm("BKPT"); }
 // void UART8_IRQHandler() {  asm("BKPT"); }
-void UART9_IRQHandler() {  asm("BKPT"); }
-void UART12_IRQHandler() {  asm("BKPT"); }
+// void UART9_IRQHandler() {  asm("BKPT"); }
+// void UART12_IRQHandler() {  asm("BKPT"); }
 void FPU_IRQHandler() {  asm("BKPT"); }
 void ICACHE_IRQHandler() {  asm("BKPT"); }
 void DCACHE1_IRQHandler() {  asm("BKPT"); }
