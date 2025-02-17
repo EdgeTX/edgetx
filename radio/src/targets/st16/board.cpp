@@ -134,6 +134,9 @@ static void audio_set_rst_pin(bool set)
 
 static void audio_set_mute_pin(bool set)
 {
+#if defined(INVERTED_MUTE_PIN)
+  set = !set;  
+#endif
   if (set) {
     bsp_output_set(BSP_PA_NMUTE);
   } else {
