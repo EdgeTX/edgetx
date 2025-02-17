@@ -1014,7 +1014,7 @@
   #define TR_ALIGN_OPTS                { "左", "中央", "右" }
   #define TR_TEXT                      "テキスト"
   #define TR_COLOR                     "カラー"
-  #define TR_MAIN_VIEW_X               "メインビュー XX"
+  #define TR_MAIN_VIEW_X               "メインビュー "
   #define TR_PANEL1_BACKGROUND         "パネル1 背景"
   #define TR_PANEL2_BACKGROUND         "パネル2 背景"
   #define TR_WIDGET_GAUGE              "ゲージ"
@@ -1226,16 +1226,16 @@
 #define TR_THEME_EDITOR                 "テーマ"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "モデル\n選択"
-#define TR_MAIN_MENU_MANAGE_MODELS      "モデル\n管理"
-#define TR_MAIN_MENU_MODEL_NOTES        "モデル\nノート"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nモニター"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "モデル\n設定"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "送信機\n設定"
+#define TR_MAIN_MENU_SELECT_MODEL       "モデル 選択"
+#define TR_MAIN_MENU_MANAGE_MODELS      "モデル 管理"
+#define TR_MAIN_MENU_MODEL_NOTES        "モデル ノート"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel モニター"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "モデル 設定"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "送信機 設定"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "画面設定"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "リセット\nTelemetry"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "リセット Telemetry"
 #define TR_MAIN_MENU_STATISTICS         "統計情報"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX\nについて"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX について"
 // End Main menu
 
 // Voice in native language
