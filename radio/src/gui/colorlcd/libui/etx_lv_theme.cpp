@@ -67,6 +67,17 @@ LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::text_align_center, LV_STYLE_TEXT_ALIGN,
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::pad_left_2, LV_STYLE_PAD_LEFT, 2);
 
 // Scrollbar
+#if LANDSCAPE_LCD_SMALL
+const lv_style_const_prop_t scrollbar_props[] = {
+    LV_STYLE_CONST_BG_OPA(LV_OPA_50),
+    LV_STYLE_CONST_PAD_TOP(2),
+    LV_STYLE_CONST_PAD_BOTTOM(2),
+    LV_STYLE_CONST_PAD_LEFT(2),
+    LV_STYLE_CONST_PAD_RIGHT(2),
+    LV_STYLE_CONST_WIDTH(PAD_SMALL),
+    LV_STYLE_PROP_INV,
+};
+#else
 const lv_style_const_prop_t scrollbar_props[] = {
     LV_STYLE_CONST_BG_OPA(LV_OPA_50),
     LV_STYLE_CONST_PAD_TOP(3),
@@ -76,6 +87,7 @@ const lv_style_const_prop_t scrollbar_props[] = {
     LV_STYLE_CONST_WIDTH(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
+#endif
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::scrollbar, scrollbar_props);
 
 // Padding
@@ -88,9 +100,9 @@ const lv_style_const_prop_t pad_zero_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_zero, pad_zero_props);
 
 const lv_style_const_prop_t pad_tiny_props[] = {
-    LV_STYLE_CONST_PAD_TOP(2),  LV_STYLE_CONST_PAD_BOTTOM(2),
-    LV_STYLE_CONST_PAD_LEFT(2), LV_STYLE_CONST_PAD_RIGHT(2),
-    LV_STYLE_CONST_PAD_ROW(2),  LV_STYLE_CONST_PAD_COLUMN(2),
+    LV_STYLE_CONST_PAD_TOP(PAD_TINY),  LV_STYLE_CONST_PAD_BOTTOM(PAD_TINY),
+    LV_STYLE_CONST_PAD_LEFT(PAD_TINY), LV_STYLE_CONST_PAD_RIGHT(PAD_TINY),
+    LV_STYLE_CONST_PAD_ROW(PAD_TINY),  LV_STYLE_CONST_PAD_COLUMN(PAD_TINY),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_tiny, pad_tiny_props);
@@ -173,7 +185,7 @@ const lv_style_const_prop_t border_thin_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::border_thin, border_thin_props);
 
 static const lv_style_const_prop_t outline_props[] = {
-    LV_STYLE_CONST_OUTLINE_WIDTH(2),
+    LV_STYLE_CONST_OUTLINE_WIDTH(PAD_TINY),
     LV_STYLE_CONST_OUTLINE_OPA(LV_OPA_COVER),
     LV_STYLE_CONST_OUTLINE_PAD(1),
     LV_STYLE_PROP_INV,

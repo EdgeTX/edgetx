@@ -57,9 +57,9 @@ class FunctionSwitch : public Window
 {
  public:
   FunctionSwitch(Window* parent, uint8_t sw) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2}), switchIndex(sw)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}), switchIndex(sw)
   {
-    padAll(PAD_TINY_GAP);
+    padAll(PAD_TINY);
 
     std::string s(STR_CHAR_SWITCH);
     s += switchGetName(switchIndex + switchGetMaxSwitches());
@@ -184,12 +184,12 @@ class FunctionSwitch : public Window
   static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
   static constexpr coord_t C2_W = 40;
 #else
-  static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY_GAP * 4) / 5;
-  static constexpr coord_t NM_X = SW_W + PAD_TINY_GAP;
+  static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY * 4) / 5;
+  static constexpr coord_t NM_X = SW_W + PAD_TINY;
   static constexpr coord_t NM_W = 80;
-  static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY_GAP;
+  static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY;
   static constexpr coord_t TP_W = 86;
-  static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY_GAP;
+  static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY;
   static constexpr coord_t GR_W = 94;
   static constexpr coord_t ST_X = GR_X + SW_W + 20;
   static constexpr coord_t ST_W = 70;
@@ -246,9 +246,9 @@ class SwitchGroup : public Window
 {
  public:
   SwitchGroup(Window* parent, uint8_t group) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY_GAP * 2}), groupIndex(group)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}), groupIndex(group)
   {
-    padAll(PAD_TINY_GAP);
+    padAll(PAD_TINY);
 
     new StaticText(this, {0, PAD_MEDIUM, NM_W, EdgeTxStyles::PAGE_LINE_HEIGHT},
                    STR_FUNCTION_SWITCH_GROUPS[groupIndex]);

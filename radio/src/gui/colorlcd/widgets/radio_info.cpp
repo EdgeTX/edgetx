@@ -85,13 +85,17 @@ class RadioInfoWidget : public TopBarWidget
 #endif
 
     batteryFill = lv_obj_create(lvobj);
-    lv_obj_set_pos(batteryFill, W_AUDIO_X + 1, 26);
+    lv_obj_set_pos(batteryFill, W_AUDIO_X + 1, W_BATT_Y + 1);
     lv_obj_set_size(batteryFill, W_BATT_FILL_W, W_BATT_FILL_H);
     lv_obj_set_style_bg_opa(batteryFill, LV_OPA_COVER, LV_PART_MAIN);
     update();
 
     // RSSI bars
+#if LANDSCAPE_LCD_SMALL
+    const uint8_t rssiBarsHeight[] = {4, 8, 10, 14, 21};
+#else
     const uint8_t rssiBarsHeight[] = {5, 10, 15, 21, 31};
+#endif
     for (unsigned int i = 0; i < DIM(rssiBarsHeight); i++) {
       uint8_t height = rssiBarsHeight[i];
       rssiBars[i] = lv_obj_create(lvobj);
@@ -158,9 +162,9 @@ class RadioInfoWidget : public TopBarWidget
     if (bars != lastBatt) {
       lastBatt = bars;
       lv_obj_set_size(batteryFill, bars, W_BATT_FILL_H);
-      if (bars >= 12) {
+      if (bars >= W_BATT_FILL_GRN) {
         lv_obj_clear_state(batteryFill, LV_STATE_USER_1 | LV_STATE_USER_2);
-      } else if (bars >= 5) {
+      } else if (bars >= W_BATT_FILL_ORA) {
         lv_obj_add_state(batteryFill, LV_STATE_USER_1);
         lv_obj_clear_state(batteryFill, LV_STATE_USER_2);
       } else {
@@ -184,22 +188,24 @@ class RadioInfoWidget : public TopBarWidget
   }
 
   static const ZoneOption options[];
-
+    
   static constexpr coord_t W_AUDIO_X = 0;
-  static LAYOUT_VAL(W_AUDIO_SCALE_X, 15, 15)
-  static LAYOUT_VAL(W_USB_X, 32, 32)
-  static LAYOUT_VAL(W_USB_Y, 5, 5)
-  static LAYOUT_VAL(W_LOG_X, 32, 32)
-  static LAYOUT_VAL(W_LOG_Y, 3, 3)
-  static LAYOUT_VAL(W_RSSI_X, 40, 40)
-  static LAYOUT_VAL(W_RSSI_BAR_W, 4, 4)
-  static LAYOUT_VAL(W_RSSI_BAR_H, 35, 35)
-  static LAYOUT_VAL(W_RSSI_BAR_SZ, 6, 6)
-  static LAYOUT_VAL(W_BATT_Y, 25, 25)
-  static LAYOUT_VAL(W_BATT_FILL_W, 20, 20)
-  static LAYOUT_VAL(W_BATT_FILL_H, 9, 9)
-  static LAYOUT_VAL(W_BATT_CHG_X, 25, 25)
-  static LAYOUT_VAL(W_BATT_CHG_Y, 23, 23)
+  static LAYOUT_VAL(W_AUDIO_SCALE_X, 15, 15, LS(15))
+  static LAYOUT_VAL(W_USB_X, 32, 32, LS(32))
+  static LAYOUT_VAL(W_USB_Y, 5, 5, 4)
+  static LAYOUT_VAL(W_LOG_X, 32, 32, LS(32))
+  static LAYOUT_VAL(W_LOG_Y, 3, 3, LS(3))
+  static LAYOUT_VAL(W_RSSI_X, 40, 40, LS(40))
+  static LAYOUT_VAL(W_RSSI_BAR_W, 4, 4, LS(4))
+  static LAYOUT_VAL(W_RSSI_BAR_H, 35, 35, LS(35))
+  static LAYOUT_VAL(W_RSSI_BAR_SZ, 6, 6, LS(6))
+  static LAYOUT_VAL(W_BATT_Y, 25, 25, 16)
+  static LAYOUT_VAL(W_BATT_FILL_W, 20, 20, LS(20))
+  static LAYOUT_VAL(W_BATT_FILL_H, 9, 9, LS(9))
+  static LAYOUT_VAL(W_BATT_FILL_GRN, 12, 12, LS(12))
+  static LAYOUT_VAL(W_BATT_FILL_ORA, 5, 5, 4)
+  static LAYOUT_VAL(W_BATT_CHG_X, 25, 25, 16)
+  static LAYOUT_VAL(W_BATT_CHG_Y, 23, 23, 15)
 
  protected:
   uint8_t lastVol = 0;
@@ -256,8 +262,8 @@ class DateTimeWidget : public TopBarWidget
   static const ZoneOption options[];
 
   // Adjustment to make main view date/time align with model/radio settings views
-  static LAYOUT_VAL(DT_X, 24, 8)
-  static LAYOUT_VAL(DT_Y, 3, 3)
+  static LAYOUT_VAL(DT_X, 24, 8, LS(24))
+  static LAYOUT_VAL(DT_Y, 3, 3, LS(3))
 };
 
 const ZoneOption DateTimeWidget::options[] = {
