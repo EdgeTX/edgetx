@@ -71,7 +71,7 @@ extern uint32_t SystemCoreClock;
 /* Software timer definitions. */
 #define configTIMER_TASK_PRIORITY       ( 2 )
 #define configTIMER_QUEUE_LENGTH        20
-#define configTIMER_TASK_STACK_DEPTH    ( 512 )
+#define configTIMER_TASK_STACK_DEPTH    ( 1024 )
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
