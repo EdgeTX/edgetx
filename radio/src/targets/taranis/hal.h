@@ -2829,20 +2829,25 @@
   #elif defined(PCBX9LITES)
     #define BT_EN_GPIO                  GPIO_PIN(GPIOD, 14) // PD.14
   #elif defined(MANUFACTURER_RADIOMASTER)
-    #if defined(RADIO_POCKET)
+    #if defined(RADIO_POCKET) || defined(RADIO_GX12)
       #define BT_EN_GPIO                GPIO_PIN(GPIOA, 6) // PA.06
     #endif
   #else
     #define BT_EN_GPIO                  GPIO_PIN(GPIOE, 12) // PE.12
   #endif
-  #define BT_TX_GPIO                    GPIO_PIN(GPIOB, 10) // PB.10
-  #define BT_RX_GPIO                    GPIO_PIN(GPIOB, 11) // PB.11
+  #if defined(RADIO_GX12)
+    #define BT_TX_GPIO                    GPIO_PIN(GPIOD, 8) // PD.08
+    #define BT_RX_GPIO                    GPIO_PIN(GPIOD, 9) // PD.09
+  #else
+    #define BT_TX_GPIO                    GPIO_PIN(GPIOB, 10) // PB.10
+    #define BT_RX_GPIO                    GPIO_PIN(GPIOB, 11) // PB.11
+  #endif
   #define BT_USART                      USART3
   #define BT_USART_IRQn                 USART3_IRQn
   // #define BT_DMA_Stream_RX              DMA1_Stream1
   // #define BT_DMA_Channel_RX             DMA_Channel_4
 #else
-  #if defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2)|| defined(RADIO_BOXER) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_ZORRO)
+  #if defined(PCBX9D) || defined(PCBX9DP) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TX12) || defined(RADIO_TX12MK2)|| defined(RADIO_BOXER) || defined(RADIO_GX12) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_ZORRO)
     // To avoid change in modelsize, todo: remove me
     #define STORAGE_BLUETOOTH
   #endif
