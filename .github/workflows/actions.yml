@@ -3,7 +3,7 @@ name: Run tests and package firmware
 on:
   push:
     branches:
-      - 'main'
+      - '2.11'
     tags:
       - v*
     paths-ignore:
@@ -20,7 +20,7 @@ on:
       - 'fw.json'
   pull_request:
     branches:
-      - 'main'
+      - '2.11'
     paths-ignore:
       - '**.md'
       - '.github/ISSUE_TEMPLATE/**'
