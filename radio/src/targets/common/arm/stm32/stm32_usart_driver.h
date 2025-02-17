@@ -48,6 +48,9 @@ struct stm32_usart_t {
     DMA_TypeDef*               rxDMA;
     uint32_t                   rxDMA_Stream;
     uint32_t                   rxDMA_Channel;
+#if defined(STM32H5) || defined(STM32H7RS)
+    LL_DMA_LinkNodeTypeDef     llNode;
+#endif
 
     // 2-wire Half-duplex settings (uses direction pin)
     pin_setter_t               set_input;
