@@ -167,7 +167,7 @@ void boardInit()
 
 #if defined(STATUS_LEDS)
   ledInit();
-#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER) || defined(RADIO_COMMANDO8)
+#if !defined(POWER_LED_BLUE) && (defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER) || defined(RADIO_COMMANDO8))
   ledBlue();
 #else
   ledGreen();

@@ -259,7 +259,12 @@ void boardInit()
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 
+#if !defined(POWER_LED_BLUE)
   ledBlue();
+#else
+  ledGreen();
+#endif
+
 #if !defined(LCD_VERTICAL_INVERT)
   lcdSetInitalFrameBuffer(lcdFront->getData());
 #elif defined(RADIO_F16)
