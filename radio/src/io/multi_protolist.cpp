@@ -29,6 +29,7 @@
 #include "gui_common.h"
 
 #include "edgetx.h" // reusableBuffer
+#include "os/time.h"
 
 #include <algorithm>
 
@@ -201,7 +202,7 @@ float MultiRfProtocols::getProgress() const
   
   if (scanState == ScanStop)  return 0.0;
   if (scanState == ScanBegin) {
-    float t = (float)(RTOS_GET_MS() - scanStart) / (float)MULTI_PROTOLIST_START_TIMEOUT;
+    float t = (float)(time_get_ms() - scanStart) / (float)MULTI_PROTOLIST_START_TIMEOUT;
     return t * WAIT_TIME_RATIO;
   }
 
@@ -225,17 +226,17 @@ bool MultiRfProtocols::triggerScan()
     scanState = ScanBegin;
     currentProto = MULTI_INVALID_PROTO;
     moduleState[moduleIdx].mode = MODULE_MODE_GET_HARDWARE_INFO;
-    scanStart = lastScan = RTOS_GET_MS();
+    scanStart = lastScan = time_get_ms();
 
 #if !defined(SIMU)
     auto scanTimer = &_protoScanTimers[moduleIdx];
     if (!scanTimer->timer) {
       scanTimer->timer = xTimerCreateStatic(
-          "MPM", MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK, pdTRUE,
+          "MPM", MULTI_PROTOLIST_START_TIMEOUT / portTICK_RATE_MS, pdTRUE,
           (void*)moduleIdx, MultiRfProtocols::timerCb, &scanTimer->timerBuffer);
     } else {
       if (xTimerChangePeriod(scanTimer->timer,
-          MULTI_PROTOLIST_START_TIMEOUT / RTOS_MS_PER_TICK,
+          MULTI_PROTOLIST_START_TIMEOUT / portTICK_RATE_MS,
           0) != pdPASS) {
           /* The timer period could not be reset. */
       }
@@ -291,13 +292,13 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
           }
 
           currentProto++;
-          lastScan = RTOS_GET_MS();
+          lastScan = time_get_ms();
 
 #if !defined(SIMU)
           auto scanTimer = &_protoScanTimers[moduleIdx];
           if (scanTimer->timer) {
             if (xTimerChangePeriod(scanTimer->timer,
-                                   MULTI_PROTOLIST_TIMEOUT / RTOS_MS_PER_TICK,
+                                   MULTI_PROTOLIST_TIMEOUT / portTICK_RATE_MS,
                                    0) != pdPASS) {
               /* The timer period could not be reset. */
             }
@@ -328,7 +329,7 @@ bool MultiRfProtocols::scanReply(const uint8_t* packet, uint8_t len)
           timeout = MULTI_PROTOLIST_START_TIMEOUT;
         }
 
-        if (RTOS_GET_MS() - lastScan >= timeout) {
+        if (time_get_ms() - lastScan >= timeout) {
           TRACE("proto scan timeout!");
           scanState = ScanInvalid;
         }
