@@ -63,7 +63,7 @@ enum _STM32_USART {
   _STM32_UART4,
 #endif
 
-#if defined(UART5) && (defined(STM32H7) || defined(STM32H7RS))
+#if defined(UART5) && (defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS))
   _STM32_UART5,
 #endif
 
@@ -79,8 +79,20 @@ enum _STM32_USART {
   _STM32_UART8,
 #endif
 
+#if defined(UART9)
+  _STM32_UART9,
+#endif
+
 #if defined(USART10)
     _STM32_USART10,
+#endif
+
+#if defined(USART11)
+    _STM32_USART11,
+#endif
+
+#if defined(UART12)
+    _STM32_UART12,
 #endif
 
   _STM32_MAX_UARTS
@@ -166,7 +178,7 @@ static inline void _usart_isr_handler(_STM32_USART n)
   DEFINE_USART_IRQ(UART4);
 #endif
 
-#if defined (UART5) && (defined(STM32H7) || defined(STM32H7RS))
+#if defined (UART5) && (defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS))
   DEFINE_USART_IRQ(UART5);
 #endif
 
@@ -182,8 +194,20 @@ static inline void _usart_isr_handler(_STM32_USART n)
   DEFINE_USART_IRQ(UART8);
 #endif
 
+#if defined (UART9)
+  DEFINE_USART_IRQ(UART9);
+#endif
+
 #if defined (USART10)
   DEFINE_USART_IRQ(USART10);
+#endif
+
+#if defined (USART11)
+  DEFINE_USART_IRQ(USART11);
+#endif
+
+#if defined (UART12)
+  DEFINE_USART_IRQ(UART12);
 #endif
 
 
@@ -201,7 +225,7 @@ static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 #if defined (UART4)
   if (usart->USARTx == UART4) return &_serial_states[_STM32_UART4];
 #endif
-#if defined (UART5) && (defined(STM32H7) || defined(STM32H7RS))
+#if defined (UART5) && (defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS))
   if (usart->USARTx == UART5) return &_serial_states[_STM32_UART5];
 #endif
 #if defined (USART6)
@@ -213,8 +237,17 @@ static stm32_serial_state* stm32_serial_find_state(const stm32_usart_t* usart)
 #if defined (UART8)
   if (usart->USARTx == UART8) return &_serial_states[_STM32_UART8];
 #endif
+#if defined (UART9)
+  if (usart->USARTx == UART9) return &_serial_states[_STM32_UART9];
+#endif
 #if defined (USART10)
   if (usart->USARTx == USART10) return &_serial_states[_STM32_USART10];
+#endif
+#if defined (USART11)
+  if (usart->USARTx == USART11) return &_serial_states[_STM32_USART11];
+#endif
+#if defined (UART12)
+  if (usart->USARTx == UART12) return &_serial_states[_STM32_UART12];
 #endif
 
   return nullptr;
