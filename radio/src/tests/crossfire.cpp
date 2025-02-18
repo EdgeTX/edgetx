@@ -61,8 +61,7 @@ struct crsf_frame_test {
   {
     ctx = CrossfireDriver.init(EXTERNAL_MODULE);
     if (!luaInputTelemetryFifo) {
-      luaInputTelemetryFifo =
-          new Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE>();
+      luaInputTelemetryFifo = new TelemetryQueue();
       assert(luaInputTelemetryFifo != nullptr);
     } else {
       luaInputTelemetryFifo->clear();

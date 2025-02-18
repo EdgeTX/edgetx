@@ -311,12 +311,8 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         crossfireModuleStatus[module].queryCompleted = true;
       }
 
-      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(rxBufferCount - 2)) {
-        for (uint8_t i = 1; i < rxBufferCount - 1; i++) {
-          // destination address and CRC are skipped
-          luaInputTelemetryFifo->push(rxBuffer[i]);
-        }
-      }
+      // destination address and CRC are skipped
+      pushTelemetryDataToQueues(rxBuffer + 1, rxBufferCount - 2);
       break;
 #endif
   }

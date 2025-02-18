@@ -28,6 +28,7 @@
 #include "lua_states.h"
 #include "lua_api.h"
 #include "lua_lvgl_widget.h"
+#include "telemetry/telemetry.h"
 
 #include "edgetx_types.h"
 
@@ -65,6 +66,7 @@ class LuaScriptManager : public LuaEventHandler
 {
  public:
   LuaScriptManager() = default;
+  ~LuaScriptManager();
 
   std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
   void saveLvglObjectRef(int ref);
@@ -88,10 +90,16 @@ class LuaScriptManager : public LuaEventHandler
 
   uint8_t refreshInstructionsPercent;
 
+  void createTelemetryQueue();
+  TelemetryQueue* telemetryQueue() { return luaInputTelemetryFifo; }
+
  protected:
   int luaScriptContextRef = 0;
   std::vector<int> lvglObjectRefs;
   LvglWidgetObjectBase* tempParent = nullptr;
+#if defined(LUA)
+  TelemetryQueue* luaInputTelemetryFifo = nullptr;
+#endif
 };
 
 class LuaWidget : public Widget, public LuaScriptManager
