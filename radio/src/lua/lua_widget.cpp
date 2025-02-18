@@ -584,3 +584,20 @@ bool LuaScriptManager::callRefs(lua_State *L)
   }
   return true;
 }
+
+void LuaScriptManager::createTelemetryQueue()
+{
+  if (luaInputTelemetryFifo == nullptr) {
+    luaInputTelemetryFifo = new TelemetryQueue();
+    registerTelemetryQueue(luaInputTelemetryFifo);
+  }
+}
+
+LuaScriptManager::~LuaScriptManager()
+{
+  if (luaInputTelemetryFifo == nullptr) {
+    deregisterTelemetryQueue(luaInputTelemetryFifo);
+    delete luaInputTelemetryFifo;
+    luaInputTelemetryFifo = nullptr;
+  }
+}
