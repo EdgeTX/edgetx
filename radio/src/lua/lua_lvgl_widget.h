@@ -24,6 +24,8 @@
 #define LVGL_METATABLE "LVGL*"
 #define LVGL_SIMPLEMETATABLE "LVGLSIMPLE*"
 
+class LuaScriptManager;
+
 //-----------------------------------------------------------------------------
 
 class LvglWidgetObjectBase
@@ -66,7 +68,7 @@ class LvglWidgetObjectBase
   std::vector<int> lvglObjectRefs;
   const char* metatable = nullptr;
   bool clearRequest = false;
-  LuaLvglManager *lvglManager = nullptr;
+  LuaScriptManager *lvglManager = nullptr;
   coord_t x = 0, y = 0, w = LV_SIZE_CONTENT, h = LV_SIZE_CONTENT;
   LcdFlags color = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX);
   LcdFlags currentColor = -1;

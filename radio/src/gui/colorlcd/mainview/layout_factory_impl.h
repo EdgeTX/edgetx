@@ -182,7 +182,7 @@ class BaseLayoutFactory: public LayoutFactory
 
     const uint8_t* getBitmap() const override { return bitmap; }
 
-    const ZoneOption * getOptions() const override
+    const ZoneOption * getLayoutOptions() const override
     {
       return options;
     }

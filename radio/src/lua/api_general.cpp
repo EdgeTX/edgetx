@@ -2193,8 +2193,8 @@ Get percent of already used Lua instructions in current script execution cycle.
 static int luaGetUsage(lua_State * L)
 {
 #if defined(COLORLCD)
-  if (luaLvglManager && luaLvglManager->useLvglLayout()) {
-    lua_pushinteger(L, luaLvglManager->refreshInstructionsPercent);
+  if (luaScriptManager && luaScriptManager->useLvglLayout()) {
+    lua_pushinteger(L, luaScriptManager->refreshInstructionsPercent);
   } else {
     lua_pushinteger(L, instructionsPercent);
   }
@@ -2592,30 +2592,10 @@ to the fields in the table returned by `model.getLogicalSwitch(switch)` identify
 static int luaGetSwitchIndex(lua_State * L)
 {
   const char * name = luaL_checkstring(L, 1);
-  bool negate = false;
-  bool found = false;
-  swsrc_t idx;
+  swsrc_t idx = getSwitchIndex(name, true);
 
-  if (name[0] == '!') {
-    name++;
-    negate = true;
-  }
-
-  for (idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
-    if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
-      char* s = getSwitchPositionName(idx);
-      if (!strncasecmp(s, name, 31)) {
-        found = true;
-        break;
-      }
-    }
-  }
-
-  if (found) {
-    if (negate)
-      idx = -idx;
+  if (idx != SWSRC_INVERT)
     lua_pushinteger(L, idx);
-  }
   else
     lua_pushnil(L);
 
@@ -2715,8 +2695,7 @@ static int luaSwitches(lua_State * L)
   } else
     last = SWSRC_LAST;
 
-  lua_pushcfunction(L, luaNextSwitch);
-  lua_pushinteger(L, last);
+  lua_pushcfunction(L, luaNextSwitch);  lua_pushinteger(L, last);
   lua_pushinteger(L, first);
   return 3;
 }
@@ -2737,21 +2716,9 @@ This function is rather time consuming, and should not be used repeatedly in a s
 static int luaGetSourceIndex(lua_State* const L)
 {
   const char* const name = luaL_checkstring(L, 1);
-  bool found = false;
-  mixsrc_t idx;
+  mixsrc_t idx = getSourceIndex(name, true);
 
-  for (idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
-    if (isSourceAvailable(idx)) {
-      char srcName[maxSourceNameLength];
-      getSourceString(srcName, idx);
-      if (!strncasecmp(srcName, name)) {
-        found = true;
-        break;
-      }
-    }
-  }
-
-  if (found)
+  if (idx >= 0)
     lua_pushinteger(L, idx);
   else
     lua_pushnil(L);

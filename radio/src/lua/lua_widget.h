@@ -35,10 +35,36 @@
 
 class LuaWidgetFactory;
 
-class LuaLvglManager
+class LuaEventHandler
+{
+public:
+  LuaEventHandler() = default;
+  void setupHandler(Window* w);
+  void removeHandler(Window* w);
+
+protected:
+#if defined(HARDWARE_TOUCH)
+  // "tap" handling
+  static uint32_t downTime;
+  static uint32_t tapTime;
+  static uint32_t tapCount;
+  // "swipe" / "slide" handling
+  static tmr10ms_t swipeTimeOut;
+  static bool _sliding;
+  static coord_t _startX;
+  static coord_t _startY;
+#endif
+  static void event_cb(lv_event_t* e);
+
+  void onClickedEvent();
+  void onCancelEvent();
+  void onLuaEvent(event_t event);
+};
+
+class LuaScriptManager : public LuaEventHandler
 {
  public:
-  LuaLvglManager() = default;
+  LuaScriptManager() = default;
 
   std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
   void saveLvglObjectRef(int ref);
@@ -68,33 +94,7 @@ class LuaLvglManager
   LvglWidgetObjectBase* tempParent = nullptr;
 };
 
-class LuaEventHandler
-{
-public:
-  LuaEventHandler() = default;
-  void setupHandler(Window* w);
-  void removeHandler(Window* w);
-
-protected:
-#if defined(HARDWARE_TOUCH)
-  // "tap" handling
-  static uint32_t downTime;
-  static uint32_t tapTime;
-  static uint32_t tapCount;
-  // "swipe" / "slide" handling
-  static tmr10ms_t swipeTimeOut;
-  static bool _sliding;
-  static coord_t _startX;
-  static coord_t _startY;
-#endif
-  static void event_cb(lv_event_t* e);
-
-  void onClicked();
-  void onCancel();
-  void onLuaEvent(event_t event);
-};
-
-class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
+class LuaWidget : public Widget, public LuaScriptManager
 {
   friend class LuaWidgetFactory;
 
@@ -160,3 +160,5 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
   static void redraw_cb(lv_event_t *e);
 };
+
+extern LuaScriptManager* luaScriptManager;

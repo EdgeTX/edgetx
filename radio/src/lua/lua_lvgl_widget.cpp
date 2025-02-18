@@ -83,7 +83,7 @@ LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index)
 
 LvglWidgetObjectBase::LvglWidgetObjectBase(const char* meta) :
     metatable(meta),
-    lvglManager(luaLvglManager)
+    lvglManager(luaScriptManager)
 {
 }
 
@@ -126,12 +126,12 @@ void LvglWidgetObjectBase::pcallSimpleFunc(lua_State *L, int funcRef)
   if (funcRef != LUA_REFNIL) {
     PROTECT_LUA()
     {
-      auto save = luaLvglManager;
-      luaLvglManager = lvglManager;
+      auto save = luaScriptManager;
+      luaScriptManager = lvglManager;
       if (!pcallFunc(L, funcRef, 0)) {
         lvglManager->luaShowError();
       }
-      luaLvglManager = save;
+      luaScriptManager = save;
     }
     UNPROTECT_LUA();
   }
@@ -142,8 +142,8 @@ bool LvglWidgetObjectBase::pcallUpdateBool(lua_State *L, int getFuncRef,
 {
   bool res = true;
   if (getFuncRef != LUA_REFNIL) {
-    auto save = luaLvglManager;
-    luaLvglManager = lvglManager;
+    auto save = luaScriptManager;
+    luaScriptManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
       bool val = false;
@@ -166,8 +166,8 @@ bool LvglWidgetObjectBase::pcallUpdate1Int(lua_State *L, int getFuncRef,
 {
   bool res = true;
   if (getFuncRef != LUA_REFNIL) {
-    auto save = luaLvglManager;
-    luaLvglManager = lvglManager;
+    auto save = luaScriptManager;
+    luaScriptManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 1)) {
       int val = luaL_checkunsigned(L, -1);
@@ -186,8 +186,8 @@ bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, int getFuncRef,
 {
   bool res = true;
   if (getFuncRef != LUA_REFNIL) {
-    auto save = luaLvglManager;
-    luaLvglManager = lvglManager;
+    auto save = luaScriptManager;
+    luaScriptManager = lvglManager;
     int t = lua_gettop(L);
     if (pcallFunc(L, getFuncRef, 2)) {
       int v1 = luaL_checkunsigned(L, -2);
@@ -206,8 +206,8 @@ int LvglWidgetObjectBase::pcallGetIntVal(lua_State *L, int getFuncRef)
 {
   int val = 0;
   if (getFuncRef != LUA_REFNIL) {
-    auto save = luaLvglManager;
-    luaLvglManager = lvglManager;
+    auto save = luaScriptManager;
+    luaScriptManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
     {
@@ -235,8 +235,8 @@ int LvglWidgetObjectBase::pcallGetOptIntVal(lua_State *L, int getFuncRef, int de
 {
   int val = 0;
   if (getFuncRef != LUA_REFNIL) {
-    auto save = luaLvglManager;
-    luaLvglManager = lvglManager;
+    auto save = luaScriptManager;
+    luaScriptManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
     {
@@ -263,8 +263,8 @@ int LvglWidgetObjectBase::pcallGetOptIntVal(lua_State *L, int getFuncRef, int de
 void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
 {
   if (setFuncRef != LUA_REFNIL) {
-    auto save = luaLvglManager;
-    luaLvglManager = lvglManager;
+    auto save = luaScriptManager;
+    luaScriptManager = lvglManager;
     int t = lua_gettop(L);
     PROTECT_LUA()
     {
@@ -1051,7 +1051,7 @@ void LvglWidgetBox::build(lua_State* L)
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
   lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
-  if (luaLvglManager->isWidget()) {
+  if (luaScriptManager->isWidget()) {
     lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
   } else {
     etx_scrollbar(window->getLvObj());
@@ -1129,7 +1129,7 @@ void LvglWidgetBorderedObject::build(lua_State *L)
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
   lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
-  if (luaLvglManager->isWidget()) {
+  if (luaScriptManager->isWidget()) {
     lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
   } else {
     etx_scrollbar(window->getLvObj());
@@ -1729,7 +1729,7 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 
   bool bubbleEvents() override { return true; }
 
-  void onClicked() override { Keyboard::hide(false); LuaEventHandler::onClicked(); }
+  void onClicked() override { Keyboard::hide(false); LuaEventHandler::onClickedEvent(); }
 
   void onCancel() override { backAction(); }
 
