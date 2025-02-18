@@ -91,7 +91,7 @@ static void sbusProcessFrame(int16_t* pulses, uint8_t* sbus, uint32_t size)
     return;  // SBUS invalid frame or failsafe mode
   }
 
-  pulses[15] = sbus[SBUS_FLAGS_IDX] & (1 << SBUS_CHANNEL17_BIT) ? 512 : -512;
+  pulses[16] = sbus[SBUS_FLAGS_IDX] & (1 << SBUS_CHANNEL17_BIT) ? 512 : -512;
   pulses[17] = sbus[SBUS_FLAGS_IDX] & (1 << SBUS_CHANNEL18_BIT) ? 512 : -512;
 
   sbus++;  // skip start byte
