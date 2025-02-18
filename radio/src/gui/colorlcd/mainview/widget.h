@@ -42,7 +42,8 @@ class Widget : public ButtonBase
 
   const WidgetFactory* getFactory() const { return factory; }
 
-  const ZoneOption* getOptions() const;
+  const ZoneOption* getOptionDefinitions() const;
+  bool hasOptions() const { return getOptionDefinitions() && getOptionDefinitions()->name; }
 
   virtual const char* getErrorMessage() const { return nullptr; }
 
@@ -117,7 +118,8 @@ class WidgetFactory
 
   const char* getName() const { return name; }
 
-  const ZoneOption* getOptions() const { return options; }
+  const ZoneOption* getDefaultOptions() const { return options; }
+  virtual const void parseOptionDefaults() const {}
 
   const char* getDisplayName() const
   {

@@ -28,7 +28,7 @@
 
 extern void luaExecStandalone(const char * filename);
 
-class StandaloneLuaWindow : public Window, public LuaEventHandler, public LuaLvglManager
+class StandaloneLuaWindow : public Window, public LuaScriptManager
 {
   static StandaloneLuaWindow* _instance;
 
