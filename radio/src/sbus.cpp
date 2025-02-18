@@ -30,6 +30,11 @@
 #define SBUS_FLAGS_IDX 23
 #define SBUS_FRAMELOST_BIT 2
 #define SBUS_FAILSAFE_BIT 3
+#define SBUS_CHANNEL17_BIT 6
+#define SBUS_CHANNEL18_BIT 7
+
+#define SBUS_PROPORTIONAL_CHANNELS 16
+#define SBUS_DIGITAL_CHANNELS 2
 
 #define SBUS_CH_BITS 11
 #define SBUS_CH_MASK ((1 << SBUS_CH_BITS) - 1)
@@ -86,11 +91,14 @@ static void sbusProcessFrame(int16_t* pulses, uint8_t* sbus, uint32_t size)
     return;  // SBUS invalid frame or failsafe mode
   }
 
+  pulses[15] = sbus[SBUS_FLAGS_IDX] & (1 << SBUS_CHANNEL17_BIT) ? 512 : -512;
+  pulses[17] = sbus[SBUS_FLAGS_IDX] & (1 << SBUS_CHANNEL18_BIT) ? 512 : -512;
+
   sbus++;  // skip start byte
 
   uint32_t inputbitsavailable = 0;
   uint32_t inputbits = 0;
-  for (uint32_t i = 0; i < MAX_TRAINER_CHANNELS; i++) {
+  for (uint32_t i = 0; i < SBUS_PROPORTIONAL_CHANNELS; i++) {
     while (inputbitsavailable < SBUS_CH_BITS) {
       inputbits |= *sbus++ << inputbitsavailable;
       inputbitsavailable += 8;
@@ -99,6 +107,7 @@ static void sbusProcessFrame(int16_t* pulses, uint8_t* sbus, uint32_t size)
     inputbitsavailable -= SBUS_CH_BITS;
     inputbits >>= SBUS_CH_BITS;
   }
+
 
   trainerResetTimer();
 }

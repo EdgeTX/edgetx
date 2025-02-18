@@ -52,7 +52,7 @@
   #define MAX_INPUTS                   32
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
-  #define MAX_TRAINER_CHANNELS         16
+  #define MAX_TRAINER_CHANNELS         18
   #define MAX_TELEMETRY_SENSORS        60
   #define MAX_CUSTOM_SCREENS           10
 #elif defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
@@ -67,7 +67,7 @@
   #define MAX_INPUTS                   32
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
-  #define MAX_TRAINER_CHANNELS         16
+  #define MAX_TRAINER_CHANNELS         18
   #define MAX_TELEMETRY_SENSORS        60
 #elif defined(PCBTARANIS)
   #define MAX_MODELS                   60
@@ -81,7 +81,7 @@
   #define MAX_INPUTS                   32
   #define MIN_TRAINER_CHANNELS         4
   #define DEF_TRAINER_CHANNELS         8
-  #define MAX_TRAINER_CHANNELS         16
+  #define MAX_TRAINER_CHANNELS         18
   #define MAX_TELEMETRY_SENSORS        40
 #else
   #warning "Unknown board!"
