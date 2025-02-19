@@ -427,9 +427,9 @@ char *getCustomSwitchesGroupName(char *dest, uint8_t idx)
   return dest;
 }
 
-char *getSwitchName(char *dest, uint8_t idx)
+char *getSwitchName(char *dest, uint8_t idx, bool defaultOnly)
 {
-  if (switchHasCustomName(idx)) {
+  if (!defaultOnly && switchHasCustomName(idx)) {
     dest = strAppend(dest, switchGetCustomName(idx), LEN_SWITCH_NAME);
   } else {
     dest = strAppend(dest, switchGetName(idx), LEN_SWITCH_NAME);
@@ -464,7 +464,7 @@ const char *getSwitchPositionSymbol(uint8_t pos)
   return _switch_state_str[pos + 1];
 }
 
-char *getSwitchPositionName(char *dest, swsrc_t idx)
+char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
 {
   if (idx == SWSRC_NONE) {
     return strcpy(dest, STR_EMPTY);
@@ -480,7 +480,7 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
 
   if (idx <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(idx);
-    s = getSwitchName(s, swinfo.quot);
+    s = getSwitchName(s, swinfo.quot, defaultOnly);
     s = strAppend(s, getSwitchPositionSymbol(swinfo.rem), 2);
     *s = '\0';
   } else if (idx <= SWSRC_LAST_MULTIPOS_SWITCH) {
@@ -522,9 +522,42 @@ char *getSwitchPositionName(char *dest, swsrc_t idx)
   return dest;
 }
 
-const char *getAnalogLabel(uint8_t type, uint8_t idx)
+bool switchCanHaveCustomName(swsrc_t idx)
 {
-  if (analogHasCustomLabel(type, idx)) return analogGetCustomLabel(type, idx);
+  return (idx >= SWSRC_FIRST_SWITCH && idx <= SWSRC_LAST_SWITCH);
+}
+
+int getSwitchIndex(const char* name, bool all)
+{
+  bool negate = false;
+
+  if (name[0] == '!') {
+    name++;
+    negate = true;
+  }
+
+  for (swsrc_t idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
+    if (all || isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+      char* s;
+      if (switchCanHaveCustomName(idx)) {
+        // Check default name
+        s = getSwitchPositionName(idx, true);
+        if (!strcasecmp(s, name))
+          return negate ? -idx : idx;
+      }
+      s = getSwitchPositionName(idx);
+      if (!strcasecmp(s, name))
+        return negate ? -idx : idx;
+    }
+  }
+
+  return SWSRC_INVERT;  // Not found
+}
+
+const char *getAnalogLabel(uint8_t type, uint8_t idx, bool defaultOnly)
+{
+  if (!defaultOnly && analogHasCustomLabel(type, idx))
+    return analogGetCustomLabel(type, idx);
 
   if (type == ADC_INPUT_MAIN) {
     // main controls: translated label is stored in "short label"
@@ -566,15 +599,15 @@ const char *getAnalogShortLabel(uint8_t idx)
   return "";
 }
 
-const char *getMainControlLabel(uint8_t idx)
+const char *getMainControlLabel(uint8_t idx, bool defaultOnly)
 {
-  return getAnalogLabel(ADC_INPUT_MAIN, idx);
+  return getAnalogLabel(ADC_INPUT_MAIN, idx, defaultOnly);
 }
 
-const char *getTrimLabel(uint8_t idx)
+const char *getTrimLabel(uint8_t idx, bool defaultOnly)
 {
   if (idx < adcGetMaxInputs(ADC_INPUT_MAIN)) {
-    return getMainControlLabel(idx);
+    return getMainControlLabel(idx, defaultOnly);
   }
 
   // TODO: replace with string from HW def
@@ -595,15 +628,15 @@ const char *getTrimSourceLabel(uint16_t src_raw, int8_t trim_src)
   }
 }
 
-const char *getPotLabel(uint8_t idx)
+const char *getPotLabel(uint8_t idx, bool defaultOnly)
 {
-  return getAnalogLabel(ADC_INPUT_FLEX, idx);
+  return getAnalogLabel(ADC_INPUT_FLEX, idx, defaultOnly);
 }
 
 // this should be declared in header, but it used so much foreign symbols that
 // we declare it in cpp-file and pre-instantiate it for the uses
 template <size_t L>
-char *getSourceString(char (&destRef)[L], mixsrc_t idx)
+char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 {
   size_t dest_len = L;
   char* dest = destRef;
@@ -622,7 +655,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     static_assert(L > sizeof(STR_CHAR_INPUT) - 1, "dest string too small");
     dest_len -= sizeof(STR_CHAR_INPUT) - 1;
     char *pos = strAppend(dest, STR_CHAR_INPUT, sizeof(STR_CHAR_INPUT) - 1);
-    if (g_model.inputNames[idx][0] != '\0' &&
+    if (!defaultOnly && g_model.inputNames[idx][0] != '\0' &&
         (dest_len > sizeof(g_model.inputNames[idx]))) {
       memset(pos, 0, sizeof(g_model.inputNames[idx]) + 1);
       size_t input_len =
@@ -669,7 +702,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     if (idx < MAX_STICKS) {
       pos = strAppend(pos, STR_CHAR_STICK, sizeof(STR_CHAR_STICK) - 1);
       dest_len -= sizeof(STR_CHAR_STICK) - 1;
-      name = getMainControlLabel(idx);
+      name = getMainControlLabel(idx, defaultOnly);
     } else {
       idx -= MAX_STICKS;
       if (IS_SLIDER(idx)) {
@@ -680,7 +713,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
         dest_len -= sizeof(STR_CHAR_POT) - 1;
       }
       // TODO: AXIS / SWITCH ???
-      name = getPotLabel(idx);
+      name = getPotLabel(idx, defaultOnly);
     }
     strncpy(pos, name, dest_len - 1);
     pos[dest_len - 1] = '\0';
@@ -707,11 +740,11 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
   } else if (idx <= MIXSRC_LAST_TRIM) {
     idx -= MIXSRC_FIRST_TRIM;
     char *pos = strAppend(dest, STR_CHAR_TRIM, sizeof(STR_CHAR_TRIM) - 1);
-    strAppend(pos, getTrimLabel(idx));
+    strAppend(pos, getTrimLabel(idx, defaultOnly));
   } else if (idx <= MIXSRC_LAST_SWITCH) {
     idx -= MIXSRC_FIRST_SWITCH;
     char *pos = strAppend(dest, STR_CHAR_SWITCH, sizeof(STR_CHAR_SWITCH) - 1);
-    getSwitchName(pos, idx);
+    getSwitchName(pos, idx, defaultOnly);
 #if defined(FUNCTION_SWITCHES)
   } else if (idx <= MIXSRC_LAST_CUSTOMSWITCH_GROUP) {
     idx -= MIXSRC_FIRST_CUSTOMSWITCH_GROUP;
@@ -719,15 +752,14 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     getCustomSwitchesGroupName(pos, idx);
 #endif
   } else if (idx <= MIXSRC_LAST_LOGICAL_SWITCH) {
-    // TODO: unnecessary, use the direct way instead
     idx -= MIXSRC_FIRST_LOGICAL_SWITCH;
-    getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH);
+    getSwitchPositionName(dest, idx + SWSRC_FIRST_LOGICAL_SWITCH, defaultOnly);
   } else if (idx <= MIXSRC_LAST_TRAINER) {
     idx -= MIXSRC_FIRST_TRAINER;
     strAppendStringWithIndex(dest, STR_PPM_TRAINER, idx + 1);
   } else if (idx <= MIXSRC_LAST_CH) {
     auto ch = idx - MIXSRC_FIRST_CH;
-    if (g_model.limitData[ch].name[0] != '\0') {
+    if (!defaultOnly && g_model.limitData[ch].name[0] != '\0') {
       strAppend(dest, g_model.limitData[ch].name, LEN_CHANNEL_NAME);
     } else {
       strAppendStringWithIndex(dest, STR_CH, ch + 1);
@@ -736,7 +768,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     idx -= MIXSRC_FIRST_GVAR;
 #if defined(LIBOPENUI)
     char *s = strAppendStringWithIndex(dest, STR_GV, idx + 1);
-    if (g_model.gvars[idx].name[0]) {
+    if (!defaultOnly && g_model.gvars[idx].name[0]) {
       s = strAppend(s, ":");
       getGVarString(s, idx);
     }
@@ -763,7 +795,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
     strncpy(dest, src_str, dest_len - 1);
   } else if (idx <= MIXSRC_LAST_TIMER) {
     idx -= MIXSRC_FIRST_TIMER;
-    if (g_model.timers[idx].name[0] != '\0') {
+    if (!defaultOnly && g_model.timers[idx].name[0] != '\0') {
       strAppend(dest, g_model.timers[idx].name, LEN_TIMER_NAME);
     } else {
       strAppendStringWithIndex(dest, STR_SRC_TIMER, idx + 1);
@@ -781,13 +813,53 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx)
   return destRef; 
 }
 
+bool sourceCanHaveCustomName(mixsrc_t idx)
+{
+  return (idx >= MIXSRC_FIRST_INPUT && idx <= MIXSRC_LAST_INPUT) ||
+         (idx >= MIXSRC_FIRST_STICK && idx <= MIXSRC_LAST_STICK) ||
+         (idx >= MIXSRC_FIRST_POT && idx <= MIXSRC_LAST_POT) ||
+         (idx >= MIXSRC_FIRST_TRIM && idx <= MIXSRC_LAST_TRIM) ||
+         (idx >= MIXSRC_FIRST_SWITCH && idx <= MIXSRC_LAST_SWITCH) ||
+         (idx >= MIXSRC_FIRST_CH && idx <= MIXSRC_LAST_CH) ||
+         (idx >= MIXSRC_FIRST_GVAR && idx <= MIXSRC_LAST_GVAR) ||
+         (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER);
+}
+
+bool matchSource(const char* name, mixsrc_t idx, bool defaultOnly)
+{
+  char *s = getSourceString(idx, defaultOnly);
+  if (strcasecmp(s, name) == 0)
+    return true;
+  // Check for names starting with CHAR_xxx symbol strings
+  if (s[0] == '\302' && (strcasecmp(s + 2, name) == 0))
+    return true;
+  return false;
+}
+
+int getSourceIndex(const char* name, bool all)
+{
+  for (mixsrc_t idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
+    if (all || isSourceAvailable(idx)) {
+      if (sourceCanHaveCustomName(idx)) {
+        // Check default name
+        if (matchSource(name, idx, true))
+          return idx;
+      }
+      if (matchSource(name, idx, false))
+        return idx;
+    }
+  }
+
+  return -1;
+}
+
 // pre-instantiate for use from external
 // all other instantiations are done from this file
-template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx);
+template char *getSourceString<16>(char (&dest)[16], mixsrc_t idx, bool defaultOnly);
 
-char *getSourceString(mixsrc_t idx)
+char *getSourceString(mixsrc_t idx, bool defaultOnly)
 {
-  return getSourceString(_static_str_buffer, idx);
+  return getSourceString(_static_str_buffer, idx, defaultOnly);
 }
 
 char *getCurveString(int idx)
@@ -805,9 +877,9 @@ char *getTimerString(char *dest, int32_t tme, TimerOptions timerOptions)
   return getFormattedTimerString(dest, tme, timerOptions);
 }
 
-char *getSwitchPositionName(swsrc_t idx)
+char *getSwitchPositionName(swsrc_t idx, bool defaultOnly)
 {
-  return getSwitchPositionName(_static_str_buffer, idx);
+  return getSwitchPositionName(_static_str_buffer, idx, defaultOnly);
 }
 
 char *getGVarString(int idx) { return getGVarString(_static_str_buffer, idx); }
@@ -1102,6 +1174,8 @@ char *strAppendSigned(char *dest, int32_t value, uint8_t digits, uint8_t radix)
 
 char *strAppend(char *dest, const char *source, int len)
 {
+  if (source == nullptr) { *dest = '\0'; return dest; }
+
   while ((*dest++ = *source++)) {
     if (--len == 0) {
       *dest = '\0';

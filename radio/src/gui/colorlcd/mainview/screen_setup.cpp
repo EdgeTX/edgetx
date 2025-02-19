@@ -327,7 +327,7 @@ void ScreenSetupPage::buildLayoutOptions()
   if (!factory) return;
 
   int index = 0;
-  for (auto* option = factory->getOptions(); option->name; option++, index++) {
+  for (auto* option = factory->getLayoutOptions(); option->name; option++, index++) {
     auto layoutData = &g_model.screenData[customScreenIndex].layoutData;
     ZoneOptionValue* value = &layoutData->options[index].value;
 
