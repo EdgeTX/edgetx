@@ -224,7 +224,7 @@ class MixGroup : public InputMixGroupBase
   bool monitorVisible = false;
 };
 
-ModelMixesPage::ModelMixesPage() : InputMixPageBase(STR_MIXES, ICON_MODEL_MIXER)
+ModelMixesPage::ModelMixesPage(PageDef& pageDef) : InputMixPageBase(pageDef)
 {
 }
 

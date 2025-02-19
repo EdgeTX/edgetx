@@ -19,21 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "menu_statistics.h"
 
-#include "tabsgroup.h"
+#include "edgetx.h"
+#include "view_statistics.h"
 
-class ScreenMenu : public TabsGroup
-{
- public:
-  ScreenMenu(int8_t tabIdx = -1);
-
- protected:
-#if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onLongPressTELE() override;
-#endif
+PageDef statsMenuItems[] = {
+  { ICON_STATS_THROTTLE_GRAPH, STR_STATISTICS, QuickMenu::STATS_STATS, [](PageDef& pageDef) { return new StatisticsViewPage(pageDef); }},
+  { ICON_STATS_DEBUG, STR_DEBUG, QuickMenu::STATS_DEBUG, [](PageDef& pageDef) { return new DebugViewPage(pageDef); }},
+  { EDGETX_ICONS_COUNT }
 };
+
+StatisticsViewPageGroup::StatisticsViewPageGroup() : PageGroup(ICON_STATS, statsMenuItems)
+{
+}
