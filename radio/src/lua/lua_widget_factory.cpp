@@ -157,25 +157,39 @@ void LuaWidgetFactory::translateOptions(ZoneOption * options)
 
 static int switchValue()
 {
-  int v;
-  if (lua_type(lsWidgets, -1) == LUA_TSTRING) {
+  int v = SWSRC_INVERT;
+  if (lua_istable(lsWidgets, -1)) {
+    // Find first available
+    int t = lua_gettop(lsWidgets);
+    for (lua_pushnil(lsWidgets); v == SWSRC_INVERT && lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
+      v = getSwitchIndex(luaL_checkstring(lsWidgets, -1), false);
+    }
+    lua_settop(lsWidgets, t);
+  } else if (lua_type(lsWidgets, -1) == LUA_TSTRING) {
     v = getSwitchIndex(lua_tostring(lsWidgets, -1), true);
-    if (v == SWSRC_INVERT) v = SWSRC_NONE;
   } else {
     v = luaL_checkinteger(lsWidgets, -1);
   }
+  if (v == SWSRC_INVERT) v = SWSRC_NONE;
   return v;
 }
 
 static int sourceValue()
 {
-  int v;
-  if (lua_type(lsWidgets, -1) == LUA_TSTRING) {
+  int v = -1;
+  if (lua_istable(lsWidgets, -1)) {
+    // Find first available
+    int t = lua_gettop(lsWidgets);
+    for (lua_pushnil(lsWidgets); v < 0 && lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
+      v = getSourceIndex(luaL_checkstring(lsWidgets, -1), false);
+    }
+    lua_settop(lsWidgets, t);
+  } else if (lua_type(lsWidgets, -1) == LUA_TSTRING) {
     v = getSourceIndex(lua_tostring(lsWidgets, -1), true);
-    if (v == -1) v = MIXSRC_NONE;
   } else {
     v = luaL_checkunsigned(lsWidgets, -1);
   }
+  if (v == -1) v = MIXSRC_NONE;
   return v;
 }
 
