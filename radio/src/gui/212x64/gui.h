@@ -29,9 +29,6 @@
 #include "navigation/navigation.h"
 #include "common/stdlcd/draw_functions.h"
 
-#define HEADER_LINE                    0
-#define HEADER_LINE_COLUMNS
-
 #define NUM_BODY_LINES                 (LCD_LINES-1)
 #define TEXT_VIEWER_LINES              NUM_BODY_LINES
 #define MENU_HEADER_HEIGHT             FH
