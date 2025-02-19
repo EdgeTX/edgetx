@@ -103,5 +103,8 @@ static const char * const options[] = {
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
     "passthrough",
 #endif
+#if defined(POWER_LED_BLUE)
+    "power_led_blue",
+#endif
   nullptr //sentinel
 };
