@@ -87,8 +87,8 @@ class TabsGroup : public NavWindow
   void onClicked() override;
   void onCancel() override;
 
-  static LAYOUT_VAL(MENU_TITLE_TOP, 48, 48)
-  static LAYOUT_VAL(MENU_TITLE_HEIGHT, 21, 21)
+  static LAYOUT_VAL(MENU_TITLE_TOP, 48, 48, LS(48))
+  static LAYOUT_VAL(MENU_TITLE_HEIGHT, 21, 21, LS(21))
   static constexpr coord_t MENU_BODY_TOP = MENU_TITLE_TOP + MENU_TITLE_HEIGHT;
   static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_BODY_TOP;
 
