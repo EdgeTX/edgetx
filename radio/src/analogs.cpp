@@ -20,20 +20,17 @@
  */
 
 #include "analogs.h"
-#include "dataconstants.h"
-#include "edgetx_helpers.h"
+#include "edgetx.h"
 
 #include "hal/adc_driver.h"
-
-static char _custom_names[MAX_ANALOG_INPUTS][LEN_ANA_NAME + 1] = { 0 };
 
 void analogSetCustomLabel(uint8_t type, uint8_t idx, const char* str, size_t len)
 {
   if (idx >= adcGetMaxInputs(type)) return;
   idx += adcGetInputOffset(type);
 
-  strncpy(_custom_names[idx], str, min<size_t>(LEN_ANA_NAME, len));
-  _custom_names[idx][LEN_ANA_NAME] = '\0';
+  strncpy(g_eeGeneral.analogNames[idx], str, min<size_t>(LEN_ANA_NAME, len));
+  g_eeGeneral.analogNames[idx][LEN_ANA_NAME] = '\0';
 }
 
 const char* analogGetCustomLabel(uint8_t type, uint8_t idx)
@@ -41,7 +38,7 @@ const char* analogGetCustomLabel(uint8_t type, uint8_t idx)
   if (idx >= adcGetMaxInputs(type)) return "";
   idx += adcGetInputOffset(type);
 
-  return _custom_names[idx];
+  return g_eeGeneral.analogNames[idx];
 }
 
 bool analogHasCustomLabel(uint8_t type, uint8_t idx)

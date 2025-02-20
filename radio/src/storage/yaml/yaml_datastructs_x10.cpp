@@ -280,6 +280,11 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_PADDING( 7 ),
   YAML_END
 };
+static const struct YamlNode struct_string_32[] = {
+  YAML_IDX,
+  YAML_STRING("val", 4),
+  YAML_END
+};
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
   YAML_SIGNED( "timezoneMinutes", 3 ),
@@ -388,6 +393,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "disablePwrOnOffHaptic", 1 ),
   YAML_PADDING( 6 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
+  YAML_PADDING( 640 ),
+  YAML_PADDING( 704 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -689,11 +696,6 @@ static const struct YamlNode struct_ScriptData[] = {
   YAML_STRING("file", 6),
   YAML_STRING("name", 6),
   YAML_ARRAY("inputs", 16, 6, union_ScriptDataInput, NULL),
-  YAML_END
-};
-static const struct YamlNode struct_string_32[] = {
-  YAML_IDX,
-  YAML_STRING("val", 4),
   YAML_END
 };
 static const struct YamlNode union_anonymous_14_elmts[] = {

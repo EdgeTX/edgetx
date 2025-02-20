@@ -319,12 +319,10 @@ char switchGetLetter(uint8_t idx)
   return name[c];
 }
 
-static char _switchNames[MAX_SWITCHES][LEN_SWITCH_NAME + 1] = { 0 };
-
 void switchSetCustomName(uint8_t idx, const char* str, size_t len)
 {
-  strncpy(_switchNames[idx], str, min<size_t>(LEN_SWITCH_NAME, len));
-  _switchNames[idx][LEN_SWITCH_NAME] = '\0';  
+  strncpy(g_eeGeneral.switchNames[idx], str, min<size_t>(LEN_SWITCH_NAME, len));
+  g_eeGeneral.switchNames[idx][LEN_SWITCH_NAME] = '\0';  
 }
 
 const char* switchGetCustomName(uint8_t idx)
@@ -334,7 +332,7 @@ const char* switchGetCustomName(uint8_t idx)
     return g_model.switchNames[idx - switchGetMaxSwitches()];
   else
 #endif
-    return _switchNames[idx];
+    return g_eeGeneral.switchNames[idx];
 }
 
 bool switchHasCustomName(uint8_t idx)

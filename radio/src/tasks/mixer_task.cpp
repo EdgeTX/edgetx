@@ -172,12 +172,7 @@ TASK_FUNCTION(mixerTask)
     // re-enable trigger
     mixerSchedulerEnableTrigger();
 
-#if defined(SIMU)
-    // TODO: should be using mixerTaskExit() instead...
-    if (pwrCheck() == e_power_off) {
-      TASK_RETURN();
-    }
-#else
+#if !defined(SIMU)
     // Emergency power OFF: in case the UI is not functional anymore
     // or maybe locked, this will effectively shutdown and cut power.
     if (isForcePowerOffRequested()) {

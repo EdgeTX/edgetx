@@ -83,11 +83,11 @@ static inline void check_struct()
 #endif
 
 #if defined(PCBXLITES)
-  CHKSIZE(RadioData, 872);
+  CHKSIZE(RadioData, 1008);
 #elif defined(COLORLCD)
-  CHKSIZE(RadioData, 966);
+  CHKSIZE(RadioData, 1134);
 #else
-  CHKSIZE(RadioData, 870);
+  CHKSIZE(RadioData, 1006);
 #endif
 
 #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
