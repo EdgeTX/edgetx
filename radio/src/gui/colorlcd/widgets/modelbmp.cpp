@@ -38,7 +38,9 @@ class ModelBitmapWidget : public Widget
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
                       LV_PART_MAIN | ETX_STATE_BG_FILL);
 
-    label = new StaticText(this, rect_t{}, g_model.header.name);
+    char s[LEN_MODEL_NAME + 1];
+    strAppend(s, g_model.header.name, LEN_MODEL_NAME);
+    label = new StaticText(this, rect_t{}, s);
     label->hide();
 
     image = new StaticImage(this, rect_t{0, 0, width(), height()});
@@ -57,8 +59,9 @@ class ModelBitmapWidget : public Widget
       invalidate();
     }
 
-    if (label->getText() != g_model.header.name)
-      label->setText(g_model.header.name);
+    char s[LEN_MODEL_NAME + 1];
+    strAppend(s, g_model.header.name, LEN_MODEL_NAME);
+    label->setText(s);
   }
 
   void update() override
