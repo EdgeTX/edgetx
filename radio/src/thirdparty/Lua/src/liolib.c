@@ -266,7 +266,7 @@ static inline BYTE fatfs_open_mode(const char *mode)
     return FA_WRITE | FA_CREATE_ALWAYS;
   } else if (mode[0] == 'a') {
     /* always open file (create it if necessary) */
-    return FA_WRITE | FA_OPEN_ALWAYS;
+    return FA_WRITE | FA_OPEN_APPEND;
   } else {
     return FA_READ;
   }
