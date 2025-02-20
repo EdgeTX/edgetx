@@ -75,7 +75,7 @@ void spacemouseStart()
 {
   if (!spacemouseTimer) {
     spacemouseTimer =
-        xTimerCreateStatic("SpaceM", 10 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+        xTimerCreateStatic("SpaceM", 10 / portTICK_RATE_MS, pdTRUE, (void*)0,
                            spacemouseTimerCb, &spacemouseTimerBuffer);
   }
 
@@ -89,7 +89,7 @@ void spacemouseStart()
 void spacemouseStop()
 {
   if (spacemouseTimer) {
-    if( xTimerStop( spacemouseTimer, 12 / RTOS_MS_PER_TICK ) != pdPASS ) {
+    if( xTimerStop( spacemouseTimer, 12 / portTICK_RATE_MS ) != pdPASS ) {
       /* The timer could not be stopped. */
     }
   }

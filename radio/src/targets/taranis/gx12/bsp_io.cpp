@@ -22,6 +22,7 @@
 #include "bsp_io.h"
 #include "hal/switch_driver.h"
 #include "drivers/pca95xx.h"
+#include "os/async.h"
 #include "stm32_i2c_driver.h"
 #include "timers_driver.h"
 #include "boards/generic_stm32/rgb_leds.h"
@@ -57,28 +58,16 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   return io->state;  
 }
 
-static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
+static void _poll_switches(void *param1, uint32_t param2)
 {
-  (void)ulParameter2;
-  bsp_io_expander* io = (bsp_io_expander*)pvParameter1;
-  _read_io_expander(io); 
-}
-
-static void _io_int_handler(bsp_io_expander* io)
-{
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    xTimerPendFunctionCallFromISR(_poll_switches, (void*)io, 0,
-                                  &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  } else {
-    _read_io_expander(io);
-  }
+  (void)param1;
+  (void)param2;
+  _read_io_expander(&_io_switches); 
+  _read_io_expander(&_io_fs_switches); 
 }
 
 static void _io_int_handler() {
-  _io_int_handler(&_io_switches);
-  _io_int_handler(&_io_fs_switches);
+  async_call_isr(_poll_switches, nullptr, 0);
 }
 
 int bsp_io_init()
