@@ -83,45 +83,50 @@ void storageCheck(bool immediately)
   static constexpr uint8_t retryLimit = 10;
 
   static uint8_t retryRadioCount = 0;
-  // TODO: provide some mechanism to alert user that SD card has serious error
-  if (retryRadioCount < retryLimit) {
-    if (storageDirtyMsk & EE_GENERAL) {
+  if (storageDirtyMsk & EE_GENERAL) {
+    if (retryRadioCount < retryLimit) {
       TRACE("SD card write radio settings");
       const char * error = writeGeneralSettings();
       if (error) {
         TRACE("writeGeneralSettings error=%s", error);
         retryRadioCount += 1;
-      }
-      else {
+      } else {
         storageDirtyMsk &= ~EE_GENERAL;
         retryRadioCount = 0;
       }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryRadioCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 
 #if defined(STORAGE_MODELSLIST)
   static uint8_t retryLabelsCount = 0;
-  // TODO: provide some mechanism to alert user that SD card has serious error
-  if (retryLabelsCount < retryLimit) {
-    if (storageDirtyMsk & EE_LABELS) {
+  if (storageDirtyMsk & EE_LABELS) {
+    if (retryLabelsCount < retryLimit) {
       TRACE("SD card write labels");
       const char * error = modelslist.save();
       if (error) {
         TRACE("writeLabels error=%s", error);
         retryLabelsCount += 1;
-      }
-      else {
+      } else {
         storageDirtyMsk &= ~EE_LABELS;
         retryLabelsCount = 0;
       }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryLabelsCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 #endif
 
   static uint8_t retryModelCount = 0;
-  // TODO: provide some mechanism to alert user that SD card has serious error
-  if (retryModelCount < retryLimit) {
-    if (storageDirtyMsk & EE_MODEL) {
+  if (storageDirtyMsk & EE_MODEL) {
+    if (retryModelCount < retryLimit) {
       TRACE("SD card write model settings");
       const char * error = writeModel();
 #if defined(STORAGE_MODELSLIST)
@@ -130,11 +135,15 @@ void storageCheck(bool immediately)
       if (error) {
         TRACE("writeModel error=%s", error);
         retryModelCount += 1;
-      }
-      else {
+      } else {
         storageDirtyMsk &= ~EE_MODEL;
         retryModelCount = 0;
       }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryModelCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 }
