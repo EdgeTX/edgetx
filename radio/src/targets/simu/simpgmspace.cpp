@@ -211,6 +211,8 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   lcdInit();
 
 #if !defined(SIMU_BOOTLOADER)
+  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
+  memset(&g_model, 0, sizeof(g_model));
   simuMain();
 #else
   pthread_attr_t attr;

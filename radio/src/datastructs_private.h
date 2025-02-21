@@ -1026,6 +1026,9 @@ PACK(struct RadioData {
 
   NOBACKUP(uint8_t pwrOffIfInactive);
 
+  NOBACKUP(char switchNames[MAX_SWITCHES][LEN_SWITCH_NAME + 1] SKIP);
+  NOBACKUP(char analogNames[MAX_ANALOG_INPUTS][LEN_ANA_NAME + 1] SKIP);
+
   NOBACKUP(uint8_t getBrightness() const
   {
 #if defined(OLED_SCREEN)
