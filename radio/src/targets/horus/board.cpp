@@ -56,6 +56,9 @@
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
 #endif
+#if defined(GYRO_SENSOR)
+  #include "imu_42627.h"
+#endif
 
 #if defined(LED_STRIP_GPIO)
 // Common LED driver
@@ -225,7 +228,12 @@ void boardInit()
 #endif
 
 #if defined(CSD203_SENSOR)
+  //IICcsd203init();
   initCSD203();
+#endif
+#if defined(GYRO_SENSOR)
+  //IICimu42627init();
+  imu42627Init();
 #endif
 
   usbInit();
