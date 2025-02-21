@@ -178,6 +178,7 @@ class StaticBitmap : public Window
 #endif
 
   void setSource(const char *filename);
+  void clearSource();
   bool hasImage() const;
 
  protected:
