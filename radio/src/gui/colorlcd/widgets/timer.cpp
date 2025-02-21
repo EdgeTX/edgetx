@@ -137,7 +137,7 @@ class TimerWidget : public Widget
         lv_label_set_text(unit0, sUnit0);
         lv_label_set_text(unit1, sUnit1);
 
-        if (lastValue > 0) {
+        if (lastValue > 0 && lastStartValue > 0) {
           lv_obj_clear_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
           timerIcon->hide();
         } else {
@@ -209,7 +209,7 @@ class TimerWidget : public Widget
 
  protected:
   tmrval_t lastValue = 0;
-  uint32_t lastStartValue = 0;
+  uint32_t lastStartValue = -1;
   bool isLarge = false;
   lv_style_t style;
   lv_obj_t* nameLabel = nullptr;
