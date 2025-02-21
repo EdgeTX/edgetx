@@ -1014,7 +1014,7 @@
   #define TR_ALIGN_OPTS                { "Venstre", "Center", "Højre" }
   #define TR_TEXT                      "Tekst"
   #define TR_COLOR                     "Farve"
-  #define TR_MAIN_VIEW_X               "Hoved visning XX"
+  #define TR_MAIN_VIEW_X               "Hoved visning "
   #define TR_PANEL1_BACKGROUND         "Panel1 baggrund"
   #define TR_PANEL2_BACKGROUND         "Panel2 baggrund"
   #define TR_WIDGET_GAUGE              "Måling"
@@ -1239,16 +1239,16 @@
 #define TR_THEME_EDITOR                "TEMAER"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL      "Vælg\nModel"
-#define TR_MAIN_MENU_MANAGE_MODELS     "Vælg\nModel"
-#define TR_MAIN_MENU_MODEL_NOTES       "Model\nNoter"
-#define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal\nMonitor"
-#define TR_MAIN_MENU_MODEL_SETTINGS    "Model\nIndstilling"
-#define TR_MAIN_MENU_RADIO_SETTINGS    "Radio\nIndstilling"
-#define TR_MAIN_MENU_SCREEN_SETTINGS   "Skærm\nIndstilling"
-#define TR_MAIN_MENU_RESET_TELEMETRY   "Nulstil\nTelemetri"
+#define TR_MAIN_MENU_SELECT_MODEL      "Vælg Model"
+#define TR_MAIN_MENU_MANAGE_MODELS     "Vælg Model"
+#define TR_MAIN_MENU_MODEL_NOTES       "Model Noter"
+#define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal Monitor"
+#define TR_MAIN_MENU_MODEL_SETTINGS    "Model Indstilling"
+#define TR_MAIN_MENU_RADIO_SETTINGS    "Radio Indstilling"
+#define TR_MAIN_MENU_SCREEN_SETTINGS   "Skærm Indstilling"
+#define TR_MAIN_MENU_RESET_TELEMETRY   "Nulstil Telemetri"
 #define TR_MAIN_MENU_STATISTICS        "Statistik"
-#define TR_MAIN_MENU_ABOUT_EDGETX      "Om\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX      "Om EdgeTX"
 // End Main menu
 
 // Voice in native language

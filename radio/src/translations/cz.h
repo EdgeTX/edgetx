@@ -1026,7 +1026,7 @@
   #define TR_ALIGN_OPTS                { "Vlevo", "Uprostřed", "Vpravo" }
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Barva"
-  #define TR_MAIN_VIEW_X               "Hlavní pohled XX"
+  #define TR_MAIN_VIEW_X               "Hlavní pohled "
   #define TR_PANEL1_BACKGROUND         "Panel1 pozadí"
   #define TR_PANEL2_BACKGROUND         "Panel2 pozadí"
   #define TR_WIDGET_GAUGE              "Měřidlo"
@@ -1239,16 +1239,16 @@
 #define TR_THEME_EDITOR                 "Motivy"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Vybrat\nmodel"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Správa\nmodelů"
-#define TR_MAIN_MENU_MODEL_NOTES        "Poznámky\nmodelu"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nkanálů"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení\nmodelu"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení\nrádia"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Nastavení\nobrazovky"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\ntelemetrie"
+#define TR_MAIN_MENU_SELECT_MODEL       "Vybrat model"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Správa modelů"
+#define TR_MAIN_MENU_MODEL_NOTES        "Poznámky modelu"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanálů"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení modelu"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení rádia"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Nastavení obrazovky"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset telemetrie"
 #define TR_MAIN_MENU_STATISTICS         "Statistiky"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "O\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
 // End Main menu
 
 // Voice in native language

@@ -28,28 +28,25 @@
 class ScreenAddPage : public PageTab
 {
  public:
-  ScreenAddPage(ScreenMenu* menu, uint8_t pageIndex);
+  ScreenAddPage(PageDef& pageDef);
 
   void build(Window* window) override;
 
   void update(uint8_t index) override;
-
- protected:
-  ScreenMenu* menu;
-  uint8_t pageIndex;
 };
 
 class ScreenSetupPage : public PageTab
 {
  public:
-  ScreenSetupPage(ScreenMenu* menu, unsigned customScreenIndex);
+  ScreenSetupPage(unsigned customScreenIndex, PageDef& pageDef);
 
   void build(Window* form) override;
 
   void update(uint8_t index) override;
 
+  bool isVisible() const override { return customScreens[customScreenIndex] != nullptr; }
+
  protected:
-  ScreenMenu* menu;
   unsigned customScreenIndex;
   Window* layoutOptions = nullptr;
 
