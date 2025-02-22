@@ -19,6 +19,32 @@
  * GNU General Public License for more details.
  */
 
+
+/*
+
+STM32H750
+DMA1
+Stream0:  LED_STRIP_TIMER_DMA_STREAM
+Stream1:  INTMODULE_DMA_STREAM
+Stream2:  FLYSKY_HALL_DMA_Stream_RX
+Stream3:  TELEMETRY_DMA_Stream_RX
+Stream4:  INTMODULE_RX_DMA_STREAM
+Stream5:
+Stream6:
+Stream7:  TELEMETRY_DMA_Stream_TX
+
+DMA2
+Stream0:  ADC_EXT_DMA_STREAM
+Stream1:
+Stream2:  ADC_DMA_STREAM
+Stream3:  EXTMODULE_TIMER_DMA_STREAM
+Stream4:
+Stream5:  EXTMODULE_USART_RX_DMA_STREAM
+Stream6:  EXTMODULE_USART_TX_DMA_STREAM
+Stream7:
+
+ */
+
 #ifndef _HAL_H_
 #define _HAL_H_
 
@@ -378,16 +404,16 @@
 #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
 #define INTMODULE_USART_IRQn            USART6_IRQn
 #define INTMODULE_USART_IRQHandler      USART6_IRQHandler
-//#define INTMODULE_DMA                   DMA1
+#define INTMODULE_DMA                   DMA1
 #define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
 #define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
 #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
-#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
-//#define INTMODULE_RX_DMA                DMA1
-#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
-#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
-// #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
-// #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
+#define INTMODULE_DMA_CHANNEL           LL_BDMA_CHANNEL_5
+#define INTMODULE_RX_DMA                DMA1
+#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_4
+#define INTMODULE_RX_DMA_CHANNEL        LL_BDMA_CHANNEL_5
+#define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
+#define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
 
 // #define INTMODULE_TIMER                 TIM3
 // #define INTMODULE_TIMER_IRQn            TIM3_IRQn
@@ -417,7 +443,7 @@
 #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMAMUX1_REQ_USART2_TX
 #define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_STREAM_6
 #define EXTMODULE_USART_RX_DMA_CHANNEL     LL_DMAMUX1_REQ_USART2_RX
-#define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_STREAM_4
+#define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_STREAM_5
 #define EXTMODULE_USART_IRQHandler         USART2_IRQHandler
 #define EXTMODULE_USART_IRQn               USART2_IRQn
 
