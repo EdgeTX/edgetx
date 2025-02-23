@@ -396,6 +396,13 @@ void LvglWidgetObjectBase::refresh()
   setOpacity(opacity);
 }
 
+void LvglWidgetObjectBase::create(lua_State *L, int index)
+{
+  getParams(L, index);
+  build(L);
+  callRefs(L);
+}
+
 void LvglWidgetObjectBase::update(lua_State *L)
 {
   getParams(L, 2);
@@ -547,7 +554,6 @@ void LvglWidgetLabel::build(lua_State *L)
   setOpacity(opacity);
   setFont(font);
   setAlign(align);
-  callRefs(L);
 }
 
 //-----------------------------------------------------------------------------
@@ -600,7 +606,7 @@ void LvglWidgetLineBase::setSize(coord_t w, coord_t h)
   setLine();
 }
 
-void LvglWidgetLineBase::build(lua_State* L)
+void LvglWidgetLineBase::build(lua_State *L)
 {
   lvobj = lv_line_create(lvglManager->getCurrentParent()->getLvObj());
   refresh();
@@ -736,7 +742,6 @@ void LvglWidgetLine::build(lua_State *L)
 {
   lvobj = lv_line_create(lvglManager->getCurrentParent()->getLvObj());
   refresh();
-  callRefs(L);
 }
 
 void LvglWidgetLine::refresh()
@@ -747,6 +752,11 @@ void LvglWidgetLine::refresh()
 }
 
 //-----------------------------------------------------------------------------
+
+LvglWidgetTriangle::LvglWidgetTriangle() : LvglSimpleWidgetObject()
+{
+  parent = lvglManager->getCurrentParent()->getLvObj();
+}
 
 LvglWidgetTriangle::~LvglWidgetTriangle()
 {
@@ -760,23 +770,54 @@ void LvglWidgetTriangle::getPt(lua_State* L, int n)
   lua_rawgeti(L, -1, n + 1);
   luaL_checktype(L, -1, LUA_TTABLE);
   lua_rawgeti(L, -1, 1);
-  px[n] = luaL_checkunsigned(L, -1);
+  pts[n].x = luaL_checkunsigned(L, -1);
   lua_pop(L, 1);
   lua_rawgeti(L, -1, 2);
-  py[n] = luaL_checkunsigned(L, -1);
+  pts[n].y = luaL_checkunsigned(L, -1);
   lua_pop(L, 2);
 }
 
 void LvglWidgetTriangle::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "pts")) {
-    luaL_checktype(L, -1, LUA_TTABLE);
-    getPt(L, 0);
-    getPt(L, 1);
-    getPt(L, 2);
+    if (lua_isfunction(L, -1)) {
+      getPointsFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+      luaL_checktype(L, -1, LUA_TTABLE);
+      getPt(L, 0);
+      getPt(L, 1);
+      getPt(L, 2);
+    }
   } else {
     LvglSimpleWidgetObject::parseParam(L, key);
   }
+}
+
+bool LvglWidgetTriangle::callRefs(lua_State *L)
+{
+  int t = lua_gettop(L);
+  if (getPointsFunction != LUA_REFNIL) {
+    if (pcallFunc(L, getPointsFunction, 1)) {
+      luaL_checktype(L, -1, LUA_TTABLE);
+      getPt(L, 0);
+      getPt(L, 1);
+      getPt(L, 2);
+      lua_settop(L, t);
+      if (memcmp(&last, &pts, sizeof(pts)) != 0) {
+        memcpy(&last, &pts, sizeof(pts));
+        refresh();
+      }
+    } else {
+      return false;
+    }
+  }
+  return LvglSimpleWidgetObject::callRefs(L);
+}
+
+void LvglWidgetTriangle::clearRefs(lua_State *L)
+{
+  clearRef(L, getPointsFunction);
+  LvglSimpleWidgetObject::clearRefs(L);
 }
 
 void LvglWidgetTriangle::setColor(LcdFlags newColor)
@@ -810,9 +851,12 @@ void LvglWidgetTriangle::fillTriangle()
 {
   if (!mask) return;
 
-  coord_t x1 = px[0], y1 = py[0], x2 = px[1], y2 = py[1], x3 = px[2], y3 = py[2];
+  // Convert to relative coords
+  coord_t x1 = pts[0].x - x, y1 = pts[0].y - y;
+  coord_t x2 = pts[1].x - x, y2 = pts[1].y - y;
+  coord_t x3 = pts[2].x - x, y3 = pts[2].y - y;
 
-  coord_t t1x, t2x, y, minx, maxx, t1xp, t2xp;
+  coord_t t1x, t2x, ty, minx, maxx, t1xp, t2xp;
   bool changed1 = false;
   bool changed2 = false;
   coord_t signx1, signx2, dx1, dy1, dx2, dy2;
@@ -823,7 +867,7 @@ void LvglWidgetTriangle::fillTriangle()
   if (y1 > y3) { SWAP(y1, y3); SWAP(x1, x3); }
   if (y2 > y3) { SWAP(y2, y3); SWAP(x2, x3); }
 
-  t1x = t2x = x1; y = y1;   // Starting points
+  t1x = t2x = x1; ty = y1;   // Starting points
 
   dx1 = (coord_t)(x2 - x1); if(dx1 < 0) { dx1 = -dx1; signx1 = -1; } else signx1 = 1;
   dy1 = (coord_t)(y2 - y1);
@@ -849,7 +893,7 @@ void LvglWidgetTriangle::fillTriangle()
     t1xp = 0; t2xp = 0;
     if (t1x < t2x) { minx = t1x; maxx = t2x; }
     else { minx = t2x; maxx = t1x; }
-    // process first line until y value is about to change
+    // process first line until ty value is about to change
     while (i < dx1) {
       i++;
       e1 += dy1;
@@ -863,7 +907,7 @@ void LvglWidgetTriangle::fillTriangle()
     }
     // Move line
 next1:
-    // process second line until y value is about to change
+    // process second line until ty value is about to change
     while (1) {
       e2 += dy2;
       while (e2 >= dx2) {
@@ -879,14 +923,14 @@ next2:
     if (minx > t2x) minx = t2x;
     if (maxx < t1x) maxx = t1x;
     if (maxx < t2x) maxx = t2x;
-    fillLine(minx, maxx, y); // Draw line from min to max points found on the y
+    fillLine(minx, maxx, ty); // Draw line from min to max points found on the y
     // Now increase y
     if (!changed1) t1x += signx1;
     t1x += t1xp;
     if (!changed2) t2x += signx2;
     t2x += t2xp;
-    y += 1;
-    if (y == y2) break;
+    ty += 1;
+    if (ty == y2) break;
   }
 next:
   // Second half
@@ -905,7 +949,7 @@ next:
     t1xp = 0; t2xp = 0;
     if (t1x < t2x) { minx = t1x; maxx = t2x; }
     else { minx = t2x; maxx = t1x; }
-    // process first line until y value is about to change
+    // process first line until ty value is about to change
     while (i < dx1) {
       e1 += dy1;
       while (e1 >= dx1) {
@@ -918,7 +962,7 @@ next:
       if (i < dx1) i++;
     }
 next3:
-    // process second line until y value is about to change
+    // process second line until ty value is about to change
     while (t2x != x3) {
       e2 += dy2;
       while (e2 >= dx2) {
@@ -934,29 +978,25 @@ next4:
     if (minx > t2x) minx = t2x;
     if (maxx < t1x) maxx = t1x;
     if (maxx < t2x) maxx = t2x;
-    fillLine(minx, maxx, y); // Draw line from min to max points found on the y
+    fillLine(minx, maxx, ty); // Draw line from min to max points found on the y
     // Now increase y
     if (!changed1) t1x += signx1;
     t1x += t1xp;
     if (!changed2) t2x += signx2;
     t2x += t2xp;
-    y += 1;
-    if (y > y3) return;
+    ty += 1;
+    if (ty > y3) return;
   }
 }
 
 void LvglWidgetTriangle::build(lua_State *L)
 {
   // Bounds
-  x = min(min(px[0], px[1]), px[2]);
-  y = min(min(py[0], py[1]), py[2]);
-  w = max(max(px[0], px[1]), px[2]) - x + 1;
-  h = max(max(py[0], py[1]), py[2]) - y + 1;
-
-  // Convert to relative coords
-  px[0] -= x; px[1] -= x; px[2] -= x;
-  py[0] -= y; py[1] -= y; py[2] -= y;
-
+  x = min(min(pts[0].x, pts[1].x), pts[2].x);
+  y = min(min(pts[0].y, pts[1].y), pts[2].y);
+  w = max(max(pts[0].x, pts[1].x), pts[2].x) - x + 1;
+  h = max(max(pts[0].y, pts[1].y), pts[2].y) - y + 1;
+  
   // Allocate mask
   size_t size = w * h;
   mask = (MaskBitmap*)malloc(size + 4);
@@ -970,22 +1010,31 @@ void LvglWidgetTriangle::build(lua_State *L)
 
     // Create canvas from mask buffer
     if (lvobj == nullptr)
-      lvobj = lv_canvas_create(lvglManager->getCurrentParent()->getLvObj());
+      lvobj = lv_canvas_create(parent);
     lv_canvas_set_buffer(lvobj, (void*)mask->data, mask->width, mask->height,
                         LV_IMG_CF_ALPHA_8BIT);
 
-    // Set position, size and color
+    // Set position and, size
     setPos(x, y);
     LvglSimpleWidgetObject::setSize(w,h);
+
+    // Set color
     setColor(color);
   }
-  if (L) callRefs(L);
 }
 
 void LvglWidgetTriangle::refresh()
 {
-  if (mask) free(mask);
-  mask = nullptr;
+  if (mask) {
+    free(mask);
+    mask = nullptr;
+  }
+  if (lvobj) {
+    // May render incorrectly when trying to reuse previous canvas
+    lv_obj_del(lvobj);
+    lvobj = nullptr;
+  }
+  currentColor = -1;
   build(nullptr);
 }
 
@@ -1046,7 +1095,7 @@ void LvglWidgetObject::clearRefs(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-void LvglWidgetBox::build(lua_State* L)
+void LvglWidgetBox::build(lua_State *L)
 {
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
@@ -1071,7 +1120,7 @@ void LvglWidgetSetting::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetSetting::build(lua_State* L)
+void LvglWidgetSetting::build(lua_State *L)
 {
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
@@ -1201,7 +1250,6 @@ void LvglWidgetRectangle::build(lua_State *L)
                             (rounded >= thickness) ? rounded : thickness,
                             LV_PART_MAIN);
   }
-  callRefs(L);
 }
 
 //-----------------------------------------------------------------------------
@@ -1214,7 +1262,6 @@ void LvglWidgetCircle::build(lua_State *L)
   setRadius(radius);
   LvglWidgetRoundObject::build(L);
   lv_obj_set_style_radius(window->getLvObj(), LV_RADIUS_CIRCLE, LV_PART_MAIN);
-  callRefs(L);
 }
 
 //-----------------------------------------------------------------------------
@@ -1303,7 +1350,6 @@ void LvglWidgetArc::build(lua_State *L)
   lv_obj_set_style_arc_opa(window->getLvObj(), LV_OPA_TRANSP, LV_PART_MAIN);
   lv_obj_set_style_arc_width(window->getLvObj(), thickness, LV_PART_INDICATOR);
   setOpacity(opacity);
-  callRefs(L);
 }
 
 //-----------------------------------------------------------------------------
