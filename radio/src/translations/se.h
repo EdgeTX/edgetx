@@ -1339,8 +1339,8 @@
 #define TR_SORT_MODELS_BY               "Sortera modeller"
 #define TR_CREATE_NEW                   "Skapa"
 
-#define TR_MIX_SLOW_PREC                TR("Långsam preci.", "Långsam upp/ner precision")
-#define TR_MIX_DELAY_PREC               TR("Fördröj preci.", "Fördröj upp/ner precision")
+#define TR_MIX_SLOW_PREC                TR("Trög preci.", "Långsam upp/ner precision")
+#define TR_MIX_DELAY_PREC               TR("Dröj preci.", "Fördröj upp/ner precision")
 
 #define TR_THEME_EXISTS                 "Det finns redan ett tema med samma namn"
 
