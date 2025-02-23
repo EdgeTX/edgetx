@@ -22,8 +22,9 @@
     <div id="main-div" class="resizable-content">
       <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
-    <script type='text/javascript'>
-      var Module = {
+    <script type='module'>
+      import createSimu from "./simu.mjs";
+      createSimu({
           canvas: (() => {
               var canvas = document.getElementById('canvas');
               // As a default initial behavior, pop up an alert when webgl context is lost.
@@ -44,9 +45,8 @@
                   canvasElem.height = divElem.clientHeight + 'px';
                   window.dispatchEvent(new Event("resize"));
               }).observe(divElem);
-          })()
-      };
+          })(),
+      });
     </script>
-    <script async type="text/javascript" src="simu.js"></script>
   </body>
 </html>
