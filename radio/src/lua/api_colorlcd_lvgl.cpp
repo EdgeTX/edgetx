@@ -32,8 +32,7 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     auto obj = create();
-    obj->getParams(L, 1);
-    obj->build(L);
+    obj->create(L, 1);
     obj->push(L);
   } else {
     lua_pushnil(L);
@@ -56,8 +55,7 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
     }
 
     auto obj = create();
-    obj->getParams(L, -1);
-    obj->build(L);
+    obj->create(L, -1);
     obj->push(L);
 
     if (p)
@@ -72,8 +70,7 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> create)
 {
   auto obj = create();
-  obj->getParams(L, 1);
-  obj->build(L);
+  obj->create(L, 1);
   return 0;
 }
 
@@ -234,8 +231,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         obj = new LvglWidgetSetting();
     }
     if (obj) {
-      obj->getParams(L, -1);
-      obj->build(L);
+      obj->create(L, -1);
       auto ref = obj->getRef(L);
       if (p.name) {
         lua_pushstring(L, p.name);
