@@ -26,6 +26,11 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
 
+#include "gui_common.h"
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
+#include "edgetx_constants.h"
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -75,6 +80,10 @@ static GimbalState stick_right = {{0.5f, 0.5f}, false};
 static const unsigned char _icon_png[] = {
 #include "icon.lbm"
 };
+#endif
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+extern volatile rotenc_t rotencValue;
 #endif
 
 int pots[MAX_POTS] = {0};
@@ -234,17 +243,27 @@ static bool handleKeyEvents(SDL_Event& event)
       break;
 
     case SDLK_UP:
+#if defined(ROTARY_ENCODER_NAVIGATION)
+      rotencValue -= ROTARY_ENCODER_GRANULARITY;
+      key_handled = true;
+#else
       if (keysGetSupported() & (1 << KEY_UP)) {
         key = KEY_UP;
         key_handled = true;
       }
+#endif
       break;
       
     case SDLK_DOWN:
+#if defined(ROTARY_ENCODER_NAVIGATION)
+      rotencValue += ROTARY_ENCODER_GRANULARITY;
+      key_handled = true;
+#else
       if (keysGetSupported() & (1 << KEY_DOWN)) {
         key = KEY_DOWN;
         key_handled = true;
       }
+#endif
       break;
 
     case SDLK_PLUS:
@@ -257,6 +276,20 @@ static bool handleKeyEvents(SDL_Event& event)
     case SDLK_MINUS:
       if (keysGetSupported() & (1 << KEY_MINUS)) {
         key = KEY_MINUS;
+        key_handled = true;
+      }
+      break;
+
+    case SDLK_PAGEUP:
+      if (keysGetSupported() & (1 << KEY_PAGEUP)) {
+        key = KEY_PAGEUP;
+        key_handled = true;
+      }
+      break;
+
+    case SDLK_PAGEDOWN:
+      if (keysGetSupported() & (1 << KEY_PAGEDN)) {
+        key = KEY_PAGEDN;
         key_handled = true;
       }
       break;
@@ -640,7 +673,7 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  // race condition on YAML loaded...
+  // TODO: race condition on YAML loaded...
   if (g_eeGeneral.stickMode == 1) {
     stick_left.pos.y = 1.0f;
   } else if (g_eeGeneral.stickMode == 0) {
