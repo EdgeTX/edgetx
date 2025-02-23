@@ -207,18 +207,25 @@ class LvglWidgetVLine : public LvglWidgetLineBase
 class LvglWidgetLine : public LvglSimpleWidgetObject
 {
  public:
-  LvglWidgetLine() : LvglSimpleWidgetObject() {}
+  LvglWidgetLine();
+  ~LvglWidgetLine();
 
   void setColor(LcdFlags newColor) override;
   void setOpacity(uint8_t newOpa) override;
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
 
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
  protected:
   coord_t thickness = 1;
   bool rounded = false;
   size_t ptCnt = 0;
   lv_point_t* pts = nullptr;
+  uint32_t ptsHash = -1;
+  lv_obj_t* parent = nullptr;
+  int getPointsFunction = LUA_REFNIL;
 
   void setLine();
 
@@ -244,7 +251,7 @@ class LvglWidgetTriangle : public LvglSimpleWidgetObject
 
  protected:
   lv_point_t pts[3] = {0};
-  lv_point_t last[3] = {-1};
+  uint32_t ptsHash = -1;
   MaskBitmap* mask = nullptr;
   lv_obj_t* parent = nullptr;
   int getPointsFunction = LUA_REFNIL;

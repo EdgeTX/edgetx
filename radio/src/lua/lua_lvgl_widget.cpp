@@ -654,6 +654,18 @@ void LvglWidgetVLine::setLine()
 
 //-----------------------------------------------------------------------------
 
+LvglWidgetLine::LvglWidgetLine() : LvglSimpleWidgetObject()
+{
+  parent = lvglManager->getCurrentParent()->getLvObj();
+}
+
+LvglWidgetLine::~LvglWidgetLine()
+{
+  if (pts)
+    delete pts;
+  pts = nullptr;
+}
+
 void LvglWidgetLine::getPt(lua_State* L, int n)
 {
   lua_rawgeti(L, -1, n + 1);
@@ -673,17 +685,59 @@ void LvglWidgetLine::parseParam(lua_State *L, const char *key)
   } else if (!strcmp(key, "rounded")) {
     rounded = lua_toboolean(L, -1);
   } else if (!strcmp(key, "pts")) {
-    luaL_checktype(L, -1, LUA_TTABLE);
-    ptCnt = lua_rawlen(L, -1);
-    if (pts) delete pts;
-    if (ptCnt > 1) {
-      pts = new lv_point_t[ptCnt];
-      for (size_t i = 0; i < ptCnt; i += 1)
-        getPt(L, i);
+    if (lua_isfunction(L, -1)) {
+      getPointsFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+      luaL_checktype(L, -1, LUA_TTABLE);
+      ptCnt = lua_rawlen(L, -1);
+      if (pts) delete pts;
+      if (ptCnt > 1) {
+        pts = new lv_point_t[ptCnt];
+        for (size_t i = 0; i < ptCnt; i += 1)
+          getPt(L, i);
+      } else {
+        pts = nullptr;
+        ptCnt = 0;
+      }
     }
   } else {
     LvglSimpleWidgetObject::parseParam(L, key);
   }
+}
+
+bool LvglWidgetLine::callRefs(lua_State *L)
+{
+  int t = lua_gettop(L);
+  if (getPointsFunction != LUA_REFNIL) {
+    if (pcallFunc(L, getPointsFunction, 1)) {
+      luaL_checktype(L, -1, LUA_TTABLE);
+      ptCnt = lua_rawlen(L, -1);
+      if (pts) delete pts;
+      if (ptCnt > 1) {
+        pts = new lv_point_t[ptCnt];
+        for (size_t i = 0; i < ptCnt; i += 1)
+          getPt(L, i);
+        uint32_t h = hash(pts, sizeof(ptCnt * sizeof(lv_point_t)));
+        if (h != ptsHash) {
+          ptsHash = h;
+          refresh();
+        }
+      } else {
+        pts = nullptr;
+        ptCnt = 0;
+      }
+      lua_settop(L, t);
+    } else {
+      return false;
+    }
+  }
+  return LvglSimpleWidgetObject::callRefs(L);
+}
+
+void LvglWidgetLine::clearRefs(lua_State *L)
+{
+  clearRef(L, getPointsFunction);
+  LvglSimpleWidgetObject::clearRefs(L);
 }
 
 void LvglWidgetLine::setColor(LcdFlags newColor)
@@ -740,15 +794,22 @@ void LvglWidgetLine::setLine()
 
 void LvglWidgetLine::build(lua_State *L)
 {
-  lvobj = lv_line_create(lvglManager->getCurrentParent()->getLvObj());
-  refresh();
+  if (pts) {
+    lvobj = lv_line_create(parent);
+    setColor(color);
+    setOpacity(opacity);
+    setLine();
+  }
 }
 
 void LvglWidgetLine::refresh()
 {
-  setColor(color);
-  setOpacity(opacity);
-  setLine();
+  if (lvobj) {
+    lv_obj_del(lvobj);
+    lvobj = nullptr;
+  }
+  currentColor = -1;
+  build(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -803,8 +864,9 @@ bool LvglWidgetTriangle::callRefs(lua_State *L)
       getPt(L, 1);
       getPt(L, 2);
       lua_settop(L, t);
-      if (memcmp(&last, &pts, sizeof(pts)) != 0) {
-        memcpy(&last, &pts, sizeof(pts));
+      uint32_t h = hash(&pts, sizeof(pts));
+      if (h != ptsHash) {
+        ptsHash = h;
         refresh();
       }
     } else {
