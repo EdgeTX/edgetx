@@ -351,8 +351,8 @@
 #define TR_MULTPX                       "Multiplex"
 #define TR_DELAYDOWN                    TR("Dröj ner","Fördröj ner")
 #define TR_DELAYUP                      TR("Dröj upp","Fördröj upp")
-#define TR_SLOWDOWN                     "Trög ner"
-#define TR_SLOWUP                       "Trög upp"
+#define TR_SLOWDOWN                     TR("Trög ner","Långsam ner")
+#define TR_SLOWUP                       TR("Trög upp","Långsam upp")
 #define TR_MIXES                        "MIXAR"
 #define TR_CV                           "KU"
 
