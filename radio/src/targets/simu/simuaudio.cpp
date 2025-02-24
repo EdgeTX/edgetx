@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <SDL.h>
 
-#define SIMU_AUDIO_FMT AUDIO_U16SYS
+#define SIMU_AUDIO_FMT AUDIO_S16SYS
 
 static SDL_AudioDeviceID _sdl_audio_device = 0;
 
@@ -79,6 +79,7 @@ bool simuAudioInit()
     .freq = AUDIO_SAMPLE_RATE,
     .format = SIMU_AUDIO_FMT,
     .channels = 1,
+    .silence = 0,
     .samples = 1024,
   };
 
