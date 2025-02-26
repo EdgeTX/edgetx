@@ -57,28 +57,31 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   return io->state;  
 }
 
-static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
+static void _poll_switches(void *pvParameter1 = nullptr, uint32_t ulParameter2 = 0)
 {
   (void)ulParameter2;
-  bsp_io_expander* io = (bsp_io_expander*)pvParameter1;
-  _read_io_expander(io); 
+  bsp_io_read_switches();
+  bsp_io_read_fs_switches();
 }
 
-static void _io_int_handler(bsp_io_expander* io)
+static void _io_int_handler()
 {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  BaseType_t xReturn = pdFALSE;
+
   if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    xTimerPendFunctionCallFromISR(_poll_switches, (void*)io, 0,
+    xReturn = xTimerPendFunctionCallFromISR(_poll_switches, nullptr, 0,
                                   &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  } else {
-    _read_io_expander(io);
-  }
-}
 
-static void _io_int_handler() {
-  _io_int_handler(&_io_switches);
-  _io_int_handler(&_io_fs_switches);
+    // TODO: REMOVE THIS WORKAROUND WHEN ASYNC CALL IS FIXED
+	if(xReturn != pdPASS) {
+       TRACE("Async call issue");
+       _poll_switches();
+	}
+  } else {
+    _poll_switches();
+  }
 }
 
 int bsp_io_init()
