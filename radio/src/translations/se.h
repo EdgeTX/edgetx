@@ -351,8 +351,8 @@
 #define TR_MULTPX                       "Multiplex"
 #define TR_DELAYDOWN                    TR("Dröj ner","Fördröj ner")
 #define TR_DELAYUP                      TR("Dröj upp","Fördröj upp")
-#define TR_SLOWDOWN                     "Trög ner"
-#define TR_SLOWUP                       "Trög upp"
+#define TR_SLOWDOWN                     TR("Trög ner","Långsam ner")
+#define TR_SLOWUP                       TR("Trög upp","Långsam upp")
 #define TR_MIXES                        "MIXAR"
 #define TR_CV                           "KU"
 
@@ -1339,8 +1339,8 @@
 #define TR_SORT_MODELS_BY               "Sortera modeller"
 #define TR_CREATE_NEW                   "Skapa"
 
-#define TR_MIX_SLOW_PREC                TR("Långsam preci.", "Långsam upp/ner precision")
-#define TR_MIX_DELAY_PREC               TR("Fördröj preci.", "Fördröj upp/ner precision")
+#define TR_MIX_SLOW_PREC                TR("Trög preci.", "Långsam upp/ner precision")
+#define TR_MIX_DELAY_PREC               TR("Dröj preci.", "Fördröj upp/ner precision")
 
 #define TR_THEME_EXISTS                 "Det finns redan ett tema med samma namn"
 
