@@ -1489,16 +1489,20 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["switchNames"] >> rhs.functionSwitchNames;
   if (node["functionSwitchLedONColor"]) {
     for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
-      node["functionSwitchLedONColor"][std::to_string(i)]["r"] >> rhs.functionSwitchLedONColor[i].r;
-      node["functionSwitchLedONColor"][std::to_string(i)]["g"] >> rhs.functionSwitchLedONColor[i].g;
-      node["functionSwitchLedONColor"][std::to_string(i)]["b"] >> rhs.functionSwitchLedONColor[i].b;
+      if (node["functionSwitchLedONColor"][std::to_string(i)]) {
+        node["functionSwitchLedONColor"][std::to_string(i)]["r"] >> rhs.functionSwitchLedONColor[i].r;
+        node["functionSwitchLedONColor"][std::to_string(i)]["g"] >> rhs.functionSwitchLedONColor[i].g;
+        node["functionSwitchLedONColor"][std::to_string(i)]["b"] >> rhs.functionSwitchLedONColor[i].b;
+      }
     }
   }
   if (node["functionSwitchLedOFFColor"]) {
     for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
-      node["functionSwitchLedOFFColor"][std::to_string(i)]["r"] >> rhs.functionSwitchLedOFFColor[i].r;
-      node["functionSwitchLedOFFColor"][std::to_string(i)]["g"] >> rhs.functionSwitchLedOFFColor[i].g;
-      node["functionSwitchLedOFFColor"][std::to_string(i)]["b"] >> rhs.functionSwitchLedOFFColor[i].b;
+      if (node["functionSwitchLedOFFColor"][std::to_string(i)]) {
+        node["functionSwitchLedOFFColor"][std::to_string(i)]["r"] >> rhs.functionSwitchLedOFFColor[i].r;
+        node["functionSwitchLedOFFColor"][std::to_string(i)]["g"] >> rhs.functionSwitchLedOFFColor[i].g;
+        node["functionSwitchLedOFFColor"][std::to_string(i)]["b"] >> rhs.functionSwitchLedOFFColor[i].b;
+      }
     }
   }
 
