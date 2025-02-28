@@ -295,18 +295,19 @@ Stream7:
 // LCD
 #define LCD_SPI_CS_GPIO                 GPIOA
 #define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_7
-#define LCD_SPI_GPIO                    GPIOF
-#define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_10
-#define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_8
-
-// TODO
-#define LCD_SPI_CONFLICTS_WITH_QSPI
+#define LCD_SPI_SCK_GPIO                GPIOB
+#define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_0
+#define LCD_SPI_MOSI_GPIO               GPIOI
+#define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_9
 
 #define LTDC_IRQ_PRIO                   4
 #define DMA_SCREEN_IRQ_PRIO             6
 
 #define LCD_RESET_GPIO                  GPIOJ
 #define LCD_RESET_GPIO_PIN              LL_GPIO_PIN_12
+
+#define LCD_TE_GPIO                     GPIOI
+#define LCD_TE_GPIO_PIN                 LL_GPIO_PIN_4
 
 // Backlight
 #define BACKLIGHT_GPIO                  GPIO_PIN(GPIOI, 2) // TIM8_CH4
@@ -458,17 +459,19 @@ Stream7:
 // Trainer Port
 #define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOA)
 
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOA, 1)
+#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOI, 6)
 #define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
 
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOA, 1)
+#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOI, 5)
 #define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
 
-#define TRAINER_TIMER                   TIM15
-#define TRAINER_TIMER_IRQn              TIM15_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM15_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_4
+#define TRAINER_TIMER                   TIM8
+#define TRAINER_TIMER_IRQn              TIM8_UP_TIM13_IRQn
+#define TRAINER_TIMER_IRQHandler        TIM8_UP_TIM13_IRQHandler
+#define TRAINER_GPIO_AF                 LL_GPIO_AF_3
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
+
+#define TRAINER_DETECT_PIN              GPIO_PIN(GPIOH, 4)
 
 
 // Touch

@@ -101,12 +101,15 @@ static void lcdSpiConfig(void)
   LL_GPIO_InitTypeDef GPIO_InitStructure;
   LL_GPIO_StructInit(&GPIO_InitStructure);
 
-  GPIO_InitStructure.Pin = LCD_SPI_SCK_GPIO_PIN | LCD_SPI_MOSI_GPIO_PIN;
+  GPIO_InitStructure.Pin = LCD_SPI_MOSI_GPIO_PIN;
   GPIO_InitStructure.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStructure.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStructure.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
+  LL_GPIO_Init(LCD_SPI_MOSI_GPIO, &GPIO_InitStructure);
+
+  GPIO_InitStructure.Pin = LCD_SPI_SCK_GPIO_PIN;
+  LL_GPIO_Init(LCD_SPI_SCK_GPIO, &GPIO_InitStructure);
 
   GPIO_InitStructure.Pin = LCD_SPI_CS_GPIO_PIN;
   LL_GPIO_Init(LCD_SPI_CS_GPIO, &GPIO_InitStructure);
