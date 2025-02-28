@@ -332,6 +332,12 @@ static uint8_t adc_init_channels(const stm32_adc_t* adc,
     LL_ADC_SetChannelSamplingTime(adc->ADCx, input->ADC_Channel,
                                   adc->sample_time);
 
+#if defined(STM32H5)
+    if (adc->ADCx == ADC1 && input->ADC_Channel == LL_ADC_CHANNEL_0) {
+      LL_ADC_EnableChannel0_GPIO(ADC1);
+    }
+#endif
+
 #if defined(STM32H7)
     LL_ADC_SetChannelPreselection(adc->ADCx, input->ADC_Channel);
 #endif
