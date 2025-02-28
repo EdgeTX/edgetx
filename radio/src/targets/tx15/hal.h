@@ -399,6 +399,8 @@ Stream7:
 
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOB, 13) // PB.13
+#define INTMODULE_BOOTCMD_GPIO          GPIO_PIN(GPIOH, 9)  // PH.09
+#define INTMODULE_BOOTCMD_DEFAULT       0
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOG, 14)
 #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOG,  9)
 #define INTMODULE_USART                 USART6
