@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "os/sleep.h"
 
 #if defined(GHOST) && defined(HARDWARE_EXTERNAL_MODULE)
 
@@ -84,7 +85,7 @@ void menuGhostModuleConfig(event_t event)
       reusableBuffer.ghostMenu.buttonAction = GHST_BTN_NONE;
       reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_CLOSE;
       moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
-      RTOS_WAIT_MS(10);
+      sleep_ms(10);
       popMenu();
       break;
   }

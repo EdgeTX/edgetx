@@ -114,7 +114,7 @@ coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
 
 void TopBar::checkEvents()
 {
-  uint32_t now = RTOS_GET_MS();
+  uint32_t now = lv_tick_get();
   if (now - lastRefresh >= TOPBAR_REFRESH) {
     lastRefresh = now;
     TopBarBase::checkEvents();
