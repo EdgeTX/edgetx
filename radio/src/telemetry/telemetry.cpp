@@ -245,9 +245,20 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 
 void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
 {
+  static bool _poll_frame_in_queue = false;
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
-  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+  BaseType_t xReturn = pdFALSE;
+
+  if (!_poll_frame_in_queue && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    xReturn = xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+
+    if (xReturn == pdPASS) {
+      _poll_frame_in_queue = true;
+    } else {
+      TRACE("xTimerPendFunctionCallFromISR() queue full");
+    }
+  }
 }
 #endif
 

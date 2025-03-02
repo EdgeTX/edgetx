@@ -259,10 +259,19 @@ static void _timer_10ms_cb(void *pvParameter1, uint32_t ulParameter2)
 
 void per10ms()
 {
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+  static bool _timer_10ms_cb_in_queue = false;
+
+  if (!_timer_10ms_cb_in_queue && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
+    BaseType_t xReturn = pdFALSE;
+
+    xReturn = xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    if (xReturn == pdPASS) {
+      _timer_10ms_cb_in_queue = true;
+    } else {
+      TRACE("xTimerPendFunctionCallFromISR() queue full");
+    }
   }
 }
 
