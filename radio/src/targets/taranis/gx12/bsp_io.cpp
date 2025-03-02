@@ -76,7 +76,7 @@ static void _io_int_handler()
                                   &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
-	if (xReturn == pdPASS) {
+    if (xReturn == pdPASS) {
       _poll_switches_in_queue = true;
     } else {
        TRACE("xTimerPendFunctionCallFromISR() queue full");
