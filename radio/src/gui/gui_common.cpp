@@ -504,6 +504,13 @@ static bool isSwitchTelemAvailable(int swtch, bool invert) {
   return isTelemetryFieldAvailable(swtch);
 }
 
+#if defined(VCONTROLS) && defined(COLORLCD)
+static bool isVSwitchAvailable(int swtch, bool invert) {
+  const uint64_t mask = (1UL << swtch);
+  return (activeVirtualSwitches & mask);
+}
+#endif
+
 static bool isSwitchOtherAvailable(int swtch, bool invert) {
   swtch += SWSRC_ON;
   if (invert && (swtch == SWSRC_ON || swtch == SWSRC_ONE))
@@ -529,6 +536,9 @@ static struct switchAvailableCheck switchChecks[] = {
   { SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SW_SWITCH, isSwitchSwitchAvailable },
   { SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SW_TRIM, isSwitchTrimAvailable },
   { SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SW_LOGICAL_SWITCH, isSwitchLSAvailable },
+#if defined(VCONTROLS) && defined(COLORLCD)
+  { SWSRC_FIRST_VIRTUAL_SWITCH, SWSRC_LAST_VIRTUAL_SWITCH, SW_VIRTUAL, isVSwitchAvailable },
+#endif
   { SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, SW_FLIGHT_MODE, isSwitchFMAvailable },
   { SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SW_TELEM, isSwitchTelemAvailable },
   { SWSRC_ON, SWSRC_COUNT - 1, SW_OTHER, isSwitchOtherAvailable },
