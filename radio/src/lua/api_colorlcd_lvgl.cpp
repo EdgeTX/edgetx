@@ -172,6 +172,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 {
   luaL_checktype(L, srcIndex, LUA_TTABLE);
   for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
+    auto t = lua_gettop(L);
     LvglWidgetParams p(L, -1);
     LvglWidgetObjectBase *obj = nullptr;
     if (strcasecmp(p.type, "label") == 0)
@@ -247,6 +248,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         luaScriptManager->setTempParent(prevParent);
       }
     }
+    lua_settop(L, t); // In case of errors in build functions
   }
 }
 
