@@ -40,6 +40,11 @@ const uint8_t __bmp_usb_plugged[] {
 };
 LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444, (LZ4Bitmap*)__bmp_usb_plugged);
 
+const uint8_t __bmp_background[] {
+  #include "bmp_background.lbm"
+  };
+LZ4BitmapBuffer BMP_BACKGROUND(BMP_ARGB4444, (LZ4Bitmap*)__bmp_background);
+
 #define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
 #define BL_RED        COLOR2FLAGS(RGB(229, 32, 30))
 #define BL_BACKGROUND COLOR_BLACK
@@ -66,7 +71,28 @@ static void bootloaderDrawFooter()
 
 static void bootloaderDrawBackground()
 {
-  lcd->clear(BL_BACKGROUND);
+  // we have plenty of memory, let's cache that background
+  static BitmapBuffer* _background = nullptr;
+
+  if (!_background) {
+    _background = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
+
+    for (int i=0; i<LCD_W; i += BMP_BACKGROUND.width()) {
+      for (int j=0; j<LCD_H; j += BMP_BACKGROUND.height()) {
+        BitmapBuffer* bg_bmp = &BMP_BACKGROUND;
+        _background->drawBitmap(i, j, bg_bmp);
+      }
+    }
+  }
+
+  if (_background) {
+    lcd->drawBitmap(0, 0, _background);
+    lcd->drawFilledRect(0, 0, LCD_W, LCD_H, SOLID,
+                        COLOR2FLAGS(COLOR_BLACK), OPACITY(4));
+  }
+  else {
+    lcd->clear(BL_BACKGROUND);
+  }
 }
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
