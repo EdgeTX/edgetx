@@ -58,7 +58,7 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   return io->state;  
 }
 
-static void _poll_switches(void *pvParameter1 = nullptr, uint32_t ulParameter2 = 0)
+static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
 {
   (void)ulParameter2;
   _poll_switches_in_queue = false;
