@@ -23,8 +23,6 @@
 
 #include "ff.h"
 
-extern FIL g_oLogFile;
-
 #include "translations.h"
 
 #define FILE_COPY_PREFIX "cp_"
@@ -120,7 +118,7 @@ const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 extern uint8_t logDelay100ms;
 void logsInit();
 void logsClose();
-void logsWrite();
+void logsHandle();
 
 void sdInit();
 void sdMount();
