@@ -154,7 +154,7 @@ Stream7:
 
 // ADC
 #define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_6      // PA.06
-#define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_0      // PA.01
+#define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_3      // PC.03
 #define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_4      // PC.04
 #define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_5      // PC.05
 
@@ -162,14 +162,14 @@ Stream7:
 #define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 POT2
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PH.03
 
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
+#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH)
 #define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2)
-#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
+#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
 #define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT)
 
 
 #define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_3    // ADC12_INP3
-#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_1    // ADC12_INP1
+#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_13   // ADC12_INP13
 #define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_4    // ADC12_INP4
 #define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_8    // ADC12_INP8
 
@@ -198,18 +198,18 @@ Stream7:
 
 #define ADC_VREF_PREC2                  330
 
-#define ADC_DIRECTION {       \
-    0,0,0,0, /* gimbals */    \
-    -1,-1,   /* pots */       \
-    0,0,     /* sliders */    \
-    0,	     /* vbat */       \
-    0,       /* rtc_bat */    \
-    0,       /* SWA */        \
-    0,       /* SWB */        \
-    0,       /* SWC */        \
-    0,       /* SWD */        \
-    0,       /* SWE */        \
-    0        /* SWF */        \
+#define ADC_DIRECTION {       	 \
+    0,-1,0,-1, 	/* gimbals */    \
+    -1,-1,   	/* pots */       \
+    0,0,     	/* sliders */    \
+    0,	     	/* vbat */       \
+    0,       	/* rtc_bat */    \
+    0,       	/* SWA */        \
+    0,       	/* SWB */        \
+    0,       	/* SWC */        \
+    0,       	/* SWD */        \
+    0,       	/* SWE */        \
+    0        	/* SWF */        \
   }
 
 // Serial gimbal sync port
