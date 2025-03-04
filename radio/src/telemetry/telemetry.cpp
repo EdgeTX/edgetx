@@ -253,13 +253,13 @@ void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
 
   if (!_poll_frame_queued[module] && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
     xReturn = xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 
     if (xReturn == pdPASS) {
       _poll_frame_queued[module] = true;
     } else {
       TRACE("xTimerPendFunctionCallFromISR() queue full");
     }
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
   }
 }
 #endif

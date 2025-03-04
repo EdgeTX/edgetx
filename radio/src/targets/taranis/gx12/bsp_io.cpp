@@ -74,13 +74,13 @@ static void _io_int_handler()
   if (!_poll_switches_in_queue && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
     xReturn = xTimerPendFunctionCallFromISR(_poll_switches, nullptr, 0,
                                   &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
     if (xReturn == pdPASS) {
       _poll_switches_in_queue = true;
     } else {
        TRACE("xTimerPendFunctionCallFromISR() queue full");
     }
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
   }
 }
 

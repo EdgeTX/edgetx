@@ -268,12 +268,13 @@ void per10ms()
     BaseType_t xReturn = pdFALSE;
 
     xReturn = xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
     if (xReturn == pdPASS) {
       _timer_10ms_cb_in_queue = true;
     } else {
       TRACE("xTimerPendFunctionCallFromISR() queue full");
     }
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
   }
 }
 
