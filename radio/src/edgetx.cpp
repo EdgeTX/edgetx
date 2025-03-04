@@ -250,16 +250,18 @@ void timer_10ms()
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
 
+static bool _timer_10ms_cb_in_queue = false;
+
 static void _timer_10ms_cb(void *pvParameter1, uint32_t ulParameter2)
 {
   (void)pvParameter1;
   (void)ulParameter2;
+  _timer_10ms_cb_in_queue = false;
   timer_10ms();
 }
 
 void per10ms()
 {
-  static bool _timer_10ms_cb_in_queue = false;
 
   if (!_timer_10ms_cb_in_queue && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
