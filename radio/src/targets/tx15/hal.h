@@ -28,8 +28,8 @@ Stream0:  LED_STRIP_TIMER_DMA_STREAM
 Stream1:  INTMODULE_DMA_STREAM
 Stream2:  FLYSKY_HALL_DMA_Stream_RX
 Stream3:  TELEMETRY_DMA_Stream_RX
-Stream4:  INTMODULE_RX_DMA_STREAM
-Stream5:
+Stream4:  I2S_DMA_Stream
+Stream5:  INTMODULE_RX_DMA_STREAM
 Stream6:
 Stream7:  TELEMETRY_DMA_Stream_TX
 
@@ -413,10 +413,10 @@ Stream7:
 #define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
 #define INTMODULE_DMA_CHANNEL           LL_DMAMUX1_REQ_USART6_TX
 #define INTMODULE_RX_DMA                DMA1
-#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_4
+#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_5
 #define INTMODULE_RX_DMA_CHANNEL        LL_DMAMUX1_REQ_USART6_RX
-#define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream4_IRQn
-#define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream4_IRQHandler
+#define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream5_IRQn
+#define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream5_IRQHandler
 
 // #define INTMODULE_TIMER                 TIM3
 // #define INTMODULE_TIMER_IRQn            TIM3_IRQn
