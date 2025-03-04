@@ -250,7 +250,7 @@ void timer_10ms()
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
 
-static bool _timer_10ms_cb_in_queue = false;
+static volatile bool _timer_10ms_cb_in_queue = false;
 
 static void _timer_10ms_cb(void *pvParameter1, uint32_t ulParameter2)
 {

@@ -205,7 +205,7 @@ void telemetryStop()
   }
 }
 
-static bool _poll_frame_queued[NUM_MODULES] = {false};
+static volatile bool _poll_frame_queued[NUM_MODULES] = {false};
 
 static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 {

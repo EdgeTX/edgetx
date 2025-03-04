@@ -38,7 +38,7 @@ struct bsp_io_expander {
   uint32_t state;
 };
 
-static bool _poll_switches_in_queue = false;
+static volatile bool _poll_switches_in_queue = false;
 static bsp_io_expander _io_switches;
 static bsp_io_expander _io_fs_switches;
 
