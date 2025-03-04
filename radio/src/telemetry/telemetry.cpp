@@ -205,12 +205,15 @@ void telemetryStop()
   }
 }
 
+static bool _poll_frame_queued[NUM_MODULES] = {false};
+
 static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 {
   _telemetryIsPolling = true;
 
   auto drv = (const etx_proto_driver_t*)pvParameter1;
   auto module = (uint8_t)ulParameter2;
+  _poll_frame_queued[module] = false;
 
   auto mod = pulsesGetModuleDriver(module);
   if (!mod || !mod->drv || !mod->ctx || (drv != mod->drv))
@@ -226,8 +229,9 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 
   uint8_t frame[TELEMETRY_RX_PACKET_SIZE];
 
-  int frame_len = serial_drv->copyRxBuffer(serial_ctx, frame, TELEMETRY_RX_PACKET_SIZE);
-  if (frame_len > 0) {
+  while (true) {
+    int frame_len = serial_drv->copyRxBuffer(serial_ctx, frame, TELEMETRY_RX_PACKET_SIZE);
+    if (!frame_len) break;
 
     LOG_TELEMETRY_WRITE_START();
     for (int i = 0; i < frame_len; i++) {
@@ -246,7 +250,19 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
 {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
+  BaseType_t xReturn = pdFALSE;
+
+  if (!_poll_frame_queued[module] && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    xReturn = xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+
+    if (xReturn == pdPASS) {
+      _poll_frame_queued[module] = true;
+    } else {
+      asm("BKPT");
+      TRACE("xTimerPendFunctionCallFromISR() queue full");
+    }
+  }
   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 #endif
@@ -316,8 +332,10 @@ void telemetryWakeup()
 #endif
 
   static tmr10ms_t alarmsCheckTime = 0;
+
 #define SCHEDULE_NEXT_ALARMS_CHECK(seconds) \
   alarmsCheckTime = get_tmr10ms() + (100 * (seconds))
+
   if (int32_t(get_tmr10ms() - alarmsCheckTime) > 0) {
     SCHEDULE_NEXT_ALARMS_CHECK(1 /*second*/);
 

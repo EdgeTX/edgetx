@@ -167,7 +167,7 @@ void checkValidMCU(void)
 static bool evalFSok = false;
 #endif
 
-void timer_10ms()
+void per10ms()
 {
   DEBUG_TIMER_START(debugTimerPer10ms);
   DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
@@ -250,24 +250,29 @@ void timer_10ms()
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
 
-static void _timer_10ms_cb(void *pvParameter1, uint32_t ulParameter2)
+static TimerHandle_t _timer10ms = nullptr;
+static StaticTimer_t _timer10msBuffer;
+
+static void _timer_10ms_cb(TimerHandle_t xTimer)
 {
-  (void)pvParameter1;
-  (void)ulParameter2;
-  timer_10ms();
+  (void)xTimer;
+  per10ms();
 }
 
-void per10ms()
+void timer10msStart()
 {
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  if (!_timer10ms) {
+    _timer10ms =
+        xTimerCreateStatic("10ms", 10 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+                           _timer_10ms_cb, &_timer10msBuffer);
+  }
+
+  if (_timer10ms) {
+    if( xTimerStart( _timer10ms, 0 ) != pdPASS ) {
+      /* The timer could not be set into the Active state. */
+    }
   }
 }
-
-#else // !defined(SIMU)
-void per10ms() { timer_10ms(); }
 #endif
 
 

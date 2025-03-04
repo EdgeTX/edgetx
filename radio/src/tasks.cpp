@@ -103,6 +103,8 @@ TASK_FUNCTION(menusTask)
   TASK_RETURN();
 }
 
+void timer10msStart();
+
 void tasksStart()
 {
   RTOS_CREATE_MUTEX(audioMutex);
@@ -110,6 +112,8 @@ void tasksStart()
 #if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
+
+  timer10msStart();
 
   RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
                    MENUS_STACK_SIZE, MENUS_TASK_PRIO);
