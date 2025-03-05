@@ -35,11 +35,6 @@ static tas2505_t _tas2505 = {
 // PI3 (I2S2_SDO): DOUT  <->  DIN
 // PC2 (I2S2_SDI): DIN   <->  DOUT
 
-#define I2S_DMA                   DMA1
-#define I2S_DMA_Stream            LL_DMA_STREAM_4
-#define I2S_DMA_Stream_Request    LL_DMAMUX1_REQ_SPI2_TX
-#define I2S_DMA_Stream_IRQn       DMA1_Stream4_IRQn
-#define I2S_DMA_Stream_IRQHandler DMA1_Stream4_IRQHandler
 
 const stm32_i2s_t _i2s_dev = {
     .SPIx = AUDIO_SPI,

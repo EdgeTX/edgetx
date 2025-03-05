@@ -324,6 +324,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 // Backlight
 #define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 10) // TIM1_CH3
 #define BACKLIGHT_TIMER                 TIM1
+#define BACKLIGHT_TIMER_CHANNEL			LL_TIM_CHANNEL_CH3
 #define BACKLIGHT_GPIO_AF               GPIO_AF1
 #define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
@@ -354,6 +355,12 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
 #define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)
+#define I2S_DMA                   		DMA1
+#define I2S_DMA_Stream            		LL_DMA_STREAM_4
+#define I2S_DMA_Stream_Request    		LL_DMAMUX1_REQ_SPI2_TX
+#define I2S_DMA_Stream_IRQn       		DMA1_Stream4_IRQn
+#define I2S_DMA_Stream_IRQHandler 		DMA1_Stream4_IRQHandler
+
 
 // I2C Bus
 #define I2C_B1                          I2C4
@@ -480,8 +487,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
 
 #define TRAINER_TIMER                   TIM8
-#define TRAINER_TIMER_IRQn              TIM8_UP_TIM13_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM8_UP_TIM13_IRQHandler
+#define TRAINER_TIMER_IRQn              TIM8_CC_IRQn
+#define TRAINER_TIMER_IRQHandler        TIM8_CC_IRQHandler
 #define TRAINER_GPIO_AF                 LL_GPIO_AF_3
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
