@@ -60,6 +60,13 @@
   #include "bluetooth_driver.h"
 #endif
 
+#if defined(CSD203_SENSOR)
+  #include "csd203_sensor.h"
+#endif
+#if defined(GYRO_SENSOR)
+  #include "imu_42627.h"
+#endif
+
 HardwareOptions hardwareOptions;
 
 #if defined(LED_STRIP_GPIO)
@@ -172,6 +179,16 @@ void boardInit()
 #else
   ledGreen();
 #endif
+#endif
+
+#if defined(CSD203_SENSOR)
+  IICcsd203init();
+  initCSD203();
+#endif
+
+#if defined(GYRO_SENSOR)
+  IICimu42627init();
+  imu42627Init();
 #endif
 
 // If the radio was powered on by dual use USB, halt the boot process, let battery charge
