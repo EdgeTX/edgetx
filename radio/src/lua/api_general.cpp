@@ -2487,10 +2487,10 @@ static int luaActivateVirtualSwitch(lua_State * L) {
 
   if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
     if (on) {
-      activeVirtualSwitches |= (1UL << (sw - 1));
+      activeVirtualSwitches |= (uint64_t{1} << (sw - 1));
     }
     else {
-      activeVirtualSwitches &= ~(1UL << (sw - 1));
+      activeVirtualSwitches &= ~(uint64_t{1} << (sw - 1));
     }
   }
   return 0;
@@ -2514,7 +2514,7 @@ static int luaGetVirtualSwitch(lua_State * L)
   const int sw = luaL_checkinteger(L, 1);
 
   if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
-    const bool v = virtualSwitches & (1UL << (sw - 1));
+    const bool v = virtualSwitches & (uint64_t{1} << (sw - 1));
     lua_pushboolean(L, v);
   }
   else {
@@ -2530,10 +2530,10 @@ static int luaSetVirtualSwitch(lua_State * L)
 
   if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
     if (on) {
-      virtualSwitches |= (1UL << (sw - 1));
+      virtualSwitches |= (uint64_t{1} << (sw - 1));
     }
     else {
-      virtualSwitches &= ~(1UL << (sw - 1));
+      virtualSwitches &= ~(uint64_t{1} << (sw - 1));
     }
 //    TRACE("luaSetVirtualSwitch: %d, %b", (sw - 1), on);
   }
