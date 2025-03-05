@@ -56,7 +56,7 @@ void testFunc()
 }
 #endif
 
-PLAY_FUNCTION(playValue, source_t idx)
+PLAY_FUNCTION(playValue, mixsrc_t idx)
 {
   if (IS_FAI_FORBIDDEN(idx))
     return;
@@ -65,10 +65,16 @@ PLAY_FUNCTION(playValue, source_t idx)
     return;
 
   getvalue_t val = getValue(idx);
+  idx = abs(idx); // Don't need negative form any longer
 
   if (idx >= MIXSRC_FIRST_TELEM) {
     TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(idx-MIXSRC_FIRST_TELEM) / 3];
     uint8_t attr = 0;
+
+    // Preserve the sign
+    int sign = (val >= 0) ? 1 : -1;
+    val = abs(val);
+
     if (telemetrySensor.prec > 0) {
       if (telemetrySensor.prec == 2) {
         if (val >= 5000) {
@@ -88,11 +94,14 @@ PLAY_FUNCTION(playValue, source_t idx)
         }
       }
     }
+
+    val *= sign; // Reapply sign if needed
+
     PLAY_NUMBER(val, telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit, attr);
   }
   else if (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER) {
     int flag = 0;
-    if (val > LONG_TIMER_DURATION || -val > LONG_TIMER_DURATION) {
+    if (abs(val) > LONG_TIMER_DURATION) {
       flag = PLAY_LONG_TIMER;
     }
     PLAY_DURATION(val, flag);
@@ -399,7 +408,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
             getvalue_t raw = getValue(CFN_PARAM(cfn));
 #if defined(COLORLCD)
-            requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright + 
+            requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright +
                 ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
 #elif defined(OLED_SCREEN)
             requiredBacklightBright = (raw + 1024) * 254 / 2048;
