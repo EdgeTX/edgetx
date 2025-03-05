@@ -49,7 +49,8 @@ WidgetSettings::WidgetSettings(Widget* w) :
   FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
   uint8_t optIdx = 0;
-  auto opt = widget->getOptions();
+  auto opt = widget->getOptionDefinitions();
+
   while (opt && opt->name != nullptr) {
     auto line = form->newLine(grid);
 

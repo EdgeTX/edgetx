@@ -28,14 +28,11 @@
 
 #include "api_colorlcd.h"
 
-LuaLvglManager *luaLvglManager = nullptr;
-
 static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
 {
-  if (luaLvglManager && (!fullscreenOnly || luaLvglManager->isFullscreen())) {
+  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     auto obj = create();
-    obj->getParams(L, 1);
-    obj->build(L);
+    obj->create(L, 1);
     obj->push(L);
   } else {
     lua_pushnil(L);
@@ -46,24 +43,23 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
 
 static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
 {
-  if (luaLvglManager && (!fullscreenOnly || luaLvglManager->isFullscreen())) {
+  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     LvglWidgetObjectBase* p = nullptr;
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
       p = LvglWidgetObjectBase::checkLvgl(L, 1);
       if (p) {
-        prevParent = luaLvglManager->getTempParent();
-        luaLvglManager->setTempParent(p);
+        prevParent = luaScriptManager->getTempParent();
+        luaScriptManager->setTempParent(p);
       }
     }
 
     auto obj = create();
-    obj->getParams(L, -1);
-    obj->build(L);
+    obj->create(L, -1);
     obj->push(L);
 
     if (p)
-      luaLvglManager->setTempParent((prevParent));
+      luaScriptManager->setTempParent((prevParent));
   } else {
     lua_pushnil(L);
   }
@@ -74,8 +70,7 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> create)
 {
   auto obj = create();
-  obj->getParams(L, 1);
-  obj->build(L);
+  obj->create(L, 1);
   return 0;
 }
 
@@ -100,14 +95,14 @@ static int luaLvglSet(lua_State *L)
 
 static int luaLvglClear(lua_State *L)
 {
-  if (luaLvglManager) {
+  if (luaScriptManager) {
     if (lua_gettop(L) == 1) {
       auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
       if (p) {
         p->clear();
       }
     } else {
-      luaLvglManager->clear();
+      luaScriptManager->clear();
     }
   }
 
@@ -177,6 +172,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 {
   luaL_checktype(L, srcIndex, LUA_TTABLE);
   for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
+    auto t = lua_gettop(L);
     LvglWidgetParams p(L, -1);
     LvglWidgetObjectBase *obj = nullptr;
     if (strcasecmp(p.type, "label") == 0)
@@ -201,7 +197,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
       obj = new LvglWidgetQRCode();
     else if (strcasecmp(p.type, "box") == 0)
       obj = new LvglWidgetBox();
-    else if (luaLvglManager->isFullscreen()) {
+    else if (luaScriptManager->isFullscreen()) {
       if (strcasecmp(p.type, "button") == 0)
         obj = new LvglWidgetTextButton();
       if (strcasecmp(p.type, "momentaryButton") == 0)
@@ -236,8 +232,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         obj = new LvglWidgetSetting();
     }
     if (obj) {
-      obj->getParams(L, -1);
-      obj->build(L);
+      obj->create(L, -1);
       auto ref = obj->getRef(L);
       if (p.name) {
         lua_pushstring(L, p.name);
@@ -246,26 +241,27 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
       }
       if (p.hasChildren && obj->getWindow()) {
         lua_getfield(L, -1, "children");
-        auto prevParent = luaLvglManager->getTempParent();
-        luaLvglManager->setTempParent(obj);
+        auto prevParent = luaScriptManager->getTempParent();
+        luaScriptManager->setTempParent(obj);
         buildLvgl(L, -1, refIndex - 3);
         lua_pop(L, 1);
-        luaLvglManager->setTempParent(prevParent);
+        luaScriptManager->setTempParent(prevParent);
       }
     }
+    lua_settop(L, t); // In case of errors in build functions
   }
 }
 
 static int luaLvglBuild(lua_State *L)
 {
-  if (luaLvglManager) {
+  if (luaScriptManager) {
     LvglWidgetObjectBase* p = nullptr;
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
       p = LvglWidgetObjectBase::checkLvgl(L, 1);
       if (p) {
-        prevParent = luaLvglManager->getTempParent();
-        luaLvglManager->setTempParent(p);
+        prevParent = luaScriptManager->getTempParent();
+        luaScriptManager->setTempParent(p);
       }
     }
 
@@ -274,7 +270,7 @@ static int luaLvglBuild(lua_State *L)
     buildLvgl(L, -2, -1);
 
     if (p)
-      luaLvglManager->setTempParent((prevParent));
+      luaScriptManager->setTempParent((prevParent));
   } else {
     lua_pushnil(L);
   }
@@ -283,8 +279,8 @@ static int luaLvglBuild(lua_State *L)
 
 static int luaLvglIsAppMode(lua_State *L)
 {
-  if (luaLvglManager) {
-    lua_pushboolean(L, luaLvglManager->isAppMode());
+  if (luaScriptManager) {
+    lua_pushboolean(L, luaScriptManager->isAppMode());
   } else {
     lua_pushboolean(L, false);
   }
@@ -293,8 +289,8 @@ static int luaLvglIsAppMode(lua_State *L)
 
 static int luaLvglIsFullscreen(lua_State *L)
 {
-  if (luaLvglManager) {
-    lua_pushboolean(L, luaLvglManager->isFullscreen());
+  if (luaScriptManager) {
+    lua_pushboolean(L, luaScriptManager->isFullscreen());
   } else {
     lua_pushboolean(L, false);
   }
@@ -303,16 +299,16 @@ static int luaLvglIsFullscreen(lua_State *L)
 
 static int luaLvglExitFullscreen(lua_State *L)
 {
-  if (luaLvglManager)
-    luaLvglManager->exitFullscreen();
+  if (luaScriptManager)
+    luaScriptManager->exitFullscreen();
   return 0;
 }
 
 static int luaLvglGetContext(lua_State *L)
 {
-  if (luaLvglManager && luaLvglManager->getContext() != LUA_REFNIL) {
+  if (luaScriptManager && luaScriptManager->getContext() != LUA_REFNIL) {
     // Push context tanle onto Lua stack (return object)
-    lua_rawgeti(L, LUA_REGISTRYINDEX, luaLvglManager->getContext());
+    lua_rawgeti(L, LUA_REGISTRYINDEX, luaScriptManager->getContext());
   } else {
     lua_pushnil(L);
   }

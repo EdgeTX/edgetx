@@ -133,6 +133,8 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 
   etx_solid_bg(lvobj);
 
+  luaScriptManager = this;
+
   if (useLvglLayout()) {
     padAll(PAD_ZERO);
     etx_scrollbar(lvobj);
@@ -146,8 +148,6 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
     lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::PAGE_LINE_HEIGHT) / 2, LV_PART_MAIN);
     lv_label_set_text(lbl, STR_LOADING);
-
-    luaLvglManager = this;
   } else {
     lcdBuffer = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
 
@@ -218,7 +218,7 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
   if (lcdBuffer) delete lcdBuffer;
   lcdBuffer = nullptr;
 
-  luaLvglManager = nullptr;
+  luaScriptManager = nullptr;
 
   Layer::pop(this);
   Layer::back()->show();
@@ -320,13 +320,13 @@ void StandaloneLuaWindow::checkEvents()
   luaLcdAllowed = false;
 }
 
-void StandaloneLuaWindow::onClicked() { Keyboard::hide(false); LuaEventHandler::onClicked(); }
+void StandaloneLuaWindow::onClicked() { Keyboard::hide(false); LuaScriptManager::onClickedEvent(); }
 
-void StandaloneLuaWindow::onCancel() { LuaEventHandler::onCancel(); }
+void StandaloneLuaWindow::onCancel() { LuaScriptManager::onCancelEvent(); }
 
 void StandaloneLuaWindow::onEvent(event_t evt)
 {
-  LuaEventHandler::onLuaEvent(evt);
+  LuaScriptManager::onLuaEvent(evt);
 }
 
 void StandaloneLuaWindow::popupPaint(BitmapBuffer* dc, coord_t x, coord_t y, coord_t w, coord_t h,
