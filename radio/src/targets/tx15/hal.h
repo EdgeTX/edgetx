@@ -243,38 +243,10 @@ TIM17:	ROTARY_ENCODER_TIMER
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
-// Serial Port (DEBUG)
-// We will temporarily used the PPM and the HEARTBEAT PINS
-// #define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
-// #define AUX_SERIAL_RCC_APB1Periph       0
-// #define AUX_SERIAL_RCC_APB2Periph       RCC_APB2Periph_USART6
-// #define AUX_SERIAL_GPIO                 GPIOC
-// #define AUX_SERIAL_GPIO_PIN_TX          GPIO_Pin_6  // PC.06
-// #define AUX_SERIAL_GPIO_PIN_RX          GPIO_Pin_7  // PC.07
-// #define AUX_SERIAL_GPIO_PinSource_TX    GPIO_PinSource6
-// #define AUX_SERIAL_GPIO_PinSource_RX    GPIO_PinSource7
-// #define AUX_SERIAL_GPIO_AF              GPIO_AF_USART6
-// #define AUX_SERIAL_USART                USART6
-// #define AUX_SERIAL_USART_IRQHandler     USART6_IRQHandler
-// #define AUX_SERIAL_USART_IRQn           USART6_IRQn
-// #define AUX_SERIAL_TX_INVERT_GPIO       GPIOE
-// #define AUX_SERIAL_TX_INVERT_GPIO_PIN   GPIO_Pin_3  // PE.03
-// #define AUX_SERIAL_RX_INVERT_GPIO       GPIOI
-// #define AUX_SERIAL_RX_INVERT_GPIO_PIN   GPIO_Pin_15 // PI.15
-
-//used in BOOTLOADER
-// #define SERIAL_RCC_AHB1Periph 0
-// #define SERIAL_RCC_APB1Periph 0
-// #define AUX2_SERIAL_RCC_AHB1Periph 0
-// #define AUX2_SERIAL_RCC_APB1Periph 0
-// #define AUX2_SERIAL_RCC_APB2Periph 0
-// #define KEYS_BACKLIGHT_RCC_AHB1Periph 0
-
 // Telemetry
- #define TELEMETRY_DIR_GPIO              GPIO_PIN(GPIOB, 17) // PB.17
  #define TELEMETRY_SET_INPUT             0
  #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)
- #define TELEMETRY_RX_GPIO               GPIO_PIN(GPIOA, 10)
+ #define TELEMETRY_RX_GPIO               GPIO_UNDEF
  #define TELEMETRY_USART                 USART1
  #define TELEMETRY_USART_IRQn            USART1_IRQn
  #define TELEMETRY_DMA                   DMA1
@@ -285,7 +257,6 @@ TIM17:	ROTARY_ENCODER_TIMER
  #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_3
  #define TELEMETRY_DMA_Channel_RX        LL_DMAMUX1_REQ_USART1_RX
  #define TELEMETRY_USART_IRQHandler      USART1_IRQHandler
-
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
 //#define USE_CUSTOM_EXTI_IRQ
@@ -396,7 +367,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_UART4_RX
 
 // LED Strip
-#define LED_STRIP_LENGTH                  6
+#define LED_STRIP_LENGTH                  6 + 10 + 10  // 6POS + 2 rings of 10
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 0)  // PA.00 / TIM2_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
 #define LED_STRIP_TIMER                   TIM2
@@ -459,8 +430,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 //USART
 #define EXTMODULE_USART                    USART2
-#define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOA, 3)
-#define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOA, 2)
 #define EXTMODULE_USART_TX_DMA             DMA2
 #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMAMUX1_REQ_USART2_TX
 #define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_STREAM_6

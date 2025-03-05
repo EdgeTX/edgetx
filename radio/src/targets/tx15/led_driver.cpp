@@ -75,6 +75,11 @@ uint8_t getRGBColorIndex(uint32_t color)
   return 5; // Custom value set with Companion
 }
 #elif defined(FUNCTION_SWITCHES)
+
+bool isLedControledByFS(uint8_t index)
+{
+}
+
 void fsLedOff(uint8_t index)
 {
   gpio_clear(fsLeds[index]);
