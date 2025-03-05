@@ -410,7 +410,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
 #if defined(VCONTROLS) && defined(COLORLCD)
   if ((swtch >= SWSRC_FIRST_VIRTUAL_SWITCH) && (swtch <= SWSRC_LAST_VIRTUAL_SWITCH)) {
-    const uint64_t mask = (1UL << (swtch - SWSRC_FIRST_VIRTUAL_SWITCH));
+    const uint64_t mask = (uint64_t{1} << (swtch - SWSRC_FIRST_VIRTUAL_SWITCH));
     return (activeVirtualSwitches & mask);
   }  
 #endif
@@ -506,7 +506,7 @@ static bool isSwitchTelemAvailable(int swtch, bool invert) {
 
 #if defined(VCONTROLS) && defined(COLORLCD)
 static bool isVSwitchAvailable(int swtch, bool invert) {
-  const uint64_t mask = (1UL << swtch);
+  const uint64_t mask = (uint64_t{1} << swtch);
   return (activeVirtualSwitches & mask);
 }
 #endif
