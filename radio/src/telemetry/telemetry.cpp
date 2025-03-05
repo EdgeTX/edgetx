@@ -205,12 +205,15 @@ void telemetryStop()
   }
 }
 
+static volatile bool _poll_frame_queued[NUM_MODULES] = {false};
+
 static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 {
   _telemetryIsPolling = true;
 
   auto drv = (const etx_proto_driver_t*)pvParameter1;
   auto module = (uint8_t)ulParameter2;
+  _poll_frame_queued[module] = false;
 
   auto mod = pulsesGetModuleDriver(module);
   if (!mod || !mod->drv || !mod->ctx || (drv != mod->drv))
@@ -246,8 +249,18 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
 {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
-  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+  BaseType_t xReturn = pdFALSE;
+
+  if (!_poll_frame_queued[module] && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    xReturn = xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
+
+    if (xReturn == pdPASS) {
+      _poll_frame_queued[module] = true;
+    } else {
+      TRACE("xTimerPendFunctionCallFromISR() queue full");
+    }
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+  }
 }
 #endif
 

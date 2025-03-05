@@ -38,6 +38,7 @@ struct bsp_io_expander {
   uint32_t state;
 };
 
+static volatile bool _poll_switches_in_queue = false;
 static bsp_io_expander _io_switches;
 static bsp_io_expander _io_fs_switches;
 
@@ -60,25 +61,27 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
 static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
 {
   (void)ulParameter2;
-  bsp_io_expander* io = (bsp_io_expander*)pvParameter1;
-  _read_io_expander(io); 
+  _poll_switches_in_queue = false;
+  bsp_io_read_switches();
+  bsp_io_read_fs_switches();
 }
 
-static void _io_int_handler(bsp_io_expander* io)
+static void _io_int_handler()
 {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    xTimerPendFunctionCallFromISR(_poll_switches, (void*)io, 0,
-                                  &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  } else {
-    _read_io_expander(io);
-  }
-}
+  BaseType_t xReturn = pdFALSE;
 
-static void _io_int_handler() {
-  _io_int_handler(&_io_switches);
-  _io_int_handler(&_io_fs_switches);
+  if (!_poll_switches_in_queue && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+    xReturn = xTimerPendFunctionCallFromISR(_poll_switches, nullptr, 0,
+                                  &xHigherPriorityTaskWoken);
+
+    if (xReturn == pdPASS) {
+      _poll_switches_in_queue = true;
+    } else {
+       TRACE("xTimerPendFunctionCallFromISR() queue full");
+    }
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  }
 }
 
 int bsp_io_init()
