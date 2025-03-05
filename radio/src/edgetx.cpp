@@ -250,19 +250,31 @@ void timer_10ms()
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
 
+static volatile bool _timer_10ms_cb_in_queue = false;
+
 static void _timer_10ms_cb(void *pvParameter1, uint32_t ulParameter2)
 {
   (void)pvParameter1;
   (void)ulParameter2;
+  _timer_10ms_cb_in_queue = false;
   timer_10ms();
 }
 
 void per10ms()
 {
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+
+  if (!_timer_10ms_cb_in_queue && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    BaseType_t xReturn = pdFALSE;
+
+    xReturn = xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
+
+    if (xReturn == pdPASS) {
+      _timer_10ms_cb_in_queue = true;
+    } else {
+      TRACE("xTimerPendFunctionCallFromISR() queue full");
+    }
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
   }
 }
 
