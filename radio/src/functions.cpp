@@ -56,7 +56,7 @@ void testFunc()
 }
 #endif
 
-PLAY_FUNCTION(playValue, source_t idx)
+PLAY_FUNCTION(playValue, mixsrc_t idx)
 {
   if (IS_FAI_FORBIDDEN(idx))
     return;
