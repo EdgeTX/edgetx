@@ -65,9 +65,10 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
     return;
 
   getvalue_t val = getValue(idx);
+  idx = abs(idx); // Don't need negative form any longer
 
-  if (abs(idx) >= MIXSRC_FIRST_TELEM) {
-    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(abs(idx)-MIXSRC_FIRST_TELEM) / 3];
+  if (idx >= MIXSRC_FIRST_TELEM) {
+    TelemetrySensor & telemetrySensor = g_model.telemetrySensors[(idx-MIXSRC_FIRST_TELEM) / 3];
     uint8_t attr = 0;
 
     // Preserve the sign
@@ -98,18 +99,18 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
 
     PLAY_NUMBER(val, telemetrySensor.unit == UNIT_CELLS ? UNIT_VOLTS : telemetrySensor.unit, attr);
   }
-  else if (abs(idx) >= MIXSRC_FIRST_TIMER && abs(idx) <= MIXSRC_LAST_TIMER) {
+  else if (idx >= MIXSRC_FIRST_TIMER && idx <= MIXSRC_LAST_TIMER) {
     int flag = 0;
     if (abs(val) > LONG_TIMER_DURATION) {
       flag = PLAY_LONG_TIMER;
     }
     PLAY_DURATION(val, flag);
-  } else if (abs(idx) == MIXSRC_TX_TIME) {
+  } else if (idx == MIXSRC_TX_TIME) {
     PLAY_DURATION(val * 60, PLAY_TIME);
-  } else if (abs(idx) == MIXSRC_TX_VOLTAGE) {
+  } else if (idx == MIXSRC_TX_VOLTAGE) {
     PLAY_NUMBER(val, UNIT_VOLTS, PREC1);
   } else {
-    if (abs(idx) <= MIXSRC_LAST_CH) {
+    if (idx <= MIXSRC_LAST_CH) {
       val = calcRESXto100(val);
     }
     PLAY_NUMBER(val, 0, 0);
