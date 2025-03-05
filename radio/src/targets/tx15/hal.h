@@ -481,18 +481,18 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOA)
 
 #define TRAINER_IN_GPIO                 GPIO_PIN(GPIOI, 6)
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
+#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
 
 #define TRAINER_OUT_GPIO                GPIO_PIN(GPIOI, 5)
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
+#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
 
 #define TRAINER_TIMER                   TIM8
 #define TRAINER_TIMER_IRQn              TIM8_CC_IRQn
 #define TRAINER_TIMER_IRQHandler        TIM8_CC_IRQHandler
 #define TRAINER_GPIO_AF                 LL_GPIO_AF_3
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
 
-#define TRAINER_DETECT_PIN              GPIO_PIN(GPIOH, 4)
+#define TRAINER_DETECT_GPIO             GPIO_PIN(GPIOH, 4)
 
 
 // Touch
