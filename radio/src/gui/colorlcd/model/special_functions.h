@@ -114,7 +114,7 @@ class FunctionEditPage : public Page
   void buildHeader(Window *window, const char *title, const char *prefix);
 
   void addSourceChoice(FormLine *line, const char *title,
-                       CustomFunctionData *cfn, int16_t vmax);
+                       CustomFunctionData *cfn, int16_t vmax, bool allowInvert = true);
 
   NumberEdit *addNumberEdit(FormLine *line, const char *title,
                             CustomFunctionData *cfn, int16_t vmin, int16_t vmax);

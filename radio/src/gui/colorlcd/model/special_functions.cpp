@@ -346,10 +346,10 @@ void FunctionEditPage::buildHeader(Window *window, const char *title,
 }
 
 void FunctionEditPage::addSourceChoice(FormLine *line, const char *title,
-                                       CustomFunctionData *cfn, int16_t vmax)
+                                       CustomFunctionData *cfn, int16_t vmax, bool allowInvert)
 {
   new StaticText(line, rect_t{}, title);
-  new SourceChoice(line, rect_t{}, 0, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)), true);
+  new SourceChoice(line, rect_t{}, 0, vmax, GET_SET_DEFAULT(CFN_PARAM(cfn)), allowInvert);
 }
 
 NumberEdit *FunctionEditPage::addNumberEdit(FormLine *line, const char *title,
@@ -486,7 +486,7 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
       break;
 
     case FUNC_PLAY_VALUE:
-      addSourceChoice(line, STR_VALUE, cfn, MIXSRC_LAST_TELEM);
+      addSourceChoice(line, STR_VALUE, cfn, MIXSRC_LAST_TELEM, false);
       break;
 
     case FUNC_HAPTIC:
