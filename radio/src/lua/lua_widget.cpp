@@ -552,7 +552,7 @@ bool LuaWidget::useLvglLayout() const { return luaFactory()->useLvglLayout(); }
 
 bool LuaWidget::isAppMode() const
 {
-  return fullscreen && ViewMain::instance()->isAppMode();
+  return ViewMain::instance()->isAppMode();
 }
 
 void LuaScriptManager::saveLvglObjectRef(int ref)
