@@ -52,7 +52,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   this->setWindowTitle(tr("DEST -> %1").arg(RawSource(SOURCE_TYPE_CH, md->destCh).toString(&model, &generalSettings)));
 
   int imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                                              (RawSource::InputSourceGroups & ~RawSource::NoneGroup) | RawSource::ScriptsGroup),
+                                                         (RawSource::AllSourceGroups & ~RawSource::NoneGroup)),
                                                          "RawSource");
 
   ui->sourceCB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -64,7 +64,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   int limit = firmware->getCapability(OffsetWeight);
 
   imId = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
-                                                                           (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup)),
+                                                     (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup)),
                                                      "EditorSource");
 
   FilteredItemModel *esMdl = dialogFilteredItemModels->getItemModel(imId);
