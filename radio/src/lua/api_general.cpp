@@ -2536,7 +2536,6 @@ static int luaSetVirtualSwitch(lua_State * L)
     else {
       virtualSwitches &= ~(uint64_t{1} << (sw - 1));
     }
-//    TRACE("luaSetVirtualSwitch: %d, %b", (sw - 1), on);
   }
   return 0;
 }
@@ -2549,6 +2548,19 @@ static int luaSetVirtualInput(lua_State * L)
     virtualInputs[ch - 1] = value;
   }
   return 0;
+}
+static int luaGetVirtualInput(lua_State * L)
+{
+  const int ch = luaL_checkinteger(L, 1);
+
+  if (1 <= ch && ch <= MAX_VIRTUAL_INPUTS) {
+    const int value = virtualInputs[ch - 1];
+    lua_pushinteger(L, value);
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
 }
 #endif
 
@@ -3255,6 +3267,7 @@ LROT_BEGIN(etxlib, NULL, 0)
 #endif
 #if defined(VCONTROLS) && defined(COLORLCD)
   LROT_FUNCENTRY( setVirtualInput, luaSetVirtualInput)
+  LROT_FUNCENTRY( getVirtualInput, luaGetVirtualInput)
   LROT_FUNCENTRY( setVirtualSwitch, luaSetVirtualSwitch)
   LROT_FUNCENTRY( getVirtualSwitch, luaGetVirtualSwitch)
   LROT_FUNCENTRY( activateVirtualSwitch, luaActivateVirtualSwitch)
