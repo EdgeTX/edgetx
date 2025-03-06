@@ -619,7 +619,7 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
   return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||
          isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) ||
          isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx) ||
-         (isModuleELRS(moduleIdx) && (crossfireModuleStatus[moduleIdx].major >= 4 || (crossfireModuleStatus[moduleIdx].major == 3 && crossfireModuleStatus[moduleIdx].minor >= 4)));
+         (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4));
 }
 
 inline uint32_t getNV14RfFwVersion()
