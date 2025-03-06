@@ -57,19 +57,6 @@
   #include "csd203_sensor.h"
 #endif
 
-#if defined(LED_STRIP_GPIO)
-// Common LED driver
-extern const stm32_pulse_timer_t _led_timer;
-
-void ledStripOff()
-{
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
-}
-#endif
-
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
 
@@ -232,8 +219,7 @@ void boardInit()
   hapticInit();
 
 #if defined(LED_STRIP_GPIO)
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
-  ledStripOff();
+  rgbLedInit();
 #endif
 
 #if defined(BLUETOOTH)
