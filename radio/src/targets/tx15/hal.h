@@ -367,7 +367,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_UART4_RX
 
 // LED Strip
-#define LED_STRIP_LENGTH                  6 + 10 + 10  // 6POS + 2 rings of 10
+#define LED_STRIP_LENGTH                  (6 + 10 + 10)  // 6POS + 2 rings of 10
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 0)  // PA.00 / TIM2_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
 #define LED_STRIP_TIMER                   TIM2
