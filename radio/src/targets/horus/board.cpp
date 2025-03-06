@@ -131,12 +131,13 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
   }
   if (dirty) {
     for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState)
+      if (i == sixPosState) {
         ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      else
+      } else {
         ws2812_set_color(i, 0, 0, 0);
+      }
     }
-    ws2812_update(&_led_timer);
+    rgbLedColorApply();
   }
   return (4096/5)*(sixPosState);
 }
