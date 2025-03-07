@@ -40,18 +40,19 @@
 */
 
 // Keys
-#define KEYS_GPIO_REG_ENTER           GPIOG
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_13  // PG.13
+#define KEYS_GPIO_REG_ENTER
+#define KEYS_GPIO_PIN_ENTER
+#define KEYS_GPIO_ENTER               GPIO_PIN(GPIOG, 13) // PG.13
 
 // Keys in bsp matrix
-//#define KEYS_GPIO_REG_PAGEUP
-//#define KEYS_GPIO_PIN_PAGEUP
-//#define KEYS_GPIO_REG_PAGEDN
-//#define KEYS_GPIO_PIN_PAGEDN
-//#define KEYS_GPIO_REG_SYS
-//#define KEYS_GPIO_PIN_SYS
-//#define KEYS_GPIO_REG_EXIT
-//#define KEYS_GPIO_PIN_EXIT
+#define KEYS_GPIO_REG_PAGEUP
+#define KEYS_GPIO_PIN_PAGEUP
+#define KEYS_GPIO_REG_PAGEDN
+#define KEYS_GPIO_PIN_PAGEDN
+#define KEYS_GPIO_REG_SYS
+#define KEYS_GPIO_PIN_SYS
+#define KEYS_GPIO_REG_EXIT
+#define KEYS_GPIO_PIN_EXIT
 
 // Trims in bsp matrix
 #define TRIMS_GPIO_REG_LHL
