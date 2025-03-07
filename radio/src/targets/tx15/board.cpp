@@ -58,6 +58,7 @@
 
 
 #include "touch_driver.h"
+#include "imu_icm42607p.h"
 
 #include <string.h>
 
@@ -263,6 +264,8 @@ void boardInit()
 #endif
  
   lcdSetInitalFrameBuffer(lcdFront->getData());
+
+  imu_icm42607p_init();
 }
 
 extern void rtcDisableBackupReg();
