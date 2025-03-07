@@ -26,42 +26,24 @@
 #include "hal/switch_driver.h"
 
 // Input port expander
-#define BSP_EXT_KEY1 PCA95XX_PIN_0
-#define BSP_EXT_KEY2 PCA95XX_PIN_1
-#define BSP_EXT_KEY3 PCA95XX_PIN_2
-#define BSP_EXT_KEY4 PCA95XX_PIN_3
-#define BSP_EXT_KEY5 PCA95XX_PIN_4
-#define BSP_EXT_KEY6 PCA95XX_PIN_5
-
-#define BSP_BACK_KEY1 PCA95XX_PIN_6
-#define BSP_BACK_KEY2 PCA95XX_PIN_7
-
-#define BSP_TR1U PCA95XX_PIN_8
-#define BSP_TR1D PCA95XX_PIN_9
-#define BSP_TR3L PCA95XX_PIN_10
-#define BSP_TR3R PCA95XX_PIN_11
-#define BSP_TR2U PCA95XX_PIN_12
-#define BSP_TR2D PCA95XX_PIN_13
-#define BSP_TR4L PCA95XX_PIN_14
-#define BSP_TR4R PCA95XX_PIN_15
+#define BSP_KEY_IN1 PCA95XX_PIN_0
+#define BSP_KEY_IN2 PCA95XX_PIN_1
+#define BSP_KEY_IN3 PCA95XX_PIN_2
+#define BSP_KEY_IN4 PCA95XX_PIN_3
 
 // Output port expander
-#define BSP_AUDIO_RST PCA95XX_PIN_0
-#define BSP_PA_NMUTE  PCA95XX_PIN_1
-#define BSP_INT_PWR   PCA95XX_PIN_2
-#define BSP_EXT_PWR   PCA95XX_PIN_3
-#define BSP_CHARGE_EN PCA95XX_PIN_4
-#define BSP_LCD_NRST  PCA95XX_PIN_5
-#define BSP_USB_SW    PCA95XX_PIN_6
-#define BSP_PWR_LED   PCA95XX_PIN_7
-#define BSP_LCD_CS    PCA95XX_PIN_8
-#define BSP_RF_BOOT0  PCA95XX_PIN_9
-#define BSP_USB_SWB   PCA95XX_PIN_10
+#define BSP_CHARGE_EN PCA95XX_PIN_8
+#define BSP_GPIO0     PCA95XX_PIN_9
+#define BSP_KEY_OUT1  PCA95XX_PIN_10
+#define BSP_KEY_OUT2  PCA95XX_PIN_11
+#define BSP_KEY_OUT3  PCA95XX_PIN_12
+#define BSP_KEY_OUT4  PCA95XX_PIN_13
 
 int bsp_io_init();
 
 void bsp_output_set(uint16_t pin);
+void bsp_output_set(uint16_t mask, uint16_t pin);
 void bsp_output_clear(uint16_t pin);
 
-uint16_t bsp_input_read();
+uint16_t bsp_input_get();
 SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx);
