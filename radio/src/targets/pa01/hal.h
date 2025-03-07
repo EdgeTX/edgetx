@@ -42,13 +42,18 @@
 // Keys
 #define KEYS_GPIO_REG_ENTER           GPIOG
 #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_13  // PG.13
-/*
-#define KEYS_GPIO_REG_PAGEDN          GPIOA
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_2   // PA.02
-#define KEYS_GPIO_REG_EXIT            GPIOC
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_5   // PC.05
-*/
-// Trims
+
+// Keys in bsp matrix
+//#define KEYS_GPIO_REG_PAGEUP
+//#define KEYS_GPIO_PIN_PAGEUP
+//#define KEYS_GPIO_REG_PAGEDN
+//#define KEYS_GPIO_PIN_PAGEDN
+//#define KEYS_GPIO_REG_SYS
+//#define KEYS_GPIO_PIN_SYS
+//#define KEYS_GPIO_REG_EXIT
+//#define KEYS_GPIO_PIN_EXIT
+
+// Trims in bsp matrix
 #define TRIMS_GPIO_REG_LHL
 #define TRIMS_GPIO_PIN_LHL
 

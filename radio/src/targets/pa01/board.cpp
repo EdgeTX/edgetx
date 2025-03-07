@@ -93,22 +93,22 @@ extern "C" void flushFTL();
 
 void INTERNAL_MODULE_ON()
 {
-  bsp_output_clear(BSP_INT_PWR);
+//  bsp_output_clear(BSP_INT_PWR);
 }
 
 void INTERNAL_MODULE_OFF()
 {
-  bsp_output_set(BSP_INT_PWR);
+//  bsp_output_set(BSP_INT_PWR);
 }
 
 void EXTERNAL_MODULE_ON()
 {
-  bsp_output_clear(BSP_EXT_PWR);
+//  bsp_output_clear(BSP_EXT_PWR);
 }
 
 void EXTERNAL_MODULE_OFF()
 {
-  bsp_output_set(BSP_EXT_PWR);
+//  bsp_output_set(BSP_EXT_PWR);
 }
 
 
@@ -158,7 +158,7 @@ void boardInit()
   timersInit();
 
   bsp_io_init();
-  bsp_output_set(BSP_PWR_LED);
+//  bsp_output_set(BSP_PWR_LED);
 
   ExtFLASH_InitRuntime();
 
