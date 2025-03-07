@@ -25,6 +25,7 @@
 #define LVGL_SIMPLEMETATABLE "LVGLSIMPLE*"
 
 class LuaScriptManager;
+class LvglDialog;
 
 //-----------------------------------------------------------------------------
 
@@ -46,6 +47,7 @@ class LvglWidgetObjectBase
   virtual void hide() = 0;
   virtual void enable() {};
   virtual void disable() {};
+  virtual void close() {};
 
   virtual void setColor(LcdFlags newColor) {}
   virtual void setOpacity(uint8_t newOpa) {}
@@ -654,9 +656,11 @@ class LvglWidgetDialog : public LvglWidgetObject
   LvglWidgetDialog() : LvglWidgetObject() {}
 
   void clearRefs(lua_State *L) override;
+  void close() override;
 
  protected:
   const char *title = nullptr;
+  LvglDialog* dialog = nullptr;
 
   int closeFunction = LUA_REFNIL;
 
