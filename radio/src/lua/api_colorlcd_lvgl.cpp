@@ -145,6 +145,15 @@ static int luaLvglDisable(lua_State *L)
   return 0;
 }
 
+static int luaLvglClose(lua_State *L)
+{
+  auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
+  if (p) {
+    p->close();
+  }
+  return 0;
+}
+
 class LvglWidgetParams
 {
  public:
@@ -363,6 +372,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(hide, luaLvglHide)
   LROT_FUNCENTRY(enable, luaLvglEnable)
   LROT_FUNCENTRY(disable, luaLvglDisable)
+  LROT_FUNCENTRY(close, luaLvglClose)
   LROT_NUMENTRY(FLOW_ROW, LV_FLEX_FLOW_ROW)
   LROT_NUMENTRY(FLOW_COLUMN, LV_FLEX_FLOW_COLUMN)
   LROT_NUMENTRY(PAD_TINY, PAD_TINY)
@@ -445,6 +455,7 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(hide, luaLvglHide)
   LROT_FUNCENTRY(enable, luaLvglEnable)
   LROT_FUNCENTRY(disable, luaLvglDisable)
+  LROT_FUNCENTRY(close, luaLvglClose)
 LROT_END(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
 
 extern "C" {

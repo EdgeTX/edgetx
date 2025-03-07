@@ -1896,14 +1896,14 @@ class LvglDialog : public BaseDialog
 
   Window *getBody() { return form; }
 
- protected:
-  std::function<void()> onClose;
-
   void onCancel() override
   {
     onClose();
     BaseDialog::onCancel();
   }
+
+ protected:
+  std::function<void()> onClose;
 };
 
 void LvglWidgetDialog::parseParam(lua_State *L, const char *key)
@@ -1929,9 +1929,16 @@ void LvglWidgetDialog::build(lua_State *L)
   if (h == LV_SIZE_CONTENT) h = DIALOG_DEFAULT_HEIGHT;
   auto dlg = new LvglDialog(title, w, h,
       [=]() { pcallSimpleFunc(L, closeFunction); });
+  dialog = dlg;
   window = dlg->getBody();
   window->setWidth(w);
   setFlex();
+}
+
+void LvglWidgetDialog::close()
+{
+  dialog->onCancel();
+  clear();
 }
 
 //-----------------------------------------------------------------------------
