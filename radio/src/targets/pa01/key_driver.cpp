@@ -64,7 +64,8 @@ enum PhysicalKeys
   KEY1 = 12,
   KEY2,
   KEY3 = 14,
-  KEY4
+  KEY4,
+  ENT  = 16
 };
 
 static uint32_t _readKeyMatrix()
@@ -137,13 +138,19 @@ static uint32_t _readKeyMatrix()
   if (bsp_input & BSP_KEY_IN4)
     result |= KEY4;
 
+  if (gpio_read(KEYS_GPIO_ENTER))
+    result |= ENT;
+
   syncelem.oldResult = result;
   syncelem.ui8ReadInProgress = 0;
 
   return result;
 }
 
-void keysInit() {}
+void keysInit()
+{
+  gpio_init(KEYS_GPIO_ENTER, GPIO_IN, GPIO_PIN_SPEED_LOW);
+}
 
 uint32_t readKeys()
 {
@@ -154,6 +161,7 @@ uint32_t readKeys()
   if (mkeys & (1 << PGDN)) result |= 1 << KEY_PAGEDN;
   if (mkeys & (1 << RTN))  result |= 1 << KEY_EXIT;
   if (mkeys & (1 << MENU)) result |= 1 << KEY_SYS;
+  if (mkeys & (1 << ENT)) result |= 1 << KEY_ENTER;
 
   return result;
 }
