@@ -30,11 +30,9 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-#include "stm32_keys.inc"
-
-void keysInit() { _init_keys(); }
-
-uint32_t readKeys() { return _read_keys(); }
+#define BSP_READ_AFTER_WRITE_DELAY    10 // us
+#define BSP_KEY_OUT_MASK                                      \
+  (BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4)
 
 /* The output bit-order has to be:
    0  LHL  TR3L (Left equals down)
@@ -47,7 +45,9 @@ uint32_t readKeys() { return _read_keys(); }
    7  RHR  TR4R
 */
 
-enum PhysicalTrims {
+enum PhysicalKeys
+{
+  // Trims
   TR3L = 0,
   TR3R,
   TR1D = 2,
@@ -55,27 +55,112 @@ enum PhysicalTrims {
   TR2D = 4,
   TR2U,
   TR4L = 6,
-  TR4R
+  TR4R,
+  // Keys
+  PGUP = 8,
+  PGDN,
+  RTN = 10,
+  MENU,
+  KEY1 = 12,
+  KEY2,
+  KEY3 = 14,
+  KEY4
 };
+
+static uint32_t _readKeyMatrix()
+{
+  // This function avoids concurrent matrix agitation
+
+  uint32_t result = 0;
+  uint16_t bsp_input = 0;
+
+  volatile static struct
+  {
+    uint32_t oldResult = 0;
+    uint8_t ui8ReadInProgress = 0;
+  } syncelem;
+
+  if (syncelem.ui8ReadInProgress != 0) return syncelem.oldResult;
+
+  // ui8ReadInProgress was 0, increment it
+  syncelem.ui8ReadInProgress++;
+  // Double check before continuing, as non-atomic, non-blocking so far
+  // If ui8ReadInProgress is above 1, then there was concurrent task calling it, exit
+  if (syncelem.ui8ReadInProgress > 1) return syncelem.oldResult;
+
+  // If we land here, we have exclusive access to Matrix
+  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT1);
+  delay_us(BSP_READ_AFTER_WRITE_DELAY);
+  bsp_input = bsp_input_get();
+  if (bsp_input & BSP_KEY_IN1)
+    result |= TR1D;
+  if (bsp_input & BSP_KEY_IN2)
+    result |= TR1U;
+  if (bsp_input & BSP_KEY_IN3)
+    result |= TR2D;
+  if (bsp_input & BSP_KEY_IN4)
+    result |= TR2U;
+
+  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT2);
+  delay_us(BSP_READ_AFTER_WRITE_DELAY);
+  bsp_input = bsp_input_get();
+  if (bsp_input & BSP_KEY_IN1)
+    result |= TR3L;
+  if (bsp_input & BSP_KEY_IN2)
+    result |= TR3R;
+  if (bsp_input & BSP_KEY_IN3)
+    result |= TR4R;
+  if (bsp_input & BSP_KEY_IN4)
+    result |= TR4L;
+
+  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT3);
+  delay_us(BSP_READ_AFTER_WRITE_DELAY);
+  bsp_input = bsp_input_get();
+  if (bsp_input & BSP_KEY_IN1)
+    result |= PGUP;
+  if (bsp_input & BSP_KEY_IN2)
+    result |= PGDN;
+  if (bsp_input & BSP_KEY_IN3)
+    result |= RTN;
+  if (bsp_input & BSP_KEY_IN4)
+    result |= MENU;
+
+  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT4);
+  delay_us(BSP_READ_AFTER_WRITE_DELAY);
+  bsp_input = bsp_input_get();
+  if (bsp_input & BSP_KEY_IN1)
+    result |= KEY1;
+  if (bsp_input & BSP_KEY_IN2)
+    result |= KEY2;
+  if (bsp_input & BSP_KEY_IN3)
+    result |= KEY3;
+  if (bsp_input & BSP_KEY_IN4)
+    result |= KEY4;
+
+  syncelem.oldResult = result;
+  syncelem.ui8ReadInProgress = 0;
+
+  return result;
+}
+
+void keysInit() {}
+
+uint32_t readKeys()
+{
+  uint32_t result = 0;
+
+  uint32_t mkeys = _readKeyMatrix();
+  if (mkeys & (1 << PGUP)) result |= 1 << KEY_PAGEUP;
+  if (mkeys & (1 << PGDN)) result |= 1 << KEY_PAGEDN;
+  if (mkeys & (1 << RTN))  result |= 1 << KEY_EXIT;
+  if (mkeys & (1 << MENU)) result |= 1 << KEY_SYS;
+
+  return result;
+}
 
 uint32_t readTrims()
 {
-  uint32_t result = 0;
-  uint16_t keys = bsp_input_read();
-  
-#define _TRIM(t) \
-  if ((keys & BSP_##t) == 0) result |= 1 << t;
+  uint32_t mkeys = _readKeyMatrix();
 
-  _TRIM(TR1U);
-  _TRIM(TR1D);
-  _TRIM(TR3L);
-  _TRIM(TR3R);
-  _TRIM(TR2U);
-  _TRIM(TR2D);
-  _TRIM(TR4L);
-  _TRIM(TR4R);
-
-#undef _TRIM
-
-  return result;
+  return mkeys & 0xff;  // Mask only the trims output
 }
