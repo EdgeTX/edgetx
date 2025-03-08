@@ -389,20 +389,8 @@ if(DISABLE_MCUCHECK)
   add_definitions(-DDISABLE_MCUCHECK)
 endif()
 
-if(HAS_CSD203_SENSOR)
-  set(SRC ${SRC} csd203_sensor.cpp)
-  add_definitions(-DCSD203_SENSOR)
-endif()
-if(HAS_CI1302_SENSOR)
-  set(SRC ${SRC} CI1302.cpp)
-  add_definitions(-DCI1302_SENSOR)
-endif()
-if(HAS_GYRO_SENSOR)
-  set(SRC ${SRC}
-        imu_42627.cpp
-        imu4.cpp
-        )
-  add_definitions(-DGYRO_SENSOR)
+if(HAS_GIMBAL_RGB)
+  add_definitions(-DHR_GIMBAL_RGB)
 endif()
 
 set(SRC
