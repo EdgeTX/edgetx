@@ -30,7 +30,7 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-#define BSP_READ_AFTER_WRITE_DELAY    10 // us
+#define BSP_READ_AFTER_WRITE_DELAY    100 // us
 #define BSP_KEY_OUT_MASK                                      \
   (BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4)
 
@@ -90,56 +90,56 @@ static uint32_t _readKeyMatrix()
   if (syncelem.ui8ReadInProgress > 1) return syncelem.oldResult;
 
   // If we land here, we have exclusive access to Matrix
-  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT1);
+  bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT1);
   delay_us(BSP_READ_AFTER_WRITE_DELAY);
   bsp_input = bsp_input_get();
-  if (bsp_input & BSP_KEY_IN1)
-    result |= TR1D;
-  if (bsp_input & BSP_KEY_IN2)
-    result |= TR1U;
-  if (bsp_input & BSP_KEY_IN3)
-    result |= TR2D;
-  if (bsp_input & BSP_KEY_IN4)
-    result |= TR2U;
+  if ((bsp_input & BSP_KEY_IN1) == 0)
+    result |= 1<<TR1U;
+  if ((bsp_input & BSP_KEY_IN2) == 0)
+    result |= 1<<TR1D;
+  if ((bsp_input & BSP_KEY_IN3) == 0)
+    result |= 1<<TR2U;
+  if ((bsp_input & BSP_KEY_IN4) == 0)
+    result |= 1<<TR2D;
 
-  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT2);
+  bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT2);
   delay_us(BSP_READ_AFTER_WRITE_DELAY);
   bsp_input = bsp_input_get();
-  if (bsp_input & BSP_KEY_IN1)
-    result |= TR3L;
-  if (bsp_input & BSP_KEY_IN2)
-    result |= TR3R;
-  if (bsp_input & BSP_KEY_IN3)
-    result |= TR4R;
-  if (bsp_input & BSP_KEY_IN4)
-    result |= TR4L;
+  if ((bsp_input & BSP_KEY_IN1) == 0)
+    result |= 1<<TR3L;
+  if ((bsp_input & BSP_KEY_IN2) == 0)
+    result |= 1<<TR3R;
+  if ((bsp_input & BSP_KEY_IN3) == 0)
+    result |= 1<<TR4L;
+  if ((bsp_input & BSP_KEY_IN4) == 0)
+    result |= 1<<TR4R;
 
-  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT3);
+  bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT3);
   delay_us(BSP_READ_AFTER_WRITE_DELAY);
   bsp_input = bsp_input_get();
-  if (bsp_input & BSP_KEY_IN1)
-    result |= PGUP;
-  if (bsp_input & BSP_KEY_IN2)
-    result |= PGDN;
-  if (bsp_input & BSP_KEY_IN3)
-    result |= RTN;
-  if (bsp_input & BSP_KEY_IN4)
-    result |= MENU;
+  if ((bsp_input & BSP_KEY_IN1) == 0)
+    result |= 1<<PGDN;
+  if ((bsp_input & BSP_KEY_IN2) == 0)
+    result |= 1<<PGUP;
+  if ((bsp_input & BSP_KEY_IN3) == 0)
+    result |= 1<<RTN;
+  if ((bsp_input & BSP_KEY_IN4) == 0)
+    result |= 1<<MENU;
 
-  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT4);
+  bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT4);
   delay_us(BSP_READ_AFTER_WRITE_DELAY);
   bsp_input = bsp_input_get();
-  if (bsp_input & BSP_KEY_IN1)
-    result |= KEY1;
-  if (bsp_input & BSP_KEY_IN2)
-    result |= KEY2;
-  if (bsp_input & BSP_KEY_IN3)
-    result |= KEY3;
-  if (bsp_input & BSP_KEY_IN4)
-    result |= KEY4;
+  if ((bsp_input & BSP_KEY_IN1) == 0)
+    result |= 1<<KEY1;
+  if ((bsp_input & BSP_KEY_IN2) == 0)
+    result |= 1<<KEY2;
+  if ((bsp_input & BSP_KEY_IN3) == 0)
+    result |= 1<<KEY3;
+  if ((bsp_input & BSP_KEY_IN4) == 0)
+    result |= 1<<KEY4;
 
-  if (gpio_read(KEYS_GPIO_ENTER))
-    result |= ENT;
+  if (gpio_read(KEYS_GPIO_ENTER) == 0)
+    result |= 1<<ENT;
 
   syncelem.oldResult = result;
   syncelem.ui8ReadInProgress = 0;
@@ -161,7 +161,7 @@ uint32_t readKeys()
   if (mkeys & (1 << PGDN)) result |= 1 << KEY_PAGEDN;
   if (mkeys & (1 << RTN))  result |= 1 << KEY_EXIT;
   if (mkeys & (1 << MENU)) result |= 1 << KEY_SYS;
-  if (mkeys & (1 << ENT)) result |= 1 << KEY_ENTER;
+  if (mkeys & (1 << ENT))  result |= 1 << KEY_ENTER;
 
   return result;
 }
