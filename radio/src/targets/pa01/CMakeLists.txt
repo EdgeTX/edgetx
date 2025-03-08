@@ -128,7 +128,7 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/rtc_driver.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
-  drivers/pca95xx.cpp
+  drivers/aw9523b.cpp
 )
 
 # Bootloader board library
