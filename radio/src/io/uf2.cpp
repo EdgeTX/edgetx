@@ -193,6 +193,7 @@ void writeUF2FirmwareVersion(void* block)
 
 void writeUF2RebootBlock(void* block)
 {
+#if !defined(SIMU)
   extern uint32_t _reboot_cmd;
   
   UF2_Block* uf2 = (UF2_Block*)block;
@@ -209,5 +210,6 @@ void writeUF2RebootBlock(void* block)
 
   uint32_t reboot_addr = BOOTLOADER_ADDRESS;
   memcpy(end_data, &reboot_addr, sizeof(reboot_addr));
+#endif
 }
 #endif
