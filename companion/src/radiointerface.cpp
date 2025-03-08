@@ -299,8 +299,8 @@ bool writeSettings(const QString & filename, ProgressWidget * progress)
 
 QString findMassstoragePath(const QString & filename, bool onlyPath, ProgressWidget *progress)
 {
-  QString temppath;
-  QString probefile;
+  QString foundPath;
+  QString foundProbefile;
   int found = 0;
 
   QRegularExpression fstypeRe("^(v?fat|msdos|lifs)", QRegularExpression::CaseInsensitiveOption);  // Linux: "vfat"; macOS: "msdos" or "lifs"; Win: "FAT32"
@@ -309,17 +309,21 @@ QString findMassstoragePath(const QString & filename, bool onlyPath, ProgressWid
     //qDebug() << si.rootPath() << si.name() << si.device() << si.displayName() << si.fileSystemType() << si.isReady() << si.bytesTotal() << si.blockSize();
     if (!si.isReady() || si.isReadOnly() || !QString(si.fileSystemType()).contains(fstypeRe))
       continue;
-    temppath = si.rootPath();
-    probefile = temppath % "/" % filename;
+
+    QString temppath = si.rootPath();
+    QString probefile = temppath % "/" % filename;
     qDebug() << "Searching for" << probefile;
+
     if (QFile::exists(probefile)) {
       found++;
+      foundPath = temppath;
+      foundProbefile = probefile;
       qDebug() << probefile << "found";
     }
   }
 
   if (found == 1)
-    return onlyPath ? temppath : probefile;
+    return onlyPath ? foundPath : foundProbefile;
   else if (found > 1) {
     QMessageBox::critical(progress, CPN_STR_TTL_ERROR, filename % " " % QCoreApplication::translate("RadioInterface", "found in multiple locations"));
   }
