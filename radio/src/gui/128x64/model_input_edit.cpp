@@ -57,15 +57,10 @@ uint8_t FM_ROW(uint8_t value)
 
 void menuModelExpoOne(event_t event)
 {
-#if defined(NAVIGATION_XLITE)
-  if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
+  if (EVT_KEY_OPEN_CHAN_VIEW(event)) {
     pushMenu(menuChannelsView);
   }
-#else
-  if (event == EVT_KEY_BREAK(KEY_MODEL) || event == EVT_KEY_BREAK(KEY_MENU)) {
-    pushMenu(menuChannelsView);
-  }
-#endif
+
   ExpoData * ed = expoAddress(s_currIdx);
   drawSource(PSIZE(TR_MENUINPUTS)*FW+FW, 0, MIXSRC_FIRST_INPUT+ed->chn, 0);
 

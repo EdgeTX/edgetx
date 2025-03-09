@@ -50,15 +50,10 @@ enum USBJFields {
 
 void menuModelUSBJoystickOne(event_t event)
 {
-#if defined(NAVIGATION_XLITE)
-  if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
+  if (EVT_KEY_OPEN_CHAN_VIEW(event)) {
     pushMenu(menuChannelsView);
   }
-#else
-  if (event == EVT_KEY_BREAK(KEY_MODEL) || event == EVT_KEY_BREAK(KEY_MENU)) {
-    pushMenu(menuChannelsView);
-  }
-#endif
+
   USBJoystickChData * cch = usbJChAddress(s_currIdx);
   putsChn(12*FW, 0, s_currIdx+1, 0);
   lcdDrawNumber(20*FW, 0, channelOutputs[s_currIdx], RIGHT);

@@ -190,7 +190,7 @@ event_t getTrimEvent();
 void pauseTrimEvents(event_t event);
 void killTrimEvents(event_t event);
 
-uint8_t keysGetState(uint8_t key);
+bool keysGetState(uint8_t key);
 uint8_t keysGetTrimState(uint8_t trim);
 
 bool keysPollingCycle();
