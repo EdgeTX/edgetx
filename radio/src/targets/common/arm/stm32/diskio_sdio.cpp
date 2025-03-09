@@ -91,10 +91,6 @@
 
 
 #if defined(SDMMC1) && defined(SD_SDIO)
-#  if !defined(SD_SDIO_IRQHandler)
-#    define SD_SDIO_IRQHandler SDMMC1_IRQHandler
-#    define SD_SDIO_IRQn       SDMMC1_IRQn
-#  endif
 #  define SD_SDIO_TypeDef SDMMC_TypeDef
 #  define SD_SDIO_CLOCK_EDGE_RISING SDMMC_CLOCK_EDGE_RISING
 #  define SD_SDIO_CLOCK_POWER_SAVE_DISABLE SDMMC_CLOCK_POWER_SAVE_DISABLE
@@ -107,8 +103,6 @@
 #  endif
 #  define _SD_SDIO_CLK_ENABLE()  __HAL_RCC_SDIO_CLK_ENABLE()
 #  define _SD_SDIO_CLK_DISABLE()  __HAL_RCC_SDIO_CLK_DISABLE()
-#  define SD_SDIO_IRQHandler SDIO_IRQHandler
-#  define SD_SDIO_IRQn       SDIO_IRQn
 #  define SD_SDIO_TypeDef    SDIO_TypeDef
 #  define SD_SDIO_CLOCK_EDGE_RISING SDIO_CLOCK_EDGE_RISING
 #  define SD_SDIO_CLOCK_POWER_SAVE_DISABLE SDIO_CLOCK_POWER_SAVE_DISABLE
@@ -117,6 +111,23 @@
 #  define SD_SDIO_BUS_WIDE_4B SDIO_BUS_WIDE_4B
 #  define SD_SDIO_HARDWARE_FLOW_CONTROL_DISABLE SDIO_HARDWARE_FLOW_CONTROL_DISABLE
 #endif
+
+struct {
+  SDMMC_TypeDef* periph = SDMMC1;
+  gpio_t  D0 = SD_SDIO_PIN_D0;
+  gpio_t  D1 = SD_SDIO_PIN_D1;
+  gpio_t  D2 = SD_SDIO_PIN_D2;
+  gpio_t  D3 = SD_SDIO_PIN_D3;
+  gpio_t  CMD = SD_SDIO_PIN_CMD;
+  gpio_t  CLK = SD_SDIO_PIN_CLK;
+  gpio_af_t  AF_D0 = SD_SDIO_AF_D0;
+  gpio_af_t  AF_D1 = SD_SDIO_AF_D1;
+  gpio_af_t  AF_D2 = SD_SDIO_AF_D2;
+  gpio_af_t  AF_D3 = SD_SDIO_AF_D3;
+  gpio_af_t  AF_CMD = SD_SDIO_AF_CMD;
+  gpio_af_t  AF_CLK = SD_SDIO_AF_CLK;
+  IRQn_Type  IRQn = SDMMC1_IRQn;
+} currentSD;
 
 #if FF_MAX_SS != FF_MIN_SS
 #error "Variable sector size is not supported"
@@ -179,26 +190,26 @@ static void _sd_sdio_clk_enable(SD_SDIO_TypeDef* periph)
 
 static void sdio_low_level_init(void)
 {
-  _sd_sdio_clk_enable(SD_SDIO);
+  _sd_sdio_clk_enable(currentSD.periph);
 
   // data pins
-  gpio_init(SD_SDIO_PIN_D0, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_D0, SD_SDIO_AF_D0);
+  gpio_init(currentSD.D0, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.D0, currentSD.AF_D0);
 
-  gpio_init(SD_SDIO_PIN_D1, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_D1, SD_SDIO_AF_D1);
-  
-  gpio_init(SD_SDIO_PIN_D2, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_D2, SD_SDIO_AF_D2);
+  gpio_init(currentSD.D1, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.D1, currentSD.AF_D1);
 
-  gpio_init(SD_SDIO_PIN_D3, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_D3, SD_SDIO_AF_D3);
+  gpio_init(currentSD.D2, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.D2, currentSD.AF_D2);
 
-  gpio_init(SD_SDIO_PIN_CMD, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_CMD, SD_SDIO_AF_CMD);
-  
-  gpio_init(SD_SDIO_PIN_CLK, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-  gpio_set_af(SD_SDIO_PIN_CLK, SD_SDIO_AF_CLK);
+  gpio_init(currentSD.D3, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.D3, currentSD.AF_D3);
+
+  gpio_init(currentSD.CMD, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.CMD, currentSD.AF_CMD);
+
+  gpio_init(currentSD.CLK, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
+  gpio_set_af(currentSD.CLK, currentSD.AF_CLK);
 
 #if defined(SD_SDIO_HAS_TRANSCEIVER)
   gpio_init_af(SD_SDIO_PIN_CKIN, SD_SDIO_AF_CKIN, GPIO_PIN_SPEED_HIGH);
@@ -208,8 +219,13 @@ static void sdio_low_level_init(void)
 #endif
 
   // SDIO Interrupt ENABLE
+#if defined(SD_SDIO)
+  NVIC_SetPriority(currentSD.IRQn, 0);
+  NVIC_EnableIRQ(currentSD.IRQn);
+#else
   NVIC_SetPriority(SD_SDIO_IRQn, 0);
   NVIC_EnableIRQ(SD_SDIO_IRQn);
+#endif
 
 #if defined(SD_SDIO_DMA)
   // Init SDIO DMA instance
@@ -241,6 +257,26 @@ static void sdio_low_level_init(void)
 HAL_SD_CardInfoTypeDef cardInfo;
 static DSTATUS sdio_initialize(BYTE lun)
 {
+#if defined(SD2_PRESENT_GPIO)
+  /* Define active SD */
+  if (gpio_read(SD2_PRESENT_GPIO) == 0) {
+    currentSD.periph = SDMMC2;
+    currentSD.D0 = SD2_SDIO_PIN_D0;
+    currentSD.AF_D0 = SD2_SDIO_AF_D0;
+    currentSD.D1 = SD2_SDIO_PIN_D1;
+    currentSD.AF_D1 = SD2_SDIO_AF_D1;
+    currentSD.D2 = SD2_SDIO_PIN_D2;
+    currentSD.AF_D2 = SD2_SDIO_AF_D2;
+    currentSD.D3 = SD2_SDIO_PIN_D3;
+    currentSD.AF_D3 = SD2_SDIO_AF_D3;
+    currentSD.CMD = SD2_SDIO_PIN_CMD;
+    currentSD.AF_CMD = SD2_SDIO_AF_CMD;
+    currentSD.CLK = SD2_SDIO_PIN_CLK;
+    currentSD.AF_CLK = SD2_SDIO_AF_CLK;
+    currentSD.IRQn = SDMMC2_IRQn;
+  }
+#endif
+
   /* SDIO Peripheral Low Level Init */
   sdio_low_level_init();
 
@@ -248,7 +284,7 @@ static DSTATUS sdio_initialize(BYTE lun)
   /*!< SDIO_CK = SDIOCLK / (SDIO_TRANSFER_CLK_DIV + 2) */
   /*!< on STM32F4xx devices, SDIOCLK is fixed to 48MHz */
 
-  sdio.Instance = SD_SDIO;
+  sdio.Instance = currentSD.periph;
   sdio.Init.ClockEdge = SD_SDIO_CLOCK_EDGE_RISING;
   sdio.Init.ClockPowerSave = SD_SDIO_CLOCK_POWER_SAVE_DISABLE;
   sdio.Init.BusWide = SD_SDIO_BUS_WIDE_1B;
@@ -551,12 +587,28 @@ extern "C" void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
   ReadStatus = 1;
 }
 
+#if defined(SD_SDIO)
+#if defined(SDMMC1)
+extern "C" void SDMMC1_IRQHandler(void)
+{
+  DEBUG_INTERRUPT(INT_SDIO);
+  HAL_SD_IRQHandler(&sdio);
+}
+#endif
+#if defined(SDMMC2) && defined(SD2_PRESENT_GPIO)
+extern "C" void SDMMC2_IRQHandler(void)
+{
+  DEBUG_INTERRUPT(INT_SDIO);
+  HAL_SD_IRQHandler(&sdio);
+}
+#endif
+#else
 extern "C" void SD_SDIO_IRQHandler(void)
 {
   DEBUG_INTERRUPT(INT_SDIO);
   HAL_SD_IRQHandler(&sdio);
 }
-
+#endif
 #if defined(SD_SDIO_DMA)
 extern "C" void SD_SDIO_DMA_IRQHANDLER(void)
 {

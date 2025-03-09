@@ -315,12 +315,29 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define QSPI_FLASH_SIZE                 0x1000000
 
 
-//#define SD_PRESENT_GPIO                GPIO_PIN(GPIOD, 3) // PD.03
-#define SD_SDIO                        SDMMC1
-#define SD_SDIO_CLK_DIV(fq)            (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
-#define SD_SDIO_INIT_CLK_DIV           SD_SDIO_CLK_DIV(400000)
-#define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(20000000)
+// SD
+#define SD_SDIO                         SDMMC1
+#define SD_SDIO_CLK_DIV(fq)             (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
+#define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
+#define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(20000000)
+
+#define SD2_PRESENT_GPIO                GPIO_PIN(GPIOH, 8) // PH.08
+#define SD2_SDIO                        SDMMC2
+#define SD2_SDIO_PIN_D0                 GPIO_PIN(GPIOB, 14)
+#define SD2_SDIO_AF_D0                  GPIO_AF9
+#define SD2_SDIO_PIN_D1                 GPIO_PIN(GPIOB, 15)
+#define SD2_SDIO_AF_D1                  GPIO_AF9
+#define SD2_SDIO_PIN_D2                 GPIO_PIN(GPIOG, 11)
+#define SD2_SDIO_AF_D2                  GPIO_AF10
+#define SD2_SDIO_PIN_D3                 GPIO_PIN(GPIOB, 4)
+#define SD2_SDIO_AF_D3                  GPIO_AF9
+#define SD2_SDIO_PIN_CLK                GPIO_PIN(GPIOD, 6)
+#define SD2_SDIO_AF_CLK                 GPIO_AF11
+#define SD2_SDIO_PIN_CMD                GPIO_PIN(GPIOD, 7)
+#define SD2_SDIO_AF_CMD                 GPIO_AF11
+
 #define STORAGE_USE_SDIO
+
 
 // AUDIO
 #define AUDIO_SPI                       SPI2
