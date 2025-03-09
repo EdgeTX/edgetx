@@ -76,9 +76,9 @@ class DateTimeWindow : public Window
 
   // Absolute layout for date/time setion due to slow performance
   // of lv_textarea in a flex layout.
-  static LAYOUT_VAL(DT_EDT_W, 80, 52)
-  static LAYOUT_VAL(DT_Y1, PAD_TINY, PAD_TINY)
-  static LAYOUT_VAL(DT_Y2, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM)
+  static LAYOUT_VAL(DT_EDT_W, 80, 52, LS(80))
+  static LAYOUT_VAL(DT_Y1, PAD_TINY, PAD_TINY, PAD_TINY)
+  static LAYOUT_VAL(DT_Y2, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM)
 
  protected:
   bool init = false;

@@ -151,7 +151,7 @@ class ChannelFailsafeEdit : public NumberEdit
     update();
   }
 
-  static LAYOUT_VAL(NUM_W, 70, 70)
+  static LAYOUT_VAL(NUM_W, 70, 70, LS(70))
 };
 
 class ChannelFSCombo : public Window
