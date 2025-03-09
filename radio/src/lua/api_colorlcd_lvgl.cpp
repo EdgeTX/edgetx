@@ -359,7 +359,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(switch, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSwitchPicker(); }, true); })
   LROT_FUNCENTRY(source, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSourcePicker(); }, true); })
   // Containers
-  LROT_FUNCENTRY(box, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetBox(); }, true); })
+  LROT_FUNCENTRY(box, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetBox(); }); })
   LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }, true); })
   LROT_FUNCENTRY(page, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetPage(); }, true); })
   LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetDialog(); }, true); })
@@ -447,7 +447,7 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(switch, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSwitchPicker(); }, true); })
   LROT_FUNCENTRY(source, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSourcePicker(); }, true); })
   // Containers
-  LROT_FUNCENTRY(box, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetBox(); }, true); })
+  LROT_FUNCENTRY(box, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetBox(); }); })
   LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }, true); })
   // Object manipulation functions
   LROT_FUNCENTRY(set, luaLvglSet)
