@@ -943,25 +943,23 @@
 #endif
 #endif // HARDWARE_TOUCH
 
-
 // First I2C Bus
 #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(PCBX12S) || defined(RADIO_T15) || defined(RADIO_V16)
   #define I2C_B1                      I2C1
   #define I2C_B1_SCL_GPIO             GPIO_PIN(GPIOB, 8)  // PB.08
   #define I2C_B1_SDA_GPIO             GPIO_PIN(GPIOB, 9)  // PB.09
   #define I2C_B1_GPIO_AF              LL_GPIO_AF_4   // I2C1
-  #define I2C_B1_CLK_RATE             400000
+  #if defined(RADIO_V16)
+    #define I2C_B1_CLK_RATE           800000
+  #else
+    #define I2C_B1_CLK_RATE           400000
+  #endif
 #else
   #define I2C_B1                      I2C3
   #define I2C_B1_SCL_GPIO             GPIO_PIN(GPIOH, 7)  // PH.07
   #define I2C_B1_SDA_GPIO             GPIO_PIN(GPIOH, 8)  // PH.08
   #define I2C_B1_GPIO_AF              LL_GPIO_AF_4   // I2C3
   #define I2C_B1_CLK_RATE             400000
-#endif
-
-#if defined(RADIO_V16)
-  #undef  I2C_B1_CLK_RATE
-  #define I2C_B1_CLK_RATE               800000
 #endif
 
 // Second I2C Bus

@@ -2549,20 +2549,14 @@
 #endif
 
 // LCD driver
-#if defined(RADIO_V14)
-  //oled define
-  #define LCD_HORIZONTAL_INVERT
-  #define OLED_SCREEN
-  #define SSD1309_LCD
-#endif
 #if defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20) || defined(RADIO_MT12) || defined(RADIO_T12MAX) || defined(RADIO_V12) || defined(RADIO_BUMBLEBEE)
   #define LCD_VERTICAL_INVERT
 #endif
-#if defined(RADIO_LR3PRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12)
+#if defined(RADIO_LR3PRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_BUMBLEBEE) || defined(RADIO_GX12) || defined(RADIO_V14)
   #define LCD_HORIZONTAL_INVERT
   #define OLED_SCREEN
 #endif
-#if defined(RADIO_T14) || defined(RADIO_GX12)
+#if defined(RADIO_T14) || defined(RADIO_GX12) || defined(RADIO_V14)
   #define SSD1309_LCD
 #endif
 #if defined(PCBX9E)
@@ -2634,7 +2628,7 @@
 
 #if defined(PCBXLITE) || defined(PCBX9LITE) || defined(PCBX7ACCESS) || \
     defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_X9DP2019) || \
-    defined(RADIO_GX12)|| defined (RADIO_V12) ||defined (RADIO_V14)
+    defined(RADIO_GX12)|| defined (RADIO_V12) || defined (RADIO_V14)
   #define I2C_B1_SCL_GPIO               GPIO_PIN(GPIOB, 8)  // PB.08
   #define I2C_B1_SDA_GPIO               GPIO_PIN(GPIOB, 9)  // PB.09
 #else
@@ -2667,7 +2661,13 @@
   #define VOLUME_I2C_BUS                I2C_Bus_1
 #endif
 
-#define I2C_B1_CLK_RATE                 400000
+#if defined (RADIO_V12) ||defined (RADIO_V14)
+  #define TOUCH_I2C_BUS                 I2C_Bus_1
+
+  #define I2C_B1_CLK_RATE               800000
+#else
+  #define I2C_B1_CLK_RATE               400000
+#endif
 
 // EEPROM
 #define EEPROM_I2C_ADDRESS              0x51
@@ -2696,13 +2696,6 @@
 
   #define USE_EXTI1_IRQ
   #define EXTI1_IRQ_Priority 5
-#endif
-
-#if defined (RADIO_V12) ||defined (RADIO_V14)
-  #define TOUCH_I2C_BUS                 I2C_Bus_1
-
-  #undef  I2C_B1_CLK_RATE
-  #define I2C_B1_CLK_RATE               800000
 #endif
 
 // SD - SPI2
