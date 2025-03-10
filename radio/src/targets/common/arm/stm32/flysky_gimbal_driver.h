@@ -38,7 +38,9 @@
 #define FLYSKY_OFFSET_VALUE             ( 1 << 12 )
 
 #define FLYSKY_HALL_PROTOLO_HEAD        0x55
-#define FLYSKY_HALL_RESP_TYPE_VALUES    0x0c
+#define FLYSKY_PACKET_MODE_ID           0x04
+#define FLYSKY_PACKET_VERSION_ID        0x0b
+#define FLYSKY_PACKET_CHANNEL_ID        0x0c
 
 typedef  struct
 {
@@ -124,6 +126,17 @@ enum TRANSFER_DIR_E {
   TRANSFER_DIR_RFMODULE,
 };
 
+enum GIMBAL_VERSION {
+  GIMBAL_V1,
+  GIMBAL_V2
+};
+
+enum V2_GIMBAL_MODE {
+  V1_MODE = 0,
+  SYNC_SAMPLING = 1,   // Can serve sampling frequency < 400Hz
+  SYNC_RESAMPLING = 2  // Can serve sampling frequency up to 1000Hz
+};
+
 extern signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
 extern unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
 
@@ -131,4 +144,8 @@ extern unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
 bool flysky_gimbal_init();
 
 void flysky_gimbal_deinit();
+
+void flysky_gimbal_start_read();
+void flysky_gimbal_wait_completion();
+
 const etx_serial_port_t* flysky_gimbal_get_port();
