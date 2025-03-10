@@ -49,7 +49,7 @@ class LayoutFactory
 
   virtual const uint8_t* getBitmap() const = 0;
 
-  virtual const ZoneOption* getOptions() const = 0;
+  virtual const ZoneOption* getLayoutOptions() const = 0;
 
   virtual WidgetsContainer* create(
       Window* parent, LayoutPersistentData* persistentData) const = 0;

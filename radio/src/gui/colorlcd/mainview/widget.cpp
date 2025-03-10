@@ -57,13 +57,13 @@ void Widget::openMenu()
     return;
   }
 
-  if (getOptions() || fsAllowed) {
+  if (hasOptions() || fsAllowed) {
     Menu* menu = new Menu();
     menu->setTitle(getFactory()->getDisplayName());
     if (fsAllowed) {
       menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
     }
-    if (getOptions() && getOptions()->name) {
+    if (hasOptions()) {
       menu->addLine(STR_WIDGET_SETTINGS,
                     [=]() { new WidgetSettings(this); });
     }
@@ -146,9 +146,9 @@ bool Widget::onLongPress()
   return true;
 }
 
-const ZoneOption* Widget::getOptions() const
+const ZoneOption* Widget::getOptionDefinitions() const
 {
-  return getFactory()->getOptions();
+  return getFactory()->getDefaultOptions();
 }
 
 void Widget::enableFocus(bool enable)
@@ -253,6 +253,7 @@ void WidgetFactory::initPersistentData(Widget::PersistentData* persistentData,
 {
   if (setDefault) {
     memset(persistentData, 0, sizeof(Widget::PersistentData));
+    parseOptionDefaults();
   }
   if (options) {
     int i = 0;

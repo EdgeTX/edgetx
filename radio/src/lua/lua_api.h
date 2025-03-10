@@ -61,12 +61,6 @@ extern bool luaLcdAllowed;
 class BitmapBuffer;
 extern BitmapBuffer* luaLcdBuffer;
 
-class LuaWidget;
-extern LuaWidget* runningFS;
-
-class LuaLvglManager;
-extern LuaLvglManager* luaLvglManager;
-
 extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();
 #endif
