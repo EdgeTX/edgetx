@@ -231,8 +231,8 @@ class LogicalSwitchDisplayButton : public TextButton
   bool value = false;
 };
 
-LogicalSwitchesViewPage::LogicalSwitchesViewPage() :
-    PageTab(STR_MONITOR_SWITCHES, ICON_MONITOR_LOGICAL_SWITCHES)
+LogicalSwitchesViewPage::LogicalSwitchesViewPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 

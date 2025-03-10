@@ -21,20 +21,14 @@
 
 #pragma once
 
-#include "window.h"
+#include "pagegroup.h"
 
-class ViewMainMenu : public Window
+class ModelMenu : public PageGroup
 {
  public:
-  ViewMainMenu(Window* parent, std::function<void()> closeHandler);
+  ModelMenu();
 
-  void onCancel() override;
-  void onClicked() override;
-  void deleteLater(bool detach = true, bool trash = true) override;
-
-  static LAYOUT_VAL(QM_COLS, 4, 3)
-  static LAYOUT_VAL(QM_ROWS, 2, 3)
-
- protected:
-  std::function<void()> closeHandler = nullptr;
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "ModelMenu"; }
+#endif
 };

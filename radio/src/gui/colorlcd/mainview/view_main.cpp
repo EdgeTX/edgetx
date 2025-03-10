@@ -24,11 +24,11 @@
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
+#include "menu_channels.h"
 #include "model_select.h"
 #include "edgetx.h"
 #include "topbar_impl.h"
-#include "view_channels.h"
-#include "view_main_menu.h"
+#include "quick_menu.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)
 {
@@ -237,8 +237,7 @@ void ViewMain::updateTopbarVisibility()
 #if defined(HARDWARE_KEYS)
 void ViewMain::onPressSYS()
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new RadioMenu();
+  if (!viewMainMenu) openMenu();
 }
 void ViewMain::onLongPressSYS()
 {
@@ -259,7 +258,7 @@ void ViewMain::onLongPressMDL()
 void ViewMain::onPressTELE()
 {
   if (viewMainMenu) viewMainMenu->onCancel();
-  new ScreenMenu();
+  (new ScreenMenu())->setCurrentTab(getCurrentMainView() + 1);
 }
 void ViewMain::onLongPressTELE()
 {
@@ -341,7 +340,7 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  viewMainMenu = new ViewMainMenu(this, [=]() { viewMainMenu = nullptr; });
+  viewMainMenu = new QuickMenu(this, [=]() { viewMainMenu = nullptr; });
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)

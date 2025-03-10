@@ -195,7 +195,7 @@ class InputGroup : public InputMixGroupBase
   }
 };
 
-ModelInputsPage::ModelInputsPage() : InputMixPageBase(STR_MENUINPUTS, ICON_MODEL_INPUTS)
+ModelInputsPage::ModelInputsPage(PageDef& pageDef) : InputMixPageBase(pageDef)
 {
 }
 

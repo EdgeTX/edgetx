@@ -542,8 +542,8 @@ class LogicalSwitchButton : public ListLineButton
   lv_obj_t* lsDelay = nullptr;
 };
 
-ModelLogicalSwitchesPage::ModelLogicalSwitchesPage() :
-    PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES)
+ModelLogicalSwitchesPage::ModelLogicalSwitchesPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 
