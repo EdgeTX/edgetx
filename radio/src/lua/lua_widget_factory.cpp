@@ -70,7 +70,6 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
   initPersistentData(persistentData, init);
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunction);
 
   // Make 'zone' table for 'create' call
   lua_newtable(lsWidgets);
@@ -83,8 +82,6 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
 
   // Store the zone data in registry for later updates
   int zoneRectDataRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-  // Push stored zone for 'create' call
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
 
   // Create options table
   lua_newtable(lsWidgets);
@@ -107,16 +104,8 @@ Widget* LuaWidgetFactory::create(Window* parent, const rect_t& rect,
 
   // Store the options data in registry for later updates
   int optionsDataRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-  // Push stored options for 'create' call
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
 
-  lua_pushstring(lsWidgets, path.c_str());
-
-  bool err = lua_pcall(lsWidgets, 3, 1, 0);
-  int widgetData = err ? LUA_NOREF : luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-  LuaWidget* lw = new LuaWidget(this, parent, rect, persistentData, widgetData, zoneRectDataRef, optionsDataRef);
-  if (err) lw->setErrorMessage("create()");
-  return lw;
+  return new LuaWidget(this, parent, rect, persistentData, zoneRectDataRef, optionsDataRef, createFunction, path);
 }
 
 void LuaWidgetFactory::translateOptions(ZoneOption * options)

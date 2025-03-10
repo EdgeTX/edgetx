@@ -228,12 +228,32 @@ void LuaWidget::redraw_cb(lv_event_t* e)
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
-                     int luaScriptContextRef, int zoneRectDataRef, int optionsDataRef) :
+                     int zoneRectDataRef, int optionsDataRef,
+                     int createFunctionRef, std::string path) :
     Widget(factory, parent, rect, persistentData),
     zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
     errorMessage(nullptr)
 {
-  this->luaScriptContextRef = luaScriptContextRef;
+  // Push create function
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunctionRef);
+  // Push stored zone for 'create' call
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+  // Push stored options for 'create' call
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
+  // Push widget folder path
+  lua_pushstring(lsWidgets, path.c_str());
+
+  auto save = luaScriptManager;
+  luaScriptManager = this;
+
+  if (lua_pcall(lsWidgets, 3, 1, 0) == LUA_OK) {
+    luaScriptContextRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
+  } else {
+    luaScriptContextRef = LUA_NOREF;
+    setErrorMessage("create()");
+  }
+
+  luaScriptManager = save;
 
   if (useLvglLayout()) {
     update();
@@ -552,7 +572,7 @@ bool LuaWidget::useLvglLayout() const { return luaFactory()->useLvglLayout(); }
 
 bool LuaWidget::isAppMode() const
 {
-  return ViewMain::instance()->isAppMode();
+  return ((WidgetsContainer*)parent)->isAppMode();
 }
 
 void LuaScriptManager::saveLvglObjectRef(int ref)
