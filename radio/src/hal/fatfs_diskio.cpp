@@ -23,7 +23,7 @@
 #include "FatFs/diskio.h"
 
 #if FF_FS_REENTRANT != 0
-#include "rtos.h"
+#include "os/task.h"
 #endif
 
 struct fatfs_drive_t {
@@ -31,7 +31,7 @@ struct fatfs_drive_t {
   uint8_t                lun;
   bool                   initialized;
 #if FF_FS_REENTRANT != 0
-  RTOS_MUTEX_HANDLE      mutex;
+  mutex_handle_t         mutex;
 #endif
 };
 
@@ -52,7 +52,7 @@ int fatfsRegisterDriver(const diskio_driver_t* drv, uint8_t lun)
 
 #if FF_FS_REENTRANT != 0
   // init IO mutex only once
-  RTOS_CREATE_MUTEX(drive.mutex);
+  mutex_create(&drive.mutex);
 #endif
 
   return 1;
@@ -100,10 +100,10 @@ int ff_mutex_create(int vol)
 
 int ff_mutex_take(int vol)
 {
-  return RTOS_LOCK_MUTEX(_fatfs_drives[vol].mutex);
+  return mutex_lock(&_fatfs_drives[vol].mutex);
 }
 
-void ff_mutex_give(int vol) { RTOS_UNLOCK_MUTEX(_fatfs_drives[vol].mutex); }
+void ff_mutex_give(int vol) { mutex_unlock(&_fatfs_drives[vol].mutex); }
 
 void ff_mutex_delete(int vol) { }
 

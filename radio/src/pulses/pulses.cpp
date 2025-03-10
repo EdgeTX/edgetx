@@ -25,7 +25,9 @@
 #include "mixer_scheduler.h"
 #include "heartbeat_driver.h"
 #include "hal/module_port.h"
+#include "os/sleep.h"
 #include "tasks/mixer_task.h"
+#include "os/async.h"
 
 #include "pulses/pxx2.h"
 #include "pulses/flysky.h"
@@ -106,7 +108,7 @@ void restartModule(uint8_t module)
 
   // wait for the power output to be drained
   pulsesStopModule(module);
-  RTOS_WAIT_MS(200);
+  sleep_ms(200);
 
   mixerTaskStart();
 }
@@ -124,21 +126,21 @@ void pulsesRestartModuleUnsafe(uint8_t module)
   mod_drv->ctx = drv->init(module);
 }
 
-#if !defined(SIMU)
-#include <FreeRTOS/include/FreeRTOS.h>
-#include <FreeRTOS/include/timers.h>
+static volatile bool _module_restart_queued[NUM_MODULES] = {false};
 
 static void _setup_async_module_restart(void* p1, uint32_t p2)
 {
+  uint8_t module = (uint8_t)(uintptr_t)p1;
+  _module_restart_queued[module] = false;
+
   if (!mixerTaskTryLock()) {
     // In case the mixer cannot be locked, try again later
     // and make the same function pending again.
-    PendedFunction_t cb = _setup_async_module_restart;
-    xTimerPendFunctionCall(cb, p1, p2, 0/* do not wait */);
+    async_call(_setup_async_module_restart, &_module_restart_queued[module], p1,
+               p2);
     return;
   }
 
-  uint8_t module = (uint8_t)(uintptr_t)p1;
   moduleState[module].forced_off = 1;
 
   uint32_t timeout = p2;
@@ -146,18 +148,13 @@ static void _setup_async_module_restart(void* p1, uint32_t p2)
 
   mixerTaskUnlock();
 }
-#endif
 
 // return true if the request could be posted to the timer queue
 bool restartModuleAsync(uint8_t module, uint8_t cnt_delay)
 {
-#if !defined(SIMU)
-  PendedFunction_t cb = _setup_async_module_restart;
-  return xTimerPendFunctionCall(cb, (void*)(uintptr_t)module, cnt_delay,
-                                0/* do not wait */) == pdPASS;
-#else
-  return true;
-#endif
+  void* param1 = (void*)(uintptr_t)module;
+  return async_call(_setup_async_module_restart,
+                    &_module_restart_queued[module], param1, cnt_delay);
 }
 
 void pulsesModuleSettingsUpdate(uint8_t module)
@@ -497,7 +494,7 @@ void pulsesStopModule(uint8_t module)
   while(_telemetryIsPolling) {
     // In case the telemetry timer is currently polling the port,
     // we give the timer task a chance to run and finish the polling.
-    RTOS_WAIT_MS(1);
+    sleep_ms(1);
   }
   _deinit_module(module);
 

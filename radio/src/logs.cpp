@@ -59,7 +59,7 @@ void loggingTimerStart()
 {
   if (!loggingTimer) {
     loggingTimer =
-        xTimerCreateStatic("Logging", logDelay100ms*100 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+        xTimerCreateStatic("Logging", logDelay100ms*100 / portTICK_RATE_MS, pdTRUE, (void*)0,
                            loggingTimerCb, &loggingTimerBuffer);
   }
 
@@ -73,7 +73,7 @@ void loggingTimerStart()
 void loggingTimerStop()
 {
   if (loggingTimer) {
-    if( xTimerStop( loggingTimer, 120 / RTOS_MS_PER_TICK ) != pdPASS ) {
+    if( xTimerStop( loggingTimer, 120 / portTICK_RATE_MS ) != pdPASS ) {
       /* The timer could not be stopped. */
     }
     loggingTimer = nullptr;

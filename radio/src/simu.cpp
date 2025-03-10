@@ -37,6 +37,8 @@
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 
+#include "os/time.h"
+
 #if LCD_W > 212
   #define LCD_ZOOM 1
 #else
@@ -166,7 +168,6 @@ OpenTxSim::~OpenTxSim()
   TRACE("OpenTxSim::~OpenTxSim()");
 
   simuStop();
-  stopAudioThread();
 
   delete bmp;
   delete sliders[0];
@@ -492,7 +493,7 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
 
     static uint32_t last_tick = 0;
     if (rotencAction) {
-      uint32_t now = RTOS_GET_MS();
+      uint32_t now = time_get_ms();
       uint32_t dt = now - last_tick;
       rotencDt += dt;
       last_tick = now;
@@ -500,12 +501,11 @@ long OpenTxSim::onTimeout(FXObject*, FXSelector, void*)
 #endif
   }
 
-#if !defined(SIMU_BOOTLOADER)
-  per10ms();
-#else
+#if defined(SIMU_BOOTLOADER)
   void interrupt10ms();
   interrupt10ms();
 #endif
+
   refreshDisplay();
   getApp()->addTimeout(this, 2, 10);
   return 0;
@@ -644,8 +644,9 @@ int main(int argc, char ** argv)
   printf("Model size = %d\n", (int)sizeof(g_model));
 
 #if !defined(SIMU_BOOTLOADER)
-  startAudioThread();
+  startAudio();
 #endif
+
   simuStart(true/*false*/, argc >= 3 ? argv[2] : 0, argc >= 4 ? argv[3] : 0);
 
   return application.run();

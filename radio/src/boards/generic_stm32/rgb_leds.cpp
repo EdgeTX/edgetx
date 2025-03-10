@@ -31,10 +31,8 @@
 #include "stm32_gpio.h"
 #include "hal/gpio.h"
 
-#if !defined(SIMU)
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
-#endif
 
 extern const stm32_pulse_timer_t _led_timer;
 
@@ -77,7 +75,7 @@ void rgbLedStart()
 {
   if (!rgbLedTimer) {
     rgbLedTimer =
-        xTimerCreateStatic("rgbLed", LED_STRIP_REFRESH_PERIOD / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+        xTimerCreateStatic("rgbLed", LED_STRIP_REFRESH_PERIOD / portTICK_RATE_MS, pdTRUE, (void*)0,
                            rgbLedTimerCb, &rgbLedTimerBuffer);
   }
 
@@ -91,7 +89,7 @@ void rgbLedStart()
 void rgbLedStop()
 {
   if (rgbLedTimer) {
-    if( xTimerStop( rgbLedTimer, 5 / RTOS_MS_PER_TICK ) != pdPASS ) {
+    if( xTimerStop( rgbLedTimer, 5 / portTICK_RATE_MS ) != pdPASS ) {
       /* The timer could not be stopped. */
     }
   }

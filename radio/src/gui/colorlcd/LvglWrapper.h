@@ -33,9 +33,6 @@ class LvglWrapper
   static LvglWrapper *_instance;
   static void pollInputs();
 
-  tmr10ms_t lastTick = 0;
-  // TODO: add driver instances here
-
   LvglWrapper();
   ~LvglWrapper() {}
 
