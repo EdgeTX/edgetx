@@ -394,6 +394,10 @@ if(DISABLE_MCUCHECK)
   add_definitions(-DDISABLE_MCUCHECK)
 endif()
 
+if(HAS_GIMBAL_RGB)
+  add_definitions(-DHR_GIMBAL_RGB)
+endif()
+
 set(SRC
   ${SRC}
   edgetx.cpp

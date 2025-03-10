@@ -145,6 +145,29 @@ if(FLYSKY_GIMBAL)
   add_definitions(-DFLYSKY_GIMBAL)
 endif()
 
+if(HAS_CSD203_SENSOR)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+  targets/common/arm/stm32/csd203_sensor.cpp
+  )
+  add_definitions(-DCSD203_SENSOR)
+  message("-- Adding support for Current sensor")
+endif()
+if(HAS_CI1302_SENSOR)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+  targets/common/arm/stm32/CI1302.cpp
+  )
+  add_definitions(-DCI1302_SENSOR)
+  message("-- Adding support for CI1302 Sensor")
+endif()
+if(HAS_GYRO_SENSOR)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+  targets/common/arm/stm32/imu_42627.cpp
+  targets/common/arm/stm32/imu4.cpp
+  )
+  add_definitions(-DGYRO_SENSOR)
+  message("-- Adding support for Gyro")
+endif()
+
 if(DEBUG OR CLI OR USB_SERIAL)
   add_definitions(-DUSB_SERIAL)
   message("-- Adding support for USB serial")

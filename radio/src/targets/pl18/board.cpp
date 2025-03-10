@@ -151,6 +151,10 @@ void ledStripOff()
   }
   ws2812_update(&_led_timer);
 }
+void ws2812update(void)
+{
+  ws2812_update(&_led_timer);
+}
 #endif
 
 #if defined(RADIO_NB4P)
