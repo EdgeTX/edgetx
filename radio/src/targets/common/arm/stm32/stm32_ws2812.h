@@ -30,17 +30,13 @@
 // RGB
 #define WS2812_BYTES_PER_LED 3
 
-// Maximum number of supported LEDs
-#if !defined(WS2812_MAX_LEDS)
-#  define WS2812_MAX_LEDS 48
-#endif
-
 // Number of LED periods used for trailing reset
 #if !defined(WS2812_TRAILING_RESET)
 #  define WS2812_TRAILING_RESET 10
 #endif
 
-void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len, uint8_t type);
+void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
+                 uint8_t strip_len, uint8_t type);
 void ws2812_update(const stm32_pulse_timer_t* timer);
 bool ws2812_get_state(uint8_t led);
 void ws2812_dma_isr(const stm32_pulse_timer_t* timer);

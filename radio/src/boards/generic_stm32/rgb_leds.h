@@ -21,9 +21,16 @@
 
 #pragma once
 
+#include <stdint.h>
+
+void rgbLedInit();
 void rgbLedStart();
 void rgbLedStop();
-void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char);
+
+void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
 uint32_t rgbGetLedColor(uint8_t led);
-bool rgbGetState(unsigned char);
+
+void rgbLedClearAll();
+
+bool rgbGetState(uint8_t led);
 void rgbLedColorApply();

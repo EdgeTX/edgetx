@@ -36,6 +36,8 @@
 #include <FreeRTOS/include/timers.h>
 #endif
 
+static uint8_t _led_colors[WS2812_BYTES_PER_LED * LED_STRIP_LENGTH];
+
 extern const stm32_pulse_timer_t _led_timer;
 
 static TimerHandle_t rgbLedTimer = nullptr;
@@ -55,7 +57,6 @@ uint32_t rgbGetLedColor(uint8_t led)
   return ws2812_get_color(led);
 }
 
-
 bool rgbGetState(uint8_t led)
 {
   return ws2812_get_state(led);
@@ -63,7 +64,15 @@ bool rgbGetState(uint8_t led)
 
 void rgbLedColorApply()
 {
-  ws2812_update(&_led_timer);;
+  ws2812_update(&_led_timer);
+}
+
+void rgbLedClearAll()
+{
+  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+    ws2812_set_color(i, 0, 0, 0);
+  }
+  ws2812_update(&_led_timer);
 }
 
 static void rgbLedTimerCb(TimerHandle_t xTimer)
@@ -110,6 +119,12 @@ const stm32_pulse_timer_t _led_timer = {
   .DMA_IRQn = LED_STRIP_TIMER_DMA_IRQn,
   .DMA_TC_CallbackPtr = nullptr,
 };
+
+void rgbLedInit()
+{
+  ws2812_init(&_led_timer, _led_colors, LED_STRIP_LENGTH, WS2812_GRB);
+  rgbLedClearAll();
+}
 
 // Make sure the timer channel is supported
 static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(LED_STRIP_TIMER_CHANNEL),

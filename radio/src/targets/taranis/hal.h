@@ -1963,11 +1963,11 @@
 
   // LED Strip
 #if defined(RGBLEDS)
-  #if defined(RADIO_GX12)
-    #define LED_STRIP_LENGTH                8
-  #else
-    #define LED_STRIP_LENGTH                7
-  #endif
+#if defined(RADIO_GX12)
+  #define LED_STRIP_LENGTH                  8
+#else
+  #define LED_STRIP_LENGTH                  7
+#endif
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 8) // PA.08 / TIM1_CH1
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1   // TIM1 / TIM2
   #define LED_STRIP_TIMER                   TIM1
