@@ -56,6 +56,9 @@
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
 #endif
+#if defined(GYRO_SENSOR)
+  #include "imu_42627.h"
+#endif
 
 #if defined(LED_STRIP_GPIO)
 // Common LED driver
@@ -66,6 +69,10 @@ void ledStripOff()
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
     ws2812_set_color(i, 0, 0, 0);
   }
+  ws2812_update(&_led_timer);
+}
+void ws2812update(void)
+{
   ws2812_update(&_led_timer);
 }
 #endif
@@ -114,44 +121,6 @@ void audioInit()
   gpio_set(AUDIO_SHUTDOWN_GPIO);
 
   vs1053b_init(&vs1053);
-}
-#endif
-
-#if defined(SIXPOS_SWITCH_INDEX)
-uint8_t lastADCState = 0;
-uint8_t sixPosState = 0;
-bool dirty = true;
-uint16_t getSixPosAnalogValue(uint16_t adcValue)
-{
-  uint8_t currentADCState = 0;
-  if (adcValue > 3800)
-    currentADCState = 6;
-  else if (adcValue > 3100)
-    currentADCState = 5;
-  else if (adcValue > 2300)
-    currentADCState = 4;
-  else if (adcValue > 1500)
-    currentADCState = 3;
-  else if (adcValue > 1000)
-    currentADCState = 2;
-  else if (adcValue > 400)
-    currentADCState = 1;
-  if (lastADCState != currentADCState) {
-    lastADCState = currentADCState;
-  } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
-    sixPosState = lastADCState - 1;
-    dirty = true;
-  }
-  if (dirty) {
-    for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState)
-        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      else
-        ws2812_set_color(i, 0, 0, 0);
-    }
-    ws2812_update(&_led_timer);
-  }
-  return (4096/5)*(sixPosState);
 }
 #endif
 
@@ -225,7 +194,12 @@ void boardInit()
 #endif
 
 #if defined(CSD203_SENSOR)
+  //IICcsd203init();
   initCSD203();
+#endif
+#if defined(GYRO_SENSOR)
+  //IICimu42627init();
+  imu42627Init();
 #endif
 
   usbInit();
