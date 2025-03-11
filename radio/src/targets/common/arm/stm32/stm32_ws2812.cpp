@@ -32,10 +32,7 @@
 #include <string.h>
 
 // Pixel values
-static uint8_t _led_colors[WS2812_BYTES_PER_LED * WS2812_MAX_LEDS];
-
-// Timer used
-// static const stm32_pulse_timer_t* _led_timer;
+static uint8_t* _led_colors = nullptr;
 
 // LED strip length
 static uint8_t _led_strip_len;
@@ -200,19 +197,16 @@ static void _init_timer(const stm32_pulse_timer_t* tim)
   NVIC_SetPriority(tim->DMA_IRQn, WS2812_DMA_IRQ_PRIO);
 }
 
-void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t strip_len, uint8_t type)
+void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
+                 uint8_t strip_len, uint8_t type)
 {
   WS2812_DBG_INIT;
   pulse_inc = IS_TIM_32B_COUNTER_INSTANCE(timer->TIMx) ? 2 : 1;
 
-  memset(_led_colors, 0, sizeof(_led_colors));
+  _led_colors = strip_colors;
+  _led_strip_len = strip_len;
+  memset(_led_colors, 0, strip_len * WS2812_BYTES_PER_LED);
   memset(_led_dma_buffer, 0, sizeof(_led_dma_buffer));
-
-  if (strip_len <= WS2812_MAX_LEDS) {
-    _led_strip_len = strip_len;
-  } else {
-    _led_strip_len = WS2812_MAX_LEDS;
-  }
 
   _r_offset = (type >> 4) & 0b11;
   _g_offset = (type >> 2) & 0b11;
