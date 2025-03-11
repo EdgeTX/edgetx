@@ -34,7 +34,7 @@ class ModelCurvesPage : public PageTab
 
   virtual void build(Window* window) override;
 
-  static LAYOUT_VAL(PER_ROW, 3, 2)
+  static LAYOUT_VAL(PER_ROW, 3, 2, LS(3))
 
  protected:
   uint8_t focusIndex = -1;

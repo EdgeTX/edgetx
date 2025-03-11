@@ -27,7 +27,7 @@
 #define WIDGET_NAME_LEN     12
 #define MAX_WIDGET_OPTIONS  10
 
-static LAYOUT_VAL(MAX_TOPBAR_ZONES, 6, 4)
+static LAYOUT_VAL(MAX_TOPBAR_ZONES, 6, 4, 6)
 
 #define MAX_TOPBAR_OPTIONS   1 // just because of VC++ which doesn't like 0-size arrays :(
 
