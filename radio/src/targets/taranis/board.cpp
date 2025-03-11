@@ -62,10 +62,6 @@
 
 HardwareOptions hardwareOptions;
 
-#if defined(LED_STRIP_GPIO)
-extern const stm32_pulse_timer_t _led_timer;
-#endif
-
 #if !defined(BOOT)
 
 #if defined(FUNCTION_SWITCHES)
@@ -104,7 +100,7 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
       else
         ws2812_set_color(i, 0, 0, 0);
     }
-    ws2812_update(&_led_timer);
+    rgbLedColorApply();
   }
   return (4096/5)*(sixPosState);
 }
@@ -244,11 +240,7 @@ void boardInit()
   usbInit();
 
 #if defined(LED_STRIP_GPIO)
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 50);
-  }
-  ws2812_update(&_led_timer);
+  rgbLedInit();
 #endif
 
 #if defined(HAPTIC)
