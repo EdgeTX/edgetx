@@ -5,7 +5,7 @@ on:
     - cron: '0 2 * * *' # run at 2 AM UTC
   workflow_dispatch:
 
-concurrency: 
+concurrency:
   group: 'nightly'
   cancel-in-progress: true
 
@@ -36,7 +36,7 @@ jobs:
           - nb4p
           - st16
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:pr-24
       volumes:
         - ${{ github.workspace }}:/src
     steps:
