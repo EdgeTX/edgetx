@@ -61,6 +61,7 @@ jobs:
           AQT_CONFIG: ${{ github.workspace }}/tools/aqt-settings.ini
         with:
           version: ${{ env.QT_VERSION }}
+          modules: 'qtmultimedia qtserialport'
           setup-python: 'false'
           cache: true
           cache-key-prefix: 'install-qt-action-macOS'

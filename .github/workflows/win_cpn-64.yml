@@ -26,8 +26,8 @@ env:
   BUILD_TYPE: Release
   CMAKE_GENERATOR: "MSYS Makefiles"
   QT_VERSION: "6.8.2"
-  MINGW_VERSION: "win64_mingw81"
-  MINGW_PATH: "mingw81_64"
+  MINGW_VERSION: "win64_mingw"
+  MINGW_PATH: "mingw_64"
 
 jobs:
   build:
@@ -83,6 +83,7 @@ jobs:
           cache-key-prefix: 'install-qt-action-win64'
           version: ${{ env.QT_VERSION }}
           arch: ${{ env.MINGW_VERSION }}
+          modules: 'qtmultimedia qtserialport'
 
       - name: Build
         working-directory: ${{github.workspace}}
