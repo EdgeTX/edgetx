@@ -209,8 +209,8 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Running CMake for ${RADIO_TYPE} as an example ==="
-cmake -G "MSYS Makefiles" -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL2_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DCMAKE_BUILD_TYPE=Release ../
-check_command $? "cmake -G MSYS Makefiles -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/5.12.9/mingw73_64 -DSDL2_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DCMAKE_BUILD_TYPE=Release ../"
+cmake -G "MSYS Makefiles" -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/6.8.2/mingw_64 -DSDL2_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DCMAKE_BUILD_TYPE=Release ../
+check_command $? "cmake -G MSYS Makefiles -Wno-dev -DCMAKE_PREFIX_PATH=$HOME/6.8.2/mingw_64 -DSDL2_LIBRARY_PATH=/mingw64/bin/ ${BUILD_OPTIONS} -DCMAKE_BUILD_TYPE=Release ../"
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
