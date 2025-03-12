@@ -9,12 +9,10 @@ if(APPLE AND DEFINED ENV{HOMEBREW_PREFIX})
   # If Homebrew is used, HOMEBREW_PREFIX should be defined
   if(EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@6)
     list(APPEND CMAKE_PREFIX_PATH "$ENV{HOMEBREW_PREFIX}/opt/qt@6")
-  elseif(EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@5)
-    list(APPEND CMAKE_PREFIX_PATH "$ENV{HOMEBREW_PREFIX}/opt/qt@5")
   endif()
 endif()
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Multimedia PrintSupport SerialPort Svg Xml)
 
 if(Qt${QT_VERSION_MAJOR}_FOUND)
