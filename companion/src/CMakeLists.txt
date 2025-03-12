@@ -295,13 +295,14 @@ add_subdirectory(tests)
 string(TOLOWER ${PCB} FLAVOUR)
 
 if(PCBREV)
-  string(TOLOWER ${PCBREV} FLAVOUR)
   if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
       set(FLAVOUR x7access)
   elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
     set(FLAVOUR x9d+2019)
   elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
     set(FLAVOUR x10express)
+  else
+    string(TOLOWER ${PCBREV} FLAVOUR)
   endif()
 endif(PCBREV)
 
