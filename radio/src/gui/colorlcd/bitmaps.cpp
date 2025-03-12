@@ -39,8 +39,8 @@ void LZ4BitmapBuffer::load(const LZ4Bitmap* lz4Data)
   uint32_t pixels = _width * _height;
   data = (uint16_t*)malloc(align32(pixels * sizeof(uint16_t)));
 
-//  LZ4_decompress_safe((const char*)lz4Data->data, (char*)data,
-//                      lz4Data->compressedSize, pixels * sizeof(uint16_t));
+  LZ4_decompress_safe((const char*)lz4Data->data, (char*)data,
+                      lz4Data->compressedSize, pixels * sizeof(uint16_t));
   data_end = data + pixels;
 }
 
