@@ -30,7 +30,7 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-#define BSP_READ_AFTER_WRITE_DELAY    100 // us
+#define BSP_READ_AFTER_WRITE_DELAY    10 // us
 #define BSP_KEY_OUT_MASK                                      \
   (BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4)
 
@@ -143,6 +143,8 @@ static uint32_t _readKeyMatrix()
 
   syncelem.oldResult = result;
   syncelem.ui8ReadInProgress = 0;
+
+  bsp_output_set(BSP_KEY_OUT_MASK, 0);
 
   return result;
 }
