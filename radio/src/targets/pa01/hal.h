@@ -573,6 +573,12 @@
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
 
+// port extender interrupt
+#if !defined(USE_EXTI9_5_IRQ)
+  #define USE_EXTI9_5_IRQ
+  #define EXTI9_5_IRQ_Priority 5
+#endif
+
 #define LANDSCAPE_LCD_SML true
 #define LANDSCAPE_LCD_STD false
 #define LANDSCAPE_LCD_LRG false
