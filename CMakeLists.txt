@@ -48,6 +48,19 @@ if(EdgeTX_SUPERBUILD)
 
   # Add explicit targets for triggering cmake in the external projects
   set_property(DIRECTORY PROPERTY EP_STEP_TARGETS configure clean)
+  
+  # ARM targets
+  ExternalProject_Add(arm-none-eabi
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}
+    BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
+    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+    CMAKE_CACHE_ARGS
+      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
+      -DEdgeTX_SUPERBUILD:BOOL=0
+      -DNATIVE_BUILD:BOOL=0
+    INSTALL_COMMAND  ""
+    EXCLUDE_FROM_ALL TRUE
+    )
 
   # Native targets
   ExternalProject_Add(native
@@ -62,18 +75,38 @@ if(EdgeTX_SUPERBUILD)
     EXCLUDE_FROM_ALL TRUE
     )
 
-  # ARM targets
-  ExternalProject_Add(arm-none-eabi
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
-    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    CMAKE_CACHE_ARGS
-      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
-      -DEdgeTX_SUPERBUILD:BOOL=0
-      -DNATIVE_BUILD:BOOL=0
-    INSTALL_COMMAND  ""
-    EXCLUDE_FROM_ALL TRUE
-    )
+  # Webasm targets
+  if(ENABLE_WASM)
+    if(NOT DEFINED $ENV{EMSCRIPTEN_ROOT})
+      # fetch EMSCRIPTEN_ROOT
+      message("-- Retrieving EMSCRIPTEN_ROOT")
+      execute_process(COMMAND
+        em-config EMSCRIPTEN_ROOT
+        OUTPUT_VARIABLE EMSCRIPTEN_ROOT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+    else()
+      message("-- Using EMSCRIPTEN_ROOT from environment")
+      set(EMSCRIPTEN_ROOT $ENV{EMSCRIPTEN_ROOT})
+    endif()
+
+    set(EMSCRIPTEN_TOOLCHAIN_FILE ${EMSCRIPTEN_ROOT}/cmake/Modules/Platform/Emscripten.cmake)
+    message("-- EMSCRIPTEN_ROOT = ${EMSCRIPTEN_ROOT}")
+    message("-- EMSCRIPTEN_TOOLCHAIN_FILE = ${EMSCRIPTEN_TOOLCHAIN_FILE}")
+ 
+    ExternalProject_Add(wasm
+      SOURCE_DIR ${CMAKE_SOURCE_DIR}
+      BINARY_DIR ${CMAKE_BINARY_DIR}/wasm
+      CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      CMAKE_CACHE_ARGS
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${EMSCRIPTEN_TOOLCHAIN_FILE}
+        -DEdgeTX_SUPERBUILD:BOOL=0
+        -DNATIVE_BUILD:BOOL=1
+        -DDISABLE_COMPANION:BOOL=1
+      INSTALL_COMMAND  ""
+      EXCLUDE_FROM_ALL TRUE
+      )
+  endif()
 
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
@@ -92,6 +125,13 @@ if(EdgeTX_SUPERBUILD)
     COMMAND $(MAKE) -C native simu
     DEPENDS native-configure
     )
+
+  if(ENABLE_WASM)
+    add_custom_target(wasm-simu
+      COMMAND $(MAKE) -C wasm simu
+      DEPENDS wasm-configure
+      )
+  endif()
 
   add_custom_target(companion
     COMMAND $(MAKE) -C native companion
@@ -127,8 +167,6 @@ if(EdgeTX_SUPERBUILD)
   return()
 endif()
 
-enable_language(ASM)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 include(GenericDefinitions)
 
@@ -139,10 +177,15 @@ else()
 endif()
 
 if(NATIVE_BUILD)
-  include(NativeTargets)
+  if(NOT EMSCRIPTEN)
+    include(NativeTargets)
+  endif()
 else()
   # Prevent CMake warnings
   set(IGNORE "${SDL2_LIBRARY_PATH}" "${LIBSSL1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
 endif()
+
+# Prevent CMake warnings
+set(IGNORE "${ENABLE_WASM}")
 
 add_subdirectory(${RADIO_SRC_DIR})

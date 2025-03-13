@@ -272,144 +272,6 @@ uint8_t simuSleep(uint32_t ms)
   return 0;
 }
 
-void audioConsumeCurrentBuffer()
-{
-}
-
-void audioSetVolume(uint8_t volume)
-{
-  simuAudio.currentVolume = 127 * volume * simuAudio.volumeGain / VOLUME_LEVEL_MAX / 10;
-  // TRACE_SIMPGMSPACE("setVolume(): in: %u, out: %u", volume, simuAudio.currentVolume);
-}
-
-#if defined(SIMU_AUDIO)
-void copyBuffer(void* dest, const int16_t* buff, unsigned samples)
-{
-  int16_t* i16_dst = (int16_t*)dest;
-  for (unsigned i = 0; i < samples; i++) {
-    int32_t sample = (((int32_t)buff[i] * (int32_t)simuAudio.currentVolume) / 127);
-    if (sample > INT16_MAX) sample = INT16_MAX;
-    else if (sample < INT16_MIN) sample = INT16_MIN;
-    *(i16_dst++) = (int16_t)sample;
-  }
-}
-
-void fillAudioBuffer(void *udata, Uint8 *stream, int len)
-{
-  SDL_memset(stream, 0, len);
-
-  if (simuAudio.leftoverLen) {
-    int len1 = min(len/2, simuAudio.leftoverLen);
-    copyBuffer(stream, simuAudio.leftoverData, len1);
-    len -= len1*2;
-    stream += len1*2;
-    simuAudio.leftoverLen -= len1;
-    // putchar('l');
-    if (simuAudio.leftoverLen) return;		// buffer fully filled
-  }
-
-  if (audioQueue.buffersFifo.filledAtleast(len / (AUDIO_BUFFER_SIZE * 2) + 1)) {
-    while (true) {
-      const AudioBuffer* nextBuffer =
-          audioQueue.buffersFifo.getNextFilledBuffer();
-      if (nextBuffer) {
-        if (len >= nextBuffer->size * 2) {
-          copyBuffer(stream, nextBuffer->data, nextBuffer->size);
-          stream += nextBuffer->size * 2;
-          len -= nextBuffer->size * 2;
-          // putchar('+');
-          audioQueue.buffersFifo.freeNextFilledBuffer();
-        } else {
-          // partial
-          copyBuffer(stream, nextBuffer->data, len / 2);
-          simuAudio.leftoverLen = (nextBuffer->size - len / 2);
-          memcpy(simuAudio.leftoverData, &nextBuffer->data[len / 2],
-                 simuAudio.leftoverLen * 2);
-          len = 0;
-          // putchar('p');
-          audioQueue.buffersFifo.freeNextFilledBuffer();
-          break;
-        }
-      } else {
-        break;
-      }
-    }
-  }
-
-  //fill the rest of buffer with silence
-  if (len > 0) {
-    SDL_memset(stream, 0x8000, len);  // make sure this is silence.
-    // putchar('.');
-  }
-}
-
-void * audioThread(void *)
-{
-  /*
-    Checking here if SDL audio was initialized is wrong, because
-    the SDL_CloseAudio() de-initializes it.
-
-    if ( !SDL_WasInit(SDL_INIT_AUDIO) ) {
-      fprintf(stderr, "ERROR: couldn't initialize SDL audio support\n");
-      return 0;
-    }
-  */
-
-  SDL_AudioSpec wanted, have;
-
-  /* Set the audio format */
-  wanted.freq = AUDIO_SAMPLE_RATE;
-  wanted.format = AUDIO_S16SYS;
-  wanted.channels = 1;    /* 1 = mono, 2 = stereo */
-  wanted.samples =
-      AUDIO_BUFFER_SIZE * 2; /* Good low-latency value for callback */
-  wanted.callback = fillAudioBuffer;
-  wanted.userdata = nullptr;
-
-  /*
-    SDL_OpenAudio() internally calls SDL_InitSubSystem(SDL_INIT_AUDIO),
-    which initializes SDL Audio subsystem if necessary
-  */
-  if ( SDL_OpenAudio(&wanted, &have) < 0 ) {
-    fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
-    return nullptr;
-  }
-  SDL_PauseAudio(0);
-
-  while (simuAudio.threadRunning) {
-    audioQueue.wakeup();
-    sleep(1);
-  }
-  SDL_CloseAudio();
-  return nullptr;
-}
-
-void startAudioThread(int volumeGain)
-{
-  simuAudio.leftoverLen = 0;
-  simuAudio.threadRunning = true;
-  simuAudio.volumeGain = volumeGain;
-  TRACE_SIMPGMSPACE("startAudioThread(%d)", volumeGain);
-  audioSetVolume(VOLUME_LEVEL_DEF);
-
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  struct sched_param sp;
-  sp.sched_priority = SCHED_RR;
-  pthread_attr_setschedparam(&attr, &sp);
-  pthread_create(&simuAudio.threadPid, &attr, &audioThread, nullptr);
-#ifdef __linux__
-  pthread_setname_np(simuAudio.threadPid, "audio");
-#endif
-}
-
-void stopAudioThread()
-{
-  simuAudio.threadRunning = false;
-  pthread_join(simuAudio.threadPid, nullptr);
-}
-#endif // #if defined(SIMU_AUDIO)
-
 #if !defined(COLORLCD)
 void lcdSetRefVolt(uint8_t val)
 {
@@ -652,6 +514,12 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr)
 struct TouchState simTouchState = {};
 bool simTouchOccured = false;
 
+bool touchPanelInit()
+{
+  simTouchState.x = simTouchState.y = 0;
+  return true;
+}
+
 bool touchPanelEventOccured()
 {
   if(simTouchOccured)
@@ -660,6 +528,20 @@ bool touchPanelEventOccured()
     return true;
   }
   return false;
+}
+
+void touchPanelDown(short x, short y)
+{
+  simTouchState.x = x;
+  simTouchState.y = y;
+  simTouchState.event = TE_DOWN;
+  simTouchOccured = true;
+}
+
+void touchPanelUp()
+{
+  simTouchState.event = TE_UP;
+  simTouchOccured = true;
 }
 
 struct TouchState touchPanelRead()
