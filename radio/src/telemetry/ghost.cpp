@@ -315,11 +315,7 @@ void processGhostTelemetryFrame(uint8_t module, uint8_t* buffer, uint32_t length
 #if defined(LUA)
     default:
       // destination address and CRC are skipped
-      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(length - 2) ) {
-        for (uint8_t i = 1; i < length - 1; i++) {
-          luaInputTelemetryFifo->push(buffer[i]);
-        }
-      }
+      pushTelemetryDataToQueues(buffer + 1, length - 2);
       break;
 #endif
   }
