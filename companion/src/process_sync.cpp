@@ -26,6 +26,10 @@
 #include <QElapsedTimer>
 #include <QMutexLocker>
 
+#ifdef Q_OS_WIN
+#include <QNtfsPermissionCheckGuard>
+#endif
+
 #define SYNC_MAX_ERRORS       50  // give up after this many errors per destination
 
 // a flood of log messages can make the UI unresponsive so we'll introduce a dynamic sleep period based on log frequency (values in [us])
@@ -42,16 +46,16 @@
 #define PRINT_INFO(str)       emit progressMessage((str))                // this is always emitted regardless of logLevel option
 #define PRINT_SEP()           PRINT_INFO(QString(70, '='))
 
-#ifdef Q_OS_WIN
-  extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
-#endif
-
 SyncProcess::SyncProcess(const SyncProcess::SyncOptions & options) :
   m_options(options),
   m_pauseTime(PAUSE_MINTM),
   stopping(false)
 {
   qRegisterMetaType<SyncProcess::SyncStatus>();
+
+#ifdef Q_OS_WIN
+  QNtfsPermissionCheckGuard permissionGuard;  // check is enabled
+#endif
 
   if (m_options.compareType == OVERWR_ALWAYS && (m_options.direction == SYNC_A2B_B2A || m_options.direction == SYNC_B2A_A2B))
     m_options.compareType = OVERWR_IF_DIFF;
@@ -73,16 +77,10 @@ SyncProcess::SyncProcess(const SyncProcess::SyncOptions & options) :
     testRunStr = tr("[TEST RUN] ");
 
   //qDebug() << m_options;
-#ifdef Q_OS_WIN
-  qt_ntfs_permission_lookup++;  // global enable NTFS permissions checking
-#endif
-}
+}   // for Q_OS_WIN as the permissionGuard goes out of scope the check is disabled
 
 SyncProcess::~SyncProcess()
 {
-#ifdef Q_OS_WIN
-  qt_ntfs_permission_lookup--;  // global revert NTFS permissions checking
-#endif
 }
 
 void SyncProcess::stop()
