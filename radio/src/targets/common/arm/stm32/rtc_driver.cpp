@@ -70,7 +70,9 @@ void rtcInit()
   // Enable LSE Oscillator
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+#if !defined(STM32H7RS) && !defined(STM32H5)
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+#endif
   RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
 
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
