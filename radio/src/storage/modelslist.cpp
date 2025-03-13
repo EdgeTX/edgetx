@@ -31,6 +31,7 @@ using std::list;
 #include "yaml/yaml_labelslist.h"
 #include "yaml/yaml_modelslist.h"
 #include "yaml/yaml_parser.h"
+#include "os/sleep.h"
 
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
@@ -727,7 +728,7 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
                              (uint8_t *)modeldata, 0) != NULL);
     }
 #if defined(SIMU)
-    if (SIMU_SLEEP_OR_EXIT_MS(100)) break;
+    sleep_ms(100);
 #endif
   }
 

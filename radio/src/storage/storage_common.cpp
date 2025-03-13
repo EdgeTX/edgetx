@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "os/sleep.h"
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
 #include "mixes.h"
@@ -76,8 +77,9 @@ void preModelLoad()
   LayoutFactory::deleteCustomScreens(true);
 #endif
 
-  if (needDelay)
-    RTOS_WAIT_MS(200);
+  if (needDelay) {
+    sleep_ms(200);
+  }
 }
 
 void postRadioSettingsLoad()
