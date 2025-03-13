@@ -1359,21 +1359,6 @@ void setPotType(int index, int value)
   g_eeGeneral.potsConfig = bfSet<potconfig_t>(g_eeGeneral.potsConfig, value, (POT_CFG_BITS * index), POT_CFG_TYPE_BITS);
 }
 
-#if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-uint8_t MENU_FIRST_LINE_EDIT(const uint8_t * horTab, uint8_t horTabMax)
-{
-  if (horTab) {
-    uint8_t result = 0;
-    while (result < horTabMax && horTab[result] >= HIDDEN_ROW)
-      ++result;
-    return result;
-  }
-  else {
-    return 0;
-  }
-}
-#endif
-
 uint8_t MODULE_BIND_ROWS(int moduleIdx)
 {
   if (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4)) 
