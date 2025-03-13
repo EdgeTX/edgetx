@@ -50,7 +50,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
     void setField(RawSwitch & field, GenericPanel * panel = nullptr);
 
     void setAutoIndexes();
-    void setModel(QAbstractItemModel * model);
+    void setModel(QAbstractItemModel * model) override;
 
   signals:
     void currentDataChanged(int value);
