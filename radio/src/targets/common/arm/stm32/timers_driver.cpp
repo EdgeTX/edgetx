@@ -100,8 +100,6 @@ static inline void _interrupt_1ms()
       watchdogTimeout -= 1;
       WDG_RESET();  // Retrigger hardware watchdog
     }
-
-    per10ms();
   }
 }
 
