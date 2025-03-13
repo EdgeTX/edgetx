@@ -29,6 +29,7 @@ if(DEBUG_STORAGE_IMPORT)
   add_definitions(-DDEBUG_STORAGE_IMPORT)
   message(STATUS "Storage import debugging enabled")
 endif()
+
 if(DEBUG)
   add_definitions(-DDEBUG)
 endif()
@@ -371,27 +372,14 @@ elseif(WIN32)
   endif()
 
   if(OPENSSL_FOUND)
-    if ((OPENSSL_VERSION VERSION_LESS "1.2.0" AND QT_VERSION VERSION_LESS "6.0.0") OR (OPENSSL_VERSION VERSION_GREATER "3.0.0" AND QT_VERSION VERSION_GREATER_EQUAL "6.0.0"))
-      get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
-      if(MINGW)
-        # the dlls are stored in the bin directory
-        set(OPENSSL_SSL_LIBRARY_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
-      endif()
-      if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
-        # install only files Qt networking requires
-        install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
-      endif()
+    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+    if(MINGW)
+      # the dlls are stored in the bin directory
+      set(OPENSSL_SSL_LIBRARY_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
     endif()
-  endif()
-
-  if(NOT OPENSSL_FOUND OR QT_VERSION VERSION_LESS "6.0.0")
-    if(MINGW AND $ENV{MSYSTEM} STREQUAL "MINGW32")
-      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libcrypto-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
-      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libssl-1_1.dll" DESTINATION ${INSTALL_DESTINATION})
-    else()
-      # MINGW64 or assume 64 bit native
-      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libcrypto-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION})
-      install(FILES "${COMPANION_SRC_DIRECTORY}/../targets/windows/libssl-1_1-x64.dll" DESTINATION ${INSTALL_DESTINATION})
+    if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
+      # install only files Qt networking requires
+      install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
     endif()
   endif()
 
