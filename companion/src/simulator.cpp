@@ -149,8 +149,8 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 #ifdef Q_OS_WIN
   // For backwards compat. with QxtCommandOptions, convert Windows-style CLI switches (/opt) since QCommandLineParser doesn't support them
   for (int i=0; i < args.size(); ++i) {
-    args[i].replace(QRegExp("^/([^\\s]{2,10})$"), "--\\1");  // long opts
-    args[i].replace(QRegExp("^/([^\\s]){1}$"), "-\\1");      // short opts
+    args[i].replace(QRegularExpression("^/([^\\s]{2,10})$"), "--\\1");  // long opts
+    args[i].replace(QRegularExpression("^/([^\\s]){1}$"), "-\\1");      // short opts
   }
 #endif
 
