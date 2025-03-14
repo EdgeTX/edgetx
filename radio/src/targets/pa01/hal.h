@@ -117,17 +117,17 @@
 #define FUNCTION_SWITCH_6               I2C
 
 // Direct switches
-// Key 3
-#define STORAGE_SWITCH_I
-#define HARDWARE_SWITCH_I
-#define SWITCHES_GPIO_REG_I           GPIOI
-#define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_3  // PI.03
+// SWE
+#define STORAGE_SWITCH_E
+#define HARDWARE_SWITCH_E
+#define SWITCHES_GPIO_REG_E           GPIOG
+#define SWITCHES_GPIO_PIN_E           LL_GPIO_PIN_3  // PG.03
 
-// Key 4
-#define STORAGE_SWITCH_J
-#define HARDWARE_SWITCH_J
-#define SWITCHES_GPIO_REG_J           GPIOI
-#define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_11 // PI.11
+// SWF
+#define STORAGE_SWITCH_F
+#define HARDWARE_SWITCH_F
+#define SWITCHES_GPIO_REG_F           GPIOG
+#define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_2 // PG.02
 
 #define KEYS_GPIOB_PINS (LL_GPIO_PIN_15)
 
@@ -148,64 +148,65 @@
 // ADC
 #define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_0      // PA.00
 #define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_1      // PA.01
-#define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_2      // PA.02
-#define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_3      // PA.03
+#define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_0      // PA.00  reuse the channels
+#define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_1      // PA.01  reuse the channels
 
-#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_6      // PA.06 VRA
-#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 VRB
-#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_7      // PA.07 VRD/RS
-#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_0      // PB.00 VRC/LS
+#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_3      // PA.03 VRA
+#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_5      // PA.05 VRB
+//#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_7      // PA.07 VRD/RS
+//#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_0      // PB.00 VRC/LS
 
 // If serial gimbals are used, we can reuse the channels
-#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_0      // PA.00 EXT1
-#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_1      // PA.01 EXT2
-#define ADC_GPIO_PIN_EXT3               LL_GPIO_PIN_2      // PA.02 EXT3
-#define ADC_GPIO_PIN_EXT4               LL_GPIO_PIN_3      // PA.03 EXT4
+//#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_0      // PA.00 EXT1
+//#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_1      // PA.01 EXT2
+//#define ADC_GPIO_PIN_EXT3               LL_GPIO_PIN_2      // PA.02 EXT3
+//#define ADC_GPIO_PIN_EXT4               LL_GPIO_PIN_3      // PA.03 EXT4
 
 #define ADC_GPIO_PIN_SWA                LL_GPIO_PIN_2      // PA.02
 #define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_5      // PC.05
-#define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_9      // PF.09
-#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_7      // PF.07
-#define ADC_GPIO_PIN_SWE                LL_GPIO_PIN_8      // PF.08
-#define ADC_GPIO_PIN_SWF                LL_GPIO_PIN_6      // PF.06
+#define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_7      // PF.07
+#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_8      // PF.08
+//#define ADC_GPIO_PIN_SWE                LL_GPIO_PIN_3      // PG.03
+//#define ADC_GPIO_PIN_SWF                LL_GPIO_PIN_2      // PG.02
 
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_1      // PC.01
 
 #define ADC_GPIOA_PINS                                                \
-  (ADC_GPIO_PIN_SWA|ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_STICK_LH | \
-   ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
+  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV |                    \
+   ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_SLIDER2 | ADC_GPIO_PIN_SWA)
 
-#define ADC_GPIOB_PINS (ADC_GPIO_PIN_POT2 )
+//#define ADC_GPIOB_PINS (ADC_GPIO_PIN_BATT )
 
-#define ADC_GPIOC_PINS ( ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_BATT)
+#define ADC_GPIOC_PINS ( ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_SWB )
 
-#define ADC_GPIOF_PINS \
-  (ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWD | ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWF)
+#define ADC_GPIOF_PINS (ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWD )
 
-#define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_14    // ADC12_INP14
-#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_15    // ADC12_INP15
-#define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_16    // ADC12_INP16
-#define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_17    // ADC12_INP17
+#define ADC_GPIOG_PINS (ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWF)
+
+#define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_16    // ADC1_INP16
+#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_17    // ADC1_INP17
+#define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_16    // ADC1_INP16
+#define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_17    // ADC1_INP17
 
 // Each ADC cannot map more than 8 channels, otherwise it will cause problems
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_3    // ADC12_INP3
-#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_7    // ADC12_INP7
-#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_9    // ADC12_INP9
+//#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_3    // ADC12_INP3
+//#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
+#define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_15    // ADC12_INP15
+#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_19    // ADC12_INP19
 
 // Ext inputs: analog gimbal channel re-use
-#define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_14    // ADC12_INP14
-#define ADC_CHANNEL_EXT2                LL_ADC_CHANNEL_15    // ADC12_INP15
-#define ADC_CHANNEL_EXT3                LL_ADC_CHANNEL_16    // ADC12_INP16
-#define ADC_CHANNEL_EXT4                LL_ADC_CHANNEL_17    // ADC12_INP17
+//#define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_14    // ADC12_INP14
+//#define ADC_CHANNEL_EXT2                LL_ADC_CHANNEL_15    // ADC12_INP15
+//#define ADC_CHANNEL_EXT3                LL_ADC_CHANNEL_16    // ADC12_INP16
+//#define ADC_CHANNEL_EXT4                LL_ADC_CHANNEL_17    // ADC12_INP17
 
 // Analog switches
-#define ADC_CHANNEL_SWA                 LL_ADC_CHANNEL_0    // ADC3_INP0
-#define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_1    // ADC3_INP1
-#define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_2    // ADC3_INP2
-#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_3    // ADC3_INP3
-#define ADC_CHANNEL_SWE                 LL_ADC_CHANNEL_8    // ADC3_INP8
-#define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_7    // ADC3_INP7
+#define ADC_CHANNEL_SWA                 LL_ADC_CHANNEL_14    // ADC12_INP14
+#define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_8     // ADC12_INP8
+#define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_3     // ADC3_INP3
+#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_7     // ADC3_INP7
+//#define ADC_CHANNEL_SWE                 LL_ADC_CHANNEL_8    // ADC3_INP8
+//#define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_7    // ADC3_INP7
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_11   // ADC123_INP11
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC12_IN16
@@ -220,10 +221,7 @@
 
 #define ADC_EXT                         ADC3
 #define ADC_EXT_CHANNELS                                                \
-  {                                                                     \
-    ADC_CHANNEL_SWA, ADC_CHANNEL_SWB, ADC_CHANNEL_SWC, ADC_CHANNEL_SWD, \
-        ADC_CHANNEL_SWE, ADC_CHANNEL_SWF, ADC_CHANNEL_BATT              \
-  }
+  { ADC_CHANNEL_SWC, ADC_CHANNEL_SWD }
 
 #define ADC_EXT_DMA                     DMA2
 #define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
@@ -236,7 +234,6 @@
 
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
-    0,0,     /* pots */       \
     0,0,     /* sliders */    \
     0,	     /* vbat */       \
     0,       /* rtc_bat */    \
@@ -249,8 +246,8 @@
   }
 
 // Power
-#define PWR_SWITCH_GPIO             GPIO_PIN(GPIOC, 13)
-#define PWR_ON_GPIO                 GPIO_PIN(GPIOE,  3)
+#define PWR_SWITCH_GPIO             GPIO_PIN(GPIOE, 6) // PE.06
+#define PWR_ON_GPIO                 GPIO_PIN(GPIOE, 3) // PE.03
 
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOG, 14)
@@ -317,6 +314,8 @@
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
+
+#define USB_SW_GPIO                     GPIO_PIN(GPIOE,  4) // PE.04
 
 // LCD
 #define LCD_SPI                         SPI1
@@ -441,6 +440,8 @@
 #define FLYSKY_HALL_SERIAL_DMA                   DMA1
 #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_USART2_RX
+
+// TODO LED Strip PF.06
 /*
 // LED Strip
 #define LED_STRIP_LENGTH                  24
@@ -521,16 +522,16 @@
 // Trainer Port
 #define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
 
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOE, 5) // PE.05
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
+#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOA, 10) // PA.10
+#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH3
 
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOE, 6) // PE.06
+#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOA,  9) // PA.09
 #define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
 
-#define TRAINER_TIMER                   TIM15
-#define TRAINER_TIMER_IRQn              TIM15_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM15_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_4
+#define TRAINER_TIMER                   TIM1
+#define TRAINER_TIMER_IRQn              TIM1_UP_IRQn
+#define TRAINER_TIMER_IRQHandler        TIM1_IRQHandler
+#define TRAINER_GPIO_AF                 LL_GPIO_AF_1
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 #define TOUCH_I2C_BUS                   I2C_Bus_1
@@ -541,19 +542,19 @@
 #define ROTARY_ENCODER_NAVIGATION
 // Rotary Encoder
 //#define ROTARY_ENCODER_INVERTED
-#define ROTARY_ENCODER_GPIO             GPIOD
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_4 // PD.04
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_3 // PD.03
-#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO->IDR >> 2) & 0x02)|((ROTARY_ENCODER_GPIO->IDR >> 4) & 0x01))
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_4
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_3
-#if !defined(USE_EXTI4_IRQ)
-  #define USE_EXTI4_IRQ
-  #define EXTI4_IRQ_Priority 5
+#define ROTARY_ENCODER_GPIO             GPIOA
+#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_6 // PA.06
+#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_7 // PA.07
+#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 6) & 0x03)
+#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_6
+#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_7
+#if !defined(USE_EXTI6_IRQ)
+  #define USE_EXTI6_IRQ
+  #define EXTI6_IRQ_Priority 5
 #endif
-#if !defined(USE_EXTI3_IRQ)
-  #define USE_EXTI3_IRQ
-  #define EXTI3_IRQ_Priority 5
+#if !defined(USE_EXTI7_IRQ)
+  #define USE_EXTI7_IRQ
+  #define EXTI7_IRQ_Priority 5
 #endif
 #define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTD
 #define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE4
