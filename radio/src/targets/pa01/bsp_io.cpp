@@ -71,7 +71,7 @@ int bsp_io_init()
   BSP_CHECK(aw9523b_set_direction(&i2c_exp, 0xFFFF, BSP_IN_MASK));
 
 
-  gpio_init_int(GPIO_PIN(GPIOH, 6), GPIO_IN, GPIO_FALLING,
+  gpio_init_int(GPIO_PIN(GPIOB, 4), GPIO_IN, GPIO_FALLING,
                 bsp_port_extender_irq_handler);
   updateInputState = true;
   bsp_input_read();
