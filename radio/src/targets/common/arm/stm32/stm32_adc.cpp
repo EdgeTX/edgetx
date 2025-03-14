@@ -33,8 +33,24 @@
 #include <string.h>
 #include "FreeRTOSConfig.h"
 
+#if !defined(LL_ADC_OVS_RATIO_2)
+// fix errata in stm32h7xx_ll_adc.h
+#define LL_ADC_OVS_RATIO_2                 (0x00000000UL)  /*!< ADC oversampling ratio of 2 (2 ADC conversions are performed, sum of these conversions data is computed to result as the ADC oversampling conversion data (before potential shift) */
+#define LL_ADC_OVS_RATIO_4                 (0x00000001UL)  /*!< ADC oversampling ratio of 4 (4 ADC conversions are performed, sum of these conversions data is computed to result as the ADC oversampling conversion data (before potential shift) */
+#define LL_ADC_OVS_RATIO_8                 (0x00000002UL)  /*!< ADC oversampling ratio of 8 (8 ADC conversions are performed, sum of these conversions data is computed to result as the ADC oversampling conversion data (before potential shift) */
+#define LL_ADC_OVS_RATIO_16                (0x00000003UL)  /*!< ADC oversampling ratio of 16 (16 ADC conversions are performed, sum of these conversions data is computed to result as the ADC oversampling conversion data (before potential shift) */
+#define LL_ADC_OVS_RATIO_32                (0x00000004UL)  /*!< ADC oversampling ratio of 32 (32 ADC conversions are performed, sum of these conversions data is computed to result as the ADC oversampling conversion data (before potential shift) */
+#define LL_ADC_OVS_RATIO_64                (0x00000005UL)  /*!< ADC oversampling ratio of 64 (64 ADC conversions are performed, sum of these conversions data is computed to result as the ADC oversampling conversion data (before potential shift) */
+#define LL_ADC_OVS_RATIO_128               (0x00000006UL)  /*!< ADC oversampling ratio of 128 (128 ADC conversions are performed, sum of these conversions data is computed to result as the ADC oversampling conversion data (before potential shift) */
+#define LL_ADC_OVS_RATIO_256               (0x00000007UL)  /*!< ADC oversampling ratio of 256 (256 ADC conversions are performed, sum of these conversions data is computed to result as the ADC oversampling conversion data (before potential shift) */
+#endif
 
-#define OVERSAMPLING 4
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+  // Disable software oversampling as HW one is used
+  #define OVERSAMPLING 1
+#else
+  #define OVERSAMPLING 4
+#endif
 
 #define SAMPLING_TIMEOUT_US 500
 
@@ -252,6 +268,14 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
     adcRegInit.DMATransfer = LL_ADC_REG_DMA_TRANSFER_LIMITED;
 #endif
   }
+
+#if defined(STM32H7RS) || defined(STM32H7) || defined(STM32H5)
+  // set hardware oversampling
+  if (!_adc_oversampling_disabled) {
+    LL_ADC_ConfigOverSamplingRatioShift(ADCx, LL_ADC_OVS_RATIO_32, LL_ADC_OVS_SHIFT_RIGHT_4);
+    LL_ADC_SetOverSamplingScope(ADCx, LL_ADC_OVS_GRP_REGULAR_CONTINUED);
+  }
+#endif
 
   LL_ADC_REG_Init(ADCx, &adcRegInit);
 
