@@ -116,6 +116,8 @@ void boardBLEarlyInit()
 {
   timersInit();
   bsp_io_init();
+  gpio_init(USB_SW_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_clear(USB_SW_GPIO);
 }
 
 
