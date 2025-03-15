@@ -761,6 +761,9 @@ void displayLuaError(bool firstCall = false)
     case SCRIPT_PANIC:
       title = STR_SCRIPT_PANIC;
       break;
+    case SCRIPT_NOFILE:
+      title = STR_NEEDS_FILE;
+      break;
     default:
       title = STR_SCRIPT_ERROR;
   }
