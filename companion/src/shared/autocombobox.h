@@ -56,6 +56,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
     void setField(RawSwitch & field, GenericPanel * panel = nullptr);
     void setField(CurveData::CurveType & field, GenericPanel * panel = nullptr);
     void setField(Board::FlexType & field, GenericPanel * panel = nullptr);
+    void setField(Board::SwitchType & field, GenericPanel * panel = nullptr);
 
     void setAutoIndexes();
     void setModel(QAbstractItemModel * model) override;
@@ -74,6 +75,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
     RawSwitch *m_rawSwitch;
     CurveData::CurveType *m_curveType;
     Board::FlexType *m_flexType;
+    Board::SwitchType *m_switchType;
 
     void initField();
     void setFieldInit(GenericPanel * panel);
