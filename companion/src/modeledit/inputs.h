@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _INPUTS_H_
-#define _INPUTS_H_
+#pragma once
 
 #include "modeledit.h"
 #include "mixerslistwidget.h"
@@ -97,6 +96,5 @@ class InputsPanel : public ModelPanel
     int getInputIndexFromSelected();
     void updateItemModels();
     void connectItemModelEvents(const int id);
+    QAction * addAct(const QString & icon, const QString & text, const char * slot, const QKeySequence & shortcut = 0, bool enabled = true);
 };
-
-#endif // _INPUTS_H_
