@@ -42,46 +42,42 @@ void AutoComboBox::initField()
   m_rawSwitch = nullptr;
   m_curveType = nullptr;
   m_flexType = nullptr;
+  m_switchType = nullptr;
 }
 
 void AutoComboBox::clear()
 {
-  if (m_hasModel)
-    return;
-
-  setLock(true);
-  QComboBox::clear();
-  m_next = 0;
-  setLock(false);
+  if (!m_hasModel) {
+    setLock(true);
+    QComboBox::clear();
+    m_next = 0;
+    setLock(false);
+  }
 }
 
 void AutoComboBox::insertItems(int index, const QStringList & items)
 {
-  if (m_hasModel)
-    return;
+  if (!m_hasModel) {
+    foreach(QString item, items)
+      addItem(item);
 
-  foreach(QString item, items) {
-    addItem(item);
   }
 }
 
 void AutoComboBox::addItem(const QString & item)
 {
-  if (m_hasModel)
-    return;
-
-  addItem(item, m_next++);
+  if (!m_hasModel)
+    addItem(item, m_next++);
 }
 
 void AutoComboBox::addItem(const QString & item, int value)
 {
-  if (m_hasModel)
-    return;
-
-  setLock(true);
-  QComboBox::addItem(item, value);
-  setLock(false);
-  updateValue();
+  if (!m_hasModel) {
+    setLock(true);
+    QComboBox::addItem(item, value);
+    setLock(false);
+    updateValue();
+  }
 }
 
 void AutoComboBox::setField(unsigned int & field, GenericPanel * panel)
@@ -126,6 +122,13 @@ void AutoComboBox::setField(Board::FlexType & field, GenericPanel * panel)
   updateValue();
 }
 
+void AutoComboBox::setField(Board::SwitchType & field, GenericPanel * panel)
+{
+  setFieldInit(panel);
+  m_switchType = &field;
+  updateValue();
+}
+
 void AutoComboBox::setFieldInit(GenericPanel * panel)
 {
   initField();
@@ -143,13 +146,12 @@ void AutoComboBox::setModel(QAbstractItemModel * model)
 
 void AutoComboBox::setAutoIndexes()
 {
-  if (m_hasModel)
-    return;
+  if (!m_hasModel) {
+    for (int i = 0; i < count(); ++i)
+      setItemData(i, i);
 
-  for (int i = 0; i < count(); ++i)
-    setItemData(i, i);
-
-  updateValue();
+    updateValue();
+  }
 }
 
 void AutoComboBox::updateValue()
@@ -166,6 +168,8 @@ void AutoComboBox::updateValue()
     setCurrentIndex(findData(*m_curveType));
   else if (m_flexType)
     setCurrentIndex(findData(*m_flexType));
+  else if (m_switchType)
+    setCurrentIndex(findData(*m_switchType));
 
   setLock(false);
 }
@@ -177,27 +181,24 @@ void AutoComboBox::onCurrentIndexChanged(int index)
 
   bool ok;
   const int val = itemData(index).toInt(&ok);
-  if (!ok)
-    return;
 
-  if (m_field && *m_field != val) {
-    *m_field = val;
-  }
-  else if (m_rawSource && m_rawSource->toValue() != val) {
-    *m_rawSource = RawSource(val);
-  }
-  else if (m_rawSwitch && m_rawSwitch->toValue() != val) {
-    *m_rawSwitch = RawSwitch(val);
-  }
-  else if (m_curveType && *m_curveType != val) {
-    *m_curveType = (CurveData::CurveType)val;
-  }
-  else if (m_flexType && *m_flexType != val) {
-    *m_flexType = (Board::FlexType)val;
-  }
-  else
-    return;
+  if (ok) {
+    if (m_field && *m_field != val)
+      *m_field = val;
+    else if (m_rawSource && m_rawSource->toValue() != val)
+      *m_rawSource = RawSource(val);
+    else if (m_rawSwitch && m_rawSwitch->toValue() != val)
+      *m_rawSwitch = RawSwitch(val);
+    else if (m_curveType && *m_curveType != val)
+      *m_curveType = (CurveData::CurveType)val;
+    else if (m_flexType && *m_flexType != val)
+      *m_flexType = (Board::FlexType)val;
+    else if (m_switchType && *m_switchType != val)
+      *m_switchType = (Board::SwitchType)val;
+    else
+      return;
 
-  emit currentDataChanged(val);
-  dataChanged();
+    emit currentDataChanged(val);
+    dataChanged();
+  }
 }
