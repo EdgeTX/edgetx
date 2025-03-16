@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _INPUTS_H_
-#define _INPUTS_H_
+#pragma once
 
 #include "modeledit.h"
 #include "mixerslistwidget.h"
@@ -98,5 +97,3 @@ class InputsPanel : public ModelPanel
     void updateItemModels();
     void connectItemModelEvents(const int id);
 };
-
-#endif // _INPUTS_H_
