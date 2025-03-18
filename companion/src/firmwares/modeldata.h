@@ -282,6 +282,7 @@ class ModelData {
     void clearMixes();
     void sortMixes();
     void clearInputs();
+    void sortInputs();
 
     int getChannelsMax(bool forceExtendedLimits=false) const;
 
