@@ -1427,6 +1427,48 @@ void ModelData::sortMixes()
   memcpy(&mixData[0], &sortedMixData[0], CPN_MAX_MIXERS * sizeof(MixData));
 }
 
+void ModelData::sortInputs()
+{
+  unsigned int lastchn = 0;
+  bool sortreq = false;
+
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
+    ExpoData *ed = &expoData[i];
+    if (!ed->isEmpty()) {
+      if (ed->chn < lastchn) {
+        sortreq = true;
+        break;
+      }
+      else
+        lastchn = ed->chn;
+    }
+  }
+
+  if (!sortreq)
+    return;
+
+  //  QMap automatically sorts based on key
+  QMap<int, int> map;
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
+    ExpoData *ed = &expoData[i];
+    if (!ed->isEmpty()) {
+      //  chn may not be unique so build a compound sort key
+      map.insert(ed->chn * (CPN_MAX_EXPOS + 1) + i, i);
+    }
+  }
+
+  ExpoData sortedExpoData[CPN_MAX_EXPOS];
+  int destidx = 0;
+
+  QMap<int, int>::const_iterator i;
+  for (i = map.constBegin(); i != map.constEnd(); ++i) {
+    memcpy(&sortedExpoData[destidx], &expoData[i.value()], sizeof(ExpoData));
+    destidx++;
+  }
+
+  memcpy(&expoData[0], &sortedExpoData[0], CPN_MAX_EXPOS * sizeof(ExpoData));
+}
+
 void ModelData::updateResetParam(CustomFunctionData * cfd)
 {
   if (cfd->func != FuncReset)

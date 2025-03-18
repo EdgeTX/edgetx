@@ -656,41 +656,15 @@ void InputsPanel::cmInputSwapData(int idx1, int idx2)
 {
   if (idx1 >= idx2 || (!model->hasExpos(idx1) && !model->hasExpos(idx2)))
     return;
-  //  save expos
-  int expoidx = -1;
-  QVector<ExpoData> edtmp;
-  int i;
-  for (i = 0; i < CPN_MAX_EXPOS; i++) {
+
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
     ExpoData *ed = &model->expoData[i];
-    if ((int)ed->chn == idx1) {
-      edtmp << model->expoData[i];
-      if (expoidx < 0)
-        expoidx = i;
+    if (!ed->isEmpty()) {
+      if ((int)ed->chn == idx1)
+        ed->chn = idx2;
+      else if ((int)ed->chn == idx2)
+        ed->chn = idx1;
     }
-    else if ((int)ed->chn > idx1)
-      break;
-  }
-  //  move expos up
-  const int offset = i - expoidx;
-  int expocnt = 0;
-  for (int j = i; j < CPN_MAX_EXPOS; j++) {
-    ExpoData *ed = &model->expoData[j];
-    if ((int)ed->chn == idx2) {
-      ExpoData *dest = &model->expoData[j - offset];
-      memcpy(dest, &model->expoData[j], sizeof(ExpoData));
-      dest->chn = idx1;
-      expocnt++;
-    }
-    else if ((int)ed->chn > idx2)
-      break;
-  }
-  //  copy back saved expos
-  int cnt = 0;
-  foreach (ExpoData ed, edtmp) {
-    ExpoData *dest = &model->expoData[expoidx + expocnt + cnt];
-    memcpy(dest, &ed, sizeof(ExpoData));
-    dest->chn = idx2;
-    cnt++;
   }
 
   //  swap names
@@ -698,6 +672,7 @@ void InputsPanel::cmInputSwapData(int idx1, int idx2)
   strncpy(model->inputNames[idx2], model->inputNames[idx1], sizeof(model->inputNames[idx2]) - 1);
   strncpy(model->inputNames[idx1], tname->data(), sizeof(model->inputNames[idx1]) - 1);
 
+  model->sortInputs();
   model->updateAllReferences(ModelData::REF_UPD_TYPE_INPUT, ModelData::REF_UPD_ACT_SWAP, idx1, idx2);
   update();
   updateItemModels();
