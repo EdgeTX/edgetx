@@ -90,7 +90,8 @@ class ModelButton : public Button
       modelName = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
       etx_bg_color(modelName->getLvObj(), COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
-      etx_obj_add_style(modelName->getLvObj(), styles->bg_opacity_75, LV_STATE_USER_1);
+      etx_bg_color(modelName->getLvObj(), COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
+      etx_obj_add_style(modelName->getLvObj(), styles->bg_opacity_75, LV_PART_MAIN);
       modelName->padTop(fo);
     } else {
       modelName = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::PAGE_LINE_HEIGHT}, modelCell->modelName,
