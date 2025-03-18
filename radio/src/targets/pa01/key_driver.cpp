@@ -30,7 +30,7 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-#define BSP_READ_AFTER_WRITE_DELAY    10 // us
+#define BSP_READ_AFTER_WRITE_DELAY   10 // us
 #define BSP_KEY_OUT_MASK                                      \
   (BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4)
 
@@ -60,7 +60,7 @@ enum PhysicalKeys
   PGUP = 8,
   PGDN,
   RTN = 10,
-  MENU,
+  MODEL,
   KEY1 = 12,
   KEY2,
   KEY3 = 14,
@@ -124,7 +124,7 @@ static uint32_t _readKeyMatrix()
   if ((bsp_input & BSP_KEY_IN3) == 0)
     result |= 1<<RTN;
   if ((bsp_input & BSP_KEY_IN4) == 0)
-    result |= 1<<MENU;
+    result |= 1<<MODEL;
 
   bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT4);
   delay_us(BSP_READ_AFTER_WRITE_DELAY);
@@ -151,7 +151,7 @@ static uint32_t _readKeyMatrix()
 
 void keysInit()
 {
-  gpio_init(KEYS_GPIO_ENTER, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(KEYS_GPIO_ENTER, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 }
 
 uint32_t readKeys()
@@ -162,7 +162,7 @@ uint32_t readKeys()
   if (mkeys & (1 << PGUP)) result |= 1 << KEY_PAGEUP;
   if (mkeys & (1 << PGDN)) result |= 1 << KEY_PAGEDN;
   if (mkeys & (1 << RTN))  result |= 1 << KEY_EXIT;
-  if (mkeys & (1 << MENU)) result |= 1 << KEY_SYS;
+  if (mkeys & (1 << MODEL)) result |= 1 << KEY_MODEL;
   if (mkeys & (1 << ENT))  result |= 1 << KEY_ENTER;
 
   return result;

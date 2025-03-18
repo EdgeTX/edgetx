@@ -29,8 +29,6 @@
 
 #if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_T15) || defined(RADIO_BUMBLEBEE)
 #define ROTARY_ENCODER_GRANULARITY 4
-#elif defined(RADIO_PA01)
-#define ROTARY_ENCODER_GRANULARITY 1
 #else
 #define ROTARY_ENCODER_GRANULARITY 2
 #endif
