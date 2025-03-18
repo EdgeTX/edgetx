@@ -958,6 +958,11 @@
   #define I2C_B1_CLK_RATE             400000
 #endif
 
+#if defined(RADIO_V16)
+  #undef  I2C_B1_CLK_RATE
+  #define I2C_B1_CLK_RATE               800000
+#endif
+
 // Second I2C Bus
 #if !defined(AUX_SERIAL) && defined(IMU_LSM6DS33)
   #define I2C_B2                      I2C2

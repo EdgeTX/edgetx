@@ -56,6 +56,13 @@
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
 #endif
+#if defined(GYRO_SENSOR)
+  #include "imu_42627.h"
+#endif
+
+#if defined(HR_GIMBAL_RGB)
+  #include "gimbal_rgb.h"
+#endif
 
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
@@ -214,6 +221,10 @@ void boardInit()
 
 #if defined(CSD203_SENSOR)
   initCSD203();
+#endif
+#if defined(GYRO_SENSOR)
+  //IICimu42627init();
+  imu42627Init();
 #endif
 
   usbInit();
