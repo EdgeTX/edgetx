@@ -217,7 +217,7 @@ void menuModelFlightModesAll(event_t event)
     att = (i == sub ? INVERS : 0);
     FlightModeData* p = flightModeAddress(i);
     lcdDrawChar(0, y, ' ', att);
-    lcdDrawChar(3, y, '1' + i, att | (getFlightMode() == i ? BOLD : 0));
+    lcdDrawChar(3, y, '0' + i, att | (getFlightMode() == i ? BOLD : 0));
     lcdDrawSizedText(NAME_POS, y, p->name, sizeof(p->name), 0);
     auto trims = min(keysGetMaxTrims(), (uint8_t)MAX_STICKS);
     if (i > 0) drawSwitch(SWITCH_POS, y, p->swtch, 0);
