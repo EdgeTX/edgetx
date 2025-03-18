@@ -40,24 +40,10 @@
 static aw9523b_t i2c_exp;
 
 static uint16_t inputState = 0;
-static bool updateInputState = false;
-
-void bsp_port_extender_irq_handler() { updateInputState = true; }
 
 static void bsp_input_read()
 {
-  // this is a fall back, the interrupts from the port extender
-  // are unreliable under some circumstances
-  static int readCount = 0;
-  readCount++;
-
-  if (!updateInputState && readCount < 50) return;
-
   uint16_t value;
-
-  readCount++;
-  updateInputState = false;
-
   if (aw9523b_read(&i2c_exp, BSP_IN_MASK, &value) < 0) return;
   inputState = value;
 }
@@ -66,15 +52,8 @@ int bsp_io_init()
 {
   // init outputs
   BSP_CHECK(aw9523b_init(&i2c_exp, BSP_I2C_BUS, BSP_I2C_ADDR));
-  BSP_CHECK(aw9523b_write(&i2c_exp, BSP_OUT_MASK,
-                          BSP_CHARGE_EN | BSP_GPIO0));
+  BSP_CHECK(aw9523b_write(&i2c_exp, BSP_OUT_MASK, BSP_OUT_MASK));
   BSP_CHECK(aw9523b_set_direction(&i2c_exp, 0xFFFF, BSP_IN_MASK));
-
-
-  gpio_init_int(GPIO_PIN(GPIOB, 4), GPIO_IN, GPIO_FALLING,
-                bsp_port_extender_irq_handler);
-  updateInputState = true;
-  bsp_input_read();
 
   return 0;
 }
