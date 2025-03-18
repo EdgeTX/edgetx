@@ -354,6 +354,8 @@
 #define QSPI_HOLD_GPIO                  GPIO_PIN(GPIOD, 13)
 #define QSPI_HOLD_GPIO_AF               GPIO_AF9
 #define QSPI_FLASH_SIZE                 0x800000
+#define QSPI_QE_REG                     1
+#define QSPI_QE_BIT                     (1 << 6)
 
 // SPI NOR Flash
 //#define FLASH_SPI                      SPI6
