@@ -67,7 +67,7 @@ class CurveButton : public Button
     CurveHeader &curve = g_model.curves[index];
     snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points,
              STR_PTS);
-    new StaticText(this, {0, height() - INFO_H + 1, LV_PCT(100), 16}, buf, 
+    new StaticText(this, {0, height() - INFO_H, LV_PCT(100), 0}, buf, 
                    COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
   }
 

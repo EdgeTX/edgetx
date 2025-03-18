@@ -181,7 +181,7 @@ class MixGroup : public InputMixGroupBase
       etx_font(chText, FONT_XS_INDEX);
       lv_label_set_text_fmt(chText, TR_CH "%" PRIu32,
                             UINT32_C(idx - MIXSRC_FIRST_CH + 1));
-      lv_obj_set_pos(chText, PAD_TINY, CHNUM_Y);
+      lv_obj_set_pos(chText, PAD_TINY, CHNUM_Y-1);
     }
 
     refresh();
