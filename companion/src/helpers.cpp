@@ -392,9 +392,9 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 
   const QString path = QCoreApplication::applicationDirPath();
 
-  #if Q_OS_WIN
+#if defined Q_OS_WIN
   const QString program = "simulator.exe";
-#elif Q_OS_APPLE
+#elif defined Q_OS_APPLE
   const QString program = "simulator.dmg";
 #else
   const QString program = QString("simulator%1%2").arg(VERSION_MAJOR).arg(VERSION_MINOR);
