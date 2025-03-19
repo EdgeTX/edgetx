@@ -45,12 +45,12 @@ float z_Gyro_angle=0;
 s16 NewGyro_Gx=0;		//gyro x
 s16 NewGyro_Gy=0;
 s16 NewGyro_Gz=0;
-    
+
 s16 NewAccel_Ax=0;		//acc x
 s16	NewAccel_Ay=0;		//acc y
 s16 NewAccel_Az=0;		//acc z
 
-s16 AccelSum_Ax=0;		//
+s16 AccelSum_Ax=0;
 s16 AccelSum_Ay=0;
 s16 AccelSum_Az=0;
 
@@ -68,8 +68,6 @@ float y_angle=0;
 
 u8 gyro_InsMode=0;
 
-//*********************************************************
-//*********************************************************
 
 u16 GetAccelCheck(u16 v)
 {
@@ -79,7 +77,7 @@ u16 GetAccelCheck(u16 v)
     {
         c=a+b;
         a=a>>1;
-        if(d>=c)		
+        if(d>=c)
         {
             d-=c;a+=b;
         }
@@ -96,7 +94,7 @@ u16 GetAccelCheck(u16 v)
         }//if(b==0)
     }//for(;;)
 }
-//********************************************
+
 s16 GetAccelCheck1(s32 v)
 {
 	s16 a;
@@ -105,197 +103,194 @@ s16 GetAccelCheck1(s32 v)
 	s16 d;
 	s16 e;
 	s16 f;
-	
+
 	a=0x1922;
 	b=0x4b66;
-	d=0x0648;		
+	d=0x0648;
 	e=0x1f6a;
 	f=0x0001;
-	
+
 	if((s16)(v)<0)
 	{
-		c=-(s16)v;		  
+		c=-(s16)v;
 	}
 	else
 	{
 	 	c=v;
 	}
 	f=f+c;
-		
+
 	if((s16)(v>>16)<0)
 	{
-		c=(((s32)((s16)(v>>16)+f)<<0x0d))/((s16)(f-(s16)(v>>16)));	//ok	  
+		c=(((s32)((s16)(v>>16)+f)<<0x0d))/((s16)(f-(s16)(v>>16)));	//ok
 	}
 	else
 	{//
-		c=((s32)((s16)(v>>16)-f)<<0x0d)/(((s16)(v>>16)+f));	//ok	
+		c=((s32)((s16)(v>>16)-f)<<0x0d)/(((s16)(v>>16)+f));	//ok
 		b=a;
 	}
-	
+
 	b=b+((((((d*((((s32)c*(s32)c)>> 0x0d)))>>0x0d))-e)*c)>>0x0d);
-	
+
 	if((s16)v<0)
 	{
-		return -b;  
+		return -b;
 	}
 	else
-	{//	
+	{//
 		return b;
 	}
 }
-//*********************************************************
-//
+
 void IMU4_GyroAccelRotate(void)
 {
 	s16 acctal_y_0_1=0,acctal_y_2_3=0,acctal_y_4_5=0,acctal_y_a_b=0;
-	
+
 	s16 at;
 	s16 tgx,tgy,tgz;
-	
+
 	s32 a,b;
-	
+
 	//***********************************************x for(
 	if(NewGyro_Gx<0)tgx=-NewGyro_Gx;
 	else tgx=NewGyro_Gx;
 
 	if(tgx>6)acctal_y_0_1=NewGyro_Gx/5.68;	//1ms
-	
+
 	a=AccelSum_Ax;
 	a*=15;
 	b=NewAccel_Ax;
 	a+=b;
-	
+
 	a=a>>4;
 	AccelSum_Ax=a;
-		
+
 	a=NewAccel_Ax;
 	b=a;
 	a=a*b;
-	
+
 	a=a/0x1A44;
-	
-	at=a;	
+
+	at=a;
 	acctal_y_a_b+=at;
-	
-	
+
 	//***********************************************y
 	if(NewGyro_Gy<0)tgy=-NewGyro_Gy;
 	else tgy=NewGyro_Gy;
 
 	if(tgy>6)acctal_y_2_3=NewGyro_Gy/5.68;	//4ms
-	
+
 	a=AccelSum_Ay;
 	a*=15;
 	b=NewAccel_Ay;
 	a+=b;
-	
+
 	a=a>>4;
 	AccelSum_Ay=a;
-	
+
 	a=NewAccel_Ay;		//accy * accy
 	b=a;
 	a=a*b;
-	
+
 	a=a/0x1A44;
-	
-	at=a;	
+
+	at=a;
 	acctal_y_a_b+=at;
-	
+
 	//***********************************************z
-	
+
 	if(NewGyro_Gz<0)tgz=-NewGyro_Gz;
 	else tgz=NewGyro_Gz;
 
 	if(tgz>6)acctal_y_4_5=NewGyro_Gz/5.68;	//4ms
-	
+
 	a=AccelSum_Az;
 	a*=15;
 	b=NewAccel_Az;
 	a+=b;
-	
+
 	a=a>>4;
 	AccelSum_Az=a;
-	
+
 	a=NewAccel_Az;
 	b=a;
 	a=a*b;
-	
+
 	a=a/0x1A44;
-	
-	at=a;	
+
+	at=a;
 	acctal_y_a_b+=at;
-	//***************************************************** 
-	//*****************************************************	
+	//*****************************************************
+	//*****************************************************
 	acctal_y_a_b=GetAccelCheck(acctal_y_a_b);
-	
+
 	at=AccelGyroJust;
 	at=at*7;
 	at+=acctal_y_a_b;
-	
+
 	at=at>>3;			//at/=8;
 	AccelGyroJust=at;
-		
+
 	//-------------------
 	a=AccelAdd_X;
 	b=acctal_y_2_3;
 	a=a*b;
-		
+
 	a=a>>0x0F;
-	
+
 	b=AccelAdd_Z;
-	b=b+a;		
+	b=b+a;
 	AccelAdd_Z=b;
-	
+
 	a=acctal_y_2_3;
 	a=a*b;
-	
+
 	a=a>>0x0F;
-	
+
 	b=AccelAdd_X;
 	b=b-a;
 	AccelAdd_X=b;
-	
+
 	//------------------
 	b=AccelAdd_Z;
 	a=acctal_y_0_1;
-	
+
 	a=a*b;
 	a=a>>0x0f;
-	
+
 	b=AccelAdd_Y;
 	b=b+a;
 	AccelAdd_Y=b;
-	
+
 	a=acctal_y_0_1;
-	
+
 	a=a*b;
 	a=a>>0x0f;
-	
+
 	b=AccelAdd_Z;
 	b=b-a;
 	AccelAdd_Z=b;
-	
+
 	//-----------------
 	b=AccelAdd_Y;
 	a=acctal_y_4_5;
 	a=a*b;
 	a=a>>0x0f;
-	
+
 	b=AccelAdd_X;
 	b=b+a;
 	AccelAdd_X=b;
-	
+
 	a=acctal_y_4_5;
 	a=a*b;
 	a=a>>0x0f;
-	
+
 	b=AccelAdd_Y;
 	b=b-a;
 	AccelAdd_Y=b;
 	//****************************************
 }
-//*********************************************************
-//
+
 void IMU4_GyroAccelRotate1(void)
 {
 	s16 aa;
@@ -306,22 +301,22 @@ void IMU4_GyroAccelRotate1(void)
 		aa=0x012C;
 	}
 	else if((AccelGyroJust>0x0066&&AccelGyroJust<=0x0069)||(AccelGyroJust<0x0062&&AccelGyroJust>=0x005f))
-	{	
+	{
 		aa=0x0190;
 	}
 	else if((AccelGyroJust>0x0069&&AccelGyroJust<=0x006E)||(AccelGyroJust<0x005f&&AccelGyroJust>=0x005a))
-	{	
+	{
 		aa=0x0258;
 	}
 	else if((AccelGyroJust>0x006e&&AccelGyroJust<=0x0073)||(AccelGyroJust<0x005a&&AccelGyroJust>=0x0055))
-	{	
+	{
 		aa=0x0320;
 	}
-	else 
+	else
 	{
 		aa=0;
 	}
-	
+
 	if(aa<=0)
 	{//end
 		return;
@@ -331,7 +326,7 @@ void IMU4_GyroAccelRotate1(void)
 	b=AccelSum_Ax;
 	c=aa-1;
 	a=a*c;
-	
+
 	a=a+b;
 	c=aa;
 	a=a/c;
@@ -341,7 +336,7 @@ void IMU4_GyroAccelRotate1(void)
 	b=AccelSum_Ay;
 	c=aa-1;
 	a=a*c;
-	
+
 	a=a+b;
 	c=aa;
 	a=a/c;
@@ -351,58 +346,57 @@ void IMU4_GyroAccelRotate1(void)
 	b=AccelSum_Az;
 	c=aa-1;
 	a=a*c;
-	
+
 	a=a+b;
 	c=aa;
 	a=a/c;
 	AccelAdd_Z=a;
-}//
-//*********************************************************
-//
+}
+
 void IMU4_GyroAccelRotate2(u8 mode)
 {
 	s16 aa,ab,ac,ad,ae,af;
 	s32 a,b,c,d,e;
 
 	a=AccelAdd_Y;
-	
+
 	a=a*a;
-	aa=a>>0x0F;	 //
-	
+	aa=a>>0x0F;
+
 	b=AccelAdd_Z;
 	b=b*b;
-	ab=b>>0x0f;	//
-	
+	ab=b>>0x0f;
+
 	c=AccelAdd_Z;
-	ac=c>>2;		//
-	
+	ac=c>>2;
+
 	d=AccelAdd_Y;
 	ad=d>>2;
-	
+
 	d=((s32)ac<<16)+ad;
-	
+
 	d=GetAccelCheck1(d);
-	
+
 	d=d*0x0064;
 	BalanceAccelGyroX=d/0x008F;
-	
+
 	//*********************************
 	ae=aa+ab;
-	ae=GetAccelCheck(ae);	//
+	ae=GetAccelCheck(ae);
 	ae=ae*0x00B5;
 	ae=ae>>2;
-	
+
 	e=AccelAdd_X;
 	af=e>>2;
-	
+
 	d=((s32)ae<<16)+af;
-	
+
 	d=GetAccelCheck1(d);
 	d=-d;
 	d=d*0x0064;
-	
+
 	BalanceAccelGyroY=d/0x008F;
-	
+
 	x_angle=BalanceAccelGyroX/100;
 	y_angle=-BalanceAccelGyroY/100;
 }
@@ -441,8 +435,8 @@ void MouseCall(void)
 	}
 }
 
-void IMU4_GetGyroValues(void)  //
-{//ok  
+void IMU4_GetGyroValues(void)
+{
 	float x,y,z;//,ax,ay;
 
 	float dt=0.005; 	//for 200hz
@@ -456,22 +450,22 @@ void IMU4_GetGyroValues(void)  //
 	x=NewGyro_Gx;
 	y=NewGyro_Gy;
 	z=NewGyro_Gz;
-	
+
 	x/=Scale;
 	y/=Scale;
 	z/=Scale;
-	
-	x=(x*dt); //
+
+	x=(x*dt);
 	y=(y*dt);
 	z=(z*dt);
-	
-	x_Gyro_angle+=x; //
-	y_Gyro_angle-=y;	//
+
+	x_Gyro_angle+=x;
+	y_Gyro_angle-=y;
 	z_Gyro_angle+=z;
 
 	if(NewGyro_Gzbaseflag>=200)
 	{
-		//Offset correction 
+		//Offset correction
 		if(x_Gyro_angle>0.02)x_Gyro_angle-=0.02;
 		else if(x_Gyro_angle<-0.02)x_Gyro_angle+=0.02;
 		else x_Gyro_angle=0;
@@ -500,14 +494,14 @@ void IMU4_GetGyroValues(void)  //
 				gyroinitflag=true;
 			}
 		}
-		else 
+		else
 		{//0.05ms
 			angle=angle+0.001;
 			x_angleold=x_angle;
 			NewGyro_Gzbaseflag=0;
 		}
 	}
-	else 
+	else
 	{
 		waitct--;
 	}
@@ -550,19 +544,14 @@ u8 MPU6050_getMotionImu(u8 mode,u8 *data)
 
 void IMU4_getValues(uint8_t *m) //
 {
-	static uint16_t loopcount=0;
 	//static uint16_t loopcount=0;
 
 	MPU6050_getMotionImu(1,m);
-	
-	IMU4_GetGyroValues();  		//
+
+	IMU4_GetGyroValues();
 
 	IMU4_GyroAccelRotate();
-	
-	IMU4_GyroAccelRotate1();	
+
+	IMU4_GyroAccelRotate1();
 	IMU4_GyroAccelRotate2(0);
 }
-
-
-
-

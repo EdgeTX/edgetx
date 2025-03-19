@@ -19,9 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _IMUSENSOR_H_
-#define _IMUSENSOR_H_
-
+#pragma once
 struct imu_cmdpck_t {
 	int16_t  IMU_TEMP;
 	int16_t  IMU_ACCEL_X;
@@ -52,7 +50,3 @@ extern bool IMUSTATUS;
 extern bool IMURUNFLAG;
 
 extern bool gyroinitflag;
-
-#endif
-
-

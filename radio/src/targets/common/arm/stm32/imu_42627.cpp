@@ -539,7 +539,7 @@ uint8_t GetIMUID(void)
 
 void GetIMU42627(uint16_t loop)
 {
-	static uint16_t errct=0;
+	// static uint16_t errct=0;
 
 	if(IMU42627ID==0x20)
 	{
@@ -558,9 +558,9 @@ void GetIMU42627(uint16_t loop)
 			{
 				IMU4_getValues(imudata); 	//
 			}
-			else{
-				//RTRACE("err=%d",errct);
-			}
+			// else{
+			// 	RTRACE("err=%d",errct);
+			// }
 		}
 	}
 }

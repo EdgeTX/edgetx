@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _VOICESENSOR_H_
-#define _VOICESENSOR_H_
+#pragma once
 
 //void voiceaiSetGetByte(void* crx, int (*cb)(void*, uint8_t*));
 //void voiceaiSetPutByte(void* ctx, void (*cb)(void*, uint8_t*));
@@ -50,5 +49,3 @@ extern "C" {
 void processUpdataInput(void);
 void processVoiceInput(void);
 //extern bool VoicePowerStatus;
-
-#endif

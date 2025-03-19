@@ -186,7 +186,7 @@ extern void pushTrimEvent(event_t evt);
 
 extern volatile rotenc_t rotencValue;
 
-uint8_t getvoivech56switch(void);
+uint8_t getvoicech56switch(void);
 
 
 void AUDIOExtWarn(void)
@@ -227,7 +227,7 @@ void processVoiceFrame(uint8_t * voicedata, uint32_t size)
       else if(voiceframe->VOICECMD==VOICE_Open_Gear){
         wkup_delay=timersGetMsTick(); //updata wkup timer
 
-        if (!getvoivech56switch()){
+        if (!getvoicech56switch()){
         if(VoiceGearStatus==false)
         {
           //AUDIO_OKAY();
@@ -241,7 +241,7 @@ void processVoiceFrame(uint8_t * voicedata, uint32_t size)
       }
       else if(voiceframe->VOICECMD==VOICE_Close_Gear){
         wkup_delay=timersGetMsTick(); //updata wkup timer
-        if (!getvoivech56switch()){
+        if (!getvoicech56switch()){
         if(VoiceGearStatus){
           //AUDIO_CLOSEGEAR();
         }
@@ -253,7 +253,7 @@ void processVoiceFrame(uint8_t * voicedata, uint32_t size)
       }
       else if(voiceframe->VOICECMD==VOICE_Open_Flap){
         wkup_delay=timersGetMsTick(); //updata wkup timer
-        if (!getvoivech56switch()){
+        if (!getvoicech56switch()){
         if(VoiceFlapStatus==0)
         {
           VoiceFlapStatus=1;
@@ -275,7 +275,7 @@ void processVoiceFrame(uint8_t * voicedata, uint32_t size)
       }
       else if(voiceframe->VOICECMD==VOICE_Close_Flap){
         wkup_delay=timersGetMsTick(); //updata wkup timer
-        if (!getvoivech56switch()){
+        if (!getvoicech56switch()){
         if(VoiceFlapStatus)
         {
          // AUDIO_CLOSEFLAP();
@@ -525,6 +525,7 @@ void processVoiceFrame(uint8_t * voicedata, uint32_t size)
 
   //trainerResetTimer();
 }
+
 extern "C" int GetVoiceInput(uint8_t *rxchar)
 {//cli 
   // TODO: place this outside of the function
@@ -537,6 +538,7 @@ extern "C" int GetVoiceInput(uint8_t *rxchar)
   }
   return -1;
 }
+
 void processUpdataInput(void)
 {
   uint8_t rxchar;
@@ -547,6 +549,7 @@ void processUpdataInput(void)
     voiceSerialPutc(rxchar);
   }
 }
+
 void processVoiceInput(void)
 {
   // TODO: place this outside of the function
@@ -618,4 +621,3 @@ void processVoiceInput(void)
     }
   }
 }
-
