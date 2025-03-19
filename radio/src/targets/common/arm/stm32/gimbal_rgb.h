@@ -27,5 +27,3 @@ void ledStripOff();
 void MultiposKey(void);
 uint16_t getMultiPosAnalogValue(uint16_t adcValue);
 #endif
-
-

@@ -21,13 +21,13 @@
 
 #pragma once
 struct imu_cmdpck_t {
-	int16_t  IMU_TEMP;
-	int16_t  IMU_ACCEL_X;
-	int16_t  IMU_ACCEL_Y;
-	int16_t  IMU_ACCEL_Z;
-	int16_t  IMU_GYRO_X;
-	int16_t  IMU_GYRO_Y;
-	int16_t  IMU_GYRO_Z;
+  int16_t IMU_TEMP;
+  int16_t IMU_ACCEL_X;
+  int16_t IMU_ACCEL_Y;
+  int16_t IMU_ACCEL_Z;
+  int16_t IMU_GYRO_X;
+  int16_t IMU_GYRO_Y;
+  int16_t IMU_GYRO_Z;
 };
 
 extern void IICimu42627init(void);
@@ -36,8 +36,8 @@ extern void imu42627Init(void);
 extern void GetIMU42627(uint16_t);
 extern uint8_t GetIMUID(void);
 
-#define MU42627ID	0x20
-#define MU6050ID	0x68
+#define MU42627ID 0x20
+#define MU6050ID 0x68
 
 extern float x_angle;
 extern float y_angle;

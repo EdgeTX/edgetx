@@ -21,26 +21,26 @@
 
 #pragma once
 
-//void voiceaiSetGetByte(void* crx, int (*cb)(void*, uint8_t*));
-//void voiceaiSetPutByte(void* ctx, void (*cb)(void*, uint8_t*));
+// void voiceaiSetGetByte(void* crx, int (*cb)(void*, uint8_t*));
+// void voiceaiSetPutByte(void* ctx, void (*cb)(void*, uint8_t*));
 
-//int voiceGetByte(uint8_t* byte);
+// int voiceGetByte(uint8_t* byte);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    extern "C" void voiceSerialPutc(char c);
-    extern "C" int voiceGetByte(uint8_t* byte);
-    extern "C" int GetVoiceInput(uint8_t *rxchar);
-    extern "C" int dbgGetByte(uint8_t* byte);
-    extern "C" void voiceSerialPutstr(uint8_t* byte,uint32_t len);
+extern "C" void voiceSerialPutc(char c);
+extern "C" int voiceGetByte(uint8_t* byte);
+extern "C" int GetVoiceInput(uint8_t* rxchar);
+extern "C" int dbgGetByte(uint8_t* byte);
+extern "C" void voiceSerialPutstr(uint8_t* byte, uint32_t len);
 
-    extern bool VoiceGearStatus;
-    extern uint8_t VoiceFlapStatus;
-    extern bool VoicePowerStatus;
+extern bool VoiceGearStatus;
+extern uint8_t VoiceFlapStatus;
+extern bool VoicePowerStatus;
 
-    extern bool VoiceRunStatus;
-    extern bool MotionControlStatus;
+extern bool VoiceRunStatus;
+extern bool MotionControlStatus;
 
 #ifdef __cplusplus
 }
@@ -48,4 +48,4 @@ extern "C" {
 
 void processUpdataInput(void);
 void processVoiceInput(void);
-//extern bool VoicePowerStatus;
+// extern bool VoicePowerStatus;

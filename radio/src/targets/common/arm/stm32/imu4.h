@@ -21,23 +21,23 @@
 
 #pragma once
 
-typedef uint8_t		u8;
-typedef uint16_t	u16;
-typedef int16_t		s16;
-typedef int32_t		s32;
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef int16_t s16;
+typedef int32_t s32;
 
-//read
-extern s16 tNewGyro_Gx;		//gyro x
+// read
+extern s16 tNewGyro_Gx;  // gyro x
 extern s16 tNewGyro_Gy;
 extern s16 tNewGyro_Gz;
 
-extern s16 NewGyro_Gx;		//gyro x
-extern s16 NewGyro_Gy;		//gyro y
-extern s16 NewGyro_Gz;		//gyro z
+extern s16 NewGyro_Gx;  // gyro x
+extern s16 NewGyro_Gy;  // gyro y
+extern s16 NewGyro_Gz;  // gyro z
 
-extern s16 NewAccel_Ax;		//acc x
-extern s16 NewAccel_Ay;		//acc y
-extern s16 NewAccel_Az;		//acc z
+extern s16 NewAccel_Ax;  // acc x
+extern s16 NewAccel_Ay;  // acc y
+extern s16 NewAccel_Az;  // acc z
 
 extern s16 AccelSum_Ax;
 extern s16 AccelSum_Ay;
@@ -58,7 +58,7 @@ extern s16 AccelGyroParVY;
 extern s16 BalanceAccelGyroX;
 extern s16 BalanceAccelGyroY;
 
-extern s16 tBalanceAccelGyroX;	//x,y
+extern s16 tBalanceAccelGyroX;  // x,y
 extern s16 tBalanceAccelGyroY;
 
 extern u8 HVJustFlag;
