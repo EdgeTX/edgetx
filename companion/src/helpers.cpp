@@ -400,13 +400,6 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
   const QString program = QString("simulator%1%2").arg(VERSION_MAJOR).arg(VERSION_MINOR);
 #endif
 
-  QStringList sid = QString(getCurrentFirmware()->getSimulatorId()).split("-");
-  QString simuId;
-  if (sid.size() > 1)
-    simuId.append(sid.at(0) % "-" % sid.at(1));
-  else
-    simuId.append(sid.join("-"));
-
   QStringList arguments;
   arguments << "--profile" << g.currentProfile().name()
             << "--start-with" <<  "folder"
