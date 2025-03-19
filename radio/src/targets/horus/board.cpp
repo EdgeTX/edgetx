@@ -223,7 +223,6 @@ void boardInit()
   initCSD203();
 #endif
 #if defined(GYRO_SENSOR)
-  //IICimu42627init();
   imu42627Init();
 #endif
 
