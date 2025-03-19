@@ -508,50 +508,48 @@ void IMU4_GetGyroValues(void)
 }
 //*********************************************************
 
-u8 MPU6050_getMotionImu(u8 mode,u8 *data)
+u8 MPU6050_getMotionImu(u8 *data)
 {
-	u8 mv=mode,i,c1,c2;
+  // endianness correction
+  for (uint8_t i = 1; i < 7; i++) {
+    u8 c1 = data[i * 2];
+    u8 c2 = data[i * 2 + 1];
 
-	for(i=1;i<7;i++)
-	{//exchange
-		c1=data[i*2];
-		c2=data[i*2+1];
+    data[i * 2] = c2;
+    data[i * 2 + 1] = c1;
+  }
 
-		data[i*2]=c2;
-		data[i*2+1]=c1;
-	}
+  imu_cmdpck_t *m = (imu_cmdpck_t *)data;
 
-	imu_cmdpck_t *m=(imu_cmdpck_t*)data;
+  NewAccel_Ax = m->IMU_ACCEL_Y;
+  NewAccel_Ay = m->IMU_ACCEL_X;
+  NewAccel_Az = -m->IMU_ACCEL_Z;
 
-	NewAccel_Ax=m->IMU_ACCEL_Y;
-	NewAccel_Ay=m->IMU_ACCEL_X;
-	NewAccel_Az=-m->IMU_ACCEL_Z;
+  NewGyro_Gx = m->IMU_GYRO_Y;
+  NewGyro_Gy = m->IMU_GYRO_X;
+  NewGyro_Gz = -m->IMU_GYRO_Z;
 
-	NewGyro_Gx=m->IMU_GYRO_Y;
-	NewGyro_Gy=m->IMU_GYRO_X;
-	NewGyro_Gz=-m->IMU_GYRO_Z;
+  NewGyro_GxOld = NewGyro_Gx;
+  NewGyro_GyOld = NewGyro_Gy;
+  NewGyro_GzOld = NewGyro_Gz;
 
-	NewGyro_GxOld=NewGyro_Gx;
-	NewGyro_GyOld=NewGyro_Gy;
-	NewGyro_GzOld=NewGyro_Gz;
+  NewGyro_Gx -= NewGyro_Gxbase;
+  NewGyro_Gy -= NewGyro_Gybase;
+  NewGyro_Gz -= NewGyro_Gzbase;
 
-	NewGyro_Gx-=NewGyro_Gxbase;
-	NewGyro_Gy-=NewGyro_Gybase;
-	NewGyro_Gz-=NewGyro_Gzbase;
-
-	return 0;
+  return 0;
 }
 
-void IMU4_getValues(uint8_t *m) //
+void IMU4_getValues(uint8_t *m)
 {
-	//static uint16_t loopcount=0;
+  // static uint16_t loopcount=0;
 
-	MPU6050_getMotionImu(1,m);
+  MPU6050_getMotionImu(m);
 
-	IMU4_GetGyroValues();
+  IMU4_GetGyroValues();
 
-	IMU4_GyroAccelRotate();
+  IMU4_GyroAccelRotate();
 
-	IMU4_GyroAccelRotate1();
-	IMU4_GyroAccelRotate2(0);
+  IMU4_GyroAccelRotate1();
+  IMU4_GyroAccelRotate2(0);
 }

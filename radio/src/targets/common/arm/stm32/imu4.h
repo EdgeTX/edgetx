@@ -65,5 +65,5 @@ extern u8 HVJustFlag;
 extern u8 ROLLJustMode;
 extern u8 ROLLJustFlag;
 
-u8 MPU6050_getMotionImu(u8 mode);
+u8 MPU6050_getMotionImu(u8 data);
 void IMU4_getValues(u8 *m);
