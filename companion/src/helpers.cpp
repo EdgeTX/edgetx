@@ -41,6 +41,7 @@
 #include <QDir>
 #include <QRegularExpression>
 #include <QProcess>
+#include <QtGlobal>
 
 using namespace Helpers;
 
