@@ -32,7 +32,7 @@
 #define SIMULATOR_FLAGS_NOTX         0x01  // simulating a single model from Companion
 #define SIMULATOR_FLAGS_STANDALONE   0x02  // started from stanalone simulator
 
-#define SIMULATOR_OPTIONS_VERSION    3
+#define SIMULATOR_OPTIONS_VERSION    4
 
 namespace Simulator
 {
@@ -131,6 +131,8 @@ struct SimulatorOptions
     QByteArray radioOutputsState;     // RadioOutputsWidget UI state
     // added in v3
     QString simulatorId;
+    // added in v4
+    quint8 flags;                     // Flags passed from Companion
 
     quint16 loadedVersion() const { return m_version; }  //! loaded structure definition version (0 if none/error)
 
@@ -138,7 +140,7 @@ struct SimulatorOptions
     {
       out << quint16(SIMULATOR_OPTIONS_VERSION) << o.startupDataType << o.firmwareId << o.dataFile << o.dataFolder
           << o.sdPath << o.windowGeometry << o.controlsState << o.lcdColor << o.windowState << o.dbgConsoleState << o.radioOutputsState
-          << o.simulatorId;
+          << o.simulatorId << o.flags;
       return out;
     }
 
@@ -151,6 +153,8 @@ struct SimulatorOptions
         if (o.m_version >= 2)
           in >> o.windowState >> o.dbgConsoleState >> o.radioOutputsState;
         if (o.m_version >= 3)
+          in >> o.simulatorId;
+        if (o.m_version >= 4)
           in >> o.simulatorId;
       }
       else {
