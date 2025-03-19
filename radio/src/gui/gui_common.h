@@ -37,10 +37,6 @@
   #define CASE_ROTARY_ENCODER(x)
 #endif
 
-#if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-extern uint8_t MENU_FIRST_LINE_EDIT(const uint8_t * horTab, uint8_t horTabMax);
-#endif
-
 #if defined(LIBOPENUI)
 typedef std::function<bool(int)> IsValueAvailable;
 #else
