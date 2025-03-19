@@ -273,13 +273,13 @@ void onUpdateReceiverSelection(const char * result)
 
 void menuRadioSdManager(event_t _event)
 {
-#if defined(NAVIGATION_X9D)
+#if LCD_DEPTH > 1
   int lastPos = menuVerticalPosition;
 #endif
 
   if (_event == EVT_ENTRY) {
     f_chdir(ROOT_PATH);
-#if defined(NAVIGATION_X9D)
+#if LCD_DEPTH > 1
     lastPos = -1;
 #endif
   }

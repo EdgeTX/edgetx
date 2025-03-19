@@ -30,14 +30,6 @@
 
 #define MENUS_SCROLLBAR_WIDTH          0
 
-#if defined(NAVIGATION_X7)
-  #define HEADER_LINE                  0
-  #define HEADER_LINE_COLUMNS
-#else
-  #define HEADER_LINE                  1
-  #define HEADER_LINE_COLUMNS          0,
-#endif
-
 #define NUM_BODY_LINES                 (LCD_LINES-1)
 #define TEXT_VIEWER_LINES              NUM_BODY_LINES
 #define MENU_HEADER_HEIGHT             FH

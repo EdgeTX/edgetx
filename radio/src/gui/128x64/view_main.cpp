@@ -301,42 +301,6 @@ void displayBattVoltage()
 
 #define displayVoltageOrAlarm() displayBattVoltage()
 
-#define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
-
-#if defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
-#define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_PLUS)
-#define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_MINUS)
-#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
-#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGEUP)
-#elif defined(NAVIGATION_X7_TX12)
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
-#define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
-#define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
-#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
-#define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_TELE)
-#elif defined(NAVIGATION_X7) || defined(NAVIGATION_TBS)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
-#define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
-#define EVT_KEY_PREVIOUS_PAGE          EVT_ROTARY_LEFT
-#define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MENU)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_MENU)
-#define EVT_KEY_TELEMETRY              EVT_KEY_BREAK(KEY_PAGEUP)
-#else
-#define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_UP)
-#define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_DOWN)
-#define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_RIGHT)
-#define EVT_KEY_PREVIOUS_PAGE          EVT_KEY_BREAK(KEY_LEFT)
-#define EVT_KEY_MODEL_MENU             EVT_KEY_LONG(KEY_RIGHT)
-#define EVT_KEY_GENERAL_MENU           EVT_KEY_LONG(KEY_LEFT)
-#define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_DOWN)
-#define EVT_KEY_STATISTICS             EVT_KEY_LONG(KEY_UP)
-#endif
-
 void onMainViewMenu(const char * result)
 {
   if (result == STR_RESET_TIMER1) {
@@ -668,14 +632,3 @@ void menuMainView(event_t event)
 #endif
 #endif
 }
-
-#undef EVT_KEY_CONTEXT_MENU
-#undef EVT_KEY_PREVIOUS_VIEW
-#undef EVT_KEY_NEXT_VIEW
-#undef EVT_KEY_NEXT_PAGE
-#undef EVT_KEY_PREVIOUS_PAGE
-#undef EVT_KEY_MODEL_MENU
-#undef EVT_KEY_GENERAL_MENU
-#undef EVT_KEY_LAST_MENU
-#undef EVT_KEY_TELEMETRY
-#undef EVT_KEY_STATISTICS
