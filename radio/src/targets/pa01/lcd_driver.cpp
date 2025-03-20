@@ -45,10 +45,11 @@ static stm32_spi_t lcdSpi;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
-{
+{  
   (void)disp_drv;
   (void)copy_area;
 
+  while (!gpio_read(LCD_FMARK));
   // wait for reload
   // TODO: replace through some smarter mechanism without busy wait
 //  while(_frame_addr_reloaded == 0);
@@ -142,7 +143,7 @@ static void lcdSpiConfig(void) {
   stm32_spi_init(&lcdSpi, LL_SPI_DATAWIDTH_8BIT);
   stm32_spi_set_max_baudrate(&lcdSpi, LCD_SPI_BAUD);
 
-//#define LCD_FMARK                       GPIO_PIN(GPIOB,  7)
+  gpio_init(LCD_FMARK, GPIO_IN, GPIO_PIN_SPEED_HIGH);
   gpio_init(LCD_NRST, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
   gpio_init(LCD_SPI_RS, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
 }
@@ -231,6 +232,7 @@ void lcdInit()
   /* Configure the LCD Control pins */
   LCD_AF_GPIOConfig();
 
+/* 
   lcdWriteCommand(0x11); // sleep out
   delay_ms(10);
   lcdWriteCommand(0x13); // normal mode
@@ -252,6 +254,135 @@ void lcdInit()
   lcdWriteData( 0xF0 );
 
   lcdWriteCommand( 0x20 );
+*/
+
+  // Init command start
+  lcdWriteCommand( 0xFE );
+  lcdWriteCommand( 0xEF );
+
+  // Display orientation
+  lcdWriteCommand( 0x36 );
+  lcdWriteData( 0xA0 );
+
+  // Color mode
+  lcdWriteCommand( 0x3A );
+  lcdWriteData( 0x05 );  // 16-bit color
+
+  // Display control
+  lcdWriteCommand( 0x86 );
+  lcdWriteData( 0x98 );
+  lcdWriteCommand( 0x89 );
+  lcdWriteData( 0x33 );
+  lcdWriteCommand( 0x8B );
+  lcdWriteData( 0x80 );
+  lcdWriteCommand( 0x8D );
+  lcdWriteData( 0x33 );
+  lcdWriteCommand( 0x3A );
+  lcdWriteData( 0x05 );
+  lcdWriteCommand( 0x8E );
+  lcdWriteData( 0x0F );
+
+  lcdWriteCommand( 0xEC );
+  lcdWriteData( 0x33 );
+  lcdWriteData( 0x07 );
+  lcdWriteData( 0x00 );
+
+  lcdWriteCommand( 0xED );
+  lcdWriteData( 0x18 );
+  lcdWriteData( 0x08 );
+
+  lcdWriteCommand( 0xE8 );
+  lcdWriteData( 0x12 );
+  lcdWriteData( 0x00 );
+
+  // Init command ends
+  lcdWriteCommand( 0xFF );
+  lcdWriteCommand( 0x62 );
+
+  // Display control
+  lcdWriteCommand( 0x99 );
+  lcdWriteData( 0x3E );
+  lcdWriteCommand( 0x9D );
+  lcdWriteData( 0x4B );
+  lcdWriteCommand( 0x98 );
+  lcdWriteData( 0x3E );
+  lcdWriteCommand( 0x9C );
+  lcdWriteData( 0x4B );
+  lcdWriteCommand( 0xC3 );
+  lcdWriteData( 0x39 );
+  lcdWriteCommand( 0xC4 );
+  lcdWriteData( 0x29 );
+  lcdWriteCommand( 0xC9 );
+  lcdWriteData( 0x09 );
+
+  // Gamma Control
+  lcdWriteCommand( 0xF0 );
+  lcdWriteData( 0x0B );
+  lcdWriteData( 0x0C );
+  lcdWriteData( 0x07 );
+  lcdWriteData( 0x07 );
+  lcdWriteData( 0x05 );
+  lcdWriteData( 0x22 );
+  lcdWriteCommand( 0xF1);
+  lcdWriteData( 0x42 );
+  lcdWriteData( 0x78 );
+  lcdWriteData( 0x56 );
+  lcdWriteData( 0x1E );
+  lcdWriteData( 0x1A );
+  lcdWriteData( 0x95 );
+  lcdWriteCommand( 0xF2 );
+  lcdWriteData( 0x0B );
+  lcdWriteData( 0x0C );
+  lcdWriteData( 0x07 );
+  lcdWriteData( 0x07 );
+  lcdWriteData( 0x05 );
+  lcdWriteData( 0x44 );
+  lcdWriteCommand( 0xF3 );
+  lcdWriteData( 0x56 );
+  lcdWriteData( 0x92 );
+  lcdWriteData( 0x30 );
+  lcdWriteData( 0x31 );
+  lcdWriteData( 0x35 );
+  lcdWriteData( 0x7F );
+
+  // Display orientation
+  lcdWriteCommand( 0x36 );
+  lcdWriteData( 0xA0 );
+
+  // Display size
+  lcdWriteCommand( 0x2A );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x01 );
+  lcdWriteData( 0x40 );
+  lcdWriteCommand( 0x2B );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0xF0 );
+
+  // Invert color
+  lcdWriteCommand( 0x21 );
+
+  // Tear on
+  lcdWriteCommand( 0x35 );
+  
+  // Exit sleep
+  lcdWriteCommand( 0x11 );
+
+  // Init LCD RAM
+  LCD_COMMAND_MODE();
+  stm32_spi_select(&lcdSpi);
+  stm32_spi_transfer_byte(&lcdSpi, 0x2C);
+  LCD_DATA_MODE();
+  stm32_spi_set_data_width(&lcdSpi, LL_SPI_DATAWIDTH_16BIT);
+  for(int i = 0; i < LCD_W * LCD_H; i++)
+  {
+    stm32_spi_transfer_word(&lcdSpi, 0);
+  }
+  stm32_spi_unselect(&lcdSpi);
+  stm32_spi_set_data_width(&lcdSpi, LL_SPI_DATAWIDTH_8BIT);
+
 
   lcdSetOn();
 
