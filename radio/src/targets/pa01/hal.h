@@ -79,35 +79,6 @@
 #define TRIMS_GPIO_REG_RVU
 #define TRIMS_GPIO_PIN_RVU
 
-#define TRIMS_GPIO_REG_TR1U             GPIOH->IDR
-#define TRIMS_GPIO_PIN_TR1U             LL_GPIO_PIN_8  // PH.08
-#define TRIMS_GPIO_REG_TR1D             GPIOH->IDR
-#define TRIMS_GPIO_PIN_TR1D             LL_GPIO_PIN_9  // PH.09
-#define TRIMS_GPIO_REG_TR2U             GPIOH->IDR
-#define TRIMS_GPIO_PIN_TR2U             LL_GPIO_PIN_10 // PH.10
-#define TRIMS_GPIO_REG_TR2D             GPIOH->IDR
-#define TRIMS_GPIO_PIN_TR2D             LL_GPIO_PIN_11 // PH.11
-
-// active 4x4 column/row based key-matrix to support up to 16 buttons with only 8 GPIOs
-#define TRIMS_GPIO_OUT1                 GPIOG
-#define TRIMS_GPIO_OUT1_PIN             LL_GPIO_PIN_2  // PG.02
-//#define TRIMS_GPIO_OUT2                 GPIOG
-//#define TRIMS_GPIO_OUT2_PIN             LL_GPIO_PIN_10 // PG.10
-//#define TRIMS_GPIO_OUT3                 GPIOG
-//#define TRIMS_GPIO_OUT3_PIN             LL_GPIO_PIN_11 // PG.11
-// OUT4 routed on MCU PCB, but not attached to any physical buttons, free to use for extensions
-#define TRIMS_GPIO_OUT4                 GPIOH
-#define TRIMS_GPIO_OUT4_PIN             LL_GPIO_PIN_7  // PH.07
-
-#define TRIMS_GPIO_REG_IN1
-#define TRIMS_GPIO_PIN_IN1
-#define TRIMS_GPIO_REG_IN2
-#define TRIMS_GPIO_PIN_IN2
-#define TRIMS_GPIO_REG_IN3
-#define TRIMS_GPIO_PIN_IN3
-#define TRIMS_GPIO_REG_IN4
-#define TRIMS_GPIO_PIN_IN4
-
 // function switches
 #define FUNCTION_SWITCH_1               I2C
 #define FUNCTION_SWITCH_2               I2C
@@ -146,67 +117,41 @@
 #define KEYS_OUT_GPIOH_PINS (LL_GPIO_PIN_7)
 
 // ADC
-#define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_0      // PA.00
-#define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_1      // PA.01
-#define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_0      // PA.00  reuse the channels
-#define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_1      // PA.01  reuse the channels
+#define ADC_GPIO_PIN_STICK_LH
+#define ADC_GPIO_PIN_STICK_LV
+#define ADC_GPIO_PIN_STICK_RV
+#define ADC_GPIO_PIN_STICK_RH
 
-#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_3      // PA.03 VRA
-#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_5      // PA.05 VRB
-//#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_7      // PA.07 VRD/RS
-//#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_0      // PB.00 VRC/LS
-
-// If serial gimbals are used, we can reuse the channels
-//#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_0      // PA.00 EXT1
-//#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_1      // PA.01 EXT2
-//#define ADC_GPIO_PIN_EXT3               LL_GPIO_PIN_2      // PA.02 EXT3
-//#define ADC_GPIO_PIN_EXT4               LL_GPIO_PIN_3      // PA.03 EXT4
+#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_3      // PA.03  S1 
+#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_5      // PA.05  S2
 
 #define ADC_GPIO_PIN_SWA                LL_GPIO_PIN_2      // PA.02
 #define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_5      // PC.05
 #define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_7      // PF.07
 #define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_8      // PF.08
-//#define ADC_GPIO_PIN_SWE                LL_GPIO_PIN_3      // PG.03
-//#define ADC_GPIO_PIN_SWF                LL_GPIO_PIN_2      // PG.02
 
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_1      // PC.01
 
-#define ADC_GPIOA_PINS                                                \
-  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV |                    \
-   ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_SLIDER2 | ADC_GPIO_PIN_SWA)
-
-//#define ADC_GPIOB_PINS (ADC_GPIO_PIN_BATT )
+#define ADC_GPIOA_PINS ( ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_SLIDER2 | ADC_GPIO_PIN_SWA )
 
 #define ADC_GPIOC_PINS ( ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_SWB )
 
-#define ADC_GPIOF_PINS (ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWD )
+#define ADC_GPIOF_PINS ( ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWD )
 
-#define ADC_GPIOG_PINS (ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWF)
+#define ADC_CHANNEL_STICK_LH
+#define ADC_CHANNEL_STICK_LV
+#define ADC_CHANNEL_STICK_RV
+#define ADC_CHANNEL_STICK_RH
 
-#define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_16    // ADC1_INP16
-#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_17    // ADC1_INP17
-#define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_16    // ADC1_INP16
-#define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_17    // ADC1_INP17
-
-// Each ADC cannot map more than 8 channels, otherwise it will cause problems
-//#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_3    // ADC12_INP3
-//#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
+// Sliders
 #define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_15    // ADC12_INP15
 #define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_19    // ADC12_INP19
-
-// Ext inputs: analog gimbal channel re-use
-//#define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_14    // ADC12_INP14
-//#define ADC_CHANNEL_EXT2                LL_ADC_CHANNEL_15    // ADC12_INP15
-//#define ADC_CHANNEL_EXT3                LL_ADC_CHANNEL_16    // ADC12_INP16
-//#define ADC_CHANNEL_EXT4                LL_ADC_CHANNEL_17    // ADC12_INP17
 
 // Analog switches
 #define ADC_CHANNEL_SWA                 LL_ADC_CHANNEL_14    // ADC12_INP14
 #define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_8     // ADC12_INP8
 #define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_3     // ADC3_INP3
 #define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_7     // ADC3_INP7
-//#define ADC_CHANNEL_SWE                 LL_ADC_CHANNEL_8    // ADC3_INP8
-//#define ADC_CHANNEL_SWF                 LL_ADC_CHANNEL_7    // ADC3_INP7
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_11   // ADC123_INP11
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC12_IN16
@@ -237,10 +182,10 @@
     0,0,     /* sliders */    \
     0,	     /* vbat */       \
     0,       /* rtc_bat */    \
-    0,       /* SWA */        \
-    0,       /* SWB */        \
-    0,       /* SWC */        \
-    0,       /* SWD */        \
+    -1,       /* SWA */       \
+    -1,       /* SWB */       \
+    -1,       /* SWC */       \
+    -1,       /* SWD */       \
     0,       /* SWE */        \
     0        /* SWF */        \
   }
