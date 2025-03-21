@@ -27,4 +27,4 @@
 
 ***************************************************************************************************/
 
-#define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO)
+#define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
