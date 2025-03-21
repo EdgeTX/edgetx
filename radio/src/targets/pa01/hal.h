@@ -338,7 +338,7 @@
 
 
 // Audio
-#define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOA, 8) // PA.08
+#define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOE, 4) // PE.04
 #define AUDIO_OUTPUT_GPIO             GPIO_PIN(GPIOA, 4) // PA.04
 #define AUDIO_DMA_Stream              DMA1_Stream5
 #define AUDIO_DMA_Stream_IRQn         DMA1_Stream5_IRQn
