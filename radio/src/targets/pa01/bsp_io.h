@@ -26,18 +26,21 @@
 #include "hal/switch_driver.h"
 
 // Input port expander
-#define BSP_KEY_IN1 AW9523B_PIN_0
-#define BSP_KEY_IN2 AW9523B_PIN_1
-#define BSP_KEY_IN3 AW9523B_PIN_2
-#define BSP_KEY_IN4 AW9523B_PIN_3
+#define BSP_KEY_IN1        AW9523B_PIN_0
+#define BSP_KEY_IN2        AW9523B_PIN_1
+#define BSP_KEY_IN3        AW9523B_PIN_2
+#define BSP_KEY_IN4        AW9523B_PIN_3
 
 // Output port expander
-#define BSP_CHARGE_EN AW9523B_PIN_8
-#define BSP_GPIO0     AW9523B_PIN_9
-#define BSP_KEY_OUT1  AW9523B_PIN_10
-#define BSP_KEY_OUT2  AW9523B_PIN_11
-#define BSP_KEY_OUT3  AW9523B_PIN_12
-#define BSP_KEY_OUT4  AW9523B_PIN_13
+#define BSP_INTMOD_PWR_EN  AW9523B_PIN_7
+#define BSP_CHARGE_EN      AW9523B_PIN_8
+#define BSP_GPIO0          AW9523B_PIN_9
+#define BSP_KEY_OUT1       AW9523B_PIN_10
+#define BSP_KEY_OUT2       AW9523B_PIN_11
+#define BSP_KEY_OUT3       AW9523B_PIN_12
+#define BSP_KEY_OUT4       AW9523B_PIN_13
+#define BSP_U6_SELECT      AW9523B_PIN_14
+#define BSP_EXTMOD_PWR_EN  AW9523B_PIN_15
 
 int bsp_io_init();
 
