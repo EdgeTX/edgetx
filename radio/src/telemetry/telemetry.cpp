@@ -468,7 +468,38 @@ void logTelemetryWriteByte(uint8_t data)
 OutputTelemetryBuffer outputTelemetryBuffer __DMA_NO_CACHE;
 
 #if defined(LUA)
-Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo = NULL;
+TelemetryQueue* luaInputTelemetryFifo = nullptr;
+#if defined(COLORLCD)
+std::list<TelemetryQueue*> telemetryQueues;
+
+void registerTelemetryQueue(TelemetryQueue* queue)
+{
+  telemetryQueues.emplace_back(queue);
+}
+
+void deregisterTelemetryQueue(TelemetryQueue* queue)
+{
+  telemetryQueues.remove(queue);
+}
+#endif
+
+static void pushDataToQueue(TelemetryQueue* queue, uint8_t* data, int length)
+{
+  if (queue && queue->hasSpace(length)) {
+    for (uint8_t i = 0; i < length; i += 1) {
+      queue->push(data[i]);
+    }
+  }
+}
+
+void pushTelemetryDataToQueues(uint8_t* data, int length)
+{
+#if defined(COLORLCD)
+  for (auto it = telemetryQueues.cbegin(); it != telemetryQueues.cend(); ++it)
+    pushDataToQueue(*it, data, length);
+#endif
+  pushDataToQueue(luaInputTelemetryFifo, data, length);
+}
 #endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)

@@ -898,6 +898,24 @@ static int luaGetRotEncMode(lua_State * L)
   return 1;
 }
 
+static TelemetryQueue* getTelemetryQueue()
+{
+#if defined(COLORLCD)
+  if (luaScriptManager) {
+    luaScriptManager->createTelemetryQueue();
+    return luaScriptManager->telemetryQueue();
+  } else {
+    if (!luaInputTelemetryFifo)
+      luaInputTelemetryFifo = new TelemetryQueue();
+    return luaInputTelemetryFifo;
+  }
+#else
+  if (!luaInputTelemetryFifo)
+    luaInputTelemetryFifo = new TelemetryQueue();
+  return luaInputTelemetryFifo;
+#endif
+}
+
 /*luadoc
 @function sportTelemetryPop()
 
@@ -917,23 +935,20 @@ the LUA telemetry receive queue.
 */
 static int luaSportTelemetryPop(lua_State * L)
 {
-  if (!luaInputTelemetryFifo) {
-    luaInputTelemetryFifo = new Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE>();
-    if (!luaInputTelemetryFifo) {
-      return 0;
-    }
-  }
+  auto queue = getTelemetryQueue();
 
-  if (luaInputTelemetryFifo->size() >= sizeof(SportTelemetryPacket)) {
-    SportTelemetryPacket packet;
-    for (uint8_t i=0; i<sizeof(packet); i++) {
-      luaInputTelemetryFifo->pop(packet.raw[i]);
+  if (queue) {
+    if (queue->size() >= sizeof(SportTelemetryPacket)) {
+      SportTelemetryPacket packet;
+      for (uint8_t i=0; i<sizeof(packet); i++) {
+        queue->pop(packet.raw[i]);
+      }
+      lua_pushinteger(L, packet.physicalId);
+      lua_pushinteger(L, packet.primId);
+      lua_pushinteger(L, packet.dataId);
+      lua_pushinteger(L, packet.value);
+      return 4;
     }
-    lua_pushinteger(L, packet.physicalId);
-    lua_pushinteger(L, packet.primId);
-    lua_pushinteger(L, packet.dataId);
-    lua_pushinteger(L, packet.value);
-    return 4;
   }
 
   return 0;
@@ -1144,27 +1159,24 @@ Pops a received Crossfire Telemetry packet from the queue.
 */
 static int luaCrossfireTelemetryPop(lua_State * L)
 {
-  if (!luaInputTelemetryFifo) {
-    luaInputTelemetryFifo = new Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE>();
-    if (!luaInputTelemetryFifo) {
-      return 0;
-    }
-  }
+  auto queue = getTelemetryQueue();
 
-  uint8_t length = 0, data = 0;
-  if (luaInputTelemetryFifo->probe(length) && luaInputTelemetryFifo->size() >= uint32_t(length)) {
-    // length value includes the length field
-    luaInputTelemetryFifo->pop(length);
-    luaInputTelemetryFifo->pop(data); // command
-    lua_pushinteger(L, data);
-    lua_newtable(L);
-    for (uint8_t i=1; i<length-1; i++) {
-      luaInputTelemetryFifo->pop(data);
-      lua_pushinteger(L, i);
+  if (queue) {
+    uint8_t length = 0, data = 0;
+    if (queue->probe(length) && queue->size() >= uint32_t(length)) {
+      // length value includes the length field
+      queue->pop(length);
+      queue->pop(data); // command
       lua_pushinteger(L, data);
-      lua_settable(L, -3);
+      lua_newtable(L);
+      for (uint8_t i=1; i<length-1; i++) {
+        queue->pop(data);
+        lua_pushinteger(L, i);
+        lua_pushinteger(L, data);
+        lua_settable(L, -3);
+      }
+      return 2;
     }
-    return 2;
   }
 
   return 0;
@@ -1268,27 +1280,24 @@ Pops a received Ghost Telemetry packet from the queue.
 */
 static int luaGhostTelemetryPop(lua_State * L)
 {
-  if (!luaInputTelemetryFifo) {
-    luaInputTelemetryFifo = new Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE>();
-    if (!luaInputTelemetryFifo) {
-      return 0;
-    }
-  }
+  auto queue = getTelemetryQueue();
 
-  uint8_t length = 0, data = 0;
-  if (luaInputTelemetryFifo->probe(length) && luaInputTelemetryFifo->size() >= uint32_t(length)) {
-    // length value includes type(1B), payload, crc(1B)
-    luaInputTelemetryFifo->pop(length);
-    luaInputTelemetryFifo->pop(data); // type
-    lua_pushinteger(L, data);          // return type
-    lua_newtable(L);
-    for (uint8_t i=0; i<length-2; i++) {
-      luaInputTelemetryFifo->pop(data);
-      lua_pushinteger(L, i + 1);
-      lua_pushinteger(L, data);
-      lua_settable(L, -3);
+  if (queue) {
+    uint8_t length = 0, data = 0;
+    if (queue->probe(length) && queue->size() >= uint32_t(length)) {
+      // length value includes type(1B), payload, crc(1B)
+      queue->pop(length);
+      queue->pop(data); // type
+      lua_pushinteger(L, data);          // return type
+      lua_newtable(L);
+      for (uint8_t i=0; i<length-2; i++) {
+        queue->pop(data);
+        lua_pushinteger(L, i + 1);
+        lua_pushinteger(L, data);
+        lua_settable(L, -3);
+      }
+      return 2;
     }
-    return 2;
   }
 
   return 0;
@@ -2193,8 +2202,8 @@ Get percent of already used Lua instructions in current script execution cycle.
 static int luaGetUsage(lua_State * L)
 {
 #if defined(COLORLCD)
-  if (luaLvglManager && luaLvglManager->useLvglLayout()) {
-    lua_pushinteger(L, luaLvglManager->refreshInstructionsPercent);
+  if (luaScriptManager && luaScriptManager->useLvglLayout()) {
+    lua_pushinteger(L, luaScriptManager->refreshInstructionsPercent);
   } else {
     lua_pushinteger(L, instructionsPercent);
   }
@@ -2592,30 +2601,10 @@ to the fields in the table returned by `model.getLogicalSwitch(switch)` identify
 static int luaGetSwitchIndex(lua_State * L)
 {
   const char * name = luaL_checkstring(L, 1);
-  bool negate = false;
-  bool found = false;
-  swsrc_t idx;
+  swsrc_t idx = getSwitchIndex(name, true);
 
-  if (name[0] == '!') {
-    name++;
-    negate = true;
-  }
-
-  for (idx = SWSRC_NONE; idx < SWSRC_COUNT; idx++) {
-    if (isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
-      char* s = getSwitchPositionName(idx);
-      if (!strncasecmp(s, name, 31)) {
-        found = true;
-        break;
-      }
-    }
-  }
-
-  if (found) {
-    if (negate)
-      idx = -idx;
+  if (idx != SWSRC_INVERT)
     lua_pushinteger(L, idx);
-  }
   else
     lua_pushnil(L);
 
@@ -2715,8 +2704,7 @@ static int luaSwitches(lua_State * L)
   } else
     last = SWSRC_LAST;
 
-  lua_pushcfunction(L, luaNextSwitch);
-  lua_pushinteger(L, last);
+  lua_pushcfunction(L, luaNextSwitch);  lua_pushinteger(L, last);
   lua_pushinteger(L, first);
   return 3;
 }
@@ -2737,21 +2725,9 @@ This function is rather time consuming, and should not be used repeatedly in a s
 static int luaGetSourceIndex(lua_State* const L)
 {
   const char* const name = luaL_checkstring(L, 1);
-  bool found = false;
-  mixsrc_t idx;
+  mixsrc_t idx = getSourceIndex(name, true);
 
-  for (idx = MIXSRC_NONE; idx <= MIXSRC_LAST_TELEM; idx++) {
-    if (isSourceAvailable(idx)) {
-      char srcName[maxSourceNameLength];
-      getSourceString(srcName, idx);
-      if (!strncasecmp(srcName, name)) {
-        found = true;
-        break;
-      }
-    }
-  }
-
-  if (found)
+  if (idx >= 0)
     lua_pushinteger(L, idx);
   else
     lua_pushnil(L);

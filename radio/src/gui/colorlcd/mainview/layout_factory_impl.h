@@ -98,8 +98,6 @@ class Layout: public LayoutBase
       return getOptionValue(LAYOUT_OPTION_MIRRORED)->boolValue;
     }
 
-    virtual bool isAppMode() const { return false; }
-
     // Set decoration visibility
     void setTrimsVisible(bool visible);
     void setSlidersVisible(bool visible);
@@ -182,7 +180,7 @@ class BaseLayoutFactory: public LayoutFactory
 
     const uint8_t* getBitmap() const override { return bitmap; }
 
-    const ZoneOption * getOptions() const override
+    const ZoneOption * getLayoutOptions() const override
     {
       return options;
     }

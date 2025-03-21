@@ -41,7 +41,7 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
       menu->addLine(STR_SELECT_WIDGET,
                     [=]() { addNewWidget(container, slotIndex); });
       auto widget = container->getWidget(slotIndex);
-      if (widget->getOptions() && widget->getOptions()->name)
+      if (widget->hasOptions())
         menu->addLine(STR_WIDGET_SETTINGS,
                       [=]() { new WidgetSettings(widget); });
       menu->addLine(STR_REMOVE_WIDGET,
@@ -103,7 +103,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
     menu->addLine(factory->getDisplayName(), [=]() {
       container->createWidget(slotIndex, factory);
       auto widget = container->getWidget(slotIndex);
-      if (widget->getOptions() && widget->getOptions()->name)
+      if (widget->hasOptions())
         new WidgetSettings(widget);
     });
     if (cur && strcmp(cur, factory->getDisplayName()) == 0)

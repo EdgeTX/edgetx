@@ -85,5 +85,6 @@ class WidgetsContainer: public Window
     virtual void runBackground() = 0;
 
     virtual bool isLayout() { return false; }
+    virtual bool isAppMode() const { return false; }
     bool isWidgetsContainer() override { return true; }
 };

@@ -28,6 +28,7 @@
 #include "lua_states.h"
 #include "lua_api.h"
 #include "lua_lvgl_widget.h"
+#include "telemetry/telemetry.h"
 
 #include "edgetx_types.h"
 
@@ -35,10 +36,37 @@
 
 class LuaWidgetFactory;
 
-class LuaLvglManager
+class LuaEventHandler
+{
+public:
+  LuaEventHandler() = default;
+  void setupHandler(Window* w);
+  void removeHandler(Window* w);
+
+protected:
+#if defined(HARDWARE_TOUCH)
+  // "tap" handling
+  static uint32_t downTime;
+  static uint32_t tapTime;
+  static uint32_t tapCount;
+  // "swipe" / "slide" handling
+  static tmr10ms_t swipeTimeOut;
+  static bool _sliding;
+  static coord_t _startX;
+  static coord_t _startY;
+#endif
+  static void event_cb(lv_event_t* e);
+
+  void onClickedEvent();
+  void onCancelEvent();
+  void onLuaEvent(event_t event);
+};
+
+class LuaScriptManager : public LuaEventHandler
 {
  public:
-  LuaLvglManager() = default;
+  LuaScriptManager() = default;
+  ~LuaScriptManager();
 
   std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
   void saveLvglObjectRef(int ref);
@@ -62,46 +90,26 @@ class LuaLvglManager
 
   uint8_t refreshInstructionsPercent;
 
+  void createTelemetryQueue();
+  TelemetryQueue* telemetryQueue() { return luaInputTelemetryFifo; }
+
  protected:
   int luaScriptContextRef = 0;
   std::vector<int> lvglObjectRefs;
   LvglWidgetObjectBase* tempParent = nullptr;
-};
-
-class LuaEventHandler
-{
-public:
-  LuaEventHandler() = default;
-  void setupHandler(Window* w);
-  void removeHandler(Window* w);
-
-protected:
-#if defined(HARDWARE_TOUCH)
-  // "tap" handling
-  static uint32_t downTime;
-  static uint32_t tapTime;
-  static uint32_t tapCount;
-  // "swipe" / "slide" handling
-  static tmr10ms_t swipeTimeOut;
-  static bool _sliding;
-  static coord_t _startX;
-  static coord_t _startY;
+#if defined(LUA)
+  TelemetryQueue* luaInputTelemetryFifo = nullptr;
 #endif
-  static void event_cb(lv_event_t* e);
-
-  void onClicked();
-  void onCancel();
-  void onLuaEvent(event_t event);
 };
 
-class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
+class LuaWidget : public Widget, public LuaScriptManager
 {
   friend class LuaWidgetFactory;
 
  public:
   LuaWidget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
-            WidgetPersistentData* persistentData, int luaScriptContextRef, int zoneRectDataRef,
-            int optionsDataRef);
+            WidgetPersistentData* persistentData, int zoneRectDataRef,
+            int optionsDataRef, int createFunctionRef, std::string path);
   ~LuaWidget() override;
 
 #if defined(DEBUG_WINDOWS)
@@ -160,3 +168,5 @@ class LuaWidget : public Widget, public LuaEventHandler, public LuaLvglManager
 
   static void redraw_cb(lv_event_t *e);
 };
+
+extern LuaScriptManager* luaScriptManager;

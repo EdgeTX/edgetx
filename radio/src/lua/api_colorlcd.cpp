@@ -36,7 +36,6 @@
 #define BITMAP_METATABLE "BITMAP*"
 
 BitmapBuffer* luaLcdBuffer  = nullptr;
-LuaWidget *runningFS = nullptr;
 
 /*luadoc
 @function lcd.refresh()
@@ -1386,8 +1385,8 @@ Exit full screen widget mode.
 */
 static int luaLcdExitFullScreen(lua_State *L)
 {
-  if (runningFS)
-    runningFS->closeFullscreen();
+  if (luaScriptManager)
+    luaScriptManager->exitFullscreen();
   return 0;
 }
 
