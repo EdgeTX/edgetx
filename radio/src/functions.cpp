@@ -406,7 +406,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
               break;
             }
 
-            getvalue_t raw = getValue(CFN_PARAM(cfn));
+            getvalue_t raw = limit(-RESX, (int)getValue(CFN_PARAM(cfn)), RESX);
 #if defined(COLORLCD)
             requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright +
                 ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
