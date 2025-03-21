@@ -98,123 +98,12 @@ void luaSetInstructionsLimit(lua_State * L, int count)
 #endif
 }
 
-ZoneOption *createOptionsArray(int reference, uint8_t maxOptions)
-{
-  if (reference == 0) {
-    // TRACE("createOptionsArray() no options");
-    return NULL;
-  }
-
-  int count = 0;
-  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, reference);
-  for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
-    count++;
-  }
-
-  // TRACE("we have %d options", count);
-  if (count > maxOptions) {
-    count = maxOptions;
-    // TRACE("limited to %d options", count);
-  }
-
-  ZoneOption *options = new ZoneOption[count + 1];
-  if (!options) {
-    return NULL;
-  }
-
-  PROTECT_LUA()
-  {
-    lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, reference);
-    ZoneOption *option = options;
-    for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2), count-- > 0;
-         lua_pop(lsWidgets, 1)) {
-      // TRACE("parsing option %d", count);
-      luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
-      luaL_checktype(lsWidgets, -1, LUA_TTABLE);   // value is table
-      uint8_t field = 0;
-      for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2) && field < 5;
-           lua_pop(lsWidgets, 1), field++) {
-        luaL_checktype(lsWidgets, -2, LUA_TNUMBER);  // key is number
-        switch (field) {
-          case 0:
-            option->name = luaL_checkstring(lsWidgets, -1);
-            option->displayName = nullptr;
-            // TRACE("name = %s", option->name);
-            break;
-          case 1:
-            option->type = (ZoneOption::Type)luaL_checkinteger(lsWidgets, -1);
-            option->deflt.unsignedValue = 0;
-            // set some sensible defaults
-            if (option->type == ZoneOption::Integer) {
-              option->min.signedValue = -100;
-              option->max.signedValue = 100;
-            } else if (option->type == ZoneOption::Switch) {
-              option->min.signedValue = SWSRC_FIRST;
-              option->max.signedValue = SWSRC_LAST;
-            } else if (option->type == ZoneOption::Timer) {
-              option->min.unsignedValue = 0;
-              option->max.unsignedValue = MAX_TIMERS - 1;
-            } else if (option->type == ZoneOption::TextSize) {
-              option->min.unsignedValue = FONT_STD_INDEX;
-              option->max.unsignedValue = FONTS_COUNT - 1;
-            } else if (option->type == ZoneOption::String || option->type == ZoneOption::File) {
-              option->deflt.stringValue[0] = 0;
-            } else if (option->type == ZoneOption::Slider) {
-              option->min.unsignedValue = 0;
-              option->max.unsignedValue = 9;
-            }
-            break;
-          case 2:
-            if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch) {
-              option->deflt.signedValue = luaL_checkinteger(lsWidgets, -1);
-            } else if (option->type == ZoneOption::Bool) {
-              option->deflt.boolValue = (luaL_checkunsigned(lsWidgets, -1) != 0);
-            } else if (option->type == ZoneOption::String || option->type == ZoneOption::File) {
-              strncpy(option->deflt.stringValue, luaL_checkstring(lsWidgets, -1),
-                      LEN_ZONE_OPTION_STRING);
-            } else {
-              option->deflt.unsignedValue = luaL_checkunsigned(lsWidgets, -1);
-            }
-            break;
-          case 3:
-            if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch || option->type == ZoneOption::Slider) {
-              option->min.signedValue = luaL_checkinteger(lsWidgets, -1);
-            } else if (option->type == ZoneOption::Choice) {
-              luaL_checktype(lsWidgets, -1, LUA_TTABLE); // value is a table
-              for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
-                option->choiceValues.push_back(luaL_checkstring(lsWidgets, -1));
-              }
-            } else if (option->type == ZoneOption::File) {
-              option->fileSelectPath = luaL_checkstring(lsWidgets, -1);
-            }
-            break;
-          case 4:
-            if (option->type == ZoneOption::Integer || option->type == ZoneOption::Switch || option->type == ZoneOption::Slider) {
-              option->max.signedValue = luaL_checkinteger(lsWidgets, -1);
-            }
-            break;
-        }
-      }
-      option++;
-    }
-    option->name = NULL;  // sentinel
-  }
-  else
-  {
-    TRACE("error in theme/widget options");
-    delete[] options;
-    return NULL;
-  }
-  UNPROTECT_LUA();
-  return options;
-}
-
-void luaLoadWidgetCallback()
+void luaLoadWidgetCallback(const char* filename)
 {
   TRACE("luaLoadWidgetCallback()");
   const char * name=NULL;
 
-  int widgetOptions = 0, createFunction = 0, updateFunction = 0, settingsFunction = 0,
+  int optionDefinitionsReference = LUA_REFNIL, createFunction = 0, updateFunction = 0,
       refreshFunction = 0, backgroundFunction = 0, translateFunction = 0;
   bool lvglLayout = false;
 
@@ -226,7 +115,7 @@ void luaLoadWidgetCallback()
       name = luaL_checkstring(lsWidgets, -1);
     }
     else if (!strcmp(key, "options")) {
-      widgetOptions = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
+      optionDefinitionsReference = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
       lua_pushnil(lsWidgets);
     }
     else if (!strcmp(key, "create")) {
@@ -249,34 +138,25 @@ void luaLoadWidgetCallback()
       translateFunction = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
       lua_pushnil(lsWidgets);
     }
-    else if (!strcmp(key, "settings")) {
-      settingsFunction = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
-      lua_pushnil(lsWidgets);
-    }
     else if (!strcasecmp(key, "useLvgl")) {
       lvglLayout = lua_toboolean(lsWidgets, -1);
     }
   }
 
   if (name && createFunction) {
-    ZoneOption * options = createOptionsArray(widgetOptions, MAX_WIDGET_OPTIONS);
+    ZoneOption * options = LuaWidgetFactory::parseOptionDefinitions(optionDefinitionsReference);
     if (options) {
-      LuaWidgetFactory * factory = new LuaWidgetFactory(name, options, createFunction);
-      factory->updateFunction = updateFunction;
-      factory->refreshFunction = refreshFunction;
-      factory->backgroundFunction = backgroundFunction;
-      factory->translateFunction = translateFunction;
-      factory->settingsFunction = settingsFunction;
-      factory->translateOptions(options);
-      factory->lvglLayout = lvglLayout;
+      new LuaWidgetFactory(name, options, optionDefinitionsReference,
+              createFunction, updateFunction, refreshFunction, backgroundFunction,
+              translateFunction, lvglLayout, filename);
       TRACE("Loaded Lua widget %s", name);
     }
   }
 }
 
-void luaLoadFile(const char * filename, void (*callback)())
+static void luaLoadFile(const char * filename, std::function<void()> callback)
 {
-  if (lsWidgets == NULL || callback == NULL)
+  if (lsWidgets == NULL)
     return;
 
   TRACE("luaLoadFile(%s)", filename);
@@ -286,7 +166,7 @@ void luaLoadFile(const char * filename, void (*callback)())
   PROTECT_LUA() {
     if (luaLoadScriptFileToState(lsWidgets, filename, LUA_SCRIPT_LOAD_MODE) == SCRIPT_OK) {
       if (lua_pcall(lsWidgets, 0, 1, 0) == LUA_OK && lua_istable(lsWidgets, -1)) {
-        (*callback)();
+        callback();
       }
       else {
         TRACE("luaLoadFile(%s): Error parsing script: %s", filename, lua_tostring(lsWidgets, -1));
@@ -301,7 +181,7 @@ void luaLoadFile(const char * filename, void (*callback)())
   UNPROTECT_LUA();
 }
 
-void luaLoadFiles(const char * directory, void (*callback)())
+static void luaLoadFiles(const char * directory)
 {
   char path[LUA_FULLPATH_MAXLEN+1];
   FILINFO fno;
@@ -324,7 +204,7 @@ void luaLoadFiles(const char * directory, void (*callback)())
         strcpy(&path[pathlen], fno.fname);
         strcat(&path[pathlen], LUA_WIDGET_FILENAME);
         if (isFileAvailable(path)) {
-          luaLoadFile(path, callback);
+          luaLoadFile(path, [=]() { luaLoadWidgetCallback(path); });
         }
       }
     }
@@ -374,7 +254,7 @@ void luaInitThemesAndWidgets()
     }
     UNPROTECT_LUA();
     TRACE("lsWidgets %p", lsWidgets);
-    luaLoadFiles(WIDGETS_PATH, luaLoadWidgetCallback);
+    luaLoadFiles(WIDGETS_PATH);
     luaDoGc(lsWidgets, true);
   }
 }

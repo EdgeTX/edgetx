@@ -25,12 +25,13 @@
 
 class LuaWidgetFactory : public WidgetFactory
 {
-  friend void luaLoadWidgetCallback();
   friend class LuaWidget;
 
  public:
-  LuaWidgetFactory(const char* name, ZoneOption* widgetOptions,
-                   int createFunction);
+  LuaWidgetFactory(const char* name, ZoneOption* widgetOptions, int optionDefinitionsReference,
+                   int createFunction, int updateFunction, int refreshFunction,
+                   int backgroundFunction, int translateFunction, bool lvgllayout,
+                   const char* filename);
   ~LuaWidgetFactory();
 
   Widget* create(Window* parent, const rect_t& rect,
@@ -41,14 +42,18 @@ class LuaWidgetFactory : public WidgetFactory
 
   bool useLvglLayout() const { return lvglLayout; }
 
+  static ZoneOption* parseOptionDefinitions(int reference);
+  const void parseOptionDefaults() const override;
+
  protected:
   void translateOptions(ZoneOption * options);
 
+  int optionDefinitionsReference;
   int createFunction;
   int updateFunction;
   int refreshFunction;
   int backgroundFunction;
   int translateFunction;
-  int settingsFunction;
   bool lvglLayout;
+  std::string path;
 };

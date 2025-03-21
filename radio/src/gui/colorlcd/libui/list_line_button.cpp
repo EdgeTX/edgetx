@@ -109,7 +109,7 @@ void InputMixButtonBase::setSource(mixsrc_t idx)
   else
     lv_obj_clear_state(source, LV_STATE_USER_1);
 
-    lv_label_set_text(source, s);
+  lv_label_set_text(source, s);
 }
 
 void InputMixButtonBase::setOpts(const char* s)

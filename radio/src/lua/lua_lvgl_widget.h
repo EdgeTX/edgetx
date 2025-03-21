@@ -24,6 +24,30 @@
 #define LVGL_METATABLE "LVGL*"
 #define LVGL_SIMPLEMETATABLE "LVGLSIMPLE*"
 
+class LuaScriptManager;
+class LvglDialog;
+
+//-----------------------------------------------------------------------------
+
+struct LvglParamFuncOrValue
+{
+ public:
+  enum ParamType {
+    PVALUE,
+    PTXT,
+  };
+
+  int function;
+  union {
+    LcdFlags flags;
+    coord_t coord;
+    const char* txt;
+    uint32_t value;
+  };
+
+  void parse(lua_State *L, ParamType typ = PVALUE);
+};
+
 //-----------------------------------------------------------------------------
 
 class LvglWidgetObjectBase
@@ -36,9 +60,6 @@ class LvglWidgetObjectBase
   void push(lua_State *L);
   void saveLvglObjectRef(int ref);
 
-  void getParams(lua_State *L, int index);
-
-  virtual void build(lua_State *L);
   virtual bool callRefs(lua_State *L);
   virtual void clearRefs(lua_State *L);
   void clearChildRefs(lua_State *L);
@@ -47,12 +68,14 @@ class LvglWidgetObjectBase
   virtual void hide() = 0;
   virtual void enable() {};
   virtual void disable() {};
+  virtual void close() {};
 
   virtual void setColor(LcdFlags newColor) {}
   virtual void setOpacity(uint8_t newOpa) {}
   virtual void setPos(coord_t x, coord_t y) {}
   virtual void setSize(coord_t w, coord_t h) {}
 
+  void create(lua_State *L, int index);
   void update(lua_State *L);
 
   virtual Window *getWindow() const = 0;
@@ -66,20 +89,21 @@ class LvglWidgetObjectBase
   std::vector<int> lvglObjectRefs;
   const char* metatable = nullptr;
   bool clearRequest = false;
-  LuaLvglManager *lvglManager = nullptr;
+  LuaScriptManager *lvglManager = nullptr;
   coord_t x = 0, y = 0, w = LV_SIZE_CONTENT, h = LV_SIZE_CONTENT;
-  LcdFlags color = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX);
   LcdFlags currentColor = -1;
-  uint8_t opacity = LV_OPA_COVER;
-  int getColorFunction = LUA_REFNIL;
-  int getOpacityFunction = LUA_REFNIL;
   int getVisibleFunction = LUA_REFNIL;
   int getSizeFunction = LUA_REFNIL;
   int getPosFunction = LUA_REFNIL;
+  LvglParamFuncOrValue color = { .function = LUA_REFNIL, .flags = COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)};
+  LvglParamFuncOrValue opacity = { .function = LUA_REFNIL, .value = LV_OPA_COVER};
 
+  virtual void build(lua_State *L);
   virtual void refresh();
 
   virtual void parseParam(lua_State *L, const char *key);
+
+  void getParams(lua_State *L, int index);
 
   bool colorChanged(LcdFlags newColor);
 
@@ -128,26 +152,23 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject
   void setFont(LcdFlags font);
   void setAlign(LcdFlags align);
 
-  void build(lua_State *L) override;
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
   uint32_t textHash = -1;
 
-  const char *txt = "";
-  LcdFlags font = FONT(STD);
-  LcdFlags align = LEFT;
-  int getTextFunction = LUA_REFNIL;
-  int getFontFunction = LUA_REFNIL;
-  int getAlignFunction = LUA_REFNIL;
+  LvglParamFuncOrValue font = { .function = LUA_REFNIL, .flags = FONT(STD)};
+  LvglParamFuncOrValue align = { .function = LUA_REFNIL, .flags = LEFT};
+  LvglParamFuncOrValue txt = { .function = LUA_REFNIL, .txt = ""};
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
   {
-    setText(txt);
-    setFont(font);
-    setAlign(align);
+    setText(txt.txt);
+    setFont(font.flags);
+    setAlign(align.flags);
     LvglSimpleWidgetObject::refresh();
   }
 };
@@ -164,8 +185,6 @@ class LvglWidgetLineBase : public LvglSimpleWidgetObject
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
 
-  void build(lua_State *L) override;
-
  protected:
   bool rounded = false;
   int dashGap = 0;
@@ -174,6 +193,7 @@ class LvglWidgetLineBase : public LvglSimpleWidgetObject
 
   virtual void setLine() = 0;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override;
 };
@@ -205,24 +225,30 @@ class LvglWidgetVLine : public LvglWidgetLineBase
 class LvglWidgetLine : public LvglSimpleWidgetObject
 {
  public:
-  LvglWidgetLine() : LvglSimpleWidgetObject() {}
+  LvglWidgetLine();
+  ~LvglWidgetLine();
 
   void setColor(LcdFlags newColor) override;
   void setOpacity(uint8_t newOpa) override;
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
 
-  void build(lua_State *L) override;
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
 
  protected:
   coord_t thickness = 1;
   bool rounded = false;
   size_t ptCnt = 0;
   lv_point_t* pts = nullptr;
+  uint32_t ptsHash = -1;
+  lv_obj_t* parent = nullptr;
+  int getPointsFunction = LUA_REFNIL;
 
   void setLine();
 
   void getPt(lua_State* L, int n);
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override;
 };
@@ -232,22 +258,27 @@ class LvglWidgetLine : public LvglSimpleWidgetObject
 class LvglWidgetTriangle : public LvglSimpleWidgetObject
 {
  public:
-  LvglWidgetTriangle() : LvglSimpleWidgetObject() {}
+  LvglWidgetTriangle();
   ~LvglWidgetTriangle();
 
   void setColor(LcdFlags newColor) override;
   void setSize(coord_t w, coord_t h) override;
 
-  void build(lua_State *L) override;
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
 
  protected:
-  coord_t px[3] = {0}, py[3] = {0};
+  lv_point_t pts[3] = {0};
+  uint32_t ptsHash = -1;
   MaskBitmap* mask = nullptr;
+  lv_obj_t* parent = nullptr;
+  int getPointsFunction = LUA_REFNIL;
 
   void fillTriangle();
   void fillLine(coord_t x1, coord_t x2, coord_t y);
 
   void getPt(lua_State* L, int n);
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override;
 };
@@ -290,9 +321,8 @@ class LvglWidgetBox : public LvglWidgetObject
  public:
   LvglWidgetBox() : LvglWidgetObject() {}
 
-  void build(lua_State *L) override;
-
  protected:
+  void build(lua_State *L) override;
 };
 
 //-----------------------------------------------------------------------------
@@ -302,11 +332,10 @@ class LvglWidgetSetting : public LvglWidgetObject
  public:
   LvglWidgetSetting() : LvglWidgetObject() {}
 
-  void build(lua_State *L) override;
-
  protected:
   const char *txt = "";
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -320,12 +349,11 @@ class LvglWidgetBorderedObject : public LvglWidgetObject
   void setColor(LcdFlags newColor) override;
   void setOpacity(uint8_t newOpa) override;
 
-  void build(lua_State *L) override;
-
  protected:
   coord_t thickness = 1;
   bool filled = false;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -343,14 +371,12 @@ class LvglWidgetRoundObject : public LvglWidgetBorderedObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  coord_t radius = 0;
-
-  int getRadiusFunction = LUA_REFNIL;
+  LvglParamFuncOrValue radius = { .function = LUA_REFNIL, .coord = 0};
 
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
   {
-    setRadius(radius);
+    setRadius(radius.coord);
     LvglWidgetObject::refresh();
   }
 };
@@ -362,11 +388,10 @@ class LvglWidgetRectangle : public LvglWidgetBorderedObject
  public:
   LvglWidgetRectangle() : LvglWidgetBorderedObject() {}
 
-  void build(lua_State *L) override;
-
  protected:
   coord_t rounded = 0;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -377,9 +402,8 @@ class LvglWidgetCircle : public LvglWidgetRoundObject
  public:
   LvglWidgetCircle() : LvglWidgetRoundObject() {}
 
-  void build(lua_State *L) override;
-
  protected:
+  void build(lua_State *L) override;
 };
 
 //-----------------------------------------------------------------------------
@@ -394,21 +418,19 @@ class LvglWidgetArc : public LvglWidgetRoundObject
   void setStartAngle(coord_t angle);
   void setEndAngle(coord_t angle);
 
-  void build(lua_State *L) override;
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
-  coord_t startAngle = 0, endAngle = 0;
+  LvglParamFuncOrValue startAngle = { .function = LUA_REFNIL, .coord = 0};
+  LvglParamFuncOrValue endAngle = { .function = LUA_REFNIL, .coord = 0};
 
-  int getStartAngleFunction = LUA_REFNIL;
-  int getEndAngleFunction = LUA_REFNIL;
-
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
   {
-    setStartAngle(startAngle);
-    setEndAngle(endAngle);
+    setStartAngle(startAngle.coord);
+    setEndAngle(endAngle.coord);
     LvglWidgetRoundObject::refresh();
   }
 };
@@ -420,12 +442,11 @@ class LvglWidgetImage : public LvglWidgetObject
  public:
   LvglWidgetImage() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
-  void build(lua_State *L) override;
-
  protected:
   std::string filename;
   bool fillFrame = false;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -436,12 +457,11 @@ class LvglWidgetQRCode : public LvglWidgetObject
  public:
   LvglWidgetQRCode() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
-  void build(lua_State *L) override;
-
  protected:
   std::string data;
   LcdFlags bgColor = COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX);
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -452,7 +472,7 @@ class LvglWidgetTextButtonBase : public LvglWidgetObject
  public:
   LvglWidgetTextButtonBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE)
   {
-    color = -1; // ignore unless overridden
+    color.flags = -1; // ignore unless overridden
   }
 
   void setText(const char *s);
@@ -485,13 +505,13 @@ class LvglWidgetTextButton : public LvglWidgetTextButtonBase
   void setFont(LcdFlags font);
   void setChecked(bool check);
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
   bool checked = false;
   int longPressFunction = LUA_REFNIL;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
   {
@@ -509,12 +529,12 @@ class LvglWidgetMomentaryButton : public LvglWidgetTextButtonBase
 
   void setFont(LcdFlags font);
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
   int releaseFunction = LUA_REFNIL;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -525,13 +545,13 @@ class LvglWidgetToggleSwitch : public LvglWidgetObject
  public:
   LvglWidgetToggleSwitch() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
   int getStateFunction = LUA_REFNIL;
   int setStateFunction = LUA_REFNIL;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -542,7 +562,6 @@ class LvglWidgetTextEdit : public LvglWidgetObject
  public:
   LvglWidgetTextEdit() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -552,6 +571,7 @@ class LvglWidgetTextEdit : public LvglWidgetObject
 
   int setFunction = LUA_REFNIL;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -562,7 +582,6 @@ class LvglWidgetNumberEdit : public LvglWidgetObject
  public:
   LvglWidgetNumberEdit() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -572,6 +591,7 @@ class LvglWidgetNumberEdit : public LvglWidgetObject
   int setFunction = LUA_REFNIL;
   int dispFunction = LUA_REFNIL;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -582,7 +602,7 @@ class LvglWidgetSliderBase : public LvglWidgetObject
  public:
   LvglWidgetSliderBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE)
   {
-    color = -1;
+    color.flags = -1;
   }
 
   void setColor(LcdFlags newColor) override;
@@ -605,6 +625,7 @@ class LvglWidgetSlider : public LvglWidgetSliderBase
  public:
   LvglWidgetSlider() : LvglWidgetSliderBase() {}
 
+ protected:
   void build(lua_State *L) override;
 };
 
@@ -615,6 +636,7 @@ class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
  public:
   LvglWidgetVerticalSlider() : LvglWidgetSliderBase() {}
 
+ protected:
   void build(lua_State *L) override;
 };
 
@@ -625,7 +647,6 @@ class LvglWidgetPage : public LvglWidgetObject
  public:
   LvglWidgetPage() : LvglWidgetObject() {}
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -635,6 +656,7 @@ class LvglWidgetPage : public LvglWidgetObject
 
   int backActionFunction = LUA_REFNIL;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -645,14 +667,16 @@ class LvglWidgetDialog : public LvglWidgetObject
  public:
   LvglWidgetDialog() : LvglWidgetObject() {}
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
+  void close() override;
 
  protected:
   const char *title = nullptr;
+  LvglDialog* dialog = nullptr;
 
   int closeFunction = LUA_REFNIL;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -663,7 +687,6 @@ class LvglWidgetConfirmDialog : public LvglWidgetObject
  public:
   LvglWidgetConfirmDialog() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
-  void build(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
@@ -673,6 +696,7 @@ class LvglWidgetConfirmDialog : public LvglWidgetObject
   int confirmFunction = LUA_REFNIL;
   int cancelFunction = LUA_REFNIL;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -683,13 +707,12 @@ class LvglWidgetMessageDialog : public LvglWidgetObject
  public:
   LvglWidgetMessageDialog() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
-  void build(lua_State *L) override;
-
  protected:
   const char *title = nullptr;
   const char *message = nullptr;
   const char *details = nullptr;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -716,12 +739,11 @@ class LvglWidgetChoice : public LvglWidgetPicker
  public:
   LvglWidgetChoice() : LvglWidgetPicker() {}
 
-  void build(lua_State *L) override;
-
  protected:
   std::string title;
   std::vector<std::string> values;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -732,6 +754,7 @@ class LvglWidgetFontPicker : public LvglWidgetPicker
  public:
   LvglWidgetFontPicker() : LvglWidgetPicker() {}
 
+ protected:
   void build(lua_State *L) override;
 };
 
@@ -742,6 +765,7 @@ class LvglWidgetAlignPicker : public LvglWidgetPicker
  public:
   LvglWidgetAlignPicker() : LvglWidgetPicker() {}
 
+ protected:
   void build(lua_State *L) override;
 };
 
@@ -752,6 +776,7 @@ class LvglWidgetColorPicker : public LvglWidgetPicker
  public:
   LvglWidgetColorPicker() : LvglWidgetPicker() {}
 
+ protected:
   void build(lua_State *L) override;
 };
 
@@ -762,6 +787,7 @@ class LvglWidgetTimerPicker : public LvglWidgetPicker
  public:
   LvglWidgetTimerPicker() : LvglWidgetPicker() {}
 
+ protected:
   void build(lua_State *L) override;
 };
 
@@ -772,11 +798,10 @@ class LvglWidgetSwitchPicker : public LvglWidgetPicker
  public:
   LvglWidgetSwitchPicker() : LvglWidgetPicker() {}
 
-  void build(lua_State *L) override;
-
  protected:
   uint32_t filter = 0xFFFFFFFF;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -787,11 +812,10 @@ class LvglWidgetSourcePicker : public LvglWidgetPicker
  public:
   LvglWidgetSourcePicker() : LvglWidgetPicker() {}
 
-  void build(lua_State *L) override;
-
  protected:
   uint32_t filter = 0xFFFFFFFF;
 
+  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 

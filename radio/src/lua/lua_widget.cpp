@@ -31,6 +31,8 @@
 
 #define MAX_INSTRUCTIONS (20000 / 100)
 
+LuaScriptManager *luaScriptManager = nullptr;
+
 #if defined(HARDWARE_TOUCH)
 uint32_t LuaEventHandler::downTime = 0;
 uint32_t LuaEventHandler::tapTime = 0;
@@ -140,7 +142,7 @@ void LuaEventHandler::event_cb(lv_event_t* e)
 #endif
 }
 
-void LuaEventHandler::onClicked()
+void LuaEventHandler::onClickedEvent()
 {
 #if defined(HARDWARE_TOUCH)
   auto click_source = lv_indev_get_act();
@@ -167,7 +169,7 @@ void LuaEventHandler::onClicked()
   luaPushEvent(EVT_KEY_BREAK(KEY_ENTER));
 }
 
-void LuaEventHandler::onCancel() {
+void LuaEventHandler::onCancelEvent() {
   luaPushEvent(EVT_KEY_BREAK(KEY_EXIT));
 }
 
@@ -217,18 +219,41 @@ void LuaWidget::redraw_cb(lv_event_t* e)
     buf.setClippingRect(clipping.x1 - a.x1, clipping.x2 + 1 - a.x1,
                         clipping.y1 - a.y1, clipping.y2 + 1 - a.y1);
 
+    auto save = luaScriptManager;
+    luaScriptManager = widget;
     widget->refresh(&buf);
+    luaScriptManager = save;
   }
 }
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, WidgetPersistentData* persistentData,
-                     int luaScriptContextRef, int zoneRectDataRef, int optionsDataRef) :
+                     int zoneRectDataRef, int optionsDataRef,
+                     int createFunctionRef, std::string path) :
     Widget(factory, parent, rect, persistentData),
     zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
     errorMessage(nullptr)
 {
-  this->luaScriptContextRef = luaScriptContextRef;
+  // Push create function
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunctionRef);
+  // Push stored zone for 'create' call
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+  // Push stored options for 'create' call
+  lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
+  // Push widget folder path
+  lua_pushstring(lsWidgets, path.c_str());
+
+  auto save = luaScriptManager;
+  luaScriptManager = this;
+
+  if (lua_pcall(lsWidgets, 3, 1, 0) == LUA_OK) {
+    luaScriptContextRef = luaL_ref(lsWidgets, LUA_REGISTRYINDEX);
+  } else {
+    luaScriptContextRef = LUA_NOREF;
+    setErrorMessage("create()");
+  }
+
+  luaScriptManager = save;
 
   if (useLvglLayout()) {
     update();
@@ -252,7 +277,7 @@ void LuaWidget::onClicked()
     return;
   }
 
-  LuaEventHandler::onClicked();
+  LuaScriptManager::onClickedEvent();
 }
 
 void LuaWidget::onCancel()
@@ -262,7 +287,7 @@ void LuaWidget::onCancel()
     return;
   }
 
-  LuaEventHandler::onCancel();
+  LuaScriptManager::onCancelEvent();
 }
 
 void LuaWidget::checkEvents()
@@ -286,8 +311,9 @@ void LuaWidget::checkEvents()
       lv_obj_get_coords(lvobj, &a);
       // Check widget is at least partially visible
       if (a.x2 >= 0 && a.x1 < LCD_W) {
+        auto save = luaScriptManager;
         PROTECT_LUA() {
-          luaLvglManager = this;
+          luaScriptManager = this;
           refresh(nullptr);
           if (!errorMessage) {
             if (!callRefs(lsWidgets)) {
@@ -298,7 +324,7 @@ void LuaWidget::checkEvents()
         } else {
           // TODO: error handling
         }
-        luaLvglManager = nullptr;
+        luaScriptManager = save;
         UNPROTECT_LUA();
       }
     }
@@ -325,7 +351,7 @@ void LuaWidget::update()
   // Get options table and update values
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, optionsDataRef);
   int i = 0;
-  for (const ZoneOption* option = getOptions(); option->name; option++, i++) {
+  for (const ZoneOption* option = getOptionDefinitions(); option->name; option++, i++) {
     auto optVal = getOptionValue(i);
     switch (option->type) {
       case ZoneOption::String:
@@ -347,7 +373,7 @@ void LuaWidget::update()
     lua_setfield(lsWidgets, -2, option->name);
   }
 
-  if (useLvglLayout()) luaLvglManager = this;
+  luaScriptManager = this;
 
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0)
     setErrorMessage("update()");
@@ -370,7 +396,7 @@ void LuaWidget::update()
     }
   }
 
-  luaLvglManager = nullptr;
+  luaScriptManager = nullptr;
 }
 
 // Update table on top of Lua stack - set entry with name 'idx' to value 'val'
@@ -499,12 +525,10 @@ void LuaWidget::refresh(BitmapBuffer* dc)
   // scripts
   bool lla = luaLcdAllowed;
   luaLcdAllowed = true;
-  runningFS = this;
 
   if (lua_pcall(lsWidgets, 3, 0, 0) != 0) {
     setErrorMessage("refresh()");
   }
-  runningFS = nullptr;
   // Remove LCD
   luaLcdAllowed = lla;
   luaLcdBuffer = nullptr;
@@ -521,18 +545,19 @@ void LuaWidget::background()
     luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
-    runningFS = this;
+    auto save = luaScriptManager;
+    luaScriptManager = this;
     if (lua_pcall(lsWidgets, 1, 0, 0) != 0) {
       setErrorMessage("background()");
     }
-    runningFS = nullptr;
+    luaScriptManager = save;
   }
 }
 
 void LuaWidget::onEvent(event_t event)
 {
   if (fullscreen) {
-    LuaEventHandler::onLuaEvent(event);
+    LuaScriptManager::onLuaEvent(event);
   }
   Widget::onEvent(event);
 }
@@ -547,10 +572,10 @@ bool LuaWidget::useLvglLayout() const { return luaFactory()->useLvglLayout(); }
 
 bool LuaWidget::isAppMode() const
 {
-  return fullscreen && ViewMain::instance()->isAppMode();
+  return ((WidgetsContainer*)parent)->isAppMode();
 }
 
-void LuaLvglManager::saveLvglObjectRef(int ref)
+void LuaScriptManager::saveLvglObjectRef(int ref)
 {
   if (tempParent)
     tempParent->saveLvglObjectRef(ref);
@@ -558,7 +583,7 @@ void LuaLvglManager::saveLvglObjectRef(int ref)
     lvglObjectRefs.push_back(ref);
 }
 
-void LuaLvglManager::clearRefs(lua_State *L)
+void LuaScriptManager::clearRefs(lua_State *L)
 {
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
@@ -569,7 +594,7 @@ void LuaLvglManager::clearRefs(lua_State *L)
   lvglObjectRefs.clear();
 }
 
-bool LuaLvglManager::callRefs(lua_State *L)
+bool LuaScriptManager::callRefs(lua_State *L)
 {
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
@@ -578,4 +603,21 @@ bool LuaLvglManager::callRefs(lua_State *L)
     if (p) if (!p->callRefs(L)) return false;
   }
   return true;
+}
+
+void LuaScriptManager::createTelemetryQueue()
+{
+  if (luaInputTelemetryFifo == nullptr) {
+    luaInputTelemetryFifo = new TelemetryQueue();
+    registerTelemetryQueue(luaInputTelemetryFifo);
+  }
+}
+
+LuaScriptManager::~LuaScriptManager()
+{
+  if (luaInputTelemetryFifo == nullptr) {
+    deregisterTelemetryQueue(luaInputTelemetryFifo);
+    delete luaInputTelemetryFifo;
+    luaInputTelemetryFifo = nullptr;
+  }
 }
