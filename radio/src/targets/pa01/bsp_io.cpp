@@ -28,12 +28,13 @@
 #define BSP_I2C_BUS I2C_Bus_1
 #define BSP_I2C_ADDR 0x5b
 
-#define BSP_IN_MASK                                                \
+#define BSP_IN_MASK                                                    \
   (AW9523B_PIN_0 | AW9523B_PIN_1 | AW9523B_PIN_2 | AW9523B_PIN_3)
 
-#define BSP_OUT_MASK                                               \
-  (AW9523B_PIN_8 | AW9523B_PIN_9 | AW9523B_PIN_10 | AW9523B_PIN_11 | \
-   AW9523B_PIN_12 | AW9523B_PIN_13)
+#define BSP_OUT_MASK                                                   \
+  (AW9523B_PIN_7 | AW9523B_PIN_8 | AW9523B_PIN_9 | AW9523B_PIN_10 |    \
+   AW9523B_PIN_11 | AW9523B_PIN_12 | AW9523B_PIN_13 | AW9523B_PIN_14 | \
+   AW9523B_PIN_15)
 
 #define BSP_CHECK(x) if ((x) < 0) return -1
 
@@ -52,7 +53,9 @@ int bsp_io_init()
 {
   // init outputs
   BSP_CHECK(aw9523b_init(&i2c_exp, BSP_I2C_BUS, BSP_I2C_ADDR));
-  BSP_CHECK(aw9523b_write(&i2c_exp, BSP_OUT_MASK, BSP_OUT_MASK));
+  BSP_CHECK(aw9523b_write(&i2c_exp, BSP_OUT_MASK,
+    BSP_CHARGE_EN | BSP_GPIO0 |
+    BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4));
   BSP_CHECK(aw9523b_set_direction(&i2c_exp, 0xFFFF, BSP_IN_MASK));
 
   return 0;

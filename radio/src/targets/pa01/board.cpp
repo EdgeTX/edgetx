@@ -93,22 +93,22 @@ extern "C" void flushFTL();
 
 void INTERNAL_MODULE_ON()
 {
-//  bsp_output_clear(BSP_INT_PWR);
+  bsp_output_set(BSP_INTMOD_PWR_EN);
 }
 
 void INTERNAL_MODULE_OFF()
 {
-//  bsp_output_set(BSP_INT_PWR);
+  bsp_output_clear(BSP_INTMOD_PWR_EN);
 }
 
 void EXTERNAL_MODULE_ON()
 {
-//  bsp_output_clear(BSP_EXT_PWR);
+  bsp_output_set(BSP_EXTMOD_PWR_EN);
 }
 
 void EXTERNAL_MODULE_OFF()
 {
-//  bsp_output_set(BSP_EXT_PWR);
+  bsp_output_clear(BSP_EXTMOD_PWR_EN);
 }
 
 
@@ -116,8 +116,7 @@ void boardBLEarlyInit()
 {
   timersInit();
   bsp_io_init();
-  gpio_init(USB_SW_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_clear(USB_SW_GPIO);
+  gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 }
 
 
@@ -282,22 +281,21 @@ void boardOff()
 
   }
 }
-/*
+
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
   static uint8_t lastState = 0;
 
-  uint8_t state = gpio_read(UCHARGER_GPIO);
+  uint8_t state = IS_UCHARGER_ACTIVE();
 
   if (state == lastState)
     debouncedState = state;
   else
     lastState = state;
   
-  return debouncedState||1;
+  return debouncedState;
 }
-*/
 
 // extern "C" void * memcpy(void* dst, const void*src, size_t count)
 // {
