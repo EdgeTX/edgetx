@@ -989,19 +989,19 @@ LEGACY_NAMES = [
             "LV": {"yaml": "Ele", "lua": "ele", "description": "Elevator"},
             "RV": {"yaml": "Thr", "lua": "thr", "description": "Throttle"},
             "RH": {"yaml": "Ail", "lua": "ail", "description": "Aileron"},
-            "P1": {
-                "yaml": "S1",
-                "lua": "s1",
-                "label": "S1",
-                "short_label": "1",
-                "description": "Potentiometer 1",
+            "SL1": {
+                "yaml": "SLIDER1",
+                "lua": "ls",
+                "label": "LS",
+                "short_label": "L",
+                "description": "Left slider"
             },
-            "P2": {
-                "yaml": "S2",
-                "lua": "s2",
-                "label": "S2",
-                "short_label": "2",
-                "description": "Potentiometer 2",
+            "SL2": {
+                "yaml": "SLIDER2",
+                "lua": "rs",
+                "label": "RS",
+                "short_label": "R",
+                "description": "Right slider",
             },
         },
     },
