@@ -200,6 +200,7 @@ bool usbChargerLed();
 
 #if defined(RADIO_V16)
   uint16_t getSixPosAnalogValue(uint16_t adcValue);
+  uint16_t getMultiPosAnalogValue(uint16_t adcValue);
 #endif
 
 // Led driver
