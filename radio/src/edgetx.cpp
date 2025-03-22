@@ -1116,6 +1116,7 @@ void edgeTxClose(uint8_t shutdown)
 #if defined(HAPTIC)
     hapticOff();
 #endif
+    mixerTaskExit();
   }
 
   logsClose();
