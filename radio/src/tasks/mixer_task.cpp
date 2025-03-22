@@ -23,22 +23,25 @@
 #include "mixer_task.h"
 #include "mixer_scheduler.h"
 
+#include "os/task.h"
+
 #include "edgetx.h"
 #include "switches.h"
 #include "hal/usb_driver.h"
 
 #include "hal/watchdog_driver.h"
+
 #if defined(HALL_SYNC) && !defined(SIMU)
 #include "stm32_gpio.h"
 #include "hal/gpio.h"
 #endif
 
-RTOS_TASK_HANDLE mixerTaskId;
-RTOS_DEFINE_STACK(mixerTaskId, mixerStack, MIXER_STACK_SIZE);
+task_handle_t mixerTaskId;
+TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
 // mixer hold this mutex while computing
 // channels and sending them out
-static RTOS_MUTEX_HANDLE mixerMutex;
+static mutex_handle_t mixerMutex;
 
 // The mixer will start in 'paused' mode
 // and start working properly once
@@ -49,26 +52,26 @@ static bool _mixer_exit = false;
 
 void mixerTaskLock()
 {
-  RTOS_LOCK_MUTEX(mixerMutex);
+  mutex_lock(&mixerMutex);
 }
 
 // returns true if the lock could be acquired
 bool mixerTaskTryLock()
 {
-  return RTOS_TRYLOCK_MUTEX(mixerMutex);
+  return mutex_trylock(&mixerMutex);
 }
 
 void mixerTaskUnlock()
 {
-  RTOS_UNLOCK_MUTEX(mixerMutex);
+  mutex_unlock(&mixerMutex);
 }
 
 void mixerTaskInit()
 {
   mixerSchedulerInit();
-  RTOS_CREATE_MUTEX(mixerMutex);
-  RTOS_CREATE_TASK(mixerTaskId, mixerTask, "mixer", mixerStack,
-                   MIXER_STACK_SIZE, MIXER_TASK_PRIO);
+  mutex_create(&mixerMutex);
+  task_create(&mixerTaskId, mixerTask, "mixer", mixerStack, MIXER_STACK_SIZE,
+              MIXER_TASK_PRIO);
   mixerSchedulerStart();
 }
 
@@ -133,17 +136,9 @@ void execMixerFrequentActions()
 #if defined(BLUETOOTH)
   bluetooth.wakeup();
 #endif
-
-#if defined(SIMU)
-  if (_mixer_running) {
-    DEBUG_TIMER_START(debugTimerTelemetryWakeup);
-    telemetryWakeup();
-    DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
-  }
-#endif
 }
 
-TASK_FUNCTION(mixerTask)
+void mixerTask()
 {
 #if defined(IMU)
   gyroInit();
@@ -173,9 +168,8 @@ TASK_FUNCTION(mixerTask)
     mixerSchedulerEnableTrigger();
 
 #if defined(SIMU)
-    // TODO: should be using mixerTaskExit() instead...
     if (pwrCheck() == e_power_off) {
-      TASK_RETURN();
+      return;
     }
 #else
     // Emergency power OFF: in case the UI is not functional anymore
@@ -218,8 +212,6 @@ TASK_FUNCTION(mixerTask)
         maxMixerDuration = t0;
     }
   }
-
-  TASK_RETURN();
 }
 
 void doMixerCalculations()

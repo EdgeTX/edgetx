@@ -42,8 +42,8 @@ volatile static bool touchEventOccured;
 
 static tc_handle_TypeDef tc_handle = {0, 0};
 
-tmr10ms_t downTime = 0;
-tmr10ms_t tapTime = 0;
+uint32_t downTime = 0;
+uint32_t tapTime = 0;
 short tapCount = 0;
 #define TAP_TIME 250  // ms
 
@@ -251,7 +251,7 @@ TouchState touchPanelRead()
 
   touchEventOccured = false;
 
-  tmr10ms_t now = RTOS_GET_MS();
+  uint32_t now = timersGetMsTick();
   internalTouchState.tapCount = 0;
 
   if (cst836u_TS_DetectTouch()) {
