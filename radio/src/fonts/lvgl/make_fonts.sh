@@ -134,6 +134,15 @@ function make_font_set() {
   make_font_w_extra_sym "${name}" "${ttf_normal}" 15 "L_s" ${chars} --no-compress
   make_font_no_sym "${name}_bold" "${ttf_bold}" 20 "XL_s" ${chars} --no-compress
   make_font_no_sym "${name}_bold" "${ttf_bold}" 40 "XXL_s" "" --no-compress
+
+  # 800x480 LCD fonts
+  make_font_lz4 "${name}" "${ttf_normal}" 13 "XXS_l" ${chars} --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 19 "XS_l" ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 24 "STD_l" ${chars} --no-compress
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 24 "STD_l" ${chars} --no-compress
+  make_font_w_extra_sym "${name}" "${ttf_normal}" 36 "L_l" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 48 "XL_l" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 96 "XXL_l" "" --no-compress
 }
 
 # Regular fonts
@@ -142,6 +151,7 @@ make_font_set "roboto" "Roboto/Roboto-Regular.ttf" "Roboto/Roboto-Bold.ttf" ",${
 # Bootloader font
 make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 16   # 480x272, 480x320, 320x480
 make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 11   # 320x240
+make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 24   # 800x480
 
 # CJK fonts
 make_font_set "noto_tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${TW_SYMBOLS}"

@@ -21,23 +21,13 @@
 #include "etx_lv_theme.h"
 
 // Table
-#if LANDSCAPE_LCD_SMALL
 const lv_style_const_prop_t table_cell_props[] = {
     LV_STYLE_CONST_BORDER_WIDTH(1),
     LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
-    LV_STYLE_CONST_PAD_TOP(3),  LV_STYLE_CONST_PAD_BOTTOM(3),
-    LV_STYLE_CONST_PAD_LEFT(2), LV_STYLE_CONST_PAD_RIGHT(2),
+    LV_STYLE_CONST_PAD_TOP(PAD_TABLE_V),  LV_STYLE_CONST_PAD_BOTTOM(PAD_TABLE_V),
+    LV_STYLE_CONST_PAD_LEFT(PAD_TABLE_H), LV_STYLE_CONST_PAD_RIGHT(PAD_TABLE_H),
     LV_STYLE_PROP_INV,
 };
-#else
-const lv_style_const_prop_t table_cell_props[] = {
-    LV_STYLE_CONST_BORDER_WIDTH(1),
-    LV_STYLE_CONST_BORDER_SIDE(LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM),
-    LV_STYLE_CONST_PAD_TOP(7),  LV_STYLE_CONST_PAD_BOTTOM(7),
-    LV_STYLE_CONST_PAD_LEFT(4), LV_STYLE_CONST_PAD_RIGHT(4),
-    LV_STYLE_PROP_INV,
-};
-#endif
 LV_STYLE_CONST_MULTI_INIT(table_cell, table_cell_props);
 
 static void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)

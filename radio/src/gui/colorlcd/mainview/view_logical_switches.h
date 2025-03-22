@@ -33,7 +33,7 @@ class LogicalSwitchesViewPage : public PageTab
   static LAYOUT_VAL(FOOTER_HEIGHT, 20, 40, LS(20))
   static LAYOUT_VAL(BTN_WIDTH, 57, 76, LS(57))
   static LAYOUT_VAL(BTN_HEIGHT, 20, 21, 18)
-  static LAYOUT_VAL(BTN_MATRIX_COL, 8, 4, 8)
+  static LAYOUT_VAL2(BTN_MATRIX_COL, 8, 4)
 
  protected:
   void build(Window* window) override;

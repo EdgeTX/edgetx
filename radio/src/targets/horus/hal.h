@@ -1226,11 +1226,19 @@
 #define PORTRAIT_LCD false
 
 #if defined(RADIO_320x240)
+#define LANDSCAPE_LCD_BIG false
 #define LANDSCAPE_LCD_SMALL true
 #define LANDSCAPE_LCD false
 #define LCD_W                          320
 #define LCD_H                          240
+#elif defined(RADIO_800x480)
+#define LANDSCAPE_LCD_BIG true
+#define LANDSCAPE_LCD_SMALL false
+#define LANDSCAPE_LCD false
+#define LCD_W                          800
+#define LCD_H                          480
 #else
+#define LANDSCAPE_LCD_BIG false
 #define LANDSCAPE_LCD_SMALL false
 #define LANDSCAPE_LCD true
 #define LCD_W                          480

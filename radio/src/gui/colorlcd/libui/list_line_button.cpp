@@ -226,15 +226,15 @@ InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
 
 void InputMixGroupBase::adjustHeight()
 {
-  if (getLineCount() == 0) setHeight(ListLineButton::BTN_H + 8);
+  if (getLineCount() == 0) setHeight(ListLineButton::BTN_H + PAD_SMALL * 2);
 
-  coord_t y = 2;
+  coord_t y = PAD_OUTLINE;
   for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
     auto line = *it;
     line->updatePos(InputMixButtonBase::LN_X, y);
-    y += line->height() + 2;
+    y += line->height() + PAD_OUTLINE;
   }
-  setHeight(y + 4);
+  setHeight(y + PAD_BORDER * 2);
 }
 
 void InputMixGroupBase::addLine(InputMixButtonBase* line)

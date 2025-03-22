@@ -35,13 +35,11 @@ static const lv_coord_t f_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 #else  // Landscape
 
 // Footer grid
-#if LANDSCAPE_LCD_SMALL
+LAYOUT_VAL(LS_C1, 60, 60, LS(60))
+LAYOUT_VAL(LS_C3, 112, 112, LS(112))
+LAYOUT_VAL(LS_C5, 50, 50, LS(50))
 static const lv_coord_t f_col_dsc[] = {
-    40, LV_GRID_FR(1), 75, LV_GRID_FR(1), 33, 33, LV_GRID_TEMPLATE_LAST};
-#else
-static const lv_coord_t f_col_dsc[] = {
-    60, LV_GRID_FR(1), 112, LV_GRID_FR(1), 50, 50, LV_GRID_TEMPLATE_LAST};
-#endif
+    LS_C1, LV_GRID_FR(1), LS_C3, LV_GRID_FR(1), LS_C5, LS_C5, LV_GRID_TEMPLATE_LAST};
 
 #endif
 
@@ -66,7 +64,7 @@ class LogicalSwitchDisplayFooter : public Window
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, f_col_dsc, row_dsc);
     lv_obj_set_style_pad_row(lvobj, 0, 0);
-    lv_obj_set_style_pad_column(lvobj, 2, 0);
+    lv_obj_set_style_pad_column(lvobj, PAD_TINY, 0);
 
     lsFunc = lv_label_create(lvobj);
     etx_obj_add_style(lsFunc, styles->text_align_left, LV_PART_MAIN);

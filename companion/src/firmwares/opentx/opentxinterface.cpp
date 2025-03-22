@@ -807,6 +807,12 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
+  /* Test 800x480 */
+  firmware = new OpenTxFirmware(FIRMWAREID("bigLCD"), Firmware::tr("Test 800x480 LCD"), BOARD_BIG_LCD);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  registerOpenTxFirmware(firmware);
+
   /* Radiomaster Zorro board */
   firmware = new OpenTxFirmware(FIRMWAREID("zorro"), QCoreApplication::translate("Firmware", "Radiomaster Zorro"), Board::BOARD_RADIOMASTER_ZORRO);
   addOpenTxCommonOptions(firmware);

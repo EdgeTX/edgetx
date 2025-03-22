@@ -38,17 +38,14 @@ class MainViewSlider : public Window
   MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
                  bool isVertical);
 
-  static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4, LS(4))
-  static LAYOUT_VAL(SLIDER_VTICKS_COUNT, 40, 30, 36)
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
-  static constexpr coord_t SLIDER_HTICKS_COUNT = 34;
+  static constexpr coord_t SLIDER_SIZE = 136; // to fit 3 across bottom row
 #else
-  static LAYOUT_VAL(SLIDER_HTICKS_COUNT, 40, 30, 36)
+  static LAYOUT_VAL(SLIDER_SIZE, 160, 120, 108)
 #endif
-  static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH =
-      SLIDER_HTICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
-  static constexpr coord_t VERTICAL_SLIDERS_HEIGHT =
-      SLIDER_VTICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
+  static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4, LS(4))
+  static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_SIZE + LayoutFactory::TRIM_SQUARE_SIZE;
+  static constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_SIZE + LayoutFactory::TRIM_SQUARE_SIZE;
 
   static LAYOUT_VAL(SL_SZ, 15, 15, 11)
 

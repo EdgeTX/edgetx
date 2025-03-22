@@ -39,7 +39,25 @@ enum PaddingSize {
   PAD_TINY = 1,
   PAD_SMALL = 3,
   PAD_MEDIUM = 4,
-  PAD_LARGE = 6
+  PAD_LARGE = 6,
+  PAD_SCROLL = 2,
+  PAD_TABLE_V = 3,
+  PAD_TABLE_H = 2,
+  PAD_OUTLINE = 1,
+  PAD_BORDER = 2,
+};
+#elif LANDSCAPE_LCD_BIG
+enum PaddingSize {
+  PAD_ZERO = 0,
+  PAD_TINY = 3,
+  PAD_SMALL = 6,
+  PAD_MEDIUM = 9,
+  PAD_LARGE = 12,
+  PAD_SCROLL = 4,
+  PAD_TABLE_V = 10,
+  PAD_TABLE_H = 6,
+  PAD_OUTLINE = 2,
+  PAD_BORDER = 2,
 };
 #else
 enum PaddingSize {
@@ -47,7 +65,12 @@ enum PaddingSize {
   PAD_TINY = 2,
   PAD_SMALL = 4,
   PAD_MEDIUM = 6,
-  PAD_LARGE = 8
+  PAD_LARGE = 8,
+  PAD_SCROLL = 3,
+  PAD_TABLE_V = 7,
+  PAD_TABLE_H = 4,
+  PAD_OUTLINE = 2,
+  PAD_BORDER = 2,
 };
 #endif
 
@@ -62,7 +85,7 @@ enum PaddingSize {
 // Macros for setting up layout values
 //  LS - scaling factor to convert 480 wide landscape to 320 wide landscape
 //  LAYOUT_VAL - 3 values - landscape, portrait, landscape small
-
+//             - 800x480 size is calculated
 #define LS(val) ((val * 4 + 3) / 6)
 #if LANDSCAPE_LCD
 #define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
@@ -70,8 +93,35 @@ enum PaddingSize {
 #elif LANDSCAPE_LCD_SMALL
 #define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
   constexpr coord_t name = landscape_small;
+#elif LANDSCAPE_LCD_BIG
+#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
+  constexpr coord_t name = (((landscape) * 3 + 1) / 2);
 #else
 #define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
+  constexpr coord_t name = portrait;
+#endif
+
+// Macro for value which only differ by orientation
+#if PORTRAIT_LCD
+#define LAYOUT_VAL2(name, landscape, portrait) \
+  constexpr int name = portrait;
+#else
+#define LAYOUT_VAL2(name, landscape, portrait) \
+  constexpr int name = landscape;
+#endif
+
+// Macro for all values specified directly
+#if LANDSCAPE_LCD
+#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
+  constexpr coord_t name = landscape;
+#elif LANDSCAPE_LCD_SMALL
+#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
+  constexpr coord_t name = landscape_small;
+#elif LANDSCAPE_LCD_BIG
+#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
+  constexpr coord_t name = landscape_big;
+#else
+#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
   constexpr coord_t name = portrait;
 #endif
 
@@ -210,8 +260,7 @@ class EdgeTxStyles
   static const lv_style_t border_transparent;
   static const lv_style_t border_thin;
   static const lv_style_t outline;
-  static const lv_style_t outline_thick;
-
+  
   EdgeTxStyles();
 
   void init();

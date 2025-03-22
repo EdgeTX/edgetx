@@ -205,13 +205,13 @@ class MixGroup : public InputMixGroupBase
 
   void adjustHeight() override
   {
-    coord_t y = monitorVisible ? CHNUM_Y : PAD_TINY;
+    coord_t y = monitorVisible ? CHNUM_Y : PAD_OUTLINE;
     for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
       auto line = *it;
       line->updatePos(InputMixButtonBase::LN_X, y);
-      y += line->height() + 2;
+      y += line->height() + PAD_OUTLINE;
     }
-    setHeight(y + 4);
+    setHeight(y + PAD_BORDER * 2);
   }
 
   static LAYOUT_VAL(CHNUM_Y, 17, 17, LS(17))

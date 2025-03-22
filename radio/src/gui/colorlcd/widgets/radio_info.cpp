@@ -91,11 +91,13 @@ class RadioInfoWidget : public TopBarWidget
     update();
 
     // RSSI bars
-#if LANDSCAPE_LCD_SMALL
-    const uint8_t rssiBarsHeight[] = {4, 8, 10, 14, 21};
-#else
-    const uint8_t rssiBarsHeight[] = {5, 10, 15, 21, 31};
-#endif
+    LAYOUT_VAL(RSSI_BH, 31, 31, LS(31))
+    const uint8_t rssiBarsHeight[] = {
+      (RSSI_BH * 5 + 15) / 31,
+      (RSSI_BH * 10 + 15) / 31,
+      (RSSI_BH * 15 + 15) / 31,
+      (RSSI_BH * 21 + 15) / 31,
+      RSSI_BH};
     for (unsigned int i = 0; i < DIM(rssiBarsHeight); i++) {
       uint8_t height = rssiBarsHeight[i];
       rssiBars[i] = lv_obj_create(lvobj);
