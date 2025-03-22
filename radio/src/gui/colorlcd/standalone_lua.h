@@ -60,9 +60,9 @@ public:
 
   void showError(bool firstCall, const char* title, const char* msg);
 
-  static LAYOUT_VAL(POPUP_HEADER_HEIGHT, 30, 30);
-  static LAYOUT_VAL(POPUP_X, 50, 40);
-  static LAYOUT_VAL(POPUP_Y, 70, 110);
+  static LAYOUT_VAL(POPUP_HEADER_HEIGHT, 30, 30, LS(30));
+  static LAYOUT_VAL(POPUP_X, 50, 40, LS(50));
+  static LAYOUT_VAL(POPUP_Y, 70, 110, LS(70));
 
 protected:
   lv_obj_t* prevScreen = nullptr;

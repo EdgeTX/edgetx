@@ -130,11 +130,11 @@ class CurveDataEdit : public Window
     }
   }
 
-  static LAYOUT_VAL(ROW_HEIGHT, 82, 82)
-  static LAYOUT_VAL(NUM_BTN_WIDTH, 48, 48)
-  static LAYOUT_VAL(NUM_HDR_HEIGHT, 15, 15)
-  static LAYOUT_VAL(PTNUM_X, 15, 15)
-  static LAYOUT_VAL(PTNUM_H, 13, 13)
+  static LAYOUT_VAL(ROW_HEIGHT, 82, 82, LS(82))
+  static LAYOUT_VAL(NUM_BTN_WIDTH, 48, 48, LS(48))
+  static LAYOUT_VAL(NUM_HDR_HEIGHT, 15, 15, LS(15))
+  static LAYOUT_VAL(PTNUM_X, 15, 15, LS(15))
+  static LAYOUT_VAL(PTNUM_H, 13, 13, LS(13))
 
  protected:
   uint8_t index;

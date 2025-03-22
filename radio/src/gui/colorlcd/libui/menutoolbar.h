@@ -45,8 +45,8 @@ class MenuToolbar : public Window
 
   virtual void longPress() {}
 
-  static LAYOUT_VAL(MENUS_TOOLBAR_BUTTON_WIDTH, 36, 36)
-  static LAYOUT_VAL(MENUS_MAX_HEIGHT, ListBox::MENUS_LINE_HEIGHT * 7 + 8, ListBox::MENUS_LINE_HEIGHT * 10)
+  static LAYOUT_VAL(MENUS_TOOLBAR_BUTTON_WIDTH, 36, 36, LS(36))
+  static LAYOUT_VAL3(MENUS_MAX_HEIGHT, ListBox::MENUS_LINE_HEIGHT * 7 + PAD_LARGE, ListBox::MENUS_LINE_HEIGHT * 10, ListBox::MENUS_LINE_HEIGHT * 8 + PAD_LARGE, ListBox::MENUS_LINE_HEIGHT * 8 + PAD_LARGE)
 
  protected:
   Choice* choice;
