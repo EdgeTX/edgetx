@@ -103,12 +103,46 @@ TASK_FUNCTION(menusTask)
   TASK_RETURN();
 }
 
+#if !defined(SIMU)
+// Handle 10ms timer asynchronously
+#include <FreeRTOS/include/FreeRTOS.h>
+#include <FreeRTOS/include/timers.h>
+
+static TimerHandle_t _timer10ms = nullptr;
+static StaticTimer_t _timer10msBuffer;
+
+static void _timer_10ms_cb(TimerHandle_t xTimer)
+{
+  (void)xTimer;
+  per10ms();
+}
+
+void timer10msStart()
+{
+  if (!_timer10ms) {
+    _timer10ms =
+        xTimerCreateStatic("10ms", 10 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
+                           _timer_10ms_cb, &_timer10msBuffer);
+  }
+
+  if (_timer10ms) {
+    if( xTimerStart( _timer10ms, 0 ) != pdPASS ) {
+      /* The timer could not be set into the Active state. */
+    }
+  }
+}
+#endif
+
 void tasksStart()
 {
   RTOS_CREATE_MUTEX(audioMutex);
 
 #if defined(CLI) && !defined(SIMU)
   cliStart();
+#endif
+
+#if !defined(SIMU)
+  timer10msStart();
 #endif
 
   RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
