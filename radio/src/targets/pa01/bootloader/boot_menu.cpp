@@ -105,10 +105,10 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
     const char* msg = (st == ST_FLASH_DONE) ? TR_BL_WRITING_COMPL : TR_BL_WRITING_FW;
     lcd->drawText(pb_x, pb_y - 28, msg, BL_FOREGROUND);
-    lcd->drawRect(pb_x, pb_y, 340, pb_h, 2, SOLID, BL_SELECTED);
+    lcd->drawRect(pb_x, pb_y, LCD_W - 2 * pb_x, pb_h, 2, SOLID, BL_SELECTED);
 
     LcdFlags color = (st == ST_FLASH_DONE) ? BL_GREEN : BL_RED;
-    lcd->drawSolidFilledRect(pb_x + 4, pb_y + 4, (332 * opt) / 100, 23, color);
+    lcd->drawSolidFilledRect(pb_x + 4, pb_y + 4, (LCD_W - 2 * pb_x - 8) * opt / 100, 23, color);
   }
 }
 
