@@ -217,7 +217,7 @@ class USBChannelEditWindow : public Page
 
   static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_WIDTH, 250, 160, LS(250))
   static LAYOUT_VAL(USBCH_EDIT_RIGHT_MARGIN, 0, 3, 0)
-  static LAYOUT_VAL(USBCH_COLS, 4, 2, 4)
+  static LAYOUT_VAL2(USBCH_COLS, 4, 2)
 
  protected:
   uint8_t channel;
@@ -489,9 +489,9 @@ class USBChannelLineButton : public ListLineButton
   bool isActive() const override { return false; }
 
   static LAYOUT_VAL(USBCH_LINE_HEIGHT, 32, 48, LS(32))
-  static LAYOUT_VAL(USBCH_CHN_ROWS, 1, 2, 1)
-  static LAYOUT_VAL(USBCH_BTN_MODE_COL, 4, 2, 4)
-  static LAYOUT_VAL(USBCH_BTN_MODE_ROW, 0, 1, 0)
+  static LAYOUT_VAL2(USBCH_CHN_ROWS, 1, 2)
+  static LAYOUT_VAL2(USBCH_BTN_MODE_COL, 4, 2)
+  static LAYOUT_VAL2(USBCH_BTN_MODE_ROW, 0, 1)
 
  protected:
   bool init = false;

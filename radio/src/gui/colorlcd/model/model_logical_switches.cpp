@@ -517,8 +517,8 @@ class LogicalSwitchButton : public ListLineButton
   static constexpr coord_t V2_Y = V1_Y;
   static LAYOUT_VAL(V2_W, 110, 110, LS(110))
   static constexpr coord_t V2_H = NM_H;
-  static LAYOUT_VAL(AND_X, V2_X + V2_W + PAD_TINY, FN_X + FN_W + PAD_TINY, V2_X + V2_W + PAD_TINY)
-  static LAYOUT_VAL(AND_Y, NM_Y, 20, NM_Y)
+  static LAYOUT_VAL2(AND_X, V2_X + V2_W + PAD_TINY, FN_X + FN_W + PAD_TINY)
+  static LAYOUT_VAL2(AND_Y, NM_Y, 20)
   static constexpr coord_t AND_W = V1_W;
   static constexpr coord_t AND_H = NM_H;
   static constexpr coord_t DUR_X = AND_X + AND_W + PAD_TINY;

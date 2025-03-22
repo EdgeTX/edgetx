@@ -194,7 +194,7 @@ class FlightModeEdit : public Page
     }
   }
 
-  static LAYOUT_VAL(TRIMS_PER_LINE, 2, 1, 2)
+  static LAYOUT_VAL2(TRIMS_PER_LINE, 2, 1)
 
  protected:
   uint8_t index;
@@ -325,7 +325,7 @@ class FlightModeBtn : public ListLineButton
   }
 
   static LAYOUT_VAL(BTN_H, 36, 56, LS(36))
-  static LAYOUT_VAL(MAX_FMTRIMS, 6, 4, 6)
+  static LAYOUT_VAL2(MAX_FMTRIMS, 6, 4)
   static constexpr coord_t FMID_X = PAD_TINY;
   static LAYOUT_VAL(FMID_Y, 6, 16, 3)
   static LAYOUT_VAL(FMID_W, 36, 46, LS(36))
@@ -335,7 +335,7 @@ class FlightModeBtn : public ListLineButton
   static constexpr coord_t SWTCH_X = NAME_X + NAME_W + PAD_TINY;
   static LAYOUT_VAL(SWTCH_Y, 6, 0, 3)
   static LAYOUT_VAL(SWTCH_W, 50, 50, LS(50))
-  static LAYOUT_VAL(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY, SWTCH_X + SWTCH_W + PAD_TINY)
+  static LAYOUT_VAL2(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY)
   static LAYOUT_VAL(TRIM_Y, 0, 20, -1)
   static LAYOUT_VAL(TRIM_W, 30, 40, LS(30))
   static LAYOUT_VAL(TRIM_H, 16, 16, 11)

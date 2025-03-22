@@ -192,9 +192,9 @@ class LogicalSwitchDisplayFooter : public Window
     refresh();
   }
 
-  static LAYOUT_VAL(V2_COL_CNT, 1, 2, 1)
-  static LAYOUT_VAL(ANDSW_ROW, 0, 1, 0)
-  static LAYOUT_VAL(ANDSW_COL, 3, 1, 3)
+  static LAYOUT_VAL2(V2_COL_CNT, 1, 2)
+  static LAYOUT_VAL2(ANDSW_ROW, 0, 1)
+  static LAYOUT_VAL2(ANDSW_COL, 3, 1)
 
  protected:
   unsigned lsIndex = 0;

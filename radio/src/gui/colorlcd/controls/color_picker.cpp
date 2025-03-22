@@ -167,7 +167,7 @@ class ColorEditorPopup : public BaseDialog
   }
 
   static LAYOUT_VAL(CE_SZ, 182, 182, LS(182))
-  static LAYOUT_VAL(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7, LCD_W * 0.8)
+  static LAYOUT_VAL2(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7)
   static LAYOUT_VAL(COLOR_PAD_WIDTH, 52, 52, LS(52))
   static LAYOUT_VAL(COLOR_PAD_HEIGHT, 32, 32, LS(32))
   static LAYOUT_VAL(CVAL_W, 100, 100, LS(100))
