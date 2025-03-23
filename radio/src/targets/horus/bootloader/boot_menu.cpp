@@ -67,7 +67,6 @@ LAYOUT_VAL(SYM_H, 35, 35, LS(35))
 LAYOUT_VAL(BOX_GAP, 8, 8, LS(8))
 LAYOUT_VAL(BOX_Y, 72, 72, LS(72))
 LAYOUT_VAL(BOX_H, 26, 26, LS(26))
-LAYOUT_VAL(BOX_T, 2, 2, 1)
 
 LAYOUT_VAL(OPTBOX_X, 92, 92, LS(92))
 
@@ -155,7 +154,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 #endif
 
       pos -= OPTBOX_X;
-      lcd->drawSolidRect(OPTBOX_X, BOX_Y + (opt * SYM_H), pos, BOX_H, BOX_T, BL_SELECTED);
+      lcd->drawSolidRect(OPTBOX_X, BOX_Y + (opt * SYM_H), pos, BOX_H, PAD_TINY, BL_SELECTED);
 
       lcd->drawBitmap(USB_ICN_X, LCD_H - USB_ICN_Y, (const BitmapBuffer*)&BMP_PLUG_USB);
       lcd->drawText(USB_TXT_X, LCD_H - USB_TXT_Y1, TR_BL_USB_PLUGIN, BL_FOREGROUND);
@@ -177,7 +176,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         lcd->drawText(LBL_X, SYM_Y + SYM_H, TR_BL_EXIT, BL_FOREGROUND);
 
         pos -= OPTBOX_X;
-        lcd->drawSolidRect(OPTBOX_X, BOX_Y + (opt * SYM_H), pos, BOX_H, BOX_T, BL_SELECTED);
+        lcd->drawSolidRect(OPTBOX_X, BOX_Y + (opt * SYM_H), pos, BOX_H, PAD_TINY, BL_SELECTED);
 
         bootloaderDrawFooter();
         lcd->drawText(LINE_X1 * 2, 244,
@@ -284,7 +283,7 @@ void bootloaderDrawFilename(const char* str, uint8_t line, bool selected)
     lcd->drawText(FILENAM_X2, FILENAM_Y1 + (line * FILENAM_H), str, BL_FOREGROUND);
 
     if (selected) {
-        lcd->drawSolidRect(FILESEL_X, BOX_Y + (line * FILENAM_H), FILESEL_W, BOX_H, BOX_T, BL_SELECTED);
+        lcd->drawSolidRect(FILESEL_X, BOX_Y + (line * FILENAM_H), FILESEL_W, BOX_H, PAD_TINY, BL_SELECTED);
     }
 }
 

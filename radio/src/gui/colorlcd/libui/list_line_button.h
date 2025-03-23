@@ -81,7 +81,6 @@ class InputMixButtonBase : public ListLineButton
   static LAYOUT_VAL2(FM_X, BTN_W - PAD_BORDER * 2 - PAD_TINY - FM_CANVAS_WIDTH, 12)
   static LAYOUT_VAL2(FM_Y, (WGT_Y + PAD_TINY), (WGT_Y + WGT_H + PAD_TINY))
   static LAYOUT_VAL(FM_W, 8, 8, 5)
-  static LAYOUT_VAL(FM_BH, 3, 3, LS(3))
 
  protected:
 

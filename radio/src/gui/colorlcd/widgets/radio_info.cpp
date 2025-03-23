@@ -43,7 +43,7 @@ class RadioInfoWidget : public TopBarWidget
       TopBarWidget(factory, parent, rect, persistentData)
   {
     // Logs
-    logsIcon = new StaticIcon(this, W_LOG_X, W_LOG_Y, ICON_DOT,
+    logsIcon = new StaticIcon(this, W_LOG_X, PAD_THREE, ICON_DOT,
                               COLOR_THEME_PRIMARY2_INDEX);
     logsIcon->hide();
 
@@ -196,7 +196,6 @@ class RadioInfoWidget : public TopBarWidget
   static LAYOUT_VAL(W_USB_X, 32, 32, LS(32))
   static LAYOUT_VAL(W_USB_Y, 5, 5, 4)
   static LAYOUT_VAL(W_LOG_X, 32, 32, LS(32))
-  static LAYOUT_VAL(W_LOG_Y, 3, 3, LS(3))
   static LAYOUT_VAL(W_RSSI_X, 40, 40, LS(40))
   static LAYOUT_VAL(W_RSSI_BAR_W, 4, 4, LS(4))
   static LAYOUT_VAL(W_RSSI_BAR_H, 35, 35, LS(35))
@@ -246,7 +245,7 @@ class DateTimeWidget : public TopBarWidget
                  const rect_t& rect, Widget::PersistentData* persistentData) :
       TopBarWidget(factory, parent, rect, persistentData)
   {
-    dateTime = new HeaderDateTime(this, DT_X, DT_Y);
+    dateTime = new HeaderDateTime(this, DT_X, PAD_THREE);
     update();
   }
 
@@ -265,7 +264,6 @@ class DateTimeWidget : public TopBarWidget
 
   // Adjustment to make main view date/time align with model/radio settings views
   static LAYOUT_VAL(DT_X, 24, 8, LS(24))
-  static LAYOUT_VAL(DT_Y, 3, 3, LS(3))
 };
 
 const ZoneOption DateTimeWidget::options[] = {

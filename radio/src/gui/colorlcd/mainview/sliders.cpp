@@ -179,7 +179,7 @@ MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
 
   posIcon = new SliderIcon(this);
   posVal = lv_label_create(posIcon->getLvObj());
-  lv_obj_set_pos(posVal, MULTIPOS_XO, -2);
+  lv_obj_set_pos(posVal, PAD_THREE, -PAD_TINY);
   lv_obj_set_size(posVal, MULTIPOS_SZ, MULTIPOS_SZ);
   etx_txt_color(posVal, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
   etx_font(posVal, FONT_BOLD_INDEX, LV_PART_MAIN);
