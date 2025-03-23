@@ -192,20 +192,20 @@ class TimerWidget : public Widget
 
   static const ZoneOption options[];
 
-  static LAYOUT_VAL(TMR_LRG_W, 180, 180)
-  static LAYOUT_VAL(TMR_ARC_SZ, 64, 64)
-  static LAYOUT_VAL(TMR_ARC_W, 10, 10)
-  static LAYOUT_VAL(NM_LRG_X, 78, 78)
-  static LAYOUT_VAL(NM_LRG_Y, 19, 19)
-  static LAYOUT_VAL(NM_LRG_W, 93, 93)
-  static LAYOUT_VAL(U0_X, 111, 111)
-  static LAYOUT_VAL(U0_Y, 33, 33)
-  static LAYOUT_VAL(U1_X, 161, 161)
-  static LAYOUT_VAL(U1_Y, 33, 33)
-  static LAYOUT_VAL(D0_X, 76, 76)
-  static LAYOUT_VAL(D0_Y, 31, 31)
-  static LAYOUT_VAL(D1_X, 126, 126)
-  static LAYOUT_VAL(D1_Y, 31, 31)
+  static LAYOUT_VAL(TMR_LRG_W, 180, 180, LS(180))
+  static LAYOUT_VAL(TMR_ARC_SZ, 64, 64, LS(64))
+  static LAYOUT_VAL(TMR_ARC_W, 10, 10, LS(10))
+  static LAYOUT_VAL(NM_LRG_X, 78, 78, LS(78))
+  static LAYOUT_VAL(NM_LRG_Y, 19, 19, LS(19))
+  static LAYOUT_VAL(NM_LRG_W, 93, 93, LS(93))
+  static LAYOUT_VAL(U0_X, 111, 111, LS(111))
+  static LAYOUT_VAL(U0_Y, 33, 33, 25)
+  static LAYOUT_VAL(U1_X, 161, 161, LS(161))
+  static LAYOUT_VAL(U1_Y, 33, 33, 25)
+  static LAYOUT_VAL(D0_X, 76, 76, LS(76))
+  static LAYOUT_VAL(D0_Y, 31, 31, 24)
+  static LAYOUT_VAL(D1_X, 126, 126, LS(126))
+  static LAYOUT_VAL(D1_Y, 31, 31, 24)
 
  protected:
   tmrval_t lastValue = 0;

@@ -94,7 +94,7 @@ else()
   set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
 endif()
 
-set(BITMAPS_TARGET pl18_bitmaps)
+set(BITMAPS_TARGET bm480_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
 set(TOUCH_DRIVER touch_driver.cpp)

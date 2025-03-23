@@ -33,5 +33,5 @@ class RadioTrainerPage : public PageTab
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL(NUM_EDIT_W, 80, 65)
+  static LAYOUT_VAL(NUM_EDIT_W, 80, 65, LS(80))
 };

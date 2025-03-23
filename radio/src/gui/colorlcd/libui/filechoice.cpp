@@ -87,7 +87,7 @@ class FileChoiceMenuToolbar : public MenuToolbar
     }
   }
 
-  static LAYOUT_VAL(FC_COLS, 3, 2)
+  static LAYOUT_VAL2(FC_COLS, 3, 2)
 
  protected:
 };

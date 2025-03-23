@@ -44,7 +44,7 @@ struct PWMfrequencyChoice : public Window {
   PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx);
   PWMfrequencyChoice(Window* parent, uint8_t moduleIdx);
 
-  static LAYOUT_VAL(NUM_W, 60, 60)
+  static LAYOUT_VAL(NUM_W, 60, 60, LS(60))
 
  private:
   NumberEdit* num_edit = nullptr;

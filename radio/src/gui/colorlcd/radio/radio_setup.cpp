@@ -76,9 +76,8 @@ class DateTimeWindow : public Window
 
   // Absolute layout for date/time setion due to slow performance
   // of lv_textarea in a flex layout.
-  static LAYOUT_VAL(DT_EDT_W, 80, 52)
-  static LAYOUT_VAL(DT_Y1, PAD_TINY, PAD_TINY)
-  static LAYOUT_VAL(DT_Y2, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, DT_Y1 + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM)
+  static LAYOUT_VAL(DT_EDT_W, 80, 52, LS(80))
+  static LAYOUT_VAL2(DT_Y2, PAD_TINY + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, PAD_TINY + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM)
 
  protected:
   bool init = false;
@@ -123,9 +122,9 @@ class DateTimeWindow : public Window
     m_last_tm = m_tm;
 
     // Date
-    new StaticText(this, rect_t{PAD_TINY, DT_Y1 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_DATE);
+    new StaticText(this, rect_t{PAD_TINY, PAD_TINY + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_DATE);
     year = new NumberEdit(
-        this, rect_t{SubPage::EDT_X, DT_Y1, DT_EDT_W, 0}, 2023, 2037,
+        this, rect_t{SubPage::EDT_X, PAD_TINY, DT_EDT_W, 0}, 2023, 2037,
         [=]() -> int32_t { return TM_YEAR_BASE + m_tm.tm_year; },
         [=](int32_t newValue) {
           m_last_tm.tm_year = m_tm.tm_year = newValue - TM_YEAR_BASE;
@@ -134,7 +133,7 @@ class DateTimeWindow : public Window
         });
 
     month = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y1, DT_EDT_W, 0}, 1, 12,
+        this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, PAD_TINY, DT_EDT_W, 0}, 1, 12,
         [=]() -> int32_t { return 1 + m_tm.tm_mon; },
         [=](int32_t newValue) {
           m_last_tm.tm_mon = m_tm.tm_mon = newValue - 1;
@@ -145,7 +144,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0); });
 
     day = new NumberEdit(
-        this, rect_t{SubPage::EDT_X + 2 * DT_EDT_W + PAD_SMALL, DT_Y1, DT_EDT_W, 0}, 1,
+        this, rect_t{SubPage::EDT_X + 2 * DT_EDT_W + PAD_SMALL, PAD_TINY, DT_EDT_W, 0}, 1,
         daysInMonth(), [=]() -> int32_t { return m_tm.tm_mday; },
         [=](int32_t newValue) {
           m_last_tm.tm_mday = m_tm.tm_mday = newValue;

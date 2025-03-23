@@ -69,7 +69,7 @@ class ThemeColorPreview : public Window
     build();
   }
 
-  static LAYOUT_VAL(MAX_BOX_WIDTH, 15, 15)
+  static LAYOUT_VAL(MAX_BOX_WIDTH, 15, 15, LS(15))
   static constexpr int BOX_MARGIN = 2;
 
  protected:
@@ -201,10 +201,10 @@ class ColorEditPage : public Page
     }
   }
 
-  static LAYOUT_VAL(COLOR_BOX_WIDTH, 45, 55)
-  static LAYOUT_VAL(COLOR_BOX_HEIGHT, 30, 30)
-  static LAYOUT_VAL(HEX_STR_W, 95, 95)
-  static LAYOUT_VAL(BUTTON_WIDTH, 75, 65)
+  static LAYOUT_VAL(COLOR_BOX_WIDTH, 45, 55, LS(45))
+  static LAYOUT_VAL(COLOR_BOX_HEIGHT, 30, 30, LS(30))
+  static LAYOUT_VAL(HEX_STR_W, 95, 95, LS(95))
+  static LAYOUT_VAL(BUTTON_WIDTH, 75, 65, LS(75))
 
 #if PORTRAIT_LCD
   static constexpr int COLOR_LIST_HEIGHT = (LCD_H / 2 - 24);

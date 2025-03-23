@@ -371,14 +371,16 @@
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM12_IRQHandler
 
-#define LANDSCAPE_LCD true
 #define PORTRAIT_LCD false
+#define LANDSCAPE_LCD_SML false
+#define LANDSCAPE_LCD_STD false
+#define LANDSCAPE_LCD_LRG true
 
 #define LCD_W                           800
 #define LCD_H                           480
 
-#define LCD_PHYS_W                      800
-#define LCD_PHYS_H                      480
+#define LCD_PHYS_W                      LCD_W
+#define LCD_PHYS_H                      LCD_H
 
 #define LCD_DEPTH                       16
 // #define LCD_CONTRAST_DEFAULT            20

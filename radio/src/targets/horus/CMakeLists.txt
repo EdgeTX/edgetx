@@ -48,7 +48,6 @@ if (PCB STREQUAL X10)
   set(PCBREV "STD" CACHE STRING "PCB Revision")
   add_definitions(-DSOFTWARE_VOLUME)
 
-  set(BITMAPS_TARGET x10_bitmaps)
   set(FONTS_TARGET x10_fonts)
 
   if (PCBREV STREQUAL EXPRESS)
@@ -174,9 +173,16 @@ elseif (PCB STREQUAL X12S)
   set(AUX2_SERIAL ON) # wire to GPS
   set(USE_VS1053B ON)
   set(USE_ADS79xx ON)
-  set(BITMAPS_TARGET x12s_bitmaps)
   set(FONTS_TARGET x12s_fonts)
   add_definitions(-DMANUFACTURER_FRSKY)
+endif()
+
+if (BITMAPS_DIR STREQUAL 320x240)
+  set(BITMAPS_TARGET bm320_bitmaps)
+elseif (BITMAPS_DIR STREQUAL 800x480)
+  set(BITMAPS_TARGET bm800_bitmaps)
+else()
+  set(BITMAPS_TARGET bm480_bitmaps)
 endif()
 
 add_definitions(-DPCB${PCB})

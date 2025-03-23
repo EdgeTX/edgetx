@@ -33,30 +33,106 @@
  *      Layout
  *********************/
 
+#if LANDSCAPE_LCD_SML
+enum PaddingSize {
+  PAD_ZERO = 0,
+  PAD_TINY = 1,
+  PAD_SMALL = 3,
+  PAD_MEDIUM = 4,
+  PAD_LARGE = 6,
+  PAD_SCROLL = 2,
+  PAD_THREE = PAD_SCROLL,
+  PAD_TABLE_V = 3,
+  PAD_TABLE_H = 2,
+  PAD_OUTLINE = 1,
+  PAD_BORDER = 2,
+};
+#elif LANDSCAPE_LCD_LRG
+enum PaddingSize {
+  PAD_ZERO = 0,
+  PAD_TINY = 3,
+  PAD_SMALL = 6,
+  PAD_MEDIUM = 9,
+  PAD_LARGE = 12,
+  PAD_SCROLL = 4,
+  PAD_THREE = PAD_SCROLL,
+  PAD_TABLE_V = 10,
+  PAD_TABLE_H = 6,
+  PAD_OUTLINE = 2,
+  PAD_BORDER = 2,
+};
+#else
 enum PaddingSize {
   PAD_ZERO = 0,
   PAD_TINY = 2,
-  PAD_TINY_GAP = 2,
   PAD_SMALL = 4,
   PAD_MEDIUM = 6,
-  PAD_LARGE = 8
+  PAD_LARGE = 8,
+  PAD_SCROLL = 3,
+  PAD_THREE = PAD_SCROLL,
+  PAD_TABLE_V = 7,
+  PAD_TABLE_H = 4,
+  PAD_OUTLINE = 2,
+  PAD_BORDER = 2,
 };
+#endif
 
-// Macros for setting up layout values
-//  LAYOUT_VAL - 2 values - landscape, portrait
-#if !defined(LANDSCAPE_LCD)
-# error "LANDSCAPE_LCD must be defined"
+#if !defined(LANDSCAPE_LCD_STD)
+# error "LANDSCAPE_LCD_STD must be defined"
+#endif
+
+#if !defined(LANDSCAPE_LCD_SML)
+# error "LANDSCAPE_LCD_SML must be defined"
+#endif
+
+#if !defined(LANDSCAPE_LCD_LRG)
+# error "LANDSCAPE_LCD_LRG must be defined"
 #endif
 
 #if !defined(PORTRAIT_LCD)
 # error "PORTRAIT_LCD must be defined"
 #endif
 
-#if LANDSCAPE_LCD
-#define LAYOUT_VAL(name, landscape, portrait) \
+// Macros for setting up layout values
+//  LS - scaling factor to convert 480 wide landscape to 320 wide landscape
+//  LAYOUT_VAL - 3 values - landscape, portrait, landscape small
+//             - 800x480 size is calculated
+#define LS(val) ((val * 4 + 3) / 6)
+#if LANDSCAPE_LCD_STD
+#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
   constexpr coord_t name = landscape;
+#elif LANDSCAPE_LCD_SML
+#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
+  constexpr coord_t name = landscape_small;
+#elif LANDSCAPE_LCD_LRG
+#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
+  constexpr coord_t name = (((landscape) * 3 + 1) / 2);
 #else
-#define LAYOUT_VAL(name, landscape, portrait) \
+#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
+  constexpr coord_t name = portrait;
+#endif
+
+// Macro for value which only differ by orientation
+#if PORTRAIT_LCD
+#define LAYOUT_VAL2(name, landscape, portrait) \
+  constexpr int name = portrait;
+#else
+#define LAYOUT_VAL2(name, landscape, portrait) \
+  constexpr int name = landscape;
+#endif
+
+// Macro for all values specified directly
+#if LANDSCAPE_LCD_STD
+#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
+  constexpr coord_t name = landscape;
+#elif LANDSCAPE_LCD_SML
+#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
+  constexpr coord_t name = landscape_small;
+#elif LANDSCAPE_LCD_LRG
+#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
+  constexpr coord_t name = landscape_big;
+#else
+#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
   constexpr coord_t name = portrait;
 #endif
 
@@ -195,16 +271,15 @@ class EdgeTxStyles
   static const lv_style_t border_transparent;
   static const lv_style_t border_thin;
   static const lv_style_t outline;
-  static const lv_style_t outline_thick;
-
+  
   EdgeTxStyles();
 
   void init();
   void applyColors();
 
-  static LAYOUT_VAL(PAGE_LINE_HEIGHT, 20, 20)
-  static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32)
-  static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45)
+  static LAYOUT_VAL(PAGE_LINE_HEIGHT, 20, 20, LS(20))
+  static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32, 24)
+  static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45, LS(45))
 
  protected:
   bool initDone = false;

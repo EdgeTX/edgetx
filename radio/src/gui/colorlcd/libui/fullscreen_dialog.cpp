@@ -103,7 +103,7 @@ void FullScreenDialog::build()
 
   if (!action.empty()) {
     auto btn = new TextButton(
-        this, {(LCD_W - 280) / 2, LCD_H - 48, 280, 40}, action.c_str(),
+        this, {(LCD_W - ONEBTN_W) / 2, LCD_H - ONEBTN_H - PAD_LARGE, ONEBTN_W, ONEBTN_H}, action.c_str(),
         [=]() {
           closeDialog();
           return 0;
@@ -113,7 +113,7 @@ void FullScreenDialog::build()
   } else {
     if (type == WARNING_TYPE_CONFIRM) {
       auto btn = new TextButton(
-          this, {LCD_W / 3 - 50, LCD_H - 48, 100, 40}, STR_EXIT,
+          this, {LCD_W / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_EXIT,
           [=]() {
             deleteLater();
             return 0;
@@ -121,7 +121,7 @@ void FullScreenDialog::build()
       etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
       etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
       btn = new TextButton(
-          this, {LCD_W * 2 / 3 - 50, LCD_H - 48, 100, 40}, STR_OK,
+          this, {LCD_W * 2 / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_OK,
           [=]() {
             closeDialog();
             return 0;
