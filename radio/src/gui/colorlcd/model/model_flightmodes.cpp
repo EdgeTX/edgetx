@@ -253,7 +253,7 @@ class FlightModeBtn : public ListLineButton
     fmFadeIn = etx_create(&fm_fade_class, lvobj);
     lv_obj_set_pos(fmFadeIn, FADE_X, FADE_Y);
     fmFadeOut = etx_create(&fm_fade_class, lvobj);
-    lv_obj_set_pos(fmFadeOut, FADE_X + FADE_W + 1, FADE_Y);
+    lv_obj_set_pos(fmFadeOut, FADE_X + FADE_W + PAD_TINY, FADE_Y);
     lv_obj_update_layout(lvobj);
   
     lv_obj_enable_style_refresh(true);
@@ -330,7 +330,7 @@ class FlightModeBtn : public ListLineButton
   static LAYOUT_VAL(FMID_Y, 6, 16, 3)
   static LAYOUT_VAL(FMID_W, 36, 46, LS(36))
   static constexpr coord_t NAME_X = FMID_X + FMID_W + PAD_TINY;
-  static LAYOUT_VAL(NAME_Y, 8, 0, 4)
+  static LAYOUT_VAL(NAME_Y, 6, 0, 3)
   static LAYOUT_VAL(NAME_W, 95, 160, LS(95))
   static constexpr coord_t SWTCH_X = NAME_X + NAME_W + PAD_TINY;
   static LAYOUT_VAL(SWTCH_Y, 6, 0, 3)
@@ -340,9 +340,9 @@ class FlightModeBtn : public ListLineButton
   static LAYOUT_VAL(TRIM_W, 30, 40, LS(30))
   static LAYOUT_VAL(TRIM_H, 16, 16, 11)
   static constexpr coord_t TRIMC_W = MAX_FMTRIMS * TRIM_W;
-  static constexpr coord_t FADE_X = TRIM_X + TRIMC_W + PAD_TINY;
-  static LAYOUT_VAL(FADE_Y, 6, 24, 3)
   static LAYOUT_VAL(FADE_W, 45, 45, LS(45))
+  static LAYOUT_VAL(FADE_Y, 6, 24, 3)
+  static constexpr coord_t FADE_X = ListLineButton::GRP_W - PAD_BORDER * 2 - FADE_W * 2 - PAD_TINY * 2;
 
  protected:
   bool init = false;
