@@ -598,7 +598,7 @@ static void textarea_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   lv_textarea_set_one_line(obj, true);
 
   lv_textarea_t* ta = (lv_textarea_t*)obj;
-  lv_obj_set_height(ta->label, 21);
+  lv_obj_set_height(ta->label, EdgeTxStyles::UI_ELEMENT_HEIGHT * 21 / 32);
 }
 
 static const lv_obj_class_t textarea_class = {

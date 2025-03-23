@@ -181,7 +181,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     if (fm_modes & (1 << i)) {
       label_dsc.color = lv_color_make(0x7f, 0x7f, 0x7f);
     } else {
-      lv_canvas_draw_rect(fm_canvas, x, 0, FM_W, 3, &rect_dsc);
+      lv_canvas_draw_rect(fm_canvas, x, 0, FM_W, FM_BH, &rect_dsc);
       label_dsc.color = lv_color_white();
     }
     lv_canvas_draw_text(fm_canvas, x, 0, FM_W, &label_dsc, s);

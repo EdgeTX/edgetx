@@ -232,7 +232,7 @@ void NumberEdit::openEdit()
   if (edit == nullptr) {
     edit = new NumberArea(
         this,
-        {-(PAD_MEDIUM + 2), -(PAD_TINY + 2),
+        {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
         lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)});
     edit->setChangeHandler([=]() {
       update();

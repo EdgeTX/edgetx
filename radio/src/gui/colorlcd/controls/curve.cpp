@@ -124,8 +124,8 @@ Curve::Curve(Window* parent, const rect_t& rect,
              std::function<int(int)> function, std::function<int()> position) :
     Window(parent, rect),
     base(this,
-         rect_t{(position ? 4 : 2), (position ? 4 : 2),
-                rect.w - (position ? 8 : 4), rect.h - (position ? 8 : 4)},
+         rect_t{(position ? POS_PT_SZ / 2 : PAD_BORDER), (position ? POS_PT_SZ / 2 : PAD_BORDER),
+                rect.w - (position ? POS_PT_SZ & 0xFE : PAD_BORDER * 2), rect.h - (position ? POS_PT_SZ & 0xFE : PAD_BORDER * 2)},
          function),
     valueFunc(std::move(function)),
     positionFunc(std::move(position))
@@ -139,11 +139,11 @@ Curve::Curve(Window* parent, const rect_t& rect,
   // Adjust border - if drawing points leave more space to prevent clipping of
   // end points.
   if (positionFunc) {
-    dx = 4;
-    dy = 4;
+    dx = POS_PT_SZ / 2;
+    dy = POS_PT_SZ / 2;
   } else {
-    dx = 2;
-    dy = 2;
+    dx = PAD_BORDER;
+    dy = PAD_BORDER;
   }
   dw = rect.w - dx * 2;
   dh = rect.h - dy * 2;
@@ -154,7 +154,7 @@ Curve::Curve(Window* parent, const rect_t& rect,
     etx_obj_add_style(p, styles->circle, LV_PART_MAIN);
     etx_obj_add_style(p, styles->border, LV_PART_MAIN);
     etx_obj_add_style(p, styles->border_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_MAIN);
-    lv_obj_set_size(p, 9, 9);
+    lv_obj_set_size(p, POS_PT_SZ, POS_PT_SZ);
     lv_obj_add_flag(p, LV_OBJ_FLAG_HIDDEN);
     pointDots[i] = p;
   }
@@ -165,7 +165,7 @@ Curve::Curve(Window* parent, const rect_t& rect,
     posHLine = lv_line_create(lvobj);
     etx_obj_add_style(posHLine, styles->graph_position_line, LV_PART_MAIN);
 
-    positionValue = new StaticText(this, {10, 10, LV_SIZE_CONTENT, 17}, "", COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+    positionValue = new StaticText(this, {POS_LBL_X, POS_LBL_Y, LV_SIZE_CONTENT, POS_LBL_H}, "", COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
     positionValue->padLeft(PAD_TINY);
     positionValue->padRight(PAD_TINY);
     etx_solid_bg(positionValue->getLvObj(), COLOR_THEME_ACTIVE_INDEX);
@@ -175,7 +175,7 @@ Curve::Curve(Window* parent, const rect_t& rect,
     etx_obj_add_style(posPoint, styles->circle, LV_PART_MAIN);
     etx_obj_add_style(posPoint, styles->border, LV_PART_MAIN);
     etx_obj_add_style(posPoint, styles->border_color[COLOR_THEME_ACTIVE_INDEX], LV_PART_MAIN);
-    lv_obj_set_size(posPoint, 9, 9);
+    lv_obj_set_size(posPoint, POS_PT_SZ, POS_PT_SZ);
 
     updatePosition();
   }
@@ -209,7 +209,7 @@ void Curve::updatePosition()
     lv_coord_t x = getPointX(valueX);
     lv_coord_t y = getPointY(valueY);
 
-    lv_obj_set_pos(posPoint, x - 4, y - 4);
+    lv_obj_set_pos(posPoint, x - POS_PT_SZ / 2, y - POS_PT_SZ / 2);
 
     posLinePoints[0] = {x, dy};
     posLinePoints[1] = {x, (lv_coord_t)(dy + dh - 1)};
@@ -226,7 +226,7 @@ void Curve::addPoint(const point_t& point)
   int i = points.size();
   coord_t x = getPointX(point.x);
   coord_t y = getPointY(point.y);
-  lv_obj_set_pos(pointDots[i], x - 4, y - 4);
+  lv_obj_set_pos(pointDots[i], x - POS_PT_SZ / 2, y - POS_PT_SZ / 2);
   lv_obj_clear_flag(pointDots[i], LV_OBJ_FLAG_HIDDEN);
 
   points.push_back(point);

@@ -143,7 +143,7 @@ void TextEdit::openEdit()
 {
   if (edit == nullptr) {
     edit = new TextArea(this,
-                        {-(PAD_MEDIUM + 2), -(PAD_TINY + 2),
+                        {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
                           lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
                         text, length);
     edit->setChangeHandler([=]() {
@@ -167,7 +167,7 @@ void TextEdit::openEdit()
 void TextEdit::preview(bool edited, char* text, uint8_t length)
 {
   edit = new TextArea(this,
-                      {-(PAD_MEDIUM + 2), -(PAD_TINY + 2), width(), height()},
+                      {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2), width(), height()},
                       text, length);
   lv_group_focus_obj(edit->getLvObj());
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);

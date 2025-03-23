@@ -64,8 +64,8 @@ class InputMixButtonBase : public ListLineButton
   static LAYOUT_VAL(FM_CANVAS_HEIGHT, 17, 17, LS(17))
   static LAYOUT_VAL(FM_CANVAS_WIDTH, 90, 90, 57)
 
-  static LAYOUT_VAL(LN_X, 73, 73, 48)
-  static constexpr coord_t BTN_W = LCD_W - LN_X - PAD_MEDIUM * 2;
+  static LAYOUT_VAL(LN_X, 73, 73, LS(73))
+  static constexpr coord_t BTN_W = ListLineButton::GRP_W - LN_X - PAD_BORDER * 2 - PAD_OUTLINE;
   static constexpr coord_t WGT_X = PAD_TINY;
   static constexpr coord_t WGT_Y = PAD_TINY;
   static LAYOUT_VAL(WGT_W, 50, 50, LS(50))
@@ -76,11 +76,12 @@ class InputMixButtonBase : public ListLineButton
   static constexpr coord_t SRC_H = WGT_H;
   static constexpr coord_t OPT_X = SRC_X + SRC_W + PAD_TINY;
   static constexpr coord_t OPT_Y = WGT_Y;
-  static LAYOUT_VAL(OPT_W, 164, 99, LS(164))
+  static LAYOUT_VAL2(OPT_W, BTN_W - PAD_BORDER * 2 - WGT_W - SRC_W - FM_CANVAS_WIDTH - PAD_TINY * 5, 99)
   static constexpr coord_t OPT_H = WGT_H;
-  static LAYOUT_VAL2(FM_X, (OPT_X + OPT_W + PAD_TINY), 12)
+  static LAYOUT_VAL2(FM_X, BTN_W - PAD_BORDER * 2 - PAD_TINY - FM_CANVAS_WIDTH, 12)
   static LAYOUT_VAL2(FM_Y, (WGT_Y + PAD_TINY), (WGT_Y + WGT_H + PAD_TINY))
   static LAYOUT_VAL(FM_W, 8, 8, 5)
+  static LAYOUT_VAL(FM_BH, 3, 3, LS(3))
 
  protected:
 

@@ -66,9 +66,9 @@ class GVarButton : public ListLineButton
     if (line) line->build();
   }
 
-  static LAYOUT_VAL(GVAR_NAME_SIZE, 44, 44, LS(44))
+  static LAYOUT_VAL3(GVAR_NAME_SIZE, 44, 44, LS(44), 74)
   static constexpr coord_t GVAR_VAL_H = EdgeTxStyles::PAGE_LINE_HEIGHT + 2;
-  static LAYOUT_VAL(GVAR_VAL_W, 45, 50, LS(45))
+  static LAYOUT_VAL3(GVAR_VAL_W, 45, 50, LS(45), 75)
   static LAYOUT_VAL2(GVAR_COLS, MAX_FLIGHT_MODES, 5)
   static LAYOUT_VAL2(BTN_H, EdgeTxStyles::UI_ELEMENT_HEIGHT, 50)
   static LAYOUT_VAL(GVAR_NM_Y, 4, 13, LS(4))
@@ -127,7 +127,7 @@ class GVarButton : public ListLineButton
     if (modelFMEnabled()) {
       for (int flightMode = 0; flightMode < MAX_FLIGHT_MODES; flightMode++) {
         valueTexts[flightMode] = etx_create(&gv_value_class, lvobj);
-        lv_obj_set_pos(valueTexts[flightMode], (flightMode % GVAR_COLS) * GVAR_VAL_W + GVAR_NAME_SIZE + 4,
+        lv_obj_set_pos(valueTexts[flightMode], (flightMode % GVAR_COLS) * GVAR_VAL_W + GVAR_NAME_SIZE + PAD_BORDER * 2,
                        (flightMode / GVAR_COLS) * GVAR_VAL_H + GVAR_YO);
 
         if (flightMode == currentFlightMode) {
