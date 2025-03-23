@@ -953,8 +953,9 @@
   #define LCD_W                         480
   #define LCD_H                         320
 #endif
-#define LANDSCAPE_LCD_LRG false
+
 #define LANDSCAPE_LCD_SML false
+#define LANDSCAPE_LCD_LRG false
 
 #define LCD_PHYS_W                      320
 #define LCD_PHYS_H                      480
