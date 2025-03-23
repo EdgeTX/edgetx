@@ -1151,13 +1151,13 @@ static char test17data[] = {0x17, 0x00, 0x25, 0x00, 0x00,
 static char test34data[] = {0x34, 0x00, 0x2F, 0x00, 0x30, 0x09, 0x85, 0x01, 
                                         0x2B, 0x00, 0x07, 0x0A, 0x81, 0x01 };
 
-// *********** Lipo monitor (Big-Endian)***************
+// *********** Lipo monitor (Little-Endian)***************
 // Example 0x3A:          0  1    2  3    4  5    6  7    8  9    10 11   12 13
 //                3A 00 | 01 9A | 01 9B | 01 9C | 01 9D | 7F FF | 7F FF | 0F AC 
 //                         4.10V   4.11V   4.12V   4.12v   --      --     40.1C
-static char test3Adata[] = {0x3A, 0x00, 0x01, 0x9A, 0x01, 0x9B, 0x01, 0x9C, 
-                                        0x01, 0x9D, 0x7F, 0xFF, 0x7F, 0xFF,
-                                        0x01, 0x91 };
+static char test3Adata[] = {0x3A, 0x00, 0x9A, 0x01, 0x9B, 0x01, 0x9C, 0x01,  
+                                        0x9D, 0x01,  0x7F, 0xFF, 0x7F, 0xFF,
+                                        0x91, 0x01  };
 
 
 // RemoteID (0x27), embeds Gps data in its frames, but by puting the real I2C frame
