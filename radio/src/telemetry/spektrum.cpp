@@ -272,13 +272,13 @@ const SpektrumSensor spektrumSensors[] = {
 //SS(0x38,              0,  uint16,    STR_SENSOR_PRESSSURE,        UNIT_PSI,       1),
 
   // 0x3A Lipo 6s Monitor Cells
-  SS(I2C_CELLS,        0,  uint16,    STR_SENSOR_CL01,              UNIT_VOLTS,     2), // Voltage across cell 1, .01V steps
-  SS(I2C_CELLS,        2,  uint16,    STR_SENSOR_CL02,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        4,  uint16,    STR_SENSOR_CL03,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        6,  uint16,    STR_SENSOR_CL04,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,        8,  uint16,    STR_SENSOR_CL05,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,       10,  uint16,    STR_SENSOR_CL06,              UNIT_VOLTS,     2),
-  SS(I2C_CELLS,       12,  uint16,    STR_SENSOR_TEMP2,             UNIT_CELSIUS,   1), // Temperature, 0.1C (0-655.34C)
+  SS(I2C_CELLS,        0,  uint16le,    STR_SENSOR_CL01,              UNIT_VOLTS,     2), // Voltage across cell 1, .01V steps
+  SS(I2C_CELLS,        2,  uint16le,    STR_SENSOR_CL02,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        4,  uint16le,    STR_SENSOR_CL03,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        6,  uint16le,    STR_SENSOR_CL04,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,        8,  uint16le,    STR_SENSOR_CL05,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,       10,  uint16le,    STR_SENSOR_CL06,              UNIT_VOLTS,     2),
+  SS(I2C_CELLS,       12,  uint16le,    STR_SENSOR_TEMP2,             UNIT_CELSIUS,   1), // Temperature, 0.1C (0-655.34C)
 
   // 0x40 Vario-S
   SS(I2C_VARIO,         0,  int16,     STR_SENSOR_ALT,               UNIT_METERS,            1),
@@ -677,6 +677,12 @@ void processSpektrumPacket(const uint8_t *packet)
         continue;  // discard unavailable sensors (farzu: i think might not be needed.. previous validation)
       } else {
         value = value / 10;
+        if (i2cAddress == I2C_SMART_BAT_CELLS_1_6) {
+          // Map to FrSky style cell values (All Cells in a single Sensor)
+          int cellIndex = ((sensor->startByte-2) / 2) << 16; // First cell is at StartByte 2
+          uint32_t valueCells = cellIndex | value;
+          setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_CELLS, 0, instance, valueCells, UNIT_CELLS, 2);
+        }
       }
     } // I2C_SMART_BAT_REALTIME
 
@@ -695,14 +701,14 @@ void processSpektrumPacket(const uint8_t *packet)
       }
     } // I2C_ESC
 
-    else if (i2cAddress == I2C_CELLS && sensor->unit == UNIT_VOLTS) {
-      if (value == 0x7FFF) continue;  // ignore NO-DATA
-
-      // Map to FrSky style cell values (All Cells in a single Sensor)
-      int cellIndex = (sensor->startByte / 2) << 16;
-      uint32_t valueCells = cellIndex | value;
-      setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_CELLS, 0, instance, valueCells, UNIT_CELLS, 2);
-      
+    else if (i2cAddress == I2C_CELLS) {
+      if (value == 0x7FFF) continue;  // ignore NO-DATA for Voltage and Temp
+      if (sensor->unit == UNIT_VOLTS) {
+        // Map to FrSky style cell values (All Cells in a single Sensor)
+        int cellIndex = (sensor->startByte / 2) << 16;  // First Cell is at startByte 0
+        uint32_t valueCells = cellIndex | value;
+        setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_CELLS, 0, instance, valueCells, UNIT_CELLS, 2);
+      }
       // Continue to process regular Single Cell value
     } // I2C_CELLS
 
