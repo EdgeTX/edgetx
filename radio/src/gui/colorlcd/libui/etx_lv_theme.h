@@ -33,7 +33,7 @@
  *      Layout
  *********************/
 
-#if LANDSCAPE_LCD_SMALL
+#if LANDSCAPE_LCD_SML
 enum PaddingSize {
   PAD_ZERO = 0,
   PAD_TINY = 1,
@@ -46,7 +46,7 @@ enum PaddingSize {
   PAD_OUTLINE = 1,
   PAD_BORDER = 2,
 };
-#elif LANDSCAPE_LCD_BIG
+#elif LANDSCAPE_LCD_LRG
 enum PaddingSize {
   PAD_ZERO = 0,
   PAD_TINY = 3,
@@ -74,8 +74,16 @@ enum PaddingSize {
 };
 #endif
 
-#if !defined(LANDSCAPE_LCD)
-# error "LANDSCAPE_LCD must be defined"
+#if !defined(LANDSCAPE_LCD_STD)
+# error "LANDSCAPE_LCD_STD must be defined"
+#endif
+
+#if !defined(LANDSCAPE_LCD_SML)
+# error "LANDSCAPE_LCD_SML must be defined"
+#endif
+
+#if !defined(LANDSCAPE_LCD_LRG)
+# error "LANDSCAPE_LCD_LRG must be defined"
 #endif
 
 #if !defined(PORTRAIT_LCD)
@@ -87,13 +95,13 @@ enum PaddingSize {
 //  LAYOUT_VAL - 3 values - landscape, portrait, landscape small
 //             - 800x480 size is calculated
 #define LS(val) ((val * 4 + 3) / 6)
-#if LANDSCAPE_LCD
+#if LANDSCAPE_LCD_STD
 #define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
   constexpr coord_t name = landscape;
-#elif LANDSCAPE_LCD_SMALL
+#elif LANDSCAPE_LCD_SML
 #define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
   constexpr coord_t name = landscape_small;
-#elif LANDSCAPE_LCD_BIG
+#elif LANDSCAPE_LCD_LRG
 #define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
   constexpr coord_t name = (((landscape) * 3 + 1) / 2);
 #else
@@ -111,13 +119,13 @@ enum PaddingSize {
 #endif
 
 // Macro for all values specified directly
-#if LANDSCAPE_LCD
+#if LANDSCAPE_LCD_STD
 #define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
   constexpr coord_t name = landscape;
-#elif LANDSCAPE_LCD_SMALL
+#elif LANDSCAPE_LCD_SML
 #define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
   constexpr coord_t name = landscape_small;
-#elif LANDSCAPE_LCD_BIG
+#elif LANDSCAPE_LCD_LRG
 #define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
   constexpr coord_t name = landscape_big;
 #else

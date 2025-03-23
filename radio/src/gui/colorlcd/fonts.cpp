@@ -29,59 +29,6 @@
 
 #if !defined(BOOT)
 
-#if LANDSCAPE_LCD_SMALL
-#define FONT_TABLE(name)                                 \
-  extern const etxLz4Font lv_font_##name##_bold_STD_s;   \
-  extern const etxLz4Font lv_font_##name##_XXS_s;        \
-  extern const etxLz4Font lv_font_##name##_XS_s;         \
-  extern const etxLz4Font lv_font_##name##_L_s;          \
-  extern const etxLz4Font lv_font_##name##_bold_XL_s;    \
-  extern const etxLz4Font lv_font_##name##_bold_XXL_s;   \
-  static const etxLz4Font* lz4FontTable[FONTS_COUNT] = { \
-      nullptr,                      /* FONT_STD_INDEX */ \
-      &lv_font_##name##_bold_STD_s, /* FONT_BOLD_INDEX */\
-      &lv_font_##name##_XXS_s,      /* FONT_XXS_INDEX */ \
-      &lv_font_##name##_XS_s,       /* FONT_XS_INDEX */  \
-      &lv_font_##name##_L_s,        /* FONT_L_INDEX */   \
-      &lv_font_##name##_bold_XL_s,  /* FONT_XL_INDEX */  \
-      &lv_font_##name##_bold_XXL_s, /* FONT_XXL_INDEX */ \
-  };                                                     \
-  static const lv_font_t* lvglFontTable[FONTS_COUNT] = { \
-      LV_FONT_DEFAULT, /* FONT_STD_INDEX */              \
-      nullptr,         /* FONT_BOLD_INDEX */             \
-      nullptr,         /* FONT_XXS_INDEX */              \
-      nullptr,         /* FONT_XS_INDEX */               \
-      nullptr,         /* FONT_L_INDEX */                \
-      nullptr,         /* FONT_XL_INDEX */               \
-      nullptr,         /* FONT_XXL_INDEX */              \
-  }
-#elif LANDSCAPE_LCD_BIG
-#define FONT_TABLE(name)                                 \
-  extern const etxLz4Font lv_font_##name##_bold_STD_l;   \
-  extern const etxLz4Font lv_font_##name##_XXS_l;        \
-  extern const etxLz4Font lv_font_##name##_XS_l;         \
-  extern const etxLz4Font lv_font_##name##_L_l;          \
-  extern const etxLz4Font lv_font_##name##_bold_XL_l;    \
-  extern const etxLz4Font lv_font_##name##_bold_XXL_l;   \
-  static const etxLz4Font* lz4FontTable[FONTS_COUNT] = { \
-      nullptr,                      /* FONT_STD_INDEX */ \
-      &lv_font_##name##_bold_STD_l, /* FONT_BOLD_INDEX */\
-      &lv_font_##name##_XXS_l,      /* FONT_XXS_INDEX */ \
-      &lv_font_##name##_XS_l,       /* FONT_XS_INDEX */  \
-      &lv_font_##name##_L_l,        /* FONT_L_INDEX */   \
-      &lv_font_##name##_bold_XL_l,  /* FONT_XL_INDEX */  \
-      &lv_font_##name##_bold_XXL_l, /* FONT_XXL_INDEX */ \
-  };                                                     \
-  static const lv_font_t* lvglFontTable[FONTS_COUNT] = { \
-      LV_FONT_DEFAULT, /* FONT_STD_INDEX */              \
-      nullptr,         /* FONT_BOLD_INDEX */             \
-      nullptr,         /* FONT_XXS_INDEX */              \
-      nullptr,         /* FONT_XS_INDEX */               \
-      nullptr,         /* FONT_L_INDEX */                \
-      nullptr,         /* FONT_XL_INDEX */               \
-      nullptr,         /* FONT_XXL_INDEX */              \
-  }
-#else
 #define FONT_TABLE(name)                                 \
   extern const etxLz4Font lv_font_##name##_bold_STD;     \
   extern const etxLz4Font lv_font_##name##_XXS;          \
@@ -107,22 +54,21 @@
       nullptr,         /* FONT_XL_INDEX */               \
       nullptr,         /* FONT_XXL_INDEX */              \
   }
-#endif
 
 #if defined(TRANSLATIONS_CN)
-FONT_TABLE(noto_cn);
+FONT_TABLE(cn);
 #elif defined(TRANSLATIONS_TW)
-FONT_TABLE(noto_tw);
+FONT_TABLE(tw);
 #elif defined(TRANSLATIONS_JP)
-FONT_TABLE(noto_jp);
+FONT_TABLE(jp);
 #elif defined(TRANSLATIONS_HE)
-FONT_TABLE(arimo_he);
+FONT_TABLE(he);
 #elif defined(TRANSLATIONS_RU)
-FONT_TABLE(arimo_ru);
+FONT_TABLE(ru);
 #elif defined(TRANSLATIONS_UA)
-FONT_TABLE(arimo_ua);
+FONT_TABLE(ua);
 #else
-FONT_TABLE(roboto);
+FONT_TABLE(en);
 #endif
 
 /*

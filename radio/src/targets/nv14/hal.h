@@ -441,9 +441,9 @@
 #define SDRAM_BANK1
 
 #define PORTRAIT_LCD true
-#define LANDSCAPE_LCD_BIG false
-#define LANDSCAPE_LCD_SMALL false
-#define LANDSCAPE_LCD false
+#define LANDSCAPE_LCD_LRG false
+#define LANDSCAPE_LCD_SML false
+#define LANDSCAPE_LCD_STD false
 
 #define LCD_W                           320
 #define LCD_H                           480
