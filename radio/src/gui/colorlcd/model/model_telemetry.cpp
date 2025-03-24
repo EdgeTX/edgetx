@@ -630,7 +630,7 @@ class SensorEditWindow : public SubPage
             buf[3] = hex2char((value & 0x000f) >> 0);
             return std::string(buf, sizeof(buf));
           });
-          num = new NumberEdit(paramLines[P_ID], {x, y, NUM_EDIT_W, 0}, 0, 0xff,
+          num = new NumberEdit(parent, {x + NUM_EDIT_W + PAD_SMALL, y, NUM_EDIT_W, 0}, 0, 0xff,
                               GET_SET_DEFAULT(sensor->instance));
         });
 
