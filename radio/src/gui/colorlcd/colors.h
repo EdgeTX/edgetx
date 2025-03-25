@@ -144,8 +144,8 @@ lv_color_t makeLvColor(uint32_t colorFlags);
 constexpr uint32_t RGB888_FLAG = 0x1000000;
 
 enum COLOR_EDITOR_FMT {
-  RGB565 = 0,
-  RGB888
+  ETX_RGB565 = 0,
+  ETX_RGB888
 };
 
 #define RGB32(r, g, b) \
