@@ -281,7 +281,7 @@ void boardOff()
 
   }
 }
-
+/*
 int usbPlugged()
 {
   static uint8_t debouncedState = 0;
@@ -296,7 +296,7 @@ int usbPlugged()
   
   return debouncedState;
 }
-
+*/
 // extern "C" void * memcpy(void* dst, const void*src, size_t count)
 // {
 //   uint8_t* d = (uint8_t*)dst;
