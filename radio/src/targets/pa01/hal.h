@@ -255,7 +255,8 @@
 
 // USB
 #define USB_GPIO                        GPIOA
-// #define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 0)  // PB.00
+#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 0)  // PB.00
+#define USB_GPIO_VBUS_PU
 #define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
