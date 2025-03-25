@@ -462,7 +462,7 @@ ColorEditor::ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
     Window(parent, rect), _setValue(std::move(setValue)), _preview(std::move(preview)),
     format(fmt)
 {
-  if (format == RGB565) {
+  if (format == ETX_RGB565) {
     if (color & RGB_FLAG) {
       color = COLOR_VAL(color);
       auto r = GET_RED(color);
@@ -510,7 +510,7 @@ void ColorEditor::setText()
   _colorType->setText();
   if (_setValue != nullptr) {
     uint32_t c = _color;
-    if (format == RGB565) {
+    if (format == ETX_RGB565) {
       if (c & RGB888_FLAG) {
         auto r = GET_RED32(c);
         auto g = GET_GREEN32(c);
