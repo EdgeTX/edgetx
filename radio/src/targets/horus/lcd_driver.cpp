@@ -172,8 +172,8 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
       lv_area_t refr_area;
       lv_area_copy(&refr_area, &disp->inv_areas[i]);
 
-      //TRACE("{%d,%d,%d,%d}", refr_area.x1,
-      //      refr_area.y1, refr_area.x2, refr_area.y2);
+      // TRACE("Vert invert refresh {%d,%d,%d,%d}", refr_area.x1,
+      //      refr_area.y1, refr_area.x2 - refr_area.x1 + 1, refr_area.y2 - refr_area.y1 + 1);
 
       _rotate_area_180(refr_area);
 

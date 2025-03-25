@@ -97,33 +97,6 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
                         area->y2 - area->y1 + 1};
 
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
-
-#if (!defined(LCD_VERTICAL_INVERT) || defined(RADIO_F16)) && !defined(BOOT)
-#if defined(RADIO_F16)
-    if (hardwareOptions.pcbrev > 0)
-#endif
-    {
-      uint16_t* src = (uint16_t*)color_p;
-      uint16_t* dst = nullptr;
-      if ((uint16_t*)color_p == LCD_FIRST_FRAME_BUFFER)
-        dst = LCD_SECOND_FRAME_BUFFER;
-      else
-        dst = LCD_FIRST_FRAME_BUFFER;
-
-      lv_disp_t* disp = _lv_refr_get_disp_refreshing();
-      for (int i = 0; i < disp->inv_p; i++) {
-        if (disp->inv_area_joined[i]) continue;
-
-        const lv_area_t& refr_area = disp->inv_areas[i];
-
-        auto area_w = refr_area.x2 - refr_area.x1 + 1;
-        auto area_h = refr_area.y2 - refr_area.y1 + 1;
-
-        DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1, src, LCD_W,
-                      LCD_H, refr_area.x1, refr_area.y1, area_w, area_h);
-      }
-    }
-#endif
   }
 
   lv_disp_flush_ready(disp_drv);
@@ -150,10 +123,13 @@ static void init_lvgl_disp_drv()
   disp_drv.full_refresh = 0;
 
 #if !defined(LCD_VERTICAL_INVERT)
+  disp_drv.full_refresh = 1;
   disp_drv.direct_mode = 1;
 #elif defined(RADIO_F16)
+  disp_drv.full_refresh = 1;
   disp_drv.direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
 #else
+  disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
 #endif
 }
