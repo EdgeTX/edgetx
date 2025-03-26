@@ -173,7 +173,7 @@ class ColorBar : public FormField
     cursor_area.x2 = cursor_area.x1 + ColorEditor::CRSR_SZ - 1;
 
     auto pos = bar->valueToScreen(bar->value);
-    cursor_area.y1 = area->y1 + pos - ColorEditor::CRSR_YO;
+    cursor_area.y1 = area->y1 + pos - PAD_THREE;
     cursor_area.y2 = cursor_area.y1 + ColorEditor::CRSR_SZ - 1;
 
     lv_draw_rect_dsc_t cursor_dsc;
@@ -221,9 +221,9 @@ class BarColorType : public ColorType
 
     int leftPos = 0;
     rect_t r;
-    r.y = ColorEditor::BAR_TOP_MARGIN;
-    r.w = spacePerBar - ColorEditor::BAR_MARGIN - 5;
-    r.h = parent->height() - (ColorEditor::BAR_TOP_MARGIN + ColorEditor::BAR_HEIGHT_OFFSET);
+    r.y = ColorEditor::BAR_MARGIN;
+    r.w = spacePerBar - ColorEditor::BAR_MARGIN;
+    r.h = parent->height() - (ColorEditor::BAR_MARGIN + ColorEditor::BAR_HEIGHT_OFFSET);
 
     for (int i = 0; i < MAX_BARS; i++) {
       r.x = leftPos + ColorEditor::BAR_MARGIN;
@@ -237,7 +237,7 @@ class BarColorType : public ColorType
       auto y = bar->bottom();
 
       barLabels[i] = create_bar_label(parent->getLvObj(), x, y + ColorEditor::LBL_YO);
-      barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + ColorEditor::VAL_XO, y + ColorEditor::VAL_YO);
+      barValLabels[i] = create_bar_value_label(parent->getLvObj(), x + ColorEditor::VAL_XO, y + PAD_THREE);
     }
   }
 

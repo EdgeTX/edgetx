@@ -42,7 +42,7 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
   lv_obj_set_pos(bar, width() / 2, 0);
   lv_obj_set_size(bar, 0, height());
 
-  coord_t yo = (height() < 10) ? -1 : VAL_YO;
+  coord_t yo = (height() < 10) ? -1 : -PAD_TINY;
 
   valText = lv_label_create(lvobj);
   lv_obj_set_pos(valText, width() / 2 + VAL_XO, yo);

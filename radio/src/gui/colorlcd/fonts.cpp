@@ -30,20 +30,20 @@
 #if !defined(BOOT)
 
 #define FONT_TABLE(name)                                 \
-  extern const etxLz4Font lv_font_##name##_bold_16;      \
-  extern const etxLz4Font lv_font_##name##_9;            \
-  extern const etxLz4Font lv_font_##name##_13;           \
-  extern const etxLz4Font lv_font_##name##_24;           \
-  extern const etxLz4Font lv_font_##name##_bold_32;      \
-  extern const etxLz4Font lv_font_##name##_bold_64;      \
+  extern const etxLz4Font lv_font_##name##_bold_STD;     \
+  extern const etxLz4Font lv_font_##name##_XXS;          \
+  extern const etxLz4Font lv_font_##name##_XS;           \
+  extern const etxLz4Font lv_font_##name##_L;            \
+  extern const etxLz4Font lv_font_##name##_bold_XL;      \
+  extern const etxLz4Font lv_font_##name##_bold_XXL;     \
   static const etxLz4Font* lz4FontTable[FONTS_COUNT] = { \
-      nullptr,                   /* FONT_STD_INDEX */    \
-      &lv_font_##name##_bold_16, /* FONT_BOLD_INDEX */   \
-      &lv_font_##name##_9,       /* FONT_XXS_INDEX */    \
-      &lv_font_##name##_13,      /* FONT_XS_INDEX */     \
-      &lv_font_##name##_24,      /* FONT_L_INDEX */      \
-      &lv_font_##name##_bold_32, /* FONT_XL_INDEX */     \
-      &lv_font_##name##_bold_64, /* FONT_XXL_INDEX */    \
+      nullptr,                    /* FONT_STD_INDEX */   \
+      &lv_font_##name##_bold_STD, /* FONT_BOLD_INDEX */  \
+      &lv_font_##name##_XXS,      /* FONT_XXS_INDEX */   \
+      &lv_font_##name##_XS,       /* FONT_XS_INDEX */    \
+      &lv_font_##name##_L,        /* FONT_L_INDEX */     \
+      &lv_font_##name##_bold_XL,  /* FONT_XL_INDEX */    \
+      &lv_font_##name##_bold_XXL, /* FONT_XXL_INDEX */   \
   };                                                     \
   static const lv_font_t* lvglFontTable[FONTS_COUNT] = { \
       LV_FONT_DEFAULT, /* FONT_STD_INDEX */              \
@@ -56,19 +56,19 @@
   }
 
 #if defined(TRANSLATIONS_CN)
-FONT_TABLE(noto_cn);
+FONT_TABLE(cn);
 #elif defined(TRANSLATIONS_TW)
-FONT_TABLE(noto_tw);
+FONT_TABLE(tw);
 #elif defined(TRANSLATIONS_JP)
-FONT_TABLE(noto_jp);
+FONT_TABLE(jp);
 #elif defined(TRANSLATIONS_HE)
-FONT_TABLE(arimo_he);
+FONT_TABLE(he);
 #elif defined(TRANSLATIONS_RU)
-FONT_TABLE(arimo_ru);
+FONT_TABLE(ru);
 #elif defined(TRANSLATIONS_UA)
-FONT_TABLE(arimo_ua);
+FONT_TABLE(ua);
 #else
-FONT_TABLE(roboto);
+FONT_TABLE(en);
 #endif
 
 /*

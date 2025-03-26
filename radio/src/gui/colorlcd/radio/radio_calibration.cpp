@@ -58,8 +58,8 @@ class StickCalibrationWindow : public Window
     lv_obj_set_pos(calibStick->getLvObj(), dx, dy);
   }
 
-  static LAYOUT_VAL(CAL_CTR, 9, 9)
-  static LAYOUT_VAL(CAL_SIZ, 68, 68)
+  static LAYOUT_VAL(CAL_CTR, 9, 9, LS(9))
+  static LAYOUT_VAL(CAL_SIZ, 68, 68, LS(68))
 
  protected:
   uint8_t stickX, stickY;

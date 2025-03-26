@@ -68,7 +68,7 @@ rect_t TopBar::getZone(unsigned int index) const
 
   if ((x + size) > LCD_W) size = LCD_W - x;
 
-  return {x, TOPBAR_ZONE_VMARGIN, size, TOPBAR_ZONE_HEIGHT};
+  return {x, PAD_THREE, size, TOPBAR_ZONE_HEIGHT};
 }
 
 void TopBar::setVisible(float visible) // 0.0 -> 1.0
