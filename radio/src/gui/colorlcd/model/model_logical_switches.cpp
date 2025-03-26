@@ -386,6 +386,8 @@ class LogicalSwitchButton : public ListLineButton
 
   void checkEvents() override
   {
+    if (!init) return;
+
     ListLineButton::checkEvents();
     check(isActive());
 
