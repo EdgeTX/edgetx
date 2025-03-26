@@ -23,11 +23,12 @@
 
 #include "edgetx.h"
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ModelHeliPage : public PageTab
 {
  public:
-  ModelHeliPage();
+  ModelHeliPage(PageDef& pageDef);
 
   bool isVisible() const override { return modelHeliEnabled(); }
 
