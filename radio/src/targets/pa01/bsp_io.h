@@ -25,6 +25,8 @@
 #include "stm32_switch_driver.h"
 #include "hal/switch_driver.h"
 
+bool getFctKeyState(int index);
+
 // Input port expander
 #define BSP_KEY_IN1        AW9523B_PIN_0
 #define BSP_KEY_IN2        AW9523B_PIN_1

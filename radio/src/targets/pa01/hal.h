@@ -84,8 +84,6 @@
 #define FUNCTION_SWITCH_2               I2C
 #define FUNCTION_SWITCH_3               I2C
 #define FUNCTION_SWITCH_4               I2C
-#define FUNCTION_SWITCH_5               I2C
-#define FUNCTION_SWITCH_6               I2C
 
 // Direct switches
 // SWE
@@ -388,23 +386,24 @@
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_USART2_RX
 
 // TODO LED Strip PF.06
-/*
+
 // LED Strip
-#define LED_STRIP_LENGTH                  24
-#define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 15)  // PA.15 / TIM2_CH1
+#define LED_STRIP_LENGTH                  14
+#define LED_STRIP_GPIO                    GPIO_PIN(GPIOF, 06)  // PF.06 / TIM16_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
-#define LED_STRIP_TIMER                   TIM2
+#define LED_STRIP_TIMER                   TIM16
 #define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
 #define LED_STRIP_TIMER_DMA               DMA1
-#define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMAMUX1_REQ_TIM2_UP
+#define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMAMUX1_REQ_TIM16_UP
 #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_0
 #define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
 #define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
+#define RGB_LED_OFFSET                    10
 
 #define STATUS_LEDS
-*/
+
 
 // Internal Module
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 15) // PB.15
