@@ -178,7 +178,7 @@ void boardInit()
 
   if (usbPlugged()) {
     delaysInit();
-//    ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
+    rgbLedInit();
     uint8_t ledOn = 0;
     while (usbPlugged()) {
       if(IS_UCHARGER_ACTIVE()) {
@@ -196,7 +196,7 @@ void boardInit()
   }
 #endif
 
-//  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
+  rgbLedInit();
 //  led_strip_off();
 
   // uint32_t press_start = 0;
