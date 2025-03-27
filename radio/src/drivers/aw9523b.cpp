@@ -71,6 +71,8 @@ int aw9523b_init(aw9523b_t* dev, etx_i2c_bus_t bus, uint16_t addr)
   i2c_write(dev->bus, dev->addr, REG_CONTROL, 1, (uint8_t*)&tmp, 1);
   i2c_read(dev->bus, dev->addr, REG_CONTROL, 1, (uint8_t*)&test, 1);
   aw9523b_i2c_write16(dev, REG_LED_MODE, 0xFFFF); // set all pins to GPIO mode not LED mode
+  aw9523b_i2c_write16(dev, REG_INTERRUPT, 0); // enable interrupts for all pins
+
   return 0;
 }
 
@@ -81,9 +83,6 @@ int aw9523b_set_direction(aw9523b_t* dev, uint16_t mask, uint16_t dir)
   tmp |= dir & mask;
 
   if (aw9523b_i2c_write16(dev, REG_DIRECTION, tmp) < 0) {
-    return -1;
-  }
-  if (aw9523b_i2c_write16(dev, REG_INTERRUPT, tmp) < 0) {
     return -1;
   }
 
