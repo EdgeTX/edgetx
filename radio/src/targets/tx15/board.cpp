@@ -95,23 +95,6 @@ static void led_strip_off()
   ws2812_update(&_led_timer);
 }
 
-// static void setAudioMuteHigh()
-// {
-//   // Is there mute ?
-// }
-// static void setAudioMuteLow()
-// {
-//   // Is there mute ?
-// }
-// static void setAudioResetHigh()
-// {
-//   gpio_set(AUDIO_RESET_PIN);
-// }
-// static void setAudioResetLow()
-// {
-//   gpio_clear(AUDIO_RESET_PIN);
-// }
-
 void INTERNAL_MODULE_ON()
 {
   gpio_set(INTMODULE_PWR_GPIO);
@@ -166,11 +149,7 @@ void boardInit()
   // enable interrupts
   __enable_irq();
 
-#if defined(DEBUG)
-  serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
-  serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
-#endif
-
+  ledInit();
   boardInitModulePorts();
 
   pwrInit();

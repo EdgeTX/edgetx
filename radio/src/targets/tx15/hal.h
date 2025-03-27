@@ -211,7 +211,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_VREF_PREC2                  330
 
 #define ADC_DIRECTION {       	 \
-    0,-1,0,-1, 	/* gimbals */    \
+    0, 0, -1,-1,/* gimbals */    \
     -1,-1,   	/* pots */       \
     0,0,     	/* sliders */    \
     0,	     	/* vbat */       \
