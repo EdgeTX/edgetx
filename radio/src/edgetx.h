@@ -685,13 +685,13 @@ union ReusableBuffer
 
 #if defined(NUM_BODY_LINES)
   #define TOOL_NAME_MAX_LEN (LCD_W / FW)
-  #define TOOL_PATH_MAX_LEN (LEN_FILE_PATH_MAX + 40)
+  #define TOOL_PATH_MAX_LEN 40
   struct scriptInfo{
       uint8_t index;
       char label[TOOL_NAME_MAX_LEN + 1];
       uint8_t module;
       void (* tool)(event_t);
-      char path[TOOL_PATH_MAX_LEN + 1];
+      char filename[TOOL_PATH_MAX_LEN + 1];
   };
 #endif
 
