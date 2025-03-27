@@ -114,7 +114,7 @@ void EXTERNAL_MODULE_OFF();           /*gpio_clear(EXTMODULE_PWR_GPIO)*/
 #define NUM_FUNCTIONS_SWITCHES 0
 #endif
 
-#define NUM_TRIMS                       8
+#define NUM_TRIMS                       4
 #define DEFAULT_STICK_DEADZONE          2
 
 #define BATTERY_WARN                  74 // 7.4V
