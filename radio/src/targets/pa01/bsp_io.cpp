@@ -20,6 +20,7 @@
  */
 
 #include "bsp_io.h"
+#include "hal.h"
 
 #include "drivers/aw9523b.h"
 #include "stm32_i2c_driver.h"
@@ -41,6 +42,19 @@
 static aw9523b_t i2c_exp;
 
 static uint16_t inputState = 0;
+static bool shouldReadKeys = false;
+
+static void _io_int_handler()
+{
+  shouldReadKeys = true;
+}
+
+bool bsp_get_shouldReadKeys()
+{
+  bool tmp = shouldReadKeys;
+  shouldReadKeys = false;
+  return tmp;
+}
 
 static void bsp_input_read()
 {
@@ -57,6 +71,9 @@ int bsp_io_init()
     BSP_CHARGE_EN | BSP_GPIO0 |
     BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4));
   BSP_CHECK(aw9523b_set_direction(&i2c_exp, 0xFFFF, BSP_IN_MASK));
+
+  // setup expanders pin change interrupt
+  gpio_init_int(IO_INT_GPIO, GPIO_IN, GPIO_FALLING, _io_int_handler);
 
   return 0;
 }

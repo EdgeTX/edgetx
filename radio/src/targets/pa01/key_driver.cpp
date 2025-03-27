@@ -69,9 +69,21 @@ enum PhysicalKeys
 };
 
 static bool fct_state[4] = {false, false, false, false};
+static uint32_t keyState = 0;
+static uint32_t nonReadCount =0;
 
 static uint32_t _readKeyMatrix()
 {
+
+  if(!bsp_get_shouldReadKeys() && nonReadCount < 10)
+  {
+  if (gpio_read(KEYS_GPIO_ENTER) == 0)
+    keyState |= 1<<ENT;
+
+    nonReadCount++;
+    return keyState;
+  }
+  nonReadCount = 0;
   // This function avoids concurrent matrix agitation
 
   uint32_t result = 0;
@@ -92,7 +104,7 @@ static uint32_t _readKeyMatrix()
   if (syncelem.ui8ReadInProgress > 1) return syncelem.oldResult;
 
   // If we land here, we have exclusive access to Matrix
-  bsp_output_set(BSP_KEY_OUT_MASK, ~BSP_KEY_OUT1);
+  bsp_output_set(BSP_KEY_OUT_MASK, BSP_KEY_OUT3 | BSP_KEY_OUT4);
   delay_us(BSP_READ_AFTER_WRITE_DELAY);
   bsp_input = bsp_input_get();
   if ((bsp_input & BSP_KEY_IN1) == 0)
@@ -147,11 +159,14 @@ static uint32_t _readKeyMatrix()
   syncelem.ui8ReadInProgress = 0;
 
   bsp_output_set(BSP_KEY_OUT_MASK, 0);
+  bsp_get_shouldReadKeys();
 
   fct_state[0] = (result & 1<<KEY1)?true:false;
   fct_state[1] = (result & 1<<KEY2)?true:false;
   fct_state[2] = (result & 1<<KEY3)?true:false;
   fct_state[3] = (result & 1<<KEY4)?true:false;
+
+  keyState = result;
 
   return result;
 }
