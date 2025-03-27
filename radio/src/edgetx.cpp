@@ -1532,6 +1532,10 @@ void edgeTxInit()
 #endif
 #endif
 
+#if defined(LED_STRIP_GPIO) && !defined(SIMU)
+  rgbLedStart();
+#endif
+
 #if defined(GUI)
     if (calibration_needed) {
       cancelSplash();
@@ -1561,9 +1565,6 @@ void edgeTxInit()
 
   resetBacklightTimeout();
 
-#if defined(LED_STRIP_GPIO) && !defined(SIMU)
-  rgbLedStart();
-#endif
 
   pulsesStart();
   WDG_ENABLE(WDG_DURATION);
