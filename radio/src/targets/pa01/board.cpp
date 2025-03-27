@@ -179,7 +179,7 @@ void boardInit()
   if (usbPlugged()) {
     delaysInit();
     rgbLedInit();
-    uint8_t ledOn = 0;
+//    uint8_t ledOn = 0;
     while (usbPlugged()) {
       if(IS_UCHARGER_ACTIVE()) {
 //        led_strip_charge_animation(ledOn++);
