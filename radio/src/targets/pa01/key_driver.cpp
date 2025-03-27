@@ -68,6 +68,8 @@ enum PhysicalKeys
   ENT  = 16
 };
 
+static bool fct_state[4] = {false, false, false, false};
+
 static uint32_t _readKeyMatrix()
 {
   // This function avoids concurrent matrix agitation
@@ -146,6 +148,11 @@ static uint32_t _readKeyMatrix()
 
   bsp_output_set(BSP_KEY_OUT_MASK, 0);
 
+  fct_state[0] = (result & 1<<KEY1)?true:false;
+  fct_state[1] = (result & 1<<KEY2)?true:false;
+  fct_state[2] = (result & 1<<KEY3)?true:false;
+  fct_state[3] = (result & 1<<KEY4)?true:false;
+
   return result;
 }
 
@@ -173,4 +180,9 @@ uint32_t readTrims()
   uint32_t mkeys = _readKeyMatrix();
 
   return mkeys & 0xff;  // Mask only the trims output
+}
+
+bool getFctKeyState(int index)
+{
+  return fct_state[index];
 }
