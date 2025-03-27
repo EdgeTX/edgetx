@@ -192,6 +192,12 @@
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOE, 6) // PE.06
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOE, 3) // PE.03
 
+#define IO_INT_GPIO                 GPIO_PIN(GPIOB, 4) // PB.04
+#if !defined(USE_EXTI4_IRQ)
+  #define USE_EXTI4_IRQ
+  #define EXTI4_IRQ_Priority 5
+#endif
+
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOG, 14)
 

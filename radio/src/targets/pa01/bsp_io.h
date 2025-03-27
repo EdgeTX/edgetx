@@ -45,6 +45,8 @@ bool getFctKeyState(int index);
 #define BSP_EXTMOD_PWR_EN  AW9523B_PIN_15
 
 int bsp_io_init();
+bool bsp_get_shouldReadKeys();
+
 
 void bsp_output_set(uint16_t pin);
 void bsp_output_set(uint16_t mask, uint16_t pin);
