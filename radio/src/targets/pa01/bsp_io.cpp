@@ -68,7 +68,7 @@ int bsp_io_init()
   // init outputs
   BSP_CHECK(aw9523b_init(&i2c_exp, BSP_I2C_BUS, BSP_I2C_ADDR));
   BSP_CHECK(aw9523b_write(&i2c_exp, BSP_OUT_MASK,
-    BSP_CHARGE_EN | BSP_GPIO0 |
+    BSP_CHARGE_EN | 
     BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4));
   BSP_CHECK(aw9523b_set_direction(&i2c_exp, 0xFFFF, BSP_IN_MASK));
 
