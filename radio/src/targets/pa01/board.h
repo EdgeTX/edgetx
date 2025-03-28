@@ -73,6 +73,7 @@ extern "C" void SDRAM_Init();
 
 void INTERNAL_MODULE_ON();            /*gpio_set(INTMODULE_PWR_GPIO)*/
 void INTERNAL_MODULE_OFF();           /*gpio_clear(INTMODULE_PWR_GPIO);*/
+void INTERNAL_MODULE_BOOTCMD(uint8_t enable);
 void EXTERNAL_MODULE_ON();            /*gpio_set(EXTMODULE_PWR_GPIO)*/
 void EXTERNAL_MODULE_OFF();           /*gpio_clear(EXTMODULE_PWR_GPIO)*/
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
