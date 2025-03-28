@@ -234,8 +234,8 @@
 // #define KEYS_BACKLIGHT_RCC_AHB1Periph 0
 
 // Telemetry
- #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 13)
- #define TELEMETRY_RX_GPIO               GPIO_UNDEF //GPIO_PIN(GPIOB, 12)
+ #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 14)
+ #define TELEMETRY_RX_GPIO               GPIO_PIN(GPIOB, 15)
  #define TELEMETRY_USART                 UART5
  #define TELEMETRY_USART_IRQn            UART5_IRQn
  #define TELEMETRY_DMA                   DMA1
@@ -382,8 +382,7 @@
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 USART2
 
-// #define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOD, 5)  // PD.05
-#define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_UNDEF
+#define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOD, 5)  // PD.05
 #define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOD, 6)  // PD.06
 #define FLYSKY_HALL_SERIAL_USART_IRQn            USART2_IRQn
 
@@ -412,20 +411,20 @@
 
 
 // Internal Module
-#define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 15) // PB.15
-#define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 14) // PB.14
-#define INTMODULE_USART                 USART3
-#define INTMODULE_GPIO_AF               LL_GPIO_AF_7
-#define INTMODULE_USART_IRQn            USART3_IRQn
-#define INTMODULE_USART_IRQHandler      USART3_IRQHandler
-//#define INTMODULE_DMA                   DMA1
-#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
-#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
-#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
-#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
-//#define INTMODULE_RX_DMA                DMA1
-#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
-#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+#define INTMODULE_TX_GPIO               GPIO_PIN(GPIOA, 0) // PA.00
+#define INTMODULE_RX_GPIO               GPIO_PIN(GPIOA, 1) // PA.01
+#define INTMODULE_USART                 UART4
+#define INTMODULE_GPIO_AF               LL_GPIO_AF_8
+#define INTMODULE_USART_IRQn            UART4_IRQn
+#define INTMODULE_USART_IRQHandler      UART4_IRQHandler
+#define INTMODULE_DMA                   DMA2
+#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_6
+//#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream0_IRQn
+//#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
+#define INTMODULE_DMA_CHANNEL           LL_DMAMUX1_REQ_UART4_TX
+#define INTMODULE_RX_DMA                DMA2
+#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_5
+#define INTMODULE_RX_DMA_CHANNEL        LL_DMAMUX1_REQ_UART4_RX
 // #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
 // #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
 
@@ -439,7 +438,7 @@
 #define EXTMODULE_PULSES
 #define EXTMODULE_TX_GPIO               GPIO_PIN(GPIOC, 6)  // PC.06
 #define EXTMODULE_RX_GPIO               GPIO_PIN(GPIOC, 7)  // PC.07
-#define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
+#define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_7 // TIM8_CH1
 #define EXTMODULE_TIMER                 TIM8
 #define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
 #define EXTMODULE_TIMER_IRQn            TIM8_UP_TIM13_IRQn
@@ -449,15 +448,15 @@
 
 
 //USART
-#define EXTMODULE_USART                    UART4
-#define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOA, 0)
-#define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOA, 1)
+#define EXTMODULE_USART                    USART6
+#define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOC, 7)  // PC.07
+#define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOC, 6)  // PC.06
 #define EXTMODULE_USART_TX_DMA             DMA2
 #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMAMUX1_REQ_UART4_TX
-#define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_STREAM_6
+#define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_STREAM_1
 
 #define EXTMODULE_USART_RX_DMA_CHANNEL     LL_DMAMUX1_REQ_UART4_RX
-#define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_STREAM_4
+#define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_STREAM_3
 
 #define EXTMODULE_USART_IRQHandler         UART4_IRQHandler
 #define EXTMODULE_USART_IRQn               UART4_IRQn
