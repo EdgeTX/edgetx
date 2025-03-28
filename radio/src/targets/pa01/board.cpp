@@ -91,6 +91,14 @@ extern "C" void flushFTL();
 //  ws2812_update(&_led_timer);
 //}
 
+void INTERNAL_MODULE_BOOTCMD(uint8_t enable)
+{
+  if (enable)
+    bsp_output_set(BSP_INTMOD_BOOTCMD);
+  else
+    bsp_output_clear(BSP_INTMOD_BOOTCMD);
+}
+
 void INTERNAL_MODULE_ON()
 {
   bsp_output_set(BSP_INTMOD_PWR_EN);
