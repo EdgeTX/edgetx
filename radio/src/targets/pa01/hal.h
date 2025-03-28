@@ -425,6 +425,8 @@
 #define INTMODULE_RX_DMA                DMA2
 #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_5
 #define INTMODULE_RX_DMA_CHANNEL        LL_DMAMUX1_REQ_UART4_RX
+#define INTMODULE_BOOTCMD_BSP
+
 // #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
 // #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
 
