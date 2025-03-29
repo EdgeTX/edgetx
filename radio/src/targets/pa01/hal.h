@@ -235,17 +235,17 @@
 
 // Telemetry
  #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 14)
- #define TELEMETRY_RX_GPIO               GPIO_PIN(GPIOB, 15)
- #define TELEMETRY_USART                 UART5
- #define TELEMETRY_USART_IRQn            UART5_IRQn
+ #define TELEMETRY_RX_GPIO               GPIO_UNDEF
+ #define TELEMETRY_USART                 USART1
+ #define TELEMETRY_USART_IRQn            USART1_IRQn
  #define TELEMETRY_DMA                   DMA1
  #define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_7
- #define TELEMETRY_DMA_Channel_TX        LL_DMAMUX1_REQ_UART5_TX
+ #define TELEMETRY_DMA_Channel_TX        LL_DMAMUX1_REQ_USART1_TX
  #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream7_IRQn
  #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream7_IRQHandler
  #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_3
- #define TELEMETRY_DMA_Channel_RX        LL_DMAMUX1_REQ_UART5_RX
- #define TELEMETRY_USART_IRQHandler      UART5_IRQHandler
+ #define TELEMETRY_DMA_Channel_RX        LL_DMAMUX1_REQ_USART1_RX
+ #define TELEMETRY_USART_IRQHandler      USART1_IRQHandler
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
 //#define USE_CUSTOM_EXTI_IRQ
@@ -345,11 +345,14 @@
 // Audio
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOE, 4) // PE.04
 #define AUDIO_OUTPUT_GPIO             GPIO_PIN(GPIOA, 4) // PA.04
-#define AUDIO_DMA_Stream              DMA1_Stream5
-#define AUDIO_DMA_Stream_IRQn         DMA1_Stream5_IRQn
+#define AUDIO_DAC                     DAC1
+#define AUDIO_DMA_Stream              LL_DMA_STREAM_1
+#define AUDIO_DMA_Channel             LL_DMAMUX1_REQ_DAC1_CH1
+
 #define AUDIO_TIM_IRQn                TIM6_DAC_IRQn
 #define AUDIO_TIM_IRQHandler          TIM6_DAC_IRQHandler
-#define AUDIO_DMA_Stream_IRQHandler   DMA1_Stream5_IRQHandler
+#define AUDIO_DMA_Stream_IRQn         DMA1_Stream1_IRQn
+#define AUDIO_DMA_Stream_IRQHandler   DMA1_Stream1_IRQHandler
 #define AUDIO_TIMER                   TIM6
 #define AUDIO_DMA                     DMA1
 #define AUDIO_UNMUTE_DELAY            180  // ms
@@ -373,11 +376,8 @@
 // Haptic: TIM3_CH2
 #define HAPTIC_PWM
 #define HAPTIC_GPIO                     GPIO_PIN(GPIOA, 15) // PA.15
-#define HAPTIC_GPIO_TIMER               TIM4
+#define HAPTIC_GPIO_TIMER               TIM2
 #define HAPTIC_GPIO_AF                  GPIO_AF1
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
 
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 USART2
@@ -454,14 +454,14 @@
 #define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOC, 7)  // PC.07
 #define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOC, 6)  // PC.06
 #define EXTMODULE_USART_TX_DMA             DMA2
-#define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMAMUX1_REQ_UART4_TX
+#define EXTMODULE_USART_TX_DMA_CHANNEL     LL_DMAMUX1_REQ_USART6_TX
 #define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_STREAM_1
 
-#define EXTMODULE_USART_RX_DMA_CHANNEL     LL_DMAMUX1_REQ_UART4_RX
+#define EXTMODULE_USART_RX_DMA_CHANNEL     LL_DMAMUX1_REQ_USART6_RX
 #define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_STREAM_3
 
-#define EXTMODULE_USART_IRQHandler         UART4_IRQHandler
-#define EXTMODULE_USART_IRQn               UART4_IRQn
+#define EXTMODULE_USART_IRQHandler         USART6_IRQHandler
+#define EXTMODULE_USART_IRQn               USART6_IRQn
 
 //TIMER
 // TODO
