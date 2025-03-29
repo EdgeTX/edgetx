@@ -120,12 +120,6 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       downTime = RTOS_GET_MS();
     }
   } else if (code == LV_EVENT_RELEASED) {
-    LuaEventData* const es = luaGetEventSlot();
-    if (es) {
-      es->event = EVT_TOUCH_BREAK;
-      TRACE("EVT_TOUCH_BREAK");
-    }
-
     // tap count handling
     uint32_t now = RTOS_GET_MS();
     if (now - downTime <= LUA_TAP_TIME) {
@@ -137,6 +131,13 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       tapTime = now;
     } else {
       tapCount = 0;
+    }
+
+    LuaEventData* const es = luaGetEventSlot();
+    if (es && downTime) {
+      downTime = 0;
+      es->event = EVT_TOUCH_BREAK;
+      TRACE("EVT_TOUCH_BREAK");
     }
   }
 #endif
