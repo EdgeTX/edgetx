@@ -317,7 +317,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME companion${APP_NAME_SUFFIX}.desktop)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME simulator${APP_NAME_SUFFIX}.desktop)
   install(FILES images/linuxicons/16x16/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/16x16/apps RENAME companion${APP_NAME_SUFFIX}.png)
   install(FILES images/linuxicons/22x22/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/22x22/apps RENAME companion${APP_NAME_SUFFIX}.png)
   install(FILES images/linuxicons/24x24/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/24x24/apps RENAME companion${APP_NAME_SUFFIX}.png)
@@ -535,6 +534,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
   set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
   set(LINUXDEPLOY_PLUGIN_QT_URL "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous")
+  set(LINUXDEPLOY_PLUGIN_GSTREAMER "linuxdeploy-plugin-gstreamer.sh")
+  set(LINUXDEPLOY_PLUGIN_GSTREAMER_URL "https://github.com/linuxdeploy/linuxdeploy-plugin-gstreamer/raw/master/${LINUXDEPLOY_PLUGIN_GSTREAMER}")
   set(LINUXDEPLOY_DIRECTORY "${CMAKE_BINARY_DIR}/linuxdeploy")
   set(LINUXDEPLOY_APP "${LINUXDEPLOY_DIRECTORY}/usr/bin/linuxdeploy")
 
@@ -543,6 +544,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     file(DOWNLOAD "${LINUXDEPLOY_URL}/${LINUXDEPLOY_APPIMAGE}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_APPIMAGE}")
     file(DOWNLOAD "${LINUXDEPLOY_PLUGIN_QT_URL}/${LINUXDEPLOY_PLUGIN_QT}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_QT}")
+    file(DOWNLOAD "${LINUXDEPLOY_PLUGIN_GSTREAMER_URL}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_GSTREAMER}")
 
     message(STATUS "Downloading linuxdeploy and plugins finished")
 
@@ -569,14 +571,26 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
       COMMAND mv "${CMAKE_BINARY_DIR}/squashfs-root" "${LINUXDEPLOY_DIRECTORY}"
       WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
 
+    # gstreamer plugin
+    execute_process(
+      COMMAND chmod +x "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_GSTREAMER}"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+    execute_process(
+      COMMAND mv "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_PLUGIN_GSTREAMER}" "${LINUXDEPLOY_DIRECTORY}/usr/bin"
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
     # test installation
-    #execute_process(
-    #  COMMAND ${LINUXDEPLOY_APP} --list-plugins
-    #  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+    execute_process(
+      COMMAND ${LINUXDEPLOY_APP} --list-plugins
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
   endif()
 
   set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}")
   set(CPACK_GENERATOR "External")
+
+  set(APPIMAGE_DIR "${CPACK_PACKAGE_DIRECTORY}/_CPack_Packages/Linux/External/AppImage")
+  set(CPN_DESKTOP_FILE ${APPIMAGE_DIR}/${COMPANION_NAME}.desktop)
 
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CPackLinuxDeploy.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
   set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${CMAKE_BINARY_DIR}/CPackExternal.cmake")
