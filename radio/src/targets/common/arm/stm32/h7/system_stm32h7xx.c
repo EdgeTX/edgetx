@@ -462,7 +462,7 @@ void FLASH_IRQHandler(void){asm("BKPT");}
 void RCC_IRQHandler(void){asm("BKPT");}
 void EXTI0_IRQHandler(void){asm("BKPT");}
 void EXTI1_IRQHandler(void){asm("BKPT");}
-void DMA1_Stream1_IRQHandler(void){asm("BKPT");}
+//void DMA1_Stream1_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream2_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream3_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream4_IRQHandler(void){asm("BKPT");}
