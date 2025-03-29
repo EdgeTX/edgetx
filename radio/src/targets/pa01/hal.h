@@ -355,8 +355,8 @@
 #define AUDIO_DMA_Stream_IRQHandler   DMA1_Stream1_IRQHandler
 #define AUDIO_TIMER                   TIM6
 #define AUDIO_DMA                     DMA1
-#define AUDIO_UNMUTE_DELAY            180  // ms
-#define AUDIO_MUTE_DELAY              200  // ms
+#define AUDIO_UNMUTE_DELAY            20  // ms
+#define AUDIO_MUTE_DELAY              20  // ms
 #define INVERTED_MUTE_PIN
 
 // I2C Bus
