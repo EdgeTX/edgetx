@@ -31,25 +31,35 @@ class TrimIcon : public SliderIcon
  public:
   TrimIcon(Window* parent, bool isVertical) : SliderIcon(parent)
   {
+    LAYOUT_VAL(BP_V1, 3, 3, 2)
+    LAYOUT_VAL3(BP_V2, 4, 4, 2, 7)
+    LAYOUT_VAL3(BP_V3, 10, 10, 8, 16)
+    LAYOUT_VAL(BP_V4, 12, 12, 9)
     if (isVertical) {
-      barPoints[0] = {3, 4};
-      barPoints[1] = {12, 4};
-      barPoints[2] = {3, 10};
-      barPoints[3] = {12, 10};
+      barPoints[0] = {BP_V1, BP_V2};
+      barPoints[1] = {BP_V4, BP_V2};
+      barPoints[2] = {BP_V1, BP_V3};
+      barPoints[3] = {BP_V4, BP_V3};
     } else {
-      barPoints[0] = {10, 3};
-      barPoints[1] = {10, 12};
-      barPoints[2] = {4, 3};
-      barPoints[3] = {4, 12};
+      barPoints[0] = {BP_V3, BP_V1};
+      barPoints[1] = {BP_V3, BP_V4};
+      barPoints[2] = {BP_V2, BP_V1};
+      barPoints[3] = {BP_V2, BP_V4};
     }
 
     bar1 = lv_line_create(lvobj);
     etx_obj_add_style(bar1, styles->div_line_white, LV_PART_MAIN);
     etx_obj_add_style(bar1, styles->div_line_black, LV_STATE_USER_1);
+#if LANDSCAPE_LCD_LRG
+    lv_obj_set_style_line_width(bar1, 2, LV_PART_MAIN);
+#endif
     lv_line_set_points(bar1, &barPoints[0], 2);
     bar2 = lv_line_create(lvobj);
     etx_obj_add_style(bar2, styles->div_line_white, LV_PART_MAIN);
     etx_obj_add_style(bar2, styles->div_line_black, LV_STATE_USER_1);
+#if LANDSCAPE_LCD_LRG
+    lv_obj_set_style_line_width(bar2, 2, LV_PART_MAIN);
+#endif
     lv_line_set_points(bar2, &barPoints[2], 2);
 
     etx_bg_color(fill, COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);

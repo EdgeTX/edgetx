@@ -38,7 +38,7 @@ static const lv_obj_class_t input_mix_line_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = LV_PCT(100),
+    .width_def = ListLineButton::GRP_W,
     .height_def = ListLineButton::BTN_H,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
@@ -181,7 +181,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     if (fm_modes & (1 << i)) {
       label_dsc.color = lv_color_make(0x7f, 0x7f, 0x7f);
     } else {
-      lv_canvas_draw_rect(fm_canvas, x, 0, FM_W, 3, &rect_dsc);
+      lv_canvas_draw_rect(fm_canvas, x, 0, FM_W, PAD_THREE, &rect_dsc);
       label_dsc.color = lv_color_white();
     }
     lv_canvas_draw_text(fm_canvas, x, 0, FM_W, &label_dsc, s);
@@ -226,15 +226,15 @@ InputMixGroupBase::InputMixGroupBase(Window* parent, mixsrc_t idx) :
 
 void InputMixGroupBase::adjustHeight()
 {
-  if (getLineCount() == 0) setHeight(ListLineButton::BTN_H + 8);
+  if (getLineCount() == 0) setHeight(ListLineButton::BTN_H + PAD_SMALL * 2);
 
-  coord_t y = 2;
+  coord_t y = PAD_OUTLINE;
   for (auto it = lines.cbegin(); it != lines.cend(); ++it) {
     auto line = *it;
     line->updatePos(InputMixButtonBase::LN_X, y);
-    y += line->height() + 2;
+    y += line->height() + PAD_OUTLINE;
   }
-  setHeight(y + 4);
+  setHeight(y + PAD_BORDER * 2);
 }
 
 void InputMixGroupBase::addLine(InputMixButtonBase* line)

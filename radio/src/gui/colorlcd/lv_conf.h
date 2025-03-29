@@ -26,6 +26,7 @@
 #include <stdint.h>
 #if !defined(LV_SKIP_DEFINES)
 #include "definitions.h"
+#include "hal.h"
 #endif
 
 /*====================
@@ -415,57 +416,29 @@
 #if !defined(BOOT)
 
 #if defined(TRANSLATIONS_CN)
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_noto_cn_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_noto_cn_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_cn_STD)
+  #define LV_FONT_DEFAULT &lv_font_cn_STD
 #elif defined(TRANSLATIONS_TW)
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_noto_tw_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_noto_tw_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_tw_STD)
+  #define LV_FONT_DEFAULT &lv_font_tw_STD
 #elif defined(TRANSLATIONS_RU)
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_arimo_ru_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_arimo_ru_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_ru_STD)
+  #define LV_FONT_DEFAULT &lv_font_ru_STD
 #elif defined(TRANSLATIONS_JP)
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_noto_jp_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_noto_jp_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_jp_STD)
+  #define LV_FONT_DEFAULT &lv_font_jp_STD
 #elif defined(TRANSLATIONS_HE)
-  #define LV_FONT_CUSTOM_DECLARE                  \
-    LV_FONT_DECLARE(lv_font_arimo_he_16)
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_arimo_he_16
-
-#elif defined(TRANSLATIONS_UA)
-  #define LV_FONT_CUSTOM_DECLARE                  \
-    LV_FONT_DECLARE(lv_font_arimo_ua_16)
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_arimo_ua_16
-
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_he_STD)
+  #define LV_FONT_DEFAULT &lv_font_he_STD
 #else
-  #define LV_FONT_CUSTOM_DECLARE                \
-    LV_FONT_DECLARE(lv_font_roboto_16)
-
-  /*Always set a default font*/
-  #define LV_FONT_DEFAULT &lv_font_roboto_16
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_en_STD)
+  #define LV_FONT_DEFAULT &lv_font_en_STD
 #endif
 
 #else
-  /* Bootloader font */
-  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_roboto_bl_16)
-  #define LV_FONT_DEFAULT &lv_font_roboto_bl_16
+/* Bootloader font */
+#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_bl)
+#define LV_FONT_DEFAULT &lv_font_bl
 #endif
 
 /*Enable handling large font and/or fonts with a lot of characters.

@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
   fprintf(fp, "static uint8_t etxUncompBuf[%d] __SDRAMFONTS;\n\n", size);
 
   // Custom font structure
-  fprintf(fp, "const etxLz4Font %s = {\n", argv[1]);
+  fprintf(fp, "const etxLz4Font %s = {\n", argv[1]+4);
   fprintf(fp, ".uncomp_size = %d,\n", uncomp_size);
   fprintf(fp, ".comp_size = %d,\n", comp_size);
   fprintf(fp, ".line_height = %d,\n", etx_font.line_height);

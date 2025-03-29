@@ -944,15 +944,18 @@
 
 #if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
   #define PORTRAIT_LCD true
-  #define LANDSCAPE_LCD false
+  #define LANDSCAPE_LCD_STD false
   #define LCD_W                         320
   #define LCD_H                         480
 #else
   #define PORTRAIT_LCD false
-  #define LANDSCAPE_LCD true
+  #define LANDSCAPE_LCD_STD true
   #define LCD_W                         480
   #define LCD_H                         320
 #endif
+
+#define LANDSCAPE_LCD_LRG false
+#define LANDSCAPE_LCD_SML false
 
 #define LCD_PHYS_W                      320
 #define LCD_PHYS_H                      480
