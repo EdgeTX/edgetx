@@ -321,14 +321,18 @@ void LvglWidgetObjectBase::parseParam(lua_State *L, const char *key)
   }
 }
 
+void LvglWidgetObjectBase::clear()
+{
+  clearRequest = true;
+  if (getWindow())
+    getWindow()->clear();
+}
+
 bool LvglWidgetObjectBase::callRefs(lua_State *L)
 {
   if (clearRequest) {
     clearRequest = false;
-    if (getWindow()) {
-      getWindow()->clear();
-      clearChildRefs(L);
-    }
+    clearChildRefs(L);
     return true;
   }
 
@@ -352,6 +356,11 @@ bool LvglWidgetObjectBase::callRefs(lua_State *L)
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
     lua_pop(L, 1);
     if (p) if (!p->callRefs(L)) return false;
+    if (clearRequest) {
+      clearRequest = false;
+      clearChildRefs(L);
+      return true;
+    }
   }
 
   return true;
