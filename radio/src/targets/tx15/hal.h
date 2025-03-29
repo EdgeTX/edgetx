@@ -23,6 +23,9 @@
 /*
 
 STM32H750
+
+SDMMC uses own DMA controler
+
 DMA1
 Stream0:  LED_STRIP_TIMER_DMA_STREAM
 Stream1:  INTMODULE_DMA_STREAM
@@ -34,11 +37,11 @@ Stream6:
 Stream7:  TELEMETRY_DMA_Stream_TX
 
 DMA2
-Stream0:  ADC_EXT_DMA_STREAM
+Stream0:  ADC_EXT_DMA_STREAM (do not move)
 Stream1:
-Stream2:  ADC_DMA_STREAM
+Stream2:
 Stream3:  EXTMODULE_TIMER_DMA_STREAM
-Stream4:  SD_SDIO_DMA_STREAM
+Stream4:  ADC_DMA_STREAM (do not move)
 Stream5:  EXTMODULE_USART_RX_DMA_STREAM
 Stream6:  EXTMODULE_USART_TX_DMA_STREAM
 Stream7:
@@ -189,7 +192,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_11   // ADC12_INP11
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC3_INP14
-#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC12_IN14
+#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC3_INP17
 
 #define ADC_MAIN                        ADC1
 #define ADC_DMA                         DMA2
@@ -200,7 +203,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_8CYCLES_5
 
 #define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                { ADC_CHANNEL_BATT }
+#define ADC_EXT_CHANNELS                { ADC_CHANNEL_BATT , ADC_CHANNEL_RTC_BAT }
 #define ADC_EXT_DMA                     DMA2
 #define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
 #define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
@@ -343,11 +346,11 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
 #define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)
-#define I2S_DMA                   		DMA1
-#define I2S_DMA_Stream            		LL_DMA_STREAM_4
-#define I2S_DMA_Stream_Request    		LL_DMAMUX1_REQ_SPI2_TX
-#define I2S_DMA_Stream_IRQn       		DMA1_Stream4_IRQn
-#define I2S_DMA_Stream_IRQHandler 		DMA1_Stream4_IRQHandler
+#define I2S_DMA                   	DMA1
+#define I2S_DMA_Stream            	LL_DMA_STREAM_4
+#define I2S_DMA_Stream_Request    	LL_DMAMUX1_REQ_SPI2_TX
+#define I2S_DMA_Stream_IRQn       	DMA1_Stream4_IRQn
+#define I2S_DMA_Stream_IRQHandler 	DMA1_Stream4_IRQHandler
 
 
 // I2C Bus
@@ -424,11 +427,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define INTMODULE_RX_DMA_CHANNEL        LL_DMAMUX1_REQ_USART6_RX
 #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream5_IRQn
 #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream5_IRQHandler
-
-// #define INTMODULE_TIMER                 TIM3
-// #define INTMODULE_TIMER_IRQn            TIM3_IRQn
-// #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
-// #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // External Module
 #define EXTMODULE
@@ -535,6 +533,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
 
 #define LANDSCAPE_LCD true
+#define PORTRAIT_LCD false
 #define PORTRAIT_LCD false
 
 #define LCD_W                           480

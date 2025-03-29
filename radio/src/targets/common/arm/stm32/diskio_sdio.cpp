@@ -167,7 +167,11 @@ extern uint32_t _heap_start;
 // HAL state
 static SD_HandleTypeDef sdio;
 #if defined(SD_SDIO_DMA)
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+static_assert(false,"H7/H5 use dedicated DMA controler");
+#else
 static DMA_HandleTypeDef sdioTxDma;
+#endif
 #endif
 
 // Disk status
