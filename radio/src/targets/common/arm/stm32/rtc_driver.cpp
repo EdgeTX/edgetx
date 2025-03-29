@@ -80,6 +80,10 @@ void rtcInit()
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
   }
 
+#if defined(STM32H7)
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_HIGH);
+#endif
+
   __HAL_RCC_RTC_ENABLE();
   HAL_RTC_WaitForSynchro(&rtc);
 
@@ -92,6 +96,9 @@ void rtcInit()
   rtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
   rtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
   HAL_RTC_Init(&rtc);
+
+  HAL_PWR_EnableBkUpAccess();
+  HAL_RTC_WaitForSynchro(&rtc);
 
   struct gtm utm;
   rtcGetTime(&utm);
