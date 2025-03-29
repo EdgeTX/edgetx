@@ -24,7 +24,7 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-  QT_VERSION: "5.15.2"
+  QT_VERSION: "6.8.2"
 
 jobs:
   build:
@@ -56,9 +56,10 @@ jobs:
         run: cmake -E make_directory ${{github.workspace}}/build
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
+          modules: 'qtmultimedia qtserialport'
           setup-python: 'false'
 
       - name: Install dependencies
