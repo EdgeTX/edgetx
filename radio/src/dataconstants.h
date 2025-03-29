@@ -95,7 +95,7 @@ enum CurveType {
   CURVE_TYPE_LAST = CURVE_TYPE_CUSTOM
 };
 
-#define MIN_POINTS_PER_CURVE           3
+#define MIN_POINTS_PER_CURVE           2
 #define MAX_POINTS_PER_CURVE           17
 
 #if defined(PCBHORUS) || defined(PCBNV14) || defined(PCBPL18)
