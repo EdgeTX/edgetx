@@ -163,12 +163,15 @@ class Window
 
 #if defined(HARDWARE_TOUCH)
   void addBackButton();
+  void addCustomButton(coord_t x, coord_t y, std::function<void()> action);
 #endif
 
   inline lv_obj_t *getLvObj() { return lvobj; }
 
   virtual bool isTopBar() { return false; }
   virtual bool isWidgetsContainer() { return false; }
+  virtual bool isNavWindow() { return false; }
+  virtual bool isPageGroup() { return false; }
 
   virtual bool isBubblePopup() { return false; }
 
@@ -216,7 +219,8 @@ class NavWindow : public Window
   NavWindow(Window *parent, const rect_t &rect,
             LvglCreate objConstruct = nullptr);
 
- protected:
+  bool isNavWindow() override { return true; }
+
 #if defined(HARDWARE_KEYS)
   virtual void onPressSYS() {}
   virtual void onLongPressSYS() {}
@@ -229,6 +233,8 @@ class NavWindow : public Window
   virtual void onLongPressPGUP() {}
   virtual void onLongPressPGDN() {}
 #endif
+
+ protected:
   virtual bool bubbleEvents() { return true; }
   void onEvent(event_t event) override;
 };

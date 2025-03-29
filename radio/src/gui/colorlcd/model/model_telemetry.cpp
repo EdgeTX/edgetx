@@ -791,8 +791,8 @@ class SensorEditWindow : public SubPage
   static LAYOUT_VAL(NUM_EDIT_W, 100, 80)
 };
 
-ModelTelemetryPage::ModelTelemetryPage() :
-    PageTab(STR_MENUTELEMETRY, ICON_MODEL_TELEMETRY)
+ModelTelemetryPage::ModelTelemetryPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
   tsStyle.init();
 }
