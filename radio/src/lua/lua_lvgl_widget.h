@@ -82,7 +82,7 @@ class LvglWidgetObjectBase
 
   static LvglWidgetObjectBase *checkLvgl(lua_State *L, int index);
 
-  void clear() { clearRequest = true; }
+  void clear();
 
  protected:
   int luaRef = LUA_REFNIL;
