@@ -27,7 +27,7 @@
 extern uint8_t g_moduleIdx;
 
 struct LuaScript {
-  std::string path;
+  std::string filename;
   std::string label;
   bool operator<(const LuaScript &a) { return label < a.label; }
 };
@@ -47,7 +47,7 @@ static LcdFlags dispTool(uint8_t index)
   return attr;
 }
 
-void displayRadioTool(uint8_t index)
+static void displayRadioTool(uint8_t index)
 {
   auto attr = dispTool(index);
   if (attr && s_editMode > 0) {
@@ -57,17 +57,16 @@ void displayRadioTool(uint8_t index)
       g_moduleIdx = reusableBuffer.radioTools.script[index - menuVerticalOffset].module;
       pushMenu(reusableBuffer.radioTools.script[index - menuVerticalOffset].tool);
     }
-    else if (reusableBuffer.radioTools.script[index - menuVerticalOffset].path[0]) {
-      char toolPath[FF_MAX_LFN];
-      strcpy(toolPath, reusableBuffer.radioTools.script[index - menuVerticalOffset].path);
-      *((char *)getBasename(toolPath)-1) = '\0';
-      f_chdir(toolPath);
-      luaExec(reusableBuffer.radioTools.script[index - menuVerticalOffset].path);
+    else if (reusableBuffer.radioTools.script[index - menuVerticalOffset].filename[0]) {
+      f_chdir(SCRIPTS_TOOLS_PATH);
+      char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
+      strcat(path, reusableBuffer.radioTools.script[index - menuVerticalOffset].filename);
+      luaExec(path);
     }
   }
 }
 
-void addRadioTool(uint8_t index, const char * label)
+static void addRadioTool(uint8_t index, const char * label)
 {
   strAppend(reusableBuffer.radioTools.script[index - menuVerticalOffset].label, label, TOOL_NAME_MAX_LEN);
   auto attr = dispTool(index);
@@ -88,13 +87,13 @@ void addRadioModuleToolHandler(uint8_t index, const char * label, void (* tool)(
 }
 
 #if defined(LUA)
-void addRadioScriptToolHandler(std::vector<LuaScript> luaScripts)
+static void addRadioScriptToolHandler(std::vector<LuaScript> luaScripts)
 {
   uint8_t index = 0;
   for (auto luaScript : luaScripts) {
     if (index >= menuVerticalOffset && index < menuVerticalOffset + NUM_BODY_LINES) {
       memclear(&reusableBuffer.radioTools.script[index - menuVerticalOffset], sizeof(reusableBuffer.radioTools.script[0]));
-      strAppend(reusableBuffer.radioTools.script[index - menuVerticalOffset].path, luaScript.path.c_str(), TOOL_PATH_MAX_LEN);
+      strAppend(reusableBuffer.radioTools.script[index - menuVerticalOffset].filename, luaScript.filename.c_str(), TOOL_PATH_MAX_LEN);
       addRadioTool(index, luaScript.label.c_str());
     }
     index += 1;
@@ -138,26 +137,25 @@ void menuRadioTools(event_t event)
     std::vector<LuaScript> luaScripts;  // gather and sort before adding to menu
 
     for (;;) {
-      TCHAR path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
-
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
       if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
       if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
 
-      strcat(path, fno.fname);
       if (isRadioScriptTool(fno.fname)) {
-        char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
         const char *label;
-        char *ext = (char *)getFileExtension(path);
+        char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
+        char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
+        strcat(path, fno.fname);
+        char *ext = (char *)getFileExtension(fno.fname);
+        *ext = '\0';
         if (readToolName(toolName, path)) {
           label = toolName;
         } else {
-          *ext = '\0';
-          label = getBasename(path);
+          label = fno.fname;
         }
 
-        luaScripts.emplace_back(LuaScript{path, label});
+        luaScripts.emplace_back(LuaScript{fno.fname, label});
       }
     }
     f_closedir(&dir);
