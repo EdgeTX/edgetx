@@ -35,7 +35,7 @@ class RadioGhostModuleConfig: public Page
   void buildBody(Window * window);
   void init();
 
-#if defined(HARDWARE_KEYS)
+#if defined(HARDWARE_KEYS) && !defined(PCBPL18)
   void checkEvents() override;
   void onCancel() override;
   void onLongPressRTN() override;
