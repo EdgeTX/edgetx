@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "os/sleep.h"
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "stm32_i2c_driver.h"
@@ -32,6 +33,7 @@
 #include "hal.h"
 
 #include "stm32h7rsxx_hal_gpio.h"
+#include "timers_driver.h"
 #include "tp_gt911.h"
 #include "delays_driver.h"
 
@@ -215,7 +217,7 @@ struct TouchState touchPanelRead()
 
   touchEventOccured = false;
 
-  uint32_t startReadStatus = RTOS_GET_MS();
+  uint32_t startReadStatus = timersGetMsTick();
   do {
     if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
       // ledRed();
@@ -229,15 +231,15 @@ struct TouchState touchPanelRead()
       // ready
       break;
     }
-    RTOS_WAIT_MS(1);
-  } while (RTOS_GET_MS() - startReadStatus < GT911_TIMEOUT);
+    sleep_ms(1);
+  } while (timersGetMsTick() - startReadStatus < GT911_TIMEOUT);
 
   internalTouchState.deltaX = 0;
   internalTouchState.deltaY = 0;
   TRACE("touch state = 0x%x", state);
   if (state & 0x80u) {
     uint8_t pointsCount = (state & 0x0Fu);
-    uint32_t now = RTOS_GET_MS();
+    uint32_t now = timersGetMsTick();
     internalTouchState.tapCount = 0;
 
     if (pointsCount > 0 && pointsCount <= GT911_MAX_TP) {

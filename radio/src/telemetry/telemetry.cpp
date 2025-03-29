@@ -21,6 +21,8 @@
 
 #include "edgetx.h"
 #include "multi.h"
+#include "os/async.h"
+#include "os/timer.h"
 #include "pulses/afhds3.h"
 #include "pulses/flysky.h"
 #include "mixer_scheduler.h"
@@ -168,14 +170,10 @@ void telemetryMirrorSend(uint8_t data)
   }
 }
 
-#if !defined(SIMU)
-static TimerHandle_t telemetryTimer = nullptr;
-static StaticTimer_t telemetryTimerBuffer;
+static timer_handle_t telemetryTimer = TIMER_INITIALIZER;
 
-static void telemetryTimerCb(TimerHandle_t xTimer)
+static void telemetryTimerCb(timer_handle_t* h)
 {
-  (void)xTimer;
-
   DEBUG_TIMER_START(debugTimerTelemetryWakeup);
   telemetryWakeup();
   DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
@@ -183,25 +181,17 @@ static void telemetryTimerCb(TimerHandle_t xTimer)
 
 void telemetryStart()
 {
-  if (!telemetryTimer) {
-    telemetryTimer =
-        xTimerCreateStatic("Telem", 2 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
-                           telemetryTimerCb, &telemetryTimerBuffer);
+  if (!timer_is_created(&telemetryTimer)) {
+    timer_create(&telemetryTimer, telemetryTimerCb, "Telem", 2, true);
   }
 
-  if (telemetryTimer) {
-    if( xTimerStart( telemetryTimer, 0 ) != pdPASS ) {
-      /* The timer could not be set into the Active state. */
-    }
-  }
+  timer_start(&telemetryTimer);
 }
 
 void telemetryStop()
 {
-  if (telemetryTimer) {
-    if( xTimerStop( telemetryTimer, 5 / RTOS_MS_PER_TICK ) != pdPASS ) {
-      /* The timer could not be stopped. */
-    }
+  if (!timer_is_created(&telemetryTimer)) {
+    timer_stop(&telemetryTimer);
   }
 }
 
@@ -248,21 +238,8 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
 
 void telemetryFrameTrigger_ISR(uint8_t module, const etx_proto_driver_t* drv)
 {
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  BaseType_t xReturn = pdFALSE;
-
-  if (!_poll_frame_queued[module] && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    xReturn = xTimerPendFunctionCallFromISR(_poll_frame, (void*)drv, module, &xHigherPriorityTaskWoken);
-
-    if (xReturn == pdPASS) {
-      _poll_frame_queued[module] = true;
-    } else {
-      TRACE("xTimerPendFunctionCallFromISR() queue full");
-    }
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-  }
+  async_call_isr(_poll_frame, &_poll_frame_queued[module], (void*)drv, module);
 }
-#endif
 
 inline bool isBadAntennaDetected()
 {

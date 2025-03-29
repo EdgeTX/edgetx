@@ -20,13 +20,8 @@
  */
 
 #include "edgetx.h"
-// #include <ctype.h>
 #include "tasks/mixer_task.h"
-
-#if !defined(SIMU)
-  #include <FreeRTOS/include/FreeRTOS.h>
-  #include <FreeRTOS/include/timers.h>
-#endif
+#include "os/timer.h"
 
 struct spacemousedata_t
 {
@@ -57,11 +52,9 @@ spacemousedata_t spacemouseData;
 
 void spacemouseWakeup();
 
-#if !defined(SIMU)
-static TimerHandle_t spacemouseTimer = nullptr;
-static StaticTimer_t spacemouseTimerBuffer;
+static timer_handle_t spacemouseTimer = TIMER_INITIALIZER;
 
-static void spacemouseTimerCb(TimerHandle_t xTimer)
+static void spacemouseTimerCb(timer_handle_t* timer)
 {
   if (mixerTaskRunning()) {
     DEBUG_TIMER_START(debugTimerSpacemouseWakeup);
@@ -73,28 +66,17 @@ static void spacemouseTimerCb(TimerHandle_t xTimer)
 
 void spacemouseStart()
 {
-  if (!spacemouseTimer) {
-    spacemouseTimer =
-        xTimerCreateStatic("SpaceM", 10 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
-                           spacemouseTimerCb, &spacemouseTimerBuffer);
+  if (!timer_is_created(&spacemouseTimer)) {
+    timer_create(&spacemouseTimer, spacemouseTimerCb, "spacem", 10, true);
   }
 
-  if (spacemouseTimer) {
-    if( xTimerStart( spacemouseTimer, 0 ) != pdPASS ) {
-      /* The timer could not be set into the Active state. */
-    }
-  }
+  timer_start(&spacemouseTimer);
 }
 
 void spacemouseStop()
 {
-  if (spacemouseTimer) {
-    if( xTimerStop( spacemouseTimer, 12 / RTOS_MS_PER_TICK ) != pdPASS ) {
-      /* The timer could not be stopped. */
-    }
-  }
+  timer_stop(&spacemouseTimer);
 }
-#endif
 
 void spacemouseParseNewData(uint8_t c)
 {
@@ -155,9 +137,7 @@ void spacemouseSetSerialDriver(void* ctx, const etx_serial_driver_t* drv)
   spacemouseSerialCtx = ctx;
   spacemouseSerialDrv = drv;
   spaceMouseTelegram.parsestate = sm_bytetype::SM_START;
-#if !defined(SIMU)
   spacemouseStart();
-#endif
 }
 
 int16_t get_spacemouse_value(uint8_t ch)

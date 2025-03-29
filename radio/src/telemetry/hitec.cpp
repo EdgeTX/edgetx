@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "os/time.h"
 
 /* Full telemetry 
 packet[0] = TX RSSI value
@@ -354,7 +355,7 @@ void processHitecPacket(const uint8_t * packet)
       alt = (int16_t) ((packet[3] << 8) | packet[4]);
       sensor = getHitecSensor(HITEC_ID_ALT);
       setTelemetryValue(PROTOCOL_TELEMETRY_HITEC, HITEC_ID_ALT, 0, 0, alt, sensor->unit, sensor->precision);
-      current_ms = RTOS_GET_MS();
+      current_ms = time_get_ms();
       sensor = getHitecSensor(HITEC_ID_VARIO);
       value = (alt - last_alt) * 100;
       if ((current_ms - last_ms) < 1000)
