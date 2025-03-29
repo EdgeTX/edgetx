@@ -25,20 +25,19 @@
 
 class RadioGhostModuleConfig: public Page
 {
-  public:
-    explicit RadioGhostModuleConfig(uint8_t moduleIdx);
+ public:
+  explicit RadioGhostModuleConfig(uint8_t moduleIdx);
 
-#if defined(HARDWARE_KEYS) && !defined(PCBPL18)
-    void onEvent(event_t event) override;
-    void checkEvents() override;
-    void onCancel() override;
+ protected:
+  uint8_t moduleIdx;
+
+  void buildHeader(Window * window);
+  void buildBody(Window * window);
+  void init();
+
+#if defined(HARDWARE_KEYS)
+  void checkEvents() override;
+  void onCancel() override;
+  void onLongPressRTN() override;
 #endif
-
-  protected:
-    uint8_t moduleIdx;
-
-    void buildHeader(Window * window);
-    void buildBody(Window * window);
-    void init();
 };
-

@@ -33,10 +33,6 @@ class TemplatePage : public Page
 
     void updateInfo();
 
-#if defined(HARDWARE_KEYS)
-    void onEvent(event_t event) override;
-#endif
-
 #if defined(DEBUG_WINDOWS)
     std::string getName() const override { return "TemplatePage"; }
 #endif
