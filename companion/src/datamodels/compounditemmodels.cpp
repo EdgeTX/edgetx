@@ -264,6 +264,12 @@ void RawSwitchItemModel::addItems(const RawSwitchType & type, int count)
     QStandardItem * modelItem = new QStandardItem();
     modelItem->setData(rs.toValue(), IMDR_Id);
     modelItem->setData(type, IMDR_Type);
+    if (type == SWITCH_TYPE_SWITCH) {
+      if (Boards::isSwitchFunc(div(abs(rs.index) - 1, 3).quot, boardType))
+        context &= ~RawSwitch::GlobalFunctionsContext;
+      else
+        context |= RawSwitch::GlobalFunctionsContext;
+    }
     modelItem->setData(context, IMDR_Flags);
     setDynamicItemData(modelItem, rs);
     appendRow(modelItem);
