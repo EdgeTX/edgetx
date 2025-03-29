@@ -513,18 +513,16 @@ void lcdDrawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint8_t pat, Lc
 
 void lcdDrawVerticalLine(coord_t x, coord_t y, coord_t h, uint8_t pat, LcdFlags att)
 {
-  if (x >= LCD_W) return;
-  // should never happen on 9X
-  if (y >= LCD_H) return;
-
-  if (h<0) { y+=h; h=-h; }
-  if (y<0) { h+=y; y=0; }
-  if (y+h > LCD_H) { h = LCD_H - y; }
+  if (x < 0 || x >= LCD_W || h == 0) return;
+  if (h < 0) { y = y + h + 1; h = -h; }
+  if (y + h <= 0 || y >= LCD_H) return;
+  if (y < 0) { h += y; y = 0; }
+  if (y + h > LCD_H) { h = LCD_H - y; }
 
   if (pat==DOTTED && !(y%2))
     pat = ~pat;
 
-  uint8_t * p  = &displayBuf[ y / 8 * LCD_W + x ];
+  uint8_t * p = &displayBuf[ y / 8 * LCD_W + x ];
   y = (y & 0x07);
   if (y) {
     ASSERT_IN_DISPLAY(p);
@@ -940,8 +938,11 @@ void lcdInvertLine(int8_t line)
 
 void lcdDrawHorizontalLine(coord_t x, coord_t y, coord_t w, uint8_t pat, LcdFlags att)
 {
-  if (y >= LCD_H) return;
-  if (x+w > LCD_W) { w = LCD_W - x; }
+  if (y < 0 || y >= LCD_H || w == 0) return;
+  if (w < 0) { x = x + w + 1; w = -w; }
+  if (x + w <= 0 || x >= LCD_W) return;
+  if (x < 0) { w += x; x = 0; }
+  if (x + w > LCD_W) { w = LCD_W - x; }
 
   uint8_t *p  = &displayBuf[ y / 8 * LCD_W + x ];
   uint8_t msk = bfBit<uint8_t>(y % 8);
