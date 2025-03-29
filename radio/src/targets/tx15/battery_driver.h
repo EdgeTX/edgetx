@@ -27,4 +27,5 @@
 
 ***************************************************************************************************/
 
-#define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO)
+// Charge pin is active low
+#define IS_UCHARGER_ACTIVE()              (1 - gpio_read(UCHARGER_GPIO))

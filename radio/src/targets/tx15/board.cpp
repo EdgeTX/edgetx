@@ -43,6 +43,7 @@
 #include "hal/watchdog_driver.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/rgbleds.h"
 
 #include "globals.h"
 #include "sdcard.h"
@@ -76,13 +77,15 @@ extern "C" void initialise_monitor_handles();
 extern "C" void flushFTL();
 #endif
 
-static void led_strip_charge_animation(uint8_t ledOn)
+constexpr uint16_t vbatLedTable[] = {660, 700, 740, 780, 820, 840};
+
+static void led_strip_charge_animation(uint16_t vbat)
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    if (i == ledOn)
-      ws2812_set_color(i, 10, 10, 10);
+    if (vbat > vbatLedTable[i])
+      ws2812_set_color(i, 0, 50, 0);
     else
-      ws2812_set_color(i, 0, 0, 0);
+      ws2812_set_color(i, 50, 0, 0);
   }
   ws2812_update(&_led_timer);
 }
@@ -176,66 +179,50 @@ void boardInit()
 
   usbInit();
 
-#if !defined(DEBUG_SEGGER_RTT)
-  // prime debounce state...
-  usbPlugged();
-
-  if (usbPlugged()) {
-    delaysInit();
-    ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
-    uint8_t ledOn = 0;
-    while (usbPlugged()) {
-      if(IS_UCHARGER_ACTIVE()) {
-        led_strip_charge_animation(ledOn++);
-        if (ledOn == LED_STRIP_LENGTH)
-          ledOn = 0;
-      }
-      else {
-        led_strip_off();
-      }
-      delay_ms(1000);
-    }
-    while(1) // Wait power to drain
-      boardOff();
-  }
-#endif
-
   ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   led_strip_off();
 
-  // uint32_t press_start = 0;
-  // uint32_t press_end = 0;
+  uint32_t press_start = 0;
+  uint32_t press_end = 0;
+  uint8_t ledOn = 0;
 
-  // if (UNEXPECTED_SHUTDOWN()) {
-  pwrOn();
-  // } else if (isChargerActive()) {
-  //   while (true) {
-  //     pwrOn();
-  //     uint32_t now = get_tmr10ms();
-  //     if (pwrPressed()) {
-  //       press_end = now;
-  //       if (press_start == 0) press_start = now;
-  //       if ((now - press_start) > POWER_ON_DELAY) {
-  //         break;
-  //       }
-  //     } else if (!isChargerActive()) {
-  //       boardOff();
-  //     } else {
-  //       uint32_t press_end_touch = press_end;
-  //       press_start = 0;
-  //       handle_battery_charge(press_end_touch);
-  //       delay_ms(10);
-  //       press_end = 0;
-  //     }
-  //   }
-  // }
+#if !defined(DEBUG_SEGGER_RTT)
+  if (UNEXPECTED_SHUTDOWN()) {
+    pwrOn();
+  } else if (IS_UCHARGER_ACTIVE()) {
+    __enable_irq();
+    adcInit(&_adc_driver);
+    getADC();
+    pwrOn();
+    while (true) {
+      uint32_t now = timersGetMsTick();
+      getADC();  // Warning: the value read does not include VBAT calibration
+      if (pwrPressed()) {
+        press_end = now;
+        if (press_start == 0) press_start = now;
+        if ((now - press_start) > POWER_ON_DELAY) {
+          break;
+        }
+      } else if (!IS_UCHARGER_ACTIVE()) {
+        boardOff();
+      } else {
+        uint32_t press_end_touch = press_end;
+        press_start = 0;
+        led_strip_charge_animation(getBatteryVoltage());
+        delay_ms(10);
+        press_end = 0;
+      }
+    }
+  }
+#endif
 
   keysInit();
   switchInit();
   rotaryEncoderInit();
   touchPanelInit();
   audioInit();
-  adcInit(&_adc_driver);
+  if (&_adc_driver == 0)
+    adcInit(&_adc_driver);
   hapticInit();
 
 #if defined(RTCLOCK)
