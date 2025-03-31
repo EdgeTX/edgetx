@@ -124,15 +124,6 @@ static void ghostmoduleconfig_cb(lv_event_t* e)
   }
 }
 
-#if defined(HARDWARE_KEYS) && !defined(PCBPL18)
-void RadioGhostModuleConfig::onCancel()
-{
-  reusableBuffer.ghostMenu.buttonAction = GHST_BTN_JOYLEFT;
-  reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_NONE;
-  moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
-}
-#endif
-
 RadioGhostModuleConfig::RadioGhostModuleConfig(uint8_t moduleIdx) :
     Page(ICON_RADIO_TOOLS), moduleIdx(moduleIdx)
 {
@@ -162,21 +153,23 @@ void RadioGhostModuleConfig::buildBody(Window* window)
 }
 
 #if defined(HARDWARE_KEYS) && !defined(PCBPL18)
-void RadioGhostModuleConfig::onEvent(event_t event)
+void RadioGhostModuleConfig::onCancel()
 {
-  switch (event) {
-    case EVT_KEY_LONG(KEY_EXIT):
-      memclear(&reusableBuffer.ghostMenu, sizeof(reusableBuffer.ghostMenu));
-      reusableBuffer.ghostMenu.buttonAction = GHST_BTN_NONE;
-      reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_CLOSE;
-      moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
-      RTOS_WAIT_MS(10);
-      Page::onEvent(event);
+  reusableBuffer.ghostMenu.buttonAction = GHST_BTN_JOYLEFT;
+  reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_NONE;
+  moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
+}
+
+void RadioGhostModuleConfig::onLongPressRTN()
+{
+  memclear(&reusableBuffer.ghostMenu, sizeof(reusableBuffer.ghostMenu));
+  reusableBuffer.ghostMenu.buttonAction = GHST_BTN_NONE;
+  reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_CLOSE;
+  moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
+  RTOS_WAIT_MS(10);
 #if defined(TRIMS_EMULATE_BUTTONS)
-      setHatsAsKeys(false);  // switch trims back to normal
+  setHatsAsKeys(false);  // switch trims back to normal
 #endif
-      break;
-  }
 }
 
 void RadioGhostModuleConfig::checkEvents()
