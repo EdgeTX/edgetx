@@ -894,7 +894,7 @@ void FunctionsPage::build(Window *window)
 
   if (hasEmptyFunction) {
     addButton =
-        new TextButton(window, rect_t{0, 0, window->width() - 12, SF_BUTTON_H},
+        new TextButton(window, rect_t{0, 0, window->width() - PAD_SMALL * 2, SF_BUTTON_H},
                        LV_SYMBOL_PLUS, [=]() {
                          plusPopup(window);
                          return 0;

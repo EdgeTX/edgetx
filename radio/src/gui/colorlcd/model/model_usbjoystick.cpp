@@ -427,8 +427,6 @@ class USBChannelLineButton : public ListLineButton
     lv_label_set_text(m_param, "");
     lv_label_set_text(m_btn_mode, "");
     lv_label_set_text(m_btns, "");
-
-    lv_obj_update_layout(lvobj);
   }
 
   void refresh() override
@@ -504,7 +502,7 @@ class USBChannelLineButton : public ListLineButton
   StaticIcon* m_inverse;
 };
 
-ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
+ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB, PAD_BORDER)
 {
   header->setTitle(STR_MENU_MODEL_SETUP);
   header->setTitle2(STR_USBJOYSTICK_LABEL);

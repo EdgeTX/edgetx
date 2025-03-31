@@ -677,7 +677,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
 
   if (hasEmptySwitch) {
     addButton =
-        new TextButton(window, rect_t{0, 0, window->width() - PAD_MEDIUM * 2, LogicalSwitchButton::LS_BUTTON_H},
+        new TextButton(window, rect_t{0, 0, window->width() - PAD_SMALL * 2, LogicalSwitchButton::LS_BUTTON_H},
                        LV_SYMBOL_PLUS, [=]() {
                          plusPopup(window);
                          return 0;
