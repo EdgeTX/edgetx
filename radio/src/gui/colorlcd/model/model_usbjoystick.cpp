@@ -82,7 +82,7 @@ class USBChannelEditStatusBar : public Window
         channel, true);
   }
 
-  static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_MARGIN, 3, 0)
+  static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_MARGIN, 3, 0, LS(3))
 
  protected:
   ComboChannelBar* channelBar;
@@ -215,9 +215,9 @@ class USBChannelEditWindow : public Page
     buildBody(body);
   }
 
-  static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_WIDTH, 250, 160)
-  static LAYOUT_VAL(USBCH_EDIT_RIGHT_MARGIN, 0, 3)
-  static LAYOUT_VAL(USBCH_COLS, 4, 2)
+  static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_WIDTH, 250, 160, LS(250))
+  static LAYOUT_VAL(USBCH_EDIT_RIGHT_MARGIN, 0, 3, 0)
+  static LAYOUT_VAL2(USBCH_COLS, 4, 2)
 
  protected:
   uint8_t channel;
@@ -427,8 +427,6 @@ class USBChannelLineButton : public ListLineButton
     lv_label_set_text(m_param, "");
     lv_label_set_text(m_btn_mode, "");
     lv_label_set_text(m_btns, "");
-
-    lv_obj_update_layout(lvobj);
   }
 
   void refresh() override
@@ -488,10 +486,10 @@ class USBChannelLineButton : public ListLineButton
 
   bool isActive() const override { return false; }
 
-  static LAYOUT_VAL(USBCH_LINE_HEIGHT, 32, 48)
-  static LAYOUT_VAL(USBCH_CHN_ROWS, 1, 2)
-  static LAYOUT_VAL(USBCH_BTN_MODE_COL, 4, 2)
-  static LAYOUT_VAL(USBCH_BTN_MODE_ROW, 0, 1)
+  static LAYOUT_VAL(USBCH_LINE_HEIGHT, 32, 48, LS(32))
+  static LAYOUT_VAL2(USBCH_CHN_ROWS, 1, 2)
+  static LAYOUT_VAL2(USBCH_BTN_MODE_COL, 4, 2)
+  static LAYOUT_VAL2(USBCH_BTN_MODE_ROW, 0, 1)
 
  protected:
   bool init = false;
@@ -504,7 +502,7 @@ class USBChannelLineButton : public ListLineButton
   StaticIcon* m_inverse;
 };
 
-ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB)
+ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB, PAD_BORDER)
 {
   header->setTitle(STR_MENU_MODEL_SETUP);
   header->setTitle2(STR_USBJOYSTICK_LABEL);

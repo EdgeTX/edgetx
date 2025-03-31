@@ -36,7 +36,7 @@ class PageHeader : public Window
   void setTitle(std::string txt) { title->setText(std::move(txt)); }
   StaticText* setTitle2(std::string txt);
 
-  static LAYOUT_VAL(PAGE_TITLE_LEFT, 50, 50)
+  static LAYOUT_VAL(PAGE_TITLE_LEFT, 50, 50, LS(50))
   static constexpr coord_t PAGE_TITLE_TOP = 2;
 
  protected:
@@ -76,7 +76,7 @@ class SubPage : public Page
 
   Window* setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
 
-  static LAYOUT_VAL(EDT_X, 220, 144)
+  static LAYOUT_VAL(EDT_X, 220, 144, LS(220))
 
  protected:
   coord_t y = 0;

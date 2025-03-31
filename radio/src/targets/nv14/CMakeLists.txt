@@ -51,7 +51,7 @@ else()
     set(AFHDS2 ON)
 endif()
 
-set(BITMAPS_TARGET nv14_bitmaps)
+set(BITMAPS_TARGET bm480_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
 set(TOUCH_DRIVER touch_driver.cpp)

@@ -64,8 +64,8 @@ class ChannelsViewFooter : public Window
                    STR_MONITOR_MIXER_DESC, COLOR_THEME_PRIMARY2_INDEX);
   }
 
-  static LAYOUT_VAL(LEG_COLORBOX, 14, 14)
-  static LAYOUT_VAL(TXT_H, 18, 18)
+  static LAYOUT_VAL(LEG_COLORBOX, 14, 14, LS(14))
+  static LAYOUT_VAL(TXT_H, 18, 18, LS(18))
 };
 
 //-----------------------------------------------------------------------------

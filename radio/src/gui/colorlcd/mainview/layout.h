@@ -77,11 +77,11 @@ class LayoutFactory
 
   WidgetsContainer* createCustomScreen(unsigned customScreenIndex) const;
 
-  static LAYOUT_VAL(TRIM_LINE_WIDTH, 8, 8)
-  static LAYOUT_VAL(TRIM_SQUARE_SIZE, 17, 17)
+  static LAYOUT_VAL(TRIM_LINE_WIDTH, 8, 8, LS(8))
+  static LAYOUT_VAL(TRIM_SQUARE_SIZE, 17, 17, 13)
 
-  static LAYOUT_VAL(BM_W, 51, 22)
-  static LAYOUT_VAL(BM_H, 25, 34)
+  static LAYOUT_VAL(BM_W, 51, 22, LS(51))
+  static LAYOUT_VAL(BM_H, 25, 34, LS(25))
 
  protected:
   const char* id;

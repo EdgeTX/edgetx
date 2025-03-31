@@ -38,8 +38,8 @@ class RadioSdManagerPage : public PageTab
   RadioSdManagerPage();
   void build(Window* window) override;
 
-  static LAYOUT_VAL(PREVIEW_W, LCD_W * 2 / 5 - PAD_SMALL * 2, LCD_W - PAD_MEDIUM * 2)
-  static LAYOUT_VAL(PREVIEW_H, LCD_H - 68, (LCD_H - 68) / 3)
+  static LAYOUT_VAL2(PREVIEW_W, LCD_W * 2 / 5 - PAD_SMALL * 2, LCD_W - PAD_MEDIUM * 2)
+  static LAYOUT_VAL3(PREVIEW_H, LCD_H - 68, (LCD_H - 68) / 3, LCD_H - LS(68), LCD_H - 102)
 
  protected:
   int loadPreview = 0;

@@ -37,10 +37,10 @@ class SelectFabCarousel : public Window
   void addButton(EdgeTxIcon icon, const char* title,
                  std::function<uint8_t(void)> pressHandler);
 
-  static LAYOUT_VAL(FAB_BUTTON_WIDTH, 80, 80)
-  static LAYOUT_VAL(FAB_BUTTON_HEIGHT, 114, 114)
+  static LAYOUT_VAL(FAB_BUTTON_WIDTH, 80, 80, 54)
+  static LAYOUT_VAL(FAB_BUTTON_HEIGHT, 114, 114, 78)
 
-  static LAYOUT_VAL(FAB_ICON_SIZE, 52, 52)
-  static LAYOUT_VAL(FAB_TXT_YO, 48, 48)
+  static LAYOUT_VAL(FAB_ICON_SIZE, 52, 52, 36)
+  static LAYOUT_VAL(FAB_TXT_YO, 48, 48, LS(48))
   static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH - PAD_MEDIUM;
 };

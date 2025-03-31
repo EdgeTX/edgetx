@@ -41,7 +41,7 @@ class ThemeSetupPage : public PageTab
 
   bool isVisible() const override { return radioThemesEnabled(); }
 
-  static LAYOUT_VAL(COLOR_PREVIEW_SIZE, 18, 18)
+  static LAYOUT_VAL(COLOR_PREVIEW_SIZE, 18, 18, LS(18))
 #if PORTRAIT_LCD
   static constexpr int LIST_HEIGHT = (LCD_H / 2 - 38);
 #else

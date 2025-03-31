@@ -501,36 +501,36 @@ class LogicalSwitchButton : public ListLineButton
     }
   }
 
-  static LAYOUT_VAL(LS_BUTTON_H, 32, 44)
+  static LAYOUT_VAL(LS_BUTTON_H, 32, 44, LS(32))
 
   static constexpr coord_t NM_X = PAD_TINY;
-  static LAYOUT_VAL(NM_Y, 4, 10)
-  static LAYOUT_VAL(NM_W, 30, 36)
-  static LAYOUT_VAL(NM_H, 20, 20)
+  static LAYOUT_VAL(NM_Y, 4, 10, 1)
+  static LAYOUT_VAL(NM_W, 30, 36, LS(30))
+  static LAYOUT_VAL(NM_H, 20, 20, 14)
   static constexpr coord_t FN_X = NM_X + NM_W + PAD_TINY;
   static constexpr coord_t FN_Y = NM_Y;
-  static LAYOUT_VAL(FN_W, 50, 58)
+  static LAYOUT_VAL(FN_W, 50, 58, LS(50))
   static constexpr coord_t FN_H = NM_H;
   static constexpr coord_t V1_X = FN_X + FN_W + PAD_TINY;
-  static LAYOUT_VAL(V1_Y, NM_Y, 0)
-  static LAYOUT_VAL(V1_W, 88, 88)
+  static LAYOUT_VAL2(V1_Y, NM_Y, 0)
+  static LAYOUT_VAL(V1_W, 88, 88, LS(88))
   static constexpr coord_t V1_H = NM_H;
   static constexpr coord_t V2_X = V1_X + V1_W + PAD_TINY;
   static constexpr coord_t V2_Y = V1_Y;
-  static LAYOUT_VAL(V2_W, 110, 110)
   static constexpr coord_t V2_H = NM_H;
-  static LAYOUT_VAL(AND_X, V2_X + V2_W + PAD_TINY, FN_X + FN_W + PAD_TINY)
-  static LAYOUT_VAL(AND_Y, NM_Y, 20)
   static constexpr coord_t AND_W = V1_W;
+  static LAYOUT_VAL(DUR_W, 40, 54, LS(40))
+  static constexpr coord_t DEL_W = DUR_W;
+  static constexpr coord_t AND_X = ListLineButton::GRP_W - PAD_BORDER * 2 - AND_W - DUR_W - DEL_W - PAD_TINY * 3;
+  static LAYOUT_VAL2(AND_Y, NM_Y, 20)
+  static constexpr coord_t V2_W = AND_X - V2_X - PAD_TINY;
   static constexpr coord_t AND_H = NM_H;
-  static constexpr coord_t DUR_X = AND_X + AND_W + PAD_TINY;
+  static constexpr coord_t DUR_X = ListLineButton::GRP_W - PAD_BORDER * 2 - DUR_W - DEL_W - PAD_TINY * 2;
   static constexpr coord_t DUR_Y = AND_Y;
-  static LAYOUT_VAL(DUR_W, 40, 54)
   static constexpr coord_t DUR_H = NM_H;
-  static constexpr coord_t DEL_X = DUR_X + DUR_W + PAD_TINY;
+  static constexpr coord_t DEL_X = ListLineButton::GRP_W - PAD_BORDER * 2 - DEL_W - PAD_TINY;
   static constexpr coord_t DEL_Y = AND_Y;
   static constexpr coord_t DEL_H = NM_H;
-  static constexpr coord_t DEL_W = DUR_W;
 
  protected:
   bool init = false;
@@ -677,7 +677,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
 
   if (hasEmptySwitch) {
     addButton =
-        new TextButton(window, rect_t{0, 0, window->width() - 12, LogicalSwitchButton::LS_BUTTON_H},
+        new TextButton(window, rect_t{0, 0, window->width() - PAD_SMALL * 2, LogicalSwitchButton::LS_BUTTON_H},
                        LV_SYMBOL_PLUS, [=]() {
                          plusPopup(window);
                          return 0;

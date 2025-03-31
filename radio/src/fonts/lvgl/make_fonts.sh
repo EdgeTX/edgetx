@@ -33,15 +33,17 @@ function make_font() {
   local name=$1
   local ttf=$2
   local size=$3
-  local chars=$4
-  local arg=$5
+  local sfx=$4
+  local dir=$5
+  local chars=$6
+  local arg=$7
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --font ${ARROWS_FONT} -r ${ARROWS} \
                --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
-               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format ${arg}
+               --format lvgl -o ${dir}/lv_font_${name}_${sfx}.c --force-fast-kern-format ${arg}
 }
 
 function compress_font() {
@@ -55,8 +57,10 @@ function make_font_lz4() {
   local name=$1
   local ttf=$2
   local size=$3
-  local chars=$4
-  local arg=$5
+  local sfx=$4
+  local dir=$5
+  local chars=$6
+  local arg=$7
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE},${BULLET},${COMPARE}${chars} \
@@ -64,34 +68,38 @@ function make_font_lz4() {
                --font ${ARROWS_FONT} -r ${ARROWS} \
                --font ${SYMBOLS_FONT} -r ${SYMBOLS} \
                --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
-  compress_font lv_font_${name}_${size}
+  compress_font ${dir}/lv_font_${name}_${sfx}
 }
 
 function make_font_w_extra_sym() {
   local name=$1
   local ttf=$2
   local size=$3
-  local chars=$4
-  local arg=$5
+  local sfx=$4
+  local dir=$5
+  local chars=$6
+  local arg=$7
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
                --font EdgeTX/extra.ttf -r ${EXTRA_SYM} \
                --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
-  compress_font lv_font_${name}_${size}
+  compress_font ${dir}/lv_font_${name}_${sfx}
 }
 
 function make_font_no_sym() {
   local name=$1
   local ttf=$2
   local size=$3
-  local chars=$4
-  local arg=$5
+  local sfx=$4
+  local dir=$5
+  local chars=$6
+  local arg=$7
 
   lv_font_conv --no-prefilter --bpp 4 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII},${DEGREE}${chars} \
                --format lvgl -o lv_font.inc --force-fast-kern-format ${arg}
-  compress_font lv_font_${name}_${size}
+  compress_font ${dir}/lv_font_${name}_${sfx}
 }
 
 # LV_SYMBOL_CHARGE, LV_SYMBOL_NEW_LINE, LV_SYMBOL_SD_CARD, LV_SYMBOL_CLOSE
@@ -102,10 +110,12 @@ function make_bootloader_font() {
   local name=$1
   local ttf=$2
   local size=$3
+  local dir=$4
+
   lv_font_conv --no-prefilter --bpp 2 --size ${size} \
                --font ${TTF_DIR}${ttf} -r ${ASCII} \
                --font ${SYMBOLS_FONT} -r ${BL_SYMBOLS} \
-               --format lvgl -o lv_font_${name}_${size}.c --force-fast-kern-format
+               --format lvgl -o ${dir}/lv_font_${name}.c --force-fast-kern-format
 }
 
 function make_font_set() {
@@ -114,28 +124,46 @@ function make_font_set() {
   local ttf_bold=$3
   local chars=$4
 
-  make_font_lz4 "${name}" "${ttf_normal}" 9 ${chars} --no-compress
-  make_font_lz4 "${name}" "${ttf_normal}" 13 ${chars} --no-compress
-  make_font "${name}" "${ttf_normal}" 16 ${chars} --no-compress
-  make_font_lz4 "${name}_bold" "${ttf_bold}" 16 ${chars} --no-compress
-  make_font_w_extra_sym "${name}" "${ttf_normal}" 24 ${chars} --no-compress
-  make_font_no_sym "${name}_bold" "${ttf_bold}" 32 ${chars} --no-compress
-  make_font_no_sym "${name}_bold" "${ttf_bold}" 64 "" --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 9 "XXS" "std" ${chars} --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 13 "XS" "std" ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 16 "STD" "std" ${chars} --no-compress
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 16 "STD" "std" ${chars} --no-compress
+  make_font_w_extra_sym "${name}" "${ttf_normal}" 24 "L" "std" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 32 "XL" "std" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 64 "XXL" "std" "" --no-compress
+
+  # 320x240 LCD fonts
+  make_font_lz4 "${name}" "${ttf_normal}" 8 "XXS" "sml" ${chars} --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 9 "XS" "sml" ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 11 "STD" "sml" ${chars} --no-compress
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 11 "STD" "sml" ${chars} --no-compress
+  make_font_w_extra_sym "${name}" "${ttf_normal}" 15 "L" "sml" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 20 "XL" "sml" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 40 "XXL" "sml" "" --no-compress
+
+  # 800x480 LCD fonts
+  make_font_lz4 "${name}" "${ttf_normal}" 13 "XXS" "lrg" ${chars} --no-compress
+  make_font_lz4 "${name}" "${ttf_normal}" 19 "XS" "lrg" ${chars} --no-compress
+  make_font "${name}" "${ttf_normal}" 24 "STD" "lrg" ${chars} --no-compress
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 24 "STD" "lrg" ${chars} --no-compress
+  make_font_w_extra_sym "${name}" "${ttf_normal}" 36 "L" "lrg" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 48 "XL" "lrg" ${chars} --no-compress
+  make_font_no_sym "${name}_bold" "${ttf_bold}" 96 "XXL" "lrg" "" --no-compress
 }
 
-# Regular fonts
-make_font_set "roboto" "Roboto/Roboto-Regular.ttf" "Roboto/Roboto-Bold.ttf" ",${LATIN1}"
-
 # Bootloader font
-make_bootloader_font "roboto_bl" "Roboto/Roboto-Regular.ttf" 16
+make_bootloader_font "bl" "Roboto/Roboto-Regular.ttf" 16 "std" # 480x272, 480x320, 320x480
+make_bootloader_font "bl" "Roboto/Roboto-Regular.ttf" 11 "sml" # 320x240
+make_bootloader_font "bl" "Roboto/Roboto-Regular.ttf" 24 "lrg" # 800x480
 
-# CJK fonts
-make_font_set "noto_tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${TW_SYMBOLS}"
-make_font_set "noto_cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${CN_SYMBOLS}"
-make_font_set "noto_jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${JP_SYMBOLS}"
-make_font_set "arimo_he" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${HE_SYMBOLS}"
-make_font_set "arimo_ru" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${RU_SYMBOLS}"
-make_font_set "arimo_ua" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${UA_SYMBOLS}"
+# Language fonts
+make_font_set "en" "Roboto/Roboto-Regular.ttf" "Roboto/Roboto-Bold.ttf" ",${LATIN1}"
+make_font_set "tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${TW_SYMBOLS}"
+make_font_set "cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${CN_SYMBOLS}"
+make_font_set "jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" ",${JP_SYMBOLS}"
+make_font_set "he" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${HE_SYMBOLS}"
+make_font_set "ru" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${RU_SYMBOLS}"
+make_font_set "ua" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${UA_SYMBOLS}"
 
 rm lv_font.inc
 rm lz4_font

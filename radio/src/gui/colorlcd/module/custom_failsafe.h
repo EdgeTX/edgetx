@@ -28,5 +28,5 @@ class FailSafePage : public Page
  public:
   explicit FailSafePage(uint8_t moduleIdx);
 
-  static LAYOUT_VAL(FS_BARGRAPH_WIDTH, 130, 90)
+  static LAYOUT_VAL(FS_BARGRAPH_WIDTH, 130, 90, LS(130))
 };
