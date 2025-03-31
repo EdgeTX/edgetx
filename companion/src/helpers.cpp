@@ -403,7 +403,7 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
   QStringList arguments;
   arguments << "--profile" << g.currentProfile().name()
             << "--start-with" <<  "folder"
-            << "--flags" << QString(flags)
+            << "--flags" << QString::number(flags)
             << tmpDir.path();
 
   QProcess *simu = new QProcess(parent);

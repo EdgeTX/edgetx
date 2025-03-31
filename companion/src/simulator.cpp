@@ -216,10 +216,10 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     if (stTyp == "file") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
     }
-    else  if (stTyp == "folder") {
+    else if (stTyp == "folder") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_FOLDER;
     }
-    else  if (stTyp == "sd") {
+    else if (stTyp == "sd") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_SDPATH;
     }
     else {
@@ -308,16 +308,6 @@ int main(int argc, char *argv[])
   int profileId = (g.simuLastProfId() > -1 ? g.simuLastProfId() : g.id());
   SimulatorOptions simOptions = g.profile[profileId].simulatorOptions();
 
-  // TODO : defaults should be set in Profile::init()
-  if (simOptions.firmwareId.isEmpty()) {
-    simOptions.firmwareId = g.profile[profileId].fwType();
-  }
-
-  if (simOptions.dataFolder.isEmpty())
-    simOptions.dataFolder = g.eepromDir();
-  if (simOptions.sdPath.isEmpty())
-    simOptions.sdPath = g.profile[profileId].sdPath();
-
   // Handle startup options
 
   // check for command-line options
@@ -327,6 +317,16 @@ int main(int argc, char *argv[])
     return finish(0);
   if (cliResult == CommandLineExitErr)
     return finish(1);
+
+  // TODO : defaults should be set in Profile::init()
+  if (simOptions.firmwareId.isEmpty()) {
+    simOptions.firmwareId = g.profile[profileId].fwType();
+  }
+
+  if (simOptions.dataFolder.isEmpty())
+    simOptions.dataFolder = g.eepromDir();
+  if (simOptions.sdPath.isEmpty())
+    simOptions.sdPath = g.profile[profileId].sdPath();
 
   // DO NOT use saved simulatorId as could be changed in later releases
   // must be set after cli parse as --profile will load old data or blank
