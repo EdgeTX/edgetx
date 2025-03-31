@@ -165,35 +165,35 @@ class OutputLineButton : public ListLineButton
     curve->show(output->curve);
   }
 
-  static LAYOUT_VAL(CH_LINE_H, 32, 50)
-  static LAYOUT_VAL(CH_BAR_WIDTH, 100, 100)
-  static LAYOUT_VAL(CH_BAR_HEIGHT, 16, 16)
-  static LAYOUT_VAL(BAR_XO, 17, 17)
+  static LAYOUT_VAL(CH_LINE_H, 32, 50, LS(32))
+  static LAYOUT_VAL(CH_BAR_WIDTH, 100, 100, LS(100))
+  static LAYOUT_VAL(CH_BAR_HEIGHT, 16, 16, LS(16))
+  static LAYOUT_VAL(BAR_XO, 17, 17, LS(17))
   static constexpr coord_t BAR_X = LCD_W - CH_BAR_WIDTH - BAR_XO;
 
   static constexpr coord_t SRC_X = PAD_TINY;
   static constexpr coord_t SRC_Y = 1;
-  static LAYOUT_VAL(SRC_W, 80, 80)
+  static LAYOUT_VAL(SRC_W, 80, 80, LS(80))
   static constexpr coord_t SRC_H = CH_LINE_H - PAD_MEDIUM;
   static constexpr coord_t MIN_X = SRC_X + SRC_W + PAD_TINY;
-  static LAYOUT_VAL(MIN_Y, 4, 2)
-  static LAYOUT_VAL(MIN_W, 52, 52)
-  static LAYOUT_VAL(MIN_H, 20, 20)
+  static LAYOUT_VAL(MIN_Y, 4, 2, 2)
+  static LAYOUT_VAL(MIN_W, 52, 52, LS(52))
+  static LAYOUT_VAL(MIN_H, 20, 20, LS(20))
   static constexpr coord_t MAX_X = MIN_X + MIN_W + PAD_TINY;
   static constexpr coord_t MAX_Y = MIN_Y;
-  static LAYOUT_VAL(MAX_W, 52, 60)
+  static LAYOUT_VAL(MAX_W, 52, 60, LS(52))
   static constexpr coord_t MAX_H = MIN_H;
-  static LAYOUT_VAL(OFF_X, MAX_X + MAX_W + PAD_TINY, SRC_X + SRC_W + PAD_TINY)
-  static LAYOUT_VAL(OFF_Y, MIN_Y, 24)
-  static LAYOUT_VAL(OFF_W, 44, 52)
+  static LAYOUT_VAL(OFF_X, MAX_X + MAX_W + PAD_TINY, SRC_X + SRC_W + PAD_TINY, MAX_X + MAX_W + PAD_TINY)
+  static LAYOUT_VAL(OFF_Y, MIN_Y, 24, MIN_Y)
+  static LAYOUT_VAL(OFF_W, 44, 52, LS(44))
   static constexpr coord_t OFF_H = MIN_H;
   static constexpr coord_t CTR_X = OFF_X + OFF_W + PAD_TINY;
   static constexpr coord_t CTR_Y = OFF_Y;
-  static LAYOUT_VAL(CTR_W, 60, 60)
+  static LAYOUT_VAL(CTR_W, 60, 60, LS(60))
   static constexpr coord_t CTR_H = MIN_H;
   static constexpr coord_t REV_X = CTR_X + CTR_W + PAD_TINY;
   static constexpr coord_t REV_Y = CTR_Y;
-  static LAYOUT_VAL(REV_W, 16, 16)
+  static LAYOUT_VAL(REV_W, 16, 16, LS(16))
   static constexpr coord_t CRV_X = REV_X + REV_W + PAD_TINY;
   static constexpr coord_t CRV_Y = REV_Y + 1;
 

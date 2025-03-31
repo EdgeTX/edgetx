@@ -37,8 +37,8 @@ class CurveEditWindow : public Page
 
   void setCurrentSource(mixsrc_t source);
 
-  static LAYOUT_VAL(NUMEDT_W, 70, 70)
-  static LAYOUT_VAL(CURVE_WIDTH, 215, 232)
+  static LAYOUT_VAL(NUMEDT_W, 70, 70, LS(70))
+  static LAYOUT_VAL(CURVE_WIDTH, 215, 232, LS(215))
 
  protected:
   uint8_t index;

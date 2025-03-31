@@ -170,7 +170,7 @@ void ListBox::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
     yo = (lv_area_get_height(dsc->draw_area) - h) / 2;
   }
 
-  coords.x2 = dsc->draw_area->x2 - xo;
+  coords.x2 = dsc->draw_area->x2 - xo - PAD_MEDIUM;
   coords.x1 = coords.x2 - w + 1;
   coords.y1 = dsc->draw_area->y1 + yo;
   coords.y2 = coords.y1 + h - 1;

@@ -37,7 +37,7 @@ struct HWInputEdit : public RadioTextEdit {
   {
   }
 
-  static LAYOUT_VAL(HW_INP_W, 64, 64)
+  static LAYOUT_VAL(HW_INP_W, 64, 64, LS(64))
 };
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
@@ -96,9 +96,9 @@ HWPots::HWPots(Window* parent) :
     }
   });
 
-  new StaticText(this, {P_NM_X, -2, 0, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(this, {P_TYP_X, -2, 0, 0}, STR_TYPE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(this, {P_INV_X, -2, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {P_NM_X, -PAD_TINY, 0, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {P_TYP_X, -PAD_TINY, 0, 0}, STR_TYPE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {P_INV_X, -PAD_TINY, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 
   coord_t yo = EdgeTxStyles::PAGE_LINE_HEIGHT - 2;
 
@@ -201,7 +201,7 @@ class HWSwitch
     new HWInputEdit(parent, (char*)switchGetCustomName(swnum), LEN_SWITCH_NAME,
                     SW_CTRL_W + 8, y);
 
-    coord_t x = SW_CTRL_W * PAD_TINY + 14;
+    coord_t x = SW_CTRL_W * 2 + PAD_LARGE + PAD_MEDIUM;
 
     if (switchIsFlex(swnum)) {
       channel = new Choice(
@@ -219,7 +219,7 @@ class HWSwitch
         if (val < 0) return STR_NONE;
         return adcGetInputLabel(ADC_INPUT_FLEX, val);
       });
-      x += SW_CTRL_W + 6;
+      x += SW_CTRL_W + PAD_MEDIUM;
     }
 
     sw_cfg = new Choice(
@@ -246,8 +246,8 @@ class HWSwitch
     }
   }
 
-  static LAYOUT_VAL(SW_CTRL_W, 86, 75)
-  static LAYOUT_VAL(SW_CTRL_H, 36, 36)
+  static LAYOUT_VAL(SW_CTRL_W, 86, 75, LS(86))
+  static LAYOUT_VAL(SW_CTRL_H, 36, 36, 26)
 
  protected:
   Choice* channel = nullptr;
