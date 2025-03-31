@@ -66,6 +66,10 @@ class Page : public NavWindow
 
   void checkEvents() override;
   bool bubbleEvents() override { return false; }
+
+#if defined(HARDWARE_KEYS)
+  void onLongPressRTN() override;
+#endif
 };
 
 class SubPage : public Page

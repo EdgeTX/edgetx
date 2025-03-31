@@ -80,17 +80,6 @@ void TemplatePage::updateInfo()
   }
 }
 
-#if defined(HARDWARE_KEYS)
-void TemplatePage::onEvent(event_t event)
-{
-  if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-    deleteLater();
-  } else {
-    Page::onEvent(event);
-  }
-}
-#endif
-
 class SelectTemplate : public TemplatePage
 {
  public:

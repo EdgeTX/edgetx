@@ -228,6 +228,7 @@ class NavWindow : public Window
   virtual void onPressPGDN() {}
   virtual void onLongPressPGUP() {}
   virtual void onLongPressPGDN() {}
+  virtual void onLongPressRTN() {}
 #endif
   virtual bool bubbleEvents() { return true; }
   void onEvent(event_t event) override;

@@ -117,6 +117,10 @@ void Page::enableRefresh()
   lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
 
+#if defined(HARDWARE_KEYS)
+void Page::onLongPressRTN() { onCancel(); }
+#endif
+
 SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool pauseRefresh) :
   Page(icon, PAD_SMALL, pauseRefresh)
 {

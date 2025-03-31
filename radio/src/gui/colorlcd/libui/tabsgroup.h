@@ -100,5 +100,6 @@ class TabsGroup : public NavWindow
 #if defined(HARDWARE_KEYS)
   void onPressPGUP() override;
   void onPressPGDN() override;
+  void onLongPressRTN() override;
 #endif
 };

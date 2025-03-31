@@ -363,6 +363,7 @@ void TabsGroup::checkEvents()
 #if defined(HARDWARE_KEYS)
 void TabsGroup::onPressPGUP() { header->prevTab(); }
 void TabsGroup::onPressPGDN() { header->nextTab(); }
+void TabsGroup::onLongPressRTN() { onCancel(); }
 #endif
 
 void TabsGroup::onClicked() { Keyboard::hide(false); }
