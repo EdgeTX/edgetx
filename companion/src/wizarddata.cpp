@@ -77,13 +77,13 @@ void WizMix::addMix(ModelData &model, Input input, int weight, int channel, int 
     }
     else if (input==FLAPS_INPUT){
       // There ought to be some kind of constants for switches somewhere...
-      maxMixSwitch((char *)tr("Flaps Up").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? -SWITCH_ELE : SWITCH_SA0, weight); //Taranis-Horus SA-UP, 9X ELE-UP
-      maxMixSwitch((char *)tr("Flaps Dn").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? SWITCH_ELE : SWITCH_SA2, -weight); //Taranis-Horus SA-DOWN, 9X ELE-DOWN
+      maxMixSwitch((char *)tr("FlapUp").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? -SWITCH_ELE : SWITCH_SA0, weight); //Taranis-Horus SA-UP, 9X ELE-UP
+      maxMixSwitch((char *)tr("FlapDn").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? SWITCH_ELE : SWITCH_SA2, -weight); //Taranis-Horus SA-DOWN, 9X ELE-DOWN
 
     }
     else if (input==AIRBRAKES_INPUT){
-      maxMixSwitch((char *)tr("AirbkOff").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? -SWITCH_RUD : SWITCH_SE0, -weight); //Taranis-Horus SE-UP, 9X RUD-UP
-      maxMixSwitch((char *)tr("AirbkOn").toLatin1().data(),  model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? SWITCH_RUD : SWITCH_SE2, weight); //Tatanis-Horus SE-DOWN, 9X RUD-DOWN
+      maxMixSwitch((char *)tr("ArbkOf").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? -SWITCH_RUD : SWITCH_SE0, -weight); //Taranis-Horus SE-UP, 9X RUD-UP
+      maxMixSwitch((char *)tr("ArbkOn").toLatin1().data(),  model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? SWITCH_RUD : SWITCH_SE2, weight); //Tatanis-Horus SE-DOWN, 9X RUD-DOWN
     }
   }
 }

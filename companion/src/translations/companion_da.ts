@@ -17048,22 +17048,22 @@ Indlæs dem nu?</translation>
     <name>WizMix</name>
     <message>
         <location filename="../wizarddata.cpp" line="80"/>
-        <source>Flaps Up</source>
+        <source>FlapUp</source>
         <translation>Flap op</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="81"/>
-        <source>Flaps Dn</source>
+        <source>FlapDn</source>
         <translation>Flap ned</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="85"/>
-        <source>AirbkOff</source>
+        <source>ArbkOf</source>
         <translation>Luftbremse fra</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="86"/>
-        <source>AirbkOn</source>
+        <source>ArbkOn</source>
         <translation>Luftbremse til</translation>
     </message>
 </context>
