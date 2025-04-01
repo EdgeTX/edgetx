@@ -125,7 +125,7 @@ WizMix::operator ModelData()
         mix.swtch.index = IS_SKY9X(getCurrentBoard()) ? SWITCH_THR : SWITCH_SF0;
         mix.mltpx = MLTPX_REP;
         memset(mix.name, 0, sizeof(mix.name));
-        strncpy(mix.name, tr("Cut").toLatin1().data(), MIXDATA_NAME_LEN);
+        strncpy(mix.name, WizMix::tr("Cut").toLatin1().data(), MIXDATA_NAME_LEN);
       }
     }
   }
@@ -133,7 +133,7 @@ WizMix::operator ModelData()
   // Add the Flight Timer option
   if (options[FLIGHT_TIMER_OPTION] && throttleChannel >= 0){
     memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
-    strncpy(model.timers[timerIndex].name, tr("Flt").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
+    strncpy(model.timers[timerIndex].name, WizMix::tr("Flt").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
     model.timers[timerIndex].mode = TimerData::TIMERMODE_START;
     timerIndex++;
   }
@@ -141,7 +141,7 @@ WizMix::operator ModelData()
   // Add the Throttle Timer option
   if (options[THROTTLE_TIMER_OPTION] && throttleChannel >= 0){
     memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
-    strncpy(model.timers[timerIndex].name, tr("Thr").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
+    strncpy(model.timers[timerIndex].name, WizMix::tr("Thr").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
     model.timers[timerIndex].mode = TimerData::TIMERMODE_THR;
     timerIndex++;
   }
