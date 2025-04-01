@@ -24,7 +24,7 @@
 #include "drivers/pca95xx.h"
 #include "stm32_i2c_driver.h"
 #include "timers_driver.h"
-#include "boards/generic_stm32/rgb_leds.h"
+#include "stm32_ws2812.h"
 
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
@@ -180,10 +180,10 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
     }
 
     if(pos == SWITCH_HW_UP) {
-      rgbSetLedColor(def->pin_low - RGB_OFFSET, 0x0, 0x0, 0x0);
+      ws2812_set_color(def->pin_low - RGB_OFFSET, 0x0, 0x0, 0x0);
     }
     else {
-      rgbSetLedColor(def->pin_low - RGB_OFFSET, 0xFF, 0xFF, 0xFF);
+      ws2812_set_color(def->pin_low - RGB_OFFSET, 0xFF, 0xFF, 0xFF);
     }
   }
   else if (!def->pin_low) {
