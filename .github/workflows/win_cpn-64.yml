@@ -49,9 +49,11 @@ jobs:
 
       - name: Install CMake 3.31
         run: |
-          grep -q '^IgnorePkg' /etc/pacman.conf && \
-            sed -i '/^IgnorePkg/ s/$/ mingw-w64-x86_64-ccmake/' /etc/pacman.conf || \
-            echo 'IgnorePkg = mingw-w64-x86_64-ccmake' >> /etc/pacman.conf
+          if grep -q '^IgnorePkg' /etc/pacman.conf; then
+              sed -i '/^IgnorePkg/ s/$/ mingw-w64-x86_64-cmake-4.0.0-1/' /etc/pacman.conf
+          else
+              sed -i '/^\[options\]/a IgnorePkg = mingw-w64-x86_64-cmake-4.0.0-1' /etc/pacman.conf
+          fi
           wget https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-ccmake-3.31.6-1-any.pkg.tar.zst && pacman -U --noconfirm mingw-w64-x86_64-ccmake-3.31.6-1-any.pkg.tar.zst
 
       - name: Install Dependencies
