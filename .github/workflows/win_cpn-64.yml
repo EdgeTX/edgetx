@@ -47,10 +47,12 @@ jobs:
           update: true
           install: git make mingw-w64-x86_64-toolchain
 
+      - name: Install CMake 3.31
+        run: wget https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-ccmake-3.31.6-1-any.pkg.tar.zst && pacman -U mingw-w64-x86_64-ccmake-3.31.6-1-any.pkg.tar.zst
+
       - name: Install Dependencies
         run: |
-          pacman -S --noconfirm mingw-w64-x86_64-cmake \
-                                mingw-w64-x86_64-python-pip \
+          pacman -S --noconfirm mingw-w64-x86_64-python-pip \
                                 mingw-w64-x86_64-python-pillow \
                                 mingw-w64-x86_64-python-lz4 \
                                 mingw-w64-x86_64-libjpeg-turbo \
