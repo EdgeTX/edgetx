@@ -17065,22 +17065,22 @@ Bearbeta nu?</translation>
     <name>WizMix</name>
     <message>
         <location filename="../wizarddata.cpp" line="80"/>
-        <source>Flaps Up</source>
+        <source>FlapUp</source>
         <translation>Klaffar upp</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="81"/>
-        <source>Flaps Dn</source>
+        <source>FlapDn</source>
         <translation>Klaffar ner</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="85"/>
-        <source>AirbkOff</source>
+        <source>ArbkOf</source>
         <translation>Lufbroms av</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="86"/>
-        <source>AirbkOn</source>
+        <source>ArbkOn</source>
         <translation>Luftbroms på</translation>
     </message>
 </context>
