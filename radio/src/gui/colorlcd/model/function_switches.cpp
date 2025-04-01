@@ -64,7 +64,7 @@ class FunctionSwitch : public Window
     std::string s(STR_CHAR_SWITCH);
     s += switchGetName(switchIndex + switchGetMaxSwitches());
 
-    new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, s);
+    new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::STD_FONT_HEIGHT}, s);
 
     new ModelTextEdit(this, {NM_X, 0, NM_W, 0},
                       g_model.switchNames[switchIndex], LEN_SWITCH_NAME);
@@ -250,7 +250,7 @@ class SwitchGroup : public Window
   {
     padAll(PAD_TINY);
 
-    new StaticText(this, {0, PAD_MEDIUM, NM_W, EdgeTxStyles::PAGE_LINE_HEIGHT},
+    new StaticText(this, {0, PAD_MEDIUM, NM_W, EdgeTxStyles::STD_FONT_HEIGHT},
                    STR_FUNCTION_SWITCH_GROUPS[groupIndex]);
 
     auto btn = new TextButton(
@@ -265,7 +265,7 @@ class SwitchGroup : public Window
         });
     btn->check(IS_FSWITCH_GROUP_ON(groupIndex));
 
-    new StaticText(this, {SL_X, PAD_MEDIUM, SL_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_SWITCH_STARTUP);
+    new StaticText(this, {SL_X, PAD_MEDIUM, SL_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_SWITCH_STARTUP);
 
     startChoice = new Choice(
         this, {ST_X, 0, ST_W, 0}, STR_FSSWITCHES, 0,

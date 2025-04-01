@@ -122,7 +122,7 @@ class DateTimeWindow : public Window
     m_last_tm = m_tm;
 
     // Date
-    new StaticText(this, rect_t{PAD_TINY, PAD_TINY + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_DATE);
+    new StaticText(this, rect_t{PAD_TINY, PAD_TINY + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::STD_FONT_HEIGHT}, STR_DATE);
     year = new NumberEdit(
         this, rect_t{SubPage::EDT_X, PAD_TINY, DT_EDT_W, 0}, 2023, 2037,
         [=]() -> int32_t { return TM_YEAR_BASE + m_tm.tm_year; },
@@ -154,7 +154,7 @@ class DateTimeWindow : public Window
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
     // Time
-    new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_TIME);
+    new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::STD_FONT_HEIGHT}, STR_TIME);
     hour = new NumberEdit(
         this, rect_t{SubPage::EDT_X, DT_Y2, DT_EDT_W, 0}, 0, 23,
         [=]() -> int32_t { return m_tm.tm_hour; },

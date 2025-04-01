@@ -94,7 +94,7 @@ class ModelButton : public Button
       etx_obj_add_style(modelName->getLvObj(), styles->bg_opacity_75, LV_PART_MAIN);
       modelName->padTop(fo);
     } else {
-      modelName = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::PAGE_LINE_HEIGHT}, modelCell->modelName,
+      modelName = new StaticText(this, {PAD_TINY, PAD_SMALL, w, EdgeTxStyles::STD_FONT_HEIGHT}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1_INDEX, font);
     }
     lv_label_set_long_mode(modelName->getLvObj(), LV_LABEL_LONG_DOT);

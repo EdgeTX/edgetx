@@ -85,7 +85,6 @@ class TSStyle
   lv_style_t tsFreshStyle;
 
   static LAYOUT_VAL(NUM_W, 36, 36, LS(36))
-  static LAYOUT_VAL(NUM_H, 20, 20, LS(20))
   static LAYOUT_VAL(NAME_W, 56, 56, LS(56))
   static LAYOUT_VAL(ID_Y, 17, 17, LS(17))
   static LAYOUT_VAL(ID_H, 11, 11, LS(11))
@@ -110,7 +109,7 @@ static const lv_obj_class_t ts_num_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = TSStyle::NUM_W,
-    .height_def = TSStyle::NUM_H,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -163,7 +162,7 @@ static const lv_obj_class_t ts_name_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = TSStyle::NAME_W,
-    .height_def = TSStyle::NUM_H,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -190,7 +189,7 @@ static const lv_obj_class_t ts_value_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = LV_SIZE_CONTENT,
-    .height_def = TSStyle::NUM_H,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),

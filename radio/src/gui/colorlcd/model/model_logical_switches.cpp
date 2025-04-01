@@ -336,42 +336,42 @@ class LogicalSwitchButton : public ListLineButton
     lsName = lv_label_create(lvobj);
     etx_obj_add_style(lsName, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_pos(lsName, NM_X, NM_Y);
-    lv_obj_set_size(lsName, NM_W, NM_H);
+    lv_obj_set_size(lsName, NM_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
     lsFunc = lv_label_create(lvobj);
     etx_obj_add_style(lsFunc, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_pos(lsFunc, FN_X, FN_Y);
-    lv_obj_set_size(lsFunc, FN_W, FN_H);
+    lv_obj_set_size(lsFunc, FN_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsFunc, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
     lsV1 = lv_label_create(lvobj);
     etx_obj_add_style(lsV1, styles->text_align_center, LV_PART_MAIN);
     etx_font(lsV1, FONT_XS_INDEX, ETX_STATE_V1_SMALL_FONT);
     lv_obj_set_pos(lsV1, V1_X, V1_Y);
-    lv_obj_set_size(lsV1, V1_W, V1_H);
+    lv_obj_set_size(lsV1, V1_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsV1, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
     lsV2 = lv_label_create(lvobj);
     etx_obj_add_style(lsV2, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsV2, V2_X, V2_Y);
-    lv_obj_set_size(lsV2, V2_W, V2_H);
+    lv_obj_set_size(lsV2, V2_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsV2, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
     lsAnd = lv_label_create(lvobj);
     etx_obj_add_style(lsAnd, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsAnd, AND_X, AND_Y);
-    lv_obj_set_size(lsAnd, AND_W, AND_H);
+    lv_obj_set_size(lsAnd, AND_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsAnd, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
     lsDuration = lv_label_create(lvobj);
     etx_obj_add_style(lsDuration, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsDuration, DUR_X, DUR_Y);
-    lv_obj_set_size(lsDuration, DUR_W, DUR_H);
+    lv_obj_set_size(lsDuration, DUR_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
     lsDelay = lv_label_create(lvobj);
     etx_obj_add_style(lsDelay, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsDelay, DEL_X, DEL_Y);
-    lv_obj_set_size(lsDelay, DEL_W, DEL_H);
+    lv_obj_set_size(lsDelay, DEL_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
     lv_obj_update_layout(lvobj);
 
@@ -506,31 +506,24 @@ class LogicalSwitchButton : public ListLineButton
   static constexpr coord_t NM_X = PAD_TINY;
   static LAYOUT_VAL(NM_Y, 4, 10, 1)
   static LAYOUT_VAL(NM_W, 30, 36, LS(30))
-  static LAYOUT_VAL(NM_H, 20, 20, 14)
   static constexpr coord_t FN_X = NM_X + NM_W + PAD_TINY;
   static constexpr coord_t FN_Y = NM_Y;
   static LAYOUT_VAL(FN_W, 50, 58, LS(50))
-  static constexpr coord_t FN_H = NM_H;
   static constexpr coord_t V1_X = FN_X + FN_W + PAD_TINY;
   static LAYOUT_VAL2(V1_Y, NM_Y, 0)
   static LAYOUT_VAL(V1_W, 88, 88, LS(88))
-  static constexpr coord_t V1_H = NM_H;
   static constexpr coord_t V2_X = V1_X + V1_W + PAD_TINY;
   static constexpr coord_t V2_Y = V1_Y;
-  static constexpr coord_t V2_H = NM_H;
   static constexpr coord_t AND_W = V1_W;
   static LAYOUT_VAL(DUR_W, 40, 54, LS(40))
   static constexpr coord_t DEL_W = DUR_W;
   static constexpr coord_t AND_X = ListLineButton::GRP_W - PAD_BORDER * 2 - AND_W - DUR_W - DEL_W - PAD_TINY * 3;
   static LAYOUT_VAL2(AND_Y, NM_Y, 20)
   static constexpr coord_t V2_W = AND_X - V2_X - PAD_TINY;
-  static constexpr coord_t AND_H = NM_H;
   static constexpr coord_t DUR_X = ListLineButton::GRP_W - PAD_BORDER * 2 - DUR_W - DEL_W - PAD_TINY * 2;
   static constexpr coord_t DUR_Y = AND_Y;
-  static constexpr coord_t DUR_H = NM_H;
   static constexpr coord_t DEL_X = ListLineButton::GRP_W - PAD_BORDER * 2 - DEL_W - PAD_TINY;
   static constexpr coord_t DEL_Y = AND_Y;
-  static constexpr coord_t DEL_H = NM_H;
 
  protected:
   bool init = false;

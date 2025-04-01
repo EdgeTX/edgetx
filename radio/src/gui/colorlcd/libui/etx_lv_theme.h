@@ -277,7 +277,7 @@ class EdgeTxStyles
   void init();
   void applyColors();
 
-  static LAYOUT_VAL(PAGE_LINE_HEIGHT, 20, 20, LS(20))
+  static LAYOUT_VAL(STD_FONT_HEIGHT, 21, 21, 14)
   static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32, 24)
   static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45, LS(45))
 

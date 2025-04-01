@@ -157,17 +157,17 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
   new StaticIcon(topbar, ICON_X3, ICON_Y, ICON_RADIO_SETUP,
                  COLOR_THEME_PRIMARY2_INDEX);
 
-  new StaticText(this, {ICON_X1, CBT_Y, CBT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_CHECKBOX);
+  new StaticText(this, {ICON_X1, CBT_Y, CBT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_CHECKBOX);
   new ThemedCheckBox(this, {CB1_X, CB_Y, CB_W, 0}, true);
   new ThemedCheckBox(this, {CB2_X, CB_Y, CB_W, 0}, false);
   (new ThemedButton(this, {BTN_X, BTN1_Y, BTN_W, 0}, STR_THEME_ACTIVE, true))
       ->check(true);
   new ThemedButton(this, {BTN_X, BTN2_Y, BTN_W, 0}, STR_THEME_REGULAR, false);
-  new MainViewTrim(this, {ICON_X1, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, TRIM_H}, 0, false);
-  new MainViewSlider(this, {ICON_X1, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, TRIM_H}, 0, false);
-  new StaticText(this, {ICON_X1, TXT1_Y, TXT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_WARNING, 
+  new MainViewTrim(this, {ICON_X1, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
+  new MainViewSlider(this, {ICON_X1, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
+  new StaticText(this, {ICON_X1, TXT1_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_WARNING, 
                  COLOR_THEME_WARNING_INDEX);
-  new StaticText(this, {ICON_X1, TXT2_Y, TXT_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_THEME_DISABLED, 
+  new StaticText(this, {ICON_X1, TXT2_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_DISABLED, 
                  COLOR_THEME_DISABLED_INDEX);
 
   new ThemedTextEdit(this, {ICON_X1, EDT_Y, TXT_W, 0}, STR_THEME_EDIT, true);

@@ -96,7 +96,6 @@ LAYOUT_VAL(PROGRESS_H, 31, 31, LS(31))
 
 LAYOUT_VAL(VERCHK_X, 168, 168, LS(168))
 LAYOUT_VAL(VERCHK_Y, 138, 138, LS(138))
-LAYOUT_VAL(VERCHK_H, 20, 20, LS(20))
 LAYOUT_VAL(VERCHK_ICN_X, 78, 78, LS(78))
 
 extern BitmapBuffer * lcd;
@@ -237,13 +236,13 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
               lcd->drawText(VERCHK_X, VERCHK_Y, TR_BL_FORK, RIGHT | BL_FOREGROUND);
               lcd->drawSizedText(VERCHK_X + PAD_MEDIUM, VERCHK_Y, tag.fork, 6, BL_FOREGROUND);
 
-              lcd->drawText(VERCHK_X, VERCHK_Y + VERCHK_H, TR_BL_VERSION, RIGHT | BL_FOREGROUND);
-              lcd->drawText(VERCHK_X + PAD_MEDIUM, VERCHK_Y + VERCHK_H, tag.version, BL_FOREGROUND);
+              lcd->drawText(VERCHK_X, VERCHK_Y + EdgeTxStyles::STD_FONT_HEIGHT, TR_BL_VERSION, RIGHT | BL_FOREGROUND);
+              lcd->drawText(VERCHK_X + PAD_MEDIUM, VERCHK_Y + EdgeTxStyles::STD_FONT_HEIGHT, tag.version, BL_FOREGROUND);
 
-              lcd->drawText(VERCHK_X, VERCHK_Y + VERCHK_H * 2, TR_BL_RADIO, RIGHT | BL_FOREGROUND);
-              lcd->drawText(VERCHK_X + PAD_MEDIUM, VERCHK_Y + VERCHK_H * 2, tag.flavour, BL_FOREGROUND);
+              lcd->drawText(VERCHK_X, VERCHK_Y + EdgeTxStyles::STD_FONT_HEIGHT * 2, TR_BL_RADIO, RIGHT | BL_FOREGROUND);
+              lcd->drawText(VERCHK_X + PAD_MEDIUM, VERCHK_Y + EdgeTxStyles::STD_FONT_HEIGHT * 2, tag.flavour, BL_FOREGROUND);
 
-              lcd->drawText(VERCHK_ICN_X, VERCHK_Y + VERCHK_H, LV_SYMBOL_OK, BL_GREEN);
+              lcd->drawText(VERCHK_ICN_X, VERCHK_Y + EdgeTxStyles::STD_FONT_HEIGHT, LV_SYMBOL_OK, BL_GREEN);
             }
           }
         }

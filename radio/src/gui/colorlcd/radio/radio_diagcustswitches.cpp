@@ -45,8 +45,8 @@ class RadioCustSwitchesDiagsWindow : public Window
     new StaticText(this, {FS_3RD_COLUMN, PAD_SMALL, 60, LV_SIZE_CONTENT},
                    "Led");
     for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
-      coord_t y = 2 * EdgeTxStyles::PAGE_LINE_HEIGHT +
-                  i * EdgeTxStyles::PAGE_LINE_HEIGHT;
+      coord_t y = 2 * EdgeTxStyles::STD_FONT_HEIGHT +
+                  i * EdgeTxStyles::STD_FONT_HEIGHT;
       new StaticText(this, {10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
                      STR_CHAR_SWITCH);
       new StaticText(this, {25, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},

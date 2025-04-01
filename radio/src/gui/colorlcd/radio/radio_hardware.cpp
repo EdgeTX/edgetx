@@ -102,7 +102,7 @@ static SetupLineDef setupLines[] = {
           parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), PREC1);
       batMin->setSuffix("V");
-      new StaticText(parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::PAGE_LINE_HEIGHT}, "-");
+      new StaticText(parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::STD_FONT_HEIGHT}, "-");
       auto batMax = new NumberEdit(
           parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_LARGE + PAD_SMALL, y, RadioHardwarePage::NUM_EDIT_W, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);

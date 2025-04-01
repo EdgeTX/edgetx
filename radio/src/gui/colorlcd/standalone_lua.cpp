@@ -146,7 +146,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     etx_txt_color(lbl, COLOR_THEME_PRIMARY2_INDEX);
     etx_font(lbl, FONT_XL_INDEX);
     lv_obj_set_style_text_align(lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::PAGE_LINE_HEIGHT) / 2, LV_PART_MAIN);
+    lv_obj_set_style_pad_top(lbl, (LCD_H - EdgeTxStyles::STD_FONT_HEIGHT) / 2, LV_PART_MAIN);
     lv_label_set_text(lbl, STR_LOADING);
   } else {
     lcdBuffer = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
@@ -343,7 +343,7 @@ void StandaloneLuaWindow::popupPaint(BitmapBuffer* dc, coord_t x, coord_t y, coo
   dc->drawSolidFilledRect(x, y + POPUP_HEADER_HEIGHT, w,
                           h - POPUP_HEADER_HEIGHT, COLOR_THEME_SECONDARY3);
 
-  dc->drawText(x + PAD_SMALL, y + POPUP_HEADER_HEIGHT + EdgeTxStyles::PAGE_LINE_HEIGHT, info,
+  dc->drawText(x + PAD_SMALL, y + POPUP_HEADER_HEIGHT + EdgeTxStyles::STD_FONT_HEIGHT, info,
                COLOR_THEME_SECONDARY1);
 }
 
