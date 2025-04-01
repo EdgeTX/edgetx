@@ -48,7 +48,11 @@ jobs:
           install: git make mingw-w64-x86_64-toolchain
 
       - name: Install CMake 3.31
-        run: wget https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-ccmake-3.31.6-1-any.pkg.tar.zst && pacman -U --noconfirm mingw-w64-x86_64-ccmake-3.31.6-1-any.pkg.tar.zst
+        run: |
+          grep -q '^IgnorePkg' /etc/pacman.conf && \
+            sed -i '/^IgnorePkg/ s/$/ mingw-w64-x86_64-ccmake/' /etc/pacman.conf || \
+            echo 'IgnorePkg = mingw-w64-x86_64-ccmake' >> /etc/pacman.conf
+          wget https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-ccmake-3.31.6-1-any.pkg.tar.zst && pacman -U --noconfirm mingw-w64-x86_64-ccmake-3.31.6-1-any.pkg.tar.zst
 
       - name: Install Dependencies
         run: |
