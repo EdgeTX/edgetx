@@ -65,7 +65,7 @@ void WizMix::addMix(ModelData &model, Input input, int weight, int channel, int 
     if (input >= RUDDER_INPUT && input <= AILERONS_INPUT) {
       MixData & mix = model.mixData[mixIndex++];
       mix.destCh = channel + 1;
-      mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, settings.getDefaultChannel(input);
+      mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, settings.getDefaultChannel(input));
       mix.weight = weight;
     }
     else if (input==FLAPS_INPUT){
