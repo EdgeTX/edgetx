@@ -108,7 +108,7 @@ void ledBlue()
   gpio_clear(LED_GPIO);
 }
 
-#else 
+#else
 
 void ledOff()
 {
@@ -119,7 +119,7 @@ void ledOff()
   gpio_clear(LED_GREEN_GPIO);
 #endif
 #if defined(LED_BLUE_GPIO)
-  gpio_clear(LED_BLUE_GPIO); 
+  gpio_clear(LED_BLUE_GPIO);
 #endif
 }
 
