@@ -70,14 +70,10 @@ void pwrInit()
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #elif defined(PCBREV_GPIO_1) && defined(PCBREV_GPIO_2)
   gpio_init(PCBREV_GPIO_1, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-  #if defined(PCBREV_TOUCH_GPIO)
-    #if defined(PCBREV_TOUCH_GPIO_PULL_UP)
-      gpio_init(PCBREV_GPIO_2, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-    #else
-      gpio_init(PCBREV_TOUCH_GPIO, GPIO_IN_PD, GPIO_PIN_SPEED_LOW);
-    #endif
+  gpio_init(PCBREV_GPIO_2, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+  #if defined(PCBREV_TOUCH_GPIO_PULL_UP)
+    gpio_init(PCBREV_TOUCH_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
   #endif
-
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #endif
 
