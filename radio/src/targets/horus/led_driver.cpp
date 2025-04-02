@@ -108,31 +108,43 @@ void ledBlue()
   gpio_clear(LED_GPIO);
 }
 
-#elif defined(LED_RED_GPIO) && defined(LED_GREEN_GPIO) && defined(LED_BLUE_GPIO)
+#else 
 
 void ledOff()
 {
+#if defined(LED_RED_GPIO)
   gpio_clear(LED_RED_GPIO);
+#endif
+#if defined(LED_GREEN_GPIO)
   gpio_clear(LED_GREEN_GPIO);
-  gpio_clear(LED_BLUE_GPIO);
+#endif
+#if defined(LED_BLUE_GPIO)
+  gpio_clear(LED_BLUE_GPIO); 
+#endif
 }
 
+#if defined(LED_RED_GPIO)
 void ledRed()
 {
   ledOff();
   gpio_set(LED_RED_GPIO);
 }
+#endif
 
+#if defined(LED_GREEN_GPIO)
 void ledGreen()
 {
   ledOff();
   gpio_set(LED_GREEN_GPIO);
 }
+#endif
 
+#if defined(LED_BLUE_GPIO)
 void ledBlue()
 {
   ledOff();
   gpio_set(LED_BLUE_GPIO);
 }
+#endif
 
 #endif
