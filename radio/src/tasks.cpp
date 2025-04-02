@@ -35,13 +35,6 @@
 RTOS_TASK_HANDLE menusTaskId;
 RTOS_DEFINE_STACK(menusTaskId, menusStack, MENUS_STACK_SIZE);
 
-#if defined(AUDIO)
-RTOS_TASK_HANDLE audioTaskId;
-RTOS_DEFINE_STACK(audioTaskId, audioStack, AUDIO_STACK_SIZE);
-#endif
-
-RTOS_MUTEX_HANDLE audioMutex;
-
 #define MENU_TASK_PERIOD_TICKS         (50 / RTOS_MS_PER_TICK)    // 50ms
 
 #if defined(COLORLCD) && defined(CLI)
@@ -105,19 +98,18 @@ TASK_FUNCTION(menusTask)
 
 void tasksStart()
 {
-  RTOS_CREATE_MUTEX(audioMutex);
 
 #if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
 
+#if !defined(SIMU)
+  audioTaskInit();
+  audioTaskStart();
+#endif
+
   RTOS_CREATE_TASK(menusTaskId, menusTask, "menus", menusStack,
                    MENUS_STACK_SIZE, MENUS_TASK_PRIO);
-
-#if !defined(SIMU) && defined(AUDIO)
-  RTOS_CREATE_TASK(audioTaskId, audioTask, "audio", audioStack,
-                   AUDIO_STACK_SIZE, AUDIO_TASK_PRIO);
-#endif
 
   RTOS_START();
 }
