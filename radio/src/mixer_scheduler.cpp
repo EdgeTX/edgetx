@@ -50,42 +50,91 @@ bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 #endif
 }
 
-#if !defined(SIMU)
-
 // Global trigger flag
 
 // Mixer schedule
 struct MixerSchedule {
 
   // period in us
-  volatile uint16_t period;
+  volatile uint16_t period = 0;
+  volatile uint16_t divider = 1;
 };
 
 static MixerSchedule mixerSchedules[NUM_MODULES];
+static volatile uint8_t _syncedModule;
 
+// Called from ISR
 uint16_t getMixerSchedulerPeriod()
 {
-#if defined(HARDWARE_INTERNAL_MODULE)
-  if (mixerSchedules[INTERNAL_MODULE].period) {
-    return mixerSchedules[INTERNAL_MODULE].period;
+  bool hasActiveModules = false;
+  uint8_t synced_module = INTERNAL_MODULE;
+  uint16_t sync_period = MAX_REFRESH_RATE;
+
+  // Find the fastest of the modules. It becomes
+  // master, i.e. the one getting synced
+  for(uint8_t module = 0; module < NUM_MODULES; module++) {
+    auto& sched = mixerSchedules[module];
+    
+    if(!isModuleNone(module)) {
+      hasActiveModules = true;
+
+      if(sched.period < sync_period) {
+        synced_module = module;
+        sync_period = sched.period;
+      }
+    } else 
+        sched.period = MIXER_SCHEDULER_DEFAULT_PERIOD_US;
   }
-#endif
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  if (mixerSchedules[EXTERNAL_MODULE].period) {
-    return mixerSchedules[EXTERNAL_MODULE].period;
+
+  // Compute dividers for master and slave modules
+  for(uint8_t module = 0; module < NUM_MODULES; module++) {
+    auto& sched = mixerSchedules[module];
+
+    if(module == synced_module) 
+      sched.divider = 1;
+    else
+      sched.divider = sched.period / sync_period;
   }
-#endif
+
+  _syncedModule = synced_module;
+
+  // No active module
+  if(!hasActiveModules) {
 #if defined(STM32) && !defined(SIMU)
-  if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
-    return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
-  }
+    // no internal/external module and Joystick connected
+    if(getSelectedUsbMode() == USB_JOYSTICK_MODE) {
+      return MIXER_SCHEDULER_JOYSTICK_PERIOD_US;
+    }
 #endif
-  return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
+
+    return MIXER_SCHEDULER_DEFAULT_PERIOD_US;
+  }
+
+  // at least one module is active
+  return sync_period;
+}
+
+uint16_t getMixerSchedulerRealPeriod(uint8_t moduleIdx) {
+  return mixerSchedules[_syncedModule].period * getMixerSchedulerDivider(moduleIdx);
+}
+
+uint16_t getMixerSchedulerDivider(uint8_t moduleIdx) {
+  return mixerSchedules[moduleIdx].divider;
+}
+
+uint8_t getMixerSchedulerSyncedModule() {
+  return _syncedModule;
 }
 
 void mixerSchedulerInit()
 {
-  memset(mixerSchedules, 0, sizeof(mixerSchedules));
+  _syncedModule = 0;
+
+  // set default divider and period (for simu as sync not active)
+  for(uint8_t module = 0; module < NUM_MODULES; module++) {
+    mixerSchedules[module].period = MIXER_SCHEDULER_DEFAULT_PERIOD_US;
+    mixerSchedules[module].divider = 1;
+  }
 }
 
 void mixerSchedulerSetPeriod(uint8_t moduleIdx, uint16_t periodUs)
@@ -105,6 +154,7 @@ uint16_t mixerSchedulerGetPeriod(uint8_t moduleIdx)
   return mixerSchedules[moduleIdx].period;
 }
 
+#if !defined(SIMU)
 void mixerSchedulerISRTrigger()
 {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -124,5 +174,4 @@ void mixerSchedulerISRTrigger()
      called portEND_SWITCHING_ISR(). */
   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
-
 #endif
