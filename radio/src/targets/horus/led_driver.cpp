@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
+#include "board.h"
+#include "boards/generic_stm32/rgb_leds.h"
+#include "colors.h"
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
-#include "boards/generic_stm32/rgb_leds.h"
-#include "board.h"
-#include "colors.h"
 
 void ledInit()
 {
@@ -48,7 +48,6 @@ void ledInit()
   gpio_init(FSLED_GPIO_5, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_init(FSLED_GPIO_6, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
-
 }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -57,44 +56,31 @@ uint8_t ledMapping[] = {1, 2, 3, 4, 5, 6};
 
 void fsLedOff(uint8_t index, uint32_t color)
 {
-   rgbSetLedColor(ledMapping[index], GET_RED(color), \
-   GET_GREEN(color),GET_BLUE(color));
+  rgbSetLedColor(ledMapping[index], GET_RED(color), GET_GREEN(color),
+                 GET_BLUE(color));
 }
 
 void fsLedOn(uint8_t index, uint32_t color)
 {
-   rgbSetLedColor(ledMapping[index], GET_RED(color), \
-   GET_GREEN(color),GET_BLUE(color));
+  rgbSetLedColor(ledMapping[index], GET_RED(color), GET_GREEN(color),
+                 GET_BLUE(color));
 }
 
 #elif defined(FUNCTION_SWITCHES)
-gpio_t fsLeds[] = {FSLED_GPIO_1, FSLED_GPIO_2,
-                   FSLED_GPIO_3, FSLED_GPIO_4,
-                   FSLED_GPIO_5, FSLED_GPIO_6};
+gpio_t fsLeds[] = {FSLED_GPIO_1, FSLED_GPIO_2, FSLED_GPIO_3,
+                   FSLED_GPIO_4, FSLED_GPIO_5, FSLED_GPIO_6};
 
-void fsLedOff(uint8_t index)
-{
-   gpio_clear(fsLeds[index]);
-}
+void fsLedOff(uint8_t index) { gpio_clear(fsLeds[index]); }
 
-void fsLedOn(uint8_t index)
-{
-  gpio_set(fsLeds[index]);
-}
+void fsLedOn(uint8_t index) { gpio_set(fsLeds[index]); }
 
-bool fsLedState(uint8_t index)
-{
-  return (gpio_read(fsLeds[index]));
-}
+bool fsLedState(uint8_t index) { return (gpio_read(fsLeds[index])); }
 #endif
 
 #if defined(LED_GPIO)
 
 // Single GPIO for dual color LED
-void ledOff()
-{
-  gpio_init(LED_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-}
+void ledOff() { gpio_init(LED_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW); }
 
 void ledRed()
 {
