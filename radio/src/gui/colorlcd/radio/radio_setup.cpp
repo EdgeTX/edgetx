@@ -76,7 +76,7 @@ class DateTimeWindow : public Window
 
   // Absolute layout for date/time setion due to slow performance
   // of lv_textarea in a flex layout.
-  static LAYOUT_VAL(DT_EDT_W, 80, 52, LS(80))
+  static LAYOUT_VAL2(DT_EDT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 52)
   static LAYOUT_VAL2(DT_Y2, PAD_TINY + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM, PAD_TINY + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM)
 
  protected:
@@ -226,7 +226,7 @@ static SetupLineDef soundPageSetupLines[] = {
     // Beeps pitch
     STR_BEEP_PITCH,
     [](Window* parent, coord_t x, coord_t y) {
-      auto edit = new NumberEdit(parent, rect_t{x, y, RadioSetupPage::NUM_W, 0}, 0, 300,
+      auto edit = new NumberEdit(parent, rect_t{x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 300,
                                 GET_DEFAULT(15 * g_eeGeneral.speakerPitch),
                                 [=](int32_t newValue) {
                                   g_eeGeneral.speakerPitch = newValue / 15;
@@ -270,7 +270,7 @@ static SetupLineDef varioPageSetupLines[] = {
     STR_PITCH_AT_ZERO,
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(
-          parent, {x, y, RadioSetupPage::NUM_W, 0}, VARIO_FREQUENCY_ZERO - 400, VARIO_FREQUENCY_ZERO + 400,
+          parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, VARIO_FREQUENCY_ZERO - 400, VARIO_FREQUENCY_ZERO + 400,
           GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10)),
           SET_VALUE(g_eeGeneral.varioPitch,
                     (newValue - VARIO_FREQUENCY_ZERO) / 10));
@@ -282,7 +282,7 @@ static SetupLineDef varioPageSetupLines[] = {
     STR_PITCH_AT_MAX,
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(
-          parent, {x, y, RadioSetupPage::NUM_W, 0}, 900, 2500,
+          parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 900, 2500,
           GET_DEFAULT(VARIO_FREQUENCY_ZERO + (g_eeGeneral.varioPitch * 10) +
                       VARIO_FREQUENCY_RANGE + (g_eeGeneral.varioRange * 10)),
           SET_VALUE(
@@ -297,7 +297,7 @@ static SetupLineDef varioPageSetupLines[] = {
     STR_REPEAT_AT_ZERO,
     [](Window* parent, coord_t x, coord_t y) {
       auto edit = new NumberEdit(
-          parent, {x, y, RadioSetupPage::NUM_W, 0}, 200, 1000,
+          parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 200, 1000,
           GET_DEFAULT(VARIO_REPEAT_ZERO + (g_eeGeneral.varioRepeat * 10)),
           SET_VALUE(g_eeGeneral.varioRepeat,
                     (newValue - VARIO_REPEAT_ZERO) / 10));
@@ -342,7 +342,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
     // Battery warning
     STR_BATTERYWARNING,
     [](Window* parent, coord_t x, coord_t y) {
-      auto edit = new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, 30, 120,
+      auto edit = new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 30, 120,
                                 GET_SET_DEFAULT(g_eeGeneral.vBatWarn), PREC1);
       edit->setSuffix("V");
     }
@@ -351,7 +351,7 @@ static SetupLineDef alarmsPageSetupLines[] = {
     // Inactivity alarm
     STR_INACTIVITYALARM,
     [](Window* parent, coord_t x, coord_t y) {
-      auto edit = new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W * 3 / 2, 0}, 0, 250,
+      auto edit = new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW * 3 / 2, 0}, 0, 250,
                                  GET_SET_DEFAULT(g_eeGeneral.inactivityTimer));
 
       edit->setDisplayHandler([=](int value) -> std::string {
@@ -428,7 +428,7 @@ class BacklightPage : public SubPage
     // Delay
     backlightTimeout = setupLine(STR_BACKLIGHT_TIMER, [=](Window* parent, coord_t x, coord_t y) {
           auto edit =
-              new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, 5, 600,
+              new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 5, 600,
                             GET_DEFAULT(g_eeGeneral.lightAutoOff * 5),
                             SET_VALUE(g_eeGeneral.lightAutoOff, newValue / 5));
           edit->setStep(5);
@@ -536,7 +536,7 @@ static SetupLineDef gpsPageSetupLines[] = {
     // Timezone
     STR_TIMEZONE,
     [](Window* parent, coord_t x, coord_t y) {
-      auto tz = new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, minTimezone(), maxTimezone(),
+      auto tz = new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, minTimezone(), maxTimezone(),
                               []() {
                                 return timezoneIndex(g_eeGeneral.timezone, g_eeGeneral.timezoneMinutes);
                               },
@@ -776,7 +776,7 @@ static SetupLineDef setupLines[] = {
   {
     STR_PWR_AUTO_OFF,
      [](Window* parent, coord_t x, coord_t y) {
-       auto edit = new NumberEdit(parent,{x, y, RadioSetupPage::NUM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0,
+       auto edit = new NumberEdit(parent,{x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, EdgeTxStyles::UI_ELEMENT_HEIGHT}, 0,
            255, GET_SET_DEFAULT(g_eeGeneral.pwrOffIfInactive));
        edit->setSuffix(" min");
      }
@@ -846,7 +846,7 @@ static SetupLineDef setupLines[] = {
     STR_SWITCHES_DELAY,
     [](Window* parent, coord_t x, coord_t y) {
       auto edit =
-          new NumberEdit(parent, {x, y, RadioSetupPage::NUM_W, 0}, 0, 100,
+          new NumberEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 100,
                         GET_SET_VALUE_WITH_OFFSET(g_eeGeneral.switchesDelay, 15));
       edit->setDisplayHandler([](int32_t value) {
         return formatNumberAsString(value * 10, 0, 0, nullptr, STR_MS);

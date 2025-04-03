@@ -106,7 +106,7 @@ class ColorEditorPopup : public BaseDialog
     colorPad = new ColorSwatch(hbox, {0, 0, COLOR_PAD_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT},
                                COLOR_THEME_PRIMARY1);
 
-    hexStr = new StaticText(hbox, {0, 0, CVAL_W, 0}, "", COLOR_THEME_PRIMARY1_INDEX, FONT(L));
+    hexStr = new StaticText(hbox, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH, 0}, "", COLOR_THEME_PRIMARY1_INDEX, FONT(L));
 
     updateColor(color);
 
@@ -169,7 +169,6 @@ class ColorEditorPopup : public BaseDialog
   static LAYOUT_VAL(CE_SZ, 182, 182, LS(182))
   static LAYOUT_VAL2(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7)
   static LAYOUT_VAL(COLOR_PAD_WIDTH, 52, 52, LS(52))
-  static LAYOUT_VAL(CVAL_W, 100, 100, LS(100))
   static LAYOUT_VAL(BTN_W, 80, 80, LS(80))
   static LAYOUT_VAL(BTN_PAD_TOP, 60, 60, LS(60))
 };
@@ -179,7 +178,7 @@ ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
                          std::function<void(uint32_t)> setValue,
                          std::function<void(uint32_t)> preview,
                          COLOR_EDITOR_FMT fmt) :
-    Button(parent, {rect.x, rect.y, rect.w == 0 ? ColorEditorPopup::COLOR_PAD_WIDTH : rect.w, EdgeTxStyles::STD_FONT_HEIGHT}),
+    Button(parent, {rect.x, rect.y, rect.w == 0 ? ColorEditorPopup::COLOR_PAD_WIDTH : rect.w, EdgeTxStyles::UI_ELEMENT_HEIGHT}),
     setValue(std::move(setValue)), preview(std::move(preview)), format(fmt)
 {
   updateColor(getValue());

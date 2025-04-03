@@ -208,7 +208,7 @@ class ModuleWindow : public Window
 
       // Model index
       auto modelId = &g_model.header.modelId[moduleIdx];
-      rxID = new NumberEdit(box, {0, 0, NUM_W, 0}, 0, getMaxRxNum(moduleIdx),
+      rxID = new NumberEdit(box, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, getMaxRxNum(moduleIdx),
                             GET_DEFAULT(*modelId), [=](int32_t newValue) {
                               if (newValue != *modelId) {
                                 *modelId = newValue;
@@ -486,8 +486,6 @@ class ModuleWindow : public Window
   }
 
   uint8_t getModuleIdx() const { return moduleIdx; }
-
-  static LAYOUT_VAL(NUM_W, 60, 60, LS(60))
 
  protected:
   uint8_t moduleIdx;

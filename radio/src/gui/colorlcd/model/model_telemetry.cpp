@@ -815,7 +815,7 @@ class SensorEditWindow : public SubPage
     updateSensorParameters();
   }
 
-  static LAYOUT_VAL(NUM_EDIT_W, 100, 80, LS(100))
+  static LAYOUT_VAL2(NUM_EDIT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 80)
 };
 
 ModelTelemetryPage::ModelTelemetryPage() :

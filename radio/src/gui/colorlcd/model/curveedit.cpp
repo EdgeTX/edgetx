@@ -305,7 +305,7 @@ void CurveEditWindow::buildBody(Window* window)
 
   // Smooth
   auto smooth =
-      new TextButton(iLine, rect_t{0, 0, NUMEDT_W, 0}, STR_SMOOTH, [=]() {
+      new TextButton(iLine, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, STR_SMOOTH, [=]() {
         g_model.curves[index].smooth = !g_model.curves[index].smooth;
         curveEdit->updatePreview();
         return g_model.curves[index].smooth;
@@ -320,7 +320,7 @@ void CurveEditWindow::buildBody(Window* window)
   // Type
   new StaticText(iLine, rect_t{}, STR_TYPE);
   new Choice(
-      iLine, {0, 0, TextEdit::DEF_W, 0}, STR_CURVE_TYPES, 0, 1,
+      iLine, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH, 0}, STR_CURVE_TYPES, 0, 1,
       GET_DEFAULT(g_model.curves[index].type), [=](int32_t newValue) {
         CurveHeader& curve = g_model.curves[index];
         if (newValue != curve.type) {
@@ -346,7 +346,7 @@ void CurveEditWindow::buildBody(Window* window)
 
   // Points count
   auto edit = new Choice(
-      iLine, {0, 0, NUMEDT_W, 0}, 2, 17,
+      iLine, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 2, 17,
       GET_DEFAULT(g_model.curves[index].points + 5), [=](int32_t newValue) {
         newValue -= 5;
         CurveHeader& curve = g_model.curves[index];

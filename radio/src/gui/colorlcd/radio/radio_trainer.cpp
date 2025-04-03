@@ -68,7 +68,7 @@ void RadioTrainerPage::build(Window* form)
 
       new Choice(line, rect_t{}, STR_TRNMODE, 0, 2, GET_SET_DEFAULT(td->mode));
       new Choice(line, rect_t{}, STR_TRNCHN, 0, 3, GET_SET_DEFAULT(td->srcChn));
-      auto weight = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -125, 125,
+      auto weight = new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -125, 125,
                                    GET_SET_DEFAULT(td->studWeight));
       weight->setSuffix("%");
 
@@ -104,7 +104,7 @@ void RadioTrainerPage::build(Window* form)
                            LV_GRID_ALIGN_CENTER, 0, 1);
 
       auto multiplier =
-              new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, -10, 40,
+              new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -10, 40,
                              GET_SET_DEFAULT(g_eeGeneral.PPM_Multiplier));
       multiplier->setDisplayHandler(
               [](int32_t value) { return formatNumberAsString(value + 10, PREC1); });

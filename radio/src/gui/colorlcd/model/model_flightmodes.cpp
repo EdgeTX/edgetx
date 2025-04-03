@@ -84,7 +84,7 @@ class TrimEdit : public Window
 
     if (tr->mode != TRIM_MODE_NONE) tr_btn->check();
 
-    tr_mode = new Choice(this, rect_t{0, 0, TR_MODE_W, 0}, 0, 2 * MAX_FLIGHT_MODES,
+    tr_mode = new Choice(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 2 * MAX_FLIGHT_MODES,
                          GET_DEFAULT(tr->mode), [=](int val) {
                            tr->mode = val;
                            showControls();
@@ -100,14 +100,13 @@ class TrimEdit : public Window
     });
 
     tr_value = new NumberEdit(
-        this, rect_t{0, 0, TR_MODE_W, 0}, g_model.extendedTrims ? -512 : -128,
+        this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, g_model.extendedTrims ? -512 : -128,
         g_model.extendedTrims ? 512 : 128, GET_SET_DEFAULT(tr->value));
 
     showControls();
   }
 
   static LAYOUT_VAL(TR_BTN_W, 65, 65, 44)
-  static LAYOUT_VAL(TR_MODE_W, 70, 70, LS(70))
 
  protected:
   int trimId;

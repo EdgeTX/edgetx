@@ -32,7 +32,6 @@ class RadioHardwarePage : public PageTab
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL(NUM_EDIT_W, 80, 74, LS(80))
   static LAYOUT_VAL2(BTN_COLS, 4, 3)
   static LAYOUT_VAL2(FS_BTN_COLS, 2, 2)
 

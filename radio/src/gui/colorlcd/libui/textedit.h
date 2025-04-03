@@ -36,8 +36,6 @@ class TextEdit : public TextButton
   void preview(bool edited, char* text, uint8_t length);
   void update();
 
-  static LAYOUT_VAL(DEF_W, 100, 100, 70)
-
  protected:
   std::function<void(void)> updateHandler = nullptr;
   TextArea* edit = nullptr;

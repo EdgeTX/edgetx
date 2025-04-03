@@ -94,7 +94,7 @@ class ChannelFailsafeEdit : public NumberEdit
 
  public:
   ChannelFailsafeEdit(Window* parent, uint8_t ch, int vmin, int vmax) :
-      NumberEdit(parent, rect_t{0, 0, NUM_W, 0}, vmin, vmax, nullptr), channel(ch)
+      NumberEdit(parent, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax, nullptr), channel(ch)
   {
     setGetValueHandler(
         [=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); });
@@ -150,8 +150,6 @@ class ChannelFailsafeEdit : public NumberEdit
     g_model.failsafeChannels[channel] = channelOutputs[channel];
     update();
   }
-
-  static LAYOUT_VAL(NUM_W, 70, 70, LS(70))
 };
 
 class ChannelFSCombo : public Window

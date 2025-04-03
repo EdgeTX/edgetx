@@ -44,8 +44,6 @@ struct PWMfrequencyChoice : public Window {
   PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_t channelIdx);
   PWMfrequencyChoice(Window* parent, uint8_t moduleIdx);
 
-  static LAYOUT_VAL(NUM_W, 60, 60, LS(60))
-
  private:
   NumberEdit* num_edit = nullptr;
 };
@@ -77,7 +75,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
                       if (num_edit)
                         num_edit->show(pwmvalue_type == 4);
                     });
-  num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
+  num_edit = new NumberEdit(this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 50, 400,
                   [=,&pwmvalue_type] { return (pwmvalue_type==4?vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx]:50); },
                   [=](int16_t newVal) {
                     vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] = newVal;
@@ -111,7 +109,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
                       if (num_edit)
                         num_edit->show(pwmvalue_type == 2);
                 });
-  num_edit = new NumberEdit(this, {0, 0, NUM_W, 0}, 50, 400,
+  num_edit = new NumberEdit(this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 50, 400,
                   [=,&pwmvalue_type] { return (pwmvalue_type==2?vCfg->PWMFrequency.Frequency&0x7fff:50); },
                   [=](int16_t newVal) {
                       vCfg->PWMFrequency.Frequency = newVal;

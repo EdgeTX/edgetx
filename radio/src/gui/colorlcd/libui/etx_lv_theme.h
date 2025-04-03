@@ -280,6 +280,8 @@ class EdgeTxStyles
   static LAYOUT_VAL(STD_FONT_HEIGHT, 21, 21, 14)
   static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32, 24)
   static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45, LS(45))
+  static LAYOUT_VAL(EDIT_FLD_WIDTH_NARROW, 70, 70, LS(70))
+  static LAYOUT_VAL(EDIT_FLD_WIDTH, 100, 100, LS(100))
 
  protected:
   bool initDone = false;
