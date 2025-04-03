@@ -49,6 +49,8 @@ WidgetSettings::WidgetSettings(Widget* w) :
   FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
 
   uint8_t optIdx = 0;
+
+  widget->getFactory()->parseOptionDefaults();
   auto opt = widget->getOptionDefinitions();
 
   while (opt && opt->name != nullptr) {
