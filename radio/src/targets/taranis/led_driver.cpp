@@ -25,7 +25,7 @@
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
 #if defined(LED_STRIP_GPIO)
-#include "boards/generic_stm32/rgb_leds.h"
+#include "stm32_ws2812.h"
 #endif
 
 #define GET_RED(color) (((color) & 0xFF0000) >>16)
@@ -65,8 +65,8 @@ uint8_t ledMapping[] = {0, 1, 2, 3, 4, 5, 6};
 
 void fsLedRGB(uint8_t index, uint32_t color)
 {
-   rgbSetLedColor(ledMapping[index], GET_RED(color), \
-   GET_GREEN(color),GET_BLUE(color));
+  ws2812_set_color(ledMapping[index], GET_RED(color), GET_GREEN(color),
+                   GET_BLUE(color));
 }
 
 uint8_t getRGBColorIndex(uint32_t color)
