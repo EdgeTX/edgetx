@@ -86,6 +86,9 @@ def parse_switches(target, hw_defs, adc_parser):
         adc_input_name = f"SW{s}"
         custom = f"SWITCHES_{s}_"
 
+        led_idx = f"SWITCHES_{s}_LED_IDX"
+        led_ofst = f"SWITCHES_{s}_LED_OFST"
+
         switch = None
         if reg in hw_defs:
             # 2POS switch
@@ -110,6 +113,11 @@ def parse_switches(target, hw_defs, adc_parser):
         if switch:
             if inverted in hw_defs:
                 switch.inverted = True
+
+            if led_idx in hw_defs:
+                switch.led_idx = hw_defs[led_idx]
+            if led_ofst in hw_defs:
+                switch.led_ofst = hw_defs[led_ofst]
 
             cfg = switch_cfg_by_target(target, name)
             if cfg:

@@ -263,6 +263,13 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_PADDING( 7 ),
   YAML_END
 };
+static const struct YamlNode struct_RGBLedColor[] = {
+  YAML_IDX,
+  YAML_UNSIGNED( "r", 8 ),
+  YAML_UNSIGNED( "g", 8 ),
+  YAML_UNSIGNED( "b", 8 ),
+  YAML_END
+};
 static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "manuallyEdited", 1 ),
   YAML_SIGNED( "timezoneMinutes", 3 ),
@@ -364,6 +371,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "invertLCD", 1 ),
   YAML_PADDING( 3 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
+  YAML_ARRAY("switchLedONColor", 24, 2, struct_RGBLedColor, NULL),
+  YAML_ARRAY("switchLedOFFColor", 24, 2, struct_RGBLedColor, NULL),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -772,13 +781,6 @@ static const struct YamlNode struct_TelemetryScreenData[] = {
   YAML_IDX,
   YAML_CUSTOM("type",r_tele_screen_type,w_tele_screen_type),
   YAML_UNION("u", 192, union_TelemetryScreenData_u_elmts, select_tele_screen_data),
-  YAML_END
-};
-static const struct YamlNode struct_RGBLedColor[] = {
-  YAML_IDX,
-  YAML_UNSIGNED( "r", 8 ),
-  YAML_UNSIGNED( "g", 8 ),
-  YAML_UNSIGNED( "b", 8 ),
   YAML_END
 };
 static const struct YamlNode struct_USBJoystickChData[] = {

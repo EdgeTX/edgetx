@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "hal.h"
 #include "stm32_hal_ll.h"
 #include "hal/switch_driver.h"
 
@@ -35,6 +36,10 @@ struct stm32_switch_t
 
   SwitchHwType type;
   uint8_t      flags;
+#if defined(SWITCH_LED_COUNT)
+  uint8_t      ledIdx;
+  uint8_t      ledOfst;
+#endif
 };
 
 SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw);
