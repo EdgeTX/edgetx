@@ -94,7 +94,7 @@ void ledBlue()
   gpio_clear(LED_GPIO);
 }
 
-#else
+#elif defined(LED_RED_GPIO) || defined(LED_GREEN_GPIO) || defined(LED_BLUE_GPIO)
 
 void ledOff()
 {
