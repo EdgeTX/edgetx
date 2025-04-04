@@ -195,7 +195,7 @@ class RadioInfoWidget : public TopBarWidget
   static LAYOUT_VAL(W_AUDIO_SCALE_X, 15, 15, LS(15))
   static LAYOUT_VAL(W_USB_X, 32, 32, LS(32))
   static LAYOUT_VAL(W_USB_Y, 5, 5, 4)
-  static LAYOUT_VAL(W_LOG_X, 32, 32, LS(32))
+  static constexpr coord_t W_LOG_X = W_USB_X;
   static LAYOUT_VAL(W_RSSI_X, 40, 40, LS(40))
   static LAYOUT_VAL(W_RSSI_BAR_W, 4, 4, LS(4))
   static LAYOUT_VAL(W_RSSI_BAR_H, 35, 35, LS(35))

@@ -110,7 +110,7 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   line = sensor_form->newLine(grid);
   line->padAll(PAD_TINY);
   new StaticText(line, rect_t{}, STR_SCALE);
-  new NumberEdit(line, rect_t{0, 0, 60, 0}, 0,
+  new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
                  maxTelemValue(input->srcRaw - MIXSRC_FIRST_TELEM + 1),
                  GET_SET_DEFAULT(input->scale), sensor->getSensorPrec());
 

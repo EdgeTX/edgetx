@@ -63,7 +63,7 @@ SerialConfigWindow::SerialConfigWindow(Window *parent, FlexGridLayout& grid)
     if (port_nr != SP_VCP) {
         grid.setColSpan(2);
         auto line = parent->newLine(grid);
-        line->padLeft(WARN_PADL);
+        line->padLeft(PAD_LARGE * 2);
         line->padBottom(PAD_MEDIUM);
         new StaticText(line, rect_t{}, STR_TTL_WARNING, COLOR_THEME_WARNING_INDEX);
         grid.setColSpan(1);

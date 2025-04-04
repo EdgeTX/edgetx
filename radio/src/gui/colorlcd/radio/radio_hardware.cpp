@@ -99,12 +99,12 @@ static SetupLineDef setupLines[] = {
     STR_BATTERY_RANGE,
     [](Window* parent, coord_t x, coord_t y) {
       auto batMin = new NumberEdit(
-          parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+          parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), PREC1);
       batMin->setSuffix("V");
-      new StaticText(parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::PAGE_LINE_HEIGHT}, "-");
+      new StaticText(parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::STD_FONT_HEIGHT}, "-");
       auto batMax = new NumberEdit(
-          parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_LARGE + PAD_SMALL, y, RadioHardwarePage::NUM_EDIT_W, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+          parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_LARGE + PAD_SMALL, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);
       batMax->setSuffix("V");
 
@@ -125,7 +125,7 @@ static SetupLineDef setupLines[] = {
     // Bat calibration
     STR_BATT_CALIB,
     [](Window* parent, coord_t x, coord_t y) {
-      new BatCalEdit(parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0});
+      new BatCalEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0});
     }
   },
   {

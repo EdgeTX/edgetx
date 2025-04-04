@@ -84,7 +84,7 @@ class TrimEdit : public Window
 
     if (tr->mode != TRIM_MODE_NONE) tr_btn->check();
 
-    tr_mode = new Choice(this, rect_t{0, 0, TR_MODE_W, 0}, 0, 2 * MAX_FLIGHT_MODES,
+    tr_mode = new Choice(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 2 * MAX_FLIGHT_MODES,
                          GET_DEFAULT(tr->mode), [=](int val) {
                            tr->mode = val;
                            showControls();
@@ -100,14 +100,13 @@ class TrimEdit : public Window
     });
 
     tr_value = new NumberEdit(
-        this, rect_t{0, 0, TR_MODE_W, 0}, g_model.extendedTrims ? -512 : -128,
+        this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, g_model.extendedTrims ? -512 : -128,
         g_model.extendedTrims ? 512 : 128, GET_SET_DEFAULT(tr->value));
 
     showControls();
   }
 
   static LAYOUT_VAL(TR_BTN_W, 65, 65, 44)
-  static LAYOUT_VAL(TR_MODE_W, 70, 70, LS(70))
 
  protected:
   int trimId;
@@ -377,7 +376,7 @@ const lv_obj_class_t FlightModeBtn::fm_id_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = FlightModeBtn::FMID_W,
-    .height_def = EdgeTxStyles::PAGE_LINE_HEIGHT,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -396,7 +395,7 @@ const lv_obj_class_t FlightModeBtn::fm_name_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = FlightModeBtn::NAME_W,
-    .height_def = EdgeTxStyles::PAGE_LINE_HEIGHT,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -414,7 +413,7 @@ const lv_obj_class_t FlightModeBtn::fm_switch_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = FlightModeBtn::SWTCH_W,
-    .height_def = EdgeTxStyles::PAGE_LINE_HEIGHT,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),
@@ -432,7 +431,7 @@ const lv_obj_class_t FlightModeBtn::fm_fade_class = {
     .user_data = nullptr,
     .event_cb = nullptr,
     .width_def = FlightModeBtn::FADE_W,
-    .height_def = EdgeTxStyles::PAGE_LINE_HEIGHT,
+    .height_def = EdgeTxStyles::STD_FONT_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_label_t),

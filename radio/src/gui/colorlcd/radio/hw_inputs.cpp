@@ -100,7 +100,7 @@ HWPots::HWPots(Window* parent) :
   new StaticText(this, {P_TYP_X, -PAD_TINY, 0, 0}, STR_TYPE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   new StaticText(this, {P_INV_X, -PAD_TINY, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 
-  coord_t yo = EdgeTxStyles::PAGE_LINE_HEIGHT - 2;
+  coord_t yo = EdgeTxStyles::STD_FONT_HEIGHT - 2;
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = 0; i < max_pots; i++) {

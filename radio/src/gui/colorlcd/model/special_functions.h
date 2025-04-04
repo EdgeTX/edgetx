@@ -53,19 +53,15 @@ class FunctionLineButton : public ListLineButton
   static constexpr coord_t NM_X = PAD_TINY;
   static LAYOUT_VAL(NM_Y, 4, 10, 1)
   static LAYOUT_VAL(NM_W, 43, 40, LS(43))
-  static LAYOUT_VAL(NM_H, 20, 20, 14)
   static constexpr coord_t SW_X = NM_X + NM_W + PAD_TINY;
   static LAYOUT_VAL2(SW_Y, NM_Y, 0)
   static LAYOUT_VAL(SW_W, 70, 198, LS(70))
-  static constexpr coord_t SW_H = NM_H;
   static LAYOUT_VAL2(FN_X, SW_X + SW_W + PAD_TINY, NM_X + NM_W + PAD_TINY)
   static LAYOUT_VAL2(FN_Y, NM_Y, 20)
   static LAYOUT_VAL(RP_W, 40, 34, LS(40))
   static LAYOUT_VAL(EN_SZ, 16, 16, 12)
-  static constexpr coord_t FN_H = NM_H;
   static constexpr coord_t RP_X = ListLineButton::GRP_W - PAD_BORDER * 2 - RP_W - EN_SZ - PAD_TINY * 2;
   static constexpr coord_t RP_Y = NM_Y;
-  static constexpr coord_t RP_H = NM_H;
   static constexpr coord_t FN_W = RP_X - FN_X - PAD_TINY;
   static constexpr coord_t EN_X = ListLineButton::GRP_W - PAD_BORDER * 2 - EN_SZ - PAD_TINY;
   static constexpr coord_t EN_Y = NM_Y + PAD_TINY;

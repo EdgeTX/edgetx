@@ -214,7 +214,7 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
     vmin(vmin),
     vmax(vmax)
 {
-  if (rect.w == 0) setWidth(DEF_W);
+  if (rect.w == 0) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
   setTextFlag(textFlags);
 

@@ -83,7 +83,7 @@ void MixEditAdvanced::buildBody(Window* form)
 
   // Warning
   new StaticText(line, rect_t{}, STR_MIXWARNING);
-  auto edit = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, 3,
+  auto edit = new NumberEdit(line, rect_t{}, 0, 3,
                              GET_SET_DEFAULT(mix->mixWarn));
   edit->setZeroText(STR_OFF);
 
@@ -112,14 +112,14 @@ void MixEditAdvanced::buildBody(Window* form)
   // Delay up
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_DELAYUP);
-  delayUp = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX,
+  delayUp = new NumberEdit(line, rect_t{}, 0, DELAY_MAX,
                            GET_DEFAULT(mix->delayUp),
                            SET_VALUE(mix->delayUp, newValue), mix->delayPrec ? PREC2 : PREC1);
   delayUp->setSuffix("s");
 
   // Delay down
   new StaticText(line, rect_t{}, STR_DELAYDOWN);
-  delayDn = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX,
+  delayDn = new NumberEdit(line, rect_t{}, 0, DELAY_MAX,
                            GET_DEFAULT(mix->delayDown),
                            SET_VALUE(mix->delayDown, newValue), mix->delayPrec ? PREC2 : PREC1);
   delayDn->setSuffix("s");
@@ -149,13 +149,13 @@ void MixEditAdvanced::buildBody(Window* form)
   // Slow up
   line = form->newLine(grid);
   new StaticText(line, rect_t{}, STR_SLOWUP);
-  slowUp = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
+  slowUp = new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->speedUp),
                           SET_VALUE(mix->speedUp, newValue), mix->speedPrec ? PREC2 : PREC1);
   slowUp->setSuffix("s");
 
   // Slow down
   new StaticText(line, rect_t{}, STR_SLOWDOWN);
-  slowDn = new NumberEdit(line, rect_t{0, 0, NUM_EDIT_W, 0}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
+  slowDn = new NumberEdit(line, rect_t{}, 0, DELAY_MAX, GET_DEFAULT(mix->speedDown),
                           SET_VALUE(mix->speedDown, newValue), mix->speedPrec ? PREC2 : PREC1);
   slowDn->setSuffix("s");
 }
