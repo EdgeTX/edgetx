@@ -43,7 +43,6 @@ class ModelOutputsPage : public PageTab
   static LAYOUT_VAL2(EXLIM_X, ADD_TRIMS_X + ADD_TRIMS_W + PAD_SMALL, 6)
   static LAYOUT_VAL(EXLIM_Y, 10, ADD_TRIMS_X + ADD_TRIMS_H + 8, LS(10))
   static constexpr coord_t EXLIM_W = EXLIMCB_X - EXLIM_X - PAD_SMALL;
-  static LAYOUT_VAL(EXLIM_H, 20, 20, LS(20))
   static constexpr coord_t TRIMB_X = PAD_SMALL;
   static constexpr coord_t TRIMB_Y = EXLIMCB_Y + EXLIMCB_H + PAD_MEDIUM / 2;
   static constexpr coord_t TRIMB_W = LCD_W - PAD_SMALL * 2;

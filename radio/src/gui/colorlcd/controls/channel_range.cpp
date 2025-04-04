@@ -45,13 +45,13 @@ ChannelRange::ChannelRange(Window* parent) : Window(parent, rect_t{})
 
 void ChannelRange::build()
 {
-  chStart = new NumberEdit(this, rect_t{0, 0, 80, 0}, 1, 1,
+  chStart = new NumberEdit(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 1, 1,
                            GET_DEFAULT(1 + getChannelsStart()));
   chStart->setSetValueHandler([=](int newValue) { setStart(newValue); });
   chStart->setPrefix(STR_CH);
 
   chEnd =
-      new NumberEdit(this, rect_t{0, 0, 80, 0}, 8, 8,
+      new NumberEdit(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 8, 8,
                      GET_DEFAULT(getChannelsStart() + 8 + getChannelsCount()));
 
   chEnd->setPrefix(STR_CH);

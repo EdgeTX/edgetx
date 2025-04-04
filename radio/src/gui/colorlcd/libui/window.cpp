@@ -470,7 +470,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
   int rows = (pages.size() + cols - 1) / cols;
   int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
   if (title) {
-    height += EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY;
+    height += EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY;
   }
   setHeight(height);
 
@@ -479,7 +479,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
 
   int n = 0;
   int remaining = pages.size();
-  coord_t yo = title ? EdgeTxStyles::PAGE_LINE_HEIGHT + PAD_TINY : 0;
+  coord_t yo = title ? EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY : 0;
   coord_t xw = buttonWidth + PAD_SMALL;
   coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
   coord_t x, y;
@@ -516,7 +516,7 @@ SetupLine::SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize paddin
 {
   padAll(PAD_ZERO);
   coord_t titleY = PAD_LARGE + lblYOffset;
-  coord_t titleH = EdgeTxStyles::PAGE_LINE_HEIGHT;
+  coord_t titleH = EdgeTxStyles::STD_FONT_HEIGHT;
   coord_t h = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2 + lblYOffset * 2;
   if (createEdit) {
     coord_t editY = PAD_TINY;

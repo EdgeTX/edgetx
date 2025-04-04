@@ -64,7 +64,7 @@ WidgetSettings::WidgetSettings(Widget* w) :
     switch (opt->type) {
       case ZoneOption::Integer:
         (new NumberEdit(
-             line, rect_t{0, 0, 96, 0}, opt->min.signedValue,
+             line, rect_t{}, opt->min.signedValue,
              opt->max.signedValue,
              [=]() -> int {
                return optVal->signedValue;
@@ -102,7 +102,7 @@ WidgetSettings::WidgetSettings(Widget* w) :
         break;
 
       case ZoneOption::String:
-        new ModelTextEdit(line, rect_t{0, 0, 96, 0},
+        new ModelTextEdit(line, rect_t{},
                           optVal->stringValue,
                           sizeof(optVal->stringValue));
         break;

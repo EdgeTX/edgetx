@@ -107,19 +107,19 @@ void FunctionLineButton::delayed_init()
 
   sfName = lv_label_create(lvobj);
   lv_obj_set_pos(sfName, NM_X, NM_Y);
-  lv_obj_set_size(sfName, NM_W, NM_H);
+  lv_obj_set_size(sfName, NM_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
   sfSwitch = lv_label_create(lvobj);
   lv_obj_set_pos(sfSwitch, SW_X, SW_Y);
-  lv_obj_set_size(sfSwitch, SW_W, SW_H);
+  lv_obj_set_size(sfSwitch, SW_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
   sfFunc = lv_label_create(lvobj);
   lv_obj_set_pos(sfFunc, FN_X, FN_Y);
-  lv_obj_set_size(sfFunc, FN_W, FN_H);
+  lv_obj_set_size(sfFunc, FN_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
   sfRepeat = lv_label_create(lvobj);
   lv_obj_set_pos(sfRepeat, RP_X, RP_Y);
-  lv_obj_set_size(sfRepeat, RP_W, RP_H);
+  lv_obj_set_size(sfRepeat, RP_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
   sfEnable = sf_enable_state_create(lvobj);
   lv_obj_clear_flag(sfEnable, LV_OBJ_FLAG_CLICKABLE);

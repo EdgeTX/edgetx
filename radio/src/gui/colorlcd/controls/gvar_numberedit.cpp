@@ -26,7 +26,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
                                int32_t vmax, std::function<int32_t()> getValue,
                                std::function<void(int32_t)> setValue,
                                LcdFlags textFlags, int32_t voffset, int32_t vdefault) :
-    Window(parent, {0, 0, NUM_EDIT_W + GV_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
+    Window(parent, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + GV_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
     vmin(vmin),
     vmax(vmax),
     getValue(getValue),
@@ -38,7 +38,7 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
   
   // GVAR field
   gvar_field = new Choice(
-      this, {0, 0, NUM_EDIT_W, 0}, -MAX_GVARS, MAX_GVARS - 1,
+      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -MAX_GVARS, MAX_GVARS - 1,
       [=]() {
         uint16_t gvar1 = GV_GET_GV1_VALUE(vmin, vmax);
         return GV_INDEX_CALC_DELTA(getValue(), gvar1);
@@ -54,14 +54,14 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
       [=](int32_t value) { return getGVarString(value); });
 
   num_field = new NumberEdit(
-      this, {0, 0, NUM_EDIT_W, 0}, vmin, vmax, [=]() { return getValue() + voffset; },
+      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax, [=]() { return getValue() + voffset; },
       nullptr, textFlags);
   num_field->setDefault(vdefault);
 
 #if defined(GVARS)
   // The GVAR button
   if (modelGVEnabled()) {
-    m_gvBtn = new TextButton(this, {NUM_EDIT_W + PAD_TINY, 0, GV_BTN_W, 0}, STR_GV, [=]() {
+    m_gvBtn = new TextButton(this, {EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_TINY, 0, GV_BTN_W, 0}, STR_GV, [=]() {
       switchGVarMode();
       return GV_IS_GV_VALUE(getValue(), vmin, vmax);
     });

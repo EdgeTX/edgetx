@@ -26,9 +26,9 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-constexpr coord_t SCALE_HEIGHT = 15;
-constexpr coord_t FOOTER_HEIGHT = 32;
-constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - SCALE_HEIGHT - FOOTER_HEIGHT;
+LAYOUT_VAL3(VERT_SCALE, 1, 1, 1, 2)
+LAYOUT_VAL(SCALE_HEIGHT, 15, 15, LS(15))
+constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - SCALE_HEIGHT - EdgeTxStyles::UI_ELEMENT_HEIGHT;
 
 coord_t getAverage(uint8_t number, const uint8_t* value)
 {
@@ -36,7 +36,7 @@ coord_t getAverage(uint8_t number, const uint8_t* value)
   for (uint8_t i = 0; i < number; i++) {
     sum += value[i];
   }
-  return sum / number;
+  return sum * VERT_SCALE / number;
 }
 
 class SpectrumFooterWindow : public Window
@@ -53,13 +53,13 @@ class SpectrumFooterWindow : public Window
       // Frequency
       sprintf(label, "T: %dMHz",
               int(reusableBuffer.spectrumAnalyser.freq / 1000000));
-      (new StaticText(this, rect_t{PAD_TINY, 0, FLD_W, FOOTER_HEIGHT}, label))
+      (new StaticText(this, rect_t{PAD_TINY, 0, FLD_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, label))
           ->padTop(PAD_MEDIUM);
 
       // Span
       sprintf(label, "S: %dMHz",
               int(reusableBuffer.spectrumAnalyser.span / 1000000));
-      (new StaticText(this, rect_t{PAD_TINY + FLD_W, 0, FLD_W, FOOTER_HEIGHT}, label))
+      (new StaticText(this, rect_t{PAD_TINY + FLD_W, 0, FLD_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, label))
           ->padTop(PAD_MEDIUM);
     } else {
       // Frequency
@@ -84,7 +84,7 @@ class SpectrumFooterWindow : public Window
 
     // Tracker
     auto tracker = new NumberEdit(
-        this, rect_t{(PAD_TINY + FLD_W) * 2, 0, FLD_W, FOOTER_HEIGHT},
+        this, rect_t{(PAD_TINY + FLD_W) * 2, 0, FLD_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
         (reusableBuffer.spectrumAnalyser.freq -
          reusableBuffer.spectrumAnalyser.span / 2) /
             1000000,
@@ -307,7 +307,7 @@ void RadioSpectrumAnalyser::buildBody(Window* window)
   new SpectrumWindow(window, {0, 0, LCD_W, SPECTRUM_HEIGHT});
   new SpectrumScaleWindow(window, {0, SPECTRUM_HEIGHT, LCD_W, SCALE_HEIGHT});
   new SpectrumFooterWindow(
-      window, {0, SPECTRUM_HEIGHT + SCALE_HEIGHT, LCD_W, FOOTER_HEIGHT},
+      window, {0, SPECTRUM_HEIGHT + SCALE_HEIGHT, LCD_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
       moduleIdx);
 }
 
@@ -322,7 +322,7 @@ void RadioSpectrumAnalyser::checkEvents()
   if (x != trackX) {
     trackX = x;
     trackPts[0] = {(lv_coord_t)x, EdgeTxStyles::MENU_HEADER_HEIGHT};
-    trackPts[1] = {(lv_coord_t)x, (lv_coord_t)(height() - FOOTER_HEIGHT)};
+    trackPts[1] = {(lv_coord_t)x, (lv_coord_t)(height() - EdgeTxStyles::UI_ELEMENT_HEIGHT)};
     lv_line_set_points(trackLine, trackPts, 2);
   }
   Page::checkEvents();
