@@ -20,17 +20,17 @@
  */
 
 #include "bsp_io.h"
-#include "hal/switch_driver.h"
-#include "drivers/pca95xx.h"
-#include "stm32_i2c_driver.h"
-#include "timers_driver.h"
-#include "stm32_ws2812.h"
 
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
 
-#include "myeeprom.h"
 #include "bitfield.h"
+#include "drivers/pca95xx.h"
+#include "hal/switch_driver.h"
+#include "myeeprom.h"
+#include "stm32_i2c_driver.h"
+#include "stm32_ws2812.h"
+#include "timers_driver.h"
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -179,10 +179,9 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
 
     }
 
-    if(pos == SWITCH_HW_UP) {
+    if (pos == SWITCH_HW_UP) {
       ws2812_set_color(def->pin_low - RGB_OFFSET, 0x0, 0x0, 0x0);
-    }
-    else {
+    } else {
       ws2812_set_color(def->pin_low - RGB_OFFSET, 0xFF, 0xFF, 0xFF);
     }
   }
