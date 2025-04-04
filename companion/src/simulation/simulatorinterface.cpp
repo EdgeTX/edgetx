@@ -73,7 +73,7 @@ void SimulatorLoader::registerSimulators()
   }
 
 #if defined(__APPLE__)
-  dir = QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/Resources";
+  dir.setPath(QLibraryInfo::path(QLibraryInfo::PrefixPath) + "/Resources");
 #else
   if (QDir::isAbsolutePath(SIMULATOR_LIB_SEARCH_PATH)) {
     dir.setPath(SIMULATOR_LIB_SEARCH_PATH);

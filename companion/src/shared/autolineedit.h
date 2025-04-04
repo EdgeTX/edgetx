@@ -24,7 +24,6 @@
 #include "autowidget.h"
 
 #include <QLineEdit>
-#include <QRegExpValidator>
 
 class AutoLineEdit: public QLineEdit, public AutoWidget
 {
