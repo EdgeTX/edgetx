@@ -144,7 +144,7 @@ class FunctionSwitch : public Window
           offValue = g_model.functionSwitchLedOFFColor[switchIndex];
           SET_DIRTY();
         },
-        [=](int newValue) { previewColor(newValue); }, RGB888);
+        [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
 
     onColor = new ColorPicker(
         this, {C2_X, 0, C2_W, 0},
@@ -162,7 +162,7 @@ class FunctionSwitch : public Window
           onValue = g_model.functionSwitchLedONColor[switchIndex];
           SET_DIRTY();
         },
-        [=](int newValue) { previewColor(newValue); }, RGB888);
+        [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
 #endif //FUNCTION_SWITCHES_RGB_LEDS
 
     setState();
