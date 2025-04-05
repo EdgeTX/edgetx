@@ -86,6 +86,18 @@
 #define FUNCTION_SWITCH_4               I2C
 
 // Direct switches
+// SWA
+#define STORAGE_SWITCH_A
+#define HARDWARE_SWITCH_A
+#define SWITCHES_GPIO_REG_A           GPIOA
+#define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_2  // PA.02
+
+// SWD
+#define STORAGE_SWITCH_D
+#define HARDWARE_SWITCH_D
+#define SWITCHES_GPIO_REG_D           GPIOF
+#define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_8  // PF.08
+
 // SWE
 #define STORAGE_SWITCH_E
 #define HARDWARE_SWITCH_E
@@ -123,18 +135,16 @@
 #define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_3      // PA.03  S1 
 #define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_5      // PA.05  S2
 
-#define ADC_GPIO_PIN_SWA                LL_GPIO_PIN_2      // PA.02
 #define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_5      // PC.05
 #define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_7      // PF.07
-#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_8      // PF.08
 
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_1      // PC.01
 
-#define ADC_GPIOA_PINS ( ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_SLIDER2 | ADC_GPIO_PIN_SWA )
+#define ADC_GPIOA_PINS ( ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_SLIDER2 )
 
 #define ADC_GPIOC_PINS ( ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_SWB )
 
-#define ADC_GPIOF_PINS ( ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWD )
+#define ADC_GPIOF_PINS ( ADC_GPIO_PIN_SWC )
 
 #define ADC_CHANNEL_STICK_LH
 #define ADC_CHANNEL_STICK_LV
@@ -146,10 +156,8 @@
 #define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_19    // ADC12_INP19
 
 // Analog switches
-#define ADC_CHANNEL_SWA                 LL_ADC_CHANNEL_14    // ADC12_INP14
 #define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_8     // ADC12_INP8
 #define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_3     // ADC3_INP3
-#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_7     // ADC3_INP7
 
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_11   // ADC123_INP11
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC12_IN16
@@ -180,10 +188,8 @@
     0,0,     /* sliders */    \
     0,	     /* vbat */       \
     0,       /* rtc_bat */    \
-    -1,       /* SWA */       \
     -1,       /* SWB */       \
     -1,       /* SWC */       \
-    -1,       /* SWD */       \
     0,       /* SWE */        \
     0        /* SWF */        \
   }
