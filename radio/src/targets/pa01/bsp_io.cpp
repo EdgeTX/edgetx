@@ -74,7 +74,7 @@ int bsp_io_init()
 
   // setup expanders pin change interrupt
   gpio_init_int(IO_INT_GPIO, GPIO_IN, GPIO_FALLING, _io_int_handler);
-
+  bsp_output_clear(BSP_U6_SELECT);
   return 0;
 }
 
