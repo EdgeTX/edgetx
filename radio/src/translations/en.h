@@ -928,6 +928,7 @@
 #define TR_USE_INTERNAL_ANTENNA        TR("Use int. antenna", "Use internal antenna")
 #define TR_USE_EXTERNAL_ANTENNA        TR("Use ext. antenna", "Use external antenna")
 #define TR_ANTENNACONFIRM2             TR("Check antenna", "Make sure antenna is installed!")
+#define STR_INT_USB_SWITCH             "Connect USB to internal module"
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1   "Requires FLEX non"
 #define TR_MODULE_PROTOCOL_FCC_WARN_LINE1    "Requires FCC"
 #define TR_MODULE_PROTOCOL_EU_WARN_LINE1     "Requires EU"

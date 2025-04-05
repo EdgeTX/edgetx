@@ -76,6 +76,8 @@ void INTERNAL_MODULE_OFF();           /*gpio_clear(INTMODULE_PWR_GPIO);*/
 void INTERNAL_MODULE_BOOTCMD(uint8_t enable);
 void EXTERNAL_MODULE_ON();            /*gpio_set(EXTMODULE_PWR_GPIO)*/
 void EXTERNAL_MODULE_OFF();           /*gpio_clear(EXTMODULE_PWR_GPIO)*/
+void INTERNAL_MODULE_SET_USB(uint8_t on);
+uint8_t INTERNAL_MODULE_GET_USB(void);
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
 #define BLUETOOTH_MODULE_ON()           gpio_clear(BLUETOOTH_ON_GPIO)
 #define BLUETOOTH_MODULE_OFF()          gpio_set(BLUETOOTH_ON_GPIO)

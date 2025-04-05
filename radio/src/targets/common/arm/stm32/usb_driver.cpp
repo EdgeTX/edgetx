@@ -46,6 +46,7 @@ extern "C" {
 #include "hal/usb_driver.h"
 
 #include "hal.h"
+#include "board.h"
 #include "debug.h"
 
 #if defined(USE_USB_HS)
@@ -101,7 +102,11 @@ int usbPlugged()
   else
     lastState = state;
 
+#if defined(HAS_USB_TO_INT_MODULE_SWITCH)
+  return debouncedState && INTERNAL_MODULE_GET_USB()==0;
+#else
   return debouncedState;
+#endif
 }
 #endif
 
