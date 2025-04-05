@@ -24,12 +24,6 @@
 #include <stdint.h>
 #include "stm32_hal_ll.h"
 
-#define __STM32_DMA_IS_STREAM_SUPPORTED(stream)                  \
-  ((stream) == LL_DMA_STREAM_0 || (stream) == LL_DMA_STREAM_1 || \
-   (stream) == LL_DMA_STREAM_2 || (stream) == LL_DMA_STREAM_3 || \
-   (stream) == LL_DMA_STREAM_4 || (stream) == LL_DMA_STREAM_5 || \
-   (stream) == LL_DMA_STREAM_6 || (stream) == LL_DMA_STREAM_7)
-
 #if defined(STM32H7RS) || defined(STM32H5)
 
 inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
@@ -59,6 +53,12 @@ inline static void stm32_dma_clear_flags(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
 }
 
 #else // STM32H7RS
+
+#define __STM32_DMA_IS_STREAM_SUPPORTED(stream)                  \
+  ((stream) == LL_DMA_STREAM_0 || (stream) == LL_DMA_STREAM_1 || \
+   (stream) == LL_DMA_STREAM_2 || (stream) == LL_DMA_STREAM_3 || \
+   (stream) == LL_DMA_STREAM_4 || (stream) == LL_DMA_STREAM_5 || \
+   (stream) == LL_DMA_STREAM_6 || (stream) == LL_DMA_STREAM_7)
 
 inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
 {
