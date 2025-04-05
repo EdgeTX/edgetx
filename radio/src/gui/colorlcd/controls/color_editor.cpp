@@ -106,6 +106,9 @@ class ColorBar : public FormField
     if (!bar) return;
 
     uint32_t key = *(uint32_t*)lv_event_get_param(e);
+    if (bar->invert)
+      key = (key == LV_KEY_LEFT) ? LV_KEY_RIGHT : (key == LV_KEY_RIGHT) ? LV_KEY_LEFT : key;
+
     if (key == LV_KEY_LEFT) {
       if (bar->value > 0) {
         uint32_t accel = rotaryEncoderGetAccel();
