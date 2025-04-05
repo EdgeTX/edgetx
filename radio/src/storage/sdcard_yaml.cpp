@@ -182,6 +182,12 @@ const char * loadRadioSettings()
 
     adcCalibDefaults();
 
+#if defined(SWITCH_LED_COUNT)
+    // Default colors if not set in radio yaml
+    memset(g_eeGeneral.switchLedOFFColor, 0, sizeof(g_eeGeneral.switchLedOFFColor));
+    memset(g_eeGeneral.switchLedONColor, 0xFF, sizeof(g_eeGeneral.switchLedONColor));
+#endif
+
     const char* error = loadRadioSettingsYaml(true);
     if (!error) {
       g_eeGeneral.chkSum = evalChkSum();
@@ -190,8 +196,6 @@ const char * loadRadioSettings()
 
     return error;
 }
-
-
 
 struct yaml_checksummer_ctx {
     FRESULT result;

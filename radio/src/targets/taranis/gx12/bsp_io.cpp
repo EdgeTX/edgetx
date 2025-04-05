@@ -27,10 +27,14 @@
 #include "bitfield.h"
 #include "drivers/pca95xx.h"
 #include "hal/switch_driver.h"
+#include "stm32_switch_driver.h"
 #include "myeeprom.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_ws2812.h"
 #include "timers_driver.h"
+
+uint8_t boardGetSwitchLedIdx(uint8_t idx);
+uint8_t boardGetSwitchLedOfst(uint8_t idx);
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -140,7 +144,7 @@ struct bsp_io_sw_def {
 static constexpr uint32_t RGB_OFFSET = (1 << 16); // first after bspio pins
 static uint16_t soft2POSLogicalState = 0xFFFF;
 
-static const bsp_io_sw_def _switch_defs[] = {
+static const bsp_io_sw_def _bsp_switch_defs[] = {
   { SWITCH_A, RGB_OFFSET + 7 },
   { SWITCH_B_H, SWITCH_B_L },
   { SWITCH_C_H, SWITCH_C_L },
@@ -155,35 +159,36 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
 {
   static uint32_t oldState = 0;
   SwitchHwPos pos = SWITCH_HW_UP;
-  const bsp_io_sw_def* def = &_switch_defs[idx];
+  const bsp_io_sw_def* def = &_bsp_switch_defs[idx];
 
   uint32_t state = _io_switches.state;
 
-  if (def->pin_low > RGB_OFFSET) {
+  uint8_t ledIdx = boardGetSwitchLedIdx(idx);
+
+  if (ledIdx > 0) {
     // Potential soft 2pos
     if ((SWITCH_CONFIG(idx) == SWITCH_TOGGLE)) {
       if ((state & def->pin_high) == 0) {
         pos = SWITCH_HW_DOWN;
       }
-    }
-    else {
+    } else {
       if (((state & def->pin_high) == 0) && ((state & def->pin_high) != (oldState & def->pin_high))) {
         soft2POSLogicalState ^= def->pin_high;
       }
       if ((soft2POSLogicalState & def->pin_high) == 0) {
         pos = SWITCH_HW_DOWN;
-      }
-      else {
+      } else {
         pos = SWITCH_HW_UP;
       }
-
     }
 
+    const RGBLedColor* c;
     if (pos == SWITCH_HW_UP) {
-      ws2812_set_color(def->pin_low - RGB_OFFSET, 0x0, 0x0, 0x0);
+      c = &g_eeGeneral.switchLedOFFColor[ledIdx - 1];
     } else {
-      ws2812_set_color(def->pin_low - RGB_OFFSET, 0xFF, 0xFF, 0xFF);
+      c = &g_eeGeneral.switchLedONColor[ledIdx - 1];
     }
+    ws2812_set_color(boardGetSwitchLedOfst(idx), c->r, c->g, c->b);
   }
   else if (!def->pin_low) {
     // 2POS switch

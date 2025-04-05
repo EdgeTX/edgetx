@@ -1026,6 +1026,11 @@ PACK(struct RadioData {
 
   NOBACKUP(uint8_t pwrOffIfInactive);
 
+#if defined(SWITCH_LED_COUNT)
+  RGBLedColor switchLedONColor[SWITCH_LED_COUNT];
+  RGBLedColor switchLedOFFColor[SWITCH_LED_COUNT];
+#endif
+
   NOBACKUP(uint8_t getBrightness() const
   {
 #if defined(OLED_SCREEN)
