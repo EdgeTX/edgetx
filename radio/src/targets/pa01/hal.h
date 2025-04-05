@@ -523,6 +523,10 @@
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
 
+// IMU / Gyro
+#define IMU_I2C_BUS I2C_Bus_2
+#define IMU_I2C_ADDRESS 0x6A
+
 #define LANDSCAPE_LCD_SML true
 #define LANDSCAPE_LCD_STD false
 #define LANDSCAPE_LCD_LRG false
