@@ -27,10 +27,14 @@ class InternalModuleWindow
 {
  public:
   InternalModuleWindow(Window *parent, FlexGridLayout& grid);
+  ~InternalModuleWindow();
 
  protected:
   Window* br_box = nullptr;
   Window* ant_box = nullptr;
+#if defined(HAS_USB_TO_INT_MODULE_SWITCH)
+  Window* usb_box = nullptr;
+#endif
 
   void setModuleType(int moduleType);
   void updateBaudrateLine();
