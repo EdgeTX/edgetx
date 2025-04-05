@@ -65,7 +65,7 @@ void stm32_usart_set_idle_irq(const stm32_usart_t* usart, uint32_t enabled);
 void stm32_usart_deinit(const stm32_usart_t* usart);
 void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart);
 
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
 void stm32_usart_rx_inversion(const stm32_usart_t* usart, bool on);
 void stm32_usart_tx_inversion(const stm32_usart_t* usart, bool off);
 #endif
