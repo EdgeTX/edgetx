@@ -678,7 +678,7 @@ void menuRadioHardware(event_t event)
               lcdDrawText(LCD_W - 3 * FW, y, "LED", flags);
             }
 
-            if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
+            if (attr && menuHorizontalPosition == 2 && event == EVT_KEY_BREAK(KEY_ENTER)) {
               swIndex = index;
               pushMenu(menuSwitchLedOne);
             }
