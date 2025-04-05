@@ -109,6 +109,26 @@ void INTERNAL_MODULE_OFF()
   bsp_output_clear(BSP_INTMOD_PWR_EN);
 }
 
+
+static bool intModuleUSB = false;
+void INTERNAL_MODULE_SET_USB(uint8_t on)
+{
+  if(on)
+  {
+    intModuleUSB = true;
+    gpio_set(USB_TO_INT_MODULE_GPIO);
+  } else {
+    intModuleUSB = false;
+    gpio_clear(USB_TO_INT_MODULE_GPIO);
+  }
+}
+
+uint8_t INTERNAL_MODULE_GET_USB(void)
+{
+  return intModuleUSB;
+}
+
+
 void EXTERNAL_MODULE_ON()
 {
   bsp_output_set(BSP_EXTMOD_PWR_EN);
@@ -125,6 +145,8 @@ void boardBLEarlyInit()
   timersInit();
   bsp_io_init();
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(USB_TO_INT_MODULE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  INTERNAL_MODULE_SET_USB(false);
 }
 
 
@@ -168,6 +190,9 @@ void boardInit()
 
   bsp_io_init();
 //  bsp_output_set(BSP_PWR_LED);
+  gpio_init(USB_TO_INT_MODULE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  INTERNAL_MODULE_SET_USB(false);
+
 
   ExtFLASH_InitRuntime();
 
