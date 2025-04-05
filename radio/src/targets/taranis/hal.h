@@ -2417,7 +2417,6 @@
 // External Module
 #if defined(RADIO_H5TEST)
 
-#undef HARDWARE_EXTERNAL_MODULE
   #define EXTMODULE_PWR_GPIO                 GPIO_PIN(GPIOD, 0) // PD.00
   #define EXTERNAL_MODULE_PWR_ON()           gpio_set(EXTMODULE_PWR_GPIO)
   #define EXTERNAL_MODULE_PWR_OFF()          gpio_clear(EXTMODULE_PWR_GPIO)
@@ -2437,9 +2436,9 @@
   #define EXTMODULE_USART_RX_GPIO            GPIO_PIN(GPIOA, 10)
   #define EXTMODULE_USART_TX_GPIO            GPIO_PIN(GPIOA, 9)
   #define EXTMODULE_USART_TX_DMA             GPDMA2
-  #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_GPDMA2_REQUEST_USART10_TX
+  #define EXTMODULE_USART_TX_DMA_CHANNEL     LL_GPDMA2_REQUEST_USART1_TX
   #define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_CHANNEL_1
-  #define EXTMODULE_USART_RX_DMA_CHANNEL     LL_GPDMA2_REQUEST_USART10_RX
+  #define EXTMODULE_USART_RX_DMA_CHANNEL     LL_GPDMA2_REQUEST_USART1_RX
   #define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_CHANNEL_2
   #define EXTMODULE_USART_IRQHandler         USART1_IRQHandler
   #define EXTMODULE_USART_IRQn               USART1_IRQn
@@ -2626,6 +2625,7 @@
 #else
   #define TELEMETRY_SET_INPUT           0
 #endif
+#endif
 #if defined(RADIO_V14) || defined(RADIO_V12)
   #define TELEMETRY_RX_REV_GPIO           GPIO_PIN(GPIOE, 0)  // PE.00
   #define TELEMETRY_TX_REV_GPIO           GPIO_PIN(GPIOE, 0)  // PE.00
@@ -2633,10 +2633,23 @@
 #if defined(RADIO_H5TEST)
 #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 9) // PB.09
 #define TELEMETRY_RX_GPIO               GPIO_UNDEF
+
+#define TELEMETRY_USART                 USART2
+#define TELEMETRY_DMA                   GPDMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_CHANNEL_3
+#define TELEMETRY_DMA_Channel_TX        LL_GPDMA2_REQUEST_USART2_TX
+#define TELEMETRY_DMA_TX_IRQHandler     GPDMA1_Channel3_IRQHandler
+#define TELEMETRY_DMA_TX_Stream_IRQ     GPDMA1_Channel3_IRQn
+#define TELEMETRY_USART_IRQHandler      USART2_IRQHandler
+#define TELEMETRY_USART_IRQn            USART2_IRQn
+#define TELEMETRY_EXTI_PORT             LL_SYSCFG_EXTI_PORTD
+#define TELEMETRY_EXTI_SYS_LINE         LL_SYSCFG_EXTI_LINE6
+#define TELEMETRY_EXTI_LINE             LL_EXTI_LINE_6
+#define TELEMETRY_EXTI_TRIGGER          LL_EXTI_TRIGGER_RISING
+
 #else
 #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOD, 5) // PD.05
 #define TELEMETRY_RX_GPIO               GPIO_PIN(GPIOD, 6) // PD.06
-#endif
 #define TELEMETRY_USART                 USART2
 #define TELEMETRY_DMA                   DMA1
 #define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_6
@@ -2650,6 +2663,7 @@
 #define TELEMETRY_EXTI_SYS_LINE         LL_SYSCFG_EXTI_LINE6
 #define TELEMETRY_EXTI_LINE             LL_EXTI_LINE_6
 #define TELEMETRY_EXTI_TRIGGER          LL_EXTI_TRIGGER_RISING
+#endif
 // TELEMETRY_EXTI IRQ
 #if !defined(RADIO_H5TEST)
 #if !defined(USE_EXTI9_5_IRQ)
@@ -2658,17 +2672,16 @@
 // overwrite priority
 #undef EXTI9_5_IRQ_Priority
 #define EXTI9_5_IRQ_Priority            TELEMETRY_EXTI_PRIO
-#endif
 
 #define TELEMETRY_TIMER                 TIM11
 #define TELEMETRY_TIMER_IRQn            TIM1_TRG_COM_TIM11_IRQn
 #define TELEMETRY_TIMER_IRQHandler      TIM1_TRG_COM_TIM11_IRQHandler
+#endif
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
 #define TELEMETRY_RX_FRAME_EXTI_LINE    LL_EXTI_LINE_4
 #define USE_EXTI4_IRQ
 #define EXTI4_IRQ_Priority 5
-#endif
 
 // PCBREV
 #if defined(RADIO_X7) && !defined(DEBUG_SEGGER_RTT)
