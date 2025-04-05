@@ -415,7 +415,7 @@ void EXTI0_IRQHandler() {  asm("BKPT"); }
 void EXTI1_IRQHandler() {  asm("BKPT"); }
 // void EXTI2_IRQHandler() {  asm("BKPT"); }
 // void EXTI3_IRQHandler() {  asm("BKPT"); }
-void EXTI4_IRQHandler() {  asm("BKPT"); }
+//void EXTI4_IRQHandler() {  asm("BKPT"); }
 void EXTI5_IRQHandler() {  asm("BKPT"); }
 void EXTI6_IRQHandler() {  asm("BKPT"); }
 void EXTI7_IRQHandler() {  asm("BKPT"); }
@@ -430,7 +430,7 @@ void EXTI15_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel0_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel1_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel2_IRQHandler() {  asm("BKPT"); }
-void GPDMA1_Channel3_IRQHandler() {  asm("BKPT"); }
+//void GPDMA1_Channel3_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel4_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel5_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel6_IRQHandler() {  asm("BKPT"); }
@@ -441,7 +441,7 @@ void DAC1_IRQHandler() {  asm("BKPT"); }
 void FDCAN1_IT0_IRQHandler() {  asm("BKPT"); }
 void FDCAN1_IT1_IRQHandler() {  asm("BKPT"); }
 void TIM1_BRK_IRQHandler() {  asm("BKPT"); }
-void TIM1_UP_IRQHandler() {  asm("BKPT"); }
+//void TIM1_UP_IRQHandler() {  asm("BKPT"); }
 void TIM1_TRG_COM_IRQHandler() {  asm("BKPT"); }
 void TIM1_CC_IRQHandler() {  asm("BKPT"); }
 void TIM2_IRQHandler() {  asm("BKPT"); }
@@ -489,7 +489,7 @@ void SPI6_IRQHandler() {  asm("BKPT"); }
 // void USART11_IRQHandler() {  asm("BKPT"); }
 void SAI1_IRQHandler() {  asm("BKPT"); }
 void SAI2_IRQHandler() {  asm("BKPT"); }
-void GPDMA2_Channel0_IRQHandler() {  asm("BKPT"); }
+//void GPDMA2_Channel0_IRQHandler() {  asm("BKPT"); }
 void GPDMA2_Channel1_IRQHandler() {  asm("BKPT"); }
 void GPDMA2_Channel2_IRQHandler() {  asm("BKPT"); }
 void GPDMA2_Channel3_IRQHandler() {  asm("BKPT"); }
