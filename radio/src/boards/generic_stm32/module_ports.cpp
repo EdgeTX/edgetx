@@ -152,13 +152,13 @@ DEFINE_STM32_SERIAL_PORT(ExternalModule, extmoduleUSART, INTMODULE_FIFO_SIZE, 0)
 
 
 #if (defined(EXTMODULE_TX_INVERT_GPIO) && defined(EXTMODULE_RX_INVERT_GPIO)) \
-  || defined(STM32H7) || defined(STM32H7RS)
+  || defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
 
 #define HAS_EXTMODULE_INVERTERS
 
 static void _extmod_set_inverted(uint8_t enable)
 {
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
 #ifdef EXTMODULE_USART
   stm32_usart_rx_inversion(&extmoduleUSART, !enable);
   stm32_usart_tx_inversion(&extmoduleUSART, !enable);
@@ -227,9 +227,11 @@ static const stm32_pulse_timer_t extmoduleTimer = {
 static_assert(__STM32_PULSE_IS_TIMER_CHANNEL_SUPPORTED(EXTMODULE_TIMER_Channel),
               "Unsupported timer channel");
 
+#if !defined(STM32H5) && !defined(STM32H7RS)
 // Make sure the DMA channel is supported
 static_assert(__STM32_DMA_IS_STREAM_SUPPORTED(EXTMODULE_TIMER_DMA_STREAM),
               "Unsupported DMA stream");
+#endif
 
 #if !defined(EXTMODULE_TIMER_DMA_IRQHandler)
 #error "Missing EXTMODULE_TIMER_DMA_IRQHandler definition"
@@ -311,7 +313,7 @@ static const stm32_usart_t sportUSART = {
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
 #endif
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
   .set_input = nullptr,
 #else
   .set_input = _set_sport_input,
@@ -336,13 +338,13 @@ static void _sport_direction_init()
 #endif
 
 
-#if (defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)) || defined(STM32H7) || defined(STM32H7RS)
+#if (defined(TELEMETRY_TX_REV_GPIO) && defined(TELEMETRY_RX_REV_GPIO)) || defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
 
 #define HAS_SPORT_INVERTER
 
 static void _sport_set_inverted(uint8_t enable)
 {
-#if defined(STM32H7) || defined(STM32H7RS)
+#if defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
 #if defined(TELEMETRY_USART)
   stm32_usart_rx_inversion(&sportUSART, !enable);
   stm32_usart_tx_inversion(&sportUSART, !enable);
