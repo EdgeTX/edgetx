@@ -86,6 +86,20 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
 
   updateBaudrateLine();
 #endif
+
+#if defined(HAS_USB_TO_INT_MODULE_SWITCH)
+  usb_box = parent->newLine(grid);
+  new StaticText(usb_box, rect_t{}, STR_INT_USB_SWITCH);
+  new ToggleSwitch(usb_box, rect_t{}, INTERNAL_MODULE_GET_USB, INTERNAL_MODULE_SET_USB);
+#endif
+
+}
+
+InternalModuleWindow::~InternalModuleWindow()
+{
+#if defined(HAS_USB_TO_INT_MODULE_SWITCH)
+  INTERNAL_MODULE_SET_USB(0);
+#endif
 }
 
 void InternalModuleWindow::setModuleType(int moduleType)
