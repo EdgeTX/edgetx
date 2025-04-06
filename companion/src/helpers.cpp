@@ -40,8 +40,6 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QRegularExpression>
-#include <QProcess>
-#include <QtGlobal>
 
 using namespace Helpers;
 
@@ -371,63 +369,35 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
     simuData->setCurrentModel(modelIdx);
   }
 
-  // the directory will be automatically deleted when QTemporaryDir goes out of scope
-  QTemporaryDir tmpDir(QDir::tempPath() + "/etx-XXXXXX");
-  if (tmpDir.isValid()) {
-    qDebug() << "Created temporary settings directory" << tmpDir.path();
-  }
-  else {
-    QString resultMsg = QCoreApplication::translate("Companion", "Error creating temporary directory for models and settings.");
-    QMessageBox::critical(NULL, QCoreApplication::translate("Companion", "Simulator Error"), resultMsg);
-    return;
-  }
+  SimulatorMainWindow * dialog = new SimulatorMainWindow(parent, simulatorId, flags);
+  dialog->setWindowModality(Qt::ApplicationModal);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-  simuData->fixModelFilenames();
-  Storage storage(tmpDir.path());
-  if (!storage.write(*simuData)) {
-    QString resultMsg = QCoreApplication::translate("Companion", "Error writing models and settings to temporary directory.");
-    QMessageBox::critical(NULL, QCoreApplication::translate("Companion", "Simulator Error"), resultMsg);
-    return;
-  }
-
-  const QString path = QCoreApplication::applicationDirPath();
-
-#if defined Q_OS_WIN
-  const QString program = "simulator.exe";
-#elif defined Q_OS_APPLE
-  const QString program = "simulator.dmg";
-#else
-  const QString program = QString("simulator%1%2").arg(VERSION_MAJOR).arg(VERSION_MINOR);
+  QObject::connect(dialog, &SimulatorMainWindow::destroyed, [simuData] (void) {
+#ifdef __APPLE__
+    simulatorRunning = false;
 #endif
-
-  QStringList arguments;
-  arguments << "--profile" << g.currentProfile().name()
-            << "--start-with" <<  "folder"
-            << "--flags" << QString::number(flags)
-            << tmpDir.path();
-
-  QProcess *simu = new QProcess(parent);
-
-  qDebug() << "Launching simulator with command:" << QDir::toNativeSeparators(path % "/" % program) << arguments;
-
-  // wait for the simulator to finish
-  int result = simu->execute(path % "/" % program, arguments);
+    // TODO simuData and Horus tmp directory is deleted on simulator close OR we could use it to get back data from the simulation
+    delete simuData;
+  });
 
   QString resultMsg;
-
-  if (result == -2)
-    resultMsg = QCoreApplication::translate("Companion", "Unable to start.");
-  else if (result == -1)
-    resultMsg = QCoreApplication::translate("Companion", "Crashed.");
-  else if (result > 0)
-    resultMsg = QCoreApplication::translate("Companion", "Exited with result code:") % QString(result);
-
-  if (result != 0)
+  if (dialog->getExitStatus(&resultMsg)) {
+    if (resultMsg.isEmpty())
+      resultMsg = QCoreApplication::translate("Companion", "Uknown error during Simulator startup.");
     QMessageBox::critical(NULL, QCoreApplication::translate("Companion", "Simulator Error"), resultMsg);
-
-  if (simuData)
-    delete simuData;
-
+    dialog->deleteLater();
+  }
+   else if (dialog->setRadioData(simuData)) {
+#ifdef __APPLE__
+    simulatorRunning = true;
+#endif
+    dialog->show();
+  }
+  else {
+    QMessageBox::critical(NULL, QCoreApplication::translate("Companion", "Data Load Error"), QCoreApplication::translate("Companion", "Error occurred while starting simulator."));
+    dialog->deleteLater();
+  }
 }
 
 QPixmap makePixMap(const QImage & image)

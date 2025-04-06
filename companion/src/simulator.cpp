@@ -129,10 +129,6 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
                                     QApplication::translate("SimulatorMain", "Data source type to use. One of:") + " (file|folder|sd)",
                                     QApplication::translate("SimulatorMain", "type"));
 
-  const QCommandLineOption optFlags(QStringList() << "flags" << "f",
-                                    QApplication::translate("SimulatorMain", "Flags passed from Companion"),
-                                    QApplication::translate("SimulatorMain", "flags"));
-
   cliOptions.addPositionalArgument(QApplication::translate("SimulatorMain", "data-source"),
                                    QApplication::translate("SimulatorMain", "Radio data (.bin/.eeprom/.etx) image file to use OR data folder path (for Horus-style radios).\n"
                                          "NOTE: any existing EEPROM data incompatible with the selected radio type may be overwritten!"),
@@ -142,7 +138,6 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
   cliOptions.addOption(optRadio);
   cliOptions.addOption(optSdDir);
   cliOptions.addOption(optStart);
-  cliOptions.addOption(optFlags);
 
   QStringList args = QCoreApplication::arguments();
 #ifdef Q_OS_WIN
@@ -216,10 +211,10 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     if (stTyp == "file") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
     }
-    else if (stTyp == "folder") {
+    else  if (stTyp == "folder") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_FOLDER;
     }
-    else if (stTyp == "sd") {
+    else  if (stTyp == "sd") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_SDPATH;
     }
     else {
@@ -229,17 +224,6 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 
     cliOptsFound = true;
   }
-
-  int flags = 0;
-
-  if (cliOptions.isSet(optFlags)) {
-    bool chk;
-    flags = cliOptions.value(optFlags).toInt(&chk);
-    if (!chk)
-      flags = 0;
-  }
-
-  simOptions->flags = flags;
 
   *profileId = pId;
   if (cliOptsFound)
@@ -308,6 +292,19 @@ int main(int argc, char *argv[])
   int profileId = (g.simuLastProfId() > -1 ? g.simuLastProfId() : g.id());
   SimulatorOptions simOptions = g.profile[profileId].simulatorOptions();
 
+  // TODO : defaults should be set in Profile::init()
+  if (simOptions.firmwareId.isEmpty()) {
+    simOptions.firmwareId = g.profile[profileId].fwType();
+  }
+
+  // DO NOT use saved simulatorId as could be changed in later releases
+  simOptions.simulatorId = SimulatorLoader::findSimulatorByName(Firmware::getFirmwareForId(simOptions.firmwareId)->getSimulatorId());
+
+  if (simOptions.dataFolder.isEmpty())
+    simOptions.dataFolder = g.eepromDir();
+  if (simOptions.sdPath.isEmpty())
+    simOptions.sdPath = g.profile[profileId].sdPath();
+
   // Handle startup options
 
   // check for command-line options
@@ -318,21 +315,7 @@ int main(int argc, char *argv[])
   if (cliResult == CommandLineExitErr)
     return finish(1);
 
-  // TODO : defaults should be set in Profile::init()
-  if (simOptions.firmwareId.isEmpty()) {
-    simOptions.firmwareId = g.profile[profileId].fwType();
-  }
-
-  if (simOptions.dataFolder.isEmpty())
-    simOptions.dataFolder = g.eepromDir();
-  if (simOptions.sdPath.isEmpty())
-    simOptions.sdPath = g.profile[profileId].sdPath();
-
-  // DO NOT use saved simulatorId as could be changed in later releases
-  // must be set after cli parse as --profile will load old data or blank
-  simOptions.simulatorId = SimulatorLoader::findSimulatorByName(Firmware::getFirmwareForId(simOptions.firmwareId)->getSimulatorId());
-
-    // Present GUI startup options dialog if necessary
+  // Present GUI startup options dialog if necessary
   if (cliResult == CommandLineNone || profileId == -1 || simOptions.simulatorId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty())) {
     SimulatorStartupDialog * dlg = new SimulatorStartupDialog(&simOptions, &profileId);
     int ret = dlg->exec();
@@ -374,7 +357,7 @@ int main(int argc, char *argv[])
   //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
 
   int result = 0;
-  SimulatorMainWindow * mainWindow = new SimulatorMainWindow(nullptr, simOptions.simulatorId, (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
+  SimulatorMainWindow * mainWindow = new SimulatorMainWindow(NULL, simOptions.simulatorId, SIMULATOR_FLAGS_STANDALONE);
   if ((result = mainWindow->getExitStatus(&resultMsg))) {
     if (resultMsg.isEmpty())
       resultMsg = QApplication::translate("SimulatorMain", "Unknown error during Simulator startup.");
