@@ -513,7 +513,9 @@
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
 
-#define LANDSCAPE_LCD true
+#define LANDSCAPE_LCD_SML false
+#define LANDSCAPE_LCD_STD true
+#define LANDSCAPE_LCD_LRG false
 #define PORTRAIT_LCD false
 
 #define LCD_W                           480
