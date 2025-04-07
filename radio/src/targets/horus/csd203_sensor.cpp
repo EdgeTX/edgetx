@@ -382,9 +382,14 @@ void initCSD203(void)
   }
 }
 
-uint16_t getCSD203BatteryVoltage(void)
+static uint16_t getCSD203BatteryVoltage(void)
 {  // 1000=1000mV
   return csd203extvbus;
+}
+
+uint16_t getBatteryVoltage()
+{
+  return getCSD203BatteryVoltage() / 10;
 }
 
 void readCSD203(void)

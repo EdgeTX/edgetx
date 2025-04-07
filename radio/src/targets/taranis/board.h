@@ -359,26 +359,26 @@ void setTopBatteryValue(uint32_t volts);
   #define BATTERY_DIVIDER 27500    // TODO: fix when we have proper schematics
   #define VOLTAGE_DROP 20
 #elif defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER)
-// --- MOSFET ---- R2 --- MCU
-//                     |__ R1 --- GND
-//
-#define VBAT_DIV_R1       160 // kOhms
-#define VBAT_DIV_R2       499 // kOhms
-#if defined(MANUFACTURER_JUMPER)
-#define VBAT_MOSFET_DROP   50 // * 10mV
+  // --- MOSFET ---- R1 --- MCU
+  //                     |__ R2 --- GND
+  //
+  #define VBAT_DIV_R1         499 // kOhms
+  #define VBAT_DIV_R2         160 // kOhms
+  #if defined(MANUFACTURER_JUMPER)
+    #define VBAT_MOSFET_DROP   50 // * 10mV
+  #else
+    #define VBAT_MOSFET_DROP   25 // * 10mV
+  #endif
 #else
-#define VBAT_MOSFET_DROP   25 // * 10mV
+  #if defined (RADIO_T8) || defined(RADIO_COMMANDO8)
+    #define BATTERY_DIVIDER 50000
+  #elif defined (RADIO_LR3PRO)
+    #define BATTERY_DIVIDER 39500
+  #else
+    #define BATTERY_DIVIDER 26214
+  #endif 
+  #define VOLTAGE_DROP         20
 #endif
-#else //--- MOSFET ---- R2 --- MCU
-#if defined (RADIO_T8) || defined(RADIO_COMMANDO8)
-  #define BATTERY_DIVIDER 50000
-#elif defined (RADIO_LR3PRO)
-  #define BATTERY_DIVIDER 39500
-#else
-  #define BATTERY_DIVIDER 26214
-#endif 
-#define VOLTAGE_DROP 20
-#endif //--- MOSFET ---- R2 --- MCU
 
 #if defined(RADIO_FAMILY_T20)
 #define NUM_TRIMS                               8
