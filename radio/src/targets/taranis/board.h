@@ -366,7 +366,7 @@ void setTopBatteryValue(uint32_t volts);
     #define BATTERY_DIVIDER 39500
   #else
     #define BATTERY_DIVIDER 26214
-  #endif 
+  #endif
   #define VOLTAGE_DROP         20
 #endif
 
