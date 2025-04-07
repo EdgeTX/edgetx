@@ -1261,9 +1261,7 @@ void LCD_ST7796S_Init(void) {
 
   delay_ms(120);
 
-  if( TouchControllerType == 1 ) {
-    lcdWriteCommand( 0x21 );
-  }
+  lcdWriteCommand( 0x21 );
 
   LCD_ST7796S_On();
 }
