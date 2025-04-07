@@ -120,12 +120,14 @@ void EXTERNAL_MODULE_OFF();
 #define BATTERY_MIN                   70 // 6.8V
 #define BATTERY_MAX                   86 // 8.6V
 
-// --- MOSFET ---- R2 --- MCU
-//                     |__ R1 --- GND
+// --- MOSFET ---- R1 --- MCU
+//                     |__ R2 --- GND
 //
-#define VBAT_DIV_R1       32  // kOhms
-#define VBAT_DIV_R2       101 // kOhms
-#define VBAT_MOSFET_DROP   25 // * 10mV
+#define VBAT_DIV_R1       680 // kOhms
+#define VBAT_DIV_R2       165 // kOhms
+#define VBAT_MOSFET_DROP    0 // * 10mV
+
+// #define BATTERY_DIVIDER 1211 // = 2047 * 165k / (165k + 680k) * 10 / 3.3V
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
