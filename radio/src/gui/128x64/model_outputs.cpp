@@ -87,15 +87,15 @@ int32_t gvValDisplay(int32_t val)
   return val;
 }
 
-int32_t gvValEdit(const char* title, int32_t val, int32_t offset, int min, int max, coord_t y, uint8_t attr, event_t event, bool active)
+int32_t gvValEdit(const char* title, int32_t val, int32_t offset, int min, int max, coord_t y, uint8_t attr, event_t event, bool active, LcdFlags flags)
 {
-  lcdDrawTextAlignedLeft(y, title);
+  lcdDrawText(0, y, title, flags);
   if (GV_IS_GV_VALUE(val, -GV_RANGELARGE, GV_RANGELARGE) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
     if (event == EVT_KEY_LONG(KEY_ENTER))
       killEvents(event);
-    return GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, val, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1, 0, event);
+    return GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, val, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|flags, 0, event);
   }
-  lcdDrawNumber(LIMITS_ONE_2ND_COLUMN, y, gvValDisplay(val - offset), attr|PREC1);
+  lcdDrawNumber(LIMITS_ONE_2ND_COLUMN, y, gvValDisplay(val - offset), attr|PREC1|flags);
   if (active) {
     return offset + checkIncDec(event, val - offset, min, max, EE_MODEL, nullptr, stops1000);
   }
@@ -110,6 +110,8 @@ void menuModelLimitsOne(event_t event)
   putsChn(11*FW, 0, s_currIdx+1, 0);
   lcdDrawNumber(19*FW, 0, PPM_CH_CENTER(s_currIdx)+channelOutputs[s_currIdx]/2, RIGHT);
   lcdDrawText(19*FW, 0, STR_US);
+
+  int chanVal = calcRESXto100(ex_chans[s_currIdx]);
 
   uint8_t old_editMode = s_editMode;
 
@@ -131,15 +133,15 @@ void menuModelLimitsOne(event_t event)
         break;
 
       case ITEM_OUTPUTONE_OFFSET:
-        ld->offset = gvValEdit(TR_LIMITS_HEADERS_SUBTRIM, ld->offset, 0, -1000, 1000, y, attr, event, active);
+        ld->offset = gvValEdit(TR_LIMITS_HEADERS_SUBTRIM, ld->offset, 0, -1000, 1000, y, attr, event, active, 0);
         break;
 
       case ITEM_OUTPUTONE_MIN:
-        ld->min = gvValEdit(STR_MIN, ld->min, LIMITS_MIN_MAX_OFFSET, -limit, 0, y, attr, event, active);
+        ld->min = gvValEdit(STR_MIN, ld->min, LIMITS_MIN_MAX_OFFSET, -limit, 0, y, attr, event, active, (chanVal < 0) ? BOLD : 0);
         break;
 
       case ITEM_OUTPUTONE_MAX:
-        ld->max = gvValEdit(STR_MAX, ld->max, -LIMITS_MIN_MAX_OFFSET, 0, limit, y, attr, event, active);
+        ld->max = gvValEdit(STR_MAX, ld->max, -LIMITS_MIN_MAX_OFFSET, 0, limit, y, attr, event, active, (chanVal > 0) ? BOLD : 0);
         break;
 
       case ITEM_OUTPUTONE_DIR:
@@ -256,10 +258,15 @@ void menuModelLimits(event_t event)
 
     if (ld->name[0] == 0) {
       putsChn(0, y, k+1, (sub==k) ? INVERS : 0);
-    }
-    else {
+    } else {
       lcdDrawSizedText(0, y, ld->name, sizeof(ld->name), ((sub==k) ? INVERS : 0) | LEFT);
     }
+
+    int16_t v = (ld->revert) ? -LIMIT_OFS(ld) : LIMIT_OFS(ld);
+    char swVal = ' ';  // ' ', '<', '>'
+    if ((channelOutputs[k] - v) > 50) swVal = (ld->revert ? 127 : 126); // Switch to raw inputs?  - remove trim!
+    if ((channelOutputs[k] - v) < -50) swVal = (ld->revert ? 126 : 127);
+    lcdDrawChar(71, y, swVal);
 
     coord_t limitsMinPos = (g_eeGeneral.ppmunit == PPM_US) ? 12*FW+1 : 12*FW-2;
     int precThreshold = (g_eeGeneral.ppmunit == PPM_US) ? 804 : 0;
