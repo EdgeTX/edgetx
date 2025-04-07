@@ -131,7 +131,12 @@ void OutputEditWindow::buildBody(Window *form)
   auto off = new GVarNumberEdit(line, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
                                 GET_SET_DEFAULT(output->offset), PREC1);
   off->setFastStep(20);
-  off->setAccelFactor(8);
+  off->setAccelFactor(16);
+  off->setDisplayHandler([=](int value) {
+    if (g_eeGeneral.ppmunit == PPM_US)
+      value = value * 128 / 25;
+    return formatNumberAsString(value, PREC1);
+  });
 
   // Min
   line = form->newLine(grid);
