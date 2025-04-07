@@ -395,7 +395,7 @@ void etx_bg_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
   if (colorFlags & RGB_FLAG) {
     etx_remove_bg_color(obj, selector);
     lv_obj_set_style_bg_color(obj,
-                              makeLvColor(colorToRGB(colorFlags)), selector);
+                              makeLvColor(colorFlags), selector);
   } else {
     lv_obj_remove_local_style_prop(obj, LV_STYLE_BG_COLOR, selector);
     etx_bg_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
@@ -423,7 +423,7 @@ void etx_txt_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
   if (colorFlags & RGB_FLAG) {
     etx_remove_txt_color(obj, selector);
     lv_obj_set_style_text_color(obj,
-                                makeLvColor(colorToRGB(colorFlags)), selector);
+                                makeLvColor(colorFlags), selector);
   } else {
     lv_obj_remove_local_style_prop(obj, LV_STYLE_TEXT_COLOR, selector);
     etx_txt_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
@@ -460,6 +460,19 @@ void etx_arc_color(lv_obj_t* obj, LcdColorIndex colorIdx,
   etx_obj_add_style(obj, styles->arc_color[colorIdx], selector);
 }
 
+void etx_arc_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector)
+{
+  if (colorFlags & RGB_FLAG) {
+    etx_remove_arc_color(obj, selector);
+    lv_obj_set_style_arc_color(obj,
+                              makeLvColor(colorFlags), selector);
+  } else {
+    lv_obj_remove_local_style_prop(obj, LV_STYLE_ARC_COLOR, selector);
+    etx_arc_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
+  }
+}
+
 void etx_remove_line_color(lv_obj_t* obj, lv_style_selector_t selector)
 {
   // Remove styles
@@ -473,6 +486,19 @@ void etx_line_color(lv_obj_t* obj, LcdColorIndex colorIdx,
   // Remove old style first
   etx_remove_line_color(obj, selector);
   etx_obj_add_style(obj, styles->line_color[colorIdx], selector);
+}
+
+void etx_line_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector)
+{
+  if (colorFlags & RGB_FLAG) {
+    etx_remove_line_color(obj, selector);
+    lv_obj_set_style_line_color(obj,
+                              makeLvColor(colorFlags), selector);
+  } else {
+    lv_obj_remove_local_style_prop(obj, LV_STYLE_LINE_COLOR, selector);
+    etx_line_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
+  }
 }
 
 void etx_remove_img_color(lv_obj_t* obj, lv_style_selector_t selector)

@@ -45,7 +45,13 @@ struct LvglParamFuncOrValue
     uint32_t value;
   };
 
+  uint32_t currVal  = -1;
+
   void parse(lua_State *L, ParamType typ = PVALUE);
+  void forceUpdate() { currVal = -1; }
+  bool changedColor(LcdFlags newFlags);
+  bool changedText(const char* s);
+  bool changedValue(uint32_t v);
 };
 
 //-----------------------------------------------------------------------------
@@ -91,7 +97,6 @@ class LvglWidgetObjectBase
   bool clearRequest = false;
   LuaScriptManager *lvglManager = nullptr;
   coord_t x = 0, y = 0, w = LV_SIZE_CONTENT, h = LV_SIZE_CONTENT;
-  LcdFlags currentColor = -1;
   int getVisibleFunction = LUA_REFNIL;
   int getSizeFunction = LUA_REFNIL;
   int getPosFunction = LUA_REFNIL;
@@ -104,8 +109,6 @@ class LvglWidgetObjectBase
   virtual void parseParam(lua_State *L, const char *key);
 
   void getParams(lua_State *L, int index);
-
-  bool colorChanged(LcdFlags newColor);
 
   void clearRef(lua_State *L, int& ref);
 
@@ -156,8 +159,6 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  uint32_t textHash = -1;
-
   LvglParamFuncOrValue font = { .function = LUA_REFNIL, .flags = FONT(STD)};
   LvglParamFuncOrValue align = { .function = LUA_REFNIL, .flags = LEFT};
   LvglParamFuncOrValue txt = { .function = LUA_REFNIL, .txt = ""};
@@ -414,16 +415,25 @@ class LvglWidgetArc : public LvglWidgetRoundObject
   LvglWidgetArc() : LvglWidgetRoundObject() {}
 
   void setColor(LcdFlags newColor) override;
+  void setBgColor(LcdFlags newColor);
   void setOpacity(uint8_t newOpa) override;
+  void setBgOpacity(uint8_t newOpa);
   void setStartAngle(coord_t angle);
   void setEndAngle(coord_t angle);
+  void setBgStartAngle(coord_t angle);
+  void setBgEndAngle(coord_t angle);
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
+  bool rounded = false;
   LvglParamFuncOrValue startAngle = { .function = LUA_REFNIL, .coord = 0};
-  LvglParamFuncOrValue endAngle = { .function = LUA_REFNIL, .coord = 0};
+  LvglParamFuncOrValue endAngle = { .function = LUA_REFNIL, .coord = 360};
+  LvglParamFuncOrValue bgColor = { .function = LUA_REFNIL, .flags = (LcdFlags)-1};
+  LvglParamFuncOrValue bgOpacity = { .function = LUA_REFNIL, .value = LV_OPA_TRANSP};
+  LvglParamFuncOrValue bgStartAngle = { .function = LUA_REFNIL, .coord = 0};
+  LvglParamFuncOrValue bgEndAngle = { .function = LUA_REFNIL, .coord = 360};
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
@@ -431,6 +441,10 @@ class LvglWidgetArc : public LvglWidgetRoundObject
   {
     setStartAngle(startAngle.coord);
     setEndAngle(endAngle.coord);
+    setBgStartAngle(bgStartAngle.coord);
+    setBgEndAngle(bgEndAngle.coord);
+    setBgColor(bgColor.flags);
+    setBgOpacity(bgOpacity.value);
     LvglWidgetRoundObject::refresh();
   }
 };
@@ -478,21 +492,25 @@ class LvglWidgetTextButtonBase : public LvglWidgetObject
   void setText(const char *s);
   void setSize(coord_t w, coord_t h) override;
   void setColor(LcdFlags newColor) override;
+  void setTextColor(LcdFlags newColor);
   void setRounded();
 
+  bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
  protected:
-  uint32_t textHash = -1;
-
-  const char *txt = "";
+  LvglParamFuncOrValue txt = { .function = LUA_REFNIL, .txt = ""};
   LcdFlags font = FONT(STD);
   coord_t rounded = -1;
-  LcdFlags textColor = -1;
-  LcdFlags currentTextColor = -1;
+  LvglParamFuncOrValue textColor = { .function = LUA_REFNIL, .flags = (LcdFlags)-1};
   int pressFunction = LUA_REFNIL;
 
   void parseParam(lua_State *L, const char *key) override;
+  void refresh() override
+  {
+    setTextColor(textColor.flags);
+    LvglWidgetObject::refresh();
+  }
 };
 
 //-----------------------------------------------------------------------------
