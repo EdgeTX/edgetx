@@ -295,6 +295,8 @@
 #define TR_FS_COLOR_LIST               "Bruger","Fra","Hvid","Rød","Grøn","Gul","Orange","Blå","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Altid til"
+#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
+#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
 #define TR_GROUPS                      "Altid til gruppe"
 #define TR_LAST                        "Sidste"
 #define TR_MORE_INFO                   "Mere info"
