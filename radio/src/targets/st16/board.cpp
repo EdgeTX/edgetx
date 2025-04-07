@@ -218,13 +218,16 @@ void boardInit()
 
   usbInit();
 
+#if defined(LED_STRIP_GPIO)
+  rgbLedInit();
+#endif
+
 #if !defined(DEBUG_SEGGER_RTT)
   // prime debounce state...
   usbPlugged();
 
   if (usbPlugged()) {
     delaysInit();
-    ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
     uint8_t ledOn = 0;
     while (usbPlugged()) {
       if(IS_UCHARGER_ACTIVE()) {
@@ -242,7 +245,6 @@ void boardInit()
   }
 #endif
 
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
   led_strip_off();
 
   // uint32_t press_start = 0;
