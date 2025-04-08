@@ -207,12 +207,6 @@
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOG, 14)
 
-
-#define HAS_USB_TO_INT_MODULE_SWITCH 1
-#define USB_TO_INT_MODULE_GPIO      GPIO_PIN(GPIOE, 4)  // PE.04
-
-// TODO! Check IOLL1 to PI.01 connectivity!
-
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
