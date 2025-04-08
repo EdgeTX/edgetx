@@ -236,6 +236,12 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
       wait_loop_index--;
     }
   }
+
+  /* Start ADC calibration in mode single-ended or differential */
+  LL_ADC_StartCalibration(ADCx, LL_ADC_CALIB_OFFSET_LINEARITY, LL_ADC_SINGLE_ENDED);
+
+  /* Wait for calibration completion */
+  while (LL_ADC_IsCalibrationOnGoing(ADCx) != 0UL);
 #endif
 
 #if defined(LL_ADC_RESOLUTION_12B_OPT)
