@@ -32,7 +32,6 @@ struct hw_switch_def {
   SwitchHwType type;
 #if defined(SWITCH_LED_COUNT)
   uint8_t      ledIdx;
-  uint8_t      ledOfst;
 #endif
 };
 
@@ -103,7 +102,6 @@ swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }
 
 #if defined(SWITCH_LED_COUNT)
 uint8_t boardGetSwitchLedIdx(uint8_t idx) { return _switch_defs[idx].ledIdx; }
-uint8_t boardGetSwitchLedOfst(uint8_t idx) { return _switch_defs[idx].ledOfst; }
 #endif
 
 switch_display_pos_t switchGetDisplayPosition(uint8_t idx)

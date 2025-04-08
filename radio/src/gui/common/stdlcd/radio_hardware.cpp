@@ -190,11 +190,11 @@ void menuSwitchLedOne(event_t event)
         break;
 
       case CFS_FIELD_ON_COLOR:
-        menuSwitchColor(y, g_eeGeneral.switchLedONColor[boardGetSwitchLedIdx(swIndex) - 1], STR_OFFON[1], attr, event);
+        menuSwitchColor(y, g_model.functionSwitchLedONColor[boardGetSwitchLedIdx(swIndex)], STR_OFFON[1], attr, event);
         break;
 
       case CFS_FIELD_OFF_COLOR:
-        menuSwitchColor(y, g_eeGeneral.switchLedOFFColor[boardGetSwitchLedIdx(swIndex) - 1], STR_OFFON[0], attr, event);
+        menuSwitchColor(y, g_model.functionSwitchLedOFFColor[boardGetSwitchLedIdx(swIndex)], STR_OFFON[0], attr, event);
         break;
     }
 

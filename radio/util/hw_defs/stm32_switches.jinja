@@ -16,7 +16,7 @@ static const stm32_switch_t _switch_defs[] = {
     nullptr, 0,
     SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }},
     {% if switch.led_idx %}
-    {{ switch.led_idx }}, {{ switch.led_ofst }},
+    {{ switch.led_idx }}
     {% endif %}
   },
   {% elif switch.type == '3POS' %}

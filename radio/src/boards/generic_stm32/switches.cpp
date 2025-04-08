@@ -60,7 +60,6 @@ uint8_t boardGetMaxSwitches() { return n_switches; }
 uint8_t boardGetMaxFctSwitches() { return n_fct_switches; }
 #if defined(SWITCH_LED_COUNT)
 uint8_t boardGetSwitchLedIdx(uint8_t idx) { return _switch_defs[idx].ledIdx; }
-uint8_t boardGetSwitchLedOfst(uint8_t idx) { return _switch_defs[idx].ledOfst; }
 #endif
 
 swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }

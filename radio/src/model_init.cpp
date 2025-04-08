@@ -100,6 +100,21 @@ void setVendorSpecificModelDefaults(uint8_t id)
 #endif
 }
 
+#if defined(SWITCH_LED_COUNT)
+void initCustomSwitchColors()
+{
+  // Ensure GX12 SA & SD have default colors if not set in model yaml
+  extern uint8_t boardGetMaxSwitches();
+  extern uint8_t boardGetSwitchLedIdx(uint8_t idx);
+  for (int i = 0; i < boardGetMaxSwitches(); i += 1) {
+    if (boardGetSwitchLedIdx(i) > 0) {
+      g_model.functionSwitchLedOFFColor[i].setColor(0);
+      g_model.functionSwitchLedONColor[i].setColor(0xFFFFFF);
+    }
+  }
+}
+#endif
+
 void applyDefaultTemplate()
 {
   setDefaultInputs();
@@ -114,12 +129,6 @@ void applyDefaultTemplate()
   g_model.functionSwitchGroup = DEFAULT_FS_GROUPS;
   g_model.functionSwitchStartConfig = DEFAULT_FS_STARTUP_CONFIG;
   g_model.functionSwitchLogicalState = 0;
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i++) {
-    g_model.functionSwitchLedOFFColor[i].setColor(0);
-    g_model.functionSwitchLedONColor[i].setColor(0xFFFFFF);
-  }
-#endif
 #endif
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -127,6 +136,10 @@ void applyDefaultTemplate()
     g_model.functionSwitchLedOFFColor[i].setColor(0);
     g_model.functionSwitchLedONColor[i].setColor(0xFFFFFF);
   }
+#endif
+
+#if defined(SWITCH_LED_COUNT)
+  initCustomSwitchColors();
 #endif
 
 #if defined(COLORLCD)

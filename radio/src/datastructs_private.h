@@ -644,9 +644,14 @@ struct RGBLedColor {
 };
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  #if defined(SWITCH_LED_COUNT)
+    #define EXTRA_LEDS SWITCH_LED_COUNT
+  #else
+    #define EXTRA_LEDS 0
+  #endif
   #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
-    RGBLedColor functionSwitchLedONColor[NUM_FUNCTIONS_SWITCHES]; \
-    RGBLedColor functionSwitchLedOFFColor[NUM_FUNCTIONS_SWITCHES];
+    RGBLedColor functionSwitchLedONColor[NUM_FUNCTIONS_SWITCHES + EXTRA_LEDS] FUNC(cfs_led_is_active);; \
+    RGBLedColor functionSwitchLedOFFColor[NUM_FUNCTIONS_SWITCHES + EXTRA_LEDS] FUNC(cfs_led_is_active);;
 #else
   #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS
 #endif
@@ -1025,11 +1030,6 @@ PACK(struct RadioData {
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);
-
-#if defined(SWITCH_LED_COUNT)
-  RGBLedColor switchLedONColor[SWITCH_LED_COUNT];
-  RGBLedColor switchLedOFFColor[SWITCH_LED_COUNT];
-#endif
 
   NOBACKUP(uint8_t getBrightness() const
   {

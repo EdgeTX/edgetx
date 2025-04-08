@@ -34,7 +34,6 @@
 #include "timers_driver.h"
 
 uint8_t boardGetSwitchLedIdx(uint8_t idx);
-uint8_t boardGetSwitchLedOfst(uint8_t idx);
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -184,11 +183,11 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
 
     const RGBLedColor* c;
     if (pos == SWITCH_HW_UP) {
-      c = &g_eeGeneral.switchLedOFFColor[ledIdx - 1];
+      c = &g_model.functionSwitchLedOFFColor[ledIdx];
     } else {
-      c = &g_eeGeneral.switchLedONColor[ledIdx - 1];
+      c = &g_model.functionSwitchLedONColor[ledIdx];
     }
-    ws2812_set_color(boardGetSwitchLedOfst(idx), c->r, c->g, c->b);
+    ws2812_set_color(ledIdx, c->r, c->g, c->b);
   }
   else if (!def->pin_low) {
     // 2POS switch

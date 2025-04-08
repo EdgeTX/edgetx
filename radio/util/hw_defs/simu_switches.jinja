@@ -4,7 +4,7 @@
 const hw_switch_def _switch_defs[] = {
 {% for switch in regular_switches %}
   {% if switch.led_idx %}
-  { "{{ switch.name }}", SWITCH_HW_{{ switch.type }}, {{ switch.led_idx }}, {{ switch.led_ofst }} },
+  { "{{ switch.name }}", SWITCH_HW_{{ switch.type }}, {{ switch.led_idx }} },
   {% else %}
   { "{{ switch.name }}", SWITCH_HW_{{ switch.type }} },
   {% endif %}
