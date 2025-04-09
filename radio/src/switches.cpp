@@ -727,15 +727,22 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
     } else
 #endif
     {
-      if (flags & GETSWITCH_MIDPOS_DELAY) {
-        result = SWITCH_POSITION(cs_idx);
-      } else {
-        div_t qr = div(cs_idx, 3);
-        if (SWITCH_EXISTS(qr.quot)) {
-          result = switchState(cs_idx);
+      div_t qr = div(cs_idx, 3);
+      if (SWITCH_EXISTS(qr.quot)) {
+        auto sw_cfg = (SwitchConfig)SWITCH_CONFIG(qr.quot);
+        if (flags & GETSWITCH_MIDPOS_DELAY) {
+          result = SWITCH_POSITION(cs_idx);
+          // Handle 2POS switch installed in 3POS slot
+          if (!result && qr.rem == SWITCH_HW_DOWN && sw_cfg == SWITCH_2POS)
+            result = SWITCH_POSITION(cs_idx - 1);
         } else {
-          result = false;
+          result = switchState(cs_idx);
+          // Handle 2POS switch installed in 3POS slot
+          if (!result && qr.rem == SWITCH_HW_DOWN && sw_cfg == SWITCH_2POS)
+            result = switchState(cs_idx - 1);
         }
+      } else {
+         result = false;
       }
     }
   }
