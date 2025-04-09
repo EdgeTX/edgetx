@@ -73,6 +73,10 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_TIMER3_COUNTDOWN_BEEP,
 #if defined(FUNCTION_SWITCHES)
   ITEM_MODEL_SETUP_LABEL,
+#if defined(SWITCH_LED_COUNT) // Temp: to handle GX12 SA & SD colors (TODO: unify custom switches)
+  ITEM_MODEL_SETUP_SA,  
+  ITEM_MODEL_SETUP_SD,
+#endif
   ITEM_MODEL_SETUP_SW1,
   ITEM_MODEL_SETUP_SW2,
   ITEM_MODEL_SETUP_SW3,
@@ -356,6 +360,26 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 #define EXTRA_MODULE_ROWS
 
 #if defined(FUNCTION_SWITCHES)
+#if defined(SWITCH_LED_COUNT) // Temp: to handle GX12 SA & SD colors (TODO: unify custom switches)
+  #define FUNCTION_SWITCHES_ROWS        0, \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(0),  \
+                                        FS_ROW(G1_ROW(LABEL())), \
+                                        FS_ROW(G1_ROW(0)),  \
+                                        FS_ROW(G1_ROW(0)),  \
+                                        FS_ROW(G2_ROW(LABEL())), \
+                                        FS_ROW(G2_ROW(0)),  \
+                                        FS_ROW(G2_ROW(0)),  \
+                                        FS_ROW(G3_ROW(LABEL())), \
+                                        FS_ROW(G3_ROW(0)),  \
+                                        FS_ROW(G3_ROW(0)),
+#else
   #define FUNCTION_SWITCHES_ROWS        0, \
                                         FS_ROW(0),  \
                                         FS_ROW(0),  \
@@ -372,6 +396,7 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
                                         FS_ROW(G3_ROW(LABEL())), \
                                         FS_ROW(G3_ROW(0)),  \
                                         FS_ROW(G3_ROW(0)),
+#endif
 #else
   #define FUNCTION_SWITCHES_ROWS
 #endif
@@ -742,6 +767,62 @@ void menuModelCFSOne(event_t event)
     y += FH;
   }
 }
+
+#if defined(SWITCH_LED_COUNT)
+uint8_t boardGetSwitchLedIdx(uint8_t idx);
+
+enum CSWFields {
+  CSW_FIELD_COLOR_LABEL,
+  CSW_FIELD_ON_COLOR,
+  CSW_FIELD_OFF_COLOR,
+  CSW_FIELD_COUNT
+};
+
+void menuSwitchLedOne(event_t event)
+{
+  std::string s(STR_CHAR_SWITCH);
+  s += switchGetName(cfsIndex);
+
+  SUBMENU(s.c_str(), CSW_FIELD_COUNT,
+    {
+      LABEL(), 3, 3,
+    });
+  
+  int8_t sub = menuVerticalPosition;
+  int8_t editMode = s_editMode;
+
+  coord_t y = MENU_HEADER_HEIGHT + 1;
+
+  for (int k = 0; k < NUM_BODY_LINES; k += 1) {
+    int i = k + menuVerticalOffset;
+    for (int j = 0; j <= i; j += 1) {
+      if (j < (int)DIM(mstate_tab) && mstate_tab[j] == HIDDEN_ROW) {
+        i += 1;
+      }
+    }
+    LcdFlags attr = (sub == i ? (editMode > 0 ? BLINK | INVERS : INVERS) : 0);
+
+    switch(i) {
+      case CSW_FIELD_COLOR_LABEL:
+        lcdDrawText(0, y, STR_BLCOLOR);
+        lcdDrawText(LCD_W - 6 * FW, y, "R", RIGHT | SMLSIZE);
+        lcdDrawText(LCD_W - 3 * FW, y, "G", RIGHT | SMLSIZE);
+        lcdDrawText(LCD_W, y, "B", RIGHT | SMLSIZE);
+        break;
+
+      case CSW_FIELD_ON_COLOR:
+        menuCFSColor(y, g_model.functionSwitchLedONColor[boardGetSwitchLedIdx(cfsIndex)], STR_OFFON[1], attr, event);
+        break;
+
+      case CSW_FIELD_OFF_COLOR:
+        menuCFSColor(y, g_model.functionSwitchLedOFFColor[boardGetSwitchLedIdx(cfsIndex)], STR_OFFON[0], attr, event);
+        break;
+    }
+
+    y += FH;
+  }
+}
+#endif
 #endif
 
 void menuModelSetup(event_t event)
@@ -978,6 +1059,23 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_LABEL:
         expandState.functionSwitches = expandableSection(y, STR_FUNCTION_SWITCHES, expandState.functionSwitches, attr, event);
         break;
+
+#if defined(SWITCH_LED_COUNT)
+      // Temporary to handle GX12 SA & SD colors (TODO: unify switch handling)
+      case ITEM_MODEL_SETUP_SA:
+      case ITEM_MODEL_SETUP_SD:
+      {
+        int index = (k == ITEM_MODEL_SETUP_SA) ? 0 : 3;
+        lcdDrawSizedText(INDENT_WIDTH, y, STR_CHAR_SWITCH, 2, attr);
+        lcdDrawText(lcdNextPos, y, switchGetName(index), attr);
+
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
+          cfsIndex = index;
+          pushMenu(menuSwitchLedOne);
+        }
+        break;
+      }
+#endif
 
       case ITEM_MODEL_SETUP_SW1:
       case ITEM_MODEL_SETUP_SW2:

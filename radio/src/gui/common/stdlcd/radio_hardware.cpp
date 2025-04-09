@@ -37,10 +37,6 @@
   #include "telemetry/crossfire.h"
 #endif
 
-#if defined(SWITCH_LED_COUNT)
-uint8_t boardGetSwitchLedIdx(uint8_t idx);
-#endif
-
 #if LCD_W >= 212
   #define HW_SETTINGS_COLUMN1            12*FW
   #define HW_SETTINGS_COLUMN2            (20*FW - 3)
@@ -119,90 +115,6 @@ static void onHardwareAntennaSwitchConfirm(const char * result)
 }
 #endif
 
-#if defined(SWITCH_LED_COUNT)
-static int swIndex;
-
-static bool checkSwitchColorAvailable(int col)
-{
-  return col > 0;
-}
-
-enum CFSFields {
-  CFS_FIELD_COLOR_LABEL,
-  CFS_FIELD_ON_COLOR,
-  CFS_FIELD_OFF_COLOR,
-  CFS_FIELD_COUNT
-};
-
-static void menuSwitchColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags attr, event_t event)
-{
-  uint8_t selectedColor = getRGBColorIndex(color.getColor());
-  selectedColor = editChoice(30, y, title, \
-    STR_FS_COLOR_LIST, selectedColor, 0, DIM(colorTable), menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH, checkSwitchColorAvailable);
-  if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
-    color.setColor(colorTable[selectedColor - 1]);
-    storageDirty(EE_GENERAL);
-  }
-
-  lcdDrawNumber(LCD_W - 6 * FW, y, color.r, (menuHorizontalPosition == 1 ? attr : 0) | RIGHT);
-  if (attr && menuHorizontalPosition == 1)
-    color.r = checkIncDecGen(event, color.r, 0, 255);
-
-  lcdDrawNumber(LCD_W - 3 * FW, y, color.g, (menuHorizontalPosition == 2 ? attr : 0) | RIGHT);
-  if (attr && menuHorizontalPosition == 2)
-    color.g = checkIncDecGen(event, color.g, 0, 255);
-
-  lcdDrawNumber(LCD_W, y, color.b, (menuHorizontalPosition == 3 ? attr : 0) | RIGHT);
-  if (attr && menuHorizontalPosition == 3)
-    color.b = checkIncDecGen(event, color.b, 0, 255);
-}
-
-void menuSwitchLedOne(event_t event)
-{
-  std::string s(STR_CHAR_SWITCH);
-  s += switchGetName(swIndex);
-
-  SUBMENU(s.c_str(), CFS_FIELD_COUNT,
-    {
-      LABEL(), 3, 3,
-    });
-  
-  int8_t sub = menuVerticalPosition;
-  int8_t editMode = s_editMode;
-
-  coord_t y = MENU_HEADER_HEIGHT + 1;
-
-  for (int k = 0; k < NUM_BODY_LINES; k += 1) {
-    int i = k + menuVerticalOffset;
-    for (int j = 0; j <= i; j += 1) {
-      if (j < (int)DIM(mstate_tab) && mstate_tab[j] == HIDDEN_ROW) {
-        i += 1;
-      }
-    }
-    LcdFlags attr = (sub == i ? (editMode > 0 ? BLINK | INVERS : INVERS) : 0);
-
-    switch(i) {
-      case CFS_FIELD_COLOR_LABEL:
-        lcdDrawText(0, y, STR_BLCOLOR);
-        lcdDrawText(LCD_W - 6 * FW, y, "R", RIGHT | SMLSIZE);
-        lcdDrawText(LCD_W - 3 * FW, y, "G", RIGHT | SMLSIZE);
-        lcdDrawText(LCD_W, y, "B", RIGHT | SMLSIZE);
-        break;
-
-      case CFS_FIELD_ON_COLOR:
-        menuSwitchColor(y, g_model.functionSwitchLedONColor[boardGetSwitchLedIdx(swIndex)], STR_OFFON[1], attr, event);
-        break;
-
-      case CFS_FIELD_OFF_COLOR:
-        menuSwitchColor(y, g_model.functionSwitchLedOFFColor[boardGetSwitchLedIdx(swIndex)], STR_OFFON[0], attr, event);
-        break;
-    }
-
-    y += FH;
-  }
-}
-#endif
-
 static uint8_t _dispSerialPort(uint8_t port_nr)
 {
   auto port = serialGetPort(port_nr);
@@ -239,11 +151,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   auto max_switches = switchGetMaxSwitches();
   for (int i = ITEM_RADIO_HARDWARE_SWITCH; i <= ITEM_RADIO_HARDWARE_SWITCH_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_SWITCH;
-#if defined(SWITCH_LED_COUNT)
-    tab[i] = switchIsFlex(idx) ? 2 : (idx < max_switches ? (boardGetSwitchLedIdx(idx) ? 2 : 1) : HIDDEN_ROW);
-#else
     tab[i] = switchIsFlex(idx) ? 2 : idx < max_switches ? 1 : HIDDEN_ROW;
-#endif
   }
 
 #if defined(BATTGRAPH)
@@ -671,18 +579,6 @@ void menuRadioHardware(event_t event)
             config =
                 editChoice(HW_SETTINGS_COLUMN2, y, "", STR_SWTYPES, config,
                            SWITCH_NONE, switchGetMaxType(index), flags, event);
-
-#if defined(SWITCH_LED_COUNT)
-            flags = menuHorizontalPosition == 2 ? attr : 0;
-            if (boardGetSwitchLedIdx(index)) {
-              lcdDrawText(LCD_W - 3 * FW, y, "LED", flags);
-            }
-
-            if (attr && menuHorizontalPosition == 2 && event == EVT_KEY_BREAK(KEY_ENTER)) {
-              swIndex = index;
-              pushMenu(menuSwitchLedOne);
-            }
-#endif
 
             if (attr && checkIncDec_Ret) {
               swconfig_t mask = SWITCH_CONFIG_MASK(index);
