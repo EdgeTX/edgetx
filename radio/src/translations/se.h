@@ -304,8 +304,8 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                        "Grupp"
 #define TR_GROUP_ALWAYS_ON              "Alltid på"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_FS_ON_COLOR                  TR("PÅ:","PÅ färg")
+#define TR_FS_OFF_COLOR                 TR("AV:","AV färg")
 #define TR_GROUPS                       "Always on groups"
 #define TR_LAST                         "Last"
 #define TR_MORE_INFO                    "More info"
