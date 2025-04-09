@@ -411,6 +411,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case FunctionSwitchColors:
       return IS_RADIOMASTER_GX12(board);
 
+    case FunctionSwitchColorLedCount:
+      return IS_RADIOMASTER_GX12(board) ? 8 : 0;  // Temp to handle GX12 SA & SD colord (TODO: unify switch handling)
+
     default:
       return getBoardJson(board)->getCapability(capability);
   }

@@ -41,6 +41,7 @@
 #define CPN_MAX_CYC                    3
 #define CPN_MAX_SWITCHES_FLEX          4 // v2.10 cmake parameter FLEXSW
 #define CPN_MAX_SWITCHES_FUNCTION      6
+#define CPN_MAX_SWITCHES_FUNCTION_LED  8    // Temp: to handle GX12 SA & SD colors (TODO: unify custom switches)
 #define CPN_MAX_SWITCHES_STD           20
 #define CPN_MAX_SWITCHES               (CPN_MAX_SWITCHES_STD + CPN_MAX_SWITCHES_FLEX + CPN_MAX_SWITCHES_FUNCTION)
 #define CPN_MAX_SENSORS                60

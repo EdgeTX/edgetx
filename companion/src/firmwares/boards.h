@@ -212,6 +212,7 @@ namespace Board {
     FlexSwitches,
     FunctionSwitches,
     FunctionSwitchColors,
+    FunctionSwitchColorLedCount,  // Temp to handle GX12 SA & SD colord (TODO: unify switch handling)
     Gyros,
     GyroAxes,
     HasAudioMuteGPIO,
