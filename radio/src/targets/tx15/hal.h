@@ -387,7 +387,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define FLYSKY_HALL_DMA_Channel                  LL_DMAMUX1_REQ_UART4_RX
 
 // LED Strip
-#define LED_STRIP_LENGTH                  (6 + 10 + 10)  // 6POS + 2 rings of 10
+#define LED_STRIP_LENGTH                  26  // 6POS + 2 rings of 10
+#define RGB_LED_OFFSET                    6
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 0)  // PA.00 / TIM2_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
 #define LED_STRIP_TIMER                   TIM2
@@ -534,7 +535,9 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 #define LANDSCAPE_LCD true
 #define PORTRAIT_LCD false
-#define PORTRAIT_LCD false
+#define LANDSCAPE_LCD_SML false
+#define LANDSCAPE_LCD_STD true
+#define LANDSCAPE_LCD_LRG false
 
 #define LCD_W                           480
 #define LCD_H                           320

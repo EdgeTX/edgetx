@@ -179,7 +179,7 @@ void boardInit()
 
   usbInit();
 
-  ws2812_init(&_led_timer, LED_STRIP_LENGTH, WS2812_GRB);
+  rgbLedInit();
   led_strip_off();
 
   uint32_t press_start = 0;
