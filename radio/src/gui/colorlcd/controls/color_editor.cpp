@@ -33,7 +33,7 @@ class ColorBar : public FormField
 {
  public:
   ColorBar(Window* parent, const rect_t& r, uint32_t value = 0,
-           uint32_t maxValue = 0, bool invert = false) :
+           uint32_t maxValue = 0) :
       FormField(parent, r)
   {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
@@ -55,7 +55,6 @@ class ColorBar : public FormField
     auto h = height() - 4;  // exclude border
 
     int scaledValue = (val * h + maxValue / 2) / maxValue;
-    if (invert) scaledValue = h - scaledValue;
     return scaledValue;
   }
 
@@ -68,7 +67,6 @@ class ColorBar : public FormField
     pos = max<int>(pos, 0);
 
     uint32_t scaledValue = ((pos * maxValue + h / 2) / h);
-    if (invert) scaledValue = maxValue - scaledValue;
     return scaledValue;
   }
 
@@ -106,6 +104,7 @@ class ColorBar : public FormField
     if (!bar) return;
 
     uint32_t key = *(uint32_t*)lv_event_get_param(e);
+
     if (key == LV_KEY_LEFT) {
       if (bar->value > 0) {
         uint32_t accel = rotaryEncoderGetAccel();
@@ -191,7 +190,6 @@ class ColorBar : public FormField
 
   uint32_t maxValue = 0;
   uint32_t value = 0;
-  bool invert = false;
   getRGBFromPos getRGB = nullptr;
 };
 
@@ -300,7 +298,6 @@ class HSVColorType : public BarColorType
 
     for (auto i = 0; i < MAX_BARS; i++) {
       bars[i]->maxValue = (i == 0) ? MAX_HUE : (i == 1) ? MAX_SATURATION : MAX_BRIGHTNESS;
-      bars[i]->invert = i != 0;
       bars[i]->value = values[i];
     }
 
@@ -349,7 +346,6 @@ class RGBColorType : public BarColorType
     for (auto i = 0; i < MAX_BARS; i++) {
       bars[i]->maxValue = 255;
       bars[i]->value = values[i];
-      bars[i]->invert = true;
     }
 
     bars[0]->getRGB = [=](int pos) { return RGB32(pos, 0, 0); };
