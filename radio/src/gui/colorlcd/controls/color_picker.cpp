@@ -149,7 +149,7 @@ class ColorEditorPopup : public BaseDialog
 
     hbox = new Window(vbox, rect_t{});
     hbox->padTop(BTN_PAD_TOP);
-    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, EdgeTxStyles::STD_FONT_HEIGHT);
+    hbox->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_MEDIUM);
     lv_obj_set_flex_align(hbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
                           LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_SPACE_BETWEEN);
     lv_obj_set_flex_grow(hbox->getLvObj(), 1);
