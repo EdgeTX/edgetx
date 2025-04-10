@@ -1810,9 +1810,9 @@ Raises a pop-up on screen that allows uses input
 @param event (number) the event variable that is passed in from the
 Run function (key pressed)
 
-@param input (number) value that can be adjusted by the +/颅- keys
+@param input (number) value that can be adjusted by the +/- keys
 
-@param min  (number) min value that input can reach (by pressing the -颅 key)
+@param min  (number) min value that input can reach (by pressing the - key)
 
 @param max  (number) max value that input can reach
 
@@ -2268,7 +2268,7 @@ static int luaResetGlobalTimer(lua_State * L)
 /*luadoc
 @function multiBuffer(address[,value])
 
-This function reads/writes the Multi protocol buffer to interact with a protocol虏.
+This function reads/writes the Multi protocol buffer to interact with a protocol.
 
 @param address to read/write in the buffer
 @param (optional): value to write in the buffer
