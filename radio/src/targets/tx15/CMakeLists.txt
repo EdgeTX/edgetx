@@ -53,7 +53,7 @@ add_definitions(-DRADIO_TX15)
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
 set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
 
-set(BITMAPS_TARGET x10_bitmaps)
+set(BITMAPS_TARGET bm480_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
 set(HARDWARE_TOUCH YES)
