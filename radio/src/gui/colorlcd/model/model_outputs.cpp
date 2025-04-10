@@ -156,7 +156,7 @@ class OutputLineButton : public ListLineButton
     lv_label_set_text(max, s);
 
     getValueOrGVarString(s, sizeof(s), output->offset, -LIMIT_STD_MAX,
-                         +LIMIT_STD_MAX, PREC1);
+                         +LIMIT_STD_MAX, PREC1, nullptr, 0, true);
     lv_label_set_text(offset, s);
 
     lv_label_set_text_fmt(center, "%d%s", PPM_CENTER + output->ppmCenter,
