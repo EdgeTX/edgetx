@@ -68,6 +68,7 @@ class BTDetailsDialog : public BaseDialog
 BluetoothConfigWindow::BluetoothConfigWindow(Window* parent, FlexGridLayout& grid)
 {
   auto line = parent->newLine(grid);
+  line->padLeft(PAD_SMALL);
   new StaticText(line, rect_t{}, STR_MODE);
 
   auto box = new Window(line, rect_t{});
@@ -93,6 +94,7 @@ BluetoothConfigWindow::BluetoothConfigWindow(Window* parent, FlexGridLayout& gri
 
   // BT radio name
   nameEdit = parent->newLine(grid);
+  nameEdit->padLeft(PAD_SMALL);
   new StaticText(nameEdit, rect_t{}, STR_NAME);
 
   box = new Window(nameEdit, rect_t{});

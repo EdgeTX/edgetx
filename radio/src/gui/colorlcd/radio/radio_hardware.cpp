@@ -46,14 +46,12 @@
 #if PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(13), LV_GRID_FR(19),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
 #else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
 #endif
+
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 RadioHardwarePage::RadioHardwarePage() :
     PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE, PAD_TINY)
@@ -169,26 +167,18 @@ void RadioHardwarePage::build(Window* window)
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
-  FormLine* line;
-
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, STR_INTERNALRF);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
-  new InternalModuleWindow(line, grid);
+  new InternalModuleWindow(window, grid);
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   new Subtitle(window, STR_EXTERNALRF);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
-  new ExternalModuleWindow(line, grid);
+  new ExternalModuleWindow(window, grid);
 #endif
 
 #if defined(BLUETOOTH)
   new Subtitle(window, STR_BLUETOOTH);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
   new BluetoothConfigWindow(window, grid);
 #endif
 
