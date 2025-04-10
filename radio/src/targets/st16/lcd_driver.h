@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __LCD_DRIVER_H__
-#define __LCD_DRIVER_H__
+#pragma once
 
 #include "bsp_io.h"
 
@@ -84,11 +83,3 @@ extern lcdSpiInitFucPtr lcdOnFunction;
 #define VERTICAL_BACK_PORCH  		               ( 6 )
 #define VERTICAL_FRONT_PORCH    	               ( 14 - VERTICAL_BACK_PORCH )
 #endif
-
-
-
-#endif
-
-
-
-

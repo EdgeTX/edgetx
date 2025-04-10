@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HAL_H_
-#define _HAL_H_
+#pragma once
 
 #define CPU_FREQ                400000000
 
@@ -525,5 +524,3 @@
 #define LCD_PHYS_H                      LCD_W
 
 #define LCD_DEPTH                       16
-
-#endif // _HAL_H_

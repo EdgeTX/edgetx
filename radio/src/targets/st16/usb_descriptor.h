@@ -19,11 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _USB_DESCRIPTOR_H_
-#define _USB_DESCRIPTOR_H_
+#pragma once
 
 #define USB_NAME                     "ST16"
 #define USB_MANUFACTURER             'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
 #define USB_PRODUCT                  'S', 'T', '1', '6', ' ', ' ', ' ', ' '  /* 8 Bytes */
-
-#endif // _USB_DESCRIPTOR_H_
