@@ -26,6 +26,7 @@
 // Max packet size = 1 byte header + 1 byte ID + 1 byte length + 25 bytes payload + 2 bytes CRC = 30 bytes
 // using 32 bytes is more than enough
 #define HALLSTICK_BUFF_SIZE             ( 32 )
+#define HALLSTICK_CMD_BUFF_SIZE         ( 8 )
 #define FLYSKY_HALL_BAUDRATE            ( 921600 )
 #define FLYSKY_HALL_CHANNEL_COUNT       ( 4 )
 
