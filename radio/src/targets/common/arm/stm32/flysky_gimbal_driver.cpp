@@ -55,7 +55,7 @@ static const stm32_usart_t fsUSART = {
   .rxDMA_Channel = FLYSKY_HALL_DMA_Channel,
 };
 
-DEFINE_STM32_SERIAL_PORT(FSGimbal, fsUSART, HALLSTICK_BUFF_SIZE, 0);
+DEFINE_STM32_SERIAL_PORT(FSGimbal, fsUSART, HALLSTICK_BUFF_SIZE, HALLSTICK_CMD_BUFF_SIZE);
 
 static const etx_serial_port_t _fs_gimbal_serial_port = {
   .name = "gimbals",
@@ -65,8 +65,6 @@ static const etx_serial_port_t _fs_gimbal_serial_port = {
 };
 
 static STRUCT_HALL HallProtocol = { 0 };
-
-static uint8_t _fs_hall_command[8] __DMA;
 
 static void* _fs_usart_ctx = nullptr;
 
@@ -156,18 +154,18 @@ void _fs_send_cmd(uint8_t id, uint8_t payload)
     return;
   }
 
-  _fs_hall_command[0] = FLYSKY_HALL_PROTOLO_HEAD;
-  _fs_hall_command[1] = id;
-  _fs_hall_command[2] = 0x01;
-  _fs_hall_command[3] = payload;
+  FSGimbal_TXBuffer[0] = FLYSKY_HALL_PROTOLO_HEAD;
+  FSGimbal_TXBuffer[1] = id;
+  FSGimbal_TXBuffer[2] = 0x01;
+  FSGimbal_TXBuffer[3] = payload;
 
-  unsigned short crc = crc16(CRC_1021, _fs_hall_command, 4, 0xffff);
+  unsigned short crc = crc16(CRC_1021, FSGimbal_TXBuffer, 4, 0xffff);
 
-  _fs_hall_command[4] = crc & 0xff;
-  _fs_hall_command[5] = crc >>8 & 0xff ;
+  FSGimbal_TXBuffer[4] = crc & 0xff;
+  FSGimbal_TXBuffer[5] = crc >>8 & 0xff ;
 
   _fs_gimbal_cmd_finished = false;
-  STM32SerialDriver.sendBuffer(_fs_usart_ctx, _fs_hall_command, 6);
+  STM32SerialDriver.sendBuffer(_fs_usart_ctx, FSGimbal_TXBuffer, 6);
 //  TRACE("Flysky Gimbal: Sent command, id = %d, payload = %d", id, payload);
 }
 
