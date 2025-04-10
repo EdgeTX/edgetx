@@ -1464,7 +1464,7 @@ static int luaGetFlightMode(lua_State * L)
 
 Play a file from the SD card
 
-@param filename (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
+@param filename (string) full path to wav file (i.e. "/SOUNDS/en/system/tada.wav")
 Introduced in 2.1.0: If you use a relative path, the current language is appended
 to the path (example: for English language: `/SOUNDS/en` is appended)
 
