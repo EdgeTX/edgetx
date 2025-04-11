@@ -53,4 +53,8 @@
   #define USB_NAME                     "HelloRadioSky V16"
   #define USB_MANUFACTURER             'H', 'R', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'V', '1', '6', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_DRO1)
+  #define USB_NAME                     "DumboRC DRO1"
+  #define USB_MANUFACTURER             'D', 'U', 'M', 'B', 'O', 'R', 'C', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'D', 'R', 'O', '1', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #endif

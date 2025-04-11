@@ -64,6 +64,7 @@ jobs:
           - gx12
           - nb4p
           - st16
+          - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -109,6 +110,7 @@ jobs:
           - mt12;gx12
           - nb4p
           - st16
+          - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:

@@ -155,6 +155,9 @@ get_target_build_options() {
         st16)
             BUILD_OPTIONS+="-DPCB=ST16 -DNANO=NO"
             ;;
+        dro1)
+            BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=DRO1"
+            ;;
         *)
             echo "Unknown target: $target_name"
             return 1

@@ -160,6 +160,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4878746F;
     case BOARD_FLYSKY_ST16:
       return 0x4C78746F;
+    case BOARD_DUMBORC_DRO1:
+      return 0x4A78746F;
     default:
       return 0;
   }
@@ -221,6 +223,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
+    case BOARD_DUMBORC_DRO1:
       return 0;
     default:
       return 0;
@@ -281,6 +284,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
+    case BOARD_DUMBORC_DRO1:
       return FSIZE_HORUS;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -671,6 +675,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Fatfish F16";
     case BOARD_HELLORADIOSKY_V16:
       return "HelloRadioSky V16";
+    case BOARD_DUMBORC_DRO1:
+      return "DumboRC DRO1";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -776,6 +782,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_FLYSKY_PL18:
   case BOARD_FLYSKY_PL18EV:
   case BOARD_FLYSKY_ST16:
+  case BOARD_DUMBORC_DRO1:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
@@ -847,6 +854,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_JUMPER_T18:
     case BOARD_JUMPER_T20:
     case BOARD_JUMPER_T20V2:
+    case BOARD_DUMBORC_DRO1:
       BR(67, 83, 66)
       break;
     case BOARD_JUMPER_TLITE:
