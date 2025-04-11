@@ -2,10 +2,6 @@
 # https://cmake.org/cmake/help/latest/policy/CMP0020.html
 cmake_policy(SET CMP0020 NEW)
 
-# Allow keyword and plain target_link_libraries() signatures to be mixed
-# https://cmake.org/cmake/help/latest/policy/CMP0023.html
-cmake_policy(SET CMP0023 OLD)
-
 # Use @rpath in a target's install name on MacOS X for locating shared libraries
 # https://cmake.org/cmake/help/latest/policy/CMP0042.html
 if(POLICY CMP0042)
