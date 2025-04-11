@@ -58,9 +58,9 @@ static void bsp_input_read()
 
   if (!updateInputState && readCount < 50) return;
 
-  uint16_t value;
+  uint16_t value=0;
 
-  readCount++;
+  readCount=0;
   updateInputState = false;
 
   if (pca95xx_read(&input_exp, BSP_IN_MASK, &value) < 0) return;
