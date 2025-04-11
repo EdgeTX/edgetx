@@ -86,7 +86,7 @@
 #if defined(NAVIGATION_XLITE)
   #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_LONG(KEY_LEFT) && keysGetState(KEY_SHIFT))
   #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_LONG(KEY_RIGHT) && keysGetState(KEY_SHIFT))
-#elif defined(KEYS_GPIO_REG_PAGEDN)
+#elif defined(KEYS_GPIO_REG_PAGEUP)
   #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_FIRST(KEY_PAGEUP))
   #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_FIRST(KEY_PAGEDN))
 #elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
