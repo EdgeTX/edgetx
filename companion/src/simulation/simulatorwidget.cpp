@@ -537,10 +537,13 @@ void SimulatorWidget::setupRadioWidgets()
   // switches
   Board::SwitchType swcfg;
   for (i = 0; i < ttlSwitches; ++i) {
-    if (!radioSettings.isSwitchAvailable(i) || Boards::isSwitchFunc(i))
+    if (!radioSettings.isSwitchAvailable(i))
       continue;
 
-    swcfg = Board::SwitchType(radioSettings.switchConfig[i].type);
+    if (Boards::isSwitchFunc(i))
+      swcfg = Board::SWITCH_2POS;  // TODO: get this from model settings
+    else
+      swcfg = Board::SwitchType(radioSettings.switchConfig[i].type);
     wname = RawSource(RawSourceType::SOURCE_TYPE_SWITCH, i + 1).toString(nullptr, &radioSettings, Board::BOARD_UNKNOWN, false);
     RadioSwitchWidget * sw = new RadioSwitchWidget(swcfg, wname, -1, ui->radioWidgetsHT);
     sw->setIndex(i);

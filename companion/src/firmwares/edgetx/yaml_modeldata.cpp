@@ -32,6 +32,7 @@
 #include "yaml_screendata.h"
 #include "yaml_usbjoystickdata.h"
 
+#include "boardjson.h"
 #include "modeldata.h"
 #include "output_data.h"
 #include "eeprominterface.h"
@@ -147,6 +148,19 @@ static const YamlLookupTable hatsModeLut = {
   {  GeneralSettings::HATSMODE_KEYS_ONLY, "KEYS_ONLY"  },
   {  GeneralSettings::HATSMODE_SWITCHABLE, "SWITCHABLE"  },
   {  GeneralSettings::HATSMODE_GLOBAL, "GLOBAL"  },
+};
+
+static const YamlLookupTable cfsSwitchConfig = {
+  {  0, "NONE"  },
+  {  1, "TOGGLE"  },
+  {  2, "2POS"  },
+  {  3, "3POS"  },
+};
+
+static const YamlLookupTable cfsSwitchStart = {
+  {  0, "START_OFF"  },
+  {  1, "START_ON"  },
+  {  2, "START_PREVIOUS"  },
 };
 
 struct YamlTrim {
@@ -452,6 +466,29 @@ void operator >> (const YAML::Node& node, FlightModeData& value)
 
 namespace YAML
 {
+template <>
+struct convert<RGBLedColor> {
+  static Node encode(const RGBLedColor& rhs);
+  static bool decode(const Node& node, RGBLedColor& rhs);
+};
+
+Node convert<RGBLedColor>::encode(const RGBLedColor& rhs)
+{
+  Node node;
+  node["r"] = rhs.r;
+  node["g"] = rhs.g;
+  node["b"] = rhs.b;
+  return node;
+}
+
+bool convert<RGBLedColor>::decode(const Node& node, RGBLedColor& rhs)
+{
+  node["r"] >> rhs.r;
+  node["g"] >> rhs.g;
+  node["b"] >> rhs.b;
+  return true;
+}
+
 Node convert<TimerData>::encode(const TimerData& rhs)
 {
   unsigned int countdownBeep = rhs.countdownBeep;
@@ -1194,29 +1231,24 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["modelRegistrationID"] = rhs.registrationId;
   node["hatsMode"] = hatsModeLut << rhs.hatsMode;
 
-  if (Boards::getCapability(board, Board::FunctionSwitches)) {
-    node["functionSwitchConfig"] = rhs.functionSwitchConfig;
-    node["functionSwitchGroup"] = rhs.functionSwitchGroup;
-    node["functionSwitchStartConfig"] = rhs.functionSwitchStartConfig;
-    node["functionSwitchLogicalState"] = rhs.functionSwitchLogicalState;
-
-    for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
-      if (strlen(rhs.functionSwitchNames[i]) > 0) {
-        node["switchNames"][std::to_string(i)]["val"] = rhs.functionSwitchNames[i];
+  int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
+  if (funcSwCnt) {
+    for (int i = 0; i < funcSwCnt; i += 1) {
+      int sw = Boards::getSwitchIndexForCFS(i);
+      std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
+      node["customSwitches"][tag]["type"] = cfsSwitchConfig << rhs.customSwitches[i].type;
+      node["customSwitches"][tag]["group"] = rhs.customSwitches[i].group;
+      node["customSwitches"][tag]["start"] = cfsSwitchStart << rhs.customSwitches[i].start;
+      node["customSwitches"][tag]["state"] = rhs.customSwitches[i].state;
+      node["customSwitches"][tag]["name"] = rhs.customSwitches[i].name;
+      if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+        node["customSwitches"][tag]["onColor"] = rhs.customSwitches[i].onColor;
+        node["customSwitches"][tag]["offColor"] = rhs.customSwitches[i].offColor;
       }
     }
 
-    if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
-      for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
-        node["functionSwitchLedONColor"][std::to_string(i)]["r"] = rhs.functionSwitchLedONColor[i].r;
-        node["functionSwitchLedONColor"][std::to_string(i)]["g"] = rhs.functionSwitchLedONColor[i].g;
-        node["functionSwitchLedONColor"][std::to_string(i)]["b"] = rhs.functionSwitchLedONColor[i].b;
-      }
-      for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
-        node["functionSwitchLedOFFColor"][std::to_string(i)]["r"] = rhs.functionSwitchLedOFFColor[i].r;
-        node["functionSwitchLedOFFColor"][std::to_string(i)]["g"] = rhs.functionSwitchLedOFFColor[i].g;
-        node["functionSwitchLedOFFColor"][std::to_string(i)]["b"] = rhs.functionSwitchLedOFFColor[i].b;
-      }
+    for (int i = 1; i < 4; i += 1) {
+      node["cfsGroupOn"][std::to_string(i)]["v"] = rhs.cfsGroupOn[i];
     }
   }
 
@@ -1481,26 +1513,83 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["modelRegistrationID"] >> rhs.registrationId;
   node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
 
-  node["functionSwitchConfig"] >> rhs.functionSwitchConfig;
-  node["functionSwitchGroup"] >> rhs.functionSwitchGroup;
-  node["functionSwitchStartConfig"] >> rhs.functionSwitchStartConfig;
-  node["functionSwitchLogicalState"] >> rhs.functionSwitchLogicalState;
-  node["switchNames"] >> rhs.functionSwitchNames;
+  if (node["functionSwitchConfig"]) {
+    uint16_t v;
+    node["functionSwitchConfig"] >> v;
+    for (int i = 0; i < 6; i += 1) {
+      rhs.customSwitches[i].type = v & 3;
+      v >>= 2;
+    }
+  }
+  if (node["functionSwitchGroup"]) {
+    uint16_t v;
+    node["functionSwitchGroup"] >> v;
+    for (int i = 0; i < 6; i += 1) {
+      rhs.customSwitches[i].group = v & 3;
+      v >>= 2;
+    }
+    for (int i = 0; i < 4; i += 1) {
+      rhs.cfsGroupOn[i] = v & 1;
+      v >>= 1;
+    }
+  }
+  if (node["functionSwitchStartConfig"]) {
+    uint16_t v;
+    node["functionSwitchStartConfig"] >> v;
+    for (int i = 0; i < 6; i += 1) {
+      rhs.customSwitches[i].start = v & 3;
+      v >>= 2;
+    }
+  }
+  if (node["functionSwitchLogicalState"]) {
+    uint16_t v;
+    node["functionSwitchLogicalState"] >> v;
+    for (int i = 0; i < 6; i += 1) {
+      rhs.customSwitches[i].state = v & 1;
+      v >>= 1;
+    }
+  }
+  if (node["switchNames"]) {
+    for (int i = 0; i < 6; i += 1) {
+      if (node["switchNames"][std::to_string(i)]) {
+        node["switchNames"][std::to_string(i)]["val"] >> rhs.customSwitches[i].name;
+      }
+    }
+  }
   if (node["functionSwitchLedONColor"]) {
-    for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
+    for (int i = 0; i < 6; i += 1) {
       if (node["functionSwitchLedONColor"][std::to_string(i)]) {
-        node["functionSwitchLedONColor"][std::to_string(i)]["r"] >> rhs.functionSwitchLedONColor[i].r;
-        node["functionSwitchLedONColor"][std::to_string(i)]["g"] >> rhs.functionSwitchLedONColor[i].g;
-        node["functionSwitchLedONColor"][std::to_string(i)]["b"] >> rhs.functionSwitchLedONColor[i].b;
+        node["functionSwitchLedONColor"][std::to_string(i)] >> rhs.customSwitches[i].onColor;
       }
     }
   }
   if (node["functionSwitchLedOFFColor"]) {
-    for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i += 1) {
+    for (int i = 0; i < 6; i += 1) {
       if (node["functionSwitchLedOFFColor"][std::to_string(i)]) {
-        node["functionSwitchLedOFFColor"][std::to_string(i)]["r"] >> rhs.functionSwitchLedOFFColor[i].r;
-        node["functionSwitchLedOFFColor"][std::to_string(i)]["g"] >> rhs.functionSwitchLedOFFColor[i].g;
-        node["functionSwitchLedOFFColor"][std::to_string(i)]["b"] >> rhs.functionSwitchLedOFFColor[i].b;
+        node["functionSwitchLedOFFColor"][std::to_string(i)] >> rhs.customSwitches[i].offColor;
+      }
+    }
+  }
+  int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
+  if (node["customSwitches"]) {
+    for (int i = 0; i < funcSwCnt; i += 1) {
+      if (node["customSwitches"][std::to_string(i)]) {
+        int sw = Boards::getSwitchIndexForCFS(i);
+        std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
+        node["customSwitches"][tag]["type"] >> cfsSwitchConfig >> rhs.customSwitches[i].type;
+        node["customSwitches"][tag]["group"] >> rhs.customSwitches[i].group;
+        node["customSwitches"][tag]["start"] >> cfsSwitchStart >> rhs.customSwitches[i].start;
+        node["customSwitches"][tag]["state"] >> rhs.customSwitches[i].state;
+        node["customSwitches"][tag]["name"] >> rhs.customSwitches[i].name;
+        node["customSwitches"][tag]["onColor"] >> rhs.customSwitches[i].onColor;
+        node["customSwitches"][tag]["offColor"] >> rhs.customSwitches[i].offColor;
+      }
+    }
+  }
+  if (node["cfsGroupOn"]) {
+    for (int i = 1; i < 4; i += 1) {
+      if (node["cfsGroupOn"][std::to_string(i)]) {
+        node["cfsGroupOn"][std::to_string(i)]["v"] >> rhs.cfsGroupOn[i];
       }
     }
   }
