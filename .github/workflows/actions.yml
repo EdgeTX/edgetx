@@ -72,6 +72,7 @@ jobs:
           - mt12
           - gx12
           - nb4p
+          - st16
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -118,6 +119,7 @@ jobs:
           - xlite;xlites
           - mt12;gx12
           - nb4p
+          - st16
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
