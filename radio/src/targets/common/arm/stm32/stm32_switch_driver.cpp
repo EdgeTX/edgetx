@@ -24,7 +24,7 @@
 
 SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw)
 {
-  bool inv = sw->flags & SWITCH_HW_INVERTED;
+  bool inv = sw->inverted;
   SwitchHwPos ret = SWITCH_HW_UP;
 
   switch (sw->type) {
