@@ -1,6 +1,5 @@
 from switch_config import switch_cfg_by_target
 
-
 class Switch:
     TYPE_2POS = "2POS"
     TYPE_3POS = "3POS"
@@ -12,7 +11,7 @@ class Switch:
         self.flags = flags
         self.inverted = False
         self.default = None
-        self.display = []
+        self.display = None
 
 
 class Switch2POS(Switch):
@@ -86,6 +85,8 @@ def parse_switches(target, hw_defs, adc_parser):
         adc_input_name = f"SW{s}"
         custom = f"SWITCHES_{s}_"
 
+        cfs_idx = f"SWITCHES_{s}_CFS_IDX"
+
         switch = None
         if reg in hw_defs:
             # 2POS switch
@@ -111,11 +112,18 @@ def parse_switches(target, hw_defs, adc_parser):
             if inverted in hw_defs:
                 switch.inverted = True
 
+            if cfs_idx in hw_defs:
+                switch.is_cfs = True
+                switch.cfs_idx = hw_defs[cfs_idx]
+            else:
+                switch.is_cfs = False
+
             cfg = switch_cfg_by_target(target, name)
             if cfg:
                 switch.default = cfg.get("default")
                 switch.display = cfg.get("display")
-                # eprint(switch.default)
+            else:
+                switch.default = "NONE"
 
             switches.append(switch)
 
@@ -124,11 +132,9 @@ def parse_switches(target, hw_defs, adc_parser):
         if f_sw_marker in hw_defs:
             switch = find_switch(hw_defs[f_sw_marker])
             if switch:
-                switch.type = "FSWITCH"
                 switch.name = f"SW{i}"
             else:
                 switch = SwitchCustom(f"SW{i}", Switch.TYPE_2POS)
-                switch.type = "FSWITCH"
                 switches.append(switch)
 
     return switches

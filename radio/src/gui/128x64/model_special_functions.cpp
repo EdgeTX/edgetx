@@ -257,31 +257,30 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               lcdDrawText(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_CHANS, attr);
             else
               drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, MIXSRC_FIRST_STICK + param - 1, attr);
+            if (active) CHECK_INCDEC_MODELVAR_ZERO(event, CFN_CH_INDEX(cfn), maxParam);
           }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
             maxParam = MAX_GVARS - 1;
             drawStringWithIndex(lcdNextPos + 2, y, STR_GV, CFN_GVAR_INDEX(cfn)+1, attr);
             if (active) CFN_GVAR_INDEX(cfn) = checkIncDec(event, CFN_GVAR_INDEX(cfn), 0, maxParam, eeFlags);
-            break;
           }
 #endif // GVARS
           else if (func == FUNC_SET_TIMER) {
             maxParam = MAX_TIMERS - 1;
             lcdDrawTextAtIndex(lcdNextPos, y, STR_VFSWRESET, CFN_TIMER_INDEX(cfn), attr);
             if (active) CFN_TIMER_INDEX(cfn) = checkIncDec(event, CFN_TIMER_INDEX(cfn), 0, maxParam, eeFlags, isTimerSourceAvailable);
-            break;
           }
 #if defined(FUNCTION_SWITCHES)
           else if (func == FUNC_PUSH_CUST_SWITCH) {
-            maxParam = NUM_FUNCTIONS_SWITCHES - 1;
-            drawStringWithIndex(lcdNextPos +5, y, "SW", CFN_CS_INDEX(cfn) + 1, attr);
+            uint8_t sw = switchGetSwitchFromCustomIdx(CFN_CS_INDEX(cfn));
+            lcdDrawText(lcdNextPos + 5, y, switchGetDefaultName(sw), attr);
+            if (active) CFN_CS_INDEX(cfn) = switchGetCustomSwitchIdx(checkIncDec(event, sw, 0, switchGetMaxSwitches() - 1, eeFlags, switchIsCustomSwitch));
           }
 #endif          
           else if (attr) {
             repeatLastCursorHorMove(event);
           }
-          if (active) CHECK_INCDEC_MODELVAR_ZERO(event, CFN_CH_INDEX(cfn), maxParam);
           break;
         }
 
