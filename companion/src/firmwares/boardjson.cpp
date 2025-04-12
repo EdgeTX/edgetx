@@ -50,7 +50,6 @@ static const StringTagMappingTable switchTypesLookupTable = {
     {std::to_string(Board::SWITCH_TOGGLE),        "TOGGLE"},
     {std::to_string(Board::SWITCH_2POS),          "2POS"},
     {std::to_string(Board::SWITCH_3POS),          "3POS"},
-    {std::to_string(Board::SWITCH_FUNC),          "FSWITCH"},
     {std::to_string(Board::SWITCH_ADC),           "ADC"},
 };
 
@@ -443,6 +442,16 @@ const int BoardJson::getSwitchIndex(const QString val, Board::LookupValueType lv
   return getSwitchIndex(m_switches, val, lvt);
 }
 
+const int BoardJson::getSwitchIndexForCFS(int cfsIdx) const
+{
+  for (int i = 0; i < (int)m_switches->size(); i++) {
+    if (m_switches->at(i).isCFS && m_switches->at(i).cfsIdx == cfsIdx)
+      return i;
+  }
+
+  return -1;
+}
+
 // static
 int BoardJson::getSwitchIndex(const SwitchesTable * switches, QString val, Board::LookupValueType lvt)
 {
@@ -813,7 +822,7 @@ const bool BoardJson::isSwitchFunc(int index) const
 // static
 bool BoardJson::isSwitchFunc(const SwitchDefn & defn)
 {
-  return defn.type == Board::SWITCH_FUNC;
+  return defn.cfsIdx >= 0;
 }
 
 bool BoardJson::loadDefinition()
@@ -995,6 +1004,12 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
           sw.display.x = (unsigned int)d.at(0).toInt(0);
           sw.display.y = (unsigned int)d.at(1).toInt(0);
         }
+
+        if (!o.value("is_cfs").isUndefined())
+          sw.isCFS = o.value("is_cfs").toBool();
+
+        if (!o.value("cfs_idx").isUndefined())
+          sw.cfsIdx = o.value("cfs_idx").toInt();
 
         // special handing for ADC
         if (sw.type == Board::SWITCH_ADC) {

@@ -32,6 +32,7 @@
 #include "usb_joystick.h"
 #include "input_mapping.h"
 #include "debug.h"
+#include "bitfield.h"
 
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
@@ -643,21 +644,39 @@ struct RGBLedColor {
   }
 };
 
+#if defined(FUNCTION_SWITCHES)
+PACK(struct customSwitch {
+  CUST_IDX(sw, cfs_idx_read, cfs_idx_write);
+  uint8_t type:2 ENUM(SwitchConfig);
+  uint8_t group:2;
+  uint8_t start:2 ENUM(fsStartPositionType);
+  uint8_t state:1;
+  uint8_t sfState:1 SKIP; // state set by SF
+  NOBACKUP(char name[LEN_SWITCH_NAME]);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  NOBACKUP(RGBLedColor onColor) FUNC(isAlwaysActive);
+  NOBACKUP(RGBLedColor offColor) FUNC(isAlwaysActive);
+#endif
+});
+#endif
+
+#if defined(FUNCTION_SWITCHES)
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
-    RGBLedColor functionSwitchLedONColor[NUM_FUNCTIONS_SWITCHES]; \
-    RGBLedColor functionSwitchLedOFFColor[NUM_FUNCTIONS_SWITCHES];
+    CUST_ARRAY(functionSwitchLedONColor, struct_cfsOnColorConfig, NUM_FUNCTIONS_SWITCHES, nullptr); \
+    CUST_ARRAY(functionSwitchLedOFFColor, struct_cfsOffColorConfig, NUM_FUNCTIONS_SWITCHES, nullptr);
 #else
   #define FUNCTION_SWITCHS_RGB_LEDS_FIELDS
 #endif
-#if defined(FUNCTION_SWITCHES)
   #define FUNCTION_SWITCHS_FIELDS \
-    uint16_t functionSwitchConfig;  \
-    uint16_t functionSwitchGroup; \
-    uint16_t functionSwitchStartConfig; \
-    uint8_t functionSwitchLogicalState;  \
-    char switchNames[NUM_FUNCTIONS_SWITCHES][LEN_SWITCH_NAME]; \
-    FUNCTION_SWITCHS_RGB_LEDS_FIELDS
+    CUST_ATTR(functionSwitchConfig, r_functionSwitchConfig, nullptr); \
+    CUST_ATTR(functionSwitchGroup, r_functionSwitchGroup, nullptr); \
+    CUST_ATTR(functionSwitchStartConfig, r_functionSwitchStartConfig, nullptr); \
+    CUST_ATTR(functionSwitchLogicalState, r_functionSwitchLogicalState, nullptr); \
+    CUST_ARRAY(switchNames, struct_cfsNameConfig, NUM_FUNCTIONS_SWITCHES, nullptr); \
+    FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
+    customSwitch customSwitches[NUM_FUNCTIONS_SWITCHES] FUNC(isAlwaysActive) NO_IDX; \
+    uint8_t cfsGroupOn ARRAY(1, struct_cfsGroupOn, cfsGroupIsActive);
 #else
   #define FUNCTION_SWITCHS_FIELDS
 #endif
@@ -744,7 +763,7 @@ PACK(struct ModelData {
 
   NOBACKUP(uint8_t thrTraceSrc CUST(r_thrSrc,w_thrSrc));
   CUST_ATTR(switchWarningState, r_swtchWarn, nullptr);
-  NOBACKUP(swarnstate_t switchWarning ARRAY(3, struct_swtchWarn, nullptr));
+  NOBACKUP(swarnstate_t switchWarning ARRAY(2, struct_swtchWarn, nullptr));
 
   GVarData gvars[MAX_GVARS];
 
@@ -828,6 +847,33 @@ PACK(struct ModelData {
   uint8_t modelSFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
+
+  SwitchConfig getSwitchConfig(uint8_t n);
+  char* getSwitchCustomName(uint8_t n);
+  bool switchHasCustomName(uint8_t n);
+
+  uint8_t getSwitchStateForWarning(uint8_t n);
+  NOBACKUP(uint8_t getSwitchWarning(uint8_t n) { return bfGet<swarnstate_t>(switchWarning, n * 2, 2); })
+  NOBACKUP(void setSwitchWarning(uint8_t n, uint8_t v) { switchWarning = bfSet<swarnstate_t>(switchWarning, v, n * 2, 2); })
+
+#if defined(FUNCTION_SWITCHES)
+  SwitchConfig cfsType(uint8_t n);
+  void cfsSetType(uint8_t n, SwitchConfig v);
+  uint8_t cfsGroup(uint8_t n);
+  void cfsSetGroup(uint8_t n, uint8_t v);
+  fsStartPositionType cfsStart(uint8_t n);
+  void cfsSetStart(uint8_t n, fsStartPositionType v);
+  bool cfsState(uint8_t n);
+  void cfsSetState(uint8_t n, bool v);
+  bool cfsSFState(uint8_t n);
+  char* cfsName(uint8_t n);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  RGBLedColor& cfsOnColor(uint8_t n);
+  RGBLedColor& cfsOffColor(uint8_t n);
+#endif
+  bool cfsGroupAlwaysOn(uint8_t n) { return bfGet<uint8_t>(cfsGroupOn, n, 1); }
+  void cfsSetGroupAlwaysOn(uint8_t n, bool v) { cfsGroupOn = bfSet<uint8_t>(cfsGroupOn, v, n, 1); }
+#endif
 });
 
 /*
@@ -969,6 +1015,7 @@ PACK(struct RadioData {
   potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
   swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
   CUST_ARRAY(flexSwitches, struct_flexSwitch, MAX_FLEX_SWITCHES, flex_sw_valid);
+  NOBACKUP(char switchNames[MAX_SWITCHES][LEN_SWITCH_NAME]) SKIP;
 
   EXTRA_GENERAL_FIELDS
 
@@ -1035,6 +1082,11 @@ PACK(struct RadioData {
     return backlightBright;
 #endif
   });
+
+  SwitchConfig getSwitchConfig(uint8_t n);
+  void setSwitchConfig(uint8_t n, SwitchConfig v);
+  char* getSwitchCustomName(uint8_t n);
+  bool switchHasCustomName(uint8_t n);
 });
 
 #undef SWITCHES_WARNING_DATA

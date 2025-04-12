@@ -91,6 +91,7 @@ WizMix::operator ModelData()
   model.used = true;
   model.moduleData[0].modelId = modelId;
   model.setDefaultInputs(settings);
+  model.setDefaultFunctionSwitches(Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches));
 
   int mixIndex = 0;
   int timerIndex = 0;

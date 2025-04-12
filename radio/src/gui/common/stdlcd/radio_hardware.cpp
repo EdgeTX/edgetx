@@ -24,6 +24,7 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
+#include "hal/rgbleds.h"
 
 #include "analogs.h"
 #include "switches.h"
@@ -147,10 +148,10 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     tab[i] = idx < max_pots ? (IS_POT_MULTIPOS(idx) ? 1 : 2) : HIDDEN_ROW;
   }
 
-  auto max_switches = switchGetMaxSwitches();
+  int max_switches = switchGetMaxSwitches();
   for (int i = ITEM_RADIO_HARDWARE_SWITCH; i <= ITEM_RADIO_HARDWARE_SWITCH_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_SWITCH;
-    tab[i] = switchIsFlex(idx) ? 2 : idx < max_switches ? 1 : HIDDEN_ROW;
+    tab[i] = switchIsFlex(idx) ? 2 : idx < max_switches && !switchIsCustomSwitch(idx) ? 1 : HIDDEN_ROW;
   }
 
 #if defined(BATTGRAPH)
@@ -534,11 +535,11 @@ void menuRadioHardware(event_t event)
         else if (k <= ITEM_RADIO_HARDWARE_SWITCH_END) {
           // Switches
           int index = k - ITEM_RADIO_HARDWARE_SWITCH;
-          int config = SWITCH_CONFIG(index);
+          int config = g_model.getSwitchConfig(index);
 
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
           lcdDrawText(INDENT_WIDTH, y, STR_CHAR_SWITCH, flags);
-          lcdDrawText(lcdNextPos, y, switchGetName(index), flags);
+          lcdDrawText(lcdNextPos, y, switchGetDefaultName(index), flags);
 
           if (switchIsFlex(index)) {
             // flexSwitch source
@@ -550,10 +551,10 @@ void menuRadioHardware(event_t event)
 
             //Name
             flags = menuHorizontalPosition == 1 ? attr : 0;
-            if (switchHasCustomName(index) ||
+            if (g_eeGeneral.switchHasCustomName(index) ||
                 (attr && s_editMode > 0 && menuHorizontalPosition == 1)) {
               editName(HW_SETTINGS_COLUMN2, y,
-                       (char*)switchGetCustomName(index), LEN_SWITCH_NAME,
+                       g_eeGeneral.getSwitchCustomName(index), LEN_SWITCH_NAME,
                        event, flags, 0, old_editMode);
             } else {
               lcdDrawMMM(HW_SETTINGS_COLUMN2, y, flags);
@@ -565,19 +566,15 @@ void menuRadioHardware(event_t event)
                            SWITCH_NONE, switchGetMaxType(index), flags, event);
 
             if (attr && checkIncDec_Ret) {
-              swconfig_t mask = SWITCH_CONFIG_MASK(index);
-              g_eeGeneral.switchConfig =
-                  (g_eeGeneral.switchConfig & ~mask) |
-                  ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
-              storageDirty(EE_GENERAL);
+              g_eeGeneral.setSwitchConfig(index, (SwitchConfig)config);
             }
           }
           else {
             flags = menuHorizontalPosition == 0 ? attr : 0;
-            if (switchHasCustomName(index) ||
+            if (g_eeGeneral.switchHasCustomName(index) ||
                 (attr && s_editMode > 0 && menuHorizontalPosition == 0)) {
               editName(HW_SETTINGS_COLUMN1, y,
-                       (char*)switchGetCustomName(index), LEN_SWITCH_NAME,
+                       g_eeGeneral.getSwitchCustomName(index), LEN_SWITCH_NAME,
                        event, flags, 0, old_editMode);
             } else {
               lcdDrawMMM(HW_SETTINGS_COLUMN1, y, flags);
@@ -589,11 +586,7 @@ void menuRadioHardware(event_t event)
                            SWITCH_NONE, switchGetMaxType(index), flags, event);
 
             if (attr && checkIncDec_Ret) {
-              swconfig_t mask = SWITCH_CONFIG_MASK(index);
-              g_eeGeneral.switchConfig =
-                  (g_eeGeneral.switchConfig & ~mask) |
-                  ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
-              storageDirty(EE_GENERAL);
+              g_eeGeneral.setSwitchConfig(index, (SwitchConfig)config);
             }
           }
         } else if (k <= ITEM_RADIO_HARDWARE_SERIAL_PORT_END) {

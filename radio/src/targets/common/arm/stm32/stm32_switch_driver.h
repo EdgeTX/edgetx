@@ -21,20 +21,29 @@
 
 #pragma once
 
+#include "hal.h"
 #include "stm32_hal_ll.h"
 #include "hal/switch_driver.h"
+#include "edgetx_constants.h"
 
 struct stm32_switch_t
 {
   const char*   name;
+
   GPIO_TypeDef* GPIOx_high;
   uint32_t      Pin_high;
 
   GPIO_TypeDef* GPIOx_low;
   uint32_t      Pin_low;
 
-  SwitchHwType type;
-  uint8_t      flags;
+  SwitchHwType  type;
+  bool          inverted;
+  SwitchConfig  defaultType;
+
+#if defined(FUNCTION_SWITCHES)
+  bool          isCustomSwitch;
+  uint8_t       customSwitchIdx;
+#endif
 };
 
 SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw);

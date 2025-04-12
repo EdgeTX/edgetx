@@ -318,7 +318,8 @@ void generalDefault()
   adcCalibDefaults();
 
   g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
-  g_eeGeneral.switchConfig = switchGetDefaultConfig();
+  for (uint8_t sw = 0; sw < switchGetMaxSwitches(); sw += 1)
+    g_eeGeneral.setSwitchConfig(sw, switchGetDefaultConfig(sw));
 
 #if defined(STICK_DEAD_ZONE)
   g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;

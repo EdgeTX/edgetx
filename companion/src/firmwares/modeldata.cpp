@@ -224,7 +224,12 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
 
   for (int i = 0; i < functionSwitchCount; i++) {
     setFuncSwitchConfig(i, Board::SWITCH_2POS);
-    setFuncSwitchGroup(i, 1);
+    setFuncSwitchGroup(i, i < 6 ? 1 : 0);   // SA & SD on GX12 are not grouped by default
+    customSwitches[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
+    customSwitches[i].state = 0;
+    customSwitches[i].name[0] = 0;
+    customSwitches[i].onColor.setColor(255, 255, 255);
+    customSwitches[i].offColor.setColor(0, 0, 0);
   }
 }
 
@@ -1750,7 +1755,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
 unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    return Helpers::getBitmappedValue(functionSwitchConfig, index, 2);
+    return customSwitches[index].type;
   else
     return FUNC_SWITCH_CONFIG_NONE;
 }
@@ -1758,7 +1763,7 @@ unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
 void ModelData::setFuncSwitchConfig(unsigned int index, unsigned int value)
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    Helpers::setBitmappedValue(functionSwitchConfig, value, index, 2);
+    customSwitches[index].type = value;
 }
 
 //  static
@@ -1820,7 +1825,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupsModel()
 unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    return Helpers::getBitmappedValue(functionSwitchGroup, index, 2);
+    return customSwitches[index].group;
   else
     return 0;
 }
@@ -1828,14 +1833,13 @@ unsigned int ModelData::getFuncSwitchGroup(unsigned int index) const
 void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    Helpers::setBitmappedValue(functionSwitchGroup, value, index, 2);
+    customSwitches[index].group = value;
 }
 
 unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int group) const
 {
   if (group > 0 && group < 4) {
-    unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
-    return Helpers::getBitmappedValue(functionSwitchGroup, group, 1, 2 * switchcnt);
+    return cfsGroupOn[group];
   }
   else
     return 0;
@@ -1852,15 +1856,14 @@ unsigned int ModelData::getFuncSwitchAlwaysOnGroupForSwitch(unsigned int index) 
 void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int group, unsigned int value)
 {
   if (group > 0 && group < 4) {
-    unsigned int switchcnt = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches);
-    Helpers::setBitmappedValue(functionSwitchGroup, value, group, 1, 2 * switchcnt);
+    cfsGroupOn[group] = value;
   }
 }
 
 unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    return Helpers::getBitmappedValue(functionSwitchStartConfig, index, 2);
+    return customSwitches[index].start;
   else
     return FUNC_SWITCH_START_OFF;
 }
@@ -1868,7 +1871,7 @@ unsigned int ModelData::getFuncSwitchStart(unsigned int index) const
 void ModelData::setFuncSwitchStart(unsigned int index, unsigned int value)
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
-    Helpers::setBitmappedValue(functionSwitchStartConfig, value, index, 2);
+    customSwitches[index].start = value;
 }
 
 int ModelData::getFuncGroupSwitchCount(unsigned int group, int switchcnt) const

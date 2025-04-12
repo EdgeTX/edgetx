@@ -66,6 +66,8 @@ class RadioSwitchWidget : public RadioWidget
       m_slider->setPageStep(m_stepSize);
       m_slider->setValue(m_value);
 
+      // TODO: connect custom function switches to model data?
+
       if (swType == Board::SWITCH_TOGGLE) {
         QToolButton * lockBtn = new QToolButton(this);
         lockBtn->setIcon(Simulator::SimulatorIcon("toggle_lock"));
