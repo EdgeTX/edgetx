@@ -171,7 +171,7 @@ class SwitchDynamicLabel : public StaticText
 
   std::string label()
   {
-    std::string str(switchGetCanonicalName(index));
+    std::string str(switchGetDefaultName(index));
     return str + getSwitchPositionSymbol(lastpos);
   }
 
@@ -205,8 +205,8 @@ class HWSwitch
  public:
   HWSwitch(Window* parent, int swnum, coord_t y)
   {
-    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_SMALL, HWSwitches::SW_CTRL_W);
-    new HWInputEdit(parent, (char*)switchGetCustomName(swnum), LEN_SWITCH_NAME,
+    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_SMALL, SHWSwitches::W_CTRL_W);
+    new HWInputEdit(parent, g_eeGeneral.getSwitchCustomName(swnum), LEN_SWITCH_NAME,
                     HWSwitches::SW_CTRL_W + PAD_SMALL, y);
 
     coord_t x = HWSwitches::SW_CTRL_W * 2 + PAD_SMALL * 2;
@@ -233,12 +233,9 @@ class HWSwitch
     sw_cfg = new Choice(
         parent, {x, y, HWSwitches::SW_CTRL_W, 0},
         STR_SWTYPES, SWITCH_NONE, switchGetMaxType(swnum),
-        [=]() -> int { return SWITCH_CONFIG(swnum); },
+        [=]() -> int { return g_model.getSwitchConfig(swnum); },
         [=](int newValue) {
-          swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(swnum);
-          g_eeGeneral.switchConfig =
-              (g_eeGeneral.switchConfig & ~mask) |
-              ((swconfig_t(newValue) & SW_CFG_MASK) << (SW_CFG_BITS * swnum));
+          g_eeGeneral.setSwitchConfig(swnum, (SwitchConfig)newValue);
           SET_DIRTY();
         });
 

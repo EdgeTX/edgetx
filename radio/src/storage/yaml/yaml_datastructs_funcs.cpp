@@ -359,7 +359,7 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
     }
     else if (val >= MIXSRC_FIRST_SWITCH
              && val <= MIXSRC_LAST_SWITCH) {
-        str = switchGetCanonicalName(val - MIXSRC_FIRST_SWITCH);
+        str = switchGetDefaultName(val - MIXSRC_FIRST_SWITCH);
     }
 #if defined(FUNCTION_SWITCHES)
     else if (val >= MIXSRC_FIRST_CUSTOMSWITCH_GROUP
@@ -858,7 +858,7 @@ bool sw_write(void* user, yaml_writer_func wf, void* opaque)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  const char* str = switchGetCanonicalName(idx);
+  const char* str = switchGetDefaultName(idx);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
 
@@ -868,8 +868,7 @@ static void sw_name_read(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-
-  switchSetCustomName(idx, val, val_len);
+  strAppend(g_eeGeneral.getSwitchCustomName(idx), val, min(val_len, (uint8_t)LEN_SWITCH_NAME));
 }
 
 static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
@@ -878,15 +877,18 @@ static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts(1);
 
-
-  const char* str = switchGetCustomName(idx);
+  const char* str = g_eeGeneral.getSwitchCustomName(idx);
   if (!wf(opaque, "\"", 1)) return false;
   if (!wf(opaque, str, strnlen(str, LEN_SWITCH_NAME)))
     return false;
   return wf(opaque, "\"", 1);
 }
 
-static const struct YamlIdStr enum_SwitchConfig[] = {
+static const struct YamlIdStr enum_switchConfig[] = {
+    {  SWITCH_NONE, "NONE"  },
+    {  SWITCH_TOGGLE, "TOGGLE"  },
+    {  SWITCH_2POS, "2POS"  },
+    {  SWITCH_3POS, "3POS"  },
     {  SWITCH_NONE, "none"  },
     {  SWITCH_TOGGLE, "toggle"  },
     {  SWITCH_2POS, "2pos"  },
@@ -896,7 +898,7 @@ static const struct YamlIdStr enum_SwitchConfig[] = {
 
 static const struct YamlNode struct_switchConfig[] = {
     YAML_IDX_CUST( "sw", sw_read, sw_write),
-    YAML_ENUM( "type", 2, enum_SwitchConfig),
+    YAML_ENUM( "type", 2, enum_switchConfig),
     YAML_CUSTOM( "name", sw_name_read, sw_name_write),
     YAML_END
 };
@@ -908,13 +910,11 @@ static bool flex_sw_valid(void* user, uint8_t* data, uint32_t bitoffs)
   return switchIsFlexValid_raw(idx);
 }
 
-uint8_t boardGetMaxSwitches();
-
 static uint32_t flex_sw_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
   auto idx = switchLookupIdx(val, val_len);
-  return idx - boardGetMaxSwitches();
+  return idx - switchGetMaxSwitches();
 }
 
 bool flex_sw_write(void* user, yaml_writer_func wf, void* opaque)
@@ -922,8 +922,8 @@ bool flex_sw_write(void* user, yaml_writer_func wf, void* opaque)
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
-  auto sw_offset = boardGetMaxSwitches();
-  const char* str = switchGetCanonicalName(idx + sw_offset);
+  auto sw_offset = switchGetMaxSwitches();
+  const char* str = switchGetDefaultName(idx + sw_offset);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
 
@@ -1121,7 +1121,7 @@ static bool w_swtchSrc_unquoted(const YamlNode* node, uint32_t val,
     if (sval <= SWSRC_LAST_SWITCH) {
 
       auto sw_info = switchInfo(sval);
-      str = switchGetCanonicalName(sw_info.quot);
+      str = switchGetDefaultName(sw_info.quot);
       if (!str) return true;
       wf(opaque, str, strlen(str));
       str = yaml_unsigned2str(sw_info.rem);
@@ -2369,3 +2369,158 @@ static void r_serialMode(void* user, uint8_t* data, uint32_t bitoffs,
   *serialPort = (*serialPort & ~(0xF << port_nr * SERIAL_CONF_BITS_PER_PORT)) |
                 (m << port_nr * SERIAL_CONF_BITS_PER_PORT);
 }
+
+#if defined(FUNCTION_SWITCHES)
+
+static uint16_t getIdx(void *user)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  return tw->getElmts(1);
+}
+
+static void r_cfs_name(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  uint16_t idx = getIdx(user);
+  strAppend(g_model.customSwitches[idx].name, val, LEN_SWITCH_NAME);
+}
+
+static const struct YamlNode struct_cfsNameConfig[] = {
+  YAML_IDX,
+  YAML_CUSTOM( "val", r_cfs_name, nullptr),
+  YAML_END
+};
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+static void r_cfs_on_color_r(void* user, uint8_t* data, uint32_t bitoffs,
+                             const char* val, uint8_t val_len)
+{
+  uint16_t idx = getIdx(user);
+  g_model.customSwitches[idx].onColor.r = yaml_str2uint(val, val_len);
+}
+
+static void r_cfs_on_color_g(void* user, uint8_t* data, uint32_t bitoffs,
+                             const char* val, uint8_t val_len)
+{
+  uint16_t idx = getIdx(user);
+  g_model.customSwitches[idx].onColor.g = yaml_str2uint(val, val_len);
+}
+
+static void r_cfs_on_color_b(void* user, uint8_t* data, uint32_t bitoffs,
+                             const char* val, uint8_t val_len)
+{
+  uint16_t idx = getIdx(user);
+  g_model.customSwitches[idx].onColor.b = yaml_str2uint(val, val_len);
+}
+
+static const struct YamlNode struct_cfsOnColorConfig[] = {
+  YAML_IDX,
+  YAML_CUSTOM( "r", r_cfs_on_color_r, nullptr),
+  YAML_CUSTOM( "g", r_cfs_on_color_g, nullptr),
+  YAML_CUSTOM( "b", r_cfs_on_color_b, nullptr),
+  YAML_END
+};
+
+static void r_cfs_off_color_r(void* user, uint8_t* data, uint32_t bitoffs,
+                             const char* val, uint8_t val_len)
+{
+  uint16_t idx = getIdx(user);
+  g_model.customSwitches[idx].offColor.r = yaml_str2uint(val, val_len);
+}
+
+static void r_cfs_off_color_g(void* user, uint8_t* data, uint32_t bitoffs,
+                             const char* val, uint8_t val_len)
+{
+  uint16_t idx = getIdx(user);
+  g_model.customSwitches[idx].offColor.g = yaml_str2uint(val, val_len);
+}
+
+static void r_cfs_off_color_b(void* user, uint8_t* data, uint32_t bitoffs,
+                             const char* val, uint8_t val_len)
+{
+  uint16_t idx = getIdx(user);
+  g_model.customSwitches[idx].offColor.b = yaml_str2uint(val, val_len);
+}
+
+static const struct YamlNode struct_cfsOffColorConfig[] = {
+  YAML_IDX,
+  YAML_CUSTOM( "r", r_cfs_off_color_r, nullptr),
+  YAML_CUSTOM( "g", r_cfs_off_color_g, nullptr),
+  YAML_CUSTOM( "b", r_cfs_off_color_b, nullptr),
+  YAML_END
+};
+#endif
+
+static uint32_t cfs_idx_read(void* user, const char* val, uint8_t val_len)
+{
+  return switchGetCustomSwitchIdx(switchLookupIdx(val, val_len));
+}
+
+static bool cfs_idx_write(void* user, yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+
+  const char* str = switchGetDefaultName(switchGetSwitchFromCustomIdx(idx));
+  return str ? wf(opaque, str, strlen(str)) : true;
+}
+
+static const struct YamlNode struct_cfsGroupOn[] {
+  YAML_IDX,
+  YAML_UNSIGNED( "v", 1 ),
+  YAML_END,
+};
+
+static void r_functionSwitchConfig(void* user, uint8_t* data, uint32_t bitoffs,
+                        const char* val, uint8_t val_len)
+{
+  uint32_t v = yaml_str2uint(val, val_len);
+  for (int i = 0; i < 6; i += 1) {
+    g_model.customSwitches[i].type = (SwitchConfig)bfGet<uint16_t>(v, 2 * i, 2);
+  }
+}
+
+static void r_functionSwitchStartConfig(void* user, uint8_t* data, uint32_t bitoffs,
+                        const char* val, uint8_t val_len)
+{
+  uint32_t v = yaml_str2uint(val, val_len);
+  for (int i = 0; i < 6; i += 1) {
+    uint8_t b = bfGet<uint16_t>(v, 2 * i, 2);
+    if (b < 2) b ^= 1;  // Swap On & Off
+    g_model.customSwitches[i].start = (fsStartPositionType)b;
+  }
+}
+
+static void r_functionSwitchGroup(void* user, uint8_t* data, uint32_t bitoffs,
+                        const char* val, uint8_t val_len)
+{
+  uint32_t v = yaml_str2uint(val, val_len);
+  for (int i = 0; i < 6; i += 1) {
+    g_model.customSwitches[i].group = bfGet<uint16_t>(v, 2 * i, 2);
+  }
+  for (int i = 0; i <= 3; i += 1) {
+    g_model.cfsSetGroupAlwaysOn(i, bfGet<uint16_t>(v, 2 * 6 + i, 1));
+  }
+}
+
+static void r_functionSwitchLogicalState(void* user, uint8_t* data, uint32_t bitoffs,
+                        const char* val, uint8_t val_len)
+{
+  uint32_t v = yaml_str2uint(val, val_len);
+  for (int i = 0; i < 6; i += 1) {
+    g_model.customSwitches[i].state = bfGet<uint16_t>(v, 1 * i, 1);
+  }
+}
+
+bool cfsGroupIsActive(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+  return idx > 0 && idx <= NUM_FUNCTIONS_GROUPS;
+}
+
+bool isAlwaysActive(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  return true;
+}
+#endif

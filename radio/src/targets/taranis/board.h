@@ -96,7 +96,11 @@ enum {
 
 #if defined(FUNCTION_SWITCHES)
 
+#if defined(RADIO_GX12)
+#define NUM_FUNCTIONS_SWITCHES 8
+#else
 #define NUM_FUNCTIONS_SWITCHES 6
+#endif
 #define NUM_FUNCTIONS_GROUPS   3
 
 #define DEFAULT_FS_CONFIG                                         \

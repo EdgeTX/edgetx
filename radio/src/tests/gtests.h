@@ -45,7 +45,14 @@ extern const char * nchar2string(const char * string, int size);
 #define EXPECT_STRNEQ(c_string, n_string)   EXPECT_STREQ(c_string, nchar2string(n_string, sizeof(n_string)))
 
 #define RADIO_RESET() \
-  g_eeGeneral.switchConfig = 0x00007bff
+  g_eeGeneral.setSwitchConfig(0, SWITCH_3POS); \
+  g_eeGeneral.setSwitchConfig(1, SWITCH_3POS); \
+  g_eeGeneral.setSwitchConfig(2, SWITCH_3POS); \
+  g_eeGeneral.setSwitchConfig(3, SWITCH_3POS); \
+  g_eeGeneral.setSwitchConfig(4, SWITCH_3POS); \
+  g_eeGeneral.setSwitchConfig(5, SWITCH_2POS); \
+  g_eeGeneral.setSwitchConfig(6, SWITCH_3POS); \
+  g_eeGeneral.setSwitchConfig(7, SWITCH_TOGGLE)
 
 inline void SYSTEM_RESET()
 {
@@ -91,7 +98,7 @@ inline void TELEMETRY_RESET()
   memclear(g_model.telemetrySensors, sizeof(g_model.telemetrySensors));
 }
 
-class OpenTxTest : public testing::Test 
+class EdgeTxTest : public testing::Test 
 {
   protected:  // You should make the members protected s.t. they can be
               // accessed from sub-classes.
