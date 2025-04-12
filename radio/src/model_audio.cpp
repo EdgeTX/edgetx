@@ -58,7 +58,7 @@ bool getSwitchAudioFile(char* path, swsrc_t index)
 
   if (index <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(index);
-    auto sw_name = switchGetName(swinfo.quot);
+    auto sw_name = switchGetDefaultName(swinfo.quot);
     if (!sw_name) return false;
     str = strAppend(str, sw_name);
     str = strAppend(str, _sw_positions[swinfo.rem]);
@@ -118,7 +118,7 @@ bool matchSwitchAudioFile(const char* filename, int& sw_pos)
   // Switches Audio Files <switchname>-[up|mid|down].wav
   for (int i = 0; i < switchGetMaxSwitches(); i++) {
     auto* c = filename;
-    auto sw_name = switchGetName(i);
+    auto sw_name = switchGetDefaultName(i);
     auto sw_name_len = strlen(sw_name);
     if (strncasecmp(c, sw_name, sw_name_len) != 0) continue;
     c += sw_name_len;
