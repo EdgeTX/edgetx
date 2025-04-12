@@ -219,6 +219,8 @@ class MenuBody : public TableField
   void onDrawBegin(uint16_t row, uint16_t col,
                    lv_obj_draw_part_dsc_t* dsc) override
   {
+    if (lines.size() == 0) return;
+
     lv_canvas_t* icon = (lv_canvas_t*)lines[row]->getIcon();
     if (!icon) return;
 
