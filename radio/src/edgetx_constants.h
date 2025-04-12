@@ -40,8 +40,8 @@ enum FlexAnalogConfig {
 };
 
 enum fsStartPositionType {
-  FS_START_ON,
   FS_START_OFF,
+  FS_START_ON,
   FS_START_PREVIOUS
 };
 

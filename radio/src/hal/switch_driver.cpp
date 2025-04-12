@@ -31,15 +31,18 @@
 // Board API
 void boardInitSwitches();
 
-SwitchHwPos boardSwitchGetPosition(SwitchCategory cat, uint8_t idx);
+SwitchHwPos boardSwitchGetPosition(uint8_t idx);
 
-const char* boardSwitchGetName(SwitchCategory cat, uint8_t idx);
-SwitchHwType boardSwitchGetType(SwitchCategory cat, uint8_t idx);
+const char* boardSwitchGetName(uint8_t idx);
+SwitchHwType boardSwitchGetType(uint8_t idx);
 
+#if defined(FUNCTION_SWITCHES)
+bool boardIsCustomSwitch(uint8_t idx);
+uint8_t boardGetCustomSwitchIdx(uint8_t idx);
+#endif
 uint8_t boardGetMaxSwitches();
-uint8_t boardGetMaxFctSwitches();
 
-swconfig_t boardSwitchGetDefaultConfig();
+SwitchConfig boardSwitchGetDefaultConfig(uint8_t n);
 
 constexpr uint8_t _INVALID_ADC_CH = 0xFF;
 
@@ -51,14 +54,34 @@ void switchInit()
   boardInitSwitches();
 }
 
-swconfig_t switchGetDefaultConfig() { return boardSwitchGetDefaultConfig(); }
+SwitchConfig switchGetDefaultConfig(uint8_t n) { return boardSwitchGetDefaultConfig(n); }
+
+#if defined(FUNCTION_SWITCHES)
+bool switchIsCustomSwitch(int sw)
+{
+  return boardIsCustomSwitch(sw);
+}
+
+uint8_t switchGetCustomSwitchIdx(uint8_t sw)
+{
+  return boardGetCustomSwitchIdx(sw);
+}
+
+uint8_t switchGetSwitchFromCustomIdx(uint8_t idx)
+{
+  for (uint8_t i = 0; i < switchGetMaxSwitches(); i += 1)
+    if (switchIsCustomSwitch(i) && switchGetCustomSwitchIdx(i) == idx)
+      return i;
+  return switchGetMaxSwitches();
+}
+#else
+bool switchIsCustomSwitch(int sw) { return false; }
+#endif
 
 uint8_t switchGetMaxSwitches()
 {
   return boardGetMaxSwitches() + MAX_FLEX_SWITCHES;
 }
-
-uint8_t switchGetMaxFctSwitches() { return boardGetMaxFctSwitches(); }
 
 uint32_t switchState(uint8_t pos_idx)
 {
@@ -74,7 +97,7 @@ SwitchHwPos switchGetPosition(uint8_t sw_idx)
   auto idx = (int)sw_idx;
   auto max_switches = boardGetMaxSwitches();
   if (idx < max_switches) {
-    return boardSwitchGetPosition(SWITCH_PHYSICAL, idx);
+    return boardSwitchGetPosition(idx);
   }
 
   idx -= max_switches;
@@ -95,12 +118,6 @@ SwitchHwPos switchGetPosition(uint8_t sw_idx)
 
       return ret;
     }
-
-    idx -= MAX_FLEX_SWITCHES;
-  }
-
-  if (idx < boardGetMaxFctSwitches()) {
-    return boardSwitchGetPosition(SWITCH_FUNCTION, idx);
   }
   
   return SWITCH_HW_UP;
@@ -113,12 +130,12 @@ static const char * const _flex_sw_canon_names[] = {
 static_assert(DIM(_flex_sw_canon_names) >= MAX_FLEX_SWITCHES,
 	      "Missing canonical name for flex switches");
 
-const char* switchGetName(uint8_t sw_idx)
+const char* switchGetDefaultName(uint8_t sw_idx)
 {
   auto idx = (int)sw_idx;
   auto max_switches = boardGetMaxSwitches();
   if (idx < max_switches) {
-    return boardSwitchGetName(SWITCH_PHYSICAL, idx);
+    return boardSwitchGetName(idx);
   }
 
   idx -= max_switches;
@@ -129,10 +146,6 @@ const char* switchGetName(uint8_t sw_idx)
 
     idx -= MAX_FLEX_SWITCHES;
   }
-
-  if (idx < boardGetMaxFctSwitches()) {
-    return boardSwitchGetName(SWITCH_FUNCTION, idx);
-  }
   
   return nullptr;
 }
@@ -142,7 +155,7 @@ SwitchHwType switchGetHwType(uint8_t sw_idx)
   auto idx = (int)sw_idx;
   auto max_switches = boardGetMaxSwitches();
   if (idx < max_switches) {
-    return boardSwitchGetType(SWITCH_PHYSICAL, idx);
+    return boardSwitchGetType(idx);
   }
 
   idx -= max_switches;
@@ -156,7 +169,7 @@ SwitchHwType switchGetHwType(uint8_t sw_idx)
 bool switchIsFlex(uint8_t idx)
 {
   auto max_switches = boardGetMaxSwitches();
-  return idx >= max_switches && idx < max_switches + MAX_FLEX_SWITCHES;
+  return idx >= max_switches && idx < switchGetMaxSwitches();
 }
 
 void switchConfigFlex_raw(uint8_t idx, int8_t channel)
@@ -238,8 +251,7 @@ bool switchIsFlexInputAvailable(uint8_t idx, uint8_t channel)
 static void invalidate_flex_config(uint8_t flex_idx)
 {
   auto sw_idx = flex_idx + boardGetMaxSwitches();
-  swconfig_t mask = (swconfig_t)SWITCH_CONFIG_MASK(sw_idx);
-  g_eeGeneral.switchConfig &= ~mask;
+  g_eeGeneral.setSwitchConfig(sw_idx, SWITCH_NONE);
 
   _flex_switches[flex_idx] = _INVALID_ADC_CH;
 }
