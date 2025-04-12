@@ -17,5 +17,3 @@
 
 #include "hal/switch_driver.h"
 #include "stm32_switch_driver.h"
-
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx) {return SWITCH_HW_MID;}

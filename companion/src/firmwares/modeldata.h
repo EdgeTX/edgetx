@@ -111,6 +111,21 @@ class RGBLedColor {
     int g;
     int b;
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(RGBLedColor)); }
+    void setColor(int red, int green, int blue) { r = red; g = green; b = blue; }
+};
+
+class customSwitch {
+  public:
+    customSwitch() { clear(); }
+    unsigned int type;
+    unsigned int group;
+    unsigned int start;
+    unsigned int state;
+    unsigned int sfState;
+    char name[HARDWARE_NAME_LEN + 1];
+    RGBLedColor onColor;
+    RGBLedColor offColor;
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(customSwitch)); }
 };
 
 class ModelData {
@@ -237,13 +252,11 @@ class ModelData {
     };
 
     // Function switches
-    unsigned int functionSwitchConfig;
-    unsigned int functionSwitchGroup;
-    unsigned int functionSwitchStartConfig;
-    unsigned int functionSwitchLogicalState;
+    customSwitch customSwitches[CPN_MAX_SWITCHES_FUNCTION];
     char functionSwitchNames[CPN_MAX_SWITCHES_FUNCTION][HARDWARE_NAME_LEN + 1];
     RGBLedColor functionSwitchLedONColor[CPN_MAX_SWITCHES_FUNCTION];
     RGBLedColor functionSwitchLedOFFColor[CPN_MAX_SWITCHES_FUNCTION];
+    unsigned int cfsGroupOn[4];
 
     // Custom USB joytsick mapping
     unsigned int usbJoystickExtMode;
