@@ -158,6 +158,8 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
       return 0x4878746F;
+    case BOARD_FLYSKY_ST16:
+      return 0x4C78746F;
     default:
       return 0;
   }
@@ -216,6 +218,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
+    case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
       return 0;
@@ -275,6 +278,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
+    case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
       return FSIZE_HORUS;
@@ -373,7 +377,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 480;
-      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board))
+      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_FLYSKY_ST16(board))
         return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
@@ -383,7 +387,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdWidth:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 320;
-      else if (IS_FAMILY_PL18(board))
+      else if (IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
         return 480;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
@@ -656,7 +660,9 @@ QString Boards::getBoardName(Board::Type board)
     case BOARD_FLYSKY_PL18:
       return "FlySky PL18";
     case BOARD_FLYSKY_PL18EV:
-      return "FlySky PL18EV";        
+      return "FlySky PL18EV";
+    case BOARD_FLYSKY_ST16:
+      return "FlySky ST16";
     case BOARD_BETAFPV_LR3PRO:
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
@@ -769,6 +775,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_TPROV2:
   case BOARD_FLYSKY_PL18:
   case BOARD_FLYSKY_PL18EV:
+  case BOARD_FLYSKY_ST16:
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
@@ -855,6 +862,9 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_FLYSKY_PL18:
     case BOARD_FLYSKY_PL18EV:
       BR(35, 43, 37)
+      break;
+    case BOARD_FLYSKY_ST16:
+      BR(70, 86,80)
       break;
     case BOARD_IFLIGHT_COMMANDO8:
       BR(30, 42, 32)
