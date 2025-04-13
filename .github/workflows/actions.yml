@@ -72,7 +72,7 @@ jobs:
           - mt12
           - gx12
           - nb4p
-          #- st16
+          - st16
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.11
       volumes:
