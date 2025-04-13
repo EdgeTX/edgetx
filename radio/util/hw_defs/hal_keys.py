@@ -131,6 +131,12 @@ KEY_LABELS = [
             "MENU": { "label": "Menu" }
         }
     },
+    {
+        "targets": {"st16"},
+        "keys": {
+            "PAGEDN": { "label": "MENU" }
+        }
+    },
 ]
 
 class Key:
