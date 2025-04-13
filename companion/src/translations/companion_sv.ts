@@ -1618,9 +1618,10 @@ Felbeskrivning: %4</translation>
         <translation>Det finns ännu ingen simulator för denna typ av firmware</translation>
     </message>
     <message>
-        <location filename="../helpers.cpp" line="381"/>
         <location filename="../helpers.cpp" line="389"/>
-        <location filename="../helpers.cpp" line="426"/>
+        <location filename="../helpers.cpp" line="406"/>
+        <location filename="../helpers.cpp" line="414"/>
+        <location filename="../helpers.cpp" line="451"/>
         <source>Simulator Error</source>
         <translation>Simuatorfel</translation>
     </message>
@@ -1717,29 +1718,44 @@ Vill du hämta inställningarna från en fil?</translation>
         <translation>Tryck på &apos;Försök igen&apos; för att välja en annan fil.</translation>
     </message>
     <message>
-        <location filename="../helpers.cpp" line="380"/>
-        <source>Error creating temporary directory for models and settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../helpers.cpp" line="388"/>
+        <source>Uknown error during Simulator startup.</source>
+        <translation>Okänt fel under uppstart av simulatorn.</translation>
+    </message>
+    <message>
+        <location filename="../helpers.cpp" line="395"/>
+        <source>Data Load Error</source>
+        <translation>Fel vid dataladdning</translation>
+    </message>
+    <message>
+        <location filename="../helpers.cpp" line="395"/>
+        <source>Error occurred while starting simulator.</source>
+        <translation>Fel inträffade under uppstart av simulatorn.</translation>
+    </message>
+    <message>
+        <location filename="../helpers.cpp" line="405"/>
+        <source>Error creating temporary directory for models and settings.</source>
+        <translation>Fel vid skapande av temporär katalog för modeller och inställningar.</translation>
+    </message>
+    <message>
+        <location filename="../helpers.cpp" line="413"/>
         <source>Error writing models and settings to temporary directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vis skrivning av modeller och inställningar till temporär katalog.</translation>
     </message>
     <message>
-        <location filename="../helpers.cpp" line="419"/>
+        <location filename="../helpers.cpp" line="444"/>
         <source>Unable to start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte starta.</translation>
     </message>
     <message>
-        <location filename="../helpers.cpp" line="421"/>
+        <location filename="../helpers.cpp" line="446"/>
         <source>Crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kraschade.</translation>
     </message>
     <message>
-        <location filename="../helpers.cpp" line="423"/>
+        <location filename="../helpers.cpp" line="448"/>
         <source>Exited with result code:</source>
-        <translation type="unfinished"></translation>
+        <translation>Avslutades med resultatkod:</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="60"/>
@@ -7775,7 +7791,7 @@ Vill du fortsätta?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="862"/>
         <source>View</source>
-        <translation>Vy</translation>
+        <translation>Utseende</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="863"/>
@@ -13041,12 +13057,12 @@ Gasen reverseras om alternativet väljs. Tomgång ligger då uppåt. Trim och ga
     <message>
         <location filename="../simulator.cpp" line="133"/>
         <source>Flags passed from Companion</source>
-        <translation type="unfinished"></translation>
+        <translation>Flaggor skickade från Companion</translation>
     </message>
     <message>
         <location filename="../simulator.cpp" line="134"/>
         <source>flags</source>
-        <translation type="unfinished"></translation>
+        <translation>flaggor</translation>
     </message>
     <message>
         <location filename="../simulator.cpp" line="136"/>
@@ -17088,37 +17104,37 @@ Bearbeta nu?</translation>
     <message>
         <location filename="../wizarddata.cpp" line="73"/>
         <source>FlapUp</source>
-        <translation>Klaffar upp</translation>
+        <translation>KlfUpp</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="74"/>
         <source>FlapDn</source>
-        <translation>Klaffar ner</translation>
+        <translation>KlfNer</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="78"/>
         <source>ArbkOf</source>
-        <translation>Lufbroms av</translation>
+        <translation>BrmsAv</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="79"/>
         <source>ArbkOn</source>
-        <translation>Luftbroms på</translation>
+        <translation>BrmsPå</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="121"/>
         <source>Cut</source>
-        <translation type="unfinished">Klipp ut</translation>
+        <translation>Av</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="129"/>
         <source>Flt</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="137"/>
         <source>Thr</source>
-        <translation type="unfinished">Gas</translation>
+        <translation>Gas</translation>
     </message>
 </context>
 <context>
@@ -17176,7 +17192,7 @@ Bearbeta nu?</translation>
     <message>
         <location filename="../wizarddialog.cpp" line="38"/>
         <source>Has your model got flaps?</source>
-        <translation>Har din model klaffar?</translation>
+        <translation>Har din modell klaffar?</translation>
     </message>
     <message>
         <location filename="../wizarddialog.cpp" line="39"/>
