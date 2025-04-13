@@ -65,25 +65,18 @@ void WizMix::addMix(ModelData &model, Input input, int weight, int channel, int 
     if (input >= RUDDER_INPUT && input <= AILERONS_INPUT) {
       MixData & mix = model.mixData[mixIndex++];
       mix.destCh = channel + 1;
-      if (IS_SKY9X(getCurrentBoard())) {
-        mix.srcRaw = RawSource(SOURCE_TYPE_INPUT, input + 1);
-      }
-      else {
-        int channel = settings.getDefaultChannel(input - 1);
-        mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, channel + 1);
-      }
-
+      mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, settings.getDefaultChannel(input - 1) + 1);
       mix.weight = weight;
     }
     else if (input==FLAPS_INPUT){
       // There ought to be some kind of constants for switches somewhere...
-      maxMixSwitch((char *)tr("Flaps Up").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? -SWITCH_ELE : SWITCH_SA0, weight); //Taranis-Horus SA-UP, 9X ELE-UP
-      maxMixSwitch((char *)tr("Flaps Dn").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? SWITCH_ELE : SWITCH_SA2, -weight); //Taranis-Horus SA-DOWN, 9X ELE-DOWN
+      maxMixSwitch((char *)tr("FlapUp").toLatin1().data(), model.mixData[mixIndex++], channel+1, SWITCH_SA0 - 1, weight);
+      maxMixSwitch((char *)tr("FlapDn").toLatin1().data(), model.mixData[mixIndex++], channel+1, SWITCH_SA2 - 1, -weight);
 
     }
     else if (input==AIRBRAKES_INPUT){
-      maxMixSwitch((char *)tr("AirbkOff").toLatin1().data(), model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? -SWITCH_RUD : SWITCH_SE0, -weight); //Taranis-Horus SE-UP, 9X RUD-UP
-      maxMixSwitch((char *)tr("AirbkOn").toLatin1().data(),  model.mixData[mixIndex++], channel+1, IS_SKY9X(getCurrentBoard()) ? SWITCH_RUD : SWITCH_SE2, weight); //Tatanis-Horus SE-DOWN, 9X RUD-DOWN
+      maxMixSwitch((char *)tr("ArbkOf").toLatin1().data(), model.mixData[mixIndex++], channel+1, SWITCH_SE0 - 1, -weight);
+      maxMixSwitch((char *)tr("ArbkOn").toLatin1().data(),  model.mixData[mixIndex++], channel+1, SWITCH_SE2 - 1, weight);
     }
   }
 }
@@ -122,10 +115,10 @@ WizMix::operator ModelData()
         mix.srcRaw = RawSource(SOURCE_TYPE_MAX);
         mix.weight = -100;
         mix.swtch.type = SWITCH_TYPE_SWITCH;
-        mix.swtch.index = IS_SKY9X(getCurrentBoard()) ? SWITCH_THR : SWITCH_SF0;
+        mix.swtch.index = SWITCH_SF0;
         mix.mltpx = MLTPX_REP;
         memset(mix.name, 0, sizeof(mix.name));
-        strncpy(mix.name, tr("Cut").toLatin1().data(), MIXDATA_NAME_LEN);
+        strncpy(mix.name, WizMix::tr("Cut").toLatin1().data(), MIXDATA_NAME_LEN);
       }
     }
   }
@@ -133,7 +126,7 @@ WizMix::operator ModelData()
   // Add the Flight Timer option
   if (options[FLIGHT_TIMER_OPTION] && throttleChannel >= 0){
     memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
-    strncpy(model.timers[timerIndex].name, tr("Flt").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
+    strncpy(model.timers[timerIndex].name, WizMix::tr("Flt").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
     model.timers[timerIndex].mode = TimerData::TIMERMODE_START;
     timerIndex++;
   }
@@ -141,7 +134,7 @@ WizMix::operator ModelData()
   // Add the Throttle Timer option
   if (options[THROTTLE_TIMER_OPTION] && throttleChannel >= 0){
     memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
-    strncpy(model.timers[timerIndex].name, tr("Thr").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
+    strncpy(model.timers[timerIndex].name, WizMix::tr("Thr").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
     model.timers[timerIndex].mode = TimerData::TIMERMODE_THR;
     timerIndex++;
   }
