@@ -231,6 +231,7 @@ const void LuaWidgetFactory::parseOptionDefaults() const
               option->min.signedValue = luaL_checkinteger(lsWidgets, -1);
             } else if (option->type == ZoneOption::Choice) {
               luaL_checktype(lsWidgets, -1, LUA_TTABLE); // value is a table
+              option->choiceValues.clear();
               for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
                 option->choiceValues.push_back(luaL_checkstring(lsWidgets, -1));
               }
