@@ -162,7 +162,6 @@ endif()
 if(HAS_GYRO_SENSOR)
   set(FIRMWARE_SRC ${FIRMWARE_SRC}
   targets/common/arm/stm32/imu_42627.cpp
-  targets/common/arm/stm32/imu4.cpp
   )
   add_definitions(-DGYRO_SENSOR)
   message("-- Adding support for Gyro")

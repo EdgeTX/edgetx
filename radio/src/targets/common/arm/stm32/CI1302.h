@@ -35,12 +35,7 @@ extern "C" int GetVoiceInput(uint8_t* rxchar);
 extern "C" int dbgGetByte(uint8_t* byte);
 extern "C" void voiceSerialPutstr(uint8_t* byte, uint32_t len);
 
-extern bool VoiceGearStatus;
-extern uint8_t VoiceFlapStatus;
-extern bool VoicePowerStatus;
-
 extern bool VoiceRunStatus;
-extern bool MotionControlStatus;
 
 #ifdef __cplusplus
 }

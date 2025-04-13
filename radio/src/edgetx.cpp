@@ -232,10 +232,6 @@ void timer_10ms()
   readCSD203();
 #endif
 
-#if defined(GYRO_SENSOR)
-  GetIMU42627(0);
-#endif
-
 #if defined(CI1302_SENSOR)
   processVoiceInput();
   processUpdataInput();

@@ -188,7 +188,6 @@ void boardInit()
 
 #if defined(GYRO_SENSOR)
   IICimu42627init();
-  imu42627Init();
 #endif
 
 // If the radio was powered on by dual use USB, halt the boot process, let battery charge
