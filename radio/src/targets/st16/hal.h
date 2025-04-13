@@ -381,6 +381,7 @@
 
 // LED Strip
 #define LED_STRIP_LENGTH                  24
+#define RGB_LED_OFFSET                    12
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 15)  // PA.15 / TIM2_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
 #define LED_STRIP_TIMER                   TIM2
