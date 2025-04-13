@@ -17119,7 +17119,7 @@ Bearbeta nu?</translation>
     <message>
         <location filename="../wizarddata.cpp" line="79"/>
         <source>ArbkOn</source>
-        <translation>BrmsPå</translation>
+        <translation>BrmsPa</translation>
     </message>
     <message>
         <location filename="../wizarddata.cpp" line="121"/>
