@@ -39,6 +39,7 @@ bool isUF2FirmwareFile(const char * filename);
 
 bool extractUF2FirmwareVersion(const void* block, VersionTag* tag);
 
+#if defined(STM32) && !defined(SIMU)
 void writeUF2FirmwareVersion(void* block);
 void writeUF2RebootBlock(void* block);
-
+#endif
