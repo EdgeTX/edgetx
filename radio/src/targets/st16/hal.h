@@ -108,8 +108,8 @@
 
 #define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_6      // PA.06 VRA
 #define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 VRB
-#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_7      // PA.07 VRD/RS
-#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_0      // PB.00 VRC/LS
+#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_0      // PB.00 VRC/LS
+#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_7      // PA.07 VRD/RS
 
 // If serial gimbals are used, we can reuse the channels
 #define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_0      // PA.00 EXT1
@@ -127,10 +127,10 @@
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_1      // PC.01
 
 #define ADC_GPIOA_PINS                                                \
-  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_STICK_LH | \
+  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SLIDER2 | ADC_GPIO_PIN_STICK_LH | \
    ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
 
-#define ADC_GPIOB_PINS (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SLIDER2)
+#define ADC_GPIOB_PINS (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SLIDER1)
 
 #define ADC_GPIOC_PINS (ADC_GPIO_PIN_SWA | ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_BATT)
 
@@ -145,8 +145,8 @@
 // Each ADC cannot map more than 8 channels, otherwise it will cause problems
 #define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_3    // ADC12_INP3
 #define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_7    // ADC12_INP7
-#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_9    // ADC12_INP9
+#define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_9    // ADC12_INP9
+#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_7    // ADC12_INP7
 
 // Ext inputs: analog gimbal channel re-use
 #define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_14    // ADC12_INP14
