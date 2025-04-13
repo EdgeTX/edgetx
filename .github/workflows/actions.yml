@@ -145,6 +145,7 @@ jobs:
             fw.json
             LICENSE
             *.bin
+            *.uf2
           retention-days: 15
           if-no-files-found: error
 
