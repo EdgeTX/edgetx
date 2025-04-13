@@ -216,10 +216,10 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     if (stTyp == "file") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
     }
-    else  if (stTyp == "folder") {
+    else if (stTyp == "folder") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_FOLDER;
     }
-    else  if (stTyp == "sd") {
+    else if (stTyp == "sd") {
       simOptions->startupDataType = SimulatorOptions::START_WITH_SDPATH;
     }
     else {
