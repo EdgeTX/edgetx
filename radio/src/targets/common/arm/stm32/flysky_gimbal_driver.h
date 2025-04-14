@@ -128,7 +128,7 @@ extern signed short hall_raw_values[FLYSKY_HALL_CHANNEL_COUNT];
 extern unsigned short hall_adc_values[FLYSKY_HALL_CHANNEL_COUNT];
 
 // returns true if the gimbals were detected properly
-bool flysky_gimbal_init();
+bool flysky_gimbal_init(bool force = false);
 
 void flysky_gimbal_deinit();
 const etx_serial_port_t* flysky_gimbal_get_port();
