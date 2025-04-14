@@ -165,7 +165,7 @@ void flysky_gimbal_deinit()
   STM32SerialDriver.deinit(_fs_usart_ctx);
 }
 
-bool flysky_gimbal_init()
+bool flysky_gimbal_init(bool force)
 {
   etx_serial_init cfg = {
     .baudrate = FLYSKY_HALL_BAUDRATE,
@@ -174,7 +174,7 @@ bool flysky_gimbal_init()
     .polarity = ETX_Pol_Normal,
   };
 
-  _fs_gimbal_detected = false;
+  _fs_gimbal_detected = force;
   _fs_usart_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(FSGimbal), &cfg);
   STM32SerialDriver.setIdleCb(_fs_usart_ctx, flysky_gimbal_loop, 0);
 

@@ -1115,7 +1115,7 @@ static void spGimbalDeInit(int port_n)
 {
   (void)port_n;
   _sp_drv->deinit(_sp_ctx);
-  flysky_gimbal_init();
+  flysky_gimbal_init(true);
 }
 #endif
 
