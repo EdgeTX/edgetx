@@ -119,7 +119,7 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
   }
 
   //  Flex switches are not listed in json file for these radios
-  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
+  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) || IS_DUMBORC_DRO1(board) ? 2 : 0;
 
   for (int i = 1; i <= count; i++) {
     QString tag = QString("FL%1").arg(i);
