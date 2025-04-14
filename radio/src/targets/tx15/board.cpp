@@ -77,19 +77,6 @@ extern "C" void initialise_monitor_handles();
 extern "C" void flushFTL();
 #endif
 
-constexpr uint16_t vbatLedTable[] = {660, 700, 740, 780, 820, 840};
-
-static void led_strip_charge_animation(uint16_t vbat)
-{
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    if (vbat > vbatLedTable[i])
-      ws2812_set_color(i, 0, 50, 0);
-    else
-      ws2812_set_color(i, 50, 0, 0);
-  }
-  ws2812_update(&_led_timer);
-}
-
 static void led_strip_off()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
@@ -182,40 +169,6 @@ void boardInit()
   rgbLedInit();
   led_strip_off();
 
-  uint32_t press_start = 0;
-  uint32_t press_end = 0;
-  uint8_t ledOn = 0;
-
-#if !defined(DEBUG_SEGGER_RTT)
-  if (UNEXPECTED_SHUTDOWN()) {
-    pwrOn();
-  } else if (IS_UCHARGER_ACTIVE()) {
-    __enable_irq();
-    adcInit(&_adc_driver);
-    getADC();
-    pwrOn();
-    while (true) {
-      uint32_t now = timersGetMsTick();
-      getADC();  // Warning: the value read does not include VBAT calibration
-      if (pwrPressed()) {
-        press_end = now;
-        if (press_start == 0) press_start = now;
-        if ((now - press_start) > POWER_ON_DELAY) {
-          break;
-        }
-      } else if (!IS_UCHARGER_ACTIVE()) {
-        boardOff();
-      } else {
-        uint32_t press_end_touch = press_end;
-        press_start = 0;
-        led_strip_charge_animation(getBatteryVoltage());
-        delay_ms(10);
-        press_end = 0;
-      }
-    }
-  }
-#endif
-
   keysInit();
   switchInit();
   rotaryEncoderInit();
@@ -274,13 +227,3 @@ void boardOff()
 
   }
 }
-
-
-// extern "C" void * memcpy(void* dst, const void*src, size_t count)
-// {
-//   uint8_t* d = (uint8_t*)dst;
-//   const uint8_t* s = (const uint8_t*)src;
-//   while(count--)
-//     *d++ = *s++;
-//   return dst;
-// }
