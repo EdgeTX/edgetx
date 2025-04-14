@@ -420,7 +420,7 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 #if defined Q_OS_WIN
   const QString program = "simulator.exe";
 #elif defined Q_OS_APPLE
-  const QString program = "simulator.dmg";
+  const QString program = "simulator";
 #else
   const QString program = QString("simulator%1%2").arg(VERSION_MAJOR).arg(VERSION_MINOR);
 #endif
@@ -445,7 +445,7 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
   else if (result == -1)
     resultMsg = QCoreApplication::translate("Companion", "Crashed.");
   else if (result > 0)
-    resultMsg = QCoreApplication::translate("Companion", "Exited with result code:") % QString(result);
+    resultMsg = QCoreApplication::translate("Companion", "Exited with result code:") % QString::number(result);
 
   if (result != 0)
     QMessageBox::critical(NULL, QCoreApplication::translate("Companion", "Simulator Error"), resultMsg);
