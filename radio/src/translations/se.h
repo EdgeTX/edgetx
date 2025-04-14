@@ -94,29 +94,29 @@
 #define TR_CSWEQUAL                     "a=x"
 #define TR_VCSWFUNC                     "---",TR_CSWEQUAL,"a" STR_CHAR_TILDE "x","a>x","a<x","|a|>x","|a|<x","AND","OR","XOR",TR_CSWSTAY,"a=b","a>b","a<b",STR_CHAR_DELTA "≥x","|" STR_CHAR_DELTA "|≥x",TR_CSWTIMER,TR_CSWSTICKY
 
-#define TR_SF_TRAINER                  "Lärare"
-#define TR_SF_INST_TRIM                "Spara trimmar"
-#define TR_SF_RESET                    "Återställ"
-#define TR_SF_SET_TIMER                "Sätt"
-#define TR_SF_VOLUME                   "Volym"
-#define TR_SF_FAILSAFE                 "Sätt failsafe"
-#define TR_SF_RANGE_CHECK              "Range check"
-#define TR_SF_MOD_BIND                 "Parkoppla modul"
-#define TR_SF_RGBLEDS                  "RGB ledljus"
+#define TR_SF_TRAINER                   "Lärare"
+#define TR_SF_INST_TRIM                 "Spara trimmar"
+#define TR_SF_RESET                     "Återställ"
+#define TR_SF_SET_TIMER                 "Sätt"
+#define TR_SF_VOLUME                    "Volym"
+#define TR_SF_FAILSAFE                  "Sätt failsafe"
+#define TR_SF_RANGE_CHECK               "Range check"
+#define TR_SF_MOD_BIND                  "Parkoppla modul"
+#define TR_SF_RGBLEDS                   "RGB ledljus"
  
-#define TR_SOUND                       "Spela ljud"
-#define TR_PLAY_TRACK                  TR("Sp. upp", "Spela upp")
-#define TR_PLAY_VALUE                  "Säg värdet"
-#define TR_SF_HAPTIC                   "Haptisk"
-#define TR_SF_PLAY_SCRIPT              TR("Lua", "Lua-skript")
-#define TR_SF_BG_MUSIC                 "Musik"
-#define TR_SF_BG_MUSIC_PAUSE           "Pausa Musik"
-#define TR_SF_LOGS                     "Logga data"
-#define TR_ADJUST_GVAR                 "Justera"
-#define TR_SF_BACKLIGHT                "Belysning"
-#define TR_SF_VARIO                    "Vario"
-#define TR_SF_TEST                     "Test"
-#define TR_SF_SAFETY                   "Lås"
+#define TR_SOUND                        "Spela ljud"
+#define TR_PLAY_TRACK                   TR("Sp. upp", "Spela upp")
+#define TR_PLAY_VALUE                   "Säg värdet"
+#define TR_SF_HAPTIC                    "Haptisk"
+#define TR_SF_PLAY_SCRIPT               TR("Lua", "Lua-skript")
+#define TR_SF_BG_MUSIC                  "Musik"
+#define TR_SF_BG_MUSIC_PAUSE            "Pausa musik"
+#define TR_SF_LOGS                      "Logga data"
+#define TR_ADJUST_GVAR                  "Justera"
+#define TR_SF_BACKLIGHT                 "Belysning"
+#define TR_SF_VARIO                     "Vario"
+#define TR_SF_TEST                      "Test"
+#define TR_SF_SAFETY                    "Lås"
 
 #define TR_SF_SCREENSHOT                "Skärmbild"
 #define TR_SF_RACING_MODE               "Tävlingsläge"
@@ -140,32 +140,32 @@
 #endif
 
 
-#define LENGTH_UNIT_IMP                "fot"
-#define SPEED_UNIT_IMP                 "mph"
-#define LENGTH_UNIT_METR               "m"
-#define SPEED_UNIT_METR                "kmh"
+#define LENGTH_UNIT_IMP                 "fot"
+#define SPEED_UNIT_IMP                  "mph"
+#define LENGTH_UNIT_METR                "m"
+#define SPEED_UNIT_METR                 "kmh"
 
-#define TR_VUNITSSYSTEM                "Metriska",TR("Britt.","Brittiska")
-#define TR_VTELEMUNIT                  "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
+#define TR_VUNITSSYSTEM                 "Metriska",TR("Britt.","Brittiska")
+#define TR_VTELEMUNIT                   "-","V","A","mA","kts","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mlm","Hz","ms","us","km","dBm"
 
-#define STR_V                          (STR_VTELEMUNIT[1])
-#define STR_A                          (STR_VTELEMUNIT[2])
+#define STR_V                           (STR_VTELEMUNIT[1])
+#define STR_A                           (STR_VTELEMUNIT[2])
 
-#define TR_VTELEMSCREENTYPE            "Inget","Siffror","Staplar","Skript"
-#define TR_GPSFORMAT                   "DMS","NMEA"
+#define TR_VTELEMSCREENTYPE             "Inget","Siffror","Staplar","Skript"
+#define TR_GPSFORMAT                    "DMS","NMEA"
 
 
-#define TR_VSWASHTYPE                  "---","120","120X","140","90"
+#define TR_VSWASHTYPE                   "---","120","120X","140","90"
 
-#define TR_STICK_NAMES0                "Rod"
-#define TR_STICK_NAMES1                "Hjd"
-#define TR_STICK_NAMES2                "Gas"
-#define TR_STICK_NAMES3                "Ske"
-#define TR_SURFACE_NAMES0              "Rod"
-#define TR_SURFACE_NAMES1              "Gas"
+#define TR_STICK_NAMES0                 "Rod"
+#define TR_STICK_NAMES1                 "Hjd"
+#define TR_STICK_NAMES2                 "Gas"
+#define TR_STICK_NAMES3                 "Ske"
+#define TR_SURFACE_NAMES0               "Rod"
+#define TR_SURFACE_NAMES1               "Gas"
 
 #if defined(PCBNV14)
-#define  TR_RFPOWER_AFHDS2             "Default","Hög"
+#define  TR_RFPOWER_AFHDS2              "Default","Hög"
 #endif
 
 
@@ -185,16 +185,16 @@
   #define TR_HATSOPT                    "Endast trimm","Endast knapp","Ändringsbar","Global"
   #define TR_HATSMODE_TRIMS             "Hattläge: Trimmar"
   #define TR_HATSMODE_KEYS              "Hattläge: Knappar"
-  #define TR_HATSMODE_KEYS_HELP        "Vänster sida:\n"\
-                                       "   Höger = MDL\n"\
-                                       "   Upp = SYS\n"\
-                                       "   Ner = TELE\n"\
-                                       "\n"\
-                                       "Höger sida:\n"\
-                                       "   Vänster = PAGE<\n"\
-                                       "   Höger = PAGE>\n"\
-                                       "   Upp = PREV/INC\n"\
-                                       "   Ner = NEXT/DEC"
+  #define TR_HATSMODE_KEYS_HELP         "Vänster sida:\n"\
+                                        "   Höger = MDL\n"\
+                                        "   Upp = SYS\n"\
+                                        "   Ner = TELE\n"\
+                                        "\n"\
+                                        "Höger sida:\n"\
+                                        "   Vänster = PAGE<\n"\
+                                        "   Höger = PAGE>\n"\
+                                        "   Upp = PREV/INC\n"\
+                                        "   Ner = NEXT/DEC"
 #endif
 
 #if defined(IMU)
@@ -210,10 +210,10 @@
 #endif
 
 
-#define TR_SRC_BATT                    "Batt"
-#define TR_SRC_TIME                    "Time"
-#define TR_SRC_GPS                     "GPS"
-#define TR_SRC_TIMER                   "Tmr"
+#define TR_SRC_BATT                     "Batt"
+#define TR_SRC_TIME                     "Tid"
+#define TR_SRC_GPS                      "GPS"
+#define TR_SRC_TIMER                    "Tmr"
 
 #define TR_VTMRMODES                    "Av","På","Strt","GAs","GA%","GAt"
 #define TR_VTRAINER_MASTER_OFF          "AV"
@@ -301,17 +301,17 @@
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Brytare"
 #define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
-#define TR_FS_COLOR_LIST                "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
+#define TR_FS_COLOR_LIST                "Anpassad","Av","Vit","Röd","Grön","Gul","Orange","Blå","Rosa"
 #define TR_GROUP                        "Grupp"
 #define TR_GROUP_ALWAYS_ON              "Alltid på"
 #define TR_FS_ON_COLOR                  TR("PÅ:","PÅ färg")
 #define TR_FS_OFF_COLOR                 TR("AV:","AV färg")
-#define TR_GROUPS                       "Always on groups"
-#define TR_LAST                         "Last"
-#define TR_MORE_INFO                    "More info"
-#define TR_SWITCH_TYPE                  "Type"
-#define TR_SWITCH_STARTUP               "Startup"
-#define TR_SWITCH_GROUP                 "Group"
+#define TR_GROUPS                       "Alltid på grupper"
+#define TR_LAST                         "Sist"
+#define TR_MORE_INFO                    "Mer info"
+#define TR_SWITCH_TYPE                  "Typ"
+#define TR_SWITCH_STARTUP               "Uppstart"
+#define TR_SWITCH_GROUP                 "Grupp"
 #define TR_FUNCTION_SWITCH_GROUPS       "---", TR_SWITCH_GROUP" 1", TR_SWITCH_GROUP" 2", TR_SWITCH_GROUP" 3"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trimmar"
@@ -1002,12 +1002,12 @@
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME          "Namn"
 #define TR_PHASES_HEADERS_SW            "Brytare"
-#define TR_PHASES_HEADERS_RUD_TRIM      "Rodertrim"
-#define TR_PHASES_HEADERS_ELE_TRIM      "Höjdrodertrim"
-#define TR_PHASES_HEADERS_THT_TRIM      "Gastrim"
-#define TR_PHASES_HEADERS_AIL_TRIM      "Skevrodertrim"
-#define TR_PHASES_HEADERS_CH5_TRIM      "Trim 5"
-#define TR_PHASES_HEADERS_CH6_TRIM      "Trim 6"
+#define TR_PHASES_HEADERS_RUD_TRIM      "Rodertrimm"
+#define TR_PHASES_HEADERS_ELE_TRIM      "Höjdrodertrimm"
+#define TR_PHASES_HEADERS_THT_TRIM      "Gastrimm"
+#define TR_PHASES_HEADERS_AIL_TRIM      "Skevrodertrimm"
+#define TR_PHASES_HEADERS_CH5_TRIM      "Trimm 5"
+#define TR_PHASES_HEADERS_CH6_TRIM      "Trimm 6"
 #define TR_PHASES_HEADERS_FAD_IN        "Tona in"
 #define TR_PHASES_HEADERS_FAD_OUT       "Tona ut"
 
@@ -1099,20 +1099,20 @@
   #define TR_BL_ENABLE                  "Aktivera"
   #define TR_BL_DISABLE                 "Inaktivera"
   #if defined(RADIO_NV14_FAMILY)
-    #define TR_BL_SELECT_KEY           "[R TRIM] foer att vaelja fil"
-    #define TR_BL_FLASH_KEY            "Haall ner [R TRIM] foer att flasha"
-    #define TR_BL_ERASE_KEY            "Haall ner [R TRIM] foer att radera"
-    #define TR_BL_EXIT_KEY             "[L TRIM] foer att avsluta"
+    #define TR_BL_SELECT_KEY            "[R TRIM] foer att vaelja fil"
+    #define TR_BL_FLASH_KEY             "Haall ner [R TRIM] foer att flasha"
+    #define TR_BL_ERASE_KEY             "Haall ner [R TRIM] foer att radera"
+    #define TR_BL_EXIT_KEY              "[L TRIM] foer att avsluta"
   #elif defined(RADIO_NB4P)
-    #define TR_BL_SELECT_KEY           "[SW1A] foer att vaelja fil"
-    #define TR_BL_FLASH_KEY            "Haall ner [SW1A] foer att flasha"
-    #define TR_BL_ERASE_KEY            "Haall ner [SW1A] foer att radera"
-    #define TR_BL_EXIT_KEY             "[SW1B] foer att avsluta"
+    #define TR_BL_SELECT_KEY            "[SW1A] foer att vaelja fil"
+    #define TR_BL_FLASH_KEY             "Haall ner [SW1A] foer att flasha"
+    #define TR_BL_ERASE_KEY             "Haall ner [SW1A] foer att radera"
+    #define TR_BL_EXIT_KEY              "[SW1B] foer att avsluta"
   #else
-    #define TR_BL_SELECT_KEY           "[TR4 Dn] foer att vaelja fil"
-    #define TR_BL_FLASH_KEY            "Haall ner [TR4 Dn] foer att flasha"
-    #define TR_BL_ERASE_KEY            "Haall ner [TR4 Dn] foer att radera"
-    #define TR_BL_EXIT_KEY             "[TR4 Up] foer att avsluta"
+    #define TR_BL_SELECT_KEY            "[TR4 Dn] foer att vaelja fil"
+    #define TR_BL_FLASH_KEY             "Haall ner [TR4 Dn] foer att flasha"
+    #define TR_BL_ERASE_KEY             "Haall ner [TR4 Dn] foer att radera"
+    #define TR_BL_EXIT_KEY              "[TR4 Up] foer att avsluta"
   #endif
 #elif defined(PCBNV14)
   #define TR_BL_SELECT_KEY              "[R TRIM] foer att vaelja fil"

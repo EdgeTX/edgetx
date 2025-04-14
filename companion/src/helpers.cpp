@@ -371,6 +371,31 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
     simuData->setCurrentModel(modelIdx);
   }
 
+#ifdef __APPLE__
+  SimulatorMainWindow * dialog = new SimulatorMainWindow(parent, simulatorId, flags);
+  dialog->setWindowModality(Qt::ApplicationModal);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+
+  QObject::connect(dialog, &SimulatorMainWindow::destroyed, [simuData] (void) {
+    simulatorRunning = false;
+    // TODO simuData and Horus tmp directory is deleted on simulator close OR we could use it to get back data from the simulation
+    delete simuData;
+  });
+
+  QString resultMsg;
+  if (dialog->getExitStatus(&resultMsg)) {
+    if (resultMsg.isEmpty())
+      resultMsg = QCoreApplication::translate("Companion", "Uknown error during Simulator startup.");
+    QMessageBox::critical(NULL, QCoreApplication::translate("Companion", "Simulator Error"), resultMsg);
+    dialog->deleteLater();
+  } else if (dialog->setRadioData(simuData)) {
+    simulatorRunning = true;
+    dialog->show();
+  } else {
+    QMessageBox::critical(NULL, QCoreApplication::translate("Companion", "Data Load Error"), QCoreApplication::translate("Companion", "Error occurred while starting simulator."));
+    dialog->deleteLater();
+  }
+#else
   // the directory will be automatically deleted when QTemporaryDir goes out of scope
   QTemporaryDir tmpDir(QDir::tempPath() + "/etx-XXXXXX");
   if (tmpDir.isValid()) {
@@ -427,7 +452,7 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 
   if (simuData)
     delete simuData;
-
+#endif
 }
 
 QPixmap makePixMap(const QImage & image)

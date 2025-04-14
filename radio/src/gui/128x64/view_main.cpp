@@ -517,17 +517,10 @@ void menuMainView(event_t event)
         
         // Switches
         // -> 2 columns: one for each side
-        // -> 4 slots on each side (3 normal / 1 small)
+        // -> 4 slots on each side
         uint8_t switches = switchGetMaxSwitches();
-        uint8_t configured_switches = 0;
 
-        for (uint8_t i = 0; i < switches; i++) {
-          if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
-            configured_switches ++;
-          }
-        }
-
-        if (configured_switches < 7) {
+        if (switches < 7) {
           for (int i = 0; i < switches; ++i) {
             if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
               auto switch_display = switchGetDisplayPosition(i);
@@ -547,7 +540,7 @@ void menuMainView(event_t event)
             if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
               auto switch_display = switchGetDisplayPosition(i);
               coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
-              if (configured_switches < 9) x += 3;
+              if (switches < 9) x += 3;
               drawSmallSwitch(x, 5 * FH + 1, 4, i);
             }
           }
