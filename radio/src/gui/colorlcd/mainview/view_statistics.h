@@ -22,9 +22,25 @@
 #pragma once
 
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
-class StatisticsViewPageGroup : public TabsGroup
+class StatisticsViewPage : public PageTab
 {
  public:
-  StatisticsViewPageGroup();
+  StatisticsViewPage(PageDef& pageDef) :
+      PageTab(pageDef, PAD_ZERO)
+  {
+  }
+
+ protected:
+  void build(Window* window) override;
+};
+
+class DebugViewPage : public PageTab
+{
+ public:
+  DebugViewPage(PageDef& pageDef) : PageTab(pageDef, PAD_ZERO) {}
+
+ protected:
+  void build(Window* window) override;
 };

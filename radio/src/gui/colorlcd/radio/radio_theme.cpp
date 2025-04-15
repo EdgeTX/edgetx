@@ -388,7 +388,7 @@ class ThemeEditPage : public Page
 #endif
 
     // save and cancel
-    rect_t r = {LCD_W - (ColorEditPage::BUTTON_WIDTH + 5), PAD_MEDIUM, ColorEditPage::BUTTON_WIDTH, 0};
+    rect_t r = {LCD_W - (ColorEditPage::BUTTON_WIDTH + 5) - EdgeTxStyles::MENU_HEADER_HEIGHT, PAD_MEDIUM, ColorEditPage::BUTTON_WIDTH, 0};
     new TextButton(window, r, STR_DETAILS, [=]() {
       new ThemeDetailsDialog(_theme, [=](ThemeFile t) {
         _theme.setAuthor(t.getAuthor());
@@ -438,8 +438,8 @@ class ThemeEditPage : public Page
   StaticText *_themeName = nullptr;
 };
 
-ThemeSetupPage::ThemeSetupPage(TabsGroup *tabsGroup) :
-    PageTab(STR_THEME_EDITOR, ICON_RADIO_EDIT_THEME), tabsGroup(tabsGroup)
+ThemeSetupPage::ThemeSetupPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 

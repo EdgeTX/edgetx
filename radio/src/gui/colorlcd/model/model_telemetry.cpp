@@ -818,8 +818,8 @@ class SensorEditWindow : public SubPage
   static LAYOUT_VAL2(NUM_EDIT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 80)
 };
 
-ModelTelemetryPage::ModelTelemetryPage() :
-    PageTab(STR_MENUTELEMETRY, ICON_MODEL_TELEMETRY)
+ModelTelemetryPage::ModelTelemetryPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
   tsStyle.init();
 }

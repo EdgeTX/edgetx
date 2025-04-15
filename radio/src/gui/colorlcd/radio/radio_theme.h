@@ -21,11 +21,12 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "edgetx.h"
+#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class ListBox;
-class TabsGroup;
+class PageGroup;
 class ThemeColorPreview;
 class ThemePersistance;
 class ThemeFile;
@@ -34,7 +35,7 @@ class FileCarosell;
 class ThemeSetupPage : public PageTab
 {
  public:
-  ThemeSetupPage(TabsGroup *tabsGroup);
+  ThemeSetupPage(PageDef& pageDef);
 
   void build(Window *window) override;
   void checkEvents() override;
@@ -49,7 +50,6 @@ class ThemeSetupPage : public PageTab
 #endif
 
  protected:
-  TabsGroup *tabsGroup = nullptr;
   Window *pageWindow = nullptr;
   Window *previewWindow = nullptr;
   FileCarosell *fileCarosell = nullptr;
