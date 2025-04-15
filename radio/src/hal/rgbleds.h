@@ -29,4 +29,5 @@ void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b
 void setFSLedOFF(uint8_t index);
 void setFSLedON(uint8_t index);
 bool getFSLedState(uint8_t index);
+bool isLedControledByFS(uint8_t index);
 uint32_t getFSLedRGBColor(uint8_t index);

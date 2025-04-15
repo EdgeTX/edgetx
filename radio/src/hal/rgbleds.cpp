@@ -65,6 +65,11 @@ uint32_t getFSLedRGBColor(uint8_t index)
 {
     return fsGetLedRGB(index);
 }
+
+uint32_t getFSLedRGBColor(uint8_t index)
+{
+  rgbGetLedColor(index);
+}
 #else
 void setFSLedOFF(uint8_t index) {
   index = switchGetCustomSwitchIdx(index);
