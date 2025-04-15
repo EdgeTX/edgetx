@@ -174,8 +174,7 @@ void boardInit()
   rotaryEncoderInit();
   touchPanelInit();
   audioInit();
-  if (&_adc_driver == 0)
-    adcInit(&_adc_driver);
+  adcInit(&_adc_driver);
   hapticInit();
 
 #if defined(RTCLOCK)

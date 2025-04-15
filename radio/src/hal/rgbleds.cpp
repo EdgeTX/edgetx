@@ -68,7 +68,7 @@ uint32_t getFSLedRGBColor(uint8_t index)
 
 uint32_t getFSLedRGBColor(uint8_t index)
 {
-  rgbGetLedColor(index);
+  return rgbGetLedColor(index);
 }
 #else
 void setFSLedOFF(uint8_t index) {
