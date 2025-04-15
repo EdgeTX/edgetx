@@ -393,7 +393,6 @@
 #define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
 #define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
-#define RGB_LED_OFFSET                    12
 #define STATUS_LEDS
 
 
