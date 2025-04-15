@@ -38,6 +38,15 @@ class TextArea : public FormField
     lv_textarea_set_max_length(lvobj, length);
     lv_textarea_set_placeholder_text(lvobj, "---");
 
+    setFocusHandler([=](bool focus) {
+      if (!focus && editMode) {
+        setEditMode(false);
+        hide();
+        lv_group_focus_obj(parent->getLvObj());
+        lv_obj_clear_state(parent->getLvObj(), LV_STATE_FOCUSED);
+      }
+    });
+
     update();
   }
 
