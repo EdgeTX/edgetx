@@ -995,10 +995,13 @@ void menuModelSetup(event_t event)
           pushMenu(menuModelCFSOne);
         }
 
-        if (ZEXIST(g_model.switchNames[index]))
-          lcdDrawText(35, y, g_model.switchNames[index]);
-        else
+        if (ZEXIST(g_model.switchNames[index])) {
+          char s[LEN_SWITCH_NAME + 1];
+          strAppend(s, g_model.switchNames[index], LEN_SWITCH_NAME);
+          lcdDrawText(35, y, s);
+        } else {
           lcdDrawMMM(35, y, 0);
+        }
 
         int config = FSWITCH_CONFIG(index);
         lcdDrawText(30 + 5 * FW, y, STR_SWTYPES[config]);
