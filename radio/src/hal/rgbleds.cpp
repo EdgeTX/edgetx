@@ -86,3 +86,8 @@ bool getFSLedState(uint8_t index) {
   return fsLedState(index);
 }
 #endif
+
+void turnOffRGBLeds()
+{
+  rgbLedClearAll();
+}

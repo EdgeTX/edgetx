@@ -36,6 +36,7 @@
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
 #include "hal/audio_driver.h"
+#include "hal/rgbleds.h"
 
 #include "timers_driver.h"
 
@@ -1127,6 +1128,10 @@ void edgeTxClose(uint8_t shutdown)
 #endif
 
   sdDone();
+
+#if defined(LED_STRIP_LENGTH)
+  turnOffRGBLeds();
+#endif
 }
 
 void edgeTxResume()
