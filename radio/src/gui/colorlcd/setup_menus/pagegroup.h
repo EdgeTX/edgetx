@@ -68,7 +68,7 @@ class PageGroup : public NavWindow
 
   bool isPageGroup() override { return true; }
 
-  static LAYOUT_VAL(MENU_TITLE_TOP, 45, 45)
+  static LAYOUT_VAL(MENU_TITLE_TOP, 45, 45, LS(45))
   static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_TITLE_TOP;
 
 #if defined(HARDWARE_KEYS)

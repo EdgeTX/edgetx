@@ -31,8 +31,6 @@ class RadioSetupPage: public PageTab
 
   void build(Window * window) override;
 
-  QuickMenu::SubMenu subMenu() override { return QuickMenu::SubMenu::RADIO_SETUP; }
-
   static LAYOUT_VAL2(BTN_COLS, 3, 2)
   static LAYOUT_VAL(BTN_H, 62, 62, LS(62))
 };

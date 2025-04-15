@@ -101,9 +101,9 @@ class QuickMenu : public Window
 
   SubMenu currentPage() const { return curPage; }
 
-  static LAYOUT_VAL(QM_COLS, 8, 5)
-  static LAYOUT_VAL(QM_ROWS, 3, 6)
-  static LAYOUT_VAL(QMMAIN_ROWS, 1, 2)
+  static LAYOUT_VAL2(QM_COLS, 8, 5)
+  static LAYOUT_VAL2(QM_ROWS, 3, 6)
+  static LAYOUT_VAL2(QMMAIN_ROWS, 1, 2)
 
  protected:
   std::function<void()> cancelHandler = nullptr;
