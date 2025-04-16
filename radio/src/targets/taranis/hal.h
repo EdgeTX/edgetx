@@ -3029,7 +3029,7 @@
   #define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 10) // PB.10
   #define HAPTIC_GPIO_AF                GPIO_AF1
   #define HAPTIC_TIMER                  TIM2  // Timer 2 Channel 3
-  #define HAPTIC_TIMER_FREQ             (PERI2_FREQUENCY * TIMER_MULT_APB2)
+  #define HAPTIC_TIMER_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR3
   #define HAPTIC_CCMR1                  TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2
   #define HAPTIC_CCER                   TIM_CCER_CC3E
