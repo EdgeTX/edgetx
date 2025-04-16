@@ -65,7 +65,7 @@ void ModelMenu::build()
 #endif
   addTab(new ModelTelemetryPage());
 
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18) || defined(PCBST16)
   new TextButton(
       this,
       {LCD_W / 2 + 6, MENU_TITLE_TOP, LCD_W / 2 - 8, MENU_TITLE_HEIGHT},

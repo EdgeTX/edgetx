@@ -147,6 +147,7 @@ static uint8_t* skipUF2Extensions(uint8_t* data) {
   return (uint8_t*)ptr;
 }
 
+#if defined(STM32) && !defined(SIMU)
 void writeUF2FirmwareVersion(void* block)
 {
   UF2_Block* uf2 = (UF2_Block*)block;
@@ -209,3 +210,4 @@ void writeUF2RebootBlock(void* block)
   uint32_t reboot_addr = BOOTLOADER_ADDRESS;
   memcpy(end_data, &reboot_addr, sizeof(reboot_addr));
 }
+#endif

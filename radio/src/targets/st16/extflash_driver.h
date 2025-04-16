@@ -21,25 +21,13 @@
 
 #pragma once
 
-#include <stdint.h>
-#include "boards/FirmwareVersionTag.h"
+#include "hal/flash_driver.h"
 
-#define UF2_VERSION_TAG 0x9FC7BC
-#define UF2_DEVICE_TAG  0x650D9D
-#define UF2_REBOOT_TAG  0xE60835
+extern const etx_flash_driver_t extflash_driver;
+extern const void* extflash_dfu_media;
 
-// ignore family ID if not defined
-#if !defined(UF2_FAMILY_ID)
-#define UF2_FAMILY_ID 0
-#endif 
+// init external FLASH hardware
+int32_t ExtFLASH_Init();
 
-bool isUF2Block(const void* block, uint32_t len);
-bool isUF2FirmwareImage(const void* buffer, uint32_t length);
-bool isUF2FirmwareFile(const char * filename);
-
-bool extractUF2FirmwareVersion(const void* block, VersionTag* tag);
-
-#if defined(STM32) && !defined(SIMU)
-void writeUF2FirmwareVersion(void* block);
-void writeUF2RebootBlock(void* block);
-#endif
+// init only runtime structures
+void ExtFLASH_InitRuntime();
