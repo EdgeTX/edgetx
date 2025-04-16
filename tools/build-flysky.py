@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 import datetime
@@ -13,6 +13,7 @@ boards = {
     "EL18": { "PCB": "PL18", "PCBREV": "EL18" },
     "PL18": { "PCB": "PL18" },
     "PL18EV": { "PCB": "PL18", "PCBREV": "PL18EV" },
+    "ST16": { "PCB": "ST16" , "NANO": "NO" },
 }
 
 translations = [

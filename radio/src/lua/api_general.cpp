@@ -1810,9 +1810,9 @@ Raises a pop-up on screen that allows uses input
 @param event (number) the event variable that is passed in from the
 Run function (key pressed)
 
-@param input (number) value that can be adjusted by the +/­- keys
+@param input (number) value that can be adjusted by the +/- keys
 
-@param min  (number) min value that input can reach (by pressing the -­ key)
+@param min  (number) min value that input can reach (by pressing the - key)
 
 @param max  (number) max value that input can reach
 
@@ -2268,7 +2268,7 @@ static int luaResetGlobalTimer(lua_State * L)
 /*luadoc
 @function multiBuffer(address[,value])
 
-This function reads/writes the Multi protocol buffer to interact with a protocol².
+This function reads/writes the Multi protocol buffer to interact with a protocol.
 
 @param address to read/write in the buffer
 @param (optional): value to write in the buffer
@@ -2875,6 +2875,13 @@ static int luaSetRgbLedColor(lua_State * L)
   uint8_t g = luaL_checkunsigned(L, 3);
   uint8_t b = luaL_checkunsigned(L, 4);
 
+  #if defined(LED_STRIP_RESERVED_AT_END)
+    if (id >= LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END) {
+      lua_pushboolean(L, false);
+      return 1;
+    }
+  #endif
+  
   rgbSetLedColor(id, r, g, b);
 
   return 1;
@@ -3196,9 +3203,13 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
 #if defined(LED_STRIP_GPIO)
   #if defined(RADIO_V16)
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - 6)
+    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - 6 )
   #elif defined(RGB_LED_OFFSET)
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - RGB_LED_OFFSET)
+    // Exclude function switch LEDs
+    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - RGB_LED_OFFSET )
+  #elif defined(LED_STRIP_RESERVED_AT_END)
+    // Exclude leds at the end of the strip
+    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END )   
   #else
     LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH )
   #endif

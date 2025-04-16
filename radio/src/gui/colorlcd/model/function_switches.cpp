@@ -131,7 +131,7 @@ class FunctionSwitch : public Window
     offColor = new ColorPicker(
         this, {C1_X, 0, C1_W, 0},
         [=]() -> int {  // getValue
-          return g_model.functionSwitchLedOFFColor[switchIndex].getColor();
+          return g_model.functionSwitchLedOFFColor[switchIndex].getColor() | RGB888_FLAG;
         },
         [=](int newValue) {  // setValue
           g_model.functionSwitchLedOFFColor[switchIndex] = offValue;
@@ -149,7 +149,7 @@ class FunctionSwitch : public Window
     onColor = new ColorPicker(
         this, {C2_X, 0, C2_W, 0},
         [=]() -> int {  // getValue
-          return g_model.functionSwitchLedONColor[switchIndex].getColor();
+          return g_model.functionSwitchLedONColor[switchIndex].getColor() | RGB888_FLAG;
         },
         [=](int newValue) {  // setValue
           g_model.functionSwitchLedOFFColor[switchIndex] = offValue;
