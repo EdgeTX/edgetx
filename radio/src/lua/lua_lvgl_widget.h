@@ -458,8 +458,11 @@ class LvglWidgetImage : public LvglWidgetObject
  public:
   LvglWidgetImage() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
  protected:
-  std::string filename;
+  LvglParamFuncOrValue filename = { .function = LUA_REFNIL, .txt = ""};
   bool fillFrame = false;
 
   void build(lua_State *L) override;

@@ -1513,7 +1513,7 @@ void LvglWidgetArc::build(lua_State *L)
 void LvglWidgetImage::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "file")) {
-    filename = luaL_checkstring(L, -1);
+    filename.parse(L, LvglParamFuncOrValue::PTXT);
   } else if (!strcmp(key, "fill")) {
     fillFrame = lua_toboolean(L, -1);
   } else {
@@ -1521,10 +1521,33 @@ void LvglWidgetImage::parseParam(lua_State *L, const char *key)
   }
 }
 
+bool LvglWidgetImage::callRefs(lua_State *L)
+{
+  int t = lua_gettop(L);
+  if (filename.function != LUA_REFNIL) {
+    if (pcallFunc(L, filename.function, 1)) {
+      const char *s = luaL_checkstring(L, -1);
+      if (filename.changedText(s)) {
+        ((StaticImage*)window)->setSource(filename.txt);
+      }
+      lua_settop(L, t);
+    } else {
+      return false;
+    }
+  }
+  return LvglWidgetObject::callRefs(L);
+}
+
+void LvglWidgetImage::clearRefs(lua_State *L)
+{
+  clearRef(L, filename.function);
+  LvglWidgetObject::clearRefs(L);
+}
+
 void LvglWidgetImage::build(lua_State *L)
 {
   window = new StaticImage(lvglManager->getCurrentParent(), {x, y, w, h},
-                           filename.c_str(), fillFrame);
+                           filename.txt, fillFrame);
 }
 
 //-----------------------------------------------------------------------------
