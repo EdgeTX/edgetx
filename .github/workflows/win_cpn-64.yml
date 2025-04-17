@@ -70,7 +70,9 @@ jobs:
           python -m pip install clang jinja2
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jdpurcell/install-qt-action@v5
+        env:
+          AQT_CONFIG: ${{ github.workspace }}/tools/aqt-settings.ini
         with:
           cache: true
           cache-key-prefix: 'install-qt-action-win64'
