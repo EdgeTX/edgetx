@@ -427,7 +427,7 @@ void EXTI12_IRQHandler() {  asm("BKPT"); }
 void EXTI13_IRQHandler() {  asm("BKPT"); }
 void EXTI14_IRQHandler() {  asm("BKPT"); }
 void EXTI15_IRQHandler() {  asm("BKPT"); }
-void GPDMA1_Channel0_IRQHandler() {  asm("BKPT"); }
+//void GPDMA1_Channel0_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel1_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel2_IRQHandler() {  asm("BKPT"); }
 //void GPDMA1_Channel3_IRQHandler() {  asm("BKPT"); }
