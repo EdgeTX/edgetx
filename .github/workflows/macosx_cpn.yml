@@ -62,6 +62,8 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           setup-python: 'false'
+          cache: true
+          cache-key-prefix: 'install-qt-action-macOS'
 
       - name: Install dependencies
         run: python3 -m pip install --upgrade pip Pillow lz4 clang jinja2
