@@ -1478,9 +1478,17 @@
 #endif
 
 // ADC
-#if !defined(RADIO_FAMILY_T20) && !defined(RADIO_BUMBLEBEE)
+
+#if defined(STM32H5)
   #define ADC_MAIN                      ADC1
-  //#define ADC_DMA                       DMA2
+  #define ADC_DMA                       GPDMA1
+  #define ADC_DMA_CHANNEL               LL_GPDMA1_REQUEST_ADC1
+  #define ADC_DMA_STREAM                LL_DMA_CHANNEL_0
+  #define ADC_DMA_STREAM_IRQ            GPDMA1_Channel0_IRQn
+  #define ADC_DMA_STREAM_IRQHandler     GPDMA1_Channel0_IRQHandler
+#elif !defined(RADIO_FAMILY_T20) && !defined(RADIO_BUMBLEBEE)
+  #define ADC_MAIN                      ADC1
+  #define ADC_DMA                       DMA2
   #define ADC_DMA_CHANNEL               LL_DMA_CHANNEL_0
   #define ADC_DMA_STREAM                LL_DMA_STREAM_4
   #define ADC_DMA_STREAM_IRQ            DMA2_Stream4_IRQn
