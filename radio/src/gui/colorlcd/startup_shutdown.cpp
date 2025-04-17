@@ -31,7 +31,7 @@ extern void checkSpeakerVolume();
 const std::string ver_str = "" VERSION_TAG;
 const std::string nam_str = "" CODENAME;
 #if PORTRAIT_LCD
-#define TXT_Y (LCD_H * 21 / 25))
+#define TXT_Y (LCD_H * 21 / 25)
 #else
 #define TXT_Y (LCD_H * 3 / 4)
 #endif
