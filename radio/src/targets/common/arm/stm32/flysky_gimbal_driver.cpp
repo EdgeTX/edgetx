@@ -162,7 +162,10 @@ static void flysky_gimbal_loop(void*)
 
 void flysky_gimbal_deinit()
 {
-  STM32SerialDriver.deinit(_fs_usart_ctx);
+  if (_fs_usart_ctx != nullptr) {
+    STM32SerialDriver.deinit(_fs_usart_ctx);
+  }
+  _fs_usart_ctx = 0;
 }
 
 bool flysky_gimbal_init(bool force)
