@@ -122,6 +122,8 @@ class LvglWidgetObjectBase
   int pcallGetIntVal(lua_State *L, int getFuncRef);
   int pcallGetOptIntVal(lua_State *L, int getFuncRef, int defVal);
   void pcallSetIntVal(lua_State *L, int setFuncRef, int val);
+  const char* pcallGetStringVal(lua_State *L, int getFuncRef);
+  void pcallSetStringVal(lua_State *L, int setFuncRef, const char* val);
 };
 
 //-----------------------------------------------------------------------------
@@ -832,6 +834,24 @@ class LvglWidgetSourcePicker : public LvglWidgetPicker
 
  protected:
   uint32_t filter = 0xFFFFFFFF;
+
+  void build(lua_State *L) override;
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetFilePicker : public LvglWidgetPicker
+{
+ public:
+   LvglWidgetFilePicker() : LvglWidgetPicker() {}
+
+ protected:
+ const char *title = nullptr;
+ const char* folder = nullptr;
+  const char* extension = nullptr;
+  int maxLen = 255;
+  bool hideExtension = false;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;

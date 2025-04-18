@@ -28,6 +28,7 @@
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "toggleswitch.h"
+#include "filechoice.h"
 
 //-----------------------------------------------------------------------------
 
@@ -314,6 +315,54 @@ void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
     PROTECT_LUA()
     {
       if (!pcallFuncWithInt(L, setFuncRef, 0, val)) {
+        lvglManager->luaShowError();
+      }
+    }
+    else
+    {
+      lvglManager->luaShowError();
+    }
+    UNPROTECT_LUA();
+    lua_settop(L, t);
+    lvglManager = save;
+  }
+}
+
+const char* LvglWidgetObjectBase::pcallGetStringVal(lua_State *L, int getFuncRef)
+{
+  const char* val = nullptr;
+  if (getFuncRef != LUA_REFNIL) {
+    auto save = luaScriptManager;
+    luaScriptManager = lvglManager;
+    int t = lua_gettop(L);
+    PROTECT_LUA()
+    {
+      if (pcallFunc(L, getFuncRef, 1)) {
+        val = luaL_checkstring(L, -1);
+      } else {
+        lvglManager->luaShowError();
+      }
+    }
+    else
+    {
+      lvglManager->luaShowError();
+    }
+    UNPROTECT_LUA();
+    lua_settop(L, t);
+    lvglManager = save;
+  }
+  return val;
+}
+
+void LvglWidgetObjectBase::pcallSetStringVal(lua_State *L, int setFuncRef, const char* val)
+{
+  if (setFuncRef != LUA_REFNIL) {
+    auto save = luaScriptManager;
+    luaScriptManager = lvglManager;
+    int t = lua_gettop(L);
+    PROTECT_LUA()
+    {
+      if (!pcallFuncWithString(L, setFuncRef, 0, val)) {
         lvglManager->luaShowError();
       }
     }
@@ -2204,6 +2253,37 @@ void LvglWidgetSourcePicker::build(lua_State *L)
   c->setAvailableHandler([=](int value) {
     return checkSourceAvailable(value, filter);
   });
+  window = c;
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetFilePicker::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "title")) {
+    title = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "folder")) {
+    folder = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "extension")) {
+    extension = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "maxLen")) {
+    maxLen = luaL_checkunsigned(L, -1);
+  } else if (!strcmp(key, "hideExtension")) {
+    hideExtension = lua_toboolean(L, -1);
+  } else {
+    LvglWidgetPicker::parseParam(L, key);
+  }
+}
+
+void LvglWidgetFilePicker::build(lua_State *L)
+{
+  if (h == LV_SIZE_CONTENT) h = 0;
+  auto c = new FileChoice(
+      lvglManager->getCurrentParent(), {x, y, w, h},
+      folder, extension, maxLen,
+      [=]() { return pcallGetStringVal(L, getFunction); },
+      [=](std::string val) { pcallSetStringVal(L, setFunction, val.c_str()); },
+      hideExtension, title);
   window = c;
 }
 
