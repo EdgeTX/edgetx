@@ -365,4 +365,5 @@ QRCode::QRCode(Window *parent, coord_t x, coord_t y, coord_t sz, std::string dat
 {
   auto qr = lv_qrcode_create(lvobj, sz, makeLvColor(color), makeLvColor(bgColor));
   lv_qrcode_update(qr, data.c_str(), data.length());
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
 }
