@@ -121,7 +121,7 @@ else()
   add_definitions(-DSTM32H7)
 endif()
 
-if(CPU_TYPE_FULL STREQUAL STM32H750Ix)
+if(CPU_TYPE_FULL STREQUAL STM32H750xB)
   set(CMSIS_SRC ${CMSIS_SRC}
     boards/generic_stm32/startup/startup_stm32h750xx.s
   )
@@ -134,7 +134,7 @@ elseif(CPU_TYPE_FULL STREQUAL STM32H7S7xx)
     boards/generic_stm32/startup/startup_stm32h7s7xx.s
   )
 else()
-  message("### ERROR ####: ${CPU_TYPE_FULL}")
+  message(FATAL_ERROR "### ERROR ####: ${CPU_TYPE_FULL}")
 endif()
 
 add_library(cmsis OBJECT EXCLUDE_FROM_ALL

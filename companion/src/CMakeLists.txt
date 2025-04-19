@@ -358,11 +358,10 @@ elseif(PCB STREQUAL PL18 AND PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
 elseif(PCB STREQUAL PL18)
   set(FLAVOUR pl18)
+elseif(PCB STREQUAL ST16)
+  set(FLAVOR st16)
 else()
   string(TOLOWER ${PCB} FLAVOUR)
-endif()
-if(POLICY CMP0026)
-  cmake_policy(SET CMP0026 OLD)  # https://cmake.org/cmake/help/v3.0/policy/CMP0026.html
 endif()
 
 include(FindDfuutil)

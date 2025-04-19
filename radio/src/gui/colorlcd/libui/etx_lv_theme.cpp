@@ -129,12 +129,12 @@ const lv_style_const_prop_t pad_large_props[] = {
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_large, pad_large_props);
 
 const lv_style_const_prop_t pad_button_props[] = {
-    LV_STYLE_CONST_PAD_TOP(2),
-    LV_STYLE_CONST_PAD_BOTTOM(2),
+    LV_STYLE_CONST_PAD_TOP(PAD_TINY),
+    LV_STYLE_CONST_PAD_BOTTOM(PAD_TINY),
     LV_STYLE_CONST_PAD_LEFT(PAD_MEDIUM),
     LV_STYLE_CONST_PAD_RIGHT(PAD_MEDIUM),
-    LV_STYLE_CONST_PAD_ROW(2),
-    LV_STYLE_CONST_PAD_COLUMN(2),
+    LV_STYLE_CONST_PAD_ROW(PAD_TINY),
+    LV_STYLE_CONST_PAD_COLUMN(PAD_TINY),
     LV_STYLE_PROP_INV,
 };
 LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_button, pad_button_props);
@@ -142,7 +142,7 @@ LV_STYLE_CONST_MULTI_INIT(EdgeTxStyles::pad_button, pad_button_props);
 const lv_style_const_prop_t pad_textarea_props[] = {
     LV_STYLE_CONST_PAD_TOP(PAD_SMALL),
     LV_STYLE_CONST_PAD_BOTTOM(PAD_SMALL - 1),
-    LV_STYLE_CONST_PAD_LEFT(PAD_SMALL),
+    LV_STYLE_CONST_PAD_LEFT(PAD_MEDIUM),
     LV_STYLE_CONST_PAD_RIGHT(PAD_SMALL),
     LV_STYLE_PROP_INV,
 };
@@ -395,7 +395,7 @@ void etx_bg_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
   if (colorFlags & RGB_FLAG) {
     etx_remove_bg_color(obj, selector);
     lv_obj_set_style_bg_color(obj,
-                              makeLvColor(colorToRGB(colorFlags)), selector);
+                              makeLvColor(colorFlags), selector);
   } else {
     lv_obj_remove_local_style_prop(obj, LV_STYLE_BG_COLOR, selector);
     etx_bg_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
@@ -423,7 +423,7 @@ void etx_txt_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
   if (colorFlags & RGB_FLAG) {
     etx_remove_txt_color(obj, selector);
     lv_obj_set_style_text_color(obj,
-                                makeLvColor(colorToRGB(colorFlags)), selector);
+                                makeLvColor(colorFlags), selector);
   } else {
     lv_obj_remove_local_style_prop(obj, LV_STYLE_TEXT_COLOR, selector);
     etx_txt_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
@@ -460,6 +460,19 @@ void etx_arc_color(lv_obj_t* obj, LcdColorIndex colorIdx,
   etx_obj_add_style(obj, styles->arc_color[colorIdx], selector);
 }
 
+void etx_arc_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector)
+{
+  if (colorFlags & RGB_FLAG) {
+    etx_remove_arc_color(obj, selector);
+    lv_obj_set_style_arc_color(obj,
+                              makeLvColor(colorFlags), selector);
+  } else {
+    lv_obj_remove_local_style_prop(obj, LV_STYLE_ARC_COLOR, selector);
+    etx_arc_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
+  }
+}
+
 void etx_remove_line_color(lv_obj_t* obj, lv_style_selector_t selector)
 {
   // Remove styles
@@ -473,6 +486,19 @@ void etx_line_color(lv_obj_t* obj, LcdColorIndex colorIdx,
   // Remove old style first
   etx_remove_line_color(obj, selector);
   etx_obj_add_style(obj, styles->line_color[colorIdx], selector);
+}
+
+void etx_line_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector)
+{
+  if (colorFlags & RGB_FLAG) {
+    etx_remove_line_color(obj, selector);
+    lv_obj_set_style_line_color(obj,
+                              makeLvColor(colorFlags), selector);
+  } else {
+    lv_obj_remove_local_style_prop(obj, LV_STYLE_LINE_COLOR, selector);
+    etx_line_color(obj, (LcdColorIndex)COLOR_VAL(colorFlags), selector);
+  }
 }
 
 void etx_remove_img_color(lv_obj_t* obj, lv_style_selector_t selector)

@@ -64,7 +64,7 @@ class FunctionSwitch : public Window
     std::string s(STR_CHAR_SWITCH);
     s += switchGetName(switchIndex + switchGetMaxSwitches());
 
-    new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, s);
+    new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::STD_FONT_HEIGHT}, s);
 
     new ModelTextEdit(this, {NM_X, 0, NM_W, 0},
                       g_model.switchNames[switchIndex], LEN_SWITCH_NAME);
@@ -131,7 +131,7 @@ class FunctionSwitch : public Window
     offColor = new ColorPicker(
         this, {C1_X, 0, C1_W, 0},
         [=]() -> int {  // getValue
-          return g_model.functionSwitchLedOFFColor[switchIndex].getColor();
+          return g_model.functionSwitchLedOFFColor[switchIndex].getColor() | RGB888_FLAG;
         },
         [=](int newValue) {  // setValue
           g_model.functionSwitchLedOFFColor[switchIndex] = offValue;
@@ -149,7 +149,7 @@ class FunctionSwitch : public Window
     onColor = new ColorPicker(
         this, {C2_X, 0, C2_W, 0},
         [=]() -> int {  // getValue
-          return g_model.functionSwitchLedONColor[switchIndex].getColor();
+          return g_model.functionSwitchLedONColor[switchIndex].getColor() | RGB888_FLAG;
         },
         [=](int newValue) {  // setValue
           g_model.functionSwitchLedOFFColor[switchIndex] = offValue;
@@ -169,30 +169,29 @@ class FunctionSwitch : public Window
   }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  static constexpr coord_t SW_X = PAD_SMALL;
-  static constexpr coord_t SW_W = 70;
-  static constexpr coord_t NM_X = SW_X + SW_W;
-  static constexpr coord_t NM_W = 60;
+  static LAYOUT_VAL(SW_W, 70, 70, LS(70))
+  static constexpr coord_t NM_X = SW_W + PAD_SMALL;
+  static LAYOUT_VAL(NM_W, 60, 60, LS(60))
   static constexpr coord_t TP_X = NM_X + NM_W + PAD_SMALL;
-  static constexpr coord_t TP_W = 78;
+  static LAYOUT_VAL(TP_W, 78, 78, LS(78))
   static constexpr coord_t GR_X = TP_X + TP_W + PAD_SMALL;
-  static constexpr coord_t GR_W = 84;
+  static LAYOUT_VAL(GR_W, 84, 84, LS(84))
   static constexpr coord_t ST_X = GR_X + GR_W + PAD_SMALL;
-  static constexpr coord_t ST_W = 60;
+  static LAYOUT_VAL(ST_W, 60, 60, LS(60))
   static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
-  static constexpr coord_t C1_W = 40;
+  static LAYOUT_VAL(C1_W, 40, 40, LS(40))
   static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
-  static constexpr coord_t C2_W = 40;
+  static LAYOUT_VAL(C2_W, 40, 40, LS(40))
 #else
   static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY * 4) / 5;
   static constexpr coord_t NM_X = SW_W + PAD_TINY;
-  static constexpr coord_t NM_W = 80;
+  static LAYOUT_VAL(NM_W, 80, 80, LS(80))
   static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY;
-  static constexpr coord_t TP_W = 86;
+  static LAYOUT_VAL(TP_W, 86, 86, LS(86))
   static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY;
-  static constexpr coord_t GR_W = 94;
-  static constexpr coord_t ST_X = GR_X + SW_W + 20;
-  static constexpr coord_t ST_W = 70;
+  static LAYOUT_VAL(GR_W, 94, 94, LS(94))
+  static constexpr coord_t ST_X = GR_X + SW_W + PAD_LARGE * 2 + PAD_SMALL;
+  static LAYOUT_VAL(ST_W, 70, 70, LS(70))
 #endif
 
  protected:
@@ -250,7 +249,7 @@ class SwitchGroup : public Window
   {
     padAll(PAD_TINY);
 
-    new StaticText(this, {0, PAD_MEDIUM, NM_W, EdgeTxStyles::PAGE_LINE_HEIGHT},
+    new StaticText(this, {0, PAD_MEDIUM, NM_W, EdgeTxStyles::STD_FONT_HEIGHT},
                    STR_FUNCTION_SWITCH_GROUPS[groupIndex]);
 
     auto btn = new TextButton(
@@ -265,7 +264,7 @@ class SwitchGroup : public Window
         });
     btn->check(IS_FSWITCH_GROUP_ON(groupIndex));
 
-    new StaticText(this, {SL_X, PAD_MEDIUM, SL_W, EdgeTxStyles::PAGE_LINE_HEIGHT}, STR_SWITCH_STARTUP);
+    new StaticText(this, {SL_X, PAD_MEDIUM, SL_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_SWITCH_STARTUP);
 
     startChoice = new Choice(
         this, {ST_X, 0, ST_W, 0}, STR_FSSWITCHES, 0,
@@ -295,13 +294,13 @@ class SwitchGroup : public Window
     startChoice->setValue(groupDefaultSwitch(groupIndex) + 1);
   }
 
-  static constexpr coord_t NM_W = 100;
-  static constexpr coord_t AO_X = NM_W + 2;
-  static constexpr coord_t AO_W = 100;
-  static constexpr coord_t SL_X = AO_X + AO_W + 30;
-  static constexpr coord_t SL_W = 100;
-  static constexpr coord_t ST_X = SL_X + SL_W + 2;
-  static constexpr coord_t ST_W = 80;
+  static LAYOUT_VAL(NM_W, 100, 100, LS(100))
+  static constexpr coord_t AO_X = NM_W + PAD_TINY;
+  static LAYOUT_VAL(AO_W, 100, 100, LS(100))
+  static constexpr coord_t SL_X = AO_X + AO_W + PAD_LARGE * 3 + PAD_MEDIUM;
+  static LAYOUT_VAL(SL_W, 100, 100, LS(100))
+  static constexpr coord_t ST_X = SL_X + SL_W + PAD_TINY;
+  static LAYOUT_VAL(ST_W, 80, 80, LS(80))
 
  protected:
   uint8_t groupIndex;

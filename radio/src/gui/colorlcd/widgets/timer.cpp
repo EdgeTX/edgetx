@@ -92,7 +92,7 @@ class TimerWidget : public Widget
     lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_MAIN);
     lv_obj_set_style_arc_opa(timerArc, LV_OPA_COVER, LV_PART_INDICATOR);
     lv_obj_set_style_arc_width(timerArc, TMR_ARC_W, LV_PART_INDICATOR);
-    etx_obj_add_style(timerArc, styles->arc_color[COLOR_THEME_SECONDARY1_INDEX], LV_PART_INDICATOR);
+    etx_arc_color(timerArc, COLOR_THEME_SECONDARY1_INDEX, LV_PART_INDICATOR);
     lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
 
     update();

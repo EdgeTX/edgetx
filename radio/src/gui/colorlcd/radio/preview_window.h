@@ -50,7 +50,6 @@ class PreviewWindow : public Window
   static LAYOUT_VAL(BTN2_Y, 79, 79, LS(79))
   static LAYOUT_VAL(BTN_W, 100, 100, LS(100))
   static LAYOUT_VAL(TRIM_Y, 79, 79, LS(79))
-  static LAYOUT_VAL(TRIM_H, 20, 20, LS(20))
   static LAYOUT_VAL(SLIDER_Y, 101, 101, LS(101))
   static LAYOUT_VAL(TXT1_Y, 122, 122, LS(122))
   static LAYOUT_VAL(TXT2_Y, 144, 144, LS(144))

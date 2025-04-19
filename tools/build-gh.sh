@@ -89,7 +89,7 @@ target_names=$(echo "$FLAVOR" | tr '[:upper:]' '[:lower:]' | tr ';' '\n')
 
 for target_name in $target_names
 do
-    fw_name="${target_name}-${GIT_SHA_SHORT}.bin"
+    fw_name="${target_name}-${GIT_SHA_SHORT}"
     BUILD_OPTIONS=${COMMON_OPTIONS}
 
     echo "Building ${fw_name}"
@@ -104,5 +104,12 @@ do
     cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
 
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
-    mv arm-none-eabi/firmware.bin "../${fw_name}"
+
+    #if [ -f arm-none-eabi/firmware.uf2 ]; then
+    if [ "$target_name" = "st16" ]; then
+        mv arm-none-eabi/firmware.uf2 "../${fw_name}.uf2"
+    else
+        mv arm-none-eabi/firmware.bin "../${fw_name}.bin"
+    fi
+    
 done

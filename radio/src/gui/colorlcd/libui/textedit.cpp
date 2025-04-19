@@ -123,7 +123,7 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* text,
     }),
     updateHandler(updateHandler), text(text), length(length)
 {
-  if (rect.w == 0) setWidth(DEF_W);
+  if (rect.w == 0) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
   update();
   lv_obj_align(label, LV_ALIGN_OUT_LEFT_MID, 0, PAD_TINY);

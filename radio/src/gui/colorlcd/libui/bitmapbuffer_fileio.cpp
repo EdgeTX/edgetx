@@ -61,6 +61,7 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 #define STBI_NO_STDIO
 #define STBI_NO_LINEAR
 #define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_THREAD_LOCALS
 #include "stb/stb_image.h"
 
 // fill 'data' with 'size' bytes.  return number of bytes actually read

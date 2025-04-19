@@ -810,11 +810,14 @@ TEST_F(MixerTest, DelayOnSwitch)
   evalFlightModeMixes(e_perout_mode_normal, 1);
   EXPECT_EQ(chans[0], CHANNEL_MAX);
 
-  simuSetSwitch(switch_index, 0);
-  CHECK_DELAY(0, 500);
+  auto sw_cfg = (SwitchConfig)SWITCH_CONFIG(switch_index);
+  if (sw_cfg == SWITCH_3POS) {
+    simuSetSwitch(switch_index, 0);
+    CHECK_DELAY(0, 500);
 
-  evalFlightModeMixes(e_perout_mode_normal, 1);
-  EXPECT_EQ(chans[0], 0);
+    evalFlightModeMixes(e_perout_mode_normal, 1);
+    EXPECT_EQ(chans[0], 0);
+  }
 }
 
 TEST_F(MixerTest, DelayOnSwitch2)

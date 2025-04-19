@@ -635,7 +635,9 @@
   #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 3)   //PE.03
 #elif defined(PCBX10)
   #define LED_RED_GPIO                  GPIO_PIN(GPIOE, 2) // PE.02
-  #define LED_GREEN_GPIO                GPIO_PIN(GPIOE, 4) // PE.04
+  #if !defined(MANUFACTURER_FRSKY)                         // no green on X10/X10 Express
+    #define LED_GREEN_GPIO              GPIO_PIN(GPIOE, 4) // PE.04
+  #endif
   #define LED_BLUE_GPIO                 GPIO_PIN(GPIOE, 5) // PE.05
 #endif
 

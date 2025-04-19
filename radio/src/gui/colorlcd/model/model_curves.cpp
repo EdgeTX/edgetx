@@ -42,7 +42,7 @@ class CurveButton : public Button
       s = strAppend(s, ":");
       strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
     }
-    title = new StaticText(this, {4, -1, width() - 12, TITLE_H + 1}, buf, 
+    title = new StaticText(this, {4, -1, width() - PAD_MEDIUM * 2, EdgeTxStyles::STD_FONT_HEIGHT}, buf, 
                            COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
     etx_txt_color(title->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
                   LV_PART_MAIN | LV_STATE_USER_1);
@@ -59,7 +59,7 @@ class CurveButton : public Button
     // Preview
     preview = new CurveRenderer(
         this,
-        {PAD_MEDIUM, PAD_MEDIUM + TITLE_H, width() - PAD_MEDIUM * 2 - 4,
+        {PAD_MEDIUM, PAD_MEDIUM + EdgeTxStyles::STD_FONT_HEIGHT, width() - PAD_MEDIUM * 2 - 4,
          width() - PAD_MEDIUM * 2 - 4},
         [=](int x) -> int { return applyCustomCurve(x, index); });
 
@@ -67,16 +67,15 @@ class CurveButton : public Button
     CurveHeader &curve = g_model.curves[index];
     snprintf(buf, 32, "%s %d %s", STR_CURVE_TYPES[curve.type], 5 + curve.points,
              STR_PTS);
-    new StaticText(this, {0, height() - INFO_H, LV_PCT(100), 0}, buf, 
+    new StaticText(this, {0, height() - EdgeTxStyles::STD_FONT_HEIGHT - PAD_MEDIUM, LV_PCT(100), EdgeTxStyles::STD_FONT_HEIGHT}, buf, 
                    COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
   }
 
   void update() { preview->update(); }
 
-  static LAYOUT_VAL(TITLE_H, 20, 20, LS(20))
   static LAYOUT_VAL(INFO_H, 27, 27, 19)
   static LAYOUT_VAL(CURVE_BTN_W, 142, 142, LS(142))
-  static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + TITLE_H + INFO_H - PAD_MEDIUM;
+  static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + EdgeTxStyles::STD_FONT_HEIGHT * 2;
 
  protected:
   uint8_t index;

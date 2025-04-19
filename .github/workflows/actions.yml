@@ -72,6 +72,7 @@ jobs:
           - mt12
           - gx12
           - nb4p
+          - st16
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.11
       volumes:
@@ -118,6 +119,7 @@ jobs:
           - xlite;xlites
           - mt12;gx12
           - nb4p
+          - st16
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.11
       volumes:
@@ -143,6 +145,7 @@ jobs:
             fw.json
             LICENSE
             *.bin
+            *.uf2
           retention-days: 15
           if-no-files-found: error
 

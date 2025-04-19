@@ -22,7 +22,10 @@
 #pragma once
 
 #include "storage.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 #include "miniz.h"
+#pragma GCC diagnostic pop
 
 #include <QtCore>
 #include <list>

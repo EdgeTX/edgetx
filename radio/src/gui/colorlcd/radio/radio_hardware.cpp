@@ -46,14 +46,12 @@
 #if PORTRAIT_LCD
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(13), LV_GRID_FR(19),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
 #else
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
-                                     LV_GRID_TEMPLATE_LAST};
 #endif
+
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 RadioHardwarePage::RadioHardwarePage() :
     PageTab(STR_HARDWARE, ICON_RADIO_HARDWARE, PAD_TINY)
@@ -99,12 +97,12 @@ static SetupLineDef setupLines[] = {
     STR_BATTERY_RANGE,
     [](Window* parent, coord_t x, coord_t y) {
       auto batMin = new NumberEdit(
-          parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
+          parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -60 + 90, g_eeGeneral.vBatMax + 29 + 90,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMin, 90), PREC1);
       batMin->setSuffix("V");
-      new StaticText(parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::PAGE_LINE_HEIGHT}, "-");
+      new StaticText(parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_SMALL, y + PAD_SMALL + 1, PAD_LARGE, EdgeTxStyles::STD_FONT_HEIGHT}, "-");
       auto batMax = new NumberEdit(
-          parent, {x + RadioHardwarePage::NUM_EDIT_W + PAD_LARGE + PAD_SMALL, y, RadioHardwarePage::NUM_EDIT_W, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
+          parent, {x + EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_LARGE + PAD_SMALL, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, g_eeGeneral.vBatMin - 29 + 120, 40 + 120,
           GET_SET_WITH_OFFSET(g_eeGeneral.vBatMax, 120), PREC1);
       batMax->setSuffix("V");
 
@@ -125,7 +123,7 @@ static SetupLineDef setupLines[] = {
     // Bat calibration
     STR_BATT_CALIB,
     [](Window* parent, coord_t x, coord_t y) {
-      new BatCalEdit(parent, {x, y, RadioHardwarePage::NUM_EDIT_W, 0});
+      new BatCalEdit(parent, {x, y, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0});
     }
   },
   {
@@ -169,26 +167,18 @@ void RadioHardwarePage::build(Window* window)
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
-  FormLine* line;
-
 #if defined(HARDWARE_INTERNAL_MODULE)
   new Subtitle(window, STR_INTERNALRF);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
-  new InternalModuleWindow(line, grid);
+  new InternalModuleWindow(window, grid);
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   new Subtitle(window, STR_EXTERNALRF);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
-  new ExternalModuleWindow(line, grid);
+  new ExternalModuleWindow(window, grid);
 #endif
 
 #if defined(BLUETOOTH)
   new Subtitle(window, STR_BLUETOOTH);
-  line = window->newLine(grid);
-  line->padLeft(PAD_SMALL);
   new BluetoothConfigWindow(window, grid);
 #endif
 

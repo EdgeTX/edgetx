@@ -152,6 +152,9 @@ get_target_build_options() {
         nb4p)
             BUILD_OPTIONS+="-DPCB=PL18 -DPCBREV=NB4P"
             ;;
+        st16)
+            BUILD_OPTIONS+="-DPCB=ST16 -DNANO=NO"
+            ;;
         *)
             echo "Unknown target: $target_name"
             return 1

@@ -186,10 +186,14 @@ void etx_border_color(lv_obj_t* obj, LcdColorIndex colorIdx,
 void etx_remove_arc_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
 void etx_arc_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                   lv_style_selector_t selector = LV_PART_MAIN);
+void etx_arc_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector = LV_PART_MAIN);
 
 void etx_remove_line_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
 void etx_line_color(lv_obj_t* obj, LcdColorIndex colorIdx,
                   lv_style_selector_t selector = LV_PART_MAIN);
+void etx_line_color_from_flags(lv_obj_t* obj, LcdFlags colorFlags,
+                             lv_style_selector_t selector = LV_PART_MAIN);
 
 void etx_remove_img_color(lv_obj_t* obj, lv_style_selector_t selector = LV_PART_MAIN);
 void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
@@ -277,9 +281,11 @@ class EdgeTxStyles
   void init();
   void applyColors();
 
-  static LAYOUT_VAL(PAGE_LINE_HEIGHT, 20, 20, LS(20))
+  static LAYOUT_VAL(STD_FONT_HEIGHT, 21, 21, 14)
   static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32, 24)
   static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45, LS(45))
+  static LAYOUT_VAL(EDIT_FLD_WIDTH_NARROW, 70, 70, LS(70))
+  static LAYOUT_VAL(EDIT_FLD_WIDTH, 100, 100, LS(100))
 
  protected:
   bool initDone = false;

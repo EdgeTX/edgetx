@@ -1464,7 +1464,7 @@ static int luaGetFlightMode(lua_State * L)
 
 Play a file from the SD card
 
-@param filename (string) full path to wav file (i.e. “/SOUNDS/en/system/tada.wav”)
+@param filename (string) full path to wav file (i.e. "/SOUNDS/en/system/tada.wav")
 Introduced in 2.1.0: If you use a relative path, the current language is appended
 to the path (example: for English language: `/SOUNDS/en` is appended)
 
@@ -2875,6 +2875,13 @@ static int luaSetRgbLedColor(lua_State * L)
   uint8_t g = luaL_checkunsigned(L, 3);
   uint8_t b = luaL_checkunsigned(L, 4);
 
+  #if defined(LED_STRIP_RESERVED_AT_END)
+    if (id >= LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END) {
+      lua_pushboolean(L, false);
+      return 1;
+    }
+  #endif
+  
   rgbSetLedColor(id, r, g, b);
 
   return 1;
@@ -3196,7 +3203,13 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
 #if defined(LED_STRIP_GPIO)
   #if defined(RADIO_V16)
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - 6)
+    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - 6 )
+  #elif defined(RGB_LED_OFFSET)
+    // Exclude function switch LEDs
+    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - RGB_LED_OFFSET )
+  #elif defined(LED_STRIP_RESERVED_AT_END)
+    // Exclude leds at the end of the strip
+    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END )   
   #else
     LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH )
   #endif

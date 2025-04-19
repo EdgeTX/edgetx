@@ -1965,6 +1965,7 @@
 #if defined(RGBLEDS)
 #if defined(RADIO_GX12)
   #define LED_STRIP_LENGTH                  8
+  #define RGB_LED_OFFSET                    8
 #else
   #define LED_STRIP_LENGTH                  7
 #endif

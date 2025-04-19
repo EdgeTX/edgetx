@@ -32,6 +32,7 @@
 InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
 {
   auto line = parent->newLine(grid);
+  line->padLeft(PAD_SMALL);
   new StaticText(line, rect_t{}, STR_TYPE);
   auto internalModule =
       new Choice(line, rect_t{}, STR_MODULE_PROTOCOLS, MODULE_TYPE_NONE,
@@ -43,6 +44,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
   ant_box = parent->newLine(grid);
+  ant_box->padLeft(PAD_SMALL);
   new StaticText(ant_box, rect_t{}, STR_ANTENNA);
   new Choice(
       ant_box, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
@@ -69,6 +71,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
 
 #if defined(CROSSFIRE)
   br_box = parent->newLine(grid);
+  br_box->padLeft(PAD_SMALL);
   new StaticText(br_box, rect_t{}, STR_BAUDRATE);
   new Choice(
       br_box, rect_t{}, STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE,

@@ -91,8 +91,6 @@ class NumberEdit : public TextButton
 
   int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
 
-  static LAYOUT_VAL(DEF_W, 100, 100, LS(100))
-
  protected:
   friend class NumberArea;
 

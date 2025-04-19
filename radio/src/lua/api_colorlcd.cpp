@@ -256,6 +256,8 @@ Get the width and height of a text string drawn with flags
 
 @retval w,h (integers) width and height of the text
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.5.0
 */
 static int luaLcdSizeText(lua_State *L)
@@ -281,6 +283,8 @@ Draw text inside rectangle (x,y,w,h) with line breaks
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html) for drawing flags and colors, and [Appendix](../../part_vii_-_appendix/fonts.md) for available characters in each font set. RIGHT, CENTER and VCENTER are not implemented.
 
 @retval x,y (integers) point where text drawing ended
+
+@notice Only available on radios with color display
 
 @status current Introduced in 2.5.0, return x,y added in 2.11.0
 */
@@ -498,7 +502,7 @@ Bitmap loading can fail if:
 
 @retval bitmap (object) a bitmap object that can be used with other bitmap functions
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.2.0
 */
@@ -551,7 +555,7 @@ Return width, height of a bitmap object
  * (number) width in pixels
  * (number) height in pixels
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.2.0
 */
@@ -580,7 +584,7 @@ Return a resized bitmap object
 
 @param height (number) the new bitmap height
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
@@ -629,7 +633,7 @@ Return a 8bit bitmap mask that can be used with lcd.drawBitmapPattern()
 
 @retval a bitmap mask
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
@@ -677,7 +681,7 @@ Displays a bitmap at (x,y)
 @param scale (positive numbers) scale in %, 50 divides size by two, 100 is unchanged, 200 doubles size.
 Omitting scale draws image in 1:1 scale and is faster than specifying 100 for scale.
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.2.0
 */
@@ -715,7 +719,7 @@ Displays a bitmap pattern at (x,y)
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
@@ -752,7 +756,7 @@ Displays a bitmap pattern pie at (x,y)
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
-@notice Only available on Horus
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
@@ -789,9 +793,9 @@ Draw a rectangle from top left corner (x,y) of specified width and height
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
-@param t (number) thickness in pixels, defaults to 1 (only on Horus)
+@param t (number) thickness in pixels, defaults to 1 (only on radios with color display)
 
-@param opacity (number) opacity defaults to 0 (only on Horus)
+@param opacity (number) opacity defaults to 0 (only on radios with color display)
 
 @status current Introduced in 2.0.0, changed in 2.2.0
 */
@@ -827,7 +831,7 @@ Draw a solid rectangle from top left corner (x,y) of specified width and height
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
-@param opacity (number) opacity defaults to 0 (only on Horus)
+@param opacity (number) opacity defaults to 0 (only on radios with color display)
 
 @status current Introduced in 2.0.0
 */
@@ -863,6 +867,8 @@ Invert a rectangle zone from top left corner (x,y) of specified width and height
 @param h (number) height in pixels
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@notice Only available on radios with color display
 
 @status current Introduced in 2.8.0
 */
@@ -1021,6 +1027,8 @@ Draw a circle at (x, y) of specified radius
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawCircle(lua_State *L)
@@ -1050,6 +1058,8 @@ Draw a filled circle at (x, y) of specified radius
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawFilledCircle(lua_State *L)
@@ -1076,6 +1086,8 @@ Draw a triangle
 @param x1,y1,x2,y2,x3,y3 (positive numbers) coordinates of the three vertices
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@notice Only available on radios with color display
 
 @status current Introduced in 2.4.0
 */
@@ -1108,6 +1120,8 @@ Draw a filled triangle
 @param x1,y1,x2,y2,x3,y3 (positive numbers) coordinates of the three vertices
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@notice Only available on radios with color display
 
 @status current Introduced in 2.4.0
 */
@@ -1143,6 +1157,8 @@ Draw an arc
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawArc(lua_State *L)
@@ -1176,6 +1192,8 @@ Draw a pie slice
 @param start,end (positive numbers) start and end of the pie slice
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@notice Only available on radios with color display
 
 @status current Introduced in 2.4.0
 */
@@ -1211,6 +1229,8 @@ Draw an arc
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
+@notice Only available on radios with color display
+
 @status current Introduced in 2.4.0
 */
 static int luaLcdDrawAnnulus(lua_State *L)
@@ -1244,6 +1264,8 @@ Draw a line only inside a rectangle
 @param pattern (FORCE, ERASE, DOTTED) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@notice Only available on radios with color display
 
 @status current Introduced in 2.4.0
 */
@@ -1352,6 +1374,8 @@ Draw a rectangle in perspective
 @param xmin,xmax,ymin,ymax (positive numbers) the limits of the rectangle
 
 @param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+
+@notice Only available on radios with color display
 
 @status current Introduced in 2.4.0
 */

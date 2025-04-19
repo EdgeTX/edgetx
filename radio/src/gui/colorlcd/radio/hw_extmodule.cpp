@@ -28,6 +28,7 @@
 ExternalModuleWindow::ExternalModuleWindow(Window *parent, FlexGridLayout& grid)
 {
   auto line = parent->newLine(grid);
+  line->padLeft(PAD_SMALL);
 
   new StaticText(line, rect_t{}, STR_SAMPLE_MODE);
 
