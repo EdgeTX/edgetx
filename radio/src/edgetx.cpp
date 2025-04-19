@@ -69,6 +69,9 @@
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
 #endif
+#if defined(GYRO_SENSOR) 
+  #include "imu_42627.h"
+#endif
 
 #if !defined(SIMU)
 #include <malloc.h>
@@ -227,6 +230,11 @@ void timer_10ms()
 
 #if defined(CSD203_SENSOR) && !defined(SIMU)
   readCSD203();
+#endif
+
+#if defined(CI1302_SENSOR)
+  processVoiceInput();
+  processUpdataInput();
 #endif
 
   telemetryInterrupt10ms();

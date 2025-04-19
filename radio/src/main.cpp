@@ -45,6 +45,10 @@
 #include "lua/lua_event.h"
 #endif
 
+#if defined(HR_GIMBAL_RGB)
+  #include "gimbal_rgb.h"
+#endif
+
 #if defined(AUDIO)
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
@@ -306,6 +310,11 @@ void periodicTick()
 {
   static uint8_t count10s;
   static uint32_t lastTime;
+
+#if defined(HR_GIMBAL_RGB)  
+  MultiposKey();
+#endif
+
   if ((get_tmr10ms() - lastTime) >= 100) {
     lastTime += 100;
     periodicTick_1s();
