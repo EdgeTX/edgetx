@@ -38,7 +38,7 @@ class SwitchWarnMatrix : public ButtonMatrix
   {
     // Setup button layout & texts
     uint8_t btn_cnt = 0;
-    for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+    for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_WARNING_ALLOWED(i)) {
         sw_idx[btn_cnt] = i;
         btn_cnt++;
@@ -48,7 +48,7 @@ class SwitchWarnMatrix : public ButtonMatrix
     initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
 
     uint8_t btn_id = 0;
-    for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+    for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_WARNING_ALLOWED(i)) {
         setTextAndState(btn_id);
         btn_id++;
@@ -67,7 +67,7 @@ class SwitchWarnMatrix : public ButtonMatrix
 
   void onPress(uint8_t btn_id)
   {
-    if (btn_id >= switchGetMaxSwitches()) return;
+    if (btn_id >= switchGetMaxAllSwitches()) return;
     auto sw = sw_idx[btn_id];
 
     uint8_t newstate = g_model.getSwitchWarning(sw);
@@ -84,7 +84,7 @@ class SwitchWarnMatrix : public ButtonMatrix
 
   bool isActive(uint8_t btn_id)
   {
-    if (btn_id >= switchGetMaxSwitches()) return false;
+    if (btn_id >= switchGetMaxAllSwitches()) return false;
     return g_model.getSwitchWarning(sw_idx[btn_id]) != 0;
   }
 
