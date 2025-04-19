@@ -19,43 +19,24 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+ #pragma once
 
-enum SwitchConfig {
-  SWITCH_NONE,
-  SWITCH_TOGGLE,
-  SWITCH_2POS,
-  SWITCH_3POS,
-#if defined(FUNCTION_SWITCHES)
-  SWITCH_GLOBAL,
-#endif
-  SWITCH_none = SWITCH_NONE,
-  SWITCH_toggle = SWITCH_TOGGLE,
-  SWITCH_2pos = SWITCH_2POS,
-  SWITCH_3pos = SWITCH_3POS,
-};
-
-enum FlexAnalogConfig {
-  FLEX_NONE=0,
-  FLEX_POT, // without detent
-  FLEX_POT_CENTER, // with detent
-  FLEX_SLIDER,
-  FLEX_MULTIPOS,
-  FLEX_AXIS_X,
-  FLEX_AXIS_Y,
-  FLEX_SWITCH,
-};
-
-enum fsStartPositionType {
-  FS_START_OFF,
-  FS_START_ON,
-  FS_START_PREVIOUS
-};
-
-enum CalibrationState {
-  CALIB_START,
-  CALIB_SET_MIDPOINT,
-  CALIB_MOVE_STICKS,
-  CALIB_STORE,
-  CALIB_FINISHED
-};
+ #if defined(FUNCTION_SWITCHES)
+ 
+ #include "page.h"
+ 
+ class RadioFunctionSwitches : public Page
+ {
+  public:
+   RadioFunctionSwitches();
+ 
+  protected:
+   BitmapBuffer* qrcode = nullptr;
+   StaticText* startupHeader = nullptr;
+ 
+   void setState();
+   void checkEvents() override;
+ };
+ 
+ #endif
+ 
