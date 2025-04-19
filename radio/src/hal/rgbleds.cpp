@@ -37,7 +37,7 @@ void setFSLedON(uint8_t index) {
 
 bool getFSLedState(uint8_t index) {
   uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-  return fsGetLedRGB(cfsIdx) == g_model.cfsOnColor(index).getColor();
+  return rgbGetLedColor(cfsIdx) == g_model.cfsOnColor(index).getColor();
 }
 
 uint32_t getFSLedRGBColor(uint8_t index)
