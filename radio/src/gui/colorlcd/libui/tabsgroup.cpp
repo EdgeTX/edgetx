@@ -363,6 +363,8 @@ void TabsGroup::checkEvents()
 #if defined(HARDWARE_KEYS)
 void TabsGroup::onPressPGUP() { header->prevTab(); }
 void TabsGroup::onPressPGDN() { header->nextTab(); }
+void TabsGroup::onLongPressPGUP() { header->prevTab(); }
+void TabsGroup::onLongPressPGDN() { header->nextTab(); }
 void TabsGroup::onLongPressRTN() { onCancel(); }
 #endif
 
