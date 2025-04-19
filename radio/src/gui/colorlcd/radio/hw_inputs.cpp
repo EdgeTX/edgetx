@@ -263,7 +263,7 @@ HWSwitches::HWSwitches(Window* parent) :
 {
   padAll(PAD_TINY);
 
-  auto max_switches = switchGetMaxSwitches();
+  auto max_switches = switchGetMaxAllSwitches();
   for (int i = 0; i < max_switches; i++) {
     new HWSwitch(this, i, i * HWSwitch::SW_CTRL_H + PAD_OUTLINE);
   }
