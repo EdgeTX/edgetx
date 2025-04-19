@@ -520,10 +520,16 @@ void menuMainView(event_t event)
         // -> 4 slots on each side
         uint8_t switches = switchGetMaxSwitches();
 
-        if (switches < 7) {
-          for (int i = 0; i < switches; ++i) {
-            if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
-              auto switch_display = switchGetDisplayPosition(i);
+        uint8_t reg_switches = 0;
+        for (int i = 0; i < switches; i += 1) {
+          if (!switchIsCustomSwitch(i))
+            reg_switches += 1;
+        }
+
+        if (reg_switches < 7) {
+          for (int i = 0, n = 0; i < switches; ++i) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
+              auto switch_display = switchGetDisplayPosition(n);
               coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
               coord_t y = 33 + switch_display.row * FH;
               getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
@@ -532,16 +538,18 @@ void menuMainView(event_t event)
                   ((val < 0) ? 3 * i + 1
                               : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
               drawSwitch(x, y, sw, CENTERED, false);
+              n += 1;
             }
           }
         }
         else {
-          for (int i = 0; i < switches; ++i) {
-            if (SWITCH_EXISTS(i) && !switchIsFlex(i)) {
-              auto switch_display = switchGetDisplayPosition(i);
+          for (int i = 0, n = 0; i < switches; ++i) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
+              auto switch_display = switchGetDisplayPosition(n);
               coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
-              if (switches < 9) x += 3;
+              if (reg_switches < 9) x += 3;
               drawSmallSwitch(x, 5 * FH + 1, 4, i);
+              n += 1;
             }
           }
         }

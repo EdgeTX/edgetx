@@ -44,24 +44,26 @@ class RadioCustSwitchesDiagsWindow : public Window
                    "Log");
     new StaticText(this, {FS_3RD_COLUMN, PAD_SMALL, 60, LV_SIZE_CONTENT},
                    "Led");
-    for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
-      coord_t y = 2 * EdgeTxStyles::STD_FONT_HEIGHT +
-                  i * EdgeTxStyles::STD_FONT_HEIGHT;
-      new StaticText(this, {10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-                     STR_CHAR_SWITCH);
-      new StaticText(this, {25, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-                     switchGetName(i + switchGetMaxSwitches()));
-      new DynamicText(
-          this, {FS_1ST_COLUMN + 10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-          [=]() {
-            return getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP;
-          });
-      new DynamicText(
-          this, {FS_2ND_COLUMN + 10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-          [=]() { return getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
-      new DynamicText(this,
-                      {FS_3RD_COLUMN + 5, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
-                      [=]() { return STR_OFFON[getFSLedState(i)]; });
+    for (uint8_t i = 0, r = 0; i < switchGetMaxSwitches(); i += 1) {
+      if (switchIsCustomSwitch(i)) {
+        coord_t y = (r + 2) * EdgeTxStyles::STD_FONT_HEIGHT;
+        new StaticText(this, {10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
+                      STR_CHAR_SWITCH);
+        new StaticText(this, {25, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
+                      switchGetDefaultName(i));
+        new DynamicText(
+            this, {FS_1ST_COLUMN + 10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
+            [=]() {
+              return getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP;
+            });
+        new DynamicText(
+            this, {FS_2ND_COLUMN + 10, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
+            [=]() { return g_model.cfsState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
+        new DynamicText(this,
+                        {FS_3RD_COLUMN + 5, y, LV_SIZE_CONTENT, LV_SIZE_CONTENT},
+                        [=]() { return STR_OFFON[getFSLedState(i)]; });
+        r += 1;
+      }
     }
   }
 
