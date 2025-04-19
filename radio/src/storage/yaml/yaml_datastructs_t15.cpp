@@ -788,23 +788,23 @@ static const struct YamlNode struct_WidgetPersistentData[] = {
 };
 static const struct YamlNode struct_ZonePersistentData[] = {
   YAML_IDX,
-  YAML_STRING("widgetName", 12),
+  YAML_STRING("widgetName", 20),
   YAML_STRUCT("widgetData", 1280, struct_WidgetPersistentData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_LayoutPersistentData[] = {
-  YAML_ARRAY("zones", 1376, 10, struct_ZonePersistentData, NULL),
+  YAML_ARRAY("zones", 1440, 10, struct_ZonePersistentData, NULL),
   YAML_ARRAY("options", 128, 10, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
 static const struct YamlNode struct_CustomScreenData[] = {
   YAML_IDX,
   YAML_STRING("LayoutId", 12),
-  YAML_STRUCT("layoutData", 15040, struct_LayoutPersistentData, NULL),
+  YAML_STRUCT("layoutData", 15680, struct_LayoutPersistentData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_TopBarPersistentData[] = {
-  YAML_ARRAY("zones", 1376, 6, struct_ZonePersistentData, NULL),
+  YAML_ARRAY("zones", 1440, 6, struct_ZonePersistentData, NULL),
   YAML_ARRAY("options", 128, 1, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
@@ -874,8 +874,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
-  YAML_ARRAY("screenData", 15136, 10, struct_CustomScreenData, NULL),
-  YAML_STRUCT("topbarData", 8384, struct_TopBarPersistentData, NULL),
+  YAML_ARRAY("screenData", 15776, 10, struct_CustomScreenData, NULL),
+  YAML_STRUCT("topbarData", 8768, struct_TopBarPersistentData, NULL),
   YAML_ARRAY("topbarWidgetWidth", 8, 6, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),
