@@ -49,7 +49,7 @@ TEST(getSwitch, OldTypeStickyCSW)
 
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
 
@@ -147,10 +147,10 @@ TEST(getSwitch, edgeInstant)
 {
   int sw1, sw2;
   for (sw1 = 0; sw1 < switchGetMaxAllSwitches(); sw1 += 1)
-    if (g_model.getSwitchConfig(sw1) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw1) == SWITCH_3POS)
       break;
   for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
-    if (g_model.getSwitchConfig(sw2) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw2) == SWITCH_3POS)
       break;
   int sw1Pos = (sw1 * 3) + SWSRC_FIRST_SWITCH;
   int sw2Pos = (sw2 * 3) + SWSRC_FIRST_SWITCH;
@@ -269,10 +269,10 @@ TEST(getSwitch, edgeRelease)
 {
   int sw1, sw2;
   for (sw1 = 0; sw1 < switchGetMaxAllSwitches(); sw1 += 1)
-    if (g_model.getSwitchConfig(sw1) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw1) == SWITCH_3POS)
       break;
   for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
-    if (g_model.getSwitchConfig(sw2) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw2) == SWITCH_3POS)
       break;
   int sw1Pos = (sw1 * 3) + SWSRC_FIRST_SWITCH;
   int sw2Pos = (sw2 * 3) + SWSRC_FIRST_SWITCH;
@@ -374,8 +374,8 @@ TEST(FlexSwitches, getValue)
   auto sw_idx = boardGetMaxSwitches();
   switchConfigFlex(sw_idx, 0);
 
-  g_eeGeneral.setSwitchConfig(sw_idx, SWITCH_3POS);
-  EXPECT_EQ(SWITCH_3POS, g_model.getSwitchConfig(sw_idx));
+  g_eeGeneral.switchSetType(sw_idx, SWITCH_3POS);
+  EXPECT_EQ(SWITCH_3POS, g_model.getSwitchType(sw_idx));
 
   auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
   anaSetFiltered(offset, -1024);
@@ -387,8 +387,8 @@ TEST(FlexSwitches, getValue)
   anaSetFiltered(offset, +1024);
   EXPECT_EQ(+1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
 
-  g_eeGeneral.setSwitchConfig(sw_idx, SWITCH_2POS);
-  EXPECT_EQ(SWITCH_2POS, g_model.getSwitchConfig(sw_idx));
+  g_eeGeneral.switchSetType(sw_idx, SWITCH_2POS);
+  EXPECT_EQ(SWITCH_2POS, g_model.getSwitchType(sw_idx));
 
   anaSetFiltered(offset, -1024);
   EXPECT_EQ(-1024, getValue(MIXSRC_FIRST_SWITCH + sw_idx));
@@ -411,8 +411,8 @@ TEST(FlexSwitches, getSwitch)
   auto sw_idx = boardGetMaxSwitches();
   switchConfigFlex(sw_idx, 0);
 
-  g_eeGeneral.setSwitchConfig(sw_idx, SWITCH_3POS);
-  EXPECT_EQ(SWITCH_3POS, g_model.getSwitchConfig(sw_idx));
+  g_eeGeneral.switchSetType(sw_idx, SWITCH_3POS);
+  EXPECT_EQ(SWITCH_3POS, g_model.getSwitchType(sw_idx));
 
   auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
   anaSetFiltered(offset, -1024);
