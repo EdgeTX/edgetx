@@ -100,7 +100,7 @@ class ChannelValue : public Window
     int16_t value = channelOutputs[channel];
 
     const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
-    uint16_t w = width() - 2;
+    uint16_t w = width() - PAD_TINY;
     uint16_t fillW = divRoundClosest(w * limit<int16_t>(0, abs(value), lim), lim * 2);
 
     if (fillW != lastValue) {
@@ -184,9 +184,9 @@ class OutputsWidget : public Widget
     cols = 0;
     rows = 0;
 
-    if (height() > 20 && width() > 100) {
+    if (height() > SHOW_MIN_H && width() > SHOW_MIN_W) {
       rows = height() / ROW_HEIGHT;
-      cols = (width() > 300) ? 2 : 1;
+      cols = (width() > COLS_MIN_W) ? 2 : 1;
       coord_t colWidth = width() / cols;
       uint8_t chan = firstChan;
       for (uint8_t c = 0; c < cols && chan <= MAX_OUTPUT_CHANNELS; c += 1) {
@@ -209,6 +209,10 @@ class OutputsWidget : public Widget
   LcdFlags txtColor = 0;
   LcdFlags barColor = 0;
   lv_style_t style;
+
+  static LAYOUT_VAL(SHOW_MIN_W, 100, 100, LS(100))
+  static LAYOUT_VAL(SHOW_MIN_H, 20, 20, LS(20))
+  static LAYOUT_VAL(COLS_MIN_W, 300, 300, LS(300))
 };
 
 const ZoneOption OutputsWidget::options[] = {

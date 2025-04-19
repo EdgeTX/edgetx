@@ -31,35 +31,21 @@ extern void checkSpeakerVolume();
 #if defined(VERSION_TAG)
 const std::string ver_str = "" VERSION_TAG;
 const std::string nam_str = "" CODENAME;
-#if PORTRAIT_LCD
-#define TXT_Y (LCD_H * 21 / 25)
-#else
-#define TXT_Y (LCD_H * 3 / 4)
-#endif
+static LAYOUT_VAL2(TXT_Y, LCD_H * 3 / 4, LCD_H * 21 / 25)
 #else
 const std::string ver_str = "" VERSION;
 const std::string nam_str = "" VERSION_SUFFIX;
 const std::string git_str = "(" GIT_STR ")";
-#if PORTRAIT_LCD
-#define TXT_Y (LCD_H * 19 / 24)
-#else
-#define TXT_Y (LCD_H * 2 / 3)
-#endif
+static LAYOUT_VAL2(TXT_Y, LCD_H * 2 / 3, LCD_H * 19 / 24)
 #endif
 
 static LAYOUT_VAL(TXT_W, 200, 200, LS(200))
 static LAYOUT_VAL(TXT_H, 24, 24, LS(24))
 static LAYOUT_VAL(TXT_XO, 100, 100, LS(100))
 
-#if !PORTRAIT_LCD
-#define TXT_X (LCD_W * 4 / 5)
-#define IMG_X (LCD_W / 3)
-#define IMG_Y (LCD_H / 2)
-#else
-#define TXT_X (LCD_W / 2)
-#define IMG_X (LCD_W / 2)
-#define IMG_Y (LCD_H * 2 / 5)
-#endif
+static LAYOUT_VAL2(TXT_X, LCD_W * 4 / 5, LCD_W / 2)
+static LAYOUT_VAL2(IMG_X, LCD_W / 3, LCD_W / 2)
+static LAYOUT_VAL2(IMG_Y, LCD_H / 2, LCD_H * 2 / 5)
 
 const uint8_t __bmp_splash_logo[]{
 #include "splash_logo.lbm"
@@ -245,7 +231,7 @@ void drawFatalErrorScreen(const char* message)
     fatalErrorWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(fatalErrorWindow->getLvObj(), COLOR_BLACK_INDEX);
 
-    new StaticText(fatalErrorWindow, rect_t{0, LCD_H / 2 - 20, LCD_W, 40},
+    new StaticText(fatalErrorWindow, rect_t{0, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, LCD_W, EdgeTxStyles::STD_FONT_HEIGHT * 2},
                    message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
   }
 

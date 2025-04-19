@@ -84,8 +84,8 @@ class ModelButton : public Button
       if (modelCell->modelBitmap[0] == 0)
         showNoImgMsg();
 
-      coord_t fh = getFontHeight(font) - ((font == FONT(STD)) ? 4 : (font == FONT(XS)) ? 3 : 1);
-      coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
+      coord_t fh = getFontHeight(font) - ((font == FONT(STD)) ? PAD_SMALL : (font == FONT(XS)) ? PAD_THREE : 1);
+      coord_t fo = (font == FONT(STD)) ? -PAD_THREE : (font == FONT(XS)) ? -PAD_THREE : -1;
 
       modelName = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);

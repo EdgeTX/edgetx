@@ -27,4 +27,5 @@ class AboutUs : public BaseDialog
   AboutUs();
 
   static LAYOUT_VAL(QR_SZ, 150, 150, LS(150))
+  static LAYOUT_VAL(VIEW_W, 220, 220, LS(220))
 };

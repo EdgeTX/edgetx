@@ -98,13 +98,13 @@ class SelectFabButton : public ButtonBase
     auto iconLayout =
         new Window(this,
                    {(SelectFabCarousel::FAB_BUTTON_INNER_WIDTH - SelectFabCarousel::FAB_ICON_SIZE) / 2,
-                    (SelectFabCarousel::FAB_BUTTON_INNER_WIDTH - SelectFabCarousel::FAB_ICON_SIZE) / 2 - 2,
+                    (SelectFabCarousel::FAB_BUTTON_INNER_WIDTH - SelectFabCarousel::FAB_ICON_SIZE) / 2 - PAD_TINY,
                     SelectFabCarousel::FAB_ICON_SIZE, SelectFabCarousel::FAB_ICON_SIZE},
                    etx_quick_icon_create);
     iconLayout->setWindowFlag(NO_FOCUS);
 
     (new StaticIcon(iconLayout, 0, 0, icon, COLOR_WHITE_INDEX))
-        ->center(SelectFabCarousel::FAB_ICON_SIZE - 4, SelectFabCarousel::FAB_ICON_SIZE - 4);
+        ->center(SelectFabCarousel::FAB_ICON_SIZE - PAD_SMALL, SelectFabCarousel::FAB_ICON_SIZE - PAD_SMALL);
 
     new StaticText(this, {0, SelectFabCarousel::FAB_BUTTON_HEIGHT - SelectFabCarousel::FAB_TXT_YO, SelectFabCarousel::FAB_BUTTON_INNER_WIDTH, 0},
                    title, COLOR_WHITE_INDEX, CENTERED);

@@ -63,28 +63,22 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t dbg_4col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                           LV_GRID_FR(3), LV_GRID_FR(3),
                                           LV_GRID_TEMPLATE_LAST};
-#define DBG_COL_CNT 4
 #else
 static const lv_coord_t dbg_2col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t dbg_3col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-#define DBG_COL_CNT 3
 #endif
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-#if !PORTRAIT_LCD
-#define CV_SCALE 3
-#define DBG_B_WIDTH (LCD_W - 20) / 4
-#else
-#define CV_SCALE 4
-#define DBG_B_WIDTH (LCD_W - 20) / 2
-#endif
+static LAYOUT_VAL2(DBG_COL_CNT, 4, 3)
+static LAYOUT_VAL2(DBG_B_WIDTH, (LCD_W - 20) / 4, (LCD_W - 20) / 2)
+static LAYOUT_VAL(DBG_B_HEIGHT, 20, 20, LS(20))
+static LAYOUT_VAL2(CV_SCALE, 3, 4)
 #define CV_WIDTH MAXTRACE
-#define CV_HEIGHT (CV_SCALE * 32 + 5)
-
-#define DBG_B_HEIGHT 20
+#define CV_HEIGHT (CV_SCALE * EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL + 1)
+static LAYOUT_VAL(RST_BTN_H, 24, 24, LS(24))
 
 template <class T>
 class DebugInfoNumber : public Window
@@ -121,14 +115,14 @@ class ThrottleCurveWindow : public Window
     int i;
 
     axis[0] = {0, 0};
-    axis[1] = {0, (lv_coord_t)(h - 3)};
-    axis[2] = {(lv_coord_t)width(), (lv_coord_t)(h - 3)};
+    axis[1] = {0, (lv_coord_t)(h - PAD_THREE)};
+    axis[2] = {(lv_coord_t)width(), (lv_coord_t)(h - PAD_THREE)};
     auto axisLine = lv_line_create(lvobj);
     etx_obj_add_style(axisLine, styles->div_line_black, LV_PART_MAIN);
     lv_line_set_points(axisLine, axis, 3);
 
     for (x = 0, i = 0; x < width(); x += 6, i += 2) {
-      ticks[i] = {x, (lv_coord_t)(h - 5)};
+      ticks[i] = {x, (lv_coord_t)(h - PAD_SMALL - 1)};
       ticks[i + 1] = {x, h};
       auto tick = lv_line_create(lvobj);
       lv_line_set_points(tick, &ticks[i], 2);
@@ -150,7 +144,7 @@ class ThrottleCurveWindow : public Window
       for (lv_coord_t x = 0; x < width() && traceRd < s_traceWr;
            x += 1, traceRd += 1) {
         uint8_t h = s_traceBuf[traceRd % width()];
-        lv_coord_t y = height() - 3 - CV_SCALE * h;
+        lv_coord_t y = height() - PAD_THREE - CV_SCALE * h;
         graph[x] = {x, y};
         graphSize += 1;
       }
@@ -225,7 +219,7 @@ void StatisticsViewPage::build(Window* window)
   line->padAll(PAD_SMALL);
 
   // Reset
-  auto btn = new TextButton(line, rect_t{0, 0, 0, 24}, STR_MENUTORESET,
+  auto btn = new TextButton(line, rect_t{0, 0, 0, RST_BTN_H}, STR_MENUTORESET,
                             [=]() -> uint8_t {
                               g_eeGeneral.globalTimer = 0;
                               storageDirty(EE_GENERAL);
@@ -286,7 +280,7 @@ void DebugViewPage::build(Window* window)
 #if PORTRAIT_LCD
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
 #endif
   new DebugInfoNumber<uint16_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
@@ -298,7 +292,7 @@ void DebugViewPage::build(Window* window)
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
 #if PORTRAIT_LCD
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
 #else
   grid.nextCell();
 #endif
@@ -314,7 +308,7 @@ void DebugViewPage::build(Window* window)
 #if PORTRAIT_LCD
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
 #endif
 
   new DebugInfoNumber<uint32_t>(
@@ -330,7 +324,7 @@ void DebugViewPage::build(Window* window)
 #if PORTRAIT_LCD
   line = window->newLine(grid2);
   line->padAll(PAD_ZERO);
-  line->padLeft(10);
+  line->padLeft(PAD_LARGE);
 #endif
   new DebugInfoNumber<uint32_t>(
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
@@ -366,7 +360,7 @@ void DebugViewPage::build(Window* window)
 #if PORTRAIT_LCD
     line = window->newLine(grid2);
     line->padAll(PAD_ZERO);
-    line->padLeft(10);
+    line->padLeft(PAD_LARGE);
 #endif
     new DynamicText(
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
@@ -386,7 +380,7 @@ void DebugViewPage::build(Window* window)
   line->padAll(PAD_SMALL);
 
   // Reset
-  auto btn = new TextButton(line, rect_t{0, 0, 0, 24}, STR_MENUTORESET,
+  auto btn = new TextButton(line, rect_t{0, 0, 0, RST_BTN_H}, STR_MENUTORESET,
                             [=]() -> uint8_t {
                               maxMixerDuration = 0;
 #if defined(LUA)

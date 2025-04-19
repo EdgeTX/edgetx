@@ -74,7 +74,7 @@ void RadioTrainerPage::build(Window* form)
 
 #if PORTRAIT_LCD
       line = form->newLine(grid);
-      line->padLeft(30);
+      line->padLeft(PAD_LARGE * 3 + PAD_MEDIUM);
       line->padBottom(PAD_LARGE);
 #endif
 
@@ -91,7 +91,7 @@ void RadioTrainerPage::build(Window* form)
 
     auto line = form->newLine(grid);
 #if PORTRAIT_LCD
-    line->padTop(10);
+    line->padTop(PAD_LARGE);
 #else
     line->padTop(PAD_MEDIUM);
 #endif
@@ -113,7 +113,7 @@ void RadioTrainerPage::build(Window* form)
 
 #if PORTRAIT_LCD
       line = form->newLine(grid);
-      line->padTop(10);
+      line->padTop(PAD_LARGE);
 #endif
     }
 

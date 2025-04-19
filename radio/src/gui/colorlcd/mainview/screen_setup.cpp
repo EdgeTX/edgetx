@@ -44,7 +44,7 @@ class LayoutChoice : public Button
 
   LayoutChoice(Window* parent, LayoutFactoryGetter getValue,
                LayoutFactorySetter setValue) :
-      Button(parent, {0, 0, LayoutFactory::BM_W + 12, LayoutFactory::BM_H + 12}),
+      Button(parent, {0, 0, LayoutFactory::BM_W + PAD_LARGE + PAD_SMALL, LayoutFactory::BM_H + PAD_LARGE + PAD_SMALL}),
       getValue(std::move(getValue)),
       _setValue(std::move(setValue))
   {
@@ -117,7 +117,7 @@ void ScreenAddPage::update(uint8_t index)
 void ScreenAddPage::build(Window* window)
 {
   new TextButton(window,
-                 rect_t{LCD_W / 2 - 100, window->height() / 2 - 32, 200, 32},
+                 rect_t{LCD_W / 2 - ADD_TXT_W / 2, window->height() / 2 - EdgeTxStyles::UI_ELEMENT_HEIGHT, ADD_TXT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
                  STR_ADD_MAIN_VIEW, [this]() -> uint8_t {
                    // First page is "User interface", subtract it
                    auto newIdx = pageIndex - 1;

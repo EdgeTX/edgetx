@@ -53,13 +53,13 @@ class RadioInfoWidget : public TopBarWidget
     usbIcon->hide();
 
 #if defined(AUDIO)
-    audioScale = new StaticIcon(this, W_AUDIO_SCALE_X, 2,
+    audioScale = new StaticIcon(this, W_AUDIO_SCALE_X, PAD_TINY,
                                 ICON_TOPMENU_VOLUME_SCALE,
                                 COLOR_THEME_PRIMARY3_INDEX);
 
     for (int i = 0; i < 5; i += 1) {
       audioVol[i] = new StaticIcon(
-          this, W_AUDIO_X, 2,
+          this, W_AUDIO_X, PAD_TINY,
          (EdgeTxIcon)(ICON_TOPMENU_VOLUME_0 + i),
           COLOR_THEME_PRIMARY2_INDEX);
       audioVol[i]->hide();
@@ -78,7 +78,7 @@ class RadioInfoWidget : public TopBarWidget
 #endif
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-    extAntenna = new StaticIcon(this, W_RSSI_X - 4, 1,
+    extAntenna = new StaticIcon(this, W_RSSI_X - PAD_SMALL, 1,
                                 ICON_TOPMENU_ANTENNA,
                                 COLOR_THEME_PRIMARY2_INDEX);
     extAntenna->hide();
@@ -285,11 +285,11 @@ class InternalGPSWidget : public TopBarWidget
       TopBarWidget(factory, parent, rect, persistentData)
   {
     icon =
-        new StaticIcon(this, width() / 2 - 10, 19,
+        new StaticIcon(this, width() / 2 - PAD_LARGE - PAD_TINY, ICON_H,
                        ICON_TOPMENU_GPS, COLOR_THEME_PRIMARY3_INDEX);
 
     numSats = new DynamicNumber<uint16_t>(
-        this, {0, 1, width(), 12}, [=] { return gpsData.numSat; },
+        this, {0, 1, width(), SATS_H}, [=] { return gpsData.numSat; },
         COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
   }
 
@@ -311,6 +311,9 @@ class InternalGPSWidget : public TopBarWidget
  protected:
   StaticIcon* icon;
   DynamicNumber<uint16_t>* numSats;
+
+  static LAYOUT_VAL(ICON_H, 19, 19, LS(19))
+  static LAYOUT_VAL(SATS_H, 12, 12, LS(12))
 };
 
 BaseWidgetFactory<InternalGPSWidget> InternalGPSWidget("Internal GPS", nullptr,

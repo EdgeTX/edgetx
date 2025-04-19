@@ -84,7 +84,7 @@ class AnaViewWindow : public Window
       line = newLine(grid);
 #endif
 
-      lv_obj_set_style_pad_column(line->getLvObj(), 8, 0);
+      lv_obj_set_style_pad_column(line->getLvObj(), PAD_LARGE, LV_PART_MAIN);
       if (((adcGetInputMask() & (1 << i)) != 0) && i < adcGetMaxInputs(ADC_INPUT_MAIN))
         sprintf(s, "D%d :", i + 1);
       else
@@ -167,7 +167,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
 
     line = newLine(grid);
 #if PORTRAIT_LCD
-    line->padTop(20);
+    line->padTop(PAD_LARGE * 2 + PAD_SMALL);
 #else
     line->padTop(PAD_TINY);
 #endif

@@ -66,8 +66,8 @@ class OutputLineButton : public ListLineButton
 
 #if !PORTRAIT_LCD
     etx_font(source, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
-    lv_obj_set_style_pad_top(source, -2, ETX_STATE_NAME_FONT_SMALL);
-    lv_obj_set_style_text_line_space(source, -3, ETX_STATE_NAME_FONT_SMALL);
+    lv_obj_set_style_pad_top(source, -PAD_TINY, ETX_STATE_NAME_FONT_SMALL);
+    lv_obj_set_style_text_line_space(source, -PAD_THREE, ETX_STATE_NAME_FONT_SMALL);
 #endif
 
     min = lv_label_create(lvobj);
@@ -251,7 +251,7 @@ void ModelOutputsPage::build(Window* window)
   for (uint8_t ch = 0; ch < MAX_OUTPUT_CHANNELS; ch++) {
     // Channel settings
     auto btn = new OutputLineButton(window, ch);
-    lv_obj_set_pos(btn->getLvObj(), TRIMB_X, TRIMB_Y + (ch * (OutputLineButton::CH_LINE_H + 2)));
+    lv_obj_set_pos(btn->getLvObj(), TRIMB_X, TRIMB_Y + (ch * (OutputLineButton::CH_LINE_H + PAD_TINY)));
     btn->setWidth(TRIMB_W);
 
     LimitData* output = limitAddress(ch);

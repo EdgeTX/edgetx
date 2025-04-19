@@ -122,7 +122,7 @@ class SpectrumScaleWindow : public Window
       int x = (frequency - startFreq) / reusableBuffer.spectrumAnalyser.step;
       if (x >= LCD_W - 1) break;
       formatNumberAsString(s, 16, frequency / 1000000, 16);
-      new StaticText(this, {x - 16, 0, 32, SCALE_HEIGHT}, s, 
+      new StaticText(this, {x - PAD_LARGE * 2, 0, PAD_LARGE * 4, SCALE_HEIGHT}, s, 
                      COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | CENTERED);
     }
   }
@@ -150,13 +150,13 @@ class SpectrumWindow : public Window
       Window(parent, rect)
   {
     lv_style_init(&style);
-    lv_style_set_line_width(&style, 3);
+    lv_style_set_line_width(&style, PAD_THREE);
     lv_style_set_line_opa(&style, LV_OPA_COVER);
     lv_style_set_line_color(&style, makeLvColor(COLOR_THEME_ACTIVE));
 
     lv_coord_t w = width() - 1;
-    for (int i = 0; i < SPECTRUM_HEIGHT / 40; i += 1) {
-      lv_coord_t y = height() - 40 - (i * 40);
+    for (int i = 0; i < SPECTRUM_HEIGHT / LINE_SPACE; i += 1) {
+      lv_coord_t y = height() - LINE_SPACE - (i * LINE_SPACE);
       hAxisPts[i * 2] = {0, y};
       hAxisPts[i * 2 + 1] = {w, y};
       auto line = lv_line_create(lvobj);
@@ -182,7 +182,7 @@ class SpectrumWindow : public Window
     }
 
     warning = new StaticText(
-        this, {0, height() / 2 - 20, lv_pct(100), LV_SIZE_CONTENT},
+        this, {0, height() / 2 - WARN_YO, lv_pct(100), LV_SIZE_CONTENT},
         STR_TURN_OFF_RECEIVER, COLOR_THEME_PRIMARY1_INDEX, CENTERED | FONT(XL));
     warning->show(TELEMETRY_STREAMING());
   }
@@ -281,6 +281,9 @@ class SpectrumWindow : public Window
 
   uint32_t lastFreq = 0;
   uint32_t lastSpan = 0;
+
+  static LAYOUT_VAL(LINE_SPACE, 40, 40, LS(40))
+  static LAYOUT_VAL(WARN_YO, 20, 20, LS(20))
 };
 
 RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :

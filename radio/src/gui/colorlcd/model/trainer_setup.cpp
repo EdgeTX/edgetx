@@ -162,14 +162,13 @@ TrainerPage::TrainerPage() : Page(ICON_MODEL_SETUP)
 
   TrainerModuleData* tr = &g_model.trainerData;
   trainerChoice->setSetValueHandler([=](int32_t newValue) {
-
-      //TODO: move the BT stuff somewhere else?
+    //TODO: move the BT stuff somewhere else?
 #if defined(BLUETOOTH)
-      memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
-      bluetooth.state = BLUETOOTH_STATE_OFF;
+    memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
+    bluetooth.state = BLUETOOTH_STATE_OFF;
 #endif
-      tr->mode = newValue;
-      trainerModule->update();
-      SET_DIRTY();
-    });
+    tr->mode = newValue;
+    trainerModule->update();
+    SET_DIRTY();
+  });
 }

@@ -66,7 +66,7 @@ class ModelBitmapWidget : public Widget
 
   void update() override
   {
-    isLarge = rect.h >= 96 && rect.w >= 120;
+    isLarge = rect.h >= LARGE_H && rect.w >= LARGE_W;
 
     // get font size from options[1]
     etx_font(label->getLvObj(),
@@ -82,7 +82,7 @@ class ModelBitmapWidget : public Widget
 
     // Set label position
     if (isLarge)
-      lv_obj_set_pos(label->getLvObj(), 5, 5);
+      lv_obj_set_pos(label->getLvObj(), LARGE_LBL_X, LARGE_LBL_Y);
     else
       lv_obj_set_pos(label->getLvObj(), 0, 0);
 
@@ -110,7 +110,7 @@ class ModelBitmapWidget : public Widget
     }
 
     image->setRect(
-        {0, isLarge ? 38 : 0, width(), height() - (isLarge ? 38 : 0)});
+        {0, isLarge ? LARGE_IMG_H : 0, width(), height() - (isLarge ? LARGE_IMG_H : 0)});
     image->show(image->hasImage());
     image->setZoom();
 
@@ -126,6 +126,12 @@ class ModelBitmapWidget : public Widget
   StaticImage* image = nullptr;
 
   uint32_t getHash() { return hash(g_model.header.bitmap, LEN_BITMAP_NAME); }
+
+  static LAYOUT_VAL(LARGE_W, 120, 120, LS(120))
+  static LAYOUT_VAL(LARGE_H, 96, 96, LS(96))
+  static LAYOUT_VAL(LARGE_LBL_X, 5, 5, LS(5))
+  static LAYOUT_VAL(LARGE_LBL_Y, 5, 5, LS(5))
+  static LAYOUT_VAL(LARGE_IMG_H, 38, 38, LS(38))
 };
 
 const ZoneOption ModelBitmapWidget::options[] = {

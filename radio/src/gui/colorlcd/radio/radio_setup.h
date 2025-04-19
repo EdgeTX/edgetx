@@ -31,4 +31,5 @@ class RadioSetupPage: public PageTab {
 
   static LAYOUT_VAL2(BTN_COLS, 3, 2)
   static LAYOUT_VAL(BTN_H, 62, 62, LS(62))
+  static LAYOUT_VAL(HATS_MODE_W, 120, 120, LS(120))
 };

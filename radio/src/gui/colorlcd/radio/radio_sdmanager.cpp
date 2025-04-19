@@ -49,40 +49,44 @@ RadioSdManagerPage::RadioSdManagerPage() :
 template <class T>
 class FlashDialog: public FullScreenDialog
 {
-  public:
-    explicit FlashDialog(const T & device):
-      FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
-      device(device),
-      progress(this, {LCD_W / 2 - 100, LCD_H / 2 + 27, 200, 32})
-    {
-    }
+ public:
+  explicit FlashDialog(const T & device):
+    FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
+    device(device),
+    progress(this, {LCD_W / 2 - PROGRESS_XO, LCD_H / 2 + PROGRESS_YO, PROGRESS_W, EdgeTxStyles::UI_ELEMENT_HEIGHT})
+  {
+  }
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
+  void deleteLater(bool detach = true, bool trash = true) override
+  {
+    if (_deleted)
+      return;
 
-      progress.deleteLater(true, false);
-      FullScreenDialog::deleteLater(detach, trash);
-    }
+    progress.deleteLater(true, false);
+    FullScreenDialog::deleteLater(detach, trash);
+  }
 
-    void flash(const char * filename)
-    {
-      TRACE("flashing '%s'", filename);
-      device.flashFirmware(
-          filename,
-          [=](const char *title, const char *message, int count,
-              int total) -> void {
-            setMessage(message);
-            progress.setValue(total > 0 ? count * 100 / total : 0);
-            lv_refr_now(nullptr);
-          });
-      deleteLater();
-    }
+  void flash(const char * filename)
+  {
+    TRACE("flashing '%s'", filename);
+    device.flashFirmware(
+        filename,
+        [=](const char *title, const char *message, int count,
+            int total) -> void {
+          setMessage(message);
+          progress.setValue(total > 0 ? count * 100 / total : 0);
+          lv_refr_now(nullptr);
+        });
+    deleteLater();
+  }
 
-  protected:
-    T device;
-    Progress progress;
+ protected:
+  T device;
+  Progress progress;
+
+  static LAYOUT_VAL(PROGRESS_XO, 100, 100, LS(100))
+  static LAYOUT_VAL(PROGRESS_YO, 27, 27, LS(27))
+  static LAYOUT_VAL(PROGRESS_W, 100, 100, LS(100))
 };
 
 #if defined(PXX2)

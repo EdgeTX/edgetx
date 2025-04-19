@@ -199,7 +199,7 @@ class HWSwitch
   {
     new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_MEDIUM, SW_CTRL_W);
     new HWInputEdit(parent, (char*)switchGetCustomName(swnum), LEN_SWITCH_NAME,
-                    SW_CTRL_W + 8, y);
+                    SW_CTRL_W + PAD_LARGE, y);
 
     coord_t x = SW_CTRL_W * 2 + PAD_LARGE + PAD_MEDIUM;
 
@@ -255,7 +255,7 @@ class HWSwitch
 };
 
 HWSwitches::HWSwitches(Window* parent) :
-    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
+    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - PAD_LARGE - PAD_SMALL, LV_SIZE_CONTENT})
 {
   padAll(PAD_TINY);
 

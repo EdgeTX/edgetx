@@ -42,7 +42,7 @@ class CurveButton : public Button
       s = strAppend(s, ":");
       strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
     }
-    title = new StaticText(this, {4, -1, width() - PAD_MEDIUM * 2, EdgeTxStyles::STD_FONT_HEIGHT}, buf, 
+    title = new StaticText(this, {PAD_SMALL, -1, width() - PAD_MEDIUM * 2, EdgeTxStyles::STD_FONT_HEIGHT}, buf, 
                            COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
     etx_txt_color(title->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
                   LV_PART_MAIN | LV_STATE_USER_1);
@@ -52,15 +52,15 @@ class CurveButton : public Button
 
     hdrLeft = new StaticIcon(this, 0, 0, ICON_ROUND_TITLE_LEFT,
                              COLOR_THEME_SECONDARY2_INDEX);
-    hdrRight = new StaticIcon(this, width() - 8, 0,
+    hdrRight = new StaticIcon(this, width() - PAD_LARGE, 0,
                               ICON_ROUND_TITLE_RIGHT,
                               COLOR_THEME_SECONDARY2_INDEX);
 
     // Preview
     preview = new CurveRenderer(
         this,
-        {PAD_MEDIUM, PAD_MEDIUM + EdgeTxStyles::STD_FONT_HEIGHT, width() - PAD_MEDIUM * 2 - 4,
-         width() - PAD_MEDIUM * 2 - 4},
+        {PAD_MEDIUM, PAD_MEDIUM + EdgeTxStyles::STD_FONT_HEIGHT, width() - PAD_MEDIUM * 2 - PAD_SMALL,
+         width() - PAD_MEDIUM * 2 - PAD_SMALL},
         [=](int x) -> int { return applyCustomCurve(x, index); });
 
     // Curve characteristics

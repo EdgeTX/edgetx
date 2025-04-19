@@ -94,14 +94,14 @@ class ChannelsViewPage : public PageTab
       coord_t width = window->width() - (hmargin * 2);
       coord_t xPos = hmargin;
       coord_t yPos = (chan % 8) *
-                     ((window->height() - 24) / 8);
+                     ((window->height() - PAD_LARGE* 3) / 8);
 #else
       coord_t width = window->width() / 2 - (hmargin * 2);
       coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
       coord_t yPos = (chan % 4) *
-                     ((window->height() - 23) / 4);
+                     ((window->height() - (PAD_LARGE * 3 - 1)) / 4);
 #endif
-      new ComboChannelBar(window, {xPos, yPos, width, 3 * ChannelBar::BAR_HEIGHT + 3},
+      new ComboChannelBar(window, {xPos, yPos, width, 3 * ChannelBar::BAR_HEIGHT + PAD_THREE},
                           chan);
     }
 

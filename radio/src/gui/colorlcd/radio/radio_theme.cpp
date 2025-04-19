@@ -205,12 +205,7 @@ class ColorEditPage : public Page
   static LAYOUT_VAL(COLOR_BOX_HEIGHT, 30, 30, LS(30))
   static LAYOUT_VAL(HEX_STR_W, 95, 95, LS(95))
   static LAYOUT_VAL(BUTTON_WIDTH, 75, 65, LS(75))
-
-#if PORTRAIT_LCD
-  static constexpr int COLOR_LIST_HEIGHT = (LCD_H / 2 - 24);
-#else
-  static constexpr int COLOR_LIST_WIDTH = ((LCD_W * 3) / 10);
-#endif
+  static LAYOUT_VAL2(COLOR_LIST_SIZE, (LCD_W * 3) / 10, LCD_H / 2 - 24)
 
  protected:
   std::function<void()> _updateHandler;
@@ -246,10 +241,10 @@ class ColorEditPage : public Page
     form->padAll(PAD_SMALL);
 #if !PORTRAIT_LCD
     form->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
-    rect_t r = {0, 0, COLOR_LIST_WIDTH, form->height() - PAD_LARGE};
+    rect_t r = {0, 0, COLOR_LIST_SIZE, form->height() - PAD_LARGE};
 #else
     form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
-    rect_t r = {0, 0, form->width() - PAD_LARGE, COLOR_LIST_HEIGHT};
+    rect_t r = {0, 0, form->width() - PAD_LARGE, COLOR_LIST_SIZE};
 #endif
 
     Window *colForm = new Window(form, r);
@@ -257,9 +252,9 @@ class ColorEditPage : public Page
     colForm->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL, r.w);
 
 #if !PORTRAIT_LCD
-    r.w = form->width() - COLOR_LIST_WIDTH - PAD_MEDIUM * 2;
+    r.w = form->width() - COLOR_LIST_SIZE - PAD_MEDIUM * 2;
 #else
-    r.h = form->height() - COLOR_LIST_HEIGHT - PAD_MEDIUM * 2;
+    r.h = form->height() - COLOR_LIST_SIZE - PAD_MEDIUM * 2;
 #endif
     _previewWindow = new PreviewWindow(form, r, _theme->getColorList());
 
@@ -270,7 +265,7 @@ class ColorEditPage : public Page
     colBoxForm->padAll(PAD_ZERO);
     colBoxForm->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY);
 
-    r.h = colForm->height() - COLOR_BOX_HEIGHT - 4;
+    r.h = colForm->height() - COLOR_BOX_HEIGHT - PAD_SMALL;
 
     uint32_t color = _theme->getColorEntryByIndex(_indexOfColor)->colorValue;
 
@@ -314,7 +309,7 @@ class ColorEditPage : public Page
 #endif
 
     // page tabs
-    rect_t r = {LCD_W - 2 * (BUTTON_WIDTH + 5), PAD_MEDIUM, BUTTON_WIDTH, 0};
+    rect_t r = {LCD_W - 2 * (BUTTON_WIDTH + PAD_SMALL + 1), PAD_MEDIUM, BUTTON_WIDTH, 0};
     _tabs.emplace_back(new TextButton(window, r, "RGB", [=]() {
       setActiveColorBar(0);
       return 1;
@@ -388,7 +383,7 @@ class ThemeEditPage : public Page
 #endif
 
     // save and cancel
-    rect_t r = {LCD_W - (ColorEditPage::BUTTON_WIDTH + 5), PAD_MEDIUM, ColorEditPage::BUTTON_WIDTH, 0};
+    rect_t r = {LCD_W - (ColorEditPage::BUTTON_WIDTH + PAD_SMALL + 1), PAD_MEDIUM, ColorEditPage::BUTTON_WIDTH, 0};
     new TextButton(window, r, STR_DETAILS, [=]() {
       new ThemeDetailsDialog(_theme, [=](ThemeFile t) {
         _theme.setAuthor(t.getAuthor());
@@ -409,10 +404,10 @@ class ThemeEditPage : public Page
     form->padAll(PAD_SMALL);
 #if !PORTRAIT_LCD
     form->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
-    rect_t r = {0, 0, ColorEditPage::COLOR_LIST_WIDTH, form->height() - PAD_LARGE};
+    rect_t r = {0, 0, ColorEditPage::COLOR_LIST_SIZE, form->height() - PAD_LARGE};
 #else
     form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
-    rect_t r = {0, 0, form->width() - 8, ColorEditPage::COLOR_LIST_HEIGHT};
+    rect_t r = {0, 0, form->width() - PAD_LARGE, ColorEditPage::COLOR_LIST_SIZE};
 #endif
 
     _cList = new ColorList(form, r, _theme.getColorList());
@@ -420,9 +415,9 @@ class ThemeEditPage : public Page
     _cList->setPressHandler([=]() { editColorPage(); });
 
 #if !PORTRAIT_LCD
-    r.w = form->width() - ColorEditPage::COLOR_LIST_WIDTH - PAD_MEDIUM * 2;
+    r.w = form->width() - ColorEditPage::COLOR_LIST_SIZE - PAD_MEDIUM * 2;
 #else
-    r.h = form->height() - ColorEditPage::COLOR_LIST_HEIGHT - PAD_MEDIUM * 2;
+    r.h = form->height() - ColorEditPage::COLOR_LIST_SIZE - PAD_MEDIUM * 2;
 #endif
     _previewWindow = new PreviewWindow(form, r, _theme.getColorList());
   }
@@ -628,9 +623,9 @@ void ThemeSetupPage::build(Window *window)
 
   // create listbox and setup menus
 #if !PORTRAIT_LCD
-  rect_t r = {0, 0, LIST_WIDTH, window->height() - 8};
+  rect_t r = {0, 0, LIST_WIDTH, window->height() - PAD_LARGE};
 #else
-  rect_t r = {0, 0, window->width() - 8, LIST_HEIGHT};
+  rect_t r = {0, 0, window->width() - PAD_LARGE, LIST_HEIGHT};
 #endif
   setupListbox(window, r, tp);
 
@@ -647,11 +642,11 @@ void ThemeSetupPage::build(Window *window)
   themeColorPreview->setWidth(r.w);
 
 #if !PORTRAIT_LCD
-  r.w = window->width() - LIST_WIDTH - COLOR_PREVIEW_SIZE - 12;
-  r.h = window->height() - 8;
+  r.w = window->width() - LIST_WIDTH - COLOR_PREVIEW_SIZE - PAD_LARGE - PAD_SMALL;
+  r.h = window->height() - PAD_LARGE;
 #else
-  r.w = window->width() - 8;
-  r.h = window->height() - LIST_HEIGHT - COLOR_PREVIEW_SIZE - 12;
+  r.w = window->width() - PAD_LARGE;
+  r.h = window->height() - LIST_HEIGHT - COLOR_PREVIEW_SIZE - PAD_LARGE - PAD_SMALL;
 #endif
 
   auto rw = new Window(window, r);
