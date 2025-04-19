@@ -618,8 +618,8 @@
   #define PCBREV_GPIO_1                 GPIO_PIN(GPIOH, 7) // PH.07
   #define PCBREV_GPIO_2                 GPIO_PIN(GPIOH, 8) // PH.08
   #define PCBREV_TOUCH_GPIO             GPIO_PIN(GPIOA, 6) // PA.06
-  #define PCBREV_VALUE()                ((gpio_read(PCBREV_GPIO_1) | gpio_read(PCBREV_GPIO_2)) >> 7)
   #define PCBREV_TOUCH_GPIO_PULL_UP
+  #define PCBREV_VALUE()                ((gpio_read(PCBREV_GPIO_1) ? 1 : 0) + ((gpio_read(PCBREV_GPIO_2) ? 1 : 0) << 1)) * (gpio_read(PCBREV_TOUCH_GPIO) ? 1 : 0)
 #else
   #define PCBREV_GPIO                   GPIO_PIN(GPIOI, 11) // PI.11
   #define PCBREV_VALUE()                (gpio_read(PCBREV_GPIO) >> 11)
