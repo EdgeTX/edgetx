@@ -40,7 +40,7 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 TEST_F(SpecialFunctionsTest, FlightReset)
 {
   int sw;
-  for (sw = 0; sw < switchGetMaxSwitches(); sw += 1)
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
       break;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
@@ -75,7 +75,7 @@ TEST_F(SpecialFunctionsTest, FlightReset)
 TEST_F(SpecialFunctionsTest, GvarsInc)
 {
   int sw;
-  for (sw = 0; sw < switchGetMaxSwitches(); sw += 1)
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
     if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
       break;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
