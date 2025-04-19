@@ -83,21 +83,27 @@ static inline void check_struct()
 #endif
 
 #if defined(PCBXLITES)
-  CHKSIZE(RadioData, 932);
+  CHKSIZE(RadioData, 944);
+#elif defined(RADIO_ST16)
+  CHKSIZE(RadioData, 1158);
 #elif defined(COLORLCD)
-  CHKSIZE(RadioData, 1026);
+  CHKSIZE(RadioData, 1038);
+#elif defined(RADIO_GX12)
+  CHKSIZE(RadioData, 1062);
+#elif defined(RADIO_GX12)
+  CHKSIZE(RadioData, 1062);
 #else
-  CHKSIZE(RadioData, 930);
+  CHKSIZE(RadioData, 942);
 #endif
 
 #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
-  CHKSIZE(ModelData, 6354);
+  CHKSIZE(ModelData, 6355);
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
   CHKSIZE(ModelData, 6329);
 #elif defined(RADIO_FAMILY_T20)
-  CHKSIZE(ModelData, 6390);
+  CHKSIZE(ModelData, 6391);
 #elif defined(RADIO_GX12)
-  CHKSIZE(ModelData, 6410);
+  CHKSIZE(ModelData, 6411);
 #elif defined(PCBX9E)
   CHKSIZE(ModelData, 6771);
 #elif defined(PCBX9D) || defined(PCBX9DP)
@@ -113,9 +119,9 @@ static inline void check_struct()
 #elif defined(PCBNV14)
   CHKSIZE(ModelData, 27295);
 #elif defined(PCBST16)
-  CHKSIZE(ModelData, 27754);
+  CHKSIZE(ModelData, 27755);
 #elif defined(RADIO_T15)
-  CHKSIZE(ModelData, 27682);
+  CHKSIZE(ModelData, 27683);
 #elif defined(PCBHORUS)
   CHKSIZE(ModelData, 27657);
 #else

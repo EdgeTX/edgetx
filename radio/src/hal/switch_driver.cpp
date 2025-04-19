@@ -256,7 +256,7 @@ bool switchIsFlexInputAvailable(uint8_t idx, uint8_t channel)
 static void invalidate_flex_config(uint8_t flex_idx)
 {
   auto sw_idx = flex_idx + switchGetMaxSwitches();
-  g_eeGeneral.setSwitchConfig(sw_idx, SWITCH_NONE);
+  g_eeGeneral.switchSetType(sw_idx, SWITCH_NONE);
 
   _flex_switches[flex_idx] = _INVALID_ADC_CH;
 }

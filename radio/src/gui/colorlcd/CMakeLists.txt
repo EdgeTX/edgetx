@@ -123,6 +123,7 @@ endif()
 
 if(FUNCTION_SWITCHES)
   add_gui_src(model/function_switches.cpp)
+  add_gui_src(radio/radio_cfs.cpp)
   add_gui_src(radio/radio_diagcustswitches.cpp)
 endif()
 
