@@ -198,7 +198,7 @@ void writeHeader()
     f_puts(",", &g_oLogFile);
   }
 
-  for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+  for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
     if (SWITCH_EXISTS(i)) {
       char s[LEN_SWITCH_NAME + 2];
       char * temp;
@@ -341,7 +341,7 @@ void logsWrite()
           f_printf(&g_oLogFile, "%d,", calibratedAnalogs[offset + i]);
       }
 
-      for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+      for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
         if (SWITCH_EXISTS(i)) {
           f_printf(&g_oLogFile, "%d,", getSwitchState(i));
         }
