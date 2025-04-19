@@ -51,7 +51,11 @@
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetría","Entrenador SBUS","LUA","CLI","GPS","Debug","SpaceMouse","Módulo externo"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES             "Nada","Palanca","2POS","3POS","Global"
+#else
 #define TR_SWTYPES             "Nada","Palanca","2POS","3POS"
+#endif
 #define TR_POTTYPES            "Nada","Pot",TR("Pot con fij","Pot con fijador"),"Slider",TR("Multipos","Switch multipos"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT         "OFF","Vuelo","Reset manual"
 #define TR_COUNTRY_CODES       TR("US","América"),TR("JP","Japón"),TR("EU", "Europa")
