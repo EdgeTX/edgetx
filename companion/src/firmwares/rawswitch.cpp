@@ -93,7 +93,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
           if (Boards::isSwitchFunc(qr.quot, board)) {
             if (modelData) {
               int fsindex = Boards::getSwitchTagNum(qr.quot, board) - 1;
-              custName = QString(modelData->functionSwitchNames[fsindex]).trimmed();
+              custName = QString(modelData->customSwitches[fsindex].name).trimmed();
             }
           }
           else {
