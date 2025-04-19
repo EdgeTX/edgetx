@@ -32,7 +32,7 @@
 
 static const char* _fct_sw_start[] = {STR_CHAR_UP, STR_CHAR_DOWN, STR_LAST};
 
-const std::string edgetx_fs_manual_url =
+const char* edgetx_fs_manual_url =
     "https://edgetx.gitbook.io/edgetx-user-manual/b-and-w-radios/model-select/"
     "setup#function-switches";
 
@@ -53,7 +53,7 @@ class FunctionSwitch : public Window
                       g_model.cfsName(switchIndex), LEN_SWITCH_NAME);
 
     typeChoice = new Choice(
-        this, {TP_X, 0, TP_W, 0}, STR_SWTYPES, SWITCH_NONE, SWITCH_2POS,
+        this, {TP_X, 0, TP_W, 0}, STR_SWTYPES, SWITCH_NONE, SWITCH_GLOBAL,
         [=]() { return g_model.cfsType(switchIndex); },
         [=](int val) {
           g_model.cfsSetType(switchIndex, (SwitchConfig)val);
@@ -65,6 +65,7 @@ class FunctionSwitch : public Window
           SET_DIRTY();
         });
     typeChoice->setAvailableHandler([=](int typ) -> bool {
+      if (typ == SWITCH_3POS) return false;
       int group = g_model.cfsGroup(switchIndex);
       if (group > 0 && g_model.cfsGroupAlwaysOn(group) && typ == SWITCH_TOGGLE)
         return false;
@@ -224,11 +225,12 @@ class FunctionSwitch : public Window
 
   void setState()
   {
-    startChoice->show(g_model.cfsType(switchIndex) == SWITCH_2POS && g_model.cfsGroup(switchIndex) == 0);
-    groupChoice->show(g_model.cfsType(switchIndex) != SWITCH_NONE);
+    uint8_t typ = g_model.cfsType(switchIndex);
+    startChoice->show(typ == SWITCH_2POS && g_model.cfsGroup(switchIndex) == 0);
+    groupChoice->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-    offColor->show(g_model.cfsType(switchIndex) != SWITCH_NONE);
-    onColor->show(g_model.cfsType(switchIndex) != SWITCH_NONE);
+    offColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    onColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
 #endif
   }
 

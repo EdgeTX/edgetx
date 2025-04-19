@@ -121,6 +121,7 @@ YamlSwitchConfig::YamlSwitchConfig(const GeneralSettings::SwitchConfig* rhs)
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
     config[i].tag = Boards::getSwitchYamlName(i, BoardJson::YLT_CONFIG).toStdString();
     config[i].type = rhs[i].type;
+    config[i].start = rhs[i].start;
     memcpy(config[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
     // config[i].inverted = rhs[i].inverted;
   }
@@ -132,6 +133,7 @@ void YamlSwitchConfig::copy(GeneralSettings::SwitchConfig* rhs) const
     if (config[i].type != (unsigned int)Board::SWITCH_NOT_AVAILABLE) {
       memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
       rhs[i].type = (Board::SwitchType)config[i].type;
+      rhs[i].start = config[i].start;
       // rhs[i].inverted = config[i].inverted;
     }
   }
@@ -195,11 +197,23 @@ bool convert<InputConfig>::decode(const Node& node, InputConfig& rhs)
   return true;
 }
 
+static const YamlLookupTable cfsSwitchStart = {
+  {  0, "START_OFF"  },
+  {  1, "START_ON"  },
+  {  2, "START_PREVIOUS"  },
+};
+
 Node convert<SwitchConfig>::encode(const SwitchConfig& rhs)
 {
   Node node;
   node["type"] = switchConfigLut << rhs.type;
   node["name"] = rhs.name;
+  if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+    int idx = Boards::getSwitchYamlIndex(rhs.tag.c_str(), BoardJson::YLT_REF);
+    if (Boards::isSwitchFunc(idx, getCurrentBoard())) {
+      node["start"] = cfsSwitchStart << rhs.start;
+    }
+  }
   // node["inv"] = (int)rhs.inverted;  in hwdef json but not implemented in radio yaml
   return node;
 }
@@ -210,6 +224,7 @@ bool convert<SwitchConfig>::decode(const Node& node, SwitchConfig& rhs)
 
   node["type"] >> switchConfigLut >> rhs.type;
   node["name"] >> rhs.name;
+  node["start"] >> cfsSwitchStart >> rhs.start;
   // node["inv"] >> rhs.inverted;  in hwdef json but not implemented in radio yaml
 
   if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {

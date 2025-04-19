@@ -975,7 +975,7 @@ QString MultiModelPrinter::printFunctionSwitches()
    columns.appendRowStart(tr("Name"), 20);
 
    for (int i = 0; i < numFS; i++) {
-     COMPARECELLWIDTH(model->functionSwitchNames[i], colwidth);
+     COMPARECELLWIDTH(model->customSwitches[i].name, colwidth);
    }
 
    columns.appendRowEnd();

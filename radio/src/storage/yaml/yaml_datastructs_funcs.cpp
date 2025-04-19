@@ -847,13 +847,13 @@ static const struct YamlNode struct_sliderConfig[] = {
     YAML_END
 };
 
-static uint32_t sw_read(void* user, const char* val, uint8_t val_len)
+static uint32_t sw_idx_read(void* user, const char* val, uint8_t val_len)
 {
   (void)user;
   return switchLookupIdx(val, val_len);
 }
 
-bool sw_write(void* user, yaml_writer_func wf, void* opaque)
+bool sw_idx_write(void* user, yaml_writer_func wf, void* opaque)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
@@ -861,47 +861,6 @@ bool sw_write(void* user, yaml_writer_func wf, void* opaque)
   const char* str = switchGetDefaultName(idx);
   return str ? wf(opaque, str, strlen(str)) : true;
 }
-
-static void sw_name_read(void* user, uint8_t* data, uint32_t bitoffs,
-                         const char* val, uint8_t val_len)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  strAppend(g_eeGeneral.getSwitchCustomName(idx), val, min(val_len, (uint8_t)LEN_SWITCH_NAME));
-}
-
-static bool sw_name_write(void* user, uint8_t* data, uint32_t bitoffs,
-                          yaml_writer_func wf, void* opaque)
-{
-  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  uint16_t idx = tw->getElmts(1);
-
-  const char* str = g_eeGeneral.getSwitchCustomName(idx);
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, str, strnlen(str, LEN_SWITCH_NAME)))
-    return false;
-  return wf(opaque, "\"", 1);
-}
-
-static const struct YamlIdStr enum_switchConfig[] = {
-    {  SWITCH_NONE, "NONE"  },
-    {  SWITCH_TOGGLE, "TOGGLE"  },
-    {  SWITCH_2POS, "2POS"  },
-    {  SWITCH_3POS, "3POS"  },
-    {  SWITCH_NONE, "none"  },
-    {  SWITCH_TOGGLE, "toggle"  },
-    {  SWITCH_2POS, "2pos"  },
-    {  SWITCH_3POS, "3pos"  },
-    {  0, NULL  }
-};
-
-static const struct YamlNode struct_switchConfig[] = {
-    YAML_IDX_CUST( "sw", sw_read, sw_write),
-    YAML_ENUM( "type", 2, enum_switchConfig),
-    YAML_CUSTOM( "name", sw_name_read, sw_name_write),
-    YAML_END
-};
 
 static bool flex_sw_valid(void* user, uint8_t* data, uint32_t bitoffs)
 {
@@ -1270,7 +1229,7 @@ static const struct YamlIdStr enum_SwitchWarnPos[] = {
 };
 
 static const struct YamlNode struct_swtchWarn[] {
-  YAML_IDX_CUST( "sw", sw_read, sw_write ),
+  YAML_IDX_CUST( "sw", sw_idx_read, sw_idx_write ),
   YAML_ENUM( "pos", 2, enum_SwitchWarnPos ),
   YAML_END,
 };
@@ -2524,3 +2483,10 @@ bool isAlwaysActive(void* user, uint8_t* data, uint32_t bitoffs)
   return true;
 }
 #endif
+
+bool switchIsActive(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts();
+  return idx < switchGetMaxSwitches();
+}

@@ -85,9 +85,9 @@
 #define SW_CFG_MASK                    ((1 << SW_CFG_BITS) - 1)
 #define SWITCH_CONFIG_MASK(x)          ((swconfig_t)SW_CFG_MASK << (SW_CFG_BITS * (x)))
 
-#define SWITCH_EXISTS(x)              (g_model.getSwitchConfig(x) != SWITCH_NONE)
-#define IS_CONFIG_3POS(x)             (g_model.getSwitchConfig(x) == SWITCH_3POS)
-#define IS_CONFIG_TOGGLE(x)           (g_model.getSwitchConfig(x) == SWITCH_TOGGLE)
+#define SWITCH_EXISTS(x)              (g_model.getSwitchType(x) != SWITCH_NONE)
+#define IS_CONFIG_3POS(x)             (g_model.getSwitchType(x) == SWITCH_3POS)
+#define IS_CONFIG_TOGGLE(x)           (g_model.getSwitchType(x) == SWITCH_TOGGLE)
 #define SWITCH_WARNING_ALLOWED(x)     (SWITCH_EXISTS(x) && !IS_CONFIG_TOGGLE(x))
 
 #define ALTERNATE_VIEW                0x10

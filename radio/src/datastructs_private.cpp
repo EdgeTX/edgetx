@@ -22,19 +22,27 @@
  #include "edgetx.h"
  #include "hal/switch_driver.h"
 
-SwitchConfig ModelData::getSwitchConfig(uint8_t n)
+SwitchConfig ModelData::getSwitchType(uint8_t n)
 {
 #if defined(FUNCTION_SWITCHES)
-  if (switchIsCustomSwitch(n))
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
     return cfsType(n);
 #endif
-  return g_eeGeneral.getSwitchConfig(n);
+  return g_eeGeneral.switchType(n);
+}
+
+void ModelData::setSwitchType(uint8_t n, SwitchConfig v) {
+#if defined(FUNCTION_SWITCHES)
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
+    cfsSetType(n,v);
+#endif
+  g_eeGeneral.switchSetType(n, v);
 }
 
 char* ModelData::getSwitchCustomName(uint8_t n)
 {
 #if defined(FUNCTION_SWITCHES)
-  if (switchIsCustomSwitch(n)) // Switch is a customisable switch
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
     return g_model.cfsName(n);
 #endif
   return g_eeGeneral.getSwitchCustomName(n);
@@ -43,7 +51,7 @@ char* ModelData::getSwitchCustomName(uint8_t n)
 bool ModelData::switchHasCustomName(uint8_t n)
 {
 #if defined(FUNCTION_SWITCHES)
-  if (switchIsCustomSwitch(n)) // Switch is a customisable switch
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
     return g_model.cfsName(n)[0] != 0;
 #endif
   return g_eeGeneral.switchHasCustomName(n);
@@ -53,45 +61,145 @@ uint8_t ModelData::getSwitchStateForWarning(uint8_t n)
 {
   extern swarnstate_t switches_states;
 #if defined(FUNCTION_SWITCHES)
-  if (switchIsCustomSwitch(n))
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
     return cfsState(switchGetCustomSwitchIdx(n)) ? 3 : 1;
 #endif
   return (switches_states >> (n * 2)) & 3;
 }
 
-#if defined(FUNCTION_SWITCHES)
-SwitchConfig ModelData::cfsType(uint8_t n) { return (SwitchConfig)customSwitches[switchGetCustomSwitchIdx(n)].type; }
-void ModelData::cfsSetType(uint8_t n, SwitchConfig v) { customSwitches[switchGetCustomSwitchIdx(n)].type = v; }
-uint8_t ModelData::cfsGroup(uint8_t n) { return (SwitchConfig)customSwitches[switchGetCustomSwitchIdx(n)].group; }
-void ModelData::cfsSetGroup(uint8_t n, uint8_t v) { customSwitches[switchGetCustomSwitchIdx(n)].group = v; }
-fsStartPositionType ModelData::cfsStart(uint8_t n) { return (fsStartPositionType)customSwitches[switchGetCustomSwitchIdx(n)].start; }
-void ModelData::cfsSetStart(uint8_t n, fsStartPositionType v) { customSwitches[switchGetCustomSwitchIdx(n)].start = v; }
-bool ModelData::cfsState(uint8_t n) { return customSwitches[switchGetCustomSwitchIdx(n)].state; }
-void ModelData::cfsSetState(uint8_t n, bool v) { customSwitches[switchGetCustomSwitchIdx(n)].state = v; }
-bool ModelData::cfsSFState(uint8_t n) { return customSwitches[switchGetCustomSwitchIdx(n)].sfState; }
-char* ModelData::cfsName(uint8_t n) { return customSwitches[switchGetCustomSwitchIdx(n)].name; }
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-RGBLedColor& ModelData::cfsOnColor(uint8_t n) { return customSwitches[switchGetCustomSwitchIdx(n)].onColor; }
-RGBLedColor& ModelData::cfsOffColor(uint8_t n) { return customSwitches[switchGetCustomSwitchIdx(n)].offColor; }
-#endif
-#endif
-
-SwitchConfig RadioData::getSwitchConfig(uint8_t n)
-{
-  return (SwitchConfig)(bfGet<swconfig_t>(switchConfig, SW_CFG_BITS * n, SW_CFG_BITS));
-}
-
-void RadioData::setSwitchConfig(uint8_t n, SwitchConfig v)
-{
-  switchConfig = bfSet<swconfig_t>(switchConfig, v, SW_CFG_BITS * n, SW_CFG_BITS);
-}
-
 char* RadioData::getSwitchCustomName(uint8_t n)
 {
-  return switchNames[n];
+  return switchConfig[n].name;
 }
 
 bool RadioData::switchHasCustomName(uint8_t n)
 {
-  return switchNames[n][0] != 0;
+  return switchConfig[n].name[0] != 0;
 }
+
+SwitchConfig RadioData::switchType(uint8_t n) {
+  return (SwitchConfig)switchConfig[n].type;
+}
+
+void RadioData::switchSetType(uint8_t n, SwitchConfig v) {
+  switchConfig[n].type = v;
+  storageDirty(EE_GENERAL);
+}
+
+char* RadioData::switchName(uint8_t n) {
+  return switchConfig[n].name;
+}
+
+#if defined(FUNCTION_SWITCHES)
+uint8_t ModelData::getSwitchGroup(uint8_t n) {
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
+    return cfsGroup(n);
+  return g_eeGeneral.switchGroup(n);
+}
+
+fsStartPositionType ModelData::getSwitchStart(uint8_t n) {
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
+    return cfsStart(n);
+  return g_eeGeneral.switchStart(n);
+}
+
+void ModelData::setSwitchStart(uint8_t n, fsStartPositionType v) {
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
+    cfsSetStart(n, v);
+  g_eeGeneral.switchSetStart(n, v);
+}
+
+SwitchConfig ModelData::cfsType(uint8_t n) {
+  return (SwitchConfig)customSwitches[switchGetCustomSwitchIdx(n)].type;
+}
+
+void ModelData::cfsSetType(uint8_t n, SwitchConfig v) {
+  customSwitches[switchGetCustomSwitchIdx(n)].type = v;
+  storageDirty(EE_MODEL);
+}
+
+char* ModelData::cfsName(uint8_t n) {
+  return customSwitches[switchGetCustomSwitchIdx(n)].name;
+}
+
+uint8_t ModelData::cfsGroup(uint8_t n) {
+  return customSwitches[switchGetCustomSwitchIdx(n)].group;
+}
+
+void ModelData::cfsSetGroup(uint8_t n, uint8_t v) {
+  customSwitches[switchGetCustomSwitchIdx(n)].group = v;
+  storageDirty(EE_MODEL);
+}
+
+fsStartPositionType ModelData::cfsStart(uint8_t n) {
+  return (fsStartPositionType)customSwitches[switchGetCustomSwitchIdx(n)].start;
+}
+
+void ModelData::cfsSetStart(uint8_t n, fsStartPositionType v) {
+  customSwitches[switchGetCustomSwitchIdx(n)].start = v;
+  storageDirty(EE_MODEL);
+}
+
+bool ModelData::cfsState(uint8_t n) {
+  return customSwitches[switchGetCustomSwitchIdx(n)].state;
+}
+
+void ModelData::cfsSetState(uint8_t n, bool v) {
+  customSwitches[switchGetCustomSwitchIdx(n)].state = v;
+  storageDirty(EE_MODEL);
+}
+
+bool ModelData::cfsSFState(uint8_t n) {
+  return bfGet<uint8_t>(sfPushState, switchGetCustomSwitchIdx(n), 1);
+}
+
+void ModelData::cfsSetSFState(uint8_t n, bool v) {
+  // Note: n = cfs index, not switch index
+  bfSet<uint8_t>(sfPushState, v, n, 1);
+}
+
+void ModelData::cfsResetSFState() {
+  sfPushState = 0;
+}
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+RGBLedColor& ModelData::getSwitchOnColor(uint8_t n) {
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
+    return cfsOnColor(n);
+  return g_eeGeneral.switchOnColor(n);
+}
+
+RGBLedColor& ModelData::getSwitchOffColor(uint8_t n) {
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
+    return cfsOffColor(n);
+  return g_eeGeneral.switchOffColor(n);
+}
+
+RGBLedColor& ModelData::cfsOnColor(uint8_t n) {
+  return customSwitches[switchGetCustomSwitchIdx(n)].onColor;
+}
+
+RGBLedColor& ModelData::cfsOffColor(uint8_t n) {
+  return customSwitches[switchGetCustomSwitchIdx(n)].offColor;
+}
+#endif
+
+fsStartPositionType RadioData::switchStart(uint8_t n) {
+  return (fsStartPositionType)switchConfig[n].start;
+}
+
+void RadioData::switchSetStart(uint8_t n, fsStartPositionType v) {
+  switchConfig[n].start = v;
+  storageDirty(EE_GENERAL);
+}
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+RGBLedColor& RadioData::switchOnColor(uint8_t n) {
+  return switchConfig[n].onColor;
+}
+
+RGBLedColor& RadioData::switchOffColor(uint8_t n) {
+  return switchConfig[n].offColor;
+}
+#endif
+#endif
