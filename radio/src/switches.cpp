@@ -94,8 +94,8 @@ void setFSStartupPosition()
 {
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
     if (switchIsCustomSwitch(i)) {
-      uint8_t startPos = g_model.cfsStart(i);
-      if (g_model.cfsType(i) == SWITCH_TOGGLE)
+      uint8_t startPos = g_model.getSwitchStart(i);
+      if (g_model.getSwitchType(i) == SWITCH_TOGGLE)
         startPos = FS_START_OFF;
       switch(startPos) {
         case FS_START_OFF:
@@ -140,7 +140,7 @@ uint8_t getSwitchCountInFSGroup(uint8_t index)
   uint8_t count = 0;
 
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
-    if (switchIsCustomSwitch(i) && g_model.cfsGroup(i) == index)
+    if (switchIsCustomSwitch(i) && g_model.getSwitchGroup(i) == index)
       count++;
   }
 
@@ -156,7 +156,7 @@ void evalFunctionSwitches()
 {
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
     if (switchIsCustomSwitch(i)) {
-      if (g_model.cfsType(i) == SWITCH_NONE) {
+      if (g_model.getSwitchType(i) == SWITCH_NONE) {
         setFSLedOFF(i);
         continue;
       }
@@ -165,9 +165,9 @@ void evalFunctionSwitches()
       if (physicalState != getFSPreviousPhysicalState(i)) {
         // FS was moved
         inactivityTimerReset(ActivitySource::MainControls);
-        if ((g_model.cfsType(i) == SWITCH_2POS && physicalState) ||
-            (g_model.cfsType(i) == SWITCH_TOGGLE)) {
-          if (g_model.cfsGroupAlwaysOn(g_model.cfsGroup(i)) != 0) {
+        if ((g_model.getSwitchType(i) == SWITCH_2POS && physicalState) ||
+            (g_model.getSwitchType(i) == SWITCH_TOGGLE)) {
+          if (g_model.cfsGroupAlwaysOn(g_model.getSwitchGroup(i)) != 0) {
             // In an always on group
             g_model.cfsSetState(i, 1);
           } else {
@@ -175,11 +175,11 @@ void evalFunctionSwitches()
           }
         }
 
-        if (g_model.cfsGroup(i) && physicalState) {
+        if (g_model.getSwitchGroup(i) && physicalState) {
           // switch is in a group, other in group need to be turned off
           for (uint8_t j = 0; j < switchGetMaxSwitches(); j++) {
             if ((i != j) && switchIsCustomSwitch(j)) {
-              if (g_model.cfsGroup(j) == g_model.cfsGroup(i)) {
+              if (g_model.getSwitchGroup(j) == g_model.getSwitchGroup(i)) {
                 g_model.cfsSetState(j, 0);
               }
             }
@@ -203,7 +203,7 @@ void evalFunctionSwitches()
 bool groupHasSwitchOn(uint8_t group)
 {
   for (int j = 0; j < switchGetMaxSwitches(); j += 1)
-    if (switchIsCustomSwitch(j) && g_model.cfsGroup(j) == group && g_model.cfsState(j))
+    if (switchIsCustomSwitch(j) && g_model.getSwitchGroup(j) == group && g_model.cfsState(j))
       return true;
   return false;
 }
@@ -211,7 +211,7 @@ bool groupHasSwitchOn(uint8_t group)
 int firstSwitchInGroup(uint8_t group)
 {
   for (int j = 0; j < switchGetMaxSwitches(); j += 1)
-    if (switchIsCustomSwitch(j) && g_model.cfsGroup(j) == group)
+    if (switchIsCustomSwitch(j) && g_model.getSwitchGroup(j) == group)
       return j;
   return -1;
 }
@@ -221,10 +221,10 @@ int groupDefaultSwitch(uint8_t group)
   bool allOff = true;
   for (int j = 0; j < switchGetMaxSwitches(); j += 1) {
     if (switchIsCustomSwitch(j)) {
-      if (g_model.cfsGroup(j) == group) {
-        if (g_model.cfsStart(j) == FS_START_ON)
+      if (g_model.getSwitchGroup(j) == group) {
+        if (g_model.getSwitchStart(j) == FS_START_ON)
           return j;
-        if (g_model.cfsStart(j) != FS_START_OFF)
+        if (g_model.getSwitchStart(j) != FS_START_OFF)
           allOff = false;
       }
     }
@@ -241,8 +241,8 @@ void setGroupSwitchState(uint8_t group)
   //  - One switch must be turned on, turn on first switch if needed
   if (g_model.cfsGroupAlwaysOn(group)) {
     for (int j = 0; j < switchGetMaxSwitches(); j += 1) {
-      if (switchIsCustomSwitch(j) && g_model.cfsGroup(j) == group) {
-        g_model.cfsSetType(j, SWITCH_2POS); // Toggle not valid
+      if (switchIsCustomSwitch(j) && g_model.getSwitchGroup(j) == group) {
+        g_model.setSwitchType(j, SWITCH_2POS); // Toggle not valid
       }
     }
     if (!groupHasSwitchOn(group)) {
@@ -253,8 +253,8 @@ void setGroupSwitchState(uint8_t group)
     if (groupDefaultSwitch(group) == switchGetMaxSwitches()) {
       // Start state for all switches is off - set all to 'last'
       for (int j = 0; j < switchGetMaxSwitches(); j += 1)
-        if (switchIsCustomSwitch(j) && g_model.cfsGroup(j) == group)
-          g_model.cfsSetStart(j, FS_START_PREVIOUS);
+        if (switchIsCustomSwitch(j) && g_model.getSwitchGroup(j) == group)
+          g_model.setSwitchStart(j, FS_START_PREVIOUS);
     }
   }
 }
@@ -687,7 +687,7 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
     {
       div_t qr = div(cs_idx, 3);
       if (SWITCH_EXISTS(qr.quot)) {
-        auto sw_cfg = g_model.getSwitchConfig(qr.quot);
+        auto sw_cfg = g_model.getSwitchType(qr.quot);
         if (flags & GETSWITCH_MIDPOS_DELAY) {
           result = SWITCH_POSITION(cs_idx);
           // Handle 2POS switch installed in 3POS slot

@@ -429,9 +429,9 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       return _switch_2pos_lookup[g_model.cfsState(sw_idx)];
     }
 #endif
-    auto sw_cfg = g_model.getSwitchConfig(sw_idx);
+    auto sw_cfg = g_model.getSwitchType(sw_idx);
     switch(sw_cfg) {
-    case SWITCH_NONE:
+    default:
       if (valid != nullptr) *valid = false;
       return 0;
     case SWITCH_TOGGLE:
@@ -456,7 +456,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
       for (uint8_t i =  0; i < switchGetMaxSwitches(); i++) {
         if (switchIsCustomSwitch(i)) {
-          if (g_model.cfsGroup(i) == group_idx) {
+          if (g_model.getSwitchGroup(i) == group_idx) {
             if (g_model.cfsState(i) == 1)
               return value + (g_model.cfsGroupAlwaysOn(group_idx) ? 0 : stepsize);
             else

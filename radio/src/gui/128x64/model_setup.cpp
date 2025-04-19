@@ -575,10 +575,6 @@ inline uint8_t USB_JOYSTICK_APPLYROW()
 #define USB_JOYSTICK_ROWS
 #endif
 
-#if defined(FUNCTION_SWITCHES)
-static const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
-#endif
-
 uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
 {
   lcdDrawText(INDENT_WIDTH-1, y, title);
@@ -586,39 +582,41 @@ uint8_t viewOptChoice(coord_t y, const char* title, uint8_t value, uint8_t attr,
 }
 
 #if defined(FUNCTION_SWITCHES)
+const char* _fct_sw_start[] = { STR_CHAR_UP, STR_CHAR_DOWN, "=" };
 static int swIndex;
 static uint8_t cfsGroup;
 
 bool checkCFSTypeAvailable(int val)
 {
+  if (val == SWITCH_3POS) return false;
   int group = g_model.cfsGroup(swIndex);
   if (group > 0 && g_model.cfsGroupAlwaysOn(group) && val == SWITCH_TOGGLE)
     return false;
   return true;
 }
 
-bool checkCFSGroupAvailable(int group)
+static bool checkCFSGroupAvailable(int group)
 {
   if (g_model.cfsType(swIndex) == SWITCH_TOGGLE && group && g_model.cfsGroupAlwaysOn(group))
     return false;
   return true;
 }
 
-bool checkCFSSwitchAvailable(int sw)
+static bool checkCFSSwitchAvailable(int sw)
 {
   return (sw == -1) || (sw == switchGetMaxSwitches()) || (switchIsCustomSwitch(sw) && (g_model.cfsGroup(sw) == cfsGroup));
 }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-bool checkCFSColorAvailable(int col)
+static bool checkCFSColorAvailable(int col)
 {
   return col > 0;
 }
 #endif
 
 enum CFSFields {
-  CFS_FIELD_NAME,
   CFS_FIELD_TYPE,
+  CFS_FIELD_NAME,
   CFS_FIELD_GROUP,
   CFS_FIELD_START,
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -630,31 +628,31 @@ enum CFSFields {
 };
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-static void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags attr, event_t event)
+void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags attr, event_t event)
 {
   uint8_t selectedColor = getRGBColorIndex(color.getColor());
   selectedColor = editChoice(30, y, title, \
     STR_FS_COLOR_LIST, selectedColor, 0, DIM(colorTable), menuHorizontalPosition == 0 ? attr : 0, event, INDENT_WIDTH, checkCFSColorAvailable);
   if (attr && menuHorizontalPosition == 0 && checkIncDec_Ret) {
     color.setColor(colorTable[selectedColor - 1]);
-    storageDirty(EE_MODEL);
+    storageDirty((isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
   }
 
   lcdDrawNumber(LCD_W - 6 * FW, y, color.r, (menuHorizontalPosition == 1 ? attr : 0) | RIGHT);
   if (attr && menuHorizontalPosition == 1)
-    color.r = checkIncDecModel(event, color.r, 0, 255);
+    color.r = checkIncDec(event, color.r, 0, 255, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
 
   lcdDrawNumber(LCD_W - 3 * FW, y, color.g, (menuHorizontalPosition == 2 ? attr : 0) | RIGHT);
   if (attr && menuHorizontalPosition == 2)
-    color.g = checkIncDecModel(event, color.g, 0, 255);
+    color.g = checkIncDec(event, color.g, 0, 255, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
 
   lcdDrawNumber(LCD_W, y, color.b, (menuHorizontalPosition == 3 ? attr : 0) | RIGHT);
   if (attr && menuHorizontalPosition == 3)
-    color.b = checkIncDecModel(event, color.b, 0, 255);
+    color.b = checkIncDec(event, color.b, 0, 255, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
 }
 #endif
 
-void menuModelCFSOne(event_t event)
+static void menuModelCFSOne(event_t event)
 {
   std::string s(STR_CHAR_SWITCH);
   s += switchGetDefaultName(swIndex);
@@ -666,13 +664,13 @@ void menuModelCFSOne(event_t event)
   SUBMENU(s.c_str(), CFS_FIELD_COUNT,
     {
       0,
-      0,
-      (uint8_t)((config != SWITCH_NONE) ? 0 : HIDDEN_ROW),
-      (uint8_t)((config != SWITCH_NONE && config != SWITCH_TOGGLE && group == 0) ? 0 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_TOGGLE && config != SWITCH_GLOBAL && group == 0) ? 0 : HIDDEN_ROW),
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-      LABEL(),
-      3,
-      3,
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? LABEL() : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 3 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 3 : HIDDEN_ROW),
 #endif
     });
   
@@ -691,20 +689,20 @@ void menuModelCFSOne(event_t event)
     LcdFlags attr = (sub == i ? (editMode > 0 ? BLINK | INVERS : INVERS) : 0);
 
     switch(i) {
-      case CFS_FIELD_NAME:
-        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_NAME, g_model.cfsName(swIndex),
-                       LEN_SWITCH_NAME, event, (attr != 0),
-                       editMode);
-        break;
-
       case CFS_FIELD_TYPE:
-        config = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SWITCH_TYPE, STR_SWTYPES, config, SWITCH_NONE, SWITCH_2POS, attr, event, 0, checkCFSTypeAvailable);
+        config = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SWITCH_TYPE, STR_SWTYPES, config, SWITCH_NONE, SWITCH_GLOBAL, attr, event, 0, checkCFSTypeAvailable);
         if (attr && checkIncDec_Ret) {
           g_model.cfsSetType(swIndex, (SwitchConfig)config);
           if (config == SWITCH_TOGGLE) {
             g_model.cfsSetStart(swIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
           }
         }
+        break;
+
+      case CFS_FIELD_NAME:
+        editSingleName(MODEL_SETUP_2ND_COLUMN, y, STR_NAME, g_model.cfsName(swIndex),
+                       LEN_SWITCH_NAME, event, (attr != 0),
+                       editMode);
         break;
 
       case CFS_FIELD_GROUP:
@@ -1033,18 +1031,18 @@ void menuModelSetup(event_t event)
           pushMenu(menuModelCFSOne);
         }
 
-        if (g_model.cfsName(index)[0]) {
-          char s[LEN_SWITCH_NAME + 1];
-          strAppend(s, g_model.cfsName(index), LEN_SWITCH_NAME);
-          lcdDrawText(35, y, s);
-        } else {
-          lcdDrawMMM(35, y, 0);
-        }
-
         int config = g_model.cfsType(index);
         lcdDrawText(30 + 5 * FW, y, STR_SWTYPES[config]);
 
-        if (config != SWITCH_NONE) {
+        if (config != SWITCH_NONE && config != SWITCH_GLOBAL) {
+          if (g_model.cfsName(index)[0]) {
+          char s[LEN_SWITCH_NAME + 1];
+          strAppend(s, g_model.cfsName(index), LEN_SWITCH_NAME);
+          lcdDrawText(35, y, s);
+          } else {
+            lcdDrawMMM(35, y, 0);
+          }
+
           uint8_t group = g_model.cfsGroup(index);
           lcdDrawText(30 + 13 * FW, y, STR_FSGROUPS[group]);
 
