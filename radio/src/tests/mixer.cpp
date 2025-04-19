@@ -715,6 +715,7 @@ TEST_F(MixerTest, SlowOnSwitchSource)
   for (sw = 0; sw < switchGetMaxSwitches(); sw += 1)
     if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
       break;
+  if (sw >= switchGetMaxSwitches()) return;
 
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
@@ -762,6 +763,7 @@ TEST_F(MixerTest, SlowOnSwitchSourcePrec10ms)
   for (sw = 0; sw < switchGetMaxSwitches(); sw += 1)
     if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
       break;
+  if (sw >= switchGetMaxSwitches()) return;
 
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
@@ -800,6 +802,7 @@ TEST_F(MixerTest, DelayOnSwitch)
   for (sw = 0; sw < switchGetMaxSwitches(); sw += 1)
     if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
       break;
+  if (sw >= switchGetMaxSwitches()) return;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
 
   g_model.mixData[0].destCh = 0;
@@ -834,6 +837,7 @@ TEST_F(MixerTest, DelayOnSwitch2)
   for (sw = 0; sw < switchGetMaxSwitches(); sw += 1)
     if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
       break;
+  if (sw >= switchGetMaxSwitches()) return;
 
   g_model.mixData[0].destCh = 0;
   g_model.mixData[0].mltpx = MLTPX_ADD;
@@ -1031,6 +1035,7 @@ TEST_F(MixerTest, flightModeTransition)
   for (sw = 0; sw < switchGetMaxSwitches(); sw += 1)
     if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
       break;
+  if (sw >= switchGetMaxSwitches()) return;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
 
   SYSTEM_RESET();
