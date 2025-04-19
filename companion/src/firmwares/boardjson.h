@@ -68,8 +68,8 @@ class BoardJson
       bool inverted                    = false;
       Board::SwitchType dflt           = Board::SWITCH_NOT_AVAILABLE;
       Display display;
-      bool isCFS                       = false;
-      int cfsIdx                       = -1;
+      bool isCustomSwitch              = false;
+      int customSwitchIdx              = -1;
       Board::LookupValueType cfgYaml   = Board::LVT_TAG;
       Board::LookupValueType refYaml   = Board::LVT_NAME;
 
@@ -139,7 +139,8 @@ class BoardJson
     const int getKeyIndex(const QString key) const;
 
     const int getSwitchIndex(const QString val, Board::LookupValueType lvt) const;
-    const int getSwitchIndexForCFS(int cfsIdx) const;
+    const int getCFSIndexForSwitch(int sw) const;
+    const int getSwitchIndexForCFS(int customSwitchIdx) const;
     const Board::SwitchInfo getSwitchInfo(int index) const;
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
