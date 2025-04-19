@@ -74,7 +74,7 @@ void YamlValidateLabelsNames(ModelData& model, Board::Type board)
   }
 
   for (int i = 0; i < CPN_MAX_SWITCHES_FUNCTION; i++) {
-    YamlValidateName(model.functionSwitchNames[i], board);
+    YamlValidateName(model.customSwitches[i].name, board);
   }
 
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
@@ -1573,9 +1573,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
   if (node["customSwitches"]) {
     for (int i = 0; i < funcSwCnt; i += 1) {
-      if (node["customSwitches"][std::to_string(i)]) {
-        int sw = Boards::getSwitchIndexForCFS(i);
-        std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
+      int sw = Boards::getSwitchIndexForCFS(i);
+      std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
+      if (node["customSwitches"][tag]) {
         node["customSwitches"][tag]["type"] >> cfsSwitchConfig >> rhs.customSwitches[i].type;
         node["customSwitches"][tag]["group"] >> rhs.customSwitches[i].group;
         node["customSwitches"][tag]["start"] >> cfsSwitchStart >> rhs.customSwitches[i].start;

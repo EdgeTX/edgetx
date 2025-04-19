@@ -53,7 +53,11 @@
 #define TR_TRNMODE                     "AUS",TR("+=","Addiere"),TR(":=","Ersetze")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Kein","Taster","2POS","3POS","Global"
+#else
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
+#endif
 #define TR_POTTYPES                    "Kein","Poti", TR("Pot o. Ras","Poti mit Raste"),"Schieber",TR("Multipos.","Multipos. Schalter"),"Knüppel X","Knüppel Y","Schalter"
 #define TR_VPERSISTENT                 "AUS","Flugzeit","Manuell Rück"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")

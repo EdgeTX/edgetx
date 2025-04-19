@@ -51,10 +51,10 @@
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
 
-#if !NARROW_LAYOUT
-  #define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position","Global"
 #else
-  #define TR_SWTYPES                   "Ingen","Skift","2POS","3POS"
+#define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position"
 #endif
 
 #define TR_POTTYPES                    "Ingen",TR("Drejek.", "Drejekontakt"),TR("Drejek./klik","Drejekontakt med klik"),"Skyder",TR("Multipos","Multipos kontakt"),"Axis X","Axis Y","Switch"
