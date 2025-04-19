@@ -49,8 +49,10 @@ bool switchIsCustomSwitch(int sw);
 uint8_t switchGetCustomSwitchIdx(uint8_t sw);
 uint8_t switchGetSwitchFromCustomIdx(uint8_t sw);
 
-// returns the maximum number of regular switches supported in hardware (customizable switches NOT included)
+// returns the maximum number of physical + custom switches supported in hardware
 uint8_t switchGetMaxSwitches();
+// returns the maximum number of physical + custom + flex switches supported in hardware
+uint8_t switchGetMaxAllSwitches();
 
 // returns the number of configured switches
 uint8_t getSwitchCount();

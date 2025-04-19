@@ -272,7 +272,7 @@ int switchLookupIdx(char c)
       idx = 2; // SWx
   }
 
-  auto max_switches = switchGetMaxSwitches();
+  auto max_switches = switchGetMaxAllSwitches();
   for (int i = 0; i < max_switches; i++) {
     const char *name = switchGetDefaultName(i);
     if (name[idx] == c) return i;
@@ -285,7 +285,7 @@ int switchLookupIdx(const char* name, size_t len)
 {
   if (len < 2 || (name[0] != 'S' && name[0] != 'F')) return -1;
 
-  auto max_switches = switchGetMaxSwitches();
+  auto max_switches = switchGetMaxAllSwitches();
   for (int i = 0; i < max_switches; i++) {
     const char *sw_name = switchGetDefaultName(i);
     if (strncmp(sw_name, name, len) == 0) return i;
@@ -296,7 +296,7 @@ int switchLookupIdx(const char* name, size_t len)
 
 char switchGetLetter(uint8_t idx)
 {
-  if (idx >= switchGetMaxSwitches() + MAX_FLEX_SWITCHES)
+  if (idx >= switchGetMaxAllSwitches() + MAX_FLEX_SWITCHES)
     return -1;
   
   const char* name = switchGetDefaultName(idx);
@@ -369,7 +369,7 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
 void getSwitchesPosition(bool startup)
 {
   uint64_t newPos = 0;
-  for (unsigned i = 0; i < switchGetMaxSwitches(); i++) {
+  for (unsigned i = 0; i < switchGetMaxAllSwitches(); i++) {
     if (!SWITCH_EXISTS(i)) continue;
     newPos |= checkSwitchPosition(i, startup);
   }
@@ -410,7 +410,7 @@ void getSwitchesPosition(bool startup)
 uint8_t getSwitchCount()
 {
   int count = 0;
-  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
+  for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
     if (SWITCH_EXISTS(i)) {
       ++count;
     }
@@ -422,7 +422,7 @@ uint8_t getSwitchCount()
 uint8_t switchGetMaxRow(uint8_t col)
 {
   uint8_t lastrow = 0;
-  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
+  for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
     if (SWITCH_EXISTS(i)) {
       auto switch_display = switchGetDisplayPosition(i);
       if (switch_display.col == col)
@@ -794,7 +794,7 @@ swsrc_t getMovedSwitch()
   swsrc_t result = 0;
 
   // Switches
-  auto max_switches = switchGetMaxSwitches();
+  auto max_switches = switchGetMaxAllSwitches();
   for (uint8_t i = 0; i < max_switches; i++) {
     if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
       swarnstate_t mask = ((swarnstate_t) 0x03 << (i * 2));
@@ -864,7 +864,7 @@ bool isSwitchWarningRequired(uint16_t &bad_pots)
   getMovedSwitch();
 
   bool warn = false;
-  for (int i = 0; i < switchGetMaxSwitches(); i++) {
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       uint8_t warnState = g_model.getSwitchWarning(i);
       if (warnState) {
@@ -934,7 +934,7 @@ void checkSwitches()
       int x = SWITCH_WARNING_LIST_X;
       int y = SWITCH_WARNING_LIST_Y;
       int numWarnings = 0;
-      for (int i = 0; i < switchGetMaxSwitches(); ++i) {
+      for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
         if (SWITCH_WARNING_ALLOWED(i)) {
           uint8_t warnState = g_model.getSwitchWarning(i);
           if (warnState) {

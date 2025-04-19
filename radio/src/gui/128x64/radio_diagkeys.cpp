@@ -153,7 +153,7 @@ void menuRadioDiagKeys(event_t event)
       }
     }
 
-    if (i < switchGetMaxSwitches()) {
+    if (i < switchGetMaxAllSwitches()) {
       if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
         getvalue_t sw =

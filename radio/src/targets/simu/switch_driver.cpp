@@ -45,7 +45,7 @@ int8_t switchesStates[MAX_SWITCHES] = { 0 };
 
 void simuSetSwitch(uint8_t swtch, int8_t state)
 {
-  assert(swtch < switchGetMaxSwitches());
+  assert(swtch < switchGetMaxAllSwitches());
   switchesStates[swtch] = state;
 }
 

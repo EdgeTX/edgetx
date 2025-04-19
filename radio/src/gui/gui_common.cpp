@@ -362,7 +362,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
   if (swtch >= SWSRC_FIRST_SWITCH && swtch <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(swtch);
-    if (swinfo.quot >= switchGetMaxSwitches()) {
+    if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
 
@@ -439,7 +439,7 @@ static bool isSwitchSwitchAvailable(int swtch, bool invert) {
   // Check normal switch
   if (swtch < MAX_SWITCHES * 3) {
     div_t swinfo = switchInfo(swtch + SWSRC_FIRST_SWITCH);
-    if (swinfo.quot >= switchGetMaxSwitches()) {
+    if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
 

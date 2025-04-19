@@ -61,7 +61,7 @@ inline void SYSTEM_RESET()
 #endif
   generalDefault();
   g_eeGeneral.templateSetup = 0;
-  for (int i=0; i<switchGetMaxSwitches(); i++) {
+  for (int i=0; i<switchGetMaxAllSwitches(); i++) {
     simuSetSwitch(i, -1);
   }
 }

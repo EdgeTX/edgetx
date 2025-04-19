@@ -125,13 +125,13 @@ class RadioKeyDiagsWindow : public Window
 
   void addSwitches(Window *form)
   {
-    switchValues = new lv_obj_t *[switchGetMaxSwitches()];
+    switchValues = new lv_obj_t *[switchGetMaxAllSwitches()];
     lv_obj_t *obj = form->getLvObj();
     uint8_t i;
     uint8_t row = 0;
 
     // SWITCHES
-    for (i = 0; i < switchGetMaxSwitches(); i++) {
+    for (i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
         auto lbl = lv_label_create(obj);
         lv_label_set_text(lbl, "");
@@ -197,7 +197,7 @@ class RadioKeyDiagsWindow : public Window
   {
     uint8_t i;
 
-    for (i = 0; i < switchGetMaxSwitches(); i++) {
+    for (i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
         getvalue_t sw =
