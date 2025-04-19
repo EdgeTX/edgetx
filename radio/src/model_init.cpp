@@ -138,7 +138,7 @@ void applyDefaultTemplate()
 #endif
 
   // enable switch warnings
-  for (uint64_t i = 0; i < switchGetMaxSwitches(); i++) {
+  for (uint64_t i = 0; i < switchGetMaxAllSwitches(); i++) {
     if (SWITCH_WARNING_ALLOWED(i))
       g_model.setSwitchWarning(i, 1);
   }

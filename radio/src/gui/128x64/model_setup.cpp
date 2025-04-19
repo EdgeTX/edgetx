@@ -43,7 +43,7 @@ uint8_t g_moduleIdx;
 uint8_t getSwitchWarningsCount()
 {
   uint8_t count = 0;
-  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
+  for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       ++count;
     }
@@ -1253,7 +1253,7 @@ void menuModelSetup(event_t event)
           }
 
           int current = 0;
-          for (int i = 0; i < switchGetMaxSwitches(); i++) {
+          for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
             if (SWITCH_WARNING_ALLOWED(i)) {
               div_t qr = div(current, MAX_SWITCH_PER_LINE);
               if (event == EVT_KEY_BREAK(KEY_ENTER) && attr &&

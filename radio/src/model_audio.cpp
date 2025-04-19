@@ -116,7 +116,7 @@ bool matchModeAudioFile(const char* filename, int& index, int& event)
 bool matchSwitchAudioFile(const char* filename, int& sw_pos)
 {
   // Switches Audio Files <switchname>-[up|mid|down].wav
-  for (int i = 0; i < switchGetMaxSwitches(); i++) {
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
     auto* c = filename;
     auto sw_name = switchGetDefaultName(i);
     auto sw_name_len = strlen(sw_name);
