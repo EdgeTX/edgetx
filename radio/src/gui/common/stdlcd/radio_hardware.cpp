@@ -24,6 +24,7 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
+#include "hal/rgbleds.h"
 
 #include "analogs.h"
 #include "switches.h"

@@ -242,8 +242,8 @@ class ModelData {
     unsigned int functionSwitchStartConfig;
     unsigned int functionSwitchLogicalState;
     char functionSwitchNames[CPN_MAX_SWITCHES_FUNCTION][HARDWARE_NAME_LEN + 1];
-    RGBLedColor functionSwitchLedONColor[CPN_MAX_SWITCHES_FUNCTION];
-    RGBLedColor functionSwitchLedOFFColor[CPN_MAX_SWITCHES_FUNCTION];
+    RGBLedColor functionSwitchLedONColor[CPN_MAX_SWITCHES_FUNCTION_LED];
+    RGBLedColor functionSwitchLedOFFColor[CPN_MAX_SWITCHES_FUNCTION_LED];
 
     // Custom USB joytsick mapping
     unsigned int usbJoystickExtMode;

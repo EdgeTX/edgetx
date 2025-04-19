@@ -191,8 +191,6 @@ const char * loadRadioSettings()
     return error;
 }
 
-
-
 struct yaml_checksummer_ctx {
     FRESULT result;
     uint16_t checksum;
@@ -341,6 +339,10 @@ const char * readModelYaml(const char * filename, uint8_t * buffer, uint32_t siz
     memset(buffer,0,size);
 
     if (init_model) {
+#if defined(SWITCH_LED_COUNT)
+      extern void initCustomSwitchColors();
+      initCustomSwitchColors();
+#endif
       auto md = reinterpret_cast<ModelData*>(buffer);
 #if defined(FLIGHT_MODES) && defined(GVARS)
       // reset GVars to default values

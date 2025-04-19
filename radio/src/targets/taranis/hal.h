@@ -645,6 +645,7 @@
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_13  // PC.13
 #elif defined(RADIO_GX12)
   #define SWITCHES_A_2POS
+  #define SWITCHES_A_LED_IDX            7
 #elif defined(RADIO_T14) || defined(RADIO_T12MAX)
   #define SWITCHES_GPIO_REG_A           GPIOC
   #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_5   // PC.05
@@ -889,6 +890,7 @@
   #define SWITCHES_GPIO_PIN_D           LL_GPIO_PIN_3  // PC.03
 #elif defined(RADIO_GX12)
   #define SWITCHES_D_2POS
+  #define SWITCHES_D_LED_IDX            6
 #elif defined(RADIO_V14) || defined(RADIO_V12)
 // ADC based switch
 #elif defined(PCBX7) && !defined(RADIO_COMMANDO8)
@@ -1966,6 +1968,7 @@
 #if defined(RADIO_GX12)
   #define LED_STRIP_LENGTH                  8
   #define RGB_LED_OFFSET                    8
+  #define SWITCH_LED_COUNT                  2
 #else
   #define LED_STRIP_LENGTH                  7
 #endif

@@ -1160,6 +1160,13 @@ bool w_swtchSrc(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* o
   return true;
 }
 
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+bool cfs_led_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  return true;
+}
+#endif
+
 bool cfn_is_active(void* user, uint8_t* data, uint32_t bitoffs)
 {
   data += bitoffs >> 3UL;
