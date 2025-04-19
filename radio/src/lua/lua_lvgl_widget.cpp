@@ -330,7 +330,7 @@ void LvglWidgetObjectBase::pcallSetIntVal(lua_State *L, int setFuncRef, int val)
 
 const char* LvglWidgetObjectBase::pcallGetStringVal(lua_State *L, int getFuncRef)
 {
-  const char* val = nullptr;
+  const char* val = "";
   if (getFuncRef != LUA_REFNIL) {
     auto save = luaScriptManager;
     luaScriptManager = lvglManager;
