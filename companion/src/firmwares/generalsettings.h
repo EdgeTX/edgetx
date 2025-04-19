@@ -360,6 +360,7 @@ class GeneralSettings {
     struct SwitchConfig {
       char name[HARDWARE_NAME_LEN + 1];
       Board::SwitchType type;
+      int start;
       bool inverted;
       int inputIdx;  //  used if switch tag = FLn, value -1 = none selected
     };

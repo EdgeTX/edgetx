@@ -52,7 +52,11 @@
 #define TR_TRNMODE                     "DESL",TR("+=","Adicionar"),TR(":=","Trocar")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "DESL","Espelhar Telem","Entr Telem","Trainer SBUS","LUA","CLI","GPS","Debug","SpaceMouse","External module"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Nenhum","Tátil","2POS","3POS","Global"
+#else
 #define TR_SWTYPES                     "Nenhum","Tátil","2POS","3POS"
+#endif
 #define TR_POTTYPES                    "Nenhum","Pot",TR("Pot c. trav","Pot com trava"),"Slider",TR("Multipos","Chave Multipos"),"Eixo X","Eixo Y","Chave"
 #define TR_VPERSISTENT                 "DESL","Voo","Reset Manual"
 #define TR_COUNTRY_CODES               TR("US","América"),TR("JP","Japão"),TR("EU","Europa")
