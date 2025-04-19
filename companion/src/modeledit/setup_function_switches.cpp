@@ -71,13 +71,14 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
   fsGroupStart = ModelData::funcSwitchGroupStartSwitchModel(switchcnt);
 
   for (int i = 0; i < switchcnt; i++) {
+    int sw = Boards::getSwitchIndexForCFS(i);
     QLabel * lblSwitchId = new QLabel(this);
-    lblSwitchId->setText(tr("SW%1").arg(i + 1));
+    lblSwitchId->setText(Boards::getSwitchName(sw));
 
     AutoLineEdit * aleName = new AutoLineEdit(this);
     aleName->setProperty("index", i);
     aleName->setValidator(new NameValidator(board, this));
-    aleName->setField((char *)model.functionSwitchNames[i], 3);
+    aleName->setField((char *)model.customSwitches[i].name, 3);
 
     QComboBox * cboConfig = new QComboBox(this);
     cboConfig->setProperty("index", i);
@@ -159,6 +160,7 @@ void FunctionSwitchesPanel::update()
     filterSwitchGroups[i]->invalidate();
 
     aleNames[i]->update();
+    printf(">>>>>> cfs %d %d\n",i,model->getFuncSwitchConfig(i));
     cboConfigs[i]->setCurrentIndex(filterSwitchConfigs[i]->mapFromSource(fsConfig->index(model->getFuncSwitchConfig(i), 0)).row());
     cboStartupPosns[i]->setCurrentIndex(model->getFuncSwitchStart(i));
     unsigned int grp = model->getFuncSwitchGroup(i);

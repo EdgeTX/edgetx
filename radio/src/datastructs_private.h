@@ -647,11 +647,10 @@ struct RGBLedColor {
 #if defined(FUNCTION_SWITCHES)
 PACK(struct customSwitch {
   CUST_IDX(sw, cfs_idx_read, cfs_idx_write);
-  uint8_t type:2 ENUM(SwitchConfig);
+  uint8_t type:3 ENUM(SwitchConfig);
   uint8_t group:2;
   uint8_t start:2 ENUM(fsStartPositionType);
   uint8_t state:1;
-  uint8_t sfState:1 SKIP; // state set by SF
   NOBACKUP(char name[LEN_SWITCH_NAME]);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   NOBACKUP(RGBLedColor onColor) FUNC(isAlwaysActive);
@@ -676,7 +675,8 @@ PACK(struct customSwitch {
     CUST_ARRAY(switchNames, struct_cfsNameConfig, NUM_FUNCTIONS_SWITCHES, nullptr); \
     FUNCTION_SWITCHS_RGB_LEDS_FIELDS \
     customSwitch customSwitches[NUM_FUNCTIONS_SWITCHES] FUNC(isAlwaysActive) NO_IDX; \
-    uint8_t cfsGroupOn ARRAY(1, struct_cfsGroupOn, cfsGroupIsActive);
+    uint8_t cfsGroupOn ARRAY(1, struct_cfsGroupOn, cfsGroupIsActive); \
+    NOBACKUP(uint8_t sfPushState) SKIP;
 #else
   #define FUNCTION_SWITCHS_FIELDS
 #endif
@@ -848,7 +848,8 @@ PACK(struct ModelData {
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
 
-  SwitchConfig getSwitchConfig(uint8_t n);
+  SwitchConfig getSwitchType(uint8_t n);
+  void setSwitchType(uint8_t n, SwitchConfig v);
   char* getSwitchCustomName(uint8_t n);
   bool switchHasCustomName(uint8_t n);
 
@@ -857,8 +858,12 @@ PACK(struct ModelData {
   NOBACKUP(void setSwitchWarning(uint8_t n, uint8_t v) { switchWarning = bfSet<swarnstate_t>(switchWarning, v, n * 2, 2); })
 
 #if defined(FUNCTION_SWITCHES)
+  uint8_t getSwitchGroup(uint8_t n);
+  fsStartPositionType getSwitchStart(uint8_t n);
+  void setSwitchStart(uint8_t n, fsStartPositionType v);
   SwitchConfig cfsType(uint8_t n);
   void cfsSetType(uint8_t n, SwitchConfig v);
+  char* cfsName(uint8_t n);
   uint8_t cfsGroup(uint8_t n);
   void cfsSetGroup(uint8_t n, uint8_t v);
   fsStartPositionType cfsStart(uint8_t n);
@@ -866,8 +871,11 @@ PACK(struct ModelData {
   bool cfsState(uint8_t n);
   void cfsSetState(uint8_t n, bool v);
   bool cfsSFState(uint8_t n);
-  char* cfsName(uint8_t n);
+  void cfsSetSFState(uint8_t n, bool v);
+  void cfsResetSFState();
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  RGBLedColor& getSwitchOnColor(uint8_t n);
+  RGBLedColor& getSwitchOffColor(uint8_t n);
   RGBLedColor& cfsOnColor(uint8_t n);
   RGBLedColor& cfsOffColor(uint8_t n);
 #endif
@@ -922,6 +930,22 @@ PACK(struct TrainerData {
 #else
   #define BUZZER_FIELD int8_t spare2:2 SKIP
 #endif
+
+PACK(struct switchDef {
+  CUST_IDX(sw, sw_idx_read, sw_idx_write);
+  uint8_t type:3 ENUM(SwitchConfig);
+#if defined(FUNCTION_SWITCHES)
+  uint8_t start:2 ENUM(fsStartPositionType);
+  NOBACKUP(uint8_t spare:3) SKIP;
+#else
+  NOBACKUP(uint8_t spare:5) SKIP;
+#endif
+  NOBACKUP(char name[LEN_SWITCH_NAME]);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  NOBACKUP(RGBLedColor onColor) FUNC(isAlwaysActive);
+  NOBACKUP(RGBLedColor offColor) FUNC(isAlwaysActive);
+#endif
+});
 
 PACK(struct RadioData {
 
@@ -1013,9 +1037,10 @@ PACK(struct RadioData {
   CUST_ARRAY(slidersConfig, struct_sliderConfig, MAX_POTS, nullptr);
   uint8_t stickInvert SKIP;
   potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
-  swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
+  switchDef switchConfig[MAX_SWITCHES] FUNC(switchIsActive) NO_IDX; \
+  // swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
   CUST_ARRAY(flexSwitches, struct_flexSwitch, MAX_FLEX_SWITCHES, flex_sw_valid);
-  NOBACKUP(char switchNames[MAX_SWITCHES][LEN_SWITCH_NAME]) SKIP;
+  // NOBACKUP(char switchNames[MAX_SWITCHES][LEN_SWITCH_NAME]) SKIP;
 
   EXTRA_GENERAL_FIELDS
 
@@ -1083,10 +1108,20 @@ PACK(struct RadioData {
 #endif
   });
 
-  SwitchConfig getSwitchConfig(uint8_t n);
-  void setSwitchConfig(uint8_t n, SwitchConfig v);
   char* getSwitchCustomName(uint8_t n);
   bool switchHasCustomName(uint8_t n);
+  SwitchConfig switchType(uint8_t n);
+  void switchSetType(uint8_t n, SwitchConfig v);
+  char* switchName(uint8_t n);
+#if defined(FUNCTION_SWITCHES)
+  uint8_t switchGroup(uint8_t n) { return 0; }
+  fsStartPositionType switchStart(uint8_t n);
+  void switchSetStart(uint8_t n, fsStartPositionType v);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  RGBLedColor& switchOnColor(uint8_t n);
+  RGBLedColor& switchOffColor(uint8_t n);
+#endif
+#endif
 });
 
 #undef SWITCHES_WARNING_DATA

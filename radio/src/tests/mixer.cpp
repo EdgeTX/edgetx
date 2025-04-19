@@ -713,7 +713,7 @@ TEST_F(MixerTest, SlowOnSwitchSource)
 {
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
   if (sw >= switchGetMaxAllSwitches()) return;
 
@@ -761,7 +761,7 @@ TEST_F(MixerTest, SlowOnSwitchSourcePrec10ms)
 {
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
   if (sw >= switchGetMaxAllSwitches()) return;
 
@@ -800,7 +800,7 @@ TEST_F(MixerTest, DelayOnSwitch)
 {
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
   if (sw >= switchGetMaxAllSwitches()) return;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;
@@ -835,7 +835,7 @@ TEST_F(MixerTest, DelayOnSwitch2)
 {
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
   if (sw >= switchGetMaxAllSwitches()) return;
 
@@ -1033,7 +1033,7 @@ TEST_F(MixerTest, flightModeTransition)
 {
   int sw;
   for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchConfig(sw) == SWITCH_3POS)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
       break;
   if (sw >= switchGetMaxAllSwitches()) return;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH + 2;

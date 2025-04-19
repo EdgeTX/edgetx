@@ -49,7 +49,11 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES            "OFF","テレメトリーミラー","テレメトリーIN","SBUSトレーナー","LUAスクリプト","CLI","GPS","デバッグ","SpaceMouse","外部モジュール"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "なし","トグル","2POS","3POS","グローバル"
+#else
 #define TR_SWTYPES                     "なし","トグル","2POS","3POS"
+#endif
 #define TR_POTTYPES                    "なし","ダイヤル",TR("Pot w. det","ダイヤル(ノッチ)"),"スライダー",TR("Multipos","マルチPOS-Sw"),"X軸","Y軸","スイッチ"
 #define TR_VPERSISTENT                 "無効","飛行時","手動リセット"
 #define TR_COUNTRY_CODES               TR("US","アメリカ"),TR("JP","日本"),TR("EU","ヨーロッパ")

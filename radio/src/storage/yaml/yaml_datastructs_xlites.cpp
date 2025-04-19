@@ -88,6 +88,17 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_TEST, "TEST"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_SwitchConfig[] = {
+  {  SWITCH_NONE, "NONE"  },
+  {  SWITCH_TOGGLE, "TOGGLE"  },
+  {  SWITCH_2POS, "2POS"  },
+  {  SWITCH_3POS, "3POS"  },
+  {  SWITCH_none, "none"  },
+  {  SWITCH_toggle, "toggle"  },
+  {  SWITCH_2pos, "2pos"  },
+  {  SWITCH_3pos, "3pos"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_OFF, "OFF"  },
   {  TMRMODE_ON, "ON"  },
@@ -264,9 +275,11 @@ static const struct YamlNode struct_CustomFunctionData[] = {
   YAML_PADDING( 7 ),
   YAML_END
 };
-static const struct YamlNode struct_string_24[] = {
-  YAML_IDX,
-  YAML_STRING("val", 3),
+static const struct YamlNode struct_switchDef[] = {
+  YAML_IDX_CUST("sw",sw_idx_read,sw_idx_write),
+  YAML_ENUM("type", 3, enum_SwitchConfig),
+  YAML_PADDING( 5 ),
+  YAML_STRING("name", 3),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -347,9 +360,8 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ARRAY("slidersConfig", 0, MAX_POTS, struct_sliderConfig, nullptr),
   YAML_PADDING( 8 ),
   YAML_ARRAY("potsConfig", 4, 8, struct_potConfig, nullptr),
-  YAML_ARRAY("switchConfig", 2, 32, struct_switchConfig, nullptr),
+  YAML_ARRAY("switchConfig", 32, 20, struct_switchDef, switchIsActive),
   YAML_ARRAY("flexSwitches", 0, MAX_FLEX_SWITCHES, struct_flexSwitch, flex_sw_valid),
-  YAML_PADDING( 480 ),
   YAML_UNSIGNED( "backlightColor", 8 ),
   YAML_STRING("bluetoothName", 10),
   YAML_STRING("ownerRegistrationID", 8),
@@ -673,6 +685,11 @@ static const struct YamlNode struct_ScriptData[] = {
   YAML_STRING("file", 6),
   YAML_STRING("name", 6),
   YAML_ARRAY("inputs", 16, 6, union_ScriptDataInput, NULL),
+  YAML_END
+};
+static const struct YamlNode struct_string_24[] = {
+  YAML_IDX,
+  YAML_STRING("val", 3),
   YAML_END
 };
 static const struct YamlNode union_anonymous_14_elmts[] = {

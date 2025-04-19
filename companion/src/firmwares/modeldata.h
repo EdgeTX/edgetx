@@ -121,7 +121,6 @@ class customSwitch {
     unsigned int group;
     unsigned int start;
     unsigned int state;
-    unsigned int sfState;
     char name[HARDWARE_NAME_LEN + 1];
     RGBLedColor onColor;
     RGBLedColor offColor;
@@ -253,9 +252,6 @@ class ModelData {
 
     // Function switches
     customSwitch customSwitches[CPN_MAX_SWITCHES_FUNCTION];
-    char functionSwitchNames[CPN_MAX_SWITCHES_FUNCTION][HARDWARE_NAME_LEN + 1];
-    RGBLedColor functionSwitchLedONColor[CPN_MAX_SWITCHES_FUNCTION];
-    RGBLedColor functionSwitchLedOFFColor[CPN_MAX_SWITCHES_FUNCTION];
     unsigned int cfsGroupOn[4];
 
     // Custom USB joytsick mapping

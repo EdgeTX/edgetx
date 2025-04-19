@@ -27,17 +27,17 @@
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 void setFSLedOFF(uint8_t index) {
   uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-  fsLedRGB(cfsIdx, g_model.cfsOffColor(index).getColor());
+  fsLedRGB(cfsIdx, g_model.getSwitchOffColor(index).getColor());
 }
 
 void setFSLedON(uint8_t index) {
   uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-  fsLedRGB(cfsIdx, g_model.cfsOnColor(index).getColor());
+  fsLedRGB(cfsIdx, g_model.getSwitchOnColor(index).getColor());
 }
 
 bool getFSLedState(uint8_t index) {
   uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-  return rgbGetLedColor(cfsIdx) == g_model.cfsOnColor(index).getColor();
+  return rgbGetLedColor(cfsIdx) == g_model.getSwitchOnColor(index).getColor();
 }
 
 uint32_t getFSLedRGBColor(uint8_t index)

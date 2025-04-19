@@ -1046,6 +1046,11 @@ int Boards::getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type 
   return getBoardJson(board)->getSwitchIndex(val, lvt);
 }
 
+int Boards::getCFSIndexForSwitch(int swIdx, Board::Type board)
+{
+  return getBoardJson(board)->getCFSIndexForSwitch(swIdx);
+}
+
 int Boards::getSwitchIndexForCFS(int cfsIdx, Board::Type board)
 {
   return getBoardJson(board)->getSwitchIndexForCFS(cfsIdx);

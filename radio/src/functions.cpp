@@ -154,8 +154,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
   MASK_FUNC_TYPE newActiveFunctions  = 0;
   MASK_CFN_TYPE  newActiveSwitches = 0;
 #if defined(FUNCTION_SWITCHES)
-  for (int i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1)
-    g_model.customSwitches[i].sfState = 0;
+  g_model.cfsResetSFState();
 #endif
 
   uint8_t playFirstIndex = (functions == g_model.customFn ? 1 : 1+MAX_SPECIAL_FUNCTIONS);
@@ -387,14 +386,14 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             if (CFN_PARAM(cfn)) {   // Duration is set
               if (! CFN_VAL2(cfn) ) { // Duration not started yet
                 CFN_VAL2(cfn) = timersGetMsTick() + CFN_PARAM(cfn) * 100;
-                g_model.customSwitches[CFN_CS_INDEX(cfn)].sfState = 1;
+                g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
               }
               else if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
-                g_model.customSwitches[CFN_CS_INDEX(cfn)].sfState = 1;
+                g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
               }
             }
             else // No duration set
-              g_model.customSwitches[CFN_CS_INDEX(cfn)].sfState = 1;
+              g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
             break;
 #endif
 
@@ -474,7 +473,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
         if (CFN_FUNC(cfn) == FUNC_PUSH_CUST_SWITCH) {
           // Handling duration after function is active
           if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn)) {
-            g_model.customSwitches[CFN_CS_INDEX(cfn)].sfState = 1;
+            g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
           }
           else {
             CFN_VAL2(cfn) = 0;

@@ -52,7 +52,11 @@
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES    "UIT","Telem Mirror","Telemetry In","SBUS Leerling","LUA","CLI","GPS","Debug","SpaceMouse","External module"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES             "Geen","Wissel","2POS","3POS","Globale"
+#else
 #define TR_SWTYPES             "Geen","Wissel","2POS","3POS"
+#endif
 #define TR_POTTYPES            "Geen",TR("Pot", "Pot zonder Klik"),TR("Pot w. det","Pot met Klik"),"Schuif",TR("Multipos","Standenschakelaar"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT         "UIT","Vliegtijd","Handmatige Reset"
 #define TR_COUNTRY_CODES       TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")

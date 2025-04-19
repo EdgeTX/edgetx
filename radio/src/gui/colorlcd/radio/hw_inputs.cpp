@@ -205,7 +205,7 @@ class HWSwitch
  public:
   HWSwitch(Window* parent, int swnum, coord_t y)
   {
-    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_SMALL, SHWSwitches::W_CTRL_W);
+    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_SMALL, HWSwitches::SW_CTRL_W);
     new HWInputEdit(parent, g_eeGeneral.getSwitchCustomName(swnum), LEN_SWITCH_NAME,
                     HWSwitches::SW_CTRL_W + PAD_SMALL, y);
 
@@ -233,9 +233,9 @@ class HWSwitch
     sw_cfg = new Choice(
         parent, {x, y, HWSwitches::SW_CTRL_W, 0},
         STR_SWTYPES, SWITCH_NONE, switchGetMaxType(swnum),
-        [=]() -> int { return g_model.getSwitchConfig(swnum); },
+        [=]() -> int { return g_eeGeneral.switchType(swnum); },
         [=](int newValue) {
-          g_eeGeneral.setSwitchConfig(swnum, (SwitchConfig)newValue);
+          g_eeGeneral.switchSetType(swnum, (SwitchConfig)newValue);
           SET_DIRTY();
         });
 
@@ -265,7 +265,8 @@ HWSwitches::HWSwitches(Window* parent) :
 
   auto max_switches = switchGetMaxAllSwitches();
   for (int i = 0; i < max_switches; i++) {
-    new HWSwitch(this, i, i * HWSwitch::SW_CTRL_H + PAD_OUTLINE);
+    if (!switchIsCustomSwitch(i))
+      new HWSwitch(this, i, i * HWSwitch::SW_CTRL_H + PAD_OUTLINE);
   }
 }
 

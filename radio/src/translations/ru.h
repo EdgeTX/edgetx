@@ -51,7 +51,11 @@
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
 #define TR_AUX_SERIAL_MODES            "Выкл","Зерк телем","Телем вход","SBUS Тренаж","LUA","CLI","GPS","Отлад","SpaceMouse","Внеш модуль"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Нет","тумбл","2Х-поз пер","3Х-поз пер","Глоб"
+#else
 #define TR_SWTYPES                     "Нет","тумбл","2Х-поз пер","3Х-поз пер"
+#endif
 #define TR_POTTYPES                    "None","Pot",TR("Pot w. det","Pot with detent"),"Slider",TR("Multipos","Multipos Switch"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "Выкл","Полет","Руч сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Евро")
