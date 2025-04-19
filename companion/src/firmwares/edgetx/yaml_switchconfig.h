@@ -69,6 +69,7 @@ struct SwitchConfig {
   std::string tag = std::string();
   char name[HARDWARE_NAME_LEN + 1] = {'\0'};
   unsigned int type = 0;
+  int start = 0;
   bool inverted = false;
 };
 

@@ -70,7 +70,7 @@ class SwitchWarnMatrix : public ButtonMatrix
     auto sw = sw_idx[btn_id];
 
     uint8_t newstate = g_model.getSwitchWarning(sw);
-    if (newstate == 1 && g_model.getSwitchConfig(sw) != SWITCH_3POS)
+    if (newstate == 1 && g_model.getSwitchType(sw) != SWITCH_3POS)
       newstate = 3;
     else
       newstate = (newstate + 1) & 3;
