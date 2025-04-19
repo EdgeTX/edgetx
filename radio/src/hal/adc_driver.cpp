@@ -29,10 +29,6 @@ const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
 
 static uint16_t adcValues[MAX_ANALOG_INPUTS] __DMA_NO_CACHE;
 
-#if defined(CSD203_SENSOR)
-  extern uint16_t getCSD203BatteryVoltage(void);
-#endif
-
 bool adcInit(const etx_hal_adc_driver_t* driver)
 {
   // Init buffer, provides non random values before mixer task starts
@@ -197,7 +193,7 @@ void adcCalibSetMinMax()
             }
 
             xpot.stepsCount = ++count;
-	    writeXPotCalib(i, xpot.steps, count);
+            writeXPotCalib(i, xpot.steps, count);
           }
         }
       }
@@ -232,19 +228,6 @@ void adcCalibStore()
   disableUncalibratedXPots();
   g_eeGeneral.chkSum = evalChkSum();
   storageDirty(EE_GENERAL);
-}
-
-uint16_t getRTCBatteryVoltage()
-{
-  // anaIn() outputs value divided by (1 << ANALOG_SCALE)
-  if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) < 1) return 0;
-#if defined(STM32F413xx)
-  return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
-         (1024 >> ANALOG_SCALE);
-#else
-  return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
-         (2048 >> ANALOG_SCALE);
-#endif
 }
 
 uint16_t getAnalogValue(uint8_t index)
@@ -306,41 +289,6 @@ JitterMeter<uint16_t> rawJitter[MAX_ANALOG_INPUTS];
 JitterMeter<uint16_t> avgJitter[MAX_ANALOG_INPUTS];
 tmr10ms_t jitterResetTime = 0;
 #endif
-
-uint16_t getBatteryVoltage()
-{
-#if defined(CSD203_SENSOR) && !defined(SIMU)
-  return getCSD203BatteryVoltage() / 10;
-#else
-  // using filtered ADC value on purpose
-  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
-  int32_t instant_vbat = anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
-
-  // TODO: remove BATT_SCALE / BATTERY_DIVIDER defines
-#if defined(VBAT_MOSFET_DROP)
-  // 1000 is used as multiplier for both numerator and denominator to allow to stay in integer domain
-  return (uint16_t)((instant_vbat * ADC_VREF_PREC2 * ((((1000 + g_eeGeneral.txVoltageCalibration)) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1)) / (2*RESX*1000)) + VBAT_MOSFET_DROP;
-#elif defined(BATT_SCALE)
-  instant_vbat =
-      (instant_vbat * BATT_SCALE * (128 + g_eeGeneral.txVoltageCalibration)) /
-      BATTERY_DIVIDER;
-  // add voltage drop because of the diode TODO check if this is needed, but
-  // removal will break existing calibrations!
-  instant_vbat += VOLTAGE_DROP;
-  return (uint16_t)instant_vbat;
-#elif defined(VOLTAGE_DROP)
-  instant_vbat = ((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) /
-                    BATTERY_DIVIDER);
-  // add voltage drop because of the diode
-  // removal will break existing calibrations!
-  instant_vbat += VOLTAGE_DROP;
-  return (uint16_t)instant_vbat;
-#else
-  return (uint16_t)((instant_vbat * (1000 + g_eeGeneral.txVoltageCalibration)) /
-                    BATTERY_DIVIDER);
-#endif
-#endif
-}
 
 static uint32_t apply_low_pass_filter(uint32_t v, uint32_t v_prev,
                                       bool is_main_input)
@@ -470,7 +418,7 @@ void getADC()
 #endif
 
   DEBUG_TIMER_START(debugTimerAdcRead);
-  if (!adcRead()) TRACE("adcRead failed");
+  if (!adcRead()) { TRACE("adcRead failed"); }
   DEBUG_TIMER_STOP(debugTimerAdcRead);
 
   for (uint8_t x = 0; x < max_analogs; x++) {

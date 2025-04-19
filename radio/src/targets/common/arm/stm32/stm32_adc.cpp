@@ -88,6 +88,16 @@ uint32_t stm32_hal_get_inputs_mask()
   return _adc_input_inhibt_mask;
 }
 
+#if defined(STM32H7)
+  #if defined(ADC3)
+    #define VBAT_ADC ADC3
+  #else
+    #define VBAT_ADC ADC2
+  #endif
+#else
+  #define VBAT_ADC ADC1
+#endif
+
 // STM32 uses a 25K+25K voltage divider bridge to measure the battery voltage
 // Measuring VBAT puts considerable drain (22 µA) on the battery instead of
 // normal drain (~10 nA)
@@ -96,7 +106,7 @@ void enableVBatBridge()
   if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) < 1) return;
 
   // Set internal measurement path for vbat sensor
-  LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_PATH_INTERNAL_VBAT);
+  LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(VBAT_ADC), LL_ADC_PATH_INTERNAL_VBAT);
 
   auto channel = adcGetInputOffset(ADC_INPUT_RTC_BAT);
   _adc_inhibit_mask &= ~(1 << channel);
@@ -110,13 +120,13 @@ void disableVBatBridge()
   _adc_inhibit_mask |= (1 << channel);
 
   // Set internal measurement path to none
-  LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_PATH_INTERNAL_NONE);
+  LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(VBAT_ADC), LL_ADC_PATH_INTERNAL_NONE);
 }
 
 bool isVBatBridgeEnabled()
 {
   // && !(_adc_inhibit_mask & (1 << channel));
-  return LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1)) == LL_ADC_PATH_INTERNAL_VBAT;
+  return LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(VBAT_ADC)) == LL_ADC_PATH_INTERNAL_VBAT;
 }
 
 static void adc_enable_clock(ADC_TypeDef* ADCx)

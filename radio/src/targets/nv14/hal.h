@@ -161,7 +161,7 @@
 #define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
 #define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
 #define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_28CYCLES
-#define ADC_VREF_PREC2                  660
+#define ADC_VREF_PREC2                  330
 
 #define ADC_DIRECTION                                                   \
     { 0 /*STICK1*/, 0 /*STICK2*/, 0 /*STICK3*/, 0 /*STICK4*/,           \
