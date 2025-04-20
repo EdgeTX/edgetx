@@ -126,19 +126,25 @@ class ValueWidget : public Widget
       std::string valueTxt;
 
       // Set value text
-      if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
-        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
-        TimerOptions timerOptions;
-        timerOptions.options = SHOW_TIMER;
-        valueTxt = getTimerString(abs(timerState.val), timerOptions);
+      if (field == MIXSRC_TX_VOLTAGE) {
+        valueTxt =
+            getSourceCustomValueString(field, getValue(field), valueFlags);
+        valueTxt += STR_V;
       } else if (field == MIXSRC_TX_TIME) {
         int32_t tme = getValue(MIXSRC_TX_TIME);
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIME;
         valueTxt = getTimerString(tme, timerOptions);
+      } else if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
+        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
+        TimerOptions timerOptions;
+        timerOptions.options = SHOW_TIMER;
+        valueTxt = getTimerString(abs(timerState.val), timerOptions);
       } else if (field >= MIXSRC_FIRST_TELEM) {
-        std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
-        valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3, getValue(field), valueFlags);
+        std::string getSensorCustomValue(uint8_t sensor, int32_t value,
+                                         LcdFlags flags);
+        valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3,
+                                        getValue(field), valueFlags);
 #if defined(LUA_INPUTS)
       }
       else if (field >= MIXSRC_FIRST_LUA && field <= MIXSRC_LAST_LUA) {
