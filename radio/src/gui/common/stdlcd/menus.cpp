@@ -59,7 +59,7 @@ void pushMenu(MenuHandlerFunc newMenu)
   killAllEvents();
 
   if (menuLevel == 0) {
-    if (newMenu == menuRadioSetup)
+    if (newMenu == menuTabGeneral[0].menuFunc)
       menuVerticalPositions[0] = 1;
     if (newMenu == menuModelSelect)
       menuVerticalPositions[0] = 0;
