@@ -516,7 +516,7 @@ void menuRadioHardware(event_t event)
             flags = menuHorizontalPosition == 2 ? attr : 0;
             bool potinversion = getPotInversion(idx);
             lcdDrawChar(LCD_W - 8, y, potinversion ? 127 : 126, flags);
-            if (flags & (~RIGHT)) potinversion = checkIncDec(event, potinversion, 0, 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL);
+            if (flags & (~RIGHT)) potinversion = checkIncDec(event, potinversion, 0, 1, EE_GENERAL);
             setPotInversion(idx, potinversion);
           } else if (getPotInversion(idx)) {
             setPotInversion(idx, 0);
@@ -537,7 +537,7 @@ void menuRadioHardware(event_t event)
             flags = menuHorizontalPosition == 0 ? attr : 0;
             auto source = switchGetFlexConfig(index);
             lcdDrawText(HW_SETTINGS_COLUMN1, y, (source < 0) ? STR_NONE : adcGetInputLabel(ADC_INPUT_FLEX, source), flags);
-            if (flags & (~RIGHT)) source = checkIncDec(event, source, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1, (isModelMenuDisplayed()) ? EE_MODEL : EE_GENERAL, isFlexSwitchSourceValid);
+            if (flags & (~RIGHT)) source = checkIncDec(event, source, -1, adcGetMaxInputs(ADC_INPUT_FLEX) - 1, EE_GENERAL, isFlexSwitchSourceValid);
             switchConfigFlex(index, source);
 
             //Name
@@ -561,6 +561,7 @@ void menuRadioHardware(event_t event)
               g_eeGeneral.switchConfig =
                   (g_eeGeneral.switchConfig & ~mask) |
                   ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
+              storageDirty(EE_GENERAL);
             }
           }
           else {
@@ -584,6 +585,7 @@ void menuRadioHardware(event_t event)
               g_eeGeneral.switchConfig =
                   (g_eeGeneral.switchConfig & ~mask) |
                   ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
+              storageDirty(EE_GENERAL);
             }
           }
         } else if (k <= ITEM_RADIO_HARDWARE_SERIAL_PORT_END) {
