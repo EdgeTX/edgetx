@@ -690,6 +690,7 @@ void menuModelCFSOne(event_t event)
           if (config == SWITCH_TOGGLE) {
             FSWITCH_SET_STARTUP(cfsIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
           }
+          storageDirty(EE_MODEL);
         }
         break;
 
@@ -709,6 +710,7 @@ void menuModelCFSOne(event_t event)
             FSWITCH_SET_STARTUP(cfsIndex, FS_START_PREVIOUS);
           }
           setGroupSwitchState(oldGroup);
+          storageDirty(EE_MODEL);
         }
         break;
 
@@ -718,6 +720,7 @@ void menuModelCFSOne(event_t event)
         if (attr) {
           startPos = checkIncDec(event, startPos, FS_START_ON, FS_START_PREVIOUS, EE_MODEL);
           FSWITCH_SET_STARTUP(cfsIndex, startPos);
+          storageDirty(EE_MODEL);
         }
         break;
 
