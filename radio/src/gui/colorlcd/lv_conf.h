@@ -427,6 +427,9 @@
 #elif defined(TRANSLATIONS_JP)
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_jp_STD)
   #define LV_FONT_DEFAULT &lv_font_jp_STD
+#elif defined(TRANSLATIONS_KO)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_ko_STD)
+  #define LV_FONT_DEFAULT &lv_font_ko_STD
 #elif defined(TRANSLATIONS_HE)
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_he_STD)
   #define LV_FONT_DEFAULT &lv_font_he_STD

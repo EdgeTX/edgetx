@@ -74,6 +74,9 @@
 #elif defined(TRANSLATIONS_HE)
 #include "translations/he.h"
 #define LEN_SPECIAL_CHARS 0
+#elif defined(TRANSLATIONS_KO)
+#include "translations/ko.h"
+#define LEN_SPECIAL_CHARS 0
 #elif defined(TRANSLATIONS_UA)
 #include "translations/ua.h"
 #define LEN_SPECIAL_CHARS 0
@@ -917,6 +920,7 @@ extern const LanguagePack seLanguagePack;
 extern const LanguagePack skLanguagePack;
 extern const LanguagePack cnLanguagePack;
 extern const LanguagePack jpLanguagePack;
+extern const LanguagePack koLanguagePack;
 extern const LanguagePack ruLanguagePack;
 extern const LanguagePack heLanguagePack;
 extern const LanguagePack uaLanguagePack;
@@ -936,6 +940,7 @@ const LanguagePack * const languagePacks[] = {
   &huLanguagePack,
   &itLanguagePack,
   &jpLanguagePack,
+  &koLanguagePack,
   &nlLanguagePack,
   &plLanguagePack,
   &ptLanguagePack,
