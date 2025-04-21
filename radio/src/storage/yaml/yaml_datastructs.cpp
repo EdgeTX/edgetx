@@ -40,12 +40,10 @@
  #if defined(RADIO_NB4P)
   #include "yaml_datastructs_nb4p.cpp"
  #elif defined(RADIO_NV14_FAMILY)  
-  #include "yaml_datastructs_nv14_family.cpp"
+  #include "yaml_datastructs_nv14.cpp"
  #else
   #include "yaml_datastructs_pl18.cpp"
  #endif
-#elif defined(PCBNV14)
- #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBST16)
  #include "yaml_datastructs_st16.cpp"
 #elif defined(PCBX7)
