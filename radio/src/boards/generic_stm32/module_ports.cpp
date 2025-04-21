@@ -456,14 +456,14 @@ static void _external_module_set_pwr(uint8_t enable)
 {
   if (enable) {
     EXTERNAL_MODULE_ON();
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
     if (hardwareOptions.pcbrev == PCBREV_NV14) {
       gpio_clear(EXTMODULE_PWR_FIX_GPIO);
     }
 #endif
   } else {
     EXTERNAL_MODULE_OFF();
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
     if (hardwareOptions.pcbrev == PCBREV_NV14) {
       gpio_set(EXTMODULE_PWR_FIX_GPIO);
     }
@@ -619,7 +619,7 @@ void boardInitModulePorts()
   _extmod_init_inverter();
 #endif  
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   if (hardwareOptions.pcbrev == PCBREV_NV14) {
     // pin must be pulled to V+ (voltage of board - VCC is not enough to fully close transistor)
     // for additional transistor to ensuring module is completely disabled
