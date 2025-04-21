@@ -518,7 +518,7 @@ static const struct YamlNode struct_trim_t[] = {
 };
 static const struct YamlNode struct_FlightModeData[] = {
   YAML_IDX,
-  YAML_ARRAY("trim", 16, 6, struct_trim_t, NULL),
+  YAML_ARRAY("trim", 16, 8, struct_trim_t, NULL),
   YAML_STRING("name", 10),
   YAML_SIGNED_CUST( "swtch", 10, r_swtchSrc, w_swtchSrc ),
   YAML_PADDING( 6 ),
@@ -786,23 +786,23 @@ static const struct YamlNode struct_WidgetPersistentData[] = {
 };
 static const struct YamlNode struct_ZonePersistentData[] = {
   YAML_IDX,
-  YAML_STRING("widgetName", 12),
+  YAML_STRING("widgetName", 20),
   YAML_STRUCT("widgetData", 1280, struct_WidgetPersistentData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_LayoutPersistentData[] = {
-  YAML_ARRAY("zones", 1376, 10, struct_ZonePersistentData, NULL),
+  YAML_ARRAY("zones", 1440, 10, struct_ZonePersistentData, NULL),
   YAML_ARRAY("options", 128, 10, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
 static const struct YamlNode struct_CustomScreenData[] = {
   YAML_IDX,
   YAML_STRING("LayoutId", 12),
-  YAML_STRUCT("layoutData", 15040, struct_LayoutPersistentData, NULL),
+  YAML_STRUCT("layoutData", 15680, struct_LayoutPersistentData, NULL),
   YAML_END
 };
 static const struct YamlNode struct_TopBarPersistentData[] = {
-  YAML_ARRAY("zones", 1376, 4, struct_ZonePersistentData, NULL),
+  YAML_ARRAY("zones", 1440, 4, struct_ZonePersistentData, NULL),
   YAML_ARRAY("options", 128, 1, struct_ZoneOptionValueTyped, NULL),
   YAML_END
 };
@@ -846,7 +846,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("logicalSw", 72, 64, struct_LogicalSwitchData, NULL),
   YAML_ARRAY("customFn", 88, 64, struct_CustomFunctionData, cfn_is_active),
   YAML_STRUCT("swashR", 64, struct_SwashRingData, swash_is_active),
-  YAML_ARRAY("flightModeData", 352, 9, struct_FlightModeData, fmd_is_active),
+  YAML_ARRAY("flightModeData", 384, 9, struct_FlightModeData, fmd_is_active),
   YAML_UNSIGNED_CUST( "thrTraceSrc", 8, r_thrSrc, w_thrSrc ),
   YAML_CUSTOM("switchWarningState",r_swtchWarn,nullptr),
   YAML_ARRAY("switchWarning", 3, 21, struct_swtchWarn, nullptr),
@@ -868,8 +868,8 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "potsWarnEnabled", 16 ),
   YAML_ARRAY("potsWarnPosition", 8, 16, struct_signed_8, NULL),
   YAML_ARRAY("telemetrySensors", 112, 60, struct_TelemetrySensor, NULL),
-  YAML_ARRAY("screenData", 15136, 10, struct_CustomScreenData, NULL),
-  YAML_STRUCT("topbarData", 5632, struct_TopBarPersistentData, NULL),
+  YAML_ARRAY("screenData", 15776, 10, struct_CustomScreenData, NULL),
+  YAML_STRUCT("topbarData", 5888, struct_TopBarPersistentData, NULL),
   YAML_ARRAY("topbarWidgetWidth", 8, 4, struct_unsigned_8, NULL),
   YAML_UNSIGNED( "view", 8 ),
   YAML_STRING("modelRegistrationID", 8),

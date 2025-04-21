@@ -34,7 +34,7 @@
 #include "telemetry/multi.h"
 #endif
 
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
 extern uint32_t NV14internalModuleFwVersion;
 #endif
 
@@ -624,7 +624,7 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
 
 inline uint32_t getNV14RfFwVersion()
 {
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
   return  NV14internalModuleFwVersion;
 #else
   return 0;
@@ -634,7 +634,7 @@ inline uint32_t getNV14RfFwVersion()
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
   bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx) && !isModuleCrossfire(moduleIdx);
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
   ret = ret &&
         (!isModuleAFHDS2A(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
 #elif defined(AFHDS3)
