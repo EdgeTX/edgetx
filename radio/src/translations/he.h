@@ -3,7 +3,7 @@
  *  Ver 1.023
  *
  * Copyright (C) EdgeTX
- * 
+ *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
  *   th9x - http://code.google.com/p/th9x
@@ -1259,7 +1259,8 @@
 #define TR_VOICE_SWEDISH                "Swedish"
 #define TR_VOICE_TAIWANESE              "Taiwanese"
 #define TR_VOICE_JAPANESE               "Japanese"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN              "Ukrainian"
+#define TR_VOICE_KOREAN                 "קוריאנית"
 
 #define TR_USBJOYSTICK_LABEL            "חיבור מצב משחק"
 #define TR_USBJOYSTICK_EXTMODE          "מצב"

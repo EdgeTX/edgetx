@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  *
  */
- 
- // UA translations author: @user <user@user.com>	
+
+ // UA translations author: @user <user@user.com>
 
 /*
  * Formatting octal codes available in TR_ strings:
@@ -1263,6 +1263,7 @@
 #define TR_VOICE_JAPANESE               "Японська"
 #define TR_VOICE_HEBREW                 "Іврит"
 #define TR_VOICE_UKRAINIAN              "Українська"
+#define TR_VOICE_KOREAN                 "корейська"
 
 #define TR_USBJOYSTICK_LABEL           "USB Джойстик"
 #define TR_USBJOYSTICK_EXTMODE         "Режим"

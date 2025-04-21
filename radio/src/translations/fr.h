@@ -98,7 +98,7 @@
 #define TR_SF_RANGE_CHECK              "Test Port."
 #define TR_SF_MOD_BIND                 "Bind"
 #define TR_SF_RGBLEDS                  "RGB leds"
- 
+
 #define TR_SOUND                       "Jouer son"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Jouer fichier")
 #define TR_PLAY_VALUE                  "Lire valeur"
@@ -1276,7 +1276,8 @@
 #define TR_VOICE_TAIWANESE              "Taiwanese"
 #define TR_VOICE_JAPANESE               "Japanese"
 #define TR_VOICE_HEBREW                 "Hébreu"
-#define TR_VOICE_UKRAINIAN               "Ukrainian"
+#define TR_VOICE_UKRAINIAN              "Ukrainian"
+#define TR_VOICE_KOREAN                 "coréen"
 
 #define TR_USBJOYSTICK_LABEL           "Joystick USB"
 #define TR_USBJOYSTICK_EXTMODE         "Mode"

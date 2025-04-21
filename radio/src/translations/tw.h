@@ -95,7 +95,7 @@
 #define TR_SF_RANGE_CHECK              "測距模式"
 #define TR_SF_MOD_BIND                 "模塊對頻"
 #define TR_SF_RGBLEDS                  "RGB led燈"
- 
+
 #define TR_SOUND                       "播放聲音"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "播放音頻文件")
 #define TR_PLAY_VALUE                  "播放數值"
@@ -1264,6 +1264,7 @@
 #define TR_VOICE_JAPANESE             "日文"
 #define TR_VOICE_HEBREW               "希伯來語"
 #define TR_VOICE_UKRAINIAN            "烏克蘭語"
+#define TR_VOICE_KOREAN               "韓語"
 
 #define TR_USBJOYSTICK_LABEL           "USB 遊戲柄"
 #define TR_USBJOYSTICK_EXTMODE         "模式"
