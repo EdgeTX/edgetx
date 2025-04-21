@@ -2367,7 +2367,7 @@
 // PCBREV
 #if defined(RADIO_X7) && !defined(DEBUG_SEGGER_RTT)
   #define PCBREV_GPIO                   GPIO_PIN(GPIOA, 14) // PA.14
-  #define PCBREV_GPIO_PULL_DOWN
+  #define PCBREV_GPIO_PULL_TYPE         GPIO_IN_PD
   #define PCBREV_VALUE()                (gpio_read(PCBREV_GPIO) >> 14)
 #endif
 
