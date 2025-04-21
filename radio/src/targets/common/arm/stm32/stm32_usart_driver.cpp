@@ -28,6 +28,12 @@
 
 #include <string.h>
 
+#if defined(STM32H7) || defined(STM32H7RS)
+  #define IS_HALF_DUPLEX(usart) ((usart)->set_input || (usart)->rxGPIO == GPIO_UNDEF)
+#else
+  #define IS_HALF_DUPLEX(usart) ((usart)->set_input)
+#endif
+
 // WARNING:
 //
 // NVIC_GetEnableIRQ is stolen from "${THIRDPARTY_DIR}/CMSIS/Include/core_cm4.h".
@@ -66,19 +72,19 @@ static void _enable_tx_dma_irq(const stm32_usart_t* usart)
 
 static inline void _half_duplex_input(const stm32_usart_t* usart)
 {
-  if (usart->set_input) {
-    usart->set_input(true);
+  if (usart->set_input) usart->set_input(true);
+
+  if (IS_HALF_DUPLEX(usart)) {
     LL_USART_EnableDirectionRx(usart->USARTx);
-    LL_USART_DisableDirectionTx(usart->USARTx);
   }
 }
 
 static inline void _half_duplex_output(const stm32_usart_t* usart)
 {
-  if (usart->set_input) {
-    usart->set_input(false);
+  if (usart->set_input) usart->set_input(false);
+
+  if (IS_HALF_DUPLEX(usart)) {
     LL_USART_DisableDirectionRx(usart->USARTx);
-    LL_USART_EnableDirectionTx(usart->USARTx);
   }
 }
 
@@ -370,27 +376,25 @@ void stm32_usart_deinit_rx_dma(const stm32_usart_t* usart)
 void stm32_usart_rx_inversion(const stm32_usart_t* usart, bool on)
 {
   bool enableUart = false;
-  if(LL_USART_IsEnabled(usart->USARTx))
-  {
+  if (LL_USART_IsEnabled(usart->USARTx)) {
     LL_USART_Disable(usart->USARTx);
     enableUart = true;
   }
-  LL_USART_SetRXPinLevel(usart->USARTx, on?LL_USART_RXPIN_LEVEL_INVERTED:LL_USART_RXPIN_LEVEL_STANDARD);
-  if(enableUart)
-    LL_USART_Enable(usart->USARTx);
+  LL_USART_SetRXPinLevel(usart->USARTx, on ? LL_USART_RXPIN_LEVEL_INVERTED
+                                           : LL_USART_RXPIN_LEVEL_STANDARD);
+  if (enableUart) LL_USART_Enable(usart->USARTx);
 }
 
 void stm32_usart_tx_inversion(const stm32_usart_t* usart, bool on)
 {
   bool enableUart = false;
-  if(LL_USART_IsEnabled(usart->USARTx))
-  {
+  if (LL_USART_IsEnabled(usart->USARTx)) {
     LL_USART_Disable(usart->USARTx);
     enableUart = true;
   }
-  LL_USART_SetTXPinLevel(usart->USARTx, on?LL_USART_TXPIN_LEVEL_INVERTED:LL_USART_TXPIN_LEVEL_STANDARD);
-  if(enableUart)
-    LL_USART_Enable(usart->USARTx);
+  LL_USART_SetTXPinLevel(usart->USARTx, on ? LL_USART_TXPIN_LEVEL_INVERTED
+                                           : LL_USART_TXPIN_LEVEL_STANDARD);
+  if (enableUart) LL_USART_Enable(usart->USARTx);
 }
 #endif
 
@@ -424,6 +428,24 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     gpio_init_af(usart->txGPIO, af, _get_pin_speed(params->baudrate));
   }
   
+  bool half_duplex = usart->set_input;
+
+#if defined(STM32H7) || defined(STM32H7RS)
+  bool one_wire_half_duplex =
+      usart->rxGPIO == GPIO_UNDEF && (params->direction & ETX_Dir_RX);
+
+  if (one_wire_half_duplex) {
+    if (params->direction & ETX_Dir_TX) {
+      LL_GPIO_SetPinPull(
+          gpio_get_port(usart->txGPIO), 1 << gpio_get_pin(usart->txGPIO),
+          params->polarity ? LL_GPIO_PULL_UP : LL_GPIO_PULL_DOWN);
+    }
+    LL_USART_ConfigHalfDuplexMode(usart->USARTx);
+  }
+
+  half_duplex = half_duplex || one_wire_half_duplex;
+#endif
+
   LL_USART_InitTypeDef usartInit;
   LL_USART_StructInit(&usartInit);
 
@@ -459,14 +481,7 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     usartInit.TransferDirection |= LL_USART_DIRECTION_TX;
 
   LL_USART_Init(usart->USARTx, &usartInit);
-#if defined(STM32H7) || defined (STM32H7RS)
-  if(usart->rxGPIO == GPIO_UNDEF)
-  {
-    LL_USART_EnableHalfDuplex(usart->USARTx);
-  }
-#endif
   LL_USART_Enable(usart->USARTx);
-
 
   if (params->direction & ETX_Dir_TX) {
     // Enable TX DMA request
@@ -474,7 +489,7 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
       LL_USART_EnableDMAReq_TX(usart->USARTx);
 
       // 2-wire half-duplex: setup TX DMA IRQ
-      if (usart->set_input && (int32_t)(usart->txDMA_IRQn) >= 0) {
+      if (half_duplex && (int32_t)(usart->txDMA_IRQn) >= 0) {
         _enable_tx_dma_irq(usart);
       }
     }
@@ -487,8 +502,9 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
     }
 
     // half-duplex: start in input mode
-    if (usart->set_input)
+    if (half_duplex) {
       _half_duplex_input(usart);
+    }
   }
 
   if (((params->direction & ETX_Dir_TX) && !usart->txDMA) ||
@@ -528,7 +544,7 @@ void stm32_usart_send_byte(const stm32_usart_t* usart, uint8_t byte)
   // TODO: split into 2 steps to avoid blocking on send
   while (!LL_USART_IsActiveFlag_TXE(usart->USARTx));
 
-  if (usart->set_input) {
+  if (IS_HALF_DUPLEX(usart)) {
     _half_duplex_output(usart);
 
     // switch back to input after TC
@@ -573,7 +589,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
 
     LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
 
-    if (usart->set_input && (int32_t)(usart->txDMA_IRQn) >= 0) {
+    if (IS_HALF_DUPLEX(usart) && (int32_t)(usart->txDMA_IRQn) >= 0) {
       LL_DMA_EnableIT_TC(usart->txDMA, usart->txDMA_Stream);
     }
     LL_DMA_EnableStream(usart->txDMA, usart->txDMA_Stream);
