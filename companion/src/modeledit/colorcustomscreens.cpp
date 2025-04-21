@@ -151,7 +151,7 @@ UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, Gene
     ZonePersistentData & zpd = model.topBarData.zones[i];
     QPushButton * btn = new QPushButton(zpd.widgetName, this);
     btn->setProperty("index", i);
-    btn->setFixedSize(QSize(90, 30));
+    btn->setFixedSize(QSize(180, 50));
     widgetbtns.append(btn);
 
     if (zpd.widgetName[0] != '\0' && SHOW_RAW_INFO) {
@@ -280,7 +280,7 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
     ZonePersistentData & zpd = lpd.zones[i];
     QPushButton * btn = new QPushButton(zpd.widgetName, this);
     btn->setProperty("index", i);
-    btn->setFixedSize(QSize(90, 30));
+    btn->setFixedSize(QSize(180, 50));
     widgetbtns.append(btn);
 
     if (zpd.widgetName[0] != '\0' && SHOW_RAW_INFO) {
@@ -293,7 +293,7 @@ CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int in
       wgt->setVisible(false);
       optswidgets.append(wgt);
 
-      QGridLayout * layout = new QGridLayout(wgt);  // must be owned by QWidget so isibility can be set
+      QGridLayout * layout = new QGridLayout(wgt);  // must be owned by QWidget so visibility can be set
       layout->addLayout(addOptionsLayout<WidgetPersistentData>(zpd.widgetData, MAX_WIDGET_OPTIONS, zpd.widgetName), 0, 0, Qt::AlignTop);
       optsgrids.append(layout);
 
