@@ -44,15 +44,27 @@ extern const char * nchar2string(const char * string, int size);
 #define EXPECT_ZSTREQ(c_string, z_string)   EXPECT_STREQ(c_string, zchar2string(z_string, sizeof(z_string)))
 #define EXPECT_STRNEQ(c_string, n_string)   EXPECT_STREQ(c_string, nchar2string(n_string, sizeof(n_string)))
 
+#if defined(RADIO_GX12)
 #define RADIO_RESET() \
-  g_eeGeneral.setSwitchConfig(0, SWITCH_3POS); \
-  g_eeGeneral.setSwitchConfig(1, SWITCH_3POS); \
-  g_eeGeneral.setSwitchConfig(2, SWITCH_3POS); \
-  g_eeGeneral.setSwitchConfig(3, SWITCH_3POS); \
-  g_eeGeneral.setSwitchConfig(4, SWITCH_3POS); \
-  g_eeGeneral.setSwitchConfig(5, SWITCH_2POS); \
-  g_eeGeneral.setSwitchConfig(6, SWITCH_3POS); \
-  g_eeGeneral.setSwitchConfig(7, SWITCH_TOGGLE)
+  g_eeGeneral.switchSetType(0, SWITCH_2POS); \
+  g_eeGeneral.switchSetType(1, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(2, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(3, SWITCH_2POS); \
+  g_eeGeneral.switchSetType(4, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(5, SWITCH_2POS); \
+  g_eeGeneral.switchSetType(6, SWITCH_TOGGLE); \
+  g_eeGeneral.switchSetType(7, SWITCH_TOGGLE)
+#else
+#define RADIO_RESET() \
+  g_eeGeneral.switchSetType(0, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(1, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(2, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(3, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(4, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(5, SWITCH_2POS); \
+  g_eeGeneral.switchSetType(6, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(7, SWITCH_TOGGLE)
+#endif
 
 inline void SYSTEM_RESET()
 {
