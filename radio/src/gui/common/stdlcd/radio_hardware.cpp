@@ -276,6 +276,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
       tab[i] = HIDDEN_ROW;
     }
   }
+#if defined (FUNCTION_SWITCHES)
   for (int i = ITEM_RADIO_HARDWARE_CFS; i <= ITEM_RADIO_HARDWARE_CFS_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_CFS;
     if (idx < max_switches && switchIsCustomSwitch(idx)) {
@@ -284,6 +285,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
       tab[i] = HIDDEN_ROW;
     }
   }
+#endif
 
 #if defined(BATTGRAPH)
   tab[ITEM_RADIO_HARDWARE_BATT_RANGE] = 1;
