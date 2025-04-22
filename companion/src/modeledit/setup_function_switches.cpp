@@ -70,49 +70,53 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
 
   fsGroupStart = ModelData::funcSwitchGroupStartSwitchModel(switchcnt);
 
-  for (int i = 0; i < switchcnt; i++) {
-    int sw = Boards::getSwitchIndexForCFS(i);
-    QLabel * lblSwitchId = new QLabel(this);
-    lblSwitchId->setText(Boards::getSwitchName(sw));
+  for (int sw = 0, col = 0; sw < Boards::getCapability(board, Board::Switches); sw++) {
+    int i = Boards::getCFSIndexForSwitch(sw);
+    if (i >= 0) {
+      QLabel * lblSwitchId = new QLabel(this);
+      lblSwitchId->setText(Boards::getSwitchName(sw));
 
-    AutoLineEdit * aleName = new AutoLineEdit(this);
-    aleName->setProperty("index", i);
-    aleName->setValidator(new NameValidator(board, this));
-    aleName->setField((char *)model.customSwitches[i].name, 3);
+      AutoLineEdit * aleName = new AutoLineEdit(this);
+      aleName->setProperty("index", i);
+      aleName->setValidator(new NameValidator(board, this));
+      aleName->setField((char *)model.customSwitches[i].name, 3);
 
-    QComboBox * cboConfig = new QComboBox(this);
-    cboConfig->setProperty("index", i);
-    auto configFilter = new FilteredSwitchConfigsModel(fsConfig, i, &model);
-    cboConfig->setModel(configFilter);
-    filterSwitchConfigs << configFilter;
+      QComboBox * cboConfig = new QComboBox(this);
+      cboConfig->setProperty("index", i);
+      auto configFilter = new FilteredSwitchConfigsModel(fsConfig, i, &model);
+      cboConfig->setModel(configFilter);
+      filterSwitchConfigs << configFilter;
 
-    QComboBox * cboStartPosn = new QComboBox(this);
-    cboStartPosn->setProperty("index", i);
-    cboStartPosn->setModel(fsStart);
+      QComboBox * cboStartPosn = new QComboBox(this);
+      cboStartPosn->setProperty("index", i);
+      cboStartPosn->setModel(fsStart);
 
-    QComboBox * cboGroup = new QComboBox(this);
-    cboGroup->setProperty("index", i);
-    auto groupFilter = new FilteredSwitchGroupsModel(fsGroups, i, &model);
-    cboGroup->setModel(groupFilter);
-    filterSwitchGroups << groupFilter;
+      QComboBox * cboGroup = new QComboBox(this);
+      cboGroup->setProperty("index", i);
+      auto groupFilter = new FilteredSwitchGroupsModel(fsGroups, i, &model);
+      cboGroup->setModel(groupFilter);
+      filterSwitchGroups << groupFilter;
 
-    int row = 0;
-    int coloffset = 1;
-    ui->gridSwitches->addWidget(lblSwitchId, row++, i + coloffset);
-    ui->gridSwitches->addWidget(aleName, row++, i + coloffset);
-    ui->gridSwitches->addWidget(cboConfig, row++, i + coloffset);
-    ui->gridSwitches->addWidget(cboStartPosn, row++, i + coloffset);
-    ui->gridSwitches->addWidget(cboGroup, row++, i + coloffset);
+      int row = 0;
+      int coloffset = 1;
+      ui->gridSwitches->addWidget(lblSwitchId, row++, col + coloffset);
+      ui->gridSwitches->addWidget(aleName, row++, col + coloffset);
+      ui->gridSwitches->addWidget(cboConfig, row++, col + coloffset);
+      ui->gridSwitches->addWidget(cboStartPosn, row++, col + coloffset);
+      ui->gridSwitches->addWidget(cboGroup, row++, col + coloffset);
 
-    connect(aleName, &AutoLineEdit::currentDataChanged, this, &FunctionSwitchesPanel::on_nameEditingFinished);
-    connect(cboConfig, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_configCurrentIndexChanged);
-    connect(cboStartPosn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_startPosnCurrentIndexChanged);
-    connect(cboGroup, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_groupChanged);
+      connect(aleName, &AutoLineEdit::currentDataChanged, this, &FunctionSwitchesPanel::on_nameEditingFinished);
+      connect(cboConfig, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_configCurrentIndexChanged);
+      connect(cboStartPosn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_startPosnCurrentIndexChanged);
+      connect(cboGroup, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_groupChanged);
 
-    aleNames << aleName;
-    cboConfigs << cboConfig;
-    cboStartupPosns << cboStartPosn;
-    cboGroups << cboGroup;
+      aleNames << aleName;
+      cboConfigs << cboConfig;
+      cboStartupPosns << cboStartPosn;
+      cboGroups << cboGroup;
+
+      col += 1;
+    }
   }
 
   for (int i = 0; i < 3; i += 1) {
@@ -155,20 +159,24 @@ void FunctionSwitchesPanel::update()
 {
   lock = true;
 
-  for (int i = 0; i < switchcnt; i++) {
-    filterSwitchConfigs[i]->invalidate();
-    filterSwitchGroups[i]->invalidate();
+  for (int sw = 0, col = 0; sw < Boards::getCapability(firmware->getBoard(), Board::Switches); sw++) {
+    int i = Boards::getCFSIndexForSwitch(sw);
+    if (i >= 0) {
+      filterSwitchConfigs[col]->invalidate();
+      filterSwitchGroups[col]->invalidate();
 
-    aleNames[i]->update();
-    printf(">>>>>> cfs %d %d\n",i,model->getFuncSwitchConfig(i));
-    cboConfigs[i]->setCurrentIndex(filterSwitchConfigs[i]->mapFromSource(fsConfig->index(model->getFuncSwitchConfig(i), 0)).row());
-    cboStartupPosns[i]->setCurrentIndex(model->getFuncSwitchStart(i));
-    unsigned int grp = model->getFuncSwitchGroup(i);
-    cboGroups[i]->setCurrentIndex(grp);
+      aleNames[col]->update();
+      cboConfigs[col]->setCurrentIndex(filterSwitchConfigs[col]->mapFromSource(fsConfig->index(model->getFuncSwitchConfig(i), 0)).row());
+      cboStartupPosns[col]->setCurrentIndex(model->getFuncSwitchStart(i));
+      unsigned int grp = model->getFuncSwitchGroup(i);
+      cboGroups[col]->setCurrentIndex(grp);
 
-    cboStartupPosns[i]->setEnabled(cboConfigs[i]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_2POS && (grp == 0));
+      cboStartupPosns[col]->setEnabled(cboConfigs[col]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_2POS && (grp == 0));
 
-    cboGroups[i]->setEnabled(cboConfigs[i]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_TOGGLE);
+      cboGroups[col]->setEnabled(cboConfigs[col]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_TOGGLE);
+
+      col += 1;
+    }
   }
 
   for (int i = 0; i < 3; i += 1) {
