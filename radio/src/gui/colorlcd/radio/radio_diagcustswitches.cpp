@@ -42,6 +42,18 @@ uint16_t getLedColor(int i)
 }
 #endif
 
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+uint16_t getLedColor(int i)
+{
+  // Convert RBG888 to RGB565
+  uint32_t rgb32 = getFSLedRGBColor(i);
+  uint8_t r = GET_RED32(rgb32);
+  uint8_t g = GET_GREEN32(rgb32);
+  uint8_t b = GET_BLUE32(rgb32);
+  return RGB(r, g, b);
+}
+#endif
+
 class RadioCustSwitchesDiagsWindow : public Window
 {
   static LAYOUT_VAL_SCALED(FS_1ST_COLUMN, 95)
