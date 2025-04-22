@@ -591,6 +591,7 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
 
     if (IS_HALF_DUPLEX(usart) && (int32_t)(usart->txDMA_IRQn) >= 0) {
       LL_DMA_EnableIT_TC(usart->txDMA, usart->txDMA_Stream);
+      LL_USART_ClearFlag_TC(usart->USARTx);
     }
     LL_DMA_EnableStream(usart->txDMA, usart->txDMA_Stream);
 #endif // !STM32H7RS
@@ -795,13 +796,5 @@ void stm32_usart_tx_dma_isr(const stm32_usart_t* usart)
     return;
 
   auto USARTx = usart->USARTx;
-
-  // clear TC flag before enabling USART TC interrupt:
-  //  -> TC flag will be re-triggered once the last byte which has
-  //     just been transfered from DMA to USART will be transmitted,
-  //     thus triggering TELEMETRY_USART_IRQHandler(), which will
-  //     switch from output to input mode.
-  //
-  LL_USART_ClearFlag_TC(USARTx);
   LL_USART_EnableIT_TC(USARTx);
 }
