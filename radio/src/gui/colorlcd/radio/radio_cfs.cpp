@@ -35,13 +35,13 @@ static const lv_coord_t cfs_line_col_dsc1[] = {LV_GRID_CONTENT,
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 static const lv_coord_t cfs_line_col_dsc2[] = {
-LV_GRID_FR(13), LV_GRID_FR(11), LV_GRID_FR(11),
-LV_GRID_FR(12), LV_GRID_FR(10), LV_GRID_FR(7), LV_GRID_FR(7),
-LV_GRID_TEMPLATE_LAST};
+  LV_GRID_FR(13), LV_GRID_FR(11), LV_GRID_FR(11),
+  LV_GRID_FR(12), LV_GRID_FR(10), LV_GRID_FR(7), LV_GRID_FR(7),
+  LV_GRID_TEMPLATE_LAST};
 #else
 static const lv_coord_t cfs_line_col_dsc2[] = {
-LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(10),
-LV_GRID_FR(12), LV_GRID_FR(8),  LV_GRID_TEMPLATE_LAST};
+  LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(10),
+  LV_GRID_FR(12), LV_GRID_FR(8),  LV_GRID_TEMPLATE_LAST};
 #endif
 
 static const lv_coord_t cfs_line_row_dsc[] = {LV_GRID_CONTENT,
@@ -79,7 +79,7 @@ class RadioFunctionSwitch : public Window
           SET_DIRTY();
         });
     typeChoice->setAvailableHandler([=](int typ) -> bool {
-      if (typ == SWITCH_3POS) return false;
+      if (typ == SWITCH_3POS || typ == SWITCH_GLOBAL) return false;
       int group = g_eeGeneral.switchGroup(switchIndex);
       if (group > 0 && g_model.cfsGroupAlwaysOn(group) && typ == SWITCH_TOGGLE)
         return false;
@@ -226,7 +226,8 @@ RadioFunctionSwitches::RadioFunctionSwitches() : Page(ICON_RADIO_HARDWARE)
   new StaticText(line, rect_t{}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   new StaticText(line, rect_t{}, STR_SWITCH_TYPE,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  grid2.nextColumn(); 
+  // new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   startupHeader = new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -257,11 +258,11 @@ RadioFunctionSwitches::RadioFunctionSwitches() : Page(ICON_RADIO_HARDWARE)
 
 void RadioFunctionSwitches::setState()
 {
-  int cnt = 0;
-  for (int i = 0; i < 3; i += 1) {
-    cnt += getSwitchCountInFSGroup(i + 1);
-  }
-  startupHeader->show(cnt != NUM_FUNCTIONS_SWITCHES);
+  // int cnt = 0;
+  // for (int i = 1; i <= 3; i += 1) {
+  //   cnt += getSwitchCountInFSGroup(i);
+  // }
+  // startupHeader->show(cnt != NUM_FUNCTIONS_SWITCHES);
 }
 
 void RadioFunctionSwitches::checkEvents()
