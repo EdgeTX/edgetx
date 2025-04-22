@@ -158,7 +158,6 @@ static void menuRadioCFSOne(event_t event)
     {
       0,
       (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
-      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
       (uint8_t)((config != SWITCH_NONE && config != SWITCH_TOGGLE && config != SWITCH_GLOBAL && group == 0) ? 0 : HIDDEN_ROW),
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
       (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? LABEL() : HIDDEN_ROW),
@@ -703,7 +702,7 @@ void menuRadioHardware(event_t event)
               }
 
               uint8_t group = g_eeGeneral.switchGroup(index);
-              lcdDrawText(30 + 13 * FW, y, STR_FSGROUPS[group]);
+              // lcdDrawText(30 + 13 * FW, y, STR_FSGROUPS[group]);
 
               if (config != SWITCH_TOGGLE && group == 0) {
                 int startPos = g_eeGeneral.switchStart(index);
