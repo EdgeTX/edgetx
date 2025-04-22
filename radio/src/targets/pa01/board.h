@@ -196,10 +196,6 @@ bool isBacklightEnabled();
                         : g_eeGeneral.blOffBright);                       \
   }
 
-#define USB_NAME                        "ST16"
-#define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                     'S', 'T', '1', '6', ' ', ' ', ' ', ' '  /* 8 Bytes */
-
 #if defined(__cplusplus) && !defined(SIMU)
 }
 #endif
