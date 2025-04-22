@@ -31,6 +31,7 @@ const YamlLookupTable switchConfigLut = {
     {Board::SWITCH_TOGGLE, "TOGGLE"},
     {Board::SWITCH_2POS, "2POS"},
     {Board::SWITCH_3POS, "3POS"},
+    {Board::SWITCH_GLOBAL, "GLOBAL"},
     {Board::SWITCH_NOT_AVAILABLE, "none"},
     {Board::SWITCH_TOGGLE, "toggle"},
     {Board::SWITCH_2POS, "2pos"},

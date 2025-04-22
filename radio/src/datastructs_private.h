@@ -1038,9 +1038,7 @@ PACK(struct RadioData {
   uint8_t stickInvert SKIP;
   potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
   switchDef switchConfig[MAX_SWITCHES] FUNC(switchIsActive) NO_IDX; \
-  // swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
   CUST_ARRAY(flexSwitches, struct_flexSwitch, MAX_FLEX_SWITCHES, flex_sw_valid);
-  // NOBACKUP(char switchNames[MAX_SWITCHES][LEN_SWITCH_NAME]) SKIP;
 
   EXTRA_GENERAL_FIELDS
 
