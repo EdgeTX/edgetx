@@ -428,6 +428,7 @@ void GeneralSetupPanel::populateVoiceLangCB()
     { tr("Hungarian"), "hu" },
     { tr("Italian"), "it" },
     { tr("Japanese"), "jp" },
+    { tr("Korean"), "ko" },
     { tr("Polish"), "pl" },
     { tr("Portuguese"), "pt" },
     { tr("Russian"), "ru" },
@@ -435,7 +436,6 @@ void GeneralSetupPanel::populateVoiceLangCB()
     { tr("Spanish"), "es" },
     { tr("Swedish"), "se" },
     { tr("Ukrainian"), "ua" },
-    { tr("Korean"), "ko" },
     { NULL, NULL }};
 
   b->clear();
