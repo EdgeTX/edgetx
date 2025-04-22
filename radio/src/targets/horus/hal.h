@@ -625,6 +625,11 @@
   #define PCBREV_VALUE()                (gpio_read(PCBREV_GPIO) >> 11)
 #endif
 
+#if defined(PCBREV_TOUCH_GPIO) && !defined(PCBREV_TOUCH_PULL_TYPE)
+  #define PCBREV_TOUCH_PULL_TYPE GPIO_IN_PD
+  #pragma message "PCBREV_TOUCH_PULL_TYPE not defined, defaulting to GPIO_IN_PD"
+#endif
+
 // Led
 #define STATUS_LEDS
 #if defined(PCBX12S)
