@@ -32,4 +32,3 @@ bool getFSLedState(uint8_t index);
 uint32_t getFSLedRGBColor(uint8_t index);
 void turnOffRGBLeds();
 bool isLedControledByFS(uint8_t index);
-uint32_t getFSLedRGBColor(uint8_t index);
