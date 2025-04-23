@@ -48,7 +48,8 @@ bool FilteredSwitchGroupsModel::filterAcceptsRow(int sourceRow, const QModelInde
 
 bool FilteredSwitchConfigsModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
 {
-  if (sourceRow == ModelData::FUNC_SWITCH_CONFIG_NONE || sourceRow == ModelData::FUNC_SWITCH_CONFIG_2POS) return true;
+  if (sourceRow == ModelData::FUNC_SWITCH_CONFIG_NONE || sourceRow == ModelData::FUNC_SWITCH_CONFIG_2POS || sourceRow == ModelData::FUNC_SWITCH_CONFIG_GLOBAL)
+    return true;
   return !m_model->getFuncSwitchAlwaysOnGroupForSwitch(m_switch);
 }
 
@@ -171,9 +172,8 @@ void FunctionSwitchesPanel::update()
       unsigned int grp = model->getFuncSwitchGroup(i);
       cboGroups[col]->setCurrentIndex(grp);
 
-      cboStartupPosns[col]->setEnabled(cboConfigs[col]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_2POS && (grp == 0));
-
-      cboGroups[col]->setEnabled(cboConfigs[col]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_TOGGLE);
+      cboStartupPosns[col]->setEnabled(cboConfigs[col]->currentIndex() == ModelData::FUNC_SWITCH_CONFIG_2POS && (grp == 0));
+      cboGroups[col]->setEnabled(cboConfigs[col]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_TOGGLE && cboConfigs[col]->currentIndex() < ModelData::FUNC_SWITCH_CONFIG_GLOBAL);
 
       col += 1;
     }
@@ -211,7 +211,7 @@ void FunctionSwitchesPanel::on_configCurrentIndexChanged(int index)
     unsigned int config = filterSwitchConfigs[sw]->mapToSource(filterSwitchConfigs[sw]->index(index, 0)).row();
     if (ok && model->getFuncSwitchConfig(sw) != config) {
       model->setFuncSwitchConfig(sw, config);
-      if (config != ModelData::FUNC_SWITCH_CONFIG_2POS) {
+      if (config != ModelData::FUNC_SWITCH_CONFIG_2POS && config != ModelData::FUNC_SWITCH_CONFIG_GLOBAL) {
         model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_PREVIOUS);
         if ((config == ModelData::FUNC_SWITCH_CONFIG_NONE) || model->getFuncSwitchAlwaysOnGroupForSwitch(sw))
           model->setFuncSwitchGroup(sw, 0);

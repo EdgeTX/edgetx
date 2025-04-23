@@ -378,6 +378,7 @@ class GeneralSettings {
     bool isInputFlexSwitchAvailable(int index) const;
     bool isSwitchAvailable(int index) const;
     bool isSwitchFlex(int index) const;
+    bool isSwitchFunc(int index) const;
     bool unassignedInputFlexSwitches() const;
 
     QString antennaModeToString() const;
