@@ -28,3 +28,6 @@ constexpr uint32_t colorTable[] = {0x000000, 0xFFFFFF, 0xFF0000, 0x00FF00, 0xFFF
 void setFSLedOFF(uint8_t index);
 void setFSLedON(uint8_t index);
 bool getFSLedState(uint8_t index);
+uint32_t getFSLedRGBColor(uint8_t index);
+void turnOffRGBLeds();
+bool isLedControledByFS(uint8_t index);

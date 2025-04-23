@@ -34,7 +34,17 @@ void setFSLedON(uint8_t index) {
 }
 
 bool getFSLedState(uint8_t index) {
-  return rgbGetLedColor(index) == g_model.functionSwitchLedONColor[index].getColor();
+  return fsGetLedRGB(index) == g_model.functionSwitchLedONColor[index].getColor();
+}
+
+bool isLedControledByFS(uint8_t index)
+{
+  return index < NUM_FUNCTIONS_SWITCHES;  // TODO: check real usage
+}
+
+uint32_t getFSLedRGBColor(uint8_t index)
+{
+  return fsGetLedRGB(index);
 }
 #else
 void setFSLedOFF(uint8_t index) {
@@ -48,4 +58,14 @@ void setFSLedON(uint8_t index) {
 bool getFSLedState(uint8_t index) {
   return fsLedState(index);
 }
+
+bool isLedControledByFS(uint8_t index)
+{
+  return false;
+}
 #endif
+
+void turnOffRGBLeds()
+{
+  rgbLedClearAll();
+}
