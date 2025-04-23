@@ -550,6 +550,21 @@ void HardwarePanel::addSwitch(int index)
     });
   }
 
+  if (generalSettings.isSwitchFunc(index)) {
+    AutoComboBox *start = new AutoComboBox(this);
+    start->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    AbstractStaticItemModel *fsStart = ModelData::funcSwitchStartItemModel();
+    start->setModel(fsStart);
+    int & swstart = (int &)config.start;
+    start->setField(swstart, this);
+    start->setEnabled(swtype == Board::SWITCH_2POS);
+    params->append(start);
+
+    connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
+            start->setEnabled(val == Board::SWITCH_2POS);
+    });
+  }
+
   addParams();
 }
 
