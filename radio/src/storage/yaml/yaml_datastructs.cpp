@@ -41,6 +41,8 @@
   #include "yaml_datastructs_nb4p.cpp"
  #elif defined(RADIO_NV14_FAMILY)  
   #include "yaml_datastructs_nv14_family.cpp"
+ #elif defined(RADIO_PL18U)  
+  #include "yaml_datastructs_pl18u.cpp"
  #else
   #include "yaml_datastructs_pl18.cpp"
  #endif
