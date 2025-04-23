@@ -1082,6 +1082,11 @@
     #define TR_BL_FLASH_KEY            "Hold [SW1A] laenge, for at starte"
     #define TR_BL_ERASE_KEY            "Hold [SW1A] laenge, for at slette"
     #define TR_BL_EXIT_KEY             "[SW1B] for at forlade"
+  #elif defined(RADIO_PL18U)
+    #define TR_BL_SELECT_KEY           "[KR Dn] for at bruge fil"
+    #define TR_BL_FLASH_KEY            "Hold [KR Dn] laenge, for at starte"
+    #define TR_BL_ERASE_KEY            "Hold [KR Dn] laenge, for at slette"
+    #define TR_BL_EXIT_KEY             "[KR Up] for at forlade"
   #else
     #define TR_BL_SELECT_KEY           "[TR4 Dn] for at bruge fil"
     #define TR_BL_FLASH_KEY            "Hold [TR4 Dn] laenge, for at starte"
