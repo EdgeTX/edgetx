@@ -337,7 +337,22 @@ static void stm32_serial_send_byte(void* ctx, uint8_t c)
   }
 }
 
-#define IS_CCM_RAM(addr) (((uint32_t)(addr) & (uint32_t)0xFFF00000) == 0x10000000)
+#if defined(STM32F4)
+extern uint32_t _sram;
+extern uint32_t _eram;
+#define _IS_DMA_BUFFER(addr) \
+  ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
+#elif defined(STM32H7) || defined(STM32H7RS)
+extern uint32_t _s_dram;
+extern uint32_t _e_dram;
+#define _IS_DMA_BUFFER(addr)                 \
+  ((intptr_t)(addr) >= (intptr_t)&_s_dram && \
+   (intptr_t)(addr) <= (intptr_t)&_e_dram)
+#else
+#define _IS_DMA_BUFFER(addr) (true)
+#endif
+
+#define _IS_ALIGNED(addr) (((intptr_t)(addr) & 3U) == 0U)
 
 static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t size)
 {
@@ -347,10 +362,7 @@ static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t si
   // try TX DMA first
   auto sp = st->sp;
   auto usart = sp->usart;
-  if (usart->txDMA && !IS_CCM_RAM(data)) {
-#if defined(STM32H7) || defined(STM32H7RS)
-    SCB_CleanDCache_by_Addr((void*)data, size);
-#endif
+  if (usart->txDMA && _IS_DMA_BUFFER(data) && _IS_ALIGNED(data)) {
     stm32_usart_send_buffer(usart, data, size);
     return;
   }

@@ -293,9 +293,15 @@ static const stm32_usart_t sportUSART = {
   .txDMA = TELEMETRY_DMA,
   .txDMA_Stream = TELEMETRY_DMA_Stream_TX,
   .txDMA_Channel = TELEMETRY_DMA_Channel_TX,
+#if defined(TELEMETRY_DMA_Stream_RX)
+  .rxDMA = TELEMETRY_DMA,
+  .rxDMA_Stream = TELEMETRY_DMA_Stream_RX,
+  .rxDMA_Channel = TELEMETRY_DMA_Channel_RX,
+#else
   .rxDMA = nullptr,
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
+#endif
 #if defined(STM32H7) || (STM32H7RS)
   .set_input = nullptr,
 #else
