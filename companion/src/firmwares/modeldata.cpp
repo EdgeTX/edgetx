@@ -1776,6 +1776,8 @@ QString ModelData::funcSwitchConfigToString(unsigned int value)
       return tr("TOGGLE");
     case FUNC_SWITCH_CONFIG_2POS:
       return tr("2POS");
+    case FUNC_SWITCH_CONFIG_GLOBAL:
+      return tr("Global");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
