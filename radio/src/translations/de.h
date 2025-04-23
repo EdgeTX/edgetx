@@ -878,11 +878,11 @@
 #define TR_RECEIVER_RESET              "Empfänger resetten?"
 #define TR_SHARE                       "Share"
 #define TR_BIND                        "Binden"
-#define TR_REGISTER             	   TR("Reg", "Register")
-#define TR_MODULE_RANGE        		   BUTTON(TR("Rng", "Reichweite"))  //9XR-Pro
+#define TR_REGISTER             	     TR("Reg", "Register")
+#define TR_MODULE_RANGE                BUTTON(TR3("Rng", "Reichw", "Reichweite"))
 #define TR_RANGE_TEST                  "Reichweitentest"
 #define TR_RECEIVER_OPTIONS            TR("RX OPTIONEN", "RX OPTIONEN")
-#define TR_RESET_BTN           		   BUTTON("Reset")
+#define TR_RESET_BTN           		     BUTTON("Reset")
 #define TR_DEBUG                       "Testen"
 #define TR_KEYS_BTN                	   BUTTON(TR("SW","Schalter"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analoge"))
@@ -890,23 +890,23 @@
 #define TR_TOUCH_NOTFOUND              "Touch hardware not found"
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
 #define TR_CALIBRATION                 "Kalibrieren"
-#define TR_SET                   	   BUTTON("Set")
-#define TR_TRAINER             		   "Lehrer/Schüler"
+#define TR_SET                   	     BUTTON("Set")
+#define TR_TRAINER             		     "Lehrer/Schüler"
 #define TR_CHANS                       "Chans"
-#define TR_ANTENNAPROBLEM     		   "TX-Antennenproblem!"
+#define TR_ANTENNAPROBLEM     		     "TX-Antennenproblem!"
 #define TR_MODELIDUSED                 "ID benutzt in:"
 #define TR_MODELIDUNIQUE               "ID ist eindeutig"
-#define TR_MODULE             		   "Modul-Typ"
+#define TR_MODULE             		     "Modul-Typ"
 #define TR_RX_NAME                     "Rx Name"
-#define TR_TELEMETRY_TYPE      		   TR("Typ", "Telemetrietyp")
-#define TR_TELEMETRY_SENSORS  		   "Sensoren"
-#define TR_VALUE               		   "Wert"
-#define TR_PERIOD                    "Periode"
-#define TR_INTERVAL                  "Intervall"
+#define TR_TELEMETRY_TYPE      		     TR("Typ", "Telemetrietyp")
+#define TR_TELEMETRY_SENSORS  		     "Sensoren"
+#define TR_VALUE               		     "Wert"
+#define TR_PERIOD                      "Periode"
+#define TR_INTERVAL                    "Intervall"
 #define TR_REPEAT                      "Wiederholung"
 #define TR_ENABLE                      "Aktivieren"
 #define TR_DISABLE                     "Deaktivieren"
-#define TR_TOPLCDTIMER        		   "oberer LCD Timer"
+#define TR_TOPLCDTIMER        		     "oberer LCD Timer"
 #define TR_UNIT                        "Einheit"
 #define TR_TELEMETRY_NEWSENSOR         "Sensor hinzufügen ..."
 #define TR_CHANNELRANGE                TR("Kanäle", "Ausgangs Kanäle")  //wg 9XR-Pro
