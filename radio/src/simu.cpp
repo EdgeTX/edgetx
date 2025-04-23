@@ -74,6 +74,7 @@ class OpenTxSim: public FXMainWindow
     void doEvents();
     void refreshDisplay();
     void setPixel(int x, int y, FXColor color);
+    void fsLedRGB(uint8_t idx, uint32_t color);
 
   private:
     FXImage * bmp;
@@ -82,6 +83,9 @@ class OpenTxSim: public FXMainWindow
   public:
     FXSlider * sliders[MAX_STICKS];
     FXKnob * knobs[MAX_POTS];
+#if defined(FUNCTION_SWITCHES)
+    FXButton * fctButtons[NUM_FUNCTIONS_SWITCHES] = {0};
+#endif
 };
 
 // Message Map
@@ -109,6 +113,7 @@ OpenTxSim::OpenTxSim(FXApp* a):
 #endif
 
   FXHorizontalFrame * hf11 = new FXHorizontalFrame(this, LAYOUT_CENTER_X);
+  FXHorizontalFrame * hf12 = new FXHorizontalFrame(this, LAYOUT_CENTER_X);
   FXHorizontalFrame * hf1 = new FXHorizontalFrame(this, LAYOUT_FILL_X);
 
   //rh lv rv lh
@@ -142,7 +147,7 @@ OpenTxSim::OpenTxSim(FXApp* a):
     knobs[i]->setRange(0, 4095);
     knobs[i]->setValue(2047);
 
-#if defined(PCBHORUS)
+#if defined(PCBHORUS) && !defined(PCBST16)
     if (i == 1) {  // 6-pos switch
       knobs[i]->setIncrement(4095 / 5);
       knobs[i]->setTickDelta(4095 / 5);
@@ -151,6 +156,14 @@ OpenTxSim::OpenTxSim(FXApp* a):
     }
 #endif
   }
+
+#if defined(FUNCTION_SWITCHES)
+  for(int i = 0; i < NUM_FUNCTIONS_SWITCHES; ++i)
+  {
+    fctButtons[i] = new FXButton(hf12, "     ", nullptr, nullptr, 123, LAYOUT_LEFT|BUTTON_NORMAL, 0, 0, 50, 0, 15, 15);
+    fctButtons[i]->setBorderColor(FXColor(0));
+  }
+#endif
 
   bmf = new FXImageFrame(this, bmp);
   bmf->enable();
@@ -465,6 +478,19 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     SWITCH_KEY(Q, 16, 3);
     SWITCH_KEY(R, 17, 3);
   #endif
+
+#if defined(FUNCTION_SWITCHES)
+    for(int i = 0; i < NUM_FUNCTIONS_SWITCHES; ++i)
+    {
+      int8_t newState = -1;
+      if(fctButtons[i]->getState()==STATE_DOWN)
+      {
+        newState = 1;
+      }
+
+      simuSetSwitch(switchGetMaxSwitches() + i, newState);
+    }
+#endif
 }
 
 extern volatile rotenc_t rotencValue;
@@ -596,6 +622,13 @@ void OpenTxSim::refreshDisplay()
   }
 }
 
+void OpenTxSim::fsLedRGB(uint8_t idx, uint32_t color)
+{
+  uint32_t col = (color&0x00FF0000)>>16 | (color&0x0000FF00) | (color&0x000000FF)<<16;
+  fctButtons[idx]->setBaseColor(col);
+  fctButtons[idx]->setBackColor(col);
+}
+
 OpenTxSim * opentxSim;
 
 void doFxEvents()
@@ -670,4 +703,20 @@ uint16_t simu_get_analog(uint8_t idx)
 void createBitmap(int index, uint16_t *data, int x, int y, int w, int h)
 {
   opentxSim->createBitmap(index, data, x, y, w, h);
+}
+
+
+void fsLedRGB(uint8_t idx, uint32_t color)
+{
+  opentxSim->fsLedRGB(idx, color);
+}
+
+void fsLedOn(uint8_t idx)
+{
+  opentxSim->fsLedRGB(idx, 0x00ffffff);
+}
+
+void fsLedOff(uint8_t idx)
+{
+  opentxSim->fsLedRGB(idx, 0);
 }

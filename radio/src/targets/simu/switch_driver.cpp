@@ -66,8 +66,8 @@ SwitchHwPos boardSwitchGetPosition(SwitchCategory cat, uint8_t idx)
   idx = get_switch_index(cat, idx);
 
 #if defined(FUNCTION_SWITCHES)
-  if (IS_SWITCH_FS(idx + n_switches)) {
-    if (bfSingleBitGet(functionSwitchFunctionState, idx))
+  if (IS_SWITCH_FS(idx)) {
+    if (bfSingleBitGet(functionSwitchFunctionState, idx - n_switches))
       return SWITCH_HW_DOWN;
   }
 #endif
