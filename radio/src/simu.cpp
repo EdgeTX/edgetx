@@ -113,7 +113,9 @@ OpenTxSim::OpenTxSim(FXApp* a):
 #endif
 
   FXHorizontalFrame * hf11 = new FXHorizontalFrame(this, LAYOUT_CENTER_X);
+#if defined(FUNCTION_SWITCHES)
   FXHorizontalFrame * hf12 = new FXHorizontalFrame(this, LAYOUT_CENTER_X);
+#endif
   FXHorizontalFrame * hf1 = new FXHorizontalFrame(this, LAYOUT_FILL_X);
 
   //rh lv rv lh
@@ -147,7 +149,7 @@ OpenTxSim::OpenTxSim(FXApp* a):
     knobs[i]->setRange(0, 4095);
     knobs[i]->setValue(2047);
 
-#if defined(PCBHORUS) && !defined(PCBST16)
+#if defined(PCBHORUS) && !defined(FUNCTION_SWITCHES)
     if (i == 1) {  // 6-pos switch
       knobs[i]->setIncrement(4095 / 5);
       knobs[i]->setTickDelta(4095 / 5);
@@ -624,9 +626,11 @@ void OpenTxSim::refreshDisplay()
 
 void OpenTxSim::fsLedRGB(uint8_t idx, uint32_t color)
 {
+#if defined(FUNCTION_SWITCHES)
   uint32_t col = (color&0x00FF0000)>>16 | (color&0x0000FF00) | (color&0x000000FF)<<16;
   fctButtons[idx]->setBaseColor(col);
   fctButtons[idx]->setBackColor(col);
+#endif
 }
 
 OpenTxSim * opentxSim;
