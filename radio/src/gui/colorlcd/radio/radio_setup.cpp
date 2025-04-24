@@ -875,9 +875,9 @@ static SetupLineDef setupLines[] = {
   {
     STR_HATSMODE,
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, HATS_MODE_W, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
+      new Choice(parent, {x, y, RadioSetupPage::HATS_MODE_W, 0}, STR_HATSOPT, HATSMODE_TRIMS_ONLY,
                 HATSMODE_SWITCHABLE, GET_SET_DEFAULT(g_eeGeneral.hatsMode));
-      new TextButton(parent, {x + HATS_MODE_W + PAD_MEDIUM, y, 0, 0}, "?", [=]() {
+      new TextButton(parent, {x + RadioSetupPage::HATS_MODE_W + PAD_MEDIUM, y, 0, 0}, "?", [=]() {
         new MessageDialog(STR_HATSMODE_KEYS, STR_HATSMODE_KEYS_HELP, "",
                           LEFT);
         return 0;
