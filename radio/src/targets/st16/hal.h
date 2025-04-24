@@ -211,7 +211,8 @@
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOI, 8)  // PE.04
 
 // Chargers (USB and wireless)
-#define UCHARGER_GPIO               GPIO_PIN(GPIOD, 4)  // PD.02 input
+#define UCHARGER_GPIO               GPIO_PIN(GPIOC, 0) // PC.00
+#define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOD, 4) // PD.04
 
 // TODO! Check IOLL1 to PI.01 connectivity!
 
