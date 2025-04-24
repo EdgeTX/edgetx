@@ -71,8 +71,7 @@ int bsp_io_init()
 {
   // init outputs
   BSP_CHECK(pca95xx_init(&output_exp, BSP_OUT_I2C_BUS, BSP_OUT_I2C_ADDR));
-  BSP_CHECK(pca95xx_write(&output_exp, BSP_OUT_MASK,
-                          BSP_CHARGE_EN | BSP_EXT_PWR | BSP_INT_PWR));
+  BSP_CHECK(pca95xx_write(&output_exp, BSP_OUT_MASK, BSP_EXT_PWR | BSP_INT_PWR));
   BSP_CHECK(pca95xx_set_direction(&output_exp, BSP_OUT_MASK, 0));
 
   // init inputs

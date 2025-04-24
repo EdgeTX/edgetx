@@ -38,10 +38,6 @@
 
 #define UCHARGER_SAMPLING_CNT              10
 #define UCHARGER_CHARGING_SAMPLING_CNT     10
-#define WCHARGER_SAMPLING_CNT              30
-#define WCHARGER_CHARGING_SAMPLING_CNT     10
-#define WCHARGER_LOW_CURRENT_DELAY_CNT   6000
-#define WCHARGER_HIGH_CURRENT_DELAY_CNT 24000
 
 typedef struct
 {
@@ -198,7 +194,7 @@ void battery_charge_init()
 {
   // USB charger status pins
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
-  gpio_init(UCHARGER_CHARGE_END_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(UCHARGER_CHARGE_END_GPIO, GPIO_IN_PD, GPIO_PIN_SPEED_LOW);
 
   // USB charger state init
   ENABLE_UCHARGER();
@@ -209,11 +205,11 @@ void battery_charge_init()
 
 void ledChargingInfo(uint16_t chargeState) {
 #if defined(LED_STRIP_GPIO)
-  static int ledIdx = 0;
-  ledIdx--;
-  if (ledIdx < 0) {
-    ledIdx = LED_STRIP_LENGTH - 1;
-  }
+  static int ledIdx = LED_CHARGING_END;
+  if (ledIdx == LED_CHARGING_END)
+    ledIdx = LED_CHARGING_START;
+  else
+    ledIdx += LED_CHARGING_START > LED_CHARGING_END ? -1 : 1;
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
     if (CHARGE_FINISHED == chargeState || ledIdx == i) {
       rgbSetLedColor(i, 0, 20, 0);
@@ -321,7 +317,7 @@ void handle_battery_charge(uint32_t last_press_time)
       drawChargingInfo(chargeState);
 
       // DEBUG INFO
-#if 0
+#if 1
       char buffer[1024];
 
       sprintf(buffer, "%d,%d,%d,%d", uCharger.isChargerDetectionReady, uCharger.hasCharger, IS_UCHARGER_ACTIVE(), uCharger.chargerSamplingCount);
@@ -329,14 +325,6 @@ void handle_battery_charge(uint32_t last_press_time)
     
       sprintf(buffer, "%d,%d,%d,%d,%d,", uCharger.isChargingDetectionReady, uCharger.isChargeEnd, IS_UCHARGER_CHARGE_END_ACTIVE(), uCharger.chargingSamplingCount, uCharger.chargeEndSamplingCount);
       lcd->drawSizedText(100, 40, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
-
-#if defined(WIRELESS_CHARGER)
-      sprintf(buffer, "%d,%d,%d,%d,%d", wCharger.isChargerDetectionReady, wCharger.hasCharger, IS_WCHARGER_ACTIVE(), wCharger.chargerSamplingCount, wCharger.isHighCurrent);
-      lcd->drawSizedText(100, 70, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
-    
-      sprintf(buffer, "%d,%d,%d,%d,%d,", wCharger.isChargingDetectionReady, wCharger.isChargeEnd, IS_WCHARGER_CHARGE_END_ACTIVE(), wCharger.chargingSamplingCount, wCharger.chargeEndSamplingCount);
-      lcd->drawSizedText(100, 100, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
-#endif
 
       sprintf(buffer, "%d", isChargerActive());
       lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);

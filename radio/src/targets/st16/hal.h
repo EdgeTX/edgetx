@@ -395,6 +395,8 @@
 #define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 #define STATUS_LEDS
+#define LED_CHARGING_START                12
+#define LED_CHARGING_END                  23
 
 
 // Internal Module

@@ -75,17 +75,6 @@ extern "C" void initialise_monitor_handles();
 extern "C" void flushFTL();
 #endif
 
-static void led_strip_charge_animation(uint8_t ledOn)
-{
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    if (i == ledOn)
-      ws2812_set_color(i, 10, 10, 10);
-    else
-      ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
-}
-
 static void led_strip_off()
 {
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
@@ -222,8 +211,47 @@ void boardInit()
   rgbLedInit();
 #endif
 
+  rotaryEncoderInit();
+
 #if !defined(DEBUG_SEGGER_RTT)
-  // prime debounce state...
+
+  uint32_t press_start = 0;
+  uint32_t press_end = 0;
+  rotenc_t lastEncoderValue = 0;
+
+  if (UNEXPECTED_SHUTDOWN()) {
+    pwrOn();
+  //} else if (isChargerActive()) {
+  } else if (true) {
+    while (true) {
+      pwrOn();
+      uint32_t now = timersGetMsTick();
+      if (pwrPressed()) {
+        press_end = now;
+        if (press_start == 0) press_start = now;
+        if ((now - press_start) > POWER_ON_DELAY) {
+          break;
+        }
+  //    } else if (!isChargerActive()) {
+  //      while(true) // Wait power to drain
+  //        boardOff();
+      } else {
+        uint32_t press_end_touch = press_end;
+        rotenc_t value = rotaryEncoderGetValue();
+        if (value != lastEncoderValue) {
+          lastEncoderValue = value;     
+          press_end_touch = timersGetMsTick();
+        }
+        press_start = 0;
+        handle_battery_charge(press_end_touch);
+        delay_ms(10);
+        press_end = 0;
+      }
+    }
+  }
+
+/*
+// prime debounce state...
   usbPlugged();
 
   if (usbPlugged()) {
@@ -242,41 +270,12 @@ void boardInit()
     }
     while(1) // Wait power to drain
       boardOff();
-  }
+  }*/
 #endif
 
   led_strip_off();
-
-  // uint32_t press_start = 0;
-  // uint32_t press_end = 0;
-
-  // if (UNEXPECTED_SHUTDOWN()) {
-  pwrOn();
-  // } else if (isChargerActive()) {
-  //   while (true) {
-  //     pwrOn();
-  //     uint32_t now = get_tmr10ms();
-  //     if (pwrPressed()) {
-  //       press_end = now;
-  //       if (press_start == 0) press_start = now;
-  //       if ((now - press_start) > POWER_ON_DELAY) {
-  //         break;
-  //       }
-  //     } else if (!isChargerActive()) {
-  //       boardOff();
-  //     } else {
-  //       uint32_t press_end_touch = press_end;
-  //       press_start = 0;
-  //       handle_battery_charge(press_end_touch);
-  //       delay_ms(10);
-  //       press_end = 0;
-  //     }
-  //   }
-  // }
-
   keysInit();
   switchInit();
-  rotaryEncoderInit();
   touchPanelInit();
   audioInit();
   adcInit(&_adc_driver);
