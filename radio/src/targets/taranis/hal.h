@@ -2070,7 +2070,7 @@
   #define INTMODULE_DMA_STREAM_IRQHandler  DMA2_Stream7_IRQHandler
   #define INTMODULE_DMA_CHANNEL            LL_DMA_CHANNEL_4
 #elif defined(RADIO_X7ACCESS)
-  #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOA, 7) // PC.05
+  #define INTMODULE_PWR_GPIO               GPIO_PIN(GPIOC, 5) // PC.05
   #define INTMODULE_TX_GPIO                GPIO_PIN(GPIOB, 6) // PB.06
   #define INTMODULE_RX_GPIO                GPIO_PIN(GPIOB, 7) // PB.07
   #define INTMODULE_USART                  USART1
