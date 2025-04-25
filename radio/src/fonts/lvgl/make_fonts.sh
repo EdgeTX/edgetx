@@ -21,6 +21,7 @@ TW_SYMBOLS=$(python3 get_char_ck.py ../../translations/tw.h)
 CN_SYMBOLS=$(python3 get_char_ck.py ../../translations/cn.h)
 JP_SYMBOLS=$(python3 get_char_jp.py ../../translations/jp.h)
 HE_SYMBOLS=$(python3 get_char_he.py ../../translations/he.h)
+KO_SYMBOLS=$(python3 get_char_ko.py ../../translations/ko.h)
 RU_SYMBOLS=$(python3 get_char_cyrillic.py ../../translations/ru.h)
 UA_SYMBOLS=$(python3 get_char_cyrillic.py ../../translations/ua.h)
 
@@ -164,6 +165,7 @@ make_font_set "jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf
 make_font_set "he" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${HE_SYMBOLS}"
 make_font_set "ru" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${RU_SYMBOLS}"
 make_font_set "ua" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" ",${UA_SYMBOLS}"
+make_font_set "ko" "Nanum/NanumBarunpenR.ttf" "Nanum/NanumBarunpenB.ttf" ",${KO_SYMBOLS}"
 
 rm lv_font.inc
 rm lz4_font

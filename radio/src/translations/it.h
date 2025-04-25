@@ -99,7 +99,7 @@
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "BindModulo"
 #define TR_SF_RGBLEDS                  "Leds RGB"
- 
+
 #define TR_SOUND                       "Suona"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Suona Traccia")
 #define TR_PLAY_VALUE                  TR("LeggiVal","Leggi Valore")
@@ -1254,6 +1254,7 @@
 #define TR_VOICE_JAPANESE               "Giapponese"
 #define TR_VOICE_HEBREW                 "Ebraico"
 #define TR_VOICE_UKRAINIAN              "Ucraino"
+#define TR_VOICE_KOREAN                 "coreano"
 
 #define TR_USBJOYSTICK_LABEL           "Joystick USB"
 #define TR_USBJOYSTICK_EXTMODE         "Modo"
@@ -1305,7 +1306,7 @@
 #define TR_THEME_EXISTS           "Esiste già una cartella di temi con lo stesso nome."
 
 #define TR_DATE_TIME_WIDGET       "Data & Ora"
-#define TR_RADIO_INFO_WIDGET      "Radio Info" 
+#define TR_RADIO_INFO_WIDGET      "Radio Info"
 #define TR_LOW_BATT_COLOR         "Batteria scarica"
 #define TR_MID_BATT_COLOR         "Batteria media"
 #define TR_HIGH_BATT_COLOR        "Batteria carica"

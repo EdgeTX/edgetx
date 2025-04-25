@@ -76,7 +76,7 @@
 
 #define TR_ADCFILTERVALUES              "Global","Av","På"
 
-#define TR_VCURVETYPE                   "Diff","Expo","Funk","Egen"                                  
+#define TR_VCURVETYPE                   "Diff","Expo","Funk","Egen"
 #define TR_VCURVEFUNC                   "---","x>0","x<0","|x|","f>0","f<0","|f|"
 #define TR_VMLTPX                       "Addera","Multiplicera","Ersätt"
 #define TR_VMLTPX2                      "+=","*=",":="
@@ -103,7 +103,7 @@
 #define TR_SF_RANGE_CHECK               "Range check"
 #define TR_SF_MOD_BIND                  "Parkoppla modul"
 #define TR_SF_RGBLEDS                   "RGB ledljus"
- 
+
 #define TR_SOUND                        "Spela ljud"
 #define TR_PLAY_TRACK                   TR("Sp. upp", "Spela upp")
 #define TR_PLAY_VALUE                   "Säg värdet"
@@ -1296,6 +1296,7 @@
 #define TR_VOICE_JAPANESE               "Japanska"
 #define TR_VOICE_HEBREW                 "Hebreiska"
 #define TR_VOICE_UKRAINIAN              "Ukrainska"
+#define TR_VOICE_KOREAN                 "koreanska"
 
 #define TR_USBJOYSTICK_LABEL            "USB Joystick"
 #define TR_USBJOYSTICK_EXTMODE          "Läge"

@@ -61,6 +61,8 @@ FONT_TABLE(cn);
 FONT_TABLE(tw);
 #elif defined(TRANSLATIONS_JP)
 FONT_TABLE(jp);
+#elif defined(TRANSLATIONS_KO)
+FONT_TABLE(ko);
 #elif defined(TRANSLATIONS_HE)
 FONT_TABLE(he);
 #elif defined(TRANSLATIONS_RU)

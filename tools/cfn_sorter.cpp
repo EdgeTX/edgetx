@@ -47,6 +47,9 @@
 #elif defined(LNG_JP)
 #include "../radio/src/translations/jp.h"
 #define LOC "ja_JP.UTF-8"
+#elif defined(LNG_KO)
+#include "../radio/src/translations/ko.h"
+#define LOC "ko_KR.UTF-8"
 #elif defined(LNG_NL)
 #include "../radio/src/translations/nl.h"
 #define LOC "nl_NL.UTF-8"

@@ -97,7 +97,7 @@
 #define TR_SF_RANGE_CHECK              "RangeCheck"
 #define TR_SF_MOD_BIND                 "BindMódulo"
 #define TR_SF_RGBLEDS                  "Leds RGB"
- 
+
 #define TR_SOUND                       "Tocar Som"
 #define TR_PLAY_TRACK                  TR("Ply Trk", "Tocar Trilha")
 #define TR_PLAY_VALUE                  TR("RepValor","Rep Valor")
@@ -1264,6 +1264,7 @@
 #define TR_VOICE_JAPANESE               "Japonês"
 #define TR_VOICE_HEBREW                 "Hebraico"
 #define TR_VOICE_UKRAINIAN              "Ucraniano"
+#define TR_VOICE_KOREAN                 "coreano"
 
 #define TR_USBJOYSTICK_LABEL           "Joystick USB"
 #define TR_USBJOYSTICK_EXTMODE         "Modo"
