@@ -75,17 +75,6 @@ extern "C" void flushFTL();
 constexpr uint16_t vbatLedTable[] = {700, 760, 800, 840};
 constexpr uint8_t ledMapping[] = {4, 6, 0, 2};
 
-static void led_strip_charge_animation(uint16_t vbat)
-{
-  for (uint8_t i = 0; i < DIM(ledMapping); i++) {
-    if (vbat > vbatLedTable[i])
-      ws2812_set_color(ledMapping[i], 0, 50, 0);
-    else
-      ws2812_set_color(ledMapping[i], 50, 0, 0);
-  }
-  ws2812_update(&_led_timer);
-}
-
 void INTERNAL_MODULE_BOOTCMD(uint8_t enable)
 {
   if (enable)
@@ -169,47 +158,54 @@ void boardInit()
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
-  // init_trainer();
+  board_trainer_init();
+  battery_charge_init();
+  
   flysky_gimbal_init();
   usbInit();
   rgbLedInit();
 
+  rotaryEncoderInit();
+
 #if !defined(DEBUG_SEGGER_RTT)
+
   uint32_t press_start = 0;
   uint32_t press_end = 0;
+  rotenc_t lastEncoderValue = 0;
 
   if (UNEXPECTED_SHUTDOWN()) {
     pwrOn();
-  } else if (IS_UCHARGER_ACTIVE()) {
-    __enable_irq();
-    adcInit(&_adc_driver);
-    getADC();
-    pwrOn();
+  } else if (isChargerActive()) {
     while (true) {
+      pwrOn();
       uint32_t now = timersGetMsTick();
-      getADC();  // Warning: the value read does not include VBAT calibration
       if (pwrPressed()) {
         press_end = now;
         if (press_start == 0) press_start = now;
         if ((now - press_start) > POWER_ON_DELAY) {
           break;
         }
-      } else if (!IS_UCHARGER_ACTIVE()) {
+      } else if (!isChargerActive()) {
         boardOff();
       } else {
         uint32_t press_end_touch = press_end;
+        rotenc_t value = rotaryEncoderGetValue();
+        if (value != lastEncoderValue) {
+          lastEncoderValue = value;     
+          press_end_touch = timersGetMsTick();
+        }
         press_start = 0;
-        led_strip_charge_animation(getBatteryVoltage());
+        handle_battery_charge(press_end_touch);
         delay_ms(10);
         press_end = 0;
       }
     }
   }
+  
 #endif
 
   keysInit();
   switchInit();
-  rotaryEncoderInit();
   audioInit();
   adcInit(&_adc_driver);
   hapticInit();
