@@ -128,6 +128,18 @@ uint16_t simu_get_analog(uint8_t idx)
   return 0;
 }
 
+void fsLedRGB(uint8_t idx, uint32_t color)
+{
+}
+
+void fsLedOn(uint8_t idx)
+{
+}
+
+void fsLedOff(uint8_t idx)
+{
+}
+
 static char _stringResult[200];
 
 const char * nchar2string(const char * string, int size)
