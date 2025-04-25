@@ -202,6 +202,8 @@ void boardInit()
   flashRegisterDriver(FLASH_BANK1_BASE, BOOTLOADER_SIZE, &stm32_flash_driver);
   flashRegisterDriver(QSPI_BASE, QSPI_FLASH_SIZE, &extflash_driver);
 
+  battery_charge_init();
+
   // init_trainer();
   flysky_gimbal_init();
 

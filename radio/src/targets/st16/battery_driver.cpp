@@ -173,7 +173,7 @@ uint16_t get_battery_charge_state()
       resetChargeEndDetection(&uCharger);
 
       // Disable USB charger if it is not present, so that wireless charger can be detected properly
-      DISABLE_UCHARGER();
+//      DISABLE_UCHARGER();
     }
   }
 
