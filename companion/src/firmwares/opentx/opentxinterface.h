@@ -53,6 +53,7 @@ class OpenTxFirmware: public Firmware
       addLanguage("hu");
       addLanguage("it");
       addLanguage("jp");
+      addLanguage("ko");
       addLanguage("nl");
       addLanguage("pl");
       addLanguage("pt");
@@ -61,7 +62,6 @@ class OpenTxFirmware: public Firmware
       addLanguage("sk");
       addLanguage("tw");
       addLanguage("ua");
-      addLanguage("ko");
     }
 
     virtual Firmware * getFirmwareVariant(const QString & id);
