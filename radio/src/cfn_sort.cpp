@@ -133,17 +133,14 @@ Functions cfn_sorted[] = {
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
   /* Juster */ FUNC_ADJUST_GVAR,
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD til Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lua Script */ FUNC_PLAY_SCRIPT,
   /* Lydstyrke */ FUNC_VOLUME,
   /* Modul tilslut */ FUNC_BIND,
   /* Nulstil */ FUNC_RESET,
   /* Overskriv */ FUNC_OVERRIDE_CHANNEL,
-#if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
-#endif
-  /* RGB led */ FUNC_RGB_LED,
+  /* RGB lys */ FUNC_RGB_LED,
   /* Ræs tilstand */ FUNC_RACING_MODE,
   /* SD Log */ FUNC_LOGS,
 #if defined(OLED_SCREEN)
@@ -158,6 +155,9 @@ Functions cfn_sorted[] = {
   /* Sæt fejlsikring */ FUNC_SET_FAILSAFE,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
+#endif
+#if defined(FUNCTION_SWITCHES)
+  /* Tryk bruger kontakt */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Træner */ FUNC_TRAINER,
   /* Vario */ FUNC_VARIO,
@@ -505,49 +505,53 @@ Functions cfn_sorted[] = {
   /* 非タッチ */ FUNC_DISABLE_TOUCH,
 #endif
 #elif defined(TRANSLATIONS_KO)
-    /* 배경 음악 */ FUNC_BACKGND_MUSIC,
-    /* 배경 음악 일시정지 */ FUNC_BACKGND_MUSIC_PAUSE,
-    /* 소리 재생 */ FUNC_PLAY_SOUND,
-    /* 값 읽기 */ FUNC_PLAY_VALUE,
-    /* 음성 파일 재생 */ FUNC_PLAY_TRACK,
-    /* 거리 측정 */ FUNC_RANGECHECK,
-#if defined(DEBUG)
-    /* 테스트 */ FUNC_TEST,
-#endif
-    /* 리셋 */ FUNC_RESET,
-    /* 오디오 앰프 끄기 */ FUNC_DISABLE_AUDIO_AMP,
-    /* 로그 기록 */ FUNC_LOGS,
-    /* 트레이너 */ FUNC_TRAINER,
-    /* 스크린샷 */ FUNC_SCREENSHOT,
-#if defined(COLORLCD)
-    /* 터치 비활성화 */ FUNC_DISABLE_TOUCH,
-#endif
-    /* 레이싱 모드 */ FUNC_RACING_MODE,
-#if defined(OLED_SCREEN)
-    /* 밝기 */ FUNC_BACKLIGHT,
-#endif
-    /* 바인딩 */ FUNC_BIND,
 #if defined(VIDEO_SWITCH)
-    /* 영상 출력 전환 */ FUNC_LCD_TO_VIDEO,
+  /* LCD → 비디오 출력 */ FUNC_LCD_TO_VIDEO,
 #endif
-    /* 타이머 설정 */ FUNC_SET_TIMER,
-    /* 페일세이프 설정 */ FUNC_SET_FAILSAFE,
-#if !defined(COLORLCD)
-    /* 화면 설정 */ FUNC_SET_SCREEN,
-#endif
-    /* 채널 오버라이드 */ FUNC_OVERRIDE_CHANNEL,
-    /* GVAR 값 조정 */ FUNC_ADJUST_GVAR,
+  /* Lua 스크립트 실행 */ FUNC_PLAY_SCRIPT,
+  /* RGB LED */ FUNC_RGB_LED,
+  /* SD 로그 저장 */ FUNC_LOGS,
+  /* 값 재생 */ FUNC_PLAY_VALUE,
+  /* 거리체크 */ FUNC_RANGECHECK,
+  /* 레이싱 모드 */ FUNC_RACING_MODE,
 #if defined(COLORLCD)
-    /* 메인 화면 선택 */ FUNC_SET_SCREEN,
+  /* 메인 화면 설정 */ FUNC_SET_SCREEN,
 #endif
-    /* 인스턴트 트림 */ FUNC_INSTANT_TRIM,
-    /* 볼륨 조절 */ FUNC_VOLUME,
-    /* LUA 스크립트 실행 */ FUNC_PLAY_SCRIPT,
+  /* 모듈 바인딩 */ FUNC_BIND,
+  /* 바리오 */ FUNC_VARIO,
+#if defined(OLED_SCREEN)
+  /* 밝기 */ FUNC_BACKLIGHT,
+#endif
+  /* 배경 음악 */ FUNC_BACKGND_MUSIC,
+  /* 배경 음악 일시정지 */ FUNC_BACKGND_MUSIC_PAUSE,
+#if !defined(OLED_SCREEN)
+  /* 백라이트 */ FUNC_BACKLIGHT,
+#endif
+  /* 볼륨 */ FUNC_VOLUME,
+  /* 소리 재생 */ FUNC_PLAY_SOUND,
+  /* 스크린샷 저장 */ FUNC_SCREENSHOT,
+  /* 오디오 앰프 끄기 */ FUNC_DISABLE_AUDIO_AMP,
+  /* 전역 변수 조정 */ FUNC_ADJUST_GVAR,
+  /* 즉시 트림 */ FUNC_INSTANT_TRIM,
+  /* 진동 */ FUNC_HAPTIC,
+  /* 초기화 */ FUNC_RESET,
+  /* 출력 오버라이드 */ FUNC_OVERRIDE_CHANNEL,
 #if defined(FUNCTION_SWITCHES)
-    /* 커스텀 스위치 푸시 */ FUNC_PUSH_CUST_SWITCH,
+  /* 커스텀 스위치 실행 */ FUNC_PUSH_CUST_SWITCH,
 #endif
-    /* RGB LED 제어 */ FUNC_RGB_LED,
-    /* 바리오 센서 */ FUNC_VARIO,
+  /* 타이머 설정 */ FUNC_SET_TIMER,
+#if defined(COLORLCD)
+  /* 터치 비활성화 */ FUNC_DISABLE_TOUCH,
+#endif
+#if defined(DEBUG)
+  /* 테스트 */ FUNC_TEST,
+#endif
+#if !defined(COLORLCD)
+  /* 텔레 화면 설정 */ FUNC_SET_SCREEN,
+#endif
+  /* 트랙 재생 */ FUNC_PLAY_TRACK,
+  /* 트레이너 */ FUNC_TRAINER,
+  /* 페일세이프 설정 */ FUNC_SET_FAILSAFE,
 #elif defined(TRANSLATIONS_NL)
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
 #if !defined(OLED_SCREEN)
@@ -762,7 +766,7 @@ Functions cfn_sorted[] = {
   /* Lärare */ FUNC_TRAINER,
   /* Musik */ FUNC_BACKGND_MUSIC,
   /* Parkoppla modul */ FUNC_BIND,
-  /* Pausa Musik */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* Pausa musik */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Range check */ FUNC_RANGECHECK,
   /* RGB ledljus */ FUNC_RGB_LED,
   /* Skärmbild */ FUNC_SCREENSHOT,
