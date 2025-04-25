@@ -223,8 +223,7 @@ void boardInit()
 
   if (UNEXPECTED_SHUTDOWN()) {
     pwrOn();
-  //} else if (isChargerActive()) {
-  } else if (true) {
+  } else if (isChargerActive()) {
     while (true) {
       pwrOn();
       uint32_t now = timersGetMsTick();
@@ -234,9 +233,8 @@ void boardInit()
         if ((now - press_start) > POWER_ON_DELAY) {
           break;
         }
-  //    } else if (!isChargerActive()) {
-  //      while(true) // Wait power to drain
-  //        boardOff();
+      } else if (!isChargerActive()) {
+        boardOff();
       } else {
         uint32_t press_end_touch = press_end;
         rotenc_t value = rotaryEncoderGetValue();
@@ -252,27 +250,6 @@ void boardInit()
     }
   }
 
-/*
-// prime debounce state...
-  usbPlugged();
-
-  if (usbPlugged()) {
-    delaysInit();
-    uint8_t ledOn = 0;
-    while (usbPlugged()) {
-      if(IS_UCHARGER_ACTIVE()) {
-        led_strip_charge_animation(ledOn++);
-        if (ledOn == LED_STRIP_LENGTH)
-          ledOn = 0;
-      }
-      else {
-        led_strip_off();
-      }
-      delay_ms(1000);
-    }
-    while(1) // Wait power to drain
-      boardOff();
-  }*/
 #endif
 
   led_strip_off();

@@ -173,7 +173,7 @@ uint16_t get_battery_charge_state()
       resetChargeEndDetection(&uCharger);
 
       // Disable USB charger if it is not present, so that wireless charger can be detected properly
-//      DISABLE_UCHARGER();
+      DISABLE_UCHARGER();
     }
   }
 
@@ -317,7 +317,7 @@ void handle_battery_charge(uint32_t last_press_time)
       drawChargingInfo(chargeState);
 
       // DEBUG INFO
-#if 1
+#if 0
       char buffer[1024];
 
       sprintf(buffer, "%d,%d,%d,%d", uCharger.isChargerDetectionReady, uCharger.hasCharger, IS_UCHARGER_ACTIVE(), uCharger.chargerSamplingCount);
