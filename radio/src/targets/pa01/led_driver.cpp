@@ -106,18 +106,18 @@ void ledOff()
 
 void ledRed()
 {
-  ws2812_set_color(8, 255, 0, 0);
-  ws2812_set_color(9, 255, 0, 0);
+  ws2812_set_color(8, 20, 0, 0);
+  ws2812_set_color(9, 20, 0, 0);
 }
 
 void ledGreen()
 {
-  ws2812_set_color(8, 0, 255, 0);
-  ws2812_set_color(9, 0, 255, 0);
+  ws2812_set_color(8, 0, 20, 0);
+  ws2812_set_color(9, 0, 20, 0);
 }
 
 void ledBlue()
 {
-  ws2812_set_color(8, 0, 0, 255);
-  ws2812_set_color(9, 0, 0, 255);
+  ws2812_set_color(8, 0, 0, 20);
+  ws2812_set_color(9, 0, 0, 20);
 }
