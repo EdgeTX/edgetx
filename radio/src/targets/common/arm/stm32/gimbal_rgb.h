@@ -19,11 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _GIMBAL_RGB_H_
-#define _GIMBAL_RGB_H_
+#pragma once
 
 void ledStripOff();
+void ws2812update(void);
 
 void MultiposKey(void);
 uint16_t getMultiPosAnalogValue(uint16_t adcValue);
-#endif
+void rbgInitLoop(int8_t loopNum);

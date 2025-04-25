@@ -139,3 +139,59 @@ void MultiposKey(void)
 	}
 }
 
+void rbgInitLoop(int8_t loopNum)
+{//10ms
+  static uint16_t loopct=0;
+  static uint8_t loop=0,rgbloopindex=0,rgbstep=0,r=0,g=0,b=0;
+  uint8_t a;
+
+  #define maxrgbvalue (SPLASH_TIMEOUT/4)    //SPLASH_TIMEOUT ms
+
+  if(++loopct>=loopNum)
+  {//10ms
+    loopct=0;
+    if(rgbstep){
+      if(rgbstep==1){
+        if(++r>=maxrgbvalue)rgbstep=2;
+      }
+      else if(rgbstep==2){
+        r--;
+        if(++g>=maxrgbvalue)rgbstep=3;
+      }
+      else if(rgbstep==3){
+        g--;
+        if(++b>=maxrgbvalue)rgbstep=4;
+      }
+      else if(rgbstep==4){
+        b--;
+        if(b<=0)rgbstep=5;
+      }
+      else{
+        r=g=b=0;
+      }
+      for(a=0;a<32+6;a++){
+        ws2812_set_color(a, r, g, b);    //6-37
+      }
+    }
+    else{
+      if(loop==0){
+        if(rgbloopindex<6)ws2812_set_color(rgbloopindex, 80, 0, 0);           //0-5
+        else if(rgbloopindex<38)ws2812_set_color(rgbloopindex, 80, 0, 0);     //6-37
+        else {rgbloopindex=0;loop=1;}
+      }
+      else if(loop==1){
+        if(rgbloopindex<6)ws2812_set_color(rgbloopindex, 0, 80, 0);           //0-5
+        else if(rgbloopindex<38)ws2812_set_color(rgbloopindex, 0, 80, 0);     //6-37
+        else {rgbloopindex=0;loop=2;}
+      }
+      else if(loop==2){
+        if(rgbloopindex<6)ws2812_set_color(rgbloopindex, 0, 0, 80);           //0-5
+        else if(rgbloopindex<38)ws2812_set_color(rgbloopindex, 0, 0, 80);     //6-37
+        else {
+          rgbstep=1;
+          }
+      }
+      rgbloopindex++;
+    }
+  }
+}
