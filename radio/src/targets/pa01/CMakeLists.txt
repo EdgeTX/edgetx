@@ -147,6 +147,7 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/led_driver.cpp
+  ${TARGET_SRC_DIR}/battery_driver.cpp  
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/lsm6ds_driver.cpp

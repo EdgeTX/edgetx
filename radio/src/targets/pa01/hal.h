@@ -198,14 +198,15 @@
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOE, 6) // PE.06
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOE, 3) // PE.03
 
+// USB Chargers
+#define UCHARGER_GPIO               GPIO_PIN(GPIOB, 0)  // PB.00
+#define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOG, 14) // PG.14
+
 #define IO_INT_GPIO                 GPIO_PIN(GPIOB, 4) // PB.04
 #if !defined(USE_EXTI4_IRQ)
   #define USE_EXTI4_IRQ
   #define EXTI4_IRQ_Priority 5
 #endif
-
-// Chargers (USB and wireless)
-#define UCHARGER_GPIO               GPIO_PIN(GPIOG, 14)
 
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
@@ -412,6 +413,9 @@
 #define RGB_LED_OFFSET                    10
 
 #define STATUS_LEDS
+
+#define LED_CHARGING_START                0
+#define LED_CHARGING_END                  13
 
 
 // Internal Module

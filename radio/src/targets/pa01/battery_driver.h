@@ -22,9 +22,30 @@
 /***************************************************************************************************
 
 ***************************************************************************************************/
-#pragma once
+#ifndef      __BATTERY_DRIVER_H__
+    #define  __BATTERY_DRIVER_H__
 /***************************************************************************************************
 
 ***************************************************************************************************/
 
-#define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
+#include "board.h"
+#include "hal.h"
+
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
+enum ChargeState
+{
+  CHARGE_UNKNOWN,
+  CHARGE_NONE,
+  CHARGE_STARTED,
+  CHARGE_FINISHED
+};
+
+extern void battery_charge_init();
+extern void handle_battery_charge(uint32_t last_press_time);
+extern uint16_t get_battery_charge_state();
+extern uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
+extern bool isChargerActive();
+
+#endif
