@@ -30,13 +30,6 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   ${CMAKE_CURRENT_SOURCE_DIR}/hal/key_driver.cpp
 )
 
-
-if(FUNCTION_SWITCHES_WITH_RGB)
-  set(SRC ${SRC}
-          hal/rgbleds.cpp
-  )
-endif()
-
 if (NOT NATIVE_BUILD)
   set(SRC ${SRC}
     hal/storage.cpp
