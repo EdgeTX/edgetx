@@ -22,7 +22,6 @@ CN_SYMBOLS=$(python3 get_char_ck.py ../../translations/cn.h)
 JP_SYMBOLS=$(python3 get_char_jp.py ../../translations/jp.h)
 HE_SYMBOLS=$(python3 get_char_he.py ../../translations/he.h)
 KO_SYMBOLS=$(python3 get_char_ko.py ../../translations/ko.h)
-KO_SYMBOLS="${KO_SYMBOLS},0x2192"
 RU_SYMBOLS=$(python3 get_char_cyrillic.py ../../translations/ru.h)
 UA_SYMBOLS=$(python3 get_char_cyrillic.py ../../translations/ua.h)
 

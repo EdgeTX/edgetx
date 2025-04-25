@@ -122,7 +122,7 @@
  #define TR_SF_SET_SCREEN              "메인 화면 설정"
  #define TR_SF_SET_TELEMSCREEN         "텔레 화면 설정"
  #define TR_SF_PUSH_CUST_SWITCH        "커스텀 스위치 실행"
- #define TR_SF_LCD_TO_VIDEO            "LCD → 비디오 출력"
+ #define TR_SF_LCD_TO_VIDEO            "LCD -> 비디오 출력"
 
  #define TR_FSW_RESET_TELEM            TR("텔레", "텔레메트리")
  #define TR_FSW_RESET_TRIMS            "트림"
@@ -447,11 +447,11 @@
    #define TR_MOVESTICKSPOTS             "스틱/포트/슬라이더를 움직이고 [ENTER]"
 
  #elif defined(COLORLCD)
-   #define TR_MENUTOSTART                  TR_ENTER " → 시작"
+   #define TR_MENUTOSTART                  TR_ENTER " -> 시작"
    #define TR_SETMIDPOINT                  "스틱/슬라이더 중앙 정렬"
    #define TR_MOVESTICKSPOTS               "스틱/포트 이동"
  #else
-   #define TR_MENUTOSTART                TR_ENTER " → 시작"
+   #define TR_MENUTOSTART                TR_ENTER " -> 시작"
  #if defined(SURFACE_RADIO)
    #define TR_SETMIDPOINT                "포트 중앙 정렬"
    #define TR_MOVESTICKSPOTS             "스티어링/스로틀/포트/슬라이더 이동"
@@ -459,7 +459,7 @@
    #define TR_SETMIDPOINT                TR("스틱 중앙 정렬", "스틱/슬라이더 중앙 정렬")
    #define TR_MOVESTICKSPOTS             "스틱/포트 이동"
  #endif
-   #define TR_MENUWHENDONE               TR_ENTER " → 완료"
+   #define TR_MENUWHENDONE               TR_ENTER " -> 완료"
  #endif
 
  #define TR_TXnRX                       "Tx:\0Rx:"
@@ -490,7 +490,7 @@
  #define TR_THROTTLE_PERCENT_LABEL     "스로틀 %"
  #define TR_BATT_LABEL                 "배터리"
  #define TR_SESSION                    "세션"
- #define TR_MENUTORESET                TR_ENTER " → 초기화"
+ #define TR_MENUTORESET                TR_ENTER " -> 초기화"
  #define TR_PPM_TRAINER                "TR"
  #define TR_CH                         "채널"
  #define TR_MODEL                      "모델"
@@ -526,13 +526,13 @@
  #define TR_MENU_FSWITCH                 "사용자 스위치 설정"
 
  #if defined(COLORLCD)
-   #define TR_TRIMS2OFFSETS              "트림 → 서브트림"
+   #define TR_TRIMS2OFFSETS              "트림 -> 서브트림"
  #else
-   #define TR_TRIMS2OFFSETS              "\006트림 → 서브트림"
+   #define TR_TRIMS2OFFSETS              "\006트림 -> 서브트림"
  #endif
 
- #define TR_CHANNELS2FAILSAFE            "채널 전체 → 페일세이프"
- #define TR_CHANNEL2FAILSAFE             "채널 → 페일세이프"
+ #define TR_CHANNELS2FAILSAFE            "채널 전체 -> 페일세이프"
+ #define TR_CHANNEL2FAILSAFE             "채널 -> 페일세이프"
 
  #define TR_MENUMODELSEL                 TR("모델 선택", "모델 선택 메뉴")
  #define TR_MENU_MODEL_SETUP             TR("설정", "모델 설정")
@@ -632,7 +632,7 @@
  #define TR_CREATE_MODEL                 "모델 생성"
  #define TR_FAVORITE_LABEL               "즐겨찾기"
 
- #define TR_MODELS_MOVED                   "사용하지 않는 모델이 이동됨 →"
+ #define TR_MODELS_MOVED                   "사용하지 않는 모델이 이동됨 ->"
  #define TR_NEW_MODEL                      "새 모델"
  #define TR_INVALID_MODEL                  "잘못된 모델"
  #define TR_EDIT_LABELS                    "라벨 편집"
@@ -1005,9 +1005,9 @@
  #define TR_PT                             "pt"
  #define TR_PTS                            "pts"
  #define TR_SMOOTH                         "부드럽게"
- #define TR_COPY_STICKS_TO_OFS             TR("스틱 → 서브트림", "스틱 위치를 서브트림으로 복사")
- #define TR_COPY_MIN_MAX_TO_OUTPUTS        TR("최소/최대 → 출력", "최소/최대/중앙값을 전체 출력에 복사")
- #define TR_COPY_TRIMS_TO_OFS              TR("트림 → 서브트림", "트림 값을 서브트림으로 복사")
+ #define TR_COPY_STICKS_TO_OFS             TR("스틱 -> 서브트림", "스틱 위치를 서브트림으로 복사")
+ #define TR_COPY_MIN_MAX_TO_OUTPUTS        TR("최소/최대 -> 출력", "최소/최대/중앙값을 전체 출력에 복사")
+ #define TR_COPY_TRIMS_TO_OFS              TR("트림 -> 서브트림", "트림 값을 서브트림으로 복사")
  #define TR_INCDEC                         "증가/감소"
  #define TR_GLOBALVAR                      "전역 변수"
  #define TR_MIXSOURCE                      "소스 (%)"
@@ -1250,7 +1250,7 @@
 
  #define TR_USE_THEME_COLOR                "테마 색상 사용"
 
- #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS      "모든 트림 → 서브트림 복사"
+ #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS      "모든 트림 -> 서브트림 복사"
  #if !PORTRAIT_LCD
    #define TR_OPEN_CHANNEL_MONITORS        "채널 모니터 열기"
  #else
