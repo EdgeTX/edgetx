@@ -211,11 +211,20 @@ void ledChargingInfo(uint16_t chargeState) {
   else
     ledIdx += LED_CHARGING_START > LED_CHARGING_END ? -1 : 1;
   for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    if (CHARGE_FINISHED == chargeState || ledIdx == i) {
-      rgbSetLedColor(i, 0, 20, 0);
-    } else {
-      rgbSetLedColor(i, 0, 0, 0);
+    uint8_t green = 0;
+    if (CHARGE_FINISHED == chargeState) {
+      if (LED_CHARGING_START > LED_CHARGING_END && i <= LED_CHARGING_START && i >= LED_CHARGING_END)
+      {
+        green = 20;
+      }
+      if (LED_CHARGING_START <= LED_CHARGING_END && i >= LED_CHARGING_START && i <= LED_CHARGING_END)
+      {
+        green = 20;
+      }
+    } else if (ledIdx == i) {
+      green = 20;
     }
+    rgbSetLedColor(i, 0, green, 0);
   }
   rgbLedColorApply();
 #endif
