@@ -3,10 +3,14 @@
 {
 	"name": "edgetx-dev",
 	"image": "ghcr.io/edgetx/edgetx-dev:latest",
+	"runArgs": [ "--ipc=host"],
 
 	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-vscode.cpptools"
-	],
-
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools"
+			]
+		}
+	}
 }
