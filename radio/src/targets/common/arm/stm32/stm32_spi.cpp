@@ -232,10 +232,18 @@ void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp
   spiInit.NSS = LL_SPI_NSS_SOFT;
   spiInit.DataWidth = data_width;
 
+
   LL_SPI_Init(SPIx, &spiInit);
-  LL_SPI_Enable(SPIx);
+
 #if defined(STM32H7) || defined(STM32H7RS)
+  // Set transfer size = 0 (not using 'transfers')
+  LL_SPI_SetTransferSize(SPIx, 0);
+
+  LL_SPI_SetFIFOThreshold(SPIx, LL_SPI_FIFO_TH_01DATA);
+  LL_SPI_Enable(SPIx);
   LL_SPI_StartMasterTransfer(SPIx);
+#else
+  LL_SPI_Enable(SPIx);
 #endif
 
 #if defined(USE_SPI_DMA)
@@ -244,8 +252,6 @@ void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp
   }
 #endif
 }
-
-// void stm32_spi_deinit(const stm32_spi_t* spi);
 
 void stm32_spi_select(const stm32_spi_t* spi)
 {
@@ -270,6 +276,17 @@ void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate)
   LL_SPI_StartMasterTransfer(SPIx);
 #endif
 }
+
+#if defined(STM32H7) || defined(STM32H7RS)
+void stm32_spi_set_data_width(const stm32_spi_t* spi, uint32_t dataWidth)
+{
+  auto* SPIx = spi->SPIx;
+  LL_SPI_Disable(SPIx);
+  LL_SPI_SetDataWidth(SPIx, dataWidth);
+  LL_SPI_Enable(SPIx);
+  LL_SPI_StartMasterTransfer(SPIx);
+}
+#endif
 
 uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out)
 {

@@ -57,6 +57,9 @@ void stm32_spi_select(const stm32_spi_t* spi);
 void stm32_spi_unselect(const stm32_spi_t* spi);
 
 void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate);
+#if defined(STM32H7) || defined(STM32H7RS)
+void stm32_spi_set_data_width(const stm32_spi_t* spi, uint32_t dataWidth);
+#endif
 
 uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out);
 uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out);
