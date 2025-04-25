@@ -75,14 +75,6 @@ extern "C" void initialise_monitor_handles();
 extern "C" void flushFTL();
 #endif
 
-static void led_strip_off()
-{
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
-}
-
 void INTERNAL_MODULE_ON()
 {
   bsp_output_clear(BSP_INT_PWR);
@@ -253,7 +245,7 @@ void boardInit()
 
 #endif
 
-  led_strip_off();
+  rgbLedClearAll();
   keysInit();
   switchInit();
   touchPanelInit();
@@ -287,7 +279,7 @@ void boardOff()
 
 #if !defined(BOOT)
 #if defined(LED_STRIP_GPIO)
-  ledStripOff();
+  rgbLedClearAll();
 #endif
   if (isChargerActive())
   {
