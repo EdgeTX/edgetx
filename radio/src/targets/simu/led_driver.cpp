@@ -23,20 +23,11 @@
 #include "hal/rgbleds.h"
 #include "definitions.h"
 
-#if defined(SIMU)
-  #define __weak
-#elif !defined(__weak)
-  #define __weak __attribute__((weak))
-#endif
-
 bool usbChargerLed() { return true; }
 void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
-__weak void fsLedOn(uint8_t) {}
-__weak void fsLedOff(uint8_t) {}
-__weak void fsLedRGB(uint8_t, uint32_t) {}
 bool fsLedState(uint8_t) { return false;}
 void rgbSetLedColor(unsigned char, unsigned char, unsigned char, unsigned char) {}
 void rgbLedColorApply() {}
