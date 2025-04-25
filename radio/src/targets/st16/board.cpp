@@ -285,6 +285,18 @@ void boardOff()
 
   rtcDisableBackupReg();
 
+#if !defined(BOOT)
+#if defined(LED_STRIP_GPIO)
+  ledStripOff();
+#endif
+  if (isChargerActive())
+  {
+//    RTC->BKP0R = SOFTRESET_REQUEST;
+    NVIC_SystemReset();
+  }
+  else
+#endif
+
 //    RTC->BKP0R = SHUTDOWN_REQUEST;
   pwrOff();
 
