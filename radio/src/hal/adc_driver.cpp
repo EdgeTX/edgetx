@@ -246,7 +246,7 @@ uint16_t getRTCBatteryVoltage()
   return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
          (1024 >> ANALOG_SCALE);
 #else
-  #if defined(RADIO_V12)||defined(RADIO_V14)||defined(RADIO_V16)
+  #if defined(RADIO_V12)||defined(RADIO_V14)
     return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
         (660 >> ANALOG_SCALE);
   #else
