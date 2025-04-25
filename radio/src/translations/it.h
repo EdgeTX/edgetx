@@ -156,7 +156,7 @@
 #define TR_SURFACE_NAMES0              "Dir"
 #define TR_SURFACE_NAMES1              "Mot"
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
 #define  TR_RFPOWER_AFHDS2             "Default","Alto"
 #endif
 
@@ -234,7 +234,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
   #define TR_ENTER                     "[MENU]"
@@ -345,7 +345,7 @@
 #define TR_SLOWUP                       "Rall.Su"
 #define TR_MIXES                        "MIXER"
 #define TR_CV                           "CV"
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
 #define TR_GV                           "GV"
 #else
 #define TR_GV                           TR("G", "GV")
@@ -1082,12 +1082,6 @@
     #define TR_BL_ERASE_KEY           "Tener premuto [TR4 Dn] to erase"
     #define TR_BL_EXIT_KEY            "[TR4 Up] per uscire"
   #endif
-#elif defined(PCBNV14)
-  #define TR_BL_SELECT_KEY             "[R TRIM] per scegliere il file"
-  #define TR_BL_FLASH_KEY              "Tener premuto [R TRIM] per scrivere"
-  #define TR_BL_EXIT_KEY               " [L TRIM] per uscire"
-  #define TR_BL_ENABLE                 "Abilita"
-  #define TR_BL_DISABLE                "Disabilita"
 #else
   #define TR_BL_SELECT_KEY             "[ENT] per scegliere il file"
   #define TR_BL_FLASH_KEY              "Tenere premuto [ENT] per scrivere"

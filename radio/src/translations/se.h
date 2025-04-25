@@ -164,7 +164,7 @@
 #define TR_SURFACE_NAMES0               "Rod"
 #define TR_SURFACE_NAMES1               "Gas"
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
 #define  TR_RFPOWER_AFHDS2              "Default","Hög"
 #endif
 
@@ -246,7 +246,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                      "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBPL18)
   #define TR_ENTER                      "[NÄSTA]"
 #else
   #define TR_ENTER                      "[MENY]"
@@ -358,7 +358,7 @@
 #define TR_MIXES                        "MIXAR"
 #define TR_CV                           "KU"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
   #define TR_GV                         "GV"
 #else
   #define TR_GV                         TR("G","GV")
@@ -1114,12 +1114,6 @@
     #define TR_BL_ERASE_KEY             "Haall ner [TR4 Dn] foer att radera"
     #define TR_BL_EXIT_KEY              "[TR4 Up] foer att avsluta"
   #endif
-#elif defined(PCBNV14)
-  #define TR_BL_SELECT_KEY              "[R TRIM] foer att vaelja fil"
-  #define TR_BL_FLASH_KEY               "[R TRIM] foer att flasha"
-  #define TR_BL_EXIT_KEY                " [L TRIM] foer att avbryta"
-  #define TR_BL_ENABLE                  "Aktivera"
-  #define TR_BL_DISABLE                 "Inaktivera"
 #else
   #define TR_BL_SELECT_KEY              "[ENT] foer att vaelja fil"
   #define TR_BL_FLASH_KEY               "Haall ner [ENT] foer att flasha"

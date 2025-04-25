@@ -158,7 +158,7 @@
 #define TR_SURFACE_NAMES0              "Sid"
 #define TR_SURFACE_NAMES1              "Gas"
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
 #define  TR_RFPOWER_AFHDS2             "Standard","Høj"
 #endif
 
@@ -237,7 +237,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBPL18)
   #define TR_ENTER                     "[NÆSTE]"
 #else
   #define TR_ENTER                     "[MENU]"
@@ -348,7 +348,7 @@
 #define TR_SLOWUP                      TR("Langsom op", "Langsom op")
 #define TR_MIXES                       "MIX"
 #define TR_CV                          "KU"
-#if defined(PCBNV14)
+#if defined(PCBPL18)
   #define TR_GV                        "GV"
 #else
   #define TR_GV                        TR("G", "GV")
@@ -1088,12 +1088,6 @@
     #define TR_BL_ERASE_KEY            "Hold [TR4 Dn] laenge, for at slette"
     #define TR_BL_EXIT_KEY             "[TR4 Up] for at forlade"
   #endif
-#elif defined(PCBNV14)
-  #define TR_BL_SELECT_KEY             "[R TRIM] for at bruge fil"
-  #define TR_BL_FLASH_KEY              "[R TRIM] laenge, for at starte"
-  #define TR_BL_EXIT_KEY               "[L TRIM] for at forlade"
-  #define TR_BL_ENABLE                 "Aktiver"
-  #define TR_BL_DISABLE                "Deaktiver"
 #else
   #define TR_BL_SELECT_KEY             "[ENT] for at bruge fil"
   #define TR_BL_FLASH_KEY              "Hold [ENT] laenge, for at starte"

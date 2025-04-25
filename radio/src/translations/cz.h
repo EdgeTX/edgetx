@@ -162,7 +162,7 @@
 #define TR_SURFACE_NAMES0              "Smě"
 #define TR_SURFACE_NAMES1              "Pln"
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
 #define  TR_RFPOWER_AFHDS2             "Defaultní","Vysoký"
 #endif
 
@@ -243,7 +243,7 @@
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
   #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBPL18)
   #define TR_ENTER                     "[DALŠÍ]"
 #else
   #define TR_ENTER                     "[MENU]"
@@ -355,7 +355,7 @@
 #define TR_SLOWUP                      TR3("Zpomalení(+)", "Zpomal(\176)", "Zpomalení(\176)")
 #define TR_MIXES                       "MIXER"
 #define TR_CV                          "K"
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
 #define TR_GV                          "GP"
 #else
 #define TR_GV                          TR("G", "GP")
@@ -1100,12 +1100,6 @@
     #define TR_BL_ERASE_KEY            "Drzet dlouze [TR4 Dn] long to erase"
     #define TR_BL_EXIT_KEY             "[TR4 Up] pro ukonceni"
   #endif
-#elif defined(PCBNV14)
-  #define TR_BL_SELECT_KEY             "[R TRIM] pro vybrani souboru"
-  #define TR_BL_FLASH_KEY              "Drzet dlouze [R TRIM] pro nahrani"
-  #define TR_BL_EXIT_KEY               " [L TRIM] pro ukonceni"
-  #define TR_BL_ENABLE                 "Povoleno"
-  #define TR_BL_DISABLE                "Zakazano"
 #else
   #define TR_BL_SELECT_KEY             "[ENT] pro vybrani souboru"
   #define TR_BL_FLASH_KEY              "Drzet dlouze [ENT] pro nahrani"

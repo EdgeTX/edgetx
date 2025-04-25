@@ -157,7 +157,7 @@
 #define TR_SURFACE_NAMES0              "ST"
 #define TR_SURFACE_NAMES1              "TH"
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
 #define  TR_RFPOWER_AFHDS2             "Default","High"
 #endif
 
@@ -346,7 +346,7 @@
 #define TR_SLOWUP                      "上行慢動作"
 #define TR_MIXES                       "混控設置"
 #define TR_CV                          "曲線"
-#if defined(PCBNV14)
+#if defined(PCBPL18)
   #define TR_GV                        "GV"
 #else
   #define TR_GV                        TR("G", "GV")
@@ -1090,12 +1090,6 @@
     #define TR_BL_ERASE_KEY            "Hold [TR4 Dn] long to erase"
     #define TR_BL_EXIT_KEY             "[TR4 Up] to exit"
   #endif
-#elif defined(PCBNV14)
-  #define TR_BL_SELECT_KEY             "[R TRIM] to select file"
-  #define TR_BL_FLASH_KEY              "Hold [R TRIM] long to flash"
-  #define TR_BL_EXIT_KEY               " [L TRIM] to exit"
-  #define TR_BL_ENABLE                 "Enable"
-  #define TR_BL_DISABLE                "Disable"
 #else
   #define TR_BL_SELECT_KEY             "[ENT] to select file"
   #define TR_BL_FLASH_KEY              "Hold [ENT] long to flash"

@@ -106,7 +106,7 @@ void RadioCalibrationPage::buildBody(Window *window)
 
   std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window, false, true, false));
 
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
   new TextButton(window, {LCD_W - 120, LCD_H - 140, 90, 40}, "Next",
                  [=]() -> uint8_t {
                    nextStep();
