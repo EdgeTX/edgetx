@@ -44,14 +44,15 @@ QStringList const Translations::getAvailableTranslations()
             << "fr_FR"
             << "he_IL"
             << "it_IT"
+            << "ja_JP"
+            << "ko-KR"
             << "nl_NL"
             << "pl_PL"
             << "pt_PT"
             << "ru_RU"
             << "sv_SE"
             << "zh_CN"
-            << "zh_TW"
-            << "ja_JP" ;
+            << "zh_TW";
   }
   return locales;
 }

@@ -7,7 +7,7 @@ set -e
 
 # Linux:
 # apt update && apt install locales
-# locale-gen zh_CN.UTF-8 cs_CZ.UTF-8 da_DK.UTF-8 de_DE.UTF-8 es_ES.UTF-8 en_US.UTF-8 fi_FI.UTF-8 fr_FR.UTF-8 he_IL.UTF-8 it_IT.UTF-8 ja_JP.UTF-8 nl_NL.UTF-8 pl_PL.UTF-8 pt_PT.UTF-8 ru_RU.UTF-8 sv_SE.UTF-8 zh_TW.UTF-8 uk_UA.UTF-8
+# locale-gen zh_CN.UTF-8 cs_CZ.UTF-8 da_DK.UTF-8 de_DE.UTF-8 es_ES.UTF-8 en_US.UTF-8 fi_FI.UTF-8 fr_FR.UTF-8 he_IL.UTF-8 it_IT.UTF-8 ja_JP.UTF-8 ko_KR.UTF-8 nl_NL.UTF-8 pl_PL.UTF-8 pt_PT.UTF-8 ru_RU.UTF-8 sv_SE.UTF-8 zh_TW.UTF-8 uk_UA.UTF-8
 
 # zh_CN.UTF-8 / zh_CN.utf8
 # cs_CZ.UTF-8 / cs_CZ.utf8
@@ -20,6 +20,7 @@ set -e
 # he_IL.UTF-8 / he_IL.utf8
 # it_IT.UTF-8 / it_IT.utf8
 # ja_JP.UTF-8 / ja_JP.utf8
+# ko_KR.UTF-8 / ko_KR.utf8
 # nl_NL.UTF-8 / nl_NL.utf8
 # pl_PL.UTF-8 / pl_PL.utf8
 # pt_PT.UTF-8 / pt_PT.utf8
@@ -89,6 +90,7 @@ compile_and_append "LNG_FR" "TRANSLATIONS_FR" "elif"
 compile_and_append "LNG_HE" "TRANSLATIONS_HE" "elif"
 compile_and_append "LNG_IT" "TRANSLATIONS_IT" "elif"
 compile_and_append "LNG_JP" "TRANSLATIONS_JP" "elif"
+compile_and_append "LNG_KO" "TRANSLATIONS_KO" "elif"
 compile_and_append "LNG_NL" "TRANSLATIONS_NL" "elif"
 compile_and_append "LNG_PL" "TRANSLATIONS_PL" "elif"
 compile_and_append "LNG_PT" "TRANSLATIONS_PT" "elif"

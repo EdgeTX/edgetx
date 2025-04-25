@@ -95,7 +95,7 @@
 #define TR_SF_RANGE_CHECK     "RangeCheck"
 #define TR_SF_MOD_BIND        "ModuleBind"
 #define TR_SF_RGBLEDS         "RGB ledy"
- 
+
 #define TR_SOUND              "GrajDźwięk"
 #define TR_PLAY_TRACK         TR("Ply Trk", "GrajŚcieżk")
 #define TR_PLAY_VALUE         TR("Graj Wart","GrajWartoś")
@@ -644,7 +644,7 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
-#define TR_SDCARD_FULL                 "Pełna karta SD" 
+#define TR_SDCARD_FULL                 "Pełna karta SD"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogi i zrzuty ekranu wyłączone"
 #else
@@ -1259,6 +1259,7 @@
 #define TR_VOICE_JAPANESE               "Japonês"
 #define TR_VOICE_HEBREW                 "Hebrajski"
 #define TR_VOICE_UKRAINIAN              "Ukraiński"
+#define TR_VOICE_KOREAN                 "koreański"
 
 #define TR_USBJOYSTICK_LABEL           "Dżojstik USB"
 #define TR_USBJOYSTICK_EXTMODE         "Tryb"

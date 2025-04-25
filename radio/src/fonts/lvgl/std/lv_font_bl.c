@@ -298,7 +298,7 @@ static LV_ATTRIBUTE_LARGE_CONST const uint8_t glyph_bitmap[] = {
 
     /* U+0056 "V" */
     0xb0, 0xf7, 0x9d, 0xe, 0xd3, 0x83, 0x38, 0x2c,
-    0x37, 0x82, 0xd0, 0xb4, 0x2e, 0x3, 0x86, 0x70,
+    0x37, 0x82, 0xd0, 0xb4, 0x2e, 0x3, 0x86, 0xb0,
     0x70, 0x76, 0x9a, 0x1d, 0xce, 0x1e, 0x7d, 0x7,
     0xde, 0x43, 0xeb, 0xc,
 
@@ -539,8 +539,8 @@ static LV_ATTRIBUTE_LARGE_CONST const uint8_t glyph_bitmap[] = {
     0xbd, 0x7, 0xff, 0x38,
 
     /* U+F7C2 "" */
-    0xa, 0xff, 0x90, 0x5f, 0xfc, 0x5c, 0x64, 0x9e,
-    0xbd, 0x19, 0x27, 0xf4, 0x64, 0x9f, 0xff, 0xff,
+    0x9, 0xff, 0x90, 0x3f, 0xfc, 0x3c, 0x64, 0x9e,
+    0x7d, 0x19, 0x27, 0xf4, 0x64, 0x9f, 0xff, 0xff,
     0xff, 0xff, 0x1b, 0xff, 0xe4,
 
     /* U+F8A2 "" */
@@ -920,9 +920,12 @@ static const lv_font_fmt_txt_kern_classes_t kern_classes =
  *  ALL CUSTOM DATA
  *--------------------*/
 
-#if LV_VERSION_CHECK(8, 0, 0)
+#if LVGL_VERSION_MAJOR == 8
 /*Store all the custom data of the font*/
 static  lv_font_fmt_txt_glyph_cache_t cache;
+#endif
+
+#if LVGL_VERSION_MAJOR >= 8
 static const lv_font_fmt_txt_dsc_t font_dsc = {
 #else
 static lv_font_fmt_txt_dsc_t font_dsc = {
@@ -936,10 +939,11 @@ static lv_font_fmt_txt_dsc_t font_dsc = {
     .bpp = 2,
     .kern_classes = 1,
     .bitmap_format = 2,
-#if LV_VERSION_CHECK(8, 0, 0)
+#if LVGL_VERSION_MAJOR == 8
     .cache = &cache
 #endif
 };
+
 
 
 /*-----------------
@@ -947,7 +951,7 @@ static lv_font_fmt_txt_dsc_t font_dsc = {
  *----------------*/
 
 /*Initialize a public general font descriptor*/
-#if LV_VERSION_CHECK(8, 0, 0)
+#if LVGL_VERSION_MAJOR >= 8
 const lv_font_t lv_font_bl = {
 #else
 lv_font_t lv_font_bl = {
@@ -963,7 +967,11 @@ lv_font_t lv_font_bl = {
     .underline_position = -1,
     .underline_thickness = 1,
 #endif
-    .dsc = &font_dsc           /*The custom font data. Will be accessed by `get_glyph_bitmap/dsc` */
+    .dsc = &font_dsc,          /*The custom font data. Will be accessed by `get_glyph_bitmap/dsc` */
+#if LV_VERSION_CHECK(8, 2, 0) || LVGL_VERSION_MAJOR >= 9
+    .fallback = NULL,
+#endif
+    .user_data = NULL,
 };
 
 

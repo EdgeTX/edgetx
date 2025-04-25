@@ -428,6 +428,7 @@ void GeneralSetupPanel::populateVoiceLangCB()
     { tr("Hungarian"), "hu" },
     { tr("Italian"), "it" },
     { tr("Japanese"), "jp" },
+    { tr("Korean"), "ko" },
     { tr("Polish"), "pl" },
     { tr("Portuguese"), "pt" },
     { tr("Russian"), "ru" },
