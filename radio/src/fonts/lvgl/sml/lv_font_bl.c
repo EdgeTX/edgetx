@@ -263,7 +263,7 @@ static LV_ATTRIBUTE_LARGE_CONST const uint8_t glyph_bitmap[] = {
     0x33, 0xc0,
 
     /* U+005E "^" */
-    0x6, 0x15, 0x85, 0xb0, 0xa3, 0x0,
+    0x1c, 0x2b, 0xb, 0x61, 0x46, 0x0,
 
     /* U+005F "_" */
     0xfe,
@@ -352,8 +352,8 @@ static LV_ATTRIBUTE_LARGE_CONST const uint8_t glyph_bitmap[] = {
     0xd2, 0xf9,
 
     /* U+0076 "v" */
-    0x90, 0x63, 0xc, 0xc, 0x90, 0x4e, 0x1b, 0x83,
-    0x61, 0x0,
+    0x90, 0x63, 0xc, 0xc, 0x90, 0x4e, 0x13, 0xc1,
+    0xb0, 0x80,
 
     /* U+0077 "w" */
     0x91, 0x81, 0x8c, 0x58, 0xc0, 0xce, 0x64, 0x1a,
@@ -798,9 +798,12 @@ static const lv_font_fmt_txt_kern_classes_t kern_classes =
  *  ALL CUSTOM DATA
  *--------------------*/
 
-#if LV_VERSION_CHECK(8, 0, 0)
+#if LVGL_VERSION_MAJOR == 8
 /*Store all the custom data of the font*/
 static  lv_font_fmt_txt_glyph_cache_t cache;
+#endif
+
+#if LVGL_VERSION_MAJOR >= 8
 static const lv_font_fmt_txt_dsc_t font_dsc = {
 #else
 static lv_font_fmt_txt_dsc_t font_dsc = {
@@ -814,10 +817,11 @@ static lv_font_fmt_txt_dsc_t font_dsc = {
     .bpp = 2,
     .kern_classes = 1,
     .bitmap_format = 2,
-#if LV_VERSION_CHECK(8, 0, 0)
+#if LVGL_VERSION_MAJOR == 8
     .cache = &cache
 #endif
 };
+
 
 
 /*-----------------
@@ -825,7 +829,7 @@ static lv_font_fmt_txt_dsc_t font_dsc = {
  *----------------*/
 
 /*Initialize a public general font descriptor*/
-#if LV_VERSION_CHECK(8, 0, 0)
+#if LVGL_VERSION_MAJOR >= 8
 const lv_font_t lv_font_bl = {
 #else
 lv_font_t lv_font_bl = {
@@ -841,7 +845,11 @@ lv_font_t lv_font_bl = {
     .underline_position = -1,
     .underline_thickness = 1,
 #endif
-    .dsc = &font_dsc           /*The custom font data. Will be accessed by `get_glyph_bitmap/dsc` */
+    .dsc = &font_dsc,          /*The custom font data. Will be accessed by `get_glyph_bitmap/dsc` */
+#if LV_VERSION_CHECK(8, 2, 0) || LVGL_VERSION_MAJOR >= 9
+    .fallback = NULL,
+#endif
+    .user_data = NULL,
 };
 
 
