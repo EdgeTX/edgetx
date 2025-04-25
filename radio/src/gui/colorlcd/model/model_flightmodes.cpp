@@ -494,7 +494,7 @@ void ModelFlightModesPage::build(Window* form)
 
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     auto btn = new FlightModeBtn(form, i);
-    lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + 3) + 4);
+    lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_SMALL);
     btn->setWidth(ListLineButton::GRP_W);
 
     btn->setPressHandler([=]() {
@@ -504,7 +504,7 @@ void ModelFlightModesPage::build(Window* form)
   }
 
   trimCheck = new TextButton(
-      form, rect_t{6, MAX_FLIGHT_MODES * (FlightModeBtn::BTN_H + 3) + PAD_LARGE, ListLineButton::GRP_W, TRIM_CHK_H}, STR_CHECKTRIMS, [&]() -> uint8_t {
+      form, rect_t{6, MAX_FLIGHT_MODES * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_LARGE, ListLineButton::GRP_W, TRIM_CHK_H}, STR_CHECKTRIMS, [&]() -> uint8_t {
         if (trimsCheckTimer)
           trimsCheckTimer = 0;
         else

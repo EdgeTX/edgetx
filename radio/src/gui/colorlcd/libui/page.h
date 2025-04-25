@@ -37,7 +37,7 @@ class PageHeader : public Window
   StaticText* setTitle2(std::string txt);
 
   static LAYOUT_VAL(PAGE_TITLE_LEFT, 50, 50, LS(50))
-  static constexpr coord_t PAGE_TITLE_TOP = 2;
+  static constexpr coord_t PAGE_TITLE_TOP = PAD_TINY;
 
  protected:
   StaticText* title;

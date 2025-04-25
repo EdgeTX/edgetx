@@ -37,7 +37,7 @@ class ListLineButton : public ButtonBase
 
   virtual void refresh() = 0;
 
-  static constexpr coord_t BTN_H = EdgeTxStyles::STD_FONT_HEIGHT + PAD_BORDER * 2 + PAD_TINY * 2;
+  static constexpr coord_t BTN_H = EdgeTxStyles::STD_FONT_HEIGHT + PAD_BORDER * 2 + PAD_OUTLINE * 2;
   static constexpr coord_t GRP_W = LCD_W - PAD_SMALL * 2;
 
  protected:
