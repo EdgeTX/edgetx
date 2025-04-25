@@ -61,9 +61,6 @@
 // common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
-// RGB LED timer
-extern const stm32_pulse_timer_t _led_timer;
-
 #if defined(SEMIHOSTING)
 extern "C" void initialise_monitor_handles();
 #endif
@@ -102,7 +99,6 @@ void EXTERNAL_MODULE_OFF()
 {
   bsp_output_clear(BSP_EXTMOD_PWR_EN);
 }
-
 
 void boardBLEarlyInit()
 {
@@ -204,6 +200,7 @@ void boardInit()
   
 #endif
 
+  rgbLedClearAll();
   keysInit();
   switchInit();
   audioInit();
@@ -233,6 +230,16 @@ void boardOff()
   hapticDone();
 
   rtcDisableBackupReg();
+
+#if !defined(BOOT)
+  rgbLedClearAll();
+  if (isChargerActive())
+  {
+//    RTC->BKP0R = SOFTRESET_REQUEST;
+    NVIC_SystemReset();
+  }
+  else
+#endif
 
 //    RTC->BKP0R = SHUTDOWN_REQUEST;
   pwrOff();
