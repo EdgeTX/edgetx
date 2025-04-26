@@ -174,10 +174,10 @@ class ValueWidget : public Widget
   lv_obj_t* valueShadow;
   LcdFlags valueFlags = 0;
 
-  static LAYOUT_VAL(VAL_Y1, 14, 14, 10)
-  static LAYOUT_VAL(VAL_Y2, 18, 18, LS(18))
-  static LAYOUT_VAL(H_CHK, 50, 50, LS(50))
-  static LAYOUT_VAL(W_CHK, 120, 120, LS(120))
+  static LAYOUT_VAL_SCALED(VAL_Y1, 14)
+  static LAYOUT_VAL_SCALED(VAL_Y2, 18)
+  static LAYOUT_VAL_SCALED(H_CHK, 50)
+  static LAYOUT_VAL_SCALED(W_CHK, 120)
 
   void update() override
   {

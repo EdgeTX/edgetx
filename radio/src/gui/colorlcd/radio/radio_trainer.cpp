@@ -34,7 +34,7 @@ RadioTrainerPage::RadioTrainerPage() :
 {
 }
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(7),  LV_GRID_FR(13),
                                      LV_GRID_FR(10), LV_GRID_FR(10),
                                      LV_GRID_FR(10), LV_GRID_TEMPLATE_LAST};
@@ -72,7 +72,7 @@ void RadioTrainerPage::build(Window* form)
                                    GET_SET_DEFAULT(td->studWeight));
       weight->setSuffix("%");
 
-#if PORTRAIT_LCD
+#if PORTRAIT
       line = form->newLine(grid);
       line->padLeft(PAD_LARGE * 3 + PAD_MEDIUM);
       line->padBottom(PAD_LARGE);
@@ -90,7 +90,7 @@ void RadioTrainerPage::build(Window* form)
     }
 
     auto line = form->newLine(grid);
-#if PORTRAIT_LCD
+#if PORTRAIT
     line->padTop(PAD_LARGE);
 #else
     line->padTop(PAD_MEDIUM);
@@ -111,7 +111,7 @@ void RadioTrainerPage::build(Window* form)
       lv_obj_set_grid_cell(multiplier->getLvObj(), LV_GRID_ALIGN_START, 2, 1,
                            LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if PORTRAIT_LCD
+#if PORTRAIT
       line = form->newLine(grid);
       line->padTop(PAD_LARGE);
 #endif
@@ -125,7 +125,7 @@ void RadioTrainerPage::build(Window* form)
                                 SET_DIRTY();
                                 return 0;
                               });
-#if PORTRAIT_LCD
+#if PORTRAIT
     lv_obj_set_grid_cell(btn->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 2,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 #else

@@ -64,7 +64,7 @@ class OutputLineButton : public ListLineButton
     lv_obj_set_pos(source, SRC_X, SRC_Y);
     lv_obj_set_size(source, SRC_W, SRC_H);
 
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
     etx_font(source, FONT_XS_INDEX, ETX_STATE_NAME_FONT_SMALL);
     lv_obj_set_style_pad_top(source, -PAD_TINY, ETX_STATE_NAME_FONT_SMALL);
     lv_obj_set_style_text_line_space(source, -PAD_THREE, ETX_STATE_NAME_FONT_SMALL);
@@ -129,14 +129,14 @@ class OutputLineButton : public ListLineButton
 
     const LimitData* output = limitAddress(index);
     if (g_model.limitData[index].name[0] != '\0') {
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
       lv_obj_add_state(source, ETX_STATE_NAME_FONT_SMALL);
 #endif
       lv_label_set_text_fmt(source, "%s\n" TR_CH "%u",
                             getSourceString(MIXSRC_FIRST_CH + index),
                             index + 1);
     } else {
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
       lv_obj_clear_state(source, ETX_STATE_NAME_FONT_SMALL);
 #endif
       lv_label_set_text(source, getSourceString(MIXSRC_FIRST_CH + index));
@@ -166,31 +166,31 @@ class OutputLineButton : public ListLineButton
     curve->show(output->curve);
   }
 
-  static LAYOUT_VAL(CH_LINE_H, 32, 50, LS(32))
-  static LAYOUT_VAL(CH_BAR_WIDTH, 100, 100, LS(100))
-  static LAYOUT_VAL(CH_BAR_HEIGHT, 16, 16, LS(16))
-  static LAYOUT_VAL(BAR_XO, 17, 17, LS(17))
+  static LAYOUT_SIZE_SCALED(CH_LINE_H, 32, 50)
+  static LAYOUT_VAL_SCALED(CH_BAR_WIDTH, 100)
+  static LAYOUT_VAL_SCALED(CH_BAR_HEIGHT, 16)
+  static LAYOUT_VAL_SCALED(BAR_XO, 17)
   static constexpr coord_t BAR_X = LCD_W - CH_BAR_WIDTH - BAR_XO;
 
   static constexpr coord_t SRC_X = PAD_TINY;
   static constexpr coord_t SRC_Y = 1;
-  static LAYOUT_VAL(SRC_W, 80, 80, LS(80))
+  static LAYOUT_VAL_SCALED(SRC_W, 80)
   static constexpr coord_t SRC_H = CH_LINE_H - PAD_MEDIUM;
   static constexpr coord_t MIN_X = SRC_X + SRC_W + PAD_TINY;
-  static LAYOUT_VAL(MIN_Y, 4, 2, 2)
-  static LAYOUT_VAL(MIN_W, 52, 52, LS(52))
+  static LAYOUT_SIZE_SCALED(MIN_Y, 4, 2)
+  static LAYOUT_VAL_SCALED(MIN_W, 52)
   static constexpr coord_t MAX_X = MIN_X + MIN_W + PAD_TINY;
   static constexpr coord_t MAX_Y = MIN_Y;
-  static LAYOUT_VAL(MAX_W, 52, 60, LS(52))
-  static LAYOUT_VAL(OFF_X, MAX_X + MAX_W + PAD_TINY, SRC_X + SRC_W + PAD_TINY, MAX_X + MAX_W + PAD_TINY)
-  static LAYOUT_VAL(OFF_Y, MIN_Y, 24, MIN_Y)
-  static LAYOUT_VAL(OFF_W, 44, 52, LS(44))
+  static LAYOUT_SIZE_SCALED(MAX_W, 52, 60)
+  static LAYOUT_SIZE(OFF_X, MAX_X + MAX_W + PAD_TINY, SRC_X + SRC_W + PAD_TINY)
+  static LAYOUT_SIZE_SCALED(OFF_Y, 4, 24)
+  static LAYOUT_SIZE_SCALED(OFF_W, 44, 52)
   static constexpr coord_t CTR_X = OFF_X + OFF_W + PAD_TINY;
   static constexpr coord_t CTR_Y = OFF_Y;
-  static LAYOUT_VAL(CTR_W, 60, 60, LS(60))
+  static LAYOUT_VAL_SCALED(CTR_W, 60)
   static constexpr coord_t REV_X = CTR_X + CTR_W + PAD_TINY;
   static constexpr coord_t REV_Y = CTR_Y;
-  static LAYOUT_VAL(REV_W, 16, 16, LS(16))
+  static LAYOUT_VAL_SCALED(REV_W, 16)
   static constexpr coord_t CRV_X = REV_X + REV_W + PAD_TINY;
   static constexpr coord_t CRV_Y = REV_Y + 1;
 

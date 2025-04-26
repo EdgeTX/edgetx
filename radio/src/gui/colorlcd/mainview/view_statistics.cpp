@@ -59,7 +59,7 @@ static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t dbg_4col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                           LV_GRID_FR(3), LV_GRID_FR(3),
                                           LV_GRID_TEMPLATE_LAST};
@@ -72,13 +72,13 @@ static const lv_coord_t dbg_3col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-static LAYOUT_VAL2(DBG_COL_CNT, 4, 3)
-static LAYOUT_VAL2(DBG_B_WIDTH, (LCD_W - 20) / 4, (LCD_W - 20) / 2)
-static LAYOUT_VAL(DBG_B_HEIGHT, 20, 20, LS(20))
-static LAYOUT_VAL2(CV_SCALE, 3, 4)
+static LAYOUT_ORIENTATION(DBG_COL_CNT, 4, 3)
+static LAYOUT_ORIENTATION(DBG_B_WIDTH, (LCD_W - 20) / 4, (LCD_W - 20) / 2)
+static LAYOUT_VAL_SCALED(DBG_B_HEIGHT, 20)
+static LAYOUT_ORIENTATION(CV_SCALE, 3, 4)
 #define CV_WIDTH MAXTRACE
 #define CV_HEIGHT (CV_SCALE * EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL + 1)
-static LAYOUT_VAL(RST_BTN_H, 24, 24, LS(24))
+static LAYOUT_VAL_SCALED(RST_BTN_H, 24)
 
 template <class T>
 class DebugInfoNumber : public Window
@@ -238,7 +238,7 @@ void DebugViewPage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
   FlexGridLayout grid(dbg_4col_dsc, row_dsc, PAD_ZERO);
   FlexGridLayout grid2(dbg_4col_dsc, row_dsc, PAD_ZERO);
 #else
@@ -277,7 +277,7 @@ void DebugViewPage::build(Window* window)
 
   // LUA timing data
   new StaticText(line, rect_t{}, STR_LUA_SCRIPTS_LABEL);
-#if PORTRAIT_LCD
+#if PORTRAIT
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
   line->padLeft(PAD_LARGE);
@@ -291,7 +291,7 @@ void DebugViewPage::build(Window* window)
 
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
-#if PORTRAIT_LCD
+#if PORTRAIT
   line->padLeft(PAD_LARGE);
 #else
   grid.nextCell();
@@ -305,7 +305,7 @@ void DebugViewPage::build(Window* window)
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return luaGetMemUsed(lsWidgets); }, STR_MEM_USED_WIDGET);
 
-#if PORTRAIT_LCD
+#if PORTRAIT
   line = window->newLine(grid);
   line->padAll(PAD_ZERO);
   line->padLeft(PAD_LARGE);
@@ -321,7 +321,7 @@ void DebugViewPage::build(Window* window)
 
   // Stacks data
   new StaticText(line, rect_t{}, STR_FREE_STACK);
-#if PORTRAIT_LCD
+#if PORTRAIT
   line = window->newLine(grid2);
   line->padAll(PAD_ZERO);
   line->padLeft(PAD_LARGE);
@@ -357,7 +357,7 @@ void DebugViewPage::build(Window* window)
     line->padAll(PAD_TINY);
 
     new StaticText(line, rect_t{}, STR_INT_GPS_LABEL);
-#if PORTRAIT_LCD
+#if PORTRAIT
     line = window->newLine(grid2);
     line->padAll(PAD_ZERO);
     line->padLeft(PAD_LARGE);

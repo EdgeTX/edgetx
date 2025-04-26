@@ -58,10 +58,10 @@ class GhostModuleConfigWindow : public Window
     }
   }
 
-  static LAYOUT_VAL(xOffset, 140, 20, LS(140))
-  static LAYOUT_VAL(yOffset, 20, 20, LS(20))
-  static LAYOUT_VAL(xOffset2, 260, 140, LS(260))
-  static LAYOUT_VAL(lineSpacing, 25, 25, LS(25))
+  static LAYOUT_SIZE_SCALED(xOffset, 140, 20)
+  static LAYOUT_VAL_SCALED(yOffset, 20)
+  static LAYOUT_SIZE_SCALED(xOffset2, 260, 140)
+  static LAYOUT_VAL_SCALED(lineSpacing, 25)
 
  protected:
   StaticText* menuLines[GHST_MENU_LINES][2];

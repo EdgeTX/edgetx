@@ -36,7 +36,7 @@
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 // Edit grid
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                        LV_GRID_TEMPLATE_LAST};
 #else

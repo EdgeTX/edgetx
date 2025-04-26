@@ -32,7 +32,7 @@
 
 #define ETX_STATE_COLLISION_WARN LV_STATE_USER_1
 
-#if !PORTRAIT_LCD  // Landscape
+#if !NARROW_LAYOUT
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_FR(1), LV_GRID_FR(1),
@@ -49,7 +49,7 @@ static const lv_coord_t b_col_dsc[] = {LV_GRID_FR(10),       20,
 
 static const lv_coord_t b_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-#else  // Portrait
+#else
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                           LV_GRID_TEMPLATE_LAST};
@@ -82,7 +82,7 @@ class USBChannelEditStatusBar : public Window
         channel, true);
   }
 
-  static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_MARGIN, 3, 0, LS(3))
+  static LAYOUT_SIZE_SCALED(USBCH_EDIT_STATUS_BAR_MARGIN, 3, 0)
 
  protected:
   ComboChannelBar* channelBar;
@@ -215,9 +215,9 @@ class USBChannelEditWindow : public Page
     buildBody(body);
   }
 
-  static LAYOUT_VAL(USBCH_EDIT_STATUS_BAR_WIDTH, 250, 160, LS(250))
-  static LAYOUT_VAL(USBCH_EDIT_RIGHT_MARGIN, 0, 3, 0)
-  static LAYOUT_VAL2(USBCH_COLS, 4, 2)
+  static LAYOUT_SIZE_SCALED(USBCH_EDIT_STATUS_BAR_WIDTH, 250, 160)
+  static LAYOUT_SIZE(USBCH_EDIT_RIGHT_MARGIN, 0, 3)
+  static LAYOUT_SIZE(USBCH_COLS, 4, 2)
 
  protected:
   uint8_t channel;
@@ -291,7 +291,7 @@ class USBChannelEditWindow : public Page
     new Choice(line, rect_t{}, STR_VUSBJOYSTICK_CH_MODE, 0, USBJOYS_CH_LAST,
                GET_DEFAULT(cch->mode), SET_VALUE_WUPDATE(cch->mode));
 
-#if PORTRAIT_LCD
+#if NARROW_LAYOUT
     line = form->newLine(grid);
 #endif
 
@@ -316,7 +316,7 @@ class USBChannelEditWindow : public Page
                  this->update();
                });
 
-#if PORTRAIT_LCD
+#if NARROW_LAYOUT
     line = m_btnModeFrame->newLine(grid);
 #endif
 
@@ -327,7 +327,7 @@ class USBChannelEditWindow : public Page
 
     line = m_btnModeFrame->newLine(grid);
     new StaticText(line, rect_t{}, STR_USBJOYSTICK_CH_BTNNUM);
-#if PORTRAIT_LCD
+#if NARROW_LAYOUT
     line = m_btnModeFrame->newLine(grid);
 #endif
     _BtnNumSel = new USBChannelButtonSel(line, rect_t{}, channel,
@@ -366,7 +366,7 @@ class USBChannelLineButton : public ListLineButton
       ListLineButton(parent, index)
   {
     setHeight(USBCH_LINE_HEIGHT);
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
     padTop(PAD_SMALL);
 #endif
 
@@ -487,10 +487,10 @@ class USBChannelLineButton : public ListLineButton
 
   bool isActive() const override { return false; }
 
-  static LAYOUT_VAL(USBCH_LINE_HEIGHT, 32, 48, LS(32))
-  static LAYOUT_VAL2(USBCH_CHN_ROWS, 1, 2)
-  static LAYOUT_VAL2(USBCH_BTN_MODE_COL, 4, 2)
-  static LAYOUT_VAL2(USBCH_BTN_MODE_ROW, 0, 1)
+  static LAYOUT_SIZE_SCALED(USBCH_LINE_HEIGHT, 32, 48)
+  static LAYOUT_SIZE(USBCH_CHN_ROWS, 1, 2)
+  static LAYOUT_SIZE(USBCH_BTN_MODE_COL, 4, 2)
+  static LAYOUT_SIZE(USBCH_BTN_MODE_ROW, 0, 1)
 
  protected:
   bool init = false;
@@ -518,7 +518,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB, PAD_BORDER)
              GET_DEFAULT(g_model.usbJoystickExtMode),
              SET_VALUE_WUPDATE(g_model.usbJoystickExtMode));
 
-#if PORTRAIT_LCD
+#if NARROW_LAYOUT
   line = body->newLine(grid);
 #endif
 
@@ -536,7 +536,7 @@ ModelUSBJoystickPage::ModelUSBJoystickPage() : Page(ICON_MODEL_USB, PAD_BORDER)
                  GET_DEFAULT(g_model.usbJoystickCircularCut),
                  SET_VALUE_WUPDATE(g_model.usbJoystickCircularCut));
 
-#if PORTRAIT_LCD
+#if NARROW_LAYOUT
   line = body->newLine(grid);
 #endif
 

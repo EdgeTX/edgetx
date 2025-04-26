@@ -31,21 +31,11 @@ extern void checkSpeakerVolume();
 #if defined(VERSION_TAG)
 const std::string ver_str = "" VERSION_TAG;
 const std::string nam_str = "" CODENAME;
-static LAYOUT_VAL2(TXT_Y, LCD_H * 3 / 4, LCD_H * 21 / 25)
 #else
 const std::string ver_str = "" VERSION;
 const std::string nam_str = "" VERSION_SUFFIX;
 const std::string git_str = "(" GIT_STR ")";
-static LAYOUT_VAL2(TXT_Y, LCD_H * 2 / 3, LCD_H * 19 / 24)
 #endif
-
-static LAYOUT_VAL(TXT_W, 200, 200, LS(200))
-static LAYOUT_VAL(TXT_H, 24, 24, LS(24))
-static LAYOUT_VAL(TXT_XO, 100, 100, LS(100))
-
-static LAYOUT_VAL2(TXT_X, LCD_W * 4 / 5, LCD_W / 2)
-static LAYOUT_VAL2(IMG_X, LCD_W / 3, LCD_W / 2)
-static LAYOUT_VAL2(IMG_Y, LCD_H / 2, LCD_H * 2 / 5)
 
 const uint8_t __bmp_splash_logo[]{
 #include "splash_logo.lbm"
@@ -68,15 +58,19 @@ void drawSplash()
 
   if (!bg->hasImage()) {
     LZ4Bitmap* logo = (LZ4Bitmap*)__bmp_splash_logo;
-    new StaticLZ4Image(splashScreen, IMG_X - logo->width / 2,
-                       IMG_Y - logo->height / 2, logo);
+    coord_t x = (LANDSCAPE ? LCD_W / 3 : LCD_W / 2) - logo->width / 2;
+    coord_t y = (LANDSCAPE ? LCD_H / 2 : LCD_H * 2 / 5) - logo->height / 2;
+    new StaticLZ4Image(splashScreen, x, y, logo);
 
-    new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y, TXT_W, TXT_H}, ver_str.c_str(), COLOR_LIGHTGREY_INDEX, CENTERED);
-    new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y + TXT_H, TXT_W, TXT_H},
-                   nam_str.c_str(), COLOR_LIGHTGREY_INDEX, CENTERED);
+    coord_t w = LAYOUT_SCALE(200);
+    x = (LANDSCAPE ? LCD_W * 4 / 5 : LCD_W / 2) - w / 2;
+    y = LCD_H - EdgeTxStyles::STD_FONT_HEIGHT * 4;
+    new StaticText(splashScreen, {x, y, w, EdgeTxStyles::STD_FONT_HEIGHT}, ver_str.c_str(), COLOR_GREY_INDEX, CENTERED);
+    new StaticText(splashScreen, {x, y + EdgeTxStyles::STD_FONT_HEIGHT, w, EdgeTxStyles::STD_FONT_HEIGHT},
+                   nam_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #if !defined(VERSION_TAG)
-    new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y + TXT_H * 2, TXT_W, TXT_H},
-                   git_str.c_str(), COLOR_LIGHTGREY_INDEX, CENTERED);
+    new StaticText(splashScreen, {x, y + EdgeTxStyles::STD_FONT_HEIGHT * 2, w, EdgeTxStyles::STD_FONT_HEIGHT},
+                   git_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #endif
   }
 
@@ -142,7 +136,7 @@ void waitSplash()
   cancelSplash();
 }
 
-static LAYOUT_VAL(SHUTDOWN_CIRCLE_RADIUS, 75, 75, LS(75))
+static LAYOUT_VAL_SCALED(SHUTDOWN_CIRCLE_RADIUS, 75)
 
 const int8_t bmp_shutdown_xo[] = {0, 0, -SHUTDOWN_CIRCLE_RADIUS,
                                   -SHUTDOWN_CIRCLE_RADIUS};

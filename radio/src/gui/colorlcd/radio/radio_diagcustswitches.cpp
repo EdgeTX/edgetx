@@ -31,9 +31,7 @@
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 #include "color_list.h"
 #include "hal/rgbleds.h"
-#endif
 
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
 uint16_t getLedColor(int i)
 {
   // Convert RBG888 to RGB565
@@ -47,13 +45,13 @@ uint16_t getLedColor(int i)
 
 class RadioCustSwitchesDiagsWindow : public Window
 {
-  static LAYOUT_VAL(FS_1ST_COLUMN, 95, 62, LS(95))
-  static LAYOUT_VAL(FS_2ND_COLUMN, 160, 107, LS(160))
-  static LAYOUT_VAL(FS_3RD_COLUMN, 260, 173, LS(260))
-  static LAYOUT_VAL(FS_LBL_WIDTH, 60, 40, LS(60))
+  static LAYOUT_VAL_SCALED(FS_1ST_COLUMN, 95)
+  static LAYOUT_VAL_SCALED(FS_2ND_COLUMN, 160)
+  static LAYOUT_VAL_SCALED(FS_3RD_COLUMN, 260)
+  static LAYOUT_VAL_SCALED(FS_LBL_WIDTH, 60)
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  static LAYOUT_VAL(FS_COLOR_WIDTH, 30, 30, LS(30))
-  static LAYOUT_VAL(FS_COLOR_HEIGHT, 15, 15, LS(15))
+  static LAYOUT_VAL_SCALED(FS_COLOR_WIDTH, 30)
+  static LAYOUT_VAL_SCALED(FS_COLOR_HEIGHT, 15)
   ColorSwatch* colorBox[NUM_FUNCTIONS_SWITCHES];
 #endif
 
@@ -93,15 +91,13 @@ class RadioCustSwitchesDiagsWindow : public Window
   }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  void checkEvents() {
+  void checkEvents() override {
     Window::checkEvents();
     for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
       colorBox[i]->setColor(getLedColor(i));
     }
   }
 #endif
-
- protected:
 };
 
 void RadioCustSwitchesDiagsPage::buildHeader(Window *window)

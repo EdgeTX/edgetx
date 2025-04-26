@@ -26,8 +26,7 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-LAYOUT_VAL3(VERT_SCALE, 1, 1, 1, 2)
-LAYOUT_VAL(SCALE_HEIGHT, 15, 15, LS(15))
+LAYOUT_VAL_SCALED(SCALE_HEIGHT, 15)
 constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - SCALE_HEIGHT - EdgeTxStyles::UI_ELEMENT_HEIGHT;
 
 coord_t getAverage(uint8_t number, const uint8_t* value)
@@ -36,7 +35,8 @@ coord_t getAverage(uint8_t number, const uint8_t* value)
   for (uint8_t i = 0; i < number; i++) {
     sum += value[i];
   }
-  return sum * VERT_SCALE / number;
+  if (SPECTRUM_HEIGHT > 300) sum = sum * 2;
+  return sum / number;
 }
 
 class SpectrumFooterWindow : public Window
@@ -282,8 +282,8 @@ class SpectrumWindow : public Window
   uint32_t lastFreq = 0;
   uint32_t lastSpan = 0;
 
-  static LAYOUT_VAL(LINE_SPACE, 40, 40, LS(40))
-  static LAYOUT_VAL(WARN_YO, 20, 20, LS(20))
+  static LAYOUT_VAL_SCALED(LINE_SPACE, 40)
+  static LAYOUT_VAL_SCALED(WARN_YO, 20)
 };
 
 RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :

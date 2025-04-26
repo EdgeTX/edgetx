@@ -65,12 +65,12 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
   // Save focus
   Layer::push(this);
 
-  coord_t w = SelectFabCarousel::FAB_BUTTON_WIDTH * QM_COLS + PAD_LARGE * 2;
-  coord_t h = SelectFabCarousel::FAB_BUTTON_HEIGHT * QM_ROWS + PAD_LARGE * 2;
+  coord_t w = SelectFabCarousel::FAB_BUTTON_WIDTH * QM_COLS + PAD_SMALL * 2;
+  coord_t h = SelectFabCarousel::FAB_BUTTON_HEIGHT * QM_ROWS + PAD_SMALL * 2;
 
   bool hasNotes = modelHasNotes();
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
   if (hasNotes)
     w += SelectFabCarousel::FAB_BUTTON_WIDTH;
 #endif
@@ -78,7 +78,7 @@ ViewMainMenu::ViewMainMenu(Window* parent, std::function<void()> closeHandler) :
   auto box =
       new Window(this, {(LCD_W - w) / 2, (LCD_H - h) / 2, w, h},
                  etx_modal_dialog_create);
-  box->padAll(PAD_LARGE);
+  box->padAll(PAD_SMALL);
 
   auto carousel = new SelectFabCarousel(box);
   carousel->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_MANAGE_MODELS,

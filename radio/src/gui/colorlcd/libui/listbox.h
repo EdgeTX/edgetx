@@ -76,7 +76,7 @@ class ListBox : public TableField
   std::string getName() const override { return "ListBox"; }
 #endif
 
-  static LAYOUT_VAL(MENUS_LINE_HEIGHT, 35, 35, LS(35))
+  static LAYOUT_VAL_SCALED(MENUS_LINE_HEIGHT, 35)
 
  protected:
   static void event_cb(lv_event_t* e);

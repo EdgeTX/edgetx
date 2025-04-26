@@ -317,7 +317,7 @@
 #define TR_ELEVATOR                     TR("Cic. long.", "Sorg. cic. long.")
 #define TR_SWASHRING                    "Anello Ciclico"
 #define TR_MODE                         "Modo"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK                 "Sinistro"
 #else
   #define TR_LEFT_STICK                 "Sx"
@@ -1181,7 +1181,7 @@
 #define TR_USE_THEME_COLOR              "Usa colore tema"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Agg. Trim a Subtrim"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS      "Apri Monitor Canali"
 #else
   #define TR_OPEN_CHANNEL_MONITORS      "Apri Mon. Canali"

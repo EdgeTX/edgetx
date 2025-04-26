@@ -411,7 +411,7 @@ class ThemeColorType : public ColorType
     if (c3 != c2) makeButton(hbox, c3);
   }
 
-  static LAYOUT_VAL(BTN_W, 44, 44, LS(44))
+  static LAYOUT_VAL_SCALED(BTN_W, 44)
 };
 
 // Color editor that shows the system fixed colors as buttons
@@ -449,7 +449,7 @@ class FixedColorType : public ColorType
     });
   }
 
-  static LAYOUT_VAL(BTN_W, 44, 44, LS(44))
+  static LAYOUT_VAL_SCALED(BTN_W, 44)
 };
 
 /////////////////////////////////////////////////////////////////////////

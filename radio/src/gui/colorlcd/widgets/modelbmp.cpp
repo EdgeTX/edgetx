@@ -127,11 +127,11 @@ class ModelBitmapWidget : public Widget
 
   uint32_t getHash() { return hash(g_model.header.bitmap, LEN_BITMAP_NAME); }
 
-  static LAYOUT_VAL(LARGE_W, 120, 120, LS(120))
-  static LAYOUT_VAL(LARGE_H, 96, 96, LS(96))
-  static LAYOUT_VAL(LARGE_LBL_X, 5, 5, LS(5))
-  static LAYOUT_VAL(LARGE_LBL_Y, 5, 5, LS(5))
-  static LAYOUT_VAL(LARGE_IMG_H, 38, 38, LS(38))
+  static LAYOUT_VAL_SCALED(LARGE_W, 120)
+  static LAYOUT_VAL_SCALED(LARGE_H, 96)
+  static LAYOUT_VAL_SCALED(LARGE_LBL_X, 5)
+  static LAYOUT_VAL_SCALED(LARGE_LBL_Y, 5)
+  static LAYOUT_VAL_SCALED(LARGE_IMG_H, 38)
 };
 
 const ZoneOption ModelBitmapWidget::options[] = {

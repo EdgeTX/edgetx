@@ -67,8 +67,8 @@ class MPlexIcon : public Window
     index = i;
   }
 
-  static LAYOUT_VAL(MPLEX_ICON_W, 25, 25, LS(25))
-  static LAYOUT_VAL(MPLEX_ICON_H, 29, 29, 22)
+  static LAYOUT_VAL_SCALED(MPLEX_ICON_W, 25)
+  static LAYOUT_VAL_SCALED(MPLEX_ICON_H, 29)
 
  protected:
   uint8_t index;
@@ -156,7 +156,7 @@ class MixLineButton : public InputMixButtonBase
     }
   }
 
-  static LAYOUT_VAL(MPLEX_XO, 28, 28, LS(28))
+  static LAYOUT_VAL_SCALED(MPLEX_XO, 28)
 
  protected:
   MPlexIcon* mplex = nullptr;
@@ -190,7 +190,7 @@ class MixGroup : public InputMixGroupBase
   void enableMixerMonitor()
   {
     if (!monitor)
-      monitor = new MixerChannelBar(this, {LCD_W - CHBAR_XO, 1, CHBAR_W, CHBAR_H}, idx - MIXSRC_FIRST_CH);
+      monitor = new MixerChannelBar(this, {ListLineButton::GRP_W - CHBAR_W - PAD_LARGE, 1, CHBAR_W, CHBAR_H}, idx - MIXSRC_FIRST_CH);
     monitorVisible = true;
     monitor->show();
     adjustHeight();
@@ -214,10 +214,9 @@ class MixGroup : public InputMixGroupBase
     setHeight(y + PAD_BORDER * 2);
   }
 
-  static LAYOUT_VAL(CHNUM_Y, 17, 17, LS(17))
-  static LAYOUT_VAL(CHBAR_XO, 118, 118, 81)
-  static LAYOUT_VAL(CHBAR_W, 100, 100, LS(100))
-  static LAYOUT_VAL(CHBAR_H, 14, 14, LS(14))
+  static LAYOUT_VAL_SCALED(CHNUM_Y, 17)
+  static LAYOUT_VAL_SCALED(CHBAR_W, 100)
+  static LAYOUT_VAL_SCALED(CHBAR_H, 14)
 
  protected:
   MixerChannelBar* monitor = nullptr;

@@ -30,12 +30,12 @@ class ChannelBar : public Window
              std::function<int16_t()> getValue, LcdColorIndex barColorIndex,
              LcdColorIndex textColorIndex = COLOR_THEME_SECONDARY1_INDEX);
 
-  static LAYOUT_VAL(BAR_HEIGHT, 13, 13, 9)
+  static LAYOUT_VAL_SCALED(BAR_HEIGHT, 13)
 
-  static LAYOUT_VAL(VAL_W, 45, 45, LS(45))
-  static LAYOUT_VAL(VAL_H, 14, 14, LS(14))
-  static LAYOUT_VAL(VAL_XO, 5, 5, LS(5))
-  static LAYOUT_VAL(VAL_XT, -54, -54, LS(-54))
+  static LAYOUT_VAL_SCALED(VAL_W, 45)
+  static LAYOUT_VAL_SCALED(VAL_H, 14)
+  static LAYOUT_VAL_SCALED(VAL_XO, 5)
+  static LAYOUT_VAL_SCALED(VAL_XT, -54)
 
  protected:
   uint8_t channel = 0;

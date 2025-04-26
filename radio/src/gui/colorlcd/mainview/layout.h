@@ -47,7 +47,7 @@ class LayoutFactory
   const char* getId() const { return id; }
   const char* getName() const { return name; }
 
-  virtual const uint8_t* getBitmap() const = 0;
+  virtual const MaskBitmap* getBitmap() const = 0;
 
   virtual const ZoneOption* getLayoutOptions() const = 0;
 
@@ -77,11 +77,8 @@ class LayoutFactory
 
   WidgetsContainer* createCustomScreen(unsigned customScreenIndex) const;
 
-  static LAYOUT_VAL(TRIM_LINE_WIDTH, 8, 8, LS(8))
-  static LAYOUT_VAL(TRIM_SQUARE_SIZE, 17, 17, 13)
-
-  static LAYOUT_VAL(BM_W, 51, 22, LS(51))
-  static LAYOUT_VAL(BM_H, 25, 34, LS(25))
+  static LAYOUT_ORIENTATION_SCALED(BM_W, 51, 22)
+  static LAYOUT_ORIENTATION_SCALED(BM_H, 25, 34)
 
  protected:
   const char* id;

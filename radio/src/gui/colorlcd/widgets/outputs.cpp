@@ -210,9 +210,9 @@ class OutputsWidget : public Widget
   LcdFlags barColor = 0;
   lv_style_t style;
 
-  static LAYOUT_VAL(SHOW_MIN_W, 100, 100, LS(100))
-  static LAYOUT_VAL(SHOW_MIN_H, 20, 20, LS(20))
-  static LAYOUT_VAL(COLS_MIN_W, 300, 300, LS(300))
+  static LAYOUT_VAL_SCALED(SHOW_MIN_W, 100)
+  static LAYOUT_VAL_SCALED(SHOW_MIN_H, 20)
+  static LAYOUT_VAL_SCALED(COLS_MIN_W, 300)
 };
 
 const ZoneOption OutputsWidget::options[] = {

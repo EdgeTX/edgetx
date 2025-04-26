@@ -105,8 +105,8 @@ class GaugeWidget : public Widget
     }
   }
 
-  static LAYOUT_VAL(GUAGE_H, 16, 16, LS(16))
-  static LAYOUT_VAL(ALIGN_MAX_W, 90, 90, LS(90))
+  static LAYOUT_VAL_SCALED(GUAGE_H, 16)
+  static LAYOUT_VAL_SCALED(ALIGN_MAX_W, 90)
 };
 
 const ZoneOption GaugeWidget::options[] = {

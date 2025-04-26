@@ -32,7 +32,7 @@
 
 #define STATSDEPTH 8  // ideally a value of power of 2
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 
 static const lv_coord_t col_dsc[] = {
   LV_GRID_FR(32), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
@@ -58,9 +58,9 @@ class AnaViewWindow : public Window
       grid(col_dsc, row_dsc, PAD_ZERO)
   {
     parent->padAll(PAD_ZERO);
-    padAll(PAD_SMALL);
-    padLeft(PAD_LARGE);
-    padRight(PAD_LARGE);
+    padAll(PAD_TINY);
+    padLeft(PAD_SMALL);
+    padRight(PAD_SMALL);
     setFlexLayout();
 
     line = newLine(grid);
@@ -78,13 +78,13 @@ class AnaViewWindow : public Window
       if (i >= pot_offset && (POT_CONFIG(i - pot_offset) == FLEX_NONE))
         continue;
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
       if ((i & 1) == 0) line = newLine(grid);
 #else
       line = newLine(grid);
 #endif
 
-      lv_obj_set_style_pad_column(line->getLvObj(), PAD_LARGE, LV_PART_MAIN);
+      lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
       if (((adcGetInputMask() & (1 << i)) != 0) && i < adcGetMaxInputs(ADC_INPUT_MAIN))
         sprintf(s, "D%d :", i + 1);
       else
@@ -111,7 +111,7 @@ class AnaViewWindow : public Window
                      std::to_string((int16_t)column4(i));
             });
         etx_obj_add_style(lbl->getLvObj(), (column4size() == 2) ? styles->text_align_left : styles->text_align_right, LV_PART_MAIN);
-#if !PORTRAIT_LCD
+#if LANDSCAPE
         lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH,
                              3 + (i & 1) * 5, column4size(),
                              LV_GRID_ALIGN_CENTER, 0, 1);
@@ -166,7 +166,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     lv_obj_add_flag(touchLines[1], LV_OBJ_FLAG_HIDDEN);
 
     line = newLine(grid);
-#if PORTRAIT_LCD
+#if PORTRAIT
     line->padTop(PAD_LARGE * 2 + PAD_SMALL);
 #else
     line->padTop(PAD_TINY);
@@ -195,7 +195,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
     lv_obj_set_grid_cell(lbl2->getLvObj(), LV_GRID_ALIGN_STRETCH, 0, 5,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-#if PORTRAIT_LCD
+#if PORTRAIT
     line = newLine(grid);
 #endif
     lbl2 = new StaticText(line, rect_t{},
@@ -241,7 +241,7 @@ class AnaCalibratedViewWindow : public AnaViewWindow
   }
 #endif
 
-  static LAYOUT_VAL2(TSI2CEventsCol, 5, 0)
+  static LAYOUT_SIZE(TSI2CEventsCol, 5, 0)
 
  protected:
 #if defined(HARDWARE_TOUCH)
@@ -447,7 +447,7 @@ class AnaMinMaxViewWindow : public AnaViewWindow
     AnaViewWindow::checkEvents();
   }
 
-  static LAYOUT_VAL2(GRIDCOLS, 10, 5)
+  static LAYOUT_SIZE(GRIDCOLS, 10, 5)
 };
 
 class AnaCalibratedViewPage : public PageTab

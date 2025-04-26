@@ -73,8 +73,8 @@ class CurveButton : public Button
 
   void update() { preview->update(); }
 
-  static LAYOUT_VAL(INFO_H, 27, 27, 19)
-  static LAYOUT_VAL(CURVE_BTN_W, 142, 142, LS(142))
+  static LAYOUT_VAL_SCALED(INFO_H, 27)
+  static constexpr coord_t CURVE_BTN_W = (LCD_W - PAD_LARGE * (ModelCurvesPage::PER_ROW + 1)) / ModelCurvesPage::PER_ROW; 
   static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + EdgeTxStyles::STD_FONT_HEIGHT * 2;
 
  protected:
@@ -202,7 +202,7 @@ void ModelCurvesPage::plusPopup(Window *window)
 
 void ModelCurvesPage::build(Window *window)
 {
-#if !PORTRAIT_LCD
+#if LANDSCAPE
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #else

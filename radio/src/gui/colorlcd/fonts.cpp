@@ -29,13 +29,14 @@
 
 #if !defined(BOOT)
 
+extern const etxLz4Font lv_font_en_bold_XXL;
+
 #define FONT_TABLE(name)                                 \
   extern const etxLz4Font lv_font_##name##_bold_STD;     \
   extern const etxLz4Font lv_font_##name##_XXS;          \
   extern const etxLz4Font lv_font_##name##_XS;           \
   extern const etxLz4Font lv_font_##name##_L;            \
   extern const etxLz4Font lv_font_##name##_bold_XL;      \
-  extern const etxLz4Font lv_font_##name##_bold_XXL;     \
   static const etxLz4Font* lz4FontTable[FONTS_COUNT] = { \
       nullptr,                    /* FONT_STD_INDEX */   \
       &lv_font_##name##_bold_STD, /* FONT_BOLD_INDEX */  \
@@ -43,7 +44,7 @@
       &lv_font_##name##_XS,       /* FONT_XS_INDEX */    \
       &lv_font_##name##_L,        /* FONT_L_INDEX */     \
       &lv_font_##name##_bold_XL,  /* FONT_XL_INDEX */    \
-      &lv_font_##name##_bold_XXL, /* FONT_XXL_INDEX */   \
+      &lv_font_en_bold_XXL,       /* FONT_XXL_INDEX */   \
   };                                                     \
   static const lv_font_t* lvglFontTable[FONTS_COUNT] = { \
       LV_FONT_DEFAULT, /* FONT_STD_INDEX */              \

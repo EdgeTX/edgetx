@@ -27,7 +27,7 @@
 #include "topbar_impl.h"
 #include "view_main.h"
 
-#if !PORTRAIT_LCD  // landscape
+#if LANDSCAPE
 
 // form grid
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
@@ -39,7 +39,7 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 static const lv_coord_t* theme_col_dsc = line_col_dsc;
 static const lv_coord_t* theme_row_dsc = line_row_dsc;
 
-#else  // portrait
+#else
 
 // form grid
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
@@ -123,7 +123,7 @@ class ThemeView : public Window
     }
   }
 
-  static LAYOUT_VAL2(PREVIEW_W, (LCD_W - PAD_MEDIUM * 3) / 2, LCD_W - 12)
+  static LAYOUT_SIZE(PREVIEW_W, (LCD_W - PAD_MEDIUM * 3) / 2, LCD_W - PAD_LARGE - PAD_SMALL)
 
  protected:
   Window* details = nullptr;

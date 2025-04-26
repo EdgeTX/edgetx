@@ -229,9 +229,9 @@ class RadioKeyDiagsWindow : public Window
   lv_obj_t **switchValues = nullptr;
   lv_obj_t **trimValues = nullptr;
 
-  static LAYOUT_VAL(KVAL_X, 70, 70, LS(70))
-  static LAYOUT_VAL(TRIM_MINUS_X, 62, 62, LS(62))
-  static LAYOUT_VAL(TRIM_PLUS_X, 75, 75, LS(75))
+  static LAYOUT_VAL_SCALED(KVAL_X, 70)
+  static LAYOUT_VAL_SCALED(TRIM_MINUS_X, 62)
+  static LAYOUT_VAL_SCALED(TRIM_PLUS_X, 75)
 };
 
 void RadioKeyDiagsPage::buildHeader(Window *window)

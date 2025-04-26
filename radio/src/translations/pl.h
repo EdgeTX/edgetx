@@ -313,7 +313,7 @@
 #define TR_ELEVATOR            TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING           "Tarcza    "
 #define TR_MODE                "Tryb"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK        "Lewy"
 #else
   #define TR_LEFT_STICK        "Lewy"
@@ -1186,7 +1186,7 @@
 #define TR_USE_THEME_COLOR              "Użyj koloru szablonu"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Dodaj trymy do podtrymów"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS      "Otwórz Monitor kanałów"
 #else
   #define TR_OPEN_CHANNEL_MONITORS      "Otwórz Mon. kanałów"

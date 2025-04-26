@@ -64,8 +64,8 @@ class ChannelsViewFooter : public Window
                    STR_MONITOR_MIXER_DESC, COLOR_THEME_PRIMARY2_INDEX);
   }
 
-  static LAYOUT_VAL(LEG_COLORBOX, 14, 14, LS(14))
-  static LAYOUT_VAL(TXT_H, 18, 18, LS(18))
+  static LAYOUT_VAL_SCALED(LEG_COLORBOX, 14)
+  static LAYOUT_VAL_SCALED(TXT_H, 18)
 };
 
 //-----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ class ChannelsViewPage : public PageTab
 
     // Channels bars
     for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
-#if PORTRAIT_LCD
+#if PORTRAIT
       coord_t width = window->width() - (hmargin * 2);
       coord_t xPos = hmargin;
       coord_t yPos = (chan % 8) *
