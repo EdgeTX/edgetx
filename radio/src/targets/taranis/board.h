@@ -355,7 +355,10 @@ void setTopBatteryValue(uint32_t volts);
 
 #define INTMODULE_FIFO_SIZE            128
 
-#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER)
+#if defined(RADIO_TLITE)
+  #define BATTERY_DIVIDER 27500    // TODO: fix when we have proper schematics
+  #define VOLTAGE_DROP 20
+#elif defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER)
 // --- MOSFET ---- R2 --- MCU
 //                     |__ R1 --- GND
 //
