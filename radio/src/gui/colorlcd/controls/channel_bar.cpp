@@ -221,19 +221,21 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
 {
   LcdColorIndex txtColIdx = isInHeader ? COLOR_THEME_PRIMARY2_INDEX : COLOR_THEME_SECONDARY1_INDEX;
 
+  auto invMask = getBuiltinIcon(ICON_CHAN_MONITOR_INVERTED);
+
   outputChannelBar = new OutputChannelBar(
-      this, {PAD_TINY, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
+      this, {PAD_TINY + invMask->width, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
       channel, isInHeader);
 
   new MixerChannelBar(
       this,
-      {PAD_TINY, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
+      {PAD_TINY + invMask->width, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
       channel);
 
   // Channel number
   char chanString[] = TR_CH "32 ";
   strAppendSigned(&chanString[2], channel + 1, 2);
-  new StaticText(this, {PAD_TINY, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString, 
+  new StaticText(this, {PAD_TINY + invMask->width, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString, 
                  txtColIdx, FONT(XS) | LEFT);
 
   // Channel name
@@ -258,14 +260,14 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
   overrideIcon = new StaticIcon(
-      this, 0, 5, ICON_CHAN_MONITOR_LOCKED, txtColIdx);
+      this, 0, PAD_SMALL, ICON_CHAN_MONITOR_LOCKED, txtColIdx);
   overrideIcon->show(safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED);
 #endif
 
   // Channel reverted icon
   LimitData* ld = limitAddress(channel);
   if (ld && ld->revert) {
-    new StaticIcon(this, 0, ICON_SZ, ICON_CHAN_MONITOR_INVERTED,
+    new StaticIcon(this, 0, invMask->height + PAD_MEDIUM, ICON_CHAN_MONITOR_INVERTED,
                    txtColIdx);
   }
 }
