@@ -51,7 +51,7 @@ struct HWPots : public Window
   static LAYOUT_VAL(P_INV_W, 52, 52, LS(52))
   static LAYOUT_VAL(P_ROW_H, 36, 72, 26)
   static LAYOUT_VAL(P_OFST_Y, 0, 36, 0)
-  #define P_Y(i) (i * P_ROW_H + 2)
+  #define P_Y(i) (i * P_ROW_H + PAD_TINY)
 
  protected:
   bool potsChanged;
