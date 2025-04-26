@@ -195,9 +195,10 @@ bool isBacklightEnabled();
                         : g_eeGeneral.blOffBright);                       \
   }
 
-#define USB_NAME                        "ST16"
-#define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                     'S', 'T', '1', '6', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
+#define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
+#define ENABLE_UCHARGER()                 bsp_output_set(BSP_CHARGE_EN);
+#define DISABLE_UCHARGER()                bsp_output_clear(BSP_CHARGE_EN)  
 
 #if defined(__cplusplus) && !defined(SIMU)
 }

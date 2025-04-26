@@ -211,7 +211,8 @@
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOI, 8)  // PE.04
 
 // Chargers (USB and wireless)
-#define UCHARGER_GPIO               GPIO_PIN(GPIOD, 4)  // PD.02 input
+#define UCHARGER_GPIO               GPIO_PIN(GPIOC, 0) // PC.00
+#define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOD, 4) // PD.04
 
 // TODO! Check IOLL1 to PI.01 connectivity!
 
@@ -394,6 +395,8 @@
 #define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
 #define LED_STRIP_REFRESH_PERIOD          50 //ms
 #define STATUS_LEDS
+#define LED_CHARGING_START                12
+#define LED_CHARGING_END                  23
 
 
 // Internal Module
