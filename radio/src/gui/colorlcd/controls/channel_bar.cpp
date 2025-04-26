@@ -221,13 +221,15 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
 {
   LcdColorIndex txtColIdx = isInHeader ? COLOR_THEME_PRIMARY2_INDEX : COLOR_THEME_SECONDARY1_INDEX;
 
+  auto invMask = getBuiltinIcon(ICON_CHAN_MONITOR_INVERTED);
+
   outputChannelBar = new OutputChannelBar(
-      this, {PAD_TINY, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
+      this, {PAD_TINY + invMask->width, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
       channel, isInHeader);
 
   new MixerChannelBar(
       this,
-      {PAD_TINY, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
+      {PAD_TINY + invMask->width, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
       channel);
 
   // Channel number
@@ -265,7 +267,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   // Channel reverted icon
   LimitData* ld = limitAddress(channel);
   if (ld && ld->revert) {
-    new StaticIcon(this, 0, ICON_SZ, ICON_CHAN_MONITOR_INVERTED,
+    new StaticIcon(this, 0, ((ChannelBar::BAR_HEIGHT + PAD_TINY) * 2 - invMask->height) / 2 + ChannelBar::BAR_HEIGHT, ICON_CHAN_MONITOR_INVERTED,
                    txtColIdx);
   }
 }
