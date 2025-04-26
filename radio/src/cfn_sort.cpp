@@ -506,7 +506,7 @@ Functions cfn_sorted[] = {
 #endif
 #elif defined(TRANSLATIONS_KO)
 #if defined(VIDEO_SWITCH)
-  /* LCD → 비디오 출력 */ FUNC_LCD_TO_VIDEO,
+  /* LCD -> 비디오 출력 */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lua 스크립트 실행 */ FUNC_PLAY_SCRIPT,
   /* RGB LED */ FUNC_RGB_LED,
