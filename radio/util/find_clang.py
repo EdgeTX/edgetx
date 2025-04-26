@@ -58,6 +58,10 @@ def getBuiltinHeaderPath(library_path):
 
     return None
 
+def natural_sort_key(s):
+    return [int(text) if text.isdigit() else text.lower() 
+        for text in re.split(r'(\d+)', s)]
+
 def findLibClang():
     if sys.platform == "darwin":
         knownPaths = [
@@ -68,18 +72,21 @@ def findLibClang():
             knownPaths.insert(0, Config.library_path)
         libSuffix = ".dylib"
     elif sys.platform.startswith("linux"):
-        knownPaths = [
-            "/usr/lib/llvm-18/lib",
-            "/usr/lib/llvm-15/lib",
-            "/usr/lib/llvm-14/lib",
-            "/usr/lib/llvm-11/lib",
-            "/usr/lib/llvm-7/lib",
-            "/usr/lib/llvm-6.0/lib",
-            "/usr/lib/llvm-3.8/lib",
-            "/usr/local/lib",
-            "/usr/lib",
-            "/usr/lib64"
-        ]
+        base_dirs = ["/usr/lib", "/usr/local/lib"]
+        version_paths = []
+        
+        for base_dir in base_dirs:
+            if os.path.exists(base_dir):
+                for item in os.listdir(base_dir):
+                    if item.startswith("llvm-") and os.path.isdir(os.path.join(base_dir, item, "lib")):
+                        llvm_lib_path = os.path.join(base_dir, item, "lib")
+                        version = item[5:]
+                        version_paths.append((version, llvm_lib_path))
+
+        version_paths.sort(key=lambda x: natural_sort_key(x[0]), reverse=True)
+        knownPaths = [path for _, path in version_paths]
+        knownPaths.extend(["/usr/local/lib", "/usr/lib", "/usr/lib64"])
+        
         libSuffix = ".so"
     elif sys.platform == "win32" or sys.platform == "msys":
         knownPaths = os.environ.get("PATH").split(os.pathsep)
@@ -89,7 +96,7 @@ def findLibClang():
         return None
 
     for path in knownPaths:
-        # print("trying " + path)
+        # print("trying " + path, file=sys.stderr)
         if os.path.exists(path + "/libclang" + libSuffix):
             return path
         elif (sys.platform == "win32" or sys.platform == "msys"):
