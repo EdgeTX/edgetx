@@ -42,13 +42,15 @@ bool FilteredGroupSwitchesModel::filterAcceptsRow(int sourceRow, const QModelInd
 bool FilteredSwitchGroupsModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
 {
   if (sourceRow == 0) return true;
-  if (m_model->getFuncSwitchConfig(m_switch) == ModelData::FUNC_SWITCH_CONFIG_NONE) return false;
+  if (m_model->getFuncSwitchConfig(m_switch) == Board::SWITCH_NOT_AVAILABLE) return false;
   return true;
 }
 
 bool FilteredSwitchConfigsModel::filterAcceptsRow(int sourceRow, const QModelIndex & sourceParent) const
 {
-  if (sourceRow == ModelData::FUNC_SWITCH_CONFIG_NONE || sourceRow == ModelData::FUNC_SWITCH_CONFIG_2POS || sourceRow == ModelData::FUNC_SWITCH_CONFIG_GLOBAL)
+  if (sourceRow == Board::SWITCH_3POS)
+    return false;
+  if (sourceRow == Board::SWITCH_NOT_AVAILABLE || sourceRow == Board::SWITCH_2POS || sourceRow == Board::SWITCH_GLOBAL)
     return true;
   return !m_model->getFuncSwitchAlwaysOnGroupForSwitch(m_switch);
 }
@@ -166,14 +168,16 @@ void FunctionSwitchesPanel::update()
       filterSwitchConfigs[col]->invalidate();
       filterSwitchGroups[col]->invalidate();
 
-      aleNames[col]->update();
-      cboConfigs[col]->setCurrentIndex(filterSwitchConfigs[col]->mapFromSource(fsConfig->index(model->getFuncSwitchConfig(i), 0)).row());
-      cboStartupPosns[col]->setCurrentIndex(model->getFuncSwitchStart(i));
+      unsigned int cfg = model->getFuncSwitchConfig(i);
       unsigned int grp = model->getFuncSwitchGroup(i);
+
+      aleNames[col]->update();
+      cboConfigs[col]->setCurrentIndex(filterSwitchConfigs[col]->mapFromSource(fsConfig->index(cfg, 0)).row());
+      cboStartupPosns[col]->setCurrentIndex(model->getFuncSwitchStart(i));
       cboGroups[col]->setCurrentIndex(grp);
 
-      cboStartupPosns[col]->setEnabled(cboConfigs[col]->currentIndex() == ModelData::FUNC_SWITCH_CONFIG_2POS && (grp == 0));
-      cboGroups[col]->setEnabled(cboConfigs[col]->currentIndex() >= ModelData::FUNC_SWITCH_CONFIG_TOGGLE && cboConfigs[col]->currentIndex() < ModelData::FUNC_SWITCH_CONFIG_GLOBAL);
+      cboStartupPosns[col]->setEnabled(cfg == Board::SWITCH_2POS && (grp == 0));
+      cboGroups[col]->setEnabled(cfg >= Board::SWITCH_TOGGLE && cfg < Board::SWITCH_GLOBAL);
 
       col += 1;
     }
@@ -211,9 +215,9 @@ void FunctionSwitchesPanel::on_configCurrentIndexChanged(int index)
     unsigned int config = filterSwitchConfigs[sw]->mapToSource(filterSwitchConfigs[sw]->index(index, 0)).row();
     if (ok && model->getFuncSwitchConfig(sw) != config) {
       model->setFuncSwitchConfig(sw, config);
-      if (config != ModelData::FUNC_SWITCH_CONFIG_2POS && config != ModelData::FUNC_SWITCH_CONFIG_GLOBAL) {
+      if (config != Board::SWITCH_2POS && config != Board::SWITCH_GLOBAL) {
         model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_PREVIOUS);
-        if ((config == ModelData::FUNC_SWITCH_CONFIG_NONE) || model->getFuncSwitchAlwaysOnGroupForSwitch(sw))
+        if ((config == Board::SWITCH_NOT_AVAILABLE) || model->getFuncSwitchAlwaysOnGroupForSwitch(sw))
           model->setFuncSwitchGroup(sw, 0);
       }
       update();
@@ -280,8 +284,8 @@ void FunctionSwitchesPanel::on_groupChanged(int value)
     if (ok && model->getFuncSwitchGroup(sw) != grp) {
       unsigned oldGrp = model->getFuncSwitchGroup(sw);
       if (model->getFuncSwitchAlwaysOnGroup(grp)) {
-        if (model->getFuncSwitchConfig(sw) == ModelData::FUNC_SWITCH_CONFIG_TOGGLE)
-          model->setFuncSwitchConfig(sw, ModelData::FUNC_SWITCH_CONFIG_2POS);
+        if (model->getFuncSwitchConfig(sw) == Board::SWITCH_TOGGLE)
+          model->setFuncSwitchConfig(sw, Board::SWITCH_2POS);
       }
       if ((grp == 0) || (model->getFuncGroupSwitchStart(grp, switchcnt) == 0))
         model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_PREVIOUS);
@@ -314,8 +318,8 @@ void FunctionSwitchesPanel::on_alwaysOnGroupChanged(int value)
       model->setFuncSwitchAlwaysOnGroup(grp, (unsigned int)value);
       if (value) {
         for (int i = 0; i < switchcnt; i += 1) {
-          if (((int)model->getFuncSwitchGroup(i) == grp) && (model->getFuncSwitchConfig(i) == ModelData::FUNC_SWITCH_CONFIG_TOGGLE))
-            model->setFuncSwitchConfig(i, ModelData::FUNC_SWITCH_CONFIG_2POS);
+          if (((int)model->getFuncSwitchGroup(i) == grp) && (model->getFuncSwitchConfig(i) == Board::SWITCH_TOGGLE))
+            model->setFuncSwitchConfig(i, Board::SWITCH_2POS);
         }
         if ((int)model->getFuncGroupSwitchStart(grp, switchcnt) == switchcnt + 1) {
           for (int i = 0; i < switchcnt; i += 1) {

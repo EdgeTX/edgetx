@@ -89,6 +89,7 @@ class SetupPanel : public ModelPanel
 
   private:
     Ui::Setup *ui;
+    QVector<QLabel *> startupSwitchesLabels;
     QVector<QSlider *> startupSwitchesSliders;
     QVector<QCheckBox *> startupSwitchesCheckboxes;
     QVector<QCheckBox *> potWarningCheckboxes;
@@ -97,6 +98,7 @@ class SetupPanel : public ModelPanel
     TimerPanel * timers[CPN_MAX_TIMERS];
     FunctionSwitchesPanel * funcswitches;
 
+    bool canSwitchHaveWarning(int sw);
     void updateStartupSwitches();
     void updatePotWarnings();
     void updateBeepCenter();
