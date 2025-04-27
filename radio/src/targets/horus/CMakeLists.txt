@@ -357,10 +357,6 @@ if(USB_CHARGER)
   target_sources(board PRIVATE ${TARGET_SRC_DIR}/usb_charger_driver.cpp)
 endif()
 
-if(HAS_CSD203_SENSOR)
-  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} csd203_sensor.cpp)
-  add_definitions(-DCSD203_SENSOR)
-endif()
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   targets/common/arm/loadboot.cpp
