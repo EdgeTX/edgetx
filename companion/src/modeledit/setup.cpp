@@ -221,9 +221,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   for (int i = 0; i < Boards::getBoardCapability(board, Board::Switches); i++) {
     GeneralSettings::SwitchConfig &swcfg = generalSettings.switchConfig[i];
 
-    if (!generalSettings.isSwitchAvailable(i) || swcfg.type == Board::SWITCH_TOGGLE) {
+    if (!canSwitchHaveWarning(i)) {
       model.switchWarningEnable |= (1 << i);
-      continue;
     }
 
     RawSource src(RawSourceType::SOURCE_TYPE_SWITCH, i + 1);
@@ -252,6 +251,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->switchesStartupLayout->setAlignment(cb, Qt::AlignCenter);
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(startupSwitchEdited(int)));
     connect(cb, SIGNAL(toggled(bool)), this, SLOT(startupSwitchToggled(bool)));
+    startupSwitchesLabels << label;
     startupSwitchesSliders << slider;
     startupSwitchesCheckboxes << cb;
     QWidget::setTabOrder(prevFocus, slider);
@@ -336,6 +336,23 @@ SetupPanel::~SetupPanel()
   delete ui;
   delete panelFilteredModels;
   delete panelItemModels;
+}
+
+bool SetupPanel::canSwitchHaveWarning(int sw)
+{
+  GeneralSettings::SwitchConfig &swcfg = generalSettings.switchConfig[sw];
+
+  if (Boards::isSwitchFunc(sw)) {
+    int fsIndex = Boards::getCFSIndexForSwitch(sw);
+    return (model->customSwitches[fsIndex].type == Board::SWITCH_2POS) ||
+           (model->customSwitches[fsIndex].type == Board::SWITCH_GLOBAL && swcfg.type == Board::SWITCH_2POS);
+  }
+
+  if (!generalSettings.isSwitchAvailable(sw) || swcfg.type == Board::SWITCH_TOGGLE) {
+    return false;
+  }
+
+  return true;
 }
 
 void SetupPanel::on_extendedLimits_toggled(bool checked)
@@ -510,6 +527,7 @@ void SetupPanel::updateStartupSwitches()
   uint64_t value;
 
   for (int i = 0; i < startupSwitchesSliders.size(); i++) {
+    QLabel * label = startupSwitchesLabels[i];
     QSlider * slider = startupSwitchesSliders[i];
     QCheckBox * cb = startupSwitchesCheckboxes[i];
     int index = slider->property("index").toInt();
@@ -527,6 +545,10 @@ void SetupPanel::updateStartupSwitches()
     slider->setValue(value);
     slider->setEnabled(enabled);
     cb->setChecked(enabled);
+    bool vis = canSwitchHaveWarning(i);
+    label->setVisible(vis);
+    slider->setVisible(vis);
+    cb->setVisible(vis);
   }
 
   lock = false;
@@ -866,5 +888,6 @@ void SetupPanel::onModuleUpdateItemModels()
 
 void SetupPanel::onFunctionSwitchesUpdateItemModels()
 {
+  updateStartupSwitches();
   sharedItemModels->update(AbstractItemModel::IMUE_FunctionSwitches);
 }
