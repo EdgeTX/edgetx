@@ -75,41 +75,11 @@ static inline uint32_t _get_spi_af(SPI_TypeDef *SPIx)
   return LL_GPIO_AF_5;
 }
 
-#if defined(STM32H7) || defined(STM32H7RS)
-static inline uint32_t _get_spi_clocksource(SPI_TypeDef* SPIx)
-{
-#if defined(LL_RCC_SPI123_CLKSOURCE)
-  return LL_RCC_SPI123_CLKSOURCE;
-#endif
-
-#if defined(LL_RCC_SPI1_CLKSOURCE)
-  if (SPIx == SPI1) return LL_RCC_SPI1_CLKSOURCE;
-#endif
-
-#if defined(LL_RCC_SPI23_CLKSOURCE)
-  if (SPIx == SPI2 || SPIx == SPI3) return LL_RCC_SPI23_CLKSOURCE;
-#endif
-
-#if defined(LL_RCC_SPI45_CLKSOURCE)
-  if (SPIx == SPI4 || SPIx == SPI5) return LL_RCC_SPI45_CLKSOURCE;
-#endif
-
-#if defined(LL_RCC_SPI6_CLKSOURCE)
-  if (SPIx == SPI6) return LL_RCC_SPI6_CLKSOURCE;
-#endif
-
-  return 0;
-}
-#endif
-
 static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
 {
   LL_RCC_ClocksTypeDef RCC_Clocks;
   LL_RCC_GetSystemClocksFreq(&RCC_Clocks);
 
-#if defined(STM32H7) || defined(STM32H7RS)
-  uint32_t pclk = LL_RCC_GetSPIClockFreq(_get_spi_clocksource(SPIx));
-#else
   uint32_t pclk = RCC_Clocks.PCLK2_Frequency;
 #if defined(SPI2)
   if (SPIx == SPI2) {
@@ -121,7 +91,6 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
     pclk = RCC_Clocks.PCLK1_Frequency;
   }
 #endif
-#endif // STM32H7 || STM32H7RS
   uint32_t divider = (pclk + max_freq) / max_freq;
   uint32_t presc;
   if (divider > 128) {
@@ -145,18 +114,11 @@ static uint32_t _get_spi_prescaler(SPI_TypeDef *SPIx, uint32_t max_freq)
   return presc;
 }
 
-static void _init_gpios(const stm32_spi_t* spi, bool enableMisoPullUp)
+static void _init_gpios(const stm32_spi_t* spi)
 {
-  if(enableMisoPullUp)
-  {
-    gpio_init(spi->MISO, GPIO_IN_PU, GPIO_PIN_SPEED_VERY_HIGH);
-    gpio_set_af(spi->MISO, _get_spi_af(spi->SPIx));
-  } else {
-    gpio_init_af(spi->MISO, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
-  }
+  gpio_init_af(spi->MISO, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(spi->SCK, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init_af(spi->MOSI, _get_spi_af(spi->SPIx), GPIO_PIN_SPEED_VERY_HIGH);
-
   gpio_init(spi->CS, GPIO_OUT, GPIO_PIN_SPEED_HIGH);
 }
 
@@ -170,55 +132,25 @@ static void _config_dma_streams(const stm32_spi_t* spi)
   LL_DMA_InitTypeDef dmaInit;
   LL_DMA_StructInit(&dmaInit);
 
-#if defined(STM32F2) || defined(STM32F4)
   dmaInit.Channel = spi->DMA_Channel;
   dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetRegAddr(spi->SPIx);
-#endif
-  
-#if defined(STM32F2) || defined(STM32F4) || defined(STM32H7)
   dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
   dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
   dmaInit.FIFOMode = spi->DMA_FIFOMode;
   dmaInit.FIFOThreshold = spi->DMA_FIFOThreshold;
   dmaInit.MemoryOrM2MDstDataSize = spi->DMA_MemoryOrM2MDstDataSize;
   dmaInit.MemBurst = spi->DMA_MemBurst;
-#elif defined(STM32H7RS)
-  dmaInit.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
-#endif
-
-#if defined(STM32H7)
-  dmaInit.PeriphRequest = spi->rxDMA_PeriphRequest;
-  dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetRxRegAddr(spi->SPIx);
-#elif defined(STM32H7RS)
-  dmaInit.Request = spi->rxDMA_PeriphRequest;
-  dmaInit.SrcAddress = LL_SPI_DMA_GetRxRegAddr(spi->SPIx);
-  dmaInit.SrcIncMode = LL_DMA_SRC_FIXED;
-  dmaInit.DestIncMode = LL_DMA_DEST_INCREMENT;
-  dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_HALFWORD; // TODO
-#endif
-
   dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
   LL_DMA_Init(spi->DMA, spi->rxDMA_Stream, &dmaInit);
-
-#if defined(STM32H7)
-  dmaInit.PeriphRequest = spi->txDMA_PeriphRequest;
-  dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetTxRegAddr(spi->SPIx);
-#elif defined(STM32H7RS)
-  dmaInit.Request = spi->rxDMA_PeriphRequest;
-  dmaInit.DestAddress = LL_SPI_DMA_GetTxRegAddr(spi->SPIx);
-  dmaInit.SrcIncMode = LL_DMA_SRC_INCREMENT;
-  dmaInit.DestIncMode = LL_DMA_DEST_FIXED;
-  dmaInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_HALFWORD; // TODO
-#endif
 
   dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
   LL_DMA_Init(spi->DMA, spi->txDMA_Stream, &dmaInit);
 }
 #endif
 
-void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp)
+void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width)
 {
-  _init_gpios(spi, misoPullUp);
+  _init_gpios(spi);
 
   auto SPIx = spi->SPIx;
   stm32_spi_enable_clock(SPIx);
@@ -232,19 +164,8 @@ void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp
   spiInit.NSS = LL_SPI_NSS_SOFT;
   spiInit.DataWidth = data_width;
 
-
   LL_SPI_Init(SPIx, &spiInit);
-
-#if defined(STM32H7) || defined(STM32H7RS)
-  // Set transfer size = 0 (not using 'transfers')
-  LL_SPI_SetTransferSize(SPIx, 0);
-
-  LL_SPI_SetFIFOThreshold(SPIx, LL_SPI_FIFO_TH_01DATA);
   LL_SPI_Enable(SPIx);
-  LL_SPI_StartMasterTransfer(SPIx);
-#else
-  LL_SPI_Enable(SPIx);
-#endif
 
 #if defined(USE_SPI_DMA)
   if (spi->DMA) {
@@ -267,47 +188,22 @@ void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate)
 {
   auto* SPIx = spi->SPIx;
   uint32_t presc = _get_spi_prescaler(SPIx, baudrate);
-#if defined(STM32H7) || defined(STM32H7RS)
-  LL_SPI_Disable(SPIx);
-#endif
   LL_SPI_SetBaudRatePrescaler(SPIx, presc);
-#if defined(STM32H7) || defined(STM32H7RS)
-  LL_SPI_Enable(SPIx);
-  LL_SPI_StartMasterTransfer(SPIx);
-#endif
 }
-
-#if defined(STM32H7) || defined(STM32H7RS)
-void stm32_spi_set_data_width(const stm32_spi_t* spi, uint32_t dataWidth)
-{
-  auto* SPIx = spi->SPIx;
-  LL_SPI_Disable(SPIx);
-  LL_SPI_SetDataWidth(SPIx, dataWidth);
-  LL_SPI_Enable(SPIx);
-  LL_SPI_StartMasterTransfer(SPIx);
-}
-#endif
 
 uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out)
 {
   auto* SPIx = spi->SPIx;
-#if defined(STM32H7) || defined(STM32H7RS)
-  while (!LL_SPI_IsActiveFlag_TXP(SPIx));
-#else
+
   while (!LL_SPI_IsActiveFlag_TXE(SPIx));
-#endif
   LL_SPI_TransmitData8(SPIx, out);
 
-#if defined(STM32H7) || defined(STM32H7RS)
-  while (!LL_SPI_IsActiveFlag_RXP(SPIx));
-#else
   while (!LL_SPI_IsActiveFlag_RXNE(SPIx));
-#endif
   return LL_SPI_ReceiveData8(SPIx);
 }
 
-uint16_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
-				  uint8_t* in, uint16_t length)
+uint32_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
+                                  uint8_t* in, uint32_t length)
 {
   unsigned trans_bytes = 0;
   uint8_t in_temp;
@@ -329,18 +225,10 @@ uint16_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
 uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out)
 {
   auto* SPIx = spi->SPIx;
-#if defined(STM32H7) || defined(STM32H7RS)
-  while (!LL_SPI_IsActiveFlag_TXP(SPIx));
-#else
   while (!LL_SPI_IsActiveFlag_TXE(SPIx));
-#endif
   LL_SPI_TransmitData16(SPIx, out);
 
-#if defined(STM32H7) || defined(STM32H7RS)
-  while (!LL_SPI_IsActiveFlag_RXP(SPIx));
-#else
   while (!LL_SPI_IsActiveFlag_RXNE(SPIx));
-#endif
   return LL_SPI_ReceiveData16(SPIx);
 }
 
@@ -353,12 +241,6 @@ extern uint32_t _sram;
 extern uint32_t _eram;
 #define _IS_DMA_BUFFER(addr) \
   ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
-#elif defined(STM32H7) || defined(STM32H7RS)
-extern uint32_t _s_dram;
-extern uint32_t _e_dram;
-#define _IS_DMA_BUFFER(addr)                 \
-  ((intptr_t)(addr) >= (intptr_t)&_s_dram && \
-   (intptr_t)(addr) <= (intptr_t)&_e_dram)
 #else
 #define _IS_DMA_BUFFER(addr) (true)
 #endif
@@ -366,19 +248,17 @@ extern uint32_t _e_dram;
 #define _IS_ALIGNED(addr) (((intptr_t)(addr) & 3U) == 0U)
 
 static void _dma_enable_stream(DMA_TypeDef* DMAx, uint32_t stream,
-			       const void* data, uint32_t length)
+                               const void* data, uint32_t length)
 {
   stm32_dma_check_tc_flag(DMAx, stream);
-#if !defined(STM32H7RS)
   LL_DMA_SetMemoryAddress(DMAx, stream, (uintptr_t)data);
   LL_DMA_SetDataLength(DMAx, stream, length);
   LL_DMA_EnableStream(DMAx, stream);
-#endif
 }
 #endif
 
-uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
-				     uint8_t* data, uint16_t length)
+uint32_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi, uint8_t* data,
+                                     uint32_t length)
 {
 #if defined(USE_SPI_DMA)
   if (!spi->DMA) {
@@ -394,26 +274,17 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
   LL_SPI_EnableDMAReq_RX(spi->SPIx);
 
   _scratch_byte = 0xFFFF;
-#if !defined(STM32H7RS)
-  LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_NOINCREMENT);
-#endif
   _dma_enable_stream(spi->DMA, spi->txDMA_Stream, &_scratch_byte, length);
   LL_SPI_EnableDMAReq_TX(spi->SPIx);
 
   // Wait for end of DMA transfer
   while(!stm32_dma_check_tc_flag(spi->DMA, spi->rxDMA_Stream));
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
   // Wait for TXE=1
   while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
   
   // Wait for BSY=0
   while(LL_SPI_IsActiveFlag_BSY(spi->SPIx));
-#else
-  // Wait for EOT=1
-  while (!LL_SPI_IsActiveFlag_EOT(spi->SPIx));
-  LL_SPI_ClearFlag_EOT(spi->SPIx);
-#endif
 
   // Disable SPI TX/RX DMA requests
   LL_SPI_DisableDMAReq_TX(spi->SPIx);
@@ -429,8 +300,8 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
 #endif
 }
 
-uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
-                                      const uint8_t* data, uint16_t length)
+uint32_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
+                                      const uint8_t* data, uint32_t length)
 {
 #if defined(USE_SPI_DMA)
   if (!spi->DMA) {
@@ -443,17 +314,13 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
     data = _scratch_buffer;
   }
 
-#if !defined(STM32H7RS)
   LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_INCREMENT);
-#endif
-
   _dma_enable_stream(spi->DMA, spi->txDMA_Stream, data, length);
   LL_SPI_EnableDMAReq_TX(spi->SPIx);
 
   // Wait for end of DMA transfer
   while (!stm32_dma_check_tc_flag(spi->DMA, spi->txDMA_Stream));
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
   // Wait for TXE=1
   while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
 
@@ -464,16 +331,6 @@ uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
   if (LL_SPI_IsActiveFlag_RXNE(spi->SPIx)) {
     (void)LL_SPI_ReceiveData8(spi->SPIx);
   }
-#else
-  // Wait for EOT=1
-  while (!LL_SPI_IsActiveFlag_EOT(spi->SPIx));
-  LL_SPI_ClearFlag_EOT(spi->SPIx);
-
-  // Clear RX FIFO
-  while (LL_SPI_IsActiveFlag_RXP(spi->SPIx)) {
-    (void)LL_SPI_ReceiveData8(spi->SPIx);
-  }
-#endif
 
   // Disable SPI TX DMA requests
   LL_SPI_DisableDMAReq_TX(spi->SPIx);
