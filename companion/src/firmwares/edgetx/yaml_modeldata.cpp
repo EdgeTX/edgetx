@@ -155,6 +155,7 @@ static const YamlLookupTable cfsSwitchConfig = {
   {  1, "TOGGLE"  },
   {  2, "2POS"  },
   {  3, "3POS"  },
+  {  4, "GLOBAL"  },
 };
 
 static const YamlLookupTable cfsSwitchStart = {

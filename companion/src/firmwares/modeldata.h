@@ -234,15 +234,6 @@ class ModelData {
     unsigned int modelCustomScriptsDisabled;
     unsigned int modelTelemetryDisabled;
 
-    enum FunctionSwitchConfig {
-      FUNC_SWITCH_CONFIG_NONE,
-      FUNC_SWITCH_CONFIG_FIRST = FUNC_SWITCH_CONFIG_NONE,
-      FUNC_SWITCH_CONFIG_TOGGLE,
-      FUNC_SWITCH_CONFIG_2POS,
-      FUNC_SWITCH_CONFIG_GLOBAL,
-      FUNC_SWITCH_CONFIG_LAST = FUNC_SWITCH_CONFIG_GLOBAL
-    };
-
     enum FunctionSwitchStart {
       FUNC_SWITCH_START_OFF,
       FUNC_SWITCH_START_FIRST = FUNC_SWITCH_START_OFF,
