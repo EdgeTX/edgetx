@@ -205,8 +205,7 @@ bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings
 
   if (model) {
     if (type == SWITCH_TYPE_SWITCH && b.isSwitchFunc(sw.quot, board)) {
-      int fsindex = (((Boards::getSwitchTagNum(sw.quot, board) - 1) * 3) + sw.rem + 1) * ( index < 0 ? -1 : 1);
-      return model->isFunctionSwitchPositionAvailable(fsindex);
+      return model->isFunctionSwitchPositionAvailable(sw.quot, sw.rem, gs);
     }
     else
       return model->isAvailable(*this);
