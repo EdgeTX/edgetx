@@ -211,33 +211,6 @@
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
-// Serial Port (DEBUG)
-// We will temporarily used the PPM and the HEARTBEAT PINS
-// #define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
-// #define AUX_SERIAL_RCC_APB1Periph       0
-// #define AUX_SERIAL_RCC_APB2Periph       RCC_APB2Periph_USART6
-// #define AUX_SERIAL_GPIO                 GPIOC
-// #define AUX_SERIAL_GPIO_PIN_TX          GPIO_Pin_6  // PC.06
-// #define AUX_SERIAL_GPIO_PIN_RX          GPIO_Pin_7  // PC.07
-// #define AUX_SERIAL_GPIO_PinSource_TX    GPIO_PinSource6
-// #define AUX_SERIAL_GPIO_PinSource_RX    GPIO_PinSource7
-// #define AUX_SERIAL_GPIO_AF              GPIO_AF_USART6
-// #define AUX_SERIAL_USART                USART6
-// #define AUX_SERIAL_USART_IRQHandler     USART6_IRQHandler
-// #define AUX_SERIAL_USART_IRQn           USART6_IRQn
-// #define AUX_SERIAL_TX_INVERT_GPIO       GPIOE
-// #define AUX_SERIAL_TX_INVERT_GPIO_PIN   GPIO_Pin_3  // PE.03
-// #define AUX_SERIAL_RX_INVERT_GPIO       GPIOI
-// #define AUX_SERIAL_RX_INVERT_GPIO_PIN   GPIO_Pin_15 // PI.15
-
-//used in BOOTLOADER
-// #define SERIAL_RCC_AHB1Periph 0
-// #define SERIAL_RCC_APB1Periph 0
-// #define AUX2_SERIAL_RCC_AHB1Periph 0
-// #define AUX2_SERIAL_RCC_APB1Periph 0
-// #define AUX2_SERIAL_RCC_APB2Periph 0
-// #define KEYS_BACKLIGHT_RCC_AHB1Periph 0
-
 // Telemetry
  #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOB, 14)
  #define TELEMETRY_RX_GPIO               GPIO_UNDEF
@@ -310,42 +283,17 @@
 #define QSPI_QE_REG                     1
 #define QSPI_QE_BIT                     (1 << 6)
 
-// SPI NOR Flash
-//#define FLASH_SPI                      SPI6
-//#define FLASH_SPI_CS_GPIO              GPIOG
-//#define FLASH_SPI_CS_GPIO_PIN          LL_GPIO_PIN_6  // PG.06
-//#define FLASH_SPI_GPIO                 GPIOG
-//#define FLASH_SPI_SCK_GPIO_PIN         LL_GPIO_PIN_13 // PG.13
-//#define FLASH_SPI_MISO_GPIO_PIN        LL_GPIO_PIN_12 // PG.12
-//#define FLASH_SPI_MOSI_GPIO_PIN        LL_GPIO_PIN_14 // PG.14
-// #define FLASH_SPI_DMA                  DMA2
-// #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_1
-// #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
-// #define FLASH_SPI_DMA_TX_IRQn          DMA2_Stream5_IRQn
-// #define FLASH_SPI_DMA_TX_IRQHandler    DMA2_Stream5_IRQHandler
-// #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
-// #define FLASH_SPI_DMA_RX_IRQn          DMA2_Stream6_IRQn
-// #define FLASH_SPI_DMA_RX_IRQHandler    DMA2_Stream6_IRQHandler
-
-//#define SD_PRESENT_GPIO                GPIO_PIN(GPIOD, 3) // PD.03
-#define SD_SDIO                        SDMMC1
-#define SD_SDIO_CLK_DIV(fq)            (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
-#define SD_SDIO_INIT_CLK_DIV           SD_SDIO_CLK_DIV(400000)
-#define SD_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(50000000)
-#define SD_SDIO_PIN_D0                 GPIO_PIN(GPIOC,  8)
-#define SD_SDIO_AF_D0                  GPIO_AF12
-#define SD_SDIO_PIN_D1                 GPIO_PIN(GPIOC,  9)
-#define SD_SDIO_AF_D1                  GPIO_AF12
-#define SD_SDIO_PIN_D2                 GPIO_PIN(GPIOC, 10)
-#define SD_SDIO_AF_D2                  GPIO_AF12
-#define SD_SDIO_PIN_D3                 GPIO_PIN(GPIOC, 11)
-#define SD_SDIO_AF_D3                  GPIO_AF12
-#define SD_SDIO_PIN_CLK                GPIO_PIN(GPIOC, 12)
-#define SD_SDIO_AF_CLK                 GPIO_AF12
-#define SD_SDIO_PIN_CMD                GPIO_PIN(GPIOD,  2)
-#define SD_SDIO_AF_CMD                 GPIO_AF12
+// Storage
 #define STORAGE_USE_SDIO
 
+/*
+ * SDIO pins:
+ *  - SDMMC1_D0-D3 (PC.08-11)
+ *  - SDMMC1_CK    (PC.12)
+ *  - SDMMC1_CMD   (PD.02)
+ */
+#define SD_SDIO                        SDMMC1
+#define SD_SDIO_TRANSFER_CLK_DIV       SDMMC_HSPEED_CLK_DIV
 
 // Audio
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOE, 4) // PE.04
@@ -427,21 +375,11 @@
 #define INTMODULE_USART_IRQHandler      UART4_IRQHandler
 #define INTMODULE_DMA                   DMA2
 #define INTMODULE_DMA_STREAM            LL_DMA_STREAM_6
-//#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream0_IRQn
-//#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
 #define INTMODULE_DMA_CHANNEL           LL_DMAMUX1_REQ_UART4_TX
 #define INTMODULE_RX_DMA                DMA2
 #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_5
 #define INTMODULE_RX_DMA_CHANNEL        LL_DMAMUX1_REQ_UART4_RX
 #define INTMODULE_BOOTCMD_BSP
-
-// #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
-// #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
-
-// #define INTMODULE_TIMER                 TIM3
-// #define INTMODULE_TIMER_IRQn            TIM3_IRQn
-// #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
-// #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // External Module
 #define EXTMODULE
@@ -498,10 +436,8 @@
 #define TOUCH_I2C_CLK_RATE              100000
 
 
-//ROTARY emulation for trims as buttons
-#define ROTARY_ENCODER_NAVIGATION
 // Rotary Encoder
-//#define ROTARY_ENCODER_INVERTED
+#define ROTARY_ENCODER_NAVIGATION
 #define ROTARY_ENCODER_GPIO             GPIOA
 #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_6 // PA.06
 #define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_7 // PA.07
