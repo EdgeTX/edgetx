@@ -679,6 +679,8 @@ QString Boards::switchTypeToString(int value)
       return tr("2 Positions");
     case SWITCH_3POS:
       return tr("3 Positions");
+    case SWITCH_GLOBAL:
+      return tr("Global");
     case SWITCH_FUNC:
       return tr("Function");
     default:
@@ -692,7 +694,7 @@ AbstractStaticItemModel * Boards::switchTypeItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_BOARDS_SWITCH_TYPE);
 
-  for (int i = 0; i < SWITCH_FUNC; i++) { // Function not required in lists
+  for (int i = 0; i < SWITCH_GLOBAL; i++) { // Function not required in lists
     mdl->appendToItemList(switchTypeToString(i), i, true, 0,
                           (i == SWITCH_NOT_AVAILABLE ? SwitchTypeFlagNone : (i < SWITCH_3POS ? SwitchTypeFlag2Pos : SwitchTypeFlag3Pos)));
   }
