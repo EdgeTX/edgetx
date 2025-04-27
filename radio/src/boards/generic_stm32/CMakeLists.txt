@@ -32,6 +32,7 @@ set(BOARD_LIB_SRC
   boards/generic_stm32/switches.cpp
   boards/generic_stm32/bor_level.cpp
   boards/generic_stm32/rgb_leds.cpp
+  boards/generic_stm32/battery_voltage.cpp
 )
 
 add_library(minimal_board_lib OBJECT EXCLUDE_FROM_ALL ${MINIMAL_BOARD_LIB_SRC})

@@ -397,7 +397,7 @@
   #define ADC_DMA_STREAM_IRQ            DMA2_Stream0_IRQn
   #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream0_IRQHandler
   #define ADC_SAMPTIME                  LL_ADC_SAMPLINGTIME_56CYCLES
-  #define ADC_VREF_PREC2                600
+  #define ADC_VREF_PREC2                300
 #elif defined(RADIO_V16)
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0      // PA.00
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1      // PA.01
@@ -446,7 +446,7 @@
   #define ADC_DMA_STREAM                LL_DMA_STREAM_0
   #define ADC_DMA_STREAM_IRQ            DMA2_Stream0_IRQn
   #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream0_IRQHandler
-  #define ADC_VREF_PREC2                660
+  #define ADC_VREF_PREC2                330
 #elif defined(PCBX10)
 #if defined(RADIO_T15)
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_1      // PA.01
@@ -546,11 +546,11 @@
 
   // VBat divider is /4 on F42x and F43x devices
   #if defined(RADIO_TX16S) || defined(RADIO_T15) || defined(RADIO_F16) || defined(RADIO_V16)
-    #define ADC_VREF_PREC2              660
+    #define ADC_VREF_PREC2              330
   #elif defined(RADIO_T16) || defined(RADIO_T18)
-    #define ADC_VREF_PREC2              600
+    #define ADC_VREF_PREC2              300
   #else
-    #define ADC_VREF_PREC2              500
+    #define ADC_VREF_PREC2              250
   #endif
 #endif
 

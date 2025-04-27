@@ -391,7 +391,7 @@ void OpenTxSimulator::setInputValue(int type, uint8_t index, int16_t value)
     case INPUT_SRC_TXVIN :
       if (adcGetMaxInputs(ADC_INPUT_VBAT) > 0) {
         auto idx = adcGetInputOffset(ADC_INPUT_VBAT);
-        setAnalogValue(idx, voltageToAdc(value));
+        setAnalogValue(idx, value);
         emit txBatteryVoltageChanged((unsigned int)value);
       }
       break;
@@ -905,28 +905,6 @@ const QString OpenTxSimulator::getCurrentPhaseName()
 const char * OpenTxSimulator::getError()
 {
   return main_thread_error;
-}
-
-const int OpenTxSimulator::voltageToAdc(const int voltage)
-{
-  int volts = voltage * 10;  // prec2
-  int adc = 0;
-
-#if defined(VBAT_MOSFET_DROP)
-  // TRACE("volts: %d r1: %d r2: %d drop: %d vref: %d calib: %d", volts, VBAT_DIV_R1, VBAT_DIV_R2, VBAT_MOSFET_DROP, ADC_VREF_PREC2, g_eeGeneral.txVoltageCalibration);
-  adc = (volts - VBAT_MOSFET_DROP) * (2 * RESX * 1000) / ADC_VREF_PREC2 / (((1000 + g_eeGeneral.txVoltageCalibration) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1);
-#elif defined(BATT_SCALE)
-  // TRACE("volts: %d div: %d drop: %d scale: %d calib: %d", volts, BATTERY_DIVIDER, VOLTAGE_DROP, BATT_SCALE, g_eeGeneral.txVoltageCalibration);
-  adc = (volts - VOLTAGE_DROP) * BATTERY_DIVIDER / (128 + g_eeGeneral.txVoltageCalibration) / BATT_SCALE;
-#elif defined(VOLTAGE_DROP)
-  // TRACE("volts: %d div: %d drop: %d", volts, BATTERY_DIVIDER, VOLTAGE_DROP);
-  adc = (volts - VOLTAGE_DROP) * BATTERY_DIVIDER / (1000 + g_eeGeneral.txVoltageCalibration);
-#else
-  // TRACE("volts: %d div: %d calib: %d", volts, BATTERY_DIVIDER, g_eeGeneral.txVoltageCalibration);
-  adc = volts * BATTERY_DIVIDER / (1000 + g_eeGeneral.txVoltageCalibration);
-#endif
-  // TRACE("calc adc: %d", adc);
-  return adc * 2; // div by 2 in firmware filtered adc calcs
 }
 
 

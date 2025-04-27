@@ -33,6 +33,17 @@ void enableVBatBridge(){}
 void disableVBatBridge(){}
 bool isVBatBridgeEnabled(){ return false; }
 
+uint16_t getBatteryVoltage()
+{
+  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
+  return anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
+}
+
+uint16_t getRTCBatteryVoltage()
+{
+  return 300;
+}
+
 extern uint16_t simu_get_analog(uint8_t idx);
 
 static bool simu_start_conversion()
@@ -44,38 +55,9 @@ static bool simu_start_conversion()
 
   // set batteries default voltages
   int i = adcGetInputOffset(ADC_INPUT_VBAT);
-
   if (i > 0) {
-    // calculate default voltage on 1st call
-    uint32_t adc = (simu_get_analog(i) - 2048) * 1000 / 2000;
-    // TRACE("raw ana: %d adj ana: %d", simu_get_analog(i), vbat);
-    // just in case the voltage has not been initialised in sim initialisation/startup
-    // these formulae must mirror OpenTxSimulator::voltageToAdc
-    if (adc == 0) {
-      uint32_t volts = (uint32_t)((g_eeGeneral.vBatWarn > 0 ? g_eeGeneral.vBatWarn : BATTERY_WARN) + 5) * 10; // +0.5V and prec2
-#if defined(VBAT_MOSFET_DROP)
-      // TRACE("volts: %d r1: %d r2: %d drop: %d vref: %d calib: %d", volts, VBAT_DIV_R1, VBAT_DIV_R2, VBAT_MOSFET_DROP, ADC_VREF_PREC2, g_eeGeneral.txVoltageCalibration);
-      adc = (volts - VBAT_MOSFET_DROP) * (2 * RESX * 1000) / ADC_VREF_PREC2 / (((1000 + g_eeGeneral.txVoltageCalibration) * (VBAT_DIV_R2 + VBAT_DIV_R1)) / VBAT_DIV_R1);
-#elif defined(BATT_SCALE)
-      // TRACE("volts: %d div: %d drop: %d scale: %d calib: %d", volts, BATTERY_DIVIDER, VOLTAGE_DROP, BATT_SCALE, g_eeGeneral.txVoltageCalibration);
-      adc = (volts - VOLTAGE_DROP) * BATTERY_DIVIDER / (128 + g_eeGeneral.txVoltageCalibration) / BATT_SCALE;
-#elif defined(VOLTAGE_DROP)
-      // TRACE("volts: %d div: %d drop: %d", volts, BATTERY_DIVIDER, VOLTAGE_DROP);
-      adc = (volts - VOLTAGE_DROP) * BATTERY_DIVIDER / (1000 + g_eeGeneral.txVoltageCalibration);
-#else
-      // TRACE("volts: %d div: %d calib: %d", volts, BATTERY_DIVIDER, g_eeGeneral.txVoltageCalibration);
-      adc = volts * BATTERY_DIVIDER / (1000 + g_eeGeneral.txVoltageCalibration);
-#endif
-      // TRACE("calc adc: %d", adc);
-      adc = adc * 2; // div by 2 in firmware filtered adc calcs
-    }
-
-    setAnalogValue(i, adc);
-  }
-
-  if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) > 0) {
-    uint32_t rtc_bat = (300 * (2048 >> ANALOG_SCALE)) / ADC_VREF_PREC2;
-    setAnalogValue(adcGetInputOffset(ADC_INPUT_RTC_BAT), rtc_bat * 2);
+    uint16_t volts = (uint16_t)((g_eeGeneral.vBatWarn > 0 ? g_eeGeneral.vBatWarn : BATTERY_WARN) + 5) * 10; // +0.5V and prec2
+    setAnalogValue(i, volts * 2);
   }
 
   return true;
