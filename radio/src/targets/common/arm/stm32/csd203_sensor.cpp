@@ -34,6 +34,7 @@
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
 #include "stm32_i2c_driver.h"
+#include "hal/i2c_driver.h"
 
 // clang-format off
 /* CSD203 Regsistor map */
@@ -203,7 +204,7 @@ bool I2C_CSD203_WriteRegister(uint8_t I2C_ADDR, uint8_t reg, uint8_t *buf,
     }
   }
 
-  if (stm32_i2c_master_tx(TOUCH_I2C_BUS, I2C_ADDR, uAddrAndBuf, len + 1, 100) <
+  if (stm32_i2c_master_tx(I2C_Bus_1, I2C_ADDR, uAddrAndBuf, len + 1, 100) <
       0) {
     TRACE("I2C B1 ERROR: WriteRegister failed");
     return false;
@@ -218,12 +219,12 @@ bool I2C_CSD203_ReadRegister(uint8_t I2C_ADDR, uint8_t reg, uint8_t *buf,
   // uRegAddr[0] = (uint8_t)((reg & 0xFF00) >> 8);
   uRegAddr[0] = (uint8_t)(reg & 0x00FF);
 
-  if (stm32_i2c_master_tx(TOUCH_I2C_BUS, I2C_ADDR, uRegAddr, 1, 100) < 0) {
+  if (stm32_i2c_master_tx(I2C_Bus_1, I2C_ADDR, uRegAddr, 1, 100) < 0) {
     TRACE("I2C B1 ERROR: ReadRegister write reg address failed");
     return false;
   }
 
-  if (stm32_i2c_master_rx(TOUCH_I2C_BUS, I2C_ADDR, buf, len, 100) < 0) {
+  if (stm32_i2c_master_rx(I2C_Bus_1, I2C_ADDR, buf, len, 100) < 0) {
     TRACE("I2C B1 ERROR: ReadRegister read reg address failed");
     return false;
   }
@@ -315,6 +316,19 @@ uint16_t CSD203_ReadManufacturerID(CSD_CONFIG *CSD203_CFG)
   ADDR = (CSD203_CFG->DeviceADDR);
   Data = IIC_DUT_R(ADDR, ManufacturerID);
   return Data;
+}
+
+void IICcsd203init(void)
+{
+  if (i2c_init(I2C_Bus_1) < 0) {
+    return;  //err
+  }
+}
+void ReIICcsd203init(void)
+{
+	if (i2c_init(I2C_Bus_1) < 0) {
+    return;  //err
+  }
 }
 
 void initCSD203(void)

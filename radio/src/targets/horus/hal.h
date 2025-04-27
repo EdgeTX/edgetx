@@ -956,7 +956,11 @@
   #define I2C_B1_SCL_GPIO             GPIO_PIN(GPIOB, 8)  // PB.08
   #define I2C_B1_SDA_GPIO             GPIO_PIN(GPIOB, 9)  // PB.09
   #define I2C_B1_GPIO_AF              LL_GPIO_AF_4   // I2C1
-  #define I2C_B1_CLK_RATE             400000
+  #if defined(RADIO_V16)
+    #define I2C_B1_CLK_RATE           800000
+  #else
+    #define I2C_B1_CLK_RATE           400000
+  #endif
 #else
   #define I2C_B1                      I2C3
   #define I2C_B1_SCL_GPIO             GPIO_PIN(GPIOH, 7)  // PH.07

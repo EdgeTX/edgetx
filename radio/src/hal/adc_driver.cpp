@@ -24,6 +24,10 @@
 
 #include "edgetx.h"
 
+#if defined(HR_GIMBAL_RGB)
+  #include "gimbal_rgb.h"
+#endif
+
 const etx_hal_adc_driver_t* _hal_adc_driver = nullptr;
 const etx_hal_adc_inputs_t* _hal_adc_inputs = nullptr;
 
@@ -242,8 +246,13 @@ uint16_t getRTCBatteryVoltage()
   return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
          (1024 >> ANALOG_SCALE);
 #else
-  return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
-         (2048 >> ANALOG_SCALE);
+  #if defined(RADIO_V12)||defined(RADIO_V14)
+    return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
+        (660 >> ANALOG_SCALE);
+  #else
+    return (anaIn(adcGetInputOffset(ADC_INPUT_RTC_BAT)) * ADC_VREF_PREC2) /
+        (2048 >> ANALOG_SCALE);
+  #endif
 #endif
 }
 
@@ -252,7 +261,7 @@ uint16_t getAnalogValue(uint8_t index)
   if (index >= MAX_ANALOG_INPUTS) return 0;
 #if defined(SIXPOS_SWITCH_INDEX) && !defined(SIMU)
   if (index == SIXPOS_SWITCH_INDEX)
-    return getSixPosAnalogValue(adcValues[index]);
+    return getMultiPosAnalogValue(adcValues[index]);
   else
 #endif
   return adcValues[index];

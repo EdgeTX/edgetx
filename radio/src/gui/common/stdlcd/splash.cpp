@@ -21,6 +21,9 @@
 
 #include "edgetx.h"
 #include "inactivity_timer.h"
+#if defined(HR_GIMBAL_RGB)
+#include "gimbal_rgb.h"
+#endif
 
 static bool splashStarted = false;
 
@@ -52,6 +55,11 @@ void waitSplash()
 
     tmr10ms_t tgtime = get_tmr10ms() + SPLASH_TIMEOUT;
 
+  #if defined(HR_GIMBAL_RGB)
+    if(SPLASH_TIMEOUT<(6000/10))  //time expand GIMBAL_RGB init loop
+      tgtime = get_tmr10ms() +6000/10;
+  #endif   
+
     while (tgtime > get_tmr10ms()) {
       RTOS_WAIT_TICKS(1);
 
@@ -59,8 +67,11 @@ void waitSplash()
 
       if (getEvent() || inactivityCheckInputs())
         return;
-
-#if defined(PWR_BUTTON_PRESS)
+    #if defined(HR_GIMBAL_RGB)
+        rbgInitLoop(10);
+        ws2812update();
+    #endif  
+    #if defined(PWR_BUTTON_PRESS)
       uint32_t pwr_check = pwrCheck();
       if (pwr_check == e_power_off) {
         break;

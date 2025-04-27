@@ -79,7 +79,11 @@ void set_aux_pwr(uint8_t on)
 #endif
 
 const etx_serial_port_t auxSerialPort = {
+#if defined(CI1302_SENSOR)
+  .name = "Voice",
+#else  
   .name = "AUX1",
+#endif
   .uart = &STM32SerialDriver,
   .hw_def = REF_STM32_SERIAL_PORT(Aux),
   .set_pwr = AUX_PWR_FCT

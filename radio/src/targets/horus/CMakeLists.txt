@@ -133,6 +133,9 @@ if (PCB STREQUAL X10)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
     set(AUX2_SERIAL OFF)
     set(HAS_CSD203_SENSOR ON)
+    set(HAS_VOICE_SENSOR ON)
+    set(HAS_GYRO_SENSOR ON)
+    set(HAS_GIMBAL_RGB ON)
     set(FLYSKY_GIMBAL ON)
     if (BLUETOOTH)
       set(AUX_SERIAL OFF)
@@ -357,10 +360,6 @@ if(USB_CHARGER)
   target_sources(board PRIVATE ${TARGET_SRC_DIR}/usb_charger_driver.cpp)
 endif()
 
-if(HAS_CSD203_SENSOR)
-  set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} csd203_sensor.cpp)
-  add_definitions(-DCSD203_SENSOR)
-endif()
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   targets/common/arm/loadboot.cpp

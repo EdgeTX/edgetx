@@ -24,6 +24,9 @@
 #include "edgetx.h"
 #include "stamp.h"
 #include "theme_manager.h"
+#if defined(HR_GIMBAL_RGB)
+#include "gimbal_rgb.h"
+#endif
 
 extern void checkSpeakerVolume();
 
@@ -126,7 +129,16 @@ void waitSplash()
     RTOS_WAIT_TICKS(30);
 #endif  // defined(SIMU)
 
+#if defined(HR_GIMBAL_RGB)
+    splashStartTime=get_tmr10ms();
+    if(SPLASH_TIMEOUT<(6000/10))  //time expand GIMBAL_RGB init loop
+      splashStartTime+=6000/10;
+    else
+      splashStartTime += SPLASH_TIMEOUT;
+#else
     splashStartTime += SPLASH_TIMEOUT;
+#endif
+
     while (splashStartTime >= get_tmr10ms()) {
       LvglWrapper::instance()->run();
       MainWindow::instance()->run();
@@ -139,6 +151,10 @@ void waitSplash()
         if (evt) killEvents(evt);
         break;
       }
+  #if defined(HR_GIMBAL_RGB)
+      rbgInitLoop(1);
+      ws2812update();
+  #endif 
 #if defined(SIMU)
       // Allow simulator to exit if closed while splash showing
       uint32_t pwr_check = pwrCheck();
