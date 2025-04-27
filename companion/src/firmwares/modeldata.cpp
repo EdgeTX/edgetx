@@ -223,8 +223,8 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
     return;
 
   for (int i = 0; i < functionSwitchCount; i++) {
-    setFuncSwitchConfig(i, Board::SWITCH_2POS);
-    setFuncSwitchGroup(i, i < 6 ? 1 : 0);   // SA & SD on GX12 are not grouped by default
+    customSwitches[i].type = ModelData::FUNC_SWITCH_CONFIG_GLOBAL;
+    customSwitches[i].group = 0;
     customSwitches[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
     customSwitches[i].state = 0;
     customSwitches[i].name[0] = 0;
@@ -394,20 +394,18 @@ int ModelData::getChannelsMax(bool forceExtendedLimits) const
     return 100;
 }
 
-bool ModelData::isFunctionSwitchPositionAvailable(int index) const
+bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const GeneralSettings * const gs) const
 {
-  if (index == 0)
-    return true;
-
-  div_t qr = div(abs(index) - 1, 3);
-  int fs = getFuncSwitchConfig(qr.quot);
-
-  if (qr.rem == 1) {
+  if (swPos == 1)
     return false;
-  }
-  else {
-    return fs != Board::SWITCH_NOT_AVAILABLE;
-  }
+
+  int fsindex = Boards::getCFSIndexForSwitch(swIndex);
+  int fs = getFuncSwitchConfig(fsindex);
+
+  if (fs == ModelData::FUNC_SWITCH_CONFIG_GLOBAL)
+    return gs->switchConfig[swIndex].type != Board::SWITCH_NOT_AVAILABLE;
+
+  return true;
 }
 
 bool ModelData::isFunctionSwitchSourceAllowed(int index) const

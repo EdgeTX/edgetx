@@ -221,7 +221,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   for (int i = 0; i < Boards::getBoardCapability(board, Board::Switches); i++) {
     GeneralSettings::SwitchConfig &swcfg = generalSettings.switchConfig[i];
 
-    if (Boards::isSwitchFunc(i, board) || !generalSettings.isSwitchAvailable(i) || swcfg.type == Board::SWITCH_TOGGLE) {
+    if (!generalSettings.isSwitchAvailable(i) || swcfg.type == Board::SWITCH_TOGGLE) {
       model.switchWarningEnable |= (1 << i);
       continue;
     }
