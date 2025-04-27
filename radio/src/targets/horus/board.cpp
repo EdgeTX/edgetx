@@ -195,13 +195,13 @@ void boardInit()
   switchInit();
   rotaryEncoderInit();
 
-  bool fsgimbals=false;
+  bool fsGimbalsDetected=false;
 #if defined(FLYSKY_GIMBAL)
-  fsgimbals = flysky_gimbal_init();
+  fsGimbalsDetected = flysky_gimbal_init();
 #endif
 
 #if defined(PWM_STICKS)
-  if (!fsgimbals) sticksPwmDetect();
+  if (!fsGimbalsDetected) sticksPwmDetect();
 #endif
 
   if (!adcInit(&_adc_driver))
