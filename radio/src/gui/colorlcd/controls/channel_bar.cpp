@@ -70,7 +70,7 @@ void ChannelBar::checkEvents()
 
   int newValue = getValue();
 
-  if (value != newValue) {
+  if (value != newValue || extendedLimits != g_model.extendedLimits) {
     value = newValue;
 
     std::string s;
@@ -81,7 +81,7 @@ void ChannelBar::checkEvents()
     else
       s = formatNumberAsString(calcRESXto100(value), 0, 0, "", "%");
 
-    if (s != valStr) {
+    if (s != valStr || extendedLimits != g_model.extendedLimits) {
       valStr = s;
       lv_label_set_text(valText, s.c_str());
 
@@ -100,6 +100,8 @@ void ChannelBar::checkEvents()
       lv_obj_set_pos(bar, x, 0);
       lv_obj_set_size(bar, size, height());
     }
+
+    extendedLimits = g_model.extendedLimits;
   }
 }
 
