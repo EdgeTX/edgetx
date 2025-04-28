@@ -1750,7 +1750,7 @@ AbstractStaticItemModel * ModelData::trainerModeItemModel(const GeneralSettings 
   return mdl;
 }
 
-unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
+Board::SwitchType ModelData::getFuncSwitchConfig(unsigned int index) const
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
     return customSwitches[index].type;
@@ -1758,7 +1758,7 @@ unsigned int ModelData::getFuncSwitchConfig(unsigned int index) const
     return Board::SWITCH_NOT_AVAILABLE;
 }
 
-void ModelData::setFuncSwitchConfig(unsigned int index, unsigned int value)
+void ModelData::setFuncSwitchConfig(unsigned int index, Board::SwitchType value)
 {
   if (index < CPN_MAX_SWITCHES_FUNCTION)
     customSwitches[index].type = value;
@@ -2028,4 +2028,17 @@ int ModelData::getInputLine(int index) const
   }
 
   return cnt;
+}
+
+const Board::SwitchType ModelData::getSwitchType(int sw, const GeneralSettings & gs) const
+{
+  if (sw < 0 || sw >= Boards::getCapability(getCurrentBoard(), Board::Switches))
+    return Board::SWITCH_NOT_AVAILABLE;
+
+  if (Boards::isSwitchFunc(sw)) {
+    int fsIndex = Boards::getCFSIndexForSwitch(sw);
+    if (customSwitches[fsIndex].type != Board::SWITCH_GLOBAL)
+      return customSwitches[fsIndex].type;
+  }
+  return gs.switchConfig[sw].type;
 }

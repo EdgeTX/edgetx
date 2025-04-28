@@ -117,7 +117,7 @@ class RGBLedColor {
 class customSwitch {
   public:
     customSwitch() { clear(); }
-    unsigned int type;
+    Board::SwitchType type;
     unsigned int group;
     unsigned int start;
     unsigned int state;
@@ -185,7 +185,6 @@ class ModelData {
     SwashRingData swashRingData;
     unsigned int thrTraceSrc;
     uint64_t switchWarningStates;
-    unsigned int switchWarningEnable;
     unsigned int thrTrimSwitch;
     unsigned int potsWarningMode;
     bool potsWarnEnabled[CPN_MAX_INPUTS];
@@ -291,6 +290,8 @@ class ModelData {
     bool isFunctionSwitchPositionAvailable(int swIndex, int swPos, const GeneralSettings * const gs) const;
     bool isFunctionSwitchSourceAllowed(int index) const;
 
+    const Board::SwitchType getSwitchType(int sw, const GeneralSettings & gs) const;
+  
     enum ReferenceUpdateAction {
       REF_UPD_ACT_CLEAR,
       REF_UPD_ACT_SHIFT,
@@ -345,8 +346,8 @@ class ModelData {
     static QString trainerModeToString(const int value);
     bool isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value);
     AbstractStaticItemModel * trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware);
-    unsigned int getFuncSwitchConfig(unsigned int index) const;
-    void setFuncSwitchConfig(unsigned int index, unsigned int value);
+    Board::SwitchType getFuncSwitchConfig(unsigned int index) const;
+    void setFuncSwitchConfig(unsigned int index, Board::SwitchType value);
     static QString funcSwitchConfigToString(unsigned int value);
     static AbstractStaticItemModel * funcSwitchConfigItemModel();
     static AbstractStaticItemModel * funcSwitchGroupStartSwitchModel(int switchcnt);
