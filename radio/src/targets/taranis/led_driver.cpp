@@ -69,6 +69,11 @@ void fsLedRGB(uint8_t index, uint32_t color)
                    GET_BLUE(color));
 }
 
+uint32_t fsGetLedRGB(uint8_t index)
+{
+  return rgbGetLedColor(ledMapping[index]);
+}
+
 uint8_t getRGBColorIndex(uint32_t color)
 {
   for (uint8_t i = 0; i < DIM(colorTable); i++) {
