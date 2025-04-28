@@ -49,10 +49,6 @@
 
 #include <string.h>
 
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
-#endif
-
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
 #endif
@@ -194,19 +190,11 @@ void boardInit()
   keysInit();
   switchInit();
   rotaryEncoderInit();
+  gimbalsDetect();
 
-#if defined(FLYSKY_GIMBAL) && defined(PWM_STICKS)
-  if (!flysky_gimbal_init()) {
-    sticksPwmDetect();
-  }
-#elif defined(FLYSKY_GIMBAL)
-  flysky_gimbal_init();
-#elif defined(PWM_STICKS)
-  sticksPwmDetect();
-#endif
-
-  if (!adcInit(&_adc_driver))
+  if (!adcInit(&_adc_driver)) {
     TRACE("adcInit failed");
+  }
 
   timersInit();
 

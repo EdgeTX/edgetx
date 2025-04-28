@@ -1417,6 +1417,7 @@
   #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_0  // PC.00
   #define PWM_STICKS
   #define PWM_TIMER                     TIM5
+  #define PWM_TIMER_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define PWM_GPIO                      GPIOA
   #define PWM_GPIO_AF                   GPIO_AF2
   #define PWM_IRQHandler                TIM5_IRQHandler
@@ -1468,11 +1469,12 @@
   #define ADC_VREF_PREC2                320
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
   #define PWM_STICKS
-  #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_TIMER                     TIM5
+  #define PWM_TIMER_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define PWM_GPIO                      GPIOA
   #define PWM_GPIO_AF                   GPIO_AF2
   #define PWM_IRQn                      TIM5_IRQn
+  #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
   #define STICK_PWM_CHANNEL_LH          1
   #define STICK_PWM_CHANNEL_LV          0
