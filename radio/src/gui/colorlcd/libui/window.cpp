@@ -446,6 +446,14 @@ void NavWindow::onEvent(event_t event)
       onPressPGUP();
       break;
 
+    case EVT_KEY_LONG(KEY_PAGEDN):
+      onLongPressPGDN();
+      break;
+
+    case EVT_KEY_LONG(KEY_PAGEUP):
+      onLongPressPGUP();
+      break;
+
     case EVT_KEY_LONG(KEY_EXIT):
       onLongPressRTN();
       break;
