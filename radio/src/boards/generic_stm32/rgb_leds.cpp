@@ -77,10 +77,13 @@ void rgbLedClearAll()
   ws2812_update(&_led_timer);
 }
 
+__WEAK void rgbLedOnUpdate() {}
+
 static void rgbLedTimerCb(TimerHandle_t xTimer)
 {
   (void)xTimer;
 
+  rgbLedOnUpdate();
   ws2812_update(&_led_timer);
 }
 

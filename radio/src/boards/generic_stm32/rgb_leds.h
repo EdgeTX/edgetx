@@ -34,3 +34,6 @@ void rgbLedClearAll();
 
 bool rgbGetState(uint8_t led);
 void rgbLedColorApply();
+
+// declared "weak"
+void rgbLedOnUpdate();
