@@ -298,27 +298,24 @@ struct YamlSwitchWarning {
   static constexpr size_t MASK_LEN = 2;
   static constexpr size_t MASK = (1 << MASK_LEN) - 1;
 
-  unsigned int enabled;
-
   YamlSwitchWarning() = default;
 
-  YamlSwitchWarning(YAML::Node& node, uint64_t cpn_value, unsigned int switchWarningEnable)
-    : enabled(~switchWarningEnable)
+  YamlSwitchWarning(YAML::Node& node, uint64_t cpn_value)
   {
     uint64_t states = cpn_value;
 
     for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
-      if (!Boards::isSwitchFunc(i) && (enabled & (1 << i))) {
+      if (states & MASK) {
         std::string posn;
 
         switch(states & MASK) {
-        case 0:
+        case 1:
           posn = "up";
           break;
-        case 1:
+        case 2:
           posn = "mid";
           break;
-        case 2:
+        case 3:
           posn = "down";
           break;
         }
@@ -333,7 +330,6 @@ struct YamlSwitchWarning {
   uint64_t toCpn(const YAML::Node &warn)
   {
     uint64_t states = 0;
-    enabled = 0;
 
     if (warn.IsMap()) {
       for (const auto& sw : warn) {
@@ -351,14 +347,13 @@ struct YamlSwitchWarning {
         int value = 0;
 
         if (posn == "up")
-          value = 0;
-        else if (posn == "mid")
           value = 1;
-        else if (posn == "down")
+        else if (posn == "mid")
           value = 2;
+        else if (posn == "down")
+          value = 3;
 
         states |= ((uint64_t)value << (index * MASK_LEN));
-        enabled |= (1 << index);
       }
     }
 
@@ -375,32 +370,30 @@ struct YamlSwitchWarningState {
   static constexpr size_t MASK = (1 << MASK_LEN) - 1;
 
   std::string src_str;
-  unsigned int enabled;
 
   YamlSwitchWarningState() = default;
 
-  YamlSwitchWarningState(uint64_t cpn_value, unsigned int switchWarningEnable)
-    : enabled(~switchWarningEnable)
+  YamlSwitchWarningState(uint64_t cpn_value)
   {
     uint64_t states = cpn_value;
 
     std::stringstream ss;
     for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
       //TODO: exclude 2-pos toggle from switch warnings
-      if (enabled & (1 << i)) {
+      if (states & MASK) {
         std::string tag = Boards::getSwitchTag(i).toStdString();
         const char *sw = tag.data();
 
         if (tag.size() >= 2 && sw[0] == 'S') {
           ss << sw[1];
           switch(states & MASK) {
-          case 0:
+          case 1:
             ss << 'u';
             break;
-          case 1:
+          case 2:
             ss << '-';
             break;
-          case 2:
+          case 3:
             ss << 'd';
             break;
           }
@@ -415,7 +408,6 @@ struct YamlSwitchWarningState {
   uint64_t toCpn()
   {
     uint64_t states = 0;
-    enabled = 0;
 
     std::stringstream ss(src_str);
     while (!ss.eof()) {
@@ -437,20 +429,19 @@ struct YamlSwitchWarningState {
       int value = 0;
       switch(s) {
       case 'u':
-        value = 0;
-        break;
-      case '-':
         value = 1;
         break;
-      case 'd':
+      case '-':
         value = 2;
+        break;
+      case 'd':
+        value = 3;
         break;
       default:
         continue;
       }
 
       states |= ((uint64_t)value << (index * MASK_LEN));
-      enabled |= (1 << index);
     }
 
     return states;
@@ -1114,7 +1105,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["thrTraceSrc"] = thrTrace.src;
 
   Node sw_warn;
-  YamlSwitchWarning switchWarning(sw_warn, rhs.switchWarningStates, rhs.switchWarningEnable);
+  YamlSwitchWarning switchWarning(sw_warn, rhs.switchWarningStates);
   if (sw_warn && sw_warn.IsMap()) {
     node["switchWarning"] = sw_warn;
   }
@@ -1384,16 +1375,13 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   if (node["switchWarning"]) {
     YamlSwitchWarning switchWarning;
     rhs.switchWarningStates = switchWarning.toCpn(node["switchWarning"]);
-    rhs.switchWarningEnable = ~switchWarning.enabled;
   }
   else if (node["switchWarningState"]) {         // depreciated
     YamlSwitchWarningState switchWarningState;
     node["switchWarningState"] >> switchWarningState.src_str;
     rhs.switchWarningStates = switchWarningState.toCpn();
-    rhs.switchWarningEnable = ~switchWarningState.enabled;
   } else {
     rhs.switchWarningStates = 0;
-    rhs.switchWarningEnable = ~0;
   }
 
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
@@ -1518,7 +1506,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     uint16_t v;
     node["functionSwitchConfig"] >> v;
     for (int i = 0; i < 6; i += 1) {
-      rhs.customSwitches[i].type = v & 3;
+      rhs.customSwitches[i].type = (Board::SwitchType)(v & 3);
       v >>= 2;
     }
   }
@@ -1577,7 +1565,9 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
       int sw = Boards::getSwitchIndexForCFS(i);
       std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
       if (node["customSwitches"][tag]) {
-        node["customSwitches"][tag]["type"] >> cfsSwitchConfig >> rhs.customSwitches[i].type;
+        unsigned type;
+        node["customSwitches"][tag]["type"] >> cfsSwitchConfig >> type;
+        rhs.customSwitches[i].type = (Board::SwitchType)type;
         node["customSwitches"][tag]["group"] >> rhs.customSwitches[i].group;
         node["customSwitches"][tag]["start"] >> cfsSwitchStart >> rhs.customSwitches[i].start;
         node["customSwitches"][tag]["state"] >> rhs.customSwitches[i].state;
