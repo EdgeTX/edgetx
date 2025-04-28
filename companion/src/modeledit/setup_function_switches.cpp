@@ -214,7 +214,7 @@ void FunctionSwitchesPanel::on_configCurrentIndexChanged(int index)
     unsigned int sw = sender()->property("index").toInt(&ok);
     unsigned int config = filterSwitchConfigs[sw]->mapToSource(filterSwitchConfigs[sw]->index(index, 0)).row();
     if (ok && model->getFuncSwitchConfig(sw) != config) {
-      model->setFuncSwitchConfig(sw, config);
+      model->setFuncSwitchConfig(sw, (Board::SwitchType)config);
       if (config != Board::SWITCH_2POS && config != Board::SWITCH_GLOBAL) {
         model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_PREVIOUS);
         if ((config == Board::SWITCH_NOT_AVAILABLE) || model->getFuncSwitchAlwaysOnGroupForSwitch(sw))
