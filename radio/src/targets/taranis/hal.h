@@ -1308,10 +1308,17 @@
 
 // 6POS SW
 #if defined(RADIO_V14) || defined(RADIO_V12)
-  #define SIXPOS_SWITCH_INDEX             6
-  #define SIXPOS_LED_RED                255
-  #define SIXPOS_LED_GREEN              255
-  #define SIXPOS_LED_BLUE               255
+  // default calibration
+  #define DEFAULT_6POS_CALIB {3, 12, 21, 30, 38}
+  #define DEFAULT_6POS_IDX   6
+
+  // index in pots
+  #define SIXPOS_SWITCH_INDEX 2
+
+  // RGB LEDs color
+  #define SIXPOS_LED_RED   255
+  #define SIXPOS_LED_GREEN 255
+  #define SIXPOS_LED_BLUE  255
 #endif
 
 // ADC
@@ -1981,13 +1988,15 @@
   #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
   #define LED_STRIP_REFRESH_PERIOD          50  //ms
 #elif defined(RADIO_T14) || defined(RADIO_V14) || defined(RADIO_V12)
-#if defined(RADIO_V14)
-  #define LED_STRIP_LENGTH                  38
-#elif defined(RADIO_V12)
-  #define LED_STRIP_LENGTH                  6
-#else
-  #define LED_STRIP_LENGTH                  1
-#endif
+  #if defined(RADIO_V14)
+    #define LED_STRIP_LENGTH                38
+    #define LED_STRIP_RESERVED              6
+  #elif defined(RADIO_V12)
+    #define LED_STRIP_LENGTH                6
+    #define LED_STRIP_RESERVED              6
+  #else
+    #define LED_STRIP_LENGTH                1
+  #endif
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10) // PA.10 / TIM1_CH3
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1
   #define LED_STRIP_TIMER                   TIM1

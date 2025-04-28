@@ -133,6 +133,7 @@ if (PCB STREQUAL X10)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
     set(AUX2_SERIAL OFF)
     set(HAS_CSD203_SENSOR ON)
+    set(HAS_RGB_6POS ON)
     set(FLYSKY_GIMBAL ON)
     if (BLUETOOTH)
       set(AUX_SERIAL OFF)
@@ -361,6 +362,11 @@ if(HAS_CSD203_SENSOR)
   set(FIRMWARE_TARGET_SRC ${FIRMWARE_TARGET_SRC} csd203_sensor.cpp)
   add_definitions(-DCSD203_SENSOR)
 endif()
+
+if(HAS_RGB_6POS)
+  target_sources(board PRIVATE boards/helloradio/rgb_6pos.cpp)
+endif()
+
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
   targets/common/arm/loadboot.cpp
