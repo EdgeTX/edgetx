@@ -162,7 +162,7 @@ extern uint32_t _heap_start;
 #define _IS_DMA_BUFFER(addr) (true)
 #endif
 
-#define _IS_ALIGNED(addr) (((intptr_t)(addr) & 0x1FU) == 0U)
+#define _IS_ALIGNED(addr) (((intptr_t)(addr) & 3U) == 0U)
 
 // HAL state
 static SD_HandleTypeDef sdio;
