@@ -145,7 +145,7 @@ if(FLYSKY_GIMBAL)
   add_definitions(-DFLYSKY_GIMBAL)
 endif()
 
-if(HAS_CSD203_SENSOR)
+if(CSD203_SENSOR)
   set(FIRMWARE_SRC ${FIRMWARE_SRC}
   targets/common/arm/stm32/csd203_sensor.cpp
   )
