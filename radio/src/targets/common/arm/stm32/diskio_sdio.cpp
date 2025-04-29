@@ -127,6 +127,7 @@ struct {
   gpio_af_t  AF_CMD = SD_SDIO_AF_CMD;
   gpio_af_t  AF_CLK = SD_SDIO_AF_CLK;
   IRQn_Type  IRQn = SDMMC1_IRQn;
+  uint32_t SD_CLK_DIV = SD_SDIO_TRANSFER_CLK_DIV;
 } currentSD;
 
 #if FF_MAX_SS != FF_MIN_SS
@@ -278,6 +279,7 @@ static DSTATUS sdio_initialize(BYTE lun)
     currentSD.CLK = SD2_SDIO_PIN_CLK;
     currentSD.AF_CLK = SD2_SDIO_AF_CLK;
     currentSD.IRQn = SDMMC2_IRQn;
+	currentSD.SD_CLK_DIV = SD2_SDIO_TRANSFER_CLK_DIV;
   }
 #endif
 
@@ -299,7 +301,7 @@ static DSTATUS sdio_initialize(BYTE lun)
 #if defined(SD_SDIO_CLOCK_BYPASS_DISABLE)
   sdio.Init.ClockBypass = SD_SDIO_CLOCK_BYPASS_DISABLE;
 #endif
-  sdio.Init.ClockDiv = SD_SDIO_TRANSFER_CLK_DIV;
+  sdio.Init.ClockDiv = currentSD.SD_CLK_DIV;
 
   HAL_StatusTypeDef halStatus = HAL_SD_Init(&sdio);
   if (halStatus != HAL_OK) {

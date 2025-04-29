@@ -337,6 +337,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define SD2_SDIO_AF_CLK                 GPIO_AF11
 #define SD2_SDIO_PIN_CMD                GPIO_PIN(GPIOD, 7)
 #define SD2_SDIO_AF_CMD                 GPIO_AF11
+#define SD2_SDIO_TRANSFER_CLK_DIV       SD_SDIO_CLK_DIV(24000000)    // Hz
 
 #define STORAGE_USE_SDIO
 
