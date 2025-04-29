@@ -321,7 +321,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 // SD
 #define SD_SDIO                         SDMMC1
 #define SD_SDIO_CLK_DIV(fq)             (HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC) / (2 * fq))
-#define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(50000000)    // Hz
+#define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)    // Hz
 
 #define SD2_PRESENT_GPIO                GPIO_PIN(GPIOH, 8) // PH.08
 #define SD2_SDIO                        SDMMC2
