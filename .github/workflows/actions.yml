@@ -74,7 +74,7 @@ jobs:
           - nb4p
           - st16
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:pr-24
       volumes:
         - ${{ github.workspace }}:/src
     steps:
@@ -121,7 +121,7 @@ jobs:
           - nb4p
           - st16
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:pr-24
       volumes:
         - ${{ github.workspace }}:/src
     steps:
