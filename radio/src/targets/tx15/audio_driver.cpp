@@ -8,10 +8,11 @@
 #include "timers_driver.h"
 
 #include "audio.h"
+#include "debug.h"
 
 #define DEFAULT_DAC_VOL -15 // -7dB
 #define DEFAULT_HP_VOL 20
-#define DEFAULT_SPK_VOL 50
+#define DEFAULT_SPK_VOL 40
 
 static tas2505_t _tas2505 = {
   .ndac = 2,
@@ -140,7 +141,7 @@ static void audio_update_dma_buffer(uint8_t tc)
 
 void audioSetVolume(uint8_t volume)
 {
-  tas2505_set_volume(&_tas2505, volume);
+  tas2505_set_volume(&_tas2505, volume * 9 / 10); // TX15 HP cannot handle the full power of TAS2505
 }
 
 extern "C" void DMA1_Stream4_IRQHandler(void)
