@@ -90,7 +90,7 @@ class RadioCustSwitchesDiagsWindow : public Window
 #endif
     }
   }
-
+      
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   void checkEvents() override {
     Window::checkEvents();
