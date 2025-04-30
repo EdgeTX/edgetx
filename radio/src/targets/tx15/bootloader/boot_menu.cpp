@@ -82,7 +82,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
     coord_t x = LCD_W/2;
     coord_t y = LCD_H/2;
-    lcd->drawText(x, y, msg, CENTERED | BL_FOREGROUND);
+    lcd->drawText(x, y - 10, msg, CENTERED | BL_FOREGROUND);
+    lcd->drawText(x, y + 10, "[RTN] to exit", CENTERED | BL_FOREGROUND);
 
     bootloaderDrawFooter();
 
