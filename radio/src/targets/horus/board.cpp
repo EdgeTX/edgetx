@@ -179,8 +179,9 @@ void boardInit()
 
   board_trainer_init();
   pwrOn();
-  delaysInit();
 
+  delaysInit();
+  timersInit();
   __enable_irq();
 
   TRACE("\nHorus board started :)");
@@ -196,7 +197,6 @@ void boardInit()
     TRACE("adcInit failed");
   }
 
-  timersInit();
 
 #if defined(HARDWARE_TOUCH) && !defined(SIMU)
   touchPanelInit();
