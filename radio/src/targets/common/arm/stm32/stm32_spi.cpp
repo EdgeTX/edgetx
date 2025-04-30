@@ -274,6 +274,7 @@ uint32_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi, uint8_t* data,
   LL_SPI_EnableDMAReq_RX(spi->SPIx);
 
   _scratch_byte = 0xFFFF;
+  LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_NOINCREMENT);
   _dma_enable_stream(spi->DMA, spi->txDMA_Stream, &_scratch_byte, length);
   LL_SPI_EnableDMAReq_TX(spi->SPIx);
 
