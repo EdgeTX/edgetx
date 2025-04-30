@@ -136,3 +136,9 @@ void pwrResetHandler()
     pwrOn();
   }
 }
+
+#if defined(BOOT)
+void* _pwr_init_hook[] __INIT_HOOK = {
+  (void*)pwrResetHandler,    
+};
+#endif

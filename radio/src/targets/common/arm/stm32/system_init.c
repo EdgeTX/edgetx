@@ -1,20 +1,50 @@
-#include <stdint.h>
-#include "stm32_cmsis.h"
-#include "system_clock.h"
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 
+#include <stdint.h>
+
+#include "stm32_cmsis.h"
 #include "stm32_hal.h"
+
+
+#if ((defined (__ICACHE_PRESENT) && (__ICACHE_PRESENT == 1U)) || \
+     (defined (__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)))
+#define USE_CACHE
+#endif
+
+#if (defined (USE_CACHE) && defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U))
+#define REQUIRE_MPU_CONFIG
+#endif
+
+#if defined(ITCM_BASE) /* H7RS */ || defined(D1_ITCMRAM_BASE) /* H7 */
+#define LOAD_FAST_CODE_RAM
+#endif
 
 #define NAKED __attribute__((naked))
 #define BOOTSTRAP __attribute__((section(".bootstrap")))
 
 // Linker script symbols
 extern uint32_t _sisr_vector;
-extern uint32_t _dram_addr;
-extern uint32_t PSRAM_START;
-extern uint32_t NORFLASH_START;
 
-extern "C" NAKED BOOTSTRAP
-void Reset_Handler()
+NAKED BOOTSTRAP void Reset_Handler()
 {
   asm inline (
     "ldr sp, =_estack \n"
@@ -22,12 +52,18 @@ void Reset_Handler()
 
 #if defined(BOOT)
   asm inline (
+    "bl SystemInit \n"
     "bl SystemClock_Config \n"
+  );
+
+#if defined(USE_CACHE)
+  asm inline (
     "bl CPU_CACHE_Enable \n"
   );
-#endif
+#endif // USE_CACHE
+#endif // BOOT
 
-  // Copy code into normal RAM
+  // Copy code into RAM
   asm inline (
     "ldr r0, =_stext    \n"
     "ldr r1, =_etext    \n"
@@ -35,13 +71,12 @@ void Reset_Handler()
     "bl naked_copy      \n"
   );
 
-#if defined(BOOT)
+#if defined(BOOT) && defined(REQUIRE_MPU_CONFIG)
   asm inline (
-    "bl SystemInit \n"
-    "bl MPU_Init \n"
+    "bl MPU_Config \n"
   );
 #endif
-
+  
   // Copy / setup ISR vector
   asm inline (
     "ldr r0, =_sisr_vector \n"
@@ -51,6 +86,7 @@ void Reset_Handler()
     "bl set_vtor        \n"
   );
 
+#if defined(LOAD_FAST_CODE_RAM)
   // Copy code into fast RAM
   asm inline (
     "ldr r0, =_siram    \n"
@@ -58,6 +94,7 @@ void Reset_Handler()
     "ldr r2, =_stext_iram \n"
     "bl naked_copy      \n"
   );
+#endif
 
   // Copy initialized data segment
   asm inline (
@@ -65,6 +102,11 @@ void Reset_Handler()
     "ldr r1, =_edata    \n"
     "ldr r2, =_sidata   \n"
     "bl naked_copy      \n"
+  );
+
+  // Execute early hooks
+  asm inline (
+    "bl init_hooks \n"
   );
  
   // Zero fill bss segment
@@ -83,10 +125,16 @@ void Reset_Handler()
     "bcc FillZerobss   \n"
   );
 
+#if defined(USE_CACHE)
   asm inline (
     "bl clean_dcache \n"
+  );
+#endif
+
+  asm inline (
     // Call static constructors
     "bl __libc_init_array \n"
+    // Update global clock speed variable
     "bl SystemCoreClockUpdate \n"
     // Call the application's entry point
     "bl main \n"
@@ -94,11 +142,10 @@ void Reset_Handler()
   );
 }
 
-extern "C" BOOTSTRAP void set_vtor() {
-  SCB->VTOR = (intptr_t)&_sisr_vector;
-}
+BOOTSTRAP void set_vtor() { SCB->VTOR = (intptr_t)&_sisr_vector; }
 
-extern "C" NAKED BOOTSTRAP void naked_copy() {
+NAKED BOOTSTRAP void naked_copy()
+{
   // r0: destination start
   // r1: destination end
   // r2: source start
@@ -117,13 +164,31 @@ extern "C" NAKED BOOTSTRAP void naked_copy() {
     "adds r4, r0, r3    \n"
     "cmp r4, r1         \n"
     "bcc CopyInit       \n"
+
   "SkipCopy:            \n"
     "bx lr              \n"
   );
 }
 
-extern "C" BOOTSTRAP
-void CPU_CACHE_Enable()
+void init_hooks()
+{
+  extern uint32_t __init_hook_array_start;
+  extern uint32_t __init_hook_array_end;
+
+  typedef void (*hook_fct_t)();
+
+  for (uint32_t hook = (uint32_t)&__init_hook_array_start;
+       hook != (uint32_t)&__init_hook_array_end; hook += sizeof(void*)) {
+    (*(hook_fct_t*)hook)();
+  }
+}
+
+#if defined(USE_CACHE)
+// SCB_CleanDCache() is "forced inline"
+void clean_dcache() { SCB_CleanDCache(); }
+
+#if defined(BOOT)
+BOOTSTRAP void CPU_CACHE_Enable()
 {
   /* Enable I-Cache */
   SCB_EnableICache();
@@ -131,9 +196,23 @@ void CPU_CACHE_Enable()
   /* Enable D-Cache */
   SCB_EnableDCache();
 }
+#endif // BOOT
+#endif // USE_CACHE
 
-extern "C" __attribute__((used))
-void MPU_Init()
+#if defined(BOOT) && defined(REQUIRE_MPU_CONFIG)
+// Linker script symbols
+extern uint32_t _dram_addr;
+extern uint32_t EXTRAM_START;
+extern uint32_t EXTRAM_SIZE;
+extern uint32_t NORFLASH_START;
+extern uint32_t NORFLASH_SIZE;
+
+__STATIC_FORCEINLINE uint32_t mpu_region_size(uint32_t size)
+{
+  return 32 - __CLZ(size) - 1;
+}
+
+void MPU_Config()
 {
   MPU_Region_InitTypeDef MPU_InitStruct = {0};
 
@@ -160,11 +239,11 @@ void MPU_Init()
   MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-  /* Region 2: XSPI memory range, bank1 */
+  /* Region 2: QSPI memory range, bank1 */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER2;
   MPU_InitStruct.BaseAddress = (uint32_t)&NORFLASH_START;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_128MB;
+  MPU_InitStruct.Size = mpu_region_size((uint32_t)&NORFLASH_SIZE);
   MPU_InitStruct.SubRegionDisable = 0x0;
   MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
   MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
@@ -174,11 +253,11 @@ void MPU_Init()
   MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-  /* Region 3: SDRAM memory range */
+  /* Region 3: external RAM memory range */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER3;
-  MPU_InitStruct.BaseAddress = (uint32_t)&PSRAM_START;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_32MB;
+  MPU_InitStruct.BaseAddress = (uint32_t)&EXTRAM_START;
+  MPU_InitStruct.Size = mpu_region_size((uint32_t)&EXTRAM_SIZE);
   MPU_InitStruct.SubRegionDisable = 0x0;
   MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
   MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
@@ -188,11 +267,11 @@ void MPU_Init()
   MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-  /* Region 3: DMA memory range */
+  /* Region 4: dedicated DMA buffers (cache disabled) */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER4;
   MPU_InitStruct.BaseAddress = (uint32_t)&_dram_addr;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_64KB; // actually 72KB
+  MPU_InitStruct.Size = MPU_REGION_SIZE_64KB; // FIXME
   MPU_InitStruct.SubRegionDisable = 0x0;
   MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
   MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
@@ -202,12 +281,10 @@ void MPU_Init()
   MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
+
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 
   /* Enable bus fault exception */
   SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA_Msk;
 }
-
-extern "C" void clean_dcache() {
-  SCB_CleanDCache();
-}
+#endif // REQUIRE_MPU_CONFIG
