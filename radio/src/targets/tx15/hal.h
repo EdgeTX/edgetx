@@ -128,36 +128,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define SWITCHES_E_3POS
 #define SWITCHES_F_3POS
 
-// Direct switches
-#if 0
-// Key 1
-#define STORAGE_SWITCH_G
-#define HARDWARE_SWITCH_G
-#define SWITCHES_G_2POS
-//#define SWITCHES_GPIO_REG_G           GPIOI
-//#define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_3  // PI.03
-
-// Key 2
-#define STORAGE_SWITCH_H
-#define HARDWARE_SWITCH_H
-#define SWITCHES_H_2POS
-//#define SWITCHES_GPIO_REG_H           GPIOI
-//#define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_11 // PI.11
-
-
-// Key 3
-#define STORAGE_SWITCH_I
-#define HARDWARE_SWITCH_I
-#define SWITCHES_GPIO_REG_I           GPIOI
-#define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_3  // PI.03
-
-// Key 4
-#define STORAGE_SWITCH_J
-#define HARDWARE_SWITCH_J
-#define SWITCHES_GPIO_REG_J           GPIOI
-#define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_11 // PI.11
-#endif
-
 
 // Expanders
 #define IO_INT_GPIO GPIO_PIN(GPIOD, 3)
@@ -262,13 +232,10 @@ TIM17:	ROTARY_ENCODER_TIMER
  #define TELEMETRY_USART_IRQHandler      USART1_IRQHandler
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
-//#define USE_CUSTOM_EXTI_IRQ
 #define TELEMETRY_USE_CUSTOM_EXTI
 #define CUSTOM_EXTI_IRQ_NAME ETH_WKUP_IRQ
 #define ETH_WKUP_IRQ_Priority 5
 #define CUSTOM_EXTI_IRQ_LINE 86
-//#define USE_EXTI15_10_IRQ
-//#define CUSTOM_EXTI_IRQ_Priority 5
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
 
 // USB
@@ -346,11 +313,11 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
 #define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)
-#define I2S_DMA                   	DMA1
-#define I2S_DMA_Stream            	LL_DMA_STREAM_4
-#define I2S_DMA_Stream_Request    	LL_DMAMUX1_REQ_SPI2_TX
-#define I2S_DMA_Stream_IRQn       	DMA1_Stream4_IRQn
-#define I2S_DMA_Stream_IRQHandler 	DMA1_Stream4_IRQHandler
+#define I2S_DMA                   		DMA1
+#define I2S_DMA_Stream            		LL_DMA_STREAM_4
+#define I2S_DMA_Stream_Request    		LL_DMAMUX1_REQ_SPI2_TX
+#define I2S_DMA_Stream_IRQn       		DMA1_Stream4_IRQn
+#define I2S_DMA_Stream_IRQHandler 		DMA1_Stream4_IRQHandler
 
 
 // I2C Bus
@@ -359,13 +326,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOD, 12) // PD.12
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B1_CLK_RATE                 400000
-/*
-#define I2C_B2                          I2C3
-#define I2C_B2_SDA_GPIO                 GPIO_PIN(GPIOH, 8)  // PH.08
-#define I2C_B2_SCL_GPIO                 GPIO_PIN(GPIOH, 7)  // PH.07
-#define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
-#define I2C_B2_CLK_RATE                 400000
-*/
+
 // Haptic: TIM3_CH2
 #define HAPTIC_PWM
 #define HAPTIC_GPIO                     GPIO_PIN(GPIOC, 7)
@@ -377,7 +338,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
-
 #define FLYSKY_HALL_SERIAL_TX_GPIO               GPIO_PIN(GPIOB, 9)
 #define FLYSKY_HALL_SERIAL_RX_GPIO               GPIO_PIN(GPIOB, 8)
 #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
@@ -502,7 +462,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_7
 #define ROTARY_ENCODER_GPIO_B           GPIOJ
 #define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_8
-//#define ROTARY_ENCODER_POSITION()       ((ROTARY_ENCODER_GPIO->IDR >> 2) & 0x03)
 #define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO_A->IDR >> 7) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 7) & 0x02))
 #define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_7
 #define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_8
