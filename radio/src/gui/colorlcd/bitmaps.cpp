@@ -25,8 +25,14 @@
 #include "lz4/lz4.h"
 #include "edgetx_helpers.h"
 
-LZ4BitmapBuffer::LZ4BitmapBuffer(uint8_t format, const LZ4Bitmap* lz4Data) :
+LZ4BitmapBuffer::LZ4BitmapBuffer(uint8_t format) :
     BitmapBuffer(format, 0, 0, nullptr)
+{
+}
+
+LZ4BitmapBuffer::~LZ4BitmapBuffer() { free(data); }
+
+void LZ4BitmapBuffer::load(const LZ4Bitmap* lz4Data)
 {
   _width = lz4Data->width;
   _height = lz4Data->height;
@@ -38,8 +44,6 @@ LZ4BitmapBuffer::LZ4BitmapBuffer(uint8_t format, const LZ4Bitmap* lz4Data) :
                       lz4Data->compressedSize, pixels * sizeof(uint16_t));
   data_end = data + pixels;
 }
-
-LZ4BitmapBuffer::~LZ4BitmapBuffer() { free(data); }
 
 #if !defined(BOOT)
 

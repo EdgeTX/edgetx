@@ -154,6 +154,8 @@ struct LZ4Bitmap {
 class LZ4BitmapBuffer : public BitmapBuffer
 {
  public:
-  LZ4BitmapBuffer(uint8_t format, const LZ4Bitmap* compressed_data);
+  LZ4BitmapBuffer(uint8_t format);
   ~LZ4BitmapBuffer();
+
+  void load(const LZ4Bitmap* compressed_data);
 };
