@@ -60,6 +60,78 @@ static void dac_trigger_init()
   AUDIO_TIMER->CR1 |= TIM_CR1_CEN;
 }
 
+static void dac_dma_init()
+{
+  stm32_dma_enable_clock(AUDIO_DMA);
+
+  // Disable DMA stream
+  AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN;
+
+  // clear DMA stream flags
+  AUDIO_DMA->HIFCR = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTEIF5 |
+                     DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CFEIF5;
+
+  // Chan 7, 16-bit wide, Medium priority, memory increments
+  AUDIO_DMA_Stream->CR = DMA_SxCR_CHSEL_0 | DMA_SxCR_CHSEL_1 |
+                         DMA_SxCR_CHSEL_2 | DMA_SxCR_PL_0 | DMA_SxCR_MSIZE_0 |
+                         DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC | DMA_SxCR_DIR_0 |
+                         DMA_SxCR_CIRC;
+
+  // write to DAC channel 1 (12 bits, left-aligned)
+  AUDIO_DMA_Stream->PAR = CONVERT_PTR_UINT(&DAC->DHR12L1);
+
+  // disable direct mode and set FIFO threshold to half
+  AUDIO_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
+
+  NVIC_EnableIRQ(AUDIO_DMA_Stream_IRQn);
+  NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
+}
+
+static void dac_close_dma_xfer()
+{
+  // disable transfer complete interrupt
+  AUDIO_DMA_Stream->CR &= ~DMA_SxCR_TCIE;
+
+  // reset DMA flags
+  AUDIO_DMA->HIFCR = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTEIF5 |
+                     DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CFEIF5;
+
+  // Disable DMA stream
+  AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN;  
+}
+
+static void dac_start_dma_request(const audio_data_t* data, uint16_t length)
+{
+  // set DMA buffer
+  AUDIO_DMA_Stream->M0AR = CONVERT_PTR_UINT(data);
+  AUDIO_DMA_Stream->NDTR = length;
+
+  // enable DMA stream and transfer complete interrupt
+  AUDIO_DMA_Stream->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;
+
+  // clear underrun flag
+  DAC->SR = DAC_SR_DMAUDR1;
+
+  // enable DAC
+  DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1;  
+}
+
+static void dac_periph_init()
+{
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC1);
+  gpio_init_analog(AUDIO_OUTPUT_GPIO);
+
+  // set data registre to silence
+  DAC->DHR12L1 = AUDIO_DATA_SILENCE;
+
+  // clear underrun flag
+  DAC->SR = DAC_SR_DMAUDR1;
+
+  // use TIM6 TRGO as trigger (TSEL1 = TSEL2 = 000)
+  // enable DAC & channel 1 trigger
+  DAC->CR = DAC_CR_TEN1 | DAC_CR_EN1;
+}
+
 #if defined(AUDIO_MUTE_GPIO)
 static inline void set_mute_pin(bool enabled)
 {
@@ -91,43 +163,8 @@ void dacInit()
 #endif
 
   dac_trigger_init();
-
-  gpio_init_analog(AUDIO_OUTPUT_GPIO);
-  stm32_dma_enable_clock(AUDIO_DMA);
-
-  // Disable DMA stream
-  AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN;
-
-  // clear DMA stream flags
-  AUDIO_DMA->HIFCR = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTEIF5 |
-                     DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CFEIF5;
-
-  // Chan 7, 16-bit wide, Medium priority, memory increments
-  AUDIO_DMA_Stream->CR = DMA_SxCR_CHSEL_0 | DMA_SxCR_CHSEL_1 |
-                         DMA_SxCR_CHSEL_2 | DMA_SxCR_PL_0 | DMA_SxCR_MSIZE_0 |
-                         DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC | DMA_SxCR_DIR_0 |
-                         DMA_SxCR_CIRC;
-
-  // write to DAC channel 1 (12 bits, left-aligned)
-  AUDIO_DMA_Stream->PAR = CONVERT_PTR_UINT(&DAC->DHR12L1);
-
-  // disable direct mode and set FIFO threshold to half
-  AUDIO_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
-
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC1);
-
-  // set data registre to silence
-  DAC->DHR12L1 = AUDIO_DATA_SILENCE;
-
-  // clear underrun flag
-  DAC->SR = DAC_SR_DMAUDR1;
-
-  // use TIM6 TRGO as trigger (TSEL1 = TSEL2 = 000)
-  // enable DAC & channel 1 trigger
-  DAC->CR = DAC_CR_TEN1 | DAC_CR_EN1;
-
-  NVIC_EnableIRQ(AUDIO_DMA_Stream_IRQn);
-  NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
+  dac_dma_init();
+  dac_periph_init();
 }
 
 #if defined(AUDIO_MUTE_GPIO)
@@ -181,28 +218,8 @@ void audioConsumeCurrentBuffer()
 #if defined(AUDIO_MUTE_GPIO)
       audioUnmute();
 #endif
-
-      // Disable DMA stream
-      AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN;
-
-      // reset DMA flags
-      AUDIO_DMA->HIFCR = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 |
-                         DMA_HIFCR_CTEIF5 | DMA_HIFCR_CDMEIF5 |
-                         DMA_HIFCR_CFEIF5;
-
-      // set DMA buffer
-      AUDIO_DMA_Stream->M0AR = CONVERT_PTR_UINT(nextBuffer->data);
-      AUDIO_DMA_Stream->NDTR = nextBuffer->size;
-
-      // enable DMA stream and transfer complete interrupt
-      AUDIO_DMA_Stream->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;
-
-      // clear underrun flag
-      DAC->SR = DAC_SR_DMAUDR1;
-
-      // enable DAC
-      DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1;
-
+      dac_close_dma_xfer();
+      dac_start_dma_request(nextBuffer->data, nextBuffer->size);
     } else {
 #if defined(AUDIO_MUTE_GPIO)
       audioMute();
@@ -229,32 +246,13 @@ void audioEnd()
 
 extern "C" void AUDIO_DMA_Stream_IRQHandler()
 {
-  // disable transfer complete interrupt
-  AUDIO_DMA_Stream->CR &= ~DMA_SxCR_TCIE;
-
-  // reset DMA flags
-  AUDIO_DMA->HIFCR = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTEIF5 |
-                     DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CFEIF5;
-
-  // Disable DMA stream
-  AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN;
+  dac_close_dma_xfer();
 
   // get next buffer if any
   if (nextBuffer) audioQueue.buffersFifo.freeNextFilledBuffer();
   nextBuffer = audioQueue.buffersFifo.getNextFilledBuffer();
 
   if (nextBuffer) {
-    AUDIO_DMA_Stream->M0AR = CONVERT_PTR_UINT(nextBuffer->data);
-    AUDIO_DMA_Stream->NDTR = nextBuffer->size;
-
-    // reset DMA flags (again?)
-    AUDIO_DMA->HIFCR = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTEIF5 |
-                       DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CFEIF5;
-
-    // enable DMA stream and transfer complete interrupt
-    AUDIO_DMA_Stream->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;
-
-    // clear underrun flag
-    DAC->SR = DAC_SR_DMAUDR1;
+    dac_start_dma_request(nextBuffer->data, nextBuffer->size);
   }
 }

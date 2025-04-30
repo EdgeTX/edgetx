@@ -2717,7 +2717,6 @@
 #define SD_SPI_DMA_CHANNEL              LL_DMA_CHANNEL_0
 
 // Audio
-#define AUDIO_RCC_APB1Periph            LL_APB1_GRP1_PERIPH_DAC1
 #define AUDIO_OUTPUT_GPIO               GPIO_PIN(GPIOA, 4)
 #define AUDIO_DMA                       DMA1
 #define AUDIO_TIM_IRQn                  TIM6_DAC_IRQn
