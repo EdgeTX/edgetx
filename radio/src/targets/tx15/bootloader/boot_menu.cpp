@@ -77,7 +77,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     if (st == ST_START) {
       msg = "Plug USB cable";
     } else if (st == ST_USB) {
-      msg = "Copy firmware.uf2 to flash";
+      msg = "Copy firmware.uf2 to EDGETX_UF2 drive";
     }
 
     coord_t x = LCD_W/2;
