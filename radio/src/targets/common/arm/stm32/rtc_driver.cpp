@@ -90,10 +90,6 @@ void rtcInit()
   __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_HIGH);
 #endif
 
-#if defined(STM32H7)
-  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_HIGH);
-#endif
-
   __HAL_RCC_RTC_ENABLE();
   HAL_RTC_WaitForSynchro(&rtc);
 
