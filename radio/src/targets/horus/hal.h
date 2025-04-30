@@ -911,8 +911,6 @@
   #define AUDIO_OUTPUT_GPIO             GPIO_PIN(GPIOA, 4) // PA.04
   #define AUDIO_DMA_Stream              DMA1_Stream5
   #define AUDIO_DMA_Stream_IRQn         DMA1_Stream5_IRQn
-  #define AUDIO_TIM_IRQn                TIM6_DAC_IRQn
-  #define AUDIO_TIM_IRQHandler          TIM6_DAC_IRQHandler
   #define AUDIO_DMA_Stream_IRQHandler   DMA1_Stream5_IRQHandler
   #define AUDIO_TIMER                   TIM6
   #define AUDIO_DMA                     DMA1
