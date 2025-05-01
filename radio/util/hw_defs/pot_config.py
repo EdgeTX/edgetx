@@ -143,8 +143,8 @@ POT_CONFIG = {
         "SL2": {"default": "SLIDER"}
     },
     "tx15": {
-        "P1": {"default": "POT_CENTER"},
-        "P2": {"default": "POT_CENTER"},
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
     },
     "tx16s": {
         "P1": {"default": "POT_CENTER"},
