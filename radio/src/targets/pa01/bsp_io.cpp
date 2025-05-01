@@ -92,7 +92,7 @@ uint16_t bsp_input_get()
 SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx)
 {
   if(cat == SWITCH_FUNCTION)
-    return getFctKeyState(idx)?SWITCH_HW_UP:SWITCH_HW_DOWN;
+    return getFctKeyState(idx)?SWITCH_HW_DOWN:SWITCH_HW_UP;
 
   return SWITCH_HW_MID;
 }
