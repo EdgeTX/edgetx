@@ -137,7 +137,7 @@ extern uint32_t _heap_start;
 #define _IS_DMA_BUFFER(addr) \
   ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000))
 #endif
-#elif defined(STM32H7) || defined(STM32H7RS)
+#elif defined(STM32H7)
 #define _IS_DMA_BUFFER(addr)                                                   \
   ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)D1_AXISRAM_BASE) & 0xFF000000))
 #elif defined(STM32H7RS)
