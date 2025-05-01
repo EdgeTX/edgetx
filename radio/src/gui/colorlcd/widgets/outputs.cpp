@@ -51,12 +51,6 @@ class ChannelValue : public Window
     lv_style_set_width(&style, lv_pct(100));
     lv_style_set_height(&style, lv_pct(100));
 
-    // lv_color_t color;
-    // color.full = txtColor >> 16u;
-    // lv_style_set_text_color(&style, color);
-    // color.full = barColor >> 16u;
-    // lv_style_set_bg_color(&style, color);
-
     bar = lv_obj_create(lvobj);
     lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_CLICKABLE);
@@ -104,8 +98,13 @@ class ChannelValue : public Window
   void checkEvents() override
   {
     int16_t value = channelOutputs[channel];
-    if (value != lastValue) {
-      lastValue = value;
+
+    const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
+    uint16_t w = width() - 2;
+    uint16_t fillW = divRoundClosest(w * limit<int16_t>(0, abs(value), lim), lim * 2);
+
+    if (fillW != lastValue) {
+      lastValue = fillW;
 
       std::string s;
       if (g_eeGeneral.ppmunit == PPM_US)
@@ -117,12 +116,7 @@ class ChannelValue : public Window
 
       lv_label_set_text(valueLabel, s.c_str());
 
-      const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
-      uint16_t w = width() - 2;
-      uint16_t fillW = divRoundClosest(
-          w * limit<int16_t>(0, abs(lastValue), lim),
-          lim * 2);
-      uint16_t x = lastValue > 0 ? w / 2 : w / 2 - fillW + 1;
+      uint16_t x = value > 0 ? w / 2 : w / 2 - fillW + 1;
 
       lv_obj_set_pos(bar, x, 0);
       lv_obj_set_size(bar, fillW, ROW_HEIGHT - 1);
