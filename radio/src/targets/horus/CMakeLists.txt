@@ -269,7 +269,6 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/rtc_driver.cpp
-  targets/common/arm/stm32/sdram_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
   drivers/frftl.cpp
@@ -302,6 +301,7 @@ endif()
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
+  targets/common/arm/stm32/sdram_driver.cpp
 )
 add_dependencies(board_bl ${BITMAPS_TARGET})
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
