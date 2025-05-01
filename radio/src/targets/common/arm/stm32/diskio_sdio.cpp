@@ -138,6 +138,9 @@ extern uint32_t _heap_start;
   ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)&_sram) & 0xFF000000))
 #endif
 #elif defined(STM32H7) || defined(STM32H7RS)
+#define _IS_DMA_BUFFER(addr)                                                   \
+  ((((intptr_t)(addr)) & 0xFF000000) == (((intptr_t)D1_AXISRAM_BASE) & 0xFF000000))
+#elif defined(STM32H7RS)
 extern uint32_t _sram;
 extern uint32_t _s_dram;
 extern uint32_t _heap_start;
@@ -289,10 +292,11 @@ static DSTATUS sdio_initialize(BYTE lun)
   return RES_OK;
 }
 
-// #if defined(SRAM_BASE)
+#if !defined(__DISK_CACHE)
+#define __DISK_CACHE __SDRAM
+#endif
 // DMA scratch buffer used in case the input buffer is not aligned
-static uint8_t scratch[BLOCK_SIZE] __DMA;
-// #endif
+static uint8_t scratch[BLOCK_SIZE] __DISK_CACHE;
 
 typedef enum
 {
