@@ -111,13 +111,14 @@ void drawPotsBars()
   uint8_t cols =  configured_pots > 4 ? 3 : configured_pots % 2 ? 3 : 2;
   coord_t xstart =  LCD_W / 2 - (cols % 2 ? 5 : 3);
 
-  for (uint8_t i = 0; i < max_pots; i++) {
+  for (uint8_t i = 0, j = 0; i < max_pots; i++) {
     if (IS_POT_SLIDER_AVAILABLE(i)) {
-      coord_t x = xstart + (i % cols) * 5;
+      coord_t x = xstart + (j % cols) * 5;
       coord_t y = lines == 1 ? (LCD_H - 8) : i >= cols ? (LCD_H - 8) : (LCD_H - 8 - BAR_HEIGHT / 2 - 1);
       auto v = calibratedAnalogs[offset + i] + RESX;
       uint8_t len = (v * (BAR_HEIGHT - (lines - 1)) / (RESX * 2 * lines)) + 1l;
       V_BAR(x, y, len);
+      j++;
     }
   }
 }
