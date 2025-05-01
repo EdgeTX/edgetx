@@ -296,7 +296,7 @@ USBD_StatusTypeDef USBD_RegisterClassComposite(USBD_HandleTypeDef *pdev, USBD_Cl
   */
 USBD_StatusTypeDef  USBD_UnRegisterClassComposite(USBD_HandleTypeDef *pdev)
 {
-  USBD_StatusTypeDef   ret = USBD_FAIL;
+  USBD_StatusTypeDef   ret = USBD_OK;
   uint8_t idx1;
   uint8_t idx2;
 
@@ -590,6 +590,8 @@ USBD_StatusTypeDef USBD_LL_DataOutStage(USBD_HandleTypeDef *pdev,
   USBD_StatusTypeDef ret = USBD_OK;
   uint8_t idx;
 
+  UNUSED(pdata);
+
   if (epnum == 0U)
   {
     pep = &pdev->ep_out[0];
@@ -599,8 +601,9 @@ USBD_StatusTypeDef USBD_LL_DataOutStage(USBD_HandleTypeDef *pdev,
       if (pep->rem_length > pep->maxpacket)
       {
         pep->rem_length -= pep->maxpacket;
+        pep->pbuffer += pep->maxpacket;
 
-        (void)USBD_CtlContinueRx(pdev, pdata, MIN(pep->rem_length, pep->maxpacket));
+        (void)USBD_CtlContinueRx(pdev, pep->pbuffer, MAX(pep->rem_length, pep->maxpacket));
       }
       else
       {
@@ -685,6 +688,8 @@ USBD_StatusTypeDef USBD_LL_DataInStage(USBD_HandleTypeDef *pdev,
   USBD_StatusTypeDef ret;
   uint8_t idx;
 
+  UNUSED(pdata);
+
   if (epnum == 0U)
   {
     pep = &pdev->ep_in[0];
@@ -694,8 +699,9 @@ USBD_StatusTypeDef USBD_LL_DataInStage(USBD_HandleTypeDef *pdev,
       if (pep->rem_length > pep->maxpacket)
       {
         pep->rem_length -= pep->maxpacket;
+        pep->pbuffer += pep->maxpacket;
 
-        (void)USBD_CtlContinueSendData(pdev, pdata, pep->rem_length);
+        (void)USBD_CtlContinueSendData(pdev, pep->pbuffer, pep->rem_length);
 
         /* Prepare endpoint for premature end of transfer */
         (void)USBD_LL_PrepareReceive(pdev, 0U, NULL, 0U);
