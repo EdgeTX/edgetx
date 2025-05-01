@@ -144,7 +144,7 @@ class FunctionsPage : public PageTab
   void rebuild(Window* window);
   void newSF(Window* window, bool pasteSF);
   void editSpecialFunction(Window* window, uint8_t index,
-                           ButtonBase* button);
+                           FunctionLineButton* button);
   void pasteSpecialFunction(Window* window, uint8_t index,
                             ButtonBase* button);
   void plusPopup(Window* window);
