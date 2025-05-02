@@ -31,6 +31,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   functions(model ? model->customFn : generalSettings.customFn),
   mediaPlayerCurrent(-1),
   mediaPlayer(nullptr),
+  audioOutput(new QAudioOutput()),
   modelsUpdateCnt(0)
 {
   lock = true;
@@ -289,6 +290,7 @@ bool CustomFunctionsPanel::playSound(int index)
     stopSound(mediaPlayerCurrent);
 
   mediaPlayer = new QMediaPlayer(this);
+  mediaPlayer->setAudioOutput(audioOutput);
 
   if (functions[index].func == FuncPlaySound)
     mediaPlayer->setSource(QUrl(path.prepend("qrc")));
