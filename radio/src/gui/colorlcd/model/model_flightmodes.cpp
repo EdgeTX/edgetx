@@ -219,7 +219,6 @@ class FlightModeBtn : public ListLineButton
     if (line) {
       if (!line->init)
         line->delayed_init();
-      line->refresh();
     }
   }
 
@@ -257,6 +256,8 @@ class FlightModeBtn : public ListLineButton
   
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+
+    refresh();
   }
 
   bool isActive() const override { return (getFlightMode() == index); }
@@ -497,7 +498,7 @@ void ModelFlightModesPage::build(Window* form)
     btn->setWidth(ListLineButton::GRP_W);
 
     btn->setPressHandler([=]() {
-      new FlightModeEdit(i);
+      (new FlightModeEdit(i))->setCloseHandler([=]() { btn->refresh(); });
       return 0;
     });
   }

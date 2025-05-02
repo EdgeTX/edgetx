@@ -386,7 +386,6 @@ class USBChannelLineButton : public ListLineButton
     if (line) {
       if (!line->init)
         line->delayed_init();
-      line->refresh();
     }
   }
 
@@ -427,6 +426,8 @@ class USBChannelLineButton : public ListLineButton
     lv_label_set_text(m_param, "");
     lv_label_set_text(m_btn_mode, "");
     lv_label_set_text(m_btns, "");
+
+    refresh();
   }
 
   void refresh() override
@@ -591,5 +592,5 @@ void ModelUSBJoystickPage::editChannel(uint8_t channel,
                                        USBChannelLineButton* btn)
 {
   auto chedit = new USBChannelEditWindow(channel);
-  chedit->setCloseHandler([=]() { this->update(); });
+  chedit->setCloseHandler([=]() { this->update(); btn->refresh(); });
 }

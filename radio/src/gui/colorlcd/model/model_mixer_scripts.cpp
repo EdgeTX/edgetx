@@ -201,7 +201,6 @@ class ScriptLineButton : public ListLineButton
     if (line) {
       if (!line->init)
         line->delayed_init();
-      line->refresh();
     }
   }
 
@@ -259,6 +258,7 @@ class ScriptLineButton : public ListLineButton
     }
 
     lv_obj_update_layout(lvobj);
+    refresh();
   }
 
   bool isActive() const override { return false; }

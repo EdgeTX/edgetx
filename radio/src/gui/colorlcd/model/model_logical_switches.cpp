@@ -323,7 +323,6 @@ class LogicalSwitchButton : public ListLineButton
     if (line) {
       if (!line->init)
         line->delayed_init();
-      line->refresh();
     }
   }
 
@@ -377,6 +376,8 @@ class LogicalSwitchButton : public ListLineButton
 
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+
+    refresh();
   }
 
   bool isActive() const override
@@ -598,7 +599,7 @@ void ModelLogicalSwitchesPage::plusPopup(Window* window)
 
 void ModelLogicalSwitchesPage::build(Window* window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_OUTLINE);
 
   bool hasEmptySwitch = false;
 
@@ -618,30 +619,27 @@ void ModelLogicalSwitchesPage::build(Window* window)
         menu->addLine(STR_EDIT, [=]() {
           Window* lsWindow = new LogicalSwitchEditPage(i);
           lsWindow->setCloseHandler([=]() {
-            if (!isActive)
+            if (ls->func == LS_FUNC_NONE)
               rebuild(window);
+            else
+              button->refresh();
           });
         });
-        if (isActive) {
-          menu->addLine(STR_COPY, [=]() {
-            clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
-            clipboard.data.csw = *ls;
-          });
-        }
+        menu->addLine(STR_COPY, [=]() {
+          clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
+          clipboard.data.csw = *ls;
+        });
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
           menu->addLine(STR_PASTE, [=]() {
             *ls = clipboard.data.csw;
             storageDirty(EE_MODEL);
             rebuild(window);
           });
-        if (isActive || ls->v1 || ls->v2 || ls->delay || ls->duration ||
-            ls->andsw) {
-          menu->addLine(STR_CLEAR, [=]() {
-            memset(ls, 0, sizeof(LogicalSwitchData));
-            storageDirty(EE_MODEL);
-            rebuild(window);
-          });
-        }
+        menu->addLine(STR_CLEAR, [=]() {
+          memset(ls, 0, sizeof(LogicalSwitchData));
+          storageDirty(EE_MODEL);
+          rebuild(window);
+        });
         return 0;
       });
 
