@@ -480,6 +480,7 @@
   #if !(defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_T15) || defined(RADIO_V16))
     #define PWM_STICKS
     #define PWM_TIMER                   TIM5
+    #define PWM_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
     #define PWM_GPIO                    GPIOA
     #define PWM_GPIO_AF                 GPIO_AF2
     #define PWM_IRQHandler              TIM5_IRQHandler
