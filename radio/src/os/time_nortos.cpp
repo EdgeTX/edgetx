@@ -19,19 +19,17 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "time.h"
 
-#include <stdint.h>
+#include "timers_driver.h"
 
-// OS specific implementation
-#if defined(POSIX_THREADS)
-  #include "time_native.h"
-#elif defined(FREE_RTOS)
-  #include "time_freertos.h"
-#else
-  #include "time_nortos.h"
-#endif
+uint32_t time_get_ms()
+{
+  return timersGetMsTick();
+}
 
-uint32_t time_get_ms();
+time_point_t time_point_now()
+{
+  return time_get_ms();
+}
 
-time_point_t time_point_now();

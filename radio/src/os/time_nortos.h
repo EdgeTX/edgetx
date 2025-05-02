@@ -23,15 +23,5 @@
 
 #include <stdint.h>
 
-// OS specific implementation
-#if defined(POSIX_THREADS)
-  #include "time_native.h"
-#elif defined(FREE_RTOS)
-  #include "time_freertos.h"
-#else
-  #include "time_nortos.h"
-#endif
+typedef uint32_t time_point_t;
 
-uint32_t time_get_ms();
-
-time_point_t time_point_now();

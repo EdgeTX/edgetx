@@ -3,8 +3,11 @@
 
 #include "hal/usb_driver.h"
 #include "hal/rotary_encoder.h"
+#include "os/time.h"
 
 #include "lcd.h"
+
+#define FRAME_INTERVAL_MS 10
 
 #if defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
@@ -17,16 +20,8 @@
   #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
 
-volatile tmr10ms_t g_tmr10ms;
-volatile uint8_t tenms = 1;
-
-void per5ms() {} // make linker happy
-
-void per10ms()
+void pollInputs()
 {
-  tenms |= 1u; // 10 mS has passed
-  g_tmr10ms++;
-
   keysPollingCycle();
 
   // TODO: use rotaryEncoderPollingCycle() instead
@@ -74,10 +69,13 @@ void bootloaderMenu()
   
   sdInit();
 
+  uint32_t next_frame = time_get_ms();
+
   for (;;) {
 
-    if (tenms) {
-      tenms = 0;
+    if (time_get_ms() - next_frame >= FRAME_INTERVAL_MS) {
+      next_frame += FRAME_INTERVAL_MS;
+      pollInputs();
 
       if (state != ST_USB && state != ST_FLASHING
           && state != ST_FLASH_DONE && state != ST_RADIO_MENU) {

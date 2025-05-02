@@ -135,6 +135,9 @@ void bootloaderInitApp()
   boardBLInit();
 }
 
+// make linker happy
+void per5ms() {}
+
 int main()
 #else // SIMU
 void bootloaderInitApp() {}

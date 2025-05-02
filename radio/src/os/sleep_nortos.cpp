@@ -19,19 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "sleep.h"
 
-#include <stdint.h>
+#include "timers_driver.h"
+    
+void sleep_ms(uint32_t ms)
+{
+  if (!ms) return;
 
-// OS specific implementation
-#if defined(POSIX_THREADS)
-  #include "time_native.h"
-#elif defined(FREE_RTOS)
-  #include "time_freertos.h"
-#else
-  #include "time_nortos.h"
-#endif
+  uint32_t timeout = timersGetMsTick();
+  while (timersGetMsTick() - timeout < ms) {}
+}
 
-uint32_t time_get_ms();
+void sleep_until(time_point_t* tp, uint32_t inc)
+{
+  uint32_t start = *tp;
+  *tp = start + inc;
 
-time_point_t time_point_now();
+  while (timersGetMsTick() - start < inc) {}
+}
+
