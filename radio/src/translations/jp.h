@@ -1198,6 +1198,7 @@
 #define TR_BLUE                         "青"
 #define TR_GREEN                        "緑"
 #define TR_COLOR_PICKER                 "ピックアップ色"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "テーマ詳細の編集"
 #define TR_THEME_COLOR_DEFAULT          "デフォルト"
 #define TR_THEME_COLOR_PRIMARY1         "プライマリ 1"

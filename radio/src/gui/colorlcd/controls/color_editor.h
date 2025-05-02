@@ -29,7 +29,8 @@ constexpr int MAX_BARS = 3;
 enum COLOR_EDITOR_TYPE {
   RGB_COLOR_EDITOR = 0,
   HSV_COLOR_EDITOR,
-  THM_COLOR_EDITOR
+  THM_COLOR_EDITOR,
+  FXD_COLOR_EDITOR,
 };
 
 // the ColorEditor() control is a group of other controls
@@ -39,7 +40,7 @@ class ColorEditor : public Window
   ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
               std::function<void(uint32_t rgb)> setValue = nullptr,
               std::function<void(uint32_t rgb)> preview = nullptr,
-              COLOR_EDITOR_FMT fmt = RGB565);
+              COLOR_EDITOR_FMT fmt = RGB565, COLOR_EDITOR_TYPE typ = HSV_COLOR_EDITOR);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ColorEditor"; }

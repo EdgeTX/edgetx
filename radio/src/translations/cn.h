@@ -1195,6 +1195,7 @@
 #define TR_BLUE                       "蓝"
 #define TR_GREEN                      "绿"
 #define TR_COLOR_PICKER               "拾取颜色"
+#define TR_FIXED                      "Fixed"
 #define TR_EDIT_THEME_DETAILS         "主题信息"
 #define TR_THEME_COLOR_DEFAULT        "默认"
 #define TR_THEME_COLOR_PRIMARY1       "主色1"

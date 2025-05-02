@@ -1254,6 +1254,7 @@
 #define TR_BLUE                           "파랑"
 #define TR_GREEN                          "초록"
 #define TR_COLOR_PICKER                   "색상 선택"
+#define TR_FIXED                          "Fixed"
 #define TR_EDIT_THEME_DETAILS             "테마 세부 설정"
 #define TR_THEME_COLOR_DEFAULT            "기본"
 #define TR_THEME_COLOR_PRIMARY1           "기본색 1"

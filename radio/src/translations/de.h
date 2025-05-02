@@ -1202,6 +1202,7 @@
 #define TR_BLUE                        "Blau"
 #define TR_GREEN                       "Grün"
 #define TR_COLOR_PICKER                "Farbauswahl"
+#define TR_FIXED                       "Fixed"
 #define TR_EDIT_THEME_DETAILS          "Theme Details Bearb."
 #define TR_THEME_COLOR_DEFAULT         "Standard"
 #define TR_THEME_COLOR_PRIMARY1        "Primär1"

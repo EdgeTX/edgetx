@@ -1215,6 +1215,7 @@
 #define TR_BLUE                         "Bleu"
 #define TR_GREEN                        "Vert"
 #define TR_COLOR_PICKER                 "Pipette à couleurs"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "Éditer Détails Thème"
 #define TR_THEME_COLOR_DEFAULT          "DEFAUT"
 #define TR_THEME_COLOR_PRIMARY1         "PRIMAIRE 1"

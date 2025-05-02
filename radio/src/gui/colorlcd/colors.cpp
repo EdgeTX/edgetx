@@ -26,6 +26,7 @@
 #include <algorithm>
 
 const uint16_t defaultColors[] = {
+    // Theme
     RGB(0, 0, 0),        // PRIMARY1
     RGB(255, 255, 255),  // PRIMARY2
     RGB(12, 63, 102),    // PRIMARY3
@@ -38,13 +39,32 @@ const uint16_t defaultColors[] = {
     RGB(224, 0, 0),      // WARNING
     RGB(140, 140, 140),  // DISABLED
     RGB(170, 85, 0),     // CUSTOM
-    RGB(0, 0, 0),        // FIXED BLACK
-    RGB(255, 255, 255),  // FIXED WHITE
-    RGB(128, 128, 128),  // FIXED GREY
+    // Fixed
+    RGB(0x00, 0x00, 0x00), // BLACK
+    RGB(0xFF, 0xFF, 0xFF), // WHITE
+    RGB(0xEA, 0xEA, 0xEA), // LIGHTWHITE
+    RGB(0xC0, 0xC0, 0xC0), // LIGHTGREY
+    RGB(0x40, 0x40, 0x40), // DARKGREY
+    RGB(0x60, 0x60, 0x60), // GREY
+    RGB(0xFF, 0x00, 0x00), // RED
+    RGB(0xA0, 0x00, 0x00), // DARKRED
+    RGB(0xFF, 0x99, 0x99), // LIGHTRED
+    RGB(0x00, 0xFF, 0x00), // GREEN
+    RGB(0x00, 0xA0, 0x00), // DARKGREEN
+    RGB(0x00, 0xB4, 0x3C), // BRIGHTGREEN
+    RGB(0x00, 0x00, 0xFF), // BLUE
+    RGB(0x00, 0x00, 0xA0), // DARKBLUE
+    RGB(0x00, 0xFF, 0xFF), // CYAN
+    RGB(0xFF, 0xFF, 0x00), // YELLOW
+    RGB(0x9C, 0x6D, 0x20), // LIGHTBROWN
+    RGB(0x6A, 0x48, 0x10), // DARKBROWN
+    RGB(0xE5, 0x64, 0x1E), // ORANGE
+    RGB(0x80, 0x00, 0x80), // MAGENTA
 };
 
 // Needs to be initialised at compile time so widget color options work
 uint16_t lcdColorTable[] = {
+    // Theme
     RGB(0, 0, 0),        // PRIMARY1
     RGB(255, 255, 255),  // PRIMARY2
     RGB(12, 63, 102),    // PRIMARY3
@@ -57,9 +77,27 @@ uint16_t lcdColorTable[] = {
     RGB(224, 0, 0),      // WARNING
     RGB(140, 140, 140),  // DISABLED
     RGB(170, 85, 0),     // CUSTOM
-    RGB(0, 0, 0),        // FIXED BLACK
-    RGB(255, 255, 255),  // FIXED WHITE
-    RGB(128, 128, 128),  // FIXED GREY
+    // Fixed
+    RGB(0x00, 0x00, 0x00), // BLACK
+    RGB(0xFF, 0xFF, 0xFF), // WHITE
+    RGB(0xEA, 0xEA, 0xEA), // LIGHTWHITE
+    RGB(0xC0, 0xC0, 0xC0), // LIGHTGREY
+    RGB(0x40, 0x40, 0x40), // DARKGREY
+    RGB(0x60, 0x60, 0x60), // GREY
+    RGB(0xFF, 0x00, 0x00), // RED
+    RGB(0xA0, 0x00, 0x00), // DARKRED
+    RGB(0xFF, 0x99, 0x99), // LIGHTRED
+    RGB(0x00, 0xFF, 0x00), // GREEN
+    RGB(0x00, 0xA0, 0x00), // DARKGREEN
+    RGB(0x00, 0xB4, 0x3C), // BRIGHTGREEN
+    RGB(0x00, 0x00, 0xFF), // BLUE
+    RGB(0x00, 0x00, 0xA0), // DARKBLUE
+    RGB(0x00, 0xFF, 0xFF), // CYAN
+    RGB(0xFF, 0xFF, 0x00), // YELLOW
+    RGB(0x9C, 0x6D, 0x20), // LIGHTBROWN
+    RGB(0x6A, 0x48, 0x10), // DARKBROWN
+    RGB(0xE5, 0x64, 0x1E), // ORANGE
+    RGB(0xC0, 0x00, 0xC0), // MAGENTA
 };
 
 uint32_t HSVtoRGB(float H, float S, float V)
@@ -162,17 +200,6 @@ void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float &fH, float &fS, float &fV)
   if (fH < 0) {
     fH = 360 + fH;
   }
-}
-
-// TODO: work out how to remove this function
-LcdColorIndex indexFromColor(uint32_t lcdFlags)
-{
-  uint16_t color = COLOR_VAL(lcdFlags);
-
-  for (uint8_t i = 0; i < TOTAL_COLOR_COUNT; i += 1)
-    if (lcdColorTable[i] == color) return (LcdColorIndex)i;
-
-  return CUSTOM_COLOR_INDEX;
 }
 
 // Return flags with RGB color value instead of indexed theme color
