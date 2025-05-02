@@ -88,7 +88,7 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/system_clock.c
   ${TARGET_SRC_DIR}/extram_driver.cpp
-  ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
+  ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
 )
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
