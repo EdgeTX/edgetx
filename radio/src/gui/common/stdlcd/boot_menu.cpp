@@ -28,7 +28,7 @@
 
 #include "fw_version.h"
 #include "translations.h"
-#include "../../common/arm/stm32/bootloader/boot.h"
+#include "bootloader/boot.h"
 #include "bootloader/firmware_files.h"
 
 void bootloaderInitScreen()
