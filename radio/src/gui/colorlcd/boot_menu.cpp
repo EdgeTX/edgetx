@@ -23,6 +23,7 @@
 #include "fw_version.h"
 #include "lcd.h"
 #include "etx_lv_theme.h"
+#include "bitmaps.h"
 
 #include "translations.h"
 
@@ -324,9 +325,9 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       lcd->drawSolidFilledRect(PROGRESS_X + PAD_SMALL, (LCD_H - PROGRESS_H) / 2 + PAD_SMALL, ((PROGRESS_W - PAD_SMALL * 2) * opt) / 100, PROGRESS_H - PAD_SMALL * 2, color);
     } else if (st == ST_DIR_CHECK) {
       if (opt == FR_NO_PATH) {
-        lcd->drawText(LCD_W / 2, LCD_H / 2, LV_SYMBOL_CLOSE TR_BL_DIR_MISSING, CENTERED | BL_FOREGROUND);
+        lcd->drawText(LCD_W / 2, LCD_H / 2, LV_SYMBOL_CLOSE " " TR_BL_DIR_MISSING, CENTERED | BL_FOREGROUND);
       } else {
-        lcd->drawText(LCD_W / 2, LCD_H / 2, LV_SYMBOL_CLOSE TR_BL_DIR_EMPTY,  CENTERED | BL_FOREGROUND);
+        lcd->drawText(LCD_W / 2, LCD_H / 2, LV_SYMBOL_CLOSE " " TR_BL_DIR_EMPTY,  CENTERED | BL_FOREGROUND);
       }
     } else if (st == ST_FLASH_CHECK) {
       bootloaderDrawFilename(str, 0, true);
