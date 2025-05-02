@@ -43,15 +43,14 @@ extern const stm32_pulse_timer_t _led_timer;
 static TimerHandle_t rgbLedTimer = nullptr;
 static StaticTimer_t rgbLedTimerBuffer;
 
+#if !defined(LED_STRIP_RESERVED)
+  #define LED_STRIP_RESERVED 0
+#endif
+
 void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 {
-#if defined(SIXPOS_SWITCH_INDEX)
-  ws2812_set_color(led + 6, r, g, b);
-#elif defined(RGB_LED_OFFSET)
-  ws2812_set_color(led + RGB_LED_OFFSET, r, g, b);
-#else
+  led += LED_STRIP_RESERVED;
   ws2812_set_color(led, r, g, b);
-#endif
 }
 
 uint32_t rgbGetLedColor(uint8_t led)
@@ -77,10 +76,13 @@ void rgbLedClearAll()
   ws2812_update(&_led_timer);
 }
 
+__WEAK void rgbLedOnUpdate() {}
+
 static void rgbLedTimerCb(TimerHandle_t xTimer)
 {
   (void)xTimer;
 
+  rgbLedOnUpdate();
   ws2812_update(&_led_timer);
 }
 

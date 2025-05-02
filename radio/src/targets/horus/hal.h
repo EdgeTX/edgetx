@@ -265,12 +265,19 @@
   #endif
 #endif
 
-// 6POS SW
+// V16 6POS SW
 #if defined(RADIO_V16)
-  #define SIXPOS_SWITCH_INDEX             5
-  #define SIXPOS_LED_RED                255
-  #define SIXPOS_LED_GREEN              255
-  #define SIXPOS_LED_BLUE               255
+  // default calibration
+  #define DEFAULT_6POS_CALIB {3, 12, 21, 30, 38}
+  #define DEFAULT_6POS_IDX   5
+
+  // index in pots
+  #define SIXPOS_SWITCH_INDEX 1
+
+  // RGB LEDs color
+  #define SIXPOS_LED_RED   255
+  #define SIXPOS_LED_GREEN 255
+  #define SIXPOS_LED_BLUE  255
 #endif
 
 // Trims
@@ -1025,6 +1032,7 @@
 #if defined(RADIO_V16)
   // LED Strip
   #define LED_STRIP_LENGTH                  40
+  #define LED_STRIP_RESERVED                6
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10)  // PA.10 / TIM1_CH3
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1    // TIM1/2
   #define LED_STRIP_TIMER                   TIM1

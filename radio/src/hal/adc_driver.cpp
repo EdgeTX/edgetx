@@ -233,11 +233,6 @@ void adcCalibStore()
 uint16_t getAnalogValue(uint8_t index)
 {
   if (index >= MAX_ANALOG_INPUTS) return 0;
-#if defined(SIXPOS_SWITCH_INDEX) && !defined(SIMU)
-  if (index == SIXPOS_SWITCH_INDEX)
-    return getSixPosAnalogValue(adcValues[index]);
-  else
-#endif
   return adcValues[index];
 }
 
