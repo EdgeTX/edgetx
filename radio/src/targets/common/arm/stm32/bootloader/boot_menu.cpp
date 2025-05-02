@@ -7,7 +7,7 @@
 
 #include "lcd.h"
 
-#define FRAME_INTERVAL_MS 10
+#define FRAME_INTERVAL_MS 20
 
 #if defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
@@ -35,6 +35,13 @@ void pollInputs()
     pushEvent(scrollRE < 0 ? EVT_ROTARY_LEFT : EVT_ROTARY_RIGHT);
   }
 #endif
+}
+
+// poll inputs every 10ms
+void per5ms()
+{
+  static uint32_t cnt = 0;
+  if (++cnt & 1) { pollInputs(); }
 }
 
 FlashCheckRes valid;
@@ -75,7 +82,6 @@ void bootloaderMenu()
 
     if (time_get_ms() - next_frame >= FRAME_INTERVAL_MS) {
       next_frame += FRAME_INTERVAL_MS;
-      pollInputs();
 
       if (state != ST_USB && state != ST_FLASHING
           && state != ST_FLASH_DONE && state != ST_RADIO_MENU) {
