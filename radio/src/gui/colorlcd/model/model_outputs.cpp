@@ -51,7 +51,6 @@ class OutputLineButton : public ListLineButton
     if (line) {
       if (!line->init)
         line->delayed_init();
-      line->refresh();
     }
   }
 
@@ -109,6 +108,8 @@ class OutputLineButton : public ListLineButton
   
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+
+    refresh();
   }
 
  public:
@@ -200,8 +201,9 @@ class OutputLineButton : public ListLineButton
 
   void checkEvents() override
   {
-    ListLineButton::checkEvents();
     if (!init) return;
+
+    ListLineButton::checkEvents();
 
     int newValue = channelOutputs[index];
     if (value != newValue) {
