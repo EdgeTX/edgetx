@@ -25,7 +25,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   CMAKE_GENERATOR: "MSYS Makefiles"
-  QT_VERSION: "6.8.2"
+  QT_VERSION: "6.9.0"
   MINGW_VERSION: "win64_mingw"
   MINGW_PATH: "mingw_64"
 
