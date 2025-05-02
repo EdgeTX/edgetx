@@ -19,10 +19,12 @@ else()
   set(SIMULATOR_NAME "simulator")
 endif()
 
-# This the name that the user will see in the generated DMG and what the application
-# will be called under /Applications. We include the version string to make installing
-# different versions side-by-side
-set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
+if(APPLE)
+  # This the name that the user will see in the generated DMG and what the application
+  # will be called under /Applications. We include the version string to make installing
+  # different versions side-by-side
+  set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
+endif(APPLE)
 
 option(DEBUG_STORAGE_IMPORT "Turn on debug output for storage import") # Disabled by default
 if(DEBUG_STORAGE_IMPORT)
@@ -138,13 +140,13 @@ else()
 endif()
 
 ############# Import radio hardware definitions ###############
-
 set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
 set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
 set(HWDEFS_PHDR "HWDEF_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
 set(HWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_hwdefs_qrc.py")
 
+# qrc used by Companion and Simulator
 add_custom_command(OUTPUT ${HWDEFS_QRC}
   COMMAND ${HWDEFS_CMD} -d ${HWDEFS_DIR}
                         -t ${HWDEFS_TMPL}
@@ -309,9 +311,18 @@ include(FindDfuutil)
 include(FindLibusb1)
 include(FindOpenSSL)
 
+set(COMPANION_TARGETS_PATH ${PROJECT_SOURCE_DIR}/companion/targets)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(COMPANION_TARGETS_PATH ${COMPANION_TARGETS_PATH}/linux)
+elseif(APPLE)
+  set(COMPANION_TARGETS_PATH ${COMPANION_TARGETS_PATH}/mac)
+elseif(WIN32)
+  set(COMPANION_TARGETS_PATH ${COMPANION_TARGETS_PATH}/windows)
+endif()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../targets/linux/companion.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop @ONLY)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../targets/linux/simulator.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop @ONLY)
+  configure_file(${COMPANION_TARGETS_PATH}/companion.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop @ONLY)
+  configure_file(${COMPANION_TARGETS_PATH}/simulator.desktop.in ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop @ONLY)
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -326,8 +337,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   install(FILES images/linuxicons/256x256/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/256x256/apps RENAME companion${APP_NAME_SUFFIX}.png)
   install(FILES images/linuxicons/512x512/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/512x512/apps RENAME companion${APP_NAME_SUFFIX}.png)
   install(FILES images/linuxicons/scalable/companion.svg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps RENAME companion${APP_NAME_SUFFIX}.svg)
-  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../targets/linux/45-companion-taranis.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-taranis.rules)
-  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../targets/linux/45-usbasp.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-usbasp.rules)
+  install(FILES ${COMPANION_TARGETS_PATH}/45-companion-taranis.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-taranis.rules)
+  install(FILES ${COMPANION_TARGETS_PATH}/45-usbasp.rules DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d RENAME 45-companion${APP_NAME_SUFFIX}-usbasp.rules)
 
   if(LIBSSL1_FOUND)
     install(DIRECTORY ${LIBSSL1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
@@ -368,7 +379,7 @@ elseif(WIN32)
     if(DFU_UTIL_FOUND)
       install(FILES "${DFU_UTIL_PATH}" DESTINATION ${INSTALL_DESTINATION})
     endif()
-  endif()
+  endif(LIBUSB1_FOUND)
 
   if(OPENSSL_FOUND)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
@@ -380,10 +391,10 @@ elseif(WIN32)
       # install only files Qt networking requires
       install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
     endif()
-  endif()
+  endif(OPENSSL_FOUND)
 
   set(LICENSE_FILE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
-  configure_file("${COMPANION_SRC_DIRECTORY}/../targets/windows/license.txt.in" ${LICENSE_FILE} @ONLY)
+  configure_file("${COMPANION_TARGETS_PATH}/license.txt.in" ${LICENSE_FILE} @ONLY)
   install(FILES "${LICENSE_FILE}" DESTINATION ${INSTALL_DESTINATION})
 
   if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
@@ -402,42 +413,7 @@ elseif(WIN32)
 
   # Add installer command to execute windeployqt
   message(STATUS "windeployqt command: ${QT_BIN_DIR}/windeployqt.exe ${wdqtopts}")
-endif() # WIN32 install
-
-############# Packaging ####################
-
-# Create Windows installer with NSIS
-if(WIN32)
-  find_program(NSIS_EXE makensis.exe PATHS
-    "C:/Program Files/NSIS"
-    "C:/Program Files (x86)/NSIS"
-    "C:/Programs/NSIS"
-    "${WIN_EXTRA_LIBS_PATH}/NSIS"
-  )
-
-  if (NSIS_EXE)
-    file(TO_NATIVE_PATH "${INSTALL_DESTINATION}" NSIS_DISTRO)  # all files in here will be included in installer
-    set(NSI_FILE "${PROJECT_BINARY_DIR}/companion/companion.nsi")
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../targets/windows/companion.nsi.in" "${NSI_FILE}" @ONLY)
-
-    add_custom_target(installer
-      # The 'install' target prepares all the distro files, make sure it has been executed first.
-      COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
-      COMMAND "${QT_BIN_DIR}/windeployqt.exe" "${wdqtopts}"
-      COMMAND "${NSIS_EXE}" "${NSI_FILE}"
-      DEPENDS "${NSI_FILE}"
-      COMMENT "Building Windows NSIS installer..."
-    )
-  endif()
-endif()
-
-set(CPACK_PACKAGE_NAME "companion${APP_NAME_SUFFIX}")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Models and settings editor for the EdgeTX open source firmware")
-string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
-
-# The file stripping is deliberately disabled, with the stripped file we get
-# very poor trace-backs from the users when they report Companion crash
-set(CPACK_STRIP_FILES FALSE)
+endif(WIN32)
 
 # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
 # and trial and error. Do not hesitate to fix it for the better
@@ -451,8 +427,8 @@ IF(APPLE)
   set_target_properties(${SIMULATOR_NAME} PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Simulator ${VERSION_MAJOR}.${VERSION_MINOR}")
 
   # Use a non standard Info.plist that adds Retina support flags
-  set_target_properties(${COMPANION_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/companion/targets/mac/MacOSXBundleInfo.plist.in)
-  set_target_properties(${SIMULATOR_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/companion/targets/mac/MacOSXBundleInfo.plist.in)
+  set_target_properties(${COMPANION_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
+  set_target_properties(${SIMULATOR_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
 
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
@@ -471,7 +447,7 @@ IF(APPLE)
     COMPONENT Runtime)
 
   # menu file
-  install(DIRECTORY ${PROJECT_SOURCE_DIR}/companion/targets/mac/qt_menu.nib DESTINATION "${companion_res_dir}" COMPONENT Runtime)
+  install(DIRECTORY ${COMPANION_TARGETS_PATH}/qt_menu.nib DESTINATION "${companion_res_dir}" COMPONENT Runtime)
 
   # manually add the required plugins
   foreach (plugin ${Qt${QT_VERSION_MAJOR}Multimedia_PLUGINS} ${Qt${QT_VERSION_MAJOR}PrintSupport_PLUGINS} ${Qt${QT_VERSION_MAJOR}Gui_PLUGINS} ${Qt${QT_VERSION_MAJOR}Svg_PLUGINS})
@@ -499,13 +475,13 @@ IF(APPLE)
     install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
 
     set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
-  endif()
+  endif(DFU_UTIL_FOUND)
 
   if(OPENSSL_FOUND)
     # Copy openssl, resolve symlink first
     #get_filename_component(OPENSSL_ABSOLUTE_PATH ${OPENSSL_SSL_LIBRARY} REALPATH)
     #install(FILES ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
-  endif()
+  endif(OPENSSL_FOUND)
 
   # Include depencies (adding frameworks, fixing the embbeded libraries)
   # I get write errors without setting BU_CHMOD_BUNDLE_ITEMS even though it is
@@ -517,7 +493,17 @@ IF(APPLE)
    fixup_bundle(\"${APPS}\"   \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}\"   \"${QT_LIB_DIR}\")
    file(RENAME \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
    " COMPONENT Runtime)
-endif()
+endif(APPLE)
+
+############# Packaging ####################
+
+set(CPACK_PACKAGE_NAME "companion${APP_NAME_SUFFIX}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Models and settings editor for the EdgeTX open source firmware")
+string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
+
+# The file stripping is deliberately disabled, with the stripped file we get
+# very poor trace-backs from the users when they report Companion crash
+set(CPACK_STRIP_FILES FALSE)
 
 if(APPLE)
   set(CPACK_GENERATOR "DragNDrop")
@@ -525,11 +511,11 @@ if(APPLE)
   set(CPACK_BINARY_DRAGNDROP ON)
   set(CPACK_DMG_BACKGROUND_IMAGE ${COMPANION_SRC_DIRECTORY}/images/splash_dmg.png)
   set(CPACK_DMG_VOLUME_NAME "EdgeTX Companion")
-  set(CPACK_DMG_DS_STORE ${PROJECT_SOURCE_DIR}/companion/targets/mac/DS_Store)
+  set(CPACK_DMG_DS_STORE ${COMPANION_TARGETS_PATH}/DS_Store)
   set(CPACK_PACKAGE_FILE_NAME "edgetx-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
 endif(APPLE)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(LINUXDEPLOY_APPIMAGE "linuxdeploy-x86_64.AppImage")
   set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
   set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
@@ -537,7 +523,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(LINUXDEPLOY_DIRECTORY "${CMAKE_BINARY_DIR}/linuxdeploy")
   set(LINUXDEPLOY_APP "${LINUXDEPLOY_DIRECTORY}/usr/bin/linuxdeploy")
 
-  if (NOT EXISTS "${LINUXDEPLOY_DIRECTORY}")
+  if(NOT EXISTS "${LINUXDEPLOY_DIRECTORY}")
     message(STATUS "Downloading linuxdeploy and plugins...")
 
     file(DOWNLOAD "${LINUXDEPLOY_URL}/${LINUXDEPLOY_APPIMAGE}" "${CMAKE_BINARY_DIR}/${LINUXDEPLOY_APPIMAGE}")
@@ -580,8 +566,33 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(APPIMAGE_DIR "${CPACK_PACKAGE_DIRECTORY}/_CPack_Packages/Linux/External/AppImage")
   set(CPN_DESKTOP_FILE ${APPIMAGE_DIR}/usr/share/applications/${COMPANION_NAME}.desktop)
 
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../targets/linux/CPackLinuxDeploy.cmake.in "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
+  configure_file("${COMPANION_TARGETS_PATH}/CPackLinuxDeploy.cmake.in" "${CMAKE_BINARY_DIR}/CPackExternal.cmake" @ONLY)
   set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${CMAKE_BINARY_DIR}/CPackExternal.cmake")
-endif()
+endif(Linux)
+
+# Create Windows installer with NSIS
+if(WIN32)
+  find_program(NSIS_EXE makensis.exe PATHS
+    "C:/Program Files/NSIS"
+    "C:/Program Files (x86)/NSIS"
+    "C:/Programs/NSIS"
+    "${WIN_EXTRA_LIBS_PATH}/NSIS"
+  )
+
+  if(NSIS_EXE)
+    file(TO_NATIVE_PATH "${INSTALL_DESTINATION}" NSIS_DISTRO)  # all files in here will be included in installer
+    set(NSI_FILE "${PROJECT_BINARY_DIR}/companion/companion.nsi")
+    configure_file("${COMPANION_TARGETS_PATH}/companion.nsi.in" "${NSI_FILE}" @ONLY)
+
+    add_custom_target(installer
+      # The 'install' target prepares all the distro files, make sure it has been executed first.
+      COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
+      COMMAND "${QT_BIN_DIR}/windeployqt.exe" "${wdqtopts}"
+      COMMAND "${NSIS_EXE}" "${NSI_FILE}"
+      DEPENDS "${NSI_FILE}"
+      COMMENT "Building Windows NSIS installer..."
+    )
+  endif()
+endif(WIN32)
 
 include(CPack)
