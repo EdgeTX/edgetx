@@ -214,6 +214,7 @@ void boardInit()
 #endif
 
   delaysInit();
+  timersInit();
   __enable_irq();
 
   keysInit();
@@ -223,20 +224,13 @@ void boardInit()
   rotaryEncoderInit();
 #endif
 
-#if defined(PWM_STICKS)
-  sticksPwmDetect();
-#endif
-
-#if defined(FLYSKY_GIMBAL)
-  flysky_gimbal_init();
-#endif
+  gimbalsDetect();
 
   if (!adcInit(&_adc_driver))
     TRACE("adcInit failed");
 
   lcdInit(); // delaysInit() must be called before
   audioInit();
-  timersInit();
   usbInit();
 
 #if defined(LED_STRIP_GPIO)

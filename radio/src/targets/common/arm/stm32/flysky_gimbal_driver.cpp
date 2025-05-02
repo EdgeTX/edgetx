@@ -168,7 +168,7 @@ void flysky_gimbal_deinit()
   _fs_usart_ctx = 0;
 }
 
-bool flysky_gimbal_init(bool force)
+static int flysky_gimbal_init_uart()
 {
   etx_serial_init cfg = {
     .baudrate = FLYSKY_HALL_BAUDRATE,
@@ -177,11 +177,21 @@ bool flysky_gimbal_init(bool force)
     .polarity = ETX_Pol_Normal,
   };
 
-  _fs_gimbal_detected = force;
   _fs_usart_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(FSGimbal), &cfg);
-  STM32SerialDriver.setIdleCb(_fs_usart_ctx, flysky_gimbal_loop, 0);
+  if (!_fs_usart_ctx) return -1;
 
-  // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally 23ms is required
+  STM32SerialDriver.setIdleCb(_fs_usart_ctx, flysky_gimbal_loop, 0);
+  return 0;
+}
+
+bool flysky_gimbal_init()
+{
+  if (flysky_gimbal_init_uart() != 0) return false;
+
+  // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally
+  // 23ms is required
+  _fs_gimbal_detected = false;
+
   for (uint8_t i = 0; i < 70; i++) {
     delay_ms(1);
     if (_fs_gimbal_detected) {
@@ -193,6 +203,14 @@ bool flysky_gimbal_init(bool force)
 
   flysky_gimbal_deinit();
   return false;
+}
+
+void flysky_gimbal_force_init()
+{
+  if (flysky_gimbal_init_uart() != 0) return;
+
+  _fs_gimbal_detected = true;
+  stm32_hal_set_inputs_mask(0xF);
 }
 
 const etx_serial_port_t* flysky_gimbal_get_port()
