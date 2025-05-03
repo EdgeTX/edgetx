@@ -818,6 +818,13 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX);
 
+  /* Radiomaster TX15 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("tx15"), Firmware::tr("Radiomaster TX15"), BOARD_RADIOMASTER_TX15);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  firmware->addOptionsGroup({opt_bt, opt_internal_gps});
+  registerOpenTxFirmware(firmware);
+
   /* Radiomaster TX16S board */
   firmware = new OpenTxFirmware(FIRMWAREID("tx16s"), Firmware::tr("Radiomaster TX16S / SE / Hall / Masterfire"), BOARD_RADIOMASTER_TX16S);
   addOpenTxFrskyOptions(firmware);
