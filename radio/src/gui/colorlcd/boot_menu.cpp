@@ -25,7 +25,7 @@
 #include "etx_lv_theme.h"
 #include "bitmaps.h"
 
-#include "translations.h"
+#include "translations/bl_translations.h"
 
 #include "bootloader/boot.h"
 #include "bootloader/firmware_files.h"
@@ -87,6 +87,16 @@ static void bootloaderDrawFooter()
   lcd->drawSolidFilledRect(PAD_LARGE, LCD_H - FOOTER_LY, LCD_W - PAD_LARGE * 2, LINE_H, BL_FOREGROUND);
 }
 
+static void bootloaderDrawVerFooter()
+{
+  bootloaderDrawFooter();
+  if (LCD_W < LCD_H)
+    lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y2 + PAD_TINY, TR_BL_CURRENT_FW, CENTERED | BL_FOREGROUND);
+  const char* fw_ver = getFirmwareVersion();
+  if (!fw_ver) fw_ver = TR_BL_NO_VERSION;
+  lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y1, fw_ver, CENTERED | BL_FOREGROUND);
+}
+
 static void bootloaderDrawBackground()
 {
   lcd->clear(BL_BACKGROUND);
@@ -139,7 +149,7 @@ void bootloaderDrawDFUScreen()
 {
   lcdInitDirectDrawing();
   bootloaderDrawBackground();
-  lcd->drawText(LCD_W / 2, LCD_H / 2, "DFU mode", CENTERED | BL_FOREGROUND);
+  lcd->drawText(LCD_W / 2, LCD_H / 2, TR_BL_DFU_MODE, CENTERED | BL_FOREGROUND);
 }
 
 void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
@@ -151,20 +161,11 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
   if (st == ST_START || st == ST_USB) {
 
-    const char* msg = nullptr;
-    if (st == ST_START) {
-      msg = "Plug USB cable";
-    } else if (st == ST_USB) {
-      msg = "Copy firmware.uf2 to flash";
-    }
+    const char* msg = (st == ST_START) ? TR_BL_PLUG_USB : TR_BL_COPY_UF2;
 
     lcd->drawText(LCD_W / 2, LCD_H / 2, msg, CENTERED | BL_FOREGROUND);
 
-    bootloaderDrawFooter();
-
-    const char* fw_ver = getFirmwareVersion();
-    if (!fw_ver) fw_ver = "no version";
-    lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y1, fw_ver, CENTERED | BL_FOREGROUND);
+    bootloaderDrawVerFooter();
 
   } else if (st == ST_FLASHING || st == ST_FLASH_DONE) {
 
@@ -268,10 +269,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     lcd->drawText(USB_TXT_X, LCD_H - USB_TXT_Y1, TR_BL_USB_PLUGIN, USB_TXT_ALIGN | BL_FOREGROUND);
     lcd->drawText(USB_TXT_X, LCD_H - USB_TXT_Y2, TR_BL_USB_MASS_STORE, USB_TXT_ALIGN | BL_FOREGROUND);
 
-    bootloaderDrawFooter();
-    if (LCD_W < LCD_H)
-      lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y2 + PAD_TINY, TR_BL_CURRENT_FW, CENTERED | BL_FOREGROUND);
-    lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y1, getFirmwareVersion(), CENTERED | BL_FOREGROUND);
+    bootloaderDrawVerFooter();
   }
 #if defined(SPI_FLASH)
   else if (st == ST_CLEAR_FLASH_CHECK) {
