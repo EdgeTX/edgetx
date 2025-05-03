@@ -47,15 +47,27 @@ void bootloaderUF2()
   uint32_t next_frame = time_get_ms();
 
   for (;;) {
-    event_t event = getEvent();
-
-    if (state != ST_FLASHING && event == EVT_KEY_LONG(KEY_EXIT)) {
-      // Start the main application
-      state = ST_REBOOT;
-    }
 
     if (time_get_ms() - next_frame >= FRAME_INTERVAL_MS) {
       next_frame += FRAME_INTERVAL_MS;
+
+      keysPollingCycle();
+      event_t event = getEvent();
+
+      if (state != ST_FLASHING && event == EVT_KEY_LONG(KEY_EXIT)) {
+        // Start the main application
+        state = ST_REBOOT;
+      }
+
+      if (state == ST_REBOOT) {
+        storageDeInit();
+#if !defined(SIMU)
+        blExit();
+        NVIC_SystemReset();
+#else
+        exit(1);
+#endif
+      }
 
       if (state != ST_USB && state != ST_FLASHING && state != ST_FLASH_DONE) {
         if (usbPlugged()) {
@@ -103,16 +115,6 @@ void bootloaderUF2()
       }
 
       lcdRefresh();
-    }
-
-    if (state == ST_REBOOT) {
-      storageDeInit();
-#if !defined(SIMU)
-      blExit();
-      NVIC_SystemReset();
-#else
-      exit(1);
-#endif
     }
   }  
 }
