@@ -202,7 +202,6 @@ set(CPN_COMMON_LIB common)
 
 include(FetchMiniz)
 include(FetchYamlCpp)
-
 include(FetchMaxLibQt)
 
 add_subdirectory(datamodels)
@@ -311,13 +310,13 @@ include(FindDfuutil)
 include(FindLibusb1)
 include(FindOpenSSL)
 
-set(COMPANION_TARGETS_PATH ${PROJECT_SOURCE_DIR}/companion/targets)
+set(COMPANION_TARGETS_PATH "${PROJECT_SOURCE_DIR}/companion/targets")
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(COMPANION_TARGETS_PATH ${COMPANION_TARGETS_PATH}/linux)
+  set(COMPANION_TARGETS_PATH "${COMPANION_TARGETS_PATH}/linux")
 elseif(APPLE)
-  set(COMPANION_TARGETS_PATH ${COMPANION_TARGETS_PATH}/mac)
+  set(COMPANION_TARGETS_PATH "${COMPANION_TARGETS_PATH}/mac")
 elseif(WIN32)
-  set(COMPANION_TARGETS_PATH ${COMPANION_TARGETS_PATH}/windows)
+  set(COMPANION_TARGETS_PATH "${COMPANION_TARGETS_PATH}/windows")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -351,7 +350,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     endif()
   endif()
 
-  # Linux specific code
   set(OperatingSystem "Linux")
   # Shortcut target
   add_custom_target(companion DEPENDS ${COMPANION_NAME})
@@ -427,12 +425,14 @@ IF(APPLE)
   set_target_properties(${SIMULATOR_NAME} PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Simulator ${VERSION_MAJOR}.${VERSION_MINOR}")
 
   # Use a non standard Info.plist that adds Retina support flags
-  set_target_properties(${COMPANION_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
-  set_target_properties(${SIMULATOR_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
+  # Retina is not standard so comment out for now
+  # TODO remove commands and plist file
+  #set_target_properties(${COMPANION_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
+  #set_target_properties(${SIMULATOR_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
 
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
-  INSTALL(TARGETS ${COMPANION_NAME}
+  install(TARGETS ${COMPANION_NAME}
       BUNDLE DESTINATION . COMPONENT Runtime
       RUNTIME DESTINATION bin COMPONENT Runtime
       )
@@ -483,16 +483,17 @@ IF(APPLE)
     #install(FILES ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
   endif(OPENSSL_FOUND)
 
+  # We using macdeployqt so hopefully do not need
   # Include depencies (adding frameworks, fixing the embbeded libraries)
   # I get write errors without setting BU_CHMOD_BUNDLE_ITEMS even though it is
   # technically a hack (that is already is in the Bundle library ...)
-  install(CODE "
-   include(BundleUtilities)
-   file(GLOB bundle_simulator_libs \"\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/libedgetx-*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-   set(BU_CHMOD_BUNDLE_ITEMS on)
-   fixup_bundle(\"${APPS}\"   \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}\"   \"${QT_LIB_DIR}\")
-   file(RENAME \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
-   " COMPONENT Runtime)
+  #install(CODE "
+  # include(BundleUtilities)
+  # file(GLOB bundle_simulator_libs \"\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/libedgetx-*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+  # set(BU_CHMOD_BUNDLE_ITEMS on)
+  # fixup_bundle(\"${APPS}\"   \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}\"   \"${QT_LIB_DIR}\")
+  # file(RENAME \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
+  # " COMPONENT Runtime)
 endif(APPLE)
 
 ############# Packaging ####################
@@ -513,6 +514,15 @@ if(APPLE)
   set(CPACK_DMG_VOLUME_NAME "EdgeTX Companion")
   set(CPACK_DMG_DS_STORE ${COMPANION_TARGETS_PATH}/DS_Store)
   set(CPACK_PACKAGE_FILE_NAME "edgetx-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
+
+  add_custom_target(installer
+  # The 'install' target prepares all the distro files, make sure it has been executed first.
+  COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
+  # To ensure that the volume name only contains the application name and not the path on the deployment machine, run macdeployqt in the same directory
+  COMMAND cd "\${CMAKE_INSTALL_PREFIX}"
+  COMMAND "${QT_BIN_DIR}/macdeployqt.exe" "${COMPANION_NAME}.app" -no-strip -dmg
+  COMMENT "Building MacOS application bundle..."
+)
 endif(APPLE)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
