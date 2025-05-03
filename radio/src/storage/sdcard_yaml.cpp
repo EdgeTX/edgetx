@@ -181,6 +181,7 @@ const char * loadRadioSettings()
 #endif
 
     adcCalibDefaults();
+    generalDefaultSwitches();
 
     const char* error = loadRadioSettingsYaml(true);
     if (!error) {
