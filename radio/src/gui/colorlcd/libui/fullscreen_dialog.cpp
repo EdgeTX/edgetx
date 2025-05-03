@@ -26,6 +26,7 @@
 #include "mainwindow.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "os/sleep.h"
 #include "view_main.h"
 #include "hal/watchdog_driver.h"
 
@@ -186,7 +187,7 @@ static void run_ui_manually()
   checkBacklight();
   WDG_RESET();
 
-  RTOS_WAIT_MS(10);
+  sleep_ms(10);
   LvglWrapper::runNested();
   MainWindow::instance()->run(false);
 }
@@ -211,7 +212,7 @@ void FullScreenDialog::runForever(bool checkPwr)
 #endif
       } else if (check == e_power_press) {
         WDG_RESET();
-        RTOS_WAIT_MS(1);
+        sleep_ms(1);
         continue;
       }
     }

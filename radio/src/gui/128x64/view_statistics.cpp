@@ -21,7 +21,9 @@
 
 #include "edgetx.h"
 #include "tasks.h"
+
 #include "mixer_scheduler.h"
+#include "tasks/mixer_task.h"
 
 #include "hal/adc_driver.h"
 
@@ -169,12 +171,12 @@ void menuStatisticsDebug(event_t event)
   y += FH;
 
   lcdDrawTextAlignedLeft(y, STR_FREE_STACK);
-  lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, menusStack.available(), LEFT);
+  lcdDrawNumber(MENU_DEBUG_COL1_OFS, y, task_get_stack_usage(&menusTaskId), LEFT);
   lcdDrawText(lcdLastRightPos, y, "/");
-  lcdDrawNumber(lcdLastRightPos, y, mixerStack.available(), LEFT);
+  lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&mixerTaskId), LEFT);
 #if defined(AUDIO)
   lcdDrawText(lcdLastRightPos, y, "/");
-  lcdDrawNumber(lcdLastRightPos, y, audioStack.available(), LEFT);
+  lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&audioTaskId), LEFT);
 #endif
   y += FH;
 

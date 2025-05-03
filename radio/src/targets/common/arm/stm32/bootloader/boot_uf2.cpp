@@ -3,6 +3,7 @@
 #include "hal/usb_driver.h"
 #include "hal/storage.h"
 #include "hal/fatfs_diskio.h"
+#include "os/time.h"
 
 #include "thirdparty/FatFs/diskio.h"
 #include "drivers/uf2_ghostfat.h"
@@ -10,18 +11,9 @@
 #include "board.h"
 #include "lcd.h"
 
+#define FRAME_INTERVAL_MS 20
+
 extern uf2_fat_write_state_t _uf2_write_state;
-
-volatile tmr10ms_t g_tmr10ms;
-volatile uint8_t tenms = 1;
-
-void per5ms() {} // make linker happy
-
-void per10ms()
-{
-  tenms |= 1u; // 10 mS has passed
-  g_tmr10ms++;
-}
 
 void bootloaderUF2()
 {
@@ -31,10 +23,12 @@ void bootloaderUF2()
   storageInit();
   disk_initialize(0);
 
+  uint32_t next_frame = time_get_ms();
+
   for (;;) {
 
-    if (tenms) {
-      tenms = 0;
+    if (time_get_ms() - next_frame >= FRAME_INTERVAL_MS) {
+      next_frame += FRAME_INTERVAL_MS;
 
       if (state != ST_USB && state != ST_FLASHING && state != ST_FLASH_DONE) {
         if (usbPlugged()) {

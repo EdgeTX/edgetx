@@ -25,6 +25,7 @@
 #include "edgetx.h"
 #include "telemetry/ghost.h"
 #include "telemetry/ghost_menu.h"
+#include "os/sleep.h"
 
 class GhostModuleConfigWindow : public Window
 {
@@ -166,7 +167,7 @@ void RadioGhostModuleConfig::onLongPressRTN()
   reusableBuffer.ghostMenu.buttonAction = GHST_BTN_NONE;
   reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_CLOSE;
   moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
-  RTOS_WAIT_MS(10);
+  sleep_ms(10);
 #if defined(TRIMS_EMULATE_BUTTONS)
   setHatsAsKeys(false);  // switch trims back to normal
 #endif
@@ -183,7 +184,7 @@ void RadioGhostModuleConfig::checkEvents()
     reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_OPEN;
     moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
   } else if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_CLOSING) {
-    RTOS_WAIT_MS(10);
+    sleep_ms(10);
     deleteLater();
 #if defined(TRIMS_EMULATE_BUTTONS)
     setHatsAsKeys(false);  // switch trims back to normal

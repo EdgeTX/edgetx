@@ -21,6 +21,7 @@
 
 #include "edgetx.h"
 #include "inactivity_timer.h"
+#include "os/sleep.h"
 
 static bool splashStarted = false;
 
@@ -53,7 +54,7 @@ void waitSplash()
     tmr10ms_t tgtime = get_tmr10ms() + SPLASH_TIMEOUT;
 
     while (tgtime > get_tmr10ms()) {
-      RTOS_WAIT_TICKS(1);
+      sleep_ms(1);
 
       getADC();
 

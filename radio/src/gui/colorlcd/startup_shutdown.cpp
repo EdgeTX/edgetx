@@ -22,6 +22,7 @@
 #include "hal/abnormal_reboot.h"
 #include "inactivity_timer.h"
 #include "edgetx.h"
+#include "os/sleep.h"
 #include "stamp.h"
 #include "theme_manager.h"
 
@@ -123,7 +124,7 @@ void waitSplash()
   if (splashStartTime) {
 #if defined(SIMU)
     // Simulator - inputsMoved() returns true immediately without this!
-    RTOS_WAIT_TICKS(30);
+    sleep_ms(30);
 #endif  // defined(SIMU)
 
     splashStartTime += SPLASH_TIMEOUT;
@@ -133,7 +134,7 @@ void waitSplash()
       WDG_RESET();
       checkSpeakerVolume();
       checkBacklight();
-      RTOS_WAIT_TICKS(10);
+      sleep_ms(10);
       auto evt = getEvent();
       if (evt || inactivityCheckInputs()) {
         if (evt) killEvents(evt);

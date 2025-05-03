@@ -6,6 +6,8 @@ AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
 
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   ${CMAKE_CURRENT_BINARY_DIR}/hal_keys.inc
+  ${RADIO_SRC_DIR}/os/time_nortos.cpp
+  ${RADIO_SRC_DIR}/os/sleep_nortos.cpp
   ${RADIO_SRC_DIR}/keys.cpp
   ${RADIO_SRC_DIR}/strhelpers.cpp
   ${RADIO_SRC_DIR}/stamp.cpp

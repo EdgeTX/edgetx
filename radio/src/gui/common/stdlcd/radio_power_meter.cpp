@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "os/sleep.h"
 #include "timers_driver.h"
 
 extern uint8_t g_moduleIdx;
@@ -52,7 +53,7 @@ void menuRadioPowerMeter(event_t event)
     moduleState[g_moduleIdx].readModuleInformation(&reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
     /* wait 1s to resume normal operation before leaving */
     watchdogSuspend(500 /*5s*/);
-    RTOS_WAIT_MS(1000);
+    sleep_ms(1000);
     return;
   }
 
