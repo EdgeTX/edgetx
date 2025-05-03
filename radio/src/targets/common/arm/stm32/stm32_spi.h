@@ -50,22 +50,29 @@ struct stm32_spi_t {
 
 void stm32_spi_enable_clock(SPI_TypeDef *SPIx);
 
-void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp = false);
+void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width);
 void stm32_spi_deinit(const stm32_spi_t* spi);
 
 void stm32_spi_select(const stm32_spi_t* spi);
 void stm32_spi_unselect(const stm32_spi_t* spi);
 
 void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate);
+void stm32_spi_set_data_width(const stm32_spi_t* spi, uint32_t data_width);
 
 uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out);
 uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out);
 
-uint16_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
-                                  uint8_t* in, uint16_t length);
+uint32_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
+                                  uint8_t* in, uint32_t length);
 
-uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi, uint8_t* data,
-                                     uint16_t length);
+uint32_t stm32_spi_transfer_words(const stm32_spi_t* spi, const uint16_t* out,
+                                  uint16_t* in, uint32_t length);
 
-uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi, const uint8_t* data,
-                                      uint16_t length);
+uint32_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi, uint8_t* data,
+                                     uint32_t length);
+
+uint32_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
+                                      const uint8_t* data, uint32_t length);
+
+uint32_t stm32_spi_dma_transmit_words(const stm32_spi_t* spi,
+                                      const uint16_t* data, uint32_t length);

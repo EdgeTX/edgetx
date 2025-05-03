@@ -100,9 +100,22 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/stm32_timer.cpp
     ${STM32_DRIVER_DIR}/stm32_dma.cpp
     ${STM32_DRIVER_DIR}/stm32_gpio.cpp
-    ${STM32_DRIVER_DIR}/stm32_spi.cpp
     ${STM32_DRIVER_DIR}/stm32_adc.cpp
   )
+
+  if(CPU_TYPE STREQUAL STM32F2)
+    target_sources(stm32_drivers PUBLIC
+      ${STM32_DRIVER_DIR}/stm32_spi.cpp
+    )
+  elseif(CPU_TYPE STREQUAL STM32F4)
+    target_sources(stm32_drivers PUBLIC
+      ${STM32_DRIVER_DIR}/stm32_spi.cpp
+    )
+  elseif(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
+    target_sources(stm32_drivers PUBLIC
+      ${STM32_DRIVER_DIR}/stm32_spi_h7.cpp
+    )
+  endif()
 
   # HAL/LL drivers using TRACE
   add_library(stm32_drivers_w_dbg_fw OBJECT EXCLUDE_FROM_ALL
