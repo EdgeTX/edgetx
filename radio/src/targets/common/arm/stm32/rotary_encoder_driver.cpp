@@ -39,7 +39,7 @@
   #define ON_DETENT(p) ((p == 3) || (p == 0))
 #elif ROTARY_ENCODER_GRANULARITY == 4
   #define ON_DETENT(p) (p == 3)
-#elif
+#else
 #error "Unknown ROTARY_ENCODER_GRANULARITY"
 #endif
 

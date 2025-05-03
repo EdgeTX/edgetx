@@ -23,6 +23,9 @@
 #include "stm32_spi.h"
 #include "timers_driver.h"
 #include "delays_driver.h"
+#include "stm32_gpio.h"
+
+#include "stm32_hal_ll.h"
 
 #include "debug.h"
 #include "crc.h"
@@ -244,6 +247,12 @@ static uint8_t sdcard_spi_send_acmd(const stm32_spi_t* spi, uint8_t sd_cmd_idx,
 static sd_rw_response_t _read_cid(const stm32_spi_t* spi, sdcard_info_t* card);
 static sd_rw_response_t _read_csd(const stm32_spi_t* spi, sdcard_info_t* card);
 
+static inline void _set_miso_pullup(gpio_t miso)
+{
+  uint32_t pin = 1 << gpio_get_pin(miso);
+  LL_GPIO_SetPinPull(gpio_get_port(miso), pin, LL_GPIO_PULL_UP);
+}
+
 static sd_init_fsm_state_t _init_sd_fsm_step(const stm32_spi_t* spi,
                                              sdcard_info_t* card,
                                              sd_init_fsm_state_t state)
@@ -251,8 +260,9 @@ static sd_init_fsm_state_t _init_sd_fsm_step(const stm32_spi_t* spi,
   switch (state) {
   case SD_INIT_START:
     TRACE("SD_INIT_START");
-    stm32_spi_init(spi, LL_SPI_DATAWIDTH_8BIT, true);
+    stm32_spi_init(spi, LL_SPI_DATAWIDTH_8BIT);
     stm32_spi_set_max_baudrate(spi, SD_SPI_CLK_400K);
+    _set_miso_pullup(spi->MISO);
     return SD_INIT_SPI_POWER_SEQ;
 
   case SD_INIT_SPI_POWER_SEQ:
