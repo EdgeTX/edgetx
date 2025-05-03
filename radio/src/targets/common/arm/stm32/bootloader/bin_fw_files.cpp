@@ -171,18 +171,13 @@ unsigned int fetchFirmwareFiles(unsigned int index)
       return 0;
 
   // skip 'index' .bin files
-  for (unsigned int i = 0; i <= index; i++) {
-      
-      if (findNextBinFile(&file_info) != FR_OK /*|| file_info.fname[0] == 0*/)
+  for (unsigned int i = 0; i < index; i++) {
+      if (findNextBinFile(&file_info) != FR_OK || file_info.fname[0] == 0)
           return 0;
   }
 
-  strAppend(fwFiles[0].name, file_info.fname);
-  fwFiles[0].size = file_info.fsize;
-
-  unsigned int i = 1;
+  unsigned int i = 0;
   for (; i < MAX_NAMES_ON_SCREEN+1; i++) {
-
       if (findNextBinFile(&file_info) != FR_OK || file_info.fname[0] == 0)
           return i;
   
