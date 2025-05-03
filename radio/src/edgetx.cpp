@@ -293,6 +293,19 @@ void setDefaultOwnerId()
 }
 #endif
 
+void generalDefaultSwitches()
+{
+  for (uint8_t sw = 0; sw < switchGetMaxSwitches(); sw += 1) {
+    g_eeGeneral.switchConfig[sw].type = switchGetDefaultConfig(sw);
+    g_eeGeneral.switchConfig[sw].name[0] = 0;
+#if defined(FUNCTION_SWITCHES)
+    if (switchIsCustomSwitch(sw)) {
+      g_eeGeneral.switchConfig[sw].start = FS_START_PREVIOUS;
+    }
+#endif
+  }
+}
+
 void generalDefault()
 {
   memclear(&g_eeGeneral, sizeof(g_eeGeneral));
@@ -318,15 +331,7 @@ void generalDefault()
   adcCalibDefaults();
 
   g_eeGeneral.potsConfig = adcGetDefaultPotsConfig();
-  for (uint8_t sw = 0; sw < switchGetMaxSwitches(); sw += 1) {
-    g_eeGeneral.switchConfig[sw].type = switchGetDefaultConfig(sw);
-    g_eeGeneral.switchConfig[sw].name[0] = 0;
-#if defined(FUNCTION_SWITCHES)
-    if (switchIsCustomSwitch(sw)) {
-      g_eeGeneral.switchConfig[sw].start = FS_START_PREVIOUS;
-    }
-#endif
-  }
+  generalDefaultSwitches();
 
 #if defined(STICK_DEAD_ZONE)
   g_eeGeneral.stickDeadZone = DEFAULT_STICK_DEADZONE;
