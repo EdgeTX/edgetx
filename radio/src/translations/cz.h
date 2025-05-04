@@ -1211,6 +1211,7 @@
 #define TR_BLUE                         "Modrá"
 #define TR_GREEN                        "Zelená"
 #define TR_COLOR_PICKER                 "Výběr barvy"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "Editovat motiv"
 #define TR_THEME_COLOR_DEFAULT          "DEFAULTNÍ"
 #define TR_THEME_COLOR_PRIMARY1         "PRIMÁRNÍ1"

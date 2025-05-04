@@ -1200,6 +1200,7 @@
 #define TR_BLUE                       "藍"
 #define TR_GREEN                      "綠"
 #define TR_COLOR_PICKER               "拾取顏色"
+#define TR_FIXED                      "Fixed"
 #define TR_EDIT_THEME_DETAILS         "主題信息"
 #define TR_THEME_COLOR_DEFAULT        "默認"
 #define TR_THEME_COLOR_PRIMARY1       "主色1"

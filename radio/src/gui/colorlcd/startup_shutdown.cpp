@@ -85,12 +85,12 @@ void drawSplash()
     new StaticLZ4Image(splashScreen, IMG_X - logo->width / 2,
                        IMG_Y - logo->height / 2, logo);
 
-    new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y, TXT_W, TXT_H}, ver_str.c_str(), COLOR_GREY_INDEX, CENTERED);
+    new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y, TXT_W, TXT_H}, ver_str.c_str(), COLOR_LIGHTGREY_INDEX, CENTERED);
     new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y + TXT_H, TXT_W, TXT_H},
-                   nam_str.c_str(), COLOR_GREY_INDEX, CENTERED);
+                   nam_str.c_str(), COLOR_LIGHTGREY_INDEX, CENTERED);
 #if !defined(VERSION_TAG)
     new StaticText(splashScreen, {TXT_X - TXT_XO, TXT_Y + TXT_H * 2, TXT_W, TXT_H},
-                   git_str.c_str(), COLOR_GREY_INDEX, CENTERED);
+                   git_str.c_str(), COLOR_LIGHTGREY_INDEX, CENTERED);
 #endif
   }
 

@@ -946,7 +946,7 @@ static int luaLcdSetColor(lua_State *L)
   unsigned int index = COLOR_VAL((uint32_t)luaL_checkinteger(L, 1));
   uint16_t color = COLOR_VAL(colorToRGB(luaL_checkinteger(L, 2)));
 
-  if (index < LCD_COLOR_COUNT && lcdColorTable[index] != color) {
+  if (index < THEME_COLOR_COUNT && lcdColorTable[index] != color) {
     lcdColorTable[index] = color;
     styles->applyColors();
   }
@@ -970,7 +970,7 @@ Get the color value from flags
 static int luaLcdGetColor(lua_State *L)
 {
   LcdFlags flags = luaL_checkinteger(L, 1);
-  if ((flags & RGB_FLAG) || (COLOR_VAL(flags) & 0xFF) < LCD_COLOR_COUNT) {
+  if ((flags & RGB_FLAG) || (COLOR_VAL(flags) & 0xFF) < THEME_COLOR_COUNT) {
     LcdFlags col = colorToRGB(flags) & (COLOR_MASK(~0u) | RGB_FLAG);
     lua_pushinteger(L, col);
   } else {

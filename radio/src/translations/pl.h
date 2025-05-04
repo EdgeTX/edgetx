@@ -1197,6 +1197,7 @@
 #define TR_BLUE                         "Niebieski"
 #define TR_GREEN                        "Zielony"
 #define TR_COLOR_PICKER                 "Wybór koloru"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "Edytuj szablon"
 #define TR_THEME_COLOR_DEFAULT          "DOMYŚLNY"
 #define TR_THEME_COLOR_PRIMARY1         "GŁÓWNY1"

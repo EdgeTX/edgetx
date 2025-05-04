@@ -1198,6 +1198,7 @@
 #define TR_BLUE                         "כחול"
 #define TR_GREEN                        "ירוק"
 #define TR_COLOR_PICKER                 "בחירת צבע"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "עריכת ערכת נושא"
 #define TR_THEME_COLOR_DEFAULT          "DEFAULT"
 #define TR_THEME_COLOR_PRIMARY1         "ראשי 1"

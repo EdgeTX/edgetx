@@ -1185,6 +1185,7 @@ extern const char STR_RED[];
 extern const char STR_BLUE[];
 extern const char STR_GREEN[];
 extern const char STR_COLOR_PICKER[];
+extern const char STR_FIXED[];
 extern const char STR_EDIT_THEME_DETAILS[];
 extern const char STR_THEME_COLOR_DEFAULT[];
 extern const char STR_THEME_COLOR_PRIMARY1[];

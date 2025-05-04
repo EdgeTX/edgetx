@@ -75,7 +75,7 @@ PACK(struct YAMLThemeSummary {
 });
 
 PACK(struct YAMLThemeColors {
-  uint32_t colors[LCD_COLOR_COUNT - 1];  // We don't use CUSTOM
+  uint32_t colors[THEME_COLOR_COUNT - 1];  // We don't use CUSTOM
 });
 
 PACK(struct YAMLTheme {
@@ -112,18 +112,18 @@ static const struct YamlNode w_struct_YAMLTheme[] = {
     YAML_STRUCT("---\r\nsummary",
                 (SELECTED_THEME_NAME_LEN + ThemeFile::AUTHOR_LENGTH + ThemeFile::INFO_LENGTH + 3) * 8,
                 struct_YAMLThemeSummary, NULL),
-    YAML_STRUCT("colors", (LCD_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
+    YAML_STRUCT("colors", (THEME_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
                 NULL),
     YAML_END};
 static const struct YamlNode r_struct_YAMLTheme[] = {
     YAML_STRUCT("summary",
                 (SELECTED_THEME_NAME_LEN + ThemeFile::AUTHOR_LENGTH + ThemeFile::INFO_LENGTH + 3) * 8,
                 struct_YAMLThemeSummary, NULL),
-    YAML_STRUCT("colors", (LCD_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
+    YAML_STRUCT("colors", (THEME_COLOR_COUNT - 1) * 32, struct_YAMLThemeColors,
                 NULL),
     YAML_END};
 
-static const char* const colorNames[LCD_COLOR_COUNT] = {
+static const char* const colorNames[THEME_COLOR_COUNT] = {
     STR_THEME_COLOR_PRIMARY1,   STR_THEME_COLOR_PRIMARY2,
     STR_THEME_COLOR_PRIMARY3,   STR_THEME_COLOR_SECONDARY1,
     STR_THEME_COLOR_SECONDARY2, STR_THEME_COLOR_SECONDARY3,
@@ -208,7 +208,7 @@ void ThemeFile::deSerialize()
     name = yt.summary.name;
     author = yt.summary.author;
     info = yt.summary.info;
-    for (int i = 0; i < LCD_COLOR_COUNT - 1; i += 1) {
+    for (int i = 0; i < THEME_COLOR_COUNT - 1; i += 1) {
       colorList.emplace_back(
           ColorEntry{(LcdColorIndex)(i), yt.colors.colors[i]});
     }

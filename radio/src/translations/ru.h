@@ -1201,6 +1201,7 @@
 #define TR_BLUE                         "Синяяя"
 #define TR_GREEN                        "Зеленая"
 #define TR_COLOR_PICKER                 "Средство выбора цвета"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "Редакт детали темы"
 #define TR_THEME_COLOR_DEFAULT          "По умолчанию"
 #define TR_THEME_COLOR_PRIMARY1         "ОСНОВНОЙ1"

@@ -1213,6 +1213,7 @@
 #define TR_BLUE                        "Sininen"
 #define TR_GREEN                       "Vihreä"
 #define TR_COLOR_PICKER                "Värinvalitsija"
+#define TR_FIXED                       "Fixed"
 #define TR_EDIT_THEME_DETAILS          "Edit Theme Details"
 #define TR_THEME_COLOR_DEFAULT         "DEFAULT"
 #define TR_THEME_COLOR_PRIMARY1        "PRIMARY1"
