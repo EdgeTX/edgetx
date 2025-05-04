@@ -24,6 +24,7 @@
 #include <thread>
 
 extern uint8_t simuSleep(uint32_t ms);
+extern uint8_t simuSleepUntil(time_point_t* tp, uint32_t inc);
 
 void sleep_ms(uint32_t ms)
 {
@@ -32,6 +33,5 @@ void sleep_ms(uint32_t ms)
 
 void sleep_until(time_point_t* tp, uint32_t inc)
 {
-  *tp += std::chrono::duration<uint32_t, std::milli>{inc};
-  std::this_thread::sleep_until(*tp);
+  simuSleepUntil(tp, inc);
 }

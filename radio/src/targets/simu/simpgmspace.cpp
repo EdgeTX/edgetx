@@ -238,6 +238,9 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 
 extern task_handle_t mixerTaskId;
 extern task_handle_t menusTaskId;
+#if defined(AUDIO)
+extern task_handle_t audioTaskId;
+#endif
 
 void simuStop()
 {
@@ -246,8 +249,16 @@ void simuStop()
 
   simu_shutdown = true;
 
+  extern void mixerTaskExit();
+  mixerTaskExit();
+  extern void tasksExit();
+  tasksExit();
+
   pthread_join(mixerTaskId._thread_handle, nullptr);
   pthread_join(menusTaskId._thread_handle, nullptr);
+#if defined(AUDIO)
+  pthread_join(audioTaskId._thread_handle, nullptr);
+#endif
   timer_queue::instance().stop();
 
 #if defined(SIMU_AUDIO)
@@ -275,6 +286,18 @@ uint8_t simuSleep(uint32_t ms)
     if (simu_shutdown || !simu_running) return 1;
     usleep(1);
   }
+  return 0;
+}
+
+uint8_t simuSleepUntil(time_point_t* tp, uint32_t inc)
+{
+  *tp += std::chrono::duration<uint32_t, std::milli>{inc};
+
+  while (std::chrono::steady_clock::now() < *tp) {
+    if (simu_shutdown || !simu_running) return 1;
+    usleep(1);
+  }
+
   return 0;
 }
 

@@ -53,6 +53,13 @@ mutex_handle_t audioMutex;
 bool perMainEnabled = true;
 #endif
 
+static bool _task_exit = false;
+
+void tasksExit()
+{
+  _task_exit = true;
+}
+
 static void menusTask()
 {
 #if defined(LIBOPENUI)
@@ -64,7 +71,7 @@ static void menusTask()
   mixerTaskInit();
 
 #if defined(PWR_BUTTON_PRESS)
-  while (true) {
+  while (!_task_exit) {
     uint32_t pwr_check = pwrCheck();
     if (pwr_check == e_power_off) {
       break;
@@ -111,7 +118,7 @@ static void audioTask()
 #endif
 
   time_point_t next_tick = time_point_now();
-  while (true) {
+  while (!_task_exit) {
     DEBUG_TIMER_SAMPLE(debugTimerAudioIterval);
     DEBUG_TIMER_START(debugTimerAudioDuration);
     audioQueue.wakeup();
