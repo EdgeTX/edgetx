@@ -616,13 +616,12 @@ Node EncodeFMData(const FlightModeData& rhs, int phaseIdx)
     Node node;
 
     size_t n_trims = Boards::getCapability(getCurrentBoard(), Board::NumTrims);
-    YamlTrim yt[n_trims];
 
     Node trims;
     for (size_t i=0; i<n_trims; i++) {
-      yt[i] = { rhs.trimMode[i], rhs.trimRef[i], rhs.trim[i] };
-      if (!yt[i].isEmpty()) {
-        trims[std::to_string(i)] = yt[i];
+      YamlTrim yt = { rhs.trimMode[i], rhs.trimRef[i], rhs.trim[i] };
+      if (!yt.isEmpty()) {
+        trims[std::to_string(i)] = yt;
       }
     }
     if (trims && trims.IsMap()) {
