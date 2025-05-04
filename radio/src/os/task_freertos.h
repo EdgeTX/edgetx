@@ -39,3 +39,5 @@ struct mutex_handle_t {
   SemaphoreHandle_t _rtos_handle;
   StaticSemaphore_t _mutex_struct;
 };
+
+static inline bool task_running() { return true; }

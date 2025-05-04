@@ -36,8 +36,6 @@ void task_create(task_handle_t* h, task_func_t func, const char* name,
                         (StackType_t*)stack, &h->_task_struct);
 }
 
-bool task_running() { return true; }
-
 unsigned task_get_stack_usage(task_handle_t* h)
 {
   return uxTaskGetStackHighWaterMark(h->_rtos_handle);

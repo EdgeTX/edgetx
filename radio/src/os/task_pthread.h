@@ -35,6 +35,8 @@ struct task_handle_t {
 
 typedef pthread_mutex_t mutex_handle_t;
 
+bool task_running();
+
 void task_sleep_ms(uint32_t ms);
 void task_sleep_until(time_point_t* tp, uint32_t ts_ms);
 
