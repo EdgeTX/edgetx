@@ -58,7 +58,7 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     ${CPN_COMMON_LIB}
-    Qt${QT_VERSION_MAJOR}::Svg
+    Qt::Svg
 )
 
 target_include_directories(${PROJECT_NAME}
