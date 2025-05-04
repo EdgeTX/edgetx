@@ -501,7 +501,7 @@ void ETH_IRQHandler(void){asm("BKPT");}
 //void ETH_WKUP_IRQHandler(void){asm("BKPT");}
 void FDCAN_CAL_IRQHandler(void){asm("BKPT");}
 void DMA2_Stream5_IRQHandler(void){asm("BKPT");}
-void DMA2_Stream6_IRQHandler(void){asm("BKPT");}
+// void DMA2_Stream6_IRQHandler(void){asm("BKPT");}
 void DMA2_Stream7_IRQHandler(void){asm("BKPT");}
 void I2C3_EV_IRQHandler(void){asm("BKPT");}
 void I2C3_ER_IRQHandler(void){asm("BKPT");}

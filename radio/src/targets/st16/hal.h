@@ -414,27 +414,18 @@
 //#define INTMODULE_RX_DMA                DMA1
 #define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
 #define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
-// #define INTMODULE_RX_DMA_Stream_IRQn    DMA1_Stream3_IRQn
-// #define INTMODULE_RX_DMA_Stream_IRQHandler DMA1_Stream_IRQHandler
-
-// #define INTMODULE_TIMER                 TIM3
-// #define INTMODULE_TIMER_IRQn            TIM3_IRQn
-// #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
-// #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // External Module
 #define EXTMODULE
 #define EXTMODULE_PULSES
 #define EXTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 9)  // PB.09
 #define EXTMODULE_RX_GPIO               GPIO_PIN(GPIOI, 9)  // PI.09
-#define EXTMODULE_TX_GPIO_AF            LL_GPIO_AF_3 // TIM8_CH1
-#define EXTMODULE_TIMER                 TIM8
-#define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH1
-#define EXTMODULE_TIMER_IRQn            TIM8_UP_TIM13_IRQn
-#define EXTMODULE_TIMER_IRQHandler      TIM8_UP_TIM13_IRQHandler
-#define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
-#define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_3
-
+#define EXTMODULE_TIMER                 TIM4
+#define EXTMODULE_TIMER_Channel         LL_TIM_CHANNEL_CH4
+#define EXTMODULE_TIMER_IRQn            TIM4_IRQn
+#define EXTMODULE_TIMER_IRQHandler      TIM4_IRQHandler
+#define EXTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
+#define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_2 // TIM4_CH4
 
 //USART
 #define EXTMODULE_USART                    UART4
@@ -451,12 +442,11 @@
 #define EXTMODULE_USART_IRQn               UART4_IRQn
 
 //TIMER
-// TODO
-#define EXTMODULE_TIMER_DMA_CHANNEL        LL_DMAMUX1_REQ_TIM8_CH1
+#define EXTMODULE_TIMER_DMA_CHANNEL        LL_DMAMUX1_REQ_TIM4_UP
 #define EXTMODULE_TIMER_DMA                DMA2
-#define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_1
-#define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream1_IRQn
-#define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream1_IRQHandler
+#define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_6
+#define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream6_IRQn
+#define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream6_IRQHandler
 
 // Trainer Port
 #define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOD)
