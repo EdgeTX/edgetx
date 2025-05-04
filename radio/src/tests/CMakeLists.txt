@@ -1,6 +1,5 @@
 
-
-if(Qt${QT_VERSION_MAJOR}Widgets_FOUND)
+if(Qt6idgets_FOUND)
   add_library(gtests-radio-lib STATIC EXCLUDE_FROM_ALL
     ${googletest_SOURCE_DIR}/googletest/src/gtest-all.cc
   )
@@ -45,6 +44,6 @@ if(Qt${QT_VERSION_MAJOR}Widgets_FOUND)
   target_compile_options(gtests-radio PRIVATE ${SIMU_SRC_OPTIONS})
 
   add_dependencies(gtests-radio gtests-radio-lib)
-  target_link_libraries(gtests-radio gtests-radio-lib Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)
+  target_link_libraries(gtests-radio gtests-radio-lib Qt::Core Qt::Widgets)
   message(STATUS "Added optional gtests target")
 endif()

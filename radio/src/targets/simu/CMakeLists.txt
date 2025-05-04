@@ -87,7 +87,7 @@ set(SIMU_SRC ${SIMU_SRC} PARENT_SCOPE)
 # Set the options as well in parent scope to be used by unit tests
 set(SIMU_SRC_OPTIONS ${SIMU_SRC_OPTIONS} PARENT_SCOPE)
 
-if(Qt${QT_VERSION_MAJOR}Widgets_FOUND)
+if(Qt6Widgets_FOUND)
   set(SIMULATOR_FLAVOUR edgetx-${FLAVOUR})
   set(SIMULATOR_TARGET ${SIMULATOR_FLAVOUR}-simulator)
 
@@ -103,7 +103,7 @@ if(Qt${QT_VERSION_MAJOR}Widgets_FOUND)
 
   target_compile_options(${SIMULATOR_TARGET} PRIVATE ${SIMU_SRC_OPTIONS})
   target_compile_definitions(${SIMULATOR_TARGET} PUBLIC ${APP_COMMON_DEFINES})
-  target_link_libraries(${SIMULATOR_TARGET} ${SDL2_LIBRARIES} Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::SerialPort)
+  target_link_libraries(${SIMULATOR_TARGET} ${SDL2_LIBRARIES} Qt::Core Qt::SerialPort)
 
   # Remove debug symbols on release builds
   if(NOT CLANG)
@@ -154,7 +154,7 @@ endif()
 
 if(WIN32)
   include_directories(SYSTEM ${WIN_INCLUDE_DIRS})
-  if(Qt${QT_VERSION_MAJOR}Widgets_FOUND)
+  if(Qt6Widgets_FOUND)
     target_link_libraries(${SIMULATOR_TARGET} PRIVATE ${WIN_LINK_LIBRARIES})
   endif()
 endif(WIN32)

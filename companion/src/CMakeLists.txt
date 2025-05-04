@@ -449,18 +449,19 @@ IF(APPLE)
   # menu file
   install(DIRECTORY ${COMPANION_TARGETS_PATH}/qt_menu.nib DESTINATION "${companion_res_dir}" COMPONENT Runtime)
 
+  # macdeployqt should do this
   # manually add the required plugins
-  foreach (plugin ${Qt${QT_VERSION_MAJOR}Multimedia_PLUGINS} ${Qt${QT_VERSION_MAJOR}PrintSupport_PLUGINS} ${Qt${QT_VERSION_MAJOR}Gui_PLUGINS} ${Qt${QT_VERSION_MAJOR}Svg_PLUGINS})
-    get_target_property(QPA_PLUGIN ${plugin} LOCATION)
-    get_filename_component(QPA_PLUGIN_FILENAME ${QPA_PLUGIN} NAME)
+  # foreach (plugin ${Qt${QT_VERSION_MAJOR}Multimedia_PLUGINS} ${Qt${QT_VERSION_MAJOR}PrintSupport_PLUGINS} ${Qt${QT_VERSION_MAJOR}Gui_PLUGINS} ${Qt${QT_VERSION_MAJOR}Svg_PLUGINS})
+    # get_target_property(QPA_PLUGIN ${plugin} LOCATION)
+    # get_filename_component(QPA_PLUGIN_FILENAME ${QPA_PLUGIN} NAME)
     # Todo is there a nicer way to get the QT Plugin directory name?!
-    get_filename_component(QPA_PLUGIN_DIRECTORY ${QPA_PLUGIN} DIRECTORY)
-    get_filename_component(QPA_PLUGIN_DIRECTORY ${QPA_PLUGIN_DIRECTORY} NAME)
+    # get_filename_component(QPA_PLUGIN_DIRECTORY ${QPA_PLUGIN} DIRECTORY)
+    # get_filename_component(QPA_PLUGIN_DIRECTORY ${QPA_PLUGIN_DIRECTORY} NAME)
 
-    install(FILES ${QPA_PLUGIN} DESTINATION "${plugin_dest_dir}/${QPA_PLUGIN_DIRECTORY}/" COMPONENT Runtime)
+    # install(FILES ${QPA_PLUGIN} DESTINATION "${plugin_dest_dir}/${QPA_PLUGIN_DIRECTORY}/" COMPONENT Runtime)
 
-    list(APPEND bundle_qt_libs "\${CMAKE_INSTALL_PREFIX}/${plugin_dest_dir}/${QPA_PLUGIN_DIRECTORY}/${QPA_PLUGIN_FILENAME}")
-  endforeach()
+    # list(APPEND bundle_qt_libs "\${CMAKE_INSTALL_PREFIX}/${plugin_dest_dir}/${QPA_PLUGIN_DIRECTORY}/${QPA_PLUGIN_FILENAME}")
+  # endforeach()
 
   # Add icon
   set(MACOSX_BUNDLE_ICON_FILE iconmac.icns)
@@ -477,11 +478,11 @@ IF(APPLE)
     set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
   endif(DFU_UTIL_FOUND)
 
-  if(OPENSSL_FOUND)
+  # if(OPENSSL_FOUND)
     # Copy openssl, resolve symlink first
     #get_filename_component(OPENSSL_ABSOLUTE_PATH ${OPENSSL_SSL_LIBRARY} REALPATH)
     #install(FILES ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
-  endif(OPENSSL_FOUND)
+  # endif(OPENSSL_FOUND)
 
   # We using macdeployqt so hopefully do not need
   # Include depencies (adding frameworks, fixing the embbeded libraries)
@@ -520,7 +521,7 @@ if(APPLE)
   COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
   # To ensure that the volume name only contains the application name and not the path on the deployment machine, run macdeployqt in the same directory
   COMMAND cd "\${CMAKE_INSTALL_PREFIX}"
-  COMMAND "${QT_BIN_DIR}/macdeployqt.exe" "${COMPANION_NAME}.app" -no-strip -dmg
+  COMMAND "${QT_BIN_DIR}/macdeployqt.exe" "${COMPANION_NAME}.app" -no-strip-dmg
   COMMENT "Building MacOS application bundle..."
 )
 endif(APPLE)

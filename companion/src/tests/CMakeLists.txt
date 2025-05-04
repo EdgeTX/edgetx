@@ -1,6 +1,5 @@
 
-
-if(Qt${QT_VERSION_MAJOR}Widgets_FOUND)
+if(Qt6Widgets_FOUND)
   add_library(gtests-companion-lib STATIC EXCLUDE_FROM_ALL
     ${googletest_SOURCE_DIR}/googletest/src/gtest-all.cc
   )
