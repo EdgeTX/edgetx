@@ -41,6 +41,11 @@ remove_definitions(-DCLI)
 remove_definitions(-DSEMIHOSTING)
 remove_definitions(-DUSB_SERIAL)
 
+# remove these languages in bootloader
+# as they mostly overflow
+remove_definitions(-DTRANSLATIONS_RU)
+remove_definitions(-DTRANSLATIONS_UA)
+
 if(NOT NO_LTO)
   message("-- Use LTO to compile bootloader")
   target_compile_options(stm32cube_ll PRIVATE -flto)
