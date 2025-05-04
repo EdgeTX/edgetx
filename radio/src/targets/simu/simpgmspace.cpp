@@ -248,6 +248,7 @@ void simuStop()
 
   pthread_join(mixerTaskId._thread_handle, nullptr);
   pthread_join(menusTaskId._thread_handle, nullptr);
+  timer_queue::instance().stop();
 
 #if defined(SIMU_AUDIO)
   stopAudio();
