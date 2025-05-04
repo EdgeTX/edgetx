@@ -53,15 +53,6 @@ void mixerTaskStart();
 //
 void mixerTaskStop();
 
-
-// exit the mixer forever.
-//
-// This is probably only useful for simulations as it is not needed to really
-// exit the task under any normal conditions. There are no guarantees as to when
-// the exit will happen, only that it will eventually happen.
-//
-void mixerTaskExit();
-
 // hint at whether or not the mixer task should be running
 //
 // Please note: there is no guarantee on anything, this is just returning

@@ -48,7 +48,6 @@ static mutex_handle_t mixerMutex;
 // mixerTaskStart() has been called.
 static bool _mixer_started = false;
 static bool _mixer_running = false;
-static bool _mixer_exit = false;
 
 void mixerTaskLock()
 {
@@ -93,14 +92,9 @@ void mixerTaskStop()
   mixerTaskUnlock();
 }
 
-void mixerTaskExit()
-{
-  _mixer_exit = true;
-}
-
 bool mixerTaskRunning()
 {
-  return _mixer_running && !_mixer_exit;
+  return _mixer_running;
 }
 
 volatile uint16_t timeForcePowerOffPressed = 0;
@@ -144,7 +138,7 @@ void mixerTask()
   gyroInit();
 #endif
 
-  while (!_mixer_exit) {
+  while (task_running()) {
 
     int timeout = 0;
     for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {
