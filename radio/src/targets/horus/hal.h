@@ -1232,16 +1232,29 @@
 #define SDRAM_BANK2
 
 #define PORTRAIT_LCD false
+
+#if defined(RADIO_320x240)
+#define LANDSCAPE_LCD_SML true
+#define LANDSCAPE_LCD_STD false
+#define LANDSCAPE_LCD_LRG false
+#define LCD_W                          320
+#define LCD_H                          240
+#elif defined(RADIO_800x480)
+#define LANDSCAPE_LCD_SML false
+#define LANDSCAPE_LCD_STD false
+#define LANDSCAPE_LCD_LRG true
+#define LCD_W                          800
+#define LCD_H                          480
+#else
 #define LANDSCAPE_LCD_SML false
 #define LANDSCAPE_LCD_STD true
 #define LANDSCAPE_LCD_LRG false
-
-#if defined(RADIO_T15)
 #define LCD_W                          480
+#if defined(RADIO_T15)
 #define LCD_H                          320
 #else
-#define LCD_W                          480
 #define LCD_H                          272
+#endif
 #endif
 
 #define LCD_PHYS_H                     LCD_H
