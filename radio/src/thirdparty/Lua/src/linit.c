@@ -40,6 +40,7 @@ extern LROT_TABLE(bitmaplib);
 #if defined(COLORLCD)
 extern LROT_TABLE(lvgllib);
 extern LROT_TABLE(tablib);
+extern LROT_TABLE(colorlib);
 #endif
 
 /* _G __index -> rotables __index -> _index_hook_fct */
@@ -52,6 +53,9 @@ static const ROTable* const _global_symbols[] = {
   LROT_TABLEREF(etxdir),
   LROT_TABLEREF(etxcst),
   LROT_TABLEREF(etxstr),
+#if defined(COLORLCD)
+  LROT_TABLEREF(colorlib),
+#endif
   NULL,
 };
 
