@@ -36,6 +36,8 @@ typedef void (*task_func_t)();
 void task_create(task_handle_t* h, task_func_t func, const char* name,
                  void* stack, unsigned stack_size, unsigned priority);
 
+bool task_running();
+
 unsigned task_get_stack_usage(task_handle_t* h);
 unsigned task_get_stack_size(task_handle_t* h);
 

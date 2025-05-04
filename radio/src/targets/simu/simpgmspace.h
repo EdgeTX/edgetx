@@ -36,7 +36,6 @@
 extern char * main_thread_error;
 
 uint64_t simuTimerMicros(void);
-uint8_t simuSleep(uint32_t ms);  // returns true if thread shutdown requested
 
 void simuSetKey(uint8_t key, bool state);
 void simuSetTrim(uint8_t trim, bool state);

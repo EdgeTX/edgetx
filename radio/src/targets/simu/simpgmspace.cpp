@@ -34,6 +34,7 @@
 #include "hal/usb_driver.h"
 #include "hal/audio_driver.h"
 
+#include "os/sleep.h"
 #include "os/task.h"
 #include "os/timer_pthread_impl.h"
 
@@ -214,7 +215,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   lcdInit();
 
 #if !defined(SIMU_BOOTLOADER)
-  timer_queue::instance().start();
   simuMain();
 #else
   pthread_attr_t attr;
@@ -248,18 +248,7 @@ void simuStop()
     return;
 
   simu_shutdown = true;
-
-  extern void mixerTaskExit();
-  mixerTaskExit();
-  extern void tasksExit();
-  tasksExit();
-
-  pthread_join(mixerTaskId._thread_handle, nullptr);
-  pthread_join(menusTaskId._thread_handle, nullptr);
-#if defined(AUDIO)
-  pthread_join(audioTaskId._thread_handle, nullptr);
-#endif
-  timer_queue::instance().stop();
+  task_shutdown_all();
 
 #if defined(SIMU_AUDIO)
   stopAudio();
@@ -278,27 +267,6 @@ struct SimulatorAudio {
 bool simuIsRunning()
 {
   return simu_running;
-}
-
-uint8_t simuSleep(uint32_t ms)
-{
-  for (uint32_t i = 0; i < ms; i++) {
-    if (simu_shutdown || !simu_running) return 1;
-    usleep(1);
-  }
-  return 0;
-}
-
-uint8_t simuSleepUntil(time_point_t* tp, uint32_t inc)
-{
-  *tp += std::chrono::duration<uint32_t, std::milli>{inc};
-
-  while (std::chrono::steady_clock::now() < *tp) {
-    if (simu_shutdown || !simu_running) return 1;
-    usleep(1);
-  }
-
-  return 0;
 }
 
 void audioConsumeCurrentBuffer()
@@ -492,7 +460,7 @@ void delay_us(uint16_t us) { }
 
 void flashWrite(uint32_t *address, const uint32_t *buffer)
 {
-  simuSleep(10);
+  sleep_ms(10);
 }
 
 uint32_t isBootloaderStart(const uint8_t * block)
