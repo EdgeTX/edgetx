@@ -162,6 +162,7 @@ void boardInit()
   rgbLedInit();
 
   rotaryEncoderInit();
+  lcdSetInitalFrameBuffer(lcdFront->getData());
 
 #if !defined(DEBUG_SEGGER_RTT)
 
@@ -210,8 +211,6 @@ void boardInit()
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
- 
-  lcdSetInitalFrameBuffer(lcdFront->getData());
 }
 
 extern void rtcDisableBackupReg();
