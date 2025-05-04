@@ -243,6 +243,7 @@ class LvglWidgetLine : public LvglSimpleWidgetObject
   coord_t thickness = 1;
   bool rounded = false;
   size_t ptCnt = 0;
+  size_t ptAlloc = 0;
   lv_point_t* pts = nullptr;
   uint32_t ptsHash = -1;
   lv_obj_t* parent = nullptr;
@@ -250,6 +251,7 @@ class LvglWidgetLine : public LvglSimpleWidgetObject
 
   void setLine();
 
+  uint32_t getPts(lua_State* L);
   void getPt(lua_State* L, int n);
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
