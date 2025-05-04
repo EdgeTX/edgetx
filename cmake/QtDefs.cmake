@@ -1,10 +1,3 @@
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-
-# No going versionless just yet
-#set(QT_NO_CREATE_VERSIONLESS_FUNCTIONS ON)
-#set(QT_NO_CREATE_VERSIONLESS_TARGETS ON)
-
 if(APPLE AND DEFINED ENV{HOMEBREW_PREFIX})
   # If Homebrew is used, HOMEBREW_PREFIX should be defined
   if(EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@6)
@@ -12,15 +5,18 @@ if(APPLE AND DEFINED ENV{HOMEBREW_PREFIX})
   endif()
 endif()
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Multimedia PrintSupport SerialPort Svg Xml)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
-if(Qt${QT_VERSION_MAJOR}_FOUND)
-  message(STATUS "Qt Version: ${QT_VERSION}")
+if(Qt6_FOUND)
+  message(STATUS "Qt Version: ${Qt6_VERSION}")
+
+  qt_standard_project_setup()
+
+  find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools Multimedia PrintSupport SerialPort Svg Xml)
 
   ### Get locations of Qt binary executables & libs (libs are for distros, not for linking)
   # first set up some hints
-  get_target_property(QtCore_LOCATION Qt${QT_VERSION_MAJOR}::Core LOCATION)
+  get_target_property(QtCore_LOCATION Qt::Core LOCATION)
   get_filename_component(qt_core_path ${QtCore_LOCATION} PATH)
   if(APPLE)
     get_filename_component(qt_core_path "${qt_core_path}/.." ABSOLUTE)
@@ -63,5 +59,5 @@ if(Qt${QT_VERSION_MAJOR}_FOUND)
     list(APPEND APP_COMMON_DEFINES -DAPP_DBG_HANDLER_ENABLE=0)
   endif()
 else()
-  message(WARNING "Qt not found! Companion and Simulator builds disabled.")
+  message(WARNING "Required Qt version not found! Companion and Simulator builds disabled.")
 endif()
