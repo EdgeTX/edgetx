@@ -47,7 +47,10 @@ class InputEditWindow : public Page
   StaticText * headerSwitchName = nullptr;
 
   void setTitle();
-  void buildBody(Window *window);
+  void buildBody(Window *box, ExpoData* inputData);
+  void buildPreview(Window *box, ExpoData* inputData);
+
+  int16_t getExpo(ExpoData* ed, int16_t val);
 
   void checkEvents() override;
 };
