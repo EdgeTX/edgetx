@@ -113,7 +113,7 @@ function make_bootloader_font() {
   local size=$3
   local dir=$4
 
-  lv_font_conv --no-prefilter --bpp 2 --size ${size} \
+  lv_font_conv --no-prefilter --bpp 1 --size ${size} --no-compress \
                --font ${TTF_DIR}${ttf} -r ${ASCII} \
                --font ${SYMBOLS_FONT} -r ${BL_SYMBOLS} \
                --format lvgl -o ${dir}/lv_font_${name}.c --force-fast-kern-format

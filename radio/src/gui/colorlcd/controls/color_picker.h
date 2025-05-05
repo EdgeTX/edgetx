@@ -38,7 +38,7 @@ public:
               std::function<uint32_t()> getValue,
               std::function<void(uint32_t)> setValue = nullptr,
               std::function<void(uint32_t)> preview = nullptr,
-              COLOR_EDITOR_FMT fmt = RGB565);
+              COLOR_EDITOR_FMT fmt = ETX_RGB565);
 
   void setColor(uint32_t c);
   uint32_t getColor() const { return color; }

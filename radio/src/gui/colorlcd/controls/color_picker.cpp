@@ -53,7 +53,7 @@ class ColorEditorPopup : public BaseDialog
 
     uint8_t r, g, b;
 
-    if (format == RGB565) {
+    if (format == ETX_RGB565) {
       auto rgb = COLOR_VAL(colorToRGB(m_color));
       r = GET_RED(rgb); g = GET_GREEN(rgb); b = GET_BLUE(rgb);
     } else {
@@ -208,7 +208,7 @@ void ColorPicker::updateColor(uint32_t c)
 
   uint8_t r, g, b;
 
-  if (format == RGB565) {
+  if (format == ETX_RGB565) {
     auto rgb = COLOR_VAL(colorToRGB(color));
     r = GET_RED(rgb); g = GET_GREEN(rgb); b = GET_BLUE(rgb);
   } else {
