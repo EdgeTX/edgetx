@@ -34,6 +34,7 @@
 #include "input_mapping.h"
 #if defined(LED_STRIP_GPIO)
 #include "boards/generic_stm32/rgb_leds.h"
+#include "hal/rgbleds.h"
 #endif
 
 
@@ -2860,10 +2861,14 @@ static int luaGetTrainerStatus(lua_State * L)
 
 static int luaSetRgbLedColor(lua_State * L)
 {
+  uint8_t r = 0, g = 0, b = 0;
+  int n = lua_gettop(L);
   uint8_t id = luaL_checkunsigned(L, 1);
-  uint8_t r = luaL_checkunsigned(L, 2);
-  uint8_t g = luaL_checkunsigned(L, 3);
-  uint8_t b = luaL_checkunsigned(L, 4);
+  if (n > 1) {
+    r = luaL_checkunsigned(L, 2);
+    g = luaL_checkunsigned(L, 3);
+    b = luaL_checkunsigned(L, 4);
+  }
 
   #if defined(LED_STRIP_RESERVED_AT_END)
     if (id >= LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END) {
@@ -2871,7 +2876,14 @@ static int luaSetRgbLedColor(lua_State * L)
       return 1;
     }
   #endif
-  
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  int swIndex = switchGetSwitchFromCustomIdx(id);
+  if (swIndex < switchGetMaxSwitches()) {
+    setFSLedOverride(id, n > 1, r, g, b);
+  }
+#endif
+
   rgbSetLedColor(id, r, g, b);
 
   return 1;
