@@ -387,13 +387,12 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
               if (! CFN_VAL2(cfn) ) { // Duration not started yet
                 CFN_VAL2(cfn) = timersGetMsTick() + CFN_PARAM(cfn) * 100;
                 g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
-              }
-              else if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
+              } else if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
                 g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
               }
-            }
-            else // No duration set
+            } else { // No duration set
               g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
+            }
             break;
 #endif
 
