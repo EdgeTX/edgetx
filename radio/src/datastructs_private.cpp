@@ -59,11 +59,15 @@ bool ModelData::switchHasCustomName(uint8_t n)
 
 uint8_t ModelData::getSwitchStateForWarning(uint8_t n)
 {
-  extern swarnstate_t switches_states;
 #if defined(FUNCTION_SWITCHES)
-  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
-    return cfsState(switchGetCustomSwitchIdx(n)) ? 3 : 1;
+  if (switchIsCustomSwitch(n)) {
+    if (cfsType(n) != SWITCH_GLOBAL)
+      return cfsState(switchGetCustomSwitchIdx(n)) ? 3 : 1;
+    extern uint16_t fsswitches_states;
+    return ((fsswitches_states >> n) & 1) ? 3 : 1;
+  } 
 #endif
+  extern swarnstate_t switches_states;
   return (switches_states >> (n * 2)) & 3;
 }
 
@@ -155,7 +159,7 @@ bool ModelData::cfsSFState(uint8_t n) {
 
 void ModelData::cfsSetSFState(uint8_t n, bool v) {
   // Note: n = cfs index, not switch index
-  bfSet<uint8_t>(sfPushState, v, n, 1);
+  sfPushState = bfSet<uint8_t>(sfPushState, v, n, 1);
 }
 
 void ModelData::cfsResetSFState() {

@@ -25,14 +25,33 @@
 #include "dataconstants.h"
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+static bool hasLedOverride[NUM_FUNCTIONS_SWITCHES] = { false };
+static RGBLedColor ledOverride[NUM_FUNCTIONS_SWITCHES];
+
+void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b)
+{
+  hasLedOverride[index] = state;
+  ledOverride[index].r = r;
+  ledOverride[index].g = g;
+  ledOverride[index].b = b;
+}
+
 void setFSLedOFF(uint8_t index) {
   uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-  fsLedRGB(cfsIdx, g_model.getSwitchOffColor(index).getColor());
+  uint32_t color = g_model.getSwitchOffColor(index).getColor();
+  if (hasLedOverride[cfsIdx] && color == 0)
+    fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
+  else
+    fsLedRGB(cfsIdx, color);
 }
 
 void setFSLedON(uint8_t index) {
   uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-  fsLedRGB(cfsIdx, g_model.getSwitchOnColor(index).getColor());
+  uint32_t color = g_model.getSwitchOnColor(index).getColor();
+  if (hasLedOverride[cfsIdx] && color == 0)
+    fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
+  else
+    fsLedRGB(cfsIdx, color);
 }
 
 bool getFSLedState(uint8_t index) {
