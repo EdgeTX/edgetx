@@ -86,6 +86,7 @@ class OpenTxSim: public FXMainWindow
     FXSlider * sliders[MAX_STICKS];
     FXKnob * knobs[MAX_POTS];
 #if defined(FUNCTION_SWITCHES)
+    int fsMap[NUM_FUNCTIONS_SWITCHES];
     FXButton * fctButtons[NUM_FUNCTIONS_SWITCHES] = {0};
 #endif
 };
@@ -103,7 +104,7 @@ FXDEFMAP(OpenTxSim) OpenTxSimMap[] = {
 FXIMPLEMENT(OpenTxSim, FXMainWindow, OpenTxSimMap, ARRAYNUMBER(OpenTxSimMap))
 
 OpenTxSim::OpenTxSim(FXApp* a):
-  FXMainWindow(a, "EdgeTX Simu", nullptr, nullptr, DECOR_ALL, 20, 90, 0, 0)
+  FXMainWindow(a, "EdgeTX Simu", nullptr, nullptr, DECOR_ALL, 200, 200, 0, 0)
 {
   bmp = new FXPPMImage(getApp(), nullptr, IMAGE_OWNED|IMAGE_KEEP|IMAGE_SHMI|IMAGE_SHMP, W2, H2);
 
@@ -128,10 +129,10 @@ OpenTxSim::OpenTxSim(FXApp* a):
         sliders[i]=new FXSlider(hf1, nullptr, 0, L|SLIDER_HORIZONTAL, 10, 110, 100, 20);
         break;
       case 1:
-        sliders[i]=new FXSlider(hf1, nullptr, 0, L|SLIDER_VERTICAL, 110, 10, 20, 100);
+        sliders[i]=new FXSlider(hf1, nullptr, 0, L|SLIDER_VERTICAL, 50, 5, 20, 100);
         break;
       case 2:
-        sliders[i]=new FXSlider(hf1, nullptr, 0, L|SLIDER_VERTICAL, 130, 10, 20, 100);
+        sliders[i]=new FXSlider(hf1, nullptr, 0, L|SLIDER_VERTICAL, 190, 5, 20, 100);
         break;
       case 3:
         sliders[i]=new FXSlider(hf1, nullptr, 0, L|SLIDER_HORIZONTAL, 150, 110, 100, 20);
@@ -142,12 +143,15 @@ OpenTxSim::OpenTxSim(FXApp* a):
     sliders[i]->setRange(0, 4095);
     sliders[i]->setValue(2047);
   }
+  sliders[inputMappingConvertMode(inputMappingGetThrottle())]->setValue(0);
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   memset(knobs, 0, sizeof(knobs));
   
   for (int i = 0; i < max_pots; i++) {
-    knobs[i]= new FXKnob(hf11, nullptr, 0, KNOB_TICKS|LAYOUT_LEFT);
+    FXVerticalFrame * vf = new FXVerticalFrame(hf11, LAYOUT_CENTER_Y);
+    new FXLabel(vf, adcGetInputLabel(ADC_INPUT_FLEX, i));
+    knobs[i]= new FXKnob(vf, nullptr, 0, KNOB_TICKS|LAYOUT_LEFT);
     knobs[i]->setRange(0, 4095);
     knobs[i]->setValue(2047);
 
@@ -162,10 +166,18 @@ OpenTxSim::OpenTxSim(FXApp* a):
   }
 
 #if defined(FUNCTION_SWITCHES)
-  for(int i = 0; i < NUM_FUNCTIONS_SWITCHES; ++i)
-  {
-    fctButtons[i] = new FXButton(hf12, "     ", nullptr, nullptr, 123, LAYOUT_LEFT|BUTTON_NORMAL, 0, 0, 50, 0, 15, 15);
-    fctButtons[i]->setBorderColor(FXColor(0));
+  for (int i = 0, n = 0; i < switchGetMaxSwitches(); i += 1) {
+    if (switchIsCustomSwitch(i)) {
+      int cfsIdx = switchGetCustomSwitchIdx(i);
+      fsMap[cfsIdx] = n;
+
+      FXVerticalFrame * vf = new FXVerticalFrame(hf12, LAYOUT_CENTER_Y);
+      new FXLabel(vf, switchGetDefaultName(i));
+      fctButtons[n] = new FXButton(vf, "     ", nullptr, nullptr, 123, LAYOUT_LEFT|BUTTON_NORMAL, 0, 0, 50, 0, 15, 15);
+      fctButtons[n]->setBorderColor(FXColor(0));
+
+      n += 1;
+    }
   }
 #endif
 
@@ -357,6 +369,16 @@ long OpenTxSim::onMouseMove(FXObject*,FXSelector,void*v)
   return 0;
 }
 
+struct swDef
+{
+  int8_t swtch;
+  unsigned int key;
+  bool pressed;
+  int8_t state;
+  int8_t states;
+  int8_t inc;
+};
+
 void OpenTxSim::updateKeysAndSwitches(bool start)
 {
   static int keys[] = {
@@ -366,7 +388,6 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Page_Up,   KEY_PAGEUP,
     KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
-    KEY_BackSpace, KEY_EXIT,
     KEY_Up,        KEY_UP,
     KEY_Down,      KEY_DOWN,
     KEY_Right,     KEY_RIGHT,
@@ -376,7 +397,6 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Shift_L,   KEY_SHIFT,
   #endif
     KEY_Return,    KEY_ENTER,
-    KEY_BackSpace, KEY_EXIT,
     KEY_Right,     KEY_RIGHT,
     KEY_Left,      KEY_LEFT,
     KEY_Up,        KEY_UP,
@@ -385,7 +405,6 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Page_Up,   KEY_PAGEUP,
     KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
-    KEY_BackSpace, KEY_EXIT,
     KEY_Up,        KEY_MODEL,
     KEY_Down,      KEY_EXIT,
     KEY_Right,     KEY_TELE,
@@ -395,7 +414,6 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
     KEY_Right,     KEY_MODEL,
-    KEY_BackSpace, KEY_EXIT,
     KEY_Left,      KEY_SYS,
     KEY_Up,        KEY_PLUS,
     KEY_Down,      KEY_MINUS,
@@ -403,18 +421,23 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Page_Up,   KEY_MENU,
     KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
-    KEY_BackSpace, KEY_EXIT,
     KEY_Up,        KEY_PLUS,
     KEY_Down,      KEY_MINUS,
 #else
     KEY_Return,    KEY_MENU,
-    KEY_BackSpace, KEY_EXIT,
     KEY_Right,     KEY_RIGHT,
     KEY_Left,      KEY_LEFT,
     KEY_Up,        KEY_UP,
     KEY_Down,      KEY_DOWN,
 #endif
-  };
+    KEY_BackSpace,    KEY_EXIT,
+    KEY_Escape,       KEY_EXIT,
+    KEY_M,            KEY_MODEL,
+    KEY_Y,            KEY_SYS,
+    KEY_T,            KEY_TELE,
+    KEY_bracketleft,  KEY_PAGEUP,
+    KEY_bracketright, KEY_PAGEDN,
+};
 
   for (unsigned int i=0; i<DIM(keys); i+=2) {
     simuSetKey(keys[i+1], start ? false : getApp()->getKeyState(keys[i]));
@@ -430,68 +453,94 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     simuSetTrim(i, getApp()->getKeyState(trimKeys[i]));
   }
 
-#define SWITCH_KEY(key, swtch, states) \
-  static bool state##key = 0; \
-  static int8_t state_##swtch = -1; \
-  static int8_t inc_##swtch = 4-states; \
-  if (getApp()->getKeyState(KEY_##key)) { \
-    if (!state##key) { \
-      state_##swtch = (state_##swtch+inc_##swtch); \
-      if (state_##swtch == -1+((states-1)*inc_##swtch)) inc_##swtch = -4+states; \
-      else if (state_##swtch == -1) inc_##swtch = 4-states; \
-      state##key = true; \
-    } \
-  } \
-  else { \
-    state##key = false; \
-  } \
-  simuSetSwitch(swtch, state_##swtch) \
+#define SWITCH_KEY(key, swtch, states) { swtch, KEY_##key, false, -1, states, 4 - states }
 
-  SWITCH_KEY(A, 0, 3);
-  SWITCH_KEY(B, 1, 3);
-  SWITCH_KEY(C, 2, 3);
-  SWITCH_KEY(D, 3, 3);
+  static swDef switches[] = {
+#if defined(RADIO_GX12)
+    SWITCH_KEY(A, 0, 2),
+    SWITCH_KEY(B, 1, 3),
+    SWITCH_KEY(C, 2, 3),
+    SWITCH_KEY(D, 3, 2),
+    SWITCH_KEY(E, 4, 3),
+    SWITCH_KEY(F, 5, 3),
+    SWITCH_KEY(G, 6, 2),
+    SWITCH_KEY(H, 7, 2),
+#else
+    SWITCH_KEY(A, 0, 3),
+    SWITCH_KEY(B, 1, 3),
+    SWITCH_KEY(C, 2, 3),
+    SWITCH_KEY(D, 3, 3),
 
   #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_BUMBLEBEE)
-    SWITCH_KEY(1, 4, 2);
-    SWITCH_KEY(2, 5, 2);
-    SWITCH_KEY(3, 6, 2);
-    SWITCH_KEY(4, 7, 2);
-    SWITCH_KEY(5, 8, 2);
-    SWITCH_KEY(6, 9, 2);
+    SWITCH_KEY(1, 4, 2),
+    SWITCH_KEY(2, 5, 2),
+    SWITCH_KEY(3, 6, 2),
+    SWITCH_KEY(4, 7, 2),
+    SWITCH_KEY(5, 8, 2),
+    SWITCH_KEY(6, 9, 2),
   #elif defined(HARDWARE_SWITCH_G) && defined(HARDWARE_SWITCH_H)
-    SWITCH_KEY(E, 4, 3);
-    SWITCH_KEY(F, 5, 2);
-    SWITCH_KEY(G, 6, 3);
-    SWITCH_KEY(H, 7, 2);
+    SWITCH_KEY(E, 4, 3),
+    SWITCH_KEY(F, 5, 2),
+    SWITCH_KEY(G, 6, 3),
+    SWITCH_KEY(H, 7, 2),
   #elif defined(HARDWARE_SWITCH_F) && defined(HARDWARE_SWITCH_H)
-    SWITCH_KEY(F, 4, 2);
-    SWITCH_KEY(H, 5, 2);
+    SWITCH_KEY(F, 4, 2),
+    SWITCH_KEY(H, 5, 2),
   #endif
 
   #if defined(PCBX9E)
-    SWITCH_KEY(I, 8, 3);
-    SWITCH_KEY(J, 9, 3);
-    SWITCH_KEY(K, 10, 3);
-    SWITCH_KEY(L, 11, 3);
-    SWITCH_KEY(M, 12, 3);
-    SWITCH_KEY(N, 13, 3);
-    SWITCH_KEY(O, 14, 3);
-    SWITCH_KEY(P, 15, 3);
-    SWITCH_KEY(Q, 16, 3);
-    SWITCH_KEY(R, 17, 3);
+    SWITCH_KEY(I, 8, 3),
+    SWITCH_KEY(J, 9, 3),
+    SWITCH_KEY(K, 10, 3),
+    SWITCH_KEY(L, 11, 3),
+    SWITCH_KEY(M, 12, 3),
+    SWITCH_KEY(N, 13, 3),
+    SWITCH_KEY(O, 14, 3),
+    SWITCH_KEY(P, 15, 3),
+    SWITCH_KEY(Q, 16, 3),
+    SWITCH_KEY(R, 17, 3),
   #endif
+  #endif
+  };
+
+  for (int i = 0; i < DIM(switches); i += 1) {
+    int8_t newState = switches[i].state;
+    bool kp = getApp()->getKeyState(switches[i].key);
+#if defined(FUNCTION_SWITCHES)
+    if (switchIsCustomSwitch(i)) {
+        int cfsIndex = fsMap[switchGetCustomSwitchIdx(i)];
+        newState = -1;
+        if (fctButtons[cfsIndex]->getState() == STATE_DOWN || kp)
+          newState = 1;
+        kp = false;
+    }
+#endif
+    if (kp) {
+      if (!switches[i].pressed) {
+        newState = newState + switches[i].inc;
+        if (newState == -1 + ((switches[i].states - 1) * switches[i].inc)) switches[i].inc = -4 + switches[i].states;
+        else if (newState == -1) switches[i].inc = 4 - switches[i].states;
+        switches[i].pressed = true;
+      }
+    } else {
+      switches[i].pressed = false;
+    }
+    if (newState != switches[i].state || start) {
+      switches[i].state = newState;
+      simuSetSwitch(switches[i].swtch, switches[i].state);
+    }
+  }
 
 #if defined(FUNCTION_SWITCHES)
-    for(int i = 0; i < NUM_FUNCTIONS_SWITCHES; ++i)
-    {
-      int8_t newState = -1;
-      if(fctButtons[i]->getState()==STATE_DOWN)
-      {
-        newState = 1;
+    for(int i = 0; i < NUM_FUNCTIONS_SWITCHES; ++i) {
+      int swIdx = switchGetSwitchFromCustomIdx(i);
+      if (swIdx >= DIM(switches)) {
+        int8_t newState = -1;
+        if(fctButtons[fsMap[i]]->getState()==STATE_DOWN) {
+          newState = 1;
+        }
+        simuSetSwitch(swIdx, newState);
       }
-
-      simuSetSwitch(switchGetMaxSwitches() + i, newState);
     }
 #endif
 }
@@ -628,8 +677,8 @@ void OpenTxSim::fsLedRGB(uint8_t idx, uint32_t color)
 {
 #if defined(FUNCTION_SWITCHES)
   uint32_t col = (color&0x00FF0000)>>16 | (color&0x0000FF00) | (color&0x000000FF)<<16;
-  fctButtons[idx]->setBaseColor(col);
-  fctButtons[idx]->setBackColor(col);
+  fctButtons[fsMap[idx]]->setBaseColor(col);
+  fctButtons[fsMap[idx]]->setBackColor(col);
 #endif
 }
 
