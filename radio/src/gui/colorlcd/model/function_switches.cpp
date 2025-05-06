@@ -30,7 +30,7 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-static const char* _fct_sw_start[] = {STR_CHAR_UP, STR_CHAR_DOWN, STR_LAST};
+const char* _fct_sw_start[] = {STR_CHAR_UP, STR_CHAR_DOWN, STR_LAST};
 
 const char* edgetx_fs_manual_url =
     "https://edgetx.gitbook.io/edgetx-user-manual/b-and-w-radios/model-select/"
@@ -357,8 +357,7 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   auto qr = lv_qrcode_create(box->getLvObj(), 150,
                              makeLvColor(COLOR_THEME_SECONDARY1),
                              makeLvColor(COLOR_THEME_SECONDARY3));
-  lv_qrcode_update(qr, edgetx_fs_manual_url.c_str(),
-                   edgetx_fs_manual_url.length());
+  lv_qrcode_update(qr, edgetx_fs_manual_url, strlen(edgetx_fs_manual_url));
   lv_obj_set_pos(qr, (LCD_W - 150) / 2, EdgeTxStyles::STD_FONT_HEIGHT);
 #endif
 

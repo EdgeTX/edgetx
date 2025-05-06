@@ -139,29 +139,29 @@ class RadioFunctionSwitch : public Window
   }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  static LAYOUT_VAL(SW_W, 70, 70, LS(70))
+  static LAYOUT_VAL_SCALED(SW_W, 70);
   static constexpr coord_t NM_X = SW_W + PAD_SMALL;
-  static LAYOUT_VAL(NM_W, 60, 60, LS(60))
+  static LAYOUT_VAL_SCALED(NM_W, 60);
   static constexpr coord_t TP_X = NM_X + NM_W + PAD_SMALL;
-  static LAYOUT_VAL(TP_W, 78, 78, LS(78))
+  static LAYOUT_VAL_SCALED(TP_W, 78);
   static constexpr coord_t GR_X = TP_X + TP_W + PAD_SMALL;
-  static LAYOUT_VAL(GR_W, 84, 84, LS(84))
+  static LAYOUT_VAL_SCALED(GR_W, 84);
   static constexpr coord_t ST_X = GR_X + GR_W + PAD_SMALL;
-  static LAYOUT_VAL(ST_W, 60, 60, LS(60))
+  static LAYOUT_VAL_SCALED(ST_W, 60);
   static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
-  static LAYOUT_VAL(C1_W, 40, 40, LS(40))
+  static LAYOUT_VAL_SCALED(C1_W, 40);
   static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
-  static LAYOUT_VAL(C2_W, 40, 40, LS(40))
+  static LAYOUT_VAL_SCALED(C2_W, 40);
 #else
   static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY * 4) / 5;
   static constexpr coord_t NM_X = SW_W + PAD_TINY;
-  static LAYOUT_VAL(NM_W, 80, 80, LS(80))
+  static LAYOUT_VAL_SCALED(NM_W, 80);
   static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY;
-  static LAYOUT_VAL(TP_W, 86, 86, LS(86))
+  static LAYOUT_VAL_SCALED(TP_W, 86);
   static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY;
-  static LAYOUT_VAL(GR_W, 94, 94, LS(94))
+  static LAYOUT_VAL_SCALED(GR_W, 94);
   static constexpr coord_t ST_X = GR_X + SW_W + PAD_LARGE * 2 + PAD_SMALL;
-  static LAYOUT_VAL(ST_W, 70, 70, LS(70))
+  static LAYOUT_VAL_SCALED(ST_W, 70);
 #endif
 
  protected:

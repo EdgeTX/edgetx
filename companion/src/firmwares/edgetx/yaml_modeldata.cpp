@@ -1502,6 +1502,8 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["modelRegistrationID"] >> rhs.registrationId;
   node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
 
+  rhs.setDefaultFunctionSwitches(Boards::getCapability(board, Board::FunctionSwitches));
+
   if (node["functionSwitchConfig"]) {
     uint16_t v;
     node["functionSwitchConfig"] >> v;

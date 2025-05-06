@@ -88,6 +88,7 @@ struct YamlNode
 
     struct {
       const YamlIdStr* choices;
+      is_active_func is_active;
     } _enum;
 
     struct {
@@ -141,8 +142,8 @@ struct YamlNode
 #define YAML_ARRAY(tag, bits, max_elmts, nodes, f_is_active)           \
     { .size=(bits), .type=YDT_ARRAY, .elmts=(max_elmts), YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.is_active=(f_is_active)}}} }
 
-#define YAML_ENUM(tag, bits, id_strs)                                   \
-    { .size=(bits), .type=YDT_ENUM, .elmts=0, YAML_TAG(tag), .u={._enum={ .choices=(id_strs) }} }
+#define YAML_ENUM(tag, bits, id_strs, f_is_active)                                   \
+    { .size=(bits), .type=YDT_ENUM, .elmts=0, YAML_TAG(tag), .u={._enum={ .choices=(id_strs), .is_active=(f_is_active) }} }
 
 #define YAML_UNION(tag, bits, nodes, f_sel_m)                       \
     { .size=(bits), .type=YDT_UNION, .elmts=0, YAML_TAG(tag), .u={._array={ .child=(nodes), .u={.select_member=(f_sel_m) }}} }
@@ -193,8 +194,8 @@ struct YamlNode
 #define YAML_ARRAY(tag, bits, max_elmts, nodes, f_is_active)           \
     { (bits), YDT_ARRAY, (max_elmts), YAML_TAG(tag), {{ (nodes), {{ (f_is_active) }}}} }
 
-#define YAML_ENUM(tag, bits, id_strs)                                   \
-    { (bits), YDT_ENUM, .elmts=0, YAML_TAG(tag), {{ (const YamlNode*)(id_strs) }} }
+#define YAML_ENUM(tag, bits, id_strs, f_is_active)                                   \
+    { (bits), YDT_ENUM, .elmts=0, YAML_TAG(tag), {{ (const YamlNode*)(id_strs, {{ (f_is_active) }}) }} }
 
 #define YAML_UNION(tag, bits, nodes, f_sel_m)                       \
     { (bits), YDT_UNION, .elmts=0, YAML_TAG(tag), {{ (nodes), {{ (YamlNode::is_active_func)(f_sel_m) }}}} }

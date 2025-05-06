@@ -602,7 +602,8 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // however when parsing saved settings set all switches to None and override with parsed values
   // thus any switches not parsed will be None rather than the default
   for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
-    rhs.switchConfig[i].type = Board::SWITCH_NOT_AVAILABLE;
+    if (Boards::getCFSIndexForSwitch(i) < 0)
+      rhs.switchConfig[i].type = Board::SWITCH_NOT_AVAILABLE;
   }
 
   if (node["switchConfig"]) {

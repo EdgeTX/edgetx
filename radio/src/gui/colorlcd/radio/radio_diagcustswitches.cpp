@@ -69,15 +69,15 @@ class RadioCustSwitchesDiagsWindow : public Window
       if (switchIsCustomSwitch(i)) {
         coord_t y = (r + 2) * EdgeTxStyles::STD_FONT_HEIGHT;
           std::string s(STR_CHAR_SWITCH);
-          s += switchGetDefaultName(i));
+          s += switchGetDefaultName(i);
           new StaticText(this, {PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT}, s);
         new DynamicText(
-            this, {FS_1ST_COLUMN + PAD_LARGE, y, FS_LABEL_WIDTH, LV_SIZE_CONTENT},
+            this, {FS_1ST_COLUMN + PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
             [=]() {
               return getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP;
             });
         new DynamicText(
-            this, {FS_2ND_COLUMN + 10, y, FS_LABEL_WIDTH, LV_SIZE_CONTENT},
+            this, {FS_2ND_COLUMN + 10, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
             [=]() { return g_model.cfsState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
           
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -88,6 +88,7 @@ class RadioCustSwitchesDiagsWindow : public Window
                         {FS_3RD_COLUMN, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
                         [=]() { return STR_OFFON[getFSLedState(i)]; });
 #endif
+      }
     }
   }
       
