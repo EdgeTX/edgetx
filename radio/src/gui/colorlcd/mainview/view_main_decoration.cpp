@@ -155,22 +155,22 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     coord_t rsh = (IS_POT_AVAILABLE(pot + 3)) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT / 2 : MainViewSlider::VERTICAL_SLIDERS_HEIGHT;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, lsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, rsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, rsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, lsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, lsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, LayoutFactory::TRIM_SQUARE_SIZE, rsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, rsh}, pot);
     }
   }
 }

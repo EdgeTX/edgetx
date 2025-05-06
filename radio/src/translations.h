@@ -87,7 +87,7 @@
 
 #define PSIZE(x) ( sizeof(x) - 1 )
 
-#if LCD_W < LCD_H    // Portrait mode
+#if NARROW_LAYOUT
   #define TR3(x, y, z) z
   #define TR(x, y) y
 #elif LCD_W >= 480

@@ -36,7 +36,7 @@
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 // Edit grid
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                        LV_GRID_TEMPLATE_LAST};
 #else
@@ -185,7 +185,7 @@ class ScriptLineButton : public ListLineButton
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, row_dsc);
     lv_obj_set_style_pad_row(lvobj, 0, 0);
-    lv_obj_set_style_pad_column(lvobj, 4, 0);
+    lv_obj_set_style_pad_column(lvobj, PAD_SMALL, 0);
 
     lv_obj_update_layout(parent->getLvObj());
     if (lv_obj_is_visible(lvobj)) delayed_init();

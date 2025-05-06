@@ -63,8 +63,8 @@ class SelectedTabIcon : public StaticIcon
   std::string getName() const override { return "SelectedTabIcon"; }
 #endif
 
-  static LAYOUT_VAL(SEL_DOT_X, 10, 10, 6)
-  static LAYOUT_VAL(SEL_DOT_Y, 39, 39, LS(39))
+  static LAYOUT_VAL_SCALED(SEL_DOT_X, 10)
+  static LAYOUT_VAL_SCALED(SEL_DOT_Y, 39)
 };
 
 class TabsGroupButton : public ButtonBase
@@ -101,7 +101,7 @@ class TabsGroupButton : public ButtonBase
     pageTab->update(index);
   }
 
-  static LAYOUT_VAL(ICON_Y, 7, 7, LS(7))
+  static LAYOUT_VAL_SCALED(ICON_Y, 7)
 
  protected:
   PageTab* pageTab;
@@ -147,8 +147,8 @@ class TabsGroupHeader : public Window
     setTitle("");
 
     carousel = new Window(this, 
-                          {TopBar::MENU_HEADER_BUTTONS_LEFT, 0,
-                           LCD_W - HDR_DATE_FULL_WIDTH - TopBar::MENU_HEADER_BUTTONS_LEFT, EdgeTxStyles::MENU_HEADER_HEIGHT + 10});
+                          {MENU_HEADER_BUTTONS_LEFT, 0,
+                           LCD_W - HDR_DATE_FULL_WIDTH - MENU_HEADER_BUTTONS_LEFT, EdgeTxStyles::MENU_HEADER_HEIGHT + 10});
     carousel->padAll(PAD_ZERO);
     carousel->setWindowFlag(NO_FOCUS);
 
@@ -227,9 +227,9 @@ class TabsGroupHeader : public Window
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return buttons.size(); }
 
-  static LAYOUT_VAL(DATE_XO, 48, 48, LS(48))
-  static LAYOUT_VAL(MENU_HEADER_BUTTON_WIDTH, 33, 33, LS(33))
-  static LAYOUT_VAL(HDR_DATE_FULL_WIDTH, 51, 51, LS(51))
+  static LAYOUT_VAL_SCALED(DATE_XO, 48)
+  static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTON_WIDTH, 33)
+  static LAYOUT_VAL_SCALED(HDR_DATE_FULL_WIDTH, 51)
 
  protected:
   uint8_t currentIndex = 0;

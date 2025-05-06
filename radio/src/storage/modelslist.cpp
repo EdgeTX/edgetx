@@ -49,6 +49,8 @@ using std::list;
 #define TRACE_LABELS(...)
 #endif
 
+LAYOUT_SIZE(LABEL_TRUNCATE_LENGTH, 21, 16)
+
 ModelsList modelslist;
 ModelMap modelslabels;
 

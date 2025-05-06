@@ -91,8 +91,6 @@ class ColorBar : public FormField
     rel_pos.x = point_act.x - obj_coords.x1;
     rel_pos.y = point_act.y - obj_coords.y1;
 
-    TRACE("PRESSING [%d,%d]", rel_pos.x, rel_pos.y);
-
     bar->value = bar->screenToValue(rel_pos.y);
     lv_event_send(target->parent, LV_EVENT_VALUE_CHANGED, nullptr);
   }

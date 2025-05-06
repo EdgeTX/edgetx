@@ -145,7 +145,7 @@ class MenuBody : public TableField
 #endif
   }
 
-  void addLine(const uint8_t* icon_mask, const std::string& text,
+  void addLine(const MaskBitmap* icon_mask, const std::string& text,
                std::function<void()> onPress, std::function<bool()> isChecked,
                bool update = true)
   {
@@ -153,10 +153,9 @@ class MenuBody : public TableField
     if (icon_mask) {
       canvas = lv_canvas_create(nullptr);
 
-      lv_coord_t w = *((uint16_t*)icon_mask);
-      lv_coord_t h = *(((uint16_t*)icon_mask) + 1);
-      void* buf = (void*)(icon_mask + 4);
-      lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
+      lv_coord_t w = icon_mask->width;
+      lv_coord_t h = icon_mask->height;
+      lv_canvas_set_buffer(canvas, (void*)&icon_mask->data[0], w, h, LV_IMG_CF_ALPHA_8BIT);
     }
 
     auto l = new MenuLine(text, onPress, isChecked, canvas);
@@ -342,7 +341,7 @@ class MenuWindowContent : public Window
   int selection() { return body->selection(); }
   void setIndex(int index) { body->setIndex(index); }
 
-  void addLine(const uint8_t* icon_mask, const std::string& text,
+  void addLine(const MaskBitmap* icon_mask, const std::string& text,
                std::function<void()> onPress, std::function<bool()> isChecked,
                bool update = true)
   {
@@ -393,7 +392,7 @@ void Menu::setTitle(std::string text)
   updatePosition();
 }
 
-void Menu::addLine(const uint8_t* icon_mask, const std::string& text,
+void Menu::addLine(const MaskBitmap* icon_mask, const std::string& text,
                    std::function<void()> onPress,
                    std::function<bool()> isChecked)
 {
@@ -401,7 +400,7 @@ void Menu::addLine(const uint8_t* icon_mask, const std::string& text,
   updatePosition();
 }
 
-void Menu::addLineBuffered(const uint8_t* icon_mask, const std::string& text,
+void Menu::addLineBuffered(const MaskBitmap* icon_mask, const std::string& text,
                            std::function<void()> onPress,
                            std::function<bool()> isChecked)
 {

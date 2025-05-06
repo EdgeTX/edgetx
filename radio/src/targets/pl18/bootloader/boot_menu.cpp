@@ -32,6 +32,7 @@
 #include "bootloader/firmware_files.h"
 
 #include <lvgl/lvgl.h>
+#include "etx_lv_theme.h"
 
 #define RADIO_MENU_LEN 2
 
@@ -80,7 +81,7 @@ static void bootloaderDrawTitle(const char* text)
 
 static void bootloaderDrawFooter()
 {
-  if (LCD_W > LCD_H)
+  if (LANDSCAPE)
     lcd->drawSolidFilledRect(DEFAULT_PADDING, LCD_H - (DEFAULT_PADDING + 10), LCD_W - DOUBLE_PADDING, 2, BL_FOREGROUND);
   else
     lcd->drawSolidFilledRect(DEFAULT_PADDING, LCD_H - (DOUBLE_PADDING + 4), LCD_W - DOUBLE_PADDING, 2, BL_FOREGROUND);
@@ -142,7 +143,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         pos -= menuItemX - 8;
         lcd->drawSolidRect(menuItemX - 8, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
 
-        if (LCD_W > LCD_H) {
+        if (LANDSCAPE) {
           lcd->drawBitmap(menuItemX - 40, LCD_H - 106, (const BitmapBuffer*)&BMP_PLUG_USB);
           lcd->drawText(menuItemX + 95, LCD_H - 97, TR_BL_USB_PLUGIN, BL_FOREGROUND);
           lcd->drawText(menuItemX + 95, LCD_H - 72, TR_BL_USB_MASS_STORE, BL_FOREGROUND);
@@ -173,7 +174,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         lcd->drawSolidRect(menuItemX - 8, 72 + (opt * 35), pos, 26, 2, BL_SELECTED);
 
         bootloaderDrawFooter();
-        if (LCD_W > LCD_H) {
+        if (LANDSCAPE) {
           lcd->drawText(DEFAULT_PADDING, LCD_H - DEFAULT_PADDING,
                         LV_SYMBOL_SD_CARD " " TR_BL_ERASE_KEY, BL_FOREGROUND);
           lcd->drawText(LCD_W - 175, LCD_H - DEFAULT_PADDING,
@@ -271,7 +272,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
                           MESSAGE_TOP + DEFAULT_PADDING, tag.flavour,
                           BL_FOREGROUND);
 
-            lcd->drawText(LCD_W > LCD_H ? DOUBLE_PADDING : DEFAULT_PADDING, MESSAGE_TOP, LV_SYMBOL_OK, BL_GREEN);
+            lcd->drawText(LANDSCAPE ? DOUBLE_PADDING : DEFAULT_PADDING, MESSAGE_TOP, LV_SYMBOL_OK, BL_GREEN);
           }
         }
       }
@@ -281,7 +282,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       if (st != ST_DIR_CHECK && (st != ST_FLASH_CHECK || opt == FC_OK)) {
 
         int padding = DOUBLE_PADDING;
-        if (LCD_W > LCD_H)
+        if (LANDSCAPE)
           padding = DEFAULT_PADDING;
         if (st == ST_FILE_LIST) {
           lcd->drawText(padding, LCD_H - padding,
@@ -299,7 +300,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       }
 
       if (st != ST_FLASHING) {
-        if (LCD_W > LCD_H) {
+        if (LANDSCAPE) {
           lcd->drawText(LCD_W - 175, LCD_H - DEFAULT_PADDING,
                         LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, BL_FOREGROUND);
         } else {

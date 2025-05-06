@@ -42,7 +42,7 @@ class CurveButton : public Button
       s = strAppend(s, ":");
       strAppend(s, g_model.curves[index].name, LEN_CURVE_NAME);
     }
-    title = new StaticText(this, {4, -1, width() - PAD_MEDIUM * 2, EdgeTxStyles::STD_FONT_HEIGHT}, buf, 
+    title = new StaticText(this, {PAD_SMALL, -1, width() - PAD_MEDIUM * 2, EdgeTxStyles::STD_FONT_HEIGHT}, buf, 
                            COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(BOLD));
     etx_txt_color(title->getLvObj(), COLOR_THEME_PRIMARY2_INDEX,
                   LV_PART_MAIN | LV_STATE_USER_1);
@@ -52,15 +52,15 @@ class CurveButton : public Button
 
     hdrLeft = new StaticIcon(this, 0, 0, ICON_ROUND_TITLE_LEFT,
                              COLOR_THEME_SECONDARY2_INDEX);
-    hdrRight = new StaticIcon(this, width() - 8, 0,
+    hdrRight = new StaticIcon(this, width() - PAD_LARGE, 0,
                               ICON_ROUND_TITLE_RIGHT,
                               COLOR_THEME_SECONDARY2_INDEX);
 
     // Preview
     preview = new CurveRenderer(
         this,
-        {PAD_MEDIUM, PAD_MEDIUM + EdgeTxStyles::STD_FONT_HEIGHT, width() - PAD_MEDIUM * 2 - 4,
-         width() - PAD_MEDIUM * 2 - 4},
+        {PAD_MEDIUM, PAD_MEDIUM + EdgeTxStyles::STD_FONT_HEIGHT, width() - PAD_MEDIUM * 2 - PAD_SMALL,
+         width() - PAD_MEDIUM * 2 - PAD_SMALL},
         [=](int x) -> int { return applyCustomCurve(x, index); });
 
     // Curve characteristics
@@ -73,8 +73,8 @@ class CurveButton : public Button
 
   void update() { preview->update(); }
 
-  static LAYOUT_VAL(INFO_H, 27, 27, 19)
-  static LAYOUT_VAL(CURVE_BTN_W, 142, 142, LS(142))
+  static LAYOUT_VAL_SCALED(INFO_H, 27)
+  static constexpr coord_t CURVE_BTN_W = (LCD_W - PAD_LARGE * (ModelCurvesPage::PER_ROW + 1)) / ModelCurvesPage::PER_ROW; 
   static constexpr coord_t CURVE_BTH_H = CURVE_BTN_W + EdgeTxStyles::STD_FONT_HEIGHT * 2;
 
  protected:
@@ -202,7 +202,7 @@ void ModelCurvesPage::plusPopup(Window *window)
 
 void ModelCurvesPage::build(Window *window)
 {
-#if !PORTRAIT_LCD
+#if LANDSCAPE
   static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 #else

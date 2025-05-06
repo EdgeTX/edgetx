@@ -34,14 +34,14 @@ class GaugeWidget : public Widget
                                 COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
 
     valueText = new DynamicNumber<int16_t>(
-        this, {0, 0, lv_pct(100), 16}, [=]() { return getGuageValue(); },
+        this, {0, 0, lv_pct(100), GUAGE_H}, [=]() { return getGuageValue(); },
         COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED, "", "%");
     etx_obj_add_style(valueText->getLvObj(), styles->text_align_right,
                       LV_STATE_USER_1);
 
     auto box = lv_obj_create(lvobj);
-    lv_obj_set_pos(box, 0, 16);
-    lv_obj_set_size(box, lv_pct(100), 16);
+    lv_obj_set_pos(box, 0, GUAGE_H);
+    lv_obj_set_size(box, lv_pct(100), GUAGE_H);
     lv_obj_clear_flag(box, LV_OBJ_FLAG_CLICKABLE);
     etx_solid_bg(box, COLOR_THEME_PRIMARY2_INDEX);
 
@@ -76,7 +76,7 @@ class GaugeWidget : public Widget
     mixsrc_t index = persistentData->options[0].value.unsignedValue;
     sourceText->setText(getSourceString(index));
 
-    if (width() < 90)
+    if (width() < ALIGN_MAX_W)
       lv_obj_add_state(valueText->getLvObj(), LV_STATE_USER_1);
     else
       lv_obj_clear_state(valueText->getLvObj(), LV_STATE_USER_1);
@@ -101,9 +101,12 @@ class GaugeWidget : public Widget
       lastValue = newValue;
 
       lv_coord_t w = (width() * lastValue) / 100;
-      lv_obj_set_size(bar, w, 16);
+      lv_obj_set_size(bar, w, GUAGE_H);
     }
   }
+
+  static LAYOUT_VAL_SCALED(GUAGE_H, 16)
+  static LAYOUT_VAL_SCALED(ALIGN_MAX_W, 90)
 };
 
 const ZoneOption GaugeWidget::options[] = {

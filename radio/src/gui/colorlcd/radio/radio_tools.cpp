@@ -188,8 +188,8 @@ struct ToolButton : public TextButton {
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
   }
 
-  static LAYOUT_VAL2(TOOLS_BTN_W, (LCD_W - PAD_LARGE * 3) / 3, (LCD_W - PAD_LARGE * 2) / 2)
-  static LAYOUT_VAL(TOOLS_BTN_H, 48, 48, LS(48))
+  static LAYOUT_ORIENTATION(TOOLS_BTN_W, (LCD_W - PAD_LARGE * 3) / 3, (LCD_W - PAD_LARGE * 2) / 2)
+  static LAYOUT_VAL_SCALED(TOOLS_BTN_H, 48)
 };
 
 void RadioToolsPage::rebuild(Window* window)

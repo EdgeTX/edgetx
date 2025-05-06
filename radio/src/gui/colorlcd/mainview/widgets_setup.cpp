@@ -57,10 +57,10 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
   etx_obj_add_style(lvobj, styles->border_color[COLOR_THEME_FOCUS_INDEX], LV_STATE_FOCUSED);
 
   lv_style_init(&borderStyle);
-  lv_style_set_line_width(&borderStyle, 2);
+  lv_style_set_line_width(&borderStyle, PAD_BORDER);
   lv_style_set_line_opa(&borderStyle, LV_OPA_COVER);
-  lv_style_set_line_dash_width(&borderStyle, 2);
-  lv_style_set_line_dash_gap(&borderStyle, 2);
+  lv_style_set_line_dash_width(&borderStyle, PAD_BORDER);
+  lv_style_set_line_dash_gap(&borderStyle, PAD_BORDER);
   lv_style_set_line_color(&borderStyle, makeLvColor(COLOR_THEME_SECONDARY2));
 
   borderPts[0] = {1, 1};

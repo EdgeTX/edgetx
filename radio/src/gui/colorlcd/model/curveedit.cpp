@@ -130,11 +130,13 @@ class CurveDataEdit : public Window
     }
   }
 
-  static LAYOUT_VAL(ROW_HEIGHT, 82, 82, LS(82))
-  static LAYOUT_VAL(NUM_BTN_WIDTH, 48, 48, LS(48))
-  static LAYOUT_VAL(NUM_HDR_HEIGHT, 15, 15, LS(15))
-  static LAYOUT_VAL(PTNUM_X, 15, 15, LS(15))
-  static LAYOUT_VAL(PTNUM_H, 13, 13, LS(13))
+  static LAYOUT_VAL_SCALED(ROW_HEIGHT, 82)
+  static LAYOUT_VAL_SCALED(NUM_BTN_WIDTH, 47)
+  static LAYOUT_VAL_SCALED(NUM_HDR_HEIGHT, 15)
+  static LAYOUT_VAL_SCALED(PTNUM_X, 15)
+  static LAYOUT_VAL_SCALED(PTNUM_H, 13)
+  static constexpr coord_t PT_EDIT_WIDTH = PTNUM_X + (NUM_BTN_WIDTH + PAD_TINY) * 5;
+  static LAYOUT_ORIENTATION(CURVE_WIDTH, LCD_W - PAD_SMALL - PT_EDIT_WIDTH, LAYOUT_SCALE(200))
 
  protected:
   uint8_t index;
@@ -270,13 +272,13 @@ void CurveEditWindow::buildBody(Window* window)
   lv_obj_set_grid_align(line->getLvObj(), LV_GRID_ALIGN_SPACE_BETWEEN,
                         LV_GRID_ALIGN_SPACE_BETWEEN);
 
-#if PORTRAIT_LCD
+#if PORTRAIT
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_COLUMN);
   coord_t boxWidth = window->width();
-  coord_t boxHeight = window->height() - CURVE_WIDTH;
+  coord_t boxHeight = window->height() - CurveDataEdit::CURVE_WIDTH;
 #else
   lv_obj_set_flex_flow(line->getLvObj(), LV_FLEX_FLOW_ROW);
-  coord_t boxWidth = window->width() - CURVE_WIDTH;
+  coord_t boxWidth = window->width() - CurveDataEdit::CURVE_WIDTH;
   coord_t boxHeight = window->height();
 #endif
 
@@ -390,7 +392,7 @@ void CurveEditWindow::buildBody(Window* window)
   // Curve editor
   lv_obj_set_flex_align(line->getLvObj(), LV_FLEX_ALIGN_CENTER,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
-  curveEdit = new CurveEdit(line, {0, 0, CURVE_WIDTH, CURVE_WIDTH}, index);
+  curveEdit = new CurveEdit(line, {0, 0, CurveDataEdit::CURVE_WIDTH, CurveDataEdit::CURVE_WIDTH}, index);
 
   curveDataEdit->setCurveEdit(curveEdit);
 }

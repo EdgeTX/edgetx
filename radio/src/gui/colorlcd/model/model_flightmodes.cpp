@@ -49,7 +49,7 @@ static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t trims_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                            LV_GRID_TEMPLATE_LAST};
 #else
@@ -106,7 +106,7 @@ class TrimEdit : public Window
     showControls();
   }
 
-  static LAYOUT_VAL(TR_BTN_W, 65, 65, 44)
+  static LAYOUT_VAL_SCALED(TR_BTN_W, 65)
 
  protected:
   int trimId;
@@ -193,7 +193,7 @@ class FlightModeEdit : public Page
     }
   }
 
-  static LAYOUT_VAL2(TRIMS_PER_LINE, 2, 1)
+  static LAYOUT_SIZE(TRIMS_PER_LINE, 2, 1)
 
  protected:
   uint8_t index;
@@ -282,7 +282,7 @@ class FlightModeBtn : public ListLineButton
     ListLineButton::checkEvents();
     if (!refreshing && init) {
       refreshing = true;
-      for (int t = 0; t < keysGetMaxTrims(); t += 1) {
+      for (int t = 0; t < keysGetMaxTrims() && t < MAX_FMTRIMS; t += 1) {
         if (lastTrim[t] != g_model.flightModeData[index].trim[t].value) {
           setTrimValue(t);
         }
@@ -311,7 +311,7 @@ class FlightModeBtn : public ListLineButton
       lv_label_set_text(fmSwitch, "");
     }
 
-    for (int i = 0; i < keysGetMaxTrims(); i += 1) {
+    for (int i = 0; i < keysGetMaxTrims() && i < MAX_FMTRIMS; i += 1) {
       setTrimValue(i);
       lv_label_set_text(fmTrimMode[i], getFMTrimStr(fm.trim[i].mode, false).c_str());
     }
@@ -324,24 +324,24 @@ class FlightModeBtn : public ListLineButton
         formatNumberAsString(fm.fadeOut, PREC1, 0, nullptr, "s").c_str());
   }
 
-  static LAYOUT_VAL(BTN_H, 36, 56, LS(36))
-  static LAYOUT_VAL2(MAX_FMTRIMS, 6, 4)
+  static LAYOUT_SIZE_SCALED(BTN_H, 36, 56)
+  static LAYOUT_SIZE(MAX_FMTRIMS, 6, 4)
   static constexpr coord_t FMID_X = PAD_TINY;
-  static LAYOUT_VAL(FMID_Y, 6, 16, 3)
-  static LAYOUT_VAL(FMID_W, 36, 46, LS(36))
+  static LAYOUT_SIZE_SCALED(FMID_Y, 6, 16)
+  static LAYOUT_SIZE_SCALED(FMID_W, 36, 46)
   static constexpr coord_t NAME_X = FMID_X + FMID_W + PAD_TINY;
-  static LAYOUT_VAL(NAME_Y, 6, 0, 3)
-  static LAYOUT_VAL(NAME_W, 95, 160, LS(95))
+  static LAYOUT_SIZE_SCALED(NAME_Y, 6, 0)
+  static LAYOUT_SIZE_SCALED(NAME_W, 95, 160)
   static constexpr coord_t SWTCH_X = NAME_X + NAME_W + PAD_TINY;
-  static LAYOUT_VAL(SWTCH_Y, 6, 0, 3)
-  static LAYOUT_VAL(SWTCH_W, 50, 50, LS(50))
-  static LAYOUT_VAL2(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY)
-  static LAYOUT_VAL(TRIM_Y, 0, 20, -1)
-  static LAYOUT_VAL(TRIM_W, 30, 40, LS(30))
-  static LAYOUT_VAL(TRIM_H, 16, 16, 11)
+  static LAYOUT_SIZE_SCALED(SWTCH_Y, 6, 0)
+  static LAYOUT_VAL_SCALED(SWTCH_W, 50)
+  static LAYOUT_SIZE(TRIM_X, SWTCH_X + SWTCH_W + PAD_TINY, FMID_X + FMID_W + PAD_TINY)
+  static LAYOUT_SIZE_SCALED(TRIM_Y, 0, 20)
+  static LAYOUT_SIZE_SCALED(TRIM_W, 30, 40)
+  static LAYOUT_VAL_SCALED(TRIM_H, 16)
   static constexpr coord_t TRIMC_W = MAX_FMTRIMS * TRIM_W;
-  static LAYOUT_VAL(FADE_W, 45, 45, LS(45))
-  static LAYOUT_VAL(FADE_Y, 6, 24, 3)
+  static LAYOUT_VAL_SCALED(FADE_W, 45)
+  static LAYOUT_SIZE_SCALED(FADE_Y, 6, 24)
   static constexpr coord_t FADE_X = ListLineButton::GRP_W - PAD_BORDER * 2 - FADE_W * 2 - PAD_TINY * 2;
 
  protected:
@@ -494,7 +494,7 @@ void ModelFlightModesPage::build(Window* form)
 
   for (int i = 0; i < MAX_FLIGHT_MODES; i++) {
     auto btn = new FlightModeBtn(form, i);
-    lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + 3) + 4);
+    lv_obj_set_pos(btn->getLvObj(), PAD_SMALL, i * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_SMALL);
     btn->setWidth(ListLineButton::GRP_W);
 
     btn->setPressHandler([=]() {
@@ -504,7 +504,7 @@ void ModelFlightModesPage::build(Window* form)
   }
 
   trimCheck = new TextButton(
-      form, rect_t{6, MAX_FLIGHT_MODES * (FlightModeBtn::BTN_H + 3) + PAD_LARGE, ListLineButton::GRP_W, TRIM_CHK_H}, STR_CHECKTRIMS, [&]() -> uint8_t {
+      form, rect_t{6, MAX_FLIGHT_MODES * (FlightModeBtn::BTN_H + PAD_THREE) + PAD_LARGE, ListLineButton::GRP_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_CHECKTRIMS, [&]() -> uint8_t {
         if (trimsCheckTimer)
           trimsCheckTimer = 0;
         else

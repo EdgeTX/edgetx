@@ -315,7 +315,7 @@
 #define TR_ELEVATOR            TR("Col. long. ", "Fuente col. longitudinal")
 #define TR_SWASHRING           "Ciclico"
 #define TR_MODE                "Modo"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK        "Izquierdo"
 #else
   #define TR_LEFT_STICK        "Izq"
@@ -1188,7 +1188,7 @@
 #define TR_USE_THEME_COLOR              "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."

@@ -45,30 +45,19 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
 
   setTitle();
 
-  auto body_obj = body->getLvObj();
-#if PORTRAIT_LCD  // portrait
-  lv_obj_set_flex_flow(body_obj, LV_FLEX_FLOW_COLUMN);
-#else  // landscape
-  lv_obj_set_flex_flow(body_obj, LV_FLEX_FLOW_ROW);
-#endif
-  lv_obj_set_style_flex_cross_place(body_obj, LV_FLEX_ALIGN_CENTER, 0);
+#if PORTRAIT
+  body->padAll(PAD_ZERO);
 
-  auto box = new Window(body, rect_t{});
+  auto box = new Window(body, rect_t{0, 0, body->width(), body->height() - INPUT_EDIT_CURVE_HEIGHT - PAD_TINY * 2});
   auto box_obj = box->getLvObj();
-  lv_obj_set_flex_grow(box_obj, 2);
   etx_scrollbar(box_obj);
-
-#if PORTRAIT_LCD  // portrait
-  box->setWidth(body->width() - 2 * PAD_MEDIUM);
-#else  // landscape
-  box->setHeight(body->height() - 2 * PAD_MEDIUM);
-#endif
+  box->padAll(PAD_SMALL);
 
   auto form = new Window(box, rect_t{});
   buildBody(form);
 
   preview = new Curve(
-      body, rect_t{0, 0, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
+      body, rect_t{(LCD_W - INPUT_EDIT_CURVE_WIDTH) / 2, body->height() - INPUT_EDIT_CURVE_HEIGHT - PAD_TINY, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
       [=](int x) -> int {
         ExpoData* line = expoAddress(index);
         int16_t anas[MAX_INPUTS] = {0};
@@ -76,6 +65,20 @@ InputEditWindow::InputEditWindow(int8_t input, uint8_t index) :
         return anas[line->chn];
       },
       [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
+#else
+  body->padAll(PAD_SMALL);
+  buildBody(body);
+
+  preview = new Curve(
+      this, rect_t{LCD_W - INPUT_EDIT_CURVE_WIDTH - PAD_LARGE, EdgeTxStyles::MENU_HEADER_HEIGHT + PAD_TINY, INPUT_EDIT_CURVE_WIDTH, INPUT_EDIT_CURVE_HEIGHT},
+      [=](int x) -> int {
+        ExpoData* line = expoAddress(index);
+        int16_t anas[MAX_INPUTS] = {0};
+        applyExpos(anas, e_perout_mode_inactive_flight_mode, line->srcRaw, x);
+        return anas[line->chn];
+      },
+      [=]() -> int { return getValue(expoAddress(index)->srcRaw); });
+#endif
 }
 
 void InputEditWindow::setTitle()

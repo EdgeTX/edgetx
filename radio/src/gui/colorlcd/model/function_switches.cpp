@@ -30,23 +30,6 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-static const lv_coord_t line_col_dsc1[] = {LV_GRID_CONTENT,
-                                           LV_GRID_TEMPLATE_LAST};
-
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-static const lv_coord_t line_col_dsc2[] = {
-    LV_GRID_FR(13), LV_GRID_FR(11), LV_GRID_FR(11),
-    LV_GRID_FR(12), LV_GRID_FR(10), LV_GRID_FR(7), LV_GRID_FR(7),
-    LV_GRID_TEMPLATE_LAST};
-#else
-static const lv_coord_t line_col_dsc2[] = {
-    LV_GRID_FR(10), LV_GRID_FR(10), LV_GRID_FR(10),
-    LV_GRID_FR(12), LV_GRID_FR(8),  LV_GRID_TEMPLATE_LAST};
-#endif
-
-static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
-                                          LV_GRID_TEMPLATE_LAST};
-
 static const char* _fct_sw_start[] = {STR_CHAR_DOWN, STR_CHAR_UP, STR_LAST};
 
 const std::string edgetx_fs_manual_url =
@@ -57,7 +40,7 @@ class FunctionSwitch : public Window
 {
  public:
   FunctionSwitch(Window* parent, uint8_t sw) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}), switchIndex(sw)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, ROW_H}), switchIndex(sw)
   {
     padAll(PAD_TINY);
 
@@ -125,11 +108,16 @@ class FunctionSwitch : public Window
         });
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if NARROW_LAYOUT
+    new StaticText(this, rect_t{C1_X - C1_W - PAD_TINY, C1_Y + PAD_SMALL, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    new StaticText(this, rect_t{C2_X - C2_W - PAD_TINY, C2_Y + PAD_SMALL, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+#endif
+
     offValue = g_model.functionSwitchLedOFFColor[switchIndex];
     onValue = g_model.functionSwitchLedONColor[switchIndex];
 
     offColor = new ColorPicker(
-        this, {C1_X, 0, C1_W, 0},
+        this, {C1_X, C1_Y, C1_W, 0},
         [=]() -> int {  // getValue
           return g_model.functionSwitchLedOFFColor[switchIndex].getColor() | RGB888_FLAG;
         },
@@ -147,7 +135,7 @@ class FunctionSwitch : public Window
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
 
     onColor = new ColorPicker(
-        this, {C2_X, 0, C2_W, 0},
+        this, {C2_X, C2_Y, C2_W, 0},
         [=]() -> int {  // getValue
           return g_model.functionSwitchLedONColor[switchIndex].getColor() | RGB888_FLAG;
         },
@@ -169,29 +157,43 @@ class FunctionSwitch : public Window
   }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  static LAYOUT_VAL(SW_W, 70, 70, LS(70))
+  static LAYOUT_VAL_SCALED(SW_W, 70)
   static constexpr coord_t NM_X = SW_W + PAD_SMALL;
-  static LAYOUT_VAL(NM_W, 60, 60, LS(60))
+  static LAYOUT_VAL_SCALED(NM_W, 60)
   static constexpr coord_t TP_X = NM_X + NM_W + PAD_SMALL;
-  static LAYOUT_VAL(TP_W, 78, 78, LS(78))
+  static LAYOUT_VAL_SCALED(TP_W, 78)
   static constexpr coord_t GR_X = TP_X + TP_W + PAD_SMALL;
-  static LAYOUT_VAL(GR_W, 84, 84, LS(84))
+  static LAYOUT_VAL_SCALED(GR_W, 84)
   static constexpr coord_t ST_X = GR_X + GR_W + PAD_SMALL;
-  static LAYOUT_VAL(ST_W, 60, 60, LS(60))
-  static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
-  static LAYOUT_VAL(C1_W, 40, 40, LS(40))
-  static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
-  static LAYOUT_VAL(C2_W, 40, 40, LS(40))
+  static LAYOUT_VAL_SCALED(ST_W, 60)
+#if NARROW_LAYOUT
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 3;
+  static constexpr coord_t C1_X = TP_X;
+  static constexpr coord_t C1_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
+  static LAYOUT_VAL_SCALED(C1_W, 40)
+  static constexpr coord_t C2_X = GR_X;
+  static constexpr coord_t C2_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
+  static LAYOUT_VAL_SCALED(C2_W, 40)
 #else
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
+  static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
+  static constexpr coord_t C1_Y = 0;
+  static LAYOUT_VAL_SCALED(C1_W, 40)
+  static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
+  static constexpr coord_t C2_Y = 0;
+  static LAYOUT_VAL_SCALED(C2_W, 40)
+#endif
+#else
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
   static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY * 4) / 5;
   static constexpr coord_t NM_X = SW_W + PAD_TINY;
-  static LAYOUT_VAL(NM_W, 80, 80, LS(80))
+  static LAYOUT_VAL_SCALED(NM_W, 80)
   static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY;
-  static LAYOUT_VAL(TP_W, 86, 86, LS(86))
+  static LAYOUT_VAL_SCALED(TP_W, 86)
   static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY;
-  static LAYOUT_VAL(GR_W, 94, 94, LS(94))
+  static LAYOUT_VAL_SCALED(GR_W, 94)
   static constexpr coord_t ST_X = GR_X + SW_W + PAD_LARGE * 2 + PAD_SMALL;
-  static LAYOUT_VAL(ST_W, 70, 70, LS(70))
+  static LAYOUT_VAL_SCALED(ST_W, 70)
 #endif
 
  protected:
@@ -245,7 +247,7 @@ class SwitchGroup : public Window
 {
  public:
   SwitchGroup(Window* parent, uint8_t group) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}), groupIndex(group)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, ROW_H}), groupIndex(group)
   {
     padAll(PAD_TINY);
 
@@ -294,13 +296,14 @@ class SwitchGroup : public Window
     startChoice->setValue(groupDefaultSwitch(groupIndex) + 1);
   }
 
-  static LAYOUT_VAL(NM_W, 100, 100, LS(100))
+  static LAYOUT_VAL_SCALED(NM_W, 80)
   static constexpr coord_t AO_X = NM_W + PAD_TINY;
-  static LAYOUT_VAL(AO_W, 100, 100, LS(100))
+  static LAYOUT_VAL_SCALED(AO_W, 90)
   static constexpr coord_t SL_X = AO_X + AO_W + PAD_LARGE * 3 + PAD_MEDIUM;
-  static LAYOUT_VAL(SL_W, 100, 100, LS(100))
+  static LAYOUT_VAL_SCALED(SL_W, 80)
   static constexpr coord_t ST_X = SL_X + SL_W + PAD_TINY;
-  static LAYOUT_VAL(ST_W, 80, 80, LS(80))
+  static LAYOUT_VAL_SCALED(ST_W, 60)
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
 
  protected:
   uint8_t groupIndex;
@@ -315,20 +318,17 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
   body->padAll(PAD_TINY);
   body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
 
-  FlexGridLayout grid1(line_col_dsc1, line_row_dsc, PAD_TINY);
-  FlexGridLayout grid2(line_col_dsc2, line_row_dsc, PAD_TINY);
-
-  auto line = body->newLine(grid2);
-  new StaticText(line, rect_t{}, STR_SWITCHES);
-  new StaticText(line, rect_t{}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(line, rect_t{}, STR_SWITCH_TYPE,
+  auto box = new Window(body, {0, 0, LV_PCT(100), LV_SIZE_CONTENT});
+  new StaticText(box, rect_t{0, 0, FunctionSwitch::SW_W, 0}, STR_SWITCHES);
+  new StaticText(box, rect_t{FunctionSwitch::NM_X + PAD_OUTLINE, 0, FunctionSwitch::NM_W, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(box, rect_t{FunctionSwitch::TP_X + PAD_OUTLINE, 0, FunctionSwitch::TP_W, 0}, STR_SWITCH_TYPE,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(line, rect_t{}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  startupHeader = new StaticText(line, rect_t{}, STR_SWITCH_STARTUP,
+  new StaticText(box, rect_t{FunctionSwitch::GR_X + PAD_OUTLINE, 0, FunctionSwitch::GR_W, 0}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  startupHeader = new StaticText(box, rect_t{FunctionSwitch::ST_X + PAD_OUTLINE, 0, FunctionSwitch::ST_W, 0}, STR_SWITCH_STARTUP,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  new StaticText(line, rect_t{}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(line, rect_t{}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+#if defined(FUNCTION_SWITCHES_RGB_LEDS) && !NARROW_LAYOUT
+  new StaticText(box, rect_t{FunctionSwitch::C1_X + PAD_OUTLINE, 0, FunctionSwitch::C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(box, rect_t{FunctionSwitch::C2_X + PAD_OUTLINE, 0, FunctionSwitch::C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 #endif
 
   for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
@@ -339,21 +339,22 @@ ModelFunctionSwitches::ModelFunctionSwitches() : Page(ICON_MODEL_SETUP)
     groupLines[i - 1] = new SwitchGroup(body, i);
   }
 
-  setState();
+#if defined(HARDWARE_TOUCH)
+  body->padBottom(PAD_LARGE);
 
-  line = body->newLine(grid1);
+  box = new Window(body, {0, 0, LV_PCT(100), LV_SIZE_CONTENT});
 
-  new StaticText(line, rect_t{}, STR_MORE_INFO);
+  new StaticText(box, rect_t{}, STR_MORE_INFO);
 
-  line = body->newLine(grid1);
-  line->padBottom(PAD_LARGE);
-  line->padLeft((width() - 150) / 2);
-
-  auto qr = lv_qrcode_create(line->getLvObj(), 150,
+  auto qr = lv_qrcode_create(box->getLvObj(), 150,
                              makeLvColor(COLOR_THEME_SECONDARY1),
                              makeLvColor(COLOR_THEME_SECONDARY3));
   lv_qrcode_update(qr, edgetx_fs_manual_url.c_str(),
                    edgetx_fs_manual_url.length());
+  lv_obj_set_pos(qr, (LCD_W - 150) / 2, EdgeTxStyles::STD_FONT_HEIGHT);
+#endif
+
+  setState();
 }
 
 void ModelFunctionSwitches::setState()
