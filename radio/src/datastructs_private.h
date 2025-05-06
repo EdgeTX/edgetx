@@ -935,15 +935,15 @@ PACK(struct switchDef {
   CUST_IDX(sw, sw_idx_read, sw_idx_write);
   uint8_t type:3 ENUM(SwitchConfig);
 #if defined(FUNCTION_SWITCHES)
-  uint8_t start:2 ENUM(fsStartPositionType);
+  uint8_t start:2 ENUM(fsStartPositionType) FUNC(switch_is_cfs);
   NOBACKUP(uint8_t spare:3) SKIP;
 #else
   NOBACKUP(uint8_t spare:5) SKIP;
 #endif
   NOBACKUP(char name[LEN_SWITCH_NAME]);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  NOBACKUP(RGBLedColor onColor) FUNC(isAlwaysActive);
-  NOBACKUP(RGBLedColor offColor) FUNC(isAlwaysActive);
+  NOBACKUP(RGBLedColor onColor) FUNC(switch_is_cfs);
+  NOBACKUP(RGBLedColor offColor) FUNC(switch_is_cfs);
 #endif
 });
 
