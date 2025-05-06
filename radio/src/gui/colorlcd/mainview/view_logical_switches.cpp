@@ -25,19 +25,19 @@
 #include "switches.h"
 #include "etx_lv_theme.h"
 
-#if PORTRAIT_LCD
+#if PORTRAIT
 
 // Footer grid
 static const lv_coord_t f_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_FR(1), LV_GRID_FR(1),
                                        LV_GRID_TEMPLATE_LAST};
 
-#else  // Landscape
+#else
 
 // Footer grid
-LAYOUT_VAL(LS_C1, 60, 60, LS(60))
-LAYOUT_VAL(LS_C3, 112, 112, LS(112))
-LAYOUT_VAL(LS_C5, 50, 50, LS(50))
+LAYOUT_VAL_SCALED(LS_C1, 60)
+LAYOUT_VAL_SCALED(LS_C3, 112)
+LAYOUT_VAL_SCALED(LS_C5, 50)
 static const lv_coord_t f_col_dsc[] = {
     LS_C1, LV_GRID_FR(1), LS_C3, LV_GRID_FR(1), LS_C5, LS_C5, LV_GRID_TEMPLATE_LAST};
 
@@ -192,9 +192,9 @@ class LogicalSwitchDisplayFooter : public Window
     refresh();
   }
 
-  static LAYOUT_VAL2(V2_COL_CNT, 1, 2)
-  static LAYOUT_VAL2(ANDSW_ROW, 0, 1)
-  static LAYOUT_VAL2(ANDSW_COL, 3, 1)
+  static LAYOUT_ORIENTATION(V2_COL_CNT, 1, 2)
+  static LAYOUT_ORIENTATION(ANDSW_ROW, 0, 1)
+  static LAYOUT_ORIENTATION(ANDSW_COL, 3, 1)
 
  protected:
   unsigned lsIndex = 0;
@@ -251,11 +251,13 @@ void LogicalSwitchesViewPage::build(Window* window)
       window,
       {0, window->height() - FOOTER_HEIGHT, window->width(), FOOTER_HEIGHT});
 
+  int btnHeight = (window->height() - FOOTER_HEIGHT) / ((MAX_LOGICAL_SWITCHES + BTN_MATRIX_COL - 1) / BTN_MATRIX_COL) - PAD_TINY;
+
   // LSW table
   std::string lsString("L64");
   for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
     coord_t x = (i % BTN_MATRIX_COL) * (BTN_WIDTH + PAD_TINY) + xo;
-    coord_t y = (i / BTN_MATRIX_COL) * (BTN_HEIGHT + PAD_TINY) + yo;
+    coord_t y = (i / BTN_MATRIX_COL) * (btnHeight + PAD_TINY) + yo;
 
     LogicalSwitchData* ls = lswAddress(i);
     bool isActive = (ls->func != LS_FUNC_NONE);
@@ -264,7 +266,7 @@ void LogicalSwitchesViewPage::build(Window* window)
 
     if (isActive) {
       auto button = new LogicalSwitchDisplayButton(
-          window, {x, y, BTN_WIDTH, BTN_HEIGHT}, lsString, i);
+          window, {x, y, BTN_WIDTH, btnHeight}, lsString, i);
 
       button->setFocusHandler([=](bool focus) {
         if (focus) {
@@ -273,8 +275,10 @@ void LogicalSwitchesViewPage::build(Window* window)
         return 0;
       });
     } else {
+      if (btnHeight > EdgeTxStyles::STD_FONT_HEIGHT)
+        y += (btnHeight - EdgeTxStyles::STD_FONT_HEIGHT) / 2;
       auto lbl = lv_label_create(window->getLvObj());
-      lv_obj_set_size(lbl, BTN_WIDTH, BTN_HEIGHT);
+      lv_obj_set_size(lbl, BTN_WIDTH, btnHeight);
       lv_obj_set_pos(lbl, x, y);
       etx_obj_add_style(lbl, styles->text_align_center, LV_PART_MAIN);
       etx_txt_color(lbl, COLOR_THEME_DISABLED_INDEX);

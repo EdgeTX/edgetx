@@ -41,11 +41,11 @@ struct ModelButtonLayout {
   uint16_t columns;
 };
 
-static LAYOUT_VAL(L0_W, 165, 147, LS(165))
-static LAYOUT_VAL(L0_H, 92, 92, LS(92))
-static LAYOUT_VAL(L1_W, 108, 96, LS(108))
-static LAYOUT_VAL(L1_H, 61, 61, LS(61))
-static LAYOUT_VAL(L3_W, 336, 300, LS(336))
+static constexpr coord_t L0_W = (ModelLabelsWindow::MDLS_W - PAD_BORDER * 3) / 2;
+static constexpr coord_t L0_H = L0_W * 11 / 20;
+static constexpr coord_t L1_W = (ModelLabelsWindow::MDLS_W - PAD_BORDER * 4) / 3;
+static constexpr coord_t L1_H = L1_W * 11 / 20;
+static constexpr coord_t L3_W = ModelLabelsWindow::MDLS_W - PAD_BORDER * 2;
 
 ModelButtonLayout modelLayouts[] = {
     {L0_W, L0_H, true, FONT(STD), 2},
@@ -84,8 +84,8 @@ class ModelButton : public Button
       if (modelCell->modelBitmap[0] == 0)
         showNoImgMsg();
 
-      coord_t fh = getFontHeight(font) - ((font == FONT(STD)) ? 4 : (font == FONT(XS)) ? 3 : 1);
-      coord_t fo = (font == FONT(STD)) ? -3 : (font == FONT(XS)) ? -3 : -1;
+      coord_t fh = getFontHeight(font) - ((font == FONT(STD)) ? PAD_SMALL : (font == FONT(XS)) ? PAD_THREE : 1);
+      coord_t fo = (font == FONT(STD)) ? -PAD_THREE : (font == FONT(XS)) ? -PAD_THREE : -1;
 
       modelName = new StaticText(this, {PAD_TINY, PAD_TINY, w, fh}, modelCell->modelName,
                                  COLOR_THEME_SECONDARY1_INDEX, CENTERED | font);
@@ -714,7 +714,7 @@ void ModelLabelsWindow::buildHead(Window *hdr)
 void ModelLabelsWindow::buildBody(Window *window)
 {
   // Models List
-  mdlselector = new ModelsPageBody(window, {MDLS_X, PAD_SMALL, MDLS_W, MDLS_H});
+  mdlselector = new ModelsPageBody(window, {MDLS_X, MDLS_Y, MDLS_W, MDLS_H});
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
   lv_obj_set_style_max_width(mdl_obj, MDLS_W, LV_PART_MAIN);
@@ -726,7 +726,7 @@ void ModelLabelsWindow::buildBody(Window *window)
 
   // Labels
   lblselector =
-      new ListBox(window, rect_t{PAD_SMALL, LABELS_Y, LABELS_WIDTH, LABELS_HEIGHT}, getLabels());
+      new ListBox(window, rect_t{LABELS_X, LABELS_Y, LABELS_WIDTH, LABELS_HEIGHT}, getLabels());
   lblselector->setSmallSelectMarker();
   auto lbl_obj = lblselector->getLvObj();
   etx_scrollbar(lbl_obj);
@@ -735,7 +735,7 @@ void ModelLabelsWindow::buildBody(Window *window)
 
   // Sort Button
   new Choice(
-      window, {PAD_SMALL, LABELS_Y + LABELS_HEIGHT + PAD_SMALL, SORT_BUTTON_W, 0}, STR_SORT_ORDERS, NAME_ASC, DATE_DES,
+      window, {LABELS_X, LABELS_Y + LABELS_HEIGHT + PAD_SMALL, SORT_BUTTON_W, 0}, STR_SORT_ORDERS, NAME_ASC, DATE_DES,
       [=]() { return mdlselector->getSortOrder(); },
       [=](int newValue) { mdlselector->setSortOrder((ModelsSortBy)newValue); },
       STR_SORT_MODELS_BY);

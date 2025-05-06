@@ -48,11 +48,11 @@ class ColorEditor : public Window
 
   void setColorEditorType(COLOR_EDITOR_TYPE colorType);
 
-  static LAYOUT_VAL(BAR_MARGIN, 5, 5, 4)
-  static LAYOUT_VAL(BAR_HEIGHT_OFFSET, 25, 25, 16)
-  static LAYOUT_VAL(LBL_YO, 9, 9, 5)
-  static LAYOUT_VAL(VAL_XO, 10, 10, 6)
-  static LAYOUT_VAL(CRSR_SZ, 10, 10, 8)
+  static LAYOUT_VAL_SCALED(BAR_MARGIN, 5)
+  static LAYOUT_VAL_SCALED(BAR_HEIGHT_OFFSET, 25)
+  static LAYOUT_VAL_SCALED(LBL_YO, 9)
+  static LAYOUT_VAL_SCALED(VAL_XO, 10)
+  static LAYOUT_VAL_SCALED_EVEN(CRSR_SZ, 10)
 
  protected:
   ColorType* _colorType = nullptr;

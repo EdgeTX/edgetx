@@ -107,8 +107,6 @@ class Layout: public LayoutBase
     void show(bool visible = true) override;
 
     bool isLayout() override { return true; }
-  
-    static LAYOUT_VAL(MAIN_ZONE_BORDER, 10, 10, 6)
 
   protected:
     const LayoutFactory * factory  = nullptr;
@@ -137,13 +135,11 @@ class BaseLayoutFactory: public LayoutFactory
       zoneCount(zoneCount),
       zoneMap(zoneMap)
     {
-      this->bitmap = (uint8_t*)malloc(align32(BM_W * BM_H + 2 * sizeof(uint16_t) + 4));
+      bitmap = (MaskBitmap*)malloc(align32(BM_W * BM_H + sizeof(MaskBitmap)));
+      bitmap->width = BM_W;
+      bitmap->height = BM_H;
 
-      uint16_t* hdr = (uint16_t*)this->bitmap;
-      hdr[0] = BM_W;
-      hdr[1] = BM_H;
-
-      uint8_t* bm = (uint8_t*)(this->bitmap + 2 * sizeof(uint16_t));
+      uint8_t* bm = (uint8_t*)bitmap->data;
       memset(bm, 0, BM_W * BM_H);
 
       memset(bm, 0xFF, BM_W);
@@ -178,7 +174,7 @@ class BaseLayoutFactory: public LayoutFactory
       }
     }
 
-    const uint8_t* getBitmap() const override { return bitmap; }
+    const MaskBitmap* getBitmap() const override { return bitmap; }
 
     const ZoneOption * getLayoutOptions() const override
     {
@@ -228,7 +224,7 @@ class BaseLayoutFactory: public LayoutFactory
     }
 
   protected:
-    const uint8_t * bitmap = nullptr;
+    MaskBitmap * bitmap = nullptr;
     const ZoneOption * options;
     uint8_t zoneCount;
     uint8_t* zoneMap;

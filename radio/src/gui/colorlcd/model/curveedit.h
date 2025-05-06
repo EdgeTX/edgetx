@@ -37,8 +37,6 @@ class CurveEditWindow : public Page
 
   void setCurrentSource(mixsrc_t source);
 
-  static LAYOUT_VAL(CURVE_WIDTH, 215, 232, LS(215))
-
  protected:
   uint8_t index;
   CurveEdit* curveEdit = nullptr;

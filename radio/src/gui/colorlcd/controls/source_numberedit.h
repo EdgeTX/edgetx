@@ -45,7 +45,7 @@ class SourceNumberEdit : public Window
 
   void update();
 
-  static LAYOUT_VAL(SRC_BTN_W, 38, 38, LS(38))
+  static LAYOUT_VAL_SCALED(SRC_BTN_W, 38)
 
  protected:
   Choice* source_field = nullptr;

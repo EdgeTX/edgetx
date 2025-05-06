@@ -43,12 +43,6 @@
 
 #define DEFAULT_MODEL_SORT NAME_ASC
 
-#if !PORTRAIT_LCD // Landscape
-#define LABEL_TRUNCATE_LENGTH 21
-#else
-#define LABEL_TRUNCATE_LENGTH 16
-#endif
-
 struct ModelData;
 struct ModuleData;
 

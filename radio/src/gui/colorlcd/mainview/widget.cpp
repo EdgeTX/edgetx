@@ -156,7 +156,7 @@ void Widget::enableFocus(bool enable)
   if (enable) {
     if (!focusBorder) {
       lv_style_init(&borderStyle);
-      lv_style_set_line_width(&borderStyle, 2);
+      lv_style_set_line_width(&borderStyle, PAD_BORDER);
       lv_style_set_line_opa(&borderStyle, LV_OPA_COVER);
       lv_style_set_line_color(&borderStyle, makeLvColor(COLOR_THEME_FOCUS));
 

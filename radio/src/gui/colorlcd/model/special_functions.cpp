@@ -798,7 +798,7 @@ void FunctionsPage::build(Window *window)
 
     if (isActive) {
       auto button = functionButton(
-          window, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, i);
+          window, rect_t{0, 0, window->width() - PAD_LARGE - PAD_SMALL, SF_BUTTON_H}, i);
 
       lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1,
                            LV_GRID_ALIGN_CENTER, 0, 1);

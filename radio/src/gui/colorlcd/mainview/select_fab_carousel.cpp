@@ -31,7 +31,7 @@ static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
   etx_obj_add_style(obj, styles->border_transparent, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
   etx_txt_color(obj, COLOR_WHITE_INDEX, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->pad_medium, LV_PART_MAIN);
+  etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
 
   etx_obj_add_style(obj, styles->border, LV_PART_MAIN | LV_STATE_FOCUSED);
   etx_obj_add_style(obj, styles->border_color[COLOR_WHITE_INDEX],
@@ -74,8 +74,8 @@ static const lv_obj_class_t etx_quick_icon_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = SelectFabCarousel::FAB_ICON_SIZE,
-    .height_def = SelectFabCarousel::FAB_ICON_SIZE,
+    .width_def = 0,
+    .height_def = 0,
     .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
     .instance_size = sizeof(lv_obj_t),
@@ -95,18 +95,22 @@ class SelectFabButton : public ButtonBase
   {
     padAll(PAD_ZERO);
 
+    auto newMask = getBuiltinIcon(icon);
+    coord_t fabIconSize = newMask->width + PAD_MEDIUM * 2;
+  
     auto iconLayout =
         new Window(this,
-                   {(SelectFabCarousel::FAB_BUTTON_INNER_WIDTH - SelectFabCarousel::FAB_ICON_SIZE) / 2,
-                    (SelectFabCarousel::FAB_BUTTON_INNER_WIDTH - SelectFabCarousel::FAB_ICON_SIZE) / 2 - 2,
-                    SelectFabCarousel::FAB_ICON_SIZE, SelectFabCarousel::FAB_ICON_SIZE},
+                   {(SelectFabCarousel::FAB_BUTTON_INNER_WIDTH - fabIconSize) / 2,
+                    (SelectFabCarousel::FAB_BUTTON_INNER_WIDTH - fabIconSize) / 2 - PAD_TINY,
+                    fabIconSize, fabIconSize},
                    etx_quick_icon_create);
     iconLayout->setWindowFlag(NO_FOCUS);
 
     (new StaticIcon(iconLayout, 0, 0, icon, COLOR_WHITE_INDEX))
-        ->center(SelectFabCarousel::FAB_ICON_SIZE - 4, SelectFabCarousel::FAB_ICON_SIZE - 4);
+        ->center(fabIconSize - PAD_BORDER * 2, fabIconSize - PAD_BORDER * 2);
 
-    new StaticText(this, {0, SelectFabCarousel::FAB_BUTTON_HEIGHT - SelectFabCarousel::FAB_TXT_YO, SelectFabCarousel::FAB_BUTTON_INNER_WIDTH, 0},
+    new StaticText(this, {-PAD_BORDER, SelectFabCarousel::FAB_BUTTON_HEIGHT - SelectFabCarousel::FAB_TXT_YO,
+                          SelectFabCarousel::FAB_BUTTON_WIDTH, 0},
                    title, COLOR_WHITE_INDEX, CENTERED);
   }
 

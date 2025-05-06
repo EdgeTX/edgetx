@@ -49,40 +49,43 @@ RadioSdManagerPage::RadioSdManagerPage() :
 template <class T>
 class FlashDialog: public FullScreenDialog
 {
-  public:
-    explicit FlashDialog(const T & device):
-      FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
-      device(device),
-      progress(this, {LCD_W / 2 - 100, LCD_H / 2 + 27, 200, 32})
-    {
-    }
+ public:
+  explicit FlashDialog(const T & device):
+    FullScreenDialog(WARNING_TYPE_INFO, STR_FLASH_DEVICE),
+    device(device),
+    progress(this, {LCD_W / 2 - PROGRESS_W / 2, LCD_H / 2 + PROGRESS_YO, PROGRESS_W, EdgeTxStyles::UI_ELEMENT_HEIGHT})
+  {
+  }
 
-    void deleteLater(bool detach = true, bool trash = true) override
-    {
-      if (_deleted)
-        return;
+  void deleteLater(bool detach = true, bool trash = true) override
+  {
+    if (_deleted)
+      return;
 
-      progress.deleteLater(true, false);
-      FullScreenDialog::deleteLater(detach, trash);
-    }
+    progress.deleteLater(true, false);
+    FullScreenDialog::deleteLater(detach, trash);
+  }
 
-    void flash(const char * filename)
-    {
-      TRACE("flashing '%s'", filename);
-      device.flashFirmware(
-          filename,
-          [=](const char *title, const char *message, int count,
-              int total) -> void {
-            setMessage(message);
-            progress.setValue(total > 0 ? count * 100 / total : 0);
-            lv_refr_now(nullptr);
-          });
-      deleteLater();
-    }
+  void flash(const char * filename)
+  {
+    TRACE("flashing '%s'", filename);
+    device.flashFirmware(
+        filename,
+        [=](const char *title, const char *message, int count,
+            int total) -> void {
+          setMessage(message);
+          progress.setValue(total > 0 ? count * 100 / total : 0);
+          lv_refr_now(nullptr);
+        });
+    deleteLater();
+  }
 
-  protected:
-    T device;
-    Progress progress;
+ protected:
+  T device;
+  Progress progress;
+
+  static LAYOUT_VAL_SCALED(PROGRESS_YO, 27)
+  static LAYOUT_VAL_SCALED(PROGRESS_W, 200)
 };
 
 #if defined(PXX2)
@@ -210,45 +213,28 @@ ModuleCallback onUpdateStateChangedCallbackFor(FrskyOtaFlashDialog* dialog) {
 
 #endif  // PXX2
 
-#if !PORTRAIT_LCD // landscape
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-#else // portrait
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-#endif
-
 void RadioSdManagerPage::build(Window * window)
 {
-  FlexGridLayout grid(col_dsc, row_dsc, PAD_ZERO);
   window->padAll(PAD_ZERO);
-  
-  Window* form = new Window(window, rect_t{});
-  form->setWidth(window->width());
-  form->setHeight(window->height());
-  grid.apply(form);
-  
-  browser = new FileBrowser(form, rect_t{}, ROOT_PATH);
-  grid.add(browser);
-  grid.nextCell();
 
-  auto obj = browser->getLvObj();
-  lv_obj_set_style_grid_cell_x_align(obj, LV_GRID_ALIGN_STRETCH, 0);
-  lv_obj_set_style_grid_cell_y_align(obj, LV_GRID_ALIGN_STRETCH, 0);
+  coord_t browserWidth = LANDSCAPE ? window->width() * 3 / 5 : window->width();
+  coord_t browserHeight = LANDSCAPE ? window->height() : window->height() * 2 / 3;
 
-  // Adjust file browser width
+  browser = new FileBrowser(window, {0, 0, browserWidth, browserHeight}, ROOT_PATH);
   browser->adjustWidth();
 
-  auto box = new Window(form, {0, 0, PREVIEW_W, PREVIEW_H});
-  grid.add(box);
-  grid.nextCell();
+  coord_t previewX = (LANDSCAPE ? browserWidth : 0) + PAD_TINY;
+  coord_t previewY = (LANDSCAPE ? 0 : browserHeight) + PAD_TINY;
+  coord_t previewWidth = (LANDSCAPE ? window->width() - browserWidth : window->width()) - PAD_TINY * 2;
+  coord_t previewHeight = (LANDSCAPE ? window->height() : window->height() - browserHeight) - PAD_TINY * 2;
+
+  auto box = new Window(window, {previewX, previewY, previewWidth, previewHeight});
 
   loading = new StaticText(box, {0, 0, LV_SIZE_CONTENT, LV_SIZE_CONTENT}, STR_LOADING);
   loading->hide();
   lv_obj_center(loading->getLvObj());
 
-  preview = new FilePreview(box, {0, 0, PREVIEW_W, PREVIEW_H});
-  preview->padAll(PAD_SMALL);
+  preview = new FilePreview(box, {0, 0, previewWidth, previewHeight});
 
   browser->setFileAction([=](const char* path, const char* name, const char* fullpath, bool isDir) {
       if (isDir)

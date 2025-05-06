@@ -36,7 +36,7 @@
 
 std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
 
-#if (PORTRAIT_LCD) || defined(TRANSLATIONS_CZ)
+#if PORTRAIT || defined(TRANSLATIONS_CZ)
 #define TWOCOLBUTTONS 1
 #else
 #define TWOCOLBUTTONS 0
@@ -84,11 +84,11 @@ class TSStyle
 
   lv_style_t tsFreshStyle;
 
-  static LAYOUT_VAL(NUM_W, 36, 36, LS(36))
-  static LAYOUT_VAL(NAME_W, 56, 56, LS(56))
-  static LAYOUT_VAL(ID_Y, 17, 17, LS(17))
-  static LAYOUT_VAL(ID_H, 11, 11, LS(11))
-  static LAYOUT_VAL(FRSH_Y, 10, 10, LS(10))
+  static LAYOUT_VAL_SCALED(NUM_W, 36)
+  static LAYOUT_VAL_SCALED(NAME_W, 56)
+  static LAYOUT_VAL_SCALED(ID_Y, 16)
+  static LAYOUT_VAL_SCALED(ID_H, 12)
+  static LAYOUT_VAL_SCALED(FRSH_Y, 10)
 
  private:
   bool styleInitDone;
@@ -203,64 +203,6 @@ lv_obj_t* TSStyle::newValue(lv_obj_t* parent)
   return obj;
 }
 
-static void ts_fresh_icon_constructor(const lv_obj_class_t* class_p,
-                                      lv_obj_t* obj)
-{
-#if LANDSCAPE_LCD_SML
-  static uint8_t const freshBitmap[] = {
-      0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
-  };
-#elif LANDSCAPE_LCD_LRG
-  static uint8_t const freshBitmap[] = {
-      0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
-  };
-#else
-  static uint8_t const freshBitmap[] = {
-      0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-      0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00,
-  };
-#endif
-
-  etx_obj_add_style(obj, tsStyle.tsFreshStyle, LV_PART_MAIN);
-  lv_canvas_set_buffer(obj, (void*)freshBitmap, PAD_LARGE, PAD_LARGE, LV_IMG_CF_ALPHA_8BIT);
-  lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
-}
-
-static const lv_obj_class_t ts_fresh_icon_class = {
-    .base_class = &lv_canvas_class,
-    .constructor_cb = ts_fresh_icon_constructor,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = nullptr,
-    .width_def = PAD_LARGE,
-    .height_def = PAD_LARGE,
-    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
-    .instance_size = sizeof(lv_canvas_t),
-};
-
 class SensorButton : public ListLineButton
 {
  public:
@@ -268,7 +210,7 @@ class SensorButton : public ListLineButton
       ListLineButton(parent, index)
   {
     padAll(PAD_ZERO);
-    setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT);
+    setHeight(EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL);
 
     check(isActive());
 
@@ -327,7 +269,7 @@ class SensorButton : public ListLineButton
     lv_obj_enable_style_refresh(false);
 
     numLabel = tsStyle.newNum(lvobj, index);
-    lv_obj_set_pos(numLabel, PAD_TINY, PAD_MEDIUM/2);
+    lv_obj_set_pos(numLabel, PAD_TINY, PAD_TINY);
 
     TelemetrySensor* sensor = &g_model.telemetrySensors[index];
     if (sensor->type == TELEM_TYPE_CUSTOM) {
@@ -343,11 +285,14 @@ class SensorButton : public ListLineButton
     lv_obj_t* nm = tsStyle.newName(lvobj, s);
     lv_obj_set_pos(nm, TSStyle::NUM_W + PAD_SMALL, PAD_MEDIUM/2);
 
-    fresh = etx_create(&ts_fresh_icon_class, lvobj);
-    lv_obj_set_pos(fresh, TSStyle::NUM_W + TSStyle::NAME_W + PAD_MEDIUM, TSStyle::FRSH_Y);
+    auto mask = getBuiltinIcon(ICON_DOT);
+    fresh = lv_canvas_create(lvobj);
+    lv_obj_set_pos(fresh, TSStyle::NUM_W + TSStyle::NAME_W + PAD_MEDIUM, PAD_LARGE);
+    lv_canvas_set_buffer(fresh, (void*)mask->data, mask->width, mask->height, LV_IMG_CF_ALPHA_8BIT);
+    lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
 
     valLabel = tsStyle.newValue(lvobj);
-    lv_obj_set_pos(valLabel, TSStyle::NUM_W + TSStyle::NAME_W + PAD_LARGE * 2, PAD_MEDIUM/2);
+    lv_obj_set_pos(valLabel, TSStyle::NUM_W + TSStyle::NAME_W + PAD_LARGE * 3, PAD_MEDIUM/2);
 
     lv_obj_update_layout(lvobj);
   
@@ -815,7 +760,7 @@ class SensorEditWindow : public SubPage
     updateSensorParameters();
   }
 
-  static LAYOUT_VAL2(NUM_EDIT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 80)
+  static LAYOUT_SIZE(NUM_EDIT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, LAYOUT_SCALE(80))
 };
 
 ModelTelemetryPage::ModelTelemetryPage() :

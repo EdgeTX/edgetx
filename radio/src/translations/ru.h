@@ -319,7 +319,7 @@
 #define TR_ELEVATOR                    TR("Тангаж", "Тангаж")
 #define TR_SWASHRING                   "Поворот"
 #define TR_MODE                        "Режим"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK                "Лев"
 #else
   #define TR_LEFT_STICK                "Лев"
@@ -1190,7 +1190,7 @@
 #define TR_USE_THEME_COLOR              "Используйте цвет темы"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Добав все трим в субтрим"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS      "Монитор откр кан"
 #else
   #define TR_OPEN_CHANNEL_MONITORS      "Мон открыт кан"
