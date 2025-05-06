@@ -853,13 +853,23 @@ static uint32_t sw_idx_read(void* user, const char* val, uint8_t val_len)
   return switchLookupIdx(val, val_len);
 }
 
+static bool currentSwitchIsCFS = false;
+
 bool sw_idx_write(void* user, yaml_writer_func wf, void* opaque)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
 
+  currentSwitchIsCFS = switchIsCustomSwitch(idx);
+
   const char* str = switchGetDefaultName(idx);
   return str ? wf(opaque, str, strlen(str)) : true;
+}
+
+bool switch_is_cfs(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  TRACE(">>>>> sicfs %d",currentSwitchIsCFS);
+  return currentSwitchIsCFS;
 }
 
 static bool flex_sw_valid(void* user, uint8_t* data, uint32_t bitoffs)
@@ -961,7 +971,7 @@ static const struct YamlIdStr enum_PotConfig[] = {
 
 static const struct YamlNode struct_potConfig[] = {
     YAML_IDX_CUST("pot", pot_read, pot_write ),
-    YAML_ENUM("type", POT_CFG_TYPE_BITS, enum_PotConfig),
+    YAML_ENUM("type", POT_CFG_TYPE_BITS, enum_PotConfig, NULL),
     YAML_UNSIGNED("inv", POT_CFG_INV_BITS),
     YAML_CUSTOM("name", pot_name_read, pot_name_write),
     YAML_END
@@ -1230,7 +1240,7 @@ static const struct YamlIdStr enum_SwitchWarnPos[] = {
 
 static const struct YamlNode struct_swtchWarn[] {
   YAML_IDX_CUST( "sw", sw_idx_read, sw_idx_write ),
-  YAML_ENUM( "pos", 2, enum_SwitchWarnPos ),
+  YAML_ENUM( "pos", 2, enum_SwitchWarnPos, NULL ),
   YAML_END,
 };
 
@@ -2299,7 +2309,7 @@ static bool port_write(void* user, yaml_writer_func wf, void* opaque)
 
 static const struct YamlNode struct_serialConfig[] = {
     YAML_IDX_CUST( "port", port_read, port_write),
-    YAML_ENUM( "mode", 4, enum_UartModes),
+    YAML_ENUM( "mode", 4, enum_UartModes, NULL),
     YAML_PADDING( 3 ),
     YAML_UNSIGNED( "power", 1 ),
     YAML_END
