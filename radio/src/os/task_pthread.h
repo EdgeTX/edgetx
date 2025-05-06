@@ -21,10 +21,10 @@
 
 #pragma once
 
+#include "time.h"
+
 #include <pthread.h>
 #include <semaphore.h>
-
-#include "definitions.h"
 
 #define TASK_DEFINE_STACK(name, size) void* name
 
@@ -34,3 +34,10 @@ struct task_handle_t {
 };
 
 typedef pthread_mutex_t mutex_handle_t;
+
+bool task_running();
+
+void task_sleep_ms(uint32_t ms);
+void task_sleep_until(time_point_t* tp, uint32_t ts_ms);
+
+void task_shutdown_all();

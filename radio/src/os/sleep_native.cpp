@@ -20,18 +20,7 @@
  */
 
 #include "sleep.h"
+#include "task.h"
 
-#include <thread>
-
-extern uint8_t simuSleep(uint32_t ms);
-
-void sleep_ms(uint32_t ms)
-{
-  simuSleep(ms);
-}
-
-void sleep_until(time_point_t* tp, uint32_t inc)
-{
-  *tp += std::chrono::duration<uint32_t, std::milli>{inc};
-  std::this_thread::sleep_until(*tp);
-}
+void sleep_ms(uint32_t ms) { task_sleep_ms(ms); }
+void sleep_until(time_point_t* tp, uint32_t inc) { task_sleep_until(tp, inc); }

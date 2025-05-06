@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "debug.h"
 #include "timer_pthread_impl.h"
 
 #include <algorithm>
@@ -7,7 +8,9 @@ bool _timer_cmp(timer_handle_t *lh, timer_handle_t *rh) {
   return lh->next_trigger < rh->next_trigger;
 }
 
-timer_queue::timer_queue() {}
+timer_queue::timer_queue() {
+  start();
+}
 
 void timer_queue::update_current_time() {
   _current_time = std::chrono::steady_clock::now();
@@ -47,6 +50,7 @@ void timer_queue::stop() {
     slock.unlock();
   }
   _thread->join();
+  TRACE("<timer_queue> stopped");
 }
 
 void timer_queue::create_timer(timer_handle_t *timer, timer_func_t func, const char *name,
@@ -84,6 +88,7 @@ void timer_queue::pend_function(timer_async_func_t func, void *param1,
 
 void timer_queue::main_loop() {
 
+  TRACE("<timer_queue> started");
   while (true) {
     {
       std::unique_lock lock(_cmds_mutex);

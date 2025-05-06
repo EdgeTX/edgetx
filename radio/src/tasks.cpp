@@ -64,7 +64,7 @@ static void menusTask()
   mixerTaskInit();
 
 #if defined(PWR_BUTTON_PRESS)
-  while (true) {
+  while (task_running()) {
     uint32_t pwr_check = pwrCheck();
     if (pwr_check == e_power_off) {
       break;
@@ -111,7 +111,7 @@ static void audioTask()
 #endif
 
   time_point_t next_tick = time_point_now();
-  while (true) {
+  while (task_running()) {
     DEBUG_TIMER_SAMPLE(debugTimerAudioIterval);
     DEBUG_TIMER_START(debugTimerAudioDuration);
     audioQueue.wakeup();

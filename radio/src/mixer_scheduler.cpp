@@ -22,6 +22,7 @@
 #include "mixer_scheduler.h"
 #include "tasks/mixer_task.h"
 #include "hal/usb_driver.h"
+#include "os/sleep.h"
 
 #include "dataconstants.h"
 #include <string.h>
@@ -47,7 +48,7 @@ bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
     return true;
   }
 #else
-  simuSleep(timeoutMs);
+  sleep_ms(timeoutMs);
   return true;
 #endif
 }
