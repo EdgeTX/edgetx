@@ -38,7 +38,7 @@ static const struct YamlNode {{ struct.name }}[] = {
   YAML_{{elmt.type|upper}}( "{{ max_len(elmt.name) }}", {{ elmt.bits }} ),
       {% endif %}
     {% elif elmt.type == 'enum' %}
-  YAML_ENUM("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}),
+  YAML_ENUM("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}, {{ elmt.func }}),
     {% elif elmt.type == 'struct' %}
   YAML_STRUCT("{{ max_len(elmt.name) }}", {{elmt.bits}}, {{elmt.var_type}}, {{ elmt.func }}),
     {% elif elmt.type == 'union' %}
