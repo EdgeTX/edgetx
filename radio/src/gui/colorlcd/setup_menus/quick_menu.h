@@ -101,10 +101,6 @@ class QuickMenu : public Window
 
   SubMenu currentPage() const { return curPage; }
 
-  static LAYOUT_ORIENTATION(QM_COLS, 8, 5)
-  static LAYOUT_ORIENTATION(QM_ROWS, 3, 6)
-  static LAYOUT_ORIENTATION(QMMAIN_ROWS, 1, 2)
-
  protected:
   std::function<void()> cancelHandler = nullptr;
   std::function<void(bool close)> selectHandler = nullptr;
@@ -115,7 +111,7 @@ class QuickMenu : public Window
   PageGroup* pageGroup = nullptr;
   SubMenu curPage;
 
-  void buildMainMenu();
+  void buildMainMenu(int viewMainRows, int viewSubRows);
 
   void onClicked() override;
 };
