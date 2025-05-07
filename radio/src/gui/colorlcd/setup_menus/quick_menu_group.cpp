@@ -88,7 +88,7 @@ class QuickMenuButton : public ButtonBase
   {
     padAll(PAD_ZERO);
 
-    iconPtr = new StaticIcon(this, (QuickMenuGroup::FAB_BUTTON_INNER_WIDTH - QuickMenuGroup::FAB_ICON_SIZE) / 2, PAD_TINY, icon, COLOR_WHITE_INDEX);
+    iconPtr = new StaticIcon(this, (QuickMenuGroup::FAB_BUTTON_INNER_WIDTH - QuickMenuGroup::FAB_ICON_SIZE) / 2, PAD_OUTLINE, icon, COLOR_WHITE_INDEX);
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
 
     textPtr = new StaticText(this, {0, QuickMenuGroup::FAB_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::FAB_BUTTON_INNER_WIDTH, 0},
@@ -132,8 +132,8 @@ class QuickMenuButton : public ButtonBase
 QuickMenuGroup::QuickMenuGroup(Window* parent, const rect_t &rect) :
         Window(parent, rect)
 {
-  padAll(PAD_TINY);
-  setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_TINY);
+  padAll(PAD_OUTLINE);
+  setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_OUTLINE);
   group = lv_group_create();
 }
 
