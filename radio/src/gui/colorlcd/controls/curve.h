@@ -86,8 +86,8 @@ class Curve : public Window
 
   void checkEvents() override;
 
-  static LAYOUT_VAL(POS_LBL_X, 10, 10, LS(10))
-  static LAYOUT_VAL(POS_LBL_Y, 10, 10, LS(10))
-  static LAYOUT_VAL(POS_LBL_H, 17, 17, LS(17))
-  static LAYOUT_VAL3(POS_PT_SZ, 9, 9, 7, 13)
+  static LAYOUT_VAL_SCALED(POS_LBL_X, 10)
+  static LAYOUT_VAL_SCALED(POS_LBL_Y, 10)
+  static LAYOUT_VAL_SCALED(POS_LBL_H, 17)
+  static LAYOUT_VAL_SCALED_ODD(POS_PT_SZ, 9)
 };

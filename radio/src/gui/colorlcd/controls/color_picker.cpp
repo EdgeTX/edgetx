@@ -24,18 +24,14 @@
 #include "color_list.h"
 #include "etx_lv_theme.h"
 
-#if !PORTRAIT_LCD
-// Landscape
+#if LANDSCAPE
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-
 #else
-// Portrait
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
                                      LV_GRID_TEMPLATE_LAST};
-
 #endif
 
 class ColorEditorPopup : public BaseDialog
@@ -61,11 +57,13 @@ class ColorEditorPopup : public BaseDialog
       r = GET_RED32(rgb); g = GET_GREEN32(rgb); b = GET_BLUE32(rgb);
     }
 
-    colorPad->setColor(r, g, b);
+    if (colorPad)
+      colorPad->setColor(r, g, b);
 
     char s[10];
     sprintf(s, "%02X%02X%02X", r, g, b);
-    hexStr->setText(s);
+    if (hexStr)
+      hexStr->setText(s);
   }
 
   void onCancel() override
@@ -166,11 +164,11 @@ class ColorEditorPopup : public BaseDialog
     });
   }
 
-  static LAYOUT_VAL(CE_SZ, 182, 182, LS(182))
-  static LAYOUT_VAL2(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7)
-  static LAYOUT_VAL(COLOR_PAD_WIDTH, 52, 52, LS(52))
-  static LAYOUT_VAL(BTN_W, 80, 80, LS(80))
-  static LAYOUT_VAL(BTN_PAD_TOP, 60, 60, LS(60))
+  static LAYOUT_VAL_SCALED(CE_SZ, 182)
+  static LAYOUT_ORIENTATION(COLOR_EDIT_WIDTH, LCD_W * 0.8, LCD_W * 0.7)
+  static LAYOUT_VAL_SCALED(COLOR_PAD_WIDTH, 52)
+  static LAYOUT_VAL_SCALED(BTN_W, 80)
+  static LAYOUT_VAL_SCALED(BTN_PAD_TOP, 60)
 };
 
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,

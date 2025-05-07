@@ -53,13 +53,13 @@ class RadioInfoWidget : public TopBarWidget
     usbIcon->hide();
 
 #if defined(AUDIO)
-    audioScale = new StaticIcon(this, W_AUDIO_SCALE_X, 2,
+    audioScale = new StaticIcon(this, W_AUDIO_SCALE_X, PAD_TINY,
                                 ICON_TOPMENU_VOLUME_SCALE,
                                 COLOR_THEME_PRIMARY3_INDEX);
 
     for (int i = 0; i < 5; i += 1) {
       audioVol[i] = new StaticIcon(
-          this, W_AUDIO_X, 2,
+          this, W_AUDIO_X, PAD_TINY,
          (EdgeTxIcon)(ICON_TOPMENU_VOLUME_0 + i),
           COLOR_THEME_PRIMARY2_INDEX);
       audioVol[i]->hide();
@@ -78,7 +78,7 @@ class RadioInfoWidget : public TopBarWidget
 #endif
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-    extAntenna = new StaticIcon(this, W_RSSI_X - 4, 1,
+    extAntenna = new StaticIcon(this, W_RSSI_X - PAD_SMALL, 1,
                                 ICON_TOPMENU_ANTENNA,
                                 COLOR_THEME_PRIMARY2_INDEX);
     extAntenna->hide();
@@ -91,7 +91,7 @@ class RadioInfoWidget : public TopBarWidget
     update();
 
     // RSSI bars
-    LAYOUT_VAL(RSSI_BH, 31, 31, LS(31))
+    LAYOUT_VAL_SCALED(RSSI_BH, 31)
     const uint8_t rssiBarsHeight[] = {
       (RSSI_BH * 5 + 15) / 31,
       (RSSI_BH * 10 + 15) / 31,
@@ -192,21 +192,21 @@ class RadioInfoWidget : public TopBarWidget
   static const ZoneOption options[];
     
   static constexpr coord_t W_AUDIO_X = 0;
-  static LAYOUT_VAL(W_AUDIO_SCALE_X, 15, 15, LS(15))
-  static LAYOUT_VAL(W_USB_X, 32, 32, LS(32))
-  static LAYOUT_VAL(W_USB_Y, 5, 5, 4)
+  static LAYOUT_VAL_SCALED(W_AUDIO_SCALE_X, 15)
+  static LAYOUT_VAL_SCALED(W_USB_X, 32)
+  static LAYOUT_VAL_SCALED(W_USB_Y, 5)
   static constexpr coord_t W_LOG_X = W_USB_X;
-  static LAYOUT_VAL(W_RSSI_X, 40, 40, LS(40))
-  static LAYOUT_VAL(W_RSSI_BAR_W, 4, 4, LS(4))
-  static LAYOUT_VAL(W_RSSI_BAR_H, 35, 35, LS(35))
-  static LAYOUT_VAL(W_RSSI_BAR_SZ, 6, 6, LS(6))
-  static LAYOUT_VAL(W_BATT_Y, 25, 25, 16)
-  static LAYOUT_VAL(W_BATT_FILL_W, 20, 20, LS(20))
-  static LAYOUT_VAL(W_BATT_FILL_H, 9, 9, LS(9))
-  static LAYOUT_VAL(W_BATT_FILL_GRN, 12, 12, LS(12))
-  static LAYOUT_VAL(W_BATT_FILL_ORA, 5, 5, 4)
-  static LAYOUT_VAL(W_BATT_CHG_X, 25, 25, 16)
-  static LAYOUT_VAL(W_BATT_CHG_Y, 23, 23, 15)
+  static LAYOUT_VAL_SCALED(W_RSSI_X, 40)
+  static LAYOUT_VAL_SCALED(W_RSSI_BAR_W, 4)
+  static LAYOUT_VAL_SCALED(W_RSSI_BAR_H, 35)
+  static LAYOUT_VAL_SCALED(W_RSSI_BAR_SZ, 6)
+  static LAYOUT_VAL_SCALED(W_BATT_Y, 25)
+  static LAYOUT_VAL_SCALED(W_BATT_FILL_W, 20)
+  static LAYOUT_VAL_SCALED(W_BATT_FILL_H, 9)
+  static LAYOUT_VAL_SCALED(W_BATT_FILL_GRN, 12)
+  static LAYOUT_VAL_SCALED(W_BATT_FILL_ORA, 5)
+  static LAYOUT_VAL_SCALED(W_BATT_CHG_X, 25)
+  static LAYOUT_VAL_SCALED(W_BATT_CHG_Y, 23)
 
  protected:
   uint8_t lastVol = 0;
@@ -263,7 +263,7 @@ class DateTimeWidget : public TopBarWidget
   static const ZoneOption options[];
 
   // Adjustment to make main view date/time align with model/radio settings views
-  static LAYOUT_VAL(DT_X, 24, 8, LS(24))
+  static LAYOUT_SIZE_SCALED(DT_X, 24, 8)
 };
 
 const ZoneOption DateTimeWidget::options[] = {
@@ -285,11 +285,11 @@ class InternalGPSWidget : public TopBarWidget
       TopBarWidget(factory, parent, rect, persistentData)
   {
     icon =
-        new StaticIcon(this, width() / 2 - 10, 19,
+        new StaticIcon(this, width() / 2 - PAD_LARGE - PAD_TINY, ICON_H,
                        ICON_TOPMENU_GPS, COLOR_THEME_PRIMARY3_INDEX);
 
     numSats = new DynamicNumber<uint16_t>(
-        this, {0, 1, width(), 12}, [=] { return gpsData.numSat; },
+        this, {0, 1, width(), SATS_H}, [=] { return gpsData.numSat; },
         COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
   }
 
@@ -311,6 +311,9 @@ class InternalGPSWidget : public TopBarWidget
  protected:
   StaticIcon* icon;
   DynamicNumber<uint16_t>* numSats;
+
+  static LAYOUT_VAL_SCALED(ICON_H, 19)
+  static LAYOUT_VAL_SCALED(SATS_H, 12)
 };
 
 BaseWidgetFactory<InternalGPSWidget> InternalGPSWidget("Internal GPS", nullptr,

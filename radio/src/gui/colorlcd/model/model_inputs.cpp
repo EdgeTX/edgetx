@@ -189,7 +189,7 @@ class InputGroup : public InputMixGroupBase
   {
     adjustHeight();
 
-    lv_obj_set_pos(label, 2, 4);
+    lv_obj_set_pos(label, PAD_TINY, PAD_SMALL);
 
     refresh();
   }

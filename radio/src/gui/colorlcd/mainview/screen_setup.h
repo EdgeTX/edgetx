@@ -37,6 +37,8 @@ class ScreenAddPage : public PageTab
  protected:
   ScreenMenu* menu;
   uint8_t pageIndex;
+
+  static LAYOUT_VAL_SCALED(ADD_TXT_W, 200)
 };
 
 class ScreenSetupPage : public PageTab

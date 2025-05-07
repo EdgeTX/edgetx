@@ -29,10 +29,10 @@ class ModelSetupPage: public PageTab {
 
   void build(Window * window) override;
 
-  static LAYOUT_VAL2(BTN_COLS, 3, 3)
-  static LAYOUT_VAL(BTN_H, 62, 62, LS(62))
-  static LAYOUT_VAL(OPTS_W, 100, 100, LS(100))
-  static LAYOUT_VAL(NAM_W, 200, 140, LS(200))
+  static LAYOUT_SIZE(BTN_COLS, 3, 3)
+  static LAYOUT_VAL_SCALED(BTN_H, 62)
+  static LAYOUT_VAL_SCALED(OPTS_W, 100)
+  static LAYOUT_SIZE_SCALED(NAM_W, 200, 140)
 
  private:
   TextButton *labelTextButton = nullptr;

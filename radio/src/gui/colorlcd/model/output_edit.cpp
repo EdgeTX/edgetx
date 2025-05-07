@@ -45,7 +45,7 @@ class OutputEditStatusBar : public Window
         channel, true);
   }
 
-  static LAYOUT_VAL(OUTPUT_EDIT_STATUS_BAR_MARGIN, 3, 0, LS(3))
+  static LAYOUT_SIZE_SCALED(OUTPUT_EDIT_STATUS_BAR_MARGIN, 3, 0)
 
  protected:
   ComboChannelBar *channelBar;
@@ -101,7 +101,7 @@ void OutputEditWindow::buildHeader(Window *window)
       channel);
 }
 
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_TEMPLATE_LAST};

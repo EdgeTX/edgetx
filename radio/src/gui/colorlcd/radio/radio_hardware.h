@@ -32,8 +32,8 @@ class RadioHardwarePage : public PageTab
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL2(BTN_COLS, 4, 3)
-  static LAYOUT_VAL2(FS_BTN_COLS, 2, 2)
+  static LAYOUT_SIZE(BTN_COLS, 4, 3)
+  static LAYOUT_SIZE(FS_BTN_COLS, 2, 2)
 
  protected:
   void cleanup() override;

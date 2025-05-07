@@ -32,8 +32,6 @@ class GhostModuleConfigWindow : public Window
   GhostModuleConfigWindow(Window* parent, const rect_t& rect) :
       Window(parent, rect)
   {
-    constexpr coord_t yOffset = 20;
-    constexpr coord_t lineSpacing = 25;
     coord_t h = getFontHeight(FONT(L));
 
     for (int i = 0; i < GHST_MENU_LINES; i += 1) {
@@ -59,8 +57,10 @@ class GhostModuleConfigWindow : public Window
     }
   }
 
-  static LAYOUT_VAL(xOffset, 140, 20, LS(140))
-  static LAYOUT_VAL(xOffset2, 260, 140, LS(260))
+  static LAYOUT_SIZE_SCALED(xOffset, 140, 20)
+  static LAYOUT_VAL_SCALED(yOffset, 20)
+  static LAYOUT_SIZE_SCALED(xOffset2, 260, 140)
+  static LAYOUT_VAL_SCALED(lineSpacing, 25)
 
  protected:
   StaticText* menuLines[GHST_MENU_LINES][2];

@@ -316,7 +316,7 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. ソース")
 #define TR_SWASHRING                   "スワッシュリング"
 #define TR_MODE                        "モード"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK                "左スティック"
 #else
   #define TR_LEFT_STICK                "左スティック"
@@ -1187,7 +1187,7 @@
 #define TR_USE_THEME_COLOR              "テーマ色を使用"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "サブトリムにすべてのトリムを追加"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS        "チャンネルモニター起動"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."

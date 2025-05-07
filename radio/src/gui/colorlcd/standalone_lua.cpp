@@ -152,7 +152,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     lcdBuffer = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
 
     lcdBuffer->clear();
-    lcdBuffer->drawText(LCD_W / 2, LCD_H / 2 - 20, STR_LOADING,
+    lcdBuffer->drawText(LCD_W / 2, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, STR_LOADING,
                       FONT(L) | COLOR_THEME_PRIMARY2 | CENTERED);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
@@ -398,16 +398,16 @@ void StandaloneLuaWindow::showError(bool firstCall, const char* title, const cha
     etx_bg_color(errorModal, COLOR_BLACK_INDEX);
     etx_obj_add_style(errorModal, styles->bg_opacity_75, LV_PART_MAIN);
     errorTitle = lv_label_create(errorModal);
-    lv_obj_set_pos(errorTitle, 50, 30);
-    lv_obj_set_size(errorTitle, LCD_W - 100, 32);
+    lv_obj_set_pos(errorTitle, ERR_TTL_X, ERR_TTL_Y);
+    lv_obj_set_size(errorTitle, LCD_W - ERR_TTL_X * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT);
     etx_txt_color(errorTitle, COLOR_THEME_PRIMARY2_INDEX);
     etx_solid_bg(errorTitle, COLOR_THEME_SECONDARY1_INDEX);
     etx_font(errorTitle, FONT_L_INDEX);
     etx_obj_add_style(errorTitle, styles->text_align_center, LV_PART_MAIN);
     errorMsg = lv_label_create(errorModal);
-    lv_obj_set_pos(errorMsg, 50, 62);
-    lv_obj_set_size(errorMsg, LCD_W - 100, LCD_H - 92);
-    lv_obj_set_style_pad_all(errorMsg, 4, LV_PART_MAIN);
+    lv_obj_set_pos(errorMsg, ERR_TTL_X, ERR_MSG_Y);
+    lv_obj_set_size(errorMsg, LCD_W - ERR_TTL_X * 2, LCD_H - ERR_MSG_HO);
+    lv_obj_set_style_pad_all(errorMsg, PAD_SMALL, LV_PART_MAIN);
     etx_txt_color(errorMsg, COLOR_THEME_PRIMARY1_INDEX);
     etx_solid_bg(errorMsg, COLOR_THEME_SECONDARY3_INDEX);
     etx_font(errorMsg, FONT_STD_INDEX);

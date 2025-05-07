@@ -1231,11 +1231,6 @@
 // SDRAM
 #define SDRAM_BANK2
 
-#define PORTRAIT_LCD false
-#define LANDSCAPE_LCD_SML false
-#define LANDSCAPE_LCD_STD true
-#define LANDSCAPE_LCD_LRG false
-
 #if defined(RADIO_T15)
 #define LCD_W                          480
 #define LCD_H                          320

@@ -39,7 +39,7 @@ MixEditAdvanced::MixEditAdvanced(int8_t channel, uint8_t index) :
   buildBody(body);
 }
 
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_FR(1), LV_GRID_FR(1),
                                      LV_GRID_TEMPLATE_LAST};
@@ -87,7 +87,7 @@ void MixEditAdvanced::buildBody(Window* form)
   edit->setZeroText(STR_OFF);
 
   // Delay up/down precision
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   grid.setColSpan(2);
 #endif
   line = form->newLine(grid);
@@ -104,7 +104,7 @@ void MixEditAdvanced::buildBody(Window* form)
               delayDn->update();
               SET_DIRTY();
              });
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   grid.setColSpan(1);
 #endif
 
@@ -124,7 +124,7 @@ void MixEditAdvanced::buildBody(Window* form)
   delayDn->setSuffix("s");
 
   // Slow up/down precision
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   grid.setColSpan(2);
 #endif
   line = form->newLine(grid);
@@ -141,7 +141,7 @@ void MixEditAdvanced::buildBody(Window* form)
               slowDn->update();
               SET_DIRTY();
              });
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   grid.setColSpan(1);
 #endif
 
