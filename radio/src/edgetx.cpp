@@ -1423,6 +1423,9 @@ void edgeTxInit()
 #endif
 
 #if defined(GUI) && !defined(COLORLCD)
+#if LCD_W == 128
+  lcdSetInvert(g_eeGeneral.invertLCD);
+#endif
   lcdSetContrast();
 #endif
 
