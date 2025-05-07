@@ -48,7 +48,7 @@ class QuickMenuGroup : public Window
   void setCurrent(ButtonBase* b) { curBtn = b; }
   void setCurrent(int b) { setCurrent(btns[b]); }
 
-  static LAYOUT_VAL_SCALED(FAB_BUTTON_WIDTH, 50)
+  static LAYOUT_SIZE_SCALED(FAB_BUTTON_WIDTH, 50, 58)
   static LAYOUT_VAL_SCALED(FAB_BUTTON_HEIGHT, 70)
 
   static LAYOUT_VAL_SCALED(FAB_ICON_SIZE, 30)
