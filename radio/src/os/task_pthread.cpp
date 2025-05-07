@@ -27,6 +27,7 @@
 #include <chrono>
 #include <vector>
 #include <mutex>
+#include <string>
 
 static std::condition_variable _stop_cv;
 static std::mutex _stop_m;
