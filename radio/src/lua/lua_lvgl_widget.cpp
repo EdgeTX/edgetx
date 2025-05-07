@@ -2174,6 +2174,41 @@ void LvglWidgetChoice::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetMenu::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "title")) {
+    title = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "values")) {
+    luaL_checktype(L, -1, LUA_TTABLE);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      values.push_back(lua_tostring(L, -1));
+    }
+  } else {
+    LvglWidgetPicker::parseParam(L, key);
+  }
+}
+
+void LvglWidgetMenu::build(lua_State *L)
+{
+  auto menu = new Menu();
+  if (!title.empty()) menu->setTitle(title);
+
+  for (int i = 0; i < values.size(); i += 1) {
+    menu->addLine(values[i], [=]() {
+      pcallSetIntVal(L, setFunction, i + 1);
+    });
+  }
+
+  int selected = pcallGetIntVal(L, getFunction) - 1;
+  if (selected >= 0) {
+    menu->select(selected);
+  }
+
+  window = menu;
+}
+
+//-----------------------------------------------------------------------------
+
 void LvglWidgetFontPicker::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
