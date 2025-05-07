@@ -369,6 +369,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   // Dialogs
   LROT_FUNCENTRY(confirm, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetConfirmDialog(); }); })
   LROT_FUNCENTRY(message, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetMessageDialog(); }); })
+  LROT_FUNCENTRY(menu, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetMenu(); }); })
   // Object manipulation functions
   LROT_FUNCENTRY(set, luaLvglSet)
   LROT_FUNCENTRY(show, luaLvglShow)
