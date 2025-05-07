@@ -47,7 +47,8 @@ void menuRadioTrainer(event_t event)
         NAVIGATION_LINE_BY_LINE|2,
         (uint8_t)((controls > 2) ? NAVIGATION_LINE_BY_LINE|2 : HIDDEN_ROW),
         (uint8_t)((controls > 2) ? NAVIGATION_LINE_BY_LINE|2 : HIDDEN_ROW),
-        0, 0
+        (uint8_t)((g_model.trainerData.mode == TRAINER_MODE_MASTER_TRAINER_JACK) ? 0 : HIDDEN_ROW),
+        0
       });
 
   if (slave) {
