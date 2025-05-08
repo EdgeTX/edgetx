@@ -197,8 +197,6 @@ void menuStatisticsDebug(event_t event)
   lcdDrawText(lcdLastRightPos+2, y+1, "[A]", SMLSIZE);
   lcdDrawNumber(lcdLastRightPos, y, task_get_stack_usage(&audioTaskId), LEFT);
 #endif
-  lcdDrawText(lcdLastRightPos+2, y+1, "[I]", SMLSIZE);
-  lcdDrawNumber(lcdLastRightPos, y, mainStackAvailable(), LEFT);
   y += FH;
 
 #if defined(DEBUG_LATENCY)
