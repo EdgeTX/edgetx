@@ -810,7 +810,8 @@ void LvglWidgetLine::setColor(LcdFlags newColor)
 void LvglWidgetLine::setOpacity(uint8_t newOpa)
 {
   opacity.value = newOpa;
-  lv_obj_set_style_line_opa(lvobj, opacity.value, LV_PART_MAIN);
+  if (lvobj)
+    lv_obj_set_style_line_opa(lvobj, opacity.value, LV_PART_MAIN);
 }
 
 void LvglWidgetLine::setPos(coord_t x, coord_t y)
