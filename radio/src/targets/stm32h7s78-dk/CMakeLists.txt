@@ -110,6 +110,6 @@ include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR
 if(BOOTLOADER)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
-    ../common/arm/loadboot.cpp
+    ../../bootloader/loadboot.cpp
   )
 endif()
