@@ -114,7 +114,7 @@ class RadioFunctionSwitch : public Window
           offValue = g_eeGeneral.switchOffColor(switchIndex);
           SET_DIRTY();
         },
-        [=](int newValue) { previewColor(newValue); }, RGB888);
+        [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
 
     onColor = new ColorPicker(
         this, {C2_X, 0, C2_W, 0},
@@ -132,7 +132,7 @@ class RadioFunctionSwitch : public Window
           onValue = g_eeGeneral.switchOnColor(switchIndex);
           SET_DIRTY();
         },
-        [=](int newValue) { previewColor(newValue); }, RGB888);
+        [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
 #endif //FUNCTION_SWITCHES_RGB_LEDS
 
     setState();
