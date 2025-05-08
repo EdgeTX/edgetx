@@ -237,10 +237,8 @@ static uint16_t _scratch_byte __DMA_NO_CACHE;
 static uint8_t _scratch_buffer[512] __DMA_NO_CACHE;
 
 #if defined(STM32F4)
-extern uint32_t _sram;
-extern uint32_t _eram;
 #define _IS_DMA_BUFFER(addr) \
-  ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
+  (((intptr_t)(addr) & 0xF0000000) != CCMDATARAM_BASE)
 #else
 #define _IS_DMA_BUFFER(addr) (true)
 #endif
