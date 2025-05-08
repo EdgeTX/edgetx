@@ -363,7 +363,7 @@ if(HAS_CSD203_SENSOR)
 endif()
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
-  targets/common/arm/loadboot.cpp
+  bootloader/loadboot.cpp
 )
 
 if (MULTIMODULE)
