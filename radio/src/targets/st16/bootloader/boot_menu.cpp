@@ -31,9 +31,6 @@
 
 #include <lvgl/lvgl.h>
 
-// #define USB_SW_TO_INTERNAL_MODULE() bsp_output_set(BSP_USB_SW);
-// #define USB_SW_TO_MCU()             bsp_output_clear(BSP_USB_SW);
-
 #define SELECTED_COLOR (INVERS | COLOR_THEME_SECONDARY1)
 #define DEFAULT_PADDING 28
 #define DOUBLE_PADDING  56
@@ -46,8 +43,6 @@
 #define BL_SELECTED   COLOR2FLAGS(RGB(11, 65, 244)) // deep blue
 
 extern BitmapBuffer* lcd;
-
-// static bool rfUsbAccess = false;
 
 void bootloaderInitScreen()
 {
