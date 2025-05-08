@@ -22,7 +22,7 @@
 #include "translations.h"
 #include "appdata.h"
 
-#include <QCoreApplication> 
+#include <QCoreApplication>
 #include <QDir>
 #include <QLibraryInfo>
 #include <QTranslator>
@@ -45,7 +45,7 @@ QStringList const Translations::getAvailableTranslations()
             << "he_IL"
             << "it_IT"
             << "ja_JP"
-            << "ko-KR"
+            << "ko_KR"
             << "nl_NL"
             << "pl_PL"
             << "pt_PT"
