@@ -237,10 +237,8 @@ static uint16_t _scratch_byte __DMA_NO_CACHE;
 static uint8_t _scratch_buffer[512] __DMA_NO_CACHE;
 
 #if defined(STM32F4)
-extern uint32_t _sram;
-extern uint32_t _eram;
 #define _IS_DMA_BUFFER(addr) \
-  ((intptr_t)(addr) >= (intptr_t)&_sram && (intptr_t)(addr) <= (intptr_t)&_eram)
+  (((intptr_t)(addr) & 0xF0000000) != CCMDATARAM_BASE)
 #else
 #define _IS_DMA_BUFFER(addr) (true)
 #endif
@@ -266,33 +264,40 @@ uint32_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi, uint8_t* data,
   }
 
   bool use_scratch_buffer = !_IS_DMA_BUFFER(data) || !_IS_ALIGNED(data);
-  if (use_scratch_buffer) {
-    _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, _scratch_buffer, length);
-  } else {
-    _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, data, length);
-  }
-  LL_SPI_EnableDMAReq_RX(spi->SPIx);
+  uint32_t max_xfer_len = use_scratch_buffer ? sizeof(_scratch_buffer) : length;
 
-  _scratch_byte = 0xFFFF;
-  LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_NOINCREMENT);
-  _dma_enable_stream(spi->DMA, spi->txDMA_Stream, &_scratch_byte, length);
-  LL_SPI_EnableDMAReq_TX(spi->SPIx);
+  uint32_t xfer_len = length;
+  while (xfer_len > 0) {
+    uint32_t single_xfer_len = (xfer_len > max_xfer_len) ? max_xfer_len : xfer_len;
+    const void* xfer_data = use_scratch_buffer ? _scratch_buffer : data;
 
-  // Wait for end of DMA transfer
-  while(!stm32_dma_check_tc_flag(spi->DMA, spi->rxDMA_Stream));
+    _dma_enable_stream(spi->DMA, spi->rxDMA_Stream, xfer_data, single_xfer_len);
+    LL_SPI_EnableDMAReq_RX(spi->SPIx);
 
-  // Wait for TXE=1
-  while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
+    _scratch_byte = 0xFFFF;
+    LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_NOINCREMENT);
+    _dma_enable_stream(spi->DMA, spi->txDMA_Stream, &_scratch_byte, single_xfer_len);
+    LL_SPI_EnableDMAReq_TX(spi->SPIx);
+
+    // Wait for end of DMA transfer
+    while(!stm32_dma_check_tc_flag(spi->DMA, spi->rxDMA_Stream));
+
+    // Wait for TXE=1
+    while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
   
-  // Wait for BSY=0
-  while(LL_SPI_IsActiveFlag_BSY(spi->SPIx));
+    // Wait for BSY=0
+    while(LL_SPI_IsActiveFlag_BSY(spi->SPIx));
 
-  // Disable SPI TX/RX DMA requests
-  LL_SPI_DisableDMAReq_TX(spi->SPIx);
-  LL_SPI_DisableDMAReq_RX(spi->SPIx);
+    // Disable SPI TX/RX DMA requests
+    LL_SPI_DisableDMAReq_TX(spi->SPIx);
+    LL_SPI_DisableDMAReq_RX(spi->SPIx);
 
-  if (use_scratch_buffer) {
-    memcpy(data, _scratch_buffer, length);
+    if (use_scratch_buffer) {
+      memcpy(data, _scratch_buffer, single_xfer_len);
+    }
+
+    xfer_len -= single_xfer_len;
+    data += single_xfer_len;
   }
   
   return length;
@@ -310,31 +315,42 @@ uint32_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
   }
 
   bool use_scratch_buffer = !_IS_DMA_BUFFER(data) || !_IS_ALIGNED(data);
-  if (use_scratch_buffer) {
-    memcpy(_scratch_buffer, data, length);
-    data = _scratch_buffer;
+  uint32_t max_xfer_len = use_scratch_buffer ? sizeof(_scratch_buffer) : length;
+
+  uint32_t xfer_len = length;
+  while (xfer_len > 0) {
+    uint32_t single_xfer_len = (xfer_len > max_xfer_len) ? max_xfer_len : xfer_len;
+    const void* xfer_data = data;
+
+    if (use_scratch_buffer) {
+      memcpy(_scratch_buffer, data, single_xfer_len);
+      xfer_data = _scratch_buffer;
+    }
+
+    LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_INCREMENT);
+    _dma_enable_stream(spi->DMA, spi->txDMA_Stream, xfer_data, single_xfer_len);
+    LL_SPI_EnableDMAReq_TX(spi->SPIx);
+
+    // Wait for end of DMA transfer
+    while (!stm32_dma_check_tc_flag(spi->DMA, spi->txDMA_Stream));
+
+    // Wait for TXE=1
+    while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
+
+    // Wait for BSY=0
+    while (LL_SPI_IsActiveFlag_BSY(spi->SPIx));
+
+    // Clear data register
+    if (LL_SPI_IsActiveFlag_RXNE(spi->SPIx)) {
+      (void)LL_SPI_ReceiveData8(spi->SPIx);
+    }
+
+    // Disable SPI TX DMA requests
+    LL_SPI_DisableDMAReq_TX(spi->SPIx);
+
+    xfer_len -= single_xfer_len;
+    data += single_xfer_len;
   }
-
-  LL_DMA_SetMemoryIncMode(spi->DMA, spi->txDMA_Stream, LL_DMA_MEMORY_INCREMENT);
-  _dma_enable_stream(spi->DMA, spi->txDMA_Stream, data, length);
-  LL_SPI_EnableDMAReq_TX(spi->SPIx);
-
-  // Wait for end of DMA transfer
-  while (!stm32_dma_check_tc_flag(spi->DMA, spi->txDMA_Stream));
-
-  // Wait for TXE=1
-  while (!LL_SPI_IsActiveFlag_TXE(spi->SPIx));
-
-  // Wait for BSY=0
-  while (LL_SPI_IsActiveFlag_BSY(spi->SPIx));
-
-  // Clear data register
-  if (LL_SPI_IsActiveFlag_RXNE(spi->SPIx)) {
-    (void)LL_SPI_ReceiveData8(spi->SPIx);
-  }
-
-  // Disable SPI TX DMA requests
-  LL_SPI_DisableDMAReq_TX(spi->SPIx);
 
   return length;
 #else
