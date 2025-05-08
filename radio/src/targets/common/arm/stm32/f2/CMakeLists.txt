@@ -53,13 +53,12 @@ include_directories(${STM32LIB_DIR}/CMSIS/Include)
 
 add_definitions(-DSTM32F2)
 
-add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
+add_library(cmsis INTERFACE)
+
+target_sources(cmsis INTERFACE
   targets/common/arm/stm32/f2/system_stm32f2xx.c
   boards/generic_stm32/startup/startup_stm32f205xx.s
-  )
-
-set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
-set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
+)
 
 if(NOT NATIVE_BUILD)
   include_directories(targets/common/arm/stm32/f2)

@@ -46,6 +46,8 @@ _stext_iram = LOADADDR(.iram);
   _e_dram = .;
 } > RAM_D2
 
+_dram_addr = ADDR(.dram);
+
 .sdram (NOLOAD) :
 {
   . = ALIGN(4);

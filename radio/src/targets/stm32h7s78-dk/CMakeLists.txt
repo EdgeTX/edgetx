@@ -68,7 +68,6 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
-  ${TARGET_SRC_DIR}/system_init.cpp
   ${TARGET_SRC_DIR}/lcd_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   # ${TARGET_SRC_DIR}/seesaw.cpp
@@ -87,7 +86,7 @@ set(BOARD_COMMON_SRC
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/system_clock.cpp
+  ${TARGET_SRC_DIR}/system_clock.c
   ${TARGET_SRC_DIR}/extram_driver.cpp
   ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
 )
