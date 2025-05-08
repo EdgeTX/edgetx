@@ -852,9 +852,9 @@ void LvglWidgetLine::setLine()
 void LvglWidgetLine::build(lua_State *L)
 {
   if (pts) {
+    setLine();
     setColor(color.flags);
     setOpacity(opacity.value);
-    setLine();
   }
 }
 
@@ -2193,7 +2193,7 @@ void LvglWidgetMenu::build(lua_State *L)
   auto menu = new Menu();
   if (!title.empty()) menu->setTitle(title);
 
-  for (int i = 0; i < values.size(); i += 1) {
+  for (size_t i = 0; i < values.size(); i += 1) {
     menu->addLine(values[i], [=]() {
       pcallSetIntVal(L, setFunction, i + 1);
     });
