@@ -810,7 +810,8 @@ void LvglWidgetLine::setColor(LcdFlags newColor)
 void LvglWidgetLine::setOpacity(uint8_t newOpa)
 {
   opacity.value = newOpa;
-  lv_obj_set_style_line_opa(lvobj, opacity.value, LV_PART_MAIN);
+  if (lvobj)
+    lv_obj_set_style_line_opa(lvobj, opacity.value, LV_PART_MAIN);
 }
 
 void LvglWidgetLine::setPos(coord_t x, coord_t y)
@@ -852,9 +853,9 @@ void LvglWidgetLine::setLine()
 void LvglWidgetLine::build(lua_State *L)
 {
   if (pts) {
+    setLine();
     setColor(color.flags);
     setOpacity(opacity.value);
-    setLine();
   }
 }
 
@@ -2193,7 +2194,7 @@ void LvglWidgetMenu::build(lua_State *L)
   auto menu = new Menu();
   if (!title.empty()) menu->setTitle(title);
 
-  for (int i = 0; i < values.size(); i += 1) {
+  for (size_t i = 0; i < values.size(); i += 1) {
     menu->addLine(values[i], [=]() {
       pcallSetIntVal(L, setFunction, i + 1);
     });
