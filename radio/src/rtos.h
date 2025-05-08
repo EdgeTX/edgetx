@@ -36,11 +36,6 @@ extern "C++" {
   {
   }
 
-  static inline uint32_t mainStackAvailable()
-  {
-    return 500;
-  }
-
 #elif defined(FREE_RTOS)
 
   #include <FreeRTOS/include/FreeRTOS.h>
@@ -49,28 +44,6 @@ extern "C++" {
   static inline void RTOS_START()
   {
     vTaskStartScheduler();
-  }
-
-  static inline uint32_t getStackAvailable(void * address, uint32_t size)
-  {
-    uint32_t * array = (uint32_t *)address;
-    uint32_t i = 0;
-    while (i < size && array[i] == 0x55555555) {
-      i++;
-    }
-    return i;
-  }
-
-  extern int _estack;
-  extern int _main_stack_start;
-  static inline uint32_t stackSize()
-  {
-    return ((unsigned char *)&_estack - (unsigned char *)&_main_stack_start) / 4;
-  }
-
-  static inline uint32_t mainStackAvailable()
-  {
-    return getStackAvailable(&_main_stack_start, stackSize());
   }
 
 #endif  // RTOS type

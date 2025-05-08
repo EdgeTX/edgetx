@@ -861,14 +861,21 @@ int cliTrace(const char ** argv)
 
 int cliStackInfo(const char ** argv)
 {
-  cliSerialPrint("[MAIN] %d available / %d bytes", mainStackAvailable()*4, stackSize()*4);
-  cliSerialPrint("[MENUS] %d available / %d bytes", menusStack.available()*4, menusStack.size());
-  cliSerialPrint("[MIXER] %d available / %d bytes", mixerStack.available()*4, mixerStack.size());
+  cliSerialPrint("[MENUS] %d available / %d bytes",
+                 task_get_stack_usage(&menusTaskId) * 4,
+                 task_get_stack_size(&menusTaskId));
+  cliSerialPrint("[MIXER] %d available / %d bytes",
+                 task_get_stack_usage(&mixerTaskId) * 4,
+                 task_get_stack_size(&mixerTaskId));
 #if defined(AUDIO)
-  cliSerialPrint("[AUDIO] %d available / %d bytes", audioStack.available()*4, audioStack.size());
+  cliSerialPrint("[AUDIO] %d available / %d bytes",
+                 task_get_stack_usage(&audioTaskId) * 4,
+                 task_get_stack_size(&audioTaskId));
 #endif
 #if defined(CLI)
-  cliSerialPrint("[CLI] %d available / %d bytes", cliStack.available()*4, cliStack.size());
+  cliSerialPrint("[CLI] %d available / %d bytes",
+                 task_get_stack_usage(&cliTaskId),
+                 task_get_stack_size(&cliTaskId));
 #endif
   return 0;
 }
