@@ -21,6 +21,9 @@
 
 #include "adc_driver.h"
 #include "board.h"
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
 
 #include "edgetx.h"
 
@@ -57,6 +60,12 @@ static bool adcSingleRead()
   if (_hal_adc_driver->wait_completion)
     _hal_adc_driver->wait_completion();
 
+  // Need to put all in a group to ensure DMA transfer will not affect ADC sampling
+#if defined(FLYSKY_GIMBAL) && !defined(SIMU)
+  flysky_gimbal_start_read();
+  flysky_gimbal_wait_completion();
+#endif  
+  
   return true;
 }
 
