@@ -28,9 +28,12 @@ void rgbLedStart();
 void rgbLedStop();
 
 void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
+void rgbSetFuncLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
 uint32_t rgbGetLedColor(uint8_t led);
 
 void rgbLedClearAll();
 
 bool rgbGetState(uint8_t led);
 void rgbLedColorApply();
+
+bool rgbGetFuncLedAvailability(uint8_t index);

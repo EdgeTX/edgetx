@@ -38,6 +38,11 @@ extern const stm32_pulse_timer_t _led_timer;
 
 static timer_handle_t _refresh_timer = TIMER_INITIALIZER;
 
+void rgbSetFuncLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
+{
+  ws2812_set_color(led, r, g, b);
+}
+
 void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 {
 #if defined(SIXPOS_SWITCH_INDEX)
@@ -70,6 +75,18 @@ void rgbLedClearAll()
     ws2812_set_color(i, 0, 0, 0);
   }
   ws2812_update(&_led_timer);
+}
+
+bool rgbGetFuncLedAvailability(uint8_t index)
+{
+#if defined(LED_STRIP_RESERVED_AT_END)
+  if (index < LED_STRIP_RESERVED_AT_END || index > LED_STRIP_LENGTH) return false;
+#elif defined(LED_RGB_OFFSET)
+  if (index > (LED_RGB_OFFSET)) return false;
+#endif
+
+  //TODO: add logic to enable control
+  return rgbGetState(index) ? g_model.functionSwitchLedONColor[index].getColor() == 0 : g_model.functionSwitchLedOFFColor[index].getColor() == 0;
 }
 
 static void _refresh_cb(timer_handle_t* timer)

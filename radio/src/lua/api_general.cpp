@@ -2888,6 +2888,40 @@ static int luaSetRgbLedColor(lua_State * L)
 }
 
 /*luadoc
+@function setRGBFuncLedColor(id, rvalue, bvalue, cvalue)
+
+@param id: integer identifying a led in the led chain
+
+@param rvalue: interger, value of red channel
+
+@param gvalue: interger, value of green channel
+
+@param bvalue: interger, value of blue channel
+
+@retval value: return nul if led is not available
+
+@status current Introduced in 2.10
+*/
+
+static int luaSetRgbFuncLedColor(lua_State * L)
+{
+  uint8_t id = luaL_checkunsigned(L, 1);
+  if (!rgbGetFuncLedAvailability(id)) return 0;
+
+  uint8_t r = luaL_checkunsigned(L, 2);
+  uint8_t g = luaL_checkunsigned(L, 3);
+  uint8_t b = luaL_checkunsigned(L, 4);
+
+#if defined(LED_STRIP_RESERVED_AT_END)
+  id += LED_STRIP_RESERVED_AT_END);
+#endif
+
+  rgbSetFuncLedColor(id, r, g, b);
+
+  return 1;
+}
+
+/*luadoc
 @function applyRGBLedColors()
 
  Apply RGB led colors previously defined by setRGBLedColor
@@ -2993,6 +3027,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( sources, luaSources )
 #if defined(LED_STRIP_GPIO)
   LROT_FUNCENTRY(setRGBLedColor, luaSetRgbLedColor )
+  LROT_FUNCENTRY(setRGBFuncLedColor, luaSetRgbFuncLedColor )
   LROT_FUNCENTRY(applyRGBLedColors, luaApplyRGBLedColors )
 #endif
 LROT_END(etxlib, NULL, 0)
