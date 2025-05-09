@@ -47,14 +47,14 @@ static const lv_coord_t cfs_line_col_dsc2[] = {
 static const lv_coord_t cfs_line_row_dsc[] = {LV_GRID_CONTENT,
    LV_GRID_TEMPLATE_LAST};
 
-   extern const char* _fct_sw_start[];
+extern const char* _fct_sw_start[];
 extern const char* edgetx_fs_manual_url;
 
 class RadioFunctionSwitch : public Window
 {
  public:
   RadioFunctionSwitch(Window* parent, uint8_t sw) :
-      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}), switchIndex(sw)
+      Window(parent, {0, 0, LCD_W - PAD_SMALL * 2, ROW_H}), switchIndex(sw)
   {
     padAll(PAD_TINY);
 
@@ -95,6 +95,11 @@ class RadioFunctionSwitch : public Window
         });
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if NARROW_LAYOUT
+    new StaticText(this, rect_t{C1_X - C1_W - PAD_TINY, C1_Y + PAD_SMALL, C1_W, 0}, STR_OFF, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    new StaticText(this, rect_t{C2_X - C2_W - PAD_TINY, C2_Y + PAD_SMALL, C2_W, 0}, STR_ON_ONE_SWITCHES[0], COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+#endif
+
     offValue = g_eeGeneral.switchOffColor(switchIndex);
     onValue = g_eeGeneral.switchOnColor(switchIndex);
 
@@ -133,35 +138,58 @@ class RadioFunctionSwitch : public Window
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
+
+    overrideLabel = new StaticText(this, {GR_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_LARGE, GR_W + ST_W - PAD_LARGE, 0},
+                                   STR_LUA_OVERRIDE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    offOverride = new ToggleSwitch(this, {C1_X - PAD_MEDIUM * 2, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
+                                  [=]() { return g_model.cfsOffColorLuaOverride(switchIndex); },
+                                  [=](bool v) { g_model.cfsSetOffColorLuaOverride(switchIndex, v); });
+    onOverride = new ToggleSwitch(this, {C2_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
+                                  [=]() { return g_model.cfsOnColorLuaOverride(switchIndex); },
+                                  [=](bool v) { g_model.cfsSetOnColorLuaOverride(switchIndex, v); });
 #endif //FUNCTION_SWITCHES_RGB_LEDS
 
     setState();
   }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  static LAYOUT_VAL_SCALED(SW_W, 70);
+  static LAYOUT_VAL_SCALED(SW_W, 70)
   static constexpr coord_t NM_X = SW_W + PAD_SMALL;
-  static LAYOUT_VAL_SCALED(NM_W, 60);
+  static LAYOUT_VAL_SCALED(NM_W, 60)
   static constexpr coord_t TP_X = NM_X + NM_W + PAD_SMALL;
-  static LAYOUT_VAL_SCALED(TP_W, 78);
+  static LAYOUT_VAL_SCALED(TP_W, 78)
   static constexpr coord_t GR_X = TP_X + TP_W + PAD_SMALL;
-  static LAYOUT_VAL_SCALED(GR_W, 84);
+  static LAYOUT_VAL_SCALED(GR_W, 84)
   static constexpr coord_t ST_X = GR_X + GR_W + PAD_SMALL;
-  static LAYOUT_VAL_SCALED(ST_W, 60);
-  static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
-  static LAYOUT_VAL_SCALED(C1_W, 40);
-  static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
-  static LAYOUT_VAL_SCALED(C2_W, 40);
+  static LAYOUT_VAL_SCALED(ST_W, 60)
+#if NARROW_LAYOUT
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 3 + PAD_OUTLINE * 4;
+  static constexpr coord_t C1_X = TP_X;
+  static constexpr coord_t C1_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
+  static LAYOUT_VAL_SCALED(C1_W, 40)
+  static constexpr coord_t C2_X = GR_X;
+  static constexpr coord_t C2_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
+  static LAYOUT_VAL_SCALED(C2_W, 40)
 #else
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 3;
+  static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
+  static constexpr coord_t C1_Y = 0;
+  static LAYOUT_VAL_SCALED(C1_W, 40)
+  static constexpr coord_t C2_X = C1_X + C1_W + PAD_SMALL;
+  static constexpr coord_t C2_Y = 0;
+  static LAYOUT_VAL_SCALED(C2_W, 40)
+#endif
+#else
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
   static constexpr coord_t SW_W = (LCD_W - PAD_SMALL * 2 - PAD_TINY * 4) / 5;
   static constexpr coord_t NM_X = SW_W + PAD_TINY;
-  static LAYOUT_VAL_SCALED(NM_W, 80);
+  static LAYOUT_VAL_SCALED(NM_W, 80)
   static constexpr coord_t TP_X = NM_X + SW_W + PAD_TINY;
-  static LAYOUT_VAL_SCALED(TP_W, 86);
+  static LAYOUT_VAL_SCALED(TP_W, 86)
   static constexpr coord_t GR_X = TP_X + SW_W + PAD_TINY;
-  static LAYOUT_VAL_SCALED(GR_W, 94);
+  static LAYOUT_VAL_SCALED(GR_W, 94)
   static constexpr coord_t ST_X = GR_X + SW_W + PAD_LARGE * 2 + PAD_SMALL;
-  static LAYOUT_VAL_SCALED(ST_W, 70);
+  static LAYOUT_VAL_SCALED(ST_W, 70)
 #endif
 
  protected:
@@ -173,6 +201,9 @@ class RadioFunctionSwitch : public Window
   ColorPicker* onColor = nullptr;
   RGBLedColor offValue;
   RGBLedColor onValue;
+  StaticText* overrideLabel = nullptr;
+  ToggleSwitch* onOverride = nullptr;
+  ToggleSwitch* offOverride = nullptr;
 #endif
   int lastType = -1;
 
@@ -196,6 +227,13 @@ class RadioFunctionSwitch : public Window
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
     offColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
     onColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    overrideLabel->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    onOverride->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    offOverride->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    if (typ != SWITCH_NONE && typ != SWITCH_GLOBAL)
+      setHeight(ROW_H);
+    else
+      setHeight(ROW_H - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_OUTLINE);
 #endif
   }
 
