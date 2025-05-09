@@ -299,9 +299,12 @@ void generalDefaultSwitches()
     g_eeGeneral.switchConfig[sw].type = switchGetDefaultConfig(sw);
     g_eeGeneral.switchConfig[sw].name[0] = 0;
 #if defined(FUNCTION_SWITCHES)
-    if (switchIsCustomSwitch(sw)) {
+    if (switchIsCustomSwitch(sw))
       g_eeGeneral.switchConfig[sw].start = FS_START_PREVIOUS;
-    }
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      g_eeGeneral.switchConfig[sw].onColor.setColor(0xFFFFFF);
+      g_eeGeneral.switchConfig[sw].offColor.setColor(0);
+#endif
 #endif
   }
 }

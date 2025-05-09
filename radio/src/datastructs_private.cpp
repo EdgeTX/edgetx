@@ -179,12 +179,42 @@ RGBLedColor& ModelData::getSwitchOffColor(uint8_t n) {
   return g_eeGeneral.switchOffColor(n);
 }
 
+bool ModelData::getSwitchOnColorLuaOverride(uint8_t n) {
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
+    return cfsOnColorLuaOverride(n);
+  return g_eeGeneral.cfsOnColorLuaOverride(n);
+}
+
+bool ModelData::getSwitchOffColorLuaOverride(uint8_t n) {
+  if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
+    return cfsOffColorLuaOverride(n);
+  return g_eeGeneral.cfsOffColorLuaOverride(n);
+}
+
 RGBLedColor& ModelData::cfsOnColor(uint8_t n) {
   return customSwitches[switchGetCustomSwitchIdx(n)].onColor;
 }
 
 RGBLedColor& ModelData::cfsOffColor(uint8_t n) {
   return customSwitches[switchGetCustomSwitchIdx(n)].offColor;
+}
+
+bool ModelData::cfsOnColorLuaOverride(uint8_t n) {
+  return customSwitches[switchGetCustomSwitchIdx(n)].onColorLuaOverride;
+}
+
+bool ModelData::cfsOffColorLuaOverride(uint8_t n) {
+  return customSwitches[switchGetCustomSwitchIdx(n)].offColorLuaOverride;
+}
+
+void ModelData::cfsSetOnColorLuaOverride(uint8_t n, bool v) {
+  customSwitches[switchGetCustomSwitchIdx(n)].onColorLuaOverride = v;
+  storageDirty(EE_MODEL);
+}
+
+void ModelData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
+  customSwitches[switchGetCustomSwitchIdx(n)].offColorLuaOverride = v;
+  storageDirty(EE_MODEL);
 }
 #endif
 
@@ -204,6 +234,24 @@ RGBLedColor& RadioData::switchOnColor(uint8_t n) {
 
 RGBLedColor& RadioData::switchOffColor(uint8_t n) {
   return switchConfig[n].offColor;
+}
+
+bool RadioData::cfsOnColorLuaOverride(uint8_t n) {
+  return switchConfig[n].onColorLuaOverride;
+}
+
+bool RadioData::cfsOffColorLuaOverride(uint8_t n) {
+  return switchConfig[n].offColorLuaOverride;
+}
+
+void RadioData::cfsSetOnColorLuaOverride(uint8_t n, bool v) {
+  switchConfig[n].onColorLuaOverride = v;
+  storageDirty(EE_GENERAL);
+}
+
+void RadioData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
+  switchConfig[n].offColorLuaOverride = v;
+  storageDirty(EE_GENERAL);
 }
 #endif
 #endif
