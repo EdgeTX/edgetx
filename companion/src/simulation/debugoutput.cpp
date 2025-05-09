@@ -172,8 +172,8 @@ void DebugOutput::processBytesReceived()
   const int sbValue = ui->console->verticalScrollBar()->value();
   const bool sbAtBottom = (sbValue == ui->console->verticalScrollBar()->maximum());
 
-  while (m_dataBufferDevice && m_dataBufferDevice->bytesAvailable() > 0) {
-    text = m_dataBufferDevice->read(qint64(text.capacity()));
+  while (m_dataBufferDevice && m_dataBufferDevice->bytesAvailable() > 0) {  // Note: bytesAvailable() returns a boolean - TODO why?
+    text = m_dataBufferDevice->read(DEBUG_OUTPUT_WIDGET_OUT_BUFF_SIZE);
     if (text.isEmpty())
       break;
     ui->console->moveCursor(QTextCursor::End);
