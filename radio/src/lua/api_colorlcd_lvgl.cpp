@@ -47,7 +47,7 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
     LvglWidgetObjectBase* p = nullptr;
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
-      p = LvglWidgetObjectBase::checkLvgl(L, 1);
+      p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
       if (p) {
         prevParent = luaScriptManager->getTempParent();
         luaScriptManager->setTempParent(p);
@@ -86,7 +86,7 @@ static int luaDestroyLvglWidget(lua_State *L)
 
 static int luaLvglSet(lua_State *L)
 {
-  auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
+  auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
   if (p) {
     p->update(L);
   }
@@ -97,7 +97,7 @@ static int luaLvglClear(lua_State *L)
 {
   if (luaScriptManager) {
     if (lua_gettop(L) == 1) {
-      auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
+      auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
       if (p) {
         p->clear();
       }
@@ -111,7 +111,7 @@ static int luaLvglClear(lua_State *L)
 
 static int luaLvglShow(lua_State *L)
 {
-  auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
+  auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
   if (p) {
     p->show();
   }
@@ -120,7 +120,7 @@ static int luaLvglShow(lua_State *L)
 
 static int luaLvglHide(lua_State *L)
 {
-  auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
+  auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
   if (p) {
     p->hide();
   }
@@ -129,7 +129,7 @@ static int luaLvglHide(lua_State *L)
 
 static int luaLvglEnable(lua_State *L)
 {
-  auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
+  auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
   if (p) {
     p->enable();
   }
@@ -138,7 +138,7 @@ static int luaLvglEnable(lua_State *L)
 
 static int luaLvglDisable(lua_State *L)
 {
-  auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
+  auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
   if (p) {
     p->disable();
   }
@@ -147,7 +147,7 @@ static int luaLvglDisable(lua_State *L)
 
 static int luaLvglClose(lua_State *L)
 {
-  auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
+  auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
   if (p) {
     p->close();
   }
@@ -269,7 +269,7 @@ static int luaLvglBuild(lua_State *L)
     LvglWidgetObjectBase* p = nullptr;
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
-      p = LvglWidgetObjectBase::checkLvgl(L, 1);
+      p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
       if (p) {
         prevParent = luaScriptManager->getTempParent();
         luaScriptManager->setTempParent(p);

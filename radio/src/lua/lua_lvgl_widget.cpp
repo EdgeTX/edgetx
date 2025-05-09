@@ -112,15 +112,19 @@ static bool pcallFuncWithString(lua_State *L, int funcRef, int nretval, const ch
 
 //-----------------------------------------------------------------------------
 
-LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index)
+LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index, bool required)
 {
   LvglWidgetObjectBase **p;
   
   p = (LvglWidgetObjectBase **)luaL_testudata(L, index, LVGL_METATABLE);
-  if (p) return *p;
+  if (p && *p) return *p;
 
   p = (LvglWidgetObjectBase **)luaL_testudata(L, index, LVGL_SIMPLEMETATABLE);
-  if (p) return *p;
+  if (p && *p) return *p;
+
+  if (required) {
+    luaL_error(L, "Invalid lvgl object (it has been probably been cleared).");
+  }
 
   return nullptr;
 }
@@ -471,6 +475,11 @@ void LvglWidgetObjectBase::clearChildRefs(lua_State *L)
 
 void LvglWidgetObjectBase::clearRefs(lua_State *L)
 {
+  lua_rawgeti(L, LUA_REGISTRYINDEX, luaRef);
+  auto p = (LvglWidgetObjectBase **)luaL_testudata(L, -1, metatable);
+  if (p) *p = nullptr;
+  lua_pop(L, 1);
+
   clearRef(L, luaRef);
   clearRef(L, color.function);
   clearRef(L, opacity.function);

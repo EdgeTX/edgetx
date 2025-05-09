@@ -86,7 +86,7 @@ class LvglWidgetObjectBase
 
   virtual Window *getWindow() const = 0;
 
-  static LvglWidgetObjectBase *checkLvgl(lua_State *L, int index);
+  static LvglWidgetObjectBase *checkLvgl(lua_State *L, int index, bool required = false);
 
   void clear();
 
