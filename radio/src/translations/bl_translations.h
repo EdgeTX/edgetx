@@ -30,6 +30,9 @@
   #elif defined(RADIO_NB4P)
     #define BL_SELECT_KEY              "[SW1A]"
     #define BL_EXIT_KEY                "[SW1B]"
+  #elif defined(RADIO_PL18U)
+    #define BL_SELECT_KEY              "[KR Dn]"
+    #define BL_EXIT_KEY                "[KR Up]"
   #else
     #define BL_SELECT_KEY              "[TR4 Dn]"
     #define BL_EXIT_KEY                "[TR4 Up]"
