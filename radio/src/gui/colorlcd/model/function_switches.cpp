@@ -152,6 +152,15 @@ class FunctionSwitch : public Window
           SET_DIRTY();
         },
         [=](int newValue) { previewColor(newValue); }, ETX_RGB888);
+
+    overrideLabel = new StaticText(this, {GR_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_LARGE, GR_W + ST_W - PAD_LARGE, 0},
+                                   STR_LUA_OVERRIDE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | RIGHT);
+    offOverride = new ToggleSwitch(this, {C1_X - PAD_MEDIUM * 2, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
+                                  [=]() { return g_model.cfsOffColorLuaOverride(switchIndex); },
+                                  [=](bool v) { g_model.cfsSetOffColorLuaOverride(switchIndex, v); });
+    onOverride = new ToggleSwitch(this, {C2_X, C1_Y + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE, 0, 0},
+                                  [=]() { return g_model.cfsOnColorLuaOverride(switchIndex); },
+                                  [=](bool v) { g_model.cfsSetOnColorLuaOverride(switchIndex, v); });
 #endif //FUNCTION_SWITCHES_RGB_LEDS
 
     setState();
@@ -168,7 +177,7 @@ class FunctionSwitch : public Window
   static constexpr coord_t ST_X = GR_X + GR_W + PAD_SMALL;
   static LAYOUT_VAL_SCALED(ST_W, 60)
 #if NARROW_LAYOUT
-  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 3;
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 3 + PAD_OUTLINE * 4;
   static constexpr coord_t C1_X = TP_X;
   static constexpr coord_t C1_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
   static LAYOUT_VAL_SCALED(C1_W, 40)
@@ -176,7 +185,7 @@ class FunctionSwitch : public Window
   static constexpr coord_t C2_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
   static LAYOUT_VAL_SCALED(C2_W, 40)
 #else
-  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2;
+  static constexpr coord_t ROW_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_OUTLINE * 3;
   static constexpr coord_t C1_X = ST_X + ST_W + PAD_SMALL;
   static constexpr coord_t C1_Y = 0;
   static LAYOUT_VAL_SCALED(C1_W, 40)
@@ -207,6 +216,9 @@ class FunctionSwitch : public Window
   ColorPicker* onColor = nullptr;
   RGBLedColor offValue;
   RGBLedColor onValue;
+  StaticText* overrideLabel = nullptr;
+  ToggleSwitch* onOverride = nullptr;
+  ToggleSwitch* offOverride = nullptr;
 #endif
   int lastType = -1;
 
@@ -231,6 +243,13 @@ class FunctionSwitch : public Window
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
     offColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
     onColor->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    overrideLabel->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    onOverride->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    offOverride->show(typ != SWITCH_NONE && typ != SWITCH_GLOBAL);
+    if (typ != SWITCH_NONE && typ != SWITCH_GLOBAL)
+      setHeight(ROW_H);
+    else
+      setHeight(ROW_H - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_OUTLINE);
 #endif
   }
 
