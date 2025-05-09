@@ -155,6 +155,15 @@ const char* switchGetDefaultName(uint8_t sw_idx)
   return nullptr;
 }
 
+int8_t switchGetIndexFromName(const char* name)
+{
+  for (uint8_t i = 0; i < switchGetMaxSwitches(); i += 1)
+    if (strcmp(name, boardSwitchGetName(i)) == 0)
+      return i;
+
+  return -1;
+}
+
 SwitchHwType switchGetHwType(uint8_t sw_idx)
 {
   auto idx = (int)sw_idx;
