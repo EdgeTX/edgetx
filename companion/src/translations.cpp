@@ -22,7 +22,7 @@
 #include "translations.h"
 #include "appdata.h"
 
-#include <QCoreApplication> 
+#include <QCoreApplication>
 #include <QDir>
 #include <QLibraryInfo>
 #include <QTranslator>
@@ -45,7 +45,7 @@ QStringList const Translations::getAvailableTranslations()
             << "he_IL"
             << "it_IT"
             << "ja_JP"
-            << "ko-KR"
+            << "ko_KR"
             << "nl_NL"
             << "pl_PL"
             << "pt_PT"
@@ -73,8 +73,8 @@ QStringList const Translations::getTranslationPaths()
   QStringList paths;
 
   // Prefer path set in environment variable, makes it possible to test/replace translations w/out rebuilding.
-  if (qEnvironmentVariableIsSet("OPENTX_APP_TRANSLATIONS_PATH") && QDir(qgetenv("OPENTX_APP_TRANSLATIONS_PATH").constData()).exists()) {
-    paths << qgetenv("OPENTX_APP_TRANSLATIONS_PATH").constData();
+  if (qEnvironmentVariableIsSet("EDGETX_APP_TRANSLATIONS_PATH") && QDir(qgetenv("EDGETX_APP_TRANSLATIONS_PATH").constData()).exists()) {
+    paths << qgetenv("EDGETX_APP_TRANSLATIONS_PATH").constData();
   }
   // Try application subfolder first, also eg. to test/replace translations quickly.
   paths << APP_TRANSLATIONS_FILE_PATH;
