@@ -670,12 +670,9 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_DISABLE_AUDIO_AMP:
       return false;
 #endif
-#if !defined(LED_STRIP_GPIO)
+#if !defined(LED_STRIP_LENGTH)
     case FUNC_RGB_LED:
       return false;
-#elif defined(RGB_LED_OFFSET)
-    case FUNC_RGB_LED:
-      return (LED_STRIP_LENGTH > RGB_LED_OFFSET);
 #endif
 #if !defined(DEBUG)
     case FUNC_TEST:
