@@ -623,7 +623,6 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
         else {
 
             if (attr->type == YDT_ENUM && attr->u._enum.is_active) {
-                TRACE(">>>>>> EC %d",attr->u._enum.is_active(this, data, getBitOffset()));
                 if (!attr->u._enum.is_active(this, data, getBitOffset())) {
                     toNextAttr();
                     continue;

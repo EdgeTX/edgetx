@@ -2844,7 +2844,7 @@ static int luaGetTrainerStatus(lua_State * L)
   return 1;
 }
 
-#if defined(LED_STRIP_GPIO)
+#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
 /*luadoc
 @function setRGBLedColor(id, rvalue, bvalue, cvalue)
 
@@ -2856,39 +2856,86 @@ static int luaGetTrainerStatus(lua_State * L)
 
 @param bvalue: interger, value of blue channel
 
+@retval: true if LED index is valid, false otherwise
+
 @status current Introduced in 2.10
 */
 
 static int luaSetRgbLedColor(lua_State * L)
 {
+  uint8_t id = luaL_checkunsigned(L, 1);
+
+  if (id >= BLING_LED_STRIP_LENGTH) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  uint8_t r = luaL_checkunsigned(L, 2);
+  uint8_t g = luaL_checkunsigned(L, 3);
+  uint8_t b = luaL_checkunsigned(L, 4);
+
+  rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+
+  lua_pushboolean(L, true);
+  return 1;
+}
+#endif
+
+#if defined(CFS_LED_STRIP_LENGTH) && (CFS_LED_STRIP_LENGTH > 0)
+/*luadoc
+@function setCFSLedColor(id, rvalue, bvalue, cvalue)
+
+Overrides the LED color for a custom function switch
+  - if passed 4 arguments (id, r, g, b) then sets override color
+  - if passed 1 argument (id) then cancels override color
+
+@param id: string identifying a custom function switch name
+
+@param rvalue: interger, value of red channel
+
+@param gvalue: interger, value of green channel
+
+@param bvalue: interger, value of blue channel
+
+@retval: true if LED index is valid, false otherwise
+
+@status current Introduced in ???
+*/
+
+static int luaSetCFSLedColor(lua_State * L)
+{
   uint8_t r = 0, g = 0, b = 0;
   int n = lua_gettop(L);
-  uint8_t id = luaL_checkunsigned(L, 1);
+  const char* nm = luaL_checkstring(L, 1);
+
+  int8_t id = switchGetIndexFromName(nm);
+
+  if (id < 0) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  uint8_t swIdx = switchGetCustomSwitchIdx(id);
+
+  if (swIdx >= CFS_LED_STRIP_LENGTH) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
   if (n > 1) {
     r = luaL_checkunsigned(L, 2);
     g = luaL_checkunsigned(L, 3);
     b = luaL_checkunsigned(L, 4);
   }
 
-  #if defined(LED_STRIP_RESERVED_AT_END)
-    if (id >= LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END) {
-      lua_pushboolean(L, false);
-      return 1;
-    }
-  #endif
+  setFSLedOverride(swIdx, n > 1, r, g, b);
 
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
-  int swIndex = switchGetSwitchFromCustomIdx(id);
-  if (swIndex < switchGetMaxSwitches()) {
-    setFSLedOverride(id, n > 1, r, g, b);
-  }
-#endif
-
-  rgbSetLedColor(id, r, g, b);
-
+  lua_pushboolean(L, true);
   return 1;
 }
+#endif
 
+#if defined(LED_STRIP_LENGTH)
 /*luadoc
 @function applyRGBLedColors()
 
@@ -2904,7 +2951,6 @@ static int luaApplyRGBLedColors(lua_State * L)
 
   return 1;
 }
-
 #endif
 
 
@@ -3009,8 +3055,13 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getSourceIndex, luaGetSourceIndex )
   LROT_FUNCENTRY( getSourceName, luaGetSourceName )
   LROT_FUNCENTRY( sources, luaSources )
-#if defined(LED_STRIP_GPIO)
+#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
   LROT_FUNCENTRY(setRGBLedColor, luaSetRgbLedColor )
+#endif
+#if defined(CFS_LED_STRIP_LENGTH) && (CFS_LED_STRIP_LENGTH > 0)
+  LROT_FUNCENTRY(setCFSLedColor, luaSetCFSLedColor )
+#endif
+#if defined(LED_STRIP_LENGTH)
   LROT_FUNCENTRY(applyRGBLedColors, luaApplyRGBLedColors )
 #endif
   LROT_FUNCENTRY( getStickMode, luaGetStickMode )
@@ -3156,18 +3207,11 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( PLAY_NOW, PLAY_NOW )
   LROT_NUMENTRY( PLAY_BACKGROUND, PLAY_BACKGROUND )
   LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
-#if defined(LED_STRIP_GPIO)
-  #if defined(RADIO_V16)
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - 6 )
-  #elif defined(RGB_LED_OFFSET)
-    // Exclude function switch LEDs
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - RGB_LED_OFFSET )
-  #elif defined(LED_STRIP_RESERVED_AT_END)
-    // Exclude leds at the end of the strip
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END )   
-  #else
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH )
-  #endif
+#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
+  LROT_NUMENTRY( LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH )
+#endif
+#if defined(CFS_LED_STRIP_LENGTH) && (CFS_LED_STRIP_LENGTH > 0)
+  LROT_NUMENTRY( CFS_LED_STRIP_LENGTH, CFS_LED_STRIP_LENGTH )
 #endif
   LROT_NUMENTRY( UNIT_RAW, UNIT_RAW )
   LROT_NUMENTRY( UNIT_VOLTS, UNIT_VOLTS )

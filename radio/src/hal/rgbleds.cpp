@@ -38,20 +38,18 @@ void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b
 
 void setFSLedOFF(uint8_t index) {
   uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-  uint32_t color = g_model.getSwitchOffColor(index).getColor();
-  if (hasLedOverride[cfsIdx] && color == 0)
+  if (hasLedOverride[cfsIdx] && g_model.getSwitchOffColorLuaOverride(index))
     fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
   else
-    fsLedRGB(cfsIdx, color);
+    fsLedRGB(cfsIdx, g_model.getSwitchOffColor(index).getColor());
 }
 
 void setFSLedON(uint8_t index) {
   uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
-  uint32_t color = g_model.getSwitchOnColor(index).getColor();
-  if (hasLedOverride[cfsIdx] && color == 0)
+  if (hasLedOverride[cfsIdx] && g_model.getSwitchOnColorLuaOverride(index))
     fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
   else
-    fsLedRGB(cfsIdx, color);
+    fsLedRGB(cfsIdx, g_model.getSwitchOnColor(index).getColor());
 }
 
 bool getFSLedState(uint8_t index) {

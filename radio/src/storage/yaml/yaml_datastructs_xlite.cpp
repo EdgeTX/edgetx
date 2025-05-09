@@ -275,9 +275,9 @@ static const struct YamlNode struct_CustomFunctionData[] = {
 };
 static const struct YamlNode struct_switchDef[] = {
   YAML_IDX_CUST("sw",sw_idx_read,sw_idx_write),
+  YAML_STRING("name", 3),
   YAML_ENUM("type", 3, enum_SwitchConfig, NULL),
   YAML_PADDING( 5 ),
-  YAML_STRING("name", 3),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {

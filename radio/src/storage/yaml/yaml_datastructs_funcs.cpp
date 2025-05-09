@@ -868,7 +868,6 @@ bool sw_idx_write(void* user, yaml_writer_func wf, void* opaque)
 
 bool switch_is_cfs(void* user, uint8_t* data, uint32_t bitoffs)
 {
-  TRACE(">>>>> sicfs %d",currentSwitchIsCFS);
   return currentSwitchIsCFS;
 }
 

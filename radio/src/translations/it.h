@@ -297,8 +297,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Gruppo"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Colore")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Colore")
+#define TR_LUA_OVERRIDE                "Lua override"
 #define TR_GROUPS                      "Sempre in gruppi"
 #define TR_LAST                        "Ultimo"
 #define TR_MORE_INFO                   "Più info"

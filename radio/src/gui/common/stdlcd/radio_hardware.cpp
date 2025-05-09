@@ -141,7 +141,9 @@ enum CFSFields {
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   CFS_FIELD_COLOR_LABEL,
   CFS_FIELD_ON_COLOR,
+  CFS_FIELD_ON_LUA_OVERRIDE,
   CFS_FIELD_OFF_COLOR,
+  CFS_FIELD_OFF_LUA_OVERRIDE,
 #endif
   CFS_FIELD_COUNT
 };
@@ -167,7 +169,9 @@ static void menuRadioCFSOne(event_t event)
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
       (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? LABEL() : HIDDEN_ROW),
       (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 3 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
       (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 3 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
 #endif
     });
   
@@ -223,8 +227,16 @@ static void menuRadioCFSOne(event_t event)
         menuCFSColor(y, g_eeGeneral.switchOnColor(swIndex), STR_OFFON[1], attr, event);
         break;
 
+      case CFS_FIELD_ON_LUA_OVERRIDE:
+        g_eeGeneral.cfsSetOnColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOnColorLuaOverride(swIndex), LCD_W - 8 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        break;
+
       case CFS_FIELD_OFF_COLOR:
         menuCFSColor(y, g_eeGeneral.switchOffColor(swIndex), STR_OFFON[0], attr, event);
+        break;
+
+      case CFS_FIELD_OFF_LUA_OVERRIDE:
+        g_eeGeneral.cfsSetOffColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOffColorLuaOverride(swIndex), LCD_W - 8 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
         break;
 #endif
     }

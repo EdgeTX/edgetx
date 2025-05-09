@@ -90,3 +90,4 @@ SwitchHwPos switchGetPosition(uint8_t idx);
 
 const char* switchGetDefaultName(uint8_t idx);
 SwitchHwType switchGetHwType(uint8_t idx);
+int8_t switchGetIndexFromName(const char* name);

@@ -647,12 +647,15 @@ struct RGBLedColor {
 #if defined(FUNCTION_SWITCHES)
 PACK(struct customSwitch {
   CUST_IDX(sw, cfs_idx_read, cfs_idx_write);
+  NOBACKUP(char name[LEN_SWITCH_NAME]);
   uint8_t type:3 ENUM(SwitchConfig);
   uint8_t group:2;
   uint8_t start:2 ENUM(fsStartPositionType);
   uint8_t state:1;
-  NOBACKUP(char name[LEN_SWITCH_NAME]);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  NOBACKUP(uint8_t onColorLuaOverride:1 ENUM(booleanEnum));
+  NOBACKUP(uint8_t offColorLuaOverride:1 ENUM(booleanEnum));
+  NOBACKUP(uint8_t spare:6) SKIP;
   NOBACKUP(RGBLedColor onColor) FUNC(isAlwaysActive);
   NOBACKUP(RGBLedColor offColor) FUNC(isAlwaysActive);
 #endif
@@ -876,8 +879,14 @@ PACK(struct ModelData {
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   RGBLedColor& getSwitchOnColor(uint8_t n);
   RGBLedColor& getSwitchOffColor(uint8_t n);
+  bool getSwitchOnColorLuaOverride(uint8_t n);
+  bool getSwitchOffColorLuaOverride(uint8_t n);
   RGBLedColor& cfsOnColor(uint8_t n);
   RGBLedColor& cfsOffColor(uint8_t n);
+  bool cfsOnColorLuaOverride(uint8_t n);
+  bool cfsOffColorLuaOverride(uint8_t n);
+  void cfsSetOnColorLuaOverride(uint8_t n, bool v);
+  void cfsSetOffColorLuaOverride(uint8_t n, bool v);
 #endif
   bool cfsGroupAlwaysOn(uint8_t n) { return bfGet<uint8_t>(cfsGroupOn, n, 1); }
   void cfsSetGroupAlwaysOn(uint8_t n, bool v) { cfsGroupOn = bfSet<uint8_t>(cfsGroupOn, v, n, 1); }
@@ -933,17 +942,21 @@ PACK(struct TrainerData {
 
 PACK(struct switchDef {
   CUST_IDX(sw, sw_idx_read, sw_idx_write);
+  NOBACKUP(char name[LEN_SWITCH_NAME]);
   uint8_t type:3 ENUM(SwitchConfig);
 #if defined(FUNCTION_SWITCHES)
   uint8_t start:2 ENUM(fsStartPositionType) FUNC(switch_is_cfs);
-  NOBACKUP(uint8_t spare:3) SKIP;
-#else
-  NOBACKUP(uint8_t spare:5) SKIP;
-#endif
-  NOBACKUP(char name[LEN_SWITCH_NAME]);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  NOBACKUP(uint8_t onColorLuaOverride:1 ENUM(booleanEnum)) FUNC(switch_is_cfs);
+  NOBACKUP(uint8_t offColorLuaOverride:1 ENUM(booleanEnum)) FUNC(switch_is_cfs);
+  NOBACKUP(uint8_t spare:1) SKIP;
   NOBACKUP(RGBLedColor onColor) FUNC(switch_is_cfs);
   NOBACKUP(RGBLedColor offColor) FUNC(switch_is_cfs);
+#else
+  NOBACKUP(uint8_t spare:3) SKIP;
+#endif
+#else
+  NOBACKUP(uint8_t spare:5) SKIP;
 #endif
 });
 
@@ -1118,6 +1131,10 @@ PACK(struct RadioData {
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   RGBLedColor& switchOnColor(uint8_t n);
   RGBLedColor& switchOffColor(uint8_t n);
+  bool cfsOnColorLuaOverride(uint8_t n);
+  bool cfsOffColorLuaOverride(uint8_t n);
+  void cfsSetOnColorLuaOverride(uint8_t n, bool v);
+  void cfsSetOffColorLuaOverride(uint8_t n, bool v);
 #endif
 #endif
 });
