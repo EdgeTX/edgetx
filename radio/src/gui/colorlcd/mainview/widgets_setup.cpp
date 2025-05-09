@@ -166,7 +166,7 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     viewMain->showTopBarEdgeTxButton();
   }
   Window::deleteLater(detach, trash);
-  new ScreenMenu(customScreenIdx + 1);
+  (new ScreenMenu())->setCurrentTab(customScreenIdx + 1);
 
   storageDirty(EE_MODEL);
 }
