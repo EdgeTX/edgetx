@@ -108,6 +108,11 @@ const struct YamlIdStr enum_fsStartPositionType[] = {
   {  FS_START_PREVIOUS, "START_PREVIOUS"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_booleanEnum[] = {
+  {  BOOL_OFF, "OFF"  },
+  {  BOOL_ON, "ON"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_OFF, "OFF"  },
   {  TMRMODE_ON, "ON"  },
@@ -307,10 +312,12 @@ static const struct YamlNode struct_RGBLedColor[] = {
 };
 static const struct YamlNode struct_switchDef[] = {
   YAML_IDX_CUST("sw",sw_idx_read,sw_idx_write),
+  YAML_STRING("name", 3),
   YAML_ENUM("type", 3, enum_SwitchConfig, NULL),
   YAML_ENUM("start", 2, enum_fsStartPositionType, switch_is_cfs),
-  YAML_PADDING( 3 ),
-  YAML_STRING("name", 3),
+  YAML_ENUM("onColorLuaOverride", 1, enum_booleanEnum, switch_is_cfs),
+  YAML_ENUM("offColorLuaOverride", 1, enum_booleanEnum, switch_is_cfs),
+  YAML_PADDING( 1 ),
   YAML_STRUCT("onColor", 24, struct_RGBLedColor, switch_is_cfs),
   YAML_STRUCT("offColor", 24, struct_RGBLedColor, switch_is_cfs),
   YAML_END
@@ -845,11 +852,14 @@ static const struct YamlNode struct_TopBarPersistentData[] = {
 };
 static const struct YamlNode struct_customSwitch[] = {
   YAML_IDX_CUST("sw",cfs_idx_read,cfs_idx_write),
+  YAML_STRING("name", 3),
   YAML_ENUM("type", 3, enum_SwitchConfig, NULL),
   YAML_UNSIGNED( "group", 2 ),
   YAML_ENUM("start", 2, enum_fsStartPositionType, NULL),
   YAML_UNSIGNED( "state", 1 ),
-  YAML_STRING("name", 3),
+  YAML_ENUM("onColorLuaOverride", 1, enum_booleanEnum, NULL),
+  YAML_ENUM("offColorLuaOverride", 1, enum_booleanEnum, NULL),
+  YAML_PADDING( 6 ),
   YAML_STRUCT("onColor", 24, struct_RGBLedColor, isAlwaysActive),
   YAML_STRUCT("offColor", 24, struct_RGBLedColor, isAlwaysActive),
   YAML_END
@@ -926,7 +936,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("switchNames", 0, NUM_FUNCTIONS_SWITCHES, struct_cfsNameConfig, nullptr),
   YAML_ARRAY("functionSwitchLedONColor", 0, NUM_FUNCTIONS_SWITCHES, struct_cfsOnColorConfig, nullptr),
   YAML_ARRAY("functionSwitchLedOFFColor", 0, NUM_FUNCTIONS_SWITCHES, struct_cfsOffColorConfig, nullptr),
-  YAML_ARRAY("customSwitches", 80, 6, struct_customSwitch, isAlwaysActive),
+  YAML_ARRAY("customSwitches", 88, 6, struct_customSwitch, isAlwaysActive),
   YAML_ARRAY("cfsGroupOn", 1, 8, struct_cfsGroupOn, cfsGroupIsActive),
   YAML_PADDING( 8 ),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),

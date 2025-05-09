@@ -283,10 +283,10 @@ static const struct YamlNode struct_CustomFunctionData[] = {
 };
 static const struct YamlNode struct_switchDef[] = {
   YAML_IDX_CUST("sw",sw_idx_read,sw_idx_write),
+  YAML_STRING("name", 3),
   YAML_ENUM("type", 3, enum_SwitchConfig, NULL),
   YAML_ENUM("start", 2, enum_fsStartPositionType, switch_is_cfs),
   YAML_PADDING( 3 ),
-  YAML_STRING("name", 3),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -803,11 +803,11 @@ static const struct YamlNode struct_TelemetryScreenData[] = {
 };
 static const struct YamlNode struct_customSwitch[] = {
   YAML_IDX_CUST("sw",cfs_idx_read,cfs_idx_write),
+  YAML_STRING("name", 3),
   YAML_ENUM("type", 3, enum_SwitchConfig, NULL),
   YAML_UNSIGNED( "group", 2 ),
   YAML_ENUM("start", 2, enum_fsStartPositionType, NULL),
   YAML_UNSIGNED( "state", 1 ),
-  YAML_STRING("name", 3),
   YAML_END
 };
 static const struct YamlNode struct_USBJoystickChData[] = {
