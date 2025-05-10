@@ -57,8 +57,12 @@ endif()
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})
 add_dependencies(bootloader ${BITMAPS_TARGET})
 
-target_compile_definitions(bootloader PRIVATE BOOT)
-target_compile_definitions(board_bl PRIVATE BOOT)
+target_compile_definitions(bootloader PUBLIC BOOT)
+target_compile_definitions(board_bl PUBLIC BOOT)
+
+if(ARCH STREQUAL ARM)
+  target_link_libraries(bootloader PUBLIC cmsis)
+endif()
 
 target_link_options(bootloader BEFORE PRIVATE
   -L${LINKER_DIR}/${TARGET_LINKER_DIR}/bootloader
@@ -67,17 +71,15 @@ target_link_options(bootloader BEFORE PRIVATE
   -lm --specs=nano.specs
 )
 
-if (DEFINED TARGET_SDRAM_START)
-  # message("TARGET_SDRAM_START = ${TARGET_SDRAM_START}")
+if (DEFINED TARGET_EXTRAM_START)
   target_link_options(bootloader PRIVATE
-    -Wl,--defsym=__sdram_start=${TARGET_SDRAM_START}
+    -Wl,--defsym=__EXTRAM_START__=${TARGET_EXTRAM_START}
   )
 endif()
 
-if (DEFINED TARGET_SDRAM_SIZE)
-  # message("TARGET_SDRAM_SIZE = ${TARGET_SDRAM_SIZE}")
+if (DEFINED TARGET_EXTRAM_SIZE)
   target_link_options(bootloader PRIVATE
-    -Wl,--defsym=__sdram_size=${TARGET_SDRAM_SIZE}
+    -Wl,--defsym=__EXTRAM_SIZE__=${TARGET_EXTRAM_SIZE}
   )
 endif()
 

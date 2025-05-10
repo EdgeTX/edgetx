@@ -29,6 +29,13 @@
 
 _stext_iram = LOADADDR(.iram);
 
+/* Disk cache buffers */
+.disk_cache (NOLOAD) :
+{
+  . = ALIGN(4);
+  *(.disk_cache)
+} > RAM_D1
+
 /* Extra DMA section */
 .dram (NOLOAD) :
 {
@@ -38,6 +45,8 @@ _stext_iram = LOADADDR(.iram);
   . = ALIGN(4);
   _e_dram = .;
 } > RAM_D2
+
+_dram_addr = ADDR(.dram);
 
 .sdram (NOLOAD) :
 {

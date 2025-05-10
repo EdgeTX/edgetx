@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "edgetx_types.h"
+
 #if defined(SIMU)
   #define WRITE_DELAY_10MS 100
 #elif defined(RTC_BACKUP_RAM)

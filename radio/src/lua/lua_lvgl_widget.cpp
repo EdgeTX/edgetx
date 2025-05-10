@@ -810,7 +810,8 @@ void LvglWidgetLine::setColor(LcdFlags newColor)
 void LvglWidgetLine::setOpacity(uint8_t newOpa)
 {
   opacity.value = newOpa;
-  lv_obj_set_style_line_opa(lvobj, opacity.value, LV_PART_MAIN);
+  if (lvobj)
+    lv_obj_set_style_line_opa(lvobj, opacity.value, LV_PART_MAIN);
 }
 
 void LvglWidgetLine::setPos(coord_t x, coord_t y)
@@ -852,9 +853,9 @@ void LvglWidgetLine::setLine()
 void LvglWidgetLine::build(lua_State *L)
 {
   if (pts) {
+    setLine();
     setColor(color.flags);
     setOpacity(opacity.value);
-    setLine();
   }
 }
 
@@ -2170,6 +2171,41 @@ void LvglWidgetChoice::build(lua_State *L)
       lvglManager->getCurrentParent(), {x, y, w, h}, values, 0, values.size() - 1,
       [=]() { return pcallGetIntVal(L, getFunction) - 1; },
       [=](int val) { pcallSetIntVal(L, setFunction, val + 1); }, title.c_str());
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetMenu::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "title")) {
+    title = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "values")) {
+    luaL_checktype(L, -1, LUA_TTABLE);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      values.push_back(lua_tostring(L, -1));
+    }
+  } else {
+    LvglWidgetPicker::parseParam(L, key);
+  }
+}
+
+void LvglWidgetMenu::build(lua_State *L)
+{
+  auto menu = new Menu();
+  if (!title.empty()) menu->setTitle(title);
+
+  for (size_t i = 0; i < values.size(); i += 1) {
+    menu->addLine(values[i], [=]() {
+      pcallSetIntVal(L, setFunction, i + 1);
+    });
+  }
+
+  int selected = pcallGetIntVal(L, getFunction) - 1;
+  if (selected >= 0) {
+    menu->select(selected);
+  }
+
+  window = menu;
 }
 
 //-----------------------------------------------------------------------------

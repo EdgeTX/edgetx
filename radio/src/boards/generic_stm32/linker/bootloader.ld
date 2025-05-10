@@ -18,6 +18,7 @@ SECTIONS
   } > REGION_ISR_VECT AT> REGION_TEXT_STORAGE
 
   _isr_load = LOADADDR(.isr_vector);
+  g_pfnVectors = _isr_load;
 
   /* The program code and other data goes into FLASH */
   .text :

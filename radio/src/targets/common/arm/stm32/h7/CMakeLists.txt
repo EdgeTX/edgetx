@@ -18,7 +18,6 @@ else()
   )
 endif()
 
-
 if(NOT NATIVE_BUILD)
   if(CPU_TYPE STREQUAL STM32H7RS)
     set(STM32CUBE_PREFIX stm32h7rsxx)
@@ -123,26 +122,27 @@ endif()
 
 if(CPU_TYPE_FULL STREQUAL STM32H750xB)
   set(CMSIS_SRC ${CMSIS_SRC}
-    boards/generic_stm32/startup/startup_stm32h750xx.s
+    targets/common/arm/stm32/h7/vectors_stm32h750xx.c
   )
 elseif(CPU_TYPE_FULL STREQUAL STM32H747Ix)
   set(CMSIS_SRC ${CMSIS_SRC}
-    boards/generic_stm32/startup/startup_stm32h747xx.s
+    targets/common/arm/stm32/h7/vectors_stm32h747xx.c
   )
-elseif(CPU_TYPE_FULL STREQUAL STM32H7S7xx)
+elseif(CPU_TYPE_FULL STREQUAL STM32H7S7xx OR CPU_TYPE_FULL STREQUAL STM32H7R7xx)
   set(CMSIS_SRC ${CMSIS_SRC}
-    boards/generic_stm32/startup/startup_stm32h7s7xx.s
+    targets/common/arm/stm32/h7/vectors_stm32h7s7xx.c
   )
 else()
   message(FATAL_ERROR "### ERROR ####: ${CPU_TYPE_FULL}")
 endif()
 
-add_library(cmsis OBJECT EXCLUDE_FROM_ALL
+add_library(cmsis INTERFACE)
+
+target_sources(cmsis INTERFACE
+  targets/common/arm/stm32/system_init.c
+  targets/common/arm/stm32/cortex_m_isr.c
   ${CMSIS_SRC}
 )
-
-set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:cmsis>)
-set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:cmsis>)
 
 if(NOT NATIVE_BUILD)
   include_directories(targets/common/arm/stm32/h7)
