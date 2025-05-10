@@ -64,6 +64,7 @@ extern "C" {
   #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_usb.h"
 #elif defined(STM32H7)
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_bus.h"
+  #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_dac.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_fmc.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_dma2d.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_gpio.h"

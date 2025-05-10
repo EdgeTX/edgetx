@@ -85,7 +85,7 @@ void setSelectedUsbMode(int mode)
 int usbPlugged()
 {
 #if defined(DEBUG_DISABLE_USB)
-  return(false);
+  return false;
 #endif
 
   static uint8_t debouncedState = 0;
@@ -135,6 +135,8 @@ void usbInit()
 #else
   gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
 #endif
+  // prime debounce state...
+  usbPlugged();
 #endif
 
 // TODO: seems this is only needed for USB wakeup,

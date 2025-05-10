@@ -27,6 +27,7 @@
 #include "flash_driver.h"
 
 #include "hal/watchdog_driver.h"
+#include "os/sleep.h"
 
 #if defined(LIBOPENUI)
   #include "libopenui.h"
@@ -104,9 +105,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
     if (f_eof(&file)) break;
 
 #if defined(SIMU)
-    // add an artificial delay and check for simu quit
-    if (SIMU_SLEEP_OR_EXIT_MS(30))
-      break;
+    sleep_ms(30);
 #endif
   }
 

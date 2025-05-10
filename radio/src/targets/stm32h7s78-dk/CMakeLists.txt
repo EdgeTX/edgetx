@@ -19,7 +19,7 @@ set(SDCARD YES)
 set(STORAGE_MODELSLIST YES)
 # set(HAPTIC YES)
 set(GUI_DIR colorlcd)
-set(BITMAPS_DIR 480x272)
+set(BITMAPS_DIR 800x480)
 # set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 # set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
@@ -32,7 +32,7 @@ set(TARGET_LINKER_PARAMS "-Wl,--defsym=__PSRAM_START__=0x90000000")
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=32768")
 set(FIRMWARE_FORMAT_UF2 YES)
 
-set(BITMAPS_TARGET bm480_bitmaps)
+set(BITMAPS_TARGET bm800_bitmaps)
 set(FONTS_TARGET x12_fonts)
 
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
@@ -43,7 +43,7 @@ set(IMU ON)
 set(FIRMWARE_QSPI ON)
 
 add_definitions(
-  -DSTM32H7S7xx -DCORE_CM7 -DFIRMWARE_QSPI
+  -DSTM32H7S7xx -DFIRMWARE_QSPI
   -DSDRAM -DCOLORLCD -DLIBOPENUI -DPCBHORUS -DPCBX10 -DPCBFRSKY
   -DHARDWARE_TOUCH -DSOFTWARE_KEYBOARD
   -DAUDIO -DVOICE -DSOFTWARE_VOLUME
@@ -68,7 +68,6 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
-  ${TARGET_SRC_DIR}/system_init.cpp
   ${TARGET_SRC_DIR}/lcd_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   # ${TARGET_SRC_DIR}/seesaw.cpp
@@ -87,7 +86,7 @@ set(BOARD_COMMON_SRC
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/system_clock.cpp
+  ${TARGET_SRC_DIR}/system_clock.c
   ${TARGET_SRC_DIR}/extram_driver.cpp
   ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
 )

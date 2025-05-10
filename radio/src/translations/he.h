@@ -321,7 +321,7 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Mode"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK                "Left"
 #else
   #define TR_LEFT_STICK                "Left"
@@ -1187,7 +1187,7 @@
 #define TR_USE_THEME_COLOR              "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "מיכרוז כל הקיזוזים"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS      "פתח מצג ערוצים"
 #else
   #define TR_OPEN_CHANNEL_MONITORS      "פתח מצג ערוצים."
@@ -1198,6 +1198,7 @@
 #define TR_BLUE                         "כחול"
 #define TR_GREEN                        "ירוק"
 #define TR_COLOR_PICKER                 "בחירת צבע"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "עריכת ערכת נושא"
 #define TR_THEME_COLOR_DEFAULT          "DEFAULT"
 #define TR_THEME_COLOR_PRIMARY1         "ראשי 1"

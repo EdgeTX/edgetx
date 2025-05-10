@@ -39,7 +39,7 @@ const std::string copyright_str = "Copyright (C) " BUILD_YEAR " EdgeTX";
 const std::string edgetx_url = "https://edgetx.org";
 
 AboutUs::AboutUs() :
-    BaseDialog(STR_ABOUT_US, true, 220, LV_SIZE_CONTENT)
+    BaseDialog(STR_ABOUT_US, true, VIEW_W, LV_SIZE_CONTENT)
 {
   new StaticText(form, {0, 0, LV_PCT(100), LV_SIZE_CONTENT},
                  about_str + "\n" + copyright_str,

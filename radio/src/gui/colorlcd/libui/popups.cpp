@@ -23,6 +23,8 @@
 
 #include "libopenui.h"
 #include "edgetx.h"
+#include "lvgl/src/hal/lv_hal_tick.h"
+#include "os/sleep.h"
 #include "pwr.h"
 #include "hal/watchdog_driver.h"
 #include "etx_lv_theme.h"
@@ -51,7 +53,7 @@ static void _run_popup_dialog(const char* title, const char* msg,
 #endif
     } else if (check == e_power_press) {
       WDG_RESET();
-      RTOS_WAIT_MS(1);
+      sleep_ms(1);
       continue;
     }
 
@@ -59,7 +61,7 @@ static void _run_popup_dialog(const char* title, const char* msg,
     WDG_RESET();
     MainWindow::instance()->run();
     LvglWrapper::runNested();
-    RTOS_WAIT_MS(20);
+    sleep_ms(20);
   }
 }
 
@@ -95,7 +97,7 @@ void POPUP_WARNING_ON_UI_TASK(const char* message, const char* info,
 
   // Wait in case already in popup.
   while (ui_popup_active) {
-    RTOS_WAIT_MS(20);
+    sleep_ms(20);
   }
   ui_popup_title = "Warning";
   ui_popup_msg = message;
@@ -105,7 +107,7 @@ void POPUP_WARNING_ON_UI_TASK(const char* message, const char* info,
   // Wait until closed
   if (waitForClose) {
     while (ui_popup_active) {
-      RTOS_WAIT_MS(20);
+      sleep_ms(20);
     }
   }
 }
@@ -151,7 +153,8 @@ class BubbleDialog : public Window
  public:
   BubbleDialog(const char* message, int timeout, coord_t width) :
       Window(MainWindow::instance(), rect_t{(LCD_W - width) / 2, LCD_H - 100, width, 50},
-             bubble_popup_create)
+             bubble_popup_create),
+      startTime(lv_tick_get()), timeout(timeout)
   {
     setWindowFlag(OPAQUE);
 
@@ -163,21 +166,20 @@ class BubbleDialog : public Window
     lv_obj_set_width(label, lv_pct(100));
     etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-
-    endTime = RTOS_GET_MS() + timeout;
   }
 
   bool isBubblePopup() override { return true; }
 
   void checkEvents() override
   {
-    if (RTOS_GET_MS() >= endTime) {
+    if (lv_tick_elaps(startTime) >= timeout) {
       deleteLater();
     }
   }
 
  protected:
-  uint32_t endTime;
+  uint32_t startTime;
+  uint32_t timeout;
 };
 
 void POPUP_BUBBLE(const char* message, uint32_t timeout, coord_t width)

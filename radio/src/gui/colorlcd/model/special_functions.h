@@ -51,15 +51,15 @@ class FunctionLineButton : public ListLineButton
   void refresh() override;
 
   static constexpr coord_t NM_X = PAD_TINY;
-  static LAYOUT_VAL(NM_Y, 4, 10, 1)
-  static LAYOUT_VAL(NM_W, 43, 40, LS(43))
+  static LAYOUT_SIZE_SCALED(NM_Y, 4, 10)
+  static LAYOUT_SIZE_SCALED(NM_W, 43, 40)
   static constexpr coord_t SW_X = NM_X + NM_W + PAD_TINY;
-  static LAYOUT_VAL2(SW_Y, NM_Y, 0)
-  static LAYOUT_VAL(SW_W, 70, 198, LS(70))
-  static LAYOUT_VAL2(FN_X, SW_X + SW_W + PAD_TINY, NM_X + NM_W + PAD_TINY)
-  static LAYOUT_VAL2(FN_Y, NM_Y, 20)
-  static LAYOUT_VAL(RP_W, 40, 34, LS(40))
-  static LAYOUT_VAL(EN_SZ, 16, 16, 12)
+  static LAYOUT_SIZE(SW_Y, NM_Y, 0)
+  static LAYOUT_SIZE_SCALED(SW_W, 70, 198)
+  static LAYOUT_SIZE(FN_X, SW_X + SW_W + PAD_TINY, NM_X + NM_W + PAD_TINY)
+  static LAYOUT_SIZE_SCALED(FN_Y, 4, 20)
+  static LAYOUT_SIZE_SCALED(RP_W, 40, 34)
+  static LAYOUT_VAL_SCALED(EN_SZ, 16)
   static constexpr coord_t RP_X = ListLineButton::GRP_W - PAD_BORDER * 2 - RP_W - EN_SZ - PAD_TINY * 2;
   static constexpr coord_t RP_Y = NM_Y;
   static constexpr coord_t FN_W = RP_X - FN_X - PAD_TINY;
@@ -130,7 +130,7 @@ class FunctionsPage : public PageTab
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL(SF_BUTTON_H, 32, 44, LS(32))
+  static LAYOUT_SIZE_SCALED(SF_BUTTON_H, 32, 44)
 
  protected:
   int8_t focusIndex = -1;
@@ -144,7 +144,7 @@ class FunctionsPage : public PageTab
   void rebuild(Window* window);
   void newSF(Window* window, bool pasteSF);
   void editSpecialFunction(Window* window, uint8_t index,
-                           ButtonBase* button);
+                           FunctionLineButton* button);
   void pasteSpecialFunction(Window* window, uint8_t index,
                             ButtonBase* button);
   void plusPopup(Window* window);

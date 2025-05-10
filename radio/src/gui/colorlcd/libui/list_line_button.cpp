@@ -134,7 +134,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     free(fm_buffer);
     fm_canvas = nullptr;
     fm_buffer = nullptr;
-#if PORTRAIT_LCD
+#if NARROW_LAYOUT
     setHeight(ListLineButton::BTN_H);
 #endif
     return;
@@ -146,7 +146,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     lv_canvas_set_buffer(fm_canvas, fm_buffer, FM_CANVAS_WIDTH,
                          FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_8BIT);
     lv_obj_set_pos(fm_canvas, FM_X, FM_Y);
-#if PORTRAIT_LCD
+#if NARROW_LAYOUT
     setHeight(ListLineButton::BTN_H + FM_CANVAS_HEIGHT + 2);
 #endif
 

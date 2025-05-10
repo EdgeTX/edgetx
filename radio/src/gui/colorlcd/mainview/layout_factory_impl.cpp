@@ -69,10 +69,10 @@ rect_t Layout::getMainZone() const
   rect_t zone = decoration->getMainZone();
   if (hasSliders() || hasTrims() || hasFlightMode()) {
     // some decoration activated
-    zone.x += MAIN_ZONE_BORDER;
-    zone.y += MAIN_ZONE_BORDER;
-    zone.w -= 2 * MAIN_ZONE_BORDER;
-    zone.h -= 2 * MAIN_ZONE_BORDER;
+    zone.x += PAD_LARGE;
+    zone.y += PAD_LARGE;
+    zone.w -= 2 * PAD_LARGE;
+    zone.h -= 2 * PAD_LARGE;
   }
   return ViewMain::instance()->getMainZone(zone, hasTopbar());
 }

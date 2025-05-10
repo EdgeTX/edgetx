@@ -45,7 +45,7 @@ class ColorMaintainer
   void applyColorValues()
   {
     // save old values;
-    for (auto i = 0; i < LCD_COLOR_COUNT; i++) {
+    for (auto i = 0; i < THEME_COLOR_COUNT; i++) {
       oldColorVals[i] = lcdColorTable[i];
     }
 
@@ -58,7 +58,7 @@ class ColorMaintainer
 
   void restoreColorValues()
   {
-    for (auto i = 0; i < LCD_COLOR_COUNT; i++) {
+    for (auto i = 0; i < THEME_COLOR_COUNT; i++) {
       lcdColorTable[i] = oldColorVals[i];
     }
 
@@ -66,7 +66,7 @@ class ColorMaintainer
   }
 
  protected:
-  uint32_t oldColorVals[LCD_COLOR_COUNT];
+  uint32_t oldColorVals[THEME_COLOR_COUNT];
   std::vector<ColorEntry> colorList;
 };
 

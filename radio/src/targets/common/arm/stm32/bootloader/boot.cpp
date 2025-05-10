@@ -135,6 +135,11 @@ void bootloaderInitApp()
   boardBLInit();
 }
 
+#if defined(FIRMWARE_FORMAT_UF2)
+// make linker happy
+void per5ms() {}
+#endif
+
 int main()
 #else // SIMU
 void bootloaderInitApp() {}

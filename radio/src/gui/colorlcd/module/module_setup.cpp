@@ -609,8 +609,8 @@ class ModuleSubTypeChoice : public Choice
       MultiModuleStatus& status = getMultiModuleStatus(moduleIdx);
       status.invalidate();
 
-      uint32_t startUpdate = RTOS_GET_MS();
-      while (!status.isValid() && (RTOS_GET_MS() - startUpdate < 250))
+      uint32_t startUpdate = lv_tick_get();
+      while (!status.isValid() && (lv_tick_elaps(startUpdate) < 250))
         ;
       SET_DIRTY();
 #endif

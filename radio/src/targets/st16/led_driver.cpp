@@ -65,10 +65,15 @@ uint8_t ledMapping[] = {12, 14, 16, 18, 20, 22};
 
 void fsLedRGB(uint8_t index, uint32_t color)
 {
-   rgbSetLedColor(ledMapping[index], GET_RED(color), \
-   GET_GREEN(color),GET_BLUE(color));
-   rgbSetLedColor(ledMapping[index]+1, GET_RED(color), \
-   GET_GREEN(color),GET_BLUE(color));
+  rgbSetLedColor(ledMapping[index], GET_RED(color), \
+  GET_GREEN(color),GET_BLUE(color));
+  rgbSetLedColor(ledMapping[index]+1, GET_RED(color), \
+  GET_GREEN(color),GET_BLUE(color));
+}
+
+uint32_t fsGetLedRGB(uint8_t index)
+{
+  return rgbGetLedColor(ledMapping[index]);
 }
 
 uint8_t getRGBColorIndex(uint32_t color)

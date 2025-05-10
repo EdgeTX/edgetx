@@ -21,6 +21,7 @@
 
 #include "edgetx.h"
 #include "io/frsky_firmware_update.h"
+#include "os/sleep.h"
 #include "tasks/mixer_task.h"
 
 #include "pxx2_ota.h"
@@ -37,7 +38,7 @@ bool Pxx2OtaUpdate::waitStep(uint8_t step, uint8_t timeout)
     if (elapsed++ > timeout) {
       return false;
     }
-    RTOS_WAIT_MS(1);
+    sleep_ms(1);
     telemetryWakeup();
   }
 
@@ -135,7 +136,7 @@ void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progres
   mixerTaskStop();
 
   watchdogSuspend(100 /*1s*/);
-  RTOS_WAIT_MS(100);
+  sleep_ms(100);
 
   moduleState[module].mode = MODULE_MODE_OTA_UPDATE;
   const char * result = doFlashFirmware(filename, progressHandler);
@@ -152,7 +153,7 @@ void Pxx2OtaUpdate::flashFirmware(const char * filename, ProgressHandler progres
   }
 
   watchdogSuspend(100);
-  RTOS_WAIT_MS(100);
+  sleep_ms(100);
 
   mixerTaskStart();
 }

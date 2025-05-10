@@ -29,7 +29,8 @@ constexpr int MAX_BARS = 3;
 enum COLOR_EDITOR_TYPE {
   RGB_COLOR_EDITOR = 0,
   HSV_COLOR_EDITOR,
-  THM_COLOR_EDITOR
+  THM_COLOR_EDITOR,
+  FXD_COLOR_EDITOR,
 };
 
 // the ColorEditor() control is a group of other controls
@@ -39,7 +40,7 @@ class ColorEditor : public Window
   ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
               std::function<void(uint32_t rgb)> setValue = nullptr,
               std::function<void(uint32_t rgb)> preview = nullptr,
-              COLOR_EDITOR_FMT fmt = RGB565);
+              COLOR_EDITOR_FMT fmt = ETX_RGB565, COLOR_EDITOR_TYPE typ = HSV_COLOR_EDITOR);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ColorEditor"; }
@@ -47,11 +48,11 @@ class ColorEditor : public Window
 
   void setColorEditorType(COLOR_EDITOR_TYPE colorType);
 
-  static LAYOUT_VAL(BAR_MARGIN, 5, 5, 4)
-  static LAYOUT_VAL(BAR_HEIGHT_OFFSET, 25, 25, 16)
-  static LAYOUT_VAL(LBL_YO, 9, 9, 5)
-  static LAYOUT_VAL(VAL_XO, 10, 10, 6)
-  static LAYOUT_VAL(CRSR_SZ, 10, 10, 8)
+  static LAYOUT_VAL_SCALED(BAR_MARGIN, 5)
+  static LAYOUT_VAL_SCALED(BAR_HEIGHT_OFFSET, 25)
+  static LAYOUT_VAL_SCALED(LBL_YO, 9)
+  static LAYOUT_VAL_SCALED(VAL_XO, 10)
+  static LAYOUT_VAL_SCALED_EVEN(CRSR_SZ, 10)
 
  protected:
   ColorType* _colorType = nullptr;

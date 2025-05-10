@@ -319,7 +319,7 @@
 #define TR_ELEVATOR                    TR("Тангаж", "Тангаж")
 #define TR_SWASHRING                   "Поворот"
 #define TR_MODE                        "Режим"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK                "Ліво"
 #else
   #define TR_LEFT_STICK                "Ліво"
@@ -1190,7 +1190,7 @@
 #define TR_USE_THEME_COLOR              "Використ. колір теми"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Додати всі трими до субтримів"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS        "Відкрити монітори каналів"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Відкр. мон.кан."
@@ -1201,6 +1201,7 @@
 #define TR_BLUE                         "Синій"
 #define TR_GREEN                        "Зелений"
 #define TR_COLOR_PICKER                 "Обирач кольору"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "Редагувати деталі теми"
 #define TR_THEME_COLOR_DEFAULT         "ЗАМОВЧ"
 #define TR_THEME_COLOR_PRIMARY1        "ОСНОВНИЙ1"

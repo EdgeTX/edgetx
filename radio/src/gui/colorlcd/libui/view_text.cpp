@@ -347,7 +347,7 @@ class ViewChecklistWindow : public ViewTextWindow
 
       lv_obj_set_layout(obj, LV_LAYOUT_FLEX);
       lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
-      lv_obj_set_style_pad_all(obj, 3, LV_PART_MAIN);
+      lv_obj_set_style_pad_all(obj, PAD_THREE, LV_PART_MAIN);
       lv_obj_set_style_pad_row(obj, 0, LV_PART_MAIN);
 
       auto g = lv_group_get_default();
@@ -368,18 +368,18 @@ class ViewChecklistWindow : public ViewTextWindow
           lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
           lv_obj_set_width(row, lv_pct(100));
           lv_obj_set_height(row, LV_SIZE_CONTENT);
-          lv_obj_set_style_pad_all(row, 3, 0);
-          lv_obj_set_style_pad_column(row, 6, 0);
+          lv_obj_set_style_pad_all(row, PAD_THREE, 0);
+          lv_obj_set_style_pad_column(row, PAD_MEDIUM, 0);
           lv_obj_set_flex_align(row, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER,
                                 LV_FLEX_ALIGN_SPACE_EVENLY);
 
-          lv_coord_t w = lv_obj_get_content_width(obj) - 6;
+          lv_coord_t w = lv_obj_get_content_width(obj) - PAD_MEDIUM;
 
           if (buffer[cur] == '=') {
             cur++;
             w -= 46;
 
-            lv_obj_set_style_pad_left(row, 10, 0);
+            lv_obj_set_style_pad_left(row, PAD_LARGE + PAD_TINY, 0);
 
             auto cb = checkbox_create(row);
 

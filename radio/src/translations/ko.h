@@ -325,7 +325,7 @@
  #define TR_SWASHRING                    "스와시 링"
 
  #define TR_MODE                         "모드"
- #if !PORTRAIT_LCD
+ #if !NARROW_LAYOUT
    #define TR_LEFT_STICK                 "왼쪽 스틱"
  #else
    #define TR_LEFT_STICK                 "왼쪽 스틱"
@@ -1243,7 +1243,7 @@
 #define TR_RACING_MODE                    "레이싱 모드"
 #define TR_USE_THEME_COLOR                "테마 색상 사용"
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS      "모든 트림 -> 서브트림 복사"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS        "채널 모니터 열기"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "채널 모니터 열기"
@@ -1254,6 +1254,7 @@
 #define TR_BLUE                           "파랑"
 #define TR_GREEN                          "초록"
 #define TR_COLOR_PICKER                   "색상 선택"
+#define TR_FIXED                          "Fixed"
 #define TR_EDIT_THEME_DETAILS             "테마 세부 설정"
 #define TR_THEME_COLOR_DEFAULT            "기본"
 #define TR_THEME_COLOR_PRIMARY1           "기본색 1"

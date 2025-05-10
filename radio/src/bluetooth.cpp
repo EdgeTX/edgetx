@@ -23,6 +23,7 @@
 #include "edgetx.h"
 #include "io/frsky_firmware_update.h"
 #include "bluetooth_driver.h"
+#include "os/sleep.h"
 #include "trainer.h"
 
 #if defined(LIBOPENUI)
@@ -571,7 +572,7 @@ uint8_t Bluetooth::read(uint8_t * data, uint8_t size, uint32_t timeout)
       if (elapsed++ >= timeout) {
         return len;
       }
-      RTOS_WAIT_MS(1);
+      sleep_ms(1);
     }
     data[len++] = byte;
   }
@@ -829,11 +830,11 @@ const char * Bluetooth::flashFirmware(const char * filename, ProgressHandler pro
 
   bluetoothInit(BLUETOOTH_BOOTLOADER_BAUDRATE, true); // normal mode
   watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(1000);
+  sleep_ms(1000);
 
   bluetoothInit(BLUETOOTH_BOOTLOADER_BAUDRATE, false); // bootloader mode
   watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(1000);
+  sleep_ms(1000);
 
   const char * result = doFlashFirmware(filename, progressHandler);
 
@@ -851,7 +852,7 @@ const char * Bluetooth::flashFirmware(const char * filename, ProgressHandler pro
 
   /* wait 1s off */
   watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(1000);
+  sleep_ms(1000);
 
   state = BLUETOOTH_STATE_OFF;
   pulsesStart();

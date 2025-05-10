@@ -91,8 +91,6 @@ class ColorBar : public FormField
     rel_pos.x = point_act.x - obj_coords.x1;
     rel_pos.y = point_act.y - obj_coords.y1;
 
-    TRACE("PRESSING [%d,%d]", rel_pos.x, rel_pos.y);
-
     bar->value = bar->screenToValue(rel_pos.y);
     lv_event_send(target->parent, LV_EVENT_VALUE_CHANGED, nullptr);
   }
@@ -390,7 +388,7 @@ class ThemeColorType : public ColorType
 
   void makeButton(Window* parent, uint16_t color)
   {
-    auto btn = new TextButton(parent, rect_t{}, "       ");
+    auto btn = new TextButton(parent, {0, 0, BTN_W, 0}, "");
     etx_bg_color(btn->getLvObj(), (LcdColorIndex)color);
     btn->setPressHandler([=]() {
       m_color = color;
@@ -412,6 +410,46 @@ class ThemeColorType : public ColorType
     makeButton(hbox, c2);
     if (c3 != c2) makeButton(hbox, c3);
   }
+
+  static LAYOUT_VAL_SCALED(BTN_W, 44)
+};
+
+// Color editor that shows the system fixed colors as buttons
+class FixedColorType : public ColorType
+{
+ public:
+  FixedColorType(Window* parent, uint32_t color)
+  {
+    m_color = color;
+
+    auto vbox = new Window(parent, rect_t{});
+    vbox->padAll(PAD_OUTLINE);
+    vbox->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_OUTLINE);
+    lv_obj_set_flex_align(vbox->getLvObj(), LV_FLEX_ALIGN_CENTER,
+                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
+
+    for (int c = COLOR_BLACK_INDEX; c < TOTAL_COLOR_COUNT; c += 1)
+      makeButton(vbox, c);
+  }
+
+  uint32_t getRGB() { return m_color; }
+
+ protected:
+  uint32_t m_color;
+
+  void makeButton(Window* parent, uint16_t color)
+  {
+    auto btn = new TextButton(parent, {0, 0, BTN_W, 0}, "");
+    etx_bg_color(btn->getLvObj(), (LcdColorIndex)color);
+    btn->setPressHandler([=]() {
+      m_color = color;
+      lv_event_send(parent->getParent()->getLvObj(),
+                    LV_EVENT_VALUE_CHANGED, nullptr);
+      return 0;
+    });
+  }
+
+  static LAYOUT_VAL_SCALED(BTN_W, 44)
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -420,11 +458,11 @@ class ThemeColorType : public ColorType
 ColorEditor::ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
                          std::function<void(uint32_t rgb)> setValue,
                          std::function<void(uint32_t rgb)> preview,
-                         COLOR_EDITOR_FMT fmt) :
+                         COLOR_EDITOR_FMT fmt, COLOR_EDITOR_TYPE typ) :
     Window(parent, rect), _setValue(std::move(setValue)), _preview(std::move(preview)),
     format(fmt)
 {
-  if (format == RGB565) {
+  if (format == ETX_RGB565) {
     if (color & RGB_FLAG) {
       color = COLOR_VAL(color);
       auto r = GET_RED(color);
@@ -436,8 +474,7 @@ ColorEditor::ColorEditor(Window* parent, const rect_t& rect, uint32_t color,
     }
   }
   _color = color;
-  _colorType = new HSVColorType(this, _color);
-  _colorType->setText();
+  setColorEditorType(typ);
 
   lv_obj_add_event_cb(lvobj, ColorEditor::value_changed, LV_EVENT_VALUE_CHANGED,
                       nullptr);
@@ -457,8 +494,11 @@ void ColorEditor::setColorEditorType(COLOR_EDITOR_TYPE colorType)
   } else if (colorType == HSV_COLOR_EDITOR) {
     _colorType = new HSVColorType(this, _color);
     setText();
-  } else {
+  } else if (colorType == THM_COLOR_EDITOR) {
     _colorType = new ThemeColorType(this, _color);
+    setText();
+  } else {
+    _colorType = new FixedColorType(this, _color);
     setText();
   }
   // Update color bars
@@ -470,7 +510,7 @@ void ColorEditor::setText()
   _colorType->setText();
   if (_setValue != nullptr) {
     uint32_t c = _color;
-    if (format == RGB565) {
+    if (format == ETX_RGB565) {
       if (c & RGB888_FLAG) {
         auto r = GET_RED32(c);
         auto g = GET_GREEN32(c);

@@ -317,7 +317,7 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. source")
 #define TR_SWASHRING                   "Swash Ring"
 #define TR_MODE                        "Mode"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK                "Left"
 #else
   #define TR_LEFT_STICK                "Left"
@@ -1188,7 +1188,7 @@
 #define TR_USE_THEME_COLOR              "Use theme color"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Monitor"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Open Channel Mon."
@@ -1199,6 +1199,7 @@
 #define TR_BLUE                         "Blue"
 #define TR_GREEN                        "Green"
 #define TR_COLOR_PICKER                 "Color Picker"
+#define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "Edit Theme Details"
 #define TR_THEME_COLOR_DEFAULT         "DEFAULT"
 #define TR_THEME_COLOR_PRIMARY1        "PRIMARY1"

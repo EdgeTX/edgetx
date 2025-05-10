@@ -20,17 +20,17 @@
  */
 
 #include "bsp_io.h"
+#include "hal/switch_driver.h"
+#include "drivers/pca95xx.h"
+#include "os/async.h"
+#include "stm32_i2c_driver.h"
+#include "timers_driver.h"
+#include "stm32_ws2812.h"
 
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
 
-#include "bitfield.h"
-#include "drivers/pca95xx.h"
-#include "hal/switch_driver.h"
 #include "myeeprom.h"
-#include "stm32_i2c_driver.h"
-#include "stm32_ws2812.h"
-#include "timers_driver.h"
 
 struct bsp_io_expander {
   pca95xx_t exp;
@@ -58,30 +58,18 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   return io->state;  
 }
 
-static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
+static void _poll_switches(void *param1, uint32_t param2)
 {
-  (void)ulParameter2;
+  (void)param1;
+  (void)param2;
   _poll_switches_in_queue = false;
-  bsp_io_read_switches();
-  bsp_io_read_fs_switches();
+  _read_io_expander(&_io_switches); 
+  _read_io_expander(&_io_fs_switches); 
 }
 
 static void _io_int_handler()
 {
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  BaseType_t xReturn = pdFALSE;
-
-  if (!_poll_switches_in_queue && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    xReturn = xTimerPendFunctionCallFromISR(_poll_switches, nullptr, 0,
-                                  &xHigherPriorityTaskWoken);
-
-    if (xReturn == pdPASS) {
-      _poll_switches_in_queue = true;
-    } else {
-       TRACE("xTimerPendFunctionCallFromISR() queue full");
-    }
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  }
+  async_call_isr(_poll_switches, &_poll_switches_in_queue, nullptr, 0);
 }
 
 int bsp_io_init()

@@ -41,13 +41,13 @@ class MainViewSlider : public Window
 #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
   static constexpr coord_t SLIDER_SIZE = 136; // to fit 3 across bottom row
 #else
-  static LAYOUT_VAL(SLIDER_SIZE, 160, 120, 108)
+  static LAYOUT_SIZE_SCALED_EVEN(SLIDER_SIZE, 160, 120)
 #endif
-  static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4, LS(4))
-  static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_SIZE + LayoutFactory::TRIM_SQUARE_SIZE;
-  static constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_SIZE + LayoutFactory::TRIM_SQUARE_SIZE;
-
-  static LAYOUT_VAL(SL_SZ, 15, 15, 11)
+  static LAYOUT_VAL_SCALED_ODD(SLIDER_ICON_SIZE, 15)
+  static constexpr coord_t SLIDER_BAR_SIZE = SLIDER_ICON_SIZE + 2;
+  static LAYOUT_VAL_SCALED(SLIDER_TICK_SPACING, 4)
+  static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_SIZE + SLIDER_BAR_SIZE;
+  static constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_SIZE + SLIDER_BAR_SIZE;
 
  protected:
   uint8_t potIdx;
@@ -82,8 +82,8 @@ class MainView6POS : public Window
 
   void checkEvents() override;
 
-  static LAYOUT_VAL(MULTIPOS_W_SPACING, 12, 12, LS(12))
-  static LAYOUT_VAL(MULTIPOS_SZ, 12, 12, LS(12))
+  static LAYOUT_VAL_SCALED(MULTIPOS_W_SPACING, 12)
+  static LAYOUT_VAL_SCALED(MULTIPOS_SZ, 12)
   static constexpr coord_t MULTIPOS_W = (XPOTS_MULTIPOS_COUNT + 1) * MULTIPOS_W_SPACING;
 
  protected:

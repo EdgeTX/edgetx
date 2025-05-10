@@ -216,17 +216,6 @@
 #define SD_SDIO_TRANSFER_CLK_DIV SDMMC_NSPEED_CLK_DIV
 
 // Audio
-// #define AUDIO_RCC_APB1Periph            (RCC_APB1Periph_TIM6 | RCC_APB1Periph_DAC)
-// #define AUDIO_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA1)
-// #define AUDIO_OUTPUT_GPIO               GPIO_PIN(GPIOA, 4)  // PA.04
-// #define AUDIO_DMA_Stream                DMA1_Stream5
-// #define AUDIO_DMA_Stream_IRQn           DMA1_Stream5_IRQn
-// #define AUDIO_TIM_IRQn                  TIM6_DAC_IRQn
-// #define AUDIO_TIM_IRQHandler            TIM6_DAC_IRQHandler
-// #define AUDIO_DMA_Stream_IRQHandler     DMA1_Stream5_IRQHandler
-// #define AUDIO_TIMER                     TIM6
-// #define AUDIO_DMA                       DMA1
-
 #define AUDIO_SPI SPI6
 
 // I2C Bus
@@ -370,11 +359,6 @@
 #define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
 #define MIXER_SCHEDULER_TIMER_IRQn           TIM12_IRQn
 #define MIXER_SCHEDULER_TIMER_IRQHandler     TIM12_IRQHandler
-
-#define PORTRAIT_LCD false
-#define LANDSCAPE_LCD_SML false
-#define LANDSCAPE_LCD_STD false
-#define LANDSCAPE_LCD_LRG true
 
 #define LCD_W                           800
 #define LCD_H                           480

@@ -95,7 +95,6 @@ void FunctionLineButton::on_draw(lv_event_t *e)
   if (line) {
     if (!line->init)
       line->delayed_init();
-    line->refresh();
   }
 }
 
@@ -130,6 +129,8 @@ void FunctionLineButton::delayed_init()
 
   lv_obj_enable_style_refresh(true);
   lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+
+  refresh();
 }
 
 void FunctionLineButton::refresh()
@@ -754,16 +755,19 @@ void FunctionsPage::pasteSpecialFunction(Window *window, uint8_t index,
 }
 
 void FunctionsPage::editSpecialFunction(Window *window, uint8_t index,
-                                        ButtonBase *button)
+                                        FunctionLineButton *button)
 {
   auto edit = editPage(index);
   edit->setCloseHandler([=]() {
     CustomFunctionData *cfn = customFunctionData(index);
     if (cfn->swtch != 0) {
       focusIndex = index;
-      if (!button)
-        rebuild(window);
+      if (button) {
+        button->refresh();
+        return; // Skip full rebuild
+      }
     }
+    rebuild(window);
   });
 }
 
@@ -794,7 +798,7 @@ void FunctionsPage::build(Window *window)
 
     if (isActive) {
       auto button = functionButton(
-          window, rect_t{0, 0, window->width() - 12, SF_BUTTON_H}, i);
+          window, rect_t{0, 0, window->width() - PAD_LARGE - PAD_SMALL, SF_BUTTON_H}, i);
 
       lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1,
                            LV_GRID_ALIGN_CENTER, 0, 1);

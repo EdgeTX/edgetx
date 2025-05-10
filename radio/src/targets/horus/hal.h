@@ -480,6 +480,7 @@
   #if !(defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_T15) || defined(RADIO_V16))
     #define PWM_STICKS
     #define PWM_TIMER                   TIM5
+    #define PWM_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
     #define PWM_GPIO                    GPIOA
     #define PWM_GPIO_AF                 GPIO_AF2
     #define PWM_IRQHandler              TIM5_IRQHandler
@@ -910,8 +911,6 @@
   #define AUDIO_OUTPUT_GPIO             GPIO_PIN(GPIOA, 4) // PA.04
   #define AUDIO_DMA_Stream              DMA1_Stream5
   #define AUDIO_DMA_Stream_IRQn         DMA1_Stream5_IRQn
-  #define AUDIO_TIM_IRQn                TIM6_DAC_IRQn
-  #define AUDIO_TIM_IRQHandler          TIM6_DAC_IRQHandler
   #define AUDIO_DMA_Stream_IRQHandler   DMA1_Stream5_IRQHandler
   #define AUDIO_TIMER                   TIM6
   #define AUDIO_DMA                     DMA1
@@ -1229,11 +1228,6 @@
 
 // SDRAM
 #define SDRAM_BANK2
-
-#define PORTRAIT_LCD false
-#define LANDSCAPE_LCD_SML false
-#define LANDSCAPE_LCD_STD true
-#define LANDSCAPE_LCD_LRG false
 
 #if defined(RADIO_T15)
 #define LCD_W                          480

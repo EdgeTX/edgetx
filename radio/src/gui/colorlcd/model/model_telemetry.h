@@ -33,7 +33,7 @@ class ModelTelemetryPage : public PageTab
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL(NUM_EDIT_W, 100, 65, LS(100))
+  static LAYOUT_SIZE_SCALED(NUM_EDIT_W, 100, 65)
 
  protected:
   int lastKnownIndex = 0;

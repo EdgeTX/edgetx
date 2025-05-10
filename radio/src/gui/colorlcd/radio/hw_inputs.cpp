@@ -37,7 +37,7 @@ struct HWInputEdit : public RadioTextEdit {
   {
   }
 
-  static LAYOUT_VAL(HW_INP_W, 64, 64, LS(64))
+  static LAYOUT_VAL_SCALED(HW_INP_W, 64)
 };
 
 static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
@@ -45,7 +45,7 @@ static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
 static const lv_coord_t col_three_dsc[] = {
     LV_GRID_FR(8), LV_GRID_FR(12), LV_GRID_FR(20), LV_GRID_TEMPLATE_LAST};
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2),
                                           LV_GRID_FR(5), LV_GRID_FR(2),
                                           LV_GRID_TEMPLATE_LAST};
@@ -83,7 +83,7 @@ HWSticks::HWSticks(Window* parent) : Window(parent, rect_t{})
 }
 
 HWPots::HWPots(Window* parent) :
-    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
+    Window(parent, rect_t{0, 0, LV_PCT(100), LV_SIZE_CONTENT})
 {
   padAll(PAD_TINY);
 
@@ -100,7 +100,7 @@ HWPots::HWPots(Window* parent) :
   new StaticText(this, {P_TYP_X, -PAD_TINY, 0, 0}, STR_TYPE, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   new StaticText(this, {P_INV_X, -PAD_TINY, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 
-  coord_t yo = EdgeTxStyles::STD_FONT_HEIGHT - 2;
+  coord_t yo = EdgeTxStyles::STD_FONT_HEIGHT - PAD_TINY;
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
   for (int i = 0; i < max_pots; i++) {
@@ -112,7 +112,7 @@ HWPots::HWPots(Window* parent) :
     //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
     new StaticText(this,
-                   rect_t{P_LBL_X, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, 0},
+                   rect_t{0, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, 0},
                    adcGetInputLabel(ADC_INPUT_FLEX, i));
 
     new HWInputEdit(this, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
@@ -197,15 +197,15 @@ class HWSwitch
  public:
   HWSwitch(Window* parent, int swnum, coord_t y)
   {
-    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_MEDIUM, SW_CTRL_W);
+    new SwitchDynamicLabel(parent, swnum, PAD_TINY, y + PAD_SMALL, HWSwitches::SW_CTRL_W);
     new HWInputEdit(parent, (char*)switchGetCustomName(swnum), LEN_SWITCH_NAME,
-                    SW_CTRL_W + 8, y);
+                    HWSwitches::SW_CTRL_W + PAD_SMALL, y);
 
-    coord_t x = SW_CTRL_W * 2 + PAD_LARGE + PAD_MEDIUM;
+    coord_t x = HWSwitches::SW_CTRL_W * 2 + PAD_SMALL * 2;
 
     if (switchIsFlex(swnum)) {
       channel = new Choice(
-          parent, {x, y, SW_CTRL_W, 0}, -1,
+          parent, {x, y, HWSwitches::SW_CTRL_W, 0}, -1,
           adcGetMaxInputs(ADC_INPUT_FLEX) - 1,
           [=]() -> int { return switchGetFlexConfig(swnum); },
           [=](int newValue) {
@@ -219,11 +219,11 @@ class HWSwitch
         if (val < 0) return STR_NONE;
         return adcGetInputLabel(ADC_INPUT_FLEX, val);
       });
-      x += SW_CTRL_W + PAD_MEDIUM;
+      x += HWSwitches::SW_CTRL_W + PAD_SMALL;
     }
 
     sw_cfg = new Choice(
-        parent, {x, y, SW_CTRL_W, 0},
+        parent, {x, y, HWSwitches::SW_CTRL_W, 0},
         STR_SWTYPES, SWITCH_NONE, switchGetMaxType(swnum),
         [=]() -> int { return SWITCH_CONFIG(swnum); },
         [=](int newValue) {
@@ -246,8 +246,7 @@ class HWSwitch
     }
   }
 
-  static LAYOUT_VAL(SW_CTRL_W, 86, 75, LS(86))
-  static LAYOUT_VAL(SW_CTRL_H, 36, 36, 26)
+  static constexpr coord_t SW_CTRL_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
 
  protected:
   Choice* channel = nullptr;
@@ -255,19 +254,19 @@ class HWSwitch
 };
 
 HWSwitches::HWSwitches(Window* parent) :
-    Window(parent, rect_t{0, 0, DIALOG_DEFAULT_WIDTH - 12, LV_SIZE_CONTENT})
+    Window(parent, rect_t{0, 0, LV_PCT(100), LV_SIZE_CONTENT})
 {
   padAll(PAD_TINY);
 
   auto max_switches = switchGetMaxSwitches();
   for (int i = 0; i < max_switches; i++) {
-    new HWSwitch(this, i, i * HWSwitch::SW_CTRL_H + PAD_TINY);
+    new HWSwitch(this, i, i * HWSwitch::SW_CTRL_H + PAD_OUTLINE);
   }
 }
 
 template <class T>
-HWInputDialog<T>::HWInputDialog(const char* title) :
-    BaseDialog(title, true)
+HWInputDialog<T>::HWInputDialog(const char* title, coord_t w) :
+    BaseDialog(title, true, w)
 {
   new T(form);
 }

@@ -43,7 +43,7 @@ class GVarNumberEdit : public Window
   void setAccelFactor(int value) { num_field->setAccelFactor(value); }
   void setDisplayHandler(std::function<std::string(int value)> function);
 
-  static LAYOUT_VAL(GV_BTN_W, 40, 40, LS(40))
+  static LAYOUT_VAL_SCALED(GV_BTN_W, 40)
 
  protected:
   Choice* gvar_field = nullptr;

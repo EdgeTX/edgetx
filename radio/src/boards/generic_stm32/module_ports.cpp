@@ -29,8 +29,15 @@
 #include "trainer_driver.h"
 
 #include "module_ports.h"
+#include "intmodule_heartbeat.h"
+
 #include "board.h"
 #include "dataconstants.h"
+
+#include "pulses/pulses.h"
+#include "pulses/pxx1.h"
+
+#include "trainer.h"
 
 #if defined (HARDWARE_INTERNAL_MODULE)
 #if defined(INTMODULE_USART)
@@ -615,6 +622,17 @@ void boardInitModulePorts()
     gpio_init(EXTMODULE_PWR_FIX_GPIO, GPIO_OD, GPIO_PIN_SPEED_LOW);
     gpio_set(EXTMODULE_PWR_FIX_GPIO);
   }
+#endif
+
+#if defined(INTERNAL_MODULE_PXX1) && defined(PXX_FREQUENCY_HIGH)
+  pxx1SetInternalBaudrate(PXX1_FAST_SERIAL_BAUDRATE);
+#endif
+
+#if defined(INTMODULE_HEARTBEAT) &&                                     \
+  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
+  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
+  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
+  trainerSetChangeCb(_intmodule_heartbeat_trainer_hook);
 #endif
 }
 

@@ -126,19 +126,25 @@ class ValueWidget : public Widget
       std::string valueTxt;
 
       // Set value text
-      if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
-        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
-        TimerOptions timerOptions;
-        timerOptions.options = SHOW_TIMER;
-        valueTxt = getTimerString(abs(timerState.val), timerOptions);
+      if (field == MIXSRC_TX_VOLTAGE) {
+        valueTxt =
+            getSourceCustomValueString(field, getValue(field), valueFlags);
+        valueTxt += STR_V;
       } else if (field == MIXSRC_TX_TIME) {
         int32_t tme = getValue(MIXSRC_TX_TIME);
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIME;
         valueTxt = getTimerString(tme, timerOptions);
+      } else if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
+        TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
+        TimerOptions timerOptions;
+        timerOptions.options = SHOW_TIMER;
+        valueTxt = getTimerString(abs(timerState.val), timerOptions);
       } else if (field >= MIXSRC_FIRST_TELEM) {
-        std::string getSensorCustomValue(uint8_t sensor, int32_t value, LcdFlags flags);
-        valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3, getValue(field), valueFlags);
+        std::string getSensorCustomValue(uint8_t sensor, int32_t value,
+                                         LcdFlags flags);
+        valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3,
+                                        getValue(field), valueFlags);
 #if defined(LUA_INPUTS)
       }
       else if (field >= MIXSRC_FIRST_LUA && field <= MIXSRC_LAST_LUA) {
@@ -168,8 +174,10 @@ class ValueWidget : public Widget
   lv_obj_t* valueShadow;
   LcdFlags valueFlags = 0;
 
-  static LAYOUT_VAL(VAL_Y1, 14, 14, 10)
-  static LAYOUT_VAL(VAL_Y2, 18, 18, LS(18))
+  static LAYOUT_VAL_SCALED(VAL_Y1, 14)
+  static LAYOUT_VAL_SCALED(VAL_Y2, 18)
+  static LAYOUT_VAL_SCALED(H_CHK, 50)
+  static LAYOUT_VAL_SCALED(W_CHK, 120)
 
   void update() override
   {
@@ -196,23 +204,23 @@ class ValueWidget : public Widget
     lv_obj_clear_state(valueShadow, ETX_STATE_LARGE_FONT);
 
     // Get positions, alignment and value font size.
-    if (height() < 50) {
-      if (width() >= 120) {
+    if (height() < H_CHK) {
+      if (width() >= W_CHK) {
         lblAlign = ALIGN_LEFT;
         valAlign = ALIGN_RIGHT;
-        labelX = 4;
-        labelY = 2;
-        valueX = -4;
-        valueY = -2;
+        labelX = PAD_SMALL;
+        labelY = PAD_TINY;
+        valueX = -PAD_SMALL;
+        valueY = -PAD_TINY;
       }
     } else {
-      labelX = (lblAlign == ALIGN_LEFT)     ? 4
-               : (lblAlign == ALIGN_CENTER) ? -3
-                                            : -4;
+      labelX = (lblAlign == ALIGN_LEFT)     ? PAD_SMALL
+               : (lblAlign == ALIGN_CENTER) ? -PAD_THREE
+                                            : -PAD_SMALL;
       labelY = 2;
-      valueX = (valAlign == ALIGN_LEFT)     ? 4
+      valueX = (valAlign == ALIGN_LEFT)     ? PAD_SMALL
                : (valAlign == ALIGN_CENTER) ? 1
-                                            : -4;
+                                            : -PAD_SMALL;
       valueY = VAL_Y2;
       if (field >= MIXSRC_FIRST_TELEM) {
         int8_t sensor = 1 + (field - MIXSRC_FIRST_TELEM) / 3;

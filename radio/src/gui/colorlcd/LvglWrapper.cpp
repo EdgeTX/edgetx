@@ -21,6 +21,7 @@
 
 #include "edgetx.h"
 #include "hal/rotary_encoder.h"
+#include "os/time.h"
 
 #include "LvglWrapper.h"
 #include "etx_lv_theme.h"
@@ -359,9 +360,10 @@ LvglWrapper* LvglWrapper::instance()
 void LvglWrapper::run()
 {
 #if defined(SIMU)
-  tmr10ms_t tick = get_tmr10ms();
-  lv_tick_inc((tick - lastTick) * 10);
-  lastTick = tick;
+  static uint32_t last_tick = 0;
+  uint32_t tick = time_get_ms();
+  lv_tick_inc(tick - last_tick);
+  last_tick = tick;
 #endif
   lv_timer_handler();
 }

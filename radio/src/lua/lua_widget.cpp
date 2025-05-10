@@ -28,6 +28,7 @@
 
 #include "touch.h"
 #include "view_main.h"
+#include "os/time.h"
 
 #define MAX_INSTRUCTIONS (20000 / 100)
 
@@ -117,11 +118,11 @@ void LuaEventHandler::event_cb(lv_event_t* e)
       _startX = rel_pos.x;
       _startY = rel_pos.y;
 
-      downTime = RTOS_GET_MS();
+      downTime = time_get_ms();
     }
   } else if (code == LV_EVENT_RELEASED) {
     // tap count handling
-    uint32_t now = RTOS_GET_MS();
+    uint32_t now = time_get_ms();
     if (now - downTime <= LUA_TAP_TIME) {
       if (now - tapTime > LUA_TAP_TIME) {
         tapCount = 1;

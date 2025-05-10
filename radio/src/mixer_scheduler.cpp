@@ -19,10 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "edgetx.h"
 #include "mixer_scheduler.h"
 #include "tasks/mixer_task.h"
 #include "hal/usb_driver.h"
+#include "os/sleep.h"
+
+#include "dataconstants.h"
+#include <string.h>
 
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
@@ -45,7 +48,7 @@ bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
     return true;
   }
 #else
-  simuSleep(timeoutMs);
+  sleep_ms(timeoutMs);
   return true;
 #endif
 }
@@ -111,10 +114,10 @@ void mixerSchedulerISRTrigger()
 
   /* At this point xTaskToNotify should not be NULL as
      a transmission was in progress. */
-  configASSERT( mixerTaskId.rtos_handle != NULL );
+  configASSERT( mixerTaskId._rtos_handle != NULL );
 
   /* Notify the task that the transmission is complete. */
-  vTaskNotifyGiveFromISR( mixerTaskId.rtos_handle,
+  vTaskNotifyGiveFromISR( mixerTaskId._rtos_handle,
                           &xHigherPriorityTaskWoken );
 
   /* If xHigherPriorityTaskWoken is now set to pdTRUE then a

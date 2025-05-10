@@ -57,3 +57,8 @@ uint32_t rgbGetLedColor(uint8_t led)
   uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
   return  (pixel[1] << 16) +  (pixel[0] << 8) + pixel[2];
 }
+
+uint32_t fsGetLedRGB(uint8_t index)
+{
+  return rgbGetLedColor(index);
+}

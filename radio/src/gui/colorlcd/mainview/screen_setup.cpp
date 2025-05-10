@@ -44,7 +44,7 @@ class LayoutChoice : public Button
 
   LayoutChoice(Window* parent, LayoutFactoryGetter getValue,
                LayoutFactorySetter setValue) :
-      Button(parent, {0, 0, LayoutFactory::BM_W + 12, LayoutFactory::BM_H + 12}),
+      Button(parent, {0, 0, LayoutFactory::BM_W + PAD_LARGE + PAD_SMALL, LayoutFactory::BM_H + PAD_LARGE + PAD_SMALL}),
       getValue(std::move(getValue)),
       _setValue(std::move(setValue))
   {
@@ -86,13 +86,12 @@ class LayoutChoice : public Button
     auto layout = getValue();
     if (!layout) return;
 
-    const uint8_t* bitmap = layout->getBitmap();
+    const MaskBitmap* bitmap = layout->getBitmap();
     if (!bitmap) return;
 
-    lv_coord_t w = *((uint16_t*)bitmap);
-    lv_coord_t h = *(((uint16_t*)bitmap) + 1);
-    void* buf = (void*)(bitmap + 4);
-    lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
+    lv_coord_t w = bitmap->width;
+    lv_coord_t h = bitmap->height;
+    lv_canvas_set_buffer(canvas, (void*)&bitmap->data[0], w, h, LV_IMG_CF_ALPHA_8BIT);
   }
 
   void setValue(const LayoutFactory* layout)
@@ -117,7 +116,7 @@ void ScreenAddPage::update(uint8_t index)
 void ScreenAddPage::build(Window* window)
 {
   new TextButton(window,
-                 rect_t{LCD_W / 2 - 100, window->height() / 2 - 32, 200, 32},
+                 rect_t{LCD_W / 2 - ADD_TXT_W / 2, window->height() / 2 - EdgeTxStyles::UI_ELEMENT_HEIGHT, ADD_TXT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
                  STR_ADD_MAIN_VIEW, [this]() -> uint8_t {
                    // First page is "User interface", subtract it
                    auto newIdx = pageIndex - 1;
@@ -172,7 +171,7 @@ void ScreenAddPage::build(Window* window)
                  });
 }
 
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
                                           LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 #else
@@ -263,7 +262,7 @@ void ScreenSetupPage::build(Window* window)
 
   Window* btn = new LayoutChoice(line, getFactory, setLayout);
 
-#if PORTRAIT_LCD
+#if PORTRAIT
   line = window->newLine(grid);
   grid.nextCell();
 #endif

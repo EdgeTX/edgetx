@@ -1421,6 +1421,7 @@
   #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_0  // PC.00
   #define PWM_STICKS
   #define PWM_TIMER                     TIM5
+  #define PWM_TIMER_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define PWM_GPIO                      GPIOA
   #define PWM_GPIO_AF                   GPIO_AF2
   #define PWM_IRQHandler                TIM5_IRQHandler
@@ -1472,11 +1473,12 @@
   #define ADC_VREF_PREC2                320
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
   #define PWM_STICKS
-  #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_TIMER                     TIM5
+  #define PWM_TIMER_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
   #define PWM_GPIO                      GPIOA
   #define PWM_GPIO_AF                   GPIO_AF2
   #define PWM_IRQn                      TIM5_IRQn
+  #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
   #define STICK_PWM_CHANNEL_LH          1
   #define STICK_PWM_CHANNEL_LV          0
@@ -2721,11 +2723,8 @@
 #define SD_SPI_DMA_CHANNEL              LL_DMA_CHANNEL_0
 
 // Audio
-#define AUDIO_RCC_APB1Periph            LL_APB1_GRP1_PERIPH_DAC1
 #define AUDIO_OUTPUT_GPIO               GPIO_PIN(GPIOA, 4)
 #define AUDIO_DMA                       DMA1
-#define AUDIO_TIM_IRQn                  TIM6_DAC_IRQn
-#define AUDIO_TIM_IRQHandler            TIM6_DAC_IRQHandler
 #define AUDIO_DMA_Stream                DMA1_Stream5
 #define AUDIO_DMA_Stream_IRQn           DMA1_Stream5_IRQn
 #define AUDIO_DMA_Stream_IRQHandler     DMA1_Stream5_IRQHandler

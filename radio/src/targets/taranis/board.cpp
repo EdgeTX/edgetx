@@ -112,16 +112,16 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
 
 void boardInit()
 {
-  LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
-#if defined(USB_CHARGE_LED) && !defined(DEBUG)
-  usbInit();
-  // prime debounce state...
-  usbPlugged();
+  delaysInit();
+  timersInit();
+  __enable_irq();
 
+  usbInit();
+
+#if defined(USB_CHARGE_LED) && !defined(DEBUG)
   if (usbPlugged()) {
-    delaysInit();
 #if defined(AUDIO_MUTE_GPIO)
      // Charging can make a buzzing noise
      gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
@@ -149,22 +149,6 @@ void boardInit()
   pwrInit();
   boardInitModulePorts();
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(PXX_FREQUENCY_HIGH)
-  pxx1SetInternalBaudrate(PXX1_FAST_SERIAL_BAUDRATE);
-#endif
-
-#if defined(INTMODULE_HEARTBEAT) &&                                     \
-  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
-  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
-  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
-  trainerSetChangeCb(_intmodule_heartbeat_trainer_hook);
-#endif
-  
-// #if defined(AUTOUPDATE)
-//   telemetryPortInit(FRSKY_SPORT_BAUDRATE, TELEMETRY_SERIAL_WITHOUT_DMA);
-//   sportSendByteLoop(0x7E);
-// #endif
-
 #if defined(STATUS_LEDS)
   ledInit();
 #if !defined(POWER_LED_BLUE)
@@ -184,14 +168,7 @@ void boardInit()
 // - function switches and the radio supports charging
 // - single USB for data + charge which powers on radio
 #if defined(MANUFACTURER_JUMPER) && !defined(USB_CHARGE_LED)
-  // This is needed to prevent radio from starting when usb is plugged to charge
-  usbInit();
-  // prime debounce state...
-  usbPlugged();
-
   if (usbPlugged()) {
-    delaysInit();
-    __enable_irq();
     adcInit(&_adc_driver);
     getADC();
     pwrOn();  // required to get bat adc reads
@@ -222,9 +199,6 @@ void boardInit()
   }
 #endif
 
-  delaysInit();
-  __enable_irq();
-
   keysInit();
   switchInit();
 
@@ -232,21 +206,13 @@ void boardInit()
   rotaryEncoderInit();
 #endif
 
-#if defined(PWM_STICKS)
-  sticksPwmDetect();
-#endif
-
-#if defined(FLYSKY_GIMBAL)
-  flysky_gimbal_init();
-#endif
+  gimbalsDetect();
 
   if (!adcInit(&_adc_driver))
     TRACE("adcInit failed");
 
   lcdInit(); // delaysInit() must be called before
   audioInit();
-  timersInit();
-  usbInit();
 
 #if defined(LED_STRIP_GPIO)
   rgbLedInit();
@@ -254,10 +220,6 @@ void boardInit()
 
 #if defined(HAPTIC)
   hapticInit();
-#endif
-
-#if defined(PXX2_PROBE)
-  intmodulePxx2Probe();
 #endif
 
 #if defined(DEBUG)
@@ -293,7 +255,6 @@ void boardInit()
 #if defined(RADIO_GX12)
   gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
-
 }
 #endif
 

@@ -318,7 +318,7 @@
 #define TR_ELEVATOR                    "Nick Quelle"
 #define TR_SWASHRING                   TR("Ring   Begrenz", "Ring Begrenzung")
 #define TR_MODE                        "Modus"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK                "Links"
 #else
   #define TR_LEFT_STICK                "Li"
@@ -1191,7 +1191,7 @@
 #define TR_USE_THEME_COLOR             "Farbe des Themes verwenden"
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Alle Trimmungen übernehmen"
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanalmonitor"
 #else
   #define TR_OPEN_CHANNEL_MONITORS        "Öffne Kanalmon."
@@ -1202,6 +1202,7 @@
 #define TR_BLUE                        "Blau"
 #define TR_GREEN                       "Grün"
 #define TR_COLOR_PICKER                "Farbauswahl"
+#define TR_FIXED                       "Fixed"
 #define TR_EDIT_THEME_DETAILS          "Theme Details Bearb."
 #define TR_THEME_COLOR_DEFAULT         "Standard"
 #define TR_THEME_COLOR_PRIMARY1        "Primär1"

@@ -87,7 +87,7 @@
 
 #define PSIZE(x) ( sizeof(x) - 1 )
 
-#if LCD_W < LCD_H    // Portrait mode
+#if NARROW_LAYOUT
   #define TR3(x, y, z) z
   #define TR(x, y) y
 #elif LCD_W >= 480
@@ -1185,6 +1185,7 @@ extern const char STR_RED[];
 extern const char STR_BLUE[];
 extern const char STR_GREEN[];
 extern const char STR_COLOR_PICKER[];
+extern const char STR_FIXED[];
 extern const char STR_EDIT_THEME_DETAILS[];
 extern const char STR_THEME_COLOR_DEFAULT[];
 extern const char STR_THEME_COLOR_PRIMARY1[];

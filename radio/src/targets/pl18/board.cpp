@@ -34,6 +34,7 @@
 #include "hal/rotary_encoder.h"
 
 #include "board.h"
+#include "boards/generic_stm32/analog_inputs.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/rgb_leds.h"
 
@@ -46,11 +47,7 @@
   #include "vs1053b.h"
 #endif
 
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
-#endif
 #include "timers_driver.h"
-
 #include "battery_driver.h"
 #include "touch_driver.h"
 
@@ -224,11 +221,8 @@ void boardInit()
 
   board_trainer_init();
   battery_charge_init();
-  
-  #if defined(FLYSKY_GIMBAL)
-    flysky_gimbal_init();
-  #endif
-  
+
+  gimbalsDetect();  
   timersInit();
   touchPanelInit();
   usbInit();

@@ -26,8 +26,7 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-LAYOUT_VAL3(VERT_SCALE, 1, 1, 1, 2)
-LAYOUT_VAL(SCALE_HEIGHT, 15, 15, LS(15))
+LAYOUT_VAL_SCALED(SCALE_HEIGHT, 15)
 constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - SCALE_HEIGHT - EdgeTxStyles::UI_ELEMENT_HEIGHT;
 
 coord_t getAverage(uint8_t number, const uint8_t* value)
@@ -36,7 +35,8 @@ coord_t getAverage(uint8_t number, const uint8_t* value)
   for (uint8_t i = 0; i < number; i++) {
     sum += value[i];
   }
-  return sum * VERT_SCALE / number;
+  if (SPECTRUM_HEIGHT > 300) sum = sum * 2;
+  return sum / number;
 }
 
 class SpectrumFooterWindow : public Window
@@ -122,7 +122,7 @@ class SpectrumScaleWindow : public Window
       int x = (frequency - startFreq) / reusableBuffer.spectrumAnalyser.step;
       if (x >= LCD_W - 1) break;
       formatNumberAsString(s, 16, frequency / 1000000, 16);
-      new StaticText(this, {x - 16, 0, 32, SCALE_HEIGHT}, s, 
+      new StaticText(this, {x - PAD_LARGE * 2, 0, PAD_LARGE * 4, SCALE_HEIGHT}, s, 
                      COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | CENTERED);
     }
   }
@@ -150,13 +150,13 @@ class SpectrumWindow : public Window
       Window(parent, rect)
   {
     lv_style_init(&style);
-    lv_style_set_line_width(&style, 3);
+    lv_style_set_line_width(&style, PAD_THREE);
     lv_style_set_line_opa(&style, LV_OPA_COVER);
     lv_style_set_line_color(&style, makeLvColor(COLOR_THEME_ACTIVE));
 
     lv_coord_t w = width() - 1;
-    for (int i = 0; i < SPECTRUM_HEIGHT / 40; i += 1) {
-      lv_coord_t y = height() - 40 - (i * 40);
+    for (int i = 0; i < SPECTRUM_HEIGHT / LINE_SPACE; i += 1) {
+      lv_coord_t y = height() - LINE_SPACE - (i * LINE_SPACE);
       hAxisPts[i * 2] = {0, y};
       hAxisPts[i * 2 + 1] = {w, y};
       auto line = lv_line_create(lvobj);
@@ -182,7 +182,7 @@ class SpectrumWindow : public Window
     }
 
     warning = new StaticText(
-        this, {0, height() / 2 - 20, lv_pct(100), LV_SIZE_CONTENT},
+        this, {0, height() / 2 - WARN_YO, lv_pct(100), LV_SIZE_CONTENT},
         STR_TURN_OFF_RECEIVER, COLOR_THEME_PRIMARY1_INDEX, CENTERED | FONT(XL));
     warning->show(TELEMETRY_STREAMING());
   }
@@ -281,6 +281,9 @@ class SpectrumWindow : public Window
 
   uint32_t lastFreq = 0;
   uint32_t lastSpan = 0;
+
+  static LAYOUT_VAL_SCALED(LINE_SPACE, 40)
+  static LAYOUT_VAL_SCALED(WARN_YO, 20)
 };
 
 RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :

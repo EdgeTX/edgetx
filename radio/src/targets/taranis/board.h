@@ -224,7 +224,6 @@ void debugPutc(const char c);
 
 // Audio driver
 void audioInit();
-void audioEnd();
 
 #if defined(PCBXLITES)
 #define SHARED_DSC_HEADPHONE_JACK

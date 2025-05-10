@@ -736,6 +736,29 @@ void LvglWidgetLine::getPt(lua_State* L, int n)
   lua_pop(L, 2);
 }
 
+uint32_t LvglWidgetLine::getPts(lua_State* L)
+{
+  luaL_checktype(L, -1, LUA_TTABLE);
+  size_t newPtCnt = lua_rawlen(L, -1);
+  if (newPtCnt > 1) {
+    ptCnt = newPtCnt;
+    if (pts && ptCnt > ptAlloc) {
+      delete pts;
+      pts = nullptr;
+    }
+    if (!pts) {
+      pts = new lv_point_t[ptCnt];
+      ptAlloc = ptCnt;
+    }
+    for (size_t i = 0; i < ptCnt; i += 1)
+      getPt(L, i);
+    return hash(pts, sizeof(ptCnt * sizeof(lv_point_t)));
+  } else {
+    ptCnt = 0;
+    return -1;
+  }
+}
+
 void LvglWidgetLine::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "thickness")) {
@@ -746,17 +769,7 @@ void LvglWidgetLine::parseParam(lua_State *L, const char *key)
     if (lua_isfunction(L, -1)) {
       getPointsFunction = luaL_ref(L, LUA_REGISTRYINDEX);
     } else {
-      luaL_checktype(L, -1, LUA_TTABLE);
-      ptCnt = lua_rawlen(L, -1);
-      if (pts) delete pts;
-      if (ptCnt > 1) {
-        pts = new lv_point_t[ptCnt];
-        for (size_t i = 0; i < ptCnt; i += 1)
-          getPt(L, i);
-      } else {
-        pts = nullptr;
-        ptCnt = 0;
-      }
+      ptsHash = getPts(L);
     }
   } else {
     LvglSimpleWidgetObject::parseParam(L, key);
@@ -768,21 +781,10 @@ bool LvglWidgetLine::callRefs(lua_State *L)
   int t = lua_gettop(L);
   if (getPointsFunction != LUA_REFNIL) {
     if (pcallFunc(L, getPointsFunction, 1)) {
-      luaL_checktype(L, -1, LUA_TTABLE);
-      ptCnt = lua_rawlen(L, -1);
-      if (pts) delete pts;
-      if (ptCnt > 1) {
-        pts = new lv_point_t[ptCnt];
-        for (size_t i = 0; i < ptCnt; i += 1)
-          getPt(L, i);
-        uint32_t h = hash(pts, sizeof(ptCnt * sizeof(lv_point_t)));
-        if (h != ptsHash) {
-          ptsHash = h;
-          refresh();
-        }
-      } else {
-        pts = nullptr;
-        ptCnt = 0;
+      uint32_t h = getPts(L);
+      if (h != ptsHash) {
+        ptsHash = h;
+        setLine();
       }
       lua_settop(L, t);
     } else {
@@ -808,7 +810,8 @@ void LvglWidgetLine::setColor(LcdFlags newColor)
 void LvglWidgetLine::setOpacity(uint8_t newOpa)
 {
   opacity.value = newOpa;
-  lv_obj_set_style_line_opa(lvobj, opacity.value, LV_PART_MAIN);
+  if (lvobj)
+    lv_obj_set_style_line_opa(lvobj, opacity.value, LV_PART_MAIN);
 }
 
 void LvglWidgetLine::setPos(coord_t x, coord_t y)
@@ -830,7 +833,10 @@ void LvglWidgetLine::setSize(coord_t w, coord_t h)
 
 void LvglWidgetLine::setLine()
 {
-  if (lvobj && pts) {
+  if (pts) {
+    if (!lvobj)
+      lvobj = lv_line_create(parent);
+
     x = pts[0].x;
     y = pts[0].y;
     for (size_t i = 1; i < ptCnt; i += 1) {
@@ -847,19 +853,14 @@ void LvglWidgetLine::setLine()
 void LvglWidgetLine::build(lua_State *L)
 {
   if (pts) {
-    lvobj = lv_line_create(parent);
+    setLine();
     setColor(color.flags);
     setOpacity(opacity.value);
-    setLine();
   }
 }
 
 void LvglWidgetLine::refresh()
 {
-  if (lvobj) {
-    lv_obj_del(lvobj);
-    lvobj = nullptr;
-  }
   color.currVal = -1;
   build(nullptr);
 }
@@ -2170,6 +2171,41 @@ void LvglWidgetChoice::build(lua_State *L)
       lvglManager->getCurrentParent(), {x, y, w, h}, values, 0, values.size() - 1,
       [=]() { return pcallGetIntVal(L, getFunction) - 1; },
       [=](int val) { pcallSetIntVal(L, setFunction, val + 1); }, title.c_str());
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetMenu::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "title")) {
+    title = luaL_checkstring(L, -1);
+  } else if (!strcmp(key, "values")) {
+    luaL_checktype(L, -1, LUA_TTABLE);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      values.push_back(lua_tostring(L, -1));
+    }
+  } else {
+    LvglWidgetPicker::parseParam(L, key);
+  }
+}
+
+void LvglWidgetMenu::build(lua_State *L)
+{
+  auto menu = new Menu();
+  if (!title.empty()) menu->setTitle(title);
+
+  for (size_t i = 0; i < values.size(); i += 1) {
+    menu->addLine(values[i], [=]() {
+      pcallSetIntVal(L, setFunction, i + 1);
+    });
+  }
+
+  int selected = pcallGetIntVal(L, getFunction) - 1;
+  if (selected >= 0) {
+    menu->select(selected);
+  }
+
+  window = menu;
 }
 
 //-----------------------------------------------------------------------------

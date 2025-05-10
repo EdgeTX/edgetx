@@ -68,8 +68,8 @@ uint16_t getRTCBatteryVoltage()
 #elif defined(BATT_SCALE)
   // defined as a simple ratio (old style: mostly taranis targets)
   #define VBAT_DIVIDER                               \
-    (((float)BATT_SCALE * (float)ADC_MAX_FILTERED) / \
-     ((float)BATTERY_DIVIDER * VREF_FLOAT))
+    (((float)BATT_SCALE * 128.0 * (float)ADC_MAX_FILTERED) / \
+     ((float)BATTERY_DIVIDER * 100.0 * VREF_FLOAT))
 
 // Scale of Vbat calibration setting
 #define VBAT_CAL 128.0

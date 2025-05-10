@@ -30,19 +30,12 @@
 #include <stddef.h>
 #include <errno.h>
 
-// #undef min
-// #undef max
-
-extern uint8_t * eeprom;
-
 #define __disable_irq()
 #define __enable_irq()
 
 extern char * main_thread_error;
 
-
 uint64_t simuTimerMicros(void);
-uint8_t simuSleep(uint32_t ms);  // returns true if thread shutdown requested
 
 void simuSetKey(uint8_t key, bool state);
 void simuSetTrim(uint8_t trim, bool state);
@@ -57,20 +50,15 @@ void startEepromThread(const char * filename = "eeprom.bin");
 void stopEepromThread();
 
 #if defined(SIMU_AUDIO)
-  void startAudioThread(int volumeGain = 10);
-  void stopAudioThread(void);
+  int startAudio(int volumeGain = 10);
+  void stopAudio();
 #else
-  #define startAudioThread(dummy)
-  #define stopAudioThread()
+  #define startAudio(dummy) (-1)
+  #define stopAudio()
 #endif
 #endif
 
 void simuMain();
-
-
-// inline void delay_01us(uint32_t dummy) { }
-
-#define configure_pins(...)
 
 #if !defined(SKIP_FATFS_DECLARATION) && !defined(SIMU_DISKIO)
   #define SIMU_USE_SDCARD

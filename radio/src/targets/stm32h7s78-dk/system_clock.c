@@ -48,8 +48,7 @@
   * @param  None
   * @retval None
   */
-extern "C" BOOTSTRAP
-void SystemClock_Config()
+BOOTSTRAP void SystemClock_Config()
 {
   /* Power Configuration */
   LL_PWR_ConfigSupply(LL_PWR_DIRECT_SMPS_SUPPLY);

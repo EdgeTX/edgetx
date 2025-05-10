@@ -48,7 +48,7 @@ class MixerEditStatusBar : public Window
                             channel, true);
   }
 
-  static LAYOUT_VAL(MIX_STATUS_BAR_MARGIN, 3, 0, LS(3))
+  static LAYOUT_SIZE_SCALED(MIX_STATUS_BAR_MARGIN, 3, 0)
 
  protected:
   ComboChannelBar *channelBar;
@@ -75,7 +75,7 @@ void MixEditWindow::buildHeader(Window *window)
       channel);
 }
 
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(2),
                                      LV_GRID_FR(1), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};

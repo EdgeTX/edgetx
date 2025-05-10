@@ -49,10 +49,6 @@
 
 #include <string.h>
 
-#if defined(FLYSKY_GIMBAL)
-  #include "flysky_gimbal_driver.h"
-#endif
-
 #if defined(CSD203_SENSOR)
   #include "csd203_sensor.h"
 #endif
@@ -145,70 +141,56 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
 
 void boardInit()
 {
+  delaysInit();
+  timersInit();
+  __enable_irq();
+
 #if defined(RADIO_FAMILY_T16)
   void board_set_bor_level();
   board_set_bor_level();
 #endif
 
-#if defined(MANUFACTURER_JUMPER) && defined(FUNCTION_SWITCHES) && !defined(DEBUG)
-  // This is needed to prevent radio from starting when usb is plugged to charge
   usbInit();
-  // prime debounce state...
-   usbPlugged();
-   if (usbPlugged()) {
-     delaysInit();
- #if defined(AUDIO_MUTE_GPIO)
-     // Charging can make a buzzing noise
-     gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-     gpio_set(AUDIO_MUTE_GPIO);
- #endif
-     while (usbPlugged()) {
-       delay_ms(1000);
-     }
-     while(1) // Wait power to drain
-       pwrOff();
-   }
+
+#if defined(MANUFACTURER_JUMPER) && defined(FUNCTION_SWITCHES) && \
+    !defined(DEBUG)
+  // This is needed to prevent radio from starting when usb is plugged to charge
+  if (usbPlugged()) {
+    delaysInit();
+#if defined(AUDIO_MUTE_GPIO)
+    // Charging can make a buzzing noise
+    gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+    gpio_set(AUDIO_MUTE_GPIO);
+#endif
+    while (usbPlugged()) {
+      delay_ms(1000);
+    }
+    pwrOff();
+    // Wait power to drain
+    while (true) {
+    }
+  }
 #endif
 
   pwrInit();
-
-  boardInitModulePorts();
-
-#if defined(INTMODULE_HEARTBEAT) &&                                     \
-  (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2))
-  pulsesSetModuleInitCb(_intmodule_heartbeat_init);
-  pulsesSetModuleDeInitCb(_intmodule_heartbeat_deinit);
-  trainerSetChangeCb(_intmodule_heartbeat_trainer_hook);
-#endif
-
-  board_trainer_init();
   pwrOn();
-  delaysInit();
-
-  __enable_irq();
 
   TRACE("\nHorus board started :)");
   TRACE("RCC->CSR = %08x", RCC->CSR);
+
+  boardInitModulePorts();
+  board_trainer_init();
 
   audioInit();
   keysInit();
   switchInit();
   rotaryEncoderInit();
+  gimbalsDetect();
 
-#if defined(FLYSKY_GIMBAL) && defined(PWM_STICKS)
-  if (!flysky_gimbal_init()) {
-    sticksPwmDetect();
-  }
-#elif defined(FLYSKY_GIMBAL)
-  flysky_gimbal_init();
-#elif defined(PWM_STICKS)
-  sticksPwmDetect();
-#endif
-
-  if (!adcInit(&_adc_driver))
+  if (!adcInit(&_adc_driver)) {
     TRACE("adcInit failed");
+  }
 
-  timersInit();
 
 #if defined(HARDWARE_TOUCH) && !defined(SIMU)
   touchPanelInit();
@@ -218,7 +200,6 @@ void boardInit()
   initCSD203();
 #endif
 
-  usbInit();
   hapticInit();
 
 #if defined(LED_STRIP_GPIO)

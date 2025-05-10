@@ -677,13 +677,9 @@
   #define AUDIO_SPI_MISO_GPIO           GPIO_PIN(GPIOB, 4)  // PB.04
   #define AUDIO_SPI_MOSI_GPIO           GPIO_PIN(GPIOB, 5)  // PB.05
 #else
-  #define AUDIO_RCC_APB1Periph            (RCC_APB1Periph_TIM6 | RCC_APB1Periph_DAC)
-  #define AUDIO_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA1)
   #define AUDIO_OUTPUT_GPIO               GPIO_PIN(GPIOA, 4)  // PA.04
   #define AUDIO_DMA_Stream                DMA1_Stream5
   #define AUDIO_DMA_Stream_IRQn           DMA1_Stream5_IRQn
-  #define AUDIO_TIM_IRQn                  TIM6_DAC_IRQn
-  #define AUDIO_TIM_IRQHandler            TIM6_DAC_IRQHandler
   #define AUDIO_DMA_Stream_IRQHandler     DMA1_Stream5_IRQHandler
   #define AUDIO_TIMER                     TIM6
   #define AUDIO_DMA                       DMA1
@@ -943,19 +939,12 @@
 #define SDRAM_BANK1
 
 #if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
-  #define PORTRAIT_LCD true
-  #define LANDSCAPE_LCD_STD false
   #define LCD_W                         320
   #define LCD_H                         480
 #else
-  #define PORTRAIT_LCD false
-  #define LANDSCAPE_LCD_STD true
   #define LCD_W                         480
   #define LCD_H                         320
 #endif
-
-#define LANDSCAPE_LCD_LRG false
-#define LANDSCAPE_LCD_SML false
 
 #define LCD_PHYS_W                      320
 #define LCD_PHYS_H                      480

@@ -210,15 +210,15 @@ struct CenterBeepsMatrix : public ButtonMatrix {
 
     update();
 
-    setWidth(min((int)btn_cnt, SW_BTNS) * SW_BTN_W + 4);
+    setWidth(min((int)btn_cnt, SW_BTNS) * SW_BTN_W + PAD_SMALL);
 
     uint8_t rows = ((btn_cnt - 1) / SW_BTNS) + 1;
-    setHeight((rows * 36) + 4);
+    setHeight((rows * (EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL)) + PAD_SMALL);
 
-    lv_obj_set_style_pad_all(lvobj, 4, LV_PART_MAIN);
+    lv_obj_set_style_pad_all(lvobj, PAD_SMALL, LV_PART_MAIN);
 
-    lv_obj_set_style_pad_row(lvobj, 4, LV_PART_MAIN);
-    lv_obj_set_style_pad_column(lvobj, 4, LV_PART_MAIN);
+    lv_obj_set_style_pad_row(lvobj, PAD_SMALL, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(lvobj, PAD_SMALL, LV_PART_MAIN);
   }
 
   void onPress(uint8_t btn_id)
@@ -248,9 +248,9 @@ struct CenterBeepsMatrix : public ButtonMatrix {
     setChecked(btn_id);
   }
 
-  static LAYOUT_VAL(SW_BTNS, 8, 4, 8)
-  static LAYOUT_VAL(SW_BTN_W, 56, 72, 38)
-  static LAYOUT_VAL(SW_BTN_H, 36, 36, LS(36))
+  static LAYOUT_SIZE(SW_BTNS, 8, 4)
+  static LAYOUT_SIZE_SCALED(SW_BTN_W, 56, 72)
+  static LAYOUT_VAL_SCALED(SW_BTN_H, 36)
 
  private:
   uint8_t max_analogs;

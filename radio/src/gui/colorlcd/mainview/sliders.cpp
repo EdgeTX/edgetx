@@ -49,19 +49,19 @@ static const lv_style_const_prop_t shadow2_props[] = {
 static LV_STYLE_CONST_MULTI_INIT(shadow2_style, shadow2_props);
 
 SliderIcon::SliderIcon(Window* parent) :
-    Window(parent, rect_t{0, 0, MainViewSlider::SL_SZ + 2, MainViewSlider::SL_SZ + 2})
+    Window(parent, rect_t{0, 0, MainViewSlider::SLIDER_ICON_SIZE + 2, MainViewSlider::SLIDER_ICON_SIZE + 2})
 {
   setWindowFlag(NO_FOCUS);
 
   auto shad = lv_obj_create(lvobj);
   etx_obj_add_style(shad, shadow1_style, LV_PART_MAIN);
   lv_obj_set_pos(shad, 1, 1);
-  lv_obj_set_size(shad, MainViewSlider::SL_SZ, MainViewSlider::SL_SZ);
+  lv_obj_set_size(shad, MainViewSlider::SLIDER_ICON_SIZE, MainViewSlider::SLIDER_ICON_SIZE);
 
   fill = lv_obj_create(lvobj);
   etx_obj_add_style(fill, shadow2_style, LV_PART_MAIN);
   lv_obj_set_pos(fill, 0, 0);
-  lv_obj_set_size(fill, MainViewSlider::SL_SZ, MainViewSlider::SL_SZ);
+  lv_obj_set_size(fill, MainViewSlider::SLIDER_ICON_SIZE, MainViewSlider::SLIDER_ICON_SIZE);
   etx_solid_bg(fill, COLOR_THEME_FOCUS_INDEX);
 }
 
@@ -72,17 +72,17 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
   potIdx = adcGetInputOffset(ADC_INPUT_FLEX) + idx;
 
   if (isVertical) {
-    int sliderTicksCount = (height() - LayoutFactory::TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
+    int sliderTicksCount = (height() - SLIDER_BAR_SIZE) / SLIDER_TICK_SPACING;
     tickPoints = new lv_point_t[(sliderTicksCount + 1) * 2];
 
-    lv_coord_t y = LayoutFactory::TRIM_SQUARE_SIZE / 2;
+    lv_coord_t y = SLIDER_BAR_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
       if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
         tickPoints[i * 2] = {PAD_TINY, y};
-        tickPoints[i * 2 + 1] = {SL_SZ, y};
+        tickPoints[i * 2 + 1] = {SLIDER_ICON_SIZE, y};
       } else {
         tickPoints[i * 2] = {PAD_TINY + 2, y};
-        tickPoints[i * 2 + 1] = {SL_SZ - 2, y};
+        tickPoints[i * 2 + 1] = {SLIDER_ICON_SIZE - 2, y};
       }
       auto line = lv_line_create(lvobj);
       etx_obj_add_style(line, styles->div_line, LV_PART_MAIN);
@@ -90,17 +90,17 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
       y += SLIDER_TICK_SPACING;
     }
   } else {
-    int sliderTicksCount = (width() - LayoutFactory::TRIM_SQUARE_SIZE) / SLIDER_TICK_SPACING;
+    int sliderTicksCount = (width() - SLIDER_BAR_SIZE) / SLIDER_TICK_SPACING;
     tickPoints = new lv_point_t[(sliderTicksCount + 1) * 2];
 
-    lv_coord_t x = LayoutFactory::TRIM_SQUARE_SIZE / 2;
+    lv_coord_t x = SLIDER_BAR_SIZE / 2;
     for (uint8_t i = 0; i <= sliderTicksCount; i++) {
       if (i == 0 || i == sliderTicksCount / 2 || i == sliderTicksCount) {
         tickPoints[i * 2] = {x, PAD_TINY};
-        tickPoints[i * 2 + 1] = {x, SL_SZ};
+        tickPoints[i * 2 + 1] = {x, SLIDER_ICON_SIZE};
       } else {
         tickPoints[i * 2] = {x, PAD_TINY + 2};
-        tickPoints[i * 2 + 1] = {x, SL_SZ - 2};
+        tickPoints[i * 2 + 1] = {x, SLIDER_ICON_SIZE - 2};
       }
       auto line = lv_line_create(lvobj);
       etx_obj_add_style(line, styles->div_line, LV_PART_MAIN);
@@ -126,10 +126,10 @@ void MainViewSlider::setPos()
 {
   coord_t x = 0, y = 0;
   if (isVertical) {
-    y = divRoundClosest((height() - LayoutFactory::TRIM_SQUARE_SIZE) * (-value + RESX),
+    y = divRoundClosest((height() - SLIDER_BAR_SIZE) * (-value + RESX),
                         2 * RESX);
   } else {
-    x = divRoundClosest((width() - LayoutFactory::TRIM_SQUARE_SIZE) * (value + RESX),
+    x = divRoundClosest((width() - SLIDER_BAR_SIZE) * (value + RESX),
                         2 * RESX);
   }
   lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
@@ -149,7 +149,7 @@ void MainViewSlider::checkEvents()
 MainViewHorizontalSlider::MainViewHorizontalSlider(Window* parent,
                                                    uint8_t idx) :
     MainViewSlider(parent,
-                   rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, LayoutFactory::TRIM_SQUARE_SIZE},
+                   rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, SLIDER_BAR_SIZE},
                    idx, false)
 {
 }
@@ -162,10 +162,10 @@ MainViewVerticalSlider::MainViewVerticalSlider(Window* parent,
 }
 
 MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
-    Window(parent, rect_t{0, 0, MULTIPOS_W, LayoutFactory::TRIM_SQUARE_SIZE}), idx(idx)
+    Window(parent, rect_t{0, 0, MULTIPOS_W, MainViewSlider::SLIDER_BAR_SIZE}), idx(idx)
 {
   char num[] = " ";
-  coord_t x = MULTIPOS_W_SPACING / 4 + LayoutFactory::TRIM_SQUARE_SIZE / 4;
+  coord_t x = MULTIPOS_W_SPACING / 4 + MainViewSlider::SLIDER_BAR_SIZE / 4;
   for (uint8_t value = 0; value < XPOTS_MULTIPOS_COUNT; value++) {
     num[0] = value + '1';
     auto p = lv_label_create(lvobj);

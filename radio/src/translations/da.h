@@ -51,7 +51,7 @@
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
 
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position"
 #else
   #define TR_SWTYPES                   "Ingen","Skift","2POS","3POS"
@@ -320,7 +320,7 @@
 #define TR_ELEVATOR                    TR("Long. cyc.", "Long. cyc. kilde")
 #define TR_SWASHRING                   "Swash ring"
 #define TR_MODE                        TR("Tils.","Tilstand")
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_LEFT_STICK                "Venstre"
 #else
   #define TR_LEFT_STICK                "Ven"
@@ -1154,7 +1154,7 @@
 #define TR_WIDGET_SETTINGS             "Widget indstilinger"
 #define TR_REMOVE_SCREEN               "Slet skærm"
 
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_SETUP_WIDGETS             "Opsæt widget"
 #else
   #define TR_SETUP_WIDGETS             "Widget"
@@ -1199,7 +1199,7 @@
 
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS   "Tilføj alle trim til subtrim"
 
-#if !PORTRAIT_LCD
+#if !NARROW_LAYOUT
   #define TR_OPEN_CHANNEL_MONITORS     "Åbn kanal monitor"
 #else
   #define TR_OPEN_CHANNEL_MONITORS     "Åbn kanal mon."
@@ -1211,6 +1211,7 @@
 #define TR_BLUE                        "Blå"
 #define TR_GREEN                       "Grøn"
 #define TR_COLOR_PICKER                "Farve vælger"
+#define TR_FIXED                       "Fixed"
 #define TR_EDIT_THEME_DETAILS          "Ret tema detajler"
 #define TR_THEME_COLOR_DEFAULT         "STANDARD"
 #define TR_THEME_COLOR_PRIMARY1        "PRIMÆR 1"

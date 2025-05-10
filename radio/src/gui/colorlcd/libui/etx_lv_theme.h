@@ -33,107 +33,88 @@
  *      Layout
  *********************/
 
-#if LANDSCAPE_LCD_SML
-enum PaddingSize {
-  PAD_ZERO = 0,
-  PAD_TINY = 1,
-  PAD_SMALL = 3,
-  PAD_MEDIUM = 4,
-  PAD_LARGE = 6,
-  PAD_SCROLL = 2,
-  PAD_THREE = PAD_SCROLL,
-  PAD_TABLE_V = 3,
-  PAD_TABLE_H = 2,
-  PAD_OUTLINE = 1,
-  PAD_BORDER = 2,
-};
-#elif LANDSCAPE_LCD_LRG
-enum PaddingSize {
-  PAD_ZERO = 0,
-  PAD_TINY = 3,
-  PAD_SMALL = 6,
-  PAD_MEDIUM = 9,
-  PAD_LARGE = 12,
-  PAD_SCROLL = 4,
-  PAD_THREE = PAD_SCROLL,
-  PAD_TABLE_V = 10,
-  PAD_TABLE_H = 6,
-  PAD_OUTLINE = 2,
-  PAD_BORDER = 2,
-};
+#if LCD_W > LCD_H
+  #define LANDSCAPE true
+  #define PORTRAIT false
 #else
-enum PaddingSize {
-  PAD_ZERO = 0,
-  PAD_TINY = 2,
-  PAD_SMALL = 4,
-  PAD_MEDIUM = 6,
-  PAD_LARGE = 8,
-  PAD_SCROLL = 3,
-  PAD_THREE = PAD_SCROLL,
-  PAD_TABLE_V = 7,
-  PAD_TABLE_H = 4,
-  PAD_OUTLINE = 2,
-  PAD_BORDER = 2,
-};
+  #define LANDSCAPE false
+  #define PORTRAIT true
 #endif
 
-#if !defined(LANDSCAPE_LCD_STD)
-# error "LANDSCAPE_LCD_STD must be defined"
+#if PORTRAIT || LCD_W == 320
+  #define NARROW_LAYOUT true
+#else
+  #define NARROW_LAYOUT false
 #endif
 
-#if !defined(LANDSCAPE_LCD_SML)
-# error "LANDSCAPE_LCD_SML must be defined"
+#if LANDSCAPE
+  #if LCD_W == 320
+    #define LAYOUT_SCALE(x) (((x) * 4 + 3) / 5)
+  #elif LCD_W == 800
+    #define LAYOUT_SCALE(x) (((x) * 3 + 1) / 2)
+  #endif
 #endif
 
-#if !defined(LANDSCAPE_LCD_LRG)
-# error "LANDSCAPE_LCD_LRG must be defined"
-#endif
-
-#if !defined(PORTRAIT_LCD)
-# error "PORTRAIT_LCD must be defined"
+#if !defined(LAYOUT_SCALE)
+  #define LAYOUT_SCALE(x) (x)
 #endif
 
 // Macros for setting up layout values
-//  LS - scaling factor to convert 480 wide landscape to 320 wide landscape
-//  LAYOUT_VAL - 3 values - landscape, portrait, landscape small
-//             - 800x480 size is calculated
-#define LS(val) ((val * 4 + 3) / 6)
-#if LANDSCAPE_LCD_STD
-#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
-  constexpr coord_t name = landscape;
-#elif LANDSCAPE_LCD_SML
-#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
-  constexpr coord_t name = landscape_small;
-#elif LANDSCAPE_LCD_LRG
-#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
-  constexpr coord_t name = (((landscape) * 3 + 1) / 2);
+#if NARROW_LAYOUT
+  #define LV(standard, narrow) LAYOUT_SCALE(narrow)
 #else
-#define LAYOUT_VAL(name, landscape, portrait, landscape_small) \
-  constexpr coord_t name = portrait;
+  #define LV(standard, narrow) LAYOUT_SCALE(standard)
 #endif
 
-// Macro for value which only differ by orientation
-#if PORTRAIT_LCD
-#define LAYOUT_VAL2(name, landscape, portrait) \
-  constexpr int name = portrait;
+enum PaddingSize {
+  PAD_ZERO = 0,
+  PAD_TINY = LAYOUT_SCALE(2),
+  PAD_SMALL = LAYOUT_SCALE(4),
+  PAD_MEDIUM = LAYOUT_SCALE(6),
+  PAD_LARGE = LAYOUT_SCALE(8),
+  PAD_SCROLL = LAYOUT_SCALE(3),
+  PAD_THREE = PAD_SCROLL,
+  PAD_TABLE_V = LAYOUT_SCALE(7),
+  PAD_TABLE_H = PAD_SMALL,
+  PAD_OUTLINE = PAD_TINY,
+  PAD_BORDER = 2,
+};
+
+#define LAYOUT_VAL_SCALED(name, value) \
+  constexpr coord_t name = LAYOUT_SCALE(value);
+#define LAYOUT_VAL_SCALED_EVEN(name, value) \
+  constexpr coord_t name = (LAYOUT_SCALE(value) + 1) & 0xFFFE;
+#define LAYOUT_VAL_SCALED_ODD(name, value) \
+  constexpr coord_t name = (LAYOUT_SCALE(value) & 0xFFFE) + 1;
+
+// Layout values based on available width (standard or narrow)
+#define LAYOUT_SIZE_SCALED(name, standard, narrow) \
+  constexpr coord_t name = LV(standard, narrow);
+#define LAYOUT_SIZE_SCALED_EVEN(name, standard, narrow) \
+  constexpr coord_t name = (LV(standard, narrow) + 1) & 0xFFFE;
+#define LAYOUT_SIZE_SCALED_ODD(name, standard, narrow) \
+  constexpr coord_t name = (LV(standard, narrow) & 0xFFFE) + 1;
+
+// Macro for value which only differ by whether layout is normal or narrow (no scaling)
+#if NARROW_LAYOUT
+#define LAYOUT_SIZE(name, standard, narrow) \
+  constexpr int name = narrow;
 #else
-#define LAYOUT_VAL2(name, landscape, portrait) \
-  constexpr int name = landscape;
+#define LAYOUT_SIZE(name, standard, narrow) \
+  constexpr int name = standard;
 #endif
 
-// Macro for all values specified directly
-#if LANDSCAPE_LCD_STD
-#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
-  constexpr coord_t name = landscape;
-#elif LANDSCAPE_LCD_SML
-#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
-  constexpr coord_t name = landscape_small;
-#elif LANDSCAPE_LCD_LRG
-#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
-  constexpr coord_t name = landscape_big;
+// Layout values based on orientation (landscape or portrait)
+#if LANDSCAPE
+  #define LAYOUT_ORIENTATION_SCALED(name, landscape, portrait) \
+    constexpr coord_t name = LAYOUT_SCALE(landscape);
+  #define LAYOUT_ORIENTATION(name, landscape, portrait) \
+    constexpr int name = landscape;
 #else
-#define LAYOUT_VAL3(name, landscape, portrait, landscape_small, landscape_big) \
-  constexpr coord_t name = portrait;
+  #define LAYOUT_ORIENTATION_SCALED(name, landscape, portrait) \
+    constexpr coord_t name = LAYOUT_SCALE(portrait);
+  #define LAYOUT_ORIENTATION(name, landscape, portrait) \
+    constexpr int name = portrait;
 #endif
 
 /**********************
@@ -203,7 +184,6 @@ void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
 #define LV_STYLE_CONST_SINGLE_INIT(var_name, prop, value)               \
   const lv_style_t var_name = {.v_p = {.value1 = {.num = value}},       \
                                .prop1 = prop,                           \
-                               .is_const = 0,                           \
                                .has_group = 1 << ((prop & 0x1FF) >> 4), \
                                .prop_cnt = 1}
 
@@ -211,10 +191,9 @@ void etx_img_color(lv_obj_t* obj, LcdColorIndex colorIdx,
 // Copied from lv_style.h and modified to compile with ARM GCC C++
 #define LV_STYLE_CONST_MULTI_INIT(var_name, prop_array)            \
   const lv_style_t var_name = {.v_p = {.const_props = prop_array}, \
-                               .prop1 = 0,                         \
-                               .is_const = 1,                      \
+                               .prop1 = LV_STYLE_PROP_ANY,         \
                                .has_group = 0xFF,                  \
-                               .prop_cnt = 0}
+                               .prop_cnt = (sizeof(prop_array) / sizeof((prop_array)[0]))}
 
 extern const lv_obj_class_t window_base_class;
 extern const lv_obj_class_t field_edit_class;
@@ -281,11 +260,11 @@ class EdgeTxStyles
   void init();
   void applyColors();
 
-  static LAYOUT_VAL(STD_FONT_HEIGHT, 21, 21, 14)
-  static LAYOUT_VAL(UI_ELEMENT_HEIGHT, 32, 32, 24)
-  static LAYOUT_VAL(MENU_HEADER_HEIGHT, 45, 45, LS(45))
-  static LAYOUT_VAL(EDIT_FLD_WIDTH_NARROW, 70, 70, LS(70))
-  static LAYOUT_VAL(EDIT_FLD_WIDTH, 100, 100, LS(100))
+  static LAYOUT_VAL_SCALED(STD_FONT_HEIGHT, 21)
+  static LAYOUT_VAL_SCALED(UI_ELEMENT_HEIGHT, 32)
+  static LAYOUT_VAL_SCALED(MENU_HEADER_HEIGHT, 45)
+  static LAYOUT_VAL_SCALED(EDIT_FLD_WIDTH_NARROW, 70)
+  static LAYOUT_VAL_SCALED(EDIT_FLD_WIDTH, 100)
 
  protected:
   bool initDone = false;

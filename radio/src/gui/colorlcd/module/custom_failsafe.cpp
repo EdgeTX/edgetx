@@ -36,12 +36,12 @@ class ChannelFailsafeBargraph : public Window
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 
-    outputsBar = new OutputChannelBar(this, {0, 1, width() - 2, ChannelBar::BAR_HEIGHT},
+    outputsBar = new OutputChannelBar(this, {0, 1, width() - PAD_TABLE_H, ChannelBar::BAR_HEIGHT},
                                       channel, false, false);
     outputsBar->hide();
 
     failsafeBar = new ChannelBar(
-        this, {0, ChannelBar::BAR_HEIGHT + 3, width() - 2, ChannelBar::BAR_HEIGHT}, channel,
+        this, {0, ChannelBar::BAR_HEIGHT + PAD_THREE, width() - PAD_TABLE_H, ChannelBar::BAR_HEIGHT}, channel,
         [=] { return g_model.failsafeChannels[channel]; },
         COLOR_THEME_WARNING_INDEX);
     failsafeBar->hide();

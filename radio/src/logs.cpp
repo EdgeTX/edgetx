@@ -28,6 +28,9 @@
 #include "hal/switch_driver.h"
 #include "hal/usb_driver.h"
 
+#include "os/timer.h"
+#include "tasks/mixer_task.h"
+
 #if defined(LIBOPENUI)
   #include "libopenui.h"
 #endif
@@ -36,18 +39,11 @@ FIL g_oLogFile __DMA;
 uint8_t logDelay100ms;
 static tmr10ms_t lastLogTime = 0;
 
-#if !defined(SIMU)
-#include <FreeRTOS/include/FreeRTOS.h>
-#include <FreeRTOS/include/timers.h>
+static timer_handle_t loggingTimer = TIMER_INITIALIZER;
 
-#include "tasks/mixer_task.h"
-
-static TimerHandle_t loggingTimer = nullptr;
-static StaticTimer_t loggingTimerBuffer;
-
-static void loggingTimerCb(TimerHandle_t xTimer)
+static void loggingTimerCb(timer_handle_t* timer)
 {
-  (void)xTimer;
+  (void)timer;
   if (mixerTaskRunning()) {
     DEBUG_TIMER_START(debugTimerLoggingWakeup);
     logsWrite();
@@ -55,51 +51,39 @@ static void loggingTimerCb(TimerHandle_t xTimer)
   }
 }
 
-void loggingTimerStart()
+void loggingTimerStart(uint32_t period)
 {
-  if (!loggingTimer) {
-    loggingTimer =
-        xTimerCreateStatic("Logging", logDelay100ms*100 / RTOS_MS_PER_TICK, pdTRUE, (void*)0,
-                           loggingTimerCb, &loggingTimerBuffer);
+  if (!timer_is_created(&loggingTimer)) {
+    timer_create(&loggingTimer, loggingTimerCb, "logs", period, true);
   }
 
-  if (loggingTimer) {
-    if( xTimerStart( loggingTimer, 0 ) != pdPASS ) {
-      /* The timer could not be set into the Active state. */
-    }
-  }
+  timer_start(&loggingTimer);
 }
 
-void loggingTimerStop()
+void loggingTimerStop() { timer_stop(&loggingTimer); }
+
+bool loggingTimerIsRunning()
 {
-  if (loggingTimer) {
-    if( xTimerStop( loggingTimer, 120 / RTOS_MS_PER_TICK ) != pdPASS ) {
-      /* The timer could not be stopped. */
-    }
-    loggingTimer = nullptr;
-  }
+  return timer_is_active(&loggingTimer);
 }
 
-void initLoggingTimer() {                                       // called cyclically by main.cpp:perMain()
+void initLoggingTimer()
+{  // called cyclically by main.cpp:perMain()
   static uint8_t logDelay100msOld = 0;
 
-  if(loggingTimer == nullptr) {                                 // log Timer not running
+  if(!timer_is_active(&loggingTimer)) {                         // log Timer not running
     if(isFunctionActive(FUNCTION_LOGS) && logDelay100ms > 0) {  // if SF Logging is active and log rate is valid
-      loggingTimerStart();                                      // start log timer
+      loggingTimerStart(logDelay100ms * 100);                   // start log timer
     }  
   } else {                                                      // log timer is already running
     if(logDelay100msOld != logDelay100ms) {                     // if log rate was changed
       logDelay100msOld = logDelay100ms;                         // memorize new log rate
-
       if(logDelay100ms > 0) {
-        if(xTimerChangePeriod( loggingTimer, logDelay100ms*100, 0 ) != pdPASS ) {  // and restart timer with new log rate
-          /* The timer period could not be changed */
-        }
+        timer_set_period(&loggingTimer, logDelay100ms * 100);
       }
     }
   }
 }
-#endif
 
 void writeHeader();
 

@@ -21,6 +21,7 @@
 
 #include "vs1053b.h"
 
+#include "os/sleep.h"
 #include "stm32_hal_ll.h"
 #include "stm32_gpio_driver.h"
 #include "stm32_gpio.h"
@@ -327,7 +328,7 @@ static void vs1053b_unmute()
     if (_is_muted) {
       // ..un-mute
       _set_mute_pin(false);
-      RTOS_WAIT_MS(_instance->unmute_delay_ms);
+      sleep_ms(_instance->unmute_delay_ms);
     }
     // reset the mute delay
     _last_play_ts = 0;

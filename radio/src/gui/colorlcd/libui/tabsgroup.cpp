@@ -37,13 +37,13 @@ static bool timepg = false;
 static void on_draw_begin(lv_event_t* e)
 {
   if (timepg) {
-    dsms = RTOS_GET_MS();
+    dsms = lv_tick_get();
   }
 }
 static void on_draw_end(lv_event_t* e)
 {
   timepg = false;
-  dems = RTOS_GET_MS();
+  dems = lv_tick_get();
   TRACE("tab time: build %ld layout %ld draw %ld total %ld",
         end_ms - start_ms, dsms - end_ms, dems - dsms, dems - start_ms);
 }
@@ -63,8 +63,8 @@ class SelectedTabIcon : public StaticIcon
   std::string getName() const override { return "SelectedTabIcon"; }
 #endif
 
-  static LAYOUT_VAL(SEL_DOT_X, 10, 10, 6)
-  static LAYOUT_VAL(SEL_DOT_Y, 39, 39, LS(39))
+  static LAYOUT_VAL_SCALED(SEL_DOT_X, 10)
+  static LAYOUT_VAL_SCALED(SEL_DOT_Y, 39)
 };
 
 class TabsGroupButton : public ButtonBase
@@ -101,7 +101,7 @@ class TabsGroupButton : public ButtonBase
     pageTab->update(index);
   }
 
-  static LAYOUT_VAL(ICON_Y, 7, 7, LS(7))
+  static LAYOUT_VAL_SCALED(ICON_Y, 7)
 
  protected:
   PageTab* pageTab;
@@ -147,8 +147,8 @@ class TabsGroupHeader : public Window
     setTitle("");
 
     carousel = new Window(this, 
-                          {TopBar::MENU_HEADER_BUTTONS_LEFT, 0,
-                           LCD_W - HDR_DATE_FULL_WIDTH - TopBar::MENU_HEADER_BUTTONS_LEFT, EdgeTxStyles::MENU_HEADER_HEIGHT + 10});
+                          {MENU_HEADER_BUTTONS_LEFT, 0,
+                           LCD_W - HDR_DATE_FULL_WIDTH - MENU_HEADER_BUTTONS_LEFT, EdgeTxStyles::MENU_HEADER_HEIGHT + 10});
     carousel->padAll(PAD_ZERO);
     carousel->setWindowFlag(NO_FOCUS);
 
@@ -227,9 +227,9 @@ class TabsGroupHeader : public Window
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return buttons.size(); }
 
-  static LAYOUT_VAL(DATE_XO, 48, 48, LS(48))
-  static LAYOUT_VAL(MENU_HEADER_BUTTON_WIDTH, 33, 33, LS(33))
-  static LAYOUT_VAL(HDR_DATE_FULL_WIDTH, 51, 51, LS(51))
+  static LAYOUT_VAL_SCALED(DATE_XO, 48)
+  static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTON_WIDTH, 33)
+  static LAYOUT_VAL_SCALED(HDR_DATE_FULL_WIDTH, 51)
 
  protected:
   uint8_t currentIndex = 0;
@@ -301,7 +301,7 @@ void TabsGroup::setCurrentTab(unsigned index)
     currentTab = tab;
 
 #if defined(DEBUG)
-    start_ms = RTOS_GET_MS();
+    start_ms = lv_tick_get();
     timepg = true;
 #endif
 
@@ -321,7 +321,7 @@ void TabsGroup::setCurrentTab(unsigned index)
     lv_obj_refresh_style(body->getLvObj(), LV_PART_ANY, LV_STYLE_PROP_ANY);
 
 #if defined(DEBUG)
-    end_ms = RTOS_GET_MS();
+    end_ms = lv_tick_get();
 #endif
   }
 }
@@ -363,6 +363,8 @@ void TabsGroup::checkEvents()
 #if defined(HARDWARE_KEYS)
 void TabsGroup::onPressPGUP() { header->prevTab(); }
 void TabsGroup::onPressPGDN() { header->nextTab(); }
+void TabsGroup::onLongPressPGUP() { header->prevTab(); }
+void TabsGroup::onLongPressPGDN() { header->nextTab(); }
 void TabsGroup::onLongPressRTN() { onCancel(); }
 #endif
 

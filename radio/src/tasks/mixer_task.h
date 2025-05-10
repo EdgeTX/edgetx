@@ -19,13 +19,13 @@
  * GNU General Public License for more details.
  */
 
-#include "rtos.h"
+#include "os/task.h"
 
 // needed by the mixer scheduler
-extern RTOS_TASK_HANDLE mixerTaskId;
+extern task_handle_t mixerTaskId;
 
 // function running the mixer task
-TASK_FUNCTION(mixerTask);
+void mixerTask();
 
 // init, create and start the OS task itself
 void mixerTaskInit();
@@ -52,15 +52,6 @@ void mixerTaskStart();
 //              can be handled safely without interferences.
 //
 void mixerTaskStop();
-
-
-// exit the mixer forever.
-//
-// This is probably only useful for simulations as it is not needed to really
-// exit the task under any normal conditions. There are no guarantees as to when
-// the exit will happen, only that it will eventually happen.
-//
-void mixerTaskExit();
 
 // hint at whether or not the mixer task should be running
 //
