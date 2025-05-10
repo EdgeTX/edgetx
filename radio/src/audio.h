@@ -466,10 +466,13 @@ enum {
   ID_PLAY_FROM_SD_MANAGER = 255,
 };
 
+void audioTaskInit();
+void audioTaskStart();
+
 void codecsInit();
+
 void audioEvent(unsigned int index);
 void audioPlay(unsigned int index, uint8_t id=0);
-void audioStart();
 
 #if defined(AUDIO) && defined(BUZZER)
   #define AUDIO_BUZZER(a, b)  do { a; b; } while(0)
