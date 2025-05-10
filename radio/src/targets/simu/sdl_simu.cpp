@@ -326,6 +326,13 @@ static bool handleKeyEvents(SDL_Event& event)
       ImGui::StyleColorsDark();
       break;
 
+    case SDLK_r:
+      if (event.type == SDL_KEYUP) {
+        simuStop();
+        simuStart();
+      }
+      break;
+
     default:
       key_handled = false;
       break;
