@@ -80,7 +80,8 @@ void task_shutdown_all()
     pthread_join(task, nullptr);
   }
 
-  timer_queue::instance().stop();
+  timer_queue::destroy();
+  _stop_tasks = false;
 }
 
 struct run_context {
