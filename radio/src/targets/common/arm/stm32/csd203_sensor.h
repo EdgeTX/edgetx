@@ -21,5 +21,6 @@
 
 #pragma once
 
+void IICcsd203init(void);
 void initCSD203(void);
 void readCSD203(void);

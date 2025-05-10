@@ -158,6 +158,15 @@ if(FLYSKY_GIMBAL)
   add_definitions(-DFLYSKY_GIMBAL)
 endif()
 
+if(CSD203_SENSOR)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC}
+  targets/common/arm/stm32/csd203_sensor.cpp
+  )
+  add_definitions(-DCSD203_SENSOR)
+  message("-- Adding support for Current sensor")
+endif()
+
+
 if(DEBUG OR CLI OR USB_SERIAL)
   add_definitions(-DUSB_SERIAL)
   message("-- Adding support for USB serial")

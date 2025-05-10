@@ -60,6 +60,10 @@
   #include "bluetooth_driver.h"
 #endif
 
+#if defined(CSD203_SENSOR)
+  #include "csd203_sensor.h"
+#endif
+
 HardwareOptions hardwareOptions;
 
 #if !defined(BOOT)
@@ -152,6 +156,11 @@ void boardInit()
 #else
   ledGreen();
 #endif
+#endif
+
+#if defined(CSD203_SENSOR)
+  IICcsd203init();
+  initCSD203();
 #endif
 
 // If the radio was powered on by dual use USB, halt the boot process, let battery charge
