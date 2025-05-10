@@ -20,13 +20,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "(Linux|FreeBSD)")
   message(STATUS "Simulators library search path: " ${SIMULATOR_LIB_PATH})
 endif()
 
-if(APPLE)
-  # This the name that the user will see in the generated DMG and what the application
-  # will be called under /Applications. We include the version string to make installing
-  # different versions side-by-side
-  set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
-endif(APPLE)
-
 option(DEBUG_STORAGE_IMPORT "Turn on debug output for storage import") # Disabled by default
 if(DEBUG_STORAGE_IMPORT)
   add_definitions(-DDEBUG_STORAGE_IMPORT)
@@ -320,34 +313,59 @@ elseif(WIN32)
   set(COMPANION_TARGETS_DIR "${COMPANION_TARGETS_DIR}/windows")
 endif()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  message(STATUS "Install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
+  install(TARGETS ${COMPANION_NAME}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+  install(TARGETS ${SIMULATOR_NAME}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+  # configure and set variables used by package script
   set(COMPANION_DESKTOP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${COMPANION_NAME}.desktop)
-  set(SIMULATOR_DESKTOP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${SIMULATOR_NAME}.desktop)
   configure_file(${COMPANION_TARGETS_DIR}/companion.desktop.in ${COMPANION_DESKTOP_FILE} @ONLY)
+
+  set(SIMULATOR_DESKTOP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${SIMULATOR_NAME}.desktop)
   configure_file(${COMPANION_TARGETS_DIR}/simulator.desktop.in ${SIMULATOR_DESKTOP_FILE} @ONLY)
-  install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
+  # libsim*.so files
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
+  # application icons
   set(icon_sizes "16;22;24;32;48;64;128;256;512")
   foreach(icon_size ${icon_sizes})
-    install(FILES "images/linuxicons/${icon_size}x${icon_size}/companion.png" DESTINATION
-            "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/${icon_size}x${icon_size}/apps" RENAME "companion${APP_NAME_SUFFIX}.png")
+    install(FILES "images/linuxicons/${icon_size}x${icon_size}/companion.png"
+            DESTINATION "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/${icon_size}x${icon_size}/apps"
+            RENAME "${COMPANION_NAME}.png")
   endforeach()
+
   unset(icon_size)
   unset(icon_sizes)
-  install(FILES "images/linuxicons/scalable/companion.svg" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps" RENAME "companion${APP_NAME_SUFFIX}.svg")
-  install(FILES "${COMPANION_TARGETS_DIR}/45-companion-taranis.rules" DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d" RENAME "45-companion${APP_NAME_SUFFIX}-taranis.rules")
-  install(FILES "${COMPANION_TARGETS_DIR}/45-usbasp.rules" DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d" RENAME "45-companion${APP_NAME_SUFFIX}-usbasp.rules")
+
+  install(FILES "images/linuxicons/scalable/companion.svg"
+          DESTINATION "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps"
+          RENAME "${COMPANION_NAME}.svg")
+
+  # udev rules
+  install(FILES "${COMPANION_TARGETS_DIR}/45-companion-taranis.rules"
+          DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
+          RENAME "45-${COMPANION_NAME}-taranis.rules")
+
+  install(FILES "${COMPANION_TARGETS_DIR}/45-usbasp.rules"
+          DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
+          RENAME "45-${COMPANION_NAME}-usbasp.rules")
 
   if(LIBSSL1_FOUND)
-    install(DIRECTORY ${LIBSSL1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
+    install(DIRECTORY ${LIBSSL1_LIBRARY_DIR}/
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+            FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
   endif()
 
   if(LIBUSB1_FOUND)
-    install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib FILES_MATCHING PATTERN "libusb-1.0.so*")
+    install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+            FILES_MATCHING PATTERN "libusb-1.0.so*")
     if(DFU_UTIL_FOUND)
-      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+      # dfuutil is an app
+      install(FILES "${DFU_UTIL_PATH}"
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
     endif()
   endif()
 
@@ -355,12 +373,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Shortcut target
   add_custom_target(companion DEPENDS ${COMPANION_NAME})
   add_custom_target(simulator DEPENDS ${SIMULATOR_NAME})
+
 elseif(WIN32)
   set(INSTALL_DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}")
   message(STATUS "Install to " ${INSTALL_DESTINATION})
-  # companion & simulator binaries
+  # companion and simulator apps
   install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
+  # libsim dlls into same directory as apps
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
 
   # supporting utilities
@@ -388,7 +408,9 @@ elseif(WIN32)
     endif()
     if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
       # install only files Qt networking requires
-      install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/ DESTINATION ${INSTALL_DESTINATION} FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
+      install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
+              DESTINATION ${INSTALL_DESTINATION}
+              FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
     endif()
   endif(OPENSSL_FOUND)
 
@@ -431,6 +453,10 @@ IF(APPLE)
   #set_target_properties(${COMPANION_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
   #set_target_properties(${SIMULATOR_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
 
+  # This the name that the user will see in the generated DMG and what the application
+  # will be called under /Applications. We include the version string to make installing
+  # different versions side-by-side
+  set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_MAJOR}.${VERSION_MINOR}")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
   install(TARGETS ${COMPANION_NAME}
