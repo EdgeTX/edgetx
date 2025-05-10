@@ -708,6 +708,9 @@ int main(int argc, char** argv)
   } while(true);
 #endif
 
+  // App cleanup
+  simuStop();
+
   // Cleanup
   ImGui_ImplSDLRenderer2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
