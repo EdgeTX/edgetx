@@ -205,12 +205,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   }
 #endif
 
-#if defined(SIMU_EXCEPTIONS)
-  signal(SIGFPE, sig);
-  signal(SIGSEGV, sig);
-  try {
-#endif
-
   // Init LCD callbacks
   lcdInit();
 
@@ -228,12 +222,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 #endif
 
   simu_running = true;
-
-#if defined(SIMU_EXCEPTIONS)
-  }
-  catch (...) {
-  }
-#endif
 }
 
 extern task_handle_t mixerTaskId;
@@ -249,10 +237,6 @@ void simuStop()
 
   simu_shutdown = true;
   task_shutdown_all();
-
-#if defined(SIMU_AUDIO)
-  stopAudio();
-#endif
 
   simu_running = false;
 }
