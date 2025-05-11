@@ -138,7 +138,7 @@ class LuaWidget : public Widget, public LuaScriptManager
   // Should rotary encoder events be enabled when full screen
   bool enableFullScreenRE() const override { return !useLvglLayout(); }
 
-  void luaShowError() override {}
+  void luaShowError() override;
 
   void pushOptionsTable();
 
