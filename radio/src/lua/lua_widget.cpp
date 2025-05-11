@@ -318,12 +318,12 @@ void LuaWidget::checkEvents()
           refresh(nullptr);
           if (!errorMessage) {
             if (!callRefs(lsWidgets)) {
-              setErrorMessage("callRefs()");
+              setErrorMessage("function");
             }
           }
           refreshInstructionsPercent = instructionsPercent;
         } else {
-          // TODO: error handling
+          setErrorMessage("function");
         }
         luaScriptManager = save;
         UNPROTECT_LUA();
@@ -374,6 +374,7 @@ void LuaWidget::update()
     lua_setfield(lsWidgets, -2, option->name);
   }
 
+  auto save = luaScriptManager;
   luaScriptManager = this;
 
   if (lua_pcall(lsWidgets, 2, 0, 0) != 0)
@@ -387,17 +388,17 @@ void LuaWidget::update()
       if (a.x2 >= 0 && a.x1 < LCD_W) {
         PROTECT_LUA() {
           if (!callRefs(lsWidgets)) {
-            setErrorMessage("callRefs()");
+            setErrorMessage("function");
           }
         } else {
-          // TODO: error handling
+          setErrorMessage("function");
         }
         UNPROTECT_LUA();
       }
     }
   }
 
-  luaScriptManager = nullptr;
+  luaScriptManager = save;
 }
 
 // Update table on top of Lua stack - set entry with name 'idx' to value 'val'
@@ -458,18 +459,24 @@ void LuaWidget::onFullscreen(bool enable)
 
 void LuaWidget::setErrorMessage(const char* funcName)
 {
+  constexpr int err_len = 255;
+
   const char* lua_err = lua_tostring(lsWidgets, -1);
   TRACE("Error in widget %s %s function: %s", factory->getName(), funcName,
         lua_err);
   TRACE("Widget disabled");
 
-  size_t err_len = snprintf(NULL, 0, "ERROR in %s: %s", funcName, lua_err);
   errorMessage = (char*)malloc(err_len + 1);
 
   if (errorMessage) {
     snprintf(errorMessage, err_len, "ERROR in %s: %s", funcName, lua_err);
     errorMessage[err_len] = '\0';
   }
+}
+
+void LuaWidget::luaShowError()
+{
+  setErrorMessage("widget");
 }
 
 const char* LuaWidget::getErrorMessage() const { return errorMessage; }
