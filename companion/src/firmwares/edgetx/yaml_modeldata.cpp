@@ -31,6 +31,7 @@
 #include "yaml_sensordata.h"
 #include "yaml_screendata.h"
 #include "yaml_usbjoystickdata.h"
+#include "yaml_switchconfig.h"
 
 #include "boardjson.h"
 #include "modeldata.h"
@@ -162,6 +163,11 @@ static const YamlLookupTable cfsSwitchStart = {
   {  0, "START_OFF"  },
   {  1, "START_ON"  },
   {  2, "START_PREVIOUS"  },
+};
+
+static const YamlLookupTable cfsSwitchLuaOverride = {
+  {  0, "OFF"  },
+  {  1, "ON"  },
 };
 
 struct YamlTrim {
@@ -458,29 +464,6 @@ void operator >> (const YAML::Node& node, FlightModeData& value)
 
 namespace YAML
 {
-template <>
-struct convert<RGBLedColor> {
-  static Node encode(const RGBLedColor& rhs);
-  static bool decode(const Node& node, RGBLedColor& rhs);
-};
-
-Node convert<RGBLedColor>::encode(const RGBLedColor& rhs)
-{
-  Node node;
-  node["r"] = rhs.r;
-  node["g"] = rhs.g;
-  node["b"] = rhs.b;
-  return node;
-}
-
-bool convert<RGBLedColor>::decode(const Node& node, RGBLedColor& rhs)
-{
-  node["r"] >> rhs.r;
-  node["g"] >> rhs.g;
-  node["b"] >> rhs.b;
-  return true;
-}
-
 Node convert<TimerData>::encode(const TimerData& rhs)
 {
   unsigned int countdownBeep = rhs.countdownBeep;
@@ -984,6 +967,47 @@ struct convert<FrSkyScreenData> {
   }
 };
 
+template <>
+struct convert<customSwitch> {
+  static Node encode(const customSwitch& rhs);
+  static bool decode(const Node& node, customSwitch& rhs);
+};
+
+Node convert<customSwitch>::encode(const customSwitch& rhs)
+{
+  Node node;
+  node["type"] = cfsSwitchConfig << rhs.type;
+  node["group"] = rhs.group;
+  node["start"] = cfsSwitchStart << rhs.start;
+  node["state"] = rhs.state;
+  node["name"] = rhs.name;
+  if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchColors)) {
+    node["onColorLuaOverride"] = cfsSwitchLuaOverride << rhs.onColorLuaOverride;
+    node["offColorLuaOverride"] = cfsSwitchLuaOverride << rhs.offColorLuaOverride;
+    node["onColor"] = rhs.onColor;
+    node["offColor"] = rhs.offColor;
+  }
+  return node;
+}
+
+bool convert<customSwitch>::decode(const Node& node, customSwitch& rhs)
+{
+  if (!node.IsMap()) return false;
+
+  unsigned type;
+  node["type"] >> cfsSwitchConfig >> type;
+  rhs.type = (Board::SwitchType)type;
+  node["group"] >> rhs.group;
+  node["start"] >> cfsSwitchStart >> rhs.start;
+  node["state"] >> rhs.state;
+  node["name"] >> rhs.name;
+  node["onColorLuaOverride"] >> cfsSwitchLuaOverride >> rhs.onColorLuaOverride;
+  node["offColorLuaOverride"] >> cfsSwitchLuaOverride >> rhs.offColorLuaOverride;
+  node["onColor"] >> rhs.onColor;
+  node["offColor"] >> rhs.offColor;
+  return true;
+}
+
 Node convert<ModelData>::encode(const ModelData& rhs)
 {
   modelSettingsVersion = SemanticVersion(VERSION);
@@ -1228,15 +1252,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     for (int i = 0; i < funcSwCnt; i += 1) {
       int sw = Boards::getSwitchIndexForCFS(i);
       std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
-      node["customSwitches"][tag]["type"] = cfsSwitchConfig << rhs.customSwitches[i].type;
-      node["customSwitches"][tag]["group"] = rhs.customSwitches[i].group;
-      node["customSwitches"][tag]["start"] = cfsSwitchStart << rhs.customSwitches[i].start;
-      node["customSwitches"][tag]["state"] = rhs.customSwitches[i].state;
-      node["customSwitches"][tag]["name"] = rhs.customSwitches[i].name;
-      if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
-        node["customSwitches"][tag]["onColor"] = rhs.customSwitches[i].onColor;
-        node["customSwitches"][tag]["offColor"] = rhs.customSwitches[i].offColor;
-      }
+      node["customSwitches"][tag] = rhs.customSwitches[i];
     }
 
     for (int i = 1; i < 4; i += 1) {
@@ -1566,17 +1582,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     for (int i = 0; i < funcSwCnt; i += 1) {
       int sw = Boards::getSwitchIndexForCFS(i);
       std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
-      if (node["customSwitches"][tag]) {
-        unsigned type;
-        node["customSwitches"][tag]["type"] >> cfsSwitchConfig >> type;
-        rhs.customSwitches[i].type = (Board::SwitchType)type;
-        node["customSwitches"][tag]["group"] >> rhs.customSwitches[i].group;
-        node["customSwitches"][tag]["start"] >> cfsSwitchStart >> rhs.customSwitches[i].start;
-        node["customSwitches"][tag]["state"] >> rhs.customSwitches[i].state;
-        node["customSwitches"][tag]["name"] >> rhs.customSwitches[i].name;
-        node["customSwitches"][tag]["onColor"] >> rhs.customSwitches[i].onColor;
-        node["customSwitches"][tag]["offColor"] >> rhs.customSwitches[i].offColor;
-      }
+      node["customSwitches"][tag] >> rhs.customSwitches[i];
     }
   }
   if (node["cfsGroupOn"]) {
