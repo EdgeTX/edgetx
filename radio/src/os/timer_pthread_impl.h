@@ -31,7 +31,7 @@ struct timer_req_t {
 class timer_queue {
 
   std::unique_ptr<std::thread> _thread;
-  bool _running;
+  bool _running = false;
 
   std::deque<timer_req_t> _cmds;
   std::mutex _cmds_mutex;
