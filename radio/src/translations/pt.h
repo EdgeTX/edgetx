@@ -292,7 +292,7 @@
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Chave"
 #define TR_FUNCTION_SWITCHES           "Chaves customizáveis"
-#define TR_FS_COLOR_LIST               "Custom","Desl","Branco","Verm","Verd","Amar","Larj","Azul","Pink"
+#define TR_FS_COLOR_LIST               "Custom","Desl","Branco","Verm","Verd","Amarl","Larj","Azul","Pink"
 #define TR_GROUP                       "Grupo"
 #define TR_GROUP_ALWAYS_ON             "Sempre lig"
 #define TR_FS_ON_COLOR                 TR("ON:","ON Color")
