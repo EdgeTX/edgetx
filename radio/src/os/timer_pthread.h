@@ -41,5 +41,5 @@ struct timer_handle_t {
   std::atomic_bool active;
 };
 
-#define TIMER_INITIALIZER {}
+#define TIMER_INITIALIZER {0}
 

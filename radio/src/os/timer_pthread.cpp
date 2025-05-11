@@ -4,6 +4,9 @@
 
 #include <algorithm>
 
+static timer_queue* _instance = nullptr;
+static std::mutex _instance_mut;
+
 bool _timer_cmp(timer_handle_t *lh, timer_handle_t *rh) {
   return lh->next_trigger < rh->next_trigger;
 }
@@ -22,8 +25,21 @@ void timer_queue::sort_timers() {
 
 timer_queue& timer_queue::instance()
 {
-  static timer_queue _instance;
-  return _instance;
+  std::lock_guard<std::mutex> lock(_instance_mut);
+  if (!_instance) {
+    _instance = new timer_queue();
+  }
+  return *_instance;
+}
+
+void timer_queue::destroy()
+{
+  std::lock_guard<std::mutex> lock(_instance_mut);
+  if (_instance) {
+    _instance->stop();
+    delete _instance;
+    _instance = nullptr;
+  }
 }
 
 void timer_queue::start()
