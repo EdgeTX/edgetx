@@ -569,14 +569,15 @@ class ModuleSubTypeChoice : public Choice
 
   int getSubTypeValue()
   {
-    if (isModuleXJT(moduleIdx) || isModuleDSM2(moduleIdx) || isModuleR9MNonAccess(moduleIdx)
+    if (isModuleXJT(moduleIdx) || isModuleDSM2(moduleIdx) ||
+        isModuleR9MNonAccess(moduleIdx) || isModuleSBUS(moduleIdx)
 #if defined(PPM)
         || isModulePPM(moduleIdx)
 #endif
 #if defined(PXX2)
         || isModuleISRM(moduleIdx)
 #endif
-       ) {
+    ) {
       return g_model.moduleData[moduleIdx].subType;
     } else {
       return g_model.moduleData[moduleIdx].multi.rfProtocol;
