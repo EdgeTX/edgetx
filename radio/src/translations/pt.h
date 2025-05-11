@@ -1153,7 +1153,7 @@
 #define TR_DELETE_ALL_SENSORS          "Apagar todos"
 #define TR_CONFIRMDELETE               "Really " LCDW_128_LINEBREAK "delete all ?"
 #define TR_SELECT_WIDGET               "Select widget"
-#define TR_WIDGET_FULLSCREEN           "Tela djeia"
+#define TR_WIDGET_FULLSCREEN           "Tela cheia"
 #define TR_REMOVE_WIDGET               "Remove widget"
 #define TR_WIDGET_SETTINGS             "Widget settings"
 #define TR_REMOVE_SCREEN               "Remove screen"
