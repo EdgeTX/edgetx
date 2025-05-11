@@ -273,7 +273,7 @@
 #define TR_EXPONAME                    TR("Nome", "Nome linha")
 #define TR_BITMAP                      "Img modelo"
 #define TR_NO_PICTURE                  "Sem foto"
-#define TR_TIMER                       TR("Crono", "Cronô.")
+#define TR_TIMER                       "Crono"
 #define TR_START                       "Iniciar"
 #define TR_ELIMITS                     TR("E.Limites", "Limites extend.")
 #define TR_ETRIMS                      TR("E.Trims", "Trims extend.")
@@ -337,7 +337,7 @@
 #define DREX_CHBOX_OFFSET              30
 #define TR_CURVE                       "Curva"
 #define TR_FLMODE                      TR("Modo", "Modos")
-#define TR_MIXWARNING                  "Aviso
+#define TR_MIXWARNING                  "Aviso"
 #define TR_OFF                         "DESL"
 #define TR_ANTENNA                     "Antena"
 #define TR_NO_INFORMATION              TR("No info", "No information")
@@ -586,7 +586,7 @@
 #define TR_PITCH_AT_ZERO               "Pitch zero"
 #define TR_PITCH_AT_MAX                "Pitch max"
 #define TR_REPEAT_AT_ZERO              "Repeat zero"
-#define TR_BATT_CALIB                  TR("Batt. calib", "Battery calibration")
+#define TR_BATT_CALIB                  TR("Calib batt.", "Calibração bateria")
 #define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR("Tensão", "Origem tensão")
 #define TR_SELECT_MODEL                "Selec. modelo"
@@ -1184,7 +1184,7 @@
 #define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
 #define TR_JITTER_FILTER               "Filtro ADC"
 #define TR_DEAD_ZONE                   "Dead zone"
-#define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
+#define TR_RTC_CHECK                   TR("Check RTC", "Checar tensão RTC")
 #define TR_AUTH_FAILURE                "Auth-failure"
 #define TR_RACING_MODE                 "Racing mode"
 
