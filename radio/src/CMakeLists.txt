@@ -566,6 +566,10 @@ link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
 set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
+if(ARCH STREQUAL ARM)
+  target_link_libraries(firmware PRIVATE cmsis)
+endif()
+
 target_compile_definitions(board PUBLIC FREE_RTOS)
 target_compile_definitions(board_lib PUBLIC FREE_RTOS)
 target_compile_definitions(firmware PUBLIC FREE_RTOS)
@@ -599,17 +603,15 @@ if (DEFINED TARGET_FLASH_SIZE)
   )
 endif()
 
-if (DEFINED TARGET_SDRAM_START)
-  # message("TARGET_SDRAM_START = ${TARGET_SDRAM_START}")
+if (DEFINED TARGET_EXTRAM_START)
   target_link_options(firmware PRIVATE
-    -Wl,--defsym=__sdram_start=${TARGET_SDRAM_START}
+    -Wl,--defsym=__EXTRAM_START__=${TARGET_EXTRAM_START}
   )
 endif()
 
-if (DEFINED TARGET_SDRAM_SIZE)
-  # message("TARGET_SDRAM_SIZE = ${TARGET_SDRAM_SIZE}")
+if (DEFINED TARGET_EXTRAM_SIZE)
   target_link_options(firmware PRIVATE
-    -Wl,--defsym=__sdram_size=${TARGET_SDRAM_SIZE}
+    -Wl,--defsym=__EXTRAM_SIZE__=${TARGET_EXTRAM_SIZE}
   )
 endif()
 
@@ -623,7 +625,7 @@ endif()
 if(ACCESS_DENIED)
   add_subdirectory(thirdparty/AccessDenied)
   include_directories(thirdparty/AccessDenied)
-  target_link_libraries(firmware AccessDenied)
+  target_link_libraries(firmware PRIVATE AccessDenied)
 endif()
 
 if(FIRMWARE_STRIP_BOOTLOADER)

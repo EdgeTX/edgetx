@@ -71,30 +71,26 @@ include_directories(${STM32LIB_DIR}/CMSIS/Include)
 
 add_definitions(-DSTM32F4)
 
-set(STM32_STDPERIPH_SRC
-  targets/common/arm/stm32/f4/system_stm32f4xx.c
-)
-
 if(CPU_TYPE_FULL STREQUAL STM32F429xI)
-  set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
+  set(CMSIS_SRC ${CMSIS_SRC}
     boards/generic_stm32/startup/startup_stm32f42_43xxx.s
-    )
+  )
 elseif (CPU_TYPE_FULL STREQUAL STM32F413xG)
-  set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
+  set(CMSIS_SRC ${CMSIS_SRC}
     boards/generic_stm32/startup/startup_stm32f413xx.s
   )
 else()
-  set(STM32_STDPERIPH_SRC ${STM32_STDPERIPH_SRC}
+  set(CMSIS_SRC ${CMSIS_SRC}
     boards/generic_stm32/startup/startup_stm32f40_41xxx.s
-    )  
+  )  
 endif()
 
-add_library(stm32_stdperiph OBJECT EXCLUDE_FROM_ALL
-  ${STM32_STDPERIPH_SRC}
-  )
+add_library(cmsis INTERFACE)
 
-set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
-set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_stdperiph>)
+target_sources(cmsis INTERFACE
+  targets/common/arm/stm32/f4/system_stm32f4xx.c
+  ${CMSIS_SRC}
+)
 
 if(NOT NATIVE_BUILD)
   include_directories(targets/common/arm/stm32/f4)

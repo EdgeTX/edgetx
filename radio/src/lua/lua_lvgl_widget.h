@@ -774,6 +774,21 @@ class LvglWidgetChoice : public LvglWidgetPicker
 
 //-----------------------------------------------------------------------------
 
+class LvglWidgetMenu : public LvglWidgetPicker
+{
+ public:
+  LvglWidgetMenu() : LvglWidgetPicker() {}
+
+ protected:
+  std::string title;
+  std::vector<std::string> values;
+
+  void build(lua_State *L) override;
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
 class LvglWidgetFontPicker : public LvglWidgetPicker
 {
  public:
