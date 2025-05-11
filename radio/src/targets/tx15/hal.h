@@ -33,18 +33,18 @@ Stream2:  FLYSKY_HALL_DMA_Stream_RX
 Stream3:  TELEMETRY_DMA_Stream_RX
 Stream4:  I2S_DMA_Stream
 Stream5:  INTMODULE_RX_DMA_STREAM
-Stream6:
+Stream6:  AUX2_SERIAL_DMA_RX_STREAM
 Stream7:  TELEMETRY_DMA_Stream_TX
 
 DMA2
 Stream0:  ADC_EXT_DMA_STREAM (do not move)
-Stream1:
-Stream2:
+Stream1:  AUX_SERIAL_DMA_TX_STREAM
+Stream2:  AUX_SERIAL_DMA_RX_STREAM
 Stream3:  EXTMODULE_TIMER_DMA_STREAM
 Stream4:  ADC_DMA_STREAM (do not move)
 Stream5:  EXTMODULE_USART_RX_DMA_STREAM
 Stream6:  EXTMODULE_USART_TX_DMA_STREAM
-Stream7:
+Stream7:  AUX2_SERIAL_DMA_TX_STREAM
 
 TIM1:	BACKLIGHT_TIMER
 TIM2:	LED_STRIP_TIMER
@@ -439,6 +439,32 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 #define TRAINER_DETECT_GPIO             GPIO_PIN(GPIOH, 4)
 
+// AUX ports
+#define AUX_SERIAL_TX_GPIO                  GPIO_PIN(GPIOB, 6) // PB.06
+#define AUX_SERIAL_RX_GPIO                  GPIO_PIN(GPIOB, 5) // PB.05
+#define AUX_SERIAL_USART                    UART5
+#define AUX_SERIAL_USART_IRQHandler         UART5_IRQHandler
+#define AUX_SERIAL_USART_IRQn               UART5_IRQn
+#define AUX_SERIAL_DMA_TX                   DMA2
+#define AUX_SERIAL_DMA_TX_STREAM            LL_DMA_STREAM_1
+#define AUX_SERIAL_DMA_TX_CHANNEL           LL_DMAMUX1_REQ_UART5_TX
+#define AUX_SERIAL_DMA_RX                   DMA2
+#define AUX_SERIAL_DMA_RX_STREAM            LL_DMA_STREAM_2
+#define AUX_SERIAL_DMA_RX_CHANNEL           LL_DMAMUX1_REQ_UART5_RX
+#define AUX_SERIAL_PWR_GPIO                 GPIO_PIN(GPIOB, 7) // PB.07
+
+#define AUX2_SERIAL_TX_GPIO                 GPIO_PIN(GPIOB, 10) // PB.10
+#define AUX2_SERIAL_RX_GPIO                 GPIO_PIN(GPIOB, 11) // PB.11
+#define AUX2_SERIAL_USART                   USART3
+#define AUX2_SERIAL_USART_IRQHandler        USART3_IRQHandler
+#define AUX2_SERIAL_USART_IRQn              USART3_IRQn
+#define AUX2_SERIAL_DMA_TX                  DMA2
+#define AUX2_SERIAL_DMA_TX_STREAM           LL_DMA_STREAM_7
+#define AUX2_SERIAL_DMA_TX_CHANNEL          LL_DMAMUX1_REQ_USART3_TX
+#define AUX2_SERIAL_DMA_RX                  DMA1
+#define AUX2_SERIAL_DMA_RX_STREAM           LL_DMA_STREAM_6
+#define AUX2_SERIAL_DMA_RX_CHANNEL          LL_DMAMUX1_REQ_USART3_RX
+#define AUX2_SERIAL_PWR_GPIO                GPIO_PIN(GPIOC, 13) // PC.13
 
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_1
