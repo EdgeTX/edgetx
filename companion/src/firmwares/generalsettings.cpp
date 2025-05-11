@@ -375,9 +375,12 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
   for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
     Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
     switchConfig[i].type = info.dflt;
-    switchConfig[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
     switchConfig[i].inverted = info.inverted;
     switchConfig[i].inputIdx = SWITCH_INPUTINDEX_NONE;
+    if (Boards::isSwitchFunc(i)) {
+      switchConfig[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
+      switchConfig[i].onColor.setColor(255, 255, 255);
+    }
   }
 
   for (uint8_t i = 0; i < 4; i++) {

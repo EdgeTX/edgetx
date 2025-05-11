@@ -61,6 +61,16 @@ enum UartModes {
   UART_MODE_DEBUG
 };
 
+class RGBLedColor {
+  public:
+    RGBLedColor() { clear(); }
+    int r;
+    int g;
+    int b;
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(RGBLedColor)); }
+    void setColor(int red, int green, int blue) { r = red; g = green; b = blue; }
+};
+
 class TrainerMix {
   Q_DECLARE_TR_FUNCTIONS(TrainerMix)
 
@@ -360,9 +370,14 @@ class GeneralSettings {
     struct SwitchConfig {
       char name[HARDWARE_NAME_LEN + 1];
       Board::SwitchType type;
-      int start;
       bool inverted;
       int inputIdx;  //  used if switch tag = FLn, value -1 = none selected
+      // CFS settings
+      unsigned int start;
+      unsigned int onColorLuaOverride;
+      unsigned int offColorLuaOverride;
+      RGBLedColor onColor;
+      RGBLedColor offColor;
     };
 
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];

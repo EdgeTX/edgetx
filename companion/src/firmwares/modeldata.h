@@ -104,16 +104,6 @@ class USBJoystickChData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(USBJoystickChData)); }
 };
 
-class RGBLedColor {
-  public:
-    RGBLedColor() { clear(); }
-    int r;
-    int g;
-    int b;
-    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(RGBLedColor)); }
-    void setColor(int red, int green, int blue) { r = red; g = green; b = blue; }
-};
-
 class customSwitch {
   public:
     customSwitch() { clear(); }
@@ -122,6 +112,8 @@ class customSwitch {
     unsigned int start;
     unsigned int state;
     char name[HARDWARE_NAME_LEN + 1];
+    unsigned int onColorLuaOverride;
+    unsigned int offColorLuaOverride;
     RGBLedColor onColor;
     RGBLedColor offColor;
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(customSwitch)); }

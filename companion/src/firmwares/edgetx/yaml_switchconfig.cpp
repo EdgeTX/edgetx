@@ -125,6 +125,10 @@ YamlSwitchConfig::YamlSwitchConfig(const GeneralSettings::SwitchConfig* rhs)
     config[i].start = rhs[i].start;
     memcpy(config[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
     // config[i].inverted = rhs[i].inverted;
+    config[i].onColorLuaOverride = rhs[i].onColorLuaOverride;
+    config[i].offColorLuaOverride = rhs[i].offColorLuaOverride;
+    config[i].onColor = rhs[i].onColor;
+    config[i].offColor = rhs[i].offColor;
   }
 }
 
@@ -136,6 +140,10 @@ void YamlSwitchConfig::copy(GeneralSettings::SwitchConfig* rhs) const
       rhs[i].type = (Board::SwitchType)config[i].type;
       rhs[i].start = config[i].start;
       // rhs[i].inverted = config[i].inverted;
+      rhs[i].onColorLuaOverride = config[i].onColorLuaOverride;
+      rhs[i].offColorLuaOverride = config[i].offColorLuaOverride;
+      rhs[i].onColor = config[i].onColor;
+      rhs[i].offColor = config[i].offColor;
     }
   }
 }
@@ -204,6 +212,11 @@ static const YamlLookupTable cfsSwitchStart = {
   {  2, "START_PREVIOUS"  },
 };
 
+static const YamlLookupTable cfsSwitchLuaOverride = {
+  {  0, "OFF"  },
+  {  1, "ON"  },
+};
+
 Node convert<SwitchConfig>::encode(const SwitchConfig& rhs)
 {
   Node node;
@@ -213,6 +226,10 @@ Node convert<SwitchConfig>::encode(const SwitchConfig& rhs)
     int idx = Boards::getSwitchYamlIndex(rhs.tag.c_str(), BoardJson::YLT_REF);
     if (Boards::isSwitchFunc(idx, getCurrentBoard())) {
       node["start"] = cfsSwitchStart << rhs.start;
+      node["onColorLuaOverride"] = cfsSwitchLuaOverride << rhs.onColorLuaOverride;
+      node["offColorLuaOverride"] = cfsSwitchLuaOverride << rhs.offColorLuaOverride;
+      node["onColor"] = rhs.onColor;
+      node["offColor"] = rhs.offColor;
     }
   }
   // node["inv"] = (int)rhs.inverted;  in hwdef json but not implemented in radio yaml
@@ -227,6 +244,10 @@ bool convert<SwitchConfig>::decode(const Node& node, SwitchConfig& rhs)
   node["name"] >> rhs.name;
   node["start"] >> cfsSwitchStart >> rhs.start;
   // node["inv"] >> rhs.inverted;  in hwdef json but not implemented in radio yaml
+  node["onColorLuaOverride"] >> cfsSwitchLuaOverride >> rhs.onColorLuaOverride;
+  node["offColorLuaOverride"] >> cfsSwitchLuaOverride >> rhs.offColorLuaOverride;
+  node["onColor"] >> rhs.onColor;
+  node["offColor"] >> rhs.offColor;
 
   if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
     int idx = Boards::getSwitchYamlIndex(rhs.tag.c_str(), BoardJson::YLT_CONFIG);
@@ -437,6 +458,23 @@ bool convert<YamlSwitchesFlex>::decode(const Node& node, YamlSwitchesFlex& rhs)
     }
   }
 
+  return true;
+}
+
+Node convert<RGBLedColor>::encode(const RGBLedColor& rhs)
+{
+  Node node;
+  node["r"] = rhs.r;
+  node["g"] = rhs.g;
+  node["b"] = rhs.b;
+  return node;
+}
+
+bool convert<RGBLedColor>::decode(const Node& node, RGBLedColor& rhs)
+{
+  node["r"] >> rhs.r;
+  node["g"] >> rhs.g;
+  node["b"] >> rhs.b;
   return true;
 }
 
