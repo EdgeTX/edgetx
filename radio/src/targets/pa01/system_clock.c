@@ -26,8 +26,7 @@
 
 #define BOOTSTRAP __attribute__((section(".bootstrap")))
 
-extern "C" BOOTSTRAP
-void SystemClock_Config(void)
+BOOTSTRAP void SystemClock_Config(void)
 {
   /* Power Configuration */
   LL_PWR_ConfigSupply(LL_PWR_LDO_SUPPLY);
