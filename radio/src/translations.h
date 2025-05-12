@@ -377,6 +377,7 @@ extern const char STR_SLOWUP[];
 extern const char STR_MIXES[];
 extern const char STR_CV[];
 extern const char STR_VC[];
+extern const char STR_VSW[];
 extern const char STR_GV[];
 extern const char STR_RANGE[];
 extern const char STR_CENTER[];

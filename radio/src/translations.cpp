@@ -242,6 +242,7 @@ const char STR_SLOWUP[] = TR_SLOWUP;
 const char STR_MIXES[] = TR_MIXES;
 const char STR_CV[] = TR_CV;
 const char STR_VC[] = TR_VC;
+const char STR_VSW[] = TR_VSW;
 const char STR_GV[] = TR_GV;
 const char STR_RANGE[] = TR_RANGE;
 const char STR_CENTER[] = TR_CENTER;
