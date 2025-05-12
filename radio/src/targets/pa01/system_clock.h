@@ -19,5 +19,5 @@
  * GNU General Public License for more details.
  */
 
-extern "C" void SystemClock_Config();
+void SystemClock_Config();
 

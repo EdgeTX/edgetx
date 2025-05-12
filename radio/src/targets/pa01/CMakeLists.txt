@@ -35,7 +35,7 @@ set(IMU ON)
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
 set(TARGET_LINKER_DIR stm32h750_sdram)
-set(TARGET_SDRAM_START 0xC0000000)
+set(TARGET_EXTRAM_START 0xC0000000)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
@@ -115,7 +115,6 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
   ${TARGET_SRC_DIR}/bsp_io.cpp
   ${TARGET_SRC_DIR}/key_driver.cpp
-  ${TARGET_SRC_DIR}/system_init.cpp
   ${TARGET_SRC_DIR}/lcd_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
@@ -134,7 +133,7 @@ set(BOARD_COMMON_SRC
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/system_clock.cpp
+  ${TARGET_SRC_DIR}/system_clock.c
   ${TARGET_SRC_DIR}/sdram_driver.cpp
   ${TARGET_SRC_DIR}/bootloader/boot_menu.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
