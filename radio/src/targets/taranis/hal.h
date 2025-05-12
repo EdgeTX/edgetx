@@ -1645,7 +1645,11 @@
   #define ADC_EXT                       ADC1
   #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BATT }
   #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
+#if defined(RADIO_T20V2)
+  #define ADC_VREF_PREC2                300
+#else
   #define ADC_VREF_PREC2                330
+#endif
 #elif defined(RADIO_MT12)
   #define ADC_GPIO_PIN_STICK_TH         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_ST         LL_GPIO_PIN_1  // PA.01
