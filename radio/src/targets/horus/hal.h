@@ -349,7 +349,7 @@
     #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_14 // PB.14
     #define TRIMS_GPIO_REG_LSD          GPIOB
     #define TRIMS_GPIO_PIN_LSD          LL_GPIO_PIN_13 // PB.13
-  #if defined(RADIO_FAMILY_T16)
+  #elif defined(RADIO_FAMILY_T16)
     #define TRIMS_GPIO_REG_LSU          GPIOD
     #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_13 // PD.13
     #define TRIMS_GPIO_REG_LSD          GPIOJ
