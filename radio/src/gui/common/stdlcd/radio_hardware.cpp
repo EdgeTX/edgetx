@@ -228,7 +228,7 @@ static void menuRadioCFSOne(event_t event)
         break;
 
       case CFS_FIELD_ON_LUA_OVERRIDE:
-        g_eeGeneral.cfsSetOnColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOnColorLuaOverride(swIndex), LCD_W - 8 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        g_eeGeneral.cfsSetOnColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOnColorLuaOverride(swIndex), LCD_W - 2 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
         break;
 
       case CFS_FIELD_OFF_COLOR:
@@ -236,7 +236,7 @@ static void menuRadioCFSOne(event_t event)
         break;
 
       case CFS_FIELD_OFF_LUA_OVERRIDE:
-        g_eeGeneral.cfsSetOffColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOffColorLuaOverride(swIndex), LCD_W - 8 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        g_eeGeneral.cfsSetOffColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOffColorLuaOverride(swIndex), LCD_W - 2 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
         break;
 #endif
     }

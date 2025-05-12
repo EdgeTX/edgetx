@@ -301,7 +301,7 @@
 #define TR_FS_COLOR_LIST               "Свой","Выкл","Белый","Красн","Зелен","Желт","Оранж","Синий","Розов"
 #define TR_GROUP                       "Группа"
 #define TR_GROUP_ALWAYS_ON             "Включить все"
-#define TR_LUA_OVERRIDE                "Lua override"
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Вкл все группы"
 #define TR_LAST                        "послед"
 #define TR_MORE_INFO                   "Доп инфо"

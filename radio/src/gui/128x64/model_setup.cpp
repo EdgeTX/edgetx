@@ -750,7 +750,7 @@ static void menuModelCFSOne(event_t event)
         break;
 
       case CFS_FIELD_ON_LUA_OVERRIDE:
-        g_model.cfsSetOnColorLuaOverride(swIndex, editCheckBox(g_model.cfsOnColorLuaOverride(swIndex), LCD_W - 8 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        g_model.cfsSetOnColorLuaOverride(swIndex, editCheckBox(g_model.cfsOnColorLuaOverride(swIndex), LCD_W - 2 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
         break;
 
       case CFS_FIELD_OFF_COLOR:
@@ -758,7 +758,7 @@ static void menuModelCFSOne(event_t event)
         break;
 
       case CFS_FIELD_OFF_LUA_OVERRIDE:
-        g_model.cfsSetOffColorLuaOverride(swIndex, editCheckBox(g_model.cfsOffColorLuaOverride(swIndex), LCD_W - 8 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        g_model.cfsSetOffColorLuaOverride(swIndex, editCheckBox(g_model.cfsOffColorLuaOverride(swIndex), LCD_W - 2 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
         break;
 #endif
     }
