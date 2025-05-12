@@ -524,6 +524,7 @@
 #define TR_SLOWUP                      "Langs.Up"
 #define TR_CV                          "KV"
 #define TR_VC                          "VIn"
+#define TR_VSW                         "VS"
 #define TR_GV                          TR("G", "GV")
 #define TR_RANGE                       TR("Bereich", "Variobereich m/s")
 #define TR_CENTER                      TR("Mitte", "Variomitte     m/s")
