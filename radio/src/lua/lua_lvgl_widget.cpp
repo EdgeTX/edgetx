@@ -2178,18 +2178,52 @@ void LvglWidgetChoice::parseParam(lua_State *L, const char *key)
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       values.push_back(lua_tostring(L, -1));
     }
+  } else if (!strcmp(key, "filter")) {
+    filterFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else {
     LvglWidgetPicker::parseParam(L, key);
   }
 }
 
+void LvglWidgetChoice::clearRefs(lua_State *L)
+{
+  clearRef(L, filterFunction);
+  LvglWidgetPicker::clearRefs(L);
+}
+
 void LvglWidgetChoice::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
-  window = new Choice(
+  auto c = new Choice(
       lvglManager->getCurrentParent(), {x, y, w, h}, values, 0, values.size() - 1,
       [=]() { return pcallGetIntVal(L, getFunction) - 1; },
       [=](int val) { pcallSetIntVal(L, setFunction, val + 1); }, title.c_str());
+
+  if (filterFunction != LUA_REFNIL)
+    c->setAvailableHandler([=](int n) {
+      bool rv = true;
+      int t = lua_gettop(L);
+      PROTECT_LUA()
+      {
+        if (pcallFuncWithInt(L, filterFunction, 1, n + 1)) {
+          if (lua_isboolean(L, -1))
+            rv = lua_toboolean(L, -1);
+          else
+            rv = luaL_checkinteger(L, -1) != 0;
+        } else {
+          lvglManager->luaShowError();
+        }
+      }
+      else
+      {
+        lvglManager->luaShowError();
+      }
+      UNPROTECT_LUA();
+      lua_settop(L, t);
+      return rv;
+    });
+
+  window = c;
 }
 
 //-----------------------------------------------------------------------------
