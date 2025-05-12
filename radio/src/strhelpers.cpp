@@ -503,8 +503,6 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
     strAppendUnsigned(s, idx - SWSRC_FIRST_LOGICAL_SWITCH + 1, 2);
 #if defined(VCONTROLS) && defined(COLORLCD)  
   } else if (idx <= SWSRC_LAST_VIRTUAL_SWITCH) {
-    // *s++ = 'V';
-    // strAppendUnsigned(s, idx - SWSRC_FIRST_VIRTUAL_SWITCH + 1, 2);
     strAppendStringWithIndex(s, STR_VSW, idx - SWSRC_FIRST_VIRTUAL_SWITCH + 1);
 #endif
   } else if (idx <= SWSRC_ONE) {
