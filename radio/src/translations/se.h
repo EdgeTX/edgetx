@@ -307,7 +307,7 @@
 #define TR_FS_COLOR_LIST                "Anpassad","Av","Vit","Röd","Grön","Gul","Orange","Blå","Rosa"
 #define TR_GROUP                        "Grupp"
 #define TR_GROUP_ALWAYS_ON              "Alltid på"
-#define TR_LUA_OVERRIDE                "Lua override"
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                       "Alltid på grupper"
 #define TR_LAST                         "Sist"
 #define TR_MORE_INFO                    "Mer info"
