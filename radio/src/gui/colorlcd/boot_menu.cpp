@@ -63,12 +63,6 @@ extern BitmapBuffer * lcd;
   static bool rfUsbAccess = false;
 #endif
 
-void bootloaderInitScreen()
-{
-  lcdInitDisplayDriver();
-  backlightEnable(BACKLIGHT_LEVEL_MAX);
-}
-
 void blExit(void)
 {
   lcdClear();
@@ -145,6 +139,12 @@ bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
 
 #if defined(FIRMWARE_FORMAT_UF2)
 
+void bootloaderInitScreen()
+{
+  lcdInitDisplayDriver();
+  backlightEnable(BACKLIGHT_LEVEL_MAX);
+}
+
 void bootloaderDrawDFUScreen()
 {
   lcdInitDirectDrawing();
@@ -218,12 +218,21 @@ LAYOUT_ORIENTATION_SCALED(VERCHK_ICN_X, 78, 22)
 const uint8_t __bmp_plug_usb[] {
   #include "bmp_plug_usb.lbm"
 };
-LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444, (LZ4Bitmap*)__bmp_plug_usb);
+LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444);
 
 const uint8_t __bmp_usb_plugged[] {
   #include "bmp_usb_plugged.lbm"
 };
-LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444, (LZ4Bitmap*)__bmp_usb_plugged);
+LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444);
+
+void bootloaderInitScreen()
+{
+  BMP_PLUG_USB.load((LZ4Bitmap*)__bmp_plug_usb);
+  BMP_USB_PLUGGED.load((LZ4Bitmap*)__bmp_usb_plugged);
+
+  lcdInitDisplayDriver();
+  backlightEnable(BACKLIGHT_LEVEL_MAX);
+}
 
 void bootloaderDrawItem(const char* symbol, const char* text, coord_t& y, coord_t& lastX, coord_t symXO = 0)
 {
