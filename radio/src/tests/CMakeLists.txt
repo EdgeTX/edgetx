@@ -1,5 +1,5 @@
 
-if(Qt6idgets_FOUND)
+if(Qt6Widgets_FOUND)
   add_library(gtests-radio-lib STATIC EXCLUDE_FROM_ALL
     ${googletest_SOURCE_DIR}/googletest/src/gtest-all.cc
   )
