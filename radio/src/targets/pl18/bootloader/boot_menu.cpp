@@ -44,12 +44,12 @@
 const uint8_t __bmp_plug_usb[] {
 #include "bmp_plug_usb.lbm"
 };
-LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444, (LZ4Bitmap*)__bmp_plug_usb);
+LZ4BitmapBuffer BMP_PLUG_USB(BMP_ARGB4444);
 
 const uint8_t __bmp_usb_plugged[] {
 #include "bmp_usb_plugged.lbm"
 };
-LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444, (LZ4Bitmap*)__bmp_usb_plugged);
+LZ4BitmapBuffer BMP_USB_PLUGGED(BMP_ARGB4444);
 
 #define BL_GREEN      COLOR2FLAGS(RGB(73, 219, 62))
 #define BL_RED        COLOR2FLAGS(RGB(229, 32, 30))
@@ -67,6 +67,9 @@ extern BitmapBuffer * lcd;
 
 void bootloaderInitScreen()
 {
+  BMP_PLUG_USB.load((LZ4Bitmap*)__bmp_plug_usb);
+  BMP_USB_PLUGGED.load((LZ4Bitmap*)__bmp_usb_plugged);
+
   lcdInitDisplayDriver();
 #if defined(USE_HATS_AS_KEYS)
   setHatsAsKeys(true);
