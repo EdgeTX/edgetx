@@ -471,11 +471,6 @@
 #define IMU_I2C_BUS I2C_Bus_2
 #define IMU_I2C_ADDRESS 0x6A
 
-#define LANDSCAPE_LCD_SML true
-#define LANDSCAPE_LCD_STD false
-#define LANDSCAPE_LCD_LRG false
-#define PORTRAIT_LCD false
-
 #define LCD_W                           320
 #define LCD_H                           240
 
