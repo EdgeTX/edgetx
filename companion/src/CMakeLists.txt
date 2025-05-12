@@ -415,7 +415,7 @@ elseif(WIN32)
   endif(OPENSSL_FOUND)
 
   set(LICENSE_FILE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
-  configure_file("${COMPANION_TARGETS_PATH}/license.txt.in" ${LICENSE_FILE} @ONLY)
+  configure_file("${COMPANION_TARGETS_DIR}/license.txt.in" ${LICENSE_FILE} @ONLY)
   install(FILES "${LICENSE_FILE}" DESTINATION ${INSTALL_DESTINATION})
 
   if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
