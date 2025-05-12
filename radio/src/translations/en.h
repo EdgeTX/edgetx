@@ -425,6 +425,7 @@
 #define TR_SLOWUP                      "Slow up"
 #define TR_CV                          "CV"
 #define TR_VC                          "VIn"
+#define TR_VSW                         "VS"
 #if defined(PCBPL18)
 #define TR_GV                          "GV"
 #else
