@@ -1029,274 +1029,274 @@ Felbeskrivning: %4</translation>
 <context>
     <name>Boards</name>
     <message>
-        <location filename="../firmwares/boards.cpp" line="422"/>
+        <location filename="../firmwares/boards.cpp" line="426"/>
         <source>Left Horizontal</source>
         <translation>Vänster horisontal</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="423"/>
+        <location filename="../firmwares/boards.cpp" line="427"/>
         <source>Left Vertical</source>
         <translation>Vänster Vvrtikal</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="424"/>
+        <location filename="../firmwares/boards.cpp" line="428"/>
         <source>Right Vertical</source>
         <translation>Höger vertikal</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="425"/>
+        <location filename="../firmwares/boards.cpp" line="429"/>
         <source>Right Horizontal</source>
         <translation>Höger horisontal</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="426"/>
+        <location filename="../firmwares/boards.cpp" line="430"/>
         <source>Aux. 1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="427"/>
+        <location filename="../firmwares/boards.cpp" line="431"/>
         <source>Aux. 2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="443"/>
+        <location filename="../firmwares/boards.cpp" line="447"/>
         <source>LH</source>
         <translation>VH</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="444"/>
+        <location filename="../firmwares/boards.cpp" line="448"/>
         <source>LV</source>
         <translation>VV</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="445"/>
+        <location filename="../firmwares/boards.cpp" line="449"/>
         <source>RV</source>
         <translation>HV</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="446"/>
+        <location filename="../firmwares/boards.cpp" line="450"/>
         <source>RH</source>
         <translation>HH</translation>
     </message>
     <message>
+        <location filename="../firmwares/boards.cpp" line="459"/>
+        <location filename="../firmwares/boards.cpp" line="461"/>
+        <source>TILT_X</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="460"/>
+        <location filename="../firmwares/boards.cpp" line="462"/>
+        <source>TILT_Y</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="467"/>
+        <location filename="../firmwares/boards.cpp" line="476"/>
+        <location filename="../firmwares/boards.cpp" line="506"/>
+        <location filename="../firmwares/boards.cpp" line="516"/>
+        <location filename="../firmwares/boards.cpp" line="524"/>
+        <location filename="../firmwares/boards.cpp" line="532"/>
+        <location filename="../firmwares/boards.cpp" line="548"/>
+        <location filename="../firmwares/boards.cpp" line="555"/>
+        <source>SL1</source>
+        <translation>RG1</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="475"/>
+        <location filename="../firmwares/boards.cpp" line="514"/>
+        <source>P4</source>
+        <translation>V4</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="477"/>
+        <location filename="../firmwares/boards.cpp" line="507"/>
+        <location filename="../firmwares/boards.cpp" line="517"/>
+        <location filename="../firmwares/boards.cpp" line="525"/>
+        <location filename="../firmwares/boards.cpp" line="533"/>
+        <location filename="../firmwares/boards.cpp" line="549"/>
+        <location filename="../firmwares/boards.cpp" line="556"/>
+        <source>SL2</source>
+        <translation>RG2</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="478"/>
+        <location filename="../firmwares/boards.cpp" line="557"/>
+        <source>SL3</source>
+        <translation>RG3</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="479"/>
+        <location filename="../firmwares/boards.cpp" line="558"/>
+        <source>SL4</source>
+        <translation>RG4</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="515"/>
+        <source>P5</source>
+        <translation>V5</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="684"/>
+        <location filename="../firmwares/boards.cpp" line="907"/>
+        <location filename="../firmwares/boards.cpp" line="937"/>
+        <source>None</source>
+        <translation>Ingen</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="686"/>
+        <source>2 Positions Toggle</source>
+        <translation>2 lägen momentan</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="688"/>
+        <source>2 Positions</source>
+        <translation>2 lägen</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="690"/>
+        <source>3 Positions</source>
+        <translation>3 lägen</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="692"/>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="939"/>
+        <source>Pot</source>
+        <translation>Vred</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="941"/>
+        <source>Pot with detent</source>
+        <translation>Vred med mittklick</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="943"/>
+        <source>Slider</source>
+        <translation>Reglage</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="945"/>
+        <source>Multipos Switch</source>
+        <translation>Flerlägesbrytare</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="947"/>
+        <source>Axis X</source>
+        <translation>X-axel</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="949"/>
+        <source>Axis Y</source>
+        <translation>Y-axel</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="951"/>
+        <source>Switch</source>
+        <translation>Brytare</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="1147"/>
+        <source>Flight</source>
+        <translation>Flyg</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="1147"/>
+        <source>Drive</source>
+        <translation>Kör</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="468"/>
+        <location filename="../firmwares/boards.cpp" line="472"/>
+        <location filename="../firmwares/boards.cpp" line="483"/>
+        <location filename="../firmwares/boards.cpp" line="488"/>
+        <location filename="../firmwares/boards.cpp" line="494"/>
+        <location filename="../firmwares/boards.cpp" line="498"/>
+        <location filename="../firmwares/boards.cpp" line="503"/>
+        <location filename="../firmwares/boards.cpp" line="511"/>
+        <location filename="../firmwares/boards.cpp" line="521"/>
+        <location filename="../firmwares/boards.cpp" line="529"/>
+        <location filename="../firmwares/boards.cpp" line="541"/>
+        <location filename="../firmwares/boards.cpp" line="553"/>
+        <source>P1</source>
+        <translation>V1</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="473"/>
+        <location filename="../firmwares/boards.cpp" line="484"/>
+        <location filename="../firmwares/boards.cpp" line="489"/>
+        <location filename="../firmwares/boards.cpp" line="499"/>
+        <location filename="../firmwares/boards.cpp" line="504"/>
+        <location filename="../firmwares/boards.cpp" line="512"/>
+        <location filename="../firmwares/boards.cpp" line="522"/>
+        <location filename="../firmwares/boards.cpp" line="530"/>
+        <location filename="../firmwares/boards.cpp" line="542"/>
+        <location filename="../firmwares/boards.cpp" line="554"/>
+        <source>P2</source>
+        <translation>V2</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/boards.cpp" line="474"/>
+        <location filename="../firmwares/boards.cpp" line="490"/>
+        <location filename="../firmwares/boards.cpp" line="505"/>
+        <location filename="../firmwares/boards.cpp" line="513"/>
+        <location filename="../firmwares/boards.cpp" line="523"/>
+        <location filename="../firmwares/boards.cpp" line="531"/>
+        <location filename="../firmwares/boards.cpp" line="543"/>
+        <source>P3</source>
+        <translation>V3</translation>
+    </message>
+    <message>
         <location filename="../firmwares/boards.cpp" line="455"/>
         <location filename="../firmwares/boards.cpp" line="457"/>
-        <source>TILT_X</source>
+        <source>JSx</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="456"/>
         <location filename="../firmwares/boards.cpp" line="458"/>
-        <source>TILT_Y</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="463"/>
-        <location filename="../firmwares/boards.cpp" line="472"/>
-        <location filename="../firmwares/boards.cpp" line="502"/>
-        <location filename="../firmwares/boards.cpp" line="512"/>
-        <location filename="../firmwares/boards.cpp" line="520"/>
-        <location filename="../firmwares/boards.cpp" line="528"/>
-        <location filename="../firmwares/boards.cpp" line="544"/>
-        <location filename="../firmwares/boards.cpp" line="551"/>
-        <source>SL1</source>
-        <translation>RG1</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="471"/>
-        <location filename="../firmwares/boards.cpp" line="510"/>
-        <source>P4</source>
-        <translation>V4</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="473"/>
-        <location filename="../firmwares/boards.cpp" line="503"/>
-        <location filename="../firmwares/boards.cpp" line="513"/>
-        <location filename="../firmwares/boards.cpp" line="521"/>
-        <location filename="../firmwares/boards.cpp" line="529"/>
-        <location filename="../firmwares/boards.cpp" line="545"/>
-        <location filename="../firmwares/boards.cpp" line="552"/>
-        <source>SL2</source>
-        <translation>RG2</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="474"/>
-        <location filename="../firmwares/boards.cpp" line="553"/>
-        <source>SL3</source>
-        <translation>RG3</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="475"/>
-        <location filename="../firmwares/boards.cpp" line="554"/>
-        <source>SL4</source>
-        <translation>RG4</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="511"/>
-        <source>P5</source>
-        <translation>V5</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="678"/>
-        <location filename="../firmwares/boards.cpp" line="897"/>
-        <location filename="../firmwares/boards.cpp" line="927"/>
-        <source>None</source>
-        <translation>Ingen</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="680"/>
-        <source>2 Positions Toggle</source>
-        <translation>2 lägen momentan</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="682"/>
-        <source>2 Positions</source>
-        <translation>2 lägen</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="684"/>
-        <source>3 Positions</source>
-        <translation>3 lägen</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="686"/>
-        <source>Function</source>
-        <translation>Funktion</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="929"/>
-        <source>Pot</source>
-        <translation>Vred</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="931"/>
-        <source>Pot with detent</source>
-        <translation>Vred med mittklick</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="933"/>
-        <source>Slider</source>
-        <translation>Reglage</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="935"/>
-        <source>Multipos Switch</source>
-        <translation>Flerlägesbrytare</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="937"/>
-        <source>Axis X</source>
-        <translation>X-axel</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="939"/>
-        <source>Axis Y</source>
-        <translation>Y-axel</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="941"/>
-        <source>Switch</source>
-        <translation>Brytare</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="1137"/>
-        <source>Flight</source>
-        <translation>Flyg</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="1137"/>
-        <source>Drive</source>
-        <translation>Kör</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="464"/>
-        <location filename="../firmwares/boards.cpp" line="468"/>
-        <location filename="../firmwares/boards.cpp" line="479"/>
-        <location filename="../firmwares/boards.cpp" line="484"/>
-        <location filename="../firmwares/boards.cpp" line="490"/>
-        <location filename="../firmwares/boards.cpp" line="494"/>
-        <location filename="../firmwares/boards.cpp" line="499"/>
-        <location filename="../firmwares/boards.cpp" line="507"/>
-        <location filename="../firmwares/boards.cpp" line="517"/>
-        <location filename="../firmwares/boards.cpp" line="525"/>
-        <location filename="../firmwares/boards.cpp" line="537"/>
-        <location filename="../firmwares/boards.cpp" line="549"/>
-        <source>P1</source>
-        <translation>V1</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="469"/>
-        <location filename="../firmwares/boards.cpp" line="480"/>
-        <location filename="../firmwares/boards.cpp" line="485"/>
-        <location filename="../firmwares/boards.cpp" line="495"/>
-        <location filename="../firmwares/boards.cpp" line="500"/>
-        <location filename="../firmwares/boards.cpp" line="508"/>
-        <location filename="../firmwares/boards.cpp" line="518"/>
-        <location filename="../firmwares/boards.cpp" line="526"/>
-        <location filename="../firmwares/boards.cpp" line="538"/>
-        <location filename="../firmwares/boards.cpp" line="550"/>
-        <source>P2</source>
-        <translation>V2</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="470"/>
-        <location filename="../firmwares/boards.cpp" line="486"/>
-        <location filename="../firmwares/boards.cpp" line="501"/>
-        <location filename="../firmwares/boards.cpp" line="509"/>
-        <location filename="../firmwares/boards.cpp" line="519"/>
-        <location filename="../firmwares/boards.cpp" line="527"/>
-        <location filename="../firmwares/boards.cpp" line="539"/>
-        <source>P3</source>
-        <translation>V3</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="451"/>
-        <location filename="../firmwares/boards.cpp" line="453"/>
-        <source>JSx</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../firmwares/boards.cpp" line="452"/>
-        <location filename="../firmwares/boards.cpp" line="454"/>
         <source>JSy</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="530"/>
-        <location filename="../firmwares/boards.cpp" line="540"/>
+        <location filename="../firmwares/boards.cpp" line="534"/>
+        <location filename="../firmwares/boards.cpp" line="544"/>
         <source>EXT1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="531"/>
-        <location filename="../firmwares/boards.cpp" line="541"/>
+        <location filename="../firmwares/boards.cpp" line="535"/>
+        <location filename="../firmwares/boards.cpp" line="545"/>
         <source>EXT2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="532"/>
-        <location filename="../firmwares/boards.cpp" line="542"/>
+        <location filename="../firmwares/boards.cpp" line="536"/>
+        <location filename="../firmwares/boards.cpp" line="546"/>
         <source>EXT3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="533"/>
-        <location filename="../firmwares/boards.cpp" line="543"/>
+        <location filename="../firmwares/boards.cpp" line="537"/>
+        <location filename="../firmwares/boards.cpp" line="547"/>
         <source>EXT4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="899"/>
+        <location filename="../firmwares/boards.cpp" line="909"/>
         <source>Standard</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="901"/>
+        <location filename="../firmwares/boards.cpp" line="911"/>
         <source>Small</source>
         <translation>Liten</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="903"/>
+        <location filename="../firmwares/boards.cpp" line="913"/>
         <source>Both</source>
         <translation>Båda</translation>
     </message>
@@ -3553,39 +3553,39 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="448"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="472"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="612"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="622"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="632"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="642"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="652"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="662"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="672"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="732"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="742"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="761"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="772"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="782"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="807"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="619"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="629"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="639"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="649"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="659"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="669"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="679"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="739"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="749"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="768"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="779"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="789"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="814"/>
         <source>Disable HELI menu and cyclic mix support</source>
         <translation>Avaktivera helikoptermenyn och stöd för cykliska mixar</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="449"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="473"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="613"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="623"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="633"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="643"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="653"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="663"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="673"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="733"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="743"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="752"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="762"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="773"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="783"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="808"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="620"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="630"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="640"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="650"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="660"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="670"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="680"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="740"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="750"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="759"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="769"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="780"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="790"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="815"/>
         <source>Disable Global variables</source>
         <translation>Avaktivera Globala variabler</translation>
     </message>
@@ -3600,42 +3600,47 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="603"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="516"/>
+        <source>FlySky ST16</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="610"/>
         <source>HelloRadioSky V16</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="640"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="647"/>
         <source>Jumper T-Pro V2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="650"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="657"/>
         <source>Jumper T-Pro S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="660"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="667"/>
         <source>Jumper Bumblebee</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="681"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="688"/>
         <source>Jumper T12 MAX</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="688"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="695"/>
         <source>Jumper T14</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="695"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="702"/>
         <source>Jumper T15</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="723"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="730"/>
         <source>Jumper T20 V2</source>
         <translation></translation>
     </message>
@@ -3647,20 +3652,20 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="450"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="474"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="614"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="624"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="634"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="644"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="654"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="664"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="674"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="734"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="744"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="753"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="763"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="774"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="784"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="809"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="621"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="631"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="641"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="651"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="661"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="671"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="681"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="741"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="751"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="760"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="770"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="781"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="791"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="816"/>
         <source>Enable Lua custom scripts screen</source>
         <translation>Aktivera stöd för Lua-mixerskript</translation>
     </message>
@@ -3670,28 +3675,28 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation>Använd SQT5 typsnitt</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="575"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="583"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="582"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="590"/>
         <source>Disable RAS (SWR)</source>
         <translation>Avaktivera RAS (SWR)</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="576"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="583"/>
         <source>Haptic module installed</source>
         <translation>Vibratormodul är installerad</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="596"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="603"/>
         <source>Confirmation before radio shutdown</source>
         <translation>Bekräfta avstängning av radion</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="597"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="604"/>
         <source>Horus gimbals installed (Hall sensors)</source>
         <translation>Horusspakar installerade (hall sensor)</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="532"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="539"/>
         <source>Use ONLY with first DEV pcb version</source>
         <translation>Använd endast med första versionen av DEV pcb</translation>
     </message>
@@ -3701,8 +3706,8 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation>Tillåt icke-certifierad firmware</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="518"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="531"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="525"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="538"/>
         <source>Support for ACCESS internal module replacement</source>
         <translation>Stöd för utbyte av intern ACCESS-modul</translation>
     </message>
@@ -3712,7 +3717,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation>Aktivera stöd för AFHDS3</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="767"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="774"/>
         <source>Allow bind using bind key</source>
         <translation>Tillåt parkoppling via &quot;bindknapp&quot;</translation>
     </message>
@@ -3722,13 +3727,13 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation>Stöd för Bluetooth-modul</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="675"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="703"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="682"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="710"/>
         <source>Support for MULTI internal module</source>
         <translation>Stöd för intern MULTI-modul</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="582"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="589"/>
         <source>FrSky Taranis X9D+</source>
         <translation></translation>
     </message>
@@ -3738,72 +3743,72 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation>Aktivera stöd för AFHDS2</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="589"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="596"/>
         <source>FrSky Taranis X9D+ 2019</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="574"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="581"/>
         <source>FrSky Taranis X9D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="595"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="602"/>
         <source>FrSky Taranis X9E</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="562"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="569"/>
         <source>FrSky Taranis X9-Lite</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="568"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="575"/>
         <source>FrSky Taranis X9-Lite S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="537"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="544"/>
         <source>FrSky Taranis X7 / X7S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="543"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="550"/>
         <source>FrSky Taranis X7 / X7S Access</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="556"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="563"/>
         <source>FrSky Taranis X-Lite S/PRO</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="549"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="556"/>
         <source>FrSky Taranis X-Lite</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="516"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="523"/>
         <source>FrSky Horus X10 / X10S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="523"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="530"/>
         <source>FrSky Horus X10 Express / X10S Express</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="529"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="536"/>
         <source>FrSky Horus X12S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="670"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="677"/>
         <source>Jumper T12 / T12 Pro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="620"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="627"/>
         <source>Jumper T-Lite</source>
         <translation></translation>
     </message>
@@ -3813,77 +3818,77 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="630"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="637"/>
         <source>Jumper T-Pro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="701"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="708"/>
         <source>Jumper T16 / T16+ / T16 Pro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="716"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="723"/>
         <source>Jumper T20</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="750"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="757"/>
         <source>Radiomaster MT12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="770"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="777"/>
         <source>Radiomaster TX12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="780"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="787"/>
         <source>Radiomaster TX12 Mark II</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="790"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="797"/>
         <source>Radiomaster GX12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="805"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="812"/>
         <source>Radiomaster Zorro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="683"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="690"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="718"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="697"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="725"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="810"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="732"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="817"/>
         <source>Select if internal ELRS module is installed</source>
         <translation>Välj om intern ELRS-modul är installerad</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="740"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="747"/>
         <source>Radiomaster Pocket</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="759"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="766"/>
         <source>Radiomaster T8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="797"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="804"/>
         <source>Radiomaster TX16S / SE / Hall / Masterfire</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="484"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="801"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="808"/>
         <source>Support hardware mod: FlySky Paladin EV Gimbals</source>
         <translation>Stöd för intern hårdvarumodd: FlySky Paladin EV Gimbals</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="709"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="716"/>
         <source>Jumper T18</source>
         <translation></translation>
     </message>
@@ -3903,12 +3908,12 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="610"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="617"/>
         <source>iFlight Commando8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="730"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="737"/>
         <source>Radiomaster Boxer</source>
         <translation></translation>
     </message>
@@ -4938,206 +4943,206 @@ Dessa inställningar gäller för alla modeller.</translation>
 <context>
     <name>GeneralSettings</name>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="412"/>
+        <location filename="../firmwares/generalsettings.cpp" line="414"/>
         <source>Radio Settings</source>
         <translation>Radioinställningar</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="414"/>
+        <location filename="../firmwares/generalsettings.cpp" line="416"/>
         <source>Hardware</source>
         <translation>Hårdvara</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="415"/>
+        <location filename="../firmwares/generalsettings.cpp" line="417"/>
         <source>Internal Module</source>
         <translation>Intern modul</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="430"/>
+        <location filename="../firmwares/generalsettings.cpp" line="432"/>
         <source>Axis &amp; Pots</source>
         <translation>Axlar och vred</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="435"/>
+        <location filename="../firmwares/generalsettings.cpp" line="437"/>
         <source>Axis</source>
         <translation>Axlar</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="435"/>
+        <location filename="../firmwares/generalsettings.cpp" line="437"/>
         <source>Pot</source>
         <translation>Vred</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="464"/>
+        <location filename="../firmwares/generalsettings.cpp" line="466"/>
         <source>Switches</source>
         <translation>Brytare</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="469"/>
-        <location filename="../firmwares/generalsettings.cpp" line="481"/>
+        <location filename="../firmwares/generalsettings.cpp" line="471"/>
+        <location filename="../firmwares/generalsettings.cpp" line="483"/>
         <source>Flex Switch</source>
         <translation>Flexbrytare</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="470"/>
-        <location filename="../firmwares/generalsettings.cpp" line="482"/>
+        <location filename="../firmwares/generalsettings.cpp" line="472"/>
+        <location filename="../firmwares/generalsettings.cpp" line="484"/>
         <source>Function Switch</source>
         <translation>Funktionsbrytare</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="470"/>
-        <location filename="../firmwares/generalsettings.cpp" line="482"/>
+        <location filename="../firmwares/generalsettings.cpp" line="472"/>
+        <location filename="../firmwares/generalsettings.cpp" line="484"/>
         <source>Switch</source>
         <translation>Brytare</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="499"/>
+        <location filename="../firmwares/generalsettings.cpp" line="501"/>
         <source>None</source>
         <translation>Ingen</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="553"/>
+        <location filename="../firmwares/generalsettings.cpp" line="555"/>
         <source>Internal</source>
         <translation>Intern</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="555"/>
+        <location filename="../firmwares/generalsettings.cpp" line="557"/>
         <source>Ask</source>
         <translation>Fråga</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="557"/>
+        <location filename="../firmwares/generalsettings.cpp" line="559"/>
         <source>Per model</source>
         <translation>Per modell</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="560"/>
+        <location filename="../firmwares/generalsettings.cpp" line="562"/>
         <source>Internal + External</source>
         <translation>Intern + Extern</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="560"/>
+        <location filename="../firmwares/generalsettings.cpp" line="562"/>
         <source>External</source>
         <translation>Extern</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="573"/>
-        <location filename="../firmwares/generalsettings.cpp" line="589"/>
+        <location filename="../firmwares/generalsettings.cpp" line="575"/>
+        <location filename="../firmwares/generalsettings.cpp" line="591"/>
         <source>OFF</source>
         <translation>AV</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="576"/>
+        <location filename="../firmwares/generalsettings.cpp" line="578"/>
         <source>Enabled</source>
         <translation>Aktiv</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="576"/>
+        <location filename="../firmwares/generalsettings.cpp" line="578"/>
         <source>Telemetry</source>
         <translation>Telemetri</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="578"/>
+        <location filename="../firmwares/generalsettings.cpp" line="580"/>
         <source>Trainer</source>
         <translation>Lärare</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="591"/>
+        <location filename="../firmwares/generalsettings.cpp" line="593"/>
         <source>Telemetry Mirror</source>
         <translation>Speglad telemetri</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="593"/>
+        <location filename="../firmwares/generalsettings.cpp" line="595"/>
         <source>Telemetry In</source>
         <translation>Telemetri in</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="595"/>
+        <location filename="../firmwares/generalsettings.cpp" line="597"/>
         <source>SBUS Trainer</source>
         <translation>SBUS Lärare</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="597"/>
+        <location filename="../firmwares/generalsettings.cpp" line="599"/>
         <source>LUA</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="599"/>
+        <location filename="../firmwares/generalsettings.cpp" line="601"/>
         <source>CLI</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="601"/>
+        <location filename="../firmwares/generalsettings.cpp" line="603"/>
         <source>GPS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="603"/>
+        <location filename="../firmwares/generalsettings.cpp" line="605"/>
         <source>Debug</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="640"/>
+        <location filename="../firmwares/generalsettings.cpp" line="642"/>
         <source>mA</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="739"/>
+        <location filename="../firmwares/generalsettings.cpp" line="741"/>
         <source>Normal</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="741"/>
+        <location filename="../firmwares/generalsettings.cpp" line="743"/>
         <source>OneBit</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="787"/>
+        <location filename="../firmwares/generalsettings.cpp" line="789"/>
         <source>Trims only</source>
         <translation>Endast trimm</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="789"/>
+        <location filename="../firmwares/generalsettings.cpp" line="791"/>
         <source>Keys only</source>
         <translation>Endast knapp</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="791"/>
+        <location filename="../firmwares/generalsettings.cpp" line="793"/>
         <source>Switchable</source>
         <translation>Ändringsbar</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="793"/>
+        <location filename="../firmwares/generalsettings.cpp" line="795"/>
         <source>Global</source>
         <translation>Global</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="927"/>
+        <location filename="../firmwares/generalsettings.cpp" line="929"/>
         <source>Mode 1 (RUD ELE THR AIL)</source>
         <translation>Mode 1 (ROD HÖJ GAS SKE)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="929"/>
+        <location filename="../firmwares/generalsettings.cpp" line="931"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
         <translation>Mode 2 (ROD GAS HÖJ SKE)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="931"/>
+        <location filename="../firmwares/generalsettings.cpp" line="933"/>
         <source>Mode 3 (AIL ELE THR RUD)</source>
         <translation>Mode 3 (SKE HÖJ GAS ROD)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="933"/>
+        <location filename="../firmwares/generalsettings.cpp" line="935"/>
         <source>Mode 4 (AIL THR ELE RUD)</source>
         <translation>Mode 4 (SKE GAS HÖJ ROD)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="605"/>
+        <location filename="../firmwares/generalsettings.cpp" line="607"/>
         <source>SpaceMouse</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="607"/>
+        <location filename="../firmwares/generalsettings.cpp" line="609"/>
         <source>External module</source>
         <translation>Extern modul</translation>
     </message>
@@ -6077,32 +6082,32 @@ Acceptabla värden är 3 - 12 volt</translation>
         <translation>Tjeckiska</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="434"/>
+        <location filename="../generaledit/generalsetup.cpp" line="435"/>
         <source>Slovak</source>
         <translation>Slovakiska</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="435"/>
+        <location filename="../generaledit/generalsetup.cpp" line="436"/>
         <source>Spanish</source>
         <translation>Spanska</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="431"/>
+        <location filename="../generaledit/generalsetup.cpp" line="432"/>
         <source>Polish</source>
         <translation>Polska</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="432"/>
+        <location filename="../generaledit/generalsetup.cpp" line="433"/>
         <source>Portuguese</source>
         <translation>Portugisiska</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="433"/>
+        <location filename="../generaledit/generalsetup.cpp" line="434"/>
         <source>Russian</source>
         <translation>Ryska</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="436"/>
+        <location filename="../generaledit/generalsetup.cpp" line="437"/>
         <source>Swedish</source>
         <translation>Svenska</translation>
     </message>
@@ -6122,42 +6127,47 @@ Acceptabla värden är 3 - 12 volt</translation>
         <translation>Knappar + Kontroller</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="437"/>
+        <location filename="../generaledit/generalsetup.cpp" line="431"/>
+        <source>Korean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.cpp" line="438"/>
         <source>Ukrainian</source>
         <translation>Ukrainska</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="509"/>
+        <location filename="../generaledit/generalsetup.cpp" line="510"/>
         <source>No</source>
         <translation>Nej</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="509"/>
+        <location filename="../generaledit/generalsetup.cpp" line="510"/>
         <source>RotEnc A</source>
         <translation>Inm.hjul A</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="509"/>
+        <location filename="../generaledit/generalsetup.cpp" line="510"/>
         <source>Rot Enc B</source>
         <translation>Inm.hjul B</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="509"/>
+        <location filename="../generaledit/generalsetup.cpp" line="510"/>
         <source>Rot Enc C</source>
         <translation>Inm.hjul C</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="509"/>
+        <location filename="../generaledit/generalsetup.cpp" line="510"/>
         <source>Rot Enc D</source>
         <translation>Inm.hjul D</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="509"/>
+        <location filename="../generaledit/generalsetup.cpp" line="510"/>
         <source>Rot Enc E</source>
         <translation>Inm.hjul E</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="617"/>
+        <location filename="../generaledit/generalsetup.cpp" line="618"/>
         <source>If you enable FAI, only RSSI and RxBt sensors will keep working.
 This function cannot be disabled by the radio.
 Are you sure ?</source>
@@ -6166,27 +6176,27 @@ att fungera. Detta går inte att ändra från radion.
 Är du säker?</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="636"/>
+        <location filename="../generaledit/generalsetup.cpp" line="637"/>
         <source>Normal</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="636"/>
+        <location filename="../generaledit/generalsetup.cpp" line="637"/>
         <source>Inverted</source>
         <translation>Inverterad</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="636"/>
+        <location filename="../generaledit/generalsetup.cpp" line="637"/>
         <source>Vertical Inverted, Horizontal Normal</source>
         <translation>Vertikal inverterad, Horisontell normal</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="636"/>
+        <location filename="../generaledit/generalsetup.cpp" line="637"/>
         <source>Vertical Inverted, Horizontal Alternate</source>
         <translation>Vertikal inverterad, Horisontell alternativ</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="636"/>
+        <location filename="../generaledit/generalsetup.cpp" line="637"/>
         <source>Normal, Edit Inverted</source>
         <translation>Normal, Redigera inverterad</translation>
     </message>
@@ -15811,22 +15821,22 @@ Tidsstämpel</translation>
 <context>
     <name>TrainerMix</name>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="873"/>
+        <location filename="../firmwares/generalsettings.cpp" line="875"/>
         <source>OFF</source>
         <translation>AV</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="875"/>
+        <location filename="../firmwares/generalsettings.cpp" line="877"/>
         <source>+= (Sum)</source>
         <translation>+= (Summera)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="877"/>
+        <location filename="../firmwares/generalsettings.cpp" line="879"/>
         <source>:= (Replace)</source>
         <translation>:= (Ersätt)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="886"/>
+        <location filename="../firmwares/generalsettings.cpp" line="888"/>
         <source>CH%1</source>
         <translation>KN%1</translation>
     </message>
@@ -17539,7 +17549,7 @@ Vill du fortsätta?</translation>
 <context>
     <name>YamlModelSettings</name>
     <message>
-        <location filename="../firmwares/edgetx/yaml_modeldata.cpp" line="1288"/>
+        <location filename="../firmwares/edgetx/yaml_modeldata.cpp" line="1287"/>
         <source>Warning: &apos;%1&apos; has settings version %2 that is not supported by this version of Companion!
 
 Model settings may be corrupted if you continue.</source>
@@ -17548,7 +17558,7 @@ Model settings may be corrupted if you continue.</source>
 Modellinställningarna kan förstöras om du fortsätter.</translation>
     </message>
     <message>
-        <location filename="../firmwares/edgetx/yaml_modeldata.cpp" line="1291"/>
+        <location filename="../firmwares/edgetx/yaml_modeldata.cpp" line="1290"/>
         <source>Read Model Settings</source>
         <translation>Läs radioinställningar</translation>
     </message>
