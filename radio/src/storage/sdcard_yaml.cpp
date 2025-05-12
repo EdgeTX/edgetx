@@ -394,20 +394,20 @@ void getModelNumberStr(uint8_t idx, char* model_idx)
 
   // Handle indices up to 999
   if (idx < 10) {
-    model_idx[sizeof(MODEL_FILENAME_PREFIX)-1] = '0';
-    model_idx[sizeof(MODEL_FILENAME_PREFIX)]   = '0' + idx;
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) - 1] = '0';
+    model_idx[sizeof(MODEL_FILENAME_PREFIX)] = '0' + idx;
   } else if (idx < 100) {
-    model_idx[sizeof(MODEL_FILENAME_PREFIX)-1] = '0' + idx / 10;
-    model_idx[sizeof(MODEL_FILENAME_PREFIX)]   = '0' + idx % 10;
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) - 1] = '0' + idx / 10;
+    model_idx[sizeof(MODEL_FILENAME_PREFIX)] = '0' + idx % 10;
   } else {
-    model_idx[sizeof(MODEL_FILENAME_PREFIX)-1] = '0' + (idx / 100);
-    model_idx[sizeof(MODEL_FILENAME_PREFIX)]   = '0' + ((idx / 10) % 10);
-    model_idx[sizeof(MODEL_FILENAME_PREFIX)+1] = '0' + (idx % 10);
-    model_idx[sizeof(MODEL_FILENAME_PREFIX)+2] = '\0';
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) - 1] = '0' + (idx / 100);
+    model_idx[sizeof(MODEL_FILENAME_PREFIX)] = '0' + ((idx / 10) % 10);
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) + 1] = '0' + (idx % 10);
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) + 2] = '\0';
     return;
   }
 
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)+1] = '\0';
+  model_idx[sizeof(MODEL_FILENAME_PREFIX) + 1] = '\0';
 }
 #endif
 
@@ -548,7 +548,7 @@ const char * backupModel(uint8_t idx)
 {
   char * buf = reusableBuffer.modelsel.mainname;
 
-// check and create folder here
+  // check and create folder here
   const char * error = sdCheckAndCreateDirectory(STR_BACKUP_PATH);
   if (error) {
     return error;
@@ -568,8 +568,8 @@ const char * backupModel(uint8_t idx)
   }
 
 #if defined(RTCLOCK)
-  char * tmp = strAppendDate(&buf[strlen(buf)]);
-  (void)tmp; // Suppress unused variable warning if RTCLOCK is defined
+  char* tmp = strAppendDate(&buf[strlen(buf)]);
+  (void)tmp;  // Suppress unused variable warning if RTCLOCK is defined
 #endif
 
   strcat(buf, STR_YAML_EXT);
