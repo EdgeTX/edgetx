@@ -345,12 +345,12 @@
     #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_14 // PB.14
     #define TRIMS_GPIO_REG_LSD          GPIOB
     #define TRIMS_GPIO_PIN_LSD          LL_GPIO_PIN_13 // PB.13
-    #define TRIMS_GPIO_REG_LSU          GPIOB
-    #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_14 // PB.14
-    #define TRIMS_GPIO_REG_LSD          GPIOB
-    #define TRIMS_GPIO_PIN_LSD          LL_GPIO_PIN_13 // PB.13
+    #define TRIMS_GPIO_REG_RSU          GPIOD
+    #define TRIMS_GPIO_PIN_RSU          LL_GPIO_PIN_13 // PD.13
+    #define TRIMS_GPIO_REG_RSD          GPIOJ
+    #define TRIMS_GPIO_PIN_RSD          LL_GPIO_PIN_8  // PJ.08
   #else
-  #elif defined(RADIO_FAMILY_T16)
+  #if defined(RADIO_FAMILY_T16)
     #define TRIMS_GPIO_REG_LSU          GPIOD
     #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_13 // PD.13
     #define TRIMS_GPIO_REG_LSD          GPIOJ
