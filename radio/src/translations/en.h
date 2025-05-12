@@ -345,7 +345,8 @@
 #define TR_SLOWUP                      "Slow up"
 #define TR_MIXES                       "MIXES"
 #define TR_CV                          "CV"
-#define TR_VC                          "VIn"
+#define TR_VC                          "VI"
+#define TR_VSW                          "VS"
 #if defined(PCBNV14) || defined(PCBPL18)
 #define TR_GV                          "GV"
 #else
