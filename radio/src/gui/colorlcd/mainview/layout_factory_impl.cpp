@@ -34,6 +34,7 @@ Layout::Layout(Window* parent, const LayoutFactory* factory,
     zoneCount(zoneCount),
     zoneMap(zoneMap)
 {
+  show(true);
 }
 
 void Layout::setTrimsVisible(bool visible)
