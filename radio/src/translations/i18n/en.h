@@ -524,6 +524,7 @@
 #define TR_SLOWUP                      "Slow up"
 #define TR_CV                          "CV"
 #define TR_VC                          "VIn"
+#define TR_VSW                         "VS"
 #define TR_GV                          TR("G", "GV")
 #define TR_RANGE                       "Range"
 #define TR_CENTER                      "Center"
