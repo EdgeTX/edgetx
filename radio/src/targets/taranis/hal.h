@@ -2072,14 +2072,14 @@
 #elif defined(RADIO_T14) || defined(RADIO_V14) || defined(RADIO_V12)
 #if defined(RADIO_V14)
   #define LED_STRIP_LENGTH                  38
-  #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            38
+  #define BLING_LED_STRIP_START             6
+  #define BLING_LED_STRIP_LENGTH            32
   #define CFS_LED_STRIP_START               0
   #define CFS_LED_STRIP_LENGTH              0
 #elif defined(RADIO_V12)
-  #define LED_STRIP_LENGTH                  6
+  #define LED_STRIP_LENGTH                  6   // 6POS switches only?
   #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            6
+  #define BLING_LED_STRIP_LENGTH            0
   #define CFS_LED_STRIP_START               0
   #define CFS_LED_STRIP_LENGTH              0
 #else

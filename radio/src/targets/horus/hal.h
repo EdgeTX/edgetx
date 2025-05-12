@@ -1050,7 +1050,7 @@
 #if defined(RADIO_V16)
   // LED Strip
   #define LED_STRIP_LENGTH                  40
-  #define BLING_LED_STRIP_START             0
+  #define BLING_LED_STRIP_START             6
   #define BLING_LED_STRIP_LENGTH            34
   #define CFS_LED_STRIP_START               0
   #define CFS_LED_STRIP_LENGTH              0
