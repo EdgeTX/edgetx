@@ -764,9 +764,12 @@ class LvglWidgetChoice : public LvglWidgetPicker
  public:
   LvglWidgetChoice() : LvglWidgetPicker() {}
 
+  void clearRefs(lua_State *L) override;
+
  protected:
   std::string title;
   std::vector<std::string> values;
+  int filterFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
