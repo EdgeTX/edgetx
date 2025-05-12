@@ -340,7 +340,7 @@
   #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_12 // PJ.12
   #define TRIMS_GPIO_REG_RHR            GPIOD
   #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_7  // PD.07
-  #if defined (RADIO_V16) //T5 T6 exchange position
+  #if defined(RADIO_V16) //T5 T6 exchange position
     #define TRIMS_GPIO_REG_RSU          GPIOD
     #define TRIMS_GPIO_PIN_RSU          LL_GPIO_PIN_13 // PD.13
     #define TRIMS_GPIO_REG_RSD          GPIOJ
