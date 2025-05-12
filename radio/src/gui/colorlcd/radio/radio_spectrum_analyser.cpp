@@ -269,10 +269,13 @@ class SpectrumWindow : public Window
   }
 
  protected:
+  static LAYOUT_VAL_SCALED(LINE_SPACE, 40)
+  static LAYOUT_VAL_SCALED(WARN_YO, 20)
+
   lv_style_t style;
   lv_point_t maxPts[2 * LCD_W / 4];
   lv_point_t barPts[2 * LCD_W / 4];
-  lv_point_t hAxisPts[2 * SPECTRUM_HEIGHT / 40];
+  lv_point_t hAxisPts[2 * SPECTRUM_HEIGHT / LINE_SPACE];
   lv_point_t vAxisPts[2 * 8];
   lv_obj_t* maxLines[LCD_W / 4];
   lv_obj_t* barLines[LCD_W / 4];
@@ -281,9 +284,6 @@ class SpectrumWindow : public Window
 
   uint32_t lastFreq = 0;
   uint32_t lastSpan = 0;
-
-  static LAYOUT_VAL_SCALED(LINE_SPACE, 40)
-  static LAYOUT_VAL_SCALED(WARN_YO, 20)
 };
 
 RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :
