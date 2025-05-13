@@ -349,12 +349,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
           RENAME "45-${COMPANION_NAME}-usbasp.rules")
 
   if(OPENSSL_FOUND)
-    install(DIRECTORY ${OPENSSL_LIBRARY_DIR}/
+    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+    install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
             DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
             FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
   endif()
 
   if(LIBUSB1_FOUND)
+    get_filename_component(LIBUSB1_LIBRARY_DIR ${LIBUSB1_LIBRARY} DIRECTORY)
     install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/
             DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
             FILES_MATCHING PATTERN "libusb-1.0.so*")
@@ -381,6 +383,8 @@ elseif(WIN32)
 
   # supporting utilities
   if(LIBUSB1_FOUND)
+    get_filename_component(LIBUSB1_LIBRARY_DIR ${LIBUSB1_LIBRARY} DIRECTORY)
+
     if(MINGW)
       set(LIBUSB1_LIBRARY_DIR "${LIBUSB1_LIBRARY_DIR}/../bin")
     endif()
@@ -398,10 +402,12 @@ elseif(WIN32)
 
   if(OPENSSL_FOUND)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+
     if(MINGW)
       # the dlls are stored in the bin directory
       set(OPENSSL_SSL_LIBRARY_DIR "${OPENSSL_SSL_LIBRARY_DIR}/../bin")
     endif()
+
     if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
       # install only files Qt networking requires
       install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
