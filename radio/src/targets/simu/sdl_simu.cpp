@@ -26,6 +26,7 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -86,6 +87,10 @@ extern volatile rotenc_t rotencValue;
 #endif
 
 int pots[MAX_POTS] = {0};
+
+#if defined(FUNCTION_SWITCHES)
+ImU32 funcSwitchColors[NUM_FUNCTIONS_SWITCHES] = {0};
+#endif
     
 static bool handleKeyEvents(SDL_Event& event)
 {
@@ -357,17 +362,7 @@ static void draw_custom_switches()
       if (i) ImGui::SameLine();
       ImGui::PushID(i);
 
-      bool sw_on = getFSLogicalState(i);
-      if (sw_on) {
-        ImGui::PushStyleColor(ImGuiCol_Button,
-                              ImGui::GetColorU32(ImGuiCol_SliderGrab));
-      } else {
-        ImGui::PushStyleColor(ImGuiCol_Button,
-                              ImGui::GetColorU32(ImGuiCol_FrameBg));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-                              ImGui::GetColorU32(ImGuiCol_FrameBgHovered));
-      }
-
+      ImGui::PushStyleColor(ImGuiCol_Button, funcSwitchColors[i]);
       ImGui::Button("##csw", sw_size);
 
       bool active = ImGui::IsItemActive();
@@ -376,7 +371,7 @@ static void draw_custom_switches()
       }
       simuSetSwitch(sw_idx, active ? 1 : -1);
 
-      ImGui::PopStyleColor(sw_on ? 1 : 2);
+      ImGui::PopStyleColor(1);
       ImGui::PopID();
     }
 
@@ -721,7 +716,7 @@ int main(int argc, char** argv)
       (end_ts - start_ts) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
 
     // Cap to 60 FPS
-    SDL_Delay(floor(16.666f - elapsedMS));
+    SDL_Delay(std::max(0,(int32_t)floor(16.666f - elapsedMS)));
 
   } while(true);
 
@@ -776,4 +771,19 @@ uint16_t simu_get_analog(uint8_t idx)
 
   // probably RTC_BAT
   return 0;
+}
+
+void fsLedRGB(uint8_t idx, uint32_t color)
+{
+  funcSwitchColors[idx] = IM_COL32((color>>16)&0xff, (color>>8)&0xff, (color>>0)&0xff, 0xff);
+}
+
+void fsLedOn(uint8_t idx)
+{
+  funcSwitchColors[idx] = ImGui::GetColorU32(ImGuiCol_SliderGrab);
+}
+
+void fsLedOff(uint8_t idx)
+{
+  funcSwitchColors[idx] = ImGui::GetColorU32(ImGuiCol_FrameBg);
 }
