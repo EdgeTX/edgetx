@@ -53,8 +53,7 @@ python3 -m pip install --break-system-package \
     pillow \
     clang==14.0.0 \
     lz4 \
-    aqtinstall \
-	  pyelftools
+	pyelftools
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
@@ -68,7 +67,7 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Installing Qt build environment ==="
-./aqt.exe install 6.8.2 windows desktop win64_mingw -m qtmultimedia qtserialport
+./aqt.exe install-qt windows desktop 6.9.0 win64_mingw -m qtmultimedia qtserialport 
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
 fi
