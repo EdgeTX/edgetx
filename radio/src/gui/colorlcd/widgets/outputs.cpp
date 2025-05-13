@@ -101,10 +101,10 @@ class ChannelValue : public Window
 
     const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
     uint16_t w = width() - PAD_TINY;
-    uint16_t fillW = divRoundClosest(w * limit<int16_t>(0, abs(value), lim), lim * 2);
+    int16_t scaledValue = divRoundClosest(w * limit<int16_t>(-lim, value, lim), lim * 2);
 
-    if (fillW != lastValue) {
-      lastValue = fillW;
+    if (scaledValue != lastValue) {
+      lastValue = scaledValue;
 
       std::string s;
       if (g_eeGeneral.ppmunit == PPM_US)
@@ -116,6 +116,7 @@ class ChannelValue : public Window
 
       lv_label_set_text(valueLabel, s.c_str());
 
+      uint16_t fillW = abs(scaledValue);
       uint16_t x = value > 0 ? w / 2 : w / 2 - fillW + 1;
 
       lv_obj_set_pos(bar, x, 0);
