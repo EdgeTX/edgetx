@@ -103,10 +103,10 @@ bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
 
   static int pos = 0;
 
-  if (event == EVT_KEY_FIRST(KEY_DOWN)) {
+  if (IS_NEXT_EVENT(event)) {
     if (pos < RADIO_MENU_LEN-1)
       pos++;
-  } else if (event == EVT_KEY_FIRST(KEY_UP)) {
+  } else if (IS_PREVIOUS_EVENT(event)) {
     if (pos > 0)
       pos--;
   } else if (event == EVT_KEY_BREAK(KEY_ENTER)) {
@@ -125,10 +125,18 @@ bool bootloaderRadioMenu(uint32_t menuItem, event_t event)
         break;
       case 1: // fall through
       default:
+        rfUsbAccess = false;
+        INTERNAL_MODULE_OFF();
         USB_SW_TO_MCU();
         pos = 0;
         return true;
     }
+  } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
+    rfUsbAccess = false;
+    INTERNAL_MODULE_OFF();
+    USB_SW_TO_MCU();
+    pos = 0;
+    return true;
   }
   bootloaderDrawScreen(ST_RADIO_MENU, pos, nullptr);
   return false;
