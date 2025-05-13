@@ -44,7 +44,7 @@ ViewMainDecoration::ViewMainDecoration(Window* parent, bool showTrims, bool show
   if (showTrims)
     createTrims(w_ml, w_mr, w_bl, w_br);
   if (showFM)
-  createFlightMode(w_bc);
+    createFlightMode(w_bc);
   if (showSliders)
     createSliders(w_ml, w_mr, w_bl, w_bc, w_br);
 }
