@@ -16,16 +16,9 @@ find_library(LIBUSB1_LIBRARY
   HINTS
     "${LIBUSB1_ROOT_DIR}")
 
-get_filename_component(LIBUSB1_LIBRARY_PATH ${LIBUSB1_LIBRARY} PATH)
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LIBUSB1
 	DEFAULT_MSG
-	LIBUSB1_LIBRARY_PATH)
+	LIBUSB1_LIBRARY)
 
-if(LIBUSB1_FOUND)
-	set(LIBUSB1_LIBRARY_DIR "${LIBUSB1_LIBRARY_PATH}")
-	mark_as_advanced(LIBUSB1_ROOT_DIR)
-endif()
-
-mark_as_advanced(LIBUSB1_LIBRARY_PATH)
+mark_as_advanced(LIBUSB1_LIBRARY)
