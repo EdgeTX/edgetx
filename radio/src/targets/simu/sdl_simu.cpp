@@ -31,10 +31,9 @@
 #include <regex>
 #include <string>
 
-#include "gui_common.h"
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
-#include "edgetx_constants.h"
+#include "hal/switch_driver.h"
 
 #if !SDL_VERSION_ATLEAST(2,0,19)
 #error This backend requires SDL 2.0.19+ because of SDL_RenderGeometryRaw() function
@@ -298,7 +297,7 @@ static float switches_width()
 static void draw_switches()
 {
   const float spacing = 4;
-  const ImVec2 sw_size(18, 60);
+  const ImVec2 sw_size(18, 50);
 
   ImGui::PushID("switches");
   {
@@ -333,6 +332,52 @@ static void draw_switches()
       } else {
         simuSetSwitch(i, switches[i] == 0 ? -1 : 1);
       }
+    }
+
+    ImGui::PopStyleVar(3);
+    ImGui::EndGroup();
+  }
+  ImGui::PopID();
+}
+
+static void draw_custom_switches()
+{
+  const float spacing = 4;
+  const ImVec2 sw_size(18, 18);
+
+  ImGui::PushID("custom switches");
+  {
+    ImGui::BeginGroup();
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(spacing, spacing));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 4.0f);
+
+    int sw_idx = switchGetMaxSwitches();
+    for (int i = 0; i < switchGetMaxFctSwitches(); i++, sw_idx++) {
+      if (i) ImGui::SameLine();
+      ImGui::PushID(i);
+
+      bool sw_on = getFSLogicalState(i);
+      if (sw_on) {
+        ImGui::PushStyleColor(ImGuiCol_Button,
+                              ImGui::GetColorU32(ImGuiCol_SliderGrab));
+      } else {
+        ImGui::PushStyleColor(ImGuiCol_Button,
+                              ImGui::GetColorU32(ImGuiCol_FrameBg));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                              ImGui::GetColorU32(ImGuiCol_FrameBgHovered));
+      }
+
+      ImGui::Button("##csw", sw_size);
+
+      bool active = ImGui::IsItemActive();
+      if (active || ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("%s", switchGetCanonicalName(sw_idx));
+      }
+      simuSetSwitch(sw_idx, active ? 1 : -1);
+
+      ImGui::PopStyleColor(sw_on ? 1 : 2);
+      ImGui::PopID();
     }
 
     ImGui::PopStyleVar(3);
@@ -415,6 +460,7 @@ void draw_controls()
 
   ImGui::TableNextColumn();
   draw_switches();
+  draw_custom_switches();
   
   ImGui::TableNextColumn();
   draw_gimbals();
