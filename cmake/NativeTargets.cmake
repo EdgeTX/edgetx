@@ -25,18 +25,19 @@ else()
 endif()
 
 if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
+  # environment variable set in github workflows and build-edgetx Dockerfile
+  if(DEFINED ENV{LIBUSB1_ROOT_DIR})
+    set(LIBUSB1_ROOT_DIR "$ENV{LIBUSB1_ROOT_DIR}")
+  endif()
+
   find_package(Libusb1)
+
   if(LIBUSB1_FOUND)
     find_package(Dfuutil)
   endif()
 
-  if(LINUX)
-    find_package(Libssl1)
-  endif()
-
-  # OpenSSL
   # environment variable set in github workflows and build-edgetx Dockerfile
-  if (DEFINED ENV{OPENSSL_ROOT_DIR})
+  if(DEFINED ENV{OPENSSL_ROOT_DIR})
     set(OPENSSL_ROOT_DIR "$ENV{OPENSSL_ROOT_DIR}")
   endif()
 

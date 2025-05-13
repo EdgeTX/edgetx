@@ -300,9 +300,21 @@ if(PCBREV)
   endif()
 endif(PCBREV)
 
-include(FindDfuutil)
 include(FindLibusb1)
+if(LIBUSB1_FOUND)
+  message(STATUS "libusb1 version: ${LIBUSB1_VERSION}")
+  include(FindDfuutil)
+  if(DFU_UTIL_FOUND)
+    message(STATUS "dfu-util version: ${DFU_UTIL_VERSION}")
+  endif()
+endif()
+
 include(FindOpenSSL)
+if(OPENSSL_FOUND)
+  message(STATUS "openssl version: ${OPENSSL_VERSION} libs: ${OPENSSL_LIBRARIES}")
+  message(STATUS "        crypto lib ${OPENSSL_CRYPTO_LIBRARY} libs: ${OPENSSL_CRYPTO_LIBRARIES}")
+  message(STATUS "        ssl libs: ${OPENSSL_SSL_LIBRARIES}")
+endif()
 
 set(COMPANION_TARGETS_DIR "${COMPANION_SRC_DIRECTORY}/../targets")
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -352,8 +364,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
           DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
           RENAME "45-${COMPANION_NAME}-usbasp.rules")
 
-  if(LIBSSL1_FOUND)
-    install(DIRECTORY ${LIBSSL1_LIBRARY_DIR}/
+  if(OPENSSL_FOUND)
+    install(DIRECTORY ${OPENSSL_LIBRARY_DIR}/
             DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
             FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
   endif()
@@ -409,7 +421,6 @@ elseif(WIN32)
     if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
       # install only files Qt networking requires
       install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
-
               DESTINATION ${INSTALL_DESTINATION}
               FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
     endif()
