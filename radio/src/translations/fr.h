@@ -1093,6 +1093,11 @@
     #define TR_BL_FLASH_KEY            "Appui long [SW1A] pour flasher"
     #define TR_BL_ERASE_KEY            "Appui long [SW1A] to erase"
     #define TR_BL_EXIT_KEY             "[SW1B] pour quitter"
+  #elif defined(RADIO_PL18U)
+    #define TR_BL_SELECT_KEY           "[KR Dn] pour sélect. fichier"
+    #define TR_BL_FLASH_KEY            "Appui long [KR Dn] pour flasher"
+    #define TR_BL_ERASE_KEY            "Appui long [KR Dn] to erase"
+    #define TR_BL_EXIT_KEY             "[KR Up] pour quitter"
   #else
     #define TR_BL_SELECT_KEY           "[TR4 Dn] pour sélect. fichier"
     #define TR_BL_FLASH_KEY            "Appui long [TR4 Dn] pour flasher"
