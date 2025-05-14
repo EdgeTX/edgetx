@@ -553,8 +553,6 @@ static void redraw()
 
   if (ImGui::Begin("Main window", &show_win, flags)) {
     draw_controls();
-    ImGui::Spacing();
-    ImGui::Spacing();
     draw_screen();
   }
   ImGui::End();
