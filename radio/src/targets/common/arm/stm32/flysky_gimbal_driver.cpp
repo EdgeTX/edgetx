@@ -259,7 +259,7 @@ static int flysky_gimbal_init_uart()
   return 0;
 }
 
-bool flysky_gimbal_init()
+int flysky_gimbal_init()
 {
   if (flysky_gimbal_init_uart() != 0) return false;
 
