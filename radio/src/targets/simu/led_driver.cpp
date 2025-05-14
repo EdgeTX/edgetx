@@ -43,6 +43,7 @@ uint8_t getRGBColorIndex(uint32_t color)
   return 0; // Custom value set with Companion
 }
 
+#if NUM_FUNCTIONS_SWITCHES > 0
 static uint32_t _fs_switch_colors[NUM_FUNCTIONS_SWITCHES] = {0};
 static uint32_t _fs_switch_color_mask = 0;
 static uint32_t _fs_switch_mask = 0;
@@ -77,3 +78,4 @@ void fsLedOff(uint8_t index)
 {
   _fs_switch_mask &= ~(1 << index);
 }
+#endif

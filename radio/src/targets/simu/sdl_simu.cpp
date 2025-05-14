@@ -341,6 +341,7 @@ static void draw_switches()
   ImGui::PopID();
 }
 
+#if defined(FUNCTION_SWITCHES)
 extern bool fsLedIsColorSet(uint8_t index);
 
 static ImVec4 rgb2rgba(uint32_t col)
@@ -428,6 +429,7 @@ static void draw_custom_switches()
   }
   ImGui::PopID();
 }
+#endif
 
 static float gimbals_width()
 {
@@ -503,7 +505,9 @@ void draw_controls()
 
   ImGui::TableNextColumn();
   draw_switches();
+#if defined(FUNCTION_SWITCHES)
   draw_custom_switches();
+#endif
   
   ImGui::TableNextColumn();
   draw_gimbals();
