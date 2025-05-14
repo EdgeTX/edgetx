@@ -88,10 +88,6 @@ extern volatile rotenc_t rotencValue;
 
 int pots[MAX_POTS] = {0};
 
-#if defined(FUNCTION_SWITCHES)
-ImU32 funcSwitchColors[NUM_FUNCTIONS_SWITCHES] = {0};
-#endif
-    
 static bool handleKeyEvents(SDL_Event& event)
 {
   if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
@@ -345,6 +341,56 @@ static void draw_switches()
   ImGui::PopID();
 }
 
+extern bool fsLedIsColorSet(uint8_t index);
+
+static ImVec4 rgb2rgba(uint32_t col)
+{
+  float r = (float)((col >> 16) & 0xff) / 255.0f;
+  float g = (float)((col >>  8) & 0xff) / 255.0f;
+  float b = (float)((col >>  0) & 0xff) / 255.0f;
+  return {r, b, g, 1.0f};
+}
+
+static inline ImVec4 blend(const ImVec4& a, const ImVec4& b)
+{
+  float w0 = a.w + b.w;
+  return ImVec4((a.x * a.w + b.x * b.w) / w0, (a.y * a.w + b.y * b.w) / w0,
+                (a.z * a.w + b.z * b.w) / w0, 1.0f);
+}
+
+static void push_custom_switch_styles(int index)
+{
+  bool sw_on = getFSLogicalState(index);
+  bool rgb_set = fsLedIsColorSet(index);
+  ImVec4 rgb = rgb2rgba(fsGetLedRGB(index));
+
+  ImVec4 btn, border;
+  if (sw_on) {
+    btn = rgb_set ? rgb : ImGui::GetStyleColorVec4(ImGuiCol_SliderGrab);
+    border = ImGui::GetStyleColorVec4(ImGuiCol_SliderGrab);
+  } else {
+    btn = rgb_set ? rgb : ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+    border = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+  }
+
+  // color intensity
+  float btn_int = (btn.x + btn.y + btn.z) / 3.0f;
+  float inv_int = 1.0f - btn_int;
+  ImVec4 mask(inv_int, inv_int, inv_int, 0.3f);
+
+  ImGui::PushStyleColor(ImGuiCol_Button, btn);
+  ImGui::PushStyleColor(ImGuiCol_ButtonHovered, blend(btn, mask));
+  ImGui::PushStyleColor(ImGuiCol_Border, border);
+
+  ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
+}
+
+static void pop_custom_switch_styles()
+{
+  ImGui::PopStyleColor(3);
+  ImGui::PopStyleVar();
+}
+
 static void draw_custom_switches()
 {
   const float spacing = 4;
@@ -362,16 +408,18 @@ static void draw_custom_switches()
       if (i) ImGui::SameLine();
       ImGui::PushID(i);
 
-      ImGui::PushStyleColor(ImGuiCol_Button, funcSwitchColors[i]);
+      push_custom_switch_styles(i);
       ImGui::Button("##csw", sw_size);
+      pop_custom_switch_styles();
 
       bool active = ImGui::IsItemActive();
       if (active || ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("%s", switchGetCanonicalName(sw_idx));
+        const char* name = switchGetCanonicalName(sw_idx);
+        const char* on_off = getFSLogicalState(i) ? "on" : "off";
+        ImGui::SetTooltip("%s (%s)", name, on_off);
       }
       simuSetSwitch(sw_idx, active ? 1 : -1);
 
-      ImGui::PopStyleColor(1);
       ImGui::PopID();
     }
 
@@ -769,19 +817,4 @@ uint16_t simu_get_analog(uint8_t idx)
 
   // probably RTC_BAT
   return 0;
-}
-
-void fsLedRGB(uint8_t idx, uint32_t color)
-{
-  funcSwitchColors[idx] = IM_COL32((color>>16)&0xff, (color>>8)&0xff, (color>>0)&0xff, 0xff);
-}
-
-void fsLedOn(uint8_t idx)
-{
-  funcSwitchColors[idx] = ImGui::GetColorU32(ImGuiCol_SliderGrab);
-}
-
-void fsLedOff(uint8_t idx)
-{
-  funcSwitchColors[idx] = ImGui::GetColorU32(ImGuiCol_FrameBg);
 }
