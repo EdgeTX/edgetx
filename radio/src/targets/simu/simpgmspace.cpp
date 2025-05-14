@@ -243,13 +243,6 @@ void simuStop()
   simu_running = false;
 }
 
-struct SimulatorAudio {
-  int volumeGain;
-  int currentVolume;
-  int16_t leftoverData[AUDIO_BUFFER_SIZE];
-  int leftoverLen;
-} simuAudio;
-
 bool simuIsRunning()
 {
   return simu_running;
