@@ -1094,6 +1094,11 @@
     #define TR_BL_FLASH_KEY            "Drzet dlouze [SW1A] pro nahrani"
     #define TR_BL_ERASE_KEY            "Drzet dlouze [SW1A] long to erase"
     #define TR_BL_EXIT_KEY             "[SW1B] pro ukonceni"
+  #elif defined(RADIO_PL18U)
+    #define TR_BL_SELECT_KEY           "[KR Dn] pro vybrani souboru"
+    #define TR_BL_FLASH_KEY            "Drzet dlouze [KR Dn] pro nahrani"
+    #define TR_BL_ERASE_KEY            "Drzet dlouze [KR Dn] long to erase"
+    #define TR_BL_EXIT_KEY             "[KR Up] pro ukonceni"
   #else
     #define TR_BL_SELECT_KEY           "[TR4 Dn] pro vybrani souboru"
     #define TR_BL_FLASH_KEY            "Drzet dlouze [TR4 Dn] pro nahrani"
