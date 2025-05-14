@@ -43,8 +43,10 @@ static constexpr coord_t LINE_H = 2;
 LAYOUT_VAL_SCALED(TITLE_Y1, 28)
 LAYOUT_VAL_SCALED(TITLE_Y2, 56)
 
-LAYOUT_ORIENTATION(FOOTER_X1, LCD_W / 4, LCD_W / 2)
-LAYOUT_ORIENTATION(FOOTER_X2, LCD_W * 3 / 4, LCD_W / 2)
+LAYOUT_ORIENTATION(FOOTER_X1, PAD_LARGE * 2, LCD_W / 2)
+LAYOUT_ORIENTATION(FOOTER_X2, LCD_W - 1 - PAD_LARGE * 2, LCD_W / 2)
+LAYOUT_ORIENTATION(FOOTER_ALIGN1, LEFT, CENTERED)
+LAYOUT_ORIENTATION(FOOTER_ALIGN2, RIGHT, LEFT)
 LAYOUT_VAL_SCALED(FOOTER_Y1, 30)
 LAYOUT_ORIENTATION_SCALED(FOOTER_Y2, 30, 58)
 LAYOUT_ORIENTATION_SCALED(FOOTER_LY, 38, 62)
@@ -299,8 +301,15 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     bootloaderDrawSelected(boxX2, opt);
 
     bootloaderDrawFooter();
-    lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y2, LV_SYMBOL_SD_CARD " " TR_BL_ERASE_KEY, CENTERED | BL_FOREGROUND);
-    lcd->drawText(FOOTER_X2, LCD_H - FOOTER_Y1, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, CENTERED | BL_FOREGROUND);
+    int pos = lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_SD_CARD " " TR_BL_ERASE_KEY, FOOTER_ALIGN1 | BL_FOREGROUND);
+#if LANDSCAPE
+    pos = 0;
+#else    
+    if (pos != 0) {
+      pos = (pos - FOOTER_X1) / 2;
+    }
+#endif
+    lcd->drawText(FOOTER_X2 - pos, LCD_H - FOOTER_Y2, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, FOOTER_ALIGN2 | BL_FOREGROUND);
   }
   else if (st == ST_CLEAR_FLASH) {
     bootloaderDrawTitle(TR_BL_ERASE_INT_FLASH);
@@ -317,6 +326,8 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     bootloaderDrawItem(LV_SYMBOL_NEW_LINE, TR_BL_EXIT, y, boxX2, PAD_TINY);
 
     bootloaderDrawSelected(boxX2, opt);
+
+    bootloaderDrawFooter();
   }
 #endif
   else if (st == ST_USB) {
@@ -374,23 +385,33 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
 
     bootloaderDrawFooter();
 
+    int pos = 0;
+    int align = FOOTER_ALIGN2;
     if ( st != ST_DIR_CHECK && (st != ST_FLASH_CHECK || opt == FC_OK)) {
       if (st == ST_FILE_LIST) {
-        lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_SELECT_KEY, CENTERED | BL_FOREGROUND);
+        pos = lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_SELECT_KEY, FOOTER_ALIGN1 | BL_FOREGROUND);
       }
       else if (st == ST_FLASH_CHECK && opt == FC_OK) {
-        lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_FLASH_KEY, CENTERED | BL_FOREGROUND);
+        pos = lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_FLASH_KEY, FOOTER_ALIGN1 | BL_FOREGROUND);
       }
       else if (st == ST_FLASHING) {
-        lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_WRITING_FW, CENTERED | BL_FOREGROUND);
+        pos = lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_WRITING_FW, FOOTER_ALIGN1 | BL_FOREGROUND);
       }
       else if (st == ST_FLASH_DONE) {
-        lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_WRITING_COMPL, CENTERED | BL_FOREGROUND);
+        pos = lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_WRITING_COMPL, FOOTER_ALIGN1 | BL_FOREGROUND);
       }
     }
-
+#if LANDSCAPE
+    pos = 0;
+#else
+    if (pos != 0) {
+      pos = (pos - FOOTER_X1) / 2;
+    } else {
+      align = FOOTER_ALIGN1;
+    }
+#endif
     if (st != ST_FLASHING) {
-      lcd->drawText(FOOTER_X2, LCD_H - FOOTER_Y2, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, CENTERED | BL_FOREGROUND);
+      lcd->drawText(FOOTER_X2 - pos, LCD_H - FOOTER_Y2, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, align | BL_FOREGROUND);
     }        
   }
 }
