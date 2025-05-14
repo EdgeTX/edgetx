@@ -79,7 +79,9 @@ static void rgbLedStart()
                  LED_STRIP_REFRESH_PERIOD, true);
   }
 
-  timer_start(&_refresh_timer);
+  if (timer_start(&_refresh_timer) != 0) {
+    TRACE("Failed to start RGB LED refresh timer");
+  };
 }
 
 void rgbLedStop()

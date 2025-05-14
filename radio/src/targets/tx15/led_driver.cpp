@@ -62,8 +62,13 @@ void ledInit()
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 void fsLedRGB(uint8_t index, uint32_t color)
 {
-   ws2812_set_color(index, GET_RED(color), \
-   GET_GREEN(color),GET_BLUE(color));
+  ws2812_set_color(index, GET_RED(color), \
+  GET_GREEN(color),GET_BLUE(color));
+}
+
+uint32_t fsGetLedRGB(uint8_t index)
+{
+  return ws2812_get_color(index);
 }
 
 uint8_t getRGBColorIndex(uint32_t color)
