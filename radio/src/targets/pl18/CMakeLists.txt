@@ -114,10 +114,13 @@ add_definitions(
 set(SDRAM ON)
 
 add_definitions(-DAUDIO -DVOICE)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DCROSSFIRE_NATIVE)
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
+
+if(INTERNAL_GPS)
+  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
+endif()
 
 if(USE_RTC_CLOCK)
   message("-- RTC Clock enabled")
