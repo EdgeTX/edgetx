@@ -166,7 +166,7 @@ elseif (PCB STREQUAL X12S)
 endif()
 
 # enable GPS support if there is AUX port available unless otherwise disabled 
-if(AUX_SERIAL))
+if(AUX_SERIAL)
   option(INTERNAL_GPS "Support for internal GPS" ON)
   set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 endif()
