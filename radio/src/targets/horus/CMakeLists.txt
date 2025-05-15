@@ -165,7 +165,7 @@ elseif (PCB STREQUAL X12S)
   add_definitions(-DMANUFACTURER_FRSKY)
 endif()
 
--- enable GPS support unless otherwise disabled
+# enable GPS support unless otherwise disabled
 if(NOT (AUX_SERIAL STREQUAL "OFF"))
   option(INTERNAL_GPS "Support for internal GPS" ON)
 endif()
