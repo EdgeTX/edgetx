@@ -92,6 +92,7 @@
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " pro vybrani souboru"
     #define TR_BL_FLASH_KEY                "Drzet dlouze " BL_SELECT_KEY " pro nahrani"
     #define TR_BL_ERASE_KEY                "Hold " BL_SELECT_KEY " long to erase"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pro ukonceni"
 
 #elif defined(TRANSLATIONS_DA)
@@ -137,6 +138,7 @@
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " for at bruge fil"
     #define TR_BL_FLASH_KEY                "Hold " BL_SELECT_KEY " laenge, for at starte"
     #define TR_BL_ERASE_KEY                "Hold " BL_SELECT_KEY " laenge, for at slette"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " for at forlade"
 
 #elif defined(TRANSLATIONS_DE)
@@ -182,6 +184,7 @@
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " um Datei auszuwählen"
     #define TR_BL_FLASH_KEY                "Halte " BL_SELECT_KEY " gedrückt, zum schreiben"
     #define TR_BL_ERASE_KEY                "Halte " BL_SELECT_KEY " gedrückt, to erase"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " zum beenden"
 
 #elif defined(TRANSLATIONS_FR)
@@ -227,6 +230,7 @@
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " pour select. fichier"
     #define TR_BL_FLASH_KEY                "Appui long " BL_SELECT_KEY " pour flasher"
     #define TR_BL_ERASE_KEY                "Appui long " BL_SELECT_KEY " to erase"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pour quitter"
 
 #elif defined(TRANSLATIONS_IT)
@@ -271,6 +275,7 @@
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " per scegliere il file"
     #define TR_BL_FLASH_KEY                "Tenere premuto " BL_SELECT_KEY " per scrivere"
     #define TR_BL_ERASE_KEY                "Hold " BL_SELECT_KEY " long to erase"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " per uscire"
 
 #elif defined(TRANSLATIONS_PL)
@@ -316,6 +321,7 @@
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " aby wybrac plik"
     #define TR_BL_FLASH_KEY                "Przytrzymaj " BL_SELECT_KEY " aby flashowac"
     #define TR_BL_ERASE_KEY                "Przytrzymaj " BL_SELECT_KEY " long to erase"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " aby wyjsc"
 
 #elif defined(TRANSLATIONS_SE)
@@ -362,6 +368,7 @@
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " foer att vaelja fil"
     #define TR_BL_FLASH_KEY                "Haall ner " BL_SELECT_KEY " foer att flasha"
     #define TR_BL_ERASE_KEY                "Haall ner " BL_SELECT_KEY " foer att radera"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " foer att avbryta"
 
 #else
@@ -407,6 +414,7 @@
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " to select file"
     #define TR_BL_FLASH_KEY                "Hold " BL_SELECT_KEY " long to flash"
     #define TR_BL_ERASE_KEY                "Hold " BL_SELECT_KEY " long to erase"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " to exit"
 
 #endif

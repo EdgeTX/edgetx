@@ -296,7 +296,6 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     bootloaderDrawTitle(TR_BL_ERASE_INT_FLASH);
 
     bootloaderDrawItem(LV_SYMBOL_SD_CARD, TR_BL_ERASE_FLASH, y, boxX2);
-    bootloaderDrawItem(LV_SYMBOL_NEW_LINE, TR_BL_EXIT, y, boxX2, PAD_TINY);
 
     bootloaderDrawSelected(boxX2, opt);
 
@@ -323,11 +322,19 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     bootloaderDrawTitle(TR_BL_RF_USB_ACCESS);
 
     bootloaderDrawItem(LV_SYMBOL_USB, rfUsbAccess ? TR_BL_DISABLE : TR_BL_ENABLE, y, boxX2);
-    bootloaderDrawItem(LV_SYMBOL_NEW_LINE, TR_BL_EXIT, y, boxX2, PAD_TINY);
 
     bootloaderDrawSelected(boxX2, opt);
 
     bootloaderDrawFooter();
+    int pos = lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_USB " " TR_BL_TOGGLE_KEY, FOOTER_ALIGN1 | BL_FOREGROUND);
+#if LANDSCAPE
+    pos = 0;
+#else    
+    if (pos != 0) {
+      pos = (pos - FOOTER_X1) / 2;
+    }
+#endif
+    lcd->drawText(FOOTER_X2 - pos, LCD_H - FOOTER_Y2, LV_SYMBOL_NEW_LINE " " TR_BL_EXIT_KEY, FOOTER_ALIGN2 | BL_FOREGROUND);
   }
 #endif
   else if (st == ST_USB) {
