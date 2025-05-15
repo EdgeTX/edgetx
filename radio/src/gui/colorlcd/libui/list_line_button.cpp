@@ -67,21 +67,6 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   setWidth(BTN_W);
   setHeight(ListLineButton::BTN_H);
   padAll(PAD_ZERO);
-
-  weight = lv_label_create(lvobj);
-  lv_obj_set_pos(weight, WGT_X, WGT_Y);
-  lv_obj_set_size(weight, WGT_W, WGT_H);
-  etx_font(weight, FONT_XS_INDEX, LV_STATE_USER_1);
-
-  source = lv_label_create(lvobj);
-  lv_obj_set_pos(source, SRC_X, SRC_Y);
-  lv_obj_set_size(source, SRC_W, SRC_H);
-  etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
-
-  opts = lv_label_create(lvobj);
-  lv_obj_set_pos(opts, OPT_X, OPT_Y);
-  lv_obj_set_size(opts, OPT_W, OPT_H);
-  etx_font(opts, FONT_XS_INDEX, LV_STATE_USER_1);
 }
 
 InputMixButtonBase::~InputMixButtonBase()
@@ -91,6 +76,13 @@ InputMixButtonBase::~InputMixButtonBase()
 
 void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 {
+  if (!weight) {
+    weight = lv_label_create(lvobj);
+    lv_obj_set_pos(weight, WGT_X, WGT_Y);
+    lv_obj_set_size(weight, WGT_W, WGT_H);
+    etx_font(weight, FONT_XS_INDEX, LV_STATE_USER_1);
+  }
+
   char s[32];
   getValueOrSrcVarString(s, sizeof(s), value, min, max, 0, "%");
   if (getTextWidth(s, 0, FONT(STD)) > WGT_W)
@@ -103,6 +95,13 @@ void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
 
 void InputMixButtonBase::setSource(mixsrc_t idx)
 {
+  if (!source) {
+    source = lv_label_create(lvobj);
+    lv_obj_set_pos(source, SRC_X, SRC_Y);
+    lv_obj_set_size(source, SRC_W, SRC_H);
+    etx_font(source, FONT_XS_INDEX, LV_STATE_USER_1);
+  }
+
   char* s = getSourceString(idx);
   if (getTextWidth(s, 0, FONT(STD)) > SRC_W)
     lv_obj_add_state(source, LV_STATE_USER_1);
@@ -114,6 +113,13 @@ void InputMixButtonBase::setSource(mixsrc_t idx)
 
 void InputMixButtonBase::setOpts(const char* s)
 {
+  if (!opts) {
+    opts = lv_label_create(lvobj);
+    lv_obj_set_pos(opts, OPT_X, OPT_Y);
+    lv_obj_set_size(opts, OPT_W, OPT_H);
+    etx_font(opts, FONT_XS_INDEX, LV_STATE_USER_1);
+  }
+
   if (getTextWidth(s, 0, FONT(STD)) > OPT_W)
     lv_obj_add_state(opts, LV_STATE_USER_1);
   else
