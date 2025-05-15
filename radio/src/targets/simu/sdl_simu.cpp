@@ -26,6 +26,9 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
 
+#include <libgen.h>
+#include <getopt.h>
+
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -70,6 +73,12 @@
 #include "edgetx.h"
 
 #define TIMER_INTERVAL 10 // 10ms
+
+int window_width = 800;
+int window_height = 600;
+
+std::string storage_path;
+std::string settings_path;
 
 static SDL_Window* window;
 static SDL_Renderer* renderer;
@@ -663,8 +672,81 @@ int find_input_mode()
   return default_input_mode();
 }
 
-int main(int argc, char** argv)
+static void print_usage(const char* path)
 {
+  const char usage[] =
+      "usage: %s [--width width] [--height height] [--storage path] "
+      "[--settings path] [-h | --help]\n";
+
+  printf(usage, basename((char*)path));
+}
+
+static int parse_args(int argc, char* argv[])
+{
+  static struct option long_options[] = {
+      {"help", no_argument, 0, 'h'},
+      {"width", required_argument, 0, 'w'},
+      {"height", required_argument, 0, 'e'},
+      {"storage", required_argument, 0, 's'},
+      {"settings", required_argument, 0, 'c'},
+      {0, 0, 0, 0}};
+
+  int option_index = 0;
+  int c;
+
+  while ((c = getopt_long(argc, argv, "h", long_options, &option_index)) !=
+         -1) {
+    switch (c) {
+      case 'h':
+        print_usage(argv[0]);
+        return 1;
+
+      case 'w':
+        window_width = std::atoi(optarg);
+        break;
+
+      case 'e':
+        window_height = std::atoi(optarg);
+        break;
+
+      case 's':
+        storage_path = std::string(optarg);
+        break;
+
+      case 'c':  // 'c' for config/settings
+        settings_path = std::string(optarg);
+        break;
+
+      case '?':
+        // getopt_long already printed an error message
+        print_usage(argv[0]);
+        return 1;
+
+      default:
+        abort();
+    }
+  }
+
+  // Check for non-option arguments
+  if (optind < argc) {
+    printf("Error: Unexpected arguments: ");
+    while (optind < argc) {
+      printf("%s ", argv[optind++]);
+    }
+    printf("\n");
+    print_usage(argv[0]);
+    return 1;
+  }
+
+  return 0;
+}
+
+int main(int argc, char* argv[])
+{
+  if (parse_args(argc, argv) != 0) {
+    return 1;
+  }
+
   // Setup SDL
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0) {
     printf("Error: %s\n", SDL_GetError());
@@ -681,7 +763,8 @@ int main(int argc, char** argv)
   // Create window with SDL_Renderer graphics context
   int window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
   window = SDL_CreateWindow("EdgeTx Simu", SDL_WINDOWPOS_CENTERED,
-                            SDL_WINDOWPOS_CENTERED, 510, 480, window_flags);
+                            SDL_WINDOWPOS_CENTERED, window_width, window_height,
+                            window_flags);
 
   renderer = SDL_CreateRenderer(
                window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
@@ -742,9 +825,7 @@ int main(int argc, char** argv)
 
   // Init simulation
   simuInit();
-
-  // TODO: add support for paths from command line
-  simuStart(true, nullptr, nullptr);
+  simuStart(true, storage_path.c_str(), settings_path.c_str());
   
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
