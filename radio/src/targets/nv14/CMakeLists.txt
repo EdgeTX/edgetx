@@ -72,8 +72,8 @@ set(SDRAM ON)
 add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
-if (INTERNAL_GPS)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
+if(INTERNAL_GPS)
+  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 endif()
 
 if(STICKS_DEAD_ZONE)

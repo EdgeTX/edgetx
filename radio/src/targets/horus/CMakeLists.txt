@@ -165,11 +165,11 @@ elseif (PCB STREQUAL X12S)
   add_definitions(-DMANUFACTURER_FRSKY)
 endif()
 
-# enable GPS support unless otherwise disabled
-if(NOT (AUX_SERIAL STREQUAL "OFF"))
+# enable GPS support if there is AUX port available unless otherwise disabled 
+if(AUX_SERIAL))
   option(INTERNAL_GPS "Support for internal GPS" ON)
+  set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 endif()
-set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 
 if (BITMAPS_DIR STREQUAL 320x240)
   set(BITMAPS_TARGET bm320_bitmaps)
@@ -198,12 +198,12 @@ add_definitions(-DTHREADSAFE_MALLOC)
 
 set(SDRAM ON)
 
-if (INTERNAL_GPS)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
+if(INTERNAL_GPS)
+  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 endif()
 
 if(FUNCTION_SWITCHES)
-add_definitions(-DFUNCTION_SWITCHES)
+  add_definitions(-DFUNCTION_SWITCHES)
 endif()
 
 if(NOT UNEXPECTED_SHUTDOWN)
