@@ -30,9 +30,9 @@
 #if LCD_W < 300         // B&W
   constexpr int MAX_NAMES_ON_SCREEN = 6;
 #elif LCD_W < LCD_H     // Portrait
-  constexpr int MAX_NAMES_ON_SCREEN = (LCD_H - 120) / 25;
+  constexpr int MAX_NAMES_ON_SCREEN = (LCD_H - 143) / 25;
 #else                   // Landscape
-  constexpr int MAX_NAMES_ON_SCREEN = (LCD_H - 98) / 25;
+  constexpr int MAX_NAMES_ON_SCREEN = (LCD_H - 119) / 25;
 #endif
 
 #define MAX_FW_FILES         (MAX_NAMES_ON_SCREEN+1)

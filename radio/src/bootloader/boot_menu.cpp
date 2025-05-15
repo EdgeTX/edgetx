@@ -148,6 +148,7 @@ void bootloaderMenu()
 #if defined(SPI_FLASH)
             case 1:
               state = ST_CLEAR_FLASH_CHECK;
+              vpos = 0;
               break;
 #endif
             default:
@@ -251,19 +252,10 @@ void bootloaderMenu()
 #if defined(SPI_FLASH)
       } else if (state == ST_CLEAR_FLASH_CHECK) {
         bootloaderDrawScreen(state, vpos);
-        if (IS_NEXT_EVENT(event)) {
-          if (vpos < SEL_CLEAR_FLASH_STORAGE_MENU_LEN - 1) { vpos++; }
-          continue;
-        }
-        if (IS_PREVIOUS_EVENT(event)) {
-          if (vpos > 0) { vpos--; }
-          continue;
-        }
-        if (event == EVT_KEY_LONG(KEY_ENTER) && vpos == 0)
+        if (event == EVT_KEY_LONG(KEY_ENTER))
         {
           state = ST_CLEAR_FLASH;
-        } else if (event == EVT_KEY_BREAK(KEY_EXIT) ||
-            (event == EVT_KEY_BREAK(KEY_ENTER) && vpos == 1) ) {
+        } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
           vpos = 0;
           state = ST_START;
           continue;
