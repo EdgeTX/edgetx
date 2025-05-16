@@ -63,6 +63,7 @@ const CrossfireSensor crossfireSensors[] = {
   CS(FLIGHT_MODE_ID, 0, STR_SENSOR_FLIGHT_MODE,   UNIT_TEXT,              0),
   CS(CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2),
   CS(BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2),
+  CS(AIRSPEED_ID,    0, STR_SENSOR_ASPD,          UNIT_KMH,               1),
   CS(0,              0, "UNKNOWN",                UNIT_RAW,               0),
 };
 // clang-format on
@@ -89,6 +90,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[FLIGHT_MODE_INDEX];
   else if (id == BARO_ALT_ID)
     return crossfireSensors[BARO_ALTITUDE_INDEX];
+  else if (id == AIRSPEED_ID)
+    return crossfireSensors[AIRSPEED_INDEX];
   else
     return crossfireSensors[UNKNOWN_INDEX];
 }
@@ -170,6 +173,14 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       if (crsfPayloadLen > 5 &&
           getCrossfireTelemetryValue<2>(5, value, rxBuffer))
         processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
+      break;
+
+    case AIRSPEED_ID:
+      if (getCrossfireTelemetryValue<2>(3, value, rxBuffer)) {
+        // Airspeed in 0.1 * km/h (hectometers/h)
+        // Converstion to KMH is done through PREC1
+        processCrossfireTelemetryValue(AIRSPEED_INDEX, value);
+      }
       break;
 
     case LINK_ID:
