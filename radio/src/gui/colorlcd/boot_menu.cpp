@@ -402,7 +402,7 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
         pos = lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_FLASH_KEY, FOOTER_ALIGN1 | BL_FOREGROUND);
       }
       else if (st == ST_FLASHING) {
-        pos = lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_WRITING_FW, FOOTER_ALIGN1 | BL_FOREGROUND);
+        pos = lcd->drawText(LCD_W / 2, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_WRITING_FW, CENTERED | BL_FOREGROUND);
       }
       else if (st == ST_FLASH_DONE) {
         pos = lcd->drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_WRITING_COMPL, FOOTER_ALIGN1 | BL_FOREGROUND);
