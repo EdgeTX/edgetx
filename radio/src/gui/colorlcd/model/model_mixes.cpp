@@ -36,30 +36,25 @@ class MPlexIcon : public Window
     Window(parent, {0, 0, MPLEX_ICON_W, MPLEX_ICON_H}),
     index(index)
     {
-      MixData* mix = mixAddress(index);
-      EdgeTxIcon n = ICON_MPLEX_ADD;
-      if (mix->mltpx == MLTPX_MUL) {
-        n = ICON_MPLEX_MULTIPLY;
-      } else if (mix->mltpx == MLTPX_REPL) {
-        n = ICON_MPLEX_REPLACE;
-      }
-      icon = new StaticIcon(this, 0, 0, n, COLOR_THEME_SECONDARY1_INDEX);
-      icon->center(width(), height());
     }
 
   void refresh()
   {
-    if (icon) {
-      icon->show(lv_obj_get_index(lvobj) != 0);
-      MixData* mix = mixAddress(index);
-      EdgeTxIcon n = ICON_MPLEX_ADD;
-      if (mix->mltpx == MLTPX_MUL) {
-        n = ICON_MPLEX_MULTIPLY;
-      } else if (mix->mltpx == MLTPX_REPL) {
-        n = ICON_MPLEX_REPLACE;
-      }
-      icon->setIcon(n);
+    MixData* mix = mixAddress(index);
+    EdgeTxIcon n = ICON_MPLEX_ADD;
+    if (mix->mltpx == MLTPX_MUL) {
+      n = ICON_MPLEX_MULTIPLY;
+    } else if (mix->mltpx == MLTPX_REPL) {
+      n = ICON_MPLEX_REPLACE;
     }
+
+    if (!icon) {
+      icon = new StaticIcon(this, 0, 0, n, COLOR_THEME_SECONDARY1_INDEX);
+      icon->center(width(), height());
+    }
+
+    icon->show(lv_obj_get_index(lvobj) != 0);
+    icon->setIcon(n);
   }
 
   void setIndex(uint8_t i)
@@ -78,11 +73,13 @@ class MPlexIcon : public Window
 class MixLineButton : public InputMixButtonBase
 {
  public:
-  MixLineButton(Window* parent, uint8_t index, MPlexIcon* mplex) :
-    InputMixButtonBase(parent, index),
-    mplex(mplex)
+  MixLineButton(Window* parent, uint8_t index) :
+    InputMixButtonBase(parent, index)
   {
-    check(isActive());
+    mplex = new MPlexIcon(parent, index);
+
+    lv_obj_add_event_cb(lvobj, MixLineButton::on_draw,
+                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
   }
 
   void deleteLater(bool detach = true, bool trash = true) override
@@ -91,8 +88,20 @@ class MixLineButton : public InputMixButtonBase
     ListLineButton::deleteLater(detach, trash);
   }
 
+  static void on_draw(lv_event_t* e)
+  {
+    lv_obj_t* target = lv_event_get_target(e);
+    auto line = (MixLineButton*)lv_obj_get_user_data(target);
+    if (line && !line->init) {
+      line->init = true;
+      line->refresh();
+    }
+  }
+
   void refresh() override
   {
+    check(isActive());
+
     const MixData& line = g_model.mixData[index];
     setWeight(line.weight, MIX_WEIGHT_MIN, MIX_WEIGHT_MAX);
     setSource(line.srcRaw);
@@ -159,6 +168,7 @@ class MixLineButton : public InputMixButtonBase
   static LAYOUT_VAL_SCALED(MPLEX_XO, 28)
 
  protected:
+  bool init = false;
   MPlexIcon* mplex = nullptr;
 
   bool isActive() const override { return isMixActive(index); }
@@ -254,9 +264,7 @@ InputMixGroupBase* ModelMixesPage::createGroup(Window* form, mixsrc_t src)
 
 InputMixButtonBase* ModelMixesPage::createLineButton(InputMixGroupBase *group, uint8_t index)
 {
-  auto mplex = new MPlexIcon(group, index);
-  auto button = new MixLineButton(group, index, mplex);
-  button->refresh();
+  auto button = new MixLineButton(group, index);
 
   lines.emplace_back(button);
   group->addLine(button);
@@ -430,7 +438,7 @@ void ModelMixesPage::build(Window * window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
-  form = new Window(window, rect_t{});
+  form = new Window(window, rect_t{0, 0, ListLineButton::GRP_W, LV_SIZE_CONTENT});
   form->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   auto box = new Window(window, rect_t{});
