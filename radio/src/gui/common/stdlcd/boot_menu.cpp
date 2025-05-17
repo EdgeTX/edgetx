@@ -27,8 +27,8 @@
 #include "translations.h"
 
 #include "fw_version.h"
-#include "translations.h"
-#include "../../common/arm/stm32/bootloader/boot.h"
+#include "translations/bl_translations.h"
+#include "bootloader/boot.h"
 #include "bootloader/firmware_files.h"
 
 void bootloaderInitScreen()
@@ -44,14 +44,14 @@ void bootloaderInitScreen()
 #endif
 }
 
-static void bootloaderDrawMsg(unsigned int x, const char *str, uint8_t line, bool inverted)
+static void bootloaderDrawMsg(const char *str, uint8_t line, bool inverted)
 {
-  lcdDrawSizedText(x, (line + 2) * FH, str, DISPLAY_CHAR_WIDTH, inverted ? INVERS : 0);
+  lcdDrawSizedText(LCD_W / 2, (line + 2) * FH, str, DISPLAY_CHAR_WIDTH, (inverted ? INVERS : 0) | CENTERED);
 }
 
 void bootloaderDrawFilename(const char *str, uint8_t line, bool selected)
 {
-  bootloaderDrawMsg(INDENT_WIDTH, str, line, selected);
+  lcdDrawSizedText(INDENT_WIDTH, (line + 2) * FH, str, DISPLAY_CHAR_WIDTH, selected ? INVERS : 0);
 }
 
 bool checkFirmwareFlavor(const char * flavour)
@@ -93,16 +93,16 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   }
   else if (st == ST_DIR_CHECK) {
     if (opt == FR_NO_PATH) {
-      bootloaderDrawMsg(INDENT_WIDTH, TR_BL_DIR_MISSING, 1, false);
-      bootloaderDrawMsg(INDENT_WIDTH, getFirmwarePath(), 2, false);
+      bootloaderDrawMsg(TR_BL_DIR_MISSING, 1, false);
+      bootloaderDrawMsg(getFirmwarePath(), 2, false);
     }
     else {
-      bootloaderDrawMsg(INDENT_WIDTH, TR_BL_DIR_EMPTY, 1, false);
+      bootloaderDrawMsg(TR_BL_DIR_EMPTY, 1, false);
     }
   }
   else if (st == ST_FLASH_CHECK) {
     if (opt == FC_ERROR) {
-      bootloaderDrawMsg(0, TR_BL_INVALID_FIRMWARE, 2, false);
+      bootloaderDrawMsg(TR_BL_INVALID_FIRMWARE, 2, false);
     }
     else if (opt == FC_OK) {
       bool flavorCheck = false;
@@ -114,11 +114,11 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
 #else
       flavorCheck = checkFirmwareFlavor(tag.flavour);
 #endif
-      bootloaderDrawMsg(INDENT_WIDTH, tag.version, 0, false);
+      bootloaderDrawMsg(tag.version, 0, false);
       if (flavorCheck)
-        bootloaderDrawMsg(0, TR_BL_HOLD_ENTER_TO_START, 2, false);
+        bootloaderDrawMsg(TR_BL_HOLD_ENTER_TO_START, 2, false);
       else
-        bootloaderDrawMsg(0, TR_BL_INVALID_FIRMWARE, 2, false);
+        bootloaderDrawMsg(TR_BL_INVALID_FIRMWARE, 2, false);
     }
   }
   else if (st == ST_FLASHING) {

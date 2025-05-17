@@ -326,6 +326,10 @@ uint8_t keysGetTrimState(uint8_t trim)
 #if defined(USE_HATS_AS_KEYS)
 #define ROTARY_EMU_KEY_REPEAT_RATE 12  // times 10 [ms]
 
+#if defined(BOOT)
+bool getHatsAsKeys() { return true; }
+bool getTransposeHatsForLUA() { return false; }
+#else
 static bool _trims_as_buttons = false;
 static bool _trims_as_buttons_LUA = false;
 
@@ -366,6 +370,7 @@ int16_t getEmuRotaryData()
 
   return 0;
 }
+#endif
 
 static void transpose_trims(uint32_t *keys)
 {
