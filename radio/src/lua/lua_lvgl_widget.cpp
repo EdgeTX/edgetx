@@ -800,10 +800,15 @@ bool LvglWidgetLine::callRefs(lua_State *L)
   int t = lua_gettop(L);
   if (getPointsFunction != LUA_REFNIL) {
     if (pcallFunc(L, getPointsFunction, 1)) {
+      bool firstPts = (pts == nullptr);
       uint32_t h = getPts(L);
       if (h != ptsHash) {
         ptsHash = h;
         setLine();
+      }
+      if (firstPts) {
+        setColor(color.flags);
+        setOpacity(opacity.value);
       }
       lua_settop(L, t);
     } else {
