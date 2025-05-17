@@ -35,6 +35,8 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
     Window(parent, rect), channel(channel),
     getValue(std::move(getValueFunc))
 {
+  lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX);
 
   bar = lv_obj_create(lvobj);
