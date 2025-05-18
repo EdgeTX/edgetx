@@ -227,13 +227,15 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
 
   auto invMask = getBuiltinIcon(ICON_CHAN_MONITOR_INVERTED);
 
+  coord_t barW = width() - invMask->width - PAD_TINY;
+
   outputChannelBar = new OutputChannelBar(
-      this, {PAD_TINY + invMask->width, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
+      this, {PAD_TINY + invMask->width, ChannelBar::BAR_HEIGHT + PAD_TINY, barW, ChannelBar::BAR_HEIGHT},
       channel, isInHeader);
 
   new MixerChannelBar(
       this,
-      {PAD_TINY + invMask->width, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
+      {PAD_TINY + invMask->width, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, barW, ChannelBar::BAR_HEIGHT},
       channel);
 
   // Channel number
