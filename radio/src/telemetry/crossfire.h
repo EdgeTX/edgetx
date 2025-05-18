@@ -99,6 +99,8 @@ enum CrossfireSensorIndexes {
   VERTICAL_SPEED_INDEX,
   BARO_ALTITUDE_INDEX,
   AIRSPEED_INDEX,
+  CF_RPM_INDEX,
+  TEMP_INDEX,
   UNKNOWN_INDEX,
 };
 
@@ -122,7 +124,7 @@ extern CrossfireModuleStatus crossfireModuleStatus[2];
 
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
-void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
+void crossfireSetDefault(int index, uint16_t id, uint8_t subId);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
   115200,

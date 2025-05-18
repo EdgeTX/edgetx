@@ -118,6 +118,7 @@
 #define STR_SENSOR_A4                        "A4"
 #define STR_SENSOR_BATT                      "RxBt"
 #define STR_SENSOR_ALT                       "Alt"
+#define STR_SENSOR_TEMP                      "Temp"
 #define STR_SENSOR_TEMP1                     "Tmp1"
 #define STR_SENSOR_TEMP2                     "Tmp2"
 #define STR_SENSOR_TEMP3                     "Tmp3"

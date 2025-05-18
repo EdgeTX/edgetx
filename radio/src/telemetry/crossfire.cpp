@@ -64,6 +64,8 @@ const CrossfireSensor crossfireSensors[] = {
   CS(CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2),
   CS(BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2),
   CS(AIRSPEED_ID,    0, STR_SENSOR_ASPD,          UNIT_KMH,               1),
+  CS(CF_RPM_ID,      0, STR_SENSOR_RPM,           UNIT_RPMS,              0),
+  CS(TEMP_ID,        0, STR_SENSOR_TEMP,          UNIT_DEGREE,            1),
   CS(0,              0, "UNKNOWN",                UNIT_RAW,               0),
 };
 // clang-format on
@@ -92,6 +94,10 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[BARO_ALTITUDE_INDEX];
   else if (id == AIRSPEED_ID)
     return crossfireSensors[AIRSPEED_INDEX];
+  else if (id == CF_RPM_ID)
+    return crossfireSensors[CF_RPM_INDEX];
+  else if (id == TEMP_ID)
+    return crossfireSensors[TEMP_INDEX];
   else
     return crossfireSensors[UNKNOWN_INDEX];
 }
@@ -180,6 +186,30 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         // Airspeed in 0.1 * km/h (hectometers/h)
         // Converstion to KMH is done through PREC1
         processCrossfireTelemetryValue(AIRSPEED_INDEX, value);
+      }
+      break;
+
+    case CF_RPM_ID:
+      if (getCrossfireTelemetryValue<1>(3, value, rxBuffer)) {
+        uint8_t sensorID = value;
+        for(uint8_t i = 0; i * 3 < (crsfPayloadLen - 4);  i++) {
+          getCrossfireTelemetryValue<3>(4 + i * 3, value, rxBuffer);
+          const CrossfireSensor & sensor = crossfireSensors[CF_RPM_INDEX];
+          setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
+                            value, sensor.unit, sensor.precision);
+        }
+      }
+      break;
+
+    case TEMP_ID:
+      if (getCrossfireTelemetryValue<1>(3, value, rxBuffer)) {
+        uint8_t sensorID = value;
+        for(uint8_t i = 0; i * 2 < (crsfPayloadLen - 4);  i++) {
+          getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
+          const CrossfireSensor & sensor = crossfireSensors[TEMP_INDEX];
+          setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
+                            value, sensor.unit, sensor.precision);
+        }
       }
       break;
 
@@ -329,7 +359,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
   }
 }
 
-void crossfireSetDefault(int index, uint8_t id, uint8_t subId)
+void crossfireSetDefault(int index, uint16_t id, uint8_t subId)
 {
   TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
 
