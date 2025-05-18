@@ -66,6 +66,7 @@ const CrossfireSensor crossfireSensors[] = {
   CS(AIRSPEED_ID,    0, STR_SENSOR_ASPD,          UNIT_KMH,               1),
   CS(CF_RPM_ID,      0, STR_SENSOR_RPM,           UNIT_RPMS,              0),
   CS(TEMP_ID,        0, STR_SENSOR_TEMP,          UNIT_DEGREE,            1),
+  CS(CELLS_ID,       0, STR_SENSOR_CELLS,         UNIT_CELLS,             2),
   CS(0,              0, "UNKNOWN",                UNIT_RAW,               0),
 };
 // clang-format on
@@ -98,6 +99,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[CF_RPM_INDEX];
   else if (id == TEMP_ID)
     return crossfireSensors[TEMP_INDEX];
+  else if (id == CELLS_ID)
+    return crossfireSensors[CELLS_INDEX];
   else
     return crossfireSensors[UNKNOWN_INDEX];
 }
@@ -209,6 +212,20 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
           const CrossfireSensor & sensor = crossfireSensors[TEMP_INDEX];
           setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
                             value, sensor.unit, sensor.precision);
+        }
+      }
+      break;
+
+    case CELLS_ID:
+      if (getCrossfireTelemetryValue<1>(3, value, rxBuffer)) {
+        uint8_t sensorID = value;
+
+        // We can handle only up to 8 cells
+        for(uint8_t i = 0; i * 2 < min(16, crsfPayloadLen - 4);  i++) {
+          getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
+          const CrossfireSensor & sensor = crossfireSensors[CELLS_INDEX];
+          setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensorID,
+                            i << 16 | value / 10, sensor.unit, sensor.precision);
         }
       }
       break;

@@ -101,6 +101,7 @@ enum CrossfireSensorIndexes {
   AIRSPEED_INDEX,
   CF_RPM_INDEX,
   TEMP_INDEX,
+  CELLS_INDEX,
   UNKNOWN_INDEX,
 };
 
