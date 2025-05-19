@@ -786,7 +786,6 @@ static inline uint8_t _bits_set(uint8_t val, uint8_t bits)
 }
 
 swarnstate_t switches_states = 0;
-uint16_t fsswitches_states = 0;
 
 swsrc_t getMovedSwitch()
 {
@@ -796,10 +795,15 @@ swsrc_t getMovedSwitch()
   // Switches
   auto max_switches = switchGetMaxAllSwitches();
   for (uint8_t i = 0; i < max_switches; i++) {
-    if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
+    if (SWITCH_EXISTS(i)) {
       swarnstate_t mask = ((swarnstate_t) 0x03 << (i * 2));
       uint8_t prev = (switches_states & mask) >> (i * 2);
-      uint8_t next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
+      uint8_t next;
+      if (switchIsCustomSwitch(i)) {
+        next = g_model.cfsState(i) ? 3 : 1;
+      } else {
+        next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
+      }
       if (prev != next) {
         switches_states =
             (switches_states & (~mask)) | ((swarnstate_t)(next) << (i * 2));
@@ -807,35 +811,6 @@ swsrc_t getMovedSwitch()
       }
     }
   }
-
-#if defined(FUNCTION_SWITCHES)
-  uint16_t fsswitches_cur_state = 0;
-  for (int i = 0; i < switchGetMaxSwitches(); i += 1) {
-    if (switchIsCustomSwitch(i) && g_model.cfsState(i))
-      fsswitches_cur_state |= (1 << i);
-  }
-  uint16_t fsswitches_xor = fsswitches_cur_state ^ fsswitches_states;
-  fsswitches_states = fsswitches_cur_state;
-
-  if (fsswitches_xor) {
-    // we have some change...
-    if (_bits_set(fsswitches_xor, switchGetMaxSwitches()) > 1) {
-      // multiple bits change: use the one that turned ON
-      fsswitches_xor &= fsswitches_cur_state;
-    } else {
-      // only one bit changed: use the one that changed
-    }
-
-    auto b = __builtin_ctz(fsswitches_xor);
-    int sw;
-    for (sw = 0; sw < max_switches; sw += 1) {
-      if (switchIsCustomSwitch(sw) && sw == b)
-        break;
-    }
-    auto pos = (fsswitches_cur_state & fsswitches_xor) ? 2 : 0;
-    result = sw * 3 + pos + SWSRC_FIRST_SWITCH;
-  }
-#endif
 
   // Multipos
   for (int i = 0; i < MAX_POTS; i++) {
