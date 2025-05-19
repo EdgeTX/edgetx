@@ -326,6 +326,17 @@ static int luaLvglGetContext(lua_State *L)
   return 1;
 }
 
+static int luaLvglGetScrollPos(lua_State *L)
+{
+  auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
+  if (p) {
+    lua_pushinteger(L, p->getScrollX());
+    lua_pushinteger(L, p->getScrollY());
+    return 2;
+  }
+  return 0;
+}
+
 // lvgl functions
 LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(clear, luaLvglClear)
@@ -377,6 +388,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(enable, luaLvglEnable)
   LROT_FUNCENTRY(disable, luaLvglDisable)
   LROT_FUNCENTRY(close, luaLvglClose)
+  LROT_FUNCENTRY(getScrollPos, luaLvglGetScrollPos)
   LROT_NUMENTRY(FLOW_ROW, LV_FLEX_FLOW_ROW)
   LROT_NUMENTRY(FLOW_COLUMN, LV_FLEX_FLOW_COLUMN)
   LROT_NUMENTRY(PAD_TINY, PAD_TINY)
@@ -407,6 +419,10 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_NUMENTRY(SW_TELEM, SW_TELEM)
   LROT_NUMENTRY(SW_OTHER, SW_OTHER)
   LROT_NUMENTRY(SW_CLEAR, SW_NONE)
+  LROT_NUMENTRY(SCROLL_OFF, LV_DIR_NONE)
+  LROT_NUMENTRY(SCROLL_HOR, LV_DIR_HOR)
+  LROT_NUMENTRY(SCROLL_VER, LV_DIR_VER)
+  LROT_NUMENTRY(SCROLL_ALL, LV_DIR_ALL)
 LROT_END(lvgllib, NULL, 0)
 
 // Metatable for simple objects (line, arc, label)
@@ -417,6 +433,7 @@ LROT_BEGIN(lvgl_base_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(set, luaLvglSet)
   LROT_FUNCENTRY(show, luaLvglShow)
   LROT_FUNCENTRY(hide, luaLvglHide)
+  LROT_FUNCENTRY(getScrollPos, luaLvglGetScrollPos)
 LROT_END(lvgl_base_mt, NULL, LROT_MASK_GC_INDEX)
 
 // Metatable for complex objects
@@ -462,6 +479,7 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(enable, luaLvglEnable)
   LROT_FUNCENTRY(disable, luaLvglDisable)
   LROT_FUNCENTRY(close, luaLvglClose)
+  LROT_FUNCENTRY(getScrollPos, luaLvglGetScrollPos)
 LROT_END(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
 
 extern "C" {

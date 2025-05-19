@@ -60,11 +60,14 @@ class ChoiceBase : public FormField
   int vmax = 0;
   const char *menuTitle = nullptr;
   ChoiceType type;
+  int currentValue = INT_MAX;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
   std::function<std::string(int)> textHandler;
 
   virtual std::string getLabelText() = 0;
+
+  void checkEvents() override;
 };
 
 class Choice : public ChoiceBase
