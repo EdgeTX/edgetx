@@ -127,13 +127,6 @@ static int swIndex;
 
 extern bool checkCFSTypeAvailable(int val);
 
-static bool checkCFSGroupAvailable(int group)
-{
-  if (g_eeGeneral.switchType(swIndex) == SWITCH_TOGGLE && group && g_model.cfsGroupAlwaysOn(group))
-    return false;
-  return true;
-}
-
 enum CFSFields {
   CFS_FIELD_TYPE,
   CFS_FIELD_NAME,
