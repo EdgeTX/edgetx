@@ -26,11 +26,12 @@ static void btnmatrix_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->bg_opacity_20,
-                    LV_PART_MAIN | LV_STATE_FOCUSED);
+                    LV_PART_MAIN | LV_STATE_EDITED);
 
-  etx_bg_color(obj, COLOR_THEME_FOCUS_INDEX, LV_PART_MAIN | LV_STATE_FOCUSED);
+  etx_solid_bg(obj, COLOR_THEME_FOCUS_INDEX, LV_PART_MAIN | LV_STATE_FOCUSED);
 
   etx_std_style(obj, LV_PART_ITEMS, PAD_LARGE);
+  etx_remove_border_color(obj, LV_PART_ITEMS | LV_STATE_FOCUSED);
 
   etx_obj_add_style(obj, styles->border_color[COLOR_THEME_FOCUS_INDEX],
                     LV_PART_ITEMS | LV_STATE_EDITED);
