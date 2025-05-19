@@ -799,11 +799,14 @@ swsrc_t getMovedSwitch()
       swarnstate_t mask = ((swarnstate_t) 0x03 << (i * 2));
       uint8_t prev = (switches_states & mask) >> (i * 2);
       uint8_t next;
-      if (switchIsCustomSwitch(i)) {
+#if defined(FUNCTION_SWITCHES)
+      if (switchIsCustomSwitch(i))
         next = g_model.cfsState(i) ? 3 : 1;
-      } else {
+      else
         next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
-      }
+#else
+      next = (1024 + getValue(MIXSRC_FIRST_SWITCH + i)) / 1024 + 1;
+#endif
       if (prev != next) {
         switches_states =
             (switches_states & (~mask)) | ((swarnstate_t)(next) << (i * 2));
