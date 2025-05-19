@@ -82,7 +82,7 @@ ButtonMatrix::ButtonMatrix(Window* parent, const rect_t& r) :
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
   lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-  lv_obj_add_event_cb(lvobj, btn_matrix_event, LV_EVENT_ALL, this);
+  lv_obj_add_event_cb(lvobj, btn_matrix_event, LV_EVENT_VALUE_CHANGED, this);
 }
 
 ButtonMatrix::~ButtonMatrix() { deallocate(); }
