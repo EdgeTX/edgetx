@@ -32,7 +32,7 @@ if(Qt6Core_FOUND OR FOX_FOUND)
               HINTS
                 "/usr/lib/x86_64-linux-gnu"
                 ${SDL2_LIBRARY_PATH})
-    message(STATUS "SDL2 Lib: ${SDL2_LIB_PATH} Libs: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
+    message(STATUS "Found SDL2 Lib: ${SDL2_LIB_PATH} Libs: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
   else()
     message(STATUS "SDL2 not found! Simulator audio, and joystick inputs, will not work.")
   endif()
