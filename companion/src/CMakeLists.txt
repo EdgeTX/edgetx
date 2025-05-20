@@ -290,7 +290,7 @@ string(TOLOWER ${PCB} FLAVOUR)
 
 if(PCBREV)
   if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
-      set(FLAVOUR x7access)
+    set(FLAVOUR x7access)
   elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
     set(FLAVOUR x9d+2019)
   elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
@@ -373,19 +373,27 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_custom_target(simulator DEPENDS ${SIMULATOR_NAME})
 
 elseif(WIN32)
-  set(INSTALL_DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}")
+  set(INSTALL_DESTINATION "${CMAKE_BINARY_DIR}/_install")
   message(STATUS "Install to " ${INSTALL_DESTINATION})
   # companion and simulator apps
-  install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
-  install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
+  install(TARGETS
+            ${COMPANION_NAME}
+            ${SIMULATOR_NAME}
+          DESTINATION ${INSTALL_DESTINATION})
   # libsim dlls into same directory as apps
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
+
+  # install updated license file
+  set(LICENSE_FILE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
+  configure_file("${COMPANION_TARGETS_DIR}/license.txt.in" ${LICENSE_FILE} @ONLY)
+  install(FILES "${LICENSE_FILE}" DESTINATION ${INSTALL_DESTINATION})
 
   # supporting utilities
   if(LIBUSB1_FOUND)
     get_filename_component(LIBUSB1_LIBRARY_DIR ${LIBUSB1_LIBRARY} DIRECTORY)
 
     if(MINGW)
+      # finds dll.a directory but we need dlls but should check extension just to be sure and future proof
       set(LIBUSB1_LIBRARY_DIR "${LIBUSB1_LIBRARY_DIR}/../bin")
     endif()
 
@@ -409,38 +417,21 @@ elseif(WIN32)
     endif()
 
     if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
-      # install only files Qt networking requires
       install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
               DESTINATION ${INSTALL_DESTINATION}
-              FILES_MATCHING PATTERN "libcrypto-*.dll" PATTERN "libssl-*.dll")
+              FILES_MATCHING
+                PATTERN "libcrypto-*.dll"
+                PATTERN "libssl-*.dll")
     endif()
   endif(OPENSSL_FOUND)
-
-  set(LICENSE_FILE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
-  configure_file("${COMPANION_TARGETS_DIR}/license.txt.in" ${LICENSE_FILE} @ONLY)
-  install(FILES "${LICENSE_FILE}" DESTINATION ${INSTALL_DESTINATION})
 
   if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
     install(FILES "${SDL2_LIB_PATH}" DESTINATION ${INSTALL_DESTINATION})
   endif()
 
-  # Qt dlls (using windeployqt)
-  ## Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.
-  set(wdqtopts --no-translations --no-opengl-sw --no-system-d3d-compiler)
-  if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(wdqtopts ${wdqtopts} --release)  # release builds aren't always properly detected with mingw
-    #set(wdqtopts ${wdqtopts} --debug)  # workaround for bug in Qt 5.15 windeployqt.exe
-  endif()
-  set(wdqtopts ${wdqtopts} -dir "\"${INSTALL_DESTINATION}\"" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${COMPANION_NAME}.exe" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${SIMULATOR_NAME}.exe")
-  list(JOIN wdqtopts " " wdqtopts)
-
-  # Add installer command to execute windeployqt
-  message(STATUS "windeployqt command: ${QT_BIN_DIR}/windeployqt.exe ${wdqtopts}")
-endif(WIN32)
-
-# Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
-# and trial and error. Do not hesitate to fix it for the better
-IF(APPLE)
+elseif(APPLE)
+  # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
+  # and trial and error. Do not hesitate to fix it for the better
   set(plugin_dest_dir ${COMPANION_NAME}.app/Contents/Plugins)
   set(qtconf_dest_dir ${COMPANION_NAME}.app/Contents/Resources)
   set(APPS "\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app")
@@ -524,7 +515,7 @@ IF(APPLE)
   # fixup_bundle(\"${APPS}\"   \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}\"   \"${QT_LIB_DIR}\")
   # file(RENAME \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
   # " COMPONENT Runtime)
-endif(APPLE)
+endif()
 
 ############# Packaging ####################
 
@@ -536,9 +527,27 @@ string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
 # very poor trace-backs from the users when they report Companion crash
 set(CPACK_STRIP_FILES FALSE)
 
+# Qt deployment API options
+if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
+  set(qt_deploy_tool_options_arg --debug)
+else()
+  set(qt_deploy_tool_options_arg --release)
+endif()
+
+# Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.
+set(qt_deploy_tool_options_arg ${qt_deploy_tool_options_arg} --no-translations --no-opengl-sw)
+
+if(APPLE)
+  set(qt_deploy_tool_options_arg ${qt_deploy_tool_options_arg} --hardened-runtime --no-strip-dmg)
+elseif(WIN32)
+  set(qt_deploy_tool_options_arg ${qt_deploy_tool_options_arg} --no-compiler-runtime --no-system-d3d-compiler --dir \${INSTALL_DESTINATION})
+endif()
+
+list(JOIN qt_deploy_tool_options_arg " " qt_deploy_tool_options_arg)
+
 if(APPLE)
   set(CPACK_GENERATOR "DragNDrop")
-# set(CPACK_GENERATOR "TGZ")  # for quick testing
+  # set(CPACK_GENERATOR "TGZ")  # for quick testing
   set(CPACK_BINARY_DRAGNDROP ON)
   set(CPACK_DMG_BACKGROUND_IMAGE ${COMPANION_SRC_DIRECTORY}/images/splash_dmg.png)
   set(CPACK_DMG_VOLUME_NAME "EdgeTX Companion")
@@ -611,14 +620,39 @@ endif()
 
 # Create Windows installer with NSIS
 if(WIN32)
-  find_program(NSIS_EXE makensis.exe PATHS
-    "C:/Program Files/NSIS"
-    "C:/Program Files (x86)/NSIS"
-    "C:/Programs/NSIS"
-    "${WIN_EXTRA_LIBS_PATH}/NSIS"
+  find_program(NSIS_EXE makensis.exe
+    PATHS
+      "C:/Program Files/NSIS"
+      "C:/Program Files (x86)/NSIS"
+      "C:/Programs/NSIS"
+      "${WIN_EXTRA_LIBS_PATH}/NSIS"
   )
 
   if(NSIS_EXE)
+    # set qt variables just before deploying
+    # this should be done higher but in attempts so far they keep being overridden
+    #set(QT_DEPLOY_PREFIX \"${INSTALL_DESTINATION}\")
+    set(QT_DEPLOY_BIN_DIR .)
+    set(QT_DEPLOY_LIB_DIR .)
+    set(QT_DEPLOY_LIBEXEC_DIR .)
+
+    qt_generate_deploy_script(
+        TARGET companion
+        OUTPUT_SCRIPT qt_deploy_script
+        CONTENT "
+          set(QT_DEPLOY_PREFIX \"${INSTALL_DESTINATION}\")
+          qt_deploy_runtime_dependencies(
+              EXECUTABLE \"${QT_DEPLOY_BIN_DIR}/$<TARGET_FILE_NAME:companion>\"
+              ADDITIONAL_EXECUTABLES \"${QT_DEPLOY_BIN_DIR}/$<TARGET_FILE_NAME:simulator>\"
+              DEPLOY_TOOL_OPTIONS ${qt_deploy_tool_options_arg}
+              GENERATE_QT_CONF
+              VERBOSE
+          )"
+    )
+
+    # Set CPACK_NSIS_variables
+    #set(CPACK_GENERATOR "NSIS")
+
     file(TO_NATIVE_PATH "${INSTALL_DESTINATION}" NSIS_DISTRO)  # all files in here will be included in installer
     set(NSI_FILE "${PROJECT_BINARY_DIR}/companion/companion.nsi")
     configure_file("${COMPANION_TARGETS_DIR}/companion.nsi.in" "${NSI_FILE}" @ONLY)
@@ -626,9 +660,9 @@ if(WIN32)
     add_custom_target(installer
       # The 'install' target prepares all the distro files, make sure it has been executed first.
       COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
-      COMMAND "${QT_BIN_DIR}/windeployqt.exe" "${wdqtopts}"
+      COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
       COMMAND "${NSIS_EXE}" "${NSI_FILE}"
-      DEPENDS "${NSI_FILE}"
+      DEPENDS "${NSI_FILE}" ${qt_deploy_script}
       COMMENT "Building Windows NSIS installer..."
     )
   endif()
