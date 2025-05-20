@@ -1519,7 +1519,7 @@
   #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_8  // ADC12_IN8
   #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_9  // ADC12_IN9
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_10
-  #define ADC_VREF_PREC2                330
+  #define ADC_VREF_PREC2                300
 #elif defined(RADIO_TPROS)
   #define HARDWARE_POT1
   #define HARDWARE_POT2
@@ -1582,7 +1582,7 @@
   #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_6
   #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_8
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_10
-  #define ADC_VREF_PREC2                330
+  #define ADC_VREF_PREC2                300
 #elif defined(RADIO_BUMBLEBEE)
   #define ADC_MAIN                      ADC3
   #define ADC_DMA                       DMA2
@@ -1645,11 +1645,7 @@
   #define ADC_EXT                       ADC1
   #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BATT }
   #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
-#if defined(RADIO_T20V2)
   #define ADC_VREF_PREC2                300
-#else
-  #define ADC_VREF_PREC2                330
-#endif
 #elif defined(RADIO_MT12)
   #define ADC_GPIO_PIN_STICK_TH         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_ST         LL_GPIO_PIN_1  // PA.01

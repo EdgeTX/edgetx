@@ -546,9 +546,9 @@
   #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream0_IRQHandler
 
   // VBat divider is /4 on F42x and F43x devices
-  #if defined(RADIO_TX16S) || defined(RADIO_T15) || defined(RADIO_F16) || defined(RADIO_V16)
+  #if defined(RADIO_TX16S) || defined(RADIO_T15) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_T18)
     #define ADC_VREF_PREC2              660
-  #elif defined(RADIO_T16) || defined(RADIO_T18)
+  #elif defined(RADIO_T16)
     #define ADC_VREF_PREC2              600
   #else
     #define ADC_VREF_PREC2              500
