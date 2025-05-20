@@ -227,7 +227,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       for(uint8_t i = 0; i * 2 < min(16, crsfPayloadLen - 4);  i++) {
         getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
         const CrossfireSensor & sensor = crossfireSensors[CELLS_INDEX];
-        setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensorID,
+        setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, 0,
                           i << 16 | value / 10, sensor.unit, sensor.precision);
       }
       break;
