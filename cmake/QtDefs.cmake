@@ -10,6 +10,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 if(Qt6_FOUND)
   message(STATUS "Qt Version: ${Qt6_VERSION}")
 
+  # call after Qt6Core package is found
   qt_standard_project_setup()
 
   find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools Multimedia PrintSupport SerialPort Svg Xml)
