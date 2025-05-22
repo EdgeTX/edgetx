@@ -28,8 +28,8 @@ struct timer_handle_t;
 
 struct timer_handle_t {
   TimerHandle_t _rtos_handle;
-  StaticTimer_t _timer_struct;
   void (*_func)(timer_handle_t*);
+  StaticTimer_t _timer_struct;
 };
 
 #define TIMER_INITIALIZER { ._rtos_handle = nullptr }

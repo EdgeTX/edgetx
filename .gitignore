@@ -14,3 +14,4 @@ radio/src/tests/gtest*.tar.gz
 .cache
 compile_commands.json
 /ys_Doc
+/.idea
