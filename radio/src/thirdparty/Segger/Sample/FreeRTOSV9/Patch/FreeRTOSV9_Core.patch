@@ -1,0 +1,296 @@
+From 37806244da7d4f4fe26bf966cf9ad3f479be931d Mon Sep 17 00:00:00 2001
+From: Maxime Vincent <maxime.vince@gmail.com>
+Date: Tue, 18 Apr 2017 15:55:05 +0200
+Subject: [PATCH] Patch FreeRTOS 9 for Segger SystemView
+
+---
+ libs/FreeRTOS/include/FreeRTOS.h                | 33 ++++++++++++++++++++++
+ libs/FreeRTOS/include/task.h                    | 19 +++++++++++++
+ libs/FreeRTOS/portable/GCC/ARM_CM0/port.c       |  6 ++++
+ libs/FreeRTOS/portable/GCC/ARM_CM0/portmacro.h  |  2 +-
+ libs/FreeRTOS/portable/GCC/ARM_CM4F/port.c      |  6 ++++
+ libs/FreeRTOS/portable/GCC/ARM_CM4F/portmacro.h |  2 +-
+ libs/FreeRTOS/tasks.c                           | 37 +++++++++++++++++++++++--
+ 7 files changed, 100 insertions(+), 5 deletions(-)
+
+diff --git a/libs/FreeRTOS/include/FreeRTOS.h b/libs/FreeRTOS/include/FreeRTOS.h
+index 08a6be4..b10b407 100644
+--- a/libs/FreeRTOS/include/FreeRTOS.h
++++ b/libs/FreeRTOS/include/FreeRTOS.h
+@@ -198,6 +198,10 @@ extern "C" {
+ 	#define INCLUDE_uxTaskGetStackHighWaterMark 0
+ #endif
+ 
++#ifndef INCLUDE_pxTaskGetStackStart
++	#define INCLUDE_pxTaskGetStackStart 0
++#endif
++
+ #ifndef INCLUDE_eTaskGetState
+ 	#define INCLUDE_eTaskGetState 0
+ #endif
+@@ -418,6 +422,22 @@ extern "C" {
+ 	#define tracePOST_MOVED_TASK_TO_READY_STATE( pxTCB )
+ #endif
+ 
++#ifndef traceREADDED_TASK_TO_READY_STATE
++	#define traceREADDED_TASK_TO_READY_STATE( pxTCB )	traceMOVED_TASK_TO_READY_STATE( pxTCB )
++#endif
++
++#ifndef traceMOVED_TASK_TO_DELAYED_LIST
++	#define traceMOVED_TASK_TO_DELAYED_LIST()
++#endif
++
++#ifndef traceMOVED_TASK_TO_OVERFLOW_DELAYED_LIST
++	#define traceMOVED_TASK_TO_OVERFLOW_DELAYED_LIST()
++#endif
++
++#ifndef traceMOVED_TASK_TO_SUSPENDED_LIST
++	#define traceMOVED_TASK_TO_SUSPENDED_LIST( pxTCB )
++#endif
++
+ #ifndef traceQUEUE_CREATE
+ 	#define traceQUEUE_CREATE( pxNewQueue )
+ #endif
+@@ -658,6 +678,19 @@ extern "C" {
+ 	#define traceTASK_NOTIFY_GIVE_FROM_ISR()
+ #endif
+ 
++#ifndef traceISR_EXIT_TO_SCHEDULER
++	#define traceISR_EXIT_TO_SCHEDULER()
++#endif
++
++#ifndef traceISR_EXIT
++	#define traceISR_EXIT()
++#endif
++
++#ifndef traceISR_ENTER
++	#define traceISR_ENTER()
++#endif
++
++
+ #ifndef configGENERATE_RUN_TIME_STATS
+ 	#define configGENERATE_RUN_TIME_STATS 0
+ #endif
+diff --git a/libs/FreeRTOS/include/task.h b/libs/FreeRTOS/include/task.h
+index 5e409c8..f9e24dd 100644
+--- a/libs/FreeRTOS/include/task.h
++++ b/libs/FreeRTOS/include/task.h
+@@ -1367,6 +1367,25 @@ TaskHandle_t xTaskGetHandle( const char *pcNameToQuery ) PRIVILEGED_FUNCTION; /*
+  */
+ UBaseType_t uxTaskGetStackHighWaterMark( TaskHandle_t xTask ) PRIVILEGED_FUNCTION;
+ 
++/**
++ * task.h
++ * <PRE>uint8_t* pxTaskGetStackStart( TaskHandle_t xTask);</PRE>
++ *
++ * INCLUDE_pxTaskGetStackStart must be set to 1 in FreeRTOSConfig.h for
++ * this function to be available.
++ *
++ * Returns the start of the stack associated with xTask.  That is,
++ * the highest stack memory address on architectures where the stack grows down
++ * from high memory, and the lowest memory address on architectures where the
++ * stack grows up from low memory.
++ *
++ * @param xTask Handle of the task associated with the stack returned.
++ * Set xTask to NULL to return the stack of the calling task.
++ *
++ * @return A pointer to the start of the stack.
++ */
++uint8_t* pxTaskGetStackStart( TaskHandle_t xTask) PRIVILEGED_FUNCTION;
++
+ /* When using trace macros it is sometimes necessary to include task.h before
+ FreeRTOS.h.  When this is done TaskHookFunction_t will not yet have been defined,
+ so the following two prototypes will cause a compilation error.  This can be
+diff --git a/libs/FreeRTOS/portable/GCC/ARM_CM0/port.c b/libs/FreeRTOS/portable/GCC/ARM_CM0/port.c
+index 191d19c..dffbfb5 100644
+--- a/libs/FreeRTOS/portable/GCC/ARM_CM0/port.c
++++ b/libs/FreeRTOS/portable/GCC/ARM_CM0/port.c
+@@ -345,13 +345,19 @@ void xPortSysTickHandler( void )
+ uint32_t ulPreviousMask;
+ 
+ 	ulPreviousMask = portSET_INTERRUPT_MASK_FROM_ISR();
++    traceISR_ENTER();
+ 	{
+ 		/* Increment the RTOS tick. */
+ 		if( xTaskIncrementTick() != pdFALSE )
+ 		{
++            traceISR_EXIT_TO_SCHEDULER();
+ 			/* Pend a context switch. */
+ 			*(portNVIC_INT_CTRL) = portNVIC_PENDSVSET;
+ 		}
++        else
++        {
++            traceISR_EXIT();
++        }
+ 	}
+ 	portCLEAR_INTERRUPT_MASK_FROM_ISR( ulPreviousMask );
+ }
+diff --git a/libs/FreeRTOS/portable/GCC/ARM_CM0/portmacro.h b/libs/FreeRTOS/portable/GCC/ARM_CM0/portmacro.h
+index c947595..6465ad8 100644
+--- a/libs/FreeRTOS/portable/GCC/ARM_CM0/portmacro.h
++++ b/libs/FreeRTOS/portable/GCC/ARM_CM0/portmacro.h
+@@ -123,7 +123,7 @@ extern void vPortYield( void );
+ #define portNVIC_INT_CTRL_REG		( * ( ( volatile uint32_t * ) 0xe000ed04 ) )
+ #define portNVIC_PENDSVSET_BIT		( 1UL << 28UL )
+ #define portYIELD()					vPortYield()
+-#define portEND_SWITCHING_ISR( xSwitchRequired ) if( xSwitchRequired ) portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT
++#define portEND_SWITCHING_ISR( xSwitchRequired ) { if( xSwitchRequired ) { traceISR_EXIT_TO_SCHEDULER(); portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT; } else { traceISR_EXIT(); } }
+ #define portYIELD_FROM_ISR( x ) portEND_SWITCHING_ISR( x )
+ /*-----------------------------------------------------------*/
+ 
+diff --git a/libs/FreeRTOS/portable/GCC/ARM_CM4F/port.c b/libs/FreeRTOS/portable/GCC/ARM_CM4F/port.c
+index 42f5b37..6b8483d 100644
+--- a/libs/FreeRTOS/portable/GCC/ARM_CM4F/port.c
++++ b/libs/FreeRTOS/portable/GCC/ARM_CM4F/port.c
+@@ -497,14 +497,20 @@ void xPortSysTickHandler( void )
+ 	save and then restore the interrupt mask value as its value is already
+ 	known. */
+ 	portDISABLE_INTERRUPTS();
++	traceISR_ENTER();
+ 	{
+ 		/* Increment the RTOS tick. */
+ 		if( xTaskIncrementTick() != pdFALSE )
+ 		{
++			traceISR_EXIT_TO_SCHEDULER();
+ 			/* A context switch is required.  Context switching is performed in
+ 			the PendSV interrupt.  Pend the PendSV interrupt. */
+ 			portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;
+ 		}
++		else
++		{
++			traceISR_EXIT();
++		}
+ 	}
+ 	portENABLE_INTERRUPTS();
+ }
+diff --git a/libs/FreeRTOS/portable/GCC/ARM_CM4F/portmacro.h b/libs/FreeRTOS/portable/GCC/ARM_CM4F/portmacro.h
+index b72042d..1a449e7 100644
+--- a/libs/FreeRTOS/portable/GCC/ARM_CM4F/portmacro.h
++++ b/libs/FreeRTOS/portable/GCC/ARM_CM4F/portmacro.h
+@@ -131,7 +131,7 @@ typedef unsigned long UBaseType_t;
+ 
+ #define portNVIC_INT_CTRL_REG		( * ( ( volatile uint32_t * ) 0xe000ed04 ) )
+ #define portNVIC_PENDSVSET_BIT		( 1UL << 28UL )
+-#define portEND_SWITCHING_ISR( xSwitchRequired ) if( xSwitchRequired != pdFALSE ) portYIELD()
++#define portEND_SWITCHING_ISR( xSwitchRequired ) { if( xSwitchRequired != pdFALSE ) { traceISR_EXIT_TO_SCHEDULER(); portYIELD(); } else { traceISR_EXIT(); } }
+ #define portYIELD_FROM_ISR( x ) portEND_SWITCHING_ISR( x )
+ /*-----------------------------------------------------------*/
+ 
+diff --git a/libs/FreeRTOS/tasks.c b/libs/FreeRTOS/tasks.c
+index 94b1f6d..1631637 100644
+--- a/libs/FreeRTOS/tasks.c
++++ b/libs/FreeRTOS/tasks.c
+@@ -261,6 +261,17 @@ count overflows. */
+ 	taskRECORD_READY_PRIORITY( ( pxTCB )->uxPriority );												\
+ 	vListInsertEnd( &( pxReadyTasksLists[ ( pxTCB )->uxPriority ] ), &( ( pxTCB )->xStateListItem ) ); \
+ 	tracePOST_MOVED_TASK_TO_READY_STATE( pxTCB )
++
++/*
++ * Place the task represented by pxTCB which has been in a ready list before
++ * into the appropriate ready list for the task.
++ * It is inserted at the end of the list.
++ */
++#define prvReaddTaskToReadyList( pxTCB )															\
++	traceREADDED_TASK_TO_READY_STATE( pxTCB );														\
++	taskRECORD_READY_PRIORITY( ( pxTCB )->uxPriority );												\
++	vListInsertEnd( &( pxReadyTasksLists[ ( pxTCB )->uxPriority ] ), &( ( pxTCB )->xStateListItem ) ); \
++	tracePOST_MOVED_TASK_TO_READY_STATE( pxTCB )
+ /*-----------------------------------------------------------*/
+ 
+ /*
+@@ -1534,7 +1545,7 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB )
+ 					{
+ 						mtCOVERAGE_TEST_MARKER();
+ 					}
+-					prvAddTaskToReadyList( pxTCB );
++					prvReaddTaskToReadyList( pxTCB );
+ 				}
+ 				else
+ 				{
+@@ -1596,6 +1607,7 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB )
+ 				mtCOVERAGE_TEST_MARKER();
+ 			}
+ 
++			traceMOVED_TASK_TO_SUSPENDED_LIST(pxTCB);
+ 			vListInsertEnd( &xSuspendedTaskList, &( pxTCB->xStateListItem ) );
+ 		}
+ 		taskEXIT_CRITICAL();
+@@ -3576,6 +3588,20 @@ static void prvCheckTasksWaitingTermination( void )
+ #endif /* INCLUDE_uxTaskGetStackHighWaterMark */
+ /*-----------------------------------------------------------*/
+ 
++#if (INCLUDE_pxTaskGetStackStart == 1)
++	uint8_t* pxTaskGetStackStart( TaskHandle_t xTask)
++	{
++	    TCB_t *pxTCB;
++	    UBaseType_t uxReturn;
++        (void)uxReturn;
++
++		pxTCB = prvGetTCBFromHandle( xTask );
++		return ( uint8_t * ) pxTCB->pxStack;
++	}
++
++#endif /* INCLUDE_pxTaskGetStackStart */
++/*-----------------------------------------------------------*/
++
+ #if ( INCLUDE_vTaskDelete == 1 )
+ 
+ 	static void prvDeleteTCB( TCB_t *pxTCB )
+@@ -3743,7 +3769,7 @@ TCB_t *pxTCB;
+ 
+ 					/* Inherit the priority before being moved into the new list. */
+ 					pxTCB->uxPriority = pxCurrentTCB->uxPriority;
+-					prvAddTaskToReadyList( pxTCB );
++					prvReaddTaskToReadyList( pxTCB );
+ 				}
+ 				else
+ 				{
+@@ -3815,7 +3841,7 @@ TCB_t *pxTCB;
+ 					any other purpose if this task is running, and it must be
+ 					running to give back the mutex. */
+ 					listSET_LIST_ITEM_VALUE( &( pxTCB->xEventListItem ), ( TickType_t ) configMAX_PRIORITIES - ( TickType_t ) pxTCB->uxPriority ); /*lint !e961 MISRA exception as the casts are only redundant for some ports. */
+-					prvAddTaskToReadyList( pxTCB );
++					prvReaddTaskToReadyList( pxTCB );
+ 
+ 					/* Return true to indicate that a context switch is required.
+ 					This is only actually required in the corner case whereby
+@@ -4723,6 +4749,7 @@ const TickType_t xConstTickCount = xTickCount;
+ 			/* Add the task to the suspended task list instead of a delayed task
+ 			list to ensure it is not woken by a timing event.  It will block
+ 			indefinitely. */
++			traceMOVED_TASK_TO_SUSPENDED_LIST(pxCurrentTCB);
+ 			vListInsertEnd( &xSuspendedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 		}
+ 		else
+@@ -4737,12 +4764,14 @@ const TickType_t xConstTickCount = xTickCount;
+ 
+ 			if( xTimeToWake < xConstTickCount )
+ 			{
++                traceMOVED_TASK_TO_OVERFLOW_DELAYED_LIST();
+ 				/* Wake time has overflowed.  Place this item in the overflow
+ 				list. */
+ 				vListInsert( pxOverflowDelayedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 			}
+ 			else
+ 			{
++                traceMOVED_TASK_TO_DELAYED_LIST();
+ 				/* The wake time has not overflowed, so the current block list
+ 				is used. */
+ 				vListInsert( pxDelayedTaskList, &( pxCurrentTCB->xStateListItem ) );
+@@ -4773,11 +4802,13 @@ const TickType_t xConstTickCount = xTickCount;
+ 
+ 		if( xTimeToWake < xConstTickCount )
+ 		{
++            traceMOVED_TASK_TO_OVERFLOW_DELAYED_LIST();
+ 			/* Wake time has overflowed.  Place this item in the overflow list. */
+ 			vListInsert( pxOverflowDelayedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 		}
+ 		else
+ 		{
++            traceMOVED_TASK_TO_DELAYED_LIST();
+ 			/* The wake time has not overflowed, so the current block list is used. */
+ 			vListInsert( pxDelayedTaskList, &( pxCurrentTCB->xStateListItem ) );
+ 
+-- 
+2.12.2
+
