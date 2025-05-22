@@ -38,15 +38,13 @@ class ModelBitmapWidget : public Widget
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
                       LV_PART_MAIN | ETX_STATE_BG_FILL);
 
-    char s[LEN_MODEL_NAME + 1];
-    strAppend(s, g_model.header.name, LEN_MODEL_NAME);
-    label = new StaticText(this, rect_t{}, s);
+    label = new StaticText(this, rect_t{}, "");
     label->hide();
 
-    image = new StaticBitmap(this, rect_t{0, 0, width(), height()});
+    image = new StaticBitmap(this, {0, 0, width(), height()});
     image->hide();
 
-    update();
+    checkEvents();
   }
 
   void checkEvents() override
@@ -55,8 +53,6 @@ class ModelBitmapWidget : public Widget
 
     if (getHash() != deps_hash) {
       update();
-      // Force bitmap redraw
-      invalidate();
     }
 
     char s[LEN_MODEL_NAME + 1];
