@@ -71,12 +71,18 @@ ChoiceBase::ChoiceBase(Window* parent, const rect_t& rect,
   etx_font(label, FONT_XS_INDEX, LV_STATE_USER_1);
 }
 
+void ChoiceBase::checkEvents()
+{
+  update();
+  Window::checkEvents();
+}
+
 std::string Choice::getLabelText()
 {
   std::string text;
 
-  if (_getValue) {
-    int val = _getValue();
+  if (currentValue != INT_MAX) {
+    int val = currentValue;
     if (textHandler) {
       text = textHandler(val);
     } else {
@@ -94,15 +100,20 @@ std::string Choice::getLabelText()
 
 void ChoiceBase::update()
 {
-  if (!deleted()) {
-    if (width() > 0) {
-      int w = width() - (type == CHOICE_TYPE_DROPOWN ? ICON_W - 2 : ICON_W) - PAD_TINY * 3;
-      if (getTextWidth(getLabelText().c_str(), 0, FONT(STD)) > w)
-        lv_obj_add_state(label, LV_STATE_USER_1);
-      else
-        lv_obj_clear_state(label, LV_STATE_USER_1);
+  if (!deleted() && _getValue) {
+    int v = _getValue();
+    if (v != currentValue) {
+      currentValue = v;
+      std::string s = getLabelText();
+      if (width() > 0) {
+        int w = width() - (type == CHOICE_TYPE_DROPOWN ? ICON_W - 2 : ICON_W) - PAD_TINY * 3;
+        if (getTextWidth(s.c_str(), 0, FONT(STD)) > w)
+          lv_obj_add_state(label, LV_STATE_USER_1);
+        else
+          lv_obj_clear_state(label, LV_STATE_USER_1);
+      }
+      lv_label_set_text(label, s.c_str());
     }
-    lv_label_set_text(label, getLabelText().c_str());
   }
 }
 

@@ -99,12 +99,11 @@ FileChoice::FileChoice(Window *parent, const rect_t &rect, std::string folder,
                        bool stripExtension, const char *title) :
     Choice(
         parent, rect, 0, 0, [=]() { return selectedIdx; },
-        [=](int val) { setValue(getString(val)); }, title, CHOICE_TYPE_FOLDER),
+        [=](int val) { setValue(getString(val)); selectedIdx = val; }, title, CHOICE_TYPE_FOLDER),
     folder(std::move(folder)),
     extension(extension),
     maxlen(maxlen),
     getValue(std::move(getValue)),
-    setValue(std::move(setValue)),
     stripExtension(stripExtension)
 {
   update();
