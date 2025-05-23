@@ -1079,6 +1079,11 @@
     #define TR_BL_FLASH_KEY            "Przytrzymaj [SW1A] aby flashowac"
     #define TR_BL_ERASE_KEY            "Przytrzymaj [SW1A] to erase"
     #define TR_BL_EXIT_KEY             "[SW1B] aby wyjsc"
+  #elif defined(RADIO_PL18U)
+    #define TR_BL_SELECT_KEY           "[KR Dn] aby wybrac plik"
+    #define TR_BL_FLASH_KEY            "Przytrzymaj [KR Dn] aby flashowac"
+    #define TR_BL_ERASE_KEY            "Przytrzymaj [KR Dn] to erase"
+    #define TR_BL_EXIT_KEY             "[KR Up] aby wyjsc"
   #else
     #define TR_BL_SELECT_KEY           "[TR4 Dn] aby wybrac plik"
     #define TR_BL_FLASH_KEY            "Przytrzymaj [TR4 Dn] aby flashowac"

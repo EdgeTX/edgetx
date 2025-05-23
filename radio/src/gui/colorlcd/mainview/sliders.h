@@ -38,7 +38,7 @@ class MainViewSlider : public Window
   MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
                  bool isVertical);
 
-#if defined(RADIO_PL18) || defined(RADIO_PL18EV)
+#if defined(RADIO_PL18) || defined(RADIO_PL18EV) || defined(RADIO_PL18U)
   static constexpr coord_t SLIDER_SIZE = 136; // to fit 3 across bottom row
 #else
   static LAYOUT_SIZE_SCALED_EVEN(SLIDER_SIZE, 160, 120)
