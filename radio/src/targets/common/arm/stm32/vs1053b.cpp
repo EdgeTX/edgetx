@@ -89,6 +89,8 @@ static uint32_t _last_play_ts = 0;
 static uint8_t* _audio_buffer = nullptr;
 static uint32_t _audio_buffer_len = 0;
 
+static void(*_spi_transmit_data)(const uint8_t*, uint32_t) = nullptr;
+
 // volume is set asynchronously:
 // - first saved in _async_volume
 // - then vs1053b_update_volume() is called periodically
@@ -135,6 +137,19 @@ static void vs1053b_gpio_init(void)
 static uint8_t vs1053b_spi_rw_byte(uint8_t value)
 {
   return stm32_spi_transfer_byte(_instance->spi, value);
+}
+
+static void vs1053b_spi_transmit_bytes(const uint8_t* data, uint32_t length)
+{
+  stm32_spi_transfer_bytes(_instance->spi, data, nullptr, length);
+}
+
+static void vs1053b_spi_dma_transmit_bytes(const uint8_t* data, uint32_t length)
+{
+#if __CORTEX_M >= 0x07
+  SCB_CleanDCache_by_Addr((void*)data, length);
+#endif
+  stm32_spi_dma_transmit_bytes(_instance->spi, data, length);
 }
 
 static uint8_t vs1053b_wait_dreq(uint32_t timeout_us)
@@ -193,16 +208,16 @@ static void vs1053b_hard_reset()
 
 static uint32_t vs1053b_send_data(const uint8_t * buffer, uint32_t size)
 {
-  uint32_t index = 0;
-  while (index < size && READ_DREQ() != 0) {
+  const uint8_t* data = buffer;
+  while (size > 0 && READ_DREQ() != 0) {
+    uint32_t xfer_size = size > VS1053_BUFFER_SIZE ? VS1053_BUFFER_SIZE : size;
     XDCS_LOW();
-    for (int i = 0; i < VS1053_BUFFER_SIZE && index < size; i++) {
-      vs1053b_spi_rw_byte(buffer[index++]);
-    }
+    _spi_transmit_data(data, xfer_size);
     XDCS_HIGH();
+    size -= xfer_size;
+    data += xfer_size;
   }
-
-  return index;
+  return data - buffer;
 }
 
 static void vs1053b_send_buffer(const uint8_t * buffer, uint32_t size)
@@ -293,6 +308,12 @@ static void vs1053b_unmute()
 void vs1053b_init(const vs1053b_t* dev)
 {
   _instance = dev;
+
+  if (_instance->spi->DMA) {
+    _spi_transmit_data = vs1053b_spi_dma_transmit_bytes;
+  } else {
+    _spi_transmit_data = vs1053b_spi_transmit_bytes;
+  }
 
   vs1053b_gpio_init();
   vs1053b_hard_reset();
