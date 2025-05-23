@@ -23,21 +23,19 @@
 
 #include <FatFs/ff.h>
 #include "sdcard.h"
-#if defined(COLORLCD)
-#include "bitmaps.h"
-#endif
 #include "boards/FirmwareVersionTag.h"
 
 #define getFirmwarePath()  (FIRMWARES_PATH)
 
-#if LCD_H == 480
-#define MAX_NAMES_ON_SCREEN   13
-#else
-#define MAX_NAMES_ON_SCREEN   6
+#if LCD_W < 300         // B&W
+  constexpr int MAX_NAMES_ON_SCREEN = 6;
+#elif LCD_W < LCD_H     // Portrait
+  constexpr int MAX_NAMES_ON_SCREEN = (LCD_H - 143) / 25;
+#else                   // Landscape
+  constexpr int MAX_NAMES_ON_SCREEN = (LCD_H - 119) / 25;
 #endif
 
 #define MAX_FW_FILES         (MAX_NAMES_ON_SCREEN+1)
-
 
 // Open directory for firmware files
 FRESULT openFirmwareDir();
@@ -52,8 +50,6 @@ const char* getFirmwareFileNameByIndex(unsigned int index);
 // Open file indexed in binFiles and read the first BLOCK_LEN bytes
 // Bootloader is skipped in firmware files
 FRESULT openFirmwareFile(unsigned int index);
-
-
 
 // Can be called right after openBinFile() to extract the version information
 // from a firmware file

@@ -51,9 +51,10 @@ endif()
 if(SIMU_BOOTLOADER)
   add_definitions(-DSIMU_BOOTLOADER)
   set(SIMU_DRIVERS ${SIMU_DRIVERS}
-    ../../targets/common/arm/stm32/bootloader/bin_files.cpp
-    ../../targets/common/arm/stm32/bootloader/boot.cpp
-    ../../targets/${TARGET_DIR}/bootloader/boot_menu.cpp
+    ../../bootloader/bin_files.cpp
+    ../../bootloader/boot.cpp
+    # TODO - how to handle this for B&W (not currently used)?
+    ../../gui/colorlcd/boot_menu.cpp
     ../../thirdparty/lz4/lz4.c
     )
 endif()

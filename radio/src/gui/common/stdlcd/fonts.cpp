@@ -56,9 +56,9 @@ const unsigned char font_5x7[]  = {
 #include "font_da_05x07.lbm"
 #elif defined(TRANSLATIONS_CZ)
 #include "font_cz_05x07.lbm"
-#elif defined(TRANSLATIONS_ES)
+#elif defined(TRANSLATIONS_ES) && !defined(BOOT)
 #include "font_es_05x07.lbm"
-#elif defined(TRANSLATIONS_FI)
+#elif defined(TRANSLATIONS_FI) && !defined(BOOT)
 #include "font_fi_05x07.lbm"
 #elif defined(TRANSLATIONS_FR)
 #include "font_fr_05x07.lbm"
@@ -68,11 +68,11 @@ const unsigned char font_5x7[]  = {
 #include "font_pl_05x07.lbm"
 #elif defined(TRANSLATIONS_PT)
 #include "font_pt_05x07.lbm"
-#elif defined(TRANSLATIONS_RU)
+#elif defined(TRANSLATIONS_RU) && !defined(BOOT)
 #include "font_ru_05x07.lbm"
 #elif defined(TRANSLATIONS_SE)
 #include "font_se_05x07.lbm"
-#elif defined(TRANSLATIONS_UA)
+#elif defined(TRANSLATIONS_UA) && !defined(BOOT)
 #include "font_ua_05x07.lbm"
 #endif
 };

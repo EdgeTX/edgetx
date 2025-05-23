@@ -30,7 +30,6 @@ static uint16_t _utf8_lut[] = {
   L'é', L'è', L'à', L'î', L'ç',
 };
 
-#if !defined(COLORLCD)
 #define UTF8_SUBS_LUT
 static uint16_t _utf8_substitution_lut[] = {
     L'Â', L'A',
@@ -48,7 +47,6 @@ static uint16_t _utf8_substitution_lut[] = {
     L'Ù', L'U',
  */
 };
-#endif
 #elif defined(TRANSLATIONS_DA)
 static uint16_t _utf8_lut[] = {
   L'å', L'æ', L'ø', L'Å', L'Æ', L'Ø',
@@ -64,7 +62,6 @@ static uint16_t _utf8_lut[] = {
     L'Ý', L'ž', L'É', L'ň',
 };
 
-#if !defined(COLORLCD)
 #define UTF8_SUBS_LUT
 static uint16_t _utf8_substitution_lut[] = {
     L'Ě', L'ě',
@@ -76,8 +73,7 @@ static uint16_t _utf8_substitution_lut[] = {
     L'Ó', L'ó',
     L'Ň', L'ň',
 };
-#endif
-#elif defined(TRANSLATIONS_ES)
+#elif defined(TRANSLATIONS_ES) && !defined(BOOT)
 static uint16_t _utf8_lut[] = {
   L'Ñ', L'ñ', L'Á', L'á', L'É', L'é', L'Í',
   L'í', L'Ó', L'ó', L'ú',
@@ -89,7 +85,7 @@ static uint16_t _utf8_lut[] = {
   L'Í', L'í', L'Ó', L'ó', L'Ô', L'ô', L'Õ',
   L'õ', L'Ú', L'ú',
 };
-#elif defined(TRANSLATIONS_FI)
+#elif defined(TRANSLATIONS_FI) && !defined(BOOT)
 static uint16_t _utf8_lut[] = {
   L'å', L'ä', L'ö', L'Å', L'Ä', L'Ö',
 };
@@ -103,7 +99,7 @@ static uint16_t _utf8_lut[] = {
   L'ż', L'ź', L'Ą', L'Ć', L'Ę', L'Ł', L'Ń',
   L'Ó', L'Ś', L'Ż', L'Ź',
 };
-#elif defined(TRANSLATIONS_RU)
+#elif defined(TRANSLATIONS_RU) && !defined(BOOT)
 static uint16_t _utf8_lut[] = {
   L'А', L'Б', L'В', L'Г', L'Д', L'Е', L'Ж',
   L'З', L'И', L'Й', L'К', L'Л', L'М', L'Н', 
@@ -116,8 +112,7 @@ static uint16_t _utf8_lut[] = {
   L'ш', L'щ', L'ъ', L'ы', L'ь', L'э', L'ю',
   L'я', 
 };
-#elif defined(TRANSLATIONS_UA)
-#if !defined(COLORLCD)
+#elif defined(TRANSLATIONS_UA) && !defined(BOOT)
 #define UTF8_SUBS_LUT
 // Warning, albeit the following table looks useless
 // It does translate Cyrillic to Latin
@@ -144,7 +139,6 @@ static uint16_t _utf8_substitution_lut[] = {
     L'х', L'x',
     L'у', L'y'
 };
-#endif
 
 static uint16_t _utf8_lut[] = {
   L'Б', L'Г', L'Ґ', L'Д', L'Є', L'Ж', L'З',

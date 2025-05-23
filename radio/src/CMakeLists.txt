@@ -549,8 +549,8 @@ endif()
 
 # Bootloader
 if(BOOTLOADER)
-  add_subdirectory(targets/common/arm/stm32/bootloader)
-  include_directories(${CMAKE_CURRENT_BINARY_DIR}/targets/common/arm/stm32/bootloader)
+  add_subdirectory(bootloader)
+  include_directories(${CMAKE_CURRENT_BINARY_DIR}/bootloader)
   set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} bootloader)
 endif()
 

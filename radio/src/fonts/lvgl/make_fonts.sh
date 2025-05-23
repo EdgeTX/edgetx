@@ -170,9 +170,9 @@ function make_font_set() {
 }
 
 # Bootloader font
-make_bootloader_font "bl" ${LATIN_FONT} 16 "std" # 480x272, 480x320, 320x480
-make_bootloader_font "bl" ${LATIN_FONT} 14 "sml" # 320x240
-make_bootloader_font "bl" ${LATIN_FONT} 24 "lrg" # 800x480
+make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 16 "std" # 480x272, 480x320, 320x480
+make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 14 "sml" # 320x240
+make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 24 "lrg" # 800x480
 
 # XXL fonts (no translation chars)
 make_font_no_sym_no_trans "en_bold" ${LATIN_FONT_BOLD} 64 "XXL" "std"
