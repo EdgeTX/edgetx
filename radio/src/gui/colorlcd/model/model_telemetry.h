@@ -37,14 +37,12 @@ class ModelTelemetryPage : public PageTab
 
  protected:
   int lastKnownIndex = 0;
-  Window* window = nullptr;
   Window* sensorWindow = nullptr;
   TextButton* discover = nullptr;
   TextButton* deleteAll = nullptr;
 
   void checkEvents() override;
 
-  void editSensor(Window* window, uint8_t index);
-  void rebuild(Window* window, int8_t focusSensorIndex = -1);
+  void editSensor(uint8_t index);
   void buildSensorList(int8_t focusSensorIndex = -1);
 };
