@@ -21,6 +21,7 @@
 
 #include "sticks_pwm_driver.h"
 
+#include "stm32_adc.h"
 #include "stm32_gpio_driver.h"
 #include "stm32_timer.h"
 #include "timers_driver.h"
@@ -37,6 +38,10 @@
 // we assume the sensors output ~250Hz
 #define PWM_MIN_PERIOD 3000
 #define PWM_MAX_PERIOD 5000
+
+// sensor uses a duty cycle [5%; 95%]
+#define PWM_MIN_PULSE   80
+#define PWM_MAX_PULSE 3820
 
 #define PWM_PRESCALER_FREQ 1038000
 
@@ -110,6 +115,9 @@ bool sticks_pwm_detect(const stick_pwm_timer_t* timer,
     sticks_pwm_deinit(timer);
   }
 
+  // mask gimbal inputs
+  stm32_hal_set_inputs_mask(0xF);
+
   return valid_input;
 }
 
@@ -162,7 +170,7 @@ void sticks_pwm_isr(const stick_pwm_timer_t* tim,
 
       if (tim_polarity_is_falling(TIMx, channel)) {
         uint16_t value = capture - timer_capture_rising_time[i];
-        if (value <= ADC_MAX_VALUE) {
+        if (value > PWM_MIN_PULSE && value < PWM_MAX_PULSE) {
           adcValues[i] = input.inverted ? ADC_INVERT_VALUE(value) : value;
           _pwm_samples[i]++;
         }
@@ -170,10 +178,13 @@ void sticks_pwm_isr(const stick_pwm_timer_t* tim,
       } else {
         uint16_t period = capture - timer_capture_rising_time[i];
         if (period < PWM_MIN_PERIOD || period > PWM_MAX_PERIOD) {
+          // try next cycle and reset detected samples
           _pwm_samples[i] = 0;
+        } else {
+          // proceed to measure pulse
+          tim_set_polarity_falling(TIMx, channel);
         }
         timer_capture_rising_time[i] = capture;
-        tim_set_polarity_falling(TIMx, channel);
       }
     }
   }
