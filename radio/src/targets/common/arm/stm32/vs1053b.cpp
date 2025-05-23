@@ -33,46 +33,48 @@
 #include "edgetx.h"
 #include "timers_driver.h"
 
-#define VS_WRITE_COMMAND 	           0x02
-#define VS_READ_COMMAND 	           0x03
+#define VS_WRITE_COMMAND           0x02
+#define VS_READ_COMMAND            0x03
 
-#define SPI_MODE        	           0x00
-#define SPI_STATUS      	           0x01
-#define SPI_BASS        	           0x02
-#define SPI_CLOCKF      	           0x03
-#define SPI_DECODE_TIME 	           0x04
-#define SPI_AUDATA      	           0x05
-#define SPI_WRAM        	           0x06
-#define SPI_WRAMADDR    	           0x07
-#define SPI_HDAT0       	           0x08
-#define SPI_HDAT1       	           0x09
-#define SPI_AIADDR      	           0x0a
-#define SPI_VOL         	           0x0b
-#define SPI_AICTRL0     	           0x0c
-#define SPI_AICTRL1     	           0x0d
-#define SPI_AICTRL2     	           0x0e
-#define SPI_AICTRL3     	           0x0f
+#define SPI_MODE                   0x00
+#define SPI_STATUS                 0x01
+#define SPI_BASS                   0x02
+#define SPI_CLOCKF                 0x03
+#define SPI_DECODE_TIME            0x04
+#define SPI_AUDATA                 0x05
+#define SPI_WRAM                   0x06
+#define SPI_WRAMADDR               0x07
+#define SPI_HDAT0                  0x08
+#define SPI_HDAT1                  0x09
+#define SPI_AIADDR                 0x0a
+#define SPI_VOL                    0x0b
+#define SPI_AICTRL0                0x0c
+#define SPI_AICTRL1                0x0d
+#define SPI_AICTRL2                0x0e
+#define SPI_AICTRL3                0x0f
 
-#define SM_DIFF         	           0x01
-#define SM_LAYER12         	           0x02
-#define SM_RESET        	           0x04
-#define SM_CANCEL       	           0x08
-#define SM_EARSPEAKER_LO  	           0x10
-#define SM_TESTS        	           0x20
-#define SM_STREAM       	           0x40
-#define SM_EARSPEAKER_HI   	           0x80
-#define SM_DACT         	           0x100
-#define SM_SDIORD       	           0x200
-#define SM_SDISHARE     	           0x400
-#define SM_SDINEW       	           0x800
-#define SM_ADPCM        	           0x1000
-#define SM_LINE1         	           0x4000
-#define SM_CLK_RANGE     	           0x8000
+#define SM_DIFF                    0x01
+#define SM_LAYER12                 0x02
+#define SM_RESET                   0x04
+#define SM_CANCEL                  0x08
+#define SM_EARSPEAKER_LO           0x10
+#define SM_TESTS                   0x20
+#define SM_STREAM                  0x40
+#define SM_EARSPEAKER_HI           0x80
+#define SM_DACT                   0x100
+#define SM_SDIORD                 0x200
+#define SM_SDISHARE               0x400
+#define SM_SDINEW                 0x800
+#define SM_ADPCM                 0x1000
+#define SM_LINE1                 0x4000
+#define SM_CLK_RANGE             0x8000
 
-#define SPI_LOW_SPEED                1500000
-#define SPI_HIGH_SPEED              12000000
+#define SPI_LOW_SPEED           1500000
+#define SPI_HIGH_SPEED         12000000
 
-#define VS1053_BUFFER_SIZE           32
+#define VS1053_BUFFER_SIZE 32
+
+#define DEFAULT_VOLUME 0xFEFE
 
 #define XDCS_HIGH()  _xdcs_high()
 #define XDCS_LOW()   _xdcs_low()
@@ -91,7 +93,7 @@ static uint32_t _audio_buffer_len = 0;
 // - first saved in _async_volume
 // - then vs1053b_update_volume() is called periodically
 //   to actually send the new setting to the device.
-static int16_t _async_volume = -1;
+static int16_t _async_volume;
 
 static inline void _xdcs_high() { gpio_set(_instance->XDCS); }
 static inline void _xdcs_low() { gpio_clear(_instance->XDCS); }
@@ -127,6 +129,7 @@ static void vs1053b_gpio_init(void)
   _set_mute_pin(true);
 
   stm32_spi_init(_instance->spi, LL_SPI_DATAWIDTH_8BIT);
+  stm32_spi_set_max_baudrate(_instance->spi, SPI_LOW_SPEED);
 }
 
 static uint8_t vs1053b_spi_rw_byte(uint8_t value)
@@ -134,119 +137,69 @@ static uint8_t vs1053b_spi_rw_byte(uint8_t value)
   return stm32_spi_transfer_byte(_instance->spi, value);
 }
 
-static uint8_t vs1053b_wait_dreq(int32_t delay_us)
+static uint8_t vs1053b_wait_dreq(uint32_t timeout_us)
 {
+  uint32_t start = timersGetUsTick();
   while (READ_DREQ() == 0) {
-    if (delay_us-- == 0) return 0;
-    delay_01us(10);
+    if (timersGetUsTick() - start >= timeout_us) return 0;
   }
   return 1;
 }
 
-static uint16_t vs1053b_read_reg(uint8_t address)
+static void _wait_us(uint32_t delay_us)
 {
-  if (!vs1053b_wait_dreq(100))
-    return 0;
+  uint32_t start = timersGetUsTick();
+  while (timersGetUsTick() - start < delay_us) {}
+}
 
-  stm32_spi_set_max_baudrate(_instance->spi, SPI_LOW_SPEED);
-  XDCS_HIGH();
-  stm32_spi_select(_instance->spi);
-  vs1053b_spi_rw_byte(VS_READ_COMMAND);
-  vs1053b_spi_rw_byte(address);
-  volatile uint16_t result = vs1053b_spi_rw_byte(0xff) << 8;
-  result += vs1053b_spi_rw_byte(0xff);
-  delay_01us(100); // 10us
-  stm32_spi_unselect(_instance->spi);
-
-  stm32_spi_set_max_baudrate(_instance->spi, SPI_HIGH_SPEED);
-  return result;
+static void _wait_ms(uint32_t delay_ms)
+{
+  uint32_t start = timersGetMsTick();
+  while (timersGetMsTick() - start < delay_ms) {}
 }
 
 static uint8_t vs1053b_write_cmd(uint8_t address, uint16_t data)
 {
-  if (!vs1053b_wait_dreq(100))
-    return 0;
-
   stm32_spi_set_max_baudrate(_instance->spi, SPI_LOW_SPEED);
   XDCS_HIGH();
+
   stm32_spi_select(_instance->spi);
   vs1053b_spi_rw_byte(VS_WRITE_COMMAND);
   vs1053b_spi_rw_byte(address);
   vs1053b_spi_rw_byte(data >> 8);
   vs1053b_spi_rw_byte(data);
-  delay_01us(50); // 5us
   stm32_spi_unselect(_instance->spi);
+
+  // wait for command to be processed
+  _wait_us(20);
+  vs1053b_wait_dreq(100);
+
   stm32_spi_set_max_baudrate(_instance->spi, SPI_HIGH_SPEED);
   return 1;
 }
 
-static void vs1053b_reset_decode_time()
-{
-  vs1053b_write_cmd(SPI_DECODE_TIME, 0x0000);
-  vs1053b_write_cmd(SPI_DECODE_TIME, 0x0000);
-}
-
-static uint8_t vs1053b_hard_reset()
+static void vs1053b_hard_reset()
 {
   XDCS_HIGH();
   stm32_spi_unselect(_instance->spi);
+
   _reset_low();
-  delay_ms(100); // 100ms
+  _wait_ms(100);
   _reset_high();
 
-  if (!vs1053b_wait_dreq(5000))
-    return 0;
-
-  delay_ms(20); // 20ms
-  return 1;
-}
-
-static uint8_t vs1053b_soft_reset()
-{
-  stm32_spi_set_max_baudrate(_instance->spi, SPI_LOW_SPEED);
-  if (!vs1053b_wait_dreq(100))
-    return 0;
-
-  vs1053b_spi_rw_byte(0x00); // start the transfer
-
-  uint8_t retry = 0;
-  uint16_t mode = SM_SDINEW;
-  while (vs1053b_read_reg(SPI_MODE) != mode && retry < 100) {
-    retry++;
-    vs1053b_write_cmd(SPI_MODE, mode | SM_RESET);
-    delay_ms(2);
-  }
-
-  // wait for set up successful
-  retry = 0;
-  while (vs1053b_read_reg(SPI_CLOCKF) != 0x9800 && retry < 100) {
-    retry++;
-    vs1053b_write_cmd(SPI_CLOCKF, 0x9800);
-  }
-
-  vs1053b_reset_decode_time(); // reset the decoding time
-  stm32_spi_set_max_baudrate(_instance->spi, SPI_HIGH_SPEED);
-
-  XDCS_LOW();
-  vs1053b_spi_rw_byte(0X0);
-  vs1053b_spi_rw_byte(0X0);
-  vs1053b_spi_rw_byte(0X0);
-  vs1053b_spi_rw_byte(0X0);
-  delay_01us(100); // 10us
-  XDCS_HIGH();
-
-  return 1;
+  // datasheet says 1.8ms at default clock speed
+  vs1053b_wait_dreq(3000);
 }
 
 static uint32_t vs1053b_send_data(const uint8_t * buffer, uint32_t size)
 {
-  XDCS_LOW();
-
   uint32_t index = 0;
   while (index < size && READ_DREQ() != 0) {
+    XDCS_LOW();
     for (int i = 0; i < VS1053_BUFFER_SIZE && index < size; i++) {
       vs1053b_spi_rw_byte(buffer[index++]);
     }
+    XDCS_HIGH();
   }
 
   return index;
@@ -343,11 +296,16 @@ void vs1053b_init(const vs1053b_t* dev)
 
   vs1053b_gpio_init();
   vs1053b_hard_reset();
-  vs1053b_soft_reset();
+
+  vs1053b_write_cmd(SPI_MODE, SM_SDINEW);
+
+  _async_volume = DEFAULT_VOLUME;
+  vs1053b_update_volume();
+
+  vs1053b_write_cmd(SPI_CLOCKF, 0x9800);
+  vs1053b_wait_dreq(1000);
 
   stm32_spi_set_max_baudrate(_instance->spi, SPI_HIGH_SPEED);
-  delay_ms(1); // 1ms
-
   vs1053b_send_riff_header();
 }
 
