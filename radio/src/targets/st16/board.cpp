@@ -102,6 +102,9 @@ static stm32_spi_t audioSpi =
     .MISO = AUDIO_SPI_MISO_GPIO,
     .MOSI = AUDIO_SPI_MOSI_GPIO,
     .CS = AUDIO_CS_GPIO,
+    .DMA = AUDIO_SPI_DMA,
+    .txDMA_PeriphRequest = AUDIO_SPI_DMA_REQ,
+    .txDMA_Stream = AUDIO_SPI_DMA_STREAM,
 };
 
 static void audio_set_rst_pin(bool set)
