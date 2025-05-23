@@ -41,7 +41,7 @@ uint8_t g_moduleIdx;
 uint8_t getSwitchWarningsCount()
 {
   uint8_t count = 0;
-  for (int i = 0; i < switchGetMaxSwitches(); ++i) {
+  for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
       ++count;
     }
@@ -870,7 +870,6 @@ void menuModelSetup(event_t event)
         }
 #endif
         lcdDrawTextIndented(y, STR_SWITCHWARNING);
-        swarnstate_t states = g_model.switchWarning;
 
         if (attr) {
           s_editMode = 0;
@@ -882,10 +881,10 @@ void menuModelSetup(event_t event)
                 getMovedSwitch();
                 // Mask switches enabled for warnings
                 swarnstate_t sw_mask = 0;
-                for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+                for(uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
                   if (SWITCH_WARNING_ALLOWED(i))
-                    if (g_model.switchWarning & (0x07 << (3 * i)))
-                      sw_mask |= (0x07 << (3 * i));
+                    if (g_model.getSwitchWarning(i))
+                      sw_mask |= (0x03 << (2 * i));
                 }
                 g_model.switchWarning = switches_states & sw_mask;
                 AUDIO_WARNING1();
@@ -898,17 +897,15 @@ void menuModelSetup(event_t event)
         LcdFlags line = attr;
 
         int current = 0;
-        for (int i = 0; i < switchGetMaxSwitches(); i++) {
+        for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
           if (SWITCH_WARNING_ALLOWED(i)) {
             div_t qr = div(current, 8);
             if (event == EVT_KEY_BREAK(KEY_ENTER) && line &&
                 l_posHorz == current) {
-              uint8_t curr_state = (states & 0x07);
-              // remove old setting
-              g_model.switchWarning &= ~(0x07 << (3 * i));
+              uint8_t curr_state = g_model.getSwitchWarning(i);
               // add the new one (if switch UP and 2POS, jump directly to DOWN)
               curr_state += (curr_state != 1 || IS_CONFIG_3POS(i) ? 1 : 2);
-              g_model.switchWarning |= (curr_state & 0x03) << (3 * i);
+              g_model.setSwitchWarning(i, curr_state);
               storageDirty(EE_MODEL);
             }
             lcdDrawChar(
@@ -916,10 +913,9 @@ void menuModelSetup(event_t event)
                 y + FH * qr.quot, 'A' + i,
                 line && (menuHorizontalPosition == current) ? INVERS : 0);
             lcdDrawText(lcdNextPos, y + FH * qr.quot,
-                        getSwitchWarnSymbol(states & 0x03));
+                        getSwitchWarnSymbol(g_model.getSwitchWarning(i)));
             ++current;
           }
-          states >>= 3;
         }
         if (attr && menuHorizontalPosition < 0) {
 #if defined(PCBX9E)
