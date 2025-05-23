@@ -597,6 +597,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
     return index;
   }
   else {
+    allowNewSensors = 0;
     POPUP_WARNING(STR_TELEMETRYFULL);
     return -1;
   }
