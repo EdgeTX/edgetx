@@ -23,6 +23,7 @@
 #include "ui_setup_function_switches.h"
 #include "namevalidator.h"
 #include "autolineedit.h"
+#include <QColorDialog>
 
 #include <QDir>
 
@@ -73,6 +74,15 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
 
   fsGroupStart = ModelData::funcSwitchGroupStartSwitchModel(switchcnt);
 
+  if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+    QLabel * lblOffColor = new QLabel(this);
+    lblOffColor->setText(tr("Off color"));
+    ui->gridSwitches->addWidget(lblOffColor, 5, 0);
+    QLabel * lblOnColor = new QLabel(this);
+    lblOnColor->setText(tr("On color"));
+    ui->gridSwitches->addWidget(lblOnColor, 6, 0);
+  }
+
   for (int sw = 0, col = 0; sw < Boards::getCapability(board, Board::Switches); sw++) {
     int i = Boards::getCFSIndexForSwitch(sw);
     if (i >= 0) {
@@ -107,6 +117,44 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
       ui->gridSwitches->addWidget(cboConfig, row++, col + coloffset);
       ui->gridSwitches->addWidget(cboStartPosn, row++, col + coloffset);
       ui->gridSwitches->addWidget(cboGroup, row++, col + coloffset);
+
+      if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+        QPushButton * btnOffColor = new QPushButton(tr(""));
+        RGBLedColor c = model.customSwitches[i].offColor;
+        QColor off(c.r, c.g, c.b);
+        QString qss = QString("background-color: %1; border: none;").arg(off.name());
+        btnOffColor->setStyleSheet(qss);
+        connect(btnOffColor, &QPushButton::clicked, [=]() {
+          QColorDialog *dlg = new QColorDialog(this);
+          RGBLedColor* c = (RGBLedColor*)&model.customSwitches[i].offColor;
+          QColor color = dlg->getColor(QColor(c->r, c->g, c->b), this);
+          this->raise();
+          this->activateWindow();
+          c->setColor(color.red(), color.green(), color.blue());
+          QString qss = QString("background-color: %1; border: none;").arg(color.name());
+          btnOffColor->setStyleSheet(qss);
+          emit modified();
+          emit updateDataModels();
+        });
+        ui->gridSwitches->addWidget(btnOffColor, row++, col + coloffset);
+
+        QPushButton * btnOnColor = new QPushButton(tr(""));
+        c = model.customSwitches[i].onColor;
+        QColor on(c.r, c.g, c.b);
+        qss = QString("background-color: %1; border: none;").arg(on.name());
+        btnOnColor->setStyleSheet(qss);
+        connect(btnOnColor, &QPushButton::clicked, [=]() {
+          QColorDialog *dlg = new QColorDialog(parent);
+          RGBLedColor* c = (RGBLedColor*)&model.customSwitches[i].onColor;
+          QColor color = dlg->getColor(QColor(c->r, c->g, c->b), parent);
+          c->setColor(color.red(), color.green(), color.blue());
+          QString qss = QString("background-color: %1; border: none;").arg(color.name());
+          btnOnColor->setStyleSheet(qss);
+          emit modified();
+          emit updateDataModels();
+        });
+        ui->gridSwitches->addWidget(btnOnColor, row++, col + coloffset);
+      }
 
       connect(aleName, &AutoLineEdit::currentDataChanged, this, &FunctionSwitchesPanel::on_nameEditingFinished);
       connect(cboConfig, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FunctionSwitchesPanel::on_configCurrentIndexChanged);
