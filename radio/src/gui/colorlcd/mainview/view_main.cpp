@@ -52,17 +52,26 @@ static void saveViewId(unsigned view)
   }
 }
 
+static void tile_view_scroll_begin(lv_event_t * e)
+{
+	lv_anim_t* a = (lv_anim_t*)lv_event_get_param(e);
+	if (a) a->time = 0;
+}
+
 static void tile_view_scroll(lv_event_t* e)
 {
-  // (void)e;
   auto viewMain = ViewMain::instance();
   if (viewMain) {
-    if (lv_event_get_code(e) == LV_EVENT_SCROLL_END) {
-      auto view = viewMain->getCurrentMainView();
-      saveViewId(view);
-    } else {
-      viewMain->updateTopbarVisibility();
-    }
+    viewMain->updateTopbarVisibility();
+  }
+}
+
+static void tile_view_scroll_end(lv_event_t* e)
+{
+  auto viewMain = ViewMain::instance();
+  if (viewMain) {
+    auto view = viewMain->getCurrentMainView();
+    saveViewId(view);
   }
 }
 
@@ -81,8 +90,9 @@ ViewMain::ViewMain() :
 
   lv_obj_add_flag(tile_view, LV_OBJ_FLAG_EVENT_BUBBLE);
   lv_obj_set_user_data(tile_view, this);
+  lv_obj_add_event_cb(tile_view, tile_view_scroll_begin, LV_EVENT_SCROLL_BEGIN, NULL);
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
-  lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL_END,
+  lv_obj_add_event_cb(tile_view, tile_view_scroll_end, LV_EVENT_SCROLL_END,
                       nullptr);
 
   // create last to be on top
