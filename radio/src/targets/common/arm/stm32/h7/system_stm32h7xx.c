@@ -476,7 +476,7 @@ void TIM1_UP_IRQHandler(void){asm("BKPT");}
 void TIM1_TRG_COM_IRQHandler(void){asm("BKPT");}
 void TIM1_CC_IRQHandler(void){asm("BKPT");}
 void TIM2_IRQHandler(void){asm("BKPT");}
-void TIM3_IRQHandler(void){asm("BKPT");}
+// void TIM3_IRQHandler(void){asm("BKPT");}
 // void TIM4_IRQHandler(void){asm("BKPT");}
 void I2C1_EV_IRQHandler(void){asm("BKPT");}
 void I2C1_ER_IRQHandler(void){asm("BKPT");}
