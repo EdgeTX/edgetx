@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #include "boot.h"
 #include "firmware_files.h"
 
@@ -127,6 +148,7 @@ void bootloaderMenu()
 #if defined(SPI_FLASH)
             case 1:
               state = ST_CLEAR_FLASH_CHECK;
+              vpos = 0;
               break;
 #endif
             default:
@@ -145,15 +167,16 @@ void bootloaderMenu()
         }
       }
       else if (state == ST_DIR_CHECK) {
+        nameCount = 0;
         fr = openFirmwareDir();
+        if (fr == FR_OK)
+          nameCount = fetchFirmwareFiles(index);
 
-        if (fr == FR_OK) {
+        if (nameCount > 0) {
           index = vpos = 0;
           state = ST_FILE_LIST;
-          nameCount = fetchFirmwareFiles(index);
           continue;
-        }
-        else {
+        } else {
           bootloaderDrawScreen(state, fr);
 
           if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
@@ -229,19 +252,10 @@ void bootloaderMenu()
 #if defined(SPI_FLASH)
       } else if (state == ST_CLEAR_FLASH_CHECK) {
         bootloaderDrawScreen(state, vpos);
-        if (IS_NEXT_EVENT(event)) {
-          if (vpos < SEL_CLEAR_FLASH_STORAGE_MENU_LEN - 1) { vpos++; }
-          continue;
-        }
-        if (IS_PREVIOUS_EVENT(event)) {
-          if (vpos > 0) { vpos--; }
-          continue;
-        }
-        if (event == EVT_KEY_LONG(KEY_ENTER) && vpos == 0)
+        if (event == EVT_KEY_LONG(KEY_ENTER))
         {
           state = ST_CLEAR_FLASH;
-        } else if (event == EVT_KEY_BREAK(KEY_EXIT) ||
-            (event == EVT_KEY_BREAK(KEY_ENTER) && vpos == 1) ) {
+        } else if (event == EVT_KEY_BREAK(KEY_EXIT)) {
           vpos = 0;
           state = ST_START;
           continue;
