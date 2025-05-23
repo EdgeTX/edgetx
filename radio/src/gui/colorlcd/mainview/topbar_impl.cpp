@@ -73,30 +73,24 @@ rect_t TopBar::getZone(unsigned int index) const
 
 void TopBar::setVisible(float visible) // 0.0 -> 1.0
 {
+  coord_t y = 0;
   if (visible == 0.0) {
-    setTop(-(int)EdgeTxStyles::MENU_HEADER_HEIGHT);
+    y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
+  } else if (visible > 0.0 && visible < 1.0){
+    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
   }
-  else if (visible == 1.0) {
-    setTop(0);
-  }
-  else if (visible > 0.0 && visible < 1.0){
-    float top = - (float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
-    setTop((coord_t)top);
-  }
+  if (y != top()) setTop(y);
 }
 
 void TopBar::setEdgeTxButtonVisible(float visible) // 0.0 -> 1.0
 {
+  coord_t y = 0;
   if (visible == 0.0) {
-    headerIcon->setTop(-(int)EdgeTxStyles::MENU_HEADER_HEIGHT);
+    y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
+  } else if (visible > 0.0 && visible < 1.0){
+    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
   }
-  else if (visible == 1.0) {
-    headerIcon->setTop(0);
-  }
-  else if (visible > 0.0 && visible < 1.0){
-    float top = - (float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
-    headerIcon->setTop((coord_t)top);
-  }
+  if (y != headerIcon->top()) headerIcon->setTop(y);
 }
 
 coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0

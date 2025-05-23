@@ -38,15 +38,13 @@ class ModelBitmapWidget : public Widget
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
                       LV_PART_MAIN | ETX_STATE_BG_FILL);
 
-    char s[LEN_MODEL_NAME + 1];
-    strAppend(s, g_model.header.name, LEN_MODEL_NAME);
-    label = new StaticText(this, rect_t{}, s);
+    label = new StaticText(this, rect_t{}, "");
     label->hide();
 
-    image = new StaticImage(this, rect_t{0, 0, width(), height()});
+    image = new StaticBitmap(this, {0, 0, width(), height()});
     image->hide();
 
-    update();
+    checkEvents();
   }
 
   void checkEvents() override
@@ -55,8 +53,6 @@ class ModelBitmapWidget : public Widget
 
     if (getHash() != deps_hash) {
       update();
-      // Force bitmap redraw
-      invalidate();
     }
 
     char s[LEN_MODEL_NAME + 1];
@@ -95,24 +91,28 @@ class ModelBitmapWidget : public Widget
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
 
-    if (!image->hasImage() || deps_hash != getHash()) {
+    coord_t w = width();
+    coord_t h = height() - (isLarge ? LARGE_IMG_H : 0);
+    bool sizeChg = (w != image->width()) || (h != image->height());
+
+    if (sizeChg)
+      image->setRect({0, isLarge ? LARGE_IMG_H : 0, w, h});
+
+    if (!image->hasImage() || deps_hash != getHash() || sizeChg) {
       if (g_model.header.bitmap[0]) {
         char filename[LEN_BITMAP_NAME + 1];
         strAppend(filename, g_model.header.bitmap, LEN_BITMAP_NAME);
         std::string fullpath =
             std::string(BITMAPS_PATH PATH_SEPARATOR) + filename;
 
-        image->setSource(fullpath);
+        image->setSource(fullpath.c_str());
       } else {
         image->clearSource();
       }
       deps_hash = getHash();
     }
 
-    image->setRect(
-        {0, isLarge ? LARGE_IMG_H : 0, width(), height() - (isLarge ? LARGE_IMG_H : 0)});
     image->show(image->hasImage());
-    image->setZoom();
 
     label->show(isLarge || !image->hasImage());
   }
@@ -123,7 +123,7 @@ class ModelBitmapWidget : public Widget
   bool isLarge = false;
   uint32_t deps_hash = 0;
   StaticText* label = nullptr;
-  StaticImage* image = nullptr;
+  StaticBitmap* image = nullptr;
 
   uint32_t getHash() { return hash(g_model.header.bitmap, LEN_BITMAP_NAME); }
 

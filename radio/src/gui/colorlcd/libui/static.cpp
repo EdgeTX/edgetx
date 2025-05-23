@@ -301,6 +301,14 @@ void StaticBitmap::setSource(const char *filename)
   }
 }
 
+void StaticBitmap::clearSource()
+{
+  if (img) delete img;
+  img = nullptr;
+  if (canvas) lv_obj_del(canvas);
+  canvas = nullptr;
+}
+
 StaticBitmap::~StaticBitmap()
 {
   if (img) delete img;
