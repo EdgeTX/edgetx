@@ -28,10 +28,18 @@
 #include "hal/adc_driver.h"
 #include "hal/gpio.h"
 
+#include "timers_driver.h"
+#include "debug.h"
+
 #include "hal.h"
 #include "crc.h"
 
 #include <string.h>
+
+#define SAMPLING_TIMEOUT_US             1000  // us
+#define RESAMPLING_THRESHOLD            2500  // us, 400Hz freq = 2500us period
+#define RESAMPLING_SWITCHING_THRESHOLD   200  // us
+#define MODE_CHANGE_DELAY                 50  // ms
 
 static const stm32_usart_t fsUSART = {
   .USARTx = FLYSKY_HALL_SERIAL_USART,
@@ -39,15 +47,15 @@ static const stm32_usart_t fsUSART = {
   .rxGPIO = FLYSKY_HALL_SERIAL_RX_GPIO,
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 4,
-  .txDMA = nullptr,
-  .txDMA_Stream = 0,
-  .txDMA_Channel = 0,
+  .txDMA = FLYSKY_HALL_SERIAL_DMA,
+  .txDMA_Stream = FLYSKY_HALL_DMA_Stream_TX,
+  .txDMA_Channel = FLYSKY_HALL_DMA_Channel,
   .rxDMA = FLYSKY_HALL_SERIAL_DMA,
   .rxDMA_Stream = FLYSKY_HALL_DMA_Stream_RX,
   .rxDMA_Channel = FLYSKY_HALL_DMA_Channel,
 };
 
-DEFINE_STM32_SERIAL_PORT(FSGimbal, fsUSART, HALLSTICK_BUFF_SIZE, 0);
+DEFINE_STM32_SERIAL_PORT(FSGimbal, fsUSART, HALLSTICK_BUFF_SIZE, HALLSTICK_CMD_BUFF_SIZE);
 
 static const etx_serial_port_t _fs_gimbal_serial_port = {
   .name = "gimbals",
@@ -59,6 +67,17 @@ static const etx_serial_port_t _fs_gimbal_serial_port = {
 static STRUCT_HALL HallProtocol = { 0 };
 
 static void* _fs_usart_ctx = nullptr;
+
+static volatile bool _fs_gimbal_detected;
+static uint8_t _fs_gimbal_version;
+static V2_GIMBAL_MODE _fs_gimbal_mode;
+static V2_GIMBAL_MODE _fs_gimbal_mode_change;
+static V2_GIMBAL_MODE _fs_gimbal_mode_detected;
+static uint32_t _fs_gimbal_last_mode_change_tick;
+static bool _fs_gimbal_cmd_finished;
+static uint32_t _fs_gimbal_lastReadTick;
+static uint32_t _fs_gimbal_readTick;
+static uint32_t _fs_gimbal_sync_period;
 
 static int _fs_get_byte(uint8_t* data)
 {
@@ -128,7 +147,43 @@ static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
   }
 }
 
-static volatile bool _fs_gimbal_detected;
+void _fs_send_cmd(uint8_t id, uint8_t payload)
+{
+  if (!_fs_gimbal_cmd_finished) {
+    // Skip command when last command not finished
+    return;
+  }
+
+  FSGimbal_TXBuffer[0] = FLYSKY_HALL_PROTOLO_HEAD;
+  FSGimbal_TXBuffer[1] = id;
+  FSGimbal_TXBuffer[2] = 0x01;
+  FSGimbal_TXBuffer[3] = payload;
+
+  unsigned short crc = crc16(CRC_1021, FSGimbal_TXBuffer, 4, 0xffff);
+
+  FSGimbal_TXBuffer[4] = crc & 0xff;
+  FSGimbal_TXBuffer[5] = crc >>8 & 0xff ;
+
+  _fs_gimbal_cmd_finished = false;
+  STM32SerialDriver.sendBuffer(_fs_usart_ctx, FSGimbal_TXBuffer, 6);
+//  TRACE("Flysky Gimbal: Sent command, id = %d, payload = %d", id, payload);
+}
+
+void _fs_cmd_get_version()
+{
+  _fs_send_cmd(0xb1, 0x00);
+}
+
+void _fs_cmd_set_mode(V2_GIMBAL_MODE mode)
+{
+  _fs_gimbal_mode_change = mode;
+  _fs_send_cmd(0x41, mode);
+}
+
+void _fs_cmd_start_read()
+{
+  _fs_send_cmd(0xc1, 0x00);
+}
 
 static void flysky_gimbal_loop(void*)
 {
@@ -145,13 +200,24 @@ static void flysky_gimbal_loop(void*)
       switch (HallProtocol.hallID.hall_Id.receiverID) {
         case TRANSFER_DIR_TXMCU:
         case TRANSFER_DIR_RFMODULE:
-          if (HallProtocol.hallID.hall_Id.packetID ==
-              FLYSKY_HALL_RESP_TYPE_VALUES) {
-            int16_t* p_values = (int16_t*)HallProtocol.data;
+          int16_t* p_values = (int16_t*)HallProtocol.data;
+          if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_CHANNEL_ID) {
+            _fs_gimbal_cmd_finished = true;
             uint16_t* adcValues = getAnalogValues();
             for (uint8_t i = 0; i < 4; i++) {
               adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
             }
+          } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_VERSION_ID) {
+            _fs_gimbal_cmd_finished = true;
+            uint16_t minorVersion = p_values[6];
+            uint16_t majorVersion = p_values[7];
+            if (majorVersion == 2 && minorVersion >= 1) {
+              _fs_gimbal_version = GIMBAL_V2;
+            }
+          } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_MODE_ID) {
+            _fs_gimbal_cmd_finished = true;
+            _fs_gimbal_mode = _fs_gimbal_mode_change;
+            TRACE("Flysky Gimbal: Mode changed successfully, mode = %d", _fs_gimbal_mode);
           }
           break;
       }
@@ -173,10 +239,19 @@ static int flysky_gimbal_init_uart()
   etx_serial_init cfg = {
     .baudrate = FLYSKY_HALL_BAUDRATE,
     .encoding = ETX_Encoding_8N1,
-    .direction = ETX_Dir_RX,
+    .direction = ETX_Dir_TX_RX,
     .polarity = ETX_Pol_Normal,
   };
 
+  // Init variables
+  _fs_gimbal_version = GIMBAL_V1;
+  _fs_gimbal_mode = V1_MODE;
+  _fs_gimbal_mode_detected = V1_MODE;
+  _fs_gimbal_last_mode_change_tick = 0;
+  _fs_gimbal_cmd_finished = true;
+  _fs_gimbal_lastReadTick = 0;
+  _fs_gimbal_sync_period = 0;
+  
   _fs_usart_ctx = STM32SerialDriver.init(REF_STM32_SERIAL_PORT(FSGimbal), &cfg);
   if (!_fs_usart_ctx) return -1;
 
@@ -195,14 +270,65 @@ bool flysky_gimbal_init()
   for (uint8_t i = 0; i < 70; i++) {
     delay_ms(1);
     if (_fs_gimbal_detected) {
+      // Try to obtain the version of gimbal for operation mode selection
+      _fs_cmd_get_version();
+
       // Mask the first 4 inputs (sticks)
       stm32_hal_set_inputs_mask(0xF);
       return true;
     }
   }
-
+  
   flysky_gimbal_deinit();
   return false;
+}
+
+void flysky_gimbal_start_read()
+{
+  if(_fs_gimbal_detected && _fs_gimbal_version > GIMBAL_V1) {
+    _fs_gimbal_lastReadTick = _fs_gimbal_readTick;
+    _fs_gimbal_readTick = timersGetUsTick();
+    if (_fs_gimbal_lastReadTick != 0) {
+      _fs_gimbal_sync_period = _fs_gimbal_readTick - _fs_gimbal_lastReadTick;
+      V2_GIMBAL_MODE newMode = _fs_gimbal_mode_detected;
+      switch (_fs_gimbal_mode_detected) {
+        case V1_MODE:
+        case SYNC_SAMPLING:
+          newMode = _fs_gimbal_sync_period < RESAMPLING_THRESHOLD ? SYNC_RESAMPLING : SYNC_SAMPLING;
+          break;
+        case SYNC_RESAMPLING:
+          newMode = _fs_gimbal_sync_period >= RESAMPLING_THRESHOLD + RESAMPLING_SWITCHING_THRESHOLD ? SYNC_SAMPLING : SYNC_RESAMPLING;
+          break;
+      }
+      if (_fs_gimbal_mode_detected != newMode) {
+        _fs_gimbal_mode_detected = newMode;
+        _fs_gimbal_last_mode_change_tick = timersGetMsTick();
+      } else if (_fs_gimbal_mode != _fs_gimbal_mode_detected) {
+        uint32_t tick = timersGetMsTick();
+        if (tick - _fs_gimbal_last_mode_change_tick >= MODE_CHANGE_DELAY) {
+          // Update mode when mode is stable
+          _fs_cmd_set_mode(_fs_gimbal_mode_detected);
+        }
+      }
+    }
+    if (_fs_gimbal_mode != V1_MODE) {
+      _fs_cmd_start_read();
+    }
+  }
+}
+
+void flysky_gimbal_wait_completion()
+{
+  if(_fs_gimbal_detected && _fs_gimbal_version > GIMBAL_V1 && _fs_gimbal_mode != V1_MODE) {
+      auto timeout = timersGetUsTick();
+    while(!_fs_gimbal_cmd_finished) {
+      // busy wait
+      if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
+//        TRACE("Gimbal timeout");
+        return;
+      }
+    }
+  }
 }
 
 void flysky_gimbal_force_init()

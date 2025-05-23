@@ -36,6 +36,10 @@
 #include "hal/gpio.h"
 #endif
 
+#if defined(FLYSKY_GIMBAL)
+  #include "flysky_gimbal_driver.h"
+#endif
+
 task_handle_t mixerTaskId;
 TASK_DEFINE_STACK(mixerStack, MIXER_STACK_SIZE);
 
