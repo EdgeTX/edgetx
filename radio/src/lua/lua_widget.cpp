@@ -624,7 +624,7 @@ void LuaScriptManager::createTelemetryQueue()
 
 LuaScriptManager::~LuaScriptManager()
 {
-  if (luaInputTelemetryFifo == nullptr) {
+  if (luaInputTelemetryFifo != nullptr) {
     deregisterTelemetryQueue(luaInputTelemetryFifo);
     delete luaInputTelemetryFifo;
     luaInputTelemetryFifo = nullptr;
