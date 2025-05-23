@@ -21,6 +21,22 @@
 
 #pragma once
 
+// DMA streams:
+// 
+// - LEDs       TIM2_UP: DMA1 stream 0
+// - Audio      SPI1_TX: DMA1 stream 1
+// - Gimbals  USART2_RX: DMA1 stream 2
+// - Telemytry UART5_RX: DMA1 stream 3
+// - Telemetry UART5_TX: DMA1 stream 7
+// 
+// - ADC3:               DMA2 stream 0
+// - ADC1:               DMA2 stream 4
+// - Ext. Mod. UART4_RX: DMA2 stream 4 (!)
+// - Ext. Mod. UART4_TX: DMA2 stream 6
+// - Ext. Mod.  TIM4_UP: DMA2 stream 6
+// 
+
+
 #define CPU_FREQ                400000000
 
 #define PERI1_FREQUENCY         100000000
@@ -342,6 +358,9 @@
 #define AUDIO_SPI_SCK_GPIO            GPIO_PIN(GPIOA, 5)  // PA.05
 #define AUDIO_SPI_MISO_GPIO           GPIO_PIN(GPIOG, 9)  // PG.09
 #define AUDIO_SPI_MOSI_GPIO           GPIO_PIN(GPIOD, 7)  // PD.07
+#define AUDIO_SPI_DMA                 DMA1
+#define AUDIO_SPI_DMA_REQ             LL_DMAMUX1_REQ_SPI1_TX
+#define AUDIO_SPI_DMA_STREAM          LL_DMA_STREAM_1
 #define AUDIO_MUTE_GPIO               0
 #define AUDIO_UNMUTE_DELAY            180  // ms
 #define AUDIO_MUTE_DELAY              200  // ms
