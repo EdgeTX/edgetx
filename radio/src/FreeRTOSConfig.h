@@ -125,3 +125,6 @@ standard names. */
 #define vPortSVCHandler SVC_Handler
 #define xPortPendSVHandler PendSV_Handler
 #define xPortSysTickHandler SysTick_Handler
+#if defined(DEBUG_SEGGER_SYSVIEW)
+#include "SEGGER_SYSVIEW_FreeRTOS.h"
+#endif
