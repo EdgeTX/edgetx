@@ -1213,3 +1213,18 @@ void logicalSwitchesCopyState(uint8_t src, uint8_t dst)
 {
   lswFm[dst] = lswFm[src];
 }
+
+void setAllPreflightSwitchStates()
+{
+  getMovedSwitch();
+  // Mask switches enabled for warnings
+  swarnstate_t sw_mask = 0;
+  for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+    if (SWITCH_WARNING_ALLOWED(i))
+      if (g_model.switchWarning & (0x07 << (3 * i)))
+        sw_mask |= (0x07 << (3 * i));
+  }
+  g_model.switchWarning = switches_states & sw_mask;
+  AUDIO_WARNING1();
+  storageDirty(EE_MODEL);
+}

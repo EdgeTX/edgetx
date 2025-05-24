@@ -47,13 +47,7 @@ class SwitchWarnMatrix : public ButtonMatrix
 
     initBtnMap(min((int)btn_cnt, SW_BTNS), btn_cnt);
 
-    uint8_t btn_id = 0;
-    for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
-      if (SWITCH_WARNING_ALLOWED(i)) {
-        setTextAndState(btn_id);
-        btn_id++;
-      }
-    }
+    setAllState();
 
     update();
 
@@ -65,8 +59,13 @@ class SwitchWarnMatrix : public ButtonMatrix
     padAll(PAD_SMALL);
   }
 
-  void onPress(uint8_t btn_id)
+  void onPress(uint8_t btn_id) override
   {
+    if (longPress) {
+      longPress = false;
+      return;
+    }
+
     if (btn_id >= MAX_SWITCHES) return;
     auto sw = sw_idx[btn_id];
 
@@ -83,7 +82,7 @@ class SwitchWarnMatrix : public ButtonMatrix
     setTextAndState(btn_id);
   }
 
-  bool isActive(uint8_t btn_id)
+  bool isActive(uint8_t btn_id) override
   {
     if (btn_id >= MAX_SWITCHES) return false;
     return bfGet(g_model.switchWarning, 3 * sw_idx[btn_id], 3) != 0;
@@ -105,6 +104,26 @@ class SwitchWarnMatrix : public ButtonMatrix
 
  private:
   uint8_t sw_idx[MAX_SWITCHES];
+  bool longPress = false;
+
+  void setAllState()
+  {
+    uint8_t btn_id = 0;
+    for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
+      if (SWITCH_WARNING_ALLOWED(i)) {
+        setTextAndState(btn_id);
+        btn_id++;
+      }
+    }
+  }
+
+  bool onLongPress() override
+  {
+    longPress = true;
+    setAllPreflightSwitchStates();
+    setAllState();
+    return true;
+  }
 };
 
 class PotWarnMatrix : public ButtonMatrix
