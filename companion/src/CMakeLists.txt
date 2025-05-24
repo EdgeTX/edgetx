@@ -147,7 +147,7 @@ add_custom_command(OUTPUT ${HWDEFS_QRC}
                         -p ${HWDEFS_PHDR}
                         -o ${HWDEFS_QRC}
   DEPENDS ${HWDEFS_TMPL}
-  )
+)
 
 ############# Common lib ###############
 
@@ -312,9 +312,9 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(STATUS "Install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
   install(TARGETS ${COMPANION_NAME}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   install(TARGETS ${SIMULATOR_NAME}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   # configure and set variables used by package script
   set(COMPANION_DESKTOP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${COMPANION_NAME}.desktop)
   configure_file(${COMPANION_TARGETS_DIR}/companion.desktop.in ${COMPANION_DESKTOP_FILE} @ONLY)
@@ -323,7 +323,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   configure_file(${COMPANION_TARGETS_DIR}/simulator.desktop.in ${SIMULATOR_DESKTOP_FILE} @ONLY)
   # libsim*.so files
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/${COMPANION_NAME})
   # application icons
   set(icon_sizes "16;22;24;32;48;64;128;256;512")
   foreach(icon_size ${icon_sizes})
@@ -341,29 +341,29 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
   # udev rules
   install(FILES "${COMPANION_TARGETS_DIR}/45-companion-taranis.rules"
-          DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
+          DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/udev/rules.d"
           RENAME "45-${COMPANION_NAME}-taranis.rules")
 
   install(FILES "${COMPANION_TARGETS_DIR}/45-usbasp.rules"
-          DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
+          DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/udev/rules.d"
           RENAME "45-${COMPANION_NAME}-usbasp.rules")
 
   if(OPENSSL_FOUND)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
             FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
   endif()
 
   if(LIBUSB1_FOUND)
     get_filename_component(LIBUSB1_LIBRARY_DIR ${LIBUSB1_LIBRARY} DIRECTORY)
     install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
             FILES_MATCHING PATTERN "libusb-1.0.so*")
     if(DFU_UTIL_FOUND)
       # dfuutil is an app
       install(FILES "${DFU_UTIL_PATH}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
     endif()
   endif()
 
@@ -373,20 +373,21 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_custom_target(simulator DEPENDS ${SIMULATOR_NAME})
 
 elseif(WIN32)
-  set(INSTALL_DESTINATION "${CMAKE_BINARY_DIR}/_install")
-  message(STATUS "Install to " ${INSTALL_DESTINATION})
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/_install")
+  message(STATUS "Install to " ${CMAKE_INSTALL_PREFIX})
   # companion and simulator apps
   install(TARGETS
             ${COMPANION_NAME}
             ${SIMULATOR_NAME}
-          DESTINATION ${INSTALL_DESTINATION})
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   # libsim dlls into same directory as apps
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
-
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   # install updated license file
   set(LICENSE_FILE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
   configure_file("${COMPANION_TARGETS_DIR}/license.txt.in" ${LICENSE_FILE} @ONLY)
-  install(FILES "${LICENSE_FILE}" DESTINATION ${INSTALL_DESTINATION})
+  install(FILES "${LICENSE_FILE}"
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
 
   # supporting utilities
   if(LIBUSB1_FOUND)
@@ -400,11 +401,13 @@ elseif(WIN32)
     set(LIBUSB1_LIBRARY_FILE "${LIBUSB1_LIBRARY_DIR}/libusb-1.0.dll")
 
     if(EXISTS "${LIBUSB1_LIBRARY_FILE}")
-      install(FILES "${LIBUSB1_LIBRARY_FILE}" DESTINATION ${INSTALL_DESTINATION})
+      install(FILES "${LIBUSB1_LIBRARY_FILE}"
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
     endif()
 
     if(DFU_UTIL_FOUND)
-      install(FILES "${DFU_UTIL_PATH}" DESTINATION ${INSTALL_DESTINATION})
+      install(FILES "${DFU_UTIL_PATH}"
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
     endif()
   endif(LIBUSB1_FOUND)
 
@@ -418,7 +421,7 @@ elseif(WIN32)
 
     if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
       install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
-              DESTINATION ${INSTALL_DESTINATION}
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
               FILES_MATCHING
                 PATTERN "libcrypto-*.dll"
                 PATTERN "libssl-*.dll")
@@ -426,7 +429,8 @@ elseif(WIN32)
   endif(OPENSSL_FOUND)
 
   if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
-    install(FILES "${SDL2_LIB_PATH}" DESTINATION ${INSTALL_DESTINATION})
+    install(FILES "${SDL2_LIB_PATH}"
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   endif()
 
 elseif(APPLE)
@@ -540,7 +544,7 @@ set(qt_deploy_tool_options_arg ${qt_deploy_tool_options_arg} --no-translations -
 if(APPLE)
   set(qt_deploy_tool_options_arg ${qt_deploy_tool_options_arg} --hardened-runtime --no-strip-dmg)
 elseif(WIN32)
-  set(qt_deploy_tool_options_arg ${qt_deploy_tool_options_arg} --no-compiler-runtime --no-system-d3d-compiler --dir \${INSTALL_DESTINATION})
+  set(qt_deploy_tool_options_arg ${qt_deploy_tool_options_arg} --no-compiler-runtime --no-system-d3d-compiler)
 endif()
 
 list(JOIN qt_deploy_tool_options_arg " " qt_deploy_tool_options_arg)
@@ -629,21 +633,14 @@ if(WIN32)
   )
 
   if(NSIS_EXE)
-    # set qt variables just before deploying
-    # this should be done higher but in attempts so far they keep being overridden
-    #set(QT_DEPLOY_PREFIX \"${INSTALL_DESTINATION}\")
-    set(QT_DEPLOY_BIN_DIR .)
-    set(QT_DEPLOY_LIB_DIR .)
-    set(QT_DEPLOY_LIBEXEC_DIR .)
-
     qt_generate_deploy_script(
         TARGET companion
         OUTPUT_SCRIPT qt_deploy_script
         CONTENT "
-          set(QT_DEPLOY_PREFIX \"${INSTALL_DESTINATION}\")
+          set(QT_DEPLOY_PREFIX ${CMAKE_INSTALL_PREFIX})
           qt_deploy_runtime_dependencies(
-              EXECUTABLE \"${QT_DEPLOY_BIN_DIR}/$<TARGET_FILE_NAME:companion>\"
-              ADDITIONAL_EXECUTABLES \"${QT_DEPLOY_BIN_DIR}/$<TARGET_FILE_NAME:simulator>\"
+              EXECUTABLE ${CMAKE_INSTALL_BINDIR}/$<TARGET_FILE_NAME:companion>
+              ADDITIONAL_EXECUTABLES ${CMAKE_INSTALL_BINDIR}/$<TARGET_FILE_NAME:simulator>
               DEPLOY_TOOL_OPTIONS ${qt_deploy_tool_options_arg}
               GENERATE_QT_CONF
               VERBOSE
@@ -653,7 +650,8 @@ if(WIN32)
     # Set CPACK_NSIS_variables
     #set(CPACK_GENERATOR "NSIS")
 
-    file(TO_NATIVE_PATH "${INSTALL_DESTINATION}" NSIS_DISTRO)  # all files in here will be included in installer
+    cmake_path(NATIVE_PATH CMAKE_INSTALL_PREFIX NORMALIZE NSIS_DISTRO)   # all files in here will be included in installer
+    cmake_path(NATIVE_PATH COMPANION_TARGETS_DIR NORMALIZE NSIS_TARGETS_DIR)   # all files in here will be included in installer
     set(NSI_FILE "${PROJECT_BINARY_DIR}/companion/companion.nsi")
     configure_file("${COMPANION_TARGETS_DIR}/companion.nsi.in" "${NSI_FILE}" @ONLY)
 
@@ -662,7 +660,7 @@ if(WIN32)
       COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
       COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
       COMMAND "${NSIS_EXE}" "${NSI_FILE}"
-      DEPENDS "${NSI_FILE}" ${qt_deploy_script}
+      DEPENDS "${NSI_FILE}" "${qt_deploy_script}"
       COMMENT "Building Windows NSIS installer..."
     )
   endif()
