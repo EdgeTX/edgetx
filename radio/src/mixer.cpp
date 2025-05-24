@@ -833,8 +833,10 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         activeMixes[i] = 0;
 
       MixData * md = mixAddress(i);
+      mixsrc_t srcRaw = md->srcRaw;
+      mixsrc_t srcRawAbs = abs(srcRaw);
 
-      if (md->srcRaw == 0) {
+      if (srcRaw == 0) {
 #if defined(COLORLCD)
         continue;
 #else
@@ -858,16 +860,16 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       if (mixLineActive) {
         // disable mixer using trainer channels if not connected
-        if (md->srcRaw >= MIXSRC_FIRST_TRAINER &&
-            md->srcRaw <= MIXSRC_LAST_TRAINER && !isTrainerValid()) {
+        if (srcRawAbs >= MIXSRC_FIRST_TRAINER &&
+            srcRawAbs <= MIXSRC_LAST_TRAINER && !isTrainerValid()) {
           mixCondition = true;
           mixEnabled = 0;
         }
 
 #if defined(LUA_MODEL_SCRIPTS)
         // disable mixer if Lua script is used as source and script was killed
-        if (md->srcRaw >= MIXSRC_FIRST_LUA && md->srcRaw <= MIXSRC_LAST_LUA) {
-          div_t qr = div(md->srcRaw - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
+        if (srcRawAbs >= MIXSRC_FIRST_LUA && srcRawAbs <= MIXSRC_LAST_LUA) {
+          div_t qr = div(int(srcRawAbs - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
           if (scriptInternalData[qr.quot].state != SCRIPT_OK) {
             mixCondition = true;
             mixEnabled = 0;
@@ -881,16 +883,15 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       if (mode > e_perout_mode_inactive_flight_mode) {
         if (mixEnabled)
-          v = getValue(md->srcRaw);
+          v = getValue(srcRaw);
         else
           continue;
       } else {
-        mixsrc_t srcRaw = md->srcRaw;
         v = getValue(srcRaw);
 
-        if (srcRaw >= MIXSRC_FIRST_CH) {
+        if (srcRawAbs >= MIXSRC_FIRST_CH && srcRawAbs <= MIXSRC_LAST_CH) {
 
-          auto srcChan = srcRaw - MIXSRC_FIRST_CH;
+          auto srcChan = srcRawAbs - MIXSRC_FIRST_CH;
           if (srcChan <= MAX_OUTPUT_CHANNELS && md->destCh != srcChan) {
 
             // check whether we need to recompute the current channel later
@@ -962,13 +963,13 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (applyOffsetAndCurve) {
         bool applyTrims = !(mode & e_perout_mode_notrims);
         if (!applyTrims && g_model.thrTrim) {
-          auto origin = getSourceTrimOrigin(md->srcRaw);
+          auto origin = getSourceTrimOrigin(srcRaw);
           if (origin == g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) {
             applyTrims = true;
           }
         }
         if (applyTrims && md->carryTrim == 0) {
-          v += getSourceTrimValue(md->srcRaw, v);
+          v += getSourceTrimValue(srcRaw, v);
         }
       }
 
