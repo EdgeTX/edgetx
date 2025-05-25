@@ -120,38 +120,36 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
 
       if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
         QPushButton * btnOffColor = new QPushButton(tr(""));
-        RGBLedColor c = model.customSwitches[i].offColor;
-        QColor off(c.r, c.g, c.b);
+        QColor off = this->model->customSwitches[i].offColor.getQColor();
         QString qss = QString("background-color: %1; border: none;").arg(off.name());
         btnOffColor->setStyleSheet(qss);
         connect(btnOffColor, &QPushButton::clicked, [=]() {
-          QColorDialog *dlg = new QColorDialog(this);
-          RGBLedColor* c = (RGBLedColor*)&model.customSwitches[i].offColor;
-          QColor color = dlg->getColor(QColor(c->r, c->g, c->b), this);
-          this->raise();
-          this->activateWindow();
-          c->setColor(color.red(), color.green(), color.blue());
-          QString qss = QString("background-color: %1; border: none;").arg(color.name());
-          btnOffColor->setStyleSheet(qss);
-          emit modified();
-          emit updateDataModels();
+          QColorDialog *dlg = new QColorDialog();
+          QColor color = dlg->getColor(this->model->customSwitches[i].offColor.getQColor());
+          if (color.isValid()) {
+            this->model->customSwitches[i].offColor.setColor(color.red(), color.green(), color.blue());
+            QString qss = QString("background-color: %1; border: none;").arg(color.name());
+            btnOffColor->setStyleSheet(qss);
+            emit modified();
+            emit updateDataModels();
+          }
         });
         ui->gridSwitches->addWidget(btnOffColor, row++, col + coloffset);
 
         QPushButton * btnOnColor = new QPushButton(tr(""));
-        c = model.customSwitches[i].onColor;
-        QColor on(c.r, c.g, c.b);
+        QColor on = this->model->customSwitches[i].onColor.getQColor();
         qss = QString("background-color: %1; border: none;").arg(on.name());
         btnOnColor->setStyleSheet(qss);
         connect(btnOnColor, &QPushButton::clicked, [=]() {
-          QColorDialog *dlg = new QColorDialog(parent);
-          RGBLedColor* c = (RGBLedColor*)&model.customSwitches[i].onColor;
-          QColor color = dlg->getColor(QColor(c->r, c->g, c->b), parent);
-          c->setColor(color.red(), color.green(), color.blue());
-          QString qss = QString("background-color: %1; border: none;").arg(color.name());
-          btnOnColor->setStyleSheet(qss);
-          emit modified();
-          emit updateDataModels();
+          QColorDialog *dlg = new QColorDialog();
+          QColor color = dlg->getColor(this->model->customSwitches[i].onColor.getQColor());
+          if (color.isValid()) {
+            this->model->customSwitches[i].onColor.setColor(color.red(), color.green(), color.blue());
+            QString qss = QString("background-color: %1; border: none;").arg(color.name());
+            btnOnColor->setStyleSheet(qss);
+            emit modified();
+            emit updateDataModels();
+          }
         });
         ui->gridSwitches->addWidget(btnOnColor, row++, col + coloffset);
       }

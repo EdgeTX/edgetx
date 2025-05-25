@@ -69,6 +69,7 @@ class RGBLedColor {
     int b;
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(RGBLedColor)); }
     void setColor(int red, int green, int blue) { r = red; g = green; b = blue; }
+    QColor getQColor() { return QColor(r, g, b); }
 };
 
 class TrainerMix {
