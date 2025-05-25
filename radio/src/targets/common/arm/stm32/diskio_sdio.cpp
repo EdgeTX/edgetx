@@ -345,8 +345,9 @@ static DSTATUS sdio_status(BYTE lun)
 static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
 {
   ReadStatus = 0;
+
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_CleanInvalidateDCache_by_Addr(buff, count * 512);
 #endif
 
   if (HAL_SD_ReadBlocks_DMA(&sdio, buff, sector, count) != HAL_OK) {
@@ -357,10 +358,6 @@ static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
   // Wait for the reading process to complete or a timeout to occur
   uint32_t timeout = HAL_GetTick();
   while((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT));
-
-#if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
-#endif
 
   if (ReadStatus == 0) {
     TRACE("SD read timeout (s:%u c:%u)", sector, (uint32_t)count);
@@ -374,8 +371,6 @@ static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
 static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_OK;
-
-  // TRACE("disk_read %d %p %10d %d", drv, buff, sector, count);
 
   if (sdio_check_card_state_with_timeout(SD_TIMEOUT) < 0) {
     return RES_ERROR;
@@ -405,7 +400,7 @@ static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
 {
 #if __CORTEX_M >= 0x07
-  SCB_CleanDCache();
+  SCB_CleanDCache_by_Addr((void *)buff, count * 512);
 #endif
 
   WriteStatus = 0;
@@ -430,8 +425,6 @@ static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
 static DRESULT sdio_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_OK;
-
-  // TRACE("disk_write %d %p %10d %d", drv, buff, sector, count);
 
   if (sdio_check_card_state_with_timeout(SD_TIMEOUT) < 0) {
     return RES_ERROR;
