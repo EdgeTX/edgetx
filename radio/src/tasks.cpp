@@ -143,11 +143,8 @@ void triggerSensorReadISR()
 {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-  /* At this point xTaskToNotify should not be NULL as
-   a transmission was in progress. */
   configASSERT( sensorTaskId._rtos_handle != NULL );
 
-  /* Notify the task that the transmission is complete. */
   vTaskNotifyGiveFromISR( sensorTaskId._rtos_handle,
       &xHigherPriorityTaskWoken );
 

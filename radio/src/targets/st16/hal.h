@@ -278,8 +278,6 @@
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
-#define LCD_SPI_CS_GPIO                 GPIOH
-#define LCD_SPI_CS_GPIO_PIN             LL_GPIO_PIN_6  // PH.06
 #define LCD_SPI_GPIO                    GPIOE
 #define LCD_SPI_SCK_GPIO_PIN            LL_GPIO_PIN_4  // PE.04
 #define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_3  // PE.03

@@ -34,7 +34,11 @@ extern uint32_t SystemCoreClock;
 #endif
 #define configCPU_CLOCK_HZ              ( SystemCoreClock )
 #define configTICK_RATE_HZ              ( ( TickType_t ) 1000 )
+#if defined(SENSOR_TASK)
+#define configMAX_PRIORITIES            ( 6 )
+#else
 #define configMAX_PRIORITIES            ( 5 )
+#endif
 #define configMINIMAL_STACK_SIZE        ( ( unsigned short ) 30 )
 // static memory is used instead
 // #define configTOTAL_HEAP_SIZE           ( ( size_t ) ( 75 * 1024 ) )
