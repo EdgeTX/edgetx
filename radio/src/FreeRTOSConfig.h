@@ -57,7 +57,6 @@ extern uint32_t SystemCoreClock;
 #else
   #define configMAX_TASK_NAME_LEN         10
   #define configUSE_TRACE_FACILITY        1
-  //#define configCHECK_FOR_STACK_OVERFLOW  2
   #define configCHECK_FOR_STACK_OVERFLOW  0
 #endif
 
