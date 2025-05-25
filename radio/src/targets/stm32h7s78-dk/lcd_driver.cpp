@@ -425,7 +425,7 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   (void)disp_drv;
   (void)copy_area;
 
-  SCB_CleanDCache();
+  SCB_CleanDCache_by_addr(buffer, sizeof(LCD_FIRST_FRAME_BUFFER));
 
   LTDC_Layer1->CFBAR &= ~(LTDC_LxCFBAR_CFBADD);
   LTDC_Layer1->CFBAR = (uint32_t)buffer;

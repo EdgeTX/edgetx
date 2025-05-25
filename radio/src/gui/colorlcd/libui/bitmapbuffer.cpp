@@ -224,7 +224,7 @@ void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
     DMAWait();
 
 #if __CORTEX_M >= 0x07
-    SCB_CleanInvalidateDCache();
+  SCB_InvalidateDCache_by_Addr(getData(), getDataSize());
 #endif
   } else {
     int scaledw = srcw * scale;

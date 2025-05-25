@@ -213,16 +213,6 @@ void lcdInit()
   lcdSetFlushCb(simuRefreshLcd);
 }
 
-void DMAFillRect(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
-                 uint16_t y, uint16_t w, uint16_t h, uint16_t color)
-{
-  for (int i = 0; i < h; i++) {
-    for (int j = 0; j < w; j++) {
-      dest[(y + i) * destw + x + j] = color;
-    }
-  }
-}
-
 void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
                    uint16_t y, const uint16_t *src, uint16_t srcw,
                    uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
@@ -287,28 +277,4 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
   }
 }
 
-#define DMA2D_ARGB4444 ((uint32_t)0x00000004)
-
-void DMABitmapConvert(uint16_t *dest, const uint8_t *src, uint16_t w,
-                      uint16_t h, uint32_t format)
-{
-
-  if (format == DMA2D_ARGB4444) {
-    for (int row = 0; row < h; ++row) {
-      for (int col = 0; col < w; ++col) {
-        *dest = ARGB(src[0], src[1], src[2], src[3]);
-        ++dest;
-        src += 4;
-      }
-    }
-  } else {
-    for (int row = 0; row < h; ++row) {
-      for (int col = 0; col < w; ++col) {
-        *dest = RGB(src[1], src[2], src[3]);
-        ++dest;
-        src += 4;
-      }
-    }
-  }
-}
 #endif

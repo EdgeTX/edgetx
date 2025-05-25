@@ -46,7 +46,7 @@ void BitmapBuffer::invertRect(coord_t x, coord_t y, coord_t w, coord_t h,
 
   DMAWait();
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_CleanInvalidateDCache_by_Addr(getData(), getDataSize());
 #endif
 
   for (int i = y; i < y + h; i++) {
@@ -369,7 +369,7 @@ void BitmapBuffer::drawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2,
 
   DMAWait();
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_CleanInvalidateDCache_by_Addr(getData(), getDataSize());
 #endif
 
   if (dxabs >= dyabs) {
@@ -668,7 +668,7 @@ void BitmapBuffer::drawBitmapPatternPie(coord_t x, coord_t y,
 
   DMAWait();
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_CleanInvalidateDCache_by_Addr(getData(), getDataSize());
 #endif
 
   for (int y1 = h2 - 1; y1 >= 0; y1--) {

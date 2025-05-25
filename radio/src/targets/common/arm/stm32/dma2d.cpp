@@ -33,7 +33,7 @@ void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
   DMAWait();
 
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_CleanDCache_by_Addr((void*)src, srcw*srch*2); // only for 16BPP!
 #endif
 
   LL_DMA2D_DeInit(DMA2D);
@@ -68,7 +68,7 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
   DMAWait();
 
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_CleanDCache_by_Addr((void*)src, srcw*srch*2); // only for 16BPP!
 #endif
 
   LL_DMA2D_DeInit(DMA2D);
@@ -110,7 +110,8 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
   DMAWait();
 
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_CleanDCache_by_Addr((void*)dest, destw*desth*2); // 16 BPP
+  SCB_CleanDCache_by_Addr((void*)src, srcw*srch); // 8 bit aplha Mask
 #endif
 
   LL_DMA2D_DeInit(DMA2D);
@@ -146,32 +147,3 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
 
 }
 
-void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format)
-{
-  DMAWait();
-#if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
-#endif
-
-  LL_DMA2D_DeInit(DMA2D);
-
-  LL_DMA2D_InitTypeDef DMA2D_InitStruct;
-  LL_DMA2D_StructInit(&DMA2D_InitStruct);
-
-  DMA2D_InitStruct.Mode = LL_DMA2D_MODE_M2M_PFC;
-  DMA2D_InitStruct.ColorMode = format;
-  DMA2D_InitStruct.OutputMemoryAddress = CONVERT_PTR_UINT(dest);
-  DMA2D_InitStruct.NbrOfLines = h;
-  DMA2D_InitStruct.NbrOfPixelsPerLines = w;
-  LL_DMA2D_Init(DMA2D, &DMA2D_InitStruct);
-
-  LL_DMA2D_FGND_SetMemAddr(DMA2D, CONVERT_PTR_UINT(src));
-  LL_DMA2D_FGND_SetLineOffset(DMA2D, 0);
-  LL_DMA2D_FGND_SetColorMode(DMA2D, LL_DMA2D_INPUT_MODE_ARGB8888);
-  LL_DMA2D_FGND_SetAlphaMode(DMA2D, LL_DMA2D_ALPHA_MODE_REPLACE);
-  LL_DMA2D_FGND_SetAlpha(DMA2D, 0);
-
-  /* Start Transfer */
-  LL_DMA2D_Start(DMA2D);
-
-}

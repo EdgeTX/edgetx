@@ -345,9 +345,6 @@ static DSTATUS sdio_status(BYTE lun)
 static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
 {
   ReadStatus = 0;
-#if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
-#endif
 
   if (HAL_SD_ReadBlocks_DMA(&sdio, buff, sector, count) != HAL_OK) {
     TRACE("SD ReadBlocks failed (s:%u/c:%u)", sector, (uint32_t)count);
@@ -359,7 +356,7 @@ static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
   while((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT));
 
 #if __CORTEX_M >= 0x07
-  SCB_CleanInvalidateDCache();
+  SCB_InvalidateDCache_by_Addr(buff, count*BLOCKSIZE);
 #endif
 
   if (ReadStatus == 0) {
@@ -405,7 +402,7 @@ static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
 {
 #if __CORTEX_M >= 0x07
-  SCB_CleanDCache();
+  SCB_CleanDCache_by_Addr((void*)buff, count*BLOCKSIZE);
 #endif
 
   WriteStatus = 0;
