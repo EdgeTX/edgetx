@@ -773,25 +773,26 @@ void ModelTelemetryPage::checkEvents()
 {
   int _lastKnownIndex = availableTelemetryIndex();
 
-  if (lastKnownIndex >= 0 && lastKnownIndex != _lastKnownIndex) {
-    rebuild(window);
+  if (_lastKnownIndex < 0) {
+    if (discover->checked()) {
+      buildSensorList(-1);
+      discover->setText(STR_DISCOVER_SENSORS);
+      discover->check(false);
+      POPUP_WARNING(STR_TELEMETRYFULL);
+    }
+  } else if (lastKnownIndex != _lastKnownIndex) {
+    buildSensorList(-1);
     lastKnownIndex = _lastKnownIndex;
   }
 
   PageTab::checkEvents();
 }
 
-void ModelTelemetryPage::rebuild(Window* window, int8_t focusSensorIndex)
-{
-  buildSensorList(focusSensorIndex);
-  lastKnownIndex = availableTelemetryIndex();
-}
-
-void ModelTelemetryPage::editSensor(Window* window, uint8_t index)
+void ModelTelemetryPage::editSensor(uint8_t index)
 {
   lastKnownIndex = -1;
   Window* editWindow = new SensorEditWindow(index);
-  editWindow->setCloseHandler([=]() { rebuild(window, index); });
+  editWindow->setCloseHandler([=]() { buildSensorList(index); });
 }
 
 void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
@@ -809,7 +810,7 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
 
       button->setPressHandler([=]() -> uint8_t {
         Menu* menu = new Menu();
-        menu->addLine(STR_EDIT, [=]() { editSensor(window, idx); });
+        menu->addLine(STR_EDIT, [=]() { editSensor(idx); });
         menu->addLine(STR_COPY, [=]() {
           auto newIndex = availableTelemetryIndex();
           if (newIndex >= 0) {
@@ -820,26 +821,26 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
             TelemetryItem& newItem = telemetryItems[newIndex];
             newItem = sourceItem;
             SET_DIRTY();
-            rebuild(window, newIndex);
+            buildSensorList(newIndex);
           } else {
-            new FullScreenDialog(WARNING_TYPE_ALERT, "", STR_TELEMETRYFULL);
+            POPUP_WARNING(STR_TELEMETRYFULL);
           }
         });
         menu->addLine(STR_DELETE, [=]() {
           delTelemetryIndex(idx);  // calls setDirty internally
           for (uint8_t i = idx + 1; i < MAX_TELEMETRY_SENSORS; i += 1) {
             if (g_model.telemetrySensors[i].isAvailable()) {
-              rebuild(window, i);
+              buildSensorList(i);
               return;
             }
           }
           for (int8_t i = idx - 1; i >= 0; i -= 1) {
             if (g_model.telemetrySensors[i].isAvailable()) {
-              rebuild(window, i);
+              buildSensorList(i);
               return;
             }
           }
-          rebuild(window, -1);
+          buildSensorList(-1);
         });
         return 0;
       });
@@ -859,6 +860,11 @@ void ModelTelemetryPage::buildSensorList(int8_t focusSensorIndex)
 
   uint8_t sensorsCount = getTelemetrySensorsCount();
   deleteAll->show(sensorsCount > 0);
+
+  if (availableTelemetryIndex() >= 0)
+    lastKnownIndex = availableTelemetryIndex();
+  else
+    lastKnownIndex = MAX_TELEMETRY_SENSORS;
 }
 
 void ModelTelemetryPage::build(Window* window)
@@ -866,8 +872,6 @@ void ModelTelemetryPage::build(Window* window)
   window->padAll(PAD_TINY);
   window->padBottom(PAD_LARGE);
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO);
-
-  this->window = window;
 
   // Sensors
   new Subtitle(window, STR_TELEMETRY_SENSORS);
@@ -902,9 +906,9 @@ void ModelTelemetryPage::build(Window* window)
       new TextButton(line, rect_t{}, STR_TELEMETRY_NEWSENSOR, [=]() -> uint8_t {
         int idx = availableTelemetryIndex();
         if (idx >= 0)
-          editSensor(window, idx);
+          editSensor(idx);
         else
-          new FullScreenDialog(WARNING_TYPE_ALERT, "", STR_TELEMETRYFULL);
+          POPUP_WARNING(STR_TELEMETRYFULL);
         return 0;
       });
   lv_obj_set_grid_cell(b->getLvObj(), LV_GRID_ALIGN_STRETCH, 1, 1,

@@ -56,7 +56,7 @@
 #endif
 
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
-uint8_t allowNewSensors;
+bool allowNewSensors;
 
 bool isFaiForbidden(source_t idx)
 {
@@ -597,7 +597,11 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
     return index;
   }
   else {
+    allowNewSensors = false;
+#if !defined(COLORLCD)
+    // Not safe on color LCD - handled in telemetry page instead
     POPUP_WARNING(STR_TELEMETRYFULL);
+#endif
     return -1;
   }
 }
