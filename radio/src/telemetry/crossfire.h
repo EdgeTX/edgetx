@@ -35,6 +35,10 @@
 #define CF_VARIO_ID                    0x07
 #define BATTERY_ID                     0x08
 #define BARO_ALT_ID                    0x09
+#define AIRSPEED_ID                    0x0A
+#define CF_RPM_ID                      0x0C
+#define TEMP_ID                        0x0D
+#define CELLS_ID                       0x0E
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
 #define LINK_RX_ID                     0x1C
@@ -94,6 +98,10 @@ enum CrossfireSensorIndexes {
   FLIGHT_MODE_INDEX,
   VERTICAL_SPEED_INDEX,
   BARO_ALTITUDE_INDEX,
+  AIRSPEED_INDEX,
+  CF_RPM_INDEX,
+  TEMP_INDEX,
+  CELLS_INDEX,
   UNKNOWN_INDEX,
 };
 
@@ -117,7 +125,7 @@ extern CrossfireModuleStatus crossfireModuleStatus[2];
 
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
-void crossfireSetDefault(int index, uint8_t id, uint8_t subId);
+void crossfireSetDefault(int index, uint16_t id, uint8_t subId);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
   115200,

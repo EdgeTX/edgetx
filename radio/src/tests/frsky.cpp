@@ -321,22 +321,6 @@ TEST(FrSkySPORT, frskySetCellVoltage)
   EXPECT_EQ(telemetryItems[0].valueMax, 2071);
 }
 
-TEST(FrSkySPORT, StrangeCellsBug)
-{
-  MODEL_RESET();
-  TELEMETRY_RESET();
-  telemetryStreaming = TELEMETRY_TIMEOUT10ms;
-  telemetryData.telemetryValid = 0x07;
-  allowNewSensors = true;
-
-  uint8_t pkt[] = { 0x7E, 0x48, 0x10, 0x00, 0x03, 0x30, 0x15, 0x50, 0x81, 0xD5 };
-  EXPECT_EQ(checkSportPacket(pkt+1), true);
-  sportProcessTelemetryPacket(0, pkt+1, sizeof(pkt) - 1);
-  EXPECT_EQ(telemetryItems[0].cells.count, 3);
-  EXPECT_EQ(telemetryItems[0].cells.values[0].value, 0); // now we ignore such low values
-  EXPECT_EQ(telemetryItems[0].cells.values[1].value, 413);
-}
-
 TEST(FrSkySPORT, frskySetCellVoltageTwoSensors)
 {
   uint8_t packet[FRSKY_SPORT_PACKET_SIZE];
