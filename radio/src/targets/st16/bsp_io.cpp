@@ -20,6 +20,10 @@
  */
 
 #include "bsp_io.h"
+#if !defined(BOOT)
+#include "os/task.h"
+#include "tasks.h"
+#endif
 
 #include "drivers/pca95xx.h"
 #include "stm32_i2c_driver.h"
@@ -47,7 +51,11 @@ static pca95xx_t input_exp;
 static uint16_t inputState = 0;
 static bool updateInputState = false;
 
+#if defined(BOOT)
 void bsp_port_extender_irq_handler() { updateInputState = true; }
+#else
+void bsp_port_extender_irq_handler() { triggerSensorReadISR(); }
+#endif
 
 static void bsp_input_read()
 {
@@ -56,8 +64,9 @@ static void bsp_input_read()
   static int readCount = 0;
   readCount++;
 
+#if defined(BOOT)
   if (!updateInputState && readCount < 50) return;
-
+#endif
   uint16_t value=0;
 
   readCount=0;
@@ -65,6 +74,11 @@ static void bsp_input_read()
 
   if (pca95xx_read(&input_exp, BSP_IN_MASK, &value) < 0) return;
   inputState = value;
+}
+
+void pollSensorData()
+{
+  bsp_input_read();
 }
 
 int bsp_io_init()
@@ -91,7 +105,9 @@ void bsp_output_clear(uint16_t pin) { pca95xx_write(&output_exp, pin, 0); }
 
 uint16_t bsp_input_get()
 {
+#if defined(BOOT)
   bsp_input_read();
+#endif
   return inputState;
 }
 

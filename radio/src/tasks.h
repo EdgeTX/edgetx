@@ -33,21 +33,25 @@
 #if !defined(DEBUG)
 #define MIXER_STACK_SIZE       400
 #define AUDIO_STACK_SIZE       400
+#define SENSOR_STACK_SIZE      400
 #else
 #define MIXER_STACK_SIZE       512
 #define AUDIO_STACK_SIZE       512
+#define SENSOR_STACK_SIZE      512
 #endif
 
 #define CLI_STACK_SIZE         1024  // only consumed with CLI build option
 
 #if defined(FREE_RTOS)
-#define MIXER_TASK_PRIO        (tskIDLE_PRIORITY + 4)
-#define AUDIO_TASK_PRIO        (tskIDLE_PRIORITY + 3) // Note: FreeRTOSConfig.h defines software timers as priority 2
+#define MIXER_TASK_PRIO        (tskIDLE_PRIORITY + 5)
+#define AUDIO_TASK_PRIO        (tskIDLE_PRIORITY + 4)
+#define SENSOR_TASK_PRIO       (tskIDLE_PRIORITY + 3) // Note: FreeRTOSConfig.h defines software timers as priority 2
 #define MENUS_TASK_PRIO        (tskIDLE_PRIORITY + 1)
 #define CLI_TASK_PRIO          (tskIDLE_PRIORITY + 1)
 #else
 #define MIXER_TASK_PRIO        (4)
-#define AUDIO_TASK_PRIO        (2)
+#define AUDIO_TASK_PRIO        (3)
+#define SENSOR_TASK_PRIO       (2)
 #define MENUS_TASK_PRIO        (1)
 #define CLI_TASK_PRIO          (1)
 #endif
@@ -58,6 +62,16 @@ extern task_handle_t menusTaskId;
 #if defined(AUDIO)
 extern task_handle_t audioTaskId;
 #endif
+
+#if defined(SENSOR_TASK)
+extern task_handle_t sensorTaskId;
+
+void triggerSensorReadISR();
+void triggerSensorRead();
+
+void pollSensorData(); // to be implemented in the radio specific code
+#endif
+
 
 #if defined(CLI)
 extern task_handle_t cliTaskId;

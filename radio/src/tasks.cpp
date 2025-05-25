@@ -47,6 +47,11 @@ TASK_DEFINE_STACK(audioStack, AUDIO_STACK_SIZE);
 
 mutex_handle_t audioMutex;
 
+#if defined(SENSOR_TASK)
+task_handle_t sensorTaskId;
+TASK_DEFINE_STACK(sensorStack, SENSOR_STACK_SIZE);
+#endif
+
 #define MENU_TASK_PERIOD (50)  // 50ms
 
 #if defined(COLORLCD) && defined(CLI)
@@ -120,6 +125,48 @@ static void audioTask()
   }
 }
 
+#if defined(SENSOR_TASK)
+static void sensorTask()
+{
+  while (task_running()) {
+      const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 20 ); // max 20ms without polling
+
+      ulTaskNotifyTake( pdTRUE, xMaxBlockTime );
+      if(!task_running())
+	continue;
+
+      pollSensorData();
+  }
+}
+
+void triggerSensorReadISR()
+{
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+  /* At this point xTaskToNotify should not be NULL as
+   a transmission was in progress. */
+  configASSERT( sensorTaskId._rtos_handle != NULL );
+
+  /* Notify the task that the transmission is complete. */
+  vTaskNotifyGiveFromISR( sensorTaskId._rtos_handle,
+      &xHigherPriorityTaskWoken );
+
+  /* If xHigherPriorityTaskWoken is now set to pdTRUE then a
+   context switch should be performed to ensure the interrupt
+   returns directly to the highest priority task.  The macro used
+   for this purpose is dependent on the port in use and may be
+   called portEND_SWITCHING_ISR(). */
+  portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+
+void triggerSensorRead()
+{
+  configASSERT( sensorTaskId._rtos_handle != NULL );
+  xTaskNotifyGive( sensorTaskId._rtos_handle);
+}
+
+#endif
+
 static timer_handle_t _timer10ms = TIMER_INITIALIZER;
 
 static void _timer_10ms_cb(timer_handle_t* h)
@@ -153,6 +200,12 @@ void tasksStart()
   task_create(&audioTaskId, audioTask, "audio", audioStack, AUDIO_STACK_SIZE,
               AUDIO_TASK_PRIO);
 #endif
+
+#if defined(SENSOR_TASK)
+  task_create(&sensorTaskId, sensorTask, "sensor", sensorStack, SENSOR_STACK_SIZE,
+              SENSOR_TASK_PRIO);
+#endif
+
 
   RTOS_START();
 }
