@@ -45,7 +45,6 @@ protected:
   const char* extension;
   int maxlen;
   std::function<std::string()> getValue;
-  std::function<void(std::string)> setValue;
   bool stripExtension;
 
   void loadFiles();

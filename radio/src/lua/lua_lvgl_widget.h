@@ -50,8 +50,105 @@ struct LvglParamFuncOrValue
   void parse(lua_State *L, ParamType typ = PVALUE);
   void forceUpdate() { currVal = -1; }
   bool changedColor(LcdFlags newFlags);
+  bool changedFont(LcdFlags newFlags) { return changedColor(newFlags);}
   bool changedText(const char* s);
   bool changedValue(uint32_t v);
+  void clearRef(lua_State *L);
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglGetSetParams
+{
+ public:
+  LvglGetSetParams() {}
+
+ protected:
+  int getFunction = LUA_REFNIL;
+  int setFunction = LUA_REFNIL;
+
+  bool parseGetSetParam(lua_State *L, const char *key);
+  void clearGetSetRefs(lua_State *L);
+};
+
+class LvglTextParams
+{
+ public:
+  LvglTextParams() {}
+
+ protected:
+  LvglParamFuncOrValue txt = { .function = LUA_REFNIL, .txt = ""};
+  LvglParamFuncOrValue font = { .function = LUA_REFNIL, .flags = FONT(STD)};
+
+  bool parseTextParam(lua_State *L, const char *key);
+  void clearTextRefs(lua_State *L);
+};
+
+class LvglMinMaxParams
+{
+ public:
+  LvglMinMaxParams(int min, int max) : min(min), max(max) {}
+
+ protected:
+  int min;
+  int max;
+
+  bool parseMinMaxParam(lua_State *L, const char *key);
+};
+
+class LvglTitleParam
+{
+ public:
+  LvglTitleParam() {}
+
+ protected:
+  std::string title;
+
+  bool parseTitleParam(lua_State *L, const char *key);
+};
+
+class LvglMessageParam
+{
+ public:
+  LvglMessageParam() {}
+
+ protected:
+  std::string message;
+
+  bool parseMessageParam(lua_State *L, const char *key);
+};
+
+class LvglRoundedParam
+{
+ public:
+  LvglRoundedParam() {}
+
+ protected:
+  bool rounded = false;
+
+  bool parseRoundedParam(lua_State *L, const char *key);
+};
+
+class LvglThicknessParam
+{
+ public:
+  LvglThicknessParam() {}
+
+ protected:
+  coord_t thickness = 1;
+
+  bool parseThicknessParam(lua_State *L, const char *key);
+};
+
+class LvglValuesParam
+{
+ public:
+  LvglValuesParam() {}
+
+ protected:
+  std::vector<std::string> values;
+
+  bool parseValuesParam(lua_State *L, const char *key);
 };
 
 //-----------------------------------------------------------------------------
@@ -75,6 +172,9 @@ class LvglWidgetObjectBase
   virtual void enable() {};
   virtual void disable() {};
   virtual void close() {};
+
+  virtual coord_t getScrollX() { return 0; }
+  virtual coord_t getScrollY() { return 0; }
 
   virtual void setColor(LcdFlags newColor) {}
   virtual void setOpacity(uint8_t newOpa) {}
@@ -109,8 +209,6 @@ class LvglWidgetObjectBase
   virtual void parseParam(lua_State *L, const char *key);
 
   void getParams(lua_State *L, int index);
-
-  void clearRef(lua_State *L, int& ref);
 
   void pcallSimpleFunc(lua_State *L, int funcRef);
   bool pcallUpdateBool(lua_State *L, int getFuncRef,
@@ -147,7 +245,7 @@ class LvglSimpleWidgetObject : public LvglWidgetObjectBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetLabel : public LvglSimpleWidgetObject
+class LvglWidgetLabel : public LvglSimpleWidgetObject, public LvglTextParams
 {
  public:
   LvglWidgetLabel() : LvglSimpleWidgetObject() {}
@@ -161,9 +259,7 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  LvglParamFuncOrValue font = { .function = LUA_REFNIL, .flags = FONT(STD)};
   LvglParamFuncOrValue align = { .function = LUA_REFNIL, .flags = LEFT};
-  LvglParamFuncOrValue txt = { .function = LUA_REFNIL, .txt = ""};
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
@@ -178,7 +274,7 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetLineBase : public LvglSimpleWidgetObject
+class LvglWidgetLineBase : public LvglSimpleWidgetObject, public LvglRoundedParam
 {
  public:
   LvglWidgetLineBase() : LvglSimpleWidgetObject() {}
@@ -189,7 +285,6 @@ class LvglWidgetLineBase : public LvglSimpleWidgetObject
   void setSize(coord_t w, coord_t h) override;
 
  protected:
-  bool rounded = false;
   int dashGap = 0;
   int dashWidth = 0;
   lv_point_t pts[2];
@@ -225,7 +320,7 @@ class LvglWidgetVLine : public LvglWidgetLineBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetLine : public LvglSimpleWidgetObject
+class LvglWidgetLine : public LvglSimpleWidgetObject, public LvglRoundedParam, public LvglThicknessParam
 {
  public:
   LvglWidgetLine();
@@ -240,8 +335,6 @@ class LvglWidgetLine : public LvglSimpleWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  coord_t thickness = 1;
-  bool rounded = false;
   size_t ptCnt = 0;
   size_t ptAlloc = 0;
   lv_point_t* pts = nullptr;
@@ -326,19 +419,11 @@ class LvglWidgetBox : public LvglWidgetObject
  public:
   LvglWidgetBox() : LvglWidgetObject() {}
 
- protected:
-  void build(lua_State *L) override;
-};
-
-//-----------------------------------------------------------------------------
-
-class LvglWidgetSetting : public LvglWidgetObject
-{
- public:
-  LvglWidgetSetting() : LvglWidgetObject() {}
+  coord_t getScrollX() override;
+  coord_t getScrollY() override;
 
  protected:
-  const char *txt = "";
+  lv_dir_t scrollDir = LV_DIR_ALL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
@@ -346,19 +431,30 @@ class LvglWidgetSetting : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetBorderedObject : public LvglWidgetObject
+class LvglWidgetSetting : public LvglWidgetObject, public LvglTitleParam
 {
  public:
-  LvglWidgetBorderedObject() : LvglWidgetObject() {}
+  LvglWidgetSetting() : LvglWidgetObject() {}
+
+ protected:
+
+  void build(lua_State *L) override;
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetBorderedObject : public LvglWidgetBox, public LvglThicknessParam
+{
+ public:
+  LvglWidgetBorderedObject() : LvglWidgetBox() {}
 
   void setColor(LcdFlags newColor) override;
   void setOpacity(uint8_t newOpa) override;
 
  protected:
-  coord_t thickness = 1;
   bool filled = false;
 
-  void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -367,7 +463,10 @@ class LvglWidgetBorderedObject : public LvglWidgetObject
 class LvglWidgetRoundObject : public LvglWidgetBorderedObject
 {
  public:
-  LvglWidgetRoundObject() : LvglWidgetBorderedObject() {}
+  LvglWidgetRoundObject() : LvglWidgetBorderedObject()
+  {
+    scrollDir = LV_DIR_NONE;
+  }
 
   void setPos(coord_t x, coord_t y) override;
   void setRadius(coord_t r);
@@ -413,7 +512,7 @@ class LvglWidgetCircle : public LvglWidgetRoundObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetArc : public LvglWidgetRoundObject
+class LvglWidgetArc : public LvglWidgetRoundObject, public LvglRoundedParam
 {
  public:
   LvglWidgetArc() : LvglWidgetRoundObject() {}
@@ -431,7 +530,6 @@ class LvglWidgetArc : public LvglWidgetRoundObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  bool rounded = false;
   LvglParamFuncOrValue startAngle = { .function = LUA_REFNIL, .coord = 0};
   LvglParamFuncOrValue endAngle = { .function = LUA_REFNIL, .coord = 360};
   LvglParamFuncOrValue bgColor = { .function = LUA_REFNIL, .flags = (LcdFlags)-1};
@@ -488,7 +586,7 @@ class LvglWidgetQRCode : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetTextButtonBase : public LvglWidgetObject
+class LvglWidgetTextButtonBase : public LvglWidgetObject, public LvglTextParams
 {
  public:
   LvglWidgetTextButtonBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE)
@@ -497,6 +595,7 @@ class LvglWidgetTextButtonBase : public LvglWidgetObject
   }
 
   void setText(const char *s);
+  void setFont(LcdFlags font);
   void setSize(coord_t w, coord_t h) override;
   void setColor(LcdFlags newColor) override;
   void setTextColor(LcdFlags newColor);
@@ -506,8 +605,6 @@ class LvglWidgetTextButtonBase : public LvglWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  LvglParamFuncOrValue txt = { .function = LUA_REFNIL, .txt = ""};
-  LcdFlags font = FONT(STD);
   coord_t rounded = -1;
   LvglParamFuncOrValue textColor = { .function = LUA_REFNIL, .flags = (LcdFlags)-1};
   int pressFunction = LUA_REFNIL;
@@ -515,6 +612,8 @@ class LvglWidgetTextButtonBase : public LvglWidgetObject
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
   {
+    setText(txt.txt);
+    setFont(font.flags);
     setTextColor(textColor.flags);
     LvglWidgetObject::refresh();
   }
@@ -527,7 +626,6 @@ class LvglWidgetTextButton : public LvglWidgetTextButtonBase
  public:
   LvglWidgetTextButton() : LvglWidgetTextButtonBase() {}
 
-  void setFont(LcdFlags font);
   void setChecked(bool check);
 
   void clearRefs(lua_State *L) override;
@@ -541,7 +639,7 @@ class LvglWidgetTextButton : public LvglWidgetTextButtonBase
   void refresh() override
   {
     setChecked(checked);
-    LvglWidgetObject::refresh();
+    LvglWidgetTextButtonBase::refresh();
   }
 };
 
@@ -551,8 +649,6 @@ class LvglWidgetMomentaryButton : public LvglWidgetTextButtonBase
 {
  public:
   LvglWidgetMomentaryButton() : LvglWidgetTextButtonBase() {}
-
-  void setFont(LcdFlags font);
 
   void clearRefs(lua_State *L) override;
 
@@ -565,7 +661,7 @@ class LvglWidgetMomentaryButton : public LvglWidgetTextButtonBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetToggleSwitch : public LvglWidgetObject
+class LvglWidgetToggleSwitch : public LvglWidgetObject, public LvglGetSetParams
 {
  public:
   LvglWidgetToggleSwitch() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
@@ -573,9 +669,6 @@ class LvglWidgetToggleSwitch : public LvglWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  int getStateFunction = LUA_REFNIL;
-  int setStateFunction = LUA_REFNIL;
-
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
@@ -602,18 +695,14 @@ class LvglWidgetTextEdit : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetNumberEdit : public LvglWidgetObject
+class LvglWidgetNumberEdit : public LvglWidgetObject, public LvglGetSetParams, public LvglMinMaxParams
 {
  public:
-  LvglWidgetNumberEdit() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
+  LvglWidgetNumberEdit() : LvglWidgetObject(LVGL_SIMPLEMETATABLE), LvglMinMaxParams(-1024, 1024) {}
 
   void clearRefs(lua_State *L) override;
 
  protected:
-  int min = -1024, max = 1024;
-
-  int getFunction = LUA_REFNIL;
-  int setFunction = LUA_REFNIL;
   int dispFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
@@ -622,10 +711,10 @@ class LvglWidgetNumberEdit : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetSliderBase : public LvglWidgetObject
+class LvglWidgetSliderBase : public LvglWidgetObject, public LvglGetSetParams, public LvglMinMaxParams
 {
  public:
-  LvglWidgetSliderBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE)
+  LvglWidgetSliderBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE), LvglMinMaxParams(0, 100)
   {
     color.flags = -1;
   }
@@ -635,11 +724,6 @@ class LvglWidgetSliderBase : public LvglWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  int32_t vmin = 0;
-  int32_t vmax = 100;
-  int getValueFunction = LUA_REFNIL;
-  int setValueFunction = LUA_REFNIL;
-
   void parseParam(lua_State *L, const char *key) override;
 };
 
@@ -667,17 +751,20 @@ class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetPage : public LvglWidgetObject
+class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam
 {
  public:
   LvglWidgetPage() : LvglWidgetObject() {}
 
   void clearRefs(lua_State *L) override;
 
+  coord_t getScrollX() override;
+  coord_t getScrollY() override;
+
  protected:
-  std::string title;
   std::string subtitle;
   std::string iconFile;
+  lv_dir_t scrollDir = LV_DIR_ALL;
 
   int backActionFunction = LUA_REFNIL;
 
@@ -687,7 +774,7 @@ class LvglWidgetPage : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetDialog : public LvglWidgetObject
+class LvglWidgetDialog : public LvglWidgetObject, public LvglTitleParam
 {
  public:
   LvglWidgetDialog() : LvglWidgetObject() {}
@@ -696,7 +783,6 @@ class LvglWidgetDialog : public LvglWidgetObject
   void close() override;
 
  protected:
-  const char *title = nullptr;
   LvglDialog* dialog = nullptr;
 
   int closeFunction = LUA_REFNIL;
@@ -707,7 +793,7 @@ class LvglWidgetDialog : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetConfirmDialog : public LvglWidgetObject
+class LvglWidgetConfirmDialog : public LvglWidgetObject, public LvglTitleParam, public LvglMessageParam
 {
  public:
   LvglWidgetConfirmDialog() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
@@ -715,9 +801,6 @@ class LvglWidgetConfirmDialog : public LvglWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  const char *title = nullptr;
-  const char *message = nullptr;
-
   int confirmFunction = LUA_REFNIL;
   int cancelFunction = LUA_REFNIL;
 
@@ -727,14 +810,12 @@ class LvglWidgetConfirmDialog : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetMessageDialog : public LvglWidgetObject
+class LvglWidgetMessageDialog : public LvglWidgetObject, public LvglTitleParam, public LvglMessageParam
 {
  public:
   LvglWidgetMessageDialog() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
  protected:
-  const char *title = nullptr;
-  const char *message = nullptr;
   const char *details = nullptr;
 
   void build(lua_State *L) override;
@@ -743,7 +824,7 @@ class LvglWidgetMessageDialog : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetPicker : public LvglWidgetObject
+class LvglWidgetPicker : public LvglWidgetObject, public LvglGetSetParams
 {
  public:
   LvglWidgetPicker() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
@@ -751,15 +832,12 @@ class LvglWidgetPicker : public LvglWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  int getFunction = LUA_REFNIL;
-  int setFunction = LUA_REFNIL;
-
   void parseParam(lua_State *L, const char *key) override;
 };
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetChoice : public LvglWidgetPicker
+class LvglWidgetChoice : public LvglWidgetPicker, public LvglTitleParam, public LvglValuesParam
 {
  public:
   LvglWidgetChoice() : LvglWidgetPicker() {}
@@ -767,8 +845,6 @@ class LvglWidgetChoice : public LvglWidgetPicker
   void clearRefs(lua_State *L) override;
 
  protected:
-  std::string title;
-  std::vector<std::string> values;
   int filterFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
@@ -777,15 +853,12 @@ class LvglWidgetChoice : public LvglWidgetPicker
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetMenu : public LvglWidgetPicker
+class LvglWidgetMenu : public LvglWidgetPicker, public LvglTitleParam, public LvglValuesParam
 {
  public:
   LvglWidgetMenu() : LvglWidgetPicker() {}
 
  protected:
-  std::string title;
-  std::vector<std::string> values;
-
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
@@ -864,14 +937,13 @@ class LvglWidgetSourcePicker : public LvglWidgetPicker
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetFilePicker : public LvglWidgetPicker
+class LvglWidgetFilePicker : public LvglWidgetPicker, public LvglTitleParam
 {
  public:
    LvglWidgetFilePicker() : LvglWidgetPicker() {}
 
  protected:
- const char *title = nullptr;
- const char* folder = nullptr;
+  const char* folder = nullptr;
   const char* extension = nullptr;
   int maxLen = 255;
   bool hideExtension = false;
