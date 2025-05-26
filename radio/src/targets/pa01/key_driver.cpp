@@ -77,8 +77,8 @@ static uint32_t _readKeyMatrix()
 #if !defined(BOOT)
   if(!bsp_get_shouldReadKeys() && nonReadCount < 10)
   {
-  if (gpio_read(KEYS_GPIO_ENTER) == 0)
-    keyState |= 1<<ENT;
+    if (gpio_read(KEYS_GPIO_ENTER) == 0)
+      keyState |= 1<<ENT;
 
     nonReadCount++;
     return keyState;
