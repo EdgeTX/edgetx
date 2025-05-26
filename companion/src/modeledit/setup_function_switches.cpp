@@ -131,7 +131,6 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
             QString qss = QString("background-color: %1; border: none;").arg(color.name());
             btnOffColor->setStyleSheet(qss);
             emit modified();
-            emit updateDataModels();
           }
         });
         ui->gridSwitches->addWidget(btnOffColor, row++, col + coloffset);
@@ -148,7 +147,6 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
             QString qss = QString("background-color: %1; border: none;").arg(color.name());
             btnOnColor->setStyleSheet(qss);
             emit modified();
-            emit updateDataModels();
           }
         });
         ui->gridSwitches->addWidget(btnOnColor, row++, col + coloffset);

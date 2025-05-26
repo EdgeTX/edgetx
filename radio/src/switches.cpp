@@ -1162,10 +1162,10 @@ void setAllPreflightSwitchStates()
   getMovedSwitch();
   // Mask switches enabled for warnings
   swarnstate_t sw_mask = 0;
-  for(uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+  for(uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
     if (SWITCH_WARNING_ALLOWED(i))
-      if (g_model.switchWarning & (0x07 << (3 * i)))
-        sw_mask |= (0x07 << (3 * i));
+      if (g_model.getSwitchWarning(i))
+        sw_mask |= (0x03 << (2 * i));
   }
   g_model.switchWarning = switches_states & sw_mask;
   AUDIO_WARNING1();
