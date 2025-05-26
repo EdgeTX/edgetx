@@ -151,8 +151,6 @@ static void _init_gpios(const stm32_spi_t* spi)
 static void _config_dma_streams(const stm32_spi_t* spi)
 {
   stm32_dma_enable_clock(spi->DMA);
-  LL_DMA_DeInit(spi->DMA, spi->rxDMA_Stream);
-  LL_DMA_DeInit(spi->DMA, spi->txDMA_Stream);
   
   LL_DMA_InitTypeDef dmaInit;
   LL_DMA_StructInit(&dmaInit);
@@ -160,42 +158,77 @@ static void _config_dma_streams(const stm32_spi_t* spi)
 #if defined(STM32H7)
   dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
   dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
-  dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
-  dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
+  dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_BYTE;
+  dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_BYTE;
 #elif defined(STM32H7RS)
   dmaInit.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
 #endif
 
-#if defined(STM32H7)
-  dmaInit.PeriphRequest = spi->rxDMA_PeriphRequest;
-  dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetRxRegAddr(spi->SPIx);
-#elif defined(STM32H7RS)
-  dmaInit.Request = spi->rxDMA_PeriphRequest;
-  dmaInit.SrcAddress = LL_SPI_DMA_GetRxRegAddr(spi->SPIx);
-  dmaInit.SrcIncMode = LL_DMA_SRC_FIXED;
-  dmaInit.DestIncMode = LL_DMA_DEST_INCREMENT;
-  dmaInit.SrcDataWidth = LL_DMA_DEST_DATAWIDTH_HALFWORD;
-  dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_HALFWORD;
-#endif
-
-  dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
-  LL_DMA_Init(spi->DMA, spi->rxDMA_Stream, &dmaInit);
+  if (spi->rxDMA_PeriphRequest) {
+    LL_DMA_DeInit(spi->DMA, spi->rxDMA_Stream);
 
 #if defined(STM32H7)
-  dmaInit.PeriphRequest = spi->txDMA_PeriphRequest;
-  dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetTxRegAddr(spi->SPIx);
+    dmaInit.PeriphRequest = spi->rxDMA_PeriphRequest;
+    dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetRxRegAddr(spi->SPIx);
 #elif defined(STM32H7RS)
-  dmaInit.Request = spi->rxDMA_PeriphRequest;
-  dmaInit.DestAddress = LL_SPI_DMA_GetTxRegAddr(spi->SPIx);
-  dmaInit.SrcIncMode = LL_DMA_SRC_INCREMENT;
-  dmaInit.DestIncMode = LL_DMA_DEST_FIXED;
-  dmaInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_HALFWORD;
-  dmaInit.DestDataWidth = LL_DMA_SRC_DATAWIDTH_HALFWORD;
+    dmaInit.Request = spi->rxDMA_PeriphRequest;
+    dmaInit.SrcAddress = LL_SPI_DMA_GetRxRegAddr(spi->SPIx);
+    dmaInit.SrcIncMode = LL_DMA_SRC_FIXED;
+    dmaInit.DestIncMode = LL_DMA_DEST_INCREMENT;
+    dmaInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_BYTE;
+    dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_BYTE;
 #endif
 
-  dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
-  LL_DMA_Init(spi->DMA, spi->txDMA_Stream, &dmaInit);
+    dmaInit.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
+    LL_DMA_Init(spi->DMA, spi->rxDMA_Stream, &dmaInit);
+  }
+
+  if (spi->txDMA_PeriphRequest) {
+    LL_DMA_DeInit(spi->DMA, spi->txDMA_Stream);
+
+#if defined(STM32H7)
+    dmaInit.PeriphRequest = spi->txDMA_PeriphRequest;
+    dmaInit.PeriphOrM2MSrcAddress = LL_SPI_DMA_GetTxRegAddr(spi->SPIx);
+#elif defined(STM32H7RS)
+    dmaInit.Request = spi->txDMA_PeriphRequest;
+    dmaInit.DestAddress = LL_SPI_DMA_GetTxRegAddr(spi->SPIx);
+    dmaInit.SrcIncMode = LL_DMA_SRC_INCREMENT;
+    dmaInit.DestIncMode = LL_DMA_DEST_FIXED;
+    dmaInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_BYTE;
+    dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_BYTE;
+#endif
+
+    dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+    LL_DMA_Init(spi->DMA, spi->txDMA_Stream, &dmaInit);
+  }
 }
+
+#if defined(STM32H7)
+static void _config_tx_dma_data_width(const stm32_spi_t* spi, uint32_t data_width)
+{
+  uint32_t periph_size = LL_DMA_PDATAALIGN_BYTE;
+  uint32_t memory_size = LL_DMA_MDATAALIGN_BYTE;
+  if (data_width == sizeof(uint16_t)) {
+    periph_size = LL_DMA_PDATAALIGN_HALFWORD;
+    memory_size = LL_DMA_MDATAALIGN_HALFWORD;
+  }
+  LL_DMA_SetPeriphSize(spi->DMA, spi->txDMA_Stream, periph_size);
+  LL_DMA_SetMemorySize(spi->DMA, spi->txDMA_Stream, memory_size);
+}
+#elif defined(STM32H7RS)
+static void _config_tx_dma_data_width(const stm32_spi_t* spi, uint32_t data_width)
+{
+  uint32_t src_width = LL_DMA_SRC_DATAWIDTH_BYTE;
+  uint32_t dest_width = LL_DMA_DEST_DATAWIDTH_BYTE;
+  if (data_width == sizeof(uint16_t)) {
+    src_width = LL_DMA_SRC_DATAWIDTH_HALFWORD;
+    memory_size = LL_DMA_DEST_DATAWIDTH_HALFWORD;
+  }
+  LL_DMA_SetSrcDataWidth(spi->DMA, spi->txDMA_Stream, src_width);
+  LL_DMA_SetDestDataWidth(spi->DMA, spi->txDMA_Stream, dest_width);
+}
+#endif
+
 #endif
 
 void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width)
@@ -427,13 +460,13 @@ uint32_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi, uint8_t* data,
 #if !defined(USE_SPI_DMA)
   return stm32_spi_transfer_bytes(spi, nullptr, data, length);
 #else
-  uint32_t xfer_len = length / 2;
+  uint32_t xfer_len = length;
   while (xfer_len > 0) {
     uint16_t single_xfer_len =
         xfer_len > SPI_MAX_XFER_SIZE ? SPI_MAX_XFER_SIZE : xfer_len;
     spi_receive_dma(spi, data, single_xfer_len);
     xfer_len -= single_xfer_len;
-    data += single_xfer_len * 2;
+    data += single_xfer_len;
   }
 
   return length;
@@ -460,13 +493,15 @@ uint32_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
 #if !defined(USE_SPI_DMA)
   return stm32_spi_transfer_bytes(spi, data, nullptr, length);
 #else
-  uint32_t xfer_len = length / 2;
+  _config_tx_dma_data_width(spi, sizeof(uint8_t));
+
+  uint32_t xfer_len = length;
   while (xfer_len > 0) {
     uint16_t single_xfer_len =
         xfer_len > SPI_MAX_XFER_SIZE ? SPI_MAX_XFER_SIZE : xfer_len;
     spi_transmit_dma(spi, data, single_xfer_len);
     xfer_len -= single_xfer_len;
-    data += single_xfer_len * 2;
+    data += single_xfer_len;
   }
 
   return length;
@@ -479,6 +514,8 @@ uint32_t stm32_spi_dma_transmit_words(const stm32_spi_t* spi,
 #if !defined(USE_SPI_DMA)
   return stm32_spi_transfer_words(spi, data, nullptr, length);
 #else
+  _config_tx_dma_data_width(spi, sizeof(uint16_t));
+
   uint32_t xfer_len = length;
   while (xfer_len > 0) {
     uint16_t single_xfer_len =
