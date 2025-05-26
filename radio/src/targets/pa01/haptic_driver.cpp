@@ -44,21 +44,14 @@ static const stm32_pulse_timer_t _haptic_timer = {
 
 void hapticInit(void)
 {
-  gpio_init(HAPTIC_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
-  gpio_set(HAPTIC_GPIO);
-  /*
   stm32_pulse_init(&_haptic_timer, 10000);
   stm32_pulse_config_output(&_haptic_timer, true, LL_TIM_OCMODE_PWM1, 0);
   LL_TIM_SetAutoReload(_haptic_timer.TIMx, 100);
-  LL_TIM_EnableCounter(_haptic_timer.TIMx);*/
+  LL_TIM_EnableCounter(_haptic_timer.TIMx);
 }
 
 void hapticOn(uint32_t pwmPercent)
 {
-  if(pwmPercent == 0)
-    gpio_clear(HAPTIC_GPIO);
-  else
-    gpio_clear(HAPTIC_GPIO);
   if (pwmPercent > 100) pwmPercent = 100;
   stm32_pulse_set_cmp_val(&_haptic_timer, pwmPercent);
 }
