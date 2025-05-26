@@ -268,9 +268,9 @@
 // 6POS SW
 #if defined(RADIO_V16)
   #define SIXPOS_SWITCH_INDEX             5
-  #define SIXPOS_LED_RED                255
-  #define SIXPOS_LED_GREEN              255
-  #define SIXPOS_LED_BLUE               255
+  #define SIXPOS_LED_RED                200
+  #define SIXPOS_LED_GREEN              0
+  #define SIXPOS_LED_BLUE               0
 #endif
 
 // Trims
@@ -340,6 +340,16 @@
   #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_12 // PJ.12
   #define TRIMS_GPIO_REG_RHR            GPIOD
   #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_7  // PD.07
+  #if defined (RADIO_V16) //T5 T6 exchange position
+    #define TRIMS_GPIO_REG_LSU          GPIOB
+    #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_14 // PB.14
+    #define TRIMS_GPIO_REG_LSD          GPIOB
+    #define TRIMS_GPIO_PIN_LSD          LL_GPIO_PIN_13 // PB.13
+    #define TRIMS_GPIO_REG_RSU          GPIOD
+    #define TRIMS_GPIO_PIN_RSU          LL_GPIO_PIN_13 // PD.13
+    #define TRIMS_GPIO_REG_RSD          GPIOJ
+    #define TRIMS_GPIO_PIN_RSD          LL_GPIO_PIN_8  // PJ.08
+  #else
   #if defined(RADIO_FAMILY_T16)
     #define TRIMS_GPIO_REG_LSU          GPIOD
     #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_13 // PD.13
@@ -355,6 +365,7 @@
   #define TRIMS_GPIO_PIN_RSU            LL_GPIO_PIN_14 // PB.14
   #define TRIMS_GPIO_REG_RSD            GPIOB
   #define TRIMS_GPIO_PIN_RSD            LL_GPIO_PIN_13 // PB.13
+  #endif
 #endif
 
 
