@@ -56,11 +56,7 @@
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
 
-<<<<<<< HEAD
 // CLI receive buffer size
-=======
-// CLI receive buffer size 20250526
->>>>>>> e07135c3a4d5232d93fe17bd5bd0cffea6eb1a3b
 #define CLI_RX_BUFFER_SIZE 256
 
 #define CLI_PRINT_BUFFER_SIZE 128
