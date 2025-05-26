@@ -163,7 +163,11 @@ if(NOT NATIVE_BUILD)
   target_include_directories(freertos
     PUBLIC  ${RTOS_DIR}/portable/GCC/ARM_CM4F
     PRIVATE ${RTOS_DIR}/include
-    )
+  )
+
+  if(DEBUG)
+    target_compile_definitions(freertos PRIVATE DEBUG)
+  endif()
 
   include_directories(${RTOS_DIR}/portable/GCC/ARM_CM4F)
   
