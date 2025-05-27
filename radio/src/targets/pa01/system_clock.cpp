@@ -30,7 +30,7 @@ extern "C" BOOTSTRAP
 void SystemClock_Config(void)
 {
   /* Power Configuration */
-  LL_PWR_ConfigSupply(LL_PWR_LDO_SUPPLY);
+  LL_PWR_ConfigSupply(LL_PWR_EXTERNAL_SOURCE_SUPPLY);
   LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
   while (LL_PWR_IsActiveFlag_VOS() == 0){
   }
