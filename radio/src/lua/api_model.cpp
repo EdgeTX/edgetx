@@ -1037,6 +1037,8 @@ Get Logical Switch parameters
  * `and` (number) AND switch index
  * `delay` (number) delay (time in 1/10 s)
  * `duration` (number) duration (time in 1/10 s)
+ * `state` (boolean) current state of the logical switch
+ * `persistent` (boolean) if true then the state is persistent across reboot of the radio
 
 @status current Introduced in 2.0.0
 */
@@ -1052,7 +1054,9 @@ static int luaModelGetLogicalSwitch(lua_State *L)
     lua_pushtableinteger(L, "v3", sw->v3);
     lua_pushtableinteger(L, "and", sw->andsw);
     lua_pushtableinteger(L, "delay", sw->delay);
-    lua_pushtableinteger(L, "duration", sw->duration);
+    lua_pushtableinteger(L, "duration", sw->duration); 
+    lua_pushtableboolean(L, "state", sw->lsState);
+    lua_pushtableboolean(L, "persistent", sw->lsPersist);
   }
   else {
     lua_pushnil(L);
@@ -1107,6 +1111,12 @@ static int luaModelSetLogicalSwitch(lua_State *L)
       }
       else if (!strcmp(key, "duration")) {
         sw->duration = luaL_checkinteger(L, -1);
+      }
+      else if (!strcmp(key, "state")) {
+        sw->lsState = lua_toboolean(L, -1);
+      }
+      else if (!strcmp(key, "persistent")) {
+        sw->lsPersist = lua_toboolean(L, -1);
       }
     }
     storageDirty(EE_MODEL);
