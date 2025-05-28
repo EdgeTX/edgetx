@@ -1896,18 +1896,18 @@
   #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_H5TEST)
-  #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_1  // PA.01
-  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_0  // PA.00
-  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_2  // PC.02
-  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_3  // PC.03
-  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_0  // PA.02
-  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_1  // ADC12_INP1
-  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_0  // ADC12_INP0
-  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_12 // ADC12_INP12
-  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_13 // ADC12_INP13
+  #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_1  // PA.01
+  #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0  // PA.00
+  #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_2  // PC.02
+  #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_3  // PC.03
+  #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_2  // PA.02
+  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_1  // ADC12_INP1
+  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0  // ADC12_INP0
+  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_12 // ADC12_INP12
+  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_13 // ADC12_INP13
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_14 // ADC12_INP14
-  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_BATT)
-  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH)
+  #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_BATT)
+  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH)
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX7)
   #define HARDWARE_POT1
