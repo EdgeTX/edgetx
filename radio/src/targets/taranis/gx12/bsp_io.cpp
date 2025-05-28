@@ -22,13 +22,12 @@
 #include "bsp_io.h"
 #include "hal/switch_driver.h"
 #include "drivers/pca95xx.h"
-#include "os/async.h"
 #include "stm32_i2c_driver.h"
 #include "timers_driver.h"
 #include "stm32_ws2812.h"
 
-#include <FreeRTOS/include/FreeRTOS.h>
-#include <FreeRTOS/include/timers.h>
+#include "os/async.h"
+#include "os/timer.h"
 
 #include "myeeprom.h"
 
@@ -39,9 +38,11 @@ struct bsp_io_expander {
 };
 
 static volatile bool _poll_switches_in_queue = false;
+
 static bsp_io_expander _io_switches;
 static bsp_io_expander _io_fs_switches;
 
+static timer_handle_t _poll_timer = TIMER_INITIALIZER;
 
 static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
 {
@@ -58,18 +59,40 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   return io->state;  
 }
 
-static void _poll_switches(void *param1, uint32_t param2)
+typedef enum {
+  TRIGGERED_BY_TIMER = 0,
+  TRIGGERED_BY_IRQ,  
+} trigger_source_t;
+
+static void _poll_switches(void *param1, uint32_t trigger_source)
 {
   (void)param1;
-  (void)param2;
-  _poll_switches_in_queue = false;
-  _read_io_expander(&_io_switches); 
-  _read_io_expander(&_io_fs_switches); 
+
+  if (trigger_source == TRIGGERED_BY_IRQ) {
+    _poll_switches_in_queue = false;
+    timer_reset(&_poll_timer);
+  }
+
+  bsp_io_read_switches();
+  bsp_io_read_fs_switches();
 }
 
 static void _io_int_handler()
 {
-  async_call_isr(_poll_switches, &_poll_switches_in_queue, nullptr, 0);
+  async_call_isr(_poll_switches, &_poll_switches_in_queue, nullptr,
+                 TRIGGERED_BY_IRQ);
+}
+
+static void _poll_cb(timer_handle_t* timer)
+{
+  (void)timer;
+  _poll_switches(nullptr, TRIGGERED_BY_TIMER);
+}
+
+static void start_poll_timer()
+{
+  timer_create(&_poll_timer, _poll_cb, "portex", 100, true);
+  timer_start(&_poll_timer);
 }
 
 int bsp_io_init()
@@ -101,6 +124,8 @@ int bsp_io_init()
 
   bsp_io_read_switches();
   bsp_io_read_fs_switches();
+
+  start_poll_timer();
 
   return 0;
 }

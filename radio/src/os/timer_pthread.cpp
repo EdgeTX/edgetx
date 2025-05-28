@@ -133,6 +133,7 @@ void timer_queue::main_loop() {
 
 void timer_queue::process_cmds()
 {
+  int added = 0;
   while (!_cmds.empty()) {
     timer_req_t req = _cmds.back();
     _cmds.pop_back();
@@ -150,6 +151,7 @@ void timer_queue::process_cmds()
         t->active = true;
         if (pos == _timers.end()) {
           _timers.emplace_back(t);
+          added++;
         }
         break;
 
@@ -164,6 +166,7 @@ void timer_queue::process_cmds()
       }
     }
   }
+  if (added) sort_timers();
 }
 
 void timer_queue::trigger_timers() {
@@ -182,10 +185,7 @@ void timer_queue::trigger_timers() {
       break;
     }
   }
-
-  if (triggered) {
-    sort_timers();
-  }
+  if (triggered) sort_timers();
 }
 
 void timer_queue::async_calls() {

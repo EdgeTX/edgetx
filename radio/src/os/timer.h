@@ -43,3 +43,4 @@ int timer_start(timer_handle_t* h);
 int timer_stop(timer_handle_t* h);
 
 int timer_set_period(timer_handle_t* h, unsigned period);
+static inline int timer_reset(timer_handle_t* h) { return timer_start(h); }

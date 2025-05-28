@@ -78,7 +78,7 @@ static void _refresh_cb(timer_handle_t* timer)
   ws2812_update(&_led_timer);
 }
 
-void rgbLedStart()
+static void rgbLedStart()
 {
   if (!timer_is_created(&_refresh_timer)) {
     timer_create(&_refresh_timer, _refresh_cb, "rgbled",
@@ -111,6 +111,7 @@ void rgbLedInit()
 {
   ws2812_init(&_led_timer, _led_colors, LED_STRIP_LENGTH, WS2812_GRB);
   rgbLedClearAll();
+  rgbLedStart();
 }
 
 // Make sure the timer channel is supported

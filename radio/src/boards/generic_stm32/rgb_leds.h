@@ -24,7 +24,6 @@
 #include <stdint.h>
 
 void rgbLedInit();
-void rgbLedStart();
 void rgbLedStop();
 
 void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b);

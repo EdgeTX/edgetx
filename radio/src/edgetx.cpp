@@ -1559,10 +1559,6 @@ void edgeTxInit()
 
   resetBacklightTimeout();
 
-#if defined(LED_STRIP_GPIO) && !defined(SIMU)
-  rgbLedStart();
-#endif
-
   pulsesStart();
   WDG_ENABLE(WDG_DURATION);
 }
