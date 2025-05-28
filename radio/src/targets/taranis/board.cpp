@@ -260,6 +260,11 @@ void boardInit()
 
 void boardOff()
 {
+#if defined(LED_STRIP_GPIO) && !defined(BOOT)
+  rgbLedStop();
+  rgbLedClearAll();
+#endif
+
 #if defined(STATUS_LEDS) && !defined(BOOT)
   ledOff();
 #endif
