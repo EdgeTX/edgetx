@@ -1316,7 +1316,14 @@ void doMixerPeriodicUpdates()
       val = RESX + calibratedAnalogs[g_model.thrTraceSrc == 0 ? inputMappingConvertMode(inputMappingGetThrottle()) : g_model.thrTraceSrc + MAX_STICKS - 1];
     }
 
-    val >>= (RESX_SHIFT-6); // calibrate it (resolution increased by factor 4)
+    // calibrate it (resolution increased by factor 4)
+#if defined(SURFACE_RADIO)
+    // For surface radio round to nearest value for center point calculation in evalTimers
+    val = (val + ((1 << (RESX_SHIFT - 6)) / 2)) >> (RESX_SHIFT - 6);
+#else
+    // Use previous calculation for air radios to avoid breaking things
+    val = val >> (RESX_SHIFT - 6);
+#endif
 
     evalTimers(val, tick10ms);
 
