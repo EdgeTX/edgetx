@@ -42,6 +42,7 @@ class ChoiceBase : public FormField
   void setTextHandler(std::function<std::string(int)> handler)
   {
     textHandler = std::move(handler);
+    currentValue = INT_MAX; // Force update
     update();
   }
 
