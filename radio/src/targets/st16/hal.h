@@ -26,12 +26,12 @@
 // - LEDs       TIM2_UP: DMA1 stream 0
 // - Audio      SPI1_TX: DMA1 stream 1
 // - Gimbals  USART2_RX: DMA1 stream 2
-// - Telemytry UART5_RX: DMA1 stream 3
+// - Telemetry UART5_RX: DMA1 stream 3
 // - Telemetry UART5_TX: DMA1 stream 7
 // 
 // - ADC3:               DMA2 stream 0
 // - ADC1:               DMA2 stream 4
-// - Ext. Mod. UART4_RX: DMA2 stream 4 (!)
+// - Ext. Mod. UART4_RX: DMA2 stream 5
 // - Ext. Mod. UART4_TX: DMA2 stream 6
 // - Ext. Mod.  TIM4_UP: DMA2 stream 6
 // 
@@ -455,7 +455,7 @@
 #define EXTMODULE_USART_TX_DMA_STREAM      LL_DMA_STREAM_6
 
 #define EXTMODULE_USART_RX_DMA_CHANNEL     LL_DMAMUX1_REQ_UART4_RX
-#define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_STREAM_4
+#define EXTMODULE_USART_RX_DMA_STREAM      LL_DMA_STREAM_5
 
 #define EXTMODULE_USART_IRQHandler         UART4_IRQHandler
 #define EXTMODULE_USART_IRQn               UART4_IRQn
