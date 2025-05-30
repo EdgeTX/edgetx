@@ -3,57 +3,42 @@
 //   This file has been generated from the target's JSON hardware description
 //
 
-{% set regular_switches = switches | selectattr('type','!=','FSWITCH') | list %}
-{% set function_switches = switches | selectattr('type','==','FSWITCH') | list %}
+{% set regular_switches = switches | selectattr('is_cfs','==',False) | list %}
+{% set display_switches = regular_switches | selectattr('display','!=',None) | list %}
 
 static const stm32_switch_t _switch_defs[] = {
-{% for switch in regular_switches %}
+{% for switch in switches %}
   {% if switch.type == '2POS' %}
   {
     "{{ switch.name }}",
-    {{ switch.gpio or "nullptr" }},
-    {{ switch.pin or 0 }},
+    {{ switch.gpio or "nullptr" }}, {{ switch.pin or 0 }},
     nullptr, 0,
-    SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
+    SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}, SWITCH_{{ switch.default }},
+    {% if switch.is_cfs %}
+    true, {{ switch.cfs_idx }}
+    {% endif %}
   },
   {% elif switch.type == '3POS' %}
   {
     "{{ switch.name }}",
-    {{ switch.gpio_high or "nullptr" }},
-    {{ switch.pin_high or 0 }},
-    {{ switch.gpio_low or "nullptr" }},
-    {{ switch.pin_low or 0 }},
-    SWITCH_HW_3POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
+    {{ switch.gpio_high or "nullptr" }}, {{ switch.pin_high or 0 }},
+    {{ switch.gpio_low or "nullptr" }}, {{ switch.pin_low or 0 }},
+    SWITCH_HW_3POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}, SWITCH_{{ switch.default }},
   },
   {% elif switch.type == 'ADC' %}
   {
     "{{ switch.name }}",
     nullptr, {{ adc_index[switch.adc_input] }},
     nullptr, 0,
-    SWITCH_HW_ADC, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
+    SWITCH_HW_ADC, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}, SWITCH_{{ switch.default }},
   },
   {% endif %}
 {% endfor %}
-{% for switch in function_switches %}
-  {
-    "{{ switch.name }}",
-    {{ switch.gpio or "nullptr" }},
-    {{ switch.pin or 0 }},
-    nullptr, 0,
-    SWITCH_HW_2POS, {{ 'SWITCH_HW_INVERTED' if switch.inverted else 0 }}
-  },
-{% endfor %}
-};
-
-static const stm32_switch_t* const _switch_offsets[] = {
-  _switch_defs,
-{% if function_switches %}
-  _switch_defs + {{ regular_switches | count }},
-{% endif %}
 };
 
 static inline void _init_switches()
 {
+{% if switch_gpios|count > 0 %}
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Mode = LL_GPIO_MODE_INPUT;
@@ -65,21 +50,14 @@ static inline void _init_switches()
   LL_GPIO_Init({{ sw_gpio }}, &pinInit);
   {% endif %}
 {% endfor %}
+{% endif %}
 }
 
-constexpr uint8_t n_switches = {{ regular_switches | count }};
-constexpr uint8_t n_fct_switches = {{ function_switches | count }};
+constexpr uint8_t n_switches = {{ switches | count }};
 
-constexpr swconfig_t _switch_default_config = (swconfig_t)0
-{% for sw in regular_switches %}
-  {% if sw.default %}
-    | ((swconfig_t)SWITCH_{{ sw.default }} << ({{ loop.index0 }} * SW_CFG_BITS))
-  {% endif %}
-{% endfor %}
-;
-
+{% if display_switches | count > 0 %}
 const switch_display_pos_t _switch_display[] = {
-{% for sw in regular_switches %}
+{% for sw in switches %}
   {% if sw.display %}
     { {{ sw.display[0] }}, {{ sw.display[1] }} },
   {% else %}
@@ -87,3 +65,4 @@ const switch_display_pos_t _switch_display[] = {
   {% endif %}
 {% endfor %}
 };
+{% endif %}

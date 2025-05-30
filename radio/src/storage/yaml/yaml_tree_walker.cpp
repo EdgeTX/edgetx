@@ -622,6 +622,13 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
         }
         else {
 
+            if (attr->type == YDT_ENUM && attr->u._enum.is_active) {
+                if (!attr->u._enum.is_active(this, data, getBitOffset())) {
+                    toNextAttr();
+                    continue;
+                }
+            }
+
             // only for lists:
             // - arrays have IDX upfront
             // - structs are not marked as arrays
