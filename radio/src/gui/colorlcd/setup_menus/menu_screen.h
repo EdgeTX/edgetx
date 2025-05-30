@@ -21,25 +21,12 @@
 
 #pragma once
 
-#include "form.h"
-#include "bitmaps.h"
+#include "pagegroup.h"
 
-class SelectFabCarousel : public Window
+class ScreenMenu : public PageGroup
 {
  public:
-  explicit SelectFabCarousel(Window* parent);
+  ScreenMenu();
 
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "SelectFabCarousel"; }
-#endif
-
-  // Add a new button to the carousel
-  void addButton(EdgeTxIcon icon, const char* title,
-                 std::function<uint8_t(void)> pressHandler);
-
-  static LAYOUT_VAL_SCALED_EVEN(FAB_BUTTON_WIDTH, 76)
-  static LAYOUT_VAL_SCALED(FAB_BUTTON_HEIGHT, 114)
-
-  static LAYOUT_VAL_SCALED(FAB_TXT_YO, 48)
-  static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH - PAD_BORDER * 2;
+  void setCurrentTab(unsigned index) override;
 };

@@ -1013,7 +1013,7 @@
   #define TR_ALIGN_OPTS                { "左", "中", "右" }
   #define TR_TEXT                      "文本"
   #define TR_COLOR                     "颜色"
-  #define TR_MAIN_VIEW_X               "Main view XX"
+  #define TR_MAIN_VIEW_X               "Main view "
   #define TR_PANEL1_BACKGROUND         "面板1背景"
   #define TR_PANEL2_BACKGROUND         "面板2背景"
   #define TR_WIDGET_GAUGE              "行程"
