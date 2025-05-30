@@ -30,19 +30,11 @@
 
 #include "board.h"
 #include "lcd.h"
+#include "timers_driver.h"
+
+#define FRAME_INTERVAL_MS 20
 
 extern uf2_fat_write_state_t _uf2_write_state;
-
-volatile tmr10ms_t g_tmr10ms;
-volatile uint8_t tenms = 1;
-
-void per5ms() {} // make linker happy
-
-void per10ms()
-{
-  tenms |= 1u; // 10 mS has passed
-  g_tmr10ms++;
-}
 
 void bootloaderUF2()
 {
@@ -52,10 +44,12 @@ void bootloaderUF2()
   storageInit();
   disk_initialize(0);
 
+  uint32_t next_frame = timersGetMsTick();
+
   for (;;) {
 
-    if (tenms) {
-      tenms = 0;
+    if (timersGetMsTick() - next_frame >= FRAME_INTERVAL_MS) {
+      next_frame += FRAME_INTERVAL_MS;
 
       keysPollingCycle();
       event_t event = getEvent();

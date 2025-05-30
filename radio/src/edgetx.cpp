@@ -167,7 +167,7 @@ void checkValidMCU(void)
 static bool evalFSok = false;
 #endif
 
-void timer_10ms()
+void per10ms()
 {
   DEBUG_TIMER_START(debugTimerPer10ms);
   DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
@@ -244,44 +244,6 @@ void timer_10ms()
 
   DEBUG_TIMER_STOP(debugTimerPer10ms);
 }
-
-#if !defined(SIMU)
-// Handle 10ms timer asynchronously
-#include <FreeRTOS/include/FreeRTOS.h>
-#include <FreeRTOS/include/timers.h>
-
-static volatile bool _timer_10ms_cb_in_queue = false;
-
-static void _timer_10ms_cb(void *pvParameter1, uint32_t ulParameter2)
-{
-  (void)pvParameter1;
-  (void)ulParameter2;
-  _timer_10ms_cb_in_queue = false;
-  timer_10ms();
-}
-
-void per10ms()
-{
-
-  if (!_timer_10ms_cb_in_queue && xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    BaseType_t xReturn = pdFALSE;
-
-    xReturn = xTimerPendFunctionCallFromISR(_timer_10ms_cb, nullptr, 0, &xHigherPriorityTaskWoken);
-
-    if (xReturn == pdPASS) {
-      _timer_10ms_cb_in_queue = true;
-    } else {
-      TRACE("xTimerPendFunctionCallFromISR() queue full");
-    }
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-  }
-}
-
-#else // !defined(SIMU)
-void per10ms() { timer_10ms(); }
-#endif
-
 
 FlightModeData *flightModeAddress(uint8_t idx)
 {

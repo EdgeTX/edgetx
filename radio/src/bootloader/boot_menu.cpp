@@ -26,6 +26,9 @@
 #include "hal/rotary_encoder.h"
 
 #include "lcd.h"
+#include "timers_driver.h"
+
+#define FRAME_INTERVAL_MS 20
 
 #if defined(SPI_FLASH)
   #define MAIN_MENU_LEN 3
@@ -38,16 +41,8 @@
   #define SEL_CLEAR_FLASH_STORAGE_MENU_LEN 2
 #endif
 
-volatile tmr10ms_t g_tmr10ms;
-volatile uint8_t tenms = 1;
-
-void per5ms() {} // make linker happy
-
-void per10ms()
+void pollInputs()
 {
-  tenms |= 1u; // 10 mS has passed
-  g_tmr10ms++;
-
   keysPollingCycle();
 
   // TODO: use rotaryEncoderPollingCycle() instead
@@ -61,6 +56,13 @@ void per10ms()
     pushEvent(scrollRE < 0 ? EVT_ROTARY_LEFT : EVT_ROTARY_RIGHT);
   }
 #endif
+}
+
+// poll inputs every 10ms
+void per5ms()
+{
+  static uint32_t cnt = 0;
+  if (++cnt & 1) { pollInputs(); }
 }
 
 FlashCheckRes valid;
@@ -95,10 +97,12 @@ void bootloaderMenu()
   
   sdInit();
 
+  uint32_t next_frame = timersGetMsTick();
+
   for (;;) {
 
-    if (tenms) {
-      tenms = 0;
+    if (timersGetMsTick() - next_frame >= FRAME_INTERVAL_MS) {
+      next_frame += FRAME_INTERVAL_MS;
 
       if (state != ST_USB && state != ST_FLASHING
           && state != ST_FLASH_DONE && state != ST_RADIO_MENU) {
