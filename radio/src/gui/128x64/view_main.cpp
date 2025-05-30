@@ -351,7 +351,7 @@ void drawSmallSwitch(coord_t x, coord_t y, int width, unsigned int index)
       }
     }
 
-    lcdDrawChar(width == 5 ? x + 1 : x, y, 'A' + index, SMLSIZE);
+    lcdDrawChar(width == 5 ? x + 1 : x, y, switchGetDefaultName(index)[1], SMLSIZE);
     y += 7;
 
     if (val <= 0) {
@@ -519,18 +519,26 @@ void menuMainView(event_t event)
         // Switches
         // -> 2 columns: one for each side
         // -> 4 slots on each side
-        uint8_t switches = switchGetMaxSwitches();
-
-        uint8_t reg_switches = 0;
-        for (int i = 0; i < switches; i += 1) {
-          if (!switchIsCustomSwitch(i))
-            reg_switches += 1;
-        }
-
-        if (reg_switches < 7) {
-          for (int i = 0, n = 0; i < switches; ++i) {
-            if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
+        uint8_t maxSwitch = 0;
+        uint8_t leftMaxRow = 0;
+        uint8_t rightMaxRow = 0;
+        for (uint8_t n = 0; n < switchGetMaxSwitches(); n += 1)
+            if (SWITCH_EXISTS(n) && !switchIsFlex(n) && !switchIsCustomSwitch(n)) {
               auto switch_display = switchGetDisplayPosition(n);
+              if (switch_display.col) {
+                if (switch_display.row > rightMaxRow)
+                  rightMaxRow = switch_display.row;
+              } else {
+                if (switch_display.row > leftMaxRow)
+                  leftMaxRow = switch_display.row;
+              }
+              maxSwitch = n + 1;
+            }
+
+        if (leftMaxRow < 3 && rightMaxRow < 3) {
+          for (int i = 0; i < maxSwitch; ++i) {
+            if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
+              auto switch_display = switchGetDisplayPosition(i);
               coord_t x = switch_display.col == 0 ? 3 * FW + 3 : 18 * FW + 1;
               coord_t y = 33 + switch_display.row * FH;
               getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
@@ -539,18 +547,16 @@ void menuMainView(event_t event)
                   ((val < 0) ? 3 * i + 1
                               : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
               drawSwitch(x, y, sw, CENTERED, false);
-              n += 1;
             }
           }
         }
         else {
-          for (int i = 0, n = 0; i < switches; ++i) {
+          for (int i = 0; i < maxSwitch; ++i) {
             if (SWITCH_EXISTS(i) && !switchIsFlex(i) && !switchIsCustomSwitch(i)) {
-              auto switch_display = switchGetDisplayPosition(n);
+              auto switch_display = switchGetDisplayPosition(i);
               coord_t x = (switch_display.col == 0 ? 8 : 96) + switch_display.row * 5;
-              if (reg_switches < 9) x += 3;
+              if (maxSwitch < 9) x += 3;
               drawSmallSwitch(x, 5 * FH + 1, 4, i);
-              n += 1;
             }
           }
         }
