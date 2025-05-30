@@ -407,7 +407,10 @@ SWITCH_CONFIG = {
         # right side
         "SC": {"default": "3POS",   "display": [1, 0]},
         "SD": {"default": "3POS",   "display": [1, 1]},
-        "SH": {"default": "TOGGLE", "display": [1, 2]}
+        "SH": {"default": "TOGGLE", "display": [1, 2]},
+        # optional
+        "SI": {"default": "NONE",   "display": [0, 3]},
+        "SJ": {"default": "NONE",   "display": [0, 3]},
     },
     "x7access": {
         # left side
@@ -417,7 +420,10 @@ SWITCH_CONFIG = {
         # right side
         "SC": {"default": "3POS",   "display": [1, 0]},
         "SD": {"default": "3POS",   "display": [1, 1]},
-        "SH": {"default": "TOGGLE", "display": [1, 2]}
+        "SH": {"default": "TOGGLE", "display": [1, 2]},
+        # optional
+        "SI": {"default": "NONE",   "display": [0, 3]},
+        "SJ": {"default": "NONE",   "display": [0, 3]},
     },
     "x9d": {
         # left side
