@@ -127,7 +127,7 @@ static void _timer_10ms_cb(timer_handle_t* h)
   per10ms();
 }
 
-void timer10msStart()
+static void timer10msStart()
 {
   if (!timer_is_created(&_timer10ms)) {
     timer_create(&_timer10ms, _timer_10ms_cb, "10ms", 10, true);
