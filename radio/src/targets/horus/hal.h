@@ -317,6 +317,7 @@
   #define TRIMS_GPIO_REG_LSU            GPIOB
   #define TRIMS_GPIO_PIN_LSU            LL_GPIO_PIN_13 // PB.13
 #elif defined(PCBX10)
+  // Left/Right Horizontal trims (LHL/LHR)
   #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
     #define TRIMS_GPIO_REG_LHL            GPIOA
     #define TRIMS_GPIO_PIN_LHL            LL_GPIO_PIN_6  // PA.06
@@ -328,19 +329,26 @@
     #define TRIMS_GPIO_REG_LHR            GPIOB
     #define TRIMS_GPIO_PIN_LHR            LL_GPIO_PIN_9  // PB.09
   #endif
+
+  // Vertical trims - common across all PCBX10 variants
   #define TRIMS_GPIO_REG_LVD            GPIOG
   #define TRIMS_GPIO_PIN_LVD            LL_GPIO_PIN_12 // PG.12
   #define TRIMS_GPIO_REG_LVU            GPIOJ
   #define TRIMS_GPIO_PIN_LVU            LL_GPIO_PIN_14 // PJ.14
   #define TRIMS_GPIO_REG_RVD            GPIOJ
   #define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_13 // PJ.13
-  #define TRIMS_GPIO_REG_RHL            GPIOD
-  #define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_3  // PD.03
   #define TRIMS_GPIO_REG_RVU            GPIOJ
   #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_12 // PJ.12
+
+  // Right Horizontal trims - common across all PCBX10 variants
+  #define TRIMS_GPIO_REG_RHL            GPIOD
+  #define TRIMS_GPIO_PIN_RHL            LL_GPIO_PIN_3  // PD.03
   #define TRIMS_GPIO_REG_RHR            GPIOD
   #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_7  // PD.07
-  #if defined (RADIO_V16) //T5 T6 exchange position
+  
+  // T5/T6 trim assignments
+  #if defined(RADIO_V16)
+    // T5/T6 trims are in exchanged positions to other handsets
     #define TRIMS_GPIO_REG_LSU          GPIOB
     #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_14 // PB.14
     #define TRIMS_GPIO_REG_LSD          GPIOB
@@ -349,22 +357,24 @@
     #define TRIMS_GPIO_PIN_RSU          LL_GPIO_PIN_13 // PD.13
     #define TRIMS_GPIO_REG_RSD          GPIOJ
     #define TRIMS_GPIO_PIN_RSD          LL_GPIO_PIN_8  // PJ.08
-  #else
-  #if defined(RADIO_FAMILY_T16)
+  #elif defined(RADIO_FAMILY_T16)
     #define TRIMS_GPIO_REG_LSU          GPIOD
     #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_13 // PD.13
     #define TRIMS_GPIO_REG_LSD          GPIOJ
     #define TRIMS_GPIO_PIN_LSD          LL_GPIO_PIN_8  // PJ.08
-  #else
+    #define TRIMS_GPIO_REG_RSU          GPIOB
+    #define TRIMS_GPIO_PIN_RSU          LL_GPIO_PIN_14 // PB.14
+    #define TRIMS_GPIO_REG_RSD          GPIOB
+    #define TRIMS_GPIO_PIN_RSD          LL_GPIO_PIN_13 // PB.13
+  #else // Other PCBX10 variants
     #define TRIMS_GPIO_REG_LSU          GPIOJ
     #define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_8  // PJ.08
     #define TRIMS_GPIO_REG_LSD          GPIOD
     #define TRIMS_GPIO_PIN_LSD          LL_GPIO_PIN_13 // PD.13
-  #endif
-  #define TRIMS_GPIO_REG_RSU            GPIOB
-  #define TRIMS_GPIO_PIN_RSU            LL_GPIO_PIN_14 // PB.14
-  #define TRIMS_GPIO_REG_RSD            GPIOB
-  #define TRIMS_GPIO_PIN_RSD            LL_GPIO_PIN_13 // PB.13
+    #define TRIMS_GPIO_REG_RSU          GPIOB
+    #define TRIMS_GPIO_PIN_RSU          LL_GPIO_PIN_14 // PB.14
+    #define TRIMS_GPIO_REG_RSD          GPIOB
+    #define TRIMS_GPIO_PIN_RSD          LL_GPIO_PIN_13 // PB.13
   #endif
 #endif
 
