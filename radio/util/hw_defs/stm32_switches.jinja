@@ -57,7 +57,7 @@ constexpr uint8_t n_switches = {{ switches | count }};
 
 {% if display_switches | count > 0 %}
 const switch_display_pos_t _switch_display[] = {
-{% for sw in display_switches %}
+{% for sw in switches %}
   {% if sw.display %}
     { {{ sw.display[0] }}, {{ sw.display[1] }} },
   {% else %}
