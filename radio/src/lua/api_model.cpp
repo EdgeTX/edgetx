@@ -1040,7 +1040,7 @@ Get Logical Switch parameters
  * `state` (boolean) current state of the logical switch
  * `persistent` (boolean) if true then the state is persistent across reboot of the radio
 
-@status current Introduced in 2.0.0
+@status current Introduced in 2.0.0, state and persistent added in 2.11.2
 */
 static int luaModelGetLogicalSwitch(lua_State *L)
 {
@@ -1079,7 +1079,7 @@ that parameter remains unchanged.
 @notice To set the `and` member (which is Lua keyword)
 use the following syntax: `model.setLogicalSwitch(30, {func=4,v1=1,v2=-99, ["and"]=24})`
 
-@status current Introduced in 2.0.0
+@status current Introduced in 2.0.0, state and persistent added in 2.11.2
 */
 static int luaModelSetLogicalSwitch(lua_State *L)
 {
