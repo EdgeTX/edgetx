@@ -256,6 +256,11 @@ extern void rtcDisableBackupReg();
 
 void boardOff()
 {
+#if defined(LED_STRIP_GPIO) && !defined(BOOT)
+  rgbLedStop();
+  rgbLedClearAll();
+#endif
+
   ledOff();
   backlightEnable(0);
 
