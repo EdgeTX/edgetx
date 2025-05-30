@@ -74,8 +74,6 @@ static void _io_int_handler()
 
 int bsp_io_init()
 {
-  timersInit();
-
   if (i2c_init(I2C_Bus_2) < 0) {
     return -1;
   }
