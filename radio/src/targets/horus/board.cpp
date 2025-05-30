@@ -65,6 +65,17 @@ void boardBLEarlyInit()
 }
 #endif
 
+extern "C" void SDRAM_Init();
+
+void boardBLPreJump()
+{
+  SDRAM_Init();
+}
+
+void boardBLInit()
+{
+  SDRAM_Init();
+}
 
 #if !defined(BOOT)
 #include "edgetx.h"

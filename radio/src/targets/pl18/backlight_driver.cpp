@@ -35,6 +35,12 @@ void backlightLowInit( void )
   gpio_clear(BACKLIGHT_GPIO);
 }
 
+#if defined(BOOT)
+void* _bl_init_hook[] __INIT_HOOK = {
+  (void*)backlightLowInit, 
+};
+#endif
+
 void backlightInit()
 {
   // PIN init
