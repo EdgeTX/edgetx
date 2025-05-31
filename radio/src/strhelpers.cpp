@@ -362,12 +362,12 @@ char *getGVarString(char *dest, int idx)
 }
 
 #if defined(LIBOPENUI)
-char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
-                           gvar_t vmax, LcdFlags flags, const char *suffix,
+char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
+                           LcdFlags flags, const char *suffix,
                            gvar_t offset, bool usePPMUnit)
 {
-  if (GV_IS_GV_VALUE(value, vmin, vmax)) {
-    int index = GV_INDEX_CALC_DELTA(value, GV_GET_GV1_VALUE(vmin, vmax));
+  if (GV_IS_GV_VALUE(value)) {
+    int index = GV_INDEX_FROM_VALUE(value);
     return getGVarString(dest, index);
   }
 
@@ -378,8 +378,8 @@ char *getValueOrGVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
   return dest;
 }
 
-char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, gvar_t vmin,
-                           gvar_t vmax, LcdFlags flags, const char *suffix,
+char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value,
+                           LcdFlags flags, const char *suffix,
                            gvar_t offset, bool usePPMUnit)
 {
   SourceNumVal v;
