@@ -90,14 +90,15 @@
 #endif
 
 
-#if defined(SDMMC1) && defined(SD_SDIO)
+#if defined(SDMMC1)
 #  define SD_SDIO_TypeDef SDMMC_TypeDef
 #  define SD_SDIO_CLOCK_EDGE_RISING SDMMC_CLOCK_EDGE_RISING
 #  define SD_SDIO_CLOCK_POWER_SAVE_DISABLE SDMMC_CLOCK_POWER_SAVE_DISABLE
 #  define SD_SDIO_BUS_WIDE_1B SDMMC_BUS_WIDE_1B
 #  define SD_SDIO_BUS_WIDE_4B SDMMC_BUS_WIDE_4B
 #  define SD_SDIO_HARDWARE_FLOW_CONTROL_DISABLE SDMMC_HARDWARE_FLOW_CONTROL_DISABLE
-#elif !defined(SDMMC1)
+#  define SD_SDIO_IRQn SDMMC1_IRQn
+#else
 #  if !defined(SD_SDIO)
 #    define SD_SDIO SDIO
 #  endif
@@ -110,6 +111,7 @@
 #  define SD_SDIO_BUS_WIDE_1B SDIO_BUS_WIDE_1B
 #  define SD_SDIO_BUS_WIDE_4B SDIO_BUS_WIDE_4B
 #  define SD_SDIO_HARDWARE_FLOW_CONTROL_DISABLE SDIO_HARDWARE_FLOW_CONTROL_DISABLE
+#  define SD_SDIO_IRQn SDIO_IRQn
 #endif
 
 struct {
@@ -126,7 +128,7 @@ struct {
   gpio_af_t  AF_D3 = SD_SDIO_AF_D3;
   gpio_af_t  AF_CMD = SD_SDIO_AF_CMD;
   gpio_af_t  AF_CLK = SD_SDIO_AF_CLK;
-  IRQn_Type  IRQn = SDIO_IRQn;
+  IRQn_Type  IRQn = SD_SDIO_IRQn;
   uint32_t SD_CLK_DIV = SD_SDIO_TRANSFER_CLK_DIV;
 } currentSD;
 
