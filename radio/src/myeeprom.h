@@ -133,17 +133,17 @@ enum CurveRefType {
 #define LIMIT_STD_MAX       (LIMIT_STD_PERCENT*10)
 #define PPM_CENTER_MAX      500
 #define LIMIT_MAX(lim)                                            \
-  (GV_IS_GV_VALUE(lim->max, -GV_RANGELARGE, GV_RANGELARGE)        \
+  (GV_IS_GV_VALUE(lim->max)                                       \
        ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
        : lim->max + LIMIT_STD_MAX)
 #define LIMIT_MIN(lim)                                            \
-  (GV_IS_GV_VALUE(lim->min, -GV_RANGELARGE, GV_RANGELARGE)        \
+  (GV_IS_GV_VALUE(lim->min)                                       \
        ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
                         mixerCurrentFlightMode)                   \
        : lim->min - LIMIT_STD_MAX)
 #define LIMIT_OFS(lim)                                               \
-  (GV_IS_GV_VALUE(lim->offset, -LIMIT_STD_MAX, LIMIT_STD_MAX)        \
+  (GV_IS_GV_VALUE(lim->offset)                                       \
        ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX, \
                         mixerCurrentFlightMode)                      \
        : lim->offset)
@@ -168,9 +168,6 @@ enum TrainerMultiplex {
   TRAINER_REPL = 2,
 };
 
-#define GV1_SMALL       128
-#define GV1_LARGE       1024
-#define GV_RANGE_OFFSET 500
 #define DELAY_MAX       250 /* 25 seconds */
 #define SLOW_MAX        250 /* 25 seconds */
 
