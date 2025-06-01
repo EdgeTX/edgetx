@@ -1969,7 +1969,8 @@ void LvglWidgetTextEdit::build(lua_State *L)
                             int t = lua_gettop(L);
                             PROTECT_LUA()
                             {
-                              if (!pcallFuncWithString(L, setFunction, 0, value)) {
+                              std::string s(value, maxLen); // Ensure string is terminated
+                              if (!pcallFuncWithString(L, setFunction, 0, s.c_str())) {
                                 lvglManager->luaShowError();
                               }
                             }
