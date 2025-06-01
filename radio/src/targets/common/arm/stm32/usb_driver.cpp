@@ -46,7 +46,6 @@ extern "C" {
 #include "hal/usb_driver.h"
 
 #include "hal.h"
-#include "board.h"
 #include "debug.h"
 
 #if defined(USE_USB_HS)
@@ -131,7 +130,7 @@ void usbInit()
   gpio_init_af(USB_GPIO_DP, USB_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
   
 #if defined(USB_GPIO_VBUS)
-#if defined(USB_GPIO_VBUS_OPEN_DRAIN) || defined(USB_GPIO_VBUS_PU)
+#if defined(USB_GPIO_VBUS_OPEN_DRAIN)
   gpio_init(USB_GPIO_VBUS, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 #else
   gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
