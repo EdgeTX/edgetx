@@ -92,7 +92,7 @@ bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
   if (GV_IS_GV_VALUE(sval)) {
     char s[8] = "";
     int ofst = 0;
-    char idx = GV_INDEX_FROM_VALUE(sval);
+    int idx = GV_INDEX_FROM_VALUE(sval);
     if (idx < 0) {
       s[0] = '-';
       ofst = 1;
