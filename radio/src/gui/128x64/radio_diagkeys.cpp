@@ -145,6 +145,13 @@ void menuRadioDiagKeys(event_t event)
 #if defined(ROTARY_ENCODER_NAVIGATION)
   coord_t y = LCD_H - FH + 1;
   lcdDrawText(8*FW-9, y, STR_ROTARY_ENCODER);
-  lcdDrawNumber(12*FW+FWNUM+2, y, rotaryEncoderGetValue(), RIGHT);
+  lcdDrawNumber(lcdNextPos + 3, y, rotaryEncoderGetValue());
+#endif
+
+#if defined(IO_EXPENDER)
+  extern uint32_t bsp_interupt_count;
+
+  lcdDrawText(13*FW, LCD_H - FH + 1, "INT:");
+  lcdDrawNumber(lcdNextPos + 3, y, bsp_interupt_count);
 #endif
 }

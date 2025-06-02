@@ -630,6 +630,9 @@
 #endif
 
 // Switches
+#if defined(RADIO_GX12)
+  #define  IO_EXPENDER  true
+#endif
 #if defined(PCBX9E)
   #define SWITCHES_GPIO_REG_A_H         GPIOD
   #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_10 // PD.10

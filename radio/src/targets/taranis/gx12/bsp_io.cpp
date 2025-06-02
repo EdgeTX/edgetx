@@ -37,6 +37,7 @@ struct bsp_io_expander {
   uint32_t state;
 };
 
+uint32_t bsp_interupt_count = 0;
 static volatile bool _poll_switches_in_queue = false;
 
 static bsp_io_expander _io_switches;
@@ -79,6 +80,7 @@ static void _poll_switches(void *param1, uint32_t trigger_source)
 
 static void _io_int_handler()
 {
+  bsp_interupt_count++;
   async_call_isr(_poll_switches, &_poll_switches_in_queue, nullptr,
                  TRIGGERED_BY_IRQ);
 }
