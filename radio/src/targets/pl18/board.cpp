@@ -59,6 +59,8 @@
 // Common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
+extern "C" void SDRAM_Init();
+
 #if defined(SEMIHOSTING)
 extern "C" void initialise_monitor_handles();
 #endif
@@ -176,12 +178,18 @@ void boardBLEarlyInit()
 #endif
 }
 
-#if defined(RADIO_NB4P)
 void boardBLPreJump()
 {
+  SDRAM_Init();
+#if defined(RADIO_NB4P)
   LL_ADC_Disable(ADC_MAIN);
-}
 #endif
+}
+
+void boardBLInit()
+{
+  SDRAM_Init();
+}
 
 static void monitorInit()
 {
