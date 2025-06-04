@@ -25,7 +25,7 @@
 
 #include "board.h"
 #include "storage/yaml/yaml_defs.h"
-
+#include "gvars.h"
 
 #if defined(EXPORT)
   #define LUA_EXPORT(...)              LEXP(__VA_ARGS__)
@@ -387,15 +387,6 @@ enum PotsWarnMode {
   POTS_WARN_MANUAL,
   POTS_WARN_AUTO
 };
-
-#define LEN_GVAR_NAME                3
-#define GVAR_MAX                     1024
-#define GVAR_MIN                     -GVAR_MAX
-
-// we reserve the space inside the range of values, like offset, weight, etc.
-#define RESERVE_RANGE_FOR_GVARS      10
-
-#define MAX_GVARS                    9
 
 // Maximum number analog inputs by type
 #define MAX_STICKS        4
