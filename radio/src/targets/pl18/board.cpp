@@ -74,6 +74,7 @@ extern "C" void flushFTL();
 
   static uint8_t boardGetPcbRev()
   {
+    delaysInit();
     gpio_init(INTMODULE_PWR_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
     delay_ms(1); // delay to let the input settle, else it does not work properly
 
