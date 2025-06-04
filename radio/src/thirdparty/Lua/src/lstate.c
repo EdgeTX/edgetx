@@ -340,18 +340,18 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->ROstrt.size = 0;
   g->ROstrt.nuse = 0;
   g->ROstrt.hash = NULL;
-#ifdef LUA_ENABLE_TEST
+// #ifdef LUA_ENABLE_TEST                 // EdgeTX uses multiple states - ensure only 1st one is set to L0
   if (L0) { /* This is a second state */
     g->cache=G(L0)->cache;
   } else {
-#endif
+// #endif
   L0 = L;
   g->cache = cast(KeyCacheLine *,
                  (*f)(ud, NULL, 0, KEYCACHE_N * sizeof(KeyCacheLine)));
   memset(g->cache, 0, KEYCACHE_N * sizeof(KeyCacheLine));
-#ifdef LUA_ENABLE_TEST
+// #ifdef LUA_ENABLE_TEST
   }
-#endif
+// #endif
   for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != LUA_OK) {
     /* memory allocation error: free partial state */

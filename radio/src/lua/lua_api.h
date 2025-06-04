@@ -65,6 +65,7 @@ extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();
 #endif
 
+void luaInitMainState();
 void luaInit();
 void luaClose();
 

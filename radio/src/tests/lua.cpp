@@ -34,7 +34,7 @@
 ::testing::AssertionResult __luaExecStr(const char * str)
 {
   extern lua_State * lsScripts;
-  if (!lsScripts) luaInit();
+  if (!lsScripts) { luaInitMainState(); luaInit(); }
   if (!lsScripts) return ::testing::AssertionFailure() << "No Lua state!";
   if (luaL_dostring(lsScripts, str)) {
     return ::testing::AssertionFailure() << "lua error: " << lua_tostring(lsScripts, -1);

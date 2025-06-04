@@ -49,8 +49,6 @@ static void luaStandaloneHook(lua_State * L, lua_Debug *ar)
 
 static void luaStandaloneInit()
 {
-  luaClose(&lsStandalone);
-
 #if defined(USE_CUSTOM_ALLOCATOR)
   lsStandalone = lua_newstate(custom_l_alloc, nullptr);   //we use our own allocator!
 #elif defined(LUA_ALLOCATOR_TRACER)
@@ -66,18 +64,14 @@ static void luaStandaloneInit()
     lua_atpanic(lsStandalone, &custom_lua_atpanic);
 
 #if defined(LUA_ALLOCATOR_TRACER)
-    lua_sethook(L, luaStandaloneHook, LUA_MASKLINE);
+    lua_sethook(lsStandalone, luaStandaloneHook, LUA_MASKLINE);
 #endif
 
     // protect libs and constants registration
     PROTECT_LUA() {
       luaRegisterLibraries(lsStandalone);
-    }
-    else {
-      // if we got panic during registration
-      // we disable Lua for this session
+    } else {
       luaClose(&lsStandalone);
-      lsStandalone = 0;
     }
     UNPROTECT_LUA();
   }
@@ -85,7 +79,7 @@ static void luaStandaloneInit()
 
 void luaExecStandalone(const char * filename)
 {
-  if (lsStandalone == NULL)
+  if (lsStandalone == nullptr)
     luaStandaloneInit();
 
   PROTECT_LUA() {
@@ -212,8 +206,9 @@ void StandaloneLuaWindow::deleteLater(bool detach, bool trash)
 
   if (initFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
   if (runFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
-  lua_settop(lsStandalone, 0);
   luaLcdBuffer = nullptr;
+
+  luaClose(&lsStandalone);
 
   if (lcdBuffer) delete lcdBuffer;
   lcdBuffer = nullptr;
