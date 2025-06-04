@@ -83,3 +83,13 @@ Window* Layer::getFirstOpaque()
 
   return nullptr;
 }
+
+Window* Layer::walk(std::function<bool(Window* w)> check)
+{
+  for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+    if (layer->window && check(layer->window))
+      return layer->window;
+  }
+
+  return nullptr;
+}
