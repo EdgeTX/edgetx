@@ -391,41 +391,53 @@ void InputsPanel::expoAdd()
   gm_openExpo(index);
 }
 
+QAction * InputsPanel::addAct(const QString & icon, const QString & text, const char * slot, const QKeySequence & shortcut, bool enabled)
+{
+  QAction * newAction = new QAction(this);
+  newAction->setMenuRole(QAction::NoRole);
+  newAction->setText(text);
+  newAction->setIcon(CompanionIcon(icon));
+  newAction->setShortcut(shortcut);
+  newAction->setEnabled(enabled);
+  connect(newAction, SIGNAL(triggered()), this, slot);
+  return newAction;
+}
+
 void InputsPanel::expolistWidget_customContextMenuRequested(QPoint pos)
 {
   QPoint globalPos = ExposlistWidget->mapToGlobal(pos);
 
   const QClipboard *clipboard = QApplication::clipboard();
   const QMimeData *mimeData = clipboard->mimeData();
-  bool hasData = mimeData->hasFormat(MIMETYPE_EXPO);
+  bool hasClipData = mimeData->hasFormat(MIMETYPE_EXPO);
 
   selectedIdx = getIndexFromSelected();
   inputIdx = getInputIndexFromSelected();
 
   QMenu contextMenu;
   QMenu *contextMenuLines = contextMenu.addMenu(tr("Lines"));
-  contextMenuLines->addAction(CompanionIcon("add.png"), tr("&Add"), this, SLOT(expoAdd()), tr("Ctrl+A"));
-  contextMenuLines->addAction(CompanionIcon("edit.png"), tr("&Edit"), this, SLOT(expoOpen()), tr("Enter"));
+  contextMenuLines->addAction(addAct("add.png",           tr("&Add"),       SLOT(expoAdd()),          tr("Ctrl+A")));
+  contextMenuLines->addAction(addAct("edit.png",          tr("&Edit"),      SLOT(expoOpen()),         tr("Enter")));
   contextMenuLines->addSeparator();
-  contextMenuLines->addAction(CompanionIcon("clear.png"), tr("&Delete"), this, SLOT(exposDelete()), tr("Delete"));
-  contextMenuLines->addAction(CompanionIcon("copy.png"), tr("&Copy"), this, SLOT(exposCopy()), tr("Ctrl+C"));
-  contextMenuLines->addAction(CompanionIcon("cut.png"), tr("&Cut"), this, SLOT(exposCut()), tr("Ctrl+X"));
-  contextMenuLines->addAction(CompanionIcon("paste.png"), tr("&Paste"), this, SLOT(exposPaste()), tr("Ctrl+V"))->setEnabled(hasData);
-  contextMenuLines->addAction(CompanionIcon("duplicate.png"), tr("Du&plicate"), this, SLOT(exposDuplicate()), tr("Ctrl+U"));
+  contextMenuLines->addAction(addAct("clear.png",         tr("&Delete"),    SLOT(exposDelete()),      tr("Delete")));
+  contextMenuLines->addAction(addAct("copy.png",          tr("&Copy"),      SLOT(exposCopy()),        tr("Ctrl+C")));
+  contextMenuLines->addAction(addAct("cut.png",           tr("&Cut"),       SLOT(exposCut()),         tr("Ctrl+X")));
+  contextMenuLines->addAction(addAct("paste.png",         tr("&Paste"),     SLOT(exposPaste()),       tr("Ctrl+V"),     hasClipData));
+  contextMenuLines->addAction(addAct("duplicate.png",     tr("Du&plicate"), SLOT(exposDuplicate()),   tr("Ctrl+U")));
   contextMenuLines->addSeparator();
-  contextMenuLines->addAction(CompanionIcon("moveup.png"), tr("Move Up"), this, SLOT(moveExpoUp()), tr("Ctrl+Up"));
-  contextMenuLines->addAction(CompanionIcon("movedown.png"), tr("Move Down"), this, SLOT(moveExpoDown()), tr("Ctrl+Down"));
+  contextMenuLines->addAction(addAct("moveup.png",        tr("Move Up"),    SLOT(moveExpoUp()),       tr("Ctrl+Up")));
+  contextMenuLines->addAction(addAct("movedown.png",      tr("Move Down"),  SLOT(moveExpoDown()),     tr("Ctrl+Down")));
 
   QMenu *contextMenuInputs = contextMenu.addMenu(tr("Input"));
-  contextMenuInputs->addAction(CompanionIcon("arrow-right.png"), tr("Insert"), this, SLOT(cmInputInsert()))->setEnabled(cmInputInsertAllowed());
-  contextMenuInputs->addAction(CompanionIcon("arrow-left.png"), tr("Delete"), this, SLOT(cmInputDelete()));
-  contextMenuInputs->addAction(CompanionIcon("moveup.png"), tr("Move Up"), this, SLOT(cmInputMoveUp()))->setEnabled(cmInputMoveUpAllowed());
-  contextMenuInputs->addAction(CompanionIcon("movedown.png"), tr("Move Down"), this, SLOT(cmInputMoveDown()))->setEnabled(cmInputMoveDownAllowed());
+  contextMenuInputs->addAction(addAct("arrow-right.png",  tr("Insert"),     SLOT(cmInputInsert()),    0,                cmInputInsertAllowed()));
+  contextMenuInputs->addAction(addAct("arrow-left.png",   tr("Delete"),     SLOT(cmInputDelete()),    0));
+  contextMenuInputs->addAction(addAct("moveup.png",       tr("Move Up"),    SLOT(cmInputMoveUp()),    0,                cmInputMoveUpAllowed()));
+  contextMenuInputs->addAction(addAct("movedown.png",     tr("Move Down"),  SLOT(cmInputMoveDown()),  0,                cmInputMoveDownAllowed()));
   contextMenuInputs->addSeparator();
-  contextMenuInputs->addAction(CompanionIcon("clear.png"), tr("Clear"), this, SLOT(cmInputClear()))->setEnabled(isExpoIndex(selectedIdx));
+  contextMenuInputs->addAction(addAct("clear.png",        tr("Clear"),      SLOT(cmInputClear()),     0,                isExpoIndex(selectedIdx)));
 
   contextMenu.addSeparator();
-  contextMenu.addAction(CompanionIcon("clear.png"), tr("Clear All"), this, SLOT(clearExpos()));
+  contextMenu.addAction(addAct(       "clear.png",        tr("Clear All"),  SLOT(clearExpos())));
   contextMenu.addSeparator();
   contextMenu.addActions(ExposlistWidget->actions());
   contextMenu.exec(globalPos);
