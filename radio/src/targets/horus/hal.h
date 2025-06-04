@@ -1038,7 +1038,7 @@
   #define FLYSKY_HALL_SERIAL_USART_IRQn            UART4_IRQn
   #define FLYSKY_HALL_SERIAL_DMA                   DMA1
   #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_STREAM_2
-  // #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
+  #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 #endif
 
 #if defined(RADIO_V16)
