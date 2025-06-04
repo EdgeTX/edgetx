@@ -1313,9 +1313,9 @@
 // 6POS SW
 #if defined(RADIO_V14) || defined(RADIO_V12)
   #define SIXPOS_SWITCH_INDEX             6
-  #define SIXPOS_LED_RED                255
-  #define SIXPOS_LED_GREEN              255
-  #define SIXPOS_LED_BLUE               255
+  #define SIXPOS_LED_RED                200
+  #define SIXPOS_LED_GREEN              0
+  #define SIXPOS_LED_BLUE               0
 #endif
 
 // ADC
@@ -2039,6 +2039,19 @@
   #define FSLED_GPIO_PIN_5              GPIO_PIN(FSLED_GPIO, 1)
   #define FSLED_GPIO_PIN_6              GPIO_PIN(FSLED_GPIO, 0)
 #endif
+#endif
+
+// voice
+#if defined(RADIO_V12) || defined(RADIO_V14)
+  #define VoiceAI_PWR_GPIO              GPIO_PIN(GPIOD, 14) // PD.14
+  #define VoiceAI_PWR_OFF()             gpio_clear(VoiceAI_PWR_GPIO)
+  #define VoiceAI_PWR_ON()              gpio_set(VoiceAI_PWR_GPIO)
+#endif
+#if defined(RADIO_V14)
+  #define SALED_PWR_GPIO                   GPIO_PIN(GPIOC, 13) // PD.14
+  #define SALED_PWR_ON()                   gpio_set(SALED_PWR_GPIO)
+  #define SDLED_PWR_GPIO                   GPIO_PIN(GPIOE, 8) // PD.14
+  #define SDLED_PWR_ON()                   gpio_set(SDLED_PWR_GPIO)
 #endif
 
 // Internal Module
