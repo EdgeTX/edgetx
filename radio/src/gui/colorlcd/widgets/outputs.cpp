@@ -99,12 +99,8 @@ class ChannelValue : public Window
   {
     int16_t value = channelOutputs[channel];
 
-    const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
-    uint16_t w = width() - PAD_TINY;
-    int16_t scaledValue = divRoundClosest(w * limit<int16_t>(-lim, value, lim), lim * 2);
-
-    if (scaledValue != lastValue) {
-      lastValue = scaledValue;
+    if (value != lastValue) {
+      lastValue = value;
 
       std::string s;
       if (g_eeGeneral.ppmunit == PPM_US)
@@ -114,13 +110,24 @@ class ChannelValue : public Window
       else
         s = formatNumberAsString(calcRESXto100(value), 0, 0, "", "%");
 
-      lv_label_set_text(valueLabel, s.c_str());
+      if (s != lastText) {
+        lastText = s;
+        lv_label_set_text(valueLabel, s.c_str());
+      }
 
-      uint16_t fillW = abs(scaledValue);
-      uint16_t x = value > 0 ? w / 2 : w / 2 - fillW + 1;
+      const int lim = (g_model.extendedLimits ? (1024 * LIMIT_EXT_PERCENT / 100) : 1024);
+      uint16_t w = width() - PAD_TINY;
+      int16_t scaledValue = divRoundClosest(w * limit<int16_t>(-lim, value, lim), lim * 2);
 
-      lv_obj_set_pos(bar, x, 0);
-      lv_obj_set_size(bar, fillW, ROW_HEIGHT - 1);
+      if (scaledValue != lastScaledValue) {
+        lastScaledValue = scaledValue;
+
+        uint16_t fillW = abs(scaledValue);
+        uint16_t x = value > 0 ? w / 2 : w / 2 - fillW + 1;
+
+        lv_obj_set_pos(bar, x, 0);
+        lv_obj_set_size(bar, fillW, ROW_HEIGHT - 1);
+      }
     }
 
     bool hasName = g_model.limitData[channel].name[0] != 0;
@@ -135,6 +142,8 @@ class ChannelValue : public Window
  protected:
   uint8_t channel;
   int16_t lastValue = -32768;
+  int16_t lastScaledValue = -32768;
+  std::string lastText;
   bool chanHasName = false;
   lv_style_t style;
   lv_obj_t* valueLabel = nullptr;
