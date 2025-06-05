@@ -107,6 +107,8 @@ void EXTERNAL_MODULE_OFF()
 
 void boardBLEarlyInit()
 {
+  gpio_init(AUDIO_RESET_PIN, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_clear(AUDIO_RESET_PIN);
   timersInit();
   bsp_io_init();
   gpio_clear(UCHARGER_EN_GPIO);
@@ -114,6 +116,7 @@ void boardBLEarlyInit()
 
 void boardBLPreJump()
 {
+  gpio_set(AUDIO_RESET_PIN);
   ExtFLASH_Init();
   SDRAM_Init();
 
