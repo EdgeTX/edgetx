@@ -78,9 +78,15 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
     QLabel * lblOffColor = new QLabel(this);
     lblOffColor->setText(tr("Off color"));
     ui->gridSwitches->addWidget(lblOffColor, 5, 0);
+    QLabel * lblOffLua = new QLabel(this);
+    lblOffLua->setText(tr("  Allow Lua override"));
+    ui->gridSwitches->addWidget(lblOffLua, 6, 0);
     QLabel * lblOnColor = new QLabel(this);
     lblOnColor->setText(tr("On color"));
-    ui->gridSwitches->addWidget(lblOnColor, 6, 0);
+    ui->gridSwitches->addWidget(lblOnColor, 7, 0);
+    QLabel * lblOnLua = new QLabel(this);
+    lblOnLua->setText(tr("  Allow Lua override"));
+    ui->gridSwitches->addWidget(lblOnLua, 8, 0);
   }
 
   for (int sw = 0, col = 0; sw < Boards::getCapability(board, Board::Switches); sw++) {
@@ -134,6 +140,16 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
           }
         });
         ui->gridSwitches->addWidget(btnOffColor, row++, col + coloffset);
+        btnOffColors << btnOffColor;
+
+        QCheckBox * cbOffLuaOverride = new QCheckBox(this);
+        cbOffLuaOverride->setChecked(this->model->customSwitches[i].offColorLuaOverride);
+        connect(cbOffLuaOverride, &QCheckBox::toggled, [=](int value) {
+          this->model->customSwitches[i].offColorLuaOverride = value;
+          emit modified();
+        });
+        ui->gridSwitches->addWidget(cbOffLuaOverride, row++, col + coloffset);
+        cbOffLuaOverrides << cbOffLuaOverride;
 
         QPushButton * btnOnColor = new QPushButton(tr(""));
         QColor on = this->model->customSwitches[i].onColor.getQColor();
@@ -150,6 +166,16 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
           }
         });
         ui->gridSwitches->addWidget(btnOnColor, row++, col + coloffset);
+        btnOnColors << btnOnColor;
+
+        QCheckBox * cbOnLuaOverride = new QCheckBox(this);
+        cbOnLuaOverride->setChecked(this->model->customSwitches[i].onColorLuaOverride);
+        connect(cbOnLuaOverride, &QCheckBox::toggled, [=](int value) {
+          this->model->customSwitches[i].onColorLuaOverride = value;
+          emit modified();
+        });
+        ui->gridSwitches->addWidget(cbOnLuaOverride, row++, col + coloffset);
+        cbOnLuaOverrides << cbOnLuaOverride;
       }
 
       connect(aleName, &AutoLineEdit::currentDataChanged, this, &FunctionSwitchesPanel::on_nameEditingFinished);
@@ -206,6 +232,8 @@ void FunctionSwitchesPanel::update()
 {
   lock = true;
 
+  Board::Type board = firmware->getBoard();
+
   for (int sw = 0, col = 0; sw < Boards::getCapability(firmware->getBoard(), Board::Switches); sw++) {
     int i = Boards::getCFSIndexForSwitch(sw);
     if (i >= 0) {
@@ -222,6 +250,13 @@ void FunctionSwitchesPanel::update()
 
       cboStartupPosns[col]->setEnabled(cfg == Board::SWITCH_2POS && (grp == 0));
       cboGroups[col]->setEnabled(cfg >= Board::SWITCH_TOGGLE && cfg < Board::SWITCH_GLOBAL);
+
+      if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+        btnOffColors[col]->setEnabled(cfg != Board::SWITCH_NOT_AVAILABLE && cfg != Board::SWITCH_GLOBAL);
+        cbOffLuaOverrides[col]->setEnabled(cfg != Board::SWITCH_NOT_AVAILABLE && cfg != Board::SWITCH_GLOBAL);
+        btnOnColors[col]->setEnabled(cfg != Board::SWITCH_NOT_AVAILABLE && cfg != Board::SWITCH_GLOBAL);
+        cbOnLuaOverrides[col]->setEnabled(cfg != Board::SWITCH_NOT_AVAILABLE && cfg != Board::SWITCH_GLOBAL);
+      }
 
       col += 1;
     }
