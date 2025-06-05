@@ -107,8 +107,10 @@ void EXTERNAL_MODULE_OFF()
 
 void boardBLEarlyInit()
 {
+  // TAS2505 requires reset pin to be low on power on
   gpio_init(AUDIO_RESET_PIN, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_clear(AUDIO_RESET_PIN);
+
   timersInit();
   bsp_io_init();
   gpio_clear(UCHARGER_EN_GPIO);
@@ -116,6 +118,8 @@ void boardBLEarlyInit()
 
 void boardBLPreJump()
 {
+  // TAS2505 requires reset pin to be high only after power on
+  // https://www.ti.com/lit/ug/slau472c/slau472c.pd fig 4.2
   gpio_set(AUDIO_RESET_PIN);
   ExtFLASH_Init();
   SDRAM_Init();
