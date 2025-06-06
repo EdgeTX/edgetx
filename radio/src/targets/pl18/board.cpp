@@ -260,6 +260,7 @@ void boardInit()
         press_end = 0;
       }
     }
+    battery_charge_end();
   }
 
   keysInit();

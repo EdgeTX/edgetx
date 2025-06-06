@@ -233,6 +233,8 @@ void boardInit()
         boardOff();
       } else {
         uint32_t press_end_touch = press_end;
+        extern void rotaryEncoderCheck();
+        rotaryEncoderCheck();
         rotenc_t value = rotaryEncoderGetValue();
         if (value != lastEncoderValue) {
           lastEncoderValue = value;     
@@ -244,6 +246,7 @@ void boardInit()
         press_end = 0;
       }
     }
+    battery_charge_end();
   }
 
 #endif
