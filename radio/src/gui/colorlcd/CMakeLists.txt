@@ -145,7 +145,7 @@ if(AFHDS2)
   add_gui_src(module/afhds2a_settings.cpp)
 endif()
 
-if(AFHDS3)
+if(AFHDS3 OR ANT)
   add_gui_src(module/afhds3_settings.cpp)
   add_gui_src(module/afhds3_options.cpp)
 endif()

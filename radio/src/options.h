@@ -46,6 +46,9 @@ static const char * const options[] = {
 #if defined(AFHDS3)
   "afhds3",
 #endif
+#if defined(ANT)
+  "ant",
+#endif
 #if !defined(GVARS)
   "nogvars",
 #endif

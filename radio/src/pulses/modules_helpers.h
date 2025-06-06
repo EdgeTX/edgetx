@@ -38,7 +38,7 @@
 extern uint32_t NV14internalModuleFwVersion;
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) || defined(ANT)
 #include "pulses/afhds3_module.h"
 #endif
 
@@ -419,9 +419,14 @@ inline bool isModuleAFHDS3(uint8_t idx)
   return (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY_AFHDS3);
 }
 
+inline bool isModuleANT(uint8_t idx)
+{
+  return (g_model.moduleData[idx].type == MODULE_TYPE_FLYSKY_ANT);
+}
+
 inline bool isModuleFlySky(uint8_t idx)
 {
-  return (isModuleAFHDS2A(idx) || isModuleAFHDS3(idx));
+  return (isModuleAFHDS2A(idx) || isModuleAFHDS3(idx) || isModuleANT(idx));
 }
 
 inline bool isModuleDSMP(uint8_t idx)
@@ -449,6 +454,7 @@ static const int8_t maxChannelsModules_M8[] = {
   0, // MODULE_TYPE_XJT_LITE_PXX2: index NOT USED
   6, // MODULE_TYPE_FLYSKY_AFHDS2A: 14 channels
   10,// MODULE_TYPE_FLYSKY_AFHDS3: 18 channels
+  10,// MODULE_TYPE_FLYSKY_ANT: 18 channels
   4, // MODULE_TYPE_LEMON_DSMP: 12 channels for DSMX
 };
 
@@ -558,6 +564,9 @@ inline bool isModuleModelIndexAvailable(uint8_t idx)
   if (isModuleAFHDS3(idx))
     return true;
   
+  if (isModuleANT(idx))
+    return true;
+
   return false;
 }
 
@@ -586,7 +595,7 @@ inline bool isModuleFailsafeAvailable(uint8_t moduleIdx)
   }
 #endif
 
-#if defined(AFHDS3) || defined(AFHDS2)
+#if defined(AFHDS3) || defined(AFHDS2) || defined(ANT)
   if (isModuleFlySky(moduleIdx))
     return true;
 #endif
@@ -637,8 +646,8 @@ inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 #if defined(PCBNV14) && defined(AFHDS2)
   ret = ret &&
         (!isModuleAFHDS2A(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
-#elif defined(AFHDS3)
-  ret = ret && (!isModuleAFHDS3(moduleIdx));
+#elif defined(AFHDS3) || defined(ANT)
+  ret = ret && (!isModuleAFHDS3(moduleIdx) && !isModuleANT(moduleIdx));
 #endif
   return ret;
 }

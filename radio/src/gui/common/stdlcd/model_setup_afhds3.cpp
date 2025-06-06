@@ -40,7 +40,7 @@ void onBindMenuAfhds3(const char * result)
 void startBindMenuAfhds3(uint8_t moduleIdx)
 {
   uint8_t selection = 0;
-#if defined(AFHDS3)
+#if defined(AFHDS3) || defined(ANT)
   POPUP_MENU_ADD_ITEM(STR_AFHDS3_ONE_TO_ONE_TELEMETRY);
   POPUP_MENU_ADD_ITEM(STR_AFHDS3_ONE_TO_MANY);
 #endif
