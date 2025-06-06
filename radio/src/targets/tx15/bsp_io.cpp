@@ -27,8 +27,10 @@
 #include "timers_driver.h"
 #include "boards/generic_stm32/rgb_leds.h"
 
-#include <FreeRTOS/include/FreeRTOS.h>
-#include <FreeRTOS/include/timers.h>
+#if !defined(BOOT)
+#include "os/async.h"
+#include "os/timer.h"
+#endif
 
 #include "bitfield.h"
 #include "debug.h"
@@ -39,9 +41,13 @@ struct bsp_io_expander {
     uint32_t state;
 };
 
+static volatile bool _poll_switches_in_queue = false;
 static bsp_io_expander _io_switches;
 static bsp_io_expander _io_fs_switches;
 
+#if !defined(BOOT)
+static timer_handle_t _poll_timer = TIMER_INITIALIZER;
+#endif
 
 static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
 {
@@ -58,11 +64,21 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   return io->state;
 }
 
-static void _poll_switches(void *pvParameter1, uint32_t ulParameter2)
+typedef enum {
+  TRIGGERED_BY_TIMER = 0,
+  TRIGGERED_BY_IRQ,
+} trigger_source_t;
+
+static void _poll_switches(void *param1, uint32_t trigger_source)
 {
-  (void)ulParameter2;
-  bsp_io_expander* io = (bsp_io_expander*)pvParameter1;
-  _read_io_expander(io);
+#if !defined(BOOT)
+  if (trigger_source == TRIGGERED_BY_IRQ) {
+    _poll_switches_in_queue = false;
+    timer_reset(&_poll_timer);
+  }
+#endif
+  bsp_io_read_switches();
+  bsp_io_read_fs_switches();
 }
 
 #if !defined(BOOT)
@@ -79,8 +95,20 @@ static void _io_int_handler(bsp_io_expander* io)
 }
 
 static void _io_int_handler() {
-  _io_int_handler(&_io_switches);
-  _io_int_handler(&_io_fs_switches);
+  async_call_isr(_poll_switches, &_poll_switches_in_queue, nullptr,
+                 TRIGGERED_BY_IRQ);
+}
+
+static void _poll_cb(timer_handle_t* timer)
+{
+  (void)timer;
+  _poll_switches(nullptr, TRIGGERED_BY_TIMER);
+}
+
+static void start_poll_timer()
+{
+  timer_create(&_poll_timer, _poll_cb, "portex", 100, true);
+  timer_start(&_poll_timer);
 }
 #endif
 
@@ -122,6 +150,10 @@ int bsp_io_init()
 
   bsp_io_read_switches();
   bsp_io_read_fs_switches();
+
+#if !defined(BOOT)
+  start_poll_timer();
+#endif
 
   return 0;
 }
