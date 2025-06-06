@@ -37,6 +37,7 @@
 #endif
 
 #define AFHDS3_UART_BAUDRATE        1500000
+//#define AFHDS3_UART_BAUDRATE        1572864
 #define AFHDS3_UART_COMMAND_TIMEOUT 5
 
 #if defined(AFHDS3_SLOW)

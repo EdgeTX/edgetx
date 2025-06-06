@@ -55,7 +55,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx, uint8_
   setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
   uint16_t &pwmvalue_type = _v1_pwmvalue_type[moduleIdx][channelIdx];
   auto cfg = afhds3::getConfig(moduleIdx);
-  auto vCfg = &cfg->v1;
+  auto vCfg = &cfg->afhdsV1;
   if( 0xff == pwmvalue_type )
   {
     if ( 50 == vCfg->PWMFrequenciesV1.PWMFrequencies[channelIdx] ) pwmvalue_type = 0;
@@ -91,7 +91,7 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
   setFlexLayout(LV_FLEX_FLOW_ROW, PAD_TINY, LV_SIZE_CONTENT);
   uint16_t &pwmvalue_type = _v1_pwmvalue_type[moduleIdx][0];
   auto cfg = afhds3::getConfig(moduleIdx);
-  auto vCfg = &cfg->v0;
+  auto vCfg = &cfg->afhdsV0;
   if( 0xff == pwmvalue_type )
   {
     if ( 50 == (vCfg->PWMFrequency.Frequency&0x7fff) ) pwmvalue_type = 0;
@@ -124,18 +124,24 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   std::string title =
       moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
   header->setTitle(title);
-
-  title = "AFHDS3 (";
-  title += (moduleIdx == INTERNAL_MODULE ? "INRM301" : "FRM303");
-  title += ")";
+  if(cfg->version == afhds3::ConfigVersion::ANT_V0)
+  {
+    title = "ANT (";
+    title += "INRM602";
+    title += ")";
+  } else {
+    title = "AFHDS3 (";
+    title += (moduleIdx == INTERNAL_MODULE ? "INRM301" : "FRM303");
+    title += ")";
+  }
   header->setTitle2(title);
 
   body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
-  if (cfg->version == 0) {
-    auto vCfg = &cfg->v0;
+  if (cfg->version == afhds3::ConfigVersion::AFHDS_V0) {
+    auto vCfg = &cfg->afhdsV0;
 
     auto line = body->newLine(grid);
     std::string temp_str = "PWM ";
@@ -162,8 +168,8 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     new StaticText(line, rect_t{}, STR_SERIAL_BUS);
     new Choice(line, rect_t{}, _bus_types, 0, 2,
                GET_SET_AND_SYNC(cfg, cfg->others.ExternalBusType, afhds3::DirtyConfig::DC_RX_CMD_BUS_TYPE_V0));
-  } else {
-    auto vCfg = &cfg->v1;
+  } else if (cfg->version == afhds3::ConfigVersion::AFHDS_V1) {
+    auto vCfg = &cfg->afhdsV1;
     for (uint8_t i = 0; i < channel_num[vCfg->PhyMode]; i++) {
       std::string temp_str = STR_CH;
       temp_str += " " + std::to_string(i+1);
@@ -183,8 +189,6 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
             vCfg->PWMFrequenciesV1.Synchronized |= (newVal?1:0)<<i;
             DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V1);
           });
-    }
-
     for (uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
       auto line = body->newLine(grid);
       std::string portName = "NP";
@@ -214,21 +218,53 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                   }
       });
     }
+    }
+  } else if (cfg->version == afhds3::ConfigVersion::ANT_V0) {
+      auto vCfg = &cfg->antV0;
+
+      auto line = body->newLine(grid);
+      std::string temp_str = "PWM ";
+      temp_str += STR_POWERMETER_FREQ;
+      new StaticText(line, rect_t{}, temp_str);
+      new PWMfrequencyChoice(line, moduleIdx);
+      line = body->newLine(grid);
+
+      temp_str = "PWM ";
+      temp_str += STR_SYNC;
+      new StaticText(line, rect_t{}, temp_str);
+      new ToggleSwitch(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
+                   afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0));
+      line = body->newLine(grid);
+
+      temp_str = STR_CH;
+      temp_str += " 1";
+      new StaticText(line, rect_t{}, temp_str );
+      new Choice(line, rect_t{}, _analog_outputs,
+                 afhds3::SES_ANALOG_OUTPUT_PWM, afhds3::SES_ANALOG_OUTPUT_PPM,
+                 GET_SET_AND_SYNC(cfg, vCfg->AnalogOutput, afhds3::DirtyConfig::DC_RX_CMD_OUT_PWM_PPM_MODE));
+
+      line = body->newLine(grid);
+      new StaticText(line, rect_t{}, STR_SERIAL_BUS);
+      new Choice(line, rect_t{}, _bus_types, 0, 2,
+                 GET_SET_AND_SYNC(cfg, cfg->others.ExternalBusType, afhds3::DirtyConfig::DC_RX_CMD_BUS_TYPE_V0));
+
   }
+
+
   auto line = body->newLine(grid);
   new StaticText(line, rect_t{}, STR_SIGNAL_OUTPUT);
   std::vector<std::string> signed_strength_ch;
   signed_strength_ch.emplace_back(STR_OFF);
-  for (int i = 0; i < channel_num[cfg->v1.PhyMode]; i++) {
+  for (int i = 0; i < channel_num[cfg->afhdsV1.PhyMode]; i++) {
     std::string temstr = STR_CH;
     temstr += " " + std::to_string(i + 1);
     signed_strength_ch.emplace_back(temstr);
   }
   new Choice(line, rect_t{}, signed_strength_ch,
-               0, channel_num[cfg->v1.PhyMode],
-               [=] { return cfg->v1.SignalStrengthRCChannelNb==0xff?0:cfg->v1.SignalStrengthRCChannelNb+1; },
+               0, channel_num[cfg->afhdsV1.PhyMode],
+               [=] { return cfg->afhdsV1.SignalStrengthRCChannelNb==0xff?0:cfg->afhdsV1.SignalStrengthRCChannelNb+1; },
                [=](int32_t newValue) {
-                  newValue?cfg->v1.SignalStrengthRCChannelNb = newValue-1:cfg->v1.SignalStrengthRCChannelNb=0xff;
+                  newValue?cfg->afhdsV1.SignalStrengthRCChannelNb = newValue-1:cfg->afhdsV1.SignalStrengthRCChannelNb=0xff;
                   DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_RSSI_CHANNEL_SETUP);
                });
 }

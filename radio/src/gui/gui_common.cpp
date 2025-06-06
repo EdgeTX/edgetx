@@ -921,6 +921,9 @@ bool isInternalModuleSupported(int moduleType)
 #if defined(INTERNAL_MODULE_AFHDS3)
   case MODULE_TYPE_FLYSKY_AFHDS3: return true;
 #endif
+#if defined(INTERNAL_MODULE_ANT)
+  case MODULE_TYPE_FLYSKY_ANT: return true;
+#endif
   }
   return false;
 }
@@ -1068,8 +1071,8 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
   
-#if !defined(AFHDS3)
-  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
+#if !defined(ANT)
+  if (moduleType == MODULE_TYPE_FLYSKY_ANT)
     return false;
 #endif
 
@@ -1393,7 +1396,8 @@ uint8_t MODULE_BIND_ROWS(int moduleIdx)
     else
       return 2;
   }
-  else if (isModuleXJTD8(moduleIdx) || isModuleSBUS(moduleIdx) || isModuleAFHDS3(moduleIdx) || isModuleDSMP(moduleIdx)) {
+  else if (isModuleXJTD8(moduleIdx) || isModuleSBUS(moduleIdx) || isModuleAFHDS3(moduleIdx) ||
+      isModuleANT(moduleIdx) || isModuleDSMP(moduleIdx)) {
     return 1;
   }
   else if (isModulePPM(moduleIdx) || isModulePXX1(moduleIdx) || isModulePXX2(moduleIdx) || isModuleDSM2(moduleIdx)) {
@@ -1531,7 +1535,7 @@ uint8_t MODULE_OPTION_ROW(uint8_t moduleIdx)
 {
   if(isModuleR9MNonAccess(moduleIdx) || isModuleSBUS(moduleIdx))
     return TITLE_ROW;
-  if(isModuleAFHDS3(moduleIdx))
+  if(isModuleAFHDS3(moduleIdx) || isModuleANT(moduleIdx))
     return HIDDEN_ROW;
   if(isModuleGhost(moduleIdx))
     return 0;

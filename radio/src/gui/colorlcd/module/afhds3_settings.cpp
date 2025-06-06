@@ -144,7 +144,7 @@ void AFHDS3Settings::update()
 {
   lastRefresh = get_tmr10ms();
 
-  if (isModuleAFHDS3(moduleIdx)) {
+  if (isModuleAFHDS3(moduleIdx) || isModuleANT(moduleIdx)) {
     showAFHDS3Options();
   } else {
     hideAFHDS3Options();

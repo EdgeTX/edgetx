@@ -107,8 +107,8 @@ uint8_t getMaxRxNum(uint8_t idx)
   }
 #endif
 
-#if defined(AFHDS3)
-  if (isModuleAFHDS3(idx)) return AFHDS3_MAX_MODEL_ID;
+#if defined(AFHDS3) || defined(ANT)
+  if (isModuleAFHDS3(idx) || isModuleANT(idx)) return AFHDS3_MAX_MODEL_ID;
 #endif
   
   return MAX_RXNUM;
@@ -128,6 +128,9 @@ void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
     resetAfhds2AOptions(moduleIdx);
   }
   else if (moduleData.type == MODULE_TYPE_FLYSKY_AFHDS3) {
+    resetAfhds3Options(moduleIdx);
+  }
+  else if (moduleData.type == MODULE_TYPE_FLYSKY_ANT) {
     resetAfhds3Options(moduleIdx);
   }
   else

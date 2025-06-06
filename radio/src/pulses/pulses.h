@@ -56,8 +56,8 @@
   #define IS_MULTIMODULE_PROTOCOL(protocol)  (0)
 #endif
 
-#if defined(AFHDS3)
-#define IS_AFHDS3_PROTOCOL(protocol)         (protocol == PROTOCOL_CHANNELS_AFHDS3)
+#if defined(AFHDS3) || defined(ANT)
+#define IS_AFHDS3_PROTOCOL(protocol)         (protocol == PROTOCOL_CHANNELS_AFHDS3 || protocol == PROTOCOL_CHANNELS_ANT)
 #else
 #define IS_AFHDS3_PROTOCOL(protocol)         (0)
 #endif
@@ -145,7 +145,7 @@ union TrainerPulsesData {
 
 extern TrainerPulsesData trainerPulsesData;
 
-#if !defined(AFHDS3)
+#if !defined(AFHDS3) && !defined(ANT)
   #define MODULE_BUFFER_SIZE 64
 #else
   #define MODULE_BUFFER_SIZE 128
@@ -190,7 +190,7 @@ void setupPulsesPPMTrainer();
 void getModuleStatusString(uint8_t moduleIdx, char * statusText);
 void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText);
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) || defined(ANT)
 uint8_t actualAfhdsRunPower(int moduleIndex);
 #endif
 

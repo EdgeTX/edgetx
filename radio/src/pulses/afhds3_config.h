@@ -47,8 +47,8 @@ enum eEB_BusType : uint8_t {
 
 enum BUS_DIR
 {
-	BUS_OUT,
-	BUS_IN,
+  BUS_OUT,
+  BUS_IN,
 };
 
 // 48 bytes
@@ -65,6 +65,23 @@ PACK(struct sDATA_ConfigV0 {
   uint8_t AnalogOutput; // eSES_PA_SetAnalogOutput
   eEB_BusType ExternalBusType; // eEB_BusType
 });
+
+// 49 bytes
+PACK(struct sDATA_ConfigAntV0 {
+  uint8_t Version;     // =0
+  uint8_t ChannelNb;     // =18
+  uint8_t EMIStandard; // eLNK_EMIStandard
+  uint8_t IsTwoWay;
+  uint8_t PhyMode;     // eDATA_PHYMODE
+  uint8_t SignalStrengthRCChannelNb; // 0xFF if not used, 0`18
+  uint16_t FailsafeTimeout;  // in unit of ms
+  int16_t FailSafe[AFHDS3_MAX_CHANNELS];
+  uint8_t FailsafeOutputMode; //TRUE Or FALSE
+  sSES_PWMFrequencyV0 PWMFrequency;
+  uint8_t AnalogOutput; // eSES_PA_SetAnalogOutput
+  eEB_BusType ExternalBusType; // eEB_BusType
+});
+
 
 #define SES_NB_MAX_CHANNELS (32)
 #define SES_NPT_NB_MAX_PORTS (4)
@@ -139,11 +156,18 @@ PACK(struct sDATA_Others {
   uint32_t dirtyFlag;       // mapped to commands that need to be issued to sync settings
 });
 
+enum class ConfigVersion {
+  AFHDS_V0,
+  AFHDS_V1,
+  ANT_V0
+};
+
 union Config_u
 {
-  uint8_t version;
-  sDATA_ConfigV0 v0;
-  sDATA_ConfigV1 v1;
+  ConfigVersion version;
+  sDATA_ConfigV0 afhdsV0;
+  sDATA_ConfigV1 afhdsV1;
+  sDATA_ConfigAntV0 antV0;
   uint8_t buffer[sizeof(sDATA_ConfigV1)];
   sDATA_Others others;
 };

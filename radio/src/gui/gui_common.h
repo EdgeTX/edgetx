@@ -206,13 +206,17 @@ extern uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx);
 #define MULTIMODULE_TYPE_ROWS(moduleIdx)
 #define MULTIMODULE_MODE_ROWS(moduleIdx)        (uint8_t)0
 #define MULTIMODULE_OPTIONS_ROW(moduleIdx)      HIDDEN_ROW
-#define MODULE_POWER_ROW(moduleIdx)            isModuleR9MNonAccess(moduleIdx) || isModuleAFHDS3(moduleIdx) ? (isModuleR9MLiteNonPro(moduleIdx) ? (isModuleR9M_FCC_VARIANT(moduleIdx) ? READONLY_ROW : (uint8_t)0) : (uint8_t)0) : HIDDEN_ROW
+#define MODULE_POWER_ROW(moduleIdx)            isModuleR9MNonAccess(moduleIdx) || isModuleAFHDS3(moduleIdx) || isModuleANT(moduleIdx) ? (isModuleR9MLiteNonPro(moduleIdx) ? (isModuleR9M_FCC_VARIANT(moduleIdx) ? READONLY_ROW : (uint8_t)0) : (uint8_t)0) : HIDDEN_ROW
 #endif
 
 #if defined(AFHDS3)
 #define AFHDS3_PROTOCOL_ROW(moduleIdx)          isModuleAFHDS3(moduleIdx) ? uint8_t(0) : HIDDEN_ROW,
 #define AFHDS3_MODE_ROWS(moduleIdx)             isModuleAFHDS3(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleAFHDS3(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleAFHDS3(moduleIdx) ? TITLE_ROW : HIDDEN_ROW,
 #define AFHDS3_MODULE_ROWS(moduleIdx)           isModuleAFHDS3(moduleIdx) ? uint8_t(0) : HIDDEN_ROW, isModuleAFHDS3(moduleIdx) ? TITLE_ROW : HIDDEN_ROW,
+#elif defined(ANT)
+#define AFHDS3_PROTOCOL_ROW(moduleIdx)          isModuleANT(moduleIdx) ? uint8_t(0) : HIDDEN_ROW,
+#define AFHDS3_MODE_ROWS(moduleIdx)             isModuleANT(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleANT(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, isModuleANT(moduleIdx) ? TITLE_ROW : HIDDEN_ROW,
+#define AFHDS3_MODULE_ROWS(moduleIdx)           isModuleANT(moduleIdx) ? uint8_t(0) : HIDDEN_ROW, isModuleANT(moduleIdx) ? TITLE_ROW : HIDDEN_ROW,
 #else
 #define AFHDS3_PROTOCOL_ROW(moduleIdx)
 #define AFHDS3_MODE_ROWS(moduleIdx)

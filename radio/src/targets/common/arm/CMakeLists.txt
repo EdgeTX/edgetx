@@ -15,6 +15,7 @@ option(SBUS "SBUS TX Module" ON)
 option(CROSSFIRE "Crossfire TX Module" ON)
 option(AFHDS2 "Support for AFHDS2" OFF)
 option(AFHDS3 "Support for AFHDS3" OFF)
+option(ANT "Support for ANT" OFF)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(DEBUG_INTERRUPTS "Count interrupts" OFF)
 option(DEBUG_LATENCY "Debug latency" OFF)
@@ -65,6 +66,11 @@ endif()
 if(INTERNAL_MODULE_AFHDS3)
   add_definitions(-DHARDWARE_INTERNAL_MODULE)
   add_definitions(-DINTERNAL_MODULE_AFHDS3)
+endif()
+
+if(INTERNAL_MODULE_ANT)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_ANT)
 endif()
 
 if(INTERNAL_MODULE_PPM)
@@ -219,7 +225,7 @@ if(MULTIMODULE)
   set(SRC ${SRC} pulses/multi.cpp telemetry/hitec.cpp telemetry/hott.cpp telemetry/mlink.cpp telemetry/multi.cpp io/multi_firmware_update.cpp)
 endif()
 
-if(MULTIMODULE OR AFHDS3)
+if(MULTIMODULE OR AFHDS3 OR ANT)
   set(SRC ${SRC} telemetry/flysky_ibus.cpp)
 endif()
 
@@ -231,6 +237,13 @@ endif()
 
 if(AFHDS3)
   add_definitions(-DAFHDS3)
+endif()
+
+if(ANT)
+  add_definitions(-DANT)
+endif()
+
+if(AFHDS3 OR ANT)
   set(PULSES_SRC
     ${PULSES_SRC}
     afhds3.cpp
@@ -250,7 +263,7 @@ if(CROSSFIRE)
     )
 endif()
 
-if(MULTIMODULE OR AFHDS3)
+if(MULTIMODULE OR AFHDS3 OR ANT)
  set(SRC ${SRC} telemetry/flysky_ibus.cpp )
 endif()
 
@@ -326,7 +339,7 @@ if(AFHDS2)
     )
 endif()
 
-if(AFHDS3)
+if(AFHDS3 OR ANT)
   set(PULSES_SRC
     ${PULSES_SRC}
     afhds3.cpp
