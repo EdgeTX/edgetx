@@ -158,7 +158,7 @@
 #define TR_SURFACE_NAMES0              "Dir"
 #define TR_SURFACE_NAMES1              "Gaz"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
 #define  TR_RFPOWER_AFHDS2             "Défaut","Haut"
 #endif
 
@@ -239,7 +239,7 @@
 
 #if defined(PCBFRSKY)
   #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBPL18)
   #define TR_ENTER                     "[SUIVANT]"
 #else
   #define TR_ENTER                     "[MENU]"
@@ -351,7 +351,7 @@
 #define TR_SLOWUP                      "Ralenti haut"
 #define TR_MIXES                       "MIXEUR"
 #define TR_CV                          "CV"
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
 #define TR_GV                          "VG"
 #else
 #define TR_GV                          TR("G", "VG")

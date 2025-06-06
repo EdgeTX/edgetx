@@ -162,7 +162,7 @@
 #define TR_SURFACE_NAMES0              "Smě"
 #define TR_SURFACE_NAMES1              "Pln"
 
-#if defined(PCBNV14)
+#if defined(PCBPL18)
 #define  TR_RFPOWER_AFHDS2             "Defaultní","Vysoký"
 #endif
 
@@ -243,7 +243,7 @@
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
   #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#elif defined(PCBPL18)
   #define TR_ENTER                     "[DALŠÍ]"
 #else
   #define TR_ENTER                     "[MENU]"
@@ -355,7 +355,7 @@
 #define TR_SLOWUP                      TR3("Zpomalení(+)", "Zpomal(\176)", "Zpomalení(\176)")
 #define TR_MIXES                       "MIXER"
 #define TR_CV                          "K"
-#if defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBPL18)
 #define TR_GV                          "GP"
 #else
 #define TR_GV                          TR("G", "GP")
