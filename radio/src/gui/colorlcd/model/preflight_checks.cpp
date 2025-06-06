@@ -38,7 +38,7 @@ class SwitchWarnMatrix : public ButtonMatrix
   {
     // Setup button layout & texts
     uint8_t btn_cnt = 0;
-    for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
+    for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_WARNING_ALLOWED(i)) {
         sw_idx[btn_cnt] = i;
         btn_cnt++;
@@ -66,17 +66,16 @@ class SwitchWarnMatrix : public ButtonMatrix
       return;
     }
 
-    if (btn_id >= MAX_SWITCHES) return;
+    if (btn_id >= switchGetMaxAllSwitches()) return;
     auto sw = sw_idx[btn_id];
 
-    swarnstate_t newstate = bfGet(g_model.switchWarning, 3 * sw, 3);
-    if (newstate == 1 && SWITCH_CONFIG(sw) != SWITCH_3POS)
+    uint8_t newstate = g_model.getSwitchWarning(sw);
+    if (newstate == 1 && g_model.getSwitchType(sw) != SWITCH_3POS)
       newstate = 3;
     else
-      newstate = (newstate + 1) % 4;
+      newstate = (newstate + 1) & 3;
 
-    g_model.switchWarning =
-        bfSet(g_model.switchWarning, newstate, 3 * sw, 3);
+    g_model.setSwitchWarning(sw, newstate);
     SET_DIRTY();
 
     setTextAndState(btn_id);
@@ -84,15 +83,15 @@ class SwitchWarnMatrix : public ButtonMatrix
 
   bool isActive(uint8_t btn_id) override
   {
-    if (btn_id >= MAX_SWITCHES) return false;
-    return bfGet(g_model.switchWarning, 3 * sw_idx[btn_id], 3) != 0;
+    if (btn_id >= switchGetMaxAllSwitches()) return false;
+    return g_model.getSwitchWarning(sw_idx[btn_id]) != 0;
   }
 
   void setTextAndState(uint8_t btn_id)
   {
     swsrc_t index = sw_idx[btn_id];
-    auto warn_pos = g_model.switchWarning >> (3 * index) & 0x07;
-    std::string s = std::string(switchGetName(index)) +
+    auto warn_pos = g_model.getSwitchWarning(index);
+    std::string s = std::string(switchGetDefaultName(index)) +
                     std::string(getSwitchWarnSymbol(warn_pos));
     setText(btn_id, s.c_str());
     setChecked(btn_id);
@@ -109,7 +108,7 @@ class SwitchWarnMatrix : public ButtonMatrix
   void setAllState()
   {
     uint8_t btn_id = 0;
-    for (uint8_t i = 0; i < MAX_SWITCHES; i++) {
+    for (uint8_t i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_WARNING_ALLOWED(i)) {
         setTextAndState(btn_id);
         btn_id++;
