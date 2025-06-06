@@ -1313,9 +1313,9 @@
 // 6POS SW
 #if defined(RADIO_V14) || defined(RADIO_V12)
   #define SIXPOS_SWITCH_INDEX             6
-  #define SIXPOS_LED_RED                255
-  #define SIXPOS_LED_GREEN              255
-  #define SIXPOS_LED_BLUE               255
+  #define SIXPOS_LED_RED                200
+  #define SIXPOS_LED_GREEN              0
+  #define SIXPOS_LED_BLUE               0
 #endif
 
 // ADC
@@ -1689,7 +1689,7 @@
   #define ADC_GPIOB_PINS                (ADC_GPIO_PIN_SLIDER1)
   #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_BATT)
   #define ADC_VREF_PREC2                330
-#elif defined(RADIO_V14) || defined(RADIO_V12)
+#elif defined(RADIO_V12) || defined(RADIO_V14)
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0     // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1     // PA.01
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_2     // PA.02
@@ -1715,6 +1715,14 @@
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWB)
   #define ADC_GPIOB_PINS                (ADC_GPIO_PIN_POT1)
   #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWF)
+  #define ADC_EXT                       ADC3
+  #define ADC_EXT_DMA                   DMA2
+  #define ADC_EXT_DMA_CHANNEL           LL_DMA_CHANNEL_2
+  #define ADC_EXT_DMA_STREAM            LL_DMA_STREAM_0
+  #define ADC_EXT_DMA_STREAM_IRQ        DMA2_Stream0_IRQn
+  #define ADC_EXT_DMA_STREAM_IRQHandler DMA2_Stream0_IRQHandler
+  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_POT3 }
+  #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX7)
   #define HARDWARE_POT1
