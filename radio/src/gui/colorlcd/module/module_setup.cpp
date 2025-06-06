@@ -50,7 +50,7 @@
 #include "afhds2a_settings.h"
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) || defined(ANT)
 #include "afhds3_settings.h"
 #endif
 
@@ -151,6 +151,11 @@ class ModuleWindow : public Window
       modOpts = new AFHDS3Settings(this, grid, moduleIdx);
     }
   #endif
+#if defined(ANT)
+  else if (isModuleANT(moduleIdx)) {
+    modOpts = new AFHDS3Settings(this, grid, moduleIdx);
+  }
+#endif
   #if defined(MULTIMODULE)
     else if (isModuleMultimodule(moduleIdx)) {
       modOpts = new MultimoduleSettings(this, grid, moduleIdx);

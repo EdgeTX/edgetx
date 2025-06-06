@@ -179,10 +179,16 @@ enum MODULE_POWER_SOURCE {
   EXTERNAL = 0x02,
 };
 
+enum Protocol {
+  AFHDS = 0x00,
+  FS_ANT = 0x01
+};
+
 enum DeviceAddress {
   TRANSMITTER = 0x01,
-  FRM303 = 0x04,
-  IRM301 = 0x05,
+  FRM303  = 0x04,
+  INRM602 = 0x04,  // ANT module of ST16
+  IRM301  = 0x05,
 };
 
 PACK(struct ModuleVersion
@@ -234,8 +240,8 @@ class ProtoState
     * @param moduleIndex index of module one of INTERNAL_MODULE, EXTERNAL_MODULE
     * @param resetFrameCount flag if current frame count should be reseted
     */
-   void init(uint8_t moduleIndex, void* buffer, etx_module_state_t* mod_st,
-             uint8_t fAddr);
+   void init(uint8_t moduleIndex, Protocol protocol,
+	     void* buffer, etx_module_state_t* mod_st, uint8_t fAddr);
 
    /**
     * Fills DMA buffers with frame to be send depending on actual state
@@ -264,7 +270,7 @@ class ProtoState
 
   protected:
 
-    void resetConfig(uint8_t version);
+    void resetConfig(ConfigVersion version);
 
   private:
     //friendship declaration - use for passing telemetry
@@ -303,6 +309,15 @@ class ProtoState
      */
     ModuleState state;
 
+    /**
+     * Address of the HF module
+     */
+    DeviceAddress moduleAddr;
+
+    /**
+     * Address of the HF module
+     */
+    Protocol proto;
     //bool modelIDSet;
     //bool modelcfgGet;
     uint8_t modelID;
@@ -400,10 +415,15 @@ bool ProtoState::isConnected()
 
 bool ProtoState::hasTelemetry()
 {
-  if (cfg.version == 0)
-    return cfg.v0.IsTwoWay;
-  else
-    return cfg.v1.IsTwoWay;
+  if (cfg.version == ConfigVersion::AFHDS_V0)
+    return cfg.afhdsV0.IsTwoWay;
+  else if (cfg.version == ConfigVersion::AFHDS_V1)
+    return cfg.afhdsV1.IsTwoWay;
+  else if (cfg.version == ConfigVersion::ANT_V0)
+    return cfg.antV0.IsTwoWay;
+  else {
+    return false; // SNH
+  }
 }
 
 void ProtoState::setupFrame()
@@ -432,9 +452,16 @@ void ProtoState::setupFrame()
 //       TRACE("AFHDS3 [BIND]");
       applyConfigFromModel();
 
+      size_t frameSize = 0;
+      switch(cfg.version)
+      {
+	case ConfigVersion::AFHDS_V0: frameSize = sizeof(cfg.afhdsV0); break;
+	case ConfigVersion::AFHDS_V1: frameSize = sizeof(cfg.afhdsV1); break;
+	case ConfigVersion::ANT_V0:   frameSize = sizeof(cfg.antV0);   break;
+      }
+
       trsp.putFrame(COMMAND::MODULE_SET_CONFIG,
-                     FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer,
-                     cfg.version == 0 ? sizeof(cfg.v0) : sizeof(cfg.v1));
+                     FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer, frameSize);
 
       trsp.enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
                    (uint8_t)MODULE_MODE_E::BIND);
@@ -505,7 +532,7 @@ void ProtoState::setupFrame()
 
     if (cmd == COMMAND::VIRTUAL_FAILSAFE) {
       Config_u* cfg = this->getConfig();
-      uint8_t len =_phyMode_channels[cfg->v0.PhyMode];
+      uint8_t len =_phyMode_channels[cfg->afhdsV0.PhyMode];
       if (!hasTelemetry()) {
           uint16_t failSafe[AFHDS3_MAX_CHANNELS + 1] = {
           ((AFHDS3_MAX_CHANNELS << 8) | CHANNELS_DATA_MODE::FAIL_SAFE), 0};
@@ -541,14 +568,15 @@ void ProtoState::setupFrame()
 }
 
 
-void ProtoState::init(uint8_t moduleIndex, void* buffer,
-                      etx_module_state_t* mod_st, uint8_t fAddr)
+void ProtoState::init(uint8_t moduleIndex, Protocol protocol, void* buffer,
+		      etx_module_state_t* mod_st, uint8_t fAddr)
 {
   module_index = moduleIndex;
   trsp.init(buffer, mod_st, fAddr);
 
   //clear local vars because it is member of union
   moduleData = &g_model.moduleData[module_index];
+  proto = protocol;
   state = ModuleState::STATE_NOT_READY;
   modelID = 0xff;  // Valid range 0-19
 //  modelIDSet = false;
@@ -640,10 +668,10 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 //         TRACE("AFHDS3 [MODULE_GET_CONFIG]");
         size_t len = min<size_t>(sizeof(cfg.buffer), rxBufferCount);
         std::memcpy((void*) cfg.buffer, &responseFrame->value, len);
-        moduleData->afhds3.emi = cfg.v0.EMIStandard;
-        moduleData->afhds3.telemetry = cfg.v0.IsTwoWay;
-        moduleData->afhds3.phyMode = cfg.v0.PhyMode;
-        cfg.others.ExternalBusType = cfg.v0.ExternalBusType;
+        moduleData->afhds3.emi = cfg.afhdsV0.EMIStandard;
+        moduleData->afhds3.telemetry = cfg.afhdsV0.IsTwoWay;
+        moduleData->afhds3.phyMode = cfg.afhdsV0.PhyMode;
+        cfg.others.ExternalBusType = cfg.afhdsV0.ExternalBusType;
 //         TRACE("PhyMode %d, emi %d", moduleData->afhds3.phyMode, moduleData->afhds3.emi);
         SET_DIRTY();
         cfg.others.lastUpdated = get_tmr10ms();
@@ -817,7 +845,7 @@ bool ProtoState::syncSettings()
   if (checkDirtyFlag(DC_RX_CMD_RSSI_CHANNEL_SETUP))
   {
 //     TRACE("AFHDS3 [RX_CMD_RSSI_CHANNEL_SETUP]");
-    uint8_t data[] = { (uint8_t)(RX_CMD_RSSI_CHANNEL_SETUP&0xFF), (uint8_t)((RX_CMD_RSSI_CHANNEL_SETUP>>8)&0xFF), 1, cfg->v1.SignalStrengthRCChannelNb };
+    uint8_t data[] = { (uint8_t)(RX_CMD_RSSI_CHANNEL_SETUP&0xFF), (uint8_t)((RX_CMD_RSSI_CHANNEL_SETUP>>8)&0xFF), 1, cfg->afhdsV1.SignalStrengthRCChannelNb };
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
@@ -825,14 +853,14 @@ bool ProtoState::syncSettings()
   if (checkDirtyFlag(DC_RX_CMD_OUT_PWM_PPM_MODE))
   {
 //     TRACE("AFHDS3 [RX_CMD_OUT_PWM_PPM_MODE]");
-    uint8_t data[] = { (uint8_t)(RX_CMD_OUT_PWM_PPM_MODE&0xFF), (uint8_t)((RX_CMD_OUT_PWM_PPM_MODE>>8)&0xFF), 1, cfg->v0.AnalogOutput };
+    uint8_t data[] = { (uint8_t)(RX_CMD_OUT_PWM_PPM_MODE&0xFF), (uint8_t)((RX_CMD_OUT_PWM_PPM_MODE>>8)&0xFF), 1, cfg->afhdsV0.AnalogOutput };
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
   if (checkDirtyFlag(DC_RX_CMD_FREQUENCY_V0))
   {
 //     TRACE("AFHDS3 [RX_CMD_FREQUENCY_V0]");
-    uint16_t Frequency = ((cfg->v0.PWMFrequency.Synchronized<<15)| cfg->v0.PWMFrequency.Frequency);
+    uint16_t Frequency = ((cfg->afhdsV0.PWMFrequency.Synchronized<<15)| cfg->afhdsV0.PWMFrequency.Frequency);
     uint8_t data[] = { (uint8_t)(RX_CMD_FREQUENCY_V0&0xFF), (uint8_t)((RX_CMD_FREQUENCY_V0>>8)&0xFF), 2,
                         (uint8_t)(Frequency&0xFF), (uint8_t)((Frequency>>8)&0xFF) };
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
@@ -843,7 +871,7 @@ bool ProtoState::syncSettings()
   {
 //     TRACE("AFHDS3 [RX_CMD_PORT_TYPE_V1]");
     uint8_t data[] = { (uint8_t)(RX_CMD_PORT_TYPE_V1&0xFF), (uint8_t)((RX_CMD_PORT_TYPE_V1>>8)&0xFF), 4, 0, 0, 0, 0 };
-    std::memcpy(&data[3], &cfg->v1.NewPortTypes, SES_NPT_NB_MAX_PORTS);
+    std::memcpy(&data[3], &cfg->afhdsV1.NewPortTypes, SES_NPT_NB_MAX_PORTS);
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
@@ -853,9 +881,9 @@ bool ProtoState::syncSettings()
 //     TRACE("AFHDS3 [RX_CMD_FREQUENCY_V1]");
     uint8_t data[32 + 3 + 3] = { (uint8_t)(RX_CMD_FREQUENCY_V1&0xFF), (uint8_t)((RX_CMD_FREQUENCY_V1>>8)&0xFF), 32+3};
     data[3] = 0;
-    std::memcpy(&data[4], &cfg->v1.PWMFrequenciesV1.PWMFrequencies[0], 32);
-    data[36] = cfg->v1.PWMFrequenciesV1.Synchronized & 0xff;
-    data[37] = (cfg->v1.PWMFrequenciesV1.Synchronized>>8) & 0xff;
+    std::memcpy(&data[4], &cfg->afhdsV1.PWMFrequenciesV1.PWMFrequencies[0], 32);
+    data[36] = cfg->afhdsV1.PWMFrequenciesV1.Synchronized & 0xff;
+    data[37] = (cfg->afhdsV1.PWMFrequenciesV1.Synchronized>>8) & 0xff;
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     DIRTY_CMD(cfg, DC_RX_CMD_FREQUENCY_V1_2);
     return true;
@@ -866,9 +894,9 @@ bool ProtoState::syncSettings()
 //     TRACE("AFHDS3 [RX_CMD_FREQUENCY_V1_2]");
     uint8_t data[32 + 3 + 3] = { (uint8_t)(RX_CMD_FREQUENCY_V1_2&0xFF), (uint8_t)((RX_CMD_FREQUENCY_V1_2>>8)&0xFF), 32+3};
     data[3] = 1;
-    std::memcpy(&data[4], &cfg->v1.PWMFrequenciesV1.PWMFrequencies[16], 32);
-    data[36] = (cfg->v1.PWMFrequenciesV1.Synchronized>>16) & 0xff;
-    data[37] = (cfg->v1.PWMFrequenciesV1.Synchronized>>24) & 0xff;
+    std::memcpy(&data[4], &cfg->afhdsV1.PWMFrequenciesV1.PWMFrequencies[16], 32);
+    data[36] = (cfg->afhdsV1.PWMFrequenciesV1.Synchronized>>16) & 0xff;
+    data[37] = (cfg->afhdsV1.PWMFrequenciesV1.Synchronized>>24) & 0xff;
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
@@ -933,7 +961,7 @@ void ProtoState::sendChannelsData()
   uint8_t* header = (uint8_t*)buffer;
   header[0] = CHANNELS_DATA_MODE::CHANNELS;
 
-  uint8_t channels = _phyMode_channels[cfg.v0.PhyMode];
+  uint8_t channels = _phyMode_channels[cfg.afhdsV0.PhyMode];
   header[1] = channels;
 
   for (uint8_t channel = channels_start, index = 1; channel < channels_last;
@@ -953,62 +981,90 @@ void ProtoState::stop()
   trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
 }
 
-void ProtoState::resetConfig(uint8_t version)
+void ProtoState::resetConfig(ConfigVersion version)
 {
   memclear(&cfg, sizeof(cfg));
   cfg.version = version;
 
-  if (cfg.version == 1) {
-    cfg.v1.SignalStrengthRCChannelNb = 0xFF;
-    cfg.v1.FailsafeTimeout = 500;
-    for (int i = 0; i < SES_NB_MAX_CHANNELS; i++)
-      cfg.v1.PWMFrequenciesV1.PWMFrequencies[i] = 50;
-  } else {
-    cfg.v0.SignalStrengthRCChannelNb = 0xFF;
-    cfg.v0.FailsafeTimeout = 500;
-    cfg.v0.PWMFrequency.Frequency = 50;
+  switch(cfg.version)
+  {
+    case ConfigVersion::AFHDS_V0:
+      cfg.afhdsV0.SignalStrengthRCChannelNb = 0xFF;
+      cfg.afhdsV0.FailsafeTimeout = 500;
+      cfg.afhdsV0.PWMFrequency.Frequency = 50;
+      break;
+    case ConfigVersion::AFHDS_V1:
+      cfg.afhdsV1.SignalStrengthRCChannelNb = 0xFF;
+      cfg.afhdsV1.FailsafeTimeout = 500;
+      for (int i = 0; i < SES_NB_MAX_CHANNELS; i++)
+        cfg.afhdsV1.PWMFrequenciesV1.PWMFrequencies[i] = 50;
+      break;
+    case ConfigVersion::ANT_V0:
+      cfg.antV0.SignalStrengthRCChannelNb = 0xFF;
+      cfg.antV0.FailsafeTimeout = 500;
+      cfg.antV0.PWMFrequency.Frequency = 50;
+      break;
   }
 }
 
 void ProtoState::applyConfigFromModel()
 {
-  uint8_t version = 0;
+  ConfigVersion version = ConfigVersion::AFHDS_V0;
 #if defined(SIMU)
   // TODO: work out why this is not initialised in some cases
   if (moduleData == nullptr) return;
 #endif
-  if (moduleData->afhds3.phyMode >= ROUTINE_FLCR1_18CH) {
-    version = 1;
+  if (proto == Protocol::AFHDS && moduleData->afhds3.phyMode >= ROUTINE_FLCR1_18CH) {
+    version = ConfigVersion::AFHDS_V1;
+  } else if (proto == Protocol::FS_ANT) {
+    version = ConfigVersion::ANT_V0;
   }
 
   if (version != cfg.version) {
     resetConfig(version);
   }
+  switch(cfg.version)
+  {
+    case ConfigVersion::AFHDS_V0:
+      cfg.afhdsV0.EMIStandard = moduleData->afhds3.emi;
+      cfg.afhdsV0.IsTwoWay = moduleData->afhds3.telemetry;
+      cfg.afhdsV0.PhyMode = moduleData->afhds3.phyMode;
+      cfg.afhdsV0.ExternalBusType = cfg.others.ExternalBusType==EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1;
+      // Failsafe
+      setFailSafe(cfg.afhdsV0.FailSafe);
+      if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
+        cfg.afhdsV0.FailsafeOutputMode = true;
+      } else {
+        cfg.afhdsV0.FailsafeOutputMode = false;
+      }
+      break;
+    case ConfigVersion::AFHDS_V1:
+      cfg.afhdsV1.EMIStandard = moduleData->afhds3.emi;
+      cfg.afhdsV1.IsTwoWay = moduleData->afhds3.telemetry;
+      cfg.afhdsV1.PhyMode = moduleData->afhds3.phyMode;
 
-  if (cfg.version == 1) {
-    cfg.v1.EMIStandard = moduleData->afhds3.emi;
-    cfg.v1.IsTwoWay = moduleData->afhds3.telemetry;
-    cfg.v1.PhyMode = moduleData->afhds3.phyMode;
-
-    // Failsafe
-    setFailSafe(cfg.v1.FailSafe);
-    if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
-      cfg.v1.FailsafeOutputMode = true;
-    } else {
-      cfg.v1.FailsafeOutputMode = false;
-    }
-  } else {
-    cfg.v0.EMIStandard = moduleData->afhds3.emi;
-    cfg.v0.IsTwoWay = moduleData->afhds3.telemetry;
-    cfg.v0.PhyMode = moduleData->afhds3.phyMode;
-    cfg.v0.ExternalBusType = cfg.others.ExternalBusType==EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1;
-    // Failsafe
-    setFailSafe(cfg.v0.FailSafe);
-    if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
-      cfg.v0.FailsafeOutputMode = true;
-    } else {
-      cfg.v0.FailsafeOutputMode = false;
-    }
+      // Failsafe
+      setFailSafe(cfg.afhdsV1.FailSafe);
+      if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
+        cfg.afhdsV1.FailsafeOutputMode = true;
+      } else {
+        cfg.afhdsV1.FailsafeOutputMode = false;
+      }
+      break;
+    case ConfigVersion::ANT_V0:
+      cfg.antV0.ChannelNb=10;
+      cfg.antV0.EMIStandard = moduleData->afhds3.emi;
+      cfg.antV0.IsTwoWay = moduleData->afhds3.telemetry;
+      cfg.antV0.PhyMode = moduleData->afhds3.phyMode;
+      cfg.antV0.ExternalBusType = cfg.others.ExternalBusType==EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1;
+      // Failsafe
+      setFailSafe(cfg.antV0.FailSafe);
+      if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
+        cfg.antV0.FailsafeOutputMode = true;
+      } else {
+        cfg.antV0.FailsafeOutputMode = false;
+      }
+      break;
   }
 }
 
@@ -1102,10 +1158,21 @@ static void* initModule(uint8_t module)
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init params(_uartParams);
   uint16_t period = AFHDS3_UART_COMMAND_TIMEOUT * 1000;
-  uint8_t fAddr = (module == INTERNAL_MODULE ? DeviceAddress::IRM301
-                                             : DeviceAddress::FRM303)
-                      << 4 |
-                  DeviceAddress::TRANSMITTER;
+
+  uint8_t fAddr = DeviceAddress::FRM303;
+  Protocol proto = Protocol::AFHDS;
+  if(module == INTERNAL_MODULE)
+  {
+    if(isModuleANT(INTERNAL_MODULE))
+    {
+      fAddr = DeviceAddress::INRM602;
+      proto = Protocol::FS_ANT;
+    } else {
+      fAddr = DeviceAddress::IRM301;
+    }
+  }
+
+  fAddr = fAddr << 4 | DeviceAddress::TRANSMITTER;
 
   params.baudrate = AFHDS3_UART_BAUDRATE;
   params.polarity =
@@ -1132,7 +1199,8 @@ static void* initModule(uint8_t module)
   if (!mod_st) return nullptr;
 
   auto p_state = &protoState[module];
-  p_state->init(module, pulsesGetModuleBuffer(module), mod_st, fAddr);
+
+  p_state->init(module, proto, pulsesGetModuleBuffer(module), mod_st, fAddr);
   mod_st->user_data = (void*)p_state;
 
   mixerSchedulerSetPeriod(module, period);

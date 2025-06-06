@@ -62,7 +62,7 @@
 #include "pulses/afhds2.h"
 #endif
 
-#if defined(AFHDS3)
+#if defined(AFHDS3) || defined(ANT)
 #include "pulses/afhds3.h"
 #endif
 
@@ -223,8 +223,8 @@ void getModuleStatusString(uint8_t moduleIdx, char * statusText)
   }
 #endif
 
-#if defined(AFHDS3)
-  if (isModuleAFHDS3(moduleIdx)) {
+#if defined(AFHDS3) || defined(ANT)
+  if (isModuleAFHDS3(moduleIdx) || isModuleANT(moduleIdx)) {
     afhds3::getStatusString(moduleIdx, statusText);
   }
 #endif
@@ -325,6 +325,12 @@ uint8_t getRequiredProtocol(uint8_t module)
 
 #if defined(AFHDS3)
     case MODULE_TYPE_FLYSKY_AFHDS3:
+      protocol = PROTOCOL_CHANNELS_AFHDS3;
+      break;
+#endif
+
+#if defined(ANT)
+    case MODULE_TYPE_FLYSKY_ANT:
       protocol = PROTOCOL_CHANNELS_AFHDS3;
       break;
 #endif
@@ -467,11 +473,18 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
       break;
 #endif
 
-#if defined(INTERNAL_MODULE_AFHDS3) || defined(AFHDS3)
+#if defined(INTERNAL_MODULE_AFHDS3) && defined(AFHDS3)
     case PROTOCOL_CHANNELS_AFHDS3:
       _init_module(module, &afhds3::ProtoDriver);
       break;
 #endif
+
+#if defined(INTERNAL_MODULE_ANT) && defined(ANT)
+    case PROTOCOL_CHANNELS_AFHDS3:
+      _init_module(module, &afhds3::ProtoDriver);
+      break;
+#endif
+
 
 #if defined(DSM2)
     case PROTOCOL_CHANNELS_DSMP:

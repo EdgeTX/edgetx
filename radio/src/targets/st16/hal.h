@@ -442,20 +442,18 @@
 
 
 // Internal Module
-#define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
-#define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 10) // PB.10
+#define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 10) // PB.10
+#define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
 #define INTMODULE_USART                 USART3
 #define INTMODULE_GPIO_AF               LL_GPIO_AF_7
 #define INTMODULE_USART_IRQn            USART3_IRQn
 #define INTMODULE_USART_IRQHandler      USART3_IRQHandler
-//#define INTMODULE_DMA                   DMA1
-#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_1
-#define INTMODULE_DMA_STREAM_IRQ        DMA1_Stream1_IRQn
-#define INTMODULE_DMA_FLAG_TC           DMA_FLAG_TCIF1
-#define INTMODULE_DMA_CHANNEL           LL_DMA_CHANNEL_5
-//#define INTMODULE_RX_DMA                DMA1
-#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_3
-#define INTMODULE_RX_DMA_CHANNEL        LL_DMA_CHANNEL_5
+#define INTMODULE_DMA                   DMA1
+#define INTMODULE_DMA_STREAM            LL_DMA_STREAM_5
+#define INTMODULE_DMA_CHANNEL           LL_DMAMUX1_REQ_USART3_TX
+#define INTMODULE_RX_DMA                DMA1
+#define INTMODULE_RX_DMA_STREAM         LL_DMA_STREAM_6
+#define INTMODULE_RX_DMA_CHANNEL        LL_DMAMUX1_REQ_USART3_RX
 
 // External Module
 #define EXTMODULE

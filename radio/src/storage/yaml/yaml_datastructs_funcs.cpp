@@ -2101,11 +2101,12 @@ static const struct YamlIdStr enum_R9M_Subtypes[] = {
   { 0, NULL  }
 };
 
-enum ModuleSubtypeFlysky { FLYSKY_SUBTYPE_AFHDS3 = 0, FLYSKY_SUBTYPE_AFHDS2A };
+enum ModuleSubtypeFlysky { FLYSKY_SUBTYPE_AFHDS3 = 0, FLYSKY_SUBTYPE_AFHDS2A , FLYSKY_SUBTYPE_ANT };
 
 static const struct YamlIdStr enum_FLYSKY_Subtypes[] = {
   { FLYSKY_SUBTYPE_AFHDS2A, "AFHDS2A" },
   { FLYSKY_SUBTYPE_AFHDS3, "AFHDS3" },
+  { FLYSKY_SUBTYPE_ANT, "ANT" },
   { 0, NULL  }
 };
 
@@ -2135,12 +2136,14 @@ static void r_modSubtype(void* user, uint8_t* data, uint32_t bitoffs,
     md->subType = yaml_parse_enum(enum_ISRM_Subtypes, val, val_len);
   } else if (isModuleTypeR9MNonAccess(md->type)) {
     md->subType = yaml_parse_enum(enum_R9M_Subtypes, val, val_len);
-#if defined(AFHDS3)
+#if defined(AFHDS3) || defined(ANT)
   } else if (md->type == MODULE_TYPE_FLYSKY_AFHDS2A) {
     // Flysky sub-types have been converted into separate module types
     auto sub_type = yaml_parse_enum(enum_FLYSKY_Subtypes, val, val_len);
     if (sub_type == FLYSKY_SUBTYPE_AFHDS3)
       md->type = MODULE_TYPE_FLYSKY_AFHDS3;
+    if (sub_type == FLYSKY_SUBTYPE_ANT)
+      md->type = MODULE_TYPE_FLYSKY_ANT;
 #endif
   } else if (md->type == MODULE_TYPE_MULTIMODULE) {
 #if defined(MULTIMODULE)

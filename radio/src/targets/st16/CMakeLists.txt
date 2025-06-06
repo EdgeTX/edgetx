@@ -1,7 +1,7 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
-option(AFHDS3 "AFHDS3 TX Module" ON)
+option(ANT "ANT TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
@@ -23,7 +23,7 @@ set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
-set(INTERNAL_MODULE_AFHDS3 YES)
+set(INTERNAL_MODULE_ANT YES)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 
@@ -50,9 +50,8 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 set(FLAVOUR st16)
 add_definitions(-DRADIO_ST16)
 
-# Defines internal modules for PL18 via UART7
-# set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
-# set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+set(INTERNAL_MODULES FLYSKY_ANT CACHE STRING "Internal modules")
+set(DEFAULT_INTERNAL_MODULE FLYSKY_ANT CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET bm480_bitmaps)
 set(FONTS_TARGET x12_fonts)
@@ -105,7 +104,7 @@ if(FUNCTION_SWITCHES)
 add_definitions(-DFUNCTION_SWITCHES)
 endif()
 
-set(AFHDS3 ON)
+set(ANT ON)
 
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")

@@ -67,6 +67,7 @@
     "XJT Lite",                      \
     "AFHDS2A",                       \
     "AFHDS3",                        \
+    "ANT"   ,                        \
     TR("Lemon DSMP","LemonRx DSMP")
 
 #define TR_XJT_ACCST_RF_PROTOCOLS      "D16","D8","LR12"
