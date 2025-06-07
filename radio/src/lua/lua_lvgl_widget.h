@@ -151,6 +151,19 @@ class LvglValuesParam
   bool parseValuesParam(lua_State *L, const char *key);
 };
 
+class LvglScrollableParams
+{
+ public:
+  LvglScrollableParams() {}
+
+ protected:
+  lv_dir_t scrollDir = LV_DIR_ALL;
+  int scrollToFunction = LUA_REFNIL;
+  int scrolledFunction = LUA_REFNIL;
+
+  bool parseScrollableParam(lua_State *L, const char *key);
+};
+
 //-----------------------------------------------------------------------------
 
 class LvglWidgetObjectBase
@@ -414,7 +427,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetBox : public LvglWidgetObject
+class LvglWidgetBox : public LvglWidgetObject, public LvglScrollableParams
 {
  public:
   LvglWidgetBox() : LvglWidgetObject() {}
@@ -422,9 +435,10 @@ class LvglWidgetBox : public LvglWidgetObject
   coord_t getScrollX() override;
   coord_t getScrollY() override;
 
- protected:
-  lv_dir_t scrollDir = LV_DIR_ALL;
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
 
+ protected:
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
@@ -751,11 +765,12 @@ class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam
+class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public LvglScrollableParams
 {
  public:
   LvglWidgetPage() : LvglWidgetObject() {}
 
+  bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
   coord_t getScrollX() override;
@@ -764,7 +779,6 @@ class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam
  protected:
   std::string subtitle;
   std::string iconFile;
-  lv_dir_t scrollDir = LV_DIR_ALL;
 
   int backActionFunction = LUA_REFNIL;
 

@@ -189,6 +189,23 @@ bool LvglValuesParam::parseValuesParam(lua_State *L, const char *key)
   return false;
 }
 
+bool LvglScrollableParams::parseScrollableParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "scrollDir")) {
+    scrollDir = (lv_dir_t)luaL_checkunsigned(L, -1);
+    return true;
+  }
+  if (!strcmp(key, "scrollTo")) {
+    scrollToFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+    return true;
+  }
+  if (!strcmp(key, "scrolled")) {
+    scrolledFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+    return true;
+  }
+  return false;
+}
+
 //-----------------------------------------------------------------------------
 
 static int pcallcont (lua_State *L, int status, lua_KContext extra) {
@@ -210,6 +227,17 @@ static bool pcallFuncWithInt(lua_State *L, int funcRef, int nretval, int val)
     lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
     lua_pushinteger(L, val);
     return lua_pcallk(L, 1, nretval, 0, 0, pcallcont) == LUA_OK;
+  }
+  return false;
+}
+
+static bool pcallFuncWith2Int(lua_State *L, int funcRef, int nretval, int val1, int val2)
+{
+  if (funcRef != LUA_REFNIL) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
+    lua_pushinteger(L, val1);
+    lua_pushinteger(L, val2);
+    return lua_pcallk(L, 2, nretval, 0, 0, pcallcont) == LUA_OK;
   }
   return false;
 }
@@ -1332,11 +1360,8 @@ void LvglWidgetObject::clearRefs(lua_State *L)
 
 void LvglWidgetBox::parseParam(lua_State *L, const char *key)
 {
-  if (!strcmp(key, "scrollDir")) {
-    scrollDir = (lv_dir_t)luaL_checkunsigned(L, -1);
-  } else {
-    LvglWidgetObject::parseParam(L, key);
-  }
+  if (parseScrollableParam(L, key)) return;
+  LvglWidgetObject::parseParam(L, key);
 }
 
 coord_t LvglWidgetBox::getScrollX()
@@ -1349,10 +1374,27 @@ coord_t LvglWidgetBox::getScrollY()
   return lv_obj_get_scroll_y(window->getLvObj());
 }
 
+bool LvglWidgetBox::callRefs(lua_State *L)
+{
+  if (!pcallUpdate2Int(L, scrollToFunction,
+      [=](int x, int y) { if (x != getScrollX() || y != getScrollY()) lv_obj_scroll_to(window->getLvObj(), x, y, LV_ANIM_OFF); })) {
+    return false;
+  }
+  return LvglWidgetObject::callRefs(L);
+}
+
+void LvglWidgetBox::clearRefs(lua_State *L)
+{
+  clearRef(L, scrollToFunction);
+  LvglWidgetObject::clearRefs(L);
+}
+
 void LvglWidgetBox::build(lua_State *L)
 {
   window =
       new Window(lvglManager->getCurrentParent(), {x, y, w, h}, lv_obj_create);
+  window->disableForcedScroll();
+  window->setScrollHandler([=](coord_t x, coord_t y) { pcallFuncWith2Int(L, scrolledFunction, 0, x, y); });
   lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
   if (luaScriptManager->isWidget()) {
     lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
@@ -2079,14 +2121,13 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 void LvglWidgetPage::parseParam(lua_State *L, const char *key)
 {
   if (parseTitleParam(L, key)) return;
+  if (parseScrollableParam(L, key)) return;
   if (!strcmp(key, "back")) {
     backActionFunction = luaL_ref(L, LUA_REGISTRYINDEX);
   } else if (!strcmp(key, "subtitle")) {
     subtitle = luaL_checkstring(L, -1);
   } else if (!strcmp(key, "icon")) {
     iconFile = luaL_checkstring(L, -1);
-  } else if (!strcmp(key, "scrollDir")) {
-    scrollDir = (lv_dir_t)luaL_checkunsigned(L, -1);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -2102,6 +2143,15 @@ coord_t LvglWidgetPage::getScrollY()
   return lv_obj_get_scroll_y(window->getLvObj());
 }
 
+bool LvglWidgetPage::callRefs(lua_State *L)
+{
+  if (!pcallUpdate2Int(L, scrollToFunction,
+      [=](int x, int y) { if (x != getScrollX() || y != getScrollY()) lv_obj_scroll_to(window->getLvObj(), x, y, LV_ANIM_OFF); })) {
+    return false;
+  }
+  return LvglWidgetObject::callRefs(L);
+}
+
 void LvglWidgetPage::clearRefs(lua_State *L)
 {
   clearRef(L, backActionFunction);
@@ -2115,6 +2165,8 @@ void LvglWidgetPage::build(lua_State *L)
       [=]() { pcallSimpleFunc(L, backActionFunction); }, title, subtitle, iconFile, scrollDir);
 
   window = page->getBody();
+  window->disableForcedScroll();
+  window->setScrollHandler([=](coord_t x, coord_t y) { pcallFuncWith2Int(L, scrolledFunction, 0, x, y); });
   if (setFlex())
     lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_SPACE_AROUND);
 }

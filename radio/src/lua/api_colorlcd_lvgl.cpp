@@ -433,7 +433,6 @@ LROT_BEGIN(lvgl_base_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(set, luaLvglSet)
   LROT_FUNCENTRY(show, luaLvglShow)
   LROT_FUNCENTRY(hide, luaLvglHide)
-  LROT_FUNCENTRY(getScrollPos, luaLvglGetScrollPos)
 LROT_END(lvgl_base_mt, NULL, LROT_MASK_GC_INDEX)
 
 // Metatable for complex objects
