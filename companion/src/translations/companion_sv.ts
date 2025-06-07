@@ -3602,7 +3602,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="516"/>
         <source>FlySky ST16</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="610"/>
@@ -6129,7 +6129,7 @@ Acceptabla värden är 3 - 12 volt</translation>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="431"/>
         <source>Korean</source>
-        <translation type="unfinished"></translation>
+        <translation>Koreanska</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="438"/>

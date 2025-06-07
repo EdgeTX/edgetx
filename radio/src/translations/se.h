@@ -1160,7 +1160,7 @@
 #define TR_BLUE                         "Blå"
 #define TR_GREEN                        "Grön"
 #define TR_COLOR_PICKER                 "Färgväljare"
-#define TR_FIXED                        "Fixed"
+#define TR_FIXED                        "Fasta"
 #define TR_EDIT_THEME_DETAILS           "Ändra temainformation"
 #define TR_THEME_COLOR_DEFAULT          "DEFAULT"
 #define TR_THEME_COLOR_PRIMARY1         "PRIMÄR1"
