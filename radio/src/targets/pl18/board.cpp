@@ -288,8 +288,6 @@ void boardInit()
   ledGreen();
 #endif
 #endif
-
-  lcdSetInitalFrameBuffer(lcdFront->getData());
 }
 
 extern void rtcDisableBackupReg();
