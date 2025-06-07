@@ -26,6 +26,9 @@
 #include "bitmapbuffer.h"
 #include "board.h"
 #include "etx_lv_theme.h"
+#if !LV_USE_GPU_STM32_DMA2D
+#include "dma2d.h"
+#endif
 
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
@@ -111,15 +114,13 @@ static void init_lvgl_disp_drv()
 
   disp_drv.hor_res = LCD_W; /*Set the horizontal resolution in pixels*/
   disp_drv.ver_res = LCD_H; /*Set the vertical resolution in pixels*/
+  disp_drv.full_refresh = 0;
 
 #if !defined(LCD_VERTICAL_INVERT)
-  disp_drv.full_refresh = 1;
   disp_drv.direct_mode = 1;
 #elif defined(RADIO_F16)
-  disp_drv.full_refresh = 1;
   disp_drv.direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
 #else
-  disp_drv.full_refresh = 0;
   disp_drv.direct_mode = 0;
 #endif
 }
@@ -130,6 +131,10 @@ void lcdInitDisplayDriver()
   // we already have a display: exit
   if (lcdDriverStarted) return;
   lcdDriverStarted = true;
+
+#if !LV_USE_GPU_STM32_DMA2D
+  DMAInit();
+#endif
 
   // Full LVGL init in firmware mode
   lv_init();
