@@ -26,7 +26,7 @@
 #include "bitmapbuffer.h"
 #include "board.h"
 #include "etx_lv_theme.h"
-#if !LV_USE_GPU_STM32_DMA2D
+#if !LV_USE_GPU_STM32_DMA2D && !defined(SIMU)
 #include "dma2d.h"
 #endif
 
@@ -132,7 +132,7 @@ void lcdInitDisplayDriver()
   if (lcdDriverStarted) return;
   lcdDriverStarted = true;
 
-#if !LV_USE_GPU_STM32_DMA2D
+#if !LV_USE_GPU_STM32_DMA2D && !defined(SIMU)
   DMAInit();
 #endif
 
@@ -167,3 +167,7 @@ void lcdFlushed()
   // startup code)
   if (refr_disp != nullptr) lv_disp_flush_ready(refr_disp);
 }
+
+#if defined(SIMU)
+void lcdRefresh() {}
+#endif
