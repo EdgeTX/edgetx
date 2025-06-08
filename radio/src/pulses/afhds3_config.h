@@ -159,7 +159,7 @@ PACK(struct sDATA_Others {
 enum class ConfigVersion {
   AFHDS_V0,
   AFHDS_V1,
-  ANT_V0
+  ANT_V0 = AFHDS_V0
 };
 
 union Config_u

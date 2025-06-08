@@ -415,15 +415,15 @@ bool ProtoState::isConnected()
 
 bool ProtoState::hasTelemetry()
 {
+  if(proto == FS_ANT)
+    return cfg.antV0.IsTwoWay;
+
   if (cfg.version == ConfigVersion::AFHDS_V0)
     return cfg.afhdsV0.IsTwoWay;
   else if (cfg.version == ConfigVersion::AFHDS_V1)
     return cfg.afhdsV1.IsTwoWay;
-  else if (cfg.version == ConfigVersion::ANT_V0)
-    return cfg.antV0.IsTwoWay;
-  else {
+  else
     return false; // SNH
-  }
 }
 
 void ProtoState::setupFrame()
@@ -453,11 +453,15 @@ void ProtoState::setupFrame()
       applyConfigFromModel();
 
       size_t frameSize = 0;
-      switch(cfg.version)
+      if(proto == FS_ANT)
       {
-	case ConfigVersion::AFHDS_V0: frameSize = sizeof(cfg.afhdsV0); break;
-	case ConfigVersion::AFHDS_V1: frameSize = sizeof(cfg.afhdsV1); break;
-	case ConfigVersion::ANT_V0:   frameSize = sizeof(cfg.antV0);   break;
+        frameSize = sizeof(cfg.antV0);
+      } else {
+	switch(cfg.version)
+	{
+	  case ConfigVersion::AFHDS_V0: frameSize = sizeof(cfg.afhdsV0); break;
+	  case ConfigVersion::AFHDS_V1: frameSize = sizeof(cfg.afhdsV1); break;
+	}
       }
 
       trsp.putFrame(COMMAND::MODULE_SET_CONFIG,
@@ -986,24 +990,26 @@ void ProtoState::resetConfig(ConfigVersion version)
   memclear(&cfg, sizeof(cfg));
   cfg.version = version;
 
-  switch(cfg.version)
+  if(proto == FS_ANT)
   {
-    case ConfigVersion::AFHDS_V0:
-      cfg.afhdsV0.SignalStrengthRCChannelNb = 0xFF;
-      cfg.afhdsV0.FailsafeTimeout = 500;
-      cfg.afhdsV0.PWMFrequency.Frequency = 50;
-      break;
-    case ConfigVersion::AFHDS_V1:
-      cfg.afhdsV1.SignalStrengthRCChannelNb = 0xFF;
-      cfg.afhdsV1.FailsafeTimeout = 500;
-      for (int i = 0; i < SES_NB_MAX_CHANNELS; i++)
-        cfg.afhdsV1.PWMFrequenciesV1.PWMFrequencies[i] = 50;
-      break;
-    case ConfigVersion::ANT_V0:
-      cfg.antV0.SignalStrengthRCChannelNb = 0xFF;
-      cfg.antV0.FailsafeTimeout = 500;
-      cfg.antV0.PWMFrequency.Frequency = 50;
-      break;
+    cfg.antV0.SignalStrengthRCChannelNb = 0xFF;
+    cfg.antV0.FailsafeTimeout = 500;
+    cfg.antV0.PWMFrequency.Frequency = 50;
+  } else {
+    switch(cfg.version)
+    {
+      case ConfigVersion::AFHDS_V0:
+	cfg.afhdsV0.SignalStrengthRCChannelNb = 0xFF;
+	cfg.afhdsV0.FailsafeTimeout = 500;
+	cfg.afhdsV0.PWMFrequency.Frequency = 50;
+	break;
+      case ConfigVersion::AFHDS_V1:
+	cfg.afhdsV1.SignalStrengthRCChannelNb = 0xFF;
+	cfg.afhdsV1.FailsafeTimeout = 500;
+	for (int i = 0; i < SES_NB_MAX_CHANNELS; i++)
+	  cfg.afhdsV1.PWMFrequenciesV1.PWMFrequencies[i] = 50;
+	break;
+    }
   }
 }
 
@@ -1016,55 +1022,55 @@ void ProtoState::applyConfigFromModel()
 #endif
   if (proto == Protocol::AFHDS && moduleData->afhds3.phyMode >= ROUTINE_FLCR1_18CH) {
     version = ConfigVersion::AFHDS_V1;
-  } else if (proto == Protocol::FS_ANT) {
-    version = ConfigVersion::ANT_V0;
   }
 
   if (version != cfg.version) {
     resetConfig(version);
   }
-  switch(cfg.version)
+  if(proto == FS_ANT)
   {
-    case ConfigVersion::AFHDS_V0:
-      cfg.afhdsV0.EMIStandard = moduleData->afhds3.emi;
-      cfg.afhdsV0.IsTwoWay = moduleData->afhds3.telemetry;
-      cfg.afhdsV0.PhyMode = moduleData->afhds3.phyMode;
-      cfg.afhdsV0.ExternalBusType = cfg.others.ExternalBusType==EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1;
-      // Failsafe
-      setFailSafe(cfg.afhdsV0.FailSafe);
-      if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
-        cfg.afhdsV0.FailsafeOutputMode = true;
-      } else {
-        cfg.afhdsV0.FailsafeOutputMode = false;
-      }
-      break;
-    case ConfigVersion::AFHDS_V1:
-      cfg.afhdsV1.EMIStandard = moduleData->afhds3.emi;
-      cfg.afhdsV1.IsTwoWay = moduleData->afhds3.telemetry;
-      cfg.afhdsV1.PhyMode = moduleData->afhds3.phyMode;
+    cfg.antV0.ChannelNb=10;
+    cfg.antV0.EMIStandard = moduleData->afhds3.emi;
+    cfg.antV0.IsTwoWay = moduleData->afhds3.telemetry;
+    cfg.antV0.PhyMode = moduleData->afhds3.phyMode;
+    cfg.antV0.ExternalBusType = cfg.others.ExternalBusType==EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1;
+    // Failsafe
+    setFailSafe(cfg.antV0.FailSafe);
+    if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
+      cfg.antV0.FailsafeOutputMode = true;
+    } else {
+      cfg.antV0.FailsafeOutputMode = false;
+    }
+  } else {
+    switch(cfg.version)
+    {
+      case ConfigVersion::AFHDS_V0:
+	cfg.afhdsV0.EMIStandard = moduleData->afhds3.emi;
+	cfg.afhdsV0.IsTwoWay = moduleData->afhds3.telemetry;
+	cfg.afhdsV0.PhyMode = moduleData->afhds3.phyMode;
+	cfg.afhdsV0.ExternalBusType = cfg.others.ExternalBusType==EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1;
+	// Failsafe
+	setFailSafe(cfg.afhdsV0.FailSafe);
+	if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
+	  cfg.afhdsV0.FailsafeOutputMode = true;
+	} else {
+	  cfg.afhdsV0.FailsafeOutputMode = false;
+	}
+	break;
+      case ConfigVersion::AFHDS_V1:
+	cfg.afhdsV1.EMIStandard = moduleData->afhds3.emi;
+	cfg.afhdsV1.IsTwoWay = moduleData->afhds3.telemetry;
+	cfg.afhdsV1.PhyMode = moduleData->afhds3.phyMode;
 
-      // Failsafe
-      setFailSafe(cfg.afhdsV1.FailSafe);
-      if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
-        cfg.afhdsV1.FailsafeOutputMode = true;
-      } else {
-        cfg.afhdsV1.FailsafeOutputMode = false;
-      }
-      break;
-    case ConfigVersion::ANT_V0:
-      cfg.antV0.ChannelNb=10;
-      cfg.antV0.EMIStandard = moduleData->afhds3.emi;
-      cfg.antV0.IsTwoWay = moduleData->afhds3.telemetry;
-      cfg.antV0.PhyMode = moduleData->afhds3.phyMode;
-      cfg.antV0.ExternalBusType = cfg.others.ExternalBusType==EB_BT_SBUS1 ? EB_BT_SBUS1 : EB_BT_IBUS1;
-      // Failsafe
-      setFailSafe(cfg.antV0.FailSafe);
-      if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
-        cfg.antV0.FailsafeOutputMode = true;
-      } else {
-        cfg.antV0.FailsafeOutputMode = false;
-      }
-      break;
+	// Failsafe
+	setFailSafe(cfg.afhdsV1.FailSafe);
+	if (moduleData->failsafeMode != FAILSAFE_NOPULSES) {
+	  cfg.afhdsV1.FailsafeOutputMode = true;
+	} else {
+	  cfg.afhdsV1.FailsafeOutputMode = false;
+	}
+	break;
+    }
   }
 }
 
