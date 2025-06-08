@@ -25,6 +25,7 @@
 #include "drivers/pca95xx.h"
 #include "stm32_i2c_driver.h"
 #include "timers_driver.h"
+#include "delays_driver.h"
 #include "boards/generic_stm32/rgb_leds.h"
 
 #if !defined(BOOT)
@@ -55,12 +56,22 @@ static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
   io->state = 0;
 }
 
+static volatile uint8_t pca95xx_errors = 0;
+
 static uint32_t _read_io_expander(bsp_io_expander* io)
 {
   uint16_t value = 0;
   if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
     io->state = value;
+  } else {
+    if (pca95xx_errors++ > 5) {
+      gpio_clear(IO_RESET_GPIO);
+      pca95xx_errors = 0;
+      delay_us(1);  // Only 6ns are needed according to PCA datasheet, but lets be safe
+      gpio_set(IO_RESET_GPIO);
+    }
   }
+
   return io->state;
 }
 
