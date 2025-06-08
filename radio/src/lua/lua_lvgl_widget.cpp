@@ -191,6 +191,10 @@ bool LvglValuesParam::parseValuesParam(lua_State *L, const char *key)
 
 bool LvglScrollableParams::parseScrollableParam(lua_State *L, const char *key)
 {
+  if (!strcmp(key, "scrollBar")) {
+    showScrollBar = lua_toboolean(L, -1);
+    return true;
+  }
   if (!strcmp(key, "scrollDir")) {
     scrollDir = (lv_dir_t)luaL_checkunsigned(L, -1);
     return true;
@@ -1400,7 +1404,8 @@ void LvglWidgetBox::build(lua_State *L)
     lv_obj_clear_flag(window->getLvObj(), LV_OBJ_FLAG_CLICKABLE);
   } else {
     lv_obj_set_scroll_dir(window->getLvObj(), scrollDir);
-    etx_scrollbar(window->getLvObj());
+    if (showScrollBar)
+      etx_scrollbar(window->getLvObj());
   }
   if (setFlex())
     lv_obj_set_flex_align(window->getLvObj(), LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_AROUND);
@@ -2070,7 +2075,8 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 {
  public:
   WidgetPage(Window *parent, std::function<void()> backAction,
-             std::string title, std::string subtitle, std::string iconFile, lv_dir_t scrollDir) :
+             std::string title, std::string subtitle, std::string iconFile,
+             lv_dir_t scrollDir, bool showScrollBar) :
       NavWindow(parent, {0, 0, LCD_W, LCD_H}), backAction(std::move(backAction))
   {
     if (iconFile.empty())
@@ -2089,7 +2095,8 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT,
                                 LV_PART_MAIN);
     lv_obj_set_scroll_dir(body->getLvObj(), scrollDir);
-    etx_scrollbar(body->getLvObj());
+    if (showScrollBar)
+      etx_scrollbar(body->getLvObj());
 
 #if defined(HARDWARE_TOUCH)
     addBackButton();
@@ -2162,7 +2169,7 @@ void LvglWidgetPage::build(lua_State *L)
 {
   auto page = new WidgetPage(
       lvglManager->getCurrentParent(),
-      [=]() { pcallSimpleFunc(L, backActionFunction); }, title, subtitle, iconFile, scrollDir);
+      [=]() { pcallSimpleFunc(L, backActionFunction); }, title, subtitle, iconFile, scrollDir, showScrollBar);
 
   window = page->getBody();
   window->disableForcedScroll();

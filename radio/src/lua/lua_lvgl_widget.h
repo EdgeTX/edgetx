@@ -157,6 +157,7 @@ class LvglScrollableParams
   LvglScrollableParams() {}
 
  protected:
+  bool showScrollBar = true;
   lv_dir_t scrollDir = LV_DIR_ALL;
   int scrollToFunction = LUA_REFNIL;
   int scrolledFunction = LUA_REFNIL;
