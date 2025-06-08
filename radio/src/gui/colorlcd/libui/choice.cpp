@@ -226,7 +226,7 @@ void Choice::openMenu()
 {
   setEditMode(true);  // this needs to be done first before menu is created.
 
-  auto menu = new Menu();
+  auto menu = new Menu(false, popupWidth);
   if (menuTitle) menu->setTitle(menuTitle);
 
   fillMenu(menu);

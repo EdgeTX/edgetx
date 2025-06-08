@@ -29,7 +29,7 @@ class Menu : public ModalWindow
   friend class MenuBody;
 
  public:
-  explicit Menu(bool multiple = false);
+  explicit Menu(bool multiple = false, coord_t popupWidth = 0);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "Menu"; }

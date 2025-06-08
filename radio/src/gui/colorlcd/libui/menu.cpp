@@ -305,13 +305,15 @@ static lv_obj_t* menu_content_create(lv_obj_t* parent)
 class MenuWindowContent : public Window
 {
  public:
-  explicit MenuWindowContent(Menu* parent) :
+  explicit MenuWindowContent(Menu* parent, coord_t popupWidth) :
       Window(parent, rect_t{}, menu_content_create)
   {
     setWindowFlag(OPAQUE);
 
+    coord_t w = (popupWidth > MENUS_WIDTH) ? popupWidth : MENUS_WIDTH;
+
     lv_obj_center(lvobj);
-    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, MENUS_WIDTH, LV_SIZE_CONTENT);
+    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, w, LV_SIZE_CONTENT);
 
     header = new StaticText(this, {0, 0, LV_PCT(100), 0}, "", 
                             COLOR_THEME_PRIMARY2_INDEX);
@@ -319,7 +321,7 @@ class MenuWindowContent : public Window
     header->padAll(PAD_SMALL);
     header->hide();
 
-    body = new MenuBody(this, rect_t{0, 0, MENUS_WIDTH, LV_SIZE_CONTENT});
+    body = new MenuBody(this, rect_t{0, 0, w, LV_SIZE_CONTENT});
     lv_obj_set_style_max_height(body->getLvObj(), LCD_H * 0.8, LV_PART_MAIN);
   }
 
@@ -357,10 +359,10 @@ class MenuWindowContent : public Window
 
 //-----------------------------------------------------------------------------
 
-Menu::Menu(bool multiple) :
+Menu::Menu(bool multiple, coord_t popupWidth) :
     ModalWindow(true),
     multiple(multiple),
-    content(new MenuWindowContent(this))
+    content(new MenuWindowContent(this, popupWidth))
 {
 }
 

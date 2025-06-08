@@ -2299,6 +2299,8 @@ void LvglWidgetChoice::parseParam(lua_State *L, const char *key)
   if (parseValuesParam(L, key)) return;
   if (!strcmp(key, "filter")) {
     filterFunction = luaL_ref(L, LUA_REGISTRYINDEX);
+  } else if (!strcmp(key, "popupWidth")) {
+    popupWidth = luaL_checkinteger(L, -1);
   } else {
     LvglWidgetPicker::parseParam(L, key);
   }
@@ -2317,6 +2319,8 @@ void LvglWidgetChoice::build(lua_State *L)
       lvglManager->getCurrentParent(), {x, y, w, h}, values, 0, values.size() - 1,
       [=]() { return pcallGetIntVal(L, getFunction) - 1; },
       [=](int val) { pcallSetIntVal(L, setFunction, val + 1); }, title.c_str());
+
+  c->setPopupWidth(popupWidth);
 
   if (filterFunction != LUA_REFNIL)
     c->setAvailableHandler([=](int n) {

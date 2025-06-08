@@ -860,6 +860,7 @@ class LvglWidgetChoice : public LvglWidgetPicker, public LvglTitleParam, public 
 
  protected:
   int filterFunction = LUA_REFNIL;
+  coord_t popupWidth = 0;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;

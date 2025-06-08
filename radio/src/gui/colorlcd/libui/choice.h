@@ -54,10 +54,13 @@ class ChoiceBase : public FormField
 
   const char* getTitle() const { return menuTitle; }
 
+  void setPopupWidth(coord_t w) { popupWidth = w; }
+
   static LAYOUT_VAL_SCALED(ICON_W, 18)
 
  protected:
   lv_obj_t *label;
+  coord_t popupWidth = 0;
   int vmin = 0;
   int vmax = 0;
   const char *menuTitle = nullptr;
