@@ -24,6 +24,7 @@
 #include "drivers/pca95xx.h"
 #include "stm32_i2c_driver.h"
 #include "timers_driver.h"
+#include "delays_driver.h"
 #include "stm32_ws2812.h"
 
 #include "os/async.h"
@@ -55,6 +56,11 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   uint16_t value = 0;
   if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
     io->state = value;
+  } else {
+    gpio_clear(IO_RESET_GPIO);
+    TRACE("PCA95 was reset");
+    delay_us(1);  // Only 6ns are needed according to PCA datasheet, but lets be safe
+    gpio_set(IO_RESET_GPIO);
   }
   return io->state;  
 }
