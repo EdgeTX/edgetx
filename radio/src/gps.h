@@ -28,6 +28,8 @@ struct gpsdata_t
 {
   int32_t longitude;              // degrees * 1.000.000
   int32_t latitude;               // degrees * 1.000.000
+  int32_t lon_raw;
+  int32_t lat_raw;
   uint8_t fix;
   uint8_t numSat;
   uint32_t packetCount;
