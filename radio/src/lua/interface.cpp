@@ -871,8 +871,12 @@ static int luaRegisterFunction(const char * key)
   }
 }
 
+#if defined(COLORLCD)
+static void luaLoadScripts(bool init)
+#else
 // Load Lua scripts. If filename is given, then load a standalone script
 static void luaLoadScripts(bool init, const char * filename = nullptr)
+#endif
 {
   // Static variables for keeping state when Lua is preempted
   static uint8_t ref;
@@ -887,16 +891,14 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
     luaEmptyEventBuffer();
 
     // Initialize loop over references
-    if (filename) {
-      ref = SCRIPT_STANDALONE;
-    }
-    else {
-#if defined(LUA_MODEL_SCRIPTS)
-      ref = SCRIPT_MIX_FIRST;
+#if defined(COLORLCD)
+    ref = SCRIPT_REF_FIRST;
 #else
-      ref = SCRIPT_FUNC_FIRST;
+    if (filename)
+      ref = SCRIPT_STANDALONE;
+    else
+      ref = SCRIPT_REF_FIRST;
 #endif
-    }
   }
  
   // Continue loop with existing reference value
@@ -928,6 +930,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
         }
       }
 #endif
+#if !defined(COLORLCD)
       else {
         // Standalone script
         ScriptInternalData & sid = scriptInternalData[luaScriptsCount++];
@@ -937,6 +940,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           break;
         }
       }
+#endif
       // Skip the rest of the loop if we did not get a new script
       if (countBefore == luaScriptsCount) continue;
     }
@@ -1000,9 +1004,11 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
           // If init(), push it on the stack
           if (initFunction != LUA_NOREF) {
             lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, initFunction);
+#if !defined(COLORLCD)
             if (ref == SCRIPT_STANDALONE) {
               luaLcdAllowed = true;
             }
+#endif
           }
         }
       }
@@ -1022,7 +1028,7 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
       luaDoGc(lsScripts, true);
     }
     
-  } while(++ref < SCRIPT_STANDALONE);
+  } while(++ref < SCRIPT_REF_LAST);
  
   // Loading has finished - start running scripts
   luaState = INTERPRETER_START_RUNNING;
@@ -1031,11 +1037,13 @@ static void luaLoadScripts(bool init, const char * filename = nullptr)
 
 void luaGetValueAndPush(lua_State *L, int src);
 
+#if !defined(COLORLCD)
 void luaExec(const char * filename)
 {
   luaState = INTERPRETER_LOADING;
   luaLoadScripts(true, filename);
 }
+#endif
 
 static bool resumeLua(bool init, bool allowLcdUsage)
 {
@@ -1045,8 +1053,10 @@ static bool resumeLua(bool init, bool allowLcdUsage)
 
   bool scriptWasRun = false;
   bool fullGC = !allowLcdUsage;
+#if !defined(COLORLCD)
   static uint8_t luaDisplayStatistics = false;
- 
+#endif
+
   // Run in the right interactive mode
   if (lua_status(lsScripts) == LUA_YIELD && allowLcdUsage != luaLcdAllowed) {
 #if defined(PCBTARANIS)
@@ -1070,7 +1080,8 @@ static bool resumeLua(bool init, bool allowLcdUsage)
     if (sid.state != SCRIPT_OK) {
       displayLuaError();
       scriptWasRun = true;
-      
+
+#if !defined(COLORLCD)
       if (ref == SCRIPT_STANDALONE) {
         // Pull a new event from the buffer
         luaNextEvent(&evt);
@@ -1079,7 +1090,8 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           killEvents(evt.event);
         }
       }
-      
+#endif
+
       continue;
     }
     
@@ -1089,32 +1101,23 @@ static bool resumeLua(bool init, bool allowLcdUsage)
     if (luaStatus == LUA_OK) {
       // Not preempted - setup another function call
       lua_settop(lsScripts, 0);
-     
+
+#if !defined(COLORLCD)
       if (allowLcdUsage) {
-#if defined(PCBTARANIS)
         if ((menuHandlers[menuLevel] == menuViewTelemetry &&
              ref == SCRIPT_TELEMETRY_FIRST + selectedTelemView) ||
             ref == SCRIPT_STANDALONE) {
-#else
-        if (ref == SCRIPT_STANDALONE) {
-#endif
           // Pull a new event from the buffer
           luaNextEvent(&evt);
 
           lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
           lua_pushinteger(lsScripts, evt.event);
           inputsCount = 1;
-
-#if defined(HARDWARE_TOUCH)
-          if (IS_TOUCH_EVENT(evt.event)) {
-            luaPushTouchEventTable(lsScripts, &evt);
-            inputsCount = 2;
-          }
-#endif
         }
         else continue;
-      }
-      else {
+      } else
+#endif
+      {
 #if defined(LUA_MODEL_SCRIPTS)
         if (ref <= SCRIPT_MIX_LAST) {
           lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
@@ -1203,6 +1206,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         }
       } else
 #endif
+#if !defined(COLORLCD)
       if (ref == SCRIPT_STANDALONE) {
         lua_settop(lsScripts, 1);
         if (lua_isnumber(lsScripts, -1)) {
@@ -1215,14 +1219,12 @@ static bool resumeLua(bool init, bool allowLcdUsage)
             luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           }
           else if (luaDisplayStatistics) {
-  #if !defined(COLORLCD)
             lcdDrawSolidHorizontalLine(0, 7*FH-1, lcdLastRightPos+6, ERASE);
             lcdDrawText(0, 7*FH, "GV Use: ");
             lcdDrawNumber(lcdLastRightPos, 7*FH, luaGetMemUsed(lsScripts), LEFT);
             lcdDrawChar(lcdLastRightPos, 7*FH, 'b');
             lcdDrawSolidHorizontalLine(0, 7*FH-2, lcdLastRightPos+6, FORCE);
             lcdDrawVerticalLine(lcdLastRightPos+6, 7*FH-2, FH+2, SOLID, FORCE);
-  #endif
           }
         }
         else if (lua_isstring(lsScripts, -1)) {
@@ -1253,6 +1255,9 @@ static bool resumeLua(bool init, bool allowLcdUsage)
         }
 #endif
       }
+#else
+      {}
+#endif
     }
     else {
       // Error
@@ -1372,6 +1377,9 @@ void luaInit()
 
   if (luaState != INTERPRETER_PANIC) {
     if (mainState) {
+      lua_settop(mainState, 0);
+      lua_gc(mainState, LUA_GCCOLLECT, 0);
+
       // lsScripts is now a coroutine in lieu of the main thread to support preemption
       lsScripts = lua_newthread(mainState);
      

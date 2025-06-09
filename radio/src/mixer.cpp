@@ -870,9 +870,11 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         // disable mixer if Lua script is used as source and script was killed
         if (srcRawAbs >= MIXSRC_FIRST_LUA && srcRawAbs <= MIXSRC_LAST_LUA) {
           div_t qr = div(int(srcRawAbs - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
-          if (scriptInternalData[qr.quot].state != SCRIPT_OK) {
-            mixCondition = true;
-            mixEnabled = 0;
+          for (int n = 0; n < MAX_SCRIPTS; n += 1) {
+            if ((scriptInternalData[n].reference == qr.quot) && (scriptInternalData[n].state != SCRIPT_OK)) {
+              mixCondition = true;
+              mixEnabled = 0;
+            }
           }
         }
 #endif
