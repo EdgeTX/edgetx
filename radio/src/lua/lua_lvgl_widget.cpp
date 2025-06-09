@@ -901,7 +901,7 @@ uint32_t LvglWidgetLine::getPts(lua_State* L)
     }
     for (size_t i = 0; i < ptCnt; i += 1)
       getPt(L, i);
-    return hash(pts, sizeof(ptCnt * sizeof(lv_point_t)));
+    return hash(pts, ptCnt * sizeof(lv_point_t));
   } else {
     ptCnt = 0;
     return -1;
