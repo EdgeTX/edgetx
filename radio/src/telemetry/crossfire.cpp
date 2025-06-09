@@ -58,6 +58,8 @@ const CrossfireSensor crossfireSensors[] = {
   CS(GPS_ID,         3, STR_SENSOR_HDG,           UNIT_DEGREE,            2),
   CS(GPS_ID,         4, STR_SENSOR_ALT,           UNIT_METERS,            0),
   CS(GPS_ID,         5, STR_SENSOR_SATELLITES,    UNIT_RAW,               0),
+  CS(GPS_ID,         6, STR_SENSOR_LONRAW,        UNIT_RAW,               0),
+  CS(GPS_ID,         7, STR_SENSOR_LATRAW,        UNIT_RAW,               0),
   CS(ATTITUDE_ID,    0, STR_SENSOR_PITCH,         UNIT_RADIANS,           3),
   CS(ATTITUDE_ID,    1, STR_SENSOR_ROLL,          UNIT_RADIANS,           3),
   CS(ATTITUDE_ID,    2, STR_SENSOR_YAW,           UNIT_RADIANS,           3),
@@ -154,10 +156,14 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       break;
 
     case GPS_ID:
-      if (getCrossfireTelemetryValue<4>(3, value, rxBuffer))
+      if (getCrossfireTelemetryValue<4>(3, value, rxBuffer)) {
         processCrossfireTelemetryValue(GPS_LATITUDE_INDEX, value/10);
-      if (getCrossfireTelemetryValue<4>(7, value, rxBuffer))
+        processCrossfireTelemetryValue(GPS_LATRAW_INDEX, value);
+      }
+      if (getCrossfireTelemetryValue<4>(7, value, rxBuffer)) {
         processCrossfireTelemetryValue(GPS_LONGITUDE_INDEX, value/10);
+        processCrossfireTelemetryValue(GPS_LONRAW_INDEX, value);
+      }
       if (getCrossfireTelemetryValue<2>(11, value, rxBuffer))
         processCrossfireTelemetryValue(GPS_GROUND_SPEED_INDEX, value);
       if (getCrossfireTelemetryValue<2>(13, value, rxBuffer))
