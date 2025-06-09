@@ -1409,6 +1409,8 @@ static int luaGetTxGPS(lua_State * L)
   lua_createtable(L, 0, 8);
   lua_pushtablenumber(L, "lat", gpsData.latitude * 0.000001);
   lua_pushtablenumber(L, "lon", gpsData.longitude * 0.000001);
+  lua_pushtableinteger(L, "latraw", gpsData.lat_raw);
+  lua_pushtableinteger(L, "lonraw", gpsData.lon_raw);
   lua_pushtableinteger(L, "numsat", gpsData.numSat);
   lua_pushtableinteger(L, "alt", gpsData.altitude);
   lua_pushtableinteger(L, "speed", gpsData.speed);
