@@ -474,7 +474,7 @@ elseif(APPLE)
           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime)
 
   # menu file
-  install(DIRECTORY ${COMPANION_TARGETS_PATH}/qt_menu.nib
+  install(DIRECTORY ${COMPANION_TARGETS_DIR}/qt_menu.nib
           DESTINATION "${companion_res_dir}"
           COMPONENT Runtime)
 
