@@ -146,7 +146,7 @@ void luaLoadWidgetCallback(const char* filename)
   if (name && createFunction) {
     ZoneOption * options = LuaWidgetFactory::parseOptionDefinitions(optionDefinitionsReference);
     if (options) {
-      new LuaWidgetFactory(name, options, optionDefinitionsReference,
+      new LuaWidgetFactory(strdup(name), options, optionDefinitionsReference,
               createFunction, updateFunction, refreshFunction, backgroundFunction,
               translateFunction, lvglLayout, filename);
       TRACE("Loaded Lua widget %s", name);
@@ -167,6 +167,7 @@ static void luaLoadFile(const char * filename, std::function<void()> callback)
     if (luaLoadScriptFileToState(lsWidgets, filename, LUA_SCRIPT_LOAD_MODE) == SCRIPT_OK) {
       if (lua_pcall(lsWidgets, 0, 1, 0) == LUA_OK && lua_istable(lsWidgets, -1)) {
         callback();
+        lua_pop(lsWidgets, 1);
       }
       else {
         TRACE("luaLoadFile(%s): Error parsing script: %s", filename, lua_tostring(lsWidgets, -1));
