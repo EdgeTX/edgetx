@@ -120,8 +120,6 @@ extern "C" void SDRAM_Init();
 #define EXTERNAL_MODULE_OFF()
 #define BLUETOOTH_MODULE_ON()
 #define BLUETOOTH_MODULE_OFF()
-//#define IS_INTERNAL_MODULE_ON()         (false)
-//#define IS_EXTERNAL_MODULE_ON()         (false)
 
 #endif // defined(SIMU)
 
