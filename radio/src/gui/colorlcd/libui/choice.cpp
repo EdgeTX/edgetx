@@ -131,17 +131,15 @@ Choice::Choice(Window* parent, const rect_t& rect, const char* const values[],
     ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, CHOICE_TYPE_DROPOWN)
 {
   setValues(values);
-  update();
 }
 
 Choice::Choice(Window* parent, const rect_t& rect,
                std::vector<std::string> values, int vmin, int vmax,
                std::function<int()> getValue,
                std::function<void(int)> setValue, const char* title) :
-    ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, CHOICE_TYPE_DROPOWN),
-    values(std::move(values))
+    ChoiceBase(parent, rect, vmin, vmax, title, getValue, setValue, CHOICE_TYPE_DROPOWN)
 {
-  update();
+  setValues(values);
 }
 
 void Choice::addValue(const char* value)
@@ -153,6 +151,8 @@ void Choice::addValue(const char* value)
 void Choice::setValues(std::vector<std::string> values)
 {
   this->values = std::move(values);
+  currentValue = INT_MAX; // Force update
+  update();
 }
 
 void Choice::setValues(const char* const values[])
@@ -164,6 +164,8 @@ void Choice::setValues(const char* const values[])
       this->values.emplace_back(*value++);
     }
   }
+  currentValue = INT_MAX; // Force update
+  update();
 }
 
 void Choice::setValue(int val)
