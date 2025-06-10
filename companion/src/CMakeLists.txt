@@ -455,9 +455,9 @@ elseif(APPLE)
 
   # Use a non standard Info.plist that adds Retina support flags
   set_target_properties(${COMPANION_NAME}
-                        PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
+                        PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in)
   set_target_properties(${SIMULATOR_NAME}
-                        PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_PATH}/MacOSXBundleInfo.plist.in)
+                        PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in)
 
   # This the name that the user will see in the generated DMG and what the application
   # will be called under /Applications. We include the version string to make installing
