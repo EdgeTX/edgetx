@@ -361,14 +361,16 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
             DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
-            FILES_MATCHING PATTERN "libcrypto.so.*" PATTERN "libssl.so.*")
+            FILES_MATCHING
+              PATTERN "libcrypto.so.*"
+              PATTERN "libssl.so.*")
   endif()
 
   if(LIBUSB1_FOUND)
     get_filename_component(LIBUSB1_LIBRARY_DIR ${LIBUSB1_LIBRARY} DIRECTORY)
     install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/
             DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
-            FILES_MATCHING PATTERN "libusb-1.0.so*")
+            FILES_MATCHING PATTERN "libusb-1.0.so.*")
     if(DFU_UTIL_FOUND)
       # dfuutil is an app
       install(FILES "${DFU_UTIL_PATH}"
@@ -389,16 +391,19 @@ elseif(WIN32)
             ${COMPANION_NAME}
             ${SIMULATOR_NAME}
             DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
-  # libsim dlls into same directory as apps
+  # install libsim dlls into same directory as apps
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          COMPONENT Runtime)
 
-  install(FILES "${LICENSE_FILE}"
+  install(FILES ${LICENSE_FILE}
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
 
   # supporting utilities
   if(LIBUSB1_FOUND)
-    get_filename_component(LIBUSB1_LIBRARY_DIR ${LIBUSB1_LIBRARY} DIRECTORY)
+    cmake_path(GET LIBUSB1_LIBRARY
+               PARENT_PATH
+               LIBUSB1_LIBRARY_DIR)
 
     if(MINGW)
       # finds dll.a directory but we need dlls but should check extension just to be sure and future proof
@@ -409,17 +414,21 @@ elseif(WIN32)
 
     if(EXISTS "${LIBUSB1_LIBRARY_FILE}")
       install(FILES "${LIBUSB1_LIBRARY_FILE}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+              COMPONENT Runtime)
     endif()
 
     if(DFU_UTIL_FOUND)
       install(FILES "${DFU_UTIL_PATH}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+              COMPONENT Runtime)
     endif()
   endif(LIBUSB1_FOUND)
 
   if(OPENSSL_FOUND)
-    get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+    cmake_path(GET OPENSSL_SSL_LIBRARY
+               PARENT_PATH
+               OPENSSL_SSL_LIBRARY_DIR)
 
     if(MINGW)
       # the dlls are stored in the bin directory
@@ -429,16 +438,19 @@ elseif(WIN32)
     if(EXISTS "${OPENSSL_SSL_LIBRARY_DIR}")
       install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
               DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+              COMPONENT Runtime
               FILES_MATCHING
                 PATTERN "libcrypto-*.dll"
                 PATTERN "libssl-*.dll")
+
     endif()
   endif(OPENSSL_FOUND)
 
   if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
     install(FILES "${SDL2_LIB_PATH}"
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
-  endif()
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+            COMPONENT Runtime)
+endif()
 
 elseif(APPLE)
   # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
@@ -447,6 +459,12 @@ elseif(APPLE)
   set(qtconf_dest_dir ${COMPANION_NAME}.app/Contents/Resources)
   set(APPS "\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app")
   set(companion_res_dir ${COMPANION_NAME}.app/Contents/Resources)
+
+  # This the name that the user will see in the generated DMG and what the application
+  # will be called under /Applications. We include the version string to make installing
+  # different versions side-by-side
+  set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_FAMILY}")
+  set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
   set_target_properties(${COMPANION_NAME}
                         PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Companion ${VERSION_FAMILY}")
@@ -459,12 +477,6 @@ elseif(APPLE)
   set_target_properties(${SIMULATOR_NAME}
                         PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in)
 
-  # This the name that the user will see in the generated DMG and what the application
-  # will be called under /Applications. We include the version string to make installing
-  # different versions side-by-side
-  set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_FAMILY}")
-  set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
-
   install(TARGETS ${COMPANION_NAME}
           BUNDLE DESTINATION . COMPONENT Runtime
           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime)
@@ -472,6 +484,10 @@ elseif(APPLE)
   install(TARGETS ${SIMULATOR_NAME}
           BUNDLE DESTINATION . COMPONENT Runtime
           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime)
+
+  # libsims
+  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
+          DESTINATION "${companion_res_dir}" COMPONENT Runtime)
 
   # menu file
   install(DIRECTORY ${COMPANION_TARGETS_DIR}/qt_menu.nib
@@ -566,7 +582,7 @@ endif()
 list(JOIN qt_deploy_tool_options_args " " qt_deploy_tool_options_args)
 
 if(APPLE OR WIN32)
-  # this calls windeployqt or macdeployqt
+  # generated script calls windeployqt or macdeployqt
   qt_generate_deploy_script(
     TARGET companion
     OUTPUT_SCRIPT qt_deploy_script
@@ -587,6 +603,7 @@ if(APPLE)
     # The 'install' target prepares all the distro files, make sure it has been executed first.
     COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
     COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
+    COMMAND "file(RENAME \"${companion_executable_path}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")"
     DEPENDS "${qt_deploy_script}"
     COMMENT "Building MacOS application bundle..."
   )
