@@ -18,7 +18,7 @@ if(Qt6_FOUND)
   ### Get locations of Qt binary executables & libs (libs are for distros, not for linking)
   # first set up some hints
   get_target_property(QtCore_LOCATION Qt::Core LOCATION)
-  cmake_path(GET ${QtCore_LOCATION} ROOT_PATH qt_core_path)
+  cmake_path(GET QtCore_LOCATION ROOT_PATH qt_core_path)
   if(APPLE)
     cmake_path(ABSOLUTE_PATH "${qt_core_path}/.." OUTPUT_VARIABLE qt_core_path)
   endif()
