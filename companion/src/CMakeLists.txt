@@ -525,14 +525,14 @@ elseif(APPLE)
   # Include depencies (adding frameworks, fixing the embbeded libraries)
   # I get write errors without setting BU_CHMOD_BUNDLE_ITEMS even though it is
   # technically a hack (that is already is in the Bundle library ...)
-  install(CODE "
-    include(BundleUtilities)
-    file(GLOB bundle_simulator_libs \"\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/libedgetx-*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-    set(BU_CHMOD_BUNDLE_ITEMS on)
-    fixup_bundle(\"${APPS}\" \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}\" \"${QT_LIB_DIR}\")
-    file(RENAME \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
-    "
-    COMPONENT Runtime)
+  #install(CODE "
+  #  include(BundleUtilities)
+  #  file(GLOB bundle_simulator_libs \"\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/libedgetx-*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+  #  set(BU_CHMOD_BUNDLE_ITEMS on)
+  #  fixup_bundle(\"${APPS}\" \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}\" \"${QT_LIB_DIR}\")
+  #  file(RENAME \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
+  #  "
+  #  COMPONENT Runtime)
 endif()
 
 ############# Packaging ####################
