@@ -22,9 +22,8 @@
 #include "edgetx.h"
 #include "widget.h"
 #include <cstdint>
-#include <limits>
 
-constexpr int16_t OUTPUT_INVALID_VALUE = std::numeric_limits<int16_t>::min();
+constexpr int16_t OUTPUT_INVALID_VALUE = INT16_MIN;
 
 #define ETX_STATE_BG_FILL LV_STATE_USER_1
 
