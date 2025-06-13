@@ -21,9 +21,10 @@
 
 #include "bsp_io.h"
 
-#include "drivers/pca95xx.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_switch_driver.h"
+
+extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
 
 #define BSP_IN_I2C_BUS I2C_Bus_2
 #define BSP_IN_I2C_ADDR 0x20
@@ -95,45 +96,19 @@ uint16_t bsp_input_get()
   return inputState;
 }
 
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw,
-                                    SwitchCategory cat, uint8_t idx)
+SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
+  const stm32_switch_t* sw = boardGetSwitchDef(idx);
+
+  if (sw->type == SWITCH_HW_ADC || sw->GPIOx_high != nullptr)
+    return stm32_switch_get_position(sw);
+
   bool val = false;
   uint16_t pins = bsp_input_get();
 
-  if (cat == SWITCH_PHYSICAL) {
-    switch (idx) {
-      case 6:
-        val = (pins & BSP_BACK_KEY1) != 0;
-        break;
-      case 7:
-        val = (pins & BSP_BACK_KEY2) != 0;
-        break;
-    }
-  } else if (cat == SWITCH_FUNCTION) {
-    switch (idx) {
-      case 0:
-        val = (pins & BSP_EXT_KEY1) != 0;
-        break;
-      case 1:
-        val = (pins & BSP_EXT_KEY2) != 0;
-        break;
-      case 2:
-        val = (pins & BSP_EXT_KEY3) != 0;
-        break;
-      case 3:
-        val = (pins & BSP_EXT_KEY4) != 0;
-        break;
-      case 4:
-        val = (pins & BSP_EXT_KEY5) != 0;
-        break;
-      case 5:
-        val = (pins & BSP_EXT_KEY6) != 0;
-        break;
-    }
-  }
+  val = (pins & sw->Pin_high) != 0;
 
-  if (sw->flags & SWITCH_HW_INVERTED) val = !val;
+  if (sw->inverted) val = !val;
 
   return val ? SWITCH_HW_UP : SWITCH_HW_DOWN;
 }
