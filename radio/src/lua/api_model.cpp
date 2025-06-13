@@ -680,18 +680,10 @@ static int luaModelInsertInput(lua_State *L)
         expo->mode = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "weight")) {
-        int val = luaL_checkinteger(L, -1);
-        SourceNumVal v;
-        v.isSource = (abs(val) >= 1024);
-        v.value = val;
-        expo->weight = v.rawValue;
+        expo->weight = luaL_checkunsigned(L, -1);
       }
       else if (!strcmp(key, "offset")) {
-        int val = luaL_checkinteger(L, -1);
-        SourceNumVal v;
-        v.isSource = (abs(val) >= 1024);
-        v.value = val;
-        expo->offset = v.rawValue;
+        expo->offset = luaL_checkunsigned(L, -1);
       }
       else if (!strcmp(key, "switch")) {
         expo->swtch = luaL_checkinteger(L, -1);
@@ -700,11 +692,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->curve.type = luaL_checkinteger(L, -1);
       }
       else if (!strcmp(key, "curveValue")) {
-        int val = luaL_checkinteger(L, -1);
-        SourceNumVal v;
-        v.isSource = (abs(val) >= 1024);
-        v.value = val;
-        expo->curve.value = v.rawValue;
+        expo->curve.value = luaL_checkunsigned(L, -1);
       }
       else if (!strcmp(key, "trimSource")) {
         expo->trimSource = - luaL_checkinteger(L, -1);
