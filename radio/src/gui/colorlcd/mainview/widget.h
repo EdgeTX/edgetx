@@ -143,9 +143,9 @@ class WidgetFactory
                            Widget::PersistentData* persistentData);
 
  protected:
-  const char* name;
-  const char* displayName;
-  const ZoneOption* options;
+  const char* name = nullptr;
+  const char* displayName = nullptr;
+  const ZoneOption* options = nullptr;
 };
 
 template <class T>

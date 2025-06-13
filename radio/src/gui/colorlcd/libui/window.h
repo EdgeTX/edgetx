@@ -75,6 +75,9 @@ class Window
   typedef std::function<void(bool)> FocusHandler;
   void setFocusHandler(FocusHandler h) { focusHandler = std::move(h); }
 
+  typedef std::function<void(coord_t, coord_t)> ScrollHandler;
+  void setScrollHandler(ScrollHandler h) { scrollHandler = std::move(h); }
+
   virtual void clear();
   virtual void deleteLater(bool detach = true, bool trash = true);
 
@@ -182,6 +185,8 @@ class Window
   virtual void enable(bool enabled = true);
   void disable() { enable(false); }
 
+  void disableForcedScroll() { noForcedScroll = true; }
+
  protected:
   static std::list<Window *> trash;
 
@@ -194,12 +199,14 @@ class Window
 
   WindowFlags windowFlags = 0;
   LcdFlags textFlags = 0;
+  bool noForcedScroll = false;
 
   bool _deleted = false;
   static bool _longPressed;
 
-  std::function<void()> closeHandler;
-  std::function<void(bool)> focusHandler;
+  CloseHandler closeHandler;
+  FocusHandler focusHandler;
+  std::function<void(coord_t, coord_t)> scrollHandler;
 
   void deleteChildren();
 

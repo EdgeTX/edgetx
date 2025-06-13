@@ -59,15 +59,20 @@ void Window::eventHandler(lv_event_t *e)
 
   switch (code) {
     case LV_EVENT_SCROLL: {
+      lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
+      lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
+      if (scrollHandler) scrollHandler(scroll_x, scroll_y);
+
       // exclude pointer based scrolling (only focus scrolling)
-      if (!lv_obj_is_scrolling(target)) {
+      if (!lv_obj_is_scrolling(target) && !noForcedScroll) {
         lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
         lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
-        lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
         TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y, scroll_y,
               scroll_bottom);
 
+        // Force scroll to top or bottom when near either edge.
+        // Only applies when using rotary encoder or keys.
         if (scroll_y <= 45 && p->y > 0) {
           lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
         } else if (scroll_bottom <= 16 && p->y < 0) {

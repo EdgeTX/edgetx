@@ -32,28 +32,37 @@ class LvglDialog;
 struct LvglParamFuncOrValue
 {
  public:
-  enum ParamType {
-    PVALUE,
-    PTXT,
-  };
-
   int function;
   union {
     LcdFlags flags;
     coord_t coord;
-    const char* txt;
     uint32_t value;
   };
 
   uint32_t currVal  = -1;
 
-  void parse(lua_State *L, ParamType typ = PVALUE);
+  void parse(lua_State *L);
   void forceUpdate() { currVal = -1; }
   bool changedColor(LcdFlags newFlags);
   bool changedFont(LcdFlags newFlags) { return changedColor(newFlags);}
-  bool changedText(const char* s);
   bool changedValue(uint32_t v);
   void clearRef(lua_State *L);
+};
+
+struct LvglParamFuncOrString
+{
+ public:
+  int function;
+  std::string txt;
+  uint32_t txtHash  = -1;
+
+  void parse(lua_State *L);
+  void forceUpdate() { txtHash = -1; }
+  bool changedText(const char* s);
+  const char* chars() const { return txt.c_str(); }
+  void clearRef(lua_State *L);
+
+ private:
 };
 
 //-----------------------------------------------------------------------------
@@ -77,7 +86,7 @@ class LvglTextParams
   LvglTextParams() {}
 
  protected:
-  LvglParamFuncOrValue txt = { .function = LUA_REFNIL, .txt = ""};
+  LvglParamFuncOrString txt = { .function = LUA_REFNIL, .txt = ""};
   LvglParamFuncOrValue font = { .function = LUA_REFNIL, .flags = FONT(STD)};
 
   bool parseTextParam(lua_State *L, const char *key);
@@ -149,6 +158,20 @@ class LvglValuesParam
   std::vector<std::string> values;
 
   bool parseValuesParam(lua_State *L, const char *key);
+};
+
+class LvglScrollableParams
+{
+ public:
+  LvglScrollableParams() {}
+
+ protected:
+  bool showScrollBar = true;
+  lv_dir_t scrollDir = LV_DIR_ALL;
+  int scrollToFunction = LUA_REFNIL;
+  int scrolledFunction = LUA_REFNIL;
+
+  bool parseScrollableParam(lua_State *L, const char *key);
 };
 
 //-----------------------------------------------------------------------------
@@ -265,7 +288,7 @@ class LvglWidgetLabel : public LvglSimpleWidgetObject, public LvglTextParams
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
   {
-    setText(txt.txt);
+    setText(txt.chars());
     setFont(font.flags);
     setAlign(align.flags);
     LvglSimpleWidgetObject::refresh();
@@ -414,7 +437,7 @@ class LvglWidgetObject : public LvglWidgetObjectBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetBox : public LvglWidgetObject
+class LvglWidgetBox : public LvglWidgetObject, public LvglScrollableParams
 {
  public:
   LvglWidgetBox() : LvglWidgetObject() {}
@@ -422,9 +445,10 @@ class LvglWidgetBox : public LvglWidgetObject
   coord_t getScrollX() override;
   coord_t getScrollY() override;
 
- protected:
-  lv_dir_t scrollDir = LV_DIR_ALL;
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
 
+ protected:
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
 };
@@ -562,7 +586,7 @@ class LvglWidgetImage : public LvglWidgetObject
   void clearRefs(lua_State *L) override;
 
  protected:
-  LvglParamFuncOrValue filename = { .function = LUA_REFNIL, .txt = ""};
+  LvglParamFuncOrString filename = { .function = LUA_REFNIL, .txt = ""};
   bool fillFrame = false;
 
   void build(lua_State *L) override;
@@ -612,7 +636,7 @@ class LvglWidgetTextButtonBase : public LvglWidgetObject, public LvglTextParams
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override
   {
-    setText(txt.txt);
+    setText(txt.chars());
     setFont(font.flags);
     setTextColor(textColor.flags);
     LvglWidgetObject::refresh();
@@ -751,11 +775,12 @@ class LvglWidgetVerticalSlider : public LvglWidgetSliderBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam
+class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public LvglScrollableParams
 {
  public:
   LvglWidgetPage() : LvglWidgetObject() {}
 
+  bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
 
   coord_t getScrollX() override;
@@ -764,7 +789,6 @@ class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam
  protected:
   std::string subtitle;
   std::string iconFile;
-  lv_dir_t scrollDir = LV_DIR_ALL;
 
   int backActionFunction = LUA_REFNIL;
 
@@ -816,7 +840,7 @@ class LvglWidgetMessageDialog : public LvglWidgetObject, public LvglTitleParam, 
   LvglWidgetMessageDialog() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
  protected:
-  const char *details = nullptr;
+  std::string details;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
@@ -846,6 +870,7 @@ class LvglWidgetChoice : public LvglWidgetPicker, public LvglTitleParam, public 
 
  protected:
   int filterFunction = LUA_REFNIL;
+  coord_t popupWidth = 0;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
@@ -943,8 +968,8 @@ class LvglWidgetFilePicker : public LvglWidgetPicker, public LvglTitleParam
    LvglWidgetFilePicker() : LvglWidgetPicker() {}
 
  protected:
-  const char* folder = nullptr;
-  const char* extension = nullptr;
+  std::string folder;
+  std::string extension;
   int maxLen = 255;
   bool hideExtension = false;
 

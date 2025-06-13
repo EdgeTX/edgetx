@@ -49,9 +49,8 @@ LuaWidgetFactory::LuaWidgetFactory(const char* name, ZoneOption* widgetOptions, 
 LuaWidgetFactory::~LuaWidgetFactory() {
   unregisterWidget(this);
 
-  if (displayName) {
-    delete displayName;
-  }
+  if (name) delete name;
+  if (displayName) delete displayName;
 
   auto option = getDefaultOptions();
   while (option && option->name != nullptr) {
@@ -277,6 +276,7 @@ ZoneOption* LuaWidgetFactory::parseOptionDefinitions(int reference)
   for (lua_pushnil(lsWidgets); lua_next(lsWidgets, -2); lua_pop(lsWidgets, 1)) {
     count++;
   }
+  lua_pop(lsWidgets, 1);
 
   // TRACE("we have %d options", count);
   if (count > MAX_WIDGET_OPTIONS) {
@@ -337,6 +337,7 @@ ZoneOption* LuaWidgetFactory::parseOptionDefinitions(int reference)
       }
       option++;
     }
+    lua_pop(lsWidgets, 1);
     option->name = NULL;  // sentinel
   }
   else
