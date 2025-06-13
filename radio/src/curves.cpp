@@ -435,12 +435,12 @@ char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
     switch (curve.type) {
       case CURVE_REF_DIFF:
         *(s++) = 'D'; if (--len == 0) return dest;
-        getValueOrSrcVarString(s, len, curve.value, -100, 100, 0, "%");
+        getValueOrSrcVarString(s, len, curve.value, 0, "%");
         return dest;
 
       case CURVE_REF_EXPO:
         *(s++) = 'E'; if (--len == 0) return dest;
-        getValueOrSrcVarString(s, len, curve.value, -100, 100, 0, "%");
+        getValueOrSrcVarString(s, len, curve.value, 0, "%");
         return dest;
 
       case CURVE_REF_FUNC:

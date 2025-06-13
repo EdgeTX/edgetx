@@ -65,27 +65,20 @@ static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
 
 static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t val_len)
 {
-  int gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
-  
-  if ((val_len == 4)
-      && (val[0] == '-')
-      && (val[1] == 'G')
-      && (val[2] == 'V')
-      && (val[3] >= '1')
-      && (val[3] <= '9')) {
-
-    TRACE("%.*s -> %i\n", val_len, val, gvar - (val[3] - '0'));
-    return gvar - (val[3] - '0');  // -GVx => 128 - x
-  }
-
-  if ((val_len == 3)
-      && (val[0] == 'G')
-      && (val[1] == 'V')
-      && (val[2] >= '1')
-      && (val[2] <= '9')) {
-
-    TRACE("%.*s -> %i\n", val_len, val, -gvar + (val[2] - '1'));
-    return -gvar + (val[2] - '1');  //  GVx => -128 + (x-1)
+  if ((strncmp(val, "GV", 2) == 0) || (strncmp(val, "-GV", 3) == 0)) {
+    bool neg = false;
+    int ofst = 2;
+    if (val[0] == '-') {
+      neg = true;
+      ofst = 3;
+    }
+    int32_t idx = yaml_str2int(val + ofst, val_len - ofst);
+    // Convert to range -MAX_GVARS .. MAX_GVARS - 1
+    if (neg)
+      idx = -idx;
+    else
+      idx = idx - 1;
+    return GV_VALUE_FROM_INDEX(idx);
   }
 
   return (uint32_t)yaml_str2int(val, val_len);
@@ -94,15 +87,21 @@ static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t va
 bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
                      void* opaque)
 {
-  int32_t sval = yaml_to_signed(val, node->size <= 11 ? node->size : 11);
-  int32_t gvar = (node->size > 8 ? GV1_LARGE : GV1_SMALL);
+  int32_t sval = yaml_to_signed(val, node->size);
 
-  if (sval >= gvar - 10 && sval <= gvar) {
-    char n = gvar - sval + '0';
-    return wf(opaque, "-GV", 3) && wf(opaque, &n, 1);
-  } else if (sval <= -gvar + 10 && sval >= -gvar) {
-    char n = val - gvar + '1';
-    return wf(opaque, "GV", 2) && wf(opaque, &n, 1);
+  if (GV_IS_GV_VALUE(sval)) {
+    char s[8] = "";
+    int ofst = 0;
+    int idx = GV_INDEX_FROM_VALUE(sval);
+    if (idx < 0) {
+      s[0] = '-';
+      ofst = 1;
+      idx = -idx;
+    } else {
+      idx = idx + 1;
+    }
+    strAppendStringWithIndex(s + ofst, "GV", idx);
+    return wf(opaque, s, strlen(s));
   }
 
   char* s = yaml_signed2str(sval);
