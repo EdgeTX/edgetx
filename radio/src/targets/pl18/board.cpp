@@ -260,6 +260,7 @@ void boardInit()
         press_end = 0;
       }
     }
+    battery_charge_end();
   }
 
   keysInit();
@@ -287,8 +288,6 @@ void boardInit()
   ledGreen();
 #endif
 #endif
-
-  lcdSetInitalFrameBuffer(lcdFront->getData());
 }
 
 extern void rtcDisableBackupReg();

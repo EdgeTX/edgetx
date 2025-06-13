@@ -205,11 +205,7 @@
 #define LV_USE_GPU_ARM2D 0
 
 /*Use STM32's DMA2D (aka Chrom Art) GPU*/
-#if defined(SIMU)
-  #define LV_USE_GPU_STM32_DMA2D 0
-#else //SIMU
-  #define LV_USE_GPU_STM32_DMA2D 1
-#endif
+#define LV_USE_GPU_STM32_DMA2D 0
 
 #if LV_USE_GPU_STM32_DMA2D
     /*Must be defined to include path of CMSIS header of target processor

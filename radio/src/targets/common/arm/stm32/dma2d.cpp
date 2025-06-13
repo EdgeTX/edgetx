@@ -25,6 +25,35 @@
 #include "libopenui_defines.h"
 #include "dma2d.h"
 
+#if !LV_USE_GPU_STM32_DMA2D
+/**
+ * Turn on the peripheral and set output color mode, this only needs to be done once
+ * 
+ * Copied from LVGL code
+ */
+void DMAInit(void)
+{
+    // Enable DMA2D clock
+#if defined(STM32F4) || defined(STM32F7) || defined(STM32U5)
+    RCC->AHB1ENR |= RCC_AHB1ENR_DMA2DEN; // enable DMA2D
+    // wait for hardware access to complete
+    __asm volatile("DSB\n");
+    volatile uint32_t temp = RCC->AHB1ENR;
+    LV_UNUSED(temp);
+#elif defined(STM32H7)
+    RCC->AHB3ENR |= RCC_AHB3ENR_DMA2DEN;
+    // wait for hardware access to complete
+    __asm volatile("DSB\n");
+    volatile uint32_t temp = RCC->AHB3ENR;
+    LV_UNUSED(temp);
+#else
+# warning "LVGL can't enable the clock of DMA2D"
+#endif
+    // AHB master timer configuration
+    DMA2D->AMTCR = 0; // AHB bus guaranteed dead time disabled
+}
+#endif
+
 void DMACopyBitmap(uint16_t *dest, uint16_t destw, uint16_t desth, uint16_t x,
                    uint16_t y, const uint16_t *src, uint16_t srcw,
                    uint16_t srch, uint16_t srcx, uint16_t srcy, uint16_t w,
