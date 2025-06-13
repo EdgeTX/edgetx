@@ -179,11 +179,6 @@ enum MODULE_POWER_SOURCE {
   EXTERNAL = 0x02,
 };
 
-enum Protocol {
-  AFHDS = 0x00,
-  FS_ANT = 0x01
-};
-
 enum DeviceAddress {
   TRANSMITTER = 0x01,
   FRM303  = 0x04,
@@ -265,6 +260,7 @@ class ProtoState
    void stop();
 
    Config_u* getConfig() { return &cfg; }
+   Protocol getProtocol() { return proto; }
 
    void applyConfigFromModel();
 
@@ -1144,6 +1140,12 @@ Config_u* getConfig(uint8_t module)
 {
   auto p_state = &protoState[module];
   return p_state->getConfig();
+}
+
+Protocol getProtocol(uint8_t module)
+{
+  auto p_state = &protoState[module];
+  return p_state->getProtocol();
 }
 
 void applyModelConfig(uint8_t module)

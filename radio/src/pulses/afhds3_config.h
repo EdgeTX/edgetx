@@ -162,6 +162,11 @@ enum class ConfigVersion {
   ANT_V0 = AFHDS_V0
 };
 
+enum Protocol {
+  AFHDS = 0x00,
+  FS_ANT = 0x01
+};
+
 union Config_u
 {
   ConfigVersion version;
@@ -173,6 +178,7 @@ union Config_u
 };
 
 Config_u* getConfig(uint8_t moduleIdx);
+Protocol getProtocol(uint8_t module);
 void applyModelConfig(uint8_t moduleIdx);
 
 };
