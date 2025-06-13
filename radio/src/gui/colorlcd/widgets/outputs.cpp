@@ -21,6 +21,10 @@
 
 #include "edgetx.h"
 #include "widget.h"
+#include <cstdint>
+#include <limits>
+
+constexpr int16_t OUTPUT_INVALID_VALUE = std::numeric_limits<int16_t>::min();
 
 #define ETX_STATE_BG_FILL LV_STATE_USER_1
 
@@ -141,8 +145,8 @@ class ChannelValue : public Window
 
  protected:
   uint8_t channel;
-  int16_t lastValue = -32768;
-  int16_t lastScaledValue = -32768;
+  int16_t lastValue = OUTPUT_INVALID_VALUE;
+  int16_t lastScaledValue = OUTPUT_INVALID_VALUE;
   std::string lastText;
   bool chanHasName = false;
   lv_style_t style;
