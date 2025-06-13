@@ -124,7 +124,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   std::string title =
       moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
   header->setTitle(title);
-  if(cfg->version == afhds3::ConfigVersion::ANT_V0)
+  if(afhds3::getProtocol(moduleIdx) == afhds3::Protocol::FS_ANT)
   {
     title = "ANT (";
     title += "INRM602";
