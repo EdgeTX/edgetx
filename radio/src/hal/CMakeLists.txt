@@ -30,7 +30,7 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   ${CMAKE_CURRENT_SOURCE_DIR}/hal/key_driver.cpp
 )
 
-if (NOT NATIVE_BUILD)
+if ((NOT NATIVE_BUILD) OR SIMU_DISKIO)
   set(SRC ${SRC}
     hal/storage.cpp
     hal/fatfs_diskio.cpp
