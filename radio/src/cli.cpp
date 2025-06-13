@@ -1480,11 +1480,10 @@ int cliRepeat(const char ** argv)
   int interval = 0;
   int counter = 0;
   if (toInt(argv, 1, &interval) > 0 && argv[2]) {
-    interval *= 50;
     counter = interval;
 
     uint8_t c;
-    const TickType_t xTimeout = 20 / portTICK_PERIOD_MS;
+    const TickType_t xTimeout = portTICK_PERIOD_MS;
     while (!xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout)
            || !(c == '\r' || c == '\n' || c == ' ')) {
 
@@ -1692,7 +1691,7 @@ const CliCommand cliCommands[] = {
   { "test", cliTest, "new | graphics | memspd" },
   { "trace", cliTrace, "on | off" },
   { "debugvars", cliDebugVars, "" },
-  { "repeat", cliRepeat, "<interval> <command>" },
+  { "repeat", cliRepeat, "<interval in ms> <command>" },
 #endif
   { "help", cliHelp, "[<command>]" },
 #if defined(JITTER_MEASURE)
