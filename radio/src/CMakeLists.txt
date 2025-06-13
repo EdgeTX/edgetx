@@ -486,10 +486,6 @@ endif()
 
 if(NATIVE_BUILD)
   set(RADIOLIB_NATIVE_SRC ${SRC})
-  if(SIMU_DISKIO)
-    set(RADIOLIB_NATIVE_SRC ${RADIOLIB_NATIVE_SRC}
-      ${FATFS_DIR}/ff.c ${FATFS_DIR}/ffunicode.c)
-  endif()
 
   # Pack all radio sources into an object lib
   add_library(radiolib_native OBJECT EXCLUDE_FROM_ALL
