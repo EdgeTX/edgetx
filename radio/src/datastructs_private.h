@@ -85,7 +85,7 @@ inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
 
 PACK(struct CurveRef {
   uint16_t type:5;
-  int16_t  value:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint16_t value:11 CUST(r_sourceNumVal,w_sourceNumVal);
 });
 
 PACK(struct MixData {
