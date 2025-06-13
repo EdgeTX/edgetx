@@ -24,7 +24,10 @@
 
 #include "debug.h"
 
-#if defined(STORAGE_USE_SDIO)
+#if defined(SIMU_DISKIO)
+  extern const diskio_driver_t simu_diskio_driver;
+  #define _STORAGE_DRIVER simu_diskio_driver
+#elif defined(STORAGE_USE_SDIO)
   #include "diskio_sdio.h"
   #define _STORAGE_DRIVER sdio_diskio_driver
 #elif defined(STORAGE_USE_SDCARD_SPI)
