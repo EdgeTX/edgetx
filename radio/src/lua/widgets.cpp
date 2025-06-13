@@ -248,9 +248,7 @@ void luaInitThemesAndWidgets()
     else {
       // if we got panic during registration
       // we disable Lua for this session
-      // luaDisable();
       luaClose(&lsWidgets);
-      lsWidgets = 0;
     }
     UNPROTECT_LUA();
     TRACE("lsWidgets %p", lsWidgets);

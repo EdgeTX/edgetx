@@ -1118,6 +1118,8 @@ void edgeTxResume()
   TRACE("edgeTxResume");
 
   if (!sdMounted()) sdInit();
+
+  luaInitMainState();
 #if defined(COLORLCD) && defined(LUA)
   // reload widgets
   luaInitThemesAndWidgets();
@@ -1440,6 +1442,7 @@ void edgeTxInit()
     logsInit();
   }
 
+  luaInitMainState();
 #if defined(COLORLCD) && defined(LUA)
   if (!UNEXPECTED_SHUTDOWN()) {
     // lua widget state must be prepared before the call to storageReadAll()

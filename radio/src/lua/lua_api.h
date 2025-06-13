@@ -65,6 +65,7 @@ extern uint32_t luaExtraMemoryUsage;
 void luaInitThemesAndWidgets();
 #endif
 
+void luaInitMainState();
 void luaInit();
 void luaClose();
 
@@ -121,11 +122,14 @@ enum ScriptState {
 };
 
 enum ScriptReference {
+  SCRIPT_REF_FIRST,
 #if defined(LUA_MODEL_SCRIPTS)
-  SCRIPT_MIX_FIRST,
+  SCRIPT_MIX_FIRST = SCRIPT_REF_FIRST,
   SCRIPT_MIX_LAST=SCRIPT_MIX_FIRST+MAX_SCRIPTS-1,
-#endif
   SCRIPT_FUNC_FIRST,
+#else
+  SCRIPT_FUNC_FIRST = SCRIPT_REF_FIRST,
+#endif
   SCRIPT_FUNC_LAST=SCRIPT_FUNC_FIRST+MAX_SPECIAL_FUNCTIONS-1,    // model functions
   SCRIPT_GFUNC_FIRST,
   SCRIPT_GFUNC_LAST=SCRIPT_GFUNC_FIRST+MAX_SPECIAL_FUNCTIONS-1,  // global functions
@@ -133,7 +137,10 @@ enum ScriptReference {
   SCRIPT_TELEMETRY_FIRST,
   SCRIPT_TELEMETRY_LAST=SCRIPT_TELEMETRY_FIRST+MAX_SCRIPTS,      // telem0 and telem1 .. telem7
 #endif
-  SCRIPT_STANDALONE                                              // Standalone script
+  SCRIPT_REF_LAST,
+#if !defined(COLORLCD)
+  SCRIPT_STANDALONE = SCRIPT_REF_LAST                            // Standalone script
+#endif
 };
 
 struct ScriptInternalData {
