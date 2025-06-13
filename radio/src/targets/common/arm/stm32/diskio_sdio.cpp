@@ -104,6 +104,8 @@
 #  endif
 #  define _SD_SDIO_CLK_ENABLE()  __HAL_RCC_SDIO_CLK_ENABLE()
 #  define _SD_SDIO_CLK_DISABLE()  __HAL_RCC_SDIO_CLK_DISABLE()
+#  define SD_SDIO_IRQHandler SDIO_IRQHandler
+#  define SD_SDIO_IRQn       SDIO_IRQn
 #  define SD_SDIO_TypeDef    SDIO_TypeDef
 #  define SD_SDIO_CLOCK_EDGE_RISING SDIO_CLOCK_EDGE_RISING
 #  define SD_SDIO_CLOCK_POWER_SAVE_DISABLE SDIO_CLOCK_POWER_SAVE_DISABLE
@@ -111,7 +113,6 @@
 #  define SD_SDIO_BUS_WIDE_1B SDIO_BUS_WIDE_1B
 #  define SD_SDIO_BUS_WIDE_4B SDIO_BUS_WIDE_4B
 #  define SD_SDIO_HARDWARE_FLOW_CONTROL_DISABLE SDIO_HARDWARE_FLOW_CONTROL_DISABLE
-#  define SD_SDIO_IRQn SDIO_IRQn
 #endif
 
 struct {
@@ -226,7 +227,7 @@ static void sdio_low_level_init(void)
 #endif
 
   // SDIO Interrupt ENABLE
-#if defined(SD_SDIO)
+#if defined(SDMMC1)
   NVIC_SetPriority(currentSD.IRQn, 0);
   NVIC_EnableIRQ(currentSD.IRQn);
 #else
@@ -595,7 +596,7 @@ extern "C" void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
   ReadStatus = 1;
 }
 
-#if defined(SD_SDIO)
+#if defined(SDMMC1)
 #if defined(SDMMC1)
 extern "C" void SDMMC1_IRQHandler(void)
 {
