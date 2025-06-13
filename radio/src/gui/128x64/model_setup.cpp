@@ -1711,7 +1711,7 @@ void menuModelSetup(event_t event)
       break;
 #endif
 
-#if (defined(AFHDS3) || defiend(ANT)) && defined(HARDWARE_EXTERNAL_MODULE)
+#if (defined(AFHDS3) || defined(ANT)) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS_PROTOCOL:
         lcdDrawTextIndented(y, STR_PROTOCOL);
         lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_AFHDS3_PROTOCOLS, g_model.moduleData[EXTERNAL_MODULE].subType, attr);
