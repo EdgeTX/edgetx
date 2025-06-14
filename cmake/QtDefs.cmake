@@ -1,29 +1,27 @@
-if(APPLE AND DEFINED ENV{HOMEBREW_PREFIX} AND EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@5)
+if(APPLE AND DEFINED ENV{HOMEBREW_PREFIX})
   # If Homebrew is used, HOMEBREW_PREFIX should be defined
-  list(APPEND CMAKE_PREFIX_PATH "$ENV{HOMEBREW_PREFIX}/opt/qt@5")
+  if(EXISTS $ENV{HOMEBREW_PREFIX}/opt/qt@6)
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{HOMEBREW_PREFIX}/opt/qt@6")
+  endif()
 endif()
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
-find_package(Qt5Core)
-find_package(Qt5Widgets)
-find_package(Qt5Xml)
-find_package(Qt5LinguistTools)
-find_package(Qt5PrintSupport)
-find_package(Qt5Multimedia)
-find_package(Qt5Svg)
-find_package(Qt5SerialPort)
+if(Qt6_FOUND)
+  message(STATUS "Qt Version: ${Qt6_VERSION}")
 
-if(Qt5Core_FOUND)
-  message(STATUS "Qt Version: ${Qt5Core_VERSION}")
+  # call after Qt6Core package is found
+  qt_standard_project_setup()
+
+  find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools Multimedia PrintSupport SerialPort Svg Xml)
 
   ### Get locations of Qt binary executables & libs (libs are for distros, not for linking)
   # first set up some hints
-  get_target_property(QtCore_LOCATION Qt5::Core LOCATION)
-  get_filename_component(qt_core_path ${QtCore_LOCATION} PATH)
+  get_target_property(QtCore_LOCATION Qt::Core LOCATION)
+  cmake_path(GET QtCore_LOCATION ROOT_PATH qt_core_path)
   if(APPLE)
-    get_filename_component(qt_core_path "${qt_core_path}/.." ABSOLUTE)
+    set(qt_core_path "${qt_core_path}/..")
+    cmake_path(ABSOLUTE_PATH qt_core_path OUTPUT_VARIABLE qt_core_path)
   endif()
 
   set(QT_LIB_DIR ${qt_core_path} CACHE PATH "Path to Qt libraries (.dll|.framework|.so).")
@@ -63,5 +61,5 @@ if(Qt5Core_FOUND)
     list(APPEND APP_COMMON_DEFINES -DAPP_DBG_HANDLER_ENABLE=0)
   endif()
 else()
-  message(WARNING "Qt not found! Companion and Simulator builds disabled.")
+  message(WARNING "Required Qt version not found! Companion, Simulator and libsim builds disabled.")
 endif()

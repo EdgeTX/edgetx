@@ -446,8 +446,7 @@ void HardwarePanel::addFlex(int index)
 
   AutoComboBox *type = new AutoComboBox(this);
   setFlexTypeModel(type, index);
-  int & flexType = (int &)config.flexType;
-  type->setField(flexType, this);
+  type->setField(config.flexType, this);
 
   connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
           AbstractItemModel *mdl = editorItemModels->getItemModel(AbstractItemModel::IMID_FlexSwitches);
@@ -531,8 +530,7 @@ void HardwarePanel::addSwitch(int index)
   else
     type->setModel(tabFilteredModels->getItemModel(FIM_SWITCHTYPE3POS));
 
-  int & swtype = (int &)config.type;
-  type->setField(swtype, this);
+  type->setField(config.type, this);
   params->append(type);
 
   if (generalSettings.isSwitchFlex(index)) {
