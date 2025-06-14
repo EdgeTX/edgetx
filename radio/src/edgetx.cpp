@@ -1580,6 +1580,10 @@ int main()
   initialise_monitor_handles();
 #endif
 
+#if defined(DEBUG_SEGGER_SYSVIEW)
+  SEGGER_SYSVIEW_Conf();
+  SEGGER_SYSVIEW_Start();
+#endif
 
 #if !defined(SIMU)
   /* Ensure all priority bits are assigned as preemption priority bits. */
