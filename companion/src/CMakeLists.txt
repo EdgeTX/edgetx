@@ -450,7 +450,7 @@ elseif(WIN32)
     install(FILES "${SDL2_LIB_PATH}"
             DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
             COMPONENT Runtime)
-endif()
+  endif()
 
 elseif(APPLE)
   # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
@@ -599,9 +599,9 @@ if(APPLE OR WIN32)
 endif()
 
 if(APPLE)
+  # The 'install' target prepares all the distro files, make sure it has been executed first.
   add_custom_target(installer
-    # The 'install' target prepares all the distro files, make sure it has been executed first.
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
+    COMMAND "${CMAKE_COMMAND}" --build . --target install --config Release
     COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
     COMMAND "file(RENAME \"${companion_executable_path}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")"
     DEPENDS "${qt_deploy_script}"
@@ -689,8 +689,8 @@ if(WIN32)
     set(NSI_FILE "${PROJECT_BINARY_DIR}/companion/companion.nsi")
     configure_file("${COMPANION_TARGETS_DIR}/companion.nsi.in" "${NSI_FILE}" @ONLY)
 
+    # The 'install' target prepares all the distro files, make sure it has been executed first.
     add_custom_target(installer
-      # The 'install' target prepares all the distro files, make sure it has been executed first.
       COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
       COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
       COMMAND "${NSIS_EXE}" "${NSI_FILE}"
