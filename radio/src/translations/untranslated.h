@@ -116,6 +116,7 @@
 #define STR_SENSOR_A2                        "A2"
 #define STR_SENSOR_A3                        "A3"
 #define STR_SENSOR_A4                        "A4"
+#define STR_SENSOR_VOLT                      "Volt"
 #define STR_SENSOR_BATT                      "RxBt"
 #define STR_SENSOR_ALT                       "Alt"
 #define STR_SENSOR_TEMP                      "Temp"
