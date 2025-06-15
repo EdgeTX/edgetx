@@ -378,7 +378,11 @@ static DSTATUS sdio_status(BYTE lun)
 {
   DSTATUS stat = RES_OK;
 
-#if defined(SD_PRESENT_GPIO)
+#if defined(SD2_PRESENT_GPIO)
+  if (currentSD.periph == SDMMC2 && gpio_read(SD2_PRESENT_GPIO)) {
+    stat |= STA_NODISK;
+  }
+#elif defined(SD_PRESENT_GPIO)
   if (gpio_read(SD_PRESENT_GPIO)) {
     stat |= STA_NODISK;
   }
