@@ -601,7 +601,7 @@ endif()
 if(APPLE)
   # The 'install' target prepares all the distro files, make sure it has been executed first.
   add_custom_command(TARGET ${SIMULATOR_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" --build . --target install --config Release
+    COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_INSTALL_PREFIX} --target install --config Release
     COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
   )
 
