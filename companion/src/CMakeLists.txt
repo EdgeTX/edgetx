@@ -611,7 +611,7 @@ if(APPLE)
   #  COMMAND "file(RENAME \"${companion_executable_path}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")"
   #  DEPENDS "${qt_deploy_script}"
   #  COMMENT "Building MacOS application bundle..."
-  )
+  #)
 
   list(APPEND CPACK_GENERATOR "DragNDrop")
   # set(CPACK_GENERATOR "TGZ")  # for quick testing
