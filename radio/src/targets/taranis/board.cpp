@@ -110,6 +110,21 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
 }
 #endif
 
+#if defined(SALED_PWR_GPIO)
+void SALEDpwrInit()
+{
+  gpio_init(SALED_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  SALED_PWR_ON();
+}
+#endif
+#if defined(SDLED_PWR_GPIO)
+void SDLEDpwrInit()
+{
+  gpio_init(SDLED_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  SDLED_PWR_ON();
+}
+#endif
+
 void boardInit()
 {
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
@@ -228,6 +243,13 @@ void boardInit()
 
   keysInit();
   switchInit();
+
+#if defined(SALED_PWR_GPIO)
+  SALEDpwrInit();
+#endif
+#if defined(SDLED_PWR_GPIO)
+  SDLEDpwrInit();
+#endif
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotaryEncoderInit();
