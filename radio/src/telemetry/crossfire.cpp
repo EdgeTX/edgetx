@@ -67,6 +67,7 @@ const CrossfireSensor crossfireSensors[] = {
   CS(CF_RPM_ID,      0, STR_SENSOR_RPM,           UNIT_RPMS,              0),
   CS(TEMP_ID,        0, STR_SENSOR_TEMP,          UNIT_DEGREE,            1),
   CS(CELLS_ID,       0, STR_SENSOR_CELLS,         UNIT_CELLS,             2),
+  CS(VOLT_ARRAY_ID,  0, STR_SENSOR_VOLT,          UNIT_VOLTS,             2),
   CS(0,              0, "UNKNOWN",                UNIT_RAW,               0),
 };
 // clang-format on
@@ -101,6 +102,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[TEMP_INDEX];
   else if (id == CELLS_ID)
     return crossfireSensors[CELLS_INDEX];
+  else if (id == VOLT_ARRAY_ID)
+    return crossfireSensors[VOLT_ARRAY_INDEX];
   else
     return crossfireSensors[UNKNOWN_INDEX];
 }
@@ -223,12 +226,23 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       getCrossfireTelemetryValue<1>(3, value, rxBuffer);
       uint8_t sensorID = value;
 
-      // We can handle only up to 8 cells
-      for(uint8_t i = 0; i * 2 < min(16, crsfPayloadLen - 4);  i++) {
-        getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
-        const CrossfireSensor & sensor = crossfireSensors[CELLS_INDEX];
-        setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, 0,
+      if (sensorID < 128) {
+        // Treating frame as Cells sensor
+        // We can handle only up to 8 cells
+        for(uint8_t i = 0; i * 2 < min(16, crsfPayloadLen - 4);  i++) {
+          getCrossfireTelemetryValue<2>(4 + i * 2, value, rxBuffer);
+          const CrossfireSensor & sensor = crossfireSensors[CELLS_INDEX];
+          setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, 0,
                           i << 16 | value / 10, sensor.unit, sensor.precision);
+        }
+      } else {
+        // Treating frame as Voltage sensor array
+        for(uint8_t i = 0; i * 2 < (crsfPayloadLen - 4);  i++) {
+          value = (rxBuffer[4 + i * 2] << 8) + rxBuffer[4 + i * 2 + 1];
+          const CrossfireSensor & sensor = crossfireSensors[VOLT_ARRAY_INDEX];
+          setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id + (sensorID << 8), 0, i,
+                                    value / 10, sensor.unit, sensor.precision);
+        }
       }
       break;
     }

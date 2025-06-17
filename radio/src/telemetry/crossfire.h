@@ -39,6 +39,7 @@
 #define CF_RPM_ID                      0x0C
 #define TEMP_ID                        0x0D
 #define CELLS_ID                       0x0E
+#define VOLT_ARRAY_ID                  0xFE  // Pseudo sensor out of 0x0E frame
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
 #define LINK_RX_ID                     0x1C
@@ -102,6 +103,7 @@ enum CrossfireSensorIndexes {
   CF_RPM_INDEX,
   TEMP_INDEX,
   CELLS_INDEX,
+  VOLT_ARRAY_INDEX,
   UNKNOWN_INDEX,
 };
 
