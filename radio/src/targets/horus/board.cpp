@@ -234,14 +234,6 @@ void boardInit()
 #else
   ledGreen();
 #endif
-
-#if !defined(LCD_VERTICAL_INVERT)
-  lcdSetInitalFrameBuffer(lcdFront->getData());
-#elif defined(RADIO_F16)
-  if(hardwareOptions.pcbrev > 0) {
-    lcdSetInitalFrameBuffer(lcdFront->getData());
-  }
-#endif
 }
 #endif
 

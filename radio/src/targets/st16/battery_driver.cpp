@@ -230,47 +230,75 @@ void ledChargingInfo(uint16_t chargeState) {
 #endif
 }
 
+static Window* chargeWindow = nullptr;
+
 void drawChargingInfo(uint16_t chargeState) {
-  static int progress = 0;
-  const char* text = chargeState == CHARGE_STARTED ? STR_BATTERYCHARGING : STR_BATTERYFULL;
-  int h = 0;
-  LcdFlags color = 0;
-  if (CHARGE_STARTED == chargeState)
-  {
-    if (progress >= 100)
-    {
-      progress = 0;
-    }
-    else
-    {
-      progress += 25;
-    }
-    text = STR_BATTERYCHARGING;
-    h = ((BATTERY_H_INNER * progress) / 100);
-    color = COLOR_THEME_EDIT;
+  static int progress = -1;
+  static StaticText* stateText = nullptr;
+  static lv_obj_t* battBox = nullptr;
+
+  const char* text;
+  int h;
+  LcdColorIndex color = COLOR_THEME_EDIT_INDEX;
+
+  switch (chargeState) {
+    case CHARGE_STARTED:
+      progress += 1;
+      if (progress > 4) progress = 0;
+      text = STR_BATTERYCHARGING;
+      h = ((BATTERY_H_INNER * progress) / 4);
+      break;
+    case CHARGE_FINISHED:
+      text = STR_BATTERYFULL;
+      h = BATTERY_H_INNER;
+      break;
+    default:
+      text = STR_BATTERYNONE;
+      h = BATTERY_H_INNER;
+      color = COLOR_THEME_PRIMARY1_INDEX;
+      break;
   }
-  else if (CHARGE_FINISHED == chargeState)
-  {
-    text = STR_BATTERYFULL;
-    h = BATTERY_H_INNER;
-    color = COLOR_THEME_EDIT;
+
+  if (chargeWindow == nullptr) {
+    chargeWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
+    etx_solid_bg(chargeWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
+
+    stateText = new StaticText(chargeWindow, {0, LCD_H - 50, LCD_W, 50}, "", COLOR_THEME_PRIMARY2_INDEX, CENTERED);
+    
+    lv_obj_t* box = lv_obj_create(chargeWindow->getLvObj());
+    lv_obj_set_pos(box, (LCD_W - BATTERY_W) / 2, BATTERY_TOP);
+    lv_obj_set_size(box, BATTERY_W, BATTERY_H);
+    lv_obj_set_style_border_opa(box, LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_border_width(box, 2, LV_PART_MAIN);
+    etx_border_color(box, COLOR_THEME_PRIMARY2_INDEX);
+    
+    box = lv_obj_create(chargeWindow->getLvObj());
+    lv_obj_set_pos(box, (LCD_W - BATTERY_CONNECTOR_W) / 2, BATTERY_TOP - BATTERY_CONNECTOR_H);
+    lv_obj_set_size(box, BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H);
+    etx_solid_bg(box, COLOR_THEME_PRIMARY2_INDEX);
+
+    battBox = lv_obj_create(chargeWindow->getLvObj());
   }
-  else
-  {
-    text = STR_BATTERYNONE;
-    h = BATTERY_H_INNER;
-    color = COLOR_THEME_PRIMARY1;
-  }
+
+  stateText->setText(text);
+
+  lv_obj_set_pos(battBox, (LCD_W - BATTERY_W_INNER) / 2, BATTERY_TOP_INNER + BATTERY_H_INNER - h);
+  lv_obj_set_size(battBox, BATTERY_W_INNER, h);
+  etx_solid_bg(battBox, color);
+
+  LvglWrapper::instance()->run();
+  lv_refr_now(nullptr);
 
   BACKLIGHT_ENABLE();
-  lcd->drawSizedText(LCD_W / 2, LCD_H - 50, text, strlen(text), CENTERED | COLOR_THEME_PRIMARY2);
-
-  lcd->drawFilledRect((LCD_W - BATTERY_W) / 2, BATTERY_TOP, BATTERY_W, BATTERY_H, SOLID, COLOR_THEME_PRIMARY2);
-  lcd->drawFilledRect((LCD_W - BATTERY_W_INNER) / 2, BATTERY_TOP_INNER, BATTERY_W_INNER, BATTERY_H_INNER, SOLID, COLOR_THEME_PRIMARY1);
-
-  lcd->drawFilledRect((LCD_W - BATTERY_W_INNER) / 2, BATTERY_TOP_INNER + BATTERY_H_INNER - h, BATTERY_W_INNER, h, SOLID, color);
-  lcd->drawFilledRect((LCD_W - BATTERY_CONNECTOR_W) / 2, BATTERY_TOP - BATTERY_CONNECTOR_H, BATTERY_CONNECTOR_W, BATTERY_CONNECTOR_H, SOLID, COLOR_THEME_PRIMARY2);
 }
+
+void battery_charge_end()
+{
+  chargeWindow->clear();
+  delete chargeWindow;
+  chargeWindow = nullptr;
+}
+
 #define CHARGE_INFO_DURATION 5000 // ms
 
 //this method should be called by timer interrupt or by GPIO interrupt
@@ -300,6 +328,12 @@ void handle_battery_charge(uint32_t last_press_time)
     lastState = chargeState;
   }
 
+  if (!lcdInited) {
+    lcdInited = true;
+    backlightInit();
+    lcdInitDisplayDriver();
+  }
+
   if (updateTime == 0 || ((timersGetMsTick() - updateTime) >= 500))
   {
     updateTime = timersGetMsTick();
@@ -307,25 +341,17 @@ void handle_battery_charge(uint32_t last_press_time)
 
     if(now > info_until) {
       info_until = 0;
-      lcd->clear();
       BACKLIGHT_DISABLE();
       if(lcdInited) {
         lcdOff();
       }
     } else {
-      if (!lcdInited) {
-        backlightInit();
-        lcdInit();
-        lcdInitDisplayDriver();
-        lcdInited = true;
-      } else {
+      if (lcdInited) {
         lcdOn();
       }
-      lcdInitDirectDrawing();
-      lcd->clear();
       drawChargingInfo(chargeState);
 
-      // DEBUG INFO
+      // DEBUG INFO - TODO delete or replace with LVGL objects
 #if 0
       char buffer[1024];
 
@@ -338,8 +364,6 @@ void handle_battery_charge(uint32_t last_press_time)
       sprintf(buffer, "%d", isChargerActive());
       lcd->drawSizedText(100, 130, buffer, strlen(buffer), CENTERED | COLOR_THEME_PRIMARY2);
 #endif
-
-      lcdRefresh();
     }
 
   }
