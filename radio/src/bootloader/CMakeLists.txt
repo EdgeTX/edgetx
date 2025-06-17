@@ -32,7 +32,7 @@ endif()
 
 if(DEBUG_SEGGER_RTT)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
-    ${RADIO_SRC_DIR}/thirdparty/Segger_RTT/RTT/SEGGER_RTT.c
+    ${RADIO_SRC_DIR}/thirdparty/Segger/SEGGER/SEGGER_RTT.c
   )
 endif()
 

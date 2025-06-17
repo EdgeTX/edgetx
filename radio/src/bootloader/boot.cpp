@@ -36,7 +36,7 @@
 #endif
 
 #if defined(DEBUG_SEGGER_RTT)
-  #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
+  #include "thirdparty/Segger/SEGGER/SEGGER_RTT.h"
 #endif
 
 #define REBOOT_CMD_DFU 0x55464442
