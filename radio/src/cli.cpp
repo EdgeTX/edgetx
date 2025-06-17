@@ -391,6 +391,104 @@ int cliReadSD(const char ** argv)
   return 0;
 }
 
+#if defined(DEBUG)
+FIL sdtest_File __DMA;
+
+int cliTestFatFsSD(const char ** argv)
+{
+  constexpr char filename[] = "cliTestFile";
+  constexpr int bufferSize = 512;
+  uint8_t buffer[bufferSize];
+
+  // Create a file
+  auto result = f_open(&sdtest_File, filename, FA_OPEN_ALWAYS | FA_WRITE | FA_OPEN_APPEND);
+  if (result != FR_OK) {
+    cliSerialPrint("Cannot create file");
+  } else {
+	cliSerialPrint("Test file created");
+  }
+
+  // Write to file
+  unsigned int written;
+  memset(buffer, 0xFF, bufferSize);
+
+  if (f_write(&sdtest_File, buffer, bufferSize, &written) == FR_OK) {
+    cliSerialPrint("%d bytes written", bufferSize);
+  } else {
+    cliSerialPrint("Cannot write to file");
+  }
+
+  // Close file
+  if (f_close(&sdtest_File) != FR_OK) {
+    // close failed, forget file
+	cliSerialPrint("Cannot close file");
+  } else {
+	cliSerialPrint("Test file closed successfully");
+  }
+
+  // Open for append
+  result = f_open(&sdtest_File, filename, FA_WRITE | FA_OPEN_APPEND);
+  if (result != FR_OK) {
+    cliSerialPrint("Cannot open file for append");
+  } else {
+	cliSerialPrint("Test file opened for append");
+  }
+
+  // Write to file
+  if (f_write(&sdtest_File, buffer, bufferSize, &written) == FR_OK) {
+    cliSerialPrint("%d bytes appended", bufferSize);
+  } else {
+    cliSerialPrint("Cannot write to file");
+  }
+
+  // Close file
+  if (f_close(&sdtest_File) != FR_OK) {
+	cliSerialPrint("Cannot close file");
+  } else {
+	cliSerialPrint("Test file closed successfully");
+  }
+
+  // Open for read
+  result = f_open(&sdtest_File, filename, FA_READ);
+  if (result != FR_OK) {
+     cliSerialPrint("Cannot open file for read");
+  } else {
+	 cliSerialPrint("Test file opened for read");
+  }
+
+  // Check file content
+  uint8_t data = 0;
+  for(int n=0; n<bufferSize*2; n++) {
+    if(f_read(&sdtest_File, &data, 1, &written) != FR_OK) {
+      cliSerialPrint("Cannot read from file");
+    } else {
+	  if(data != 0xFF) {
+		cliSerialPrint("File contains data errors");
+	  }
+	}
+  }
+  cliSerialPrint("File read completed");
+
+  // Close file
+  if (f_close(&sdtest_File) != FR_OK) {
+    // close failed, forget file
+	cliSerialPrint("Cannot close file");
+  } else {
+	cliSerialPrint("Test file closed successfully");
+  }
+
+  // Delete file
+  if (f_unlink(filename) != FR_OK) {
+    // close failed, forget file
+	cliSerialPrint("Cannot delete file");
+  } else {
+	cliSerialPrint("Test file deleted successfully");
+  }
+  cliSerialCrlf();
+  return 0;
+}
+#endif
+
 int cliTestSD(const char ** argv)
 {
   // Do the read test on the SD card and report back the result
@@ -1480,11 +1578,10 @@ int cliRepeat(const char ** argv)
   int interval = 0;
   int counter = 0;
   if (toInt(argv, 1, &interval) > 0 && argv[2]) {
-    interval *= 50;
     counter = interval;
 
     uint8_t c;
-    const TickType_t xTimeout = 20 / portTICK_PERIOD_MS;
+    const TickType_t xTimeout = portTICK_PERIOD_MS;
     while (!xStreamBufferReceive(cliRxBuffer, &c, 1, xTimeout)
            || !(c == '\r' || c == '\n' || c == ' ')) {
 
@@ -1692,7 +1789,8 @@ const CliCommand cliCommands[] = {
   { "test", cliTest, "new | graphics | memspd" },
   { "trace", cliTrace, "on | off" },
   { "debugvars", cliDebugVars, "" },
-  { "repeat", cliRepeat, "<interval> <command>" },
+  { "repeat", cliRepeat, "<interval in ms> <command>" },
+  { "testfatfs", cliTestFatFsSD, "" },
 #endif
   { "help", cliHelp, "[<command>]" },
 #if defined(JITTER_MEASURE)
