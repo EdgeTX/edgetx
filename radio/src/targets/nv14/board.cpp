@@ -218,8 +218,6 @@ void boardInit()
  #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
-
-  lcdSetInitalFrameBuffer(lcdFront->getData());
 }
 
 extern void rtcDisableBackupReg();

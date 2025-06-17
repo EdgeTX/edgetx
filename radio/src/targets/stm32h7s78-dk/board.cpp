@@ -126,7 +126,6 @@ void boardInit()
 
   delay_ms(50); // GT911 is a bit slow on power ON
   touchPanelInit();
-  lcdSetInitalFrameBuffer(lcdFront->getData());
 }
 
 extern void rtcDisableBackupReg();
