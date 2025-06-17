@@ -110,6 +110,10 @@ if(NOT NATIVE_BUILD)
     target_sources(stm32_drivers PUBLIC
       ${STM32_DRIVER_DIR}/stm32_spi.cpp
     )
+    elseif(CPU_TYPE STREQUAL STM32H5)
+    target_sources(stm32_drivers PUBLIC
+            ${STM32_DRIVER_DIR}/stm32_spi_h5.cpp
+    )
   elseif(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
     target_sources(stm32_drivers PUBLIC
       ${STM32_DRIVER_DIR}/stm32_spi_h7.cpp
