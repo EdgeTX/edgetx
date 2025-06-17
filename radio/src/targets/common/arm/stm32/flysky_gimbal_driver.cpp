@@ -48,8 +48,10 @@ static const stm32_usart_t fsUSART = {
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 4,
   .txDMA = FLYSKY_HALL_SERIAL_DMA,
+#if defined(FLYSKY_HALL_DMA_Stream_TX)
   .txDMA_Stream = FLYSKY_HALL_DMA_Stream_TX,
   .txDMA_Channel = FLYSKY_HALL_DMA_Channel,
+#endif
   .rxDMA = FLYSKY_HALL_SERIAL_DMA,
   .rxDMA_Stream = FLYSKY_HALL_DMA_Stream_RX,
   .rxDMA_Channel = FLYSKY_HALL_DMA_Channel,
