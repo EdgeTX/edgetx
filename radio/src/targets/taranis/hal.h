@@ -2049,12 +2049,7 @@
 #endif
 #endif
 
-// voice
-#if defined(RADIO_V12) || defined(RADIO_V14)
-  #define VoiceAI_PWR_GPIO              GPIO_PIN(GPIOD, 14) // PD.14
-  #define VoiceAI_PWR_OFF()             gpio_clear(VoiceAI_PWR_GPIO)
-  #define VoiceAI_PWR_ON()              gpio_set(VoiceAI_PWR_GPIO)
-#endif
+// Switches with LEDs
 #if defined(RADIO_V14)
   #define SALED_PWR_GPIO                   GPIO_PIN(GPIOC, 13) // PD.14
   #define SALED_PWR_ON()                   gpio_set(SALED_PWR_GPIO)
