@@ -40,15 +40,10 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
   gvar_field = new Choice(
       this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, -MAX_GVARS, MAX_GVARS - 1,
       [=]() {
-        uint16_t gvar1 = GV_GET_GV1_VALUE(vmin, vmax);
-        return GV_INDEX_CALC_DELTA(getValue(), gvar1);
+        return GV_INDEX_FROM_VALUE(getValue());
       },
       [=](int idx) {
-        uint16_t gvar1 = GV_GET_GV1_VALUE(vmin, vmax);
-        if (idx < 0)
-          setValue(GV_CALC_VALUE_IDX_NEG(idx, gvar1));
-        else
-          setValue(GV_CALC_VALUE_IDX_POS(idx, gvar1));
+        setValue(GV_VALUE_FROM_INDEX(idx));
       });
   gvar_field->setTextHandler(
       [=](int32_t value) { return getGVarString(value); });
@@ -63,9 +58,9 @@ GVarNumberEdit::GVarNumberEdit(Window* parent, int32_t vmin,
   if (modelGVEnabled()) {
     m_gvBtn = new TextButton(this, {EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_TINY, 0, GV_BTN_W, 0}, STR_GV, [=]() {
       switchGVarMode();
-      return GV_IS_GV_VALUE(getValue(), vmin, vmax);
+      return GV_IS_GV_VALUE(getValue());
     });
-    m_gvBtn->check(GV_IS_GV_VALUE(getValue(), vmin, vmax));
+    m_gvBtn->check(GV_IS_GV_VALUE(getValue()));
   }
 #endif
 
@@ -79,13 +74,13 @@ void GVarNumberEdit::switchGVarMode()
   if (modelGVEnabled()) {
     int32_t value = getValue();
     setValue(
-        GV_IS_GV_VALUE(value, vmin, vmax)
+        GV_IS_GV_VALUE(value)
             ? ((textFlags & PREC1)
                    ? GET_GVAR_PREC1(value, vmin, vmax, mixerCurrentFlightMode)
                    : GET_GVAR(value, vmin, vmax, mixerCurrentFlightMode))
-            : GV_GET_GV1_VALUE(vmin, vmax));
+            : GV_VALUE_FROM_INDEX(0));
 
-    m_gvBtn->check(GV_IS_GV_VALUE(value, vmin, vmax));
+    m_gvBtn->check(GV_IS_GV_VALUE(value));
 
     // update field type based on value
     update();
@@ -115,7 +110,7 @@ void GVarNumberEdit::update()
   num_field->hide();
   
   int32_t value = getValue();
-  if (GV_IS_GV_VALUE(value, vmin, vmax)) {
+  if (GV_IS_GV_VALUE(value)) {
     // GVAR mode
     act_field = gvar_field;
     num_field->setSetValueHandler(nullptr);

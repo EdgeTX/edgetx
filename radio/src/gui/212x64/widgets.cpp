@@ -157,7 +157,6 @@ void drawGVarValue(coord_t x, coord_t y, uint8_t gvar, gvar_t value, LcdFlags fl
 
 int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int16_t max, LcdFlags attr, uint8_t editflags, event_t event)
 {
-  uint16_t delta = GV_GET_GV1_VALUE(min, max);
   bool invers = (attr & INVERS);
 
   // TRACE("editGVarFieldValue(val=%d min=%d max=%d)", value, min, max);
@@ -166,26 +165,21 @@ int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int
     killEvents(event);
     s_editMode = !s_editMode;
     if (attr & PREC1) {
-      value = (GV_IS_GV_VALUE(value, min, max) ? GET_GVAR(value, min, max, mixerCurrentFlightMode)*10 : delta);
+      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max, mixerCurrentFlightMode)*10 : GV_VALUE_FROM_INDEX(0));
     }
     else {
-      value = (GV_IS_GV_VALUE(value, min, max) ? GET_GVAR(value, min, max, mixerCurrentFlightMode) : delta);
+      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max, mixerCurrentFlightMode) : GV_VALUE_FROM_INDEX(0));
     }
     storageDirty(EE_MODEL);
   }
 
-  if (GV_IS_GV_VALUE(value, min, max)) {
+  if (GV_IS_GV_VALUE(value)) {
     attr &= ~PREC1;
-    int8_t idx = (int16_t)GV_INDEX_CALC_DELTA(value, delta);
+    int8_t idx = (int16_t)GV_INDEX_FROM_VALUE(value);
     if (invers) {
       CHECK_INCDEC_MODELVAR(event, idx, -MAX_GVARS, MAX_GVARS-1);
     }
-    if (idx < 0) {
-      value = (int16_t)GV_CALC_VALUE_IDX_NEG(idx, delta);
-    }
-    else {
-      value = (int16_t)GV_CALC_VALUE_IDX_POS(idx, delta);
-    }
+    value = (int16_t)GV_VALUE_FROM_INDEX(idx);
     drawGVarName(x, y, idx, attr);
   }
   else {

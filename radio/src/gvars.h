@@ -21,6 +21,12 @@
 
 #pragma once
 
+#define LEN_GVAR_NAME                3
+#define GVAR_MAX                     1024
+#define GVAR_MIN                     -GVAR_MAX
+
+#define MAX_GVARS                    9
+
 // GVars have one value per flight mode
 #define GVAR_VALUE(gv, fm)           g_model.flightModeData[fm].gvars[gv]
 
@@ -42,21 +48,16 @@
   #define GET_GVAR_PREC1(x, ...)       (x*10)
 #endif
 
-#define GV_GET_GV1_VALUE(vmin, vmax)        ((vmax<=GV_RANGESMALL && vmin>=GV_RANGESMALL_NEG) ? GV1_SMALL : GV1_LARGE)
-#define GV_INDEX_CALCULATION(x,max)  ((max<=GV_RANGESMALL && min>=GV_RANGESMALL_NEG) ? (uint8_t) x-GV1_SMALL : ((x&(GV1_LARGE*2-1))-GV1_LARGE))
-#define GV_IS_GV_VALUE(x,min,max)    ((max>GV1_SMALL || min<-GV1_SMALL) ? (x>GV_RANGELARGE || x<GV_RANGELARGE_NEG) : (x>max) || (x<min))
+// we reserve the space inside the range of values, like offset, weight, etc.
+#define GV_RANGE_MAX                1024
+#define GV_RANGE_POS                (GV_RANGE_MAX - 1 - MAX_GVARS)
+#define GV_RANGE_NEG                (-GV_RANGE_MAX + MAX_GVARS)
 
-#define GV_INDEX_CALC_DELTA(x,delta)   ((x&(delta*2-1)) - delta)
+#define GV_IS_GV_VALUE(x)           (x > GV_RANGE_POS || x < GV_RANGE_NEG)
+#define GV_INDEX_FROM_VALUE(x)      ((x & (GV_RANGE_MAX * 2 - 1)) - GV_RANGE_MAX)
+#define GV_VALUE_FROM_INDEX(idx)    ((idx < 0) ? GV_RANGE_MAX + idx : -GV_RANGE_MAX + idx)
 
-#define GV_CALC_VALUE_IDX_POS(idx,delta) (-delta+idx)
-#define GV_CALC_VALUE_IDX_NEG(idx,delta) (delta+idx)
-
-#define GV_RANGESMALL                  (GV1_SMALL - (RESERVE_RANGE_FOR_GVARS+1))
-#define GV_RANGESMALL_NEG              (-GV1_SMALL + (RESERVE_RANGE_FOR_GVARS+1))
-#define GV_RANGELARGE                  (GV1_LARGE - (RESERVE_RANGE_FOR_GVARS+1))
-#define GV_RANGELARGE_NEG              (-GV1_LARGE + (RESERVE_RANGE_FOR_GVARS+1))
-
-// the define GV1_LARGE marks the highest bit value used for this variables
+// the define GV_RANGE_MAX marks the highest bit value used for this variables
 // because this would give too big numbers for ARM, we limit it further for
 // offset and weight
 constexpr int32_t MIX_WEIGHT_MAX = 500;

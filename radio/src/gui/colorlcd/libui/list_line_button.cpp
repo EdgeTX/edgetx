@@ -84,7 +84,7 @@ void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
   }
 
   char s[32];
-  getValueOrSrcVarString(s, sizeof(s), value, min, max, 0, "%");
+  getValueOrSrcVarString(s, sizeof(s), value, 0, "%");
   if (getTextWidth(s, 0, FONT(STD)) > WGT_W)
     lv_obj_add_state(weight, LV_STATE_USER_1);
   else
