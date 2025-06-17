@@ -2049,6 +2049,14 @@
 #endif
 #endif
 
+// Switches with LEDs
+#if defined(RADIO_V14)
+  #define SALED_PWR_GPIO                   GPIO_PIN(GPIOC, 13) // PD.14
+  #define SALED_PWR_ON()                   gpio_set(SALED_PWR_GPIO)
+  #define SDLED_PWR_GPIO                   GPIO_PIN(GPIOE, 8) // PD.14
+  #define SDLED_PWR_ON()                   gpio_set(SDLED_PWR_GPIO)
+#endif
+
 // Internal Module
 #if defined(PCBXLITE)
 #define EXTERNAL_ANTENNA
