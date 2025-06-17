@@ -267,6 +267,7 @@ void boardInit()
   lcdInit(); // delaysInit() must be called before
 #if defined(AUDIO)
   audioInit();
+#endif
 
 #if defined(LED_STRIP_GPIO)
   rgbLedInit();
