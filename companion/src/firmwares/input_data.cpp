@@ -48,7 +48,7 @@ QString ExpoData::carryTrimToString() const
         return tr("OFF");
   }
   else if (carryTrim < 0 && abs(carryTrim) <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims))
-    return RawSource(SOURCE_TYPE_TRIM, abs(carryTrim) - 1).toString();
+    return RawSource(SOURCE_TYPE_TRIM, abs(carryTrim)).toString();
   else
     return CPN_STR_UNKNOWN_ITEM;
 }
