@@ -19,17 +19,36 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "edgetx.h"
+#include "hal/i2c_driver.h"
+#include "stm32_i2c_driver.h"
+#include "imu_icm426xx.h"
 
-#define ICM42670_I2C_ADDR           0x68
+int gyroInit(void)
+{
+  TRACE("ICM426xx I2C Init");
 
-typedef struct {
-  float fTemperatureDegC; //°C
-  float fAccX, fAccY, fAccZ; // m/s^2
-  float fGyroXradps, fGyroYradps, fGyroZradps; // rad/s
-} sIMUoutput;
+  if (i2c_init(IMU_I2C_BUS) < 0) {
+    TRACE("ICM426xx ERROR: i2c_init bus error");
+    return -1;
+  }
 
-extern sIMUoutput IMUoutput;
+  if (i2c_dev_ready(IMU_I2C_BUS, ICM426xx_I2C_ADDR) < 0) {
+    TRACE("ICM426xx device init error");
+    return -1;
+  }
 
-bool imu_icm42607p_init(void);
-bool imu_icm42607p_read();
+  uint8_t who_am_i = 0;
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, 0x75, 1, &who_am_i, 1, 1000) < 0) {
+    TRACE("ICM426xx ERROR: i2c read error");
+    return -1;
+  }
+  TRACE("ICM426xx Who am I: 0x%x", who_am_i);
+
+  return 0;
+}
+
+int gyroRead(unsigned char*)
+{
+  return true;
+}

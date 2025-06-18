@@ -59,7 +59,7 @@
 
 
 #include "touch_driver.h"
-#include "imu_icm42607p.h"
+#include "imu_icm426xx.h"
 
 #include <string.h>
 
@@ -187,8 +187,6 @@ void boardInit()
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
-
-  imu_icm42607p_init();
 }
 
 extern void rtcDisableBackupReg();
