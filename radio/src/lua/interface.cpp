@@ -1377,6 +1377,13 @@ void luaInit()
 
   if (luaState != INTERPRETER_PANIC) {
     if (mainState) {
+      if (lsScripts) {
+        for (int i = 0; i < luaScriptsCount; i += 1)
+          luaFree(lsScripts, scriptInternalData[i]);
+        lua_settop(lsScripts, 0);
+        lua_gc(lsScripts, LUA_GCCOLLECT, 0);
+        lsScripts = nullptr;
+      }
       lua_settop(mainState, 0);
       lua_gc(mainState, LUA_GCCOLLECT, 0);
 
