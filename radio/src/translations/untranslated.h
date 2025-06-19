@@ -305,6 +305,8 @@
 #define STR_CHAR_CHANNEL   "\302\222"
 #define STR_CHAR_TELEMETRY "\302\223"
 #define STR_CHAR_LUA       "\302\224"
+#define STR_CHAR_LS        "\302\225"
+#define STR_CHAR_CURVE     "\302\226"
 
 #if !defined(COLORLCD)
   // '~' is remapped to 0x7B in B&W font
