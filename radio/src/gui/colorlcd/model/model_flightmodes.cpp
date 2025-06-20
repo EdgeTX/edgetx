@@ -216,10 +216,8 @@ class FlightModeBtn : public ListLineButton
   {
     lv_obj_t* target = lv_event_get_target(e);
     auto line = (FlightModeBtn*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-    }
+    if (line && !line->init)
+      line->delayed_init();
   }
 
   void delayed_init()
@@ -477,8 +475,8 @@ const lv_obj_class_t FlightModeBtn::fm_trim_value_class = {
     .instance_size = sizeof(lv_label_t),
 };
 
-ModelFlightModesPage::ModelFlightModesPage() :
-    PageTab(STR_MENUFLIGHTMODES, ICON_MODEL_FLIGHT_MODES)
+ModelFlightModesPage::ModelFlightModesPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 
