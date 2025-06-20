@@ -7,20 +7,20 @@
 
   !include "MUI2.nsh"
   !include "nsDialogs.nsh"
-  !include "@CMAKE_CURRENT_SOURCE_DIR@\..\targets\windows\FileAssociation.nsh"
+  !include "@NSIS_TARGETS_DIR@\FileAssociation.nsh"
 
 ;--------------------------------
 ;General
 
   ;Name and file
-  Name "EdgeTX Companion @VERSION_FAMILY@"
+  Name "@PROJECT_NAME@ Companion @VERSION_FAMILY@"
   OutFile "companion-windows-@VERSION@.exe"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\EdgeTX\Companion @VERSION_FAMILY@"
+  InstallDir "$PROGRAMFILES\@PROJECT_NAME@\Companion @VERSION_FAMILY@"
 
   ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\EdgeTX\Companion @VERSION_FAMILY@" ""
+  InstallDirRegKey HKCU "Software\@PROJECT_NAME@\Companion @VERSION_FAMILY@" ""
 
   ;Compressor options
   SetCompressor /FINAL /SOLID lzma
@@ -65,13 +65,13 @@
 ;--------------------------------
 ;Pages
 
-  !insertmacro MUI_PAGE_LICENSE "@NSIS_DISTRO@\license.txt"
+  !insertmacro MUI_PAGE_LICENSE "@NSIS_DISTRO@\bin\license.txt"
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
 
   ;Start Menu Folder Page Configuration
   !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\EdgeTX\Companion @VERSION_FAMILY@"
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\@PROJECT_NAME@\Companion @VERSION_FAMILY@"
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
   !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
 
@@ -102,11 +102,7 @@
 ;--------------------------------
 ;Installer Sections
 
-Section "EdgeTX Companion @VERSION_FAMILY@" SecDummy
-
-  Delete "$INSTDIR\edgetx-*-simulator.dll"
-  RMDir /r "$INSTDIR\lang"
-  RMDir /r "$INSTDIR\phonon_backend"
+Section "@PROJECT_NAME@ Companion @VERSION_FAMILY@" SecDummy
 
   SetOutPath "$INSTDIR"
 
@@ -114,22 +110,22 @@ Section "EdgeTX Companion @VERSION_FAMILY@" SecDummy
   File /r "@NSIS_DISTRO@\*"
 
   ;Store installation folder
-  WriteRegStr HKCU "Software\EdgeTX\Companion @VERSION_FAMILY@" "" $INSTDIR
+  WriteRegStr HKCU "Software\@PROJECT_NAME@\Companion @VERSION_FAMILY@" "" $INSTDIR
 
   ;Associate with extentions .etx
-  ${registerExtension} "$INSTDIR\companion.exe" ".etx" "EdgeTX Settings File"
+  ${registerExtension} "$INSTDIR\bin\companion.exe" ".etx" "@PROJECT_NAME@ Settings File"
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
   ;Registry information for add/remove programs
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "DisplayName" "EdgeTX Companion @VERSION_FAMILY@"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "DisplayVersion" "@VERSION@"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "DisplayIcon" "$\"$INSTDIR\companion.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "Publisher" "EdgeTX"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "URLInfoAbout" "https://www.edgetx.org"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@" "QuietUninstallString" "$\"$INSTDIR\Uninstall.exe$\" /S"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@PROJECT_NAME@ Companion @VERSION_FAMILY@" "DisplayName" "@PROJECT_NAME@ Companion @VERSION_FAMILY@"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@PROJECT_NAME@ Companion @VERSION_FAMILY@" "DisplayVersion" "@VERSION@"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@PROJECT_NAME@ Companion @VERSION_FAMILY@" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@PROJECT_NAME@ Companion @VERSION_FAMILY@" "DisplayIcon" "$\"$INSTDIR\bin\companion.exe$\""
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@PROJECT_NAME@ Companion @VERSION_FAMILY@" "Publisher" "@PROJECT_NAME@"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@PROJECT_NAME@ Companion @VERSION_FAMILY@" "URLInfoAbout" "https://@PROJECT_NAME_LOWERCASE@.org"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@PROJECT_NAME@ Companion @VERSION_FAMILY@" "QuietUninstallString" "$\"$INSTDIR\Uninstall.exe$\" /S"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 
@@ -138,8 +134,8 @@ Section "EdgeTX Companion @VERSION_FAMILY@" SecDummy
     SetShellVarContext all
   ${Endif}
   CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Companion @VERSION_FAMILY@.lnk" "$INSTDIR\companion.exe"
-  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Firmware Simulator @VERSION_FAMILY@.lnk" "$INSTDIR\simulator.exe"
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Companion @VERSION_FAMILY@.lnk" "$INSTDIR\bin\companion.exe"
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Firmware Simulator @VERSION_FAMILY@.lnk" "$INSTDIR\bin\simulator.exe"
   CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall Companion @VERSION_FAMILY@.lnk" "$INSTDIR\Uninstall.exe"
   SetShellVarContext current
 
@@ -151,8 +147,8 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecDummy ${LANG_ENGLISH} "Models and settings editor for EdgeTX"
-  LangString DESC_SecDummy ${LANG_FRENCH} "Editeur de r�glages et mod�les pour EdgeTX"
+  LangString DESC_SecDummy    ${LANG_ENGLISH} "Models and settings editor for @PROJECT_NAME@"
+  LangString DESC_SecDummy    ${LANG_FRENCH} "Editeur de r�glages et mod�les pour @PROJECT_NAME@"
   LangString SML_SubTitle     ${LANG_ENGLISH} "Choose a location for the Start Menu shortcuts"
   LangString SML_SubTitle     ${LANG_FRENCH}  "Choisissez un emplacement pour les raccourcis de l'application"
   LangString SML_MainLabel    ${LANG_ENGLISH} "Create start menu shortcuts for:"
@@ -170,57 +166,26 @@ SectionEnd
 ;--------------------------------
 ;Uninstaller Section
 
-Section "un.EdgeTX Companion @VERSION_FAMILY@"
+Section "un.@PROJECT_NAME@ Companion @VERSION_FAMILY@"
 
   SectionIn RO  ; Not deselectable
 
-  Delete "$INSTDIR\license.txt"
-  Delete "$INSTDIR\companion.exe"
-  Delete "$INSTDIR\simulator.exe"
-  Delete "$INSTDIR\*edgetx-*-simulator.dll"
-  Delete "$INSTDIR\SDL2.dll"
-  ; MSVC-specific libs
-  Delete "$INSTDIR\msvcp140.dll"
-  Delete "$INSTDIR\vcruntime140.dll"
-  Delete "$INSTDIR\pthreadVC2.dll"
-  ; Qt libs
-  Delete "$INSTDIR\Qt5*.dll"
-  Delete "$INSTDIR\d3dcompiler_47.dll"
-  Delete "$INSTDIR\libEGL.dll"
-  Delete "$INSTDIR\libGLESV2.dll"
-  ; flashing utils
-  Delete "$INSTDIR\avrdude.exe"
-  Delete "$INSTDIR\avrdude.conf"
-  Delete "$INSTDIR\dfu-util.exe"
-  Delete "$INSTDIR\libusb0.dll"
-  Delete "$INSTDIR\libusb-1.0.dll"
-  ; OpenSSL libs
-  Delete "$INSTDIR\libssl-1_1.dll"
-  Delete "$INSTDIR\libssl-1_1-x64.dll"
-  Delete "$INSTDIR\libcrypto-1_1.dll"
-  Delete "$INSTDIR\libcrypto-1_1-x64.dll"
-  ; MinGW libs
-  Delete "$INSTDIR\libgcc_s_dw2-1.dll"
-  Delete "$INSTDIR\libgcc_s_seh-1.dll"
-  Delete "$INSTDIR\libstdc++-6.dll"
-  Delete "$INSTDIR\libwinpthread-1.dll"
-
+  RMDir /r "$INSTDIR\plugins\generic"
+  RMDir /r "$INSTDIR\plugins\iconengines"
+  RMDir /r "$INSTDIR\plugins\imageformats"
+  RMDir /r "$INSTDIR\plugins\multimedia"
+  RMDir /r "$INSTDIR\plugins\networkinformation"
+  RMDir /r "$INSTDIR\plugins\platforms"
+  RMDir /r "$INSTDIR\plugins\styles"
+  RMDir /r "$INSTDIR\plugins\tls"
+  RMDir /r "$INSTDIR\plugins"
+  RMDir /r "$INSTDIR\bin\__pycache__"
+  RMDir /r "$INSTDIR\bin"
   Delete "$INSTDIR\Uninstall.exe"
-
-  ; Qt plugin folders
-  RMDir /r "$INSTDIR\audio"
-  RMDir /r "$INSTDIR\bearer"
-  RMDir /r "$INSTDIR\iconengines"
-  RMDir /r "$INSTDIR\imageformats"
-  RMDir /r "$INSTDIR\mediaservice"
-  RMDir /r "$INSTDIR\platforms"
-  RMDir /r "$INSTDIR\playlistformats"
-  RMDir /r "$INSTDIR\printsupport"
-  RMDir /r "$INSTDIR\styles"
 
   RMDir "$INSTDIR"
 
-  ${unregisterExtension} ".etx" "EdgeTX Settings File"
+  ${unregisterExtension} ".etx" "@PROJECT_NAME@ Settings File"
 
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
 
@@ -236,15 +201,15 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
   Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall Companion @VERSION_FAMILY@.lnk"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
 
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\EdgeTX Companion @VERSION_FAMILY@"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\@PROJECT_NAME@ Companion @VERSION_FAMILY@"
 SectionEnd
 
 Section /o "un.Settings"
-  DeleteRegKey HKCU "Software\EdgeTX\Companion @VERSION_FAMILY@"
+  DeleteRegKey HKCU "Software\@PROJECT_NAME@\Companion @VERSION_FAMILY@"
 SectionEnd
 
 Function LaunchLink
-  ExecShell "" "$INSTDIR\companion.exe"
+  ExecShell "" "$INSTDIR\bin\companion.exe"
 FunctionEnd
 
 

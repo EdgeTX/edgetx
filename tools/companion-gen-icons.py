@@ -81,7 +81,7 @@ img.save(icon_png)
 print("Generate Linux Icons... ", end="")
 os.chdir(LINUX_ICONS_DIR)
 
-linux_resolutions = [16, 22, 24, 32, 48, 128, 256, 512]
+linux_resolutions = [16, 22, 24, 32, 48, 64, 128, 256, 512]
 for size in linux_resolutions:
     new_image_folder = os.path.join(LINUX_ICONS_DIR, str(size) + 'x' + str(size))
     companion_png = os.path.join(new_image_folder, 'companion.png')
