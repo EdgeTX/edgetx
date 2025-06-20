@@ -507,6 +507,18 @@ SWITCH_CONFIG = {
         "SD": { "default": "2POS",   "display": [ 1, 0 ] },
         "SC": { "default": "3POS", "display": [ 1, 1 ] },
     },
+    "dro1": {
+        "SA": {"default": "3POS"},
+        "SB": {"default": "3POS"},
+        "SC": {"default": "3POS"},
+        "SD": {"default": "3POS"},
+        "SE": {"default": "3POS"},
+        "SF": {"default": "3POS"},
+        "SG": {"default": "3POS"},
+        "SH": {"default": "3POS"},
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"}
+    },
 }
 
 
