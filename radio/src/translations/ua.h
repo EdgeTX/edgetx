@@ -273,6 +273,7 @@
 #define TR_BITMAP                      "Зображ. моделі"
 #define TR_NO_PICTURE                  "Немає зображ."
 #define TR_TIMER                       TR("Таймер", "Таймер ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"	/* use english */
 #define TR_ELIMITS                     TR("Розш.Ліміт", "Розширені Ліміти")
 #define TR_ETRIMS                      TR("Розш.Трим.", "Розширене Обрізання")  /* ned to be clarified by context */

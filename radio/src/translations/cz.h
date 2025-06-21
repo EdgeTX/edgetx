@@ -281,6 +281,7 @@
 #define TR_BITMAP                      "Obrázek"
 #define TR_NO_PICTURE                  "Bez obrázku"
 #define TR_TIMER                       "Stopky"
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Limit +25%", "Kanál +/- 125%")
 #define TR_ETRIMS                      TR("širší Trim", "Široký trim")

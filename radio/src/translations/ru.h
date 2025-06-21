@@ -273,6 +273,7 @@
 #define TR_BITMAP                      "Изображ"
 #define TR_NO_PICTURE                  "Без изображ"
 #define TR_TIMER                       TR("Таймер", "Таймер ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Старт"
 #define TR_ELIMITS                     TR("расш лимит", "Расш лимит")
 #define TR_ETRIMS                      TR("Расш трим", "Расш тримы")

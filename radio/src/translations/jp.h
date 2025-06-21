@@ -270,6 +270,7 @@
 #define TR_BITMAP                      "モデルイメージ"
 #define TR_NO_PICTURE                  "画像なし"
 #define TR_TIMER                       TR("タイマー", "タイマー ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "スタート"
 #define TR_ELIMITS                     TR("E.Limit", "リミット拡張")
 #define TR_ETRIMS                      TR("E.Trims", "トリム拡張")
