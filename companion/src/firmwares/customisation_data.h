@@ -33,7 +33,7 @@
 
 constexpr int MAX_CUSTOM_SCREENS      {10};
 constexpr int MAX_THEME_OPTIONS       {5};
-constexpr int LEN_ZONE_OPTION_STRING  {8};
+constexpr int LEN_ZONE_OPTION_STRING  {12};
 constexpr int MAX_LAYOUT_ZONES        {10};
 constexpr int MAX_LAYOUT_OPTIONS      {10};
 constexpr int WIDGET_NAME_LEN         {20};
