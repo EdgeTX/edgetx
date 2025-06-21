@@ -85,9 +85,9 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
             return true;
           case PULSES_PXX_XJT_X16:
           case PULSES_PXX_XJT_LR12:
-            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
+            return !IS_ACCESS_RADIO(board, id) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
           case PULSES_PXX_XJT_D8:
-            return !(IS_ACCESS_RADIO(board, id)  || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board);
+            return !(IS_ACCESS_RADIO(board, id) || id.contains("eu")) && !IS_FAMILY_T16(board) && !IS_FAMILY_T12(board) && !IS_FLYSKY_NV14(board) && !IS_FLYSKY_EL18(board) && !IS_FLYSKY_PL18(board) && !IS_FLYSKY_ST16(board);
           case PULSES_ACCESS_ISRM:
           case PULSES_ACCST_ISRM_D16:
             return IS_ACCESS_RADIO(board, id);
@@ -98,7 +98,7 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
           case PULSES_FLYSKY_AFHDS2A:
             return IS_FLYSKY_NV14(board);
           case PULSES_FLYSKY_AFHDS3:
-            return IS_FLYSKY_EL18(board);
+            return (IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board));
           default:
             return false;
         }
@@ -124,7 +124,7 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
           case PULSES_GHOST:
             return true;
           case PULSES_ACCESS_R9M:
-            return IS_ACCESS_RADIO(board, id)  || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
+            return IS_ACCESS_RADIO(board, id) || (IS_FAMILY_HORUS_OR_T16(board) && id.contains("externalaccessmod"));
           case PULSES_PXX_R9M_LITE:
           case PULSES_ACCESS_R9M_LITE:
           case PULSES_ACCESS_R9M_LITE_PRO:
