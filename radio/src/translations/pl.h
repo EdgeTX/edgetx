@@ -268,6 +268,7 @@
 #define TR_BITMAP              "Obrazek"
 #define TR_NO_PICTURE          "Bez obrazka"
 #define TR_TIMER               TR("Timer", "Timer ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START               "Start"
 #define TR_ELIMITS             TR("Limi+25%", "Kanał +/- 125% ")
 #define TR_ETRIMS              TR("E.Trym ", "Poszer Trymery")

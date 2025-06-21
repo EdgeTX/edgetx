@@ -271,6 +271,7 @@
 #define TR_BITMAP                       "Immagine"
 #define TR_NO_PICTURE                   "No immagine"
 #define TR_TIMER                        TR("Timer", "Timer ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                        "Partenza"
 #define TR_ELIMITS                      TR("Lim. Est.", "Limiti Estesi")
 #define TR_ETRIMS                       TR("Trim Est.", "Trim Estesi")

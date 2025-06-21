@@ -692,6 +692,15 @@ bool isAssignableFunctionAvailable(int function)
 }
 #endif
 
+int timersSetupCount()
+{
+  int tc = 0;
+  for (int i = 0; i < MAX_TIMERS; i += 1)
+    if (isTimerSourceAvailable(i))
+      tc += 1;
+  return tc;
+}
+
 bool isTimerSourceAvailable(int index)
 {
   TimerData *timer = &g_model.timers[index];

@@ -273,6 +273,7 @@
 #define TR_BITMAP                      "模型圖片"
 #define TR_NO_PICTURE                  "無圖片"
 #define TR_TIMER                       TR("計時器", "計時器 ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "開始"
 #define TR_ELIMITS                     TR("擴展行程", "擴展通道行程")
 #define TR_ETRIMS                      TR("擴展微調", "擴展微調量")

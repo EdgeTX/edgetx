@@ -152,6 +152,7 @@ const char STR_NAME[] = TR_NAME;
 const char STR_BITMAP[] = TR_BITMAP;
 const char STR_NO_PICTURE[] = TR_NO_PICTURE;
 const char STR_TIMER[] = TR_TIMER;
+const char STR_NO_TIMERS[] = TR_NO_TIMERS;
 const char STR_START[]  = TR_START;
 const char STR_ELIMITS[] = TR_ELIMITS;
 const char STR_ETRIMS[] = TR_ETRIMS;

@@ -274,6 +274,7 @@
 #define TR_BITMAP                      "Model billede"
 #define TR_NO_PICTURE                  "Ingen billede"
 #define TR_TIMER                       TR("Tid", "Tid ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Udv.Grænser", "Udvidet grænser")
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")

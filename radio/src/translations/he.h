@@ -275,6 +275,7 @@
 #define TR_BITMAP                      "תמונה מודל"
 #define TR_NO_PICTURE                  "אין תמונה"
 #define TR_TIMER                       TR("שעון", "שעון ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "התחלה"
 #define TR_ELIMITS                     TR("E.Limits", "הרחב תצוגות")
 #define TR_ETRIMS                      TR("E.Trims", "הרחב תצוגות")

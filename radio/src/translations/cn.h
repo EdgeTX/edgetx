@@ -268,6 +268,7 @@
 #define TR_BITMAP                      "模型图片"
 #define TR_NO_PICTURE                  "无图片"
 #define TR_TIMER                       TR("计时器", "计时器 ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "开始"
 #define TR_ELIMITS                     TR("扩展行程", "扩展通道行程")
 #define TR_ETRIMS                      TR("扩展微调", "扩展微调量")

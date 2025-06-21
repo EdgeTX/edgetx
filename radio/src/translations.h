@@ -276,6 +276,7 @@ extern const char STR_NAME[];
 extern const char STR_BITMAP[];
 extern const char STR_NO_PICTURE[];
 extern const char STR_TIMER[];
+extern const char STR_NO_TIMERS[];
 extern const char STR_START[];
 extern const char STR_ELIMITS[];
 extern const char STR_ETRIMS[];

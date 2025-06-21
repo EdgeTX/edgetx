@@ -61,6 +61,7 @@ bool isThrottleSourceAvailable(int source);
 bool isLogicalSwitchAvailable(int index);
 bool isAssignableFunctionAvailable(int function);
 bool isSourceAvailable(int source);
+int timersSetupCount();
 bool isTimerSourceAvailable(int source);
 bool isSourceAvailableInGlobalFunctions(int source);
 bool isSourceAvailableInCustomSwitches(int source);
