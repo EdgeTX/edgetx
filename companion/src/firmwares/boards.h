@@ -79,6 +79,7 @@ namespace Board {
     BOARD_FLYSKY_NV14,
     BOARD_FLYSKY_PL18,
     BOARD_FLYSKY_PL18EV,
+    BOARD_FLYSKY_PL18U,
     BOARD_FLYSKY_ST16,
     BOARD_RADIOMASTER_ZORRO,
     BOARD_JUMPER_TPRO,
@@ -619,7 +620,12 @@ inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 
 inline bool IS_FAMILY_T16(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T15 || board == Board::BOARD_JUMPER_T16 || board == Board::BOARD_RADIOMASTER_TX16S || board == Board::BOARD_JUMPER_T18 || board == Board::BOARD_FATFISH_F16 || board == Board::BOARD_HELLORADIOSKY_V16;
+  return board == Board::BOARD_JUMPER_T15 || 
+         board == Board::BOARD_JUMPER_T16 ||
+         board == Board::BOARD_JUMPER_T18 ||
+         board == Board::BOARD_RADIOMASTER_TX16S ||
+         board == Board::BOARD_FATFISH_F16 ||
+         board == Board::BOARD_HELLORADIOSKY_V16;
 }
 
 inline bool IS_FAMILY_T12(Board::Type board)
@@ -667,6 +673,11 @@ inline bool IS_FLYSKY_PL18EV(Board::Type board)
   return (board == Board::BOARD_FLYSKY_PL18EV);
 }
 
+inline bool IS_FLYSKY_PL18U(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_PL18U);
+}
+
 inline bool IS_FLYSKY_ST16(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_ST16);
@@ -674,7 +685,7 @@ inline bool IS_FLYSKY_ST16(Board::Type board)
 
 inline bool IS_FAMILY_PL18(Board::Type board)
 {
-  return IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18EV(board);
+  return IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18EV(board) || IS_FLYSKY_PL18U(board);
 }
 
 inline bool IS_TARANIS_XLITE(Board::Type board)

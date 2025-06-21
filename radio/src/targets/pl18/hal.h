@@ -235,6 +235,14 @@
 
 #else // !defined(RADIO_NB4P) && !defined(RADIO_NV14_FAMILY)
 
+// Keys
+#if defined(RADIO_PL18U)
+#define KEYS_GPIO_PIN_ENTER
+#define KEYS_GPIO_REG_ENTER
+#define KEYS_GPIO_PIN_EXIT
+#define KEYS_GPIO_REG_EXIT
+#endif
+
 // Trims
 #define TRIMS_GPIO_REG_LHL
 #define TRIMS_GPIO_PIN_LHL
@@ -272,37 +280,51 @@
 #define TRIMS_GPIO_REG_RSU
 #define TRIMS_GPIO_PIN_RSU
 
-#define TRIMS_GPIO_REG_T7L
-#define TRIMS_GPIO_PIN_T7L
+#if !defined(RADIO_PL18U)
+  #define TRIMS_GPIO_REG_T7L
+  #define TRIMS_GPIO_PIN_T7L
 
-#define TRIMS_GPIO_REG_T7R
-#define TRIMS_GPIO_PIN_T7R
+  #define TRIMS_GPIO_REG_T7R
+  #define TRIMS_GPIO_PIN_T7R
 
-#define TRIMS_GPIO_REG_T8D
-#define TRIMS_GPIO_PIN_T8D
+  #define TRIMS_GPIO_REG_T8D
+  #define TRIMS_GPIO_PIN_T8D
 
-#define TRIMS_GPIO_REG_T8U
-#define TRIMS_GPIO_PIN_T8U
+  #define TRIMS_GPIO_REG_T8U
+  #define TRIMS_GPIO_PIN_T8U
 
-#define TRIMS_GPIO_REG_TR1U             GPIOH->IDR
-#define TRIMS_GPIO_PIN_TR1U             LL_GPIO_PIN_8  // PH.08
-#define TRIMS_GPIO_REG_TR1D             GPIOH->IDR
-#define TRIMS_GPIO_PIN_TR1D             LL_GPIO_PIN_9  // PH.09
-#define TRIMS_GPIO_REG_TR2U             GPIOH->IDR
-#define TRIMS_GPIO_PIN_TR2U             LL_GPIO_PIN_10 // PH.10
-#define TRIMS_GPIO_REG_TR2D             GPIOH->IDR
-#define TRIMS_GPIO_PIN_TR2D             LL_GPIO_PIN_11 // PH.11
+  #define TRIMS_GPIO_REG_TR1U             GPIOH->IDR
+  #define TRIMS_GPIO_PIN_TR1U             LL_GPIO_PIN_8  // PH.08
+  #define TRIMS_GPIO_REG_TR1D             GPIOH->IDR
+  #define TRIMS_GPIO_PIN_TR1D             LL_GPIO_PIN_9  // PH.09
+  #define TRIMS_GPIO_REG_TR2U             GPIOH->IDR
+  #define TRIMS_GPIO_PIN_TR2U             LL_GPIO_PIN_10 // PH.10
+  #define TRIMS_GPIO_REG_TR2D             GPIOH->IDR
+  #define TRIMS_GPIO_PIN_TR2D             LL_GPIO_PIN_11 // PH.11
+#endif
 
 // active 4x4 column/row based key-matrix to support up to 16 buttons with only 8 GPIOs
-#define TRIMS_GPIO_OUT1                 GPIOG
-#define TRIMS_GPIO_OUT1_PIN             LL_GPIO_PIN_2  // PG.02
+#if defined(RADIO_PL18U)
+  #define TRIMS_GPIO_OUT1                 GPIOI
+  #define TRIMS_GPIO_OUT1_PIN             LL_GPIO_PIN_2  // PI.02
+#else
+  #define TRIMS_GPIO_OUT1                 GPIOG
+  #define TRIMS_GPIO_OUT1_PIN             LL_GPIO_PIN_2  // PG.02
+#endif
+
 #define TRIMS_GPIO_OUT2                 GPIOG
 #define TRIMS_GPIO_OUT2_PIN             LL_GPIO_PIN_10 // PG.10
 #define TRIMS_GPIO_OUT3                 GPIOG
 #define TRIMS_GPIO_OUT3_PIN             LL_GPIO_PIN_11 // PG.11
+
+#if defined(RADIO_PL18U)
+  #define TRIMS_GPIO_OUT4                 GPIOH
+  #define TRIMS_GPIO_OUT4_PIN           LL_GPIO_PIN_10  // PH.10
+#endif
+
 // OUT4 routed on MCU PCB, but not attached to any physical buttons, free to use for extensions
-#define TRIMS_GPIO_OUT4                 GPIOH
-#define TRIMS_GPIO_OUT4_PIN             LL_GPIO_PIN_7  // PH.07
+//#define TRIMS_GPIO_OUT4                 GPIOH
+//#define TRIMS_GPIO_OUT4_PIN             LL_GPIO_PIN_7  // PH.07
 
 #define TRIMS_GPIO_REG_IN1              GPIOB->IDR
 #define TRIMS_GPIO_PIN_IN1              LL_GPIO_PIN_15 // PB.15
@@ -322,15 +344,21 @@
 
 #define KEYS_GPIOD_PINS (LL_GPIO_PIN_7)
 
-#define KEYS_GPIOH_PINS							\
-  (LL_GPIO_PIN_8 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
+#if !defined(RADIO_PL18U)
+  #define KEYS_GPIOH_PINS							\
+    (LL_GPIO_PIN_8 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
+#endif
 
 #define KEYS_GPIOJ_PINS (LL_GPIO_PIN_12)
 
-#define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
-
-#define KEYS_OUT_GPIOH_PINS (LL_GPIO_PIN_7)
-
+#if defined(RADIO_PL18U)
+  #define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
+  #define KEYS_OUT_GPIOH_PINS (LL_GPIO_PIN_10)
+  #define KEYS_OUT_GPIOI_PINS (LL_GPIO_PIN_2)
+#else
+  #define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
+  #define KEYS_OUT_GPIOH_PINS (LL_GPIO_PIN_7)
+#endif
 
 // Monitor pin
 // #define MONITOR_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOJ)
@@ -344,13 +372,15 @@
 //   Especially, as on current dev. state, using PC8 for SDIO D0.
 //   (happy coincidence ;)
 //
-// #define SWITCHES_GPIO_REG_A_H         GPIOC
-// #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_8 // PC.08
-// #define SWITCHES_GPIO_REG_A_L         GPIOC
-// #define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_9 // PC.09
-
-#define SWITCHES_GPIO_REG_A           GPIOC
-#define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_9 // PC.09
+#if defined(RADIO_PL18U)
+  #define SWITCHES_GPIO_REG_A_H         GPIOD
+  #define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_3 // PD.03
+  #define SWITCHES_GPIO_REG_A_L         GPIOB
+  #define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_6 // PB.06
+#else
+  #define SWITCHES_GPIO_REG_A           GPIOC
+  #define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_9 // PC.09
+#endif
 
 // High rail of Switch C is not required and thus PC10 is free to use for
 // customizations.
@@ -360,8 +390,15 @@
 // #define SWITCHES_GPIO_REG_C_L         GPIOC
 // #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_11 // PC.11
 
-#define SWITCHES_GPIO_REG_C           GPIOC
-#define SWITCHES_GPIO_PIN_C           LL_GPIO_PIN_11 // PC.11
+#if defined(RADIO_PL18U)
+  #define SWITCHES_GPIO_REG_C_H         GPIOJ
+  #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_14 // PJ.14
+  #define SWITCHES_GPIO_REG_C_L         GPIOH
+  #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_2 // PH.02
+#else
+  #define SWITCHES_GPIO_REG_C           GPIOC
+  #define SWITCHES_GPIO_PIN_C           LL_GPIO_PIN_11 // PC.11
+#endif
 
 // ADC
 
@@ -471,6 +508,20 @@
     0,       /* SWG */        \
     0        /* SWH */        \
   }
+#elif defined(RADIO_PL18U)
+#define ADC_DIRECTION {       \
+    0,0,0,0, /* gimbals */    \
+    0,0,0,   /* pots */       \
+    -1,1,   /* sliders */    \
+    0,	     /* vbat */       \
+    0,       /* rtc_bat */    \
+    -1,      /* SWB */        \
+    0,      /* SWD */        \
+    -1,       /* SWE */        \
+    0,       /* SWF */        \
+    -1,       /* SWG */        \
+    0        /* SWH */        \
+  }
 #else
 #define ADC_DIRECTION {       \
     0,0,0,0, /* gimbals */    \
@@ -497,7 +548,7 @@
 #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14)   // PB.14 input
 #define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13)   // PB.13 input
 
-#if defined(RADIO_PL18) || defined(RADIO_PL18EV)
+#if defined(RADIO_PL18) || defined(RADIO_PL18EV) || defined(RADIO_PL18U)
   #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOG, 3)    // PG.03 output
 #elif defined(RADIO_NV14_FAMILY)
   #define UCHARGER_EN_GPIO          GPIO_PIN(GPIOH, 11)   // PH.11 output
@@ -505,11 +556,17 @@
 #endif
 
 #if defined (WIRELESS_CHARGER)
-  #define WCHARGER_GPIO               GPIO_PIN(GPIOI, 9)  // PI.09 input
-  #define WCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOI, 10) // PI.10 input
-  #define WCHARGER_EN_GPIO            GPIO_PIN(GPIOH, 4)  // PH.04 output
-  #define WCHARGER_I_CONTROL_GPIO     GPIO_PIN(GPIOH, 13) // PH.13 output
-#endif
+  #define WCHARGER_GPIO               GPIO_PIN(GPIOI, 9)    // PI.09 input
+  #if defined(RADIO_PL18U)
+    #define WCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13) // PB.13 input
+  #else
+    #define WCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOI, 10) // PI.10 input
+  #endif
+  #define WCHARGER_EN_GPIO            GPIO_PIN(GPIOH, 4)    // PH.04 output
+  #if defined(RADIO_PL18) || defined(RADIO_PL18EV)
+    #define WCHARGER_I_CONTROL_GPIO     GPIO_PIN(GPIOH, 13) // PH.13 output
+  #endif
+#endif // defined(WIRELESS_CHARGER)
 
 // TODO! Check IOLL1 to PI.01 connectivity!
 
@@ -586,12 +643,14 @@
 #define USB_GPIO_AF                     GPIO_AF10
 
 #if defined(RADIO_NV14_FAMILY) 
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
-#define USB_SW_GPIO                     GPIO_PIN(GPIOI, 10) // PI.10
+  #define USB_GPIO_VBUS                 GPIO_PIN(GPIOA, 9)  // PA.09
+  #define USB_SW_GPIO                   GPIO_PIN(GPIOI, 10) // PI.10
+#elif defined(RADIO_PL18U)
+  #define USB_SW_GPIO                   GPIO_PIN(GPIOI, 5)  // PI.05
 #endif
 
 // LCD
-#define LCD_NRST_GPIO                   GPIO_PIN(GPIOG, 9) // PG.09
+#define LCD_NRST_GPIO                   GPIO_PIN(GPIOG, 9)  // PG.09
 #define LCD_SPI_CS_GPIO                 GPIO_PIN(GPIOE, 4)  // PE.04
 #define LCD_SPI_SCK_GPIO                GPIO_PIN(GPIOE, 2)  // PE.02
 #define LCD_SPI_MISO_GPIO               GPIO_PIN(GPIOE, 5)  // PE.05
@@ -631,9 +690,13 @@
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM8_UP_TIM13_IRQHandler
 #endif
 
-#if defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
   // SD card
-  #define SD_PRESENT_GPIO                 GPIO_PIN(GPIOH, 10) // PH.10
+  #if defined(RADIO_PL18U)
+    #define SD_PRESENT_GPIO               GPIO_PIN(GPIOH, 11) // PH.11
+  #else
+    #define SD_PRESENT_GPIO               GPIO_PIN(GPIOH, 10) // PH.10
+  #endif
   #define SD_SDIO_DMA                     DMA2
   #define SD_SDIO_DMA_STREAM              DMA2_Stream3
   #define SD_SDIO_DMA_CHANNEL             LL_DMA_CHANNEL_4
@@ -641,7 +704,11 @@
   #define SD_SDIO_DMA_IRQHANDLER          DMA2_Stream3_IRQHandler
   #define SD_SDIO_CLK_DIV(fq)             ((48000000 / (fq)) - 2)
   #define SD_SDIO_INIT_CLK_DIV            SD_SDIO_CLK_DIV(400000)
-  #define SD_SDIO_TRANSFER_CLK_DIV        SD_SDIO_CLK_DIV(24000000)
+  #if defined(RADIO_PL18U)
+    #define SD_SDIO_TRANSFER_CLK_DIV      SD_SDIO_CLK_DIV(12000000)
+  #else
+    #define SD_SDIO_TRANSFER_CLK_DIV      SD_SDIO_CLK_DIV(24000000)
+  #endif
 #endif
 
 // SPI NOR Flash
@@ -655,7 +722,7 @@
 #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
 #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
 
-#if defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
   #define STORAGE_USE_SDIO
 #else
   #define STORAGE_USE_SPI_FLASH
@@ -666,7 +733,7 @@
 #define SDRAM_RCC_AHB3Periph            RCC_AHB3Periph_FMC
 
 // Audio
-#if defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
   #define AUDIO_XDCS_GPIO               GPIO_PIN(GPIOH, 14) // PH.14
   #define AUDIO_CS_GPIO                 GPIO_PIN(GPIOH, 13) // PH.13
   #define AUDIO_DREQ_GPIO               GPIO_PIN(GPIOH, 15) // PH.15
@@ -685,7 +752,12 @@
   #define AUDIO_DMA                       DMA1
 #endif
 
-#if defined(RADIO_NV14_FAMILY)
+#if defined(RADIO_PL18U)
+  #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOI, 10)  // PI.10 audio amp control pin
+  #define AUDIO_UNMUTE_DELAY            120  // ms
+  #define AUDIO_MUTE_DELAY              500  // ms
+  #define INVERTED_MUTE_PIN
+#elif defined(RADIO_NV14_FAMILY)
   #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 8) // PH.08 audio amp control pin
   #define AUDIO_UNMUTE_DELAY            120  // ms
   #define AUDIO_MUTE_DELAY              500  // ms
@@ -774,8 +846,12 @@
 #endif
 
 // Internal Module
-#if defined(RADIO_PL18)
-  #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 0)  // PI.00
+#if defined(RADIO_PL18) || defined(RADIO_PL18U)
+  #if defined(RADIO_PL18U)
+    #define INTMODULE_PWR_GPIO            GPIO_PIN(GPIOI, 3)  // PI.03
+  #else
+    #define INTMODULE_PWR_GPIO            GPIO_PIN(GPIOI, 0)  // PI.00
+  #endif
   #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOF, 7) // PF.07
   #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOF, 6) // PF.06
   #define INTMODULE_USART                 UART7
@@ -844,7 +920,11 @@
 // External Module
 #define EXTMODULE
 #define EXTMODULE_PULSES
-#define EXTMODULE_PWR_GPIO              GPIO_PIN(GPIOD, 11) // PD.11
+#if defined(RADIO_PL18U)
+  #define EXTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 1) // PI.01
+#else
+  #define EXTMODULE_PWR_GPIO              GPIO_PIN(GPIOD, 11) // PD.11
+#endif
 #if defined(RADIO_NV14_FAMILY)
   #define EXTMODULE_PWR_FIX_GPIO          GPIO_PIN(GPIOA, 2)  // PA.02
 #endif
@@ -937,7 +1017,11 @@
 
 // SDRAM
 #define SDRAM_BANK1
+#if defined(RADIO_PL18U)
+  #define SDRAM_32MB
+#endif
 
+// LCD Settings
 #if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
   #define LCD_W                         320
   #define LCD_H                         480
