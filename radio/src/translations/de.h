@@ -272,6 +272,7 @@
 #define TR_BITMAP                      "Modellfoto"
 #define TR_NO_PICTURE                  "kein Foto"
 #define TR_TIMER                       "Timer"
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Erw. Limit", "Erw. Wege auf 150%")
 #define TR_ETRIMS                      TR("Erw. Trims", "Erw. Trim  auf 100%")
