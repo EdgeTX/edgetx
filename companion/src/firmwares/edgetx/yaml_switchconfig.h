@@ -69,7 +69,12 @@ struct SwitchConfig {
   std::string tag = std::string();
   char name[HARDWARE_NAME_LEN + 1] = {'\0'};
   unsigned int type = 0;
+  int start = 0;
   bool inverted = false;
+  unsigned int onColorLuaOverride = false;
+  unsigned int offColorLuaOverride = false;
+  RGBLedColor onColor;
+  RGBLedColor offColor;
 };
 
 ENCODE_DECODE_CONFIG(SwitchConfig)
@@ -87,3 +92,12 @@ INPUT_SWITCH_CONFIG(YamlSliderConfig, CPN_MAX_INPUTS, InputConfig, InputConfig)
 INPUT_SWITCH_CONFIG(YamlStickConfig, CPN_MAX_INPUTS, InputConfig, InputConfig)
 INPUT_SWITCH_CONFIG(YamlSwitchConfig, CPN_MAX_SWITCHES, SwitchConfig, SwitchConfig)
 INPUT_SWITCH_CONFIG(YamlSwitchesFlex, CPN_MAX_SWITCHES_FLEX, SwitchFlex, SwitchConfig)
+
+namespace YAML
+{
+template <>
+struct convert<RGBLedColor> {
+  static Node encode(const RGBLedColor& rhs);
+  static bool decode(const Node& node, RGBLedColor& rhs);
+};
+}

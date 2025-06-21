@@ -26,6 +26,13 @@ enum SwitchConfig {
   SWITCH_TOGGLE,
   SWITCH_2POS,
   SWITCH_3POS,
+#if defined(FUNCTION_SWITCHES)
+  SWITCH_GLOBAL,
+#endif
+  SWITCH_none = SWITCH_NONE,
+  SWITCH_toggle = SWITCH_TOGGLE,
+  SWITCH_2pos = SWITCH_2POS,
+  SWITCH_3pos = SWITCH_3POS,
 };
 
 enum FlexAnalogConfig {
@@ -40,9 +47,14 @@ enum FlexAnalogConfig {
 };
 
 enum fsStartPositionType {
-  FS_START_ON,
   FS_START_OFF,
+  FS_START_ON,
   FS_START_PREVIOUS
+};
+
+enum booleanEnum {
+  BOOL_OFF,
+  BOOL_ON
 };
 
 enum CalibrationState {

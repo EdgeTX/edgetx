@@ -157,6 +157,10 @@ class FunctionSwitchesPanel : public ModelPanel
     QVector<QComboBox *> cboGroups;
     QVector<QCheckBox *> cbAlwaysOnGroups;
     QVector<QComboBox *> cboGroupStartupPosns;
+    QVector<QPushButton *> btnOffColors;
+    QVector<QCheckBox *> cbOffLuaOverrides;
+    QVector<QPushButton *> btnOnColors;
+    QVector<QCheckBox *> cbOnLuaOverrides;
     QVector<FilteredGroupSwitchesModel *> filterGroupSwitches;
     QVector<FilteredSwitchGroupsModel *> filterSwitchGroups;
     QVector<FilteredSwitchConfigsModel *> filterSwitchConfigs;
