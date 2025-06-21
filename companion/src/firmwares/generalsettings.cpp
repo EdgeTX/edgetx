@@ -224,6 +224,8 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "pl18");
   else if (IS_FLYSKY_PL18EV(board))
     strcpy(bluetoothName, "pl18ev");
+  else if (IS_FLYSKY_PL18U(board))
+    strcpy(bluetoothName, "pl18u");
   else if (IS_FLYSKY_ST16(board))
     strcpy(bluetoothName, "st16");
   else if (IS_FAMILY_HORUS_OR_T16(board))

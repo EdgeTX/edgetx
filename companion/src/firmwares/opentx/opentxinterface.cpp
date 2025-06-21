@@ -302,7 +302,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 40;
     case HasAuxSerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))) ||
+      return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))) ||
              (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
              IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_MT12(board);
     case HasAux2SerialMode:
@@ -349,13 +349,15 @@ int OpenTxFirmware::getCapability(::Capability capability)
              IS_RADIOMASTER_MT12(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
-              IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board);
+              IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board);
     case BacklightLevelMin:
-      if (IS_HORUS_X12S(board))
+      if (IS_HORUS_X12S(board)) {
         return 5;
-      if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
+      } else if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)) {
         return 1;
-      return 46;
+      } else {
+        return 46;
+      }
     default:
       return 0;
   }

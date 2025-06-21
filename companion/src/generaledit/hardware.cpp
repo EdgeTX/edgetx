@@ -145,7 +145,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     }
   }
 
-  if (IS_FLYSKY_NV14(board)) {
+  if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) {
     addLabel(tr("Dead zone"));
     AutoComboBox *spnStickDeadZone = new AutoComboBox(this);
     spnStickDeadZone->setModel(GeneralSettings::stickDeadZoneItemModel());
