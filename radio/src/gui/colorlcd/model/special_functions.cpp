@@ -200,9 +200,13 @@ void FunctionLineButton::refresh()
       break;
 
     case FUNC_SET_TIMER:
-      sprintf(s + strlen(s), "%s%d = %s", STR_SRC_TIMER,
-              CFN_TIMER_INDEX(cfn) + 1,
-              getTimerString(CFN_PARAM(cfn), {.options = SHOW_TIME}));
+      if (isTimerSourceAvailable(CFN_TIMER_INDEX(cfn))) {
+        sprintf(s + strlen(s), "%s%d = %s", STR_SRC_TIMER,
+                CFN_TIMER_INDEX(cfn) + 1,
+                getTimerString(CFN_PARAM(cfn), {.options = SHOW_TIME}));
+      } else {
+        sprintf(s + strlen(s), "---");
+      }
       break;
 
     case FUNC_SET_FAILSAFE:
@@ -464,18 +468,22 @@ void FunctionEditPage::updateSpecialFunctionOneWindow()
 
     case FUNC_SET_TIMER: {
       new StaticText(line, rect_t{}, STR_TIMER);
-      auto timerchoice = new Choice(line, rect_t{}, 0, TIMERS - 1,
-                                    GET_SET_DEFAULT(CFN_TIMER_INDEX(cfn)));
-      timerchoice->setTextHandler([](int32_t value) {
-        return std::string(STR_TIMER) + std::to_string(value + 1);
-      });
-      timerchoice->setAvailableHandler(
-          [=](int value) { return isTimerSourceAvailable(value); });
+      if (timersSetupCount() > 0) {
+        auto timerchoice = new Choice(line, rect_t{}, 0, TIMERS - 1,
+                                      GET_SET_DEFAULT(CFN_TIMER_INDEX(cfn)));
+        timerchoice->setTextHandler([](int32_t value) {
+          return std::string(STR_TIMER) + std::to_string(value + 1);
+        });
+        timerchoice->setAvailableHandler(
+            [=](int value) { return isTimerSourceAvailable(value); });
 
-      line = specialFunctionOneWindow->newLine(grid);
-      new StaticText(line, rect_t{}, STR_VALUE);
-      new TimeEdit(line, rect_t{}, 0, 9 * 60 * 60 - 1,
-                   GET_SET_DEFAULT(CFN_PARAM(cfn)));
+        line = specialFunctionOneWindow->newLine(grid);
+        new StaticText(line, rect_t{}, STR_VALUE);
+        new TimeEdit(line, rect_t{}, 0, 9 * 60 * 60 - 1,
+                    GET_SET_DEFAULT(CFN_PARAM(cfn)));
+      } else {
+        new StaticText(line, rect_t{}, STR_NO_TIMERS);
+      }
       break;
     }
 
