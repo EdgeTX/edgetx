@@ -113,10 +113,10 @@ bool sticks_pwm_detect(const stick_pwm_timer_t* timer,
 
   if (!valid_input) {
     sticks_pwm_deinit(timer);
+  } else {
+    // mask gimbal inputs
+    stm32_hal_set_inputs_mask(0xF);
   }
-
-  // mask gimbal inputs
-  stm32_hal_set_inputs_mask(0xF);
 
   return valid_input;
 }
