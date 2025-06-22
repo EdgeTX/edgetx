@@ -87,18 +87,18 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
     }
 
     case SOURCE_TYPE_SPECIAL:
-      if (abs(index) == 1)  {       //Batt
+      if (abs(index) == 1)  {       // Batt
         result.step = 0.1;
         result.decimals = 1;
         result.max = 25.5;
         result.unit = tr("V");
       }
-      else if (abs(index) == 2) {   //Time
+      else if (abs(index) == 2) {   // Time
         result.step = 60;
         result.max = 24 * 60 * result.step - 60;  // 23:59:00 with 1-minute resolution
         result.unit = tr("s");
       }
-      else if (abs(index) == 3) {   //GPS
+      else if (abs(index) == 3) {   // GPS
         result.max = 30000;
         result.min = -result.max;
       }
