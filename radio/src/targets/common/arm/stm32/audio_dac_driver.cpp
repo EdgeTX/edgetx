@@ -91,7 +91,11 @@ void audioUnmute()
 
 #if defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
 
+#if defined(STM32H5)
 #define DAC_TRIGGER LL_DAC_TRIG_EXT_TIM6_TRGO
+#else
+#define DAC_TRIGGER LL_DAC_TRIG_EXT_TIM6_TRGO
+#endif
 
 // 16 bit, 1 channels
 #define DMA_BUFFER_HALF_LEN AUDIO_BUFFER_SIZE
@@ -171,7 +175,7 @@ static void dac_close_dma_xfer()
   LL_DMA_DisableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_DisableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
   // TODO: reset flags
-  LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_DisableChannel(AUDIO_DMA, AUDIO_DMA_Stream);
 }
 
 static void dac_start_dma()
@@ -179,7 +183,7 @@ static void dac_start_dma()
   // enable DMA stream and transfer complete interrupt
   LL_DMA_EnableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_EnableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
-  LL_DMA_EnableStream(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_EnableChannel(AUDIO_DMA, AUDIO_DMA_Stream);
 
   // clear underrun flag
   LL_DAC_ClearFlag_DMAUDR1(AUDIO_DAC);
@@ -190,7 +194,7 @@ static void dac_start_dma()
 
 void audioConsumeCurrentBuffer()
 {
-  if (!LL_DMA_IsEnabledStream(AUDIO_DMA, AUDIO_DMA_Stream)) {
+  if (!LL_DMA_IsEnabledChannel(AUDIO_DMA, AUDIO_DMA_Stream)) {
     if (!audio_update_dma_buffer(0)) {
 #if defined(AUDIO_MUTE_GPIO)
       audioUnmute();
@@ -349,6 +353,8 @@ static void dac_periph_init()
 {
 #if defined(LL_APB1_GRP1_PERIPH_DAC12)
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC12);
+#elif defined(LL_AHB2_GRP1_PERIPH_DAC1)
+  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_DAC1);
 #else
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC1);
 #endif
