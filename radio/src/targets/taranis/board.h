@@ -64,6 +64,8 @@ void rotaryEncoderCheck();
 
 #if defined(RADIO_FAMILY_T20)
 # define SECONDARY_BOOTLOADER_KEYS      0x1200
+#elif defined(RADIO_H5TEST)
+# define SECONDARY_BOOTLOADER_KEYS      0x10  // TODO: DELETE ME
 #endif
 
 extern uint16_t sessionTimer;
