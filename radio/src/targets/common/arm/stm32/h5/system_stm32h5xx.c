@@ -432,7 +432,7 @@ void GPDMA1_Channel1_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel2_IRQHandler() {  asm("BKPT"); }
 //void GPDMA1_Channel3_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel4_IRQHandler() {  asm("BKPT"); }
-void GPDMA1_Channel5_IRQHandler() {  asm("BKPT"); }
+//void GPDMA1_Channel5_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel6_IRQHandler() {  asm("BKPT"); }
 void GPDMA1_Channel7_IRQHandler() {  asm("BKPT"); }
 void IWDG_IRQHandler() {  asm("BKPT"); }
