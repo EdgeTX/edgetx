@@ -43,6 +43,7 @@ void menuRadioSpectrumAnalyser(event_t event)
   });
 
   if (menuEvent) {
+    moduleState[g_moduleIdx].mode = MODULE_MODE_NORMAL;
     lcdDrawCenteredText(LCD_H/2, STR_STOPPING);
     lcdRefresh();
 #if defined(PXX2)
