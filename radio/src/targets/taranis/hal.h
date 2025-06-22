@@ -2318,14 +2318,14 @@
   #define INTMODULE_USART                  USART10
   #define INTMODULE_USART_IRQHandler       USART10_IRQHandler
   #define INTMODULE_USART_IRQn             USART10_IRQn
-  #define INTMODULE_DMA                    GPDMA1
+/*  #define INTMODULE_DMA                    GPDMA1
   #define INTMODULE_DMA_STREAM             LL_DMA_CHANNEL_1
   #define INTMODULE_DMA_STREAM_IRQ         GPDMA1_Channel1_IRQn
   #define INTMODULE_DMA_STREAM_IRQHandler  GPDMA1_Channel1_IRQHandler
   #define INTMODULE_DMA_CHANNEL            LL_GPDMA1_REQUEST_USART10_TX
   #define INTMODULE_RX_DMA                 GPDMA1
   #define INTMODULE_RX_DMA_STREAM          LL_DMA_CHANNEL_2
-  #define INTMODULE_RX_DMA_CHANNEL         LL_GPDMA1_REQUEST_USART10_RX
+  #define INTMODULE_RX_DMA_CHANNEL         LL_GPDMA1_REQUEST_USART10_RX*/
 #elif defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_T20V2) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V12) || defined(RADIO_GX12) || defined(RADIO_BUMBLEBEE)
 #if defined(RADIO_T20V2)  || defined(RADIO_BUMBLEBEE)
   #define INTMODULE_BOOTCMD_GPIO           GPIO_PIN(GPIOE, 4) // PE.04
@@ -3087,12 +3087,20 @@
 #endif
 
 // Audio
+#if defined(RADIO_H5TEST)
 #define AUDIO_OUTPUT_GPIO               GPIO_PIN(GPIOA, 4)
+#define AUDIO_DMA                       GPDMA1
+#define AUDIO_DMA_Stream                LL_DMA_CHANNEL_5
+#define AUDIO_DMA_Stream_IRQn           GPDMA1_Channel5_IRQn
+#define AUDIO_DMA_Stream_IRQHandler     GPDMA1_Channel5_IRQHandler
+#define AUDIO_TIMER                     TIM6
+#define AUDIO_DAC                       DAC1
+#else
 #define AUDIO_DMA                       DMA1
 #define AUDIO_DMA_Stream                DMA1_Stream5
 #define AUDIO_DMA_Stream_IRQn           DMA1_Stream5_IRQn
 #define AUDIO_DMA_Stream_IRQHandler     DMA1_Stream5_IRQHandler
-#define AUDIO_TIMER                     TIM6
+#endif
 
 #if defined(PCBXLITES)
   #define JACK_DETECT_GPIO              GPIO_PIN(GPIOC, 13) // PC.13

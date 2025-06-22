@@ -154,7 +154,7 @@ void boardInit()
   disableUsbPdPins();
 #endif
 
-#if defined(AUDIO)
+#if defined(AUDIO) && defined(AUDIO_RCC_APB1Periph)
   LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
 #endif
 #if defined(LL_APB2_GRP1_PERIPH_SYSCFG)
