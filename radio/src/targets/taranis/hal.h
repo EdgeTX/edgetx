@@ -1900,14 +1900,23 @@
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_0  // PA.00
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_2  // PC.02
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_3  // PC.03
+  #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_0  // PC,00
+  #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_1  // PC.01
+  #define ADC_GPIO_PIN_SLIDER1          LL_GPIO_PIN_0  // PB.00
+  #define ADC_GPIO_PIN_SLIDER2          LL_GPIO_PIN_1  // PB.01
   #define ADC_GPIO_PIN_BATT             LL_GPIO_PIN_2  // PA.02
   #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_1  // ADC12_INP1
   #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_0  // ADC12_INP0
   #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_12 // ADC12_INP12
   #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_13 // ADC12_INP13
+  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_10 // ADC12_INP10
+  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_11 // ADC12_INP11
+  #define ADC_CHANNEL_SLIDER1           LL_ADC_CHANNEL_9  // ADC12_INP9
+  #define ADC_CHANNEL_SLIDER2           LL_ADC_CHANNEL_5  // ADC12_INP5
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_14 // ADC12_INP14
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_BATT)
-  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH)
+  #define ADC_GPIOB_PINS                (ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_SLIDER2)
+  #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2)
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX7)
   #define HARDWARE_POT1
@@ -2024,7 +2033,7 @@
 #elif defined(RADIO_V12)
   #define ADC_DIRECTION {1,-1,1,-1, -1,-1,1, 0, 1,1,1,1 }
 #elif defined(RADIO_H5TEST)
-  #define ADC_DIRECTION {-1,1,-1,1,  1,1}
+  #define ADC_DIRECTION {-1,1,-1,1,  1,1, 1,1}
 #elif defined(PCBX7)
   #define ADC_DIRECTION {-1,1,-1,1,  1,1,  1,  1}
 #elif defined(PCBX9LITE)
