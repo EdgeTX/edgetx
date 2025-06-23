@@ -1480,9 +1480,9 @@
 // ADC
 
 #if defined(STM32H5)
-  #define ADC_MAIN                      ADC1
+  #define ADC_MAIN                      ADC2	// RTC bat reading is only available on ADC2
   #define ADC_DMA                       GPDMA1
-  #define ADC_DMA_CHANNEL               LL_GPDMA1_REQUEST_ADC1
+  #define ADC_DMA_CHANNEL               LL_GPDMA1_REQUEST_ADC2
   #define ADC_DMA_STREAM                LL_DMA_CHANNEL_0
   #define ADC_DMA_STREAM_IRQ            GPDMA1_Channel0_IRQn
   #define ADC_DMA_STREAM_IRQHandler     GPDMA1_Channel0_IRQHandler
