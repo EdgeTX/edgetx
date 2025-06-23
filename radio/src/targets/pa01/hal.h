@@ -425,8 +425,8 @@
 #define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
 
 #define TRAINER_TIMER                   TIM1
-#define TRAINER_TIMER_IRQn              TIM1_UP_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM1_IRQHandler
+#define TRAINER_TIMER_IRQn              TIM1_CC_IRQn
+#define TRAINER_TIMER_IRQHandler        TIM1_CC_IRQHandler
 #define TRAINER_GPIO_AF                 LL_GPIO_AF_1
 #define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
