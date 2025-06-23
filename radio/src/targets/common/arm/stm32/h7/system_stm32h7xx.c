@@ -474,7 +474,7 @@ void FDCAN2_IT1_IRQHandler(void){asm("BKPT");}
 void TIM1_BRK_IRQHandler(void){asm("BKPT");}
 void TIM1_UP_IRQHandler(void){asm("BKPT");}
 void TIM1_TRG_COM_IRQHandler(void){asm("BKPT");}
-void TIM1_CC_IRQHandler(void){asm("BKPT");}
+//void TIM1_CC_IRQHandler(void){asm("BKPT");}
 void TIM2_IRQHandler(void){asm("BKPT");}
 // void TIM3_IRQHandler(void){asm("BKPT");}
 // void TIM4_IRQHandler(void){asm("BKPT");}
