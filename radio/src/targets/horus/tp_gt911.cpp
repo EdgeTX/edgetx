@@ -656,13 +656,11 @@ struct TouchState touchPanelRead()
 #if defined(CSD203_SENSOR)
   for(int a=0;a<6;a++)
   {//IIC bus preemption
-    if(IICReadStatusFlag==false) 
-    {
+    if(IICReadStatusFlag==false){
       IICReadStatusFlag=true;
       break;
     } 
-    else if(a>6)
-    {
+    else if(a>6){
       return internalTouchState;
     }
     delay_us(10);
