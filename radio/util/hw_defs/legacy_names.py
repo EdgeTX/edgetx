@@ -344,7 +344,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"gx12"},
+        "targets": {"gx12", "h5test"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
