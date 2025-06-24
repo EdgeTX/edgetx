@@ -784,6 +784,7 @@ static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
 static const struct YamlNode struct_stickConfig[] = {
     YAML_IDX,
     YAML_CUSTOM( "name", r_stick_name, w_stick_name),
+    YAML_UNSIGNED("inv", STICK_CFG_INV_BITS),
     YAML_END
 };
 
