@@ -480,9 +480,17 @@ void menuRadioHardware(event_t event)
       default:
         if (k <= ITEM_RADIO_HARDWARE_STICK_END) {
           // Sticks
+          LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
+          int idx = k - ITEM_RADIO_HARDWARE_STICK;
+
           editStickHardwareSettings(HW_SETTINGS_COLUMN1, y,
-                                    k - ITEM_RADIO_HARDWARE_STICK, event,
-                                    attr, old_editMode);
+                                    idx, event, attr, old_editMode);
+          // ADC inversion
+          flags = menuHorizontalPosition == 2 ? attr : 0;
+          bool stickinversion = getStickInversion(idx);
+          lcdDrawChar(LCD_W - 8, y, stickinversion ? 127 : 126, flags);
+          if (flags & (~RIGHT)) stickinversion = checkIncDec(event, stickinversion, 0, 1, EE_GENERAL);
+          setStickInversion(idx, stickinversion);
 
         } else if (k <= ITEM_RADIO_HARDWARE_POT_END) {
           // Pots & sliders
