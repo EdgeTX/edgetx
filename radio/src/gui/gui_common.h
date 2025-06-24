@@ -85,6 +85,8 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions);
 bool isPotTypeAvailable(uint8_t type);
 bool isFlexSwitchSourceValid(int source);
 bool getPotInversion(int index);
+bool getStickInversion(int index);
+void setStickInversion(int index, bool value);
 void setPotInversion(int index, bool value);
 uint8_t getPotType(int index);
 void setPotType(int index, int value);
