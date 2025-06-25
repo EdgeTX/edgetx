@@ -271,6 +271,7 @@
     #define TR_BL_ERASE_FLASH              "Erase Flash Storage"
     #define TR_BL_ERASE_FLASH_MSG          "This may take up to 200s"
     #define TR_BL_RF_USB_ACCESS            "RF USB access"
+    #define TR_BL_CURRENT_FW               "Current firmware:"
 
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " per scegliere il file"
     #define TR_BL_FLASH_KEY                "Tenere premuto " BL_SELECT_KEY " per scrivere"
