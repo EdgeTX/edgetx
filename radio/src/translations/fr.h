@@ -240,6 +240,7 @@
 #if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[SUIVANT]"
 #else
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENTER]"
 #endif
 
@@ -440,7 +441,9 @@
   #define TR_SETMIDPOINT               "REGLER NEUTRES"
   #define TR_MOVESTICKSPOTS            "BOUGER STICKS/POTS"
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"

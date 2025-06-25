@@ -245,6 +245,7 @@
   #define TR_ENTER                     "[DALŠÍ]"
 #else
   #define TR_ENTER                     "[ENTER]"
+  #define TR_ENTER_LONG                "[ENTER LONG]"
 #endif
 
 #if defined(PCBHORUS)
@@ -449,7 +450,9 @@
   #define TR_MOVESTICKSPOTS            "HÝBAT OSY/POTY"
 #endif
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "ŽÁDNÁ DATA"
 #define TR_US                          "us"
