@@ -274,6 +274,7 @@
 #define TR_TIMER                       TR("Таймер", "Таймер ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"	/* use english */
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("Розш.Ліміт", "Розширені Ліміти")
 #define TR_ETRIMS                      TR("Розш.Трим.", "Розширене Обрізання")  /* ned to be clarified by context */
 #define TR_TRIMINC                     "Крок трим."
@@ -423,12 +424,7 @@
 #define TR_CALIBRATION                 "Калібрув."
 #define TR_VTRIM                       "Трим - +"
 #define TR_CALIB_DONE                  "Калібрування завершене"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Тисни [Enter] для старту"
-  #define TR_SETMIDPOINT               "Центруй важіль/потенц./повзунки та тисни [Enter]"
-  #define TR_MOVESTICKSPOTS            "Рухайте вісі/потенц./повзунки та тисніть [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " ДЛЯ СТАРТУ"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "ЦЕНТРУВАТИ ВАЖЕЛІ/ПОВЗУНКИ"
   #define TR_MOVESTICKSPOTS            "РУХАЙТЕ ВІСІ/ПОТЕНЦ."
 #else
@@ -441,9 +437,9 @@
   #define TR_MOVESTICKSPOTS            "РУХАЙТЕ ВІСІ/ПОТЕНЦ."
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " КОЛИ ЗАКІНЧЕНО"
-#endif
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
 #define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "НЕМАЄ ДАНИХ"

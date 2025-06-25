@@ -275,6 +275,7 @@
 #define TR_TIMER                       "Crono"
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Iniciar"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("E.Limites", "Limites extend.")
 #define TR_ETRIMS                      TR("E.Trims", "Trims extend.")
 #define TR_TRIMINC                     "PassoTrim"
@@ -424,12 +425,7 @@
 #define TR_CALIBRATION                 "Calibração"
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Calibração completa"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Press [Enter] p/ iniciar"
-  #define TR_SETMIDPOINT               "Centrar eixos/pots/sliders e press. [Enter]"
-  #define TR_MOVESTICKSPOTS            "Mova eixos/pots/sliders e press. [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " P/ INICIAR"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "CENTRE EIXO/SLIDERS"
   #define TR_MOVESTICKSPOTS            "MOVA EIXO/POTS"
 #else
@@ -442,9 +438,9 @@
   #define TR_MOVESTICKSPOTS            "MOVA AXIS/POTS"
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " QUANDO TERM."
-#endif
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
 #define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "SEM DADOS"

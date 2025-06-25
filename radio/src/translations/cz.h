@@ -262,7 +262,6 @@
   #define TR_POPUPS_ENTER_EXIT         TR_ENTER "\010" TR_EXIT
 #endif
 
-#define TR_MENUWHENDONE                TR_ENTER " > DALŠÍ"
 #define TR_FREE                        TR("volné:", "volných")
 #define TR_YES                         "Ano"
 #define TR_NO                          "Ne"
@@ -282,6 +281,7 @@
 #define TR_TIMER                       "Stopky"
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("Limit +25%", "Kanál +/- 125%")
 #define TR_ETRIMS                      TR("širší Trim", "Široký trim")
 #define TR_TRIMINC                     TR("Krok Trimu", "Krok trimu")
@@ -432,12 +432,7 @@
 #define TR_CALIBRATION                 "Kalibrace"
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Kalibrace dokončena"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Stiskem [ENTER] začneme"
-  #define TR_SETMIDPOINT               "Vycentruj páky/poty/slidery a stiskni [ENTER]"
-  #define TR_MOVESTICKSPOTS            "Hýbat osy/poty/slidery a stisknout [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER "= START"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "VYCENTROVAT OSY/SLIDERY"
   #define TR_MOVESTICKSPOTS            "HÝBAT OSY/POTY"
 #else
@@ -449,9 +444,10 @@
   #define TR_SETMIDPOINT               TR("NASTAVIT STŘED OSY", "STŘED OSY/SLIDERU")
   #define TR_MOVESTICKSPOTS            "HÝBAT OSY/POTY"
 #endif
-#endif
+  #define TR_MENUWHENDONE              TR_ENTER " > DALŠÍ"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
 #define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "ŽÁDNÁ DATA"

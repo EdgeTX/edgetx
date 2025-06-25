@@ -276,6 +276,7 @@
 #define TR_TIMER                       TR("שעון", "שעון ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "התחלה"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("E.Limits", "הרחב תצוגות")
 #define TR_ETRIMS                      TR("E.Trims", "הרחב תצוגות")
 #define TR_TRIMINC                     "רגישות קיזוז"
@@ -425,22 +426,22 @@
 #define TR_CALIBRATION                 "כיול"
 #define TR_VTRIM                       "קיזוז - +"
 #define TR_CALIB_DONE                  "כיול הושלם"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Press [Enter] to start"
-  #define TR_SETMIDPOINT               "Center sticks/pots/sliders and press [Enter]"
-  #define TR_MOVESTICKSPOTS            "Move sticks/pots/sliders and press [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " TO START"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "CENTER STICKS/SLIDERS"
   #define TR_MOVESTICKSPOTS            "MOVE STICKS/POTS"
 #else
   #define TR_MENUTOSTART               TR_ENTER " TO START"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
+#else
   #define TR_SETMIDPOINT               TR("SET STICKS MIDPOINT", "CENTER STICKS/SLIDERS")
   #define TR_MOVESTICKSPOTS            "MOVE STICKS/POTS"
-  #define TR_MENUWHENDONE              TR_ENTER " WHEN DONE"
 #endif
+  #define TR_MENUWHENDONE              TR_ENTER " WHEN DONE"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
 #define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"

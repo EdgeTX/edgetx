@@ -275,6 +275,7 @@
 #define TR_TIMER                       TR("Tid", "Tid ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("Udv.Grænser", "Udvidet grænser")
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")
 #define TR_TRIMINC                     "Trim øge"
@@ -426,22 +427,22 @@
 #define TR_CALIBRATION                 "Kalibrering"
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Kalibrering færdig"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Tryk [Enter] for start"
-  #define TR_SETMIDPOINT               "Centrer pinde/drejekontakter/skydere og tryk [Enter]"
-  #define TR_MOVESTICKSPOTS            "Flyt pinde/drejekontakter/skydere og tryk [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " FOR START"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "CENTRER PINDE/SKYDER"
   #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKT"
 #else
   #define TR_MENUTOSTART               TR_ENTER " FOR START"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
+#else
   #define TR_SETMIDPOINT               TR("SÆT PINDE I MIDT", "CENTRER PINDE/SKYDERE")
   #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKTER"
-  #define TR_MENUWHENDONE              TR_ENTER " NÅR FÆRDIG"
 #endif
+  #define TR_MENUWHENDONE              TR_ENTER " NÅR FÆRDIG"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
 #define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "INGEN DATA"
