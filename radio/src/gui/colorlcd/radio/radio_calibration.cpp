@@ -27,6 +27,8 @@
 #include "view_main_decoration.h"
 #include "hw_inputs.h"
 
+#include <memory>
+
 uint8_t menuCalibrationState;
 
 static const uint8_t stick_pointer[] = {
