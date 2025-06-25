@@ -269,6 +269,7 @@
 #define TR_TIMER               TR("Timer", "Timer ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START               "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS             TR("E.Limits", "Extended Limits")
 #define TR_ETRIMS              TR("E.Trims", "Extended Trims")
 #define TR_TRIMINC             "Trim Step"
@@ -419,23 +420,22 @@
 #define TR_CALIBRATION         "Calibration"
 #define TR_VTRIM               "Trim - +"
 #define TR_CALIB_DONE          "Calibration completed"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART       "Geef [Enter] om te starten"
-  #define TR_SETMIDPOINT       "Centreer sticks/pots/schuiven en geef [Enter]"
-  #define TR_MOVESTICKSPOTS    "Beweeg sticks/pots/schuiven en geef [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART       TR_ENTER " VOOR START"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT       "CENTREER STICKS/SLIDERS"
   #define TR_MOVESTICKSPOTS    "BEWEEG STICKS/POTS"
-  #define TR_MENUWHENDONE      TR_ENTER " BIJ GEREED"
 #else
   #define TR_MENUTOSTART       TR_ENTER " VOOR START"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
+#else
   #define TR_SETMIDPOINT       TR("ZET STICKS NAAR HET MIDDEN", "CENTREER STICKS/SLIDERS")
   #define TR_MOVESTICKSPOTS    "BEWEEG STICKS/POTS"
-  #define TR_MENUWHENDONE      TR_ENTER " BIJ GEREED"
 #endif
+  #define TR_MENUWHENDONE      TR_ENTER " BIJ GEREED"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
 #define TR_TXnRX              "Tx:\0Rx:"
 #define OFS_RX                 4
 #define TR_NODATA              "Geen Data"

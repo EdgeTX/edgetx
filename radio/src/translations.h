@@ -278,6 +278,7 @@ extern const char STR_NO_PICTURE[];
 extern const char STR_TIMER[];
 extern const char STR_NO_TIMERS[];
 extern const char STR_START[];
+extern const char STR_NEXT[];
 extern const char STR_ELIMITS[];
 extern const char STR_ETRIMS[];
 extern const char STR_TRIMINC[];

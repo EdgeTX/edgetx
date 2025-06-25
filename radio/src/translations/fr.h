@@ -258,7 +258,6 @@
   #define TR_POPUPS_ENTER_EXIT         TR_ENTER "\010" TR_EXIT
 #endif
 
-#define TR_MENUWHENDONE                TR_ENTER " QUAND PRÊT"
 #define TR_FREE                        "disp."
 #define TR_YES                         "Oui"
 #define TR_NO                          "Non"
@@ -278,6 +277,7 @@
 #define TR_TIMER                       "Chrono "
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("Limites ét.", "Limites étendues")
 #define TR_ETRIMS                      TR("Trims ét.", "Trims étendus")
 #define TR_TRIMINC                     TR("Pas Trim", "Pas du trim")
@@ -428,21 +428,22 @@
 #define TR_CALIBRATION                 "Calibration"
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Calibration terminée"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Appui [Enter] pour commencer"
-  #define TR_SETMIDPOINT               "Centrer manches/pots/curseurs puis [Enter]"
-  #define TR_MOVESTICKSPOTS            "Bouger manches/pots/curseurs puis [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " POUR DÉBUTER"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "RÉGLER NEUTRES"
   #define TR_MOVESTICKSPOTS            "BOUGER STICKS/POTS"
 #else
   #define TR_MENUTOSTART               TR_ENTER " POUR DÉBUT"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
+#else
   #define TR_SETMIDPOINT               "REGLER NEUTRES"
   #define TR_MOVESTICKSPOTS            "BOUGER STICKS/POTS"
 #endif
+  #define TR_MENUWHENDONE              TR_ENTER " QUAND PRÊT"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
 #define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
