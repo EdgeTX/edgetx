@@ -229,6 +229,7 @@
 #endif
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENTER]"
 #elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
@@ -437,7 +438,9 @@
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " = KONIEC"
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#define TR_TXnRX                     "Tx:\0Rx:"
 #define OFS_RX                        4
 #define TR_NODATA                     "Brak Danych"
 #define TR_US                         "us"
