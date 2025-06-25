@@ -461,7 +461,9 @@
  #define TR_MENUWHENDONE               TR_ENTER " -> 완료"
 #endif
 
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                       "데이터 없음"
 #define TR_US                          "us"

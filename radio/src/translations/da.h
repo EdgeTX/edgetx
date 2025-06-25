@@ -238,6 +238,7 @@
 #if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NÆSTE]"
 #else
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENTER]"
 #endif
 
@@ -439,7 +440,9 @@
   #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKTER"
   #define TR_MENUWHENDONE              TR_ENTER " NÅR FÆRDIG"
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "INGEN DATA"
 #define TR_US                          "us"

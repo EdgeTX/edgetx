@@ -245,6 +245,7 @@
 
 
 #if defined(PCBFRSKY)
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                      "[ENTER]"
 #elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                      "[NÄSTA]"
@@ -457,7 +458,9 @@
   #define TR_MENUWHENDONE               TR_ENTER " AVSLUTAR"
 #endif
 
-#define TR_TXnRX                        "Tx:\0Rx:"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                          4
 #define TR_NODATA                       "DATA SAKNAS"
 #define TR_US                           "us"

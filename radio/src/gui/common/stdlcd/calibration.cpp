@@ -27,8 +27,7 @@
 
 void menuCommonCalibOptions(event_t event)
 {
-  SIMPLE_MENU("STICK OPTIONS", menuTabGeneral, MENU_RADIO_HARDWARE,
-              HEADER_LINE+4);
+  SIMPLE_SUBMENU(STR_AXISDIR, HEADER_LINE+4);
   uint8_t sub = menuVerticalPosition;
 
   coord_t y = MENU_HEADER_HEIGHT + 1;
@@ -86,7 +85,7 @@ void menuCommonCalib(event_t event)
     case CALIB_MOVE_STICKS:
       // MOVE STICKS/POTS
       lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT, STR_MOVESTICKSPOTS, INVERS|CENTERED);
-      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+FH, "[ENTER LONG]: AXIS DIR", CENTERED);
+      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+FH, STR_MENUAXISDIR, CENTERED);
       lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+2*FH, STR_MENUWHENDONE, CENTERED);
       adcCalibSetMinMax();
       break;

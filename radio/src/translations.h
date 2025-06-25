@@ -471,6 +471,8 @@ extern const char STR_MENUTOSTART[];
 extern const char STR_SETMIDPOINT[];
 extern const char STR_MOVESTICKSPOTS[];
 extern const char STR_TX[];
+extern const char STR_AXISDIR[];
+extern const char STR_MENUAXISDIR[];
 #define STR_RX (STR_TX+OFS_RX)
 extern const char STR_NODATA[];
 extern const char STR_US[];
