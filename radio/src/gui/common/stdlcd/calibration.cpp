@@ -33,6 +33,7 @@ void menuCommonCalibOptions(event_t event)
 
   coord_t y = MENU_HEADER_HEIGHT + 1;
   lcdDrawTextAlignedLeft(y, STR_STICKS);
+  lcdDrawText(LCD_W / 3 * 2, y, STR_MENU_INVERT, CENTERED);
   y+=FH;
   for(uint8_t i = 0; i < 4; i++) {
     uint8_t k = i + menuVerticalOffset;
@@ -41,7 +42,7 @@ void menuCommonCalibOptions(event_t event)
     lcdDrawTextIndented(y, STR_CHAR_STICK);
     lcdDrawText(lcdNextPos, y, analogGetCanonicalName(ADC_INPUT_MAIN, i), 0);
     bool stickInversion = getStickInversion(i);
-    lcdDrawText(LCD_W / 2, y, stickInversion ? TR_INVERTED : "---", attr);
+    lcdDrawChar(LCD_W / 3 * 2, y, stickInversion ? 127 : 126, attr);
     if (attr) stickInversion = checkIncDec(event, stickInversion, 0, 1, EE_GENERAL);
     setStickInversion(i, stickInversion);
     y+=FH;
@@ -85,7 +86,7 @@ void menuCommonCalib(event_t event)
     case CALIB_MOVE_STICKS:
       // MOVE STICKS/POTS
       lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT, STR_MOVESTICKSPOTS, INVERS|CENTERED);
-      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+FH, "[ENTER LONG]: options", CENTERED);
+      lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+FH, "[ENTER LONG]: AXIS DIR", CENTERED);
       lcdDrawText(LCD_W/2, MENU_HEADER_HEIGHT+2*FH, STR_MENUWHENDONE, CENTERED);
       adcCalibSetMinMax();
       break;
