@@ -22,6 +22,7 @@
 #include "opentxsimulator.h"
 #include "edgetx.h"
 #include "simulcd.h"
+#include "simuaudio.h"
 #include "switches.h"
 #include "serial.h"
 #include "myeeprom.h"
@@ -87,18 +88,6 @@ void firmwareTraceCb(const char * text)
     if (dev)
       dev->write(text);
   }
-}
-
-void fsLedRGB(uint8_t idx, uint32_t color)
-{
-}
-
-void fsLedOn(uint8_t idx)
-{
-}
-
-void fsLedOff(uint8_t idx)
-{
 }
 
 // Serial port handling needs to know about OpenTxSimulator, so we we
@@ -283,7 +272,7 @@ void OpenTxSimulator::start(const char * filename, bool tests)
 
   QMutexLocker lckr(&m_mtxSimuMain);
   QMutexLocker slckr(&m_mtxSettings);
-  startAudio(volumeGain);
+  simuAudioInit();
   simuStart(tests, simuSdDirectory.toLatin1().constData(),
             simuSettingsDirectory.toLatin1().constData());
 
@@ -301,6 +290,7 @@ void OpenTxSimulator::stop()
 
   QMutexLocker lckr(&m_mtxSimuMain);
   simuStop();
+  simuAudioDeInit();
 
   emit stopped();
 }
