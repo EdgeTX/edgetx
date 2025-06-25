@@ -699,18 +699,12 @@ Functions cfn_sorted[] = {
 #elif defined(TRANSLATIONS_RU)
   /* Bind модуль */ FUNC_BIND,
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD в видео */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lua скрипт */ FUNC_PLAY_SCRIPT,
   /* Play Value */ FUNC_PLAY_VALUE,
-#if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
-#endif
   /* RGB подсветка */ FUNC_RGB_LED,
   /* SD логи */ FUNC_LOGS,
-#if !defined(COLORLCD)
-  /* Set Screen */ FUNC_SET_SCREEN,
-#endif
   /* Авар управ */ FUNC_SET_FAILSAFE,
   /* Варио */ FUNC_VARIO,
   /* Вибро */ FUNC_HAPTIC,
@@ -724,6 +718,9 @@ Functions cfn_sorted[] = {
   /* Мгнов трим */ FUNC_INSTANT_TRIM,
   /* Муз || */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Муз фон */ FUNC_BACKGND_MUSIC,
+#if defined(FUNCTION_SWITCHES)
+  /* Нажать CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* Настройка */ FUNC_ADJUST_GVAR,
   /* Оменить */ FUNC_OVERRIDE_CHANNEL,
 #if defined(OLED_SCREEN)
@@ -744,6 +741,9 @@ Functions cfn_sorted[] = {
   /* Тест */ FUNC_TEST,
 #endif
   /* Установ */ FUNC_SET_TIMER,
+#if !defined(COLORLCD)
+  /* Устан экран */ FUNC_SET_SCREEN,
+#endif
 #elif defined(TRANSLATIONS_SE)
   /* Audioförstärkare av */ FUNC_DISABLE_AUDIO_AMP,
 #if !defined(OLED_SCREEN)
