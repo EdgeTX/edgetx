@@ -29,6 +29,18 @@ set -e
 # zh_TW.UTF-8 / zh_TW.utf8
 # uk_UA.UTF-8 / uk_UA.utf8
 
+# Get the directory where this script is located and the project root
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Define paths relative to project root
+TOOLS_DIR="${PROJECT_ROOT}/tools"
+RADIO_SRC_DIR="${PROJECT_ROOT}/radio/src"
+CFN_SORTER_CPP="${TOOLS_DIR}/cfn_sorter.cpp"
+COPYRIGHT_HEADER="${TOOLS_DIR}/copyright-header.txt"
+OUTPUT_FILE="${RADIO_SRC_DIR}/cfn_sort.cpp"
+EXECUTABLE="${SCRIPT_DIR}/a.out"
+
 # Determine the compiler to use
 if command -v g++ >/dev/null 2>&1; then
     CXX=g++
@@ -49,38 +61,40 @@ compile_and_append() {
 
   echo "Compiling ${translation_macro} (${lng_macro}) ..."
 
-  $CXX -std=c++11 -lstdc++ -Wfatal-errors -D${lng_macro} tools/cfn_sorter.cpp
+  # Change to script directory for compilation
+  cd "${SCRIPT_DIR}"
+  $CXX -std=c++11 -lstdc++ -Wfatal-errors -D${lng_macro} "${CFN_SORTER_CPP}"
   {
     if [ "$condition" = "else" ]; then
       echo "#${condition}"
     else
       echo "#${condition} defined(${translation_macro})"
     fi
-    ./a.out
-  } >> radio/src/cfn_sort.cpp
+    "${EXECUTABLE}"
+  } >> "${OUTPUT_FILE}"
 }
 
-rm radio/src/cfn_sort.cpp
+# Ensure output directory exists
+mkdir -p "${RADIO_SRC_DIR}"
 
-# Copyright header
-cat tools/copyright-header.txt > radio/src/cfn_sort.cpp
+# Remove existing output file
+rm -f "${OUTPUT_FILE}"
 
-# Start of cfn_sort.cpp
-echo "Compiling TRANSLATIONS_CN (LNG_CN) ..."
-$CXX -std=c++11 -lstdc++ -Wfatal-errors -DLNG_CN tools/cfn_sorter.cpp
-{
-cat <<EOF >> radio/src/cfn_sort.cpp
+# Start the file with boilerplate copyright header
+cat "${COPYRIGHT_HEADER}" > "${OUTPUT_FILE}"
+
+# Add the rest of the file header
+cat <<EOF >> "${OUTPUT_FILE}"
 // This file is auto-generated via cfn_sorter.sh. Do not edit.
 
 #include "dataconstants.h"
 
 Functions cfn_sorted[] = {
-#if defined(TRANSLATIONS_CN)
 EOF
-./a.out
-} >> radio/src/cfn_sort.cpp
 
-# Languages
+# Languages - compile and append each translation
+compile_and_append "LNG_CN" "TRANSLATIONS_CN" "if"
+
 compile_and_append "LNG_CZ" "TRANSLATIONS_CZ" "elif"
 compile_and_append "LNG_DA" "TRANSLATIONS_DA" "elif"
 compile_and_append "LNG_DE" "TRANSLATIONS_DE" "elif"
@@ -99,11 +113,10 @@ compile_and_append "LNG_SE" "TRANSLATIONS_SE" "elif"
 compile_and_append "LNG_TW" "TRANSLATIONS_TW" "elif"
 compile_and_append "LNG_UA" "TRANSLATIONS_UA" "elif"
 
-# Final else case
 compile_and_append "LNG_EN" "TRANSLATIONS_EN" "else"
 
 # End of cfn_sort.cpp
-cat <<EOF >> radio/src/cfn_sort.cpp
+cat <<EOF >> "${OUTPUT_FILE}"
 #endif
 };
 
@@ -116,4 +129,5 @@ uint8_t getFuncSortIdx(uint8_t func)
 }
 EOF
 
-[ -f ./a.out ] && rm ./a.out
+# Clean up
+[ -f "${EXECUTABLE}" ] && rm "${EXECUTABLE}"
