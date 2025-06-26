@@ -372,6 +372,39 @@ void handle_battery_charge(uint32_t last_press_time)
 
 #define BRIGHTNESS_MAX 255
 
+void rgbPowerOn(uint8_t color) {
+  // Sequential RGB On
+  static uint8_t power_on_step = RGB_STEP_POWER_AROUND;
+  switch (power_on_step)
+  {
+    case RGB_STEP_POWER_AROUND:
+      setLedGroupColor(4, color, BRIGHTNESS_MAX);
+      setLedGroupColor(5, color, BRIGHTNESS_MAX);
+      setLedGroupColor(6, color, BRIGHTNESS_MAX);
+      break;
+
+    case RGB_STEP_FUNC1:
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      break;
+      
+    case RGB_STEP_FUNC2:
+      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      break;   
+
+    case RGB_STEP_FUNC3:
+      setLedGroupColor(2, color, BRIGHTNESS_MAX);
+      break;  
+
+    case RGB_STEP_FUNC4:
+      setLedGroupColor(3, color, BRIGHTNESS_MAX);
+      break;  
+
+  default:
+    break;
+  }
+  power_on_step++;
+}
+
 void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
   uint8_t color = 0;
   uint8_t breath_index = 0;
@@ -451,6 +484,10 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
   case RGB_STATE_CHARGE:
     breath_index |= RGB_GROUP_MASK_AROUND_L | RGB_GROUP_MASK_AROUND_R | RGB_GROUP_MASK_POWER;
     ledSetGroup(breath_index);
+    break;
+  
+  case RGB_STATE_POWER_ON:
+    rgbPowerOn(color);
     break;
   
   default:
