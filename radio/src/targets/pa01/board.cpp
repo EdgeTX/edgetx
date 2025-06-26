@@ -226,7 +226,7 @@ void boardInit()
   
   flysky_gimbal_init();
   usbInit();
-  rgbLedInit();
+  rgbChargeInit(); // RTOS was not running, timer_create will prevent the ADC from reading.
 
   rotaryEncoderInit();
 
@@ -354,6 +354,7 @@ void boardInit()
 #endif  
 #endif
 
+  rgbLedInit();
   rgbLedClearAll();
   keysInit();
   switchInit();
