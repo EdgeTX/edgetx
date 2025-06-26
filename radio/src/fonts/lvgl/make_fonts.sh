@@ -5,11 +5,18 @@ set -euo pipefail
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RADIO_SRC_DIR="$(realpath "${SCRIPT_DIR}/../..")"
+RADIO_SRC_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 TRANSLATIONS_DIR="${RADIO_SRC_DIR}/translations"
 
 SYMBOLS_FONT="${RADIO_SRC_DIR}/thirdparty/lvgl/scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff"
-SYMBOLS_FONT_REL="$(realpath --relative-to="${SCRIPT_DIR}" "${SYMBOLS_FONT}")"
+# test if realpath supports --relative-to as macOS BSD version doesn't
+if realpath --relative-to="." "." >/dev/null 2>&1; then
+    # GNU realpath with --relative-to support
+    SYMBOLS_FONT_REL="$(realpath --relative-to="${SCRIPT_DIR}" "${SYMBOLS_FONT}")"
+else
+    # BSD realpath or no realpath - use hardcoded relative path
+    SYMBOLS_FONT_REL="../../thirdparty/lvgl/scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff"
+fi
 SYMBOLS="61441,61448,61451,61452,61453,61457,61459,61461,61465,61468,61473,61478,61479,61480,61502,61507,61512,61515,61516,61517,61521,61522,61523,61524,61543,61544,61550,61552,61553,61556,61559,61560,61561,61563,61587,61589,61636,61637,61639,61641,61664,61671,61674,61683,61724,61732,61787,61931,62016,62017,62018,62019,62020,62087,62099,62212,62189,62810,63426,63650"
 
 EXTRA_FONT="EdgeTX/extra.ttf"
@@ -40,6 +47,14 @@ check_dependencies() {
     if ! command -v lv_font_conv >/dev/null 2>&1; then
         echo "ERROR: lv_font_conv not found. Please install it from https://github.com/lvgl/lv_font_conv or npm registry" >&2
         exit 1
+    fi
+    
+    # Check if we're on macOS and provide helpful info about realpath
+    if [[ "$(uname)" == "Darwin" ]]; then
+        if ! realpath --relative-to="." "." >/dev/null 2>&1; then
+            echo "INFO: Using BSD realpath (no --relative-to support). Using hardcoded relative paths." >&2
+            echo "INFO: To install GNU coreutils (optional): brew install coreutils" >&2
+        fi
     fi
 }
 
