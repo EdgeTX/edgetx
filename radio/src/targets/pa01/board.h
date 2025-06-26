@@ -242,4 +242,50 @@ bool touchPanelEventOccured();
 struct TouchState touchPanelRead();
 struct TouchState getInternalTouchState();
 
+enum rgb_state_e {
+  RGB_STATE_NONE,
+  RGB_STATE_BREATH,
+  RGB_STATE_CHARGE,
+  RGB_STATE_ON,
+  RGB_STATE_OFF,
+  RGB_STATE_POWER_ON,
+  RGB_STATE_POWER_OFF,
+};
+
+enum rgb_color_e {
+  RGB_COLOR_NONE   = 0,
+  RGB_COLOR_RED    = (1 << 0),  // 00000001
+  RGB_COLOR_GREEN  = (1 << 1),  // 00000010
+  RGB_COLOR_BLUE   = (1 << 2),  // 00000100
+  RGB_COLOR_YELLOW = RGB_COLOR_RED | RGB_COLOR_GREEN,
+  RGB_COLOR_PURPLE = RGB_COLOR_RED | RGB_COLOR_BLUE,
+  RGB_COLOR_WHITE  = RGB_COLOR_RED | RGB_COLOR_GREEN | RGB_COLOR_BLUE,
+};
+
+enum rgb_group_e {
+  RGB_GROUP_MASK_NONE = 0,
+  RGB_GROUP_MASK_FUNC_1 = (1 << 0),
+  RGB_GROUP_MASK_FUNC_2 = (1 << 1),
+  RGB_GROUP_MASK_FUNC_3 = (1 << 2),
+  RGB_GROUP_MASK_FUNC_4 = (1 << 3),
+  RGB_GROUP_MASK_POWER = (1 << 4),
+  RGB_GROUP_MASK_AROUND_L = (1 << 5),
+  RGB_GROUP_MASK_AROUND_R = (1 << 6),
+  RGB_GROUP_MASK_ALL = 0x7f, // 0111 1111
+};
+
+enum rgb_power_step_e {
+  RGB_STEP_POWER_AROUND,
+  RGB_STEP_FUNC1,
+  RGB_STEP_FUNC2,
+  RGB_STEP_FUNC3,
+  RGB_STEP_FUNC4,
+};
+
+void ledLoop(void);
+void ledSetColor(uint8_t color);
+void ledSetState(uint8_t state);
+void ledSetGroup(uint8_t group);
+void setLedGroupColor(uint8_t index, uint8_t color, uint8_t brightness);
+
 #endif // _BOARD_H_
