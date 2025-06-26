@@ -226,3 +226,10 @@ void ledLoop(void) {
   }
   ledBreathUpdate(led_info.led_state, led_info.led_color, led_info.led_group);
 }
+
+extern const stm32_pulse_timer_t _led_timer;
+static uint8_t _led_charge_colors[WS2812_BYTES_PER_LED * LED_STRIP_LENGTH];
+void rgbChargeInit(void) {
+  ws2812_init(&_led_timer, _led_charge_colors, LED_STRIP_LENGTH, WS2812_GRB);
+  rgbLedClearAll();
+}

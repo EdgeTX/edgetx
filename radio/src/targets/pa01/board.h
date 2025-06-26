@@ -285,6 +285,7 @@ enum rgb_power_step_e {
   RGB_STEP_FUNC4,
 };
 
+void rgbChargeInit(void);
 void ledLoop(void);
 void ledSetColor(uint8_t color);
 void ledSetState(uint8_t state);
