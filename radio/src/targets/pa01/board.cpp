@@ -69,8 +69,72 @@ extern "C" void initialise_monitor_handles();
 extern "C" void flushFTL();
 #endif
 
-constexpr uint16_t vbatLedTable[] = {700, 760, 800, 840};
+constexpr uint16_t vbatLedTable[] = {720, 740, 760, 800, 823};
 constexpr uint8_t ledMapping[] = {4, 6, 0, 2};
+constexpr uint16_t HYSTERESIS = 5;
+void updateBatteryState(uint8_t rgb_state) {
+  uint16_t bat_v = getBatteryVoltage();
+  uint8_t power_level = POWER_LEVEL_NONE;
+  static uint8_t last_power_level = POWER_LEVEL_NONE;
+
+  uint16_t current_level_min = 0;
+  uint16_t current_level_max = 0;
+  bool need_update = true;
+  if (last_power_level != POWER_LEVEL_NONE) {
+      switch (last_power_level) {
+          case POWER_LEVEL_CRITICAL:
+              current_level_min = 0;
+              current_level_max = vbatLedTable[0] + HYSTERESIS;
+              break;
+          case POWER_LEVEL_LOW:
+              current_level_min = vbatLedTable[0] - HYSTERESIS;
+              current_level_max = vbatLedTable[1] + HYSTERESIS;
+              break;
+          case POWER_LEVEL_MEDIUM:
+              current_level_min = vbatLedTable[1] - HYSTERESIS;
+              current_level_max = vbatLedTable[2] + HYSTERESIS;
+              break;
+          case POWER_LEVEL_HIGH:
+              current_level_min = vbatLedTable[2] - HYSTERESIS;
+              current_level_max = vbatLedTable[3] + HYSTERESIS;
+              break;
+          case POWER_LEVEL_NEAR_FULL:
+              current_level_min = vbatLedTable[3] - HYSTERESIS;
+              current_level_max = vbatLedTable[4] + HYSTERESIS;
+              break;
+          case POWER_LEVEL_FULL:
+              current_level_min = vbatLedTable[4] - HYSTERESIS;
+              current_level_max = UINT16_MAX;
+              break;
+          default:
+              need_update = true;
+      }
+
+      if (bat_v >= current_level_min && bat_v <= current_level_max) {
+            need_update = false;
+            power_level = last_power_level;
+      }
+  }
+
+  if (need_update) {
+    if (bat_v < vbatLedTable[0]) {
+      power_level = POWER_LEVEL_CRITICAL;
+    } else if (bat_v < vbatLedTable[1]) {
+      power_level = POWER_LEVEL_LOW;
+    } else if (bat_v < vbatLedTable[2]) {
+      power_level = POWER_LEVEL_MEDIUM;
+    } else if (bat_v < vbatLedTable[3]) {
+      power_level = POWER_LEVEL_HIGH;
+    } else if (bat_v < vbatLedTable[4]){
+      power_level = POWER_LEVEL_NEAR_FULL;
+    } else {
+      power_level = POWER_LEVEL_FULL;
+    }
+  }
+  rgbBatteryLevelInfo(power_level, rgb_state);
+  ledLoop();
+  last_power_level = power_level;
+}
 
 void INTERNAL_MODULE_BOOTCMD(uint8_t enable)
 {
@@ -156,6 +220,9 @@ void boardInit()
 
   board_trainer_init();
   battery_charge_init();
+
+  adcInit(&_adc_driver);
+  getADC();
   
   flysky_gimbal_init();
   usbInit();
@@ -165,6 +232,32 @@ void boardInit()
 
 #if !defined(DEBUG_SEGGER_RTT)
 
+#if defined(SHORT_LONG_PRESS)
+  pwrOn();
+
+  // Handle charging state if charger is active
+  if (IS_UCHARGER_ACTIVE()) {
+    static uint32_t adc_sample_time = 0; // Hardware ADC sample tick
+    while (1)
+    {
+      now = timersGetMsTick();
+      while (now - adc_sample_time > 20)
+      {
+        adc_sample_time = now;
+        getADC();
+      }
+      // Exit conditions: button pressed or charger disconnected
+      if (!pwrPressed() && IS_UCHARGER_ACTIVE()) {
+        updateBatteryState(RGB_STATE_CHARGE);
+      } else {
+        rgbLedClearAll();
+        if (!IS_UCHARGER_ACTIVE()) {
+            boardOff();
+          }
+        break;
+      }
+    }
+  }
   uint32_t press_start = 0;
   uint32_t press_end = 0;
   rotenc_t lastEncoderValue = 0;
@@ -200,14 +293,14 @@ void boardInit()
     }
     battery_charge_end();
   }
-  
+#endif  
 #endif
 
+  rgbLedInit();
   rgbLedClearAll();
   keysInit();
   switchInit();
   audioInit();
-  adcInit(&_adc_driver);
   hapticInit();
 
 #if defined(RTCLOCK)
@@ -234,7 +327,7 @@ void boardOff()
 
 #if !defined(BOOT)
   rgbLedClearAll();
-  if (isChargerActive())
+  if (IS_UCHARGER_ACTIVE())
   {
 //    RTC->BKP0R = SOFTRESET_REQUEST;
     NVIC_SystemReset();
