@@ -35,9 +35,20 @@ enum ChargeState
   CHARGE_FINISHED
 };
 
+enum PowerLevel {
+  POWER_LEVEL_NONE,
+  POWER_LEVEL_CRITICAL,
+  POWER_LEVEL_LOW,
+  POWER_LEVEL_MEDIUM,
+  POWER_LEVEL_HIGH,
+  POWER_LEVEL_NEAR_FULL,
+  POWER_LEVEL_FULL,
+};
+
 extern void battery_charge_init();
 extern void handle_battery_charge(uint32_t last_press_time);
 extern uint16_t get_battery_charge_state();
 extern uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
 extern bool isChargerActive();
 extern void battery_charge_end();
+void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state);
