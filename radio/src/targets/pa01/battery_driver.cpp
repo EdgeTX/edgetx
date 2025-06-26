@@ -370,3 +370,94 @@ void handle_battery_charge(uint32_t last_press_time)
 #endif
 }
 
+#define BRIGHTNESS_MAX 255
+
+void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
+  uint8_t color = 0;
+  uint8_t breath_index = 0;
+  switch (power_level)
+  {
+  case POWER_LEVEL_CRITICAL:
+    color = RGB_COLOR_NONE;
+    if (rgb_state == RGB_STATE_CHARGE) {
+      color = RGB_COLOR_RED;
+      breath_index |= RGB_GROUP_MASK_FUNC_1;
+      setLedGroupColor(1, color, 0);
+      setLedGroupColor(2, color, 0);
+      setLedGroupColor(3, color, 0);
+    }
+    break;
+
+  case POWER_LEVEL_LOW:
+    color = RGB_COLOR_RED;
+    if (rgb_state == RGB_STATE_CHARGE) {
+      breath_index |= RGB_GROUP_MASK_FUNC_1;
+      setLedGroupColor(1, color, 0);
+      setLedGroupColor(2, color, 0);
+      setLedGroupColor(3, color, 0);
+    }
+    break; 
+
+  case POWER_LEVEL_MEDIUM:
+    color = RGB_COLOR_PURPLE;
+    if (rgb_state == RGB_STATE_CHARGE) {
+      breath_index |= RGB_GROUP_MASK_FUNC_2;
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(2, color, 0);
+      setLedGroupColor(3, color, 0);
+    }
+    break;  
+
+  case POWER_LEVEL_HIGH:
+    color = RGB_COLOR_YELLOW;
+    if (rgb_state == RGB_STATE_CHARGE) {
+      breath_index |= RGB_GROUP_MASK_FUNC_3;
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      setLedGroupColor(3, color, 0);
+    }
+    break;  
+
+  case POWER_LEVEL_NEAR_FULL:
+    color = RGB_COLOR_GREEN;   
+    if (rgb_state == RGB_STATE_CHARGE) {
+      breath_index |= RGB_GROUP_MASK_FUNC_4;
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      setLedGroupColor(2, color, BRIGHTNESS_MAX);
+    }
+    break;  
+
+  case POWER_LEVEL_FULL:
+    color = RGB_COLOR_GREEN;
+    if (rgb_state == RGB_STATE_CHARGE) {
+      setLedGroupColor(0, color, BRIGHTNESS_MAX);
+      setLedGroupColor(1, color, BRIGHTNESS_MAX);
+      setLedGroupColor(2, color, BRIGHTNESS_MAX);
+      setLedGroupColor(3, color, BRIGHTNESS_MAX);
+    }
+    break;  
+
+  default:
+    break;
+  }
+
+  switch (rgb_state)
+  {
+  case RGB_STATE_BREATH:
+    ledSetGroup(RGB_GROUP_MASK_ALL);
+    break;
+
+  case RGB_STATE_CHARGE:
+    breath_index |= RGB_GROUP_MASK_AROUND_L | RGB_GROUP_MASK_AROUND_R | RGB_GROUP_MASK_POWER;
+    ledSetGroup(breath_index);
+    break;
+  
+  default:
+    break;
+  }
+
+  ledSetState(rgb_state);
+  ledSetColor(color);
+}
+
