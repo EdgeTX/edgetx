@@ -25,6 +25,7 @@
 //                                    "Off",  "White",    "Red",  "Green", "Yellow", "Orange",   "Blue",   "Pink"
 constexpr uint32_t colorTable[] = {0x000000, 0xFFFFFF, 0xFF0000, 0x00FF00, 0xFFFF00, 0xFF4000, 0x0000FF, 0xFF00FF};
 
+void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b);
 void setFSLedOFF(uint8_t index);
 void setFSLedON(uint8_t index);
 bool getFSLedState(uint8_t index);

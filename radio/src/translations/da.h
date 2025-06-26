@@ -51,10 +51,10 @@
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
 
-#if !NARROW_LAYOUT
-  #define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position","Global"
 #else
-  #define TR_SWTYPES                   "Ingen","Skift","2POS","3POS"
+#define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position"
 #endif
 
 #define TR_POTTYPES                    "Ingen",TR("Drejek.", "Drejekontakt"),TR("Drejek./klik","Drejekontakt med klik"),"Skyder",TR("Multipos","Multipos kontakt"),"Axis X","Axis Y","Switch"
@@ -296,8 +296,7 @@
 #define TR_FS_COLOR_LIST               "Bruger","Fra","Hvid","Rød","Grøn","Gul","Orange","Blå","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Altid til"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Altid til gruppe"
 #define TR_LAST                        "Sidste"
 #define TR_MORE_INFO                   "Mere info"
