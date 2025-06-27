@@ -230,6 +230,7 @@
 #endif
 
 #if defined(PCBFRSKY)
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENTER]"
 #elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
@@ -270,6 +271,7 @@
 #define TR_TIMER                       TR("计时器", "计时器 ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "开始"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("扩展行程", "扩展通道行程")
 #define TR_ETRIMS                      TR("扩展微调", "扩展微调量")
 #define TR_TRIMINC                     "微调步幅"
@@ -418,12 +420,7 @@
 #define TR_CALIBRATION                 "校准"
 #define TR_VTRIM                       "微调-+"
 #define TR_CALIB_DONE                  "校准完成"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "按[Enter]键开始校准"
-  #define TR_SETMIDPOINT               "校准中点：摇杆(轴)、旋钮、滑块，按[Enter]保存"
-  #define TR_MOVESTICKSPOTS            "校准边界：摇杆(轴)、旋钮、滑块，按[Enter]保存并完成"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               "按[Enter]键开始"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "校准中点，按[Enter]保存"
   #define TR_MOVESTICKSPOTS            "校准边界，按[Enter]保存并完成"
 #else
@@ -436,8 +433,10 @@
   #define TR_MOVESTICKSPOTS            "校准边界"
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " 完成"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
