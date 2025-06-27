@@ -739,6 +739,7 @@
 #define TR_EDIT_COLOR                   "Redigera färg"
 #define TR_BACKLIGHT_TIMER              "Timeout vid inaktivitet"
 #define TR_NO_THEME_IMAGE               "Ingen temabild"
+#define TR_SHOW_ACTIVE                 "Show Active"
 
 #if defined(COLORLCD)
   #define TR_MODEL_QUICK_SELECT         "Snabbval av modell"
