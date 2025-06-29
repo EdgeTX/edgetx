@@ -305,6 +305,7 @@ if(PCBREV)
 endif(PCBREV)
 
 set(COMPANION_TARGETS_DIR_ROOT "${COMPANION_SRC_DIRECTORY}/../targets")
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(COMPANION_TARGETS_DIR "${COMPANION_TARGETS_DIR_ROOT}/linux")
 elseif(APPLE)
@@ -330,9 +331,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
   set(SIMULATOR_DESKTOP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${SIMULATOR_NAME}.desktop)
   configure_file(${COMPANION_TARGETS_DIR}/simulator.desktop.in ${SIMULATOR_DESKTOP_FILE} @ONLY)
+
   # libsim*.so files
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/${COMPANION_NAME})
+
   # application icons
   set(icon_sizes "16;22;24;32;48;64;128;256;512")
   foreach(icon_size ${icon_sizes})
@@ -386,11 +389,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif(WIN32)
   set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/_install")
   message(STATUS "Install to " ${CMAKE_INSTALL_PREFIX})
+
   # companion and simulator apps
   install(TARGETS
             ${COMPANION_NAME}
             ${SIMULATOR_NAME}
             DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+
   # install libsim dlls into same directory as apps
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
@@ -455,10 +460,14 @@ elseif(WIN32)
 elseif(APPLE)
   # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
   # and trial and error. Do not hesitate to fix it for the better
-  set(plugin_dest_dir ${COMPANION_NAME}.app/Contents/Plugins)
-  set(qtconf_dest_dir ${COMPANION_NAME}.app/Contents/Resources)
-  set(APPS "\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app")
-  set(companion_res_dir ${COMPANION_NAME}.app/Contents/Resources)
+  set_target_properties(${COMPANION_NAME} PROPERTIES
+      MACOSX_RPATH TRUE
+      MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
+
+      INSTALL_RPATH "@executable_path/../Frameworks"
+      BUILD_WITH_INSTALL_RPATH TRUE
+  )
 
   # This the name that the user will see in the generated DMG and what the application
   # will be called under /Applications. We include the version string to make installing
@@ -466,39 +475,31 @@ elseif(APPLE)
   set(COMPANION_OSX_APP_BUNDLE_NAME "EdgeTX Companion ${VERSION_FAMILY}")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
-  set_target_properties(${COMPANION_NAME}
-                        PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Companion ${VERSION_FAMILY}")
-  set_target_properties(${SIMULATOR_NAME}
-                        PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "Simulator ${VERSION_FAMILY}")
+  set(companion_app_dir "companion.app")
+  set(companion_res_dir "${companion_app_dir}/Contents/Resources")
 
-  # Use a non standard Info.plist that adds Retina support flags
-  set_target_properties(${COMPANION_NAME}
-                        PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in)
-  set_target_properties(${SIMULATOR_NAME}
-                        PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in)
-
+  # Only Companion is distributed for macOS
   install(TARGETS ${COMPANION_NAME}
-          BUNDLE DESTINATION . COMPONENT Runtime
-          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime)
-
-  install(TARGETS ${SIMULATOR_NAME}
-          BUNDLE DESTINATION . COMPONENT Runtime
-          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime)
+          BUNDLE DESTINATION . COMPONENT Runtime)
 
   # libsims
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
-          DESTINATION "${companion_res_dir}" COMPONENT Runtime)
+          DESTINATION "${companion_res_dir}"
+          COMPONENT Runtime
+  )
 
   # menu file
   install(DIRECTORY ${COMPANION_TARGETS_DIR}/qt_menu.nib
           DESTINATION "${companion_res_dir}"
-          COMPONENT Runtime)
+          COMPONENT Runtime
+  )
 
   # Add icon
-  set(MACOSX_BUNDLE_ICON_FILE iconmac.icns)
-  set(MAC_ICON_FILE ${COMPANION_SRC_DIRECTORY}/images/${MACOSX_BUNDLE_ICON_FILE})
-  set_source_files_properties(${MAC_ICON_FILE}
-                              PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  set(MAC_ICON_FILE ${COMPANION_SRC_DIRECTORY}/images/iconmac.icns)
+  set_source_files_properties(
+    ${MAC_ICON_FILE}
+    PROPERTIES MACOSX_PACKAGE_LOCATION Resources
+  )
 
   install(FILES ${MAC_ICON_FILE}
           DESTINATION ${companion_res_dir}
@@ -510,29 +511,7 @@ elseif(APPLE)
     install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH}
             DESTINATION ${companion_res_dir}
             COMPONENT Runtime)
-
-    set(bundle_tools_path "\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/dfu-util;")
   endif(DFU_UTIL_FOUND)
-
-  if(OPENSSL_FOUND)
-    # Copy openssl, resolve symlink first
-    file(REAL_PATH "${OPENSSL_SSL_LIBRARY}" OPENSSL_ABSOLUTE_PATH)
-    install(FILES ${OPENSSL_ABSOLUTE_PATH}
-            DESTINATION ${companion_res_dir}
-            COMPONENT Runtime)
-  endif(OPENSSL_FOUND)
-
-  # Include depencies (adding frameworks, fixing the embbeded libraries)
-  # I get write errors without setting BU_CHMOD_BUNDLE_ITEMS even though it is
-  # technically a hack (that is already is in the Bundle library ...)
-  #install(CODE "
-  #  include(BundleUtilities)
-  #  file(GLOB bundle_simulator_libs \"\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/libedgetx-*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-  #  set(BU_CHMOD_BUNDLE_ITEMS on)
-  #  fixup_bundle(\"${APPS}\" \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}\" \"${QT_LIB_DIR}\")
-  #  file(RENAME \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
-  #  "
-  #  COMPONENT Runtime)
 endif()
 
 ############# Packaging ####################
@@ -556,73 +535,90 @@ set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 # very poor trace-backs from the users when they report Companion crash
 set(CPACK_STRIP_FILES FALSE)
 
-set(companion_executable_path "")
-set(simulator_executable_path "")
-set(qt_deploy_tool_options_args "")
-
-if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
-  set(qt_deploy_tool_options_args --debug)
-else()
-  set(qt_deploy_tool_options_args --release)
-endif()
-
-# Qt translations are already packaged into our custom qrc. Also don't need software rendering engines.
-set(qt_deploy_tool_options_args ${qt_deploy_tool_options_args} --no-translations --no-opengl-sw)
-
-if(APPLE)
-  set(companion_executable_path "$<TARGET_FILE_NAME:companion>.app")
-  set(simulator_executable_path "$<TARGET_FILE_NAME:simulator>.app")
-  set(qt_deploy_tool_options_args ${qt_deploy_tool_options_args} --hardened-runtime --no-strip-dmg)
-elseif(WIN32)
+if(WIN32)
   set(companion_executable_path "\${CMAKE_INSTALL_BINDIR}/$<TARGET_FILE_NAME:companion>")
   set(simulator_executable_path "\${CMAKE_INSTALL_BINDIR}/$<TARGET_FILE_NAME:simulator>")
-  set(qt_deploy_tool_options_args ${qt_deploy_tool_options_args} --no-compiler-runtime --no-system-d3d-compiler)
-endif()
 
-list(JOIN qt_deploy_tool_options_args " " qt_deploy_tool_options_args)
-
-if(APPLE OR WIN32)
-  # generated script calls windeployqt or macdeployqt
   qt_generate_deploy_script(
     TARGET companion
     OUTPUT_SCRIPT qt_deploy_script
     CONTENT "
-      set(QT_DEPLOY_PREFIX ${CMAKE_INSTALL_PREFIX})
       qt_deploy_runtime_dependencies(
         EXECUTABLE ${companion_executable_path}
         ADDITIONAL_EXECUTABLES ${simulator_executable_path}
-        DEPLOY_TOOL_OPTIONS ${qt_deploy_tool_options_args}
+        NO_TRANSLATIONS
+        NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
-        VERBOSE)
+      )
     "
   )
-endif()
 
-if(APPLE)
-  # The 'install' target prepares all the distro files, make sure it has been executed first.
-  add_custom_command(TARGET ${SIMULATOR_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_INSTALL_PREFIX} --target install --config Release
-    COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
+  # Create Windows installer with NSIS
+  # TODO use in-built CPack NSIS
+  find_program(NSIS_EXE makensis.exe
+    PATHS
+      "C:/Program Files/NSIS"
+      "C:/Program Files (x86)/NSIS"
+      "C:/Programs/NSIS"
+      "${WIN_EXTRA_LIBS_PATH}/NSIS"
   )
 
-  #add_custom_target(installer
-  #  COMMAND "${CMAKE_COMMAND}" --build . --target install --config Release
-  #  COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
-  #  COMMAND "file(RENAME \"${companion_executable_path}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")"
-  #  DEPENDS "${qt_deploy_script}"
-  #  COMMENT "Building MacOS application bundle..."
-  #)
+  if(NSIS_EXE)
+    # list(APPEND CPACK_GENERATOR "NSIS")
+    # Set CPACK_NSIS_variables
 
-  list(APPEND CPACK_GENERATOR "DragNDrop")
-  # set(CPACK_GENERATOR "TGZ")  # for quick testing
+    cmake_path(NATIVE_PATH CMAKE_INSTALL_PREFIX NORMALIZE NSIS_DISTRO)   # all files in here will be included in installer
+    cmake_path(NATIVE_PATH COMPANION_TARGETS_DIR NORMALIZE NSIS_TARGETS_DIR)   # all files in here will be included in installer
+    set(NSI_FILE "${PROJECT_BINARY_DIR}/companion/companion.nsi")
+    configure_file("${COMPANION_TARGETS_DIR}/companion.nsi.in" "${NSI_FILE}" @ONLY)
+
+    # The 'install' target prepares all the distro files, make sure it has been executed first.
+    add_custom_target(installer
+      COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
+      COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
+      COMMAND "${NSIS_EXE}" "${NSI_FILE}"
+      DEPENDS "${NSI_FILE}" "${qt_deploy_script}"
+      COMMENT "Building Windows NSIS installer..."
+    )
+  endif()
+
+elseif(APPLE)
+  set(CPACK_GENERATOR "DragNDrop")
   set(CPACK_BINARY_DRAGNDROP ON)
-  set(CPACK_DMG_BACKGROUND_IMAGE ${COMPANION_SRC_DIRECTORY}/images/splash.png)
-  set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME} Companion")
-  set(CPACK_DMG_DS_STORE ${COMPANION_TARGETS_DIR}/DS_Store)
-  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME_LOWERCASE}-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
-endif(APPLE)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME} Companion")
+  set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME_LOWERCASE}-${CPACK_PACKAGE_NAME_LOWERCASE}-${VERSION}")
+  set(CPACK_DMG_DS_STORE ${COMPANION_TARGETS_DIR}/DS_Store)
+
+  qt_generate_deploy_script(
+    TARGET companion
+    OUTPUT_SCRIPT qt_deploy_companion
+    CONTENT "
+      qt_deploy_runtime_dependencies(
+        EXECUTABLE ${companion_app_dir}
+        ADDITIONAL_EXECUTABLES ${companion_res_dir}/dfu-util
+        NO_TRANSLATIONS
+        NO_COMPILER_RUNTIME
+        GENERATE_QT_CONF
+      )
+    "
+  )
+
+  # Run macdeployqt
+  install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
+
+  # Fix Code Signing and rename bundle
+  install(CODE "
+      set(app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
+      execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${app_dir}\")
+      execute_process(
+        COMMAND codesign --remove-signature \${app_dir}
+        COMMAND codesign --force --deep -s - \${app_dir}
+      )
+      file(RENAME \"\${app_dir}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
+  " COMPONENT Runtime)
+
+else()
   set(LINUXDEPLOY_APPIMAGE "linuxdeploy-x86_64.AppImage")
   set(LINUXDEPLOY_PLUGIN_QT "linuxdeploy-plugin-qt-x86_64.AppImage")
   set(LINUXDEPLOY_URL "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous")
@@ -674,35 +670,5 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CPACK_EXTERNAL_PACKAGE_SCRIPT "${CMAKE_BINARY_DIR}/CPackExternal.cmake")
 endif()
 
-# Create Windows installer with NSIS
-# TODO use in-built CPack NSIS
-if(WIN32)
-  find_program(NSIS_EXE makensis.exe
-    PATHS
-      "C:/Program Files/NSIS"
-      "C:/Program Files (x86)/NSIS"
-      "C:/Programs/NSIS"
-      "${WIN_EXTRA_LIBS_PATH}/NSIS"
-  )
-
-  if(NSIS_EXE)
-    # list(APPEND CPACK_GENERATOR "NSIS")
-    # Set CPACK_NSIS_variables
-
-    cmake_path(NATIVE_PATH CMAKE_INSTALL_PREFIX NORMALIZE NSIS_DISTRO)   # all files in here will be included in installer
-    cmake_path(NATIVE_PATH COMPANION_TARGETS_DIR NORMALIZE NSIS_TARGETS_DIR)   # all files in here will be included in installer
-    set(NSI_FILE "${PROJECT_BINARY_DIR}/companion/companion.nsi")
-    configure_file("${COMPANION_TARGETS_DIR}/companion.nsi.in" "${NSI_FILE}" @ONLY)
-
-    # The 'install' target prepares all the distro files, make sure it has been executed first.
-    add_custom_target(installer
-      COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
-      COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
-      COMMAND "${NSIS_EXE}" "${NSI_FILE}"
-      DEPENDS "${NSI_FILE}" "${qt_deploy_script}"
-      COMMENT "Building Windows NSIS installer..."
-    )
-  endif()
-endif(WIN32)
-
 include(CPack)
+
