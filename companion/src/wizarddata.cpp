@@ -46,7 +46,8 @@ WizMix::WizMix(const GeneralSettings & settings, unsigned int modelId, const Mod
   vehicle(NOVEHICLE)
 {
   memset(name, 0, sizeof(name));
-  strncpy(name, originalModelData.name, sizeof(name)-1);
+  memcpy(name, originalModelData.name, sizeof(name) - 1);
+  name[sizeof(name) - 1] = '\0';
 }
 
 void WizMix::maxMixSwitch(char *name, MixData &mix, int channel, int sw, int weight)
@@ -94,9 +95,9 @@ WizMix::operator ModelData()
   int mixIndex = 0;
   int timerIndex = 0;
 
-  // Safe copy model name
   memset(model.name, 0, sizeof(model.name));
-  strncpy(model.name, name, sizeof(model.name)-1);
+  memcpy(model.name, name, sizeof(model.name) - 1);
+  model.name[sizeof(model.name) - 1] = '\0';
 
   // Add the channel mixes
   for (int i=0; i<WIZ_MAX_CHANNELS; i++ )
