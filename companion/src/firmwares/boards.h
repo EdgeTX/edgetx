@@ -94,6 +94,7 @@ namespace Board {
     BOARD_FATFISH_F16,
     BOARD_HELLORADIOSKY_V16,
     BOARD_RADIOMASTER_MT12,
+    BOARD_HELLORADIOSKY_V14,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -613,6 +614,11 @@ inline bool IS_FATFISH_F16(Board::Type board)
   return board == Board::BOARD_FATFISH_F16;
 }
 
+inline bool IS_HELLORADIOSKY_V14(Board::Type board)
+{
+  return board == Board::BOARD_HELLORADIOSKY_V14;
+}
+
 inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 {
   return board == Board::BOARD_HELLORADIOSKY_V16;
@@ -630,7 +636,11 @@ inline bool IS_FAMILY_T16(Board::Type board)
 
 inline bool IS_FAMILY_T12(Board::Type board)
 {
-  return board == Board::BOARD_JUMPER_T12 ||
+  return board == Board::BOARD_BETAFPV_LR3PRO ||
+         board == Board::BOARD_HELLORADIOSKY_V14 ||
+         board == Board::BOARD_IFLIGHT_COMMANDO8 ||
+         board == Board::BOARD_JUMPER_BUMBLEBEE ||
+         board == Board::BOARD_JUMPER_T12 ||
          board == Board::BOARD_JUMPER_T12MAX ||
          board == Board::BOARD_JUMPER_T14 ||
          board == Board::BOARD_JUMPER_T20 ||
@@ -638,19 +648,16 @@ inline bool IS_FAMILY_T12(Board::Type board)
          board == Board::BOARD_JUMPER_TLITE ||
          board == Board::BOARD_JUMPER_TLITE_F4 ||
          board == Board::BOARD_JUMPER_TPRO ||
-         board == Board::BOARD_JUMPER_TPROV2 ||
          board == Board::BOARD_JUMPER_TPROS ||
-         board == Board::BOARD_JUMPER_BUMBLEBEE ||
-         board == Board::BOARD_RADIOMASTER_TX12 ||
-         board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
-         board == Board::BOARD_RADIOMASTER_ZORRO ||
+         board == Board::BOARD_JUMPER_TPROV2 ||
          board == Board::BOARD_RADIOMASTER_BOXER ||
-         board == Board::BOARD_RADIOMASTER_MT12 ||
-         board == Board::BOARD_RADIOMASTER_POCKET ||
          board == Board::BOARD_RADIOMASTER_GX12 ||
          board == Board::BOARD_RADIOMASTER_T8 ||
-         board == Board::BOARD_BETAFPV_LR3PRO ||
-         board == Board::BOARD_IFLIGHT_COMMANDO8;
+         board == Board::BOARD_RADIOMASTER_TX12 ||
+         board == Board::BOARD_RADIOMASTER_TX12_MK2 ||
+         board == Board::BOARD_RADIOMASTER_MT12 ||
+         board == Board::BOARD_RADIOMASTER_POCKET ||
+         board == Board::BOARD_RADIOMASTER_ZORRO;
 }
 
 inline bool IS_FLYSKY_NV14(Board::Type board)
