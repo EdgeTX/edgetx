@@ -102,11 +102,7 @@ void waitSplash()
 {
   // Handle color splash screen
   if (splashStartTime) {
-#if defined(SIMU)
-    // Simulator - inputsMoved() returns true immediately without this!
-    sleep_ms(30);
-#endif  // defined(SIMU)
-
+    inactivityCheckInputs();
     splashStartTime += SPLASH_TIMEOUT;
     while (splashStartTime >= get_tmr10ms()) {
       LvglWrapper::instance()->run();

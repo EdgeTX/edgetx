@@ -76,7 +76,7 @@ void menuRadioDiagFS(event_t event)
     lcdDrawText(FS_1ST_COLUMN + 7, y, getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
     lcdDrawText(FS_2ND_COLUMN + 5, y, getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-    lcdDrawText(FS_3RD_COLUMN, y, STR_FS_COLOR_LIST[getRGBColorIndex(rgbGetLedColor(i))], 0);
+    lcdDrawText(FS_3RD_COLUMN, y, STR_FS_COLOR_LIST[getRGBColorIndex(fsGetLedRGB(i))], 0);
 #else
     lcdDrawText(FS_3RD_COLUMN, y, STR_OFFON[fsLedState(i)]);
 #endif
