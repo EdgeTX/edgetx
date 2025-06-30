@@ -32,15 +32,11 @@
 //  External access is only via getEEpromSize() and getFlashSize()
 
 #define EESIZE_TARANIS                 (32*1024)
-#define EESIZE_SKY9X                   (128*4096)
-#define EESIZE_9XRPRO                  (128*4096)
-#define EESIZE_MAX                     EESIZE_9XRPRO
+#define EESIZE_MAX                     EESIZE_TARANIS
 
 // getFlashSize() (and these macros) is only used by radiointerface::getDfuArgs (perhaps can find a better way?)
 
 #define FSIZE_TARANIS                  (512*1024)
-#define FSIZE_SKY9X                    (256*1024)
-#define FSIZE_9XRPRO                   (512*1024)
 #define FSIZE_HORUS                    (2048*1024)
 #define FSIZE_MAX                      FSIZE_HORUS
 
@@ -121,10 +117,6 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3C78746F;
     case BOARD_TARANIS_X9LITES:
       return 0x3E78746F;
-    case BOARD_SKY9X:
-    case BOARD_AR9X:
-    case BOARD_9XRPRO:
-      return 0x3278746F;
     case BOARD_BETAFPV_LR3PRO:
       return 0x4578746F;
     case BOARD_IFLIGHT_COMMANDO8:
@@ -173,11 +165,6 @@ uint32_t Boards::getFourCC(Type board)
 int Boards::getEEpromSize(Board::Type board)
 {
   switch (board) {
-    case BOARD_SKY9X:
-      return EESIZE_SKY9X;
-    case BOARD_9XRPRO:
-    case BOARD_AR9X:
-      return EESIZE_9XRPRO;
     case BOARD_TARANIS_XLITES:
     case BOARD_TARANIS_XLITE:
     case BOARD_TARANIS_X7:
@@ -237,11 +224,6 @@ int Boards::getEEpromSize(Board::Type board)
 int Boards::getFlashSize(Type board)
 {
   switch (board) {
-    case BOARD_SKY9X:
-      return FSIZE_SKY9X;
-    case BOARD_9XRPRO:
-    case BOARD_AR9X:
-      return FSIZE_9XRPRO;
     case BOARD_TARANIS_XLITES:
     case BOARD_TARANIS_XLITE:
     case BOARD_TARANIS_X7:
@@ -604,12 +586,6 @@ QString Boards::getBoardName(Board::Type board)
       return "Taranis X9-Lite";
     case BOARD_TARANIS_X9LITES:
       return "Taranis X9-Lite S";
-    case BOARD_SKY9X:
-      return "Sky9x";
-    case BOARD_9XRPRO:
-      return "9XR-PRO";
-    case BOARD_AR9X:
-      return "AR9X";
     case BOARD_HORUS_X12S:
       return "Horus X12S";
     case BOARD_X10:
