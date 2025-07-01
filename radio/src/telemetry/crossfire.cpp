@@ -21,6 +21,7 @@
 
 #include "crossfire.h"
 #include "edgetx.h"
+#include "math.h"
 
 #include "trainer.h"
 
@@ -180,8 +181,21 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         }
         processCrossfireTelemetryValue(BARO_ALTITUDE_INDEX, value);
       }
+
       // Length of TBS BARO_ALT has 4 payload bytes with just 2 bytes of altitude
-      // but support including VARIO if the declared payload length is 6 bytes or more
+      // but support including TBS VARIO if the declared payload length is 5 bytes
+      if (crsfPayloadLen == 5 &&
+          getCrossfireTelemetryValue<1>(5, value, rxBuffer)) {
+       constexpr int Kl = 100;       // linearity constant;
+       constexpr float Kr = .026;    // range constant;
+
+       int8_t sign = value < 0 ? -1 : 1;
+       value =((expf(value * sign * Kr) - 1) * Kl) * sign;
+       processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
+      }
+
+      // Length of TBS BARO_ALT has 4 payload bytes with just 2 bytes of altitude
+      // but support including ELRS VARIO if the declared payload length is 6 bytes or more
       if (crsfPayloadLen > 5 &&
           getCrossfireTelemetryValue<2>(5, value, rxBuffer))
         processCrossfireTelemetryValue(VERTICAL_SPEED_INDEX, value);
