@@ -288,6 +288,7 @@
 #define TR_SWITCH              "Przełą"
 #define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
+#define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_FS_ON_COLOR                 TR("ON:","ON Color")
 #define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
