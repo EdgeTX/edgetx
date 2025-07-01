@@ -466,7 +466,7 @@ elseif(APPLE)
       MACOSX_RPATH TRUE
       MACOSX_BUNDLE TRUE
       MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
-      
+
       INSTALL_RPATH "@executable_path/../Frameworks"
       BUILD_WITH_INSTALL_RPATH TRUE
   )
@@ -545,12 +545,14 @@ if(WIN32)
     TARGET companion
     OUTPUT_SCRIPT qt_deploy_script
     CONTENT "
+      set(QT_DEPLOY_PREFIX ${CMAKE_INSTALL_PREFIX})
       qt_deploy_runtime_dependencies(
         EXECUTABLE ${companion_executable_path}
         ADDITIONAL_EXECUTABLES ${simulator_executable_path}
         NO_TRANSLATIONS
         NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
+        VERBOSE
       )
     "
   )
