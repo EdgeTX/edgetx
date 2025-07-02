@@ -61,11 +61,13 @@ void Gyro::wakeup()
 
   int16_t gx = values[0];
   int16_t gy = values[1];
-  // int16_t gz = values[2];
+  int16_t gz = values[2];
+  TRACE("gx:%d gy:%d gz:%d", gx, gy, gz);
 
   int16_t ax = values[3];
   int16_t ay = values[4];
   int16_t az = values[5];
+  TRACE("ax:%d ay:%d az:%d", ax, ay, az);
 
   // integrate gyro
   roll  -= gx * SCALE_FACT_GYRO * DT;
