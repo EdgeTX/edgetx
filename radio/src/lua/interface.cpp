@@ -1152,9 +1152,9 @@ static bool resumeLua(bool init, bool allowLcdUsage)
             functionsContext = &globalFunctionsContext;
           }
 
-          if (CFN_ACTIVE(fn)) {
+          if (CFN_ACTIVE(fn) && CFN_SWITCH(fn)) {
             tmr10ms_t tmr10ms = get_tmr10ms();
-            if (getSwitch(fn->swtch) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
+            if (getSwitch(CFN_SWITCH(fn)) && (functionsContext->lastFunctionTime[idx] == 0 || CFN_PLAY_REPEAT(fn) == 0)) {
               lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.run);
               functionsContext->lastFunctionTime[idx] = tmr10ms;
             }
