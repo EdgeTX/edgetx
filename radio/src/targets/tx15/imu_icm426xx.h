@@ -23,6 +23,36 @@
 
 #define ICM426xx_I2C_ADDR           0x68
 
+// Register addresses
+#define WHO_AM_I_REG          0x75
+#define PWR_MGMT0_REG         0x1F
+#define SIGNAL_PATH_RESET     0x02
+#define ACCEL_CONFIG0_REG     0x21
+#define GYRO_CONFIG0_REG      0x20
+#define INT_CONFIG_REG        0x06
+#define TEMP_DATA_X0_REG      0x09
+
+// Config values
+#define SOFT_RESET_CMD        0x10
+
+#define PWR_MGMT0_ENABLE      0x0F  // ACCEL_LNM + GYRO_LNM
+#define ACCEL_ODR_1KHZ        0x45  // Accel 1 kHz ±4g
+#define GYRO_ODR_1KHZ         0x05  // Gyro 1 kHz  ±2000 dps
+
+#define GYRO_DATA_X0_REG      0x11
+#define ACCEL_DATA_X0_REG     0x0B
+
+#define BLK_SEL_W_REG         0x79
+#define MADDR_W_REG           0x7A
+#define M_W_REG               0x7B
+#define ACCEL_WOM_X_THR_REG   0x4B
+#define ACCEL_WOM_Y_THR_REG   0x4C
+#define ACCEL_WOM_Z_THR_REG   0x4D
+#define WOM_CONFIG_REG        0x27
+#define INT_SOURCE1_REG       0x2C
+#define INT_CONFIG_REG        0x06
+#define INT_STATUS2_REG       0x3B
+
 typedef struct {
   float fTemperatureDegC; //°C
   float fAccX, fAccY, fAccZ; // m/s^2

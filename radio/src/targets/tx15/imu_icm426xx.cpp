@@ -23,6 +23,41 @@
 #include "hal/i2c_driver.h"
 #include "stm32_i2c_driver.h"
 #include "imu_icm426xx.h"
+#include "stm32_gpio.h"
+#include "hal.h"
+
+int16_t getGyroTemperature()
+{
+  uint8_t reg = TEMP_DATA_X0_REG;
+  uint8_t buf[2] = {0};
+
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 2, 1000) < 0) {
+    TRACE("ICM426xx ERROR: TEMP_DATA_X0_REG i2c read error");
+    return -1;
+  }
+
+  return (((buf[0] << 8) | buf[1]) / 128) + 25;
+}
+
+int write_cmd(uint8_t reg, uint8_t val)
+{
+  return i2c_write(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, &val, 1);
+}
+
+static void imu_exti_isr(void)
+{
+  //TRACE("gyro int");
+  // wake up gyro on movement threshold
+  gyro.wakeup();
+}
+
+static int write_mreg1(uint8_t reg, uint8_t val) {
+    if (write_cmd(BLK_SEL_W_REG, 0x00) < 0) return -1; 
+    if (write_cmd(MADDR_W_REG, reg) < 0) return -1;
+    if (write_cmd(M_W_REG, val) < 0) return -1;
+    delay_us(10); //42627-pdf p12“Accessing MREG1, MREG2 And MREG3 Registers
+    return 0;
+}
 
 int gyroInit(void)
 {
@@ -38,17 +73,93 @@ int gyroInit(void)
     return -1;
   }
 
-  uint8_t who_am_i = 0;
-  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, 0x75, 1, &who_am_i, 1, 1000) < 0) {
+  uint8_t data = 0;
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, 0x75, 1, &data, 1, 1000) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
   }
-  TRACE("ICM426xx Who am I: 0x%x", who_am_i);
+
+  if (data != 0x61) {
+    TRACE("ICM426xx ERROR: this code only works on ICM42607C");
+    return -1;
+  }
+
+  if(write_cmd(SIGNAL_PATH_RESET, SOFT_RESET_CMD) < 0) {
+    TRACE("ICM426xx ERROR: SOFT_RESET_CMD error");
+    return -1;
+  }
+  delay_ms(100);
+
+  if(write_cmd(PWR_MGMT0_REG, PWR_MGMT0_ENABLE) < 0) {
+    TRACE("ICM426xx ERROR: PWR_MGMT0_REG error");
+    return -1;
+  }
+  delay_ms(10);
+
+  // Set gyro to 2000 dps, 1kHz ODR
+  if(write_cmd(GYRO_CONFIG0_REG, GYRO_ODR_1KHZ) < 0) {
+    TRACE("ICM426xx ERROR: GYRO_CONFIG0_REG error");
+    return -1;
+  }
+  delay_ms(1);
+
+  // Set accel to ±4g, 1kHz ODR
+  if (write_cmd(ACCEL_CONFIG0_REG, ACCEL_ODR_1KHZ) < 0) {
+    TRACE("ICM426xx ERROR: ACCEL_CONFIG0_REG error");
+    return -1;
+  }
+  delay_ms(1);
+
+
+  if (write_cmd(INT_CONFIG_REG, 0x00) < 0) {
+    TRACE("ICM426xx ERROR: INT_CONFIG_REG error");
+    return -1;
+  }
+  delay_ms(1);
+
+  // CCEL_WOM_X_THR:0-255（0-1g），0x10--16mg
+  if (write_mreg1(ACCEL_WOM_X_THR_REG, 0x3) < 0) return -1;
+  if (write_mreg1(ACCEL_WOM_Y_THR_REG, 0x3) < 0) return -1;
+  if (write_mreg1(ACCEL_WOM_Z_THR_REG, 0x3) < 0) return -1;
+
+  delay_ms(1);
+  // config WoM
+  if (write_cmd(WOM_CONFIG_REG, 0x03) < 0) return -1; // OR mode
+  delay_ms(1);
+  // enable INT1 
+  if (write_cmd(INT_SOURCE1_REG, 0x07) < 0) return -1; // XYZ interrupt
+  delay_ms(1);
+  // config INT1 pin
+  if (write_cmd(INT_CONFIG_REG, 0x00) < 0) return -1; 
+
+  gpio_init_int(IMU_INT_GPIO, GPIO_IN_PU, GPIO_FALLING, imu_exti_isr);
 
   return 0;
 }
 
-int gyroRead(unsigned char*)
+int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
 {
-  return true;
+  uint8_t reg = GYRO_DATA_X0_REG;
+  uint8_t buf[6];
+
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
+    TRACE("ICM426xx ERROR: i2c read error");
+    return -1;
+  }
+
+  buffer[0] = (int16_t)((buf[0] << 8) | buf[1]); // x
+  buffer[2] = (int16_t)((buf[2] << 8) | buf[3]); // y
+  buffer[4] = (int16_t)((buf[4] << 8) | buf[5]); // z
+
+  reg = ACCEL_DATA_X0_REG;
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
+    TRACE("ICM426xx ERROR: i2c read error");
+    return -1;
+  }
+
+  buffer[6] = (int16_t)((buf[0] << 8) | buf[1]); // x
+  buffer[8] = (int16_t)((buf[2] << 8) | buf[3]); // y
+  buffer[10] = (int16_t)((buf[4] << 8) | buf[5]); // z
+
+  return 0;
 }
