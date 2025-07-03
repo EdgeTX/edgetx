@@ -24,6 +24,7 @@
 #include "stm32_i2c_driver.h"
 #include "imu_icm426xx.h"
 #include "stm32_gpio.h"
+#include "inactivity_timer.h"
 #include "hal.h"
 
 int16_t getGyroTemperature()
@@ -47,7 +48,7 @@ int write_cmd(uint8_t reg, uint8_t val)
 #if defined(IMU_INT_GPIO)
 static void imu_exti_isr(void)
 {
-  //TODO: register movement to prevent sleep
+  inactivityTimerReset(ActivitySource::MainControls);
 }
 #endif
 
