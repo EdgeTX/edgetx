@@ -16,3 +16,15 @@
 	path = radio/src/thirdparty/uf2
 	url = https://github.com/microsoft/uf2.git
 	shallow = true
+[submodule "radio/src/thirdparty/STM32F2xx_HAL_Driver"]
+	path = radio/src/thirdparty/STM32F2xx_HAL_Driver
+	url = https://github.com/STMicroelectronics/stm32f2xx-hal-driver.git
+[submodule "radio/src/thirdparty/STM32F4xx_HAL_Driver"]
+	path = radio/src/thirdparty/STM32F4xx_HAL_Driver
+	url = https://github.com/STMicroelectronics/stm32f4xx-hal-driver.git
+[submodule "radio/src/thirdparty/STM32H7xx_HAL_Driver"]
+	path = radio/src/thirdparty/STM32H7xx_HAL_Driver
+	url = https://github.com/STMicroelectronics/stm32h7xx-hal-driver.git
+[submodule "radio/src/thirdparty/STM32H7RS_HAL_Driver"]
+	path = radio/src/thirdparty/STM32H7RS_HAL_Driver
+	url = https://github.com/STMicroelectronics/stm32h7rsxx-hal-driver.git
