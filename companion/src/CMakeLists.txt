@@ -334,7 +334,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
   # libsim*.so files
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/${COMPANION_NAME})
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
 
   # application icons
   set(icon_sizes "16;22;24;32;48;64;128;256;512")
@@ -353,17 +353,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
   # udev rules
   install(FILES "${COMPANION_TARGETS_DIR}/45-companion-taranis.rules"
-          DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/udev/rules.d"
+          DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
           RENAME "45-${COMPANION_NAME}-taranis.rules")
 
   install(FILES "${COMPANION_TARGETS_DIR}/45-usbasp.rules"
-          DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/udev/rules.d"
+          DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/udev/rules.d"
           RENAME "45-${COMPANION_NAME}-usbasp.rules")
 
   if(OPENSSL_FOUND)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
     install(DIRECTORY ${OPENSSL_SSL_LIBRARY_DIR}/
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
             FILES_MATCHING
               PATTERN "libcrypto.so.*"
               PATTERN "libssl.so.*")
@@ -372,7 +372,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   if(LIBUSB1_FOUND)
     get_filename_component(LIBUSB1_LIBRARY_DIR ${LIBUSB1_LIBRARY} DIRECTORY)
     install(DIRECTORY ${LIBUSB1_LIBRARY_DIR}/
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
             FILES_MATCHING PATTERN "libusb-1.0.so.*")
     if(DFU_UTIL_FOUND)
       # dfuutil is an app
