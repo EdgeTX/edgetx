@@ -117,10 +117,11 @@ int gyroInit(void)
   }
   delay_ms(1);
 
+#if defined(IMU_INT_GPIO)
   // CCEL_WOM_X_THR:0-255（0-1g），0x10--16mg
-  if (write_mreg1(ACCEL_WOM_X_THR_REG, 0x3) < 0) return -1;
-  if (write_mreg1(ACCEL_WOM_Y_THR_REG, 0x3) < 0) return -1;
-  if (write_mreg1(ACCEL_WOM_Z_THR_REG, 0x3) < 0) return -1;
+  if (write_mreg1(ACCEL_WOM_X_THR_REG, 0x10) < 0) return -1;
+  if (write_mreg1(ACCEL_WOM_Y_THR_REG, 0x10) < 0) return -1;
+  if (write_mreg1(ACCEL_WOM_Z_THR_REG, 0x10) < 0) return -1;
 
   delay_ms(1);
   // config WoM
@@ -132,7 +133,6 @@ int gyroInit(void)
   // config INT1 pin
   if (write_cmd(INT_CONFIG_REG, 0x00) < 0) return -1;
 
-#if defined(IMU_INT_GPIO)
   gpio_init_int(IMU_INT_GPIO, GPIO_IN_PU, GPIO_FALLING, imu_exti_isr);
 #endif
 
