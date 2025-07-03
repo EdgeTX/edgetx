@@ -44,12 +44,12 @@ int write_cmd(uint8_t reg, uint8_t val)
   return i2c_write(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, &val, 1);
 }
 
+#if defined(IMU_INT_GPIO)
 static void imu_exti_isr(void)
 {
-  //TRACE("gyro int");
-  // wake up gyro on movement threshold
-  gyro.wakeup();
+  //TODO: register movement to prevent sleep
 }
+#endif
 
 static int write_mreg1(uint8_t reg, uint8_t val) {
     if (write_cmd(BLK_SEL_W_REG, 0x00) < 0) return -1; 
@@ -130,9 +130,11 @@ int gyroInit(void)
   if (write_cmd(INT_SOURCE1_REG, 0x07) < 0) return -1; // XYZ interrupt
   delay_ms(1);
   // config INT1 pin
-  if (write_cmd(INT_CONFIG_REG, 0x00) < 0) return -1; 
+  if (write_cmd(INT_CONFIG_REG, 0x00) < 0) return -1;
 
+#if defined(IMU_INT_GPIO)
   gpio_init_int(IMU_INT_GPIO, GPIO_IN_PU, GPIO_FALLING, imu_exti_isr);
+#endif
 
   return 0;
 }
@@ -141,7 +143,7 @@ int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
 {
   uint8_t reg = GYRO_DATA_X0_REG;
   uint8_t buf[6];
-
+/*
   if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
@@ -150,15 +152,15 @@ int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
   *(int16_t*)&buffer[0] = ((int16_t)(buf[0] << 8) | buf[1]); // x
   *(int16_t*)&buffer[2] = ((int16_t)(buf[2] << 8) | buf[3]); // y
   *(int16_t*)&buffer[4] = ((int16_t)(buf[4] << 8) | buf[5]); // z
-
+*/
   reg = ACCEL_DATA_X0_REG;
   if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
   }
 
-  *(int16_t*)&buffer[6] = ((int16_t)(buf[0] << 8) | buf[1]); // x
-  *(int16_t*)&buffer[8] = ((int16_t)(buf[2] << 8) | buf[3]); // y
+  *(int16_t*)&buffer[6] = -((int16_t)(buf[0] << 8) | buf[1]); // x
+  *(int16_t*)&buffer[8] = -((int16_t)(buf[2] << 8) | buf[3]); // y
   *(int16_t*)&buffer[10] = ((int16_t)(buf[4] << 8) | buf[5]); // z
 
   return 0;

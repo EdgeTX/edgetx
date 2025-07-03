@@ -480,13 +480,14 @@ TIM17:	ROTARY_ENCODER_TIMER
 // IMU
 #define IMU_I2C_BUS                     I2C_Bus_1
 #define IMU_I2C_ADDRESS                 0x6A
-#define IMU_INT_GPIO                  GPIO_PIN(GPIOG, 13) // PG.13
+/*
+#define IMU_INT_GPIO	                GPIO_PIN(GPIOG, 13) // PG.13
 // IMU_INT_EXTI IRQ
 #if !defined(USE_EXTI15_10_IRQ)
   #define USE_EXTI15_10_IRQ
   #define EXTI15_10_IRQ_Priority       6
 #endif
-
+*/
 
 //ROTARY emulation for trims as buttons
 #define ROTARY_ENCODER_NAVIGATION

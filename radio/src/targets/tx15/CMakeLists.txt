@@ -31,6 +31,7 @@ set(FUNCTION_SWITCHES_WITH_RGB YES)
 
 # IMU support
 set(IMU ON)
+add_definitions(-DIMU_ICM4207C)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
