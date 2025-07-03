@@ -81,8 +81,7 @@ QStringList const Translations::getTranslationPaths()
   // Then the resource file
   paths << APP_TRANSLATIONS_RESOURCE_PATH;
   // Finally the system folder (more likely for Qt translations than Companion ones)
-  paths << QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-
+  paths << QLibraryInfo::path(QLibraryInfo::TranslationsPath);
   return paths;
 }
 
@@ -103,7 +102,8 @@ void Translations::installTranslators()
       g.locale("");
     }
   }
-  qDebug() << "Locale name:" << locale.name() << "language:" << locale.nativeLanguageName() << "country:" << locale.nativeCountryName();
+
+  qDebug() << "Locale name:" << locale.name() << "language:" << locale.nativeLanguageName() << "country:" << locale.nativeTerritoryName();
 
   // Remove any existing translators, this lets us re-translate w/out restart.
   foreach (QTranslator * t, appTranslators) {
@@ -125,10 +125,7 @@ void Translations::installTranslators()
   // First try to install Qt translations for common GUI elements.
 
   QStringList qtFiles = QStringList() << "qt";
-  // After Qt5.3 some translation files are broken up into modules. We only need "qtbase" for now.
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
   qtFiles << "qtbase";
-#endif
 
   foreach (const QString & qtfile, qtFiles) {
     QTranslator * translator = new QTranslator(qApp);
