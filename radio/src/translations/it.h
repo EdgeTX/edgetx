@@ -19,11 +19,6 @@
  * GNU General Public License for more details.
  */
 
-/*
- * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
- * Update V2.9.x by: Marco Robustini <robustinimarco@gmail.com>
- * Fix V2.9.x by: MatCron <pancronos@gmail.com>
- */
 
 /*
  * Formatting octal codes available in TR_ strings:
@@ -112,7 +107,12 @@
 #define TR_SF_BACKLIGHT                "Retroillum."
 #define TR_SF_VARIO                    "Vario"
 #define TR_SF_TEST                     "Test"
-#define TR_SF_SAFETY                   "Blocco"
+
+#if LCD_W >= 212
+  #define TR_SF_SAFETY                 "Ignora"
+#else
+  #define TR_SF_SAFETY                 "Annulla"
+#endif
 
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "Modo Racing"
@@ -126,7 +126,6 @@
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetria")
 #define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
-
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("All","Tutto"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
@@ -199,6 +198,7 @@
 #else
   #define TR_CYC_VSRCRAW                "[C1]","[C2]","[C3]"
 #endif
+
 
 #define TR_SRC_BATT                     "Batt"
 #define TR_SRC_TIME                     "Time"
@@ -344,7 +344,7 @@
 #define TR_DELAYUP                      "Post.Su"
 #define TR_SLOWDOWN                     "Rall.Giù "
 #define TR_SLOWUP                       "Rall.Su"
-#define TR_MIXES                        "MIXER"
+#define TR_MIXES                        "MIXES"
 #define TR_CV                           "CV"
 #if defined(PCBNV14) || defined(PCBPL18)
 #define TR_GV                           "GV"
@@ -432,8 +432,13 @@
   #define TR_MOVESTICKSPOTS             "MUOVI STICKS/POTS"
 #else
   #define TR_MENUTOSTART                TR_ENTER "PER START"
+#if defined(SURFACE_RADIO)
   #define TR_SETMIDPOINT                TR("CENTRA STICKS A META'", "CENTRA STICKS/SLIDERS")
   #define TR_MOVESTICKSPOTS             "MUOVI STICK/POT"
+#else
+  #define TR_SETMIDPOINT                TR("SETTA ASSI AL CENTRO", "CENTRA ASSI/SLIDERS")
+  #define TR_MOVESTICKSPOTS             "MUOVI ASSI/POTS"
+#endif
   #define TR_MENUWHENDONE               TR_ENTER " PER FINIRE"
 #endif
 #define TR_TXnRX                        "Tx:\0Rx:"
@@ -502,15 +507,16 @@
 #define TR_CHANNELS2FAILSAFE            "Canali => Failsafe"
 #define TR_CHANNEL2FAILSAFE             "Canale => Failsafe"
 #define TR_MENUMODELSEL                 "MODELLI"
-#define TR_MENU_MODEL_SETUP             "CONFIGURA"
+#define TR_MENU_MODEL_SETUP             TR("SETTA", "SETTA MODELLO")
 #if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES            "MODI DI PILOTAGGIO"
-  #define TR_MENUFLIGHTMODE             "MODO DI PILOTAGGIO"
+#define TR_MENUFLIGHTMODES            "MODI DI PILOTAGGIO"
+#define TR_MENUFLIGHTMODE             "MODO DI PILOTAGGIO"
 #else
-  #define TR_MENUFLIGHTMODES            "FASI DI VOLO"
-  #define TR_MENUFLIGHTMODE             "FASE DI VOLO"
+#define TR_MENUFLIGHTMODES            "FASI DI VOLO"
+#define TR_MENUFLIGHTMODE             "FASE DI VOLO"
 #endif
 #define TR_MENUHELISETUP                "CONFIGURA ELI"
+
 #define TR_MENUINPUTS                   "INGRESSI"
 #define TR_MENULIMITS                   "USCITE"
 #define TR_MENUCURVES                   "CURVE"
@@ -812,8 +818,8 @@
 #define TR_FAILSAFESET                  TR("FAILSAFE", "IMPOSTAZIONI FAILSAFE")
 #define TR_REG_ID                       "Reg. ID"
 #define TR_OWNER_ID                     "Owner ID"
-#define TR_HOLD                         "Hold"
-#define TR_HOLD_UPPERCASE               "HOLD"
+#define TR_HOLD                         "tieni"
+#define TR_HOLD_UPPERCASE               "TIENI"
 #define TR_NONE                         "None"
 #define TR_NONE_UPPERCASE               "NONE"
 #define TR_MENUSENSOR                   "SENSORE"
@@ -1009,7 +1015,7 @@
   #define TR_ALIGNMENT                 "Allineamento"
   #define TR_ALIGN_LABEL               "Allineare il cartellino"
   #define TR_ALIGN_VALUE               "Allineare il valore"
-  #define TR_ALIGN_OPTS                { "Sinistra", "Mezzo", "Destra" }
+  #define TR_ALIGN_OPTS                { "Sinistra", "Centro", "Destra" }
   #define TR_TEXT                      "Testo"
   #define TR_COLOR                     "Colore"
   #define TR_MAIN_VIEW_X               "Vista principale XX"
@@ -1243,3 +1249,10 @@
 #define TR_WIDGET_SIZE            "Dimensione widget"
 
 #define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
+
+
+/*
+ * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
+ * Update V2.9.x by: Marco Robustini <robustinimarco@gmail.com>
+ * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 4/7/2025
+ */
