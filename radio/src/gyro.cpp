@@ -63,11 +63,12 @@ void Gyro::wakeup()
 
   int16_t ax = values[3];
   int16_t ay = values[4];
-  int16_t az = values[5];
+  //int16_t az = values[5];
 
 #if defined(IMU_ICM4207C)
-  roll = ax / 90;
-  pitch = ay / 90;
+  // Use only ACC value, they are really reliable
+  outputs[0] = (ax * float(RESX)) / 8192;
+  outputs[1] = (ay * float(RESX)) / 8192;
 #else
   int16_t gx = values[0];
   int16_t gy = values[1];
@@ -88,10 +89,10 @@ void Gyro::wakeup()
     roll  = roll  * ALPHA + rollAcc  * (1.0-ALPHA);
     pitch = pitch * ALPHA + pitchAcc * (1.0-ALPHA);
   }
-#endif
 
   outputs[0] = deg2RESX(roll);
   outputs[1] = deg2RESX(pitch);
+#endif
 }
 
 int16_t Gyro::scaledX()
