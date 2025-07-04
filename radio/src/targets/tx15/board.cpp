@@ -57,9 +57,7 @@
 #include "bitmapbuffer.h"
 #include "colors.h"
 
-
 #include "touch_driver.h"
-#include "imu_icm426xx.h"
 
 #include <string.h>
 

@@ -19,10 +19,15 @@
  * GNU General Public License for more details.
  */
 
+/*
+ WARNING: while this ICM42607C belong to the ICM426xx familly, it is NOT compatible
+		  with code for generic ICM4267XX. All register have different addresses
+*/
+
 #include "edgetx.h"
 #include "hal/i2c_driver.h"
 #include "stm32_i2c_driver.h"
-#include "imu_icm426xx.h"
+#include "icm42607C.h"
 #include "stm32_gpio.h"
 #include "inactivity_timer.h"
 #include "hal.h"

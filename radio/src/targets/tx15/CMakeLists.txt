@@ -149,7 +149,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/led_driver.cpp
   ${TARGET_SRC_DIR}/tp_gt911.cpp
   ${TARGET_SRC_DIR}/audio_driver.cpp
-  ${TARGET_SRC_DIR}/imu_icm426xx.cpp
+  drivers/icm42607C.cpp
   drivers/tas2505.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp

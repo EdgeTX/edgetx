@@ -19,6 +19,11 @@
  * GNU General Public License for more details.
  */
 
+/*
+ WARNING: while this ICM42607C belong to the ICM426xx familly, it is NOT compatible
+                  with code for generic ICM4267XX. All register have different addresses
+*/
+
 #pragma once
 
 #define ICM426xx_I2C_ADDR           0x68
