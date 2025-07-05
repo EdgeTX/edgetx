@@ -180,6 +180,8 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
     }
 
     *simOptions = g.profile[pId].simulatorOptions();
+    // refresh just in case the path has been changed. Note: can be overridden via CLI or startup ui
+    simOptions->sdPath = g.profile[pId].sdPath();
     cliOptsFound = true;
   }
 
