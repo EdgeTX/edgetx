@@ -1354,12 +1354,12 @@ bool isFlexSwitchSourceValid(int source)
 
 bool getStickInversion(int index)
 {
-  return bfGet<stickconfig_t>(g_eeGeneral.stickConfig, index, STICK_CFG_INV_BITS);
+  return bfGet<uint8_t>(g_eeGeneral.stickInvert, index, STICK_CFG_INV_BITS);
 }
 
 void setStickInversion(int index, bool value)
 {
-  g_eeGeneral.stickConfig = bfSet<stickconfig_t>(g_eeGeneral.stickConfig, value, index, STICK_CFG_INV_BITS);
+  g_eeGeneral.stickInvert = bfSet<uint8_t>(g_eeGeneral.stickInvert, value, index, STICK_CFG_INV_BITS);
 }
 
 bool getPotInversion(int index)
