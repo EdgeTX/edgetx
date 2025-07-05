@@ -216,8 +216,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return (IS_HORUS_OR_TARANIS(board) ? 500 : (id.contains("ppmca") ? 125 : 0));
     case SYMLimits:
       return 1;
-    case OptrexDisplay:
-      return (board == BOARD_SKY9X ? true : false);
     case HasVario:
       return Boards::isAir(board);
     case HasVarioSink:
@@ -234,8 +232,6 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return IS_TARANIS_XLITE(board) && !id.contains("stdr9m");
     case HasPPMStart:
       return true;
-    case HastxCurrentCalibration:
-      return (IS_SKY9X(board) ? true : false);
     case HasVolume:
       return true;
     case HasBrightness:
