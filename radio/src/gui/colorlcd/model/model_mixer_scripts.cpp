@@ -146,10 +146,8 @@ class ScriptEditWindow : public Page
         auto lbl = new DynamicText(
             line, rect_t{},
             [=]() {
-              char s[16];
-              getSourceString(
-                  s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
-              return std::string(s, sizeof(s) - 1);
+              char* s = getSourceString(MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
+              return std::string(s);
             });
         lbl->padLeft(PAD_LARGE);
         new DynamicNumber<int16_t>(

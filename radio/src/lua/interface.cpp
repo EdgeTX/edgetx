@@ -168,12 +168,7 @@ void luaGetInputs(ScriptInputsOutputs & sid)
           case 0:
             luaL_checktype(lsScripts, -2, LUA_TNUMBER); // key is number
             luaL_checktype(lsScripts, -1, LUA_TSTRING); // value is string
-            { // To preserve the string value, truncate to 6 chars and move it to the main stack
-              char str[7] = {0};
-              strncpy(str, lua_tostring(lsScripts, -1), 6);
-              lua_pushstring(mainState, &str[0]);
-            }
-            lua_pop(lsScripts, 1);
+            lua_xmove(lsScripts, mainState, 1);          // To preserve the string value, move it to the main stack
             lua_pushnil(lsScripts);              // Keep the stack balanced
             lua_insert(mainState, -2);           // Keep the coroutine at the top of the main stack
             si->name = lua_tostring(mainState, -2);
