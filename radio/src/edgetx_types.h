@@ -91,9 +91,6 @@ typedef uint32_t bitfield_channels_t;
 typedef uint16_t FlightModesType;
 typedef uint16_t source_t;
 
-// 4 sticks, 1bit per stick
-typedef uint8_t stickconfig_t;
-
 // 2 bits per switch, max 32 switches
 typedef uint64_t swconfig_t;
 typedef uint64_t swarnstate_t;
