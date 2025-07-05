@@ -233,6 +233,7 @@
 #endif
 
 #if defined(PCBFRSKY)
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENTER]"
 #elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
@@ -273,6 +274,7 @@
 #define TR_TIMER                        TR("Timer", "Timer ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                        "Partenza"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                      TR("Lim. Est.", "Limiti Estesi")
 #define TR_ETRIMS                       TR("Trim Est.", "Trim Estesi")
 #define TR_TRIMINC                      "Passo Trim"
@@ -422,21 +424,23 @@
 #define TR_CALIBRATION                  "Calibrazione"
 #define TR_VTRIM                        "Trim - +"
 #define TR_CALIB_DONE                   "Calibratione completa"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART                "Premi [ENT] per iniziare"
-  #define TR_SETMIDPOINT                "Centra sticks/pots/sliders e premi [ENT]"
-  #define TR_MOVESTICKSPOTS             "Muovi sticks/pots/sliders e premi [ENT]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART                TR_ENTER " PER INIZIO"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT                "CENTRA STICKS/SLIDERS"
   #define TR_MOVESTICKSPOTS             "MUOVI STICKS/POTS"
 #else
   #define TR_MENUTOSTART                TR_ENTER "PER START"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
+#else
   #define TR_SETMIDPOINT                TR("CENTRA STICKS A META'", "CENTRA STICKS/SLIDERS")
   #define TR_MOVESTICKSPOTS             "MUOVI STICK/POT"
-  #define TR_MENUWHENDONE               TR_ENTER " PER FINIRE"
 #endif
-#define TR_TXnRX                        "Tx:\0Rx:"
+  #define TR_MENUWHENDONE               TR_ENTER " PER FINIRE"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
+#define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                          4
 #define TR_NODATA                       "DATI ASSENTI"
 #define TR_US                           "us"

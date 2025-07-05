@@ -339,6 +339,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_ARRAY("serialPort", 8, 4, struct_serialConfig, nullptr),
   YAML_ARRAY("sticksConfig", 0, MAX_STICKS, struct_stickConfig, stick_name_valid),
   YAML_ARRAY("slidersConfig", 0, MAX_POTS, struct_sliderConfig, nullptr),
+  YAML_PADDING( 8 ),
   YAML_ARRAY("potsConfig", 4, 8, struct_potConfig, nullptr),
   YAML_ARRAY("switchConfig", 2, 32, struct_switchConfig, nullptr),
   YAML_ARRAY("flexSwitches", 0, MAX_FLEX_SWITCHES, struct_flexSwitch, flex_sw_valid),

@@ -278,6 +278,7 @@ extern const char STR_NO_PICTURE[];
 extern const char STR_TIMER[];
 extern const char STR_NO_TIMERS[];
 extern const char STR_START[];
+extern const char STR_NEXT[];
 extern const char STR_ELIMITS[];
 extern const char STR_ETRIMS[];
 extern const char STR_TRIMINC[];
@@ -471,6 +472,8 @@ extern const char STR_MENUTOSTART[];
 extern const char STR_SETMIDPOINT[];
 extern const char STR_MOVESTICKSPOTS[];
 extern const char STR_TX[];
+extern const char STR_AXISDIR[];
+extern const char STR_MENUAXISDIR[];
 #define STR_RX (STR_TX+OFS_RX)
 extern const char STR_NODATA[];
 extern const char STR_US[];
