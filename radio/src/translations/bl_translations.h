@@ -267,10 +267,10 @@
     #define TR_BL_FLASH_EXIT               "Esci dal modo scrittura."
 
     // Bootloader Horus specific - ASCII characters only
-    #define TR_BL_ERASE_INT_FLASH          "Erase Internal Flash Storage"
-    #define TR_BL_ERASE_FLASH              "Erase Flash Storage"
-    #define TR_BL_ERASE_FLASH_MSG          "This may take up to 200s"
-    #define TR_BL_RF_USB_ACCESS            "RF USB access"
+    #define TR_BL_ERASE_INT_FLASH          "Cancella la Flash Interna"
+    #define TR_BL_ERASE_FLASH              "Cancella la Flash"
+    #define TR_BL_ERASE_FLASH_MSG          "Durata fino a 200s"
+    #define TR_BL_RF_USB_ACCESS            "Accesso RF USB"
     #define TR_BL_CURRENT_FW               "Firmware corrente:"
 
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " per scegliere il file"
