@@ -15,3 +15,6 @@ include_directories(
   ${miniz_SOURCE_DIR}
   ${miniz_BINARY_DIR}
 )
+
+# suppress compiler warnings for this add-in only
+target_compile_options(miniz PRIVATE -Wno-unused-function)
