@@ -635,7 +635,6 @@ void checkSDfreeStorage() {
   }
 }
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
 static void checkFailsafe()
 {
   for (int i=0; i<NUM_MODULES; i++) {
@@ -652,9 +651,6 @@ static void checkFailsafe()
     }
   }
 }
-#else
-#define checkFailsafe()
-#endif
 
 #if defined(GUI)
 void checkAll(bool isBootCheck)

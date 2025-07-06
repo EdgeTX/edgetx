@@ -146,12 +146,14 @@ const char * const audioFilenames[] = {
   "midstck2",
   "midstck3",
   "midstck4",
-#if defined(PCBFRSKY)
+#if defined(PCBX9E)
   "midpot1",
   "midpot2",
-#if defined(PCBX9E)
   "midpot3",
   "midpot4",
+#else
+  "midpot1",
+  "midpot2",
 #endif
 #if defined(PCBX10)
   "midpot4",
@@ -976,15 +978,11 @@ void audioEvent(unsigned int index)
       case AU_POT6_MIDDLE:
       case AU_POT7_MIDDLE:
 #endif
-#if defined(PCBFRSKY)
       case AU_SLIDER1_MIDDLE:
       case AU_SLIDER2_MIDDLE:
 #if defined(PCBX9E)
       case AU_SLIDER3_MIDDLE:
       case AU_SLIDER4_MIDDLE:
-#endif
-#else
-      case AU_POT3_MIDDLE:
 #endif
         audioQueue.playTone(BEEP_DEFAULT_FREQ + 1500, 80, 20, PLAY_NOW);
         break;
