@@ -146,14 +146,11 @@ const char * const audioFilenames[] = {
   "midstck2",
   "midstck3",
   "midstck4",
-#if defined(PCBX9E)
   "midpot1",
   "midpot2",
+#if defined(PCBX9E)
   "midpot3",
   "midpot4",
-#else
-  "midpot1",
-  "midpot2",
 #endif
 #if defined(PCBX10)
   "midpot4",
@@ -166,11 +163,6 @@ const char * const audioFilenames[] = {
 #if defined(PCBX9E)
   "midslid3",
   "midslid4",
-#endif
-#else
-  "midpot1",
-  "midpot2",
-  "midpot3",
 #endif
   "mixwarn1",
   "mixwarn2",
@@ -397,7 +389,7 @@ inline void mixSample(audio_data_t * result, int16_t sample, unsigned int fade)
   *result = (audio_data_t)_sat_s16(tmp);
 #elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U16
   *result = (audio_data_t)_sat_u16((uint32_t)tmp);
-#endif 
+#endif
 }
 
 #define RIFF_CHUNK_SIZE 12
