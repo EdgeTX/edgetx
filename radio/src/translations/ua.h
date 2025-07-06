@@ -234,12 +234,10 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"	/* use english */
-#elif defined(PCBNV14)
-  #define TR_ENTER                     "[NEXT]"		/* use english */
+#if defined(PCBNV14) || defined(PCBPL18)
+  #define TR_ENTER                     "[NEXT]"     /* use english */
 #else
-  #define TR_ENTER                     "[MENU]"		/* use english */
+  #define TR_ENTER                     "[ENTER]"    /* use english */
 #endif
 
 #if defined(COLORLCD)
