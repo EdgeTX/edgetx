@@ -103,7 +103,6 @@ TEST(getSwitch, inputWithTrim)
 }
 #endif
 
-#if defined(PCBFRSKY)
 TEST(evalLogicalSwitches, playFile)
 {
   SYSTEM_RESET();
@@ -135,7 +134,6 @@ TEST(evalLogicalSwitches, playFile)
 
 #undef MODELNAME
 }
-#endif
 
 #define SWSRC_SA2 (SWSRC_FIRST_SWITCH + 2)
 #define SWSRC_SD2 (SWSRC_FIRST_SWITCH + 3 * 3 + 2)

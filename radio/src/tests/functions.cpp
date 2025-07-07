@@ -36,7 +36,6 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
          "values";
 }
 
-#if defined(PCBFRSKY)
 TEST_F(SpecialFunctionsTest, FlightReset)
 {
   g_model.customFn[0].swtch = SWSRC_FIRST_SWITCH;
@@ -122,6 +121,3 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 28);
 }
 #endif // #if defined(GVARS)
-
-#endif // #if defined(PCBFRSKY)
-
