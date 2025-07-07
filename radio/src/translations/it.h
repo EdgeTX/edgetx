@@ -19,11 +19,6 @@
  * GNU General Public License for more details.
  */
 
-/*
- * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
- * Update V2.9.x by: Marco Robustini <robustinimarco@gmail.com>
- * Fix V2.9.x by: MatCron <pancronos@gmail.com>
- */
 
 /*
  * Formatting octal codes available in TR_ strings:
@@ -112,7 +107,12 @@
 #define TR_SF_BACKLIGHT                "Retroillum."
 #define TR_SF_VARIO                    "Vario"
 #define TR_SF_TEST                     "Test"
-#define TR_SF_SAFETY                   "Blocco"
+
+#if LCD_W >= 212
+  #define TR_SF_SAFETY                 "Ignora"
+#else
+  #define TR_SF_SAFETY                 "Annulla"
+#endif
 
 #define TR_SF_SCREENSHOT               "Screenshot"
 #define TR_SF_RACING_MODE              "Modo Racing"
@@ -126,7 +126,6 @@
 #define TR_FSW_RESET_TELEM             TR("Telm", "Telemetria")
 #define TR_FSW_RESET_TRIMS             "Trims"
 #define TR_FSW_RESET_TIMERS            "Tmr1","Tmr2","Tmr3"
-
 
 #define TR_VFSWRESET                   TR_FSW_RESET_TIMERS,TR("All","Tutto"),TR_FSW_RESET_TELEM,TR_FSW_RESET_TRIMS
 
@@ -200,6 +199,7 @@
   #define TR_CYC_VSRCRAW                "[C1]","[C2]","[C3]"
 #endif
 
+
 #define TR_SRC_BATT                     "Batt"
 #define TR_SRC_TIME                     "Time"
 #define TR_SRC_GPS                      "GPS"
@@ -256,24 +256,24 @@
 #define TR_YES                          "Si"
 #define TR_NO                           "No"
 #define TR_DELETEMODEL                  "ELIMINA MODELLO"
-#define TR_COPYINGMODEL                 "Copia in corso.."
-#define TR_MOVINGMODEL                  "Spostamento..."
-#define TR_LOADINGMODEL                 "Caricamento..."
+#define TR_COPYINGMODEL                 "Copia modello..."
+#define TR_MOVINGMODEL                  "Sposta modello..."
+#define TR_LOADINGMODEL                 "Carica modello..."
 #define TR_UNLABELEDMODEL               "Senza etic."
 #define TR_NAME                         "Nome"
-#define TR_MODELNAME                    TR("Nome Mode.", "Nome Modello")
-#define TR_PHASENAME                    "Nome Fase"
+#define TR_MODELNAME                    TR("Nome", "Nome Modello")
+#define TR_PHASENAME                    "Nome Modo"
 #define TR_MIXNAME                      "Nome Mix"
 #define TR_INPUTNAME                    "Nome Ingr."
 #define TR_EXPONAME                     "Nome Expo"
-#define TR_BITMAP                       "Immagine"
+#define TR_BITMAP                       TR ("Foto modello", "Immagine modello")
 #define TR_NO_PICTURE                   "No immagine"
 #define TR_TIMER                        TR("Timer", "Timer ")
-#define TR_NO_TIMERS                   "No timers"
-#define TR_START                        "Partenza"
+#define TR_NO_TIMERS                    "No timers"
+#define TR_START                        "Avvio"
 #define TR_ELIMITS                      TR("Lim. Est.", "Limiti Estesi")
 #define TR_ETRIMS                       TR("Trim Est.", "Trim Estesi")
-#define TR_TRIMINC                      "Passo Trim"
+#define TR_TRIMINC                      "Fasi Trim"
 #define TR_DISPLAY_TRIMS                TR("Mos.Trims", "Mostra Trims")
 #define TR_TTRACE                       TR("Sor. Mot.", "Sorgente Motore")
 #define TR_TTRIM                        TR("Trim Mot.", "Trim Motore")
@@ -289,16 +289,16 @@
 #define TR_SWITCH                       "Inter."
 #define TR_FUNCTION_SWITCHES            "Interruttori personalizzabili"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
-#define TR_GROUP                       "Group"
+#define TR_GROUP                       "Gruppo"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
-#define TR_GROUPS                      "Always on groups"
-#define TR_LAST                        "Last"
-#define TR_MORE_INFO                   "More info"
-#define TR_SWITCH_TYPE                 "Type"
-#define TR_SWITCH_STARTUP              "Startup"
-#define TR_SWITCH_GROUP                "Group"
+#define TR_FS_ON_COLOR                 TR("ON:","ON Colore")
+#define TR_FS_OFF_COLOR                TR("OFF:","OFF Colore")
+#define TR_GROUPS                      "Sempre in gruppi"
+#define TR_LAST                        "Ultimo"
+#define TR_MORE_INFO                   "Più info"
+#define TR_SWITCH_TYPE                 "Tipo"
+#define TR_SWITCH_STARTUP              "Inizio"
+#define TR_SWITCH_GROUP                "Gruppo"
 #define TR_FUNCTION_SWITCH_GROUPS      "---", TR_SWITCH_GROUP" 1", TR_SWITCH_GROUP" 2", TR_SWITCH_GROUP" 3"
 #define TR_SF_SWITCH                    "Trigger"
 #define TR_TRIMS                        "Trims"
@@ -342,7 +342,7 @@
 #define TR_DELAYUP                      "Post.Su"
 #define TR_SLOWDOWN                     "Rall.Giù "
 #define TR_SLOWUP                       "Rall.Su"
-#define TR_MIXES                        "MIXER"
+#define TR_MIXES                        "MIXES"
 #define TR_CV                           "CV"
 #if defined(PCBNV14) || defined(PCBPL18)
 #define TR_GV                           "GV"
@@ -369,12 +369,12 @@
 #define TR_BATTERYCHARGING              "Ricarica..."
 #define TR_BATTERYFULL                  "Bat. carica"
 #define TR_BATTERYNONE                  "Assente!"
-#define TR_BATTERYWARNING               TR("Avv. Batt.", "Avviso Batteria")
+#define TR_BATTERYWARNING               TR("Batt. Bassa", "Batteria Scarica")
 #define TR_INACTIVITYALARM              "Inattività"
 #define TR_MEMORYWARNING                TR("Avv. Mem.", "Avviso Memoria")
 #define TR_ALARMWARNING                 "Suono spento"
 #define TR_RSSI_SHUTDOWN_ALARM          TR("RSSI spento", "controlla RSSI spegnendo")
-#define TR_TRAINER_SHUTDOWN_ALARM       TR("Spegnimento Trainer", "Controllo trainer allo spegnimento")
+#define TR_TRAINER_SHUTDOWN_ALARM       TR("Spegnimento Trainer", "Controlla trainer spegnendo")
 #define TR_MODEL_STILL_POWERED          "Radio ancora\nconnessa"
 #define TR_TRAINER_STILL_CONNECTED      "Trainer ancora\nconnesso"
 #define TR_USB_STILL_CONNECTED          "USB ancora\nconnesso"
@@ -383,7 +383,7 @@
 #define TR_THROTTLE_LABEL               "Motore"
 #define TR_THROTTLE_START               "Partenza motore"
 #define TR_THROTTLEREVERSE              TR("T-Invertito", "Invertito")
-#define TR_MINUTEBEEP                   TR("Minuto", "Minuto call")
+#define TR_MINUTEBEEP                   TR("Minuto", "Minuto breve")
 #define TR_BEEPCOUNTDOWN                TR("Conto rov", "Conto rovescia")
 #define TR_PERSISTENT                   TR("Persist.", "Persistente")
 #define TR_BACKLIGHT_LABEL              TR("Retroillu.", "Retroilluminazione")
@@ -430,8 +430,13 @@
   #define TR_MOVESTICKSPOTS             "MUOVI STICKS/POTS"
 #else
   #define TR_MENUTOSTART                TR_ENTER "PER START"
+#if defined(SURFACE_RADIO)
   #define TR_SETMIDPOINT                TR("CENTRA STICKS A META'", "CENTRA STICKS/SLIDERS")
   #define TR_MOVESTICKSPOTS             "MUOVI STICK/POT"
+#else
+  #define TR_SETMIDPOINT                TR("SETTA ASSI AL CENTRO", "CENTRA ASSI/SLIDERS")
+  #define TR_MOVESTICKSPOTS             "MUOVI ASSI/POTS"
+#endif
   #define TR_MENUWHENDONE               TR_ENTER " PER FINIRE"
 #endif
 #define TR_TXnRX                        "Tx:\0Rx:"
@@ -461,7 +466,7 @@
 #define TR_THROTTLE_PERCENT_LABEL       "% Motore"
 #define TR_BATT_LABEL                   "Batteria"
 #define TR_SESSION                      "Sessione"
-#define TR_MENUTORESET                  TR_ENTER" per azzerare"
+#define TR_MENUTORESET                  TR_ENTER" per resettare"
 #define TR_PPM_TRAINER                  "TR"
 #define TR_CH                           "CH"
 #define TR_MODEL                        "MODELLO"
@@ -499,16 +504,17 @@
 #endif
 #define TR_CHANNELS2FAILSAFE            "Canali => Failsafe"
 #define TR_CHANNEL2FAILSAFE             "Canale => Failsafe"
-#define TR_MENUMODELSEL                 "MODELLI"
-#define TR_MENU_MODEL_SETUP             "CONFIGURA"
+#define TR_MENUMODELSEL                 TR("MODELSEL", "SELEEZIONE MODELLO")
+#define TR_MENU_MODEL_SETUP             TR("SETTA", "SETTA MODELLO")
 #if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES            "MODI DI PILOTAGGIO"
-  #define TR_MENUFLIGHTMODE             "MODO DI PILOTAGGIO"
+#define TR_MENUFLIGHTMODES            "MODI DI PILOTAGGIO"
+#define TR_MENUFLIGHTMODE             "MODO DI PILOTAGGIO"
 #else
-  #define TR_MENUFLIGHTMODES            "FASI DI VOLO"
-  #define TR_MENUFLIGHTMODE             "FASE DI VOLO"
+#define TR_MENUFLIGHTMODES            "FASI DI VOLO"
+#define TR_MENUFLIGHTMODE             "FASE DI VOLO"
 #endif
 #define TR_MENUHELISETUP                "CONFIGURA ELI"
+
 #define TR_MENUINPUTS                   "INGRESSI"
 #define TR_MENULIMITS                   "USCITE"
 #define TR_MENUCURVES                   "CURVE"
@@ -810,8 +816,8 @@
 #define TR_FAILSAFESET                  TR("FAILSAFE", "IMPOSTAZIONI FAILSAFE")
 #define TR_REG_ID                       "Reg. ID"
 #define TR_OWNER_ID                     "Owner ID"
-#define TR_HOLD                         "Hold"
-#define TR_HOLD_UPPERCASE               "HOLD"
+#define TR_HOLD                         "tieni"
+#define TR_HOLD_UPPERCASE               "TIENI"
 #define TR_NONE                         "None"
 #define TR_NONE_UPPERCASE               "NONE"
 #define TR_MENUSENSOR                   "SENSORE"
@@ -990,7 +996,7 @@
 #define TR_INVERTED                    "Invertito"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Confronta tipo o funzione", "Prima variabile", "Seconda variabile o costante", "Seconda variabile o costante", "Condizione aggiuntiva per abilitare linea", "Durata minima ON dell'interruttore logico", "Durata minima TRUE per abilitare l'interruttore" }
+#define TR_LSW_DESCRIPTIONS            { "Confronta tipo o funzione", "Prima variabile", "Seconda variabile o costante", "Seconda variabile o costante", "Condizione aggiuntiva per abilitare linea", "Durata minima ON dell'interruttore logico", "Durata minima REALE per abilitare l'interruttore" }
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1005,9 +1011,9 @@
   #define TR_SIZE                      "Dimensione"
   #define TR_SHADOW                    "Ombra"
   #define TR_ALIGNMENT                 "Allineamento"
-  #define TR_ALIGN_LABEL               "Allineare il cartellino"
-  #define TR_ALIGN_VALUE               "Allineare il valore"
-  #define TR_ALIGN_OPTS                { "Sinistra", "Mezzo", "Destra" }
+  #define TR_ALIGN_LABEL               "Allinea etichetta"
+  #define TR_ALIGN_VALUE               "Allinea il valore"
+  #define TR_ALIGN_OPTS                { "Sinistra", "Centro", "Destra" }
   #define TR_TEXT                      "Testo"
   #define TR_COLOR                     "Colore"
   #define TR_MAIN_VIEW_X               "Vista principale XX"
@@ -1223,7 +1229,7 @@
 #define TR_SELECT_MENU_CLR        "Pulisci"
 #define TR_SELECT_MENU_INV        "Inverti"
 
-#define TR_SORT_ORDERS            "Nome A-Z","Nome Z-A","Meno utilizzato","Più utilizzato"
+#define TR_SORT_ORDERS            "Nome A-Z","Nome Z-A","Meno usati","Più usati"
 #define TR_SORT_MODELS_BY         "Ordina modelli per"
 #define TR_CREATE_NEW             "Crea"
 
@@ -1241,3 +1247,9 @@
 #define TR_WIDGET_SIZE            "Dimensione widget"
 
 #define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
+
+/*
+ * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
+ * Update V2.9.x by: Marco Robustini <robustinimarco@gmail.com>
+ * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 4/7/2025
+ */
