@@ -1150,8 +1150,8 @@ bool ftlInit(FrFTL* ftl, const FrFTLOps* cb, uint16_t flashSizeInMB)
 {
   // Check flash size
   bool found = false;
-  for (uint8_t i = 0; i < sizeof(supportedFlashSizes); i++) {
-    if (flashSizeInMB == supportedFlashSizes[i]) {
+  for (const auto& size : supportedFlashSizes) {
+    if (flashSizeInMB == size) {
       found = true;
       break;
     }
