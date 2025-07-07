@@ -1250,9 +1250,9 @@
 
 #define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
 
-
 /*
  * IT translations by: Romolo Manfredini <romolo.manfredini@gmail.com>
  * Update V2.9.x by: Marco Robustini <robustinimarco@gmail.com>
  * Fix V2.11.3 by: MatCron <pancronos@gmail.com> on 4/7/2025
  */
+ 
