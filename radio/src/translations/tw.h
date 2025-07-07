@@ -234,14 +234,11 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
-#elif !defined(HARDWARE_KEYS)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
-
 #if defined(COLORLCD)
   #define TR_EXIT                      "RTN"
   #define TR_OK                        TR_ENTER
