@@ -46,6 +46,7 @@ class RadioWidget : public QWidget
       RADIO_WIDGET_TRIM,    // trim axis, usually 2 buttons & slider
       RADIO_WIDGET_STICK,   // actually one axis of a stick
       RADIO_WIDGET_KEY,     // UI key/pushbutton
+      RADIO_WIDGET_FUNC_SWITCH,
       RADIO_WIDGET_ENUM_COUNT
     };
 

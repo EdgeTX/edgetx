@@ -29,6 +29,7 @@
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 #include "os/time.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -91,14 +92,17 @@ void firmwareTraceCb(const char * text)
 
 void fsLedRGB(uint8_t idx, uint32_t color)
 {
+  rgbSetLedColor(idx, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
 }
 
 void fsLedOn(uint8_t idx)
 {
+  rgbSetLedColor(idx, 0xFF, 0xFF, 0xFF);
 }
 
 void fsLedOff(uint8_t idx)
 {
+  rgbSetLedColor(idx, 0, 0, 0);
 }
 
 // Serial port handling needs to know about OpenTxSimulator, so we we
@@ -771,6 +775,7 @@ void OpenTxSimulator::run()
   ++loops;
 
   checkLcdChanged();
+  checkFuncSwitchChanged();
 
   if (!(loops % 5)) {
     checkOutputsChanged();
@@ -801,6 +806,17 @@ bool OpenTxSimulator::checkLcdChanged()
     return true;
   }
   return false;
+}
+
+void OpenTxSimulator::checkFuncSwitchChanged()
+{
+  for (int i = 0; i < CPN_MAX_SWITCHES; i += 1) {
+    if (switchIsCustomSwitch(i)) {
+      uint8_t cfs = switchGetCustomSwitchIdx(i);
+      uint32_t c = rgbGetLedColor(cfs);
+      emit fsColorChange(i, c);
+    }
+  }
 }
 
 void OpenTxSimulator::checkOutputsChanged()
