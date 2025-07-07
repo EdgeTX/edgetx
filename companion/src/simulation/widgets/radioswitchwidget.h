@@ -24,8 +24,10 @@
 #include "radiowidget.h"
 #include "boards.h"
 #include "simulator.h"
+#include "simulatorinterface.h"
 
 #include <QSlider>
+#include <QPushButton>
 #include <QTimer>
 #include <QToolButton>
 
@@ -65,8 +67,6 @@ class RadioSwitchWidget : public RadioWidget
       m_slider->setSingleStep(m_stepSize);
       m_slider->setPageStep(m_stepSize);
       m_slider->setValue(m_value);
-
-      // TODO: connect custom function switches to model data?
 
       if (swType == Board::SWITCH_TOGGLE) {
         QToolButton * lockBtn = new QToolButton(this);
@@ -145,5 +145,62 @@ class RadioSwitchWidget : public RadioWidget
 
     QSlider * m_slider;
     quint16 m_stepSize;
+};
 
+class RadioFuncSwitchWidget : public RadioWidget
+{
+  Q_OBJECT
+
+  public:
+
+    explicit RadioFuncSwitchWidget(SimulatorInterface *simulator, Board::SwitchType type, const QString & labelText, int value = -1, QWidget * parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags()) :
+      RadioWidget(labelText, value, parent, f)
+    {
+      init(simulator, type);
+    }
+
+    void init(SimulatorInterface *simulator, Board::SwitchType swType)
+    {
+      m_type = RADIO_WIDGET_FUNC_SWITCH;
+
+      m_button = new QPushButton("");
+      m_button->setFixedWidth(30);
+      m_button->setFixedHeight(20);
+
+      setWidget(m_button);
+
+      // TODO: connect custom function switches to model data?
+
+      connect(m_button, &QPushButton::clicked, this, &RadioFuncSwitchWidget::setValueFromButton);
+      connect(this, &RadioWidget::valueChanged, m_button, [=](int value) {
+        m_value = value;
+      });
+      connect(simulator, &SimulatorInterface::fsColorChange, this, &RadioFuncSwitchWidget::onFsColorChange);
+    }
+
+    void setValueFromButton()
+    {
+      setValue(1);
+      QTimer::singleShot(500, this, SLOT(onMomentaryTimeout()));
+    }
+
+  private slots:
+    void onFsColorChange(quint8 index, qint32 color)
+    {
+      if (index == m_index && color != lastColor) {
+        lastColor = color;
+        QColor c = QColor((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
+        QString qss = QString("background-color: %1; border: none;").arg(c.name());
+        m_button->setStyleSheet(qss);
+      }
+    }
+
+    void onMomentaryTimeout()
+    {
+      setValue(-1);
+    }
+
+  private:
+    QPushButton * m_button;
+    qint32 lastColor = -1;
 };

@@ -88,6 +88,7 @@ class RadioCustSwitchesDiagsWindow : public Window
                         {FS_3RD_COLUMN, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
                         [=]() { return STR_OFFON[getFSLedState(i)]; });
 #endif
+        r += 1;
       }
     }
   }

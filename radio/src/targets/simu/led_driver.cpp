@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include <stdint.h>
+#include "edgetx.h"
 #include "hal/rgbleds.h"
 #include "definitions.h"
 
@@ -30,8 +30,7 @@ void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
-
-void rgbSetLedColor(uint8_t, uint8_t, uint8_t, uint8_t) {}
+bool fsLedState(uint8_t i) { return g_model.customSwitches[i].state;}
 void rgbLedColorApply() {}
 
 uint8_t getRGBColorIndex(uint32_t color)
@@ -48,7 +47,15 @@ static uint32_t _fs_switch_colors[NUM_FUNCTIONS_SWITCHES] = {0};
 static uint32_t _fs_switch_color_mask = 0;
 static uint32_t _fs_switch_mask = 0;
 
-void fsLedRGB(uint8_t index, uint32_t col)
+void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
+{
+  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
+  pixel[0] = g;
+  pixel[1] = r;
+  pixel[2] = b;
+}
+
+uint32_t rgbGetLedColor(uint8_t led)
 {
   _fs_switch_color_mask |= (1 << index);
   _fs_switch_colors[index] = col;

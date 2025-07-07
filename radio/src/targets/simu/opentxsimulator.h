@@ -102,6 +102,7 @@ class DLLEXPORT OpenTxSimulator : public SimulatorInterface
     void setStopRequested(bool stop);
     bool checkLcdChanged();
     void checkOutputsChanged();
+    void checkFuncSwitchChanged();
     uint8_t getStickMode();
     const char * getPhaseName(unsigned int phase);
     const QString getCurrentPhaseName();
