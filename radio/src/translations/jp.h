@@ -650,6 +650,9 @@
 #define TR_POWER_METER_INT             "出力メーター\n(内部)"
 #define TR_SPECTRUM_ANALYSER_EXT       "スペクトラム\n(外部)"
 #define TR_SPECTRUM_ANALYSER_INT       "スペクトラム\n(内部)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SDカード空き容量なし"
 #if defined(COLORLCD)
   #define TR_SDCARD_FULL_EXT           TR_SDCARD_FULL "\nログとスクリーンショット保存が無効"
