@@ -156,8 +156,7 @@ void TextEdit::openEdit()
                           lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
                         text, length);
     edit->setChangeHandler([=]() {
-      std::string s(text, length);
-      setText(s);
+      update();
       if (updateHandler) updateHandler();
       lv_group_focus_obj(lvobj);
       edit->hide();
