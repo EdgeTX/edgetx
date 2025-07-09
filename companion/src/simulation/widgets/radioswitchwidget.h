@@ -171,7 +171,8 @@ class RadioFuncSwitchWidget : public RadioWidget
 
       // TODO: connect custom function switches to model data?
 
-      connect(m_button, &QPushButton::clicked, this, &RadioFuncSwitchWidget::setValueFromButton);
+      connect(m_button, &QPushButton::pressed, this, &RadioFuncSwitchWidget::onPressed);
+      connect(m_button, &QPushButton::released, this, &RadioFuncSwitchWidget::onReleased);
       connect(this, &RadioWidget::valueChanged, m_button, [=](int value) {
         // Fix saved state from old version
         if (value > 1) value = 1;
@@ -181,10 +182,14 @@ class RadioFuncSwitchWidget : public RadioWidget
       connect(simulator, &SimulatorInterface::fsColorChange, this, &RadioFuncSwitchWidget::onFsColorChange);
     }
 
-    void setValueFromButton()
+    void onPressed()
     {
       setValue(1);
-      QTimer::singleShot(500, this, SLOT(onMomentaryTimeout()));
+    }
+
+    void onReleased()
+    {
+      setValue(-1);
     }
 
   private slots:
@@ -196,11 +201,6 @@ class RadioFuncSwitchWidget : public RadioWidget
         QString qss = QString("background-color: %1; border: none;").arg(c.name());
         m_button->setStyleSheet(qss);
       }
-    }
-
-    void onMomentaryTimeout()
-    {
-      setValue(-1);
     }
 
   private:
