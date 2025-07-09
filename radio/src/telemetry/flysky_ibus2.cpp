@@ -424,6 +424,8 @@ void sendFlyskytelemtry(uint16_t type, uint8_t id, int32_t value) {
 
     if (sensor->unit == UNIT_VOLTS) value = (int16_t) value; // Voltage types are unsigned 16bit integers
 
+    //  Remapped to single GPS sensor:
+    if (type == VIRTUAL_GPS_LON) type = VIRTUAL_GPS_LAT;
     setFlyskyTelemetryValue(type, id, value, sensor->unit, sensor->precision);
     return;
   }
@@ -454,6 +456,8 @@ void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId, uint8_t instan
     if (unit == UNIT_RPMS) {
       telemetrySensor.custom.ratio = 1;
       telemetrySensor.custom.offset = 1;
+    } else if (unit == UNIT_GPS_LATITUDE || unit == UNIT_GPS_LONGITUDE) {
+      telemetrySensor.unit = UNIT_GPS;
     }
   }
   else {
