@@ -153,7 +153,7 @@ class RadioFuncSwitchWidget : public RadioWidget
 
   public:
 
-    explicit RadioFuncSwitchWidget(SimulatorInterface *simulator, Board::SwitchType type, const QString & labelText, int value = -1, QWidget * parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags()) :
+    explicit RadioFuncSwitchWidget(SimulatorInterface *simulator, Board::SwitchType type, const QString & labelText, int value, QWidget * parent, Qt::WindowFlags f = Qt::WindowFlags()) :
       RadioWidget(labelText, value, parent, f)
     {
       init(simulator, type);
@@ -173,6 +173,9 @@ class RadioFuncSwitchWidget : public RadioWidget
 
       connect(m_button, &QPushButton::clicked, this, &RadioFuncSwitchWidget::setValueFromButton);
       connect(this, &RadioWidget::valueChanged, m_button, [=](int value) {
+        // Fix saved state from old version
+        if (value > 1) value = 1;
+        else if (value < -1) value = -1;
         m_value = value;
       });
       connect(simulator, &SimulatorInterface::fsColorChange, this, &RadioFuncSwitchWidget::onFsColorChange);
