@@ -205,12 +205,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
   }
 #endif
 
-#if defined(SIMU_EXCEPTIONS)
-  signal(SIGFPE, sig);
-  signal(SIGSEGV, sig);
-  try {
-#endif
-
   // Init LCD callbacks
   lcdInit();
 
@@ -228,12 +222,6 @@ void simuStart(bool tests, const char * sdPath, const char * settingsPath)
 #endif
 
   simu_running = true;
-
-#if defined(SIMU_EXCEPTIONS)
-  }
-  catch (...) {
-  }
-#endif
 }
 
 extern task_handle_t mixerTaskId;
@@ -250,10 +238,6 @@ void simuStop()
   simu_shutdown = true;
   task_shutdown_all();
 
-#if defined(SIMU_AUDIO)
-  stopAudio();
-#endif
-
   simu_running = false;
 }
 
@@ -268,111 +252,6 @@ bool simuIsRunning()
 {
   return simu_running;
 }
-
-void audioConsumeCurrentBuffer()
-{
-}
-
-void audioSetVolume(uint8_t volume)
-{
-  simuAudio.currentVolume = 127 * volume * simuAudio.volumeGain / VOLUME_LEVEL_MAX / 10;
-  // TRACE_SIMPGMSPACE("setVolume(): in: %u, out: %u", volume, simuAudio.currentVolume);
-}
-
-#if defined(SIMU_AUDIO)
-void copyBuffer(void* dest, const int16_t* buff, unsigned samples)
-{
-  int16_t* i16_dst = (int16_t*)dest;
-  for (unsigned i = 0; i < samples; i++) {
-    int32_t sample = (((int32_t)buff[i] * (int32_t)simuAudio.currentVolume) / 127);
-    if (sample > INT16_MAX) sample = INT16_MAX;
-    else if (sample < INT16_MIN) sample = INT16_MIN;
-    *(i16_dst++) = (int16_t)sample;
-  }
-}
-
-void fillAudioBuffer(void *udata, Uint8 *stream, int len)
-{
-  SDL_memset(stream, 0, len);
-
-  if (simuAudio.leftoverLen) {
-    int len1 = min(len/2, simuAudio.leftoverLen);
-    copyBuffer(stream, simuAudio.leftoverData, len1);
-    len -= len1*2;
-    stream += len1*2;
-    simuAudio.leftoverLen -= len1;
-    // putchar('l');
-    if (simuAudio.leftoverLen) return;		// buffer fully filled
-  }
-
-  if (audioQueue.buffersFifo.filledAtleast(len / (AUDIO_BUFFER_SIZE * 2) + 1)) {
-    while (true) {
-      const AudioBuffer* nextBuffer =
-          audioQueue.buffersFifo.getNextFilledBuffer();
-      if (nextBuffer) {
-        if (len >= nextBuffer->size * 2) {
-          copyBuffer(stream, nextBuffer->data, nextBuffer->size);
-          stream += nextBuffer->size * 2;
-          len -= nextBuffer->size * 2;
-          // putchar('+');
-          audioQueue.buffersFifo.freeNextFilledBuffer();
-        } else {
-          // partial
-          copyBuffer(stream, nextBuffer->data, len / 2);
-          simuAudio.leftoverLen = (nextBuffer->size - len / 2);
-          memcpy(simuAudio.leftoverData, &nextBuffer->data[len / 2],
-                 simuAudio.leftoverLen * 2);
-          len = 0;
-          // putchar('p');
-          audioQueue.buffersFifo.freeNextFilledBuffer();
-          break;
-        }
-      } else {
-        break;
-      }
-    }
-  }
-
-  // fill the rest of buffer with silence
-  if (len > 0) {
-    SDL_memset(stream, 0x8000, len);  // make sure this is silence.
-  }
-}
-
-int startAudio(int volumeGain)
-{
-  simuAudio = {
-    .volumeGain = volumeGain,
-    .leftoverLen = 0,
-  };
-
-  TRACE("startAudioThread(%d)", volumeGain);
-  audioSetVolume(VOLUME_LEVEL_DEF);
-
-  /* Set the audio format */
-  SDL_AudioSpec desired = {
-    .freq = AUDIO_SAMPLE_RATE,
-    .format = AUDIO_S16SYS,
-    .channels = 1,
-    .samples = AUDIO_BUFFER_SIZE * 2,
-    .callback = fillAudioBuffer,
-    .userdata = nullptr,
-  };
-
-  SDL_AudioSpec obtained;
-  if ( SDL_OpenAudio(&desired, &obtained) < 0 ) {
-    fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
-    return -1;
-  }
-  SDL_PauseAudio(0);
-  return 0;
-}
-
-void stopAudio()
-{
-  SDL_CloseAudio();
-}
-#endif // #if defined(SIMU_AUDIO)
 
 #if !defined(COLORLCD)
 void lcdSetRefVolt(uint8_t val)
@@ -617,6 +496,12 @@ const etx_serial_port_t* auxSerialGetPort(int port_nr)
 struct TouchState simTouchState = {};
 bool simTouchOccured = false;
 
+bool touchPanelInit()
+{
+  simTouchState.x = simTouchState.y = 0;
+  return true;
+}
+
 bool touchPanelEventOccured()
 {
   if(simTouchOccured)
@@ -625,6 +510,20 @@ bool touchPanelEventOccured()
     return true;
   }
   return false;
+}
+
+void touchPanelDown(short x, short y)
+{
+  simTouchState.x = x;
+  simTouchState.y = y;
+  simTouchState.event = TE_DOWN;
+  simTouchOccured = true;
+}
+
+void touchPanelUp()
+{
+  simTouchState.event = TE_UP;
+  simTouchOccured = true;
 }
 
 struct TouchState touchPanelRead()
