@@ -810,6 +810,7 @@ bool OpenTxSimulator::checkLcdChanged()
 
 void OpenTxSimulator::checkFuncSwitchChanged()
 {
+#if defined(FUNCTION_SWITCHES)
   for (int i = 0; i < CPN_MAX_SWITCHES; i += 1) {
     if (switchIsCustomSwitch(i)) {
       uint8_t cfs = switchGetCustomSwitchIdx(i);
@@ -817,6 +818,7 @@ void OpenTxSimulator::checkFuncSwitchChanged()
       emit fsColorChange(i, c);
     }
   }
+#endif
 }
 
 void OpenTxSimulator::checkOutputsChanged()
