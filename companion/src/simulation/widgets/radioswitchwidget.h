@@ -164,8 +164,8 @@ class RadioFuncSwitchWidget : public RadioWidget
       m_type = RADIO_WIDGET_FUNC_SWITCH;
 
       m_button = new QPushButton("");
+      m_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
       m_button->setFixedWidth(30);
-      m_button->setFixedHeight(20);
 
       setWidget(m_button);
 
