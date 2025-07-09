@@ -655,6 +655,9 @@
 #define TR_POWER_METER_INT             "Изм мощност (Внут)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Спек анализ (Внеш)"
 #define TR_SPECTRUM_ANALYSER_INT       "Спек анализ (Внут)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD карта заполнена"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nЛоги и скриншоты откл"
