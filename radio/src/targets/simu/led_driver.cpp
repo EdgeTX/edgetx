@@ -30,8 +30,16 @@ void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
-bool fsLedState(uint8_t i) { return g_model.customSwitches[i].state;}
 void rgbLedColorApply() {}
+
+bool fsLedState(uint8_t i)
+{
+#if defined(FUNCTION_SWITCHES)
+  return g_model.customSwitches[i].state;
+#else
+  return false;
+#endif
+}
 
 uint8_t getRGBColorIndex(uint32_t color)
 {
