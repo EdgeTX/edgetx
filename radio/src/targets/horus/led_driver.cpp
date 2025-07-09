@@ -50,7 +50,7 @@ void ledInit()
 #endif
 }
 
-#if !defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
 gpio_t fsLeds[] = {FSLED_GPIO_1, FSLED_GPIO_2, FSLED_GPIO_3,
                    FSLED_GPIO_4, FSLED_GPIO_5, FSLED_GPIO_6};
 
