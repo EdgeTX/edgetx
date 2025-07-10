@@ -174,9 +174,6 @@ class RadioFuncSwitchWidget : public RadioWidget
       connect(m_button, &QPushButton::pressed, this, &RadioFuncSwitchWidget::onPressed);
       connect(m_button, &QPushButton::released, this, &RadioFuncSwitchWidget::onReleased);
       connect(this, &RadioWidget::valueChanged, m_button, [=](int value) {
-        // Fix saved state from old version
-        if (value > 1) value = 1;
-        else if (value < -1) value = -1;
         m_value = value;
       });
       connect(simulator, &SimulatorInterface::fsColorChange, this, &RadioFuncSwitchWidget::onFsColorChange);
