@@ -640,7 +640,12 @@ static void redraw()
   // Adjust window size
   if (show_win) {
     int min_w = calc_min_width();
-    SDL_SetWindowMinimumSize(window, min_w, 400);
+    int w, h;
+    SDL_GetWindowMinimumSize(window, &w, &h);
+    if (w < min_w || h < 400) {
+      SDL_Log("Window width: %d < %d", w, min_w);
+      SDL_SetWindowMinimumSize(window, min_w, 400);
+    }
   }
 }
 
@@ -766,10 +771,9 @@ int main(int argc, char* argv[])
                             SDL_WINDOWPOS_CENTERED, window_width, window_height,
                             window_flags);
 
-  renderer = SDL_CreateRenderer(
-               window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   if (renderer == NULL) {
-    SDL_Log("Error creating SDL_Renderer!");
+    SDL_LogError(SDL_LOG_CATEGORY_RENDER, "cannot create SDL_Renderer!");
     return 0;
   }
 
@@ -830,8 +834,7 @@ int main(int argc, char* argv[])
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
     if (event->type == SDL_WINDOWEVENT &&
-        (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
-         event->window.event == SDL_WINDOWEVENT_RESIZED)) {
+        (event->window.event == SDL_WINDOWEVENT_EXPOSED)) {
       redraw();
       return 0;
     }
