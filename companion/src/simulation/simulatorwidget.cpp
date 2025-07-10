@@ -763,7 +763,7 @@ void SimulatorWidget::onPhaseChanged(qint32 phase, const QString & name)
 
 void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value)
 {
-  qDebug() << type << index << value;
+  // qDebug() << type << index << value;
   if (!simulator || index < 0)
     return;
 

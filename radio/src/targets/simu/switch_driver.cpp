@@ -40,7 +40,7 @@ struct hw_switch_def {
 
 #include "simu_switches.inc"
 
-int8_t switchesStates[MAX_SWITCHES] = { -1 };
+int8_t switchesStates[MAX_SWITCHES];
 
 void simuSetSwitch(uint8_t swtch, int8_t state)
 {
@@ -48,7 +48,11 @@ void simuSetSwitch(uint8_t swtch, int8_t state)
   switchesStates[swtch] = state;
 }
 
-void boardInitSwitches() {}
+void boardInitSwitches()
+{
+  for (int i = 0; i < MAX_SWITCHES; i += 1)
+    switchesStates[i] = -1;
+}
 
 SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
