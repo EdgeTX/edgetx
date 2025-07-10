@@ -98,11 +98,11 @@ enum {
 
 #if defined(RADIO_GX12)
 #define NUM_FUNCTIONS_SWITCHES 8
+#define NUM_FUNCTIONS_GROUPS   4
 #else
 #define NUM_FUNCTIONS_SWITCHES 6
-#endif
-
 #define NUM_FUNCTIONS_GROUPS   3
+#endif
 
 #else //FUNCTION_SWITCHES
 

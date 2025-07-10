@@ -805,7 +805,7 @@ static const struct YamlNode struct_customSwitch[] = {
   YAML_IDX_CUST("sw",cfs_idx_read,cfs_idx_write),
   YAML_STRING("name", 3),
   YAML_ENUM("type", 3, enum_SwitchConfig, NULL),
-  YAML_UNSIGNED( "group", 2 ),
+  YAML_UNSIGNED( "group", 3 ),
   YAML_ENUM("start", 2, enum_fsStartPositionType, NULL),
   YAML_UNSIGNED( "state", 1 ),
   YAML_END
@@ -879,7 +879,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("functionSwitchStartConfig",r_functionSwitchStartConfig,nullptr),
   YAML_CUSTOM("functionSwitchLogicalState",r_functionSwitchLogicalState,nullptr),
   YAML_ARRAY("switchNames", 0, NUM_FUNCTIONS_SWITCHES, struct_cfsNameConfig, nullptr),
-  YAML_ARRAY("customSwitches", 32, 6, struct_customSwitch, isAlwaysActive),
+  YAML_ARRAY("customSwitches", 40, 6, struct_customSwitch, isAlwaysActive),
   YAML_ARRAY("cfsGroupOn", 1, 8, struct_cfsGroupOn, cfsGroupIsActive),
   YAML_PADDING( 8 ),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
