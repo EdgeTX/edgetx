@@ -649,7 +649,7 @@ PACK(struct customSwitch {
   CUST_IDX(sw, cfs_idx_read, cfs_idx_write);
   NOBACKUP(char name[LEN_SWITCH_NAME]);
   uint8_t type:3 ENUM(SwitchConfig);
-  uint8_t group:2;
+  uint8_t group:3;
   uint8_t start:2 ENUM(fsStartPositionType);
   uint8_t state:1;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)

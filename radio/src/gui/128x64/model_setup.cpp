@@ -102,6 +102,9 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_GROUP3_LABEL,
   ITEM_MODEL_SETUP_GROUP3_ALWAYS_ON,
   ITEM_MODEL_SETUP_GROUP3_START,
+  ITEM_MODEL_SETUP_GROUP4_LABEL,
+  ITEM_MODEL_SETUP_GROUP4_ALWAYS_ON,
+  ITEM_MODEL_SETUP_GROUP4_START,
 #endif
   ITEM_MODEL_SETUP_EXTENDED_LIMITS,
   ITEM_MODEL_SETUP_EXTENDED_TRIMS,
@@ -274,6 +277,7 @@ static uint8_t FS_ROW(uint8_t value) { return expandState.functionSwitches ? val
 uint8_t G1_ROW(int8_t value) { return (firstSwitchInGroup(1) >= 0) ? value : HIDDEN_ROW; }
 uint8_t G2_ROW(int8_t value) { return (firstSwitchInGroup(2) >= 0) ? value : HIDDEN_ROW; }
 uint8_t G3_ROW(int8_t value) { return (firstSwitchInGroup(3) >= 0) ? value : HIDDEN_ROW; }
+uint8_t G4_ROW(int8_t value) { return (firstSwitchInGroup(4) >= 0) ? value : HIDDEN_ROW; }
 #endif
 
 static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value : HIDDEN_ROW; }
@@ -385,7 +389,10 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
                                   FS_ROW(G2_ROW(0)),  \
                                   FS_ROW(G3_ROW(LABEL())), \
                                   FS_ROW(G3_ROW(0)),  \
-                                  FS_ROW(G3_ROW(0)),
+                                  FS_ROW(G3_ROW(0)),  \
+                                  FS_ROW(G4_ROW(LABEL())), \
+                                  FS_ROW(G4_ROW(0)),  \
+                                  FS_ROW(G4_ROW(0)),
 #else
   #define FUNCTION_SWITCHES_ROWS
 #endif
@@ -710,7 +717,7 @@ static void menuModelCFSOne(event_t event)
         break;
 
       case CFS_FIELD_GROUP:
-        group = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SWITCH_GROUP, STR_FSGROUPS, group, 0, 3, attr, event, 0, checkCFSGroupAvailable);
+        group = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_SWITCH_GROUP, STR_FSGROUPS, group, 0, NUM_FUNCTIONS_GROUPS, attr, event, 0, checkCFSGroupAvailable);
         if (attr && checkIncDec_Ret) {
           int oldGroup = g_model.cfsGroup(swIndex);
           if (groupHasSwitchOn(group))
@@ -1069,6 +1076,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_GROUP1_LABEL:
       case ITEM_MODEL_SETUP_GROUP2_LABEL:
       case ITEM_MODEL_SETUP_GROUP3_LABEL:
+      case ITEM_MODEL_SETUP_GROUP4_LABEL:
         {
           int group = (k - ITEM_MODEL_SETUP_GROUP1_LABEL) / 3 + 1;
           lcdDrawText(INDENT_WIDTH, y, STR_GROUP);
@@ -1079,6 +1087,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON:
       case ITEM_MODEL_SETUP_GROUP2_ALWAYS_ON:
       case ITEM_MODEL_SETUP_GROUP3_ALWAYS_ON:
+      case ITEM_MODEL_SETUP_GROUP4_ALWAYS_ON:
         {
           uint8_t group = (k - ITEM_MODEL_SETUP_GROUP1_ALWAYS_ON) / 3 + 1;
           lcdDrawText(INDENT_WIDTH * 2, y, STR_GROUP_ALWAYS_ON);
@@ -1094,6 +1103,7 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_GROUP1_START:
       case ITEM_MODEL_SETUP_GROUP2_START:
       case ITEM_MODEL_SETUP_GROUP3_START:
+      case ITEM_MODEL_SETUP_GROUP4_START:
         {
           uint8_t group = (k - ITEM_MODEL_SETUP_GROUP1_START) / 3 + 1;
           lcdDrawText(INDENT_WIDTH * 2, y, STR_START);
