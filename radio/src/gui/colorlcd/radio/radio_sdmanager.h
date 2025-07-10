@@ -23,6 +23,7 @@
 
 #include "dataconstants.h"
 #include "tabsgroup.h"
+#include "pagegroup.h"
 
 enum MultiModuleType : short;
 
@@ -35,7 +36,7 @@ class RadioSdManagerPage : public PageTab
   FilePreview* preview = nullptr;
   
  public:
-  RadioSdManagerPage();
+  RadioSdManagerPage(PageDef& pageDef);
   void build(Window* window) override;
 
  protected:

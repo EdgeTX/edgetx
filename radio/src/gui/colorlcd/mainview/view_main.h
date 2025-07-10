@@ -26,7 +26,7 @@
 
 class SetupWidgetsPage;
 class SetupTopBarWidgetsPage;
-class ViewMainMenu;
+class QuickMenu;
 
 class ViewMain : public NavWindow
 {
@@ -95,7 +95,7 @@ class ViewMain : public NavWindow
   TopBar* topbar = nullptr;
   bool widget_select = false;
   lv_timer_t* widget_select_timer = nullptr;
-  ViewMainMenu* viewMainMenu = nullptr;
+  QuickMenu* viewMainMenu = nullptr;
 
   void deleteLater(bool detach = true, bool trash = true) override;
 
