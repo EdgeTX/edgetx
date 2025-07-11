@@ -51,31 +51,89 @@ if(EdgeTX_SUPERBUILD)
   # Add explicit targets for triggering cmake in the external projects
   set_property(DIRECTORY PROPERTY EP_STEP_TARGETS configure clean)
 
-  # Native targets
-  ExternalProject_Add(native
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    BINARY_DIR ${CMAKE_BINARY_DIR}/native
-    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    CMAKE_CACHE_ARGS
-      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
-      -DEdgeTX_SUPERBUILD:BOOL=0
-      -DNATIVE_BUILD:BOOL=1
-    INSTALL_COMMAND  ""
-    EXCLUDE_FROM_ALL TRUE
+  option(DISABLE_RADIO "Disable building radio" OFF)
+  option(DISABLE_COMPANION "Disable building companion" OFF)
+  option(DISABLE_SIMULATOR "Disable building simulator" OFF)
+
+  if(NOT DISABLE_COMPANION OR NOT DISABLE_SIMULATOR)
+    # Native targets
+    ExternalProject_Add(native
+      SOURCE_DIR ${CMAKE_SOURCE_DIR}
+      BINARY_DIR ${CMAKE_BINARY_DIR}/native
+      CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      CMAKE_CACHE_ARGS
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
+        -DEdgeTX_SUPERBUILD:BOOL=0
+        -DNATIVE_BUILD:BOOL=1
+      INSTALL_COMMAND  ""
+      EXCLUDE_FROM_ALL TRUE
     )
 
-  # ARM targets
-  ExternalProject_Add(arm-none-eabi
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
-    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    CMAKE_CACHE_ARGS
-      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
-      -DEdgeTX_SUPERBUILD:BOOL=0
-      -DNATIVE_BUILD:BOOL=0
-    INSTALL_COMMAND  ""
-    EXCLUDE_FROM_ALL TRUE
+    if(NOT DISABLE_COMPANION)
+      add_custom_target(companion
+        COMMAND $(MAKE) -C native companion
+        DEPENDS native-configure
+      )
+    endif()
+
+    if(NOT DISABLE_SIMULATOR)
+      add_custom_target(libsimulator
+        COMMAND $(MAKE) -C native libsimulator
+        DEPENDS native-configure
+      )
+
+      add_custom_target(simulator
+        COMMAND $(MAKE) -C native simulator
+        DEPENDS native-configure
+      )
+
+      add_custom_target(simu
+        COMMAND $(MAKE) -C native simu
+        DEPENDS native-configure
+      )
+
+      add_custom_target(gtests-radio
+        COMMAND $(MAKE) -C native gtests-radio
+        DEPENDS native-configure
+      )
+
+      add_custom_target(tests-radio
+        COMMAND $(MAKE) -C native tests-radio
+        DEPENDS native-configure
+      )
+    endif()
+  endif()
+
+  if(NOT DISABLE_RADIO)
+    # ARM targets
+    ExternalProject_Add(arm-none-eabi
+      SOURCE_DIR ${CMAKE_SOURCE_DIR}
+      BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
+      CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      CMAKE_CACHE_ARGS
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
+        -DEdgeTX_SUPERBUILD:BOOL=0
+        -DNATIVE_BUILD:BOOL=0
+      INSTALL_COMMAND  ""
+      EXCLUDE_FROM_ALL TRUE
     )
+
+    # add_custom_target(configure
+    #   DEPENDS native-configure arm-none-eabi-configure)
+
+    add_custom_target(bootloader
+      COMMAND $(MAKE) -C arm-none-eabi bootloader
+      DEPENDS arm-none-eabi-configure
+    )
+    add_custom_target(firmware
+      COMMAND $(MAKE) -C arm-none-eabi firmware
+      DEPENDS arm-none-eabi-configure
+    )
+    add_custom_target(firmware-size
+      COMMAND $(MAKE) -C arm-none-eabi firmware-size
+      DEPENDS arm-none-eabi-configure
+    )
+  endif()
 
   # Webasm targets
   if(ENABLE_WASM)
@@ -97,62 +155,12 @@ if(EdgeTX_SUPERBUILD)
       INSTALL_COMMAND  ""
       EXCLUDE_FROM_ALL TRUE
     )
-  endif()
 
-  add_custom_target(configure
-    DEPENDS native-configure arm-none-eabi-configure)
-
-  add_custom_target(libsimulator
-    COMMAND $(MAKE) -C native libsimulator
-    DEPENDS native-configure
-  )
-
-  add_custom_target(simulator
-    COMMAND $(MAKE) -C native simulator
-    DEPENDS native-configure
-  )
-
-  add_custom_target(simu
-    COMMAND $(MAKE) -C native simu
-    DEPENDS native-configure
-  )
-
-  if(ENABLE_WASM)
     add_custom_target(wasi-module
       COMMAND $(MAKE) -C wasm wasi-module
       DEPENDS wasm-configure
     )
   endif()
-
-  add_custom_target(companion
-    COMMAND $(MAKE) -C native companion
-    DEPENDS native-configure
-  )
-
-  add_custom_target(gtests-radio
-    COMMAND $(MAKE) -C native gtests-radio
-    DEPENDS native-configure
-  )
-
-  add_custom_target(tests-radio
-    COMMAND $(MAKE) -C native tests-radio
-    DEPENDS native-configure
-  )
-
-  add_custom_target(bootloader
-    COMMAND $(MAKE) -C arm-none-eabi bootloader
-    DEPENDS arm-none-eabi-configure
-  )
-
-  add_custom_target(firmware
-    COMMAND $(MAKE) -C arm-none-eabi firmware
-    DEPENDS arm-none-eabi-configure
-  )
-
-  add_custom_target(firmware-size
-    COMMAND $(MAKE) -C arm-none-eabi firmware-size
-    DEPENDS arm-none-eabi-configure
-  )
 
   # Quit cmake at this point
   return()
@@ -167,14 +175,24 @@ else()
   message(STATUS "EdgeTX ${VERSION}-${VERSION_SUFFIX} @ ${GIT_STR}")
 endif()
 
-if(NATIVE_BUILD AND NOT WASI)
-  include(NativeTargets)
+if(NATIVE_BUILD)
+  if(NOT WASI)
+    include(NativeTargets)
+  endif()
+  if(NOT DISABLE_SIMULATOR)
+    add_subdirectory(${RADIO_SRC_DIR})
+  endif()
 else()
+  add_subdirectory(${RADIO_SRC_DIR})
+
   # Prevent CMake warnings
   set(IGNORE "${SDL2_LIBRARY_PATH}" "${LIBSSL1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
 endif()
 
 # Prevent CMake warnings
-set(IGNORE "${ENABLE_WASM}")
-
-add_subdirectory(${RADIO_SRC_DIR})
+set(IGNORE
+  "${ENABLE_WASM}"    
+  "${DISABLE_RADIO}"
+  "${DISABLE_COMPANION}"
+  "${DISABLE_SIMULATOR}"
+)
