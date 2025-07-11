@@ -825,7 +825,7 @@ static const struct YamlNode struct_customSwitch[] = {
   YAML_UNSIGNED( "state", 1 ),
   YAML_ENUM("onColorLuaOverride", 1, enum_booleanEnum, NULL),
   YAML_ENUM("offColorLuaOverride", 1, enum_booleanEnum, NULL),
-  YAML_PADDING( 6 ),
+  YAML_PADDING( 5 ),
   YAML_STRUCT("onColor", 24, struct_RGBLedColor, isAlwaysActive),
   YAML_STRUCT("offColor", 24, struct_RGBLedColor, isAlwaysActive),
   YAML_END
@@ -901,7 +901,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ARRAY("switchNames", 0, NUM_FUNCTIONS_SWITCHES, struct_cfsNameConfig, nullptr),
   YAML_ARRAY("functionSwitchLedONColor", 0, NUM_FUNCTIONS_SWITCHES, struct_cfsOnColorConfig, nullptr),
   YAML_ARRAY("functionSwitchLedOFFColor", 0, NUM_FUNCTIONS_SWITCHES, struct_cfsOffColorConfig, nullptr),
-  YAML_ARRAY("customSwitches", 96, 8, struct_customSwitch, isAlwaysActive),
+  YAML_ARRAY("customSwitches", 88, 8, struct_customSwitch, isAlwaysActive),
   YAML_ARRAY("cfsGroupOn", 1, 8, struct_cfsGroupOn, cfsGroupIsActive),
   YAML_PADDING( 8 ),
   YAML_UNSIGNED( "usbJoystickExtMode", 1 ),
