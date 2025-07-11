@@ -649,15 +649,27 @@ PACK(struct customSwitch {
   CUST_IDX(sw, cfs_idx_read, cfs_idx_write);
   NOBACKUP(char name[LEN_SWITCH_NAME]);
   uint8_t type:3 ENUM(SwitchConfig);
+#if NUM_FUNCTIONS_GROUPS > 3
   uint8_t group:3;
+#else
+  uint8_t group:2;
+#endif
   uint8_t start:2 ENUM(fsStartPositionType);
   uint8_t state:1;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   NOBACKUP(uint8_t onColorLuaOverride:1 ENUM(booleanEnum));
   NOBACKUP(uint8_t offColorLuaOverride:1 ENUM(booleanEnum));
+#if NUM_FUNCTIONS_GROUPS > 3
+  NOBACKUP(uint8_t spare:5) SKIP;
+#else
   NOBACKUP(uint8_t spare:6) SKIP;
+#endif
   NOBACKUP(RGBLedColor onColor) FUNC(isAlwaysActive);
   NOBACKUP(RGBLedColor offColor) FUNC(isAlwaysActive);
+#else
+#if NUM_FUNCTIONS_GROUPS > 3
+  NOBACKUP(uint8_t spare:7) SKIP;
+#endif
 #endif
 });
 #endif
