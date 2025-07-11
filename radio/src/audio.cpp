@@ -731,11 +731,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
   TRACE("playFile(\"%s\", flags=%x, id=%d fragmentVolume=%d ee_general=%d)", filename, flags, id, fragmentVolume, g_eeGeneral.wavVolume);
   if (strlen(filename) > AUDIO_FILENAME_MAXLEN) {
     TRACE("file name too long! maximum length is %d characters", AUDIO_FILENAME_MAXLEN);
-    return;
   }
-  #if !defined(SIMU_AUDIO)
-  return;
-  #endif
 #endif
 
   if (!sdMounted())
