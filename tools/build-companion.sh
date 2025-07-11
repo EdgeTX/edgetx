@@ -55,16 +55,20 @@ rm -rf build
 mkdir build
 cd build
 
-cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
 
-cmake --build . --target native-configure
 if [ "$(uname)" = "Darwin" ]; then
+    cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
+    cmake --build . --target native-configure
     cmake --build native -j"${JOBS}" --target package
     cp native/*.dmg "${OUTDIR}"
 elif [ "$(uname)" = "Linux" ]; then
+    cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
+    cmake --build . --target native-configure
     cmake --build native -j"${JOBS}" --target package
     cp native/*.AppImage "${OUTDIR}"
 else
+    cmake -G Ninja -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
+    cmake --build . --target native-configure
     cmake --build native --target installer
     cp native/companion/*.exe "${OUTDIR}"
 fi
