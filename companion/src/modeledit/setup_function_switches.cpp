@@ -192,7 +192,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
     }
   }
 
-  for (int i = 0; i < 3; i += 1) {
+  for (int i = 0; i < Boards::getCapability(board, Board::FunctionSwitchGroups); i += 1) {
     QLabel * lblGroupId = new QLabel(this);
     lblGroupId->setText(tr("Group %1").arg(i + 1));
 
@@ -262,7 +262,7 @@ void FunctionSwitchesPanel::update()
     }
   }
 
-  for (int i = 0; i < 3; i += 1) {
+  for (int i = 0; i < Boards::getCapability(board, Board::FunctionSwitchGroups); i += 1) {
     filterGroupSwitches[i]->invalidate();
 
     model->setGroupSwitchState(i + 1, switchcnt);
