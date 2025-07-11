@@ -71,34 +71,34 @@ if(EdgeTX_SUPERBUILD)
 
     if(NOT DISABLE_COMPANION)
       add_custom_target(companion
-        COMMAND $(MAKE) -C native companion
+        COMMAND ${CMAKE_COMMAND} --build native --target companion
         DEPENDS native-configure
       )
     endif()
 
     if(NOT DISABLE_SIMULATOR)
       add_custom_target(libsimulator
-        COMMAND $(MAKE) -C native libsimulator
+        COMMAND ${CMAKE_COMMAND} --build native --target libsimulator
         DEPENDS native-configure
       )
 
       add_custom_target(simulator
-        COMMAND $(MAKE) -C native simulator
+        COMMAND ${CMAKE_COMMAND} --build native --target simulator
         DEPENDS native-configure
       )
 
       add_custom_target(simu
-        COMMAND $(MAKE) -C native simu
+        COMMAND ${CMAKE_COMMAND} --build native --target simu
         DEPENDS native-configure
       )
 
       add_custom_target(gtests-radio
-        COMMAND $(MAKE) -C native gtests-radio
+        COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio
         DEPENDS native-configure
       )
 
       add_custom_target(tests-radio
-        COMMAND $(MAKE) -C native tests-radio
+        COMMAND ${CMAKE_COMMAND} --build native --target tests-radio
         DEPENDS native-configure
       )
     endif()
@@ -122,15 +122,15 @@ if(EdgeTX_SUPERBUILD)
     #   DEPENDS native-configure arm-none-eabi-configure)
 
     add_custom_target(bootloader
-      COMMAND $(MAKE) -C arm-none-eabi bootloader
+      COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader
       DEPENDS arm-none-eabi-configure
     )
     add_custom_target(firmware
-      COMMAND $(MAKE) -C arm-none-eabi firmware
+      COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware
       DEPENDS arm-none-eabi-configure
     )
     add_custom_target(firmware-size
-      COMMAND $(MAKE) -C arm-none-eabi firmware-size
+      COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size
       DEPENDS arm-none-eabi-configure
     )
   endif()
@@ -157,7 +157,7 @@ if(EdgeTX_SUPERBUILD)
     )
 
     add_custom_target(wasi-module
-      COMMAND $(MAKE) -C wasm wasi-module
+      COMMAND ${CMAKE_COMMAND} --build wasm --target wasi-module
       DEPENDS wasm-configure
     )
   endif()
