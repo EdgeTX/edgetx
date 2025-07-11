@@ -63,7 +63,6 @@ do
     cmake_build_parallel arm-none-eabi --target ${FIRMARE_TARGET}
 
     cmake_build_parallel . --target native-configure
-    cmake_build_parallel native --target libsimulator
     cmake_build_parallel native --target tests-radio
 
     rm -f CMakeCache.txt native/CMakeCache.txt arm-none-eabi/CMakeCache.txt
