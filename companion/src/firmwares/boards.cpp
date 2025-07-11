@@ -315,6 +315,11 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else
         return getCapability(board, Board::Switches);
 
+    case FunctionSwitchGroups:
+      if (getCapability(board, FunctionSwitches)) {
+        return IS_RADIOMASTER_GX12(board) ? 4 : 3;
+      }
+      return 0;
     case HasAudioMuteGPIO:
       // All color lcd (including NV14 and EL18) except Horus X12S
       // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
