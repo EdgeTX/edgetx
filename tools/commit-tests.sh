@@ -83,7 +83,6 @@ do
     cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
 
     cmake --build . --target native-configure
-    cmake --build native -j"${CORES}" --target libsimulator
     cmake --build native -j"${CORES}" --target tests-radio
 
     rm -f CMakeCache.txt native/CMakeCache.txt arm-none-eabi/CMakeCache.txt
