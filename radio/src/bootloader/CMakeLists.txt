@@ -102,7 +102,7 @@ add_custom_command(
   COMMAND ${CMAKE_OBJCOPY} -O binary bootloader.elf ${CMAKE_BINARY_DIR}/bootloader.bin
 )
 
-if(PYTHONINTERP_FOUND)
+if(Python3_FOUND)
   add_custom_command(
     TARGET bootloader POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/bin2lbm.py ${CMAKE_BINARY_DIR}/bootloader.bin bootloader.lbm

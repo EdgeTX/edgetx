@@ -68,7 +68,7 @@ jobs:
                                 mingw-w64-x86_64-nsis \
                                 mingw-w64-x86_64-dfu-util \
                                 mingw-w64-x86_64-openssl
-          python -m pip install clang jinja2
+          python -m pip install --break-system-packages clang jinja2
 
       - name: Check out the repo
         uses: actions/checkout@v4
