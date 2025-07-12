@@ -143,6 +143,7 @@ extern const etx_hal_adc_driver_t simu_adc_driver;
 
 uint16_t simuGetAnalog(uint8_t) { return 0; }
 void simuQueueAudio(const uint8_t*, uint32_t) {}
+void audioSetVolume(uint8_t) {}
 
 int main(int argc, char **argv)
 {
