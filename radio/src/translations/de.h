@@ -236,6 +236,7 @@
   #define TR_ENTER                     "[NEXT]"
 #else
   #define TR_ENTER                     "[ENTER]"
+  #define TR_ENTER_LONG                "[ENTER LONG]"
 #endif
 
 #if defined(PCBHORUS)
@@ -272,6 +273,7 @@
 #define TR_TIMER                       "Timer"
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("Erw. Limit", "Erw. Wege auf 150%")
 #define TR_ETRIMS                      TR("Erw. Trims", "Erw. Trim  auf 100%")
 #define TR_TRIMINC                     TR("Trimschritt", "Trimmschritte")
@@ -421,15 +423,9 @@
 #define TR_CAL                         "Kal."
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Kalibrierung fertig"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Drücke [Enter] zum Start"
-  #define TR_SETMIDPOINT               "Knüppel/Schieber zentrieren und [Enter]"
-  #define TR_MOVESTICKSPOTS            "Bewege Knüppel/Poti/Schieber und drücke [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " Zum Start"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "Knüppel/Schieber zentrieren"
   #define TR_MOVESTICKSPOTS            "Knüppel/Schieber bewegen"
-  #define TR_MENUWHENDONE              TR_ENTER " wenn fertig"
 #else
   #define TR_MENUTOSTART               TR_ENTER " Zum START"
 #if defined(SURFACE_RADIO)
@@ -440,8 +436,10 @@
   #define TR_MOVESTICKSPOTS            "BEWEGE KNÜPPEL/SCHIEBER"
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " wenn fertig"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "Keine Daten"
 #define TR_US                          "us"

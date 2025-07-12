@@ -245,6 +245,7 @@
 
 
 #if defined(PCBFRSKY)
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                      "[ENTER]"
 #elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                      "[NÄSTA]"
@@ -285,6 +286,7 @@
 #define TR_TIMER                        TR("Timer","Timer ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                        "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                      TR("Gränser++","Utökade gränser")
 #define TR_ETRIMS                       TR("Trimmar++","Utökade trimmar")
 #define TR_TRIMINC                      TR("Trimning","Trimmökning")
@@ -437,12 +439,7 @@
 #define TR_VTRIM                        "Trimm - +"
 #define TR_CALIB_DONE                   "Kalibrering färdig"
 
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART                "Tryck [Enter] för att börja"
-  #define TR_SETMIDPOINT                "Centrera axlar/vred/reglage och tryck [Enter]"
-  #define TR_MOVESTICKSPOTS             "Rör axlar/vred/reglage och tryck [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART                TR_ENTER " FÖR ATT STARTA"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT                "CENTRERA AXLAR/REGLAGE"
   #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #else
@@ -455,9 +452,10 @@
   #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #endif
   #define TR_MENUWHENDONE               TR_ENTER " AVSLUTAR"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-
-#define TR_TXnRX                        "Tx:\0Rx:"
+#define TR_TXnRX                       "Tx:\0Rx:"
 #define OFS_RX                          4
 #define TR_NODATA                       "DATA SAKNAS"
 #define TR_US                           "us"

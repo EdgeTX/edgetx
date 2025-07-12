@@ -98,6 +98,7 @@ YamlStickConfig::YamlStickConfig(const GeneralSettings::InputConfig* rhs)
   for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
     config[i].tag = std::to_string(i);
     config[i].type = rhs[i].type;
+    config[i].inverted = rhs[i].inverted;
     memcpy(config[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
   }
 }
@@ -160,10 +161,10 @@ Node convert<InputConfig>::encode(const InputConfig& rhs)
 {
   Node node;
   node["name"] = rhs.name;
+  node["inv"] = (int)rhs.inverted;
 
   if (rhs.type != Board::AIT_STICK) {
     node["type"] = potConfigLut << rhs.flexType;
-    node["inv"] = (int)rhs.inverted;
   }
 
   return node;
