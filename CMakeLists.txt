@@ -55,20 +55,21 @@ if(EdgeTX_SUPERBUILD)
   option(DISABLE_COMPANION "Disable building companion" OFF)
   option(DISABLE_SIMULATOR "Disable building simulator" OFF)
 
-  if(NOT DISABLE_COMPANION OR NOT DISABLE_SIMULATOR)
-    # Native targets
-    ExternalProject_Add(native
-      SOURCE_DIR ${CMAKE_SOURCE_DIR}
-      BINARY_DIR ${CMAKE_BINARY_DIR}/native
-      CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-      CMAKE_CACHE_ARGS
-        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
-        -DEdgeTX_SUPERBUILD:BOOL=0
-        -DNATIVE_BUILD:BOOL=1
-      INSTALL_COMMAND  ""
-      EXCLUDE_FROM_ALL TRUE
-    )
+  # Native targets
+  ExternalProject_Add(native
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}
+    BINARY_DIR ${CMAKE_BINARY_DIR}/native
+    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+    CMAKE_CACHE_ARGS
+      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
+      -DEdgeTX_SUPERBUILD:BOOL=0
+      -DNATIVE_BUILD:BOOL=1
+    INSTALL_COMMAND  ""
+    EXCLUDE_FROM_ALL TRUE
+  )
+  list(APPEND configure_targets native-configure)
 
+  if(NOT DISABLE_COMPANION OR NOT DISABLE_SIMULATOR)
     if(NOT DISABLE_COMPANION)
       add_custom_target(companion
         COMMAND ${CMAKE_COMMAND} --build native --target companion
@@ -118,8 +119,7 @@ if(EdgeTX_SUPERBUILD)
       EXCLUDE_FROM_ALL TRUE
     )
 
-    # add_custom_target(configure
-    #   DEPENDS native-configure arm-none-eabi-configure)
+    list(APPEND configure_targets arm-none-eabi-configure)
 
     add_custom_target(bootloader
       COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader
@@ -156,11 +156,15 @@ if(EdgeTX_SUPERBUILD)
       EXCLUDE_FROM_ALL TRUE
     )
 
+    list(APPEND configure_targets wasm-configure)
+
     add_custom_target(wasi-module
       COMMAND ${CMAKE_COMMAND} --build wasm --target wasi-module
       DEPENDS wasm-configure
     )
   endif()
+
+  add_custom_target(configure DEPENDS ${configure_targets})
 
   # Quit cmake at this point
   return()
@@ -175,19 +179,14 @@ else()
   message(STATUS "EdgeTX ${VERSION}-${VERSION_SUFFIX} @ ${GIT_STR}")
 endif()
 
-if(NATIVE_BUILD)
-  if(NOT WASI)
-    include(NativeTargets)
-  endif()
-  if(NOT DISABLE_SIMULATOR)
-    add_subdirectory(${RADIO_SRC_DIR})
-  endif()
+if(NATIVE_BUILD AND NOT WASI)
+  include(NativeTargets)
 else()
-  add_subdirectory(${RADIO_SRC_DIR})
-
   # Prevent CMake warnings
   set(IGNORE "${SDL2_LIBRARY_PATH}" "${LIBSSL1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
 endif()
+
+add_subdirectory(${RADIO_SRC_DIR})
 
 # Prevent CMake warnings
 set(IGNORE
