@@ -100,8 +100,8 @@ do
     fi
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    cmake --build . --target arm-none-eabi-configure
-    cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET}
+    cmake --build . --target arm-none-eabi-configure --parallel
+    cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET} --parallel
 
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 

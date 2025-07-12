@@ -50,24 +50,13 @@ jobs:
       - name: Install Dependencies
         run: |
           pacman -S --noconfirm mingw-w64-x86_64-cmake \
-                                mingw-w64-x86_64-python-pip \
-                                mingw-w64-x86_64-python-pillow \
-                                mingw-w64-x86_64-python-lz4 \
-                                mingw-w64-x86_64-libjpeg-turbo \
+                                mingw-w64-x86_64-ninja \
                                 mingw-w64-x86_64-zlib \
-                                mingw-w64-x86_64-libtiff \
-                                mingw-w64-x86_64-freetype \
-                                mingw-w64-x86_64-lcms2 \
-                                mingw-w64-x86_64-libwebp \
-                                mingw-w64-x86_64-openjpeg2 \
-                                mingw-w64-x86_64-libimagequant \
-                                mingw-w64-x86_64-libraqm \
                                 mingw-w64-x86_64-SDL2 \
                                 mingw-w64-x86_64-clang \
                                 mingw-w64-x86_64-nsis \
                                 mingw-w64-x86_64-dfu-util \
                                 mingw-w64-x86_64-openssl
-          python -m pip install clang jinja2
 
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -85,9 +74,15 @@ jobs:
           arch: ${{ env.MINGW_VERSION }}
           modules: 'qtmultimedia qtserialport'
 
+      - name: Install Python Dependencies
+        run: |
+          echo $PATH
+          $Python3_ROOT_DIR/python3.exe -m pip install clang jinja2 lz4 pillow
+
       - name: Build
         working-directory: ${{github.workspace}}
-        # Execute the build.  You can specify a specific target with "--target <NAME>"
+        env:
+          CMAKE_GENERATOR: Ninja
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \

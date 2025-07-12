@@ -7,29 +7,6 @@ set -x
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/build-common.sh" 
 
-if [ "$(uname)" = "Darwin" ]; then
-  num_cpus=$(sysctl -n hw.ncpu)
-  : "${JOBS:=$num_cpus}"
-else
-  JOBS=3
-fi
-
-while [ $# -gt 0 ]
-do
-  case "$1" in
-    --jobs=*)
-      JOBS="${1#*=}";;
-    -j*)
-      JOBS="${1#*j}";;
-    -*)
-      echo >&2 "usage: $0 [-j<jobs>|--jobs=<jobs>] SRCDIR OUTDIR"
-      exit 1;;
-    *)
-      break;;   # terminate while loop
-  esac
-  shift
-done
-
 SRCDIR=$1
 OUTDIR=$2
 
@@ -90,18 +67,18 @@ do
 
     rm -f CMakeCache.txt native/CMakeCache.txt
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    cmake --build . --target native-configure
-    cmake --build native -j"${JOBS}" --target libsimulator
+    cmake --build . --target native-configure --parallel
+    cmake --build native --target libsimulator --parallel
 done                              
 
-cmake --build . --target native-configure
+cmake --build . --target native-configure --parallel
 if [ "$(uname)" = "Darwin" ]; then
-    cmake --build native -j"${JOBS}" --target package
+    cmake --build native --target package --parallel
     cp native/*.dmg "${OUTDIR}"
 elif [ "$(uname)" = "Linux" ]; then
-    cmake --build native -j"${JOBS}" --target package
+    cmake --build native --target package --parallel
     cp native/*.AppImage "${OUTDIR}"
 else
-    cmake --build native --target installer
+    cmake --build native --target installer --parallel
     cp native/companion/*.exe "${OUTDIR}"
 fi
