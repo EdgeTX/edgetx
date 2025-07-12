@@ -50,10 +50,14 @@ include(Macros)
 git_id(GIT_STR)
 
 # Python check
-find_package(PythonInterp 3 REQUIRED)
-if(PYTHONINTERP_FOUND)
-  message(STATUS "Python found, version: ${PYTHON_VERSION_STRING}")
-  get_filename_component(PYTHON_DIRECTORY ${PYTHON_EXECUTABLE} DIRECTORY)
+set(Python3_FIND_VIRTUALENV FIRST)
+set(Python3_FIND_STRATEGY LOCATION)
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+if(Python3_Interpreter_FOUND)
+  message(STATUS "Python found, version: ${Python3_VERSION}")
+  cmake_path(NATIVE_PATH Python3_EXECUTABLE PYTHON_EXECUTABLE)
 else()
   message(WARNING "Python not found! Most firmware and simu flavors not buildable.")
   set(LUA NO)
