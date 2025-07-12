@@ -51,8 +51,6 @@ int simuAudioGetVolume()
 #endif
 }
 
-void simuQueueAudio(const uint8_t* data, uint32_t len);
-
 void audioConsumeCurrentBuffer()
 {
   auto& fifo = audioQueue.buffersFifo;
