@@ -7,7 +7,9 @@ set -x
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/build-common.sh" 
 
-if [ "$(uname)" = "Darwin" ]; then
+SYSTEM="$(uname)"
+
+if [ "${SYSTEM}" = "Darwin" ]; then
   num_cpus=$(sysctl -n hw.ncpu)
   : "${JOBS:=$num_cpus}"
 else
@@ -30,8 +32,16 @@ do
   shift
 done
 
-SRCDIR=$1
-OUTDIR=$2
+SRCDIR="$1"
+OUTDIR="$2"
+
+if [[ -z ${SRCDIR} ]]; then
+  SRCDIR="$(pwd)"
+fi
+
+if [[ -z ${OUTDIR} ]]; then
+  OUTDIR="$(pwd)/output"
+fi
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
 if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
@@ -51,24 +61,25 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-rm -rf build
-mkdir build
+# The script creates a fresh build directory
+# so no need to make our own
+${SCRIPT_DIR}/generate-hw-defs.sh
+
 cd build
 
-
-if [ "$(uname)" = "Darwin" ]; then
+if [ "${SYSTEM}" = "Darwin" ]; then
     cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
     cmake --build . --target native-configure
     cmake --build native -j"${JOBS}" --target package
-    cp native/*.dmg "${OUTDIR}"
-elif [ "$(uname)" = "Linux" ]; then
+    mkdir -p "${OUTDIR}" && cp native/*.dmg "${OUTDIR}"
+elif [ "${SYSTEM}" = "Linux" ]; then
     cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
     cmake --build . --target native-configure
     cmake --build native -j"${JOBS}" --target package
-    cp native/*.AppImage "${OUTDIR}"
+    mkdir -p "${OUTDIR}" && cp native/*.AppImage "${OUTDIR}"
 else
     cmake -G Ninja -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
     cmake --build . --target native-configure
     cmake --build native --target installer
-    cp native/companion/*.exe "${OUTDIR}"
+    mkdir -p "${OUTDIR}" && cp native/companion/*.exe "${OUTDIR}"
 fi

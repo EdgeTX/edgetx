@@ -100,6 +100,14 @@ AddHardwareDefTarget(${HW_DESC_JSON})
 
 # enable generating JSON definition separately for debugging
 add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+add_custom_command(TARGET hardware_defs POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        ${CMAKE_BINARY_DIR}/hw_defs
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${HW_DESC_JSON}
+        ${CMAKE_BINARY_DIR}/hw_defs
+    COMMENT "Copying ${HW_DESC_JSON} to ${CMAKE_BINARY_DIR}/hw_defs directory"
+)
 
 include(hal/CMakeLists.txt)
 
@@ -483,7 +491,7 @@ else()
   endif(WARNINGS_AS_ERRORS)
 endif()
 
-if(NATIVE_BUILD)
+if(NATIVE_BUILD AND NOT DISABLE_SIMULATOR)
   set(RADIOLIB_NATIVE_SRC ${SRC})
 
   # Pack all radio sources into an object lib
@@ -716,5 +724,3 @@ if(CPU_FAMILY STREQUAL STM32)
 endif()
 
 PrintTargetReport("firmware")
-
-AddHardwareDefTarget(hardware_defs ${RADIO_DIRECTORY}/src/targets/hw_defs/${FLAVOUR}.json)
