@@ -66,20 +66,16 @@ fi
 ${SCRIPT_DIR}/generate-hw-defs.sh
 
 cd build
+cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
+cmake --build . --target native-configure
 
 if [ "${SYSTEM}" = "Darwin" ]; then
-    cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
-    cmake --build . --target native-configure
     cmake --build native -j"${JOBS}" --target package
     mkdir -p "${OUTDIR}" && cp native/*.dmg "${OUTDIR}"
 elif [ "${SYSTEM}" = "Linux" ]; then
-    cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
-    cmake --build . --target native-configure
     cmake --build native -j"${JOBS}" --target package
     mkdir -p "${OUTDIR}" && cp native/*.AppImage "${OUTDIR}"
 else
-    cmake -G Ninja -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
-    cmake --build . --target native-configure
     cmake --build native --target installer
     mkdir -p "${OUTDIR}" && cp native/companion/*.exe "${OUTDIR}"
 fi
