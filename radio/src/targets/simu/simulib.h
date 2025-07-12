@@ -45,6 +45,7 @@ bool WASM_EXPORT(simuIsRunning)();
 void WASM_EXPORT(simuSetKey)(uint8_t key, bool state);
 void WASM_EXPORT(simuSetTrim)(uint8_t trim, bool state);
 void WASM_EXPORT(simuSetSwitch)(uint8_t swtch, int8_t state);
+int  WASM_EXPORT(simuAudioGetVolume)();
 
 // callbacks
 uint16_t WASM_IMPORT(simuGetAnalog)(uint8_t idx);

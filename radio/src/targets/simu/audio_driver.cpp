@@ -22,6 +22,24 @@
 #include "audio.h"
 #include "simulib.h"
 
+#if !defined(SOFTWARE_VOLUME)
+static int _simu_volume = 0;
+
+void audioSetVolume(uint8_t volume)
+{
+  _simu_volume = volume;
+}
+#endif
+
+int simuAudioGetVolume()
+{
+#if !defined(SOFTWARE_VOLUME)
+  return _simu_volume;
+#else
+  return VOLUME_LEVEL_MAX;
+#endif
+}
+
 void audioConsumeCurrentBuffer()
 {
   auto& fifo = audioQueue.buffersFifo;
