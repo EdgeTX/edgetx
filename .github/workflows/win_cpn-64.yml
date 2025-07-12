@@ -87,7 +87,8 @@ jobs:
 
       - name: Build
         working-directory: ${{github.workspace}}
-        # Execute the build.  You can specify a specific target with "--target <NAME>"
+        env:
+          CMAKE_GENERATOR: Ninja
         run: |
           mkdir output && \
           CMAKE_PREFIX_PATH=$RUNNER_WORKSPACE/Qt/$QT_VERSION/$MINGW_PATH \
