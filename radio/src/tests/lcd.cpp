@@ -28,6 +28,8 @@
 #include "location.h"
 #include "targets/simu/simulcd.h"
 
+#if !defined(COLORLCD)
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
@@ -123,7 +125,6 @@ bool checkScreenshot(const char* test)
   return true;
 }
 
-#if !defined(COLORLCD)
 TEST(outdezNAtt, test_unsigned)
 {
   lcdClear();
