@@ -1,4 +1,3 @@
-
 import re
 import sys
 import json
@@ -6,29 +5,30 @@ import json
 from hal_switches import Switch, parse_switches
 from hal_adc import ADCInput, SPI_ADCInput, ADC, ADCInputParser
 from hal_keys import Key, Trim, parse_trims, parse_keys
+from logging_dict import LoggingDict
 
 import legacy_names
+
 
 #
 # Return a file handle or STDIN
 #
 def open_file(filename):
-
-    if filename and not filename == '-':
+    if filename and not filename == "-":
         return open(filename)
     else:
         return sys.stdin
+
 
 #
 # Read lines of defines into a dictionary
 #
 def parse_hw_defs(filename):
-
     hw_defs = {}
 
     with open_file(filename) as file:
         for line in file.readlines():
-            m = re.match(r'#define ([^\s]*)\s*(.*)', line.rstrip())
+            m = re.match(r"#define ([^\s]*)\s*(.*)", line.rstrip())
             name = m.group(1)
             value = m.group(2)
             if value.isnumeric():
@@ -39,6 +39,7 @@ def parse_hw_defs(filename):
 
     return hw_defs
 
+
 def prune_dict(d):
     # ret = {}
     # for k, v in d.items():
@@ -47,8 +48,8 @@ def prune_dict(d):
     # return ret
     return d
 
-class DictEncoder(json.JSONEncoder):
 
+class DictEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Switch):
             return prune_dict(obj.__dict__)
@@ -66,17 +67,17 @@ class DictEncoder(json.JSONEncoder):
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
 
+
 #
 # Parse HAL defines into JSON
 #
 def parse_defines(filename, target):
-
-    hw_defs = parse_hw_defs(filename)
+    hw_defs = LoggingDict(parse_hw_defs(filename))
     out_defs = {}
 
     # parse ADC first, we might have switches using ADC
     legacy_inputs = legacy_names.inputs_by_target(target)
-    adc_parser = ADCInputParser(target,hw_defs,legacy_inputs)
+    adc_parser = ADCInputParser(target, hw_defs, legacy_inputs)
     adc_inputs = adc_parser.parse_inputs()
     out_defs["adc_inputs"] = adc_inputs
 
@@ -90,4 +91,3 @@ def parse_defines(filename, target):
     out_defs["trims"] = trims
 
     print(json.dumps(out_defs, cls=DictEncoder, indent=2))
-
