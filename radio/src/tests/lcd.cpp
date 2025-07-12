@@ -20,84 +20,111 @@
  */
 /* -*- coding: utf-8 -*- */
 
-#include <QtCore/QDir>
-#include <QtCore/QDebug>
-#include <QApplication>
-#include <QPainter>
 #include <math.h>
+#include <assert.h>
 #include <gtest/gtest.h>
 
-#define SWAP_DEFINED
 #include "edgetx.h"
 #include "location.h"
 #include "targets/simu/simulcd.h"
 
-void doPaint(QPainter & p)
+#if !defined(COLORLCD)
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb/stb_image_write.h"
+
+#if LCD_W < 212
+  #define BPP 1
+#else
+  #define BPP 4
+#endif
+
+static uint8_t _get_pixel(int x, int y)
 {
-  QRgb rgb = qRgb(161, 161, 161);
+  assert(x < LCD_W && y < LCD_H);
 
-  p.setBackground(QBrush(rgb));
-  p.eraseRect(0, 0, LCD_W, LCD_H);
+  if (BPP == 1) {
+    if (simuLcdBuf[x + (y / 8) * LCD_W] & (1 << (y % 8))) {
+      return 0; // TODO
+    }
+    return 161;
+  }
 
-  if (1) {
-#if LCD_W < 212
-    rgb = qRgb(0, 0, 0);
-    p.setPen(rgb);
-    p.setBrush(QBrush(rgb));
-#endif
+  if (BPP == 4) {
+    pixel_t p = simuLcdBuf[y / 2 * LCD_W + x];
+    uint8_t z = (y & 1) ? (p >> 4) : (p & 0x0F);
+    return 161 - ((uint16_t)z * 161) / 15; // TODO
+  }
+}
 
-#if LCD_W >= 212
-    unsigned int previousDepth = 0xFF;
-#endif
+static uint8_t _get_ref_pixel(const uint8_t* data, int x, int y, int bpp)
+{
+  return data[(y * LCD_W + x) * bpp];
+}
 
-    for (int y=0; y<LCD_H; y++) {
-#if LCD_W >= 212
-      unsigned int idx = (y/2) * LCD_W;
-#else
-      unsigned int idx = (y/8) * LCD_W;
-      unsigned int mask = (1 << (y%8));
-#endif
-      for (int x=0; x<LCD_W; x++, idx++) {
-#if LCD_W < 212
-        if (simuLcdBuf[idx] & mask) {
-          p.drawPoint(x, y);
-        }
-#else
-        unsigned int z = (y & 1) ? (simuLcdBuf[idx] >> 4) : (simuLcdBuf[idx] & 0x0F);
-        if (z) {
-          if (z != previousDepth) {
-            previousDepth = z;
-            rgb = qRgb(161-(z*161)/15, 161-(z*161)/15, 161-(z*161)/15);
-            p.setPen(rgb);
-            p.setBrush(QBrush(rgb));
-          }
-          p.drawPoint(x, y);
-        }
-#endif
+static void dumpImage(const std::string& filename)
+{
+  std::string fullpath = TESTS_PATH "/images/color/failed_" + filename;
+
+  TRACE("dumping image '%s'", fullpath.c_str());
+
+  // allocate enough for 3 channels
+  std::vector<uint8_t> img;
+  auto stride = LCD_W * 3;
+  auto pixel_bytes = stride * LCD_H;
+  img.resize(pixel_bytes);
+
+  for (int y = 0; y < LCD_H; y++) {
+    for (int x = 0; x < LCD_W; x++) {
+      auto p = _get_pixel(x, y);
+      auto offset = (y * LCD_W + x) * 3;
+      img[offset + 0] = p;
+      img[offset + 1] = p;
+      img[offset + 2] = p;
+    }
+  }
+
+  stbi_write_png(fullpath.c_str(), LCD_W, LCD_H, 3, img.data(), stride);
+}
+
+bool checkScreenshot(const char* test)
+{
+  lcdRefresh();
+
+  std::string filename = std::string(test);
+  filename += '_' + std::to_string(LCD_W);
+  filename += 'x' + std::to_string(LCD_H);
+  filename += ".png";
+
+  std::string fullpath = TESTS_PATH "/images/bw/" + filename;
+
+  // Read data
+  int32_t w, h, bpp;
+  std::shared_ptr<uint8_t> ref_data = {
+      stbi_load(fullpath.c_str(), &w, &h, &bpp, 0), stbi_image_free};
+
+  if (!ref_data || w != LCD_W || h != LCD_H) {
+    dumpImage(filename);
+    return false;
+  }
+
+  for (int y = 0; y < LCD_H; y++) {
+    for (int x = 0; x < LCD_W; x++) {
+      auto p = _get_pixel(x, y);
+      auto ref_p = _get_ref_pixel(ref_data.get(), x, y, bpp);
+      if (p != ref_p) {
+        dumpImage(filename);
+        return false;
       }
     }
   }
+
+  return true;
 }
 
-bool checkScreenshot(const QString & test)
-{
-  lcdRefresh();
-  QImage buffer(LCD_W, LCD_H, QImage::Format_RGB32);
-  QPainter p(&buffer);
-  doPaint(p);
-  QString filename(QString("%1_%2x%3.png").arg(test).arg(LCD_W).arg(LCD_H));
-  QImage reference(TESTS_PATH "/images/bw/" + filename);
-
-  if (buffer == reference) {
-    return true;
-  }
-  else {
-    buffer.save(TESTS_PATH "/images/bw/failed_" + filename);
-    return false;
-  }
-}
-
-#if !defined(COLORLCD)
 TEST(outdezNAtt, test_unsigned)
 {
   lcdClear();

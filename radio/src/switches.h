@@ -21,8 +21,10 @@
 
 #pragma once
 
-#include <cinttypes>
+#include <stdint.h>
+#include <stdlib.h>
 
+#include "edgetx_types.h"
 #include "edgetx_constants.h"
 
 enum LogicalSwitchFamilies {

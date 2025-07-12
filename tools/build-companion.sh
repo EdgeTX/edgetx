@@ -7,7 +7,9 @@ set -x
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/build-common.sh" 
 
-if [ "$(uname)" = "Darwin" ]; then
+SYSTEM="$(uname)"
+
+if [ "${SYSTEM}" = "Darwin" ]; then
   num_cpus=$(sysctl -n hw.ncpu)
   : "${JOBS:=$num_cpus}"
 else
@@ -30,18 +32,15 @@ do
   shift
 done
 
-SRCDIR=$1
-OUTDIR=$2
+SRCDIR="$1"
+OUTDIR="$2"
 
-COMMON_OPTIONS="-DGVARS=YES -DHELI=YES -DLUA=YES -Wno-dev -DCMAKE_BUILD_TYPE=Release"
-if [ "$(uname)" = "Darwin" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15'"
-elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
-    if [ "${MSYSTEM,,}" == "mingw32" ]; then # MSYS 32bit detected
-        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw32/bin/"
-    else # fallback to 64bit
-        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw64/bin/"
-    fi
+if [[ -z ${SRCDIR} ]]; then
+  SRCDIR="$(pwd)"
+fi
+
+if [[ -z ${OUTDIR} ]]; then
+  OUTDIR="$(pwd)/output"
 fi
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
@@ -62,46 +61,21 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-rm -rf build
-mkdir build
+# The script creates a fresh build directory
+# so no need to make our own
+${SCRIPT_DIR}/generate-hw-defs.sh
+
 cd build
-
-declare -a simulator_plugins=(x9lite x9lites
-                              x7 x7access
-                              t8 t12 t12max tx12 tx12mk2
-                              zorro commando8 boxer pocket mt12 gx12
-                              tlite tpro tprov2 tpros bumblebee lr3pro t14
-                              x9d x9dp x9dp2019 x9e
-                              xlite xlites
-                              nv14 el18 pl18 pl18ev pl18u st16
-                              x10 x10express x12s
-                              t15 t16 t18 t20 t20v2 tx16s f16 v14 v16)
-
-for plugin in "${simulator_plugins[@]}"
-do
-    BUILD_OPTIONS="${COMMON_OPTIONS} "
-
-    echo "Building ${plugin}"
-    
-    if ! get_target_build_options "$plugin"; then
-        echo "Error: Failed to find a match for target '$plugin'"
-        exit 1
-    fi
-
-    rm -f CMakeCache.txt native/CMakeCache.txt
-    cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    cmake --build . --target native-configure
-    cmake --build native -j"${JOBS}" --target libsimulator
-done                              
-
+cmake -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y "${SRCDIR}"
 cmake --build . --target native-configure
-if [ "$(uname)" = "Darwin" ]; then
+
+if [ "${SYSTEM}" = "Darwin" ]; then
     cmake --build native -j"${JOBS}" --target package
-    cp native/*.dmg "${OUTDIR}"
-elif [ "$(uname)" = "Linux" ]; then
+    mkdir -p "${OUTDIR}" && cp native/*.dmg "${OUTDIR}"
+elif [ "${SYSTEM}" = "Linux" ]; then
     cmake --build native -j"${JOBS}" --target package
-    cp native/*.AppImage "${OUTDIR}"
+    mkdir -p "${OUTDIR}" && cp native/*.AppImage "${OUTDIR}"
 else
     cmake --build native --target installer
-    cp native/companion/*.exe "${OUTDIR}"
+    mkdir -p "${OUTDIR}" && cp native/companion/*.exe "${OUTDIR}"
 fi

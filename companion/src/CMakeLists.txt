@@ -47,12 +47,9 @@ if(WIN32)
   endif()
 endif()
 
-if(SDL2_FOUND)
-  include_directories(${SDL2_INCLUDE_DIRS})
+if(TARGET SDL2::SDL2)
   add_definitions(-DJOYSTICKS)
-  if(TARGET SDL2::SDL2)
-    set(SDL2_LIBRARIES SDL2::SDL2)
-  endif()
+  set(SDL2_LIBRARIES SDL2::SDL2)
 endif()
 
 add_definitions(${APP_COMMON_DEFINES})  # set in top-level CMakeLists
@@ -134,26 +131,27 @@ if(QT_LUPDATE_EXECUTABLE)
   add_custom_target(companion_translations
     WORKING_DIRECTORY ${COMPANION_SRC_DIRECTORY}
     COMMAND ${QT_LUPDATE_EXECUTABLE} ${COMPANION_SRC_DIRECTORY} -no-obsolete -ts ${companion_TS}
-    )
+  )
 else()
   message(STATUS "Qt lupdate not found, 'companion_translations' target will not be availabe.")
 endif()
 
 ############# Import radio hardware definitions ###############
 
-set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
+set(HWDEFS_DIR "${CMAKE_BINARY_DIR}/hw_defs")
 set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
 set(HWDEFS_PHDR "HWDEF_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
 set(HWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_hwdefs_qrc.py")
 
 add_custom_command(OUTPUT ${HWDEFS_QRC}
-  COMMAND ${HWDEFS_CMD} -d ${HWDEFS_DIR}
-                        -t ${HWDEFS_TMPL}
-                        -p ${HWDEFS_PHDR}
-                        -o ${HWDEFS_QRC}
+  COMMAND ${PYTHON_EXECUTABLE} ${HWDEFS_CMD}
+      -d ${HWDEFS_DIR}
+      -t ${HWDEFS_TMPL}
+      -p ${HWDEFS_PHDR}
+      -o ${HWDEFS_QRC}
   DEPENDS ${HWDEFS_TMPL}
-  )
+)
 
 ############# Common lib ###############
 
@@ -163,18 +161,18 @@ set(common_SRCS
   translations.cpp
   modeledit/node.cpp  # used in simulator
   modeledit/edge.cpp  # used by node
-  )
+)
 
 set(common_MOC_HDRS
   helpers.h
   modeledit/node.h
-  )
+)
 
 set(common_RESOURCES
   companion.qrc
   ${TRANSLATIONS_QRC}
   ${HWDEFS_QRC}
-  )
+)
 
 qt5_wrap_cpp(common_SRCS ${common_MOC_HDRS})
 qt5_add_resources(common_RCC ${common_RESOURCES})
@@ -195,7 +193,7 @@ target_link_libraries(common
   ${PTHREAD_LIBRARY}
   ${SDL2_LIBRARIES}
   ${WIN_LINK_LIBRARIES}
-  )
+)
 
 set(CPN_COMMON_LIB common)
 
@@ -248,7 +246,7 @@ set(companion_NAMES
   wizarddata
   wizarddialog
   dialogs/filesyncdialog
-  )
+)
 
 foreach(name ${companion_NAMES})
   set(companion_SRCS
@@ -292,82 +290,6 @@ add_subdirectory(tests)
 
 ############# Install ####################
 
-# the current flavour is not automatically added if build in the current cmake iteration, so always
-# add its library name to be sure
-if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
-  set(FLAVOUR x7access)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T12)
-  set(FLAVOUR t12)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITE)
-  set(FLAVOUR tlite)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITEF4)
-  set(FLAVOUR tlitef4)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPRO)
-  set(FLAVOUR tpro)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPROV2)
-  set(FLAVOUR tprov2)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPROS)
-  set(FLAVOUR tpros)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL BUMBLEBEE)
-  set(FLAVOUR bumblebee)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20)
-  set(FLAVOUR t20)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T20V2)
-  set(FLAVOUR t20v2)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12)
-  set(FLAVOUR tx12)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TX12MK2)
-  set(FLAVOUR tx12mk2)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL ZORRO)
-  set(FLAVOUR zorro)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL BOXER)
-  set(FLAVOUR boxer)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL GX12)
-  set(FLAVOUR gx12)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL POCKET)
-  set(FLAVOUR pocket)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
-  set(FLAVOUR lr3pro)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL COMMANDO8)
-  set(FLAVOUR commando8)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T8)
-  set(FLAVOUR t8)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL MT12)
-  set(FLAVOUR mt12)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL V14)
-  set(FLAVOUR v14)
-elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
-  set(FLAVOUR x9d+2019)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
-  set(FLAVOUR x10express)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL TX16S)
-  set(FLAVOUR tx16s)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL F16)
-  set(FLAVOUR f16)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL V16)
-  set(FLAVOUR v16)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T14)
-  set(FLAVOUR t14)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T15)
-  set(FLAVOUR t15)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T16)
-  set(FLAVOUR t16)
-elseif(PCB STREQUAL X10 AND PCBREV STREQUAL T18)
-  set(FLAVOUR t18)
-elseif(PCB STREQUAL PL18 AND PCBREV STREQUAL EL18)
-  set(FLAVOUR el18)
-elseif(PCB STREQUAL PL18 AND PCBREV STREQUAL PL18EV)
-  set(FLAVOUR pl18ev)
-elseif(PCB STREQUAL PL18 AND PCBREV STREQUAL PL18U)
-  set(FLAVOUR pl18u)
-elseif(PCB STREQUAL PL18)
-  set(FLAVOUR pl18)
-elseif(PCB STREQUAL ST16)
-  set(FLAVOR st16)
-else()
-  string(TOLOWER ${PCB} FLAVOUR)
-endif()
-
 include(FindDfuutil)
 include(FindLibusb1)
 include(FindOpenSSL)
@@ -376,7 +298,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(STATUS "install " ${CMAKE_BINARY_DIR} " to " ${CMAKE_INSTALL_PREFIX})
   install(TARGETS ${COMPANION_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
+  # install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${COMPANION_NAME})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/companion.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME companion${APP_NAME_SUFFIX}.desktop)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/simulator.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications RENAME simulator${APP_NAME_SUFFIX}.desktop)
   install(FILES images/linuxicons/16x16/companion.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/16x16/apps RENAME companion${APP_NAME_SUFFIX}.png)
@@ -413,7 +335,7 @@ elseif(WIN32)
   # companion & simulator binaries
   install(TARGETS ${COMPANION_NAME} DESTINATION ${INSTALL_DESTINATION})
   install(TARGETS ${SIMULATOR_NAME} DESTINATION ${INSTALL_DESTINATION})
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
+  # install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION ${INSTALL_DESTINATION})
 
   # supporting utilities
   if(LIBUSB1_FOUND)
@@ -536,7 +458,7 @@ IF(APPLE)
       RUNTIME DESTINATION bin COMPONENT Runtime
       )
 
-  install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION "${companion_res_dir}" COMPONENT Runtime)
+  # install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/ DESTINATION "${companion_res_dir}" COMPONENT Runtime)
 
   # Write qt.conf to tell qt where to find it plugins
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"

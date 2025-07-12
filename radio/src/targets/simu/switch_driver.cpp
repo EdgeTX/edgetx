@@ -19,13 +19,16 @@
  * GNU General Public License for more details.
  */
 
+#include "simulib.h"
+
 #include "hal/switch_driver.h"
 #include "definitions.h"
 #include "myeeprom.h"
-
-#include <stdlib.h>
-#include <assert.h>
 #include "switches.h"
+
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct hw_switch_def {
   const char*  name;
@@ -34,7 +37,7 @@ struct hw_switch_def {
 
 #include "simu_switches.inc"
 
-int8_t switchesStates[MAX_SWITCHES] = { -1 };
+int8_t switchesStates[MAX_SWITCHES] = { 0 };
 
 void simuSetSwitch(uint8_t swtch, int8_t state)
 {
@@ -42,7 +45,9 @@ void simuSetSwitch(uint8_t swtch, int8_t state)
   switchesStates[swtch] = state;
 }
 
-void boardInitSwitches() {}
+void boardInitSwitches() {
+  memset(switchesStates, -1, sizeof(switchesStates));
+}
 
 static uint8_t get_switch_index(uint8_t cat, uint8_t idx)
 {

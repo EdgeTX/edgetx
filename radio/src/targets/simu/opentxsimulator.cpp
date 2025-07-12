@@ -22,6 +22,7 @@
 #include "opentxsimulator.h"
 #include "edgetx.h"
 #include "simulcd.h"
+#include "simuaudio.h"
 #include "switches.h"
 #include "serial.h"
 #include "myeeprom.h"
@@ -87,18 +88,6 @@ void firmwareTraceCb(const char * text)
     if (dev)
       dev->write(text);
   }
-}
-
-void fsLedRGB(uint8_t idx, uint32_t color)
-{
-}
-
-void fsLedOn(uint8_t idx)
-{
-}
-
-void fsLedOff(uint8_t idx)
-{
 }
 
 // Serial port handling needs to know about OpenTxSimulator, so we we
@@ -283,9 +272,10 @@ void OpenTxSimulator::start(const char * filename, bool tests)
 
   QMutexLocker lckr(&m_mtxSimuMain);
   QMutexLocker slckr(&m_mtxSettings);
-  startAudio(volumeGain);
-  simuStart(tests, simuSdDirectory.toLatin1().constData(),
-            simuSettingsDirectory.toLatin1().constData());
+  simuAudioInit();
+  simuFatfsSetPaths(simuSdDirectory.toLatin1().constData(),
+                    simuSettingsDirectory.toLatin1().constData());
+  simuStart(tests);
 
   emit started();
   QTimer::singleShot(0, this, SLOT(run()));  // old style for Qt < 5.4
@@ -301,6 +291,7 @@ void OpenTxSimulator::stop()
 
   QMutexLocker lckr(&m_mtxSimuMain);
   simuStop();
+  simuAudioDeInit();
 
   emit stopped();
 }
@@ -758,12 +749,9 @@ void OpenTxSimulator::run()
   if (!loops)
     ts.start();
 
-  if (isStopRequested()) {
-    return;
-  }
+  if (isStopRequested()) return;
+
   if (!isRunning()) {
-    QString err(getError());
-    emit runtimeError(err);
     emit stopped();
     return;
   }
@@ -883,6 +871,7 @@ uint8_t OpenTxSimulator::getStickMode()
   return limit<uint8_t>(0, g_eeGeneral.stickMode, 3);
 }
 
+// TODO: remove this
 const char * OpenTxSimulator::getPhaseName(unsigned int phase)
 {
   static char buff[LEN_FLIGHT_MODE_NAME+1];
@@ -898,12 +887,6 @@ const QString OpenTxSimulator::getCurrentPhaseName()
     name = QString::number(phase);
   return name;
 }
-
-const char * OpenTxSimulator::getError()
-{
-  return main_thread_error;
-}
-
 
 /*
  * OpenTxSimulatorFactory
