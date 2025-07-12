@@ -65,36 +65,40 @@ class RadioCustSwitchesDiagsWindow : public Window
                    "Log");
     new StaticText(this, {FS_3RD_COLUMN, PAD_SMALL, FS_LBL_WIDTH, LV_SIZE_CONTENT},
                    "Led");
-    for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
-      coord_t y = (i + 2) * EdgeTxStyles::STD_FONT_HEIGHT;
-      std::string s(STR_CHAR_SWITCH);
-      s += switchGetName(i + switchGetMaxSwitches());
-      new StaticText(this, {PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT}, s);
-      new DynamicText(
-          this, {FS_1ST_COLUMN + PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
-          [=]() {
-            return getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP;
-          });
-      new DynamicText(
-          this, {FS_2ND_COLUMN + PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
-          [=]() { return getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
-
+    for (uint8_t i = 0, r = 0; i < switchGetMaxSwitches(); i += 1) {
+      if (switchIsCustomSwitch(i)) {
+        coord_t y = (r + 2) * EdgeTxStyles::STD_FONT_HEIGHT;
+          std::string s(STR_CHAR_SWITCH);
+          s += switchGetDefaultName(i);
+          new StaticText(this, {PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT}, s);
+        new DynamicText(
+            this, {FS_1ST_COLUMN + PAD_LARGE, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
+            [=]() {
+              return getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP;
+            });
+        new DynamicText(
+            this, {FS_2ND_COLUMN + 10, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
+            [=]() { return g_model.cfsState(i) ? STR_CHAR_DOWN : STR_CHAR_UP; });
+          
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-      colorBox[i] = new ColorSwatch(this, {FS_3RD_COLUMN, y, FS_COLOR_WIDTH,
-                                           FS_COLOR_HEIGHT}, getLedColor(i));
+        colorBox[r] = new ColorSwatch(this, {FS_3RD_COLUMN, y, FS_COLOR_WIDTH,
+                                             FS_COLOR_HEIGHT}, getLedColor(r));
 #else
-      new DynamicText(this,
-                {FS_3RD_COLUMN, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
-                [=]() { return STR_OFFON[getFSLedState(i)]; });
+        new DynamicText(this,
+                        {FS_3RD_COLUMN, y, FS_LBL_WIDTH, LV_SIZE_CONTENT},
+                        [=]() { return STR_OFFON[getFSLedState(i)]; });
 #endif
+        r += 1;
+      }
     }
   }
-
+      
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   void checkEvents() override {
     Window::checkEvents();
     for (uint8_t i = 0; i < NUM_FUNCTIONS_SWITCHES; i += 1) {
-      colorBox[i]->setColor(getLedColor(i));
+      if (colorBox[i])
+        colorBox[i]->setColor(getLedColor(i));
     }
   }
 #endif

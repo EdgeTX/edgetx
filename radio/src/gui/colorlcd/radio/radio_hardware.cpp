@@ -34,6 +34,7 @@
 #include "radio_setup.h"
 
 #if defined(FUNCTION_SWITCHES)
+#include "radio_cfs.h"
 #include "radio_diagcustswitches.h"
 #endif
 
@@ -191,6 +192,9 @@ void RadioHardwarePage::build(Window* window)
     {STR_STICKS, []() { new HWInputDialog<HWSticks>(STR_STICKS); }},
     {STR_POTS, []() { new HWInputDialog<HWPots>(STR_POTS, HWPots::POTS_WINDOW_WIDTH); }},
     {STR_SWITCHES, []() { new HWInputDialog<HWSwitches>(STR_SWITCHES, HWSwitches::SW_WINDOW_WIDTH); }},
+#if defined(FUNCTION_SWITCHES)
+    {STR_FUNCTION_SWITCHES, []() { new RadioFunctionSwitches(); }},
+#endif
   });
 
   // Debugs

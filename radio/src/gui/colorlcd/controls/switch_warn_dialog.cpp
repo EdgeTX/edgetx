@@ -59,15 +59,14 @@ void SwitchWarnDialog::checkEvents()
   FullScreenDialog::checkEvents();
 
   std::string warn_txt;
-  swarnstate_t states = g_model.switchWarning;
-  for (int i = 0; i < MAX_SWITCHES; ++i) {
+  for (int i = 0; i < switchGetMaxAllSwitches(); ++i) {
     if (SWITCH_WARNING_ALLOWED(i)) {
-      swarnstate_t mask = ((swarnstate_t)0x07 << (i * 3));
-      if (states & mask) {
-        if ((switches_states & mask) != (states & mask)) {
-          swarnstate_t state = (states >> (i * 3)) & 0x07;
+      uint8_t warnState = g_model.getSwitchWarning(i);
+      if (warnState) {
+        swarnstate_t swState = g_model.getSwitchStateForWarning(i);
+        if (warnState != swState) {
           warn_txt +=
-              getSwitchPositionName(SWSRC_FIRST_SWITCH + i * 3 + state - 1);
+              getSwitchPositionName(SWSRC_FIRST_SWITCH + i * 3 + warnState - 1);
           warn_txt += " ";
         }
       }

@@ -25,16 +25,6 @@
 #include "hal/switch_driver.h"
 
 // Input port expander
-#define BSP_EXT_KEY1 PCA95XX_PIN_0
-#define BSP_EXT_KEY2 PCA95XX_PIN_1
-#define BSP_EXT_KEY3 PCA95XX_PIN_2
-#define BSP_EXT_KEY4 PCA95XX_PIN_3
-#define BSP_EXT_KEY5 PCA95XX_PIN_4
-#define BSP_EXT_KEY6 PCA95XX_PIN_5
-
-#define BSP_BACK_KEY1 PCA95XX_PIN_6
-#define BSP_BACK_KEY2 PCA95XX_PIN_7
-
 #define BSP_TR1U PCA95XX_PIN_8
 #define BSP_TR1D PCA95XX_PIN_9
 #define BSP_TR3L PCA95XX_PIN_10
@@ -63,6 +53,3 @@ void bsp_output_set(uint16_t pin);
 void bsp_output_clear(uint16_t pin);
 
 uint16_t bsp_input_get();
-struct stm32_switch_t;
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx);
-
