@@ -20,6 +20,7 @@
  */
 
 #include "autohexspinbox.h"
+#include <QRegularExpressionValidator>
 
 AutoHexSpinBox::AutoHexSpinBox(QWidget * parent):
   QSpinBox(parent),
@@ -56,7 +57,7 @@ void AutoHexSpinBox::setRange(const unsigned int min, const unsigned int max)
 
   m_length = QString("%1").arg(max, 0, 16).size();
 
-  m_validator = new QRegExpValidator(QRegExp(QString("[0-9A-Fa-f]{1,%1}").arg(m_length)), this);
+  m_validator = new QRegularExpressionValidator(QRegularExpression(QString("[0-9A-Fa-f]{1,%1}").arg(m_length)), this);
 }
 
 void AutoHexSpinBox::updateValue()
