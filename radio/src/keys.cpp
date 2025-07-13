@@ -467,22 +467,20 @@ bool keysPollingCycle()
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
       evt |= i;
-#if defined(KEYS_GPIO_REG_PAGEDN) && !defined(KEYS_GPIO_REG_PAGEUP)
+
       // Radio with single PAGEDN key
-      if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
-        // Convert long press PAGEDN to short press PAGEUP
-        evt = EVT_KEY_BREAK(KEY_PAGEUP);
-        killEvents(KEY_PAGEDN);
+      if (keysGetSupported() & (1 << KEY_PAGEUP)) {
+        if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
+          // Convert long press PAGEDN to short press PAGEUP
+          evt = EVT_KEY_BREAK(KEY_PAGEUP);
+          killEvents(KEY_PAGEDN);
+        }
       }
-#endif
-#if defined(KEYS_GPIO_REG_SHIFT)
+
       // SHIFT key should not trigger REPT events
-      if (evt != EVT_KEY_REPT(KEY_SHIFT)) {
-        pushEvent(evt);
-      }
-#else
+      if (evt == EVT_KEY_REPT(KEY_SHIFT)) continue;
+
       pushEvent(evt);
-#endif
     }
   }
 
