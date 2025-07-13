@@ -44,70 +44,7 @@
 #define TIMER_MULT_APB1         2
 #define TIMER_MULT_APB2         2
 
-// Keys
-
-// Trims
-
-
-
-
-
-
-
-
-
-// function switches
-
-// Direct switches
-
-// Key 1
-#define STORAGE_SWITCH_G
-#define HARDWARE_SWITCH_G
-#define SWITCHES_G_2POS
-//#define SWITCHES_GPIO_REG_G           GPIOI
-//#define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_3  // PI.03
-
-// Key 2
-#define STORAGE_SWITCH_H
-#define HARDWARE_SWITCH_H
-#define SWITCHES_H_2POS
-//#define SWITCHES_GPIO_REG_H           GPIOI
-//#define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_11 // PI.11
-
-
-// Key 3
-#define STORAGE_SWITCH_I
-#define HARDWARE_SWITCH_I
-
-// Key 4
-#define STORAGE_SWITCH_J
-#define HARDWARE_SWITCH_J
-
-
-// ADC
-
-
-// If serial gimbals are used, we can reuse the channels
-
-
-
-
-
-
-
-
-// Each ADC cannot map more than 8 channels, otherwise it will cause problems
-
-// Ext inputs: analog gimbal channel re-use
-
-// Analog switches
-
-
-
-
-
-#define ADC_VREF_PREC2                  329
-
+#define ADC_VREF_PREC2              329
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5

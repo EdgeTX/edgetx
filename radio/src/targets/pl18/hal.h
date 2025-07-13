@@ -47,90 +47,18 @@
    2/3/4 SDIO
 */
 
-// Keys
-// PL18/PL18EV only has virtual keys via trim buttons
-// #define KEYS_GPIO_PIN_PGUP              /* for activating PGUP in keys diagnose screen */
-
 #if defined(RADIO_NV14_FAMILY)
-  // Trims
-
-
-  // Keys
-
   // Monitor pin
   #define VBUS_MONITOR_GPIO               GPIO_PIN(GPIOJ, 14) // PJ.14
-
-  // Switches
-  #define HARDWARE_SWITCH_A
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_B
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_C
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_D
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_E
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_F
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_G
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_H
-  #define STORAGE_SWITCH_H
-
-  // Index of all switches / trims
-
   // ADC
-
-
-
-
-
-
-
-
   #define ADC_VREF_PREC2                  330
-
-
 #elif defined(RADIO_NB4P)
-  // Trims
-
-  // Switches
-  #define SWITCHES_A_2POS
-  #define SWITCHES_B_2POS
-  
-  // Keys
-
   #define ADC_GPIO_RAW1                 GPIOC
-
-
   #define ADC_VREF_PREC2                  330
-
-
-#else // !defined(RADIO_NB4P) && !defined(RADIO_NV14_FAMILY)
-
-// Keys
-#if defined(RADIO_PL18U)
 #endif
 
 // Trims
-
-
-
-
-
-
-
-
-
-
-
-
 #if !defined(RADIO_PL18U)
-
-
-
-
   #define TRIMS_GPIO_REG_TR1U             GPIOH->IDR
   #define TRIMS_GPIO_PIN_TR1U             LL_GPIO_PIN_8  // PH.08
   #define TRIMS_GPIO_REG_TR1D             GPIOH->IDR
@@ -174,7 +102,6 @@
 #define TRIMS_GPIO_PIN_IN4              LL_GPIO_PIN_12 // PJ.12
 
 // Index of all trims
-
 #define KEYS_GPIOB_PINS (LL_GPIO_PIN_15)
 
 // PC8 allocated to SDIO D0, is not required to sample SWA !
@@ -203,62 +130,8 @@
 // #define VBUS_MONITOR_GPIO               (GPIOJ)
 // #define VBUS_MONITOR_PIN                (LL_GPIO_PIN_14)
 
-// Switches:
-//   Switches A and C on PL18/PL18EV are 2-position switches,
-//   so there is no NEED to configure two pins for Switches A and C.
-//
-//   Especially, as on current dev. state, using PC8 for SDIO D0.
-//   (happy coincidence ;)
-//
-#if defined(RADIO_PL18U)
-#else
-#endif
-
-// High rail of Switch C is not required and thus PC10 is free to use for
-// customizations.
-//
-// #define SWITCHES_GPIO_REG_C_H         GPIOC
-// #define SWITCHES_GPIO_PIN_C_H         LL_GPIO_PIN_10 // PC.10
-// #define SWITCHES_GPIO_REG_C_L         GPIOC
-// #define SWITCHES_GPIO_PIN_C_L         LL_GPIO_PIN_11 // PC.11
-
-#if defined(RADIO_PL18U)
-#else
-#endif
-
 // ADC
-
-
-
-#if defined(RADIO_PL18EV)
-#endif
-
-
-
-
-
-
-#if defined(RADIO_PL18EV)
-// Left, right stick end pot on PL18EV
-
-// Left, right stick end buttons on PL18EV
-#endif
-
-// Analog switches
-
-
-
-
-
-
 #define ADC_VREF_PREC2                  330
-
-#if defined(RADIO_PL18EV)
-#elif defined(RADIO_PL18U)
-#else
-#endif
-
-#endif
 
 // Power
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOI, 11)   // PI.11
