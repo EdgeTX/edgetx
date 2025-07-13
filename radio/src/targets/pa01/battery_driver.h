@@ -52,3 +52,4 @@ extern uint16_t getBatteryVoltage();   // returns current battery voltage in 10m
 extern bool isChargerActive();
 extern void battery_charge_end();
 void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state);
+void updateBatteryState(uint8_t rgb_state);
