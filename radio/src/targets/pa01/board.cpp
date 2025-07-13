@@ -242,22 +242,24 @@ void boardInit()
   pwrOn();
 
   // Handle charging state if charger is active
-  if (IS_UCHARGER_ACTIVE()) {
+  if (isChargerActive()) {
     static uint32_t adc_sample_time = 0; // Hardware ADC sample tick
+    bool is_charging = true;
     while (1)
     {
       now = timersGetMsTick();
-      while (now - adc_sample_time > 20)
+      while (now - adc_sample_time > 10)
       {
         adc_sample_time = now;
         getADC();
+        is_charging = isChargerActive();
       }
       // Exit conditions: button pressed or charger disconnected
-      if (!pwrPressed() && IS_UCHARGER_ACTIVE()) {
+      if (!pwrPressed() && is_charging) {
         updateBatteryState(RGB_STATE_CHARGE);
       } else {
         rgbLedClearAll();
-        if (!IS_UCHARGER_ACTIVE()) {
+        if (!is_charging) {
             boardOff();
           }
         break;
