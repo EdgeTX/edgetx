@@ -27,7 +27,7 @@
 
 #include "hal.h"
 
-#if defined(ADC_SPI)
+#if defined(USE_ADS79XX)
   #include "ads79xx.h"
 #endif
 
@@ -54,7 +54,7 @@ static_assert(n_inputs <= MAX_ANALOG_INPUTS, "Too many analog inputs");
 static bool adc_init()
 {
   bool success = stm32_hal_adc_init(_ADC_adc, n_ADC, _ADC_inputs, _ADC_GPIOs, n_GPIO);
-#if defined(ADC_SPI)
+#if defined(USE_ADS79XX)
   if (n_ADC_spi > 0) ads79xx_init(&_ADC_spi[0]);
 #endif
   return success;
@@ -63,7 +63,7 @@ static bool adc_init()
 static bool adc_start_read()
 {
   bool success = stm32_hal_adc_start_read(_ADC_adc, n_ADC, _ADC_inputs, n_inputs);
-#if defined(ADC_SPI)
+#if defined(USE_ADS79XX)
   if (n_ADC_spi > 0) {
     success = success && ads79xx_adc_start_read(&_ADC_spi[0], _ADC_inputs);
   }
@@ -73,7 +73,7 @@ static bool adc_start_read()
 
 static void adc_wait_completion()
 {
-#if defined(ADC_SPI)
+#if defined(USE_ADS79XX)
   // ADS79xx does all the work in the completion function
   // so it's probably better to poll it first
   if (n_ADC_spi > 0) ads79xx_adc_wait_completion(&_ADC_spi[0], _ADC_inputs);

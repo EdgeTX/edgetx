@@ -29,13 +29,6 @@
 
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
-// Keys
-#if defined(PCBX12S)
-#elif defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
-#elif defined(RADIO_T15)
-#elif defined(PCBX10)
-#endif
-
 // Rotary Encoder
 #define ROTARY_ENCODER_GPIO             GPIOH
 #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_11 // PH.11
@@ -55,82 +48,7 @@
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM8_BRK_TIM12_IRQHandler
 
 #if defined(RADIO_T15)
-    #define ROTARY_ENCODER_INVERTED
-#endif
-
-// Switches
-#if defined(RADIO_T15)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
-
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
-
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
-
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
-
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
-  //SW1
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
-  //SW2
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
-  //SW3
-  #define STORAGE_SWITCH_I
-  #define HARDWARE_SWITCH_I
-  //SW4
-  #define STORAGE_SWITCH_J
-  #define HARDWARE_SWITCH_J
-  //SW5
-  #define STORAGE_SWITCH_K
-  #define HARDWARE_SWITCH_K
-  //SW6
-  #define STORAGE_SWITCH_L
-  #define HARDWARE_SWITCH_L
-#else
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
-  #define STORAGE_SWITCH_B
-  #define HARDWARE_SWITCH_B
-  #define STORAGE_SWITCH_C
-  #define HARDWARE_SWITCH_C
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
-  #define STORAGE_SWITCH_E
-  #define HARDWARE_SWITCH_E
-  #define STORAGE_SWITCH_F
-  #define HARDWARE_SWITCH_F
-  #define STORAGE_SWITCH_G
-  #define HARDWARE_SWITCH_G
-  #define STORAGE_SWITCH_H
-  #define HARDWARE_SWITCH_H
-
-  #if defined(PCBX12S)
-  #elif defined(PCBX10)
-  #endif
-
-  #if defined(PCBX10) && !defined(RADIO_F16)
-    // Gimbal switch left
-    #define STORAGE_SWITCH_I
-    #define HARDWARE_SWITCH_I
-    // Gimbal switch right
-    #define STORAGE_SWITCH_J
-    #define HARDWARE_SWITCH_J
-  #elif defined(PCBX12S)
-    // Gimbal switch left
-    #define STORAGE_SWITCH_I
-    #define HARDWARE_SWITCH_I
-    // Gimbal switch right
-    #define STORAGE_SWITCH_J
-    #define HARDWARE_SWITCH_J
-  #endif
+  #define ROTARY_ENCODER_INVERTED
 #endif
 
 // 6POS SW
@@ -141,44 +59,13 @@
   #define SIXPOS_LED_BLUE               0
 #endif
 
-// Trims
-#if defined(RADIO_T15)
-#elif defined(PCBX12S)
-#elif defined(PCBX10)
-  // Left/Right Horizontal trims (LHL/LHR)
-  #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
-  #else
-  #endif
-
-  // Vertical trims - common across all PCBX10 variants
-
-  // Right Horizontal trims - common across all PCBX10 variants
-  
-  // T5/T6 trim assignments
-  #if defined(RADIO_V16)
-    // T5/T6 trims are in exchanged positions to other handsets
-  #elif defined(RADIO_FAMILY_T16)
-  #else // Other PCBX10 variants
-  #endif
-#endif
-
-
 // ADC
 #if defined(PCBX12S)
-
-
-  #define ADC_GPIO_MOUSE                GPIOF
-  // TODO: use for SPI1_RX instead?
+  #define USE_ADS79XX
   #define ADC_VREF_PREC2                300
 #elif defined(RADIO_V16)
-  #define ADC_GPIOA_PINS_FS             (LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX10)
-#if defined(RADIO_T15)
-#else
-#endif
-#if !defined(RADIO_T15)
-#endif
   #if defined(RADIO_X10) || defined(RADIO_X10E)
     #define PWM_STICKS
     #define PWM_TIMER                   TIM5
@@ -187,22 +74,8 @@
     #define PWM_GPIO_AF                 GPIO_AF2
     #define PWM_IRQHandler              TIM5_IRQHandler
     #define PWM_IRQn                    TIM5_IRQn
-    #define PWM_GPIOA_PINS              (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
+    #define PWM_GPIOA_PINS              (LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
   #endif
-#if defined(RADIO_T15)
-#else
-#endif
-#if !defined(RADIO_T15)
-#endif
-#if defined(RADIO_T15)
-#else
-  #define ADC_GPIOA_PINS_FS             (LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
-#endif
-  #if defined(RADIO_V16)
-    // Required DMA for more than one channel for EXT_ADC
-  #else
-  #endif
-
   // VBat divider is /4 on F42x and F43x devices
   #if defined(RADIO_TX16S) || defined(RADIO_T15) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_T18)
     #define ADC_VREF_PREC2              330
@@ -213,22 +86,10 @@
   #endif
 #endif
 
-#if defined(RADIO_T15)
-#elif defined(RADIO_T16)
-#elif defined(RADIO_T18)
-#elif defined(RADIO_TX16S) || defined(RADIO_F16)
-#elif defined(RADIO_V16)
-#elif defined(PCBX10)
-#elif defined(PCBX12S)
-#else
-  #error "Missing ADC_DIRECTION array"
-#endif
-
 #if defined(RADIO_TX16S)
   #define DEFAULT_6POS_CALIB          {3, 12, 21, 30, 38}
   #define DEFAULT_6POS_IDX            5
 #endif
-
   
 // Power
 #if defined(RADIO_T18)

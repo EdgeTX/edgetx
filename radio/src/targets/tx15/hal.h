@@ -70,35 +70,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define TIMER_MULT_APB1         2
 #define TIMER_MULT_APB2         2
 
-// Keys
-
-// Trims
-
-
-
-
-
-
-
-
-
-// function switches
-//SW1
-//SW2
-//SW3
-//SW4
-//SW5
-//SW6
-
-// Extender Switches
-#define SWITCHES_A_3POS
-#define SWITCHES_B_3POS
-#define SWITCHES_C_3POS
-#define SWITCHES_D_3POS
-#define SWITCHES_E_2POS
-#define SWITCHES_F_2POS
-
-
 // Expanders
 #define IO_INT_GPIO GPIO_PIN(GPIOD, 3)
 #define IO_RESET_GPIO GPIO_PIN(GPIOG, 10)
@@ -108,17 +79,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #endif
 
 // ADC
-
-
-
-
-
-// Each ADC cannot map more than 8 channels, otherwise it will cause problems
-
-
-
 #define ADC_VREF_PREC2                  330
-
 
 // Serial gimbal sync port
 #define HALL_SYNC                   GPIO_PIN(GPIOH, 11)
@@ -140,19 +101,19 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
 // Telemetry
- #define TELEMETRY_SET_INPUT             0
- #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)
- #define TELEMETRY_RX_GPIO               GPIO_UNDEF
- #define TELEMETRY_USART                 USART1
- #define TELEMETRY_USART_IRQn            USART1_IRQn
- #define TELEMETRY_DMA                   DMA1
- #define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_7
- #define TELEMETRY_DMA_Channel_TX        LL_DMAMUX1_REQ_USART1_TX
- #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream7_IRQn
- #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream7_IRQHandler
- #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_3
- #define TELEMETRY_DMA_Channel_RX        LL_DMAMUX1_REQ_USART1_RX
- #define TELEMETRY_USART_IRQHandler      USART1_IRQHandler
+#define TELEMETRY_SET_INPUT             0
+#define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)
+#define TELEMETRY_RX_GPIO               GPIO_UNDEF
+#define TELEMETRY_USART                 USART1
+#define TELEMETRY_USART_IRQn            USART1_IRQn
+#define TELEMETRY_DMA                   DMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_7
+#define TELEMETRY_DMA_Channel_TX        LL_DMAMUX1_REQ_USART1_TX
+#define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream7_IRQn
+#define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream7_IRQHandler
+#define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_3
+#define TELEMETRY_DMA_Channel_RX        LL_DMAMUX1_REQ_USART1_RX
+#define TELEMETRY_USART_IRQHandler      USART1_IRQHandler
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
 #define TELEMETRY_USE_CUSTOM_EXTI
