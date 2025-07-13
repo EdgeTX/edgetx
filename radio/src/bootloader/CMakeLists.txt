@@ -1,7 +1,7 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-AddHardwareDefTarget(${HW_DESC_JSON})
+# AddHardwareDefTarget(${HW_DESC_JSON})
 AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
 
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC}

@@ -104,7 +104,7 @@ set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
 
 # enable generating JSON definition separately for debugging
-add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON})
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include(hal/CMakeLists.txt)
 
