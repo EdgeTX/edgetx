@@ -30,8 +30,8 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT,
 #define SET_DIRTY()
 
 static const char* const _analog_outputs[] = { "PWM", "PPM" };
-static const char* const _bus_types[] = { "iBUS OUT", "iBUS IN", "SBUS", "IBUS2" };
-static const char* const _v1_bus_types[] = { "PWM", "PPM", "SBUS", "iBUS IN", "iBUS OUT", "IBUS2"  };
+static const char* const _bus_types[] = { "iBUS OUT", "iBUS IN", "SBUS"};
+static const char* const _v1_bus_types[] = { "PWM", "PPM", "SBUS", "iBUS IN", "iBUS OUT", "iBUS2"  };
 static const char* const _v1_pwmfreq_types[] = { STR_ANALOG_SERVO, STR_DIGITAL_SERVO, "SR833HZ", "SFR1000HZ", STR_MULTI_CUSTOM };
 static const char* const _v0_pwmfreq_types[] = { STR_ANALOG_SERVO, STR_DIGITAL_SERVO, STR_MULTI_CUSTOM };
 
@@ -160,7 +160,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
     line = body->newLine(grid);
     new StaticText(line, rect_t{}, STR_SERIAL_BUS);
-    new Choice(line, rect_t{}, _bus_types, 0, 3,
+    new Choice(line, rect_t{}, _bus_types, 0, 2,
                GET_SET_AND_SYNC(cfg, cfg->others.ExternalBusType, afhds3::DirtyConfig::DC_RX_CMD_BUS_TYPE_V0));
   } else {
     auto vCfg = &cfg->v1;
@@ -202,7 +202,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                   else {
                     uint8_t j = 0;
                     for ( j = 0; j < SES_NPT_NB_MAX_PORTS; j++) {
-                      if ( vCfg->NewPortTypes[j]== newValue && i != j )
+                      if ( vCfg->NewPortTypes[j]== newValue && i != j  && newValue != afhds3::SES_NPT_IBUS2)
                         break;
                     }
                     //The RX does not support two or more ports to output IBUS (the same is true for PPM and SBUS).
