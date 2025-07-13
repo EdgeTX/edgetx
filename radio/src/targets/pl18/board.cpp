@@ -179,7 +179,7 @@ void boardBLEarlyInit()
 #if defined(RADIO_NB4P)
 void boardBLPreJump()
 {
-  LL_ADC_Disable(ADC_MAIN);
+  _adc_driver.deinit();
 }
 #endif
 
