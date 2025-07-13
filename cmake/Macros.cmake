@@ -112,7 +112,7 @@ function(AddHWGenTarget input template output)
   set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
 
   # Inputs
-  set(INPUT_JSON ${CMAKE_CURRENT_BINARY_DIR}/${input})
+  set(INPUT_JSON ${RADIO_SRC_DIR}/boards/hw_defs/${input})
   set(TEMPLATE ${RADIO_DIRECTORY}/util/hw_defs/${template}.jinja)
   set(GEN_PY_DEPS
     ${RADIO_DIRECTORY}/util/hw_defs/generator.py
