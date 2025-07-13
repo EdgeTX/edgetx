@@ -17,8 +17,6 @@ rm -rf build && mkdir -p build && cd build
 
 target_names=$(echo "$FLAVOR" | tr '[:upper:]' '[:lower:]' | tr ';' '\n')
 
-TARGET_DIR="${SRCDIR}/radio/src/targets/hw_defs"
-
 for target_name in $target_names
 do
     BUILD_OPTIONS=${COMMON_OPTIONS}
@@ -35,8 +33,5 @@ do
     cmake --build . --target arm-none-eabi-configure
     cmake --build arm-none-eabi --target hardware_defs
 
-    mkdir -p ${TARGET_DIR}
-    mv arm-none-eabi/radio/src/*.json* ${TARGET_DIR}
-    
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 done
