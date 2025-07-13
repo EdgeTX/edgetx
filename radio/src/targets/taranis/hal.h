@@ -44,34 +44,12 @@
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
 // Keys
-#if defined(PCBX9E)
-#elif defined(PCBXLITE)
-#elif defined(RADIO_TPROS)
-#elif defined(RADIO_FAMILY_JUMPER_T12) && !defined(RADIO_TPRO) && !defined(RADIO_TPROV2)
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_GX12)
-#if defined(RADIO_MT12)
-#else
-#endif
-#if defined(RADIO_TX12)
-#else
-#endif
-#if defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_GX12)
-#else
-#endif
-#elif defined(RADIO_T8)
+#if defined(RADIO_T8)
   #define KEYS_GPIO_REG_BIND            GPIOA
   #define KEYS_GPIO_PIN_BIND            LL_GPIO_PIN_10 // PA.10
 #elif defined(RADIO_COMMANDO8)
   #define KEYS_GPIO_REG_BIND            GPIOD
   #define KEYS_GPIO_PIN_BIND            LL_GPIO_PIN_9 // PD.09
-#elif defined(RADIO_FAMILY_T20) || defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-#elif defined(RADIO_GX12)
-#elif defined(RADIO_V14) || defined(RADIO_V12)
-#elif defined(PCBX7)
-#elif defined(PCBX9LITE)
-#elif defined(RADIO_X9DP2019)
-#else
 #endif
 
 // Rotary Encoder
@@ -176,274 +154,6 @@
   #define ROTARY_ENCODER_TIMER_IRQHandler TIM5_IRQHandler
 #endif
 
-// Trims
-#if defined(PCBX9E)
-#elif defined(PCBXLITE)
-#elif defined(RADIO_X7ACCESS)
-#elif defined(RADIO_FAMILY_T20)
-#if defined(RADIO_T20V2)
-#else
-#endif
-#elif defined(RADIO_MT12)
-#elif defined(RADIO_GX12)
-#elif defined(RADIO_TPROS)
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-#elif defined(RADIO_V14) || defined(RADIO_V12)
-#elif defined(PCBX7) && !defined(RADIO_COMMANDO8)
-#elif defined(RADIO_COMMANDO8)
-#elif defined(PCBX9LITE)
-#elif defined(RADIO_X9DP2019)
-#else
-#endif
-
-// Switches
-#if defined(PCBX9E)
-#elif defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_MT12)
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-#elif defined(RADIO_GX12)
-  #define SWITCHES_A_2POS
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-#elif defined(RADIO_T8)
-#elif defined(RADIO_COMMANDO8)
-#elif defined(RADIO_TPRO) || defined(RADIO_TPROV2)
-#elif defined(RADIO_TPROS)
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_FAMILY_T20)
-#elif defined(RADIO_V14) || defined(RADIO_V12)
-  #define STORAGE_SWITCH_A
-  #define HARDWARE_SWITCH_A
-#elif defined(PCBX7)
-#else
-#endif
-
-#if defined(PCBX9E)
-#elif defined(PCBXLITE)
-#elif defined(RADIO_T8)
-#elif defined(RADIO_COMMANDO8)
-#elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TPROV2)
-#elif defined(RADIO_TPROS)
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_FAMILY_T20)
-#elif (RADIO_LR3PRO)
-#elif defined(RADIO_BOXER)
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-#elif defined(RADIO_MT12)
-#elif defined(RADIO_GX12)
-  #define SWITCHES_B_3POS
-#elif defined(RADIO_V14) || defined(RADIO_V12)
-// ADC based switch
-#elif defined(PCBX7)
-#elif defined(PCBX9LITE)
-#else
-#endif
-
-#if defined(PCBX9E)
-#elif defined(PCBXLITE) || defined(PCBX9LITE)
-#elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER)
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-#elif defined(RADIO_TX12)
-#elif defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-#elif defined(RADIO_T8)
-#elif defined(RADIO_COMMANDO8)
-#elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_LR3PRO)
-#elif defined(RADIO_TPROS)
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_FAMILY_T20)
-#elif defined(RADIO_MT12)
-#elif defined(RADIO_GX12)
-  #define SWITCHES_C_3POS
-#elif defined(RADIO_V14) || defined(RADIO_V12)
-// ADC based switch
-#elif defined(PCBX7)
-  #if defined(PCBX7ACCESS)
-  #else
-  #endif
-#else
-#endif
-
-#if defined(PCBX9E)
-#elif defined(PCBX9DP)
-#elif defined(PCBXLITE)
-#elif defined(RADIO_T8)
-#elif defined(RADIO_COMMANDO8)
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-#elif defined(RADIO_TLITE) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_LR3PRO)
-#elif defined(RADIO_TPROS)
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_FAMILY_T20)
-#elif defined(RADIO_MT12)
-#elif defined(RADIO_GX12)
-  #define SWITCHES_D_2POS
-#elif defined(RADIO_V14) || defined(RADIO_V12)
-  #define STORAGE_SWITCH_D
-  #define HARDWARE_SWITCH_D
-#elif defined(PCBX7) && !defined(RADIO_COMMANDO8)
-#elif defined(PCBX7) && defined(RADIO_COMMANDO8)
-#elif defined(PCBX9LITE)
-#else
-#endif
-
-#if defined(PCBX9E)
-#elif defined(PCBXLITES)
-#elif defined(PCBXLITE)
-  // no SWE but we want to remain compatible with XLiteS
-#elif defined(PCBX9LITE)
-#elif defined(RADIO_ZORRO) || defined(RADIO_POCKET)
-#elif defined(RADIO_BOXER)
-#elif defined(RADIO_TX12)
-#elif defined(RADIO_TX12MK2)
-#elif defined(RADIO_TPROS)
-#elif defined(RADIO_TPRO)
-#elif defined(RADIO_TPROV2)
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-#elif defined(RADIO_FAMILY_T20)
-#elif defined(RADIO_MT12)
-  // ADC based switch/pot
-#elif defined(RADIO_GX12)
-  #define SWITCHES_E_3POS
-#elif  defined(RADIO_V14) || defined(RADIO_V12)
-  // ADC based switch
-#elif defined(PCBX7)
-  // no SWE
-#else
-#endif
-
-#if defined(PCBX9E)
-#elif defined(PCBXLITES)
-#elif defined(PCBXLITE)
-  // no SWF but we want to remain compatible with XLiteS
-#elif defined(PCBX9LITES)
-#elif defined(PCBX9LITE)
-// no SWF
-#elif defined(RADIO_ZORRO) || defined(RADIO_BOXER)
-#elif defined(RADIO_TX12)
-#elif defined(RADIO_TX12MK2)
-#elif defined(RADIO_TPROS)
-#elif defined(RADIO_TPRO)
-#elif defined(RADIO_TPROV2)
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_T14) || defined(RADIO_T12MAX)
-#elif defined(RADIO_FAMILY_T20)
-#elif defined(RADIO_MT12)
-  // ADC based switch/pot
-#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_POCKET)
-  // no SWF
-#elif defined(RADIO_T12)
-  // no SWF
-#elif defined(RADIO_GX12)
-  #define SWITCHES_F_3POS
-#elif defined(RADIO_V14) || defined(RADIO_V12)
-  // ADC based switch
-#elif defined(PCBX7)
-#else
-#endif
-
-#if defined(PCBX9E)
-#elif defined(PCBX9LITES)
-#elif defined(RADIO_T12) || defined(RADIO_ZORRO)
-#elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_V14) || defined(RADIO_V12)
-#elif defined(RADIO_TPROV2)
-#elif defined(RADIO_TPRO)
-  // SW1
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_FAMILY_T20)
-  //TRIM left low
-#elif defined(RADIO_GX12)
-  #define SWITCHES_G_2POS
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)  || defined(RADIO_T8) || defined(RADIO_COMMANDO8) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
-  // no SWG
-#else
-#endif
-
-#if defined(PCBX9E)
-#elif defined(PCBX9DP)
-#elif defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_POCKET)
-  // no SWH
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  // no SWH
-#elif defined(RADIO_TX12) || defined(RADIO_MT12)
-#elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_V14) || defined(RADIO_V12)
-#elif defined(RADIO_TPROV2)
-#elif defined(RADIO_TPRO)
-  // SW2
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_FAMILY_T20)
-  //TRIM right low
-#elif defined(RADIO_TLITE) || defined(RADIO_TPROS) || defined(RADIO_LR3PRO)
-  // no SWH
-#elif defined(RADIO_GX12)
-  #define SWITCHES_H_2POS
-#elif defined(PCBX7)
-#else
-#endif
-
-#if defined(RADIO_X9DP2019)
-#elif defined(PCBX9D) || defined(PCBX9DP)
-#endif
-
-// X7 P400 P401 headers additionnal momentary switches
-#if defined(PCBX7ACCESS)
-#elif defined(RADIO_T8) || defined(RADIO_COMMANDO8)
-  // no SWI/J
-#elif defined(RADIO_TX12)
-#elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12) || defined(RADIO_V14) || defined(RADIO_V12)
-  // no headers
-#elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
-  // no SWI
-  // no SWJ
-#elif defined(RADIO_ZORRO) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_TPROS)
-// No I/J
-#elif defined(RADIO_TPROV2)
-  // SW1
-  // SW2
-  // SW3
-  // SW4
-  // SW5
-  // SW6
-#elif defined(RADIO_BUMBLEBEE)
-  // SW1
-  // SW2
-  // SW3
-  // SW4
-  // SW5
-  // SW6
-#elif defined(RADIO_TPRO)
-  // SW3
-  // SW4
-  // SW5
-  // SW6
-#elif defined(RADIO_FAMILY_T20)
-  //TRIM left up
-  //TRIM right up
-#elif defined(RADIO_GX12)
-  // I and J are part of function switches bellow
-#elif defined(PCBX7)
-#endif
-
-#if defined(RADIO_FAMILY_T20)
-  //SW1
-  //SW2
-  //SW3
-  //SW4
-  //SW5
-  //SW6
-#endif
-
-#if defined(RADIO_GX12)
-  //SW1
-  //SW2
-  //SW3
-  //SW4
-  //SW5
-  //SW6
-#endif
-
-#if defined(PCBX9E)
-#endif
-
 // 6POS SW
 #if defined(RADIO_V14) || defined(RADIO_V12)
   #define SIXPOS_SWITCH_INDEX             6
@@ -452,29 +162,15 @@
   #define SIXPOS_LED_BLUE               0
 #endif
 
-// ADC
-#if !defined(RADIO_FAMILY_T20) && !defined(RADIO_BUMBLEBEE)
-#endif
-
-
 #if defined(PCBX9E)
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
-  #define HARDWARE_POT3
-  #define HARDWARE_POT4
   #define ADC_VREF_PREC2                300
 #elif defined(PCBX9DP)
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
-  #define HARDWARE_POT3
   #if PCBREV < 2019
     #define ADC_VREF_PREC2              330
   #else
     #define ADC_VREF_PREC2              300
   #endif
 #elif defined(PCBXLITE)
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
   #define PWM_STICKS
   #define PWM_TIMER                     TIM5
   #define PWM_TIMER_FREQ                (PERI1_FREQUENCY * TIMER_MULT_APB1)
@@ -482,10 +178,9 @@
   #define PWM_GPIO_AF                   GPIO_AF2
   #define PWM_IRQHandler                TIM5_IRQHandler
   #define PWM_IRQn                      TIM5_IRQn
-  #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH)
+  #define PWM_GPIOA_PINS                (LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_T8)
-  // No pots
   #define ADC_VREF_PREC2                300
 #elif defined(RADIO_COMMANDO8)
   #define ADC_VREF_PREC2                320
@@ -496,24 +191,16 @@
   #define PWM_GPIO_AF                   GPIO_AF2
   #define PWM_IRQn                      TIM5_IRQn
   #define PWM_IRQHandler                TIM5_IRQHandler
-  #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
+  #define PWM_GPIOA_PINS                (LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
 #elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_T14)
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
   #define ADC_VREF_PREC2                300
 #elif defined(RADIO_TPROS)
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
   #define ADC_VREF_PREC2                300
 #elif defined(RADIO_T12MAX)
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
   #define ADC_VREF_PREC2                300
 #elif defined(RADIO_TPRO) || defined(RADIO_TPROV2)
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
   #define ADC_VREF_PREC2                300
 #elif defined(RADIO_BUMBLEBEE)
   #define ADC_VREF_PREC2                300
@@ -522,54 +209,15 @@
 #elif defined(RADIO_MT12)
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_GX12)
-  // Serial gimbal only
-  // Analogs
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_V12) || defined(RADIO_V14)
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX7)
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
-#if !defined(RADIO_POCKET)
-#endif
-#if defined(RADIO_BOXER) || defined(RADIO_V14) || defined(RADIO_V12)
-  #define HARDWARE_POT3                 // 6 POS
-  #define ADC_GPIOA_PINS_FS             (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_POT3)
-#else
-#endif
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX9LITE)
-  #define HARDWARE_POT1
   #define ADC_VREF_PREC2                300
 #else
-  #define HARDWARE_POT1
-  #define HARDWARE_POT2
   #define ADC_VREF_PREC2                330
-#endif
-
-#if defined(PCBX9E)
-  #if defined(HORUS_STICKS)
-  #else
-  #endif // HORUS_STICKS
-#elif defined(PCBX9DP)
-#elif defined(PCBX9D)
-#elif defined(RADIO_TX12)
-#elif defined(RADIO_TX12MK2)
-#elif defined(RADIO_BOXER)
-#elif defined(RADIO_ZORRO)
-#elif defined(RADIO_POCKET)
-#elif defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_TPROS)
-#elif defined(RADIO_T14)
-#elif defined(RADIO_T12MAX)
-#elif defined(RADIO_BUMBLEBEE)
-#elif defined(RADIO_FAMILY_T20)
-#elif defined(RADIO_MT12)
-#elif defined(RADIO_GX12)
-#elif defined(RADIO_V14)
-#elif defined(RADIO_V12)
-#elif defined(PCBX7)
-#elif defined(PCBX9LITE)
-#elif defined(PCBXLITE)
 #endif
 
 #if defined(RADIO_BOXER)
@@ -578,7 +226,6 @@
 #endif
 
 // PWR and LED driver
-
 #if defined(PCBX9LITE)
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOA, 7)  // PA.07
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOA, 6)  // PA.06

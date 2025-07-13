@@ -39,74 +39,8 @@
 /* DMA Allocation:
 */
 
-// Keys
-#define KEYS_GPIO_ENTER               GPIO_PIN(GPIOG, 13) // PG.13
-
-// Keys in bsp matrix
-
-// Trims in bsp matrix
-
-
-
-
-
-
-
-
-// function switches
-
-// Direct switches
-// SWA
-#define STORAGE_SWITCH_A
-#define HARDWARE_SWITCH_A
-
-// SWD
-#define STORAGE_SWITCH_D
-#define HARDWARE_SWITCH_D
-
-// SWE
-#define STORAGE_SWITCH_E
-#define HARDWARE_SWITCH_E
-
-// SWF
-#define STORAGE_SWITCH_F
-#define HARDWARE_SWITCH_F
-
-#define KEYS_GPIOB_PINS (LL_GPIO_PIN_15)
-
-// PC8 allocated to SDIO D0, is not required to sample SWA !
-#define KEYS_GPIOC_PINS (LL_GPIO_PIN_13)
-
-#define KEYS_GPIOD_PINS ()
-
-#define KEYS_GPIOH_PINS							\
-  (LL_GPIO_PIN_8 | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11)
-
-#define KEYS_GPIOJ_PINS (LL_GPIO_PIN_12)
-
-#define KEYS_OUT_GPIOG_PINS (LL_GPIO_PIN_2 )
-
-#define KEYS_OUT_GPIOH_PINS (LL_GPIO_PIN_7)
-
 // ADC
-
-
-
-
-
-
-
-
-// Sliders
-
-// Analog switches
-
-
-
-
-
 #define ADC_VREF_PREC2                  329
-
 
 // Power
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOE, 6) // PE.06
