@@ -110,7 +110,7 @@ enum {
 
 #endif
 
-#if defined(ADC_GPIO_PIN_STICK_TH)
+#if defined(RADIO_MT12)
   #define SURFACE_RADIO  true
 #endif
 
