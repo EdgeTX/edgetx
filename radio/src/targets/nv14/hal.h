@@ -46,49 +46,11 @@
    2/3/4 SDIO
 */
 
-
-// Trims
-
-
-
-
 // Monitor pin
 #define VBUS_MONITOR_GPIO               GPIO_PIN(GPIOJ, 14) // PJ.14
 
-// Switches
-#define HARDWARE_SWITCH_A
-#define STORAGE_SWITCH_A
-#define HARDWARE_SWITCH_B
-#define STORAGE_SWITCH_B
-#define HARDWARE_SWITCH_C
-#define STORAGE_SWITCH_C
-#define HARDWARE_SWITCH_D
-#define STORAGE_SWITCH_D
-#define HARDWARE_SWITCH_E
-#define STORAGE_SWITCH_E
-#define HARDWARE_SWITCH_F
-#define STORAGE_SWITCH_F
-#define HARDWARE_SWITCH_G
-#define STORAGE_SWITCH_G
-#define HARDWARE_SWITCH_H
-#define STORAGE_SWITCH_H
-
-// Index of all switches / trims
-
 // ADC
-
-
-
-
-// FLYSKY_HALL_STICKS
-// #define ADC_GPIOA_PINS_FS               (GPIO_Pin_6 | GPIO_Pin_7)
-
-
-
-
-
 #define ADC_VREF_PREC2                  330
-
 
 // Power
 #define PWR_SWITCH_GPIO                 GPIO_PIN(GPIOI, 11) // PI.11
