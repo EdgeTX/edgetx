@@ -182,10 +182,15 @@ uint16_t get_battery_charge_state()
 
 bool isChargerActive()
 {  
-  while (!uCharger.isChargerDetectionReady)
-  {
+  if (uCharger.isChargerDetectionReady) {
+    // Detect the removal of the charger.
     get_battery_charge_state();
-    delay_ms(10);
+  } else {
+    while (!uCharger.isChargerDetectionReady)
+    {
+      get_battery_charge_state();
+      delay_ms(10);
+    }
   }
   return uCharger.hasCharger;
 }
