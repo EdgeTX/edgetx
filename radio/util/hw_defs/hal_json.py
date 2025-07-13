@@ -1,13 +1,5 @@
 import re
 import sys
-import json
-
-from hal_switches import Switch, parse_switches
-from hal_adc import ADCInput, SPI_ADCInput, ADC, ADCInputParser
-from hal_keys import Key, Trim, parse_trims, parse_keys
-from logging_dict import LoggingDict
-
-import legacy_names
 
 
 #
@@ -50,45 +42,31 @@ def prune_dict(d):
     return d
 
 
-class DictEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, Switch):
-            return prune_dict(o.__dict__)
-        if isinstance(o, ADCInput):
-            return prune_dict(o.__dict__)
-        if isinstance(o, SPI_ADCInput):
-            return prune_dict(o.__dict__)
-        if isinstance(o, ADC):
-            return prune_dict(o.__dict__)
-        if isinstance(o, Trim):
-            return prune_dict(o.__dict__)
-        if isinstance(o, Key):
-            return prune_dict(o.__dict__)
+# class DictEncoder(json.JSONEncoder):
+#     def default(self, o):
+#         if isinstance(o, Switch):
+#             return prune_dict(o.__dict__)
+#         if isinstance(o, ADCInput):
+#             return prune_dict(o.__dict__)
+#         if isinstance(o, SPI_ADCInput):
+#             return prune_dict(o.__dict__)
+#         if isinstance(o, ADC):
+#             return prune_dict(o.__dict__)
+#         if isinstance(o, Trim):
+#             return prune_dict(o.__dict__)
+#         if isinstance(o, Key):
+#             return prune_dict(o.__dict__)
 
-        # Let the base class default method raise the TypeError
-        return json.JSONEncoder.default(self, o)
+#         # Let the base class default method raise the TypeError
+#         return json.JSONEncoder.default(self, o)
 
 
 #
 # Parse HAL defines into JSON
 #
 def parse_defines(filename, target):
-    hw_defs = LoggingDict(parse_hw_defs(filename))
-    out_defs = {}
-
-    # parse ADC first, we might have switches using ADC
-    legacy_inputs = legacy_names.inputs_by_target(target)
-    adc_parser = ADCInputParser(target, hw_defs, legacy_inputs)
-    adc_inputs = adc_parser.parse_inputs()
-    out_defs["adc_inputs"] = adc_inputs
-
-    switches = parse_switches(target, hw_defs, adc_parser)
-    out_defs["switches"] = switches
-
-    keys = parse_keys(target, hw_defs)
-    out_defs["keys"] = keys
-
-    trims = parse_trims(hw_defs)
-    out_defs["trims"] = trims
-
-    print(json.dumps(out_defs, cls=DictEncoder, indent=2))
+    # hw_defs = LoggingDict(parse_hw_defs(filename))
+    # out_defs = {}
+    #
+    # print(json.dumps(out_defs, cls=DictEncoder, indent=2))
+    pass
