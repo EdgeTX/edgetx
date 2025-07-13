@@ -201,6 +201,14 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/sdram_driver.cpp
 )
 add_dependencies(board_bl ${BITMAPS_TARGET})
+
+if(PCBREV STREQUAL NB4P)
+  target_sources(board_bl PUBLIC
+    ${CMAKE_CURRENT_BINARY_DIR}/stm32_adc_inputs.inc
+    boards/generic_stm32/analog_inputs.cpp
+  )
+endif()
+
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
 # Firmware board library
