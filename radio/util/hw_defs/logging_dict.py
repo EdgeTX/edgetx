@@ -1,11 +1,11 @@
 import sys
-from typing import Any, Dict, Iterator, KeysView, ValuesView, ItemsView
+from typing import Any, Dict, Iterator, KeysView, Optional, ValuesView, ItemsView
 
 
 class LoggingDict:
     """A dictionary wrapper that logs all lookups to stderr."""
 
-    def __init__(self, data: Dict[Any, Any] | None = None):
+    def __init__(self, data: Optional[Dict[Any, Any]] = None):
         self._data = data if data is not None else {}
 
     def __getitem__(self, key: Any) -> Any:
