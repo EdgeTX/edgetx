@@ -172,7 +172,6 @@ const FlySkySensor flySkySensors[] = {
   FS(IBDT_EXT_VOLTAGE,           STR_SENSOR_A3,       UNIT_VOLTS,   2),
   FS(IBDT_GPS,                   STR_SENSOR_GPS,      UNIT_GPS,     2),
   
-  FS(VIRTUAL_ALT,                STR_SENSOR_ALT,         UNIT_METERS,     3),
   FS(VIRTUAL_GPS_STAS,           STR_SENSOR_SATELLITES,         UNIT_RAW,     0),
   FS(VIRTUAL_GPS_TIME,           STR_SENSOR_GPSDATETIME,         UNIT_DATETIME,     0),
   FS(VIRTUAL_GPS_LAT,            STR_SENSOR_GPS,         UNIT_GPS_LATITUDE,     0),
@@ -218,13 +217,13 @@ const FlySkySensor flySkySensors[] = {
   FS(IBDT_15_PORTS_PWM_ADAPTER,    "ADAPTER_15",        UNIT_RAW,     0),
   FS(IBDT_16_PORTS_PWM_ADAPTER,    "ADAPTER_16",        UNIT_RAW,     0),
   FS(IBDT_17_PORTS_PWM_ADAPTER,    "ADAPTER_17",        UNIT_RAW,     0),
-  FS(IBDT_HUB_1_PORTS_HUB,         "HUB1",              UNIT_RAW,     0),
-  FS(IBDT_HUB_2_PORTS_HUB,         "HUB2",              UNIT_RAW,     0),
-  FS(IBDT_HUB_3_PORTS_HUB,         "HUB3",              UNIT_RAW,     0),
-  FS(IBDT_HUB_4_PORTS_HUB,         "HUB4",              UNIT_RAW,     0),
-  FS(IBDT_HUB_5_PORTS_HUB,         "HUB5",              UNIT_RAW,     0),
-  FS(IBDT_HUB_6_PORTS_HUB,         "HUB6",              UNIT_RAW,     0),
-  FS(IBDT_HUB_7_PORTS_HUB,         "HUB7",              UNIT_RAW,     0),
+  FS(IBDT_HUB_1_PORTS_HUB,         "HUB1",              UNIT_VOLTS,     2),
+  FS(IBDT_HUB_2_PORTS_HUB,         "HUB2",              UNIT_VOLTS,     2),
+  FS(IBDT_HUB_3_PORTS_HUB,         "HUB3",              UNIT_VOLTS,     2),
+  FS(IBDT_HUB_4_PORTS_HUB,         "HUB4",              UNIT_VOLTS,     2),
+  FS(IBDT_HUB_5_PORTS_HUB,         "HUB5",              UNIT_VOLTS,     2),
+  FS(IBDT_HUB_6_PORTS_HUB,         "HUB6",              UNIT_VOLTS,     2),
+  FS(IBDT_HUB_7_PORTS_HUB,         "HUB7",              UNIT_VOLTS,     2),
   FS(IBDT_DIGITAL_SERVO,           "DSERVO",            UNIT_RAW,     0),
   FS(IBDT_SNR,                   STR_SENSOR_RX_SNR,   UNIT_DB,      0),
   FS(IBDT_BK_NOISE,              STR_SENSOR_RX_NOISE, UNIT_DBM,     0),
@@ -334,7 +333,7 @@ void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id) {
     GPSData.DateDay 		= (PSValue & 0x001F);
     GPSData.DateMonth 		= (PSValue >> 5) & 0x000F;	n++;
     GPSData.DateYear 		= (PSValue >> 9) & 0x007F;	n++;
-    value = GPSData.DateYear << 24 | GPSData.DateYear << 16 | GPSData.DateDay << 8 | 0xff ;
+    value = GPSData.DateYear << 24 | GPSData.DateMonth << 16 | GPSData.DateDay << 8 | 0xff ;
     type = VIRTUAL_GPS_TIME;
     sendFlyskytelemtry(type, id, value);
 
