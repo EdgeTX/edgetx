@@ -421,6 +421,8 @@ extern volatile uint32_t rotencDt;
 
 void OpenTxSimulator::rotaryEncoderEvent(int steps)
 {
+  if (steps == 0) return;
+
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   static uint32_t last_tick = 0;
   if (steps != 0) {
@@ -434,22 +436,14 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
     last_tick = now;
   }
 #else
-  // TODO : this should probably be handled in the GUI
   int key;
-#if defined(PCBXLITE)
-  if (steps > 0)
-    key = KEY_DOWN;
-  else if (steps < 0)
-    key = KEY_UP;
-#elif defined(KEYS_GPIO_REG_PLUS) && defined(KEYS_GPIO_REG_MINUS)
-  if (steps > 0)
-    key = KEY_MINUS;
-  else if (steps < 0)
-    key = KEY_PLUS;
-  else
-#endif
-    // Should not happen but Clang complains that key is unset otherwise
-    return;
+  if (keysGetSupported() & ((1 << KEY_UP) | (1 << KEY_DOWN))) {
+    key = steps > 0 ? KEY_DOWN : KEY_UP;
+  } else if (keysGetSupported() & ((1 << KEY_PLUS) | (1 << KEY_MINUS))) {
+    key = steps > 0 ? KEY_MINUS : KEY_PLUS;
+  } else {
+    return; // not supposed to happen???
+  }
 
   setKey(key, 1);
   QTimer::singleShot(10, [this, key]() { setKey(key, 0); });
