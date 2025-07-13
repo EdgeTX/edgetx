@@ -41,7 +41,9 @@
 // generated files
 #include "stm32_adc_inputs.inc"
 #include "stm32_pwm_inputs.inc"
+#if !defined(BOOT)
 #include "hal_adc_inputs.inc"
+#endif
 
 constexpr uint8_t n_ADC = DIM(_ADC_adc);
 constexpr uint8_t n_ADC_spi = DIM(_ADC_spi);
@@ -58,6 +60,11 @@ static bool adc_init()
   if (n_ADC_spi > 0) ads79xx_init(&_ADC_spi[0]);
 #endif
   return success;
+}
+
+static void adc_deinit()
+{
+  stm32_hal_adc_deinit(_ADC_adc, n_ADC);
 }
 
 static bool adc_start_read()
@@ -82,9 +89,12 @@ static void adc_wait_completion()
 }
 
 const etx_hal_adc_driver_t _adc_driver = {
+#if !defined(BOOT)
   .inputs = _hal_inputs,
   .default_pots_cfg = _pot_default_config,
+#endif
   .init = adc_init,
+  .deinit = adc_deinit,
   .start_conversion = adc_start_read,
   .wait_completion = adc_wait_completion,
   .set_input_mask = stm32_hal_set_inputs_mask,

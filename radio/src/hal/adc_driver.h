@@ -77,6 +77,7 @@ struct etx_hal_adc_driver_t {
   potconfig_t default_pots_cfg;
   
   bool (*init)();
+  void (*deinit)();
   bool (*start_conversion)();
   void (*wait_completion)();
 
