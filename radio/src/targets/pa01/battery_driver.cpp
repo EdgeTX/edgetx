@@ -23,6 +23,7 @@
 #include "battery_driver.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "bsp_io.h"
+#include "stm32_ws2812.h"
 
 #define  __BATTERY_DRIVER_C__
 
@@ -501,5 +502,178 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
 
   ledSetState(rgb_state);
   ledSetColor(color);
+}
+
+#define BREATH_INTERVAL 7
+#define BRIGHTNESS_MAX  0xF8
+#define GAMMA       6
+#define PI 3.14159265358979323846f
+#define BREATH_STEP 0.0089759771428571  // PI / 350.0f; // step size
+
+typedef struct 
+{
+  uint8_t led_color;
+  uint8_t led_state;
+  uint8_t led_group;
+} ledInfo_t;
+
+// used to map all led number in the rgbled chain
+// function 1~4 power right left
+uint8_t rgbMapping[] = {4, 6, 0, 2, 8, 12, 10};
+
+ledInfo_t led_info = {0};
+
+void ledSetColor(uint8_t color) {
+  led_info.led_color = color;
+}
+
+void ledSetState(uint8_t state) {
+  led_info.led_state = state;
+}
+
+void ledSetGroup(uint8_t group) {
+  led_info.led_group = group;
+}
+
+void setLedGroupColor(uint8_t index, uint8_t color, uint8_t brightness) {
+
+  uint8_t scaled_r = 0;
+  uint8_t scaled_g = 0;
+  uint8_t scaled_b = 0;
+
+  if (color & RGB_COLOR_RED) {
+    scaled_r = brightness;
+  }
+  if (color & RGB_COLOR_GREEN) {
+    scaled_g = brightness;
+  }
+  if (color & RGB_COLOR_BLUE) {
+    scaled_b = brightness;
+  }
+
+  ws2812_set_color(rgbMapping[index], scaled_r, scaled_g, scaled_b);
+  ws2812_set_color(rgbMapping[index] + 1, scaled_r, scaled_g, scaled_b);
+}
+
+uint8_t ledBreathBright(float angle) {
+  float brightness = sin(angle) * 0.5 + 0.5; // map range 0-1
+  brightness = pow(brightness, GAMMA); // gamma correction
+  uint8_t bright = (uint8_t)(brightness * 255);
+  return bright;
+}
+
+void ledBreathUpdate(uint8_t state, uint8_t color, uint8_t group) {
+  static uint32_t breath_tick = 0;
+  
+  if (timersGetMsTick() - breath_tick < BREATH_INTERVAL && breath_tick != 0) {
+    if (state == RGB_STATE_BREATH || state == RGB_STATE_CHARGE) {
+      return;
+    }
+  }
+  breath_tick = timersGetMsTick();
+  uint8_t bright = 0;
+  static float breath_angle = 0;
+ 
+  bright = ledBreathBright(breath_angle);
+  breath_angle += BREATH_STEP;
+  if (breath_angle > PI) breath_angle = 0; // reset angle
+
+  if (group & RGB_GROUP_MASK_FUNC_1)    setLedGroupColor(0, color, bright);
+  if (group & RGB_GROUP_MASK_FUNC_2)    setLedGroupColor(1, color, bright);
+  if (group & RGB_GROUP_MASK_FUNC_3)    setLedGroupColor(2, color, bright);
+  if (group & RGB_GROUP_MASK_FUNC_4)    setLedGroupColor(3, color, bright);
+  if (group & RGB_GROUP_MASK_POWER)     setLedGroupColor(4, color, bright);
+  if (group & RGB_GROUP_MASK_AROUND_L)  setLedGroupColor(5, color, bright);
+  if (group & RGB_GROUP_MASK_AROUND_R)  setLedGroupColor(6, color, bright);
+
+  rgbLedColorApply();
+}
+
+void ledLoop(void) {
+  if (led_info.led_state == RGB_STATE_OFF) {
+    led_info.led_state = RGB_STATE_NONE;
+    rgbLedClearAll();
+    return;
+  } else if (led_info.led_state == RGB_STATE_POWER_ON) {
+    rgbLedColorApply();
+    return;
+  } else if (led_info.led_state == RGB_STATE_NONE) {
+    return;
+  }
+  ledBreathUpdate(led_info.led_state, led_info.led_color, led_info.led_group);
+}
+
+static uint8_t _led_colors[WS2812_BYTES_PER_LED * LED_STRIP_LENGTH];
+extern const stm32_pulse_timer_t _led_timer;
+static uint8_t _led_charge_colors[WS2812_BYTES_PER_LED * LED_STRIP_LENGTH];
+void rgbChargeInit(void) {
+  ws2812_init(&_led_timer, _led_charge_colors, LED_STRIP_LENGTH, WS2812_GRB);
+  rgbLedClearAll();
+}
+
+constexpr uint16_t vbatLedTable[] = {720, 740, 760, 800, 823};
+constexpr uint16_t HYSTERESIS = 5;
+void updateBatteryState(uint8_t rgb_state) {
+  uint16_t bat_v = getBatteryVoltage();
+  uint8_t power_level = POWER_LEVEL_NONE;
+  static uint8_t last_power_level = POWER_LEVEL_NONE;
+
+  uint16_t current_level_min = 0;
+  uint16_t current_level_max = 0;
+  bool need_update = true;
+  if (last_power_level != POWER_LEVEL_NONE) {
+    switch (last_power_level) {
+      case POWER_LEVEL_CRITICAL:
+        current_level_min = 0;
+        current_level_max = vbatLedTable[0] + HYSTERESIS;
+        break;
+      case POWER_LEVEL_LOW:
+        current_level_min = vbatLedTable[0] - HYSTERESIS;
+        current_level_max = vbatLedTable[1] + HYSTERESIS;
+        break;
+      case POWER_LEVEL_MEDIUM:
+        current_level_min = vbatLedTable[1] - HYSTERESIS;
+        current_level_max = vbatLedTable[2] + HYSTERESIS;
+        break;
+      case POWER_LEVEL_HIGH:
+        current_level_min = vbatLedTable[2] - HYSTERESIS;
+        current_level_max = vbatLedTable[3] + HYSTERESIS;
+        break;
+      case POWER_LEVEL_NEAR_FULL:
+        current_level_min = vbatLedTable[3] - HYSTERESIS;
+        current_level_max = vbatLedTable[4] + HYSTERESIS;
+        break;
+      case POWER_LEVEL_FULL:
+        current_level_min = vbatLedTable[4] - HYSTERESIS;
+        current_level_max = UINT16_MAX;
+        break;
+      default:
+        need_update = true;
+    }
+
+    if (bat_v >= current_level_min && bat_v <= current_level_max) {
+      need_update = false;
+      power_level = last_power_level;
+    }
+  }
+
+  if (need_update) {
+    if (bat_v < vbatLedTable[0]) {
+      power_level = POWER_LEVEL_CRITICAL;
+    } else if (bat_v < vbatLedTable[1]) {
+      power_level = POWER_LEVEL_LOW;
+    } else if (bat_v < vbatLedTable[2]) {
+      power_level = POWER_LEVEL_MEDIUM;
+    } else if (bat_v < vbatLedTable[3]) {
+      power_level = POWER_LEVEL_HIGH;
+    } else if (bat_v < vbatLedTable[4]){
+      power_level = POWER_LEVEL_NEAR_FULL;
+    } else {
+      power_level = POWER_LEVEL_FULL;
+    }
+  }
+  rgbBatteryLevelInfo(power_level, rgb_state);
+  ledLoop();
+  last_power_level = power_level;
 }
 
