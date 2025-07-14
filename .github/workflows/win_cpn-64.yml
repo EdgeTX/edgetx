@@ -69,7 +69,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           echo $PATH
-          $Python3_ROOT_DIR/python3.exe -m pip install clang jinja2 lz4 pillow
+          $Python3_ROOT_DIR/python3.exe -m pip install clang jinja2 lz4 pillow pydantic
 
       - name: Setup dfu-util and libusb
         run: |
