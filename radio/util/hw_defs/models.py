@@ -1,8 +1,8 @@
 from enum import Enum
 from typing_extensions import List, Literal, Optional, Tuple, Union
 
-from pydantic import BaseModel
-from pydantic_core import from_json
+from pydantic import BaseModel, model_validator
+from pydantic_core import from_json, PydanticCustomError
 
 
 class StrEnum(str, Enum):
@@ -47,20 +47,24 @@ MAX_SLIDERS = 8
 MAX_EXT = 16
 MAX_RAW = 8
 
-InputEnum = StrEnum(
-    "InputEnum",
+FlexInputEnum = StrEnum(
+    "FlexInputEnum",
     (
         [f"P{i}" for i in range(1, MAX_POTS)]
         + [f"SL{i}" for i in range(1, MAX_SLIDERS)]
         + [f"EXT{i}" for i in range(1, MAX_EXT)]
-        + [f"SW{chr(i)}" for i in range(ord("A"), ord("Z") + 1)]
-        + [f"RAW{i}" for i in range(1, MAX_RAW)]
         + ["JSx", "JSy"]
-        + ["VBAT", "RTC_BAT"]
     ),
 )
 
-InputNameType = Union[StickEnum, InputEnum]
+SwitchInputEnum = StrEnum(
+    "SwitchInputEnum",
+    list([f"SW{chr(i)}" for i in range(ord("A"), ord("Z") + 1)]),
+)
+
+RawInputEnum = StrEnum("RawInputEnum", list([f"RAW{i}" for i in range(1, MAX_RAW)]))
+
+InputNameType = Union[StickEnum, FlexInputEnum, SwitchInputEnum, RawInputEnum]
 
 InputType = StrEnum(
     "InputType",
@@ -88,17 +92,65 @@ FlexType = StrEnum(
 )
 
 
-class Input(BaseModel):
-    name: InputNameType
-    type: InputType
+class StickInput(BaseModel):
+    name: StickEnum
+    type: Literal["STICK"]
     adc: Optional[ADCNameType] = None
     gpio: Optional[str] = None
     pin: Optional[str] = None
     channel: Optional[Union[str, int]] = None
     inverted: Optional[bool] = False
+
+
+class FlexInput(BaseModel):
+    name: FlexInputEnum
+    type: Literal["FLEX"]
+    adc: ADCNameType
+    gpio: Optional[str] = None
+    pin: Optional[str] = None
+    channel: Optional[Union[str, int]] = None
+    inverted: Optional[bool] = False
+    default: Optional[FlexType] = FlexType.NONE
     label: Optional[str] = None
     short_label: Optional[str] = None
-    default: Optional[FlexType] = None
+
+
+class SwitchInput(BaseModel):
+    name: SwitchInputEnum
+    type: Literal["SWITCH"]
+    adc: ADCNameType
+    gpio: Optional[str] = None
+    pin: Optional[str] = None
+    channel: Optional[Union[str, int]] = None
+    inverted: Optional[bool] = False
+
+
+class RawInput(BaseModel):
+    name: RawInputEnum
+    type: Literal["RAW"]
+    adc: ADCNameType
+    gpio: Optional[str] = None
+    pin: Optional[str] = None
+    channel: Optional[Union[str, int]] = None
+
+
+class VBatInput(BaseModel):
+    name: Literal["VBAT"]
+    type: Literal["VBAT"]
+    adc: ADCNameType
+    gpio: Optional[str] = None
+    pin: Optional[str] = None
+    channel: Optional[Union[str, int]] = None
+
+
+class RTCBatInput(BaseModel):
+    name: Literal["RTC_BAT"]
+    type: Literal["RTC_BAT"]
+    adc: Literal["MAIN", "EXT"]
+    channel: str
+
+
+Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput]
 
 
 class ADCInputs(BaseModel):
@@ -138,6 +190,16 @@ class Key(BaseModel):
     gpio: Optional[str] = None
     pin: Optional[str] = None
 
+    @model_validator(mode="after")
+    def check_hardware(self: "Key") -> "Key":
+        if bool(self.gpio) != bool(self.pin):
+            raise PydanticCustomError(
+                "KeyHardwareError",
+                "Key missing either 'gpio' or 'pin'",
+            )
+
+        return self
+
 
 SwitchHardwareTypeEnum = StrEnum(
     "SwitchTypeEnum",
@@ -176,6 +238,63 @@ class Switch(BaseModel):
     gpio_low: Optional[str] = None
     pin_low: Optional[str] = None
     display: Optional[SwitchDisplayType] = None
+
+    def _uses_single_gpio(self: "Switch") -> bool:
+        return bool(self.gpio or self.pin)
+
+    def _uses_two_gpios(self: "Switch") -> bool:
+        return bool(self.gpio_high or self.pin_high or self.gpio_low or self.pin_low)
+
+    def _uses_gpio(self: "Switch") -> bool:
+        return self._uses_single_gpio() or self._uses_two_gpios()
+
+    @model_validator(mode="after")
+    def check_hardware(self: "Switch") -> "Switch":
+        if bool(self.adc_input) == self._uses_gpio():
+            if self.adc_input:
+                raise PydanticCustomError(
+                    "SwitchHardwareError",
+                    "A switch is either using ADC or it's own GPIO pin(s)",
+                )
+
+        if self._uses_gpio() and (self._uses_single_gpio() == self._uses_two_gpios()):
+            raise PydanticCustomError(
+                "SwitchHardwareError",
+                "A switch based on GPIO pin(s) uses either a single or two GPIOs",
+            )
+
+        if self._uses_single_gpio():
+            if not self.gpio or not self.pin:
+                raise PydanticCustomError(
+                    "SwitchHardwareError",
+                    "Switch missing either 'gpio' or 'pin'",
+                )
+            if str(self.type) not in ["2POS", "FSWITCH"]:
+                raise PydanticCustomError(
+                    "SwitchHardwareError",
+                    "Single GPIO switch type is either '2POS' or 'FSWITCH'",
+                )
+            # TODO: check 'default' as well?
+
+        if self._uses_two_gpios():
+            if (
+                not self.gpio_high
+                or not self.pin_high
+                or not self.gpio_low
+                or not self.pin_low
+            ):
+                raise PydanticCustomError(
+                    "SwitchHardwareError",
+                    "Switch missing 'gpio_high' or 'pin_high' or 'gpio_low' or 'pin_low'",
+                )
+            if str(self.type) != "3POS":
+                raise PydanticCustomError(
+                    "SwitchHardwareError",
+                    "Dual GPIO switch type is always '3POS",
+                )
+            # TODO: check 'default' as well?
+
+        return self
 
 
 class HardwareDefinition(BaseModel):
