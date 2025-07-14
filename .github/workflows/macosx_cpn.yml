@@ -67,7 +67,7 @@ jobs:
           cache-key-prefix: 'install-qt-action-macOS'
 
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pip Pillow lz4 clang jinja2
+        run: python3 -m pip install --upgrade pip Pillow lz4 clang jinja2 pydantic
 
       - name: Install libusb
         run:  brew install libusb
