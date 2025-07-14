@@ -469,7 +469,7 @@ bool keysPollingCycle()
       evt |= i;
 
       // Radio with single PAGEDN key
-      if (keysGetSupported() & (1 << KEY_PAGEUP)) {
+      if (!(keysGetSupported() & (1 << KEY_PAGEUP))) {
         if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
           // Convert long press PAGEDN to short press PAGEUP
           evt = EVT_KEY_BREAK(KEY_PAGEUP);
