@@ -462,7 +462,7 @@ uint16_t keyMapping(uint16_t event)
 #endif
 
   // Radio with single PAGEDN key
-  if (keysGetSupported() & (1 << KEY_PAGEUP)) {
+  if (!(keysGetSupported() & (1 << KEY_PAGEUP))) {
     if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
       // Convert long press PAGEDN to short press PAGEUP
       killEvents(KEY_PAGEDN);
