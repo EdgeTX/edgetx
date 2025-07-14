@@ -184,5 +184,5 @@ class HardwareDefinition(BaseModel):
     keys: List[Key]
 
     @staticmethod
-    def from_json(data: str | bytes | bytearray) -> "HardwareDefinition":
+    def from_json(data: Union[str, bytes, bytearray]) -> "HardwareDefinition":
         return HardwareDefinition.model_validate(from_json(data))
