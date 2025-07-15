@@ -43,7 +43,7 @@
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-#if PORTRAIT_LCD
+#if PORTRAIT
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(13), LV_GRID_FR(19),
                                      LV_GRID_TEMPLATE_LAST};
 #else

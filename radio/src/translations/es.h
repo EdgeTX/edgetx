@@ -228,12 +228,10 @@
 #endif
 #endif
 
-#if defined(PCBTARANIS) || defined(PCBHORUS)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(PCBHORUS)
@@ -269,6 +267,7 @@
 #define TR_BITMAP              "Imagen modelo"
 #define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER               TR("Timer", "Timer ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_ELIMITS             TR("E.Límite", "Ampliar límites")
 #define TR_ETRIMS              TR("E.Trims", "Ampliar trims")
@@ -643,6 +642,9 @@
 #define TR_POWER_METER_INT             "Medidor potencia(INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Espectro (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Espectro (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD Card llena"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"

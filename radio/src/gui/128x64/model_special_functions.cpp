@@ -267,9 +267,15 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif // GVARS
           else if (func == FUNC_SET_TIMER) {
-            maxParam = MAX_TIMERS - 1;
-            lcdDrawTextAtIndex(lcdNextPos, y, STR_VFSWRESET, CFN_TIMER_INDEX(cfn), attr);
-            if (active) CFN_TIMER_INDEX(cfn) = checkIncDec(event, CFN_TIMER_INDEX(cfn), 0, maxParam, eeFlags, isTimerSourceAvailable);
+            if (timersSetupCount()> 0) {
+              maxParam = MAX_TIMERS - 1;
+              lcdDrawTextAtIndex(lcdNextPos, y, STR_VFSWRESET, CFN_TIMER_INDEX(cfn), attr);
+              if (active) CFN_TIMER_INDEX(cfn) = checkIncDec(event, CFN_TIMER_INDEX(cfn), 0, maxParam, eeFlags, isTimerSourceAvailable);
+            } else {
+              lcdDrawText(lcdNextPos + FW, y, STR_NO_TIMERS, 0);
+              if (attr)
+                repeatLastCursorHorMove(event);
+            }
             break;
           }
 #if defined(FUNCTION_SWITCHES)
@@ -317,8 +323,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif
           else if (func == FUNC_SET_TIMER) {
-            getMixSrcRange(MIXSRC_FIRST_TIMER, val_min, val_max);
-            drawTimer(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT, attr);
+            if (timersSetupCount() > 0) {
+              getMixSrcRange(MIXSRC_FIRST_TIMER, val_min, val_max);
+              drawTimer(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT, attr);
+            } else if (attr) {
+              repeatLastCursorHorMove(event);
+            }
           }
 #if defined(AUDIO)
           else if (func == FUNC_PLAY_SOUND) {

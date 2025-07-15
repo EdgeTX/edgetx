@@ -96,12 +96,12 @@ extern "C" void SDRAM_Init();
     else                                        \
       gpio_set(INTMODULE_PWR_GPIO);             \
   } while (0)
-#elif defined(RADIO_NB4P)
+#elif defined(RADIO_NB4P) || defined(RADIO_PL18U)
   #define INTERNAL_MODULE_ON()            gpio_clear(INTMODULE_PWR_GPIO)
   #define INTERNAL_MODULE_OFF()           gpio_set(INTMODULE_PWR_GPIO);
 #else
   #define INTERNAL_MODULE_ON()            gpio_set(INTMODULE_PWR_GPIO)
-  #define INTERNAL_MODULE_OFF()           gpio_clear(INTMODULE_PWR_GPIO);
+  #define INTERNAL_MODULE_OFF()           gpio_clear(INTMODULE_PWR_GPIO)
 #endif
 
 #define EXTERNAL_MODULE_ON()            gpio_set(EXTMODULE_PWR_GPIO)
@@ -109,19 +109,17 @@ extern "C" void SDRAM_Init();
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
 #define BLUETOOTH_MODULE_ON()           gpio_clear(BLUETOOTH_ON_GPIO)
 #define BLUETOOTH_MODULE_OFF()          gpio_set(BLUETOOTH_ON_GPIO)
-#define IS_INTERNAL_MODULE_ON()         (false)
-#define IS_EXTERNAL_MODULE_ON()         (gpio_read(EXTMODULE_PWR_GPIO) ? 1 : 0)
+//#define IS_INTERNAL_MODULE_ON()         (false)
+//#define IS_EXTERNAL_MODULE_ON()         (gpio_read(EXTMODULE_PWR_GPIO) ? 1 : 0)
 
 #else // defined(SIMU)
 
-#define INTERNAL_MODULE_OFF()
 #define INTERNAL_MODULE_ON()
+#define INTERNAL_MODULE_OFF()
 #define EXTERNAL_MODULE_ON()
 #define EXTERNAL_MODULE_OFF()
 #define BLUETOOTH_MODULE_ON()
 #define BLUETOOTH_MODULE_OFF()
-#define IS_INTERNAL_MODULE_ON()         (false)
-#define IS_EXTERNAL_MODULE_ON()         (false)
 
 #endif // defined(SIMU)
 

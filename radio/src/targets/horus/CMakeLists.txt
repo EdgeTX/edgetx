@@ -28,8 +28,6 @@ set(CPU_TYPE_FULL STM32F429xI)
 set(TARGET_LINKER_DIR stm32f429_sdram)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM2=8192")
 
-add_definitions(-DPCBFRSKY)
-
 # defines existing internal modules
 set(INTERNAL_MODULES PXX1;PXX2;MULTI;CRSF CACHE STRING "Internal modules")
 
@@ -163,6 +161,7 @@ if (PCB STREQUAL X10)
     set(FLAVOUR x10)
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
     set(BLUETOOTH ON)
+    add_definitions(-DRADIO_X10)
     add_definitions(-DMANUFACTURER_FRSKY)
   endif()
 elseif (PCB STREQUAL X12S)

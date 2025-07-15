@@ -29,6 +29,7 @@
 #include "edgetx.h"
 #include "radio_ghost_module_config.h"
 #include "radio_spectrum_analyser.h"
+#include "radio_gps_tool.h"
 #include "standalone_lua.h"
 #include "etx_lv_theme.h"
 
@@ -140,6 +141,19 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
 }
 #endif
 
+static bool isModelGPSSensorPresent()
+{
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    if (isGPSSensor(i+1)) return true;
+  }
+  return false;
+}
+
+static void run_gpstool(Window* parent, const std::string&)
+{
+  new RadioGpsTool();
+}
+
 #if defined(PXX2) || defined(MULTIMODULE)
 
 #if defined(HARDWARE_INTERNAL_MODULE)
@@ -242,19 +256,22 @@ void RadioToolsPage::rebuild(Window* window)
   }
 #endif
 
+  if (isModelGPSSensorPresent())
+    tools.emplace_back(ToolEntry{STR_GPS_MODEL_LOCATOR, "", run_gpstool});
+
 #if defined(HARDWARE_INTERNAL_MODULE)
   if (intSpecAnalyser)
-    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_INT, {}, run_spektrum_int});
+    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_INT, "", run_spektrum_int});
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
   if (extSpecAnalyser)
-    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_EXT, {}, run_spektrum_ext});
+    tools.emplace_back(ToolEntry{STR_SPECTRUM_ANALYSER_EXT, "", run_spektrum_ext});
 #endif
 
 #if defined(GHOST)
   if (isModuleGhost(EXTERNAL_MODULE)) {
-    tools.emplace_back(ToolEntry{"Ghost module config", {}, run_ghost_config});
+    tools.emplace_back(ToolEntry{STR_GHOST_MODULE_CONFIG, "", run_ghost_config});
   }
 #endif
 

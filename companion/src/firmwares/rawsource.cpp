@@ -87,18 +87,18 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
     }
 
     case SOURCE_TYPE_SPECIAL:
-      if (index == 0)  {       //Batt
+      if (abs(index) == 1)  {       // Batt
         result.step = 0.1;
         result.decimals = 1;
         result.max = 25.5;
         result.unit = tr("V");
       }
-      else if (index == 1) {   //Time
+      else if (abs(index) == 2) {   // Time
         result.step = 60;
         result.max = 24 * 60 * result.step - 60;  // 23:59:00 with 1-minute resolution
         result.unit = tr("s");
       }
-      else if (index == 2) {   //GPS
+      else if (abs(index) == 3) {   // GPS
         result.max = 30000;
         result.min = -result.max;
       }
@@ -232,7 +232,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return result;
 
     case SOURCE_TYPE_SPECIAL:
-      return CHECK_IN_ARRAY(special, index);
+      return CHECK_IN_ARRAY(special, abs(index));
 
     case SOURCE_TYPE_TIMER:
       if (model && index <= CPN_MAX_TIMERS)

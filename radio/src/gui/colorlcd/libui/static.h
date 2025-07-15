@@ -216,5 +216,8 @@ class QRCode : public Window
   std::string getName() const override { return "QRCode"; }
 #endif
 
+  void setData(std::string data);
+
  protected:
+  lv_obj_t* qr = nullptr;
 };

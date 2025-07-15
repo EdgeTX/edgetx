@@ -234,14 +234,11 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
-#elif !defined(HARDWARE_KEYS)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
-
 #if defined(COLORLCD)
   #define TR_EXIT                      "RTN"
   #define TR_OK                        TR_ENTER
@@ -273,6 +270,7 @@
 #define TR_BITMAP                      "模型圖片"
 #define TR_NO_PICTURE                  "無圖片"
 #define TR_TIMER                       TR("計時器", "計時器 ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "開始"
 #define TR_ELIMITS                     TR("擴展行程", "擴展通道行程")
 #define TR_ETRIMS                      TR("擴展微調", "擴展微調量")
@@ -653,6 +651,9 @@
 #define TR_POWER_METER_INT             "功率計 (內置)"
 #define TR_SPECTRUM_ANALYSER_EXT       "頻譜儀 (外置)"
 #define TR_SPECTRUM_ANALYSER_INT       "頻譜儀 (內置)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD卡已滿"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\n日誌和截屏功能將被禁用"

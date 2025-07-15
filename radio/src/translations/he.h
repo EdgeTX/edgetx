@@ -236,12 +236,10 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(COLORLCD)
@@ -275,6 +273,7 @@
 #define TR_BITMAP                      "תמונה מודל"
 #define TR_NO_PICTURE                  "אין תמונה"
 #define TR_TIMER                       TR("שעון", "שעון ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "התחלה"
 #define TR_ELIMITS                     TR("E.Limits", "הרחב תצוגות")
 #define TR_ETRIMS                      TR("E.Trims", "הרחב תצוגות")
@@ -651,6 +650,9 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                  "הדיסק מלא״"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\לוגים ושמירת צילומי מסך מושבתים"

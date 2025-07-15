@@ -25,15 +25,18 @@
 #include "libopenui.h"
 #include "edgetx.h"
 
-#if defined(RADIO_NB4P)
-static const uint8_t _trimMap[MAX_TRIMS * 2] = {0, 1, 2,  3,  4,  5,  6,  7,
-                                                8, 9, 10, 11, 12, 13, 14, 15};
+#if defined(RADIO_PL18U)
+  static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2, 3, 0, 1,
+                                                  10, 11, 8, 9, 12, 13, 14, 15};
+#elif defined(RADIO_NB4P)
+  static const uint8_t _trimMap[MAX_TRIMS * 2] = {0, 1, 2, 3, 4, 5, 6, 7,
+                                                  8, 9, 10, 11, 12, 13, 14, 15};
 #elif defined(PCBPL18)
-static const uint8_t _trimMap[MAX_TRIMS * 2] = {8, 9, 10, 11, 12, 13, 14, 15,
-                                                2, 3, 4,  5,  0,  1,  6,  7};
+  static const uint8_t _trimMap[MAX_TRIMS * 2] = {8, 9, 10, 11, 12, 13, 14, 15,
+                                                  2, 3, 4,  5,  0,  1,  6,  7};
 #else
-static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2,  3,
-                                                0, 1, 8, 9, 10, 11};
+  static const uint8_t _trimMap[MAX_TRIMS * 2] = {6, 7, 4, 5, 2,  3,
+                                                  0, 1, 8, 9, 10, 11};
 #endif
 
 static EnumKeys get_ith_key(uint8_t i)

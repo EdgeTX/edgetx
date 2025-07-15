@@ -231,12 +231,10 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(COLORLCD)
@@ -270,6 +268,7 @@
 #define TR_BITMAP                      "モデルイメージ"
 #define TR_NO_PICTURE                  "画像なし"
 #define TR_TIMER                       TR("タイマー", "タイマー ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "スタート"
 #define TR_ELIMITS                     TR("E.Limit", "リミット拡張")
 #define TR_ETRIMS                      TR("E.Trims", "トリム拡張")
@@ -651,6 +650,9 @@
 #define TR_POWER_METER_INT             "出力メーター\n(内部)"
 #define TR_SPECTRUM_ANALYSER_EXT       "スペクトラム\n(外部)"
 #define TR_SPECTRUM_ANALYSER_INT       "スペクトラム\n(内部)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SDカード空き容量なし"
 #if defined(COLORLCD)
   #define TR_SDCARD_FULL_EXT           TR_SDCARD_FULL "\nログとスクリーンショット保存が無効"

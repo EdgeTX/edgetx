@@ -241,12 +241,10 @@
   #endif
 #endif
 
-#if defined(PCBTARANIS) || defined(PCBHORUS)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[DALŠÍ]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(PCBHORUS)
@@ -281,6 +279,7 @@
 #define TR_BITMAP                      "Obrázek"
 #define TR_NO_PICTURE                  "Bez obrázku"
 #define TR_TIMER                       "Stopky"
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Limit +25%", "Kanál +/- 125%")
 #define TR_ETRIMS                      TR("širší Trim", "Široký trim")
@@ -659,6 +658,9 @@
 #define TR_POWER_METER_INT             "Měřič výkonu (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spektální an. (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spektální an. (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "Plná karta SD"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT TR_SDCARD_FULL "\nLogování dat a snímky obrazovky vypnuty"

@@ -454,6 +454,9 @@
 #elif defined(TRANSLATIONS_HE)
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_he_STD)
   #define LV_FONT_DEFAULT &lv_font_he_STD
+#elif defined(TRANSLATIONS_UA)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_ua_STD)
+  #define LV_FONT_DEFAULT &lv_font_ua_STD
 #else
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_en_STD)
   #define LV_FONT_DEFAULT &lv_font_en_STD

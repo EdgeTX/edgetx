@@ -232,12 +232,10 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(PCBHORUS)
@@ -272,6 +270,7 @@
 #define TR_BITMAP                      "Modellfoto"
 #define TR_NO_PICTURE                  "kein Foto"
 #define TR_TIMER                       "Timer"
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Erw. Limit", "Erw. Wege auf 150%")
 #define TR_ETRIMS                      TR("Erw. Trims", "Erw. Trim  auf 100%")
@@ -647,6 +646,9 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD-Karte voll"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs und Screenshots deaktiviert"

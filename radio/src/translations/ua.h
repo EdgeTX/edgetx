@@ -234,12 +234,10 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"	/* use english */
-#elif defined(PCBNV14)
-  #define TR_ENTER                     "[NEXT]"		/* use english */
+#if defined(PCBNV14) || defined(PCBPL18)
+  #define TR_ENTER                     "[NEXT]"     /* use english */
 #else
-  #define TR_ENTER                     "[MENU]"		/* use english */
+  #define TR_ENTER                     "[ENTER]"    /* use english */
 #endif
 
 #if defined(COLORLCD)
@@ -273,6 +271,7 @@
 #define TR_BITMAP                      "Зображ. моделі"
 #define TR_NO_PICTURE                  "Немає зображ."
 #define TR_TIMER                       TR("Таймер", "Таймер ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"	/* use english */
 #define TR_ELIMITS                     TR("Розш.Ліміт", "Розширені Ліміти")
 #define TR_ETRIMS                      TR("Розш.Трим.", "Розширене Обрізання")  /* ned to be clarified by context */
@@ -654,6 +653,9 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Спектр (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Спектр (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD карта повна"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nЛоги і скріншоти вимкнені"

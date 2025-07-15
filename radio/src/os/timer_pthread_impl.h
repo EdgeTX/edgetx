@@ -37,9 +37,6 @@ class timer_queue {
   std::mutex _cmds_mutex;
   std::condition_variable _cmds_condition;
 
-  std::mutex _stop_mutex;
-  std::condition_variable _stop_condition;
-
   std::vector<timer_handle_t*> _timers;
   std::vector<timer_async_call_t> _funcs;
 

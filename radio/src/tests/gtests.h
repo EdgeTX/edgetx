@@ -46,12 +46,8 @@ extern const char * nchar2string(const char * string, int size);
 #define EXPECT_ZSTREQ(c_string, z_string)   EXPECT_STREQ(c_string, zchar2string(z_string, sizeof(z_string)))
 #define EXPECT_STRNEQ(c_string, n_string)   EXPECT_STREQ(c_string, nchar2string(n_string, sizeof(n_string)))
 
-#if defined(PCBFRSKY)
 #define RADIO_RESET() \
   g_eeGeneral.switchConfig = 0x00007bff
-#else
-  #define RADIO_RESET()
-#endif
 
 inline void SYSTEM_RESET()
 {

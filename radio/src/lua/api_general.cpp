@@ -564,48 +564,38 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
   if (_searchSingleFieldsById(id, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
 
+  // search in telemetry for configured sensor
+  if (id >= MIXSRC_FIRST_TELEM && id <= MIXSRC_LAST_TELEM) {
+    int i = (id - MIXSRC_FIRST_TELEM) / 3;
+    if (isTelemetryFieldAvailable(i)) {
+      char* s = strAppend(field.name, g_model.telemetrySensors[i].label, TELEM_LABEL_LEN);
+      int index = (id - MIXSRC_FIRST_TELEM) % 3;
+      if (index == 1)
+        strAppend(s, "-");
+      else if (index == 2)
+        strAppend(s, "+");
+      return true;
+    }
+  }
+
   // search in multiples
   for (unsigned int n = 0; n < DIM(luaMultipleFields); ++n) {
     int index = id - luaMultipleFields[n].id;
     if (0 <= index && index < luaMultipleFields[n].count) {
       int index2 = 0;
-      if(luaMultipleFields[n].id == MIXSRC_FIRST_TELEM) {
+      if (luaMultipleFields[n].id == MIXSRC_FIRST_TELEM) {
         index2 = index % 3;
         index /= 3;
       }
-      switch (index2) {
-        case 0:
-          snprintf(field.name, sizeof(field.name), "%s%i", luaMultipleFields[n].name, index + 1);
-          break;
-        case 1:
-          snprintf(field.name, sizeof(field.name), "%s%i-", luaMultipleFields[n].name, index + 1);
-          break;
-        case 2:
-          snprintf(field.name, sizeof(field.name), "%s%i+", luaMultipleFields[n].name, index + 1);
-      }
+      char* s = strAppend(field.name, luaMultipleFields[n].name);
+      s = strAppendUnsigned(s, index + 1);
+      if (index2 == 1)
+        strAppend(s, "-");
+      else if (index2 == 2)
+        strAppend(s, "+");
       if (flags & FIND_FIELD_DESC)
         snprintf(field.desc, sizeof(field.desc), luaMultipleFields[n].desc, index + 1);
       return true;
-    }
-  }
-
-  // search in telemetry
-  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
-    if (isTelemetryFieldAvailable(i)) {
-      int index = id - (MIXSRC_FIRST_TELEM + 3 * i);
-      if (0 <= index && index < 3) {
-        const char* sensorName = g_model.telemetrySensors[i].label;
-        switch (index) {
-          case 0:
-            snprintf(field.name, sizeof(field.name), "%s", sensorName);
-            break;
-          case 1:
-            snprintf(field.name, sizeof(field.name), "%s-", sensorName);
-            break;
-          case 2:
-            snprintf(field.name, sizeof(field.name), "%s+", sensorName);
-        }
-      }
     }
   }
 
@@ -3216,4 +3206,6 @@ LROT_BEGIN(etxstr, NULL, 0)
   LROT_LUDENTRY( CHAR_CHANNEL, STR_CHAR_CHANNEL )
   LROT_LUDENTRY( CHAR_TELEMETRY, STR_CHAR_TELEMETRY )
   LROT_LUDENTRY( CHAR_LUA, STR_CHAR_LUA )
+  LROT_LUDENTRY( CHAR_LS, STR_CHAR_LS )
+  LROT_LUDENTRY( CHAR_CURVE, STR_CHAR_CURVE )
 LROT_END(etxstr, NULL, 0)

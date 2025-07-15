@@ -146,7 +146,6 @@ const char * const audioFilenames[] = {
   "midstck2",
   "midstck3",
   "midstck4",
-#if defined(PCBFRSKY)
   "midpot1",
   "midpot2",
 #if defined(PCBX9E)
@@ -164,11 +163,6 @@ const char * const audioFilenames[] = {
 #if defined(PCBX9E)
   "midslid3",
   "midslid4",
-#endif
-#else
-  "midpot1",
-  "midpot2",
-  "midpot3",
 #endif
   "mixwarn1",
   "mixwarn2",
@@ -395,7 +389,7 @@ inline void mixSample(audio_data_t * result, int16_t sample, unsigned int fade)
   *result = (audio_data_t)_sat_s16(tmp);
 #elif AUDIO_SAMPLE_FMT == AUDIO_SAMPLE_FMT_U16
   *result = (audio_data_t)_sat_u16((uint32_t)tmp);
-#endif 
+#endif
 }
 
 #define RIFF_CHUNK_SIZE 12
@@ -976,15 +970,11 @@ void audioEvent(unsigned int index)
       case AU_POT6_MIDDLE:
       case AU_POT7_MIDDLE:
 #endif
-#if defined(PCBFRSKY)
       case AU_SLIDER1_MIDDLE:
       case AU_SLIDER2_MIDDLE:
 #if defined(PCBX9E)
       case AU_SLIDER3_MIDDLE:
       case AU_SLIDER4_MIDDLE:
-#endif
-#else
-      case AU_POT3_MIDDLE:
 #endif
         audioQueue.playTone(BEEP_DEFAULT_FREQ + 1500, 80, 20, PLAY_NOW);
         break;

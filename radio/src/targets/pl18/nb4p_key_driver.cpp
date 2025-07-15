@@ -109,7 +109,6 @@ uint16_t _adcRead()
   LL_ADC_REG_StartConversionSWStart(ADC_MAIN);
 
   // Wait until ADC conversion is complete
-  uint32_t timeout = 0;
   while (!LL_ADC_IsActiveFlag_EOCS(ADC_MAIN));
 
   // Read ADC converted value

@@ -1282,10 +1282,11 @@ static int luaModelSetCurve(lua_State *L)
     }
   }
   // Check how many points are set
-  uint8_t numPoints=0;
-  do {
-    numPoints++;
-  } while (yPoints[numPoints]!=-127 && numPoints < MAX_POINTS_PER_CURVE);
+  int numPoints = 0;
+  for (numPoints = 0; numPoints < MAX_POINTS_PER_CURVE; numPoints += 1) {
+    if (yPoints[numPoints] == -127)
+      break;
+  }
   newCurveHeader.points = numPoints - 5;
 
   if (numPoints < MIN_POINTS_PER_CURVE || numPoints > MAX_POINTS_PER_CURVE) {

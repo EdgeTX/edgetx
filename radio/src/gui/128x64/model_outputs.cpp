@@ -90,7 +90,7 @@ int32_t gvValDisplay(int32_t val)
 int32_t gvValEdit(const char* title, int32_t val, int32_t offset, int min, int max, coord_t y, uint8_t attr, event_t event, bool active, LcdFlags flags)
 {
   lcdDrawText(0, y, title, flags);
-  if (GV_IS_GV_VALUE(val, -GV_RANGELARGE, GV_RANGELARGE) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
+  if (GV_IS_GV_VALUE(val) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
     if (event == EVT_KEY_LONG(KEY_ENTER))
       killEvents(event);
     return GVAR_MENU_ITEM(LIMITS_ONE_2ND_COLUMN, y, val, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|flags, 0, event);
@@ -275,7 +275,7 @@ void menuModelLimits(event_t event)
       switch (j) {
         case ITEM_OUTPUTS_OFFSET:
 #if defined(GVARS)
-          if (GV_IS_GV_VALUE(ld->offset, -GV_RANGELARGE, GV_RANGELARGE)) {
+          if (GV_IS_GV_VALUE(ld->offset)) {
             drawGVarName(LIMITS_OFFSET_POS, y, ld->offset, attr|PREC1|RIGHT);
             break;
           }
@@ -285,7 +285,7 @@ void menuModelLimits(event_t event)
 
         case ITEM_OUTPUTS_MIN:
 #if defined(GVARS)
-          if (GV_IS_GV_VALUE(ld->min, -GV_RANGELARGE, GV_RANGELARGE)) {
+          if (GV_IS_GV_VALUE(ld->min)) {
             drawGVarName(limitsMinPos, y, ld->min, attr|PREC1|RIGHT);
             break;
           }
@@ -300,7 +300,7 @@ void menuModelLimits(event_t event)
 
         case ITEM_OUTPUTS_MAX:
 #if defined(GVARS)
-          if (GV_IS_GV_VALUE(ld->max, -GV_RANGELARGE, GV_RANGELARGE)) {
+          if (GV_IS_GV_VALUE(ld->max)) {
             drawGVarName(LIMITS_MAX_POS, y, ld->max, attr|PREC1|RIGHT);
             break;
           }

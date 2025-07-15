@@ -228,12 +228,10 @@
 #endif
 #endif
 
-#if defined(PCBTARANIS) || defined(PCBHORUS)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(PCBHORUS)
@@ -268,6 +266,7 @@
 #define TR_BITMAP              "Obrazek"
 #define TR_NO_PICTURE          "Bez obrazka"
 #define TR_TIMER               TR("Timer", "Timer ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START               "Start"
 #define TR_ELIMITS             TR("Limi+25%", "Kanał +/- 125% ")
 #define TR_ETRIMS              TR("E.Trym ", "Poszer Trymery")
@@ -287,6 +286,7 @@
 #define TR_SWITCH              "Przełą"
 #define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
+#define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_FS_ON_COLOR                 TR("ON:","ON Color")
 #define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
@@ -644,6 +644,9 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "Pełna karta SD"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogi i zrzuty ekranu wyłączone"

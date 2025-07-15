@@ -235,12 +235,10 @@
   #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NÆSTE]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(COLORLCD)
@@ -274,6 +272,7 @@
 #define TR_BITMAP                      "Model billede"
 #define TR_NO_PICTURE                  "Ingen billede"
 #define TR_TIMER                       TR("Tid", "Tid ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Udv.Grænser", "Udvidet grænser")
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")
@@ -652,6 +651,9 @@
 #define TR_POWER_METER_INT             "Strøm meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD kort fuldt"
 #if defined(COLORLCD)
   #define TR_SDCARD_FULL_EXT           TR_SDCARD_FULL "\nLog & skærmklip deaktiveret"

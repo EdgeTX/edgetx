@@ -237,12 +237,10 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER                     "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
+#if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[SUIVANT]"
 #else
-  #define TR_ENTER                     "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(PCBHORUS)
@@ -277,6 +275,7 @@
 #define TR_BITMAP                      "Image Modèle"
 #define TR_NO_PICTURE                  "Pas d'image"
 #define TR_TIMER                       "Chrono "
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
 #define TR_ELIMITS                     TR("Limites ét.", "Limites étendues")
 #define TR_ETRIMS                      TR("Trims ét.", "Trims étendus")
@@ -650,6 +649,9 @@
 #define TR_POWER_METER_INT             "Puissancemètre (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       TR("Spectre (EXT)", "Analyseur Spectre (EXT)")
 #define TR_SPECTRUM_ANALYSER_INT       TR("Spectre (INT)", "Analyseur Spectre (INT)")
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD carte pleine"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nJournaux et Impr. écran désactivé"

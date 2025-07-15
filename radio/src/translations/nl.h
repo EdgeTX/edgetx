@@ -229,12 +229,10 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
-  #define TR_ENTER             "[ENTER]"
-#elif defined(PCBNV14) || defined(PCBPL18)
-  #define TR_ENTER             "[NEXT]"
+#if defined(PCBNV14) || defined(PCBPL18)
+  #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER             "[MENU]"
+  #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(PCBHORUS)
@@ -268,6 +266,7 @@
 #define TR_BITMAP              "Modelafbeelding"
 #define TR_NO_PICTURE                  "No Picture"
 #define TR_TIMER               TR("Timer", "Timer ")
+#define TR_NO_TIMERS                   "No timers"
 #define TR_START               "Start"
 #define TR_ELIMITS             TR("E.Limits", "Extended Limits")
 #define TR_ETRIMS              TR("E.Trims", "Extended Trims")
@@ -644,6 +643,9 @@
 #define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
+#define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD-Kaart vol"
 #if defined(COLORLCD)
 #define TR_SDCARD_FULL_EXT             TR_SDCARD_FULL "\nLogs and Screenshots disabled"

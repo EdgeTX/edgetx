@@ -160,6 +160,9 @@ void disableVoiceChip()
 
 void boardBLEarlyInit()
 {
+#if defined(RADIO_PL18U)
+  pwrOn();
+#endif  
   // USB charger status pins
   gpio_init(UCHARGER_GPIO, GPIO_IN, GPIO_PIN_SPEED_LOW);
 
@@ -313,13 +316,11 @@ void boardOff()
 #endif
   if (isChargerActive())
   {
-//    RTC->BKP0R = SOFTRESET_REQUEST;
     NVIC_SystemReset();
   }
   else
 #endif
   {    
-//    RTC->BKP0R = SHUTDOWN_REQUEST;
     pwrOff();
   }
 
@@ -333,9 +334,9 @@ void boardOff()
   MODIFY_REG(PWR->CR, (PWR_CR_PDDS | PWR_CR_LPDS | PWR_CR_FPDS | PWR_CR_LPLVDS | PWR_CR_MRLVDS), PDMode);
 #else
   MODIFY_REG(PWR->CR, (PWR_CR_PDDS| PWR_CR_LPDS), PDMode);
-#endif /* PWR_CR_MRUDS && PWR_CR_LPUDS && PWR_CR_FPDS */
+#endif // PWR_CR_MRUDS && PWR_CR_LPUDS && PWR_CR_FPDS
 
-/* Set SLEEPDEEP bit of Cortex System Control Register */
+  // Set SLEEPDEEP bit of Cortex System Control Register
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
   
   // To avoid HardFault at return address, end in an endless loop
