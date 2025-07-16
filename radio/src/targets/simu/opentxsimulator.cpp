@@ -437,9 +437,9 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
   }
 #else
   int key;
-  if (keysGetSupported() & ((1 << KEY_UP) | (1 << KEY_DOWN))) {
+  if (keyIsSupported(KEY_UP) | keyIsSupported(KEY_DOWN)) {
     key = steps > 0 ? KEY_DOWN : KEY_UP;
-  } else if (keysGetSupported() & ((1 << KEY_PLUS) | (1 << KEY_MINUS))) {
+  } else if (keyIsSupported(KEY_PLUS) | keyIsSupported(KEY_MINUS)) {
     key = steps > 0 ? KEY_MINUS : KEY_PLUS;
   } else {
     return; // not supposed to happen???

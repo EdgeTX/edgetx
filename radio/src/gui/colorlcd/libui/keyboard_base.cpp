@@ -87,7 +87,7 @@ Keyboard::Keyboard(coord_t height) :
 #if defined(USE_HATS_AS_KEYS)
   hasTwoPageKeys = true;
 #else
-  hasTwoPageKeys = (keysGetSupported() & (1 << KEY_PAGEUP));
+  hasTwoPageKeys = keyIsSupported(KEY_PAGEUP);
 #endif
 
   lv_obj_set_parent(lvobj, lv_layer_top());  // the keyboard is always on top
