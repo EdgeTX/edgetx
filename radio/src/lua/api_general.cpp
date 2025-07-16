@@ -1694,12 +1694,12 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 static int luaKillEvents(lua_State * L)
 {
 #if !defined(COLORLCD)
-  #define IS_KEY_AVAIL(key) (keysGetSupported() & (1 << (key)))
   #define IS_STANDALONE() (scriptInternalData[0].reference == SCRIPT_STANDALONE)
   #define IS_MASKABLE(key)                      \
     ((key) != KEY_EXIT && (key) != KEY_ENTER && \
-     (!IS_KEY_AVAIL(KEY_MENU) || (IS_STANDALONE() || ((key) != KEY_PAGEDN))))
+     (!keyIsSupported(KEY_MENU) || (IS_STANDALONE() || ((key) != KEY_PAGEDN))))
 #else
+  #define IS_STANDALONE() (false)
   #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
 #endif
 
@@ -1713,10 +1713,7 @@ static int luaKillEvents(lua_State * L)
   return 0;
 
 #undef IS_MASKABLE
-#if !defined(COLORLCD)
-  #undef IS_STANDALONE
-  #undef IS_KEY_AVAIL
-#endif
+#undef IS_STANDALONE
 }
 
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
