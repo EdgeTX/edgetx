@@ -381,7 +381,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Left,      KEY_LEFT,
     KEY_Up,        KEY_UP,
     KEY_Down,      KEY_DOWN,
-#elif defined(NAVIGATION_X7_TX12)
+#elif defined(NAVIGATION_X7_RM)
     KEY_Page_Up,   KEY_PAGEUP,
     KEY_Page_Down, KEY_PAGEDN,
     KEY_Return,    KEY_ENTER,
