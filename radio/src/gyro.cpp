@@ -63,13 +63,14 @@ void Gyro::wakeup()
 
   int16_t ax = values[3];
   int16_t ay = values[4];
-  //int16_t az = values[5];
 
 #if defined(IMU_ICM4207C)
   // Use only ACC value, they are really reliable
   outputs[0] = (ax * float(RESX)) / 8192;
   outputs[1] = (ay * float(RESX)) / 8192;
 #else
+  int16_t az = values[5];
+
   int16_t gx = values[0];
   int16_t gy = values[1];
   int16_t gz = values[2];

@@ -1129,7 +1129,7 @@ void edgeTxClose(uint8_t shutdown)
 
   sdDone();
 
-#if defined(LED_STRIP_LENGTH)
+#if defined(FUNCTION_SWITCHES)
   turnOffRGBLeds();
 #endif
 }
