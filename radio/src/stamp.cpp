@@ -114,9 +114,4 @@ const char * getFirmwareVersion(const uint8_t* buffer)
   }
   return nullptr;
 }
-#elif defined(SIMU)
-const char * getFirmwareVersion(const uint8_t* buffer)
-{
-  return vers_stamp;
-}
 #endif

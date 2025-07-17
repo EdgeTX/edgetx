@@ -44,7 +44,7 @@
 #include "lua/lua_event.h"
 #endif
 
-#if defined(AUDIO) || defined(SIMU_AUDIO)
+#if defined(AUDIO)
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
 #endif
