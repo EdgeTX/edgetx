@@ -142,7 +142,7 @@ if(NATIVE_BUILD)
   include(NativeTargets)
 else()
   # Prevent CMake warnings
-  set(IGNORE "${SDL2_LIBRARY_PATH}" "${LIBSSL1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
+  set(IGNORE "${SDL2_LIBRARY_PATH}" "${LIBUSB1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
 endif()
 
 add_subdirectory(${RADIO_SRC_DIR})
