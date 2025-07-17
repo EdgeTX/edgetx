@@ -48,7 +48,6 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR st16)
-add_definitions(-DRADIO_ST16)
 
 # Defines internal modules for PL18 via UART7
 # set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
