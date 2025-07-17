@@ -49,7 +49,6 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR tx15)
-add_definitions(-DRADIO_TX15)
 add_definitions(-DMANUFACTURER_RADIOMASTER)
 
 # defines existing internal modules

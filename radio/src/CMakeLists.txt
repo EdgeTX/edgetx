@@ -100,6 +100,12 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
+# Add RADIO_xxx definition
+string(TOUPPER ${FLAVOUR} RADIO_NAME)
+string(REPLACE "+" "P" RADIO_NAME ${RADIO_NAME})
+string(CONCAT RADIO_NAME "RADIO_" ${RADIO_NAME})
+add_definitions(-D${RADIO_NAME})
+
 set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
 

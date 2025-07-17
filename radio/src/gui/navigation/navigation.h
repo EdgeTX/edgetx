@@ -22,7 +22,13 @@
 #pragma once
 
 // Define navigation type if not defined already
-#if !defined(NAVIGATION_XLITE) && !defined(NAVIGATION_9X) && !defined(NAVIGATION_X9D)
+#if defined(RADIO_XLITE) || defined(RADIO_XLITES)
+  #define NAVIGATION_XLITE
+#elif defined(RADIO_LR3PRO) || defined(RADIO_T12) || defined(RADIO_TLITE)
+  #define NAVIGATION_9X
+#elif defined(RADIO_X9D) || defined(RADIO_X9DP) || defined(RADIO_X9DP2019) || defined(RADIO_X9E)
+  #define NAVIGATION_X9D
+#else
   #define NAVIGATION_X7
   #if defined(MANUFACTURER_RADIOMASTER) && !defined(RADIO_T8)
     #define NAVIGATION_X7_RM
