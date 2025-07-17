@@ -359,7 +359,7 @@ long OpenTxSim::onMouseMove(FXObject*,FXSelector,void*v)
 void OpenTxSim::updateKeysAndSwitches(bool start)
 {
   static int keys[] = {
-#if defined(PCBFLYSKY) && !defined(PCBPA01)
+#if defined(PCBFLYSKY)
     // no keys
 #elif defined(PCBHORUS)
     KEY_Page_Up,   KEY_PAGEUP,
