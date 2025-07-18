@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,35 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#pragma once
 
-bool boardBacklightOn = false;
-bool isBacklightEnabled() { return boardBacklightOn; }
-
-void backlightInit() {}
-
-#if LCD_DEPTH != 16
-
-void backlightFullOn() { boardBacklightOn = true; }
-
-void backlightEnable(unsigned char)
-{
-  boardBacklightOn = true;
-}
-
-void backlightEnable(unsigned char, unsigned char)
-{
-  boardBacklightOn = true;  
-}
-
-void backlightDisable()
-{
-  boardBacklightOn = false;
-}
-
-#else
-
-void backlightFullOn() { backlightEnable(BACKLIGHT_LEVEL_MAX); }
-void backlightEnable(uint8_t) {}
-
-#endif
+bool simuAudioInit();
+void simuAudioDeInit();

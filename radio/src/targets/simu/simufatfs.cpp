@@ -89,8 +89,7 @@ void simuFatfsSetPaths(const char * sdPath, const char * settingsPath)
 {
   if (sdPath) {
     simuSdDirectory = removeTrailingPathDelimiter(fixPathDelimiters(sdPath));
-  }
-  else {
+  } else if (simuSdDirectory.empty()) {
     char buff[1024];
     f_getcwd(buff, sizeof(buff)-1);
     simuSdDirectory = removeTrailingPathDelimiter(fixPathDelimiters(buff));
