@@ -65,6 +65,17 @@ void boardBLEarlyInit()
 }
 #endif
 
+extern "C" void SDRAM_Init();
+
+void boardBLPreJump()
+{
+  SDRAM_Init();
+}
+
+void boardBLInit()
+{
+  SDRAM_Init();
+}
 
 #if !defined(BOOT)
 #include "edgetx.h"
@@ -156,7 +167,6 @@ void boardInit()
     !defined(DEBUG)
   // This is needed to prevent radio from starting when usb is plugged to charge
   if (usbPlugged()) {
-    delaysInit();
 #if defined(AUDIO_MUTE_GPIO)
     // Charging can make a buzzing noise
     gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
