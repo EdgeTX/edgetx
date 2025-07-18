@@ -133,7 +133,7 @@ enum {
 #define EXTERNAL_MODULE_OFF()   gpio_clear(EXTMODULE_PWR_GPIO)
 
 // POTS and SLIDERS default configuration
-#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
+#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_DRO1)
 #define XPOS_CALIB_DEFAULT  {0x3, 0xc, 0x15, 0x1e, 0x26}
 #endif
 
@@ -266,7 +266,7 @@ void telemetryPortInvertedInit(uint32_t baudrate);
 
 
 // Aux serial port driver
-#if defined(RADIO_TX16S) || defined(RADIO_F16)
+#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_DRO1)
   #define DEBUG_BAUDRATE                  460800
   #define LUA_DEFAULT_BAUDRATE            115200
 #else
@@ -293,7 +293,7 @@ void bluetoothWriteWakeup();
 uint8_t bluetoothIsWriting();
 void bluetoothDisable();
 
-#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16)
+#if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(RADIO_V16) || defined(RADIO_DRO1)
   #define BATTERY_DIVIDER 1495
 #else
   #define BATTERY_DIVIDER 1629
