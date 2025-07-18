@@ -141,7 +141,7 @@ endif()
 
 ############# Import radio hardware definitions ###############
 
-set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
+set(HWDEFS_DIR "${CMAKE_SOURCE_DIR}/radio/src/boards/hw_defs")
 set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
 set(HWDEFS_PHDR "HWDEF_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
@@ -300,8 +300,6 @@ elseif(PCB STREQUAL X7 AND PCBREV STREQUAL T12)
   set(FLAVOUR t12)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITE)
   set(FLAVOUR tlite)
-elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TLITEF4)
-  set(FLAVOUR tlitef4)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPRO)
   set(FLAVOUR tpro)
 elseif(PCB STREQUAL X7 AND PCBREV STREQUAL TPROV2)

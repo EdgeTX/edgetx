@@ -84,6 +84,12 @@ static void _assign_lv_group(lv_group_t* g)
 Keyboard::Keyboard(coord_t height) :
     NavWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height})
 {
+#if defined(USE_HATS_AS_KEYS)
+  hasTwoPageKeys = true;
+#else
+  hasTwoPageKeys = (keysGetSupported() & (1 << KEY_PAGEUP));
+#endif
+
   lv_obj_set_parent(lvobj, lv_layer_top());  // the keyboard is always on top
 
   // use a separate group for the keyboard
