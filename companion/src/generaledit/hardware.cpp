@@ -430,6 +430,11 @@ void HardwarePanel::addStick(int index)
   name->setValidator(new NameValidator(board, this));
   name->setField(config.name, HARDWARE_NAME_LEN, this);
   params->append(name);
+
+  AutoCheckBox *inverted = new AutoCheckBox(this);
+  inverted->setField(config.inverted, this);
+  params->append(inverted);
+
   addParams();
 }
 

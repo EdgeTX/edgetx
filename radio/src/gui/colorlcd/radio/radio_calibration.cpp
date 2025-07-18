@@ -25,6 +25,7 @@
 #include "edgetx.h"
 #include "sliders.h"
 #include "view_main_decoration.h"
+#include "hw_inputs.h"
 
 #include <memory>
 
@@ -66,8 +67,8 @@ class StickCalibrationWindow : public Window
   StaticLZ4Image *calibStick = nullptr;
 };
 
-RadioCalibrationPage::RadioCalibrationPage(bool initial) :
-    Page(ICON_RADIO_CALIBRATION), initial(initial)
+RadioCalibrationPage::RadioCalibrationPage() :
+    Page(ICON_RADIO_CALIBRATION)
 {
   buildHeader(header);
   buildBody(body);
@@ -76,7 +77,8 @@ RadioCalibrationPage::RadioCalibrationPage(bool initial) :
 void RadioCalibrationPage::buildHeader(Window *window)
 {
   header->setTitle(STR_MENUCALIBRATION);
-  text = header->setTitle2(STR_MENUTOSTART);
+  title2 = header->setTitle2("");
+  etx_font(title2->getLvObj(), FONT_BOLD_INDEX);
 }
 
 void RadioCalibrationPage::buildBody(Window *window)
@@ -106,13 +108,54 @@ void RadioCalibrationPage::buildBody(Window *window)
 
   std::unique_ptr<ViewMainDecoration> deco(new ViewMainDecoration(window, false, true, false));
 
-#if defined(PCBNV14) || defined(PCBPL18)
-  new TextButton(window, {LCD_W - 120, LCD_H - 140, 90, 40}, "Next",
+  axisBtn = new TextButton(window, {AXIS_X, PAD_LARGE, AXIS_W, 0}, STR_STICKS,
+                 [=]() -> uint8_t {
+                   new HWInputDialog<HWSticks>(STR_STICKS);
+                   return 0;
+                 });
+
+  potsBtn = new TextButton(window, {POTS_X, PAD_LARGE, POTS_W, 0}, STR_POTS,
+                 [=]() -> uint8_t {
+                   new HWInputDialog<HWPots>(STR_POTS, HWPots::POTS_WINDOW_WIDTH);
+                   return 0;
+                 });
+
+  nxtBtn = new TextButton(window, {NXT_X, PAD_LARGE, NXT_W, 0}, "",
                  [=]() -> uint8_t {
                    nextStep();
                    return 0;
                  });
-#endif
+
+  setState();
+}
+
+void RadioCalibrationPage::setState()
+{
+  axisBtn->hide();
+  potsBtn->hide();
+
+  switch (menuCalibrationState) {
+    case CALIB_START:
+      title2->setText("");
+      nxtBtn->setText(STR_START);
+      break;
+    case CALIB_SET_MIDPOINT:
+      title2->setText(STR_SETMIDPOINT);
+      nxtBtn->setText(STR_NEXT);
+      break;
+    case CALIB_MOVE_STICKS:
+      title2->setText(STR_MOVESTICKSPOTS);
+      nxtBtn->setText(STR_NEXT);
+      axisBtn->show();
+      potsBtn->show();
+      break;
+    case CALIB_STORE:
+      title2->setText(STR_CALIB_DONE);
+      nxtBtn->setText(STR_EXIT);
+      break;
+    case CALIB_FINISHED:
+      break;
+  }
 }
 
 void RadioCalibrationPage::checkEvents()
@@ -126,14 +169,12 @@ void RadioCalibrationPage::checkEvents()
   }
 }
 
-void RadioCalibrationPage::onClicked() { nextStep(); }
-
 void RadioCalibrationPage::onCancel()
 {
   if (menuCalibrationState != CALIB_START &&
-      menuCalibrationState != CALIB_FINISHED) {
+      menuCalibrationState != CALIB_STORE) {
     menuCalibrationState = CALIB_START;
-    text->setText(STR_MENUTOSTART);
+    setState();
   } else {
     Page::onCancel();
   }
@@ -141,34 +182,15 @@ void RadioCalibrationPage::onCancel()
 
 void RadioCalibrationPage::nextStep()
 {
-  if (menuCalibrationState == CALIB_FINISHED) deleteLater();
-
   menuCalibrationState++;
 
-  switch (menuCalibrationState) {
-    case CALIB_SET_MIDPOINT:
-      text->setText(STR_SETMIDPOINT);
-      break;
+  if (menuCalibrationState == CALIB_FINISHED)
+    deleteLater();
 
-    case CALIB_MOVE_STICKS:
-      text->setText(STR_MOVESTICKSPOTS);
-      break;
+  if (menuCalibrationState == CALIB_STORE)
+    adcCalibStore();
 
-    case CALIB_STORE:
-      text->setText(STR_CALIB_DONE);
-      adcCalibStore();
-      menuCalibrationState = CALIB_FINISHED;
-
-      // initial calibration completed
-      // -> exit
-      if (initial) deleteLater();
-      break;
-
-    default:
-      text->setText(STR_MENUTOSTART);
-      menuCalibrationState = CALIB_START;
-      break;
-  }
+  setState();
 }
 
-void startCalibration() { new RadioCalibrationPage(true); }
+void startCalibration() { new RadioCalibrationPage(); }

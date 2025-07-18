@@ -69,6 +69,9 @@
 #define MODEL_GVAR_MIN(idx)            (CFN_GVAR_CST_MIN + g_model.gvars[idx].min)
 #define MODEL_GVAR_MAX(idx)            (CFN_GVAR_CST_MAX - g_model.gvars[idx].max)
 
+// stick config
+#define STICK_CFG_INV_BITS             1
+
 // pots config
 #define POT_CFG_TYPE_BITS              3
 #define POT_CFG_INV_BITS               1

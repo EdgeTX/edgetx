@@ -774,16 +774,34 @@ static bool w_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
   return _write_analog_name(ADC_INPUT_MAIN, user, data, bitoffs, wf, opaque);
 }
 
+static void r_stick_inv(void* user, uint8_t* data, uint32_t bitoffs,
+                         const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+  setStickInversion(idx, val[0] != '0');
+}
+
+static bool w_stick_inv(void* user, uint8_t* data, uint32_t bitoffs,
+                         yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  uint16_t idx = tw->getElmts(1);
+  return wf(opaque, getStickInversion(idx) ? "1" : "0", 1);
+}
+
 static bool stick_name_valid(void* user, uint8_t* data, uint32_t bitoffs)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   uint16_t idx = tw->getElmts();
+  if (getStickInversion(idx)) return true;
   return analogHasCustomLabel(ADC_INPUT_MAIN, idx);
 }
 
 static const struct YamlNode struct_stickConfig[] = {
     YAML_IDX,
     YAML_CUSTOM( "name", r_stick_name, w_stick_name),
+    YAML_CUSTOM("inv", r_stick_inv, w_stick_inv),
     YAML_END
 };
 

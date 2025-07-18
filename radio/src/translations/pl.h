@@ -231,9 +231,9 @@
 #if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENTER]"
 #endif
-
 #if defined(PCBHORUS)
   #define TR_EXIT                      "RTN"
   #define TR_OK                        TR_ENTER
@@ -268,6 +268,7 @@
 #define TR_TIMER               TR("Timer", "Timer ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START               "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS             TR("Limi+25%", "Kanał +/- 125% ")
 #define TR_ETRIMS              TR("E.Trym ", "Poszer Trymery")
 #define TR_TRIMINC             "Krok Trym"
@@ -417,12 +418,7 @@
 #define TR_CALIBRATION                 "Kalibracja"
 #define TR_VTRIM               "Trym - +"
 #define TR_CALIB_DONE          "Kalibracja zakończona"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Naciśnij [Enter] aby zacząć"
-  #define TR_SETMIDPOINT               "Centruj drążki/pot./suwaki i naciśnij [Enter]"
-  #define TR_MOVESTICKSPOTS            "Poruszaj drążki/pot./suwaki i naciśnij [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " TO START"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "CENTRUJ DRĄŻKI/SUWAKI"
   #define TR_MOVESTICKSPOTS            "RUSZAJ DRĄŻKI/SUWAKI"
 #else
@@ -435,8 +431,10 @@
   #define TR_MOVESTICKSPOTS            "RUSZAJ DRĄŻKI/POT."
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " = KONIEC"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
+#define TR_TXnRX                     "Tx:\0Rx:"
 #define OFS_RX                        4
 #define TR_NODATA                     "Brak Danych"
 #define TR_US                         "us"

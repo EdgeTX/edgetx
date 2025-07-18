@@ -965,6 +965,7 @@ PACK(struct RadioData {
 
   CUST_ARRAY(sticksConfig, struct_stickConfig, MAX_STICKS, stick_name_valid);
   CUST_ARRAY(slidersConfig, struct_sliderConfig, MAX_POTS, nullptr);
+  uint8_t stickInvert SKIP;
   potconfig_t potsConfig ARRAY(4,struct_potConfig,nullptr);
   swconfig_t switchConfig ARRAY(2,struct_switchConfig,nullptr);
   CUST_ARRAY(flexSwitches, struct_flexSwitch, MAX_FLEX_SWITCHES, flex_sw_valid);
