@@ -40,7 +40,7 @@
 #define CPN_MAX_TRIMS                  Board::TRIM_AXIS_COUNT
 #define CPN_MAX_CYC                    3
 #define CPN_MAX_SWITCHES_FLEX          4 // v2.10 cmake parameter FLEXSW
-#define CPN_MAX_SWITCHES_FUNCTION      6
+#define CPN_MAX_SWITCHES_FUNCTION      8
 #define CPN_MAX_SWITCHES_STD           20
 #define CPN_MAX_SWITCHES               (CPN_MAX_SWITCHES_STD + CPN_MAX_SWITCHES_FLEX + CPN_MAX_SWITCHES_FUNCTION)
 #define CPN_MAX_SENSORS                60
@@ -48,7 +48,6 @@
 #define CPN_MAX_SCRIPT_INPUTS          10
 #define CPN_MAX_SPACEMOUSE             6
 #define CPN_MAX_INPUTS                 32 // v2.10 replaces CPN_MAX_ANALOGS - the value is abitary as radio ADC refactor is still a WIP
-#define CPN_MAX_FUNCTIONSWITCH_GROUP   3
 
 // pre v2.10
 #define CPN_MAX_POTS                   8

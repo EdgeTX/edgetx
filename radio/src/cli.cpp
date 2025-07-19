@@ -1452,11 +1452,11 @@ int cliDisplay(const char ** argv)
       cliSerialPrint("[Trim %s] = %s", getTrimLabel(i),
                      keysGetTrimState(i) ? "on" : "off");
     }
-    for (int i = 0; i < switchGetMaxSwitches(); i++) {
+    for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
       if (SWITCH_EXISTS(i)) {
         static const char * const SWITCH_POSITIONS[] = { "up", "mid", "down" };
         auto pos = switchGetPosition(i);
-        cliSerialPrint("[%s] = %s", switchGetName(i), SWITCH_POSITIONS[pos]);
+        cliSerialPrint("[%s] = %s", switchGetDefaultName(i), SWITCH_POSITIONS[pos]);
       }
     }
   }
