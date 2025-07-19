@@ -1416,7 +1416,7 @@ bool readToolName(char * toolName, const char * filename)
   UINT count;
 
   if (f_open(&file, filename, FA_READ) != FR_OK) {
-    return "Error opening file";
+    return false;
   }
 
   FRESULT res = f_read(&file, &buffer, sizeof(buffer), &count);

@@ -114,24 +114,34 @@ static void scanLuaTools(std::list<ToolEntry>& scripts)
   FRESULT res = f_opendir(&dir, SCRIPTS_TOOLS_PATH);
   if (res == FR_OK) {
     for (;;) {
-      TCHAR path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
       res = f_readdir(&dir, &fno); /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0)
         break; /* Break on error or end of dir */
-      if (fno.fattrib & (AM_DIR | AM_HID | AM_SYS))
-        continue;  // skip subfolders, hidden files and system files
+      if (fno.fattrib & (AM_HID | AM_SYS))
+        continue;  // skip hidden files and system files
       if (fno.fname[0] == '.') continue; /* Ignore UNIX hidden files */
 
+      bool inFolder = (fno.fattrib & AM_DIR);
+
+      char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
       strcat(path, fno.fname);
-      if (isRadioScriptTool(fno.fname)) {
+      if (inFolder) {
+        strcat(path, "/main.lua");
+        if (f_stat(path, nullptr) != FR_OK)
+          continue;
+      }
+
+      if (isRadioScriptTool(path)) {
         char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
         const char* label;
-        char* ext = (char*)getFileExtension(path);
         if (readToolName(toolName, path)) {
           label = toolName;
         } else {
-          *ext = '\0';
-          label = getBasename(path);
+          if (!inFolder) {
+            char* ext = (char*)getFileExtension(fno.fname);
+            if (ext) *ext = '\0';
+          }
+          label = fno.fname;
         }
 
         scripts.emplace_back(ToolEntry{label, path, run_lua_tool});
