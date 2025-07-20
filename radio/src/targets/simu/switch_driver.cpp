@@ -22,11 +22,11 @@
 #include "hal/switch_driver.h"
 #include "definitions.h"
 #include "myeeprom.h"
-
-#include <stdlib.h>
-#include <assert.h>
 #include "switches.h"
-#include "edgetx_constants.h"
+
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct hw_switch_def {
   const char*   name;

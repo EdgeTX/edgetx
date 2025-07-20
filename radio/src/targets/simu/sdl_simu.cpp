@@ -65,6 +65,7 @@
 #include "simpgmspace.h"
 
 #include "hal/key_driver.h"
+#include "hal/switch_driver.h"
 #include "switches.h"
 
 #include "audio.h"
@@ -316,26 +317,28 @@ static void draw_switches()
     int sw_idx = 0;
     for (int i = 0; i < switchGetMaxSwitches(); i++) {
       if (sw_idx) ImGui::SameLine();
-      if (++sw_idx >= MAX_SWITCHES / 2) sw_idx = 0;
 
-      if (!SWITCH_EXISTS(i)) {
-        switches[i] = 0;
-        ImGui::Dummy(sw_size);
-      } else {
-        ImGui::PushID(i);
-        ImGui::VSliderInt("##sw", sw_size,
-                          &switches[i], IS_CONFIG_3POS(i) ? 2 : 1,
-                          0, "", ImGuiSliderFlags_NoInput);
-        if (ImGui::IsItemActive() || ImGui::IsItemHovered()) {
-          ImGui::SetTooltip("%s", switchGetCanonicalName(i));
+      if (!switchIsCustomSwitch(i)) {
+        if (++sw_idx >= MAX_SWITCHES / 2) sw_idx = 0;
+        if (!SWITCH_EXISTS(i)) {
+          switches[i] = 0;
+          ImGui::Dummy(sw_size);
+        } else {
+          ImGui::PushID(i);
+          ImGui::VSliderInt("##sw", sw_size,
+                            &switches[i], IS_CONFIG_3POS(i) ? 2 : 1,
+                            0, "", ImGuiSliderFlags_NoInput);
+          if (ImGui::IsItemActive() || ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("%s", switchGetDefaultName(i));
+          }
+          ImGui::PopID();
         }
-        ImGui::PopID();
-      }
-      
-      if (IS_CONFIG_3POS(i)) {
-        simuSetSwitch(i, switches[i] == 0 ? -1 : switches[i] == 1 ? 0 : 1);
-      } else {
-        simuSetSwitch(i, switches[i] == 0 ? -1 : 1);
+        
+        if (IS_CONFIG_3POS(i)) {
+          simuSetSwitch(i, switches[i] == 0 ? -1 : switches[i] == 1 ? 0 : 1);
+        } else {
+          simuSetSwitch(i, switches[i] == 0 ? -1 : 1);
+        }
       }
     }
 
@@ -346,8 +349,6 @@ static void draw_switches()
 }
 
 #if defined(FUNCTION_SWITCHES)
-extern bool fsLedIsColorSet(uint8_t index);
-
 static ImVec4 rgb2rgba(uint32_t col)
 {
   float r = (float)((col >> 16) & 0xff) / 255.0f;
@@ -365,9 +366,10 @@ static inline ImVec4 blend(const ImVec4& a, const ImVec4& b)
 
 static void push_custom_switch_styles(int index)
 {
-  bool sw_on = getFSLogicalState(index);
-  bool rgb_set = fsLedIsColorSet(index);
-  ImVec4 rgb = rgb2rgba(fsGetLedRGB(index));
+  int cfsIdx = switchGetCustomSwitchIdx(index);
+  bool sw_on = fsLedState(cfsIdx);
+  bool rgb_set = switchIsCustomSwitch(index);
+  ImVec4 rgb = rgb2rgba(fsGetLedRGB(cfsIdx));
 
   ImVec4 btn, border;
   if (sw_on) {
@@ -408,24 +410,29 @@ static void draw_custom_switches()
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 4.0f);
 
-    int sw_idx = switchGetMaxSwitches();
-    for (int i = 0; i < switchGetMaxFctSwitches(); i++, sw_idx++) {
-      if (i) ImGui::SameLine();
-      ImGui::PushID(i);
+    for (int i = 0, n = 0; i < switchGetMaxSwitches(); i += 1) {
+      if (switchIsCustomSwitch(i)) {
+        int cfsIdx = switchGetCustomSwitchIdx(i);
 
-      push_custom_switch_styles(i);
-      ImGui::Button("##csw", sw_size);
-      pop_custom_switch_styles();
+        if (n) ImGui::SameLine();
+        ImGui::PushID(i);
 
-      bool active = ImGui::IsItemActive();
-      if (active || ImGui::IsItemHovered()) {
-        const char* name = switchGetCanonicalName(sw_idx);
-        const char* on_off = getFSLogicalState(i) ? "on" : "off";
-        ImGui::SetTooltip("%s (%s)", name, on_off);
+        push_custom_switch_styles(i);
+        ImGui::Button("##csw", sw_size);
+        pop_custom_switch_styles();
+
+        bool active = ImGui::IsItemActive();
+        if (active || ImGui::IsItemHovered()) {
+          const char* name = switchGetDefaultName(i);
+          const char* on_off = fsLedState(cfsIdx) ? "on" : "off";
+          ImGui::SetTooltip("%s (%s)", name, on_off);
+        }
+        simuSetSwitch(i, active ? 1 : -1);
+
+        ImGui::PopID();
       }
-      simuSetSwitch(sw_idx, active ? 1 : -1);
 
-      ImGui::PopID();
+      n += 1;
     }
 
     ImGui::PopStyleVar(3);
