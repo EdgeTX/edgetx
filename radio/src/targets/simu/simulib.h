@@ -22,8 +22,8 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdio.h>
-#include <stddef.h>
+
+#include <string>
 
 #if __wasm__
 #define WASM_EXPORT_AS(name) __attribute__((export_name(name)))
@@ -55,15 +55,9 @@ void simuMain();
 
 uint64_t simuTimerMicros();
 
-#if !defined(SIMU_DISKIO)
-  #define SIMU_USE_SDCARD
-#endif
-
-#if defined(SIMU_USE_SDCARD)
-  void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
-#else
-  #define simuFatfsSetPaths(...)
-#endif
+void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
+std::string simuFatfsGetCurrentPath();
+std::string simuFatfsGetRealPath(const std::string& p);
 
 #if defined(HARDWARE_TOUCH)
   extern struct TouchState simTouchState;
