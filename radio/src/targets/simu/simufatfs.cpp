@@ -39,6 +39,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #if MSVC_BUILD
   #include <direct.h>
