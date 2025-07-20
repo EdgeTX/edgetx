@@ -91,11 +91,6 @@ void firmwareTraceCb(const char * text)
   }
 }
 
-void fsLedRGB(uint8_t idx, uint32_t color)
-{
-  rgbSetLedColor(idx, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
-}
-
 void fsLedOn(uint8_t idx)
 {
   rgbSetLedColor(idx, 0xFF, 0xFF, 0xFF);
