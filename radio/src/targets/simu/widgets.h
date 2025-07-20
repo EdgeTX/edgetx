@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,35 +19,33 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#pragma once
 
-bool boardBacklightOn = false;
-bool isBacklightEnabled() { return boardBacklightOn; }
+#include <imgui.h>
 
-void backlightInit() {}
+struct GimbalState {
+  ImVec2 pos;
+  bool   lock_y;
+};
 
-#if !defined(COLORLCD)
+struct ScreenDesc {
+  int width;
+  int height;
+  bool is_dot_matrix;
+};
 
-void backlightFullOn() { boardBacklightOn = true; }
+enum class ScreenMouseEventType {
+  MouseDown,
+  MouseUp,
+};
 
-void backlightEnable(unsigned char)
-{
-  boardBacklightOn = true;
-}
+struct ScreenMouseEvent {
+  ScreenMouseEventType type;
+  int pos_x;
+  int pos_y;
+};
 
-void backlightEnable(unsigned char, unsigned char)
-{
-  boardBacklightOn = true;  
-}
-
-void backlightDisable()
-{
-  boardBacklightOn = false;
-}
-
-#else
-
-void backlightFullOn() { backlightEnable(BACKLIGHT_LEVEL_MAX); }
-void backlightEnable(uint8_t) {}
-
-#endif
+void GimbalPair(const char* str_id, GimbalState& left, GimbalState& right);
+void SimuScreen(const ScreenDesc& desc, ImTextureID screen_img, ImVec2 size,
+                ImU32 bg_col, ImU32 overlay_col);
+bool SimuScreenMouseEvent(const ScreenDesc& desc, ScreenMouseEvent& event);

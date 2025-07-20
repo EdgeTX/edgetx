@@ -1,5 +1,5 @@
 /*
- * Copyright (C) EdgeTx
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -19,35 +19,20 @@
  * GNU General Public License for more details.
  */
 
-#include "board.h"
+#pragma once
 
-bool boardBacklightOn = false;
-bool isBacklightEnabled() { return boardBacklightOn; }
-
-void backlightInit() {}
-
-#if !defined(COLORLCD)
-
-void backlightFullOn() { boardBacklightOn = true; }
-
-void backlightEnable(unsigned char)
-{
-  boardBacklightOn = true;
-}
-
-void backlightEnable(unsigned char, unsigned char)
-{
-  boardBacklightOn = true;  
-}
-
-void backlightDisable()
-{
-  boardBacklightOn = false;
-}
-
-#else
-
-void backlightFullOn() { backlightEnable(BACKLIGHT_LEVEL_MAX); }
-void backlightEnable(uint8_t) {}
-
+#if defined(COLORLCD)
+  #include "gui/colorlcd/lcd.h"
 #endif
+
+#include "targets/simu/simulcd.h"
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
+
+// 10ms ISR
+void per10ms();
+
+// touch panel methods
+bool touchPanelInit();
+void touchPanelDown(short x, short y);
+void touchPanelUp();
