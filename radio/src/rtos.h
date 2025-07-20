@@ -21,20 +21,13 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-
 #ifdef __cplusplus
 extern "C++" {
 #endif
 
 #if defined(SIMU)
-  #include <pthread.h>
-  #include <semaphore.h>
 
-  static inline void RTOS_START()
-  {
-  }
+  static inline void RTOS_START() {}
 
 #elif defined(FREE_RTOS)
 

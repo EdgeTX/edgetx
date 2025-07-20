@@ -492,15 +492,15 @@ if(NATIVE_BUILD)
     ${RADIOLIB_NATIVE_SRC}
   )
 
-  # Add SIMU and POSIX_THREAD here PUBLIC, so it can be imported by other targets
+  # Add SIMU and NATIVE_THREAD here PUBLIC, so it can be imported by other targets
   # via INTERFACE_COMPILE_OPTIONS
-  target_compile_options(radiolib_native PUBLIC -DSIMU -DPOSIX_THREADS)
+  target_compile_options(radiolib_native PUBLIC -DSIMU -DNATIVE_THREADS)
   target_sources(radiolib_native PUBLIC
     os/async_native.cpp
     os/sleep_native.cpp
-    os/task_pthread.cpp
+    os/task_native.cpp
     os/time_native.cpp
-    os/timer_pthread.cpp
+    os/timer_native.cpp
   )
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)

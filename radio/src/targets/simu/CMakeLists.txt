@@ -201,9 +201,8 @@ set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
 target_include_directories(simu PUBLIC ${STB_DIR})
 target_link_libraries(simu PUBLIC imgui)
 
-  target_link_libraries(simu PUBLIC
-    pthread
-    ${SDL2_LIBRARIES}
-  )
+target_link_libraries(simu PUBLIC
+  ${SDL2_LIBRARIES}
+)
 
 PrintTargetReport("simu/libsimulator")
