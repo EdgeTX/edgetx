@@ -358,7 +358,7 @@ static ImVec4 rgb2rgba(uint32_t col)
   float r = (float)((col >> 16) & 0xff) / 255.0f;
   float g = (float)((col >>  8) & 0xff) / 255.0f;
   float b = (float)((col >>  0) & 0xff) / 255.0f;
-  return {r, b, g, 1.0f};
+  return {r, g, b, 1.0f};
 }
 
 static inline ImVec4 blend(const ImVec4& a, const ImVec4& b)
