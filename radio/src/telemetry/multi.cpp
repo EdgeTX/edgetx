@@ -164,24 +164,40 @@ static void processMultiScannerPacket(const uint8_t *data, const uint8_t moduleI
       coord_t x = cur_channel*2;
       if (x < LCD_W) {
         reusableBuffer.spectrumAnalyser.bars[x] = power;
-        reusableBuffer.spectrumAnalyser.bars[x+1] = power;
+        if (x + 1 < LCD_W) {
+          reusableBuffer.spectrumAnalyser.bars[x + 1] = power;
+        }
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
           reusableBuffer.spectrumAnalyser.max[x] = power;
-          reusableBuffer.spectrumAnalyser.max[x+1] = power;
+          if (x + 1 < LCD_W) {
+            reusableBuffer.spectrumAnalyser.max[x + 1] = power;
+          }
+        }
+        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+          reusableBuffer.spectrumAnalyser.peak[x] = power;
+          if (x + 1 < LCD_W) {
+            reusableBuffer.spectrumAnalyser.peak[x + 1] = power;
+          }
         }
 #elif LCD_W == 212
-        coord_t x = cur_channel;
-      if (x <= LCD_W) {
+      coord_t x = cur_channel;
+      if (x < LCD_W) {
         reusableBuffer.spectrumAnalyser.bars[x] = power;
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
           reusableBuffer.spectrumAnalyser.max[x] = power;
+        }
+        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+          reusableBuffer.spectrumAnalyser.peak[x] = power;
         }
 #else
       coord_t x = cur_channel/2 + 1;
-      if (x <= LCD_W) {
+      if (x < LCD_W) {
         reusableBuffer.spectrumAnalyser.bars[x] = power;
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
           reusableBuffer.spectrumAnalyser.max[x] = power;
+        }
+        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+          reusableBuffer.spectrumAnalyser.peak[x] = power;
         }
 #endif
       }

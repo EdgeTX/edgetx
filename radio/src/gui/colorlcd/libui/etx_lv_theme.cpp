@@ -240,6 +240,7 @@ EdgeTxStyles::EdgeTxStyles()
   lv_style_init(&graph_position_line);
   lv_style_init(&div_line);
   lv_style_init(&div_line_edit);
+  lv_style_init(&div_line_warn);
   lv_style_init(&div_line_black);
   lv_style_init(&div_line_white);
 
@@ -263,6 +264,9 @@ EdgeTxStyles::EdgeTxStyles()
 
   lv_style_set_line_width(&div_line_edit, 1);
   lv_style_set_line_opa(&div_line_edit, LV_OPA_COVER);
+
+  lv_style_set_line_width(&div_line_warn, 1);
+  lv_style_set_line_opa(&div_line_warn, LV_OPA_COVER);
 
   lv_style_set_line_width(&div_line_black, 1);
   lv_style_set_line_opa(&div_line_black, LV_OPA_COVER);
@@ -313,6 +317,7 @@ void EdgeTxStyles::applyColors()
                           makeLvColor(COLOR_THEME_ACTIVE));
   lv_style_set_line_color(&div_line, makeLvColor(COLOR_THEME_SECONDARY1));
   lv_style_set_line_color(&div_line_edit, makeLvColor(COLOR_THEME_EDIT));
+  lv_style_set_line_color(&div_line_warn, makeLvColor(COLOR_THEME_WARNING));
   lv_style_set_line_color(&div_line_black, makeLvColor(COLOR_THEME_PRIMARY1));
   lv_style_set_line_color(&div_line_white, makeLvColor(COLOR_THEME_PRIMARY2));
 

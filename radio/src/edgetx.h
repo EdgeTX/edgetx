@@ -717,6 +717,7 @@ union ReusableBuffer
   struct {
     uint8_t bars[LCD_W];
     uint8_t max[LCD_W];
+    uint8_t peak[LCD_W];
     uint32_t freq;
     uint32_t span;
     uint32_t step;

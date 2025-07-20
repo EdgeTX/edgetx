@@ -29,15 +29,25 @@
 LAYOUT_VAL_SCALED(SCALE_HEIGHT, 15)
 constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - SCALE_HEIGHT - EdgeTxStyles::UI_ELEMENT_HEIGHT;
 
-coord_t getAverage(uint8_t number, const uint8_t* value)
+template<uint8_t CNT>
+coord_t getAverage(const uint8_t* value)
 {
   uint16_t sum = 0;
-  for (uint8_t i = 0; i < number; i++) {
+  for (uint8_t i = 0; i < CNT; i++) {
     sum += value[i];
   }
   if (SPECTRUM_HEIGHT > 300) sum = sum * 2;
-  return sum / number;
+  return sum / CNT;
 }
+
+
+template<>
+coord_t getAverage<4>(const uint8_t* value) {
+  uint16_t sum = value[0] + value[1] + value[2] + value[3];
+  if (SPECTRUM_HEIGHT > 300) sum = sum * 2;
+  return sum / 4;
+}
+
 
 class SpectrumFooterWindow : public Window
 {
@@ -179,6 +189,10 @@ class SpectrumWindow : public Window
       line = lv_line_create(lvobj);
       lv_obj_add_style(line, &style, LV_PART_MAIN);
       barLines[i] = line;
+
+      line = lv_line_create(lvobj);
+      etx_obj_add_style(line, styles->div_line_warn, LV_PART_MAIN);
+      peakLines[i] = line;
     }
 
     warning = new StaticText(
@@ -200,13 +214,14 @@ class SpectrumWindow : public Window
 
 #if defined(SIMU)
     // Geneate random data for simu
-    for (coord_t x = 0; x < width() - 1; x++) {
+    for (coord_t x = 0; x < width(); x++) {
       uint8_t power = rand() % 80;
       reusableBuffer.spectrumAnalyser.bars[x] = power;
-      reusableBuffer.spectrumAnalyser.bars[x + 1] = power;
       if (power > reusableBuffer.spectrumAnalyser.max[x]) {
         reusableBuffer.spectrumAnalyser.max[x] = power;
-        reusableBuffer.spectrumAnalyser.max[x + 1] = power;
+      }
+      if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+        reusableBuffer.spectrumAnalyser.peak[x] = power;
       }
     }
 #endif
@@ -214,19 +229,28 @@ class SpectrumWindow : public Window
     for (x = 0, i = 0; x < width(); x += step, i += 2) {
       lv_coord_t yv =
           SCALE_TOP - 1 -
-          limit<int>(0,
-                     getAverage(step, &reusableBuffer.spectrumAnalyser.bars[x])
-                         << 1,
-                     SCALE_TOP);
+          limit<int>(
+              0, getAverage<step>(&reusableBuffer.spectrumAnalyser.bars[x]) << 1,
+              SCALE_TOP);
       lv_coord_t max_yv =
           SCALE_TOP - 1 -
           limit<int>(
-              0, getAverage(step, &reusableBuffer.spectrumAnalyser.max[x]) << 1,
+              0, getAverage<step>(&reusableBuffer.spectrumAnalyser.max[x]) << 1,
               SCALE_TOP);
+      lv_coord_t peak_yv =
+          SCALE_TOP - 1 -
+          limit<int>(
+              0, getAverage<step>(&reusableBuffer.spectrumAnalyser.peak[x]) << 1,
+              SCALE_TOP);
+
 
       maxPts[i] = {x, max_yv};
       maxPts[i + 1] = {(lv_coord_t)(x + 3), max_yv};
       lv_line_set_points(maxLines[i / 2], &maxPts[i], 2);
+
+      peakPts[i] = {x, peak_yv};
+      peakPts[i + 1] = {(lv_coord_t)(x + 3), peak_yv};
+      lv_line_set_points(peakLines[i / 2], &peakPts[i], 2);
 
       barPts[i] = {(lv_coord_t)(x + 1), yv};
       barPts[i + 1] = {(lv_coord_t)(x + 1), SCALE_TOP};
@@ -275,10 +299,12 @@ class SpectrumWindow : public Window
   lv_style_t style;
   lv_point_t maxPts[2 * LCD_W / 4];
   lv_point_t barPts[2 * LCD_W / 4];
+  lv_point_t peakPts[2 * LCD_W / 4];
   lv_point_t hAxisPts[2 * SPECTRUM_HEIGHT / LINE_SPACE];
   lv_point_t vAxisPts[2 * 8];
   lv_obj_t* maxLines[LCD_W / 4];
   lv_obj_t* barLines[LCD_W / 4];
+  lv_obj_t* peakLines[LCD_W / 4];
   lv_obj_t* vAxisLines[8];
   StaticText* warning = nullptr;
 
