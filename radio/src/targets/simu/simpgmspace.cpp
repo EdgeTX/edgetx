@@ -36,7 +36,7 @@
 
 #include "os/sleep.h"
 #include "os/task.h"
-#include "os/timer_pthread_impl.h"
+#include "os/timer_native_impl.h"
 
 #include <errno.h>
 #include <stdarg.h>

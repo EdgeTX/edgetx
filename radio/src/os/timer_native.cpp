@@ -1,6 +1,6 @@
 #include "timer.h"
 #include "debug.h"
-#include "timer_pthread_impl.h"
+#include "timer_native_impl.h"
 
 #include <algorithm>
 

@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 // OS specific implementation
-#if defined(POSIX_THREADS)
+#if defined(NATIVE_THREADS)
   #include "time_native.h"
 #elif defined(FREE_RTOS)
   #include "time_freertos.h"

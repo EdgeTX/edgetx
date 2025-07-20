@@ -21,19 +21,22 @@
 
 #pragma once
 
-#include "time.h"
+#include "time_native.h"
 
-#include <pthread.h>
-#include <semaphore.h>
+#include <thread>
+#include <mutex>
+#include <memory>
 
 #define TASK_DEFINE_STACK(name, size) void* name
 
+using _thread_ptr_t = std::unique_ptr<std::thread>;
+
 struct task_handle_t {
-  pthread_t _thread_handle;
-  uint32_t  _stack_size;
+  _thread_ptr_t _thread_handle;
+  uint32_t      _stack_size;
 };
 
-typedef pthread_mutex_t mutex_handle_t;
+typedef std::mutex mutex_handle_t;
 
 bool task_running();
 

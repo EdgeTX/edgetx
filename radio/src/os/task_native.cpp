@@ -21,10 +21,10 @@
 
 #include "task.h"
 #include "debug.h"
-#include "timer_pthread_impl.h"
+#include "timer_native_impl.h"
 
-#include <pthread.h>
 #include <chrono>
+#include <memory>
 #include <vector>
 #include <mutex>
 #include <string>
@@ -33,7 +33,7 @@ static std::condition_variable _stop_cv;
 static std::mutex _stop_m;
 
 static std::mutex _tasks_m;
-static std::vector<pthread_t> _tasks;
+static std::vector<task_handle_t*> _tasks;
 static bool _stop_tasks = false;
 
 void task_sleep_ms(uint32_t ms)
@@ -56,7 +56,7 @@ static void stop_tasks()
   _stop_tasks = true;
 }
 
-static bool next_task_to_stop(pthread_t& task)
+static bool next_task_to_stop(task_handle_t*& task)
 {
   std::lock_guard lock(_tasks_m);
 
@@ -75,9 +75,10 @@ void task_shutdown_all()
   stop_tasks();
   _stop_cv.notify_all();
 
-  pthread_t task;
+  task_handle_t* task = nullptr;
   while (next_task_to_stop(task)) {
-    pthread_join(task, nullptr);
+    task->_thread_handle->join();
+    task->_thread_handle = {};
   }
 
   timer_queue::destroy();
@@ -89,7 +90,7 @@ struct run_context {
   std::string name;
 };
 
-static void* _task_stub(void* p)
+static void* _task_stub(run_context* p)
 {
   std::unique_ptr<run_context> ctx{(run_context*)p};
   auto name = ctx->name.c_str();
@@ -109,9 +110,8 @@ void task_create(task_handle_t* h, task_func_t func, const char* name,
 
   h->_stack_size = stack_size;
   run_context* ctx = new run_context{func, name};
-  if (pthread_create(&h->_thread_handle, nullptr, _task_stub, (void*)ctx) == 0) {
-    _tasks.emplace_back(h->_thread_handle);
-  }
+  h->_thread_handle = std::make_unique<std::thread>([=]() { _task_stub(ctx); });
+  if (h->_thread_handle) _tasks.emplace_back(h);
 }
 
 bool task_running()
@@ -132,22 +132,26 @@ unsigned task_get_stack_size(task_handle_t* h)
 
 void mutex_create(mutex_handle_t* h)
 {
-  pthread_mutex_init(h, nullptr);
+  (void)h;
 }
 
 bool mutex_lock(mutex_handle_t* h)
 {
-  return pthread_mutex_lock(h) == 0;
+  if (!h) return false;
+  h->lock();
+  return true;
 }
 
 void mutex_unlock(mutex_handle_t* h)
 {
-  pthread_mutex_unlock(h);
+  if (!h) return;
+  h->unlock();
 }
 
 bool mutex_trylock(mutex_handle_t* h)
 {
-  return pthread_mutex_trylock(h) == 0;
+  if (!h) return false;
+  return h->try_lock();
 }
 
 
