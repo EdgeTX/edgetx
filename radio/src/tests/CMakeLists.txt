@@ -14,11 +14,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0 ${WARNING_FLAGS} -fsanitize=address")
 
-if(WIN32)
-  target_include_directories(gtests-radio-lib PUBLIC ${WIN_INCLUDE_DIRS})
-  target_link_libraries(gtests-radio-lib PRIVATE ${WIN_LINK_LIBRARIES})
-endif(WIN32)
-
 file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp
   CONFIGURE_DEPENDS "${RADIO_SRC_DIR}/tests/*.cpp")
 

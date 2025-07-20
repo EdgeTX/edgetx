@@ -152,13 +152,6 @@ if(Qt6Widgets_FOUND)
   add_custom_target(all-simu-libs COMMAND ${all_libs_cmd} USES_TERMINAL WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endif()
 
-if(WIN32)
-  include_directories(SYSTEM ${WIN_INCLUDE_DIRS})
-  if(Qt6Widgets_FOUND)
-    target_link_libraries(${SIMULATOR_TARGET} PRIVATE ${WIN_LINK_LIBRARIES})
-  endif()
-endif(WIN32)
-
 if(MINGW)
   # struct packing breaks on MinGW w/out -mno-ms-bitfields: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991 & http://stackoverflow.com/questions/24015852/struct-packing-and-alignment-with-mingw
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")

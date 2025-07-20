@@ -60,7 +60,6 @@ if(WARNINGS_AS_ERRORS)
 endif()
 
 if(WIN32)
-  include_directories(SYSTEM ${WIN_INCLUDE_DIRS})
   if(NOT WIN_USE_CONSOLE)
     set(WIN_EXECUTABLE_TYPE WIN32)  # GUI (WinMain) app
   endif()
@@ -187,8 +186,7 @@ target_link_libraries(common
   Qt::Widgets
   Qt::SerialPort
   ${SDL2_LIBRARIES}
-  ${WIN_LINK_LIBRARIES}
-  )
+)
 
 set(CPN_COMMON_LIB common)
 
