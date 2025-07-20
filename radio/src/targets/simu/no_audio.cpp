@@ -19,11 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "simuaudio.h"
 
-#include <stdint.h>
-
-bool simuAudioInit();
-void simuAudioDeInit();
-void simuQueueAudio(const uint8_t* data, uint32_t len);
-int simuAudioGetVolume();
+bool simuAudioInit() { return false; }
+void simuAudioDeInit() {}
+void simuQueueAudio(const uint8_t*, uint32_t) {}

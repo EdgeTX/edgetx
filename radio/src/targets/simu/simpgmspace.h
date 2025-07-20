@@ -48,14 +48,6 @@ void simuStop();
 bool simuIsRunning();
 void startEepromThread(const char * filename = "eeprom.bin");
 void stopEepromThread();
-
-#if defined(SIMU_AUDIO)
-  int startAudio(int volumeGain = 10);
-  void stopAudio();
-#else
-  #define startAudio(dummy) (-1)
-  #define stopAudio()
-#endif
 #endif
 
 void simuMain();

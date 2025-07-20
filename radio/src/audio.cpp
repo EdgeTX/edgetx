@@ -35,10 +35,6 @@
 #include "model_audio.h"
 #include "hal/audio_driver.h"
 
-#if defined(SIMU) && !defined(SIMU_AUDIO)
-void audioConsumeCurrentBuffer() {}
-#endif
-
 extern mutex_handle_t audioMutex;
 
 // Only first quadrant values - other quadrants calulated taking advantage of symmetry in sine wave.

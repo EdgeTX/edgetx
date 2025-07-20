@@ -19,11 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "audio.h"
+#include "simuaudio.h"
 
-#include <stdint.h>
+#if !defined(SOFTWARE_VOLUME)
+static int _simu_volume = 0;
 
-bool simuAudioInit();
-void simuAudioDeInit();
+void audioSetVolume(uint8_t volume)
+{
+  _simu_volume = volume;
+}
+#endif
+
+int simuAudioGetVolume()
+{
+#if !defined(SOFTWARE_VOLUME)
+  return _simu_volume;
+#else
+  return VOLUME_LEVEL_MAX;
+#endif
+}
+
 void simuQueueAudio(const uint8_t* data, uint32_t len);
-int simuAudioGetVolume();
+
+void audioConsumeCurrentBuffer()
+{
+  auto& fifo = audioQueue.buffersFifo;
+  while(true) {
+    auto nextBuffer = fifo.getNextFilledBuffer();
+    if (!nextBuffer) return;
+
+    auto data = (const uint8_t*)nextBuffer->data;
+    uint32_t len = nextBuffer->size * sizeof(audio_data_t);
+    simuQueueAudio(data, len);
+    fifo.freeNextFilledBuffer();
+  }
+}
