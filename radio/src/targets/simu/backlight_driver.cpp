@@ -26,7 +26,7 @@ bool isBacklightEnabled() { return boardBacklightOn; }
 
 void backlightInit() {}
 
-#if LCD_DEPTH != 16
+#if !defined(COLORLCD)
 
 void backlightFullOn() { boardBacklightOn = true; }
 
