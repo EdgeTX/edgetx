@@ -74,7 +74,6 @@ if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-ms-bitfields")
   endif()
 else()
-  set(PTHREAD_LIBRARY pthread)
   link_directories(/usr/local/lib)
 endif()
 
@@ -192,7 +191,6 @@ target_link_libraries(common
   Qt5::Xml
   Qt5::Widgets
   Qt5::SerialPort
-  ${PTHREAD_LIBRARY}
   ${SDL2_LIBRARIES}
   ${WIN_LINK_LIBRARIES}
   )
