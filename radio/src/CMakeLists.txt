@@ -516,10 +516,6 @@ if(NATIVE_BUILD)
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-  if(EMSCRIPTEN)
-    target_compile_options(radiolib_native PUBLIC -pthread -g)
-   endif()
-  
   add_subdirectory(targets/simu)
 
   if(NOT WASI)
