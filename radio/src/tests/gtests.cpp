@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#include <QApplication>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -144,7 +143,6 @@ extern const etx_hal_adc_driver_t simu_adc_driver;
 
 int main(int argc, char **argv)
 {
-  QCoreApplication app(argc, argv);
   simuInit();
   adcInit(&simu_adc_driver);
 
