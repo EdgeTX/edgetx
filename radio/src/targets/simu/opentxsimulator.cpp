@@ -41,7 +41,7 @@
 
 #define GET_SWITCH_BOOL(sw__)    getSwitch((sw__), 0);
 
-#define ETXS_DBG    qDebug() << "(" << simuTimerMicros() << "us)"
+#define ETXS_DBG    qDebug() << "(" << time_get_ms() << "us)"
 
 int16_t g_anas[MAX_ANALOG_INPUTS];
 QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
@@ -761,7 +761,7 @@ void OpenTxSimulator::run()
   }
 
   if (!(loops % (SIMULATOR_INTERFACE_HEARTBEAT_PERIOD / 10))) {
-    emit heartbeat(loops, simuTimerMicros() / 1000);
+    emit heartbeat(loops, time_get_ms());
   }
 }
 

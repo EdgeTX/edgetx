@@ -32,7 +32,6 @@
 #include "edgetx.h"
 
 #include <assert.h>
-#include <chrono>
 
 int g_snapshot_idx = 0;
 
@@ -55,27 +54,6 @@ rotenc_t rotaryEncoderGetValue()
 extern const etx_hal_adc_driver_t simu_adc_driver;
 
 void lcdCopy(void * dest, void * src);
-
-uint64_t simuTimerMicros(void)
-{
-  auto now = std::chrono::steady_clock::now();
-  return (uint64_t) std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
-}
-
-uint16_t getTmr16KHz()
-{
-  return simuTimerMicros() * 2 / 125;
-}
-
-uint16_t getTmr2MHz()
-{
-  return simuTimerMicros() * 2;
-}
-
-uint32_t timersGetMsTick(void)
-{
-  return simuTimerMicros() / 1000;
-}
 
 void simuInit()
 {
