@@ -22,10 +22,9 @@
 #include "keyboard_base.h"
 #include "layout.h"
 #include "etx_lv_theme.h"
-#include "sdcard.h"
 
-// timers_driver.h
-uint32_t timersGetMsTick();
+#include "os/time.h"
+#include "sdcard.h"
 
 MainWindow* MainWindow::_instance = nullptr;
 
@@ -55,7 +54,7 @@ void MainWindow::emptyTrash()
 
 void MainWindow::run(bool trash)
 {
-  auto start = timersGetMsTick();
+  auto start = time_get_ms();
 
   auto opaque = Layer::getFirstOpaque();
   if (opaque) {
@@ -71,7 +70,7 @@ void MainWindow::run(bool trash)
 
   if (trash) emptyTrash();
 
-  auto delta = timersGetMsTick() - start;
+  auto delta = time_get_ms() - start;
   if (delta > 10) {
     TRACE_WINDOWS("MainWindow::run took %dms", delta);
   }

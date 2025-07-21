@@ -53,8 +53,6 @@ void WASM_IMPORT(simuQueueAudio)(const uint8_t* buf, uint32_t len);
 
 void simuMain();
 
-uint64_t simuTimerMicros();
-
 void simuFatfsSetPaths(const char * sdPath, const char * settingsPath);
 std::string simuFatfsGetCurrentPath();
 std::string simuFatfsGetRealPath(const std::string& p);
