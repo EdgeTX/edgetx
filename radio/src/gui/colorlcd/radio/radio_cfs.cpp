@@ -24,6 +24,7 @@
 #include "radio_cfs.h"
 
 #include "edgetx.h"
+#include "hal/rgbleds.h"
 #include "strhelpers.h"
 #include "switches.h"
 #include "color_picker.h"
@@ -71,7 +72,10 @@ class RadioFunctionSwitch : public Window
         [=]() { return g_eeGeneral.switchType(switchIndex); },
         [=](int val) {
             g_eeGeneral.switchSetType(switchIndex, (SwitchConfig)val);
-          if (val == SWITCH_TOGGLE) {
+          if (val == SWITCH_NONE) {
+            if (g_model.getSwitchType(switchIndex) == SWITCH_NONE)
+              fsLedRGB(switchGetCustomSwitchIdx(switchIndex), 0);
+          } else if (val == SWITCH_TOGGLE) {
             g_eeGeneral.switchSetStart(switchIndex, FS_START_PREVIOUS);
             setFSLogicalState(switchIndex, 0);
             startChoice->setValue(startChoice->getIntValue());

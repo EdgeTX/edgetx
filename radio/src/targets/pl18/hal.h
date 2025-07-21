@@ -832,8 +832,6 @@
   #define LED_STRIP_LENGTH                  4
   #define BLING_LED_STRIP_START             0
   #define BLING_LED_STRIP_LENGTH            4
-  #define CFS_LED_STRIP_START               0
-  #define CFS_LED_STRIP_LENGTH              0
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOH, 12)  // PH.12 / TIM5_CH3
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_2    // TIM3/4/5
   #define LED_STRIP_TIMER                   TIM5

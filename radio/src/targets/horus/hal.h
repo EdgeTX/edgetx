@@ -1052,8 +1052,6 @@
   #define LED_STRIP_LENGTH                  40
   #define BLING_LED_STRIP_START             6
   #define BLING_LED_STRIP_LENGTH            34
-  #define CFS_LED_STRIP_START               0
-  #define CFS_LED_STRIP_LENGTH              0
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10)  // PA.10 / TIM1_CH3
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1    // TIM1/2
   #define LED_STRIP_TIMER                   TIM1

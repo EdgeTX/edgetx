@@ -24,6 +24,7 @@
 #include "function_switches.h"
 
 #include "edgetx.h"
+#include "hal/rgbleds.h"
 #include "strhelpers.h"
 #include "switches.h"
 #include "color_picker.h"
@@ -57,7 +58,9 @@ class FunctionSwitch : public Window
         [=]() { return g_model.cfsType(switchIndex); },
         [=](int val) {
           g_model.cfsSetType(switchIndex, (SwitchConfig)val);
-          if (val == SWITCH_TOGGLE) {
+          if (val == SWITCH_NONE) {
+            fsLedRGB(switchGetCustomSwitchIdx(switchIndex), 0);
+          } else if (val == SWITCH_TOGGLE) {
             g_model.cfsSetStart(switchIndex, FS_START_PREVIOUS);
             setFSLogicalState(switchIndex, 0);
             startChoice->setValue(startChoice->getIntValue());
