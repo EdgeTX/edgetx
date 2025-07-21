@@ -73,8 +73,10 @@ class RadioFunctionSwitch : public Window
         [=](int val) {
             g_eeGeneral.switchSetType(switchIndex, (SwitchConfig)val);
           if (val == SWITCH_NONE) {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
             if (g_model.getSwitchType(switchIndex) == SWITCH_NONE)
               fsLedRGB(switchGetCustomSwitchIdx(switchIndex), 0);
+#endif
           } else if (val == SWITCH_TOGGLE) {
             g_eeGeneral.switchSetStart(switchIndex, FS_START_PREVIOUS);
             setFSLogicalState(switchIndex, 0);

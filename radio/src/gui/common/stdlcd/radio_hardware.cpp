@@ -188,8 +188,10 @@ static void menuRadioCFSOne(event_t event)
         if (attr && checkIncDec_Ret) {
           g_eeGeneral.switchSetType(swIndex, (SwitchConfig)config);
           if (config == SWITCH_NONE) {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
             if (g_model.getSwitchType(swIndex) == SWITCH_NONE)
               fsLedRGB(switchGetCustomSwitchIdx(swIndex), 0);
+#endif
           } else if (config == SWITCH_TOGGLE) {
             g_eeGeneral.switchSetStart(swIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
           }
