@@ -19,19 +19,37 @@
  * GNU General Public License for more details.
  */
 
-#include "time.h"
+#include "audio.h"
+#include "simulib.h"
 
-#include <chrono>
+#if !defined(SOFTWARE_VOLUME)
+static int _simu_volume = 0;
 
-uint32_t time_get_ms()
+void audioSetVolume(uint8_t volume)
 {
-  static auto _start = std::chrono::steady_clock::now();;
-  auto now = std::chrono::steady_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - _start);
-  return duration.count();
+  _simu_volume = volume;
+}
+#endif
+
+int simuAudioGetVolume()
+{
+#if !defined(SOFTWARE_VOLUME)
+  return _simu_volume;
+#else
+  return VOLUME_LEVEL_MAX;
+#endif
 }
 
-time_point_t time_point_now()
+void audioConsumeCurrentBuffer()
 {
-  return std::chrono::steady_clock::now();
+  auto& fifo = audioQueue.buffersFifo;
+  while(true) {
+    auto nextBuffer = fifo.getNextFilledBuffer();
+    if (!nextBuffer) return;
+
+    auto data = (const uint8_t*)nextBuffer->data;
+    uint32_t len = nextBuffer->size * sizeof(audio_data_t);
+    simuQueueAudio(data, len);
+    fifo.freeNextFilledBuffer();
+  }
 }

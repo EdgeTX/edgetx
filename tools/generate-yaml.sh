@@ -14,7 +14,7 @@ fi
 : ${FLAVOR:="t15;tx16s;pl18;nv14;pl18u;nb4p;x9d;x9dp2019;x9e;xlite;xlites;x7;tpro;t20;f16;gx12;st16"}
 : ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
 
-: ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DDISABLE_COMPANION=YES -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
+: ${COMMON_OPTIONS:="-DDISABLE_COMPANION=y -DDISABLE_SIMULATOR=y -DDISABLE_RADIO=y -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
 # wipe build directory clean
 rm -rf build && mkdir -p build && cd build
@@ -34,8 +34,8 @@ do
     fi
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    make native-configure
-    make -C native yaml_data
+    cmake --build . --target native-configure
+    cmake --build native --target yaml_data
 
-    rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
+    rm -f CMakeCache.txt native/CMakeCache.txt
 done

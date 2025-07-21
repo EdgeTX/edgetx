@@ -8,6 +8,8 @@ set(VERSION_REVISION "0")
 set(CODENAME "dev")
 string(TIMESTAMP BUILD_YEAR "%Y")
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 if(MINGW OR WIN32)
   set(CMAKE_OBJECT_PATH_MAX 200)
 endif()
@@ -49,6 +51,10 @@ if(EdgeTX_SUPERBUILD)
   # Add explicit targets for triggering cmake in the external projects
   set_property(DIRECTORY PROPERTY EP_STEP_TARGETS configure clean)
 
+  option(DISABLE_RADIO "Disable building radio" OFF)
+  option(DISABLE_COMPANION "Disable building companion" OFF)
+  option(DISABLE_SIMULATOR "Disable building simulator" OFF)
+
   # Native targets
   ExternalProject_Add(native
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
@@ -60,74 +66,109 @@ if(EdgeTX_SUPERBUILD)
       -DNATIVE_BUILD:BOOL=1
     INSTALL_COMMAND  ""
     EXCLUDE_FROM_ALL TRUE
+  )
+  list(APPEND configure_targets native-configure)
+
+  if(NOT DISABLE_COMPANION OR NOT DISABLE_SIMULATOR)
+    if(NOT DISABLE_COMPANION)
+      add_custom_target(companion
+        COMMAND ${CMAKE_COMMAND} --build native --target companion
+        DEPENDS native-configure
+      )
+    endif()
+
+    if(NOT DISABLE_SIMULATOR)
+      add_custom_target(libsimulator
+        COMMAND ${CMAKE_COMMAND} --build native --target libsimulator
+        DEPENDS native-configure
+      )
+
+      add_custom_target(simulator
+        COMMAND ${CMAKE_COMMAND} --build native --target simulator
+        DEPENDS native-configure
+      )
+
+      add_custom_target(simu
+        COMMAND ${CMAKE_COMMAND} --build native --target simu
+        DEPENDS native-configure
+      )
+
+      add_custom_target(gtests-radio
+        COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio
+        DEPENDS native-configure
+      )
+
+      add_custom_target(tests-radio
+        COMMAND ${CMAKE_COMMAND} --build native --target tests-radio
+        DEPENDS native-configure
+      )
+    endif()
+  endif()
+
+  if(NOT DISABLE_RADIO)
+    # ARM targets
+    ExternalProject_Add(arm-none-eabi
+      SOURCE_DIR ${CMAKE_SOURCE_DIR}
+      BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
+      CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      CMAKE_CACHE_ARGS
+        -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
+        -DEdgeTX_SUPERBUILD:BOOL=0
+        -DNATIVE_BUILD:BOOL=0
+      INSTALL_COMMAND  ""
+      EXCLUDE_FROM_ALL TRUE
     )
 
-  # ARM targets
-  ExternalProject_Add(arm-none-eabi
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
-    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-    CMAKE_CACHE_ARGS
-      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
-      -DEdgeTX_SUPERBUILD:BOOL=0
-      -DNATIVE_BUILD:BOOL=0
-    INSTALL_COMMAND  ""
-    EXCLUDE_FROM_ALL TRUE
+    list(APPEND configure_targets arm-none-eabi-configure)
+
+    add_custom_target(bootloader
+      COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader
+      DEPENDS arm-none-eabi-configure
+    )
+    add_custom_target(firmware
+      COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware
+      DEPENDS arm-none-eabi-configure
+    )
+    add_custom_target(firmware-size
+      COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size
+      DEPENDS arm-none-eabi-configure
+    )
+  endif()
+
+  # Webasm targets
+  if(ENABLE_WASM)
+    include(FetchWasiSDK)
+    find_package(WasiSDK REQUIRED)
+ 
+    ExternalProject_Add(wasm
+      SOURCE_DIR ${CMAKE_SOURCE_DIR}
+      BINARY_DIR ${CMAKE_BINARY_DIR}/wasm
+      CMAKE_ARGS
+        ${CMAKE_ARGS}
+        -Wno-dev
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_TOOLCHAIN_FILE=${WASI_SDK_PATH}/share/cmake/wasi-sdk-pthread.cmake
+      CMAKE_CACHE_ARGS
+        -DEdgeTX_SUPERBUILD:BOOL=0
+        -DNATIVE_BUILD:BOOL=1
+        -DDISABLE_COMPANION:BOOL=1
+      INSTALL_COMMAND  ""
+      EXCLUDE_FROM_ALL TRUE
     )
 
-  add_custom_target(configure
-    DEPENDS native-configure arm-none-eabi-configure)
+    list(APPEND configure_targets wasm-configure)
 
-  add_custom_target(libsimulator
-    COMMAND $(MAKE) -C native libsimulator
-    DEPENDS native-configure
+    add_custom_target(wasi-module
+      COMMAND ${CMAKE_COMMAND} --build wasm --target wasi-module
+      DEPENDS wasm-configure
     )
+  endif()
 
-  add_custom_target(simulator
-    COMMAND $(MAKE) -C native simulator
-    DEPENDS native-configure
-    )
-
-  add_custom_target(simu
-    COMMAND $(MAKE) -C native simu
-    DEPENDS native-configure
-    )
-
-  add_custom_target(companion
-    COMMAND $(MAKE) -C native companion
-    DEPENDS native-configure
-    )
-
-  add_custom_target(gtests-radio
-    COMMAND $(MAKE) -C native gtests-radio
-    DEPENDS native-configure
-    )
-
-  add_custom_target(tests-radio
-    COMMAND $(MAKE) -C native tests-radio
-    DEPENDS native-configure
-    )
-
-  add_custom_target(bootloader
-    COMMAND $(MAKE) -C arm-none-eabi bootloader
-    DEPENDS arm-none-eabi-configure
-    )
-
-  add_custom_target(firmware
-    COMMAND $(MAKE) -C arm-none-eabi firmware
-    DEPENDS arm-none-eabi-configure
-    )
-
-  add_custom_target(firmware-size
-    COMMAND $(MAKE) -C arm-none-eabi firmware-size
-    DEPENDS arm-none-eabi-configure
-    )
+  add_custom_target(configure DEPENDS ${configure_targets})
 
   # Quit cmake at this point
   return()
 endif()
-
-enable_language(ASM)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 include(GenericDefinitions)
@@ -138,7 +179,7 @@ else()
   message(STATUS "EdgeTX ${VERSION}-${VERSION_SUFFIX} @ ${GIT_STR}")
 endif()
 
-if(NATIVE_BUILD)
+if(NATIVE_BUILD AND NOT WASI)
   include(NativeTargets)
 else()
   # Prevent CMake warnings
@@ -146,3 +187,11 @@ else()
 endif()
 
 add_subdirectory(${RADIO_SRC_DIR})
+
+# Prevent CMake warnings
+set(IGNORE
+  "${ENABLE_WASM}"    
+  "${DISABLE_RADIO}"
+  "${DISABLE_COMPANION}"
+  "${DISABLE_SIMULATOR}"
+)

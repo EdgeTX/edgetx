@@ -40,7 +40,7 @@
 
 #define GET_SWITCH_BOOL(sw__)    getSwitch((sw__), 0);
 
-#define ETXS_DBG    qDebug() << "(" << simuTimerMicros() << "us)"
+#define ETXS_DBG    qDebug() << "(" << time_get_ms() << "us)"
 
 int16_t g_anas[MAX_ANALOG_INPUTS];
 QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
@@ -273,8 +273,9 @@ void OpenTxSimulator::start(const char * filename, bool tests)
   QMutexLocker lckr(&m_mtxSimuMain);
   QMutexLocker slckr(&m_mtxSettings);
   simuAudioInit();
-  simuStart(tests, simuSdDirectory.toLatin1().constData(),
-            simuSettingsDirectory.toLatin1().constData());
+  simuFatfsSetPaths(simuSdDirectory.toLatin1().constData(),
+                    simuSettingsDirectory.toLatin1().constData());
+  simuStart(tests);
 
   emit started();
   QTimer::singleShot(0, this, SLOT(run()));  // old style for Qt < 5.4
@@ -748,12 +749,9 @@ void OpenTxSimulator::run()
   if (!loops)
     ts.start();
 
-  if (isStopRequested()) {
-    return;
-  }
+  if (isStopRequested()) return;
+
   if (!isRunning()) {
-    QString err(getError());
-    emit runtimeError(err);
     emit stopped();
     return;
   }
@@ -767,7 +765,7 @@ void OpenTxSimulator::run()
   }
 
   if (!(loops % (SIMULATOR_INTERFACE_HEARTBEAT_PERIOD / 10))) {
-    emit heartbeat(loops, simuTimerMicros() / 1000);
+    emit heartbeat(loops, time_get_ms());
   }
 }
 
@@ -873,6 +871,7 @@ uint8_t OpenTxSimulator::getStickMode()
   return limit<uint8_t>(0, g_eeGeneral.stickMode, 3);
 }
 
+// TODO: remove this
 const char * OpenTxSimulator::getPhaseName(unsigned int phase)
 {
   static char buff[LEN_FLIGHT_MODE_NAME+1];
@@ -888,12 +887,6 @@ const QString OpenTxSimulator::getCurrentPhaseName()
     name = QString::number(phase);
   return name;
 }
-
-const char * OpenTxSimulator::getError()
-{
-  return main_thread_error;
-}
-
 
 /*
  * OpenTxSimulatorFactory
