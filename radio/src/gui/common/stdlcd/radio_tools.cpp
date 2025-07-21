@@ -139,23 +139,33 @@ void menuRadioTools(event_t event)
     for (;;) {
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
       if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-      if (fno.fattrib & (AM_DIR|AM_HID|AM_SYS)) continue;  // skip subfolders, hidden files and system files
+      if (fno.fattrib & (AM_HID|AM_SYS)) continue;  // skip hidden files and system files
       if (fno.fname[0] == '.') continue;  /* Ignore UNIX hidden files */
 
-      if (isRadioScriptTool(fno.fname)) {
+      bool inFolder = (fno.fattrib & AM_DIR);
+
+      char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
+      strcat(path, fno.fname);
+      if (inFolder) {
+        strcat(path, "/main.lua");
+        if (f_stat(path, nullptr) != FR_OK)
+          continue;
+      }
+
+      if (isRadioScriptTool(path)) {
         const char *label;
         char toolName[RADIO_TOOL_NAME_MAXLEN + 1] = {0};
-        char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
-        strcat(path, fno.fname);
-        char *ext = (char *)getFileExtension(fno.fname);
-        *ext = '\0';
         if (readToolName(toolName, path)) {
           label = toolName;
         } else {
+          if (!inFolder) {
+            char *ext = (char *)getFileExtension(fno.fname);
+            if (ext) *ext = '\0';
+          }
           label = fno.fname;
         }
 
-        luaScripts.emplace_back(LuaScript{fno.fname, label});
+        luaScripts.emplace_back(LuaScript{path + DIM(SCRIPTS_TOOLS_PATH "/") - 1, label});
       }
     }
     f_closedir(&dir);
