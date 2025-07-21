@@ -59,7 +59,9 @@ class FunctionSwitch : public Window
         [=](int val) {
           g_model.cfsSetType(switchIndex, (SwitchConfig)val);
           if (val == SWITCH_NONE) {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
             fsLedRGB(switchGetCustomSwitchIdx(switchIndex), 0);
+#endif
           } else if (val == SWITCH_TOGGLE) {
             g_model.cfsSetStart(switchIndex, FS_START_PREVIOUS);
             setFSLogicalState(switchIndex, 0);

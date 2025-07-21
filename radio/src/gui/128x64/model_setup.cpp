@@ -705,7 +705,9 @@ static void menuModelCFSOne(event_t event)
         if (attr && checkIncDec_Ret) {
           g_model.cfsSetType(swIndex, (SwitchConfig)config);
           if (config == SWITCH_NONE) {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
             fsLedRGB(switchGetCustomSwitchIdx(swIndex), 0);
+#endif
           } else if (config == SWITCH_TOGGLE) {
             g_model.cfsSetStart(swIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
           }
