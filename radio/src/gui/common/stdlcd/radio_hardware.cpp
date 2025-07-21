@@ -187,7 +187,10 @@ static void menuRadioCFSOne(event_t event)
         config = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_SWITCH_TYPE, STR_SWTYPES, config, SWITCH_NONE, SWITCH_3POS, attr, event, 0, checkCFSTypeAvailable);
         if (attr && checkIncDec_Ret) {
           g_eeGeneral.switchSetType(swIndex, (SwitchConfig)config);
-          if (config == SWITCH_TOGGLE) {
+          if (config == SWITCH_NONE) {
+            if (g_model.getSwitchType(swIndex) == SWITCH_NONE)
+              fsLedRGB(switchGetCustomSwitchIdx(swIndex), 0);
+          } else if (config == SWITCH_TOGGLE) {
             g_eeGeneral.switchSetStart(swIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
           }
         }

@@ -2051,12 +2051,11 @@
   #define BLING_LED_STRIP_LENGTH            0
   #define CFS_LED_STRIP_START               0
   #define CFS_LED_STRIP_LENGTH              8
+  #define CFS_LEDS_PER_SWITCH               1
 #else
   #define LED_STRIP_LENGTH                  7
   #define BLING_LED_STRIP_START             0
   #define BLING_LED_STRIP_LENGTH            7
-  #define CFS_LED_STRIP_START               0
-  #define CFS_LED_STRIP_LENGTH              0
 #endif
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 8) // PA.08 / TIM1_CH1
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1   // TIM1 / TIM2
@@ -2074,20 +2073,12 @@
   #define LED_STRIP_LENGTH                  38
   #define BLING_LED_STRIP_START             6
   #define BLING_LED_STRIP_LENGTH            32
-  #define CFS_LED_STRIP_START               0
-  #define CFS_LED_STRIP_LENGTH              0
 #elif defined(RADIO_V12)
   #define LED_STRIP_LENGTH                  6   // 6POS switches only?
-  #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            0
-  #define CFS_LED_STRIP_START               0
-  #define CFS_LED_STRIP_LENGTH              0
 #else
   #define LED_STRIP_LENGTH                  1
   #define BLING_LED_STRIP_START             0
   #define BLING_LED_STRIP_LENGTH            1
-  #define CFS_LED_STRIP_START               0
-  #define CFS_LED_STRIP_LENGTH              0
 #endif
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10) // PA.10 / TIM1_CH3
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1

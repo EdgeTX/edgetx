@@ -2844,7 +2844,15 @@ static int luaGetTrainerStatus(lua_State * L)
   return 1;
 }
 
-#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
+// To simplify code below
+#if !defined(BLING_LED_STRIP_LENGTH)
+  #define BLING_LED_STRIP_LENGTH 0
+#endif
+#if !defined(CFS_LED_STRIP_LENGTH)
+  #define CFS_LED_STRIP_LENGTH 0
+#endif
+
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
 /*luadoc
 @function setRGBLedColor(id, rvalue, bvalue, cvalue)
 
@@ -2865,7 +2873,7 @@ static int luaSetRgbLedColor(lua_State * L)
 {
   uint8_t id = luaL_checkunsigned(L, 1);
 
-  if (id >= BLING_LED_STRIP_LENGTH) {
+  if (id >= (BLING_LED_STRIP_LENGTH + CFS_LED_STRIP_LENGTH)) {
     lua_pushboolean(L, false);
     return 1;
   }
@@ -2874,14 +2882,29 @@ static int luaSetRgbLedColor(lua_State * L)
   uint8_t g = luaL_checkunsigned(L, 3);
   uint8_t b = luaL_checkunsigned(L, 4);
 
+#if CFS_LED_STRIP_LENGTH > 0
+  if (id >= BLING_LED_STRIP_LENGTH) {
+    id -= BLING_LED_STRIP_LENGTH;
+    uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
+    if (g_model.getSwitchType(swIdx) == SWITCH_NONE) {
+      rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
+    } else {
+      lua_pushboolean(L, false);
+      return 1;
+    }
+  } else {
+    rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+  }
+#else
   rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+#endif
 
   lua_pushboolean(L, true);
   return 1;
 }
 #endif
 
-#if defined(CFS_LED_STRIP_LENGTH) && (CFS_LED_STRIP_LENGTH > 0)
+#if (CFS_LED_STRIP_LENGTH > 0)
 /*luadoc
 @function setCFSLedColor(id, rvalue, bvalue, cvalue)
 
@@ -2915,9 +2938,9 @@ static int luaSetCFSLedColor(lua_State * L)
     return 1;
   }
 
-  uint8_t swIdx = switchGetCustomSwitchIdx(id);
+  uint8_t cfsIdx = switchGetCustomSwitchIdx(id);
 
-  if (swIdx >= CFS_LED_STRIP_LENGTH) {
+  if (cfsIdx >= CFS_LED_STRIP_LENGTH / CFS_LEDS_PER_SWITCH) {
     lua_pushboolean(L, false);
     return 1;
   }
@@ -2928,7 +2951,7 @@ static int luaSetCFSLedColor(lua_State * L)
     b = luaL_checkunsigned(L, 4);
   }
 
-  setFSLedOverride(swIdx, n > 1, r, g, b);
+  setFSLedOverride(cfsIdx, n > 1, r, g, b);
 
   lua_pushboolean(L, true);
   return 1;
@@ -3055,14 +3078,12 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getSourceIndex, luaGetSourceIndex )
   LROT_FUNCENTRY( getSourceName, luaGetSourceName )
   LROT_FUNCENTRY( sources, luaSources )
-#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
-  LROT_FUNCENTRY(setRGBLedColor, luaSetRgbLedColor )
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
+  LROT_FUNCENTRY( setRGBLedColor, luaSetRgbLedColor )
+  LROT_FUNCENTRY( applyRGBLedColors, luaApplyRGBLedColors )
 #endif
-#if defined(CFS_LED_STRIP_LENGTH) && (CFS_LED_STRIP_LENGTH > 0)
-  LROT_FUNCENTRY(setCFSLedColor, luaSetCFSLedColor )
-#endif
-#if defined(LED_STRIP_LENGTH)
-  LROT_FUNCENTRY(applyRGBLedColors, luaApplyRGBLedColors )
+#if (CFS_LED_STRIP_LENGTH > 0)
+  LROT_FUNCENTRY( setCFSLedColor, luaSetCFSLedColor )
 #endif
   LROT_FUNCENTRY( getStickMode, luaGetStickMode )
 LROT_END(etxlib, NULL, 0)
@@ -3207,11 +3228,8 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( PLAY_NOW, PLAY_NOW )
   LROT_NUMENTRY( PLAY_BACKGROUND, PLAY_BACKGROUND )
   LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
-#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
-  LROT_NUMENTRY( LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH )
-#endif
-#if defined(CFS_LED_STRIP_LENGTH) && (CFS_LED_STRIP_LENGTH > 0)
-  LROT_NUMENTRY( CFS_LED_STRIP_LENGTH, CFS_LED_STRIP_LENGTH )
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
+  LROT_NUMENTRY( LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH + CFS_LED_STRIP_LENGTH )
 #endif
   LROT_NUMENTRY( UNIT_RAW, UNIT_RAW )
   LROT_NUMENTRY( UNIT_VOLTS, UNIT_VOLTS )

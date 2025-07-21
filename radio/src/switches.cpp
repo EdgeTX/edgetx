@@ -157,7 +157,6 @@ void evalFunctionSwitches()
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
     if (switchIsCustomSwitch(i)) {
       if (g_model.getSwitchType(i) == SWITCH_NONE) {
-        setFSLedOFF(i);
         continue;
       }
 
