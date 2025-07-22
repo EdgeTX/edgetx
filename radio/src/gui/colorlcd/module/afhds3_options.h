@@ -31,3 +31,11 @@ class AFHDS3_Options : public Page
  public:
   AFHDS3_Options(uint8_t moduleIdx);
 };
+
+class AFHDS3_Sensors : public Page
+{
+  afhds3::Config_u* cfg;
+
+ public:
+  AFHDS3_Sensors(uint8_t moduleIdx);
+};
