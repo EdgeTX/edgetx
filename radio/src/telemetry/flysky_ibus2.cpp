@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include <math.h>
 
 #define FLYSKY_TELEMETRY_LENGTH (2+7*4) 
 #define ALT_PRECISION 15
@@ -27,6 +28,17 @@
 #define RX_CMD_CODE_IBUS2_GET_PARAM          ( 0x7026 )
 #define PRESSURE_MASK 0x7FFFF
 #define REMAP_CONST 0x1000 // Some part of OpenTX does not like sensor with id and instance 0, remap to 0x1000
+#define IBUS2_CALIB_SET_PARAM  0x1234
+#define IBUS2_CALIB_IBC01     0x0003
+#define IBUS2_CALIB_RPM       0xD001
+
+enum Ibus2SensorOnLine {
+  IBUS2_SENSOR_RPM,
+  IBUS2_SENSOR_GPS,
+  IBUS2_SENSOR_IBC,
+  IBUS2_SENSOR_PRES,
+  IBUS2_SENSOR_NUM,
+};
 
 enum 
 {
@@ -60,6 +72,13 @@ typedef struct
 	int16_t 		  HeightChange;//
 } Ibus2Gps_t;
 
+typedef struct 
+{
+	int32_t 		  Latitude; // In 1/1000000th of degree from -90 to +90 degrees
+	int32_t			  Longitude; // In 1/1000000th of degree from -180 to +180 degrees
+  int32_t   		  Altitude; // In 1/100th of meters
+} GpsStartPos_t;
+
 typedef struct
 {
   short Voltage; //unit 0.1V
@@ -72,8 +91,18 @@ typedef struct
 	short MaxCurrent;   //unit 0.1A
 } Ibus2Ibc_t;
 
+typedef struct flysky_ibus2
+{
+  uint8_t id;
+  uint16_t type;
+  uint8_t ParameterData[16];
+} Ibus2Param_t;
+
+
 Ibus2Gps_t GPSData = {0};
 Ibus2Ibc_t IBCDate = {0};
+GpsStartPos_t StartPos = {0};
+Ibus2Param_t Ibus2DevPara = {0};
 
 struct FlySkySensor
 {
@@ -143,7 +172,9 @@ enum
   VIRTUAL_GPS_YAW           = 0x1740,
   VIRTUAL_GPS_DIST          = 0x1840,
   VIRTUAL_GPS_ACC           = 0x1940,
-  VIRTUAL_GPS_SPEED          = 0x1a40,
+  VIRTUAL_GPS_SPEED          = 0x1A40,
+  VIRTUAL_GPS_ALT           = 0x1B40,
+  VIRTUAL_GPS_REL_ALT           = 0x1C40,
   // VIRTUAL_GPS_DAY_MONTH     = 0x1b40,
   // VIRTUAL_GPS_HOUR_MIN      = 0x1c40,
 
@@ -161,8 +192,24 @@ extern int32_t getALT(uint32_t value);
 
 void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id);
 void flyskyIbus2IBC(const uint8_t * pData, uint8_t len, uint8_t id);
+void setIbus2Param(uint8_t* pData);
+void getIbus2Param(uint8_t* pData);
 
 void sendFlyskytelemtry(uint16_t type, uint8_t id, int32_t value);
+
+int32_t GpsSensorDistanceGet();
+int32_t GpsSensorHeighthGet();
+
+uint8_t flyskyGpsId = 0;
+uint8_t flyskyIbcId = 0;
+uint8_t flyskyRpmId = 0;
+bool reset_gps_dist = false;
+bool reset_gps_alt = false;
+
+uint32_t gps_update_tick = 0;
+uint32_t ibc_update_tick = 0;
+uint32_t rpm_update_tick = 0;
+uint32_t pres_update_tick = 0;
 
 const FlySkySensor flySkySensors[] = {
   // flysky start
@@ -183,6 +230,8 @@ const FlySkySensor flySkySensors[] = {
   FS(VIRTUAL_GPS_DIST,           STR_SENSOR_DIST,         UNIT_METERS,     1),
   FS(VIRTUAL_GPS_ACC,            STR_SENSOR_ACC,         UNIT_RAW,     0),
   FS(VIRTUAL_GPS_SPEED,          STR_SENSOR_SPEED,       UNIT_SPEED,    2),
+  FS(VIRTUAL_GPS_ALT,            STR_SENSOR_GPSALT,       UNIT_METERS,    2),
+  FS(VIRTUAL_GPS_REL_ALT,        "RH",                  UNIT_METERS, 2),
 
   FS(IBDT_PRESSURE,              STR_SENSOR_PRES,     UNIT_RAW,     2),
   FS(VIRTUAL_ALT,                STR_SENSOR_ALT,      UNIT_METERS,  2),
@@ -294,12 +343,16 @@ void processFlySkyIbus2AFHDS3Sensor(const uint8_t * packet, uint8_t len )
       uint8_t data1[] = { (uint8_t)(VIRTUAL_ALT>>8), (uint8_t)(VIRTUAL_ALT&0xff), id, (uint8_t)alt, (uint8_t)(alt>>8), (uint8_t)(alt>>16), (uint8_t)(alt>>24) };
       // uint8_t data2[] = { (uint8_t)(IBDT_TEMPERATURE>>8), (uint8_t)(IBDT_TEMPERATURE&0xff), id, (uint8_t)temp, (uint8_t)(temp>>8) };
       processFlySkyIbus2AFHDS3Sensor(data1, 4 );
+      pres_update_tick = timersGetMsTick();
       // processFlySkyIbus2AFHDS3Sensor(data2, 2 );
       value &= PRESSURE_MASK;
   } else if (IBDT_ROTATION_SPEED == type) {
     // Adjust the rotational speed based on the number of blades
     // RPM = value;
+    flyskyRpmId = id;
+    rpm_update_tick = timersGetMsTick();
   } else if (IBDT_GPS == type) {
+    flyskyGpsId = id;
     flyskyIbus2GPS(&packet[3], len, id);
     return;
   } else if (IBDT_IBC01 == type) {
@@ -320,6 +373,10 @@ void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id) {
   uint16_t n = 0;
   int32_t value = 0;
   uint16_t type = 0;
+  static bool get_start = true; // Get the location at startup
+
+  gps_update_tick = timersGetMsTick();
+
   PSValue = pData[n] | (pData[n+1] << 8);
   if( GPS_MSG_TYPE_PACK1 == (PSValue & 0x000f) )
   {
@@ -359,8 +416,18 @@ void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id) {
 
     PSValue = pData[n] | (pData[n+1] << 8);
     GPSData.Altitude 		= (PSValue);					n++;n++;
+    type = VIRTUAL_GPS_TIME;
+    value = PSValue;
+    sendFlyskytelemtry(type, id, value);
+
     PSValue = pData[n] | (pData[n+1] << 8);
     GPSData.Direction 		= (PSValue);					n++;n++;
+
+    if (!get_start) {
+      type = VIRTUAL_GPS_REL_ALT;
+      value = GpsSensorHeighthGet();
+      sendFlyskytelemtry(type, id, value);
+    }
   }
   else if( GPS_MSG_TYPE_PACK2 == (PSValue & 0x000f) )
   {
@@ -391,13 +458,38 @@ void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id) {
     value = GPSData.Longitude;
     type = VIRTUAL_GPS_LON;
     sendFlyskytelemtry(type, id, value);
-    }		
+
+    if (!get_start) {
+      type = VIRTUAL_GPS_DIST;
+      value = GpsSensorDistanceGet();
+      sendFlyskytelemtry(type, id, value);
+    }
+  }
+    
+  if (get_start && GPSData.NbSatellites > 4) {
+    get_start = false;
+    StartPos.Altitude = GPSData.Altitude;
+    StartPos.Latitude = GPSData.Latitude;
+    StartPos.Longitude = GPSData.Longitude;
+  } else {
+    if (reset_gps_alt) {
+      StartPos.Altitude = GPSData.Altitude;
+      reset_gps_alt = false;
+    }
+    if (reset_gps_dist) {
+      StartPos.Latitude = GPSData.Latitude;
+      StartPos.Longitude = GPSData.Longitude;
+      reset_gps_dist = false;
+    }
+  }
 }
 
 void flyskyIbus2IBC(const uint8_t * pData, uint8_t len, uint8_t id) {
   int32_t value = 0;
   uint16_t type = 0;
   memcpy(&IBCDate, pData, sizeof(IBCDate));
+
+  ibc_update_tick = timersGetMsTick();
   
   type = VIRTUAL_IBC_VOLTS;
   value = IBCDate.Voltage;
@@ -414,6 +506,12 @@ void flyskyIbus2IBC(const uint8_t * pData, uint8_t len, uint8_t id) {
   type = VIRTUAL_IBC_AVG_CURR;
   value = IBCDate.AverageCurrent;
   sendFlyskytelemtry(type, id, value);
+
+  flyskyIbcId = id;
+}
+
+uint8_t getIbcVoltags(void) {
+  return IBCDate.Voltage;
 }
 
 void sendFlyskytelemtry(uint16_t type, uint8_t id, int32_t value) {
@@ -464,4 +562,174 @@ void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId, uint8_t instan
   }
 
   storageDirty(EE_MODEL);
+}
+
+double deg2rad(double deg) {
+  return deg * M_PI / 180.0;
+}
+
+static double GetDistance(double lat1, double lng1, double lat2, double lng2)
+{
+  lat1 =lat1/1000000; lng1= lng1/1000000;
+  lat2 =lat2/1000000; lng2= lng2/1000000;
+  
+  double radLat1 = deg2rad(lat1);
+  double radLat2 = deg2rad(lat2);
+  
+  double a = radLat1 - radLat2;
+  double b = deg2rad(lng1) - deg2rad(lng2);
+  
+  float s = 2.0f * asin(sqrt(pow(sin(a/2),2) 
+                    + cos(radLat1)*cos(radLat2)*pow(sin(b/2),2)));
+  
+  s = s * EARTH_RADIUS * 100; //cm
+  return s;
+}
+
+int32_t GpsSensorDistanceGet()
+{
+  double lats ,lngs, late, lnge;
+  
+  lats = StartPos.Latitude;
+  lngs = StartPos.Longitude;        
+  late = GPSData.Latitude;
+  lnge = GPSData.Longitude;
+  return GetDistance(lats, lngs, late, lnge);
+}
+
+int32_t GpsSensorHeighthGet() 
+{
+  return GPSData.Altitude - StartPos.Altitude;
+}
+
+void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len) 
+{
+  Ibus2DevPara.type = IBUS2_CALIB_SET_PARAM;
+  Ibus2DevPara.id = flyskyGpsId;
+  Ibus2DevPara.ParameterData[0] = 0x55;
+  Ibus2DevPara.ParameterData[1] = 0x01;
+  Ibus2DevPara.ParameterData[2] = 0x01;
+  setIbus2Param(packet);
+  *len = 22;
+}
+
+void flySkyIbus2CalGpsAlt() 
+{
+  reset_gps_alt = true;
+}
+
+void flySkyIbus2CalGpsDist() 
+{
+  reset_gps_dist = true;
+}
+
+void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len) 
+{
+  Ibus2DevPara.type = IBUS2_CALIB_RPM;
+  Ibus2DevPara.id = flyskyRpmId;
+  getIbus2Param(packet);
+  *len = 6;
+}
+
+// void flySkyIbus2ClearIBC(uint8_t* packet, uint8_t* len) 
+// {
+//   Ibus2DevPara.type = IBUS2_CALIB_IBC01;
+//   Ibus2DevPara.id = flyskyIbcId;
+//   uint8_t save_on = 1;
+//   Ibus2DevPara.ParameterData[0] = save_on;
+//   setIbus2Param(packet);
+//   *len = 22;
+// }
+
+// void flySkyIbus2IbcReadClear(uint8_t* packet, uint8_t* len) {
+//   Ibus2DevPara.type = IBUS2_CALIB_IBC01;
+//   Ibus2DevPara.id = flyskyIbcId;
+//   getIbus2Param(packet);
+//   *len = 6;
+// }
+
+void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags) 
+{
+  Ibus2DevPara.type = IBUS2_CALIB_SET_PARAM;
+  Ibus2DevPara.id = flyskyIbcId;
+  uint8_t save_on = 1;
+  Ibus2DevPara.ParameterData[0] = (uint8_t)(voltags & 0xff);
+  Ibus2DevPara.ParameterData[1] = (uint8_t)(voltags >> 8);
+  setIbus2Param(packet);
+  *len = 22;
+}
+
+void setIbus2Param(uint8_t* pData) {
+  uint8_t n = 0;
+  pData[n++] = ( uint8_t )( RX_CMD_CODE_IBUS2_SET_PARAM );
+	pData[n++] = ( uint8_t )( RX_CMD_CODE_IBUS2_SET_PARAM >> 8 );
+	pData[n++] = 19; //data length
+	pData[n++] = Ibus2DevPara.id;
+	pData[n++] = Ibus2DevPara.type;
+	pData[n++] = Ibus2DevPara.type >> 8;
+	pData[n++] = Ibus2DevPara.ParameterData[0];
+	pData[n++] = Ibus2DevPara.ParameterData[1];
+	pData[n++] = Ibus2DevPara.ParameterData[2];
+	pData[n++] = Ibus2DevPara.ParameterData[3];
+	pData[n++] = Ibus2DevPara.ParameterData[4];
+	pData[n++] = Ibus2DevPara.ParameterData[5];
+	pData[n++] = Ibus2DevPara.ParameterData[6];
+	pData[n++] = Ibus2DevPara.ParameterData[7];
+	pData[n++] = Ibus2DevPara.ParameterData[8];
+	pData[n++] = Ibus2DevPara.ParameterData[9];
+	pData[n++] = Ibus2DevPara.ParameterData[10];
+	pData[n++] = Ibus2DevPara.ParameterData[11];
+	pData[n++] = Ibus2DevPara.ParameterData[12];
+	pData[n++] = Ibus2DevPara.ParameterData[13];
+	pData[n++] = Ibus2DevPara.ParameterData[14];
+	pData[n++] = Ibus2DevPara.ParameterData[15];
+}
+
+void getIbus2Param(uint8_t* pData) {
+  uint8_t n = 0;
+  pData[n++] = ( uint8_t )(RX_CMD_CODE_IBUS2_GET_PARAM);
+  pData[n++] = ( uint8_t )(RX_CMD_CODE_IBUS2_GET_PARAM >> 8);
+  pData[n++] = 3;//data length
+  pData[n++] = Ibus2DevPara.id;
+	pData[n++] = Ibus2DevPara.type;
+	pData[n++] = Ibus2DevPara.type >> 8;				  
+}
+
+bool ibc_state = false; 
+void Ibus2ParamCheck(uint8_t* packet, uint8_t len) {
+  if (len != 4) {
+    return;
+  }
+  uint8_t id = packet[0];
+  uint8_t code = packet[3];
+  if (id == flyskyIbcId) {
+    ibc_state = code;
+  } else if (id == flyskyGpsId) {
+    // todo
+  } else if (id == flyskyRpmId) {
+    // todo
+  }
+} 
+
+bool getIbus2IbcState() {
+  return ibc_state;
+}
+
+uint8_t flyskyIbus2SensorOnLine() {
+  uint32_t now = timersGetMsTick();
+  uint8_t sensor_on_line = 0;
+  if (now - ibc_update_tick < 2000) {
+    sensor_on_line |= 1 << IBUS2_SENSOR_IBC;
+  }
+  if (now - gps_update_tick < 2000) {
+    sensor_on_line |= 1 << IBUS2_SENSOR_GPS;
+  }
+  if (now - rpm_update_tick < 2000) {
+    sensor_on_line |= 1 << IBUS2_SENSOR_RPM;
+  }
+  if (now - pres_update_tick < 2000) {
+    sensor_on_line |= 1 << IBUS2_SENSOR_PRES;
+  }
+
+  return sensor_on_line;
 }
