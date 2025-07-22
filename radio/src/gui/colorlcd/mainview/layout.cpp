@@ -185,6 +185,5 @@ void LayoutFactory::disposeCustomScreen(unsigned idx)
 LayoutFactory::LayoutFactory(const char* id, const char* name) :
     id(id), name(name)
 {
-  TRACE("register layout %s", getId());
   getRegisteredLayouts().push_back(this);
 }
