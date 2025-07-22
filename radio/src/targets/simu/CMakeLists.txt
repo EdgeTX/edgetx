@@ -177,6 +177,7 @@ add_executable(simu
   display.cpp
   widgets.cpp
   knobs.cpp
+  arg_parser.cpp
   sdl_simu.cpp
 )
 

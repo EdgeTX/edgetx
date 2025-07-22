@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_keycode.h>
 
@@ -26,12 +27,10 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
 
-#include <libgen.h>
-#include <getopt.h>
-
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <regex>
 #include <string>
 
@@ -72,13 +71,9 @@
 #include "debug.h"
 #include "edgetx.h"
 
+#include "arg_parser.h"
+
 #define TIMER_INTERVAL 10 // 10ms
-
-int window_width = 800;
-int window_height = 600;
-
-std::string storage_path;
-std::string settings_path;
 
 static SDL_Window* window;
 static SDL_Renderer* renderer;
@@ -677,79 +672,28 @@ int find_input_mode()
   return default_input_mode();
 }
 
-static void print_usage(const char* path)
-{
-  const char usage[] =
-      "usage: %s [--width width] [--height height] [--storage path] "
-      "[--settings path] [-h | --help]\n";
-
-  printf(usage, basename((char*)path));
-}
-
-static int parse_args(int argc, char* argv[])
-{
-  static struct option long_options[] = {
-      {"help", no_argument, 0, 'h'},
-      {"width", required_argument, 0, 'w'},
-      {"height", required_argument, 0, 'e'},
-      {"storage", required_argument, 0, 's'},
-      {"settings", required_argument, 0, 'c'},
-      {0, 0, 0, 0}};
-
-  int option_index = 0;
-  int c;
-
-  while ((c = getopt_long(argc, argv, "h", long_options, &option_index)) !=
-         -1) {
-    switch (c) {
-      case 'h':
-        print_usage(argv[0]);
-        return 1;
-
-      case 'w':
-        window_width = std::atoi(optarg);
-        break;
-
-      case 'e':
-        window_height = std::atoi(optarg);
-        break;
-
-      case 's':
-        storage_path = std::string(optarg);
-        break;
-
-      case 'c':  // 'c' for config/settings
-        settings_path = std::string(optarg);
-        break;
-
-      case '?':
-        // getopt_long already printed an error message
-        print_usage(argv[0]);
-        return 1;
-
-      default:
-        abort();
-    }
-  }
-
-  // Check for non-option arguments
-  if (optind < argc) {
-    printf("Error: Unexpected arguments: ");
-    while (optind < argc) {
-      printf("%s ", argv[optind++]);
-    }
-    printf("\n");
-    print_usage(argv[0]);
-    return 1;
-  }
-
-  return 0;
-}
-
 int main(int argc, char* argv[])
 {
-  if (parse_args(argc, argv) != 0) {
+  auto progname = std::filesystem::path(argv[0]).filename();
+  ArgumentParser args(progname.string());
+
+  if (!args.parse(argc, argv)) {
     return 1;
+  }
+
+  if (args.isHelpRequested()) {
+    args.printHelp();
+    return 0;
+  }
+
+  int window_height = 600;
+  if (args.hasHeight()) {
+    window_height = args.getHeight();
+  }
+
+  int window_width = 800;
+  if (args.hasWidth()) {
+    window_width = args.getWidth();
   }
 
   // Setup SDL
@@ -829,8 +773,9 @@ int main(int argc, char* argv[])
 
   // Init simulation
   simuInit();
-  simuStart(true, storage_path.c_str(), settings_path.c_str());
-  
+  simuStart(true, args.getStoragePath().c_str(),
+            args.getSettingsPath().c_str());
+
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
     if (event->type == SDL_WINDOWEVENT &&

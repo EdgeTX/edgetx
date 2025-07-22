@@ -28,6 +28,11 @@
 
 #include <cstring>
 
+#if defined(_WIN32) || defined(_WIN64)
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
+
 #ifdef DEBUG_LABELS
 #define TRACE_LABELS_YAML(...) TRACE(__VA_ARGS__)
 #else

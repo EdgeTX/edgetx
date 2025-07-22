@@ -81,7 +81,7 @@ static ftime_type systime_to_ftime(sysclock::time_point systime)
 static bool redirectToSettingsDirectory(const fs::path& p)
 {
   if (simuSettingsDirectory.empty()) return false;
-  return starts_with(p, MODELS_PATH) || starts_with(p, RADIO_PATH);
+  return starts_with(p.generic_string(), MODELS_PATH) || starts_with(p.generic_string(), RADIO_PATH);
 }
 
 static fs::path resolveCaseInsensitivePath(

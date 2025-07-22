@@ -204,7 +204,6 @@ std::list<const WidgetFactory*>& WidgetFactory::getRegisteredWidgets()
 
 void WidgetFactory::unregisterWidget(const WidgetFactory* factory)
 {
-  TRACE("unregister widget %s", factory->getName());
   getRegisteredWidgets().remove(factory);
 }
 
@@ -226,7 +225,6 @@ void WidgetFactory::registerWidget(const WidgetFactory* factory)
   if (oldWidget) {
     unregisterWidget(oldWidget);
   }
-  TRACE("register widget %s %s", name, factory->getDisplayName());
   for (auto it = getRegisteredWidgets().cbegin();
        it != getRegisteredWidgets().cend(); ++it) {
     if (strcasecmp((*it)->getDisplayName(), factory->getDisplayName()) > 0) {

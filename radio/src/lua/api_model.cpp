@@ -1863,6 +1863,7 @@ static int luaModelSetSwashRing(lua_State *L)
 }
 #endif // HELI
 
+extern "C" {
 LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getInfo, luaModelGetInfo )
   LROT_FUNCENTRY( setInfo, luaModelSetInfo )
@@ -1906,3 +1907,4 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( setSwashRing, luaModelSetSwashRing )
 #endif
 LROT_END(modellib, NULL, 0)
+}

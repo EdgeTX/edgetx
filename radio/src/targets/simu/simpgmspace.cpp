@@ -69,35 +69,8 @@ void lcdCopy(void * dest, void * src);
 
 uint64_t simuTimerMicros(void)
 {
-#if SIMPGMSPC_USE_QT
-  static QElapsedTimer ticker;
-  if (!ticker.isValid())
-    ticker.start();
-  return ticker.nsecsElapsed() / 1000;
-
-#elif defined(_MSC_VER)
-  static double freqScale = 0.0;
-  static LARGE_INTEGER firstTick;
-  LARGE_INTEGER newTick;
-
-  if (!freqScale) {
-    LARGE_INTEGER frequency;
-    // get ticks per second
-    QueryPerformanceFrequency(&frequency);
-    // 1us resolution
-    freqScale = 1e6 / frequency.QuadPart;
-    // init timer
-    QueryPerformanceCounter(&firstTick);
-    TRACE_SIMPGMSPACE("microsTimer() init: first tick = %llu @ %llu Hz", firstTick.QuadPart, frequency.QuadPart);
-  }
-  // read the timer
-  QueryPerformanceCounter(&newTick);
-  // compute the elapsed time
-  return (newTick.QuadPart - firstTick.QuadPart) * freqScale;
-#else  // GNUC
   auto now = std::chrono::steady_clock::now();
   return (uint64_t) std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
-#endif
 }
 
 uint16_t getTmr16KHz()
