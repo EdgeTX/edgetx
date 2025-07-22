@@ -54,6 +54,17 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t type);
 void processFlySkyIbus2AFHDS3Sensor(const uint8_t * packet, uint8_t type);
 void processFlySkySensor(const uint8_t * packet, uint8_t type);
 
+void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len);
+void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags);
+void flySkyIbus2CalGpsAlt();
+void flySkyIbus2CalGpsDist();
+// void flySkyIbus2ClearIBC(uint8_t* packet, uint8_t* len);
+// void flySkyIbus2IbcReadClear(uint8_t* packet, uint8_t* len);
+void Ibus2ParamCheck(uint8_t* packet, uint8_t len);
+void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len);
+bool getIbus2IbcState();
+uint8_t flyskyIbus2SensorOnLine();
+
 namespace afhds3
 {
 
@@ -285,6 +296,8 @@ class ProtoState
     void setState(ModuleState state);
 
     bool syncSettings();
+
+    bool sensorCalibration();
 
   //  void requestInfoAndRun(bool send = false);
 
@@ -572,6 +585,8 @@ void ProtoState::setupFrame()
     // Sync config, with commands
     if (syncSettings()) { return; }
 
+    if (sensorCalibration()) { return; }
+
     // Send channels data
     sendChannelsData();
   } else {
@@ -838,6 +853,20 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
                 clearDirtyFlag(DC_RX_CMD_GET_RX_VERSION);
               }
             }break;
+          case RX_CMD_CODE_IBUS2_SET_PARAM:
+            {
+              uint8_t len = *data++;            
+              ::Ibus2ParamCheck(data, len);
+            }
+            break;
+          case RX_CMD_CODE_IBUS2_GET_PARAM:
+            {
+              uint8_t len = *data++;            
+              ::Ibus2ParamCheck(data, len);
+              // cfg->others.calibData[IBUS2_SENSOR_IBC] = getIbus2IbcState();
+              // DIRTY_CMD(cfg, DC_RX_CMD_CLEAR_IBC);
+            }
+            break;
         default:
           break;
         }
@@ -860,6 +889,51 @@ inline bool isSbus(uint8_t mode)
 inline bool isPWM(uint8_t mode)
 {
   return !(mode & 2);
+}
+
+bool ProtoState::sensorCalibration() {
+  auto *cfg = this->getConfig();
+
+  static uint8_t data[30] = {0};
+  uint8_t len = 0;
+
+  static uint8_t last_sensor_online = 0;
+  uint8_t sensor_online = flyskyIbus2SensorOnLine();
+  cfg->others.sensorOnLine = sensor_online;
+
+  if (checkDirtyFlag(DC_RX_CMD_CALIB_GYRO)) {
+
+    ::flySkyIbus2CalGpsGyro(data, &len);
+    trsp.putFrame( COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, len);
+    clearDirtyFlag(DC_RX_CMD_CALIB_GYRO);
+    return true;
+  }
+
+  if (checkDirtyFlag(DC_RX_CMD_CALIB_ALT)) {
+    ::flySkyIbus2CalGpsAlt();
+    clearDirtyFlag(DC_RX_CMD_CALIB_ALT);
+    return true;
+  }
+
+  if (checkDirtyFlag(DC_RX_CMD_CALIB_DIST) ){
+    ::flySkyIbus2CalGpsDist();
+    clearDirtyFlag(DC_RX_CMD_CALIB_DIST);
+    return true;
+  }
+
+  static uint32_t ibc_update_tick = 0;
+  static short last_ibc_v = cfg->others.calibData[IBUS2_SENSOR_IBC];
+  if (last_ibc_v != cfg->others.calibData[IBUS2_SENSOR_IBC] ) {
+    if (timersGetMsTick() - ibc_update_tick > 2000) { // 2-second check
+      ibc_update_tick = timersGetMsTick();  
+      last_ibc_v = cfg->others.calibData[IBUS2_SENSOR_IBC]; 
+      ::flySkyIbus2CalibIBC(data, &len, cfg->others.calibData[IBUS2_SENSOR_IBC]);
+      trsp.putFrame( COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, len);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool ProtoState::syncSettings()
