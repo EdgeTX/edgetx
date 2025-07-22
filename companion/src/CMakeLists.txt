@@ -49,7 +49,7 @@ endif()
 
 if(SDL2_FOUND)
   include_directories(${SDL2_INCLUDE_DIRS})
-  add_definitions(-DJOYSTICKS)
+  add_definitions(-DJOYSTICKS -DSIMU_AUDIO)
   if(TARGET SDL2::SDL2)
     set(SDL2_LIBRARIES SDL2::SDL2)
   endif()
