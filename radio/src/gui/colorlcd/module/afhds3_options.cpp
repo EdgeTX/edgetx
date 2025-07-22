@@ -232,3 +232,101 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                   DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_RSSI_CHANNEL_SETUP);
                });
 }
+
+AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
+{
+  cfg = afhds3::getConfig(moduleIdx);
+  std::string title =
+      moduleIdx == INTERNAL_MODULE ? STR_INTERNALRF : STR_EXTERNALRF;
+  header->setTitle(title);
+
+  title = "AFHDS3 (";
+  title += "SENSORS";
+  title += ")";
+  header->setTitle2(title);
+
+  body->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
+
+  FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
+
+  bool ibus2_mode = false;
+
+  if (cfg->version == 0) {
+    return;
+  }
+  auto vCfg = &cfg->v1;
+
+  for (uint8_t j = 0; j < SES_NPT_NB_MAX_PORTS; j++) {
+    if (vCfg->NewPortTypes[j] == afhds3::SES_NPT_IBUS2) {
+      ibus2_mode = true;
+      break;
+    }
+  }
+  std::string temp_str;
+  auto line = body->newLine(grid);
+
+  if (!ibus2_mode) {
+    temp_str = "Only in the iBUS2 mode can the sensors be set.";
+    new StaticText(line, rect_t{}, temp_str);
+    return;
+  }
+
+  if (cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_GPS)) 
+  {
+    temp_str = STR_IMU;
+    temp_str += " ";
+    temp_str += TR_CURRENTSENSOR;
+    new StaticText(line, rect_t{}, temp_str);
+    auto imu_btn = new TextButton(line, rect_t{}, STR_CALIBRATION);
+    imu_btn->setPressHandler([=]() -> uint8_t {
+      DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_GYRO);
+      return 0;
+    });
+
+    temp_str = TR_ALTSENSOR;
+    line = body->newLine(grid);
+    new StaticText(line, rect_t{}, temp_str);
+    auto alt_btn = new TextButton(line, rect_t{}, TR_RESET);
+    alt_btn->setPressHandler([=]() -> uint8_t {
+      DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_ALT);
+      return 0;
+    });
+
+    temp_str = "DIST";
+    temp_str += " ";
+    temp_str += TR_CURRENTSENSOR;
+    line = body->newLine(grid);
+    new StaticText(line, rect_t{}, temp_str);
+    auto dist_btn = new TextButton(line, rect_t{}, TR_RESET);
+    dist_btn->setPressHandler([=]() -> uint8_t {
+      DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_DIST);
+      return 0;
+    });
+  }
+
+  // if (cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_RPM)) {
+  //   temp_str = "RPM";
+  //   temp_str += " ";
+  //   temp_str += TR_CURRENTSENSOR;
+  //   line = body->newLine(grid);
+  //   new StaticText(line, rect_t{}, temp_str);
+  //   new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 1, 12, GET_SET_DEFAULT(cfg->others.calibData[afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_RPM]));
+  // }
+
+  if (cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_IBC)) {
+    // temp_str = "IBC01";
+    // temp_str += " Auto ";
+    // temp_str += "Clear";
+    // line = body->newLine(grid);
+    // new StaticText(line, rect_t{}, temp_str);
+    // new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(cfg->others.calibData[afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_IBC]));
+
+    temp_str = "IBC01";
+    temp_str += " ";
+    temp_str += "Calib";
+    line = body->newLine(grid);
+    new StaticText(line, rect_t{}, temp_str);
+    auto edit = new NumberEdit(line, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0, 120, GET_SET_DEFAULT(cfg->others.calibData[afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_IBC]), PREC1);
+    edit->setSuffix("v");
+  }
+}
