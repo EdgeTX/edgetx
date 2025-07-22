@@ -7,19 +7,11 @@ endif()
 
 target_compile_options(radiolib_native PUBLIC -DSIMU)
 
-if(SDL2_FOUND)
-  option(SIMU_AUDIO "Enable simulator audio." ON)
-  if(SIMU_AUDIO)
-    target_compile_options(radiolib_native PUBLIC -DSIMU_AUDIO)
-  endif()
-endif()
-
 set(SIMU_DRIVERS
   simpgmspace.cpp
   simufatfs.cpp
   simudisk.cpp
   simulcd.cpp
-  simuaudio.cpp
   switch_driver.cpp
   adc_driver.cpp
   module_drivers.cpp
@@ -47,7 +39,8 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if(SDL2_FOUND)
   include_directories(${SDL2_INCLUDE_DIRS})
-  add_definitions(-DJOYSTICKS)
+  target_compile_options(radiolib_native PUBLIC -DSIMU_AUDIO)
+  list(APPEND SIMU_DRIVERS simuaudio.cpp)
   if(TARGET SDL2::SDL2)
     set(SDL2_LIBRARIES SDL2::SDL2)
   endif()

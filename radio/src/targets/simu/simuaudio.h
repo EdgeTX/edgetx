@@ -21,5 +21,10 @@
 
 #pragma once
 
+#if defined(SIMU_AUDIO)
 bool simuAudioInit();
 void simuAudioDeInit();
+#else
+static inline bool simuAudioInit() { return false; }
+static inline void simuAudioDeInit() {}
+#endif
