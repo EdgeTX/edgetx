@@ -607,7 +607,7 @@ void HardwarePanel::addSwitch(int index)
     start->setModel(fsStart);
     int & swstart = (int &)config.start;
     start->setField(swstart, this);
-    start->setEnabled(swtype == Board::SWITCH_2POS);
+    start->setEnabled(config.type == Board::SWITCH_2POS);
     params->append(start);
 
     connect(type, &AutoComboBox::currentDataChanged, [=] (int val) {
