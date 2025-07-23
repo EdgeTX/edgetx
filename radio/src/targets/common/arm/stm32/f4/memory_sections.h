@@ -21,7 +21,7 @@
 
 #pragma once
 
-#define __INIT_HOOK
+#define __INIT_HOOK    __attribute__((section(".init_hook")))
 
 #define __CCMRAM       __attribute__((section(".ccm"), aligned(4)))
 #define __DMA          __attribute__((section(".ram"), aligned(4)))
