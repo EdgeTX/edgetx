@@ -353,8 +353,14 @@ void ModelSetupPage::build(Window * window)
 
   new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, {
     // Modules
+/* FIX : Valid only if HARDWARE_INTERNAL_MODULE is defined */
+#if defined(HARDWARE_INTERNAL_MODULE)
     {STR_INTERNALRF, []() { new ModulePage(INTERNAL_MODULE); }, []() { return g_model.moduleData[INTERNAL_MODULE].type > 0; }},
+#endif    /* defined(HARDWARE_INTERNAL_MODULE) */
+/* FIX : Valid only if HARDWARE_EXTERNAL_MODULE is defined */
+#if defined(HARDWARE_EXTERNAL_MODULE)
     {STR_EXTERNALRF, []() { new ModulePage(EXTERNAL_MODULE); }, []() { return g_model.moduleData[EXTERNAL_MODULE].type > 0; }},
+#endif    /* defined(HARDWARE_EXTERNAL_MODULE) */
     {STR_TRAINER, []() { new TrainerPage(); }, []() { return g_model.trainerData.mode > 0; }},
     // Timer buttons
     {TR_TIMER "1", []() { new TimerWindow(0); }, []() { return g_model.timers[0].mode > 0; }},
