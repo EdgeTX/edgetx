@@ -24,7 +24,7 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-  QT_VERSION: "5.15.2"
+  QT_VERSION: "6.9.0"
 
 jobs:
   build:
@@ -61,6 +61,7 @@ jobs:
           AQT_CONFIG: ${{ github.workspace }}/tools/aqt-settings.ini
         with:
           version: ${{ env.QT_VERSION }}
+          modules: 'qtmultimedia qtserialport'
           setup-python: 'false'
           cache: true
           cache-key-prefix: 'install-qt-action-macOS'

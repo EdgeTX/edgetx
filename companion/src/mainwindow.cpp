@@ -1426,7 +1426,7 @@ void MainWindow::importAppSettings()
   // Do the import
   QSettings fromSettings(impFile, QSettings::IniFormat);
   if (!g.importSettings(&fromSettings)) {
-    QMessageBox::critical(this, CPN_STR_APP_NAME, tr("The settings could not be imported."), QMessageBox::Ok, 0);
+    QMessageBox::critical(this, CPN_STR_APP_NAME, tr("The settings could not be imported."), QMessageBox::Ok);
     return;
   }
   resultMsg = tr("<html>" \

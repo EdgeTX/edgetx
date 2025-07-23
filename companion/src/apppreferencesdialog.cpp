@@ -450,8 +450,8 @@ void AppPreferencesDialog::initSettings()
     }
   });
 
-  connect(ui->chkDelDecompress, &QCheckBox::stateChanged, [=](const int checked) {
-    if (!checked) {
+  connect(ui->chkDelDecompress, &QCheckBox::checkStateChanged, [=](const int checked) {
+      if (!checked) {
       if (ui->chkDecompressDirUseDwnld->isChecked()) {
         ui->chkDelDownloads->setEnabled(false);
         ui->chkDelDownloads->setChecked(false);

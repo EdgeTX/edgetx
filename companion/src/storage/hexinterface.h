@@ -19,11 +19,10 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _HEXINTERFACE_H_
-#define _HEXINTERFACE_H_
+#pragma once
 
-#include <inttypes.h>
 #include <QTextStream>
+#include <QString>
 
 class HexInterface {
   public:
@@ -40,5 +39,3 @@ class HexInterface {
 
     QTextStream & stream;
 };
-
-#endif // _HEXINTERFACE_H_

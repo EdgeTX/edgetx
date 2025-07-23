@@ -26,7 +26,7 @@
 #include <QSpinBox>
 #include <QString>
 
-class QRegExpValidator;
+class QRegularExpressionValidator;
 
 class AutoHexSpinBox : public QSpinBox, public AutoWidget
 {
@@ -57,6 +57,6 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
 
   private:
     unsigned int *m_field;
-    QRegExpValidator *m_validator;
+    QRegularExpressionValidator *m_validator;
     unsigned int m_length;
 };

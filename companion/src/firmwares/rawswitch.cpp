@@ -181,7 +181,7 @@ bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings
     board = getCurrentBoard();
 
   Boards b(board);
-  div_t sw;
+  div_t sw = {0, 0};
 
   if (type == SWITCH_TYPE_SWITCH && abs(index) > b.getCapability(Board::SwitchesPositions))
     return false;

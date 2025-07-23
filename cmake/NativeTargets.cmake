@@ -24,19 +24,20 @@ else()
   message(STATUS "SDL not found! Simulator audio, and joystick inputs, will not work.")
 endif()
 
-if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
+if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
+  # environment variable set in github workflows and build-edgetx Dockerfile
+  if(DEFINED ENV{LIBUSB1_ROOT_DIR})
+    set(LIBUSB1_ROOT_DIR "$ENV{LIBUSB1_ROOT_DIR}")
+  endif()
+
   find_package(Libusb1)
+
   if(LIBUSB1_FOUND)
     find_package(Dfuutil)
   endif()
 
-  if(LINUX)
-    find_package(Libssl1)
-  endif()
-
-  # OpenSSL
   # environment variable set in github workflows and build-edgetx Dockerfile
-  if (DEFINED ENV{OPENSSL_ROOT_DIR})
+  if(DEFINED ENV{OPENSSL_ROOT_DIR})
     set(OPENSSL_ROOT_DIR "$ENV{OPENSSL_ROOT_DIR}")
   endif()
 
@@ -61,7 +62,7 @@ add_custom_target(tests-radio
   DEPENDS gtests-radio
   )
 
-if(Qt5Core_FOUND AND NOT DISABLE_COMPANION)
+if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
   add_subdirectory(${COMPANION_SRC_DIRECTORY})
   add_custom_target(tests-companion
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-companion

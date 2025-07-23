@@ -550,7 +550,7 @@ QString MultiModelPrinter::printOutputs()
   for (int i=0; i<firmware->getCapability(Outputs); i++) {
     int count = 0;
     for (int k=0; k < modelPrinterMap.size(); k++)
-      count = std::max(count, modelPrinterMap.value(k).first->mixes(i).size());
+      count = std::max(count, (int)modelPrinterMap.value(k).first->mixes(i).size());
     if (!count)
       continue;
     columns.appendRowStart();
@@ -606,7 +606,7 @@ QString MultiModelPrinter::printInputs()
   for (int i=0; i<std::max(4, firmware->getCapability(VirtualInputs)); i++) {
     int count = 0;
     for (int k=0; k < modelPrinterMap.size(); k++) {
-      count = std::max(count, modelPrinterMap.value(k).first->expos(i).size());
+      count = std::max(count, (int)modelPrinterMap.value(k).first->expos(i).size());
     }
     if (count > 0) {
       columns.appendRowStart();
@@ -636,7 +636,7 @@ QString MultiModelPrinter::printMixers()
   for (int i=0; i<firmware->getCapability(Outputs); i++) {
     int count = 0;
     for (int k=0; k < modelPrinterMap.size(); k++) {
-      count = std::max(count, modelPrinterMap.value(k).first->mixes(i).size());
+      count = std::max(count, (int)modelPrinterMap.value(k).first->mixes(i).size());
     }
     if (count > 0) {
       columns.appendRowStart();

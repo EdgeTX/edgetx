@@ -25,6 +25,7 @@
 #include <QMessageBox>
 #include <QString>
 #include <QTextStream>
+#include <QRegularExpression>
 #if defined(JOYSTICKS) || defined(SIMU_AUDIO)
   #include <SDL.h>
   #undef main
@@ -148,8 +149,8 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 #ifdef Q_OS_WIN
   // For backwards compat. with QxtCommandOptions, convert Windows-style CLI switches (/opt) since QCommandLineParser doesn't support them
   for (int i=0; i < args.size(); ++i) {
-    args[i].replace(QRegExp("^/([^\\s]{2,10})$"), "--\\1");  // long opts
-    args[i].replace(QRegExp("^/([^\\s]){1}$"), "-\\1");      // short opts
+    args[i].replace(QRegularExpression("^/([^\\s]{2,10})$"), "--\\1");  // long opts
+    args[i].replace(QRegularExpression("^/([^\\s]){1}$"), "-\\1");      // short opts
   }
 #endif
 
@@ -202,7 +203,7 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 
   if (cliOptions.positionalArguments().size()) {
     QString datasrc = cliOptions.positionalArguments().at(0);
-    if (datasrc.contains(QRegExp(".*\\.[\\w]{2,6}$"))) {
+    if (datasrc.contains(QRegularExpression(".*\\.[\\w]{2,6}$"))) {
       simOptions->dataFile = datasrc;
       simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
     }
@@ -252,9 +253,6 @@ CommandLineParseResult cliOptions(SimulatorOptions * simOptions, int * profileId
 
 int main(int argc, char *argv[])
 {
-  /* From doc: This attribute must be set before Q(Gui)Application is constructed. */
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
   QApplication app(argc, argv);
   app.setApplicationName(APP_SIMULATOR);
   app.setApplicationVersion(VERSION);
