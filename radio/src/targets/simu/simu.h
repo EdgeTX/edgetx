@@ -21,25 +21,18 @@
 
 #pragma once
 
-#include <stdbool.h>
-
-// OS specific implementation
-#if defined(NATIVE_THREADS)
-  #include "task_native.h"
-#elif defined(FREE_RTOS)
-  #include "task_freertos.h"
+#if defined(COLORLCD)
+  #include "gui/colorlcd/lcd.h"
 #endif
 
-typedef void (*task_func_t)();
+#include "targets/simu/simulcd.h"
+#include "hal/adc_driver.h"
+#include "hal/rotary_encoder.h"
 
-void task_create(task_handle_t* h, task_func_t func, const char* name,
-                 void* stack, unsigned stack_size, unsigned priority);
+// 10ms ISR
+void per10ms();
 
-unsigned task_get_stack_usage(task_handle_t* h);
-unsigned task_get_stack_size(task_handle_t* h);
-
-void mutex_create(mutex_handle_t* h);
-bool mutex_lock(mutex_handle_t* h);
-void mutex_unlock(mutex_handle_t* h);
-bool mutex_trylock(mutex_handle_t* h);
-
+// touch panel methods
+bool touchPanelInit();
+void touchPanelDown(short x, short y);
+void touchPanelUp();

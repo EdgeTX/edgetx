@@ -39,6 +39,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #if MSVC_BUILD
   #include <direct.h>
@@ -87,15 +88,14 @@ std::string fixPathDelimiters(const char * path)
 
 void simuFatfsSetPaths(const char * sdPath, const char * settingsPath)
 {
-  if (sdPath) {
+  if (sdPath && strlen(sdPath) > 0) {
     simuSdDirectory = removeTrailingPathDelimiter(fixPathDelimiters(sdPath));
-  }
-  else {
+  } else if (simuSdDirectory.empty()) {
     char buff[1024];
-    f_getcwd(buff, sizeof(buff)-1);
+    f_getcwd(buff, sizeof(buff) - 1);
     simuSdDirectory = removeTrailingPathDelimiter(fixPathDelimiters(buff));
   }
-  if (settingsPath) {
+  if (settingsPath && strlen(settingsPath) > 0) {
     simuSettingsDirectory = removeTrailingPathDelimiter(fixPathDelimiters(settingsPath));
   }
   TRACE_SIMPGMSPACE("simuFatfsSetPaths(): simuSdDirectory: \"%s\"", simuSdDirectory.c_str());

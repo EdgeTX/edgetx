@@ -203,7 +203,6 @@ Section "un.EdgeTX Companion @VERSION_FAMILY@"
   Delete "$INSTDIR\libgcc_s_dw2-1.dll"
   Delete "$INSTDIR\libgcc_s_seh-1.dll"
   Delete "$INSTDIR\libstdc++-6.dll"
-  Delete "$INSTDIR\libwinpthread-1.dll"
 
   Delete "$INSTDIR\Uninstall.exe"
 

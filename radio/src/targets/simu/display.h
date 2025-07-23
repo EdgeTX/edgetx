@@ -19,27 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include <SDL.h>
 
-#include <stdbool.h>
-
-// OS specific implementation
-#if defined(NATIVE_THREADS)
-  #include "task_native.h"
-#elif defined(FREE_RTOS)
-  #include "task_freertos.h"
-#endif
-
-typedef void (*task_func_t)();
-
-void task_create(task_handle_t* h, task_func_t func, const char* name,
-                 void* stack, unsigned stack_size, unsigned priority);
-
-unsigned task_get_stack_usage(task_handle_t* h);
-unsigned task_get_stack_size(task_handle_t* h);
-
-void mutex_create(mutex_handle_t* h);
-bool mutex_lock(mutex_handle_t* h);
-void mutex_unlock(mutex_handle_t* h);
-bool mutex_trylock(mutex_handle_t* h);
-
+// display methods
+void refreshDisplay(SDL_Texture* screen);

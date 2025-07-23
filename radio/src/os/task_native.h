@@ -21,25 +21,26 @@
 
 #pragma once
 
-#include <stdbool.h>
+#include "time_native.h"
 
-// OS specific implementation
-#if defined(NATIVE_THREADS)
-  #include "task_native.h"
-#elif defined(FREE_RTOS)
-  #include "task_freertos.h"
-#endif
+#include <thread>
+#include <mutex>
+#include <memory>
 
-typedef void (*task_func_t)();
+#define TASK_DEFINE_STACK(name, size) void* name
 
-void task_create(task_handle_t* h, task_func_t func, const char* name,
-                 void* stack, unsigned stack_size, unsigned priority);
+using _thread_ptr_t = std::unique_ptr<std::thread>;
 
-unsigned task_get_stack_usage(task_handle_t* h);
-unsigned task_get_stack_size(task_handle_t* h);
+struct task_handle_t {
+  _thread_ptr_t _thread_handle;
+  uint32_t      _stack_size;
+};
 
-void mutex_create(mutex_handle_t* h);
-bool mutex_lock(mutex_handle_t* h);
-void mutex_unlock(mutex_handle_t* h);
-bool mutex_trylock(mutex_handle_t* h);
+typedef std::mutex mutex_handle_t;
 
+bool task_running();
+
+void task_sleep_ms(uint32_t ms);
+void task_sleep_until(time_point_t* tp, uint32_t ts_ms);
+
+void task_shutdown_all();

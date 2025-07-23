@@ -21,23 +21,31 @@
 
 #pragma once
 
-#include "time.h"
+#include <imgui.h>
 
-#include <pthread.h>
-#include <semaphore.h>
-
-#define TASK_DEFINE_STACK(name, size) void* name
-
-struct task_handle_t {
-  pthread_t _thread_handle;
-  uint32_t  _stack_size;
+struct GimbalState {
+  ImVec2 pos;
+  bool   lock_y;
 };
 
-typedef pthread_mutex_t mutex_handle_t;
+struct ScreenDesc {
+  int width;
+  int height;
+  bool is_dot_matrix;
+};
 
-bool task_running();
+enum class ScreenMouseEventType {
+  MouseDown,
+  MouseUp,
+};
 
-void task_sleep_ms(uint32_t ms);
-void task_sleep_until(time_point_t* tp, uint32_t ts_ms);
+struct ScreenMouseEvent {
+  ScreenMouseEventType type;
+  int pos_x;
+  int pos_y;
+};
 
-void task_shutdown_all();
+void GimbalPair(const char* str_id, GimbalState& left, GimbalState& right);
+void SimuScreen(const ScreenDesc& desc, ImTextureID screen_img, ImVec2 size,
+                ImU32 bg_col, ImU32 overlay_col);
+bool SimuScreenMouseEvent(const ScreenDesc& desc, ScreenMouseEvent& event);

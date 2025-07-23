@@ -45,6 +45,6 @@ if(Qt5Widgets_FOUND)
   target_compile_options(gtests-radio PRIVATE ${SIMU_SRC_OPTIONS})
 
   add_dependencies(gtests-radio gtests-radio-lib)
-  target_link_libraries(gtests-radio gtests-radio-lib pthread Qt5::Core Qt5::Widgets)
+  target_link_libraries(gtests-radio gtests-radio-lib Qt5::Core Qt5::Widgets)
   message(STATUS "Added optional gtests target")
 endif()

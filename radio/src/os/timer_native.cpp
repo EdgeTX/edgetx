@@ -1,8 +1,10 @@
 #include "timer.h"
 #include "debug.h"
-#include "timer_pthread_impl.h"
+#include "timer_native_impl.h"
 
 #include <algorithm>
+
+using namespace std::chrono_literals;
 
 static timer_queue* _instance = nullptr;
 static std::mutex _instance_mut;

@@ -20,7 +20,7 @@
  */
 
 #include "async.h"
-#include "timer_pthread_impl.h"
+#include "timer_native_impl.h"
 
 bool async_call(async_func_t func, volatile bool* excl_flag, void* param1,
                 uint32_t param2)

@@ -109,7 +109,7 @@ FRESULT sdReadDir(DIR * dir, FILINFO * fno, bool & firstTime)
   return res;
 }
 
-#if !defined(BOOT) && !defined(SIMU)
+#if !defined(BOOT) && (!defined(SIMU) || defined(SIMU_DISKIO))
 
 // Replace FatFS implementation of f_puts and f_printf
 

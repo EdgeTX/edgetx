@@ -28,9 +28,6 @@ option(SEMIHOSTING "Enable debugger semihosting" OFF)
 option(JITTER_MEASURE "Enable ADC jitter measurement" OFF)
 option(WATCHDOG "Enable hardware Watchdog" ON)
 option(ASTERISK "Enable asterisk icon (test only firmware)" OFF)
-if(SDL2_FOUND)
-  option(SIMU_AUDIO "Enable simulator audio." ON)
-endif()
 option(LUA "Enable LUA support" ON)
 option(SIMU_DISKIO "Enable disk IO simulation in simulator. Simulator will use FatFs module and simulated IO layer that  uses \"./sdcard.image\" file as image of SD card. This file must contain whole SD card from first to last sector" OFF)
 option(SIMU_LUA_COMPILER "Pre-compile and save Lua scripts in simulator." ON)
@@ -243,10 +240,6 @@ endif()
 
 if(WATCHDOG AND NOT NATIVE_BUILD)
   add_definitions(-DUSE_WATCHDOG)
-endif()
-
-if(SIMU_AUDIO)
-  add_definitions(-DSIMU_AUDIO)
 endif()
 
 if(SIMU_DISKIO)
@@ -497,25 +490,21 @@ endif()
 
 if(NATIVE_BUILD)
   set(RADIOLIB_NATIVE_SRC ${SRC})
-  if(SIMU_DISKIO)
-    set(RADIOLIB_NATIVE_SRC ${RADIOLIB_NATIVE_SRC}
-      ${FATFS_DIR}/ff.c ${FATFS_DIR}/ffunicode.c)
-  endif()
 
   # Pack all radio sources into an object lib
   add_library(radiolib_native OBJECT EXCLUDE_FROM_ALL
     ${RADIOLIB_NATIVE_SRC}
   )
 
-  # Add SIMU and POSIX_THREAD here PUBLIC, so it can be imported by other targets
+  # Add SIMU and NATIVE_THREAD here PUBLIC, so it can be imported by other targets
   # via INTERFACE_COMPILE_OPTIONS
-  target_compile_options(radiolib_native PUBLIC -DSIMU -DPOSIX_THREADS)
+  target_compile_options(radiolib_native PUBLIC -DSIMU -DNATIVE_THREADS)
   target_sources(radiolib_native PUBLIC
     os/async_native.cpp
     os/sleep_native.cpp
-    os/task_pthread.cpp
+    os/task_native.cpp
     os/time_native.cpp
-    os/timer_pthread.cpp
+    os/timer_native.cpp
   )
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)

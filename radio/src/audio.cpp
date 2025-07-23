@@ -35,6 +35,10 @@
 #include "model_audio.h"
 #include "hal/audio_driver.h"
 
+#if defined(SIMU) && !defined(SIMU_AUDIO)
+void audioConsumeCurrentBuffer() {}
+#endif
+
 extern mutex_handle_t audioMutex;
 
 // Only first quadrant values - other quadrants calulated taking advantage of symmetry in sine wave.
@@ -370,6 +374,17 @@ AudioQueue::AudioQueue()
 
 #define CODEC_ID_PCM_S16LE  1
 
+
+static void _audio_lock()
+{
+  mutex_lock(&audioMutex);
+}
+
+static void _audio_unlock()
+{
+  mutex_unlock(&audioMutex);
+}
+
 #if !defined(__SSAT)
   #define _sat_s16(x) ((int16_t)limit<int32_t>(INT16_MIN, (x), INT16_MAX))
 #else
@@ -613,9 +628,9 @@ void AudioQueue::wakeup()
 
     // mix the normal context (tones and wavs)
     if (normalContext.isEmpty() && !fragmentsFifo.empty()) {
-      mutex_lock(&audioMutex);
+      _audio_lock();
       normalContext.setFragment(fragmentsFifo.get());
-      mutex_unlock(&audioMutex);
+      _audio_unlock();
     }
     result = normalContext.mixBuffer(buffer, g_eeGeneral.beepVolume, g_eeGeneral.wavVolume, fade);
     if (result > 0) {
@@ -696,10 +711,11 @@ bool AudioQueue::isPlaying(uint8_t id)
 void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t flags, int8_t freqIncr, int8_t fragmentVolume)
 {
 #if defined(SIMU) && !defined(SIMU_AUDIO)
+  #warning "NO audio"
   return;
 #endif
 
-  mutex_lock(&audioMutex);
+  _audio_lock();
 
   freq = limit<uint16_t>(BEEP_MIN_FREQ, freq, BEEP_MAX_FREQ);
 
@@ -722,7 +738,7 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
     }
   }
 
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8_t fragmentVolume)
@@ -731,11 +747,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
   TRACE("playFile(\"%s\", flags=%x, id=%d fragmentVolume=%d ee_general=%d)", filename, flags, id, fragmentVolume, g_eeGeneral.wavVolume);
   if (strlen(filename) > AUDIO_FILENAME_MAXLEN) {
     TRACE("file name too long! maximum length is %d characters", AUDIO_FILENAME_MAXLEN);
-    return;
   }
-  #if !defined(SIMU_AUDIO)
-  return;
-  #endif
 #endif
 
   if (!sdMounted())
@@ -749,7 +761,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
     return;
   }
 
-  mutex_lock(&audioMutex);
+  _audio_lock();
 
   if (flags & PLAY_BACKGROUND) {
     backgroundContext.clear();
@@ -759,7 +771,7 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
     fragmentsFifo.push(AudioFragment(filename, flags & 0x0f, fragmentVolume, id));
   }
 
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::stopPlay(uint8_t id)
@@ -772,12 +784,12 @@ void AudioQueue::stopPlay(uint8_t id)
   return;
 #endif
 
-  mutex_lock(&audioMutex);
+  _audio_lock();
 
   fragmentsFifo.removePromptById(id);
   backgroundContext.stop(id);
 
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::stopSD()
@@ -790,19 +802,19 @@ void AudioQueue::stopSD()
 void AudioQueue::stopAll()
 {
   flush();
-  mutex_lock(&audioMutex);
+  _audio_lock();
   priorityContext.clear();
   normalContext.clear();
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void AudioQueue::flush()
 {
-  mutex_lock(&audioMutex);
+  _audio_lock();
   fragmentsFifo.clear();
   varioContext.clear();
   backgroundContext.clear();
-  mutex_unlock(&audioMutex);
+  _audio_unlock();
 }
 
 void audioPlay(unsigned int index, uint8_t id)

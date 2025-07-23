@@ -28,6 +28,7 @@ endif()
 
 set(CMAKE_COLOR_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
 
 add_definitions(-D_GLIBCXX_USE_C99=1) # proper to_string definition
 

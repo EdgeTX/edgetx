@@ -21,25 +21,10 @@
 
 #pragma once
 
-#include <stdbool.h>
-
-// OS specific implementation
-#if defined(NATIVE_THREADS)
-  #include "task_native.h"
-#elif defined(FREE_RTOS)
-  #include "task_freertos.h"
+#if defined(SIMU_AUDIO)
+bool simuAudioInit();
+void simuAudioDeInit();
+#else
+static inline bool simuAudioInit() { return false; }
+static inline void simuAudioDeInit() {}
 #endif
-
-typedef void (*task_func_t)();
-
-void task_create(task_handle_t* h, task_func_t func, const char* name,
-                 void* stack, unsigned stack_size, unsigned priority);
-
-unsigned task_get_stack_usage(task_handle_t* h);
-unsigned task_get_stack_size(task_handle_t* h);
-
-void mutex_create(mutex_handle_t* h);
-bool mutex_lock(mutex_handle_t* h);
-void mutex_unlock(mutex_handle_t* h);
-bool mutex_trylock(mutex_handle_t* h);
-
