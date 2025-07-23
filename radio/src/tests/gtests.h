@@ -21,11 +21,9 @@
 
 #pragma once
 
-#include <QtCore/QString>
 #include <math.h>
 #include <gtest/gtest.h>
 
-#define SWAP_DEFINED
 #include "edgetx.h"
 #include "model_init.h"
 #include "switches.h"

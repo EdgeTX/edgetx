@@ -22,10 +22,6 @@
 #include "board.h"
 #define SIMPGMSPC_USE_QT    0
 
-#if defined(SIMU_AUDIO)
-  #include <SDL.h>
-#endif
-
 #include "edgetx.h"
 #include "simulcd.h"
 

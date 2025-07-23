@@ -14,11 +14,6 @@ if(Qt6Widgets_FOUND)
 
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-  if(WIN32)
-    target_include_directories(gtests-companion-lib PUBLIC ${WIN_INCLUDE_DIRS})
-    target_link_libraries(gtests-companion-lib PRIVATE ${WIN_LINK_LIBRARIES})
-  endif(WIN32)
-
   file(GLOB TEST_SRC_FILES ${TESTS_PATH}/*.cpp)
 
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")

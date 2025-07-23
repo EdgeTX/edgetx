@@ -46,7 +46,6 @@ endif()
 
 # Windows-specific includes and libs shared by sub-projects
 if(WIN32)
-  list(APPEND WIN_INCLUDE_DIRS "${RADIO_SRC_DIR}/thirdparty/windows/dirent")
   # TODO: is that still necessary?
   set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
   set(CMAKE_C_USE_RESPONSE_FILE_FOR_LIBRARIES OFF)
