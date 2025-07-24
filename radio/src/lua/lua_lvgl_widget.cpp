@@ -1791,19 +1791,6 @@ void LvglWidgetTextButtonBase::clearRefs(lua_State *L)
   LvglWidgetObject::clearRefs(L);
 }
 
-void LvglWidgetTextButtonBase::setText(const char *s)
-{
-  if (window && txt.changedText(s)) {
-    ((TextButton *)window)->setText(s);
-  }
-}
-
-void LvglWidgetTextButtonBase::setFont(LcdFlags newFont)
-{
-  if (window && font.changedFont(newFont))
-    ((TextButton*)window)->setFont(FONT_INDEX(font.flags));
-}
-
 void LvglWidgetTextButtonBase::setSize(coord_t w, coord_t h)
 {
   if (w == LV_SIZE_CONTENT || w == 0) w = lv_obj_get_width(window->getLvObj());
@@ -1859,6 +1846,19 @@ void LvglWidgetTextButton::setChecked(bool checked)
   ((TextButton*)window)->check(checked);
 }
 
+void LvglWidgetTextButton::setText(const char *s)
+{
+  if (window && txt.changedText(s)) {
+    ((TextButton *)window)->setText(s);
+  }
+}
+
+void LvglWidgetTextButton::setFont(LcdFlags newFont)
+{
+  if (window && font.changedFont(newFont))
+    ((TextButton*)window)->setFont(FONT_INDEX(font.flags));
+}
+
 void LvglWidgetTextButton::build(lua_State *L)
 {
   if (h == LV_SIZE_CONTENT) h = 0;
@@ -1894,6 +1894,19 @@ void LvglWidgetMomentaryButton::clearRefs(lua_State *L)
 {
   clearRef(L, releaseFunction);
   LvglWidgetTextButtonBase::clearRefs(L);
+}
+
+void LvglWidgetMomentaryButton::setText(const char *s)
+{
+  if (window && txt.changedText(s)) {
+    ((MomentaryButton *)window)->setText(s);
+  }
+}
+
+void LvglWidgetMomentaryButton::setFont(LcdFlags newFont)
+{
+  if (window && font.changedFont(newFont))
+    ((MomentaryButton*)window)->setFont(FONT_INDEX(font.flags));
 }
 
 void LvglWidgetMomentaryButton::build(lua_State *L)
