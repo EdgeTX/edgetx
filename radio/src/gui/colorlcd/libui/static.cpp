@@ -237,9 +237,8 @@ void StaticImage::setSource(std::string filename)
     lv_img_set_src(image, fullpath.c_str());
     if (!hasImage()) {
       // Failed to load
-      TRACE("could not load image '%s'", filename.c_str());
-      lv_obj_del(image);
-      image = nullptr;
+      TRACE_ERROR("could not load image '%s'", filename.c_str());
+      clearSource();
     }
     setZoom();
   } else {
