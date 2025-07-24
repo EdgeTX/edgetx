@@ -367,9 +367,6 @@ void ModulePanel::update()
         break;
       case PULSES_PPM:
         mask |= MASK_SUBTYPES | MASK_PPM_FIELDS | MASK_SBUSPPM_FIELDS| MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT;
-        if (IS_9XRPRO(board)) {
-          mask |= MASK_OPEN_DRAIN;
-        }
         break;
       case PULSES_SBUS:
         module.channelsCount = 16;

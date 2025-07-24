@@ -45,9 +45,6 @@ namespace Board {
   enum Type
   {
     BOARD_UNKNOWN = -1,
-    BOARD_SKY9X,
-    BOARD_9XRPRO,
-    BOARD_AR9X,
     BOARD_TARANIS_X7,
     BOARD_TARANIS_X7_ACCESS,
     BOARD_TARANIS_X9D,
@@ -479,16 +476,6 @@ class Boards
 // temporary aliases for transition period, use Boards class instead.
 #define getBoardCapability(b__, c__)   Boards::getCapability(b__, c__)
 
-inline bool IS_SKY9X(Board::Type board)
-{
-  return board == Board::BOARD_SKY9X || board == Board::BOARD_9XRPRO || board == Board::BOARD_AR9X;
-}
-
-inline bool IS_9XRPRO(Board::Type board)
-{
-  return board == Board::BOARD_9XRPRO;
-}
-
 inline bool IS_BETAFPV_LR3PRO(Board::Type board)
 {
   return board == Board::BOARD_BETAFPV_LR3PRO;
@@ -790,7 +777,7 @@ inline bool IS_STM32(Board::Type board)
 
 inline bool IS_ARM(Board::Type board)
 {
-  return IS_STM32(board) || IS_SKY9X(board);
+  return IS_STM32(board);
 }
 
 inline bool HAS_LARGE_LCD(Board::Type board)

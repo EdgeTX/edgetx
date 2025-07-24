@@ -32,17 +32,14 @@
 //  External access is only via getEEpromSize() and getFlashSize()
 
 #define EESIZE_TARANIS                 (32*1024)
-#define EESIZE_SKY9X                   (128*4096)
-#define EESIZE_9XRPRO                  (128*4096)
-#define EESIZE_MAX                     EESIZE_9XRPRO
+#define EESIZE_MAX                     EESIZE_TARANIS
 
 // getFlashSize() (and these macros) is only used by radiointerface::getDfuArgs (perhaps can find a better way?)
 
-#define FSIZE_TARANIS                  (512*1024)
-#define FSIZE_SKY9X                    (256*1024)
-#define FSIZE_9XRPRO                   (512*1024)
-#define FSIZE_HORUS                    (2048*1024)
-#define FSIZE_MAX                      FSIZE_HORUS
+#define FSIZE_512KB                    (512*1024)
+#define FSIZE_1MB                      (1024*1024)
+#define FSIZE_2MB                      (2048*1024)
+#define FSIZE_MAX                      FSIZE_2MB
 
 // pre v2.10
 static const StringTagMappingTable legacyTrimSourcesLut = {
@@ -121,10 +118,6 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3C78746F;
     case BOARD_TARANIS_X9LITES:
       return 0x3E78746F;
-    case BOARD_SKY9X:
-    case BOARD_AR9X:
-    case BOARD_9XRPRO:
-      return 0x3278746F;
     case BOARD_BETAFPV_LR3PRO:
       return 0x4578746F;
     case BOARD_IFLIGHT_COMMANDO8:
@@ -173,11 +166,6 @@ uint32_t Boards::getFourCC(Type board)
 int Boards::getEEpromSize(Board::Type board)
 {
   switch (board) {
-    case BOARD_SKY9X:
-      return EESIZE_SKY9X;
-    case BOARD_9XRPRO:
-    case BOARD_AR9X:
-      return EESIZE_9XRPRO;
     case BOARD_TARANIS_XLITES:
     case BOARD_TARANIS_XLITE:
     case BOARD_TARANIS_X7:
@@ -237,11 +225,6 @@ int Boards::getEEpromSize(Board::Type board)
 int Boards::getFlashSize(Type board)
 {
   switch (board) {
-    case BOARD_SKY9X:
-      return FSIZE_SKY9X;
-    case BOARD_9XRPRO:
-    case BOARD_AR9X:
-      return FSIZE_9XRPRO;
     case BOARD_TARANIS_XLITES:
     case BOARD_TARANIS_XLITE:
     case BOARD_TARANIS_X7:
@@ -255,26 +238,27 @@ int Boards::getFlashSize(Type board)
     case BOARD_BETAFPV_LR3PRO:
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
-    case BOARD_JUMPER_T12MAX:
-    case BOARD_JUMPER_T14:
     case BOARD_JUMPER_T20:
-    case BOARD_JUMPER_T20V2:
     case BOARD_JUMPER_TLITE:
     case BOARD_JUMPER_TLITE_F4:
     case BOARD_JUMPER_TPRO:
     case BOARD_JUMPER_TPROV2:
-    case BOARD_JUMPER_TPROS:
-    case BOARD_JUMPER_BUMBLEBEE:
     case BOARD_RADIOMASTER_TX12:
     case BOARD_RADIOMASTER_TX12_MK2:
     case BOARD_RADIOMASTER_ZORRO:
-    case BOARD_RADIOMASTER_BOXER:
     case BOARD_RADIOMASTER_T8:
     case BOARD_RADIOMASTER_POCKET:
-    case BOARD_RADIOMASTER_MT12:
-    case BOARD_RADIOMASTER_GX12:
+      return FSIZE_512KB;
     case BOARD_HELLORADIOSKY_V14:
-      return FSIZE_TARANIS;
+    case BOARD_JUMPER_BUMBLEBEE:
+    case BOARD_JUMPER_T12MAX:
+    case BOARD_JUMPER_T14:
+    case BOARD_JUMPER_T20V2:
+    case BOARD_JUMPER_TPROS:
+    case BOARD_RADIOMASTER_GX12:
+    case BOARD_RADIOMASTER_BOXER:
+    case BOARD_RADIOMASTER_MT12:
+      return FSIZE_1MB;
     case BOARD_HORUS_X12S:
     case BOARD_X10:
     case BOARD_X10_EXPRESS:
@@ -290,7 +274,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
-      return FSIZE_HORUS;
+      return FSIZE_2MB;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
     default:
@@ -604,12 +588,6 @@ QString Boards::getBoardName(Board::Type board)
       return "Taranis X9-Lite";
     case BOARD_TARANIS_X9LITES:
       return "Taranis X9-Lite S";
-    case BOARD_SKY9X:
-      return "Sky9x";
-    case BOARD_9XRPRO:
-      return "9XR-PRO";
-    case BOARD_AR9X:
-      return "AR9X";
     case BOARD_HORUS_X12S:
       return "Horus X12S";
     case BOARD_X10:

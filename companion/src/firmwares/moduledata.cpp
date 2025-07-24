@@ -148,37 +148,6 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
         return false;
     }
   }
-  else if (IS_SKY9X(board)) {
-    switch (port) {
-      case 0:
-        switch (proto) {
-          case PULSES_PPM:
-          case PULSES_PXX_XJT_X16:
-          case PULSES_PXX_XJT_D8:
-          case PULSES_PXX_XJT_LR12:
-          case PULSES_PXX_R9M:
-          case PULSES_LP45:
-          case PULSES_DSM2:
-          case PULSES_DSMX:
-          case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
-            return true;
-          default:
-            return false;
-        }
-        break;
-      case 1:
-        switch (proto) {
-          case PULSES_PPM:
-            return true;
-          default:
-            return false;
-        }
-        break;
-      default:
-        return false;
-    }
-  }
   else {
     switch (proto) {
       case PULSES_PPM:
@@ -626,37 +595,6 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
             return false;
         }
 
-      default:
-        return false;
-    }
-  }
-  else if (IS_SKY9X(board)) {
-    switch (moduleidx) {
-      case 0:
-        switch (protocol) {
-          case PULSES_PPM:
-          case PULSES_PXX_XJT_X16:
-          case PULSES_PXX_XJT_D8:
-          case PULSES_PXX_XJT_LR12:
-          case PULSES_PXX_R9M:
-          case PULSES_LP45:
-          case PULSES_DSM2:
-          case PULSES_DSMX:
-          case PULSES_SBUS:
-          case PULSES_MULTIMODULE:
-            return true;
-          default:
-            return false;
-        }
-        break;
-      case 1:
-        switch (protocol) {
-          case PULSES_PPM:
-            return true;
-          default:
-            return false;
-        }
-        break;
       default:
         return false;
     }
