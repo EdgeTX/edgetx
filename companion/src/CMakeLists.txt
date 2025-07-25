@@ -45,7 +45,7 @@ if(WIN32)
 endif()
 
 if(TARGET SDL2::SDL2)
-  add_definitions(-DJOYSTICKS -DSIMU_AUDIO)
+  add_definitions(-DUSE_SDL)
   set(SDL2_LIBRARIES SDL2:SDL2)
 endif()
 

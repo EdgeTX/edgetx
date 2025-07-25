@@ -24,7 +24,7 @@
 #include "mainwindow.h"
 #include "helpers.h"
 #include "storage.h"
-#if defined(JOYSTICKS)
+#if defined(USE_SDL)
 #include "joystick.h"
 #include "joystickdialog.h"
 #endif
@@ -57,7 +57,7 @@ AppPreferencesDialog::AppPreferencesDialog(QWidget * parent, UpdateFactories * f
   connect(ui->opt_appDebugLog, &QCheckBox::toggled, this, &AppPreferencesDialog::toggleAppLogSettings);
   connect(ui->opt_fwTraceLog, &QCheckBox::toggled, this, &AppPreferencesDialog::toggleAppLogSettings);
 
-#if !defined(JOYSTICKS)
+#if !defined(USE_SDL)
   ui->joystickCB->hide();
   ui->joystickCB->setDisabled(true);
   ui->joystickcalButton->hide();
@@ -296,7 +296,7 @@ void AppPreferencesDialog::initSettings()
   ui->chkSimuScrollButtons->setChecked(g.simuScrollButtons());
   ui->joystickWarningCB->setChecked(g.disableJoystickWarning());
 
-#if defined(JOYSTICKS)
+#if defined(USE_SDL)
   ui->joystickChkB->setChecked(g.jsSupport());
   if (ui->joystickChkB->isChecked()) {
     QStringList joystickNames;
@@ -627,7 +627,7 @@ void AppPreferencesDialog::on_btnClearPos_clicked()
   g.profile[g.sessionId()].simulatorOptions(opts);
 }
 
-#if defined(JOYSTICKS)
+#if defined(USE_SDL)
 void AppPreferencesDialog::on_joystickChkB_clicked() {
   if (ui->joystickChkB->isChecked()) {
     QStringList joystickNames;
