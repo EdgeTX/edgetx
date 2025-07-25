@@ -496,6 +496,12 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
   registerOpenTxFirmware(firmware);
 
+  /* FlySky PA01 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("pa01"), Firmware::tr("FlySky PA01"), BOARD_FLYSKY_PA01);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
   /* FlySky PL18 board */
   firmware = new OpenTxFirmware(FIRMWAREID("pl18"), Firmware::tr("FlySky PL18"), BOARD_FLYSKY_PL18);
   addOpenTxFrskyOptions(firmware);
