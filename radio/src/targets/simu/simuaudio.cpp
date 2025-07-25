@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <SDL.h>
 
-#define SIMU_AUDIO_FMT AUDIO_S16SYS
+#define AUDIO_FMT AUDIO_S16SYS
 
 static SDL_AudioDeviceID _sdl_audio_device = 0;
 
@@ -33,7 +33,7 @@ void simuQueueAudio(const uint8_t* data, uint32_t len)
 {
 #if !defined(SOFTWARE_VOLUME)
   int volume = (simuAudioGetVolume() * SDL_MIX_MAXVOLUME ) / VOLUME_LEVEL_MAX;
-  SDL_MixAudioFormat((uint8_t*)data, data, SIMU_AUDIO_FMT, len, volume);
+  SDL_MixAudioFormat((uint8_t*)data, data, AUDIO_FMT, len, volume);
 #endif
 
   SDL_QueueAudio(_sdl_audio_device, data, len);
@@ -43,7 +43,7 @@ bool simuAudioInit()
 {
   SDL_AudioSpec wanted = {
     .freq = AUDIO_SAMPLE_RATE,
-    .format = SIMU_AUDIO_FMT,
+    .format = AUDIO_FMT,
     .channels = 1,
     .silence = 0,
     .samples = 1024,

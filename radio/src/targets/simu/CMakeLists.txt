@@ -36,14 +36,6 @@ set(SIMU_DRIVERS ${SIMU_DRIVERS}
   )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-if(SDL2_FOUND)
-  include_directories(${SDL2_INCLUDE_DIRS})
-  target_compile_options(radiolib_native PUBLIC -DSIMU_AUDIO)
-  if(TARGET SDL2::SDL2)
-    set(SDL2_LIBRARIES SDL2::SDL2)
-  endif()
-endif()
-
 if(SIMU_LUA_COMPILER)
   add_definitions(-DLUA_COMPILER)
 endif()
@@ -99,7 +91,9 @@ if(Qt6Widgets_FOUND)
   list(APPEND SIMULATOR_SRC ${SIMU_SRC} opentxsimulator.cpp)
 
   add_library(${SIMULATOR_TARGET} SHARED ${SIMULATOR_SRC})
-  if(SDL2_FOUND)
+
+  if(TARGET SDL2::SDL2)
+    set(SDL2_LIBRARIES SDL2::SDL2)
     target_sources(${SIMULATOR_TARGET} PRIVATE simuaudio.cpp)
   else()
     target_sources(${SIMULATOR_TARGET} PRIVATE no_audio.cpp)
@@ -170,28 +164,26 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
 
-add_executable(simu
-  EXCLUDE_FROM_ALL
-  ${SIMU_SRC}
-  simuaudio.cpp
-  display.cpp
-  widgets.cpp
-  knobs.cpp
-  sdl_simu.cpp
-)
+if(TARGET SDL2:SDL2)
+  add_executable(simu
+    EXCLUDE_FROM_ALL
+    ${SIMU_SRC}
+    simuaudio.cpp
+    display.cpp
+    widgets.cpp
+    knobs.cpp
+    sdl_simu.cpp
+  )
 
-include(FetchImgui)
-target_compile_options(simu PUBLIC -DSIMU)
+  include(FetchImgui)
+  target_compile_options(simu PUBLIC -DSIMU)
 
-add_png_target(image_assets "assets/images/*.png")
-add_dependencies(simu image_assets)
+  add_png_target(image_assets "assets/images/*.png")
+  add_dependencies(simu image_assets)
 
-set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
-target_include_directories(simu PUBLIC ${STB_DIR})
-target_link_libraries(simu PUBLIC imgui)
-
-target_link_libraries(simu PUBLIC
-  ${SDL2_LIBRARIES}
-)
+  set(STB_DIR ${RADIO_SRC_DIR}/thirdparty/stb)
+  target_include_directories(simu PUBLIC ${STB_DIR})
+  target_link_libraries(simu PUBLIC imgui)
+endif()
 
 PrintTargetReport("simu/libsimulator")
