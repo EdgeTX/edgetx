@@ -234,6 +234,7 @@
 #if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NEXT]"
 #else
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENTER]"
 #endif
 
@@ -270,6 +271,7 @@
 #define TR_TIMER                       TR("タイマー", "タイマー ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "スタート"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("E.Limit", "リミット拡張")
 #define TR_ETRIMS                      TR("E.Trims", "トリム拡張")
 #define TR_TRIMINC                     "トリムステップ"
@@ -419,12 +421,7 @@
 #define TR_CALIBRATION                 "キャリブレーション"
 #define TR_VTRIM                       "トリム - +"
 #define TR_CALIB_DONE                  "キャリブレーション 完了"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "[Enter]を押してスタート"
-  #define TR_SETMIDPOINT               "スティック/ダイヤル/スライダーを中央にして[Enter]"
-  #define TR_MOVESTICKSPOTS            "スティック/ダイヤル/スライダーを動かして[Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " スタート"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "スティック/スライダーを中央に合わせます"
   #define TR_MOVESTICKSPOTS            "スティック/スライダーを動かします"
 #else
@@ -437,8 +434,10 @@
   #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " WHEN DONE"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"

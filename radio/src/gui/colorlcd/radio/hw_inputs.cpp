@@ -56,25 +56,34 @@ static const lv_coord_t pots_col_dsc[] = {LV_GRID_FR(13), LV_GRID_FR(7),
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-HWSticks::HWSticks(Window* parent) : Window(parent, rect_t{})
+HWSticks::HWSticks(Window* parent) : Window(parent, {0, 0, LV_PCT(100), LV_SIZE_CONTENT})
 {
   padAll(PAD_TINY);
 
-  FlexGridLayout grid(col_two_dsc, row_dsc, PAD_TINY);
-  setFlexLayout();
+  new StaticText(this, {S_NM_X, -PAD_TINY, 0, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  new StaticText(this, {S_INV_X, -PAD_TINY, 0, 0}, STR_MENU_INVERT, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+
+  coord_t yo = EdgeTxStyles::STD_FONT_HEIGHT - PAD_TINY;
 
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = 0; i < max_sticks; i++) {
-    auto line = newLine(grid);
-    new StaticText(line, rect_t{}, analogGetCanonicalName(ADC_INPUT_MAIN, i));
-    new HWInputEdit(line, (char*)analogGetCustomLabel(ADC_INPUT_MAIN, i),
-                    LEN_ANA_NAME);
+    new StaticText(this, {0, S_Y(i) + yo + PAD_MEDIUM, S_LBL_W, 0},
+                   analogGetCanonicalName(ADC_INPUT_MAIN, i));
+    new HWInputEdit(this, (char*)analogGetCustomLabel(ADC_INPUT_MAIN, i),
+                    LEN_ANA_NAME, S_NM_X, S_Y(i) + yo);
+
+    new ToggleSwitch(
+          this, {S_INV_X, S_Y(i) + yo, S_INV_W, 0},
+          [=]() -> uint8_t { return (uint8_t)getStickInversion(i); },
+          [=](int8_t newValue) {
+            setStickInversion(i, newValue);
+            SET_DIRTY();
+          });
   }
 
 #if defined(STICK_DEAD_ZONE)
-  auto line = newLine(grid);
-  new StaticText(line, rect_t{}, STR_DEAD_ZONE);
-  auto dz = new Choice(line, rect_t{}, 0, 7,
+  new StaticText(this, {0, S_Y(max_sticks) + yo + PAD_MEDIUM}, STR_DEAD_ZONE);
+  auto dz = new Choice(this, {S_INV_X, S_Y(max_sticks) + yo}, 0, 7,
                        GET_SET_DEFAULT(g_eeGeneral.stickDeadZone));
   dz->setTextHandler([](uint8_t value) {
     return std::to_string(value ? 2 << (value - 1) : 0);
@@ -83,7 +92,7 @@ HWSticks::HWSticks(Window* parent) : Window(parent, rect_t{})
 }
 
 HWPots::HWPots(Window* parent) :
-    Window(parent, rect_t{0, 0, LV_PCT(100), LV_SIZE_CONTENT})
+    Window(parent, {0, 0, LV_PCT(100), LV_SIZE_CONTENT})
 {
   padAll(PAD_TINY);
 
@@ -111,15 +120,14 @@ HWPots::HWPots(Window* parent) :
     // #if !defined(SIMU) && defined(RADIO_FAMILY_T16)
     //     if (!globalData.flyskygimbals && (i >= (NUM_POTS - 2))) continue;
     // #endif
-    new StaticText(this,
-                   rect_t{0, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, 0},
+    new StaticText(this, {0, P_Y(i) + yo + PAD_MEDIUM, P_LBL_W, 0},
                    adcGetInputLabel(ADC_INPUT_FLEX, i));
 
     new HWInputEdit(this, (char*)analogGetCustomLabel(ADC_INPUT_FLEX, i),
                     LEN_ANA_NAME, P_NM_X, P_Y(i) + yo);
 
     auto pot = new Choice(
-        this, rect_t{P_TYP_X, P_Y(i) + P_OFST_Y + yo, P_TYP_W, 0},
+        this, {P_TYP_X, P_Y(i) + P_OFST_Y + yo, P_TYP_W, 0},
         STR_POTTYPES, FLEX_NONE, FLEX_SWITCH,
         [=]() -> int { return getPotType(i); },
         [=](int newValue) {
@@ -136,7 +144,7 @@ HWPots::HWPots(Window* parent) :
     pot->setAvailableHandler([=](int val) { return isPotTypeAvailable(val); });
 
     auto tgl = new ToggleSwitch(
-          this, rect_t{P_INV_X, P_Y(i) + yo, P_INV_W, 0},
+          this, {P_INV_X, P_Y(i) + yo, P_INV_W, 0},
           [=]() -> uint8_t { return (uint8_t)getPotInversion(i); },
           [=](int8_t newValue) {
             setPotInversion(i, newValue);
@@ -155,7 +163,7 @@ class SwitchDynamicLabel : public StaticText
 {
  public:
   SwitchDynamicLabel(Window* parent, uint8_t index, coord_t x, coord_t y, coord_t w) :
-      StaticText(parent, rect_t{x, y, w, 0}, ""),
+      StaticText(parent, {x, y, w, 0}, ""),
       index(index)
   {
     checkEvents();

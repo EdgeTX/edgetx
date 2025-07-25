@@ -235,6 +235,7 @@
 #endif
 
 #if defined(PCBFRSKY)
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENT]"
 #elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[ДАЛЕЕ]"
@@ -275,6 +276,7 @@
 #define TR_TIMER                       TR("Таймер", "Таймер ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Старт"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("расш лимит", "Расш лимит")
 #define TR_ETRIMS                      TR("Расш трим", "Расш тримы")
 #define TR_TRIMINC                     "Шаг трима"
@@ -424,12 +426,7 @@
 #define TR_CALIBRATION                 "Калибровка"
 #define TR_VTRIM                       "Трим - +"
 #define TR_CALIB_DONE                  "Калибровка заверш"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Наж [Enter] для прод"
-  #define TR_SETMIDPOINT               "Выставить по центру стики/потенц/слайдеры и нажать [Enter]"
-  #define TR_MOVESTICKSPOTS            "Перемещ стики/потенц/слайдеры и нажать [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " СТАРТ"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "ЦЕНТР СТИКИ/СЛАЙДЕРЫ"
   #define TR_MOVESTICKSPOTS            "Перемещ СТИКИ/ПОТЕНЦ"
 #else
@@ -442,8 +439,10 @@
   #define TR_MOVESTICKSPOTS            "ДВИГ СТИКИ/ПОТЕНЦ"
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " ПО ОКОНЧАНИЮ"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "НЕТ ДАННЫХ"
 #define TR_US                          "US"
