@@ -51,6 +51,10 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
+if [ "$(uname)" = "Linux" ] && [ -n "$GITHUB_ACTIONS" ]; then
+  MAX_JOBS=3
+fi
+
 rm -rf build && mkdir build && cd build
 
 # Function to output error logs (works in both GitHub Actions and terminal)
@@ -87,7 +91,7 @@ run_pipeline() {
     local log_file="${2:-/dev/null}"
     local context="$3"
     local show_details="${4:-false}"
-    local cmake_opts="--parallel ${QUIET_FLAGS}"
+    local cmake_opts="--parallel ${MAX_JOBS} ${QUIET_FLAGS}"
     
     case "$pipeline_type" in
         "plugin")
