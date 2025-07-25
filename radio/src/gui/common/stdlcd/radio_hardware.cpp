@@ -138,7 +138,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   for (int i = ITEM_RADIO_HARDWARE_STICK; i <= ITEM_RADIO_HARDWARE_STICK_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_STICK;
-    tab[i] = idx < max_sticks ? 0 : HIDDEN_ROW;
+    tab[i] = idx < max_sticks ? 1 : HIDDEN_ROW;
   }
 
   auto max_pots = adcGetMaxInputs(ADC_INPUT_FLEX);
@@ -480,13 +480,13 @@ void menuRadioHardware(event_t event)
       default:
         if (k <= ITEM_RADIO_HARDWARE_STICK_END) {
           // Sticks
-          LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
           int idx = k - ITEM_RADIO_HARDWARE_STICK;
 
+          LcdFlags flags = menuHorizontalPosition == 0 ? attr : 0;
           editStickHardwareSettings(HW_SETTINGS_COLUMN1, y,
-                                    idx, event, attr, old_editMode);
+                                    idx, event, flags, old_editMode);
           // ADC inversion
-          flags = menuHorizontalPosition == 2 ? attr : 0;
+          flags = menuHorizontalPosition == 1 ? attr : 0;
           bool stickinversion = getStickInversion(idx);
           lcdDrawChar(LCD_W - 8, y, stickinversion ? 127 : 126, flags);
           if (flags & (~RIGHT)) stickinversion = checkIncDec(event, stickinversion, 0, 1, EE_GENERAL);

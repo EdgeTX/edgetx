@@ -443,7 +443,7 @@ void getADC()
     }
 
     // 2nd: apply inversion
-    if (x < pot_offset && getStickInversion(x)) {
+    if (x < pot_offset && getStickInversion(inputMappingConvertMode(x))) {
       v = 4 * RESX - v;
     }
 
