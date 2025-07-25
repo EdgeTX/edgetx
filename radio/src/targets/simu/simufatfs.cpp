@@ -400,20 +400,6 @@ struct _simu_DIR {
     if (ec) {
       iter = end_iter;  // Set to end if error
     }
-    skipDotEntries(); // TODO: check if necessary
-  }
-
- private:
-  void skipDotEntries()
-  {
-    while (iter != end_iter) {
-      std::string filename = iter->path().filename().string();
-      if (filename != "." && filename != "..") {
-        break;
-      }
-      std::error_code ec;
-      ++iter;
-    }
   }
 
  public:
@@ -428,7 +414,6 @@ struct _simu_DIR {
     auto current = *iter;
     std::error_code ec;
     ++iter;
-    skipDotEntries();
 
     return current;
   }
