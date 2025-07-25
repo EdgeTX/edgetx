@@ -46,7 +46,7 @@ endif()
 
 if(TARGET SDL2::SDL2)
   add_definitions(-DUSE_SDL)
-  set(SDL2_LIBRARIES SDL2:SDL2)
+  set(SDL2_LIBRARIES SDL2::SDL2)
 endif()
 
 add_definitions(${APP_COMMON_DEFINES})  # set in top-level CMakeLists
@@ -264,10 +264,21 @@ if(WIN32)
   set(icon_RC images/winicons/icon.rc)
 endif()
 
-add_executable(${COMPANION_NAME}
-               MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${companion_SRCS} ${companion_HDRS} ${icon_RC})
-target_link_libraries(${COMPANION_NAME}
-                      PRIVATE ${CPN_COMMON_LIB} generaledit modeledit qcustomplot miniz updates)
+add_executable(${COMPANION_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE}
+  ${companion_SRCS}
+  ${companion_HDRS}
+  ${icon_RC}
+)
+
+target_link_libraries(${COMPANION_NAME} PRIVATE
+  ${CPN_COMMON_LIB}
+  ${SDL2_LIBRARIES}
+  generaledit
+  modeledit
+  qcustomplot
+  miniz
+  updates
+)
 
 PrintTargetReport("${COMPANION_NAME}")
 
@@ -275,10 +286,15 @@ PrintTargetReport("${COMPANION_NAME}")
 
 set(simu_SRCS simulator.cpp )
 
-add_executable(${SIMULATOR_NAME}
-               MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE} ${simu_SRCS} ${icon_RC})
-target_link_libraries(${SIMULATOR_NAME}
-                      PRIVATE ${CPN_COMMON_LIB})
+add_executable(${SIMULATOR_NAME} MACOSX_BUNDLE ${WIN_EXECUTABLE_TYPE}
+  ${simu_SRCS}
+  ${icon_RC}
+)
+
+target_link_libraries(${SIMULATOR_NAME} PRIVATE
+  ${CPN_COMMON_LIB}
+  ${SDL2_LIBRARIES}
+)
 
 add_subdirectory(tests)
 
