@@ -44,12 +44,9 @@ if(WIN32)
   endif()
 endif()
 
-if(SDL2_FOUND)
-  include_directories(${SDL2_INCLUDE_DIRS})
+if(TARGET SDL2::SDL2)
   add_definitions(-DJOYSTICKS -DSIMU_AUDIO)
-  if(TARGET SDL2::SDL2)
-    set(SDL2_LIBRARIES SDL2::SDL2)
-  endif()
+  set(SDL2_LIBRARIES SDL2:SDL2)
 endif()
 
 add_definitions(${APP_COMMON_DEFINES})  # set in top-level CMakeLists
@@ -450,10 +447,14 @@ elseif(WIN32)
     endif()
   endif(OPENSSL_FOUND)
 
-  if(SDL2_FOUND AND DEFINED SDL2_LIB_PATH)
-    install(FILES "${SDL2_LIB_PATH}"
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-            COMPONENT Runtime)
+  if(TARGET SDL2::SDL2)
+    # Get the SDL2 DLL location
+    get_target_property(SDL2_DLL_PATH SDL2::SDL2 IMPORTED_LOCATION)
+    if(SDL2_DLL_PATH)
+      install(FILES "${SDL2_DLL_PATH}"
+              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+              COMPONENT Runtime)
+    endif()
   endif()
 
 elseif(APPLE)
