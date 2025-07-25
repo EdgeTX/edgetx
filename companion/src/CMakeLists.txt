@@ -546,7 +546,6 @@ if(WIN32)
         EXECUTABLE ${companion_executable_path}
         ADDITIONAL_EXECUTABLES ${simulator_executable_path}
         NO_TRANSLATIONS
-        NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
         VERBOSE
       )
