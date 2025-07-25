@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace fs = std::filesystem;
@@ -200,22 +201,17 @@ FRESULT file_stat(const std::string& realPath, FILINFO* fno)
     // Get last write time
     auto ftime = fs::last_write_time(fsPath, ec);
     if (!ec) {
-      try {
-        auto systime = ftime_to_systime(ftime);
-        auto time_t_val = std::chrono::system_clock::to_time_t(systime);
-        struct tm* ltime = localtime(&time_t_val);
+      auto systime = ftime_to_systime(ftime);
+      auto time_t_val = std::chrono::system_clock::to_time_t(systime);
+      struct tm* ltime = localtime(&time_t_val);
 
-        if (ltime) {
-          // Convert to FatFs format
-          fno->fdate = ((ltime->tm_year - 80) << 9) |
-                       ((ltime->tm_mon + 1) << 5) | ltime->tm_mday;
-          fno->ftime = (ltime->tm_hour << 11) | (ltime->tm_min << 5) |
-                       (ltime->tm_sec / 2);
-        } else {
-          fno->fdate = 0;
-          fno->ftime = 0;
-        }
-      } catch (...) {
+      if (ltime) {
+        // Convert to FatFs format
+        fno->fdate = ((ltime->tm_year - 80) << 9) | ((ltime->tm_mon + 1) << 5) |
+                     ltime->tm_mday;
+        fno->ftime =
+            (ltime->tm_hour << 11) | (ltime->tm_min << 5) | (ltime->tm_sec / 2);
+      } else {
         fno->fdate = 0;
         fno->ftime = 0;
       }
@@ -286,16 +282,12 @@ FRESULT f_open(FIL* fil, const TCHAR* name, BYTE flag)
     }
   }
 
-  try {
-    auto simuFil = new _simu_FIL(realPath, mode);
-    if (simuFil->stream->is_open()) {
-      fil->obj.fs = reinterpret_cast<FATFS*>(simuFil);
-      return FR_OK;
-    } else {
-      delete simuFil;
-      return FR_INVALID_NAME;
-    }
-  } catch (...) {
+  auto simuFil = new _simu_FIL(realPath, mode);
+  if (simuFil->stream->is_open()) {
+    fil->obj.fs = reinterpret_cast<FATFS*>(simuFil);
+    return FR_OK;
+  } else {
+    delete simuFil;
     return FR_INVALID_NAME;
   }
 }
@@ -426,10 +418,10 @@ struct _simu_DIR {
  public:
   bool hasNext() const { return iter != end_iter; }
 
-  fs::directory_entry getNext()
+  std::optional<fs::directory_entry> getNext()
   {
     if (iter == end_iter) {
-      throw std::runtime_error("No more entries");
+      return std::nullopt;
     }
 
     auto current = *iter;
@@ -451,13 +443,8 @@ FRESULT f_opendir(DIR* rep, const TCHAR* name)
     return FR_NO_PATH;
   }
 
-  try {
-    rep->obj.fs = reinterpret_cast<FATFS*>(new _simu_DIR(path));
-    return FR_OK;
-  } catch (...) {
-    rep->obj.fs = nullptr;
-    return FR_NO_PATH;
-  }
+  rep->obj.fs = reinterpret_cast<FATFS*>(new _simu_DIR(path));
+  return FR_OK;
 }
 
 FRESULT f_closedir(DIR* rep)
@@ -478,24 +465,24 @@ FRESULT f_readdir(DIR* rep, FILINFO* fil)
     return FR_NO_FILE;
   }
 
-  try {
-    auto entry = sd->getNext();
-
-    if (fil != nullptr) {
-      memset(fil->fname, 0, FF_MAX_LFN);
-
-      std::string filename = entry.path().filename().string();
-      size_t copyLen = std::min(filename.length(), size_t(FF_MAX_LFN - 1));
-      strncpy(fil->fname, filename.c_str(), copyLen);
-
-      std::string fullPath = entry.path().string();
-      return file_stat(fullPath, fil);
-    }
-
-    return FR_OK;
-  } catch (...) {
+  auto maybe_entry = sd->getNext();
+  if (!maybe_entry.has_value()) {
     return FR_NO_FILE;
   }
+
+  auto entry = maybe_entry.value();
+  if (fil != nullptr) {
+    memset(fil->fname, 0, FF_MAX_LFN);
+
+    std::string filename = entry.path().filename().string();
+    size_t copyLen = std::min(filename.length(), size_t(FF_MAX_LFN - 1));
+    strncpy(fil->fname, filename.c_str(), copyLen);
+
+    std::string fullPath = entry.path().string();
+    return file_stat(fullPath, fil);
+  }
+
+  return FR_OK;
 }
 
 FRESULT f_mkfs(const TCHAR* path, BYTE opt, DWORD au, void* work, UINT len)
