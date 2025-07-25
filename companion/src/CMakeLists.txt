@@ -141,10 +141,11 @@ set(HWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_hwdefs_qrc.py")
 
 # qrc used by Companion and Simulator
 add_custom_command(OUTPUT ${HWDEFS_QRC}
-  COMMAND ${HWDEFS_CMD} -d ${HWDEFS_DIR}
-                        -t ${HWDEFS_TMPL}
-                        -p ${HWDEFS_PHDR}
-                        -o ${HWDEFS_QRC}
+  COMMAND ${PYTHON_EXECUTABLE} ${HWDEFS_CMD}
+      -d ${HWDEFS_DIR}
+      -t ${HWDEFS_TMPL}
+      -p ${HWDEFS_PHDR}
+      -o ${HWDEFS_QRC}
   DEPENDS ${HWDEFS_TMPL}
 )
 
