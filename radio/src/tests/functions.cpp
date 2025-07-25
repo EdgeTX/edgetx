@@ -21,7 +21,7 @@
 
 #include "gtests.h"
 
-class SpecialFunctionsTest : public OpenTxTest {};
+class SpecialFunctionsTest : public EdgeTxTest {};
 
 TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 {
@@ -38,22 +38,27 @@ TEST_F(SpecialFunctionsTest, SwitchFiledSize)
 
 TEST_F(SpecialFunctionsTest, FlightReset)
 {
-  g_model.customFn[0].swtch = SWSRC_FIRST_SWITCH;
+  int sw;
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
+      break;
+  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
+
+  g_model.customFn[0].swtch = swPos;
   g_model.customFn[0].func = FUNC_RESET;
   g_model.customFn[0].all.val = FUNC_RESET_FLIGHT;
   g_model.customFn[0].active = true;
 
-
   mainRequestFlags = 0;
-  simuSetSwitch(0, 0);
-  EXPECT_EQ(false, getSwitch(SWSRC_FIRST_SWITCH));
+  simuSetSwitch(sw, 0);
+  EXPECT_EQ(false, getSwitch(swPos));
 
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ((bool)(mainRequestFlags & (1 << REQUEST_FLIGHT_RESET)), false);
 
   // now trigger SA0
-  simuSetSwitch(0, -1);
-  EXPECT_EQ(true, getSwitch(SWSRC_FIRST_SWITCH));
+  simuSetSwitch(sw, -1);
+  EXPECT_EQ(true, getSwitch(swPos));
 
   // flightReset() should be called
   evalFunctions(g_model.customFn, modelFunctionsContext);
@@ -68,9 +73,15 @@ TEST_F(SpecialFunctionsTest, FlightReset)
 #if defined(GVARS)
 TEST_F(SpecialFunctionsTest, GvarsInc)
 {
-  simuSetSwitch(0, 0);    // SA-
+  int sw;
+  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
+    if (g_model.getSwitchType(sw) == SWITCH_3POS)
+      break;
+  int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
 
-  g_model.customFn[0].swtch = SWSRC_FIRST_SWITCH;
+  simuSetSwitch(sw, 0);    // SA-
+
+  g_model.customFn[0].swtch = swPos;
   g_model.customFn[0].func = FUNC_ADJUST_GVAR;
   g_model.customFn[0].all.mode = FUNC_ADJUST_GVAR_INCDEC;
   g_model.customFn[0].all.param = 0; // GV1
@@ -82,39 +93,39 @@ TEST_F(SpecialFunctionsTest, GvarsInc)
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 10);
 
   // now trigger SA0
-  simuSetSwitch(0, -1);  // SAdown
+  simuSetSwitch(sw, -1);  // SAdown
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 9);
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 9);
 
-  simuSetSwitch(0, 0);    // SA-
+  simuSetSwitch(sw, 0);    // SA-
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 9);
 
-  simuSetSwitch(0, -1);  // SAdown
+  simuSetSwitch(sw, -1);  // SAdown
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 8);
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 8);
 
-  simuSetSwitch(0, 0);    // SA-
+  simuSetSwitch(sw, 0);    // SA-
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 8);
 
   g_model.customFn[0].all.val = 10;   // inc/dec value
  
-  simuSetSwitch(0, -1);  // SAdown
+  simuSetSwitch(sw, -1);  // SAdown
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 18);
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 18);
 
-  simuSetSwitch(0, 0);    // SA-
+  simuSetSwitch(sw, 0);    // SA-
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 18);
 
-  simuSetSwitch(0, -1);  // SAdown
+  simuSetSwitch(sw, -1);  // SAdown
   evalFunctions(g_model.customFn, modelFunctionsContext);
   EXPECT_EQ(g_model.flightModeData[0].gvars[0], 28);
   evalFunctions(g_model.customFn, modelFunctionsContext);

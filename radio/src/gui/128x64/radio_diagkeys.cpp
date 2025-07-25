@@ -65,21 +65,41 @@ void menuRadioDiagFS(event_t event)
   constexpr coord_t FS_3RD_COLUMN = 100;
 #endif
   SIMPLE_SUBMENU(STR_MENU_FSWITCH, 1);
+
   lcdDrawText(FS_1ST_COLUMN, MENU_HEADER_HEIGHT + 1, "Phys");
   lcdDrawText(FS_2ND_COLUMN, MENU_HEADER_HEIGHT + 1, "Log");
   lcdDrawText(FS_3RD_COLUMN, MENU_HEADER_HEIGHT + 1, "Led");
 
-  for(uint8_t i=0; i < NUM_FUNCTIONS_SWITCHES; i++) {
-    coord_t y = 2*FH + i*FH + 1;
-    lcdDrawTextIndented(y, STR_CHAR_SWITCH);
-    lcdDrawText(lcdNextPos, y, switchGetName(i+switchGetMaxSwitches()), 0);
-    lcdDrawText(FS_1ST_COLUMN + 7, y, getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
-    lcdDrawText(FS_2ND_COLUMN + 5, y, getFSLogicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
+  static uint8_t nxtSw = 0;
+  static uint8_t ofst = 0;
+
+  if (event == EVT_ENTRY)
+    ofst = 0;
+
+  for(uint8_t i=ofst, r=0; i < switchGetMaxSwitches(); i++) {
+    if (switchIsCustomSwitch(i)) {
+      if (r < 6) {
+        uint8_t sw = switchGetCustomSwitchIdx(i);
+        coord_t y = 2*FH + r*FH + 1;
+        lcdDrawTextIndented(y, STR_CHAR_SWITCH);
+        lcdDrawText(lcdNextPos, y, switchGetDefaultName(i));
+        lcdDrawText(FS_1ST_COLUMN + 7, y, getFSPhysicalState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
+        lcdDrawText(FS_2ND_COLUMN + 5, y, g_model.cfsState(i) ? STR_CHAR_DOWN : STR_CHAR_UP);
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
-    lcdDrawText(FS_3RD_COLUMN, y, STR_FS_COLOR_LIST[getRGBColorIndex(fsGetLedRGB(i))], 0);
+        lcdDrawText(FS_3RD_COLUMN, y, STR_FS_COLOR_LIST[getRGBColorIndex(rgbGetLedColor(sw))], 0);
 #else
-    lcdDrawText(FS_3RD_COLUMN, y, STR_OFFON[fsLedState(i)]);
+        lcdDrawText(FS_3RD_COLUMN, y, STR_OFFON[fsLedState(sw)]);
 #endif
+        r += 1;
+      } else {
+        nxtSw = i;
+        break;
+      }
+    }
+  }
+
+  if (nxtSw > 6 && event == EVT_KEY_BREAK(KEY_PAGEDN)) {
+    if (ofst == 0) ofst = nxtSw; else ofst = 0;
   }
 }
 #endif
@@ -93,6 +113,8 @@ void menuRadioDiagKeys(event_t event)
     lcdDrawText(14*FW, 1, STR_VTRIM, INVERS);
     trim_yo = MENU_HEADER_HEIGHT + 1;
   }
+  uint8_t sw_y = MENU_HEADER_HEIGHT + 1;
+  uint8_t sw_x = 8 * FW - 9;
 
   for (uint8_t i = 0; i < 16; i++) {
     coord_t y;
@@ -131,13 +153,18 @@ void menuRadioDiagKeys(event_t event)
       }
     }
 
-    if (i < switchGetMaxSwitches()) {
-      if (SWITCH_EXISTS(i)) {
-        y = (i > 4) ? FH * (i - 4) + 1 : MENU_HEADER_HEIGHT + FH * i + 1;
+    if (i < switchGetMaxAllSwitches()) {
+      if (SWITCH_EXISTS(i) && !switchIsCustomSwitch(i)) {
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + i);
         getvalue_t sw =
             ((val < 0) ? 3 * i + 1 : ((val == 0) ? 3 * i + 2 : 3 * i + 3));
-        drawSwitch(i > 4 ? 11 * FW - 5 : 8 * FW - 9, y, sw, 0, false);
+        drawSwitch(sw_x, sw_y, sw, 0, false);
+        if (i == 5) {
+          sw_x = 11 * FW - 5;
+          sw_y = MENU_HEADER_HEIGHT + 1;
+        } else {
+          sw_y += FH;
+        }
       }
     }
   }

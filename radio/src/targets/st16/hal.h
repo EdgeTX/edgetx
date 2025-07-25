@@ -79,12 +79,30 @@
 
 
 // function switches
-#define FUNCTION_SWITCH_1               I2C
-#define FUNCTION_SWITCH_2               I2C
-#define FUNCTION_SWITCH_3               I2C
-#define FUNCTION_SWITCH_4               I2C
-#define FUNCTION_SWITCH_5               I2C
-#define FUNCTION_SWITCH_6               I2C
+#define FUNCTION_SWITCH_1               SK
+#define SWITCHES_GPIO_REG_K
+#define SWITCHES_GPIO_PIN_K             PCA95XX_PIN_0
+#define SWITCHES_K_CFS_IDX              0
+#define FUNCTION_SWITCH_2               SL
+#define SWITCHES_GPIO_REG_L
+#define SWITCHES_GPIO_PIN_L             PCA95XX_PIN_1
+#define SWITCHES_L_CFS_IDX              1
+#define FUNCTION_SWITCH_3               SM
+#define SWITCHES_GPIO_REG_M
+#define SWITCHES_GPIO_PIN_M             PCA95XX_PIN_2
+#define SWITCHES_M_CFS_IDX              2
+#define FUNCTION_SWITCH_4               SN
+#define SWITCHES_GPIO_REG_N
+#define SWITCHES_GPIO_PIN_N             PCA95XX_PIN_3
+#define SWITCHES_N_CFS_IDX              3
+#define FUNCTION_SWITCH_5               SO
+#define SWITCHES_GPIO_REG_O
+#define SWITCHES_GPIO_PIN_O             PCA95XX_PIN_4
+#define SWITCHES_O_CFS_IDX              4
+#define FUNCTION_SWITCH_6               SP
+#define SWITCHES_GPIO_REG_P
+#define SWITCHES_GPIO_PIN_P             PCA95XX_PIN_5
+#define SWITCHES_P_CFS_IDX              5
 
 // Direct switches
 
@@ -92,15 +110,15 @@
 #define STORAGE_SWITCH_G
 #define HARDWARE_SWITCH_G
 #define SWITCHES_G_2POS
-//#define SWITCHES_GPIO_REG_G           GPIOI
-//#define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_3  // PI.03
+#define SWITCHES_GPIO_REG_G
+#define SWITCHES_GPIO_PIN_G             PCA95XX_PIN_6
 
 // Key 2
 #define STORAGE_SWITCH_H
 #define HARDWARE_SWITCH_H
 #define SWITCHES_H_2POS
-//#define SWITCHES_GPIO_REG_H           GPIOI
-//#define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_11 // PI.11
+#define SWITCHES_GPIO_REG_H
+#define SWITCHES_GPIO_PIN_H             PCA95XX_PIN_7
 
 
 // Key 3
@@ -402,7 +420,11 @@
 
 // LED Strip
 #define LED_STRIP_LENGTH                  24
-#define LED_STRIP_RESERVED_AT_END         12
+#define BLING_LED_STRIP_START             0
+#define BLING_LED_STRIP_LENGTH            12
+#define CFS_LED_STRIP_START               12
+#define CFS_LED_STRIP_LENGTH              12
+#define CFS_LEDS_PER_SWITCH               2
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 15)  // PA.15 / TIM2_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
 #define LED_STRIP_TIMER                   TIM2

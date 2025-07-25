@@ -315,6 +315,12 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       else
         return getCapability(board, Board::Switches);
 
+    case FunctionSwitchGroups:
+      if (getCapability(board, FunctionSwitches)) {
+        return IS_RADIOMASTER_GX12(board) ? 4 : 3;
+      }
+      return 0;
+
     case HasAudioMuteGPIO:
       // All color lcd (including NV14 and EL18) except Horus X12S
       // TX12, TX12MK2, ZORRO, BOXER, T8, TLITE, TPRO, LR3PRO, COMMANDO8
@@ -406,7 +412,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return IS_RADIOMASTER_MT12(board);
 
     case FunctionSwitchColors:
-      return IS_RADIOMASTER_GX12(board);
+      return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board);
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -679,6 +685,8 @@ QString Boards::switchTypeToString(int value)
       return tr("2 Positions");
     case SWITCH_3POS:
       return tr("3 Positions");
+    case SWITCH_GLOBAL:
+      return tr("Global");
     case SWITCH_FUNC:
       return tr("Function");
     default:
@@ -692,7 +700,7 @@ AbstractStaticItemModel * Boards::switchTypeItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_BOARDS_SWITCH_TYPE);
 
-  for (int i = 0; i < SWITCH_FUNC; i++) { // Function not required in lists
+  for (int i = 0; i < SWITCH_GLOBAL; i++) { // Function not required in lists
     mdl->appendToItemList(switchTypeToString(i), i, true, 0,
                           (i == SWITCH_NOT_AVAILABLE ? SwitchTypeFlagNone : (i < SWITCH_3POS ? SwitchTypeFlag2Pos : SwitchTypeFlag3Pos)));
   }
@@ -1046,6 +1054,16 @@ int Boards::getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type 
   return getBoardJson(board)->getSwitchIndex(val, lvt);
 }
 
+int Boards::getCFSIndexForSwitch(int swIdx, Board::Type board)
+{
+  return getBoardJson(board)->getCFSIndexForSwitch(swIdx);
+}
+
+int Boards::getSwitchIndexForCFS(int cfsIdx, Board::Type board)
+{
+  return getBoardJson(board)->getSwitchIndexForCFS(cfsIdx);
+}
+    
 QString Boards::getSwitchName(int index, Board::Type board)
 {
   return getBoardJson(board)->getSwitchName(index);

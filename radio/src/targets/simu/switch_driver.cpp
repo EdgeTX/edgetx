@@ -29,17 +29,22 @@
 #include <string.h>
 
 struct hw_switch_def {
-  const char*  name;
-  SwitchHwType type;
+  const char*   name;
+  SwitchHwType  type;
+  SwitchConfig  defaultType;
+#if defined(FUNCTION_SWITCHES)
+  bool          isCustomSwitch;
+  uint8_t       customSwitchIdx;
+#endif
 };
 
 #include "simu_switches.inc"
 
-int8_t switchesStates[MAX_SWITCHES] = { 0 };
+int8_t switchesStates[MAX_SWITCHES];
 
 void simuSetSwitch(uint8_t swtch, int8_t state)
 {
-  assert(swtch < switchGetMaxSwitches() + switchGetMaxFctSwitches());
+  assert(swtch < switchGetMaxAllSwitches());
   switchesStates[swtch] = state;
 }
 
@@ -47,34 +52,8 @@ void boardInitSwitches() {
   memset(switchesStates, -1, sizeof(switchesStates));
 }
 
-static uint8_t get_switch_index(uint8_t cat, uint8_t idx)
+SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
-  switch(cat) {
-  case SWITCH_PHYSICAL:
-    assert(idx < n_switches);
-    return idx;
-
-  case SWITCH_FUNCTION:
-    assert(idx < n_fct_switches);
-    return idx + n_switches;
-
-  default:
-    assert(0);
-    return 0;
-  }  
-}
-
-SwitchHwPos boardSwitchGetPosition(SwitchCategory cat, uint8_t idx)
-{
-  idx = get_switch_index(cat, idx);
-
-#if defined(FUNCTION_SWITCHES)
-  if (IS_SWITCH_FS(idx)) {
-    if (bfSingleBitGet(functionSwitchFunctionState, idx - n_switches))
-      return SWITCH_HW_DOWN;
-  }
-#endif
-
   if (switchesStates[idx] < 0)
     return SWITCH_HW_UP;
   else if (switchesStates[idx] == 0)
@@ -83,26 +62,30 @@ SwitchHwPos boardSwitchGetPosition(SwitchCategory cat, uint8_t idx)
     return SWITCH_HW_DOWN;
 }
 
-const char* boardSwitchGetName(SwitchCategory cat, uint8_t idx)
+const char* boardSwitchGetName(uint8_t idx)
 {
-  idx = get_switch_index(cat, idx);
   return _switch_defs[idx].name;
 }
 
-SwitchHwType boardSwitchGetType(SwitchCategory cat, uint8_t idx)
+SwitchHwType boardSwitchGetType(uint8_t idx)
 {
-  idx = get_switch_index(cat, idx);
   return _switch_defs[idx].type;
 }
 
 uint8_t boardGetMaxSwitches() { return n_switches; }
-uint8_t boardGetMaxFctSwitches() { return n_fct_switches; }
 
-swconfig_t boardSwitchGetDefaultConfig() { return _switch_default_config; }
+SwitchConfig boardSwitchGetDefaultConfig(uint8_t idx) { return _switch_defs[idx].defaultType; }
 
+#if defined(FUNCTION_SWITCHES)
+bool boardIsCustomSwitch(uint8_t idx) { return _switch_defs[idx].isCustomSwitch; }
+uint8_t boardGetCustomSwitchIdx(uint8_t idx) { return _switch_defs[idx].customSwitchIdx; }
+#endif
+
+#if !defined(COLORLCD)
 switch_display_pos_t switchGetDisplayPosition(uint8_t idx)
 {
   if (idx >= DIM(_switch_display)) return {0, 0};
 
   return _switch_display[idx];
 }
+#endif
