@@ -190,7 +190,7 @@ static void processMultiScannerPacket(const uint8_t *data, const uint8_t moduleI
           reusableBuffer.spectrumAnalyser.peak[x] = power;
         }
 #else
-      coord_t x = cur_channel/2 + 1;
+      coord_t x = cur_channel / 2 + 1;
       if (x < LCD_W) {
         reusableBuffer.spectrumAnalyser.bars[x] = power;
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
