@@ -10,14 +10,14 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Allow variable core usage
 # default uses all cpu cores
 #
-if [ -f /usr/bin/nproc ]; then
-    num_cpus=$(nproc)
-elif [ -f /usr/sbin/sysctl ]; then
-    num_cpus=$(sysctl -n hw.logicalcpu)
-else
-    num_cpus=2
-fi
-: "${CORES:=$num_cpus}"
+# if [ -f /usr/bin/nproc ]; then
+#     num_cpus=$(nproc)
+# elif [ -f /usr/sbin/sysctl ]; then
+#     num_cpus=$(sysctl -n hw.logicalcpu)
+# else
+#     num_cpus=2
+# fi
+# : "${CORES:=$num_cpus}"
 
 # If no build target, exit
 #: "${FLAVOR:=ALL}"
@@ -25,14 +25,14 @@ fi
 for i in "$@"
 do
 case $i in
-    --jobs=*)
-      CORES="${i#*=}"
-      shift
-      ;;
-    -j*)
-      CORES="${i#*j}"
-      shift
-      ;;
+    # --jobs=*)
+    #   CORES="${i#*=}"
+    #   shift
+    #   ;;
+    # -j*)
+    #   CORES="${i#*j}"
+    #   shift
+    #   ;;
     -Wno-error)
       WERROR=0
       shift
@@ -101,7 +101,7 @@ do
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
     cmake --build . --target arm-none-eabi-configure --parallel
-    cmake --build arm-none-eabi -j"${CORES}" --target ${FIRMARE_TARGET} --parallel
+    cmake --build arm-none-eabi --target ${FIRMARE_TARGET} --parallel
 
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 
