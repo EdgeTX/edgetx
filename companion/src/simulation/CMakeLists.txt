@@ -24,9 +24,8 @@ set(${PROJECT_NAME}_NAMES
   simulateduiwidgetGeneric
 )
 
-if(SDL2_FOUND)
-  set(${PROJECT_NAME}_NAMES
-    ${${PROJECT_NAME}_NAMES}
+if(TARGET SDL2::SDL2)
+  list(APPEND ${PROJECT_NAME}_NAMES
     joystick
     joystickdialog
   )
@@ -60,6 +59,10 @@ target_link_libraries(${PROJECT_NAME}
     ${CPN_COMMON_LIB}
     Qt::Svg
 )
+
+if(TARGET SDL2::SDL2)
+  target_link_libraries(${PROJECT_NAME} PUBLIC SDL2::SDL2)
+endif()
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE

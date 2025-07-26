@@ -5,21 +5,9 @@ if(NOT DISABLE_COMPANION)
   include(QtDefs)
 endif(NOT DISABLE_COMPANION)
 
-# this prevents FindSDL from appending SDLmain lib to the results, which we don't want
-set(SDL2_BUILDING_LIBRARY YES)
-find_package("SDL2")
-
-if(SDL2_FOUND)
-  # find_package("SDL2") does not set a variable holding the path to the location of the SDL2 shared library
-  find_file(SDL2_LIB_PATH
-            NAMES
-              libSDL2.so
-              SDL2.dll
-              SDL2.dylib
-            HINTS
-              "/usr/lib/x86_64-linux-gnu"
-              ${SDL2_LIBRARY_PATH})
-  message(STATUS "SDL2 Lib: ${SDL2_LIB_PATH} Libs: ${SDL2_LIBRARIES}; Headers: ${SDL2_INCLUDE_DIRS}")
+find_package(SDL2 QUIET COMPONENTS SDL2 CONFIG)
+if(TARGET SDL2::SDL2)
+  message(STATUS "SDL2 found")
 else()
   message(STATUS "SDL not found! Simulator audio, and joystick inputs, will not work.")
 endif()

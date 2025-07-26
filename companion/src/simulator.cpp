@@ -26,7 +26,8 @@
 #include <QString>
 #include <QTextStream>
 #include <QRegularExpression>
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
+
+#if defined(USE_SDL)
   #include <SDL.h>
   #undef main
 #endif
@@ -278,18 +279,11 @@ int main(int argc, char *argv[])
 
   Translations::installTranslators();
 
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
-  uint32_t sdlFlags = 0;
-  #ifdef JOYSTICKS
-    sdlFlags |= SDL_INIT_JOYSTICK;
-  #endif
-  #ifdef SIMU_AUDIO
-    sdlFlags |= SDL_INIT_AUDIO;
-  #endif
+#if defined(USE_SDL)
   #if defined(_WIN32) || defined(_WIN64)
   putenv("SDL_AUDIODRIVER=directsound");
   #endif
-  if (SDL_Init(sdlFlags) < 0) {
+  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) < 0) {
     showMessage(QApplication::translate("SimulatorMain", "WARNING: couldn't initialize SDL:\n%1").arg(SDL_GetError()), QMessageBox::Warning);
   }
 #endif
@@ -403,7 +397,7 @@ int finish(int exitCode)
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
 
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
+#if defined(USE_SDL)
   SDL_Quit();
 #endif
 
