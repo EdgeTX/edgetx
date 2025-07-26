@@ -430,7 +430,7 @@ uint8_t ibus_type[SES_NPT_NB_MAX_PORTS] = {SES_NPT_IBUS1_IN};
 void setIbusType(uint8_t* ibus_type_buf) 
 {
   for(uint8_t i = 0; i< SES_NPT_NB_MAX_PORTS; i++) {
-   if (ibus_type_buf[i] == afhds3::SES_NPT_IBUS2) {
+   if (ibus_type_buf[i] == afhds3::SES_NPT_IBUS2 || ibus_type_buf[i] == afhds3::SES_NPT_IBUS2_HUB_PORT) {
     ibus_type[i] = afhds3::SES_NPT_IBUS2;
    } else {
     ibus_type[i] = afhds3::SES_NPT_IBUS1_IN;
@@ -787,7 +787,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
             uint8_t ibus_version = SES_NPT_IBUS1_IN;
             for(uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
               // If ibus2 is configured, ignore ibus1.
-              if (ibus_type[i] == SES_NPT_IBUS2) {
+              if (ibus_type[i] == SES_NPT_IBUS2 || ibus_type[i] == SES_NPT_IBUS2_HUB_PORT) {
                 ibus_version = SES_NPT_IBUS2;
                 break;
               }
@@ -987,8 +987,26 @@ bool ProtoState::syncSettings()
   {
 //     TRACE("AFHDS3 [RX_CMD_PORT_TYPE_V1]");
     uint8_t data[] = { (uint8_t)(RX_CMD_PORT_TYPE_V1&0xFF), (uint8_t)((RX_CMD_PORT_TYPE_V1>>8)&0xFF), 4, 0, 0, 0, 0 };
-    std::memcpy(&data[3], &cfg->v1.NewPortTypes, SES_NPT_NB_MAX_PORTS);
     setIbusType(cfg->v1.NewPortTypes);
+    // If pure is upgraded from multiple ibus2 to ibus2 hub
+    uint8_t tempPortTypes[SES_NPT_NB_MAX_PORTS] = {0};
+    std::memcpy(tempPortTypes, cfg->v1.NewPortTypes, SES_NPT_NB_MAX_PORTS);
+
+    uint8_t ibus2Count = 0;
+    for (uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
+        if (tempPortTypes[i] == afhds3::SES_NPT_IBUS2) {
+            ibus2Count++;
+        }
+    }
+    if (ibus2Count >= 2) {
+        for (uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
+            if (tempPortTypes[i] == afhds3::SES_NPT_IBUS2) {
+                tempPortTypes[i] = afhds3::SES_NPT_IBUS2_HUB_PORT;
+            }
+        }
+    }
+    
+    std::memcpy(&data[3], tempPortTypes, SES_NPT_NB_MAX_PORTS);
     trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, data, sizeof(data));
     return true;
   }
