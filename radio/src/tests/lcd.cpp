@@ -24,11 +24,13 @@
 #include <assert.h>
 #include <gtest/gtest.h>
 
-#include "edgetx.h"
-#include "location.h"
-#include "targets/simu/simulcd.h"
-
 #if !defined(COLORLCD)
+#include "simpgmspace.h"
+#include "simulcd.h"
+
+#include "common/stdlcd/draw_functions.h"
+#include "dataconstants.h"
+#include "debug.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
@@ -48,7 +50,7 @@ static uint8_t _get_pixel(int x, int y)
 
   if (BPP == 1) {
     if (simuLcdBuf[x + (y / 8) * LCD_W] & (1 << (y % 8))) {
-      return 0; // TODO
+      return 0;
     }
     return 161;
   }
@@ -56,7 +58,7 @@ static uint8_t _get_pixel(int x, int y)
   if (BPP == 4) {
     pixel_t p = simuLcdBuf[y / 2 * LCD_W + x];
     uint8_t z = (y & 1) ? (p >> 4) : (p & 0x0F);
-    return 161 - ((uint16_t)z * 161) / 15; // TODO
+    return 161 - ((uint16_t)z * 161) / 15;
   }
 }
 
@@ -67,7 +69,7 @@ static uint8_t _get_ref_pixel(const uint8_t* data, int x, int y, int bpp)
 
 static void dumpImage(const std::string& filename)
 {
-  std::string fullpath = TESTS_PATH "/images/color/failed_" + filename;
+  std::string fullpath = simuFatfsGetRealPath("images/bw/failed_" + filename);
 
   TRACE("dumping image '%s'", fullpath.c_str());
 
@@ -99,7 +101,7 @@ bool checkScreenshot(const char* test)
   filename += 'x' + std::to_string(LCD_H);
   filename += ".png";
 
-  std::string fullpath = TESTS_PATH "/images/bw/" + filename;
+  std::string fullpath = simuFatfsGetRealPath("images/bw/" + filename);
 
   // Read data
   int32_t w, h, bpp;
@@ -350,7 +352,7 @@ TEST(Lcd, BMPWrapping)
 {
   lcdClear();
   uint8_t bitmap[2+40*40/2];
-  lcdLoadBitmap(bitmap, TESTS_PATH "/images/bw/plane.bmp", 40, 40);
+  lcdLoadBitmap(bitmap, "images/bw/plane.bmp", 40, 40);
   lcdDrawBitmap(200, 0, bitmap);
   lcdDrawBitmap(200, 60, bitmap);
   lcdDrawBitmap(240, 60, bitmap);     // x too big
@@ -419,31 +421,31 @@ TEST(Lcd, lcdDrawBitmapLoadAndDisplay)
   // Test proper BMP files, they should display correctly
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(7, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/4b_7x32.bmp", 7, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), "images/bw/4b_7x32.bmp", 7, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(10, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(6, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/1b_6x32.bmp", 6, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), "images/bw/1b_6x32.bmp", 6, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(20, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(31, 31));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/4b_31x31.bmp", 31, 31) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), "images/bw/4b_31x31.bmp", 31, 31) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(30, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(39, 32));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/1b_39x32.bmp", 39, 32) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), "images/bw/1b_39x32.bmp", 39, 32) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(70, 2, bitmap.buffer());
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(20, 20));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/4b_20x20.bmp", 20, 20) != NULL);
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), "images/bw/4b_20x20.bmp", 20, 20) != NULL);
     bitmap.leakCheck();
     lcdDrawBitmap(120, 2, bitmap.buffer());
   }
@@ -457,7 +459,7 @@ TEST(Lcd, lcdDrawBitmapLoadAndDisplay)
   }
   {
     TestBuffer<1000>  bitmap(BITMAP_BUFFER_SIZE(10, 10));
-    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), TESTS_PATH "/images/bw/1b_39x32.bmp", 10, 10) == NULL) << "to small buffer";
+    EXPECT_TRUE(lcdLoadBitmap(bitmap.buffer(), "images/bw/1b_39x32.bmp", 10, 10) == NULL) << "to small buffer";
     bitmap.leakCheck();
   }
 }
