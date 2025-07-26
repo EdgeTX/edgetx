@@ -118,6 +118,13 @@ PWMfrequencyChoice::PWMfrequencyChoice(Window* parent, uint8_t moduleIdx ) :
   num_edit->show(pwmvalue_type == 2);  
 }
 
+uint8_t GetDisplayPortType(uint8_t NP) {
+  if (NP == afhds3::SES_NPT_IBUS2_HUB_PORT) 
+    return afhds3::SES_NPT_IBUS2;
+  else 
+    return NP;
+}
+
 AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 {
   cfg = afhds3::getConfig(moduleIdx);
@@ -192,7 +199,7 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
       new StaticText(line, rect_t{}, portName.c_str());
       new Choice(line, rect_t{}, _v1_bus_types, afhds3::SES_NPT_PWM,
                  afhds3::SES_NPT_IBUS2,
-                 GET_DEFAULT(vCfg->NewPortTypes[i]),
+                 GET_DEFAULT(GetDisplayPortType(vCfg->NewPortTypes[i])),
                  [=](int32_t newValue) {
                   if(!newValue)
                   {
@@ -201,14 +208,39 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                   }
                   else {
                     uint8_t j = 0;
-                    for ( j = 0; j < SES_NPT_NB_MAX_PORTS; j++) {
-                      if ( vCfg->NewPortTypes[j]== newValue && i != j  && newValue != afhds3::SES_NPT_IBUS2)
-                        break;
+                    bool isNewValueIBUS2 = (newValue == afhds3::SES_NPT_IBUS2 || newValue == afhds3::SES_NPT_IBUS2_HUB_PORT);
+                    bool isNewValueIBUS1 = (newValue == afhds3::SES_NPT_IBUS1_IN || newValue == afhds3::SES_NPT_IBUS1_OUT);
+                    bool conflict = false;
+                    for (j = 0; j < SES_NPT_NB_MAX_PORTS; j++) {
+                        if (j == i) continue;
+                        
+                        uint8_t existingType = vCfg->NewPortTypes[j];
+                      
+                        if (isNewValueIBUS2 && 
+                            (existingType == afhds3::SES_NPT_IBUS1_IN || 
+                            existingType == afhds3::SES_NPT_IBUS1_OUT)) {
+                            conflict = true;
+                            break;
+                        }
+                        
+                        if (isNewValueIBUS1 && 
+                            (existingType == afhds3::SES_NPT_IBUS2 || 
+                            existingType == afhds3::SES_NPT_IBUS2_HUB_PORT)) {
+                            conflict = true;
+                            break;
+                        }
+                        
+                        if (!isNewValueIBUS2 && !isNewValueIBUS1 && 
+                            existingType == newValue) {
+                            conflict = true;
+                            break;
+                        }
                     }
                     //The RX does not support two or more ports to output IBUS (the same is true for PPM and SBUS).
                     if(j==SES_NPT_NB_MAX_PORTS )
                     {
-                      vCfg->NewPortTypes[i] = newValue;
+                      if (!conflict)
+                        vCfg->NewPortTypes[i] = newValue;
                       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);
                     }
                   }
@@ -257,7 +289,7 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   auto vCfg = &cfg->v1;
 
   for (uint8_t j = 0; j < SES_NPT_NB_MAX_PORTS; j++) {
-    if (vCfg->NewPortTypes[j] == afhds3::SES_NPT_IBUS2) {
+    if (vCfg->NewPortTypes[j] == afhds3::SES_NPT_IBUS2 || vCfg->NewPortTypes[j] == afhds3::SES_NPT_IBUS2_HUB_PORT) {
       ibus2_mode = true;
       break;
     }
