@@ -42,7 +42,36 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Installing packages ==="
-sudo apt-get -y install build-essential cmake gcc git lib32ncurses-dev lib32z1 libfox-1.6-dev libsdl2-dev software-properties-common wget zip python3-pip-whl python3-pil libgtest-dev python3-pip python3-tk python3-setuptools clang python3-clang libusb-1.0-0-dev stlink-tools openocd npm pv libncurses5:i386 libpython2.7:i386 libclang-dev python-is-python3
+sudo apt-get -y install \
+    build-essential \
+    cmake \
+    gcc \
+    git \
+    lib32ncurses-dev \
+    lib32z1 \
+    libfox-1.6-dev \
+    libsdl2-dev \
+    software-properties-common \
+    wget \
+    zip \
+    python3-pip-whl \
+    python3-pil \
+    libgtest-dev \
+    python3-pip \
+    python3-tk \
+    python3-setuptools \
+    clang \
+    python3-clang \
+    libusb-1.0-0-dev \
+    stlink-tools \
+    openocd \
+    npm \
+    pv \
+    libncurses5:i386 \
+    libpython2.7:i386 \
+    libclang-dev \
+    python-is-python3 \
+    openssl
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
@@ -62,14 +91,14 @@ python3 -m pip install --break-system-package \
     lxml \
     lz4 \
     aqtinstall \
-	pyelftools
+    pyelftools
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Installing Qt ==="
-./aqt install-qt --outputdir qt linux desktop 6.8.2 linux_gcc_64 -m qtmultimedia qtserialport
+./aqt install-qt --outputdir qt linux desktop 6.9.0 linux_gcc_64 -m qtmultimedia qtserialport
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read

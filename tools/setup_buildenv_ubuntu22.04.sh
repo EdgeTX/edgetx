@@ -42,16 +42,61 @@ if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
 fi
 
 echo "=== Step $((STEP++)): Installing packages ==="
-sudo apt-get -y install build-essential cmake gcc git lib32ncurses-dev lib32z1 libsdl2-dev qtbase5-dev qt5-qmake qtmultimedia5-dev qttools5-dev qttools5-dev-tools qtcreator libqt5svg5-dev libqt5serialport5-dev software-properties-common wget zip python3-pip-whl python3-pil libgtest-dev python3-pip python3-tk python3-setuptools clang python3-clang libusb-1.0-0-dev stlink-tools openocd npm pv libncurses5:i386 libpython2.7:i386 libclang-dev python-is-python3
+sudo apt-get -y install \
+    build-essential \
+    cmake \
+    gcc \
+    git \
+    lib32ncurses-dev \
+    lib32z1 \
+    libsdl2-dev \
+    software-properties-common \
+    wget \
+    zip \
+    python3-pip-whl \
+    python3-pil \
+    libgtest-dev \
+    python3-pip \
+    python3-tk \
+    python3-setuptools \
+    clang \
+    python3-clang \
+    libusb-1.0-0-dev \
+    stlink-tools \
+    openocd \
+    npm \
+    pv \
+    libncurses5:i386 \
+    libpython2.7:i386 \
+    libclang-dev \
+    python-is-python3 \
+    openssl
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
 fi
 
 echo "=== Step $((STEP++)): Installing Python packages ==="
-sudo python3 -m pip install filelock asciitree jinja2 pillow==7.2.0 clang==14.0.0 future lxml lz4
+sudo python3 -m pip install \
+    filelock \
+    asciitree \
+    jinja2 \
+    pillow==7.2.0 \
+    clang==14.0.0 \
+    future \
+    lxml \
+    lz4 \
+    aqtinstall \
+    pyelftools
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
+  read
+fi
+
+echo "=== Step $((STEP++)): Installing Qt ==="
+./aqt install-qt --outputdir qt linux desktop 6.9.0 linux_gcc_64 -m qtmultimedia qtserialport
+if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
+  echo "Step finished. Please press Enter to continue or Ctrl+C to stop."
   read
 fi
 
@@ -114,7 +159,7 @@ fi
 
 echo "=== Step $((STEP++)): Building and Installing USB DFU host utility ==="
 cd dfu-util-0.11/
-./configure 
+./configure
 make
 sudo make install
 cd ..
