@@ -2895,6 +2895,21 @@ static int luaApplyRGBLedColors(lua_State * L)
 
 #endif
 
+
+/*luadoc
+@function getStickMode()
+
+@retval : integer, a 1 to 4 value corresponding to radio stick mode
+
+@status current Introduced in 3.0
+*/
+
+static int luaGetStickMode(lua_State* const L)
+{
+  lua_pushinteger(L,  g_eeGeneral.stickMode + 1);
+  return 1;
+}
+
 #define KEY_EVENTS(xxx, yyy)                                    \
   { "EVT_"#xxx"_FIRST", LRO_NUMVAL(EVT_KEY_FIRST(yyy)) },       \
   { "EVT_"#xxx"_BREAK", LRO_NUMVAL(EVT_KEY_BREAK(yyy)) },       \
@@ -2985,6 +3000,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY(setRGBLedColor, luaSetRgbLedColor )
   LROT_FUNCENTRY(applyRGBLedColors, luaApplyRGBLedColors )
 #endif
+  LROT_FUNCENTRY( getStickMode, luaGetStickMode )
 LROT_END(etxlib, NULL, 0)
 
 LROT_BEGIN(etxcst, NULL, 0)
