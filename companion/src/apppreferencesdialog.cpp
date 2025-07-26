@@ -493,6 +493,7 @@ void AppPreferencesDialog::initSettings()
     grid->addWidget(lblName[i], row, col++);
 
     chkCheckForUpdate[i] = new QCheckBox();
+    chkCheckForUpdate[i]->setStyleSheet("spacing: 10px"); // workaround Qt 6.9.0 Qt::AlignHCenter causes text to overlap checkbox rhs
     grid->addWidget(chkCheckForUpdate[i], row, col++);
     grid->setAlignment(chkCheckForUpdate[i], Qt::AlignHCenter);
 
