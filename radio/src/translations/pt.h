@@ -1021,7 +1021,7 @@
   #define TR_ALIGN_OPTS                { "Esquerda", "Centro", "Direita" }
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Color"
-  #define TR_MAIN_VIEW_X               "Main view XX"
+  #define TR_MAIN_VIEW_X               "Main view "
   #define TR_PANEL1_BACKGROUND         "Panel1 background"
   #define TR_PANEL2_BACKGROUND         "Panel2 background"
   #define TR_WIDGET_GAUGE              "Gauge"
@@ -1160,16 +1160,16 @@
 #define TR_THEME_EDITOR                 "TEMAS"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Selecionar\nModelo"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Gerenciar\nModelos"
-#define TR_MAIN_MENU_MODEL_NOTES        "Notas\nModelo"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor\nCanais"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Editar\nModelo"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Editar\nRádio"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Editar\nTela"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset\nTelem."
+#define TR_MAIN_MENU_SELECT_MODEL       "Selecionar Modelo"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Gerenciar Modelos"
+#define TR_MAIN_MENU_MODEL_NOTES        "Notas Modelo"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor Canais"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Editar Modelo"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Editar Rádio"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "Editar Tela"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset Telem."
 #define TR_MAIN_MENU_STATISTICS         "Estatist."
-#define TR_MAIN_MENU_ABOUT_EDGETX       "Sobre\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Sobre EdgeTX"
 // End Main menu
 
 // Voice in native language
