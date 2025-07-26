@@ -536,6 +536,7 @@ set(CPACK_STRIP_FILES FALSE)
 if(WIN32)
   set(companion_executable_path "\${CMAKE_INSTALL_BINDIR}/$<TARGET_FILE_NAME:companion>")
   set(simulator_executable_path "\${CMAKE_INSTALL_BINDIR}/$<TARGET_FILE_NAME:simulator>")
+  cmake_path(GET CMAKE_CXX_COMPILER PARENT_PATH MINGW_BIN_DIR)
 
   qt_generate_deploy_script(
     TARGET companion
@@ -575,6 +576,8 @@ if(WIN32)
     add_custom_target(installer
       COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install --config Release
       COMMAND "${CMAKE_COMMAND}" -P "${qt_deploy_script}"
+      # Hack to overwrite the pthread lib shipped with Qt
+      COMMAND "${CMAKE_COMMAND}" -E copy "${MINGW_BIN_DIR}/libwinpthread-1.dll" "${CMAKE_BINARY_DIR}/_install/bin/libwinpthread-1.dll"
       COMMAND "${NSIS_EXE}" "${NSI_FILE}"
       DEPENDS "${NSI_FILE}" "${qt_deploy_script}"
       COMMENT "Building Windows NSIS installer..."
