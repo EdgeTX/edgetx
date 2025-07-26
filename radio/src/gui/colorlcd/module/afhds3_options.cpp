@@ -315,15 +315,6 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
       return 0;
     });
 
-    temp_str = TR_ALTSENSOR;
-    line = body->newLine(grid);
-    new StaticText(line, rect_t{}, temp_str);
-    auto alt_btn = new TextButton(line, rect_t{}, TR_RESET);
-    alt_btn->setPressHandler([=]() -> uint8_t {
-      DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_ALT);
-      return 0;
-    });
-
     temp_str = "DIST";
     temp_str += " ";
     temp_str += TR_CURRENTSENSOR;
@@ -332,6 +323,17 @@ AFHDS3_Sensors::AFHDS3_Sensors(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     auto dist_btn = new TextButton(line, rect_t{}, TR_RESET);
     dist_btn->setPressHandler([=]() -> uint8_t {
       DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_DIST);
+      return 0;
+    });
+  }
+
+  if (cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_GPS) || cfg->others.sensorOnLine & (1 << afhds3::DirtyIbus2Sensor::IBUS2_SENSOR_PRES)) {
+    temp_str = TR_ALTSENSOR;
+    line = body->newLine(grid);
+    new StaticText(line, rect_t{}, temp_str);
+    auto alt_btn = new TextButton(line, rect_t{}, TR_RESET);
+    alt_btn->setPressHandler([=]() -> uint8_t {
+      DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_CALIB_ALT);
       return 0;
     });
   }
