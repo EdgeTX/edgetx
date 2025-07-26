@@ -91,7 +91,7 @@ python3 -m pip install --break-system-package \
     lxml \
     lz4 \
     aqtinstall \
-	  pyelftools
+    pyelftools
 if [[ $PAUSEAFTEREACHLINE == "true" ]]; then
   echo "Step finished. Please check the output above and press Enter to continue or Ctrl+C to stop."
   read
