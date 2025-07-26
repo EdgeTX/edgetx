@@ -59,12 +59,12 @@ if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
 else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
 endif()
-
 if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
   option(POWER_LED_BLUE  "Override Power LED to be normally Blue" ON)
 else()
   option(POWER_LED_BLUE  "Override Power LED to be normally Blue" OFF)
 endif()
+option(VCONTROLS "Enable virtual controls support" ON)
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -408,6 +408,10 @@ if(DISABLE_MCUCHECK)
   add_definitions(-DDISABLE_MCUCHECK)
 endif()
 
+if(VCONTROLS)
+  add_definitions(-DVCONTROLS)
+endif()
+
 set(SRC
   ${SRC}
   edgetx.cpp
@@ -446,6 +450,9 @@ if(GUI)
   endforeach()
 endif()
 
+if(VCONTROLS)
+  set(SRC ${SRC} vcontrols.cpp)
+endif()
 
 if(USBJ_EX)
   add_definitions(-DUSBJ_EX)
