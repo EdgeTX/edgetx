@@ -1414,6 +1414,7 @@ static int luaLcdExitFullScreen(lua_State *L)
   return 0;
 }
 
+extern "C" {
 LROT_BEGIN(colorlib, NULL, 0)
   // Colors gui/colorlcd/colors.h
   LROT_NUMENTRY( COLOR_THEME_PRIMARY1, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX) )
@@ -1502,9 +1503,8 @@ LROT_BEGIN(bitmaplib, NULL, 0)
   LROT_FUNCENTRY( toMask, luaBitmapTo8bitMask )
 LROT_END(bitmaplib, NULL, 0)
 
-extern "C" {
-  LUALIB_API int luaopen_bitmap(lua_State * L) {
-    luaL_rometatable( L, BITMAP_METATABLE,  LROT_TABLEREF(bitmap_mt));
-    return 0;
-  }
+LUALIB_API int luaopen_bitmap(lua_State * L) {
+  luaL_rometatable( L, BITMAP_METATABLE,  LROT_TABLEREF(bitmap_mt));
+  return 0;
+}
 }
