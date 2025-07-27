@@ -615,7 +615,8 @@ void HardwarePanel::addSwitch(int index)
     });
 
     if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
-      const QString qss = QString("border-style: outset; border-width: 2px; border-radius: 5px; border-color: darkgrey; padding: 2px; background-color: %1;");QPushButton * btnOffColor = new QPushButton();
+      const QString qss = QString("border-style: outset; border-width: 2px; border-radius: 5px; border-color: darkgrey; padding: 2px; background-color: %1;");
+      QPushButton * btnOffColor = new QPushButton();
       QColor off = generalSettings.switchConfig[index].offColor.getQColor();
       btnOffColor->setStyleSheet(QString(qss).arg(off.name()));
       connect(btnOffColor, &QPushButton::clicked, [=]() {
