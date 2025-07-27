@@ -615,17 +615,15 @@ void HardwarePanel::addSwitch(int index)
     });
 
     if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
-      QPushButton * btnOffColor = new QPushButton(tr(""));
+      const QString qss = QString("border-style: outset; border-width: 2px; border-radius: 5px; border-color: darkgrey; padding: 2px; background-color: %1;");QPushButton * btnOffColor = new QPushButton();
       QColor off = generalSettings.switchConfig[index].offColor.getQColor();
-      QString qss = QString("background-color: %1; border: none;").arg(off.name());
-      btnOffColor->setStyleSheet(qss);
+      btnOffColor->setStyleSheet(QString(qss).arg(off.name()));
       connect(btnOffColor, &QPushButton::clicked, [=]() {
         QColorDialog *dlg = new QColorDialog();
         QColor color = dlg->getColor(generalSettings.switchConfig[index].offColor.getQColor());
         if (color.isValid()) {
           generalSettings.switchConfig[index].offColor.setColor(color.red(), color.green(), color.blue());
-          QString qss = QString("background-color: %1; border: none;").arg(color.name());
-          btnOffColor->setStyleSheet(qss);
+          btnOffColor->setStyleSheet(QString(qss).arg(color.name()));
           emit modified();
         }
       });
@@ -645,15 +643,13 @@ void HardwarePanel::addSwitch(int index)
 
       QPushButton * btnOnColor = new QPushButton(tr(""));
       QColor on = generalSettings.switchConfig[index].onColor.getQColor();
-      qss = QString("background-color: %1; border: none;").arg(on.name());
-      btnOnColor->setStyleSheet(qss);
+      btnOnColor->setStyleSheet(QString(qss).arg(on.name()));
       connect(btnOnColor, &QPushButton::clicked, [=]() {
         QColorDialog *dlg = new QColorDialog();
         QColor color = dlg->getColor(generalSettings.switchConfig[index].onColor.getQColor());
         if (color.isValid()) {
           generalSettings.switchConfig[index].onColor.setColor(color.red(), color.green(), color.blue());
-          QString qss = QString("background-color: %1; border: none;").arg(color.name());
-          btnOnColor->setStyleSheet(qss);
+          btnOnColor->setStyleSheet(QString(qss).arg(color.name()));
           emit modified();
         }
       });
