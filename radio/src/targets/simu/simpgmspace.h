@@ -21,9 +21,6 @@
 
 #pragma once
 
-#include <unistd.h>
-#define sleep(x) usleep(1000*x)
-
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>

@@ -172,6 +172,7 @@ if(TARGET SDL2:SDL2)
     display.cpp
     widgets.cpp
     knobs.cpp
+    arg_parser.cpp
     sdl_simu.cpp
   )
 
