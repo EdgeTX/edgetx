@@ -125,17 +125,16 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
       ui->gridSwitches->addWidget(cboGroup, row++, col + coloffset);
 
       if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+        const QString qss = QString("border-style: outset; border-width: 2px; border-radius: 5px; border-color: darkgrey; padding: 2px; background-color: %1;");
         QPushButton * btnOffColor = new QPushButton(tr(""));
         QColor off = this->model->customSwitches[i].offColor.getQColor();
-        QString qss = QString("background-color: %1; border: none;").arg(off.name());
-        btnOffColor->setStyleSheet(qss);
+        btnOffColor->setStyleSheet(QString(qss).arg(off.name()));
         connect(btnOffColor, &QPushButton::clicked, [=]() {
           QColorDialog *dlg = new QColorDialog();
           QColor color = dlg->getColor(this->model->customSwitches[i].offColor.getQColor());
           if (color.isValid()) {
             this->model->customSwitches[i].offColor.setColor(color.red(), color.green(), color.blue());
-            QString qss = QString("background-color: %1; border: none;").arg(color.name());
-            btnOffColor->setStyleSheet(qss);
+            btnOffColor->setStyleSheet(QString(qss).arg(off.name()));
             emit modified();
           }
         });
@@ -153,15 +152,13 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
 
         QPushButton * btnOnColor = new QPushButton(tr(""));
         QColor on = this->model->customSwitches[i].onColor.getQColor();
-        qss = QString("background-color: %1; border: none;").arg(on.name());
-        btnOnColor->setStyleSheet(qss);
+        btnOnColor->setStyleSheet(QString(qss).arg(on.name()));
         connect(btnOnColor, &QPushButton::clicked, [=]() {
           QColorDialog *dlg = new QColorDialog();
           QColor color = dlg->getColor(this->model->customSwitches[i].onColor.getQColor());
           if (color.isValid()) {
             this->model->customSwitches[i].onColor.setColor(color.red(), color.green(), color.blue());
-            QString qss = QString("background-color: %1; border: none;").arg(color.name());
-            btnOnColor->setStyleSheet(qss);
+            btnOnColor->setStyleSheet(QString(qss).arg(on.name()));
             emit modified();
           }
         });
