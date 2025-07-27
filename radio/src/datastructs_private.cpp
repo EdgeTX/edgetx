@@ -61,8 +61,7 @@ uint8_t ModelData::getSwitchStateForWarning(uint8_t n)
 {
 #if defined(FUNCTION_SWITCHES)
   if (switchIsCustomSwitch(n)) {
-    if (cfsType(n) != SWITCH_GLOBAL)
-      return cfsState(switchGetCustomSwitchIdx(n)) ? 3 : 1;
+    return cfsState(n) ? 3 : 1;
   } 
 #endif
   extern swarnstate_t switches_states;

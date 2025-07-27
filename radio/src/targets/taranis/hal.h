@@ -1043,7 +1043,7 @@
   #define SWITCHES_GPIO_PIN_F           LL_GPIO_PIN_5 // PB.05
 #elif defined(RADIO_MT12)
   // ADC based switch/pot
-#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_TPROV2) || defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_POCKET)
+#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_POCKET)
   // no SWF
 #elif defined(RADIO_T12)
   // no SWF
@@ -1132,7 +1132,7 @@
   //TRIM right low
   #define SWITCHES_GPIO_REG_H           GPIOF
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_0  // PF.00
-#elif defined(RADIO_TLITE) || defined(RADIO_TPROV2) || defined(RADIO_TPROS) || defined(RADIO_LR3PRO)
+#elif defined(RADIO_TLITE) || defined(RADIO_TPROS) || defined(RADIO_LR3PRO)
   // no SWH
 #elif defined(RADIO_GX12)
   #define SWITCHES_H_2POS
@@ -1197,10 +1197,10 @@
   #define SWITCHES_GPIO_PIN_M           LL_GPIO_PIN_3  // PG.03
   #define SWITCHES_M_CFS_IDX            4
   // SW6
-  #define FUNCTION_SWITCH_6             SO
-  #define SWITCHES_GPIO_REG_O           GPIOG
-  #define SWITCHES_GPIO_PIN_O           LL_GPIO_PIN_2  // PG.02
-  #define SWITCHES_O_CFS_IDX            5
+  #define FUNCTION_SWITCH_6             SN
+  #define SWITCHES_GPIO_REG_N           GPIOG
+  #define SWITCHES_GPIO_PIN_N           LL_GPIO_PIN_2  // PG.02
+  #define SWITCHES_N_CFS_IDX            5
 #elif defined(RADIO_BUMBLEBEE)
   // SW1
   #define FUNCTION_SWITCH_1             SJ

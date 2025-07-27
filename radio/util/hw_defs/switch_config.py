@@ -279,12 +279,12 @@ SWITCH_CONFIG = {
         "SF": {"default": "2POS",   "display": [1, 2]},
         "SH": {"default": "NONE",   "display": [1, 3]},
         # custom switches
-        "SG": {"default": "2POS"},
-        "SH": {"default": "2POS"},
         "SI": {"default": "2POS"},
         "SJ": {"default": "2POS"},
         "SK": {"default": "2POS"},
         "SL": {"default": "2POS"},
+        "SM": {"default": "2POS"},
+        "SN": {"default": "2POS"},
     },
     "tpros": {
         # left side

@@ -277,7 +277,7 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     tab[i] = idx < max_pots ? (IS_POT_MULTIPOS(idx) ? 1 : 2) : HIDDEN_ROW;
   }
 
-  int max_switches = switchGetMaxSwitches();
+  int max_switches = switchGetMaxAllSwitches();
   for (int i = ITEM_RADIO_HARDWARE_SWITCH; i <= ITEM_RADIO_HARDWARE_SWITCH_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_SWITCH;
     if (idx < max_switches && !switchIsCustomSwitch(idx)) {
