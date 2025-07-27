@@ -33,7 +33,7 @@
 #include "simulateduiwidget.h"
 #include "storage.h"
 #include "virtualjoystickwidget.h"
-#ifdef JOYSTICKS
+#ifdef USE_SDL
 #include "joystick.h"
 #include "joystickdialog.h"
 #endif
@@ -126,7 +126,7 @@ SimulatorWidget::~SimulatorWidget()
   delete radioUiWidget;
   delete vJoyLeft;
   delete vJoyRight;
-#ifdef JOYSTICKS
+#ifdef USE_SDL
   delete joystick;
 #endif
   firmware = nullptr;
@@ -607,7 +607,7 @@ void SimulatorWidget::setupRadioWidgets()
 
 void SimulatorWidget::setupJoysticks()
 {
-#ifdef JOYSTICKS
+#ifdef USE_SDL
   bool joysticksEnabled = false;
 
   if (g.jsSupport()) {
@@ -806,7 +806,7 @@ void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetTyp
 
 void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
 {
-#ifdef JOYSTICKS
+#ifdef USE_SDL
   static const int ttlSticks = 4;
   const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
   const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
@@ -855,7 +855,7 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
 
 void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
 {
-#ifdef JOYSTICKS
+#ifdef USE_SDL
 
   if (!joystick || button >= MAX_JS_BUTTONS)
     return;

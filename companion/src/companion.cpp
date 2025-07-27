@@ -25,7 +25,8 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QSplashScreen>
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
+
+#if defined(USE_SDL)
   #include <SDL.h>
   #undef main
 #endif
@@ -216,18 +217,11 @@ int main(int argc, char *argv[])
 
   Translations::installTranslators();
 
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
-  uint32_t sdlFlags = 0;
-  #ifdef JOYSTICKS
-    sdlFlags |= SDL_INIT_JOYSTICK;
-  #endif
-  #ifdef SIMU_AUDIO
-    sdlFlags |= SDL_INIT_AUDIO;
-  #endif
+#if defined(USE_SDL)
   #if defined(_WIN32) || defined(_WIN64)
     putenv("SDL_AUDIODRIVER=directsound");
   #endif
-  if (SDL_Init(sdlFlags) < 0) {
+  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) < 0) {
     fprintf(stderr, "ERROR: couldn't initialize SDL: %s\n", SDL_GetError());
   }
 #endif
@@ -269,7 +263,7 @@ int main(int argc, char *argv[])
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
 
-#if defined(JOYSTICKS) || defined(SIMU_AUDIO)
+#if defined(USE_SDL)
   SDL_Quit();
 #endif
 

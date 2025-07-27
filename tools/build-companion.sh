@@ -25,12 +25,6 @@ fi
 COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev -DGVARS=YES -DHELI=YES -DLUA=YES"
 if [ "$(uname)" = "Darwin" ]; then
     COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15'"
-elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
-    if [ "${MSYSTEM,,}" == "mingw32" ]; then # MSYS 32bit detected
-        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw32/bin/"
-    else # fallback to 64bit
-        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw64/bin/"
-    fi
 fi
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
