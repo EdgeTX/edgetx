@@ -24,6 +24,7 @@
 #include "edgetx.h"
 #include "table.h"
 #include "etx_lv_theme.h"
+#include "keyboard_base.h"
 
 //-----------------------------------------------------------------------------
 

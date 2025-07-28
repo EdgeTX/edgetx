@@ -22,7 +22,6 @@
 #include "radio_diaganas.h"
 
 #include "hal/adc_driver.h"
-#include "libopenui.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 

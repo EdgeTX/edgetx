@@ -26,12 +26,6 @@
 #include "os/sleep.h"
 #include "trainer.h"
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
-  #include "lib_file.h"
-#endif
-
 #if defined(LOG_BLUETOOTH)
 extern FIL g_bluetoothFile;
 #endif

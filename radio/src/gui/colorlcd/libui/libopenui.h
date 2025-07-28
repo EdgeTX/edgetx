@@ -23,8 +23,6 @@
 
 #if !defined(BOOT)
 #include "libopenui_defines.h"
-#include "lib_file.h"
-#include "myeeprom.h"
 #include "fonts.h"
 #include "window.h"
 #include "mainwindow.h"
@@ -34,9 +32,6 @@
 #include "numberedit.h"
 #include "choice.h"
 #include "textedit.h"
-#include "slider.h"
-#include "keyboard_text.h"
-#include "keyboard_number.h"
 #include "menu.h"
 #include "dialog.h"
 #include "getset_helpers.h"

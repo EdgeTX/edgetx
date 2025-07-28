@@ -21,7 +21,6 @@
 
 #include "bitmaps.h"
 
-#include "libopenui.h"
 #include "lz4/lz4.h"
 #include "edgetx_helpers.h"
 

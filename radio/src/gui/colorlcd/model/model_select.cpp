@@ -21,7 +21,6 @@
 
 #include "model_select.h"
 
-#include "libopenui.h"
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
@@ -68,8 +67,7 @@ class ModelButton : public Button
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-    lv_obj_add_event_cb(lvobj, ModelButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                        nullptr);
+    delayLoad();
   }
 
   void addDetails()
@@ -104,15 +102,9 @@ class ModelButton : public Button
     lv_obj_update_layout(lvobj);
   }
 
-  static void on_draw(lv_event_t *e)
+  void delayedInit() override
   {
-    auto btn = (ModelButton *)lv_obj_get_user_data(lv_event_get_target(e));
-    if (btn) {
-      if (!btn->loaded) {
-        btn->loaded = true;
-        btn->addDetails();
-      }
-    }
+    addDetails();
   }
 
   const char *modelFilename() { return modelCell->modelFilename; }
@@ -157,7 +149,6 @@ class ModelButton : public Button
   bool isModel(ModelCell* cell) { return cell == modelCell; }
 
  protected:
-  bool loaded = false;
   bool imgLoaded = false;
   uint8_t layout;
   ModelCell *modelCell;

@@ -29,6 +29,7 @@
 #include "switchchoice.h"
 #include "toggleswitch.h"
 #include "filechoice.h"
+#include "keyboard_base.h"
 
 //-----------------------------------------------------------------------------
 

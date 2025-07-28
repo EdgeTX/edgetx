@@ -170,8 +170,7 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
   lv_obj_add_event_cb(slider, SliderBase::slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
   lv_slider_set_range(slider, vmin, vmax);
 
-  lv_obj_add_event_cb(lvobj, Slider::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                      nullptr);
+  delayLoad();
 
   int range = vmax - vmin;
   if (range < 10) {
@@ -187,24 +186,14 @@ Slider::Slider(Window* parent, coord_t width, int32_t vmin, int32_t vmax,
   update();
 }
 
-void Slider::on_draw(lv_event_t* e)
-{
-  auto dlg = (Slider*)lv_obj_get_user_data(lv_event_get_target(e));
-  if (dlg) dlg->delayedInit();
-}
-
 void Slider::delayedInit()
 {
-  if (!loaded) {
-    loaded = true;
-
-    coord_t w = lv_obj_get_width(lvobj) - PAD_LARGE * 2;
-    coord_t x = -1;
-    int range = vmax - vmin;
-    if (range < 10) {
-      for (int n = 1; n < range; n += 1) {
-        lv_obj_set_pos(tickPts[n - 1], x + (w * n) / range, 1);
-      }
+  coord_t w = lv_obj_get_width(lvobj) - PAD_LARGE * 2;
+  coord_t x = -1;
+  int range = vmax - vmin;
+  if (range < 10) {
+    for (int n = 1; n < range; n += 1) {
+      lv_obj_set_pos(tickPts[n - 1], x + (w * n) / range, 1);
     }
   }
 }
@@ -277,8 +266,7 @@ VerticalSlider::VerticalSlider(Window* parent, coord_t height, int32_t vmin, int
   lv_obj_add_event_cb(slider, SliderBase::slider_changed_cb, LV_EVENT_VALUE_CHANGED, this);
   lv_slider_set_range(slider, vmin, vmax);
 
-  lv_obj_add_event_cb(lvobj, VerticalSlider::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                      nullptr);
+  delayLoad();
 
   int range = vmax - vmin;
   if (range < 10) {
@@ -294,24 +282,14 @@ VerticalSlider::VerticalSlider(Window* parent, coord_t height, int32_t vmin, int
   update();
 }
 
-void VerticalSlider::on_draw(lv_event_t* e)
-{
-  auto dlg = (VerticalSlider*)lv_obj_get_user_data(lv_event_get_target(e));
-  if (dlg) dlg->delayedInit();
-}
-
 void VerticalSlider::delayedInit()
 {
-  if (!loaded) {
-    loaded = true;
-
-    coord_t h = lv_obj_get_height(lvobj) - PAD_LARGE * 2;
-    coord_t y = -1;
-    int range = vmax - vmin;
-    if (range < 10) {
-      for (int n = 1; n < range; n += 1) {
-        lv_obj_set_pos(tickPts[n - 1], 1, y + (h * n) / range);
-      }
+  coord_t h = lv_obj_get_height(lvobj) - PAD_LARGE * 2;
+  coord_t y = -1;
+  int range = vmax - vmin;
+  if (range < 10) {
+    for (int n = 1; n < range; n += 1) {
+      lv_obj_set_pos(tickPts[n - 1], 1, y + (h * n) / range);
     }
   }
 }

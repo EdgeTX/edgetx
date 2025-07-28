@@ -22,7 +22,6 @@
 #include "model_curves.h"
 
 #include "curveedit.h"
-#include "libopenui.h"
 #include "edgetx.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)

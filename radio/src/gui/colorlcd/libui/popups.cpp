@@ -21,7 +21,6 @@
 
 #include "popups.h"
 
-#include "libopenui.h"
 #include "edgetx.h"
 #include "lvgl/src/hal/lv_hal_tick.h"
 #include "os/sleep.h"

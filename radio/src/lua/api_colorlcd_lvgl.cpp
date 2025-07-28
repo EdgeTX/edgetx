@@ -21,7 +21,6 @@
 
 #define LUA_LIB
 
-#include "libopenui.h"
 #include "lua_api.h"
 #include "lua_widget.h"
 #include "edgetx.h"

@@ -33,6 +33,11 @@ class ValueWidget : public Widget
               Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
+    delayLoad();
+  }
+
+  void delayedInit() override
+  {
     lv_style_init(&labelStyle);
     lv_style_set_width(&labelStyle, lv_pct(100));
     lv_style_set_height(&labelStyle, lv_pct(100));
@@ -73,6 +78,8 @@ class ValueWidget : public Widget
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     Widget::checkEvents();
 
     bool changed = false;
@@ -181,6 +188,8 @@ class ValueWidget : public Widget
 
   void update() override
   {
+    if (!loaded) return;
+
     // get source from options[0]
     mixsrc_t field = persistentData->options[0].value.unsignedValue;
 

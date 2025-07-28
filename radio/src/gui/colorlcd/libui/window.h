@@ -204,6 +204,8 @@ class Window
   bool _deleted = false;
   static bool _longPressed;
 
+  bool loaded = false;
+
   CloseHandler closeHandler;
   FocusHandler focusHandler;
   std::function<void(coord_t, coord_t)> scrollHandler;
@@ -215,6 +217,10 @@ class Window
 
   void eventHandler(lv_event_t *e);
   static void window_event_cb(lv_event_t *e);
+
+  static void delayLoader(lv_event_t* e);
+  void delayLoad();
+  virtual void delayedInit() {}
 };
 
 class NavWindow : public Window

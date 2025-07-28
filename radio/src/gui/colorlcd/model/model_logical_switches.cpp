@@ -21,7 +21,6 @@
 
 #include "model_logical_switches.h"
 
-#include "libopenui.h"
 #include "list_line_button.h"
 #include "edgetx.h"
 #include "page.h"
@@ -312,24 +311,11 @@ class LogicalSwitchButton : public ListLineButton
 
     check(isActive());
 
-    lv_obj_add_event_cb(lvobj, LogicalSwitchButton::on_draw,
-                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+    delayLoad();
   }
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit() override
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (LogicalSwitchButton*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-    }
-  }
-
-  void delayed_init()
-  {
-    init = true;
-
     lv_obj_enable_style_refresh(false);
 
     lsName = lv_label_create(lvobj);
@@ -387,7 +373,7 @@ class LogicalSwitchButton : public ListLineButton
 
   void checkEvents() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     ListLineButton::checkEvents();
     check(isActive());
@@ -418,7 +404,7 @@ class LogicalSwitchButton : public ListLineButton
 
   void refresh() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     char s[20];
 
@@ -527,8 +513,6 @@ class LogicalSwitchButton : public ListLineButton
   static constexpr coord_t DEL_Y = AND_Y;
 
  protected:
-  bool init = false;
-
   lv_obj_t* lsName = nullptr;
   lv_obj_t* lsFunc = nullptr;
   lv_obj_t* lsV1 = nullptr;
