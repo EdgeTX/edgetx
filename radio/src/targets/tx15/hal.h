@@ -71,106 +71,32 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define TIMER_MULT_APB2         2
 
 // Keys
-#define KEYS_GPIO_REG_PAGEDN          GPIOA
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8  // PA.08
-#define KEYS_GPIO_REG_PAGEUP          GPIOG
-#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PG.07
-#define KEYS_GPIO_REG_SYS             GPIOB
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_2  // PB.02
-#define KEYS_GPIO_REG_ENTER           GPIOG
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_12 // PG.12
-#define KEYS_GPIO_REG_MDL             GPIOE
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_3  // PE.03
-#define KEYS_GPIO_REG_EXIT            GPIOG
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_3  // PG.03
-#define KEYS_GPIO_REG_TELE            GPIOG
-#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_2  // PG.02
 
 // Trims
-#define TRIMS_GPIO_REG_LHL
-#define TRIMS_GPIO_PIN_LHL
 
-#define TRIMS_GPIO_REG_LHR
-#define TRIMS_GPIO_PIN_LHR
 
-#define TRIMS_GPIO_REG_LVD
-#define TRIMS_GPIO_PIN_LVD
 
-#define TRIMS_GPIO_REG_LVU
-#define TRIMS_GPIO_PIN_LVU
 
-#define TRIMS_GPIO_REG_RHL
-#define TRIMS_GPIO_PIN_RHL
 
-#define TRIMS_GPIO_REG_RHR
-#define TRIMS_GPIO_PIN_RHR
 
-#define TRIMS_GPIO_REG_RVD
-#define TRIMS_GPIO_PIN_RVD
 
-#define TRIMS_GPIO_REG_RVU
-#define TRIMS_GPIO_PIN_RVU
 
 
 // function switches
 //SW1
-#define SWITCHES_GPIO_REG_G
-#define SWITCHES_GPIO_PIN_G           PCA95XX_P0
-#define SWITCHES_G_CFS_IDX            0
-#define FUNCTION_SWITCH_1             SG
 //SW2
-#define SWITCHES_GPIO_REG_H
-#define SWITCHES_GPIO_PIN_H           PCA95XX_P1
-#define SWITCHES_H_CFS_IDX            1
-#define FUNCTION_SWITCH_2             SH
 //SW3
-#define SWITCHES_GPIO_REG_I
-#define SWITCHES_GPIO_PIN_I           PCA95XX_P2
-#define SWITCHES_I_CFS_IDX            2
-#define FUNCTION_SWITCH_3             SI
 //SW4
-#define SWITCHES_GPIO_REG_J
-#define SWITCHES_GPIO_PIN_J           PCA95XX_P3
-#define SWITCHES_J_CFS_IDX            3
-#define FUNCTION_SWITCH_4             SJ
 //SW5
-#define SWITCHES_GPIO_REG_K
-#define SWITCHES_GPIO_PIN_K           PCA95XX_P4
-#define SWITCHES_K_CFS_IDX            4
-#define FUNCTION_SWITCH_5             SK
 //SW6
-#define SWITCHES_GPIO_REG_L
-#define SWITCHES_GPIO_PIN_L           PCA95XX_P5
-#define SWITCHES_L_CFS_IDX            5
-#define FUNCTION_SWITCH_6             SL
 
 // Extender Switches
 #define SWITCHES_A_3POS
-#define SWITCHES_GPIO_REG_A_H
-#define SWITCHES_GPIO_PIN_A_H         PCA95XX_P15
-#define SWITCHES_GPIO_REG_A_L
-#define SWITCHES_GPIO_PIN_A_L         PCA95XX_P14
 #define SWITCHES_B_3POS
-#define SWITCHES_GPIO_REG_B_H
-#define SWITCHES_GPIO_PIN_B_H         PCA95XX_P13
-#define SWITCHES_GPIO_REG_B_L
-#define SWITCHES_GPIO_PIN_B_L         PCA95XX_P12
 #define SWITCHES_C_3POS
-#define SWITCHES_GPIO_REG_C_H
-#define SWITCHES_GPIO_PIN_C_H         PCA95XX_P11
-#define SWITCHES_GPIO_REG_C_L
-#define SWITCHES_GPIO_PIN_C_L         PCA95XX_P10
 #define SWITCHES_D_3POS
-#define SWITCHES_GPIO_REG_D_H
-#define SWITCHES_GPIO_PIN_D_H         PCA95XX_P7
-#define SWITCHES_GPIO_REG_D_L
-#define SWITCHES_GPIO_PIN_D_L         PCA95XX_P6
 #define SWITCHES_E_2POS
-#define SWITCHES_GPIO_REG_E
-#define SWITCHES_GPIO_PIN_E           PCA95XX_P16
 #define SWITCHES_F_2POS
-#define SWITCHES_GPIO_REG_F
-#define SWITCHES_GPIO_PIN_F           PCA95XX_P4
 
 
 // Expanders
@@ -182,64 +108,17 @@ TIM17:	ROTARY_ENCODER_TIMER
 #endif
 
 // ADC
-#define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_6      // PA.06
-#define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_3      // PC.03
-#define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_4      // PC.04
-#define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_5      // PC.05
-
-#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_1      // PC.01 POT1
-#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 POT2
-#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PH.03
-
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH)
-#define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2)
-#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
-#define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT)
 
 
-#define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_3    // ADC12_INP3
-#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_13   // ADC12_INP13
-#define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_4    // ADC12_INP4
-#define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_8    // ADC12_INP8
+
+
 
 // Each ADC cannot map more than 8 channels, otherwise it will cause problems
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_11   // ADC12_INP11
-#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC3_INP14
-#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC3_INP17
 
-#define ADC_MAIN                        ADC1
-#define ADC_DMA                         DMA2
-#define ADC_DMA_CHANNEL                 LL_DMAMUX1_REQ_ADC1
-#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
-#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
-#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
-#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_8CYCLES_5
 
-#define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                { ADC_CHANNEL_BATT , ADC_CHANNEL_RTC_BAT }
-#define ADC_EXT_DMA                     DMA2
-#define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
-#define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
-#define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
-#define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
-#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_64CYCLES_5  // No hardware oversampling on ADC3
 
 #define ADC_VREF_PREC2                  330
 
-#define ADC_DIRECTION {       	 \
-    0,-1,0,-1,  /* gimbals */    \
-    -1,-1,   	/* pots */       \
-    0,0,     	/* sliders */    \
-    0,	     	/* vbat */       \
-    0,       	/* rtc_bat */    \
-    0,       	/* SWA */        \
-    0,       	/* SWB */        \
-    0,       	/* SWC */        \
-    0,       	/* SWD */        \
-    0,       	/* SWE */        \
-    0        	/* SWF */        \
-  }
 
 // Serial gimbal sync port
 #define HALL_SYNC                   GPIO_PIN(GPIOH, 11)
