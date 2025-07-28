@@ -195,7 +195,7 @@ class RadioFuncSwitchWidget : public RadioWidget
       if (index == m_index && color != lastColor) {
         lastColor = color;
         QColor c = QColor((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
-        QString qss = QString("background-color: %1; border: none;").arg(c.name());
+        QString qss = QString("border-style: outset; border-width: 2px; border-radius: 5px; border-color: darkgrey; padding: 2px; background-color: %1;").arg(c.name());
         m_button->setStyleSheet(qss);
       }
     }
