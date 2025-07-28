@@ -418,7 +418,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return IS_RADIOMASTER_MT12(board);
 
     case FunctionSwitchColors:
-      return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board);
+      return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_PA01(board);
 
     default:
       return getBoardJson(board)->getCapability(capability);

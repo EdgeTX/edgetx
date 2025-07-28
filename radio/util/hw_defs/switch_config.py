@@ -112,6 +112,11 @@ SWITCH_CONFIG = {
         "SD": { "default": "TOGGLE" },
         "SE": { "default": "TOGGLE" },
         "SF": { "default": "TOGGLE" },
+        # custom switches
+        "SK": {"default": "2POS"},
+        "SL": {"default": "2POS"},
+        "SM": {"default": "2POS"},
+        "SN": {"default": "2POS"},
     },
     "lr3pro": {
         # left side
