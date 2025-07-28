@@ -40,7 +40,6 @@
 
 // generated files
 #include "stm32_adc_inputs.inc"
-#include "stm32_pwm_inputs.inc"
 #if !defined(BOOT)
 #include "hal_adc_inputs.inc"
 #endif
@@ -101,8 +100,10 @@ const etx_hal_adc_driver_t _adc_driver = {
   .get_input_mask = stm32_hal_get_inputs_mask,
 };
 
+#if !defined(BOOT)
 #if defined(PWM_STICKS)
 #include "stm32_gpio.h"
+#include "stm32_pwm_inputs.inc"
 
 static const stick_pwm_timer_t _sticks_timer = {
   .GPIOx = PWM_GPIO,
@@ -151,3 +152,4 @@ void gimbalsDetect()
     detected = gimbal_drivers[idx++]();
   }
 }
+#endif // !BOOT
