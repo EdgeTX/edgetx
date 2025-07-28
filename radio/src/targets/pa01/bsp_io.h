@@ -53,4 +53,3 @@ void bsp_output_set(uint16_t mask, uint16_t pin);
 void bsp_output_clear(uint16_t pin);
 
 uint16_t bsp_input_get();
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx);

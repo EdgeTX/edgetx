@@ -219,6 +219,8 @@ void ModelData::setDefaultMixes(const GeneralSettings & settings)
 
 void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
 {
+  qDebug() << ">>>>>> dfs" << functionSwitchCount;
+
   if (functionSwitchCount == 0)
     return;
 

@@ -80,10 +80,22 @@
 #define TRIMS_GPIO_PIN_RVU
 
 // function switches
-#define FUNCTION_SWITCH_1               I2C
-#define FUNCTION_SWITCH_2               I2C
-#define FUNCTION_SWITCH_3               I2C
-#define FUNCTION_SWITCH_4               I2C
+#define FUNCTION_SWITCH_1               SK
+#define SWITCHES_GPIO_REG_K
+#define SWITCHES_GPIO_PIN_K             AW9523B_PIN_0
+#define SWITCHES_K_CFS_IDX              0
+#define FUNCTION_SWITCH_2               SL
+#define SWITCHES_GPIO_REG_L
+#define SWITCHES_GPIO_PIN_L             AW9523B_PIN_1
+#define SWITCHES_L_CFS_IDX              1
+#define FUNCTION_SWITCH_3               SM
+#define SWITCHES_GPIO_REG_M
+#define SWITCHES_GPIO_PIN_M             AW9523B_PIN_2
+#define SWITCHES_M_CFS_IDX              2
+#define FUNCTION_SWITCH_4               SN
+#define SWITCHES_GPIO_REG_N
+#define SWITCHES_GPIO_PIN_N             AW9523B_PIN_3
+#define SWITCHES_N_CFS_IDX              3
 
 // Direct switches
 // SWA
@@ -348,6 +360,11 @@
 
 // LED Strip
 #define LED_STRIP_LENGTH                  14
+#define BLING_LED_STRIP_START             0
+#define BLING_LED_STRIP_LENGTH            10
+#define CFS_LED_STRIP_START               10
+#define CFS_LED_STRIP_LENGTH              4
+#define CFS_LEDS_PER_SWITCH               1
 #define LED_STRIP_GPIO                    GPIO_PIN(GPIOF, 06)  // PF.06 / TIM16_CH1
 #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
 #define LED_STRIP_TIMER                   TIM16
