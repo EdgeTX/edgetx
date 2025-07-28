@@ -240,13 +240,13 @@ class Switch(BaseModel):
     display: Optional[SwitchDisplayType] = None
 
     def _uses_single_gpio(self: "Switch") -> bool:
-        return bool(self.gpio or self.pin)
+        return bool(self.pin)
 
     def _uses_two_gpios(self: "Switch") -> bool:
-        return bool(self.gpio_high or self.pin_high or self.gpio_low or self.pin_low)
+        return bool(self.pin_high or self.pin_low)
 
     def _uses_gpio(self: "Switch") -> bool:
-        return self._uses_single_gpio() or self._uses_two_gpios()
+        return bool(self.gpio_high or self.gpio_low or self.gpio)
 
     @model_validator(mode="after")
     def check_hardware(self: "Switch") -> "Switch":
@@ -264,11 +264,6 @@ class Switch(BaseModel):
             )
 
         if self._uses_single_gpio():
-            if not self.gpio or not self.pin:
-                raise PydanticCustomError(
-                    "SwitchHardwareError",
-                    "Switch missing either 'gpio' or 'pin'",
-                )
             if str(self.type) not in ["2POS", "FSWITCH"]:
                 raise PydanticCustomError(
                     "SwitchHardwareError",
@@ -277,15 +272,10 @@ class Switch(BaseModel):
             # TODO: check 'default' as well?
 
         if self._uses_two_gpios():
-            if (
-                not self.gpio_high
-                or not self.pin_high
-                or not self.gpio_low
-                or not self.pin_low
-            ):
+            if not self.pin_high or not self.pin_low:
                 raise PydanticCustomError(
                     "SwitchHardwareError",
-                    "Switch missing 'gpio_high' or 'pin_high' or 'gpio_low' or 'pin_low'",
+                    "Switch missing 'pin_high' or 'pin_low'",
                 )
             if str(self.type) != "3POS":
                 raise PydanticCustomError(
