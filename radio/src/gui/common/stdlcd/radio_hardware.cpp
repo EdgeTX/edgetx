@@ -122,7 +122,7 @@ static void onHardwareAntennaSwitchConfirm(const char * result)
 
 #if defined(FUNCTION_SWITCHES)
 #define RADIO_SETUP_2ND_COLUMN           (LCD_W-11*FW)
-extern char* _fct_sw_start[];
+extern const char* _fct_sw_start[];
 static int swIndex;
 
 extern bool checkCFSTypeAvailable(int val);
