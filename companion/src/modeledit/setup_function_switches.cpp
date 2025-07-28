@@ -134,7 +134,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
           QColor color = dlg->getColor(this->model->customSwitches[i].offColor.getQColor());
           if (color.isValid()) {
             this->model->customSwitches[i].offColor.setColor(color.red(), color.green(), color.blue());
-            btnOffColor->setStyleSheet(QString(qss).arg(off.name()));
+            btnOffColor->setStyleSheet(QString(qss).arg(color.name()));
             emit modified();
           }
         });
@@ -158,7 +158,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
           QColor color = dlg->getColor(this->model->customSwitches[i].onColor.getQColor());
           if (color.isValid()) {
             this->model->customSwitches[i].onColor.setColor(color.red(), color.green(), color.blue());
-            btnOnColor->setStyleSheet(QString(qss).arg(on.name()));
+            btnOnColor->setStyleSheet(QString(qss).arg(color.name()));
             emit modified();
           }
         });
