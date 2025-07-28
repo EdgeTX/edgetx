@@ -67,5 +67,3 @@ uint32_t bsp_get_fs_switches();
 
 uint16_t bsp_input_get();
 struct stm32_switch_t;
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx);
-

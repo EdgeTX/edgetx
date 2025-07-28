@@ -389,6 +389,13 @@ SWITCH_CONFIG = {
         "SD": {"default": "3POS"},
         "SE": {"default": "2POS"},
         "SF": {"default": "TOGGLE"},
+        # custom switches
+        "SG": {"default": "2POS"},
+        "SH": {"default": "2POS"},
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"},
+        "SK": {"default": "2POS"},
+        "SL": {"default": "2POS"},
     },
     "tx16s": {
         "SA": {"default": "3POS"},

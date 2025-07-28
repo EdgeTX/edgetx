@@ -394,7 +394,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 64;
 
     case LcdWidth:
-      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board)) 
+      if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board))
         return 320;
       else if (IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
         return 480;
@@ -422,7 +422,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return IS_RADIOMASTER_MT12(board);
 
     case FunctionSwitchColors:
-      return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_PA01(board);
+      return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_PA01(board) || IS_RADIOMASTER_TX15(board);
 
     default:
       return getBoardJson(board)->getCapability(capability);

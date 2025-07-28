@@ -26,15 +26,17 @@
 #include "stm32_i2c_driver.h"
 #include "timers_driver.h"
 #include "delays_driver.h"
-#include "boards/generic_stm32/rgb_leds.h"
+#include "stm32_ws2812.h"
+#include "stm32_switch_driver.h"
 
 #if !defined(BOOT)
 #include "os/async.h"
 #include "os/timer.h"
 #endif
 
-#include "bitfield.h"
 #include "debug.h"
+
+extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
 
 struct bsp_io_expander {
     pca95xx_t exp;
@@ -43,6 +45,7 @@ struct bsp_io_expander {
 };
 
 static volatile bool _poll_switches_in_queue = false;
+
 static bsp_io_expander _io_switches;
 static bsp_io_expander _io_fs_switches;
 
@@ -75,6 +78,7 @@ static uint32_t _read_io_expander(bsp_io_expander* io)
   return io->state;
 }
 
+#if !defined(BOOT)
 typedef enum {
   TRIGGERED_BY_TIMER = 0,
   TRIGGERED_BY_IRQ,
@@ -82,30 +86,17 @@ typedef enum {
 
 static void _poll_switches(void *param1, uint32_t trigger_source)
 {
-#if !defined(BOOT)
   if (trigger_source == TRIGGERED_BY_IRQ) {
     _poll_switches_in_queue = false;
     timer_reset(&_poll_timer);
   }
-#endif
-  bsp_io_read_switches();
-  bsp_io_read_fs_switches();
+
+  _read_io_expander(&_io_switches);
+  _read_io_expander(&_io_fs_switches);
 }
 
-#if !defined(BOOT)
-static void _io_int_handler(bsp_io_expander* io)
+static void _io_int_handler()
 {
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-    xTimerPendFunctionCallFromISR(_poll_switches, (void*)io, 0,
-                                  &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-  } else {
-    _read_io_expander(io);
-  }
-}
-
-static void _io_int_handler() {
   async_call_isr(_poll_switches, &_poll_switches_in_queue, nullptr,
                  TRIGGERED_BY_IRQ);
 }
@@ -123,12 +114,8 @@ static void start_poll_timer()
 }
 #endif
 
-extern uint32_t readTrims();
-
 int bsp_io_init()
 {
-  timersInit();
-
   int i2cError = i2c_init(I2C_Bus_1);
   if (i2cError < 0) {
     TRACE("I2C INIT ERROR: %d", i2cError);
@@ -159,24 +146,14 @@ int bsp_io_init()
   gpio_init_int(IO_INT_GPIO, GPIO_IN, GPIO_FALLING, _io_int_handler);
 #endif
 
-  bsp_io_read_switches();
-  bsp_io_read_fs_switches();
+  _read_io_expander(&_io_switches);
+  _read_io_expander(&_io_fs_switches);
 
 #if !defined(BOOT)
   start_poll_timer();
 #endif
 
   return 0;
-}
-
-uint32_t bsp_io_read_switches()
-{
-  return _read_io_expander(&_io_switches);
-}
-
-uint32_t bsp_io_read_fs_switches()
-{
-  return _read_io_expander(&_io_fs_switches);
 }
 
 uint32_t bsp_get_fs_switches()
@@ -189,87 +166,53 @@ void boardInitSwitches()
   bsp_io_init();
 }
 
-struct bsp_io_sw_def {
-    uint32_t pin_high;
-    uint32_t pin_low;
-};
-
-static constexpr uint32_t RGB_OFFSET = (1 << 16); // first after bspio pins
-static uint16_t soft2POSLogicalState = 0xFFFF;
-
-static const bsp_io_sw_def _switch_defs[] = {
-        { SWITCH_A_H, SWITCH_A_L },
-        { SWITCH_B_H, SWITCH_B_L },
-        { SWITCH_C_H, SWITCH_C_L },
-        { SWITCH_D_H, SWITCH_D_L },
-        { SWITCH_E_H, SWITCH_E_L },
-        { SWITCH_F_H, SWITCH_F_L },
-};
-
 static SwitchHwPos _get_switch_pos(uint8_t idx)
 {
-  static uint32_t oldState = 0;
   SwitchHwPos pos = SWITCH_HW_UP;
-  const bsp_io_sw_def* def = &_switch_defs[idx];
 
+  const stm32_switch_t* def = boardGetSwitchDef(idx);
   uint32_t state = _io_switches.state;
 
-  if (!def->pin_low) {
+  if (def->isCustomSwitch) {
+    if ((state & def->Pin_high) == 0) {
+      return SWITCH_HW_DOWN;
+    } else {
+      return SWITCH_HW_UP;
+    }
+  }
+  else if (!def->Pin_low) {
     // 2POS switch
-    if ((state & def->pin_high) == 0) {
+    if ((state & def->Pin_high) == 0) {
       pos = SWITCH_HW_DOWN;
     }
   } else {
-    bool hi = state & def->pin_high;
-    bool lo = state & def->pin_low;
+    bool hi = state & def->Pin_high;
+    bool lo = state & def->Pin_low;
 
-    if(!isSwitch3Pos(idx))
-    {
-      // Switch not declared as 3POS installed in a 3POS HW
-      if (!(hi && lo)) {
-        pos = SWITCH_HW_DOWN;
-      }
-    } else if (hi && lo) {
+    if (hi && lo) {
       pos = SWITCH_HW_MID;
     } else if (!hi && lo) {
       pos = SWITCH_HW_DOWN;
     }
   }
 
-  if (idx == switchGetMaxSwitches() - 1)
-    oldState = state;
-
   return pos;
 }
 
 static SwitchHwPos _get_fs_switch_pos(uint8_t idx)
 {
+  const stm32_switch_t* def = boardGetSwitchDef(idx);
   uint32_t state = _io_fs_switches.state;
-  if ((state & (1 << idx)) == 0) {
+  if ((state & def->Pin_high) == 0) {
     return SWITCH_HW_DOWN;
   } else {
     return SWITCH_HW_UP;
   }
 }
 
-SwitchHwPos boardSwitchGetPosition(uint8_t cat, uint8_t idx)
+SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
-  if (cat == SWITCH_PHYSICAL) {
+  if (idx < 6)
     return _get_switch_pos(idx);
-  } else if (cat == SWITCH_FUNCTION){
-    return _get_fs_switch_pos(idx);
-  }
-
-  return SWITCH_HW_UP;
-}
-
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx)
-{
-  if (cat == SWITCH_PHYSICAL) {
-    return _get_switch_pos(idx);
-  } else if (cat == SWITCH_FUNCTION){
-    return _get_fs_switch_pos(idx);
-  }
-
-  return SWITCH_HW_UP;
+  return _get_fs_switch_pos(idx);
 }

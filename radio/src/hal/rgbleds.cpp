@@ -63,11 +63,6 @@ bool getFSLedState(uint8_t index) {
 
 uint32_t getFSLedRGBColor(uint8_t index)
 {
-    return fsGetLedRGB(index);
-}
-
-uint32_t getFSLedRGBColor(uint8_t index)
-{
   return fsGetLedRGB(index);
 }
 #else
