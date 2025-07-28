@@ -25,32 +25,59 @@
 #include "dataconstants.h"
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+static bool hasLedOverride[NUM_FUNCTIONS_SWITCHES] = { false };
+static RGBLedColor ledOverride[NUM_FUNCTIONS_SWITCHES];
+
+void setFSLedOverride(uint8_t index, bool state, uint8_t r, uint8_t g, uint8_t b)
+{
+  hasLedOverride[index] = state;
+  ledOverride[index].r = r;
+  ledOverride[index].g = g;
+  ledOverride[index].b = b;
+}
+
 void setFSLedOFF(uint8_t index) {
-  fsLedRGB(index, g_model.functionSwitchLedOFFColor[index].getColor());
+  if (g_model.getSwitchType(index) != SWITCH_NONE) {
+    uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
+    if (hasLedOverride[cfsIdx] && g_model.getSwitchOffColorLuaOverride(index))
+      fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
+    else
+      fsLedRGB(cfsIdx, g_model.getSwitchOffColor(index).getColor());
+  }
 }
 
 void setFSLedON(uint8_t index) {
-  fsLedRGB(index, g_model.functionSwitchLedONColor[index].getColor());
+  if (g_model.getSwitchType(index) != SWITCH_NONE) {
+    uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
+    if (hasLedOverride[cfsIdx] && g_model.getSwitchOnColorLuaOverride(index))
+      fsLedRGB(cfsIdx, ledOverride[cfsIdx].getColor());
+    else
+      fsLedRGB(cfsIdx, g_model.getSwitchOnColor(index).getColor());
+  }
 }
 
 bool getFSLedState(uint8_t index) {
-  return fsGetLedRGB(index) == g_model.functionSwitchLedONColor[index].getColor();
+  uint8_t cfsIdx = switchGetCustomSwitchIdx(index);
+  return rgbGetLedColor(cfsIdx) == g_model.getSwitchOnColor(index).getColor();
 }
 
 uint32_t getFSLedRGBColor(uint8_t index)
 {
-  return fsGetLedRGB(index);
+    return fsGetLedRGB(index);
 }
 #else
 void setFSLedOFF(uint8_t index) {
+  index = switchGetCustomSwitchIdx(index);
   fsLedOff(index);
 }
 
 void setFSLedON(uint8_t index) {
+  index = switchGetCustomSwitchIdx(index);
   fsLedOn(index);
 }
 
 bool getFSLedState(uint8_t index) {
+  index = switchGetCustomSwitchIdx(index);
   return fsLedState(index);
 }
 #endif

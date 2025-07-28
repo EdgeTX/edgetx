@@ -53,7 +53,11 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "OFF","Recopie Télém.","Télémétrie In","Écolage SBUS","LUA","CLI","GPS","Débug","SpaceMouse","Module externe"
 
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Rien","Monostable","2-POS","3-POS","Global"
+#else
 #define TR_SWTYPES                     "Rien","Monostable","2-POS","3-POS"
+#endif
 #define TR_POTTYPES                    "Rien",TR("Pots","Potentiomètre"),TR("Pots av. ctr","Pots avec centre"),"Curseurs",TR("Multipos.","Inter multi-pos""Potentiomètre"),"Axis X","Axis Y","Switch"
 
 #define TR_VPERSISTENT                 "OFF","Vol","Reset Manuel"
@@ -298,8 +302,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"

@@ -298,8 +298,7 @@
 #define TR_FS_COLOR_LIST                  "사용자 정의", "끄기", "흰색", "빨강", "초록", "노랑", "주황", "파랑", "분홍"
 #define TR_GROUP                          "그룹"
 #define TR_GROUP_ALWAYS_ON                "항상 켜짐"
-#define TR_FS_ON_COLOR                    TR("켜짐:", "켜짐 색상")
-#define TR_FS_OFF_COLOR                   TR("꺼짐:", "꺼짐 색상")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                         "항상 켜짐 그룹"
 #define TR_LAST                           "마지막"
 #define TR_MORE_INFO                      "자세히 보기"

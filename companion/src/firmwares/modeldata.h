@@ -104,13 +104,19 @@ class USBJoystickChData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(USBJoystickChData)); }
 };
 
-class RGBLedColor {
+class customSwitch {
   public:
-    RGBLedColor() { clear(); }
-    int r;
-    int g;
-    int b;
-    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(RGBLedColor)); }
+    customSwitch() { clear(); }
+    Board::SwitchType type;
+    unsigned int group;
+    unsigned int start;
+    unsigned int state;
+    char name[HARDWARE_NAME_LEN + 1];
+    unsigned int onColorLuaOverride;
+    unsigned int offColorLuaOverride;
+    RGBLedColor onColor;
+    RGBLedColor offColor;
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(customSwitch)); }
 };
 
 class ModelData {
@@ -171,7 +177,6 @@ class ModelData {
     SwashRingData swashRingData;
     unsigned int thrTraceSrc;
     uint64_t switchWarningStates;
-    unsigned int switchWarningEnable;
     unsigned int thrTrimSwitch;
     unsigned int potsWarningMode;
     bool potsWarnEnabled[CPN_MAX_INPUTS];
@@ -220,30 +225,17 @@ class ModelData {
     unsigned int modelCustomScriptsDisabled;
     unsigned int modelTelemetryDisabled;
 
-    enum FunctionSwitchConfig {
-      FUNC_SWITCH_CONFIG_NONE,
-      FUNC_SWITCH_CONFIG_FIRST = FUNC_SWITCH_CONFIG_NONE,
-      FUNC_SWITCH_CONFIG_TOGGLE,
-      FUNC_SWITCH_CONFIG_2POS,
-      FUNC_SWITCH_CONFIG_LAST = FUNC_SWITCH_CONFIG_2POS
-    };
-
     enum FunctionSwitchStart {
-      FUNC_SWITCH_START_ON,
-      FUNC_SWITCH_START_FIRST = FUNC_SWITCH_START_ON,
       FUNC_SWITCH_START_OFF,
+      FUNC_SWITCH_START_FIRST = FUNC_SWITCH_START_OFF,
+      FUNC_SWITCH_START_ON,
       FUNC_SWITCH_START_PREVIOUS,
       FUNC_SWITCH_START_LAST = FUNC_SWITCH_START_PREVIOUS
     };
 
     // Function switches
-    unsigned int functionSwitchConfig;
-    unsigned int functionSwitchGroup;
-    unsigned int functionSwitchStartConfig;
-    unsigned int functionSwitchLogicalState;
-    char functionSwitchNames[CPN_MAX_SWITCHES_FUNCTION][HARDWARE_NAME_LEN + 1];
-    RGBLedColor functionSwitchLedONColor[CPN_MAX_SWITCHES_FUNCTION];
-    RGBLedColor functionSwitchLedOFFColor[CPN_MAX_SWITCHES_FUNCTION];
+    customSwitch customSwitches[CPN_MAX_SWITCHES_FUNCTION];
+    unsigned int cfsGroupOn[4];
 
     // Custom USB joytsick mapping
     unsigned int usbJoystickExtMode;
@@ -287,9 +279,11 @@ class ModelData {
     int getChannelsMax(bool forceExtendedLimits=false) const;
 
     bool isAvailable(const RawSwitch & swtch) const;
-    bool isFunctionSwitchPositionAvailable(int index) const;
+    bool isFunctionSwitchPositionAvailable(int swIndex, int swPos, const GeneralSettings * const gs) const;
     bool isFunctionSwitchSourceAllowed(int index) const;
 
+    const Board::SwitchType getSwitchType(int sw, const GeneralSettings & gs) const;
+  
     enum ReferenceUpdateAction {
       REF_UPD_ACT_CLEAR,
       REF_UPD_ACT_SHIFT,
@@ -344,8 +338,8 @@ class ModelData {
     static QString trainerModeToString(const int value);
     bool isTrainerModeAvailable(const GeneralSettings & generalSettings, const Firmware * firmware, const int value);
     AbstractStaticItemModel * trainerModeItemModel(const GeneralSettings & generalSettings, const Firmware * firmware);
-    unsigned int getFuncSwitchConfig(unsigned int index) const;
-    void setFuncSwitchConfig(unsigned int index, unsigned int value);
+    Board::SwitchType getFuncSwitchConfig(unsigned int index) const;
+    void setFuncSwitchConfig(unsigned int index, Board::SwitchType value);
     static QString funcSwitchConfigToString(unsigned int value);
     static AbstractStaticItemModel * funcSwitchConfigItemModel();
     static AbstractStaticItemModel * funcSwitchGroupStartSwitchModel(int switchcnt);

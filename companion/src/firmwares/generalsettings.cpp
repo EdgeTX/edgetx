@@ -170,6 +170,11 @@ bool GeneralSettings::isSwitchFlex(int index) const
   return Boards::isSwitchFlex(index);
 }
 
+bool GeneralSettings::isSwitchFunc(int index) const
+{
+  return Boards::isSwitchFunc(index);
+}
+
 bool GeneralSettings::unassignedInputFlexSwitches() const
 {
   Board::Type board = getCurrentBoard();
@@ -372,6 +377,10 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     switchConfig[i].type = info.dflt;
     switchConfig[i].inverted = info.inverted;
     switchConfig[i].inputIdx = SWITCH_INPUTINDEX_NONE;
+    if (Boards::isSwitchFunc(i)) {
+      switchConfig[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
+      switchConfig[i].onColor.setColor(255, 255, 255);
+    }
   }
 
   for (uint8_t i = 0; i < 4; i++) {

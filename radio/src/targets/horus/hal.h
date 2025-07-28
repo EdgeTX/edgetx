@@ -156,36 +156,42 @@
   #define HARDWARE_SWITCH_G
   #define SWITCHES_GPIO_REG_G           GPIOB
   #define SWITCHES_GPIO_PIN_G           LL_GPIO_PIN_14  // PB.14
+  #define SWITCHES_G_CFS_IDX            0
   //SW2
   #define FUNCTION_SWITCH_2             SH
   #define STORAGE_SWITCH_H
   #define HARDWARE_SWITCH_H
   #define SWITCHES_GPIO_REG_H           GPIOD
   #define SWITCHES_GPIO_PIN_H           LL_GPIO_PIN_13  // PD.13
+  #define SWITCHES_H_CFS_IDX            1
   //SW3
   #define FUNCTION_SWITCH_3             SI
   #define STORAGE_SWITCH_I
   #define HARDWARE_SWITCH_I
   #define SWITCHES_GPIO_REG_I           GPIOJ
   #define SWITCHES_GPIO_PIN_I           LL_GPIO_PIN_7  // PJ.07
+  #define SWITCHES_I_CFS_IDX            2
   //SW4
   #define FUNCTION_SWITCH_4             SJ
   #define STORAGE_SWITCH_J
   #define HARDWARE_SWITCH_J
   #define SWITCHES_GPIO_REG_J           GPIOG
   #define SWITCHES_GPIO_PIN_J           LL_GPIO_PIN_13 // PG.13
+  #define SWITCHES_J_CFS_IDX            3
   //SW5
   #define FUNCTION_SWITCH_5             SK
   #define STORAGE_SWITCH_K
   #define HARDWARE_SWITCH_K
   #define SWITCHES_GPIO_REG_K           GPIOJ
   #define SWITCHES_GPIO_PIN_K           LL_GPIO_PIN_8  // PJ.08
+  #define SWITCHES_K_CFS_IDX            4
   //SW6
   #define FUNCTION_SWITCH_6             SL
   #define STORAGE_SWITCH_L
   #define HARDWARE_SWITCH_L
   #define SWITCHES_GPIO_REG_L           GPIOB
   #define SWITCHES_GPIO_PIN_L           LL_GPIO_PIN_13 // PB.13
+  #define SWITCHES_L_CFS_IDX            5
 #else
   #define STORAGE_SWITCH_A
   #define HARDWARE_SWITCH_A
@@ -1044,6 +1050,8 @@
 #if defined(RADIO_V16)
   // LED Strip
   #define LED_STRIP_LENGTH                  40
+  #define BLING_LED_STRIP_START             6
+  #define BLING_LED_STRIP_LENGTH            34
   #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 10)  // PA.10 / TIM1_CH3
   #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1    // TIM1/2
   #define LED_STRIP_TIMER                   TIM1

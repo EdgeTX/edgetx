@@ -53,7 +53,11 @@
 #define TR_TRNMODE                     "X","Sečíst","Zaměnit"
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "VYP","Telemetrie zrcadlení","Telemetrie vstup","SBUS Trenér","LUA","CLI","GPS","Debug","SpaceMouse","Externí modul"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový","Globální"
+#else
 #define TR_SWTYPES                     "Žádný","Bez aretace","2-polohový","3-polohový"
+#endif
 #define TR_POTTYPES                    "Žádný",TR("Pot","Potenciometr"),TR("Pot s aret.","Pot s aretací"),"Slider",TR("Vícepol př.","Vícepol. přep."),"Osa X","Osa Y","Přepínač"
 #define TR_VPERSISTENT                 "Ne","V rámci letu","Reset ručně"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japonsko"),TR("EU","Evropa")
@@ -302,8 +306,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"

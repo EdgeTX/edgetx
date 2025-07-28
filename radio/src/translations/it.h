@@ -49,7 +49,11 @@
 #define TR_TRNCHN              "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES             "OFF","Replica Telem","Telemetria In","SBUS Trainer","LUA","CLI","GPS","Debug","SpaceMouse","Modulo esterno"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                      "Disab.","Toggle","2POS","3POS","Globali"
+#else
 #define TR_SWTYPES                      "Disab.","Toggle","2POS","3POS"
+#endif
 #define TR_POTTYPES                     "Disab.",TR("Pot","Potenziometro"),TR("Pot c. fer","Pot. con centro"),"Slider",TR("Multipos","Inter. Multipos"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                  "NO","Volo","Reset Manuale"
 #define TR_COUNTRY_CODES                TR("US","America"),TR("JP","Japan"),TR("EU","Europa")
@@ -293,8 +297,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Gruppo"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Colore")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Colore")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Sempre in gruppi"
 #define TR_LAST                        "Ultimo"
 #define TR_MORE_INFO                   "Più info"

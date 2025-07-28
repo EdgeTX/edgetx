@@ -560,7 +560,7 @@ enum MixSources {
 #define INPUTSRC_LAST               MIXSRC_LAST_TELEM
 
 #if defined(FUNCTION_SWITCHES)
-#define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxSwitches() - 1)
+#define MIXSRC_LAST_REGULAR_SWITCH  (MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1)
 #define MIXSRC_FIRST_FS_SWITCH      (MIXSRC_LAST_REGULAR_SWITCH + 1)
 #endif
 

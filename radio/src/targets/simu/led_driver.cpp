@@ -19,20 +19,25 @@
  * GNU General Public License for more details.
  */
 
-#include <stdint.h>
+#include "edgetx.h"
 #include "hal/rgbleds.h"
 #include "definitions.h"
-
-#include "board.h"
 
 bool usbChargerLed() { return true; }
 void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
-
-void rgbSetLedColor(uint8_t, uint8_t, uint8_t, uint8_t) {}
 void rgbLedColorApply() {}
+
+bool fsLedState(uint8_t i)
+{
+#if defined(FUNCTION_SWITCHES)
+  return g_model.customSwitches[i].state;
+#else
+  return false;
+#endif
+}
 
 uint8_t getRGBColorIndex(uint32_t color)
 {
@@ -43,39 +48,37 @@ uint8_t getRGBColorIndex(uint32_t color)
   return 0; // Custom value set with Companion
 }
 
-#if NUM_FUNCTIONS_SWITCHES > 0
-static uint32_t _fs_switch_colors[NUM_FUNCTIONS_SWITCHES] = {0};
-static uint32_t _fs_switch_color_mask = 0;
-static uint32_t _fs_switch_mask = 0;
+// RGB
+#define WS2812_BYTES_PER_LED 3
 
-void fsLedRGB(uint8_t index, uint32_t col)
+// Maximum number of supported LEDs
+#if !defined(WS2812_MAX_LEDS)
+#  define WS2812_MAX_LEDS 48
+#endif
+
+// Pixel values
+static uint8_t _led_colors[WS2812_BYTES_PER_LED * WS2812_MAX_LEDS];
+
+void rgbSetLedColor(uint8_t led, uint8_t r, uint8_t g, uint8_t b)
 {
-  _fs_switch_color_mask |= (1 << index);
-  _fs_switch_colors[index] = col;
+  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
+  pixel[0] = g;
+  pixel[1] = r;
+  pixel[2] = b;
+}
+
+uint32_t rgbGetLedColor(uint8_t led)
+{
+  uint8_t* pixel = &_led_colors[led * WS2812_BYTES_PER_LED];
+  return (pixel[1] << 16) + (pixel[0] << 8) + pixel[2];
+}
+
+void fsLedRGB(uint8_t idx, uint32_t color)
+{
+  rgbSetLedColor(idx, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
 }
 
 uint32_t fsGetLedRGB(uint8_t index)
 {
-  return _fs_switch_colors[index];
+  return rgbGetLedColor(index);
 }
-
-bool fsLedIsColorSet(uint8_t index)
-{
-  return _fs_switch_color_mask & (1 << index);
-}
-
-bool fsLedState(uint8_t index)
-{
-  return _fs_switch_mask & (1 << index);
-}
-
-void fsLedOn(uint8_t index)
-{
-  _fs_switch_mask |= (1 << index);
-}
-
-void fsLedOff(uint8_t index)
-{
-  _fs_switch_mask &= ~(1 << index);
-}
-#endif

@@ -51,7 +51,11 @@
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
 #define TR_AUX_SERIAL_MODES            "Выкл","Зерк телем","Телем вход","SBUS Тренаж","LUA","CLI","GPS","Отлад","SpaceMouse","Внеш модуль"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Нет","тумбл","2Х-поз пер","3Х-поз пер","Глоб"
+#else
 #define TR_SWTYPES                     "Нет","тумбл","2Х-поз пер","3Х-поз пер"
+#endif
 #define TR_POTTYPES                    "None","Pot",TR("Pot w. det","Pot with detent"),"Slider",TR("Multipos","Multipos Switch"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "Выкл","Полет","Руч сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Евро")
@@ -297,8 +301,7 @@
 #define TR_FS_COLOR_LIST               "Свой","Выкл","Белый","Красн","Зелен","Желт","Оранж","Синий","Розов"
 #define TR_GROUP                       "Группа"
 #define TR_GROUP_ALWAYS_ON             "Включить все"
-#define TR_FS_ON_COLOR                 TR("Вкл:","Вкл цвет")
-#define TR_FS_OFF_COLOR                TR("Выкл:","Выкл цвет")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Вкл все группы"
 #define TR_LAST                        "послед"
 #define TR_MORE_INFO                   "Доп инфо"

@@ -44,8 +44,27 @@ extern const char * nchar2string(const char * string, int size);
 #define EXPECT_ZSTREQ(c_string, z_string)   EXPECT_STREQ(c_string, zchar2string(z_string, sizeof(z_string)))
 #define EXPECT_STRNEQ(c_string, n_string)   EXPECT_STREQ(c_string, nchar2string(n_string, sizeof(n_string)))
 
+#if defined(RADIO_GX12)
 #define RADIO_RESET() \
-  g_eeGeneral.switchConfig = 0x00007bff
+  g_eeGeneral.switchSetType(0, SWITCH_2POS); \
+  g_eeGeneral.switchSetType(1, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(2, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(3, SWITCH_2POS); \
+  g_eeGeneral.switchSetType(4, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(5, SWITCH_2POS); \
+  g_eeGeneral.switchSetType(6, SWITCH_TOGGLE); \
+  g_eeGeneral.switchSetType(7, SWITCH_TOGGLE)
+#else
+#define RADIO_RESET() \
+  g_eeGeneral.switchSetType(0, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(1, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(2, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(3, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(4, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(5, SWITCH_2POS); \
+  g_eeGeneral.switchSetType(6, SWITCH_3POS); \
+  g_eeGeneral.switchSetType(7, SWITCH_TOGGLE)
+#endif
 
 inline void SYSTEM_RESET()
 {
@@ -54,7 +73,7 @@ inline void SYSTEM_RESET()
 #endif
   generalDefault();
   g_eeGeneral.templateSetup = 0;
-  for (int i=0; i<switchGetMaxSwitches(); i++) {
+  for (int i=0; i<switchGetMaxAllSwitches(); i++) {
     simuSetSwitch(i, -1);
   }
 }
@@ -91,7 +110,7 @@ inline void TELEMETRY_RESET()
   memclear(g_model.telemetrySensors, sizeof(g_model.telemetrySensors));
 }
 
-class OpenTxTest : public testing::Test 
+class EdgeTxTest : public testing::Test 
 {
   protected:  // You should make the members protected s.t. they can be
               // accessed from sub-classes.

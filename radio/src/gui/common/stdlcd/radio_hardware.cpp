@@ -24,6 +24,7 @@
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
+#include "hal/rgbleds.h"
 
 #include "analogs.h"
 #include "switches.h"
@@ -62,6 +63,11 @@ enum {
   ITEM_RADIO_HARDWARE_LABEL_SWITCHES,
   ITEM_RADIO_HARDWARE_SWITCH,
   ITEM_RADIO_HARDWARE_SWITCH_END = ITEM_RADIO_HARDWARE_SWITCH + MAX_SWITCHES - 1,
+#if defined(FUNCTION_SWITCHES)
+  ITEM_RADIO_HARDWARE_LABEL_CFS,
+  ITEM_RADIO_HARDWARE_CFS,
+  ITEM_RADIO_HARDWARE_CFS_END = ITEM_RADIO_HARDWARE_CFS + MAX_SWITCHES - 1,
+#endif
   CASE_BATTGRAPH(ITEM_RADIO_HARDWARE_BATT_RANGE)
   ITEM_RADIO_HARDWARE_BATTERY_CALIB,
   ITEM_RADIO_HARDWARE_RTC_BATTERY,
@@ -114,6 +120,130 @@ static void onHardwareAntennaSwitchConfirm(const char * result)
 }
 #endif
 
+#if defined(FUNCTION_SWITCHES)
+#define RADIO_SETUP_2ND_COLUMN           (LCD_W-11*FW)
+extern char* _fct_sw_start[];
+static int swIndex;
+
+extern bool checkCFSTypeAvailable(int val);
+
+enum CFSFields {
+  CFS_FIELD_TYPE,
+  CFS_FIELD_NAME,
+  CFS_FIELD_START,
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  CFS_FIELD_COLOR_LABEL,
+  CFS_FIELD_ON_COLOR,
+  CFS_FIELD_ON_LUA_OVERRIDE,
+  CFS_FIELD_OFF_COLOR,
+  CFS_FIELD_OFF_LUA_OVERRIDE,
+#endif
+  CFS_FIELD_COUNT
+};
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+extern void menuCFSColor(coord_t y, RGBLedColor& color, const char* title, LcdFlags attr, event_t event);
+#endif
+
+static void menuRadioCFSOne(event_t event)
+{
+  std::string s(STR_CHAR_SWITCH);
+  s += switchGetDefaultName(swIndex);
+
+  int config = g_eeGeneral.switchType(swIndex);
+  uint8_t group = g_eeGeneral.switchGroup(swIndex);
+  int startPos = g_eeGeneral.switchStart(swIndex);
+
+  SUBMENU(s.c_str(), CFS_FIELD_COUNT,
+    {
+      0,
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_TOGGLE && config != SWITCH_GLOBAL && group == 0) ? 0 : HIDDEN_ROW),
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? LABEL() : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 3 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 3 : HIDDEN_ROW),
+      (uint8_t)((config != SWITCH_NONE && config != SWITCH_GLOBAL) ? 0 : HIDDEN_ROW),
+#endif
+    });
+  
+  int8_t sub = menuVerticalPosition;
+  int8_t editMode = s_editMode;
+
+  coord_t y = MENU_HEADER_HEIGHT + 1;
+
+  for (int k = 0; k < NUM_BODY_LINES; k += 1) {
+    int i = k + menuVerticalOffset;
+    for (int j = 0; j <= i; j += 1) {
+      if (j < (int)DIM(mstate_tab) && mstate_tab[j] == HIDDEN_ROW) {
+        i += 1;
+      }
+    }
+    LcdFlags attr = (sub == i ? (editMode > 0 ? BLINK | INVERS : INVERS) : 0);
+
+    switch(i) {
+      case CFS_FIELD_TYPE:
+        config = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_SWITCH_TYPE, STR_SWTYPES, config, SWITCH_NONE, SWITCH_3POS, attr, event, 0, checkCFSTypeAvailable);
+        if (attr && checkIncDec_Ret) {
+          g_eeGeneral.switchSetType(swIndex, (SwitchConfig)config);
+          if (config == SWITCH_NONE) {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+            if (g_model.getSwitchType(swIndex) == SWITCH_NONE)
+              fsLedRGB(switchGetCustomSwitchIdx(swIndex), 0);
+#endif
+          } else if (config == SWITCH_TOGGLE) {
+            g_eeGeneral.switchSetStart(swIndex, FS_START_PREVIOUS);  // Toggle switches do not have startup position
+          }
+        }
+        break;
+
+      case CFS_FIELD_NAME:
+        editSingleName(RADIO_SETUP_2ND_COLUMN, y, STR_NAME, g_eeGeneral.switchName(swIndex),
+                       LEN_SWITCH_NAME, event, (attr != 0),
+                       editMode);
+        break;
+
+      case CFS_FIELD_START:
+        lcdDrawText(0, y, STR_SWITCH_STARTUP);
+        lcdDrawText(RADIO_SETUP_2ND_COLUMN, y, _fct_sw_start[startPos], attr ? (s_editMode ? INVERS + BLINK : INVERS) : 0);
+        if (attr) {
+          startPos = checkIncDec(event, startPos, FS_START_OFF, FS_START_PREVIOUS, EE_MODEL);
+          g_eeGeneral.switchSetStart(swIndex, (fsStartPositionType)startPos);
+        }
+        break;
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      case CFS_FIELD_COLOR_LABEL:
+        lcdDrawText(0, y, STR_BLCOLOR);
+        lcdDrawText(LCD_W - 6 * FW, y, "R", RIGHT | SMLSIZE);
+        lcdDrawText(LCD_W - 3 * FW, y, "G", RIGHT | SMLSIZE);
+        lcdDrawText(LCD_W, y, "B", RIGHT | SMLSIZE);
+        break;
+
+      case CFS_FIELD_ON_COLOR:
+        menuCFSColor(y, g_eeGeneral.switchOnColor(swIndex), STR_OFFON[1], attr, event);
+        break;
+
+      case CFS_FIELD_ON_LUA_OVERRIDE:
+        g_eeGeneral.cfsSetOnColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOnColorLuaOverride(swIndex), LCD_W - 2 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        break;
+
+      case CFS_FIELD_OFF_COLOR:
+        menuCFSColor(y, g_eeGeneral.switchOffColor(swIndex), STR_OFFON[0], attr, event);
+        break;
+
+      case CFS_FIELD_OFF_LUA_OVERRIDE:
+        g_eeGeneral.cfsSetOffColorLuaOverride(swIndex, editCheckBox(g_eeGeneral.cfsOffColorLuaOverride(swIndex), LCD_W - 2 * FW, y, STR_LUA_OVERRIDE, attr, event, INDENT_WIDTH));
+        break;
+#endif
+    }
+
+    y += FH;
+  }
+}
+#endif
+
 static uint8_t _dispSerialPort(uint8_t port_nr)
 {
   auto port = serialGetPort(port_nr);
@@ -147,11 +277,25 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     tab[i] = idx < max_pots ? (IS_POT_MULTIPOS(idx) ? 1 : 2) : HIDDEN_ROW;
   }
 
-  auto max_switches = switchGetMaxSwitches();
+  int max_switches = switchGetMaxAllSwitches();
   for (int i = ITEM_RADIO_HARDWARE_SWITCH; i <= ITEM_RADIO_HARDWARE_SWITCH_END; i++) {
     uint8_t idx = i - ITEM_RADIO_HARDWARE_SWITCH;
-    tab[i] = switchIsFlex(idx) ? 2 : idx < max_switches ? 1 : HIDDEN_ROW;
+    if (idx < max_switches && !switchIsCustomSwitch(idx)) {
+      tab[i] = switchIsFlex(idx) ? 2 : 1;
+    } else {
+      tab[i] = HIDDEN_ROW;
+    }
   }
+#if defined (FUNCTION_SWITCHES)
+  for (int i = ITEM_RADIO_HARDWARE_CFS; i <= ITEM_RADIO_HARDWARE_CFS_END; i++) {
+    uint8_t idx = i - ITEM_RADIO_HARDWARE_CFS;
+    if (idx < max_switches && switchIsCustomSwitch(idx)) {
+      tab[i] = 0;
+    } else {
+      tab[i] = HIDDEN_ROW;
+    }
+  }
+#endif
 
 #if defined(BATTGRAPH)
   tab[ITEM_RADIO_HARDWARE_BATT_RANGE] = 1;
@@ -279,6 +423,12 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_LABEL_SWITCHES:
         lcdDrawTextAlignedLeft(y, STR_SWITCHES);
         break;
+
+#if defined(FUNCTION_SWITCHES)
+      case ITEM_RADIO_HARDWARE_LABEL_CFS:
+        lcdDrawTextAlignedLeft(y, STR_FUNCTION_SWITCHES);
+        break;
+#endif
 
 #if defined(BATTGRAPH)
       case ITEM_RADIO_HARDWARE_BATT_RANGE:
@@ -530,15 +680,14 @@ void menuRadioHardware(event_t event)
             setPotInversion(idx, 0);
             storageDirty(EE_GENERAL);
           }
-        }
-        else if (k <= ITEM_RADIO_HARDWARE_SWITCH_END) {
+        } else if (k <= ITEM_RADIO_HARDWARE_SWITCH_END) {
           // Switches
           int index = k - ITEM_RADIO_HARDWARE_SWITCH;
-          int config = SWITCH_CONFIG(index);
+          int config = g_eeGeneral.switchType(index);
 
           LcdFlags flags = menuHorizontalPosition < 0 ? attr : 0;
           lcdDrawText(INDENT_WIDTH, y, STR_CHAR_SWITCH, flags);
-          lcdDrawText(lcdNextPos, y, switchGetName(index), flags);
+          lcdDrawText(lcdNextPos, y, switchGetDefaultName(index), flags);
 
           if (switchIsFlex(index)) {
             // flexSwitch source
@@ -550,10 +699,10 @@ void menuRadioHardware(event_t event)
 
             //Name
             flags = menuHorizontalPosition == 1 ? attr : 0;
-            if (switchHasCustomName(index) ||
+            if (g_eeGeneral.switchHasCustomName(index) ||
                 (attr && s_editMode > 0 && menuHorizontalPosition == 1)) {
               editName(HW_SETTINGS_COLUMN2, y,
-                       (char*)switchGetCustomName(index), LEN_SWITCH_NAME,
+                       g_eeGeneral.getSwitchCustomName(index), LEN_SWITCH_NAME,
                        event, flags, 0, old_editMode);
             } else {
               lcdDrawMMM(HW_SETTINGS_COLUMN2, y, flags);
@@ -565,19 +714,14 @@ void menuRadioHardware(event_t event)
                            SWITCH_NONE, switchGetMaxType(index), flags, event);
 
             if (attr && checkIncDec_Ret) {
-              swconfig_t mask = SWITCH_CONFIG_MASK(index);
-              g_eeGeneral.switchConfig =
-                  (g_eeGeneral.switchConfig & ~mask) |
-                  ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
-              storageDirty(EE_GENERAL);
+              g_eeGeneral.switchSetType(index, (SwitchConfig)config);
             }
-          }
-          else {
+          } else {
             flags = menuHorizontalPosition == 0 ? attr : 0;
-            if (switchHasCustomName(index) ||
+            if (g_eeGeneral.switchHasCustomName(index) ||
                 (attr && s_editMode > 0 && menuHorizontalPosition == 0)) {
               editName(HW_SETTINGS_COLUMN1, y,
-                       (char*)switchGetCustomName(index), LEN_SWITCH_NAME,
+                       g_eeGeneral.getSwitchCustomName(index), LEN_SWITCH_NAME,
                        event, flags, 0, old_editMode);
             } else {
               lcdDrawMMM(HW_SETTINGS_COLUMN1, y, flags);
@@ -589,13 +733,43 @@ void menuRadioHardware(event_t event)
                            SWITCH_NONE, switchGetMaxType(index), flags, event);
 
             if (attr && checkIncDec_Ret) {
-              swconfig_t mask = SWITCH_CONFIG_MASK(index);
-              g_eeGeneral.switchConfig =
-                  (g_eeGeneral.switchConfig & ~mask) |
-                  ((swconfig_t(config) & SW_CFG_MASK) << (SW_CFG_BITS * index));
-              storageDirty(EE_GENERAL);
+              g_eeGeneral.switchSetType(index, (SwitchConfig)config);
             }
           }
+#if defined(FUNCTION_SWITCHES)
+        } else if (k <= ITEM_RADIO_HARDWARE_CFS_END) {
+          // Customisable Switches
+          int index = k - ITEM_RADIO_HARDWARE_CFS;
+          int config = g_eeGeneral.switchType(index);
+
+          lcdDrawText(INDENT_WIDTH, y, STR_CHAR_SWITCH, attr);
+          lcdDrawText(lcdNextPos, y, switchGetDefaultName(index), attr);
+
+          lcdDrawText(HW_SETTINGS_COLUMN2, y, STR_SWTYPES[config]);
+
+          if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
+            swIndex = index;
+            pushMenu(menuRadioCFSOne);
+          }
+  
+          if (config != SWITCH_NONE) {
+            if (g_eeGeneral.switchName(index)[0]) {
+              char s[LEN_SWITCH_NAME + 1];
+              strAppend(s, g_eeGeneral.switchName(index), LEN_SWITCH_NAME);
+              lcdDrawText(HW_SETTINGS_COLUMN1, y, s);
+            } else {
+              lcdDrawMMM(HW_SETTINGS_COLUMN1, y, 0);
+            }
+
+            uint8_t group = g_eeGeneral.switchGroup(index);
+            // lcdDrawText(30 + 13 * FW, y, STR_FSGROUPS[group]);
+
+            if (config != SWITCH_TOGGLE && group == 0) {
+              int startPos = g_eeGeneral.switchStart(index);
+              lcdDrawText(30 + 15 * FW, y, _fct_sw_start[startPos]);
+            }
+          }
+#endif
         } else if (k <= ITEM_RADIO_HARDWARE_SERIAL_PORT_END) {
           auto port_nr = k - ITEM_RADIO_HARDWARE_SERIAL_PORT;
           auto port = serialGetPort(port_nr);

@@ -107,6 +107,8 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   setId(IMID_RawSource);
   setUpdateMask(IMUE_All &~ (IMUE_Curves | IMUE_Scripts));
 
+  int groups = board->getCapability(Board::FunctionSwitchGroups);
+
   // Descending source direction: inverted (!) sources
   addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    -firmware->getCapability(Sensors) * 3);
   addItems(SOURCE_TYPE_TIMER,          RawSource::TelemGroup,    -firmware->getCapability(Timers));
@@ -116,8 +118,8 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   addItems(SOURCE_TYPE_PPM,            RawSource::SourcesGroup,  -firmware->getCapability(TrainerInputs));
   addItems(SOURCE_TYPE_CYC,            RawSource::SourcesGroup,  -CPN_MAX_CYC);
   addItems(SOURCE_TYPE_CUSTOM_SWITCH,  RawSource::SwitchesGroup, -firmware->getCapability(LogicalSwitches));
-  if (modelData)
-    addItems(SOURCE_TYPE_FUNCTIONSWITCH_GROUP,  RawSource::SourcesGroup,  -CPN_MAX_FUNCTIONSWITCH_GROUP);
+  if (modelData && groups > 0)
+    addItems(SOURCE_TYPE_FUNCTIONSWITCH_GROUP,  RawSource::SourcesGroup,  -groups);
   addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, -board->getCapability(Board::Switches));
   addItems(SOURCE_TYPE_MAX,            RawSource::SourcesGroup,  -1);
   addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  -1);
@@ -139,8 +141,8 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  1);
   addItems(SOURCE_TYPE_MAX,            RawSource::SourcesGroup,  1);
   addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, board->getCapability(Board::Switches));
-  if (modelData)
-    addItems(SOURCE_TYPE_FUNCTIONSWITCH_GROUP,  RawSource::SourcesGroup,  CPN_MAX_FUNCTIONSWITCH_GROUP);
+  if (modelData && groups > 0)
+    addItems(SOURCE_TYPE_FUNCTIONSWITCH_GROUP,  RawSource::SourcesGroup,  groups);
   addItems(SOURCE_TYPE_CUSTOM_SWITCH,  RawSource::SwitchesGroup, firmware->getCapability(LogicalSwitches));
   addItems(SOURCE_TYPE_CYC,            RawSource::SourcesGroup,  CPN_MAX_CYC);
   addItems(SOURCE_TYPE_PPM,            RawSource::SourcesGroup,  firmware->getCapability(TrainerInputs));

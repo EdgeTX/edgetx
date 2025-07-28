@@ -50,7 +50,11 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 
 #define TR_AUX_SERIAL_MODES            "调试","回传镜像","回传输入","SBUS教练","LUA脚本","CLI","GPS","Debug","SpaceMouse","外置发射"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "无","回弹","2段","3段","全局"
+#else
 #define TR_SWTYPES                     "无","回弹","2段","3段"
+#endif
 #define TR_POTTYPES                    "无","无中点旋钮",TR("中点旋钮","有中点旋钮"),"侧滑块",TR("多段","多段按键"),"X 轴","Y 轴","开关"
 #define TR_VPERSISTENT                 "禁用","随飞行记录复位","随手动复位"
 #define TR_COUNTRY_CODES               "美国","日本","欧洲"
@@ -289,8 +293,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"

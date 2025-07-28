@@ -119,6 +119,7 @@ namespace Board {
     SWITCH_TOGGLE,
     SWITCH_2POS,
     SWITCH_3POS,
+    SWITCH_GLOBAL,
     SWITCH_FUNC,
     SWITCH_ADC,
     SWITCH_TYPE_COUNT
@@ -212,6 +213,7 @@ namespace Board {
     FlexSwitches,
     FunctionSwitches,
     FunctionSwitchColors,
+    FunctionSwitchGroups,
     Gyros,
     GyroAxes,
     HasAudioMuteGPIO,
@@ -426,6 +428,8 @@ class Boards
 
     static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getCFSIndexForSwitch(int swIdx, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchIndexForCFS(int cfsIdx, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchName(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchTagNum(int index, Board::Type board = Board::BOARD_UNKNOWN);
