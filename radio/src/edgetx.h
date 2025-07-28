@@ -244,6 +244,8 @@ inline void ALERT(const char *title, const char *msg, uint8_t sound)
 
 #else // !COLORLCD && GUI
 
+#include "popups_common.h"
+
 inline void RAISE_ALERT(const char *title, const char *msg, const char *info,
                         uint8_t sound)
 {
