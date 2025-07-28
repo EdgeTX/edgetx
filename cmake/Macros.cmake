@@ -104,10 +104,6 @@ function(AddHardwareDefTarget output)
     DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
     )
 
-  add_custom_command(OUTPUT ${output}.h
-    COMMAND ${GEN_HW_DEFS} > ${output}.h
-    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
-    )
 endfunction()
 
 function(AddHWGenTarget input template output)
