@@ -41,3 +41,21 @@ Once the format is stable enough and does not require editing each target separa
 to add or rename each attribute, the JSON definition for each target will be generated
 and added to version control. Then the Python scripts will obsoleted and removed. The
 target's `hal.h` should be cleaned-up as well with the definitions present in JSON removed.
+
+## Removing parsed defines from `hal.h`
+
+As we now have JSON files for some parts of the hardware definitions, it would be
+good to remove these redundant definitions and use only the JSON files.
+
+For a smooth transition, the removal and checks should happen as automated as possible.
+
+This includes:
+- logging which defines are used from `hal.h`: [logging_dict.py](logging_dict.py)
+- the output is then sorted and duplicates removed:
+```
+./tools/generate-hw-defs.sh 2>hw_defs.log
+cat hw_defs.log | sort -u | grep -v -E 'None|LL_GPIO|PWM_STICKS' > hw_defs.sorted
+rm hw_defs.log
+```
+- `hw_defs.sorted` can then be used to remove the definitions with [define_remover.py](../../../define_remover.py).
+- a report about the usage of the removed definition is generated with [define_usage_checker.py](../../../define_usage_checker.py).
