@@ -1,0 +1,286 @@
+{
+  "adc_inputs": {
+    "adcs": [
+      {
+        "name": "MAIN",
+        "adc": "ADC1",
+        "dma": "DMA2",
+        "dma_channel": "LL_DMAMUX1_REQ_ADC1",
+        "dma_stream": "LL_DMA_STREAM_4",
+        "dma_stream_irq": "DMA2_Stream4_IRQn",
+        "dma_stream_irq_handler": "DMA2_Stream4_IRQHandler",
+        "sample_time": "LL_ADC_SAMPLINGTIME_64CYCLES_5"
+      },
+      {
+        "name": "EXT",
+        "adc": "ADC3",
+        "dma": "DMA2",
+        "dma_channel": "LL_DMAMUX1_REQ_ADC3",
+        "dma_stream": "LL_DMA_STREAM_0",
+        "dma_stream_irq": "DMA2_Stream0_IRQn",
+        "dma_stream_irq_handler": "DMA2_Stream0_IRQHandler",
+        "sample_time": "LL_ADC_SAMPLINGTIME_64CYCLES_5"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": null,
+        "pin": null,
+        "channel": null
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": null,
+        "pin": null,
+        "channel": null
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": null,
+        "pin": null,
+        "channel": null
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": null,
+        "pin": null,
+        "channel": null
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_3",
+        "channel": "LL_ADC_CHANNEL_15",
+        "label": "LS",
+        "short_label": "L",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_5",
+        "channel": "LL_ADC_CHANNEL_19",
+        "label": "RS",
+        "short_label": "R",
+        "default": "SLIDER"
+      },
+      {
+        "name": "VBAT",
+        "type": "VBAT",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_1",
+        "channel": "LL_ADC_CHANNEL_11"
+      },
+      {
+        "name": "RTC_BAT",
+        "type": "RTC_BAT",
+        "adc": "MAIN",
+        "gpio": null,
+        "pin": null,
+        "channel": "LL_ADC_CHANNEL_VBAT"
+      },
+      {
+        "name": "SWB",
+        "type": "SWITCH",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_5",
+        "channel": "LL_ADC_CHANNEL_8",
+        "inverted": true
+      },
+      {
+        "name": "SWC",
+        "type": "SWITCH",
+        "adc": "EXT",
+        "gpio": "GPIOF",
+        "pin": "LL_GPIO_PIN_7",
+        "channel": "LL_ADC_CHANNEL_3",
+        "inverted": true
+      }
+    ]
+  },
+  "switches": [
+    {
+      "name": "SA",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "2POS",
+      "display": null,
+      "gpio": "GPIOA",
+      "pin": "LL_GPIO_PIN_2",
+      "is_cfs": false
+    },
+    {
+      "name": "SB",
+      "type": "ADC",
+      "flags": 0,
+      "inverted": false,
+      "default": "3POS",
+      "display": null,
+      "adc_input": "SWB",
+      "is_cfs": false
+    },
+    {
+      "name": "SC",
+      "type": "ADC",
+      "flags": 0,
+      "inverted": false,
+      "default": "3POS",
+      "display": null,
+      "adc_input": "SWC",
+      "is_cfs": false
+    },
+    {
+      "name": "SD",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "TOGGLE",
+      "display": null,
+      "gpio": "GPIOF",
+      "pin": "LL_GPIO_PIN_8",
+      "is_cfs": false
+    },
+    {
+      "name": "SE",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "TOGGLE",
+      "display": null,
+      "gpio": "GPIOG",
+      "pin": "LL_GPIO_PIN_3",
+      "is_cfs": false
+    },
+    {
+      "name": "SF",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "TOGGLE",
+      "display": null,
+      "gpio": "GPIOG",
+      "pin": "LL_GPIO_PIN_2",
+      "is_cfs": false
+    },
+    {
+      "name": "SW1",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "2POS",
+      "display": null,
+      "gpio": null,
+      "pin": "AW9523B_PIN_0",
+      "is_cfs": true,
+      "cfs_idx": 0
+    },
+    {
+      "name": "SW2",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "2POS",
+      "display": null,
+      "gpio": null,
+      "pin": "AW9523B_PIN_1",
+      "is_cfs": true,
+      "cfs_idx": 1
+    },
+    {
+      "name": "SW3",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "2POS",
+      "display": null,
+      "gpio": null,
+      "pin": "AW9523B_PIN_2",
+      "is_cfs": true,
+      "cfs_idx": 2
+    },
+    {
+      "name": "SW4",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "2POS",
+      "display": null,
+      "gpio": null,
+      "pin": "AW9523B_PIN_3",
+      "is_cfs": true,
+      "cfs_idx": 3
+    }
+  ],
+  "keys": [
+    {
+      "gpio": null,
+      "pin": null,
+      "active_low": true,
+      "key": "KEY_EXIT",
+      "name": "EXIT",
+      "label": "EXIT"
+    },
+    {
+      "gpio": null,
+      "pin": null,
+      "active_low": true,
+      "key": "KEY_ENTER",
+      "name": "ENTER",
+      "label": "Enter"
+    },
+    {
+      "gpio": null,
+      "pin": null,
+      "active_low": true,
+      "key": "KEY_PAGEUP",
+      "name": "PAGEUP",
+      "label": "PAGE<"
+    },
+    {
+      "gpio": null,
+      "pin": null,
+      "active_low": true,
+      "key": "KEY_PAGEDN",
+      "name": "PAGEDN",
+      "label": "PAGE>"
+    },
+    {
+      "gpio": null,
+      "pin": null,
+      "active_low": true,
+      "key": "KEY_SYS",
+      "name": "SYS",
+      "label": "SYS"
+    }
+  ],
+  "trims": [
+    {
+      "name": "T1"
+    },
+    {
+      "name": "T2"
+    },
+    {
+      "name": "T3"
+    },
+    {
+      "name": "T4"
+    }
+  ]
+}
