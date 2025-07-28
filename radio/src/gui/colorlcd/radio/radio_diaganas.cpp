@@ -131,6 +131,29 @@ class AnaViewWindow : public Window
         grid.nextCell();
       }
     }
+
+#if defined(IMU_ICM4207C) && LANDSCAPE
+    line = newLine(grid);
+    new StaticText(line, rect_t{}, "Tilt X");
+
+    auto lbl = new DynamicText(
+           line, rect_t{},
+           [=]() {
+             return std::to_string((int16_t) gyro.scaledX());
+           });
+    etx_obj_add_style(lbl->getLvObj(), styles->text_align_right, LV_PART_MAIN);
+
+    for (int i = 0; i < 3; i++) {grid.nextCell();}
+    new StaticText(line, rect_t{}, "Tilt Y");
+
+    lbl = new DynamicText(
+           line, rect_t{},
+           [=]() {
+             return std::to_string((int16_t) gyro.scaledY());
+           });
+    etx_obj_add_style(lbl->getLvObj(), styles->text_align_right, LV_PART_MAIN);
+#endif
+
   }
 
   void checkEvents() override { Window::checkEvents(); }
