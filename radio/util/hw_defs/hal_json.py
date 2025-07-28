@@ -1,4 +1,3 @@
-
 import re
 import sys
 import json
@@ -9,38 +8,41 @@ from hal_keys import Key, Trim, parse_trims, parse_keys
 from hal_lcd import Display, parse_lcd
 from hal_cfs import CFS, parse_cfs
 from hal_misc import Misc, parse_misc
+from logging_dict import LoggingDict
 
 import legacy_names
+
 
 #
 # Return a file handle or STDIN
 #
 def open_file(filename):
-
-    if filename and not filename == '-':
+    if filename and not filename == "-":
         return open(filename)
     else:
         return sys.stdin
+
 
 #
 # Read lines of defines into a dictionary
 #
 def parse_hw_defs(filename):
-
     hw_defs = {}
 
     with open_file(filename) as file:
         for line in file.readlines():
-            m = re.match(r'#define ([^\s]*)\s*(.*)', line.rstrip())
-            name = m.group(1)
-            value = m.group(2)
-            if value.isnumeric():
-                value = int(value)
-            elif not value:
-                value = None
-            hw_defs[name] = value
+            m = re.match(r"#define ([^\s]*)\s*(.*)", line.rstrip())
+            if m:
+                name = m.group(1)
+                value = m.group(2)
+                if value.isnumeric():
+                    value = int(value)
+                elif not value:
+                    value = None
+                hw_defs[name] = value
 
     return hw_defs
+
 
 def prune_dict(d):
     # ret = {}
@@ -50,42 +52,42 @@ def prune_dict(d):
     # return ret
     return d
 
-class DictEncoder(json.JSONEncoder):
 
-    def default(self, obj):
-        if isinstance(obj, Switch):
-            return prune_dict(obj.__dict__)
-        if isinstance(obj, ADCInput):
-            return prune_dict(obj.__dict__)
-        if isinstance(obj, SPI_ADCInput):
-            return prune_dict(obj.__dict__)
-        if isinstance(obj, ADC):
-            return prune_dict(obj.__dict__)
-        if isinstance(obj, Trim):
-            return prune_dict(obj.__dict__)
-        if isinstance(obj, Key):
-            return prune_dict(obj.__dict__)
-        if isinstance(obj, Display):
-            return prune_dict(obj.__dict__)
-        if isinstance(obj, CFS):
-            return prune_dict(obj.__dict__)
-        if isinstance(obj, Misc):
-            return prune_dict(obj.__dict__)
+class DictEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Switch):
+            return prune_dict(o.__dict__)
+        if isinstance(o, ADCInput):
+            return prune_dict(o.__dict__)
+        if isinstance(o, SPI_ADCInput):
+            return prune_dict(o.__dict__)
+        if isinstance(o, ADC):
+            return prune_dict(o.__dict__)
+        if isinstance(o, Trim):
+            return prune_dict(o.__dict__)
+        if isinstance(o, Key):
+            return prune_dict(o.__dict__)
+        if isinstance(o, Display):
+            return prune_dict(o.__dict__)
+        if isinstance(o, CFS):
+            return prune_dict(o.__dict__)
+        if isinstance(o, Misc):
+            return prune_dict(o.__dict__)
 
         # Let the base class default method raise the TypeError
-        return json.JSONEncoder.default(self, obj)
+        return json.JSONEncoder.default(self, o)
+
 
 #
 # Parse HAL defines into JSON
 #
 def parse_defines(filename, target):
-
-    hw_defs = parse_hw_defs(filename)
+    hw_defs = LoggingDict(parse_hw_defs(filename))
     out_defs = {}
 
     # parse ADC first, we might have switches using ADC
     legacy_inputs = legacy_names.inputs_by_target(target)
-    adc_parser = ADCInputParser(target,hw_defs,legacy_inputs)
+    adc_parser = ADCInputParser(target, hw_defs, legacy_inputs)
     adc_inputs = adc_parser.parse_inputs()
     out_defs["adc_inputs"] = adc_inputs
 
@@ -108,4 +110,3 @@ def parse_defines(filename, target):
     out_defs["hardware"] = misc
 
     print(json.dumps(out_defs, cls=DictEncoder, indent=2))
-
