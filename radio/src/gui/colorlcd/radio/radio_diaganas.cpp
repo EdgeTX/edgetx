@@ -34,8 +34,8 @@
 #if LANDSCAPE
 
 static const lv_coord_t col_dsc[] = {
-  LV_GRID_FR(32), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
-  LV_GRID_FR(32), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
+  LV_GRID_FR(34), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
+  LV_GRID_FR(34), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40), LV_GRID_FR(40),
   LV_GRID_TEMPLATE_LAST
 };
 
@@ -91,16 +91,15 @@ class AnaViewWindow : public Window
 
       new StaticText(line, rect_t{}, s);
 
-      auto lbl = new DynamicText(
-          line, rect_t{},
+      auto lbl = new DynamicText(line, rect_t{},
           [=]() {
             return std::to_string((int16_t)calibratedAnalogs[i] * 25 / 256);
-          });
-      etx_obj_add_style(lbl->getLvObj(), styles->text_align_right, LV_PART_MAIN);
+          }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
-      lbl = new DynamicText(
-          line, rect_t{}, [=]() { return std::to_string((int16_t)column3(i)); });
-      etx_obj_add_style(lbl->getLvObj(), styles->text_align_right, LV_PART_MAIN);
+      lbl = new DynamicText(line, rect_t{},
+          [=]() {
+            return std::to_string((int16_t)column3(i));
+          }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
       if (column4size() > 0) {
         lbl = new DynamicText(
@@ -108,8 +107,7 @@ class AnaViewWindow : public Window
             [=]() {
               return std::string(column4prefix()) +
                      std::to_string((int16_t)column4(i));
-            });
-        etx_obj_add_style(lbl->getLvObj(), (column4size() == 2) ? styles->text_align_left : styles->text_align_right, LV_PART_MAIN);
+            }, COLOR_THEME_PRIMARY1_INDEX, (column4size() == 2) ? 0 : RIGHT);
 #if LANDSCAPE
         lv_obj_set_grid_cell(lbl->getLvObj(), LV_GRID_ALIGN_STRETCH,
                              3 + (i & 1) * 5, column4size(),
@@ -126,7 +124,6 @@ class AnaViewWindow : public Window
         lbl = new DynamicText(
             line, rect_t{},
             [=]() { return std::to_string((int16_t)column5(i)); });
-        etx_obj_add_style(lbl->getLvObj(), styles->text_align_left, LV_PART_MAIN);
       } else {
         grid.nextCell();
       }
@@ -134,26 +131,24 @@ class AnaViewWindow : public Window
 
 #if defined(IMU_ICM4207C) && LANDSCAPE
     line = newLine(grid);
-    new StaticText(line, rect_t{}, "Tilt X");
+    lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
 
+    new StaticText(line, rect_t{}, "Tilt X");
     auto lbl = new DynamicText(
            line, rect_t{},
            [=]() {
              return std::to_string((int16_t) gyro.scaledX());
-           });
-    etx_obj_add_style(lbl->getLvObj(), styles->text_align_right, LV_PART_MAIN);
+           }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
     for (int i = 0; i < 3; i++) {grid.nextCell();}
-    new StaticText(line, rect_t{}, "Tilt Y");
 
+    new StaticText(line, rect_t{}, "Tilt Y");
     lbl = new DynamicText(
            line, rect_t{},
            [=]() {
              return std::to_string((int16_t) gyro.scaledY());
-           });
-    etx_obj_add_style(lbl->getLvObj(), styles->text_align_right, LV_PART_MAIN);
+           }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 #endif
-
   }
 
   void checkEvents() override { Window::checkEvents(); }
