@@ -1129,7 +1129,7 @@ void edgeTxClose(uint8_t shutdown)
 
   sdDone();
 
-#if defined(FUNCTION_SWITCHES)
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
   turnOffRGBLeds();
 #endif
 }
