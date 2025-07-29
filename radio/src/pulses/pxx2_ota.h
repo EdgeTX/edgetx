@@ -23,6 +23,7 @@
 
 #include "pxx2.h"
 #include "popups.h"
+#include "ffconf.h"
 
 class OtaUpdateInformation: public BindInformation {
   public:

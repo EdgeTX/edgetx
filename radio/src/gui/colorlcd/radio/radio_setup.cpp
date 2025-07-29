@@ -28,11 +28,11 @@
 #include "hal/audio_driver.h"
 
 #include "input_mapping.h"
-#include "libopenui.h"
 #include "edgetx.h"
 #include "page.h"
 #include "storage/modelslist.h"
 #include "tasks/mixer_task.h"
+#include "slider.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 

@@ -21,7 +21,6 @@
 
 #include "preview_window.h"
 
-#include "libopenui.h"
 #include "edgetx.h"
 #include "sliders.h"
 #include "etx_lv_theme.h"

@@ -21,10 +21,6 @@
 
 #include "edgetx.h"
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#endif
-
 extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
 
 constexpr int DEFAULT_POINTS = 5;

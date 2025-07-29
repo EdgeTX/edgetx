@@ -31,10 +31,6 @@
 #include "os/timer.h"
 #include "tasks/mixer_task.h"
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#endif
-
 FIL g_oLogFile __DMA;
 uint8_t logDelay100ms;
 static tmr10ms_t lastLogTime = 0;

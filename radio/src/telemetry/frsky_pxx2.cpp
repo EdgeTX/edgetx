@@ -23,10 +23,6 @@
 
 #if defined(PXX2)
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#endif
-
 #include "pulses/pxx2.h"
 #include "pulses/pxx2_transport.h"
 

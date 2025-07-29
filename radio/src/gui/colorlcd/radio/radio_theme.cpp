@@ -24,7 +24,6 @@
 #include "file_carosell.h"
 #include "color_editor.h"
 #include "color_list.h"
-#include "libopenui.h"
 #include "edgetx.h"
 #include "page.h"
 #include "preview_window.h"

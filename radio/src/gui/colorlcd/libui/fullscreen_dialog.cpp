@@ -22,7 +22,6 @@
 #include "fullscreen_dialog.h"
 
 #include "LvglWrapper.h"
-#include "libopenui.h"
 #include "mainwindow.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
@@ -52,19 +51,7 @@ FullScreenDialog::FullScreenDialog(
 
   build();
 
-  lv_obj_add_event_cb(lvobj, FullScreenDialog::on_draw,
-                      LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
-}
-
-void FullScreenDialog::on_draw(lv_event_t* e)
-{
-  auto dlg = (FullScreenDialog*)lv_obj_get_user_data(lv_event_get_target(e));
-  if (dlg) {
-    if (!dlg->loaded) {
-      dlg->loaded = true;
-      dlg->delayedInit();
-    }
-  }
+  delayLoad();
 }
 
 void FullScreenDialog::build()

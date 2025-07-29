@@ -67,7 +67,7 @@ class ViewTextWindow : public Page
 
   void onEvent(event_t event) override;
 
-  static void on_draw(lv_event_t * e);
+  void delayedInit() override;
 };
 
 void readModelNotes(bool fromMenu = false);

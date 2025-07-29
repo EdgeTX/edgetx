@@ -27,11 +27,6 @@ constexpr int16_t OUTPUT_INVALID_VALUE = INT16_MIN;
 
 #define ETX_STATE_BG_FILL LV_STATE_USER_1
 
-#define ROW_HEIGHT 16
-
-#define VIEW_CHANNELS_LIMIT_PCT \
-  (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100)
-
 class ChannelValue : public Window
 {
  public:
@@ -39,12 +34,17 @@ class ChannelValue : public Window
                uint8_t channel, LcdFlags txtColor, LcdFlags barColor) :
       Window(parent,
              {col * colWidth, row * ROW_HEIGHT, colWidth - 1 + (colWidth & 1), (ROW_HEIGHT + 1)}),
-      channel(channel)
+      channel(channel), txtColor(txtColor), barColor(barColor)
   {
     setWindowFlag(NO_FOCUS);
 
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
 
+    delayLoad();
+  }
+
+  void delayedInit() override
+  {
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 
@@ -100,6 +100,8 @@ class ChannelValue : public Window
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     int16_t value = channelOutputs[channel];
 
     if (value != lastValue) {
@@ -142,8 +144,12 @@ class ChannelValue : public Window
     Window::checkEvents();
   }
 
+  static LAYOUT_VAL_SCALED(ROW_HEIGHT, 16)
+
  protected:
   uint8_t channel;
+  LcdFlags txtColor;
+  LcdFlags barColor;
   int16_t lastValue = OUTPUT_INVALID_VALUE;
   int16_t lastScaledValue = OUTPUT_INVALID_VALUE;
   std::string lastText;
@@ -185,21 +191,29 @@ class OutputsWidget : public Widget
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
 
+    if (height() <= SHOW_MIN_H || width() <= SHOW_MIN_W)
+      return;
+
+    bool changed = false;
+
     // Colors
-    txtColor = persistentData->options[3].value.unsignedValue;
-    barColor = persistentData->options[4].value.unsignedValue;
+    LcdFlags f = persistentData->options[3].value.unsignedValue;
+    if (f != txtColor) { txtColor = f; changed = true; }
+    f = persistentData->options[4].value.unsignedValue;
+    if (f != barColor) { barColor = f; changed = true; }
 
     // Setup channels
-    firstChan = persistentData->options[0].value.unsignedValue;
+    uint8_t chan = persistentData->options[0].value.unsignedValue;
+    if (chan != firstChan) { firstChan= chan; changed = true; }
 
-    clear();
+    // Get size
+    uint8_t n = height() / ChannelValue::ROW_HEIGHT;
+    if (n != rows) { rows = n; changed = true; }
+    n = (width() > COLS_MIN_W) ? 2 : 1;
+    if (n != cols) { cols = n; changed = true; }
 
-    cols = 0;
-    rows = 0;
-
-    if (height() > SHOW_MIN_H && width() > SHOW_MIN_W) {
-      rows = height() / ROW_HEIGHT;
-      cols = (width() > COLS_MIN_W) ? 2 : 1;
+    if (changed) {
+      clear();
       coord_t colWidth = width() / cols;
       uint8_t chan = firstChan;
       for (uint8_t c = 0; c < cols && chan <= MAX_OUTPUT_CHANNELS; c += 1) {
@@ -216,7 +230,7 @@ class OutputsWidget : public Widget
  protected:
   // Last time we refreshed the window
   uint32_t lastRefresh = 0;
-  uint8_t firstChan = 0;
+  uint8_t firstChan = 255;
   uint8_t cols = 0;
   uint8_t rows = 0;
   LcdFlags txtColor = 0;

@@ -21,11 +21,9 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #include <functional>
-
-#include "libopenui.h"
+#include "edgetx_types.h"
+#include "hal.h"
 
 enum WarningType
 {

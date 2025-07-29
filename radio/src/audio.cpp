@@ -28,10 +28,6 @@
 #include "strhelpers.h"
 #include "switches.h"
 
-#if defined(LIBOPENUI)
-#include "libopenui.h"
-#endif
-
 #include "model_audio.h"
 #include "hal/audio_driver.h"
 

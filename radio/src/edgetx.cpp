@@ -53,7 +53,6 @@
 #endif
 
 #if defined(LIBOPENUI)
-  #include "libopenui.h"
   #include "radio_calibration.h"
   #include "view_main.h"
   #include "view_text.h"

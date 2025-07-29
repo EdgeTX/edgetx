@@ -29,6 +29,11 @@ class GaugeWidget : public Widget
               Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
+    delayLoad();
+  }
+
+  void delayedInit() override
+  {
     // Gauge label
     sourceText = new StaticText(this, {0, 0, LV_SIZE_CONTENT, 16}, "", 
                                 COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
@@ -73,6 +78,8 @@ class GaugeWidget : public Widget
 
   void update() override
   {
+    if (!loaded) return;
+
     mixsrc_t index = persistentData->options[0].value.unsignedValue;
     sourceText->setText(getSourceString(index));
 
@@ -94,6 +101,8 @@ class GaugeWidget : public Widget
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     Widget::checkEvents();
 
     auto newValue = getGuageValue();

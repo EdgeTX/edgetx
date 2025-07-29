@@ -37,9 +37,7 @@
 #include "hal/rgbleds.h"
 #endif
 
-
 #if defined(LIBOPENUI)
-  #include "libopenui.h"
   #include "api_colorlcd.h"
   #include "standalone_lua.h"
 #endif
