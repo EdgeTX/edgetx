@@ -49,6 +49,7 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR tx15)
 add_definitions(-DRADIO_TX15)
+add_definitions(-DMANUFACTURER_RADIOMASTER)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
