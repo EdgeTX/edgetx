@@ -23,7 +23,7 @@
 
 #include "edgetx_types.h"
 #include "keys.h"
-#include "features.h"
+#include "feature_control.h"
 
 #define COPY_MODE 1
 #define MOVE_MODE 2
