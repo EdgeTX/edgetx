@@ -121,7 +121,7 @@ static bool pwm_gimbal_init()
 
 #endif
 
-typedef int (*gimbal_driver_t)();
+typedef bool (*gimbal_driver_t)();
 
 const gimbal_driver_t gimbal_drivers[] = {
 #if defined(PWM_STICKS)
