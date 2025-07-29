@@ -87,7 +87,7 @@ class MixLineButton : public InputMixButtonBase
     ListLineButton::deleteLater(detach, trash);
   }
 
-  void delayedInit()
+  void delayedInit() override
   {
     refresh();
   }

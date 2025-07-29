@@ -378,7 +378,7 @@ class USBChannelLineButton : public ListLineButton
     delayLoad();
   }
 
-  void delayedInit()
+  void delayedInit() override
   {
     m_chn = lv_label_create(lvobj);
     lv_obj_set_grid_cell(m_chn, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
