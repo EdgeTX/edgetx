@@ -31,13 +31,13 @@
         ["Jumper T-Pro V2", "tprov2-"],
         ["Jumper T-Pro S", "tpros-"],
         ["RadioMaster Boxer", "boxer-"],
+        ["RadioMaster GX12", "gx12-"]
         ["RadioMaster MT12","mt12-"],
         ["RadioMaster Pocket", "pocket-"],
         ["RadioMaster TX12MK2", "tx12mk2-"],
-        ["RadioMaster TX16S", "tx16s-"],
         ["RadioMaster TX15", "tx15s-"],
+        ["RadioMaster TX16S", "tx16s-"],
         ["RadioMaster Zorro","zorro-"],
-        ["RadioMaster GX12", "gx12-"]
     ],
     "changelog": "- Major initial bug fixes"
 }
