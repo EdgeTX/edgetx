@@ -52,11 +52,10 @@ jobs:
           - t15
           - t16
           - t18
-          - tlite #STM32F2
           - t20
           - t14
           - t20v2
-          - tx12 #STM32F2
+          - tx12mk2
           - x10
           - x12s
           - x9e
