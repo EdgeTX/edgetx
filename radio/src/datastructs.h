@@ -92,8 +92,6 @@ static inline void check_struct()
   CHKSIZE(RadioData, 1039);
 #elif defined(RADIO_GX12)
   CHKSIZE(RadioData, 1063);
-#elif defined(RADIO_GX12)
-  CHKSIZE(RadioData, 1062);
 #else
   CHKSIZE(RadioData, 943);
 #endif
