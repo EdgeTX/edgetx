@@ -86,7 +86,7 @@ class BatCalEdit : public NumberEdit
   {
     if (getBatteryVoltage() != lastBatVolts) {
       lastBatVolts = getBatteryVoltage();
-      invalidate();
+      update();
     }
   }
 };
