@@ -1,7 +1,7 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-AddHardwareDefTarget(${HW_DESC_JSON})
+# AddHardwareDefTarget(${HW_DESC_JSON})
 AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
 
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
@@ -52,6 +52,7 @@ if(NOT NO_LTO)
   target_compile_options(stm32_drivers PRIVATE -flto)
   target_compile_options(stm32_drivers_w_dbg_fw PRIVATE -flto)
   target_compile_options(stm32_drivers_w_dbg_bl PRIVATE -flto)
+  target_compile_options(board_bl PRIVATE -flto)
 endif()
 
 add_executable(bootloader EXCLUDE_FROM_ALL ${BOOTLOADER_SRC})

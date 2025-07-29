@@ -1236,8 +1236,8 @@ static bool resumeLua(bool init, bool allowLcdUsage)
           luaState = INTERPRETER_RELOAD_PERMANENT_SCRIPTS;
           killEvents(evt.event);
         }
-#if defined(KEYS_GPIO_REG_MENU)
-      // TODO find another key and add a #define
+#if !defined(COLORLCD)
+        // TODO find another key
         else if (evt.event == EVT_KEY_LONG(KEY_MENU)) {
           luaEmptyEventBuffer();
           luaDisplayStatistics = !luaDisplayStatistics;
