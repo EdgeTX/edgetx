@@ -211,7 +211,7 @@ declare -a simulator_plugins=(
     zorro tx16s
     commando8 boxer pocket mt12 gx12
     tlite tpro tprov2 tpros bumblebee lr3pro t14
-    nv14 el18 pl18 pl18ev pl18u st16
+    nv14 el18 pl18 pl18ev pl18u st16 pa01
     f16 v14 v16
 )
 
