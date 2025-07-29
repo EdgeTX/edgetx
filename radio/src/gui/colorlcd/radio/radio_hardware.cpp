@@ -86,7 +86,7 @@ class BatCalEdit : public NumberEdit
   {
     if (getBatteryVoltage() != lastBatVolts) {
       lastBatVolts = getBatteryVoltage();
-      update();
+      setValue(g_eeGeneral.txVoltageCalibration);
     }
   }
 };
