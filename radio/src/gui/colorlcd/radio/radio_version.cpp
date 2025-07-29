@@ -23,7 +23,6 @@
 
 #include "fw_version.h"
 #include "hal/module_port.h"
-#include "libopenui.h"
 #include "edgetx.h"
 #include "options.h"
 #include "etx_lv_theme.h"

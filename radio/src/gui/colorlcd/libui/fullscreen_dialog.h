@@ -83,11 +83,7 @@ class FullScreenDialog : public Window
     bool running = false;
     std::function<bool(void)> closeCondition;
     std::function<void(void)> confirmHandler;
-    bool loaded = false;
     StaticText* messageLabel;
 
-    virtual void delayedInit() {}
     void build();
-
-    static void on_draw(lv_event_t* e);
 };

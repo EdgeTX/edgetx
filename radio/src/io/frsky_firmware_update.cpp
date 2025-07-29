@@ -25,12 +25,7 @@
 #include "debug.h"
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
-
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
-  #include "lib_file.h"
-#endif
+#include "lib_file.h"
 
 #include "hal/module_port.h"
 

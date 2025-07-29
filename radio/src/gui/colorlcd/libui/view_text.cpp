@@ -25,6 +25,7 @@
 #include "sdcard.h"
 #include "etx_lv_theme.h"
 #include "fullscreen_dialog.h"
+#include "lib_file.h"
 
 // Used on startup to block until checlist is closed.
 static bool checkListOpen = false;
@@ -75,17 +76,12 @@ ViewTextWindow::ViewTextWindow(const std::string path, const std::string name,
 
   header->setTitle(this->name);
 
-  lv_obj_add_event_cb(lvobj, ViewTextWindow::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                      nullptr);
+  delayLoad();
 };
 
-void ViewTextWindow::on_draw(lv_event_t* e)
+void ViewTextWindow::delayedInit()
 {
-  lv_obj_t* target = lv_event_get_target(e);
-  auto view = (ViewTextWindow*)lv_obj_get_user_data(target);
-  if (view) {
-    if (view->buffer == nullptr) view->buildBody(view->body);
-  }
+  if (buffer == nullptr) buildBody(body);
 }
 
 void ViewTextWindow::onCancel()

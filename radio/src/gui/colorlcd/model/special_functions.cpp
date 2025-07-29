@@ -23,7 +23,6 @@
 
 #include "filechoice.h"
 #include "hal/adc_driver.h"
-#include "libopenui.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
@@ -84,24 +83,11 @@ FunctionLineButton::FunctionLineButton(Window *parent, const rect_t &rect,
   setHeight(FunctionsPage::SF_BUTTON_H);
   padAll(PAD_ZERO);
 
-  lv_obj_add_event_cb(lvobj, FunctionLineButton::on_draw,
-                      LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  delayLoad();
 }
 
-void FunctionLineButton::on_draw(lv_event_t *e)
+void FunctionLineButton::delayedInit()
 {
-  lv_obj_t *target = lv_event_get_target(e);
-  auto line = (FunctionLineButton *)lv_obj_get_user_data(target);
-  if (line) {
-    if (!line->init)
-      line->delayed_init();
-  }
-}
-
-void FunctionLineButton::delayed_init()
-{
-  init = true;
-
   lv_obj_enable_style_refresh(false);
 
   sfName = lv_label_create(lvobj);
@@ -135,7 +121,7 @@ void FunctionLineButton::delayed_init()
 
 void FunctionLineButton::refresh()
 {
-  if (!init) return;
+  if (!loaded) return;
 
   check(isActive());
 
@@ -307,23 +293,12 @@ FunctionEditPage::FunctionEditPage(uint8_t index, EdgeTxIcon icon,
 {
   buildHeader(header, title, prefix);
 
-  lv_obj_add_event_cb(lvobj, FunctionEditPage::on_draw,
-                      LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+  delayLoad();
 }
 
-void FunctionEditPage::on_draw(lv_event_t *e)
+void FunctionEditPage::delayedInit()
 {
-  lv_obj_t *target = lv_event_get_target(e);
-  auto page = (FunctionEditPage *)lv_obj_get_user_data(target);
-  if (page) page->delayed_init();
-}
-
-void FunctionEditPage::delayed_init()
-{
-  if (!init) {
-    init = true;
-    buildBody(body);
-  }
+  buildBody(body);
 }
 
 void FunctionEditPage::checkEvents()

@@ -22,7 +22,6 @@
 #include "radio_diagkeys.h"
 
 #include "hal/rotary_encoder.h"
-#include "libopenui.h"
 #include "edgetx.h"
 
 #if defined(RADIO_PL18U)

@@ -21,7 +21,8 @@
 
 #pragma once
 
-#include "libopenui.h"
+#include "dataconstants.h"
+#include "window.h"
 
 class SliderIcon : public Window
 {

@@ -34,8 +34,6 @@
 
 class OutputLineButton : public ListLineButton
 {
-  bool init = false;
-
   lv_obj_t* source = nullptr;
   lv_obj_t* revert = nullptr;
   lv_obj_t* min = nullptr;
@@ -44,20 +42,8 @@ class OutputLineButton : public ListLineButton
   lv_obj_t* center = nullptr;
   StaticIcon* curve = nullptr;
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit() override
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (OutputLineButton*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-    }
-  }
-
-  void delayed_init()
-  {
-    init = true;
-
     lv_obj_enable_style_refresh(false);
 
     source = lv_label_create(lvobj);
@@ -119,13 +105,12 @@ class OutputLineButton : public ListLineButton
     setHeight(CH_LINE_H);
     padAll(PAD_ZERO);
 
-    lv_obj_add_event_cb(lvobj, OutputLineButton::on_draw,
-                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+    delayLoad();
   }
 
   void refresh() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     const LimitData* output = limitAddress(index);
     if (g_model.limitData[index].name[0] != '\0') {
@@ -201,7 +186,7 @@ class OutputLineButton : public ListLineButton
 
   void checkEvents() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     ListLineButton::checkEvents();
 

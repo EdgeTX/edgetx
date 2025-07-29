@@ -23,10 +23,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#endif
-
 #include "spektrum.h"
 
 #if defined(CROSSFIRE)

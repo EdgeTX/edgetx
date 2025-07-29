@@ -34,15 +34,10 @@
 #include "sdcard.h"
 #include "api_filesystem.h"
 #include "switches.h"
+#include "lib_file.h"
 
 #if defined(COLORLCD)
   #include "standalone_lua.h"
-#endif
-
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
-  #include "lib_file.h"
 #endif
 
 extern "C" {

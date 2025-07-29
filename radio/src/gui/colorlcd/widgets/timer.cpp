@@ -36,6 +36,11 @@ class TimerWidget : public Widget
               Widget::PersistentData* persistentData) :
       Widget(factory, parent, rect, persistentData)
   {
+    delayLoad();
+  }
+
+  void delayedInit() override
+  {
     etx_solid_bg(lvobj, COLOR_THEME_WARNING_INDEX,
                  LV_PART_MAIN | ETX_STATE_BG_WARNING);
 
@@ -101,6 +106,8 @@ class TimerWidget : public Widget
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     Widget::checkEvents();
 
     uint32_t index = persistentData->options[0].value.unsignedValue;
@@ -228,6 +235,8 @@ class TimerWidget : public Widget
 
   void update() override
   {
+    if (!loaded) return;
+
     // Set up widget from options.
     char s[16];
 

@@ -36,7 +36,6 @@ public:
 #endif
 
 protected:
-  bool loaded = false;
   int fileCount = 0;
   int selectedIdx = -1;
   Menu* menu = nullptr;

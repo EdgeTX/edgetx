@@ -154,6 +154,20 @@ Window::~Window()
   }
 }
 
+void Window::delayLoader(lv_event_t* e)
+{
+  auto w = (Window*)lv_obj_get_user_data(lv_event_get_target(e));
+  if (w && !w->loaded) {
+    w->loaded = true;
+    w->delayedInit();
+  }
+}
+
+void Window::delayLoad()
+{
+  lv_obj_add_event_cb(lvobj, Window::delayLoader, LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+}
+
 #if defined(DEBUG_WINDOWS)
 std::string Window::getName() const { return "Window"; }
 

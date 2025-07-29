@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "libopenui.h"
+#include "static.h"
 
 class TrimIcon;
 

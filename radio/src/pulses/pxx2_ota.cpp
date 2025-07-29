@@ -22,6 +22,7 @@
 #include "edgetx.h"
 #include "io/frsky_firmware_update.h"
 #include "tasks/mixer_task.h"
+#include "lib_file.h"
 
 #include "pxx2_ota.h"
 #include "pxx2_transport.h"

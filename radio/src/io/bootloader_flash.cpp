@@ -28,9 +28,7 @@
 
 #include "hal/watchdog_driver.h"
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
+#if !defined(LIBOPENUI)
   #include "lib_file.h"
 #endif
 

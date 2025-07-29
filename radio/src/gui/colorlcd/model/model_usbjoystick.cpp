@@ -375,24 +375,11 @@ class USBChannelLineButton : public ListLineButton
     lv_obj_set_style_pad_row(lvobj, 0, 0);
     lv_obj_set_style_pad_column(lvobj, PAD_SMALL, 0);
 
-    lv_obj_add_event_cb(lvobj, USBChannelLineButton::on_draw,
-                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+    delayLoad();
   }
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit()
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (USBChannelLineButton*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-    }
-  }
-
-  void delayed_init()
-  {
-    init = true;
-
     m_chn = lv_label_create(lvobj);
     lv_obj_set_grid_cell(m_chn, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
                          0, USBCH_CHN_ROWS);
@@ -432,7 +419,7 @@ class USBChannelLineButton : public ListLineButton
 
   void refresh() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     USBJoystickChData* cch = usbJChAddress(index);
 
@@ -493,8 +480,6 @@ class USBChannelLineButton : public ListLineButton
   static LAYOUT_SIZE(USBCH_BTN_MODE_ROW, 0, 1)
 
  protected:
-  bool init = false;
-
   lv_obj_t* m_chn;
   lv_obj_t* m_mode;
   lv_obj_t* m_param;

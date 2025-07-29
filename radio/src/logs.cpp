@@ -28,10 +28,6 @@
 #include "hal/switch_driver.h"
 #include "hal/usb_driver.h"
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#endif
-
 FIL g_oLogFile __DMA;
 uint8_t logDelay100ms;
 static tmr10ms_t lastLogTime = 0;

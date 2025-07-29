@@ -21,7 +21,6 @@
 
 #include "curveedit.h"
 
-#include "libopenui.h"
 #include "edgetx.h"  // TODO for applyCustomCurve
 #include "etx_lv_theme.h"
 

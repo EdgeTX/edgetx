@@ -21,7 +21,6 @@
 
 #include "radio_sdmanager.h"
 #include "edgetx.h"
-#include "libopenui.h"
 #include "LvglWrapper.h"
 #include "io/frsky_firmware_update.h"
 #include "io/multi_firmware_update.h"
@@ -35,6 +34,7 @@
 #include "progress.h"
 #include "etx_lv_theme.h"
 #include "fullscreen_dialog.h"
+#include "lib_file.h"
 
 constexpr int WARN_FILE_LENGTH = 40 * 1024;
 

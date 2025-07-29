@@ -22,7 +22,8 @@
 #pragma once
 
 #if defined(LUA)
-#include "libopenui.h"
+#include "mainwindow.h"
+#include "keyboard_base.h"
 #include "lua/lua_api.h"
 #include "lua/lua_widget.h"
 

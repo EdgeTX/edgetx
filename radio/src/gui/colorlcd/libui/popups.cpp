@@ -21,7 +21,6 @@
 
 #include "popups.h"
 
-#include "libopenui.h"
 #include "edgetx.h"
 #include "pwr.h"
 #include "hal/watchdog_driver.h"

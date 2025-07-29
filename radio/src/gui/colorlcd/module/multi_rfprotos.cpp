@@ -22,6 +22,7 @@
 #include "io/multi_protolist.h"
 #include "multi_rfprotos.h"
 #include "strhelpers.h"
+#include "rtos.h"
 
 // TODO: format for LCD_WIDTH > LCD_HEIGHT
 

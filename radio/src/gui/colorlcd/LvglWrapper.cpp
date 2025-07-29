@@ -26,6 +26,7 @@
 #include "etx_lv_theme.h"
 
 #include "view_main.h"
+#include "keyboard_base.h"
 
 LvglWrapper* LvglWrapper::_instance = nullptr;
 

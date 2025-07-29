@@ -29,7 +29,6 @@
 #include "lua/lua_states.h"
 
 #if defined(LIBOPENUI)
-#include "libopenui.h"
 #include "LvglWrapper.h"
 #include "view_main.h"
 #include "startup_shutdown.h"

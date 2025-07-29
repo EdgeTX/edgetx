@@ -25,7 +25,6 @@
 
 #include "hal/rgbleds.h"
 #include "board.h"
-#include "libopenui.h"
 #include "edgetx.h"
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)

@@ -26,7 +26,6 @@
 #include <cmath>
 
 #include "edgetx.h"
-#include "libopenui.h"
 #include "widget.h"
 
 #include "lua_api.h"

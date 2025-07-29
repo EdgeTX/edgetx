@@ -26,7 +26,6 @@
 #include "hw_inputs.h"
 #include "hw_intmodule.h"
 #include "hw_serial.h"
-#include "libopenui.h"
 #include "edgetx.h"
 #include "radio_calibration.h"
 #include "radio_diaganas.h"

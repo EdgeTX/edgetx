@@ -21,7 +21,6 @@
 
 #include "model_flightmodes.h"
 
-#include "libopenui.h"
 #include "list_line_button.h"
 #include "edgetx.h"
 #include "page.h"
@@ -208,24 +207,11 @@ class FlightModeBtn : public ListLineButton
     padColumn(PAD_ZERO);
     setHeight(BTN_H);
 
-    lv_obj_add_event_cb(lvobj, FlightModeBtn::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                        nullptr);
+    delayLoad();
   }
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit() override
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (FlightModeBtn*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-    }
-  }
-
-  void delayed_init()
-  {
-    init = true;
-
     lv_obj_enable_style_refresh(false);
 
     check(isActive());
@@ -280,7 +266,7 @@ class FlightModeBtn : public ListLineButton
   void checkEvents() override
   {
     ListLineButton::checkEvents();
-    if (!refreshing && init) {
+    if (!refreshing && loaded) {
       refreshing = true;
       for (int t = 0; t < keysGetMaxTrims() && t < MAX_FMTRIMS; t += 1) {
         if (lastTrim[t] != g_model.flightModeData[index].trim[t].value) {
@@ -293,7 +279,7 @@ class FlightModeBtn : public ListLineButton
 
   void refresh() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     const auto& fm = g_model.flightModeData[index];
 
@@ -345,7 +331,6 @@ class FlightModeBtn : public ListLineButton
   static constexpr coord_t FADE_X = ListLineButton::GRP_W - PAD_BORDER * 2 - FADE_W * 2 - PAD_TINY * 2;
 
  protected:
-  bool init = false;
   bool refreshing = false;
 
   lv_obj_t* fmID = nullptr;

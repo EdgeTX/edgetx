@@ -36,9 +36,7 @@
 #include "boards/generic_stm32/rgb_leds.h"
 #endif
 
-
 #if defined(LIBOPENUI)
-  #include "libopenui.h"
   #include "api_colorlcd.h"
   #include "standalone_lua.h"
 #endif
