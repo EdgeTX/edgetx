@@ -402,7 +402,6 @@ void generalDefault()
 
 #if defined(MANUFACTURER_RADIOMASTER)
   g_eeGeneral.audioMuteEnable = 1;
-  g_eeGeneral.stickMode = 1; // Default to mode 2
 #if defined(RADIO_TX15)
   g_eeGeneral.backlightBright = 50; // Screen looks off if not set high enough
 #endif

@@ -227,13 +227,8 @@ static void sdio_low_level_init(void)
 #endif
 
   // SDIO Interrupt ENABLE
-#if defined(SDMMC1)
   NVIC_SetPriority(currentSD.IRQn, 0);
   NVIC_EnableIRQ(currentSD.IRQn);
-#else
-  NVIC_SetPriority(SD_SDIO_IRQn, 0);
-  NVIC_EnableIRQ(SD_SDIO_IRQn);
-#endif
 
 #if defined(SD_SDIO_DMA)
   // Init SDIO DMA instance
@@ -282,7 +277,7 @@ static DSTATUS sdio_initialize(BYTE lun)
     currentSD.CLK = SD2_SDIO_PIN_CLK;
     currentSD.AF_CLK = SD2_SDIO_AF_CLK;
     currentSD.IRQn = SDMMC2_IRQn;
-	currentSD.SD_CLK_DIV = SD2_SDIO_TRANSFER_CLK_DIV;
+    currentSD.SD_CLK_DIV = SD2_SDIO_TRANSFER_CLK_DIV;
   }
 #endif
 

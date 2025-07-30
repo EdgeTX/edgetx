@@ -149,16 +149,6 @@ int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
 {
   uint8_t reg = GYRO_DATA_X0_REG;
   uint8_t buf[6];
-/*
-  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
-    TRACE("ICM426xx ERROR: i2c read error");
-    return -1;
-  }
-
-  *(int16_t*)&buffer[0] = ((int16_t)(buf[0] << 8) | buf[1]); // x
-  *(int16_t*)&buffer[2] = ((int16_t)(buf[2] << 8) | buf[3]); // y
-  *(int16_t*)&buffer[4] = ((int16_t)(buf[4] << 8) | buf[5]); // z
-*/
   reg = ACCEL_DATA_X0_REG;
   if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");

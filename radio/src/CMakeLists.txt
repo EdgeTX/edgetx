@@ -628,6 +628,12 @@ if (DEFINED TARGET_EXTRAM_SIZE)
   )
 endif()
 
+if (DEFINED TARGET_PSRAM_START)
+  target_link_options(firmware PRIVATE
+    -Wl,--defsym=__PSRAM_START__=${TARGET_PSRAM_START}
+  )
+endif()
+
 if (LUA)
   # Lua needs %g and %f
   target_link_options(firmware PRIVATE

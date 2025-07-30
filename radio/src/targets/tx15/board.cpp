@@ -172,9 +172,8 @@ void boardInit()
   adcInit(&_adc_driver);
   hapticInit();
 
-#if defined(RTCLOCK)
-  rtcInit(); // RTC must be initialized before rambackupRestore() is called
-#endif
+  // RTC must be initialized before rambackupRestore() is called
+  rtcInit();
 }
 
 extern void rtcDisableBackupReg();
@@ -194,7 +193,6 @@ void boardOff()
 
   rtcDisableBackupReg();
 
-//    RTC->BKP0R = SHUTDOWN_REQUEST;
   pwrOff();
 
   // We reach here only in forced power situations, such as hw-debugging with external power  
