@@ -134,7 +134,7 @@ class AnaViewWindow : public Window
     lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
 
     new StaticText(line, rect_t{}, "Tilt X");
-    auto lbl = new DynamicText(
+    new DynamicText(
            line, rect_t{},
            [=]() {
              return std::to_string((int16_t) gyro.scaledX());
@@ -143,7 +143,7 @@ class AnaViewWindow : public Window
     for (int i = 0; i < 3; i++) {grid.nextCell();}
 
     new StaticText(line, rect_t{}, "Tilt Y");
-    lbl = new DynamicText(
+    new DynamicText(
            line, rect_t{},
            [=]() {
              return std::to_string((int16_t) gyro.scaledY());
