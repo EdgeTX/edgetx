@@ -50,6 +50,12 @@ enum
     GPS_MSG_TYPE_NUM,
 };
 
+enum 
+{
+    GPS_STATE_GET_POSITION = 3,
+    GPS_STATE_NUM,
+};
+
 typedef struct
 {
 	unsigned char NbSatellites;
@@ -230,11 +236,11 @@ const FlySkySensor flySkySensors[] = {
   FS(VIRTUAL_GPS_PITCH,          STR_SENSOR_PITCH,         UNIT_DEGREE,     1),
   FS(VIRTUAL_GPS_ROLL,           STR_SENSOR_ROLL,         UNIT_DEGREE,     1),
   FS(VIRTUAL_GPS_YAW,            STR_SENSOR_YAW,         UNIT_DEGREE,     1),
-  FS(VIRTUAL_GPS_DIST,           STR_SENSOR_DIST,         UNIT_METERS,     1),
+  FS(VIRTUAL_GPS_DIST,           STR_SENSOR_DIST,         UNIT_METERS,     2),
   FS(VIRTUAL_GPS_ACC,            STR_SENSOR_ACC,         UNIT_RAW,     0),
   FS(VIRTUAL_GPS_SPEED,          STR_SENSOR_GSPD,       UNIT_SPEED,    2),
-  FS(VIRTUAL_GPS_ALT,            STR_SENSOR_GPSALT,       UNIT_METERS,    2),
-  FS(VIRTUAL_GPS_REL_ALT,        "G_RH",                  UNIT_METERS, 2),
+  FS(VIRTUAL_GPS_ALT,            STR_SENSOR_GPSALT,       UNIT_METERS,    0),
+  FS(VIRTUAL_GPS_REL_ALT,        "G_RH",                  UNIT_METERS, 0),
 
   FS(IBDT_PRESSURE,              STR_SENSOR_PRES,     UNIT_RAW,     2),
   FS(VIRTUAL_ALT,                STR_SENSOR_ALT,      UNIT_METERS,  2),
@@ -487,7 +493,7 @@ void flyskyIbus2GPS(const uint8_t * pData, uint8_t len, uint8_t id) {
     
   }
     
-  if (get_start && GPSData.NbSatellites > 4) {
+  if (get_start && GPSData.PositionStatus == 3) {
     get_start = false;
     StartPos.Altitude = GPSData.Altitude;
     StartPos.Latitude = GPSData.Latitude;
