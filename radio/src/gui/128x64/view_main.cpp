@@ -626,16 +626,10 @@ void menuMainView(event_t event)
     // Issue 98
     lcdDrawText(15 * FW, 0, "BIND", 0);
   }
-#if defined(RTCLOCK)
-  else if (view_base != VIEW_CHAN_MONITOR && rtcIsValid()) {
-    drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);
-  }
 #endif
-#else
 #if defined(RTCLOCK)
   if (view_base != VIEW_CHAN_MONITOR && rtcIsValid()) {
     drawRtcTime(CLOCK_X, CLOCK_Y, LEFT|TIMEBLINK);
   }
-#endif
 #endif
 }
