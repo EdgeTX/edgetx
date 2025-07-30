@@ -127,55 +127,7 @@ void lcdDrawHexNumber(coord_t x, coord_t y, uint32_t val, LcdFlags flags)
 }
 #endif
 
-void lcdDrawSolidHorizontalLine(coord_t x, coord_t y, coord_t w, LcdFlags att)
-{
-  lcdDrawHorizontalLine(x, y, w, 0xff, att);
-}
-
 #if !defined(BOOT)
-void lcdDrawLine(coord_t x1, coord_t y1, coord_t x2, coord_t y2, uint8_t pat, LcdFlags att)
-{
-  int dx = x2-x1;      /* the horizontal distance of the line */
-  int dy = y2-y1;      /* the vertical distance of the line */
-  int dxabs = abs(dx);
-  int dyabs = abs(dy);
-  int sdx = sgn(dx);
-  int sdy = sgn(dy);
-  int x = dyabs>>1;
-  int y = dxabs>>1;
-  int px = x1;
-  int py = y1;
-
-  if (dxabs >= dyabs) {
-    /* the line is more horizontal than vertical */
-    for (int i=0; i<=dxabs; i++) {
-      if ((1<<(px%8)) & pat) {
-        lcdDrawPoint(px, py, att);
-      }
-      y += dyabs;
-      if (y>=dxabs) {
-        y -= dxabs;
-        py += sdy;
-      }
-      px += sdx;
-    }
-  }
-  else {
-    /* the line is more vertical than horizontal */
-    for (int i=0; i<=dyabs; i++) {
-      if ((1<<(py%8)) & pat) {
-        lcdDrawPoint(px, py, att);
-      }
-      x += dxabs;
-      if (x >= dyabs) {
-        x -= dyabs;
-        px += sdx;
-      }
-      py += sdy;
-    }
-  }
-}
-
 void drawTelemetryTopBar()
 {
   if (g_model.timers[0].mode) {
@@ -196,54 +148,6 @@ void drawTelemetryTopBar()
   drawRtcTime(17*FW+3, 0, LEFT|TIMEBLINK);
 #endif
   lcdInvertLine(0);
-}
-
-void drawTimer(coord_t x, coord_t y, int32_t tme, LcdFlags att, LcdFlags att2)
-{
-  div_t qr;
-  if (IS_RIGHT_ALIGNED(att)) {
-    att -= RIGHT;
-    if (att & DBLSIZE)
-      x -= 5*(2*FWNUM)-4;
-    else if (att & MIDSIZE)
-      x -= 5*8-8;
-    else
-      x -= 5*FWNUM+1;
-  }
-
-  if (tme < 0) {
-    lcdDrawChar(x - ((att & DBLSIZE) ? FW+2 : ((att & MIDSIZE) ? FW+0 : FWNUM)), y, '-', att);
-    tme = -tme;
-  }
-
-  qr = div((int)tme, 60);
-
-  char separator = ':';
-  if (att & TIMEHOUR) {
-    div_t qr2 = div(qr.quot, 60);
-    if (qr2.quot < 100) {
-      lcdDrawNumber(x, y, qr2.quot, att|LEADING0|LEFT, 2);
-    }
-    else {
-      lcdDrawNumber(x, y, qr2.quot, att|LEFT);
-    }
-    lcdDrawChar(lcdNextPos, y, separator, att);
-    qr.quot = qr2.rem;
-    x = lcdNextPos;
-  }
-  if (FONTSIZE(att) == MIDSIZE) {
-    lcdLastRightPos--;
-  }
-  if (separator == CHR_HOUR)
-    att &= ~DBLSIZE;
-  lcdDrawNumber(x, y, qr.quot, att|LEADING0|LEFT, 2);
-#if defined(RTCLOCK)
-  if (att & TIMEBLINK)
-    lcdDrawChar(lcdLastRightPos, y, separator, BLINK);
-  else
-#endif
-  lcdDrawChar(lcdLastRightPos, y, separator, att&att2);
-  lcdDrawNumber(lcdNextPos, y, qr.rem, (att2|LEADING0|LEFT) & (~RIGHT), 2);
 }
 
 void drawGPSCoord(coord_t x, coord_t y, int32_t value, const char * direction, LcdFlags att, bool seconds=true)
