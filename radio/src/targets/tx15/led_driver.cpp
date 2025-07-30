@@ -22,11 +22,9 @@
 #include "hal/gpio.h"
 #include "hal/rgbleds.h"
 #include "stm32_gpio.h"
+#include "stm32_ws2812.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
-#if defined(LED_STRIP_GPIO)
-#include "stm32_ws2812.h"
-#endif
 
 #define GET_RED(color) (((color) & 0xFF0000) >>16)
 #define GET_GREEN(color) (((color) & 0x00FF00) >> 8)
