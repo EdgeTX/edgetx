@@ -35,6 +35,7 @@ jobs:
           - mt12
           - nb4p
           - st16
+          - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
