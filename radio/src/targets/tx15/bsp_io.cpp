@@ -19,15 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "hal.h"
 #include "bsp_io.h"
-#include "hal/switch_driver.h"
-#include "drivers/pca95xx.h"
-#include "stm32_i2c_driver.h"
-#include "timers_driver.h"
-#include "delays_driver.h"
+
 #include "stm32_ws2812.h"
 #include "stm32_switch_driver.h"
+#include "stm32_i2c_driver.h"
+#include "hal/switch_driver.h"
+#include "drivers/pca95xx.h"
+#include "timers_driver.h"
+#include "delays_driver.h"
+#include "hal.h"
 
 #if !defined(BOOT)
 #include "os/async.h"

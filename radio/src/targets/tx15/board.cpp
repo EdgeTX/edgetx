@@ -52,8 +52,6 @@
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 
-#include "battery_driver.h"
-
 #include "bitmapbuffer.h"
 #include "colors.h"
 
@@ -66,14 +64,6 @@ extern const etx_hal_adc_driver_t _adc_driver;
 
 // RGB LED timer
 extern const stm32_pulse_timer_t _led_timer;
-
-#if defined(SEMIHOSTING)
-extern "C" void initialise_monitor_handles();
-#endif
-
-#if defined(SPI_FLASH)
-extern "C" void flushFTL();
-#endif
 
 static void led_strip_off()
 {
