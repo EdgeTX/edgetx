@@ -61,6 +61,17 @@ enum UartModes {
   UART_MODE_DEBUG
 };
 
+class RGBLedColor {
+  public:
+    RGBLedColor() { clear(); }
+    int r;
+    int g;
+    int b;
+    void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(RGBLedColor)); }
+    void setColor(int red, int green, int blue) { r = red; g = green; b = blue; }
+    QColor getQColor() { return QColor(r, g, b); }
+};
+
 class TrainerMix {
   Q_DECLARE_TR_FUNCTIONS(TrainerMix)
 
@@ -362,6 +373,12 @@ class GeneralSettings {
       Board::SwitchType type;
       bool inverted;
       int inputIdx;  //  used if switch tag = FLn, value -1 = none selected
+      // CFS settings
+      unsigned int start;
+      unsigned int onColorLuaOverride;
+      unsigned int offColorLuaOverride;
+      RGBLedColor onColor;
+      RGBLedColor offColor;
     };
 
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
@@ -377,6 +394,7 @@ class GeneralSettings {
     bool isInputFlexSwitchAvailable(int index) const;
     bool isSwitchAvailable(int index) const;
     bool isSwitchFlex(int index) const;
+    bool isSwitchFunc(int index) const;
     bool unassignedInputFlexSwitches() const;
 
     QString antennaModeToString() const;

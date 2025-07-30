@@ -105,9 +105,6 @@ QStringList getWriteFirmwareArgs(const QString & filename)
   if (IS_STM32(board)) {
     return getDfuArgs("-D", filename);
   }
-  else if (board == Board::BOARD_SKY9X) {
-    return getSambaArgs(QString("send_file {Flash} \"") + filename + "\" 0x400000 0\n" + "FLASH::ScriptGPNMV 2\n");
-  }
   else {
     return getSambaArgs(QString("send_file {Flash} \"") + filename + "\" 0x400000 0\n" + "FLASH::ScriptGPNMV 2\n");
   }
@@ -118,9 +115,6 @@ QStringList getReadFirmwareArgs(const QString & filename)
   Board::Type board = getCurrentBoard();
   if (IS_STM32(board)) {
     return getDfuArgs("-U", filename);
-  }
-  else if (board == Board::BOARD_SKY9X) {
-    return getSambaArgs(QString("receive_file {Flash} \"") + filename + "\" 0x400000 0x40000 0\n");
   }
   else {
     return getSambaArgs(QString("receive_file {Flash} \"") + filename + "\" 0x400000 0x80000 0\n");

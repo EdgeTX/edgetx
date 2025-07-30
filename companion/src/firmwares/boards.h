@@ -45,9 +45,6 @@ namespace Board {
   enum Type
   {
     BOARD_UNKNOWN = -1,
-    BOARD_SKY9X,
-    BOARD_9XRPRO,
-    BOARD_AR9X,
     BOARD_TARANIS_X7,
     BOARD_TARANIS_X7_ACCESS,
     BOARD_TARANIS_X9D,
@@ -123,6 +120,7 @@ namespace Board {
     SWITCH_TOGGLE,
     SWITCH_2POS,
     SWITCH_3POS,
+    SWITCH_GLOBAL,
     SWITCH_FUNC,
     SWITCH_ADC,
     SWITCH_TYPE_COUNT
@@ -216,6 +214,7 @@ namespace Board {
     FlexSwitches,
     FunctionSwitches,
     FunctionSwitchColors,
+    FunctionSwitchGroups,
     Gyros,
     GyroAxes,
     HasAudioMuteGPIO,
@@ -430,6 +429,8 @@ class Boards
 
     static Board::SwitchInfo getSwitchInfo(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getCFSIndexForSwitch(int swIdx, Board::Type board = Board::BOARD_UNKNOWN);
+    static int getSwitchIndexForCFS(int cfsIdx, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchName(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static QString getSwitchTag(int index, Board::Type board = Board::BOARD_UNKNOWN);
     static int getSwitchTagNum(int index, Board::Type board = Board::BOARD_UNKNOWN);
@@ -479,16 +480,6 @@ class Boards
 
 // temporary aliases for transition period, use Boards class instead.
 #define getBoardCapability(b__, c__)   Boards::getCapability(b__, c__)
-
-inline bool IS_SKY9X(Board::Type board)
-{
-  return board == Board::BOARD_SKY9X || board == Board::BOARD_9XRPRO || board == Board::BOARD_AR9X;
-}
-
-inline bool IS_9XRPRO(Board::Type board)
-{
-  return board == Board::BOARD_9XRPRO;
-}
 
 inline bool IS_BETAFPV_LR3PRO(Board::Type board)
 {
@@ -797,7 +788,7 @@ inline bool IS_STM32(Board::Type board)
 
 inline bool IS_ARM(Board::Type board)
 {
-  return IS_STM32(board) || IS_SKY9X(board);
+  return IS_STM32(board);
 }
 
 inline bool HAS_LARGE_LCD(Board::Type board)

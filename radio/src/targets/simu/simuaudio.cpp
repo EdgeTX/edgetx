@@ -25,59 +25,25 @@
 #include <stdint.h>
 #include <SDL.h>
 
-#define SIMU_AUDIO_FMT AUDIO_S16SYS
+#define AUDIO_FMT AUDIO_S16SYS
 
 static SDL_AudioDeviceID _sdl_audio_device = 0;
 
+void simuQueueAudio(const uint8_t* data, uint32_t len)
+{
 #if !defined(SOFTWARE_VOLUME)
-
-static Uint8 _tmp_buf[AUDIO_BUFFER_SIZE * sizeof(audio_data_t)];
-static int _simu_volume = 0;
-
-void audioSetVolume(uint8_t volume)
-{
-  _simu_volume = SDL_MIX_MAXVOLUME * volume / VOLUME_LEVEL_MAX;
-}
-
-static void _fill_with_silence(Uint8* dst, uint32_t len)
-{
-  auto p = (audio_data_t*)dst;
-  auto end = p + len / sizeof(audio_data_t);
-
-  while (p < end) {
-    *p++ = AUDIO_DATA_SILENCE;
-  }
-}
-
+  int volume = (simuAudioGetVolume() * SDL_MIX_MAXVOLUME ) / VOLUME_LEVEL_MAX;
+  SDL_MixAudioFormat((uint8_t*)data, data, AUDIO_FMT, len, volume);
 #endif
 
-void audioConsumeCurrentBuffer()
-{
-  while(true) {
-    auto nextBuffer = audioQueue.buffersFifo.getNextFilledBuffer();
-    if (!nextBuffer) return;
-
-    auto data = (const Uint8*)nextBuffer->data;
-    uint32_t len = nextBuffer->size * sizeof(audio_data_t);
-
-#if !defined(SOFTWARE_VOLUME)
-    assert(len <= sizeof(_tmp_buf));
-    _fill_with_silence(_tmp_buf, len);
-
-    SDL_MixAudioFormat(_tmp_buf, data, SIMU_AUDIO_FMT, len, _simu_volume);
-    data = _tmp_buf;
-#endif
-
-    SDL_QueueAudio(_sdl_audio_device, data, len);
-    audioQueue.buffersFifo.freeNextFilledBuffer();
-  }
+  SDL_QueueAudio(_sdl_audio_device, data, len);
 }
 
 bool simuAudioInit()
 {
   SDL_AudioSpec wanted = {
     .freq = AUDIO_SAMPLE_RATE,
-    .format = SIMU_AUDIO_FMT,
+    .format = AUDIO_FMT,
     .channels = 1,
     .silence = 0,
     .samples = 1024,

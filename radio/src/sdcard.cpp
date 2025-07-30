@@ -26,12 +26,7 @@
 #include "hal/storage.h"
 
 #include "edgetx.h"
-
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
-  #include "lib_file.h"
-#endif
+#include "lib_file.h"
 
 #if FF_MAX_SS != FF_MIN_SS
 #error "Variable sector size is not supported"

@@ -21,10 +21,9 @@
 
 #pragma once
 
-#if defined(SIMU_AUDIO)
+#include <stdint.h>
+
 bool simuAudioInit();
 void simuAudioDeInit();
-#else
-static inline bool simuAudioInit() { return false; }
-static inline void simuAudioDeInit() {}
-#endif
+void simuQueueAudio(const uint8_t* data, uint32_t len);
+int simuAudioGetVolume();

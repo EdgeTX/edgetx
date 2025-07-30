@@ -353,6 +353,7 @@ uint16_t isqrt32(uint32_t n);
 
 void setDefaultOwnerId();
 void generalDefault();
+void generalDefaultSwitches();
 
 uint32_t hash(const void * ptr, uint32_t size);
 
@@ -717,6 +718,7 @@ union ReusableBuffer
   struct {
     uint8_t bars[LCD_W];
     uint8_t max[LCD_W];
+    uint8_t peak[LCD_W];
     uint32_t freq;
     uint32_t span;
     uint32_t step;

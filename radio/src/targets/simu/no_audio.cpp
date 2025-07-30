@@ -1,6 +1,12 @@
 /*
  * Copyright (C) EdgeTX
  *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  *
  * This program is free software; you can redistribute it and/or modify
@@ -13,9 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "simuaudio.h"
 
-#include "hal/switch_driver.h"
-#include "stm32_switch_driver.h"
-
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx) {return SWITCH_HW_MID;}
+bool simuAudioInit() { return false; }
+void simuAudioDeInit() {}
+void simuQueueAudio(const uint8_t*, uint32_t) {}

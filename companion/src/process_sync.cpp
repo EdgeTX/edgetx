@@ -26,6 +26,10 @@
 #include <QElapsedTimer>
 #include <QMutexLocker>
 
+#ifdef Q_OS_WIN
+#include <QNtfsPermissionCheckGuard>
+#endif
+
 #define SYNC_MAX_ERRORS       50  // give up after this many errors per destination
 
 // a flood of log messages can make the UI unresponsive so we'll introduce a dynamic sleep period based on log frequency (values in [us])
@@ -33,10 +37,6 @@
 #define PAUSE_RECOVERY        (PAUSE_FACTOR / 3 * 2)
 #define PAUSE_MINTM           100UL
 #define PAUSE_MAXTM           75000UL
-
-#if (QT_VERSION < QT_VERSION_CHECK(5, 5, 0))
-  #define QtInfoMsg    QtMsgType(4)
-#endif
 
 #define PRINT_CREATE(str)     emitProgressMessage((str), QtInfoMsg)
 #define PRINT_REPLACE(str)    emitProgressMessage((str), QtWarningMsg)
@@ -46,19 +46,16 @@
 #define PRINT_INFO(str)       emit progressMessage((str))                // this is always emitted regardless of logLevel option
 #define PRINT_SEP()           PRINT_INFO(QString(70, '='))
 
-#ifdef Q_OS_WIN
-  extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
-  #define FILTER_RE_SYNTX     QRegExp::Wildcard
-#else
-  #define FILTER_RE_SYNTX     QRegExp::WildcardUnix
-#endif
-
 SyncProcess::SyncProcess(const SyncProcess::SyncOptions & options) :
   m_options(options),
   m_pauseTime(PAUSE_MINTM),
   stopping(false)
 {
   qRegisterMetaType<SyncProcess::SyncStatus>();
+
+#ifdef Q_OS_WIN
+  QNtfsPermissionCheckGuard permissionGuard;  // check is enabled
+#endif
 
   if (m_options.compareType == OVERWR_ALWAYS && (m_options.direction == SYNC_A2B_B2A || m_options.direction == SYNC_B2A_A2B))
     m_options.compareType = OVERWR_IF_DIFF;
@@ -72,23 +69,18 @@ SyncProcess::SyncProcess(const SyncProcess::SyncOptions & options) :
 
   if (!m_options.excludeFilter.isEmpty()) {
     for (const QString & f : m_options.excludeFilter.split(',', Qt::SkipEmptyParts))
-      m_excludeFilters.append(QRegExp(f, ((m_dirFilters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive), FILTER_RE_SYNTX));
+    m_excludeFilters.append(QRegularExpression(QRegularExpression::wildcardToRegularExpression(f),
+                                               ((m_dirFilters & QDir::CaseSensitive) ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption)));
   }
 
   if (m_options.flags & OPT_DRY_RUN)
     testRunStr = tr("[TEST RUN] ");
 
   //qDebug() << m_options;
-#ifdef Q_OS_WIN
-  qt_ntfs_permission_lookup++;  // global enable NTFS permissions checking
-#endif
-}
+}   // for Q_OS_WIN as the permissionGuard goes out of scope the check is disabled
 
 SyncProcess::~SyncProcess()
 {
-#ifdef Q_OS_WIN
-  qt_ntfs_permission_lookup--;  // global revert NTFS permissions checking
-#endif
 }
 
 void SyncProcess::stop()
@@ -193,8 +185,8 @@ SyncProcess::FileFilterResult SyncProcess::fileFilter(const QFileInfo & fileInfo
     return FILE_OVERSIZE;
 
   if (!m_excludeFilters.isEmpty() && (!(m_dirFilters & QDir::AllDirs) || fileInfo.isFile())) {
-    for (QVector<QRegExp>::const_iterator it = m_excludeFilters.constBegin(), end = m_excludeFilters.constEnd(); it != end; ++it) {
-      if (QRegExp(*it).exactMatch(fileInfo.fileName()))
+    for (QVector<QRegularExpression>::const_iterator it = m_excludeFilters.constBegin(), end = m_excludeFilters.constEnd(); it != end; ++it) {
+      if (QRegularExpression(*it).match(fileInfo.fileName()).hasMatch())
         return FILE_EXCLUDE;
     }
   }

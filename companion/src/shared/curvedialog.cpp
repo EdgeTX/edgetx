@@ -144,7 +144,7 @@ CurveDialog::CurveDialog(QWidget * parent, ModelData & model, const int curveIdx
   int id = dialogFilterFactory->registerItemModel(new FilteredItemModel(CurveData::typeItemModel()),
                                                          "Curve Type");
   ui->curveType->setModel(dialogFilterFactory->getItemModel(id));
-  ui->curveType->setField((int &)curve.type);
+  ui->curveType->setField(curve.type);
   connect(ui->curveType, &AutoComboBox::currentDataChanged, this, [&] () { on_curveTypeChanged(ui->curveType->currentIndex()) ;});
 
   id = dialogFilterFactory->registerItemModel(new FilteredItemModel(CurveData::pointsItemModel()),

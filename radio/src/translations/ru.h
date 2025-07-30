@@ -51,7 +51,11 @@
 #define TR_TRNCHN                      "КН1","КН2","КН3","КН4"
 
 #define TR_AUX_SERIAL_MODES            "Выкл","Зерк телем","Телем вход","SBUS Тренаж","LUA","CLI","GPS","Отлад","SpaceMouse","Внеш модуль"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Нет","тумбл","2Х-поз пер","3Х-поз пер","Глоб"
+#else
 #define TR_SWTYPES                     "Нет","тумбл","2Х-поз пер","3Х-поз пер"
+#endif
 #define TR_POTTYPES                    "None","Pot",TR("Pot w. det","Pot with detent"),"Slider",TR("Multipos","Multipos Switch"),"Axis X","Axis Y","Switch"
 #define TR_VPERSISTENT                 "Выкл","Полет","Руч сброс"
 #define TR_COUNTRY_CODES               TR("US","США"),TR("JP","Япония"),TR("EU","Евро")
@@ -235,6 +239,7 @@
 #endif
 
 #if defined(PCBFRSKY)
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENT]"
 #elif defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[ДАЛЕЕ]"
@@ -275,6 +280,7 @@
 #define TR_TIMER                       TR("Таймер", "Таймер ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Старт"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("расш лимит", "Расш лимит")
 #define TR_ETRIMS                      TR("Расш трим", "Расш тримы")
 #define TR_TRIMINC                     "Шаг трима"
@@ -295,8 +301,7 @@
 #define TR_FS_COLOR_LIST               "Свой","Выкл","Белый","Красн","Зелен","Желт","Оранж","Синий","Розов"
 #define TR_GROUP                       "Группа"
 #define TR_GROUP_ALWAYS_ON             "Включить все"
-#define TR_FS_ON_COLOR                 TR("Вкл:","Вкл цвет")
-#define TR_FS_OFF_COLOR                TR("Выкл:","Выкл цвет")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Вкл все группы"
 #define TR_LAST                        "послед"
 #define TR_MORE_INFO                   "Доп инфо"
@@ -424,12 +429,7 @@
 #define TR_CALIBRATION                 "Калибровка"
 #define TR_VTRIM                       "Трим - +"
 #define TR_CALIB_DONE                  "Калибровка заверш"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Наж [Enter] для прод"
-  #define TR_SETMIDPOINT               "Выставить по центру стики/потенц/слайдеры и нажать [Enter]"
-  #define TR_MOVESTICKSPOTS            "Перемещ стики/потенц/слайдеры и нажать [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " СТАРТ"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "ЦЕНТР СТИКИ/СЛАЙДЕРЫ"
   #define TR_MOVESTICKSPOTS            "Перемещ СТИКИ/ПОТЕНЦ"
 #else
@@ -442,8 +442,10 @@
   #define TR_MOVESTICKSPOTS            "ДВИГ СТИКИ/ПОТЕНЦ"
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " ПО ОКОНЧАНИЮ"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "НЕТ ДАННЫХ"
 #define TR_US                          "US"

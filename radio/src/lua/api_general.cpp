@@ -34,11 +34,10 @@
 #include "input_mapping.h"
 #if defined(LED_STRIP_GPIO)
 #include "boards/generic_stm32/rgb_leds.h"
+#include "hal/rgbleds.h"
 #endif
 
-
 #if defined(LIBOPENUI)
-  #include "libopenui.h"
   #include "api_colorlcd.h"
   #include "standalone_lua.h"
 #endif
@@ -2843,7 +2842,15 @@ static int luaGetTrainerStatus(lua_State * L)
   return 1;
 }
 
-#if defined(LED_STRIP_GPIO)
+// To simplify code below
+#if !defined(BLING_LED_STRIP_LENGTH)
+  #define BLING_LED_STRIP_LENGTH 0
+#endif
+#if !defined(CFS_LED_STRIP_LENGTH)
+  #define CFS_LED_STRIP_LENGTH 0
+#endif
+
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
 /*luadoc
 @function setRGBLedColor(id, rvalue, bvalue, cvalue)
 
@@ -2855,28 +2862,101 @@ static int luaGetTrainerStatus(lua_State * L)
 
 @param bvalue: interger, value of blue channel
 
+@retval: true if LED index is valid, false otherwise
+
 @status current Introduced in 2.10
 */
 
 static int luaSetRgbLedColor(lua_State * L)
 {
   uint8_t id = luaL_checkunsigned(L, 1);
+
+  if (id >= (BLING_LED_STRIP_LENGTH + CFS_LED_STRIP_LENGTH)) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
   uint8_t r = luaL_checkunsigned(L, 2);
   uint8_t g = luaL_checkunsigned(L, 3);
   uint8_t b = luaL_checkunsigned(L, 4);
 
-  #if defined(LED_STRIP_RESERVED_AT_END)
-    if (id >= LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END) {
+#if CFS_LED_STRIP_LENGTH > 0
+  if (id >= BLING_LED_STRIP_LENGTH) {
+    id -= BLING_LED_STRIP_LENGTH;
+    uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
+    if (g_model.getSwitchType(swIdx) == SWITCH_NONE) {
+      rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
+    } else {
       lua_pushboolean(L, false);
       return 1;
     }
-  #endif
-  
-  rgbSetLedColor(id, r, g, b);
+  } else {
+    rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+  }
+#else
+  rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+#endif
 
+  lua_pushboolean(L, true);
   return 1;
 }
+#endif
 
+#if (CFS_LED_STRIP_LENGTH > 0)
+/*luadoc
+@function setCFSLedColor(id, rvalue, bvalue, cvalue)
+
+Overrides the LED color for a custom function switch
+  - if passed 4 arguments (id, r, g, b) then sets override color
+  - if passed 1 argument (id) then cancels override color
+
+@param id: string identifying a custom function switch name
+
+@param rvalue: interger, value of red channel
+
+@param gvalue: interger, value of green channel
+
+@param bvalue: interger, value of blue channel
+
+@retval: true if LED index is valid, false otherwise
+
+@status current Introduced in ???
+*/
+
+static int luaSetCFSLedColor(lua_State * L)
+{
+  uint8_t r = 0, g = 0, b = 0;
+  int n = lua_gettop(L);
+  const char* nm = luaL_checkstring(L, 1);
+
+  int8_t id = switchGetIndexFromName(nm);
+
+  if (id < 0) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  uint8_t cfsIdx = switchGetCustomSwitchIdx(id);
+
+  if (cfsIdx >= CFS_LED_STRIP_LENGTH / CFS_LEDS_PER_SWITCH) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  if (n > 1) {
+    r = luaL_checkunsigned(L, 2);
+    g = luaL_checkunsigned(L, 3);
+    b = luaL_checkunsigned(L, 4);
+  }
+
+  setFSLedOverride(cfsIdx, n > 1, r, g, b);
+
+  lua_pushboolean(L, true);
+  return 1;
+}
+#endif
+
+#if defined(LED_STRIP_LENGTH)
 /*luadoc
 @function applyRGBLedColors()
 
@@ -2892,8 +2972,22 @@ static int luaApplyRGBLedColors(lua_State * L)
 
   return 1;
 }
-
 #endif
+
+
+/*luadoc
+@function getStickMode()
+
+@retval : integer, a 1 to 4 value corresponding to radio stick mode
+
+@status current Introduced in 3.0
+*/
+
+static int luaGetStickMode(lua_State* const L)
+{
+  lua_pushinteger(L,  g_eeGeneral.stickMode + 1);
+  return 1;
+}
 
 #define KEY_EVENTS(xxx, yyy)                                    \
   { "EVT_"#xxx"_FIRST", LRO_NUMVAL(EVT_KEY_FIRST(yyy)) },       \
@@ -2901,6 +2995,7 @@ static int luaApplyRGBLedColors(lua_State * L)
   { "EVT_"#xxx"_LONG",  LRO_NUMVAL(EVT_KEY_LONG(yyy)) },        \
   { "EVT_"#xxx"_REPT",  LRO_NUMVAL(EVT_KEY_REPT(yyy)) },
 
+extern "C" {
 LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getTime, luaGetTime )
   LROT_FUNCENTRY( getDateTime, luaGetDateTime )
@@ -2981,10 +3076,14 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getSourceIndex, luaGetSourceIndex )
   LROT_FUNCENTRY( getSourceName, luaGetSourceName )
   LROT_FUNCENTRY( sources, luaSources )
-#if defined(LED_STRIP_GPIO)
-  LROT_FUNCENTRY(setRGBLedColor, luaSetRgbLedColor )
-  LROT_FUNCENTRY(applyRGBLedColors, luaApplyRGBLedColors )
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
+  LROT_FUNCENTRY( setRGBLedColor, luaSetRgbLedColor )
+  LROT_FUNCENTRY( applyRGBLedColors, luaApplyRGBLedColors )
 #endif
+#if (CFS_LED_STRIP_LENGTH > 0)
+  LROT_FUNCENTRY( setCFSLedColor, luaSetCFSLedColor )
+#endif
+  LROT_FUNCENTRY( getStickMode, luaGetStickMode )
 LROT_END(etxlib, NULL, 0)
 
 LROT_BEGIN(etxcst, NULL, 0)
@@ -3127,18 +3226,8 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( PLAY_NOW, PLAY_NOW )
   LROT_NUMENTRY( PLAY_BACKGROUND, PLAY_BACKGROUND )
   LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
-#if defined(LED_STRIP_GPIO)
-  #if defined(RADIO_V16)
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - 6 )
-  #elif defined(RGB_LED_OFFSET)
-    // Exclude function switch LEDs
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - RGB_LED_OFFSET )
-  #elif defined(LED_STRIP_RESERVED_AT_END)
-    // Exclude leds at the end of the strip
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH - LED_STRIP_RESERVED_AT_END )   
-  #else
-    LROT_NUMENTRY( LED_STRIP_LENGTH, LED_STRIP_LENGTH )
-  #endif
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
+  LROT_NUMENTRY( LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH + CFS_LED_STRIP_LENGTH )
 #endif
   LROT_NUMENTRY( UNIT_RAW, UNIT_RAW )
   LROT_NUMENTRY( UNIT_VOLTS, UNIT_VOLTS )
@@ -3209,3 +3298,4 @@ LROT_BEGIN(etxstr, NULL, 0)
   LROT_LUDENTRY( CHAR_LS, STR_CHAR_LS )
   LROT_LUDENTRY( CHAR_CURVE, STR_CHAR_CURVE )
 LROT_END(etxstr, NULL, 0)
+}

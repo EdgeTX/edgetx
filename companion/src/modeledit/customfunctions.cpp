@@ -31,6 +31,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   functions(model ? model->customFn : generalSettings.customFn),
   mediaPlayerCurrent(-1),
   mediaPlayer(nullptr),
+  audioOutput(new QAudioOutput()),
   modelsUpdateCnt(0)
 {
   lock = true;
@@ -245,16 +246,16 @@ CustomFunctionsPanel::~CustomFunctionsPanel()
   delete tabFilterFactory;
 }
 
-void CustomFunctionsPanel::onMediaPlayerStateChanged(QMediaPlayer::State state)
+void CustomFunctionsPanel::onMediaPlayerPlaybackStateChanged(QMediaPlayer::PlaybackState state)
 {
   if (state != QMediaPlayer::PlayingState)
     stopSound(mediaPlayerCurrent);
 }
 
-void CustomFunctionsPanel::onMediaPlayerError(QMediaPlayer::Error error)
+void CustomFunctionsPanel::onMediaPlayerErrorOccurred(QMediaPlayer::Error error, const QString &errorString)
 {
   stopSound(mediaPlayerCurrent);
-  QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error occurred while trying to play sound, possibly the file is already opened. (Err: %1 [%2])").arg(mediaPlayer ? mediaPlayer->errorString() : "").arg(error));
+  QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error occurred while trying to play sound, possibly the file is already opened. (Err: %1 [%2])").arg(errorString).arg(error));
 }
 
 bool CustomFunctionsPanel::playSound(int index)
@@ -288,13 +289,16 @@ bool CustomFunctionsPanel::playSound(int index)
   if (mediaPlayer)
     stopSound(mediaPlayerCurrent);
 
-  mediaPlayer = new QMediaPlayer(this, QMediaPlayer::LowLatency);
+  mediaPlayer = new QMediaPlayer(this);
+  mediaPlayer->setAudioOutput(audioOutput);
+
   if (functions[index].func == FuncPlaySound)
-    mediaPlayer->setMedia(QUrl(path.prepend("qrc")));
+    mediaPlayer->setSource(QUrl(path.prepend("qrc")));
   else
-    mediaPlayer->setMedia(QUrl::fromLocalFile(path));
-  connect(mediaPlayer, &QMediaPlayer::stateChanged, this, &CustomFunctionsPanel::onMediaPlayerStateChanged);
-  connect(mediaPlayer, static_cast<void(QMediaPlayer::*)(QMediaPlayer::Error)>(&QMediaPlayer::error), this, &CustomFunctionsPanel::onMediaPlayerError);
+    mediaPlayer->setSource(QUrl::fromLocalFile(path));
+
+  connect(mediaPlayer, &QMediaPlayer::playbackStateChanged, this, &CustomFunctionsPanel::onMediaPlayerPlaybackStateChanged);
+  connect(mediaPlayer, &QMediaPlayer::errorOccurred, this, &CustomFunctionsPanel::onMediaPlayerErrorOccurred);
   mediaPlayerCurrent = index;
   mediaPlayer->play();
   return true;
@@ -304,7 +308,9 @@ void CustomFunctionsPanel::stopSound(int index)
 {
   if (index > -1 && index < (int)DIM(playBT))
     playBT[index]->setChecked(false);
+
   mediaPlayerCurrent = -1;
+
   if (mediaPlayer) {
     disconnect(mediaPlayer, 0, this, 0);
     mediaPlayer->stop();

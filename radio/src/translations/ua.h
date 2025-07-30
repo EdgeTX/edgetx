@@ -51,7 +51,11 @@
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"	/* use english */
 
 #define TR_AUX_SERIAL_MODES            "OFF","Дзерк. телем.","Вх. телем.","SBUS Трен.","LUA","CLI","GPS","Відлаг.","SpaceMouse","Зовн. модуль"	/* for untranslated - use english */
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Немає","Перемик.","2поз. пер.","3поз. пер.","Global"
+#else
 #define TR_SWTYPES                     "Немає","Перемик.","2поз. пер.","3поз. пер."
+#endif
 #define TR_POTTYPES                    "Немає","Потенц.",TR("Пот. з крок.","Потенц. з кроком"),"Повзун.",TR("Баг.поз.пер.","Багатопозиц. перем."),"Вісь X","Вісь Y","Перемик."
 #define TR_VPERSISTENT                 "OFF","Політ","Ручн. скид."	/* for untranslated - use english */
 #define TR_COUNTRY_CODES               TR("US","America"),TR("JP","Japan"),TR("EU","Europe")	/* use english */
@@ -235,9 +239,10 @@
 #endif
 
 #if defined(PCBNV14) || defined(PCBPL18)
-  #define TR_ENTER                     "[NEXT]"     /* use english */
+ #define TR_ENTER                     "[NEXT]"
 #else
-  #define TR_ENTER                     "[ENTER]"    /* use english */
+ #define TR_ENTER_LONG                "[ENTER LONG]"
+ #define TR_ENTER                     "[ENTER]"
 #endif
 
 #if defined(COLORLCD)
@@ -273,6 +278,7 @@
 #define TR_TIMER                       TR("Таймер", "Таймер ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"	/* use english */
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("Розш.Ліміт", "Розширені Ліміти")
 #define TR_ETRIMS                      TR("Розш.Трим.", "Розширене Обрізання")  /* ned to be clarified by context */
 #define TR_TRIMINC                     "Крок трим."
@@ -293,8 +299,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"
@@ -422,12 +427,7 @@
 #define TR_CALIBRATION                 "Калібрув."
 #define TR_VTRIM                       "Трим - +"
 #define TR_CALIB_DONE                  "Калібрування завершене"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Тисни [Enter] для старту"
-  #define TR_SETMIDPOINT               "Центруй важіль/потенц./повзунки та тисни [Enter]"
-  #define TR_MOVESTICKSPOTS            "Рухайте вісі/потенц./повзунки та тисніть [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " ДЛЯ СТАРТУ"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "ЦЕНТРУВАТИ ВАЖЕЛІ/ПОВЗУНКИ"
   #define TR_MOVESTICKSPOTS            "РУХАЙТЕ ВІСІ/ПОТЕНЦ."
 #else
@@ -440,8 +440,10 @@
   #define TR_MOVESTICKSPOTS            "РУХАЙТЕ ВІСІ/ПОТЕНЦ."
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " КОЛИ ЗАКІНЧЕНО"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "НЕМАЄ ДАНИХ"
 #define TR_US                          "us"

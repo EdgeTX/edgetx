@@ -618,8 +618,8 @@ class LvglWidgetTextButtonBase : public LvglWidgetObject, public LvglTextParams
     color.flags = -1; // ignore unless overridden
   }
 
-  void setText(const char *s);
-  void setFont(LcdFlags font);
+  virtual void setText(const char *s) = 0;
+  virtual void setFont(LcdFlags font) = 0;
   void setSize(coord_t w, coord_t h) override;
   void setColor(LcdFlags newColor) override;
   void setTextColor(LcdFlags newColor);
@@ -651,6 +651,8 @@ class LvglWidgetTextButton : public LvglWidgetTextButtonBase
   LvglWidgetTextButton() : LvglWidgetTextButtonBase() {}
 
   void setChecked(bool check);
+  void setText(const char *s) override;
+  void setFont(LcdFlags font) override;
 
   void clearRefs(lua_State *L) override;
 
@@ -673,6 +675,9 @@ class LvglWidgetMomentaryButton : public LvglWidgetTextButtonBase
 {
  public:
   LvglWidgetMomentaryButton() : LvglWidgetTextButtonBase() {}
+
+  void setText(const char *s) override;
+  void setFont(LcdFlags font) override;
 
   void clearRefs(lua_State *L) override;
 

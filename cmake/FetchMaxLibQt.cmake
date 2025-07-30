@@ -5,7 +5,7 @@ include(FetchContent)
 FetchContent_Declare(
   maxLibQt
   GIT_REPOSITORY https://github.com/edgetx/maxLibQt
-  GIT_TAG        ac1988ffd005cd15a8449b92150ce6c08574a4f1
+  GIT_TAG        98f5482fb8b836f48a6a5ee199911882fa420f2b
 )
 
 FetchContent_MakeAvailable(maxLibQt)

@@ -53,7 +53,11 @@
 #define TR_TRNMODE                     "AUS",TR("+=","Addiere"),TR(":=","Ersetze")
 #define TR_TRNCHN                      "CH1","CH2","CH3","CH4"
 #define TR_AUX_SERIAL_MODES            "AUS","Telem weiterl.","Telemetrie In","SBUS Eingang","LUA","CLI","GPS","Debug","SpaceMouse","Externes Modul"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                     "Kein","Taster","2POS","3POS","Global"
+#else
 #define TR_SWTYPES                     "Kein","Taster","2POS","3POS"
+#endif
 #define TR_POTTYPES                    "Kein","Poti", TR("Pot o. Ras","Poti mit Raste"),"Schieber",TR("Multipos.","Multipos. Schalter"),"Knüppel X","Knüppel Y","Schalter"
 #define TR_VPERSISTENT                 "AUS","Flugzeit","Manuell Rück"
 #define TR_COUNTRY_CODES               TR("US","Amerika"),TR("JP","Japan"),TR("EU","Europa")
@@ -236,6 +240,7 @@
   #define TR_ENTER                     "[NEXT]"
 #else
   #define TR_ENTER                     "[ENTER]"
+  #define TR_ENTER_LONG                "[ENTER LONG]"
 #endif
 
 #if defined(PCBHORUS)
@@ -272,6 +277,7 @@
 #define TR_TIMER                       "Timer"
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("Erw. Limit", "Erw. Wege auf 150%")
 #define TR_ETRIMS                      TR("Erw. Trims", "Erw. Trim  auf 100%")
 #define TR_TRIMINC                     TR("Trimschritt", "Trimmschritte")
@@ -292,8 +298,7 @@
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"
@@ -421,15 +426,9 @@
 #define TR_CAL                         "Kal."
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Kalibrierung fertig"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Drücke [Enter] zum Start"
-  #define TR_SETMIDPOINT               "Knüppel/Schieber zentrieren und [Enter]"
-  #define TR_MOVESTICKSPOTS            "Bewege Knüppel/Poti/Schieber und drücke [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " Zum Start"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "Knüppel/Schieber zentrieren"
   #define TR_MOVESTICKSPOTS            "Knüppel/Schieber bewegen"
-  #define TR_MENUWHENDONE              TR_ENTER " wenn fertig"
 #else
   #define TR_MENUTOSTART               TR_ENTER " Zum START"
 #if defined(SURFACE_RADIO)
@@ -440,8 +439,10 @@
   #define TR_MOVESTICKSPOTS            "BEWEGE KNÜPPEL/SCHIEBER"
 #endif
   #define TR_MENUWHENDONE              TR_ENTER " wenn fertig"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "Keine Daten"
 #define TR_US                          "us"

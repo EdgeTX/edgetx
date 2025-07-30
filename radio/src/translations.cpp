@@ -154,6 +154,7 @@ const char STR_NO_PICTURE[] = TR_NO_PICTURE;
 const char STR_TIMER[] = TR_TIMER;
 const char STR_NO_TIMERS[] = TR_NO_TIMERS;
 const char STR_START[]  = TR_START;
+const char STR_NEXT[]  = TR_NEXT;
 const char STR_ELIMITS[] = TR_ELIMITS;
 const char STR_ETRIMS[] = TR_ETRIMS;
 const char STR_TRIMINC[] = TR_TRIMINC;
@@ -169,8 +170,7 @@ const char STR_MS[] = TR_MS;
 const char STR_SWITCH[] = TR_SWITCH;
 #if defined(FUNCTION_SWITCHES)
 const char STR_GROUPS[] = TR_GROUPS;
-const char STR_FS_ON_COLOR[] = TR_FS_ON_COLOR;
-const char STR_FS_OFF_COLOR[] = TR_FS_OFF_COLOR;
+const char STR_LUA_OVERRIDE[] = TR_LUA_OVERRIDE;
 const char STR_LAST[] = TR_LAST;
 const char STR_MORE_INFO[]  = TR_MORE_INFO;
 const char STR_SWITCH_TYPE[] = TR_SWITCH_TYPE;
@@ -286,9 +286,15 @@ const char STR_MULTIPLIER[] = TR_MULTIPLIER;
 const char STR_CAL[] = TR_CAL;
 const char STR_CALIB_DONE[] = TR_CALIB_DONE;
 const char STR_VTRIM[] = TR_VTRIM;
+#if !defined(COLORLCD)
 const char STR_MENUTOSTART[] = TR_MENUTOSTART;
+#endif
 const char STR_SETMIDPOINT[] = TR_SETMIDPOINT;
 const char STR_MOVESTICKSPOTS[] = TR_MOVESTICKSPOTS;
+#if !defined(COLORLCD)
+const char STR_AXISDIR[] = TR_AXISDIR;
+const char STR_MENUAXISDIR[] = TR_MENUAXISDIR;
+#endif
 const char STR_TX[] = TR_TXnRX;
 const char STR_NODATA[] = TR_NODATA;
 const char STR_US[] = TR_US;

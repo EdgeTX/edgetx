@@ -23,10 +23,6 @@
 
 #if defined(PXX2)
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#endif
-
 #include "pulses/pxx2.h"
 #include "pulses/pxx2_transport.h"
 
@@ -416,8 +412,16 @@ static void processSpectrumAnalyserFrame(uint8_t module, const uint8_t * frame)
   if (x < LCD_W) {
     reusableBuffer.spectrumAnalyser.bars[x] = max<int>(0, -SPECTRUM_ANALYSER_POWER_FLOOR + power); // we remove everything below -120dB
 #if defined(COLORLCD)
-    if (reusableBuffer.spectrumAnalyser.bars[x] > reusableBuffer.spectrumAnalyser.max[x])
-      reusableBuffer.spectrumAnalyser.max[x] = reusableBuffer.spectrumAnalyser.bars[x];
+    if (reusableBuffer.spectrumAnalyser.bars[x] >
+        reusableBuffer.spectrumAnalyser.max[x]) {
+      reusableBuffer.spectrumAnalyser.max[x] =
+          reusableBuffer.spectrumAnalyser.bars[x];
+    }
+    if (reusableBuffer.spectrumAnalyser.bars[x] >
+        reusableBuffer.spectrumAnalyser.peak[x]) {
+      reusableBuffer.spectrumAnalyser.peak[x] =
+          reusableBuffer.spectrumAnalyser.bars[x];
+    }
 #endif
   }
 }

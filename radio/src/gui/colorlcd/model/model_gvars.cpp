@@ -21,7 +21,6 @@
 
 #include "model_gvars.h"
 
-#include "libopenui.h"
 #include "list_line_button.h"
 #include "numberedit.h"
 #include "edgetx.h"
@@ -55,15 +54,7 @@ class GVarButton : public ListLineButton
     setHeight(BTN_H);
     if (!modelFMEnabled()) padLeft(PAD_LARGE);
 
-    lv_obj_add_event_cb(lvobj, GVarButton::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                        nullptr);
-  }
-
-  static void on_draw(lv_event_t* e)
-  {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (GVarButton*)lv_obj_get_user_data(target);
-    if (line) line->build();
+    delayLoad();
   }
 
   static LAYOUT_VAL_SCALED(GVAR_NAME_SIZE, 44)
@@ -84,7 +75,6 @@ class GVarButton : public ListLineButton
   static const lv_obj_class_t gv_value_class;
 
  protected:
-  bool init = false;
   uint8_t currentFlightMode = 0;  // used for checking updates
   lv_obj_t* valueTexts[MAX_FLIGHT_MODES];
   gvar_t values[MAX_FLIGHT_MODES];
@@ -94,7 +84,7 @@ class GVarButton : public ListLineButton
   void checkEvents() override
   {
     ListLineButton::checkEvents();
-    if (init) {
+    if (loaded) {
       if (modelFMEnabled()) {
         uint8_t newFM = getFlightMode();
         if (currentFlightMode != newFM) {
@@ -114,12 +104,8 @@ class GVarButton : public ListLineButton
     }
   }
 
-  void build()
+  void delayedInit() override
   {
-    if (init) return;
-
-    init =true;
-
     lv_obj_enable_style_refresh(false);
 
     currentFlightMode = getFlightMode();
@@ -239,21 +225,12 @@ class GVarHeader : public Window
     padAll(PAD_ZERO);
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY3_INDEX);
 
-    lv_obj_add_event_cb(lvobj, GVarHeader::on_draw, LV_EVENT_DRAW_MAIN_BEGIN,
-                        nullptr);
-  }
-
-  static void on_draw(lv_event_t* e)
-  {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (GVarHeader*)lv_obj_get_user_data(target);
-    if (line) line->build();
+    delayLoad();
   }
 
   static LAYOUT_SIZE(HDR_H, EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY, EdgeTxStyles::STD_FONT_HEIGHT * 2)
 
  protected:
-  bool init = false;
   uint8_t currentFlightMode = 0;  // used for checking updates
   lv_obj_t* labelTexts[MAX_FLIGHT_MODES];
 
@@ -262,7 +239,7 @@ class GVarHeader : public Window
   void checkEvents() override
   {
     Window::checkEvents();
-    if (init) {
+    if (loaded) {
       uint8_t newFM = getFlightMode();
       if (currentFlightMode != newFM) {
         lv_obj_add_state(labelTexts[newFM], LV_STATE_CHECKED);
@@ -273,12 +250,8 @@ class GVarHeader : public Window
     }
   }
 
-  void build()
+  void delayedInit() override
   {
-    if (init) return;
-
-    init =true;
-
     currentFlightMode = getFlightMode();
 
     char label[16] = {};

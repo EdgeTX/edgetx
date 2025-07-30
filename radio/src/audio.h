@@ -88,7 +88,7 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
   #endif
 #endif
 
-#if defined(SIMU) && defined(SIMU_AUDIO)
+#if defined(SIMU)
   #define AUDIO_BUFFER_COUNT           (10) // simulator needs more buffers for smooth audio
 #elif defined(AUDIO_SPI)
   #define AUDIO_BUFFER_COUNT           (2)  // smaller than Taranis since there is also a buffer on the ADC chip
@@ -421,9 +421,6 @@ class AudioFragmentFifo
 
 class AudioQueue {
 
-#if defined(SIMU_AUDIO)
-  friend void fillAudioBuffer(void *, uint8_t *, int);
-#endif
 #if defined(CLI)
   friend void printAudioVars();
 #endif

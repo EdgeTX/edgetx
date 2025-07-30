@@ -275,6 +275,7 @@
 #define TR_TIMER                      TR("타이머", "타이머 ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                      "시작"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                    TR("확장 제한", "익스텐디드 리밋")
 #define TR_ETRIMS                     TR("확장 트림", "익스텐디드 트림")
 #define TR_TRIMINC                    "트림 단계"
@@ -297,8 +298,7 @@
 #define TR_FS_COLOR_LIST                  "사용자 정의", "끄기", "흰색", "빨강", "초록", "노랑", "주황", "파랑", "분홍"
 #define TR_GROUP                          "그룹"
 #define TR_GROUP_ALWAYS_ON                "항상 켜짐"
-#define TR_FS_ON_COLOR                    TR("켜짐:", "켜짐 색상")
-#define TR_FS_OFF_COLOR                   TR("꺼짐:", "꺼짐 색상")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                         "항상 켜짐 그룹"
 #define TR_LAST                           "마지막"
 #define TR_MORE_INFO                      "자세히 보기"
@@ -440,13 +440,7 @@
 #define TR_VTRIM                        "트림 - +"
 #define TR_CALIB_DONE                   "보정 완료"
 
-#if defined(PCBHORUS)
- #define TR_MENUTOSTART                "시작하려면 [ENTER]를 누르세요"
- #define TR_SETMIDPOINT                "스틱/포트/슬라이더를 중앙에 맞춘 후 [ENTER]"
- #define TR_MOVESTICKSPOTS             "스틱/포트/슬라이더를 움직이고 [ENTER]"
-
-#elif defined(COLORLCD)
- #define TR_MENUTOSTART                  TR_ENTER " -> 시작"
+#if defined(COLORLCD)
  #define TR_SETMIDPOINT                  "스틱/슬라이더 중앙 정렬"
  #define TR_MOVESTICKSPOTS               "스틱/포트 이동"
 #else
@@ -459,9 +453,10 @@
  #define TR_MOVESTICKSPOTS             "스틱/포트 이동"
 #endif
  #define TR_MENUWHENDONE               TR_ENTER " -> 완료"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-
-#define TR_TXnRX                       "Tx:\0Rx:"
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                       "데이터 없음"
 #define TR_US                          "us"

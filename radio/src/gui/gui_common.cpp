@@ -362,7 +362,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
   if (swtch >= SWSRC_FIRST_SWITCH && swtch <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(swtch);
-    if (swinfo.quot >= switchGetMaxSwitches() + switchGetMaxFctSwitches()) {
+    if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
 
@@ -370,7 +370,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
       return false;
     }
 
-    if (IS_SWITCH_FS(swinfo.quot) && context == GeneralCustomFunctionsContext) {
+    if (switchIsCustomSwitch(swinfo.quot) && context == GeneralCustomFunctionsContext) {
       return false;   // FS are defined at model level, and cannot be in global functions
     }
 
@@ -439,7 +439,7 @@ static bool isSwitchSwitchAvailable(int swtch, bool invert) {
   // Check normal switch
   if (swtch < MAX_SWITCHES * 3) {
     div_t swinfo = switchInfo(swtch + SWSRC_FIRST_SWITCH);
-    if (swinfo.quot >= switchGetMaxSwitches() + switchGetMaxFctSwitches()) {
+    if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
 
@@ -670,12 +670,9 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_DISABLE_AUDIO_AMP:
       return false;
 #endif
-#if !defined(LED_STRIP_GPIO)
+#if !defined(LED_STRIP_LENGTH)
     case FUNC_RGB_LED:
       return false;
-#elif defined(RGB_LED_OFFSET)
-    case FUNC_RGB_LED:
-      return (LED_STRIP_LENGTH > RGB_LED_OFFSET);
 #endif
 #if !defined(DEBUG)
     case FUNC_TEST:
@@ -1350,6 +1347,16 @@ bool isFlexSwitchSourceValid(int source)
   if (POT_CONFIG(source) != FLEX_SWITCH) return false;
 
   return true;
+}
+
+bool getStickInversion(int index)
+{
+  return bfGet<uint8_t>(g_eeGeneral.stickInvert, index, STICK_CFG_INV_BITS);
+}
+
+void setStickInversion(int index, bool value)
+{
+  g_eeGeneral.stickInvert = bfSet<uint8_t>(g_eeGeneral.stickInvert, value, index, STICK_CFG_INV_BITS);
 }
 
 bool getPotInversion(int index)

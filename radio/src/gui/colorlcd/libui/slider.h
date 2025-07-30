@@ -38,7 +38,6 @@ class SliderBase : public Window
   int vmax;
   lv_obj_t* slider;
   lv_obj_t** tickPts = nullptr;
-  bool loaded = false;
 
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
@@ -60,8 +59,7 @@ class Slider : public SliderBase
 #endif
 
  protected:
-  static void on_draw(lv_event_t* e);
-  void delayedInit();
+  void delayedInit() override;
 };
 
 class VerticalSlider : public SliderBase
@@ -75,6 +73,5 @@ class VerticalSlider : public SliderBase
 #endif
 
  protected:
-  static void on_draw(lv_event_t* e);
-  void delayedInit();
+  void delayedInit() override;
 };

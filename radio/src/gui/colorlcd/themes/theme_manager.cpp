@@ -28,6 +28,7 @@
 #include "topbar_impl.h"
 #include "view_main.h"
 #include "storage/sdcard_yaml.h"
+#include "lib_file.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 

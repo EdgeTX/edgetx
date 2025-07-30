@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "progress.h"
 #include "etx_lv_theme.h"
+#include "keyboard_base.h"
 
 //-----------------------------------------------------------------------------
 

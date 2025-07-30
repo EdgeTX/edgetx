@@ -21,7 +21,6 @@
 
 #include "model_heli.h"
 #include "edgetx.h"
-#include "libopenui.h"
 #include "sourcechoice.h"
 
 #define SET_DIRTY()     storageDirty(EE_MODEL)

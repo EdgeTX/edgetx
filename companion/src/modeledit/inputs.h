@@ -96,4 +96,5 @@ class InputsPanel : public ModelPanel
     int getInputIndexFromSelected();
     void updateItemModels();
     void connectItemModelEvents(const int id);
+    QAction * addAct(const QString & icon, const QString & text, const char * slot, const QKeySequence & shortcut = 0, bool enabled = true);
 };

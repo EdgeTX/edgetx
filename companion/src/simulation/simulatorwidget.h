@@ -38,7 +38,7 @@ class Firmware;
 class SimulatorInterface;
 class SimulatedUIWidget;
 class VirtualJoystickWidget;
-#ifdef JOYSTICKS
+#ifdef USE_SDL
 class Joystick;
 #endif
 
@@ -149,7 +149,7 @@ class SimulatorWidget : public QWidget
     bool deleteTempRadioData = false;
     bool saveTempRadioData = false;
 
-#ifdef JOYSTICKS
+#ifdef USE_SDL
     Joystick * joystick = nullptr;
     int switchDirection[MAX_JS_BUTTONS];
 #endif

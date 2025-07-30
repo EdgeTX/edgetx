@@ -28,16 +28,8 @@
 #include "strhelpers.h"
 #include "switches.h"
 
-#if defined(LIBOPENUI)
-#include "libopenui.h"
-#endif
-
 #include "model_audio.h"
 #include "hal/audio_driver.h"
-
-#if defined(SIMU) && !defined(SIMU_AUDIO)
-void audioConsumeCurrentBuffer() {}
-#endif
 
 extern mutex_handle_t audioMutex;
 
@@ -710,11 +702,6 @@ bool AudioQueue::isPlaying(uint8_t id)
 
 void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t flags, int8_t freqIncr, int8_t fragmentVolume)
 {
-#if defined(SIMU) && !defined(SIMU_AUDIO)
-  #warning "NO audio"
-  return;
-#endif
-
   _audio_lock();
 
   freq = limit<uint16_t>(BEEP_MIN_FREQ, freq, BEEP_MAX_FREQ);
@@ -776,14 +763,6 @@ void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8
 
 void AudioQueue::stopPlay(uint8_t id)
 {
-#if defined(SIMU)
-  TRACE("stopPlay(id=%d)", id);
-#endif
-
-#if defined(SIMU) && !defined(SIMU_AUDIO)
-  return;
-#endif
-
   _audio_lock();
 
   fragmentsFifo.removePromptById(id);

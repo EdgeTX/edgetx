@@ -30,6 +30,7 @@
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 #include "os/time.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -88,6 +89,16 @@ void firmwareTraceCb(const char * text)
     if (dev)
       dev->write(text);
   }
+}
+
+void fsLedOn(uint8_t idx)
+{
+  rgbSetLedColor(idx, 0xFF, 0xFF, 0xFF);
+}
+
+void fsLedOff(uint8_t idx)
+{
+  rgbSetLedColor(idx, 0, 0, 0);
 }
 
 // Serial port handling needs to know about OpenTxSimulator, so we we
@@ -441,17 +452,7 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
     return;
 
   setKey(key, 1);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
   QTimer::singleShot(10, [this, key]() { setKey(key, 0); });
-#else
-  QTimer *timer = new QTimer(this);
-  timer->setSingleShot(true);
-  connect(timer, &QTimer::timeout, [=]() {
-    setKey(key, 0);
-    timer->deleteLater();
-  } );
-  timer->start(10);
-#endif
 #endif  // defined(ROTARY_ENCODER_NAVIGATION)
 }
 
@@ -534,12 +535,12 @@ void OpenTxSimulator::sendTelemetry(const uint8_t module, const uint8_t protocol
   case SIMU_TELEMETRY_PROTOCOL_FRSKY_SPORT:
     sportProcessTelemetryPacket(module,
                                 (uint8_t *)data.constData(),
-                                data.count());
+                                data.size());
     break;
   case SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB:
     frskyDProcessPacket(module,
                         (uint8_t *)data.constData(),
-                        data.count());
+                        data.size());
     break;
   case SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB:
     // FrSky D telemetry is a stream which can span multiple
@@ -563,7 +564,7 @@ void OpenTxSimulator::sendTelemetry(const uint8_t module, const uint8_t protocol
   case SIMU_TELEMETRY_PROTOCOL_CROSSFIRE:
     processCrossfireTelemetryFrame(module,
                                    (uint8_t *)data.constData(),
-                                   data.count());
+                                   data.size());
     break;
   default:
     // Do nothing
@@ -761,6 +762,7 @@ void OpenTxSimulator::run()
   ++loops;
 
   checkLcdChanged();
+  checkFuncSwitchChanged();
 
   if (!(loops % 5)) {
     checkOutputsChanged();
@@ -791,6 +793,19 @@ bool OpenTxSimulator::checkLcdChanged()
     return true;
   }
   return false;
+}
+
+void OpenTxSimulator::checkFuncSwitchChanged()
+{
+#if defined(FUNCTION_SWITCHES)
+  for (int i = 0; i < CPN_MAX_SWITCHES; i += 1) {
+    if (switchIsCustomSwitch(i)) {
+      uint8_t cfs = switchGetCustomSwitchIdx(i);
+      uint32_t c = rgbGetLedColor(cfs);
+      emit fsColorChange(i, c);
+    }
+  }
+#endif
 }
 
 void OpenTxSimulator::checkOutputsChanged()

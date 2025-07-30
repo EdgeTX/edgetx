@@ -424,18 +424,14 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_SWITCH) {
     auto sw_idx = (uint8_t)(i - MIXSRC_FIRST_SWITCH);
 #if defined(FUNCTION_SWITCHES)
-    auto max_reg_switches = switchGetMaxSwitches();
-    if (sw_idx >= max_reg_switches) {
-      auto fct_idx = sw_idx - max_reg_switches;
-      auto max_fct_switches = switchGetMaxFctSwitches();
-      if (fct_idx < max_fct_switches) {
-        return _switch_2pos_lookup[getFSLogicalState(fct_idx)];
-      }
+    auto max_switches = switchGetMaxSwitches();
+    if (sw_idx < max_switches && switchIsCustomSwitch(sw_idx)) {
+      return _switch_2pos_lookup[g_model.cfsState(sw_idx)];
     }
 #endif
-    auto sw_cfg = (SwitchConfig)SWITCH_CONFIG(sw_idx);
+    auto sw_cfg = g_model.getSwitchType(sw_idx);
     switch(sw_cfg) {
-    case SWITCH_NONE:
+    default:
       if (valid != nullptr) *valid = false;
       return 0;
     case SWITCH_TOGGLE:
@@ -452,18 +448,20 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       if (stepcount == 0)
         return 0;
 
-      if (IS_FSWITCH_GROUP_ON(group_idx))
+      if (g_model.cfsGroupAlwaysOn(group_idx))
         stepcount--;
 
       int stepsize = (2 * RESX) / stepcount;
       int value = -RESX;
 
-      for (uint8_t i =  0; i < switchGetMaxFctSwitches(); i++) {
-        if(FSWITCH_GROUP(i) == group_idx) {
-          if (getFSLogicalState(i) == 1)
-            return value + (IS_FSWITCH_GROUP_ON(group_idx) ? 0 : stepsize);
-          else
-            value += stepsize;
+      for (uint8_t i =  0; i < switchGetMaxSwitches(); i++) {
+        if (switchIsCustomSwitch(i)) {
+          if (g_model.getSwitchGroup(i) == group_idx) {
+            if (g_model.cfsState(i) == 1)
+              return value + (g_model.cfsGroupAlwaysOn(group_idx) ? 0 : stepsize);
+            else
+              value += stepsize;
+          }
         }
       }
       return -RESX;

@@ -29,7 +29,7 @@
 #include "simulatorinterface.h"
 #include "telemetrysimu.h"
 #include "trainersimu.h"
-#ifdef JOYSTICKS
+#ifdef USE_SDL
 #include "joystickdialog.h"
 #endif
 #include "serialportsdialog.h"
@@ -128,7 +128,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
     ui->actionReloadLua->setDisabled(true);
   if(!m_simulator->getCapability(SimulatorInterface::CAP_TELEM_FRSKY_SPORT))
     m_telemetryDockWidget->toggleViewAction()->setDisabled(true);
-#ifndef JOYSTICKS
+#ifndef USE_SDL
   ui->actionJoystickSettings->setDisabled(true);
 #endif
 
@@ -482,7 +482,7 @@ void SimulatorMainWindow::toggleRadioDocked(bool dock)
 
 void SimulatorMainWindow::openJoystickDialog(bool)
 {
-#ifdef JOYSTICKS
+#ifdef USE_SDL
   joystickDialog * jd = new joystickDialog(this);
   if (jd->exec() == QDialog::Accepted && m_simulatorWidget)
     m_simulatorWidget->setupJoysticks();

@@ -51,10 +51,10 @@
 #define TR_TRNCHN                      "KA1","KA2","KA3","KA4"
 #define TR_AUX_SERIAL_MODES            "FRA","Telem spejlet","Telemetri ind","SBUS træner","LUA","CLI","GPS","Debug","SpaceMouse","Eksternt modul"
 
-#if !NARROW_LAYOUT
-  #define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position"
+#if defined(FUNCTION_SWITCHES)
+#define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position","Global"
 #else
-  #define TR_SWTYPES                   "Ingen","Skift","2POS","3POS"
+#define TR_SWTYPES                   "Ingen", "2 pos skift","2 position","3 position"
 #endif
 
 #define TR_POTTYPES                    "Ingen",TR("Drejek.", "Drejekontakt"),TR("Drejek./klik","Drejekontakt med klik"),"Skyder",TR("Multipos","Multipos kontakt"),"Axis X","Axis Y","Switch"
@@ -238,6 +238,7 @@
 #if defined(PCBNV14) || defined(PCBPL18)
   #define TR_ENTER                     "[NÆSTE]"
 #else
+  #define TR_ENTER_LONG                "[ENTER LONG]"
   #define TR_ENTER                     "[ENTER]"
 #endif
 
@@ -274,6 +275,7 @@
 #define TR_TIMER                       TR("Tid", "Tid ")
 #define TR_NO_TIMERS                   "No timers"
 #define TR_START                       "Start"
+#define TR_NEXT                        "Next"
 #define TR_ELIMITS                     TR("Udv.Grænser", "Udvidet grænser")
 #define TR_ETRIMS                      TR("Udv.Trim", "Udvidet trim")
 #define TR_TRIMINC                     "Trim øge"
@@ -294,8 +296,7 @@
 #define TR_FS_COLOR_LIST               "Bruger","Fra","Hvid","Rød","Grøn","Gul","Orange","Blå","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Altid til"
-#define TR_FS_ON_COLOR                 TR("ON:","ON Color")
-#define TR_FS_OFF_COLOR                TR("OFF:","OFF Color")
+#define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_GROUPS                      "Altid til gruppe"
 #define TR_LAST                        "Sidste"
 #define TR_MORE_INFO                   "Mere info"
@@ -425,21 +426,23 @@
 #define TR_CALIBRATION                 "Kalibrering"
 #define TR_VTRIM                       "Trim - +"
 #define TR_CALIB_DONE                  "Kalibrering færdig"
-#if defined(PCBHORUS)
-  #define TR_MENUTOSTART               "Tryk [Enter] for start"
-  #define TR_SETMIDPOINT               "Centrer pinde/drejekontakter/skydere og tryk [Enter]"
-  #define TR_MOVESTICKSPOTS            "Flyt pinde/drejekontakter/skydere og tryk [Enter]"
-#elif defined(COLORLCD)
-  #define TR_MENUTOSTART               TR_ENTER " FOR START"
+#if defined(COLORLCD)
   #define TR_SETMIDPOINT               "CENTRER PINDE/SKYDER"
   #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKT"
 #else
   #define TR_MENUTOSTART               TR_ENTER " FOR START"
+#if defined(SURFACE_RADIO)
+  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
+  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
+#else
   #define TR_SETMIDPOINT               TR("SÆT PINDE I MIDT", "CENTRER PINDE/SKYDERE")
   #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKTER"
-  #define TR_MENUWHENDONE              TR_ENTER " NÅR FÆRDIG"
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
+  #define TR_MENUWHENDONE              TR_ENTER " NÅR FÆRDIG"
+#define TR_AXISDIR                     "AXIS DIR"
+#define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
+#endif
+#define TR_TXnRX                      "Tx:\0Rx:"
 #define OFS_RX                         4
 #define TR_NODATA                      "INGEN DATA"
 #define TR_US                          "us"

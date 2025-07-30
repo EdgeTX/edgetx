@@ -24,7 +24,6 @@
 
 #if defined(LUA)
 
-#define SWAP_DEFINED
 #include "edgetx.h"
 #include "lua/lua_states.h"
 

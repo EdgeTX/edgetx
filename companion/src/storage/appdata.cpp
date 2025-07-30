@@ -56,7 +56,7 @@ void CompStoreObj::load(CompStoreObj * obj, const QString & name, const QString 
   const QMetaProperty & prop = obj->metaObject()->property(idx);
   const QVariant currValue = prop.read(obj);
   QVariant savedValue = m_settings.value(pathForKey(key, group), def);
-  if (savedValue.isValid() && savedValue.convert(currValue.userType()) && savedValue != currValue)
+  if (savedValue.isValid() && savedValue.convert(currValue.metaType()) && savedValue != currValue)
     prop.write(obj, savedValue);
 }
 
@@ -366,7 +366,6 @@ bool ComponentAssetData::existsOnDisk()
 
 ComponentData::ComponentData() : CompStoreObj(), index(-1)
 {
-  qRegisterMetaTypeStreamOperators<ComponentData::ReleaseChannel>("ComponentData::ReleaseChannel");
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
@@ -425,12 +424,6 @@ AppData::AppData() :
   CompStoreObj(),
   m_sessionId(0)
 {
-  QMetaType::registerComparators<SimulatorOptions>();
-  qRegisterMetaTypeStreamOperators<SimulatorOptions>("SimulatorOptions");
-  qRegisterMetaTypeStreamOperators<AppData::NewModelAction>("AppData::NewModelAction");
-  qRegisterMetaTypeStreamOperators<AppData::UpdateCheckFreq>("AppData::UpdateCheckFreq");
-  qRegisterMetaTypeStreamOperators<AppData::SimuGenericKeysPos>("AppData::SimuGenericKeysPos");
-
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 
   firstUse = !hasCurrentSettings();

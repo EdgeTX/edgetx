@@ -23,6 +23,7 @@
 
 #include "standalone_lua.h"
 #include "etx_lv_theme.h"
+#include "lib_file.h"
 
 #define ETX_STATE_NO_INFO_COLOR LV_STATE_USER_1
 

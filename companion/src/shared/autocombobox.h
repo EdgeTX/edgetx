@@ -24,9 +24,15 @@
 #include "autowidget.h"
 #include "rawsource.h"
 #include "rawswitch.h"
+#include "curvedata.h"
+#include "boards.h"
 
 #include <QComboBox>
 
+/*
+    NOTE: Q_OBJECT classes cannot be templated and since we use signals we have no choice but to
+          take this approach or create a class per data type
+*/
 class AutoComboBox : public QComboBox, public AutoWidget
 {
   Q_OBJECT
@@ -48,9 +54,12 @@ class AutoComboBox : public QComboBox, public AutoWidget
     void setField(int & field, GenericPanel * panel = nullptr);
     void setField(RawSource & field, GenericPanel * panel = nullptr);
     void setField(RawSwitch & field, GenericPanel * panel = nullptr);
+    void setField(CurveData::CurveType & field, GenericPanel * panel = nullptr);
+    void setField(Board::FlexType & field, GenericPanel * panel = nullptr);
+    void setField(Board::SwitchType & field, GenericPanel * panel = nullptr);
 
     void setAutoIndexes();
-    void setModel(QAbstractItemModel * model);
+    void setModel(QAbstractItemModel * model) override;
 
   signals:
     void currentDataChanged(int value);
@@ -59,11 +68,15 @@ class AutoComboBox : public QComboBox, public AutoWidget
     void onCurrentIndexChanged(int index);
 
   private:
-    int *m_field;
     int m_next;
     bool m_hasModel;
+    int *m_field;
     RawSource *m_rawSource;
     RawSwitch *m_rawSwitch;
+    CurveData::CurveType *m_curveType;
+    Board::FlexType *m_flexType;
+    Board::SwitchType *m_switchType;
 
+    void initField();
     void setFieldInit(GenericPanel * panel);
 };

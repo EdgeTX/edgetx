@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_keycode.h>
 
@@ -26,12 +27,10 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
 
-#include <libgen.h>
-#include <getopt.h>
-
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <regex>
 #include <string>
 
@@ -66,19 +65,16 @@
 #include "simpgmspace.h"
 
 #include "hal/key_driver.h"
+#include "hal/switch_driver.h"
 #include "switches.h"
 
 #include "audio.h"
 #include "debug.h"
 #include "edgetx.h"
 
+#include "arg_parser.h"
+
 #define TIMER_INTERVAL 10 // 10ms
-
-int window_width = 800;
-int window_height = 600;
-
-std::string storage_path;
-std::string settings_path;
 
 static SDL_Window* window;
 static SDL_Renderer* renderer;
@@ -321,26 +317,28 @@ static void draw_switches()
     int sw_idx = 0;
     for (int i = 0; i < switchGetMaxSwitches(); i++) {
       if (sw_idx) ImGui::SameLine();
-      if (++sw_idx >= MAX_SWITCHES / 2) sw_idx = 0;
 
-      if (!SWITCH_EXISTS(i)) {
-        switches[i] = 0;
-        ImGui::Dummy(sw_size);
-      } else {
-        ImGui::PushID(i);
-        ImGui::VSliderInt("##sw", sw_size,
-                          &switches[i], IS_CONFIG_3POS(i) ? 2 : 1,
-                          0, "", ImGuiSliderFlags_NoInput);
-        if (ImGui::IsItemActive() || ImGui::IsItemHovered()) {
-          ImGui::SetTooltip("%s", switchGetCanonicalName(i));
+      if (!switchIsCustomSwitch(i)) {
+        if (++sw_idx >= MAX_SWITCHES / 2) sw_idx = 0;
+        if (!SWITCH_EXISTS(i)) {
+          switches[i] = 0;
+          ImGui::Dummy(sw_size);
+        } else {
+          ImGui::PushID(i);
+          ImGui::VSliderInt("##sw", sw_size,
+                            &switches[i], IS_CONFIG_3POS(i) ? 2 : 1,
+                            0, "", ImGuiSliderFlags_NoInput);
+          if (ImGui::IsItemActive() || ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("%s", switchGetDefaultName(i));
+          }
+          ImGui::PopID();
         }
-        ImGui::PopID();
-      }
-      
-      if (IS_CONFIG_3POS(i)) {
-        simuSetSwitch(i, switches[i] == 0 ? -1 : switches[i] == 1 ? 0 : 1);
-      } else {
-        simuSetSwitch(i, switches[i] == 0 ? -1 : 1);
+        
+        if (IS_CONFIG_3POS(i)) {
+          simuSetSwitch(i, switches[i] == 0 ? -1 : switches[i] == 1 ? 0 : 1);
+        } else {
+          simuSetSwitch(i, switches[i] == 0 ? -1 : 1);
+        }
       }
     }
 
@@ -351,8 +349,6 @@ static void draw_switches()
 }
 
 #if defined(FUNCTION_SWITCHES)
-extern bool fsLedIsColorSet(uint8_t index);
-
 static ImVec4 rgb2rgba(uint32_t col)
 {
   float r = (float)((col >> 16) & 0xff) / 255.0f;
@@ -370,9 +366,10 @@ static inline ImVec4 blend(const ImVec4& a, const ImVec4& b)
 
 static void push_custom_switch_styles(int index)
 {
-  bool sw_on = getFSLogicalState(index);
-  bool rgb_set = fsLedIsColorSet(index);
-  ImVec4 rgb = rgb2rgba(fsGetLedRGB(index));
+  int cfsIdx = switchGetCustomSwitchIdx(index);
+  bool sw_on = fsLedState(cfsIdx);
+  bool rgb_set = switchIsCustomSwitch(index);
+  ImVec4 rgb = rgb2rgba(fsGetLedRGB(cfsIdx));
 
   ImVec4 btn, border;
   if (sw_on) {
@@ -413,24 +410,29 @@ static void draw_custom_switches()
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 4.0f);
 
-    int sw_idx = switchGetMaxSwitches();
-    for (int i = 0; i < switchGetMaxFctSwitches(); i++, sw_idx++) {
-      if (i) ImGui::SameLine();
-      ImGui::PushID(i);
+    for (int i = 0, n = 0; i < switchGetMaxSwitches(); i += 1) {
+      if (switchIsCustomSwitch(i)) {
+        int cfsIdx = switchGetCustomSwitchIdx(i);
 
-      push_custom_switch_styles(i);
-      ImGui::Button("##csw", sw_size);
-      pop_custom_switch_styles();
+        if (n) ImGui::SameLine();
+        ImGui::PushID(i);
 
-      bool active = ImGui::IsItemActive();
-      if (active || ImGui::IsItemHovered()) {
-        const char* name = switchGetCanonicalName(sw_idx);
-        const char* on_off = getFSLogicalState(i) ? "on" : "off";
-        ImGui::SetTooltip("%s (%s)", name, on_off);
+        push_custom_switch_styles(i);
+        ImGui::Button("##csw", sw_size);
+        pop_custom_switch_styles();
+
+        bool active = ImGui::IsItemActive();
+        if (active || ImGui::IsItemHovered()) {
+          const char* name = switchGetDefaultName(i);
+          const char* on_off = fsLedState(cfsIdx) ? "on" : "off";
+          ImGui::SetTooltip("%s (%s)", name, on_off);
+        }
+        simuSetSwitch(i, active ? 1 : -1);
+
+        ImGui::PopID();
       }
-      simuSetSwitch(sw_idx, active ? 1 : -1);
 
-      ImGui::PopID();
+      n += 1;
     }
 
     ImGui::PopStyleVar(3);
@@ -677,79 +679,28 @@ int find_input_mode()
   return default_input_mode();
 }
 
-static void print_usage(const char* path)
-{
-  const char usage[] =
-      "usage: %s [--width width] [--height height] [--storage path] "
-      "[--settings path] [-h | --help]\n";
-
-  printf(usage, basename((char*)path));
-}
-
-static int parse_args(int argc, char* argv[])
-{
-  static struct option long_options[] = {
-      {"help", no_argument, 0, 'h'},
-      {"width", required_argument, 0, 'w'},
-      {"height", required_argument, 0, 'e'},
-      {"storage", required_argument, 0, 's'},
-      {"settings", required_argument, 0, 'c'},
-      {0, 0, 0, 0}};
-
-  int option_index = 0;
-  int c;
-
-  while ((c = getopt_long(argc, argv, "h", long_options, &option_index)) !=
-         -1) {
-    switch (c) {
-      case 'h':
-        print_usage(argv[0]);
-        return 1;
-
-      case 'w':
-        window_width = std::atoi(optarg);
-        break;
-
-      case 'e':
-        window_height = std::atoi(optarg);
-        break;
-
-      case 's':
-        storage_path = std::string(optarg);
-        break;
-
-      case 'c':  // 'c' for config/settings
-        settings_path = std::string(optarg);
-        break;
-
-      case '?':
-        // getopt_long already printed an error message
-        print_usage(argv[0]);
-        return 1;
-
-      default:
-        abort();
-    }
-  }
-
-  // Check for non-option arguments
-  if (optind < argc) {
-    printf("Error: Unexpected arguments: ");
-    while (optind < argc) {
-      printf("%s ", argv[optind++]);
-    }
-    printf("\n");
-    print_usage(argv[0]);
-    return 1;
-  }
-
-  return 0;
-}
-
 int main(int argc, char* argv[])
 {
-  if (parse_args(argc, argv) != 0) {
+  auto progname = std::filesystem::path(argv[0]).filename();
+  ArgumentParser args(progname.string());
+
+  if (!args.parse(argc, argv)) {
     return 1;
+  }
+
+  if (args.isHelpRequested()) {
+    args.printHelp();
+    return 0;
+  }
+
+  int window_height = 600;
+  if (args.hasHeight()) {
+    window_height = args.getHeight();
+  }
+
+  int window_width = 800;
+  if (args.hasWidth()) {
+    window_width = args.getWidth();
   }
 
   // Setup SDL
@@ -829,8 +780,9 @@ int main(int argc, char* argv[])
 
   // Init simulation
   simuInit();
-  simuStart(true, storage_path.c_str(), settings_path.c_str());
-  
+  simuStart(true, args.getStoragePath().c_str(),
+            args.getSettingsPath().c_str());
+
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
     if (event->type == SDL_WINDOWEVENT &&

@@ -24,6 +24,7 @@
 #include "theme_manager.h"
 #include "etx_lv_theme.h"
 #include "view_main.h"
+#include "keyboard_base.h"
 
 PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})
