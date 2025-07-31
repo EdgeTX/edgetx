@@ -897,7 +897,6 @@ bool ProtoState::sensorCalibration() {
   static uint8_t data[30] = {0};
   uint8_t len = 0;
 
-  static uint8_t last_sensor_online = 0;
   uint8_t sensor_online = flyskyIbus2SensorOnLine();
   cfg->others.sensorOnLine = sensor_online;
 
