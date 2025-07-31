@@ -209,34 +209,44 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
                   else {
                     uint8_t j = 0;
                     bool isNewValueIBUS2 = (newValue == afhds3::SES_NPT_IBUS2 || newValue == afhds3::SES_NPT_IBUS2_HUB_PORT);
-                    bool isNewValueIBUS1 = (newValue == afhds3::SES_NPT_IBUS1_IN || newValue == afhds3::SES_NPT_IBUS1_OUT);
+                    bool isNewValueIBUS1_IN = (newValue == afhds3::SES_NPT_IBUS1_IN);
+                    bool isNewValueIBUS1_OUT = (newValue == afhds3::SES_NPT_IBUS1_OUT);
                     bool conflict = false;
                     for (j = 0; j < SES_NPT_NB_MAX_PORTS; j++) {
                         if (j == i) continue;
                         
                         uint8_t existingType = vCfg->NewPortTypes[j];
-                      
-                        if (isNewValueIBUS2 && 
-                            (existingType == afhds3::SES_NPT_IBUS1_IN || 
-                            existingType == afhds3::SES_NPT_IBUS1_OUT)) {
-                            conflict = true;
-                            break;
-                        }
-                        
-                        if (isNewValueIBUS1 && 
-                            (existingType == afhds3::SES_NPT_IBUS2 || 
-                            existingType == afhds3::SES_NPT_IBUS2_HUB_PORT)) {
-                            conflict = true;
-                            break;
-                        }
-                        
-                        if (!isNewValueIBUS2 && !isNewValueIBUS1 && 
-                            existingType == newValue) {
-                            conflict = true;
-                            break;
-                        }
+                        bool isExistingIBUS1_IN = (existingType == afhds3::SES_NPT_IBUS1_IN);
+                        bool isExistingIBUS1_OUT = (existingType == afhds3::SES_NPT_IBUS1_OUT);
+                        bool isExistingIBUS2 = (existingType == afhds3::SES_NPT_IBUS2 || existingType == afhds3::SES_NPT_IBUS2_HUB_PORT);
+                          
+                          // Check for mutual exclusivity of iBUS1 and iBUS2
+                          if ((isNewValueIBUS1_IN || isNewValueIBUS1_OUT) && isExistingIBUS2) {
+                              conflict = true;
+                              break;
+                          }
+                          if (isNewValueIBUS2 && (isExistingIBUS1_IN || isExistingIBUS1_OUT)) {
+                              conflict = true;
+                              break;
+                          }
+                          
+                          // Check for iBUS1 conflicts in the same direction
+                          if (isNewValueIBUS1_IN && isExistingIBUS1_IN) {
+                              conflict = true;
+                              break;
+                          }
+                          if (isNewValueIBUS1_OUT && isExistingIBUS1_OUT) {
+                              conflict = true;
+                              break;
+                          }
+                          
+                          // Check for duplicate entries of non-iBUS type
+                          if (!isNewValueIBUS2 && !isNewValueIBUS1_IN && !isNewValueIBUS1_OUT &&
+                              existingType == newValue) {
+                              conflict = true;
+                              break;
+                          }
                     }
-                    //The RX does not support two or more ports to output IBUS (the same is true for PPM and SBUS).
                     if(j==SES_NPT_NB_MAX_PORTS )
                     {
                       if (!conflict)
