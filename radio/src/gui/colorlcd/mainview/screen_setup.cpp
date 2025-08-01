@@ -102,73 +102,6 @@ class LayoutChoice : public Button
   }
 };
 
-ScreenAddPage::ScreenAddPage(PageDef& pageDef) :
-    PageTab(pageDef)
-{
-}
-
-void ScreenAddPage::update(uint8_t index)
-{
-}
-
-void ScreenAddPage::build(Window* window)
-{
-  new TextButton(window,
-                 rect_t{LCD_W / 2 - ADD_TXT_W / 2, window->height() / 2 - EdgeTxStyles::UI_ELEMENT_HEIGHT, ADD_TXT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
-                 STR_ADD_MAIN_VIEW, [=]() -> uint8_t {
-                   ScreenMenu* menu = (ScreenMenu*)window->getParent();
-
-                   int pageIndex = menu->tabCount() - 1;
-
-                   // First page is "User interface", subtract it
-                   auto newIdx = pageIndex - 1;
-                   TRACE("ScreenAddPage: add screen: newIdx = %d", newIdx);
-
-                   auto& screen = customScreens[newIdx];
-                   auto& screenData = g_model.screenData[newIdx];
-
-                   TRACE("ScreenAddPage: add screen: screen = %p", screen);
-
-                   const LayoutFactory* factory = defaultLayout;
-                   if (factory) {
-                     TRACE("ScreenAddPage: add screen: factory = %p", factory);
-
-                     auto viewMain = ViewMain::instance();
-                     screen = factory->create(viewMain, &screenData.layoutData);
-                     viewMain->addMainView(screen, newIdx);
-
-                     strncpy(screenData.LayoutId, factory->getId(),
-                             sizeof(screenData.LayoutId));
-                     TRACE("ScreenAddPage: add screen: LayoutId = %s",
-                           screenData.LayoutId);
-
-                     auto tab = new ScreenSetupPage(newIdx, screensMenuItems[pageIndex]);
-                     std::string title(STR_MAIN_VIEW_X);
-                     title += std::to_string(newIdx + 1);
-                     tab->setTitle(title);
-                     tab->setIcon((EdgeTxIcon)(ICON_THEME_VIEW1 + newIdx));
-
-                     // remove current tab first
-                     menu->setCurrentTab(0);
-                     menu->removeTab(pageIndex);
-
-                     // add the new one
-                     menu->addTab(tab);
-
-                     if (menu->tabCount() <= MAX_CUSTOM_SCREENS) {
-                       menu->addTab(new ScreenAddPage(screensMenuItems[MAX_CUSTOM_SCREENS + 1]));
-                     }
-
-                     menu->setCurrentTab(pageIndex);
-
-                     delete this;
-                   } else {
-                     TRACE("Add main view: factory is NULL");
-                   }
-                   return 0;
-                 });
-}
-
 #if LANDSCAPE
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1),
                                           LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
@@ -182,12 +115,12 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
 ScreenSetupPage::ScreenSetupPage(unsigned index, PageDef& pageDef) :
     PageTab(pageDef)
 {
-  update(index + 1);
+  update(index + FIRST_SCREEN_OFFSET);
 }
 
 void ScreenSetupPage::update(uint8_t index)
 {
-  customScreenIndex = index - 1;
+  customScreenIndex = index - FIRST_SCREEN_OFFSET;
 }
 
 void ScreenSetupPage::build(Window* window)

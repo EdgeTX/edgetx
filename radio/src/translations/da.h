@@ -696,7 +696,6 @@
 #define TR_DURATION                    "Varighed"
 #define TR_DELAY                       "Forsinkelse"
 #define TR_SD_CARD                     "SD KORT"
-#define TR_SDHC_CARD                   "SD-HC KORT"
 #define TR_NO_SOUNDS_ON_SD             "Ingen lyde på SD"
 #define TR_NO_MODELS_ON_SD             "Ingen modeller på SD"
 #define TR_NO_BITMAPS_ON_SD            "Ingen bitmapper på SD"
@@ -1021,7 +1020,6 @@
   #define TR_ALIGN_OPTS                { "Venstre", "Center", "Højre" }
   #define TR_TEXT                      "Tekst"
   #define TR_COLOR                     "Farve"
-  #define TR_MAIN_VIEW_X               "Hoved visning "
   #define TR_PANEL1_BACKGROUND         "Panel1 baggrund"
   #define TR_PANEL2_BACKGROUND         "Panel2 baggrund"
   #define TR_WIDGET_GAUGE              "Måling"
@@ -1095,7 +1093,6 @@
 #define TR_THEME                       "Tema"
 #define TR_SETUP                       "Opsætning"
 #define TR_LAYOUT                      "Layout"
-#define TR_ADD_MAIN_VIEW               "Tilføj hoved billede"
 #define TR_TEXT_COLOR                  "Tekst farve"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Indgange"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Lua script"
@@ -1173,16 +1170,20 @@
 #define TR_THEME_EDITOR                "TEMAER"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL      "Vælg Model"
 #define TR_MAIN_MENU_MANAGE_MODELS     "Vælg Model"
 #define TR_MAIN_MENU_MODEL_NOTES       "Model Noter"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal Monitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Model Indstilling"
 #define TR_MAIN_MENU_RADIO_SETTINGS    "Radio Indstilling"
-#define TR_MAIN_MENU_SCREEN_SETTINGS   "Skærm Indstilling"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY   "Nulstil Telemetri"
 #define TR_MAIN_MENU_STATISTICS        "Statistik"
 #define TR_MAIN_MENU_ABOUT_EDGETX      "Om EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
 // End Main menu
 
 // Voice in native language

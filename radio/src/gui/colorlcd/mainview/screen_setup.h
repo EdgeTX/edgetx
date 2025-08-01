@@ -24,19 +24,7 @@
 #include "datastructs.h"
 #include "menu_screen.h"
 #include "screen_user_interface.h"
-
-class ScreenAddPage : public PageTab
-{
- public:
-  ScreenAddPage(PageDef& pageDef);
-
-  void build(Window* window) override;
-
-  void update(uint8_t index) override;
-
- protected:
-  static LAYOUT_VAL_SCALED(ADD_TXT_W, 200)
-};
+#include "radio_theme.h"
 
 class ScreenSetupPage : public PageTab
 {
@@ -48,6 +36,8 @@ class ScreenSetupPage : public PageTab
   void update(uint8_t index) override;
 
   bool isVisible() const override { return customScreens[customScreenIndex] != nullptr; }
+
+  static constexpr int FIRST_SCREEN_OFFSET = 2;
 
  protected:
   unsigned customScreenIndex;

@@ -24,6 +24,7 @@
 #include "theme_manager.h"
 #include "etx_lv_theme.h"
 #include "view_main.h"
+#include "keyboard_base.h"
 #include "quick_menu.h"
 #include "pagegroup.h"
 #include "tabsgroup.h"

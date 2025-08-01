@@ -24,14 +24,15 @@
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
-#include "menu_channels.h"
-#include "menu_statistics.h"
+#include "menu_tools.h"
 #include "model_select.h"
 #include "edgetx.h"
 #include "quick_menu_group.h"
 #include "etx_lv_theme.h"
 #include "view_about.h"
 #include "view_text.h"
+#include "view_main.h"
+#include "screen_setup.h"
 
 //-----------------------------------------------------------------------------
 
@@ -40,108 +41,91 @@ extern PageDef radioMenuItems[];
 extern PageDef channelsMenuItems[];
 extern PageDef statsMenuItems[];
 extern PageDef screensMenuItems[];
+extern PageDef toolsMenuItems[];
 
 //-----------------------------------------------------------------------------
 
-class QuickSubMenu
+ButtonBase* QuickSubMenu::addButton()
 {
- public:
-  QuickSubMenu(Window* parent, PageGroup* pageGroup, QuickMenu* quickMenu, QuickMenuGroup* topMenu,
-               EdgeTxIcon icon, const char* title, QuickMenu::SubMenu first, QuickMenu::SubMenu last,
-               std::function<PageGroup*()> create, PageDef* items, int viewMainRows, int viewSubRows) :
-    parent(parent), pageGroup(pageGroup), quickMenu(quickMenu), topMenu(topMenu),
-    icon(icon), title(title), first(first), last(last),
-    create(std::move(create)), items(items), viewMainRows(viewMainRows), viewSubRows(viewSubRows)
-  {}
+  menuButton = topMenu->addButton(icon, title,
+                      [=]() -> uint8_t {
+                        topMenu->setCurrent(menuButton);
+                        topMenu->setDisabled(false);
+                        topMenu->clearFocus();
+                        if (!subMenu) buildSubMenu();
+                        enableSubMenu();
+                        return 0;
+                      });
 
-  bool isSubMenu(QuickMenu::SubMenu n) { return (n >= first) && (n <= last); }
-
-  ButtonBase* addButton()
-  {
-    menuButton = topMenu->addButton(icon, title,
-                        [=]() -> uint8_t {
-                          topMenu->setCurrent(menuButton);
-                          topMenu->setDisabled(false);
-                          topMenu->clearFocus();
-                          if (!subMenu) buildSubMenu();
-                          enableSubMenu();
-                          return 0;
-                        });
-
-    menuButton->setFocusHandler([=](bool focus) {
-      if (!quickMenu->deleted()) {
-        if (focus) {
-          topMenu->setCurrent(menuButton);
-          if (!subMenu) buildSubMenu();
-        }
-        if (subMenu)
-          subMenu->show(focus);
-        if (!focus && topMenu)
-          topMenu->setGroup();
+  menuButton->setFocusHandler([=](bool focus) {
+    if (!quickMenu->deleted()) {
+      if (focus) {
+        topMenu->setCurrent(menuButton);
+        if (!subMenu) buildSubMenu();
       }
-    });
-
-    return menuButton;
-  }
-
-  void enableSubMenu()
-  {
-    subMenu->setGroup();
-    subMenu->setFocus();
-    subMenu->setEnabled();
-    subMenu->show();
-    quickMenu->enableSubMenu();
-  }
-
-  void setDisabled(bool all)
-  {
-    if (subMenu)
-      subMenu->setDisabled(all);
-  }
-
-  void setCurrent(int b)
-  {
-    topMenu->setCurrent(menuButton);
-    topMenu->setDisabled(false);
-    if (!subMenu) buildSubMenu();
-    subMenu->setCurrent(b - first);
-    enableSubMenu();
-  }
-
- protected:
-  Window* parent;
-  PageGroup* pageGroup;
-  QuickMenu* quickMenu;
-  QuickMenuGroup* topMenu;
-  EdgeTxIcon icon;
-  const char* title;
-  QuickMenu::SubMenu first;
-  QuickMenu::SubMenu last;
-  std::function<PageGroup*()> create;
-  PageDef* items;
-  QuickMenuGroup* subMenu = nullptr;
-  ButtonBase* menuButton = nullptr;
-  int viewMainRows = 0;
-  int viewSubRows = 0;
-
-  void buildSubMenu()
-  {
-    subMenu = new QuickMenuGroup(parent,
-            {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) * viewMainRows, parent->width() - PAD_OUTLINE * 2,
-            viewSubRows * (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) - PAD_OUTLINE});
-
-    for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
-      subMenu->addButton(items[i].icon, items[i].title,
-          std::bind(&QuickSubMenu::onPress, this, items[i].subMenu - first),
-          items[i].enabled ? items[i].enabled() : true);
+      if (subMenu)
+        subMenu->show(focus);
+      if (!focus && topMenu)
+        topMenu->setGroup();
     }
+  });
 
-    subMenu->hide();
-    subMenu->setDisabled(true);
+  return menuButton;
+}
+
+void QuickSubMenu::enableSubMenu()
+{
+  subMenu->setGroup();
+  subMenu->setFocus();
+  subMenu->setEnabled();
+  subMenu->show();
+  quickMenu->enableSubMenu();
+}
+
+void QuickSubMenu::setDisabled(bool all)
+{
+  if (subMenu)
+    subMenu->setDisabled(all);
+}
+
+void QuickSubMenu::setCurrent(int b)
+{
+  topMenu->setCurrent(menuButton);
+  topMenu->setDisabled(false);
+  if (!subMenu) buildSubMenu();
+  subMenu->setCurrent(b - first);
+  enableSubMenu();
+}
+
+void QuickSubMenu::buildSubMenu()
+{
+  subMenu = new QuickMenuGroup(parent,
+          {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) * viewMainRows, parent->width() - PAD_OUTLINE * 2,
+          viewSubRows * (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) - PAD_OUTLINE});
+
+  for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
+    subMenu->addButton(items[i].icon, items[i].title,
+        std::bind(&QuickSubMenu::onPress, this, items[i].subMenu - first),
+        items[i].enabled ? items[i].enabled() : true);
   }
 
-  uint8_t onPress(int n)
-  {
+  subMenu->hide();
+  subMenu->setDisabled(true);
+}
+
+int QuickSubMenu::getPageNumber(int iconNumber)
+{
+  int pageNumber = 0;
+  for (int i = 0; i < iconNumber; i += 1)
+    if (items[i].pageAction == PAGE_CREATE)
+      pageNumber += 1;
+  return pageNumber;
+}
+
+uint8_t QuickSubMenu::onPress(int n)
+{
+  if (items[n].pageAction == PAGE_CREATE) {
+    n = getPageNumber(n);
     if (pageGroup && isSubMenu(quickMenu->currentPage())) {
       quickMenu->deleteLater();
       quickMenu->onSelect(false);
@@ -150,9 +134,16 @@ class QuickSubMenu
       quickMenu->onSelect(true);
       create()->setCurrentTab(n);
     }
-    return 0;
+  } else {
+    items[n].action(this);
   }
-};
+  return 0;
+}
+
+void QuickSubMenu::onSelect(bool close)
+{
+  quickMenu->onSelect(close);
+}
 
 //-----------------------------------------------------------------------------
 
@@ -193,7 +184,7 @@ QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::f
   // Save focus
   Layer::push(this);
 
-  int maxMainBtns = modelHasNotes() ? 9 : 8;
+  int maxMainBtns = 6; //modelHasNotes() ? 9 : 8;
   int viewCols = (LCD_W - PAD_SMALL * 2 - PAD_OUTLINE) / (QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_OUTLINE);
   if (viewCols > maxMainBtns) viewCols = maxMainBtns;
 
@@ -228,12 +219,6 @@ void QuickMenu::buildMainMenu(int viewMainRows, int viewSubRows)
 
   QuickSubMenu* sub;
 
-  sub = new QuickSubMenu(box, pageGroup, this, mainMenu, ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR,
-                         QuickMenu::CHANNELS_FIRST, QuickMenu::CHANNELS_LAST, []() { return new ChannelsViewMenu(); },
-                         channelsMenuItems, viewMainRows, viewSubRows);
-  sub->addButton();
-  subMenus.emplace_back(sub);
-
   sub = new QuickSubMenu(box, pageGroup, this, mainMenu, ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS,
                          QuickMenu::MODEL_FIRST, QuickMenu::MODEL_LAST, []() { return new ModelMenu(); },
                          modelMenuItems, viewMainRows, viewSubRows);
@@ -252,38 +237,26 @@ void QuickMenu::buildMainMenu(int viewMainRows, int viewSubRows)
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  mainMenu->addButton(
-      ICON_MODEL_TELEMETRY, STR_MAIN_MENU_RESET_TELEMETRY, [=]() -> uint8_t {
-        onSelect(true);
-        Menu* resetMenu = new Menu();
-        resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
-        resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
-        resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
-        resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
-        resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
-        return 0;
-      });
-
-  sub = new QuickSubMenu(box, pageGroup, this, mainMenu, ICON_STATS, STR_MAIN_MENU_STATISTICS,
-                         QuickMenu::STATS_FIRST, QuickMenu::STATS_LAST, []() { return new StatisticsViewPageGroup(); },
-                         statsMenuItems, viewMainRows, viewSubRows);
+  sub = new QuickSubMenu(box, pageGroup, this, mainMenu, ICON_RADIO_TOOLS, STR_MAIN_MENU_TOOLS,
+                         QuickMenu::TOOLS_FIRST, QuickMenu::TOOLS_LAST, []() { return new ToolsMenu(); },
+                         toolsMenuItems, viewMainRows, viewSubRows);
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  mainMenu->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX,
-                      [=]() -> uint8_t {
-                        onSelect(true);
-                        new AboutUs();
-                        return 0;
-                      });
+  // mainMenu->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX,
+  //                     [=]() -> uint8_t {
+  //                       onSelect(true);
+  //                       new AboutUs();
+  //                       return 0;
+  //                     });
 
-  if (modelHasNotes())
-    mainMenu->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
-                        [=]() -> uint8_t {
-                          onSelect(true);
-                          readModelNotes(true);
-                          return 0;
-                        });
+  // if (modelHasNotes())
+  //   mainMenu->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,
+  //                       [=]() -> uint8_t {
+  //                         onSelect(true);
+  //                         readModelNotes(true);
+  //                         return 0;
+  //                       });
 }
 
 void QuickMenu::deleteLater(bool detach, bool trash)

@@ -695,7 +695,6 @@
 #define TR_DURATION            "Duración"
 #define TR_DELAY               "Atraso"
 #define TR_SD_CARD             "SD CARD"
-#define TR_SDHC_CARD           "SD-HC CARD"
 #define TR_NO_SOUNDS_ON_SD     "Sin sonidos en SD"
 #define TR_NO_MODELS_ON_SD     "Sin modelos en SD"
 #define TR_NO_BITMAPS_ON_SD    "Sin imágenes en SD"
@@ -1027,7 +1026,6 @@
   #define TR_ALIGN_OPTS                { "Lzquierdo", "Centro", "Derecho" }
   #define TR_TEXT                      "Texto"
   #define TR_COLOR                     "Color"
-  #define TR_MAIN_VIEW_X               "Vista principal "
   #define TR_PANEL1_BACKGROUND         "Fondo panel1"
   #define TR_PANEL2_BACKGROUND         "Fondo panel2"
   #define TR_WIDGET_GAUGE              "Gauge"
@@ -1095,7 +1093,6 @@
 #define TR_THEME               "Tema"
 #define TR_SETUP               "Configuración"
 #define TR_LAYOUT              "Diseño"
-#define TR_ADD_MAIN_VIEW         "Añadir vista pral."
 #define TR_TEXT_COLOR                  "Color texto"
 
 #define TR_MENU_INPUTS          STR_CHAR_INPUT "Entradas"
@@ -1169,16 +1166,20 @@
 #define TR_THEME_EDITOR                 "THEMES"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Select Model"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Model Manager"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model Notes"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel Monitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model Settings"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Radio Settings"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Screens Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Reset Telemetry"
 #define TR_MAIN_MENU_STATISTICS         "Statistics"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "About EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
 // End Main menu
 
 // Voice in native language
