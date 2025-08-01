@@ -695,7 +695,6 @@
 #define TR_DURATION                     "Durata"
 #define TR_DELAY                        "Ritardo"
 #define TR_SD_CARD                      "SD Card"
-#define TR_SDHC_CARD                    "SD-HC Card"
 #define TR_NO_SOUNDS_ON_SD              "No Suoni su SD"
 #define TR_NO_MODELS_ON_SD              "No Model. su SD"
 #define TR_NO_BITMAPS_ON_SD             "No Immag. su SD"
@@ -1021,7 +1020,6 @@
   #define TR_ALIGN_OPTS                { "Sinistra", "Centro", "Destra" }
   #define TR_TEXT                      "Testo"
   #define TR_COLOR                     "Colore"
-  #define TR_MAIN_VIEW_X               "Vista principale "
   #define TR_PANEL1_BACKGROUND         "Sfondo Panello 1"
   #define TR_PANEL2_BACKGROUND         "Sfondo Panello 2"
   #define TR_WIDGET_GAUGE              "Indicatore"
@@ -1089,7 +1087,6 @@
 #define TR_THEME                        "Tema"
 #define TR_SETUP                        "Imposta"
 #define TR_LAYOUT                       "Layout"
-#define TR_ADD_MAIN_VIEW                "Aggiungi vista princ."
 #define TR_TEXT_COLOR                   "Colore testo"
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "Ingressi"
 #define TR_MENU_LUA                     STR_CHAR_LUA "Lua scripts"
@@ -1160,16 +1157,20 @@
 #define TR_THEME_EDITOR                 "TEMI"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Seleziona Modello"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gestione Modelli"
 #define TR_MAIN_MENU_MODEL_NOTES        "Note Modello"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor Canali"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Settaggi Modello"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Settaggi Radio"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Settaggi Schermo"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Resetta Telemetria"
 #define TR_MAIN_MENU_STATISTICS         "Statistiche"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Riguardo EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
 // End Main menu
 
 // Voice in native language

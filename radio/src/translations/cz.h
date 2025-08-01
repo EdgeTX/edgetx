@@ -702,7 +702,6 @@
 #define TR_DURATION                    "Trvání"
 #define TR_DELAY                       "Zdržet"
 #define TR_SD_CARD                     "SD"
-#define TR_SDHC_CARD                   "SD-HC"
 #define TR_NO_SOUNDS_ON_SD             "žádný zvuk na SD"
 #define TR_NO_MODELS_ON_SD             "žádný model na SD"
 #define TR_NO_BITMAPS_ON_SD            "žádné obrázky na SD"
@@ -1032,7 +1031,6 @@
   #define TR_ALIGN_OPTS                { "Vlevo", "Uprostřed", "Vpravo" }
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Barva"
-  #define TR_MAIN_VIEW_X               "Hlavní pohled "
   #define TR_PANEL1_BACKGROUND         "Panel1 pozadí"
   #define TR_PANEL2_BACKGROUND         "Panel2 pozadí"
   #define TR_WIDGET_GAUGE              "Měřidlo"
@@ -1100,7 +1098,6 @@
 #define TR_THEME                       "Motiv"
 #define TR_SETUP                       "Nastavení"
 #define TR_LAYOUT                      "Rozložení"
-#define TR_ADD_MAIN_VIEW               "Přidat hlavní panel"
 #define TR_TEXT_COLOR                  "Barva textu"
 
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Vstupy"
@@ -1172,16 +1169,20 @@
 #define TR_THEME_EDITOR                 "Motivy"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Vybrat model"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Správa modelů"
 #define TR_MAIN_MENU_MODEL_NOTES        "Poznámky modelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanálů"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení modelu"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení rádia"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Nastavení obrazovky"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Reset telemetrie"
 #define TR_MAIN_MENU_STATISTICS         "Statistiky"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
 // End Main menu
 
 // Voice in native language

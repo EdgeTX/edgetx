@@ -92,7 +92,7 @@ class QuickMenuButton : public ButtonBase
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
 
     textPtr = new StaticText(this, {0, QuickMenuGroup::FAB_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::FAB_BUTTON_INNER_WIDTH, 0},
-                   title, COLOR_WHITE_INDEX, CENTERED | FONT(XXS));
+                   title, COLOR_WHITE_INDEX, CENTERED | FONT(XS));
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
   }
 

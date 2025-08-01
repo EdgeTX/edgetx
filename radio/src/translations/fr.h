@@ -698,7 +698,6 @@
 #define TR_DURATION                    "Durée"
 #define TR_DELAY                       "Délai"
 #define TR_SD_CARD                     "Carte SD"
-#define TR_SDHC_CARD                   "Carte SD-HC"
 #define TR_NO_SOUNDS_ON_SD             "Aucun son sur SD"
 #define TR_NO_MODELS_ON_SD             "Aucun modèle SD"
 #define TR_NO_BITMAPS_ON_SD            "Aucun Bitmap SD"
@@ -1036,7 +1035,6 @@
   #define TR_ALIGN_OPTS                { "Gauche", "Centre", "Droite" }
   #define TR_TEXT                      "Texte"
   #define TR_COLOR                     "Couleur"
-  #define TR_MAIN_VIEW_X               "Vue Principale "
   #define TR_PANEL1_BACKGROUND         "Arrière-plan Ecran1"
   #define TR_PANEL2_BACKGROUND         "Arrière-plan Ecran2"
   #define TR_WIDGET_GAUGE              "Jauge"
@@ -1104,7 +1102,6 @@
 #define TR_THEME                       "Thème"
 #define TR_SETUP                       "Configuration"
 #define TR_LAYOUT                      "Disposition"
-#define TR_ADD_MAIN_VIEW               "Ajout. vue principale"
 #define TR_TEXT_COLOR                  "Couleur Texte"
 
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "Entrées"
@@ -1181,16 +1178,20 @@
 #define TR_THEME_EDITOR                 "THÈMES"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Select Modèle"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gestion Modèles"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notes Modèles"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Moniteur Voies"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Éditer Modèle"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Param. Radio"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Gestion Écrans"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "RAZ Télémetrie"
 #define TR_MAIN_MENU_STATISTICS         "Stats"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "A Propos EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
 // End Main menu
 
 // Voice in native language

@@ -29,8 +29,9 @@
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
-#include "menu_channels.h"
 #include "model_select.h"
+#include "os/time.h"
+#include "view_channels.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
@@ -43,13 +44,13 @@ static bool timepg = false;
 static void on_draw_begin(lv_event_t* e)
 {
   if (timepg) {
-    dsms = RTOS_GET_MS();
+    dsms = time_get_ms();
   }
 }
 static void on_draw_end(lv_event_t* e)
 {
   timepg = false;
-  dems = RTOS_GET_MS();
+  dems = time_get_ms();
   TRACE("tab time: build %ld layout %ld draw %ld total %ld",
         end_ms - start_ms, dsms - end_ms, dems - dsms, dems - start_ms);
 }
@@ -195,8 +196,9 @@ PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
 
-for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {
-    addTab(pages[i].createPage(pages[i]));
+  for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {
+    if (pages[i].create)
+      addTab(pages[i].create(pages[i]));
   }
 }
 
@@ -221,7 +223,7 @@ void PageGroup::setCurrentTab(unsigned index)
     currentTab = tab;
 
 #if defined(DEBUG)
-    start_ms = RTOS_GET_MS();
+    start_ms = time_get_ms();
     timepg = true;
 #endif
 
@@ -241,7 +243,7 @@ void PageGroup::setCurrentTab(unsigned index)
     lv_obj_refresh_style(body->getLvObj(), LV_PART_ANY, LV_STYLE_PROP_ANY);
 
 #if defined(DEBUG)
-    end_ms = RTOS_GET_MS();
+    end_ms = time_get_ms();
 #endif
   }
 }

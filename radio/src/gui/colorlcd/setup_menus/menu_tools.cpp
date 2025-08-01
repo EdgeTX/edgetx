@@ -1,0 +1,66 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "menu_tools.h"
+
+#include "edgetx.h"
+#include "radio_hardware.h"
+#include "radio_sdmanager.h"
+#include "radio_setup.h"
+#include "radio_tools.h"
+#include "radio_trainer.h"
+#include "radio_version.h"
+#include "special_functions.h"
+#include "view_statistics.h"
+#include "view_logical_switches.h"
+#include "view_channels.h"
+
+PageDef toolsMenuItems[] = {
+  { ICON_RADIO_TOOLS, STR_MAIN_MENU_APPS, PAGE_CREATE, QuickMenu::RADIO_TOOLSCRIPTS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
+  { ICON_RADIO_SD_MANAGER, STR_SD_CARD, PAGE_CREATE, QuickMenu::RADIO_SD, [](PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
+  { ICON_MODEL_TELEMETRY, STR_MAIN_MENU_RESET_TELEMETRY, PAGE_ACTION, QuickMenu::TOOLS_RESET, nullptr, nullptr,
+    [](QuickSubMenu* subMenu) {
+      subMenu->onSelect(true);
+      Menu* resetMenu = new Menu();
+      resetMenu->addLine(STR_RESET_FLIGHT, []() { flightReset(); });
+      resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
+      resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
+      resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
+      resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
+    }
+  },
+  { ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR, PAGE_ACTION, QuickMenu::TOOLS_CHAN_MON, nullptr, nullptr,
+    [](QuickSubMenu* subMenu) {
+      subMenu->onSelect(true);
+      new ChannelsViewMenu();
+    }
+  },
+  { ICON_MONITOR_LOGICAL_SWITCHES, STR_MAIN_MENU_LS_MONITOR, PAGE_CREATE, QuickMenu::TOOLS_LS_MON, [](PageDef& pageDef) { return new LogicalSwitchesViewPage(pageDef); }},
+  { ICON_STATS, STR_MAIN_MENU_STATISTICS, PAGE_CREATE, QuickMenu::TOOLS_STATS, [](PageDef& pageDef) { return new StatisticsViewPage(pageDef); }},
+  { ICON_STATS_DEBUG, STR_DEBUG, PAGE_CREATE, QuickMenu::TOOLS_DEBUG, [](PageDef& pageDef) { return new DebugViewPage(pageDef); }},
+  { EDGETX_ICONS_COUNT }
+};
+
+ToolsMenu::ToolsMenu() : PageGroup(ICON_RADIO_TOOLS, toolsMenuItems)
+{
+}
+
+ToolsMenu::~ToolsMenu() { storageCheck(true); }

@@ -734,7 +734,6 @@
 #define TR_DURATION                       "지속 시간"
 #define TR_DELAY                          "지연"
 #define TR_SD_CARD                        "SD 카드"
-#define TR_SDHC_CARD                      "SD-HC 카드"
 
 #define TR_NO_SOUNDS_ON_SD                "SD 카드에 사운드 없음"
 #define TR_NO_MODELS_ON_SD                "SD 카드에 모델 없음"
@@ -1075,7 +1074,6 @@
  #define TR_ALIGN_OPTS                   { "왼쪽", "가운데", "오른쪽" }
  #define TR_TEXT                         "텍스트"
  #define TR_COLOR                        "색상"
- #define TR_MAIN_VIEW_X                  "메인 뷰 X축"
  #define TR_PANEL1_BACKGROUND            "패널1 배경"
  #define TR_PANEL2_BACKGROUND            "패널2 배경"
  #define TR_WIDGET_GAUGE                 "게이지"
@@ -1139,7 +1137,6 @@
 #define TR_THEME                          "테마"
 #define TR_SETUP                          "설정"
 #define TR_LAYOUT                         "레이아웃"
-#define TR_ADD_MAIN_VIEW                  "메인 화면 추가"
 #define TR_TEXT_COLOR                     "텍스트 색상"
 #define TR_MENU_INPUTS                    STR_CHAR_INPUT "입력"
 #define TR_MENU_LUA                       STR_CHAR_LUA "Lua 스크립트"
@@ -1207,16 +1204,22 @@
 #define TR_DETAILS                        "세부 설정"
 #define TR_THEME_EDITOR                   "테마"
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL         "모델\n선택"
 #define TR_MAIN_MENU_MANAGE_MODELS        "모델\n관리"
 #define TR_MAIN_MENU_MODEL_NOTES          "모델\n노트"
 #define TR_MAIN_MENU_CHANNEL_MONITOR      "채널\n모니터"
 #define TR_MAIN_MENU_MODEL_SETTINGS       "모델\n설정"
 #define TR_MAIN_MENU_RADIO_SETTINGS       "조종기\n설정"
-#define TR_MAIN_MENU_SCREEN_SETTINGS      "화면\n설정"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY      "텔레메트리\n초기화"
 #define TR_MAIN_MENU_STATISTICS           "비행\n기록"
 #define TR_MAIN_MENU_ABOUT_EDGETX         "EdgeTX\n정보"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
+// End Main menu
+
 // Voice in native language
 #define TR_VOICE_ENGLISH                "영어"
 #define TR_VOICE_CHINESE                "중국어"

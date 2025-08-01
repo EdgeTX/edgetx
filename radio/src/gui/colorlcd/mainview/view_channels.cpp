@@ -22,12 +22,12 @@
 #include "view_channels.h"
 
 #include "channel_bar.h"
+#include "libopenui.h"
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
 #include "model_select.h"
 #include "edgetx.h"
-#include "view_logical_switches.h"
 
 //-----------------------------------------------------------------------------
 
@@ -69,28 +69,82 @@ class ChannelsViewFooter : public Window
 
 //-----------------------------------------------------------------------------
 
-void ChannelsViewPage::build(Window* window)
+class ChannelsViewPage : public PageTab
 {
-  constexpr coord_t hmargin = PAD_SMALL;
-  window->padAll(PAD_ZERO);
-
-  // Channels bars
-  for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
-#if PORTRAIT
-    coord_t width = window->width() - (hmargin * 2);
-    coord_t xPos = hmargin;
-    coord_t yPos = (chan % 8) *
-                    ((window->height() - 24) / 8);
-#else
-    coord_t width = window->width() / 2 - (hmargin * 2);
-    coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
-    coord_t yPos = (chan % 4) *
-                    ((window->height() - 23) / 4);
-#endif
-    new ComboChannelBar(window, {xPos, yPos, width, 3 * ChannelBar::BAR_HEIGHT + 3},
-                        chan);
+ public:
+  explicit ChannelsViewPage(uint8_t pageIndex = 0) :
+      PageTab(STR_MONITOR_CHANNELS[pageIndex],
+              (EdgeTxIcon)(ICON_MONITOR_CHANNELS1 + pageIndex)),
+      pageIndex(pageIndex)
+  {
   }
 
-  // Footer
-  new ChannelsViewFooter(window);
+ protected:
+  uint8_t pageIndex = 0;
+
+  void build(Window* window) override
+  {
+    constexpr coord_t hmargin = PAD_SMALL;
+    window->padAll(PAD_ZERO);
+
+    // Channels bars
+    for (uint8_t chan = pageIndex * 8; chan < 8 + pageIndex * 8; chan++) {
+#if PORTRAIT
+      coord_t width = window->width() - (hmargin * 2);
+      coord_t xPos = hmargin;
+      coord_t yPos = (chan % 8) *
+                     ((window->height() - PAD_LARGE* 3) / 8);
+#else
+      coord_t width = window->width() / 2 - (hmargin * 2);
+      coord_t xPos = (chan % 8) >= 4 ? width + (hmargin * 2) : hmargin;
+      coord_t yPos = (chan % 4) *
+                     ((window->height() - (PAD_LARGE * 3 - 1)) / 4);
+#endif
+      new ComboChannelBar(window, {xPos, yPos, width, 3 * ChannelBar::BAR_HEIGHT + PAD_THREE},
+                          chan);
+    }
+
+    // Footer
+    new ChannelsViewFooter(window);
+  }
+};
+
+//-----------------------------------------------------------------------------
+
+ChannelsViewMenu::ChannelsViewMenu() :
+    TabsGroup(ICON_MONITOR)
+{
+  addTab(new ChannelsViewPage(0));
+  addTab(new ChannelsViewPage(1));
+  addTab(new ChannelsViewPage(2));
+  addTab(new ChannelsViewPage(3));
 }
+
+#if defined(HARDWARE_KEYS)
+void ChannelsViewMenu::onPressSYS()
+{
+  onCancel();
+  new RadioMenu();
+}
+void ChannelsViewMenu::onLongPressSYS()
+{
+  onCancel();
+  // Radio setup
+  (new RadioMenu())->setCurrentTab(2);
+}
+void ChannelsViewMenu::onPressMDL()
+{
+  onCancel();
+  new ModelMenu();
+}
+void ChannelsViewMenu::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+void ChannelsViewMenu::onPressTELE()
+{
+  onCancel();
+  new ScreenMenu();
+}
+#endif

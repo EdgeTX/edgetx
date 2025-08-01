@@ -687,7 +687,6 @@
 #define TR_DURATION            "Czas trwania"
 #define TR_DELAY               "Opóźnienie"
 #define TR_SD_CARD             "SD"
-#define TR_SDHC_CARD           "SD-HC"
 #define TR_NO_SOUNDS_ON_SD     "Brak dźwięków na SD"
 #define TR_NO_MODELS_ON_SD     "Brak modelu na SD"
 #define TR_NO_BITMAPS_ON_SD    "Brak obrazków na SD"
@@ -1017,7 +1016,6 @@
   #define TR_ALIGN_OPTS                { "Lewy", "Centrum", "Prawe" }
   #define TR_TEXT                      "Tekst"
   #define TR_COLOR                     "Kolor"
-  #define TR_MAIN_VIEW_X               "Main view "
   #define TR_PANEL1_BACKGROUND         "Panel1 tło"
   #define TR_PANEL2_BACKGROUND         "Panel2 tło"
   #define TR_WIDGET_GAUGE              "Wskaźnik"
@@ -1086,7 +1084,6 @@
 #define TR_THEME               "Szablon"
 #define TR_SETUP               "Ustawienia"
 #define TR_LAYOUT              "Układ"
-#define TR_ADD_MAIN_VIEW       "Dodaj główny widok"
 #define TR_TEXT_COLOR          "Kolor tekstu"
 
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "Wejścia"
@@ -1158,16 +1155,20 @@
 #define TR_THEME_EDITOR                 "Szablony"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Wybierz model"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Menadżer modeli"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notatki modelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanałów"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia modelu"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Ustawienia radia"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Ustawienia ekranów"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Reset telemetrii"
 #define TR_MAIN_MENU_STATISTICS         "Statystyki"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
 // End Main menu
 
 // Voice in native language

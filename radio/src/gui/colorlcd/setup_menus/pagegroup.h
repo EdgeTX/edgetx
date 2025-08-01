@@ -29,12 +29,19 @@ class PageGroupHeader;
 
 //-----------------------------------------------------------------------------
 
+enum PageDefAction {
+  PAGE_CREATE,
+  PAGE_ACTION
+};
+
 struct PageDef {
   EdgeTxIcon icon;
   const char* title;
+  PageDefAction pageAction;
   QuickMenu::SubMenu subMenu;
-  std::function<PageTab*(PageDef& pageDef)> createPage;
+  std::function<PageTab*(PageDef& pageDef)> create;
   std::function<bool()> enabled;
+  std::function<void(QuickSubMenu* subMenu)> action;
 };
 
 //-----------------------------------------------------------------------------

@@ -694,7 +694,6 @@
 #define TR_DURATION                    "持続時間"
 #define TR_DELAY                       "遅延"
 #define TR_SD_CARD                     "SDカード"
-#define TR_SDHC_CARD                   "SD-HCカード"
 #define TR_NO_SOUNDS_ON_SD             "SDカード内に音声データがありません"
 #define TR_NO_MODELS_ON_SD             "SDカード内にモデル情報がありません"
 #define TR_NO_BITMAPS_ON_SD            "SDカード内に画像データがありません"
@@ -1020,7 +1019,6 @@
   #define TR_ALIGN_OPTS                { "左", "中央", "右" }
   #define TR_TEXT                      "テキスト"
   #define TR_COLOR                     "カラー"
-  #define TR_MAIN_VIEW_X               "メインビュー "
   #define TR_PANEL1_BACKGROUND         "パネル1 背景"
   #define TR_PANEL2_BACKGROUND         "パネル2 背景"
   #define TR_WIDGET_GAUGE              "ゲージ"
@@ -1088,7 +1086,6 @@
 #define TR_THEME                       "テーマ"
 #define TR_SETUP                       "設定"
 #define TR_LAYOUT                      "レイアウト"
-#define TR_ADD_MAIN_VIEW               "メインビュー追加"
 #define TR_TEXT_COLOR                  "テキスト色"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "入力"
 #define TR_MENU_LUA                    STR_CHAR_LUA "LUAスクリプト"
@@ -1159,16 +1156,20 @@
 #define TR_THEME_EDITOR                 "テーマ"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "モデル 選択"
 #define TR_MAIN_MENU_MANAGE_MODELS      "モデル 管理"
 #define TR_MAIN_MENU_MODEL_NOTES        "モデル ノート"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel モニター"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "モデル 設定"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "送信機 設定"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "画面設定"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "リセット Telemetry"
 #define TR_MAIN_MENU_STATISTICS         "統計情報"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX について"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
 // End Main menu
 
 // Voice in native language
