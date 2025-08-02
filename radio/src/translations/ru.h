@@ -297,7 +297,6 @@
 #define TR_WARN_5VOLTS                 "Предупреждение: уровень выхода - 5 вольт"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Тумблер"
-#define TR_FUNCTION_SWITCHES           "Настр тумблеры"
 #define TR_FS_COLOR_LIST               "Свой","Выкл","Белый","Красн","Зелен","Желт","Оранж","Синий","Розов"
 #define TR_GROUP                       "Группа"
 #define TR_GROUP_ALWAYS_ON             "Включить все"
@@ -351,7 +350,6 @@
 #define TR_DELAYUP                     "Задер вверх"
 #define TR_SLOWDOWN                    TR("Замедл вниз", "Замедл вниз")
 #define TR_SLOWUP                      "Замед вверх"
-#define TR_MIXES                       "МИКСЫ"
 #define TR_CV                          "CV"
 #if defined(PCBNV14)
 #define TR_GV                          "GV"
@@ -494,14 +492,10 @@
 #define TR_STORAGE_FORMAT              "Формат памяти"
 #define TR_EEPROMOVERFLOW              "EEPROM заполнен"
 #define TR_RADIO_SETUP                 "НАСТРОЙКА ПУЛЬТА"
-#define TR_MENUTRAINER                 "ТРЕНЕР"
-#define TR_MENUSPECIALFUNCS            "ГЛОБ ФУНКЦИИ"
 #define TR_MENUVERSION                 "ВЕРСИЯ"
-#define TR_MENU_RADIO_SWITCHES         TR("ТУМБЛЕРЫ", "ТЕСТ ТУМБЛЕРОВ")
 #define TR_MENU_RADIO_ANALOGS          TR("АНАЛОГИ", "ТЕСТ АНАЛОГОВ")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "КАЛИБРОВКА АНАЛОГОВ"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW АНАЛОГИ (5 Hz)"
-#define TR_MENUCALIBRATION             "КАЛИБРОВКА"
 #define TR_MENU_FSWITCH                "НАСТРАИВАЕМЫЕ ТУМБЛЕРЫ"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Тримы => Субтримы"
@@ -512,24 +506,8 @@
 #define TR_CHANNEL2FAILSAFE            "Канал=>Авар режим"
 #define TR_MENUMODELSEL                TR("ВЫБОР МОДЕЛИ", "УПРАВЛЕНИЕ МОДЕЛЬЮ")
 #define TR_MENU_MODEL_SETUP            TR("НАСТРОЙКА", "НАСТРОЙКА МОДЕЛИ")
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "РЕЖИМЫ ВОЖДЕНИЯ"
-#define TR_MENUFLIGHTMODE              "РЕЖИМ ВОЖДЕНИЯ"
-#else
-#define TR_MENUFLIGHTMODES             "РЕЖИМЫ ПОЛЕТА"
-#define TR_MENUFLIGHTMODE              "РЕЖИМ ПОЛЕТА"
-#endif
-#define TR_MENUHELISETUP               "НАСТРОЙКА ВЕРТ"
-
-  #define TR_MENUINPUTS                "ВХОДЫ"
-  #define TR_MENULIMITS                "ВЫХОДЫ"
-#define TR_MENUCURVES                  "КРИВЫЕ"
 #define TR_MENUCURVE                   "КРИВАЯ"
 #define TR_MENULOGICALSWITCH           "ЛОГИЧ ТУМБЛ."
-#define TR_MENULOGICALSWITCHES         "ЛОГИЧ ТУМБЛ."
-#define TR_MENUCUSTOMFUNC              "СПЕЦ ФУНКЦИИ"
-#define TR_MENUCUSTOMSCRIPTS           "ПОЛЬЗ СЦЕНАРИИ"
-#define TR_MENUTELEMETRY               "ТЕЛЕМЕТРИЯ"
 #define TR_MENUSTAT                    "СТАТИСТИКА"
 #define TR_MENUDEBUG                   "ОТЛАДКА"
 #define TR_MONITOR_CHANNELS1           "МОНИТОР КАН 1-8"
@@ -698,7 +676,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Продолж"
 #define TR_DELAY                       "Задержка"
-#define TR_SD_CARD                     "SD КАРТА"
 #define TR_NO_SOUNDS_ON_SD             "Нет звуков на SD карте"
 #define TR_NO_MODELS_ON_SD             "Нет модели на SD карте"
 #define TR_NO_BITMAPS_ON_SD            "Нет изобр на SD карте"
@@ -717,7 +694,6 @@
 #define TR_REMOVED                     "Удалено"
 #define TR_SD_INFO                     "Инфо"
 #define TR_NA                          "Н/Д"
-#define TR_HARDWARE                    "АППАРАТУРА"
 #define TR_FORMATTING                  "Формат..."
 #define TR_TEMP_CALIB                  "Калиб темп"
 #define TR_TIME                        "Время"
@@ -773,10 +749,8 @@
 #define TR_SD_SECTORS                  "Сектора:"
 #define TR_SD_SIZE                     "Размер:"
 #define TR_TYPE                        "Тип"
-#define TR_GLOBAL_VARS                 "Глоб переменные"
 #define TR_GVARS                       "ГЛОБ ПЕРЕМ"
 #define TR_GLOBAL_VAR                  "Глоб переменная"
-#define TR_MENU_GLOBAL_VARS            "ГЛОБ ПЕРЕМЕННЫЕ"
 #define TR_OWN                         "Свой"
 #define TR_DATE                        "Дата"
 #define TR_MONTHS                      { "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек" }
@@ -896,7 +870,6 @@
 #define TR_RANGE_TEST                  "Тест диапазона"
 #define TR_RECEIVER_OPTIONS            TR("ОПЦИИ ПРИЕМНИКА", "ОПЦИИ ПРИЕМНИКА")
 #define TR_RESET_BTN                   BUTTON("Сброс")
-#define TR_DEBUG                       "Отладка"
 #define TR_KEYS_BTN                    BUTTON("Кноп")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Анлг", "Аналоги"))
 #define TR_FS_BTN                      BUTTON(TR("Пользов тумблер", TR_FUNCTION_SWITCHES))
@@ -1087,7 +1060,6 @@
 #define TR_WIDGET_SETTINGS             "Настройки виджета"
 #define TR_REMOVE_SCREEN               "Удалить экран"
 #define TR_SETUP_WIDGETS               "Настройка виджетов"
-#define TR_USER_INTERFACE              "Пользов интерфейс"
 #define TR_THEME                       "Тема"
 #define TR_SETUP                       "Настройка"
 #define TR_LAYOUT                      "Макет"
@@ -1175,6 +1147,32 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_ADD_MAIN_VIEW                "Add screen"
 #define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "НАСТРОЙКА ВЕРТ"
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "РЕЖИМЫ ВОЖДЕНИЯ"
+#define TR_MENUFLIGHTMODE              "РЕЖИМ ВОЖДЕНИЯ"
+#else
+#define TR_MENUFLIGHTMODES             "РЕЖИМЫ ПОЛЕТА"
+#define TR_MENUFLIGHTMODE              "РЕЖИМ ПОЛЕТА"
+#endif
+#define TR_MENUINPUTS                "ВХОДЫ"
+#define TR_MENULIMITS                "ВЫХОДЫ"
+#define TR_MENUCURVES                  "КРИВЫЕ"
+#define TR_MIXES                       "МИКСЫ"
+#define TR_MENU_GLOBAL_VARS            "Глоб переменные"
+#define TR_MENULOGICALSWITCHES         "ЛОГИЧ ТУМБЛ."
+#define TR_MENUCUSTOMFUNC              "СПЕЦ ФУНКЦИИ"
+#define TR_MENUCUSTOMSCRIPTS           "ПОЛЬЗ СЦЕНАРИИ"
+#define TR_MENUTELEMETRY               "ТЕЛЕМЕТРИЯ"
+#define TR_MENUSPECIALFUNCS            "ГЛОБ ФУНКЦИИ"
+#define TR_MENUTRAINER                 "ТРЕНЕР"
+#define TR_HARDWARE                    "АППАРАТУРА"
+#define TR_USER_INTERFACE              "Пользов интерфейс"
+#define TR_SD_CARD                     "SD КАРТА"
+#define TR_DEBUG                       "Отладка"
+#define TR_MENU_RADIO_SWITCHES         TR("ТУМБЛЕРЫ", "ТЕСТ ТУМБЛЕРОВ")
+#define TR_MENUCALIBRATION             "КАЛИБРОВКА"
+#define TR_FUNCTION_SWITCHES           "Настр тумблеры"
 // End Main menu
 
 // Voice in native language
