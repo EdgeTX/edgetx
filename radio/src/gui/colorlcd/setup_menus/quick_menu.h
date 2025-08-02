@@ -110,7 +110,7 @@ class QuickMenu : public Window
   PageGroupBase* pageGroup = nullptr;
   SubMenu curPage;
 
-  void buildMainMenu(int viewMainRows, int viewSubRows);
+  void buildMainMenu(int viewSubX, int viewSubY, int viewSubCols, int viewSubRows);
 
   void onClicked() override;
 };
@@ -120,10 +120,13 @@ class QuickSubMenu
  public:
   QuickSubMenu(Window* parent, PageGroupBase* pageGroup, QuickMenu* quickMenu, QuickMenuGroup* topMenu,
                EdgeTxIcon icon, const char* title, QuickMenu::SubMenu first, QuickMenu::SubMenu last,
-               std::function<PageGroup*()> create, PageDef* items, int viewMainRows, int viewSubRows) :
+               std::function<PageGroup*()> create, PageDef* items,
+               int viewSubX, int viewSubY, int viewSubCols, int viewSubRows) :
     parent(parent), pageGroup(pageGroup), quickMenu(quickMenu), topMenu(topMenu),
     icon(icon), title(title), first(first), last(last),
-    create(std::move(create)), items(items), viewMainRows(viewMainRows), viewSubRows(viewSubRows)
+    create(std::move(create)), items(items),
+    viewSubX(viewSubX), viewSubY(viewSubY),
+    viewSubCols(viewSubCols), viewSubRows(viewSubRows)
   {}
 
   bool isSubMenu(QuickMenu::SubMenu n) { return (n >= first) && (n <= last); }
@@ -150,6 +153,8 @@ class QuickSubMenu
   PageDef* items;
   QuickMenuGroup* subMenu = nullptr;
   ButtonBase* menuButton = nullptr;
-  int viewMainRows = 0;
+  int viewSubX = 0;
+  int viewSubY = 0;
+  int viewSubCols = 0;
   int viewSubRows = 0;
 };

@@ -26,8 +26,10 @@
 
 class RadioVersionPage: public PageTab
 {
-  public:
-    RadioVersionPage(PageDef& pageDef);
+ public:
+  RadioVersionPage(PageDef& pageDef);
 
-    void build(Window * window) override;
+  void build(Window * window) override;
+
+  static LAYOUT_VAL_SCALED(QR_SZ, 150)
 };
