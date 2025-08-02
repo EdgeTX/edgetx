@@ -360,6 +360,13 @@ static const uint8_t mask_model_list_two[] = {
 #include "mask_model_list_two.lbm"
 };
 
+static const uint8_t mask_trim[] = {
+#include "mask_trim.lbm"
+};
+static const uint8_t mask_trim_shadow[] = {
+#include "mask_trim_shadow.lbm"
+};
+
 struct _BuiltinIcon {
   const uint8_t* lz4_compressed_bitmap;
 };
@@ -478,6 +485,9 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_MODEL_GRID_SMALL, mask_model_grid_small),
     BI(ICON_MODEL_LIST_TWO, mask_model_list_two),
     BI(ICON_MODEL_LIST_ONE, mask_model_list_one),
+
+    BI(ICON_TRIM, mask_trim),
+    BI(ICON_TRIM_SHADOW, mask_trim_shadow),
 };
 
 static MaskBitmap* _builtinIconsDecompressed[EDGETX_ICONS_COUNT] = {0};
