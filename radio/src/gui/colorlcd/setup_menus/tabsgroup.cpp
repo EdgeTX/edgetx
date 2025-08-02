@@ -25,6 +25,7 @@
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "topbar_impl.h"
+#include "page.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
@@ -49,81 +50,10 @@ static void on_draw_end(lv_event_t* e)
 }
 #endif
 
-class SelectedTabIcon : public StaticIcon
-{
- public:
-  SelectedTabIcon(Window* parent) :
-      StaticIcon(parent, 0, 0, ICON_CURRENTMENU_SHADOW, COLOR_THEME_PRIMARY1_INDEX)
-  {
-    new StaticIcon(this, 0, 0, ICON_CURRENTMENU_BG, COLOR_THEME_FOCUS_INDEX);
-    new StaticIcon(this, SEL_DOT_X, SEL_DOT_Y, ICON_CURRENTMENU_DOT, COLOR_THEME_PRIMARY2_INDEX);
-  }
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "SelectedTabIcon"; }
-#endif
-
-  static LAYOUT_VAL_SCALED(SEL_DOT_X, 10)
-  static LAYOUT_VAL_SCALED(SEL_DOT_Y, 39)
-};
-
-class TabsGroupButton : public ButtonBase
-{
- public:
-  TabsGroupButton(Window* parent, const rect_t& rect, PageTab* page, int idx) :
-      ButtonBase(parent, rect, nullptr, window_create), pageTab(page), index(idx)
-  {
-    lastIcon = pageTab->getIcon();
-    icon = new StaticIcon(this, 2, ICON_Y, lastIcon, COLOR_THEME_PRIMARY2_INDEX);
-
-    show(isVisible());
-  }
-
-  ~TabsGroupButton()
-  {
-    delete pageTab;
-  }
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override
-  {
-    return "TabsGroupButton(" + std::to_string(lastIcon) + ")";
-  }
-#endif
-
-  bool isVisible() const { return pageTab->isVisible(); }
-
-  PageTab* page() const { return pageTab; }
-  int getIndex() const { return index; }
-  void setIndex(int idx)
-  {
-    index = idx;
-    pageTab->update(index);
-  }
-
-  static LAYOUT_VAL_SCALED(ICON_Y, 7)
-
- protected:
-  PageTab* pageTab;
-  EdgeTxIcon lastIcon;
-  StaticIcon* icon = nullptr;
-  int index;
-
-  void checkEvents() override
-  {
-    show(isVisible());
-    if (lastIcon != pageTab->getIcon()) {
-      lastIcon = pageTab->getIcon();
-      icon->setIcon(lastIcon);
-    }
-    ButtonBase::checkEvents();
-  }
-};
-
 class TabsGroupHeader : public Window
 {
  public:
-  TabsGroupHeader(TabsGroup* menu, EdgeTxIcon icon) :
+  TabsGroupHeader(TabsGroup* menu, EdgeTxIcon icon, const char* name) :
       Window(menu, {0, 0, LCD_W, TabsGroup::MENU_BODY_TOP}),
       menu(menu)
   {
@@ -132,6 +62,13 @@ class TabsGroupHeader : public Window
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
     new HeaderIcon(this, icon);
+
+#if PORTRAIT
+    nameLabel = lv_label_create(lvobj);
+    etx_txt_color(nameLabel, COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_set_pos(nameLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PAD_MEDIUM * 2);
+    lv_obj_set_size(nameLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 2 - PAD_LARGE * 2, PageGroup::MENU_TITLE_TOP - PAD_MEDIUM * 2);
+    lv_label_set_text(nameLabel, name);
 
     auto sep = lv_obj_create(lvobj);
     etx_solid_bg(sep);
@@ -145,16 +82,31 @@ class TabsGroupHeader : public Window
     lv_obj_set_pos(titleLabel, 0, TabsGroup::MENU_TITLE_TOP);
     lv_obj_set_size(titleLabel, LCD_W, TabsGroup::MENU_TITLE_HEIGHT);
     setTitle("");
+#else
+    nameLabel = lv_label_create(lvobj);
+    etx_txt_color(nameLabel, COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_set_pos(nameLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PageHeader::PAGE_TITLE_TOP);
+    lv_obj_set_size(nameLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_label_set_text(nameLabel, name);
 
-    carousel = new Window(this, 
-                          {MENU_HEADER_BUTTONS_LEFT, 0,
-                           LCD_W - HDR_DATE_FULL_WIDTH - MENU_HEADER_BUTTONS_LEFT, EdgeTxStyles::MENU_HEADER_HEIGHT + 10});
-    carousel->padAll(PAD_ZERO);
-    carousel->setWindowFlag(NO_FOCUS);
+    titleLabel = lv_label_create(lvobj);
+    etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_set_pos(titleLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_obj_set_size(titleLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
+    setTitle("");
+#endif
 
-    selectedIcon = new SelectedTabIcon(carousel);
+    new HeaderBackIcon(this);
 
-    new HeaderBackIcon(this, [=]() { menu->onCancel(); });
+    new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::MENU_TITLE_TOP * 3, PAD_MEDIUM, [=]() {
+      prevTab();
+      return 0;
+    });
+
+    new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::MENU_TITLE_TOP * 2, PAD_MEDIUM, [=]() {
+      nextTab();
+      return 0;
+    });
   }
 
   void setTitle(const char* title) { lv_label_set_text(titleLabel, title); }
@@ -165,29 +117,15 @@ class TabsGroupHeader : public Window
 
   void setCurrentIndex(uint8_t index)
   {
-    if (index < buttons.size()) {
-      buttons[currentIndex]->check(false);
-      currentIndex = index;
-      buttons[currentIndex]->check(true);
-      coord_t x = getX(currentIndex);
-      selectedIcon->setPos(x, 0);
-      coord_t sx = lv_obj_get_scroll_x(carousel->getLvObj());
-      if (x + MENU_HEADER_BUTTON_WIDTH - sx > carousel->width()) {
-        lv_obj_scroll_to(carousel->getLvObj(), x + MENU_HEADER_BUTTON_WIDTH - carousel->width(), 0, LV_ANIM_OFF);
-      } else if (x < sx) {
-        lv_obj_scroll_to(carousel->getLvObj(), x, 0, LV_ANIM_OFF);
-      }
-    }
+    currentIndex = index;
   }
 
   void chgTab(int dir)
   {
     int idx = currentIndex;
-    do {
-      idx += dir;
-      if (idx < 0) idx = buttons.size() - 1;
-      if (idx >= (int)buttons.size()) idx = 0;
-    } while (!buttons[idx]->isVisible());
+    idx += dir;
+    if (idx < 0) idx = pages.size() - 1;
+    else if (idx >= (int)pages.size()) idx = 0;
     menu->setCurrentTab(idx);
   }
 
@@ -196,71 +134,27 @@ class TabsGroupHeader : public Window
 
   void addTab(PageTab* page)
   {
-    uint8_t idx = buttons.size();
-    TabsGroupButton* btn = new TabsGroupButton(
-        carousel, {getX(idx), 0, MENU_HEADER_BUTTON_WIDTH + 3, TabsGroup::MENU_TITLE_TOP + 5}, page, idx);
-    btn->setPressHandler([=]() {
-      menu->setCurrentTab(btn->getIndex());
-      return true;
-    });
-    btn->show(btn->isVisible());
-    buttons.emplace_back(btn);
+    pages.emplace_back(page);
   }
 
-  void removeTab(unsigned index)
-  {
-    auto btn = buttons[index];
-    buttons.erase(buttons.begin() + index);
-    btn->deleteLater();
-    updateLayout();
-  }
-
-  void updateLayout()
-  {
-    for (uint8_t i = 0; i < buttons.size(); i += 1) {
-      buttons[i]->setIndex(i);
-      buttons[i]->setPos(getX(i), 0);
-    }
-  }
-
-  PageTab* pageTab(uint8_t idx) const { return buttons[idx]->page(); }
+  PageTab* pageTab(uint8_t idx) const { return pages[idx]; }
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
-  uint8_t tabCount() const { return buttons.size(); }
-
-  static LAYOUT_VAL_SCALED(DATE_XO, 48)
-  static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTON_WIDTH, 33)
-  static LAYOUT_VAL_SCALED(HDR_DATE_FULL_WIDTH, 51)
+  uint8_t tabCount() const { return pages.size(); }
 
  protected:
   uint8_t currentIndex = 0;
   TabsGroup* menu;
+  lv_obj_t* nameLabel = nullptr;
   lv_obj_t* titleLabel = nullptr;
-  SelectedTabIcon* selectedIcon = nullptr;
-  Window* carousel = nullptr;
-  std::vector<TabsGroupButton*> buttons;
-
-  coord_t getX(uint8_t idx)
-  {
-    coord_t x = 0;
-    for (uint8_t i = 0; i < idx; i += 1)
-      if (buttons[i]->isVisible())
-        x += MENU_HEADER_BUTTON_WIDTH;
-    return x;
-  }
-
-  void checkEvents() override
-  {
-    updateLayout();
-    Window::checkEvents();
-  }
+  std::vector<PageTab*> pages;
 };
 
-TabsGroup::TabsGroup(EdgeTxIcon icon) :
-    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
+TabsGroup::TabsGroup(EdgeTxIcon icon, const char* name) :
+    PageGroupBase()
 {
   etx_solid_bg(lvobj);
 
-  header = new TabsGroupHeader(this, icon);
+  header = new TabsGroupHeader(this, icon, name);
 
   body = new Window(this, {0, MENU_BODY_TOP, LCD_W, MENU_BODY_HEIGHT});
   body->setWindowFlag(NO_FOCUS);
@@ -273,6 +167,11 @@ TabsGroup::TabsGroup(EdgeTxIcon icon) :
 #if defined(DEBUG)
   lv_obj_add_event_cb(lvobj, on_draw_begin, LV_EVENT_COVER_CHECK, nullptr);
   lv_obj_add_event_cb(lvobj, on_draw_end, LV_EVENT_DRAW_POST_END, nullptr);
+#endif
+
+#if defined(HARDWARE_TOUCH)
+  addCustomButton(0, 0, [=]() { openMenu(); });
+  addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
 }
 
@@ -322,16 +221,6 @@ void TabsGroup::setCurrentTab(unsigned index)
   }
 }
 
-void TabsGroup::deleteLater(bool detach, bool trash)
-{
-  if (_deleted) return;
-
-  Layer::pop(this);
-  Layer::back()->show();
-
-  Window::deleteLater(detach, trash);
-}
-
 void TabsGroup::addTab(PageTab* page)
 {
   header->addTab(page);
@@ -340,20 +229,29 @@ void TabsGroup::addTab(PageTab* page)
   }
 }
 
-void TabsGroup::removeTab(unsigned index)
+void TabsGroup::openMenu()
 {
-  if (header->isCurrent(index))
-    setCurrentTab(max<unsigned>(0, index - 1));
-  header->removeTab(index);
-}
-
-void TabsGroup::checkEvents()
-{
-  Window::checkEvents();
-  if (currentTab) {
-    currentTab->checkEvents();
+  PageGroup* p = nullptr;
+  QuickMenu::SubMenu subMenu = QuickMenu::NONE;
+  Window* w = Layer::walk([=](Window *w) mutable -> bool {
+    return w->isPageGroup();
+  });
+  if (w) {
+    p = (PageGroup*)w;
+    subMenu = p->getCurrentTab()->subMenu();
   }
-  ViewMain::instance()->runBackground();
+  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; },
+    [=](bool close) {
+      onCancel();
+      if (p) {
+        while (!Layer::back()->isPageGroup()) {
+          Layer::back()->deleteLater();
+        }
+        if (close)
+          Layer::back()->onCancel();
+      }
+    }, p, subMenu);
+  quickMenu->setFocus(subMenu);
 }
 
 #if defined(HARDWARE_KEYS)
@@ -363,7 +261,3 @@ void TabsGroup::onLongPressPGUP() { header->prevTab(); }
 void TabsGroup::onLongPressPGDN() { header->nextTab(); }
 void TabsGroup::onLongPressRTN() { onCancel(); }
 #endif
-
-void TabsGroup::onClicked() { Keyboard::hide(false); }
-
-void TabsGroup::onCancel() { deleteLater(); }

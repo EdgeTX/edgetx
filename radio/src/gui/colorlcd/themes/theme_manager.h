@@ -183,8 +183,11 @@ class HeaderIcon : public StaticIcon
   HeaderIcon(Window *parent, EdgeTxIcon icon, std::function<void()> action = nullptr);
   HeaderIcon(Window *parent, const char* iconFile, std::function<void()> action = nullptr);
 
+  void setIcon(EdgeTxIcon newIcon) { icon->setIcon(newIcon); }
+
  protected:
   std::function<void()> action;
+  StaticIcon* icon = nullptr;
 
   void onClicked() override
   {

@@ -127,7 +127,6 @@ uint8_t QuickSubMenu::onPress(int n)
   if (items[n].pageAction == PAGE_CREATE) {
     n = getPageNumber(n);
     if (pageGroup && isSubMenu(quickMenu->currentPage())) {
-      quickMenu->deleteLater();
       quickMenu->onSelect(false);
       pageGroup->setCurrentTab(n);
     } else {
@@ -173,7 +172,7 @@ static lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
 }
 
 QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::function<void(bool close)> selectHandler,
-                     PageGroup* pageGroup, SubMenu curPage) :
+                     PageGroupBase* pageGroup, SubMenu curPage) :
     Window(parent, {0, 0, LCD_W, LCD_H}),
     cancelHandler(std::move(cancelHandler)),
     selectHandler(std::move(selectHandler)),
@@ -268,8 +267,7 @@ void QuickMenu::deleteLater(bool detach, bool trash)
 
 void QuickMenu::onSelect(bool close)
 {
-  if (close)
-    deleteLater();
+  deleteLater();
   if (selectHandler) selectHandler(close);
 }
 

@@ -452,7 +452,7 @@ class AnaMinMaxViewWindow : public AnaViewWindow
 class AnaCalibratedViewPage : public PageTab
 {
  public:
-  AnaCalibratedViewPage() : PageTab(STR_ANADIAGS_CALIB, ICON_STATS_ANALOGS) {}
+  AnaCalibratedViewPage(QuickMenu::SubMenu subMenu) : PageTab(STR_ANADIAGS_CALIB, subMenu) {}
 
  protected:
   void build(Window* window) override
@@ -464,8 +464,8 @@ class AnaCalibratedViewPage : public PageTab
 class AnaFilteredDevViewPage : public PageTab
 {
  public:
-  AnaFilteredDevViewPage() :
-      PageTab(STR_ANADIAGS_FILTRAWDEV, ICON_STATS_THROTTLE_GRAPH)
+  AnaFilteredDevViewPage(QuickMenu::SubMenu subMenu) :
+      PageTab(STR_ANADIAGS_FILTRAWDEV, subMenu)
   {
   }
 
@@ -479,8 +479,8 @@ class AnaFilteredDevViewPage : public PageTab
 class AnaUnfilteredRawViewPage : public PageTab
 {
  public:
-  AnaUnfilteredRawViewPage() :
-      PageTab(STR_ANADIAGS_UNFILTRAW, ICON_RADIO_HARDWARE)
+  AnaUnfilteredRawViewPage(QuickMenu::SubMenu subMenu) :
+      PageTab(STR_ANADIAGS_UNFILTRAW, subMenu)
   {
   }
 
@@ -494,7 +494,7 @@ class AnaUnfilteredRawViewPage : public PageTab
 class AnaMinMaxViewPage : public PageTab
 {
  public:
-  AnaMinMaxViewPage() : PageTab(STR_ANADIAGS_MINMAX, ICON_RADIO_CALIBRATION) {}
+  AnaMinMaxViewPage(QuickMenu::SubMenu subMenu) : PageTab(STR_ANADIAGS_MINMAX, subMenu) {}
 
  protected:
   void build(Window* window) override
@@ -503,11 +503,11 @@ class AnaMinMaxViewPage : public PageTab
   }
 };
 
-RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup() :
-    TabsGroup(ICON_STATS)
+RadioAnalogsDiagsViewPageGroup::RadioAnalogsDiagsViewPageGroup(QuickMenu::SubMenu subMenu) :
+    TabsGroup(ICON_STATS, STR_ANALOGS_BTN)
 {
-  addTab(new AnaCalibratedViewPage());
-  addTab(new AnaFilteredDevViewPage());
-  addTab(new AnaUnfilteredRawViewPage());
-  addTab(new AnaMinMaxViewPage());
+  addTab(new AnaCalibratedViewPage(subMenu));
+  addTab(new AnaFilteredDevViewPage(subMenu));
+  addTab(new AnaUnfilteredRawViewPage(subMenu));
+  addTab(new AnaMinMaxViewPage(subMenu));
 }

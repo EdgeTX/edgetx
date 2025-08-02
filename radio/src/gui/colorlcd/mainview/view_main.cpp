@@ -254,7 +254,7 @@ void ViewMain::onLongPressSYS()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
   // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
+  new RadioMenu();
 }
 void ViewMain::onPressMDL()
 {

@@ -34,9 +34,9 @@
 #include "view_channels.h"
 
 PageDef toolsMenuItems[] = {
-  { ICON_RADIO_TOOLS, STR_MAIN_MENU_APPS, PAGE_CREATE, QuickMenu::RADIO_TOOLSCRIPTS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
+  { ICON_TOOLS_APPS, STR_MAIN_MENU_APPS, PAGE_CREATE, QuickMenu::RADIO_TOOLSCRIPTS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
   { ICON_RADIO_SD_MANAGER, STR_SD_CARD, PAGE_CREATE, QuickMenu::RADIO_SD, [](PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
-  { ICON_MODEL_TELEMETRY, STR_MAIN_MENU_RESET_TELEMETRY, PAGE_ACTION, QuickMenu::TOOLS_RESET, nullptr, nullptr,
+  { ICON_TOOLS_RESET, STR_MAIN_MENU_RESET_TELEMETRY, PAGE_ACTION, QuickMenu::TOOLS_RESET, nullptr, nullptr,
     [](QuickSubMenu* subMenu) {
       subMenu->onSelect(true);
       Menu* resetMenu = new Menu();

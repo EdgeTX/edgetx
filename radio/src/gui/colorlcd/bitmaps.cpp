@@ -129,18 +129,6 @@ static const uint8_t mask_menu_model_select[] = {
 static const uint8_t mask_monitor[] = {
 #include "mask_monitor.lbm"
 };
-static const uint8_t mask_monitor_channels1[] = {
-#include "mask_monitor_channels1.lbm"
-};
-static const uint8_t mask_monitor_channels2[] = {
-#include "mask_monitor_channels2.lbm"
-};
-static const uint8_t mask_monitor_channels3[] = {
-#include "mask_monitor_channels3.lbm"
-};
-static const uint8_t mask_monitor_channels4[] = {
-#include "mask_monitor_channels4.lbm"
-};
 static const uint8_t mask_monitor_logsw[] = {
 #include "mask_monitor_logsw.lbm"
 };
@@ -179,9 +167,6 @@ static const uint8_t mask_stats_analogs[] = {
 };
 static const uint8_t mask_stats_debug[] = {
 #include "mask_stats_debug.lbm"
-};
-static const uint8_t mask_stats_throttle_graph[] = {
-#include "mask_stats_throttle_graph.lbm"
 };
 static const uint8_t mask_stats_timers[] = {
 #include "mask_stats_timers.lbm"
@@ -370,6 +355,23 @@ static const uint8_t mask_trim_shadow[] = {
 #include "mask_trim_shadow.lbm"
 };
 
+static const uint8_t mask_tools_apps[] = {
+#include "mask_tools_apps.lbm"
+};
+static const uint8_t mask_tools_reset[] = {
+#include "mask_tools_reset.lbm"
+};
+
+static const uint8_t mask_btn_close[] = {
+#include "mask_btn_close.lbm"
+};
+static const uint8_t mask_btn_next[] = {
+#include "mask_btn_next.lbm"
+};
+static const uint8_t mask_btn_prev[] = {
+#include "mask_btn_prev.lbm"
+};
+
 struct _BuiltinIcon {
   const uint8_t* lz4_compressed_bitmap;
 };
@@ -422,15 +424,10 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_THEME_VIEW10, mask_theme_view10),
     BI(ICON_THEME_ADD_VIEW, mask_theme_add_view),
     BI(ICON_STATS, mask_menu_stats),
-    BI(ICON_STATS_THROTTLE_GRAPH, mask_stats_throttle_graph),
     BI(ICON_STATS_TIMERS, mask_stats_timers),
     BI(ICON_STATS_ANALOGS, mask_stats_analogs),
     BI(ICON_STATS_DEBUG, mask_stats_debug),
     BI(ICON_MONITOR, mask_monitor),
-    BI(ICON_MONITOR_CHANNELS1, mask_monitor_channels1),
-    BI(ICON_MONITOR_CHANNELS2, mask_monitor_channels2),
-    BI(ICON_MONITOR_CHANNELS3, mask_monitor_channels3),
-    BI(ICON_MONITOR_CHANNELS4, mask_monitor_channels4),
     BI(ICON_MONITOR_LOGICAL_SWITCHES, mask_monitor_logsw),
 
     BI(ICON_CHAN_MONITOR_LOCKED, mask_chan_locked),
@@ -492,6 +489,13 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
 
     BI(ICON_TRIM, mask_trim),
     BI(ICON_TRIM_SHADOW, mask_trim_shadow),
+
+    BI(ICON_TOOLS_APPS, mask_tools_apps),
+    BI(ICON_TOOLS_APPS, mask_tools_reset),
+
+    BI(ICON_BTN_CLOSE, mask_btn_close),
+    BI(ICON_BTN_NEXT, mask_btn_next),
+    BI(ICON_BTN_PREV, mask_btn_prev),
 };
 
 static MaskBitmap* _builtinIconsDecompressed[EDGETX_ICONS_COUNT] = {0};

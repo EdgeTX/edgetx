@@ -544,9 +544,12 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
   StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX),
   action(std::move(action))
 {
-  (new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
-  if (action)
+  this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
+  this->icon->center(width(), height());
+  if (action) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    addCustomButton(0, 0, [=]() { action(); });
+  }
 }
 
 HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void()> action) :
@@ -554,17 +557,21 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
   action(std::move(action))
 {
   (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
-  if (action)
+  if (action) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    addCustomButton(0, 0, [=]() { action(); });
+  }
 }
 
 HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
   StaticIcon(parent, LCD_W - PageGroup::MENU_TITLE_TOP, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX),
   action(std::move(action))
 {
-  new StaticText(this, {PAD_LARGE * 2, PAD_TINY, 0, 0}, "X", COLOR_THEME_PRIMARY2_INDEX, FONT(XL));
-  if (action)
+  (new StaticIcon(this, 0, 0, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
+  if (action) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
+    addCustomButton(0, 0, [=]() { action(); });
+  }
 }
 
 UsbSDConnected::UsbSDConnected() :
