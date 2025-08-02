@@ -60,17 +60,17 @@ class TrimIcon : public SliderIcon
     lv_obj_set_style_line_width(bar2, lw, LV_PART_MAIN);
     lv_line_set_points(bar2, &barPoints[2], 2);
 
-    etx_bg_color(fill, COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
+    etx_img_color(mask, COLOR_THEME_ACTIVE_INDEX, LV_STATE_USER_1);
   }
 
   void setState(int value)
   {
     if (value < TRIM_MIN || value > TRIM_MAX) {
-      lv_obj_add_state(fill, LV_STATE_USER_1);
+      lv_obj_add_state(mask, LV_STATE_USER_1);
       lv_obj_add_state(bar1, LV_STATE_USER_1);
       lv_obj_add_state(bar2, LV_STATE_USER_1);
     } else {
-      lv_obj_clear_state(fill, LV_STATE_USER_1);
+      lv_obj_clear_state(mask, LV_STATE_USER_1);
       lv_obj_clear_state(bar1, LV_STATE_USER_1);
       lv_obj_clear_state(bar2, LV_STATE_USER_1);
     }
