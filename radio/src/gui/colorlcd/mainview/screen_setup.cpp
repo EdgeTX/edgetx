@@ -133,8 +133,7 @@ void ScreenSetupPage::build(Window* window)
   auto line = window->newLine(grid);
   auto label = new StaticText(line, rect_t{}, STR_LAYOUT);
 
-  lv_obj_set_style_grid_cell_y_align(label->getLvObj(), LV_GRID_ALIGN_CENTER,
-                                     0);
+  lv_obj_set_style_grid_cell_y_align(label->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
 
   // Dynamic options window...
   LayoutChoice::LayoutFactoryGetter getFactory =
@@ -213,13 +212,10 @@ void ScreenSetupPage::build(Window* window)
           // ... and reload
           LayoutFactory::loadCustomScreens();
 
+          // Rest to first screen so user knows something has happened
           ScreenMenu* menu = (ScreenMenu*)window->getParent();
-          
-          // Let's try to stay on the same page
-          menu->removeTab(customScreenIndex + 1);
-          menu->setCurrentTab(customScreenIndex);
+          menu->setCurrentTab(FIRST_SCREEN_OFFSET);
 
-          delete this;
           return 0;
         });
     auto obj = btn->getLvObj();

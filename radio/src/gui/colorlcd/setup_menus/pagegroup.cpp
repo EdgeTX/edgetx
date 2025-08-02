@@ -56,31 +56,37 @@ static void on_draw_end(lv_event_t* e)
 }
 #endif
 
-class PageGroupButton
+PageGroupBase::PageGroupBase() : NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H}) {}
+
+void PageGroupBase::checkEvents()
 {
- public:
-  PageGroupButton(PageTab* page, int idx) : pageTab(page), index(idx)
-  {
+  if (deleted()) return;
+
+  Window::checkEvents();
+  if (currentTab) {
+    currentTab->checkEvents();
   }
+  ViewMain::instance()->runBackground();
+}
 
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "PageGroupButton"; }
-#endif
+void PageGroupBase::deleteLater(bool detach, bool trash)
+{
+  if (_deleted) return;
 
-  bool isVisible() const { return pageTab->isVisible(); }
+  Layer::pop(this);
+  Layer::back()->show();
 
-  PageTab* page() const { return pageTab; }
-  int getIndex() const { return index; }
-  void setIndex(int idx)
-  {
-    index = idx;
-    pageTab->update(index);
-  }
+  Window::deleteLater(detach, trash);
+}
 
- protected:
-  PageTab* pageTab;
-  int index;
-};
+void PageGroupBase::onClicked() { Keyboard::hide(false); }
+
+void PageGroupBase::onCancel()
+{
+  if (quickMenu) quickMenu->closeMenu();
+  quickMenu = nullptr;
+  deleteLater();
+}
 
 class PageGroupHeader : public Window
 {
@@ -93,7 +99,7 @@ class PageGroupHeader : public Window
 
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-    new HeaderIcon(this, icon);
+    hdrIcon = new HeaderIcon(this, icon);
 
     titleLabel = lv_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
@@ -105,6 +111,7 @@ class PageGroupHeader : public Window
   }
 
   void setTitle(const char* title) { if (titleLabel) lv_label_set_text(titleLabel, title); }
+  void setIcon(EdgeTxIcon newIcon) { hdrIcon->setIcon(newIcon); }
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "PageGroupHeader"; }
@@ -112,7 +119,7 @@ class PageGroupHeader : public Window
 
   void setCurrentIndex(uint8_t index)
   {
-    if (index < buttons.size()) {
+    if (index < pages.size()) {
       currentIndex = index;
     }
   }
@@ -122,9 +129,9 @@ class PageGroupHeader : public Window
     int idx = currentIndex;
     do {
       idx += dir;
-      if (idx < 0) idx = buttons.size() - 1;
-      if (idx >= (int)buttons.size()) idx = 0;
-    } while (!buttons[idx]->isVisible());
+      if (idx < 0) idx = pages.size() - 1;
+      if (idx >= (int)pages.size()) idx = 0;
+    } while (!pages[idx]->isVisible());
     menu->setCurrentTab(idx);
   }
 
@@ -133,35 +140,34 @@ class PageGroupHeader : public Window
 
   void addTab(PageTab* page)
   {
-    uint8_t idx = buttons.size();
-    PageGroupButton* btn = new PageGroupButton(page, idx);
-    buttons.emplace_back(btn);
+    pages.emplace_back(page);
   }
 
   void removeTab(unsigned index)
   {
-    auto btn = buttons[index];
-    buttons.erase(buttons.begin() + index);
-    delete btn;
+    auto pg = pages[index];
+    pages.erase(pages.begin() + index);
+    delete pg;
     updateLayout();
   }
 
   void updateLayout()
   {
-    for (uint8_t i = 0; i < buttons.size(); i += 1) {
-      buttons[i]->setIndex(i);
+    for (uint8_t i = 0; i < pages.size(); i += 1) {
+      pages[i]->update(i);
     }
   }
 
-  PageTab* pageTab(uint8_t idx) const { return buttons[idx]->page(); }
+  PageTab* pageTab(uint8_t idx) const { return pages[idx]; }
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
-  uint8_t tabCount() const { return buttons.size(); }
+  uint8_t tabCount() const { return pages.size(); }
 
  protected:
   uint8_t currentIndex = 0;
   PageGroup* menu;
   lv_obj_t* titleLabel = nullptr;
-  std::vector<PageGroupButton*> buttons;
+  HeaderIcon* hdrIcon = nullptr;
+  std::vector<PageTab*> pages;
 
   void checkEvents() override
   {
@@ -171,8 +177,7 @@ class PageGroupHeader : public Window
 };
 
 PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
-    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
-    icon(icon)
+    PageGroupBase(), icon(icon)
 {
   etx_solid_bg(lvobj);
 
@@ -214,6 +219,7 @@ void PageGroup::setCurrentTab(unsigned index)
 
   if (tab != currentTab && !deleted()) {
     header->setTitle(tab->getTitle().c_str());
+    header->setIcon(tab->getIcon());
 
     lv_obj_enable_style_refresh(false);
 
@@ -248,16 +254,6 @@ void PageGroup::setCurrentTab(unsigned index)
   }
 }
 
-void PageGroup::deleteLater(bool detach, bool trash)
-{
-  if (_deleted) return;
-
-  Layer::pop(this);
-  Layer::back()->show();
-
-  Window::deleteLater(detach, trash);
-}
-
 void PageGroup::addTab(PageTab* page)
 {
   header->addTab(page);
@@ -273,15 +269,6 @@ void PageGroup::removeTab(unsigned index)
   header->removeTab(index);
 }
 
-void PageGroup::checkEvents()
-{
-  Window::checkEvents();
-  if (currentTab) {
-    currentTab->checkEvents();
-  }
-  ViewMain::instance()->runBackground();
-}
-
 void PageGroup::openMenu()
 {
   quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; },
@@ -290,15 +277,6 @@ void PageGroup::openMenu()
         onCancel();
     }, this, currentTab->subMenu());
   quickMenu->setFocus(currentTab->subMenu());
-}
-
-void PageGroup::onClicked() { Keyboard::hide(false); }
-
-void PageGroup::onCancel()
-{
-  if (quickMenu) quickMenu->closeMenu();
-  quickMenu = nullptr;
-  deleteLater();
 }
 
 #if defined(HARDWARE_KEYS)
@@ -310,10 +288,10 @@ void PageGroup::onPressSYS()
 void PageGroup::onLongPressSYS()
 {
   if (icon == ICON_RADIO) {
-    setCurrentTab(2);
+    setCurrentTab(1);
   } else {
     onCancel();
-    (new RadioMenu())->setCurrentTab(2);
+    new RadioMenu();
   }
 }
 

@@ -29,6 +29,28 @@ class PageGroupHeader;
 
 //-----------------------------------------------------------------------------
 
+class PageGroupBase : public NavWindow
+{
+ public:
+  PageGroupBase();
+
+  virtual void setCurrentTab(unsigned index) = 0;
+
+  void onClicked() override;
+  void onCancel() override;
+
+ protected:
+  Window* body = nullptr;
+  PageTab* currentTab = nullptr;
+  QuickMenu* quickMenu = nullptr;
+
+  void checkEvents() override;
+
+  void deleteLater(bool detach = true, bool trash = true) override;
+};
+
+//-----------------------------------------------------------------------------
+
 enum PageDefAction {
   PAGE_CREATE,
   PAGE_ACTION
@@ -46,12 +68,10 @@ struct PageDef {
 
 //-----------------------------------------------------------------------------
 
-class PageGroup : public NavWindow
+class PageGroup : public PageGroupBase
 {
  public:
   explicit PageGroup(EdgeTxIcon icon, PageDef* pages);
-
-  void deleteLater(bool detach = true, bool trash = true) override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "PageGroup"; }
@@ -64,12 +84,7 @@ class PageGroup : public NavWindow
   void removeTab(unsigned index);
 
   PageTab* getCurrentTab() const { return currentTab; }
-  virtual void setCurrentTab(unsigned index);
-
-  void checkEvents() override;
-
-  void onClicked() override;
-  void onCancel() override;
+  void setCurrentTab(unsigned index) override;
 
   void openMenu();
 
@@ -91,8 +106,5 @@ class PageGroup : public NavWindow
 
  protected:
   PageGroupHeader* header = nullptr;
-  Window* body = nullptr;
-  PageTab* currentTab = nullptr;
-  QuickMenu* quickMenu = nullptr;
   EdgeTxIcon icon;
 };

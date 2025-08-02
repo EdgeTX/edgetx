@@ -551,7 +551,7 @@ void ModelLabelsWindow::onLongPressSYS()
 {
   onCancel();
   // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
+  new RadioMenu();
 }
 void ModelLabelsWindow::onPressMDL()
 {

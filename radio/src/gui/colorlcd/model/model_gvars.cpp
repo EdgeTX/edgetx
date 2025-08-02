@@ -535,7 +535,7 @@ void ModelGVarsPage::build(Window* window)
     window->padTop(PAD_OUTLINE);
     hdr = new GVarHeader(window->getParent());
     lv_obj_set_pos(hdr->getLvObj(), 0, PageGroup::MENU_TITLE_TOP);
-    yo = GVarHeader::HDR_H - PAD_TINY;
+    yo = GVarHeader::HDR_H;
   }
 
   for (uint8_t index = 0; index < MAX_GVARS; index++) {

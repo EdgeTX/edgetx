@@ -73,8 +73,7 @@ class ChannelsViewPage : public PageTab
 {
  public:
   explicit ChannelsViewPage(uint8_t pageIndex = 0) :
-      PageTab(STR_MONITOR_CHANNELS[pageIndex],
-              (EdgeTxIcon)(ICON_MONITOR_CHANNELS1 + pageIndex)),
+      PageTab(STR_MONITOR_CHANNELS[pageIndex]),
       pageIndex(pageIndex)
   {
   }
@@ -112,7 +111,7 @@ class ChannelsViewPage : public PageTab
 //-----------------------------------------------------------------------------
 
 ChannelsViewMenu::ChannelsViewMenu() :
-    TabsGroup(ICON_MONITOR)
+    TabsGroup(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR)
 {
   addTab(new ChannelsViewPage(0));
   addTab(new ChannelsViewPage(1));
@@ -130,7 +129,7 @@ void ChannelsViewMenu::onLongPressSYS()
 {
   onCancel();
   // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
+  new RadioMenu();
 }
 void ChannelsViewMenu::onPressMDL()
 {

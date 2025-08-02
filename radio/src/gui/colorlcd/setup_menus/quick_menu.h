@@ -27,6 +27,7 @@
 
 class QuickMenuGroup;
 class PageGroup;
+class PageGroupBase;
 class ButtonBase;
 class QuickSubMenu;
 struct PageDef;
@@ -85,7 +86,7 @@ class QuickMenu : public Window
 
   QuickMenu(Window* parent, std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler = nullptr,
-            PageGroup* pageGroup = nullptr, SubMenu curPage = NONE);
+            PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
 
   void onCancel() override;
   void onSelect(bool close);
@@ -106,7 +107,7 @@ class QuickMenu : public Window
   QuickMenuGroup* mainMenu = nullptr;
   std::vector<QuickSubMenu*> subMenus;
   Window* box = nullptr;
-  PageGroup* pageGroup = nullptr;
+  PageGroupBase* pageGroup = nullptr;
   SubMenu curPage;
 
   void buildMainMenu(int viewMainRows, int viewSubRows);
@@ -117,7 +118,7 @@ class QuickMenu : public Window
 class QuickSubMenu
 {
  public:
-  QuickSubMenu(Window* parent, PageGroup* pageGroup, QuickMenu* quickMenu, QuickMenuGroup* topMenu,
+  QuickSubMenu(Window* parent, PageGroupBase* pageGroup, QuickMenu* quickMenu, QuickMenuGroup* topMenu,
                EdgeTxIcon icon, const char* title, QuickMenu::SubMenu first, QuickMenu::SubMenu last,
                std::function<PageGroup*()> create, PageDef* items, int viewMainRows, int viewSubRows) :
     parent(parent), pageGroup(pageGroup), quickMenu(quickMenu), topMenu(topMenu),
@@ -138,7 +139,7 @@ class QuickSubMenu
 
  protected:
   Window* parent;
-  PageGroup* pageGroup;
+  PageGroupBase* pageGroup;
   QuickMenu* quickMenu;
   QuickMenuGroup* topMenu;
   EdgeTxIcon icon;
