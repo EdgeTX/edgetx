@@ -461,7 +461,8 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               s_editMode = !s_editMode;
               active = true;
               CFN_GVAR_MODE(cfn) += 1;
-              CFN_GVAR_MODE(cfn) &= 0x03;
+              if (CFN_GVAR_MODE(cfn) > FUNC_ADJUST_GVAR_INCDEC)
+                CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_CONSTANT;
               val_displayed = 0;
             }
 #endif
