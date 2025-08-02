@@ -297,7 +297,6 @@
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "מתג"
-#define TR_FUNCTION_SWITCHES           "מפסקים בהתאמה אישית"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -351,7 +350,6 @@
 #define TR_DELAYUP                     "עיקוב בעלייה"
 #define TR_SLOWDOWN                    TR("Slow dn", "האט ירידה")
 #define TR_SLOWUP                      "האט עלייה"
-#define TR_MIXES                       "מיקסים"
 #define TR_CV                          "CV"
 #if defined(PCBNV14)
 #define TR_GV                          "GV"
@@ -494,14 +492,10 @@
 #define TR_STORAGE_FORMAT              "Storage preparation"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
 #define TR_RADIO_SETUP                 "הגדרות שלט ותצוגה"
-#define TR_MENUTRAINER                 "טריינר"
-#define TR_MENUSPECIALFUNCS            "פונקציות לכל המודלים והשלט"
 #define TR_MENUVERSION                 "גירסא"
-#define TR_MENU_RADIO_SWITCHES         TR("בדיקת מתגים וכפתורים", "SWITCHES")
 #define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "בדיקת אנלוגיות")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "בדיקת אנלוגיות סטיקים ומגע"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
-#define TR_MENUCALIBRATION              "כיול"
 #define TR_MENU_FSWITCH                 "מפסקים בהתאמה אישית"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trims => Subtrims"
@@ -512,24 +506,8 @@
 #define TR_CHANNEL2FAILSAFE            "הגדר מצב נוכחי כקבוע"
 #define TR_MENUMODELSEL                TR("MODELSEL", "MODEL SELECTION")
 #define TR_MENU_MODEL_SETUP            TR("הגדרות מודל", "הגדרות מודל")
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "DRIVE MODES"
-#define TR_MENUFLIGHTMODE              "DRIVE MODE"
-#else
-#define TR_MENUFLIGHTMODES             "מצבי טיסה"
-#define TR_MENUFLIGHTMODE              "מצב טיסה"
-#endif
-#define TR_MENUHELISETUP               "הגדרות מסוק"
-
-  #define TR_MENUINPUTS                "כניסות"
-  #define TR_MENULIMITS                "יציאות"
-#define TR_MENUCURVES                  "עקומות"
 #define TR_MENUCURVE                   "עקומה"
 #define TR_MENULOGICALSWITCH           "מתג לוגי"
-#define TR_MENULOGICALSWITCHES         "מתגים לוגים"
-#define TR_MENUCUSTOMFUNC              "אופציות מיוחדות למודל"
-#define TR_MENUCUSTOMSCRIPTS           "סקריפטים מיוחדים"
-#define TR_MENUTELEMETRY               "טלמטריה"
 #define TR_MENUSTAT                    "סטטוס"
 #define TR_MENUDEBUG                   "DEBUG"
 #define TR_MONITOR_CHANNELS1           "מצגי ערוצים 8-1"
@@ -698,8 +676,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Duration"
 #define TR_DELAY                       "דיליי"
-#define TR_SD_CARD                     "SD כרטיס"
-#define TR_SDHC_CARD                   "SD תיקיות כרטיס"
 #define TR_NO_SOUNDS_ON_SD             "SD אין צלילים על"
 #define TR_NO_MODELS_ON_SD             "SD אין מודלים על"
 #define TR_NO_BITMAPS_ON_SD            "No bitmaps on SD"
@@ -718,7 +694,6 @@
 #define TR_REMOVED                     " הוסר"
 #define TR_SD_INFO                     "מידע"
 #define TR_NA                          "N/A"
-#define TR_HARDWARE                    "הגדרות חומרה"
 #define TR_FORMATTING                  "...מפרמט"
 #define TR_TEMP_CALIB                  "Temp. Calib"
 #define TR_TIME                        "זמן"
@@ -774,10 +749,8 @@
 #define TR_SD_SECTORS                  ":סקטורים"
 #define TR_SD_SIZE                     ":גודל"
 #define TR_TYPE                        "סוג"
-#define TR_GLOBAL_VARS                 "משתנים גלובלים"
 #define TR_GVARS                       "GVARS"
 #define TR_GLOBAL_VAR                  "משתנה גלובלי"
-#define TR_MENU_GLOBAL_VARS            "משתנים גלובלים"
 #define TR_OWN                         "בעלים"
 #define TR_DATE                        "תאריך"
 #define TR_MONTHS                      { "ינו", "פבו", "מרץ", "אפר", "מאי", "יונ", "יול", "אוג", "ספט", "אוק", "נוב", "דצמ" }
@@ -897,7 +870,6 @@
 #define TR_RANGE_TEST                  "בדיקת טווח"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
 #define TR_RESET_BTN                   BUTTON("איפוס")
-#define TR_DEBUG                       "איבחון"
 #define TR_KEYS_BTN                    BUTTON("בדיקת מתגים")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "בדיקת אנלוגיות"))
 #define TR_FS_BTN                      BUTTON(TR("Custom sw", TR_FUNCTION_SWITCHES))
@@ -1025,7 +997,6 @@
   #define TR_ALIGN_OPTS                { "שמאל", "מרכז", "ימין" }
   #define TR_TEXT                      "טקסט"
   #define TR_COLOR                     "צבע"
-  #define TR_MAIN_VIEW_X               "מסך תצוגה XX"
   #define TR_PANEL1_BACKGROUND         "Panel1 background"
   #define TR_PANEL2_BACKGROUND         "Panel2 background"
   #define TR_WIDGET_GAUGE              "מקור"
@@ -1089,11 +1060,9 @@
 #define TR_WIDGET_SETTINGS             "הגדרות וידג'ט"
 #define TR_REMOVE_SCREEN               "הסרת מסך"
 #define TR_SETUP_WIDGETS               "הגדרות וידג'טים"
-#define TR_USER_INTERFACE              "ממשק משתמש"
 #define TR_THEME                       "ערכת נושא"
 #define TR_SETUP                       "להגדיר"
 #define TR_LAYOUT                      "תצוגת מסך"
-#define TR_ADD_MAIN_VIEW               "הוסף מסך תצוגה נוסף"
 #define TR_TEXT_COLOR                  "צבע טקסט"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "כניסות"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Lua סקריפטים"
@@ -1164,16 +1133,46 @@
 #define TR_THEME_EDITOR                 "ערכות נושא"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "מודל\nבחירת"
-#define TR_MAIN_MENU_MANAGE_MODELS      "ניהול\nמודלים"
-#define TR_MAIN_MENU_MODEL_NOTES        "Model\nNotes"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "מצגי\nערוצים"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "הגדרות\nמודל"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "הגדרות\nשלט"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "הגדרות\nמסכים"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "איפוס\nשעונים"
+#define TR_MAIN_MENU_MANAGE_MODELS      "ניהול מודלים"
+#define TR_MAIN_MENU_MODEL_NOTES        "Model Notes"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "מצגי ערוצים"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "הגדרות מודל"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "הגדרות שלט"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "איפוס שעונים"
 #define TR_MAIN_MENU_STATISTICS         "סטטיסטיקות"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "מידע על\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "מידע על EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "הגדרות מסוק"
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "DRIVE MODES"
+#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+#else
+#define TR_MENUFLIGHTMODES             "מצבי טיסה"
+#define TR_MENUFLIGHTMODE              "מצב טיסה"
+#endif
+#define TR_MENUINPUTS                  "כניסות"
+#define TR_MENULIMITS                  "יציאות"
+#define TR_MENUCURVES                  "עקומות"
+#define TR_MIXES                       "מיקסים"
+#define TR_MENU_GLOBAL_VARS            "משתנים גלובלים"
+#define TR_MENULOGICALSWITCHES         "מתגים לוגים"
+#define TR_MENUCUSTOMFUNC              "אופציות מיוחדות למודל"
+#define TR_MENUCUSTOMSCRIPTS           "סקריפטים מיוחדים"
+#define TR_MENUTELEMETRY               "טלמטריה"
+#define TR_MENUSPECIALFUNCS            "פונקציות לכל המודלים והשלט"
+#define TR_MENUTRAINER                 "טריינר"
+#define TR_HARDWARE                    "הגדרות חומרה"
+#define TR_USER_INTERFACE              "ממשק משתמש"
+#define TR_SD_CARD                     "SD כרטיס"
+#define TR_DEBUG                       "איבחון"
+#define TR_MENU_RADIO_SWITCHES         TR("בדיקת מתגים וכפתורים", "SWITCHES")
+#define TR_MENUCALIBRATION              "כיול"
+#define TR_FUNCTION_SWITCHES           "מפסקים בהתאמה אישית"
 // End Main menu
 
 // Voice in native language

@@ -292,7 +292,6 @@
 #define TR_WARN_5VOLTS                 "Advarsel: udgang niveau er 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Kontakt"
-#define TR_FUNCTION_SWITCHES           "Kontakter der kan tilpasses"
 #define TR_FS_COLOR_LIST               "Bruger","Fra","Hvid","Rød","Grøn","Gul","Orange","Blå","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Altid til"
@@ -346,7 +345,6 @@
 #define TR_DELAYUP                     TR("Forsink op", "Forsinkelse op")
 #define TR_SLOWDOWN                    TR("Langsom ned", "Langsom ned")
 #define TR_SLOWUP                      TR("Langsom op", "Langsom op")
-#define TR_MIXES                       "MIX"
 #define TR_CV                          "KU"
 #if defined(PCBNV14)
   #define TR_GV                        "GV"
@@ -491,14 +489,10 @@
 #define TR_STORAGE_FORMAT              "Lager klargøres"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
 #define TR_RADIO_SETUP                 "RADIO SETUP"
-#define TR_MENUTRAINER                 "TRÆNER"
-#define TR_MENUSPECIALFUNCS            "GLOBALE FUNKTIONER"
 #define TR_MENUVERSION                 "VERSION"
-#define TR_MENU_RADIO_SWITCHES         TR("KONTAKTER", "KONTAKTER TEST")
 #define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "ANALOGS TEST")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "KALIBRERET ANALOGE"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RÅ ANALOGE (5 Hz)"
-#define TR_MENUCALIBRATION              "KALIBRIERING"
 #define TR_MENU_FSWITCH                 "KONTAKTER DER KAN TILPASSES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trim => Subtrim"
@@ -509,24 +503,9 @@
 #define TR_CHANNEL2FAILSAFE            "Kanal=>Fejlsikring"
 #define TR_MENUMODELSEL                TR("MODELLER", "MODEL VALG")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "MODEL SETUP")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "FLYVE TILSTANDE"
-  #define TR_MENUFLIGHTMODE            "FLYVE TILSTAND"
-#else
-  #define TR_MENUFLIGHTMODES           "FLYVE TILSTANDE"
-  #define TR_MENUFLIGHTMODE            "FLYVE TILSTAND"
-#endif
-#define TR_MENUHELISETUP               "HELI SETUP"
 
-#define TR_MENUINPUTS                  "INDGANGE"
-#define TR_MENULIMITS                  "UDGANGE"
-#define TR_MENUCURVES                  "KURVER"
 #define TR_MENUCURVE                   "KURVE"
 #define TR_MENULOGICALSWITCH           "LOGISK FUNKTION"
-#define TR_MENULOGICALSWITCHES         "LOGISKE FUNKTIONER"
-#define TR_MENUCUSTOMFUNC              "SPECIALFUNKTIONER"
-#define TR_MENUCUSTOMSCRIPTS           "TILPASSET SCRIPT"
-#define TR_MENUTELEMETRY               "TELEMETRI"
 #define TR_MENUSTAT                    "STAT"
 #define TR_MENUDEBUG                   "DEBUG"
 #define TR_MONITOR_CHANNELS1           "KANAL MONITOR 1-8"
@@ -695,8 +674,6 @@
 #define TR_V2                          TR("V2", "Værdi 2")
 #define TR_DURATION                    "Varighed"
 #define TR_DELAY                       "Forsinkelse"
-#define TR_SD_CARD                     "SD KORT"
-#define TR_SDHC_CARD                   "SD-HC KORT"
 #define TR_NO_SOUNDS_ON_SD             "Ingen lyde på SD"
 #define TR_NO_MODELS_ON_SD             "Ingen modeller på SD"
 #define TR_NO_BITMAPS_ON_SD            "Ingen bitmapper på SD"
@@ -715,7 +692,6 @@
 #define TR_REMOVED                     " slettet"
 #define TR_SD_INFO                     "Information"
 #define TR_NA                          "N/A"
-#define TR_HARDWARE                    "HARDWARE"
 #define TR_FORMATTING                  "Formattering..."
 #define TR_TEMP_CALIB                  "Temp. kalib"
 #define TR_TIME                        "Tid"
@@ -771,10 +747,8 @@
 #define TR_SD_SECTORS                  "Sektorer:"
 #define TR_SD_SIZE                     "Størrelse:"
 #define TR_TYPE                        "Type"
-#define TR_GLOBAL_VARS                 "Globale variable"
 #define TR_GVARS                       "GV"
 #define TR_GLOBAL_VAR                  "Globale variable"
-#define TR_MENU_GLOBAL_VARS            "GLOBALE VARIABLE"
 #define TR_OWN                         "Egen"
 #define TR_DATE                        "Dato"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
@@ -894,7 +868,6 @@
 #define TR_RANGE_TEST                  "Test af rækkevidde"
 #define TR_RECEIVER_OPTIONS            TR("MODT. VALG", "MODTAGER VALG")
 #define TR_RESET_BTN                   BUTTON("Nulstil")
-#define TR_DEBUG                       "Fejlfind"
 #define TR_KEYS_BTN                    BUTTON("Taster")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analo", "Analoge"))
 #define TR_FS_BTN                      BUTTON(TR("Tilpasset sw", TR_FUNCTION_SWITCHES))
@@ -1021,7 +994,6 @@
   #define TR_ALIGN_OPTS                { "Venstre", "Center", "Højre" }
   #define TR_TEXT                      "Tekst"
   #define TR_COLOR                     "Farve"
-  #define TR_MAIN_VIEW_X               "Hoved visning XX"
   #define TR_PANEL1_BACKGROUND         "Panel1 baggrund"
   #define TR_PANEL2_BACKGROUND         "Panel2 baggrund"
   #define TR_WIDGET_GAUGE              "Måling"
@@ -1091,11 +1063,9 @@
   #define TR_SETUP_WIDGETS             "Widget"
 #endif
 
-#define TR_USER_INTERFACE              "Bruger interface"
 #define TR_THEME                       "Tema"
 #define TR_SETUP                       "Opsætning"
 #define TR_LAYOUT                      "Layout"
-#define TR_ADD_MAIN_VIEW               "Tilføj hoved billede"
 #define TR_TEXT_COLOR                  "Tekst farve"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Indgange"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Lua script"
@@ -1173,16 +1143,46 @@
 #define TR_THEME_EDITOR                "TEMAER"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL      "Vælg\nModel"
-#define TR_MAIN_MENU_MANAGE_MODELS     "Vælg\nModel"
-#define TR_MAIN_MENU_MODEL_NOTES       "Model\nNoter"
-#define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal\nMonitor"
-#define TR_MAIN_MENU_MODEL_SETTINGS    "Model\nIndstilling"
-#define TR_MAIN_MENU_RADIO_SETTINGS    "Radio\nIndstilling"
-#define TR_MAIN_MENU_SCREEN_SETTINGS   "Skærm\nIndstilling"
-#define TR_MAIN_MENU_RESET_TELEMETRY   "Nulstil\nTelemetri"
+#define TR_MAIN_MENU_MANAGE_MODELS     "Vælg Model"
+#define TR_MAIN_MENU_MODEL_NOTES       "Model Noter"
+#define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal Monitor"
+#define TR_MAIN_MENU_MODEL_SETTINGS    "Model Indstilling"
+#define TR_MAIN_MENU_RADIO_SETTINGS    "Radio Indstilling"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_RESET_TELEMETRY   "Nulstil Telemetri"
 #define TR_MAIN_MENU_STATISTICS        "Statistik"
-#define TR_MAIN_MENU_ABOUT_EDGETX      "Om\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX      "Om EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "HELI SETUP"
+#if defined(SURFACE_RADIO)
+  #define TR_MENUFLIGHTMODES           "FLYVE TILSTANDE"
+  #define TR_MENUFLIGHTMODE            "FLYVE TILSTAND"
+#else
+  #define TR_MENUFLIGHTMODES           "FLYVE TILSTANDE"
+  #define TR_MENUFLIGHTMODE            "FLYVE TILSTAND"
+#endif
+#define TR_MENUINPUTS                  "INDGANGE"
+#define TR_MENULIMITS                  "UDGANGE"
+#define TR_MENUCURVES                  "KURVER"
+#define TR_MIXES                       "MIX"
+#define TR_MENU_GLOBAL_VARS            "Globale Variable"
+#define TR_MENULOGICALSWITCHES         "LOGISKE FUNKTIONER"
+#define TR_MENUCUSTOMFUNC              "SPECIALFUNKTIONER"
+#define TR_MENUCUSTOMSCRIPTS           "TILPASSET SCRIPT"
+#define TR_MENUTELEMETRY               "TELEMETRI"
+#define TR_MENUSPECIALFUNCS            "GLOBALE FUNKTIONER"
+#define TR_MENUTRAINER                 "TRÆNER"
+#define TR_HARDWARE                    "HARDWARE"
+#define TR_USER_INTERFACE              "Bruger interface"
+#define TR_SD_CARD                     "SD KORT"
+#define TR_DEBUG                       "Fejlfind"
+#define TR_MENU_RADIO_SWITCHES         TR("KONTAKTER", "KONTAKTER TEST")
+#define TR_MENUCALIBRATION              "KALIBRIERING"
+#define TR_FUNCTION_SWITCHES           "Kontakter der kan tilpasses"
 // End Main menu
 
 // Voice in native language

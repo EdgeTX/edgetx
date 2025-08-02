@@ -27,8 +27,9 @@
 #include "model_select.h"
 #include "edgetx.h"
 #include "topbar_impl.h"
+#include "quick_menu.h"
 #include "view_channels.h"
-#include "view_main_menu.h"
+#include "screen_setup.h"
 
 static void tile_view_deleted_cb(lv_event_t* e)
 {
@@ -247,46 +248,45 @@ void ViewMain::updateTopbarVisibility()
 #if defined(HARDWARE_KEYS)
 void ViewMain::onPressSYS()
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new RadioMenu();
+  if (!viewMainMenu) openMenu();
 }
 void ViewMain::onLongPressSYS()
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
+  if (viewMainMenu) viewMainMenu->closeMenu();
   // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
+  new RadioMenu();
 }
 void ViewMain::onPressMDL()
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
+  if (viewMainMenu) viewMainMenu->closeMenu();
   new ModelMenu();
 }
 void ViewMain::onLongPressMDL()
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
+  if (viewMainMenu) viewMainMenu->closeMenu();
   new ModelLabelsWindow();
 }
 void ViewMain::onPressTELE()
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
-  new ScreenMenu();
+  if (viewMainMenu) viewMainMenu->closeMenu();
+  (new ScreenMenu())->setCurrentTab(getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
 }
 void ViewMain::onLongPressTELE()
 {
-  if (viewMainMenu) viewMainMenu->onCancel();
+  if (viewMainMenu) viewMainMenu->closeMenu();
   new ChannelsViewMenu();
 }
 void ViewMain::onPressPGUP()
 {
   if (!widget_select) {
-    if (viewMainMenu) viewMainMenu->onCancel();
+    if (viewMainMenu) viewMainMenu->closeMenu();
     previousMainView();
   }
 }
 void ViewMain::onPressPGDN()
 {
   if (!widget_select) {
-    if (viewMainMenu) viewMainMenu->onCancel();
+    if (viewMainMenu) viewMainMenu->closeMenu();
     nextMainView();
   }
 }
@@ -351,7 +351,7 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  viewMainMenu = new ViewMainMenu(this, [=]() { viewMainMenu = nullptr; });
+  viewMainMenu = new QuickMenu(this, [=]() { viewMainMenu = nullptr; });
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)

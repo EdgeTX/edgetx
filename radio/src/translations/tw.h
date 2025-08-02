@@ -294,7 +294,6 @@
 #define TR_WARN_5VOLTS                 "注意輸出電平是5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "開關"
-#define TR_FUNCTION_SWITCHES           "可自定義開關"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -348,7 +347,6 @@
 #define TR_DELAYUP                     "上行延時"
 #define TR_SLOWDOWN                    TR("下慢放", "下行慢動作")
 #define TR_SLOWUP                      "上行慢動作"
-#define TR_MIXES                       "混控設置"
 #define TR_CV                          "曲線"
 #if defined(PCBNV14)
   #define TR_GV                        "GV"
@@ -491,14 +489,10 @@
 #define TR_STORAGE_FORMAT              "存儲準備"
 #define TR_EEPROMOVERFLOW              "存儲超限"
 #define TR_RADIO_SETUP                 "系統設置"
-#define TR_MENUTRAINER                 "教練"
-#define TR_MENUSPECIALFUNCS            "全局功能"
 #define TR_MENUVERSION                 "版本"
-#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "開關及按鍵測試")
 #define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "類比輸入測試")
 #define TR_MENU_RADIO_ANALOGS_CALIB     "已校準的類比值"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "原始類比值 (5 Hz)"
-#define TR_MENUCALIBRATION             "校準"
 #define TR_MENU_FSWITCH                "可自定義開關"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "將當前微調量保存至中點"
@@ -509,24 +503,8 @@
 #define TR_CHANNEL2FAILSAFE            "導入當前通道值"
 #define TR_MENUMODELSEL                TR("模型選擇", "模型選擇")
 #define TR_MENU_MODEL_SETUP            TR("模型設置", "模型設置")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "駕駛模式"
-  #define TR_MENUFLIGHTMODE            "駕駛模式"
-#else
-  #define TR_MENUFLIGHTMODES           "飛行模式設置"
-  #define TR_MENUFLIGHTMODE            "飛行模式"
-#endif
-#define TR_MENUHELISETUP               "直升機設置"
-
-#define TR_MENUINPUTS                  "輸入設置"
-#define TR_MENULIMITS                  "輸出設置"
-#define TR_MENUCURVES                  "曲線設置"
 #define TR_MENUCURVE                   "曲線"
 #define TR_MENULOGICALSWITCH           "邏輯開關"
-#define TR_MENULOGICALSWITCHES         "邏輯開關設置"
-#define TR_MENUCUSTOMFUNC              "特殊功能設置"
-#define TR_MENUCUSTOMSCRIPTS           "自定義腳本設置"
-#define TR_MENUTELEMETRY               "回傳"
 #define TR_MENUSTAT                    "統計"
 #define TR_MENUDEBUG                   "調試"
 #define TR_MONITOR_CHANNELS1           "1-8通道查看"
@@ -695,8 +673,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "持續時間"
 #define TR_DELAY                       "延時"
-#define TR_SD_CARD                     "SD卡"
-#define TR_SDHC_CARD                   "SD-HC卡"
 #define TR_NO_SOUNDS_ON_SD             "存儲卡中無音頻"
 #define TR_NO_MODELS_ON_SD             "存儲卡中無模型"
 #define TR_NO_BITMAPS_ON_SD            "存儲卡中無圖片"
@@ -715,7 +691,6 @@
 #define TR_REMOVED                     "已刪除"
 #define TR_SD_INFO                     "信息"
 #define TR_NA                          "N/A"
-#define TR_HARDWARE                    "硬件"
 #define TR_FORMATTING                  "正在格式化..."
 #define TR_TEMP_CALIB                  "溫度校準"
 #define TR_TIME                        "時間"
@@ -771,10 +746,8 @@
 #define TR_SD_SECTORS                  "扇區:"
 #define TR_SD_SIZE                     "容量:"
 #define TR_TYPE                        "類型"
-#define TR_GLOBAL_VARS                 "全局變量"
 #define TR_GVARS                       "全局變量"
 #define TR_GLOBAL_VAR                  "全局變量"
-#define TR_MENU_GLOBAL_VARS            "全局變量功能"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "日期"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec " }
@@ -1022,7 +995,6 @@
   #define TR_ALIGN_OPTS                { "左", "中", "右" }
   #define TR_TEXT                      "文本"
   #define TR_COLOR                     "顏色"
-  #define TR_MAIN_VIEW_X               "Main view XX"
   #define TR_PANEL1_BACKGROUND         "面板1背景"
   #define TR_PANEL2_BACKGROUND         "面板2背景"
   #define TR_WIDGET_GAUGE              "行程"
@@ -1086,11 +1058,9 @@
 #define TR_WIDGET_SETTINGS             "小部件設置"
 #define TR_REMOVE_SCREEN               "移除頁面"
 #define TR_SETUP_WIDGETS               "設置小部件"
-#define TR_USER_INTERFACE              "用戶界面"
 #define TR_THEME                       "主題"
 #define TR_SETUP                       "設置"
 #define TR_LAYOUT                      "佈局"
-#define TR_ADD_MAIN_VIEW               "添加主視圖"
 #define TR_TEXT_COLOR                  "文本顏色"
 #define TR_MENU_INPUTS                  STR_CHAR_INPUT "輸入"
 #define TR_MENU_LUA                     STR_CHAR_LUA "LUA腳本"
@@ -1161,16 +1131,45 @@
 #define TR_THEME_EDITOR               "主題"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL     "模型選擇"
 #define TR_MAIN_MENU_MANAGE_MODELS    "模型管理"
 #define TR_MAIN_MENU_MODEL_NOTES      "模型說明"
 #define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
 #define TR_MAIN_MENU_MODEL_SETTINGS   "模型設置"
 #define TR_MAIN_MENU_RADIO_SETTINGS   "系統設置"
-#define TR_MAIN_MENU_SCREEN_SETTINGS  "顯示設置"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
 #define TR_MAIN_MENU_RESET_TELEMETRY  "復位功能"
 #define TR_MAIN_MENU_STATISTICS       "統計信息"
 #define TR_MAIN_MENU_ABOUT_EDGETX     "關於"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "直升機設置"
+#if defined(SURFACE_RADIO)
+  #define TR_MENUFLIGHTMODES           "駕駛模式"
+  #define TR_MENUFLIGHTMODE            "駕駛模式"
+#else
+  #define TR_MENUFLIGHTMODES           "飛行模式設置"
+  #define TR_MENUFLIGHTMODE            "飛行模式"
+#endif
+#define TR_MENUINPUTS                  "輸入設置"
+#define TR_MENULIMITS                  "輸出設置"
+#define TR_MENUCURVES                  "曲線設置"
+#define TR_MIXES                       "混控設置"
+#define TR_MENU_GLOBAL_VARS            "全局變量功能"
+#define TR_MENULOGICALSWITCHES         "邏輯開關設置"
+#define TR_MENUCUSTOMFUNC              "特殊功能設置"
+#define TR_MENUCUSTOMSCRIPTS           "自定義腳本設置"
+#define TR_MENUTELEMETRY               "回傳"
+#define TR_MENUSPECIALFUNCS            "全局功能"
+#define TR_MENUTRAINER                 "教練"
+#define TR_HARDWARE                    "硬件"
+#define TR_USER_INTERFACE              "用戶界面"
+#define TR_SD_CARD                     "SD卡"
+#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "開關及按鍵測試")
+#define TR_MENUCALIBRATION             "校準"
+#define TR_FUNCTION_SWITCHES           "可自定義開關"
 // End Main menu
 
 #define TR_PROTOCOL                    "協議"

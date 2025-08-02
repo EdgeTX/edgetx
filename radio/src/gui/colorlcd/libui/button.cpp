@@ -86,7 +86,8 @@ bool ButtonBase::onLongPress()
 {
   if (longPressHandler) {
     check(longPressHandler());
-    lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
+    if (!deleted())
+      lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
     lv_indev_wait_release(lv_indev_get_act());
     return false;
   }

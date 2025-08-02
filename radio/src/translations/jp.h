@@ -292,7 +292,6 @@
 #define TR_WARN_5VOLTS                 "警告: 出力レベル 5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "スイッチ"
-#define TR_FUNCTION_SWITCHES           "カスタマイズ スイッチ"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -346,7 +345,6 @@
 #define TR_DELAYUP                     "遅延アップ"
 #define TR_SLOWDOWN                    TR("Slow dn", "スローダウン")
 #define TR_SLOWUP                      "スローアップ"
-#define TR_MIXES                       "ミキサー"
 #define TR_CV                          "CV"
 #if defined(PCBNV14) || defined(PCBPL18)
   #define TR_GV                        "GV"
@@ -489,14 +487,10 @@
 #define TR_STORAGE_FORMAT              "ストレージをフォーマットします"
 #define TR_EEPROMOVERFLOW              "EEPROMがオーバーフローしています"
 #define TR_RADIO_SETUP                 "送信機セットアップ"
-#define TR_MENUTRAINER                 "トレーナー"
-#define TR_MENUSPECIALFUNCS            "グローバルファンクション"
 #define TR_MENUVERSION                 "バージョン"
-#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "スイッチテスト")
 #define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "アナログ入力テスト")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "アナログ キャリブレーション"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW アナログ (5 Hz)"
-#define TR_MENUCALIBRATION             "キャリブレーション"
 #define TR_MENU_FSWITCH                "カスタマイズ スイッチ"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "トリム => サブトリム"
@@ -507,24 +501,8 @@
 #define TR_CHANNEL2FAILSAFE            "チャンネル=>Failsafe"
 #define TR_MENUMODELSEL                TR("MODELSEL", "モデル選択")
 #define TR_MENU_MODEL_SETUP            TR("SETUP", "モデル設定")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "ドライブモード"
-  #define TR_MENUFLIGHTMODE            "ドライブモード"
-#else
-  #define TR_MENUFLIGHTMODES           "飛行モード"
-  #define TR_MENUFLIGHTMODE            "飛行モード"
-#endif
-#define TR_MENUHELISETUP               "ヘリ セットアップ"
-
-#define TR_MENUINPUTS                  "入力"
-#define TR_MENULIMITS                  "出力"
-#define TR_MENUCURVES                  "カーブ"
 #define TR_MENUCURVE                   "カーブ"
 #define TR_MENULOGICALSWITCH           "論理スイッチ"
-#define TR_MENULOGICALSWITCHES         "論理スイッチ"
-#define TR_MENUCUSTOMFUNC              "スペシャルファンクション"
-#define TR_MENUCUSTOMSCRIPTS           "カスタムスクリプト"
-#define TR_MENUTELEMETRY               "テレメトリー"
 #define TR_MENUSTAT                    "統計"
 #define TR_MENUDEBUG                   "デバッグ"
 #define TR_MONITOR_CHANNELS1           "チャンネルモニター 1-8"
@@ -693,8 +671,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "持続時間"
 #define TR_DELAY                       "遅延"
-#define TR_SD_CARD                     "SDカード"
-#define TR_SDHC_CARD                   "SD-HCカード"
 #define TR_NO_SOUNDS_ON_SD             "SDカード内に音声データがありません"
 #define TR_NO_MODELS_ON_SD             "SDカード内にモデル情報がありません"
 #define TR_NO_BITMAPS_ON_SD            "SDカード内に画像データがありません"
@@ -713,7 +689,6 @@
 #define TR_REMOVED                     "移動"
 #define TR_SD_INFO                     "インフォメーション"
 #define TR_NA                          "該当なし"
-#define TR_HARDWARE                    "ハードウェア"
 #define TR_FORMATTING                  "フォーマット中..."
 #define TR_TEMP_CALIB                  "Temp.キャリブ"
 #define TR_TIME                        "時間"
@@ -769,10 +744,8 @@
 #define TR_SD_SECTORS                  "セクタ:"
 #define TR_SD_SIZE                     "サイズ:"
 #define TR_TYPE                        "タイプ"
-#define TR_GLOBAL_VARS                 "グローバル変数"
 #define TR_GVARS                       "G変数"
 #define TR_GLOBAL_VAR                  "グローバル変数"
-#define TR_MENU_GLOBAL_VARS            "グローバル変数"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "日付"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
@@ -892,7 +865,6 @@
 #define TR_RANGE_TEST                  "受信強度テスト"
 #define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "受信機オプション")
 #define TR_RESET_BTN                   BUTTON("リセット")
-#define TR_DEBUG                       "デバッグ"
 #define TR_KEYS_BTN                    BUTTON("キー")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "アナログ"))
 #define TR_FS_BTN                      BUTTON(TR("Custom sw", "カスタマイズ スイッチ"))
@@ -1020,7 +992,6 @@
   #define TR_ALIGN_OPTS                { "左", "中央", "右" }
   #define TR_TEXT                      "テキスト"
   #define TR_COLOR                     "カラー"
-  #define TR_MAIN_VIEW_X               "メインビュー XX"
   #define TR_PANEL1_BACKGROUND         "パネル1 背景"
   #define TR_PANEL2_BACKGROUND         "パネル2 背景"
   #define TR_WIDGET_GAUGE              "ゲージ"
@@ -1084,11 +1055,9 @@
 #define TR_WIDGET_SETTINGS             "ウィジェット設定"
 #define TR_REMOVE_SCREEN               "ビュー画面削除"
 #define TR_SETUP_WIDGETS               "ウィジェット設定"
-#define TR_USER_INTERFACE              "ユーザインターフェイス"
 #define TR_THEME                       "テーマ"
 #define TR_SETUP                       "設定"
 #define TR_LAYOUT                      "レイアウト"
-#define TR_ADD_MAIN_VIEW               "メインビュー追加"
 #define TR_TEXT_COLOR                  "テキスト色"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "入力"
 #define TR_MENU_LUA                    STR_CHAR_LUA "LUAスクリプト"
@@ -1159,16 +1128,46 @@
 #define TR_THEME_EDITOR                 "テーマ"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "モデル\n選択"
-#define TR_MAIN_MENU_MANAGE_MODELS      "モデル\n管理"
-#define TR_MAIN_MENU_MODEL_NOTES        "モデル\nノート"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel\nモニター"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "モデル\n設定"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "送信機\n設定"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "画面設定"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "リセット\nTelemetry"
+#define TR_MAIN_MENU_MANAGE_MODELS      "モデル 管理"
+#define TR_MAIN_MENU_MODEL_NOTES        "モデル ノート"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel モニター"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "モデル 設定"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "送信機 設定"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "リセット Telemetry"
 #define TR_MAIN_MENU_STATISTICS         "統計情報"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX\nについて"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX について"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "ヘリ セットアップ"
+#if defined(SURFACE_RADIO)
+  #define TR_MENUFLIGHTMODES           "ドライブモード"
+  #define TR_MENUFLIGHTMODE            "ドライブモード"
+#else
+  #define TR_MENUFLIGHTMODES           "飛行モード"
+  #define TR_MENUFLIGHTMODE            "飛行モード"
+#endif
+#define TR_MENUINPUTS                  "入力"
+#define TR_MENULIMITS                  "出力"
+#define TR_MENUCURVES                  "カーブ"
+#define TR_MIXES                       "ミキサー"
+#define TR_MENU_GLOBAL_VARS            "グローバル変数"
+#define TR_MENULOGICALSWITCHES         "論理スイッチ"
+#define TR_MENUCUSTOMFUNC              "スペシャルファンクション"
+#define TR_MENUCUSTOMSCRIPTS           "カスタムスクリプト"
+#define TR_MENUTELEMETRY               "テレメトリー"
+#define TR_MENUSPECIALFUNCS            "グローバルファンクション"
+#define TR_MENUTRAINER                 "トレーナー"
+#define TR_HARDWARE                    "ハードウェア"
+#define TR_USER_INTERFACE              "ユーザインターフェイス"
+#define TR_SD_CARD                     "SDカード"
+#define TR_DEBUG                       "デバッグ"
+#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES", "スイッチテスト")
+#define TR_MENUCALIBRATION             "キャリブレーション"
+#define TR_FUNCTION_SWITCHES           "カスタマイズ スイッチ"
 // End Main menu
 
 // Voice in native language

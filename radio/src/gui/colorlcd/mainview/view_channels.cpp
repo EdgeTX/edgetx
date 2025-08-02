@@ -22,12 +22,12 @@
 #include "view_channels.h"
 
 #include "channel_bar.h"
+#include "libopenui.h"
 #include "menu_model.h"
 #include "menu_radio.h"
 #include "menu_screen.h"
 #include "model_select.h"
 #include "edgetx.h"
-#include "view_logical_switches.h"
 
 //-----------------------------------------------------------------------------
 
@@ -73,8 +73,7 @@ class ChannelsViewPage : public PageTab
 {
  public:
   explicit ChannelsViewPage(uint8_t pageIndex = 0) :
-      PageTab(STR_MONITOR_CHANNELS[pageIndex],
-              (EdgeTxIcon)(ICON_MONITOR_CHANNELS1 + pageIndex)),
+      PageTab(STR_MONITOR_CHANNELS[pageIndex]),
       pageIndex(pageIndex)
   {
   }
@@ -111,47 +110,40 @@ class ChannelsViewPage : public PageTab
 
 //-----------------------------------------------------------------------------
 
-ChannelsViewMenu::ChannelsViewMenu(ModelMenu* parent) :
-    TabsGroup(ICON_MONITOR), parentMenu(parent)
+ChannelsViewMenu::ChannelsViewMenu() :
+    TabsGroup(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR)
 {
   addTab(new ChannelsViewPage(0));
   addTab(new ChannelsViewPage(1));
   addTab(new ChannelsViewPage(2));
   addTab(new ChannelsViewPage(3));
-  addTab(new LogicalSwitchesViewPage());
 }
 
 #if defined(HARDWARE_KEYS)
 void ChannelsViewMenu::onPressSYS()
 {
   onCancel();
-  if (parentMenu) parentMenu->onCancel();
   new RadioMenu();
 }
 void ChannelsViewMenu::onLongPressSYS()
 {
   onCancel();
-  if (parentMenu) parentMenu->onCancel();
   // Radio setup
-  (new RadioMenu())->setCurrentTab(2);
+  new RadioMenu();
 }
 void ChannelsViewMenu::onPressMDL()
 {
   onCancel();
-  if (!parentMenu) {
-    new ModelMenu();
-  }
+  new ModelMenu();
 }
 void ChannelsViewMenu::onLongPressMDL()
 {
   onCancel();
-  if (parentMenu) parentMenu->onCancel();
   new ModelLabelsWindow();
 }
 void ChannelsViewMenu::onPressTELE()
 {
   onCancel();
-  if (parentMenu) parentMenu->onCancel();
   new ScreenMenu();
 }
 #endif

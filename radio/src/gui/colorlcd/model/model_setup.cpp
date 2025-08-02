@@ -52,8 +52,8 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-ModelSetupPage::ModelSetupPage() :
-    PageTab(STR_MENU_MODEL_SETUP, ICON_MODEL_SETUP)
+ModelSetupPage::ModelSetupPage(PageDef& pageDef) :
+    PageTab(pageDef)
 {
 }
 
@@ -363,13 +363,13 @@ void ModelSetupPage::build(Window * window)
     {STR_PREFLIGHT, []() { new PreflightChecks(); }},
     {STR_TRIMS, []() { new TrimsSetup(); }},
     {STR_THROTTLE_LABEL, []() { new ThrottleParams(); }},
-    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
+    {STR_ENABLED_FEATURES, []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines, DIM(viewOptionsPageSetupLines)); }},
 #if defined(USBJ_EX)
     {STR_USBJOYSTICK_LABEL, []() { new ModelUSBJoystickPage(); }},
 #endif
 #if defined(FUNCTION_SWITCHES)
     {STR_FUNCTION_SWITCHES, []() { new ModelFunctionSwitches(); }},
 #endif
-    {STR_MENU_OTHER, []() { new SubPage(ICON_MODEL_SETUP, STR_MENU_MODEL_SETUP, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
+    {STR_MENU_OTHER, []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines, DIM(otherPageSetupLines)); }},
   }, BTN_H);
 }

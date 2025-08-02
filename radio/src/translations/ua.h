@@ -295,7 +295,6 @@
 #define TR_WARN_5VOLTS                 "Warning: вихідний рівень 5 вольт"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Перемикач"
-#define TR_FUNCTION_SWITCHES           "Користувацькі перемикачі"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -349,7 +348,6 @@
 #define TR_DELAYUP                     "Затримка більше"
 #define TR_SLOWDOWN                    TR("Пов.", "Повільно")	/*need to be clarified by context*/
 #define TR_SLOWUP                      "Повільно"
-#define TR_MIXES                       "MIXES"
 #define TR_CV                          "CV"
 #if defined(PCBNV14)
   #define TR_GV                        "GV"
@@ -492,14 +490,10 @@
 #define TR_STORAGE_FORMAT              "Підготовка сховища"
 #define TR_EEPROMOVERFLOW              "Переповнення EEPROM"
 #define TR_RADIO_SETUP                 "НАЛАШТ. АПАРАТУРИ"
-#define TR_MENUTRAINER                 "ТРЕНЕР"
-#define TR_MENUSPECIALFUNCS            "ГЛОБАЛЬНІ ФУНКЦІЇ"
 #define TR_MENUVERSION                 "ВЕРСІЯ"
-#define TR_MENU_RADIO_SWITCHES         TR("ПЕРЕМИКАЧІ", "ТЕСТ ПЕРЕМИКАЧІВ")
 #define TR_MENU_RADIO_ANALOGS          TR("АНАЛОГ", "ТЕСТ АНАЛОГУ")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "АНАЛОГИ ВІДКАЛІБРОВАНІ"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "НЕОБРОБЛЕНІ АНАЛОГИ (5 Hz)"
-#define TR_MENUCALIBRATION             "КАЛІБРУВАННЯ"
 #define TR_MENU_FSWITCH                "КОРИСТУВАЦЬКІ ПЕРЕМИКАЧІ"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Трим => Субтрим"
@@ -510,24 +504,8 @@
 #define TR_CHANNEL2FAILSAFE            "Канал=>АварРежим"
 #define TR_MENUMODELSEL                "ВИБІР МОДЕЛІ"
 #define TR_MENU_MODEL_SETUP            TR("НАЛАШТУВАННЯ", "НАЛАШТУВАННЯ МОДЕЛІ")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "РЕЖИМИ ВОДІННЯ"
-  #define TR_MENUFLIGHTMODE            "РЕЖИМ ВОДІННЯ"
-#else
-  #define TR_MENUFLIGHTMODES           "РЕЖИМИ ПОЛЬОТУ"
-  #define TR_MENUFLIGHTMODE            "РЕЖИМ ПОЛЬОТУ"
-#endif
-#define TR_MENUHELISETUP               "ГЕЛІКОПТЕР"
-
-#define TR_MENUINPUTS                  "ВХОДИ"
-#define TR_MENULIMITS                  "ВИХОДИ"
-#define TR_MENUCURVES                  "КРИВІ"
 #define TR_MENUCURVE                   "КРИВА"
 #define TR_MENULOGICALSWITCH           "ЛОГІЧНИЙ ПЕРЕМИКАЧ"
-#define TR_MENULOGICALSWITCHES         "ЛОГІЧНІ ПЕРЕМ."
-#define TR_MENUCUSTOMFUNC              "СПЕЦІАЛ. ФУНКЦІЇ"
-#define TR_MENUCUSTOMSCRIPTS           "КОРИСТ. СКРИПТИ"
-#define TR_MENUTELEMETRY               "ТЕЛЕМЕТРІЯ"
 #define TR_MENUSTAT                    "СТАТ."
 #define TR_MENUDEBUG                   "ВІДЛАГОДЖЕННЯ"
 #define TR_MONITOR_CHANNELS1           "МОНІТОР КАН 1-8"
@@ -696,8 +674,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Тривалість"
 #define TR_DELAY                       "Затримка"
-#define TR_SD_CARD                     "SD карта"
-#define TR_SDHC_CARD                   "SD-HC карта"
 #define TR_NO_SOUNDS_ON_SD             "Немає звуків на SD"
 #define TR_NO_MODELS_ON_SD             "Немає моделей на SD"
 #define TR_NO_BITMAPS_ON_SD            "Немає бітмапів на SD"
@@ -716,7 +692,6 @@
 #define TR_REMOVED                     " видалено"
 #define TR_SD_INFO                     "Інформація"
 #define TR_NA                          "Н/Д"
-#define TR_HARDWARE                    "АПАРАТНЕ ЗАБЕЗПЕЧ."
 #define TR_FORMATTING                  "Форматую..."
 #define TR_TEMP_CALIB                  "Калібр. темп."
 #define TR_TIME                        "Час"
@@ -772,10 +747,8 @@
 #define TR_SD_SECTORS                  "Сектори:"
 #define TR_SD_SIZE                     "Розмір:"
 #define TR_TYPE                        "Тип"
-#define TR_GLOBAL_VARS                 "Глобальні змінні"
 #define TR_GVARS                       "Г.ЗМ."
 #define TR_GLOBAL_VAR                  "Глобальні змінні"
-#define TR_MENU_GLOBAL_VARS              "ГЛОБАЛЬНІ ЗМІННІ"
 #define TR_OWN                         "Свій"
 #define TR_DATE                        "Дата"
 #define TR_MONTHS                      { "Січ", "Лют", "Бер", "Кві", "Тра", "Чер", "Лип", "Сер", "Вер", "Жов", "Лис", "Гру" }
@@ -895,7 +868,6 @@
 #define TR_RANGE_TEST                  "Тест діапазону"
 #define TR_RECEIVER_OPTIONS            TR("ОПЦІЇ ПРМ.", "ОПЦІЇ ПРИЙМАЧА")
 #define TR_RESET_BTN                   BUTTON("Скин.")
-#define TR_DEBUG                       "Відлагод."
 #define TR_KEYS_BTN                    BUTTON("Кнопк")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Анл.", "Аналоги"))
 #define TR_FS_BTN                      BUTTON(TR("Користув.перемик.", TR_FUNCTION_SWITCHES))
@@ -1023,7 +995,6 @@
   #define TR_ALIGN_OPTS                { "Ліво", "Центр", "Право" }
   #define TR_TEXT                      "Текст"
   #define TR_COLOR                     "Колір"
-  #define TR_MAIN_VIEW_X               "Головний вид XX"
   #define TR_PANEL1_BACKGROUND         "Панель1 фон"
   #define TR_PANEL2_BACKGROUND         "Панель2 фон"
   #define TR_WIDGET_GAUGE              "Шкала"
@@ -1087,11 +1058,9 @@
 #define TR_WIDGET_SETTINGS             "Опції віджету"
 #define TR_REMOVE_SCREEN               "Видалити екран"
 #define TR_SETUP_WIDGETS               "Налаштування віджетів"
-#define TR_USER_INTERFACE              "Інтерфейс користувача"
 #define TR_THEME                       "Тема"
 #define TR_SETUP                       "Встановлення"
 #define TR_LAYOUT                      "Шар"
-#define TR_ADD_MAIN_VIEW               "Додати головний вид"
 #define TR_TEXT_COLOR                  "Колір тексту"
 #define TR_MENU_INPUTS                 STR_CHAR_INPUT "Входи"
 #define TR_MENU_LUA                    STR_CHAR_LUA "Lua скрипти"
@@ -1162,16 +1131,46 @@
 #define TR_THEME_EDITOR                "ТЕМИ"
 
 // Main menu
-#define TR_MAIN_MENU_SELECT_MODEL       "Обрати\nМодель"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Керувати\nМоделями"
-#define TR_MAIN_MENU_MODEL_NOTES        "Моделі\nНотатки"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Канал\nМонітор"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Модель\nНалаштування"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Радіо\nНалаштування"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "Екрани\nНалаштування"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Скидання\nТелеметрії"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Керувати Моделями"
+#define TR_MAIN_MENU_MODEL_NOTES        "Моделі Нотатки"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Канал Монітор"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Модель Налаштування"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Радіо Налаштування"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_RESET_TELEMETRY    "Скидання Телеметрії"
 #define TR_MAIN_MENU_STATISTICS         "Статистика"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "Про...\nEdgeTX"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "Про... EdgeTX"
+#define TR_MAIN_MENU_TOOLS              "Tools"
+#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_ADD_MAIN_VIEW                "Add screen"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "ГЕЛІКОПТЕР"
+#if defined(SURFACE_RADIO)
+  #define TR_MENUFLIGHTMODES           "РЕЖИМИ ВОДІННЯ"
+  #define TR_MENUFLIGHTMODE            "РЕЖИМ ВОДІННЯ"
+#else
+  #define TR_MENUFLIGHTMODES           "РЕЖИМИ ПОЛЬОТУ"
+  #define TR_MENUFLIGHTMODE            "РЕЖИМ ПОЛЬОТУ"
+#endif
+#define TR_MENUINPUTS                  "ВХОДИ"
+#define TR_MENULIMITS                  "ВИХОДИ"
+#define TR_MENUCURVES                  "КРИВІ"
+#define TR_MIXES                       "MIXES"
+#define TR_MENU_GLOBAL_VARS            "Глобальні змінні"
+#define TR_MENULOGICALSWITCHES         "ЛОГІЧНІ ПЕРЕМ."
+#define TR_MENUCUSTOMFUNC              "СПЕЦІАЛ. ФУНКЦІЇ"
+#define TR_MENUCUSTOMSCRIPTS           "КОРИСТ. СКРИПТИ"
+#define TR_MENUTELEMETRY               "ТЕЛЕМЕТРІЯ"
+#define TR_MENUSPECIALFUNCS            "ГЛОБАЛЬНІ ФУНКЦІЇ"
+#define TR_MENUTRAINER                 "ТРЕНЕР"
+#define TR_HARDWARE                    "АПАРАТНЕ ЗАБЕЗПЕЧ."
+#define TR_USER_INTERFACE              "Інтерфейс користувача"
+#define TR_SD_CARD                     "SD карта"
+#define TR_DEBUG                       "Відлагод."
+#define TR_MENU_RADIO_SWITCHES         TR("ПЕРЕМИКАЧІ", "ТЕСТ ПЕРЕМИКАЧІВ")
+#define TR_MENUCALIBRATION             "КАЛІБРУВАННЯ"
+#define TR_FUNCTION_SWITCHES           "Користувацькі перемикачі"
 // End Main menu
 
 // Voice in native language

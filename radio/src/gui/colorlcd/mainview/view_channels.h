@@ -27,10 +27,9 @@ class ModelMenu;
 
 class ChannelsViewMenu: public TabsGroup {
   public:
-    ChannelsViewMenu(ModelMenu* parent = nullptr);
+    ChannelsViewMenu();
 
   protected:
-    ModelMenu* parentMenu = nullptr;
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
