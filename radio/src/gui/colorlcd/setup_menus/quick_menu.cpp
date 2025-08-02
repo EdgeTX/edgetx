@@ -100,8 +100,10 @@ void QuickSubMenu::setCurrent(int b)
 void QuickSubMenu::buildSubMenu()
 {
   subMenu = new QuickMenuGroup(parent,
-          {0, (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) * viewMainRows, parent->width() - PAD_OUTLINE * 2,
-          viewSubRows * (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) - PAD_OUTLINE});
+          {
+            GRP_W(viewSubX, 1), GRP_H(viewSubY, 1),
+            GRP_W(viewSubCols, 2), GRP_H(viewSubRows, 2)
+          }, LV_FLEX_FLOW_ROW_WRAP);
 
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
     subMenu->addButton(items[i].icon, items[i].title,
@@ -183,31 +185,45 @@ QuickMenu::QuickMenu(Window* parent, std::function<void()> cancelHandler, std::f
   // Save focus
   Layer::push(this);
 
-  int maxMainBtns = 6; //modelHasNotes() ? 9 : 8;
-  int viewCols = (LCD_W - PAD_SMALL * 2 - PAD_OUTLINE) / (QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_OUTLINE);
-  if (viewCols > maxMainBtns) viewCols = maxMainBtns;
-
+  constexpr int maxMainBtns = 6;
   constexpr int maxSubBtns = 12;
-  int viewMainRows = (viewCols == maxMainBtns) ? 1 : 2;
-  int viewSubRows = (maxSubBtns + viewCols - 1) / viewCols;
+#if LANDSCAPE
+  int viewMainRows = 1;
+  int viewMainCols = maxMainBtns;
+  int viewSubRows = 2;
+  int viewSubCols = maxMainBtns;
+  int viewSubX = 0;
+  int viewSubY = viewMainRows;
+  int viewCols = maxMainBtns;
   int viewRows = viewMainRows + viewSubRows;
+  lv_flex_flow_t mainFlow = LV_FLEX_FLOW_ROW;
+#else
+  int viewMainRows = maxMainBtns;
+  int viewMainCols = 1;
+  int viewSubRows = 4;
+  int viewSubCols = 3;
+  int viewSubX = viewMainCols;
+  int viewSubY = 0;
+  int viewCols = 4;
+  int viewRows = maxMainBtns;
+  lv_flex_flow_t mainFlow = LV_FLEX_FLOW_COLUMN;
+#endif
 
-  coord_t w = (QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_OUTLINE) * viewCols - PAD_OUTLINE + PAD_OUTLINE * 4;
-  coord_t h = (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) * viewRows - PAD_OUTLINE + PAD_OUTLINE * 4;
-  if (h > LCD_H) h = LCD_H - PAD_SMALL * 2;
+  coord_t w = GRP_W(viewCols, 4);
+  coord_t h = GRP_H(viewRows, 4);
 
   box = new Window(this, {(LCD_W - w) / 2, (LCD_H - h) / 2, w, h}, etx_modal_dialog_create);
   box->padAll(PAD_OUTLINE);
 
   mainMenu = new QuickMenuGroup(box,
-          {0, 0, w - PAD_OUTLINE * 2, viewMainRows * (QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) + PAD_OUTLINE});
+          {0, 0, GRP_W(viewMainCols, 2), GRP_H(viewMainRows, 2)}, mainFlow);
 
-  buildMainMenu(viewMainRows, viewSubRows);
+  buildMainMenu(viewSubX, viewSubY, viewSubCols, viewSubRows);
 
   mainMenu->setGroup();
 }
 
-void QuickMenu::buildMainMenu(int viewMainRows, int viewSubRows)
+void QuickMenu::buildMainMenu(int viewSubX, int viewSubY, int viewSubCols, int viewSubRows)
 {
   mainMenu->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_MANAGE_MODELS,
                       [=]() -> uint8_t {
@@ -220,34 +236,27 @@ void QuickMenu::buildMainMenu(int viewMainRows, int viewSubRows)
 
   sub = new QuickSubMenu(box, pageGroup, this, mainMenu, ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS,
                          QuickMenu::MODEL_FIRST, QuickMenu::MODEL_LAST, []() { return new ModelMenu(); },
-                         modelMenuItems, viewMainRows, viewSubRows);
+                         modelMenuItems, viewSubX, viewSubY, viewSubCols, viewSubRows);
   sub->addButton();
   subMenus.emplace_back(sub);
 
   sub = new QuickSubMenu(box, pageGroup, this, mainMenu, ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS,
                          QuickMenu::RADIO_FIRST, QuickMenu::RADIO_LAST, []() { return new RadioMenu(); },
-                         radioMenuItems, viewMainRows, viewSubRows);
+                         radioMenuItems, viewSubX, viewSubY, viewSubCols, viewSubRows);
   sub->addButton();
   subMenus.emplace_back(sub);
 
   sub = new QuickSubMenu(box, pageGroup, this, mainMenu, ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS,
                          QuickMenu::SCREENS_FIRST, QuickMenu::SCREENS_LAST, []() { return new ScreenMenu(); },
-                         screensMenuItems, viewMainRows, viewSubRows);
+                         screensMenuItems, viewSubX, viewSubY, viewSubCols, viewSubRows);
   sub->addButton();
   subMenus.emplace_back(sub);
 
   sub = new QuickSubMenu(box, pageGroup, this, mainMenu, ICON_RADIO_TOOLS, STR_MAIN_MENU_TOOLS,
                          QuickMenu::TOOLS_FIRST, QuickMenu::TOOLS_LAST, []() { return new ToolsMenu(); },
-                         toolsMenuItems, viewMainRows, viewSubRows);
+                         toolsMenuItems, viewSubX, viewSubY, viewSubCols, viewSubRows);
   sub->addButton();
   subMenus.emplace_back(sub);
-
-  // mainMenu->addButton(ICON_EDGETX, STR_MAIN_MENU_ABOUT_EDGETX,
-  //                     [=]() -> uint8_t {
-  //                       onSelect(true);
-  //                       new AboutUs();
-  //                       return 0;
-  //                     });
 
   // if (modelHasNotes())
   //   mainMenu->addButton(ICON_MODEL_NOTES, STR_MAIN_MENU_MODEL_NOTES,

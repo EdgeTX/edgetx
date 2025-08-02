@@ -35,7 +35,7 @@ PageDef radioMenuItems[] = {
   { ICON_RADIO_GLOBAL_FUNCTIONS, STR_MENUSPECIALFUNCS, PAGE_CREATE, QuickMenu::RADIO_GF, [](PageDef& pageDef) { return new GlobalFunctionsPage(pageDef); }, radioGFEnabled},
   { ICON_RADIO_TRAINER, STR_MENUTRAINER, PAGE_CREATE, QuickMenu::RADIO_TRAINER, [](PageDef& pageDef) { return new RadioTrainerPage(pageDef); }, radioTrainerEnabled},
   { ICON_RADIO_HARDWARE, STR_HARDWARE, PAGE_CREATE, QuickMenu::RADIO_HARDWARE, [](PageDef& pageDef) { return new RadioHardwarePage(pageDef); }},
-  { ICON_RADIO_VERSION, STR_MENUVERSION, PAGE_CREATE, QuickMenu::RADIO_VERSION, [](PageDef& pageDef) { return new RadioVersionPage(pageDef); }},
+  { ICON_RADIO_VERSION, STR_MAIN_MENU_ABOUT_EDGETX, PAGE_CREATE, QuickMenu::RADIO_VERSION, [](PageDef& pageDef) { return new RadioVersionPage(pageDef); }},
   { EDGETX_ICONS_COUNT }
 };
 
