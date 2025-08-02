@@ -303,7 +303,6 @@
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "Switch"
-#define TR_FUNCTION_SWITCHES           "Customizable switches"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -357,7 +356,6 @@
 #define TR_DELAYUP                     "Delay Up"
 #define TR_SLOWDOWN                    "Slow  Dn"
 #define TR_SLOWUP                      "Slow  Up"
-#define TR_MIXES                       "MIXER"
 #define TR_CV                          "CV"
 #if defined(PCBNV14)
 #define TR_GV                          "GV"
@@ -500,14 +498,10 @@
 #define TR_STORAGE_FORMAT              "Storage Preparation"
 #define TR_EEPROMOVERFLOW              "EEPROM overflow"
 #define TR_RADIO_SETUP                 "RADIO SETUP"
-#define TR_MENUTRAINER                 "TRAINER"
-#define TR_MENUSPECIALFUNCS            "GLOBAALIT TOIMINNOT"
 #define TR_MENUVERSION                 "VERSIO"
-#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES","SWITCH TEST")
 #define TR_MENU_RADIO_ANALOGS          TR("ANAS","ANALOG INPUTS")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "CALIBRATED ANALOGS"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
-#define TR_MENUCALIBRATION             "KALIBROINTI"
 #define TR_MENU_FSWITCH                "CUSTOMIZABLE SWITCHES"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "Trims => Subtrims"
@@ -518,33 +512,9 @@
 #define TR_CHANNEL2FAILSAFE            "Channel=>Failsafe"
 #define TR_MENUMODELSEL                TR("MODELSEL","MODEL SELECTION")
 #define TR_MENU_MODEL_SETUP            TR("SETUP","MODEL SETUP")
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "DRIVE MODES"
-#define TR_MENUFLIGHTMODE              "DRIVE MODE"
-#else
-#define TR_MENUFLIGHTMODE              "FLIGHT MODE"
-#define TR_MENUFLIGHTMODES             "FLIGHT MODES"
-#endif
-#define TR_MENUHELISETUP               "HELI SETUP"
 
-#if defined(PCBTARANIS)
-  #define TR_MENUINPUTS                "INPUTS"
-  #define TR_MENULIMITS                "SERVOS"
-#elif defined(PPM_CENTER_ADJUSTABLE) || defined(PPM_LIMITS_SYMETRICAL)
-  #define TR_MENUINPUTS                "STICKS"
-  #define TR_MENULIMITS                "SERVOS"
-#else
-  #define TR_MENUINPUTS                "DR/EXPO"
-  #define TR_MENULIMITS                "LIMITS"
-#endif
-
-#define TR_MENUCURVES                  "CURVES"
 #define TR_MENUCURVE                   "CURVE"
 #define TR_MENULOGICALSWITCH           "CUSTOM SWITCH"
-#define TR_MENULOGICALSWITCHES         "CUSTOM SWITCHES"
-#define TR_MENUCUSTOMFUNC              "CUSTOM FUNCTIONS"
-#define TR_MENUCUSTOMSCRIPTS           "CUSTOM SCRIPTS"
-#define TR_MENUTELEMETRY               "TELEMETRY"
 #define TR_MENUSTAT                    "STATS"
 #define TR_MENUDEBUG                   "DEBUG"
 #define TR_MONITOR_CHANNELS1           "CHANNELS 1/8"
@@ -708,7 +678,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "Kesto"
 #define TR_DELAY                       "Viive"
-#define TR_SD_CARD                     "SD kortti"
 #define TR_NO_SOUNDS_ON_SD             "Ei ääniä SD:llä"
 #define TR_NO_MODELS_ON_SD             "No Models on SD"
 #define TR_NO_BITMAPS_ON_SD            "Ei bittikarttoja SD:llä"
@@ -727,7 +696,6 @@
 #define TR_REMOVED                     "poistettu"
 #define TR_SD_INFO                     "Tiedot"
 #define TR_NA                          "N/A"
-#define TR_HARDWARE                    "HARDWARE"
 #define TR_FORMATTING                  "Formatting..."
 #define TR_TEMP_CALIB                  "Lämpötilan kalibrointi"
 #define TR_TIME                        "Aika"
@@ -782,10 +750,8 @@
 #define TR_SD_SECTORS                  "Sectors:"
 #define TR_SD_SIZE                     "Koko:"
 #define TR_TYPE                        "Tyyppi"
-#define TR_GLOBAL_VARS                 "Globaalit muuttujat"
 #define TR_GVARS                       "GLOBAALIT M."
 #define TR_GLOBAL_VAR                  "Globaali muuttuja"
-#define TR_MENU_GLOBAL_VARS            "GLOBAALIT MUUTUJAT"
 #define TR_OWN                         "Oma"
 #define TR_DATE                        "Päivämäärä"
 #define TR_MONTHS                      { "tam", "hel", "maa", "huh", "tou", "kes", "hei", "elo", "syy", "lok", "mar", "jou" }
@@ -1195,6 +1161,38 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_ADD_MAIN_VIEW                "Add screen"
 #define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "HELI SETUP"
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES             "DRIVE MODES"
+#define TR_MENUFLIGHTMODE              "DRIVE MODE"
+#else
+#define TR_MENUFLIGHTMODE              "FLIGHT MODE"
+#define TR_MENUFLIGHTMODES             "FLIGHT MODES"
+#endif
+#if defined(PCBTARANIS)
+  #define TR_MENUINPUTS                "INPUTS"
+  #define TR_MENULIMITS                "SERVOS"
+#elif defined(PPM_CENTER_ADJUSTABLE) || defined(PPM_LIMITS_SYMETRICAL)
+  #define TR_MENUINPUTS                "STICKS"
+  #define TR_MENULIMITS                "SERVOS"
+#else
+  #define TR_MENUINPUTS                "DR/EXPO"
+  #define TR_MENULIMITS                "LIMITS"
+#endif
+#define TR_MENUCURVES                  "CURVES"
+#define TR_MIXES                       "MIXER"
+#define TR_MENU_GLOBAL_VARS            "Globaalit Muuttujat"
+#define TR_MENULOGICALSWITCHES         "CUSTOM SWITCHES"
+#define TR_MENUCUSTOMFUNC              "CUSTOM FUNCTIONS"
+#define TR_MENUCUSTOMSCRIPTS           "CUSTOM SCRIPTS"
+#define TR_MENUTELEMETRY               "TELEMETRY"
+#define TR_MENUSPECIALFUNCS            "GLOBAALIT TOIMINNOT"
+#define TR_MENUTRAINER                 "TRAINER"
+#define TR_HARDWARE                    "HARDWARE"
+#define TR_SD_CARD                     "SD kortti"
+#define TR_MENU_RADIO_SWITCHES         TR("SWITCHES","SWITCH TEST")
+#define TR_MENUCALIBRATION             "KALIBROINTI"
+#define TR_FUNCTION_SWITCHES           "Customizable switches"
 // End Main menu
 
 // Voice in native language

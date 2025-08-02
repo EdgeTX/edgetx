@@ -561,7 +561,6 @@ const char STR_SD_SPEED[] = TR_SD_SPEED;
 const char STR_SD_SECTORS[] = TR_SD_SECTORS;
 const char STR_SD_SIZE[] = TR_SD_SIZE;
 const char STR_TYPE[] = TR_TYPE;
-const char STR_GLOBAL_VARS[] = TR_GLOBAL_VARS;
 const char STR_GVARS[] = TR_GVARS;
 const char STR_GLOBAL_VAR[] = TR_GLOBAL_VAR;
 const char STR_OWN[] = TR_OWN;

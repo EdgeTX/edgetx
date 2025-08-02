@@ -849,7 +849,6 @@ extern const char STR_SD_SPEED[];
 extern const char STR_SD_SECTORS[];
 extern const char STR_SD_SIZE[];
 extern const char STR_TYPE[];
-extern const char STR_GLOBAL_VARS[];
 extern const char STR_GVARS[];
 extern const char STR_GLOBAL_VAR[];
 extern const char STR_OWN[];

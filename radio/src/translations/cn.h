@@ -289,7 +289,6 @@
 #define TR_WARN_5VOLTS                 "注意输出电平为5V"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      "开关"
-#define TR_FUNCTION_SWITCHES           "可自定义开关"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -343,7 +342,6 @@
 #define TR_DELAYUP                     "上行延时"
 #define TR_SLOWDOWN                    TR("下慢放", "下行慢动作")
 #define TR_SLOWUP                      "上行慢动作"
-#define TR_MIXES                       "混控设置"
 #define TR_CV                          "曲线"
 #if defined(PCBNV14)
   #define TR_GV                        "GV"
@@ -486,14 +484,10 @@
 #define TR_STORAGE_FORMAT              "存储准备"
 #define TR_EEPROMOVERFLOW              "存储超限"
 #define TR_RADIO_SETUP                 "系统设置"
-#define TR_MENUTRAINER                 "教练"
-#define TR_MENUSPECIALFUNCS            "全局功能"
 #define TR_MENUVERSION                 "版本"
-#define TR_MENU_RADIO_SWITCHES         TR("开关", "开关及按键测试")
 #define TR_MENU_RADIO_ANALOGS          TR("模拟", "模拟输入测试")
 #define TR_MENU_RADIO_ANALOGS_CALIB     "已校准的模拟值"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "原始模拟值 (5 Hz)"
-#define TR_MENUCALIBRATION             "校准"
 #define TR_MENU_FSWITCH                "可自定义开关"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS             "将当前微调量保存至中点"
@@ -504,24 +498,9 @@
 #define TR_CHANNEL2FAILSAFE            "导入当前通道值"
 #define TR_MENUMODELSEL                TR("模型选择", "模型选择")
 #define TR_MENU_MODEL_SETUP            TR("模型设置", "模型设置")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "驾驶模式"
-  #define TR_MENUFLIGHTMODE            "驾驶模式"
-#else
-  #define TR_MENUFLIGHTMODES           "飞行模式设置"
-  #define TR_MENUFLIGHTMODE            "飞行模式"
-#endif
-#define TR_MENUHELISETUP               "直升机设置"
 
-#define TR_MENUINPUTS                  "输入设置"
-#define TR_MENULIMITS                  "输出设置"
-#define TR_MENUCURVES                  "曲线设置"
 #define TR_MENUCURVE                   "曲线"
 #define TR_MENULOGICALSWITCH           "逻辑开关"
-#define TR_MENULOGICALSWITCHES         "逻辑开关设置"
-#define TR_MENUCUSTOMFUNC              "特殊功能设置"
-#define TR_MENUCUSTOMSCRIPTS           "自定义脚本设置"
-#define TR_MENUTELEMETRY               "回传"
 #define TR_MENUSTAT                    "统计"
 #define TR_MENUDEBUG                   "调试"
 #define TR_MONITOR_CHANNELS1           "1-8通道查看"
@@ -690,7 +669,6 @@
 #define TR_V2                          "V2"
 #define TR_DURATION                    "持续时间"
 #define TR_DELAY                       "延时"
-#define TR_SD_CARD                     "SD卡"
 #define TR_NO_SOUNDS_ON_SD             "存储卡中无音频"
 #define TR_NO_MODELS_ON_SD             "存储卡中无模型"
 #define TR_NO_BITMAPS_ON_SD            "存储卡中无图片"
@@ -709,7 +687,6 @@
 #define TR_REMOVED                     "已删除"
 #define TR_SD_INFO                     "信息"
 #define TR_NA                          "N/A"
-#define TR_HARDWARE                    "硬件"
 #define TR_FORMATTING                  "正在格式化..."
 #define TR_TEMP_CALIB                  "温度校准"
 #define TR_TIME                        "时间"
@@ -765,10 +742,8 @@
 #define TR_SD_SECTORS                  "扇区:"
 #define TR_SD_SIZE                     "容量:"
 #define TR_TYPE                        "类型"
-#define TR_GLOBAL_VARS                 "全局变量"
 #define TR_GVARS                       "全局变量"
 #define TR_GLOBAL_VAR                  "全局变量"
-#define TR_MENU_GLOBAL_VARS            "全局变量功能"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "日期"
 #define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
@@ -888,7 +863,6 @@
 #define TR_RANGE_TEST                  "距离测试(低功率)"
 #define TR_RECEIVER_OPTIONS            TR("选项", "接收机选项")
 #define TR_RESET_BTN                   BUTTON("复位")
-#define TR_DEBUG                       "调试"
 #define TR_KEYS_BTN                    BUTTON("按键")
 #define TR_ANALOGS_BTN                 BUTTON(TR("模拟", "模拟量"))
 #define TR_FS_BTN                      BUTTON(TR("自定义开关", TR_FUNCTION_SWITCHES))
@@ -1079,7 +1053,6 @@
 #define TR_WIDGET_SETTINGS             "小部件设置"
 #define TR_REMOVE_SCREEN               "移除页面"
 #define TR_SETUP_WIDGETS               "设置小部件"
-#define TR_USER_INTERFACE              "显示设置"
 #define TR_THEME                       "主题"
 #define TR_SETUP                       "设置"
 #define TR_LAYOUT                      "布局"
@@ -1167,6 +1140,32 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_ADD_MAIN_VIEW                "Add screen"
 #define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP               "直升机设置"
+#if defined(SURFACE_RADIO)
+  #define TR_MENUFLIGHTMODES           "驾驶模式"
+  #define TR_MENUFLIGHTMODE            "驾驶模式"
+#else
+  #define TR_MENUFLIGHTMODES           "飞行模式设置"
+  #define TR_MENUFLIGHTMODE            "飞行模式"
+#endif
+#define TR_MENUINPUTS                  "输入设置"
+#define TR_MENULIMITS                  "输出设置"
+#define TR_MENUCURVES                  "曲线设置"
+#define TR_MIXES                       "混控设置"
+#define TR_MENU_GLOBAL_VARS            "全局变量功能"
+#define TR_MENULOGICALSWITCHES         "逻辑开关设置"
+#define TR_MENUCUSTOMFUNC              "特殊功能设置"
+#define TR_MENUCUSTOMSCRIPTS           "自定义脚本设置"
+#define TR_MENUTELEMETRY               "回传"
+#define TR_MENUSPECIALFUNCS            "全局功能"
+#define TR_MENUTRAINER                 "教练"
+#define TR_HARDWARE                    "硬件"
+#define TR_USER_INTERFACE              "显示设置"
+#define TR_SD_CARD                     "SD卡"
+#define TR_DEBUG                       "调试"
+#define TR_MENU_RADIO_SWITCHES         TR("开关", "开关及按键测试")
+#define TR_MENUCALIBRATION             "校准"
+#define TR_FUNCTION_SWITCHES           "可自定义开关"
 // End Main menu
 
 #define TR_PROTOCOL                    "协议"

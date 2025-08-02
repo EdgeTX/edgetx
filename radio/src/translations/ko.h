@@ -294,7 +294,6 @@
 #define TR_MS                         "ms"
 
 #define TR_SWITCH                         "스위치"
-#define TR_FUNCTION_SWITCHES              "사용자 설정 스위치"
 #define TR_FS_COLOR_LIST                  "사용자 정의", "끄기", "흰색", "빨강", "초록", "노랑", "주황", "파랑", "분홍"
 #define TR_GROUP                          "그룹"
 #define TR_GROUP_ALWAYS_ON                "항상 켜짐"
@@ -351,7 +350,6 @@
 #define TR_DELAYUP                        "상승 지연"
 #define TR_SLOWDOWN                       TR("느리게 내림", "하강 속도 조절")
 #define TR_SLOWUP                         "느리게 올림"
-#define TR_MIXES                          "믹스"
 #define TR_CV                             "CV"
 
 #if defined(PCBNV14) || defined(PCBPL18)
@@ -509,14 +507,10 @@
 #define TR_STORAGE_FORMAT               "스토리지 준비 중"
 #define TR_EEPROMOVERFLOW               "EEPROM 메모리 초과"
 #define TR_RADIO_SETUP                  "조종기 설정"
-#define TR_MENUTRAINER                  "트레이너"
-#define TR_MENUSPECIALFUNCS             "전역 기능"
 #define TR_MENUVERSION                  "버전 정보"
-#define TR_MENU_RADIO_SWITCHES          TR("스위치", "스위치 테스트")
 #define TR_MENU_RADIO_ANALOGS           TR("아날로그", "아날로그 테스트")
 #define TR_MENU_RADIO_ANALOGS_CALIB     "보정된 아날로그"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW 아날로그 (5 Hz)"
-#define TR_MENUCALIBRATION              "입력 보정"
 #define TR_MENU_FSWITCH                 "사용자 스위치 설정"
 
 #if defined(COLORLCD)
@@ -531,25 +525,8 @@
 #define TR_MENUMODELSEL                 TR("모델 선택", "모델 선택 메뉴")
 #define TR_MENU_MODEL_SETUP             TR("설정", "모델 설정")
 
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES              "주행 모드"
-#define TR_MENUFLIGHTMODE               "주행 모드"
-#else
-#define TR_MENUFLIGHTMODES              "비행 모드"
-#define TR_MENUFLIGHTMODE               "비행 모드"
-#endif
-#define TR_MENUHELISETUP                "헬리 설정"
-#define TR_MENUINPUTS                   "입력"
-#define TR_MENULIMITS                   "출력"
-
-#define TR_MENUCURVES                   "커브"
 #define TR_MENUCURVE                    "커브 설정"
 #define TR_MENULOGICALSWITCH            "로직 스위치"
-#define TR_MENULOGICALSWITCHES          "로직 스위치 목록"
-#define TR_MENUCUSTOMFUNC               "특수 기능"
-#define TR_MENUCUSTOMSCRIPTS            "사용자 스크립트"
-
-#define TR_MENUTELEMETRY                "테레메트리"
 #define TR_MENUSTAT                     "통계"
 #define TR_MENUDEBUG                    "디버그"
 
@@ -733,7 +710,6 @@
 #define TR_V2                             "V2"
 #define TR_DURATION                       "지속 시간"
 #define TR_DELAY                          "지연"
-#define TR_SD_CARD                        "SD 카드"
 
 #define TR_NO_SOUNDS_ON_SD                "SD 카드에 사운드 없음"
 #define TR_NO_MODELS_ON_SD                "SD 카드에 모델 없음"
@@ -754,7 +730,6 @@
 #define TR_SD_INFO                        "SD 카드 정보"
 #define TR_NA                             "N/A"
 
-#define TR_HARDWARE                       "하드웨어"
 #define TR_FORMATTING                     "포맷 중..."
 #define TR_TEMP_CALIB                     "온도 보정"
 #define TR_TIME                           "시간"
@@ -813,10 +788,8 @@
 #define TR_SD_SECTORS                     "섹터 수:"
 #define TR_SD_SIZE                        "용량:"
 #define TR_TYPE                           "유형"
-#define TR_GLOBAL_VARS                    "전역 변수"
 #define TR_GVARS                          "전역값"
 #define TR_GLOBAL_VAR                     "전역 변수"
-#define TR_MENU_GLOBAL_VARS               "전역 변수 설정"
 #define TR_OWN                            "사용자 설정"
 #define TR_DATE                           "날짜"
 #define TR_MONTHS                         { "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월" }
@@ -942,7 +915,6 @@
 #define TR_RANGE_TEST                     "범위 테스트"
 #define TR_RECEIVER_OPTIONS               TR("수신기 옵션", "RECEIVER OPTIONS")
 #define TR_RESET_BTN                      BUTTON("초기화")
-#define TR_DEBUG                          "디버그"
 #define TR_KEYS_BTN                       BUTTON("버튼")
 #define TR_ANALOGS_BTN                    BUTTON(TR("아날로그", "아날로그 입력"))
 #define TR_FS_BTN                         BUTTON(TR("사용자 스위치", TR_FUNCTION_SWITCHES))
@@ -1133,7 +1105,6 @@
 #define TR_WIDGET_SETTINGS                "위젯 설정"
 #define TR_REMOVE_SCREEN                  "화면 제거"
 #define TR_SETUP_WIDGETS                  "위젯 구성"
-#define TR_USER_INTERFACE                 "사용자 인터페이스"
 #define TR_THEME                          "테마"
 #define TR_SETUP                          "설정"
 #define TR_LAYOUT                         "레이아웃"
@@ -1218,6 +1189,32 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_ADD_MAIN_VIEW                "Add screen"
 #define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP                "헬리 설정"
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES              "주행 모드"
+#define TR_MENUFLIGHTMODE               "주행 모드"
+#else
+#define TR_MENUFLIGHTMODES              "비행 모드"
+#define TR_MENUFLIGHTMODE               "비행 모드"
+#endif
+#define TR_MENUINPUTS                   "입력"
+#define TR_MENULIMITS                   "출력"
+#define TR_MENUCURVES                   "커브"
+#define TR_MIXES                          "믹스"
+#define TR_MENU_GLOBAL_VARS               "전역 변수 설정"
+#define TR_MENULOGICALSWITCHES          "로직 스위치 목록"
+#define TR_MENUCUSTOMFUNC               "특수 기능"
+#define TR_MENUCUSTOMSCRIPTS            "사용자 스크립트"
+#define TR_MENUTELEMETRY                "테레메트리"
+#define TR_MENUSPECIALFUNCS             "전역 기능"
+#define TR_MENUTRAINER                  "트레이너"
+#define TR_HARDWARE                       "하드웨어"
+#define TR_USER_INTERFACE                 "사용자 인터페이스"
+#define TR_SD_CARD                        "SD 카드"
+#define TR_DEBUG                          "디버그"
+#define TR_MENU_RADIO_SWITCHES          TR("스위치", "스위치 테스트")
+#define TR_MENUCALIBRATION              "입력 보정"
+#define TR_FUNCTION_SWITCHES              "사용자 설정 스위치"
 // End Main menu
 
 // Voice in native language

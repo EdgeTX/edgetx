@@ -293,7 +293,6 @@
 #define TR_WARN_5VOLTS                  "Attenzione: il livello d'uscita è 5 Volts"
 #define TR_MS                           "ms"
 #define TR_SWITCH                       "Inter."
-#define TR_FUNCTION_SWITCHES            "Interruttori personalizzabili"
 #define TR_FS_COLOR_LIST               "Custom","Off","White","Red","Green","Yellow","Orange","Blue","Pink"
 #define TR_GROUP                       "Gruppo"
 #define TR_GROUP_ALWAYS_ON             "Always on"
@@ -347,7 +346,6 @@
 #define TR_DELAYUP                      "Post.Su"
 #define TR_SLOWDOWN                     "Rall.Giù "
 #define TR_SLOWUP                       "Rall.Su"
-#define TR_MIXES                        "MIXES"
 #define TR_CV                           "CV"
 #if defined(PCBNV14) || defined(PCBPL18)
 #define TR_GV                           "GV"
@@ -490,14 +488,10 @@
 #define TR_STORAGE_FORMAT               "Preparazione storage"
 #define TR_EEPROMOVERFLOW               "EEPROM Piena"
 #define TR_RADIO_SETUP                  "CONFIGURA TX"
-#define TR_MENUTRAINER                  "MAESTRO/ALLIEVO"
-#define TR_MENUSPECIALFUNCS             "FUNZIONI GLOBALI"
 #define TR_MENUVERSION                  "VERSIONE"
-#define TR_MENU_RADIO_SWITCHES          "DIAG"
 #define TR_MENU_RADIO_ANALOGS           "ANAS"
 #define TR_MENU_RADIO_ANALOGS_CALIB     "ANALOGICI CALIBRATI"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "ANALOGICI RAW (5 Hz)"
-#define TR_MENUCALIBRATION              "CALIBRAZIONE"
 #define TR_MENU_FSWITCH                 "INTERRUTTORI PERSONALIZZABILI"
 #if defined(COLORLCD)
   #define TR_TRIMS2OFFSETS              "Trims => Subtrims"
@@ -508,24 +502,8 @@
 #define TR_CHANNEL2FAILSAFE             "Canale => Failsafe"
 #define TR_MENUMODELSEL                 TR("MODELSEL", "SELEEZIONE MODELLO")
 #define TR_MENU_MODEL_SETUP             TR("SETTA", "SETTA MODELLO")
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES            "MODI DI PILOTAGGIO"
-#define TR_MENUFLIGHTMODE             "MODO DI PILOTAGGIO"
-#else
-#define TR_MENUFLIGHTMODES            "FASI DI VOLO"
-#define TR_MENUFLIGHTMODE             "FASE DI VOLO"
-#endif
-#define TR_MENUHELISETUP                "CONFIGURA ELI"
-
-#define TR_MENUINPUTS                   "INGRESSI"
-#define TR_MENULIMITS                   "USCITE"
-#define TR_MENUCURVES                   "CURVE"
 #define TR_MENUCURVE                    "CURVA"
 #define TR_MENULOGICALSWITCH            "INTER. PERSON."
-#define TR_MENULOGICALSWITCHES          TR("INTER. LOGICI", "INTERRUTTORI LOGICI")
-#define TR_MENUCUSTOMFUNC               TR("FUNZ. SPECIALI", "FUNZIONI SPECIALI")
-#define TR_MENUCUSTOMSCRIPTS            "SCRIPTS UTENTE"
-#define TR_MENUTELEMETRY                "TELEMETRIA"
 #define TR_MENUSTAT                     "STATO"
 #define TR_MENUDEBUG                    "DEBUG"
 #define TR_MONITOR_CHANNELS1            "MONITOR CANALI 1/8"
@@ -694,7 +672,6 @@
 #define TR_V2                           "V2"
 #define TR_DURATION                     "Durata"
 #define TR_DELAY                        "Ritardo"
-#define TR_SD_CARD                      "SD Card"
 #define TR_NO_SOUNDS_ON_SD              "No Suoni su SD"
 #define TR_NO_MODELS_ON_SD              "No Model. su SD"
 #define TR_NO_BITMAPS_ON_SD             "No Immag. su SD"
@@ -713,7 +690,6 @@
 #define TR_REMOVED                      " rimosso"
 #define TR_SD_INFO                      "Informazioni"
 #define TR_NA                           "N/A"
-#define TR_HARDWARE                     "HARDWARE"
 #define TR_FORMATTING                   "Formattazione"
 #define TR_TEMP_CALIB                   "Temp. Calib."
 #define TR_TIME                         "Ora"
@@ -769,10 +745,8 @@
 #define TR_SD_SECTORS                   "Settori:"
 #define TR_SD_SIZE                      "Dimens:"
 #define TR_TYPE                         "Tipo"
-#define TR_GLOBAL_VARS                  "Variabili Globali"
 #define TR_GVARS                        "V.GLOBALI"
 #define TR_GLOBAL_VAR                   "Variabile globale"
-#define TR_MENU_GLOBAL_VARS             "VARIABILI GLOBALI"
 #define TR_OWN                          "Fase"
 #define TR_DATE                         "Data"
 #define TR_MONTHS                       { "Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic" }
@@ -892,7 +866,6 @@
 #define TR_RANGE_TEST                  "Test del link radio a bassa potenza"
 #define TR_RECEIVER_OPTIONS             TR("OPZIONI RX", "OPZIONI RICEVENTE")
 #define TR_RESET_BTN                    "[Reset]"
-#define TR_DEBUG                        "Debug"
 #define TR_KEYS_BTN                     BUTTON(TR("SW", "Tasti"))
 #define TR_ANALOGS_BTN                  BUTTON("Analogici")
 #define TR_FS_BTN                       BUTTON(TR("Int. pers.", TR_FUNCTION_SWITCHES))
@@ -1083,7 +1056,6 @@
 #define TR_WIDGET_SETTINGS              "Settaggio widget"
 #define TR_REMOVE_SCREEN                "Rimuovi schermo"
 #define TR_SETUP_WIDGETS                "Setta widgets"
-#define TR_USER_INTERFACE               "Interfaccia utente"
 #define TR_THEME                        "Tema"
 #define TR_SETUP                        "Imposta"
 #define TR_LAYOUT                       "Layout"
@@ -1171,6 +1143,32 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_ADD_MAIN_VIEW                "Add screen"
 #define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP                "CONFIGURA ELI"
+#if defined(SURFACE_RADIO)
+#define TR_MENUFLIGHTMODES            "MODI DI PILOTAGGIO"
+#define TR_MENUFLIGHTMODE             "MODO DI PILOTAGGIO"
+#else
+#define TR_MENUFLIGHTMODES            "FASI DI VOLO"
+#define TR_MENUFLIGHTMODE             "FASE DI VOLO"
+#endif
+#define TR_MENUINPUTS                   "INGRESSI"
+#define TR_MENULIMITS                   "USCITE"
+#define TR_MENUCURVES                   "CURVE"
+#define TR_MIXES                        "MIXES"
+#define TR_MENU_GLOBAL_VARS             "Variabili Globali"
+#define TR_MENULOGICALSWITCHES          TR("INTER. LOGICI", "INTERRUTTORI LOGICI")
+#define TR_MENUCUSTOMFUNC               TR("FUNZ. SPECIALI", "FUNZIONI SPECIALI")
+#define TR_MENUCUSTOMSCRIPTS            "SCRIPTS UTENTE"
+#define TR_MENUTELEMETRY                "TELEMETRIA"
+#define TR_MENUSPECIALFUNCS             "FUNZIONI GLOBALI"
+#define TR_MENUTRAINER                  "MAESTRO/ALLIEVO"
+#define TR_HARDWARE                     "HARDWARE"
+#define TR_USER_INTERFACE               "Interfaccia utente"
+#define TR_SD_CARD                      "SD Card"
+#define TR_DEBUG                        "Debug"
+#define TR_MENU_RADIO_SWITCHES          "DIAG"
+#define TR_MENUCALIBRATION              "CALIBRAZIONE"
+#define TR_FUNCTION_SWITCHES            "Interruttori personalizzabili"
 // End Main menu
 
 // Voice in native language

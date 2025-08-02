@@ -29,7 +29,6 @@
 #include "edgetx.h"
 #include "quick_menu_group.h"
 #include "etx_lv_theme.h"
-#include "view_about.h"
 #include "view_text.h"
 #include "view_main.h"
 #include "screen_setup.h"
