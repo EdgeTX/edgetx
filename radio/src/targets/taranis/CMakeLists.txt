@@ -711,6 +711,7 @@ set(GUI_SRC ${GUI_SRC}
   radio_diaganas.cpp
   view_channels.cpp
   view_telemetry.cpp
+  view_about.cpp
   bmp.cpp
 )
 
