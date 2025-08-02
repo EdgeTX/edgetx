@@ -42,4 +42,4 @@ enum {
   MENU_OFFSET_EXTERNAL
 };
 
-#include "../common/stdlcd/popups.h"
+#include "common/stdlcd/popups_common.h"

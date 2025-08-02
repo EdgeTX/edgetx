@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include <keys.h>
-
 #define MESSAGEBOX_X                   8
 #define MESSAGEBOX_Y                   8
 #define MESSAGEBOX_W                   (LCD_W - 15)
@@ -44,4 +42,4 @@ enum {
   MENU_OFFSET_EXTERNAL
 };
 
-#include "../common/stdlcd/popups.h"
+#include "common/stdlcd/popups_common.h"

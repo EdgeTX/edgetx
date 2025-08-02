@@ -91,6 +91,7 @@ if(Qt6Widgets_FOUND)
   list(APPEND SIMULATOR_SRC ${SIMU_SRC} opentxsimulator.cpp)
 
   add_library(${SIMULATOR_TARGET} SHARED ${SIMULATOR_SRC})
+  set_target_properties(${SIMULATOR_TARGET} PROPERTIES PREFIX "lib")
 
   if(TARGET SDL2::SDL2)
     set(SDL2_LIBRARIES SDL2::SDL2)

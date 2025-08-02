@@ -96,8 +96,6 @@ function(AddHardwareDefTarget output)
   endforeach()
 
   set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -x c++-header -E -dM ${HW_DEF_SRC})
-  set(GEN_HW_DEFS ${GEN_HW_DEFS} | grep -v "^#define _" | sort)
-
   set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
   set(GEN_JSON ${GEN_JSON} -i defines -T ${FLAVOUR} -)
 
