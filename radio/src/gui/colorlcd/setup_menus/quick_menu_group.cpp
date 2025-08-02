@@ -55,30 +55,6 @@ static lv_obj_t* etx_quick_button_create(lv_obj_t* parent)
   return etx_create(&etx_quick_button_class, parent);
 }
 
-static void etx_quick_icon_constructor(const lv_obj_class_t* class_p,
-                                       lv_obj_t* obj)
-{
-  etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
-}
-
-static const lv_obj_class_t etx_quick_icon_class = {
-    .base_class = &lv_obj_class,
-    .constructor_cb = etx_quick_icon_constructor,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = nullptr,
-    .width_def = QuickMenuGroup::FAB_ICON_SIZE,
-    .height_def = QuickMenuGroup::FAB_ICON_SIZE,
-    .editable = LV_OBJ_CLASS_EDITABLE_FALSE,
-    .group_def = LV_OBJ_CLASS_GROUP_DEF_FALSE,
-    .instance_size = sizeof(lv_obj_t),
-};
-
-static lv_obj_t* etx_quick_icon_create(lv_obj_t* parent)
-{
-  return etx_create(&etx_quick_icon_class, parent);
-}
-
 class QuickMenuButton : public ButtonBase
 {
  public:
