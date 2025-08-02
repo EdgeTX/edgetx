@@ -477,7 +477,7 @@ int uf2_fat_write_block(uint32_t block_no, uint8_t *data)
                 wr_st->written_mask[pos] |= mask;
                 wr_st->num_written++;
                 TRACE_DEBUG("[UF2] wr #%d (%d / %d)\n", bl->blockNo,
-                            state->num_written, bl->numBlocks);
+                            wr_st->num_written, bl->numBlocks);
             }
             if (wr_st->num_written >= wr_st->num_blocks) {
                 TRACE_DEBUG("[UF2] done: reboot\n");

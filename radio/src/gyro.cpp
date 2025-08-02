@@ -20,6 +20,8 @@
  */
 
 #include "edgetx.h"
+#include "hal.h"
+#include "debug.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -59,13 +61,19 @@ void Gyro::wakeup()
   // stopping the sensor forever
   errors = 0;
 
-  int16_t gx = values[0];
-  int16_t gy = values[1];
-  // int16_t gz = values[2];
-
   int16_t ax = values[3];
   int16_t ay = values[4];
+
+#if defined(IMU_ICM4207C)
+  // Use only ACC value, they are really reliable
+  outputs[0] = (ax * float(RESX)) / 8192;
+  outputs[1] = (ay * float(RESX)) / 8192;
+#else
   int16_t az = values[5];
+
+  int16_t gx = values[0];
+  int16_t gy = values[1];
+  int16_t gz = values[2];
 
   // integrate gyro
   roll  -= gx * SCALE_FACT_GYRO * DT;
@@ -85,6 +93,7 @@ void Gyro::wakeup()
 
   outputs[0] = deg2RESX(roll);
   outputs[1] = deg2RESX(pitch);
+#endif
 }
 
 int16_t Gyro::scaledX()

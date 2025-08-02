@@ -33,8 +33,12 @@
 #include <string.h>
 #include "FreeRTOSConfig.h"
 
-
-#define OVERSAMPLING 4
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+  // Disable software oversampling as HW one is used
+  #define OVERSAMPLING 1
+#else
+  #define OVERSAMPLING 4
+#endif
 
 #define SAMPLING_TIMEOUT_US 500
 
@@ -232,6 +236,12 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
       wait_loop_index--;
     }
   }
+
+  /* Start ADC calibration in mode single-ended or differential */
+  LL_ADC_StartCalibration(ADCx, LL_ADC_CALIB_OFFSET_LINEARITY, LL_ADC_SINGLE_ENDED);
+
+  /* Wait for calibration completion */
+  while (LL_ADC_IsCalibrationOnGoing(ADCx) != 0UL);
 #endif
 
 #if defined(LL_ADC_RESOLUTION_12B_OPT)
@@ -252,6 +262,16 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
     adcRegInit.DMATransfer = LL_ADC_REG_DMA_TRANSFER_LIMITED;
 #endif
   }
+
+#if defined(STM32H7RS) || defined(STM32H7) || defined(STM32H5)
+  // set hardware oversampling
+  if (!_adc_oversampling_disabled) {
+    // LL_ADC_OVS_RATIO_x in stm32h7xx_ll_adc.h is broken
+    // so actual oversampling count need to be used
+    LL_ADC_ConfigOverSamplingRatioShift(ADCx, 16, LL_ADC_OVS_SHIFT_RIGHT_4);
+    LL_ADC_SetOverSamplingScope(ADCx, LL_ADC_OVS_GRP_REGULAR_CONTINUED);
+  }
+#endif
 
   LL_ADC_REG_Init(ADCx, &adcRegInit);
 

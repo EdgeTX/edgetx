@@ -29,6 +29,7 @@ void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
 void rgbLedColorApply() {}
+void rgbLedClearAll() {}
 
 bool fsLedState(uint8_t i)
 {

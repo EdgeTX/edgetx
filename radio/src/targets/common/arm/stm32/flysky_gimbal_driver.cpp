@@ -48,8 +48,10 @@ static const stm32_usart_t fsUSART = {
   .IRQn = FLYSKY_HALL_SERIAL_USART_IRQn,
   .IRQ_Prio = 4,
   .txDMA = FLYSKY_HALL_SERIAL_DMA,
+#if defined(FLYSKY_HALL_DMA_Stream_TX)
   .txDMA_Stream = FLYSKY_HALL_DMA_Stream_TX,
   .txDMA_Channel = FLYSKY_HALL_DMA_Channel,
+#endif
   .rxDMA = FLYSKY_HALL_SERIAL_DMA,
   .rxDMA_Stream = FLYSKY_HALL_DMA_Stream_RX,
   .rxDMA_Channel = FLYSKY_HALL_DMA_Channel,
@@ -263,12 +265,17 @@ bool flysky_gimbal_init()
 {
   if (flysky_gimbal_init_uart() != 0) return false;
 
-  // Wait 70ms for FlySky gimbals to respond. According to LA trace, minimally
-  // 23ms is required
   _fs_gimbal_detected = false;
 
-  for (uint8_t i = 0; i < 70; i++) {
+  // Wait 70ms for serial gimbals to respond
+  for (uint16_t i = 0; i < 70; i++) {
+#if defined(HALL_SYNC) && !defined(SIMU)
+    gpio_set(HALL_SYNC);
+#endif
     delay_ms(1);
+#if defined(HALL_SYNC) && !defined(SIMU)
+    gpio_clear(HALL_SYNC);
+#endif
     if (_fs_gimbal_detected) {
       // Try to obtain the version of gimbal for operation mode selection
       _fs_cmd_get_version();
