@@ -222,7 +222,7 @@ static void _config_tx_dma_data_width(const stm32_spi_t* spi, uint32_t data_widt
   uint32_t dest_width = LL_DMA_DEST_DATAWIDTH_BYTE;
   if (data_width == sizeof(uint16_t)) {
     src_width = LL_DMA_SRC_DATAWIDTH_HALFWORD;
-    memory_size = LL_DMA_DEST_DATAWIDTH_HALFWORD;
+    dest_width = LL_DMA_DEST_DATAWIDTH_HALFWORD;
   }
   LL_DMA_SetSrcDataWidth(spi->DMA, spi->txDMA_Stream, src_width);
   LL_DMA_SetDestDataWidth(spi->DMA, spi->txDMA_Stream, dest_width);
