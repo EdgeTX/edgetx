@@ -491,7 +491,7 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_TRIM_SHADOW, mask_trim_shadow),
 
     BI(ICON_TOOLS_APPS, mask_tools_apps),
-    BI(ICON_TOOLS_APPS, mask_tools_reset),
+    BI(ICON_TOOLS_RESET, mask_tools_reset),
 
     BI(ICON_BTN_CLOSE, mask_btn_close),
     BI(ICON_BTN_NEXT, mask_btn_next),
