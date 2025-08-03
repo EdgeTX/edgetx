@@ -27,13 +27,10 @@
 
 class ButtonBase;
 
-#define GRP_W(n,p) ((QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_OUTLINE) * n - PAD_OUTLINE + PAD_OUTLINE * p)
-#define GRP_H(n,p) ((QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) * n - PAD_OUTLINE + PAD_OUTLINE * p)
-
 class QuickMenuGroup : public Window
 {
  public:
-  QuickMenuGroup(Window* parent, const rect_t &rect, lv_flex_flow_t flow);
+  QuickMenuGroup(Window* parent, lv_flex_flow_t flow);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "QuickMenuGroup"; }

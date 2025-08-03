@@ -19,8 +19,6 @@
  * GNU General Public License for more details.
  */
 
-#include "menu_model.h"
-
 #include "edgetx.h"
 #include "model_curves.h"
 #include "model_flightmodes.h"
@@ -59,7 +57,3 @@ PageDef modelMenuItems[] = {
   { ICON_MODEL_TELEMETRY, STR_MENUTELEMETRY, PAGE_CREATE, QuickMenu::MODEL_TELEMETRY, [](PageDef& pageDef) { return new ModelTelemetryPage(pageDef); }, modelTelemetryEnabled},
   { EDGETX_ICONS_COUNT }
 };
-
-ModelMenu::ModelMenu() : PageGroup(ICON_MODEL, modelMenuItems)
-{
-}

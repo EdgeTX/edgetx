@@ -45,6 +45,11 @@ struct PageDef {
   std::function<void(QuickSubMenu* subMenu)> action;
 };
 
+extern PageDef modelMenuItems[];
+extern PageDef radioMenuItems[];
+extern PageDef screensMenuItems[];
+extern PageDef toolsMenuItems[];
+
 //-----------------------------------------------------------------------------
 
 class PageGroupItem
@@ -166,6 +171,10 @@ class PageGroup : public PageGroupBase
   PageGroupItem* getCurrentTab() const { return currentTab; }
 
   bool isPageGroup() override { return true; }
+
+  static PageGroup* ScreenMenu();
+  static PageGroup* RadioMenu();
+  static PageGroup* ModelMenu();
 
   static LAYOUT_VAL_SCALED(MENU_TITLE_TOP, 45)
   static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_TITLE_TOP;

@@ -19,13 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#include "menu_radio.h"
-
 #include "edgetx.h"
 #include "radio_hardware.h"
-#include "radio_sdmanager.h"
 #include "radio_setup.h"
-#include "radio_tools.h"
 #include "radio_trainer.h"
 #include "radio_version.h"
 #include "special_functions.h"
@@ -38,9 +34,3 @@ PageDef radioMenuItems[] = {
   { ICON_RADIO_VERSION, STR_MAIN_MENU_ABOUT_EDGETX, PAGE_CREATE, QuickMenu::RADIO_VERSION, [](PageDef& pageDef) { return new RadioVersionPage(pageDef); }},
   { EDGETX_ICONS_COUNT }
 };
-
-RadioMenu::RadioMenu() : PageGroup(ICON_RADIO, radioMenuItems)
-{
-}
-
-RadioMenu::~RadioMenu() { storageCheck(true); }

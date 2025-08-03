@@ -119,7 +119,7 @@ void Page::openMenu()
     p = (PageGroup*)w;
     subMenu = p->getCurrentTab()->subMenu();
   }
-  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; },
+  quickMenu = new QuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();
       if (p) {

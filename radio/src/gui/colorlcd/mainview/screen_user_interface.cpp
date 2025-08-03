@@ -22,7 +22,6 @@
 #include "screen_user_interface.h"
 
 #include "file_preview.h"
-#include "menu_screen.h"
 #include "theme_manager.h"
 #include "topbar_impl.h"
 #include "view_main.h"

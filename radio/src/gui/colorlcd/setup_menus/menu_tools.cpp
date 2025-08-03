@@ -19,23 +19,16 @@
  * GNU General Public License for more details.
  */
 
-#include "menu_tools.h"
-
 #include "edgetx.h"
-#include "radio_hardware.h"
 #include "radio_sdmanager.h"
-#include "radio_setup.h"
 #include "radio_tools.h"
-#include "radio_trainer.h"
-#include "radio_version.h"
-#include "special_functions.h"
 #include "view_statistics.h"
 #include "view_logical_switches.h"
 #include "view_channels.h"
 
 PageDef toolsMenuItems[] = {
-  { ICON_TOOLS_APPS, STR_MAIN_MENU_APPS, PAGE_CREATE, QuickMenu::RADIO_TOOLSCRIPTS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
-  { ICON_RADIO_SD_MANAGER, STR_SD_CARD, PAGE_CREATE, QuickMenu::RADIO_SD, [](PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
+  { ICON_TOOLS_APPS, STR_MAIN_MENU_APPS, PAGE_CREATE, QuickMenu::TOOLS_APPS, [](PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
+  { ICON_RADIO_SD_MANAGER, STR_SD_CARD, PAGE_CREATE, QuickMenu::TOOLS_STORAGE, [](PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
   { ICON_TOOLS_RESET, STR_MAIN_MENU_RESET_TELEMETRY, PAGE_ACTION, QuickMenu::TOOLS_RESET, nullptr, nullptr,
     [](QuickSubMenu* subMenu) {
       subMenu->onSelect(true);
@@ -58,9 +51,3 @@ PageDef toolsMenuItems[] = {
   { ICON_STATS_DEBUG, STR_DEBUG, PAGE_CREATE, QuickMenu::TOOLS_DEBUG, [](PageDef& pageDef) { return new DebugViewPage(pageDef); }},
   { EDGETX_ICONS_COUNT }
 };
-
-ToolsMenu::ToolsMenu() : PageGroup(ICON_RADIO_TOOLS, toolsMenuItems)
-{
-}
-
-ToolsMenu::~ToolsMenu() { storageCheck(true); }

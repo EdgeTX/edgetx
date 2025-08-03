@@ -21,9 +21,6 @@
 
 #include "view_main.h"
 
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
 #include "model_select.h"
 #include "edgetx.h"
 #include "topbar_impl.h"
@@ -254,12 +251,12 @@ void ViewMain::onLongPressSYS()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
   // Radio setup
-  new RadioMenu();
+  PageGroup::RadioMenu();
 }
 void ViewMain::onPressMDL()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
-  new ModelMenu();
+  PageGroup::ModelMenu();
 }
 void ViewMain::onLongPressMDL()
 {
@@ -269,7 +266,7 @@ void ViewMain::onLongPressMDL()
 void ViewMain::onPressTELE()
 {
   if (viewMainMenu) viewMainMenu->closeMenu();
-  (new ScreenMenu())->setCurrentTab(getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+  (PageGroup::ScreenMenu())->setCurrentTab(getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
 }
 void ViewMain::onLongPressTELE()
 {
@@ -351,7 +348,7 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  viewMainMenu = new QuickMenu(this, [=]() { viewMainMenu = nullptr; });
+  viewMainMenu = new QuickMenu([=]() { viewMainMenu = nullptr; });
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)

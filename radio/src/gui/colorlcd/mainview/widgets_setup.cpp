@@ -23,12 +23,12 @@
 
 #include "layer.h"
 #include "menu.h"
-#include "menu_screen.h"
 #include "myeeprom.h"
 #include "storage/storage.h"
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "widget_settings.h"
+#include "pagegroup.h"
 
 SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
                                            WidgetsContainer* container,
@@ -166,7 +166,7 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     viewMain->showTopBarEdgeTxButton();
   }
   Window::deleteLater(detach, trash);
-  (new ScreenMenu())->setCurrentTab(customScreenIdx + 1);
+  (PageGroup::ScreenMenu())->setCurrentTab(customScreenIdx + 1);
 
   storageDirty(EE_MODEL);
 }

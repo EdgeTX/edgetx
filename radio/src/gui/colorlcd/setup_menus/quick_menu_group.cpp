@@ -113,11 +113,11 @@ class QuickMenuButton : public ButtonBase
   StaticText* textPtr = nullptr;
 };
 
-QuickMenuGroup::QuickMenuGroup(Window* parent, const rect_t &rect, lv_flex_flow_t flow) :
-        Window(parent, rect)
+QuickMenuGroup::QuickMenuGroup(Window* parent, lv_flex_flow_t flow) :
+        Window(parent, {})
 {
   padAll(PAD_OUTLINE);
-  setFlexLayout(flow, PAD_OUTLINE, rect.w, rect.h);
+  setFlexLayout(flow, PAD_OUTLINE, parent->width(), parent->height());
   group = lv_group_create();
 }
 

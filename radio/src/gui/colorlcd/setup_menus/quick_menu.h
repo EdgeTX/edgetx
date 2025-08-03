@@ -24,21 +24,24 @@
 #include "window.h"
 #include "bitmaps.h"
 #include <vector>
+#include "quick_menu_group.h"
 
-class QuickMenuGroup;
 class PageGroup;
 class PageGroupBase;
 class ButtonBase;
 class QuickSubMenu;
 struct PageDef;
 
+#define GRP_W(n,p) ((QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_OUTLINE) * n - PAD_OUTLINE + PAD_OUTLINE * p)
+#define GRP_H(n,p) ((QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) * n - PAD_OUTLINE + PAD_OUTLINE * p)
+
 class QuickMenu : public Window
 {
  public:
   enum SubMenu {
     NONE = 0,
-    MODEL_FIRST,
-    MODEL_SETUP = MODEL_FIRST,
+    // Model menu
+    MODEL_SETUP,
     MODEL_HELI,
     MODEL_FLIGHTMODES,
     MODEL_INPUTS,
@@ -50,41 +53,37 @@ class QuickMenu : public Window
     MODEL_SF,
     MODEL_SCRIPTS,
     MODEL_TELEMETRY,
-    MODEL_LAST = MODEL_TELEMETRY,
-    RADIO_FIRST,
-    RADIO_SETUP = RADIO_FIRST,
+    // Radio menu
+    RADIO_SETUP,
     RADIO_GF,
     RADIO_TRAINER,
     RADIO_HARDWARE,
     RADIO_VERSION,
-    RADIO_LAST = RADIO_VERSION,
-    SCREENS_FIRST,
-    RADIO_THEMES = SCREENS_FIRST,
-    SCREENS_UI_SETUP,
-    SCREENS_PG1,
-    SCREENS_PG2,
-    SCREENS_PG3,
-    SCREENS_PG4,
-    SCREENS_PG5,
-    SCREENS_PG6,
-    SCREENS_PG7,
-    SCREENS_PG8,
-    SCREENS_PG9,
-    SCREENS_PG10,
-    SCREENS_ADD_PG,
-    SCREENS_LAST = SCREENS_ADD_PG,
-    TOOLS_FIRST,
-    RADIO_TOOLSCRIPTS = TOOLS_FIRST,
-    RADIO_SD,
+    // UI menu
+    UI_THEMES,
+    UI_SETUP,
+    UI_SCREEN1,
+    UI_SCREEN2,
+    UI_SCREEN3,
+    UI_SCREEN4,
+    UI_SCREEN5,
+    UI_SCREEN6,
+    UI_SCREEN7,
+    UI_SCREEN8,
+    UI_SCREEN9,
+    UI_SCREEN10,
+    UI_ADD_PG,
+    // Tools menu
+    TOOLS_APPS,
+    TOOLS_STORAGE,
     TOOLS_RESET,
     TOOLS_CHAN_MON,
     TOOLS_LS_MON,
     TOOLS_STATS,
     TOOLS_DEBUG,
-    TOOLS_LAST = TOOLS_DEBUG,
   };
 
-  QuickMenu(Window* parent, std::function<void()> cancelHandler,
+  QuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler = nullptr,
             PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
 
@@ -100,17 +99,29 @@ class QuickMenu : public Window
 
   SubMenu currentPage() const { return curPage; }
 
+  PageGroupBase* getPageGroup() const { return pageGroup; }
+  QuickMenuGroup* getTopMenu() const { return mainMenu; }
+
+  static constexpr int QM_MAIN_BTNS = 6;
+  static constexpr int QM_SUB_BTNS = 12;
+  static LAYOUT_ORIENTATION(QM_POPUP_W, GRP_W(6, 4), GRP_W(4, 4))
+  static LAYOUT_ORIENTATION(QM_POPUP_H, GRP_W(3, 4), GRP_W(6, 4))
+  static LAYOUT_ORIENTATION(QM_MAIN_W, GRP_W(6, 2), GRP_W(1, 2))
+  static LAYOUT_ORIENTATION(QM_MAIN_H, GRP_W(1, 2), GRP_W(6, 2))
+  static LAYOUT_ORIENTATION(QM_MAIN_FLOW, LV_FLEX_FLOW_ROW, LV_FLEX_FLOW_COLUMN)
+  static LAYOUT_ORIENTATION(QM_SUB_X, GRP_W(0, 1), GRP_W(1, 1))
+  static LAYOUT_ORIENTATION(QM_SUB_Y, GRP_W(1, 1), GRP_W(0, 1))
+  static LAYOUT_ORIENTATION(QM_SUB_W, GRP_W(6, 2), GRP_W(3, 2))
+  static LAYOUT_ORIENTATION(QM_SUB_H, GRP_W(2, 2), GRP_W(6, 2))
+
  protected:
   std::function<void()> cancelHandler = nullptr;
   std::function<void(bool close)> selectHandler = nullptr;
   bool inSubMenu = false;
   QuickMenuGroup* mainMenu = nullptr;
   std::vector<QuickSubMenu*> subMenus;
-  Window* box = nullptr;
   PageGroupBase* pageGroup = nullptr;
   SubMenu curPage;
-
-  void buildMainMenu(int viewSubX, int viewSubY, int viewSubCols, int viewSubRows);
 
   void onClicked() override;
 };
@@ -118,23 +129,20 @@ class QuickMenu : public Window
 class QuickSubMenu
 {
  public:
-  QuickSubMenu(Window* parent, PageGroupBase* pageGroup, QuickMenu* quickMenu, QuickMenuGroup* topMenu,
-               EdgeTxIcon icon, const char* title, QuickMenu::SubMenu first, QuickMenu::SubMenu last,
-               std::function<PageGroup*()> create, PageDef* items,
-               int viewSubX, int viewSubY, int viewSubCols, int viewSubRows) :
-    parent(parent), pageGroup(pageGroup), quickMenu(quickMenu), topMenu(topMenu),
-    icon(icon), title(title), first(first), last(last),
-    create(std::move(create)), items(items),
-    viewSubX(viewSubX), viewSubY(viewSubY),
-    viewSubCols(viewSubCols), viewSubRows(viewSubRows)
+  QuickSubMenu(Window* parent, QuickMenu* quickMenu,
+               EdgeTxIcon icon, const char* title,
+               PageDef* items):
+    parent(parent), quickMenu(quickMenu),
+    icon(icon), title(title), items(items)
   {}
 
-  bool isSubMenu(QuickMenu::SubMenu n) { return (n >= first) && (n <= last); }
+  bool isSubMenu(QuickMenu::SubMenu n);
+  int getIndex(QuickMenu::SubMenu n);
 
   ButtonBase* addButton();
   void enableSubMenu();
   void setDisabled(bool all);
-  void setCurrent(int b);
+  void setCurrent(QuickMenu::SubMenu n);
   void buildSubMenu();
   uint8_t onPress(int n);
   void onSelect(bool close);
@@ -142,19 +150,10 @@ class QuickSubMenu
 
  protected:
   Window* parent;
-  PageGroupBase* pageGroup;
   QuickMenu* quickMenu;
-  QuickMenuGroup* topMenu;
   EdgeTxIcon icon;
   const char* title;
-  QuickMenu::SubMenu first;
-  QuickMenu::SubMenu last;
-  std::function<PageGroup*()> create;
   PageDef* items;
   QuickMenuGroup* subMenu = nullptr;
   ButtonBase* menuButton = nullptr;
-  int viewSubX = 0;
-  int viewSubY = 0;
-  int viewSubCols = 0;
-  int viewSubRows = 0;
 };

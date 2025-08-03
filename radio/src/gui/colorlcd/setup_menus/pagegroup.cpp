@@ -25,9 +25,6 @@
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "topbar_impl.h"
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
 #include "model_select.h"
 #include "os/time.h"
 #include "view_channels.h"
@@ -265,6 +262,11 @@ PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
   addCustomButton(0, 0, [=]() { openMenu(); });
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
+
+  setCloseHandler([]{
+    storageCheck(true);
+    ViewMain::instance()->updateTopbarVisibility();
+  });
 }
 
 void PageGroup::removeTab(unsigned index)
@@ -276,7 +278,7 @@ void PageGroup::removeTab(unsigned index)
 
 void PageGroup::openMenu()
 {
-  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; },
+  quickMenu = new QuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       if (close)
         onCancel();
@@ -296,7 +298,7 @@ void PageGroup::onLongPressSYS()
     setCurrentTab(1);
   } else {
     onCancel();
-    new RadioMenu();
+    PageGroup::RadioMenu();
   }
 }
 
@@ -304,7 +306,7 @@ void PageGroup::onPressMDL()
 {
   if (icon != ICON_MODEL) {
     onCancel();
-    new ModelMenu();
+    PageGroup::ModelMenu();
   }
 }
 
@@ -318,7 +320,7 @@ void PageGroup::onPressTELE()
 {
   if (icon != ICON_THEME) {
     onCancel();
-    (new ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + 1);
+    (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + 1);
   }
 }
 
@@ -340,6 +342,10 @@ void PageGroup::onPressPGDN()
   header->nextTab();
 }
 #endif
+
+PageGroup* PageGroup::ScreenMenu() { return new PageGroup(ICON_THEME, screensMenuItems); }
+PageGroup* PageGroup::RadioMenu() { return new PageGroup(ICON_RADIO, radioMenuItems); }
+PageGroup* PageGroup::ModelMenu() { return new PageGroup(ICON_MODEL, modelMenuItems); }
 
 //-----------------------------------------------------------------------------
 
@@ -430,7 +436,7 @@ void TabsGroup::openMenu()
     p = (PageGroup*)w;
     subMenu = p->getCurrentTab()->subMenu();
   }
-  quickMenu = new QuickMenu(this, [=]() { quickMenu = nullptr; },
+  quickMenu = new QuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();
       if (p) {

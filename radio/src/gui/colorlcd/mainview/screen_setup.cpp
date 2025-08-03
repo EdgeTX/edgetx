@@ -213,7 +213,7 @@ void ScreenSetupPage::build(Window* window)
           LayoutFactory::loadCustomScreens();
 
           // Rest to first screen so user knows something has happened
-          ScreenMenu* menu = (ScreenMenu*)window->getParent();
+          PageGroup* menu = (PageGroup*)window->getParent();
           menu->setCurrentTab(FIRST_SCREEN_OFFSET);
 
           return 0;

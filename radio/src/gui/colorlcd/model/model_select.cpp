@@ -22,9 +22,6 @@
 #include "model_select.h"
 
 #include "edgetx.h"
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
 #include "model_templates.h"
 #include "standalone_lua.h"
 #include "etx_lv_theme.h"
@@ -551,17 +548,17 @@ void ModelLabelsWindow::onLongPressSYS()
 {
   onCancel();
   // Radio setup
-  new RadioMenu();
+  PageGroup::RadioMenu();
 }
 void ModelLabelsWindow::onPressMDL()
 {
   onCancel();
-  new ModelMenu();
+  PageGroup::ModelMenu();
 }
 void ModelLabelsWindow::onPressTELE()
 {
   onCancel();
-  (new ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + 1);
+  (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + 1);
 }
 void ModelLabelsWindow::onLongPressTELE()
 {

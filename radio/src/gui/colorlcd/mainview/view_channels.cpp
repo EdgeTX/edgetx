@@ -23,9 +23,6 @@
 
 #include "channel_bar.h"
 #include "libopenui.h"
-#include "menu_model.h"
-#include "menu_radio.h"
-#include "menu_screen.h"
 #include "model_select.h"
 #include "edgetx.h"
 
@@ -124,18 +121,18 @@ ChannelsViewMenu::ChannelsViewMenu() :
 void ChannelsViewMenu::onPressSYS()
 {
   onCancel();
-  new RadioMenu();
+  PageGroup::RadioMenu();
 }
 void ChannelsViewMenu::onLongPressSYS()
 {
   onCancel();
   // Radio setup
-  new RadioMenu();
+  PageGroup::RadioMenu();
 }
 void ChannelsViewMenu::onPressMDL()
 {
   onCancel();
-  new ModelMenu();
+  PageGroup::ModelMenu();
 }
 void ChannelsViewMenu::onLongPressMDL()
 {
@@ -145,6 +142,6 @@ void ChannelsViewMenu::onLongPressMDL()
 void ChannelsViewMenu::onPressTELE()
 {
   onCancel();
-  new ScreenMenu();
+  PageGroup::ScreenMenu();
 }
 #endif
