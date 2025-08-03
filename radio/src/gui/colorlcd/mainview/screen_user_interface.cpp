@@ -133,7 +133,7 @@ class ThemeView : public Window
 };
 
 ScreenUserInterfacePage::ScreenUserInterfacePage(PageDef& pageDef) :
-    PageTab(pageDef, PAD_TINY)
+    PageGroupItem(pageDef, PAD_TINY)
 {
 }
 

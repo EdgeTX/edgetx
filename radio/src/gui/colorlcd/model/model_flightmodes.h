@@ -22,10 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class ModelFlightModesPage : public PageTab
+class ModelFlightModesPage : public PageGroupItem
 {
  public:
   ModelFlightModesPage(PageDef& pageDef);

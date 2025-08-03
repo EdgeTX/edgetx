@@ -235,7 +235,7 @@ class LogicalSwitchDisplayButton : public TextButton
 };
 
 LogicalSwitchesViewPage::LogicalSwitchesViewPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
 }
 

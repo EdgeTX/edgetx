@@ -53,7 +53,7 @@
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 ModelSetupPage::ModelSetupPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
 }
 

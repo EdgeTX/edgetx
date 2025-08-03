@@ -35,7 +35,7 @@
 
 extern uint8_t g_moduleIdx;
 
-RadioToolsPage::RadioToolsPage(PageDef& pageDef) : PageTab(pageDef) {}
+RadioToolsPage::RadioToolsPage(PageDef& pageDef) : PageGroupItem(pageDef) {}
 
 void RadioToolsPage::build(Window* window)
 {
@@ -78,7 +78,7 @@ void RadioToolsPage::checkEvents()
   }
 #endif
 
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 }
 
 typedef void (*ToolExec)(Window* parent, const std::string& path);

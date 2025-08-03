@@ -80,10 +80,3 @@ ScreenMenu::ScreenMenu() : PageGroup(ICON_THEME, screensMenuItems)
     storageDirty(EE_MODEL);
   });
 }
-
-void ScreenMenu::setCurrentTab(unsigned index)
-{
-  if (index > MAX_CUSTOM_SCREENS)
-    index = tabCount() - 1;  
-  PageGroup::setCurrentTab(index);
-}

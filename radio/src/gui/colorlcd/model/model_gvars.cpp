@@ -508,7 +508,7 @@ class GVarEditWindow : public Page
 };
 
 ModelGVarsPage::ModelGVarsPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
 }
 

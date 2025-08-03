@@ -26,7 +26,7 @@
 #include "screen_user_interface.h"
 #include "radio_theme.h"
 
-class ScreenSetupPage : public PageTab
+class ScreenSetupPage : public PageGroupItem
 {
  public:
   ScreenSetupPage(unsigned customScreenIndex, PageDef& pageDef);

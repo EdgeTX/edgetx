@@ -21,12 +21,11 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
 class OutputLineButton;
 
-class ModelOutputsPage : public PageTab
+class ModelOutputsPage : public PageGroupItem
 {
  public:
   ModelOutputsPage(PageDef& pageDef);

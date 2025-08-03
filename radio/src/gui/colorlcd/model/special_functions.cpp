@@ -693,7 +693,7 @@ void FunctionEditPage::buildBody(Window *form)
 
 FunctionsPage::FunctionsPage(CustomFunctionData *functions, PageDef& pageDef,
                              const char *prefix) :
-    PageTab(pageDef), functions(functions), prefix(prefix)
+    PageGroupItem(pageDef), functions(functions), prefix(prefix)
 {
 }
 

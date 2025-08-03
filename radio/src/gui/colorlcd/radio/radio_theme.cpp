@@ -433,7 +433,7 @@ class ThemeEditPage : public Page
 };
 
 ThemeSetupPage::ThemeSetupPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
 }
 
@@ -466,7 +466,7 @@ bool isTopWindow(Window *window)
 
 void ThemeSetupPage::checkEvents()
 {
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 
   if (fileCarosell) fileCarosell->pause(!isTopWindow(pageWindow));
 }

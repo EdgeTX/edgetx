@@ -27,7 +27,6 @@
 #include "keyboard_base.h"
 #include "quick_menu.h"
 #include "pagegroup.h"
-#include "tabsgroup.h"
 
 PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
     Window(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT})

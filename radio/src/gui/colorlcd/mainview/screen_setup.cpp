@@ -113,7 +113,7 @@ static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
 
 ScreenSetupPage::ScreenSetupPage(unsigned index, PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
   update(index + FIRST_SCREEN_OFFSET);
 }

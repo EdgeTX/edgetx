@@ -27,6 +27,4 @@ class ScreenMenu : public PageGroup
 {
  public:
   ScreenMenu();
-
-  void setCurrentTab(unsigned index) override;
 };

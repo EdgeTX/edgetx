@@ -211,7 +211,7 @@ class OutputLineButton : public ListLineButton
 };
 
 ModelOutputsPage::ModelOutputsPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
 }
 

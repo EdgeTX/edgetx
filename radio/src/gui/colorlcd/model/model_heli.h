@@ -22,10 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class ModelHeliPage : public PageTab
+class ModelHeliPage : public PageGroupItem
 {
  public:
   ModelHeliPage(PageDef& pageDef);

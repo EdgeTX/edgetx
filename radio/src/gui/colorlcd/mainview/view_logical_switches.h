@@ -21,12 +21,11 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
 class LogicalSwitchDisplayFooter;
 
-class LogicalSwitchesViewPage : public PageTab
+class LogicalSwitchesViewPage : public PageGroupItem
 {
  public:
   LogicalSwitchesViewPage(PageDef& pageDef);

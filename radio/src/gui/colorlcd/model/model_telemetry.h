@@ -22,10 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class ModelTelemetryPage : public PageTab
+class ModelTelemetryPage : public PageGroupItem
 {
  public:
   ModelTelemetryPage(PageDef& pageDef);

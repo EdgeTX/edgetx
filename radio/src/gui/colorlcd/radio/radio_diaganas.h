@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
 class RadioAnalogsDiagsViewPageGroup : public TabsGroup
 {

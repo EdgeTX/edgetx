@@ -253,7 +253,7 @@ class ScriptLineButton : public ListLineButton
 };
 
 ModelMixerScriptsPage::ModelMixerScriptsPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
 }
 

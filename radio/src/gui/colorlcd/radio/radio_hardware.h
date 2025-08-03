@@ -21,10 +21,9 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class RadioHardwarePage : public PageTab
+class RadioHardwarePage : public PageGroupItem
 {
   void checkEvents() override;
 

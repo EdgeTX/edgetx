@@ -21,10 +21,9 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class RadioToolsPage : public PageTab
+class RadioToolsPage : public PageGroupItem
 {
  public:
   RadioToolsPage(PageDef& pageDef);

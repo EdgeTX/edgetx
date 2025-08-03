@@ -523,7 +523,7 @@ class LogicalSwitchButton : public ListLineButton
 };
 
 ModelLogicalSwitchesPage::ModelLogicalSwitchesPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
 }
 

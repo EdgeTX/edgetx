@@ -22,7 +22,6 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
 class ListBox;
@@ -32,7 +31,7 @@ class ThemePersistance;
 class ThemeFile;
 class FileCarosell;
 
-class ThemeSetupPage : public PageTab
+class ThemeSetupPage : public PageGroupItem
 {
  public:
   ThemeSetupPage(PageDef& pageDef);

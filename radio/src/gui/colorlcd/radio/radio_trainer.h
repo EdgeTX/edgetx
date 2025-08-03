@@ -22,10 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class RadioTrainerPage : public PageTab
+class RadioTrainerPage : public PageGroupItem
 {
  public:
   RadioTrainerPage(PageDef& pageDef);

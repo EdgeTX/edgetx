@@ -21,10 +21,11 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class ModelSetupPage: public PageTab {
+class TextButton;
+
+class ModelSetupPage: public PageGroupItem {
  public:
   ModelSetupPage(PageDef& pageDef);
 

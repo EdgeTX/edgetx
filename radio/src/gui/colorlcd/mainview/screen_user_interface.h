@@ -21,14 +21,13 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "pagegroup.h"
 #include "widgets_container.h"
 
 class ThemeView;
 class Choice;
 
-class ScreenUserInterfacePage : public PageTab
+class ScreenUserInterfacePage : public PageGroupItem
 {
  public:
   ScreenUserInterfacePage(PageDef& pageDef);

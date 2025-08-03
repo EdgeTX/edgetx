@@ -22,10 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class ModelLogicalSwitchesPage : public PageTab
+class ModelLogicalSwitchesPage : public PageGroupItem
 {
  public:
   ModelLogicalSwitchesPage(PageDef& pageDef);

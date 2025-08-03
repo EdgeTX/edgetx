@@ -22,7 +22,6 @@
 #pragma once
 
 #include "dataconstants.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
 enum MultiModuleType : short;
@@ -30,7 +29,7 @@ enum MultiModuleType : short;
 class FileBrowser;
 class FilePreview;
 
-class RadioSdManagerPage : public PageTab
+class RadioSdManagerPage : public PageGroupItem
 {
   FileBrowser* browser = nullptr;
   FilePreview* preview = nullptr;

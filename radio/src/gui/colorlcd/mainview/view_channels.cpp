@@ -69,13 +69,14 @@ class ChannelsViewFooter : public Window
 
 //-----------------------------------------------------------------------------
 
-class ChannelsViewPage : public PageTab
+class ChannelsViewPage : public PageGroupItem
 {
  public:
   explicit ChannelsViewPage(uint8_t pageIndex = 0) :
-      PageTab(STR_MONITOR_CHANNELS[pageIndex]),
+      PageGroupItem(STR_MONITOR_CHANNELS[pageIndex]),
       pageIndex(pageIndex)
   {
+    icon = ICON_MONITOR;
   }
 
  protected:

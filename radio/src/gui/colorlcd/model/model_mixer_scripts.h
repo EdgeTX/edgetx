@@ -22,10 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class ModelMixerScriptsPage : public PageTab
+class ModelMixerScriptsPage : public PageGroupItem
 {
  public:
   ModelMixerScriptsPage(PageDef& pageDef);

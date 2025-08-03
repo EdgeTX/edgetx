@@ -24,7 +24,6 @@
 #include "list_line_button.h"
 #include "edgetx.h"
 #include "page.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
 struct CustomFunctionData;
@@ -116,7 +115,7 @@ class FunctionEditPage : public Page
 
 //-----------------------------------------------------------------------------
 
-class FunctionsPage : public PageTab
+class FunctionsPage : public PageGroupItem
 {
  public:
   FunctionsPage(CustomFunctionData* functions, PageDef& pageDef, const char* prefix);

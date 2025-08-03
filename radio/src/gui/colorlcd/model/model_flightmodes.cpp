@@ -463,7 +463,7 @@ const lv_obj_class_t FlightModeBtn::fm_trim_value_class = {
 };
 
 ModelFlightModesPage::ModelFlightModesPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
 }
 

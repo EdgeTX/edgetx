@@ -22,10 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class ModelCurvesPage : public PageTab
+class ModelCurvesPage : public PageGroupItem
 {
  public:
   ModelCurvesPage(PageDef& pageDef);

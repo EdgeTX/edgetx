@@ -21,14 +21,13 @@
 
 #pragma once
 
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class StatisticsViewPage : public PageTab
+class StatisticsViewPage : public PageGroupItem
 {
  public:
   StatisticsViewPage(PageDef& pageDef) :
-      PageTab(pageDef, PAD_ZERO)
+      PageGroupItem(pageDef, PAD_ZERO)
   {
   }
 
@@ -36,10 +35,10 @@ class StatisticsViewPage : public PageTab
   void build(Window* window) override;
 };
 
-class DebugViewPage : public PageTab
+class DebugViewPage : public PageGroupItem
 {
  public:
-  DebugViewPage(PageDef& pageDef) : PageTab(pageDef, PAD_ZERO) {}
+  DebugViewPage(PageDef& pageDef) : PageGroupItem(pageDef, PAD_ZERO) {}
 
  protected:
   void build(Window* window) override;

@@ -42,7 +42,7 @@ constexpr int WARN_FILE_LENGTH = 40 * 1024;
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
 
 RadioSdManagerPage::RadioSdManagerPage(PageDef& pageDef) :
-  PageTab(pageDef)
+  PageGroupItem(pageDef)
 {
 }
 
@@ -261,7 +261,7 @@ void RadioSdManagerPage::build(Window * window)
 
 void RadioSdManagerPage::checkEvents()
 {
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 
   if (loadPreview) {
     loadPreview -= 1;

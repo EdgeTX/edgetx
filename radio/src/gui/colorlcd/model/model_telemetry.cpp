@@ -749,7 +749,7 @@ class SensorEditWindow : public SubPage
 };
 
 ModelTelemetryPage::ModelTelemetryPage(PageDef& pageDef) :
-    PageTab(pageDef)
+    PageGroupItem(pageDef)
 {
   tsStyle.init();
 }
@@ -770,7 +770,7 @@ void ModelTelemetryPage::checkEvents()
     lastKnownIndex = _lastKnownIndex;
   }
 
-  PageTab::checkEvents();
+  PageGroupItem::checkEvents();
 }
 
 void ModelTelemetryPage::editSensor(uint8_t index)

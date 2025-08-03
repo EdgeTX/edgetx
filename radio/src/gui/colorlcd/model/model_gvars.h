@@ -22,10 +22,9 @@
 #pragma once
 
 #include "edgetx.h"
-#include "tabsgroup.h"
 #include "pagegroup.h"
 
-class ModelGVarsPage : public PageTab
+class ModelGVarsPage : public PageGroupItem
 {
  public:
   ModelGVarsPage(PageDef& pageDef);

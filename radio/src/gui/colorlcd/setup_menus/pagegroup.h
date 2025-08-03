@@ -24,30 +24,9 @@
 #include "bitmaps.h"
 #include "quick_menu.h"
 
-class PageTab;
-class PageGroupHeader;
-
-//-----------------------------------------------------------------------------
-
-class PageGroupBase : public NavWindow
-{
- public:
-  PageGroupBase();
-
-  virtual void setCurrentTab(unsigned index) = 0;
-
-  void onClicked() override;
-  void onCancel() override;
-
- protected:
-  Window* body = nullptr;
-  PageTab* currentTab = nullptr;
-  QuickMenu* quickMenu = nullptr;
-
-  void checkEvents() override;
-
-  void deleteLater(bool detach = true, bool trash = true) override;
-};
+class HeaderIcon;
+class PageGroup;
+class PageGroupItem;
 
 //-----------------------------------------------------------------------------
 
@@ -61,9 +40,114 @@ struct PageDef {
   const char* title;
   PageDefAction pageAction;
   QuickMenu::SubMenu subMenu;
-  std::function<PageTab*(PageDef& pageDef)> create;
+  std::function<PageGroupItem*(PageDef& pageDef)> create;
   std::function<bool()> enabled;
   std::function<void(QuickSubMenu* subMenu)> action;
+};
+
+//-----------------------------------------------------------------------------
+
+class PageGroupItem
+{
+ public:
+  PageGroupItem(std::string title, QuickMenu::SubMenu subMenu = QuickMenu::NONE) :
+      title(std::move(title)), icon(ICON_EDGETX), quickMenuId(subMenu), padding(PAD_SMALL)
+  {}
+
+  PageGroupItem(PageDef& pageDef, PaddingSize padding = PAD_SMALL) :
+      title(std::move(pageDef.title)), icon(pageDef.icon), quickMenuId(pageDef.subMenu),
+      padding(padding)
+  {}
+
+  virtual ~PageGroupItem() = default;
+
+  virtual bool isVisible() const { return true; }
+
+  virtual void build(Window* window) = 0;
+
+  virtual void checkEvents() {}
+
+  void setTitle(std::string value) { title = std::move(value); }
+  std::string getTitle() const { return title; }
+
+  void setIcon(EdgeTxIcon icon) { this->icon = icon; }
+  EdgeTxIcon getIcon() const { return icon; }
+
+  PaddingSize getPadding() const { return padding; }
+
+  virtual void update(uint8_t index) {}
+  virtual void cleanup() {}
+
+  QuickMenu::SubMenu subMenu() const { return quickMenuId; }
+
+ protected:
+  std::string title;
+  EdgeTxIcon icon;
+  QuickMenu::SubMenu quickMenuId = QuickMenu::NONE;
+  PaddingSize padding;
+};
+
+//-----------------------------------------------------------------------------
+
+class PageGroupHeaderBase : public Window
+{
+ public:
+  PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxIcon icon);
+
+  void setTitle(const char* title);
+  void setIcon(EdgeTxIcon newIcon);
+
+  virtual void chgTab(int dir) = 0;
+
+  void nextTab() { chgTab(1); }
+  void prevTab() { chgTab(-1); }
+
+  virtual void removeTab(unsigned index) {}
+  void addTab(PageGroupItem* page);
+
+  void setCurrentIndex(uint8_t index)
+  {
+    if (index < pages.size()) {
+      currentIndex = index;
+    }
+  }
+
+  PageGroupItem* pageTab(uint8_t idx) const { return pages[idx]; }
+  bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
+  uint8_t tabCount() const { return pages.size(); }
+
+ protected:
+  uint8_t currentIndex = 0;
+  lv_obj_t* titleLabel = nullptr;
+  HeaderIcon* hdrIcon = nullptr;
+  std::vector<PageGroupItem*> pages;
+};
+
+//-----------------------------------------------------------------------------
+
+class PageGroupBase : public NavWindow
+{
+ public:
+  PageGroupBase(coord_t bodyY);
+
+  void setCurrentTab(unsigned index);
+
+  void onClicked() override;
+  void onCancel() override;
+
+  uint8_t tabCount() const;
+
+  void addTab(PageGroupItem* page);
+
+ protected:
+  PageGroupHeaderBase* header = nullptr;
+  Window* body = nullptr;
+  PageGroupItem* currentTab = nullptr;
+  QuickMenu* quickMenu = nullptr;
+
+  void checkEvents() override;
+
+  void deleteLater(bool detach = true, bool trash = true) override;
 };
 
 //-----------------------------------------------------------------------------
@@ -77,21 +161,17 @@ class PageGroup : public PageGroupBase
   std::string getName() const override { return "PageGroup"; }
 #endif
 
-  uint8_t tabCount() const;
-
-  void addTab(PageTab* page);
-
   void removeTab(unsigned index);
 
-  PageTab* getCurrentTab() const { return currentTab; }
-  void setCurrentTab(unsigned index) override;
-
-  void openMenu();
+  PageGroupItem* getCurrentTab() const { return currentTab; }
 
   bool isPageGroup() override { return true; }
 
   static LAYOUT_VAL_SCALED(MENU_TITLE_TOP, 45)
   static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_TITLE_TOP;
+
+ protected:
+  EdgeTxIcon icon;
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
@@ -104,7 +184,33 @@ class PageGroup : public PageGroupBase
   void onPressPGDN() override;
 #endif
 
+  void openMenu();
+};
+
+//-----------------------------------------------------------------------------
+
+class TabsGroup : public PageGroupBase
+{
+ public:
+  explicit TabsGroup(EdgeTxIcon icon, const char* name);
+
+#if defined(DEBUG_WINDOWS)
+  std::string getName() const override { return "TabsGroup"; }
+#endif
+
+  static LAYOUT_ORIENTATION_SCALED(MENU_TITLE_TOP, 45, 48)
+  static LAYOUT_ORIENTATION(MENU_TITLE_HEIGHT, 0, EdgeTxStyles::STD_FONT_HEIGHT)
+  static constexpr coord_t MENU_BODY_TOP = MENU_TITLE_TOP + MENU_TITLE_HEIGHT;
+
  protected:
-  PageGroupHeader* header = nullptr;
-  EdgeTxIcon icon;
+
+#if defined(HARDWARE_KEYS)
+  void onPressPGUP() override;
+  void onPressPGDN() override;
+  void onLongPressPGUP() override;
+  void onLongPressPGDN() override;
+  void onLongPressRTN() override;
+#endif
+
+  void openMenu();
 };

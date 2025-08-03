@@ -449,10 +449,14 @@ class AnaMinMaxViewWindow : public AnaViewWindow
   static LAYOUT_SIZE(GRIDCOLS, 10, 5)
 };
 
-class AnaCalibratedViewPage : public PageTab
+class AnaCalibratedViewPage : public PageGroupItem
 {
  public:
-  AnaCalibratedViewPage(QuickMenu::SubMenu subMenu) : PageTab(STR_ANADIAGS_CALIB, subMenu) {}
+  AnaCalibratedViewPage(QuickMenu::SubMenu subMenu) :
+    PageGroupItem(STR_ANADIAGS_CALIB, subMenu)
+  {
+    icon = ICON_STATS;
+  }
 
  protected:
   void build(Window* window) override
@@ -461,12 +465,13 @@ class AnaCalibratedViewPage : public PageTab
   }
 };
 
-class AnaFilteredDevViewPage : public PageTab
+class AnaFilteredDevViewPage : public PageGroupItem
 {
  public:
   AnaFilteredDevViewPage(QuickMenu::SubMenu subMenu) :
-      PageTab(STR_ANADIAGS_FILTRAWDEV, subMenu)
+      PageGroupItem(STR_ANADIAGS_FILTRAWDEV, subMenu)
   {
+    icon = ICON_STATS;
   }
 
  protected:
@@ -476,12 +481,13 @@ class AnaFilteredDevViewPage : public PageTab
   }
 };
 
-class AnaUnfilteredRawViewPage : public PageTab
+class AnaUnfilteredRawViewPage : public PageGroupItem
 {
  public:
   AnaUnfilteredRawViewPage(QuickMenu::SubMenu subMenu) :
-      PageTab(STR_ANADIAGS_UNFILTRAW, subMenu)
+      PageGroupItem(STR_ANADIAGS_UNFILTRAW, subMenu)
   {
+    icon = ICON_STATS;
   }
 
  protected:
@@ -491,10 +497,14 @@ class AnaUnfilteredRawViewPage : public PageTab
   }
 };
 
-class AnaMinMaxViewPage : public PageTab
+class AnaMinMaxViewPage : public PageGroupItem
 {
  public:
-  AnaMinMaxViewPage(QuickMenu::SubMenu subMenu) : PageTab(STR_ANADIAGS_MINMAX, subMenu) {}
+  AnaMinMaxViewPage(QuickMenu::SubMenu subMenu) :
+      PageGroupItem(STR_ANADIAGS_MINMAX, subMenu)
+  {
+    icon = ICON_STATS;
+  }
 
  protected:
   void build(Window* window) override

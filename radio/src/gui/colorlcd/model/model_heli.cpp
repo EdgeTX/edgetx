@@ -38,7 +38,7 @@ static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT,
 #endif
 
 ModelHeliPage::ModelHeliPage(PageDef& pageDef):
-  PageTab(pageDef)
+  PageGroupItem(pageDef)
 {
 }
 
