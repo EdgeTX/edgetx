@@ -67,7 +67,7 @@ class QuickMenuButton : public ButtonBase
     std::string str(title);
     size_t pos = 0;
     while((pos = str.find(" ", pos)) != std::string::npos) {
-      if (pos < str.size() - 2)
+      if (pos < str.size() - 3)
         str.replace(pos, 1, "\n");
       pos += 1;
     }

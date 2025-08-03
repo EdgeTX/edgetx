@@ -545,7 +545,7 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
   action(std::move(action))
 {
   this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
-  this->icon->center(width(), height());
+  this->icon->center(width() - PAD_SMALL, height());
   if (action) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
     addCustomButton(0, 0, [=]() { action(); });
