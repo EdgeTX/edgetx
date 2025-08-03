@@ -1239,6 +1239,7 @@ extern const char STR_MAIN_MENU_CHANNEL_MONITOR[];
 extern const char STR_MAIN_MENU_LS_MONITOR[];
 extern const char STR_MAIN_MENU_MODEL_SETTINGS[];
 extern const char STR_MAIN_MENU_RADIO_SETTINGS[];
+extern const char STR_MAIN_MENU_SETTINGS[];
 extern const char STR_MAIN_MENU_SCREEN_SETTINGS[];
 extern const char STR_MAIN_MENU_RESET_TELEMETRY[];
 extern const char STR_MAIN_MENU_STATISTICS[];

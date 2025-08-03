@@ -534,7 +534,6 @@
 #define TR_MONITOR_CHANNELS2            "채널 모니터 9-16"
 #define TR_MONITOR_CHANNELS3            "채널 모니터 17-24"
 #define TR_MONITOR_CHANNELS4            "채널 모니터 25-32"
-#define TR_MONITOR_SWITCHES             "로직 스위치 모니터"
 #define TR_MONITOR_OUTPUT_DESC          "출력 상태"
 #define TR_MONITOR_MIXER_DESC           "믹서 상태"
 
@@ -1174,10 +1173,12 @@
 #define TR_EDIT_THEME                     "테마 편집"
 #define TR_DETAILS                        "세부 설정"
 #define TR_THEME_EDITOR                   "테마"
+
 // Main menu
 #define TR_MAIN_MENU_MANAGE_MODELS        "모델\n관리"
 #define TR_MAIN_MENU_MODEL_NOTES          "모델\n노트"
 #define TR_MAIN_MENU_CHANNEL_MONITOR      "채널\n모니터"
+#define TR_MONITOR_SWITCHES             "로직 스위치 모니터"
 #define TR_MAIN_MENU_MODEL_SETTINGS       "모델\n설정"
 #define TR_MAIN_MENU_RADIO_SETTINGS       "조종기\n설정"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

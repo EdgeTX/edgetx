@@ -518,7 +518,6 @@
 #define TR_MONITOR_CHANNELS2           "VOIES 9-16"
 #define TR_MONITOR_CHANNELS3           "VOIES 17-24"
 #define TR_MONITOR_CHANNELS4           "VOIES 25-32"
-#define TR_MONITOR_SWITCHES            "INTERS LOGIQUES"
 #define TR_MONITOR_OUTPUT_DESC         "Sorties"
 #define TR_MONITOR_MIXER_DESC          "Mixeurs"
 #define TR_RECEIVER_NUM                TR("NumRx", "No. Récepteur")
@@ -1152,6 +1151,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gestion Modèles"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notes Modèles"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Moniteur Voies"
+#define TR_MONITOR_SWITCHES            "INTERS LOGIQUES"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Éditer Modèle"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Param. Radio"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

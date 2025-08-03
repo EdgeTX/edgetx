@@ -512,7 +512,6 @@
 #define TR_MONITOR_CHANNELS2           "KANAL MONITOR 9-16"
 #define TR_MONITOR_CHANNELS3           "KANAL MONITOR 17-24"
 #define TR_MONITOR_CHANNELS4           "KANAL MONITOR 25-32"
-#define TR_MONITOR_SWITCHES            "LOGISK FUNKTION MONITOR"
 #define TR_MONITOR_OUTPUT_DESC         "Udgange"
 #define TR_MONITOR_MIXER_DESC          "Mix"
 #define TR_RECEIVER_NUM                TR("RxNr", "Rx modtager Nr.")
@@ -1146,6 +1145,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS     "Vælg Model"
 #define TR_MAIN_MENU_MODEL_NOTES       "Model Noter"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal Monitor"
+#define TR_MONITOR_SWITCHES            "LOGISK FUNKTION MONITOR"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Model Indstilling"
 #define TR_MAIN_MENU_RADIO_SETTINGS    "Radio Indstilling"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

@@ -511,7 +511,6 @@
 #define TR_MONITOR_CHANNELS2           "KANAL+MISCHER MONITOR 9-16"
 #define TR_MONITOR_CHANNELS3           "KANAL+MISCHER MONITOR 17-24"
 #define TR_MONITOR_CHANNELS4           "KANAL+MISCHER MONITOR 25-32"
-#define TR_MONITOR_SWITCHES            "LOGIK SCHALTER MONITOR"
 #define TR_MONITOR_OUTPUT_DESC         "Kanäle"
 #define TR_MONITOR_MIXER_DESC          "Mischer"
 #define TR_RECEIVER_NUM                TR("Empf Nr.", "Empfänger Nummer")
@@ -1136,6 +1135,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS     "Modell Manager"
 #define TR_MAIN_MENU_MODEL_NOTES       "Modell Notizen"
 #define TR_MAIN_MENU_CHANNEL_MONITOR   "Kanal Monitor"
+#define TR_MONITOR_SWITCHES            "LOGIK SCHALTER MONITOR"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Modell Konfig."
 #define TR_MAIN_MENU_RADIO_SETTINGS    "Sender Konfig."
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

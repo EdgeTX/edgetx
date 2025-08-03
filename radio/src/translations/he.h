@@ -514,7 +514,6 @@
 #define TR_MONITOR_CHANNELS2           "מצגי ערוצים 16-9"
 #define TR_MONITOR_CHANNELS3           "מצגי ערוצים 24-17"
 #define TR_MONITOR_CHANNELS4           "מצגי ערוצים 32-25"
-#define TR_MONITOR_SWITCHES            "מסך מתגים לוגים"
 #define TR_MONITOR_OUTPUT_DESC         "יציאות"
 #define TR_MONITOR_MIXER_DESC          "מיקסרים"
   #define TR_RECEIVER_NUM              TR("RxNum", "Receiver No.")
@@ -1136,6 +1135,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "ניהול מודלים"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model Notes"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "מצגי ערוצים"
+#define TR_MONITOR_SWITCHES            "מסך מתגים לוגים"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "הגדרות מודל"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "הגדרות שלט"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

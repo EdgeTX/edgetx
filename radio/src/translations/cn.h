@@ -507,7 +507,6 @@
 #define TR_MONITOR_CHANNELS2           "9-16通道查看"
 #define TR_MONITOR_CHANNELS3           "17-24通道查看"
 #define TR_MONITOR_CHANNELS4           "25-32通道查看"
-#define TR_MONITOR_SWITCHES            "逻辑开关查看"
 #define TR_MONITOR_OUTPUT_DESC         "输出查看"
 #define TR_MONITOR_MIXER_DESC          "混控查看"
 #define TR_RECEIVER_NUM                TR("RxNum", "接收机编号")
@@ -1129,6 +1128,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS    "模型管理"
 #define TR_MAIN_MENU_MODEL_NOTES      "模型说明"
 #define TR_MAIN_MENU_CHANNEL_MONITOR  "通道查看"
+#define TR_MONITOR_SWITCHES            "逻辑开关查看"
 #define TR_MAIN_MENU_MODEL_SETTINGS   "模型设置"
 #define TR_MAIN_MENU_RADIO_SETTINGS   "系统设置"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

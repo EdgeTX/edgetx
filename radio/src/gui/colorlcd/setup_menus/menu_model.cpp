@@ -37,7 +37,7 @@
 #include "special_functions.h"
 
 PageDef modelMenuItems[] = {
-  { ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, PAGE_CREATE, QuickMenu::MODEL_SETUP, [](PageDef& pageDef) { return new ModelSetupPage(pageDef); }},
+  { ICON_MODEL_SETUP, STR_MAIN_MENU_SETTINGS, PAGE_CREATE, QuickMenu::MODEL_SETUP, [](PageDef& pageDef) { return new ModelSetupPage(pageDef); }},
 #if defined(HELI)
   { ICON_MODEL_HELI, STR_MENUHELISETUP, PAGE_CREATE, QuickMenu::MODEL_HELI, [](PageDef& pageDef) { return new ModelHeliPage(pageDef); }, modelHeliEnabled},
 #endif

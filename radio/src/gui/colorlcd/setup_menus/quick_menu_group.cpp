@@ -64,11 +64,19 @@ class QuickMenuButton : public ButtonBase
   {
     padAll(PAD_ZERO);
 
+    std::string str(title);
+    size_t pos = 0;
+    while((pos = str.find(" ", pos)) != std::string::npos) {
+      if (pos < str.size() - 2)
+        str.replace(pos, 1, "\n");
+      pos += 1;
+    }
+
     iconPtr = new StaticIcon(this, (QuickMenuGroup::FAB_BUTTON_INNER_WIDTH - QuickMenuGroup::FAB_ICON_SIZE) / 2, PAD_OUTLINE, icon, COLOR_WHITE_INDEX);
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
 
     textPtr = new StaticText(this, {0, QuickMenuGroup::FAB_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::FAB_BUTTON_INNER_WIDTH, 0},
-                   title, COLOR_WHITE_INDEX, CENTERED | FONT(XS));
+                   str, COLOR_WHITE_INDEX, CENTERED | FONT(XS));
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
   }
 

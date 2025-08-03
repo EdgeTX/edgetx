@@ -509,7 +509,6 @@
 #define TR_MONITOR_CHANNELS2           "チャンネルモニター 9-16"
 #define TR_MONITOR_CHANNELS3           "チャンネルモニター 17-24"
 #define TR_MONITOR_CHANNELS4           "チャンネルモニター 25-32"
-#define TR_MONITOR_SWITCHES            "論理スイッチモニター"
 #define TR_MONITOR_OUTPUT_DESC         "出力"
 #define TR_MONITOR_MIXER_DESC          "ミキサー"
 #define TR_RECEIVER_NUM                TR("RxNum", "受信機 No.")
@@ -1131,6 +1130,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "モデル 管理"
 #define TR_MAIN_MENU_MODEL_NOTES        "モデル ノート"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel モニター"
+#define TR_MONITOR_SWITCHES            "論理スイッチモニター"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "モデル 設定"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "送信機 設定"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

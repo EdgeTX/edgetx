@@ -524,7 +524,6 @@
 #define TR_MONITOR_CHANNELS2            "KANALÖVERSIKT - KA 9-16"
 #define TR_MONITOR_CHANNELS3            "KANALÖVERSIKT - KA 17-24"
 #define TR_MONITOR_CHANNELS4            "KANALÖVERSIKT - KA 25-32"
-#define TR_MONITOR_SWITCHES             "ÖVERSIKT - LOGISKA BRYTARE"
 #define TR_MONITOR_OUTPUT_DESC          "Utdata"
 #define TR_MONITOR_MIXER_DESC           "Mixar"
 #define TR_RECEIVER_NUM                 TR("RxNum","Mottagare nr.")
@@ -1164,6 +1163,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "Hantera modell"
 #define TR_MAIN_MENU_MODEL_NOTES        "Modell- anteckn."
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Kanal- monitor"
+#define TR_MONITOR_SWITCHES             "ÖVERSIKT - LOGISKA BRYTARE"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Modell- inställn."
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Radio- inställn."
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

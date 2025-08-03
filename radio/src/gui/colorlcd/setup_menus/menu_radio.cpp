@@ -31,7 +31,7 @@
 #include "special_functions.h"
 
 PageDef radioMenuItems[] = {
-  { ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, PAGE_CREATE, QuickMenu::RADIO_SETUP, [](PageDef& pageDef) { return new RadioSetupPage(pageDef); }},
+  { ICON_RADIO_SETUP, STR_MAIN_MENU_SETTINGS, PAGE_CREATE, QuickMenu::RADIO_SETUP, [](PageDef& pageDef) { return new RadioSetupPage(pageDef); }},
   { ICON_RADIO_GLOBAL_FUNCTIONS, STR_MENUSPECIALFUNCS, PAGE_CREATE, QuickMenu::RADIO_GF, [](PageDef& pageDef) { return new GlobalFunctionsPage(pageDef); }, radioGFEnabled},
   { ICON_RADIO_TRAINER, STR_MENUTRAINER, PAGE_CREATE, QuickMenu::RADIO_TRAINER, [](PageDef& pageDef) { return new RadioTrainerPage(pageDef); }, radioTrainerEnabled},
   { ICON_RADIO_HARDWARE, STR_HARDWARE, PAGE_CREATE, QuickMenu::RADIO_HARDWARE, [](PageDef& pageDef) { return new RadioHardwarePage(pageDef); }},

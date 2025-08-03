@@ -523,7 +523,6 @@
 #define TR_MONITOR_CHANNELS2           "MONITOR KANÁLŮ 9/16"
 #define TR_MONITOR_CHANNELS3           "MONITOR KANÁLŮ 17/24"
 #define TR_MONITOR_CHANNELS4           "MONITOR KANÁLŮ 25/32"
-#define TR_MONITOR_SWITCHES            "MONITOR LOGICKÝCH SPÍNAČŮ"
 #define TR_MONITOR_OUTPUT_DESC         "Výstupy"
 #define TR_MONITOR_MIXER_DESC          "Mixy"
 #define TR_RECEIVER_NUM                TR("RX číslo", "Číslo přijímače")
@@ -1144,6 +1143,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "Správa modelů"
 #define TR_MAIN_MENU_MODEL_NOTES        "Poznámky modelu"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanálů"
+#define TR_MONITOR_SWITCHES            "MONITOR LOGICKÝCH SPÍNAČŮ"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení modelu"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení rádia"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

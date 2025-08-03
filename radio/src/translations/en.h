@@ -511,7 +511,6 @@
 #define TR_MONITOR_CHANNELS2           "CHANNELS 9-16"
 #define TR_MONITOR_CHANNELS3           "CHANNELS 17-24"
 #define TR_MONITOR_CHANNELS4           "CHANNELS 25-32"
-#define TR_MONITOR_SWITCHES            "LOGICAL SWITCHES MONITOR"
 #define TR_MONITOR_OUTPUT_DESC         "Outputs"
 #define TR_MONITOR_MIXER_DESC          "Mixers"
   #define TR_RECEIVER_NUM              TR("RxNum", "Receiver No.")
@@ -1130,9 +1129,11 @@
 #define TR_THEME_EDITOR                 "THEMES"
 
 // Main menu
+#define TR_MAIN_MENU_SETTINGS           "General Settings"
 #define TR_MAIN_MENU_MANAGE_MODELS      "Manage Models"
 #define TR_MAIN_MENU_MODEL_NOTES        "Model Notes"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Channel Monitor"
+#define TR_MONITOR_SWITCHES             "Logical Switch Monitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model Setup"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Radio Setup"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
@@ -1145,7 +1146,7 @@
 #define TR_ADD_MAIN_VIEW                "Add screen"
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MENUHELISETUP                TR("HELI SETUP", "Heli Setup")
+#define TR_MENUHELISETUP                TR("HELI SETUP", "Heli Settings")
 #if defined(SURFACE_RADIO)
 #define TR_MENUFLIGHTMODES              TR("DRIVE MODES", "Drive Modes")
 #define TR_MENUFLIGHTMODE               "DRIVE MODE"

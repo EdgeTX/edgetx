@@ -512,7 +512,6 @@
 #define TR_MONITOR_CHANNELS2           "МОНІТОР КАН 9-16"
 #define TR_MONITOR_CHANNELS3           "МОНІТОР КАН 17-24"
 #define TR_MONITOR_CHANNELS4           "МОНІТОР КАН 25-32"
-#define TR_MONITOR_SWITCHES            "МОНІТОР ЛОГІЧНИХ ПЕРЕМИКАЧІВ"
 #define TR_MONITOR_OUTPUT_DESC         "Виходи"
 #define TR_MONITOR_MIXER_DESC          "Мікшери"
 #define TR_RECEIVER_NUM                TR("RxNum", "No. приймача")
@@ -1134,6 +1133,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "Керувати Моделями"
 #define TR_MAIN_MENU_MODEL_NOTES        "Моделі Нотатки"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Канал Монітор"
+#define TR_MONITOR_SWITCHES            "МОНІТОР ЛОГІЧНИХ ПЕРЕМИКАЧІВ"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Модель Налаштування"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Радіо Налаштування"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

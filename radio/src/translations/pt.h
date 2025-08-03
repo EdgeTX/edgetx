@@ -513,7 +513,6 @@
 #define TR_MONITOR_CHANNELS2           "MONITOR CANAIS 9-16"
 #define TR_MONITOR_CHANNELS3           "MONITOR CANAIS 17-24"
 #define TR_MONITOR_CHANNELS4           "MONITOR CANAIS 25-32"
-#define TR_MONITOR_SWITCHES            "MONITOR CHAV. LÓGICAS"
 #define TR_MONITOR_OUTPUT_DESC         "Saídas"
 #define TR_MONITOR_MIXER_DESC          "Mixers"
   #define TR_RECEIVER_NUM              TR("# Rx", "# Recept")
@@ -1136,6 +1135,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "Gerenciar Modelos"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notas Modelo"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor Canais"
+#define TR_MONITOR_SWITCHES            "MONITOR CHAV. LÓGICAS"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Editar Modelo"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Editar Rádio"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"

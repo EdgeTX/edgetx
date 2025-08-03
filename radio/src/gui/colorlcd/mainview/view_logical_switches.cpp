@@ -237,6 +237,7 @@ class LogicalSwitchDisplayButton : public TextButton
 LogicalSwitchesViewPage::LogicalSwitchesViewPage(PageDef& pageDef) :
     PageGroupItem(pageDef)
 {
+  setTitle(STR_MONITOR_SWITCHES);
 }
 
 void LogicalSwitchesViewPage::build(Window* window)

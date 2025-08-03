@@ -514,7 +514,6 @@
 #define TR_MONITOR_CHANNELS2           "МОНИТОР КАН 9-16"
 #define TR_MONITOR_CHANNELS3           "МОНИТОР КАН 17-24"
 #define TR_MONITOR_CHANNELS4           "МОНИТОР КАН 25-32"
-#define TR_MONITOR_SWITCHES            "МОНИТОР ЛОГИЧ ТУМБЛЕРОВ"
 #define TR_MONITOR_OUTPUT_DESC         "Выходы"
 #define TR_MONITOR_MIXER_DESC          "Микшеры"
   #define TR_RECEIVER_NUM              TR("Rx Ном", "Номер")
@@ -1136,6 +1135,7 @@
 #define TR_MAIN_MENU_MANAGE_MODELS      "Меню Моделей"
 #define TR_MAIN_MENU_MODEL_NOTES        "Заметки Модели"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Монитор Каналов"
+#define TR_MONITOR_SWITCHES            "МОНИТОР ЛОГИЧ ТУМБЛЕРОВ"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Меню Модели"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Меню Пульта"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
