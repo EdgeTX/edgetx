@@ -62,6 +62,11 @@
   #define RADIO_VERSION FLAVOUR
 #endif
 
+#if defined(VCONTROLS) && defined(COLORLCD)
+#include <algorithm>
+#include "vcontrols.h"
+#endif
+
 #define VERSION_OSNAME "EdgeTX"
 
 #define FIND_FIELD_DESC  0x01
@@ -1404,6 +1409,8 @@ static int luaGetTxGPS(lua_State * L)
   lua_createtable(L, 0, 8);
   lua_pushtablenumber(L, "lat", gpsData.latitude * 0.000001);
   lua_pushtablenumber(L, "lon", gpsData.longitude * 0.000001);
+  lua_pushtableinteger(L, "latraw", gpsData.lat_raw);
+  lua_pushtableinteger(L, "lonraw", gpsData.lon_raw);
   lua_pushtableinteger(L, "numsat", gpsData.numSat);
   lua_pushtableinteger(L, "alt", gpsData.altitude);
   lua_pushtableinteger(L, "speed", gpsData.speed);
@@ -2464,6 +2471,89 @@ static int luaSerialSetPower(lua_State* L)
 }
 #endif
 
+#if defined(VCONTROLS) && defined(COLORLCD)
+static int luaActivateVirtualSwitch(lua_State * L) {
+  const int sw = luaL_checkinteger(L, 1);
+  const bool on = lua_toboolean(L, 2);
+
+  if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
+    if (on) {
+      activeVirtualSwitches |= (uint64_t{1} << (sw - 1));
+    }
+    else {
+      activeVirtualSwitches &= ~(uint64_t{1} << (sw - 1));
+    }
+  }
+  return 0;
+}
+static int luaActivateVirtualInput(lua_State * L) {
+  const int ch = luaL_checkinteger(L, 1);
+  const bool on = lua_toboolean(L, 2);
+
+  if (1 <= ch && ch <= MAX_VIRTUAL_INPUTS) {
+    if (on) {
+      activeVirtualInputs |= (1 << (ch - 1));
+    }
+    else {
+      activeVirtualInputs &= ~(1 << (ch - 1));
+    }
+  }
+  return 0;
+}
+static int luaGetVirtualSwitch(lua_State * L)
+{
+  const int sw = luaL_checkinteger(L, 1);
+
+  if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
+    const bool v = virtualSwitches & (uint64_t{1} << (sw - 1));
+    lua_pushboolean(L, v);
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+static int luaSetVirtualSwitch(lua_State * L)
+{
+  const int sw = luaL_checkinteger(L, 1);
+  const bool on = lua_toboolean(L, 2);
+
+  if (1 <= sw && sw <= MAX_VIRTUAL_SWITCHES) {
+    if (on) {
+      virtualSwitches |= (uint64_t{1} << (sw - 1));
+    }
+    else {
+      virtualSwitches &= ~(uint64_t{1} << (sw - 1));
+    }
+  }
+  return 0;
+}
+static int luaSetVirtualInput(lua_State * L)
+{
+  int ch = luaL_checkinteger(L, 1);
+  int value = std::clamp(luaL_checkinteger(L, 2), -1024, 1024);
+
+  if (1 <= ch && ch <= MAX_VIRTUAL_INPUTS) {
+    virtualInputs[ch - 1] = value;
+  }
+  return 0;
+}
+static int luaGetVirtualInput(lua_State * L)
+{
+  const int ch = luaL_checkinteger(L, 1);
+
+  if (1 <= ch && ch <= MAX_VIRTUAL_INPUTS) {
+    const int value = virtualInputs[ch - 1];
+    lua_pushinteger(L, value);
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+#endif
+
 #if defined(COLORLCD)
 static int shmVar[16] = {0};
 
@@ -3066,6 +3156,14 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if defined(COLORLCD)
   LROT_FUNCENTRY( setShmVar, luaSetShmVar )
   LROT_FUNCENTRY( getShmVar, luaGetShmVar )
+#endif
+#if defined(VCONTROLS) && defined(COLORLCD)
+  LROT_FUNCENTRY( setVirtualInput, luaSetVirtualInput)
+  LROT_FUNCENTRY( getVirtualInput, luaGetVirtualInput)
+  LROT_FUNCENTRY( setVirtualSwitch, luaSetVirtualSwitch)
+  LROT_FUNCENTRY( getVirtualSwitch, luaGetVirtualSwitch)
+  LROT_FUNCENTRY( activateVirtualSwitch, luaActivateVirtualSwitch)
+  LROT_FUNCENTRY( activateVirtualInput, luaActivateVirtualInput)
 #endif
   LROT_FUNCENTRY( setStickySwitch, luaSetStickySwitch )
   LROT_FUNCENTRY( getLogicalSwitchValue, luaGetLogicalSwitchValue )
