@@ -28,6 +28,7 @@
 #include "view_text.h"
 #include "view_main.h"
 #include "screen_setup.h"
+#include "theme_manager.h"
 
 //-----------------------------------------------------------------------------
 
@@ -179,11 +180,15 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
 {
   setWindowFlag(OPAQUE);
 
+  etx_obj_add_style(lvobj, styles->bg_opacity_75, LV_PART_MAIN);
+  etx_bg_color(lvobj, COLOR_BLACK_INDEX, LV_PART_MAIN);
+
+  new StaticIcon(this, LCD_W - EdgeTxStyles::UI_ELEMENT_HEIGHT, PAD_TINY, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX);
+
   // Save focus
   Layer::push(this);
 
-  auto body = new Window(this, {(LCD_W - QM_POPUP_W) / 2, (LCD_H - QM_POPUP_H) / 2, QM_POPUP_W, QM_POPUP_H},
-                         etx_modal_dialog_create);
+  auto body = new Window(this, {(LCD_W - QM_POPUP_W) / 2, (LCD_H - QM_POPUP_H) / 2 + PAD_LARGE + PAD_SMALL, QM_POPUP_W, QM_POPUP_H});
   body->padAll(PAD_OUTLINE);
 
   auto box = new Window(body, {0, 0, QM_MAIN_W, QM_MAIN_H});
@@ -197,7 +202,7 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
                         return 0;
                       });
 
-  box = new Window(body, {QM_SUB_X, QM_SUB_Y, QM_SUB_W, QM_SUB_H});
+  box = new Window(body, {QM_SUB_X, QM_SUB_Y + PAD_SMALL, QM_SUB_W, QM_SUB_H});
 
   QuickSubMenu* sub;
 
