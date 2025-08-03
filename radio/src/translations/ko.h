@@ -1181,7 +1181,7 @@
 #define TR_MONITOR_SWITCHES             "로직 스위치 모니터"
 #define TR_MAIN_MENU_MODEL_SETTINGS       "모델\n설정"
 #define TR_MAIN_MENU_RADIO_SETTINGS       "조종기\n설정"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY      "텔레메트리\n초기화"
 #define TR_MAIN_MENU_STATISTICS           "비행\n기록"
 #define TR_MAIN_MENU_ABOUT_EDGETX         "EdgeTX\n정보"

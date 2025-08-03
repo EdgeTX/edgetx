@@ -1138,7 +1138,7 @@
 #define TR_MONITOR_SWITCHES            "מסך מתגים לוגים"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "הגדרות מודל"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "הגדרות שלט"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "איפוס שעונים"
 #define TR_MAIN_MENU_STATISTICS         "סטטיסטיקות"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "מידע על EdgeTX"

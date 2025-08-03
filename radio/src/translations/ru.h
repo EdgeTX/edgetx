@@ -1138,7 +1138,7 @@
 #define TR_MONITOR_SWITCHES            "МОНИТОР ЛОГИЧ ТУМБЛЕРОВ"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Меню Модели"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Меню Пульта"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Сброс Тел-рии"
 #define TR_MAIN_MENU_STATISTICS         "Стат-ка Пульта"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Инфо EdgeTX"

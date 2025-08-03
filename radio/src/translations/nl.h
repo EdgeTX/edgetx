@@ -1142,7 +1142,7 @@
 #define TR_MONITOR_SWITCHES    "LOGISCHE SCHAKELAARS MONITOR"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model Settings"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Radio Settings"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Reset Telemetry"
 #define TR_MAIN_MENU_STATISTICS         "Statistics"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "About EdgeTX"

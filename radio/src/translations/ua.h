@@ -1136,7 +1136,7 @@
 #define TR_MONITOR_SWITCHES            "МОНІТОР ЛОГІЧНИХ ПЕРЕМИКАЧІВ"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Модель Налаштування"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Радіо Налаштування"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Скидання Телеметрії"
 #define TR_MAIN_MENU_STATISTICS         "Статистика"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Про... EdgeTX"

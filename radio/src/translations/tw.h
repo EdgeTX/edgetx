@@ -1136,7 +1136,7 @@
 #define TR_MONITOR_SWITCHES            "邏輯開關查看"
 #define TR_MAIN_MENU_MODEL_SETTINGS   "模型設置"
 #define TR_MAIN_MENU_RADIO_SETTINGS   "系統設置"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY  "復位功能"
 #define TR_MAIN_MENU_STATISTICS       "統計信息"
 #define TR_MAIN_MENU_ABOUT_EDGETX     "關於"

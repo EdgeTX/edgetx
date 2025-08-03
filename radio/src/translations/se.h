@@ -1166,7 +1166,7 @@
 #define TR_MONITOR_SWITCHES             "ÖVERSIKT - LOGISKA BRYTARE"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Modell- inställn."
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Radio- inställn."
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Återställ telemetri"
 #define TR_MAIN_MENU_STATISTICS         "Statistik"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Om EdgeTX"

@@ -1133,7 +1133,7 @@
 #define TR_MONITOR_SWITCHES            "論理スイッチモニター"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "モデル 設定"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "送信機 設定"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "リセット Telemetry"
 #define TR_MAIN_MENU_STATISTICS         "統計情報"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "EdgeTX について"

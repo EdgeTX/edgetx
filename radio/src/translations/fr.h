@@ -1154,7 +1154,7 @@
 #define TR_MONITOR_SWITCHES            "INTERS LOGIQUES"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Éditer Modèle"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Param. Radio"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "RAZ Télémetrie"
 #define TR_MAIN_MENU_STATISTICS         "Stats"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "A Propos EdgeTX"

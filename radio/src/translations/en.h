@@ -1136,7 +1136,7 @@
 #define TR_MONITOR_SWITCHES             "Logical Switch Monitor"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Model Setup"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Radio Setup"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Flight Reset"
 #define TR_MAIN_MENU_STATISTICS         "Statistics"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "About EdgeTX"

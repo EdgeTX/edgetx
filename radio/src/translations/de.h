@@ -1138,7 +1138,7 @@
 #define TR_MONITOR_SWITCHES            "LOGIK SCHALTER MONITOR"
 #define TR_MAIN_MENU_MODEL_SETTINGS    "Modell Konfig."
 #define TR_MAIN_MENU_RADIO_SETTINGS    "Sender Konfig."
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY   "Reset Telemetrie"
 #define TR_MAIN_MENU_STATISTICS        "Statistiken"
 #define TR_MAIN_MENU_ABOUT_EDGETX      "Über EdgeTX"

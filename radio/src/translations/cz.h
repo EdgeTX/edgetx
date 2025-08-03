@@ -1146,7 +1146,7 @@
 #define TR_MONITOR_SWITCHES            "MONITOR LOGICKÝCH SPÍNAČŮ"
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Nastavení modelu"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Nastavení rádia"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Settings"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
 #define TR_MAIN_MENU_RESET_TELEMETRY    "Reset telemetrie"
 #define TR_MAIN_MENU_STATISTICS         "Statistiky"
 #define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
