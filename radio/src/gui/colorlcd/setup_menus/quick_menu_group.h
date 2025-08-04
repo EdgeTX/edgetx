@@ -48,11 +48,11 @@ class QuickMenuGroup : public Window
   void setCurrent(ButtonBase* b) { curBtn = b; }
   void setCurrent(int b) { setCurrent(btns[b]); }
 
-  static LAYOUT_SIZE_SCALED(FAB_BUTTON_WIDTH, 72, 72)
-  static LAYOUT_VAL_SCALED(FAB_BUTTON_HEIGHT, 70)
+  static LAYOUT_SIZE_SCALED(QM_BUTTON_WIDTH, 72, 72)
+  static LAYOUT_VAL_SCALED(QM_BUTTON_HEIGHT, 70)
 
-  static LAYOUT_VAL_SCALED(FAB_ICON_SIZE, 30)
-  static constexpr coord_t FAB_BUTTON_INNER_WIDTH = FAB_BUTTON_WIDTH;
+  static LAYOUT_VAL_SCALED(QM_ICON_SIZE, 30)
+  static LAYOUT_ORIENTATION(QM_ICON_PAD, PAD_MEDIUM, PAD_SMALL)
 
  protected:
   std::vector<ButtonBase*> btns;

@@ -139,6 +139,8 @@ enum EdgeTxIcon {
   ICON_BTN_NEXT,
   ICON_BTN_PREV,
 
+  ICON_TOP_LOGO,
+
   EDGETX_ICONS_COUNT
 };
 

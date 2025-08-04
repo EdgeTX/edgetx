@@ -43,8 +43,8 @@ static const lv_obj_class_t etx_quick_button_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = QuickMenuGroup::FAB_BUTTON_WIDTH,
-    .height_def = QuickMenuGroup::FAB_BUTTON_HEIGHT,
+    .width_def = QuickMenuGroup::QM_BUTTON_WIDTH,
+    .height_def = QuickMenuGroup::QM_BUTTON_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
     .instance_size = sizeof(lv_btn_t),
@@ -64,10 +64,10 @@ class QuickMenuButton : public ButtonBase
   {
     padAll(PAD_ZERO);
 
-    iconPtr = new StaticIcon(this, (QuickMenuGroup::FAB_BUTTON_INNER_WIDTH - QuickMenuGroup::FAB_ICON_SIZE) / 2, PAD_OUTLINE, icon, COLOR_WHITE_INDEX);
+    iconPtr = new StaticIcon(this, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL, icon, COLOR_WHITE_INDEX);
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
 
-    textPtr = new StaticText(this, {0, QuickMenuGroup::FAB_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::FAB_BUTTON_INNER_WIDTH, 0},
+    textPtr = new StaticText(this, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
                    title, COLOR_WHITE_INDEX, CENTERED | FONT(XS));
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
   }
@@ -109,7 +109,7 @@ QuickMenuGroup::QuickMenuGroup(Window* parent, lv_flex_flow_t flow) :
         Window(parent, {})
 {
   padAll(PAD_OUTLINE);
-  setFlexLayout(flow, PAD_OUTLINE, parent->width(), parent->height());
+  setFlexLayout(flow, QM_ICON_PAD, parent->width(), parent->height());
   group = lv_group_create();
 }
 

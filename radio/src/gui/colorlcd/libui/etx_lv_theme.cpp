@@ -41,7 +41,7 @@ LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_20, LV_STYLE_BG_OPA,
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_50, LV_STYLE_BG_OPA,
                            LV_OPA_50);
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_75, LV_STYLE_BG_OPA, 187);
-LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_90, LV_STYLE_BG_OPA, 240);
+LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_90, LV_STYLE_BG_OPA, 230);
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::bg_opacity_cover, LV_STYLE_BG_OPA,
                            LV_OPA_COVER);
 LV_STYLE_CONST_SINGLE_INIT(EdgeTxStyles::fg_opacity_transparent, LV_STYLE_OPA,

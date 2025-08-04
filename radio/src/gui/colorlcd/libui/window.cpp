@@ -378,9 +378,10 @@ void Window::setFlexLayout(lv_flex_flow_t flow, lv_coord_t padding,
                            coord_t width, coord_t height)
 {
   lv_obj_set_flex_flow(lvobj, flow);
-  if (_LV_FLEX_COLUMN & flow) {
+  if ((_LV_FLEX_COLUMN & flow) || (_LV_FLEX_WRAP & flow)) {
     lv_obj_set_style_pad_row(lvobj, padding, LV_PART_MAIN);
-  } else {
+  }
+  if (!(_LV_FLEX_COLUMN & flow) || (_LV_FLEX_WRAP & flow)) {
     lv_obj_set_style_pad_column(lvobj, padding, LV_PART_MAIN);
   }
   lv_obj_set_width(lvobj, width);

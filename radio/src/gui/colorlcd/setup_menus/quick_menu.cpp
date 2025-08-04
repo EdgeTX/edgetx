@@ -171,21 +171,26 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
   setWindowFlag(OPAQUE);
 
   etx_obj_add_style(lvobj, styles->bg_opacity_90, LV_PART_MAIN);
-  etx_bg_color(lvobj, COLOR_DARKGREY_INDEX);
+  etx_bg_color(lvobj, COLOR_BLACK_INDEX);
 
-  auto mask = getBuiltinIcon(ICON_BTN_CLOSE);
-  coord_t w = mask->width + 2;
-  coord_t h = mask->height + 2;
-  auto cb = new Window(this, {LCD_W - w, 0, w, h});
-  etx_solid_bg(cb->getLvObj(), COLOR_BLACK_INDEX);
-  new StaticIcon(cb, 1, 1, ICON_BTN_CLOSE, COLOR_WHITE_INDEX);
+  auto ln = new Window(this, {0, 0, LCD_W, PAD_THREE});
+  etx_solid_bg(ln->getLvObj(), COLOR_WHITE_INDEX);
+
+  auto mask = getBuiltinIcon(ICON_TOP_LOGO);
+  new StaticIcon(this, (LCD_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_WHITE_INDEX);
+
+  new ButtonBase(
+    this, {0, 0, LCD_W, mask->height},
+    [=]() -> uint8_t {
+      inSubMenu = false;
+      onCancel();
+      return 0;
+    },
+    window_create);
 
   Layer::push(this);
 
-  auto body = new Window(this, {(LCD_W - QM_POPUP_W) / 2, (LCD_H - QM_POPUP_H) / 2 + PAD_LARGE + PAD_SMALL, QM_POPUP_W, QM_POPUP_H});
-  body->padAll(PAD_OUTLINE);
-
-  auto box = new Window(body, {0, 0, QM_MAIN_W, QM_MAIN_H});
+  auto box = new Window(this, {QM_MAIN_X, QM_MAIN_Y, QM_MAIN_W, QM_MAIN_H});
 
   mainMenu = new QuickMenuGroup(box, (lv_flex_flow_t)QM_MAIN_FLOW);
 
@@ -196,7 +201,7 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
                         return 0;
                       });
 
-  box = new Window(body, {QM_SUB_X, QM_SUB_Y + PAD_SMALL, QM_SUB_W, QM_SUB_H});
+  box = new Window(this, {QM_SUB_X, QM_SUB_Y, QM_SUB_W, QM_SUB_H});
 
   QuickSubMenu* sub;
 
@@ -225,6 +230,14 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
   //                       });
 
   mainMenu->setGroup();
+}
+
+void QuickMenu::deleteLater(bool detach, bool trash)
+{
+  if (_deleted) return;
+
+  instance = nullptr;
+  Window::deleteLater(detach, trash);
 }
 
 void QuickMenu::openQM(std::function<void()> cancelHandler,
@@ -282,12 +295,6 @@ void QuickMenu::setFocus(SubMenu selection)
 void QuickMenu::enableSubMenu()
 {
   inSubMenu = true;
-}
-
-void QuickMenu::onClicked()
-{
-  inSubMenu = false;
-  onCancel();
 }
 
 #if defined(HARDWARE_KEYS)

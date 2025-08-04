@@ -32,8 +32,12 @@ class ButtonBase;
 class QuickSubMenu;
 struct PageDef;
 
-#define GRP_W(n,p) ((QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_OUTLINE) * n - PAD_OUTLINE + PAD_OUTLINE * p)
-#define GRP_H(n,p) ((QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) * n - PAD_OUTLINE + PAD_OUTLINE * p)
+#define GRP_W(n) ((QuickMenuGroup::QM_BUTTON_WIDTH + PAD_MEDIUM) * n - PAD_MEDIUM + PAD_OUTLINE * 2)
+#if LANDSCAPE
+#define GRP_H(n) ((QuickMenuGroup::QM_BUTTON_HEIGHT + PAD_MEDIUM) * n - PAD_MEDIUM + PAD_OUTLINE * 2)
+#else
+#define GRP_H(n) ((QuickMenuGroup::QM_BUTTON_HEIGHT + PAD_SMALL) * n - PAD_SMALL + PAD_OUTLINE * 2)
+#endif
 
 class QuickMenu : public NavWindow
 {
@@ -116,15 +120,15 @@ class QuickMenu : public NavWindow
 
   static constexpr int QM_MAIN_BTNS = 6;
   static constexpr int QM_SUB_BTNS = 12;
-  static LAYOUT_ORIENTATION(QM_POPUP_W, GRP_W(6, 4), GRP_W(4, 4))
-  static LAYOUT_ORIENTATION(QM_POPUP_H, GRP_W(3, 4), GRP_W(6, 4))
-  static LAYOUT_ORIENTATION(QM_MAIN_W, GRP_W(6, 2), GRP_W(1, 2))
-  static LAYOUT_ORIENTATION(QM_MAIN_H, GRP_W(1, 2), GRP_W(6, 2))
   static LAYOUT_ORIENTATION(QM_MAIN_FLOW, LV_FLEX_FLOW_ROW, LV_FLEX_FLOW_COLUMN)
-  static LAYOUT_ORIENTATION(QM_SUB_X, GRP_W(0, 1), GRP_W(1, 1))
-  static LAYOUT_ORIENTATION(QM_SUB_Y, GRP_W(1, 1), GRP_W(0, 1))
-  static LAYOUT_ORIENTATION(QM_SUB_W, GRP_W(6, 2), GRP_W(3, 2))
-  static LAYOUT_ORIENTATION(QM_SUB_H, GRP_W(2, 2), GRP_W(6, 2))
+  static LAYOUT_ORIENTATION(QM_MAIN_W, GRP_W(6), GRP_W(1))
+  static LAYOUT_ORIENTATION(QM_MAIN_H, GRP_H(1), GRP_H(6))
+  static LAYOUT_ORIENTATION(QM_SUB_W, GRP_W(6), GRP_W(3))
+  static LAYOUT_ORIENTATION(QM_SUB_H, GRP_H(2), GRP_H(6))
+  static LAYOUT_ORIENTATION(QM_MAIN_X, (LCD_W - QM_MAIN_W) / 2, (LCD_W - QM_MAIN_W - QM_SUB_W - PAD_SMALL) / 2)
+  static constexpr coord_t QM_MAIN_Y = EdgeTxStyles::STD_FONT_HEIGHT + PAD_MEDIUM;
+  static LAYOUT_ORIENTATION(QM_SUB_X, QM_MAIN_X, QM_MAIN_X + QM_MAIN_W + PAD_SMALL)
+  static LAYOUT_ORIENTATION(QM_SUB_Y, QM_MAIN_Y + QM_MAIN_H + PAD_LARGE, QM_MAIN_Y)
 
  protected:
   static QuickMenu* instance;
@@ -140,7 +144,7 @@ class QuickMenu : public NavWindow
               std::function<void(bool close)> selectHandler,
               PageGroupBase* pageGroup, SubMenu curPage);
 
-  void onClicked() override;
+  void deleteLater(bool detach, bool trash) override;
 };
 
 class QuickSubMenu

@@ -372,6 +372,10 @@ static const uint8_t mask_btn_prev[] = {
 #include "mask_btn_prev.lbm"
 };
 
+static const uint8_t mask_top_logo[] = {
+#include "mask_top_logo.lbm"
+};
+
 struct _BuiltinIcon {
   const uint8_t* lz4_compressed_bitmap;
 };
@@ -496,6 +500,7 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_BTN_CLOSE, mask_btn_close),
     BI(ICON_BTN_NEXT, mask_btn_next),
     BI(ICON_BTN_PREV, mask_btn_prev),
+    BI(ICON_TOP_LOGO, mask_top_logo),
 };
 
 static MaskBitmap* _builtinIconsDecompressed[EDGETX_ICONS_COUNT] = {0};

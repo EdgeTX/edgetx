@@ -58,6 +58,7 @@ void Layer::pop(Window* w)
         return;
       }
     }
+    return;
   }
 
   if (!stack.empty()) {
