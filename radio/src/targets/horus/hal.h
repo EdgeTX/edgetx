@@ -293,6 +293,11 @@
   #define SIXPOS_LED_RED                200
   #define SIXPOS_LED_GREEN              0
   #define SIXPOS_LED_BLUE               0
+#elif defined(RADIO_DRO1)
+  #define SIXPOS_SWITCH_INDEX           5
+  #define SIXPOS_LED_RED                170
+  #define SIXPOS_LED_GREEN              85
+  #define SIXPOS_LED_BLUE               0
 #endif
 
 // Trims
@@ -1103,6 +1108,22 @@
   #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_5
   #define LED_STRIP_TIMER_DMA_IRQn          DMA2_Stream5_IRQn
   #define LED_STRIP_TIMER_DMA_IRQHandler    DMA2_Stream5_IRQHandler
+  #define LED_STRIP_REFRESH_PERIOD          50 //ms
+#elif defined(RADIO_DRO1)
+  // LED Strip
+  #define LED_STRIP_LENGTH                  36
+  #define BLING_LED_STRIP_START             6
+  #define BLING_LED_STRIP_LENGTH            30
+  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 5)  // PA.05 / TIM2_CH1
+  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1    // TIM1/2
+  #define LED_STRIP_TIMER                   TIM2
+  #define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
+  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
+  #define LED_STRIP_TIMER_DMA               DMA1
+  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMA_CHANNEL_3
+  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_7
+  #define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream7_IRQn
+  #define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream7_IRQHandler
   #define LED_STRIP_REFRESH_PERIOD          50 //ms
 #endif
 
