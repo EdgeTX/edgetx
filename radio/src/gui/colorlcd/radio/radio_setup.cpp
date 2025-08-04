@@ -584,7 +584,7 @@ static SetupLineDef viewOptionsPageSetupLines[] = {
     STR_RADIO_MENU_TABS, nullptr,
   },
   {
-    STR_THEME_EDITOR,
+    STR_MAIN_MENU_THEMES,
     [](Window* parent, coord_t x, coord_t y) {
       viewOption(parent, x, y,
                 GET_SET_INVERTED(g_eeGeneral.radioThemesDisabled),

@@ -21,15 +21,10 @@
 
 #pragma once
 
-#include "edgetx.h"
-#include "pagegroup.h"
+#include "page.h"
 
-class ModelHeliPage : public PageGroupItem
+class ModelHeliPage : public SubPage
 {
  public:
-  ModelHeliPage(PageDef& pageDef);
-
-  bool isVisible() const override { return modelHeliEnabled(); }
-
-  void build(Window* window) override;
+  ModelHeliPage();
 };

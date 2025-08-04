@@ -501,6 +501,26 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
   setWindowFlag(OPAQUE);
 }
 
+class SetupTextButton : public TextButton
+{
+ public:
+  SetupTextButton(Window* parent, const rect_t& rect, PageButtonDef& entry) :
+      TextButton(parent, rect, entry.title)
+  {
+    setPressHandler([=] {
+      entry.createPage();
+      return 0;
+    });
+    setCheckHandler([=]() {
+      if (entry.isActive) check(entry.isActive());
+      if (entry.enabled) show(entry.enabled());
+    });
+    setWrap();
+  }
+
+ protected:
+};
+
 SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
                                    PaddingSize padding, PageDefs pages, coord_t btnHeight) :
     Window(parent, rect)
@@ -534,19 +554,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
     x = xo + (n % cols) * xw;
     y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
 
-    // TODO: sort out all caps title strings VS quick menu strings
-    std::string title(entry.title);
-    for (std::string::iterator it = title.begin(); it != title.end(); ++it) {
-      if (*it == '\n')
-        *it = ' ';
-    }
-
-    auto btn = new TextButton(this, rect_t{x, y, buttonWidth, btnHeight}, title, [&, entry]() {
-      entry.createPage();
-      return 0;
-    });
-    btn->setWrap();
-    if (entry.isActive) btn->setCheckHandler([=]() { btn->check(entry.isActive()); });
+    auto btn = new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, entry);
     n += 1;
     remaining -= 1;
   }

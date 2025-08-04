@@ -103,7 +103,7 @@ void QuickSubMenu::buildSubMenu()
   subMenu = new QuickMenuGroup(parent, LV_FLEX_FLOW_ROW_WRAP);
 
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
-    subMenu->addButton(items[i].icon, items[i].title,
+    subMenu->addButton(items[i].icon, items[i].qmTitle,
         std::bind(&QuickSubMenu::onPress, this, i),
         items[i].enabled ? items[i].enabled() : true);
   }
@@ -195,7 +195,7 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
 
   mainMenu = new QuickMenuGroup(box, (lv_flex_flow_t)QM_MAIN_FLOW);
 
-  mainMenu->addButton(ICON_MODEL_SELECT, STR_MAIN_MENU_MANAGE_MODELS,
+  mainMenu->addButton(ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS,
                       [=]() -> uint8_t {
                         onSelect(true);
                         new ModelLabelsWindow();
@@ -206,19 +206,19 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
 
   QuickSubMenu* sub;
 
-  sub = new QuickSubMenu(box, this, ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS, modelMenuItems);
+  sub = new QuickSubMenu(box, this, ICON_MODEL, STR_QM_MODEL_SETUP, modelMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  sub = new QuickSubMenu(box, this, ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, radioMenuItems);
+  sub = new QuickSubMenu(box, this, ICON_RADIO, STR_QM_RADIO_SETUP, radioMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  sub = new QuickSubMenu(box, this, ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS, screensMenuItems);
+  sub = new QuickSubMenu(box, this, ICON_THEME, STR_QM_UI_SETUP, screensMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  sub = new QuickSubMenu(box, this, ICON_RADIO_TOOLS, STR_MAIN_MENU_TOOLS, toolsMenuItems);
+  sub = new QuickSubMenu(box, this, ICON_RADIO_TOOLS, STR_QM_TOOLS, toolsMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
 

@@ -257,9 +257,13 @@ struct PageButtonDef {
   const char* title;
   std::function<void()> createPage;
   std::function<bool()> isActive;
+  std::function<bool()> enabled;
 
-  PageButtonDef(const char* title, std::function<void()> createPage, std::function<bool()> isActive = nullptr) :
-    title(title), createPage(std::move(createPage)), isActive(std::move(isActive))
+  PageButtonDef(const char* title,
+                std::function<void()> createPage,
+                std::function<bool()> isActive = nullptr,
+                std::function<bool()> enabled = nullptr) :
+    title(title), createPage(std::move(createPage)), isActive(std::move(isActive)), enabled(std::move(enabled))
   {}
 };
 

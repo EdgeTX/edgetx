@@ -37,6 +37,7 @@ enum PageDefAction {
 
 struct PageDef {
   EdgeTxIcon icon;
+  const char* qmTitle;
   const char* title;
   PageDefAction pageAction;
   QuickMenu::SubMenu subMenu;

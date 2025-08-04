@@ -40,6 +40,96 @@
 // If the number of minutes is above this value PLURAL2 is used
 #define TR_USE_PLURAL2 INT_MAX
 
+// Main menu
+#define TR_QM_MANAGE_MODELS             "Manage\nModels"
+#define TR_QM_MODEL_SETUP               "Model\nSetup"
+#define TR_QM_RADIO_SETUP               "Radio\nSetup"
+#define TR_QM_UI_SETUP                  "UI\nSetup"
+#define TR_QM_TOOLS                     "Tools"
+#define TR_QM_GEN_SETTINGS              "General\nSettings"
+#if defined(SURFACE_RADIO)
+#define TR_QM_FLIGHT_MODES              "Drive\nModes"
+#else
+#define TR_QM_FLIGHT_MODES              "Flight\nModes"
+#endif
+#define TR_QM_INPUTS                    "Inputs"
+#define TR_QM_MIXES                     "Mixes"
+#define TR_QM_OUTPUTS                   "Outputs"
+#define TR_QM_CURVES                    "Curves"
+#define TR_QM_GLOBAL_VARS               "Global\nVariables"
+#define TR_QM_LOGICAL_SW                "Logical\nSwitches"
+#define TR_QM_SPEC_FUNC                 "Special\nFunctions"
+#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
+#define TR_QM_TELEM                     "Telemetry"
+#define TR_QM_GLOB_FUNC                 "Global\nFunctions"
+#define TR_QM_TRAINER                   "Trainer"
+#define TR_QM_HARDWARE                  "Hardware"
+#define TR_QM_ABOUT                     "About\nEdgeTX"
+#define TR_QM_THEMES                    "Themes"
+#define TR_QM_TOP_BAR                   "Top Bar"
+#define TR_QM_SCREEN_1                  "Screen 1"
+#define TR_QM_SCREEN_2                  "Screen 2"
+#define TR_QM_SCREEN_3                  "Screen 3"
+#define TR_QM_SCREEN_4                  "Screen 4"
+#define TR_QM_SCREEN_5                  "Screen 5"
+#define TR_QM_SCREEN_6                  "Screen 6"
+#define TR_QM_SCREEN_7                  "Screen 7"
+#define TR_QM_SCREEN_8                  "Screen 8"
+#define TR_QM_SCREEN_9                  "Screen 9"
+#define TR_QM_SCREEN_10                 "Screen 10"
+#define TR_QM_ADD_SCREEN                "Add\nScreen"
+#define TR_QM_APPS                      "Apps"
+#define TR_QM_STORAGE                   "Storage"
+#if defined(SURFACE_RADIO)
+#define TR_QM_RESET                     "Drive\nReset"
+#else
+#define TR_QM_RESET                     "Flight\nReset"
+#endif
+#define TR_QM_CHAN_MON                  "Channel\nMonitor"
+#define TR_QM_LS_MON                    "LS\nMonitor"
+#define TR_QM_STATS                     "Statistics"
+#define TR_QM_DEBUG                     "Debug"
+#define TR_MAIN_MENU_SETTINGS           "General Settings"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Menadżer modeli"
+#define TR_MAIN_MENU_MODEL_NOTES        "Notatki modelu"
+#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanałów"
+#define TR_MONITOR_SWITCHES    "MONITOR PRZEŁ. LOGICZNYCH"
+#define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia modelu"
+#define TR_MAIN_MENU_RADIO_SETTINGS     "Ustawienia radia"
+#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
+#define TR_MAIN_MENU_STATISTICS         "Statystyki"
+#define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
+#define TR_MAIN_VIEW_X                  "Screen "
+#define TR_MAIN_MENU_THEMES                 "Szablony"
+#define TR_MAIN_MENU_APPS               "Apps"
+#define TR_MENUHELISETUP       "USTAW HELI"
+#if defined(SURFACE_RADIO)
+  #define TR_MENUFLIGHTMODES   "DRIVE MODES"
+  #define TR_MENUFLIGHTMODE    "DRIVE MODE"
+#else
+  #define TR_MENUFLIGHTMODE    "FAZA LOTU"
+  #define TR_MENUFLIGHTMODES   "FAZY LOTU"
+#endif
+#define TR_MENUINPUTS        "WEJŚCIA"
+#define TR_MENULIMITS        "WYJŚCIA"
+#define TR_MENUCURVES          "KRZYWE"
+#define TR_MIXES               "MIKSERY"
+#define TR_MENU_GLOBAL_VARS    "Zmienne Globalne"
+#define TR_MENULOGICALSWITCHES   TR("PRZEŁ. LOG.", "PRZEŁ. LOGICZNE")
+#define TR_MENUCUSTOMFUNC      "FUNKCJE SPECJALNE"
+#define TR_MENUCUSTOMSCRIPTS   "WŁASNE SKRYPTY"
+#define TR_MENUTELEMETRY       "TELEMETRIA"
+#define TR_MENUSPECIALFUNCS    "FUNKCJE GLOBALNE"
+#define TR_MENUTRAINER         "TRENER"
+#define TR_HARDWARE            "HARDWARE"
+#define TR_USER_INTERFACE               "Top Bar"
+#define TR_SD_CARD             "SD"
+#define TR_DEBUG                       "Debug"
+#define TR_MENU_RADIO_SWITCHES            TR("PRZEŁ","TEST PRZEŁ")
+#define TR_MENUCALIBRATION                "KALIBRACJA"
+#define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
+// End Main menu
+
 #define TR_MINUTE_SINGULAR     "minuta"
 #define TR_MINUTE_PLURAL1      "minuty"
 #define TR_MINUTE_PLURAL2      "minut"
@@ -1122,51 +1212,6 @@
 #define TR_CANCEL                       "Anuluj"
 #define TR_EDIT_THEME                   "Edytuj szablon"
 #define TR_DETAILS                      "Detale"
-#define TR_THEME_EDITOR                 "Szablony"
-
-// Main menu
-#define TR_MAIN_MENU_MANAGE_MODELS      "Menadżer modeli"
-#define TR_MAIN_MENU_MODEL_NOTES        "Notatki modelu"
-#define TR_MAIN_MENU_CHANNEL_MONITOR    "Monitor kanałów"
-#define TR_MONITOR_SWITCHES    "MONITOR PRZEŁ. LOGICZNYCH"
-#define TR_MAIN_MENU_MODEL_SETTINGS     "Ustawienia modelu"
-#define TR_MAIN_MENU_RADIO_SETTINGS     "Ustawienia radia"
-#define TR_MAIN_MENU_SCREEN_SETTINGS    "UI Setup"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset telemetrii"
-#define TR_MAIN_MENU_STATISTICS         "Statystyki"
-#define TR_MAIN_MENU_ABOUT_EDGETX       "O EdgeTX"
-#define TR_MAIN_MENU_TOOLS              "Tools"
-#define TR_MAIN_MENU_LS_MONITOR         "LS Monitor"
-#define TR_MAIN_VIEW_X                  "Screen "
-#define TR_ADD_MAIN_VIEW                "Add screen"
-#define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MENUHELISETUP       "USTAW HELI"
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES   "DRIVE MODES"
-  #define TR_MENUFLIGHTMODE    "DRIVE MODE"
-#else
-  #define TR_MENUFLIGHTMODE    "FAZA LOTU"
-  #define TR_MENUFLIGHTMODES   "FAZY LOTU"
-#endif
-#define TR_MENUINPUTS        "WEJŚCIA"
-#define TR_MENULIMITS        "WYJŚCIA"
-#define TR_MENUCURVES          "KRZYWE"
-#define TR_MIXES               "MIKSERY"
-#define TR_MENU_GLOBAL_VARS    "Zmienne Globalne"
-#define TR_MENULOGICALSWITCHES   TR("PRZEŁ. LOG.", "PRZEŁ. LOGICZNE")
-#define TR_MENUCUSTOMFUNC      "FUNKCJE SPECJALNE"
-#define TR_MENUCUSTOMSCRIPTS   "WŁASNE SKRYPTY"
-#define TR_MENUTELEMETRY       "TELEMETRIA"
-#define TR_MENUSPECIALFUNCS    "FUNKCJE GLOBALNE"
-#define TR_MENUTRAINER         "TRENER"
-#define TR_HARDWARE            "HARDWARE"
-#define TR_USER_INTERFACE      "Interfejs użytkownika"
-#define TR_SD_CARD             "SD"
-#define TR_DEBUG                       "Debug"
-#define TR_MENU_RADIO_SWITCHES            TR("PRZEŁ","TEST PRZEŁ")
-#define TR_MENUCALIBRATION                "KALIBRACJA"
-#define TR_FUNCTION_SWITCHES   "Ustawiane przełączniki"
-// End Main menu
 
 // Voice in native language
 #define TR_VOICE_ENGLISH                "Angielski"
