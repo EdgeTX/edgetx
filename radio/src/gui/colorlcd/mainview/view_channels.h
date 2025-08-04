@@ -28,14 +28,4 @@ class ModelMenu;
 class ChannelsViewMenu: public TabsGroup {
   public:
     ChannelsViewMenu();
-
-  protected:
-
-#if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-#endif
 };

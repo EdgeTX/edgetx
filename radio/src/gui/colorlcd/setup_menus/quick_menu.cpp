@@ -125,6 +125,7 @@ int QuickSubMenu::getPageNumber(int iconNumber)
 uint8_t QuickSubMenu::onPress(int n)
 {
   if (items[n].pageAction == PAGE_CREATE) {
+    quickMenu->getTopMenu()->clearFocus();
     n = getPageNumber(n);
     if (quickMenu->getPageGroup() && isSubMenu(quickMenu->currentPage())) {
       quickMenu->onSelect(false);
@@ -135,6 +136,10 @@ uint8_t QuickSubMenu::onPress(int n)
       pg->setCurrentTab(n);
     }
   } else {
+    quickMenu->getTopMenu()->setCurrent(menuButton);
+    quickMenu->getTopMenu()->setDisabled(false);
+    quickMenu->getTopMenu()->clearFocus();
+    enableSubMenu();
     items[n].action(this);
   }
   return 0;
@@ -196,6 +201,10 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
 
   mainMenu->addButton(ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS,
                       [=]() -> uint8_t {
+                        inSubMenu = false;
+                        mainMenu->setFocus();
+                        mainMenu->setEnabled();
+                        mainMenu->setGroup();
                         onSelect(true);
                         new ModelLabelsWindow();
                         return 0;

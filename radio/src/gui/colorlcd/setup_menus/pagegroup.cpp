@@ -139,8 +139,8 @@ class PageGroupHeader : public PageGroupHeaderBase
 
 //-----------------------------------------------------------------------------
 
-PageGroupBase::PageGroupBase(coord_t bodyY) :
-    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
+PageGroupBase::PageGroupBase(coord_t bodyY, EdgeTxIcon icon) :
+    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H}), icon(icon)
 {
   etx_solid_bg(lvobj);
 
@@ -249,8 +249,7 @@ void PageGroupBase::setCurrentTab(unsigned index)
 //-----------------------------------------------------------------------------
 
 PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
-    PageGroupBase(MENU_TITLE_TOP),
-    icon(icon)
+    PageGroupBase(MENU_TITLE_TOP, icon)
 {
   header = new PageGroupHeader(this, icon);
 
@@ -305,7 +304,9 @@ void PageGroup::onLongPressSYS()
 
 void PageGroup::onPressMDL()
 {
-  if (icon != ICON_MODEL) {
+  if (icon == ICON_MODEL) {
+    setCurrentTab(0);
+  } else {
     onCancel();
     PageGroup::ModelMenu();
   }
@@ -327,10 +328,8 @@ void PageGroup::onPressTELE()
 
 void PageGroup::onLongPressTELE()
 {
-  if (icon != ICON_MONITOR) {
-    onCancel();
-    new ChannelsViewMenu();
-  }
+  onCancel();
+  new ChannelsViewMenu();
 }
 
 void PageGroup::onPressPGUP()
@@ -416,7 +415,7 @@ class TabsGroupHeader : public PageGroupHeaderBase
 //-----------------------------------------------------------------------------
 
 TabsGroup::TabsGroup(EdgeTxIcon icon, const char* name) :
-    PageGroupBase(MENU_BODY_TOP)
+    PageGroupBase(MENU_BODY_TOP, icon)
 {
   header = new TabsGroupHeader(this, icon, name);
 
@@ -452,6 +451,43 @@ void TabsGroup::openMenu()
 }
 
 #if defined(HARDWARE_KEYS)
+void TabsGroup::onPressSYS()
+{
+  if (!quickMenu) openMenu();
+}
+
+void TabsGroup::onLongPressSYS()
+{
+  onCancel();
+  PageGroup::RadioMenu();
+}
+
+void TabsGroup::onPressMDL()
+{
+  onCancel();
+  PageGroup::ModelMenu();
+}
+
+void TabsGroup::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+
+void TabsGroup::onPressTELE()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+
+void TabsGroup::onLongPressTELE()
+{
+  if (icon != ICON_MONITOR) {
+    onCancel();
+    new ChannelsViewMenu();
+  }
+}
+
 void TabsGroup::onPressPGUP() { header->prevTab(); }
 void TabsGroup::onPressPGDN() { header->nextTab(); }
 void TabsGroup::onLongPressPGUP() { header->prevTab(); }

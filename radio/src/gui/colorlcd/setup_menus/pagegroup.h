@@ -134,7 +134,7 @@ class PageGroupHeaderBase : public Window
 class PageGroupBase : public NavWindow
 {
  public:
-  PageGroupBase(coord_t bodyY);
+  PageGroupBase(coord_t bodyY, EdgeTxIcon icon);
 
   void setCurrentTab(unsigned index);
 
@@ -150,6 +150,7 @@ class PageGroupBase : public NavWindow
   Window* body = nullptr;
   PageGroupItem* currentTab = nullptr;
   QuickMenu* quickMenu = nullptr;
+  EdgeTxIcon icon;
 
   void checkEvents() override;
 
@@ -181,7 +182,6 @@ class PageGroup : public PageGroupBase
   static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_TITLE_TOP;
 
  protected:
-  EdgeTxIcon icon;
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
@@ -215,6 +215,12 @@ class TabsGroup : public PageGroupBase
  protected:
 
 #if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
   void onPressPGUP() override;
   void onPressPGDN() override;
   void onLongPressPGUP() override;

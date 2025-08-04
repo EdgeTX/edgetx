@@ -116,32 +116,3 @@ ChannelsViewMenu::ChannelsViewMenu() :
   addTab(new ChannelsViewPage(2));
   addTab(new ChannelsViewPage(3));
 }
-
-#if defined(HARDWARE_KEYS)
-void ChannelsViewMenu::onPressSYS()
-{
-  onCancel();
-  PageGroup::RadioMenu();
-}
-void ChannelsViewMenu::onLongPressSYS()
-{
-  onCancel();
-  // Radio setup
-  PageGroup::RadioMenu();
-}
-void ChannelsViewMenu::onPressMDL()
-{
-  onCancel();
-  PageGroup::ModelMenu();
-}
-void ChannelsViewMenu::onLongPressMDL()
-{
-  onCancel();
-  new ModelLabelsWindow();
-}
-void ChannelsViewMenu::onPressTELE()
-{
-  onCancel();
-  PageGroup::ScreenMenu();
-}
-#endif
