@@ -29,6 +29,7 @@
 #include "view_main.h"
 #include "widget_settings.h"
 #include "pagegroup.h"
+#include "screen_setup.h"
 
 SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
                                            WidgetsContainer* container,
@@ -166,7 +167,7 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     viewMain->showTopBarEdgeTxButton();
   }
   Window::deleteLater(detach, trash);
-  (PageGroup::ScreenMenu())->setCurrentTab(customScreenIdx + 1);
+  (PageGroup::ScreenMenu())->setCurrentTab(customScreenIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
 
   storageDirty(EE_MODEL);
 }

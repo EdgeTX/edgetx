@@ -35,7 +35,7 @@ struct PageDef;
 #define GRP_W(n,p) ((QuickMenuGroup::FAB_BUTTON_WIDTH + PAD_OUTLINE) * n - PAD_OUTLINE + PAD_OUTLINE * p)
 #define GRP_H(n,p) ((QuickMenuGroup::FAB_BUTTON_HEIGHT + PAD_OUTLINE) * n - PAD_OUTLINE + PAD_OUTLINE * p)
 
-class QuickMenu : public Window
+class QuickMenu : public NavWindow
 {
  public:
   enum SubMenu {
@@ -87,11 +87,13 @@ class QuickMenu : public Window
             std::function<void(bool close)> selectHandler = nullptr,
             PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
 
+  static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
+            std::function<void(bool close)> selectHandler = nullptr,
+            PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
+
   void onCancel() override;
   void onSelect(bool close);
   void closeMenu();
-  void deleteLater(bool detach = true, bool trash = true) override;
-  void onEvent(event_t event) override;
 
   void setFocus(SubMenu selection);
 
@@ -101,6 +103,16 @@ class QuickMenu : public Window
 
   PageGroupBase* getPageGroup() const { return pageGroup; }
   QuickMenuGroup* getTopMenu() const { return mainMenu; }
+
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
+  void onLongPressRTN() override;
+#endif
 
   static constexpr int QM_MAIN_BTNS = 6;
   static constexpr int QM_SUB_BTNS = 12;
@@ -115,6 +127,7 @@ class QuickMenu : public Window
   static LAYOUT_ORIENTATION(QM_SUB_H, GRP_W(2, 2), GRP_W(6, 2))
 
  protected:
+  static QuickMenu* instance;
   std::function<void()> cancelHandler = nullptr;
   std::function<void(bool close)> selectHandler = nullptr;
   bool inSubMenu = false;
@@ -122,6 +135,10 @@ class QuickMenu : public Window
   std::vector<QuickSubMenu*> subMenus;
   PageGroupBase* pageGroup = nullptr;
   SubMenu curPage;
+
+  void openQM(std::function<void()> cancelHandler,
+              std::function<void(bool close)> selectHandler,
+              PageGroupBase* pageGroup, SubMenu curPage);
 
   void onClicked() override;
 };

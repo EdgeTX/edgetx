@@ -243,6 +243,7 @@ class EdgeTxStyles
   static const lv_style_t bg_opacity_20;
   static const lv_style_t bg_opacity_50;
   static const lv_style_t bg_opacity_75;
+  static const lv_style_t bg_opacity_90;
   static const lv_style_t bg_opacity_cover;
   static const lv_style_t fg_opacity_transparent;
   static const lv_style_t fg_opacity_cover;

@@ -348,7 +348,7 @@ bool ViewMain::enableWidgetSelect(bool enable)
 
 void ViewMain::openMenu()
 {
-  viewMainMenu = new QuickMenu([=]() { viewMainMenu = nullptr; });
+  viewMainMenu = QuickMenu::openQuickMenu([=]() { viewMainMenu = nullptr; });
 }
 
 void ViewMain::ws_timer(lv_timer_t* t)

@@ -28,6 +28,7 @@
 #include "model_select.h"
 #include "os/time.h"
 #include "view_channels.h"
+#include "screen_setup.h"
 
 #if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
@@ -278,7 +279,7 @@ void PageGroup::removeTab(unsigned index)
 
 void PageGroup::openMenu()
 {
-  quickMenu = new QuickMenu([=]() { quickMenu = nullptr; },
+  quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       if (close)
         onCancel();
@@ -295,7 +296,7 @@ void PageGroup::onPressSYS()
 void PageGroup::onLongPressSYS()
 {
   if (icon == ICON_RADIO) {
-    setCurrentTab(1);
+    setCurrentTab(0);
   } else {
     onCancel();
     PageGroup::RadioMenu();
@@ -320,7 +321,7 @@ void PageGroup::onPressTELE()
 {
   if (icon != ICON_THEME) {
     onCancel();
-    (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + 1);
+    (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
   }
 }
 
@@ -436,7 +437,7 @@ void TabsGroup::openMenu()
     p = (PageGroup*)w;
     subMenu = p->getCurrentTab()->subMenu();
   }
-  quickMenu = new QuickMenu([=]() { quickMenu = nullptr; },
+  quickMenu = QuickMenu::openQuickMenu([=]() { quickMenu = nullptr; },
     [=](bool close) {
       onCancel();
       if (p) {

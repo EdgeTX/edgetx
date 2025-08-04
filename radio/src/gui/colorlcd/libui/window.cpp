@@ -554,7 +554,7 @@ SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const cha
     x = xo + (n % cols) * xw;
     y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
 
-    auto btn = new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, entry);
+    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, entry);
     n += 1;
     remaining -= 1;
   }

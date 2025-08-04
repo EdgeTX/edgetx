@@ -27,6 +27,7 @@
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "view_channels.h"
+#include "screen_setup.h"
 
 inline tmr10ms_t getTicks() { return g_tmr10ms; }
 
@@ -558,7 +559,7 @@ void ModelLabelsWindow::onPressMDL()
 void ModelLabelsWindow::onPressTELE()
 {
   onCancel();
-  (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + 1);
+  (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
 }
 void ModelLabelsWindow::onLongPressTELE()
 {

@@ -29,6 +29,7 @@
 #include "view_main.h"
 #include "screen_setup.h"
 #include "theme_manager.h"
+#include "view_channels.h"
 
 //-----------------------------------------------------------------------------
 
@@ -146,46 +147,39 @@ void QuickSubMenu::onSelect(bool close)
 
 //-----------------------------------------------------------------------------
 
-static void modal_dialog_constructor(const lv_obj_class_t* class_p,
-                                     lv_obj_t* obj)
-{
-  etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
-  etx_obj_add_style(obj, styles->bg_opacity_75, LV_PART_MAIN);
-  etx_bg_color(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
-}
+QuickMenu* QuickMenu::instance = nullptr;
 
-static const lv_obj_class_t etx_modal_dialog_class = {
-    .base_class = &window_base_class,
-    .constructor_cb = modal_dialog_constructor,
-    .destructor_cb = nullptr,
-    .user_data = nullptr,
-    .event_cb = nullptr,
-    .width_def = 0,
-    .height_def = 0,
-    .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
-    .group_def = LV_OBJ_CLASS_EDITABLE_INHERIT,
-    .instance_size = sizeof(lv_obj_t)};
-
-static lv_obj_t* etx_modal_dialog_create(lv_obj_t* parent)
+QuickMenu* QuickMenu::openQuickMenu(std::function<void()> cancelHandler,
+            std::function<void(bool close)> selectHandler,
+            PageGroupBase* pageGroup, SubMenu curPage)
 {
-  return etx_create(&etx_modal_dialog_class, parent);
+  if (!instance) {
+    instance = new QuickMenu(cancelHandler, selectHandler, pageGroup, curPage);
+  } else {
+    instance->openQM(cancelHandler, selectHandler, pageGroup, curPage);
+  }
+  return instance;
 }
 
 QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(bool close)> selectHandler,
                      PageGroupBase* pageGroup, SubMenu curPage) :
-    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
+    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
     cancelHandler(std::move(cancelHandler)),
     selectHandler(std::move(selectHandler)),
     pageGroup(pageGroup), curPage(curPage)
 {
   setWindowFlag(OPAQUE);
 
-  etx_obj_add_style(lvobj, styles->bg_opacity_75, LV_PART_MAIN);
-  etx_bg_color(lvobj, COLOR_BLACK_INDEX, LV_PART_MAIN);
+  etx_obj_add_style(lvobj, styles->bg_opacity_90, LV_PART_MAIN);
+  etx_bg_color(lvobj, COLOR_DARKGREY_INDEX);
 
-  new StaticIcon(this, LCD_W - EdgeTxStyles::UI_ELEMENT_HEIGHT, PAD_TINY, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX);
+  auto mask = getBuiltinIcon(ICON_BTN_CLOSE);
+  coord_t w = mask->width + 2;
+  coord_t h = mask->height + 2;
+  auto cb = new Window(this, {LCD_W - w, 0, w, h});
+  etx_solid_bg(cb->getLvObj(), COLOR_BLACK_INDEX);
+  new StaticIcon(cb, 1, 1, ICON_BTN_CLOSE, COLOR_WHITE_INDEX);
 
-  // Save focus
   Layer::push(this);
 
   auto body = new Window(this, {(LCD_W - QM_POPUP_W) / 2, (LCD_H - QM_POPUP_H) / 2 + PAD_LARGE + PAD_SMALL, QM_POPUP_W, QM_POPUP_H});
@@ -233,22 +227,32 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
   mainMenu->setGroup();
 }
 
-void QuickMenu::deleteLater(bool detach, bool trash)
+void QuickMenu::openQM(std::function<void()> cancelHandler,
+            std::function<void(bool close)> selectHandler,
+            PageGroupBase* pageGroup, SubMenu curPage)
 {
-  Layer::pop(this);
-  if (cancelHandler) cancelHandler();
-  Window::deleteLater(detach, trash);
+  Layer::push(this);
+
+  this->cancelHandler = std::move(cancelHandler);
+  this->selectHandler = std::move(selectHandler);
+  this->pageGroup = pageGroup;
+  this->curPage = curPage;
+  show();
+  lv_obj_move_foreground(lvobj);
+  mainMenu->setGroup();
 }
 
 void QuickMenu::onSelect(bool close)
 {
-  deleteLater();
+  closeMenu();
   if (selectHandler) selectHandler(close);
 }
 
 void QuickMenu::closeMenu()
 {
-  deleteLater();
+  Layer::pop(this);
+  hide();
+  if (cancelHandler) cancelHandler();
 }
 
 void QuickMenu::onCancel()
@@ -261,7 +265,7 @@ void QuickMenu::onCancel()
     for(auto sub : subMenus)
       sub->setDisabled(true);
   } else {
-    deleteLater();
+    closeMenu();
   }
 }
 
@@ -280,17 +284,18 @@ void QuickMenu::enableSubMenu()
   inSubMenu = true;
 }
 
-void QuickMenu::onEvent(event_t event)
-{
-  if (event == EVT_KEY_LONG(KEY_EXIT)) {
-    inSubMenu = false;
-    onCancel();
-  } else {
-    Window::onEvent(event);
-  }
-}
-
 void QuickMenu::onClicked()
 {
-  closeMenu();
+  inSubMenu = false;
+  onCancel();
 }
+
+#if defined(HARDWARE_KEYS)
+void QuickMenu::onPressSYS() { subMenus[3]->onPress(0); }
+void QuickMenu::onLongPressSYS() { subMenus[1]->onPress(0); }
+void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
+void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
+void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
+void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
+void QuickMenu::onLongPressRTN() { onClicked(); }
+#endif

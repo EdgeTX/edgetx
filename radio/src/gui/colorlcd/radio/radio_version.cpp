@@ -376,7 +376,7 @@ void RadioVersionPage::build(Window* window)
   new StaticText(qrBox, {0, qh - QR_SZ - PAD_MEDIUM - EdgeTxStyles::STD_FONT_HEIGHT, LV_PCT(100), 0},
                  edgetx_url, COLOR_THEME_SECONDARY1_INDEX, CENTERED);
 
-  auto qr = new QRCode(qrBox, (qw - QR_SZ) / 2, qh - QR_SZ - PAD_MEDIUM, QR_SZ, edgetx_url);
+  new QRCode(qrBox, (qw - QR_SZ) / 2, qh - QR_SZ - PAD_MEDIUM, QR_SZ, edgetx_url);
 
   auto infoBox = new Window(window, {ix, iy, iw, ih});
   infoBox->padAll(PAD_SMALL);
@@ -412,12 +412,12 @@ void RadioVersionPage::build(Window* window)
   version += boardTouchType;
 #endif
 
-  auto txt = new StaticText(infoBox, {0, 0, LV_PCT(100), LV_SIZE_CONTENT}, version);
+  new StaticText(infoBox, {0, 0, LV_PCT(100), LV_SIZE_CONTENT}, version);
 
   // Module and receivers versions
-  auto btn = new TextButton(infoBox, {0, ih - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_LARGE-PAD_SMALL, LV_PCT(100), 0},
-                            STR_MODULES_RX_VERSION, [=]() {
-                              new VersionDialog();
-                              return 0;
-                            });
+  new TextButton(infoBox, {0, ih - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_LARGE-PAD_SMALL, LV_PCT(100), 0},
+                  STR_MODULES_RX_VERSION, [=]() {
+                    new VersionDialog();
+                    return 0;
+                  });
 }
