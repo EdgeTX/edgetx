@@ -152,9 +152,25 @@ class PageGroupBase : public NavWindow
   QuickMenu* quickMenu = nullptr;
   EdgeTxIcon icon;
 
+  virtual void openMenu() = 0;
+
   void checkEvents() override;
 
   void deleteLater(bool detach = true, bool trash = true) override;
+
+#if defined(HARDWARE_KEYS)
+  void onPressSYS() override;
+  void onLongPressSYS() override;
+  void onPressMDL() override;
+  void onLongPressMDL() override;
+  void onPressTELE() override;
+  void onLongPressTELE() override;
+  void onPressPGUP() override;
+  void onPressPGDN() override;
+  void onLongPressPGUP() override;
+  void onLongPressPGDN() override;
+  void onLongPressRTN() override;
+#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -183,18 +199,7 @@ class PageGroup : public PageGroupBase
 
  protected:
 
-#if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
-  void onPressPGUP() override;
-  void onPressPGDN() override;
-#endif
-
-  void openMenu();
+  void openMenu() override;
 };
 
 //-----------------------------------------------------------------------------
@@ -214,19 +219,5 @@ class TabsGroup : public PageGroupBase
 
  protected:
 
-#if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
-  void onPressPGUP() override;
-  void onPressPGDN() override;
-  void onLongPressPGUP() override;
-  void onLongPressPGDN() override;
-  void onLongPressRTN() override;
-#endif
-
-  void openMenu();
+  void openMenu() override;
 };

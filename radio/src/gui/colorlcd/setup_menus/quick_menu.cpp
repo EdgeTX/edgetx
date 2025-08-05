@@ -313,5 +313,5 @@ void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
 void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
 void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
 void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
-void QuickMenu::onLongPressRTN() { onClicked(); }
+void QuickMenu::onLongPressRTN() { onCancel(); }
 #endif

@@ -246,6 +246,61 @@ void PageGroupBase::setCurrentTab(unsigned index)
   }
 }
 
+#if defined(HARDWARE_KEYS)
+void PageGroupBase::onPressSYS()
+{
+  if (!quickMenu) openMenu();
+}
+
+void PageGroupBase::onLongPressSYS()
+{
+  if (icon == ICON_RADIO) {
+    setCurrentTab(0);
+  } else {
+    onCancel();
+    PageGroup::RadioMenu();
+  }
+}
+
+void PageGroupBase::onPressMDL()
+{
+  if (icon == ICON_MODEL) {
+    setCurrentTab(0);
+  } else {
+    onCancel();
+    PageGroup::ModelMenu();
+  }
+}
+
+void PageGroupBase::onLongPressMDL()
+{
+  onCancel();
+  new ModelLabelsWindow();
+}
+
+void PageGroupBase::onPressTELE()
+{
+  if (icon != ICON_THEME) {
+    onCancel();
+    (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+  }
+}
+
+void PageGroupBase::onLongPressTELE()
+{
+  if (icon != ICON_MONITOR) {
+    onCancel();
+    new ChannelsViewMenu();
+  }
+}
+
+void PageGroupBase::onPressPGUP() { header->prevTab(); }
+void PageGroupBase::onPressPGDN() { header->nextTab(); }
+void PageGroupBase::onLongPressPGUP() { header->prevTab(); }
+void PageGroupBase::onLongPressPGDN() { header->nextTab(); }
+void PageGroupBase::onLongPressRTN() { onCancel(); }
+#endif
+
 //-----------------------------------------------------------------------------
 
 PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
@@ -285,63 +340,6 @@ void PageGroup::openMenu()
     }, this, currentTab->subMenu());
   quickMenu->setFocus(currentTab->subMenu());
 }
-
-#if defined(HARDWARE_KEYS)
-void PageGroup::onPressSYS()
-{
-  if (!quickMenu) openMenu();
-}
-
-void PageGroup::onLongPressSYS()
-{
-  if (icon == ICON_RADIO) {
-    setCurrentTab(0);
-  } else {
-    onCancel();
-    PageGroup::RadioMenu();
-  }
-}
-
-void PageGroup::onPressMDL()
-{
-  if (icon == ICON_MODEL) {
-    setCurrentTab(0);
-  } else {
-    onCancel();
-    PageGroup::ModelMenu();
-  }
-}
-
-void PageGroup::onLongPressMDL()
-{
-  onCancel();
-  new ModelLabelsWindow();
-}
-
-void PageGroup::onPressTELE()
-{
-  if (icon != ICON_THEME) {
-    onCancel();
-    (PageGroup::ScreenMenu())->setCurrentTab(ViewMain::instance()->getCurrentMainView() + ScreenSetupPage::FIRST_SCREEN_OFFSET);
-  }
-}
-
-void PageGroup::onLongPressTELE()
-{
-  onCancel();
-  new ChannelsViewMenu();
-}
-
-void PageGroup::onPressPGUP()
-{
-  header->prevTab();
-}
-
-void PageGroup::onPressPGDN()
-{
-  header->nextTab();
-}
-#endif
 
 PageGroup* PageGroup::ScreenMenu() { return new PageGroup(ICON_THEME, screensMenuItems); }
 PageGroup* PageGroup::RadioMenu() { return new PageGroup(ICON_RADIO, radioMenuItems); }
@@ -449,48 +447,3 @@ void TabsGroup::openMenu()
     }, p, subMenu);
   quickMenu->setFocus(subMenu);
 }
-
-#if defined(HARDWARE_KEYS)
-void TabsGroup::onPressSYS()
-{
-  if (!quickMenu) openMenu();
-}
-
-void TabsGroup::onLongPressSYS()
-{
-  onCancel();
-  PageGroup::RadioMenu();
-}
-
-void TabsGroup::onPressMDL()
-{
-  onCancel();
-  PageGroup::ModelMenu();
-}
-
-void TabsGroup::onLongPressMDL()
-{
-  onCancel();
-  new ModelLabelsWindow();
-}
-
-void TabsGroup::onPressTELE()
-{
-  onCancel();
-  new ModelLabelsWindow();
-}
-
-void TabsGroup::onLongPressTELE()
-{
-  if (icon != ICON_MONITOR) {
-    onCancel();
-    new ChannelsViewMenu();
-  }
-}
-
-void TabsGroup::onPressPGUP() { header->prevTab(); }
-void TabsGroup::onPressPGDN() { header->nextTab(); }
-void TabsGroup::onLongPressPGUP() { header->prevTab(); }
-void TabsGroup::onLongPressPGDN() { header->nextTab(); }
-void TabsGroup::onLongPressRTN() { onCancel(); }
-#endif
