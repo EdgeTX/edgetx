@@ -183,8 +183,6 @@ enum
   VIRTUAL_GPS_SPEED          = 0x1A40,
   VIRTUAL_GPS_ALT           = 0x1B40,
   VIRTUAL_GPS_REL_ALT           = 0x1C40,
-  // VIRTUAL_GPS_DAY_MONTH     = 0x1b40,
-  // VIRTUAL_GPS_HOUR_MIN      = 0x1c40,
 
   VIRTUAL_IBC_VOLTS          = 0x1043,
   VIRTUAL_IBC_CURR           = 0x1143,
@@ -659,28 +657,10 @@ void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len)
   *len = 6;
 }
 
-// void flySkyIbus2ClearIBC(uint8_t* packet, uint8_t* len) 
-// {
-//   Ibus2DevPara.type = IBUS2_CALIB_IBC01;
-//   Ibus2DevPara.id = flyskyIbcId;
-//   uint8_t save_on = 1;
-//   Ibus2DevPara.ParameterData[0] = save_on;
-//   setIbus2Param(packet);
-//   *len = 22;
-// }
-
-// void flySkyIbus2IbcReadClear(uint8_t* packet, uint8_t* len) {
-//   Ibus2DevPara.type = IBUS2_CALIB_IBC01;
-//   Ibus2DevPara.id = flyskyIbcId;
-//   getIbus2Param(packet);
-//   *len = 6;
-// }
-
 void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags) 
 {
   Ibus2DevPara.type = IBUS2_CALIB_SET_PARAM;
   Ibus2DevPara.id = flyskyIbcId;
-  uint8_t save_on = 1;
   Ibus2DevPara.ParameterData[0] = (uint8_t)(voltags & 0xff);
   Ibus2DevPara.ParameterData[1] = (uint8_t)(voltags >> 8);
   setIbus2Param(packet);
