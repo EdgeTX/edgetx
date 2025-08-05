@@ -90,7 +90,7 @@ void onUpdateStateChanged()
     uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
     if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA_TO_UPDATE_SELF)) {
       POPUP_CONFIRMATION(getPXX2ReceiverName(modelId), onUpdateConfirmation);
-      char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, TR_CURRENT_VERSION);
+      char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
       tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
       *tmp++ = '.';
       tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
@@ -100,7 +100,7 @@ void onUpdateStateChanged()
     }
     else {
       POPUP_WARNING(STR_OTA_UPDATE_ERROR);
-      SET_WARNING_INFO(STR_UNSUPPORTED_RX, sizeof(TR_UNSUPPORTED_RX) - 1, 0);
+      SET_WARNING_INFO(STR_UNSUPPORTED_RX, strlen(STR_UNSUPPORTED_RX) - 1, 0);
       moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL;
     }
   }

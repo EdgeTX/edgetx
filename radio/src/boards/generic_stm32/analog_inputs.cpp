@@ -34,7 +34,7 @@
 #include "definitions.h"
 
 #include "myeeprom.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 #include <string.h>
 
