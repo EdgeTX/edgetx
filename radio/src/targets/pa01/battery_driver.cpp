@@ -505,7 +505,6 @@ void rgbBatteryLevelInfo(uint8_t power_level, uint8_t rgb_state) {
 }
 
 #define BREATH_INTERVAL 7
-#define BRIGHTNESS_MAX  0xF8
 #define GAMMA       6
 #define PI 3.14159265358979323846f
 #define BREATH_STEP 0.0089759771428571  // PI / 350.0f; // step size
@@ -603,7 +602,6 @@ void ledLoop(void) {
   ledBreathUpdate(led_info.led_state, led_info.led_color, led_info.led_group);
 }
 
-static uint8_t _led_colors[WS2812_BYTES_PER_LED * LED_STRIP_LENGTH];
 extern const stm32_pulse_timer_t _led_timer;
 static uint8_t _led_charge_colors[WS2812_BYTES_PER_LED * LED_STRIP_LENGTH];
 void rgbChargeInit(void) {
@@ -611,7 +609,7 @@ void rgbChargeInit(void) {
   rgbLedClearAll();
 }
 
-constexpr uint16_t vbatLedTable[] = {720, 740, 760, 800, 823};
+constexpr uint16_t vbatLedTable[] = {660, 720, 760, 800, 823};
 constexpr uint16_t HYSTERESIS = 5;
 void updateBatteryState(uint8_t rgb_state) {
   uint16_t bat_v = getBatteryVoltage();
