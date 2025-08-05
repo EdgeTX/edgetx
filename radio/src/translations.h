@@ -216,6 +216,7 @@ inline PLAY_FUNCTION(playDuration, int seconds, uint8_t flags) {
 #include "string_list.h"
 
 STR(SF_SET_SCREEN);
+STR(RX);
 
 #if defined(AUDIO) && defined(BUZZER)
 STR(SPEAKER);

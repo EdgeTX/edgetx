@@ -47,3 +47,5 @@ const char STR_SF_SET_SCREEN[] = TR_SF_SET_TELEMSCREEN;
 STR(SPEAKER);
 STR(BUZZER);
 #endif
+
+const char STR_RX[] = "Rx";
