@@ -58,8 +58,6 @@ void flySkyIbus2CalGpsGyro(uint8_t* packet, uint8_t* len);
 void flySkyIbus2CalibIBC(uint8_t* packet, uint8_t* len, short voltags);
 void flySkyIbus2CalGpsAlt();
 void flySkyIbus2CalGpsDist();
-// void flySkyIbus2ClearIBC(uint8_t* packet, uint8_t* len);
-// void flySkyIbus2IbcReadClear(uint8_t* packet, uint8_t* len);
 void Ibus2ParamCheck(uint8_t* packet, uint8_t len);
 void flySkyIbus2ReadParamRPM(uint8_t* packet, uint8_t* len);
 bool getIbus2IbcState();
