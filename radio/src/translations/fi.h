@@ -545,8 +545,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -849,7 +847,7 @@
 #define TR_GLOBAL_VAR                  "Globaali muuttuja"
 #define TR_OWN                         "Oma"
 #define TR_DATE                        "Päivämäärä"
-#define TR_MONTHS                      { "tam", "hel", "maa", "huh", "tou", "kes", "hei", "elo", "syy", "lok", "mar", "jou" }
+#define TR_MONTHS                      "tam", "hel", "maa", "huh", "tou", "kes", "hei", "elo", "syy", "lok", "mar", "jou"
 #define TR_ROTARY_ENCODER              "R.E."
 #define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR            "CHANNELS MONITOR"
@@ -1054,7 +1052,6 @@
 #define TR_TOUCH_PANEL                 "Kosketusnäyttö:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"
@@ -1079,7 +1076,7 @@
 #define TR_INVERTED                    "Inverted"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
+#define TR_LSW_DESCRIPTIONS            "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1096,7 +1093,7 @@
   #define TR_ALIGNMENT                 "Kohdistus"
   #define TR_ALIGN_LABEL               "Kohdista merkki"
   #define TR_ALIGN_VALUE               "Kohdista arvo"
-  #define TR_ALIGN_OPTS                { "Vasen", "Keski", "Oikea" }
+  #define TR_ALIGN_OPTS                "Vasen", "Keski", "Oikea"
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Color"
   #define TR_PANEL1_BACKGROUND         "Panel1 background"

@@ -132,7 +132,7 @@ uint8_t QuickSubMenu::onPress(int n)
       quickMenu->getPageGroup()->setCurrentTab(n);
     } else {
       quickMenu->onSelect(true);
-      auto pg = new PageGroup(icon, items);
+      auto pg = new PageGroup(icon, parentTitle, items);
       pg->setCurrentTab(n);
     }
   } else {
@@ -178,8 +178,9 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
   etx_obj_add_style(lvobj, styles->bg_opacity_90, LV_PART_MAIN);
   etx_bg_color(lvobj, COLOR_BLACK_INDEX);
 
-  auto ln = new Window(this, {0, 0, LCD_W, PAD_THREE});
-  etx_solid_bg(ln->getLvObj(), COLOR_WHITE_INDEX);
+  auto sep = lv_obj_create(lvobj);
+  etx_solid_bg(sep, COLOR_WHITE_INDEX);
+  lv_obj_set_size(sep, LCD_W, PAD_THREE);
 
   auto mask = getBuiltinIcon(ICON_TOP_LOGO);
   new StaticIcon(this, (LCD_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_WHITE_INDEX);
@@ -214,19 +215,19 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
 
   QuickSubMenu* sub;
 
-  sub = new QuickSubMenu(box, this, ICON_MODEL, STR_QM_MODEL_SETUP, modelMenuItems);
+  sub = new QuickSubMenu(box, this, ICON_MODEL, STR_QM_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, modelMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  sub = new QuickSubMenu(box, this, ICON_RADIO, STR_QM_RADIO_SETUP, radioMenuItems);
+  sub = new QuickSubMenu(box, this, ICON_RADIO, STR_QM_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, radioMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  sub = new QuickSubMenu(box, this, ICON_THEME, STR_QM_UI_SETUP, screensMenuItems);
+  sub = new QuickSubMenu(box, this, ICON_THEME, STR_QM_UI_SETUP, STR_MAIN_MENU_SCREEN_SETTINGS, screensMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
 
-  sub = new QuickSubMenu(box, this, ICON_RADIO_TOOLS, STR_QM_TOOLS, toolsMenuItems);
+  sub = new QuickSubMenu(box, this, ICON_RADIO_TOOLS, STR_QM_TOOLS, STR_QM_TOOLS, toolsMenuItems);
   sub->addButton();
   subMenus.emplace_back(sub);
 
@@ -307,11 +308,11 @@ void QuickMenu::enableSubMenu()
 }
 
 #if defined(HARDWARE_KEYS)
-void QuickMenu::onPressSYS() { subMenus[3]->onPress(0); }
-void QuickMenu::onLongPressSYS() { subMenus[1]->onPress(0); }
-void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
-void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
-void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
-void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
-void QuickMenu::onLongPressRTN() { onCancel(); }
+void QuickMenu::onPressSYS() { closeMenu(); }
+// void QuickMenu::onLongPressSYS() { subMenus[1]->onPress(0); }
+// void QuickMenu::onPressMDL() { subMenus[0]->onPress(0); }
+// void QuickMenu::onLongPressMDL() { onSelect(true); new ModelLabelsWindow(); }
+// void QuickMenu::onPressTELE() { subMenus[2]->onPress(ScreenSetupPage::FIRST_SCREEN_OFFSET); }
+// void QuickMenu::onLongPressTELE() { onSelect(true); new ChannelsViewMenu(); }
+// void QuickMenu::onLongPressRTN() { onCancel(); }
 #endif

@@ -529,8 +529,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -838,7 +836,7 @@
 #define TR_GLOBAL_VAR                  "全局變量"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "日期"
-#define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec " }
+#define TR_MONTHS                      "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec "
 #define TR_ROTARY_ENCODER              "滾輪"
 #define TR_ROTARY_ENC_MODE              TR("滾輪模式","滾輪模式")
 #define TR_CHANNELS_MONITOR            "通道查看器"
@@ -1038,7 +1036,6 @@
 #define TR_TOUCH_PANEL                 "觸摸屏:"
 #define TR_FILE_SIZE                   "文件大小"
 #define TR_FILE_OPEN                   "強制打開?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_LABEL " " TR_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "名稱"
@@ -1063,7 +1060,7 @@
 #define TR_INVERTED                    "反向"
 
 
-#define TR_LSW_DESCRIPTIONS            { "比較類型或功能", "第一個變量", "第二個變量或常量", "第二個變量或常量", "啟用本行的附加條件", "邏輯開關持續時間", "邏輯開關延時開啟" }
+#define TR_LSW_DESCRIPTIONS            "比較類型或功能", "第一個變量", "第二個變量或常量", "第二個變量或常量", "啟用本行的附加條件", "邏輯開關持續時間", "邏輯開關延時開啟"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1080,7 +1077,7 @@
   #define TR_ALIGNMENT                 "對齊"
   #define TR_ALIGN_LABEL               "对齐名称"
   #define TR_ALIGN_VALUE               "对齐值"
-  #define TR_ALIGN_OPTS                { "左", "中", "右" }
+  #define TR_ALIGN_OPTS                "左", "中", "右"
   #define TR_TEXT                      "文本"
   #define TR_COLOR                     "顏色"
   #define TR_PANEL1_BACKGROUND         "面板1背景"

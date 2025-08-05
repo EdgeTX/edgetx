@@ -55,8 +55,8 @@ static void on_draw_end(lv_event_t* e)
 
 //-----------------------------------------------------------------------------
 
-PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxIcon icon) :
-    Window(parent, {0, 0, LCD_W, height})
+PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxIcon icon, const char* parentTitle, PageGroupBase* menu) :
+    Window(parent, {0, 0, LCD_W, height}), menu(menu)
 {
     etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
@@ -64,8 +64,16 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
 
     new HeaderBackIcon(this);
 
+    parentLabel = lv_label_create(lvobj);
+    etx_txt_color(parentLabel, COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_set_pos(parentLabel, PageGroup::PAGE_TOP_BAR_H + PAD_LARGE, PageHeader::PAGE_TITLE_TOP);
+    lv_obj_set_size(parentLabel, LCD_W - PageGroup::PAGE_TOP_BAR_H * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_label_set_text(parentLabel, parentTitle);
+
     titleLabel = lv_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_set_pos(titleLabel, PageGroup::PAGE_TOP_BAR_H + PAD_LARGE, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_obj_set_size(titleLabel, LCD_W - PageGroup::PAGE_TOP_BAR_H * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
     setTitle("");
 }
 
@@ -89,12 +97,9 @@ void PageGroupHeaderBase::addTab(PageGroupItem* page)
 class PageGroupHeader : public PageGroupHeaderBase
 {
  public:
-  PageGroupHeader(PageGroup* menu, EdgeTxIcon icon) :
-      PageGroupHeaderBase(menu, PageGroup::MENU_TITLE_TOP, icon),
-      menu(menu)
+  PageGroupHeader(PageGroup* menu, EdgeTxIcon icon, const char* parentTitle) :
+      PageGroupHeaderBase(menu, PageGroup::PAGE_TOP_BAR_H, icon, parentTitle, menu)
   {
-    lv_obj_set_pos(titleLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PAD_MEDIUM * 2);
-    lv_obj_set_size(titleLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 2 - PAD_LARGE * 2, PageGroup::MENU_TITLE_TOP - PAD_MEDIUM * 2);
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -128,8 +133,6 @@ class PageGroupHeader : public PageGroupHeaderBase
   }
 
  protected:
-  PageGroup* menu;
-
   void checkEvents() override
   {
     updateLayout();
@@ -303,10 +306,10 @@ void PageGroupBase::onLongPressRTN() { onCancel(); }
 
 //-----------------------------------------------------------------------------
 
-PageGroup::PageGroup(EdgeTxIcon icon, PageDef* pages) :
-    PageGroupBase(MENU_TITLE_TOP, icon)
+PageGroup::PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages) :
+    PageGroupBase(PAGE_TOP_BAR_H, icon)
 {
-  header = new PageGroupHeader(this, icon);
+  header = new PageGroupHeader(this, icon, title);
 
   for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {
     if (pages[i].create)
@@ -341,52 +344,39 @@ void PageGroup::openMenu()
   quickMenu->setFocus(currentTab->subMenu());
 }
 
-PageGroup* PageGroup::ScreenMenu() { return new PageGroup(ICON_THEME, screensMenuItems); }
-PageGroup* PageGroup::RadioMenu() { return new PageGroup(ICON_RADIO, radioMenuItems); }
-PageGroup* PageGroup::ModelMenu() { return new PageGroup(ICON_MODEL, modelMenuItems); }
+PageGroup* PageGroup::ScreenMenu() { return new PageGroup(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS, screensMenuItems); }
+PageGroup* PageGroup::RadioMenu() { return new PageGroup(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, radioMenuItems); }
+PageGroup* PageGroup::ModelMenu() { return new PageGroup(ICON_MODEL, STR_MAIN_MENU_MODEL_SETTINGS, modelMenuItems); }
 
 //-----------------------------------------------------------------------------
 
 class TabsGroupHeader : public PageGroupHeaderBase
 {
  public:
-  TabsGroupHeader(TabsGroup* menu, EdgeTxIcon icon, const char* name) :
-      PageGroupHeaderBase(menu, TabsGroup::MENU_BODY_TOP, icon),
-      menu(menu)
+  TabsGroupHeader(TabsGroup* menu, EdgeTxIcon icon, const char* parentTitle) :
+      PageGroupHeaderBase(menu, TabsGroup::TABS_GROUP_BODY_Y, icon, parentTitle, menu)
   {
 #if PORTRAIT
-    nameLabel = lv_label_create(lvobj);
-    etx_txt_color(nameLabel, COLOR_THEME_PRIMARY2_INDEX);
-    lv_obj_set_pos(nameLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PAD_MEDIUM * 2);
-    lv_obj_set_size(nameLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 2 - PAD_LARGE * 2, PageGroup::MENU_TITLE_TOP - PAD_MEDIUM * 2);
-    lv_label_set_text(nameLabel, name);
+    lv_obj_set_pos(parentLabel, PageGroup::PAGE_TOP_BAR_H + PAD_LARGE, PAD_MEDIUM * 2);
+    lv_obj_set_size(parentLabel, LCD_W - PageGroup::PAGE_TOP_BAR_H * 2 - PAD_LARGE * 2, PageGroup::PAGE_TOP_BAR_H - PAD_MEDIUM * 2);
 
     auto sep = lv_obj_create(lvobj);
     etx_solid_bg(sep);
     lv_obj_set_pos(sep, 0, EdgeTxStyles::MENU_HEADER_HEIGHT);
-    lv_obj_set_size(sep, LCD_W, TabsGroup::MENU_TITLE_TOP - EdgeTxStyles::MENU_HEADER_HEIGHT);
+    lv_obj_set_size(sep, LCD_W, TabsGroup::PAGE_TOP_BAR_H - EdgeTxStyles::MENU_HEADER_HEIGHT);
 
     lv_obj_set_style_pad_left(titleLabel, PAD_MEDIUM, LV_PART_MAIN);
     lv_obj_set_style_pad_top(titleLabel, 1, LV_PART_MAIN);
-    lv_obj_set_pos(titleLabel, 0, TabsGroup::MENU_TITLE_TOP);
-    lv_obj_set_size(titleLabel, LCD_W, TabsGroup::MENU_TITLE_HEIGHT);
-#else
-    nameLabel = lv_label_create(lvobj);
-    etx_txt_color(nameLabel, COLOR_THEME_PRIMARY2_INDEX);
-    lv_obj_set_pos(nameLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PageHeader::PAGE_TITLE_TOP);
-    lv_obj_set_size(nameLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
-    lv_label_set_text(nameLabel, name);
-
-    lv_obj_set_pos(titleLabel, PageGroup::MENU_TITLE_TOP + PAD_LARGE, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
-    lv_obj_set_size(titleLabel, LCD_W - PageGroup::MENU_TITLE_TOP * 4 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
+    lv_obj_set_pos(titleLabel, 0, TabsGroup::PAGE_TOP_BAR_H);
+    lv_obj_set_size(titleLabel, LCD_W, TabsGroup::PAGE_ALT_TITLE_H);
 #endif
 
-    new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::MENU_TITLE_TOP * 3, PAD_MEDIUM, [=]() {
+    new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_TOP_BAR_H * 3, PAD_MEDIUM, [=]() {
       prevTab();
       return 0;
     });
 
-    new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::MENU_TITLE_TOP * 2, PAD_MEDIUM, [=]() {
+    new IconButton(this, ICON_BTN_NEXT, LCD_W - PageGroup::PAGE_TOP_BAR_H * 2, PAD_MEDIUM, [=]() {
       nextTab();
       return 0;
     });
@@ -406,16 +396,14 @@ class TabsGroupHeader : public PageGroupHeaderBase
   }
 
  protected:
-  TabsGroup* menu;
-  lv_obj_t* nameLabel = nullptr;
 };
 
 //-----------------------------------------------------------------------------
 
-TabsGroup::TabsGroup(EdgeTxIcon icon, const char* name) :
-    PageGroupBase(MENU_BODY_TOP, icon)
+TabsGroup::TabsGroup(EdgeTxIcon icon, const char* parentLabel) :
+    PageGroupBase(TABS_GROUP_BODY_Y, icon)
 {
-  header = new TabsGroupHeader(this, icon, name);
+  header = new TabsGroupHeader(this, icon, parentLabel);
 
 #if defined(HARDWARE_TOUCH)
   addCustomButton(0, 0, [=]() { openMenu(); });

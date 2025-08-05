@@ -529,8 +529,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                       "Tx:\0Rx:"
-#define OFS_RX                          4
 #define TR_NODATA                       "DATI ASSENTI"
 #define TR_US                           "us"
 #define TR_HZ                           "Hz"
@@ -838,7 +836,7 @@
 #define TR_GLOBAL_VAR                   "Variabile globale"
 #define TR_OWN                          "Fase"
 #define TR_DATE                         "Data"
-#define TR_MONTHS                       { "Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic" }
+#define TR_MONTHS                       "Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"
 #define TR_ROTARY_ENCODER               "R.E."
 #define TR_ROTARY_ENC_MODE              TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR             "MONITOR CANALI"
@@ -1037,7 +1035,6 @@
 #define TR_TOUCH_PANEL                     "Schermo touch:"
 #define TR_FILE_SIZE                       "Dimensione file"
 #define TR_FILE_OPEN                       "Apro comunque?"
-#define TR_TIMER_MODES                     {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nome"
@@ -1062,7 +1059,7 @@
 #define TR_INVERTED                    "Invertito"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Confronta tipo o funzione", "Prima variabile", "Seconda variabile o costante", "Seconda variabile o costante", "Condizione aggiuntiva per abilitare linea", "Durata minima ON dell'interruttore logico", "Durata minima REALE per abilitare l'interruttore" }
+#define TR_LSW_DESCRIPTIONS            "Confronta tipo o funzione", "Prima variabile", "Seconda variabile o costante", "Seconda variabile o costante", "Condizione aggiuntiva per abilitare linea", "Durata minima ON dell'interruttore logico", "Durata minima REALE per abilitare l'interruttore"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1079,7 +1076,7 @@
   #define TR_ALIGNMENT                 "Allineamento"
   #define TR_ALIGN_LABEL               "Allinea etichetta"
   #define TR_ALIGN_VALUE               "Allinea il valore"
-  #define TR_ALIGN_OPTS                { "Sinistra", "Centro", "Destra" }
+  #define TR_ALIGN_OPTS                "Sinistra", "Centro", "Destra"
   #define TR_TEXT                      "Testo"
   #define TR_COLOR                     "Colore"
   #define TR_PANEL1_BACKGROUND         "Sfondo Panello 1"

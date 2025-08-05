@@ -25,8 +25,8 @@
 #include "quick_menu.h"
 
 class HeaderIcon;
-class PageGroup;
 class PageGroupItem;
+class PageGroupBase;
 
 //-----------------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ class PageGroupItem
 class PageGroupHeaderBase : public Window
 {
  public:
-  PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxIcon icon);
+  PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxIcon icon, const char* parentTitle, PageGroupBase* menu);
 
   void setTitle(const char* title);
   void setIcon(EdgeTxIcon newIcon);
@@ -125,8 +125,10 @@ class PageGroupHeaderBase : public Window
  protected:
   uint8_t currentIndex = 0;
   lv_obj_t* titleLabel = nullptr;
+  lv_obj_t* parentLabel = nullptr;
   HeaderIcon* hdrIcon = nullptr;
   std::vector<PageGroupItem*> pages;
+  PageGroupBase* menu;
 };
 
 //-----------------------------------------------------------------------------
@@ -178,7 +180,7 @@ class PageGroupBase : public NavWindow
 class PageGroup : public PageGroupBase
 {
  public:
-  explicit PageGroup(EdgeTxIcon icon, PageDef* pages);
+  explicit PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "PageGroup"; }
@@ -194,8 +196,7 @@ class PageGroup : public PageGroupBase
   static PageGroup* RadioMenu();
   static PageGroup* ModelMenu();
 
-  static LAYOUT_VAL_SCALED(MENU_TITLE_TOP, 45)
-  static constexpr coord_t MENU_BODY_HEIGHT = LCD_H - MENU_TITLE_TOP;
+  static LAYOUT_VAL_SCALED(PAGE_TOP_BAR_H, 45)
 
  protected:
 
@@ -207,15 +208,15 @@ class PageGroup : public PageGroupBase
 class TabsGroup : public PageGroupBase
 {
  public:
-  explicit TabsGroup(EdgeTxIcon icon, const char* name);
+  explicit TabsGroup(EdgeTxIcon icon, const char* parentTitle);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "TabsGroup"; }
 #endif
 
-  static LAYOUT_ORIENTATION_SCALED(MENU_TITLE_TOP, 45, 48)
-  static LAYOUT_ORIENTATION(MENU_TITLE_HEIGHT, 0, EdgeTxStyles::STD_FONT_HEIGHT)
-  static constexpr coord_t MENU_BODY_TOP = MENU_TITLE_TOP + MENU_TITLE_HEIGHT;
+  static LAYOUT_ORIENTATION_SCALED(PAGE_TOP_BAR_H, 45, 48)
+  static LAYOUT_ORIENTATION(PAGE_ALT_TITLE_H, 0, EdgeTxStyles::STD_FONT_HEIGHT)
+  static constexpr coord_t TABS_GROUP_BODY_Y = PAGE_TOP_BAR_H + PAGE_ALT_TITLE_H;
 
  protected:
 

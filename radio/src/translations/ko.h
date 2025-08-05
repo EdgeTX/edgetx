@@ -544,8 +544,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                       "데이터 없음"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -881,7 +879,7 @@
 #define TR_GLOBAL_VAR                     "전역 변수"
 #define TR_OWN                            "사용자 설정"
 #define TR_DATE                           "날짜"
-#define TR_MONTHS                         { "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월" }
+#define TR_MONTHS                         "1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"
 #define TR_ROTARY_ENCODER                 "로터리 인코더"
 
 #define TR_ROTARY_ENC_MODE                TR("인코더 모드", "로터리 인코더 모드")
@@ -1091,7 +1089,6 @@
 #define TR_TOUCH_PANEL                    "터치 패널:"
 #define TR_FILE_SIZE                      "파일 크기"
 #define TR_FILE_OPEN                      "강제로 열까요?"
-#define TR_TIMER_MODES                    {TR_OFFON, TR_START, TR_THROTTLE_LABEL, TR_THROTTLE_PERCENT_LABEL, TR_THROTTLE_START}
 
  // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME            "이름"
@@ -1115,7 +1112,7 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE     "서브트림 모드"
 #define TR_INVERTED                       "반전됨"
 
-#define TR_LSW_DESCRIPTIONS               { "비교 방식 또는 기능", "첫 번째 변수", "두 번째 변수 또는 상수", "두 번째 변수 또는 상수", "라인이 활성화되기 위한 추가 조건", "스위치 ON 유지 최소 시간", "ON 되기 위한 조건 지속 시간" }
+#define TR_LSW_DESCRIPTIONS               "비교 방식 또는 기능", "첫 번째 변수", "두 번째 변수 또는 상수", "두 번째 변수 또는 상수", "라인이 활성화되기 위한 추가 조건", "스위치 ON 유지 최소 시간", "ON 되기 위한 조건 지속 시간"
 
 #if defined(COLORLCD)
    // Horus layouts and widgets
@@ -1132,7 +1129,7 @@
  #define TR_ALIGNMENT                    "정렬"
  #define TR_ALIGN_LABEL                  "레이블 정렬"
  #define TR_ALIGN_VALUE                  "값 정렬"
- #define TR_ALIGN_OPTS                   { "왼쪽", "가운데", "오른쪽" }
+ #define TR_ALIGN_OPTS                   "왼쪽", "가운데", "오른쪽"
  #define TR_TEXT                         "텍스트"
  #define TR_COLOR                        "색상"
  #define TR_PANEL1_BACKGROUND            "패널1 배경"

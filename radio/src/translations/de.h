@@ -529,8 +529,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "Keine Daten"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -831,7 +829,7 @@
 #define TR_GLOBAL_VAR                  "Globale Variable"
 #define TR_OWN                         "Eigen"
 #define TR_DATE                        "Datum:"
-#define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez" }
+#define TR_MONTHS                      "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"
 #define TR_ROTARY_ENCODER              "Drehg."
 #define TR_ROTARY_ENC_MODE             TR("Drehg. Modus","Drehgeber Modus")
 #define TR_CHANNELS_MONITOR            "Kanal-Monitor==>"
@@ -1036,7 +1034,6 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "Dateigröße"
 #define TR_FILE_OPEN                   "trotzdem öffnen?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis specific column headers
 #define TR_PHASES_HEADERS_NAME         "Name "
@@ -1065,7 +1062,7 @@
   #define TR_ALIGNMENT                 "Ausrichtung"
   #define TR_ALIGN_LABEL               "Name ausrichten"
   #define TR_ALIGN_VALUE               "Wert ausrichten"
-  #define TR_ALIGN_OPTS                { "Links", "Mitte", "Rechts" }
+  #define TR_ALIGN_OPTS                "Links", "Mitte", "Rechts"
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Farbe"
   #define TR_PANEL1_BACKGROUND         "Panel1 Hintergrund"
@@ -1091,7 +1088,7 @@
 
 
 // Horus footer descriptions
-#define TR_LSW_DESCRIPTIONS            { "Vergleich oder Funktion", "Erste Variable", "Zweite Variable/Konstante", "Zweite Variable/Konstante", "Weitere UND Bedingung für Freigabe des Log Schalters", "ON-Zeit des Log Schalters wenn Bedingung ok", "Mindestdauer der Bedingung damit Log Schalter ON geht" }
+#define TR_LSW_DESCRIPTIONS            "Vergleich oder Funktion", "Erste Variable", "Zweite Variable/Konstante", "Zweite Variable/Konstante", "Weitere UND Bedingung für Freigabe des Log Schalters", "ON-Zeit des Log Schalters wenn Bedingung ok", "Mindestdauer der Bedingung damit Log Schalter ON geht"
 
 //Taranis About screen
 #define TR_ABOUTUS                     TR(" Info ", "Info")

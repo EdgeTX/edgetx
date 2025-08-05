@@ -530,8 +530,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "INGEN DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -840,7 +838,7 @@
 #define TR_GLOBAL_VAR                  "Globale variable"
 #define TR_OWN                         "Egen"
 #define TR_DATE                        "Dato"
-#define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
+#define TR_MONTHS                      "Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"
 #define TR_ROTARY_ENCODER              "R.E."
 #define TR_ROTARY_ENC_MODE             TR("DrejeK. tilst.","Drejekontakt tilstand")
 #define TR_CHANNELS_MONITOR            "KANAL MONITOR"
@@ -1039,7 +1037,6 @@
 #define TR_TOUCH_PANEL                 "Tryk panel:"
 #define TR_FILE_SIZE                   "Fil størrelse"
 #define TR_FILE_OPEN                   "Åbn alligevel?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Navn"
@@ -1063,7 +1060,7 @@
 #define TR_LIMITS_HEADERS_SUBTRIMMODE  TR("Undertrim tils.", "Undertrim tilstand")
 #define TR_INVERTED                    "Invers"
 
-#define TR_LSW_DESCRIPTIONS            { "Sammenlign type eller funktion", "Første variabel", "Anden variabel eller konstant", "Anden variabel eller konstant", "Endnu en betingelse for linje", "Minimum TIL varighed for logisk funktion", "Minimum SAND varighed for betingelse bliver sand" }
+#define TR_LSW_DESCRIPTIONS            "Sammenlign type eller funktion", "Første variabel", "Anden variabel eller konstant", "Anden variabel eller konstant", "Endnu en betingelse for linje", "Minimum TIL varighed for logisk funktion", "Minimum SAND varighed for betingelse bliver sand"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1080,7 +1077,7 @@
   #define TR_ALIGNMENT                 "Justering"
   #define TR_ALIGN_LABEL               "Justere navn"
   #define TR_ALIGN_VALUE               "Justere værdi"
-  #define TR_ALIGN_OPTS                { "Venstre", "Center", "Højre" }
+  #define TR_ALIGN_OPTS                "Venstre", "Center", "Højre"
   #define TR_TEXT                      "Tekst"
   #define TR_COLOR                     "Farve"
   #define TR_PANEL1_BACKGROUND         "Panel1 baggrund"

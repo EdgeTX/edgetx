@@ -539,8 +539,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "ŽÁDNÁ DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -844,7 +842,7 @@
 #define TR_GLOBAL_VAR                  "Globální proměnná"
 #define TR_OWN                         "\043"
 #define TR_DATE                        "Datum"
-#define TR_MONTHS                      { "Led", "Úno", "Bře", "Dub", "Kvě", "Čvn", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro" }
+#define TR_MONTHS                      "Led", "Úno", "Bře", "Dub", "Kvě", "Čvn", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro"
 #define TR_ROTARY_ENCODER              "R.Enko"
 #define TR_ROTARY_ENC_MODE             TR("R.Enko mód","Režim otočného tlačítka")
 #define TR_CHANNELS_MONITOR            "MONITOR KANÁLU"
@@ -1048,7 +1046,6 @@
 #define TR_TOUCH_PANEL                 "Dotyková obrazovka:"
 #define TR_FILE_SIZE                   "Velikost souboru"
 #define TR_FILE_OPEN                   "Otevřít?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Název"
@@ -1073,7 +1070,7 @@
 #define TR_INVERTED                    "Invertováno"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Typ porovnávací funkce", "První proměnná", "Druhá proměnná nebo konstanta", "Druhá proměnná nebo konstanta", "Další stav povolující tenko spínač", "Minimální doba trvání sepnutého stavu", "Minimální doba platné podmínky pro aktivaci" }
+#define TR_LSW_DESCRIPTIONS            "Typ porovnávací funkce", "První proměnná", "Druhá proměnná nebo konstanta", "Druhá proměnná nebo konstanta", "Další stav povolující tenko spínač", "Minimální doba trvání sepnutého stavu", "Minimální doba platné podmínky pro aktivaci"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1090,7 +1087,7 @@
   #define TR_ALIGNMENT                 "Zarovnání"
   #define TR_ALIGN_LABEL               "Zarovnat název"
   #define TR_ALIGN_VALUE               "Zarovnat hodnotu"
-  #define TR_ALIGN_OPTS                { "Vlevo", "Uprostřed", "Vpravo" }
+  #define TR_ALIGN_OPTS                "Vlevo", "Uprostřed", "Vpravo"
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Barva"
   #define TR_PANEL1_BACKGROUND         "Panel1 pozadí"

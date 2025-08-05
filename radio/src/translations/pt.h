@@ -442,8 +442,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "SEM DADOS"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -752,7 +750,7 @@
 #define TR_GLOBAL_VAR                  "Variável Global"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "Data"
-#define TR_MONTHS                      { "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez" }
+#define TR_MONTHS                      "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"
 #define TR_ROTARY_ENCODER              "R.E."
 #define TR_ROTARY_ENC_MODE             TR("Modo RotEnc","Modo Rotary Encoder")
 #define TR_CHANNELS_MONITOR            "MONITOR CANAIS"
@@ -951,7 +949,6 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nome"
@@ -976,7 +973,7 @@
 #define TR_INVERTED                    "Invertido"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
+#define TR_LSW_DESCRIPTIONS            "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -993,7 +990,7 @@
   #define TR_ALIGNMENT                 "Alinhar"
   #define TR_ALIGN_LABEL               "Alinhar etiqueta"
   #define TR_ALIGN_VALUE               "Alinhar valor"
-  #define TR_ALIGN_OPTS                { "Esquerda", "Centro", "Direita" }
+  #define TR_ALIGN_OPTS                "Esquerda", "Centro", "Direita"
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Color"
   #define TR_PANEL1_BACKGROUND         "Panel1 background"

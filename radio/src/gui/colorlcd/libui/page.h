@@ -21,11 +21,8 @@
 
 #pragma once
 
-#include "bitmaps.h"
-#include "button.h"
 #include "static.h"
 
-class Page;
 class QuickMenu;
 
 class PageHeader : public Window

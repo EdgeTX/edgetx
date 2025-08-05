@@ -527,8 +527,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX              "Tx:\0Rx:"
-#define OFS_RX                 4
 #define TR_NODATA              "Geen Data"
 #define TR_US                         "us"
 #define TR_HZ                         "Hz"
@@ -831,7 +829,7 @@
 #define TR_GLOBAL_VAR          "Globale Variabele"
 #define TR_OWN                 "Eigen"
 #define TR_DATE                "Datum:"
-#define TR_MONTHS              { "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
+#define TR_MONTHS              "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"
 #define TR_ROTARY_ENCODER      "Draaischakelaar"
 #define TR_ROTARY_ENC_MODE     TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR    "Kanaal-Monitor==>"
@@ -1041,7 +1039,6 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"
@@ -1066,7 +1063,7 @@
 #define TR_INVERTED                    "Inverted"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Vergelijking of Functie", "1e variabele", "2e variabele of constante", "2e variabele of constante", "Additionele conditie", "Minimale AAN duur van de logische schakelaar", "Minimale WAAR duur om AAN te gaan" }
+#define TR_LSW_DESCRIPTIONS            "Vergelijking of Functie", "1e variabele", "2e variabele of constante", "2e variabele of constante", "Additionele conditie", "Minimale AAN duur van de logische schakelaar", "Minimale WAAR duur om AAN te gaan"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1083,7 +1080,7 @@
   #define TR_ALIGNMENT                 "Uitlijnen"
   #define TR_ALIGN_LABEL               "Label uitlijnen"
   #define TR_ALIGN_VALUE               "Waarde uitlijnen"
-  #define TR_ALIGN_OPTS                { "Links", "Midden", "Rechts" }
+  #define TR_ALIGN_OPTS                "Links", "Midden", "Rechts"
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Color"
   #define TR_PANEL1_BACKGROUND         "Panel1 background"

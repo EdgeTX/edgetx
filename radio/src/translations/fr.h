@@ -535,8 +535,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -839,7 +837,7 @@
 #define TR_GLOBAL_VAR                  "Variable globale"
 #define TR_OWN                         "Perso"
 #define TR_DATE                        "Date"
-#define TR_MONTHS                      { "Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec" }
+#define TR_MONTHS                      "Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"
 #define TR_ROTARY_ENCODER              "Enc.Rot."
 #define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Mode Encod. Rotatif")
 #define TR_CHANNELS_MONITOR            "MONITEUR CANAUX"
@@ -1051,7 +1049,6 @@
 #define TR_TOUCH_PANEL                 "Écran Tactile:"
 #define TR_FILE_SIZE                   "Taille fichier"
 #define TR_FILE_OPEN                   "Ouvrir quand même?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nom"
@@ -1076,7 +1073,7 @@
 #define TR_INVERTED                    "Inversé"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Type de comparaison ou fonction", "Première variable", "Seconde variable ou constante", "Seconde variable ou constante", "Condition supplémentaire pour activer la ligne", "Durée minimale d'activation de l'inter logique", "Durée min de la condition avant l'activation de l'inter" }
+#define TR_LSW_DESCRIPTIONS            "Type de comparaison ou fonction", "Première variable", "Seconde variable ou constante", "Seconde variable ou constante", "Condition supplémentaire pour activer la ligne", "Durée minimale d'activation de l'inter logique", "Durée min de la condition avant l'activation de l'inter"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1093,7 +1090,7 @@
   #define TR_ALIGNMENT                 "Alignement"
   #define TR_ALIGN_LABEL               "Aligner Catégorie"
   #define TR_ALIGN_VALUE               "Aligner Valeur"
-  #define TR_ALIGN_OPTS                { "Gauche", "Centre", "Droite" }
+  #define TR_ALIGN_OPTS                "Gauche", "Centre", "Droite"
   #define TR_TEXT                      "Texte"
   #define TR_COLOR                     "Couleur"
   #define TR_PANEL1_BACKGROUND         "Arrière-plan Ecran1"

@@ -531,8 +531,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "НЕМАЄ ДАНИХ"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -840,7 +838,7 @@
 #define TR_GLOBAL_VAR                  "Глобальні змінні"
 #define TR_OWN                         "Свій"
 #define TR_DATE                        "Дата"
-#define TR_MONTHS                      { "Січ", "Лют", "Бер", "Кві", "Тра", "Чер", "Лип", "Сер", "Вер", "Жов", "Лис", "Гру" }
+#define TR_MONTHS                      "Січ", "Лют", "Бер", "Кві", "Тра", "Чер", "Лип", "Сер", "Вер", "Жов", "Лис", "Гру"
 #define TR_ROTARY_ENCODER              "R.E."
 #define TR_ROTARY_ENC_MODE             TR("Режим енкодера","Режим обертального енкодера")
 #define TR_CHANNELS_MONITOR            "МОНІТОР КАНАЛІВ"
@@ -1039,7 +1037,6 @@
 #define TR_TOUCH_PANEL                 "Сенсорна панель:"
 #define TR_FILE_SIZE                   "Розмір файлу"
 #define TR_FILE_OPEN                   "Відкрити попри все?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Ім'я"
@@ -1064,7 +1061,7 @@
 #define TR_INVERTED                    "Інверс."
 
 
-#define TR_LSW_DESCRIPTIONS            { "Порівняння типу функції", "Перша змінна", "Друга змінна або постійна", "Друга змінна або постійна", "Додаткова умова для активації лінії", "Мінімальна тривалість ON для логічного перемикача", "Мінімальна тривалість TRUE для перемикача, що стає ON" }
+#define TR_LSW_DESCRIPTIONS            "Порівняння типу функції", "Перша змінна", "Друга змінна або постійна", "Друга змінна або постійна", "Додаткова умова для активації лінії", "Мінімальна тривалість ON для логічного перемикача", "Мінімальна тривалість TRUE для перемикача, що стає ON"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1081,7 +1078,7 @@
   #define TR_ALIGNMENT                 "Вирівнювання"
   #define TR_ALIGN_LABEL               "Вирівняти мітку"
   #define TR_ALIGN_VALUE               "Вирівняти значення"
-  #define TR_ALIGN_OPTS                { "Ліво", "Центр", "Право" }
+  #define TR_ALIGN_OPTS                "Ліво", "Центр", "Право"
   #define TR_TEXT                      "Текст"
   #define TR_COLOR                     "Колір"
   #define TR_PANEL1_BACKGROUND         "Панель1 фон"

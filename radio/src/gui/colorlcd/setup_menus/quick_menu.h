@@ -110,12 +110,12 @@ class QuickMenu : public NavWindow
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
-  void onLongPressRTN() override;
+  // void onLongPressSYS() override;
+  // void onPressMDL() override;
+  // void onLongPressMDL() override;
+  // void onPressTELE() override;
+  // void onLongPressTELE() override;
+  // void onLongPressRTN() override;
 #endif
 
   static constexpr int QM_MAIN_BTNS = 6;
@@ -151,10 +151,10 @@ class QuickSubMenu
 {
  public:
   QuickSubMenu(Window* parent, QuickMenu* quickMenu,
-               EdgeTxIcon icon, const char* title,
+               EdgeTxIcon icon, const char* title, const char* parentTitle,
                PageDef* items):
     parent(parent), quickMenu(quickMenu),
-    icon(icon), title(title), items(items)
+    icon(icon), title(title), parentTitle(parentTitle), items(items)
   {}
 
   bool isSubMenu(QuickMenu::SubMenu n);
@@ -174,6 +174,7 @@ class QuickSubMenu
   QuickMenu* quickMenu;
   EdgeTxIcon icon;
   const char* title;
+  const char* parentTitle;
   PageDef* items;
   QuickMenuGroup* subMenu = nullptr;
   ButtonBase* menuButton = nullptr;

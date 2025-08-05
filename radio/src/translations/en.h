@@ -56,7 +56,7 @@
 #define TR_QM_GLOBAL_VARS               "Global\nVariables"
 #define TR_QM_LOGICAL_SW                "Logical\nSwitches"
 #define TR_QM_SPEC_FUNC                 "Special\nFunctions"
-#define TR_QM_CUSTOM_LUA                "Custom\nScripts"
+#define TR_QM_CUSTOM_LUA                "Mixer\nScripts"
 #define TR_QM_TELEM                     "Telemetry"
 #define TR_QM_GLOB_FUNC                 "Global\nFunctions"
 #define TR_QM_TRAINER                   "Trainer"
@@ -114,7 +114,7 @@
 #define TR_MENU_GLOBAL_VARS             "Global Variables"
 #define TR_MENULOGICALSWITCHES          TR("LOGICAL SWITCHES", "Logical Switches")
 #define TR_MENUCUSTOMFUNC               TR("SPECIAL FUNCTIONS", "Special Functions")
-#define TR_MENUCUSTOMSCRIPTS            TR("CUSTOM SCRIPTS", "Custom Scripts")
+#define TR_MENUCUSTOMSCRIPTS            TR("MIXER SCRIPTS", "Mixer Scripts")
 #define TR_MENUTELEMETRY                TR("TELEMETRY", "Telemetry")
 #define TR_MENUSPECIALFUNCS             TR("GLOBAL FUNCTIONS", "Global Functions")
 #define TR_MENUTRAINER                  TR("TRAINER", "Trainer")
@@ -529,8 +529,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "NO DATA"
 #define TR_US                          "us"
 #define TR_HZ                          "Hz"
@@ -839,7 +837,7 @@
 #define TR_GLOBAL_VAR                  "Global variable"
 #define TR_OWN                         "Own"
 #define TR_DATE                        "Date"
-#define TR_MONTHS                      { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
+#define TR_MONTHS                      "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 #define TR_ROTARY_ENCODER              "R.E."
 #define TR_ROTARY_ENC_MODE             TR("RotEnc Mode","Rotary Encoder Mode")
 #define TR_CHANNELS_MONITOR            "CHANNELS MONITOR"
@@ -1038,7 +1036,6 @@
 #define TR_TOUCH_PANEL                 "Touch panel:"
 #define TR_FILE_SIZE                   "File size"
 #define TR_FILE_OPEN                   "Open anyway?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Name"
@@ -1063,7 +1060,7 @@
 #define TR_INVERTED                    "Inverted"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
+#define TR_LSW_DESCRIPTIONS            "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1080,7 +1077,7 @@
   #define TR_ALIGNMENT                 "Alignment"
   #define TR_ALIGN_LABEL               "Align label"
   #define TR_ALIGN_VALUE               "Align value"
-  #define TR_ALIGN_OPTS                { "Left", "Center", "Right" }
+  #define TR_ALIGN_OPTS                "Left", "Center", "Right"
   #define TR_TEXT                      "Text"
   #define TR_COLOR                     "Color"
   #define TR_PANEL1_BACKGROUND         "Panel1 background"

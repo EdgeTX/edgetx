@@ -533,8 +533,6 @@
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
 #endif
-#define TR_TXnRX                      "Tx:\0Rx:"
-#define OFS_RX                         4
 #define TR_NODATA                      "НЕТ ДАННЫХ"
 #define TR_US                          "US"
 #define TR_HZ                          "Hz"
@@ -842,7 +840,7 @@
 #define TR_GLOBAL_VAR                  "Глоб переменная"
 #define TR_OWN                         "Свой"
 #define TR_DATE                        "Дата"
-#define TR_MONTHS                      { "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек" }
+#define TR_MONTHS                      "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"
 #define TR_ROTARY_ENCODER              "R.E."
 #define TR_ROTARY_ENC_MODE             TR("Режим энкод","Режим энкод")
 #define TR_CHANNELS_MONITOR            "МОНИТОР КАНАЛОВ"
@@ -1041,7 +1039,6 @@
 #define TR_TOUCH_PANEL                 "Сенсорная панель:"
 #define TR_FILE_SIZE                   "Размер файла"
 #define TR_FILE_OPEN                   "Все равно откр?"
-#define TR_TIMER_MODES                 {TR_OFFON,TR_START,TR_THROTTLE_LABEL,TR_THROTTLE_PERCENT_LABEL,TR_THROTTLE_START}
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Имя"
@@ -1066,7 +1063,7 @@
 #define TR_INVERTED                    "Перевернутый"
 
 
-#define TR_LSW_DESCRIPTIONS            { "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON" }
+#define TR_LSW_DESCRIPTIONS            "Comparison type or function", "First variable", "Second variable or constant", "Second variable or constant", "Additional condition for line to be enabled", "Minimum ON duration of the logical switch", "Minimum TRUE duration for the switch to become ON"
 
 #if defined(COLORLCD)
   // Horus layouts and widgets
@@ -1083,7 +1080,7 @@
   #define TR_ALIGNMENT                 "Вырав"
   #define TR_ALIGN_LABEL               "Вырав метки"
   #define TR_ALIGN_VALUE               "Вырав значения"
-  #define TR_ALIGN_OPTS                { "Слева", "По центру", "Справа" }
+  #define TR_ALIGN_OPTS                "Слева", "По центру", "Справа"
   #define TR_TEXT                      "Текст"
   #define TR_COLOR                     "Цвет"
   #define TR_PANEL1_BACKGROUND         "Фон панели 1"
