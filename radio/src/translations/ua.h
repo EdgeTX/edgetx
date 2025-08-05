@@ -46,11 +46,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -79,11 +75,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -102,13 +94,8 @@
 #define TR_MAIN_MENU_THEMES                "ТЕМИ"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               "ГЕЛІКОПТЕР"
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "РЕЖИМИ ВОДІННЯ"
-  #define TR_MENUFLIGHTMODE            "РЕЖИМ ВОДІННЯ"
-#else
-  #define TR_MENUFLIGHTMODES           "РЕЖИМИ ПОЛЬОТУ"
-  #define TR_MENUFLIGHTMODE            "РЕЖИМ ПОЛЬОТУ"
-#endif
+#define TR_MENUFLIGHTMODES             TRSA("РЕЖИМИ ВОДІННЯ", "РЕЖИМИ ПОЛЬОТУ")
+#define TR_MENUFLIGHTMODE              TRSA("РЕЖИМ ВОДІННЯ", "РЕЖИМ ПОЛЬОТУ")
 #define TR_MENUINPUTS                  "ВХОДИ"
 #define TR_MENULIMITS                  "ВИХОДИ"
 #define TR_MENUCURVES                  "КРИВІ"
@@ -520,13 +507,8 @@
   #define TR_MOVESTICKSPOTS            "РУХАЙТЕ ВІСІ/ПОТЕНЦ."
 #else
   #define TR_MENUTOSTART               TR_ENTER " ДЛЯ СТАРТУ"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "ВІДЦЕНТР. ПОТЕНЦ."
-  #define TR_MOVESTICKSPOTS            "РУХАЙТЕ ST/TH/ПОТЕНЦ./ВІСІ"
-#else
-  #define TR_SETMIDPOINT               TR("ВІДЦЕНТР. ВІСІ", "ВІДЦЕНТР. ВІСІ/ПОВЗУНКИ")
-  #define TR_MOVESTICKSPOTS            "РУХАЙТЕ ВІСІ/ПОТЕНЦ."
-#endif
+  #define TR_SETMIDPOINT               TRSA("ВІДЦЕНТР. ПОТЕНЦ.", TR("ВІДЦЕНТР. ВІСІ", "ВІДЦЕНТР. ВІСІ/ПОВЗУНКИ"))
+  #define TR_MOVESTICKSPOTS            TRSA("РУХАЙТЕ ST/TH/ПОТЕНЦ./ВІСІ", "РУХАЙТЕ ВІСІ/ПОТЕНЦ.")
   #define TR_MENUWHENDONE              TR_ENTER " КОЛИ ЗАКІНЧЕНО"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -560,10 +542,7 @@
 #define TR_PPM_TRAINER                 "TR"		/* use english */
 #define TR_CH                          "CH"		/* use english */
 #define TR_MODEL                       "МОДЕЛЬ"
-#if defined(SURFACE_RADIO)
-  #define TR_FM                        "DM"		/* use english */
-#else
-  #define TR_FM                        "FM"		/* use english */
+#define TR_FM                          TRSA("DM", "FM")
 #endif
 #define TR_EEPROMLOWMEM                "мало пам'яті EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Натисн. кнопку щоб пропустити"

@@ -48,11 +48,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -81,11 +77,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -104,13 +96,8 @@
 #define TR_MAIN_MENU_THEMES                "THEMES"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               TR("HELI TS-Mischer", "HELI TS-Mischer CYC1-3")
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "FAHRMODI"
-  #define TR_MENUFLIGHTMODE            "FAHRMODUS"
-#else
-  #define TR_MENUFLIGHTMODE            "FLUGPHASE"
-  #define TR_MENUFLIGHTMODES   		     "FLUGPHASEN"
-#endif
+#define TR_MENUFLIGHTMODES             TRSA("FAHRMODI", "FLUGPHASEN")
+#define TR_MENUFLIGHTMODE              TRSA("FAHRMODUS", "FLUGPHASE")
 #define TR_MENUINPUTS                  "INPUTS"  //"Inputs=Geber"
 #define TR_MENULIMITS                  "SERVOS"  //"AUSGABEN" oder "Servos"
 #define TR_MENUCURVES                  "KURVEN"
@@ -518,13 +505,8 @@
   #define TR_MOVESTICKSPOTS            "Knüppel/Schieber bewegen"
 #else
   #define TR_MENUTOSTART               TR_ENTER " Zum START"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "SCHIEBER AUF MITTE"
-  #define TR_MOVESTICKSPOTS            "BEWEGE LENK/GAS/POTI/KNÜPPEL"
-#else
-  #define TR_SETMIDPOINT               TR("KNÜPPEL AUF MITTE", "ZENTRIERE KNÜPPEL/SCHIEBER")
-  #define TR_MOVESTICKSPOTS            "BEWEGE KNÜPPEL/SCHIEBER"
-#endif
+  #define TR_SETMIDPOINT               TRSA("SCHIEBER AUF MITTE", TR("KNÜPPEL AUF MITTE", "ZENTRIERE KNÜPPEL/SCHIEBER"))
+  #define TR_MOVESTICKSPOTS            TRSA("BEWEGE LENK/GAS/POTI/KNÜPPEL", "BEWEGE KNÜPPEL/SCHIEBER")
   #define TR_MENUWHENDONE              TR_ENTER " wenn fertig"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -558,10 +540,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODELL"
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "FP"
+#define TR_FM                          TRSA("DM", "FP")
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM voll"
 #define TR_THROTTLE_NOT_IDLE           "Gas nicht Null!"

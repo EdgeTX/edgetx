@@ -44,11 +44,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -77,11 +73,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -100,13 +92,8 @@
 #define TR_MAIN_MENU_THEMES                 "テーマ"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               "ヘリ セットアップ"
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "ドライブモード"
-  #define TR_MENUFLIGHTMODE            "ドライブモード"
-#else
-  #define TR_MENUFLIGHTMODES           "飛行モード"
-  #define TR_MENUFLIGHTMODE            "飛行モード"
-#endif
+#define TR_MENUFLIGHTMODES             TRSA("ドライブモード", "飛行モード")
+#define TR_MENUFLIGHTMODE              TRSA("ドライブモード", "飛行モード")
 #define TR_MENUINPUTS                  "入力"
 #define TR_MENULIMITS                  "出力"
 #define TR_MENUCURVES                  "カーブ"
@@ -517,13 +504,8 @@
   #define TR_MOVESTICKSPOTS            "スティック/スライダーを動かします"
 #else
   #define TR_MENUTOSTART               TR_ENTER " TO START"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
-  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
-#else
-  #define TR_SETMIDPOINT               TR("SET AXIS MIDPOINT", "CENTER AXIS/SLIDERS")
-  #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
-#endif
+  #define TR_SETMIDPOINT               TRSA("SET POTS MIDPOINT", TR("SET AXIS MIDPOINT", "CENTER AXIS/SLIDERS"))
+  #define TR_MOVESTICKSPOTS            TRSA("MOVE ST/TH/POTS/AXIS", "MOVE AXIS/POTS")
   #define TR_MENUWHENDONE              TR_ENTER " WHEN DONE"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -557,10 +539,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "モデル名"
-#if defined(SURFACE_RADIO)
-  #define TR_FM                        "DM"
-#else
-  #define TR_FM                        "FM"
+#define TR_FM                          TRSA("DM", "FM")
 #endif
 #define TR_EEPROMLOWMEM                "EEPROMメモリ低"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "任意のキーを押してスキップします"

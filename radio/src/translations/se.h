@@ -48,11 +48,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -81,11 +77,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -104,13 +96,8 @@
 #define TR_MAIN_MENU_THEMES                 "TEMAN"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP                "HELIKOPTER"
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES            "KÖRLÄGEN"
-  #define TR_MENUFLIGHTMODE             "KÖRLÄGE"
-#else
-  #define TR_MENUFLIGHTMODE             "FLYGLÄGE"
-  #define TR_MENUFLIGHTMODES            "FLYGLÄGEN"
-#endif
+#define TR_MENUFLIGHTMODES              TRSA("KÖRLÄGEN", "FLYGLÄGEN")
+#define TR_MENUFLIGHTMODE               TRSA("KÖRLÄGE", "FLYGLÄGE")
 #define TR_MENUINPUTS                   "INPUT"
 #define TR_MENULIMITS                   "OUTPUT"
 #define TR_MENUCURVES                   "KURVOR"
@@ -531,13 +518,8 @@
   #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
 #else
   #define TR_MENUTOSTART                TR_ENTER " FÖR ATT STARTA"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT                "CENTRERA VRED"
-  #define TR_MOVESTICKSPOTS             "RÖR ST/GA/VRED/AXLAR"
-#else
-  #define TR_SETMIDPOINT                TR("CENTRERA AXLAR", "CENTRERA AXLAR/REGLAGE")
-  #define TR_MOVESTICKSPOTS             "RÖR AXLAR/VRED"
-#endif
+  #define TR_SETMIDPOINT                TRSA("CENTRERA VRED", TR("CENTRERA AXLAR", "CENTRERA AXLAR/REGLAGE"))
+  #define TR_MOVESTICKSPOTS             TRSA("RÖR ST/GA/VRED/AXLAR", "RÖR AXLAR/VRED")
   #define TR_MENUWHENDONE               TR_ENTER " AVSLUTAR"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -572,10 +554,7 @@
 #define TR_PPM_TRAINER                  "TR"
 #define TR_CH                           "KA"
 #define TR_MODEL                        "MODELL"
-#if defined(SURFACE_RADIO)
-#define TR_FM                           "KL"
-#else
-#define TR_FM                           "FL"
+#define TR_FM                           TRSA("KL", "FL")
 #endif
 #define TR_EEPROMLOWMEM                 "Minnesbrist"
 #define TR_PRESS_ANY_KEY_TO_SKIP        "Avbryt med valfri knapp"

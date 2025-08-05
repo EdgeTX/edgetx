@@ -44,11 +44,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -77,11 +73,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -99,31 +91,26 @@
 #define TR_MAIN_VIEW_X                  "Screen "
 #define TR_MAIN_MENU_THEMES             "Themes"
 #define TR_MAIN_MENU_APPS               "Apps"
-#define TR_MENUHELISETUP                TR("HELI SETUP", "Heli Settings")
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES              TR("DRIVE MODES", "Drive Modes")
-#define TR_MENUFLIGHTMODE               "DRIVE MODE"
-#else
-#define TR_MENUFLIGHTMODES              TR("FLIGHT MODES", "Flight Modes")
-#define TR_MENUFLIGHTMODE               "FLIGHT MODE"
-#endif
-#define TR_MENUINPUTS                   TR("INPUTS", "Inputs")
-#define TR_MENULIMITS                   TR("OUTPUTS", "Outputs")
-#define TR_MENUCURVES                   TR("CURVES", "Curves")
-#define TR_MIXES                        TR("MIXES", "Mixes")
+#define TR_MENUHELISETUP                TRC("HELI SETUP", "Heli Settings")
+#define TR_MENUFLIGHTMODES              TRSA(TRC("DRIVE MODES", "Drive Modes"), TRC("FLIGHT MODES", "Flight Modes"))
+#define TR_MENUFLIGHTMODE               TRSA("DRIVE MODE", "FLIGHT MODE")
+#define TR_MENUINPUTS                   TRC("INPUTS", "Inputs")
+#define TR_MENULIMITS                   TRC("OUTPUTS", "Outputs")
+#define TR_MENUCURVES                   TRC("CURVES", "Curves")
+#define TR_MIXES                        TRC("MIXES", "Mixes")
 #define TR_MENU_GLOBAL_VARS             "Global Variables"
-#define TR_MENULOGICALSWITCHES          TR("LOGICAL SWITCHES", "Logical Switches")
-#define TR_MENUCUSTOMFUNC               TR("SPECIAL FUNCTIONS", "Special Functions")
-#define TR_MENUCUSTOMSCRIPTS            TR("MIXER SCRIPTS", "Mixer Scripts")
-#define TR_MENUTELEMETRY                TR("TELEMETRY", "Telemetry")
-#define TR_MENUSPECIALFUNCS             TR("GLOBAL FUNCTIONS", "Global Functions")
-#define TR_MENUTRAINER                  TR("TRAINER", "Trainer")
-#define TR_HARDWARE                     TR("HARDWARE", "Hardware")
+#define TR_MENULOGICALSWITCHES          TRC("LOGICAL SWITCHES", "Logical Switches")
+#define TR_MENUCUSTOMFUNC               TRC("SPECIAL FUNCTIONS", "Special Functions")
+#define TR_MENUCUSTOMSCRIPTS            TRC("MIXER SCRIPTS", "Mixer Scripts")
+#define TR_MENUTELEMETRY                TRC("TELEMETRY", "Telemetry")
+#define TR_MENUSPECIALFUNCS             TRC("GLOBAL FUNCTIONS", "Global Functions")
+#define TR_MENUTRAINER                  TRC("TRAINER", "Trainer")
+#define TR_HARDWARE                     TRC("HARDWARE", "Hardware")
 #define TR_USER_INTERFACE               "Top Bar"
-#define TR_SD_CARD                      TR("SD CARD", "Storage")
+#define TR_SD_CARD                      TRC("SD CARD", "Storage")
 #define TR_DEBUG                        "Debug"
-#define TR_MENU_RADIO_SWITCHES          TR("SWITCHES", "Switches Test")
-#define TR_MENUCALIBRATION              TR("CALIBRATION", "Calibration")
+#define TR_MENU_RADIO_SWITCHES          TRC("SWITCHES", "Switches Test")
+#define TR_MENUCALIBRATION              TRC("CALIBRATION", "Calibration")
 #define TR_FUNCTION_SWITCHES            "Customizable Switches"
 // End Main menu
 
@@ -518,13 +505,8 @@
   #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
 #else
   #define TR_MENUTOSTART               TR_ENTER " TO START"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
-  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
-#else
-  #define TR_SETMIDPOINT               TR("SET AXIS MIDPOINT", "CENTER AXIS/SLIDERS")
-  #define TR_MOVESTICKSPOTS            "MOVE AXIS/POTS"
-#endif
+  #define TR_SETMIDPOINT               TRSA("SET POTS MIDPOINT", TR("SET AXIS MIDPOINT", "CENTER AXIS/SLIDERS"))
+  #define TR_MOVESTICKSPOTS            TRSA("MOVE ST/TH/POTS/AXIS", "MOVE AXIS/POTS")
   #define TR_MENUWHENDONE              TR_ENTER " WHEN DONE"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -558,11 +540,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "FM"
-#endif
+#define TR_FM                          TRSA("DM", "FM")
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Press any key to skip"
 #define TR_THROTTLE_NOT_IDLE           "Throttle not idle"

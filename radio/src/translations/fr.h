@@ -46,11 +46,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -79,11 +75,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -102,13 +94,8 @@
 #define TR_MAIN_MENU_THEMES                 "THÈMES"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               TR("CONF.HÉLI", "CONFIGURATION HÉLICO")
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "DRIVE MODES"
-#define TR_MENUFLIGHTMODE              "DRIVE MODE"
-#else
-#define TR_MENUFLIGHTMODE              "PHASE DE VOL"
-#define TR_MENUFLIGHTMODES             "PHASES DE VOL"
-#endif
+#define TR_MENUFLIGHTMODES             TRSA("DRIVE MODES", "PHASES DE VOL")
+#define TR_MENUFLIGHTMODE              TRSA("DRIVE MODE", "PHASE DE VOL")
 #define TR_MENUINPUTS                  "ENTRÉES"
 #define TR_MENULIMITS                  "SORTIES"
 #define TR_MENUCURVES                  "COURBES"
@@ -524,13 +511,8 @@
   #define TR_MOVESTICKSPOTS            "BOUGER STICKS/POTS"
 #else
   #define TR_MENUTOSTART               TR_ENTER " POUR DÉBUT"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
-  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
-#else
-  #define TR_SETMIDPOINT               "REGLER NEUTRES"
-  #define TR_MOVESTICKSPOTS            "BOUGER STICKS/POTS"
-#endif
+  #define TR_SETMIDPOINT               TRSA("SET POTS MIDPOINT", "REGLER NEUTRES")
+  #define TR_MOVESTICKSPOTS            TRSA("MOVE ST/TH/POTS/AXIS", "BOUGER STICKS/POTS")
   #define TR_MENUWHENDONE              TR_ENTER " QUAND PRÊT"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -566,10 +548,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODÈLE"
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "PV"
+#define TR_FM                          TRSA("DM", "PV")
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM pleine!"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Touche pour ignorer"

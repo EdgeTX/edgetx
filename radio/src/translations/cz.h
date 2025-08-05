@@ -47,11 +47,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -80,11 +76,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -103,13 +95,8 @@
 #define TR_MAIN_MENU_THEMES                 "Motivy"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               "HELI"
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES             "REŽIM JÍZDA"
-#define TR_MENUFLIGHTMODE              "REŽIM JÍZDA"
-#else
-#define TR_MENUFLIGHTMODE              "LETOVÝ REŽIM"
-#define TR_MENUFLIGHTMODES             "LETOVÉ REŽIMY"
-#endif
+#define TR_MENUFLIGHTMODES             TRSA("REŽIM JÍZDA", "LETOVÉ REŽIMY")
+#define TR_MENUFLIGHTMODE              TRSA("REŽIM JÍZDA", "LETOVÝ REŽIM")
 #define TR_MENUINPUTS                  "VSTUPY"
 #define TR_MENULIMITS                  "SERVA"
 #define TR_MENUCURVES                  "KŘIVKY"
@@ -528,13 +515,8 @@
   #define TR_MOVESTICKSPOTS            "HÝBAT OSY/POTY"
 #else
   #define TR_MENUTOSTART               TR_ENTER " = START"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "NASTAVIT STŘED POTU"
-  #define TR_MOVESTICKSPOTS            "HÝBAT TOČIT/PLYN/POTY/OSY"
-#else
-  #define TR_SETMIDPOINT               TR("NASTAVIT STŘED OSY", "STŘED OSY/SLIDERU")
-  #define TR_MOVESTICKSPOTS            "HÝBAT OSY/POTY"
-#endif
+  #define TR_SETMIDPOINT               TRSA("NASTAVIT STŘED POTU", TR("NASTAVIT STŘED OSY", "STŘED OSY/SLIDERU"))
+  #define TR_MOVESTICKSPOTS            TRSA("HÝBAT TOČIT/PLYN/POTY/OSY", "HÝBAT OSY/POTY")
   #define TR_MENUWHENDONE              TR_ENTER " > DALŠÍ"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -570,10 +552,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "MODEL"
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "LR"
+#define TR_FM                          TRSA("DM", "LR")
 #endif
 #define TR_EEPROMLOWMEM                "Dochází EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       TR("\003Klávesa >>> přeskočit", "Klávesa >>> přeskočit")

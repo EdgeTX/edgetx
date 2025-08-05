@@ -47,11 +47,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -80,11 +76,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -103,13 +95,8 @@
 #define TR_MAIN_MENU_THEMES                 "Szablony"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP       "USTAW HELI"
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES   "DRIVE MODES"
-  #define TR_MENUFLIGHTMODE    "DRIVE MODE"
-#else
-  #define TR_MENUFLIGHTMODE    "FAZA LOTU"
-  #define TR_MENUFLIGHTMODES   "FAZY LOTU"
-#endif
+#define TR_MENUFLIGHTMODES     TRSA("DRIVE MODES", "FAZY LOTU")
+#define TR_MENUFLIGHTMODE      TRSA("DRIVE MODE", "FAZA LOTU")
 #define TR_MENUINPUTS        "WEJŚCIA"
 #define TR_MENULIMITS        "WYJŚCIA"
 #define TR_MENUCURVES          "KRZYWE"
@@ -514,13 +501,8 @@
   #define TR_MOVESTICKSPOTS            "RUSZAJ DRĄŻKI/SUWAKI"
 #else
   #define TR_MENUTOSTART               TR_ENTER " = START"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "USTAW ŚRODEK POT."
-  #define TR_MOVESTICKSPOTS            "RUSZAJ DR/TH/POT./OSIE"
-#else
-  #define TR_SETMIDPOINT               TR("USTAW ŚRODEK OSI", "CENTRUJ DRĄŻKI/SUWAKI")
-  #define TR_MOVESTICKSPOTS            "RUSZAJ DRĄŻKI/POT."
-#endif
+  #define TR_SETMIDPOINT               TRSA("USTAW ŚRODEK POT.", TR("USTAW ŚRODEK OSI", "CENTRUJ DRĄŻKI/SUWAKI"))
+  #define TR_MOVESTICKSPOTS            TRSA("RUSZAJ DR/TH/POT./OSIE", "RUSZAJ DRĄŻKI/POT.")
   #define TR_MENUWHENDONE              TR_ENTER " = KONIEC"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -554,10 +536,7 @@
 #define TR_PPM_TRAINER         "TR"
 #define TR_CH                  "KN"
 #define TR_MODEL               "MODEL"
-#if defined(SURFACE_RADIO)
-  #define TR_FM                "DM"
-#else
-  #define TR_FM                "FL"
+#define TR_FM                  TRSA("DM", "FL")
 #endif
 #define TR_EEPROMLOWMEM        "Mało pamięci EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP   "Wciśnij guzik->ignoruj"

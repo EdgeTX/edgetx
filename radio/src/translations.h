@@ -103,8 +103,16 @@
 
 #if defined(COLORLCD)
   #define BUTTON(x) x
+  #define TRC(x, y) y
 #else
   #define BUTTON(x)    "[" x "]"
+  #define TRC(x, y) x
+#endif
+
+#if defined(SURFACE_RADIO)
+  #define TRSA(x, y) x
+#else
+  #define TRSA(x, y) y
 #endif
 
 #if (LCD_W == 212) || defined(COLORLCD)

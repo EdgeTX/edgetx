@@ -46,11 +46,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -79,11 +75,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -102,13 +94,8 @@
 #define TR_MAIN_MENU_THEMES                "TEMAER"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               "HELI SETUP"
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "FLYVE TILSTANDE"
-  #define TR_MENUFLIGHTMODE            "FLYVE TILSTAND"
-#else
-  #define TR_MENUFLIGHTMODES           "FLYVE TILSTANDE"
-  #define TR_MENUFLIGHTMODE            "FLYVE TILSTAND"
-#endif
+#define TR_MENUFLIGHTMODES             TRSA("FLYVE TILSTANDE", "FLYVE TILSTANDE")
+#define TR_MENUFLIGHTMODE              TRSA("FLYVE TILSTAND", "FLYVE TILSTAND")
 #define TR_MENUINPUTS                  "INDGANGE"
 #define TR_MENULIMITS                  "UDGANGE"
 #define TR_MENUCURVES                  "KURVER"
@@ -519,13 +506,8 @@
   #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKT"
 #else
   #define TR_MENUTOSTART               TR_ENTER " FOR START"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "SET POTS MIDPOINT"
-  #define TR_MOVESTICKSPOTS            "MOVE ST/TH/POTS/AXIS"
-#else
-  #define TR_SETMIDPOINT               TR("SÆT PINDE I MIDT", "CENTRER PINDE/SKYDERE")
-  #define TR_MOVESTICKSPOTS            "FLYT PINDE/DREJEKONTAKTER"
-#endif
+  #define TR_SETMIDPOINT               TRSA("SET POTS MIDPOINT", TR("SÆT PINDE I MIDT", "CENTRER PINDE/SKYDERE"))
+  #define TR_MOVESTICKSPOTS            TRSA("MOVE ST/TH/POTS/AXIS", "FLYT PINDE/DREJEKONTAKTER")
   #define TR_MENUWHENDONE              TR_ENTER " NÅR FÆRDIG"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -559,10 +541,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "KA"
 #define TR_MODEL                       "MODEL"
-#if defined(SURFACE_RADIO)
-  #define TR_FM                        "DM"
-#else
-  #define TR_FM                        "FT"
+#define TR_FM                          TRSA("DM", "FT")
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM lav mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Tryk en tast ..."

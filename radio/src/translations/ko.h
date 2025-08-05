@@ -45,11 +45,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -78,11 +74,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -101,13 +93,8 @@
 #define TR_MAIN_MENU_THEMES                   "테마"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP                "헬리 설정"
-#if defined(SURFACE_RADIO)
-#define TR_MENUFLIGHTMODES              "주행 모드"
-#define TR_MENUFLIGHTMODE               "주행 모드"
-#else
-#define TR_MENUFLIGHTMODES              "비행 모드"
-#define TR_MENUFLIGHTMODE               "비행 모드"
-#endif
+#define TR_MENUFLIGHTMODES                TRSA("주행 모드", "비행 모드")
+#define TR_MENUFLIGHTMODE                 TRSA("주행 모드", "비행 모드")
 #define TR_MENUINPUTS                   "입력"
 #define TR_MENULIMITS                   "출력"
 #define TR_MENUCURVES                   "커브"
@@ -533,13 +520,8 @@
  #define TR_MOVESTICKSPOTS               "스틱/포트 이동"
 #else
  #define TR_MENUTOSTART                TR_ENTER " -> 시작"
-#if defined(SURFACE_RADIO)
- #define TR_SETMIDPOINT                "포트 중앙 정렬"
- #define TR_MOVESTICKSPOTS             "스티어링/스로틀/포트/슬라이더 이동"
-#else
- #define TR_SETMIDPOINT                TR("스틱 중앙 정렬", "스틱/슬라이더 중앙 정렬")
- #define TR_MOVESTICKSPOTS             "스틱/포트 이동"
-#endif
+ #define TR_SETMIDPOINT                TRSA("포트 중앙 정렬", TR("스틱 중앙 정렬", "스틱/슬라이더 중앙 정렬"))
+ #define TR_MOVESTICKSPOTS             TRSA("스티어링/스로틀/포트/슬라이더 이동", "스틱/포트 이동")
  #define TR_MENUWHENDONE               TR_ENTER " -> 완료"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -575,10 +557,7 @@
 #define TR_CH                         "채널"
 #define TR_MODEL                      "모델"
 
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "FM"
+#define TR_FM                          TRSA("DM", "FM")
 #endif
 
 #define TR_EEPROMLOWMEM                 "EEPROM 메모리 부족"

@@ -45,11 +45,7 @@
 #define TR_QM_UI_SETUP                  "UI\nSetup"
 #define TR_QM_TOOLS                     "Tools"
 #define TR_QM_GEN_SETTINGS              "General\nSettings"
-#if defined(SURFACE_RADIO)
-#define TR_QM_FLIGHT_MODES              "Drive\nModes"
-#else
-#define TR_QM_FLIGHT_MODES              "Flight\nModes"
-#endif
+#define TR_QM_FLIGHT_MODES              TRSA("Drive\nModes", "Flight\nModes")
 #define TR_QM_INPUTS                    "Inputs"
 #define TR_QM_MIXES                     "Mixes"
 #define TR_QM_OUTPUTS                   "Outputs"
@@ -78,11 +74,7 @@
 #define TR_QM_ADD_SCREEN                "Add\nScreen"
 #define TR_QM_APPS                      "Apps"
 #define TR_QM_STORAGE                   "Storage"
-#if defined(SURFACE_RADIO)
-#define TR_QM_RESET                     "Drive\nReset"
-#else
-#define TR_QM_RESET                     "Flight\nReset"
-#endif
+#define TR_QM_RESET                     TRSA("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
 #define TR_QM_STATS                     "Statistics"
@@ -101,13 +93,8 @@
 #define TR_MAIN_MENU_THEMES               "主题"
 #define TR_MAIN_MENU_APPS               "Apps"
 #define TR_MENUHELISETUP               "直升机设置"
-#if defined(SURFACE_RADIO)
-  #define TR_MENUFLIGHTMODES           "驾驶模式"
-  #define TR_MENUFLIGHTMODE            "驾驶模式"
-#else
-  #define TR_MENUFLIGHTMODES           "飞行模式设置"
-  #define TR_MENUFLIGHTMODE            "飞行模式"
-#endif
+#define TR_MENUFLIGHTMODES             TRSA("驾驶模式", "飞行模式设置")
+#define TR_MENUFLIGHTMODE              TRSA("驾驶模式", "飞行模式")
 #define TR_MENUINPUTS                  "输入设置"
 #define TR_MENULIMITS                  "输出设置"
 #define TR_MENUCURVES                  "曲线设置"
@@ -514,13 +501,8 @@
   #define TR_MOVESTICKSPOTS            "校准边界，按[Enter]保存并完成"
 #else
   #define TR_MENUTOSTART               "按" TR_ENTER " 开始"
-#if defined(SURFACE_RADIO)
-  #define TR_SETMIDPOINT               "校准中点"
-  #define TR_MOVESTICKSPOTS            "校准边界"
-#else
-  #define TR_SETMIDPOINT               TR("校准中点", "校准中点")
-  #define TR_MOVESTICKSPOTS            "校准边界"
-#endif
+  #define TR_SETMIDPOINT               TRSA("校准中点", TR("校准中点", "校准中点"))
+  #define TR_MOVESTICKSPOTS            TRSA("校准边界", "校准边界")
   #define TR_MENUWHENDONE              TR_ENTER " 完成"
 #define TR_AXISDIR                     "AXIS DIR"
 #define TR_MENUAXISDIR                 TR_ENTER_LONG " "  TR_AXISDIR
@@ -554,10 +536,7 @@
 #define TR_PPM_TRAINER                 "TR"
 #define TR_CH                          "CH"
 #define TR_MODEL                       "模型"
-#if defined(SURFACE_RADIO)
-#define TR_FM                          "DM"
-#else
-#define TR_FM                          "FM"
+#define TR_FM                          TRSA("DM", "FM")
 #endif
 #define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "按任意键跳过"
