@@ -28,6 +28,7 @@
 #include "hal/i2c_driver.h"
 #include "stm32_i2c_driver.h"
 #include "icm42607C.h"
+#include "imu_filter.h"
 #include "stm32_gpio.h"
 #include "inactivity_timer.h"
 #include "hal.h"
@@ -147,17 +148,35 @@ int gyroInit(void)
 
 int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
 {
-  uint8_t reg = GYRO_DATA_X0_REG;
+  IMU_RawData_t imu_raw;
+  IMU_FilteredData_t *filtered;
+
   uint8_t buf[6];
+  uint8_t reg = GYRO_DATA_X0_REG;
+  if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
+    TRACE("ICM426xx ERROR: i2c read error");
+    return -1;
+  }
+  imu_raw.gyro_x = -((int16_t)(buf[0] << 8) | buf[1]); // x
+  imu_raw.gyro_y = -((int16_t)(buf[2] << 8) | buf[3]); // y
+  imu_raw.gyro_z = ((int16_t)(buf[4] << 8) | buf[5]); // z
+
   reg = ACCEL_DATA_X0_REG;
   if (stm32_i2c_read(IMU_I2C_BUS, ICM426xx_I2C_ADDR, reg, 1, buf, 6, 1000) < 0) {
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
   }
+  imu_raw.accel_x = -((int16_t)(buf[0] << 8) | buf[1]); // x
+  imu_raw.accel_y = -((int16_t)(buf[2] << 8) | buf[3]); // y
+  imu_raw.accel_z = ((int16_t)(buf[4] << 8) | buf[5]); // z
 
-  *(int16_t*)&buffer[6] = -((int16_t)(buf[0] << 8) | buf[1]); // x
-  *(int16_t*)&buffer[8] = -((int16_t)(buf[2] << 8) | buf[3]); // y
-  *(int16_t*)&buffer[10] = ((int16_t)(buf[4] << 8) | buf[5]); // z
+  // Process through filters
+  process_imu_data(&imu_raw);
+  filtered = get_filtered_imu_data();
+
+  *(int16_t*)&buffer[6] = -(int16_t)filtered->accel_x; // x
+  *(int16_t*)&buffer[8] = -(int16_t)filtered->accel_y; // y
+  *(int16_t*)&buffer[10] = (int16_t)filtered->accel_z; // z
 
   return 0;
 }
