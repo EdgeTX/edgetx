@@ -272,7 +272,7 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
     // LL_ADC_OVS_RATIO_x in stm32h7xx_ll_adc.h is broken
     // so actual oversampling count need to be used
 	// ADC3 oversampling is disabled because of issues in LL libs
-    LL_ADC_ConfigOverSamplingRatioShift(ADCx, 8, LL_ADC_OVS_SHIFT_RIGHT_3);
+    LL_ADC_ConfigOverSamplingRatioShift(ADCx, 16, LL_ADC_OVS_SHIFT_RIGHT_4);
     LL_ADC_SetOverSamplingScope(ADCx, LL_ADC_OVS_GRP_REGULAR_CONTINUED);
   }
 #endif
