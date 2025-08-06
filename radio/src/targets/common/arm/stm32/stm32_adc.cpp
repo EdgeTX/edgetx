@@ -82,6 +82,9 @@ static uint8_t _adc_run;
 static uint8_t _adc_oversampling_disabled;
 static uint16_t _adc_oversampling[MAX_ADC_INPUTS];
 
+// Indicates ADC timeout has occured
+static bool _adc_timeout_error;
+
 void stm32_hal_set_inputs_mask(uint32_t inputs)
 {
   _adc_input_inhibt_mask |= inputs;
@@ -265,10 +268,11 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
 
 #if defined(STM32H7RS) || defined(STM32H7) || defined(STM32H5)
   // set hardware oversampling
-  if (!_adc_oversampling_disabled) {
+  if (!_adc_oversampling_disabled && ADCx != ADC3) {
     // LL_ADC_OVS_RATIO_x in stm32h7xx_ll_adc.h is broken
     // so actual oversampling count need to be used
-    LL_ADC_ConfigOverSamplingRatioShift(ADCx, 16, LL_ADC_OVS_SHIFT_RIGHT_4);
+	// ADC3 oversampling is disabled because of issues in LL libs
+    LL_ADC_ConfigOverSamplingRatioShift(ADCx, 8, LL_ADC_OVS_SHIFT_RIGHT_3);
     LL_ADC_SetOverSamplingScope(ADCx, LL_ADC_OVS_GRP_REGULAR_CONTINUED);
   }
 #endif
@@ -776,10 +780,12 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
     // busy wait
     if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
       TRACE("ADC timeout");
+      _adc_timeout_error = true;
       _adc_started_mask = 0;
       return;
     }
   }
+  _adc_timeout_error = false;
 }
 
 void stm32_hal_adc_disable_oversampling()
@@ -807,7 +813,7 @@ static void _adc_chain_conversions(const stm32_adc_t* adc)
   for (uint8_t i = 0; i < _adc_n_inputs; i++) {
     if (~_adc_input_mask & (1 << i)) continue;
     if (_adc_inhibit_mask & (1 << i)) continue;
-    adcValues[i] = _adc_oversampling[i] / OVERSAMPLING;
+    if (!_adc_timeout_error) adcValues[i] = _adc_oversampling[i] / OVERSAMPLING;
   }
 
   // we're done!
