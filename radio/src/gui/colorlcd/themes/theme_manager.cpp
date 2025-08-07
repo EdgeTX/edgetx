@@ -546,9 +546,9 @@ HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> ac
 {
   this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
   this->icon->center(width() - PAD_SMALL, height());
-  if (action) {
+  if (this->action) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-    addCustomButton(0, 0, [=]() { action(); });
+    addCustomButton(0, 0, [=]() { this->action(); });
   }
 }
 
@@ -557,9 +557,9 @@ HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void(
   action(std::move(action))
 {
   (new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX))->center(width(), height());
-  if (action) {
+  if (this->action) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-    addCustomButton(0, 0, [=]() { action(); });
+    addCustomButton(0, 0, [=]() { this->action(); });
   }
 }
 
@@ -568,9 +568,9 @@ HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
   action(std::move(action))
 {
   (new StaticIcon(this, 0, 0, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
-  if (action) {
+  if (this->action) {
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_CLICKABLE);
-    addCustomButton(0, 0, [=]() { action(); });
+    addCustomButton(0, 0, [=]() { this->action(); });
   }
 }
 
