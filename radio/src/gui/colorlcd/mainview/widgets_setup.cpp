@@ -152,7 +152,11 @@ void SetupWidgetsPage::onClicked()
   // block event forwarding (window is transparent)
 }
 
-void SetupWidgetsPage::onCancel() { deleteLater(); }
+void SetupWidgetsPage::onCancel()
+{
+  deleteLater();
+  (PageGroup::ScreenMenu())->setCurrentTab(customScreenIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
+}
 
 void SetupWidgetsPage::deleteLater(bool detach, bool trash)
 {
@@ -167,7 +171,6 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     viewMain->showTopBarEdgeTxButton();
   }
   Window::deleteLater(detach, trash);
-  (PageGroup::ScreenMenu())->setCurrentTab(customScreenIdx + ScreenSetupPage::FIRST_SCREEN_OFFSET);
 
   storageDirty(EE_MODEL);
 }
