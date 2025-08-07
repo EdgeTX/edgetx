@@ -213,7 +213,7 @@ extern "C" void lcdInit()
 
   // Display orientation
   lcdWriteCommand( 0x36 );
-  lcdWriteData( 0xA0 );
+  lcdWriteData( 0xE8 );
 
   // Color mode
   lcdWriteCommand( 0x3A );
@@ -312,8 +312,8 @@ extern "C" void lcdInit()
   lcdWriteData( 0x00 );
   lcdWriteData( 0xF0 );
 
-  // Invert color
-  lcdWriteCommand( 0x21 );
+  // No, invert color
+  lcdWriteCommand( 0x20 );
 
   // Tear on
   lcdWriteCommand( 0x35 );
