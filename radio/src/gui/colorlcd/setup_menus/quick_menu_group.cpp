@@ -59,10 +59,16 @@ class QuickMenuButton : public ButtonBase
 {
  public:
   QuickMenuButton(Window* parent, EdgeTxIcon icon, const char* title,
-                  std::function<uint8_t(void)> pressHandler) :
+                  std::function<uint8_t(void)> pressHandler,
+                  std::function<bool(void)> visibleHandler) :
       ButtonBase(parent, {}, pressHandler, etx_quick_button_create)
   {
     padAll(PAD_ZERO);
+
+    if (visibleHandler) {
+      show(visibleHandler());
+      setCheckHandler([=] { show(visibleHandler()); });
+    }
 
     iconPtr = new StaticIcon(this, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL, icon, COLOR_WHITE_INDEX);
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
@@ -75,18 +81,6 @@ class QuickMenuButton : public ButtonBase
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "QuickMenuButton"; }
 #endif
-
-  void onEvent(event_t event) override
-  {
-#if defined(HARDWARE_KEYS)
-    switch (event) {
-      case EVT_KEY_BREAK(KEY_EXIT):
-        parent->deleteLater();
-        return;
-    }
-#endif
-    ButtonBase::onEvent(event);
-  }
 
   void setDisabled()
   {
@@ -114,17 +108,24 @@ QuickMenuGroup::QuickMenuGroup(Window* parent, lv_flex_flow_t flow) :
 }
 
 ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
-                                  std::function<uint8_t(void)> pressHandler, bool visible)
+                                  std::function<uint8_t(void)> pressHandler,
+                                  std::function<bool(void)> visibleHandler,
+                                  std::function<void(void)> focusHandler)
 {
-  ButtonBase* b = new QuickMenuButton(this, icon, title, pressHandler);
+  ButtonBase* b = new QuickMenuButton(this, icon, title, pressHandler, visibleHandler);
   b->setLongPressHandler(pressHandler);
   btns.push_back(b);
   if (group) lv_group_add_obj(group, b->getLvObj());
   b->setFocusHandler([=](bool focus) {
-    if (focus) curBtn = b;
+    if (focus) {
+      curBtn = b;
+      if (focusHandler) focusHandler();
+    }
   });
-  if (btns.size() == 1) curBtn = b;
-  b->show(visible);
+  if (btns.size() == 1) {
+    curBtn = b;
+    if (focusHandler) focusHandler();
+  }
   return b;
 }
 
@@ -178,4 +179,10 @@ void QuickMenuGroup::setEnabled()
   for (size_t i = 0; i < btns.size(); i += 1) {
     ((QuickMenuButton*)btns[i])->setEnabled();
   }
+}
+
+void QuickMenuGroup::setCurrent(ButtonBase* b)
+{
+  curBtn = b;
+  ((QuickMenuButton*)b)->setEnabled();
 }

@@ -130,7 +130,6 @@ void Page::openMenu()
           Layer::back()->onCancel();
       }
     }, p, subMenu);
-  quickMenu->setFocus(subMenu);
 }
 
 void Page::onCancel()

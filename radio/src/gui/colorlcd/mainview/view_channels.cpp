@@ -111,6 +111,8 @@ class ChannelsViewPage : public PageGroupItem
 ChannelsViewMenu::ChannelsViewMenu() :
     TabsGroup(ICON_MONITOR, STR_MAIN_MENU_CHANNEL_MONITOR)
 {
+  QuickMenu::setCurrentPage(QuickMenu::TOOLS_CHAN_MON);
+
   addTab(new ChannelsViewPage(0));
   addTab(new ChannelsViewPage(1));
   addTab(new ChannelsViewPage(2));

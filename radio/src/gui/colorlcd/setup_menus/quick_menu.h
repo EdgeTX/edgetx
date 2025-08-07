@@ -44,6 +44,7 @@ class QuickMenu : public NavWindow
  public:
   enum SubMenu {
     NONE = 0,
+    MANAGE_MODELS,
     // Model menu
     MODEL_SETUP,
     MODEL_HELI,
@@ -87,9 +88,7 @@ class QuickMenu : public NavWindow
     TOOLS_DEBUG,
   };
 
-  QuickMenu(std::function<void()> cancelHandler,
-            std::function<void(bool close)> selectHandler = nullptr,
-            PageGroupBase* pageGroup = nullptr, SubMenu curPage = NONE);
+  QuickMenu();
 
   static QuickMenu* openQuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler = nullptr,
@@ -104,6 +103,7 @@ class QuickMenu : public NavWindow
   void enableSubMenu();
 
   SubMenu currentPage() const { return curPage; }
+  static void setCurrentPage(SubMenu newPage) { curPage = newPage; }
 
   PageGroupBase* getPageGroup() const { return pageGroup; }
   QuickMenuGroup* getTopMenu() const { return mainMenu; }
@@ -138,11 +138,13 @@ class QuickMenu : public NavWindow
   QuickMenuGroup* mainMenu = nullptr;
   std::vector<QuickSubMenu*> subMenus;
   PageGroupBase* pageGroup = nullptr;
-  SubMenu curPage;
+  static SubMenu curPage;
 
   void openQM(std::function<void()> cancelHandler,
               std::function<void(bool close)> selectHandler,
               PageGroupBase* pageGroup, SubMenu curPage);
+
+  void focusMainMenu();
 
   void deleteLater(bool detach, bool trash) override;
 };

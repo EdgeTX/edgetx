@@ -92,6 +92,15 @@ void PageGroupHeaderBase::addTab(PageGroupItem* page)
   pages.emplace_back(page);
 }
 
+bool PageGroupHeaderBase::hasSubMenu(QuickMenu::SubMenu subMenu)
+{
+  for (uint8_t i = 0; i < pages.size(); i += 1) {
+    if (pages[i]->subMenu() == subMenu)
+      return true;
+  }
+  return false;
+}
+
 //-----------------------------------------------------------------------------
 
 class PageGroupHeader : public PageGroupHeaderBase
@@ -304,6 +313,11 @@ void PageGroupBase::onLongPressPGDN() { header->nextTab(); }
 void PageGroupBase::onLongPressRTN() { onCancel(); }
 #endif
 
+bool PageGroupBase::hasSubMenu(QuickMenu::SubMenu subMenu)
+{
+  return header->hasSubMenu(subMenu);
+}
+
 //-----------------------------------------------------------------------------
 
 PageGroup::PageGroup(EdgeTxIcon icon, const char* title, PageDef* pages) :
@@ -341,7 +355,6 @@ void PageGroup::openMenu()
       if (close)
         onCancel();
     }, this, currentTab->subMenu());
-  quickMenu->setFocus(currentTab->subMenu());
 }
 
 PageGroup* PageGroup::ScreenMenu() { return new PageGroup(ICON_THEME, STR_MAIN_MENU_SCREEN_SETTINGS, screensMenuItems); }
@@ -433,5 +446,4 @@ void TabsGroup::openMenu()
           Layer::back()->onCancel();
       }
     }, p, subMenu);
-  quickMenu->setFocus(subMenu);
 }

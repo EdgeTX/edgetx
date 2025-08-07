@@ -118,6 +118,8 @@ class PageGroupHeaderBase : public Window
     }
   }
 
+  bool hasSubMenu(QuickMenu::SubMenu n);
+
   PageGroupItem* pageTab(uint8_t idx) const { return pages[idx]; }
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return pages.size(); }
@@ -146,6 +148,8 @@ class PageGroupBase : public NavWindow
   uint8_t tabCount() const;
 
   void addTab(PageGroupItem* page);
+
+  bool hasSubMenu(QuickMenu::SubMenu n);
 
  protected:
   PageGroupHeaderBase* header = nullptr;

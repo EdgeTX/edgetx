@@ -38,14 +38,16 @@ class QuickMenuGroup : public Window
 
   // Add a new button to the carousel
   ButtonBase* addButton(EdgeTxIcon icon, const char* title,
-                 std::function<uint8_t(void)> pressHandler, bool visible = true);
+                 std::function<uint8_t(void)> pressHandler,
+                 std::function<bool(void)> visibleHandler = nullptr,
+                 std::function<void(void)> focusHandler = nullptr);
 
   void setGroup();
   void setFocus();
   void clearFocus();
   void setDisabled(bool all);
   void setEnabled();
-  void setCurrent(ButtonBase* b) { curBtn = b; }
+  void setCurrent(ButtonBase* b);
   void setCurrent(int b) { setCurrent(btns[b]); }
 
   static LAYOUT_SIZE_SCALED(QM_BUTTON_WIDTH, 72, 72)

@@ -521,6 +521,8 @@ class ModelLayoutButton : public IconButton
 
 ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 {
+  QuickMenu::setCurrentPage(QuickMenu::MANAGE_MODELS);
+
   buildHead(header);
   buildBody(body);
 

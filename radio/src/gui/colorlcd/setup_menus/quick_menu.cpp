@@ -37,10 +37,10 @@ ButtonBase* QuickSubMenu::addButton()
 {
   menuButton = quickMenu->getTopMenu()->addButton(icon, title,
                       [=]() -> uint8_t {
+                        if (!subMenu) buildSubMenu();
                         quickMenu->getTopMenu()->setCurrent(menuButton);
                         quickMenu->getTopMenu()->setDisabled(false);
                         quickMenu->getTopMenu()->clearFocus();
-                        if (!subMenu) buildSubMenu();
                         enableSubMenu();
                         return 0;
                       });
@@ -48,8 +48,8 @@ ButtonBase* QuickSubMenu::addButton()
   menuButton->setFocusHandler([=](bool focus) {
     if (!quickMenu->deleted()) {
       if (focus) {
-        quickMenu->getTopMenu()->setCurrent(menuButton);
         if (!subMenu) buildSubMenu();
+        quickMenu->getTopMenu()->setCurrent(menuButton);
       }
       if (subMenu)
         subMenu->show(focus);
@@ -92,9 +92,9 @@ void QuickSubMenu::setDisabled(bool all)
 
 void QuickSubMenu::setCurrent(QuickMenu::SubMenu n)
 {
+  if (!subMenu) buildSubMenu();
   quickMenu->getTopMenu()->setCurrent(menuButton);
   quickMenu->getTopMenu()->setDisabled(false);
-  if (!subMenu) buildSubMenu();
   subMenu->setCurrent(getIndex(n));
   enableSubMenu();
 }
@@ -106,7 +106,8 @@ void QuickSubMenu::buildSubMenu()
   for (int i = 0; items[i].icon < EDGETX_ICONS_COUNT; i += 1) {
     subMenu->addButton(items[i].icon, items[i].qmTitle,
         std::bind(&QuickSubMenu::onPress, this, i),
-        items[i].enabled ? items[i].enabled() : true);
+        [=]() { return items[i].enabled ? items[i].enabled() : true; },
+        [=]() { QuickMenu::setCurrentPage(items[i].subMenu); });
   }
 
   subMenu->hide();
@@ -126,14 +127,14 @@ uint8_t QuickSubMenu::onPress(int n)
 {
   if (items[n].pageAction == PAGE_CREATE) {
     quickMenu->getTopMenu()->clearFocus();
-    n = getPageNumber(n);
-    if (quickMenu->getPageGroup() && isSubMenu(quickMenu->currentPage())) {
+    int pgIdx = getPageNumber(n);
+    if (quickMenu->getPageGroup() && quickMenu->getPageGroup()->hasSubMenu(items[n].subMenu)) {
       quickMenu->onSelect(false);
-      quickMenu->getPageGroup()->setCurrentTab(n);
+      quickMenu->getPageGroup()->setCurrentTab(pgIdx);
     } else {
       quickMenu->onSelect(true);
       auto pg = new PageGroup(icon, parentTitle, items);
-      pg->setCurrentTab(n);
+      pg->setCurrentTab(pgIdx);
     }
   } else {
     quickMenu->getTopMenu()->setCurrent(menuButton);
@@ -153,25 +154,21 @@ void QuickSubMenu::onSelect(bool close)
 //-----------------------------------------------------------------------------
 
 QuickMenu* QuickMenu::instance = nullptr;
+QuickMenu::SubMenu QuickMenu::curPage = QuickMenu::NONE;
 
 QuickMenu* QuickMenu::openQuickMenu(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler,
             PageGroupBase* pageGroup, SubMenu curPage)
 {
   if (!instance) {
-    instance = new QuickMenu(cancelHandler, selectHandler, pageGroup, curPage);
-  } else {
-    instance->openQM(cancelHandler, selectHandler, pageGroup, curPage);
+    instance = new QuickMenu();
   }
+  instance->openQM(cancelHandler, selectHandler, pageGroup, curPage);
   return instance;
 }
 
-QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(bool close)> selectHandler,
-                     PageGroupBase* pageGroup, SubMenu curPage) :
-    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
-    cancelHandler(std::move(cancelHandler)),
-    selectHandler(std::move(selectHandler)),
-    pageGroup(pageGroup), curPage(curPage)
+QuickMenu::QuickMenu() :
+    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 {
   setWindowFlag(OPAQUE);
 
@@ -194,18 +191,12 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
     },
     window_create);
 
-  Layer::push(this);
-
   auto box = new Window(this, {QM_MAIN_X, QM_MAIN_Y, QM_MAIN_W, QM_MAIN_H});
 
   mainMenu = new QuickMenuGroup(box, (lv_flex_flow_t)QM_MAIN_FLOW);
 
   mainMenu->addButton(ICON_MODEL_SELECT, STR_QM_MANAGE_MODELS,
                       [=]() -> uint8_t {
-                        inSubMenu = false;
-                        mainMenu->setFocus();
-                        mainMenu->setEnabled();
-                        mainMenu->setGroup();
                         onSelect(true);
                         new ModelLabelsWindow();
                         return 0;
@@ -238,8 +229,6 @@ QuickMenu::QuickMenu(std::function<void()> cancelHandler, std::function<void(boo
   //                         readModelNotes(true);
   //                         return 0;
   //                       });
-
-  mainMenu->setGroup();
 }
 
 void QuickMenu::deleteLater(bool detach, bool trash)
@@ -252,17 +241,42 @@ void QuickMenu::deleteLater(bool detach, bool trash)
 
 void QuickMenu::openQM(std::function<void()> cancelHandler,
             std::function<void(bool close)> selectHandler,
-            PageGroupBase* pageGroup, SubMenu curPage)
+            PageGroupBase* newPageGroup, SubMenu newCurPage)
 {
   Layer::push(this);
 
   this->cancelHandler = std::move(cancelHandler);
   this->selectHandler = std::move(selectHandler);
-  this->pageGroup = pageGroup;
-  this->curPage = curPage;
   show();
   lv_obj_move_foreground(lvobj);
+  if (newPageGroup) {
+    pageGroup = newPageGroup;
+    curPage = newCurPage;
+    mainMenu->setDisabled(false);
+    mainMenu->clearFocus();
+    setFocus(curPage);
+  } else {
+    pageGroup = nullptr;
+    if (curPage > QuickMenu::MANAGE_MODELS) {
+      mainMenu->setDisabled(false);
+      mainMenu->clearFocus();
+      setFocus(curPage);
+    } else {
+      if (curPage == QuickMenu::MANAGE_MODELS)
+        mainMenu->setCurrent(0);
+      focusMainMenu();
+    }
+  }
+}
+
+void QuickMenu::focusMainMenu()
+{
+  inSubMenu = false;
+  mainMenu->setFocus();
+  mainMenu->setEnabled();
   mainMenu->setGroup();
+  for(auto sub : subMenus)
+    sub->setDisabled(true);
 }
 
 void QuickMenu::onSelect(bool close)
@@ -281,12 +295,8 @@ void QuickMenu::closeMenu()
 void QuickMenu::onCancel()
 {
   if (inSubMenu) {
-    inSubMenu = false;
-    mainMenu->setFocus();
-    mainMenu->setEnabled();
-    mainMenu->setGroup();
-    for(auto sub : subMenus)
-      sub->setDisabled(true);
+    focusMainMenu();
+    curPage = QuickMenu::NONE;
   } else {
     closeMenu();
   }
