@@ -166,8 +166,8 @@ int gyroRead(uint8_t buffer[IMU_BUFFER_LENGTH])
     TRACE("ICM426xx ERROR: i2c read error");
     return -1;
   }
-  imu_raw.accel_x = -((int16_t)(buf[0] << 8) | buf[1]); // x
-  imu_raw.accel_y = -((int16_t)(buf[2] << 8) | buf[3]); // y
+  imu_raw.accel_x = ((int16_t)(buf[0] << 8) | buf[1]); // x
+  imu_raw.accel_y = ((int16_t)(buf[2] << 8) | buf[3]); // y
   imu_raw.accel_z = ((int16_t)(buf[4] << 8) | buf[5]); // z
 
   // Process through filters
