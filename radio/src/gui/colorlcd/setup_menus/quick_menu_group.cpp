@@ -98,22 +98,19 @@ class QuickMenuButton : public ButtonBase
  protected:
   StaticIcon* iconPtr = nullptr;
   StaticText* textPtr = nullptr;
-  bool focused = false;
 
   void checkEvents() override
   {
     if (lv_obj_get_state(lvobj) & LV_STATE_FOCUSED) {
-      if (!focused) {
+      if (!(lv_obj_get_state(textPtr->getLvObj()) & LV_STATE_USER_1)) {
         lv_obj_add_state(textPtr->getLvObj(), LV_STATE_USER_1);
         lv_obj_add_state(iconPtr->getLvObj(), LV_STATE_USER_1);
       }
-      focused = true;
     } else {
-      if (focused) {
+      if (lv_obj_get_state(textPtr->getLvObj()) & LV_STATE_USER_1) {
         lv_obj_clear_state(textPtr->getLvObj(), LV_STATE_USER_1);
         lv_obj_clear_state(iconPtr->getLvObj(), LV_STATE_USER_1);
       }
-      focused = false;
     }
   }
 };
