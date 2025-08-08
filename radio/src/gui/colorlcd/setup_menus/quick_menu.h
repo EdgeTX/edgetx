@@ -126,7 +126,7 @@ class QuickMenu : public NavWindow
   static LAYOUT_ORIENTATION(QM_SUB_W, GRP_W(6), GRP_W(3))
   static LAYOUT_ORIENTATION(QM_SUB_H, GRP_H(2), GRP_H(6))
   static LAYOUT_ORIENTATION(QM_MAIN_X, (LCD_W - QM_MAIN_W) / 2, (LCD_W - QM_MAIN_W - QM_SUB_W - PAD_SMALL) / 2)
-  static constexpr coord_t QM_MAIN_Y = EdgeTxStyles::STD_FONT_HEIGHT + PAD_MEDIUM;
+  static constexpr coord_t QM_MAIN_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY;
   static LAYOUT_ORIENTATION(QM_SUB_X, QM_MAIN_X, QM_MAIN_X + QM_MAIN_W + PAD_SMALL)
   static LAYOUT_ORIENTATION(QM_SUB_Y, QM_MAIN_Y + QM_MAIN_H + PAD_LARGE, QM_MAIN_Y)
 

@@ -183,7 +183,7 @@ QuickMenu::QuickMenu() :
   new StaticIcon(this, (LCD_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_WHITE_INDEX);
 
   new ButtonBase(
-    this, {0, 0, LCD_W, mask->height},
+    this, {0, 0, LCD_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
     [=]() -> uint8_t {
       inSubMenu = false;
       onCancel();
