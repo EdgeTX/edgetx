@@ -33,8 +33,7 @@ static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
   etx_obj_add_style(obj, styles->pad_medium, LV_PART_MAIN);
   etx_solid_bg(obj, COLOR_BLACK_INDEX, LV_PART_MAIN);
 
-  etx_obj_add_style(obj, styles->outline, LV_PART_MAIN | LV_STATE_FOCUSED);
-  lv_obj_set_style_outline_color(obj, lv_color_white(), LV_PART_MAIN | LV_STATE_FOCUSED);
+  etx_solid_bg(obj, COLOR_WHITE_INDEX, LV_PART_MAIN | LV_STATE_FOCUSED);
 }
 
 static const lv_obj_class_t etx_quick_button_class = {
@@ -72,10 +71,12 @@ class QuickMenuButton : public ButtonBase
 
     iconPtr = new StaticIcon(this, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL, icon, COLOR_WHITE_INDEX);
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
+    etx_img_color(iconPtr->getLvObj(), COLOR_BLACK_INDEX, LV_STATE_USER_1);
 
     textPtr = new StaticText(this, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
                    title, COLOR_WHITE_INDEX, CENTERED | FONT(XS));
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
+    etx_txt_color(textPtr->getLvObj(), COLOR_BLACK_INDEX, LV_STATE_USER_1);
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -97,6 +98,24 @@ class QuickMenuButton : public ButtonBase
  protected:
   StaticIcon* iconPtr = nullptr;
   StaticText* textPtr = nullptr;
+  bool focused = false;
+
+  void checkEvents() override
+  {
+    if (lv_obj_get_state(lvobj) & LV_STATE_FOCUSED) {
+      if (!focused) {
+        lv_obj_add_state(textPtr->getLvObj(), LV_STATE_USER_1);
+        lv_obj_add_state(iconPtr->getLvObj(), LV_STATE_USER_1);
+      }
+      focused = true;
+    } else {
+      if (focused) {
+        lv_obj_clear_state(textPtr->getLvObj(), LV_STATE_USER_1);
+        lv_obj_clear_state(iconPtr->getLvObj(), LV_STATE_USER_1);
+      }
+      focused = false;
+    }
+  }
 };
 
 QuickMenuGroup::QuickMenuGroup(Window* parent, lv_flex_flow_t flow) :

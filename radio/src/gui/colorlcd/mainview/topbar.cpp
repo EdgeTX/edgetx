@@ -72,7 +72,7 @@ void SetupTopBarWidgetsPage::deleteLater(bool detach, bool trash)
   Window::deleteLater(detach, trash);
 
   // restore screen setting tab on top
-  PageGroup::ScreenMenu();
+  (PageGroup::ScreenMenu())->setCurrentTab(1);
 
   storageDirty(EE_MODEL);
 }
