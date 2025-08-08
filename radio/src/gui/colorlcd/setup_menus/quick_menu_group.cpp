@@ -77,11 +77,26 @@ class QuickMenuButton : public ButtonBase
                    title, COLOR_WHITE_INDEX, CENTERED | FONT(XS));
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
     etx_txt_color(textPtr->getLvObj(), COLOR_BLACK_INDEX, LV_STATE_USER_1);
+
+    lv_obj_add_event_cb(lvobj, QuickMenuButton::focused_cb, LV_EVENT_FOCUSED, nullptr);
+    lv_obj_add_event_cb(lvobj, QuickMenuButton::defocused_cb, LV_EVENT_DEFOCUSED, nullptr);
   }
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "QuickMenuButton"; }
 #endif
+
+  static void focused_cb(lv_event_t *e)
+  {
+    QuickMenuButton *b = (QuickMenuButton *)lv_obj_get_user_data(lv_event_get_target(e));
+    if (b) b->setFocused();
+  }
+
+  static void defocused_cb(lv_event_t *e)
+  {
+    QuickMenuButton *b = (QuickMenuButton *)lv_obj_get_user_data(lv_event_get_target(e));
+    if (b) b->setDeFocused();
+  }
 
   void setDisabled()
   {
@@ -95,24 +110,21 @@ class QuickMenuButton : public ButtonBase
     textPtr->enable(true);
   }
 
+  void setFocused()
+  {
+    lv_obj_add_state(textPtr->getLvObj(), LV_STATE_USER_1);
+    lv_obj_add_state(iconPtr->getLvObj(), LV_STATE_USER_1);
+  }
+
+  void setDeFocused()
+  {
+    lv_obj_clear_state(textPtr->getLvObj(), LV_STATE_USER_1);
+    lv_obj_clear_state(iconPtr->getLvObj(), LV_STATE_USER_1);
+  }
+
  protected:
   StaticIcon* iconPtr = nullptr;
   StaticText* textPtr = nullptr;
-
-  void checkEvents() override
-  {
-    if (lv_obj_get_state(lvobj) & LV_STATE_FOCUSED) {
-      if (!(lv_obj_get_state(textPtr->getLvObj()) & LV_STATE_USER_1)) {
-        lv_obj_add_state(textPtr->getLvObj(), LV_STATE_USER_1);
-        lv_obj_add_state(iconPtr->getLvObj(), LV_STATE_USER_1);
-      }
-    } else {
-      if (lv_obj_get_state(textPtr->getLvObj()) & LV_STATE_USER_1) {
-        lv_obj_clear_state(textPtr->getLvObj(), LV_STATE_USER_1);
-        lv_obj_clear_state(iconPtr->getLvObj(), LV_STATE_USER_1);
-      }
-    }
-  }
 };
 
 QuickMenuGroup::QuickMenuGroup(Window* parent, lv_flex_flow_t flow) :
