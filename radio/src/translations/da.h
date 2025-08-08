@@ -1261,8 +1261,8 @@
 #define TR_SYNC                        "Synk"
 
 #define TR_ENABLED_FEATURES            "Aktiverede funktioner"
-#define TR_RADIO_MENU_TABS             "Radio menu tab"
-#define TR_MODEL_MENU_TABS             "Model menu tab"
+#define TR_RADIO_MENU_TABS             "Radio menu"
+#define TR_MODEL_MENU_TABS             "Model menu"
 
 #define TR_SELECT_MENU_ALL        "Alle"
 #define TR_SELECT_MENU_CLR        "Slet"

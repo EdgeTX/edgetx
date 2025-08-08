@@ -1271,8 +1271,8 @@
 #define TR_SYNC                   "Sync"
 
 #define TR_ENABLED_FEATURES       "Enabled Features"
-#define TR_RADIO_MENU_TABS        "Radio Menu Tabs"
-#define TR_MODEL_MENU_TABS        "Model Menu Tabs"
+#define TR_RADIO_MENU_TABS        "Radio Menu"
+#define TR_MODEL_MENU_TABS        "Model Menu"
 
 #define TR_SELECT_MENU_ALL        "All"
 #define TR_SELECT_MENU_CLR        "Clear"
