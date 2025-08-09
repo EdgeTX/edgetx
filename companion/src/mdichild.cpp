@@ -33,6 +33,9 @@
 #include "radiodataconversionstate.h"
 #include "filtereditemmodels.h"
 #include "labels.h"
+#include "filteredwritedialog.h"
+#include "progressdialog.h"
+#include "progresswidget.h"
 
 #include <algorithm>
 #include <ExportableTableView>
@@ -1344,7 +1347,7 @@ bool MdiChild::saveAs(bool isNew)
   return saveFile(fileName, true);
 }
 
-bool MdiChild::saveFile(const QString & filename, bool setCurrent)
+bool MdiChild::saveFile(const QString & filename, bool setCurrent, ProgressDialog * progressDlg)
 {
   radioData.fixModelFilenames();
   Storage storage(filename);
@@ -1493,18 +1496,20 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to Tx
+void MdiChild::writeSettings(ProgressDialog * progressDlg, bool toRadio)
 {
+  auto progress = progressDlg->progress();
   //  safeguard as the menu actions should be disabled
   int cnt = radioData.invalidModels();
   if (cnt) {
-    QMessageBox::critical(this, tr("Write Models and Settings"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
+    QMessageBox::critical(this, tr("Write Models and Settings"),
+      tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
     return;
   }
 
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
-    msgbox.setText(tr("You are about to overwrite ALL models."));
+    msgbox.setText(tr("You are about to overwrite ALL models and settings."));
     msgbox.setInformativeText(tr("Continue?"));
     msgbox.setIcon(QMessageBox::Icon::Question);
     msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
@@ -1520,29 +1525,22 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to T
   QString radioPath;
 
   if (toRadio) {
-    radioPath = findMassStoragePath("RADIO", true);
-    qDebug() << "Searching for SD card, found" << radioPath;
-  }
-  else {
+    radioPath = findMassStoragePath("RADIO", true, progress);
+  } else {
     radioPath = g.currentProfile().sdPath();
     if (!QFile(radioPath % "/RADIO").exists())
       radioPath.clear();
   }
 
   if (radioPath.isEmpty()) {
-    qDebug() << "Radio SD card not found";
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find SD card!"));
     return;
   }
 
-  if (saveFile(radioPath, false)) {
-    status->hide();
+  if (saveFile(radioPath, false))
     QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written"));
-  }
-  else {
-    status->hide();
+  else
     QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
-  }
 }
 
 bool MdiChild::loadBackup()
@@ -1800,22 +1798,21 @@ void MdiChild::labelsFault(QString msg)
 unsigned MdiChild::exportModels(const QVector<int> modelIndices)
 {
   unsigned saves = 0;
+  QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/"));
 
   foreach(const int idx, modelIndices) {
     if (idx < 0 || idx >= (int)radioData.models.size())
       continue;
 
-    const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + QString(radioData.models[idx].name) + ".yml"));
-    qDebug() << path;
-
     QString filename;
+    path.append(QString(radioData.models[idx].name) + ".yml");
 
     do
     {
       filename = QFileDialog::getSaveFileName(this, tr("Export model"), path, YML_FILES_FILTER);
 
       if (filename.isEmpty())
-        return false;
+        return saves;
 
       if (QFileInfo(filename).suffix().toLower() != "yml")
         QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Invalid file extension!"));
@@ -1824,14 +1821,16 @@ unsigned MdiChild::exportModels(const QVector<int> modelIndices)
 
     Storage storage(filename);
 
-    if (!storage.writeModel(radioData, idx)) {
+    if (!storage.write(radioData.models[idx])) {
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
-      return false;
+      return saves;
     }
 
     ++saves;
+    path = QDir::toNativeSeparators(QFileInfo(filename).absolutePath() % "/");
   }
- return saves;
+
+  return saves;
 }
 
 bool MdiChild::exportModel(const int modelIndex)
@@ -1846,7 +1845,9 @@ bool MdiChild::exportModel(const int modelIndex)
 
 void MdiChild::exportSelectedModels()
 {
-  exportModels(getSelectedModels());
+  int cnt = exportModels(getSelectedModels());
+
+  QMessageBox::information(this, CPN_STR_APP_NAME, tr("%1 model(s) exported").arg(cnt));
 }
 
 void MdiChild::setCurrentModelModified()
@@ -1917,4 +1918,83 @@ void MdiChild::updateStatusBar()
 
   statusBarIcon->setPixmap(p.scaled(QSize(24, 24)));
   statusBarCount->setText(cnt.text());
+}
+
+void MdiChild::filteredWriteSettings(ProgressDialog * progressDlg)
+{
+  bool result = false;
+  auto progress = progressDlg->progress();
+  //  safeguard as the menu actions should be disabled
+  int cnt = radioData.invalidModels();
+
+  if (cnt) {
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR,
+      tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
+    return;
+  }
+
+  FilteredWriteDialog::Params params;
+  FilteredWriteDialog dlg = FilteredWriteDialog(this, radioData, params);
+
+  if (!dlg.exec())
+    return;
+
+  return; //TESTING BLOCK
+
+  // use standard function
+  if (params.settings && params.calib && params.replace &&
+      params.models.size() == (qsizetype)radioData.models.size()) {
+    writeSettings(progressDlg);
+    return;
+  }
+
+  progress->updateInfoAndMessages(tr("Initialising..."));
+  QString radioPath;
+  radioPath = findMassStoragePath("RADIO", true);
+
+  if (radioPath.isEmpty()) {
+    progress->addMessage(tr("Unable to find radio SD card!"), QtFatalMsg);
+    return;
+  }
+
+  progress->addText(tr("SD path set to: %1").arg(radioPath));
+  Storage storage(radioPath);
+
+  if (params.settings) {
+    GeneralSettings gsCur;
+    progress->addMessage(tr("Reading connected radio settings..."));
+    if (storage.load(gsCur))
+      progress->updateLastMessage(tr("finished"));
+
+    if (getCurrentBoard() == (Board::Type)gsCur.variant) {
+      if (params.settings) {
+        GeneralSettings & gsNew = radioData.generalSettings;
+        gsNew.txCurrentCalibration = gsCur.txCurrentCalibration;
+        gsNew.txVoltageCalibration = gsCur.txVoltageCalibration;
+
+        for (int i = 0; i < CPN_MAX_INPUTS; i++) {
+          gsNew.inputConfig[i].calib = gsCur.inputConfig[i].calib;
+        }
+        progress->addMessage(tr("Copied calibration from connected radio"));
+      }
+    } else {
+      progress->addMessage(tr("Profile radio does not match connected radio!"), QtFatalMsg);
+      return;
+    }
+  }
+
+  if (params.models.size()) {
+    if (params.replace) {
+      // add all models to list
+
+      // write selected models
+      // BUT how to merge ????? fine spare slots B&W or append to end if colour
+    }
+  }
+
+  if (!result)
+    progress->addMessage(tr("Models and settings written successfully"));
+  else
+    progress->addMessage(tr("Error writing models and settings!"), QtFatalMsg);
+
 }

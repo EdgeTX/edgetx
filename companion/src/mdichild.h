@@ -36,6 +36,7 @@
 
 class QToolBar;
 class StatusDialog;
+class ProgressDialog;
 
 namespace Ui {
 class MdiChild;
@@ -97,9 +98,10 @@ class MdiChild : public QWidget
     bool loadFile(const QString & fileName, bool resetCurrentFile=true);
     bool save();
     bool saveAs(bool isNew=false);
-    bool saveFile(const QString & fileName, bool setCurrent=true);
+    bool saveFile(const QString & fileName, bool setCurrent=true, ProgressDialog * progressDlg = nullptr);
     void closeFile(bool force = false);
-    void writeSettings(StatusDialog * status, bool toRadio = true);
+    void writeSettings(ProgressDialog * progressDlg, bool toRadio = true);
+    void filteredWriteSettings(ProgressDialog * progressDlg);
     void print(int model=-1, const QString & filename="");
     void onFirmwareChanged();
 

@@ -226,6 +226,7 @@ set(companion_NAMES
   modelslist
   profilechooser
   dialogs/filesyncdialog
+  filteredwritedialog
   )
 
 foreach(name ${companion_NAMES})

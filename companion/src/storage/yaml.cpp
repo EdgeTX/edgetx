@@ -57,79 +57,86 @@ bool YamlFormat::writeFile(const QByteArray & filedata)
 
 bool YamlFormat::load(RadioData & radioData)
 {
-  //bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
-  int modelIdx = 0;
-
   QByteArray data;
   if (!loadFile(data)) {
     setError(tr("Cannot read %1").arg(filename));
     return false;
   }
 
+  bool ret = false;
   std::istringstream data_istream(data.toStdString());
   YAML::Node node = YAML::Load(data_istream);
 
-  board = getCurrentBoard();
-
-  if (!node.IsMap()) {
+  if (node.IsMap()) {
+    if (node["board"].IsScalar())
+      ret = loadSettings(radioData, data);
+    else if (node["header"].IsMap())
+      ret = loadModel(radioData, data);
+    else
+      setError(tr("Unable to determine content type for file %1").arg(filename));
+  }
+  else
     setError(tr("File %1 is not a valid format").arg(filename));
-    return false;
-  }
 
-  if (node["header"].IsMap()) {
-    qDebug() << "File" << filename << "appears to contain model data";
-
-    /*if (hasLabels) {
-      CategoryData category(qPrintable(tr("New category")));
-      radioData.categories.push_back(category);
-    }*/
-
-    radioData.models.resize(1);
-
-    auto& model = radioData.models[modelIdx];
-
-    try {
-      if (!loadModelFromYaml(model, data)) {
-        setError(tr("Cannot load ") + filename);
-        return false;
-      }
-    } catch(const std::runtime_error& e) {
-      setError(tr("Cannot load ") + filename + ":\n" + QString(e.what()));
-      return false;
-    }
-
-    model.modelIndex = modelIdx;
-    model.used = true;
-
-    radioData.generalSettings.currModelIndex = modelIdx;
-    radioData.fixModelFilenames();
-
-    //  without knowing the radio this model came from the old to new radio conversion can cause more issues than it tries to solve
-    //  so leave fixing incompatibilities to the user
-    radioData.generalSettings.variant = getCurrentBoard();
-
-    setWarning(tr("Please check all radio and model settings as no conversion could be performed."));
-    return true;
-  }
-  else if (node["board"].IsScalar()) {
-    setError(tr("File %1 appears to contain radio settings and importing is unsupported.").arg(filename));
-  }
-  else {
-    setError(tr("Unable to determine content type for file %1").arg(filename));
-  }
-
-  return false;
+  return ret;
 }
 
-bool YamlFormat::writeModel(const RadioData & radioData, const int modelIndex)
+bool YamlFormat::loadSettings(RadioData & radioData, const QByteArray & data)
 {
-  if (modelIndex < 0 || modelIndex >= (int)radioData.models.size() || radioData.models[modelIndex].isEmpty())
+  qDebug() << "File" << filename << "appears to contain radio settings data";
+
+  try {
+    if (!loadRadioSettingsFromYaml(radioData.generalSettings, data)) {
+      setError(tr("Cannot load ") + filename);
+      return false;
+    }
+  } catch(const std::runtime_error& e) {
+    setError(tr("Cannot load ") + filename + ":\n" + QString(e.what()));
     return false;
+  }
 
-  QByteArray modelData;
-  writeModelToYaml(radioData.models[modelIndex], modelData);
+  return true;
+}
 
-  if (!writeFile(modelData))
+bool YamlFormat::loadModel(RadioData & radioData, const QByteArray & data)
+{
+  qDebug() << "File" << filename << "appears to contain model data";
+
+  int modelIdx = 0;
+  radioData.models.resize(1);
+  auto& model = radioData.models[modelIdx];
+
+  try {
+    if (!loadModelFromYaml(model, data)) {
+      setError(tr("Cannot load ") + filename);
+      return false;
+    }
+  } catch(const std::runtime_error& e) {
+    setError(tr("Cannot load ") + filename + ":\n" + QString(e.what()));
+    return false;
+  }
+
+  model.modelIndex = modelIdx;
+  model.used = true;
+
+  radioData.generalSettings.currModelIndex = modelIdx;
+  radioData.fixModelFilenames();
+
+  //  without knowing the radio this model came from the old to new radio conversion can cause more issues than it tries to solve
+  //  so leave fixing incompatibilities to the user
+  board = getCurrentBoard();
+  radioData.generalSettings.variant = getCurrentBoard();
+
+  setWarning(tr("Please check all radio and model settings as no conversion could be performed."));
+  return true;
+}
+
+bool YamlFormat::write(const ModelData & modelData)
+{
+  QByteArray data;
+  writeModelToYaml(modelData, data);
+
+  if (!writeFile(data))
     return false;
 
   return true;

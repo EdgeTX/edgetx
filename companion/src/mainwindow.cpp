@@ -523,12 +523,13 @@ void MainWindow::customizeSplash()
 
 void MainWindow::writeSettings()
 {
-  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to radio"), tr("In progress..."), 400);
+  ProgressDialog *dlg = new ProgressDialog(this, tr("Write Models and Settings to Radio"),
+                                           CompanionIcon("write_flash.png"));
 
   if (activeMdiChild())
-    activeMdiChild()->writeSettings(status);
+    activeMdiChild()->writeSettings(dlg);
 
-  delete status;
+  delete dlg;
 }
 
 void MainWindow::readSettings()
@@ -677,6 +678,7 @@ void MainWindow::updateMenus()
   compareAct->setEnabled(activeChild);
   writeSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
   readSettingsAct->setEnabled(true);
+  filteredWriteSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
   writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid() && !activeMdiChild()->invalidModels());
   readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
@@ -828,6 +830,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(writeFlashAct,      tr("Write Firmware to Radio"),             tr("Write firmware to Radio"));
   trAct(writeSettingsAct,   tr("Write Models and Settings to Radio"),  tr("Write Models and Settings to Radio"));
   trAct(readSettingsAct,    tr("Read Models and Settings from Radio"), tr("Read Models and Settings from Radio"));
+  trAct(filteredWriteSettingsAct,   tr("Filtered Write Models and Settings to Radio"),  tr("Filtered Write Models and Settings to Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
   trAct(radioGetDevicesAct, tr("Connected Radios"),                    tr("Get a list of connected radios"));
@@ -913,6 +916,7 @@ void MainWindow::createActions()
   writeFlashAct =          addAct("write_flash.png",        SLOT(writeFlash()));
   writeSettingsAct =       addAct("write_eeprom.png",       SLOT(writeSettings()));
   readSettingsAct =        addAct("read_eeprom.png",        SLOT(readSettings()));
+  filteredWriteSettingsAct = addAct("write_eeprom.png",    SLOT(filteredWriteSettings()));
   writeBUToRadioAct =      addAct("write_eeprom_file.png",  SLOT(writeBackup()));
   readBUToFileAct =        addAct("read_eeprom_file.png",   SLOT(readBackup()));
 
@@ -994,6 +998,7 @@ void MainWindow::createMenus()
   radioMenu = menuBar()->addMenu("");
   radioMenu->addAction(writeSettingsAct);
   radioMenu->addAction(readSettingsAct);
+  radioMenu->addAction(filteredWriteSettingsAct);
   radioMenu->addSeparator();
   radioMenu->addAction(writeBUToRadioAct);
   radioMenu->addAction(readBUToFileAct);
@@ -1515,12 +1520,13 @@ bool MainWindow::readSettingsFromSDPath(const QString & filename)
 
 void MainWindow::writeSettingsSDPath()
 {
-  StatusDialog *status = new StatusDialog(this, tr("Writing models and settings to SD path"), tr("In progress..."), 400);
+  ProgressDialog *dlg = new ProgressDialog(this, tr("Writing models and settings to SD path"),
+                                           CompanionIcon("write_flash.png"));
 
   if (activeMdiChild())
-    activeMdiChild()->writeSettings(status, false);
+    activeMdiChild()->writeSettings(dlg, false);
 
-  delete status;
+  delete dlg;
 }
 
 bool MainWindow::isSDPathValid()
@@ -1578,4 +1584,15 @@ void MainWindow::viewToolsToolbar()
 void MainWindow::radioGetDevices()
 {
   QMessageBox::information(this, tr("Connected Radios"), getDevicesInfo());
+}
+
+void MainWindow::filteredWriteSettings()
+{
+  ProgressDialog *dlg = new ProgressDialog(this, tr("Filtered Write Models and Settings to Radio"),
+                                           CompanionIcon("write_flash.png"), false, true);
+
+  if (activeMdiChild())
+    activeMdiChild()->filteredWriteSettings(dlg);
+
+  delete dlg;
 }

@@ -25,7 +25,7 @@
 #include "appdata.h"
 #include <QTimer>
 
-ProgressDialog::ProgressDialog(QWidget *parent, const QString &title, const QIcon &icon, bool forceOpen):
+ProgressDialog::ProgressDialog(QWidget *parent, const QString &title, const QIcon &icon, bool forceOpen, bool startHidden):
   QDialog(parent),
   ui(new Ui::ProgressDialog),
   locked(false),
@@ -35,12 +35,16 @@ ProgressDialog::ProgressDialog(QWidget *parent, const QString &title, const QIco
   setWindowTitle(title);
   setWindowIcon(icon);
   setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
   if (forceOpen) {
     ui->outputProgress->forceOpen();
   }
+
   resize(0, 0);
   connect(ui->outputProgress, &ProgressWidget::locked, this, &ProgressDialog::on_outputProgress_locked);
-  show();
+
+  if (!startHidden)
+    show();
 }
 
 ProgressDialog::~ProgressDialog()

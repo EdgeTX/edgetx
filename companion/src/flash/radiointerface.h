@@ -29,6 +29,8 @@
 using SliceU8 = rust::Slice<const uint8_t>;
 using ::rust::Vec;
 
+class ProgressWidget;
+
 class FirmwareReaderWorker : public QThread
 {
   Q_OBJECT
@@ -89,8 +91,6 @@ class FirmwareWriterWorker : public QThread
                                 Duration timeout);
 };
 
-
-class ProgressWidget;
 
 //  TODO make a class
 struct Uf2Info {

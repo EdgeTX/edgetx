@@ -23,36 +23,32 @@
 
 #include <QDialog>
 
-namespace Ui
-{
-  class ProgressDialog;
+class RadioData;
+class QAbstractButton;
+
+namespace Ui {
+  class FilteredWriteDialog;
 }
 
-class ProgressWidget;
-
-class ProgressDialog : public QDialog
+class FilteredWriteDialog : public QDialog
 {
   Q_OBJECT
 
   public:
-    ProgressDialog(QWidget *parent, const QString &label, const QIcon &icon, bool forceOpen=false, bool startHidden = false);
-    ~ProgressDialog();
 
-    ProgressWidget * progress();
-    bool isEmpty() const;
+    struct Params {
+      bool settings;
+      bool calib;
+      bool replace; // false = merge
+      QList <int>models;
+    };
 
-  public slots:
-    void setProcessStarted();
-    void setProcessStopped();
-
-  private slots:
-    void on_closeButton_clicked();
-    void on_outputProgress_detailsToggled();
-    void on_outputProgress_locked(bool);
-    void on_outputProgress_keepOpen(bool);
+    FilteredWriteDialog(QWidget * parent, RadioData & radioData, Params & params);
+    ~FilteredWriteDialog();
 
   private:
-    Ui::ProgressDialog *ui;
-    bool locked;
-    bool keepOpen;
+    Ui::FilteredWriteDialog *ui;
+    QAbstractButton *btnApply;
+
+    void setApplyState();
 };
