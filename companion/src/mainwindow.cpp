@@ -677,6 +677,7 @@ void MainWindow::updateMenus()
   compareAct->setEnabled(activeChild);
   writeSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
   readSettingsAct->setEnabled(true);
+  mergeSettingsAct->setEnabled(activeChild && !activeMdiChild()->invalidModels());
   writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid() && !activeMdiChild()->invalidModels());
   readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
@@ -828,6 +829,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(writeFlashAct,      tr("Write Firmware to Radio"),             tr("Write firmware to Radio"));
   trAct(writeSettingsAct,   tr("Write Models and Settings to Radio"),  tr("Write Models and Settings to Radio"));
   trAct(readSettingsAct,    tr("Read Models and Settings from Radio"), tr("Read Models and Settings from Radio"));
+  trAct(mergeSettingsAct,   tr("Merge Models and Settings to Radio"),  tr("Merge Models and Settings to Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
   trAct(radioGetDevicesAct, tr("Connected Radios"),                    tr("Get a list of connected radios"));
@@ -913,6 +915,7 @@ void MainWindow::createActions()
   writeFlashAct =          addAct("write_flash.png",        SLOT(writeFlash()));
   writeSettingsAct =       addAct("write_eeprom.png",       SLOT(writeSettings()));
   readSettingsAct =        addAct("read_eeprom.png",        SLOT(readSettings()));
+  mergeSettingsAct =       addAct("write_eeprom.png",       SLOT(mergeSettings()));
   writeBUToRadioAct =      addAct("write_eeprom_file.png",  SLOT(writeBackup()));
   readBUToFileAct =        addAct("read_eeprom_file.png",   SLOT(readBackup()));
 
@@ -994,6 +997,7 @@ void MainWindow::createMenus()
   radioMenu = menuBar()->addMenu("");
   radioMenu->addAction(writeSettingsAct);
   radioMenu->addAction(readSettingsAct);
+  radioMenu->addAction(mergeSettingsAct);
   radioMenu->addSeparator();
   radioMenu->addAction(writeBUToRadioAct);
   radioMenu->addAction(readBUToFileAct);
@@ -1578,4 +1582,9 @@ void MainWindow::viewToolsToolbar()
 void MainWindow::radioGetDevices()
 {
   QMessageBox::information(this, tr("Connected Radios"), getDevicesInfo());
+}
+
+void MainWindow::mergeSettings()
+{
+  QMessageBox::information(this, CPN_STR_APP_NAME, "Work in Progress");
 }
