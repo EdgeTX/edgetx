@@ -90,6 +90,7 @@ class MainWindow : public QMainWindow
     void logFile();
     void writeSettings();
     void readSettings();
+    void mergeSettings();
     void writeFlash(QString fileToFlash="");
     void readFlash();
     void writeBackup();
@@ -210,6 +211,7 @@ class MainWindow : public QMainWindow
     QAction *writeSettingsAct;
     QAction *readSettingsAct;
     QAction *radioGetDevicesAct;
+    QAction *mergeSettingsAct;
     QAction *writeFlashAct;
     QAction *readFlashAct;
     QAction *writeBUToRadioAct;
