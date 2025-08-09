@@ -133,6 +133,35 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
   return buf - frame;
 }
 
+// Range for pulses (channels output) is [-1024:+1024]
+uint8_t createCrossfireExtendedChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses)
+{
+  //
+  // sends extended channel data
+  ModuleData *md = &g_model.moduleData[moduleIdx];
+
+  uint8_t * buf = frame;
+  *buf++ = MODULE_ADDRESS;
+  *buf++ = 24;      // 1(ID) + 22(channel data) + 1(CRC)
+  uint8_t * crc_start = buf;
+  *buf++ = EXTENDED_CHANNELS_ID;
+  uint32_t bits = 0;
+  uint8_t bitsavailable = 0;
+  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
+    uint32_t val = limit(0, CROSSFIRE_CENTER + (CROSSFIRE_CENTER_CH_OFFSET(i) * 4) / 5 + (pulses[i+16] * 4) / 5, 2 * CROSSFIRE_CENTER);
+    bits |= val << bitsavailable;
+    bitsavailable += CROSSFIRE_CH_BITS;
+    while (bitsavailable >= 8) {
+      *buf++ = bits;
+      bits >>= 8;
+      bitsavailable -= 8;
+    }
+  }
+  
+  *buf++ = crc8(crc_start, 23);
+  return buf - frame;
+}
+
 static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
                                  uint8_t endpoint, int16_t* channels,
                                  uint8_t nChannels)
@@ -185,6 +214,7 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
     } else {
       /* TODO: nChannels */
       p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
+      p_buf += createCrossfireExtendedChannelsFrame(module, p_buf, channels);
     }
   }
 }
