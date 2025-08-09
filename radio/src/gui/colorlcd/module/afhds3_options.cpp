@@ -140,87 +140,10 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
   FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);
 
-  if (cfg->version == afhds3::ConfigVersion::AFHDS_V0) {
-    auto vCfg = &cfg->afhdsV0;
-
-    auto line = body->newLine(grid);
-    std::string temp_str = "PWM ";
-    temp_str += STR_POWERMETER_FREQ;
-    new StaticText(line, rect_t{}, temp_str);
-    new PWMfrequencyChoice(line, moduleIdx);
-    line = body->newLine(grid);
-
-    temp_str = "PWM ";
-    temp_str += STR_SYNC;
-    new StaticText(line, rect_t{}, temp_str);
-    new ToggleSwitch(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
-                 afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0));
-    line = body->newLine(grid);
-
-    temp_str = STR_CH;
-    temp_str += " 1";
-    new StaticText(line, rect_t{}, temp_str );
-    new Choice(line, rect_t{}, _analog_outputs,
-               afhds3::SES_ANALOG_OUTPUT_PWM, afhds3::SES_ANALOG_OUTPUT_PPM,
-               GET_SET_AND_SYNC(cfg, vCfg->AnalogOutput, afhds3::DirtyConfig::DC_RX_CMD_OUT_PWM_PPM_MODE));
-
-    line = body->newLine(grid);
-    new StaticText(line, rect_t{}, STR_SERIAL_BUS);
-    new Choice(line, rect_t{}, _bus_types, 0, 2,
-               GET_SET_AND_SYNC(cfg, cfg->others.ExternalBusType, afhds3::DirtyConfig::DC_RX_CMD_BUS_TYPE_V0));
-  } else if (cfg->version == afhds3::ConfigVersion::AFHDS_V1) {
-    auto vCfg = &cfg->afhdsV1;
-    for (uint8_t i = 0; i < channel_num[vCfg->PhyMode]; i++) {
-      std::string temp_str = STR_CH;
-      temp_str += " " + std::to_string(i+1);
-      auto line = body->newLine(grid);
-      new StaticText(line, rect_t{}, temp_str);
-      new PWMfrequencyChoice(line, moduleIdx, i);
-      line = body->newLine(grid);
-
-      temp_str = "PWM";
-      temp_str += " ";
-      temp_str += STR_SYNC;
-      new StaticText(line, rect_t{}, temp_str);
-      new ToggleSwitch(
-          line, rect_t{}, GET_DEFAULT((vCfg->PWMFrequenciesV1.Synchronized&1<<i)>>i),
-          [=](uint8_t newVal) {
-            vCfg->PWMFrequenciesV1.Synchronized &= ~(1<<i);
-            vCfg->PWMFrequenciesV1.Synchronized |= (newVal?1:0)<<i;
-            DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V1);
-          });
-    for (uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
-      auto line = body->newLine(grid);
-      std::string portName = "NP";
-      portName += 'A' + i;
-      new StaticText(line, rect_t{}, portName.c_str());
-      new Choice(line, rect_t{}, _v1_bus_types, afhds3::SES_NPT_PWM,
-                 afhds3::SES_NPT_IBUS1_OUT,
-                 GET_DEFAULT(vCfg->NewPortTypes[i]),
-                 [=](int32_t newValue) {
-                  if(!newValue)
-                  {
-                    vCfg->NewPortTypes[i] = newValue;
-                    DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);                    
-                  }
-                  else {
-                    uint8_t j = 0;
-                    for ( j = 0; j < SES_NPT_NB_MAX_PORTS; j++) {
-                      if ( vCfg->NewPortTypes[j]== newValue && i != j )
-                        break;
-                    }
-                    //The RX does not support two or more ports to output IBUS (the same is true for PPM and SBUS).
-                    if(j==SES_NPT_NB_MAX_PORTS )
-                    {
-                      vCfg->NewPortTypes[i] = newValue;
-                      DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);
-                    }
-                  }
-      });
-    }
-    }
-  } else if (cfg->version == afhds3::ConfigVersion::ANT_V0) {
-      auto vCfg = &cfg->antV0;
+  if(isModuleAFHDS3(moduleIdx))
+  {
+    if (cfg->version == afhds3::ConfigVersion::AFHDS_V0) {
+      auto vCfg = &cfg->afhdsV0;
 
       auto line = body->newLine(grid);
       std::string temp_str = "PWM ";
@@ -233,21 +156,103 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
       temp_str += STR_SYNC;
       new StaticText(line, rect_t{}, temp_str);
       new ToggleSwitch(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
-                   afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0));
+		   afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0));
       line = body->newLine(grid);
 
       temp_str = STR_CH;
       temp_str += " 1";
       new StaticText(line, rect_t{}, temp_str );
       new Choice(line, rect_t{}, _analog_outputs,
-                 afhds3::SES_ANALOG_OUTPUT_PWM, afhds3::SES_ANALOG_OUTPUT_PPM,
-                 GET_SET_AND_SYNC(cfg, vCfg->AnalogOutput, afhds3::DirtyConfig::DC_RX_CMD_OUT_PWM_PPM_MODE));
+		 afhds3::SES_ANALOG_OUTPUT_PWM, afhds3::SES_ANALOG_OUTPUT_PPM,
+		 GET_SET_AND_SYNC(cfg, vCfg->AnalogOutput, afhds3::DirtyConfig::DC_RX_CMD_OUT_PWM_PPM_MODE));
 
       line = body->newLine(grid);
       new StaticText(line, rect_t{}, STR_SERIAL_BUS);
       new Choice(line, rect_t{}, _bus_types, 0, 2,
-                 GET_SET_AND_SYNC(cfg, cfg->others.ExternalBusType, afhds3::DirtyConfig::DC_RX_CMD_BUS_TYPE_V0));
+		 GET_SET_AND_SYNC(cfg, cfg->others.ExternalBusType, afhds3::DirtyConfig::DC_RX_CMD_BUS_TYPE_V0));
+    } else if (cfg->version == afhds3::ConfigVersion::AFHDS_V1) {
+      auto vCfg = &cfg->afhdsV1;
+      for (uint8_t i = 0; i < channel_num[vCfg->PhyMode]; i++) {
+	std::string temp_str = STR_CH;
+	temp_str += " " + std::to_string(i+1);
+	auto line = body->newLine(grid);
+	new StaticText(line, rect_t{}, temp_str);
+	new PWMfrequencyChoice(line, moduleIdx, i);
+	line = body->newLine(grid);
 
+	temp_str = "PWM";
+	temp_str += " ";
+	temp_str += STR_SYNC;
+	new StaticText(line, rect_t{}, temp_str);
+	new ToggleSwitch(
+	    line, rect_t{}, GET_DEFAULT((vCfg->PWMFrequenciesV1.Synchronized&1<<i)>>i),
+	    [=](uint8_t newVal) {
+	      vCfg->PWMFrequenciesV1.Synchronized &= ~(1<<i);
+	      vCfg->PWMFrequenciesV1.Synchronized |= (newVal?1:0)<<i;
+	      DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V1);
+	    });
+      for (uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
+	auto line = body->newLine(grid);
+	std::string portName = "NP";
+	portName += 'A' + i;
+	new StaticText(line, rect_t{}, portName.c_str());
+	new Choice(line, rect_t{}, _v1_bus_types, afhds3::SES_NPT_PWM,
+		   afhds3::SES_NPT_IBUS1_OUT,
+		   GET_DEFAULT(vCfg->NewPortTypes[i]),
+		   [=](int32_t newValue) {
+		    if(!newValue)
+		    {
+		      vCfg->NewPortTypes[i] = newValue;
+		      DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);
+		    }
+		    else {
+		      uint8_t j = 0;
+		      for ( j = 0; j < SES_NPT_NB_MAX_PORTS; j++) {
+			if ( vCfg->NewPortTypes[j]== newValue && i != j )
+			  break;
+		      }
+		      //The RX does not support two or more ports to output IBUS (the same is true for PPM and SBUS).
+		      if(j==SES_NPT_NB_MAX_PORTS )
+		      {
+			vCfg->NewPortTypes[i] = newValue;
+			DIRTY_CMD(cfg, afhds3::DirtyConfig::DC_RX_CMD_PORT_TYPE_V1);
+		      }
+		    }
+	});
+      }
+      }
+    }
+  } else if (isModuleANT(moduleIdx)) {
+      if (cfg->version == afhds3::ConfigVersion::ANT_V0 || 1) {
+	auto vCfg = &cfg->antV0;
+
+	auto line = body->newLine(grid);
+	std::string temp_str = "PWM ";
+	temp_str += STR_POWERMETER_FREQ;
+	new StaticText(line, rect_t{}, temp_str);
+	new PWMfrequencyChoice(line, moduleIdx);
+	line = body->newLine(grid);
+
+	temp_str = "PWM ";
+	temp_str += STR_SYNC;
+	new StaticText(line, rect_t{}, temp_str);
+	new ToggleSwitch(line, rect_t{}, GET_SET_AND_SYNC(cfg, vCfg->PWMFrequency.Synchronized,
+		     afhds3::DirtyConfig::DC_RX_CMD_FREQUENCY_V0));
+	line = body->newLine(grid);
+
+	temp_str = STR_CH;
+	temp_str += " 1";
+	new StaticText(line, rect_t{}, temp_str );
+	new Choice(line, rect_t{}, _analog_outputs,
+		   afhds3::SES_ANALOG_OUTPUT_PWM, afhds3::SES_ANALOG_OUTPUT_PPM,
+		   GET_SET_AND_SYNC(cfg, vCfg->AnalogOutput, afhds3::DirtyConfig::DC_RX_CMD_OUT_PWM_PPM_MODE));
+
+	line = body->newLine(grid);
+	new StaticText(line, rect_t{}, STR_SERIAL_BUS);
+	new Choice(line, rect_t{}, _bus_types, 0, 2,
+		   GET_SET_AND_SYNC(cfg, cfg->others.ExternalBusType, afhds3::DirtyConfig::DC_RX_CMD_BUS_TYPE_V0));
+
+    }
   }
 
 

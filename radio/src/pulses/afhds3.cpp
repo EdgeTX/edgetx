@@ -62,6 +62,15 @@ static uint8_t _phyMode_channels[] = {
   12, // ROUTINE_LORA_12CH
 };
 
+static uint8_t _ant_phyMode_channels[] = {
+  18, // DSSS_18CH
+  18, // GFSK_500K_18CH
+  18, // GFSK_1M_18CH
+  18, // GFSK_2M_18CH
+  18, // GFSK_4M_18CH
+};
+
+
 // enum COMMAND_DIRECTION
 // {
 //   RADIO_TO_MODULE = 0,
@@ -532,7 +541,16 @@ void ProtoState::setupFrame()
 
     if (cmd == COMMAND::VIRTUAL_FAILSAFE) {
       Config_u* cfg = this->getConfig();
-      uint8_t len =_phyMode_channels[cfg->afhdsV0.PhyMode];
+      uint8_t len = 9;
+      if(proto == FS_ANT)
+      {
+	  len = _ant_phyMode_channels[cfg->antV0.PhyMode];
+      } else {
+          if(cfg->version == ConfigVersion::AFHDS_V0)
+            len = _phyMode_channels[cfg->afhdsV0.PhyMode];
+          else
+            len = _phyMode_channels[cfg->afhdsV1.PhyMode];
+      }
       if (!hasTelemetry()) {
           uint16_t failSafe[AFHDS3_MAX_CHANNELS + 1] = {
           ((AFHDS3_MAX_CHANNELS << 8) | CHANNELS_DATA_MODE::FAIL_SAFE), 0};
@@ -668,10 +686,18 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 //         TRACE("AFHDS3 [MODULE_GET_CONFIG]");
         size_t len = min<size_t>(sizeof(cfg.buffer), rxBufferCount);
         std::memcpy((void*) cfg.buffer, &responseFrame->value, len);
-        moduleData->afhds3.emi = cfg.afhdsV0.EMIStandard;
-        moduleData->afhds3.telemetry = cfg.afhdsV0.IsTwoWay;
-        moduleData->afhds3.phyMode = cfg.afhdsV0.PhyMode;
-        cfg.others.ExternalBusType = cfg.afhdsV0.ExternalBusType;
+        if(proto == FS_ANT)
+        {
+  	  moduleData->afhds3.emi = cfg.antV0.EMIStandard;
+  	  moduleData->afhds3.telemetry = cfg.antV0.IsTwoWay;
+  	  moduleData->afhds3.phyMode = cfg.antV0.PhyMode;
+  	  cfg.others.ExternalBusType = cfg.antV0.ExternalBusType;
+        } else {
+	  moduleData->afhds3.emi = cfg.afhdsV0.EMIStandard;
+	  moduleData->afhds3.telemetry = cfg.afhdsV0.IsTwoWay;
+	  moduleData->afhds3.phyMode = cfg.afhdsV0.PhyMode;
+	  cfg.others.ExternalBusType = cfg.afhdsV0.ExternalBusType;
+        }
 //         TRACE("PhyMode %d, emi %d", moduleData->afhds3.phyMode, moduleData->afhds3.emi);
         SET_DIRTY();
         cfg.others.lastUpdated = get_tmr10ms();
@@ -961,17 +987,27 @@ void ProtoState::sendChannelsData()
   uint8_t* header = (uint8_t*)buffer;
   header[0] = CHANNELS_DATA_MODE::CHANNELS;
 
-  uint8_t channels = _phyMode_channels[cfg.afhdsV0.PhyMode];
+
+  uint8_t channels = 0;
+  if(proto == FS_ANT)
+  {
+      channels = _ant_phyMode_channels[cfg.antV0.PhyMode];
+  } else {
+      if(cfg.version == ConfigVersion::AFHDS_V0)
+	channels = _phyMode_channels[cfg.afhdsV0.PhyMode];
+      else
+	channels = _phyMode_channels[cfg.afhdsV1.PhyMode];
+  }
   header[1] = channels;
 
   for (uint8_t channel = channels_start, index = 1; channel < channels_last;
        channel++, index++) {
     int16_t channelValue = convert(::getChannelValue(channel));
-    buffer[index] = channelValue;
+    buffer[1+channel] = channelValue;
   }
 
   trsp.putFrame(COMMAND::CHANNELS_FAILSAFE_DATA, FRAME_TYPE::REQUEST_SET_NO_RESP,
-           (uint8_t*)buffer, (channels + 1) * 2);
+           (uint8_t*)buffer, 2 + (channels * 2));
 }
 
 void ProtoState::stop()

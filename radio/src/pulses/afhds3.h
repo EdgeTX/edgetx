@@ -60,6 +60,15 @@ enum eDATA_PHYMODE {
   PHYMODE_MAX = ROUTINE_LORA_12CH
 };
 
+enum eDATA_ANT_PHYMODE {
+  // V0
+  DSSS_18CH=0,
+  GFSK_500K_18CH,
+  GFSK_1M_18CH,
+  GFSK_2M_18CH,
+  GFSK_4M_18CH,
+  ANT_PHYMODE_MAX = GFSK_4M_18CH
+};
 #if defined(AFHDS3_EXT_UART)
 typedef SerialData ExtmoduleData;
 #else

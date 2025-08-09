@@ -36,6 +36,15 @@ static const char* const _afhds3_phy_mode[] = {
     "Lora 12ch",
 };
 
+static const char* const _ant_phy_mode[] = {
+    // V0
+    "DSSS",
+    "GFSK 500K",
+    "GFSK 1M",
+    "GFSK 2M",
+    "GFSK 4M",
+};
+
 #include "pulses/afhds3.h"
 #include "pulses/afhds3_config.h"
 #include "pulses/flysky.h"
@@ -73,9 +82,16 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
   lv_obj_set_style_grid_cell_x_align(afhds3TypeForm->getLvObj(),
                                      LV_GRID_ALIGN_STRETCH, 0);
 
-  afhds3PhyMode =
-      new Choice(afhds3TypeForm, rect_t{}, _afhds3_phy_mode, 0,
-                 afhds3::PHYMODE_MAX, GET_SET_DEFAULT(md->afhds3.phyMode));
+  if(isModuleANT(moduleIdx))
+  {
+    afhds3PhyMode =
+      new Choice(afhds3TypeForm, rect_t{}, _ant_phy_mode, 0,
+                 afhds3::ANT_PHYMODE_MAX, GET_SET_DEFAULT(md->afhds3.phyMode));
+  } else {
+    afhds3PhyMode =
+	new Choice(afhds3TypeForm, rect_t{}, _afhds3_phy_mode, 0,
+		   afhds3::PHYMODE_MAX, GET_SET_DEFAULT(md->afhds3.phyMode));
+  }
 
   afhds3Emi =
       new Choice(afhds3TypeForm, rect_t{}, _afhds3_region, afhds3::LNK_ES_CE,
