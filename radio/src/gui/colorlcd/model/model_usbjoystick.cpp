@@ -380,7 +380,7 @@ class USBChannelLineButton : public ListLineButton
 
   void delayedInit() override
   {
-    m_chn = lv_label_create(lvobj);
+    m_chn = etx_label_create(lvobj);
     lv_obj_set_grid_cell(m_chn, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
                          0, USBCH_CHN_ROWS);
 
@@ -390,21 +390,21 @@ class USBChannelLineButton : public ListLineButton
     lv_obj_set_grid_cell(m_inverse->getLvObj(), LV_GRID_ALIGN_START, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    m_mode = lv_label_create(lvobj);
+    m_mode = etx_label_create(lvobj);
     lv_obj_set_grid_cell(m_mode, LV_GRID_ALIGN_START, 2, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    m_param = lv_label_create(lvobj);
+    m_param = etx_label_create(lvobj);
     etx_txt_color(m_param, COLOR_THEME_WARNING_INDEX, ETX_STATE_COLLISION_WARN);
     etx_font(m_param, FONT_BOLD_INDEX, ETX_STATE_COLLISION_WARN);
     lv_obj_set_grid_cell(m_param, LV_GRID_ALIGN_START, 3, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
 
-    m_btn_mode = lv_label_create(lvobj);
+    m_btn_mode = etx_label_create(lvobj);
     lv_obj_set_grid_cell(m_btn_mode, LV_GRID_ALIGN_START, USBCH_BTN_MODE_COL, 1,
                          LV_GRID_ALIGN_CENTER, USBCH_BTN_MODE_ROW, 1);
 
-    m_btns = lv_label_create(lvobj);
+    m_btns = etx_label_create(lvobj);
     lv_obj_set_grid_cell(m_btns, LV_GRID_ALIGN_START, USBCH_BTN_MODE_COL + 1, 1,
                          LV_GRID_ALIGN_CENTER, USBCH_BTN_MODE_ROW, 1);
 

@@ -1296,6 +1296,7 @@
 #define TR_VOICE_DEUTSCH              "德语"
 #define TR_VOICE_DUTCH                "荷兰语"
 #define TR_VOICE_ESPANOL              "西班牙语"
+#define TR_VOICE_FINNISH              "Finnish"
 #define TR_VOICE_FRANCAIS             "法语"
 #define TR_VOICE_HUNGARIAN            "匈牙利语"
 #define TR_VOICE_ITALIANO             "意大利语"

@@ -22,7 +22,7 @@
 #include "layout.h"
 #include "layout_factory_impl.h"
 
-const ZoneOption OPTIONS_LAYOUT_APPMODE[] = {LAYOUT_OPTIONS_END};
+const LayoutOption OPTIONS_LAYOUT_APPMODE[] = {LAYOUT_OPTIONS_END};
 
 class LayoutAppMode : public Layout
 {

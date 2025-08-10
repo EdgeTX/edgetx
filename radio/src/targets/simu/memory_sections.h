@@ -26,4 +26,3 @@
 #define __DMA_NO_CACHE
 #define __IRAM
 #define __SDRAM
-#define __SDRAMFONTS

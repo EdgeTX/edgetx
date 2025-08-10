@@ -1298,6 +1298,7 @@
 #define TR_VOICE_DEUTSCH                "Němčina"
 #define TR_VOICE_DUTCH                  "Nizozemština"
 #define TR_VOICE_ESPANOL                "Španělština"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "Francouzština"
 #define TR_VOICE_HUNGARIAN              "Maďarština"
 #define TR_VOICE_ITALIANO               "Italština"

@@ -60,15 +60,13 @@ class ChannelValue : public Window
     lv_obj_set_size(bar, 0, ROW_HEIGHT - 1);
     etx_bg_color_from_flags(bar, barColor);
 
-    valueLabel = lv_label_create(lvobj);
-    etx_font(valueLabel, FONT_XS_INDEX);
+    valueLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     etx_obj_add_style(valueLabel, styles->text_align_right, LV_PART_MAIN);
     etx_txt_color_from_flags(valueLabel, txtColor);
     lv_obj_add_style(valueLabel, &style, LV_PART_MAIN);
     lv_label_set_text(valueLabel, "");
 
-    chanLabel = lv_label_create(lvobj);
-    etx_font(chanLabel, FONT_XS_INDEX);
+    chanLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     etx_obj_add_style(chanLabel, styles->text_align_left, LV_PART_MAIN);
     etx_txt_color_from_flags(chanLabel, txtColor);
     lv_label_set_text(chanLabel, "");

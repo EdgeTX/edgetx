@@ -6,7 +6,7 @@ set -euo pipefail
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RADIO_SRC_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-TRANSLATIONS_DIR="${RADIO_SRC_DIR}/translations"
+TRANSLATIONS_DIR="${RADIO_SRC_DIR}/translations/i18n"
 
 SYMBOLS_FONT="${RADIO_SRC_DIR}/thirdparty/lvgl/scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff"
 # test if realpath supports --relative-to as macOS BSD version doesn't
@@ -71,27 +71,6 @@ get_translation_symbols() {
     export TW_SYMBOLS CN_SYMBOLS JP_SYMBOLS HE_SYMBOLS KO_SYMBOLS RU_SYMBOLS UA_SYMBOLS
 }
 
-function make_font() {
-  local name=$1
-  local latin_ttf=$2
-  local ttf=$3
-  local size=$4
-  local sfx=$5
-  local dir=$6
-  local chars=$7
-
-  echo "Creating font: ${name}_${sfx} (size: ${size})"
-  
-  # Use relative paths for lv_font_conv to avoid absolute paths in generated files
-  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${BULLET},${COMPARE}" \
-               --font "../${ttf}" -r "${chars}" \
-               --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
-               --font "${ARROWS_FONT}" -r "${ARROWS}" \
-               --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
-               --format lvgl -o "${dir}/lv_font_${name}_${sfx}.c" --force-fast-kern-format --no-compress
-}
-
 function compress_font() {
   local name=$1
 
@@ -105,63 +84,18 @@ function compress_font() {
   "${SCRIPT_DIR}/lz4_font" "${name}"
 }
 
-function make_font_lz4() {
+function make_bootloader_font() {
   local name=$1
-  local latin_ttf=$2
-  local ttf=$3
-  local size=$4
-  local sfx=$5
-  local dir=$6
-  local chars=$7
+  local ttf=$2
+  local size=$3
+  local dir=$4
 
-  echo "Creating compressed font: ${name}_${sfx} (size: ${size})"
+  echo "Creating bootloader font: ${name} (size: ${size})"
   
-  # Use relative paths for lv_font_conv
-  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${BULLET},${COMPARE}" \
-               --font "../${ttf}" -r "${chars}" \
-               --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
-               --font "${ARROWS_FONT}" -r "${ARROWS}" \
-               --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
-               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}"
-}
-
-function make_font_w_extra_sym() {
-  local name=$1
-  local latin_ttf=$2
-  local ttf=$3
-  local size=$4
-  local sfx=$5
-  local dir=$6
-  local chars=$7
-
-  echo "Creating font with extra symbols: ${name}_${sfx} (size: ${size})"
-  
-  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE}" \
-               --font "../${ttf}" -r "${chars}" \
-               --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
-               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}"
-}
-
-function make_font_no_sym() {
-  local name=$1
-  local latin_ttf=$2
-  local ttf=$3
-  local size=$4
-  local sfx=$5
-  local dir=$6
-  local chars=$7
-
-  echo "Creating font without symbols: ${name}_${sfx} (size: ${size})"
-  
-  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${latin_ttf}" -r "${ASCII},${DEGREE}" \
-               --font "../${ttf}" -r "${chars}" \
-               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}"
+  lv_font_conv --no-prefilter --bpp 1 --size "${size}" --no-compress \
+               --font "../${ttf}" -r "${ASCII}" \
+               --font "${SYMBOLS_FONT_REL}" -r "${BL_SYMBOLS}" \
+               --format lvgl -o "${dir}/lv_font_${name}.c" --force-fast-kern-format --no-compress
 }
 
 function make_font_no_sym_no_trans() {
@@ -179,18 +113,171 @@ function make_font_no_sym_no_trans() {
   compress_font "${dir}/lv_font_${name}_${sfx}"
 }
 
-function make_bootloader_font() {
+function make_en_font() {
   local name=$1
-  local ttf=$2
+  local latin_ttf=$2
   local size=$3
-  local dir=$4
+  local sfx=$4
+  local dir=$5
 
-  echo "Creating bootloader font: ${name} (size: ${size})"
+  echo "Creating EN font: ${name}_${sfx} (size: ${size})"
   
-  lv_font_conv --no-prefilter --bpp 1 --size "${size}" --no-compress \
-               --font "../${ttf}" -r "${ASCII}" \
-               --font "${SYMBOLS_FONT_REL}" -r "${BL_SYMBOLS}" \
-               --format lvgl -o "${dir}/lv_font_${name}.c" --force-fast-kern-format --no-compress
+  # Use relative paths for lv_font_conv to avoid absolute paths in generated files
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
+               --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
+               --font "${ARROWS_FONT}" -r "${ARROWS}" \
+               --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
+               --format lvgl -o "${dir}/lv_font_${name}_${sfx}.c" --force-fast-kern-format --no-compress
+}
+
+function make_en_font_lz4() {
+  local name=$1
+  local latin_ttf=$2
+  local size=$3
+  local sfx=$4
+  local dir=$5
+
+  echo "Creating EN compressed font: ${name}_${sfx} (size: ${size})"
+  
+  # Use relative paths for lv_font_conv
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
+               --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
+               --font "${ARROWS_FONT}" -r "${ARROWS}" \
+               --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
+               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
+  compress_font "${dir}/lv_font_${name}_${sfx}"
+}
+
+function make_en_font_w_extra_sym() {
+  local name=$1
+  local latin_ttf=$2
+  local size=$3
+  local sfx=$4
+  local dir=$5
+
+  echo "Creating EN compressed font with extra symbols only: ${name}_${sfx} (size: ${size})"
+  
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${LATIN1}" \
+               --font "${EXTRA_FONT}" -r "${EXTRA_SYM}" \
+               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
+  compress_font "${dir}/lv_font_${name}_${sfx}"
+}
+
+function make_en_font_no_sym() {
+  local name=$1
+  local latin_ttf=$2
+  local size=$3
+  local sfx=$4
+  local dir=$5
+
+  echo "Creating EN compressed font without symbols: ${name}_${sfx} (size: ${size})"
+  
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${LATIN1}" \
+               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
+  compress_font "${dir}/lv_font_${name}_${sfx}"
+}
+
+function make_font() {
+  local name=$1
+  local latin_ttf=$2
+  local ttf=$3
+  local size=$4
+  local sfx=$5
+  local dir=$6
+  local chars=$7
+
+  echo "Creating font: ${name}_${sfx} (size: ${size})"
+  
+  # Use relative paths for lv_font_conv to avoid absolute paths in generated files
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${ttf}" -r "${chars}" \
+               --format lvgl -o "${dir}/lv_font_${name}_${sfx}.c" --force-fast-kern-format --no-compress --lv-fallback lv_font_en_${sfx}
+}
+
+function make_font_lz4() {
+  local name=$1
+  local latin_ttf=$2
+  local ttf=$3
+  local size=$4
+  local sfx=$5
+  local dir=$6
+  local chars=$7
+
+  echo "Creating compressed font: ${name}_${sfx} (size: ${size})"
+  
+  # Use relative paths for lv_font_conv
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${ttf}" -r "${chars}" \
+               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
+  compress_font "${dir}/lv_font_${name}_${sfx}"
+}
+
+function make_font_w_extra_sym() {
+  local name=$1
+  local latin_ttf=$2
+  local ttf=$3
+  local size=$4
+  local sfx=$5
+  local dir=$6
+  local chars=$7
+
+  echo "Creating font with extra symbols: ${name}_${sfx} (size: ${size})"
+  
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${ttf}" -r "${chars}" \
+               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
+  compress_font "${dir}/lv_font_${name}_${sfx}"
+}
+
+function make_font_no_sym() {
+  local name=$1
+  local latin_ttf=$2
+  local ttf=$3
+  local size=$4
+  local sfx=$5
+  local dir=$6
+  local chars=$7
+
+  echo "Creating font without symbols: ${name}_${sfx} (size: ${size})"
+  
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${ttf}" -r "${chars}" \
+               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
+  compress_font "${dir}/lv_font_${name}_${sfx}"
+}
+
+function make_en_font_set() {
+  local name=$1
+
+  echo "Creating EN font set for: ${name}"
+
+  # Standard LCD fonts (480x272, 480x320, 320x480)
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 9 "XXS" "std"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 13 "XS" "std"
+  make_en_font "${name}" "${LATIN_FONT}" 16 "STD" "std"
+  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 16 "STD" "std"
+  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 24 "L" "std"
+  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 32 "XL" "std"
+
+  # Small LCD fonts (320x240)
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 8 "XXS" "sml"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 10 "XS" "sml"
+  make_en_font "${name}" "${LATIN_FONT}" 13 "STD" "sml"
+  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 13 "STD" "sml"
+  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 19 "L" "sml"
+  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 25 "XL" "sml"
+
+  # Large LCD fonts (800x480)
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 13 "XXS" "lrg"
+  make_en_font_lz4 "${name}" "${LATIN_FONT}" 19 "XS" "lrg"
+  make_en_font "${name}" "${LATIN_FONT}" 24 "STD" "lrg"
+  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 24 "STD" "lrg"
+  make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 36 "L" "lrg"
+  make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 48 "XL" "lrg"
 }
 
 function make_font_set() {
@@ -241,22 +328,22 @@ main() {
     # Check dependencies and setup
     check_dependencies
     get_translation_symbols
-    
+
     # Bootloader fonts
-    echo "Generating bootloader fonts..."
-    make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 16 "std" # 480x272, 480x320, 320x480
-    make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 14 "sml" # 320x240
-    make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 24 "lrg" # 800x480
+    # echo "Generating bootloader fonts..."
+    # make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 16 "std" # 480x272, 480x320, 320x480
+    # make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 14 "sml" # 320x240
+    # make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 24 "lrg" # 800x480
 
     # XXL fonts (no translation chars)
-    echo "Generating XXL fonts..."
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 64 "XXL" "std"
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 50 "XXL" "sml"
-    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 96 "XXL" "lrg"
+    # echo "Generating XXL fonts..."
+    # make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 64 "XXL" "std"
+    # make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 50 "XXL" "sml"
+    # make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 96 "XXL" "lrg"
 
     # Language fonts
     echo "Generating language font sets..."
-    make_font_set "en" "${LATIN_FONT}" "${LATIN_FONT_BOLD}" "${LATIN1}"
+    # make_en_font_set "en"
     make_font_set "tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${TW_SYMBOLS}"
     make_font_set "cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${CN_SYMBOLS}"
     make_font_set "jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${JP_SYMBOLS}"
