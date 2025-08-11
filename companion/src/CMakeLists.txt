@@ -464,13 +464,8 @@ elseif(WIN32)
   endif(OPENSSL_FOUND)
 
   if(TARGET SDL2::SDL2)
-    # Get the SDL2 DLL location
-    get_target_property(SDL2_DLL_PATH SDL2::SDL2 IMPORTED_LOCATION)
-    if(SDL2_DLL_PATH)
-      install(FILES "${SDL2_DLL_PATH}"
-              DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-              COMPONENT Runtime)
-    endif()
+    install(FILES $<TARGET_FILE:SDL2::SDL2>
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   endif()
 
 elseif(APPLE)
