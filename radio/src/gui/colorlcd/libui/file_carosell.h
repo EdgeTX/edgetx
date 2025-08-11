@@ -22,7 +22,7 @@
 #pragma once
 
 #include "file_preview.h"
-#include "file_carosell.h"
+#include <vector>
 
 #define PAGE_INTERVAL ((1000 / 10) * 2)
 #define SHORT_PAGE_INTERVAL ((1000 / 20))  // 500 MS
