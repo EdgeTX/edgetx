@@ -3001,6 +3001,7 @@ static int luaGetStickMode(lua_State* const L)
 
 static int luaSetIMU_X(lua_State* const L)
 {
+#if defined(IMU)
   int16_t offset = luaL_checkinteger(L, 1);
   int16_t range = luaL_checkinteger(L, 2);
 
@@ -3014,6 +3015,7 @@ static int luaSetIMU_X(lua_State* const L)
   }
 
   gyro.setIMU_X(offset, range);
+#endif
   lua_pushboolean(L, true);
   return 1;
 }
@@ -3030,6 +3032,7 @@ static int luaSetIMU_X(lua_State* const L)
 
 static int luaSetIMU_Y(lua_State* const L)
 {
+#if defined(IMU)
   int16_t offset = luaL_checkinteger(L, 1);
   int16_t range = luaL_checkinteger(L, 2);
 
@@ -3043,6 +3046,7 @@ static int luaSetIMU_Y(lua_State* const L)
   }
 
   gyro.setIMU_Y(offset, range);
+#endif
   lua_pushboolean(L, true);
   return 1;
 }
