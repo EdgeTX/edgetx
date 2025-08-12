@@ -61,16 +61,18 @@ void Gyro::wakeup()
   // stopping the sensor forever
   errors = 0;
 
+#if defined(IMU_ICM4207C)
   raw_ax = values[3];
   raw_ay = values[4];
   int16_t ax = raw_ax - offset_x;
   int16_t ay = raw_ay - offset_y;
 
-#if defined(IMU_ICM4207C)
   // Use only ACC value, they are really reliable
   outputs[0] = (ax * float(RESX)) / range_x;
   outputs[1] = (ay * float(RESX)) / range_y;
 #else
+  int16_t ax = values[3];
+  int16_t ay = values[4];
   int16_t az = values[5];
 
   int16_t gx = values[0];
