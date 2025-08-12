@@ -89,6 +89,35 @@ bool Storage::load(RadioData & radioData)
   return ret;
 }
 
+bool Storage::load(GeneralSettings & generalSettings)
+{
+  QFile file(filename);
+  if (!file.exists()) {
+    setError(tr("Unable to find file %1!").arg(filename));
+    return false;
+  }
+
+  bool ret = false;
+  foreach (StorageFactory * factory, registeredStorageFactories) {
+    if (factory->probe(filename)) {
+      StorageFormat * format = factory->instance(filename);
+      if (format->load(generalSettings)) {
+        board = format->getBoard();
+        setWarning(format->warning());
+        ret = true;
+        delete format;
+        break;
+      }
+      else {
+        setError(format->error());
+      }
+      delete format;
+    }
+  }
+
+  return ret;
+}
+
 bool Storage::write(const RadioData & radioData)
 {
   bool ret = false;
@@ -103,13 +132,13 @@ bool Storage::write(const RadioData & radioData)
   return ret;
 }
 
-bool Storage::writeModel(const RadioData & radioData, const int modelIndex)
+bool Storage::write(const ModelData & modelData)
 {
   bool ret = false;
   foreach (StorageFactory * factory, registeredStorageFactories) {
     if (factory->probe(filename)) {
       StorageFormat * format = factory->instance(filename);
-      ret = format->writeModel(radioData, modelIndex);
+      ret = format->write(modelData);
       delete format;
       break;
     }

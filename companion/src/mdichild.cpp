@@ -1824,7 +1824,7 @@ unsigned MdiChild::exportModels(const QVector<int> modelIndices)
 
     Storage storage(filename);
 
-    if (!storage.writeModel(radioData, idx)) {
+    if (!storage.write(radioData.models[idx])) {
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
       return false;
     }
@@ -1945,7 +1945,7 @@ void MdiChild::mergeSettings(StatusDialog * status)
 
   // read settings only at this stage
   GeneralSettings gs;
-  storage.loadRadioSettings(gs);
+  storage.load(gs);
   // check board type equal profile board type
   if (getCurrentBoard() == (Board::Type)gs.variant) {
     radioData.fixModelFilenames();  //  fix up if model.filename if shifted - in this case use fixModelFilename(index)
