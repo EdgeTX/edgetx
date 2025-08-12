@@ -1918,3 +1918,46 @@ void MdiChild::updateStatusBar()
   statusBarIcon->setPixmap(p.scaled(QSize(16, 16)));
   statusBarCount->setText(cnt.text());
 }
+
+void MdiChild::mergeSettings(StatusDialog * status)
+{
+  //  safeguard as the menu actions should be disabled
+  int cnt = radioData.invalidModels();
+  if (cnt) {
+    QMessageBox::critical(this, tr("Merge Models and Settings to Radio"), tr("Operation aborted as %1 models have significant errors that may affect model operation.").arg(cnt));
+    return;
+  }
+
+  QString radioPath;
+
+  radioPath = findMassstoragePath("RADIO", true);
+  qDebug() << "Searching for SD card, found" << radioPath;
+
+  if (radioPath.isEmpty()) {
+    qDebug() << "Radio SD card not found";
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find SD card!"));
+    return;
+  }
+
+  bool result = false;
+
+  Storage storage(radioPath);
+
+  // read settings only at this stage
+  GeneralSettings gs;
+  storage.loadRadioSettings(gs);
+  // check board type equal profile board type
+  if (getCurrentBoard() == (Board::Type)gs.variant) {
+    radioData.fixModelFilenames();  //  fix up if model.filename if shifted - in this case use fixModelFilename(index)
+    result = storage.write(radioData); // this needs changing to individual components for merge logic!!!
+  }
+  else
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Profile radio does not match connected radio!"));
+
+  status->hide();
+
+  if (!result)
+    QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings merged successfully"));
+  else
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error merging models and settings!"));
+}

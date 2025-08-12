@@ -1586,5 +1586,15 @@ void MainWindow::radioGetDevices()
 
 void MainWindow::mergeSettings()
 {
-  QMessageBox::information(this, CPN_STR_APP_NAME, "Work in Progress");
+  // What to merge dialog with exit option
+  // pretty simple so dinamic build
+
+  return; // safety block
+
+  StatusDialog *status = new StatusDialog(this, tr("Merge models and settings to radio"), tr("In progress..."), 400);
+
+  if (activeMdiChild())
+    activeMdiChild()->mergeSettings(status);
+
+  delete status;
 }
