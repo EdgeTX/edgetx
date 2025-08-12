@@ -1300,6 +1300,7 @@
 #define TR_VOICE_DEUTSCH                "Deutsch"
 #define TR_VOICE_DUTCH                  "Dutch"
 #define TR_VOICE_ESPANOL                "Espanol"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "Francais"
 #define TR_VOICE_HUNGARIAN              "Hungarian"
 #define TR_VOICE_ITALIANO               "Italiano"

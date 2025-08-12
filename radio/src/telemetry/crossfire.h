@@ -59,14 +59,6 @@
 
 constexpr uint8_t CRSF_NAME_MAXSIZE = 16;
 
-struct CrossfireSensor {
-  const uint8_t id;
-  const uint8_t subId;
-  const TelemetryUnit unit;
-  const uint8_t precision;
-  const char * name;
-};
-
 enum CrossfireSensorIndexes {
   RX_RSSI1_INDEX,
   RX_RSSI2_INDEX,

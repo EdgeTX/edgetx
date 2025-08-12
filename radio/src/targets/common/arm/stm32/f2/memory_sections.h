@@ -28,5 +28,4 @@
 #define __CCMRAM
 #define __IRAM
 #define __SDRAM
-#define __SDRAMFONTS
 

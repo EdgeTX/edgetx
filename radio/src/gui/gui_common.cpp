@@ -1284,7 +1284,7 @@ const char * getMultiOptionTitleStatic(uint8_t moduleIdx)
 {
   const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
   const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
-  return pdef->optionsstr;
+  return STR_VAL(pdef->optionsstr);
 }
 
 const char * getMultiOptionTitle(uint8_t moduleIdx)
@@ -1295,7 +1295,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
     if (status.optionDisp >= getMaxMultiOptions()) {
       status.optionDisp = 1; // Unknown options are defaulted to type 1 (basic option)
     }
-    return mm_options_strings::options[status.optionDisp];
+    return STR_VAL(mm_options_strings::options[status.optionDisp]);
   }
 
   return getMultiOptionTitleStatic(moduleIdx);

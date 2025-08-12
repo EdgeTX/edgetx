@@ -1529,8 +1529,6 @@ static const etxFontCmap cmaps[] = {
 { .range_start = 192, .range_length = 192, .glyph_id_start = 112, .list_length = 0, .type = 2, .unicode_list = 0, .glyph_id_ofs_list = 0 },
 };
 
-static uint8_t etxUncompBuf[82433] __SDRAMFONTS;
-
 const etxLz4Font lv_font_en_L = {
 .uncomp_size = 82169,
 .comp_size = 24278,
@@ -1552,6 +1550,5 @@ const etxLz4Font lv_font_en_L = {
 .right_class_mapping = 81865,
 .cmaps = cmaps,
 .compressed = lz4FontData,
-.lvglFontBuf = etxUncompBuf,
 .lvglFontBufSize = 82433,
 };

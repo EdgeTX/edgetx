@@ -94,5 +94,5 @@ rect_t Layout::getZone(unsigned int index) const
   return {z.x + xo, z.y + yo, w, h};
 }
 
-const ZoneOption defaultZoneOptions[] = {LAYOUT_COMMON_OPTIONS,
+const LayoutOption defaultZoneOptions[] = {LAYOUT_COMMON_OPTIONS,
                                          LAYOUT_OPTIONS_END};

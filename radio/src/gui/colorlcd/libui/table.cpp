@@ -33,6 +33,7 @@ LV_STYLE_CONST_MULTI_INIT(table_cell, table_cell_props);
 static void table_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_obj_add_style(obj, styles->pad_zero, LV_PART_MAIN);
+  etx_font(obj, FONT_STD_INDEX);
 
   etx_scrollbar(obj);
 

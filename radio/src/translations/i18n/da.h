@@ -1308,6 +1308,7 @@
 #define TR_VOICE_DEUTSCH               "Tysk"
 #define TR_VOICE_DUTCH                 "Hollandsk"
 #define TR_VOICE_ESPANOL               "Spansk"
+#define TR_VOICE_FINNISH               "Finnish"
 #define TR_VOICE_FRANCAIS              "Fransk"
 #define TR_VOICE_HUNGARIAN             "Ungarsk"
 #define TR_VOICE_ITALIANO              "Italiensk"

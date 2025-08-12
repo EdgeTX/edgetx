@@ -1294,6 +1294,7 @@
 #define TR_VOICE_DEUTSCH                "Niemiecki"
 #define TR_VOICE_DUTCH                  "Holenderski"
 #define TR_VOICE_ESPANOL                "Hiszpański"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "Francuski"
 #define TR_VOICE_HUNGARIAN              "Węgierski"
 #define TR_VOICE_ITALIANO               "Włoski"

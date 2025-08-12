@@ -46,29 +46,27 @@ class ValueWidget : public Widget
     lv_style_set_width(&valueStyle, lv_pct(100));
     lv_style_set_height(&valueStyle, lv_pct(100));
 
-    labelShadow = lv_label_create(lvobj);
+    labelShadow = etx_label_create(lvobj);
     lv_obj_add_style(labelShadow, &labelStyle, LV_PART_MAIN);
     lv_obj_set_style_text_color(labelShadow, lv_color_black(), LV_PART_MAIN);
     lv_label_set_text(labelShadow, "");
 
-    label = lv_label_create(lvobj);
+    label = etx_label_create(lvobj);
     lv_obj_add_style(label, &labelStyle, LV_PART_MAIN);
     etx_txt_color(label, COLOR_THEME_WARNING_INDEX, ETX_STATE_TIMER_ELAPSED);
     etx_txt_color(label, COLOR_THEME_DISABLED_INDEX, ETX_STATE_TELEM_STALE);
     lv_label_set_text(label, "");
 
-    valueShadow = lv_label_create(lvobj);
+    valueShadow = etx_label_create(lvobj, FONT_L_INDEX);
     lv_obj_add_style(valueShadow, &valueStyle, LV_PART_MAIN);
     lv_obj_set_style_text_color(valueShadow, lv_color_black(), LV_PART_MAIN);
-    etx_font(valueShadow, FONT_L_INDEX);
     etx_font(valueShadow, FONT_XL_INDEX, ETX_STATE_LARGE_FONT);
     lv_label_set_text(valueShadow, "");
 
-    value = lv_label_create(lvobj);
+    value = etx_label_create(lvobj, FONT_L_INDEX);
     lv_obj_add_style(value, &valueStyle, LV_PART_MAIN);
     etx_txt_color(value, COLOR_THEME_WARNING_INDEX, ETX_STATE_TIMER_ELAPSED);
     etx_txt_color(value, COLOR_THEME_DISABLED_INDEX, ETX_STATE_TELEM_STALE);
-    etx_font(value, FONT_L_INDEX);
     etx_font(value, FONT_XL_INDEX, ETX_STATE_LARGE_FONT);
     lv_label_set_text(value, "");
 

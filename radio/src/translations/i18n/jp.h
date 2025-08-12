@@ -1293,6 +1293,7 @@
 #define TR_VOICE_DEUTSCH                "ドイツ-DE"
 #define TR_VOICE_DUTCH                  "オランダ-NL"
 #define TR_VOICE_ESPANOL                "スペイン-ES"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "フランス-FR"
 #define TR_VOICE_HUNGARIAN              "ハンガリー-HU"
 #define TR_VOICE_ITALIANO               "イタリア-IT"

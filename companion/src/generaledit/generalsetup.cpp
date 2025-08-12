@@ -422,6 +422,7 @@ void GeneralSetupPanel::populateVoiceLangCB()
     { tr("Danish"), "da" },
     { tr("Dutch"), "nl" },
     { tr("English"), "en" },
+    { tr("Finnish"), "fi" },
     { tr("French"), "fr" },
     { tr("German"), "de" },
     { tr("Hebrew"), "he" },
@@ -435,6 +436,7 @@ void GeneralSetupPanel::populateVoiceLangCB()
     { tr("Slovak"), "sk" },
     { tr("Spanish"), "es" },
     { tr("Swedish"), "se" },
+    { tr("Taiwanese"), "tw" },
     { tr("Ukrainian"), "ua" },
     { NULL, NULL }};
 

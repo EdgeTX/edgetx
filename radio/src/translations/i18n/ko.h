@@ -1339,6 +1339,7 @@
 #define TR_VOICE_DEUTSCH                "독일어"
 #define TR_VOICE_DUTCH                  "네덜란드어"
 #define TR_VOICE_ESPANOL                "스페인어"
+#define TR_VOICE_FINNISH                "Finnish"
 #define TR_VOICE_FRANCAIS               "프랑스어"
 #define TR_VOICE_HUNGARIAN              "헝가리어"
 #define TR_VOICE_ITALIANO               "이탈리아어"

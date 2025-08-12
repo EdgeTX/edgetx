@@ -86,13 +86,7 @@ class TextButton : public ButtonBase
   std::string getName() const override { return "TextButton \"" + text + "\""; }
 #endif
 
-  void setText(std::string value)
-  {
-    if (value != text) {
-      text = std::move(value);
-      lv_label_set_text(label, text.c_str());
-    }
-  }
+  void setText(std::string value);
 
   void setFont(FontIndex font)
   {

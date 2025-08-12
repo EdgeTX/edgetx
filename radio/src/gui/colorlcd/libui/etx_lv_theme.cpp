@@ -24,6 +24,7 @@
  *********************/
 #include "etx_lv_theme.h"
 
+#include "window.h"
 #include "../colors.h"
 #include "fonts.h"
 
@@ -314,6 +315,14 @@ void EdgeTxStyles::init()
   applyColors();
 }
 
+void EdgeTxStyles::setFonts()
+{
+  // Fonts
+  for (int i = FONT_STD_INDEX; i < FONTS_COUNT; i += 1) {
+    lv_style_set_text_font(&font[i], getFont(i << 8));
+  }
+}
+
 void EdgeTxStyles::applyColors()
 {
   // Always update colors in case theme changes
@@ -353,6 +362,14 @@ static EdgeTxStyles* mainStyles = nullptr;
 static EdgeTxStyles* previewStyles = nullptr;
 EdgeTxStyles* styles = nullptr;
 
+#if defined(ALL_LANGS)
+void setAllFonts()
+{
+  if (mainStyles) mainStyles->setFonts();
+  if (previewStyles) previewStyles->setFonts();
+}
+#endif
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -381,6 +398,18 @@ void useMainStyle()
  **********************/
 
 // Object constructor helpers
+
+lv_obj_t* etx_label_create(lv_obj_t* parent, FontIndex fontIdx)
+{
+  lv_obj_t* lvobj = lv_label_create(parent);
+  etx_obj_add_style(lvobj, styles->font[fontIdx], LV_PART_MAIN);
+  return lvobj;
+}
+
+lv_obj_t* etx_label_create(Window* parent, FontIndex fontIdx)
+{
+  return etx_label_create(parent->getLvObj(), fontIdx);
+}
 
 void etx_solid_bg(lv_obj_t* obj, LcdColorIndex bg_color,
                   lv_style_selector_t selector)
