@@ -95,7 +95,7 @@ void SwitchWarnDialog::checkEvents()
 }
 
 ThrottleWarnDialog::ThrottleWarnDialog(const char* msg) :
-    FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE, msg,
+    FullScreenDialog(WARNING_TYPE_ALERT, STR_THROTTLE_UPPERCASE, msg,
                      STR_PRESS_ANY_KEY_TO_SKIP)
 {
   setCloseCondition(std::bind(&ThrottleWarnDialog::warningInactive, this));

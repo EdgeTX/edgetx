@@ -271,7 +271,7 @@ void menuRadioVersion(event_t event)
   y += 5 * (FH - 1) + 2;
 
 #if defined(PCBTARANIS)
-  lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_FIRMWARE_OPTIONS), menuVerticalPosition == ITEM_RADIO_FIRMWARE_OPTIONS ? INVERS : 0);
+  lcdDrawText(INDENT_WIDTH, y, STR_FIRMWARE_OPTIONS, menuVerticalPosition == ITEM_RADIO_FIRMWARE_OPTIONS ? INVERS : 0);
   y += FH;
   if (menuVerticalPosition == ITEM_RADIO_FIRMWARE_OPTIONS && event == EVT_KEY_BREAK(KEY_ENTER)) {
     s_editMode = EDIT_SELECT_FIELD;
@@ -280,7 +280,7 @@ void menuRadioVersion(event_t event)
 #endif
 
 #if defined(PXX2) || defined(CROSSFIRE)
-  lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_MODULES_RX_VERSION), menuVerticalPosition == ITEM_RADIO_MODULES_VERSION ? INVERS : 0);
+  lcdDrawText(INDENT_WIDTH, y, STR_MODULES_RX_VERSION, menuVerticalPosition == ITEM_RADIO_MODULES_VERSION ? INVERS : 0);
   y += FH;
   if (menuVerticalPosition == ITEM_RADIO_MODULES_VERSION && event == EVT_KEY_BREAK(KEY_ENTER)) {
     s_editMode = EDIT_SELECT_FIELD;

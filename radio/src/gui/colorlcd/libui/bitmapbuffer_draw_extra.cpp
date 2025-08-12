@@ -25,7 +25,6 @@
 #include "edgetx.h"
 #include "strhelpers.h"
 #include "telemetry/telemetry_sensors.h"
-#include "translations.h"
 
 #include <cmath>
 

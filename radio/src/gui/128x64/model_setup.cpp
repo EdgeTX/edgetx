@@ -1556,18 +1556,18 @@ void menuModelSetup(event_t event)
                   MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FLEX_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                                 strlen(STR_MODULE_PROTOCOL_WARN_LINE2), 0);
               }
 #if POPUP_LEVEL >= 3
               else if (g_model.moduleData[moduleIdx].subType ==
                        MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_EU_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                                 strlen(STR_MODULE_PROTOCOL_WARN_LINE2), 0);
               } else {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FCC_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 sizeof(TR_MODULE_PROTOCOL_WARN_LINE2) - 1, 0);
+                                 strlen(STR_MODULE_PROTOCOL_WARN_LINE2), 0);
               }
 #endif
             }
@@ -1754,7 +1754,7 @@ void menuModelSetup(event_t event)
           }
           if (bluetooth.distantAddr[0]) {
             lcdDrawText(INDENT_WIDTH, y+1, bluetooth.distantAddr, TINSIZE);
-            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, BUTTON(TR_CLEAR), attr);
+            lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_CLEAR, attr);
             if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
               bluetooth.state = BLUETOOTH_STATE_CLEAR_REQUESTED;
               memclear(bluetooth.distantAddr, sizeof(bluetooth.distantAddr));
@@ -1765,7 +1765,7 @@ void menuModelSetup(event_t event)
             if (bluetooth.state < BLUETOOTH_STATE_IDLE)
               lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_BUTTON_INIT, attr);
             else
-              lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, BUTTON(TR_DISCOVER), attr);
+              lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_DISCOVER, attr);
             if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
               if (bluetooth.state < BLUETOOTH_STATE_IDLE) {
                 bluetooth.state = BLUETOOTH_STATE_OFF;
@@ -1914,7 +1914,7 @@ void menuModelSetup(event_t event)
 #endif
       {
         lcdDrawTextIndented(y, STR_MODULE);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, BUTTON(TR_REGISTER), (menuHorizontalPosition == 0 ? attr : 0));
+        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_REGISTER, (menuHorizontalPosition == 0 ? attr : 0));
         lcdDrawText(lcdLastRightPos + 3, y, STR_MODULE_RANGE, (menuHorizontalPosition == 1 ? attr : 0));
         if (attr) {
           if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL && s_editMode > 0) {
@@ -2186,7 +2186,7 @@ void menuModelSetup(event_t event)
         if (event && !s_editMode && reusableBuffer.moduleSetup.antennaMode != g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode) {
           if (reusableBuffer.moduleSetup.antennaMode == ANTENNA_MODE_EXTERNAL && !isExternalAntennaEnabled()) {
             POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onModelAntennaSwitchConfirm);
-            SET_WARNING_INFO(STR_ANTENNACONFIRM2, sizeof(TR_ANTENNACONFIRM2), 0);
+            SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
           }
           else {
             g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode = reusableBuffer.moduleSetup.antennaMode;
@@ -2518,7 +2518,7 @@ void menuModelSetup(event_t event)
         expandState.viewOpt = expandableSection(y, STR_ENABLED_FEATURES, expandState.viewOpt, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_RADIO_TAB:
-        lcdDrawText(INDENT_WIDTH-2, y, TR_RADIO_MENU_TABS);
+        lcdDrawText(INDENT_WIDTH-2, y, STR_RADIO_MENU_TABS);
         break;
       case ITEM_VIEW_OPTIONS_GF:
         g_model.radioGFDisabled = viewOptChoice(y, STR_MENUSPECIALFUNCS, g_model.radioGFDisabled, attr, event);
@@ -2527,7 +2527,7 @@ void menuModelSetup(event_t event)
         g_model.radioTrainerDisabled = viewOptChoice(y, STR_MENUTRAINER, g_model.radioTrainerDisabled, attr, event);
         break;
       case ITEM_VIEW_OPTIONS_MODEL_TAB:
-        lcdDrawText(INDENT_WIDTH-2, y, TR_MODEL_MENU_TABS);
+        lcdDrawText(INDENT_WIDTH-2, y, STR_MODEL_MENU_TABS);
         break;
 #if defined(HELI)
       case ITEM_VIEW_OPTIONS_HELI:
@@ -2575,14 +2575,14 @@ void menuModelSetup(event_t event)
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_CH_BUTTON:
-        lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_SETTINGS), attr);
+        lcdDrawText(INDENT_WIDTH, y, STR_USBJOYSTICK_SETTINGS, attr);
         if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           pushMenu(menuModelUSBJoystick);
         }
         break;
 
       case ITEM_MODEL_SETUP_USBJOYSTICK_APPLY:
-        lcdDrawText(INDENT_WIDTH, y, BUTTON(TR_USBJOYSTICK_APPLY_CHANGES), attr);
+        lcdDrawText(INDENT_WIDTH, y, STR_USBJOYSTICK_APPLY_CHANGES, attr);
         if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
           onUSBJoystickModelChanged();
         }

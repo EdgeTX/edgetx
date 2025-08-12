@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include "fonts.h"
 #include "definitions.h"
-#include "translations/untranslated.h"
+#include "translations/translations.h"
 
 #if defined(TRANSLATIONS_FR)
 static uint16_t _utf8_lut[] = {
