@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
   // Calculate size of data to compress
   uncomp_size = sizeof(glyph_bitmap) + sizeof(glyph_dsc);
 
-#if defined(kern_class_values)
+#if !defined(NO_KERN)
   if (dsc->kern_classes) {
     uncomp_size += sizeof(kern_class_values) + sizeof(kern_left_class_mapping) +
                    sizeof(kern_right_class_mapping);
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
   etx_font.kern_classes = dsc->kern_classes;
   etx_font.bitmap_format = dsc->bitmap_format;
 
-#if defined(kern_class_values)
+#if !defined(NO_KERN)
   if (dsc->kern_classes) {
     etx_font.left_class_cnt = kern_classes.left_class_cnt;
     etx_font.right_class_cnt = kern_classes.right_class_cnt;
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 
   next += sizeof(glyph_bitmap);
 
-#if defined(kern_class_values)
+#if !defined(NO_KERN)
   // Copy kern_classes (optional)
   if (dsc->kern_classes) {
     memcpy(next, kern_class_values, sizeof(kern_class_values));
