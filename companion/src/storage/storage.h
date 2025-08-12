@@ -51,8 +51,9 @@ class StorageFormat
     }
     virtual ~StorageFormat() {}
     virtual bool load(RadioData & radioData) = 0;
+    virtual bool load(GeneralSettings & generalSettings) { return false; }
     virtual bool write(const RadioData & radioData) = 0;
-    virtual bool writeModel(const RadioData & radioData, const int modelIndex) { return false; }
+    virtual bool write(const ModelData & modelData) { return false; }
 
     QString error() {
       return _error;
@@ -152,8 +153,9 @@ class Storage : public StorageFormat
     }
 
     virtual bool load(RadioData & radioData);
+    virtual bool load(GeneralSettings & generalSettings);
     virtual bool write(const RadioData & radioData);
-    virtual bool writeModel(const RadioData & radioData, const int modelIndex);
+    virtual bool write(const ModelData & modelData);
 };
 
 void registerStorageFactories();

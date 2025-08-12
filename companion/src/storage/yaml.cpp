@@ -121,15 +121,12 @@ bool YamlFormat::load(RadioData & radioData)
   return false;
 }
 
-bool YamlFormat::writeModel(const RadioData & radioData, const int modelIndex)
+bool YamlFormat::write(const ModelData & modelData)
 {
-  if (modelIndex < 0 || modelIndex >= (int)radioData.models.size() || radioData.models[modelIndex].isEmpty())
-    return false;
+  QByteArray data;
+  writeModelToYaml(modelData, data);
 
-  QByteArray modelData;
-  writeModelToYaml(radioData.models[modelIndex], modelData);
-
-  if (!writeFile(modelData))
+  if (!writeFile(data))
     return false;
 
   return true;
