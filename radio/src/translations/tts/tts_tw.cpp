@@ -27,5 +27,5 @@ extern void cn_playDuration(int seconds, uint8_t flags, uint8_t id, int8_t fragm
 #if !defined(ALL_LANGS)
 const LanguagePack twLanguagePack = {"tw", STR_VOICE_TAIWANESE, cn_playNumber, cn_playDuration};
 #else
-const LanguagePack twLanguagePack = {"fi", []() { return STR_VOICE_TAIWANESE; }, cn_playNumber, cn_playDuration};
+const LanguagePack twLanguagePack = {"tw", []() { return STR_VOICE_TAIWANESE; }, cn_playNumber, cn_playDuration};
 #endif
