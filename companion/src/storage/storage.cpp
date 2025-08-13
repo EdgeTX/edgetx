@@ -75,11 +75,9 @@ bool Storage::fileExists()
 
 StorageFormat * Storage::getStorageFormat()
 {
-  if (fileExists()) {
-    foreach (StorageFactory * factory, registeredStorageFactories) {
-      if (factory->probe(filename))
-        return factory->instance(filename);
-    }
+  foreach (StorageFactory * factory, registeredStorageFactories) {
+    if (factory->probe(filename))
+      return factory->instance(filename);
   }
 
   return nullptr;
@@ -87,6 +85,9 @@ StorageFormat * Storage::getStorageFormat()
 
 bool Storage::load(RadioData & radioData)
 {
+  if (!fileExists())
+    return false;
+
   bool ret = false;
   StorageFormat * format = getStorageFormat();
 
@@ -107,6 +108,9 @@ bool Storage::load(RadioData & radioData)
 
 bool Storage::load(GeneralSettings & generalSettings)
 {
+  if (!fileExists())
+    return false;
+
   bool ret = false;
   StorageFormat * format = getStorageFormat();
 
@@ -127,6 +131,9 @@ bool Storage::load(GeneralSettings & generalSettings)
 
 bool Storage::load(ModelData & modelData)
 {
+  if (!fileExists())
+    return false;
+
   bool ret = false;
   StorageFormat * format = getStorageFormat();
 
