@@ -134,7 +134,7 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
 
   restoreUiState();
 
-  setStyleSheet(SimulatorStyle::styleSheet());
+  //setStyleSheet(SimulatorStyle::styleSheet());
 
   connect(ui->actionShowKeymap, &QAction::triggered, this, &SimulatorMainWindow::showHelp);
   connect(ui->actionAbout, &QAction::triggered, this, &SimulatorMainWindow::showAbout);
