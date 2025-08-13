@@ -43,7 +43,7 @@ class StorageFormat
   Q_DECLARE_TR_FUNCTIONS(StorageFormat)
 
   public:
-    StorageFormat(const QString & filename, uint8_t version=0):
+    StorageFormat(const QString & filename, uint8_t version = 0):
       filename(filename),
       version(version),
       board(Board::BOARD_UNKNOWN)
@@ -52,8 +52,12 @@ class StorageFormat
     virtual ~StorageFormat() {}
     virtual bool load(RadioData & radioData) = 0;
     virtual bool load(GeneralSettings & generalSettings) { return false; }
+    virtual bool load(ModelData & modelData) { return false; }
+    virtual bool load(RadioData::ModelLabels & modelLabels) { return false; }
     virtual bool write(const RadioData & radioData) = 0;
+    virtual bool write(const GeneralSettings & generalSettings) { return false; }
     virtual bool write(const ModelData & modelData) { return false; }
+    virtual bool write(const RadioData::ModelLabels & modelLabels) { return false; }
 
     QString error() {
       return _error;
@@ -153,9 +157,15 @@ class Storage : public StorageFormat
     }
 
     virtual bool load(RadioData & radioData);
-    virtual bool load(GeneralSettings & generalSettings);
+    virtual bool load(GeneralSettings & generalSettings) override;
+    virtual bool load(ModelData & modelData) override;
     virtual bool write(const RadioData & radioData);
-    virtual bool write(const ModelData & modelData);
+    virtual bool write(const GeneralSettings & generalSettings) override;
+    virtual bool write(const ModelData & modelData) override;
+
+  private:
+    bool fileExists();
+    StorageFormat * getStorageFormat();
 };
 
 void registerStorageFactories();
