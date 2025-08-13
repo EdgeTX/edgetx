@@ -1800,22 +1800,21 @@ void MdiChild::labelsFault(QString msg)
 unsigned MdiChild::exportModels(const QVector<int> modelIndices)
 {
   unsigned saves = 0;
+  QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/"));
 
   foreach(const int idx, modelIndices) {
     if (idx < 0 || idx >= (int)radioData.models.size())
       continue;
 
-    const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + QString(radioData.models[idx].name) + ".yml"));
-    qDebug() << path;
-
     QString filename;
+    path.append(QString(radioData.models[idx].name) + ".yml");
 
     do
     {
       filename = QFileDialog::getSaveFileName(this, tr("Export model"), path, YML_FILES_FILTER);
 
       if (filename.isEmpty())
-        return false;
+        return saves;
 
       if (QFileInfo(filename).suffix().toLower() != "yml")
         QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Invalid file extension!"));
@@ -1826,12 +1825,14 @@ unsigned MdiChild::exportModels(const QVector<int> modelIndices)
 
     if (!storage.write(radioData.models[idx])) {
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
-      return false;
+      return saves;
     }
 
     ++saves;
+    path = QDir::toNativeSeparators(QFileInfo(filename).absolutePath() % "/");
   }
- return saves;
+
+  return saves;
 }
 
 bool MdiChild::exportModel(const int modelIndex)
@@ -1846,7 +1847,9 @@ bool MdiChild::exportModel(const int modelIndex)
 
 void MdiChild::exportSelectedModels()
 {
-  exportModels(getSelectedModels());
+  int cnt = exportModels(getSelectedModels());
+
+  QMessageBox::information(this, CPN_STR_APP_NAME, tr("%1 model(s) exported").arg(cnt));
 }
 
 void MdiChild::setCurrentModelModified()
