@@ -424,13 +424,20 @@ QString MultiModelPrinter::printHeliSetup()
 
 QString MultiModelPrinter::printFlightModes()
 {
-  QString str = printTitle(tr("Flight modes"));
+  QString str = printTitle(Boards::getCapability(getCurrentBoard(), Board::Air)
+                               ? tr("Flight modes")
+                               : tr("Drive modes"));
   // Trims
   {
     MultiColumns columns(modelPrinterMap.size());
     columns.appendSectionTableStart();
-    QStringList hd = QStringList() << tr("Flight mode") << tr("Switch") << tr("F.In") << tr("F.Out");
-    for (int i = 0; i < getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
+    QStringList hd = QStringList()
+                     << (Boards::getCapability(getCurrentBoard(), Board::Air)
+                             ? tr("Flight mode")
+                             : tr("Drive mode"))
+                     << tr("Switch") << tr("F.In") << tr("F.Out");
+    for (int i = 0; i < getBoardCapability(getCurrentBoard(), Board::NumTrims);
+         i++) {
       hd << RawSource(SOURCE_TYPE_TRIM, i + 1).toString();
     }
     columns.appendRowHeader(hd);
@@ -502,7 +509,10 @@ QString MultiModelPrinter::printFlightModes()
       columns.appendRowEnd();
     }
 
-    columns.appendRowHeader(QStringList() << tr("Flight mode"));
+    columns.appendRowHeader(
+        QStringList() << (Boards::getCapability(getCurrentBoard(), Board::Air)
+                              ? tr("Flight mode")
+                              : tr("Drive mode")));
 
     for (int i = 0; i < firmware->getCapability(FlightModes); i++) {
       columns.appendRowStart();

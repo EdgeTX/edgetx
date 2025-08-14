@@ -475,16 +475,23 @@ QString ModelPrinter::printFlightModes(unsigned int flightModes)
   int numFlightModes = firmware->getCapability(FlightModes);
   if (numFlightModes && flightModes) {
     if (flightModes == (unsigned int)(1 << numFlightModes) - 1) {
-      return tr("Disabled in all flight modes");
-    }
-    else {
+      return (Boards::getCapability(getCurrentBoard(), Board::Air)
+                  ? tr("Disabled in all flight modes")
+                  : tr("Disabled in all drive modes"));
+    } else {
       QStringList list;
       for (int i = 0; i < numFlightModes; i++) {
         if (!(flightModes & (1 << i))) {
           list << printFlightModeName(i);
         }
       }
-      return (list.size() > 1 ? tr("Flight modes") : tr("Flight mode")) + QString("(%1)").arg(list.join(", "));
+      if (Boards::getCapability(getCurrentBoard(), Board::Air)) {
+        return (list.size() > 1 ? tr("Flight modes") : tr("Flight mode")) +
+               QString("(%1)").arg(list.join(", "));
+      } else {
+        return (list.size() > 1 ? tr("Drive modes") : tr("Drive mode")) +
+               QString("(%1)").arg(list.join(", "));
+      };
     }
   }
   else
