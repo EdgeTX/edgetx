@@ -462,7 +462,7 @@ void FLASH_IRQHandler(void){asm("BKPT");}
 void RCC_IRQHandler(void){asm("BKPT");}
 void EXTI0_IRQHandler(void){asm("BKPT");}
 void EXTI1_IRQHandler(void){asm("BKPT");}
-void DMA1_Stream1_IRQHandler(void){asm("BKPT");}
+//void DMA1_Stream1_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream2_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream3_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream4_IRQHandler(void){asm("BKPT");}
@@ -474,9 +474,9 @@ void FDCAN2_IT1_IRQHandler(void){asm("BKPT");}
 void TIM1_BRK_IRQHandler(void){asm("BKPT");}
 void TIM1_UP_IRQHandler(void){asm("BKPT");}
 void TIM1_TRG_COM_IRQHandler(void){asm("BKPT");}
-void TIM1_CC_IRQHandler(void){asm("BKPT");}
+//void TIM1_CC_IRQHandler(void){asm("BKPT");}
 void TIM2_IRQHandler(void){asm("BKPT");}
-void TIM3_IRQHandler(void){asm("BKPT");}
+// void TIM3_IRQHandler(void){asm("BKPT");}
 // void TIM4_IRQHandler(void){asm("BKPT");}
 void I2C1_EV_IRQHandler(void){asm("BKPT");}
 void I2C1_ER_IRQHandler(void){asm("BKPT");}
