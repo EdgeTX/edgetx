@@ -78,7 +78,7 @@ void burnConfigDialog::getSettings()
     if ( sambaLoc.isEmpty())
       sambaLoc = QFileInfo("sam-ba.exe").absoluteFilePath();
     if ( dfuLoc.isEmpty())
-      dfuLoc =  QFileInfo("dfu-util.exe").absoluteFilePath();
+      dfuLoc =  QFileInfo("bin/dfu-util.exe").absoluteFilePath();
 #elif defined __APPLE__
     if ( sambaLoc.isEmpty())
       sambaLoc = "/usr/local/bin/sam-ba";
