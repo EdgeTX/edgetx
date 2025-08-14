@@ -27,7 +27,10 @@
 #include "libopenui_defines.h"
 #include "lz4_fonts.h"
 
+
 #if !defined(BOOT)
+
+extern "C" {
 
 extern const etxLz4Font lv_font_en_bold_XXL;
 
@@ -73,6 +76,8 @@ FONT_TABLE(ua);
 #else
 FONT_TABLE(en);
 #endif
+
+} // extern "C"
 
 /*
   Decompress an LZ4 font and build LVGL font structures.
