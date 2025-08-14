@@ -71,6 +71,46 @@ jobs:
           echo $PATH
           $Python3_ROOT_DIR/python3.exe -m pip install clang jinja2 lz4 pillow
 
+      - name: Setup dfu-util and libusb
+        run: |
+          #!/bin/bash
+          set -e
+    
+          echo "Setting up dfu-util and libusb..."
+    
+          # Create target directory
+          mkdir -p dfu-util-0.11
+    
+          # Download and extract dfu-util
+          echo "Downloading dfu-util binaries..."
+          curl -LO https://dfu-util.sourceforge.net/releases/dfu-util-0.11-binaries.tar.xz
+          tar -xf dfu-util-0.11-binaries.tar.xz
+          cp dfu-util-0.11-binaries/win64/dfu-util.exe dfu-util-0.11/
+    
+          # Install 7zip if not available
+          if ! command -v 7z &> /dev/null; then
+              echo "Installing 7zip..."
+              sudo apt-get update -qq
+              sudo apt-get install -y p7zip-full
+          fi
+    
+          # Download and extract libusb
+          echo "Downloading libusb..."
+          curl -LO https://github.com/libusb/libusb/releases/download/v1.0.29/libusb-1.0.29.7z
+          7z x -olibusb-1.0.29 libusb-1.0.29.7z > /dev/null
+          cp libusb-1.0.29/VS2022/MS64/dll/* dfu-util-0.11/
+    
+          # Clean up temporary files
+          rm -f dfu-util-0.11-binaries.tar.xz libusb-1.0.29.7z
+          rm -rf dfu-util-0.11-binaries libusb-1.0.29
+    
+          echo "Setup complete. Contents of dfu-util-0.11:"
+          ls -la dfu-util-0.11/
+
+          echo "LIBUSB1_ROOT_DIR=$(pwd)/dfu-util-0.11" >> $GITHUB_ENV
+          echo "DFU_UTIL_ROOT_DIR=$(pwd)/dfu-util-0.11" >> $GITHUB_ENV
+          
+
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
