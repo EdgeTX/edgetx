@@ -105,7 +105,7 @@ const char * logsOpen()
   char filename[sizeof(LOGS_PATH) + LEN_MODEL_NAME + 18 + 4 + 1];
 
   // check and create folder here
-  char* tmp = strAppend(filename, STR_LOGS_PATH);
+  char* tmp = strAppend(filename, LOGS_PATH);
   const char * error = sdCheckAndCreateDirectory(filename);
   if (error) {
     return error;
@@ -125,7 +125,7 @@ const char * logsOpen()
   tmp = strAppendDate(tmp, true);
 #endif
 
-  strAppend(tmp, STR_LOGS_EXT);
+  strAppend(tmp, LOGS_EXT);
 
   result = f_open(&g_oLogFile, filename, FA_OPEN_ALWAYS | FA_WRITE | FA_OPEN_APPEND);
   if (result != FR_OK) {

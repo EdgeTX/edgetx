@@ -19,8 +19,6 @@
 #pragma once
 
 #include "debug.h"
-#include "hal.h"
-#include "edgetx_types.h"
 #include "colors.h"
 #include "keys.h"
 
