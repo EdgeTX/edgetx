@@ -20,7 +20,7 @@
  */
 
 //
-//  Data based on MPM firmware version 1.3.3.33 multi.txt
+//  Data based on MPM firmware version 1.3.4.31 multi.txt
 //
 
 #if defined(MULTIMODULE) or defined(SIMU)
@@ -92,7 +92,7 @@ enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_FX,
   MODULE_SUBTYPE_MULTI_BAYANG_RX,
   MODULE_SUBTYPE_MULTI_PELIKAN,
-  MODULE_SUBTYPE_MULTI_TIGER,  //60
+  MODULE_SUBTYPE_MULTI_EAZYRC, //60
   MODULE_SUBTYPE_MULTI_XK,
   MODULE_SUBTYPE_MULTI_XN297DUMP,
   MODULE_SUBTYPE_MULTI_FRSKYX2,
@@ -126,6 +126,14 @@ enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_MT99XX2,
   MODULE_SUBTYPE_MULTI_KYOSHO2,
   MODULE_SUBTYPE_MULTI_SCORPIO,
+  MODULE_SUBTYPE_MULTI_BLUEFLY,
+  MODULE_SUBTYPE_MULTI_BUMBLEB, //95
+  MODULE_SUBTYPE_MULTI_SGF22,
+  MODULE_SUBTYPE_MULTI_KYOSHO3,
+  MODULE_SUBTYPE_MULTI_XK2,
+  MODULE_SUBTYPE_MULTI_YUXIANG,
+  MODULE_SUBTYPE_MULTI_JIABAILE, //100
+  MODULE_SUBTYPE_MULTI_H36,
   //
   // spare entries - don't touch,
   // just add to known protocols
@@ -161,10 +169,11 @@ enum ModuleSubtypeMulti {
   "Q303","GW008","DM002","Cabell","Esky150","H8 3D","Corona","CFlie","Hitec","WFLY",\
   "Bugs","BugMini","Traxxas","NCC1701","E01X","V911S","GD00X","V761","KF606","Redpine",\
   "Potensi","ZSX","Height","Scanner","FrSkyRX","FS2A_RX","HoTT","FX","BayanRX","Pelikan",\
-  "Tiger", "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSky L","Skyartc","ESkyV2","DSM_RX",\
+  "EazyRC", "XK","XN297DU","FrSkyX2","FrSkyR9","Propel","FrSky L","Skyartc","ESkyV2","DSM_RX",\
   "JJRC345","Q90C","Kyosho","RadLink","ExpLRS","Realacc","OMP","M-Link","WFLY2","E016Hv2",\
   "E010r5","LOLI","E129","JOYSWAY","E016H","Config","IKEA","WILLIFM","Losi","MouldKg",\
-  "Xerall","MT99XX2", "Kyosho2", "Scorpio"
+  "Xerall","MT99XX2","Kyosho2","Scorpio","BlueFly","BumbleB","SGF22","Kyosho3","XK2", \
+  "Yuxiang","Jiabaile","H36"
 #define SPARE_PROTO_NAMES \
   "NN 1","NN 2","NN 3","NN 4","NN 5","NN 6","NN 7","NN 8","NN 9","NN 10"
 #define SPARE_SUBTYPE_NAMES \
