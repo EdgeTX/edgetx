@@ -14,26 +14,14 @@ endif()
 
 if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
   # environment variable set in github workflows and build-edgetx Dockerfile
-  if(DEFINED ENV{LIBUSB1_ROOT_DIR})
-    set(LIBUSB1_ROOT_DIR "$ENV{LIBUSB1_ROOT_DIR}")
-  endif()
-
-  find_package(Libusb1)
-
-  if(LIBUSB1_FOUND)
-    if(DEFINED ENV{DFU_UTIL_ROOT_DIR})
-      set(DFU_UTIL_ROOT_DIR "$ENV{DFU_UTIL_ROOT_DIR}")
-    endif()
-
-    find_package(Dfuutil)
-  endif()
-
-  # environment variable set in github workflows and build-edgetx Dockerfile
   if(DEFINED ENV{OPENSSL_ROOT_DIR})
     set(OPENSSL_ROOT_DIR "$ENV{OPENSSL_ROOT_DIR}")
   endif()
 
   find_package(OpenSSL)
+
+  include(Fetchrs_dfu)
+  find_package(rs_dfu REQUIRED)
 endif()
 
 # Windows-specific includes and libs shared by sub-projects

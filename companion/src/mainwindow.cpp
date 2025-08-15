@@ -47,6 +47,7 @@
 #include "constants.h"
 #include "updates/updates.h"
 #include "updates/updatefactories.h"
+#include "flash/dfu.h"
 
 #include <QtGui>
 #include <QFileInfo>
@@ -832,6 +833,7 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(readSettingsAct,    tr("Read Models and Settings from Radio"), tr("Read Models and Settings from Radio"));
   trAct(writeBUToRadioAct,  tr("Write Backup to Radio"),               tr("Write Backup from file to Radio"));
   trAct(readBUToFileAct,    tr("Backup Radio to File"),                tr("Save a complete backup file of all settings and model data in the Radio"));
+  trAct(radioGetDevicesAct, tr("Connected Radios"),                    tr("Get a list of connected radios"));
 
   trAct(compareAct,         tr("Compare Models"),         tr("Compare models"));
   trAct(updatesAct,         tr("Update components..."),   tr("Download and update EdgeTX components and supporting resources"));
@@ -898,6 +900,7 @@ void MainWindow::createActions()
   exportAppSettingsAct =   addAct("saveas.png",             SLOT(exportAppSettings()));
   importAppSettingsAct =   addAct("open.png",               SLOT(importAppSettings()));
   burnConfigAct =          addAct("configure.png",          SLOT(burnConfig()));
+  radioGetDevicesAct =     addAct("configure.png",          SLOT(radioGetDevices()));
 
   compareAct =             addAct("compare.png",            SLOT(compare()),          tr("Ctrl+Alt+R"));
   updatesAct =             addAct("download.png",           SLOT(updates()),          tr("Ctrl+Alt+D"));
@@ -1005,6 +1008,7 @@ void MainWindow::createMenus()
   radioMenu->addSeparator();
   radioMenu->addAction(burnConfigAct);
   radioMenu->addAction(editSplashAct);
+  radioMenu->addAction(radioGetDevicesAct);
 
   settingsMenu = menuBar()->addMenu("");
   settingsMenu->addAction(editAppSettingsAct);
@@ -1576,4 +1580,8 @@ void MainWindow::viewToolsToolbar()
   g.toolsToolbarVisible(viewToolsToolbarAct->isChecked());
   const QSignalBlocker blocker(toolsToolBar);
   toolsToolBar->setVisible(viewToolsToolbarAct->isChecked());
+}
+void MainWindow::radioGetDevices()
+{
+  QMessageBox::information(this, tr("Radio Devices"), DFU::printDevices(DFU::findDevices()));
 }
