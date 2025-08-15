@@ -43,4 +43,8 @@ class YamlFormat : public StorageFormat
   protected:
     bool loadFile(QByteArray & fileData);
     bool writeFile(const QByteArray & fileData);
-};
+
+  private:
+    bool loadSettings(RadioData & radioData, const QByteArray & data);
+    bool loadModel(RadioData & radioData, const QByteArray & data);
+  };
