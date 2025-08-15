@@ -18,6 +18,7 @@ jobs:
         target:
           - nv14;el18
           - pl18;pl18ev;pl18u
+          - pa01
           - t12max
           - t15;t16;t18
           - zorro;pocket;mt12;commando8

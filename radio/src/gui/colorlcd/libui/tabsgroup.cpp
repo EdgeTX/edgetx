@@ -25,10 +25,7 @@
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "topbar_impl.h"
-
-#if defined(HARDWARE_TOUCH)
 #include "keyboard_base.h"
-#endif
 
 #if defined(DEBUG)
 static uint32_t dsms, dems, end_ms, start_ms;

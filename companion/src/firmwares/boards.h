@@ -74,6 +74,7 @@ namespace Board {
     BOARD_JUMPER_TLITE,
     BOARD_JUMPER_TLITE_F4,
     BOARD_FLYSKY_NV14,
+    BOARD_FLYSKY_PA01,
     BOARD_FLYSKY_PL18,
     BOARD_FLYSKY_PL18EV,
     BOARD_FLYSKY_PL18U,
@@ -661,6 +662,11 @@ inline bool IS_FLYSKY_EL18(Board::Type board)
   return (board == Board::BOARD_FLYSKY_EL18);
 }
 
+inline bool IS_FLYSKY_PA01(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_PA01);
+}
+
 inline bool IS_FLYSKY_PL18(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_PL18);
@@ -765,7 +771,7 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
   return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) ||
     IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
-    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/;
+    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ || IS_FLYSKY_PA01(board)/*generally*/;
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)
