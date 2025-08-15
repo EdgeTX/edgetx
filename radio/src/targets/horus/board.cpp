@@ -145,6 +145,8 @@ uint16_t getSixPosAnalogValue(uint16_t adcValue)
       }
     }
     rgbLedColorApply();
+    /* FIX (6POS) : Reset the state to reduce the number of refreshes. */
+    dirty = false;
   }
   return (4096/5)*(sixPosState);
 }
