@@ -69,12 +69,6 @@ jobs:
       - name: Install dependencies
         run: python3 -m pip install --upgrade pip Pillow lz4 clang jinja2
 
-      - name: Install libusb
-        run:  brew install libusb
-
-      - name: Install dfu-util
-        run:  brew install dfu-util
-
       - name: Install SDL2
         run:  brew install SDL2
 
