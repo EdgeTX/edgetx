@@ -127,6 +127,8 @@ class MainWindow : public QMainWindow
     void viewSettingsToolbar();
     void viewToolsToolbar();
 
+    void radioGetDevices();
+
   private:
     QAction * addAct(const QString & icon, const char * slot = NULL, const QKeySequence & shortcut = 0, QObject * slotObj = NULL, const char * signal = NULL);
     QAction * addActToGroup(QActionGroup * aGroup, const QString & sName, const QString & lName, const char * propName = 0,
@@ -210,6 +212,7 @@ class MainWindow : public QMainWindow
     QAction *writeSettingsAct;
     QAction *readSettingsAct;
     QAction *burnConfigAct;
+    QAction *radioGetDevicesAct;
     QAction *burnListAct;
     QAction *writeFlashAct;
     QAction *readFlashAct;
