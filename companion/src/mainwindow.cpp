@@ -21,7 +21,6 @@
 
 #include "mainwindow.h"
 #include "mdichild.h"
-#include "burnconfigdialog.h"
 #include "comparedialog.h"
 #include "logsdialog.h"
 #include "apppreferencesdialog.h"
@@ -611,18 +610,6 @@ void MainWindow::readFlash()
   }
 }
 
-void MainWindow::burnConfig()
-{
-  burnConfigDialog *bcd = new burnConfigDialog(this);
-  bcd->exec();
-  delete bcd;
-}
-
-void MainWindow::burnList()
-{
-  burnConfigDialog bcd(this);
-}
-
 void MainWindow::compare()
 {
   CompareDialog *fd = new CompareDialog(this,getCurrentFirmware());
@@ -824,7 +811,6 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(exportAppSettingsAct, tr("Export Settings..."), tr("Save all the current %1 and Simulator settings (including radio profiles) to a file.").arg(CPN_STR_APP_NAME));
   trAct(importAppSettingsAct, tr("Import Settings..."), tr("Load %1 and Simulator settings from a prevously exported settings file.").arg(CPN_STR_APP_NAME));
 
-  trAct(burnConfigAct,      tr("Configure Radio Communications..."),   tr("Configure Companion for communicating with the Radio"));
   trAct(editSplashAct,      tr("Edit Radio Splash Image..."),          tr("Edit the splash image of your Radio"));
   trAct(readFlashAct,       tr("Read Firmware from Radio"),            tr("Read firmware from Radio"));
   trAct(writeFlashAct,      tr("Write Firmware to Radio"),             tr("Write firmware to Radio"));
@@ -897,7 +883,6 @@ void MainWindow::createActions()
   editAppSettingsAct =     addAct("apppreferences.png",     SLOT(editAppSettings()),         QKeySequence::Preferences);
   exportAppSettingsAct =   addAct("saveas.png",             SLOT(exportAppSettings()));
   importAppSettingsAct =   addAct("open.png",               SLOT(importAppSettings()));
-  burnConfigAct =          addAct("configure.png",          SLOT(burnConfig()));
 
   compareAct =             addAct("compare.png",            SLOT(compare()),          tr("Ctrl+Alt+R"));
   updatesAct =             addAct("download.png",           SLOT(updates()),          tr("Ctrl+Alt+D"));
@@ -910,7 +895,6 @@ void MainWindow::createActions()
   sdsyncAct =              addAct("sdsync.png",             SLOT(sdsync()));
   logsAct =                addAct("logs.png",               SLOT(logFile()),          tr("Ctrl+Alt+L"));
 
-  burnListAct =            addAct("list.png",               SLOT(burnList()));
   readFlashAct =           addAct("read_flash.png",         SLOT(readFlash()));
   writeFlashAct =          addAct("write_flash.png",        SLOT(writeFlash()));
   writeSettingsAct =       addAct("write_eeprom.png",       SLOT(writeSettings()));
@@ -1003,7 +987,6 @@ void MainWindow::createMenus()
   radioMenu->addAction(writeFlashAct);
   radioMenu->addAction(readFlashAct);
   radioMenu->addSeparator();
-  radioMenu->addAction(burnConfigAct);
   radioMenu->addAction(editSplashAct);
 
   settingsMenu = menuBar()->addMenu("");
@@ -1090,7 +1073,6 @@ void MainWindow::createToolBars()
   radioToolBar->addAction(writeFlashAct);
   radioToolBar->addAction(readFlashAct);
   radioToolBar->addSeparator();
-  radioToolBar->addAction(burnConfigAct);
 
   settingsToolBar = addToolBar("");
   settingsToolBar->setObjectName("Settings");

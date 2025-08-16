@@ -23,7 +23,6 @@
 #include "ui_mdichild.h"
 #include "modeledit/modeledit.h"
 #include "generaledit/generaledit.h"
-#include "burnconfigdialog.h"
 #include "printdialog.h"
 #include "helpers.h"
 #include "appdata.h"

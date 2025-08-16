@@ -30,14 +30,6 @@ QString getRadioInterfaceCmd();
 
 QString findMassstoragePath(const QString &filename, bool onlyPath = false, ProgressWidget *progress = nullptr);
 
-QStringList getSambaArgs(const QString &tcl);
-QStringList getDfuArgs(const QString &cmd, const QString &filename);
-
-QStringList getReadEEpromCmd(const QString &filename);
-QStringList getWriteEEpromCmd(const QString &filename);
-QStringList getReadFirmwareArgs(const QString &filename);
-QStringList getWriteFirmwareArgs(const QString &filename);
-
 bool readFirmware(const QString &filename, ProgressWidget *progress);
 bool writeFirmware(const QString &filename, ProgressWidget *progress);
 bool readSettings(const QString &filename, ProgressWidget *progress);

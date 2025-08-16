@@ -210,7 +210,6 @@ include_directories(${maxLibQt_SOURCE_DIR}/widgets)
 
 set(companion_NAMES
   apppreferencesdialog
-  burnconfigdialog
   comparedialog
   customizesplashdialog
   flashfirmwaredialog

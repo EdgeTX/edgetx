@@ -94,8 +94,6 @@ class MainWindow : public QMainWindow
     void readFlash();
     void writeBackup();
     void readBackup();
-    void burnConfig();
-    void burnList();
     void sdsync(bool postUpdate = false);
     void changelog();
     void customizeSplash();
@@ -209,8 +207,6 @@ class MainWindow : public QMainWindow
     QAction *editSplashAct;
     QAction *writeSettingsAct;
     QAction *readSettingsAct;
-    QAction *burnConfigAct;
-    QAction *burnListAct;
     QAction *writeFlashAct;
     QAction *readFlashAct;
     QAction *writeBUToRadioAct;
