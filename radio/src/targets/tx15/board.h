@@ -234,4 +234,10 @@ bool touchPanelEventOccured();
 struct TouchState touchPanelRead();
 struct TouchState getInternalTouchState();
 
+// USB Charger
+#if defined(USB_CHARGER)
+void usbChargerInit();
+bool usbChargerLed();
+#endif
+
 #endif // _BOARD_H_
