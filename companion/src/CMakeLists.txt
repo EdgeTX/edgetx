@@ -223,7 +223,6 @@ set(companion_NAMES
   multimodelprinter
   printdialog
   process_copy
-  process_flash
   process_sync
   profilechooser
   progressdialog
@@ -235,7 +234,7 @@ set(companion_NAMES
   wizarddata
   wizarddialog
   dialogs/filesyncdialog
-  )
+)
 
 foreach(name ${companion_NAMES})
   set(companion_SRCS

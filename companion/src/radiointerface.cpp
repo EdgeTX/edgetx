@@ -21,8 +21,6 @@
 
 #include "radiointerface.h"
 #include "appdata.h"
-#include "eeprominterface.h"
-#include "process_flash.h"
 #include "radionotfound.h"
 #include "helpers.h"
 #include "process_copy.h"
