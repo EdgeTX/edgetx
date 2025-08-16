@@ -27,12 +27,14 @@ set(RS_DFU_FILENAME "rs_dfu-${RS_DFU_ARCH}-${RS_DFU_PLATFORM}")
 set(RS_DFU_URL "${RS_DFU_BASE_URL}/${RS_DFU_FILENAME}.tar.gz")
 
 FetchContent_Declare(
-  rs_dfu
+  RsDfu
   URL ${RS_DFU_URL}
+  DOWNLOAD_EXTRACT_TIMESTAMP true
+  FIND_PACKAGE_ARGS
 )
 
-FetchContent_MakeAvailable(rs_dfu)
+FetchContent_MakeAvailable(RsDfu)
 
-set(rs_dfu_DIR "${rs_dfu_SOURCE_DIR}/cmake")
+set(rs_dfu_DIR "${rsdfu_SOURCE_DIR}/cmake")
 
-message("Fetched rs_dfu source code from Github: ${rs_dfu_SOURCE_DIR}")
+message("Fetched rsdfu source code from Github: ${rsdfu_SOURCE_DIR}")

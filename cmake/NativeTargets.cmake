@@ -20,7 +20,7 @@ if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
 
   find_package(OpenSSL)
 
-  include(Fetchrs_dfu)
+  include(FetchRsDfu)
   find_package(rs_dfu REQUIRED)
 endif()
 
