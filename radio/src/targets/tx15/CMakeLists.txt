@@ -46,6 +46,7 @@ add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
+add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR tx15)
 add_definitions(-DRADIO_TX15)
@@ -121,6 +122,7 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/extflash_driver.cpp
+  ${TARGET_SRC_DIR}/usb_charger_driver.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
@@ -137,6 +139,7 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/system_clock.c
   ${TARGET_SRC_DIR}/sdram_driver.cpp
+  ${TARGET_SRC_DIR}/usb_charger_driver.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
