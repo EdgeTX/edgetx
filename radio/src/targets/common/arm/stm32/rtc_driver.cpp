@@ -67,8 +67,14 @@ void rtcInit()
   __HAL_RCC_PWR_CLK_ENABLE();
 #endif
 
+  HAL_PWR_EnableBkUpAccess();
+#if defined(LSE_DRIVE_STRENGTH)
+  __HAL_RCC_LSE_CONFIG(RCC_LSE_OFF);
+  __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_STRENGTH);
+#endif
+
   // Enable LSE Oscillator
-  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct = {};
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
 #if !defined(STM32H7RS) && !defined(STM32H5)
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;

@@ -20,6 +20,8 @@
  */
 
 #include "edgetx.h"
+#include "hal.h"
+#include "debug.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -59,13 +61,23 @@ void Gyro::wakeup()
   // stopping the sensor forever
   errors = 0;
 
-  int16_t gx = values[0];
-  int16_t gy = values[1];
-  // int16_t gz = values[2];
+#if defined(IMU_ICM4207C)
+  raw_ax = values[3];
+  raw_ay = values[4];
+  int16_t ax = raw_ax - offset_x;
+  int16_t ay = raw_ay - offset_y;
 
+  // Use only ACC value, they are really reliable
+  outputs[0] = (ax * float(RESX)) / range_x;
+  outputs[1] = (ay * float(RESX)) / range_y;
+#else
   int16_t ax = values[3];
   int16_t ay = values[4];
   int16_t az = values[5];
+
+  int16_t gx = values[0];
+  int16_t gy = values[1];
+  int16_t gz = values[2];
 
   // integrate gyro
   roll  -= gx * SCALE_FACT_GYRO * DT;
@@ -85,6 +97,7 @@ void Gyro::wakeup()
 
   outputs[0] = deg2RESX(roll);
   outputs[1] = deg2RESX(pitch);
+#endif
 }
 
 int16_t Gyro::scaledX()
@@ -102,4 +115,18 @@ int16_t Gyro::scaledY()
   //              outputs[1] * (180 / (IMU_MAX_DEFAULT + g_eeGeneral.imuMax)),
   //              RESX);
   return limit<int16_t>(-RESX, outputs[1], RESX);
+}
+
+void Gyro::setIMU_X(int16_t offset, int16_t range)
+{
+  if (offset == -1) offset_x = raw_ax;
+  else offset_x = offset;
+  range_x = range * 8192 / 180;
+}
+
+void Gyro::setIMU_Y(int16_t offset, int16_t range)
+{
+  if (offset == -1) offset_y = raw_ay;
+  else offset_y = offset;
+  range_y = range * 8192 / 180;
 }

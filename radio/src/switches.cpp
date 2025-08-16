@@ -90,6 +90,11 @@ uint8_t   potsPos[MAX_POTS];
 
 uint16_t fsPreviousState = 0;
 
+uint8_t isSwitch3Pos(uint8_t idx)
+{
+  return IS_CONFIG_3POS(idx);
+}
+
 void setFSStartupPosition()
 {
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {

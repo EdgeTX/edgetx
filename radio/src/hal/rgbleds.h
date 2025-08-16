@@ -30,3 +30,4 @@ void setFSLedOFF(uint8_t index);
 void setFSLedON(uint8_t index);
 bool getFSLedState(uint8_t index);
 uint32_t getFSLedRGBColor(uint8_t index);
+void turnOffRGBLeds();

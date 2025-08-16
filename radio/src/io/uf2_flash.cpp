@@ -66,6 +66,7 @@ void UF2FirmwareUpdate::flashFirmware(const char* filename,
         uint32_t sect_len = drv->get_sector_size(sector);
         if (drv->erase_sector(addr) < 0) break;
         last_erased = block.targetAddr + sect_len - 1;
+        TRACE("[UF2] erased %dKB @ 0x%08X", sect_len / 1024, addr);
       }
     }
 
@@ -92,7 +93,9 @@ void UF2FirmwareUpdate::flashFirmware(const char* filename,
         if (drv) {
           uint32_t len = block.payloadSize;
           uint8_t* data = (uint8_t*)block.data;
-          drv->program(addr, data, len);
+          if (drv->program(addr, data, len) < 0) break;
+          TRACE("[UF2] written %d bytes @ 0x%08X (%d of %d)", len, addr,
+                block.blockNo + 1, block.numBlocks);
         }
       }
 
