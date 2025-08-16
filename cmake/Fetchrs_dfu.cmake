@@ -2,9 +2,11 @@
 
 include(FetchContent)
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} sys_proc)
+
+if(sys_proc MATCHES "x86_64")
   set(rs_dfu_target_arch "x86_64")
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+elseif(sys_proc MATCHES "arm64")
   set(rs_dfu_target_arch "aarch64")
 else()
   message(FATAL_ERROR "rs_dfu does not have support for architecture ${CMAKE_SYSTEM_PROCESSOR}!")
