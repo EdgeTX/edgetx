@@ -22,16 +22,14 @@
 #include "progresswidget.h"
 #include "progressdialog.h"
 #include "ui_progressdialog.h"
-#include "appdata.h"
 #include <QTimer>
 
-ProgressDialog::ProgressDialog(QWidget *parent, const QString &title, const QIcon &icon, bool forceOpen):
-QDialog(parent),
-ui(new Ui::ProgressDialog),
-locked(false),
-keepOpen(false)
+ProgressDialog::ProgressDialog(QWidget *parent, const QString &title,
+                               const QIcon &icon, bool forceOpen) :
+    QDialog(parent), ui(new Ui::ProgressDialog), locked(false), keepOpen(false)
 {
   ui->setupUi(this);
+  connect(ui->outputProgress, &ProgressWidget::locked, this, &ProgressDialog::on_outputProgress_locked);
   setWindowTitle(title);
   setWindowIcon(icon);
   setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -42,15 +40,9 @@ keepOpen(false)
   show();
 }
 
-ProgressDialog::~ProgressDialog()
-{
-  delete ui;
-}
+ProgressDialog::~ProgressDialog() { delete ui; }
 
-ProgressWidget * ProgressDialog::progress()
-{
-  return ui->outputProgress;
-}
+ProgressWidget *ProgressDialog::progress() { return ui->outputProgress; }
 
 void ProgressDialog::on_closeButton_clicked()
 {

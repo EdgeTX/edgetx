@@ -1520,7 +1520,7 @@ void MdiChild::writeSettings(StatusDialog * status, bool toRadio)  // write to T
   QString radioPath;
 
   if (toRadio) {
-    radioPath = findMassstoragePath("RADIO", true);
+    radioPath = findMassStoragePath("RADIO", true);
     qDebug() << "Searching for SD card, found" << radioPath;
   }
   else {

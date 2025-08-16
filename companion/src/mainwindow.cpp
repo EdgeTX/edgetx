@@ -482,7 +482,7 @@ void MainWindow::sdsync(bool postUpdate)
   if (syncOpts.folderA.isEmpty())
     syncOpts.folderA = g.profile[g.id()].sdPath();
   if (syncOpts.folderB.isEmpty())
-    syncOpts.folderB = findMassstoragePath("SOUNDS", true);
+    syncOpts.folderB = findMassStoragePath("SOUNDS", true);
 
   if (syncOpts.folderA.isEmpty())
     errorMsgs << tr("No local SD structure path configured!");
