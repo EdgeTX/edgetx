@@ -5,35 +5,22 @@ if(NOT DISABLE_COMPANION)
   include(QtDefs)
 endif(NOT DISABLE_COMPANION)
 
-find_package(SDL2 QUIET COMPONENTS SDL2 CONFIG)
-if(TARGET SDL2::SDL2)
-  message(STATUS "SDL2 found")
-else()
-  message(STATUS "SDL not found! Simulator audio, and joystick inputs, will not work.")
+find_package(SDL2 COMPONENTS SDL2 CONFIG)
+
+if(NOT TARGET SDL2::SDL2)
+  message(STATUS "SDL2 not found: simulator audio and joystick inputs disabled")
 endif()
 
 if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
   # environment variable set in github workflows and build-edgetx Dockerfile
-  if(DEFINED ENV{LIBUSB1_ROOT_DIR})
-    set(LIBUSB1_ROOT_DIR "$ENV{LIBUSB1_ROOT_DIR}")
-  endif()
+  # if(DEFINED ENV{OPENSSL_ROOT_DIR})
+  #   set(OPENSSL_ROOT_DIR "$ENV{OPENSSL_ROOT_DIR}")
+  # endif()
+  # find_package(OpenSSL)
 
-  find_package(Libusb1)
+  include(FetchRsDfu)
+  find_package(rs_dfu REQUIRED)
 
-  if(LIBUSB1_FOUND)
-    if(DEFINED ENV{DFU_UTIL_ROOT_DIR})
-      set(DFU_UTIL_ROOT_DIR "$ENV{DFU_UTIL_ROOT_DIR}")
-    endif()
-
-    find_package(Dfuutil)
-  endif()
-
-  # environment variable set in github workflows and build-edgetx Dockerfile
-  if(DEFINED ENV{OPENSSL_ROOT_DIR})
-    set(OPENSSL_ROOT_DIR "$ENV{OPENSSL_ROOT_DIR}")
-  endif()
-
-  find_package(OpenSSL)
 endif()
 
 # Windows-specific includes and libs shared by sub-projects
@@ -51,27 +38,19 @@ include(FetchGtest)
 add_custom_target(tests-radio
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-radio
   DEPENDS gtests-radio
-  )
+)
 
 if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
   add_subdirectory(${COMPANION_SRC_DIRECTORY})
   add_custom_target(tests-companion
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/gtests-companion
     DEPENDS gtests-companion
-    )
-  add_custom_target(gtests
-    DEPENDS gtests-radio gtests-companion
-    )
-  add_custom_target(tests
-    DEPENDS tests-radio tests-companion
   )
+  add_custom_target(gtests DEPENDS gtests-radio gtests-companion)
+  add_custom_target(tests DEPENDS tests-radio tests-companion)
 else()
-  add_custom_target(gtests
-    DEPENDS gtests-radio
-    )
-  add_custom_target(tests
-    DEPENDS tests-radio
-  )
+  add_custom_target(gtests DEPENDS gtests-radio)
+  add_custom_target(tests DEPENDS tests-radio)
 endif()
 
 set(IGNORE "${ARM_TOOLCHAIN_DIR}")

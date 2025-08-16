@@ -590,16 +590,16 @@ void MainWindow::writeFlash(QString fileToFlash)
 
 void MainWindow::readBackup()
 {
-  if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
-    QMessageBox::information(this, CPN_STR_APP_NAME, tr("This function is not yet implemented"));
-    return;
-    // TODO implementation
-  }
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save Radio Backup to File"), g.eepromDir(), EXTERNAL_EEPROM_FILES_FILTER);
-  if (!fileName.isEmpty()) {
-    if (!readSettingsFromRadio(fileName))
-      return;
-  }
+  // if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
+  //   QMessageBox::information(this, CPN_STR_APP_NAME, tr("This function is not yet implemented"));
+  //   return;
+  //   // TODO implementation
+  // }
+  // QString fileName = QFileDialog::getSaveFileName(this, tr("Save Radio Backup to File"), g.eepromDir(), EXTERNAL_EEPROM_FILES_FILTER);
+  // if (!fileName.isEmpty()) {
+  //   if (!readSettingsFromRadio(fileName))
+  //     return;
+  // }
 }
 
 void MainWindow::readFlash()

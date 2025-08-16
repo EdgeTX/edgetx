@@ -141,9 +141,6 @@ void FlashFirmwareDialog::on_firmwareLoad_clicked()
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), FLASH_FILES_FILTER);
   if (!fileName.isEmpty()) {
     fwName = fileName;
-    if (!fwName.isEmpty() && !fwName.endsWith(".dfu") && !FirmwareInterface(fwName).isValid()) {
-      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
-    }
     updateUI();
   }
 }

@@ -276,6 +276,7 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
   qcustomplot
   miniz
   updates
+  rs_dfu::rs_dfu
 )
 
 PrintTargetReport("${COMPANION_NAME}")
