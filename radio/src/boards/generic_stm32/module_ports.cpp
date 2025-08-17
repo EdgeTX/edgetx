@@ -386,15 +386,19 @@ static void _internal_module_set_pwr(uint8_t enable)
   }
 }
 
-#if defined(INTMODULE_BOOTCMD_GPIO)
+#if defined(INTMODULE_BOOTCMD_GPIO) || defined(INTMODULE_BOOTCMD_BSP)
 static void _internal_module_set_bootcmd(uint8_t enable)
 {
+#if defined(INTMODULE_BOOTCMD_BSP)
+  INTERNAL_MODULE_BOOTCMD(enable);
+#else
   // If default state is SET, invert the logic
   if (INTMODULE_BOOTCMD_DEFAULT) {
     enable = !enable;
   }
 
   gpio_write(INTMODULE_BOOTCMD_GPIO, enable);
+#endif
 }
 #endif
 
@@ -430,7 +434,7 @@ static const etx_module_port_t _internal_ports[] = {
 static const etx_module_t _internal_module = {
   .ports = _internal_ports,
   .set_pwr = _internal_module_set_pwr,
-#if defined(INTMODULE_BOOTCMD_GPIO)
+#if defined(INTMODULE_BOOTCMD_GPIO) || defined(INTMODULE_BOOTCMD_BSP)
   .set_bootcmd = _internal_module_set_bootcmd,
 #else
   .set_bootcmd = nullptr,
