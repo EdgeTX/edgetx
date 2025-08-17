@@ -379,9 +379,12 @@ class GeneralSettings {
       unsigned int offColorLuaOverride;
       RGBLedColor onColor;
       RGBLedColor offColor;
+
+      SwitchConfig();
     };
 
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
+    void switchConfigClear();
 
     bool switchPositionAllowed(int index) const;
     bool switchSourceAllowed(int index) const;
