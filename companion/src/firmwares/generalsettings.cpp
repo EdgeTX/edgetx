@@ -436,7 +436,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
   //  Try to intelligently copy any custom controls
   //  step 1 clear current config
   memset(&inputConfig[0], 0, sizeof(InputConfig) * CPN_MAX_INPUTS);
-  memset(&switchConfig[0], 0, sizeof(SwitchConfig) * CPN_MAX_SWITCHES);
+  switchConfigClear();
   //  step 2 load default config
   setDefaultControlTypes(cstate.toType);
   //  step 3 copy matching config based on tags
@@ -1005,4 +1005,15 @@ AbstractStaticItemModel * GeneralSettings::templateSetupItemModel()
 
   mdl->loadItemList();
   return mdl;
+}
+
+GeneralSettings::SwitchConfig::SwitchConfig()
+{
+  memset((void*)this, 0, sizeof(SwitchConfig));
+}
+
+void GeneralSettings::switchConfigClear()
+{
+  for (int i = 0; i < CPN_MAX_SWITCHES; i++)
+    switchConfig[i] = SwitchConfig();
 }
