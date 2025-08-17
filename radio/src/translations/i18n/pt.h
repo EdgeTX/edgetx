@@ -1239,6 +1239,7 @@
 #define TR_MENU_OTHER                  "Outros"
 #define TR_MENU_INVERT                 "Invert"
 #define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "Filtro ADC"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Checar tensão RTC")

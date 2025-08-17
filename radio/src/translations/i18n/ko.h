@@ -1285,6 +1285,7 @@
 #define TR_MENU_OTHER                     "기타"
 #define TR_MENU_INVERT                    "반전"
 #define TR_AUDIO_MUTE                     TR("오디오 음소거", "소리가 없을 때 음소거")
+#define TR_PWM_OUTPUT                     "PWM output"
 #define TR_JITTER_FILTER                  "ADC 필터"
 #define TR_DEAD_ZONE                      "데드존"
 #define TR_RTC_CHECK                      TR("RTC 확인", "RTC 전압 확인")

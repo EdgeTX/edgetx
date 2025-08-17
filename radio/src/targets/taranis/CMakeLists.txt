@@ -622,6 +622,12 @@ if(BLUETOOTH)
   )
 endif()
 
+if(PCBREV STREQUAL MT12)
+  list(APPEND BOARD_COMMON_SRC
+    ${TARGET_SRC_DIR}/pwm_ch_driver.cpp
+  )
+endif()
+
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
