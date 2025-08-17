@@ -218,6 +218,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["timezoneMinutes"] = rhs.timezoneMinutes;
   node["adjustRTC"] = (int)rhs.adjustRTC;
   node["inactivityTimer"] = rhs.inactivityTimer;
+  node["pwmOutputSource"] = rhs.pwmOutputSource;
 
   YamlTelemetryBaudrate internalModuleBaudrate(&rhs.internalModuleBaudrate);
   node["internalModuleBaudrate"] = internalModuleBaudrate.value;
@@ -467,6 +468,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["timezoneMinutes"] >> rhs.timezoneMinutes;
   node["adjustRTC"] >> rhs.adjustRTC;
   node["inactivityTimer"] >> rhs.inactivityTimer;
+  node["pwmOutputSource"] >> rhs.pwmOutputSource;
 
   YamlTelemetryBaudrate internalModuleBaudrate;
   if (node["telemetryBaudrate"]) {

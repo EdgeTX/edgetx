@@ -1130,7 +1130,9 @@ PACK(struct RadioData {
     return backlightBright;
 #endif
   });
-
+#if defined(SERVO_PWM)
+  NOBACKUP(uint8_t  pwmOutputSource:6);
+#endif
   char* getSwitchCustomName(uint8_t n);
   bool switchHasCustomName(uint8_t n);
   SwitchConfig switchType(uint8_t n);

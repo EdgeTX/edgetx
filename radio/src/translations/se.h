@@ -1139,6 +1139,7 @@
 #define TR_MENU_OTHER                   "Övrigt"
 #define TR_MENU_INVERT                  "Invertera"
 #define TR_AUDIO_MUTE                   TR("Audio av","Audio av om inget ljud")
+#define TR_PWM_OUTPUT                   "PWM output"
 #define TR_JITTER_FILTER                "ADC-filter"
 #define TR_DEAD_ZONE                    "Dödläge"
 #define TR_RTC_CHECK                    TR("Kolla RTC", "Kolla RTC-batteriet")

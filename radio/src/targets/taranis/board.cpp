@@ -244,6 +244,11 @@ void boardInit()
   hapticInit();
 #endif
 
+#if defined(SERVO_PWM)
+  pwmOutputInit();
+  pwmOutputEnable(1500);
+#endif
+
 #if defined(DEBUG)
   // Freeze timers & watchdog when core is halted
   DBGMCU->APB1FZ = 0x00E009FF;

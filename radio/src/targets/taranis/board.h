@@ -230,6 +230,10 @@ void hapticOff();
   void hapticOn();
 #endif
 
+// PWM servo output
+void pwmOutputInit();
+void pwmOutputEnable(uint16_t pulse_width_us);
+
 #define DEBUG_BAUDRATE                  115200
 #define LUA_DEFAULT_BAUDRATE            115200
 

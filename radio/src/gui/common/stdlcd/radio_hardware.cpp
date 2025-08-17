@@ -92,6 +92,9 @@ enum {
   ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL,
   ITEM_RADIO_HARDWARE_SERIAL_PORT,
   ITEM_RADIO_HARDWARE_SERIAL_PORT_END = ITEM_RADIO_HARDWARE_SERIAL_PORT + MAX_SERIAL_PORTS - 1,
+#if defined(SERVO_PWM)
+  ITEM_RADIO_HARDWARE_PWM_OUTPUT,
+#endif
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
   ITEM_RADIO_HARDWARE_RAS,
   ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER,
@@ -346,6 +349,9 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
     has_serial = has_serial || (!r);
   }
   tab[ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL] = has_serial ? READONLY_ROW : HIDDEN_ROW;
+#if defined(SERVO_PWM)
+  tab[ITEM_RADIO_HARDWARE_PWM_OUTPUT] = 0;
+#endif
   tab[ITEM_RADIO_HARDWARE_JITTER_FILTER] = 0;
   tab[ITEM_RADIO_HARDWARE_RAS] = READONLY_ROW;
 
@@ -559,6 +565,14 @@ void menuRadioHardware(event_t event)
       case ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL:
         lcdDrawTextAlignedLeft(y, STR_AUX_SERIAL_MODE);
         break;
+
+#if defined(SERVO_PWM)
+      case ITEM_RADIO_HARDWARE_PWM_OUTPUT:
+        lcdDrawTextAlignedLeft(y, STR_PWM_OUTPUT);
+        drawSource(HW_SETTINGS_COLUMN2, y, g_eeGeneral.pwmOutputSource, attr);
+        if (attr & BLINK) CHECK_INCDEC_GENVAR(event, g_eeGeneral.pwmOutputSource, 0, MAX_OUTPUT_CHANNELS);
+        break;
+#endif
 
       case ITEM_RADIO_HARDWARE_JITTER_FILTER:
         g_eeGeneral.noJitterFilter =

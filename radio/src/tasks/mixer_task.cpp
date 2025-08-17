@@ -186,6 +186,10 @@ void mixerTask()
 
       doMixerCalculations();
       pulsesSendChannels();
+#if defined(SERVO_PWM)
+      mixsrc_t chan = g_eeGeneral.pwmOutputSource - MIXSRC_FIRST;
+      if (chan >= 0) pwmOutputEnable(PPM_CH_CENTER(chan) + channelOutputs[chan] / 2);
+#endif
       doMixerPeriodicUpdates();
 
       // TODO: what are these for???

@@ -1113,6 +1113,7 @@
 #define TR_MENU_OTHER                  "Другое"
 #define TR_MENU_INVERT                 "Инвертир"
 #define TR_AUDIO_MUTE                  TR("Выкл звук", "Выкл звук")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "Фильтр АЦП"
 #define TR_DEAD_ZONE                   "Зона нечувств"
 #define TR_RTC_CHECK                   TR("Проверка RTC", "Проверка RTC")
