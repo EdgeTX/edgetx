@@ -20,3 +20,4 @@ set(LVGL_FONT_SOURCES_MINIMAL
   fonts/lvgl/${FONT_DIR}/lv_font_bl.c
   PARENT_SCOPE
 )
+
