@@ -48,6 +48,11 @@ void pwmOutputLowInit()
   gpio_clear(PWM_GPIO);
 }
 
+void pwmOutputDisable()
+{
+  stm32_pulse_stop(&_pwm_timer);
+}
+
 void pwmOutputInit()
 {
   stm32_pulse_init(&_pwm_timer, 2000000);
@@ -59,4 +64,5 @@ void pwmOutputInit()
 void pwmOutputEnable(uint16_t pulse_width_us)
 {
   stm32_pulse_set_cmp_val(&_pwm_timer, pulse_width_us);
+  stm32_pulse_start(&_pwm_timer);
 }
