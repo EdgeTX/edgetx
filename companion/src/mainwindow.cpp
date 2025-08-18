@@ -1564,5 +1564,5 @@ void MainWindow::viewToolsToolbar()
 }
 void MainWindow::radioGetDevices()
 {
-  QMessageBox::information(this, tr("Radio Devices"), DFU::printDevices(DFU::findDevices()));
+  QMessageBox::information(this, tr("Radio Devices"), tr("To be implemented"));
 }
