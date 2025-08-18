@@ -203,6 +203,9 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
         return QString("%1= %2%3").arg(val < 0 ? "-" : "+").arg(abs(val)).arg(unit);
     }
   }
+  else if (func == FuncPlayScript || func == FuncRGBLed) {
+    return paramarm;
+  }
 
   return "";
 }
@@ -499,8 +502,7 @@ bool CustomFunctionData::isParamAvailable() const
     FuncBindExternalModule,
     FuncRacingMode,
     FuncDisableTouch,
-    FuncDisableAudioAmp,
-    FuncRGBLed
+    FuncDisableAudioAmp
   };
 
   return funcList.contains(func) ? false : true;
