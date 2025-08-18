@@ -622,12 +622,6 @@ if(BLUETOOTH)
   )
 endif()
 
-if(PCBREV STREQUAL MT12)
-  list(APPEND BOARD_COMMON_SRC
-    ${TARGET_SRC_DIR}/pwm_ch_driver.cpp
-  )
-endif()
-
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
@@ -694,6 +688,15 @@ endif()
 if(FLAVOUR STREQUAL xlites)
   target_sources(board PRIVATE
     ${TARGET_SRC_DIR}/shared_dsc_headphone.cpp
+  )
+endif()
+
+if(FLAVOUR STREQUAL mt12)
+  target_sources(board PRIVATE
+    ${TARGET_SRC_DIR}/pwm_ch_driver.cpp
+  )
+  set(SRC ${SRC}
+    gui/common/stdlcd/radio_servo_pwm.cpp
   )
 endif()
 

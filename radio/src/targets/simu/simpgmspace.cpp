@@ -508,7 +508,3 @@ struct TouchState getInternalTouchState()
   return simTouchState;
 }
 #endif
-
-#if defined(SERVO_PWM)
-void pwmOutputEnable(uint16_t pulse_width_us) {}
-#endif
