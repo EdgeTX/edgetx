@@ -21,7 +21,6 @@
 
 #include "mainwindow.h"
 #include "mdichild.h"
-#include "burnconfigdialog.h"
 #include "comparedialog.h"
 #include "logsdialog.h"
 #include "apppreferencesdialog.h"
@@ -47,7 +46,6 @@
 #include "constants.h"
 #include "updates/updates.h"
 #include "updates/updatefactories.h"
-#include "flash/dfu.h"
 
 #include <QtGui>
 #include <QFileInfo>
@@ -484,7 +482,7 @@ void MainWindow::sdsync(bool postUpdate)
   if (syncOpts.folderA.isEmpty())
     syncOpts.folderA = g.profile[g.id()].sdPath();
   if (syncOpts.folderB.isEmpty())
-    syncOpts.folderB = findMassstoragePath("SOUNDS", true);
+    syncOpts.folderB = findMassStoragePath("SOUNDS", true);
 
   if (syncOpts.folderA.isEmpty())
     errorMsgs << tr("No local SD structure path configured!");
@@ -557,11 +555,11 @@ void MainWindow::readSettings()
 bool MainWindow::readFirmwareFromRadio(const QString & filename)
 {
   ProgressDialog progressDialog(this, tr("Read Firmware from Radio"), CompanionIcon("read_flash.png"));
-  bool result = readFirmware(filename, progressDialog.progress());
-  if (!result && !progressDialog.isEmpty()) {
-    progressDialog.exec();
-  }
-  return result;
+  progressDialog.setModal(true);
+  progressDialog.show();
+  readFirmware(filename, progressDialog.progress());
+  progressDialog.exec();
+  return true;
 }
 
 bool MainWindow::readSettingsFromRadio(const QString & filename)
@@ -592,16 +590,16 @@ void MainWindow::writeFlash(QString fileToFlash)
 
 void MainWindow::readBackup()
 {
-  if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
-    QMessageBox::information(this, CPN_STR_APP_NAME, tr("This function is not yet implemented"));
-    return;
-    // TODO implementation
-  }
-  QString fileName = QFileDialog::getSaveFileName(this, tr("Save Radio Backup to File"), g.eepromDir(), EXTERNAL_EEPROM_FILES_FILTER);
-  if (!fileName.isEmpty()) {
-    if (!readSettingsFromRadio(fileName))
-      return;
-  }
+  // if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
+  //   QMessageBox::information(this, CPN_STR_APP_NAME, tr("This function is not yet implemented"));
+  //   return;
+  //   // TODO implementation
+  // }
+  // QString fileName = QFileDialog::getSaveFileName(this, tr("Save Radio Backup to File"), g.eepromDir(), EXTERNAL_EEPROM_FILES_FILTER);
+  // if (!fileName.isEmpty()) {
+  //   if (!readSettingsFromRadio(fileName))
+  //     return;
+  // }
 }
 
 void MainWindow::readFlash()
@@ -610,18 +608,6 @@ void MainWindow::readFlash()
   if (!fileName.isEmpty()) {
     readFirmwareFromRadio(fileName);
   }
-}
-
-void MainWindow::burnConfig()
-{
-  burnConfigDialog *bcd = new burnConfigDialog(this);
-  bcd->exec();
-  delete bcd;
-}
-
-void MainWindow::burnList()
-{
-  burnConfigDialog bcd(this);
 }
 
 void MainWindow::compare()
@@ -825,7 +811,6 @@ void MainWindow::retranslateUi(bool showMsg)
   trAct(exportAppSettingsAct, tr("Export Settings..."), tr("Save all the current %1 and Simulator settings (including radio profiles) to a file.").arg(CPN_STR_APP_NAME));
   trAct(importAppSettingsAct, tr("Import Settings..."), tr("Load %1 and Simulator settings from a prevously exported settings file.").arg(CPN_STR_APP_NAME));
 
-  trAct(burnConfigAct,      tr("Configure Radio Communications..."),   tr("Configure Companion for communicating with the Radio"));
   trAct(editSplashAct,      tr("Edit Radio Splash Image..."),          tr("Edit the splash image of your Radio"));
   trAct(readFlashAct,       tr("Read Firmware from Radio"),            tr("Read firmware from Radio"));
   trAct(writeFlashAct,      tr("Write Firmware to Radio"),             tr("Write firmware to Radio"));
@@ -899,7 +884,6 @@ void MainWindow::createActions()
   editAppSettingsAct =     addAct("apppreferences.png",     SLOT(editAppSettings()),         QKeySequence::Preferences);
   exportAppSettingsAct =   addAct("saveas.png",             SLOT(exportAppSettings()));
   importAppSettingsAct =   addAct("open.png",               SLOT(importAppSettings()));
-  burnConfigAct =          addAct("configure.png",          SLOT(burnConfig()));
   radioGetDevicesAct =     addAct("configure.png",          SLOT(radioGetDevices()));
 
   compareAct =             addAct("compare.png",            SLOT(compare()),          tr("Ctrl+Alt+R"));
@@ -913,7 +897,6 @@ void MainWindow::createActions()
   sdsyncAct =              addAct("sdsync.png",             SLOT(sdsync()));
   logsAct =                addAct("logs.png",               SLOT(logFile()),          tr("Ctrl+Alt+L"));
 
-  burnListAct =            addAct("list.png",               SLOT(burnList()));
   readFlashAct =           addAct("read_flash.png",         SLOT(readFlash()));
   writeFlashAct =          addAct("write_flash.png",        SLOT(writeFlash()));
   writeSettingsAct =       addAct("write_eeprom.png",       SLOT(writeSettings()));
@@ -1006,7 +989,6 @@ void MainWindow::createMenus()
   radioMenu->addAction(writeFlashAct);
   radioMenu->addAction(readFlashAct);
   radioMenu->addSeparator();
-  radioMenu->addAction(burnConfigAct);
   radioMenu->addAction(editSplashAct);
   radioMenu->addAction(radioGetDevicesAct);
 
@@ -1094,7 +1076,6 @@ void MainWindow::createToolBars()
   radioToolBar->addAction(writeFlashAct);
   radioToolBar->addAction(readFlashAct);
   radioToolBar->addSeparator();
-  radioToolBar->addAction(burnConfigAct);
 
   settingsToolBar = addToolBar("");
   settingsToolBar->setObjectName("Settings");

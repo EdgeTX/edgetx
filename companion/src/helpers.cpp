@@ -232,23 +232,6 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
   return s1.toLower() < s2.toLower();
 }
 
-bool displayT16ImportWarning()
-{
-  QMessageBox msgBox;
-  msgBox.setWindowTitle(QObject::tr("WARNING"));
-  msgBox.setText(QObject::tr("<p>Importing JumperTX data into OpenTX 2.3 is <b>not supported and dangerous.</b></p> \
-                      <p>It is unfortunately not possible for us to differentiate JumperTX data from legitimate FrSky X10 data, but <b>You should only continue here if the file you opened comes from a real FrSky X10.</b></p> \
-                      <p>Do you really want to continue?</p>"));
-  msgBox.setIcon(QMessageBox::Warning);
-  msgBox.addButton(QMessageBox::No);
-  msgBox.addButton(QMessageBox::Yes);
-  msgBox.setDefaultButton(QMessageBox::No);
-
-  if (msgBox.exec() == QMessageBox::No)
-    return false;
-  return true;
-}
-
 void Helpers::populateFileComboBox(QComboBox * b, const QSet<QString> & set, const QString & current)
 {
   b->clear();

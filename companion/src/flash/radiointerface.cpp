@@ -24,102 +24,12 @@
 #include "eeprominterface.h"
 #include "process_flash.h"
 #include "radionotfound.h"
-#include "burnconfigdialog.h"
 #include "helpers.h"
 #include "process_copy.h"
 #include "storage.h"
 #include "progresswidget.h"
 
-QString getRadioInterfaceCmd()
-{
-  burnConfigDialog bcd;
-  Board::Type board = getCurrentBoard();
-  if (IS_STM32(board)) {
-    return bcd.getDFU();
-  }
-  else
-    return bcd.getSAMBA();
-}
-
-QStringList getDfuArgs(const QString & cmd, const QString & filename)
-{
-  QStringList args;
-  burnConfigDialog bcd;
-  args << bcd.getDFUArgs();
-  if (!filename.endsWith(".dfu"))
-    args << "--dfuse-address" << "0x08000000";
-  if (cmd == "-U")
-    args.last().append(":" % QString::number(Boards::getFlashSize(getCurrentBoard())));
-  args << "--device" << "0483:df11";
-  args << cmd % filename;
-  return args;
-}
-
-QStringList getSambaArgs(const QString & tcl)
-{
-  QStringList result;
-
-  QString tclFilename = generateProcessUniqueTempFileName("temp.tcl");
-  if (QFile::exists(tclFilename)) {
-    qunlink(tclFilename);
-  }
-  QFile tclFile(tclFilename);
-  if (!tclFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QMessageBox::warning(NULL, CPN_STR_TTL_ERROR,
-                         QCoreApplication::translate("RadioInterface", "Cannot write file %1:\n%2.").arg(tclFilename).arg(tclFile.errorString()));
-    return result;
-  }
-
-  QTextStream outputStream(&tclFile);
-  outputStream << tcl;
-
-  burnConfigDialog bcd;
-  result << bcd.getSambaPort() << bcd.getArmMCU() << tclFilename ;
-  return result;
-}
-
-QStringList getReadEEpromCmd(const QString & filename)
-{
-  QStringList result;
-  if (!IS_STM32(getCurrentBoard())) {
-    result = getSambaArgs(QString("SERIALFLASH::Init 0\n") + "receive_file {SerialFlash AT25} \"" + filename + "\" 0x0 0x80000 0\n");
-  }
-  return result;
-}
-
-QStringList getWriteEEpromCmd(const QString & filename)
-{
-  Board::Type board = getCurrentBoard();
-  if (IS_STM32(board)) {
-    // impossible
-    return QStringList();
-  }
-  else {
-    return getSambaArgs(QString("SERIALFLASH::Init 0\n") + "send_file {SerialFlash AT25} \"" + filename + "\" 0x0 0\n");
-  }
-}
-
-QStringList getWriteFirmwareArgs(const QString & filename)
-{
-  Board::Type board = getCurrentBoard();
-  if (IS_STM32(board)) {
-    return getDfuArgs("-D", filename);
-  }
-  else {
-    return getSambaArgs(QString("send_file {Flash} \"") + filename + "\" 0x400000 0\n" + "FLASH::ScriptGPNMV 2\n");
-  }
-}
-
-QStringList getReadFirmwareArgs(const QString & filename)
-{
-  Board::Type board = getCurrentBoard();
-  if (IS_STM32(board)) {
-    return getDfuArgs("-U", filename);
-  }
-  else {
-    return getSambaArgs(QString("receive_file {Flash} \"") + filename + "\" 0x400000 0x80000 0\n");
-  }
-}
+#include <QMessageBox>
 
 bool readFirmware(const QString & filename, ProgressWidget * progress)
 {
