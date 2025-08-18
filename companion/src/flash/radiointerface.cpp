@@ -25,11 +25,7 @@
 #include "process_copy.h"
 #include "progresswidget.h"
 #include "storage.h"
-
 #include "rs_dfu.h"
-
-// #include "radionotfound.h"
-// #include "helpers.h"
 
 #include <QMessageBox>
 
@@ -256,7 +252,7 @@ bool readFirmware(const QString &filename, ProgressWidget *progress)
 
   try {
     auto worker = std::make_unique<FirmwareReaderWorker>(progress);
-    
+
     // lock the progress dialog for as long as the thread is running
     progress->connect(worker.get(), &QThread::started, progress,
                       [progress]() { progress->lock(true); });

@@ -7,7 +7,6 @@ set(${PROJECT_NAME}_NAMES
   process_copy
   process_sync
   radiointerface
-  radionotfound
   splashlibrarydialog
 )
 
