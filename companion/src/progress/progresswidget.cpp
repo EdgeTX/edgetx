@@ -52,7 +52,6 @@ ProgressWidget::ProgressWidget(QWidget *parent) :
   newFont.setPointSize(9);
 #endif
   ui->textEdit->setFont(newFont);
-
 }
 
 ProgressWidget::~ProgressWidget()

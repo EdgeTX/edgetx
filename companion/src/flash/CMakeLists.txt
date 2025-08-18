@@ -2,12 +2,9 @@
 project(flash)
 
 set(${PROJECT_NAME}_NAMES
-  burnconfigdialog
   customizesplashdialog
-  dfu
   flashfirmwaredialog
   process_copy
-  process_flash
   process_sync
   radiointerface
   radionotfound

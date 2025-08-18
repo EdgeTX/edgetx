@@ -141,7 +141,7 @@ void FlashFirmwareDialog::on_firmwareLoad_clicked()
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), FLASH_FILES_FILTER);
   if (!fileName.isEmpty()) {
     fwName = fileName;
-    if (!fwName.isEmpty() && !fwName.endsWith(".dfu") && !FirmwareInterface(fwName).isValid()) {
+    if (!fwName.isEmpty() && !fwName.endsWith(".bin") && !fwName.endsWith(".uf2") && !FirmwareInterface(fwName).isValid()) {
       QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
     }
     updateUI();
@@ -267,8 +267,6 @@ void FlashFirmwareDialog::shrink()
 
 void FlashFirmwareDialog::startFlash(const QString &filename)
 {
-//  bool backup = g.backupOnFlash();
-
   close();
 
   ProgressDialog progressDialog(this, tr("Write Firmware to Radio"), CompanionIcon("write_flash.png"));
@@ -296,41 +294,9 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
   }
 
   if (checkPassed) {
-    // backup if requested
-//    bool result = true;
-//    QString backupFilename;
-//    QString backupPath;
-//    if (backup) {
-//      backupPath = g.profile[g.id()].pBackupDir();
-//      if (backupPath.isEmpty()) {
-//        backupPath=g.backupDir();
-//      }
-//      backupFilename = backupPath + "/backup-" + QDateTime().currentDateTime().toString("yyyy-MM-dd-HHmmss") + ".bin";
-//      result = readSettings(backupFilename, progressDialog.progress());
-//      sleep(2);
-//    }
-
-    // flash
-    //result = (result && writeFirmware(filename, progressDialog.progress()));
     writeFirmware(filename, progressDialog.progress());
-
-    // restore if backup requested
-//    if (backup && result) {
-//      sleep(2);
-//      QString restoreFilename = generateProcessUniqueTempFileName("restore.bin");
-//      if (!convertEEprom(backupFilename, restoreFilename, filename)) {
-//        QMessageBox::warning(this, tr("Conversion failed"), tr("Cannot convert Models and Settings for use with this firmware, original data will be used"));
-//        restoreFilename = backupFilename;
-//      }
-//      if (!writeSettings(restoreFilename, progressDialog.progress())) {
-//        QMessageBox::warning(this, tr("Restore failed"), tr("Could not restore Models and Settings to Radio. The models and settings data file can be found at: %1").arg(backupFilename));
-//      }
-//    }
-
-    progressDialog.progress()->setInfo(tr("Flashing done"));
+    progressDialog.exec();
   }
-
-  progressDialog.exec();
 
   if (isTempFileName(filename)) {
     qDebug() << "startFlash: removing temporary file" << filename;

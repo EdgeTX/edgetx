@@ -26,10 +26,10 @@
 #include <QTimer>
 
 ProgressDialog::ProgressDialog(QWidget *parent, const QString &title, const QIcon &icon, bool forceOpen):
-QDialog(parent),
-ui(new Ui::ProgressDialog),
-locked(false),
-keepOpen(false)
+  QDialog(parent),
+  ui(new Ui::ProgressDialog),
+  locked(false),
+  keepOpen(false)
 {
   ui->setupUi(this);
   setWindowTitle(title);
@@ -39,6 +39,7 @@ keepOpen(false)
     ui->outputProgress->forceOpen();
   }
   resize(0, 0);
+  connect(ui->outputProgress, &ProgressWidget::locked, this, &ProgressDialog::on_outputProgress_locked);
   show();
 }
 
