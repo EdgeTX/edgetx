@@ -812,6 +812,7 @@
 #define STR_PROTOCOL currentLangStrings->STR_PROTOCOL
 #define STR_PT currentLangStrings->STR_PT
 #define STR_PTS currentLangStrings->STR_PTS
+#define STR_PWM_OUTPUT currentLangStrings->STR_PWM_OUTPUT
 #define STR_PWR_AUTO_OFF currentLangStrings->STR_PWR_AUTO_OFF
 #define STR_PWR_OFF_DELAY currentLangStrings->STR_PWR_OFF_DELAY
 #define STR_PWR_ON_DELAY currentLangStrings->STR_PWR_ON_DELAY

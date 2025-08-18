@@ -19,14 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/gpio.h"
-#include "stm32_gpio.h"
-#include "stm32_timer.h"
 #include "stm32_pulse_driver.h"
+#include "stm32_gpio.h"
 
 #include "edgetx_types.h"
 #include "board.h"
-
 
 static const stm32_pulse_timer_t _pwm_timer = {
   .GPIO = (gpio_t)PWM_GPIO,
@@ -41,12 +38,6 @@ static const stm32_pulse_timer_t _pwm_timer = {
   .DMA_IRQn = (IRQn_Type)-1,
   .DMA_TC_CallbackPtr = nullptr,
 };
-
-void pwmOutputLowInit()
-{
-  gpio_init(PWM_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_clear(PWM_GPIO);
-}
 
 void pwmOutputDisable()
 {
