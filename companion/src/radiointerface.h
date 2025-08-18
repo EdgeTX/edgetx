@@ -29,13 +29,34 @@
 
 using SliceU8 = rust::Slice<const uint8_t>;
 
+class FirmwareReaderWorker : public QThread
+{
+  Q_OBJECT
+
+ private:
+  QByteArray data;
+
+ public:
+  explicit FirmwareReaderWorker(QObject *parent = nullptr);
+  ~FirmwareReaderWorker();
+
+ protected:
+  void run() override;
+
+ signals:
+  void progressChanged(int value, int total);
+  void statusChanged(const QString &status);
+  void error(const QString &error);
+  void complete();
+};
+
 class FirmwareWriterWorker : public QThread
 {
   Q_OBJECT
 
  private:
   QString firmwareFilePath;
-  std::atomic<bool> shouldStop{false};
+  // std::atomic<bool> shouldStop{false};
 
  public:
   explicit FirmwareWriterWorker(const QString &filePath,

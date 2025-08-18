@@ -40,6 +40,59 @@
 
 using namespace std::chrono_literals;
 
+FirmwareReaderWorker::FirmwareReaderWorker(QObject* parent) :
+    QThread(parent)
+{
+}
+
+FirmwareReaderWorker::~FirmwareReaderWorker()
+{
+  qDebug() << "FirmwareReaderWorker destructor called";
+}
+
+void FirmwareReaderWorker::run()
+{
+  try {
+    auto device_filter = DfuDeviceFilter::empty_filter();
+    auto devices = device_filter->find_devices();
+
+    if (devices.empty()) {
+      throw std::runtime_error(tr("No DFU devices").toStdString());
+    }
+
+    emit statusChanged("Resetting state...");
+    auto &device = devices[0];
+    device.reset_state();
+
+    auto addr = device.default_start_address();
+    auto ctx = device.start_upload(addr, 0);
+
+    size_t total_length = ctx->get_length();
+    size_t xfer_size = ctx->get_transfer_size();
+
+    size_t bytes_uploaded = 0;
+    while (bytes_uploaded < total_length) {
+      auto rest_length = uint32_t(total_length - bytes_uploaded);
+      auto single_xfer_size = std::min(uint32_t(xfer_size), rest_length);
+      bytes_uploaded += single_xfer_size;
+
+      emit progressChanged(bytes_uploaded, total_length);
+      emit statusChanged(tr("Reading %1 of %2").arg(bytes_uploaded).arg(total_length));
+      ctx->upload(single_xfer_size);
+    }
+
+    device.leave();
+
+    emit statusChanged("Reading done");
+    emit complete();
+
+    // TODO: handle shouldStop
+
+  } catch (const std::exception &e) {
+    emit error(QString("DFU failed: %1").arg(e.what()));
+  }
+}
+
 FirmwareWriterWorker::FirmwareWriterWorker(const QString &filePath,
                                            QObject *parent) :
     QThread(parent), firmwareFilePath(filePath)
@@ -93,10 +146,11 @@ void FirmwareWriterWorker::run()
     }
 
     device.leave();
+
+    emit statusChanged("Flashing done");
     emit complete();
 
     // TODO: handle shouldStop
-    qDebug() << "Flashing done";
 
   } catch (const std::exception &e) {
     emit error(QString("DFU failed: %1").arg(e.what()));
@@ -192,8 +246,6 @@ void FirmwareWriterWorker::rebootAndRediscover(DfuDevice &device, uint32_t addr,
 
 bool readFirmware(const QString &filename, ProgressWidget *progress)
 {
-  bool result = false;
-
   QFile file(filename);
   if (file.exists() && !file.remove()) {
     QMessageBox::warning(
@@ -202,14 +254,42 @@ bool readFirmware(const QString &filename, ProgressWidget *progress)
     return false;
   }
 
-  // TODO: read firmware to file
-  qDebug() << "TODO: read firmware to file";
+  try {
+    auto worker = std::make_unique<FirmwareReaderWorker>(progress);
+    
+    // lock the progress dialog for as long as the thread is running
+    progress->connect(worker.get(), &QThread::started, progress,
+                      [progress]() { progress->lock(true); });
 
-  if (!QFileInfo(filename).exists()) {
-    result = false;
+    progress->connect(worker.get(), &QThread::finished, progress,
+                      [progress]() { progress->lock(false); });
+
+    // delete worker once the thread is finished
+    progress->connect(worker.get(), &QThread::finished, worker.get(),
+                      &QObject::deleteLater);
+
+    // progress and status handling
+    progress->connect(worker.get(), &FirmwareReaderWorker::progressChanged, progress,
+                      [progress](int val, int max) {
+                        if (progress->maximum() != max)
+                          progress->setMaximum(max);
+                        progress->setValue(val);
+                      });
+
+    progress->connect(worker.get(), &FirmwareReaderWorker::statusChanged, progress,
+                      [progress](const QString& status) {
+                        progress->addMessage(status);
+                        progress->setInfo(status);
+                      });
+
+    // now start it!
+    worker.release()->start();
+    return true;
+
+  } catch(const std::exception& err) {
+    qDebug() << "Error:" << err.what();
+    return false;
   }
-
-  return result;
 }
 
 bool writeFirmware(const QString &filename, ProgressWidget *progress)
