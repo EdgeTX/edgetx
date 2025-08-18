@@ -22,10 +22,8 @@
 #include "radiointerface.h"
 
 #include "appdata.h"
-#include "process_copy.h"
 #include "progresswidget.h"
 #include "storage.h"
-#include "rs_dfu.h"
 
 #include <QMessageBox>
 
@@ -36,8 +34,9 @@
 
 using namespace std::chrono_literals;
 
-FirmwareReaderWorker::FirmwareReaderWorker(QObject* parent) :
-    QThread(parent)
+FirmwareReaderWorker::FirmwareReaderWorker(const QString &filePath, QObject *parent) :
+  QThread(parent),
+  firmwareFilePath(filePath)
 {
 }
 
@@ -49,6 +48,13 @@ FirmwareReaderWorker::~FirmwareReaderWorker()
 void FirmwareReaderWorker::run()
 {
   try {
+    QFile file(firmwareFilePath);
+
+    if (!file.open(QFile::WriteOnly)) {
+      throw std::runtime_error(tr("Unable to write to %1").arg(firmwareFilePath).toStdString());
+    }
+
+    data.clear();
     auto device_filter = DfuDeviceFilter::empty_filter();
     auto devices = device_filter->find_devices();
 
@@ -65,8 +71,8 @@ void FirmwareReaderWorker::run()
 
     size_t total_length = ctx->get_length();
     size_t xfer_size = ctx->get_transfer_size();
-
     size_t bytes_uploaded = 0;
+
     while (bytes_uploaded < total_length) {
       auto rest_length = uint32_t(total_length - bytes_uploaded);
       auto single_xfer_size = std::min(uint32_t(xfer_size), rest_length);
@@ -74,11 +80,16 @@ void FirmwareReaderWorker::run()
 
       emit progressChanged(bytes_uploaded, total_length);
       emit statusChanged(tr("Reading %1 of %2").arg(bytes_uploaded).arg(total_length));
-      ctx->upload(single_xfer_size);
+      data.append(ctx->upload(single_xfer_size));
     }
 
     device.leave();
 
+    file.write(data.data(), data.size());
+    file.close();
+    qDebug() << "File" << firmwareFilePath << "written, size:" << data.size();
+
+    data.clear();
     emit statusChanged("Reading done");
     emit complete();
 
@@ -89,9 +100,9 @@ void FirmwareReaderWorker::run()
   }
 }
 
-FirmwareWriterWorker::FirmwareWriterWorker(const QString &filePath,
-                                           QObject *parent) :
-    QThread(parent), firmwareFilePath(filePath)
+FirmwareWriterWorker::FirmwareWriterWorker(const QString &filePath, QObject *parent) :
+  QThread(parent),
+  firmwareFilePath(filePath)
 {
   if (firmwareFilePath.isEmpty()) {
     throw std::invalid_argument("Firmware file path cannot be empty");
@@ -119,6 +130,7 @@ void FirmwareWriterWorker::run()
     }
 
     QFile f(firmwareFilePath);
+
     if (!f.open(QIODeviceBase::ReadOnly)) {
       throw std::runtime_error(tr("Cannot open file '%1': %2")
                                    .arg(firmwareFilePath)
@@ -134,6 +146,7 @@ void FirmwareWriterWorker::run()
     device.reset_state();
 
     SliceU8 buffer_slice((const uint8_t *)data.constData(), data.size());
+
     if (!is_uf2_payload(buffer_slice)) {
       auto addr = device.default_start_address();
       writeRegion(device, addr, buffer_slice);
@@ -163,6 +176,7 @@ void FirmwareWriterWorker::writeUf2(DfuDevice &device, const SliceU8 &data)
     const auto &payload = addr_range->payload();
 
     uint32_t reboot_address = 0;
+
     if (addr_range->reboot_address(reboot_address)) {
       rebootAndRediscover(device, addr, payload, reboot_address, 30s);
     } else {
@@ -228,6 +242,7 @@ void FirmwareWriterWorker::rebootAndRediscover(DfuDevice &device, uint32_t addr,
   emit statusChanged(tr("Waiting for device to reconnect..."));
 
   auto start = std::chrono::steady_clock::now();
+
   while (std::chrono::steady_clock::now() - start < timeout) {
     if (device.rediscover()) {
       emit statusChanged(tr("Device reconnected"));
@@ -243,15 +258,14 @@ void FirmwareWriterWorker::rebootAndRediscover(DfuDevice &device, uint32_t addr,
 bool readFirmware(const QString &filename, ProgressWidget *progress)
 {
   QFile file(filename);
+
   if (file.exists() && !file.remove()) {
-    QMessageBox::warning(
-        NULL, CPN_STR_TTL_ERROR,
-        TR("Could not delete temporary file: %1").arg(filename));
+    QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR, TR("Could not delete existing output file: %1").arg(filename));
     return false;
   }
 
   try {
-    auto worker = std::make_unique<FirmwareReaderWorker>(progress);
+    auto worker = std::make_unique<FirmwareReaderWorker>(filename, progress);
 
     // lock the progress dialog for as long as the thread is running
     progress->connect(worker.get(), &QThread::started, progress,
@@ -275,6 +289,12 @@ bool readFirmware(const QString &filename, ProgressWidget *progress)
     progress->connect(worker.get(), &FirmwareReaderWorker::statusChanged, progress,
                       [progress](const QString& status) {
                         progress->addMessage(status);
+                        progress->setInfo(status);
+                      });
+
+    progress->connect(worker.get(), &FirmwareReaderWorker::error, progress,
+                      [progress](const QString& status) {
+                        progress->addMessage(status, QtFatalMsg);
                         progress->setInfo(status);
                       });
 
@@ -318,6 +338,12 @@ bool writeFirmware(const QString &filename, ProgressWidget *progress)
                         progress->setInfo(status);
                       });
 
+    progress->connect(worker.get(), &FirmwareWriterWorker::error, progress,
+                      [progress](const QString& status) {
+                        progress->addMessage(status, QtFatalMsg);
+                        progress->setInfo(status);
+                      });
+
     // now start it!
     worker.release()->start();
     return true;
@@ -331,10 +357,9 @@ bool writeFirmware(const QString &filename, ProgressWidget *progress)
 bool readSettings(const QString &filename, ProgressWidget *progress)
 {
   QFile file(filename);
+
   if (file.exists() && !file.remove()) {
-    QMessageBox::warning(
-        NULL, CPN_STR_TTL_ERROR,
-        TR("Could not delete temporary file: %1").arg(filename));
+    QMessageBox::warning(nullptr, CPN_STR_TTL_ERROR, TR("Could not delete temporary file: %1").arg(filename));
     return false;
   }
 
@@ -351,7 +376,9 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
     qDebug() << "Searching for SD card, found" << radioPath;
   } else {
     radioPath = g.currentProfile().sdPath();
-    if (!QFile::exists(radioPath % "/RADIO")) radioPath.clear();
+
+    if (!QFile::exists(radioPath % "/RADIO"))
+      radioPath.clear();
   }
 
   if (radioPath.isEmpty()) {
@@ -362,27 +389,28 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
 
   RadioData radioData;
   Storage inputStorage(radioPath);
+
   if (!inputStorage.load(radioData)) {
     QString errorMsg = inputStorage.error();
-    if (errorMsg.isEmpty()) {
+
+    if (errorMsg.isEmpty())
       errorMsg = TR("Failed to read Models and Settings from") % radioPath;
-    }
+
     QMessageBox::critical(progress, CPN_STR_TTL_ERROR, errorMsg);
     return false;
   }
+
   Storage outputStorage(filename);
+
   if (!outputStorage.write(radioData)) {
-    QMessageBox::critical(
-        progress, CPN_STR_TTL_ERROR,
-        TR("Failed to write Models and Setting file") % " " % filename);
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, TR("Failed to write Models and Setting file") % " " % filename);
     return false;
   }
 
   return QFileInfo(filename).exists();
 }
 
-QString findMassStoragePath(const QString &filename, bool onlyPath,
-                            ProgressWidget *progress)
+QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidget *progress)
 {
   QString foundPath;
   QString foundProbefile;
@@ -393,8 +421,7 @@ QString findMassStoragePath(const QString &filename, bool onlyPath,
                               QRegularExpression::CaseInsensitiveOption);
 
   foreach (const QStorageInfo &si, QStorageInfo::mountedVolumes()) {
-    if (!si.isReady() || si.isReadOnly() ||
-        !QString(si.fileSystemType()).contains(fstypeRe))
+    if (!si.isReady() || si.isReadOnly() || !QString(si.fileSystemType()).contains(fstypeRe))
       continue;
 
     QString temppath = si.rootPath();
@@ -412,8 +439,7 @@ QString findMassStoragePath(const QString &filename, bool onlyPath,
   if (found == 1) {
     return onlyPath ? foundPath : foundProbefile;
   } else if (found > 1) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
-                          filename % " " % TR("found in multiple locations"));
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, filename % " " % TR("found in multiple locations"));
   }
 
   return QString();
