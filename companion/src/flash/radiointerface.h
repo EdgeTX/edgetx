@@ -25,7 +25,6 @@
 
 #include <QThread>
 #include <QString>
-#include <QStringList>
 
 using SliceU8 = rust::Slice<const uint8_t>;
 
@@ -34,10 +33,11 @@ class FirmwareReaderWorker : public QThread
   Q_OBJECT
 
  private:
+  QString firmwareFilePath;
   QByteArray data;
 
  public:
-  explicit FirmwareReaderWorker(QObject *parent = nullptr);
+  explicit FirmwareReaderWorker(const QString &filePath, QObject *parent = nullptr);
   ~FirmwareReaderWorker();
 
  protected:
@@ -59,8 +59,7 @@ class FirmwareWriterWorker : public QThread
   // std::atomic<bool> shouldStop{false};
 
  public:
-  explicit FirmwareWriterWorker(const QString &filePath,
-                                QObject *parent = nullptr);
+  explicit FirmwareWriterWorker(const QString &filePath, QObject *parent = nullptr);
   ~FirmwareWriterWorker();
 
  protected:
@@ -93,5 +92,4 @@ bool readFirmware(const QString &filename, ProgressWidget *progress);
 bool writeFirmware(const QString &filename, ProgressWidget *progress);
 bool readSettings(const QString &filename, ProgressWidget *progress);
 bool readSettingsSDCard(const QString &filename, ProgressWidget *progress, bool fromRadio = true);
-bool readSettingsEeprom(const QString &filename, ProgressWidget *progress);
 bool writeSettings(const QString &filename, ProgressWidget *progress);
