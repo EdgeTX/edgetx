@@ -33,7 +33,7 @@
   #include "ghost.h"
 #endif
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   #include "telemetry/flysky_nv14.h"
 #endif
 
@@ -553,7 +553,7 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
         break;
 #endif
 
-#if defined(AFHDS2) && defined(PCBNV14)
+#if defined(AFHDS2) && defined(RADIO_NV14_FAMILY)
       case PROTOCOL_TELEMETRY_FLYSKY_NV14:
         flySkyNv14SetDefault(index, id, subId, instance);
         break;
