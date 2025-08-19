@@ -240,20 +240,6 @@ QString FirmwareInterface::seekLabel(const QString & label)
   return seekString(label + ":");
 }
 
-QString FirmwareInterface::getFlavour() const
-{
-  if (flavour == "opentx-taranis-x9e")
-    return "opentx-x9e";
-  else if (flavour == "opentx-x9dp" || flavour == "opentx-taranis-plus")
-    return "opentx-x9d+";
-  else if (flavour == "opentx-taranis")
-    return "opentx-x9d";
-  else if (flavour == "opentx-horus")
-    return "opentx-x12s";
-  else
-    return flavour;
-}
-
 bool FirmwareInterface::isHardwareCompatible(const FirmwareInterface &previousFirmware) const
 {
   QString newFlavour = getFlavour();
