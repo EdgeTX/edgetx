@@ -480,6 +480,7 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   if (params->direction & ETX_Dir_TX)
     usartInit.TransferDirection |= LL_USART_DIRECTION_TX;
 
+
   LL_USART_Init(usart->USARTx, &usartInit);
   LL_USART_Enable(usart->USARTx);
 

@@ -19,31 +19,22 @@
  * GNU General Public License for more details.
  */
 
+#include "hal/gpio.h"
+#include "stm32_gpio.h"
+
 #include "board.h"
+#include "hal/usb_driver.h"
 
-void EXTERNAL_MODULE_ON()
+//TODO: charger enable control
+
+void usbChargerInit()
 {
-  GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN);
+  gpio_init(UCHARGER_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
+  gpio_init(UCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_clear(UCHARGER_EN_GPIO);
 }
 
-void EXTERNAL_MODULE_OFF()
+bool usbChargerLed()
 {
-  GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN);
-}
-
-void extModuleInit()
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_TX_INVERT_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(EXTMODULE_TX_INVERT_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = EXTMODULE_RX_INVERT_GPIO_PIN;
-  GPIO_Init(EXTMODULE_RX_INVERT_GPIO, &GPIO_InitStructure);
-
-  EXTMODULE_TX_INVERTED();
-  EXTMODULE_RX_INVERTED();
+  return (gpio_read(UCHARGER_GPIO) && usbPlugged());
 }

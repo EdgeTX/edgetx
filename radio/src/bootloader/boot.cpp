@@ -114,10 +114,6 @@ void bootloaderInitApp()
   rotaryEncoderInit();
 #endif
 
-#if defined(DEBUG)
-  initSerialPorts();
-#endif
-
   __enable_irq();
 
   TRACE("\nBootloader started :)");

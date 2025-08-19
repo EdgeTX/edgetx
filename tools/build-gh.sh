@@ -86,8 +86,7 @@ do
 
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 
-    #if [ -f arm-none-eabi/firmware.uf2 ]; then
-    if [ "$target_name" = "st16" ]; then
+    if [ -f "arm-none-eabi/firmware.uf2" ]; then
         mv arm-none-eabi/firmware.uf2 "../${fw_name}.uf2"
     else
         mv arm-none-eabi/firmware.bin "../${fw_name}.bin"

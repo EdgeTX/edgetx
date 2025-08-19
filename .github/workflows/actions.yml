@@ -43,6 +43,7 @@ jobs:
       matrix:
         target:
           - x9dp2019
+          - tx15
           - tx16s
           - nv14
           - el18
@@ -99,6 +100,7 @@ jobs:
           - tprov2;tpros;bumblebee
           - t20;t20v2;t14
           - tx12mk2;boxer;gx12
+          - tx15
           - tx16s
           - f16
           - v12;v14;v16
