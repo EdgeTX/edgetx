@@ -269,34 +269,37 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
 {
   close();
 
-  ProgressDialog progressDialog(this, tr("Write Firmware to Radio"), CompanionIcon("write_flash.png"));
+  ProgressDialog progressDialog(this, tr("Write Firmware to Radio"),
+                                CompanionIcon("write_flash.png"));
 
-  // check hardware compatibility if requested
-  bool checkPassed = true;
+  FirmwareInterface fw(filename);
+  auto progress = progressDialog.progress();
+
   if (g.checkHardwareCompatibility()) {
-    QString tempFirmware = generateProcessUniqueTempFileName("flash-check.bin");
-    if (!readFirmware(tempFirmware, progressDialog.progress())) {
-      QMessageBox::warning(this, tr("Firmware check failed"), tr("Could not check firmware from radio"));
-      checkPassed = false;
-    }
-    FirmwareInterface previousFirmware(tempFirmware);
-    qunlink(tempFirmware);
-    FirmwareInterface newFirmware(filename);
-    qDebug() << "startFlash: checking firmware compatibility between " << tempFirmware << "and" << filename;
-    if (!newFirmware.isHardwareCompatible(previousFirmware)) {
-      QMessageBox::warning(this, tr("Firmware check failed"), tr("New firmware is not compatible with the one currently installed!"));
-      if (isTempFileName(filename)) {
-        qDebug() << "startFlash: removing temporary file" << filename;
-        qunlink(filename);
-      }
-      checkPassed = false;
-    }
+    readFirmware(
+        [this, &fw, progress](const QByteArray &_data) {
+          qDebug() << "Read old fw, size = " << _data.size();
+          if (!fw.isHardwareCompatible(FirmwareInterface(_data))) {
+            QMessageBox::warning(
+                this, tr("Firmware check failed"),
+                tr("New firmware is not compatible with the one "
+                   "currently installed!"));
+          } else {
+            qDebug() << "Start writing firmware (compatibility checked)";
+            writeFirmware(fw.getFlash(), progress);
+          }
+        },
+        [this](const QString &err) {
+          QMessageBox::critical(
+              this, tr("Firmware check failed"),
+              tr("Could not read current firmware: %1").arg(err));
+        });
+  } else {
+    qDebug() << "Start writing firmware (no checks done)";
+    writeFirmware(fw.getFlash(), progress);
   }
 
-  if (checkPassed) {
-    writeFirmware(filename, progressDialog.progress());
-    progressDialog.exec();
-  }
+  progressDialog.exec();
 
   if (isTempFileName(filename)) {
     qDebug() << "startFlash: removing temporary file" << filename;

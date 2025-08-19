@@ -554,11 +554,14 @@ void MainWindow::readSettings()
 bool MainWindow::readFirmwareFromRadio(const QString & filename)
 {
   ProgressDialog progressDialog(this, tr("Read Firmware from Radio"), CompanionIcon("read_flash.png"));
-  progressDialog.setModal(true);
-  progressDialog.show();
-  readFirmware(filename, progressDialog.progress());
-  progressDialog.exec();
-  return true;
+  progressDialog.open();
+
+  if (readFirmware(filename, progressDialog.progress())) {
+    progressDialog.exec();
+    return true;
+  }
+  
+  return false;
 }
 
 bool MainWindow::readSettingsFromRadio(const QString & filename)

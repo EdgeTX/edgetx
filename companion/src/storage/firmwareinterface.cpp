@@ -158,30 +158,25 @@ private:
   size_t pos;
 };
 
-FirmwareInterface::FirmwareInterface(const QString & filename, QDialog* parentDialog):
-  parentDialog(parentDialog),
-  flash(FSIZE_MAX, 0),
-  flashSize(0),
-  eepromVersion(0),
-  eepromVariant(0),
-  splashOffset(0),
-  splashSize(0),
-  splashWidth(0),
-  splashHeight(0),
-  isValidFlag(false)
+FirmwareInterface::FirmwareInterface(const QString &filename, QDialog *parent) :
+  parentDialog(parent)
 {
-  if (!filename.isEmpty()) {
-    QFile file(filename);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) { // reading HEX TEXT file
-      QTextStream inputStream(&file);
-      flashSize = HexInterface(inputStream).load((uint8_t *)flash.data(), FSIZE_MAX);
-      file.close();
-      if (flashSize == 0) {
-        file.open(QIODevice::ReadOnly);
-        flashSize = file.read((char *)flash.data(), FSIZE_MAX);
-      }
-    }
-  }
+  if (filename.isEmpty()) return;
+  QFile file(filename);
+  file.open(QIODevice::ReadOnly);
+  initFlash(file.readAll());
+}
+
+FirmwareInterface::FirmwareInterface(const QByteArray &flashData, QDialog *parent) :
+  parentDialog(parent)
+{
+  initFlash(flashData);
+}
+
+void FirmwareInterface::initFlash(const QByteArray& flashData)
+{
+  flash = flashData;
+  flashSize = flashData.size();
 
   if (flashSize > 0) {
     flavour = seekLabel(FW_MARK);
@@ -317,7 +312,7 @@ void FirmwareInterface::seekSplash()
   splashOffset = 0;
   splashWidth = SPLASH_WIDTH;
   splashHeight = SPLASH_HEIGHT;
-  splash_format = QImage::Format_Mono;
+  splashFormat = QImage::Format_Mono;
 
   if (seekSplash(QByteArray((const char *)gr9x_splash, sizeof(gr9x_splash))) || seekSplash(QByteArray((const char *)gr9xv4_splash, sizeof(gr9xv4_splash)))) {
     return;
@@ -334,7 +329,7 @@ void FirmwareInterface::seekSplash()
   if (seekSplash(QByteArray((const char *)opentxtaranis_splash, sizeof(opentxtaranis_splash)))) {
     splashWidth = SPLASHX9D_WIDTH;
     splashHeight = SPLASHX9D_HEIGHT;
-    splash_format = QImage::Format_Indexed8;
+    splashFormat = QImage::Format_Indexed8;
     return;
   }
 
@@ -349,7 +344,7 @@ void FirmwareInterface::seekSplash()
   if (seekSplash(QByteArray(ETX_SPS_TARANIS, ETX_SPS_SIZE), QByteArray(ETX_SPE, ETX_SPE_SIZE), RLE_SPLASH_MAX_SIZE)) {
     splashWidth = SPLASHX9D_WIDTH;
     splashHeight = SPLASHX9D_HEIGHT;
-    splash_format = QImage::Format_Indexed8;
+    splashFormat = QImage::Format_Indexed8;
     return;
   }
 
@@ -372,7 +367,7 @@ bool FirmwareInterface::setSplash(const QImage & newsplash)
   uint8_t b[SPLASH_SIZE_MAX] = {0};
   QColor color;
   QByteArray splash;
-  if (splash_format == QImage::Format_Indexed8) {
+  if (splashFormat == QImage::Format_Indexed8) {
     for (unsigned int y=0; y<splashHeight; y++) {
       unsigned int idx = (y/2)*splashWidth;
       for (unsigned int x=0; x<splashWidth; x++, idx++) {
@@ -420,7 +415,7 @@ uint FirmwareInterface::getSplashHeight()
 
 QImage::Format FirmwareInterface::getSplashFormat()
 {
-  return splash_format;
+  return splashFormat;
 }
 
 
@@ -430,7 +425,7 @@ QImage FirmwareInterface::getSplash()
     return QImage(); // empty image
   }
 
-  if (splash_format == QImage::Format_Indexed8) {
+  if (splashFormat == QImage::Format_Indexed8) {
     QImage image(splashWidth, splashHeight, QImage::Format_RGB888);
     if(splashWidth == SPLASHX9D_WIDTH && splashHeight == SPLASHX9D_HEIGHT)
     {
