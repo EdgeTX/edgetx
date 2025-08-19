@@ -32,12 +32,8 @@ class FirmwareReaderWorker : public QThread
 {
   Q_OBJECT
 
- private:
-  QString firmwareFilePath;
-  QByteArray data;
-
  public:
-  explicit FirmwareReaderWorker(const QString &filePath, QObject *parent = nullptr);
+  explicit FirmwareReaderWorker(QObject *parent = nullptr);
   ~FirmwareReaderWorker();
 
  protected:
@@ -47,7 +43,7 @@ class FirmwareReaderWorker : public QThread
   void progressChanged(int value, int total);
   void statusChanged(const QString &status);
   void error(const QString &error);
-  void complete();
+  void complete(const QByteArray& data);
 };
 
 class FirmwareWriterWorker : public QThread
@@ -55,11 +51,10 @@ class FirmwareWriterWorker : public QThread
   Q_OBJECT
 
  private:
-  QString firmwareFilePath;
-  // std::atomic<bool> shouldStop{false};
+  QByteArray firmwareData;
 
  public:
-  explicit FirmwareWriterWorker(const QString &filePath, QObject *parent = nullptr);
+  explicit FirmwareWriterWorker(const QByteArray &data, QObject *parent = nullptr);
   ~FirmwareWriterWorker();
 
  protected:
@@ -88,8 +83,16 @@ class ProgressWidget;
 
 QString findMassStoragePath(const QString &filename, bool onlyPath = false, ProgressWidget *progress = nullptr);
 
+bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
+                  const std::function<void(const QString &)>& onError);
+
+bool readFirmware(QByteArray &data, ProgressWidget *progress);
 bool readFirmware(const QString &filename, ProgressWidget *progress);
+
+bool writeFirmware(const QByteArray &data, ProgressWidget *progress);
 bool writeFirmware(const QString &filename, ProgressWidget *progress);
+
 bool readSettings(const QString &filename, ProgressWidget *progress);
 bool readSettingsSDCard(const QString &filename, ProgressWidget *progress, bool fromRadio = true);
+
 bool writeSettings(const QString &filename, ProgressWidget *progress);

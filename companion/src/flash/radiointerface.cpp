@@ -34,9 +34,8 @@
 
 using namespace std::chrono_literals;
 
-FirmwareReaderWorker::FirmwareReaderWorker(const QString &filePath, QObject *parent) :
-  QThread(parent),
-  firmwareFilePath(filePath)
+FirmwareReaderWorker::FirmwareReaderWorker(QObject *parent) :
+  QThread(parent)
 {
 }
 
@@ -48,13 +47,6 @@ FirmwareReaderWorker::~FirmwareReaderWorker()
 void FirmwareReaderWorker::run()
 {
   try {
-    QFile file(firmwareFilePath);
-
-    if (!file.open(QFile::WriteOnly)) {
-      throw std::runtime_error(tr("Unable to write to %1").arg(firmwareFilePath).toStdString());
-    }
-
-    data.clear();
     auto device_filter = DfuDeviceFilter::empty_filter();
     auto devices = device_filter->find_devices();
 
@@ -73,6 +65,7 @@ void FirmwareReaderWorker::run()
     size_t xfer_size = ctx->get_transfer_size();
     size_t bytes_uploaded = 0;
 
+    QByteArray data;
     while (bytes_uploaded < total_length) {
       auto rest_length = uint32_t(total_length - bytes_uploaded);
       auto single_xfer_size = std::min(uint32_t(xfer_size), rest_length);
@@ -83,15 +76,9 @@ void FirmwareReaderWorker::run()
       data.append(ctx->upload(single_xfer_size));
     }
 
-    device.leave();
-
-    file.write(data.data(), data.size());
-    file.close();
-    qDebug() << "File" << firmwareFilePath << "written, size:" << data.size();
-
-    data.clear();
+    qDebug() << "Reading done";
     emit statusChanged("Reading done");
-    emit complete();
+    emit complete(data);
 
     // TODO: handle shouldStop
 
@@ -100,18 +87,10 @@ void FirmwareReaderWorker::run()
   }
 }
 
-FirmwareWriterWorker::FirmwareWriterWorker(const QString &filePath, QObject *parent) :
+FirmwareWriterWorker::FirmwareWriterWorker(const QByteArray &data, QObject *parent) :
   QThread(parent),
-  firmwareFilePath(filePath)
+  firmwareData(data)
 {
-  if (firmwareFilePath.isEmpty()) {
-    throw std::invalid_argument("Firmware file path cannot be empty");
-  }
-
-  if (!QFile::exists(firmwareFilePath)) {
-    throw std::invalid_argument("Firmware file does not exist: " +
-                                firmwareFilePath.toStdString());
-  }
 }
 
 FirmwareWriterWorker::~FirmwareWriterWorker()
@@ -129,23 +108,12 @@ void FirmwareWriterWorker::run()
       throw std::runtime_error(tr("No DFU devices").toStdString());
     }
 
-    QFile f(firmwareFilePath);
-
-    if (!f.open(QIODeviceBase::ReadOnly)) {
-      throw std::runtime_error(tr("Cannot open file '%1': %2")
-                                   .arg(firmwareFilePath)
-                                   .arg(f.errorString())
-                                   .toStdString());
-    }
-
-    auto data = f.readAll();
-    f.close();
-
     emit statusChanged("Resetting state...");
     auto &device = devices[0];
     device.reset_state();
 
-    SliceU8 buffer_slice((const uint8_t *)data.constData(), data.size());
+    SliceU8 buffer_slice((const uint8_t *)firmwareData.constData(),
+                         firmwareData.size());
 
     if (!is_uf2_payload(buffer_slice)) {
       auto addr = device.default_start_address();
@@ -189,7 +157,7 @@ void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
                                        const SliceU8 &data)
 {
   auto start_address = addr;
-  auto end_address = start_address + data.size();
+  auto end_address = start_address + data.size() - 1;
 
   auto ctx = device.start_download(start_address, end_address);
   auto erase_pages = ctx->get_erase_pages();
@@ -255,103 +223,119 @@ void FirmwareWriterWorker::rebootAndRediscover(DfuDevice &device, uint32_t addr,
       tr("Timeout while reconnecting to device").toStdString());
 }
 
+template <typename Worker>
+void connectProgress(Worker *worker, ProgressWidget *progress)
+{
+  // lock the progress dialog for as long as the thread is running
+  progress->connect(worker, &QThread::started, progress,
+                    [progress]() { progress->lock(true); });
+
+  progress->connect(worker, &QThread::finished, progress,
+                    [progress]() { progress->lock(false); });
+
+  // delete worker once the thread is finished
+  progress->connect(worker, &QThread::finished, worker, &QObject::deleteLater);
+
+  // progress and status handling
+  progress->connect(worker, &Worker::progressChanged, progress,
+                    [progress](int val, int max) {
+                      if (progress->maximum() != max)
+                        progress->setMaximum(max);
+                      progress->setValue(val);
+                    });
+
+  progress->connect(worker, &Worker::statusChanged, progress,
+                    [progress](const QString& status) {
+                      progress->addMessage(status);
+                      progress->setInfo(status);
+                    });
+
+  progress->connect(worker, &Worker::error, progress,
+                    [progress](const QString& status) {
+                      progress->addMessage(status, QtFatalMsg);
+                      progress->setInfo(status);
+                    });  
+}
+
+bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
+                  const std::function<void(const QString &)>& onError)
+{
+  auto worker = std::make_unique<FirmwareReaderWorker>();
+    
+  // delete worker once the thread is finished
+  worker->connect(worker.get(), &QThread::finished, worker.get(), &QObject::deleteLater);
+
+  // connect closures
+  worker->connect(worker.get(), &FirmwareReaderWorker::complete, worker.get(), onComplete);
+  worker->connect(worker.get(), &FirmwareReaderWorker::error, worker.get(), onError);
+
+  // now start it!
+  worker.release()->start();
+  return true;
+}
+
+
+bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
+                  ProgressWidget *progress)
+{
+  auto worker = std::make_unique<FirmwareReaderWorker>(progress);
+  connectProgress(worker.get(), progress);
+
+  // write data to file on success
+  progress->connect(worker.get(), &FirmwareReaderWorker::complete, progress,
+                    onComplete);
+
+  // now start it!
+  worker.release()->start();
+  return true;
+}
+
 bool readFirmware(const QString &filename, ProgressWidget *progress)
 {
-  QFile file(filename);
+  QFile::remove(filename);
+  return readFirmware(
+      [filename](const QByteArray &data) {
+        QFile file(filename);
+        if (!file.open(QFile::WriteOnly)) {
+          qDebug() << "Unable to write to " << filename;
+        } else {
+          file.write(data);
+          file.close();
+          qDebug() << "Firmware written to " << filename;
+        }
+      },
+      progress);
+}
 
-  if (file.exists() && !file.remove()) {
-    QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR, TR("Could not delete existing output file: %1").arg(filename));
-    return false;
-  }
-
-  try {
-    auto worker = std::make_unique<FirmwareReaderWorker>(filename, progress);
-
-    // lock the progress dialog for as long as the thread is running
-    progress->connect(worker.get(), &QThread::started, progress,
-                      [progress]() { progress->lock(true); });
-
-    progress->connect(worker.get(), &QThread::finished, progress,
-                      [progress]() { progress->lock(false); });
-
-    // delete worker once the thread is finished
-    progress->connect(worker.get(), &QThread::finished, worker.get(),
-                      &QObject::deleteLater);
-
-    // progress and status handling
-    progress->connect(worker.get(), &FirmwareReaderWorker::progressChanged, progress,
-                      [progress](int val, int max) {
-                        if (progress->maximum() != max)
-                          progress->setMaximum(max);
-                        progress->setValue(val);
-                      });
-
-    progress->connect(worker.get(), &FirmwareReaderWorker::statusChanged, progress,
-                      [progress](const QString& status) {
-                        progress->addMessage(status);
-                        progress->setInfo(status);
-                      });
-
-    progress->connect(worker.get(), &FirmwareReaderWorker::error, progress,
-                      [progress](const QString& status) {
-                        progress->addMessage(status, QtFatalMsg);
-                        progress->setInfo(status);
-                      });
-
-    // now start it!
-    worker.release()->start();
-    return true;
-
-  } catch(const std::exception& err) {
-    qDebug() << "Error:" << err.what();
-    return false;
-  }
+bool readFirmware(QByteArray &data, ProgressWidget *progress)
+{
+  return readFirmware([&data](const QByteArray &_data) { data = _data; },
+                      progress);
 }
 
 bool writeFirmware(const QString &filename, ProgressWidget *progress)
 {
-  try {
-    auto worker = std::make_unique<FirmwareWriterWorker>(filename, progress);
-
-    // lock the progress dialog for as long as the thread is running
-    progress->connect(worker.get(), &QThread::started, progress,
-                      [progress]() { progress->lock(true); });
-
-    progress->connect(worker.get(), &QThread::finished, progress,
-                      [progress]() { progress->lock(false); });
-
-    // delete worker once the thread is finished
-    progress->connect(worker.get(), &QThread::finished, worker.get(),
-                      &QObject::deleteLater);
-
-    // progress and status handling
-    progress->connect(worker.get(), &FirmwareWriterWorker::progressChanged, progress,
-                      [progress](int val, int max) {
-                        if (progress->maximum() != max)
-                          progress->setMaximum(max);
-                        progress->setValue(val);
-                      });
-
-    progress->connect(worker.get(), &FirmwareWriterWorker::statusChanged, progress,
-                      [progress](const QString& status) {
-                        progress->addMessage(status);
-                        progress->setInfo(status);
-                      });
-
-    progress->connect(worker.get(), &FirmwareWriterWorker::error, progress,
-                      [progress](const QString& status) {
-                        progress->addMessage(status, QtFatalMsg);
-                        progress->setInfo(status);
-                      });
-
-    // now start it!
-    worker.release()->start();
-    return true;
-
-  } catch (const std::exception& err) {
-    qDebug() << "Error:" << err.what();
-    return false;
+  QFile f(filename);
+  if (!f.open(QIODeviceBase::ReadOnly)) {
+    QMessageBox::critical(
+        nullptr, CPN_STR_TTL_ERROR,
+        TR("Cannot open file '%1': %2").arg(filename).arg(f.errorString()));
   }
+
+  auto data = f.readAll();
+  f.close();
+
+  return writeFirmware(data, progress);
+}
+
+bool writeFirmware(const QByteArray &data, ProgressWidget *progress)
+{
+  auto worker = std::make_unique<FirmwareWriterWorker>(data, progress);
+  connectProgress(worker.get(), progress);
+
+  // now start it!
+  worker.release()->start();
+  return true;
 }
 
 bool readSettings(const QString &filename, ProgressWidget *progress)

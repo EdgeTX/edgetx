@@ -46,10 +46,13 @@ class FirmwareInterface
   Q_DECLARE_TR_FUNCTIONS("FirmwareInterface")
 
   public:
-    FirmwareInterface(const QString & filename, QDialog* parentDialog = nullptr);
+    explicit FirmwareInterface(const QString &filename, QDialog* parent = nullptr);
+    explicit FirmwareInterface(const QByteArray &flashData, QDialog* parent = nullptr);
+
     inline QString getDate() { return date; }
     inline QString getTime() { return time; }
-    int getSize() { return flashSize; }
+    inline const QByteArray& getFlash() { return flash; }
+    inline int getSize() { return flashSize; }
     QString getFlavour() const;
     bool isHardwareCompatible(const FirmwareInterface &previousFirmware) const;
     inline QString getVersion() { return version; }
@@ -68,27 +71,29 @@ class FirmwareInterface
   private:
     QDialog* parentDialog;
     QByteArray flash;
-    uint flashSize;
-    QString seekString(const QString & string);
-    QString seekLabel(const QString & label);
-    void seekSplash();
-    bool seekSplash(QByteArray sps, QByteArray spe, int size);
-    bool seekSplash(QByteArray splash);
+    uint flashSize = 0;
     QString filename;
     QString date;
     QString time;
     QString flavour;
     QString version;
     QString eepromId;
-    int eepromVersion;
-    int eepromVariant;
+    int eepromVersion = 0;
+    int eepromVariant = 0;
     QByteArray splash;
-    uint splashOffset;
-    uint splashSize;
-    uint splashWidth;
-    uint splashHeight;
-    QImage::Format splash_format;
-    bool isValidFlag;
+    uint splashOffset = 0;
+    uint splashSize = 0;
+    uint splashWidth = 0;
+    uint splashHeight = 0;
+    QImage::Format splashFormat;
+    bool isValidFlag = false;
+
+    void initFlash(const QByteArray& flashData);
+    QString seekString(const QString & string);
+    QString seekLabel(const QString & label);
+    void seekSplash();
+    bool seekSplash(QByteArray sps, QByteArray spe, int size);
+    bool seekSplash(QByteArray splash);
 };
 
 #endif // _FIRMWAREINTERFACE_H_
