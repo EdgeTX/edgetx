@@ -456,14 +456,6 @@ elseif(APPLE)
   install(FILES ${MAC_ICON_FILE}
           DESTINATION ${companion_res_dir}
           COMPONENT Runtime)
-
-  if(DFU_UTIL_FOUND)
-    # Copy dfu-util, resolve symlink first
-    file(REAL_PATH "${DFU_UTIL_PATH}" DFU_UTIL_ABSOLUTE_PATH)
-    install(PROGRAMS ${DFU_UTIL_ABSOLUTE_PATH}
-            DESTINATION ${companion_res_dir}
-            COMPONENT Runtime)
-  endif(DFU_UTIL_FOUND)
 endif()
 
 ############# Packaging ####################
@@ -550,7 +542,6 @@ elseif(APPLE)
     CONTENT "
       qt_deploy_runtime_dependencies(
         EXECUTABLE ${companion_app_dir}
-        ADDITIONAL_EXECUTABLES ${companion_res_dir}/dfu-util
         NO_TRANSLATIONS
         NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
