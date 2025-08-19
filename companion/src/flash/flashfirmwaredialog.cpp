@@ -93,7 +93,7 @@ void FlashFirmwareDialog::updateUI()
     ui->firmwareInfoFrame->show();
     ui->date->setText(firmware.getDate() + " " + firmware.getTime());
     ui->version->setText(firmware.getVersion());
-    ui->variant->setText(firmware.getEEpromId());
+    ui->variant->setText(firmware.getFlavour());
     ui->date->setEnabled(true);
     ui->version->setEnabled(true);
     ui->variant->setEnabled(true);
@@ -204,6 +204,7 @@ void FlashFirmwareDialog::on_useLibrarySplash_clicked()
   QString fileName;
   auto ld = new SplashLibraryDialog(this, &fileName);
   ld->exec();
+  delete ld;
   if (!fileName.isEmpty()) {
     QImage image(fileName);
     if (image.isNull()) {

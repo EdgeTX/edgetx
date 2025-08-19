@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FIRMWAREINTERFACE_H_
-#define _FIRMWAREINTERFACE_H_
+#pragma once
 
 #include <QtCore>
 #include <QString>
@@ -53,7 +52,7 @@ class FirmwareInterface
     inline QString getTime() { return time; }
     inline const QByteArray& getFlash() { return flash; }
     inline int getSize() { return flashSize; }
-    QString getFlavour() const;
+    inline QString getFlavour() const { return flavour; }
     bool isHardwareCompatible(const FirmwareInterface &previousFirmware) const;
     inline QString getVersion() { return version; }
     inline int getEEpromVersion() { return eepromVersion; }
@@ -95,5 +94,3 @@ class FirmwareInterface
     bool seekSplash(QByteArray sps, QByteArray spe, int size);
     bool seekSplash(QByteArray splash);
 };
-
-#endif // _FIRMWAREINTERFACE_H_
