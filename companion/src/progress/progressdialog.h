@@ -50,7 +50,6 @@ class ProgressDialog : public QDialog
     void on_outputProgress_detailsToggled();
     void on_outputProgress_locked(bool);
     void on_outputProgress_keepOpen(bool);
-    void shrink();
 
   private:
     Ui::ProgressDialog *ui;
