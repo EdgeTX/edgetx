@@ -121,8 +121,8 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(56, g_model.expoData[0].weight);
-  EXPECT_EQ(3, g_model.expoData[0].offset);
+  EXPECT_EQ(56u, g_model.expoData[0].weight);
+  EXPECT_EQ(3u, g_model.expoData[0].offset);
   EXPECT_EQ(2, g_model.expoData[0].swtch);
 
   // add another one before existing line on Input4
@@ -133,18 +133,18 @@ TEST(Lua, testModelInputs)
 #endif
   EXPECT_EQ(3, (int)g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
-  EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
+  EXPECT_EQ((short int)MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
   SourceNumVal v;
   v.rawValue = g_model.expoData[0].weight;
   EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0, g_model.expoData[0].offset);
+  EXPECT_EQ(0u, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
   EXPECT_EQ(3, (int)g_model.expoData[1].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[1].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56, g_model.expoData[1].weight);
-  EXPECT_EQ(3, g_model.expoData[1].offset);
+  EXPECT_EQ(56u, g_model.expoData[1].weight);
+  EXPECT_EQ(3u, g_model.expoData[1].offset);
   EXPECT_EQ(2, g_model.expoData[1].swtch);
 
 
@@ -159,14 +159,14 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
   v.rawValue = g_model.expoData[0].weight;
   EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0, g_model.expoData[0].offset);
+  EXPECT_EQ(0u, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
   EXPECT_EQ(3, (int)g_model.expoData[1].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[1].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56, g_model.expoData[1].weight);
-  EXPECT_EQ(3, g_model.expoData[1].offset);
+  EXPECT_EQ(56u, g_model.expoData[1].weight);
+  EXPECT_EQ(3u, g_model.expoData[1].offset);
   EXPECT_EQ(2, g_model.expoData[1].swtch);
 
   EXPECT_EQ(3, (int)g_model.expoData[2].chn);
@@ -176,8 +176,8 @@ TEST(Lua, testModelInputs)
 #else
   EXPECT_EQ(MIXSRC_LAST_STICK, g_model.expoData[2].srcRaw);
 #endif
-  EXPECT_EQ(100, g_model.expoData[2].weight);
-  EXPECT_EQ(0, g_model.expoData[2].offset);
+  EXPECT_EQ(100u, g_model.expoData[2].weight);
+  EXPECT_EQ(0u, g_model.expoData[2].offset);
   EXPECT_EQ(0, g_model.expoData[2].swtch);
 
   // verify number of lines for Input4
