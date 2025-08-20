@@ -93,7 +93,6 @@ void AppPreferencesDialog::accept()
   g.libDir(ui->libraryPath->text());
   g.gePath(ui->ge_lineedit->text());
   g.embedSplashes(ui->splashincludeCB->currentIndex());
-  g.enableBackup(ui->backupEnable->isChecked());
 
   g.appDebugLog(ui->opt_appDebugLog->isChecked());
   g.fwTraceLog(ui->opt_fwTraceLog->isChecked());
@@ -173,7 +172,6 @@ void AppPreferencesDialog::accept()
   profile.burnFirmware(ui->burnFirmware->isChecked());
   profile.sdPath(ui->sdPath->text());
   profile.pBackupDir(ui->profilebackupPath->text());
-  profile.penableBackup(ui->pbackupEnable->isChecked());
   profile.splashFile(ui->SplashFileName->text());
   profile.runSDSync(ui->chkPromptSDSync->isChecked());
   profile.radioSimCaseColor(ui->lblRadioColorSample->palette().button().color());
@@ -258,18 +256,10 @@ void AppPreferencesDialog::initSettings()
   ui->ge_lineedit->setText(g.gePath());
 
   if (!g.backupDir().isEmpty()) {
-    if (QDir(g.backupDir()).exists()) {
+    if (QDir(g.backupDir()).exists())
       ui->backupPath->setText(g.backupDir());
-      ui->backupEnable->setEnabled(true);
-      ui->backupEnable->setChecked(g.enableBackup());
-    }
-    else {
-      ui->backupEnable->setDisabled(true);
-    }
   }
-  else {
-    ui->backupEnable->setDisabled(true);
-  }
+
   ui->splashincludeCB->setCurrentIndex(g.embedSplashes());
 
   ui->opt_appDebugLog->setChecked(g.appDebugLog());
@@ -337,16 +327,8 @@ void AppPreferencesDialog::initSettings()
   ui->stickmodeCB->setCurrentIndex(ui->stickmodeCB->findData(profile.defaultMode()));
   ui->sdPath->setText(profile.sdPath());
   if (!profile.pBackupDir().isEmpty()) {
-    if (QDir(profile.pBackupDir()).exists()) {
+    if (QDir(profile.pBackupDir()).exists())
       ui->profilebackupPath->setText(profile.pBackupDir());
-      ui->pbackupEnable->setEnabled(true);
-      ui->pbackupEnable->setChecked(profile.penableBackup());
-    } else {
-      ui->pbackupEnable->setDisabled(true);
-    }
-  }
-  else {
-      ui->pbackupEnable->setDisabled(true);
   }
 
   if (Boards::isSurface()) {
@@ -590,7 +572,6 @@ void AppPreferencesDialog::on_backupPathButton_clicked()
   if (!fileName.isEmpty()) {
     g.backupDir(fileName);
     ui->backupPath->setText(fileName);
-    ui->backupEnable->setEnabled(true);
   }
 }
 
@@ -599,7 +580,6 @@ void AppPreferencesDialog::on_ProfilebackupPathButton_clicked()
   QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your Models and Settings backup folder"), g.backupDir());
   if (!fileName.isEmpty()) {
     ui->profilebackupPath->setText(fileName);
-    ui->pbackupEnable->setEnabled(true);
   }
 }
 
