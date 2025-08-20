@@ -560,7 +560,7 @@ bool MainWindow::readFirmwareFromRadio(const QString & filename)
     progressDialog.exec();
     return true;
   }
-  
+
   return false;
 }
 
@@ -592,21 +592,13 @@ void MainWindow::writeFlash(QString fileToFlash)
 
 void MainWindow::readBackup()
 {
-  // if (IS_FAMILY_HORUS_OR_T16(getCurrentBoard())) {
-  //   QMessageBox::information(this, CPN_STR_APP_NAME, tr("This function is not yet implemented"));
-  //   return;
-  //   // TODO implementation
-  // }
-  // QString fileName = QFileDialog::getSaveFileName(this, tr("Save Radio Backup to File"), g.eepromDir(), EXTERNAL_EEPROM_FILES_FILTER);
-  // if (!fileName.isEmpty()) {
-  //   if (!readSettingsFromRadio(fileName))
-  //     return;
-  // }
 }
 
 void MainWindow::readFlash()
 {
-  QString fileName = QFileDialog::getSaveFileName(this,tr("Read Radio Firmware to File"), g.flashDir(), FLASH_FILES_FILTER);
+  // default filename alternatives - use current radio profile or extract from firmware read in place of 'firmware'
+  const QString dfltPath = QDir::toNativeSeparators(g.flashDir() % "/firmware-" % QDate(QDate::currentDate()).toString(Qt::ISODate) % ".bin");
+  QString fileName = QFileDialog::getSaveFileName(this,tr("Read Radio Firmware to File"), dfltPath, FLASH_FILES_FILTER);
   if (!fileName.isEmpty()) {
     readFirmwareFromRadio(fileName);
   }
