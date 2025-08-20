@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FLASHFIRMWAREDIALOG_H_
-#define _FLASHFIRMWAREDIALOG_H_
+#pragma once
 
 #include <QtWidgets>
 #include "eeprominterface.h"
@@ -40,26 +39,23 @@ public:
   ~FlashFirmwareDialog();
 
 private slots:
-  void on_firmwareLoad_clicked();
-  void on_burnButton_clicked();
-  void on_cancelButton_clicked();
-  void on_useProfileSplash_clicked();
-  void on_useFirmwareSplash_clicked();
-  void on_useLibrarySplash_clicked();
-  void on_useExternalSplash_clicked();
-  void shrink();
+  void firmwareLoadClicked();
+  void burnButtonClicked();
+  void useProfileSplashClicked();
+  void useFirmwareSplashClicked();
+  void useLibrarySplashClicked();
+  void useExternalSplashClicked();
 
 protected:
   void updateUI();
   void startFlash(const QString &filename);
 
 private:
+  enum ImageSource {FIRMWARE, PROFILE, LIBRARY, EXTERNAL};
+
   Ui::FlashFirmwareDialog *ui;
   QString fwName;
   RadioData radioData;
-  enum ImageSource {FIRMWARE, PROFILE, LIBRARY, EXTERNAL};
   ImageSource imageSource;
   QString imageFile;
 };
-
-#endif // _FLASHFIRMWAREDIALOG_H_
