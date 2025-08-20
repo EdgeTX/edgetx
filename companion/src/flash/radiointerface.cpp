@@ -338,6 +338,39 @@ bool writeFirmware(const QByteArray &data, ProgressWidget *progress)
   return true;
 }
 
+QString printDevicesInfo(const Vec<DfuDevice> &devices)
+{
+  QString ret;
+  for (const auto &device : devices) {
+    auto dev_info = device.device_info();
+    ret.append(QString("%1:%2: %3 (%4)\n").arg(QString::number(dev_info.vendor_id, 16))
+                                          .arg(QString::number(dev_info.product_id, 16))
+                                          .arg(dev_info.product_string.c_str())
+                                          .arg(QString::number(device.default_start_address(), 16)));
+  }
+
+  return ret;
+}
+
+QString getDevicesInfo()
+{
+  try {
+    auto device_filter = DfuDeviceFilter::empty_filter();
+    auto devices = device_filter->find_devices();
+
+    if (devices.empty()) {
+      return QString("No DFU devices found");
+    }
+
+    return printDevicesInfo(devices);
+
+  } catch (const std::exception& e) {
+    return QString("Error: %1").arg(e.what());
+  }
+
+  return QString();
+}
+
 bool readSettings(const QString &filename, ProgressWidget *progress)
 {
   QFile file(filename);
