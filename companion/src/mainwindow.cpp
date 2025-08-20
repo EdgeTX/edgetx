@@ -1556,7 +1556,8 @@ void MainWindow::viewToolsToolbar()
   const QSignalBlocker blocker(toolsToolBar);
   toolsToolBar->setVisible(viewToolsToolbarAct->isChecked());
 }
+
 void MainWindow::radioGetDevices()
 {
-  QMessageBox::information(this, tr("Radio Devices"), tr("To be implemented"));
+  QMessageBox::information(this, tr("Connected Radios"), getDevicesInfo());
 }
