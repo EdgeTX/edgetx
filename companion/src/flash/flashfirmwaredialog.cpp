@@ -23,8 +23,8 @@
 #include "ui_flashfirmwaredialog.h"
 #include "appdata.h"
 #include "helpers.h"
-#include "progressdialog.h"
 #include "radiointerface.h"
+#include "progressdialog.h"
 #include "progresswidget.h"
 #include "splashlibrarydialog.h"
 #include "storage.h"
@@ -54,28 +54,19 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
     ui->useProfileSplash->setDisabled(true);
   }
 
-  if (IS_STM32(getCurrentBoard())) {
-    // No backup on Taranis ... could be done if in massstorage
-    ui->backupEEprom->hide();
-    ui->backupEEprom->setCheckState(Qt::Unchecked);
-  }
-  else {
-    ui->backupEEprom->setCheckState(g.backupOnFlash() ? Qt::Checked : Qt::Unchecked);
-  }
-
-  QString backupPath = g.profile[g.id()].pBackupDir();
-  if (backupPath.isEmpty()) {
-    backupPath=g.backupDir();
-  }
-  if (backupPath.isEmpty() || !QDir(backupPath).exists()) {
-    ui->backupEEprom->setEnabled(false);
-  }
-
   ui->checkHardwareCompatibility->setChecked(g.checkHardwareCompatibility());
 
   updateUI();
 
-  resize(0, 0); // TODO needed?
+  connect(ui->firmwareLoad, &QPushButton::clicked, this, &FlashFirmwareDialog::firmwareLoadClicked);
+  connect(ui->useProfileSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useProfileSplashClicked);
+  connect(ui->useFirmwareSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useFirmwareSplashClicked);
+  connect(ui->useLibrarySplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useLibrarySplashClicked);
+  connect(ui->useExternalSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useExternalSplashClicked);
+  connect(ui->burnButton, &QPushButton::clicked, this, &FlashFirmwareDialog::burnButtonClicked);
+  connect(ui->cancelButton, &QPushButton::clicked, [=]() { close(); } );
+
+  QTimer::singleShot(0, [=]() { adjustSize(); });
 }
 
 FlashFirmwareDialog::~FlashFirmwareDialog()
@@ -136,7 +127,7 @@ void FlashFirmwareDialog::updateUI()
   }
 }
 
-void FlashFirmwareDialog::on_firmwareLoad_clicked()
+void FlashFirmwareDialog::firmwareLoadClicked()
 {
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), FLASH_FILES_FILTER);
   if (!fileName.isEmpty()) {
@@ -148,7 +139,7 @@ void FlashFirmwareDialog::on_firmwareLoad_clicked()
   }
 }
 
-void FlashFirmwareDialog::on_useFirmwareSplash_clicked()
+void FlashFirmwareDialog::useFirmwareSplashClicked()
 {
   FirmwareInterface firmware(fwName);
   if (!firmware.isValid()) {
@@ -163,7 +154,7 @@ void FlashFirmwareDialog::on_useFirmwareSplash_clicked()
   updateUI();
 }
 
-void FlashFirmwareDialog::on_useProfileSplash_clicked()
+void FlashFirmwareDialog::useProfileSplashClicked()
 {
   QString fileName = g.profile[g.id()].splashFile();
   if (!fileName.isEmpty()) {
@@ -178,7 +169,7 @@ void FlashFirmwareDialog::on_useProfileSplash_clicked()
   updateUI();
 }
 
-void FlashFirmwareDialog::on_useExternalSplash_clicked()
+void FlashFirmwareDialog::useExternalSplashClicked()
 {
   QString supportedImageFormats;
   for (int formatIndex = 0; formatIndex < QImageReader::supportedImageFormats().count(); formatIndex++) {
@@ -199,7 +190,7 @@ void FlashFirmwareDialog::on_useExternalSplash_clicked()
   updateUI();
 }
 
-void FlashFirmwareDialog::on_useLibrarySplash_clicked()
+void FlashFirmwareDialog::useLibrarySplashClicked()
 {
   QString fileName;
   auto ld = new SplashLibraryDialog(this, &fileName);
@@ -218,12 +209,11 @@ void FlashFirmwareDialog::on_useLibrarySplash_clicked()
   updateUI();
 }
 
-void FlashFirmwareDialog::on_burnButton_clicked()
+void FlashFirmwareDialog::burnButtonClicked()
 {
   g.flashDir(QFileInfo(fwName).dir().absolutePath());
   g.profile[g.id()].fwName(fwName);
   g.checkHardwareCompatibility(ui->checkHardwareCompatibility->isChecked());
-  g.backupOnFlash(ui->backupEEprom->isChecked());
 
   qDebug() << "FlashFirmwareDialog: flashing" << fwName;
 
@@ -254,16 +244,6 @@ void FlashFirmwareDialog::on_burnButton_clicked()
   else {
     startFlash(fwName);
   }
-}
-
-void FlashFirmwareDialog::on_cancelButton_clicked()
-{
-  close();
-}
-
-void FlashFirmwareDialog::shrink()
-{
-  resize(0, 0);
 }
 
 void FlashFirmwareDialog::startFlash(const QString &filename)
