@@ -41,7 +41,7 @@ FirmwareReaderWorker::FirmwareReaderWorker(QObject *parent) :
 
 FirmwareReaderWorker::~FirmwareReaderWorker()
 {
-  qDebug() << "FirmwareReaderWorker destructor called";
+  //qDebug() << "FirmwareReaderWorker destructor called";
 }
 
 void FirmwareReaderWorker::run()
@@ -51,7 +51,7 @@ void FirmwareReaderWorker::run()
     auto devices = device_filter->find_devices();
 
     if (devices.empty()) {
-      throw std::runtime_error(tr("No DFU devices").toStdString());
+      throw std::runtime_error(tr("No DFU devices found").toStdString());
     }
 
     emit statusChanged("Resetting state...");
@@ -95,7 +95,7 @@ FirmwareWriterWorker::FirmwareWriterWorker(const QByteArray &data, QObject *pare
 
 FirmwareWriterWorker::~FirmwareWriterWorker()
 {
-  qDebug() << "FirmwareWriterWorker destructor called";
+  //qDebug() << "FirmwareWriterWorker destructor called";
 }
 
 void FirmwareWriterWorker::run()
@@ -105,7 +105,7 @@ void FirmwareWriterWorker::run()
     auto devices = device_filter->find_devices();
 
     if (devices.empty()) {
-      throw std::runtime_error(tr("No DFU devices").toStdString());
+      throw std::runtime_error(tr("No DFU devices found").toStdString());
     }
 
     emit statusChanged("Resetting state...");
@@ -254,14 +254,14 @@ void connectProgress(Worker *worker, ProgressWidget *progress)
                     [progress](const QString& status) {
                       progress->addMessage(status, QtFatalMsg);
                       progress->setInfo(status);
-                    });  
+                    });
 }
 
 bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
                   const std::function<void(const QString &)>& onError)
 {
   auto worker = std::make_unique<FirmwareReaderWorker>();
-    
+
   // delete worker once the thread is finished
   worker->connect(worker.get(), &QThread::finished, worker.get(), &QObject::deleteLater);
 
