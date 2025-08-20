@@ -65,18 +65,13 @@ void ProgressDialog::on_closeButton_clicked()
 
 void ProgressDialog::on_outputProgress_detailsToggled()
 {
-  QTimer::singleShot(0, this, SLOT(shrink()));
+  QTimer::singleShot(0, [=]() { adjustSize(); });
 }
 
 void ProgressDialog::on_outputProgress_locked(bool lock)
 {
   ui->closeButton->setEnabled(!lock);
   locked = lock;
-}
-
-void ProgressDialog::shrink()
-{
-  resize(0, 0);
 }
 
 bool ProgressDialog::isEmpty() const
