@@ -27,6 +27,7 @@
 #include <QString>
 
 using SliceU8 = rust::Slice<const uint8_t>;
+using ::rust::Vec;
 
 class FirmwareReaderWorker : public QThread
 {
@@ -96,3 +97,6 @@ bool readSettings(const QString &filename, ProgressWidget *progress);
 bool readSettingsSDCard(const QString &filename, ProgressWidget *progress, bool fromRadio = true);
 
 bool writeSettings(const QString &filename, ProgressWidget *progress);
+
+QString printDevicesInfo(const Vec<DfuDevice> &devices);
+QString getDevicesInfo();
