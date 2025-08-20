@@ -223,20 +223,18 @@ extern "C" void lcdInit()
   lcdWriteCommand( 0x86 );
   lcdWriteData( 0x98 );
   lcdWriteCommand( 0x89 );
-  lcdWriteData( 0x33 );
+  lcdWriteData( 0x13 );
   lcdWriteCommand( 0x8B );
   lcdWriteData( 0x80 );
   lcdWriteCommand( 0x8D );
   lcdWriteData( 0x33 );
-  lcdWriteCommand( 0x3A );
-  lcdWriteData( 0x05 );
   lcdWriteCommand( 0x8E );
   lcdWriteData( 0x0F );
 
   lcdWriteCommand( 0xEC );
-  lcdWriteData( 0x33 );
-  lcdWriteData( 0x07 );
-  lcdWriteData( 0x00 );
+  lcdWriteData( 0x13 );
+  lcdWriteData( 0x02 );
+  lcdWriteData( 0x88 );
 
   lcdWriteCommand( 0xED );
   lcdWriteData( 0x18 );
@@ -260,45 +258,41 @@ extern "C" void lcdInit()
   lcdWriteCommand( 0x9C );
   lcdWriteData( 0x4B );
   lcdWriteCommand( 0xC3 );
-  lcdWriteData( 0x39 );
+  lcdWriteData( 0x27 );
   lcdWriteCommand( 0xC4 );
-  lcdWriteData( 0x29 );
+  lcdWriteData( 0x18 );
   lcdWriteCommand( 0xC9 );
-  lcdWriteData( 0x09 );
+  lcdWriteData( 0x0A );
 
   // Gamma Control
   lcdWriteCommand( 0xF0 );
-  lcdWriteData( 0x0B );
-  lcdWriteData( 0x0C );
-  lcdWriteData( 0x07 );
-  lcdWriteData( 0x07 );
-  lcdWriteData( 0x05 );
-  lcdWriteData( 0x22 );
-  lcdWriteCommand( 0xF1);
-  lcdWriteData( 0x42 );
-  lcdWriteData( 0x78 );
-  lcdWriteData( 0x56 );
-  lcdWriteData( 0x1E );
-  lcdWriteData( 0x1A );
-  lcdWriteData( 0x95 );
-  lcdWriteCommand( 0xF2 );
-  lcdWriteData( 0x0B );
-  lcdWriteData( 0x0C );
-  lcdWriteData( 0x07 );
-  lcdWriteData( 0x07 );
-  lcdWriteData( 0x05 );
-  lcdWriteData( 0x44 );
-  lcdWriteCommand( 0xF3 );
-  lcdWriteData( 0x56 );
-  lcdWriteData( 0x92 );
+  lcdWriteData( 0x85 );
+  lcdWriteData( 0x0A );
+  lcdWriteData( 0x09 );
+  lcdWriteData( 0x08 );
+  lcdWriteData( 0x04 );
   lcdWriteData( 0x30 );
-  lcdWriteData( 0x31 );
-  lcdWriteData( 0x35 );
+  lcdWriteCommand( 0xF1);
+  lcdWriteData( 0x47 );
+  lcdWriteData( 0x5B );
+  lcdWriteData( 0xB0 );
+  lcdWriteData( 0x3A );
+  lcdWriteData( 0x3E );
   lcdWriteData( 0x7F );
-
-  // Display orientation
-  lcdWriteCommand( 0x36 );
-  lcdWriteData( 0xA0 );
+  lcdWriteCommand( 0xF2 );
+  lcdWriteData( 0x85 );
+  lcdWriteData( 0x0A );
+  lcdWriteData( 0x09 );
+  lcdWriteData( 0x08 );
+  lcdWriteData( 0x04 );
+  lcdWriteData( 0x30 );
+  lcdWriteCommand( 0xF3 );
+  lcdWriteData( 0x47 );
+  lcdWriteData( 0x5B );
+  lcdWriteData( 0xB0 );
+  lcdWriteData( 0x3A );
+  lcdWriteData( 0x3F );
+  lcdWriteData( 0x7F );
 
   // Display size
   lcdWriteCommand( 0x2A );
@@ -317,7 +311,13 @@ extern "C" void lcdInit()
 
   // Tear on
   lcdWriteCommand( 0x35 );
-  
+  lcdWriteData( 0x00 );
+
+  // Tearing scan line
+  lcdWriteCommand( 0x44 );
+  lcdWriteData( 0x00 );
+  lcdWriteData( 0x0A );
+
   // Exit sleep
   lcdWriteCommand( 0x11 );
 
