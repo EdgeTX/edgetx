@@ -95,6 +95,8 @@ if(WASI)
   target_compile_options(radiolib_native PUBLIC ${WASI_COMPILE_OPTIONS})
   target_compile_options(simu_drivers PUBLIC ${WASI_COMPILE_OPTIONS})
 
+  set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--strip-debug")
+
   add_executable(wasi-module EXCLUDE_FROM_ALL
     ${SIMU_SRC}
   )
