@@ -21,12 +21,6 @@ on:
 
   workflow_dispatch:
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  CMAKE_BUILD_TYPE: Release
-  QT_VERSION: '6.9.0'
-  SDL_VERSION: '2.32.8'
-
 jobs:
   build-linux:
     name: Linux Companion
@@ -43,22 +37,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build
-        working-directory: ${{github.workspace}}
-        shell: bash
-        run: |
-          mkdir output && \
-          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
-
-      - name: Compose release filename
-        run: echo "artifact_name=edgetx-cpn-linux-${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
+      - name: Setup and Build
+        uses: ./.github/actions/build_companion
         with:
-          name: "${{ env.artifact_name }}"
-          path:  ${{github.workspace}}/output
-          retention-days: 15
+          os: 'linux'
 
   build-macos:
     name: macOS Companion
@@ -67,7 +49,6 @@ jobs:
     env:
       CMAKE_OSX_ARCHITECTURES: 'x86_64'
       CMAKE_OSX_DEPLOYMENT_TARGET: '10.15'
-      QT_ARCH: 'clang_64'
 
     steps:
       - name: Check out the repo
@@ -75,42 +56,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Qt
-        uses: jdpurcell/install-qt-action@v5
-        env:
-          AQT_CONFIG: ${{ github.workspace }}/tools/aqt-settings.ini
+      - name: Setup and Build
+        uses: ./.github/actions/build_companion
         with:
-          version: ${{ env.QT_VERSION }}
-          modules: 'qtmultimedia qtserialport'
-          arch: ${{ env.QT_ARCH }}
-          cache: true
-          cache-key-prefix: 'install-qt-action-${{ env.QT_ARCH }}'
-
-      - name: Setup SDL2
-        id: setup-sdl2
-        uses: libsdl-org/setup-sdl@v1
-        with:
-          version: ${{ env.SDL_VERSION }}
-          build-type: "Release"
-
-      - name: Install Python Dependencies
-        run: python3 -m pip install clang jinja2 lz4 pillow pydantic
-
-      - name: Build
-        run: |
-          mkdir output && \
-          CMAKE_PREFIX_PATH="$QT_ROOT_DIR;$SDL2_ROOT" \
-          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
-
-      - name: Compose release filename
-        run: echo "artifact_name=edgetx-cpn-osx-${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: "${{ env.artifact_name }}"
-          path:  ${{github.workspace}}/output
-          retention-days: 15
+          os: 'macos'
+          qt-arch: 'clang_64'
 
   build-win64:
     name: Windows Companion
@@ -118,7 +68,6 @@ jobs:
 
     env:
       CMAKE_GENERATOR: 'Ninja'
-      QT_ARCH: 'win64_msvc2022_64'
       CXX: 'clang++'
       CC: 'clang'
 
@@ -132,44 +81,8 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Qt
-        uses: jdpurcell/install-qt-action@v5
-        env:
-          AQT_CONFIG: ${{ github.workspace }}/tools/aqt-settings.ini
+      - name: Setup and Build
+        uses: ./.github/actions/build_companion
         with:
-          version: ${{ env.QT_VERSION }}
-          modules: 'qtmultimedia qtserialport'
-          arch: ${{ env.QT_ARCH }}
-          cache: true
-          cache-key-prefix: 'install-qt-action-${{ env.QT_ARCH }}'
-
-      - name: Setup SDL2
-        id: setup-sdl2
-        uses: libsdl-org/setup-sdl@v1
-        with:
-          version: ${{ env.SDL_VERSION }}
-          build-type: "Release"
-
-      - name: Install Python Dependencies
-        run: |
-          echo $PATH
-          $Python3_ROOT_DIR/python3.exe -m pip install clang jinja2 lz4 pillow pydantic
-
-      - name: Setup MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Build
-        run: |
-          mkdir output && \
-          CMAKE_PREFIX_PATH="$QT_ROOT_DIR;$SDL2_ROOT" \
-          tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
-
-      - name: Compose release filename
-        run: echo "artifact_name=edgetx-cpn-win64-${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: "${{ env.artifact_name }}"
-          path:  ${{github.workspace}}/output
-          retention-days: 15
+          os: 'win64'
+          qt-arch: 'win64_msvc2022_64'

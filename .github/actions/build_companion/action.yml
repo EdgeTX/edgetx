@@ -1,0 +1,62 @@
+name: 'Build Companion'
+inputs:
+  os:
+    description: 'OS / Architecture'
+    required: true
+  qt-version:
+    description: 'Qt version'
+    default: '6.9.0'
+  qt-arch:
+    description: 'Qt architecture'
+    required: runner.os != 'Linux'
+  sdl2-version:
+    description: 'SDL2 version'
+    default: '2.32.8'
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Install Qt
+      if: runner.os != 'Linux'
+      uses: jdpurcell/install-qt-action@v5
+      env:
+        AQT_CONFIG: ${{ github.workspace }}/tools/aqt-settings.ini
+      with:
+        version: ${{ inputs.qt-version }}
+        modules: 'qtmultimedia qtserialport'
+        arch: ${{ inputs.qt-arch }}
+        cache: true
+        cache-key-prefix: 'install-qt-action-${{ inputs.qt-arch }}'
+
+    - name: Setup SDL2
+      if: runner.os != 'Linux'
+      id: setup-sdl2
+      uses: libsdl-org/setup-sdl@v1
+      with:
+        version: ${{ inputs.sdl2-version }}
+        build-type: "Release"
+
+    - name: Setup MSVC
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Build
+      shell: bash
+      env:
+        CMAKE_BUILD_TYPE: 'Release'
+      run: |
+        mkdir output && \
+        CMAKE_PREFIX_PATH="$QT_ROOT_DIR;$SDL2_ROOT" \
+        tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
+
+    - name: Compose release filename
+      run: echo "artifact_name=edgetx-cpn-${{ inputs.os }}-${GITHUB_REF##*/}" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: "${{ env.artifact_name }}"
+        path:  ${{github.workspace}}/output
+        retention-days: 15
