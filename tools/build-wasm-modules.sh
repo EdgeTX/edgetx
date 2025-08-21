@@ -28,7 +28,7 @@ fi
 
 COMMON_OPTIONS+=" -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev"
 COMMON_OPTIONS+=" -DCMAKE_MODULE_PATH=/opt/wasi-sdk/share/cmake/"
-COMMON_OPTIONS+=" -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1 -DDISABLE_COMPANION:BOOL=1"
+COMMON_OPTIONS+=" -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1"
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
 if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
@@ -48,7 +48,7 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-if [ "$(uname)" = "Linux" ] && [ -n "$GITHUB_ACTIONS" ]; then
+if [ -n "$GITHUB_ACTIONS" ]; then
   MAX_JOBS=3
 fi
 
@@ -91,7 +91,7 @@ run_pipeline() {
     local wasi_toolchain="/opt/wasi-sdk/share/cmake/wasi-sdk-pthread.cmake"
     
     clean_build
-    if ! execute_with_output "🔧 Final config" "cmake -S ${SRCDIR} -B wasm --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
+    if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B wasm --toolchain ${wasi_toolchain} ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
         output_error_log "$log_file" "$context (Configuration)"
         return 1
     fi
@@ -164,9 +164,9 @@ build_plugin() {
 }
 
 declare -a simulator_plugins=(
-    # x9lite x9lites x9d x9dp x9dp2019 x9e
-    # x7 x7access
-    # t8 t12 t12max tx12 tx12mk2 t15 t16 t18 t20 t20v2
+    x9lite x9lites x9d x9dp x9dp2019 x9e
+    x7 x7access
+    t8 t12 t12max tx12 tx12mk2 t15 t16 t18 t20 t20v2
     xlite xlites
     x10 x10express x12s
     zorro tx16s tx15
