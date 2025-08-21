@@ -49,7 +49,7 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-if [ "$(uname)" = "Linux" ] && [ -n "$GITHUB_ACTIONS" ]; then
+if [ -n "$GITHUB_ACTIONS" ]; then
   MAX_JOBS=3
 fi
 
