@@ -14,6 +14,10 @@ if [[ -z ${OUTDIR} ]]; then
   OUTDIR="$(pwd)/output"
 fi
 
+if [[ ! -d "${OUTDIR}" ]]; then
+  mkdir -p "${OUTDIR}"
+fi
+
 # Determine parallel jobs
 determine_max_jobs
 
@@ -22,15 +26,15 @@ MASTER_LOG="build-summary.log"
 
 QUIET_FLAGS=""
 if [[ "$CMAKE_GENERATOR" == "Ninja" ]]; then
-    QUIET_FLAGS="-- --quiet"
+  QUIET_FLAGS="-- --quiet"
 else
-    # Assume Makefile generator for non-Ninja builds
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_RULE_MESSAGES=OFF"
+  # Assume Makefile generator for non-Ninja builds
+  COMMON_OPTIONS="-DCMAKE_RULE_MESSAGES=OFF"
 fi
 
-COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev -DGVARS=YES -DHELI=YES -DLUA=YES"
+COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev"
 if [ "$(uname)" = "Darwin" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15'"
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15'"
 fi
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
@@ -115,7 +119,9 @@ run_pipeline() {
             fi
             ;;
         "final")
-            if ! execute_with_output "🔧 Final config" "cmake_build_parallel . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
+            BUILD_OPTIONS="${COMMON_OPTIONS} -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1"
+            clean_build && mkdir -p native/plugins
+            if ! execute_with_output "🔧 Final config" "cmake_build_parallel -S ${SRCDIR} -B native --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "Final Configuration"
                 return 1
             fi
@@ -214,16 +220,16 @@ build_plugin() {
 }
 
 declare -a simulator_plugins=(
-    x9lite x9lites x9d x9dp x9dp2019 x9e
-    x7 x7access
-    t8 t12 t12max tx12 tx12mk2 t15 t15pro t16 t18 t20 t20v2
-    xlite xlites
-    x10 x10express x12s
-    zorro tx16s tx16smk3 tx15
-    commando8 boxer pocket mt12 gx12
-    tlite tpro tprov2 tpros bumblebee lr3pro t14
-    nv14 el18 pl18 pl18ev pl18u st16 pa01
-    f16 v14 v16
+    # x9lite x9lites x9d x9dp x9dp2019 x9e
+    # x7 x7access
+    # t8 t12 t12max tx12 tx12mk2 t15 t15pro t16 t18 t20 t20v2
+    # xlite xlites
+    # x10 x10express x12s
+    # zorro tx16s tx16smk3 tx15
+    # commando8 boxer pocket mt12 gx12
+    # tlite tpro tprov2 tpros bumblebee lr3pro t14
+    # nv14 el18 pl18 pl18ev pl18u st16 pa01
+    # f16 v14 v16
 )
 
 get_platform_config
