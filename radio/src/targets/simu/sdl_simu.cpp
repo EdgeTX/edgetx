@@ -786,9 +786,10 @@ int main(int argc, char* argv[])
 
   // Init simulation
   simuInit();
-  simuFatfsSetPaths(storage_path.c_str(), settings_path.c_str());
+  simuFatfsSetPaths(args.getStoragePath().c_str(),
+                    args.getSettingsPath().c_str());
   simuStart();
-  
+
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
     if (event->type == SDL_WINDOWEVENT &&
