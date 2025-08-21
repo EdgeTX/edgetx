@@ -16,34 +16,68 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Validate fw.json syntax
-        uses: GrantBirki/json-yaml-validate@v3
-        with:
-          mode: fail
-          files: fw.json
-          json_schema: |
-            {
-              "type": "object",
-              "properties": {
-                "targets": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "items": [
-                      {"type": "string"},
-                      {"type": "string"}
-                    ],
-                    "minItems": 2,
-                    "maxItems": 2
-                  }
-                },
-                "changelog": {
-                  "type": "string"
-                }
-              },
-              "required": ["targets", "changelog"],
-              "additionalProperties": false
-            }
+      - name: Validate fw.json syntax and structure
+        run: |
+          python3 -c "
+          import json
+          import sys
+          
+          print('🔍 Validating fw.json...')
+          
+          # Load and parse fw.json
+          try:
+              with open('fw.json', 'r') as f:
+                  data = json.load(f)
+              print('✅ JSON syntax is valid')
+          except json.JSONDecodeError as e:
+              print(f'❌ JSON syntax error: {e}')
+              sys.exit(1)
+          except FileNotFoundError:
+              print('❌ fw.json file not found')
+              sys.exit(1)
+          
+          # Validate required fields
+          if 'targets' not in data:
+              print('❌ Missing required field: targets')
+              sys.exit(1)
+          if 'changelog' not in data:
+              print('❌ Missing required field: changelog')
+              sys.exit(1)
+          
+          # Validate field types
+          if not isinstance(data['targets'], list):
+              print('❌ Field \"targets\" must be an array')
+              sys.exit(1)
+          if not isinstance(data['changelog'], str):
+              print('❌ Field \"changelog\" must be a string')
+              sys.exit(1)
+          
+          # Validate each target structure
+          for i, target in enumerate(data['targets']):
+              if not isinstance(target, list):
+                  print(f'❌ Target {i+1} must be an array')
+                  sys.exit(1)
+              if len(target) != 2:
+                  print(f'❌ Target {i+1} must have exactly 2 elements, found {len(target)}')
+                  sys.exit(1)
+              if not isinstance(target[0], str):
+                  print(f'❌ Target {i+1} first element must be a string')
+                  sys.exit(1)
+              if not isinstance(target[1], str):
+                  print(f'❌ Target {i+1} second element must be a string')
+                  sys.exit(1)
+          
+          print(f'✅ Schema validation passed - found {len(data[\"targets\"])} targets')
+          
+          # Check for extra fields
+          allowed_fields = {'targets', 'changelog'}
+          extra_fields = set(data.keys()) - allowed_fields
+          if extra_fields:
+              print(f'❌ Unexpected fields found: {list(extra_fields)}')
+              sys.exit(1)
+          
+          print('✅ No unexpected fields found')
+          "
 
       - name: Validate targets alphabetical order (case-insensitive)
         run: |
