@@ -24,7 +24,7 @@
 
 #if defined(COLORLCD)
 
-#include "simpgmspace.h"
+#include "simulib.h"
 #include "bitmaps.h"
 #include "debug.h"
 
