@@ -14,7 +14,7 @@ on:
       - '.github/workflows/macosx_cpn.yml'
       - '.github/workflows/win-cpn-32.yml'
       - '.github/workflows/win_cpn-64.yml'
-      - '.github/workflows/validate_json.yml'
+      - '.github/workflows/validate_fw_json.yml'
       - 'companion/**'
       - '.gitpod.yml'
       - '.devcontainer/**'
