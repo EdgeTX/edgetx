@@ -44,3 +44,49 @@ jobs:
               "additionalProperties": false
             }
           json_schema_file: fw.json
+
+      - name: Validate targets alphabetical order (case-insensitive)
+        run: |
+          python3 -c "
+          import json
+          import sys
+          
+          # Load fw.json
+          with open('fw.json', 'r') as f:
+              data = json.load(f)
+          
+          # Extract target names (first element of each target pair)
+          target_names = [target[0] for target in data['targets']]
+          
+          # Sort case-insensitively using key=str.lower
+          sorted_names = sorted(target_names, key=str.lower)
+          
+          # Check if they're in case-insensitive alphabetical order
+          if target_names != sorted_names:
+              print('❌ ERROR: Targets are not in alphabetical order (case-insensitive)!')
+              print()
+              print('Current order:')
+              for i, name in enumerate(target_names):
+                  print(f'  {i+1:2d}. {name}')
+              print()
+              print('Expected alphabetical order (case-insensitive):')
+              for i, name in enumerate(sorted_names):
+                  print(f'  {i+1:2d}. {name}')
+              print()
+              
+              # Show which targets are out of place
+              misplaced = []
+              for i, (current, expected) in enumerate(zip(target_names, sorted_names)):
+                  if current != expected:
+                      misplaced.append(f'Position {i+1}: found \\\"{current}\\\", expected \\\"{expected}\\\"')
+              
+              if misplaced:
+                  print('Misplaced targets:')
+                  for item in misplaced:
+                      print(f'  - {item}')
+              
+              sys.exit(1)
+          else:
+              print('✅ All targets are in alphabetical order (case-insensitive)!')
+              print(f'Found {len(target_names)} targets, all properly sorted.')
+          "
