@@ -98,7 +98,7 @@ run_pipeline() {
                 output_error_log "$log_file" "$context (Configuration)"
                 return 1
             fi
-            if ! execute_with_output "🔧 Native config" "cmake --build . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
+            if ! execute_with_output "🔧 CMake config" "cmake --build . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "$context (Native Configure)"
                 return 1
             fi
@@ -110,7 +110,7 @@ run_pipeline() {
         "final")
             BUILD_OPTIONS="${COMMON_OPTIONS} -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1"
             clean_build && mkdir -p native/plugins
-            if ! execute_with_output "🔧 Final config" "cmake -S ${SRCDIR} -B native --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
+            if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B native --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "Final Configuration"
                 return 1
             fi
