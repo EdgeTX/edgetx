@@ -22,6 +22,40 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-modules:
+    name: WASM Modules
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/edgetx/edgetx-wasi:pr-37
+      volumes:
+        - ${{ github.workspace }}:/src
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build modules
+        shell: bash
+        env:
+          CMAKE_BUILD_TYPE: 'Release'
+        run: |
+          mkdir output && \
+          tools/build-wasm-modules.sh "$(pwd)" "$(pwd)/output/"
+
+      - name: Compose artifact name
+        run: echo "artifact_name=edgetx-modules-${GITHUB_REF##*/}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ env.artifact_name }}"
+          path:  ${{github.workspace}}/output
+          retention-days: 15
+
   build-linux:
     name: Linux Companion
     runs-on: ubuntu-latest
