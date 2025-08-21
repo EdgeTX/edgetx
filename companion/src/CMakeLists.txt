@@ -301,22 +301,6 @@ add_subdirectory(tests)
 
 ############# Install ####################
 
-# the current flavour is not automatically added if build in the current cmake iteration, so always
-# add its library name to be sure
-string(TOLOWER ${PCB} FLAVOUR)
-
-if(PCBREV)
-  if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
-    set(FLAVOUR x7access)
-  elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
-    set(FLAVOUR x9d+2019)
-  elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
-    set(FLAVOUR x10express)
-  else()
-    string(TOLOWER ${PCBREV} FLAVOUR)
-  endif()
-endif(PCBREV)
-
 set(COMPANION_TARGETS_DIR_ROOT "${COMPANION_SRC_DIRECTORY}/../targets")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
