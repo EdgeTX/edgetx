@@ -44,7 +44,7 @@ jobs:
 
   build-macos:
     name: macOS Companion
-    runs-on: macos-13
+    runs-on: macos-14
 
     env:
       CMAKE_OSX_ARCHITECTURES: 'x86_64'
