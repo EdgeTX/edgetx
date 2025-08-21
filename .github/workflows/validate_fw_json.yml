@@ -1,0 +1,46 @@
+---
+name: Validate fw.json
+on:
+  push:
+    paths:
+      - 'fw.json'
+  pull_request:
+    paths:
+      - 'fw.json'
+  workflow_dispatch:
+
+jobs:
+  json-validate:
+    name: Validate fw.json file
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Validate fw.json syntax
+        uses: GrantBirki/json-yaml-validate@v3
+        with:
+          mode: fail
+          json_schema: |
+            {
+              "type": "object",
+              "properties": {
+                "targets": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": [
+                      {"type": "string"},
+                      {"type": "string"}
+                    ],
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "changelog": {
+                  "type": "string"
+                }
+              },
+              "required": ["targets", "changelog"],
+              "additionalProperties": false
+            }
+          json_schema_file: fw.json
