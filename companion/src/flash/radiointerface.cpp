@@ -52,6 +52,8 @@ void FirmwareReaderWorker::run()
 
     if (devices.empty()) {
       throw std::runtime_error(tr("No DFU devices found").toStdString());
+    } else if (devices.size() > 1) {
+      throw std::runtime_error(tr("More than one DFU device found").toStdString());
     }
 
     emit statusChanged("Resetting state...");
@@ -106,6 +108,8 @@ void FirmwareWriterWorker::run()
 
     if (devices.empty()) {
       throw std::runtime_error(tr("No DFU devices found").toStdString());
+    } else if (devices.size() > 1) {
+      throw std::runtime_error(tr("More than one DFU device found").toStdString());
     }
 
     emit statusChanged("Resetting state...");
