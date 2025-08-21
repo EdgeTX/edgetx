@@ -20,6 +20,7 @@ jobs:
         uses: GrantBirki/json-yaml-validate@v3
         with:
           mode: fail
+          files: fw.json
           json_schema: |
             {
               "type": "object",
@@ -43,7 +44,6 @@ jobs:
               "required": ["targets", "changelog"],
               "additionalProperties": false
             }
-          json_schema_file: fw.json
 
       - name: Validate targets alphabetical order (case-insensitive)
         run: |
