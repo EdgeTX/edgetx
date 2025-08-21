@@ -24,7 +24,7 @@
 
 #if defined(COLORLCD)
 
-#include "simpgmspace.h"
+#include "simulib.h"
 #include "bitmaps.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION

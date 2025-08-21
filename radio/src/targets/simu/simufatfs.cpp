@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#include "simpgmspace.h"
+#include "simulib.h"
 
 #if !defined(SIMU_DISKIO)
 
