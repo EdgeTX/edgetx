@@ -163,24 +163,37 @@ build_plugin() {
     return 0
 }
 
-declare -a simulator_plugins=(
-    x7access x9dp2019 x9e
-    t12max tx12mk2 t15 t16 t18 t20 t20v2
-    x10 x10express x12s
-    zorro tx16s tx15
-    commando8 boxer pocket mt12 gx12
-    tprov2 tpros bumblebee t14
-    nv14 el18 pl18 pl18ev pl18u st16 pa01
-    f16 v14 v16
-)
+if [[ -n "$FLAVOR" ]]; then
+    # Convert semicolon-separated string to array
+    IFS=';' read -ra temp_array <<< "$FLAVOR"
+    plugins=()
+    for item in "${temp_array[@]}"; do
+        plugins+=($(echo "$item" | tr '[:upper:]' '[:lower:]'))
+    done
+else
+    declare -a plugins=(
+        # monochrom
+        boxer bumblebee commando8
+        gx12 mt12 pocket t12max
+        t14 t20 t20v2 tpros tprov2
+        tx12mk2 zorro v14
+        x7access x9dp2019 x9e
+        # colour
+        el18 nv14 st16 pa01
+        pl18 pl18ev pl18u
+        t15 t16 t18
+        tx15 tx16s f16 v16
+        x10 x10express x12s
+    )
+fi
 
-TOTAL=${#simulator_plugins[@]}
+TOTAL=${#plugins[@]}
 FAILED_PLUGINS=()
 
 echo "🔨 Building $TOTAL Plugins"
 
-for i in "${!simulator_plugins[@]}"; do
-    plugin="${simulator_plugins[$i]}"
+for i in "${!plugins[@]}"; do
+    plugin="${plugins[$i]}"
     current=$((i + 1))
     percent=$((current * 100 / TOTAL))
     
