@@ -274,7 +274,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="burnButton">
+      <widget class="QPushButton" name="writeButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -294,7 +294,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>burnButton</tabstop>
+  <tabstop>writeButton</tabstop>
   <tabstop>firmwareFilename</tabstop>
   <tabstop>firmwareLoad</tabstop>
   <tabstop>version</tabstop>

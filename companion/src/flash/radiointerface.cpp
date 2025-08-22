@@ -468,7 +468,8 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
 
 bool isFoundUF2Device()
 {
-  return true;  // TODO fix
+  // return findMassStoragePath("bootloader.bin", true).empty() ? false : true;
+  return true;
 }
 
 QString getFlashFilesFilter()
