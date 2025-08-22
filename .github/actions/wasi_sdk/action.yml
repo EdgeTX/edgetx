@@ -11,13 +11,6 @@ runs:
   using: "composite"
   steps:
 
-    - name: Cache WASI SDK
-      id: cache-wasi-sdk
-      uses: actions/cache@v4
-      with:
-        path: /opt/wasi-sdk
-        key: 'wasi-sdk-${{ inputs.version }}-${{ inputs.arch }}'
-
     - name: Install WASI SDK
       if: steps.cache-wasi-sdk.outputs.cache-hit != 'true'
       shell: bash
