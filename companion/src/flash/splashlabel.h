@@ -19,68 +19,42 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SPLASHLABEL_H_
-#define _SPLASHLABEL_H_
+#pragma once
 
 #include <QtWidgets>
 
-class splashLabel : public QLabel
+class SplashLabel : public QLabel
 {
 
   Q_OBJECT
 
 public:
 
-  explicit splashLabel(QDialog * parent = 0) :
-    QLabel(parent)
-  {
-  }
+  explicit SplashLabel(QDialog * parent = 0) : QLabel(parent) {}
 
-  virtual void setId(int labelindex)
-  {
-    index = labelindex;
-  }
-
-  virtual int getId()
-  {
-    return index;
-  }
+  virtual void setId(int labelindex) { index = labelindex; }
+  virtual int getId() { return index; }
 
 protected:
 
   virtual void mousePressEvent(QMouseEvent * event)
   {
     if (event->type() == QEvent::MouseButtonDblClick) {
-      emit buttonPressed(Qt::Key_Enter);
+      emit clicked(Qt::Key_Enter);
     }
     else {
-      emit buttonPressed(Qt::Key_Select);
+      emit clicked(Qt::Key_Select);
     }
-    // QWidget::mousePressEvent(event);
   }
 
   virtual void mouseReleaseEvent(QMouseEvent * event)
   {
     setFocus();
-    // emit buttonPressed(0);
-    // QWidget::mouseReleaseEvent(event);
   }
 
-
-  /*void paintEvent(QPaintEvent *)
-  {
-    QStyleOption opt;
-    opt.init(this);
-    QPainter p(this);
-    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
-  }
-   */
 signals:
-  void buttonPressed(int button);
+  void clicked(int button);
 
 private:
   int index;
 };
-
-#endif // _SPLASHLABEL_H_
-

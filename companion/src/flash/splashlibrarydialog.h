@@ -19,37 +19,34 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _SPLASHLIBRARYDIALOG_H_
-#define _SPLASHLIBRARYDIALOG_H_
+#pragma once
 
-#include <QtWidgets>
+#include <QDialog>
 
 namespace Ui {
-    class SplashLibraryDialog;
+  class SplashLibraryDialog;
 }
 
 class SplashLibraryDialog : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit SplashLibraryDialog(QWidget *parent = 0, QString * fileName=NULL);
+  public:
+    explicit SplashLibraryDialog(QWidget *parent = 0, QString *fileName = nullptr);
     ~SplashLibraryDialog();
 
-private slots:
-    void dclose();
-    void onButtonPressed(int button);
-    void on_nextPage_clicked();
-    void on_prevPage_clicked();
- 
-private:
-    void getFileList();
-    void setupPage(int page);
+  private slots:
+    void imageClicked(int button);
+    void nextPageClicked();
+    void prevPageClicked();
+
+  private:
     Ui::SplashLibraryDialog *ui;
-    QString * splashFileName;
+    QString *splashFileName;
     QString libraryPath;
     QStringList imageList;
     int page;
-};
 
-#endif // _SPLASHLIBRARYDIALOG_H_
+    void getFileList();
+    void setupPage(int page);
+};

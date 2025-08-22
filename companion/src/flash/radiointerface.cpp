@@ -465,3 +465,16 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
 
   return QString();
 }
+
+bool isFoundUF2Device()
+{
+  return true;  // TODO fix
+}
+
+QString getFlashFilesFilter()
+{
+  if (isFoundUF2Device())
+    return FLASH_FILES_FILTER;
+
+  return BIN_FILES_FILTER;
+}
