@@ -49,8 +49,8 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-if [ -n "$GITHUB_ACTIONS" ]; then
-  MAX_JOBS=3
+if [[ -n "$GITHUB_ACTIONS" ]]; then
+  MAX_JOBS=${MAX_JOBS:-3}
 fi
 
 rm -rf build && mkdir build && cd build
