@@ -22,15 +22,34 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-modules:
-    name: WASM Modules
+  modules:
+    name: WASM Modules (${{ matrix.group.id }})
     runs-on: macos-14
+    strategy:
+      matrix:
+        group:
+          - id: color-1
+            target: [nv14, el18, pl18, pl18ev]
+          - id: color-2
+            target: [pl18u, t15, t16, t18]
+          - id: bw-1
+            target: [zorro, pocket, mt12, commando8, tprov2, tpros, bumblebee, t14]
+          - id: bw-2
+            target: [mt12, gx12, t20, t20v2, t12max, tx12mk2, boxer]
+          - id: color-3
+            target: [tx15, tx16s, x12s, f16]
+          - id: mixed-1
+            target: [v12, v14, v16, x10, x10express]
+          - id: bw-3
+            target: [x7access, x9dp2019, x9e, x9e-hall]
+          - id: color-4
+            target: [nb4p, st16, pa01]
 
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: true
 
       - name: Setup Python Dependencies
         uses: ./.github/actions/python_dependencies
@@ -41,26 +60,24 @@ jobs:
       - name: Build modules
         shell: bash
         env:
+          FLAVOR: ${{ join(matrix.group.target, ';') }}
           CMAKE_BUILD_TYPE: 'Release'
         run: |
           mkdir output && \
           tools/build-wasm-modules.sh "$(pwd)" "$(pwd)/output/"
 
-      - name: Compose artifact name
-        run: echo "artifact_name=edgetx-modules-${GITHUB_REF##*/}" >> $GITHUB_ENV
-        shell: bash
-
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "${{ env.artifact_name }}"
+          name: wasm-modules-${{ matrix.group.id }}
           path:  ${{github.workspace}}/output
+          if-no-files-found: error
           retention-days: 15
 
   build-linux:
     name: Linux Companion
     runs-on: ubuntu-latest
-    if: false
+    needs: modules
 
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
@@ -81,7 +98,7 @@ jobs:
   build-macos:
     name: macOS Companion
     runs-on: macos-14
-    if: false
+    needs: modules
 
     env:
       CMAKE_OSX_ARCHITECTURES: 'x86_64'
@@ -102,7 +119,7 @@ jobs:
   build-win64:
     name: Windows Companion
     runs-on: windows-2022
-    if: false
+    needs: modules
 
     env:
       CMAKE_GENERATOR: 'Ninja'
