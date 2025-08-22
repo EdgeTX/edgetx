@@ -57,10 +57,10 @@
    <item row="0" column="2">
     <layout class="QGridLayout" name="gridLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetNoConstraint</enum>
+      <enum>QLayout::SizeConstraint::SetNoConstraint</enum>
      </property>
      <item row="0" column="0">
-      <widget class="splashLabel" name="FwImage_01">
+      <widget class="SplashLabel" name="FwImage_01">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -86,10 +86,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Shadow::Raised</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -106,7 +106,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="splashLabel" name="FwImage_02">
+      <widget class="SplashLabel" name="FwImage_02">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -132,10 +132,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -149,7 +149,7 @@
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="splashLabel" name="FwImage_04">
+      <widget class="SplashLabel" name="FwImage_04">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -175,10 +175,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -192,7 +192,7 @@
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="splashLabel" name="FwImage_05">
+      <widget class="SplashLabel" name="FwImage_05">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -218,10 +218,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -235,7 +235,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="splashLabel" name="FwImage_06">
+      <widget class="SplashLabel" name="FwImage_06">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -255,10 +255,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -272,7 +272,7 @@
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="splashLabel" name="FwImage_07">
+      <widget class="SplashLabel" name="FwImage_07">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -292,10 +292,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -309,7 +309,7 @@
       </widget>
      </item>
      <item row="1" column="3">
-      <widget class="splashLabel" name="FwImage_08">
+      <widget class="SplashLabel" name="FwImage_08">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -329,10 +329,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -346,7 +346,7 @@
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="splashLabel" name="FwImage_09">
+      <widget class="SplashLabel" name="FwImage_09">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -372,10 +372,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -389,7 +389,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="splashLabel" name="FwImage_10">
+      <widget class="SplashLabel" name="FwImage_10">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -409,10 +409,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -426,7 +426,7 @@
       </widget>
      </item>
      <item row="2" column="2">
-      <widget class="splashLabel" name="FwImage_11">
+      <widget class="SplashLabel" name="FwImage_11">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -446,10 +446,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -463,7 +463,7 @@
       </widget>
      </item>
      <item row="2" column="3">
-      <widget class="splashLabel" name="FwImage_12">
+      <widget class="SplashLabel" name="FwImage_12">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -483,10 +483,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -500,7 +500,7 @@
       </widget>
      </item>
      <item row="3" column="0">
-      <widget class="splashLabel" name="FwImage_13">
+      <widget class="SplashLabel" name="FwImage_13">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -526,10 +526,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -543,7 +543,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="splashLabel" name="FwImage_14">
+      <widget class="SplashLabel" name="FwImage_14">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -563,10 +563,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -580,7 +580,7 @@
       </widget>
      </item>
      <item row="3" column="2">
-      <widget class="splashLabel" name="FwImage_15">
+      <widget class="SplashLabel" name="FwImage_15">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -600,10 +600,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -617,7 +617,7 @@
       </widget>
      </item>
      <item row="3" column="3">
-      <widget class="splashLabel" name="FwImage_16">
+      <widget class="SplashLabel" name="FwImage_16">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -637,10 +637,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -654,7 +654,7 @@
       </widget>
      </item>
      <item row="4" column="0">
-      <widget class="splashLabel" name="FwImage_17">
+      <widget class="SplashLabel" name="FwImage_17">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -680,10 +680,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -697,7 +697,7 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="splashLabel" name="FwImage_18">
+      <widget class="SplashLabel" name="FwImage_18">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -717,10 +717,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -734,7 +734,7 @@
       </widget>
      </item>
      <item row="4" column="2">
-      <widget class="splashLabel" name="FwImage_19">
+      <widget class="SplashLabel" name="FwImage_19">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -754,10 +754,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -771,7 +771,7 @@
       </widget>
      </item>
      <item row="4" column="3">
-      <widget class="splashLabel" name="FwImage_20">
+      <widget class="SplashLabel" name="FwImage_20">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -791,10 +791,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -808,7 +808,7 @@
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="splashLabel" name="FwImage_03">
+      <widget class="SplashLabel" name="FwImage_03">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
          <horstretch>0</horstretch>
@@ -834,10 +834,10 @@
         <string notr="true">border:1px;</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -889,7 +889,7 @@
    <item row="0" column="1">
     <spacer name="horizontalSpacer">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -902,7 +902,7 @@
    <item row="0" column="3">
     <spacer name="horizontalSpacer_2">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -916,13 +916,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>splashLabel</class>
+   <class>SplashLabel</class>
    <extends>QLabel</extends>
    <header location="global">splashlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="companion.qrc"/>
+  <include location="../companion.qrc"/>
  </resources>
  <connections/>
 </ui>

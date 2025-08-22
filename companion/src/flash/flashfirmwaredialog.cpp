@@ -65,8 +65,6 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   connect(ui->useExternalSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useExternalSplashClicked);
   connect(ui->burnButton, &QPushButton::clicked, this, &FlashFirmwareDialog::burnButtonClicked);
   connect(ui->cancelButton, &QPushButton::clicked, [=]() { close(); } );
-
-  QTimer::singleShot(0, [=]() { adjustSize(); });
 }
 
 FlashFirmwareDialog::~FlashFirmwareDialog()
@@ -125,11 +123,13 @@ void FlashFirmwareDialog::updateUI()
   if (!image.isNull()) {
     ui->splash->setPixmap(makePixMap(image));
   }
+
+  QTimer::singleShot(0, [=]() { adjustSize(); });
 }
 
 void FlashFirmwareDialog::firmwareLoadClicked()
 {
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), FLASH_FILES_FILTER);
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), getFlashFilesFilter());
   if (!fileName.isEmpty()) {
     fwName = fileName;
     if (!fwName.isEmpty() && !fwName.endsWith(".bin") && !fwName.endsWith(".uf2") && !FirmwareInterface(fwName).isValid()) {
