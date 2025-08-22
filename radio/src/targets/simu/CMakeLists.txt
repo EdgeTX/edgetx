@@ -82,6 +82,11 @@ set(SIMU_SRC ${SIMU_SRC} PARENT_SCOPE)
 set(SIMU_SRC_OPTIONS ${SIMU_SRC_OPTIONS} PARENT_SCOPE)
 
 if(WASI)
+  # strip debug info in Release builds
+  list(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE
+    -Wl,--strip-debug
+  )
+
   set(WASI_COMPILE_OPTIONS
     -Os
     -fno-exceptions
@@ -92,10 +97,12 @@ if(WASI)
     -mllvm -wasm-enable-sjlj
   )
 
+  if(USE_LTO)
+    list(APPEND WASI_COMPILE_OPTIONS -flto=thin)
+  endif()
+
   target_compile_options(radiolib_native PUBLIC ${WASI_COMPILE_OPTIONS})
   target_compile_options(simu_drivers PUBLIC ${WASI_COMPILE_OPTIONS})
-
-  set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--strip-debug")
 
   add_executable(wasi-module EXCLUDE_FROM_ALL
     ${SIMU_SRC}
@@ -103,6 +110,7 @@ if(WASI)
   set_target_properties(wasi-module PROPERTIES SUFFIX ".wasm")
 
   target_compile_options(wasi-module PUBLIC ${WASI_COMPILE_OPTIONS})
+
   target_link_options(wasi-module PRIVATE
     -Wl,--import-memory
     -Wl,--export-memory
@@ -117,6 +125,10 @@ if(WASI)
     -Wl,-mllvm,-wasm-enable-sjlj
     -lsetjmp
   )
+
+  if(USE_LTO)
+    target_link_options(wasi-module PRIVATE -Wl,--thinlto-jobs=all)
+  endif()
 else()
   add_executable(simu
     EXCLUDE_FROM_ALL
