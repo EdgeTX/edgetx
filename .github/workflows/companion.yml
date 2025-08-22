@@ -32,26 +32,11 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-          cache: 'pip' # caching pip dependencies
+      - name: Setup Python Dependencies
+        uses: ./.github/actions/python_dependencies
 
-      - run: python3 -m pip install -r requirements.txt
-
-      - name: Cache WASI SDK
-        id: cache-wasi-sdk
-        uses: actions/cache@v4
-        with:
-          path: /opt/wasi-sdk
-          key: wasi-sdk-25.0-arm64-macos
-
-      - name: Install WASI SDK
-        if: steps.cache-wasi-sdk.outputs.cache-hit != 'true'
-        run: |
-          curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-arm64-macos.tar.gz -o wasi-sdk.tar.gz
-          tar -xzf wasi-sdk.tar.gz
-          sudo mv wasi-sdk-25.0-arm64-macos /opt/wasi-sdk
+      - name: Setup WASI SDK
+        uses: ./.github/actions/wasi_sdk
 
       - name: Build modules
         shell: bash
