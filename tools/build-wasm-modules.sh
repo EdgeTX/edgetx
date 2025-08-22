@@ -179,7 +179,7 @@ declare -a simulator_plugins=(
 TOTAL=${#simulator_plugins[@]}
 FAILED_PLUGINS=()
 
-echo "🔨 Building $TOTAL Plugins for $PACKAGE_NAME"
+echo "🔨 Building $TOTAL Plugins"
 
 for i in "${!simulator_plugins[@]}"; do
     plugin="${simulator_plugins[$i]}"

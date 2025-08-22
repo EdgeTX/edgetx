@@ -121,16 +121,16 @@ run_pipeline() {
         "final")
             BUILD_OPTIONS="${COMMON_OPTIONS} -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1"
             clean_build && mkdir -p native/plugins
-            if ! execute_with_output "🔧 CMake config" "cmake_build_parallel -S ${SRCDIR} -B native --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
-                output_error_log "$log_file" "Final Configuration"
+            if ! execute_with_output "🔧 CMake config" "cmake_build_parallel native -S ${SRCDIR} --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
+                output_error_log "$log_file" "CMake Configuration"
                 return 1
             fi
             if ! execute_with_output "📦 Building companion" "cmake_build_parallel native --target companion ${cmake_opts}" "$log_file" "$show_details"; then
-                output_error_log "$log_file" "$context (Companion Build)"
+                output_error_log "$log_file" "Companion Build"
                 return 1
             fi
             if ! execute_with_output "📦 Packaging" "cmake_build_parallel native --target ${PACKAGE_TARGET}" "$log_file" "true"; then
-                output_error_log "$log_file" "Final Packaging"
+                output_error_log "$log_file" "Packaging"
                 return 1
             fi
             ;;
