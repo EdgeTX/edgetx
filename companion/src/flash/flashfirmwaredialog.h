@@ -40,7 +40,7 @@ public:
 
 private slots:
   void firmwareLoadClicked();
-  void burnButtonClicked();
+  void writeButtonClicked();
   void useProfileSplashClicked();
   void useFirmwareSplashClicked();
   void useLibrarySplashClicked();

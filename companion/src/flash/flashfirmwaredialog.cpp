@@ -29,13 +29,6 @@
 #include "splashlibrarydialog.h"
 #include "storage.h"
 
-#if defined _MSC_VER || !defined __GNUC__
-  #include <windows.h>
-  #define sleep(x) Sleep(x*1000)
-#else
-  #include <unistd.h>
-#endif
-
 FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::FlashFirmwareDialog),
@@ -63,7 +56,7 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   connect(ui->useFirmwareSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useFirmwareSplashClicked);
   connect(ui->useLibrarySplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useLibrarySplashClicked);
   connect(ui->useExternalSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useExternalSplashClicked);
-  connect(ui->burnButton, &QPushButton::clicked, this, &FlashFirmwareDialog::burnButtonClicked);
+  connect(ui->writeButton, &QPushButton::clicked, this, &FlashFirmwareDialog::writeButtonClicked);
   connect(ui->cancelButton, &QPushButton::clicked, [=]() { close(); } );
 }
 
@@ -75,7 +68,7 @@ FlashFirmwareDialog::~FlashFirmwareDialog()
 void FlashFirmwareDialog::updateUI()
 {
   ui->firmwareFilename->setText(fwName);
-  ui->burnButton->setEnabled(QFile(fwName).exists());
+  ui->writeButton->setEnabled(QFile(fwName).exists());
 
   FirmwareInterface firmware(fwName);
   if (firmware.isValid()) {
@@ -209,7 +202,7 @@ void FlashFirmwareDialog::useLibrarySplashClicked()
   updateUI();
 }
 
-void FlashFirmwareDialog::burnButtonClicked()
+void FlashFirmwareDialog::writeButtonClicked()
 {
   g.flashDir(QFileInfo(fwName).dir().absolutePath());
   g.profile[g.id()].fwName(fwName);
@@ -228,10 +221,7 @@ void FlashFirmwareDialog::burnButtonClicked()
     }
     // write the customized firmware
     QString tempFile;
-    if (getStorageType(fwName) == STORAGE_TYPE_HEX)
-      tempFile = generateProcessUniqueTempFileName("flash.hex");
-    else
-      tempFile = generateProcessUniqueTempFileName("flash.bin");
+    tempFile = generateProcessUniqueTempFileName("flash.bin");
     qDebug() << "FlashFirmwareDialog: patching" << fwName << "with custom splash screen and saving to" << tempFile;
     FirmwareInterface firmware(fwName);
     firmware.setSplash(image);
@@ -261,18 +251,15 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
         [this, &fw, progress](const QByteArray &_data) {
           qDebug() << "Read old fw, size = " << _data.size();
           if (!fw.isHardwareCompatible(FirmwareInterface(_data))) {
-            QMessageBox::warning(
-                this, tr("Firmware check failed"),
-                tr("New firmware is not compatible with the one "
-                   "currently installed!"));
+            QMessageBox::warning(this, tr("Firmware check failed"),
+                tr("New firmware is not compatible with the one currently installed!"));
           } else {
             qDebug() << "Start writing firmware (compatibility checked)";
             writeFirmware(fw.getFlash(), progress);
           }
         },
         [this](const QString &err) {
-          QMessageBox::critical(
-              this, tr("Firmware check failed"),
+          QMessageBox::critical(this, tr("Firmware check failed"),
               tr("Could not read current firmware: %1").arg(err));
         });
   } else {
