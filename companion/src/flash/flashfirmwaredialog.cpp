@@ -125,9 +125,24 @@ void FlashFirmwareDialog::firmwareLoadClicked()
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), getFlashFilesFilter());
   if (!fileName.isEmpty()) {
     fwName = fileName;
-    if (!fwName.isEmpty() && !fwName.endsWith(".bin") && !fwName.endsWith(".uf2") && !FirmwareInterface(fwName).isValid()) {
+
+    if (!fwName.endsWith(".bin") && !fwName.endsWith(".uf2"))
       QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
+
+    FirmwareInterface fw(fwName);
+
+    if (!fw.isValid())
+      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
+
+    const QString profflav = FIRMWARE_ID_PREFIX + getCurrentFirmware()->getFlavour();
+
+    if (fw.getFlavour() != profflav) {
+      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and differs from the current radio profile '%3'")
+                                                      .arg(fwName)
+                                                      .arg(fw.getFlavour())
+                                                      .arg(profflav));
     }
+
     updateUI();
   }
 }

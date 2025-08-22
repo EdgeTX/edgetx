@@ -55,7 +55,6 @@ private:
 
   Ui::FlashFirmwareDialog *ui;
   QString fwName;
-  RadioData radioData;
   ImageSource imageSource;
   QString imageFile;
 };
