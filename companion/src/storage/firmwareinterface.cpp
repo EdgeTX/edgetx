@@ -483,3 +483,8 @@ unsigned int FirmwareInterface::save(const QString & filename)
   free(binflash);
   return flashSize;
 }
+
+bool FirmwareInterface::isFlavourMatch(const QString flavour)
+{
+  return getFlavour() == flavour;
+}
