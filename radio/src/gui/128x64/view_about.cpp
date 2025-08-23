@@ -27,7 +27,11 @@
 #if defined(VERSION_TAG)
 const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION_TAG ")" "\036\"" CODENAME "\"";
 #else
+  #if defined(VERSION_PREFIX)
+const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION_PREFIX "-" VERSION "-" VERSION_SUFFIX ")";
+  #else
 const char ABOUT_VERSION_1[] = "EdgeTX " "(" VERSION "-" VERSION_SUFFIX ")";
+  #endif
 #endif
 const char ABOUT_VERSION_2[] = "Copyright (C) " BUILD_YEAR " EdgeTX";
 const char ABOUT_VERSION_3[] = "https://edgetx.org";
