@@ -174,8 +174,17 @@ static_assert(ARRAY_SIZE(indexFile) < 512);
 #define NUM_FILES (ARRAY_SIZE(info))
 #define NUM_DIRENTRIES (NUM_FILES + 1) // Code adds volume label as first root directory entry
 
+#ifndef BOOTLOADER_ADDRESS
+#define BOOTLOADER_ADDRESS FIRMWARE_ADDRESS
+#endif
 
-#define UF2_SIZE           (current_flash_size() * 2 + 512)
+#if BOOTLOADER_ADDRESS == FIRMWARE_ADDRESS
+#define REBOOT_BLOCK 0
+#else
+#define REBOOT_BLOCK 1
+#endif
+
+#define UF2_SIZE           (current_flash_size() * 2 + 512 * REBOOT_BLOCK)
 #define UF2_SECTORS        (UF2_SIZE / 512)
 #define UF2_FIRST_SECTOR   (NUM_FILES + 1) // WARNING -- code presumes each non-UF2 file content fits in single sector
 #define UF2_LAST_SECTOR    (UF2_FIRST_SECTOR + UF2_SECTORS - 1)
@@ -194,7 +203,6 @@ static_assert(ARRAY_SIZE(indexFile) < 512);
 #define DIRENTRIES_PER_SECTOR (512/sizeof(DirEntry))
 
 static_assert(NUM_DIRENTRIES < DIRENTRIES_PER_SECTOR * ROOT_DIR_SECTORS);
-
 
 static FAT_BootBlock const BootBlock = {
     .JumpInstruction      = {0xeb, 0x3c, 0x90},
@@ -255,7 +263,7 @@ static uint32_t current_flash_size(void)
   // only need to compute once
   if ( result == 0 ) {
     firmware_description_t const *fw_desc =
-        (firmware_description_t const *)FIRMWARE_ADDRESS;
+        (firmware_description_t const *)APP_START_ADDRESS;
 
     if (is_firmware_valid(fw_desc)) {
       // round up to 256 bytes
@@ -358,26 +366,26 @@ void uf2_fat_read_block(uint32_t block_no, uint8_t *data)
             sectionIdx -= NUM_FILES - 1;
 
             uint32_t addr = 0;
-            if (sectionIdx >= UF2_MAX_FW_SIZE / 256) return;
+            if (sectionIdx >= UF2_MAX_FW_SIZE / 256 + REBOOT_BLOCK) return;
 
             UF2_Block *bl = (UF2_Block *)data;
             bl->magicStart0 = UF2_MAGIC_START0;
             bl->magicStart1 = UF2_MAGIC_START1;
             bl->magicEnd = UF2_MAGIC_END;
             bl->blockNo = sectionIdx;
-            bl->numBlocks = current_flash_size() / 256 + 1;
+            bl->numBlocks = current_flash_size() / 256 + REBOOT_BLOCK;
             bl->flags = 0;
             bl->reserved = 0;
 
-            if (sectionIdx == BOOTLOADER_SIZE / 256) {
+            if (REBOOT_BLOCK && (sectionIdx == BOOTLOADER_SIZE / 256)) {
                 writeUF2RebootBlock(bl);
                 writeUF2FirmwareVersion(bl);
             } else {
                 if (sectionIdx < BOOTLOADER_SIZE / 256) {
                     addr = BOOTLOADER_ADDRESS + sectionIdx * 256;
                 } else {
-                    sectionIdx -= BOOTLOADER_SIZE / 256 + 1;
-                    addr = FIRMWARE_ADDRESS + sectionIdx * 256;
+                    sectionIdx -= BOOTLOADER_SIZE / 256 + REBOOT_BLOCK;
+                    addr = APP_START_ADDRESS + sectionIdx * 256;
                 }
 
                 bl->targetAddr = addr;
@@ -423,7 +431,7 @@ int uf2_fat_write_block(uint32_t block_no, uint8_t *data)
         // to reset properly
     } else {
         uint32_t wr_block = bl->blockNo;
-        if (wr_block >= BOOTLOADER_SIZE / 256) wr_block--;
+        if (REBOOT_BLOCK && (wr_block >= BOOTLOADER_SIZE / 256)) wr_block--;
 
         uint32_t erase_sector = wr_block / (UF2_ERASE_BLOCK_SIZE / 256);
         uint32_t mask = 1 << (erase_sector & 0x1F);
