@@ -2049,8 +2049,5 @@ const Board::SwitchType ModelData::getSwitchType(int sw, const GeneralSettings &
 
 QString ModelData::getChecklistFilename() const
 {
-  QString name = name;
-  name.replace(" ", "_");
-  name.append(".txt");
-  return name;
+  return QString(name).replace(" ", "_").append(".txt");
 }

@@ -61,6 +61,8 @@ void ChecklistDialog::update()
 {
   if (mDirty) {
     model->checklistData = Helpers::removeAccents(ui->pteCheck->toPlainText()).toUtf8();
+    if (model->checklistData.trimmed().isEmpty())
+      model->checklistData.clear();
     emit updated();
   }
 
