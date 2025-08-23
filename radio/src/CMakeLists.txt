@@ -659,11 +659,21 @@ else()
 endif()
 
 if(FIRMWARE_FORMAT_UF2)
+  if(VERSION_TAG)
+    set(UF2_VERSION_STRING "edgetx-${VERSION_TAG} (${GIT_STR})")
+  else()
+    if(VERSION_PREFIX)
+      set(UF2_VERSION_STRING "edgetx-${VERSION_PREFIX}-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})")
+    else()
+      set(UF2_VERSION_STRING "edgetx-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})")
+    endif()
+  endif()
+  
   add_custom_command(
     TARGET firmware POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py
         --reboot auto --device "${FLAVOUR}"
-        --version "edgetx-${VERSION}-${VERSION_SUFFIX} (${GIT_STR})"
+        --version "${UF2_VERSION_STRING}"
         -i firmware.elf firmware.uf2
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     VERBATIM
