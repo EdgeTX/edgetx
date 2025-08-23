@@ -228,7 +228,7 @@
       <string>Allows Companion to write to older version of the firmware</string>
      </property>
      <property name="text">
-      <string>Check Hardware compatibility</string>
+      <string>Check hardware compatibility</string>
      </property>
     </widget>
    </item>

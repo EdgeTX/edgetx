@@ -22,8 +22,6 @@
 #pragma once
 
 #include <QtWidgets>
-#include "eeprominterface.h"
-#include "firmwareinterface.h"
 
 namespace Ui
 {
@@ -32,29 +30,29 @@ namespace Ui
 
 class FlashFirmwareDialog : public QDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
-public:
-  FlashFirmwareDialog(QWidget *parent = 0);
-  ~FlashFirmwareDialog();
+  public:
+    FlashFirmwareDialog(QWidget *parent = 0);
+    ~FlashFirmwareDialog();
 
-private slots:
-  void firmwareLoadClicked();
-  void writeButtonClicked();
-  void useProfileSplashClicked();
-  void useFirmwareSplashClicked();
-  void useLibrarySplashClicked();
-  void useExternalSplashClicked();
+  private slots:
+    void firmwareLoadClicked();
+    void writeButtonClicked();
+    void useProfileSplashClicked();
+    void useFirmwareSplashClicked();
+    void useLibrarySplashClicked();
+    void useExternalSplashClicked();
 
-protected:
-  void updateUI();
-  void startFlash(const QString &filename);
+  protected:
+    void updateUI();
+    void startFlash(const QString &filename);
 
-private:
-  enum ImageSource {FIRMWARE, PROFILE, LIBRARY, EXTERNAL};
+  private:
+    enum ImageSource {FIRMWARE, PROFILE, LIBRARY, EXTERNAL};
 
-  Ui::FlashFirmwareDialog *ui;
-  QString fwName;
-  ImageSource imageSource;
-  QString imageFile;
+    Ui::FlashFirmwareDialog *ui;
+    QString fwName;
+    ImageSource imageSource;
+    QString imageFile;
 };

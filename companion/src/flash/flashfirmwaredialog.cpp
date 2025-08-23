@@ -24,10 +24,12 @@
 #include "appdata.h"
 #include "helpers.h"
 #include "radiointerface.h"
+#include "firmwareinterface.h"
 #include "progressdialog.h"
 #include "progresswidget.h"
 #include "splashlibrarydialog.h"
 #include "storage.h"
+#include "eeprominterface.h"
 
 FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   QDialog(parent),
@@ -40,8 +42,7 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
     imageSource = PROFILE;
     imageFile = g.profile[g.id()].splashFile();
     ui->useProfileSplash->setChecked(true);
-  }
-  else {
+  } else {
     imageSource = FIRMWARE;
     imageFile = "";
     ui->useProfileSplash->setDisabled(true);
@@ -71,6 +72,7 @@ void FlashFirmwareDialog::updateUI()
   ui->writeButton->setEnabled(QFile(fwName).exists());
 
   FirmwareInterface firmware(fwName);
+
   if (firmware.isValid()) {
     ui->firmwareInfoFrame->show();
     ui->date->setText(firmware.getDate() + " " + firmware.getTime());
@@ -79,15 +81,14 @@ void FlashFirmwareDialog::updateUI()
     ui->date->setEnabled(true);
     ui->version->setEnabled(true);
     ui->variant->setEnabled(true);
+
     if (firmware.hasSplash()) {
       ui->splashFrame->show();
       ui->splash->setFixedSize(firmware.getSplashWidth(), firmware.getSplashHeight());
-    }
-    else {
+    } else {
       ui->splashFrame->hide();
     }
-  }
-  else {
+  } else {
     imageSource = FIRMWARE;
     ui->firmwareInfoFrame->hide();
     ui->splashFrame->hide();
@@ -113,9 +114,8 @@ void FlashFirmwareDialog::updateUI()
       break;
   }
 
-  if (!image.isNull()) {
+  if (!image.isNull())
     ui->splash->setPixmap(makePixMap(image));
-  }
 
   QTimer::singleShot(0, [=]() { adjustSize(); });
 }
@@ -150,70 +150,75 @@ void FlashFirmwareDialog::firmwareLoadClicked()
 void FlashFirmwareDialog::useFirmwareSplashClicked()
 {
   FirmwareInterface firmware(fwName);
+
   if (!firmware.isValid()) {
     QMessageBox::warning(this, CPN_STR_TTL_ERROR, tr( "The firmware file is not valid." ));
-  }
-  else if (!firmware.hasSplash()) {
+  } else if (!firmware.hasSplash()) {
     QMessageBox::warning(this, CPN_STR_TTL_ERROR, tr( "There is no start screen image in the firmware file." ));
-  }
-  else {
+  } else {
     imageSource = FIRMWARE;
   }
+
   updateUI();
 }
 
 void FlashFirmwareDialog::useProfileSplashClicked()
 {
   QString fileName = g.profile[g.id()].splashFile();
+
   if (!fileName.isEmpty()) {
     QImage image(fileName);
     if (image.isNull()) {
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Profile image %1 is invalid.").arg(fileName));
-    }
-    else {
+    } else {
       imageSource = PROFILE;
     }
   }
+
   updateUI();
 }
 
 void FlashFirmwareDialog::useExternalSplashClicked()
 {
   QString supportedImageFormats;
+
   for (int formatIndex = 0; formatIndex < QImageReader::supportedImageFormats().count(); formatIndex++) {
     supportedImageFormats += QLatin1String(" *.") + QImageReader::supportedImageFormats()[formatIndex];
   }
+
   QString fileName = QFileDialog::getOpenFileName(this, tr("Open image file to use as radio start screen"), g.imagesDir(), tr("Images (%1)").arg(supportedImageFormats));
+
   if (!fileName.isEmpty()){
     g.imagesDir( QFileInfo(fileName).dir().absolutePath() );
     QImage image(fileName);
+
     if (image.isNull()) {
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Image could not be loaded from %1").arg(fileName));
-    }
-    else{
+    } else {
       imageSource = EXTERNAL;
       imageFile = fileName;
     }
   }
+
   updateUI();
 }
 
 void FlashFirmwareDialog::useLibrarySplashClicked()
 {
   QString fileName;
-  auto ld = new SplashLibraryDialog(this, &fileName);
-  ld->exec();
-  delete ld;
+  SplashLibraryDialog(this, &fileName).exec();
+
   if (!fileName.isEmpty()) {
     QImage image(fileName);
+
     if (image.isNull()) {
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("The library image could not be loaded"));
-    }
-    else {
+    } else {
       imageSource = LIBRARY;
       imageFile = fileName;
     }
   }
+
   updateUI();
 }
 
@@ -230,23 +235,26 @@ void FlashFirmwareDialog::writeButtonClicked()
     const QPixmap pixmap = ui->splash->pixmap(Qt::ReturnByValue);
     QImage image;
     image = pixmap.toImage().scaled(ui->splash->width(), ui->splash->height());
+
     if (image.isNull()) {
       QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Splash image not found"));
       return;
     }
+
     // write the customized firmware
     QString tempFile;
     tempFile = generateProcessUniqueTempFileName("flash.bin");
     qDebug() << "FlashFirmwareDialog: patching" << fwName << "with custom splash screen and saving to" << tempFile;
     FirmwareInterface firmware(fwName);
     firmware.setSplash(image);
+
     if (firmware.save(tempFile) <= 0) {
       QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Cannot save customized firmware"));
       return;
     }
+
     startFlash(tempFile);
-  }
-  else {
+  } else {
     startFlash(fwName);
   }
 }
@@ -265,6 +273,7 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
     readFirmware(
         [this, &fw, progress](const QByteArray &_data) {
           qDebug() << "Read old fw, size = " << _data.size();
+
           if (!fw.isHardwareCompatible(FirmwareInterface(_data))) {
             QMessageBox::warning(this, tr("Firmware check failed"),
                 tr("New firmware is not compatible with the one currently installed!"));
