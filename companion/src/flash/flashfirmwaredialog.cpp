@@ -29,7 +29,6 @@
 #include "progresswidget.h"
 #include "splashlibrarydialog.h"
 #include "storage.h"
-#include "eeprominterface.h"
 
 FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   QDialog(parent),
@@ -134,13 +133,11 @@ void FlashFirmwareDialog::firmwareLoadClicked()
     if (!fw.isValid())
       QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
 
-    const QString profflav = FIRMWARE_ID_PREFIX + getCurrentFirmware()->getFlavour();
-
-    if (fw.getFlavour() != profflav) {
-      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and differs from the current radio profile '%3'")
+    if (!fw.isFlavourMatch(getCurrentFirmware()->getProjectFlavour())) {
+      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and does not match the current profile '%3'")
                                                       .arg(fwName)
                                                       .arg(fw.getFlavour())
-                                                      .arg(profflav));
+                                                      .arg(getCurrentFirmware()->getProjectFlavour()));
     }
 
     updateUI();

@@ -126,3 +126,8 @@ QString Firmware::getFlavour()
   QStringList strl = id.split("-");
   return strl.count() >= 2 ? strl.at(1) : QString();
 }
+
+QString Firmware::getProjectFlavour()
+{
+  return FIRMWARE_ID_PREFIX + getFlavour();
+}

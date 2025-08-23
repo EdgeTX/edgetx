@@ -66,6 +66,7 @@ class FirmwareInterface
     QImage::Format getSplashFormat();
     unsigned int save(const QString & fileName);
     bool isValid();
+    bool isFlavourMatch(const QString flavour);
 
   private:
     QDialog* parentDialog;
