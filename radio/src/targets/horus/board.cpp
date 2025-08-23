@@ -26,6 +26,8 @@
 #include "stm32_ws2812.h"
 #include "vs1053b.h"
 
+#include "flash_driver.h"
+
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
@@ -75,6 +77,10 @@ void boardBLPreJump()
 void boardBLInit()
 {
   SDRAM_Init();
+
+  // register internal FLASH for UF2
+  uint32_t flash_len = FLASH_END - FLASH_BASE + 1;
+  flashRegisterDriver(FLASH_BASE, flash_len, &stm32_flash_driver);
 }
 
 #if !defined(BOOT)
