@@ -51,4 +51,7 @@ class LabelsStorageFormat : public StorageFormat
     virtual bool deleteFile(const QString & fileName) = 0;
 
     StorageType probeFormat();
+
+    bool loadChecklist(ModelData &model);
+    bool writeChecklist(const ModelData & model);
 };
