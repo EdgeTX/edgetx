@@ -32,6 +32,7 @@ set(LVGL_SOURCES_MINIMAL
   hal/lv_hal_tick.c
 
   misc/lv_area.c
+  misc/lv_bidi.c
   misc/lv_color.c
   misc/lv_gc.c
   misc/lv_ll.c
