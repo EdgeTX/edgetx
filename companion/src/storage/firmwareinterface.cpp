@@ -393,7 +393,6 @@ QImage::Format FirmwareInterface::getSplashFormat()
   return splashFormat;
 }
 
-
 QImage FirmwareInterface::getSplash()
 {
   if (splashOffset == 0 || splashSize == 0) {
