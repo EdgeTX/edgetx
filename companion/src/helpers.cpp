@@ -718,24 +718,6 @@ void TableLayout::setColumnStretch(int col, int stretch)
 #endif
 }
 
-QString Helpers::getChecklistsPath()
-{
-  return QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/MODELS/");   // TODO : add sub folder to constants
-}
-
-QString Helpers::getChecklistFilename(const ModelData * model)
-{
-  QString name = model->name;
-  name.replace(" ", "_");
-  name.append(".txt");          // TODO : add to constants
-  return name;
-}
-
-QString Helpers::getChecklistFilePath(const ModelData * model)
-{
-  return getChecklistsPath() + getChecklistFilename(model);
-}
-
 QString Helpers::removeAccents(const QString & str)
 {
   // UTF-8 ASCII Table

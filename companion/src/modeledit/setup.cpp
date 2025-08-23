@@ -180,7 +180,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   if (!firmware->getCapability(HasDisplayText)) {
     ui->displayText->hide();
-    ui->editText->hide();
+    ui->editChecklist->hide();
   }
 
   if (!firmware->getCapability(GlobalFunctions)) {
@@ -321,8 +321,6 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
       connect(modules[i], &ModulePanel::protocolChanged, modules[CPN_MAX_MODULES], &ModulePanel::updateTrainerModeItemModel);
     }
   }
-
-  disableMouseScrolling();
 
   lock = false;
 }
@@ -646,17 +644,12 @@ void SetupPanel::onBeepCenterToggled(bool checked)
   }
 }
 
-void SetupPanel::on_editText_clicked()
+void SetupPanel::on_editChecklist_clicked()
 {
-  const QString path = Helpers::getChecklistsPath();
-  QDir d(path);
-  if (!d.exists()) {
-    QMessageBox::critical(this, tr("Profile Settings"), tr("SD structure path not specified or invalid"));
-  }
-  else {
-    ChecklistDialog *g = new ChecklistDialog(this, model);
-    g->exec();
-  }
+  ChecklistDialog *chk = new ChecklistDialog(this, model);
+  connect(chk, &ChecklistDialog::updated, [this]() { emit modified(); });
+  chk->exec();
+  chk->deleteLater();
 }
 
 void SetupPanel::onTimerCustomContextMenuRequested(QPoint pos)
