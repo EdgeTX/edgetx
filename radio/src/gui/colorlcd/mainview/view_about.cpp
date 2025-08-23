@@ -33,11 +33,7 @@ const std::string about_str =
 #else
 const std::string about_str =
     "EdgeTX"
-    #if defined(VERSION_PREFIX)
-    " (" VERSION_PREFIX "-" VERSION "-" VERSION_SUFFIX ")";
-    #else
-    " (" VERSION "-" VERSION_SUFFIX ")";
-    #endif
+    " (" VERSION_PREFIX VERSION "-" VERSION_SUFFIX ")";
 #endif
 const std::string copyright_str = "Copyright (C) " BUILD_YEAR " EdgeTX";
 const std::string edgetx_url = "https://edgetx.org";
