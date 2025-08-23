@@ -207,7 +207,7 @@ void ledInit();
 void ledOff();
 void ledRed();
 void ledBlue();
-#if defined(PCBX10)
+#if defined(LED_GREEN_GPIO)
   void ledGreen();
 #endif
 
