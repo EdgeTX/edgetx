@@ -241,7 +241,11 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   }
 
   /* Start ADC calibration in mode single-ended or differential */
+#if defined(STM32H7RS)
+  LL_ADC_StartCalibration(ADCx, LL_ADC_SINGLE_ENDED);
+#else
   LL_ADC_StartCalibration(ADCx, LL_ADC_CALIB_OFFSET_LINEARITY, LL_ADC_SINGLE_ENDED);
+#endif
 
   /* Wait for calibration completion */
   while (LL_ADC_IsCalibrationOnGoing(ADCx) != 0UL);
@@ -267,8 +271,15 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   }
 
 #if defined(STM32H7RS) || defined(STM32H7) || defined(STM32H5)
+
+#if defined(ADC3)
+  #define _SUPPORTS_OVS(adc) (adc != ADC3)
+#else
+  #define _SUPPORTS_OVS(adc) (true)
+#endif
+
   // set hardware oversampling
-  if (!_adc_oversampling_disabled && ADCx != ADC3) {
+  if (!_adc_oversampling_disabled && _SUPPORTS_OVS(ADCx)) {
     // LL_ADC_OVS_RATIO_x in stm32h7xx_ll_adc.h is broken
     // so actual oversampling count need to be used
 	// ADC3 oversampling is disabled because of issues in LL libs
