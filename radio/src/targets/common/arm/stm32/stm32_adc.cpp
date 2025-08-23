@@ -540,6 +540,16 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   return true;
 }
 
+void stm32_hal_adc_deinit(const stm32_adc_t* ADCs, uint8_t n_ADC)
+{
+  const stm32_adc_t* adc = ADCs;
+
+  while (n_ADC > 0) {
+    LL_ADC_Disable(adc->ADCx);
+    adc++; n_ADC--;
+  }
+}
+
 #if defined(STM32H7RS)
 
 static inline DMA_Channel_TypeDef* _dma_get_stream(DMA_TypeDef *DMAx, uint32_t Channel)

@@ -95,36 +95,16 @@ void TextKeyboard::cursorEnd()
     lv_textarea_cursor_right(kb->ta);
 }
 
-#if (defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)) && \
-    !defined(PCBX12S)
-// Radios with both PGUP and PGDN buttons except X12S
-void TextKeyboard::onPressSYS() { changeMode(); }
-void TextKeyboard::onLongPressSYS() {}
-void TextKeyboard::onPressMDL() {}
+void TextKeyboard::onPressSYS() { if (hasTwoPageKeys) changeMode(); else cursorLeft(); }
+void TextKeyboard::onLongPressSYS() { if (!hasTwoPageKeys) cursorStart(); }
+void TextKeyboard::onPressMDL() { if (!hasTwoPageKeys) changeMode(); }
 void TextKeyboard::onLongPressMDL() { backspace(); }
-void TextKeyboard::onPressTELE() { toggleCase(); }
-void TextKeyboard::onLongPressTELE() { deleteChar(); }
-void TextKeyboard::onPressPGUP() { cursorLeft(); }
-void TextKeyboard::onPressPGDN() { cursorRight(); }
+void TextKeyboard::onPressTELE() { if (hasTwoPageKeys) toggleCase(); else cursorRight(); }
+void TextKeyboard::onLongPressTELE() { if (hasTwoPageKeys) deleteChar(); else cursorEnd(); }
+void TextKeyboard::onPressPGUP() { if (hasTwoPageKeys) cursorLeft(); else deleteChar(); }
+void TextKeyboard::onPressPGDN() { if (hasTwoPageKeys) cursorRight(); else toggleCase(); }
 void TextKeyboard::onLongPressPGUP() { cursorStart(); }
 void TextKeyboard::onLongPressPGDN() { cursorEnd(); }
-#else
-// Radios witb only a single PGUP/DN button or X12S
-void TextKeyboard::onPressSYS() { cursorLeft(); }
-void TextKeyboard::onLongPressSYS() { cursorStart(); }
-void TextKeyboard::onPressMDL() { changeMode(); }
-void TextKeyboard::onLongPressMDL() { backspace(); }
-void TextKeyboard::onPressTELE() { cursorRight(); }
-void TextKeyboard::onLongPressTELE() { cursorEnd(); }
-#if defined(PCBX12S)
-void TextKeyboard::onPressPGUP() { toggleCase(); }
-#else
-void TextKeyboard::onPressPGUP() { deleteChar(); }
-#endif
-void TextKeyboard::onPressPGDN() { toggleCase(); }
-void TextKeyboard::onLongPressPGUP() {}
-void TextKeyboard::onLongPressPGDN() { deleteChar(); }
-#endif
 #endif
 
 void TextKeyboard::open(FormField* field)

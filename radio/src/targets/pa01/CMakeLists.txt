@@ -47,7 +47,6 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR pa01)
-add_definitions(-DRADIO_PA01)
 
 # Defines internal modules for PL18 via UART7
 set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")

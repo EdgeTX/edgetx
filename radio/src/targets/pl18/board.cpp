@@ -183,7 +183,7 @@ void boardBLPreJump()
 {
   SDRAM_Init();
 #if defined(RADIO_NB4P)
-  LL_ADC_Disable(ADC_MAIN);
+  _adc_driver.deinit();
 #endif
 }
 

@@ -23,7 +23,7 @@ set(SIMU_DRIVERS
   )
 
 set(HW_DESC_JSON ${FLAVOUR}.json)
-AddHardwareDefTarget(${HW_DESC_JSON})
+# AddHardwareDefTarget(${HW_DESC_JSON})
 AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
 AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
@@ -32,8 +32,8 @@ set(SIMU_DRIVERS ${SIMU_DRIVERS}
   ${CMAKE_CURRENT_BINARY_DIR}/simu_keys.inc
   ${CMAKE_CURRENT_BINARY_DIR}/simu_switches.inc
   ${CMAKE_CURRENT_BINARY_DIR}/hal_adc_inputs.inc
-  ${CMAKE_CURRENT_BINARY_DIR}/${HW_DESC_JSON}
-  )
+  ${RADIO_SRC_DIR}/boards/hw_defs/${HW_DESC_JSON}
+)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if(SIMU_LUA_COMPILER)

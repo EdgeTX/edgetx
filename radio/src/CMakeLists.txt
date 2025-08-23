@@ -100,11 +100,18 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
+# Add RADIO_xxx definition
+string(TOUPPER ${FLAVOUR} RADIO_NAME)
+string(REPLACE "+" "P" RADIO_NAME ${RADIO_NAME})
+string(CONCAT RADIO_NAME "RADIO_" ${RADIO_NAME})
+add_definitions(-D${RADIO_NAME})
+set(${RADIO_NAME} YES)
+
 set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
 
 # enable generating JSON definition separately for debugging
-add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include(hal/CMakeLists.txt)
 
@@ -719,5 +726,3 @@ if(CPU_FAMILY STREQUAL STM32)
 endif()
 
 PrintTargetReport("firmware")
-
-AddHardwareDefTarget(hardware_defs ${RADIO_DIRECTORY}/src/targets/hw_defs/${FLAVOUR}.json)

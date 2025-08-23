@@ -21,18 +21,18 @@
 
 #pragma once
 
-// Define navigation type based on available keys
-#if LCD_W == 212
-  #define NAVIGATION_X9D
-#elif defined(KEYS_GPIO_REG_SHIFT)
+// Define navigation type if not defined already
+#if defined(RADIO_XLITE) || defined(RADIO_XLITES)
   #define NAVIGATION_XLITE
-#elif defined(KEYS_GPIO_REG_LEFT)
+#elif defined(RADIO_LR3PRO) || defined(RADIO_T12) || defined(RADIO_TLITE)
   #define NAVIGATION_9X
-#elif defined(KEYS_GPIO_REG_PAGEUP) && defined(KEYS_GPIO_REG_TELE)
-  #define NAVIGATION_X7
-  #define NAVIGATION_X7_TX12
+#elif defined(RADIO_X9D) || defined(RADIO_X9DP) || defined(RADIO_X9DP2019) || defined(RADIO_X9E)
+  #define NAVIGATION_X9D
 #else
   #define NAVIGATION_X7
+  #if defined(MANUFACTURER_RADIOMASTER) && !defined(RADIO_T8)
+    #define NAVIGATION_X7_RM
+  #endif
 #endif
 
 #if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
@@ -55,7 +55,7 @@
 #define EVT_KEY_MODEL_MENU             EVT_KEY_BREAK(KEY_MODEL)
 #define EVT_KEY_GENERAL_MENU           EVT_KEY_BREAK(KEY_SYS)
 #define EVT_KEY_TELEMETRY              EVT_KEY_LONG(KEY_PAGEUP)
-#elif defined(NAVIGATION_X7_TX12)
+#elif defined(NAVIGATION_X7_RM)
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_ROTARY_RIGHT
@@ -86,7 +86,7 @@
 #if defined(NAVIGATION_XLITE)
   #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_LONG(KEY_LEFT) && keysGetState(KEY_SHIFT))
   #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_LONG(KEY_RIGHT) && keysGetState(KEY_SHIFT))
-#elif defined(KEYS_GPIO_REG_PAGEUP)
+#elif defined(NAVIGATION_X7_RM) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
   #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_FIRST(KEY_PAGEUP))
   #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_FIRST(KEY_PAGEDN))
 #elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)

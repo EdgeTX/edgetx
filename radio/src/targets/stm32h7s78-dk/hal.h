@@ -49,59 +49,7 @@
 
 
 // ADC
-
 #define ADC_VREF_PREC2 1024 // fake
-
-#define ADC_GPIO_PIN_STICK_LH LL_GPIO_PIN_0
-#define ADC_GPIO_PIN_STICK_LV LL_GPIO_PIN_2
-#define ADC_GPIO_PIN_STICK_RV
-#define ADC_GPIO_PIN_STICK_RH 
-#define ADC_GPIO_PIN_BATT // fake
-
-// #define ADC_GPIO_PIN_POT1 LL_GPIO_PIN_0 // PA0_C VR1
-// #define ADC_GPIO_PIN_POT2 LL_GPIO_PIN_1 // PA1_C VR2
-
-// #define ADC_GPIOA_PINS (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2)
-#define ADC_GPIOC_PINS (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
-
-// Fake gimbal channels
-#define ADC_CHANNEL_STICK_LH LL_ADC_CHANNEL_10
-#define ADC_CHANNEL_STICK_LV LL_ADC_CHANNEL_12
-#define ADC_CHANNEL_STICK_RV
-#define ADC_CHANNEL_STICK_RH
-#define ADC_CHANNEL_BATT    // fake
-#define ADC_CHANNEL_RTC_BAT // fake
-
-// #define ADC_CHANNEL_POT1 LL_ADC_CHANNEL_0 // ADC12_INP0
-// #define ADC_CHANNEL_POT2 LL_ADC_CHANNEL_1 // ADC12_INP1
-
-#define ADC_MAIN ADC1
-#define ADC_DMA  GPDMA1
-#define ADC_DMA_CHANNEL LL_GPDMA1_REQUEST_ADC1
-#define ADC_DMA_STREAM LL_DMA_CHANNEL_0
-#define ADC_DMA_STREAM_IRQ GPDMA1_Channel0_IRQn
-#define ADC_DMA_STREAM_IRQHandler GPDMA1_Channel0_IRQHandler
-
-#define ADC_SAMPTIME LL_ADC_SAMPLINGTIME_92CYCLES_5
-#define ADC_DIRECTION {0,0,0,0,0,0}
-
-// Power
-// #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOI, 11)  // PI.11
-// #define PWR_ON_GPIO                 GPIO_PIN(GPIOI, 14)  // PI.14
-
-// Chargers (USB and wireless)
-// #define UCHARGER_GPIO               GPIO_PIN(GPIOB, 14) // PB.14 input
-// #define UCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOB, 13) // PB.13 input
-// #define UCHARGER_EN_GPIO            GPIO_PIN(GPIOG, 3)  // PG.03 output
-
-// #if defined (WIRELESS_CHARGER)
-//   #define WCHARGER_GPIO               GPIO_PIN(GPIOI, 9)  // PI.09 input
-//   #define WCHARGER_CHARGE_END_GPIO    GPIO_PIN(GPIOI, 10) // PI.10 input
-//   #define WCHARGER_EN_GPIO            GPIO_PIN(GPIOH, 4)  // PH.04 output
-//   #define WCHARGER_I_CONTROL_GPIO     GPIO_PIN(GPIOH, 13) // PH.13 output
-// #endif
-
-// TODO! Check IOLL1 to PI.01 connectivity!
 
 // S.Port update connector
 // #define SPORT_MAX_BAUDRATE              400000

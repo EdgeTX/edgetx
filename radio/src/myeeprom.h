@@ -242,8 +242,10 @@ enum DisplayTrims
   DISPLAY_TRIMS_ALWAYS
 };
 
+#if !defined(BOOT)
 extern RadioData g_eeGeneral;
 extern ModelData g_model;
+#endif
 
 constexpr uint8_t EE_GENERAL = 0x01;
 constexpr uint8_t EE_MODEL = 0x02;
