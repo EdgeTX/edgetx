@@ -32,7 +32,6 @@ set(LVGL_SOURCES_MINIMAL
   hal/lv_hal_tick.c
 
   misc/lv_area.c
-  misc/lv_bidi.c
   misc/lv_color.c
   misc/lv_gc.c
   misc/lv_ll.c
@@ -40,6 +39,11 @@ set(LVGL_SOURCES_MINIMAL
   misc/lv_txt.c
   misc/lv_utils.c
 )
+
+# Add BIDI support for RTL languages (needed for bootloader LVGL draw functions)
+if(TRANSLATION_IS_RTL)
+  list(APPEND LVGL_SOURCES_MINIMAL misc/lv_bidi.c)
+endif()
 
 set(LVGL_SOURCES
   ${LVGL_SOURCES_MINIMAL}
