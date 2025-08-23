@@ -122,20 +122,8 @@ class TersePrinter : public EmptyTestEventListener  {
 
 int32_t lastAct = 0;
 
-uint16_t simu_get_analog(uint8_t idx)
-{
-  return 0;
-}
-
-void simuQueueAudio(const uint8_t*, uint32_t) {}
-
-void fsLedOn(uint8_t idx)
-{
-}
-
-void fsLedOff(uint8_t idx)
-{
-}
+uint16_t simuGetAnalog(uint8_t) { return 0; }
+void simuQueueAudio(const uint8_t *, uint32_t) {}
 
 static char _stringResult[200];
 

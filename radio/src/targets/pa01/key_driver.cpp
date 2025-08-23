@@ -34,6 +34,8 @@
 #define BSP_KEY_OUT_MASK                                      \
   (BSP_KEY_OUT1 | BSP_KEY_OUT2 | BSP_KEY_OUT3 | BSP_KEY_OUT4)
 
+#define KEYS_GPIO_ENTER GPIO_PIN(GPIOG, 13) // PG.13
+
 /* The output bit-order has to be:
    0  LHL  TR3L (Left equals down)
    1  LHR  TR3R

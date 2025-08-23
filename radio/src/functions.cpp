@@ -23,8 +23,7 @@
 #include "switches.h"
 
 #include "hal/audio_driver.h"
-
-#include "boards/generic_stm32/rgb_leds.h"
+#include "os/time.h"
 
 #if defined(COLORLCD)
 void setRequestedMainView(uint8_t view);
@@ -385,9 +384,10 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           case FUNC_PUSH_CUST_SWITCH:
             if (CFN_PARAM(cfn)) {   // Duration is set
               if (! CFN_VAL2(cfn) ) { // Duration not started yet
-                CFN_VAL2(cfn) = timersGetMsTick() + CFN_PARAM(cfn) * 100;
+                CFN_VAL2(cfn) = time_get_ms() + CFN_PARAM(cfn) * 100;
                 g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
-              } else if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
+              }
+              else if (time_get_ms() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
                 g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
               }
             } else { // No duration set
@@ -471,7 +471,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #if defined(FUNCTION_SWITCHES)
         if (CFN_FUNC(cfn) == FUNC_PUSH_CUST_SWITCH) {
           // Handling duration after function is active
-          if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn)) {
+          if (time_get_ms() < (uint32_t)CFN_VAL2(cfn)) {
             g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
           }
           else {

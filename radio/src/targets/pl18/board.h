@@ -29,8 +29,8 @@
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
 
-#if defined(ADC_GPIO_PIN_STICK_TH)
-#define SURFACE_RADIO  true
+#if defined(RADIO_NB4P)
+  #define SURFACE_RADIO  true
 #endif
 
 #define FLASHSIZE                       0x200000

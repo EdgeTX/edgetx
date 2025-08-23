@@ -1,0 +1,143 @@
+name: Companion
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - v*
+    paths:
+      - '.github/workflows/companion.yml'
+      - 'companion/**'
+      - 'tools/build-companion.sh'
+
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/companion.yml'
+      - 'companion/**'
+      - 'tools/build-companion.sh'
+
+  workflow_dispatch:
+
+jobs:
+  modules:
+    name: WASM Modules (${{ matrix.group.id }})
+    runs-on: macos-14
+    strategy:
+      matrix:
+        group:
+          - id: color-1
+            target: [nv14, el18, pl18, pl18ev]
+          - id: color-2
+            target: [pl18u, t15, t16, t18]
+          - id: bw-1
+            target: [zorro, pocket, mt12, commando8, tprov2, tpros, bumblebee, t14]
+          - id: bw-2
+            target: [mt12, gx12, t20, t20v2, t12max, tx12mk2, boxer]
+          - id: color-3
+            target: [tx15, tx16s, x12s, f16]
+          - id: mixed-1
+            target: [v12, v14, v16, x10, x10express]
+          - id: bw-3
+            target: [x7access, x9dp2019, x9e, x9e-hall]
+          - id: color-4
+            target: [nb4p, st16, pa01]
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup Python Dependencies
+        uses: ./.github/actions/python_dependencies
+
+      - name: Setup WASI SDK
+        uses: ./.github/actions/wasi_sdk
+
+      - name: Build modules
+        shell: bash
+        env:
+          FLAVOR: ${{ join(matrix.group.target, ';') }}
+          CMAKE_BUILD_TYPE: 'Release'
+        run: |
+          mkdir output && \
+          tools/build-wasm-modules.sh "$(pwd)" "$(pwd)/output/"
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-modules-${{ matrix.group.id }}
+          path:  ${{github.workspace}}/output
+          if-no-files-found: error
+          retention-days: 15
+
+  build-linux:
+    name: Linux Companion
+    runs-on: ubuntu-latest
+    needs: modules
+
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup and Build
+        uses: ./.github/actions/build_companion
+        with:
+          os: 'linux'
+
+  build-macos:
+    name: macOS Companion
+    runs-on: macos-14
+    needs: modules
+
+    env:
+      CMAKE_OSX_ARCHITECTURES: 'x86_64'
+      CMAKE_OSX_DEPLOYMENT_TARGET: '10.15'
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup and Build
+        uses: ./.github/actions/build_companion
+        with:
+          os: 'macos'
+          qt-arch: 'clang_64'
+
+  build-win64:
+    name: Windows Companion
+    runs-on: windows-2022
+    needs: modules
+
+    env:
+      CMAKE_GENERATOR: 'Ninja'
+      CXX: 'clang++'
+      CC: 'clang'
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup and Build
+        uses: ./.github/actions/build_companion
+        with:
+          os: 'win64'
+          qt-arch: 'win64_msvc2022_64'

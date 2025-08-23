@@ -1,0 +1,20 @@
+name: 'Setup WASI SDK'
+inputs:
+  arch:
+    description: 'OS / Architecture (ex: arm64-macos)'
+    default: 'arm64-macos'
+  version:
+    description: 'SDK version'
+    default: '25'
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Install WASI SDK
+      if: steps.cache-wasi-sdk.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        mkdir /tmp/wasi-sdk
+        curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${{ inputs.version }}/wasi-sdk-${{ inputs.version }}.0-${{ inputs.arch }}.tar.gz | tar xz --strip-components 1 -C /tmp/wasi-sdk
+        sudo mv /tmp/wasi-sdk /opt/wasi-sdk

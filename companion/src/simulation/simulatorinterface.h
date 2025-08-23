@@ -177,7 +177,6 @@ class SimulatorInterface : public QObject
     void started();
     void stopped();
     void heartbeat(qint32 loops, qint64 timestamp);
-    void runtimeError(const QString & error);
     void lcdChange(bool backlightEnable);
     void phaseChanged(qint8 phase, const QString & name);
     void channelOutValueChange(quint8 index, qint32 value, qint32 limit);

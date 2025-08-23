@@ -41,7 +41,7 @@
 
 #define GET_SWITCH_BOOL(sw__)    getSwitch((sw__), 0);
 
-#define ETXS_DBG    qDebug() << "(" << simuTimerMicros() << "us)"
+#define ETXS_DBG    qDebug() << "(" << time_get_ms() << "us)"
 
 int16_t g_anas[MAX_ANALOG_INPUTS];
 QVector<QIODevice *> OpenTxSimulator::tracebackDevices;
@@ -89,16 +89,6 @@ void firmwareTraceCb(const char * text)
     if (dev)
       dev->write(text);
   }
-}
-
-void fsLedOn(uint8_t idx)
-{
-  rgbSetLedColor(idx, 0xFF, 0xFF, 0xFF);
-}
-
-void fsLedOff(uint8_t idx)
-{
-  rgbSetLedColor(idx, 0, 0, 0);
 }
 
 // Serial port handling needs to know about OpenTxSimulator, so we we
@@ -284,8 +274,9 @@ void OpenTxSimulator::start(const char * filename, bool tests)
   QMutexLocker lckr(&m_mtxSimuMain);
   QMutexLocker slckr(&m_mtxSettings);
   simuAudioInit();
-  simuStart(tests, simuSdDirectory.toLatin1().constData(),
-            simuSettingsDirectory.toLatin1().constData());
+  simuFatfsSetPaths(simuSdDirectory.toLatin1().constData(),
+                    simuSettingsDirectory.toLatin1().constData());
+  simuStart(tests);
 
   emit started();
   QTimer::singleShot(0, this, SLOT(run()));  // old style for Qt < 5.4
@@ -421,6 +412,8 @@ extern volatile uint32_t rotencDt;
 
 void OpenTxSimulator::rotaryEncoderEvent(int steps)
 {
+  if (steps == 0) return;
+
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   static uint32_t last_tick = 0;
   if (steps != 0) {
@@ -434,22 +427,14 @@ void OpenTxSimulator::rotaryEncoderEvent(int steps)
     last_tick = now;
   }
 #else
-  // TODO : this should probably be handled in the GUI
   int key;
-#if defined(PCBXLITE)
-  if (steps > 0)
-    key = KEY_DOWN;
-  else if (steps < 0)
-    key = KEY_UP;
-#elif defined(KEYS_GPIO_REG_PLUS) && defined(KEYS_GPIO_REG_MINUS)
-  if (steps > 0)
-    key = KEY_MINUS;
-  else if (steps < 0)
-    key = KEY_PLUS;
-  else
-#endif
-    // Should not happen but Clang complains that key is unset otherwise
-    return;
+  if (keyIsSupported(KEY_UP) | keyIsSupported(KEY_DOWN)) {
+    key = steps > 0 ? KEY_DOWN : KEY_UP;
+  } else if (keyIsSupported(KEY_PLUS) | keyIsSupported(KEY_MINUS)) {
+    key = steps > 0 ? KEY_MINUS : KEY_PLUS;
+  } else {
+    return; // not supposed to happen???
+  }
 
   setKey(key, 1);
   QTimer::singleShot(10, [this, key]() { setKey(key, 0); });
@@ -749,12 +734,9 @@ void OpenTxSimulator::run()
   if (!loops)
     ts.start();
 
-  if (isStopRequested()) {
-    return;
-  }
+  if (isStopRequested()) return;
+
   if (!isRunning()) {
-    QString err(getError());
-    emit runtimeError(err);
     emit stopped();
     return;
   }
@@ -769,7 +751,7 @@ void OpenTxSimulator::run()
   }
 
   if (!(loops % (SIMULATOR_INTERFACE_HEARTBEAT_PERIOD / 10))) {
-    emit heartbeat(loops, simuTimerMicros() / 1000);
+    emit heartbeat(loops, time_get_ms());
   }
 }
 
@@ -888,6 +870,7 @@ uint8_t OpenTxSimulator::getStickMode()
   return limit<uint8_t>(0, g_eeGeneral.stickMode, 3);
 }
 
+// TODO: remove this
 const char * OpenTxSimulator::getPhaseName(unsigned int phase)
 {
   static char buff[LEN_FLIGHT_MODE_NAME+1];
@@ -903,12 +886,6 @@ const QString OpenTxSimulator::getCurrentPhaseName()
     name = QString::number(phase);
   return name;
 }
-
-const char * OpenTxSimulator::getError()
-{
-  return main_thread_error;
-}
-
 
 /*
  * OpenTxSimulatorFactory

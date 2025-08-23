@@ -1180,7 +1180,6 @@ void evalMixes(uint8_t tick10ms)
         weight += fp_act[p];
       }
     }
-    assert(weight);
     mixerCurrentFlightMode = fm;
   }
   else {

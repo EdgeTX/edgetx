@@ -38,9 +38,4 @@
 #endif
 #endif
 
-
-#if defined(SIMU)
-#include "../simu/simpgmspace.h"
-#endif
-
 #include "delays_driver.h"

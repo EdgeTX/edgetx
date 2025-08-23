@@ -34,7 +34,6 @@ option(SIMU_LUA_COMPILER "Pre-compile and save Lua scripts in simulator." ON)
 option(FAS_PROTOTYPE "Support of old FAS prototypes (different resistors)" OFF)
 option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
-option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
 option(TRACE_AUDIO "Traces audio enabled" OFF)
 option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
@@ -100,11 +99,18 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
+# Add RADIO_xxx definition
+string(TOUPPER ${FLAVOUR} RADIO_NAME)
+string(REPLACE "+" "P" RADIO_NAME ${RADIO_NAME})
+string(CONCAT RADIO_NAME "RADIO_" ${RADIO_NAME})
+add_definitions(-D${RADIO_NAME})
+set(${RADIO_NAME} YES)
+
 set(HW_DESC_JSON ${FLAVOUR}.json)
 AddHardwareDefTarget(${HW_DESC_JSON})
 
 # enable generating JSON definition separately for debugging
-add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include(hal/CMakeLists.txt)
 
@@ -511,7 +517,10 @@ if(NATIVE_BUILD)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   add_subdirectory(targets/simu)
-  add_subdirectory(tests)
+
+  if(NOT WASI)
+    add_subdirectory(tests)
+  endif()
 endif()
 
 set(SRC ${SRC} ${FIRMWARE_SRC})
@@ -530,6 +539,8 @@ if(NOT USE_UNSUPPORTED_TOOLCHAIN AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUA
   message("CPP Compiler: ${CMAKE_CXX_COMPILER}, version ${CMAKE_CXX_COMPILER_VERSION}")
   message(FATAL_ERROR "Only Arm GNU Toolchain version 14.2.rel1 is supported!!")
 endif()
+
+enable_language(ASM)
 
 set(CMAKE_C_FLAGS "${FIRMWARE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "${FIRMWARE_C_FLAGS_DEBUG}")
@@ -719,5 +730,3 @@ if(CPU_FAMILY STREQUAL STM32)
 endif()
 
 PrintTargetReport("firmware")
-
-AddHardwareDefTarget(hardware_defs ${RADIO_DIRECTORY}/src/targets/hw_defs/${FLAVOUR}.json)

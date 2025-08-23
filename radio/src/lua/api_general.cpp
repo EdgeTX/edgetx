@@ -1693,12 +1693,13 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 */
 static int luaKillEvents(lua_State * L)
 {
-#if defined(KEYS_GPIO_REG_MENU)
-  #define IS_MASKABLE(key)                                      \
-    ((key) != KEY_EXIT && (key) != KEY_ENTER &&                 \
-     ((scriptInternalData[0].reference == SCRIPT_STANDALONE) || \
-      (key) != KEY_PAGEDN))
+#if !defined(COLORLCD)
+  #define IS_STANDALONE() (scriptInternalData[0].reference == SCRIPT_STANDALONE)
+  #define IS_MASKABLE(key)                      \
+    ((key) != KEY_EXIT && (key) != KEY_ENTER && \
+     (!keyIsSupported(KEY_MENU) || (IS_STANDALONE() || ((key) != KEY_PAGEDN))))
 #else
+  #define IS_STANDALONE() (false)
   #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
 #endif
 
@@ -1710,6 +1711,9 @@ static int luaKillEvents(lua_State * L)
     luaEmptyEventBuffer();
    }
   return 0;
+
+#undef IS_MASKABLE
+#undef IS_STANDALONE
 }
 
 #if LCD_DEPTH > 1 && !defined(COLORLCD)

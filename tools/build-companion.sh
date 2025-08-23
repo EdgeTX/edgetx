@@ -14,17 +14,21 @@ if [[ -z ${OUTDIR} ]]; then
   OUTDIR="$(pwd)/output"
 fi
 
-QUIET_FLAGS=""
-if [[ "$CMAKE_GENERATOR" == "Ninja" ]]; then
-    QUIET_FLAGS="-- --quiet"
-else
-    # Assume Makefile generator for non-Ninja builds
-    COMMON_OPTIONS="-DCMAKE_RULE_MESSAGES=OFF"
+if [[ ! -d "${OUTDIR}" ]]; then
+  mkdir -p "${OUTDIR}"
 fi
 
-COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev -DGVARS=YES -DHELI=YES -DLUA=YES"
+QUIET_FLAGS=""
+if [[ "$CMAKE_GENERATOR" == "Ninja" ]]; then
+  QUIET_FLAGS="-- --quiet"
+else
+  # Assume Makefile generator for non-Ninja builds
+  COMMON_OPTIONS="-DCMAKE_RULE_MESSAGES=OFF"
+fi
+
+COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev"
 if [ "$(uname)" = "Darwin" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15'"
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15'"
 fi
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
@@ -45,8 +49,8 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-if [ "$(uname)" = "Linux" ] && [ -n "$GITHUB_ACTIONS" ]; then
-  MAX_JOBS=3
+if [[ -n "$GITHUB_ACTIONS" ]]; then
+  MAX_JOBS=${MAX_JOBS:-3}
 fi
 
 rm -rf build && mkdir build && cd build
@@ -94,7 +98,7 @@ run_pipeline() {
                 output_error_log "$log_file" "$context (Configuration)"
                 return 1
             fi
-            if ! execute_with_output "🔧 Native config" "cmake --build . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
+            if ! execute_with_output "🔧 CMake config" "cmake --build . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
                 output_error_log "$log_file" "$context (Native Configure)"
                 return 1
             fi
@@ -104,16 +108,18 @@ run_pipeline() {
             fi
             ;;
         "final")
-            if ! execute_with_output "🔧 Final config" "cmake --build . --target native-configure ${cmake_opts}" "$log_file" "$show_details"; then
-                output_error_log "$log_file" "Final Configuration"
+            BUILD_OPTIONS="${COMMON_OPTIONS} -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1"
+            clean_build && mkdir -p native/plugins
+            if ! execute_with_output "🔧 CMake config" "cmake -S ${SRCDIR} -B native --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS}" "$log_file" "$show_details"; then
+                output_error_log "$log_file" "CMake Configuration"
                 return 1
             fi
             if ! execute_with_output "📦 Building companion" "cmake --build native --target companion ${cmake_opts}" "$log_file" "$show_details"; then
-                output_error_log "$log_file" "$context (Companion Build)"
+                output_error_log "$log_file" "Companion Build"
                 return 1
             fi
             if ! execute_with_output "📦 Packaging" "cmake --build native --target ${PACKAGE_TARGET}" "$log_file" "true"; then
-                output_error_log "$log_file" "Final Packaging"
+                output_error_log "$log_file" "Packaging"
                 return 1
             fi
             ;;
@@ -203,16 +209,16 @@ build_plugin() {
 }
 
 declare -a simulator_plugins=(
-    x9lite x9lites x9d x9dp x9dp2019 x9e
-    x7 x7access
-    t8 t12 t12max tx12 tx12mk2 t15 t16 t18 t20 t20v2
-    xlite xlites
-    x10 x10express x12s
-    zorro tx16s tx15
-    commando8 boxer pocket mt12 gx12
-    tlite tpro tprov2 tpros bumblebee lr3pro t14
-    nv14 el18 pl18 pl18ev pl18u st16 pa01
-    f16 v14 v16
+    # x9lite x9lites x9d x9dp x9dp2019 x9e
+    # x7 x7access
+    # t8 t12 t12max tx12 tx12mk2 t15 t16 t18 t20 t20v2
+    # xlite xlites
+    # x10 x10express x12s
+    # zorro tx16s tx15
+    # commando8 boxer pocket mt12 gx12
+    # tlite tpro tprov2 tpros bumblebee lr3pro t14
+    # nv14 el18 pl18 pl18ev pl18u st16 pa01
+    # f16 v14 v16
 )
 
 get_platform_config

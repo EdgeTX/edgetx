@@ -25,6 +25,7 @@
 #include <gtest/gtest.h>
 
 #include "edgetx.h"
+#include "simulib.h"
 #include "model_init.h"
 #include "switches.h"
 #include "hal/switch_driver.h"

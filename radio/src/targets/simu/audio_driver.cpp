@@ -20,7 +20,7 @@
  */
 
 #include "audio.h"
-#include "simuaudio.h"
+#include "simulib.h"
 
 #if !defined(SOFTWARE_VOLUME)
 static int _simu_volume = 0;
@@ -39,8 +39,6 @@ int simuAudioGetVolume()
   return VOLUME_LEVEL_MAX;
 #endif
 }
-
-void simuQueueAudio(const uint8_t* data, uint32_t len);
 
 void audioConsumeCurrentBuffer()
 {

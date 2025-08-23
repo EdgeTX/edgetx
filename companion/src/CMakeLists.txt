@@ -130,7 +130,8 @@ else()
 endif()
 
 ############# Import radio hardware definitions ###############
-set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
+
+set(HWDEFS_DIR "${CMAKE_SOURCE_DIR}/radio/src/boards/hw_defs")
 set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
 set(HWDEFS_PHDR "HWDEF_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
@@ -299,22 +300,6 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
 add_subdirectory(tests)
 
 ############# Install ####################
-
-# the current flavour is not automatically added if build in the current cmake iteration, so always
-# add its library name to be sure
-string(TOLOWER ${PCB} FLAVOUR)
-
-if(PCBREV)
-  if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
-    set(FLAVOUR x7access)
-  elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
-    set(FLAVOUR x9d+2019)
-  elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
-    set(FLAVOUR x10express)
-  else()
-    string(TOLOWER ${PCBREV} FLAVOUR)
-  endif()
-endif(PCBREV)
 
 set(COMPANION_TARGETS_DIR_ROOT "${COMPANION_SRC_DIRECTORY}/../targets")
 
@@ -680,4 +665,3 @@ else()
 endif()
 
 include(CPack)
-
