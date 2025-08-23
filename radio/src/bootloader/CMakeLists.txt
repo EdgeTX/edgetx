@@ -60,6 +60,12 @@ add_dependencies(bootloader ${BITMAPS_TARGET})
 target_compile_definitions(bootloader PUBLIC BOOT)
 target_compile_definitions(board_bl PUBLIC BOOT)
 
+# Force include BIDI functions for LVGL compatibility 
+# (needed because bootloader uses LVGL components that call BIDI functions)
+target_sources(bootloader PRIVATE 
+  ${RADIO_SRC_DIR}/thirdparty/lvgl/src/misc/lv_bidi.c
+)
+
 if(ARCH STREQUAL ARM)
   target_link_libraries(bootloader PUBLIC cmsis)
 endif()
