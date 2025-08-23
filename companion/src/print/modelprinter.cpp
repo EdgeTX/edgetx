@@ -1107,18 +1107,10 @@ QString ModelPrinter::printTelemetryScreen(unsigned int idx, unsigned int line, 
 
 QString ModelPrinter::printChecklist()
 {
-  if (!model.displayChecklist)
-    return "";
-  QString str = tr("Error: Unable to open or read file!");
-  QFile file(Helpers::getChecklistFilePath(&model));
-  if (file.open(QFile::ReadOnly | QFile::Text)) {
-    QTextStream in(&file);
-    if (in.status() == QTextStream::Ok) {
-      str = in.readAll();
-      str.replace("\n", "<br />");
-      str.remove("\r");
-    }
-    file.close();
-  }
+  if (!model.displayChecklist) return QString();
+
+  QString str(model.checklistData);
+  str.replace("\n", "<br />");
+  str.remove("\r");
   return str;
 }

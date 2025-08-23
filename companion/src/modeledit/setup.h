@@ -69,7 +69,7 @@ class SetupPanel : public ModelPanel
     void startupSwitchToggled(bool checked);
     void potWarningToggled(bool checked);
     void on_potWarningMode_currentIndexChanged(int index);
-    void on_editText_clicked();
+    void on_editChecklist_clicked();
     void onTimerCustomContextMenuRequested(QPoint pos);
     void cmTimerClear(bool prompt = true);
     void cmTimerClearAll();

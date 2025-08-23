@@ -2046,3 +2046,11 @@ const Board::SwitchType ModelData::getSwitchType(int sw, const GeneralSettings &
   }
   return gs.switchConfig[sw].type;
 }
+
+QString ModelData::getChecklistFilename() const
+{
+  QString name = name;
+  name.replace(" ", "_");
+  name.append(".txt");
+  return name;
+}
