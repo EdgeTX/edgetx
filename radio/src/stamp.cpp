@@ -54,7 +54,7 @@
     #if defined(VERSION_TAG)
       const char vers_stamp[] = "VERS" TAB ": " VERSION_TAG DISPLAY_VERSION "\"" CODENAME "\"";
     #else
-      const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION "-" VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
+      const char vers_stamp[] = "VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX DISPLAY_VERSION " (" GIT_STR ")";
     #endif
   #endif
   const char date_stamp[]   = "DATE" TAB ": " DATE;
@@ -69,7 +69,7 @@
   #if defined(VERSION_TAG)
     const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_TAG DISPLAY_VERSION "\036NAME" ": " CODENAME "\036DATE" TAB ": " DATE " " TIME;
   #else
-    const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_PREFIX VERSION "-" VERSION_SUFFIX DISPLAY_VERSION "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
+    const char vers_stamp[]   = "FW" TAB ": edgetx-" FLAVOUR    "\036VERS" TAB ": " VERSION_PREFIX VERSION VERSION_SUFFIX DISPLAY_VERSION "\036GIT#" TAB ": " GIT_STR "\036DATE" TAB ": " DATE " " TIME;
   #endif
 #endif
 
