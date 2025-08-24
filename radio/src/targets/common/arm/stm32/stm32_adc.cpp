@@ -40,7 +40,7 @@
   #define OVERSAMPLING 4
 #endif
 
-#define SAMPLING_TIMEOUT_US 500
+#define SAMPLING_TIMEOUT_US 200
 
 // Please note that we use the same prio for DMA TC and ADC IRQs
 // to avoid issues with preemption between these 2
@@ -83,7 +83,7 @@ static uint8_t _adc_oversampling_disabled;
 static uint16_t _adc_oversampling[MAX_ADC_INPUTS];
 
 // Indicates ADC timeout has occured
-static bool _adc_timeout_error;
+static volatile bool _adc_timeout_error;
 
 void stm32_hal_set_inputs_mask(uint32_t inputs)
 {
@@ -271,18 +271,8 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
   }
 
 #if defined(STM32H7RS) || defined(STM32H7) || defined(STM32H5)
-
-#if defined(ADC3)
-  #define _SUPPORTS_OVS(adc) (adc != ADC3)
-#else
-  #define _SUPPORTS_OVS(adc) (true)
-#endif
-
   // set hardware oversampling
-  if (!_adc_oversampling_disabled && _SUPPORTS_OVS(ADCx)) {
-    // LL_ADC_OVS_RATIO_x in stm32h7xx_ll_adc.h is broken
-    // so actual oversampling count need to be used
-	// ADC3 oversampling is disabled because of issues in LL libs
+  if (!_adc_oversampling_disabled) {
     LL_ADC_ConfigOverSamplingRatioShift(ADCx, 16, LL_ADC_OVS_SHIFT_RIGHT_4);
     LL_ADC_SetOverSamplingScope(ADCx, LL_ADC_OVS_GRP_REGULAR_CONTINUED);
   }
@@ -731,6 +721,7 @@ static void adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
 bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC,
                               const stm32_adc_input_t* inputs, uint8_t n_inputs)
 {
+  _adc_timeout_error = false;
   _adc_completed = 0;
   _adc_run = 0;
 
@@ -790,13 +781,9 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
   while(!_adc_completed) {
     // busy wait
     if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
-      TRACE("ADC timeout");
       _adc_timeout_error = true;
-      _adc_started_mask = 0;
-      return;
     }
   }
-  _adc_timeout_error = false;
 }
 
 void stm32_hal_adc_disable_oversampling()
@@ -813,7 +800,9 @@ static void _adc_mark_completed(const stm32_adc_t* adc)
 static void _adc_chain_conversions(const stm32_adc_t* adc)
 {
   _adc_mark_completed(adc);
+
   if (_adc_started_mask != 0) return;
+  if (_adc_timeout_error) return;
 
   if (!_adc_oversampling_disabled && (++_adc_run < OVERSAMPLING)) {
     adc_start_read(_adc_ADCs, _adc_n_ADC);
@@ -824,7 +813,7 @@ static void _adc_chain_conversions(const stm32_adc_t* adc)
   for (uint8_t i = 0; i < _adc_n_inputs; i++) {
     if (~_adc_input_mask & (1 << i)) continue;
     if (_adc_inhibit_mask & (1 << i)) continue;
-    if (!_adc_timeout_error) adcValues[i] = _adc_oversampling[i] / OVERSAMPLING;
+    adcValues[i] = _adc_oversampling[i] / OVERSAMPLING;
   }
 
   // we're done!
