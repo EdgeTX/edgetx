@@ -147,10 +147,11 @@ endforeach()
 
 set(RTL_LANGUAGES HE)
 if(TRANSLATIONS IN_LIST RTL_LANGUAGES)
-  add_definitions(-DTRANSLATION_IS_RTL=1)
+  set(TRANSLATION_IS_RTL 1)
 else()
-  add_definitions(-DTRANSLATION_IS_RTL=0)
+  set(TRANSLATION_IS_RTL 0)
 endif()
+add_definitions(-DTRANSLATION_IS_RTL=${TRANSLATION_IS_RTL})
 
 set(SRC ${SRC} debug.cpp)
 
