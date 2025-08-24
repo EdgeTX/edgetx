@@ -16,3 +16,4 @@ compile_commands.json
 /ys_Doc
 /.idea
 /.vs
+CMakeUserPresets.json

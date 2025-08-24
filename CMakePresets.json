@@ -1,0 +1,54 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "firmware",
+      "displayName": "Firmware",
+      "binaryDir": "build/fw",
+      "toolchainFile": "cmake/toolchain/arm-none-eabi.cmake",
+      "cacheVariables": {
+        "EdgeTX_SUPERBUILD": false,
+        "NATIVE_BUILD": false
+      }
+    },
+    {
+      "name": "simu",
+      "displayName": "SDL Simu",
+      "binaryDir": "build/simu",
+      "toolchainFile": "cmake/toolchain/native.cmake",
+      "cacheVariables": {
+        "EdgeTX_SUPERBUILD": false,
+        "NATIVE_BUILD": true
+      },
+      "warnings": {
+        "dev": false
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "firmware",
+      "displayName": "Firmware",
+      "configurePreset": "firmware",
+      "targets": [
+        "firmware"
+      ]
+    },
+    {
+      "name": "simu",
+      "displayName": "SDL Simu",
+      "configurePreset": "simu",
+      "targets": [
+        "simu"
+      ]
+    },
+    {
+      "name": "tests-radio",
+      "displayName": "Radio Tests",
+      "configurePreset": "simu",
+      "targets": [
+        "tests-radio"
+      ]
+    }
+  ]
+}
