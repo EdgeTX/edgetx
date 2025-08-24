@@ -43,7 +43,7 @@ static void _init_1ms_timer()
   MS_TIMER->DIER = TIM_DIER_UIE;
 
   NVIC_EnableIRQ(MS_TIMER_IRQn);
-  NVIC_SetPriority(MS_TIMER_IRQn, 4);
+  NVIC_SetPriority(MS_TIMER_IRQn, 0);
 }
 
 void timersInit()
@@ -84,6 +84,9 @@ static inline void _interrupt_1ms()
 
   ++pre_scale;
   ++_ms_ticks;
+
+  __DSB();
+  __ISB();
 
   // 5ms loop
   if(pre_scale == 5 || pre_scale == 10) {
