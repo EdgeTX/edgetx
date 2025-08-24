@@ -24,7 +24,7 @@
 #define __INIT_HOOK    __attribute__((section(".init_hook")))
 
 #define __CCMRAM       __attribute__((section(".ccm"), aligned(4)))
-#define __DMA          __attribute__((section(".ram"), aligned(4)))
+#define __DMA          __attribute__((section(".ram"), aligned(32)))
 #define __DMA_NO_CACHE __attribute__((section(".dram"), aligned(4)))
 #define __IRAM         __attribute__((section(".iram")))
 #define __SDRAM        __attribute__((section(".sdram"), aligned(4)))

@@ -1814,7 +1814,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupsModel()
   mdl->setName(AIM_MODELDATA_FUNCSWITCHGROUPS);
 
   mdl->appendToItemList(tr("---"), 0);
-  for (unsigned int i = 1; i <= Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups); i += 1) {
+  for (int i = 1; i <= Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups); i++) {
     mdl->appendToItemList(tr("Group ") + QString::number(i), i);
   }
 
@@ -1838,7 +1838,7 @@ void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
 
 unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int group) const
 {
-  if (group > 0 && group <= Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups)) {
+  if (group > 0 && group <= (unsigned int)Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups)) {
     return cfsGroupOn[group];
   }
   else
@@ -1855,7 +1855,7 @@ unsigned int ModelData::getFuncSwitchAlwaysOnGroupForSwitch(unsigned int index) 
 
 void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int group, unsigned int value)
 {
-  if (group > 0 && group <= Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups)) {
+  if (group > 0 && group <= (unsigned int)Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups)) {
     cfsGroupOn[group] = value;
   }
 }

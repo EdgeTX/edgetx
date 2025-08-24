@@ -21,6 +21,10 @@ if(Qt6Core_FOUND AND NOT DISABLE_COMPANION)
   find_package(Libusb1)
 
   if(LIBUSB1_FOUND)
+    if(DEFINED ENV{DFU_UTIL_ROOT_DIR})
+      set(DFU_UTIL_ROOT_DIR "$ENV{DFU_UTIL_ROOT_DIR}")
+    endif()
+
     find_package(Dfuutil)
   endif()
 

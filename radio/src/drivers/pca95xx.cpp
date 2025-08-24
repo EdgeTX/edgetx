@@ -20,6 +20,7 @@
  */
 
 #include "pca95xx.h"
+#include "debug.h"
 
 #define REG_INPUT     0x00
 #define REG_OUTPUT    0x02
@@ -46,10 +47,12 @@ int pca95xx_init(pca95xx_t* dev, etx_i2c_bus_t bus, uint16_t addr)
   dev->output = 0;
 
   if (i2c_init(bus) < 0) {
+    TRACE("PCA95 bus init error");
     return -1;
   }
 
   if (i2c_dev_ready(bus, addr) < 0) {
+    TRACE("PCA95 device init error");
     return -1;
   }
 

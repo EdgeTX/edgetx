@@ -81,13 +81,12 @@ do
     fi
 
     cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    cmake --build . --target arm-none-eabi-configure --parallel
-    cmake --build arm-none-eabi --target ${FIRMARE_TARGET} --parallel
+    cmake --build . --target arm-none-eabi-configure --parallel ${MAX_JOBS}
+    cmake --build arm-none-eabi --target ${FIRMARE_TARGET} --parallel ${MAX_JOBS}
 
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 
-    #if [ -f arm-none-eabi/firmware.uf2 ]; then
-    if [ "$target_name" = "st16" ]; then
+    if [ -f "arm-none-eabi/firmware.uf2" ]; then
         mv arm-none-eabi/firmware.uf2 "../${fw_name}.uf2"
     else
         mv arm-none-eabi/firmware.bin "../${fw_name}.bin"

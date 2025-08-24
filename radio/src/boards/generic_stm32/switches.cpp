@@ -24,6 +24,7 @@
 #include "stm32_gpio_driver.h"
 
 #include "drivers/pca95xx.h"
+#include "drivers/aw9523b.h"
 
 #include "definitions.h"
 #include "myeeprom.h"

@@ -118,7 +118,7 @@ TEST(Crossfire, frameParser_incompleteFrames)
   EXPECT_EQ(ft.buffer[1], 0x0A);
 
   uint8_t* lua_buffer = luaInputTelemetryFifo->buffer();
-  EXPECT_EQ(luaInputTelemetryFifo->size(), 0x14 + 0x21 + 0x1F);
+  EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)(0x14 + 0x21 + 0x1F));
 
   unsigned offset = 0;
   EXPECT_EQ(lua_buffer[offset], 0x14);
@@ -169,14 +169,14 @@ TEST(Crossfire, frameParser_length)
   EXPECT_EQ(ft.len, 0);
 
   // the first complete frame should have been processed
-  EXPECT_EQ(luaInputTelemetryFifo->size(), 0x09);
+  EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)0x09);
 
   ft.process(length_error3);
   EXPECT_EQ(ft.len, 0);
 
   // only the first frame has been processed, as the rest
   // of the input buffer is thrown away due to length error
-  EXPECT_EQ(luaInputTelemetryFifo->size(), 0x09 + 0x09 + 0x09);
+  EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)(0x09 + 0x09 + 0x09));
 
   // check all 3 frames
   unsigned offset = 0;
@@ -216,7 +216,7 @@ TEST(Crossfire, frameParser_badFrames)
   EXPECT_EQ(ft.len,0);
 
   uint8_t* lua_buffer = luaInputTelemetryFifo->buffer();
-  EXPECT_EQ(luaInputTelemetryFifo->size(), 0x14 + 0x21 + 0x1F);
+  EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)(0x14 + 0x21 + 0x1F));
 
   unsigned offset = 0;
   EXPECT_EQ(lua_buffer[offset], 0x14);
@@ -264,7 +264,7 @@ TEST(Crossfire, frameParser_multipleJumboFrames)
   EXPECT_EQ(ft.len,0);
 
   uint8_t* lua_buffer = luaInputTelemetryFifo->buffer();
-  EXPECT_EQ(luaInputTelemetryFifo->size(), 62 + 61);
+  EXPECT_EQ(luaInputTelemetryFifo->size(), (size_t)(62 + 61));
 
   unsigned offset = 0;
   EXPECT_EQ(lua_buffer[offset], 0x3E);

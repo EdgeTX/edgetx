@@ -233,6 +233,8 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "pl18u");
   else if (IS_FLYSKY_ST16(board))
     strcpy(bluetoothName, "st16");
+  else if (IS_RADIOMASTER_TX15(board))
+    strcpy(bluetoothName, "tx15");
   else if (IS_FAMILY_HORUS_OR_T16(board))
     strcpy(bluetoothName, "horus");
   else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
@@ -436,7 +438,7 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
   //  Try to intelligently copy any custom controls
   //  step 1 clear current config
   memset(&inputConfig[0], 0, sizeof(InputConfig) * CPN_MAX_INPUTS);
-  memset(&switchConfig[0], 0, sizeof(SwitchConfig) * CPN_MAX_SWITCHES);
+  switchConfigClear();
   //  step 2 load default config
   setDefaultControlTypes(cstate.toType);
   //  step 3 copy matching config based on tags
@@ -1005,4 +1007,15 @@ AbstractStaticItemModel * GeneralSettings::templateSetupItemModel()
 
   mdl->loadItemList();
   return mdl;
+}
+
+GeneralSettings::SwitchConfig::SwitchConfig()
+{
+  memset((void*)this, 0, sizeof(SwitchConfig));
+}
+
+void GeneralSettings::switchConfigClear()
+{
+  for (int i = 0; i < CPN_MAX_SWITCHES; i++)
+    switchConfig[i] = SwitchConfig();
 }

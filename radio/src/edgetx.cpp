@@ -36,6 +36,7 @@
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
 #include "hal/audio_driver.h"
+#include "hal/rgbleds.h"
 
 #include "timers_driver.h"
 
@@ -401,6 +402,9 @@ void generalDefault()
 
 #if defined(MANUFACTURER_RADIOMASTER)
   g_eeGeneral.audioMuteEnable = 1;
+#if defined(RADIO_TX15)
+  g_eeGeneral.backlightBright = 50; // Screen looks off if not set high enough
+#endif
 #endif
 
   // disable Custom Script
@@ -1123,6 +1127,10 @@ void edgeTxClose(uint8_t shutdown)
 #endif
 
   sdDone();
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  turnOffRGBLeds();
+#endif
 }
 
 void edgeTxResume()

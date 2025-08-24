@@ -9,7 +9,7 @@
 
 # -----------------------------------------------------------------------------
 export BRANCH_NAME="main"  # main|2.9|...
-export RADIO_TYPE="tx16s"  # tx16s|x10|x10express|x12s|x9d|x9dp|x9lite|x9lites|x7|x7access|t12|t12max|tx12|tx12mk2|mt12|gx12|boxer|t8|zorro|pocket|tlite|tpro|t20|t20v2|t14|lr3pro|xlite|xlites|x9dp2019|x9e|x9e-hall|t15|t16|t18|nv14|commando8
+export RADIO_TYPE="tx16s"  # tx16s|x10|x10express|x12s|x9d|x9dp|x9lite|x9lites|x7|x7access|t12|t12max|tx12|tx12mk2|mt12|gx12|boxer|t8|zorro|pocket|tlite|tpro|t20|t20v2|t14|lr3pro|xlite|xlites|x9dp2019|x9e|x9e-hall|t15|t16|t18|nv14|commando8|tx15
 
 export BUILD_OPTIONS="-DDEFAULT_MODE=2 -DGVARS=YES"
 
@@ -113,6 +113,9 @@ case $RADIO_TYPE in
         ;;
     t18)
         BUILD_OPTIONS+=" -DPCB=X10 -DPCBREV=T18"
+        ;;
+    tx15)
+        BUILD_OPTIONS+=" -DPCB=TX15"
         ;;
     tx16s)
         BUILD_OPTIONS+=" -DPCB=X10 -DPCBREV=TX16S"
