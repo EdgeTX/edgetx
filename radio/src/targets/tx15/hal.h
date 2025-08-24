@@ -223,7 +223,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
 #define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
 #define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
-#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_64CYCLES_5  // No hardware oversampling on ADC3
+#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_8CYCLES_5
 
 #define ADC_VREF_PREC2                  330
 
