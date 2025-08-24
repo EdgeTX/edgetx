@@ -8,12 +8,12 @@ include_directories(${CMSIS_DIR}/Include)
 
 if(CPU_TYPE STREQUAL STM32H7RS)
   include_directories(${CMSIS_DIR}/Device/ST/STM32H7RS/Include)
-  set(CMSIS_SRC
+  set(CMSIS_SRC ${CMSIS_SRC}
     targets/common/arm/stm32/h7/system_stm32h7rsxx.c
   )
 else()
   include_directories(${CMSIS_DIR}/Device/ST/STM32H7xx/Include)
-  set(CMSIS_SRC
+  set(CMSIS_SRC ${CMSIS_SRC}
     targets/common/arm/stm32/h7/system_stm32h7xx.c
   )
 endif()
