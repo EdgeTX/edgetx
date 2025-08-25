@@ -56,8 +56,6 @@ extern const QColor colors[CPN_MAX_CURVES];
 #define TRIM_MODE_NONE  0x1F  // 0b11111
 #define TRIM_MODE_3POS  (2 * CPN_MAX_FLIGHT_MODES)
 
-bool displayT16ImportWarning();
-
 class CompanionIcon: public QIcon {
   public:
     CompanionIcon(const QString &baseimage);
