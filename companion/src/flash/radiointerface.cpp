@@ -32,7 +32,7 @@
 
 #define TR(msg) QCoreApplication::translate("RadioInterface", msg)
 
-constexpr int  UF2_TRANSFER_SIZE       {256};
+constexpr int  UF2_TRANSFER_SIZE       {4 * 1024};
 constexpr char UF2_FIRMWARE_FILENAME[] {"CURRENT.UF2"};
 constexpr char UF2_INFO_FILENAME[]     {"INFO_UF2.TXT"};
 constexpr char UF2_INDEX_FILENAME[]    {"INDEX.HTM"};
@@ -106,23 +106,42 @@ void FirmwareReaderWorker::runUf2()
   try {
     char buf[UF2_TRANSFER_SIZE];
     QFile fw(findMassStoragePath(UF2_FIRMWARE_FILENAME));
-    int blocks = (fw.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
-    emit progressChanged(0, blocks);
+    const int blockstotal = (fw.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
+    emit progressChanged(0, blockstotal);
     emit statusChanged(tr("Reading..."));
 
-    QByteArray data;
+    qDebug() << "file:" << fw.fileName() << "size:" << fw.size() << "blocks:" << blockstotal;
 
+    QByteArray data;
     if (fw.open(QIODevice::ReadOnly)) {
-      for (int i = 0; i < blocks; i++) {
-        int read = fw.read(buf, UF2_TRANSFER_SIZE);
-        if (read > -1) {
-          data.append(buf, read);
-          emit progressChanged(i + 1, blocks);
-          emit statusChanged(tr("Reading %1 of %2").arg(i + 1).arg(blocks));
-        } else if (read < 0) {
-          throw std::runtime_error(tr("Error reading %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
-        }
+      int blockcnt = 0;
+      qint64 bytesread = 0;
+      int read = fw.read(buf, UF2_TRANSFER_SIZE);
+      if (read == 0 && fw.size() > 0) {
+        throw std::runtime_error(tr("Error reading %1 (reason: no data read)").arg(fw.fileName()).toStdString());
+      } else if (read < 0) {
+        throw std::runtime_error(tr("Error reading %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
       }
+
+      do
+      {
+        qDebug() << "data read:" << read;
+        bytesread += read;
+        blockcnt++;
+        data.append(buf, read);
+        emit progressChanged(blockcnt, blockstotal);
+        emit statusChanged(tr("Read %1 of %2").arg(blockcnt).arg(blockstotal));
+        read = fw.read(buf, UF2_TRANSFER_SIZE);
+      } while (read > 0);
+
+      if (read < 0) {
+        data.clear();
+        throw std::runtime_error(tr("Error reading %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
+      } else if (bytesread < fw.size()) {
+        data.clear();
+        throw std::runtime_error(tr("Error reading %1 (reason: read %2 of %3)").arg(fw.fileName()).arg(bytesread).arg(fw.size()).toStdString());
+      }
+
     } else {
       throw std::runtime_error(tr("Cannot open %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
     }
@@ -454,7 +473,6 @@ QString getDevicesInfo()
   try {
     auto device_filter = DfuDeviceFilter::empty_filter();
     auto devices = device_filter->find_devices();
-
     if (devices.empty()) {
       return QString("No DFU devices found");
     }
@@ -471,7 +489,6 @@ QString getDevicesInfo()
 bool readSettings(const QString &filename, ProgressWidget *progress)
 {
   QFile file(filename);
-
   if (file.exists() && !file.remove()) {
     QMessageBox::warning(nullptr, CPN_STR_TTL_ERROR, TR("Could not delete temporary file: %1").arg(filename));
     return false;
@@ -484,13 +501,11 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
                         bool fromRadio)
 {
   QString radioPath;
-
   if (fromRadio) {
     radioPath = findMassStoragePath("RADIO", true, progress);
     qDebug() << "Searching for SD card, found" << radioPath;
   } else {
     radioPath = g.currentProfile().sdPath();
-
     if (!QFile::exists(radioPath % "/RADIO"))
       radioPath.clear();
   }
@@ -506,7 +521,6 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
 
   if (!inputStorage.load(radioData)) {
     QString errorMsg = inputStorage.error();
-
     if (errorMsg.isEmpty())
       errorMsg = TR("Failed to read Models and Settings from") % radioPath;
 
@@ -515,7 +529,6 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
   }
 
   Storage outputStorage(filename);
-
   if (!outputStorage.write(radioData)) {
     QMessageBox::critical(progress, CPN_STR_TTL_ERROR, TR("Failed to write Models and Setting file") % " " % filename);
     return false;
@@ -546,7 +559,6 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
 
     probefile.append(filename);
     qDebug() << "Searching for" << probefile;
-
     if (QFile::exists(probefile)) {
       found++;
       foundPath = temppath;
@@ -579,7 +591,6 @@ Uf2Info getUf2Info()
   Uf2Info info;
   QString path = findMassStoragePath(UF2_INFO_FILENAME);
   qDebug() << "path:" << path;
-
   if (path.isEmpty())
     return info;
 
