@@ -40,8 +40,8 @@
 #define PWM_MAX_PERIOD 5000
 
 // sensor uses a duty cycle [5%; 95%]
-#define PWM_MIN_PULSE   80
-#define PWM_MAX_PULSE 3820
+#define PWM_MIN_PULSE   40
+#define PWM_MAX_PULSE 4000
 
 #define PWM_PRESCALER_FREQ 1038000
 
