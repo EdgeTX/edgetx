@@ -41,14 +41,18 @@ enum Vehicle {
   NOVEHICLE,
   PLANE,
   MULTICOPTER,
-  HELICOPTER
+  HELICOPTER,
+  CRAWLER
 };
 
-#define WIZ_MAX_OPTIONS 3
+#define WIZ_MAX_OPTIONS 6
 enum Options {
   FLIGHT_TIMER_OPTION,
   THROTTLE_CUT_OPTION,
-  THROTTLE_TIMER_OPTION
+  THROTTLE_TIMER_OPTION,
+  CRAWLER_MOA_OPTION,
+  CRAWLER_4WSTEER_OPTION,
+  CRAWLER_WINCH_OPTION
 };
 
 enum WizardPage {
@@ -71,6 +75,7 @@ enum WizardPage {
   Page_Fblheli,
   Page_Helictrl,
   Page_Multirotor,
+  Page_Crawler,
   Page_Options,
   Page_Conclusion
 };

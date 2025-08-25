@@ -95,6 +95,7 @@ WizMix::operator ModelData()
 
   int mixIndex = 0;
   int timerIndex = 0;
+  int frontMotorCompleted = 0;
 
   memset(model.name, 0, sizeof(model.name));
   memcpy(model.name, name, sizeof(model.name) - 1);
@@ -105,41 +106,87 @@ WizMix::operator ModelData()
   {
     Channel ch = channel[i];
 
-    addMix(model, ch.input1, ch.weight1, i, mixIndex);
-    addMix(model, ch.input2, ch.weight2, i, mixIndex);
+    if (vehicle == CRAWLER){ // if any surface type
+      qDebug() << "inside ModelData operator";
+      qDebug() << "vehicle:  " << vehicle;
+      qDebug() << "channel:  " << i;
+      qDebug() << "input1:   " << ch.input1 ;
+      qDebug() << "weight1:  " << ch.weight1 ;
+      qDebug() << "input2:   " << ch.input2 ;
+      qDebug() << "weight2:  " << ch.weight2 ;
+      qDebug() << "mixIndex: " << mixIndex;
 
-    if (ch.input1 == THROTTLE_INPUT || ch.input2 == THROTTLE_INPUT) {
-      throttleChannel++;
-      if (options[THROTTLE_CUT_OPTION]) {
-        // Add the Throttle Cut option
+      if (ch.input1 == THROTTLE_INPUT) {
+        qDebug() << "throttle input";
+        // default throttle
         MixData & mix = model.mixData[mixIndex++];
-        mix.destCh = i+1;
-        mix.srcRaw = RawSource(SOURCE_TYPE_MAX);
-        mix.weight = -100;
-        mix.swtch.type = SWITCH_TYPE_SWITCH;
-        mix.swtch.index = SWITCH_SF0;
-        mix.mltpx = MLTPX_REP;
+        mix.destCh = i + 1;
+        mix.srcRaw = RawSource(SOURCE_TYPE_VIRTUAL_INPUT, settings.getDefaultChannel(ch.input1 - 1) + 1);
+        mix.weight = ch.weight1;
+        mix.mltpx = MLTPX_ADD;
         memset(mix.name, 0, sizeof(mix.name));
-        strncpy(mix.name, WizMix::tr("Cut").toLatin1().data(), MIXDATA_NAME_LEN);
+
+        if (options[CRAWLER_MOA_OPTION]) {
+          // Add Motor On Axle :
+          // 1. Drive both axles
+          // 2. Drive Front axle only
+          // 3. Drive Rear axle only
+          qDebug() << "MOA Option";
+          strncpy(mix.name, WizMix::tr("MOA").toLatin1().data(), MIXDATA_NAME_LEN);
+
+          mix.swtch.type = SWITCH_TYPE_SWITCH;
+          // TODO: implement drive modes
+          if (frontMotorCompleted){
+            qDebug() << "rear motor";
+            mix.swtch.index = SWITCH_SA1 *-1; //  NOT SA1
+          } else {
+            qDebug() << "front motor";
+            mix.swtch.index = SWITCH_SA2 *-1; //  NOT SA2
+            frontMotorCompleted++;
+          }
+        } else {
+          strncpy(mix.name, WizMix::tr("THR").toLatin1().data(), MIXDATA_NAME_LEN);
+        }
+      }
+
+    } else { // any other vehicle type, this is used for all aircraft (PLANE, HELI, QUAD)
+      addMix(model, ch.input1, ch.weight1, i, mixIndex);
+      addMix(model, ch.input2, ch.weight2, i, mixIndex);
+
+      if (ch.input1 == THROTTLE_INPUT || ch.input2 == THROTTLE_INPUT) {
+        throttleChannel++;
+        if (options[THROTTLE_CUT_OPTION]) {
+          // Add the Throttle Cut option
+          MixData & mix = model.mixData[mixIndex++];
+          mix.destCh = i+1;
+          mix.srcRaw = RawSource(SOURCE_TYPE_MAX);
+          mix.weight = -100;
+          mix.swtch.type = SWITCH_TYPE_SWITCH;
+          mix.swtch.index = SWITCH_SF0;
+          mix.mltpx = MLTPX_REP;
+          memset(mix.name, 0, sizeof(mix.name));
+          strncpy(mix.name, WizMix::tr("Cut").toLatin1().data(), MIXDATA_NAME_LEN);
+        }
+
+      }
+
+
+      // Add the Flight Timer option
+      if (options[FLIGHT_TIMER_OPTION] && throttleChannel >= 0){
+        memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
+        strncpy(model.timers[timerIndex].name, WizMix::tr("Flt").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
+        model.timers[timerIndex].mode = TimerData::TIMERMODE_START;
+        timerIndex++;
+      }
+
+      // Add the Throttle Timer option
+      if (options[THROTTLE_TIMER_OPTION] && throttleChannel >= 0){
+        memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
+        strncpy(model.timers[timerIndex].name, WizMix::tr("Thr").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
+        model.timers[timerIndex].mode = TimerData::TIMERMODE_THR;
+        timerIndex++;
       }
     }
   }
-
-  // Add the Flight Timer option
-  if (options[FLIGHT_TIMER_OPTION] && throttleChannel >= 0){
-    memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
-    strncpy(model.timers[timerIndex].name, WizMix::tr("Flt").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
-    model.timers[timerIndex].mode = TimerData::TIMERMODE_START;
-    timerIndex++;
-  }
-
-  // Add the Throttle Timer option
-  if (options[THROTTLE_TIMER_OPTION] && throttleChannel >= 0){
-    memset(model.timers[timerIndex].name, 0, sizeof(model.timers[timerIndex].name));
-    strncpy(model.timers[timerIndex].name, WizMix::tr("Thr").toLatin1().data(), sizeof(model.timers[timerIndex].name)-1);
-    model.timers[timerIndex].mode = TimerData::TIMERMODE_THR;
-    timerIndex++;
-  }
-
   return model;
 }

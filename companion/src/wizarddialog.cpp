@@ -49,6 +49,7 @@ WizardDialog::WizardDialog(const GeneralSettings & settings, unsigned int modelI
   setPage(Page_Fblheli, new FblPage(this, "fblheli", tr("Helicopter"), tr("Select the controls for your helicopter"), Page_Options));
   setPage(Page_Helictrl, new HeliPage(this, "helictrl", tr("Helicopter"), tr("Select the controls for your helicopter"), Page_Options));
   setPage(Page_Multirotor, new MultirotorPage(this, "multirotor", tr("Multirotor"), tr("Select the control channels for your multirotor"), Page_Options));
+  setPage(Page_Crawler, new CrawlerPage(this, "crawler", tr("Crawler"), tr("Throttle options. Set channels for your crawler"), Page_Options));
   setPage(Page_Options, new OptionsPage(this, "options", tr("Model Options"), tr("Select additional options"), Page_Conclusion));
   setPage(Page_Conclusion, new ConclusionPage(this, "conclusion", tr("Save Changes"), tr(
     "Manually check the direction of each control surface and reverse any channels that make controls move in the wrong direction. "
@@ -145,6 +146,10 @@ void WizardDialog::showHelp()
                    "Pitch - Spektrum: CH3, Futaba: CH2<br>"
                    "Roll - Spektrum: CH2, Futaba: CH1");
       break;
+    case Page_Crawler:
+      message = tr("Select the throttle control channels for your crawler.<br><br>"
+                   "Default Throttle channel: CH2<br>");
+      break;
     case Page_Options:
       message = tr("TBD.");
       break;
@@ -234,6 +239,13 @@ bool StandardPage::bookChannel(QComboBox * cb, Input input1, int weight1, Input 
   if (wizDlg->mix.channel[channel].page != Page_None)
     return false;
 
+  qDebug() << "inside bookChannel";
+  qDebug() << "vehicle:  " << wizDlg->mix.vehicle;
+  qDebug() << "channel:  " << channel;
+  qDebug() << "input1:   " << input1 ;
+  qDebug() << "weight1:  " << weight1 ;
+  qDebug() << "input2:   " << input2 ;
+  qDebug() << "weight2:  " << weight2 ;
   wizDlg->mix.channel[channel].page = pageCurrent;
   wizDlg->mix.channel[channel].input1 = input1;
   wizDlg->mix.channel[channel].input2 = input2;
@@ -285,6 +297,7 @@ ModelSelectionPage::ModelSelectionPage(WizardDialog *dlg, QString image, QString
   planeRB->setChecked(true);
   multirotorRB = new QRadioButton(tr("Multirotor"));
   helicopterRB = new QRadioButton(tr("Helicopter"));
+  crawlerRB = new QRadioButton(tr("Crawler"));
 
   registerField("evaluate.name*", nameLineEdit);
 
@@ -296,6 +309,7 @@ ModelSelectionPage::ModelSelectionPage(WizardDialog *dlg, QString image, QString
   l->addWidget(planeRB);
   l->addWidget(multirotorRB);
   l->addWidget(helicopterRB);
+  l->addWidget(crawlerRB);
 }
 
 void ModelSelectionPage::initializePage()
@@ -312,7 +326,9 @@ bool ModelSelectionPage::validatePage()
     wizDlg->mix.vehicle = MULTICOPTER;
   else if (helicopterRB->isChecked())
     wizDlg->mix.vehicle = HELICOPTER;
-  else
+  else if (crawlerRB->isChecked())
+    wizDlg->mix.vehicle = CRAWLER;
+  else //PLANE
     wizDlg->mix.vehicle = PLANE;
   return true;
 }
@@ -323,7 +339,9 @@ int ModelSelectionPage::nextId() const
     return Page_Cyclic;
   else if (multirotorRB->isChecked())
     return Page_Multirotor;
-  else
+  else if (crawlerRB->isChecked())
+    return Page_Crawler;
+  else  //PLANE
     return Page_Throttle;
 }
 
@@ -952,6 +970,62 @@ bool MultirotorPage::validatePage()
     bookChannel(rollCB,           AILERONS_INPUT,  100 ));
 }
 
+CrawlerPage::CrawlerPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
+  StandardPage(Page_Crawler, dlg, image, title, text, nextPage)
+{
+  //MOTOR 1
+  throttleCB = new QComboBox();
+
+  //MOTOR 2 option
+  motor2RB = new QRadioButton(tr("Yes"));
+  noMotor2RB = new QRadioButton(tr("No"));
+  noMotor2RB->setChecked(true);
+  throttle2CB = new QComboBox();
+  throttle2CB->setEnabled(false);
+
+  QLayout *l = layout();
+  l->addWidget(new QLabel(tr("Throttle Channel:")));
+  l->addWidget(throttleCB);
+  l->addWidget(new QLabel(tr("<br>Does your model have a 2nd Motor (Motor On Axles)?")));
+  l->addWidget(motor2RB);
+  l->addWidget(noMotor2RB);
+  l->addWidget(new QLabel(tr("<br>2nd Throttle Channel:")));
+  l->addWidget(throttle2CB);
+  l->addWidget(new QLabel(tr("<br>If MOA is selected, switch SA will be assigned.")));
+
+  connect(motor2RB, SIGNAL(toggled(bool)), this, SLOT(onMotorStateChanged(bool)));
+}
+
+void CrawlerPage::initializePage()
+{
+  populateCB(throttleCB, getDefaultChannel(THROTTLE_INPUT));
+  populateCB(throttle2CB, 5 -1); //TODO: implement surfaceInput Enum
+
+  StandardPage::initializePage();
+}
+
+bool CrawlerPage::validatePage()
+{
+  releaseBookings();
+  if (motor2RB->isChecked())
+  {
+    wizDlg->mix.options[CRAWLER_MOA_OPTION] = true;
+    return bookChannel(throttleCB, THROTTLE_INPUT, 100) &&
+      bookChannel(throttle2CB, THROTTLE_INPUT, 100); //TODO: implement surfaceInput Enum
+  }
+  else
+  {
+    wizDlg->mix.options[CRAWLER_MOA_OPTION] = false;
+    return bookChannel(throttleCB, THROTTLE_INPUT, 100);
+  }
+}
+
+void CrawlerPage::onMotorStateChanged(bool toggled)
+{
+  throttle2CB->setEnabled(toggled);
+}
+
+
 OptionsPage::OptionsPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage):
   StandardPage(Page_Options, dlg, image, title, text, nextPage)
 {
@@ -1029,6 +1103,8 @@ QString WizardPrinter::vehicleName(Vehicle vehicle)
       return tr("Plane");
     case MULTICOPTER:
       return tr("Multicopter");
+    case CRAWLER:
+      return tr("Crawler");
     case HELICOPTER:
       return tr("Helicopter");
     default:
