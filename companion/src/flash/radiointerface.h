@@ -33,50 +33,54 @@ class FirmwareReaderWorker : public QThread
 {
   Q_OBJECT
 
- public:
-  explicit FirmwareReaderWorker(QObject *parent = nullptr);
-  ~FirmwareReaderWorker();
+  public:
+    explicit FirmwareReaderWorker(QObject *parent = nullptr);
+    ~FirmwareReaderWorker();
 
- protected:
-  void run() override;
+  protected:
+    void run() override;
 
- signals:
-  void progressChanged(int value, int total);
-  void statusChanged(const QString &status);
-  void error(const QString &error);
-  void complete(const QByteArray& data);
+  signals:
+    void progressChanged(int value, int total);
+    void statusChanged(const QString &status);
+    void error(const QString &error);
+    void complete(const QByteArray& data);
+
+  private:
+    void runDfu();
+    void runUf2();
 };
 
 class FirmwareWriterWorker : public QThread
 {
   Q_OBJECT
 
- private:
-  QByteArray firmwareData;
+  private:
+    QByteArray firmwareData;
 
- public:
-  explicit FirmwareWriterWorker(const QByteArray &data, QObject *parent = nullptr);
-  ~FirmwareWriterWorker();
+  public:
+    explicit FirmwareWriterWorker(const QByteArray &data, QObject *parent = nullptr);
+    ~FirmwareWriterWorker();
 
- protected:
-  void run() override;
+  protected:
+    void run() override;
 
- signals:
-  void progressChanged(int value, int total);
-  void statusChanged(const QString &status);
-  void error(const QString &error);
-  void complete();
+  signals:
+    void progressChanged(int value, int total);
+    void statusChanged(const QString &status);
+    void error(const QString &error);
+    void complete();
 
- private:
-  void writeUf2(DfuDevice &device, const SliceU8 &data);
-  void writeRegion(const DfuDevice &device, uint32_t addr, const SliceU8 &data);
-  void updateEraseStatus(size_t page, size_t pages);
-  void updateDloadStatus(size_t bytes, size_t total);
+  private:
+    void writeUf2(DfuDevice &device, const SliceU8 &data);
+    void writeRegion(const DfuDevice &device, uint32_t addr, const SliceU8 &data);
+    void updateEraseStatus(size_t page, size_t pages);
+    void updateDloadStatus(size_t bytes, size_t total);
 
-  template <typename Duration>
-  void rebootAndRediscover(DfuDevice &device, uint32_t addr,
-                             const SliceU8 &data, uint32_t reboot_addr,
-                             Duration timeout);
+    template <typename Duration>
+    void rebootAndRediscover(DfuDevice &device, uint32_t addr,
+                                const SliceU8 &data, uint32_t reboot_addr,
+                                Duration timeout);
 };
 
 
@@ -101,5 +105,5 @@ bool writeSettings(const QString &filename, ProgressWidget *progress);
 QString printDevicesInfo(const Vec<DfuDevice> &devices);
 QString getDevicesInfo();
 QString getFlashFilesFilter();
-bool isUF2DeviceFound();
+bool isUf2DeviceFound();
 QString getUF2BoardId();
