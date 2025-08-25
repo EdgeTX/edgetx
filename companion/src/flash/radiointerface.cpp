@@ -32,6 +32,10 @@
 
 #define TR(msg) QCoreApplication::translate("RadioInterface", msg)
 
+constexpr char UF2_FIRMWARE_FILENAME[] {"CURRENT.UF2"};
+constexpr char UF2_INFO_FILENAME[] {"INFO_UF2.TXT"};
+constexpr char UF2_INDEX_FILENAME[] {"INDEX.HTM"};
+
 using namespace std::chrono_literals;
 
 FirmwareReaderWorker::FirmwareReaderWorker(QObject *parent) :
@@ -45,6 +49,11 @@ FirmwareReaderWorker::~FirmwareReaderWorker()
 }
 
 void FirmwareReaderWorker::run()
+{
+  isUf2DeviceFound() ? runUf2() : runDfu();
+}
+
+void FirmwareReaderWorker::runDfu()
 {
   try {
     auto device_filter = DfuDeviceFilter::empty_filter();
@@ -86,6 +95,44 @@ void FirmwareReaderWorker::run()
 
   } catch (const std::exception &e) {
     emit error(QString("DFU failed: %1").arg(e.what()));
+  }
+}
+
+#define BLKSIZE 256
+
+void FirmwareReaderWorker::runUf2()
+{
+  try {
+    char buf[BLKSIZE];
+    QFile fw(findMassStoragePath(UF2_FIRMWARE_FILENAME));
+    int blocks = (fw.size() + BLKSIZE - 1) / BLKSIZE;
+    emit progressChanged(0, blocks);
+    emit statusChanged(tr("Reading..."));
+
+    QByteArray data;
+
+    if (fw.open(QIODevice::ReadOnly)) {
+      for (int i = 0; i < blocks; i++) {
+        int read = fw.read(buf, BLKSIZE);
+        if (read > -1) {
+          data.append(buf);
+          emit progressChanged(i + 1, blocks);
+          emit statusChanged(tr("Reading %1 of %2").arg(i + 1).arg(blocks));
+        } else {
+          throw std::runtime_error(tr("Error reading %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
+        }
+      }
+    } else {
+      throw std::runtime_error(tr("Cannot open %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
+    }
+
+    fw.close();
+    qDebug() << "Reading done";
+    emit statusChanged("Reading done");
+    emit complete(data);
+
+  } catch (const std::exception &e) {
+    emit error(QString("UF2 failed: %1").arg(e.what()));
   }
 }
 
@@ -466,19 +513,19 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
   return QString();
 }
 
-bool isUF2DeviceFound()
+bool isUf2DeviceFound()
 {
   return !findMassStoragePath("INFO_UF2.TXT", false).isEmpty();
 }
 
 QString getFlashFilesFilter()
 {
-  return isUF2DeviceFound() ? QString(UF2_FILES_FILTER) : QString(FLASH_FILES_FILTER);
+  return isUf2DeviceFound() ? QString(UF2_FILES_FILTER) : QString(FLASH_FILES_FILTER);
 }
 
 QString getUF2BoardId()
 {
-  QString path = findMassStoragePath("INFO_UF2.TXT");
+  QString path = findMassStoragePath(UF2_INFO_FILENAME);
 
   if (path.isEmpty()) return QString();
 
