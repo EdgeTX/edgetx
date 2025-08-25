@@ -34,7 +34,7 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::FlashFirmwareDialog),
   fwName(g.profile[g.id()].fwName()),
-  flashingMode(isUF2DeviceFound() ? FM_UF2 : FM_DFU)
+  flashingMode(isUf2DeviceFound() ? FM_UF2 : FM_DFU)
 {
   ui->setupUi(this);
 
