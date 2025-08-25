@@ -101,16 +101,16 @@ void FirmwareReaderWorker::runDfu()
 
 void FirmwareReaderWorker::runUf2()
 {
-  qDebug() << "Reading started";
-
   try {
-    char buf[UF2_TRANSFER_SIZE];
-    QFile fw(findMassStoragePath(UF2_FIRMWARE_FILENAME));
+    QString path = findMassStoragePath(UF2_FIRMWARE_FILENAME);
+    QStorageInfo si(path);
+    QFile fw(path);
+    char buf[UF2_TRANSFER_SIZE];  // TODO use si.blocksize() if returns value
     const int blockstotal = (fw.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
     emit progressChanged(0, blockstotal);
     emit statusChanged(tr("Reading..."));
 
-    qDebug() << "file:" << fw.fileName() << "size:" << fw.size() << "blocks:" << blockstotal;
+    qDebug() << "Reading started - file:" << fw.fileName() << "size:" << fw.size() << "blocks:" << blockstotal;
 
     QByteArray data;
     if (fw.open(QIODevice::ReadOnly)) {
@@ -125,7 +125,7 @@ void FirmwareReaderWorker::runUf2()
 
       do
       {
-        qDebug() << "data read:" << read;
+        // qDebug() << "read:" << read;
         bytesread += read;
         blockcnt++;
         data.append(buf, read);
@@ -175,29 +175,60 @@ void FirmwareWriterWorker::run()
 void FirmwareWriterWorker::runUf2()
 {
   try {
-    QString path =findMassStoragePath(UF2_FIRMWARE_FILENAME, true);
-
+    QString path = findMassStoragePath(UF2_FIRMWARE_FILENAME, true);
+    QStorageInfo si(path);
     if (path.isEmpty())
       throw std::runtime_error(tr("Cannot find USB device containing %1").arg(UF2_FIRMWARE_FILENAME).toStdString());
 
+    if (si.bytesAvailable() < firmwareData.size())
+      throw std::runtime_error(tr("Insufficient free space on %1 to write new firmware")
+                               .arg(QDir::toNativeSeparators(path)).toStdString());
+
     QFile newFile(findMassStoragePath(path % "/firmware.uf2"));
-    int blocks = (firmwareData.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
-    emit progressChanged(0, blocks);
+    int blockstotal = (firmwareData.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
+    emit progressChanged(0, blockstotal);
     emit statusChanged(tr("Writing..."));
 
-    if (newFile.open(QIODevice::ReadWrite)) {
-      for (int i = 0; i < blocks; i++) {
-        QByteArray ba = firmwareData.mid(i * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
+    if (firmwareData.size() == 0)
+      throw std::runtime_error(tr("No data to write to new firmware file").toStdString());
 
-        if (newFile.write(ba, ba.size()) == ba.size()) {
-          newFile.flush();
-          emit progressChanged(i + 1, blocks);
-          emit statusChanged(tr("Writing %1 of %2").arg(i + 1).arg(blocks));
+    qDebug() << "Writing started - file:" << newFile.fileName() << "size:" << firmwareData.size() << "blocks:" << blockstotal;
+
+    if (newFile.open(QIODevice::ReadWrite)) {
+      int blockcnt = 0;
+      qint64 byteswritten = 0;
+      QByteArray ba = firmwareData.mid(blockcnt * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
+
+      do
+      {
+        qint64 written = newFile.write(ba, ba.size());
+        if (byteswritten < 0) {
+          throw std::runtime_error(tr("Error writing %1 (reason: %2)").arg(newFile.fileName())
+                                   .arg(newFile.errorString()).toStdString());
+        } else if (byteswritten < ba.size()) {
+          throw std::runtime_error(tr("Error writing block to %1 (reason: written %2 of %3)")
+                                      .arg(newFile.fileName())
+                                      .arg(byteswritten)
+                                      .arg(ba.size()).toStdString());
         }
-        else {
-          throw std::runtime_error(tr("Error writing %1 (reason: %2)").arg(newFile.fileName()).arg(newFile.errorString()).toStdString());
-        }
+
+        newFile.flush();
+        byteswritten += written;
+        blockcnt++;
+        emit progressChanged(blockcnt, blockstotal);
+        emit statusChanged(tr("Writing %1 of %2").arg(blockcnt).arg(blockstotal));
+
+        ba.clear(); // just to be on the safe side
+        ba = firmwareData.mid(blockcnt * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
+      } while (ba.size() > 0);
+
+      if (byteswritten < firmwareData.size()) {
+        throw std::runtime_error(tr("Error writing %1 (reason: written %2 of %3)")
+                                 .arg(newFile.fileName())
+                                 .arg(byteswritten)
+                                 .arg(firmwareData.size()).toStdString());
       }
+
     } else {
       throw std::runtime_error(tr("Cannot open %1 (reason: %2)").arg(newFile.fileName()).arg(newFile.errorString()).toStdString());
     }
@@ -511,8 +542,7 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
   }
 
   if (radioPath.isEmpty()) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
-                          TR("Unable to find SD card!"));
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, TR("Unable to find SD card!"));
     return false;
   }
 
@@ -542,7 +572,6 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
   QString foundPath;
   QString foundProbefile;
   int found = 0;
-
   // Linux: "vfat"; macOS: "msdos" or "lifs"; Win: "FAT32"
   QRegularExpression fstypeRe("^(v?fat|msdos|lifs)",
                               QRegularExpression::CaseInsensitiveOption);
@@ -551,9 +580,15 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
     if (!si.isReady() || si.isReadOnly() || !QString(si.fileSystemType()).contains(fstypeRe))
       continue;
 
+    qDebug() << "device:" << si.device()
+             << "type:" << si.fileSystemType()
+             << "block size:" << si.blockSize()
+             << "capacity:" << si.bytesTotal()/1000/1000 << "MB"
+             << "available:" << si.bytesFree()/1000/1000 << "MB"
+             << "root path:" << si.rootPath();
+
     QString temppath = si.rootPath();
     QString probefile = temppath;
-
     if (!probefile.endsWith("/"))
       probefile.append("/");
 
@@ -563,14 +598,14 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
       found++;
       foundPath = temppath;
       foundProbefile = probefile;
-      qDebug() << probefile << "found";
+      qDebug() << QDir::toNativeSeparators(probefile) << "found";
     }
   }
 
   if (found == 1) {
     return onlyPath ? foundPath : foundProbefile;
   } else if (found > 1) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, filename % " " % TR("found in multiple locations"));
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, QDir::toNativeSeparators(filename) % " " % TR("found in multiple locations"));
   }
 
   return QString();
@@ -590,7 +625,7 @@ Uf2Info getUf2Info()
 {
   Uf2Info info;
   QString path = findMassStoragePath(UF2_INFO_FILENAME);
-  qDebug() << "path:" << path;
+  qDebug() << "path:" << QDir::toNativeSeparators(path);
   if (path.isEmpty())
     return info;
 
