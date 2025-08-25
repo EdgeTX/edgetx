@@ -101,4 +101,5 @@ bool writeSettings(const QString &filename, ProgressWidget *progress);
 QString printDevicesInfo(const Vec<DfuDevice> &devices);
 QString getDevicesInfo();
 QString getFlashFilesFilter();
-bool isFoundUF2Device();
+bool isUF2DeviceFound();
+QString getUF2BoardId();
