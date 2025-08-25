@@ -101,6 +101,8 @@ void FirmwareReaderWorker::runDfu()
 
 void FirmwareReaderWorker::runUf2()
 {
+  qDebug() << "Reading started";
+
   try {
     char buf[UF2_TRANSFER_SIZE];
     QFile fw(findMassStoragePath(UF2_FIRMWARE_FILENAME));
@@ -114,10 +116,10 @@ void FirmwareReaderWorker::runUf2()
       for (int i = 0; i < blocks; i++) {
         int read = fw.read(buf, UF2_TRANSFER_SIZE);
         if (read > -1) {
-          data.append(buf);
+          data.append(buf, read);
           emit progressChanged(i + 1, blocks);
           emit statusChanged(tr("Reading %1 of %2").arg(i + 1).arg(blocks));
-        } else {
+        } else if (read < 0) {
           throw std::runtime_error(tr("Error reading %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
         }
       }
@@ -537,7 +539,12 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
       continue;
 
     QString temppath = si.rootPath();
-    QString probefile = temppath % "/" % filename;
+    QString probefile = temppath;
+
+    if (!probefile.endsWith("/"))
+      probefile.append("/");
+
+    probefile.append(filename);
     qDebug() << "Searching for" << probefile;
 
     if (QFile::exists(probefile)) {
@@ -571,8 +578,10 @@ Uf2Info getUf2Info()
 {
   Uf2Info info;
   QString path = findMassStoragePath(UF2_INFO_FILENAME);
+  qDebug() << "path:" << path;
 
-  if (path.isEmpty()) return info;
+  if (path.isEmpty())
+    return info;
 
   QFile file(path);
   if (!file.open(QFile::ReadOnly)) {
@@ -604,6 +613,8 @@ Uf2Info getUf2Info()
   } while (!filedata.isEmpty());
 
   file.close();
+
   qDebug() << "UF2 information - version:" << info.version << "board:" << info.board << "date:" << info.date;
+
   return info;
 }
