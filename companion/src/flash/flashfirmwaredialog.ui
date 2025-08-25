@@ -31,6 +31,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
+    <widget class="QLabel" name="flashingMode">
+     <property name="text">
+      <string>Detected Flashing Mode: </string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout2">
      <item>
       <widget class="QLineEdit" name="firmwareFilename">

@@ -466,16 +466,43 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
   return QString();
 }
 
-bool isFoundUF2Device()
+bool isUF2DeviceFound()
 {
-  // return findMassStoragePath("bootloader.bin", true).empty() ? false : true;
-  return true;
+  return !findMassStoragePath("INFO_UF2.TXT", false).isEmpty();
 }
 
 QString getFlashFilesFilter()
 {
-  if (isFoundUF2Device())
-    return FLASH_FILES_FILTER;
+  return isUF2DeviceFound() ? QString(UF2_FILES_FILTER) : QString(FLASH_FILES_FILTER);
+}
 
-  return BIN_FILES_FILTER;
+QString getUF2BoardId()
+{
+  QString path = findMassStoragePath("INFO_UF2.TXT");
+
+  if (path.isEmpty()) return QString();
+
+  QFile file(path);
+  if (!file.open(QFile::ReadOnly)) {
+    QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR, TR("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
+    return QString();
+  }
+
+// UF2 Bootloader 3.0.0
+// Board-ID: tx16s
+// Date: 2025-08-24
+
+  QByteArray filedata;
+  const char *search_str = "Board-ID:";
+
+  do
+  {
+    filedata = file.readLine();
+    if (!filedata.isEmpty() && filedata.startsWith(search_str))
+      break;
+  } while (!filedata.isEmpty());
+
+  file.close();
+
+  return filedata.mid(QString(search_str).size()).trimmed();
 }

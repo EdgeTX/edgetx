@@ -183,7 +183,7 @@ void FirmwareInterface::initFlash(const QByteArray& flashData)
   flashSize = flashData.size();
 
   if (flashSize > 0) {
-    flavour = seekLabel(FW_MARK);
+    flavour = seekLabel(FW_MARK).remove("edgetx-");
     version = seekLabel(VERS_MARK);
 
     if (version.startsWith("opentx-")) {
@@ -482,9 +482,4 @@ unsigned int FirmwareInterface::save(const QString & filename)
 
   free(binflash);
   return flashSize;
-}
-
-bool FirmwareInterface::isFlavourMatch(const QString flavour)
-{
-  return getFlavour() == flavour;
 }

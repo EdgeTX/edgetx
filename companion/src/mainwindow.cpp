@@ -604,10 +604,10 @@ void MainWindow::readFlash()
     if (readFirmwareFromRadio(fileName)) {
       FirmwareInterface fw(fileName);
 
-      if (!fw.isFlavourMatch(getCurrentFirmware()->getProjectFlavour())) {
+      if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
         QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("Radio firmware '%1' does not match the current profile '%2'")
                                                         .arg(fw.getFlavour())
-                                                        .arg(getCurrentFirmware()->getProjectFlavour()));
+                                                        .arg(getCurrentFirmware()->getFlavour()));
       }
     }
   }

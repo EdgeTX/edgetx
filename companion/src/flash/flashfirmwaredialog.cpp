@@ -33,9 +33,12 @@
 FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::FlashFirmwareDialog),
-  fwName(g.profile[g.id()].fwName())
+  fwName(g.profile[g.id()].fwName()),
+  flashingMode(isUF2DeviceFound() ? FM_UF2 : FM_DFU)
 {
   ui->setupUi(this);
+
+  ui->flashingMode->setText(tr("Detected Flashing Mode: %1").arg(flashingMode == FM_UF2 ? "UF2" : "DFU"));
 
   if (!g.profile[g.id()].splashFile().isEmpty()){
     imageSource = PROFILE;
@@ -133,11 +136,21 @@ void FlashFirmwareDialog::firmwareLoadClicked()
     if (!fw.isValid())
       QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
 
-    if (!fw.isFlavourMatch(getCurrentFirmware()->getProjectFlavour())) {
-      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and does not match the current profile '%3'")
+    if (flashingMode == FM_UF2) {
+      const QString bd(getUF2BoardId());
+      if (fw.getFlavour() != bd) {
+        QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and does not match the connected '%3' radio")
+                                                        .arg(fwName)
+                                                        .arg(fw.getFlavour())
+                                                        .arg(bd));
+      }
+    }
+
+    if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
+      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and does not match the current '%3' profile")
                                                       .arg(fwName)
                                                       .arg(fw.getFlavour())
-                                                      .arg(getCurrentFirmware()->getProjectFlavour()));
+                                                      .arg(getCurrentFirmware()->getFlavour()));
     }
 
     updateUI();
@@ -258,6 +271,14 @@ void FlashFirmwareDialog::writeButtonClicked()
 
 void FlashFirmwareDialog::startFlash(const QString &filename)
 {
+  if (flashingMode == FM_UF2)
+    startFlashUF2(filename);
+  else
+    startFlashDFU(filename);
+}
+
+void FlashFirmwareDialog::startFlashDFU(const QString &filename)
+{
   close();
 
   ProgressDialog progressDialog(this, tr("Write Firmware to Radio"),
@@ -294,4 +315,9 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
     qDebug() << "startFlash: removing temporary file" << filename;
     qunlink(filename);
   }
+}
+
+void FlashFirmwareDialog::startFlashUF2(const QString &filename)
+{
+  qDebug() << "WIP";
 }
