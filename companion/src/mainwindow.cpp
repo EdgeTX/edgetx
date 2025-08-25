@@ -597,7 +597,8 @@ void MainWindow::readBackup()
 void MainWindow::readFlash()
 {
   // default filename alternatives - use current radio profile or extract from firmware read in place of 'firmware'
-  const QString dfltPath = QDir::toNativeSeparators(g.flashDir() % "/firmware-" % QDate(QDate::currentDate()).toString(Qt::ISODate) % ".bin");
+  const QString extn(isUf2DeviceFound() ? ".uf2" : ".bin");
+  const QString dfltPath = QDir::toNativeSeparators(g.flashDir() % "/firmware-" % QDate(QDate::currentDate()).toString(Qt::ISODate) % extn);
   QString fileName = QFileDialog::getSaveFileName(this,tr("Read Radio Firmware to File"), dfltPath, getFirmwareFilesFilter());
 
   if (!fileName.isEmpty()) {
