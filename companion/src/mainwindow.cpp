@@ -598,17 +598,24 @@ void MainWindow::readFlash()
 {
   // default filename alternatives - use current radio profile or extract from firmware read in place of 'firmware'
   const QString extn(isUf2DeviceFound() ? ".uf2" : ".bin");
-  const QString dfltPath = QDir::toNativeSeparators(g.flashDir() % "/firmware-" % QDate(QDate::currentDate()).toString(Qt::ISODate) % extn);
-  QString fileName = QFileDialog::getSaveFileName(this,tr("Read Radio Firmware to File"), dfltPath, getFirmwareFilesFilter());
+  const QString dfltPath = g.flashDir() % "/firmware-"
+                           % QDate(QDate::currentDate()).toString(Qt::ISODate) % extn;
+  QString fileName = QFileDialog::getSaveFileName(this,tr("Read Radio Firmware to File"),
+                       QDir::toNativeSeparators(dfltPath), getFirmwareFilesFilter());
 
   if (!fileName.isEmpty()) {
     if (readFirmwareFromRadio(fileName)) {
       FirmwareInterface fw(fileName);
+      if (!fw.isValid()) {
+        QMessageBox::warning(this, CPN_STR_TTL_WARNING,
+                             tr("%1 may not be a valid firmware file").arg(fileName));
+      }
 
       if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
-        QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("Radio firmware '%1' does not match the current profile '%2'")
-                                                        .arg(fw.getFlavour())
-                                                        .arg(getCurrentFirmware()->getFlavour()));
+        QMessageBox::warning(this, CPN_STR_TTL_WARNING,
+                             tr("Radio firmware '%1' does not match the current profile '%2'")
+                             .arg(fw.getFlavour())
+                             .arg(getCurrentFirmware()->getFlavour()));
       }
     }
   }
