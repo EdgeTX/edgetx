@@ -598,7 +598,7 @@ void MainWindow::readFlash()
 {
   // default filename alternatives - use current radio profile or extract from firmware read in place of 'firmware'
   const QString dfltPath = QDir::toNativeSeparators(g.flashDir() % "/firmware-" % QDate(QDate::currentDate()).toString(Qt::ISODate) % ".bin");
-  QString fileName = QFileDialog::getSaveFileName(this,tr("Read Radio Firmware to File"), dfltPath, BIN_FILES_FILTER);
+  QString fileName = QFileDialog::getSaveFileName(this,tr("Read Radio Firmware to File"), dfltPath, getFirmwareFilesFilter());
 
   if (!fileName.isEmpty()) {
     if (readFirmwareFromRadio(fileName)) {

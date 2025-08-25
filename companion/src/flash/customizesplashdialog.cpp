@@ -202,12 +202,11 @@ void CustomizeSplashDialog::on_copyLeftToRightButton_clicked() {
 right.copyImage(left);
 }
 
-
 void CustomizeSplashDialog::on_leftLoadFwButton_clicked() {loadFirmware(left);}
 void CustomizeSplashDialog::on_rightLoadFwButton_clicked() {loadFirmware(right);}
 void CustomizeSplashDialog::loadFirmware(Side side)
 {
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), FLASH_FILES_FILTER);
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), FIRMWARE_FILES_FILTER);
   if (!fileName.isEmpty()) {
     if (!side.displayImage( fileName, FW ))
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Can not load embedded image from firmware file %1.").arg(fileName));
