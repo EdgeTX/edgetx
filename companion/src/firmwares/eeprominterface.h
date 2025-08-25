@@ -314,7 +314,6 @@ class Firmware
     }
 
     QString getFlavour();
-    QString getProjectFlavour();
 
     static Firmware * getFirmwareForFlavour(const QString & flavour)
     {
