@@ -124,7 +124,7 @@ void FlashFirmwareDialog::updateUI()
 
 void FlashFirmwareDialog::firmwareLoadClicked()
 {
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), getFlashFilesFilter());
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open Firmware File"), g.flashDir(), getFirmwareFilesFilter());
   if (!fileName.isEmpty()) {
     fwName = fileName;
 
@@ -137,12 +137,12 @@ void FlashFirmwareDialog::firmwareLoadClicked()
       QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
 
     if (flashingMode == FM_UF2) {
-      const QString bd(getUF2BoardId());
-      if (fw.getFlavour() != bd) {
+      const Uf2Info uf2(getUf2Info());
+      if (fw.getFlavour() != uf2.board) {
         QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and does not match the connected '%3' radio")
                                                         .arg(fwName)
                                                         .arg(fw.getFlavour())
-                                                        .arg(bd));
+                                                        .arg(uf2.board));
       }
     }
 

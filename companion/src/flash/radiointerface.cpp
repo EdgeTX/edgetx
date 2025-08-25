@@ -32,9 +32,10 @@
 
 #define TR(msg) QCoreApplication::translate("RadioInterface", msg)
 
+constexpr int  UF2_TRANSFER_SIZE       {256};
 constexpr char UF2_FIRMWARE_FILENAME[] {"CURRENT.UF2"};
-constexpr char UF2_INFO_FILENAME[] {"INFO_UF2.TXT"};
-constexpr char UF2_INDEX_FILENAME[] {"INDEX.HTM"};
+constexpr char UF2_INFO_FILENAME[]     {"INFO_UF2.TXT"};
+constexpr char UF2_INDEX_FILENAME[]    {"INDEX.HTM"};
 
 using namespace std::chrono_literals;
 
@@ -98,14 +99,12 @@ void FirmwareReaderWorker::runDfu()
   }
 }
 
-#define BLKSIZE 256
-
 void FirmwareReaderWorker::runUf2()
 {
   try {
-    char buf[BLKSIZE];
+    char buf[UF2_TRANSFER_SIZE];
     QFile fw(findMassStoragePath(UF2_FIRMWARE_FILENAME));
-    int blocks = (fw.size() + BLKSIZE - 1) / BLKSIZE;
+    int blocks = (fw.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
     emit progressChanged(0, blocks);
     emit statusChanged(tr("Reading..."));
 
@@ -113,7 +112,7 @@ void FirmwareReaderWorker::runUf2()
 
     if (fw.open(QIODevice::ReadOnly)) {
       for (int i = 0; i < blocks; i++) {
-        int read = fw.read(buf, BLKSIZE);
+        int read = fw.read(buf, UF2_TRANSFER_SIZE);
         if (read > -1) {
           data.append(buf);
           emit progressChanged(i + 1, blocks);
@@ -148,6 +147,51 @@ FirmwareWriterWorker::~FirmwareWriterWorker()
 }
 
 void FirmwareWriterWorker::run()
+{
+  isUf2DeviceFound() ? runUf2() : runDfu();
+}
+
+void FirmwareWriterWorker::runUf2()
+{
+  try {
+    QString path =findMassStoragePath(UF2_FIRMWARE_FILENAME, true);
+
+    if (path.isEmpty())
+      throw std::runtime_error(tr("Cannot find USB device containing %1").arg(UF2_FIRMWARE_FILENAME).toStdString());
+
+    QFile newFile(findMassStoragePath(path % "/firmware.uf2"));
+    int blocks = (firmwareData.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
+    emit progressChanged(0, blocks);
+    emit statusChanged(tr("Writing..."));
+
+    if (newFile.open(QIODevice::ReadWrite)) {
+      for (int i = 0; i < blocks; i++) {
+        QByteArray ba = firmwareData.mid(i * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
+
+        if (newFile.write(ba, ba.size()) == ba.size()) {
+          newFile.flush();
+          emit progressChanged(i + 1, blocks);
+          emit statusChanged(tr("Writing %1 of %2").arg(i + 1).arg(blocks));
+        }
+        else {
+          throw std::runtime_error(tr("Error writing %1 (reason: %2)").arg(newFile.fileName()).arg(newFile.errorString()).toStdString());
+        }
+      }
+    } else {
+      throw std::runtime_error(tr("Cannot open %1 (reason: %2)").arg(newFile.fileName()).arg(newFile.errorString()).toStdString());
+    }
+
+    newFile.close();
+    qDebug() << "Writing done";
+    emit statusChanged("Writing done");
+    emit complete();
+
+  } catch (const std::exception &e) {
+    emit error(QString("UF2 failed: %1").arg(e.what()));
+  }
+}
+
+void FirmwareWriterWorker::runDfu()
 {
   try {
     auto device_filter = DfuDeviceFilter::empty_filter();
@@ -227,7 +271,7 @@ void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
     auto single_xfer_size =
         std::min(uint32_t(xfer_size), uint32_t(data.size() - bytes_downloaded));
     bytes_downloaded += single_xfer_size;
-    updateDloadStatus(bytes_downloaded, data.size());
+    updateDownloadStatus(bytes_downloaded, data.size());
     ctx->download(addr, SliceU8(data_ptr, single_xfer_size));
     addr += single_xfer_size;
     data_ptr += single_xfer_size;
@@ -240,7 +284,7 @@ void FirmwareWriterWorker::updateEraseStatus(size_t page, size_t pages)
   emit statusChanged(tr("Erasing page %1 of %2").arg(page).arg(pages));
 }
 
-void FirmwareWriterWorker::updateDloadStatus(size_t bytes, size_t total)
+void FirmwareWriterWorker::updateDownloadStatus(size_t bytes, size_t total)
 {
   emit progressChanged(bytes, total);
   emit statusChanged(tr("Writing %1 of %2").arg(bytes).arg(total));
@@ -518,38 +562,48 @@ bool isUf2DeviceFound()
   return !findMassStoragePath("INFO_UF2.TXT", false).isEmpty();
 }
 
-QString getFlashFilesFilter()
+QString getFirmwareFilesFilter()
 {
-  return isUf2DeviceFound() ? QString(UF2_FILES_FILTER) : QString(FLASH_FILES_FILTER);
+  return isUf2DeviceFound() ? QString(UF2_FILES_FILTER) : QString(FIRMWARE_FILES_FILTER);
 }
 
-QString getUF2BoardId()
+Uf2Info getUf2Info()
 {
+  Uf2Info info;
   QString path = findMassStoragePath(UF2_INFO_FILENAME);
 
-  if (path.isEmpty()) return QString();
+  if (path.isEmpty()) return info;
 
   QFile file(path);
   if (!file.open(QFile::ReadOnly)) {
     QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR, TR("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
-    return QString();
+    return info;
   }
 
-// UF2 Bootloader 3.0.0
-// Board-ID: tx16s
-// Date: 2025-08-24
+  // UF2 Bootloader 3.0.0
+  // Board-ID: tx16s
+  // Date: 2025-08-24
 
   QByteArray filedata;
-  const char *search_str = "Board-ID:";
+  const char *version_label = "UF2 Bootloader";
+  const char *board_label = "Board-ID:";
+  const char *date_label = "Date:";
 
   do
   {
     filedata = file.readLine();
-    if (!filedata.isEmpty() && filedata.startsWith(search_str))
+    if (!filedata.isEmpty()) {
+      if (filedata.startsWith(version_label))
+        info.version = filedata.mid(QString(version_label).size()).trimmed();
+      else if (filedata.startsWith(board_label))
+        info.board = filedata.mid(QString(board_label).size()).trimmed();
+      else if (filedata.startsWith(date_label))
+        info.date = filedata.mid(QString(date_label).size()).trimmed();
       break;
+    }
   } while (!filedata.isEmpty());
 
   file.close();
-
-  return filedata.mid(QString(search_str).size()).trimmed();
+  qDebug() << "UF2 information - version:" << info.version << "board:" << info.board << "date:" << info.date;
+  return info;
 }

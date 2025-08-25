@@ -75,7 +75,9 @@ class FirmwareWriterWorker : public QThread
     void writeUf2(DfuDevice &device, const SliceU8 &data);
     void writeRegion(const DfuDevice &device, uint32_t addr, const SliceU8 &data);
     void updateEraseStatus(size_t page, size_t pages);
-    void updateDloadStatus(size_t bytes, size_t total);
+    void updateDownloadStatus(size_t bytes, size_t total);
+    void runDfu();
+    void runUf2();
 
     template <typename Duration>
     void rebootAndRediscover(DfuDevice &device, uint32_t addr,
@@ -85,6 +87,12 @@ class FirmwareWriterWorker : public QThread
 
 
 class ProgressWidget;
+
+struct Uf2Info {
+  QString version;
+  QString board;
+  QString date;
+};
 
 QString findMassStoragePath(const QString &filename, bool onlyPath = false, ProgressWidget *progress = nullptr);
 
@@ -104,6 +112,6 @@ bool writeSettings(const QString &filename, ProgressWidget *progress);
 
 QString printDevicesInfo(const Vec<DfuDevice> &devices);
 QString getDevicesInfo();
-QString getFlashFilesFilter();
+QString getFirmwareFilesFilter();
 bool isUf2DeviceFound();
-QString getUF2BoardId();
+Uf2Info getUf2Info();
