@@ -46,7 +46,7 @@ void UpdateFirmware::assetSettingsInit()
   cad.maxExpected(1);
   cad.destSubDir("FIRMWARE");
   cad.copyFilterType(UpdateParameters::UFT_Pattern);
-  cad.copyFilter("^%FWFLAVOUR%-.*\\.bin$");
+  cad.copyFilter("^%FWFLAVOUR%-.*\\.(bin|uf2)$");
 
   qDebug() << "Asset settings initialised";
 }
