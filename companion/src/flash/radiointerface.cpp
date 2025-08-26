@@ -210,7 +210,7 @@ void FirmwareWriterWorker::runUf2()
       throw std::runtime_error(tr("No data to write to new firmware file").toStdString());
 
     qDebug() << "Writing started - file:"
-             << QDir::toNativeSeparators(newfw.fileName())
+             << newfw.fileName()
              << "size:" << firmwareData.size()
              << "blocks:" << blockstotal;
 
@@ -467,11 +467,11 @@ bool readFirmware(const QString &filename, ProgressWidget *progress)
       [filename](const QByteArray &data) {
         QFile file(filename);
         if (!file.open(QFile::WriteOnly)) {
-          qDebug() << "Unable to write to " << QDir::toNativeSeparators(filename);
+          qDebug() << "Unable to write to " << filename;
         } else {
           file.write(data);
           file.close();
-          qDebug() << "Firmware written to " << QDir::toNativeSeparators(filename);
+          qDebug() << "Firmware written to " << filename;
         }
       },
       progress);
@@ -560,7 +560,7 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
   QString radioPath;
   if (fromRadio) {
     radioPath = findMassStoragePath("RADIO", true, progress);
-    qDebug() << "Searching for SD card, found" << QDir::toNativeSeparators(radioPath);
+    qDebug() << "Searching for SD card, found" << radioPath;
   } else {
     radioPath = g.currentProfile().sdPath();
     if (!QFile::exists(radioPath % "/RADIO"))
@@ -618,12 +618,12 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
 
     QString temppath = si.rootPath();
     QString probefile = Helpers::concatPath(temppath, filename);
-    qDebug() << "Searching for" << QDir::toNativeSeparators(probefile);
+    qDebug() << "Searching for" << probefile;
     if (QFile::exists(probefile)) {
       found++;
       foundPath = temppath;
       foundProbefile = probefile;
-      qDebug() << QDir::toNativeSeparators(probefile) << "found";
+      qDebug() << probefile << "found";
     }
   }
 
@@ -651,38 +651,35 @@ Uf2Info getUf2Info()
 {
   Uf2Info info;
   QString path = findMassStoragePath(UF2_INFO_FILENAME);
-  qDebug() << "path:" << QDir::toNativeSeparators(path);
   if (path.isEmpty())
     return info;
 
   QFile file(path);
   if (!file.open(QFile::ReadOnly)) {
     QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR,
-                          TR("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
+                          TR("Error opening file %1:\n%2.")
+                          .arg(QDir::toNativeSeparators(path)).arg(file.errorString()));
     return info;
   }
-
-  // UF2 Bootloader 3.0.0
-  // Board-ID: tx16s
-  // Date: 2025-08-24
 
   QByteArray filedata;
   const char *version_label = "UF2 Bootloader";
   const char *board_label = "Board-ID:";
   const char *date_label = "Date:";
 
+  filedata = file.readLine();
+
   do
   {
+    if (filedata.startsWith(version_label))
+      info.version = filedata.mid(QString(version_label).size()).trimmed();
+    else if (filedata.startsWith(board_label))
+      info.board = filedata.mid(QString(board_label).size()).trimmed();
+    else if (filedata.startsWith(date_label))
+      info.date = filedata.mid(QString(date_label).size()).trimmed();
+
     filedata = file.readLine();
-    if (!filedata.isEmpty()) {
-      if (filedata.startsWith(version_label))
-        info.version = filedata.mid(QString(version_label).size()).trimmed();
-      else if (filedata.startsWith(board_label))
-        info.board = filedata.mid(QString(board_label).size()).trimmed();
-      else if (filedata.startsWith(date_label))
-        info.date = filedata.mid(QString(date_label).size()).trimmed();
-      break;
-    }
+
   } while (!filedata.isEmpty());
 
   file.close();

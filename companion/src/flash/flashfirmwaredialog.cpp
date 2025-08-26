@@ -238,7 +238,7 @@ void FlashFirmwareDialog::writeButtonClicked()
   g.profile[g.id()].fwName(fwName);
   g.checkHardwareCompatibility(ui->checkHardwareCompatibility->isChecked());
 
-  qDebug() << "FlashFirmwareDialog: flashing" << fwName;
+  qDebug() << "flashing:" << fwName;
 
   if (imageSource != FIRMWARE) {
     // load the splash image
@@ -254,7 +254,7 @@ void FlashFirmwareDialog::writeButtonClicked()
     // write the customized firmware
     QString tempFile;
     tempFile = generateProcessUniqueTempFileName("flash.bin");
-    qDebug() << "FlashFirmwareDialog: patching" << fwName << "with custom splash screen and saving to" << tempFile;
+    qDebug() << "patching" << fwName << "with custom splash screen and saving to" << tempFile;
     FirmwareInterface firmware(fwName);
     firmware.setSplash(image);
 
@@ -270,14 +270,6 @@ void FlashFirmwareDialog::writeButtonClicked()
 }
 
 void FlashFirmwareDialog::startFlash(const QString &filename)
-{
-  if (flashingMode == FM_UF2)
-    startFlashUF2(filename);
-  else
-    startFlashDFU(filename);
-}
-
-void FlashFirmwareDialog::startFlashDFU(const QString &filename)
 {
   close();
 
@@ -315,9 +307,4 @@ void FlashFirmwareDialog::startFlashDFU(const QString &filename)
     qDebug() << "startFlash: removing temporary file" << filename;
     qunlink(filename);
   }
-}
-
-void FlashFirmwareDialog::startFlashUF2(const QString &filename)
-{
-  qDebug() << "WIP";
 }
