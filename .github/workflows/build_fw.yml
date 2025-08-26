@@ -6,37 +6,23 @@ on:
       - 'main'
     tags:
       - v*
-    paths-ignore:
-      - '**.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/nightly.yml'
-      - '.github/workflows/linux_cpn.yml'
-      - '.github/workflows/macosx_cpn.yml'
-      - '.github/workflows/win-cpn-32.yml'
-      - '.github/workflows/win_cpn-64.yml'
-      - '.github/workflows/validate_fw_json.yml'
-      - 'companion/**'
-      - '.gitpod.yml'
-      - '.devcontainer/**'
-      - 'CMakeUserPresets.json'
-      - 'fw.json'
+    paths:
+      - '.github/workflows/build_fw.yml'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
   pull_request:
     branches:
       - 'main'
-    paths-ignore:
-      - '**.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/nightly.yml'
-      - '.github/workflows/linux_cpn.yml'
-      - '.github/workflows/macosx_cpn.yml'
-      - '.github/workflows/win-cpn-32.yml'
-      - '.github/workflows/win_cpn-64.yml'
-      - '.github/workflows/validate_fw_json.yml'
-      - 'companion/**'
-      - '.gitpod.yml'
-      - '.devcontainer/**'
-      - 'CMakeUserPresets.json'
-      - 'fw.json'
+    paths:
+      - '.github/workflows/build_fw.yml'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
   workflow_dispatch:
 
 jobs:
