@@ -7,7 +7,7 @@ on:
     tags:
       - v*
     paths:
-      - '.github/workflows/actions.yml'
+      - '.github/workflows/build_fw.yml'
       - 'cmake/**'
       - 'radio/**'
       - 'tools/build-gh.sh'
@@ -17,7 +17,7 @@ on:
     branches:
       - 'main'
     paths:
-      - '.github/workflows/actions.yml'
+      - '.github/workflows/build_fw.yml'
       - 'cmake/**'
       - 'radio/**'
       - 'tools/build-gh.sh'
