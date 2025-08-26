@@ -95,7 +95,7 @@ void UpdateCloudBuild::assetSettingsInit()
   cad.filter("%FWFLAVOUR%");
   cad.destSubDir("FIRMWARE");
   cad.copyFilterType(UpdateParameters::UFT_Pattern);
-  cad.copyFilter("^%FWFLAVOUR%-%LANGUAGE%.*-%RELEASE%\\.bin$");
+  cad.copyFilter("^%FWFLAVOUR%-%LANGUAGE%.*-%RELEASE%\\.(bin|uf2)$");
   cad.maxExpected(1);
 
   qDebug() << "Asset settings initialised";
