@@ -439,7 +439,9 @@ bool UpdateCloudBuild::objectExists(const QJsonObject & parent, const QString ch
 bool UpdateCloudBuild::setAssetDownload()
 {
   //  this format MUST align with the asset copy filter
-  QString name = QString("%1-%2%3-%4.bin").arg(m_radio).arg(params()->language.toLower()).arg(m_buildFlags/* has a leading hyphen*/).arg(repo()->releases()->name());
+  //  except for the file extension which needs to be fixed after the file is downloaded
+  //  and before any further processing such as copying or flashing
+  QString name = QString("%1-%2%3-%4.tmp").arg(m_radio).arg(params()->language.toLower()).arg(m_buildFlags/* has a leading hyphen*/).arg(repo()->releases()->name());
 
   repo()->assets()->setDownloadName(name.toLower());
 
@@ -455,6 +457,7 @@ bool UpdateCloudBuild::setAssetDownload()
         const QJsonObject &artifact = artifacts[i].toObject();
         if (stringExists(artifact, "slug") && artifact.value("slug").toString() == "firmware") {
           if (stringExists(artifact, "download_url")) {
+            qDebug() << artifact;
             repo()->assets()->setDownloadUrl(artifact.value("download_url").toString());
           }
           else {

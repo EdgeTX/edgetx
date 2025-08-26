@@ -47,8 +47,6 @@ class FlashFirmwareDialog : public QDialog
   protected:
     void updateUI();
     void startFlash(const QString &filename);
-    void startFlashDFU(const QString &filename);
-    void startFlashUF2(const QString &filename);
 
   private:
     enum ImageSource {FIRMWARE, PROFILE, LIBRARY, EXTERNAL};
