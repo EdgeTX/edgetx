@@ -24,6 +24,7 @@
 #include "appdata.h"
 #include "progresswidget.h"
 #include "storage.h"
+#include "helpers.h"
 
 #include <QMessageBox>
 
@@ -32,10 +33,11 @@
 
 #define TR(msg) QCoreApplication::translate("RadioInterface", msg)
 
-constexpr int  UF2_TRANSFER_SIZE       {4 * 1024};
-constexpr char UF2_FIRMWARE_FILENAME[] {"CURRENT.UF2"};
-constexpr char UF2_INFO_FILENAME[]     {"INFO_UF2.TXT"};
-constexpr char UF2_INDEX_FILENAME[]    {"INDEX.HTM"};
+constexpr int  UF2_TRANSFER_SIZE            {4 * 1024};
+constexpr char UF2_FIRMWARE_FILENAME[]      {"CURRENT.UF2"};
+constexpr char UF2_INFO_FILENAME[]          {"INFO_UF2.TXT"};
+constexpr char UF2_INDEX_FILENAME[]         {"INDEX.HTM"};
+constexpr char UF2_NEW_FIRMWARE_FILENAME[]  {"firmware.uf2"};
 
 using namespace std::chrono_literals;
 
@@ -105,12 +107,14 @@ void FirmwareReaderWorker::runUf2()
     QString path = findMassStoragePath(UF2_FIRMWARE_FILENAME);
     QStorageInfo si(path);
     QFile fw(path);
-    char buf[UF2_TRANSFER_SIZE];  // TODO use si.blocksize() if returns value
+    char buf[UF2_TRANSFER_SIZE];
     const int blockstotal = (fw.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
     emit progressChanged(0, blockstotal);
     emit statusChanged(tr("Reading..."));
 
-    qDebug() << "Reading started - file:" << fw.fileName() << "size:" << fw.size() << "blocks:" << blockstotal;
+    qDebug() << "Reading started - file:" << fw.fileName()
+             << "size:" << fw.size()
+             << "blocks:" << blockstotal;
 
     QByteArray data;
     if (fw.open(QIODevice::ReadOnly)) {
@@ -118,9 +122,12 @@ void FirmwareReaderWorker::runUf2()
       qint64 bytesread = 0;
       int read = fw.read(buf, UF2_TRANSFER_SIZE);
       if (read == 0 && fw.size() > 0) {
-        throw std::runtime_error(tr("Error reading %1 (reason: no data read)").arg(fw.fileName()).toStdString());
+        throw std::runtime_error(tr("Error reading %1 (reason: no data read)")
+                                 .arg(fw.fileName()).toStdString());
       } else if (read < 0) {
-        throw std::runtime_error(tr("Error reading %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
+        throw std::runtime_error(tr("Error reading %1 (reason: %2)")
+                                 .arg(fw.fileName())
+                                 .arg(fw.errorString()).toStdString());
       }
 
       do
@@ -136,14 +143,21 @@ void FirmwareReaderWorker::runUf2()
 
       if (read < 0) {
         data.clear();
-        throw std::runtime_error(tr("Error reading %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
+        throw std::runtime_error(tr("Error reading %1 (reason: %2)")
+                                 .arg(fw.fileName())
+                                 .arg(fw.errorString()).toStdString());
       } else if (bytesread < fw.size()) {
         data.clear();
-        throw std::runtime_error(tr("Error reading %1 (reason: read %2 of %3)").arg(fw.fileName()).arg(bytesread).arg(fw.size()).toStdString());
+        throw std::runtime_error(tr("Error reading %1 (reason: read %2 of %3)")
+                                 .arg(fw.fileName())
+                                 .arg(bytesread)
+                                 .arg(fw.size()).toStdString());
       }
 
     } else {
-      throw std::runtime_error(tr("Cannot open %1 (reason: %2)").arg(fw.fileName()).arg(fw.errorString()).toStdString());
+      throw std::runtime_error(tr("Cannot open %1 (reason: %2)")
+                               .arg(fw.fileName())
+                               .arg(fw.errorString()).toStdString());
     }
 
     fw.close();
@@ -176,15 +190,18 @@ void FirmwareWriterWorker::runUf2()
 {
   try {
     QString path = findMassStoragePath(UF2_FIRMWARE_FILENAME, true);
-    QStorageInfo si(path);
-    if (path.isEmpty())
-      throw std::runtime_error(tr("Cannot find USB device containing %1").arg(UF2_FIRMWARE_FILENAME).toStdString());
+    if (path.isEmpty()) {
+      throw std::runtime_error(tr("Cannot find USB device containing %1")
+                               .arg(UF2_FIRMWARE_FILENAME).toStdString());
+    }
 
-    if (si.bytesAvailable() < firmwareData.size())
+    QStorageInfo si(path);
+    if (si.bytesAvailable() < firmwareData.size()) {
       throw std::runtime_error(tr("Insufficient free space on %1 to write new firmware")
                                .arg(QDir::toNativeSeparators(path)).toStdString());
+    }
 
-    QFile newFile(findMassStoragePath(path % "/firmware.uf2"));
+    QFile newfw(Helpers::concatPath(path, UF2_NEW_FIRMWARE_FILENAME));
     int blockstotal = (firmwareData.size() + UF2_TRANSFER_SIZE - 1) / UF2_TRANSFER_SIZE;
     emit progressChanged(0, blockstotal);
     emit statusChanged(tr("Writing..."));
@@ -192,27 +209,31 @@ void FirmwareWriterWorker::runUf2()
     if (firmwareData.size() == 0)
       throw std::runtime_error(tr("No data to write to new firmware file").toStdString());
 
-    qDebug() << "Writing started - file:" << newFile.fileName() << "size:" << firmwareData.size() << "blocks:" << blockstotal;
+    qDebug() << "Writing started - file:"
+             << QDir::toNativeSeparators(newfw.fileName())
+             << "size:" << firmwareData.size()
+             << "blocks:" << blockstotal;
 
-    if (newFile.open(QIODevice::ReadWrite)) {
+    if (newfw.open(QIODevice::ReadWrite)) {
       int blockcnt = 0;
       qint64 byteswritten = 0;
       QByteArray ba = firmwareData.mid(blockcnt * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
 
       do
       {
-        qint64 written = newFile.write(ba, ba.size());
+        qint64 written = newfw.write(ba, ba.size());
         if (byteswritten < 0) {
-          throw std::runtime_error(tr("Error writing %1 (reason: %2)").arg(newFile.fileName())
-                                   .arg(newFile.errorString()).toStdString());
+          throw std::runtime_error(tr("Error writing %1 (reason: %2)")
+                                   .arg(QDir::toNativeSeparators(newfw.fileName()))
+                                   .arg(newfw.errorString()).toStdString());
         } else if (byteswritten < ba.size()) {
           throw std::runtime_error(tr("Error writing block to %1 (reason: written %2 of %3)")
-                                      .arg(newFile.fileName())
+                                      .arg(QDir::toNativeSeparators(newfw.fileName()))
                                       .arg(byteswritten)
                                       .arg(ba.size()).toStdString());
         }
 
-        newFile.flush();
+        newfw.flush();
         byteswritten += written;
         blockcnt++;
         emit progressChanged(blockcnt, blockstotal);
@@ -224,16 +245,18 @@ void FirmwareWriterWorker::runUf2()
 
       if (byteswritten < firmwareData.size()) {
         throw std::runtime_error(tr("Error writing %1 (reason: written %2 of %3)")
-                                 .arg(newFile.fileName())
+                                 .arg(QDir::toNativeSeparators(newfw.fileName()))
                                  .arg(byteswritten)
                                  .arg(firmwareData.size()).toStdString());
       }
 
     } else {
-      throw std::runtime_error(tr("Cannot open %1 (reason: %2)").arg(newFile.fileName()).arg(newFile.errorString()).toStdString());
+      throw std::runtime_error(tr("Cannot open %1 (reason: %2)")
+                               .arg(QDir::toNativeSeparators(newfw.fileName()))
+                               .arg(newfw.errorString()).toStdString());
     }
 
-    newFile.close();
+    newfw.close();
     qDebug() << "Writing done";
     emit statusChanged("Writing done");
     emit complete();
@@ -444,11 +467,11 @@ bool readFirmware(const QString &filename, ProgressWidget *progress)
       [filename](const QByteArray &data) {
         QFile file(filename);
         if (!file.open(QFile::WriteOnly)) {
-          qDebug() << "Unable to write to " << filename;
+          qDebug() << "Unable to write to " << QDir::toNativeSeparators(filename);
         } else {
           file.write(data);
           file.close();
-          qDebug() << "Firmware written to " << filename;
+          qDebug() << "Firmware written to " << QDir::toNativeSeparators(filename);
         }
       },
       progress);
@@ -464,9 +487,10 @@ bool writeFirmware(const QString &filename, ProgressWidget *progress)
 {
   QFile f(filename);
   if (!f.open(QIODeviceBase::ReadOnly)) {
-    QMessageBox::critical(
-        nullptr, CPN_STR_TTL_ERROR,
-        TR("Cannot open file '%1': %2").arg(filename).arg(f.errorString()));
+    QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR,
+                          TR("Cannot open file '%1': %2")
+                          .arg(QDir::toNativeSeparators(filename))
+                          .arg(f.errorString()));
   }
 
   auto data = f.readAll();
@@ -521,7 +545,9 @@ bool readSettings(const QString &filename, ProgressWidget *progress)
 {
   QFile file(filename);
   if (file.exists() && !file.remove()) {
-    QMessageBox::warning(nullptr, CPN_STR_TTL_ERROR, TR("Could not delete temporary file: %1").arg(filename));
+    QMessageBox::warning(nullptr, CPN_STR_TTL_ERROR,
+                         TR("Could not delete temporary file: %1")
+                         .arg(QDir::toNativeSeparators(filename)));
     return false;
   }
 
@@ -534,7 +560,7 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
   QString radioPath;
   if (fromRadio) {
     radioPath = findMassStoragePath("RADIO", true, progress);
-    qDebug() << "Searching for SD card, found" << radioPath;
+    qDebug() << "Searching for SD card, found" << QDir::toNativeSeparators(radioPath);
   } else {
     radioPath = g.currentProfile().sdPath();
     if (!QFile::exists(radioPath % "/RADIO"))
@@ -552,7 +578,8 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
   if (!inputStorage.load(radioData)) {
     QString errorMsg = inputStorage.error();
     if (errorMsg.isEmpty())
-      errorMsg = TR("Failed to read Models and Settings from") % radioPath;
+      errorMsg = TR("Failed to read Models and Settings from")
+                    % QDir::toNativeSeparators(radioPath);
 
     QMessageBox::critical(progress, CPN_STR_TTL_ERROR, errorMsg);
     return false;
@@ -560,7 +587,9 @@ bool readSettingsSDCard(const QString &filename, ProgressWidget *progress,
 
   Storage outputStorage(filename);
   if (!outputStorage.write(radioData)) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, TR("Failed to write Models and Setting file") % " " % filename);
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR,
+                          TR("Failed to write Models and Setting file") % " "
+                          % QDir::toNativeSeparators(filename));
     return false;
   }
 
@@ -583,17 +612,13 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
     qDebug() << "device:" << si.device()
              << "type:" << si.fileSystemType()
              << "block size:" << si.blockSize()
-             << "capacity:" << si.bytesTotal()/1000/1000 << "MB"
-             << "available:" << si.bytesFree()/1000/1000 << "MB"
+             << "capacity:" << si.bytesTotal() / 1000 / 1000 << "MB"
+             << "available:" << si.bytesFree() / 1000/ 1000 << "MB"
              << "root path:" << si.rootPath();
 
     QString temppath = si.rootPath();
-    QString probefile = temppath;
-    if (!probefile.endsWith("/"))
-      probefile.append("/");
-
-    probefile.append(filename);
-    qDebug() << "Searching for" << probefile;
+    QString probefile = Helpers::concatPath(temppath, filename);
+    qDebug() << "Searching for" << QDir::toNativeSeparators(probefile);
     if (QFile::exists(probefile)) {
       found++;
       foundPath = temppath;
@@ -605,7 +630,8 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
   if (found == 1) {
     return onlyPath ? foundPath : foundProbefile;
   } else if (found > 1) {
-    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, QDir::toNativeSeparators(filename) % " " % TR("found in multiple locations"));
+    QMessageBox::critical(progress, CPN_STR_TTL_ERROR, QDir::toNativeSeparators(filename)
+                          % " " % TR("found in multiple locations"));
   }
 
   return QString();
@@ -631,7 +657,8 @@ Uf2Info getUf2Info()
 
   QFile file(path);
   if (!file.open(QFile::ReadOnly)) {
-    QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR, TR("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
+    QMessageBox::critical(nullptr, CPN_STR_TTL_ERROR,
+                          TR("Error opening file %1:\n%2.").arg(path).arg(file.errorString()));
     return info;
   }
 
@@ -660,7 +687,9 @@ Uf2Info getUf2Info()
 
   file.close();
 
-  qDebug() << "UF2 information - version:" << info.version << "board:" << info.board << "date:" << info.date;
+  qDebug() << "UF2 information - version:" << info.version
+           << "board:" << info.board
+           << "date:" << info.date;
 
   return info;
 }

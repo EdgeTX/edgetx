@@ -117,6 +117,10 @@ namespace Helpers
   unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index = 0, const unsigned int numbits = 1, const unsigned int offset = 0);
   void setBitmappedValue(unsigned int & field, unsigned int value, unsigned int index = 0, unsigned int numbits = 1, unsigned int offset = 0);
   int getFirstPosValueIndex(QComboBox * cbo);
+  QString concatPath(QString & str1, QString & str2, bool onlyonesep = true);
+  QString concatPath(const QString & str1, const QString & str2, bool onlyonesep = true);
+  QString concatPath(const QString & str1, QString & str2, bool onlyonesep = true);
+  QString concatPath(QString & str1, const QString & str2, bool onlyonesep = true);
 
 }  // namespace Helpers
 

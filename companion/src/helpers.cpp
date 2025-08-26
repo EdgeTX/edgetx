@@ -330,6 +330,26 @@ int Helpers::getFirstPosValueIndex(QComboBox * cbo)
   return -1;
 }
 
+QString Helpers::concatPath(QString & str1, QString & str2, bool onlyonesep)
+{
+  return (str1 % ((!str1.endsWith("/") || !onlyonesep) ? "/" : "") % str2);
+}
+
+QString Helpers::concatPath(const QString & str1, const QString & str2, bool onlyonesep)
+{
+  return (str1 % ((!str1.endsWith("/") || !onlyonesep) ? "/" : "") % str2);
+}
+
+QString Helpers::concatPath(const QString & str1, QString & str2, bool onlyonesep)
+{
+  return (str1 % ((!str1.endsWith("/") || !onlyonesep) ? "/" : "") % str2);
+}
+
+QString Helpers::concatPath(QString & str1, const QString & str2, bool onlyonesep)
+{
+  return (str1 % ((!str1.endsWith("/") || !onlyonesep) ? "/" : "") % str2);
+}
+
 #ifdef __APPLE__
 // Flag when simulator is running
 static bool simulatorRunning = false;
