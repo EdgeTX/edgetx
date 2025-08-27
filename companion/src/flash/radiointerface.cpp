@@ -222,14 +222,14 @@ void FirmwareWriterWorker::runUf2()
       do
       {
         qint64 written = newfw.write(ba, ba.size());
-        if (byteswritten < 0) {
+        if (written < 0) {
           throw std::runtime_error(tr("Error writing %1 (reason: %2)")
                                    .arg(QDir::toNativeSeparators(newfw.fileName()))
                                    .arg(newfw.errorString()).toStdString());
-        } else if (byteswritten < ba.size()) {
-          throw std::runtime_error(tr("Error writing block to %1 (reason: written %2 of %3)")
+        } else if (written < ba.size()) {
+          throw std::runtime_error(tr("Error writing block to %1 (reason: bytes written %2 of %3)")
                                       .arg(QDir::toNativeSeparators(newfw.fileName()))
-                                      .arg(byteswritten)
+                                      .arg(written)
                                       .arg(ba.size()).toStdString());
         }
 
