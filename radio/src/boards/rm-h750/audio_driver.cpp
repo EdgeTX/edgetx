@@ -141,7 +141,7 @@ static void audio_update_dma_buffer(uint8_t tc)
 
 void audioSetVolume(uint8_t volume)
 {
-  tas2505_set_volume(&_tas2505, volume * 9 / 10); // TX15 HP cannot handle the full power of TAS2505
+  tas2505_set_volume(&_tas2505, volume);
 }
 
 extern "C" void DMA1_Stream4_IRQHandler(void)
