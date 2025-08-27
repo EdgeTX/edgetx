@@ -97,7 +97,8 @@ struct Uf2Info {
 QString findMassStoragePath(const QString &filename, bool onlyPath = false, ProgressWidget *progress = nullptr);
 
 bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
-                  const std::function<void(const QString &)>& onError);
+                  const std::function<void(const QString &)>& onError,
+                  ProgressWidget *progress);
 
 bool readFirmware(QByteArray &data, ProgressWidget *progress);
 bool readFirmware(const QString &filename, ProgressWidget *progress);

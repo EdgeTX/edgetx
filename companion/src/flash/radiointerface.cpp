@@ -428,22 +428,23 @@ void connectProgress(Worker *worker, ProgressWidget *progress)
 }
 
 bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
-                  const std::function<void(const QString &)>& onError)
+                  const std::function<void(const QString &)>& onError,
+                  ProgressWidget *progress)
 {
   auto worker = std::make_unique<FirmwareReaderWorker>();
+  connectProgress(worker.get(), progress);
 
   // delete worker once the thread is finished
-  worker->connect(worker.get(), &QThread::finished, worker.get(), &QObject::deleteLater);
+  //worker->connect(worker.get(), &QThread::finished, worker.get(), &QObject::deleteLater);
 
   // connect closures
-  worker->connect(worker.get(), &FirmwareReaderWorker::complete, worker.get(), onComplete);
-  worker->connect(worker.get(), &FirmwareReaderWorker::error, worker.get(), onError);
+  progress->connect(worker.get(), &FirmwareReaderWorker::complete, progress, onComplete);
+  progress->connect(worker.get(), &FirmwareReaderWorker::error, progress, onError);
 
   // now start it!
   worker.release()->start();
   return true;
 }
-
 
 bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
                   ProgressWidget *progress)

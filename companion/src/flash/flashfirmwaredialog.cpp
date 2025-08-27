@@ -295,7 +295,8 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
         [this](const QString &err) {
           QMessageBox::critical(this, tr("Firmware check failed"),
               tr("Could not read current firmware: %1").arg(err));
-        });
+        },
+        progress);
   } else {
     qDebug() << "Start writing firmware (no checks done)";
     writeFirmware(fw.getFlash(), progress);
