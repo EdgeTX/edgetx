@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>421</width>
-    <height>334</height>
+    <height>380</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -236,6 +236,13 @@
      </property>
      <property name="text">
       <string>Check hardware compatibility</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkBackup">
+     <property name="text">
+      <string>Backup radio firmware before flashing</string>
      </property>
     </widget>
    </item>
