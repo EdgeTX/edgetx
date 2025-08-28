@@ -727,6 +727,14 @@ void AppData::convertSettings(QSettings & settings)
     }
   }
 
+  if (savedMajMin < 0x300) {
+    //  3.0  CloudBuild copy filter changed to cater for uf2
+    qInfo().noquote() << "Deleting CloudBuild settings to force refresh";
+    static const QString path = QStringLiteral("Components/component6");
+    if (settings.contains(path))
+      settings.remove(path);
+  }
+
   if (removeUnused)
     clearUnusedSettings(settings);
 

@@ -411,6 +411,7 @@ bool UpdateCloudBuild::downloadFlaggedAsset(const int row)
   // flashing processes use the file extension to decide on
   // the flashing mode i.e. DFU or UF2
   QString path = QString("%1/A%2/%3").arg(downloadDir()).arg(repo()->assets()->id()).arg(repo()->assets()->downloadName());
+  status()->reportProgress(tr("Renaming: %1").arg(path), QtDebugMsg);
 
   FirmwareInterface firmware(path);
   if (firmware.isValid()) {
