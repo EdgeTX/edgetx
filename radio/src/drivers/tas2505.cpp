@@ -130,6 +130,12 @@ int tas2505_init(tas2505_t* dev)
 
 void tas2505_set_volume(tas2505_t* dev, uint8_t volume)
 {
+  // maximum volume is 0x00 and total silence is 0xFE
+  if (volume == 0)
+  {
+    volume = 0xfe;
+  }
+
   tas2505_write_reg(dev, TAS2505_SPKVOL1, volume);
   tas2505_write_reg(dev, TAS2505_HP_VOL, volume);
 }
