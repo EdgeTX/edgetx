@@ -137,7 +137,7 @@ void FirmwareReaderWorker::runUf2()
         blockcnt++;
         data.append(buf, read);
         emit progressChanged(blockcnt, blockstotal);
-        emit statusChanged(tr("Read %1 of %2").arg(blockcnt).arg(blockstotal));
+        emit statusChanged(tr("Read block %1 of %2").arg(blockcnt).arg(blockstotal));
         read = fw.read(buf, UF2_TRANSFER_SIZE);
       } while (read > 0);
 
@@ -237,7 +237,7 @@ void FirmwareWriterWorker::runUf2()
         byteswritten += written;
         blockcnt++;
         emit progressChanged(blockcnt, blockstotal);
-        emit statusChanged(tr("Writing %1 of %2").arg(blockcnt).arg(blockstotal));
+        emit statusChanged(tr("Writing block %1 of %2").arg(blockcnt).arg(blockstotal));
 
         ba.clear(); // just to be on the safe side
         ba = firmwareData.mid(blockcnt * UF2_TRANSFER_SIZE, UF2_TRANSFER_SIZE);
