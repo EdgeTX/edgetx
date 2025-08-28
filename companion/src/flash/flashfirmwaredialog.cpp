@@ -52,6 +52,17 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
 
   ui->checkHardwareCompatibility->setChecked(g.checkHardwareCompatibility());
 
+  ui->checkBackup->setCheckState(g.backupOnFlash() ? Qt::Checked : Qt::Unchecked);
+
+  QString backupPath = g.currentProfile().pBackupDir();
+  if (backupPath.isEmpty()) {
+    backupPath = g.backupDir();
+  }
+
+  if (backupPath.isEmpty() || !QDir(backupPath).exists()) {
+    ui->checkBackup->setEnabled(false);
+  }
+
   updateUI();
 
   connect(ui->firmwareLoad, &QPushButton::clicked, this, &FlashFirmwareDialog::firmwareLoadClicked);
@@ -139,7 +150,7 @@ void FlashFirmwareDialog::firmwareLoadClicked()
     if (flashingMode == FM_UF2) {
       const Uf2Info uf2(getUf2Info());
       if (fw.getFlavour() != uf2.board) {
-        QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and does not match the connected '%3' radio")
+        QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nRadio type mismatch - Firmware: %2 Radio: %3")
                                                         .arg(fwName)
                                                         .arg(fw.getFlavour())
                                                         .arg(uf2.board));
@@ -147,7 +158,7 @@ void FlashFirmwareDialog::firmwareLoadClicked()
     }
 
     if (fw.getFlavour() != getCurrentFirmware()->getFlavour()) {
-      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nis for radio '%2' and does not match the current '%3' profile")
+      QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nRadio type mismatch - Firmware: %2 Profile: %3")
                                                       .arg(fwName)
                                                       .arg(fw.getFlavour())
                                                       .arg(getCurrentFirmware()->getFlavour()));
@@ -237,6 +248,7 @@ void FlashFirmwareDialog::writeButtonClicked()
   g.flashDir(QFileInfo(fwName).dir().absolutePath());
   g.profile[g.id()].fwName(fwName);
   g.checkHardwareCompatibility(ui->checkHardwareCompatibility->isChecked());
+  g.backupOnFlash(ui->checkBackup->isChecked());
 
   qDebug() << "flashing:" << fwName;
 
@@ -279,16 +291,63 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
   FirmwareInterface fw(filename);
   auto progress = progressDialog.progress();
 
-  if (g.checkHardwareCompatibility()) {
-    readFirmware(
-        [this, &fw, progress](const QByteArray &_data) {
-          qDebug() << "Read old fw, size = " << _data.size();
+  bool backup = g.backupOnFlash();
+  QFile backupFile;
 
-          if (!fw.isHardwareCompatible(FirmwareInterface(_data))) {
-            QMessageBox::warning(this, tr("Firmware check failed"),
-                tr("New firmware is not compatible with the one currently installed!"));
+  if (backup) {
+    QString backupDir = g.currentProfile().pBackupDir();
+    if (backupDir.isEmpty())
+      backupDir = g.backupDir();
+
+    QString backupPath(QString("%1/fw-%2-%3.%4")
+                       .arg(backupDir)
+                       .arg(getCurrentFirmware()->getFlavour())
+                       .arg(QDate(QDate::currentDate()).toString(Qt::ISODate))
+                       .arg(fw.typeFileExtn()));
+    qDebug() << "Writing backup to" << backupPath;
+    QFile backupFile(backupPath);
+    if (backupFile.exists() && !backupFile.remove()) {
+      QMessageBox::critical(this, tr("Backing up radio firmware"),
+                            tr("Unable to delete old backup file: %1 (reason: %2)")
+                            .arg(backupFile.fileName())
+                            .arg(backupFile.errorString()));
+    }
+
+    if (!backupFile.open(QIODevice::ReadWrite)) {
+      QMessageBox::critical(this, tr("Backing up radio firmware"),
+                            tr("Unable to open backup file: %1 (reason: %2)")
+                            .arg(backupFile.fileName())
+                            .arg(backupFile.errorString()));
+
+    }
+  }
+
+  if (g.checkHardwareCompatibility() || backup) {
+    bool checkhw = g.checkHardwareCompatibility();
+    readFirmware(
+        [this, &fw, progress, checkhw, backup, &backupFile](const QByteArray &_data) {
+          qDebug() << "Read old fw, size = " << _data.size();
+          if (backup) {
+              if (backupFile.write(_data) <= 0) {
+                QMessageBox::critical(this, tr("Backing up radio firmware"),
+                                      tr("Error writing to file: %1 (reason: %2)")
+                                      .arg(backupFile.fileName())
+                                      .arg(backupFile.errorString()));
+              }
+            backupFile.close();
+            qDebug() << "Backup written";
+          }
+
+          if (checkhw) {
+            if (!fw.isHardwareCompatible(FirmwareInterface(_data))) {
+              QMessageBox::warning(this, tr("Firmware check failed"),
+                  tr("New firmware is not compatible with the one currently installed!"));
+            } else {
+              qDebug() << "Start writing firmware (compatibility checked)";
+              writeFirmware(fw.getFlash(), progress);
+            }
           } else {
-            qDebug() << "Start writing firmware (compatibility checked)";
+            qDebug() << "Start writing firmware (no checks done)";
             writeFirmware(fw.getFlash(), progress);
           }
         },
@@ -298,7 +357,7 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
         },
         progress);
   } else {
-    qDebug() << "Start writing firmware (no checks done)";
+    qDebug() << "Start writing firmware (no checks or backup done)";
     writeFirmware(fw.getFlash(), progress);
   }
 
