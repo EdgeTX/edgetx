@@ -128,24 +128,8 @@ int tas2505_init(tas2505_t* dev)
   return 0;
 }
 
-// TX15 HP cannot handle the full power of TAS2505
-// max volume is limited to 15db attenuation
-//  0 = silence (0xfe)
-//  1 = low volume
-// 11 = center
-// 23 = max volume
-static const uint8_t volumeScale[VOLUME_LEVEL_MAX + 1] = {
-  0xfe, 114, 90, 75, 63, 55, 49, 45, 42, 39, 37, 35, 33, 31, 29, 27, 25, 23, 21, 19, 18, 17, 16, 15
-};
-
 void tas2505_set_volume(tas2505_t* dev, uint8_t volume)
 {
-  if (volume > VOLUME_LEVEL_MAX) {
-    volume = VOLUME_LEVEL_MAX;
-  }
-
-  uint32_t vol = volumeScale[volume];
-
-  tas2505_write_reg(dev, TAS2505_SPKVOL1, vol);
-  tas2505_write_reg(dev, TAS2505_HP_VOL, vol);
+  tas2505_write_reg(dev, TAS2505_SPKVOL1, volume);
+  tas2505_write_reg(dev, TAS2505_HP_VOL, volume);
 }
