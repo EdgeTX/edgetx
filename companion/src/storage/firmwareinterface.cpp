@@ -169,6 +169,7 @@ FirmwareInterface::FirmwareInterface(const QString &filename, QDialog *parent) :
   QFile file(filename);
   file.open(QIODevice::ReadOnly);
   initFlash(file.readAll());
+  file.close();
 }
 
 FirmwareInterface::FirmwareInterface(const QByteArray &flashData, QDialog *parent) :
@@ -183,6 +184,7 @@ void FirmwareInterface::initFlash(const QByteArray& flashData)
   flashSize = flashData.size();
 
   if (flashSize > 0) {
+    type = (flash.startsWith("UF2\n") ? FIRMWARE_TYPE_UF2 : FIRMWARE_TYPE_BIN);
     flavour = seekLabel(FW_MARK).remove("edgetx-");
     version = seekLabel(VERS_MARK);
 
