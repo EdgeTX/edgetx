@@ -24,6 +24,7 @@
 #include "appdata.h"
 #include "eeprominterface.h"
 #include "flashfirmwaredialog.h"
+#include "firmwareinterface.h"
 
 // these must match text strings in server response
 constexpr char CLOUD_BUILD_WAITING[]       {"WAITING_FOR_BUILD"};
@@ -410,24 +411,18 @@ bool UpdateCloudBuild::downloadFlaggedAsset(const int row)
   // flashing processes use the file extension to decide on
   // the flashing mode i.e. DFU or UF2
   QString path = QString("%1/A%2/%3").arg(downloadDir()).arg(repo()->assets()->id()).arg(repo()->assets()->downloadName());
-  QFile fw(path);
-  if (fw.open(QIODevice::ReadOnly)) {
-    QByteArray buf = fw.read(4);
-    if (buf.size() < 4) {
-      status()->reportProgress(tr("Unable to read: %1").arg(fw.fileName()), QtCriticalMsg);
-      fw.close();
-      return false;
-    }
 
-    fw.close();
-    QFileInfo fi(fw);
-    QString newfname = fi.absoluteDir().path() % "/" % fi.completeBaseName() % (buf.contains("UF2\n") ? ".uf2" : ".bin");
+  FirmwareInterface firmware(path);
+  if (firmware.isValid()) {
+    QFileInfo fi(path);
+    QString newfname = QString("%1/%2.%3").arg(fi.absoluteDir().path()).arg(fi.completeBaseName()).arg(firmware.typeFileExtn());
 
     if (QFileInfo::exists(newfname) && !QFile(newfname).remove()) {
       status()->reportProgress(tr("Unable to delete: %1").arg(newfname), QtCriticalMsg);
       return false;
     }
 
+    QFile fw(path);
     if (!fw.rename(newfname)) {
       status()->reportProgress(tr("Unable to rename %1 to %2").arg(fw.fileName()).arg(newfname), QtCriticalMsg);
       return false;
@@ -437,7 +432,7 @@ bool UpdateCloudBuild::downloadFlaggedAsset(const int row)
     repo()->assets()->setDownloadName(newfi.fileName());
     status()->reportProgress(tr("Renamed: %1").arg(newfi.fileName()), QtInfoMsg);
   } else {
-    status()->reportProgress(tr("Unable to open: %1").arg(path), QtCriticalMsg);
+    status()->reportProgress(tr("%1 is not a valid firmware file").arg(path), QtCriticalMsg);
     return false;
   }
 

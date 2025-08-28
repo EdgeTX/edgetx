@@ -45,6 +45,11 @@ class FirmwareInterface
   Q_DECLARE_TR_FUNCTIONS("FirmwareInterface")
 
   public:
+    enum FirmwareType{
+      FIRMWARE_TYPE_BIN,
+      FIRMWARE_TYPE_UF2
+    };
+
     explicit FirmwareInterface(const QString &filename, QDialog* parent = nullptr);
     explicit FirmwareInterface(const QByteArray &flashData, QDialog* parent = nullptr);
 
@@ -66,6 +71,8 @@ class FirmwareInterface
     QImage::Format getSplashFormat();
     unsigned int save(const QString & fileName);
     bool isValid();
+    FirmwareType getType() { return type; }
+    const QString typeFileExtn() const { return (type == FIRMWARE_TYPE_UF2 ? "uf2" : "bin"); }
 
   private:
     QDialog* parentDialog;
@@ -86,6 +93,7 @@ class FirmwareInterface
     uint splashHeight = 0;
     QImage::Format splashFormat;
     bool isValidFlag = false;
+    FirmwareType type;
 
     void initFlash(const QByteArray& flashData);
     QString seekString(const QString & string);

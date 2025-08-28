@@ -304,8 +304,10 @@ void UpdateNetwork::onGetFinished(QNetworkReply * reply, DownloadDataType type)
     if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile)
       m_file->remove();
   }
-  else
+  else {
     m_success = true;
+    m_status->reportProgress(tr("Download complete"), QtDebugMsg);
+  }
 
   if (type == DDT_GitHub_SaveToFile || type == DDT_Build_SaveToFile) {
     delete m_file;
