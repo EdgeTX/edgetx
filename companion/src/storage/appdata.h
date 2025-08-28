@@ -41,7 +41,7 @@
 
 //! CPN_SETTINGS_REVISION is used to track settings changes independently of EdgeTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
 //! \note !! Increment this value if properties are removed or refactored. It will trigger a conversion/cleanup of any stored settings. \sa AppData::convertSettings()
-#define CPN_SETTINGS_REVISION       3 // Note: bumped as part of PR 6521 (rs_dfu and some pre-yaml housekeeping)
+#define CPN_SETTINGS_REVISION       2 // Note: bumped for fix during 2.8 RCs
 
 //! CPN_SETTINGS_VERSION is used for settings data version tracking.
 #define CPN_SETTINGS_VERSION        ((VERSION_NUMBER << 8) | CPN_SETTINGS_REVISION)
@@ -495,6 +495,7 @@ class Profile: public CompStoreObj
     PROPERTY (int, volumeGain,   10)
 
     PROPERTY (bool, burnFirmware,  false)
+    PROPERTY (bool, penableBackup, false)
     PROPERTY (bool, runSDSync,  false)
 
     // Simulator variables
@@ -797,6 +798,8 @@ class AppData: public CompStoreObj
 
     PROPERTY4(bool, promptProfile,        "startup_prompt_profile",   false)
 
+    PROPERTY(bool, enableBackup,               false)
+    PROPERTY(bool, backupOnFlash,              true)
     PROPERTY(bool, outputDisplayDetails,       false)
     PROPERTY(bool, checkHardwareCompatibility, true)
     PROPERTY(bool, removeModelSlots,           true)
