@@ -34,11 +34,11 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::FlashFirmwareDialog),
   fwName(g.profile[g.id()].fwName()),
-  flashingMode(isUf2DeviceFound() ? FM_UF2 : FM_DFU)
+  flashMode(isUf2DeviceFound() ? FLASH_MODE_UF2 : FLASH_MODE_DFU)
 {
   ui->setupUi(this);
 
-  ui->flashingMode->setText(tr("Detected Flashing Mode: %1").arg(flashingMode == FM_UF2 ? "UF2" : "DFU"));
+  ui->flashingMode->setText(tr("Detected Flashing Mode: %1").arg(flashMode == FLASH_MODE_UF2 ? "UF2" : "DFU"));
 
   if (!g.profile[g.id()].splashFile().isEmpty()){
     imageSource = PROFILE;
@@ -51,9 +51,7 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   }
 
   ui->checkHardwareCompatibility->setChecked(g.checkHardwareCompatibility());
-
-  ui->checkBackup->setCheckState(g.backupOnFlash() ? Qt::Checked : Qt::Unchecked);
-
+  ui->checkBackup->setChecked(g.backupOnFlash());
   QString backupPath = g.currentProfile().pBackupDir();
   if (backupPath.isEmpty()) {
     backupPath = g.backupDir();
@@ -147,7 +145,7 @@ void FlashFirmwareDialog::firmwareLoadClicked()
     if (!fw.isValid())
       QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
 
-    if (flashingMode == FM_UF2) {
+    if (flashMode == FLASH_MODE_UF2) {
       const Uf2Info uf2(getUf2Info());
       if (fw.getFlavour() != uf2.board) {
         QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nRadio type mismatch - Firmware: %2 Radio: %3")
@@ -271,7 +269,7 @@ void FlashFirmwareDialog::writeButtonClicked()
     firmware.setSplash(image);
 
     if (firmware.save(tempFile) <= 0) {
-      QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Cannot save customized firmware"));
+      QMessageBox::critical(this, CPN_STR_TTL_WARNING, tr("Cannot save customised firmware"));
       return;
     }
 
@@ -299,19 +297,16 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
     if (backupDir.isEmpty())
       backupDir = g.backupDir();
 
-    QString backupPath(QString("%1/fw-%2-%3.%4")
+    // include time in file name as there could be multiple backups in a day and
+    // we do not want to replace earlier copies
+    QString backupPath(QString("%1/fw-%2-%3-%4.%5")
                        .arg(backupDir)
                        .arg(getCurrentFirmware()->getFlavour())
                        .arg(QDate(QDate::currentDate()).toString(Qt::ISODate))
+                       .arg(QTime(QTime::currentTime()).toString("HHmm"))
                        .arg(fw.typeFileExtn()));
     qDebug() << "Writing backup to" << backupPath;
     QFile backupFile(backupPath);
-    if (backupFile.exists() && !backupFile.remove()) {
-      QMessageBox::critical(this, tr("Backing up radio firmware"),
-                            tr("Unable to delete old backup file: %1 (reason: %2)")
-                            .arg(backupFile.fileName())
-                            .arg(backupFile.errorString()));
-    }
 
     if (!backupFile.open(QIODevice::ReadWrite)) {
       QMessageBox::critical(this, tr("Backing up radio firmware"),
@@ -323,48 +318,62 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
   }
 
   if (g.checkHardwareCompatibility() || backup) {
-    bool checkhw = g.checkHardwareCompatibility();
+    bool checkHw = g.checkHardwareCompatibility();
     readFirmware(
-        [this, &fw, progress, checkhw, backup, &backupFile](const QByteArray &_data) {
-          qDebug() << "Read old fw, size = " << _data.size();
+        [this, &fw, progress, checkHw, backup, &backupFile](const QByteArray &_data) {
+          qDebug() << "Read old firmware, size = " << _data.size();
+          bool backupSuccess = true;
+
           if (backup) {
               if (backupFile.write(_data) <= 0) {
+                backupSuccess = false;
+                qDebug() << "Backup failed";
                 QMessageBox::critical(this, tr("Backing up radio firmware"),
                                       tr("Error writing to file: %1 (reason: %2)")
                                       .arg(backupFile.fileName())
                                       .arg(backupFile.errorString()));
+              } else {
+                qDebug() << "Backup written";
               }
+
             backupFile.close();
-            qDebug() << "Backup written";
           }
 
-          if (checkhw) {
-            if (!fw.isHardwareCompatible(FirmwareInterface(_data))) {
-              QMessageBox::warning(this, tr("Firmware check failed"),
-                  tr("New firmware is not compatible with the one currently installed!"));
+          if (backupSuccess && checkHw && !fw.isHardwareCompatible(FirmwareInterface(_data))) {
+            qDebug() << "Firmware not compatible";
+            QMessageBox::warning(this, tr("Firmware check failed"),
+                tr("New firmware is not compatible with that currently installed!"));
+          }
+
+          if (backupSuccess) {
+            qDebug() << "Start flashing firmware (if requested, backup and checks done)";
+            if (writeFirmware(fw.getFlash(), progress)) {
+              qDebug() << "Flashing firmware complete";
             } else {
-              qDebug() << "Start writing firmware (compatibility checked)";
-              writeFirmware(fw.getFlash(), progress);
+              qDebug() << "Flashing firmware error";
             }
           } else {
-            qDebug() << "Start writing firmware (no checks done)";
-            writeFirmware(fw.getFlash(), progress);
+            qDebug() << "Abort flashing firmware as backup failed";
           }
         },
         [this](const QString &err) {
-          QMessageBox::critical(this, tr("Firmware check failed"),
-              tr("Could not read current firmware: %1").arg(err));
+          QMessageBox::critical(this, tr("Reading Firmware"),
+                                tr("Could not read current firmware: %1").arg(err));
         },
         progress);
   } else {
-    qDebug() << "Start writing firmware (no checks or backup done)";
-    writeFirmware(fw.getFlash(), progress);
+    qDebug() << "Start flashing firmware (no backup or checks done)";
+    if (writeFirmware(fw.getFlash(), progress)) {
+      qDebug() << "Flashing firmware complete";
+    } else {
+      qDebug() << "Flashing firmware error";
+    }
   }
 
   progressDialog.exec();
 
   if (isTempFileName(filename)) {
-    qDebug() << "startFlash: removing temporary file" << filename;
+    qDebug() << "Removing temporary file" << filename;
     qunlink(filename);
   }
 }

@@ -49,12 +49,12 @@ class FlashFirmwareDialog : public QDialog
     void startFlash(const QString &filename);
 
   private:
+    enum FlashModes { FLASH_MODE_UF2, FLASH_MODE_DFU };
     enum ImageSource {FIRMWARE, PROFILE, LIBRARY, EXTERNAL};
 
     Ui::FlashFirmwareDialog *ui;
     QString fwName;
     ImageSource imageSource;
     QString imageFile;
-    enum FlashingModes { FM_UF2, FM_DFU };
-    int flashingMode;
+    int flashMode;
 };
