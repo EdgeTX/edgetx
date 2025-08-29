@@ -56,6 +56,10 @@ AppPreferencesDialog::AppPreferencesDialog(QWidget * parent, UpdateFactories * f
   connect(ui->boardCB, SIGNAL(currentIndexChanged(int)), this, SLOT(onBaseFirmwareChanged()));
   connect(ui->opt_appDebugLog, &QCheckBox::toggled, this, &AppPreferencesDialog::toggleAppLogSettings);
   connect(ui->opt_fwTraceLog, &QCheckBox::toggled, this, &AppPreferencesDialog::toggleAppLogSettings);
+  connect(ui->backupPath, &QLineEdit::editingFinished, this, &AppPreferencesDialog::onBackupPathEditingFinished);
+  connect(ui->backupPathButton, &QPushButton::clicked, this, &AppPreferencesDialog::onBackupPathButtonClicked);
+  connect(ui->profileBackupPath, &QLineEdit::editingFinished, this, &AppPreferencesDialog::onProfileBackupPathEditingFinished);
+  connect(ui->profileBackupPathButton, &QPushButton::clicked, this, &AppPreferencesDialog::onProfileBackupPathButtonClicked);
 
 #if !defined(USE_SDL)
   ui->joystickCB->hide();
@@ -585,7 +589,7 @@ void AppPreferencesDialog::on_snapshotClipboardCKB_clicked()
   }
 }
 
-void AppPreferencesDialog::on_backupPathButton_clicked()
+void AppPreferencesDialog::onBackupPathButtonClicked()
 {
   QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your global backup folder"), g.backupDir());
   if (!fileName.isEmpty()) {
@@ -603,7 +607,7 @@ void AppPreferencesDialog::on_backupPathButton_clicked()
   }
 }
 
-void AppPreferencesDialog::on_profileBackupPathButton_clicked()
+void AppPreferencesDialog::onProfileBackupPathButtonClicked()
 {
   QString fileName = QFileDialog::getExistingDirectory(this,tr("Select your profile backup folder"), g.backupDir());
   if (!fileName.isEmpty()) {
@@ -866,7 +870,7 @@ void AppPreferencesDialog::shrink()
   adjustSize();
 }
 
-void AppPreferencesDialog::on_backupPath_editingFinished()
+void AppPreferencesDialog::onBackupPathEditingFinished()
 {
   if(!ui->backupPath->text().isEmpty() && QFileInfo(ui->backupPath->text()).exists()) {
     ui->backupEnable->setEnabled(true);
@@ -875,10 +879,10 @@ void AppPreferencesDialog::on_backupPath_editingFinished()
     ui->backupEnable->setEnabled(false);
   }
 
-  on_profileBackupPath_editingFinished();
+  onProfileBackupPathEditingFinished();
 }
 
-void AppPreferencesDialog::on_profileBackupPath_editingFinished()
+void AppPreferencesDialog::onProfileBackupPathEditingFinished()
 {
   if (!ui->profileBackupPath->text().isEmpty()) {
     if (QDir(ui->profileBackupPath->text()).exists()) {
