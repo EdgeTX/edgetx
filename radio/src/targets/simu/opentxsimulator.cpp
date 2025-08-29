@@ -91,16 +91,6 @@ void firmwareTraceCb(const char * text)
   }
 }
 
-void fsLedOn(uint8_t idx)
-{
-  rgbSetLedColor(idx, 0xFF, 0xFF, 0xFF);
-}
-
-void fsLedOff(uint8_t idx)
-{
-  rgbSetLedColor(idx, 0, 0, 0);
-}
-
 // Serial port handling needs to know about OpenTxSimulator, so we we
 // need to update what's in simpgmspace.cpp when we have a simulator
 // to point at.
