@@ -118,7 +118,7 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=2})");
 #endif
-  EXPECT_EQ(3, (int)g_model.expoData[0].chn);
+  EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[0].srcRaw);
   EXPECT_EQ(56u, g_model.expoData[0].weight);
@@ -131,7 +131,7 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_Rud, weight=-56})");
 #endif
-  EXPECT_EQ(3, (int)g_model.expoData[0].chn);
+  EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ((short int)MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
   SourceNumVal v;
@@ -140,7 +140,7 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(0u, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
-  EXPECT_EQ(3, (int)g_model.expoData[1].chn);
+  EXPECT_EQ(3u, g_model.expoData[1].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[1].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
   EXPECT_EQ(56u, g_model.expoData[1].weight);
@@ -154,7 +154,7 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_Ail, weight=100})");
 #endif
-  EXPECT_EQ(3, (int)g_model.expoData[0].chn);
+  EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
   v.rawValue = g_model.expoData[0].weight;
@@ -162,14 +162,14 @@ TEST(Lua, testModelInputs)
   EXPECT_EQ(0u, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
-  EXPECT_EQ(3, (int)g_model.expoData[1].chn);
+  EXPECT_EQ(3u, g_model.expoData[1].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[1].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
   EXPECT_EQ(56u, g_model.expoData[1].weight);
   EXPECT_EQ(3u, g_model.expoData[1].offset);
   EXPECT_EQ(2, g_model.expoData[1].swtch);
 
-  EXPECT_EQ(3, (int)g_model.expoData[2].chn);
+  EXPECT_EQ(3u, g_model.expoData[2].chn);
   EXPECT_STRNEQ("test3", g_model.expoData[2].name);
 #if defined(SURFACE_RADIO)
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[2].srcRaw);
