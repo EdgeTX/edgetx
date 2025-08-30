@@ -60,19 +60,18 @@ static void _init_io_expander(bsp_io_expander* io, uint32_t mask)
   io->state = 0;
 }
 
-static volatile uint8_t pca95xx_errors = 0;
-
 static uint32_t _read_io_expander(bsp_io_expander* io)
 {
   uint16_t value = 0;
   if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
     io->state = value;
   } else {
-    if (pca95xx_errors++ > 5) {
-      gpio_clear(IO_RESET_GPIO);
-      pca95xx_errors = 0;
-      delay_us(1);  // Only 6ns are needed according to PCA datasheet, but lets be safe
-      gpio_set(IO_RESET_GPIO);
+    gpio_clear(IO_RESET_GPIO);
+    delay_us(1);  // Only 4ns are needed according to PCA datasheet
+    gpio_set(IO_RESET_GPIO);
+    // Re read
+    if (pca95xx_read(&io->exp, io->mask, &value) == 0) {
+      io->state = value;
     }
   }
 
@@ -129,14 +128,14 @@ int bsp_io_init()
   gpio_set(IO_RESET_GPIO);
 
   // configure expander 1
-  _init_io_expander(&_io_fs_switches, 0xFF3F);
+  _init_io_expander(&_io_fs_switches, EXP_1_MASK);
   if (pca95xx_init(&_io_fs_switches.exp, I2C_Bus_1, 0x74) < 0) {
     TRACE("EXP1 INIT ERROR");
     return -1;
   }
 
   // configure expander 2
-  _init_io_expander(&_io_switches, 0xFFF8);
+  _init_io_expander(&_io_switches, EXP_2_MASK);
   if (pca95xx_init(&_io_switches.exp, I2C_Bus_1, 0x75) < 0) {
     TRACE("EXP2 INIT ERROR");
     return -1;
@@ -211,9 +210,13 @@ static SwitchHwPos _get_fs_switch_pos(uint8_t idx)
   }
 }
 
+bool boardIsCustomSwitch(uint8_t idx);
+
 SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
-  if (idx < 6)
+  if (boardIsCustomSwitch(idx)) {
+    return _get_fs_switch_pos(idx);
+  } else {
     return _get_switch_pos(idx);
-  return _get_fs_switch_pos(idx);
+  }
 }

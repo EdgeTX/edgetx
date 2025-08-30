@@ -27,7 +27,7 @@
 #include "delays_driver.h"
 #include "debug.h"
 #include "lcd.h"
-#include "lcd_driver.h"
+#include "lcd_driver_480.h"
 #include "board.h"
 
 #include "hal/gpio.h"

@@ -22,7 +22,7 @@
 #ifndef _USB_DESCRIPTOR_H_
 #define _USB_DESCRIPTOR_H_
 
-#define USB_NAME                     "TX15"
+#define USB_NAME                     "Radiomaster TX15"
 #define USB_MANUFACTURER             'R', 'M', ' ', ' ', ' ', ' ', ' ', ' '  /* 8 bytes */
 #define USB_PRODUCT                  'T', 'X', '1', '5', ' ', ' ', ' ', ' '  /* 8 Bytes */
 
