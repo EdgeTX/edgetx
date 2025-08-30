@@ -63,7 +63,6 @@ set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 set(SOFTWARE_KEYBOARD ON)
-set(FLYSKY_GIMBAL ON)
 set(FUNCTION_SWITCHES ON)
 set(USB_CHARGER YES)
 set(AUX_SERIAL YES)
@@ -112,17 +111,22 @@ set(AFHDS3 ON)
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
 set(CLI ON CACHE BOOL "Enable CLI")
 
+set(BOARD rm-h750)
+
+include_directories(boards/${BOARD})
+
 set(TARGET_SRC_DIR targets/${TARGET_DIR})
+set(BOARD_SRC_DIR boards/${BOARD})
 
 set(BOARD_COMMON_SRC
-  ${TARGET_SRC_DIR}/board.cpp
-  ${TARGET_SRC_DIR}/bsp_io.cpp
+  ${BOARD_SRC_DIR}/board.cpp
+  ${BOARD_SRC_DIR}/bsp_io.cpp
+  ${BOARD_SRC_DIR}/lcd_driver_480.cpp
+  ${BOARD_SRC_DIR}/backlight_driver.cpp
+  ${BOARD_SRC_DIR}/haptic_driver.cpp
+  ${BOARD_SRC_DIR}/extflash_driver.cpp
+  ${BOARD_SRC_DIR}/usb_charger_driver.cpp
   ${TARGET_SRC_DIR}/key_driver.cpp
-  ${TARGET_SRC_DIR}/lcd_driver.cpp
-  ${TARGET_SRC_DIR}/backlight_driver.cpp
-  ${TARGET_SRC_DIR}/haptic_driver.cpp
-  ${TARGET_SRC_DIR}/extflash_driver.cpp
-  ${TARGET_SRC_DIR}/usb_charger_driver.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
@@ -137,8 +141,7 @@ set(BOARD_COMMON_SRC
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/sdram_driver.cpp
-  ${TARGET_SRC_DIR}/usb_charger_driver.cpp
+  ${BOARD_SRC_DIR}/sdram_driver.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
@@ -146,14 +149,14 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
 add_dependencies(board_bl minimal_board_lib)
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
-set(CMSIS_SRC ${TARGET_SRC_DIR}/system_clock.c)
+set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/led_driver.cpp
-  ${TARGET_SRC_DIR}/tp_gt911.cpp
-  ${TARGET_SRC_DIR}/audio_driver.cpp
+  ${BOARD_SRC_DIR}/led_driver.cpp
+  ${BOARD_SRC_DIR}/tp_gt911.cpp
+  ${BOARD_SRC_DIR}/audio_driver.cpp
   drivers/icm42607C.cpp
   drivers/imu_filter.cpp
   drivers/tas2505.cpp
