@@ -148,10 +148,10 @@ TEST(FrSkySPORT, checkCrc)
 {
   // Packet downstream
   uint8_t pkt1[] = { 0x7E, 0x98, 0x10, 0x10, 0x00, 0x7E, 0x02, 0x00, 0x00, 0x5F };
-  EXPECT_EQ(checkSportPacket(pkt1+1), true);
+  EXPECT_TRUE(checkSportPacket(pkt1+1));
   // Packet upstream
   uint8_t pkt2[] = { 0x7E, 0x1C, 0x31, 0x00, 0x10, 0x85, 0x64, 0x00, 0x00, 0xD4 };
-  EXPECT_EQ(checkSportPacket(pkt2+1), true);
+  EXPECT_TRUE(checkSportPacket(pkt2+1));
 }
 
 void setSportPacketCrc(uint8_t * packet)
@@ -190,13 +190,13 @@ TEST(FrSkySPORT, FrSkyDCells)
   allowNewSensors = true;
 
   uint8_t pkt1[] = { 0x7E, 0x98, 0x10, 0x06, 0x00, 0x07, 0xD0, 0x00, 0x00, 0x12 };
-  EXPECT_EQ(checkSportPacket(pkt1+1), true);
+  EXPECT_TRUE(checkSportPacket(pkt1+1));
   sportProcessTelemetryPacket(0, pkt1+1, sizeof(pkt1) - 1);
   uint8_t pkt2[] = { 0x7E, 0x98, 0x10, 0x06, 0x00, 0x17, 0xD0, 0x00, 0x00, 0x02 };
-  EXPECT_EQ(checkSportPacket(pkt2+1), true);
+  EXPECT_TRUE(checkSportPacket(pkt2+1));
   sportProcessTelemetryPacket(0, pkt2+1, sizeof(pkt2) - 1);
   uint8_t pkt3[] = { 0x7E, 0x98, 0x10, 0x06, 0x00, 0x27, 0xD0, 0x00, 0x00, 0xF1 };
-  EXPECT_EQ(checkSportPacket(pkt3+1), true);
+  EXPECT_TRUE(checkSportPacket(pkt3+1));
   sportProcessTelemetryPacket(0, pkt3+1, sizeof(pkt3) - 1);
   sportProcessTelemetryPacket(0, pkt1+1, sizeof(pkt1) - 1);
   sportProcessTelemetryPacket(0, pkt2+1, sizeof(pkt2) - 1);
