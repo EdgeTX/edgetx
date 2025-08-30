@@ -73,6 +73,7 @@ private:
   QRadioButton *planeRB;
   QRadioButton *multirotorRB;
   QRadioButton *helicopterRB;
+  QRadioButton *crawlerRB;
   void initializePage();
   bool validatePage();
   int nextId() const;
@@ -317,6 +318,24 @@ private:
   QComboBox *yawCB;
   QComboBox *pitchCB;
   QComboBox *rollCB;
+};
+
+class CrawlerPage: public StandardPage
+{
+  Q_OBJECT
+  public:
+    CrawlerPage(WizardDialog *dlg, QString image, QString title, QString text, int nextPage=-1);
+    void initializePage();
+    bool validatePage();
+
+   protected slots:
+     void onMotorStateChanged(bool toggled);
+
+  private:
+    QComboBox *throttleCB;
+    QRadioButton *motor2RB;
+    QRadioButton *noMotor2RB;
+    QComboBox *throttle2CB;
 };
 
 class MultirotorPage: public StandardPage
