@@ -114,5 +114,7 @@ bool writeSettings(const QString &filename, ProgressWidget *progress);
 QString printDevicesInfo(const Vec<DfuDevice> &devices);
 QString getDevicesInfo();
 QString getFirmwareFilesFilter();
-bool isUf2DeviceFound();
 Uf2Info getUf2Info();
+bool isDfuDeviceFound();
+bool isUf2DeviceFound();
+bool isRadioConnected();

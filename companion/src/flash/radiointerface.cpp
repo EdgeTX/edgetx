@@ -638,11 +638,6 @@ QString findMassStoragePath(const QString &filename, bool onlyPath, ProgressWidg
   return QString();
 }
 
-bool isUf2DeviceFound()
-{
-  return !findMassStoragePath("INFO_UF2.TXT", false).isEmpty();
-}
-
 QString getFirmwareFilesFilter()
 {
   return isUf2DeviceFound() ? QString(UF2_FILES_FILTER) : QString(FIRMWARE_FILES_FILTER);
@@ -690,4 +685,29 @@ Uf2Info getUf2Info()
            << "date:" << info.date;
 
   return info;
+}
+
+bool isDfuDeviceFound()
+{
+  return !findMassStoragePath("INFO_UF2.TXT", false).isEmpty();
+}
+
+bool isUf2DeviceFound()
+{
+  try {
+    auto device_filter = DfuDeviceFilter::empty_filter();
+    auto devices = device_filter->find_devices();
+    if (devices.empty()) {
+      return false;
+    }
+  } catch (const std::exception& e) {
+    return false;
+  }
+
+  return true;
+}
+
+bool isRadioConnected()
+{
+  return isUf2DeviceFound() || isDfuDeviceFound();
 }

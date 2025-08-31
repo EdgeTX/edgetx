@@ -37,6 +37,7 @@ class FlashFirmwareDialog : public QDialog
     ~FlashFirmwareDialog();
 
   private slots:
+    void detectClicked();
     void firmwareLoadClicked();
     void writeButtonClicked();
     void useProfileSplashClicked();
@@ -49,12 +50,13 @@ class FlashFirmwareDialog : public QDialog
     void startFlash(const QString &filename);
 
   private:
-    enum FlashModes { FLASH_MODE_UF2, FLASH_MODE_DFU };
+    enum ConnectionModes { CONNECTION_NONE, CONNECTION_UF2, CONNECTION_DFU };
     enum ImageSource {FIRMWARE, PROFILE, LIBRARY, EXTERNAL};
 
     Ui::FlashFirmwareDialog *ui;
     QString fwName;
     ImageSource imageSource;
     QString imageFile;
-    int flashMode;
+    int connectionMode;
+    bool isFileConnectionCompatible();
 };

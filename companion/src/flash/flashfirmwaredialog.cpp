@@ -33,12 +33,9 @@
 FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::FlashFirmwareDialog),
-  fwName(g.profile[g.id()].fwName()),
-  flashMode(isUf2DeviceFound() ? FLASH_MODE_UF2 : FLASH_MODE_DFU)
+  fwName(g.profile[g.id()].fwName())
 {
   ui->setupUi(this);
-
-  ui->flashingMode->setText(tr("Detected Flashing Mode: %1").arg(flashMode == FLASH_MODE_UF2 ? "UF2" : "DFU"));
 
   if (!g.profile[g.id()].splashFile().isEmpty()){
     imageSource = PROFILE;
@@ -52,17 +49,17 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
 
   ui->checkHardwareCompatibility->setChecked(g.checkHardwareCompatibility());
   ui->checkBackup->setChecked(g.backupOnFlash());
-  QString backupPath = g.currentProfile().pBackupDir();
-  if (backupPath.isEmpty()) {
+  QString backupPath = g.profile[g.id()].pBackupDir();
+  if (backupPath.isEmpty())
     backupPath = g.backupDir();
-  }
 
-  if (backupPath.isEmpty() || !QDir(backupPath).exists()) {
+  if (backupPath.isEmpty() || !QDir(backupPath).exists())
     ui->checkBackup->setEnabled(false);
-  }
 
+  detectClicked();
   updateUI();
 
+  connect(ui->detectButton, &QPushButton::clicked, this, &FlashFirmwareDialog::detectClicked);
   connect(ui->firmwareLoad, &QPushButton::clicked, this, &FlashFirmwareDialog::firmwareLoadClicked);
   connect(ui->useProfileSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useProfileSplashClicked);
   connect(ui->useFirmwareSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useFirmwareSplashClicked);
@@ -70,6 +67,7 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   connect(ui->useExternalSplash, &QRadioButton::clicked, this, &FlashFirmwareDialog::useExternalSplashClicked);
   connect(ui->writeButton, &QPushButton::clicked, this, &FlashFirmwareDialog::writeButtonClicked);
   connect(ui->cancelButton, &QPushButton::clicked, [=]() { close(); } );
+
 }
 
 FlashFirmwareDialog::~FlashFirmwareDialog()
@@ -79,8 +77,7 @@ FlashFirmwareDialog::~FlashFirmwareDialog()
 
 void FlashFirmwareDialog::updateUI()
 {
-  ui->firmwareFilename->setText(fwName);
-  ui->writeButton->setEnabled(QFile(fwName).exists());
+  ui->writeButton->setEnabled(isFileConnectionCompatible() && QFile(fwName).exists());
 
   FirmwareInterface firmware(fwName);
 
@@ -145,7 +142,7 @@ void FlashFirmwareDialog::firmwareLoadClicked()
     if (!fw.isValid())
       QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 may not be a valid firmware file").arg(fwName));
 
-    if (flashMode == FLASH_MODE_UF2) {
+    if (connectionMode == CONNECTION_UF2) {
       const Uf2Info uf2(getUf2Info());
       if (fw.getFlavour() != uf2.board) {
         QMessageBox::warning(this, CPN_STR_TTL_WARNING, tr("%1 \nRadio type mismatch - Firmware: %2 Radio: %3")
@@ -376,4 +373,34 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
     qDebug() << "Removing temporary file" << filename;
     qunlink(filename);
   }
+}
+
+void FlashFirmwareDialog::detectClicked()
+{
+  QString connectionMsg;
+
+  if (isUf2DeviceFound()) {
+    connectionMode = CONNECTION_UF2;
+    connectionMsg = tr("Radio connection mode: UF2");
+  } else if (isDfuDeviceFound()) {
+    connectionMode = CONNECTION_DFU;
+    connectionMsg = tr("Radio connection mode: DFU");
+  } else {
+    connectionMode = CONNECTION_NONE;
+    connectionMsg = tr("ALERT: No radio connected");
+  }
+
+  ui->connectionMode->setText(connectionMsg);
+
+  if (connectionMode)
+    ui->firmwareLoad->setEnabled(true);
+}
+
+bool FlashFirmwareDialog::isFileConnectionCompatible()
+{
+  if (connectionMode == CONNECTION_DFU ||
+      ((QFileInfo(fwName).suffix().toLower()) == "uf2" && connectionMode == CONNECTION_UF2))
+    return true;
+
+  return false;
 }
