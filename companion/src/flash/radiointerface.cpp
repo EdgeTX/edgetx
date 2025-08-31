@@ -687,12 +687,12 @@ Uf2Info getUf2Info()
   return info;
 }
 
-bool isDfuDeviceFound()
+bool isUf2DeviceFound()
 {
   return !findMassStoragePath("INFO_UF2.TXT", false).isEmpty();
 }
 
-bool isUf2DeviceFound()
+bool isDfuDeviceFound()
 {
   try {
     auto device_filter = DfuDeviceFilter::empty_filter();

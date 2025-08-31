@@ -77,6 +77,7 @@ FlashFirmwareDialog::~FlashFirmwareDialog()
 
 void FlashFirmwareDialog::updateUI()
 {
+  ui->firmwareFilename->setText(fwName);
   ui->writeButton->setEnabled(isFileConnectionCompatible() && QFile(fwName).exists());
 
   FirmwareInterface firmware(fwName);
