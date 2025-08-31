@@ -52,6 +52,17 @@ SECTIONS
 
   INCLUDE common_sections.ld
 
+  /* Assets in FLASH only */
+  .flash (READONLY) :
+  {
+    . = ALIGN(4);
+    _sflash = .;
+    *(.flash)
+
+    . = ALIGN(4);
+    _eflash = .;
+  } > REGION_TEXT_STORAGE
+
   .text_end_section : {} > REGION_TEXT AT > REGION_TEXT_STORAGE
   _firmware_length = LOADADDR(.text_end_section) - LOADADDR(.firmware_header);
   _firmware_version = _text_load;

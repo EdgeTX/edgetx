@@ -26,6 +26,7 @@
 #define __CCMRAM       __attribute__((section(".ccm"), aligned(4)))
 #define __DMA          __attribute__((section(".ram"), aligned(4)))
 #define __DMA_NO_CACHE __DMA
+#define __FLASH        __attribute__((section(".flash")))
 #define __IRAM
 
 #if defined(SDRAM)

@@ -24,6 +24,7 @@
 #define __DMA          __attribute__((section(".ram"), aligned(4)))
 #define __DMA_NO_CACHE __DMA
 
+#define __FLASH
 #define __INIT_HOOK
 #define __CCMRAM
 #define __IRAM
