@@ -27,4 +27,3 @@
 #define __FLASH
 #define __IRAM
 #define __SDRAM
-#define __SDRAMFONTS

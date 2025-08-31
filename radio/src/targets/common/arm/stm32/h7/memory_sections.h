@@ -30,4 +30,3 @@
 #define __FLASH        __attribute__((section(".flash")))
 #define __IRAM         __attribute__((section(".iram")))
 #define __SDRAM        __attribute__((section(".sdram"), aligned(4)))
-#define __SDRAMFONTS   __attribute__((section(".sdram_fonts"), aligned(4)))

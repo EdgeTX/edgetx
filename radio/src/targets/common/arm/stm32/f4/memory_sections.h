@@ -31,9 +31,7 @@
 
 #if defined(SDRAM)
   #define __SDRAM      __attribute__((section(".sdram"), aligned(4)))
-  #define __SDRAMFONTS __attribute__((section(".sdram_fonts"), aligned(4)))
 #else
   #define __SDRAM
-  #define __SDRAMFONTS
 #endif
 

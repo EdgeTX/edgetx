@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
              sizeof(lv_font_fmt_txt_glyph_cache_t) +
              dsc->cmap_num * sizeof(lv_font_fmt_txt_cmap_t);
   if (dsc->kern_classes) size += sizeof(lv_font_fmt_txt_kern_classes_t);
-  fprintf(fp, "static uint8_t etxUncompBuf[%d] __SDRAMFONTS;\n\n", size);
+  fprintf(fp, "static uint8_t etxUncompBuf[%d] __SDRAM;\n\n", size);
 
   // Custom font structure
   fprintf(fp, "const etxLz4Font %s = {\n", argv[1]+4);
