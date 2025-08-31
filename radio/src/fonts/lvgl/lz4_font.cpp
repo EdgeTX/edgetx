@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
   fprintf(fp, "#include \"lz4_fonts.h\"\n\n");
 
   // Compressed data
-  fprintf(fp, "static const uint8_t lz4FontData[] ={\n");
+  fprintf(fp, "static const uint8_t lz4FontData[] __FLASH = {\n");
   for (i = 0; i < comp_size; i += 1) {
     fprintf(fp, "0x%02x,", lz4_data[i]);
     if ((i & 0x0F) == 0x0F) fprintf(fp, "\n");
