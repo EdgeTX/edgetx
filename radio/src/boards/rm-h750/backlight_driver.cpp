@@ -29,12 +29,6 @@
 
 #include "globals.h"
 
-typedef void (*lcdSpiInitFucPtr)(void);
-typedef unsigned int  LcdReadIDFucPtr( void );
-
-extern lcdSpiInitFucPtr lcdOffFunction;
-extern lcdSpiInitFucPtr lcdOnFunction;
-
 static const stm32_pulse_timer_t _bl_timer = {
   .GPIO = (gpio_t)BACKLIGHT_GPIO,
   .GPIO_Alternate = BACKLIGHT_GPIO_AF,
