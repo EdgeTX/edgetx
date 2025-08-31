@@ -78,10 +78,16 @@ FlashFirmwareDialog::~FlashFirmwareDialog()
 void FlashFirmwareDialog::updateUI()
 {
   ui->firmwareFilename->setText(fwName);
-  ui->writeButton->setEnabled(isFileConnectionCompatible() && QFile(fwName).exists());
+
+  if (connectionMode) {
+    ui->firmwareLoad->setEnabled(true);
+    ui->writeButton->setEnabled(isFileConnectionCompatible() && QFile(fwName).exists());
+  } else {
+    ui->firmwareLoad->setEnabled(false);
+    ui->writeButton->setEnabled(false);
+  }
 
   FirmwareInterface firmware(fwName);
-
   if (firmware.isValid()) {
     ui->firmwareInfoFrame->show();
     ui->date->setText(firmware.getDate() + " " + firmware.getTime());
@@ -288,51 +294,58 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
   auto progress = progressDialog.progress();
 
   bool backup = g.backupOnFlash();
-  QFile backupFile;
+  QString backupPath;
 
   if (backup) {
     QString backupDir = g.currentProfile().pBackupDir();
     if (backupDir.isEmpty())
       backupDir = g.backupDir();
 
+    if (!QFileInfo::exists(backupDir)) {
+      QMessageBox::critical(this, tr("Backup Radio Firmware"),
+                            tr("Directory %1 does not exist!")
+                            .arg(backupDir));
+      return;
+    }
+
     // include time in file name as there could be multiple backups in a day and
     // we do not want to replace earlier copies
-    QString backupPath(QString("%1/fw-%2-%3-%4.%5")
-                       .arg(backupDir)
-                       .arg(getCurrentFirmware()->getFlavour())
-                       .arg(QDate(QDate::currentDate()).toString(Qt::ISODate))
-                       .arg(QTime(QTime::currentTime()).toString("HHmm"))
-                       .arg(fw.typeFileExtn()));
-    qDebug() << "Writing backup to" << backupPath;
-    QFile backupFile(backupPath);
-
-    if (!backupFile.open(QIODevice::ReadWrite)) {
-      QMessageBox::critical(this, tr("Backing up radio firmware"),
-                            tr("Unable to open backup file: %1 (reason: %2)")
-                            .arg(backupFile.fileName())
-                            .arg(backupFile.errorString()));
-
-    }
+    backupPath = QString("%1/fw-%2-%3-%4.%5")
+                        .arg(backupDir)
+                        .arg(getCurrentFirmware()->getFlavour())
+                        .arg(QDate(QDate::currentDate()).toString("yyyyMMdd"))
+                        .arg(QTime(QTime::currentTime()).toString("HHmm"))
+                        .arg(fw.typeFileExtn());
   }
 
   if (g.checkHardwareCompatibility() || backup) {
     bool checkHw = g.checkHardwareCompatibility();
     readFirmware(
-        [this, &fw, progress, checkHw, backup, &backupFile](const QByteArray &_data) {
+        [this, &fw, progress, checkHw, backup, &backupPath](const QByteArray &_data) {
           qDebug() << "Read old firmware, size = " << _data.size();
           bool backupFail = false;
 
           if (backup) {
-              if (backupFile.write(_data) <= 0) {
-                backupFail = true;
-                qDebug() << "Backup failed";
-                QMessageBox::critical(this, tr("Backing up radio firmware"),
-                                      tr("Error writing to file: %1 (reason: %2)")
-                                      .arg(backupFile.fileName())
-                                      .arg(backupFile.errorString()));
-              } else {
-                qDebug() << "Backup written";
-              }
+            qDebug() << "Writing backup to" << backupPath;
+            QFile backupFile(backupPath);
+            if (!backupFile.open(QIODevice::ReadWrite)) {
+              QMessageBox::critical(this, tr("Backup Radio Firmware"),
+                                    tr("Unable to open backup file: %1 (reason: %2)")
+                                    .arg(backupFile.fileName())
+                                    .arg(backupFile.errorString()));
+
+            }
+
+            if (backupFile.write(_data) <= 0) {
+              backupFail = true;
+              qDebug() << "Backup failed";
+              QMessageBox::critical(this, tr("Backup Radio Firmware"),
+                                    tr("Error writing to file: %1 (reason: %2)")
+                                    .arg(backupFile.fileName())
+                                    .arg(backupFile.errorString()));
+            } else {
+              qDebug() << "Backup written";
+            }
 
             backupFile.close();
           }
@@ -393,14 +406,15 @@ void FlashFirmwareDialog::detectClicked(bool atLoad)
 
   ui->connectionMode->setText(connectionMsg);
 
-  if (connectionMode) {
-    ui->firmwareLoad->setEnabled(true);
-  } else {
+  if (!connectionMode) {
     QMessageBox::critical((atLoad ? (QWidget *)parent(): this), tr("Detect Radio"),
       tr("Radio could not be detected by DFU or UF2 modes") % ".\n" %
       tr("Check cable is securely connected and radio lights are illuminated") % ".\n" %
       tr("Note: USB mode is not suitable for flashing firmware."));
   }
+
+  if (!atLoad)
+    updateUI();
 }
 
 bool FlashFirmwareDialog::isFileConnectionCompatible()
