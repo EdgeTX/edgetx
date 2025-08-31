@@ -262,6 +262,10 @@ void FirmwareWriterWorker::runUf2()
     emit complete();
 
   } catch (const std::exception &e) {
+    QMessageBox::critical(nullptr,
+                          TR("Write Firmware"),
+                          TR("Your radio is likely stuck in the writing state and/or inoperable") % "!\n" %
+                          TR("To recover, disconnect and power off the radio, boot in DFU mode and try reflashing"));
     emit error(QString("UF2 failed: %1").arg(e.what()));
   }
 }

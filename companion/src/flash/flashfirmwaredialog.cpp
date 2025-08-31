@@ -56,7 +56,7 @@ FlashFirmwareDialog::FlashFirmwareDialog(QWidget *parent) :
   if (backupPath.isEmpty() || !QDir(backupPath).exists())
     ui->checkBackup->setEnabled(false);
 
-  detectClicked();
+  detectClicked(true);
   updateUI();
 
   connect(ui->detectButton, &QPushButton::clicked, this, &FlashFirmwareDialog::detectClicked);
@@ -376,7 +376,7 @@ void FlashFirmwareDialog::startFlash(const QString &filename)
   }
 }
 
-void FlashFirmwareDialog::detectClicked()
+void FlashFirmwareDialog::detectClicked(bool atLoad)
 {
   QString connectionMsg;
 
@@ -393,14 +393,20 @@ void FlashFirmwareDialog::detectClicked()
 
   ui->connectionMode->setText(connectionMsg);
 
-  if (connectionMode)
+  if (connectionMode) {
     ui->firmwareLoad->setEnabled(true);
+  } else {
+    QMessageBox::critical((atLoad ? (QWidget *)parent(): this), tr("Detect Radio"),
+      tr("Radio could not be detected by DFU or UF2 modes") % ".\n" %
+      tr("Check cable is securely connected and radio lights are illuminated") % ".\n" %
+      tr("Note: USB mode is not suitable for flashing firmware."));
+  }
 }
 
 bool FlashFirmwareDialog::isFileConnectionCompatible()
 {
   if (connectionMode == CONNECTION_DFU ||
-      ((QFileInfo(fwName).suffix().toLower()) == "uf2" && connectionMode == CONNECTION_UF2))
+     (connectionMode == CONNECTION_UF2 && !fwName.isEmpty() && QFileInfo(fwName).suffix().toLower() == "uf2"))
     return true;
 
   return false;

@@ -1135,7 +1135,7 @@ Mode 4:
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Prompt to backup current firmware before writing firmware</string>
+            <string>Prompt to backup current firmware before writing new firmware</string>
            </property>
           </widget>
          </item>
