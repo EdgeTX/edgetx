@@ -203,6 +203,7 @@ add_subdirectory(simulation)
 add_subdirectory(storage)
 add_subdirectory(thirdparty/qcustomplot)
 add_subdirectory(updates)
+add_subdirectory(wizard)
 
 ############# Companion ###############
 
@@ -233,8 +234,6 @@ set(companion_NAMES
   radionotfound
   splashlibrarydialog
   styleeditdialog
-  wizarddata
-  wizarddialog
   dialogs/filesyncdialog
   )
 
@@ -278,6 +277,7 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
   qcustomplot
   miniz
   updates
+  wizard
 )
 
 PrintTargetReport("${COMPANION_NAME}")
