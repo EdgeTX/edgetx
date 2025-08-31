@@ -35,6 +35,17 @@
 
 #include <string.h>
 
+#if defined(FLASHSIZE)
+  #define UF2_MAX_FW_SIZE FLASHSIZE
+#else
+  #define UF2_MAX_FW_SIZE (2 * 1024 * 1024)
+#endif
+
+#define UF2_MAX_BLOCKS (UF2_MAX_FW_SIZE / 256)
+
+#define UF2_ERASE_BLOCK_SIZE (4 * 1024)
+#define UF2_ERASE_BLOCKS (UF2_MAX_FW_SIZE / UF2_ERASE_BLOCK_SIZE)
+
 typedef struct {
     uint8_t JumpInstruction[3];
     uint8_t OEMInfo[8];
@@ -219,10 +230,15 @@ static FAT_BootBlock const BootBlock = {
 static uf2_fat_write_state_t _uf2_write_state;
 static uint32_t _flash_sz;
 
+static uint32_t _written_mask[UF2_MAX_BLOCKS / sizeof(uint32_t)];
+static uint32_t _erased_mask[UF2_ERASE_BLOCKS / sizeof(uint32_t)];
+
 void uf2_fat_reset_state()
 {
   _flash_sz = 0;
   memset(&_uf2_write_state, 0, sizeof(_uf2_write_state));
+  memset(_written_mask, 0, sizeof(_written_mask));
+  memset(_erased_mask, 0, sizeof(_erased_mask));
 }
 
 const uf2_fat_write_state_t* uf2_fat_get_state()
@@ -430,7 +446,7 @@ int uf2_fat_write_block(uint32_t block_no, uint8_t *data)
         uint32_t pos = erase_sector >> 5;
 
         uint32_t addr = bl->targetAddr;
-        if (wr_st && !(wr_st->erased_mask[pos] & mask)) {
+        if (wr_st && !(_erased_mask[pos] & mask)) {
             TRACE_DEBUG("[UF2] erase 0x%08x\n", bl->targetAddr);
 
             auto drv = flashFindDriver(addr);
@@ -447,7 +463,7 @@ int uf2_fat_write_block(uint32_t block_no, uint8_t *data)
                 while (erased_sectors-- != 0) {
                     pos = erase_sector >> 5;
                     mask = 1 << (erase_sector & 0x1F);
-                    wr_st->erased_mask[pos] |= mask;
+                    _erased_mask[pos] |= mask;
                     erase_sector++;
                 }
             }
@@ -474,8 +490,8 @@ int uf2_fat_write_block(uint32_t block_no, uint8_t *data)
         if (bl->blockNo < UF2_MAX_BLOCKS) {
             uint32_t mask = 1 << (bl->blockNo & 0x1F);
             uint32_t pos = bl->blockNo >> 5;
-            if (!(wr_st->written_mask[pos] & mask)) {
-                wr_st->written_mask[pos] |= mask;
+            if (!(_written_mask[pos] & mask)) {
+                _written_mask[pos] |= mask;
                 wr_st->num_written++;
                 TRACE_DEBUG("[UF2] wr #%d (%d / %d)\n", bl->blockNo,
                             wr_st->num_written, bl->numBlocks);
